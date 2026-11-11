@@ -179,6 +179,7 @@ export const ModelName = {
   ConversationParticipant: 'ConversationParticipant',
   DirectMessage: 'DirectMessage',
   Notification: 'Notification',
+  MonstriqueBibleEntry: 'MonstriqueBibleEntry',
   GithubInstallation: 'GithubInstallation',
   AppRepo: 'AppRepo',
   MediaEntry: 'MediaEntry',
@@ -2678,6 +2679,23 @@ export const NotificationScalarFieldEnum = {
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+export const MonstriqueBibleEntryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  characterKey: 'characterKey',
+  displayName: 'displayName',
+  notes: 'notes',
+  loraStatus: 'loraStatus',
+  loraResourceName: 'loraResourceName',
+  heroArtImageId: 'heroArtImageId',
+  requests: 'requests',
+  updatedBy: 'updatedBy'
+} as const
+
+export type MonstriqueBibleEntryScalarFieldEnum = (typeof MonstriqueBibleEntryScalarFieldEnum)[keyof typeof MonstriqueBibleEntryScalarFieldEnum]
+
+
 export const GithubInstallationScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -4287,6 +4305,18 @@ export const NotificationOrderByRelevanceFieldEnum = {
 } as const
 
 export type NotificationOrderByRelevanceFieldEnum = (typeof NotificationOrderByRelevanceFieldEnum)[keyof typeof NotificationOrderByRelevanceFieldEnum]
+
+
+export const MonstriqueBibleEntryOrderByRelevanceFieldEnum = {
+  characterKey: 'characterKey',
+  displayName: 'displayName',
+  notes: 'notes',
+  loraStatus: 'loraStatus',
+  loraResourceName: 'loraResourceName',
+  requests: 'requests'
+} as const
+
+export type MonstriqueBibleEntryOrderByRelevanceFieldEnum = (typeof MonstriqueBibleEntryOrderByRelevanceFieldEnum)[keyof typeof MonstriqueBibleEntryOrderByRelevanceFieldEnum]
 
 
 export const GithubInstallationOrderByRelevanceFieldEnum = {

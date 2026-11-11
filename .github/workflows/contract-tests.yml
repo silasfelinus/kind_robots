@@ -509,6 +509,9 @@ jobs:
       - name: Monstrique character models, art styles, cutscenes and score
         run: npx tsx utils/scripts/verifyMonstriqueArtPipeline.test.ts
 
+      - name: Monstrique series bible, canon and running jokes
+        run: npx tsx utils/scripts/verifyMonstriqueBible.test.ts
+
   contract_2:
     name: Contract shard 2/4
     runs-on: ubuntu-latest

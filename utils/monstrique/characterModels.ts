@@ -31,6 +31,11 @@ export type MonstriqueCharacterId =
   | 'siobhan'
   | 'nyx'
   | 'albina'
+  | 'roxie'
+  | 'laguna'
+  | 'francesca'
+  | 'vespa'
+  | 'blobzo'
 
 export type SpriteHair =
   | 'bob'
@@ -44,6 +49,10 @@ export type SpriteHair =
   | 'snout'
   | 'panther'
   | 'wolf'
+  | 'beehive'
+  | 'antennae'
+  | 'frill'
+  | 'goo'
 export type SpriteProp =
   | 'camera'
   | 'gloves'
@@ -73,6 +82,14 @@ export interface SpriteRig {
   prop: SpriteProp
   glasses?: boolean
   bigNose?: boolean
+  /** A single streak of this colour through the hair. */
+  streak?: string
+  /** A plaster on the side of the neck (Iris's necker of a boyfriend). */
+  neckBandage?: boolean
+  /** Quasimodo hump and forward lean. */
+  hunch?: boolean
+  /** Text printed across the shirt front. */
+  shirt?: string
   ghost?: boolean
 }
 
@@ -116,6 +133,12 @@ export interface CharacterModel {
   lora: LoraPlan
   /** Approved for the general edition's cast list and stage. */
   general: boolean
+  /** One of the franchise's monster stars (series-bible grouping, pin-up art). */
+  monsterStar?: boolean
+  /** Short series-bible biography: who they are in the story. */
+  bio?: string
+  /** Running jokes and canon details a writer needs at hand. */
+  canonNotes?: string[]
 }
 
 const BASE_EXPRESSIONS: CharacterExpression[] = [
@@ -149,24 +172,25 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     species: 'human woman',
     apparentAge: 'adult woman, about 30',
     silhouette:
-      'tall and leggy in a belted rose trench coat flaring at the knee, shoulder-length dark hair and a chunky press camera on a strap',
+      'a tall leggy baddie in a belted rose trench coat, dark hair with one white streak, a plaster on her neck and a chunky press camera on a strap',
     identity: [
-      'adult human woman about 30',
-      'shoulder-length tousled dark brown hair with one stubborn curl over her eye',
+      'adult human woman about 30, a confident baddie',
+      'shoulder-length tousled dark brown hair with a single bold white streak at the front',
+      'a flesh-coloured plaster on the side of her neck',
       'warm complexion, bold berry lipstick, mischievous half-lidded eyes',
       'chunky vintage press camera with a flash bulb on a strap',
-      'belted rose-and-plum trench coat over a black turtleneck and pencil skirt',
+      'belted rose-and-plum trench coat over a black crop top and high-waisted pencil skirt',
     ],
     wardrobe:
-      'rose-and-plum trench coat, black turtleneck, pencil skirt, scuffed ankle boots, press pass clipped to the belt',
+      'rose-and-plum trench coat, black crop top, high-waisted pencil skirt, scuffed ankle boots, press pass clipped to the belt; a small retro logo tattoo on her lower back shows when she bends',
     acting:
-      'Leads with her hips and her camera. Leans on things Norb would never touch. Winks at the audience after every bad idea, then commits to it anyway.',
+      'A baddie and knows it: leads with her hips and her camera, leans on things Norb would never touch, winks at the audience after every bad idea, then commits to it anyway.',
     expressions: expressions(
       { id: 'flirt', prompt: 'playful half-lidded wink, one eyebrow raised' },
       { id: 'disgust', prompt: 'grimacing, elbow-deep in something wet' },
       { id: 'focus', prompt: 'squinting through the camera viewfinder' },
     ),
-    never: ['schoolgirl', 'damsel', 'helpless pose', 'teen'],
+    never: ['schoolgirl', 'damsel', 'helpless pose', 'teen', 'mousy'],
     sprite: {
       height: 1,
       heads: 5.2,
@@ -177,9 +201,18 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
       outfit: '#a8466f',
       accent: '#141414',
       prop: 'camera',
+      streak: '#f4f1ea',
+      neckBandage: true,
     },
     lora: lora('mnstq_iris'),
     general: true,
+    bio: 'Assistant, photographer and fixer at The Unwashed Truth, and the player. Broke, bisexual, shameless, a baddie and extremely good at her job. She touches everything so Norb never has to.',
+    canonNotes: [
+      'White streak in her hair since forever; she says it is natural, nobody believes her.',
+      'Running joke: the plaster on her neck. Her new boyfriend is a real necker and cannot get enough; every character has an opinion about it.',
+      'A MONSTRIQUE logo tramp stamp from her high-school days: everybody at Midnight High got one. She rocked it, and still does.',
+      'Flirts with Norb constantly; he stays 100% professional, files a half-hearted harassment complaint, and it turns into an argument about who holds power over whom in a class-based society.',
+    ],
   },
   norb: {
     id: 'norb',
@@ -190,18 +223,19 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     species: 'human man',
     apparentAge: 'adult man, about 45',
     silhouette:
-      'four foot eleven, an oversized head on a scrawny hunched body, huge round glasses and two raised gloved hands',
+      'four foot eleven of Quasimodo hump and Igor shuffle, a lopsided oversized head, mismatched bulging eyes behind huge round glasses, a MONSTRIQUE T-shirt and two raised gloved hands',
     identity: [
-      'very short adult man, four foot eleven, oversized head',
-      'enormous bulbous doorknob nose and slight buck teeth',
-      'thick round coke-bottle glasses magnifying nervous eyes',
-      'thinning comb-over plastered flat',
+      'very short hunchbacked adult man, four foot eleven, a large hump on one shoulder, Igor stoop',
+      'lopsided oversized head, one bulging eye larger than the other, heavy-lidded Peter-Lorre-style eyes and a nervous wheedling grin',
+      'enormous bulbous doorknob nose, crooked buck teeth',
+      'thick round coke-bottle glasses',
+      'a thin greasy comb-over plastered flat',
       'yellow latex gloves held up like a surgeon',
     ],
     wardrobe:
-      'rumpled grey suit one size too big, crooked bow tie, pocket square used as a sneeze guard, galoshes',
+      'an oversized hot-pink MONSTRIQUE convention T-shirt tucked into high-waisted rumpled grey trousers, a grey suit jacket too small for the hump, crooked bow tie over the T-shirt, galoshes: zero fashion sense',
     acting:
-      'Recoils from every surface. Gestures with his elbows. Stands at least two metres from anyone. His rebuffs are about germs and the case, never about Iris being undesirable.',
+      'Shuffles like a lab assistant, wrings his gloved hands, recoils from every surface and gestures with his elbows. Stands at least two metres from anyone. 100% professional with Iris; his rebuffs are about germs, the case and workplace conduct, never about Iris being undesirable.',
     expressions: expressions(
       {
         id: 'recoil',
@@ -219,22 +253,32 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
       'suave',
       'leading man',
       'romantic lead',
+      'cute',
+      'straight posture',
     ],
     sprite: {
-      height: 0.68,
-      heads: 3.2,
+      height: 0.66,
+      heads: 3,
       build: 'scrawny',
-      skin: '#e8c4a0',
+      skin: '#e3bf9a',
       hair: '#4a3b2a',
       hairStyle: 'comb-over',
-      outfit: '#8d8790',
+      outfit: '#e2468b',
       accent: '#f2d64b',
       prop: 'gloves',
       glasses: true,
       bigNose: true,
+      hunch: true,
+      shirt: 'MONSTRIQUE',
     },
     lora: lora('mnstq_norb'),
     general: true,
+    bio: 'Midnight City’s premiere blogger and amateur sleuth, publisher of The Unwashed Truth. Quasimodo meets Peter Lorre, with an Igor shuffle. Brilliant, touch-averse and all about the case.',
+    canonNotes: [
+      'Wears a MONSTRIQUE T-shirt: somebody handed it to him at the convention and wearing it was the easiest way to carry it. He has zero fashion sense.',
+      '100% professional with Iris. After enough advances he half-heartedly accuses her of sexual harassment, which becomes a debate about whether an employee can hold power over her boss in a class-based society.',
+      'Never a romance route. The finale pays off with an elbow bump.',
+    ],
   },
   odette: {
     id: 'odette',
@@ -495,6 +539,7 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     },
     lora: lora('mnstq_cleo'),
     general: true,
+    monsterStar: true,
   },
   draculina: {
     id: 'draculina',
@@ -534,6 +579,7 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     },
     lora: lora('mnstq_draculina'),
     general: false,
+    monsterStar: true,
   },
   siobhan: {
     id: 'siobhan',
@@ -569,6 +615,7 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     },
     lora: lora('mnstq_siobhan'),
     general: false,
+    monsterStar: true,
   },
   nyx: {
     id: 'nyx',
@@ -601,6 +648,7 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     },
     lora: lora('mnstq_nyx'),
     general: false,
+    monsterStar: true,
   },
   albina: {
     id: 'albina',
@@ -636,6 +684,190 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     },
     lora: lora('mnstq_albina'),
     general: false,
+    monsterStar: true,
+  },
+  roxie: {
+    id: 'roxie',
+    name: 'Roxie Lupin',
+    hotspots: [],
+    speakerNames: ['Roxie'],
+    role: 'The original 1960s werewolf action star; still has it',
+    species: 'werewolf',
+    apparentAge: 'adult woman who looks in her forties',
+    silhouette:
+      'a brawny wolf woman with a huge 1960s bouffant and a motorcycle jacket',
+    identity: [
+      'adult werewolf woman in her forties with brown fur, a true wolf snout and fangs',
+      'pointed wolf ears poking through a voluminous 1960s bouffant',
+      'broad shoulders, a confident action-star grin',
+    ],
+    wardrobe:
+      'leather motorcycle jacket, capri pants, a silk headscarf knotted at the throat',
+    acting:
+      'Swaggers, laughs from the belly, and has done all her own stunts since 1964.',
+    expressions: expressions(),
+    never: ['human face with ears only', 'child'],
+    sprite: {
+      height: 1.05,
+      heads: 5,
+      build: 'stout',
+      skin: '#8a5a3a',
+      hair: '#5a3620',
+      hairStyle: 'wolf',
+      outfit: '#2a2a2e',
+      accent: '#c9a227',
+      prop: 'none',
+    },
+    lora: lora('mnstq_roxie'),
+    general: false,
+    monsterStar: true,
+    bio: 'Founding 1964 werewolf star who never left the line-up. Advises the Pack; wants her stolen prop knife back from Gavin.',
+  },
+  laguna: {
+    id: 'laguna',
+    name: 'Laguna Brine',
+    hotspots: [],
+    speakerNames: ['Laguna'],
+    role: 'Lagoon creature star, pushed out in 1974 and rebranded in 2017',
+    species: 'amphibian (frog and salamander)',
+    apparentAge: 'adult woman',
+    silhouette:
+      'slick green-and-gold skin, feathery external gills and wide golden eyes',
+    identity: [
+      'adult lagoon creature woman with true frog and salamander anatomy',
+      'slick green-and-gold skin, feathery pink external gills, head frills',
+      'wide golden amphibian eyes and webbed hands',
+    ],
+    wardrobe: 'a sequinned fishtail gown, pearls',
+    acting:
+      'Languid and wry, always slightly damp, and the best songwriter in the franchise.',
+    expressions: expressions(),
+    never: ['human woman in green paint', 'mermaid tail'],
+    sprite: {
+      height: 0.98,
+      heads: 5.2,
+      build: 'slim',
+      skin: '#5f9e6e',
+      hair: '#e48aa8',
+      hairStyle: 'frill',
+      outfit: '#2f6f7a',
+      accent: '#e8d27a',
+      prop: 'none',
+    },
+    lora: lora('mnstq_laguna'),
+    general: false,
+    monsterStar: true,
+    bio: 'Wanted to write songs; the studio wanted her in swimsuit publicity. Scores films upstairs at the Velvet Crypt and fights her likeness contracts. Her skin dries out in the studio.',
+  },
+  francesca: {
+    id: 'francesca',
+    name: 'Francesca Stein',
+    hotspots: [],
+    speakerNames: ['Francesca'],
+    role: 'Stitched scientist-actress who built the Hexblades; cut in 1964, rehired in 1974',
+    species: 'reanimated stitched woman',
+    apparentAge: 'adult woman',
+    silhouette:
+      'a towering black beehive with white lightning streaks over pale green patchwork skin',
+    identity: [
+      'adult stitched woman with pale green patchwork skin and neat surgical stitches',
+      'small neck bolts',
+      'a towering black beehive with white lightning streaks',
+    ],
+    wardrobe:
+      'a lab coat over a 1960s cocktail dress, safety goggles pushed up',
+    acting: 'Brilliant, impatient, talks with a soldering iron in her hand.',
+    expressions: expressions(),
+    never: ['gore', 'corpse'],
+    sprite: {
+      height: 1.04,
+      heads: 5.2,
+      build: 'slim',
+      skin: '#b7cdb0',
+      hair: '#141414',
+      hairStyle: 'beehive',
+      outfit: '#f1f1ec',
+      accent: '#7a2a8a',
+      prop: 'none',
+      streak: '#ffffff',
+    },
+    lora: lora('mnstq_francesca'),
+    general: false,
+    monsterStar: true,
+    bio: 'Wrote the science-themed stage props for Beach Hex and made the five Hexblades. Runs a midnight science-cinema on Bolt Street and wants credit for her props.',
+  },
+  vespa: {
+    id: 'vespa',
+    name: 'Dr. Vespa Vane',
+    hotspots: [],
+    speakerNames: ['Vespa'],
+    role: 'Fly-woman star of the 1980s and 1990s, now a late-night television icon',
+    species: 'anthropomorphic fly',
+    apparentAge: 'adult woman',
+    silhouette:
+      'a genuine fly head with huge red compound eyes, antennae and shimmering wings',
+    identity: [
+      'adult fly woman with a genuine fly head',
+      'huge iridescent red compound eyes, antennae, small mandibles',
+      'shimmering translucent wings',
+    ],
+    wardrobe: 'a chrome 1980s power suit with shoulder pads',
+    acting:
+      'Eccentric, brilliant, hyper-observant, rubs her hands together when she has a theory.',
+    expressions: expressions(),
+    never: ['human face with antennae only'],
+    sprite: {
+      height: 0.98,
+      heads: 4.8,
+      build: 'slim',
+      skin: '#3b4a3a',
+      hair: '#2b2b2b',
+      hairStyle: 'antennae',
+      outfit: '#b9c2cc',
+      accent: '#c41e3a',
+      prop: 'none',
+    },
+    lora: lora('mnstq_vespa'),
+    general: false,
+    monsterStar: true,
+    bio: 'Joined in 1986, smeared out in 2006 by a leaked interview. Wants a date who can hold eye contact (Norb’s spare glasses).',
+  },
+  blobzo: {
+    id: 'blobzo',
+    name: 'Blobzo',
+    hotspots: [],
+    speakerNames: ['Blobzo'],
+    role: 'Slime creature star of 1994 to 2017, now an independent online creator',
+    species: 'slime creature',
+    apparentAge: 'adult woman',
+    silhouette:
+      'a wobbling translucent pink goo body with bubbles drifting inside',
+    identity: [
+      'cheerful adult slime creature with a translucent pink gelatinous body',
+      'bubbles drifting inside her, dripping edges that hold a womanly shape',
+      'big glossy cartoon eyes floating near the top of her goo, a wide happy mouth',
+    ],
+    wardrobe:
+      'a pair of heart-shaped sunglasses and a choker that keeps sinking in',
+    acting: 'Bubbly, unpredictable, puddles when she laughs.',
+    expressions: expressions(),
+    never: ['glossy woman in a slime costume'],
+    sprite: {
+      height: 0.92,
+      heads: 4.2,
+      build: 'stout',
+      skin: '#f38bbf',
+      hair: '#f38bbf',
+      hairStyle: 'goo',
+      outfit: '#f38bbf',
+      accent: '#ffd1e8',
+      prop: 'none',
+      ghost: false,
+    },
+    lora: lora('mnstq_blobzo'),
+    general: false,
+    monsterStar: true,
+    bio: 'Idol executives called her unmarketable in 2017; her fans disagree loudly. Wants one night solid (motel ice).',
   },
 }
 

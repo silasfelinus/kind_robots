@@ -3137,6 +3137,24 @@ enum ScenarioOutputType {
   MIXED
 }
 
+/// Monstrique series bible (admin + mature only): per-character edits layered
+/// over the canonical model sheets in utils/monstrique/characterModels.ts,
+/// plus the art and LoRA-dataset jobs requested from the bible.
+model MonstriqueBibleEntry {
+  id               Int       @id @default(autoincrement())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime? @default(now()) @updatedAt
+  characterKey     String    @unique @db.VarChar(64)
+  displayName      String?   @db.VarChar(160)
+  notes            String?   @db.Text
+  loraStatus       String    @default("dataset-needed") @db.VarChar(32)
+  loraResourceName String?   @db.VarChar(255)
+  heroArtImageId   Int?
+  /// JSON array of { jobId, kind, lane } requested from the bible.
+  requests         String?   @db.LongText
+  updatedBy        Int?
+}
+
 enum ArtJobStatus {
   PENDING
   RUNNING

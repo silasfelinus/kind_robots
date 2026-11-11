@@ -100,13 +100,20 @@ function play(
 
 assert.equal(crews.length, 6)
 assert.equal(CLASH_BOSS_HP, 40)
+const allyChapterCoverage = new Set<string>()
+const allyRivalCoverage = new Set<string>()
 for (const general of crews) {
   const allies = crews.filter((crew) => crew !== general)
-  for (const foe of crews) {
-    if (foe === general) continue
+  const foes = crews.filter((crew) => crew !== general)
+  for (const [foeIndex, foe] of foes.entries()) {
     const foeAllies = crews.filter((crew) => crew !== foe)
     for (let chapter = 0; chapter < 5; chapter++) {
-      const deck = allianceStarter(general, allies[chapter]!)
+      // Latin-square rotation: every lead/ally plays every chapter and rival
+      // once. A fixed ally-to-chapter assignment confounds crew effects.
+      const ally = allies[(chapter + foeIndex) % allies.length]!
+      const deck = allianceStarter(general, ally)
+      allyChapterCoverage.add(general + ':' + ally + ':' + chapter)
+      allyRivalCoverage.add(general + ':' + ally + ':' + foe)
       for (let trial = 0; trial < 2; trial++) {
         const foeAlly =
           foeAllies[
@@ -133,6 +140,16 @@ for (const general of crews) {
   }
 }
 assert.equal(cases, 600)
+assert.equal(
+  allyChapterCoverage.size,
+  150,
+  'every lead/ally combination appears in all five chapter stages',
+)
+assert.equal(
+  allyRivalCoverage.size,
+  150,
+  'every lead/ally combination faces all five rival generals',
+)
 for (const variant of variants) {
   assert.equal(total[variant].games, 600)
   for (const crew of crews) {

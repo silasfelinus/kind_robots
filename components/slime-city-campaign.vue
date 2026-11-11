@@ -2,7 +2,7 @@
   <section
     class="sc-stage sc-campaign"
     :class="'crew-' + lab.activeTeam"
-    aria-label="Faction story mode"
+    aria-label="Slime City journey"
     data-testid="slime-faction-campaign"
   >
     <SlimeCityArtwork
@@ -19,7 +19,7 @@
     <div class="campaign-strip">
       <div class="campaign-title" :title="lab.campaignStory.principle">
         <span class="campaign-overline"
-          >SOLO STORY · CHAPTER
+          >JOURNEY · CHAPTER
           {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} / 06</span
         >
         <h2>{{ lab.campaignStory.title }}</h2>
@@ -63,11 +63,51 @@
       >
         <button
           type="button"
-          title="Edit the Solo deck your crew brings to its story bouts"
-          data-testid="slime-story-deck"
-          @click="lab.showSoloDeck()"
+          :aria-pressed="lab.journeyFormat === 'solo'"
+          data-testid="slime-journey-solo"
+          @click="lab.setJourneyFormat('solo')"
         >
-          CREW DECK
+          SOLO
+        </button>
+        <button
+          type="button"
+          :aria-pressed="lab.journeyFormat === 'alliance'"
+          data-testid="slime-journey-alliance"
+          @click="lab.setJourneyFormat('alliance')"
+        >
+          ALLIANCE
+        </button>
+        <select
+          v-if="lab.journeyFormat === 'alliance'"
+          :value="lab.journeyDeckId ?? ''"
+          aria-label="Choose your saved alliance deck"
+          data-testid="slime-journey-deck-select"
+          @change="onJourneyDeckChange"
+        >
+          <option value="">Starter alliance</option>
+          <option
+            v-for="deck in lab.library.filter((item) => lab.libraryDeckReady(item.id))"
+            :key="deck.id"
+            :value="deck.id"
+          >
+            {{ deck.name }}
+          </option>
+        </select>
+        <button
+          type="button"
+          :title="'Edit ' + lab.journeyDeckName"
+          data-testid="slime-story-deck"
+          @click="lab.journeyFormat === 'solo' ? lab.showSoloDeck() : lab.showCards()"
+        >
+          EDIT DECK
+        </button>
+        <button
+          type="button"
+          title="Explore the same journey through the city map"
+          data-testid="slime-journey-map"
+          @click="lab.showCityMap()"
+        >
+          CITY MAP
         </button>
       </div>
       <div
@@ -323,6 +363,8 @@
         >
         <KrChoiceHand
           :choices="campaignJourneyChoices"
+          :key="lab.activeTeam + ':' + lab.campaignJourneyCurrent.id"
+          :animate="false"
           :deal-key="
             lab.activeTeam +
             ':journey:' +
@@ -330,7 +372,7 @@
             ':' +
             (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0)
           "
-          question="CHOOSE HOW THE CREW ACTS"
+          question="CHOOSE WHAT HAPPENS NEXT"
           testid-prefix="slime-faction-journey-choice"
           @play="playCampaignJourney"
         >
@@ -528,6 +570,11 @@ import type { TeamId } from '~/utils/slimeCity/prototypes'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const lab = useSlimeCityStore()
+function onJourneyDeckChange(event: Event): void {
+  const id = (event.target as HTMLSelectElement).value
+  if (id) lab.selectJourneyDeck(id)
+  else lab.setJourneyFormat('alliance')
+}
 const nextDistrictName = computed(
   () =>
     lab.districts.find((district) => district.id === lab.campaignDistrict)
@@ -846,6 +893,7 @@ function playApproach(choice: KrHandChoice) {
   gap: 0.25rem;
 }
 .campaign-format span,
+.campaign-format select,
 .campaign-format button {
   padding: 0.35rem 0.5rem;
   border: 1px solid #ffffff55;
@@ -856,6 +904,11 @@ function playApproach(choice: KrHandChoice) {
   font-weight: 900;
   letter-spacing: 0.08em;
   white-space: nowrap;
+}
+.campaign-format select {
+  max-width: 10rem;
+  min-width: 0;
+  cursor: pointer;
 }
 .campaign-format button[aria-pressed='true'] {
   border-color: #ffffff;

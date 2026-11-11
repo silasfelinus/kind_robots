@@ -20,6 +20,11 @@ import { performFetch } from '~/stores/utils'
 import { useUserStore } from '~/stores/userStore'
 import { mergeAlienGuides } from '~/utils/gameOfCaptains/alienAccountMerge'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
+import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import {
+  SPACE_COUCH_KIT_ID,
+  spaceCouchKitUnlocks,
+} from '~/utils/gameOfCaptains/kitUnlocks'
 import {
   visitCasinoVenue,
   type CasinoChoice,
@@ -471,7 +476,21 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   })
   const saved = computed(() => !!run.value)
 
+  /** Feeds the Playbook Kit scrapbook from the saved run (its own save key). */
+  function recordKitUnlocks() {
+    try {
+      const kit = usePlaybookKitStore()
+      if (kit.game !== SPACE_COUCH_KIT_ID) kit.open(SPACE_COUCH_KIT_ID)
+      const earned = spaceCouchKitUnlocks(run.value)
+      for (const id of earned.moments) kit.unlock('moments', id)
+      for (const id of earned.reveals) kit.unlock('reveals', id)
+      for (const id of earned.endings) kit.unlock('endings', id)
+    } catch {
+      // The scrapbook is a bonus; it can never block saving the voyage.
+    }
+  }
   function persist() {
+    recordKitUnlocks()
     try {
       if (run.value) {
         redshirtKnowledge.value = learnRedshirtKnowledge(

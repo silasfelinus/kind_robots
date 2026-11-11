@@ -113,6 +113,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
   premise:
     'Choose one of six captains and three of twelve crew, cross the galaxy on a long red couch inside an invisible force bubble, and decide at every distress call whether to aid, observe or intervene before a seeded nemesis meets you at the last jump gate.',
   tier: 'saga',
+  theme: 'space-couch',
   route: '/play/game-of-captains',
   keyArt: {
     src: '/game-of-captains/front/splash.webp',

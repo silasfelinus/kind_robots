@@ -242,1559 +242,1596 @@
         @start="startFromOpening"
       />
     </section>
-    <header-page-bar v-if="!atTitle" console-theme="space-couch">
-      <div class="cap-toolbar" data-testid="space-couch-header">
-        <span
-          class="cap-wordmark"
-          :title="run ? 'Space Couch' : 'Space Couch · bridge access requested'"
-          ><span class="cap-emblem">✧</span> SPACE <i>COUCH</i></span
-        >
-        <span
-          v-if="run"
-          class="cap-flight"
-          :title="
-            'Ship day ' + (run.day ?? run.chapter) + ', chapter ' + run.chapter
-          "
-          >DAY <b>{{ run.day ?? run.chapter }}</b> <span>/</span> CH
-          <b>{{ run.chapter }}</b></span
-        >
-        <div v-if="run" class="cap-hud-row">
-          <span class="cap-hud"
-            >SUPPLIES <b>{{ run.supplies }}</b> <span>/</span> TRUST
-            <b>{{ run.trust }}</b></span
-          >
-          <span class="cap-hud" aria-label="Couch force shield charge"
-            >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
-          >
-        </div>
-        <div class="cap-actions">
-          <button
-            v-if="store.pendingCollectorIncident"
-            type="button"
-            class="cap-reset cap-signal"
-            data-testid="space-couch-collector-signal"
-            @click="store.openCollectorIncident()"
-          >
-            ✳ <span class="cap-signal-label">STRANGE COUCH </span>MAIL
-          </button>
-          <button
-            v-if="store.alienEncounterAvailable"
-            type="button"
-            class="cap-reset cap-signal"
-            data-testid="space-couch-alien-signal"
-            @click="store.lookForAlien()"
-          >
-            ✳ <span class="cap-signal-label">STRANGE </span>SIGNAL
-          </button>
-          <button
-            type="button"
-            class="cap-reset"
-            data-testid="space-couch-return-menu"
-            @click="openCouchMenu"
-          >
-            MENU
-          </button>
-          <button
-            v-if="run"
-            type="button"
-            class="cap-reset cap-new-voyage"
-            @click="openNewVoyageConfirmation"
-          >
-            NEW VOYAGE
-          </button>
-        </div>
-      </div>
-    </header-page-bar>
-    <p v-if="store.storageWarning" class="cap-warning" role="alert">
-      {{ store.storageWarning }}
-    </p>
-    <div
+    <PlaybookKitShell
       v-if="!atTitle"
-      class="cap-layout min-h-0 flex-1"
-      :class="{
-        'cap-layout--episode': run?.phase === 'expedition',
-        'cap-layout--stars': !run && selectionScreen === 'stars',
-        'cap-layout--personnel': !run && selectionScreen !== 'stars',
-      }"
+      :spec="SPACE_COUCH_KIT"
+      :meter-values="kitMeterValues"
+      data-testid="space-couch-kit-shell"
     >
-      <section
-        class="cap-stage"
-        aria-label="Long red couch spacecraft protected by an invisible force bubble"
+      <template #bar-actions>
+        <div class="cap-toolbar" data-testid="space-couch-header">
+          <span
+            class="cap-wordmark"
+            :title="
+              run ? 'Space Couch' : 'Space Couch · bridge access requested'
+            "
+            ><span class="cap-emblem">✧</span> SPACE <i>COUCH</i></span
+          >
+          <span
+            v-if="run"
+            class="cap-flight"
+            :title="
+              'Ship day ' +
+              (run.day ?? run.chapter) +
+              ', chapter ' +
+              run.chapter
+            "
+            >DAY <b>{{ run.day ?? run.chapter }}</b> <span>/</span> CH
+            <b>{{ run.chapter }}</b></span
+          >
+          <div v-if="run" class="cap-hud-row">
+            <span class="cap-hud"
+              >SUPPLIES <b>{{ run.supplies }}</b> <span>/</span> TRUST
+              <b>{{ run.trust }}</b></span
+            >
+            <span class="cap-hud" aria-label="Couch force shield charge"
+              >BUBBLE <b>{{ run.shieldCharge ?? 2 }}/3</b></span
+            >
+          </div>
+          <div class="cap-actions">
+            <button
+              v-if="store.pendingCollectorIncident"
+              type="button"
+              class="cap-reset cap-signal"
+              data-testid="space-couch-collector-signal"
+              @click="store.openCollectorIncident()"
+            >
+              ✳ <span class="cap-signal-label">STRANGE COUCH </span>MAIL
+            </button>
+            <button
+              v-if="store.alienEncounterAvailable"
+              type="button"
+              class="cap-reset cap-signal"
+              data-testid="space-couch-alien-signal"
+              @click="store.lookForAlien()"
+            >
+              ✳ <span class="cap-signal-label">STRANGE </span>SIGNAL
+            </button>
+            <button
+              type="button"
+              class="cap-reset"
+              data-testid="space-couch-return-menu"
+              @click="openCouchMenu"
+            >
+              MENU
+            </button>
+            <button
+              v-if="run"
+              type="button"
+              class="cap-reset cap-new-voyage"
+              @click="openNewVoyageConfirmation"
+            >
+              NEW VOYAGE
+            </button>
+          </div>
+        </div>
+      </template>
+      <p v-if="store.storageWarning" class="cap-warning" role="alert">
+        {{ store.storageWarning }}
+      </p>
+      <div
+        class="cap-layout h-full min-h-0 flex-1"
+        :class="{
+          'cap-layout--episode': run?.phase === 'expedition',
+          'cap-layout--stars': !run && selectionScreen === 'stars',
+          'cap-layout--personnel': !run && selectionScreen !== 'stars',
+        }"
       >
-        <img
-          :key="stagePainting"
-          class="cap-painting"
-          :src="stagePainting"
-          :alt="stageAlt"
-          @error="onPaintedImageError"
-        />
-        <div class="cap-vignette" aria-hidden="true" />
-        <div class="cap-overlay">
-          <div class="cap-kicker">
-            COUCH COMMAND // FORCE BUBBLE // POCKET ROOMS <span>•</span> CREW
-            COMPLEMENT UNKNOWN
-          </div>
-          <template v-if="!run">
-            <span class="cap-coordinate">{{
-              selectionScreen === 'background'
-                ? 'WHO WERE YOU BEFORE THE COUCH?'
-                : selectionScreen === 'stars'
-                  ? 'THE COUCHSCOPE'
-                  : selectionScreen === 'captain'
-                    ? 'CAPTAIN DOSSIER'
-                    : 'CREW DOSSIER'
-            }}</span>
-            <h2 class="cap-title">
-              {{
-                selectionScreen === 'background'
-                  ? 'Every captain has a past'
-                  : selectionScreen === 'stars'
-                    ? 'Your Constellation Awaits'
-                    : selectionScreen === 'captain'
-                      ? activeCaptain.name
-                      : crewProfile(focusedCrew).name
-              }}
-            </h2>
-            <p class="cap-tagline">
-              {{
-                selectionScreen === 'background'
-                  ? 'The galaxy records the things you did before anyone trusted you with a couch.'
-                  : selectionScreen === 'stars'
-                    ? 'The stars have very specific opinions about your answers.'
-                    : selectionScreen === 'captain'
-                      ? CAPTAIN_DOSSIERS[selectedCaptain].voice
-                      : CREW_DOSSIERS[focusedCrew].crisis
-              }}
-            </p>
-          </template>
-          <template v-else>
-            <span class="cap-coordinate">{{ starName }}</span>
-            <h2 class="cap-chapter">{{ headline }}</h2>
-            <p class="cap-copy">{{ stageCopy }}</p>
-          </template>
-        </div>
-        <div class="cap-starmap">
-          <span>✦ 06:44:82 / STARFIELD UNKNOWN</span
-          ><span>{{
-            run
-              ? antagonist.name.toUpperCase()
-              : 'CAPTAIN’S LOG NOT YET STARTED'
-          }}</span>
-        </div>
-      </section>
-      <section class="cap-bridge" aria-live="polite">
-        <div class="cap-panel-title">
-          <span>{{ panelLabel }}</span
-          ><span class="cap-leds"
-            ><i
-              v-for="n in VOYAGE_CHAPTERS"
-              :key="n"
-              :class="{ active: !!run && n <= run.chapter }" /></span
-          ><span>⌁ LIVE</span>
-        </div>
-        <div
-          class="cap-scroll kr-scroll"
-          :class="{
-            'cap-episode-scroll': run?.phase === 'expedition',
-            'cap-personnel-scroll': !run && selectionScreen !== 'stars',
-            'cap-brief-scroll': run?.phase === 'briefing',
-          }"
+        <section
+          class="cap-stage"
+          aria-label="Long red couch spacecraft protected by an invisible force bubble"
         >
-          <div v-if="!store.loaded" class="cap-placeholder">
-            Establishing a secure link to ship registry…
-          </div>
-
-          <template v-else-if="!run">
-            <SpaceCouchConstellationTest
-              v-if="selectionScreen === 'stars'"
-              :large-text="store.preferences.largeText"
-              :reduced-motion="store.preferences.reducedMotion"
-              :artwork="store.onboardingArt"
-              :artwork-ready="store.onboardingArtLoaded"
-              @confirm="confirmStarAssessment"
-              @back="selectionScreen = 'background'"
-            />
-            <div
-              v-else
-              class="cap-personnel-frame"
-              :data-screen="selectionScreen"
-            >
-              <template v-if="selectionScreen === 'background'">
-                <button
-                  type="button"
-                  class="cap-step-back"
-                  @click="selectionScreen = 'captain'"
-                >
-                  ← CHANGE CAPTAIN
-                </button>
-                <div class="cap-heading">
-                  <span>02</span>
-                  <div>
-                    <h2>Choose your background</h2>
-                    <p>
-                      Your history belongs to you. It changes your opening
-                      resources and follows you into the captain's log.
-                    </p>
-                  </div>
-                </div>
-                <div class="cap-origins" data-testid="space-couch-backgrounds">
-                  <button
-                    v-for="origin in CAPTAIN_ORIGINS"
-                    :key="origin.id"
-                    type="button"
-                    class="cap-origin"
-                    :class="{
-                      chosen: selectedOrigin === origin.id,
-                      'cap-origin-ready': originReady[origin.id],
-                    }"
-                    :aria-pressed="selectedOrigin === origin.id"
-                    @click="selectedOrigin = origin.id"
-                  >
-                    <img
-                      v-if="store.onboardingArtLoaded"
-                      class="cap-origin-art"
-                      :src="
-                        store.onboardingArt['origins/' + origin.id] ||
-                        warpArt('origins/' + origin.id) ||
-                        '/game-of-captains/space-couch-stage.svg'
-                      "
-                      :alt="'Art for ' + origin.name"
-                      @load="markOriginReady(origin.id)"
-                      @error="onOriginArtError($event, origin.id)"
-                    />
-                    <div
-                      v-else
-                      class="cap-origin-art cap-origin-art--waiting"
-                      role="status"
-                    >
-                      REQUISITIONING ART…
-                    </div>
-                    <span class="cap-origin-copy"
-                      ><strong>{{ origin.name }}</strong
-                      ><small>{{ origin.summary }}</small
-                      ><small class="cap-origin-perk">{{
-                        origin.perk
-                      }}</small></span
-                    >
-                  </button>
-                </div>
-                <button
-                  class="cap-primary"
-                  type="button"
-                  :disabled="!selectedOrigin"
-                  data-testid="space-couch-background-next"
-                  @click="selectionScreen = 'stars'"
-                >
-                  REPORT TO HUMAN RESOURCES <span>➜</span>
-                </button>
-              </template>
-              <template v-else-if="selectionScreen === 'captain'">
-                <div class="cap-captains">
-                  <button
-                    v-for="captain in CAPTAINS"
-                    :key="captain.id"
-                    type="button"
-                    class="cap-captain"
-                    :class="{
-                      chosen: captain.id === selectedCaptain,
-                      'cap-captain-ready':
-                        captainArtReady[captain.id] ||
-                        !portrait('captain-' + captain.id),
-                    }"
-                    :aria-pressed="captain.id === selectedCaptain"
-                    @click="selectedCaptain = captain.id"
-                  >
-                    <span
-                      class="cap-captain-icon"
-                      :data-portrait-key="'captain-' + captain.id"
-                      aria-hidden="true"
-                      ><img
-                        v-if="portrait('captain-' + captain.id)"
-                        :src="portrait('captain-' + captain.id)!"
-                        alt=""
-                        class="cap-portrait-img"
-                        @load="captainArtReady[captain.id] = true"
-                        @error="captainArtReady[captain.id] = true"
-                      /><template v-else>{{
-                        captain.name.split(' ').at(-1)?.slice(0, 1)
-                      }}</template></span
-                    >
-                    <span class="cap-captain-copy"
-                      ><strong>{{ captain.name }}</strong
-                      ><small>{{ captain.epithet }}</small></span
-                    >
-                  </button>
-                </div>
-                <div class="cap-personnel-dossier" aria-live="polite">
-                  <figure
-                    class="cap-personnel-hero"
-                    data-testid="space-couch-captain-hero"
-                  >
-                    <img
-                      v-if="captainDossierPortrait"
-                      :src="captainDossierPortrait"
-                      :alt="
-                        activeCaptain.name + ' full-size character portrait'
-                      "
-                      class="cap-personnel-hero-image"
-                      @error="
-                        onPortraitError($event, 'captain-' + selectedCaptain)
-                      "
-                    />
-                    <div v-else class="cap-personnel-hero-fallback">
-                      <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
-                    </div>
-                  </figure>
-                  <div class="cap-dossier-header">
-                    <img
-                      v-if="portrait('captain-' + selectedCaptain)"
-                      :src="portrait('captain-' + selectedCaptain)!"
-                      :alt="activeCaptain.name + ' portrait'"
-                    />
-                    <span v-else class="cap-dossier-monogram">{{
-                      activeCaptain.name.slice(-1)
-                    }}</span>
-                    <span
-                      ><strong>{{ activeCaptain.name }}</strong
-                      ><small>{{ activeCaptain.epithet }}</small></span
-                    >
-                    <button
-                      type="button"
-                      data-testid="space-couch-captain-dossier-tab"
-                      @click="
-                        captainDossierTab =
-                          captainDossierTab === 'stats'
-                            ? 'history'
-                            : captainDossierTab === 'history'
-                              ? 'orders'
-                              : 'stats'
-                      "
-                    >
-                      {{
-                        captainDossierTab === 'stats'
-                          ? 'STORY ▸'
-                          : captainDossierTab === 'history'
-                            ? 'ORDERS ▸'
-                            : 'STATS ▸'
-                      }}
-                    </button>
-                  </div>
-                  <div
-                    class="cap-stats cap-personnel-essential-stats"
-                    data-testid="space-couch-captain-stats"
-                    aria-label="Captain statistics"
-                  >
-                    <div v-for="skill in SKILLS" :key="skill">
-                      <small>{{ skill.toUpperCase() }}</small>
-                      <strong>{{ captainStats[skill] }}</strong>
-                    </div>
-                  </div>
-                  <template v-if="captainDossierTab === 'stats'">
-                    <div class="cap-insight">
-                      <strong>{{ activeCaptain.doctrine }}</strong
-                      ><small
-                        >Advantage: {{ activeCaptain.ability }} · Price:
-                        {{ activeCaptain.cost }}</small
-                      >
-                    </div>
-                  </template>
-                  <div
-                    v-else-if="captainDossierTab === 'history'"
-                    class="cap-insight cap-dossier-story"
-                  >
-                    <strong>Personal history</strong>
-                    <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
-                    <section
-                      class="cap-character-promise"
-                      data-testid="couch-captain-promise"
-                    >
-                      <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
-                      <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
-                      <strong>YOUR KIND OF TROUBLE</strong>
-                      <p>
-                        {{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}
-                      </p>
-                      <small>{{
-                        CAPTAIN_DOSSIERS[selectedCaptain].crewSpark
-                      }}</small>
-                    </section>
-                  </div>
-                  <div v-else class="cap-insight cap-dossier-story">
-                    <strong>First order and unresolved liability</strong>
-                    <small
-                      >First order:
-                      {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
-                    >
-                    <small
-                      >Unresolved liability:
-                      {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
-                    >
-                  </div>
-                </div>
-                <button
-                  class="cap-primary"
-                  type="button"
-                  data-testid="captains-choose-crew"
-                  @click="selectionScreen = 'background'"
-                >
-                  CHOOSE YOUR BACKGROUND <span>➜</span>
-                </button>
-              </template>
-              <template v-else>
-                <button
-                  class="cap-option"
-                  type="button"
-                  data-testid="captains-back-to-captains"
-                  @click="selectionScreen = 'stars'"
-                >
-                  <span
-                    ><b>← CHANGE STAR CHART</b
-                    ><small
-                      >{{ activeCaptain.name }} ·
-                      {{ activeCaptain.epithet }}</small
-                    ></span
-                  >
-                </button>
-                <div class="cap-heading cap-crew-heading">
-                  <span>04</span>
-                  <div>
-                    <h2>Appoint your crew</h2>
-                    <p>
-                      Fill three seats. Tap an officer to seat them; tap again
-                      to stand them down.
-                    </p>
-                  </div>
-                </div>
-                <SpaceCouchCrewBoard
-                  v-model:chosen="chosenCrew"
-                  v-model:focused="focusedCrew"
-                />
-                <div class="cap-personnel-dossier" aria-live="polite">
-                  <figure
-                    class="cap-personnel-hero"
-                    data-testid="space-couch-crew-hero"
-                  >
-                    <img
-                      v-if="crewDossierPortrait"
-                      :src="crewDossierPortrait"
-                      :alt="
-                        crewProfile(focusedCrew).name +
-                        ' full-size character portrait'
-                      "
-                      class="cap-personnel-hero-image"
-                      @error="
-                        onPortraitError(
-                          $event,
-                          crewProfile(focusedCrew).portraitKey,
-                        )
-                      "
-                    />
-                    <div v-else class="cap-personnel-hero-fallback">
-                      <strong>{{
-                        crewProfile(focusedCrew).name.slice(0, 1)
-                      }}</strong>
-                    </div>
-                  </figure>
-                  <div class="cap-dossier-header">
-                    <img
-                      v-if="portrait(crewProfile(focusedCrew).portraitKey)"
-                      :src="portrait(crewProfile(focusedCrew).portraitKey)!"
-                      :alt="crewProfile(focusedCrew).name + ' portrait'"
-                    />
-                    <span v-else class="cap-dossier-monogram">{{
-                      crewProfile(focusedCrew).name.slice(0, 1)
-                    }}</span>
-                    <span
-                      ><strong>{{ crewProfile(focusedCrew).name }}</strong
-                      ><small>{{ crewProfile(focusedCrew).role }}</small></span
-                    >
-                    <button
-                      type="button"
-                      data-testid="space-couch-crew-dossier-tab"
-                      @click="
-                        crewDossierTab =
-                          crewDossierTab === 'history'
-                            ? 'route'
-                            : crewDossierTab === 'route'
-                              ? 'stats'
-                              : 'history'
-                      "
-                    >
-                      {{
-                        crewDossierTab === 'history'
-                          ? 'ROUTE ▸'
-                          : crewDossierTab === 'route'
-                            ? 'SKILLS ▸'
-                            : 'STORY ▸'
-                      }}
-                    </button>
-                  </div>
-                  <div
-                    class="cap-stats cap-personnel-essential-stats"
-                    data-testid="space-couch-crew-stats"
-                    aria-label="Focused crew skills"
-                  >
-                    <div v-for="skill in SKILLS" :key="skill">
-                      <small>{{ skill.toUpperCase() }}</small>
-                      <strong>{{
-                        crewProfile(focusedCrew).stats[skill]
-                      }}</strong>
-                    </div>
-                  </div>
-                  <div
-                    v-if="crewDossierTab === 'history'"
-                    class="cap-insight cap-dossier-story"
-                  >
-                    <strong
-                      >{{ crewProfile(focusedCrew).name }} ·
-                      {{ crewProfile(focusedCrew).culture }}</strong
-                    >
-                    <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
-                    <section
-                      class="cap-character-promise"
-                      data-testid="couch-crew-promise"
-                    >
-                      <h3>{{ CREW_DOSSIERS[focusedCrew].hook }}</h3>
-                      <p>{{ CREW_DOSSIERS[focusedCrew].oddity }}</p>
-                      <strong>THE STORY THIS CREWMATE BRINGS</strong>
-                      <p>{{ CREW_DOSSIERS[focusedCrew].storyPromise }}</p>
-                      <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
-                    </section>
-                  </div>
-                  <div
-                    v-else-if="crewDossierTab === 'route'"
-                    class="cap-insight cap-dossier-story"
-                  >
-                    <strong>Route and nemesis connection</strong>
-                    <small
-                      >Personal voyage:
-                      {{
-                        CREW_DOSSIERS[focusedCrew].itinerary.join(' → ')
-                      }}</small
-                    >
-                    <small
-                      >Enemy connection:
-                      {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
-                    >
-                  </div>
-                  <div v-else class="cap-insight cap-dossier-story">
-                    <strong>Onboard specialty</strong>
-                    <p>{{ crewProfile(focusedCrew).role }}</p>
-                    <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
-                  </div>
-                </div>
-                <button
-                  class="cap-primary"
-                  type="button"
-                  data-testid="captains-begin"
-                  :disabled="chosenCrew.length !== 3"
-                  @click="beginWithStarSign"
-                >
-                  TAKE COMMAND <span>➜</span>
-                </button>
-              </template>
+          <img
+            :key="stagePainting"
+            class="cap-painting"
+            :src="stagePainting"
+            :alt="stageAlt"
+            @error="onPaintedImageError"
+          />
+          <div class="cap-vignette" aria-hidden="true" />
+          <div class="cap-overlay">
+            <div class="cap-kicker">
+              COUCH COMMAND // FORCE BUBBLE // POCKET ROOMS <span>•</span> CREW
+              COMPLEMENT UNKNOWN
             </div>
-          </template>
+            <template v-if="!run">
+              <span class="cap-coordinate">{{
+                selectionScreen === 'background'
+                  ? 'WHO WERE YOU BEFORE THE COUCH?'
+                  : selectionScreen === 'stars'
+                    ? 'THE COUCHSCOPE'
+                    : selectionScreen === 'captain'
+                      ? 'CAPTAIN DOSSIER'
+                      : 'CREW DOSSIER'
+              }}</span>
+              <h2 class="cap-title">
+                {{
+                  selectionScreen === 'background'
+                    ? 'Every captain has a past'
+                    : selectionScreen === 'stars'
+                      ? 'Your Constellation Awaits'
+                      : selectionScreen === 'captain'
+                        ? activeCaptain.name
+                        : crewProfile(focusedCrew).name
+                }}
+              </h2>
+              <p class="cap-tagline">
+                {{
+                  selectionScreen === 'background'
+                    ? 'The galaxy records the things you did before anyone trusted you with a couch.'
+                    : selectionScreen === 'stars'
+                      ? 'The stars have very specific opinions about your answers.'
+                      : selectionScreen === 'captain'
+                        ? CAPTAIN_DOSSIERS[selectedCaptain].voice
+                        : CREW_DOSSIERS[focusedCrew].crisis
+                }}
+              </p>
+            </template>
+            <template v-else>
+              <span class="cap-coordinate">{{ starName }}</span>
+              <h2 class="cap-chapter">{{ headline }}</h2>
+              <p class="cap-copy">{{ stageCopy }}</p>
+            </template>
+          </div>
+          <div class="cap-starmap">
+            <span>✦ 06:44:82 / STARFIELD UNKNOWN</span
+            ><span>{{
+              run
+                ? antagonist.name.toUpperCase()
+                : 'CAPTAIN’S LOG NOT YET STARTED'
+            }}</span>
+          </div>
+        </section>
+        <section class="cap-bridge" aria-live="polite">
+          <div class="cap-panel-title">
+            <span>{{ panelLabel }}</span
+            ><span class="cap-leds"
+              ><i
+                v-for="n in VOYAGE_CHAPTERS"
+                :key="n"
+                :class="{ active: !!run && n <= run.chapter }" /></span
+            ><span>⌁ LIVE</span>
+          </div>
+          <div
+            class="cap-scroll kr-scroll"
+            :class="{
+              'cap-episode-scroll': run?.phase === 'expedition',
+              'cap-personnel-scroll': !run && selectionScreen !== 'stars',
+              'cap-brief-scroll': run?.phase === 'briefing',
+            }"
+          >
+            <div v-if="!store.loaded" class="cap-placeholder">
+              Establishing a secure link to ship registry…
+            </div>
 
-          <template v-else-if="run.phase === 'briefing'">
-            <div
-              class="cap-brief"
-              :data-step="briefingStep"
-              data-testid="space-couch-briefing-deck"
-            >
-              <nav class="cap-brief-steps" aria-label="Mission preparation">
-                <button
-                  v-for="(step, index) in BRIEFING_STEPS"
-                  :key="step.id"
-                  type="button"
-                  class="cap-brief-step"
-                  :class="{
-                    current: briefingStep === step.id,
-                    done: briefingStepIndex > index,
-                  }"
-                  :disabled="index > 0 && !expeditionComplete"
-                  :aria-current="briefingStep === step.id ? 'step' : undefined"
-                  :data-testid="'space-couch-brief-step-' + step.id"
-                  @click="briefingStep = step.id"
-                >
-                  <b>{{ index + 1 }}</b
-                  ><span>{{ step.label }}</span>
-                </button>
-              </nav>
-
-              <div class="cap-brief-body">
-                <template v-if="briefingStep === 'course'">
-                  <section
-                    class="cap-brief-intro"
-                    data-testid="space-couch-travel-prompt"
+            <template v-else-if="!run">
+              <SpaceCouchConstellationTest
+                v-if="selectionScreen === 'stars'"
+                :large-text="store.preferences.largeText"
+                :reduced-motion="store.preferences.reducedMotion"
+                :artwork="store.onboardingArt"
+                :artwork-ready="store.onboardingArtLoaded"
+                @confirm="confirmStarAssessment"
+                @back="selectionScreen = 'background'"
+              />
+              <div
+                v-else
+                class="cap-personnel-frame"
+                :data-screen="selectionScreen"
+              >
+                <template v-if="selectionScreen === 'background'">
+                  <button
+                    type="button"
+                    class="cap-step-back"
+                    @click="selectionScreen = 'captain'"
                   >
-                    <span class="cap-brief-kicker"
-                      >{{ actLabel.toUpperCase() }} ·
-                      {{ localSystem.name.toUpperCase() }}</span
-                    >
-                    <h2>
-                      {{
-                        expeditionComplete
-                          ? 'Crew home. Pick the call you answer.'
-                          : 'Where does the couch go first?'
-                      }}
-                    </h2>
-                    <p v-if="(run.redshirtFallen ?? []).length">
-                      Fallen redshirts: {{ run.redshirtFallen?.length }}.
-                      Personnel says they have more.
-                    </p>
-                  </section>
-                  <section
-                    class="cap-route-board"
-                    data-testid="space-couch-route-board"
-                    :aria-label="actLabel + ' galaxy navigation'"
-                  >
-                    <div class="cap-brief-routes">
-                      <button
-                        v-for="call in routeBoard"
-                        :key="call.id"
-                        type="button"
-                        class="cap-brief-route"
-                        data-testid="space-couch-route-option"
-                        :class="{ active: mission.id === call.id }"
-                        :aria-pressed="mission.id === call.id"
-                        @click="store.chartMission(call.id)"
-                      >
-                        <img
-                          :src="
-                            paintedVoyageImage(missionArtKey(call.id)) ||
-                            COUCH_FALLBACK
-                          "
-                          alt=""
-                          @error="onPaintedImageError"
-                        />
-                        <span class="cap-brief-route-copy">
-                          <small>{{ call.system }}</small>
-                          <strong>{{ call.title }}</strong>
-                        </span>
-                        <small
-                          v-if="destinationFollowup(run, call.id)"
-                          class="cap-brief-thread"
-                          >RETURN CALL</small
-                        >
-                        <b v-if="mission.id === call.id" class="cap-brief-pin"
-                          >CHARTED</b
-                        >
-                      </button>
+                    ← CHANGE CAPTAIN
+                  </button>
+                  <div class="cap-heading">
+                    <span>02</span>
+                    <div>
+                      <h2>Choose your background</h2>
+                      <p>
+                        Your history belongs to you. It changes your opening
+                        resources and follows you into the captain's log.
+                      </p>
                     </div>
-                    <p
-                      v-if="destinationFollowup(run, mission.id)"
-                      class="cap-route-memory"
-                      data-testid="space-couch-destination-thread"
-                    >
-                      {{ destinationFollowup(run, mission.id) }}
-                    </p>
-                    <p
-                      class="cap-route-memory"
-                      data-testid="space-couch-world-echo"
-                    >
-                      {{ routeEcho }}
-                    </p>
-                  </section>
-                  <section
-                    class="cap-solar-circuit"
-                    data-testid="space-couch-solar-circuit"
-                    aria-label="Voyage solar-system circuit"
-                  >
-                    <div class="cap-system-nodes">
-                      <span
-                        v-for="system in circuit"
-                        :key="system.id"
-                        class="cap-system-node"
-                        :class="{ active: system.id === localSystem.id }"
-                        :title="
-                          system.giant +
-                          ' Grand Casino · ' +
-                          system.franchise.name
-                        "
-                        >{{ system.name }}</span
-                      >
-                    </div>
-                  </section>
-                </template>
-
-                <template v-else-if="briefingStep === 'mission'">
-                  <section
-                    class="cap-brief-intro cap-instinct"
-                    data-testid="couch-captain-instinct"
-                  >
-                    <span class="cap-brief-kicker"
-                      >CAPTAIN'S PERSONAL BAD IDEA</span
-                    >
-                    <h2>{{ captainInstinct.title }}</h2>
-                    <p>{{ captainInstinct.situation }}</p>
-                  </section>
-                  <SpaceCouchChoiceHand
-                    v-if="captainCanAct"
-                    class="cap-brief-hand"
-                    :choices="captainChoices"
-                    deal-key="captain-instinct"
-                    testid-prefix="couch-captain"
-                    @play="
-                      (choice) =>
-                        store.captainAction(
-                          choice.id as 'impulse' | 'restraint',
-                        )
-                    "
-                  />
-                  <p v-else class="cap-brief-verdict">{{ captainReply }}</p>
-                  <div
-                    v-if="briefingCallbacks.length || briefingAboard.length"
-                    class="cap-callbacks"
-                    data-testid="space-couch-callbacks"
-                  >
-                    <p
-                      v-for="callback in briefingCallbacks"
-                      :key="callback.flag"
-                    >
-                      <strong
-                        >{{ callback.odds > 0 ? '+' : ''
-                        }}{{ callback.odds }}%</strong
-                      >
-                      {{ callback.text }}
-                    </p>
-                    <p v-for="line in briefingAboard" :key="line">
-                      <strong>ABOARD</strong> {{ line }}
-                    </p>
                   </div>
-                  <p class="cap-brief-anomaly">
-                    <strong>ANOMALY IN THE SIGNAL</strong> ·
-                    {{ antagonist.title }}
-                  </p>
-                </template>
-
-                <template v-else-if="briefingStep === 'prep'">
-                  <section
-                    class="cap-brief-intro"
-                    aria-label="Couch pocket rooms and shield"
+                  <div
+                    class="cap-origins"
+                    data-testid="space-couch-backgrounds"
                   >
-                    <span class="cap-brief-kicker"
-                      >SUPPLIES {{ run.supplies }} · BUBBLE
-                      {{ run.shieldCharge ?? 2 }}/3</span
-                    >
-                    <h2>Unfold a room behind the backrest?</h2>
-                  </section>
-                  <div class="cap-brief-rooms">
                     <button
+                      v-for="origin in CAPTAIN_ORIGINS"
+                      :key="origin.id"
                       type="button"
-                      class="cap-brief-room"
-                      :class="{ chosen: !run.pocketRoom }"
-                      :aria-pressed="!run.pocketRoom"
-                      @click="store.chooseRoom(null)"
-                    >
-                      <img :src="COUCH_FALLBACK" alt="" />
-                      <span
-                        ><strong>Just the couch</strong
-                        ><small>Free</small></span
-                      >
-                    </button>
-                    <button
-                      v-for="room in POCKET_ROOMS"
-                      :key="room.id"
-                      type="button"
-                      class="cap-brief-room cap-pocket-room-choice"
-                      :class="{ chosen: run.pocketRoom === room.id }"
-                      :aria-pressed="run.pocketRoom === room.id"
-                      :disabled="run.supplies < 1 && run.pocketRoom !== room.id"
-                      @click="store.chooseRoom(room.id)"
+                      class="cap-origin"
+                      :class="{
+                        chosen: selectedOrigin === origin.id,
+                        'cap-origin-ready': originReady[origin.id],
+                      }"
+                      :aria-pressed="selectedOrigin === origin.id"
+                      @click="selectedOrigin = origin.id"
                     >
                       <img
-                        class="cap-pocket-room-art"
-                        :src="pocketRoomPainting(room.id) || COUCH_FALLBACK"
-                        alt=""
-                        @error="onPaintedImageError"
+                        v-if="store.onboardingArtLoaded"
+                        class="cap-origin-art"
+                        :src="
+                          store.onboardingArt['origins/' + origin.id] ||
+                          warpArt('origins/' + origin.id) ||
+                          '/game-of-captains/space-couch-stage.svg'
+                        "
+                        :alt="'Art for ' + origin.name"
+                        @load="markOriginReady(origin.id)"
+                        @error="onOriginArtError($event, origin.id)"
                       />
-                      <span
-                        ><strong>{{ room.name }}</strong
-                        ><small>1 supply · {{ room.blurb }}</small></span
+                      <div
+                        v-else
+                        class="cap-origin-art cap-origin-art--waiting"
+                        role="status"
+                      >
+                        REQUISITIONING ART…
+                      </div>
+                      <span class="cap-origin-copy"
+                        ><strong>{{ origin.name }}</strong
+                        ><small>{{ origin.summary }}</small
+                        ><small class="cap-origin-perk">{{
+                          origin.perk
+                        }}</small></span
                       >
                     </button>
                   </div>
                   <button
-                    class="cap-brief-shield"
+                    class="cap-primary"
                     type="button"
-                    data-testid="couch-recharge-shield"
-                    :disabled="run.supplies < 1 || (run.shieldCharge ?? 2) >= 3"
-                    @click="store.rechargeShield()"
+                    :disabled="!selectedOrigin"
+                    data-testid="space-couch-background-next"
+                    @click="selectionScreen = 'stars'"
                   >
-                    <span class="cap-brief-shield-meter" aria-hidden="true"
-                      ><i
-                        v-for="n in 3"
-                        :key="n"
-                        :class="{ on: n <= (run.shieldCharge ?? 2) }"
-                    /></span>
+                    REPORT TO HUMAN RESOURCES <span>➜</span>
+                  </button>
+                </template>
+                <template v-else-if="selectionScreen === 'captain'">
+                  <div class="cap-captains">
+                    <button
+                      v-for="captain in CAPTAINS"
+                      :key="captain.id"
+                      type="button"
+                      class="cap-captain"
+                      :class="{
+                        chosen: captain.id === selectedCaptain,
+                        'cap-captain-ready':
+                          captainArtReady[captain.id] ||
+                          !portrait('captain-' + captain.id),
+                      }"
+                      :aria-pressed="captain.id === selectedCaptain"
+                      @click="selectedCaptain = captain.id"
+                    >
+                      <span
+                        class="cap-captain-icon"
+                        :data-portrait-key="'captain-' + captain.id"
+                        aria-hidden="true"
+                        ><img
+                          v-if="portrait('captain-' + captain.id)"
+                          :src="portrait('captain-' + captain.id)!"
+                          alt=""
+                          class="cap-portrait-img"
+                          @load="captainArtReady[captain.id] = true"
+                          @error="captainArtReady[captain.id] = true"
+                        /><template v-else>{{
+                          captain.name.split(' ').at(-1)?.slice(0, 1)
+                        }}</template></span
+                      >
+                      <span class="cap-captain-copy"
+                        ><strong>{{ captain.name }}</strong
+                        ><small>{{ captain.epithet }}</small></span
+                      >
+                    </button>
+                  </div>
+                  <div class="cap-personnel-dossier" aria-live="polite">
+                    <figure
+                      class="cap-personnel-hero"
+                      data-testid="space-couch-captain-hero"
+                    >
+                      <img
+                        v-if="captainDossierPortrait"
+                        :src="captainDossierPortrait"
+                        :alt="
+                          activeCaptain.name + ' full-size character portrait'
+                        "
+                        class="cap-personnel-hero-image"
+                        @error="
+                          onPortraitError($event, 'captain-' + selectedCaptain)
+                        "
+                      />
+                      <div v-else class="cap-personnel-hero-fallback">
+                        <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
+                      </div>
+                    </figure>
+                    <div class="cap-dossier-header">
+                      <img
+                        v-if="portrait('captain-' + selectedCaptain)"
+                        :src="portrait('captain-' + selectedCaptain)!"
+                        :alt="activeCaptain.name + ' portrait'"
+                      />
+                      <span v-else class="cap-dossier-monogram">{{
+                        activeCaptain.name.slice(-1)
+                      }}</span>
+                      <span
+                        ><strong>{{ activeCaptain.name }}</strong
+                        ><small>{{ activeCaptain.epithet }}</small></span
+                      >
+                      <button
+                        type="button"
+                        data-testid="space-couch-captain-dossier-tab"
+                        @click="
+                          captainDossierTab =
+                            captainDossierTab === 'stats'
+                              ? 'history'
+                              : captainDossierTab === 'history'
+                                ? 'orders'
+                                : 'stats'
+                        "
+                      >
+                        {{
+                          captainDossierTab === 'stats'
+                            ? 'STORY ▸'
+                            : captainDossierTab === 'history'
+                              ? 'ORDERS ▸'
+                              : 'STATS ▸'
+                        }}
+                      </button>
+                    </div>
+                    <div
+                      class="cap-stats cap-personnel-essential-stats"
+                      data-testid="space-couch-captain-stats"
+                      aria-label="Captain statistics"
+                    >
+                      <div v-for="skill in SKILLS" :key="skill">
+                        <small>{{ skill.toUpperCase() }}</small>
+                        <strong>{{ captainStats[skill] }}</strong>
+                      </div>
+                    </div>
+                    <template v-if="captainDossierTab === 'stats'">
+                      <div class="cap-insight">
+                        <strong>{{ activeCaptain.doctrine }}</strong
+                        ><small
+                          >Advantage: {{ activeCaptain.ability }} · Price:
+                          {{ activeCaptain.cost }}</small
+                        >
+                      </div>
+                    </template>
+                    <div
+                      v-else-if="captainDossierTab === 'history'"
+                      class="cap-insight cap-dossier-story"
+                    >
+                      <strong>Personal history</strong>
+                      <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
+                      <section
+                        class="cap-character-promise"
+                        data-testid="couch-captain-promise"
+                      >
+                        <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
+                        <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
+                        <strong>YOUR KIND OF TROUBLE</strong>
+                        <p>
+                          {{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}
+                        </p>
+                        <small>{{
+                          CAPTAIN_DOSSIERS[selectedCaptain].crewSpark
+                        }}</small>
+                      </section>
+                    </div>
+                    <div v-else class="cap-insight cap-dossier-story">
+                      <strong>First order and unresolved liability</strong>
+                      <small
+                        >First order:
+                        {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
+                      >
+                      <small
+                        >Unresolved liability:
+                        {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
+                      >
+                    </div>
+                  </div>
+                  <button
+                    class="cap-primary"
+                    type="button"
+                    data-testid="captains-choose-crew"
+                    @click="selectionScreen = 'background'"
+                  >
+                    CHOOSE YOUR BACKGROUND <span>➜</span>
+                  </button>
+                </template>
+                <template v-else>
+                  <button
+                    class="cap-option"
+                    type="button"
+                    data-testid="captains-back-to-captains"
+                    @click="selectionScreen = 'stars'"
+                  >
                     <span
-                      ><strong>Recharge the force bubble</strong
+                      ><b>← CHANGE STAR CHART</b
                       ><small
-                        >1 supply refills all three charges. An empty bubble
-                        costs 10% mission odds.</small
+                        >{{ activeCaptain.name }} ·
+                        {{ activeCaptain.epithet }}</small
                       ></span
                     >
                   </button>
-                </template>
-
-                <template v-else>
-                  <section
-                    v-if="missionPreview"
-                    class="cap-brief-odds"
-                    :class="{ ready: missionPreview.eligible }"
-                    data-testid="captains-odds"
-                    aria-live="polite"
-                  >
-                    <strong class="cap-brief-chance"
-                      >{{ missionPreview.chance }}%</strong
-                    >
-                    <span class="cap-brief-odds-copy">
-                      <b
-                        >SUCCESS · BACK IN
-                        {{ missionPreview.durationDays }} DAYS</b
-                      >
-                      <span class="cap-brief-reqs">
-                        <i
-                          v-for="requirement in missionPreview.requirements"
-                          :key="requirement.skill"
-                          :class="{
-                            met: requirement.total >= requirement.required,
-                          }"
-                          >{{ requirement.skill.toUpperCase() }}
-                          {{ requirement.total }}/{{ requirement.required }}</i
-                        >
-                      </span>
-                      <small
-                        v-for="blocker in missionPreview.blockers"
-                        :key="blocker"
-                        role="alert"
-                        >{{ blocker }}</small
-                      >
-                      <small v-if="!missionPreview.blockers.length">{{
-                        missionPreview.specialRoutes.length
-                          ? missionPreview.specialRoutes.join(' ')
-                          : 'Expires in ' +
-                            missionPreview.expiresInDays +
-                            ' ship day(s).'
-                      }}</small>
-                    </span>
-                  </section>
-                  <div class="cap-brief-crew">
-                    <button
-                      v-for="member in availableCrew"
-                      :key="member.id"
-                      class="cap-brief-officer"
-                      type="button"
-                      :class="{ chosen: run.away.includes(member.id) }"
-                      :aria-pressed="run.away.includes(member.id)"
-                      :disabled="
-                        unavailable(member.id) ||
-                        (!run.away.includes(member.id) && run.away.length >= 3)
-                      "
-                      :title="member.quote"
-                      @click="toggleAway(member.id)"
+                  <div class="cap-heading cap-crew-heading">
+                    <span>04</span>
+                    <div>
+                      <h2>Appoint your crew</h2>
+                      <p>
+                        Fill three seats. Tap an officer to seat them; tap again
+                        to stand them down.
+                      </p>
+                    </div>
+                  </div>
+                  <SpaceCouchCrewBoard
+                    v-model:chosen="chosenCrew"
+                    v-model:focused="focusedCrew"
+                  />
+                  <div class="cap-personnel-dossier" aria-live="polite">
+                    <figure
+                      class="cap-personnel-hero"
+                      data-testid="space-couch-crew-hero"
                     >
                       <img
-                        v-if="crewVoyagePortrait(member.id)"
-                        :src="crewVoyagePortrait(member.id)!"
-                        alt=""
+                        v-if="crewDossierPortrait"
+                        :src="crewDossierPortrait"
+                        :alt="
+                          crewProfile(focusedCrew).name +
+                          ' full-size character portrait'
+                        "
+                        class="cap-personnel-hero-image"
                         @error="
                           onPortraitError(
                             $event,
-                            crewProfile(member.id).portraitKey,
+                            crewProfile(focusedCrew).portraitKey,
                           )
                         "
                       />
-                      <span v-else class="cap-brief-officer-mono">{{
-                        member.monogram
+                      <div v-else class="cap-personnel-hero-fallback">
+                        <strong>{{
+                          crewProfile(focusedCrew).name.slice(0, 1)
+                        }}</strong>
+                      </div>
+                    </figure>
+                    <div class="cap-dossier-header">
+                      <img
+                        v-if="portrait(crewProfile(focusedCrew).portraitKey)"
+                        :src="portrait(crewProfile(focusedCrew).portraitKey)!"
+                        :alt="crewProfile(focusedCrew).name + ' portrait'"
+                      />
+                      <span v-else class="cap-dossier-monogram">{{
+                        crewProfile(focusedCrew).name.slice(0, 1)
                       }}</span>
-                      <span class="cap-brief-officer-copy"
-                        ><strong>{{ member.name }}</strong
-                        ><small>{{ member.role }}</small></span
+                      <span
+                        ><strong>{{ crewProfile(focusedCrew).name }}</strong
+                        ><small>{{
+                          crewProfile(focusedCrew).role
+                        }}</small></span
                       >
-                      <b>{{
-                        unavailable(member.id)
-                          ? 'INJURED'
-                          : run.away.includes(member.id)
-                            ? 'AWAY'
-                            : 'ON SHIP'
-                      }}</b>
-                    </button>
+                      <button
+                        type="button"
+                        data-testid="space-couch-crew-dossier-tab"
+                        @click="
+                          crewDossierTab =
+                            crewDossierTab === 'history'
+                              ? 'route'
+                              : crewDossierTab === 'route'
+                                ? 'stats'
+                                : 'history'
+                        "
+                      >
+                        {{
+                          crewDossierTab === 'history'
+                            ? 'ROUTE ▸'
+                            : crewDossierTab === 'route'
+                              ? 'SKILLS ▸'
+                              : 'STORY ▸'
+                        }}
+                      </button>
+                    </div>
+                    <div
+                      class="cap-stats cap-personnel-essential-stats"
+                      data-testid="space-couch-crew-stats"
+                      aria-label="Focused crew skills"
+                    >
+                      <div v-for="skill in SKILLS" :key="skill">
+                        <small>{{ skill.toUpperCase() }}</small>
+                        <strong>{{
+                          crewProfile(focusedCrew).stats[skill]
+                        }}</strong>
+                      </div>
+                    </div>
+                    <div
+                      v-if="crewDossierTab === 'history'"
+                      class="cap-insight cap-dossier-story"
+                    >
+                      <strong
+                        >{{ crewProfile(focusedCrew).name }} ·
+                        {{ crewProfile(focusedCrew).culture }}</strong
+                      >
+                      <p>{{ CREW_DOSSIERS[focusedCrew].history }}</p>
+                      <section
+                        class="cap-character-promise"
+                        data-testid="couch-crew-promise"
+                      >
+                        <h3>{{ CREW_DOSSIERS[focusedCrew].hook }}</h3>
+                        <p>{{ CREW_DOSSIERS[focusedCrew].oddity }}</p>
+                        <strong>THE STORY THIS CREWMATE BRINGS</strong>
+                        <p>{{ CREW_DOSSIERS[focusedCrew].storyPromise }}</p>
+                        <small>{{
+                          CREW_DOSSIERS[focusedCrew].crewSpark
+                        }}</small>
+                      </section>
+                    </div>
+                    <div
+                      v-else-if="crewDossierTab === 'route'"
+                      class="cap-insight cap-dossier-story"
+                    >
+                      <strong>Route and nemesis connection</strong>
+                      <small
+                        >Personal voyage:
+                        {{
+                          CREW_DOSSIERS[focusedCrew].itinerary.join(' → ')
+                        }}</small
+                      >
+                      <small
+                        >Enemy connection:
+                        {{ CREW_DOSSIERS[focusedCrew].nemesisLink }}</small
+                      >
+                    </div>
+                    <div v-else class="cap-insight cap-dossier-story">
+                      <strong>Onboard specialty</strong>
+                      <p>{{ crewProfile(focusedCrew).role }}</p>
+                      <small>{{ CREW_DOSSIERS[focusedCrew].crewSpark }}</small>
+                    </div>
                   </div>
-                  <p class="cap-brief-note">
-                    Up to three go. Sending nobody is a valid remote approach.
-                  </p>
+                  <button
+                    class="cap-primary"
+                    type="button"
+                    data-testid="captains-begin"
+                    :disabled="chosenCrew.length !== 3"
+                    @click="beginWithStarSign"
+                  >
+                    TAKE COMMAND <span>➜</span>
+                  </button>
                 </template>
               </div>
+            </template>
 
-              <footer class="cap-brief-nav">
-                <button
-                  v-if="briefingStepIndex > 0"
-                  type="button"
-                  class="cap-brief-back"
-                  data-testid="space-couch-brief-back"
-                  @click="
-                    briefingStep = BRIEFING_STEPS[briefingStepIndex - 1]!.id
-                  "
-                >
-                  ←
-                </button>
-                <button
-                  v-if="briefingStep === 'team'"
-                  class="cap-brief-wait"
-                  type="button"
-                  data-testid="captains-wait"
-                  title="Deliberate further. This opportunity may expire."
-                  @click="store.advanceDay()"
-                >
-                  WAIT A DAY
-                </button>
-                <button
-                  v-if="!expeditionComplete"
-                  class="cap-primary"
-                  type="button"
-                  data-testid="space-couch-travel"
-                  @click="store.travel()"
-                >
-                  TRAVEL TO {{ localSystem.name.toUpperCase() }} <span>➜</span>
-                </button>
-                <button
-                  v-else-if="briefingStep === 'team'"
-                  class="cap-primary"
-                  type="button"
-                  data-testid="captains-launch"
-                  :disabled="!missionPreview?.eligible"
-                  @click="store.launch()"
-                >
-                  LAUNCH MISSION <span>➜</span>
-                </button>
-                <button
-                  v-else
-                  class="cap-primary"
-                  type="button"
-                  data-testid="space-couch-brief-next"
-                  @click="
-                    briefingStep = BRIEFING_STEPS[briefingStepIndex + 1]!.id
-                  "
-                >
-                  {{
-                    BRIEFING_STEPS[briefingStepIndex + 1]!.label.toUpperCase()
-                  }}
-                  <span>➜</span>
-                </button>
-              </footer>
-            </div>
-          </template>
-
-          <template v-else-if="run.phase === 'travel'">
-            <div class="cap-heading">
-              <span>✦</span>
-              <div>
-                <h2>The couch approaches {{ localSystem.name }}</h2>
-                <p>
-                  TRAVEL / SHIP DAY {{ run.day }} · THE MINIATURIZED BARRACKS
-                </p>
-              </div>
-            </div>
-            <section
-              class="cap-redshirt-travel"
-              data-testid="space-couch-transit"
-            >
-              <h3>{{ localSystem.name }} · {{ localSystem.casinoName }}</h3>
-              <p>{{ CASINO_ORIGIN }}</p>
-              <p>
-                <strong>ON THE LIVING CASINO:</strong>
-                {{ localSystem.franchise.name }}.
-                {{ localSystem.franchise.theme }}. {{ localSystem.conflict }}
-              </p>
-              <h3>{{ REDSHIRT_QUARTERS.name }}</h3>
-              <p>{{ run.scene }}</p>
-              <p>{{ REDSHIRT_QUARTERS.description }}</p>
-              <p>{{ REDSHIRT_QUARTERS.exchange }}</p>
-              <strong
-                >{{ (run.redshirtRoster ?? []).length }} redshirts ready · 8
-                miniature bunks</strong
+            <template v-else-if="run.phase === 'briefing'">
+              <div
+                class="cap-brief"
+                :data-step="briefingStep"
+                data-testid="space-couch-briefing-deck"
               >
+                <nav class="cap-brief-steps" aria-label="Mission preparation">
+                  <button
+                    v-for="(step, index) in BRIEFING_STEPS"
+                    :key="step.id"
+                    type="button"
+                    class="cap-brief-step"
+                    :class="{
+                      current: briefingStep === step.id,
+                      done: briefingStepIndex > index,
+                    }"
+                    :disabled="index > 0 && !expeditionComplete"
+                    :aria-current="
+                      briefingStep === step.id ? 'step' : undefined
+                    "
+                    :data-testid="'space-couch-brief-step-' + step.id"
+                    @click="briefingStep = step.id"
+                  >
+                    <b>{{ index + 1 }}</b
+                    ><span>{{ step.label }}</span>
+                  </button>
+                </nav>
+
+                <div class="cap-brief-body">
+                  <template v-if="briefingStep === 'course'">
+                    <section
+                      class="cap-brief-intro"
+                      data-testid="space-couch-travel-prompt"
+                    >
+                      <span class="cap-brief-kicker"
+                        >{{ actLabel.toUpperCase() }} ·
+                        {{ localSystem.name.toUpperCase() }}</span
+                      >
+                      <h2>
+                        {{
+                          expeditionComplete
+                            ? 'Crew home. Pick the call you answer.'
+                            : 'Where does the couch go first?'
+                        }}
+                      </h2>
+                      <p v-if="(run.redshirtFallen ?? []).length">
+                        Fallen redshirts: {{ run.redshirtFallen?.length }}.
+                        Personnel says they have more.
+                      </p>
+                    </section>
+                    <section
+                      class="cap-route-board"
+                      data-testid="space-couch-route-board"
+                      :aria-label="actLabel + ' galaxy navigation'"
+                    >
+                      <div class="cap-brief-routes">
+                        <button
+                          v-for="call in routeBoard"
+                          :key="call.id"
+                          type="button"
+                          class="cap-brief-route"
+                          data-testid="space-couch-route-option"
+                          :class="{ active: mission.id === call.id }"
+                          :aria-pressed="mission.id === call.id"
+                          @click="store.chartMission(call.id)"
+                        >
+                          <img
+                            :src="
+                              paintedVoyageImage(missionArtKey(call.id)) ||
+                              COUCH_FALLBACK
+                            "
+                            alt=""
+                            @error="onPaintedImageError"
+                          />
+                          <span class="cap-brief-route-copy">
+                            <small>{{ call.system }}</small>
+                            <strong>{{ call.title }}</strong>
+                          </span>
+                          <small
+                            v-if="destinationFollowup(run, call.id)"
+                            class="cap-brief-thread"
+                            >RETURN CALL</small
+                          >
+                          <b v-if="mission.id === call.id" class="cap-brief-pin"
+                            >CHARTED</b
+                          >
+                        </button>
+                      </div>
+                      <p
+                        v-if="destinationFollowup(run, mission.id)"
+                        class="cap-route-memory"
+                        data-testid="space-couch-destination-thread"
+                      >
+                        {{ destinationFollowup(run, mission.id) }}
+                      </p>
+                      <p
+                        class="cap-route-memory"
+                        data-testid="space-couch-world-echo"
+                      >
+                        {{ routeEcho }}
+                      </p>
+                    </section>
+                    <section
+                      class="cap-solar-circuit"
+                      data-testid="space-couch-solar-circuit"
+                      aria-label="Voyage solar-system circuit"
+                    >
+                      <div class="cap-system-nodes">
+                        <span
+                          v-for="system in circuit"
+                          :key="system.id"
+                          class="cap-system-node"
+                          :class="{ active: system.id === localSystem.id }"
+                          :title="
+                            system.giant +
+                            ' Grand Casino · ' +
+                            system.franchise.name
+                          "
+                          >{{ system.name }}</span
+                        >
+                      </div>
+                    </section>
+                  </template>
+
+                  <template v-else-if="briefingStep === 'mission'">
+                    <section
+                      class="cap-brief-intro cap-instinct"
+                      data-testid="couch-captain-instinct"
+                    >
+                      <span class="cap-brief-kicker"
+                        >CAPTAIN'S PERSONAL BAD IDEA</span
+                      >
+                      <h2>{{ captainInstinct.title }}</h2>
+                      <p>{{ captainInstinct.situation }}</p>
+                    </section>
+                    <SpaceCouchChoiceHand
+                      v-if="captainCanAct"
+                      class="cap-brief-hand"
+                      :choices="captainChoices"
+                      deal-key="captain-instinct"
+                      testid-prefix="couch-captain"
+                      @play="
+                        (choice) =>
+                          store.captainAction(
+                            choice.id as 'impulse' | 'restraint',
+                          )
+                      "
+                    />
+                    <p v-else class="cap-brief-verdict">{{ captainReply }}</p>
+                    <div
+                      v-if="briefingCallbacks.length || briefingAboard.length"
+                      class="cap-callbacks"
+                      data-testid="space-couch-callbacks"
+                    >
+                      <p
+                        v-for="callback in briefingCallbacks"
+                        :key="callback.flag"
+                      >
+                        <strong
+                          >{{ callback.odds > 0 ? '+' : ''
+                          }}{{ callback.odds }}%</strong
+                        >
+                        {{ callback.text }}
+                      </p>
+                      <p v-for="line in briefingAboard" :key="line">
+                        <strong>ABOARD</strong> {{ line }}
+                      </p>
+                    </div>
+                    <p class="cap-brief-anomaly">
+                      <strong>ANOMALY IN THE SIGNAL</strong> ·
+                      {{ antagonist.title }}
+                    </p>
+                  </template>
+
+                  <template v-else-if="briefingStep === 'prep'">
+                    <section
+                      class="cap-brief-intro"
+                      aria-label="Couch pocket rooms and shield"
+                    >
+                      <span class="cap-brief-kicker"
+                        >SUPPLIES {{ run.supplies }} · BUBBLE
+                        {{ run.shieldCharge ?? 2 }}/3</span
+                      >
+                      <h2>Unfold a room behind the backrest?</h2>
+                    </section>
+                    <div class="cap-brief-rooms">
+                      <button
+                        type="button"
+                        class="cap-brief-room"
+                        :class="{ chosen: !run.pocketRoom }"
+                        :aria-pressed="!run.pocketRoom"
+                        @click="store.chooseRoom(null)"
+                      >
+                        <img :src="COUCH_FALLBACK" alt="" />
+                        <span
+                          ><strong>Just the couch</strong
+                          ><small>Free</small></span
+                        >
+                      </button>
+                      <button
+                        v-for="room in POCKET_ROOMS"
+                        :key="room.id"
+                        type="button"
+                        class="cap-brief-room cap-pocket-room-choice"
+                        :class="{ chosen: run.pocketRoom === room.id }"
+                        :aria-pressed="run.pocketRoom === room.id"
+                        :disabled="
+                          run.supplies < 1 && run.pocketRoom !== room.id
+                        "
+                        @click="store.chooseRoom(room.id)"
+                      >
+                        <img
+                          class="cap-pocket-room-art"
+                          :src="pocketRoomPainting(room.id) || COUCH_FALLBACK"
+                          alt=""
+                          @error="onPaintedImageError"
+                        />
+                        <span
+                          ><strong>{{ room.name }}</strong
+                          ><small>1 supply · {{ room.blurb }}</small></span
+                        >
+                      </button>
+                    </div>
+                    <button
+                      class="cap-brief-shield"
+                      type="button"
+                      data-testid="couch-recharge-shield"
+                      :disabled="
+                        run.supplies < 1 || (run.shieldCharge ?? 2) >= 3
+                      "
+                      @click="store.rechargeShield()"
+                    >
+                      <span class="cap-brief-shield-meter" aria-hidden="true"
+                        ><i
+                          v-for="n in 3"
+                          :key="n"
+                          :class="{ on: n <= (run.shieldCharge ?? 2) }"
+                      /></span>
+                      <span
+                        ><strong>Recharge the force bubble</strong
+                        ><small
+                          >1 supply refills all three charges. An empty bubble
+                          costs 10% mission odds.</small
+                        ></span
+                      >
+                    </button>
+                  </template>
+
+                  <template v-else>
+                    <section
+                      v-if="missionPreview"
+                      class="cap-brief-odds"
+                      :class="{ ready: missionPreview.eligible }"
+                      data-testid="captains-odds"
+                      aria-live="polite"
+                    >
+                      <strong class="cap-brief-chance"
+                        >{{ missionPreview.chance }}%</strong
+                      >
+                      <span class="cap-brief-odds-copy">
+                        <b
+                          >SUCCESS · BACK IN
+                          {{ missionPreview.durationDays }} DAYS</b
+                        >
+                        <span class="cap-brief-reqs">
+                          <i
+                            v-for="requirement in missionPreview.requirements"
+                            :key="requirement.skill"
+                            :class="{
+                              met: requirement.total >= requirement.required,
+                            }"
+                            >{{ requirement.skill.toUpperCase() }}
+                            {{ requirement.total }}/{{
+                              requirement.required
+                            }}</i
+                          >
+                        </span>
+                        <small
+                          v-for="blocker in missionPreview.blockers"
+                          :key="blocker"
+                          role="alert"
+                          >{{ blocker }}</small
+                        >
+                        <small v-if="!missionPreview.blockers.length">{{
+                          missionPreview.specialRoutes.length
+                            ? missionPreview.specialRoutes.join(' ')
+                            : 'Expires in ' +
+                              missionPreview.expiresInDays +
+                              ' ship day(s).'
+                        }}</small>
+                      </span>
+                    </section>
+                    <div class="cap-brief-crew">
+                      <button
+                        v-for="member in availableCrew"
+                        :key="member.id"
+                        class="cap-brief-officer"
+                        type="button"
+                        :class="{ chosen: run.away.includes(member.id) }"
+                        :aria-pressed="run.away.includes(member.id)"
+                        :disabled="
+                          unavailable(member.id) ||
+                          (!run.away.includes(member.id) &&
+                            run.away.length >= 3)
+                        "
+                        :title="member.quote"
+                        @click="toggleAway(member.id)"
+                      >
+                        <img
+                          v-if="crewVoyagePortrait(member.id)"
+                          :src="crewVoyagePortrait(member.id)!"
+                          alt=""
+                          @error="
+                            onPortraitError(
+                              $event,
+                              crewProfile(member.id).portraitKey,
+                            )
+                          "
+                        />
+                        <span v-else class="cap-brief-officer-mono">{{
+                          member.monogram
+                        }}</span>
+                        <span class="cap-brief-officer-copy"
+                          ><strong>{{ member.name }}</strong
+                          ><small>{{ member.role }}</small></span
+                        >
+                        <b>{{
+                          unavailable(member.id)
+                            ? 'INJURED'
+                            : run.away.includes(member.id)
+                              ? 'AWAY'
+                              : 'ON SHIP'
+                        }}</b>
+                      </button>
+                    </div>
+                    <p class="cap-brief-note">
+                      Up to three go. Sending nobody is a valid remote approach.
+                    </p>
+                  </template>
+                </div>
+
+                <footer class="cap-brief-nav">
+                  <button
+                    v-if="briefingStepIndex > 0"
+                    type="button"
+                    class="cap-brief-back"
+                    data-testid="space-couch-brief-back"
+                    @click="
+                      briefingStep = BRIEFING_STEPS[briefingStepIndex - 1]!.id
+                    "
+                  >
+                    ←
+                  </button>
+                  <button
+                    v-if="briefingStep === 'team'"
+                    class="cap-brief-wait"
+                    type="button"
+                    data-testid="captains-wait"
+                    title="Deliberate further. This opportunity may expire."
+                    @click="store.advanceDay()"
+                  >
+                    WAIT A DAY
+                  </button>
+                  <button
+                    v-if="!expeditionComplete"
+                    class="cap-primary"
+                    type="button"
+                    data-testid="space-couch-travel"
+                    @click="store.travel()"
+                  >
+                    TRAVEL TO {{ localSystem.name.toUpperCase() }}
+                    <span>➜</span>
+                  </button>
+                  <button
+                    v-else-if="briefingStep === 'team'"
+                    class="cap-primary"
+                    type="button"
+                    data-testid="captains-launch"
+                    :disabled="!missionPreview?.eligible"
+                    @click="store.launch()"
+                  >
+                    LAUNCH MISSION <span>➜</span>
+                  </button>
+                  <button
+                    v-else
+                    class="cap-primary"
+                    type="button"
+                    data-testid="space-couch-brief-next"
+                    @click="
+                      briefingStep = BRIEFING_STEPS[briefingStepIndex + 1]!.id
+                    "
+                  >
+                    {{
+                      BRIEFING_STEPS[briefingStepIndex + 1]!.label.toUpperCase()
+                    }}
+                    <span>➜</span>
+                  </button>
+                </footer>
+              </div>
+            </template>
+
+            <template v-else-if="run.phase === 'travel'">
+              <div class="cap-heading">
+                <span>✦</span>
+                <div>
+                  <h2>The couch approaches {{ localSystem.name }}</h2>
+                  <p>
+                    TRAVEL / SHIP DAY {{ run.day }} · THE MINIATURIZED BARRACKS
+                  </p>
+                </div>
+              </div>
+              <section
+                class="cap-redshirt-travel"
+                data-testid="space-couch-transit"
+              >
+                <h3>{{ localSystem.name }} · {{ localSystem.casinoName }}</h3>
+                <p>{{ CASINO_ORIGIN }}</p>
+                <p>
+                  <strong>ON THE LIVING CASINO:</strong>
+                  {{ localSystem.franchise.name }}.
+                  {{ localSystem.franchise.theme }}. {{ localSystem.conflict }}
+                </p>
+                <h3>{{ REDSHIRT_QUARTERS.name }}</h3>
+                <p>{{ run.scene }}</p>
+                <p>{{ REDSHIRT_QUARTERS.description }}</p>
+                <p>{{ REDSHIRT_QUARTERS.exchange }}</p>
+                <strong
+                  >{{ (run.redshirtRoster ?? []).length }} redshirts ready · 8
+                  miniature bunks</strong
+                >
+                <button
+                  class="cap-primary"
+                  type="button"
+                  data-testid="space-couch-arrive"
+                  @click="store.arrive()"
+                >
+                  ARRIVE AND OPEN THE ENCOUNTER BOARD <span>➜</span>
+                </button>
+              </section>
+            </template>
+
+            <template v-else-if="run.phase === 'expedition'">
+              <SpaceCouchDailyConsole
+                :run="run"
+                :backdrop="stagePainting"
+                :franchise-image="franchiseImage"
+                :artwork="store.onboardingArt"
+                :knowledge="store.redshirtKnowledge"
+                @hire="store.hire()"
+                @dispatch="store.deployBatch"
+                @draw="store.drawDailyDeck"
+                @clone-advance="store.cloneAdvance"
+                @clone-print="store.clonePrint"
+                @finish="store.endExpedition()"
+              />
+            </template>
+
+            <template v-else-if="run.phase === 'transit'">
+              <div class="cap-heading">
+                <span>⌛</span>
+                <div>
+                  <h2>Away team en route</h2>
+                  <p>SHIP DAY {{ run.day }} · {{ mission.system }}</p>
+                </div>
+              </div>
+              <p class="cap-narrative">{{ run.scene }}</p>
+              <p class="cap-alert">
+                Expected return: day {{ run.active?.returnsDay }}. Assigned crew
+                are unavailable until their return.
+              </p>
+              <div class="cap-crew-picker">
+                <div
+                  v-for="id in run.active?.party ?? []"
+                  :key="id"
+                  class="cap-crew-button"
+                >
+                  <span
+                    class="cap-monogram"
+                    :data-portrait-key="crewProfile(id).portraitKey"
+                    ><img
+                      v-if="portrait(crewProfile(id).portraitKey)"
+                      :src="portrait(crewProfile(id).portraitKey)!"
+                      alt=""
+                      class="cap-portrait-img"
+                    /><template v-else>{{
+                      crewProfile(id).monogram
+                    }}</template></span
+                  >
+                  <span
+                    ><strong>{{ crewProfile(id).name }}</strong
+                    ><small>ON MISSION</small></span
+                  >
+                </div>
+              </div>
               <button
                 class="cap-primary"
                 type="button"
-                data-testid="space-couch-arrive"
-                @click="store.arrive()"
+                data-testid="captains-return-day"
+                @click="store.advanceDay()"
               >
-                ARRIVE AND OPEN THE ENCOUNTER BOARD <span>➜</span>
+                ADVANCE SHIP DAY <span>➜</span>
               </button>
-            </section>
-          </template>
+            </template>
 
-          <template v-else-if="run.phase === 'expedition'">
-            <SpaceCouchDailyConsole
-              :run="run"
-              :backdrop="stagePainting"
-              :franchise-image="franchiseImage"
-              :artwork="store.onboardingArt"
-              :knowledge="store.redshirtKnowledge"
-              @hire="store.hire()"
-              @dispatch="store.deployBatch"
-              @draw="store.drawDailyDeck"
-              @clone-advance="store.cloneAdvance"
-              @clone-print="store.clonePrint"
-              @finish="store.endExpedition()"
-            />
-          </template>
-
-          <template v-else-if="run.phase === 'transit'">
-            <div class="cap-heading">
-              <span>⌛</span>
-              <div>
-                <h2>Away team en route</h2>
-                <p>SHIP DAY {{ run.day }} · {{ mission.system }}</p>
+            <template v-else-if="run.phase === 'decision'">
+              <div class="cap-heading">
+                <span>05</span>
+                <div>
+                  <h2>
+                    {{ featuredConsequence?.title || 'Prime contact dilemma' }}
+                  </h2>
+                  <p>
+                    {{ featuredConsequence?.system || mission.system }} ·
+                    COMMAND AUTHORITY
+                  </p>
+                </div>
               </div>
-            </div>
-            <p class="cap-narrative">{{ run.scene }}</p>
-            <p class="cap-alert">
-              Expected return: day {{ run.active?.returnsDay }}. Assigned crew
-              are unavailable until their return.
-            </p>
-            <div class="cap-crew-picker">
-              <div
-                v-for="id in run.active?.party ?? []"
-                :key="id"
-                class="cap-crew-button"
-              >
-                <span
-                  class="cap-monogram"
-                  :data-portrait-key="crewProfile(id).portraitKey"
-                  ><img
-                    v-if="portrait(crewProfile(id).portraitKey)"
-                    :src="portrait(crewProfile(id).portraitKey)!"
-                    alt=""
-                    class="cap-portrait-img"
-                  /><template v-else>{{
-                    crewProfile(id).monogram
-                  }}</template></span
+              <template v-if="featuredConsequence">
+                <p class="cap-narrative">{{ featuredConsequence.opening }}</p>
+                <p class="cap-alert">{{ featuredConsequence.conflict }}</p>
+                <section
+                  class="cap-consequence-choices"
+                  data-testid="space-couch-authored-consequence"
                 >
-                <span
-                  ><strong>{{ crewProfile(id).name }}</strong
-                  ><small>ON MISSION</small></span
-                >
-              </div>
-            </div>
-            <button
-              class="cap-primary"
-              type="button"
-              data-testid="captains-return-day"
-              @click="store.advanceDay()"
-            >
-              ADVANCE SHIP DAY <span>➜</span>
-            </button>
-          </template>
-
-          <template v-else-if="run.phase === 'decision'">
-            <div class="cap-heading">
-              <span>05</span>
-              <div>
-                <h2>
-                  {{ featuredConsequence?.title || 'Prime contact dilemma' }}
-                </h2>
-                <p>
-                  {{ featuredConsequence?.system || mission.system }} · COMMAND
-                  AUTHORITY
-                </p>
-              </div>
-            </div>
-            <template v-if="featuredConsequence">
-              <p class="cap-narrative">{{ featuredConsequence.opening }}</p>
-              <p class="cap-alert">{{ featuredConsequence.conflict }}</p>
-              <section
-                class="cap-consequence-choices"
-                data-testid="space-couch-authored-consequence"
-              >
-                <p>
-                  Your captain and assigned crew attempt the strongest listed
-                  skill. A seeded six-sided roll decides the outcome; setbacks
-                  continue the story.
-                </p>
+                  <p>
+                    Your captain and assigned crew attempt the strongest listed
+                    skill. A seeded six-sided roll decides the outcome; setbacks
+                    continue the story.
+                  </p>
+                  <SpaceCouchChoiceHand
+                    :choices="consequenceHand"
+                    question="Three orders · three different costs"
+                    :deal-key="featuredConsequence.id"
+                    testid-prefix="space-couch-consequence-choice"
+                    @play="(choice) => store.decideConsequence(choice.id)"
+                  />
+                </section>
+              </template>
+              <template v-else>
+                <p class="cap-narrative">{{ mission.dilemma }}</p>
+                <div v-if="run.report" class="cap-mission-report">
+                  <strong
+                    >{{ run.report.result.toUpperCase() }} / MISSION
+                    STATUS</strong
+                  >
+                  <span>{{ run.report.names }}</span>
+                  <p>{{ run.report.text }}</p>
+                </div>
+                <p class="cap-alert">{{ nemesisLine }}</p>
                 <SpaceCouchChoiceHand
-                  :choices="consequenceHand"
-                  question="Three orders · three different costs"
-                  :deal-key="featuredConsequence.id"
-                  testid-prefix="space-couch-consequence-choice"
-                  @play="(choice) => store.decideConsequence(choice.id)"
+                  :choices="ethicalHand"
+                  question="Your orders, captain"
+                  :deal-key="`${run.chapter}:${mission.id}`"
+                  testid-prefix="space-couch-ethical-order"
+                  @play="(choice) => store.decide(choice.id as PolicyId)"
                 />
-              </section>
+              </template>
             </template>
-            <template v-else>
-              <p class="cap-narrative">{{ mission.dilemma }}</p>
-              <div v-if="run.report" class="cap-mission-report">
-                <strong
-                  >{{ run.report.result.toUpperCase() }} / MISSION
-                  STATUS</strong
-                >
-                <span>{{ run.report.names }}</span>
-                <p>{{ run.report.text }}</p>
-              </div>
-              <p class="cap-alert">{{ nemesisLine }}</p>
-              <SpaceCouchChoiceHand
-                :choices="ethicalHand"
-                question="Your orders, captain"
-                :deal-key="`${run.chapter}:${mission.id}`"
-                testid-prefix="space-couch-ethical-order"
-                @play="(choice) => store.decide(choice.id as PolicyId)"
-              />
-            </template>
-          </template>
 
-          <template v-else-if="run.phase === 'debrief'">
-            <div class="cap-heading">
-              <span>06</span>
-              <div>
-                <h2>Captain’s log</h2>
-                <p>One more star behind us. Another choice we cannot erase.</p>
+            <template v-else-if="run.phase === 'debrief'">
+              <div class="cap-heading">
+                <span>06</span>
+                <div>
+                  <h2>Captain’s log</h2>
+                  <p>
+                    One more star behind us. Another choice we cannot erase.
+                  </p>
+                </div>
               </div>
-            </div>
-            <p class="cap-narrative">{{ run.scene }}</p>
-            <section
-              v-if="latestConsequence"
-              class="cap-consequence-receipt"
-              data-testid="space-couch-consequence-receipt"
-            >
-              <strong>{{
-                latestConsequence.succeeded
-                  ? 'THE ORDER HELD'
-                  : 'THE ORDER FAILED'
-              }}</strong>
-              <p>{{ latestConsequence.callback }}</p>
-              <small
-                >The consequence is recorded in your captain's log and will
-                affect later worlds.</small
+              <p class="cap-narrative">{{ run.scene }}</p>
+              <section
+                v-if="latestConsequence"
+                class="cap-consequence-receipt"
+                data-testid="space-couch-consequence-receipt"
               >
-            </section>
-            <div class="cap-stats">
-              <div>
-                <small>SUPPLIES</small><strong>{{ run.supplies }}</strong>
-              </div>
-              <div>
-                <small>TRUST</small><strong>{{ run.trust }}</strong>
-              </div>
-              <div>
-                <small>INTERVENTION</small
-                ><strong>{{ run.intervention }}</strong>
-              </div>
-              <div>
-                <small>REPUTATION</small><strong>{{ run.reputation }}</strong>
-              </div>
-            </div>
-            <section
-              v-if="canRequisitionSupplies(run)"
-              class="cap-insight"
-              data-testid="space-couch-quartermaster"
-            >
-              <strong>THE QUARTERMASTER KNOWS A WAY</strong>
-              <p>
-                Ask local relief partners for three emergency supply crates.
-                Each favor costs more reputation than the last. You can
-                requisition once per act, but only after answering the call.
-              </p>
-              <button
-                class="cap-option"
-                type="button"
-                @click="store.requisition()"
-              >
-                <span>
-                  <b>CALL IN AN OWED FAVOR · +3 SUPPLIES</b>
-                  <small
-                    >Costs {{ quartermasterCost(run) }} reputation. The galaxy
-                    remembers its creditors.</small
-                  >
-                </span>
-                ↗
-              </button>
-            </section>
-            <section
-              v-if="crewRoutes.length"
-              class="cap-insight"
-              data-testid="couch-crew-routes"
-            >
-              <strong>CREW STAR CHART · OPTIONAL PERSONAL DETOUR</strong>
-              <small
-                >One detour after each mission. Each officer has a three-system
-                quest; your choice changes the final council. Visiting costs one
-                ship day, not a mission slot.</small
-              >
-              <button
-                v-for="id in crewRoutes"
-                :key="id"
-                class="cap-option"
-                type="button"
-                :data-route="id"
-                @click="store.detour(id)"
-              >
-                <span>
-                  <b
-                    >{{ crewProfile(id).name }} ·
-                    {{
-                      CREW_JOURNEYS[id][run.journeyProgress?.[id] ?? 0]?.system
-                    }}</b
-                  >
-                  <small
-                    >{{
-                      CREW_JOURNEYS[id][run.journeyProgress?.[id] ?? 0]?.title
-                    }}
-                    · Step {{ (run.journeyProgress?.[id] ?? 0) + 1 }}/3</small
-                  > </span
-                >↗
-              </button>
-            </section>
-            <p v-else class="cap-alert">
-              {{
-                run.detourChapter === run.chapter
-                  ? 'This chapter’s personal route has been recorded. Plot the next course.'
-                  : 'No officer is available for a personal detour. The next destination still awaits.'
-              }}
-            </p>
-            <section
-              v-if="romanceScene"
-              class="cap-romance"
-              data-testid="space-couch-romance-scene"
-              aria-label="Optional crew relationship conversation"
-            >
-              <span class="cap-romance-kicker"
-                >OFF DUTY // EVERYONE MAY SAY NO</span
-              >
-              <h3>{{ romanceScene.title }}</h3>
-              <div class="cap-romance-faces">
-                <span
-                  v-for="key in romanceScene.portraits"
-                  :key="key"
-                  class="cap-romance-face"
+                <strong>{{
+                  latestConsequence.succeeded
+                    ? 'THE ORDER HELD'
+                    : 'THE ORDER FAILED'
+                }}</strong>
+                <p>{{ latestConsequence.callback }}</p>
+                <small
+                  >The consequence is recorded in your captain's log and will
+                  affect later worlds.</small
                 >
-                  <img
-                    v-if="portrait(key)"
-                    :src="portrait(key)!"
-                    :alt="key.replace('crew-', '') + ' portrait'"
-                  />
-                  <span v-else>{{
-                    key.replace('crew-', '').toUpperCase()
-                  }}</span>
-                </span>
+              </section>
+              <div class="cap-stats">
+                <div>
+                  <small>SUPPLIES</small><strong>{{ run.supplies }}</strong>
+                </div>
+                <div>
+                  <small>TRUST</small><strong>{{ run.trust }}</strong>
+                </div>
+                <div>
+                  <small>INTERVENTION</small
+                  ><strong>{{ run.intervention }}</strong>
+                </div>
+                <div>
+                  <small>REPUTATION</small><strong>{{ run.reputation }}</strong>
+                </div>
               </div>
-              <p class="cap-romance-setting">{{ romanceScene.setting }}</p>
-              <p
-                v-for="line in romanceScene.speakers"
-                :key="line.name + line.line"
-                class="cap-romance-line"
+              <section
+                v-if="canRequisitionSupplies(run)"
+                class="cap-insight"
+                data-testid="space-couch-quartermaster"
               >
-                <strong>{{ line.name }}:</strong> {{ line.line }}
+                <strong>THE QUARTERMASTER KNOWS A WAY</strong>
+                <p>
+                  Ask local relief partners for three emergency supply crates.
+                  Each favor costs more reputation than the last. You can
+                  requisition once per act, but only after answering the call.
+                </p>
+                <button
+                  class="cap-option"
+                  type="button"
+                  @click="store.requisition()"
+                >
+                  <span>
+                    <b>CALL IN AN OWED FAVOR · +3 SUPPLIES</b>
+                    <small
+                      >Costs {{ quartermasterCost(run) }} reputation. The galaxy
+                      remembers its creditors.</small
+                    >
+                  </span>
+                  ↗
+                </button>
+              </section>
+              <section
+                v-if="crewRoutes.length"
+                class="cap-insight"
+                data-testid="couch-crew-routes"
+              >
+                <strong>CREW STAR CHART · OPTIONAL PERSONAL DETOUR</strong>
+                <small
+                  >One detour after each mission. Each officer has a
+                  three-system quest; your choice changes the final council.
+                  Visiting costs one ship day, not a mission slot.</small
+                >
+                <button
+                  v-for="id in crewRoutes"
+                  :key="id"
+                  class="cap-option"
+                  type="button"
+                  :data-route="id"
+                  @click="store.detour(id)"
+                >
+                  <span>
+                    <b
+                      >{{ crewProfile(id).name }} ·
+                      {{
+                        CREW_JOURNEYS[id][run.journeyProgress?.[id] ?? 0]
+                          ?.system
+                      }}</b
+                    >
+                    <small
+                      >{{
+                        CREW_JOURNEYS[id][run.journeyProgress?.[id] ?? 0]?.title
+                      }}
+                      · Step {{ (run.journeyProgress?.[id] ?? 0) + 1 }}/3</small
+                    > </span
+                  >↗
+                </button>
+              </section>
+              <p v-else class="cap-alert">
+                {{
+                  run.detourChapter === run.chapter
+                    ? 'This chapter’s personal route has been recorded. Plot the next course.'
+                    : 'No officer is available for a personal detour. The next destination still awaits.'
+                }}
               </p>
-              <SpaceCouchChoiceHand
-                :choices="romanceHand"
-                :deal-key="`${run.chapter}:${romanceScene.title}`"
-                testid-prefix="space-couch-romance-choice"
-                @play="
-                  (choice) => store.chooseRomance(choice.id as RomanceChoiceId)
-                "
+              <section
+                v-if="romanceScene"
+                class="cap-romance"
+                data-testid="space-couch-romance-scene"
+                aria-label="Optional crew relationship conversation"
               >
-                <template #art="{ choice, src, markFailed }">
-                  <img
-                    v-if="src"
-                    :src="src"
-                    alt=""
-                    class="cap-romance-card-face"
-                    @error="markFailed(src)"
-                  />
+                <span class="cap-romance-kicker"
+                  >OFF DUTY // EVERYONE MAY SAY NO</span
+                >
+                <h3>{{ romanceScene.title }}</h3>
+                <div class="cap-romance-faces">
                   <span
-                    v-else-if="
-                      choice.id.startsWith('invite-') &&
-                      romanceFaces(choice.id).length
-                    "
-                    class="cap-romance-card-faces"
-                    :data-faces="romanceFaces(choice.id).length"
+                    v-for="key in romanceScene.portraits"
+                    :key="key"
+                    class="cap-romance-face"
                   >
                     <img
-                      v-for="url in romanceFaces(choice.id)"
-                      :key="url"
-                      :src="url"
-                      alt=""
+                      v-if="portrait(key)"
+                      :src="portrait(key)!"
+                      :alt="key.replace('crew-', '') + ' portrait'"
                     />
+                    <span v-else>{{
+                      key.replace('crew-', '').toUpperCase()
+                    }}</span>
                   </span>
-                </template>
-              </SpaceCouchChoiceHand>
-            </section>
-            <p
-              v-else-if="romanceRecord?.lastChapter === run.chapter"
-              class="cap-romance-outcome"
-              data-testid="space-couch-romance-outcome"
-              aria-live="polite"
-            >
-              {{ romanceRecord.result }}
-            </p>
-            <SpaceCouchTrioInterlude />
-            <button
-              class="cap-primary"
-              type="button"
-              data-testid="captains-next"
-              @click="store.next()"
-            >
-              {{
-                run.chapter === VOYAGE_CHAPTERS
-                  ? 'APPROACH THE LAST JUMP GATE'
-                  : 'PLOT NEXT COURSE'
-              }}
-              <span>➜</span>
-            </button>
-          </template>
-
-          <template v-else-if="run.phase === 'crew-quest'">
-            <div class="cap-heading">
-              <span>✦</span>
-              <div>
-                <h2>{{ activeDetour?.title }}</h2>
-                <p>
-                  {{ activeDetour?.system }} · THREE-WORLD ODYSSEY
-                  {{ (run.detour?.step ?? 0) + 1 }}/3
-                </p>
-              </div>
-            </div>
-            <div class="cap-grand-quest" data-testid="couch-grand-quest">
-              <strong>THE IMPOSSIBLE ADVENTURE</strong>
-              <div class="cap-quest-portrait-line">
-                <img
-                  v-if="questPortrait"
-                  class="cap-quest-portrait"
-                  :src="questPortrait"
-                  :alt="detourCrewName + ' portrait'"
-                />
-                <p>{{ activeDetour?.scene }}</p>
-              </div>
-              <small>Next relic: {{ activeDetour?.prize }}</small>
-            </div>
-            <p
-              v-if="!run.detour?.gambit"
-              class="cap-narrative"
-              aria-live="polite"
-            >
-              {{ run.scene }}
-            </p>
-            <p v-if="nemesisCrewLink" class="cap-alert">
-              {{ antagonist.name }} has a personal stake in this expedition.
-              Evidence collected here can change the final confrontation.
-            </p>
-            <template v-if="!run.detour?.gambit">
-              <div class="cap-quest-phase" data-testid="couch-quest-setup">
-                <strong>ACT ONE · MAKE THE PLAN</strong>
-                <small
-                  >Both plans uncover a nasty reversal. The captain must choose
-                  again after discovering what was really at stake.</small
+                </div>
+                <p class="cap-romance-setting">{{ romanceScene.setting }}</p>
+                <p
+                  v-for="line in romanceScene.speakers"
+                  :key="line.name + line.line"
+                  class="cap-romance-line"
                 >
-              </div>
-              <button
-                type="button"
-                class="cap-option"
-                data-testid="couch-crew-plan-careful"
-                @click="store.planDetour('careful')"
-              >
-                <span
-                  ><b>{{ activeDetour?.careful }}</b>
-                  <small
-                    >A discreet opening gambit. What could possibly go
-                    wrong?</small
-                  ></span
-                >↗
-              </button>
-              <button
-                type="button"
-                class="cap-option"
-                data-testid="couch-crew-plan-bold"
-                @click="store.planDetour('bold')"
-              >
-                <span
-                  ><b>{{ activeDetour?.bold }}</b>
-                  <small
-                    >A spectacular opening gambit. Insurance may not cover
-                    this.</small
-                  ></span
-                >↗
-              </button>
-            </template>
-            <template v-else>
-              <div
-                class="cap-quest-phase cap-quest-reversal"
-                data-testid="couch-quest-reversal"
-              >
-                <strong>ACT TWO · THE UNIVERSE CHANGES THE RULES</strong>
-                <p aria-live="polite">{{ run.scene }}</p>
-                <small
-                  >Opening gambit: {{ run.detour.gambit }}. You may change
-                  course when it matters most.</small
+                  <strong>{{ line.name }}:</strong> {{ line.line }}
+                </p>
+                <SpaceCouchChoiceHand
+                  :choices="romanceHand"
+                  :deal-key="`${run.chapter}:${romanceScene.title}`"
+                  testid-prefix="space-couch-romance-choice"
+                  @play="
+                    (choice) =>
+                      store.chooseRomance(choice.id as RomanceChoiceId)
+                  "
                 >
-              </div>
-              <button
-                type="button"
-                class="cap-option"
-                data-testid="couch-crew-careful"
-                :disabled="run.supplies < 1"
-                @click="store.resolveDetour('careful')"
-              >
-                <span
-                  ><b>{{ activeDetour?.finalCareful }}</b>
-                  <small
-                    >Spend 1 supply · +1 trust · preserve local
-                    confidence</small
-                  ></span
-                >↗
-              </button>
-              <button
-                type="button"
-                class="cap-option"
-                data-testid="couch-crew-bold"
-                @click="store.resolveDetour('bold')"
-              >
-                <span
-                  ><b>{{ activeDetour?.finalBold }}</b>
-                  <small
-                    >+1 public reputation · -1 trust · more enemy
-                    attention</small
-                  ></span
-                >↗
-              </button>
-            </template>
-          </template>
-          <template v-else-if="run.phase === 'finale'">
-            <div class="cap-heading">
-              <span>07</span>
-              <div>
-                <h2>The last jump gate</h2>
-                <p>{{ antagonist.name }} has one final request.</p>
-              </div>
-            </div>
-            <p class="cap-narrative">
-              The antagonist offers you a route to safety. Every culture you met
-              will inherit the terms. Your crew stands quietly at their posts,
-              letting the final order belong to you.
-            </p>
-            <div
-              v-if="counterOfficers.length"
-              class="cap-insight"
-              data-testid="couch-counterplay"
-            >
-              <strong>CREW EVIDENCE UNLOCKED</strong>
-              <small
-                >{{
-                  counterOfficers
-                    .map((id) => crewProfile(id).name)
-                    .join(' and ')
-                }}
-                recovered two or more witnesses across the galaxy.
-                {{ antagonist.name }} can now be confronted on the
-                record.</small
-              >
-              <button
-                class="cap-option"
-                type="button"
-                data-testid="couch-counter-ending"
-                @click="store.finish('counter')"
-              >
-                <span
-                  ><b
-                    >Convene the civilian council and challenge
-                    {{ antagonist.name }}</b
-                  ><small
-                    >Use a crew member’s earned evidence, not the captain’s
-                    rank.</small
-                  ></span
-                >↗
-              </button>
-            </div>
-            <button
-              class="cap-option"
-              type="button"
-              @click="store.finish('protect')"
-            >
-              <span
-                ><b>Defend the autonomy of the worlds</b
-                ><small
-                  >Refuse a bargain that turns entire civilizations into
-                  collateral.</small
-                ></span
-              >
-              ↗
-            </button>
-            <button
-              class="cap-option"
-              type="button"
-              @click="store.finish('compromise')"
-            >
-              <span
-                ><b>Accept a calculated galactic bargain</b
-                ><small
-                  >End the immediate crisis and carry the debt yourself.</small
-                ></span
-              >
-              ↗
-            </button>
-          </template>
-
-          <template v-else>
-            <div class="cap-heading">
-              <span>✦</span>
-              <div>
-                <h2>{{ run.ending }}</h2>
-                <p data-testid="space-couch-nemesis-ending">
-                  {{
-                    nemesisEndingTitle
-                      ? antagonist.name.toUpperCase() +
-                        ' // ' +
-                        nemesisEndingTitle
-                      : 'A CAPTAIN IS WHAT THE CREW REMEMBERS'
-                  }}
-                </p>
-              </div>
-            </div>
-            <div
-              v-if="run.endingSections?.length"
-              class="cap-ending-sections"
-              data-testid="space-couch-ending-sections"
-            >
-              <section
-                v-for="section in run.endingSections"
-                :key="section.label"
-                class="cap-ending-section"
-              >
-                <h3>{{ section.label }}</h3>
-                <p v-for="(line, index) in section.lines" :key="index">
-                  {{ line }}
-                </p>
+                  <template #art="{ choice, src, markFailed }">
+                    <img
+                      v-if="src"
+                      :src="src"
+                      alt=""
+                      class="cap-romance-card-face"
+                      @error="markFailed(src)"
+                    />
+                    <span
+                      v-else-if="
+                        choice.id.startsWith('invite-') &&
+                        romanceFaces(choice.id).length
+                      "
+                      class="cap-romance-card-faces"
+                      :data-faces="romanceFaces(choice.id).length"
+                    >
+                      <img
+                        v-for="url in romanceFaces(choice.id)"
+                        :key="url"
+                        :src="url"
+                        alt=""
+                      />
+                    </span>
+                  </template>
+                </SpaceCouchChoiceHand>
               </section>
-            </div>
-            <p v-else class="cap-narrative">{{ run.scene }}</p>
-            <SpaceCouchTrioInterlude />
-            <details class="cap-log" data-testid="space-couch-ending-log">
-              <summary>
-                <strong
-                  >RECORDED CAPTAIN’S LOG · {{ run.log.length }} ENTRIES</strong
+              <p
+                v-else-if="romanceRecord?.lastChapter === run.chapter"
+                class="cap-romance-outcome"
+                data-testid="space-couch-romance-outcome"
+                aria-live="polite"
+              >
+                {{ romanceRecord.result }}
+              </p>
+              <SpaceCouchTrioInterlude />
+              <button
+                class="cap-primary"
+                type="button"
+                data-testid="captains-next"
+                @click="store.next()"
+              >
+                {{
+                  run.chapter === VOYAGE_CHAPTERS
+                    ? 'APPROACH THE LAST JUMP GATE'
+                    : 'PLOT NEXT COURSE'
+                }}
+                <span>➜</span>
+              </button>
+            </template>
+
+            <template v-else-if="run.phase === 'crew-quest'">
+              <div class="cap-heading">
+                <span>✦</span>
+                <div>
+                  <h2>{{ activeDetour?.title }}</h2>
+                  <p>
+                    {{ activeDetour?.system }} · THREE-WORLD ODYSSEY
+                    {{ (run.detour?.step ?? 0) + 1 }}/3
+                  </p>
+                </div>
+              </div>
+              <div class="cap-grand-quest" data-testid="couch-grand-quest">
+                <strong>THE IMPOSSIBLE ADVENTURE</strong>
+                <div class="cap-quest-portrait-line">
+                  <img
+                    v-if="questPortrait"
+                    class="cap-quest-portrait"
+                    :src="questPortrait"
+                    :alt="detourCrewName + ' portrait'"
+                  />
+                  <p>{{ activeDetour?.scene }}</p>
+                </div>
+                <small>Next relic: {{ activeDetour?.prize }}</small>
+              </div>
+              <p
+                v-if="!run.detour?.gambit"
+                class="cap-narrative"
+                aria-live="polite"
+              >
+                {{ run.scene }}
+              </p>
+              <p v-if="nemesisCrewLink" class="cap-alert">
+                {{ antagonist.name }} has a personal stake in this expedition.
+                Evidence collected here can change the final confrontation.
+              </p>
+              <template v-if="!run.detour?.gambit">
+                <div class="cap-quest-phase" data-testid="couch-quest-setup">
+                  <strong>ACT ONE · MAKE THE PLAN</strong>
+                  <small
+                    >Both plans uncover a nasty reversal. The captain must
+                    choose again after discovering what was really at
+                    stake.</small
+                  >
+                </div>
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-crew-plan-careful"
+                  @click="store.planDetour('careful')"
                 >
-              </summary>
-              <p v-for="(line, index) in run.log" :key="index">{{ line }}</p>
-            </details>
-            <PlaybookRunReview
-              game="game-of-captains"
-              :run="run"
-              :ending="run.ending ?? 'voyage-complete'"
-            />
-            <button class="cap-primary" type="button" @click="restartVoyage">
-              COMMAND ANOTHER VOYAGE <span>↻</span>
-            </button>
-          </template>
-        </div>
-        <footer class="cap-footer">
-          <span
-            >STAR CHART //
-            {{ run ? mission.system.toUpperCase() : 'UNCLAIMED VESSEL' }}</span
-          ><span>{{ run ? 'LOG SAVED' : 'NO TRANSMISSION' }}</span>
-        </footer>
-      </section>
-    </div>
+                  <span
+                    ><b>{{ activeDetour?.careful }}</b>
+                    <small
+                      >A discreet opening gambit. What could possibly go
+                      wrong?</small
+                    ></span
+                  >↗
+                </button>
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-crew-plan-bold"
+                  @click="store.planDetour('bold')"
+                >
+                  <span
+                    ><b>{{ activeDetour?.bold }}</b>
+                    <small
+                      >A spectacular opening gambit. Insurance may not cover
+                      this.</small
+                    ></span
+                  >↗
+                </button>
+              </template>
+              <template v-else>
+                <div
+                  class="cap-quest-phase cap-quest-reversal"
+                  data-testid="couch-quest-reversal"
+                >
+                  <strong>ACT TWO · THE UNIVERSE CHANGES THE RULES</strong>
+                  <p aria-live="polite">{{ run.scene }}</p>
+                  <small
+                    >Opening gambit: {{ run.detour.gambit }}. You may change
+                    course when it matters most.</small
+                  >
+                </div>
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-crew-careful"
+                  :disabled="run.supplies < 1"
+                  @click="store.resolveDetour('careful')"
+                >
+                  <span
+                    ><b>{{ activeDetour?.finalCareful }}</b>
+                    <small
+                      >Spend 1 supply · +1 trust · preserve local
+                      confidence</small
+                    ></span
+                  >↗
+                </button>
+                <button
+                  type="button"
+                  class="cap-option"
+                  data-testid="couch-crew-bold"
+                  @click="store.resolveDetour('bold')"
+                >
+                  <span
+                    ><b>{{ activeDetour?.finalBold }}</b>
+                    <small
+                      >+1 public reputation · -1 trust · more enemy
+                      attention</small
+                    ></span
+                  >↗
+                </button>
+              </template>
+            </template>
+            <template v-else-if="run.phase === 'finale'">
+              <div class="cap-heading">
+                <span>07</span>
+                <div>
+                  <h2>The last jump gate</h2>
+                  <p>{{ antagonist.name }} has one final request.</p>
+                </div>
+              </div>
+              <p class="cap-narrative">
+                The antagonist offers you a route to safety. Every culture you
+                met will inherit the terms. Your crew stands quietly at their
+                posts, letting the final order belong to you.
+              </p>
+              <div
+                v-if="counterOfficers.length"
+                class="cap-insight"
+                data-testid="couch-counterplay"
+              >
+                <strong>CREW EVIDENCE UNLOCKED</strong>
+                <small
+                  >{{
+                    counterOfficers
+                      .map((id) => crewProfile(id).name)
+                      .join(' and ')
+                  }}
+                  recovered two or more witnesses across the galaxy.
+                  {{ antagonist.name }} can now be confronted on the
+                  record.</small
+                >
+                <button
+                  class="cap-option"
+                  type="button"
+                  data-testid="couch-counter-ending"
+                  @click="store.finish('counter')"
+                >
+                  <span
+                    ><b
+                      >Convene the civilian council and challenge
+                      {{ antagonist.name }}</b
+                    ><small
+                      >Use a crew member’s earned evidence, not the captain’s
+                      rank.</small
+                    ></span
+                  >↗
+                </button>
+              </div>
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.finish('protect')"
+              >
+                <span
+                  ><b>Defend the autonomy of the worlds</b
+                  ><small
+                    >Refuse a bargain that turns entire civilizations into
+                    collateral.</small
+                  ></span
+                >
+                ↗
+              </button>
+              <button
+                class="cap-option"
+                type="button"
+                @click="store.finish('compromise')"
+              >
+                <span
+                  ><b>Accept a calculated galactic bargain</b
+                  ><small
+                    >End the immediate crisis and carry the debt
+                    yourself.</small
+                  ></span
+                >
+                ↗
+              </button>
+            </template>
+
+            <template v-else>
+              <div class="cap-heading">
+                <span>✦</span>
+                <div>
+                  <h2>{{ run.ending }}</h2>
+                  <p data-testid="space-couch-nemesis-ending">
+                    {{
+                      nemesisEndingTitle
+                        ? antagonist.name.toUpperCase() +
+                          ' // ' +
+                          nemesisEndingTitle
+                        : 'A CAPTAIN IS WHAT THE CREW REMEMBERS'
+                    }}
+                  </p>
+                </div>
+              </div>
+              <div
+                v-if="run.endingSections?.length"
+                class="cap-ending-sections"
+                data-testid="space-couch-ending-sections"
+              >
+                <section
+                  v-for="section in run.endingSections"
+                  :key="section.label"
+                  class="cap-ending-section"
+                >
+                  <h3>{{ section.label }}</h3>
+                  <p v-for="(line, index) in section.lines" :key="index">
+                    {{ line }}
+                  </p>
+                </section>
+              </div>
+              <p v-else class="cap-narrative">{{ run.scene }}</p>
+              <SpaceCouchTrioInterlude />
+              <details class="cap-log" data-testid="space-couch-ending-log">
+                <summary>
+                  <strong
+                    >RECORDED CAPTAIN’S LOG ·
+                    {{ run.log.length }} ENTRIES</strong
+                  >
+                </summary>
+                <p v-for="(line, index) in run.log" :key="index">{{ line }}</p>
+              </details>
+              <PlaybookRunReview
+                game="game-of-captains"
+                :run="run"
+                :ending="run.ending ?? 'voyage-complete'"
+              />
+              <button class="cap-primary" type="button" @click="restartVoyage">
+                COMMAND ANOTHER VOYAGE <span>↻</span>
+              </button>
+            </template>
+          </div>
+          <footer class="cap-footer">
+            <span
+              >STAR CHART //
+              {{
+                run ? mission.system.toUpperCase() : 'UNCLAIMED VESSEL'
+              }}</span
+            ><span>{{ run ? 'LOG SAVED' : 'NO TRANSMISSION' }}</span>
+          </footer>
+        </section>
+      </div>
+    </PlaybookKitShell>
     <SpaceCouchAlienMilestone
       v-if="store.collectorIncident || store.collectorReport"
       :incident="store.collectorIncident"
@@ -1819,6 +1856,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useGameOfCaptainsStore } from '~/stores/gameOfCaptainsStore'
+import { SPACE_COUCH_KIT } from '~/utils/playbookKit/games/spaceCouch'
+import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import {
   ANTAGONISTS,
   CAPTAINS,
@@ -1962,6 +2001,30 @@ type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const run = computed(() => store.run)
+// Playbook Kit bar meters mirror the four VoyageRun meters the spec declares
+// (supplies, trust, force bubble charge, reputation); before a voyage starts
+// they read the spec's start values.
+const kitMeterValues = computed((): Record<string, number> => {
+  const voyage = run.value
+  if (!voyage) return {}
+  return {
+    supplies: voyage.supplies,
+    trust: voyage.trust,
+    shield: voyage.shieldCharge ?? 2,
+    reputation: voyage.reputation,
+  }
+})
+// Space Couch's painted title screen and opening reel already serve as its
+// trailer, so the kit's first-visit trailer is marked seen once the shell
+// mounts behind the title; the bar crest still replays it on request.
+const kit = usePlaybookKitStore()
+watch(
+  atTitle,
+  (onTitle) => {
+    if (!onTitle && kit.trailerOpen) kit.finishTrailer()
+  },
+  { flush: 'post' },
+)
 const romanceScene = computed(() =>
   run.value ? romanceMoment(run.value) : null,
 )

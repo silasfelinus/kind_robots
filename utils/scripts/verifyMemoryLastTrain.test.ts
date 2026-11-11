@@ -5,6 +5,8 @@ import {
   newTrainProgress,
   restoreTrainProgress,
   trainConsequences,
+  replayTrainEncounters,
+  restoreVerifiedTrainProgress,
 } from '../memoryDungeon/lastTrain'
 
 const scenes = Object.keys(TRAIN_CHOICES) as (keyof typeof TRAIN_CHOICES)[]
@@ -73,3 +75,41 @@ for (const forged of [
 
 assert.deepEqual(restoreTrainProgress(null), newTrainProgress())
 assert.deepEqual(restoreTrainProgress(undefined), newTrainProgress())
+
+const visited = [
+  { world: 'e03' as const, scene: 'e03Door' as const, choice: 'md.train.e03.wait' },
+  { world: 'e04' as const, scene: 'e04Platform' as const, choice: 'md.train.e04.listen' },
+]
+const verified = replayTrainEncounters(visited)
+assert.deepEqual(verified.decisions, {
+  e03Door: 'md.train.e03.wait',
+  e04Platform: 'md.train.e04.listen',
+})
+assert.deepEqual(restoreVerifiedTrainProgress(verified, visited), verified)
+assert.equal(
+  restoreVerifiedTrainProgress(
+    { version: 1, decisions: { ...verified.decisions, e04Carriage: 'md.train.e04.name' } },
+    visited,
+  ),
+  null,
+)
+assert.equal(
+  restoreVerifiedTrainProgress(
+    { version: 1, decisions: { e04Platform: 'md.train.e04.listen' } },
+    visited,
+  ),
+  null,
+)
+assert.deepEqual(
+  replayTrainEncounters([
+    { world: 'e03', scene: 'e04Platform', choice: 'md.train.e04.open' },
+    ...visited,
+    { world: 'e03', scene: 'e03Door', choice: 'md.train.e03.release' },
+    { world: 'e04', scene: 'e04Carriage', choice: 'invalid-choice' },
+  ]),
+  verified,
+)
+assert.deepEqual(
+  trainConsequences(replayTrainEncounters([])),
+  trainConsequences(newTrainProgress()),
+)

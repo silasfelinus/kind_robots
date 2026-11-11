@@ -93,19 +93,25 @@ function spread<T>(items: T[], count: number): T[] {
 }
 
 /** Creatures and specials from a crew's Clash deck, spread across the curve. */
+/**
+ * Fighters-first starters can hold fewer specials than a mix asks for; the
+ * shortfall is filled with more of the crew's fighters, so a slice always
+ * deals `creatures + specials` cards.
+ */
 function crewSlice(team: TeamId, creatures: number, specials: number) {
   const sorted = clashDeck(team)
     .map(cardById)
     .sort((a, b) => a.cost - b.cost || a.id.localeCompare(b.id))
+  const fighters = sorted.filter((c) => c.kind === 'creature')
+  const others = sorted.filter((c) => c.kind !== 'creature')
+  const specialCount = Math.min(specials, others.length)
+  const fighterCount = Math.min(
+    fighters.length,
+    creatures + specials - specialCount,
+  )
   return [
-    ...spread(
-      sorted.filter((c) => c.kind === 'creature'),
-      creatures,
-    ),
-    ...spread(
-      sorted.filter((c) => c.kind !== 'creature'),
-      specials,
-    ),
+    ...spread(fighters, fighterCount),
+    ...spread(others, creatures + specials - fighterCount),
   ].map((c) => c.id)
 }
 

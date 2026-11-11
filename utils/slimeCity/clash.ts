@@ -773,7 +773,7 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
     'scentmine',
     'reknit',
     'shredders',
-    'ninthlife',
+    's3-catgirls-alley-vet',
     's3-catgirls-patent-saboteur',
     'mutual-aid',
     's1-nine-lives',
@@ -785,30 +785,55 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
  * Fighters first (Silas, 2026-11-10 PT, from the Catgirls playtest: "the game
  * should be built around fighters that do cool stuff"). Each starter trades
  * two of its extra spells, traps or gear for two more of its own fighters, so
- * every crew fields 13 fighters of 20 like the Catgirls crafted deck. The
- * pairs were picked by CPU sweep to keep each crew near an even win rate.
+ * every crew fields 13 fighters of 20 like the Catgirls crafted deck. Then
+ * (2026-11-11, "yes on gear to fighters") a gear card folds into a fighter
+ * that already carries its ability: Roadie Megaphone (Swarm), Lit-Fuse Vest
+ * (Volatile) and Rubber Drysuit go, and Exchange drops Executive Health
+ * Coverage. Ironjaw keeps Spare Pistons: every Ironjaw fighter is already
+ * armored, and every fold tried pushed the crew past 58%. Picks are by CPU
+ * sweep, keeping each crew near an even win rate.
  */
 export const CLASH_FIGHTERS_FIRST: Partial<
-  Record<TeamId, { out: [string, string]; in: [string, string] }>
+  Record<TeamId, { out: string[]; in: string[] }>
 > = {
   bloodfairies: {
-    out: ['s3-bloodfairies-tripcord', 's3-bloodfairies-van-radio'],
-    in: ['s3-bloodfairies-mosh-firefly', 's3-bloodfairies-karaoke-oracle'],
+    out: [
+      's3-bloodfairies-tripcord',
+      's3-bloodfairies-van-radio',
+      's2-bloodfairies-roadie-megaphone',
+    ],
+    in: [
+      's3-bloodfairies-mosh-firefly',
+      's3-bloodfairies-pollen-queen',
+      's1-riot-choir',
+    ],
   },
   ironjaw: {
     out: ['s1-forge-spark', 's3-ironjaw-bonus-plate'],
-    in: ['s2-ironjaw-foundry-lion', 's3-ironjaw-bridgebreaker'],
+    in: ['s2-ironjaw-foundry-lion', 's1-scrap-welder'],
   },
   riot: {
-    out: ['s2-riot-homemade-bottle-rocket', 'firebreak-parade'],
-    in: ['s3-riot-alley-prophet', 's3-riot-firework-bishop'],
+    out: ['s2-riot-homemade-bottle-rocket', 'firebreak-parade', 'fusevest'],
+    in: [
+      's3-riot-alley-prophet',
+      's1-blast-radius',
+      's2-riot-radioactive-parade-float',
+    ],
   },
   undertow: {
-    out: ['s3-undertow-floodgate-clamp', 's2-undertow-culvert-tollwire'],
-    in: ['s1-static-listener', 's3-undertow-quiet-listener'],
+    out: [
+      's3-undertow-floodgate-clamp',
+      's2-undertow-culvert-tollwire',
+      'drysuit',
+    ],
+    in: [
+      's1-static-listener',
+      's3-undertow-quiet-listener',
+      's3-undertow-needle-rain-agent',
+    ],
   },
   exchange: {
-    out: ['debt-holiday', 's3-exchange-escrow-snare'],
+    out: ['s3-exchange-escrow-snare', 's2-exchange-executive-health-coverage'],
     in: ['audit-fiend', 's3-exchange-mortgage-minotaur'],
   },
 }

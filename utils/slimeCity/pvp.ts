@@ -72,7 +72,7 @@ export interface PvpSnapshot {
   stage: 'waiting' | 'battle' | 'finished'
   board: PvpBoard | null
   revision: number
-  outcome: Side | null
+  outcome: ClashState['victor']
   forfeitedBy: Side | null
 }
 

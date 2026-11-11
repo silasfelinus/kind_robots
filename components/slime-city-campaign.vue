@@ -366,8 +366,8 @@
           >{{ lab.campaignStory.title.toUpperCase() }} · YOUR DECISION</span
         >
         <KrChoiceHand
-          :choices="campaignJourneyChoices"
           :key="lab.activeTeam + ':' + lab.campaignJourneyCurrent.id"
+          :choices="campaignJourneyChoices"
           :animate="false"
           :deal-key="
             lab.activeTeam +

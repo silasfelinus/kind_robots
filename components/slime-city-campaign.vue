@@ -630,12 +630,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
+import { describeTerms } from '~/utils/slimeCity/campaign'
 import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
-import { geneRiotBattleTerms } from '~/utils/slimeCity/campaignGeneRiot'
-import { bloodfairyBattleTerms } from '~/utils/slimeCity/campaignBloodfairies'
-import { ironjawBattleTerms } from '~/utils/slimeCity/campaignIronjaw'
-import { riotBattleTerms } from '~/utils/slimeCity/campaignRiot'
+
+
+
+
 import { rarityOf } from '~/utils/slimeCity/progression'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
@@ -788,54 +788,7 @@ const approachChoices = computed<KrHandChoice[]>(() =>
   (lab.activeChapter?.choices ?? []).map((choice) => ({
     id: choice.id,
     label: choice.label,
-    chip: clashTermsLabel(
-      lab.activeTeam === 'catgirls'
-        ? geneRiotBattleTerms(
-            lab.campaignState,
-            campaignBattleTerms(
-              lab.campaignSave,
-              lab.activeTeam,
-              choice.terms,
-              lab.campaignFavorIndex,
-            ),
-          )
-        : lab.activeTeam === 'bloodfairies'
-          ? bloodfairyBattleTerms(
-              lab.campaignState,
-              campaignBattleTerms(
-                lab.campaignSave,
-                lab.activeTeam,
-                choice.terms,
-                lab.campaignFavorIndex,
-              ),
-            )
-          : lab.activeTeam === 'ironjaw'
-            ? ironjawBattleTerms(
-                lab.campaignState,
-                campaignBattleTerms(
-                  lab.campaignSave,
-                  lab.activeTeam,
-                  choice.terms,
-                  lab.campaignFavorIndex,
-                ),
-              )
-            : lab.activeTeam === 'riot'
-              ? riotBattleTerms(
-                  lab.campaignState,
-                  campaignBattleTerms(
-                    lab.campaignSave,
-                    lab.activeTeam,
-                    choice.terms,
-                    lab.campaignFavorIndex,
-                  ),
-                )
-              : campaignBattleTerms(
-                  lab.campaignSave,
-                  lab.activeTeam,
-                  choice.terms,
-                  lab.campaignFavorIndex,
-                ),
-    ),
+    chip: clashTermsLabel(lab.campaignPreviewTerms(choice.terms)),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),
 )

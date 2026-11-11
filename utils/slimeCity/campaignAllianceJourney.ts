@@ -697,9 +697,10 @@ export function allianceStoryFinale(
   if (!finalePick || finalePick.ally === team) return null
   const arc = ALLIANCE_LATER_ARCS[team][finalePick.ally]
   if (!arc) return null
-  const history = Object.entries(save[team].allianceJourney ?? {})
-    .filter(([chapter]) => Number(chapter) < 5)
-    .map(([, decision]) => decision)
+  const history = Object.entries(save[team].allianceJourney ?? {}).flatMap(
+    ([chapter, decision]) =>
+      Number(chapter) < 5 && decision ? [decision] : [],
+  )
   const chaptersTogether = history.filter(
     (decision) => decision.ally === finalePick.ally,
   ).length

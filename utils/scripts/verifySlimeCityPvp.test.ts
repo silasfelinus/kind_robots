@@ -18,15 +18,80 @@ import {
 } from '../slimeCity/clash'
 
 const created = new Date('2026-01-01T00:00:00.000Z')
-const recentlyActive = new Date(created.getTime() + 25 * 24 * 60 * 60 * 1000).toISOString()
-assert.equal(isPvpExpired(created, undefined, false, false, created.getTime() + PVP_INVITE_EXPIRY_MS + 1), true)
-assert.equal(isPvpExpired(created, undefined, false, false, created.getTime() + PVP_INVITE_EXPIRY_MS), false)
-assert.equal(isPvpExpired(created, recentlyActive, true, false, created.getTime() + PVP_IDLE_EXPIRY_MS + 1), false, 'an active match must not expire based on creation date')
-assert.equal(isPvpExpired(created, recentlyActive, true, false, Date.parse(recentlyActive) + PVP_IDLE_EXPIRY_MS + 1), true)
-assert.equal(isPvpExpired(created, undefined, true, true, created.getTime() + PVP_IDLE_EXPIRY_MS * 5), false, 'settled matches remain available for history')
+const recentlyActive = new Date(
+  created.getTime() + 25 * 24 * 60 * 60 * 1000,
+).toISOString()
+assert.equal(
+  isPvpExpired(
+    created,
+    undefined,
+    false,
+    false,
+    created.getTime() + PVP_INVITE_EXPIRY_MS + 1,
+  ),
+  true,
+)
+assert.equal(
+  isPvpExpired(
+    created,
+    undefined,
+    false,
+    false,
+    created.getTime() + PVP_INVITE_EXPIRY_MS,
+  ),
+  false,
+)
+assert.equal(
+  isPvpExpired(
+    created,
+    recentlyActive,
+    true,
+    false,
+    created.getTime() + PVP_IDLE_EXPIRY_MS + 1,
+  ),
+  false,
+  'an active match must not expire based on creation date',
+)
+assert.equal(
+  isPvpExpired(
+    created,
+    recentlyActive,
+    true,
+    false,
+    Date.parse(recentlyActive) + PVP_IDLE_EXPIRY_MS + 1,
+  ),
+  true,
+)
+assert.equal(
+  isPvpExpired(
+    created,
+    undefined,
+    true,
+    true,
+    created.getTime() + PVP_IDLE_EXPIRY_MS * 5,
+  ),
+  false,
+  'settled matches remain available for history',
+)
 assert.equal(isPvpExpired(created, 'not-a-date', true, false), true)
-assert.equal(parsePvpRecord({ version: 1, guestId: 1, lastActionAt: 'not-a-date', commands: [] }), null)
-assert.equal(parsePvpRecord({ version: 1, guestId: 1, lastActionAt: recentlyActive, commands: [] })?.lastActionAt, recentlyActive)
+assert.equal(
+  parsePvpRecord({
+    version: 1,
+    guestId: 1,
+    lastActionAt: 'not-a-date',
+    commands: [],
+  }),
+  null,
+)
+assert.equal(
+  parsePvpRecord({
+    version: 1,
+    guestId: 1,
+    lastActionAt: recentlyActive,
+    commands: [],
+  })?.lastActionAt,
+  recentlyActive,
+)
 
 const host = 'catgirls' as const
 const guest = 'ironjaw' as const
@@ -169,7 +234,11 @@ assert.match(
 )
 assert.match(service, /settledAt/, 'terminal duels must stop taking moves')
 assert.match(service, /isPvpExpired/, 'match expiry must use activity timestamps')
-assert.match(service, /lastActionAt: new Date\(\)\.toISOString\(\)/, 'moves must refresh activity')
+assert.match(
+  service,
+  /lastActionAt: new Date\(\)\.toISOString\(\)/,
+  'moves must refresh activity',
+)
 assert.doesNotMatch(
   service,
   /awardBattle|buyPack|claimChallenge/,

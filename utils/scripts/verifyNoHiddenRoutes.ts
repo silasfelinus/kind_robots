@@ -48,6 +48,8 @@ export const SYSTEM_ROUTES: Record<string, string> = {
   '/coloring-page':
     'per-image action, opened from an image card with ?imageId=',
   '/build-bench': 'Art dashboard tab, reached from the Art page',
+  '/play/slime-city-pvp':
+    'private duel board, reached from Slime City VS and signed-in invitation links',
   '/projects/build/stylist': 'legacy URL, 301-redirects to /stylist',
   '/admin/crystal-street': 'legacy URL, 301-redirects to /play/crystal-street',
   '/admin/monstress-convention':

@@ -86,8 +86,9 @@
         >
           <option value="">Current alliance</option>
           <option
-            v-for="deck in lab.library.filter((item) =>
-              lab.libraryDeckReady(item.id),
+            v-for="deck in lab.library.filter(
+              (item) =>
+                item.general === lab.activeTeam && lab.libraryDeckReady(item.id),
             )"
             :key="deck.id"
             :value="deck.id"

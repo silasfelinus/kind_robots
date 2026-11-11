@@ -80,9 +80,11 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
     seat,
     hostTeam: row.teamId as TeamId,
     guestTeam: joined ? (row.foeId as TeamId) : null,
-    stage: !joined ? 'waiting' : state?.victor ? 'finished' : 'battle',
+    stage: !joined ? 'waiting' : row.settledAt || state?.victor ? 'finished' : 'battle',
     board: state ? pvpBoard(state, seat) : null,
     revision: record.commands.length,
+    outcome: row.settledAt ? (row.result as Side | null) : (state?.victor ?? null),
+    forfeitedBy: record.forfeitedBy ?? null,
   }
 }
 
@@ -178,6 +180,8 @@ export async function commandSlimeCityDuel(
     )
     const seat = seatFor(row, record, userId)
     if (record.guestId === null) return fail(409, 'Waiting for a rival.')
+    if (row.settledAt || record.forfeitedBy)
+      return fail(409, 'This duel has already ended.')
     if (record.commands.length !== revision)
       return fail(409, 'The duel advanced on another device. Reload the turn.')
     if (record.commands.length >= PVP_MAX_COMMANDS)
@@ -204,6 +208,47 @@ export async function commandSlimeCityDuel(
         ...(after.victor
           ? { settledAt: new Date(), result: after.victor }
           : {}),
+      },
+    })
+    return snapshot(updated, next, userId)
+  })
+}
+
+/** Atomic, idempotent forfeit. Only an authenticated participant may concede. */
+export async function forfeitSlimeCityDuel(id: string, userId: number) {
+  if (!validId(id)) return fail(404, 'Duel not found.')
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
+    const { row, record } = activeRow(
+      await tx.slimeCityMatch.findUnique({ where: { id } }),
+      id,
+    )
+    const seat = seatFor(row, record, userId)
+    if (record.guestId === null)
+      return fail(409, 'A waiting invitation must be cancelled, not forfeited.')
+    if (row.settledAt) {
+      if (record.forfeitedBy === seat) return snapshot(row, record, userId)
+      return fail(409, 'This duel has already ended.')
+    }
+    const state = replayPvp(
+      row.teamId as TeamId,
+      row.foeId as TeamId,
+      row.seed,
+      record.commands,
+    )
+    if (state.victor) return fail(409, 'This duel has already ended.')
+    const winner: Side = seat === 'player' ? 'enemy' : 'player'
+    const next: PvpRecord = {
+      ...record,
+      forfeitedBy: seat,
+      lastActionAt: new Date().toISOString(),
+    }
+    const updated = await tx.slimeCityMatch.update({
+      where: { id },
+      data: {
+        commands: asJson(next),
+        settledAt: new Date(),
+        result: winner,
       },
     })
     return snapshot(updated, next, userId)

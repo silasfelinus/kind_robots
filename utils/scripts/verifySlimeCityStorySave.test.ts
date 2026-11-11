@@ -23,6 +23,25 @@ import { TEAMS } from '../slimeCity/prototypes'
 
 const base = newSlimeCityStory()
 assert.equal(validSlimeCityStory(base), true)
+// One journey restores the team, deck variant, named alliance and exact scene.
+const named = allianceStarter('riot', 'ironjaw')
+const journeySave = {
+  ...base,
+  journeyTeam: 'riot' as const,
+  journeyFormat: 'alliance' as const,
+  journeyDeckId: 'd_saved-crew',
+  journeyScreen: 'aftermath' as const,
+  alliances: { riot: named },
+}
+assert.equal(validSlimeCityStory(journeySave), true)
+assert.deepEqual(storyFromAccount({ story: journeySave }), journeySave)
+assert.equal(validSlimeCityStory({ ...journeySave, journeyDeckId: null }), true)
+for (const bad of [
+  { ...journeySave, journeyTeam: 'not-a-crew' },
+  { ...journeySave, journeyFormat: 'duo' },
+  { ...journeySave, journeyDeckId: 77 },
+  { ...journeySave, journeyScreen: 'skip-to-final' },
+]) assert.equal(validSlimeCityStory(bad), false)
 // Silas, 2026-11-10 PT: "everyone, including me as admin, should be restricted
 // to those base cards and then cards that they particularly unlock". Every save
 // reads as TRICKLE, whatever it stored.

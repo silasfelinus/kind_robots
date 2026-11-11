@@ -487,6 +487,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     libraryId.value = null
     journeyFormat.value = 'solo'
     journeyDeckId.value = null
+    campaignScreen.value = 'chapter'
     storyMode.value = 'written'
     storyParity.value = false
     replacingCard.value = null
@@ -509,6 +510,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       activeTeam.value = response.data.journeyTeam ?? activeTeam.value
       journeyFormat.value = response.data.journeyFormat ?? 'solo'
       journeyDeckId.value = response.data.journeyDeckId ?? null
+      campaignScreen.value = response.data.journeyScreen ?? 'chapter'
       towerSave.value = response.data.tower ?? freshTower()
       savedDecks.value = response.data.decks ?? {}
       savedAlliances.value = response.data.alliances ?? {}
@@ -557,6 +559,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           journeyTeam: activeTeam.value,
           journeyFormat: journeyFormat.value,
           journeyDeckId: journeyDeckId.value,
+          journeyScreen: campaignScreen.value,
           unlocks: unlockMode.value,
           storyMode: storyMode.value,
           storyParity: storyParity.value,
@@ -1695,10 +1698,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function continueCampaign(): void {
     if (campaignRewardChoices.value) return
     campaignScreen.value = 'chapter'
+    persistStory()
   }
 
   function showCampaignAftermath(): void {
     campaignScreen.value = 'aftermath'
+    persistStory()
   }
 
   function showCards(): void {
@@ -2037,9 +2042,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         victor,
       )
       lastCampaign.value = team
-      persistStory()
       campaignBout.value = null
       campaignScreen.value = 'aftermath'
+      persistStory()
       return
     }
     if (contractBout.value) {

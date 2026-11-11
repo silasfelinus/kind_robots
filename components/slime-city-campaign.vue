@@ -97,7 +97,7 @@
           type="button"
           :title="'Edit ' + lab.journeyDeckName"
           data-testid="slime-story-deck"
-          @click="lab.journeyFormat === 'solo' ? lab.showSoloDeck() : lab.showCards()"
+          @click="lab.showJourneyDeck()"
         >
           EDIT DECK
         </button>

@@ -1319,8 +1319,8 @@ assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'contract', 'Contracts are city bouts')
 assert.equal(
   lab.clashLaunch.format,
-  lab.clashFormat,
-  'Contracts deal your deck',
+  lab.journeyFormat,
+  'Contracts deal the same Journey deck',
 )
 assert.equal(lab.contractBout, 'chimera')
 assert.equal(lab.clashLaunch.enemy, 'catgirls')

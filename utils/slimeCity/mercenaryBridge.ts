@@ -4,6 +4,7 @@ import {
   allianceStarterWithMix,
   type AllianceDeck,
 } from './alliance'
+import { CLASH_GUESTS } from './clash'
 import { CARDS, cardById, type Card, type TeamId } from './prototypes'
 
 /** Crew-neutral tactical tools. Use free mercenaries, not faction-specific buffs.
@@ -52,8 +53,12 @@ const PREFERENCES: Record<
   },
 }
 
+const existingStarterGuests = new Set(Object.values(CLASH_GUESTS))
 const baseMercenaries = CARDS.filter(
-  (card) => card.team === 'mercenary' && STARTER_CARD_IDS.has(card.id),
+  (card) =>
+    card.team === 'mercenary' &&
+    STARTER_CARD_IDS.has(card.id) &&
+    !existingStarterGuests.has(card.id),
 )
 
 function choose(

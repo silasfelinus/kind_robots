@@ -48,15 +48,6 @@
             </button>
             <button
               type="button"
-              :class="{ active: activeMode === 'practice' }"
-              data-testid="slime-clash-tab"
-              title="Quick CLASH matches against the CPU, Solo or Alliance"
-              @click="lab.playClashFormat()"
-            >
-              PRACTICE
-            </button>
-            <button
-              type="button"
               :class="{ active: activeMode === 'journey' }"
               data-testid="slime-journey-tab"
               title="One branching story, your choice of Solo or Alliance deck, with a city to explore"
@@ -1100,7 +1091,7 @@ const activeMode = computed(() => {
     if (kind === 'campaign' || kind === 'rival' || kind === 'contract')
       return 'journey'
     if (kind === 'tower') return 'tower'
-    return 'practice'
+    return 'vs'
   }
   if (view === 'campaign' || view === 'city') return 'journey'
   if (view === 'tower') return 'tower'

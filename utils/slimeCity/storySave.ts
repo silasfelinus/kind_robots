@@ -299,7 +299,8 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
         team as TeamId,
         p.wins as number,
       )
-    ) return false
+    )
+      return false
     if (
       team === 'catgirls' &&
       !validGeneRiotJourney(p as unknown as CampaignSave['catgirls'])

@@ -84,11 +84,7 @@ function play(
     replays++
   }
   const outcome =
-    state.victor === 'draw'
-      ? 'draw'
-      : state.victor === seat
-        ? 'win'
-        : 'loss'
+    state.victor === 'draw' ? 'draw' : state.victor === seat ? 'win' : 'loss'
   for (const group of [
     total[variant],
     byGeneral[lead.general][variant],
@@ -112,9 +108,10 @@ for (const general of crews) {
     for (let chapter = 0; chapter < 5; chapter++) {
       const deck = allianceStarter(general, allies[chapter]!)
       for (let trial = 0; trial < 2; trial++) {
-        const foeAlly = foeAllies[
-          (crews.indexOf(general) + chapter + trial) % foeAllies.length
-        ]!
+        const foeAlly =
+          foeAllies[
+            (crews.indexOf(general) + chapter + trial) % foeAllies.length
+          ]!
         const opponent = allianceStarter(foe, foeAlly)
         const seed =
           24201 +

@@ -2,7 +2,9 @@
  * Render lanes the Monstrique series bible can request art on: the house
  * Illustrious checkpoints (Arthemy first) and Krea 2, plus one nudity lane.
  * Realism Illustrious By renders nudity even when told not to, so it is the
- * dedicated softcore lane (Silas, 2026-11-11: "a nudity checkpoint should not
+ * dedicated softcore lane; Arthemy and Furrytoon also take softcore requests
+ * (Silas 2026-11-11: "Let's test both arthemy and furry toon") because they
+ * keep monster anatomy (Silas, 2026-11-11: "a nudity checkpoint should not
  * be fully excluded"): mature edition only, adults only, nudity allowed,
  * explicit sex acts excluded. Miaomiao 3D stays out: it also broke the
  * lookbook's age and body rules. Prompt recipes for
@@ -14,7 +16,7 @@ export interface BibleLane {
   engine: 'comfy' | 'krea2'
   checkpoint?: string
   prompt: 'tags' | 'prose'
-  /** The softcore nudity lane. Only lanes with this flag take 'softcore'. */
+  /** May render softcore unlocks. Only lanes with this flag take 'softcore'. */
   nudity?: boolean
 }
 
@@ -25,6 +27,7 @@ export const BIBLE_LANES: BibleLane[] = [
     engine: 'comfy',
     checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
     prompt: 'tags',
+    nudity: true,
   },
   {
     key: 'illustrij',
@@ -46,6 +49,7 @@ export const BIBLE_LANES: BibleLane[] = [
     engine: 'comfy',
     checkpoint: 'Illustrious/furrytoonmix_xlV3.safetensors',
     prompt: 'tags',
+    nudity: true,
   },
   {
     key: 'ill-realism',

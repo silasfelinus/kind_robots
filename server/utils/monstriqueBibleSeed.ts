@@ -1,8 +1,8 @@
 /**
  * The first series-bible art batches, queued from conductor
  * projects/monstress-convention/art/MONSTER-WOMEN-PINUPS-R1.yaml and
- * MONSTER-WOMEN-SOFTCORE-R1.yaml (mature, private; the softcore rows are the
- * nudity lane). Server-only. Requests made from the bible page are stored on
+ * MONSTER-WOMEN-SOFTCORE-R1/R2.yaml (mature, private; the softcore rows are the
+ * softcore lanes). Server-only. Requests made from the bible page are stored on
  * MonstriqueBibleEntry.requests and merged with these.
  */
 export const MONSTRIQUE_BIBLE_SEED: Array<{
@@ -191,4 +191,24 @@ export const MONSTRIQUE_BIBLE_SEED: Array<{
   { character: 'siobhan', kind: 'softcore', lane: 'realism-by', jobId: 67676 },
   { character: 'nyx', kind: 'softcore', lane: 'realism-by', jobId: 67677 },
   { character: 'albina', kind: 'softcore', lane: 'realism-by', jobId: 67678 },
+  { character: 'draculina', kind: 'softcore', lane: 'arthemy', jobId: 67748 },
+  { character: 'draculina', kind: 'softcore', lane: 'furrytoon', jobId: 67749 },
+  { character: 'roxie', kind: 'softcore', lane: 'arthemy', jobId: 67750 },
+  { character: 'roxie', kind: 'softcore', lane: 'furrytoon', jobId: 67751 },
+  { character: 'laguna', kind: 'softcore', lane: 'arthemy', jobId: 67752 },
+  { character: 'laguna', kind: 'softcore', lane: 'furrytoon', jobId: 67753 },
+  { character: 'cleo', kind: 'softcore', lane: 'arthemy', jobId: 67754 },
+  { character: 'cleo', kind: 'softcore', lane: 'furrytoon', jobId: 67755 },
+  { character: 'francesca', kind: 'softcore', lane: 'arthemy', jobId: 67756 },
+  { character: 'francesca', kind: 'softcore', lane: 'furrytoon', jobId: 67757 },
+  { character: 'vespa', kind: 'softcore', lane: 'arthemy', jobId: 67758 },
+  { character: 'vespa', kind: 'softcore', lane: 'furrytoon', jobId: 67759 },
+  { character: 'blobzo', kind: 'softcore', lane: 'arthemy', jobId: 67760 },
+  { character: 'blobzo', kind: 'softcore', lane: 'furrytoon', jobId: 67761 },
+  { character: 'siobhan', kind: 'softcore', lane: 'arthemy', jobId: 67762 },
+  { character: 'siobhan', kind: 'softcore', lane: 'furrytoon', jobId: 67763 },
+  { character: 'nyx', kind: 'softcore', lane: 'arthemy', jobId: 67764 },
+  { character: 'nyx', kind: 'softcore', lane: 'furrytoon', jobId: 67765 },
+  { character: 'albina', kind: 'softcore', lane: 'arthemy', jobId: 67766 },
+  { character: 'albina', kind: 'softcore', lane: 'furrytoon', jobId: 67767 },
 ]

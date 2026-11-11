@@ -413,6 +413,60 @@
       </div>
     </div>
 
+    <div
+      v-else-if="lab.campaignAllianceCurrent && lab.activeChapter"
+      class="campaign-scene campaign-journey"
+      data-testid="slime-alliance-story-scene"
+    >
+      <article class="campaign-panel kr-scroll" aria-live="polite">
+        <span class="campaign-overline">
+          JOURNEY · ALLIANCE CHAPTER {{ lab.campaignState.wins + 1 }} / 5
+        </span>
+        <h3>{{ lab.campaignAllianceCurrent.title }}</h3>
+        <div class="campaign-voice player">
+          <SlimeCityArtwork
+            class="campaign-voice-portrait"
+            :image-id="slimeArtId('crews', lab.campaignAllianceCurrent.ally)"
+            :alt="teamName(lab.campaignAllianceCurrent.ally) + ' ally portrait'"
+            :fallback="crewInsignia(lab.campaignAllianceCurrent.ally)"
+            compact
+          />
+          <div>
+            <small>{{ lab.campaignAllianceCurrent.speaker }}</small>
+            <p class="campaign-lede">{{ lab.campaignAllianceCurrent.text }}</p>
+          </div>
+        </div>
+      </article>
+      <div class="campaign-deck" :class="'tone-' + lab.team.color">
+        <span class="campaign-overline">CHOOSE THE PARTNERSHIP'S PRICE</span>
+        <KrChoiceHand
+          :key="lab.campaignAllianceCurrent.id"
+          :choices="allianceChoices"
+          :animate="false"
+          :deal-key="lab.campaignAllianceCurrent.id"
+          question="HOW WILL THESE CREWS WORK TOGETHER?"
+          testid-prefix="slime-alliance-story-choice"
+          @play="playCampaignAlliance"
+        >
+          <template #art="{ choice }">
+            <SlimeCityArtwork
+              :image-id="
+                slimeArtId(
+                  'crews',
+                  choice.id === 'protect'
+                    ? lab.selectedJourneyAlliance.ally
+                    : lab.activeTeam,
+                )
+              "
+              :alt="choice.label"
+              :fallback="crewInsignia(lab.selectedJourneyAlliance.ally)"
+              compact
+            />
+          </template>
+        </KrChoiceHand>
+      </div>
+    </div>
+
     <div v-else-if="lab.activeChapter" class="campaign-scene">
       <article class="campaign-panel kr-scroll">
         <span class="campaign-overline">
@@ -591,6 +645,7 @@ const nextDistrictName = computed(
 )
 const allyChapterLine = computed(() => {
   if (lab.journeyFormat !== 'alliance' || !lab.activeChapter) return null
+  if (lab.campaignAllianceConsequence) return lab.campaignAllianceConsequence
   const ally = teamName(lab.selectedJourneyAlliance.ally)
   return lab.selectedJourneyAlliance.ally === lab.activeChapter.foe
     ? ally +
@@ -708,6 +763,18 @@ const campaignJourneyChoices = computed<KrHandChoice[]>(() =>
 function playCampaignJourney(choice: KrHandChoice) {
   if (choice.id === 'left' || choice.id === 'right')
     lab.chooseCampaignJourneyBeat(choice.id)
+}
+const allianceChoices = computed<KrHandChoice[]>(() =>
+  (lab.campaignAllianceCurrent?.choices ?? []).map((choice) => ({
+    id: choice.id,
+    label: choice.label,
+    chip: choice.terms,
+    details: [choice.outcome],
+  })),
+)
+function playCampaignAlliance(choice: KrHandChoice) {
+  if (choice.id === 'protect' || choice.id === 'gamble')
+    lab.chooseCampaignAlliance(choice.id)
 }
 const approachChoices = computed<KrHandChoice[]>(() =>
   (lab.activeChapter?.choices ?? []).map((choice) => ({

@@ -88,7 +88,7 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
     board: state ? pvpBoard(state, seat) : null,
     revision: record.commands.length,
     outcome: row.settledAt
-      ? (row.result as Side | null)
+      ? (row.result as PvpSnapshot['outcome'])
       : (state?.victor ?? null),
     forfeitedBy: record.forfeitedBy ?? null,
   }

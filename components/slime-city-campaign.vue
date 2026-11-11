@@ -88,7 +88,8 @@
           <option
             v-for="deck in lab.library.filter(
               (item) =>
-                item.general === lab.activeTeam && lab.libraryDeckReady(item.id),
+                item.general === lab.activeTeam &&
+                lab.libraryDeckReady(item.id),
             )"
             :key="deck.id"
             :value="deck.id"
@@ -246,8 +247,8 @@
         <h3>{{ lab.campaignStory.title }}: THE END</h3>
         <p class="campaign-lede">{{ lab.campaignFinale }}</p>
         <small class="campaign-note"
-          >Each crew has its own saved journey. Verified Clash battles can
-          earn account rewards; story-only card choices stay in this run.</small
+          >Each crew has its own saved journey. Verified Clash battles can earn
+          account rewards; story-only card choices stay in this run.</small
         >
       </article>
       <div

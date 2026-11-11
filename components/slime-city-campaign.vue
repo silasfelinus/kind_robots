@@ -393,6 +393,20 @@
             SHOW
           </p>
         </div>
+        <div
+          v-if="lab.activeTeam === 'undertow'"
+          class="campaign-recap"
+          data-testid="slime-undertow-signal"
+        >
+          <strong
+            >THE SIGNAL · {{ lab.undertowSignal.signal.toUpperCase() }}</strong
+          >
+          <p>
+            {{ lab.undertowSignal.truth }} TRUTH ·
+            {{ lab.undertowSignal.leverage }} LEVERAGE · THE DRAINS HEAR
+            EVERYTHING
+          </p>
+        </div>
         <span class="campaign-overline"
           >{{ lab.campaignStory.title.toUpperCase() }} · YOUR DECISION</span
         >
@@ -777,9 +791,13 @@ const campaignJourneyChoices = computed<KrHandChoice[]>(() =>
             ? option.id === 'left'
               ? 'KEEP THE CROWD SAFE'
               : 'MAKE IT BIGGER'
-            : option.id === 'left'
-              ? 'HELP THE CREW'
-              : 'TAKE THE RISK',
+            : lab.activeTeam === 'undertow'
+              ? option.id === 'left'
+                ? 'TELL THE TRUTH'
+                : 'KEEP THE LEVERAGE'
+              : option.id === 'left'
+                ? 'HELP THE CREW'
+                : 'TAKE THE RISK',
     badge: lab.bloodfairyStageThree
       ? option.id === 'left'
         ? 'LV 3 · WALL OF SOUND'

@@ -58,7 +58,24 @@ export const CLASH_PLAYS = 2
  * The crew that opens the match (always 'player') gets one play on round 1.
  */
 export function clashPlayLimit(s: ClashState, side: Side): number {
-  return s.round === 1 && side === 'player' ? 1 : CLASH_PLAYS
+  if (s.round !== 1 || side !== 'player') return CLASH_PLAYS
+  // Opening-hand guarantee (slime-city/t-028): still ONE card, but when the
+  // opener holds no legal one-slot play its one card may be a power card, so
+  // an all-heavy opening hand is never a forced pass. Only widens legality,
+  // so every saved transcript replays unchanged.
+  if (s.plays.player >= CLASH_PLAYS) return CLASH_PLAYS
+  return s.plays.player === 0 && !openerHasOneSlotPlay(s) ? CLASH_PLAYS : 1
+}
+function openerHasOneSlotPlay(s: ClashState): boolean {
+  return s.hands.player.some((id) => {
+    const card = cardById(id)
+    return (
+      clashEffectivePlayCost(s, 'player', card) <= 1 &&
+      Array.from({ length: CLASH_LANES }, (_, lane) => lane).some((lane) =>
+        placementLegal(s, 'player', card, lane),
+      )
+    )
+  })
 }
 export const CLASH_DECK_SIZE = 20
 export const CLASH_HAND_SIZE = 5
@@ -931,6 +948,21 @@ export function canClashPlay(
   if (
     s.plays[side] + clashEffectivePlayCost(s, side, card) >
     clashPlayLimit(s, side)
+  )
+    return false
+  return placementLegal(s, side, card, lane)
+}
+/** Crew, slot budget aside: can `card` land in `lane` right now? */
+function placementLegal(
+  s: ClashState,
+  side: Side,
+  card: Card,
+  lane: number,
+): boolean {
+  if (
+    card.team !== s.teams[side] &&
+    card.team !== 'mercenary' &&
+    card.team !== s.allies?.[side]
   )
     return false
   if (card.kind === 'creature') return true // Friendly replacement allowed.

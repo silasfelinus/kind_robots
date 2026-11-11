@@ -865,7 +865,7 @@ const phaseLabel = computed(() => {
     return factionPower(powerArmed.value).name.toUpperCase() + ': PICK AN ALLEY'
   if (noLegalPlay.value) return 'NO LEGAL PLAY · PASS TO CONTINUE'
   return s.plays.player === 0
-    ? clashPlayLimit(s, 'player') === 1
+    ? s.round === 1
       ? 'OPENING TURN: PLAY ONE CARD'
       : 'PLAY UP TO TWO CARDS'
     : 'ONE MORE PLAY, THEN FIGHT'

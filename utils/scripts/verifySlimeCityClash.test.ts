@@ -440,6 +440,47 @@ assert.equal(
   false,
   'no two-play card on the opening turn',
 )
+// Opening-hand guarantee (slime-city/t-028): an all-heavy opening hand may
+// spend its single play on one power card instead of being a forced pass.
+const stuck = createClash('catgirls', 'ironjaw', 3)
+stuck.hands.player = [heavyCard.id]
+assert.equal(clashPlayLimit(stuck, 'player'), 2, 'stuck opener gets both slots')
+assert.equal(
+  canClashPlay(stuck, 'player', heavyCard.id, 0),
+  true,
+  'an all-heavy opening hand can play one power card',
+)
+const stuckOpened = playClash(stuck, 'player', heavyCard.id, 0)
+assert.equal(stuckOpened.phase, 'attack', 'still exactly one opening card')
+assert.equal(stuckOpened.plays.player, 2)
+assert.equal(clashPlayLimit(stuckOpened, 'player'), 2)
+for (const crew of [
+  'catgirls',
+  'bloodfairies',
+  'ironjaw',
+  'riot',
+  'undertow',
+  'exchange',
+] as const) {
+  let dead = 0
+  for (let seed = 1; seed <= 400; seed++) {
+    const g = createClash(
+      crew,
+      crew === 'catgirls' ? 'ironjaw' : 'catgirls',
+      seed,
+    )
+    if (
+      !g.hands.player.some((id) =>
+        [0, 1, 2, 3, 4].some((lane) => canClashPlay(g, 'player', id, lane)),
+      )
+    )
+      dead++
+  }
+  assert.ok(
+    dead <= 2,
+    crew + ' starter opens with no legal play in ' + dead + '/400',
+  )
+}
 const opened = playClash(opener, 'player', 'calico', 0)
 assert.equal(opened.phase, 'attack', 'one play ends the opening placement')
 assert.equal(canClashPlay(opened, 'player', 'splice-runner', 1), false)

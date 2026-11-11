@@ -1024,7 +1024,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
   ),
   s(
     '3,8',
-    'The Heron's Toll',
+    'The Heron’s Toll',
     'A giant heron counts crossings by swallowing one memory from each passenger.',
     c(
       'night-heron-trade',

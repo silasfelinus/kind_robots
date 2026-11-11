@@ -161,7 +161,7 @@
         <span class="indicator">
           <Icon name="kind-icon:cat" class="kr-icon-5" />
           <span
-            v-if="slimeCityPendingTurns"
+            v-if="userStore.isLoggedIn && slimeCityPendingTurns"
             class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
             aria-hidden="true"
             data-testid="header-slime-city-turns"

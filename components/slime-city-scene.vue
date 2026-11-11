@@ -112,7 +112,7 @@
     >
       <article class="scs-panel kr-scroll">
         <span class="scs-overline"
-          >SOLO STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 ·
+          >JOURNEY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 ·
           {{ lab.district.name }}</span
         >
         <h2>{{ lab.activeChapter.title }}</h2>
@@ -417,7 +417,7 @@ const choiceEvent = computed<{
 const tabs = computed<{ id: CityScreen; label: string }[]>(() => {
   if (lab.cityEvent) return []
   return [
-    ...(lab.storyHere ? [{ id: 'story' as const, label: 'SOLO STORY' }] : []),
+    ...(lab.storyHere ? [{ id: 'story' as const, label: 'JOURNEY' }] : []),
     { id: 'district' as const, label: 'RIVAL' },
     ...(lab.contractHere ? [{ id: 'contract' as const, label: 'ENCORE' }] : []),
   ]

@@ -1,5 +1,5 @@
-// City and Story bouts are SOLO CLASH (Silas, 2026-11-08 PT: "everything should
-// be clash, either in city mode which is Solo Clash, or the deckbuilder mode").
+// All City and Journey bouts use Clash, with the player-selected Solo
+// or Alliance deck. The server receives the exact issued boss-life totals.
 // District decisions, street stories, crises and campaign approaches still
 // write BLACKOUT-era BoutTerms. In Clash they move each boss's starting life,
 // so the choices keep their weight: an edge for you is more life for your
@@ -26,11 +26,13 @@ export function clashBossesFromTerms(terms: BoutTerms): Record<Side, number> {
   return {
     player: clamp(
       CLASH_BOSS_HP +
+        (terms.playerBossLife ?? 0) +
         (terms.playerHp ?? 0) * w.playerHp +
         (terms.playerMana ?? 0) * w.playerMana,
     ),
     enemy: clamp(
       CLASH_BOSS_HP +
+        (terms.enemyBossLife ?? 0) +
         (terms.enemyArmor ?? 0) * w.enemyArmor +
         (terms.enemyMana ?? 0) * w.enemyMana -
         (terms.fewerRivals ?? 0) * w.fewerRivals +

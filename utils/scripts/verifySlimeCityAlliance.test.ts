@@ -718,7 +718,8 @@ for (const id of [
   '<SlimeCityClashCardFace :card-id="id" />',
 ])
   assert.ok(page.includes(id), id)
-assert.ok(!page.includes('<SlimeCityCard'), 'no legacy card faces left')
+// The legacy <SlimeCityCard> face, not <SlimeCityCardEvolutions> and the like.
+assert.ok(!/<SlimeCityCard[\s/>]/.test(page), 'no legacy card faces left')
 for (const id of [
   'clash-format-solo',
   'clash-format-alliance',

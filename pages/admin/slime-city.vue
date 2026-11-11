@@ -1018,13 +1018,15 @@
         :aria-label="inspectCard.name + ' card details'"
         data-testid="slime-card-inspector"
       >
-        <div class="sc-inspect-portrait">
-          <SlimeCityClashCardFace
-            :card-id="inspectCard.id"
-            :level="evolutionLevel"
-          />
-        </div>
-        <div class="sc-inspect-details">
+        <header class="sc-inspect-head">
+          <span>
+            <small>{{
+              inspectCard.team === 'mercenary'
+                ? 'MERCENARY · ANY CREW'
+                : teamName(inspectCard.team)
+            }}</small>
+            <h2>{{ inspectCard.name }}</h2>
+          </span>
           <button
             type="button"
             class="sc-inspect-close"
@@ -1033,30 +1035,12 @@
           >
             CLOSE ×
           </button>
-          <small>{{
-            inspectCard.team === 'mercenary'
-              ? 'MERCENARY · ANY CREW'
-              : teamName(inspectCard.team)
-          }}</small>
-          <h2>{{ inspectCard.name }}</h2>
-          <p class="sc-inspect-rules">
-            {{ clashCardText(inspectCard, evolutionLevel) }}
-          </p>
-          <div
-            class="sc-inspect-levels"
-            role="group"
-            aria-label="Preview card evolution"
-          >
-            <button
-              v-for="n in CLASH_MAX_LEVEL"
-              :key="n"
-              type="button"
-              :aria-pressed="evolutionLevel === n"
-              @click="evolutionLevel = n"
-            >
-              LV {{ n }}
-            </button>
-          </div>
+        </header>
+        <SlimeCityCardEvolutions
+          class="sc-inspect-evolutions"
+          :card-id="inspectCard.id"
+        />
+        <footer class="sc-inspect-foot">
           <button
             type="button"
             class="sc-inspect-action"
@@ -1070,7 +1054,7 @@
             {{ inspectInDeck ? 'REMOVE FROM DECK' : 'ADD TO DECK' }}
           </button>
           <p aria-live="polite">{{ lab.deckMessage }}</p>
-        </div>
+        </footer>
       </section>
     </div>
   </main>
@@ -1081,7 +1065,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
-import { CLASH_MAX_LEVEL, clashCardText } from '~/utils/slimeCity/clash'
+import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
 import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
 import { STREETS } from '~/utils/slimeCity/city'
 import { PACK_DUPLICATE_REFUND, PACK_POOL } from '~/utils/slimeCity/progression'
@@ -2859,6 +2843,13 @@ button.sc-shelf-label {
   background: #c5ff59;
   color: #122416;
 }
+/*
+  Silas, 2026-11-11 PT (iPad): "Layout issues with the card display." The
+  portrait was a 2:3 box as wide as its column, taller than the panel, so the
+  panel scrolled and the card's top was cut off, and its rules were printed a
+  second time beside it. Now every evolution shows as a whole card, sized to
+  the room the backdrop has (a size container), with no duplicate text.
+*/
 .sc-inspect-backdrop {
   position: absolute;
   inset: 0;
@@ -2867,54 +2858,61 @@ button.sc-shelf-label {
   place-items: center;
   background: #020910e8;
   padding: 1rem;
+  container-type: size;
 }
 .sc-inspect-panel {
-  width: min(100%, 52rem);
+  width: min(100%, 60rem);
   max-height: 100%;
   min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
   padding: 1rem;
   border: 1px solid #98c9ac;
   border-radius: 1.2rem;
   background: #10202b;
-  overflow: auto;
+  overflow: hidden;
   box-shadow: 0 0 3rem #000b;
 }
-.sc-inspect-portrait {
-  position: relative;
-  aspect-ratio: 2 / 3;
-  min-height: 0;
-  max-height: 72vh;
-  --rules-open: 1;
-}
-.sc-inspect-details {
+.sc-inspect-head {
   display: flex;
-  min-width: 0;
-  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 0.8rem;
-  justify-content: center;
 }
-.sc-inspect-details h2 {
-  font-size: clamp(1.4rem, 3vw, 2.4rem);
-  line-height: 1.1;
-  font-weight: 950;
-}
-.sc-inspect-details small {
+.sc-inspect-head small {
+  font-size: 0.7rem;
   font-weight: 900;
   color: #bcff61;
   letter-spacing: 0.08em;
 }
-.sc-inspect-rules {
-  font-size: clamp(0.9rem, 1.6vw, 1.2rem);
-  line-height: 1.45;
+.sc-inspect-head h2 {
+  margin: 0.1rem 0 0;
+  font-size: clamp(1.3rem, 4cqw, 2.2rem);
+  line-height: 1.1;
+  font-weight: 950;
 }
-.sc-inspect-levels {
+.sc-inspect-evolutions {
+  --evo-w: calc(min(60rem, 100cqw) - 2rem);
+  --evo-h: calc(100cqh - 11rem);
+  --evo-max: 17rem;
+  --evo-min: 9.5rem;
+}
+.sc-inspect-foot {
   display: flex;
-  gap: 0.45rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
 }
-.sc-inspect-details button {
+.sc-inspect-foot p {
+  flex: 1 1 12rem;
+  margin: 0;
+  font-size: 0.8rem;
+  color: #c9dbd4;
+}
+.sc-inspect-close,
+.sc-inspect-action {
+  flex: none;
   padding: 0.7rem 0.9rem;
   border: 1px solid #a2d4be88;
   border-radius: 0.6rem;
@@ -2923,26 +2921,16 @@ button.sc-shelf-label {
   font-size: 0.75rem;
   font-weight: 900;
 }
-.sc-inspect-levels button[aria-pressed='true'] {
+.sc-inspect-action {
+  flex: 1 1 14rem;
+  border-color: #c5ff59;
   background: #c5ff59;
   color: #122416;
 }
-.sc-inspect-close {
-  align-self: flex-end;
-}
-.sc-inspect-action {
-  background: #c5ff59 !important;
-  color: #122416 !important;
-  border-color: #c5ff59 !important;
-}
 @container (max-width: 580px) {
   .sc-inspect-panel {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     padding: 0.6rem;
     gap: 0.6rem;
-  }
-  .sc-inspect-portrait {
-    max-height: 54vh;
   }
 }
 

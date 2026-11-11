@@ -74,18 +74,7 @@
           ✕
         </button>
       </header>
-      <ol class="sdh-evo-levels" :style="{ '--count': stages.length }">
-        <li v-for="stage in stages" :key="stage.label">
-          <span class="sdh-evo-tag">{{ stage.label }}</span>
-          <span class="sdh-evo-card">
-            <SlimeCityClashCardFace
-              :card-id="lifted"
-              :level="stage.level"
-              :pick="stage.pick"
-            />
-          </span>
-        </li>
-      </ol>
+      <SlimeCityCardEvolutions class="sdh-evo-levels" :card-id="lifted" />
       <footer class="sdh-actions">
         <button
           type="button"
@@ -121,11 +110,6 @@
 import { computed, ref, watch } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
-import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
-import {
-  clashEvolutionChoice,
-  type EvoPick,
-} from '~/utils/slimeCity/clashEvolutions'
 import { cardById } from '~/utils/slimeCity/prototypes'
 
 const emit = defineEmits<{ inspect: [id: string] }>()
@@ -147,23 +131,6 @@ const title = computed(() => {
   )
 })
 const liftedIndex = computed(() => cards.value.indexOf(lifted.value ?? ''))
-/**
- * Silas, 2026-11-11 PT: "If I select a card I should see a large display with
- * all three of its evolutions." A choose-one level three shows both options.
- */
-const stages = computed(() => {
-  const id = lifted.value
-  if (!id) return []
-  const out: { label: string; level: number; pick?: EvoPick }[] = Array.from(
-    { length: CLASH_MAX_LEVEL },
-    (_, i) => ({ label: 'LV ' + (i + 1), level: i + 1 }),
-  )
-  if (clashEvolutionChoice(id, CLASH_MAX_LEVEL)) {
-    out[CLASH_MAX_LEVEL - 1]!.label = 'LV 3 · OPTION A'
-    out.push({ label: 'LV 3 · OPTION B', level: CLASH_MAX_LEVEL, pick: 1 })
-  }
-  return out
-})
 watch(
   () => [lab.deckFormat, lab.activeTeam, lab.libraryId],
   () => {
@@ -389,45 +356,9 @@ function remove(id: string): void {
   cursor: pointer;
 }
 .sdh-evo-levels {
-  --E: max(
-    10.5rem,
-    min(15rem, (100cqw - 3rem - (var(--count) - 1) * 0.6rem) / var(--count))
-  );
-  display: flex;
-  gap: 0.6rem;
-  max-width: calc(100cqw - 2.4rem);
-  margin: 0 auto;
-  padding: 0 0 0.2rem;
-  list-style: none;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-}
-.sdh-evo-levels li {
-  flex: none;
-  scroll-snap-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  width: var(--E);
-}
-.sdh-evo-tag {
-  font-size: 0.62rem;
-  font-weight: 950;
-  letter-spacing: 0.12em;
-  color: #c5ff59;
-}
-.sdh-evo-card {
-  --rules-open: 1;
-  position: relative;
-  display: block;
-  width: 100%;
-  aspect-ratio: 2 / 3;
-  overflow: hidden;
-  border-radius: 0.8rem;
-  container-type: inline-size;
-  box-shadow: 0 8px 20px #000a;
+  --evo-w: calc(100cqw - 2.4rem);
+  --evo-min: 10.5rem;
+  --evo-max: 15rem;
 }
 .sdh-actions {
   display: flex;

@@ -70,8 +70,11 @@ for (const title of [
   'The Great Devouring',
   'The Ossuary Opens',
   'The Bone Cart',
- ])
-  assert.ok(exchangeStages.includes(title), title + ' must keep its occult identity')
+])
+  assert.ok(
+    exchangeStages.includes(title),
+    title + ' must keep its occult identity',
+  )
 // Every crafted card, every faction: real stages that fit the card face.
 for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   const card = cardById(id)

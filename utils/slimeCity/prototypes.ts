@@ -1353,7 +1353,7 @@ export const CARDS: Card[] = [
     effect: 'snare',
     power: 1,
     debt: 2,
-    text: 'A sigil opens underfoot: 1 damage, and the victim's crew owes 2 mana.',
+    text: "A sigil opens underfoot: 1 damage, and the victim's crew owes 2 mana.",
     symbol: '◇',
   },
   {
@@ -1363,7 +1363,7 @@ export const CARDS: Card[] = [
     team: 'exchange',
     cost: 2,
     effect: 'armor',
-    text: 'Stitched from a drowned saint's hide. A fighter gains +1 armor for good.',
+    text: "Stitched from a drowned saint's hide. A fighter gains +1 armor for good.",
     symbol: '⬟',
   },
   {

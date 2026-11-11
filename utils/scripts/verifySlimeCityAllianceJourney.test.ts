@@ -15,10 +15,12 @@ import {
   FACTION_CAMPAIGNS,
   resolveCampaignBattle,
 } from '../slimeCity/campaign'
-import { clashBossesFromTerms } from '../slimeCity/clashBouts'
+import { clashBossesFromTerms, clashTermsLabel } from '../slimeCity/clashBouts'
 import { newSlimeCityStory, validSlimeCityStory } from '../slimeCity/storySave'
 import { TEAMS } from '../slimeCity/prototypes'
 
+assert.match(clashTermsLabel({}), /^SOLO CLASH/)
+assert.match(clashTermsLabel({}, 'alliance'), /^ALLIANCE CLASH/)
 const titles = new Set<string>()
 for (const general of TEAMS) {
   for (const ally of TEAMS) {

@@ -222,6 +222,7 @@ for (const path of [
   '[id].get.ts',
   '[id]/join.post.ts',
   '[id]/command.post.ts',
+  '[id]/forfeit.post.ts',
 ]) {
   const source = readFileSync(handlerDir + path, 'utf8')
   assert.match(source, /requireSlimeCityPreviewUser/)
@@ -233,6 +234,12 @@ assert.match(
   'stale tabs must be rejected',
 )
 assert.match(service, /settledAt/, 'terminal duels must stop taking moves')
+assert.match(service, /forfeitSlimeCityDuel/, 'forfeit endpoint must settle matches')
+assert.match(service, /record\.forfeitedBy === seat/, 'same-seat retry must be idempotent')
+assert.match(service, /const seat = seatFor\(row, record, userId\)/, 'forfeit must authorize a participant')
+assert.match(service, /result: winner/, 'forfeit must preserve the winner')
+assert.equal(parsePvpRecord({ version: 1, guestId: 2, forfeitedBy: 'player', commands: [] })?.forfeitedBy, 'player')
+assert.equal(parsePvpRecord({ version: 1, guestId: 2, forfeitedBy: 'intruder', commands: [] }), null)
 assert.match(service, /isPvpExpired/, 'match expiry must use activity timestamps')
 assert.match(
   service,

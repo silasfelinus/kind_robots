@@ -86,11 +86,7 @@ export function clashEvolutionText(
   // The card face names both; the play picker shows each option's rules.
   if (both)
     return (
-      'Choose one as you play it: ' +
-      both[0].title +
-      ' or ' +
-      both[1].title +
-      '.'
+      'Choose: ' + both[0].title + ' / ' + both[1].title + '.'
     )
   const st = clashEvolutionStage(card.id, level, pick ?? 0)
   return st ? evoStageText(st, card.kind) : ''

@@ -254,6 +254,28 @@
         >
         <h3>{{ lab.campaignStory.title }}: THE END</h3>
         <p class="campaign-lede">{{ lab.campaignFinale }}</p>
+        <div
+          v-if="lab.campaignAllianceFinale"
+          class="campaign-voice player"
+          data-testid="slime-alliance-earned-ending"
+        >
+          <SlimeCityArtwork
+            class="campaign-voice-portrait"
+            :image-id="slimeArtId('crews', lab.campaignAllianceFinale.ally)"
+            :alt="teamName(lab.campaignAllianceFinale.ally) + ' ally portrait'"
+            :fallback="crewInsignia(lab.campaignAllianceFinale.ally)"
+            compact
+          />
+          <div>
+            <small>
+              ALLIANCE ENDING ·
+              {{ teamName(lab.campaignAllianceFinale.ally) }} ·
+              {{ lab.campaignAllianceFinale.chaptersTogether }}/5 CHAPTERS
+            </small>
+            <strong>{{ lab.campaignAllianceFinale.title }}</strong>
+            <p>{{ lab.campaignAllianceFinale.story }}</p>
+          </div>
+        </div>
         <small class="campaign-note"
           >Each crew has its own saved journey. Verified Clash battles can earn
           account rewards; story-only card choices stay in this run.</small

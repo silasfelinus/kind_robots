@@ -1,0 +1,195 @@
+import type { TeamId } from './prototypes'
+import {
+  arc,
+  beat,
+  end,
+  type AllianceLaterArc,
+} from './campaignAllianceArcTypes'
+
+export const ironjawAllianceArcs = {
+  catgirls: arc(
+    [
+      beat(
+        'A lab transport brings escaped catgirls past the exact furnace where Ironjaw was engineered.',
+        'Hide the escapees in the warm slag tunnel',
+        'The workers guide their visitors through the only passage that stays warm at night.',
+        'Swap the transport tags',
+        'The guards deliver their own empty cages to the purchasing department.',
+      ),
+      beat(
+        'The same scientist who mutated Ironjaw promises to reverse the changes for a list of catgirl names.',
+        'Reject the cure with the crew’s consent',
+        'The lizards speak for themselves and keep the frightened escapees out of the bargain.',
+        'Steal the scientist’s live research',
+        'The stolen files reveal that the promised cure was another trial run.',
+      ),
+      beat(
+        'A young lizard remembers the surgeon who fitted their jaw, now guarding a catgirl nursery.',
+        'Rescue the nursery before confronting him',
+        'Every child reaches the warm room before anyone settles an old score.',
+        'Make the surgeon open his own cages',
+        'He unlocks each cell under the watch of the people he helped imprison.',
+      ),
+      beat(
+        'The old laboratory offers a full pardon to Ironjaw if the crew hands over the catgirls.',
+        'Tear up the pardon at the factory gate',
+        'The escapees cross the picket line as equals and the workers keep their freedom.',
+        'Deliver the owners instead of the escapees',
+        'The pardon desk receives the architects of the imprisonment, escorted by their former subjects.',
+      ),
+    ],
+    end(
+      'BORN OUTSIDE THE LAB',
+      'Ironjaw and the catgirls build a warm workshop for anyone who escaped a numbered cage. No one is asked to become their old self again.',
+      'The laboratory’s identity scanner recognizes its own directors as prisoners. The mutant workers leave with the keys and their future intact.',
+    ),
+  ),
+  bloodfairies: arc(
+    [
+      beat(
+        'The factory owner broadcasts a fake Bloodfairy song to break the picket from the inside.',
+        'Let the band perform the real song',
+        'Workers recognize the chorus and keep the line without blocking emergency access.',
+        'Broadcast the owner’s secret rehearsal tapes',
+        'The owner’s fake protest anthem ends as evidence of the union-busting scheme.',
+      ),
+      beat(
+        'The furnace workers vote to strike on the night the band needs heat for a sold-out show.',
+        'Move the concert to the strike line',
+        'A thousand ticket holders bring blankets, soup, and solidarity to the gate.',
+        'Power the show with the owners’ private generator',
+        'The owner’s offices go dark while the band lights the street.',
+      ),
+      beat(
+        'A drummer is arrested for carrying the workers’ wage records inside a snare case.',
+        'Organize a legal march for release',
+        'The march arrives with names and witnesses the police cannot quietly erase.',
+        'Swap the evidence for a dummy drum',
+        'The police guard an empty shell while the real ledger reaches the workers.',
+      ),
+      beat(
+        'The final lockout begins during the last encore, with newborn lizards sleeping inside.',
+        'Open the nursery exit before singing',
+        'The crowd makes a path for the hatchlings, and the band sings them into the warm street.',
+        'Use the encore to seize the gate controls',
+        'The stage lights show the owner trapped outside a factory the workers now run.',
+      ),
+    ],
+    end(
+      'THE WARMEST ENCORE',
+      'Every touring contract includes a warm dressing room for the lizard crew. The factory becomes a union venue with a nursery behind the stage.',
+      'The gates open to a band and close on the old management. The workers get their pay, the band gets a home venue, and the owner gets the bill.',
+    ),
+  ),
+  riot: arc(
+    [
+      beat(
+        'Anarkiss wants to make the locked factory gate disappear while workers are still standing beneath it.',
+        'Move the workers away before the trick',
+        'The gate vanishes without taking anyone’s tail or tools with it.',
+        'Reveal the stolen safety inspection',
+        'A projected permit exposes the owner’s illegal lockout before the first fuse lights.',
+      ),
+      beat(
+        'The troupe’s portable heater is powered by a furnace part Ironjaw needs for the hatchery.',
+        'Return the part to the hatchery',
+        'The cast rehearses in coats while the smallest lizards sleep warm.',
+        'Borrow a heater from the manager’s office',
+        'The manager shivers through the matinee while the hatchery warms up.',
+      ),
+      beat(
+        'A stagehand offers to impersonate the owner to unlock the union archive.',
+        'Protect the stagehand with a real witness',
+        'The archive opens by testimony instead of disguise, leaving the worker free to go home.',
+        'Stage a fake inspection with the costume',
+        'The owner’s password tumbles out of an actor’s mouth in front of every worker.',
+      ),
+      beat(
+        'The last shift is scheduled to be evicted during Anarkiss’s biggest audience entrance.',
+        'Escort the shift to the warm plaza',
+        'The audience becomes a living corridor through which every worker escapes.',
+        'Replace the eviction notice with a showbill',
+        'The guards present an invitation to the union takeover on live television.',
+      ),
+    ],
+    end(
+      'A FIRE EXIT FOR EVERY WORKER',
+      'The new show’s first rule is that no performer or worker gets left behind. Ironjaw lends warmth, Anarkiss lends a crowd, and both keep the doors open.',
+      'The eviction ends as an opening-night prank. The owner loses the keys, the union wins the stage, and the factory clock counts applause.',
+    ),
+  ),
+  undertow: arc(
+    [
+      beat(
+        'The coolant bypass has been mapped by police who plan to freeze the lizard safehouse.',
+        'Move sleepers into an insulated chamber',
+        'Undertow seals the warm room while the crew reroutes water without losing a hatchling.',
+        'Reverse the pressure on the police pump',
+        'The officers abandon the pump house before the cold water reaches the sleepers.',
+      ),
+      beat(
+        'The Oracle uncovers the secret order to sell workers’ body heat to a distant investor.',
+        'Give each worker a copy of the order',
+        'The union votes with proof in hand and refuses the sale together.',
+        'Broadcast the investor’s hidden payments',
+        'The investor’s name echoes through every factory loudspeaker before dawn.',
+      ),
+      beat(
+        'The only escape tunnel crosses a section of sewer where an old friend of Undertow has gone missing.',
+        'Search for the missing messenger first',
+        'The messenger crawls out with proof that the flood gates were sabotaged.',
+        'Cut the saboteurs off behind their gate',
+        'The crew locks the poison-water team in a dry control room until help arrives.',
+      ),
+      beat(
+        'During the final shutdown, opening the warm-water valve could erase Undertow’s last encrypted archive.',
+        'Save the archive in the workers’ hands',
+        'Warm water floods the tunnel after the records reach trusted witnesses.',
+        'Burn the archive to overload the locks',
+        'The factory doors burst open, and the owner’s secrets spill from every warning screen.',
+      ),
+    ],
+    end(
+      'THE WARM WATER REPUBLIC',
+      'The new union shares its heat with the tunnels and keeps the relay independent. No worker is charged for staying warm or telling the truth.',
+      'The supervisors’ flood controls become public pumps. The first order read over the restored radio is a paid holiday for every worker.',
+    ),
+  ),
+  exchange: arc(
+    [
+      beat(
+        'A creditor appraises the lizards’ living scales as insulation materials while the winter shift begins.',
+        'Declare workers legally indivisible',
+        'The union clerk stamps every scale and tail as belonging to the person who wears it.',
+        'Offer the creditor counterfeit scales',
+        'The buyers pay premium Meat for scrap roofing that sheds at the first rain.',
+      ),
+      beat(
+        'The Exchange puts the hatchery’s heat bill up for auction at midnight.',
+        'Raise a public fund to cancel the bill',
+        'The workers contribute what they can and receive ownership of the nursery instead of another invoice.',
+        'Buy the auction with a forged debt token',
+        'The collectors discover the winning bidder is their own unpaid furnace.',
+      ),
+      beat(
+        'A retired foreman reveals the oldest furnace was built on a contract containing workers’ names.',
+        'Free the names before restarting the furnace',
+        'The old contract burns cleanly, and the heat rises without taking anyone’s life.',
+        'Make the furnace burn its owner’s signature',
+        'The ancient furnace rejects the creditor and eats the gold stamp instead.',
+      ),
+      beat(
+        'The debt market offers Ironjaw unlimited warmth if the union surrenders future hatchlings as collateral.',
+        'Reject the offer and build another heater',
+        'The union heats the workshop with its own tools and no one signs away a child.',
+        'Expose the unborn-debt clause at auction',
+        'Even the market’s most corrupt buyers refuse to bid on the impossible contract.',
+      ),
+    ],
+    end(
+      'HEAT WITHOUT COLLATERAL',
+      'The union’s new furnaces run for people, not investors. Every hatchling enters the world without a balance owed to the Exchange.',
+      'The old contract tries to collect its final debt and finds the creditor’s own name. Ironjaw starts the next shift with a paid breakfast.',
+    ),
+  ),
+} satisfies Partial<Record<TeamId, AllianceLaterArc>>

@@ -245,6 +245,8 @@ assert.match(store, /campaignAllianceCurrent\.value/)
 assert.match(store, /allianceStoryBattleTerms\(/)
 assert.match(store, /persistStory\(\)/)
 assert.match(page, /data-testid="slime-alliance-story-scene"/)
+assert.match(page, /data-testid="slime-alliance-earned-ending"/)
+assert.match(store, /campaignAllianceFinale/)
 assert.match(page, /testid-prefix="slime-alliance-story-choice"/)
 assert.match(
   city,

@@ -4,6 +4,7 @@
 import type { BoutTerms } from './city'
 import type { CampaignSave } from './campaign'
 import { TEAMS, type TeamId } from './prototypes'
+import { ALLIANCE_LATER_ARCS } from './campaignAllianceLater'
 
 export type AllianceStoryPick = 'protect' | 'gamble'
 export interface AllianceStoryDecision {
@@ -528,6 +529,34 @@ export function validAllianceStoryDecisions(
   )
 }
 
+/** Resolve an individual authored scene, not the original premise repeated
+ * five times. Older saves still refer only to ally and pick. */
+function sceneBeat(team: TeamId, ally: TeamId, chapter: number) {
+  const first = ALLIANCE_THREADS[team][ally]
+  if (!first || chapter < 0 || chapter > 4) return null
+  if (chapter === 0)
+    return {
+      title: first.title,
+      crisis: first.conflict,
+      protect: first.protect,
+      gamble: first.gamble,
+    }
+  const late = ALLIANCE_LATER_ARCS[team][ally]?.beats[chapter - 1]
+  if (!late) return null
+  const shortTitle = late.crisis
+    .replace(/^(A|An|The) /, '')
+    .split(/[.,;:]/)[0]!
+    .slice(0, 58)
+    .trim()
+    .toUpperCase()
+  return {
+    title: shortTitle,
+    crisis: late.crisis,
+    protect: late.protect,
+    gamble: late.gamble,
+  }
+}
+
 export function allianceStoryScene(
   save: CampaignSave,
   team: TeamId,
@@ -535,40 +564,45 @@ export function allianceStoryScene(
 ): AllianceStoryScene | null {
   const chapter = save[team].wins
   const config = ALLIANCE_THREADS[team][ally]
-  if (team === ally || !config || chapter >= 5) return null
+  const current = sceneBeat(team, ally, chapter)
+  if (team === ally || !config || !current) return null
   const recorded = save[team].allianceJourney?.[chapter]
   if (recorded?.ally === ally) return null
   const previous = save[team].allianceJourney?.[chapter - 1]
+  const priorBeat = previous?.ally
+    ? sceneBeat(team, previous.ally, chapter - 1)
+    : null
   const recalled =
-    previous?.ally === ally
-      ? 'Last chapter, your alliance chose to ' +
+    previous?.ally === ally && priorBeat
+      ? 'Last chapter: ' +
         (previous.pick === 'protect'
-          ? config.protect[0]
-          : config.gamble[0]
-        ).toLowerCase() +
-        '. Both crews remember the cost.'
+          ? priorBeat.protect[1]
+          : priorBeat.gamble[1])
       : previous
-        ? 'Your last partner is absent. This crew wants its own terms before stepping into danger.'
-        : 'Neither crew knows if this partnership will survive the night.'
+        ? 'Last chapter your partner was ' +
+          (TEAMS.find((crew) => crew.id === previous.ally)?.name ??
+            previous.ally) +
+          '. This crew needs a different bargain.'
+        : 'This partnership has never survived a night together.'
   return {
     id: team + ':' + ally + ':' + chapter,
-    title: config.title,
+    title: current.title,
     speaker: config.speaker,
     text:
-      CHAPTER_STAKES[team][chapter]! + ' ' + config.conflict + ' ' + recalled,
+      CHAPTER_STAKES[team][chapter]! + ' ' + current.crisis + ' ' + recalled,
     ally,
     chapter,
     choices: [
       {
         id: 'protect',
-        label: config.protect[0],
-        outcome: config.protect[1],
+        label: current.protect[0],
+        outcome: current.protect[1],
         terms: 'BOSS +3 · RIVAL +2',
       },
       {
         id: 'gamble',
-        label: config.gamble[0],
-        outcome: config.gamble[1],
+        label: current.gamble[0],
+        outcome: current.gamble[1],
         terms: 'RIVAL −4 · BOSS −2',
       },
     ],
@@ -639,10 +673,66 @@ export function allianceStoryConsequence(
 ): string | null {
   const record = save[team].allianceJourney?.[chapter]
   if (!record) return null
-  const config = ALLIANCE_THREADS[team][record.ally]
-  return config
-    ? record.pick === 'protect'
-      ? config.protect[1]
-      : config.gamble[1]
-    : null
+  const scene = sceneBeat(team, record.ally, chapter)
+  if (!scene) return null
+  return record.pick === 'protect' ? scene.protect[1] : scene.gamble[1]
+}
+
+/** A finale is earned from a finished Journey's final ally and preserved
+ * chapter history. Changing the current deck later cannot rewrite it. */
+export interface AllianceStoryFinale {
+  title: string
+  story: string
+  ally: TeamId
+  choice: AllianceStoryPick
+  chaptersTogether: number
+}
+
+export function allianceStoryFinale(
+  save: CampaignSave,
+  team: TeamId,
+): AllianceStoryFinale | null {
+  if (save[team].wins !== 5) return null
+  const finalePick = save[team].allianceJourney?.[4]
+  if (!finalePick || finalePick.ally === team) return null
+  const arc = ALLIANCE_LATER_ARCS[team][finalePick.ally]
+  if (!arc) return null
+  const history = Object.entries(save[team].allianceJourney ?? {}).flatMap(
+    ([chapter, decision]) =>
+      Number(chapter) < 5 && decision ? [decision] : [],
+  )
+  const chaptersTogether = history.filter(
+    (decision) => decision.ally === finalePick.ally,
+  ).length
+  const allyName =
+    TEAMS.find((crew) => crew.id === finalePick.ally)?.name ?? finalePick.ally
+  const loyalty =
+    chaptersTogether === 5
+      ? 'The two crews stayed together for all five chapters; neither can pretend this victory was won alone.'
+      : chaptersTogether >= 3
+        ? allyName +
+          ' stood with you for ' +
+          chaptersTogether +
+          ' chapters. The partnership leaves a history deeper than the final fight.'
+        : 'The final chapter brought ' +
+          allyName +
+          ' into a story already shaped by other allies. They know what their promise cost.'
+  const decisionsProtected = history.filter(
+    (decision) => decision.pick === 'protect',
+  ).length
+  const aftermath =
+    decisionsProtected >= 3
+      ? 'More than half the decisions protected people first, even when it strengthened the opposition.'
+      : 'Most of the victories were gambles. The survivors keep the scars, and the right to tell that part of the story.'
+  return {
+    title: arc.finale.title,
+    story: [
+      finalePick.pick === 'protect' ? arc.finale.protect : arc.finale.gamble,
+      loyalty,
+      aftermath,
+    ].join(' '),
+    ally: finalePick.ally,
+    choice: finalePick.pick,
+    chaptersTogether,
+  }
 }

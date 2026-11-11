@@ -128,6 +128,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
 import { performFetch } from '@/stores/utils'
 import type { PaginationMeta } from '@/types/api'
 
@@ -147,7 +148,12 @@ const skip = ref(0)
 const loading = ref(false)
 const errorMessage = ref('')
 
-useHead({ title: 'Leaderboard · Cthulhuquarium' })
+useSeoMeta(
+  gameLinkPreviewMeta(
+    'aquarium-leaderboard',
+    useRuntimeConfig().public.appBaseUrl,
+  ) ?? {},
+)
 
 function normalizeImagePath(value: string): string {
   if (value.startsWith('/') || value.startsWith('http')) return value

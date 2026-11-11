@@ -30,6 +30,7 @@ assert.equal(
 // Every previewed page must actually call gameLinkPreviewMeta with its slug.
 const pageFor: Record<string, string> = {
   aquarium: 'pages/play/aquarium/browse/index.vue',
+  'aquarium-leaderboard': 'pages/play/aquarium/leaderboard/index.vue',
   'butterfly-gallery': 'pages/butterfly-gallery.vue',
   mandarin: 'pages/play/mandarin/index.vue',
   arcade: 'pages/play/arcade/index.vue',

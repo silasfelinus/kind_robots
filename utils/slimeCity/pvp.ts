@@ -11,10 +11,27 @@ import { CARDS, TEAMS, type Side, type TeamId } from './prototypes'
 
 export const PVP_MODE = 'clash-pvp'
 export const PVP_MAX_COMMANDS = 2000
+export const PVP_INVITE_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000
+export const PVP_IDLE_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000
+
+/** Completed matches remain readable as history; live matches expire after inactivity. */
+export function isPvpExpired(
+  startedAt: Date,
+  lastActionAt: string | undefined,
+  joined: boolean,
+  settled: boolean,
+  now = Date.now(),
+): boolean {
+  if (settled) return false
+  const timestamp = lastActionAt ? Date.parse(lastActionAt) : startedAt.getTime()
+  if (!Number.isFinite(timestamp)) return true
+  return now - timestamp > (joined ? PVP_IDLE_EXPIRY_MS : PVP_INVITE_EXPIRY_MS)
+}
 
 export interface PvpRecord {
   version: 1
   guestId: number | null
+  lastActionAt?: string
   commands: ClashCommand[]
 }
 
@@ -65,6 +82,9 @@ export function parsePvpRecord(value: unknown): PvpRecord | null {
     data.version !== 1 ||
     (data.guestId !== null &&
       (!Number.isSafeInteger(data.guestId) || Number(data.guestId) <= 0)) ||
+    (data.lastActionAt !== undefined &&
+      (typeof data.lastActionAt !== 'string' ||
+        !Number.isFinite(Date.parse(data.lastActionAt)))) ||
     !Array.isArray(data.commands) ||
     data.commands.length > PVP_MAX_COMMANDS
   )

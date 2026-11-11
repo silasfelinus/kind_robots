@@ -97,13 +97,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Sliding Tile Gallery | Kind Robots',
     description:
       'Slide eight painted panes into place to reveal a postcard. A free daily puzzle in your browser, no account needed.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/sliding-tile-gallery/link-preview.webp',
   },
   brainstorm: {
     title: 'Brainstorm | Kind Robots',
     description:
       'A party game for the whole table: pile on ideas, react to the best ones and watch every line get painted. Free in your browser.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/brainstorm/link-preview.webp',
   },
   aquarium: {
     title: 'Cthulhuquarium | Public Tanks | Kind Robots',
@@ -130,7 +130,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Mandarin Tutor | Kind Robots',
     description:
       'Practise Mandarin sounds, words and tones with a patient robot tutor. Free to try in your browser.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/mandarin/link-preview.webp',
     path: '/play/mandarin',
   },
   arcade: {
@@ -143,14 +143,14 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Music Mentor | Kind Robots',
     description:
       'Upload a song for friendly feedback on pitch, timing and dynamics. Your recording stays on your device.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/music-mentor/link-preview.webp',
     path: '/music-mentor',
   },
   'coloring-page': {
     title: 'Coloring Page Maker | Kind Robots',
     description:
       'Turn any photo or design into printable line art for coloring. Free to try in your browser.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/coloring-page/link-preview.webp',
     path: '/coloring-page',
   },
   'video-generator': {

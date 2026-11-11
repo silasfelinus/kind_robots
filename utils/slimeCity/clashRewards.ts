@@ -64,8 +64,6 @@ export function clashBoutProblem(format: unknown, raw: unknown): string {
   const v = raw as Record<string, unknown>
   if (!CLASH_BOUT_KINDS.includes(v.kind as ClashBoutKind))
     return 'Unknown bout.'
-  if (v.kind === 'campaign' && format !== 'solo')
-    return 'SOLO story bouts deal a Solo deck.'
   if (v.kind === 'tower' && format !== 'alliance')
     return 'Tower fights deal an Alliance deck.'
   const bosses = v.bosses as Record<string, unknown> | null

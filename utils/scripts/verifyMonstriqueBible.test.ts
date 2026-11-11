@@ -207,13 +207,31 @@ assert.match(
   repo('server/api/monstrique/bible/index.get.ts'),
   /'Cache-Control', 'private, no-store'/,
 )
-const channel = repo('content/channels/admin/monstrique-bible.md')
+// Silas 2026-11-11: "our monstrique and monstrique bible should be one link."
+const channel = repo('content/channels/admin/monstress-convention.md')
 assert.match(channel, /requiredRole: ADMIN/)
 assert.match(channel, /requiredPermission: mature/)
-assert.match(channel, /route: \/admin\/monstrique-bible/)
+assert.match(channel, /route: \/admin\/monstrique\n/)
+assert.match(channel, /label: Monstrique Studio/)
+assert.match(channel, /^image: \/monstrique\/front\/studio-card\.webp$/m)
+readFileSync(
+  new URL('../../public/monstrique/front/studio-card.webp', import.meta.url),
+)
+assert.ok(
+  !readdirSync(
+    new URL('../../content/channels/admin', import.meta.url),
+  ).includes('monstrique-bible.md'),
+  'one admin link for the preview and the bible',
+)
+const studio = repo('pages/admin/monstrique.vue')
+assert.match(
+  studio,
+  /caseStore\.authorized && user\.isAdmin && user\.showMature/,
+)
+assert.match(studio, /<MonstriqueSeriesBible v-if="view === 'bible'" \/>/)
 assert.match(
   repo('pages/admin/monstrique-bible.vue'),
-  /caseStore\.authorized && user\.isAdmin && user\.showMature/,
+  /navigateTo\('\/admin\/monstrique\?view=bible'/,
 )
 
 function walk(dir: string): string[] {

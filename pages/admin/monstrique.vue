@@ -24,19 +24,43 @@
       </div>
     </div>
     <template v-else>
-      <header-page-bar v-if="view === 'home'" console-theme="forge">
+      <header-page-bar v-if="view !== 'game'" console-theme="forge">
         <div class="flex min-w-0 flex-1 items-center gap-2 text-sm font-bold">
           <Icon name="kind-icon:star" class="size-4 text-primary" />
-          <span class="truncate">MONSTRIQUE</span>
-          <span
-            class="hidden truncate text-xs font-normal opacity-70 @md:inline"
+          <span class="truncate">MONSTRIQUE STUDIO</span>
+          <div
+            class="ml-auto flex shrink-0 gap-1"
+            role="tablist"
+            aria-label="Monstrique studio"
           >
-            Internal preview
-          </span>
+            <button
+              type="button"
+              role="tab"
+              class="btn btn-xs"
+              :class="view === 'home' ? 'btn-primary' : 'btn-ghost'"
+              :aria-selected="view === 'home'"
+              data-testid="monstrique-studio-preview"
+              @click="openView('home')"
+            >
+              Preview
+            </button>
+            <button
+              type="button"
+              role="tab"
+              class="btn btn-xs"
+              :class="view === 'bible' ? 'btn-primary' : 'btn-ghost'"
+              :aria-selected="view === 'bible'"
+              data-testid="monstrique-studio-bible"
+              @click="openView('bible')"
+            >
+              Series bible
+            </button>
+          </div>
         </div>
       </header-page-bar>
+      <MonstriqueSeriesBible v-if="view === 'bible'" />
       <MonstrexxFront
-        v-if="view === 'home'"
+        v-else-if="view === 'home'"
         :panel="panel"
         @new="startNew"
         @continue="resume"
@@ -65,7 +89,10 @@ type MenuPanel = 'settings' | 'scrapbook' | null
 const user = useUserStore()
 const caseStore = useMonstressConventionStore()
 const kit = usePlaybookKitStore()
-const view = ref<'home' | 'game'>('home')
+const route = useRoute()
+const view = ref<'home' | 'game' | 'bible'>(
+  route.query.view === 'bible' ? 'bible' : 'home',
+)
 const panel = ref<MenuPanel>(null)
 const entry = ref<'new' | 'continue'>('new')
 const mayPlay = computed(
@@ -102,6 +129,15 @@ function resume(): void {
   entry.value = 'continue'
   panel.value = null
   view.value = 'game'
+}
+
+function openView(next: 'home' | 'bible'): void {
+  panel.value = null
+  view.value = next
+  void navigateTo(
+    { query: next === 'bible' ? { view: 'bible' } : {} },
+    { replace: true },
+  )
 }
 
 function returnHome(): void {

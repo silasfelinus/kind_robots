@@ -122,7 +122,9 @@
       <div
         class="mc-scene relative min-h-0 flex-1 overflow-hidden"
         :data-room="story.state.room"
-        :aria-label="room.label + '. Arrow keys cycle objects. Tap empty ground to walk.'"
+        :aria-label="
+          room.label + '. Arrow keys cycle objects. Tap empty ground to walk.'
+        "
         tabindex="0"
         @click="walkTo"
         @keydown.left.prevent="selectAdjacent(-1)"
@@ -636,7 +638,11 @@
             class="mc-item"
             :class="{ 'is-held': held === item }"
             :aria-pressed="held === item"
-            :title="'Hold ' + (ITEMS[item] ?? item) + ', then pick a hotspot or another inventory item to combine'"
+            :title="
+              'Hold ' +
+              (ITEMS[item] ?? item) +
+              ', then pick a hotspot or another inventory item to combine'
+            "
             @click="pickInventory(item)"
           >
             <Icon

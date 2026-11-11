@@ -104,6 +104,13 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
         y: 81,
         verbs: ['look', 'photograph'],
       },
+      {
+        id: 'billboard',
+        label: 'MONSTRIQUE: REAWAKENED billboard',
+        x: 16,
+        y: 18,
+        verbs: ['look', 'photograph'],
+      },
     ],
   },
   'front-office': {
@@ -166,6 +173,13 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
         y: 83,
         verbs: ['look', 'use'],
       },
+      {
+        id: 'vending-machine',
+        label: 'Last Call Lovin’ vending machine',
+        x: 90,
+        y: 44,
+        verbs: ['look', 'use'],
+      },
     ],
   },
   balcony: {
@@ -219,6 +233,13 @@ export const HOTEL_ROOMS: Record<RoomId, HotelRoom> = {
         x: 68,
         y: 53,
         verbs: ['look', 'talk', 'ask', 'flirt'],
+      },
+      {
+        id: 'bedspread',
+        label: 'The one cramped bed',
+        x: 46,
+        y: 80,
+        verbs: ['look', 'use'],
       },
     ],
   },
@@ -437,6 +458,7 @@ export const ITEMS: Record<string, string> = {
   'motel-key': 'Emergency key',
   'odette-purse': 'Odette’s purse',
   'plastic-fangs': 'Violet’s rental fangs',
+  'garlic-protection': 'Garlic-scented protection',
 }
 
 /** Characters whose good graces can be earned in this chapter. */
@@ -453,6 +475,141 @@ const NORB_REBUFFS = [
   'Iris: You’re all about the case. What if I were the case? Norb: Then you would be closed.',
   'Iris: I’m wearing nothing under this trench coat. Norb: Then you are a biohazard. Leave the door open.',
 ]
+
+/**
+ * Sierra-style points: a running score out of 205, one point per room number.
+ * Derived from evidence and flags, so saves need no new field. Points marked
+ * `mature` come from optional mature-edition gags and never block anything.
+ */
+export const SCORE_TABLE: Array<{
+  key: string
+  points: number
+  mature?: true
+}> = [
+  { key: 'motel-photo', points: 3 },
+  { key: 'guest-ledger', points: 5 },
+  { key: 'double-murder', points: 10 },
+  { key: 'knife-photo', points: 10 },
+  { key: 'odette-photo', points: 3 },
+  { key: 'violet-photo', points: 3 },
+  { key: 'ice-timing', points: 10 },
+  { key: 'neighbor-testimony', points: 5 },
+  { key: 'ghost-odette', points: 10 },
+  { key: 'ghost-violet', points: 10 },
+  { key: 'odette-floating', points: 8 },
+  { key: 'fan-photo', points: 5 },
+  { key: 'fan-exonerated', points: 10 },
+  { key: 'knife-prop-mark', points: 12 },
+  { key: 'idol-poster', points: 10 },
+  { key: 'harker-file', points: 8 },
+  { key: 'shrine-photo', points: 8 },
+  { key: 'ice-ring', points: 6 },
+  { key: 'makeup-smear', points: 8 },
+  { key: 'violet-scent', points: 8 },
+  { key: 'crime-room-access', points: 5 },
+  { key: 'odette-hired-us', points: 5 },
+  { key: 'stalker-reported', points: 5 },
+  { key: 'fangs-found', points: 5 },
+  { key: 'fangs-returned', points: 5 },
+  { key: 'violet-paid', points: 5 },
+  { key: 'city-lead', points: 10 },
+  { key: 'billboard-shot', points: 2 },
+  { key: 'ghost-kiss', points: 5, mature: true },
+  { key: 'bought-protection', points: 3, mature: true },
+  { key: 'rebuff-collector', points: 3, mature: true },
+]
+
+export function maxScore(audience: 'general' | 'mature' = 'mature'): number {
+  return SCORE_TABLE.filter(
+    (row) => audience === 'mature' || !row.mature,
+  ).reduce((sum, row) => sum + row.points, 0)
+}
+
+export function caseScore(state: CaseState): number {
+  return SCORE_TABLE.reduce((sum, row) => {
+    const earned =
+      row.key === 'rebuff-collector'
+        ? state.rebuffs >= NORB_REBUFFS.length
+        : state.evidence.includes(row.key) || state.flags.includes(row.key)
+    return earned ? sum + row.points : sum
+  }, 0)
+}
+
+/** The sardonic narrator who answers when nothing sensible happens. */
+const NARRATOR: Record<'look' | 'take' | 'use' | 'talk' | 'other', string[]> = {
+  look: [
+    'You look at the {t}. The {t} does not look back. Small mercies.',
+    'It is exactly as seedy as everything else at the Last Call.',
+  ],
+  take: [
+    'You can’t take the {t}. Well, you could, but Marta keeps a shotgun under the counter and a grudge in her heart.',
+    'Iris reaches for the {t}. Somewhere, Norb feels a disturbance in the hygiene.',
+    'Even by your standards, pocketing the {t} would be a lot.',
+  ],
+  use: [
+    'You use the {t}. Nothing happens, which is the Last Call’s house speciality.',
+    'Iris fiddles with the {t}. Norb sighs from a safe distance.',
+    'That is not what the {t} is for. Probably. Nobody here reads instructions.',
+  ],
+  talk: [
+    'You make conversation with the {t}. It is the best listener you’ve met tonight.',
+    'The {t} has nothing to say. Rare, in this motel.',
+  ],
+  other: [
+    'Good idea. Wrong motel.',
+    'The narrator would love to help, but union rules forbid it.',
+    'Nice try. That is worth zero points, but full marks for confidence.',
+  ],
+}
+
+function narrate(state: CaseState, verb: Verb, label: string): string {
+  const pool =
+    verb === 'look' || verb === 'take' || verb === 'use' || verb === 'talk'
+      ? NARRATOR[verb]
+      : NARRATOR.other
+  const line = pool[(state.transcript.length + state.seed) % pool.length]!
+  return line.replaceAll('{t}', label.toLowerCase())
+}
+
+/** Every wrong combination gets a joke (Thimbleweed rule). */
+const WRONG_ITEM: Record<string, Record<string, string>> = {
+  'plastic-fangs': {
+    marta:
+      'Marta: Put those away, honey. I’ve seen fangs. I’ve seen worse than fangs. I’ve seen the 1974 reunion special.',
+    'odette-ghost':
+      'Odette: Darling, the whole point was that SHE wore them. Do keep up.',
+    gavin: 'Iris: No. He’d sell them online before the ice melted.',
+    neighbor:
+      'Dolores: Oh, are those from the Beach Hex collector set? No? Then keep them, sweetie.',
+  },
+  'odette-purse': {
+    marta:
+      'Iris slides a fifty across the counter. Marta: Bribes go through the front desk, honey, and I am the front desk. Keep it. I like you.',
+    nico: 'Norb: Money is the dirtiest object in America. Do not hand me a purse full of it.',
+    gavin:
+      'Iris: I am not paying you to stop being a creep. That should be free.',
+    neighbor:
+      'Dolores: Keep your money, sweetie. I’d gossip for free. I DO gossip for free.',
+  },
+  'motel-key': {
+    nico: 'Norb: Forty years of guests have held that key. Hang it on the door, not near my person.',
+    'odette-ghost':
+      'Odette: I already have a room, darling. Forever, apparently.',
+  },
+  'garlic-protection': {
+    nico: 'Norb: I am already wearing two layers of protection, Iris. They are called gloves.',
+    'violet-ghost':
+      'Violet: Garlic flavour? On a vampire job? Honey, I’m a ghost now. That ship sailed straight through the wall.',
+    'odette-ghost':
+      'Odette: Garlic? I hired a vampire, darling, not an Italian restaurant.',
+    marta: 'Marta: We sell those, hon. No refunds. Nobody wants to know why.',
+    neighbor: 'Dolores: At my age? Sweetie, I wish.',
+    gavin:
+      'Iris: Absolutely not. Not even as a joke. Especially not as a joke.',
+    'mummy-actress':
+      'Cleo: I have been wrapped for three thousand years, darling. I do not need another layer.',
+  },
+}
 
 export function newCase(seed = 1): CaseState {
   return {
@@ -853,9 +1010,19 @@ function useItem(state: CaseState, item: string, target: string): CaseResult {
         : 'The key turns. Somebody will want to know who gave it to you.',
       false,
     )
+  if (item === 'garlic-protection' && target === 'vending-machine')
+    return withLine(
+      state,
+      'Iris tries to return it. The machine eats the receipt and clanks twice in contempt.',
+      false,
+    )
+  const joke = WRONG_ITEM[item]?.[target]
+  if (joke) return withLine(state, joke, false)
   return withLine(
     state,
-    'Iris tries it. Nothing happens, except Norb sighing.',
+    'Iris tries the ' +
+      (ITEMS[item] ?? item).toLowerCase() +
+      ' on it. Nothing happens, except Norb sighing.',
     false,
   )
 }
@@ -870,12 +1037,14 @@ export function performAction(
     (item) => item.id === action.target,
   )
   if (hotspot && action.item) return useItem(state, action.item, action.target)
-  if (!hotspot || !hotspot.verbs.includes(action.verb))
+  if (!hotspot)
     return withLine(
       state,
       'There is nothing useful to do with that here.',
       false,
     )
+  if (!hotspot.verbs.includes(action.verb))
+    return withLine(state, narrate(state, action.verb, hotspot.label), false)
   if (
     state.actor === 'nico' &&
     ['take', 'use', 'photograph'].includes(action.verb)
@@ -952,6 +1121,12 @@ export function performAction(
         'Iris: Gloves, scarf and thick foundation in July. Very old Hollywood.',
       'mummy-actress':
         'Iris: Cleo Pappatra. Three thousand years old, and the paparazzi still can’t find her bad side.',
+      billboard:
+        'Iris: Four monster girls forty feet tall, and the caption says REAWAKENED. Odette signed off on that pun. It shows.',
+      'vending-machine':
+        'Iris: Mints, aspirin, one sad comb, and “NIGHT SHIFT PROTECTION: Garlic Scented, For the Monster in Your Life.” Norb: Do not read the rest aloud.',
+      bedspread:
+        'Iris: One bed, two investigators. Norb: I will be sleeping in the bathtub. In my coat. Fully sealed.',
     }
     return withLine(
       next,
@@ -963,6 +1138,39 @@ export function performAction(
     return withLine(
       next,
       'Iris: LAST CALL MOTOR LODGE, with the L burnt out. AST CALL. Norb: Do not put that in the headline.',
+    )
+  }
+  if (target === 'billboard' && verb === 'photograph') {
+    add(next.flags, 'billboard-shot')
+    return withLine(
+      next,
+      'Iris: Click. Forty-foot Monstrique girls over a murder motel. Norb: Crop the motel. Our readers have weak stomachs.',
+    )
+  }
+  if (target === 'vending-machine' && verb === 'use') {
+    if (has(next, 'bought-protection'))
+      return withLine(
+        state,
+        'Iris: One pack is optimism. Two is a strategy. Norb: Neither is a clue.',
+        false,
+      )
+    add(next.flags, 'bought-protection')
+    add(next.inventory, 'garlic-protection')
+    return withLine(
+      next,
+      'Iris thumps the machine. It drops a free pack of garlic-scented protection. Norb: I am not going to ask. Iris: You never do, boss.',
+    )
+  }
+  if (target === 'bedspread' && verb === 'use') {
+    if (!iris)
+      return withLine(
+        state,
+        'Norb: I have seen that bedspread under a blacklight. I will not be using it in any sense of the word.',
+        false,
+      )
+    return withLine(
+      next,
+      'Iris flops onto the bed and pats the space beside her. Norb steps onto the balcony and closes the door. Through the wall: “The CASE, Iris.”',
     )
   }
   if (target === 'guest-ledger' && verb === 'photograph') {

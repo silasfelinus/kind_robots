@@ -21,6 +21,26 @@ function source(path: string): string {
 }
 
 const api = source('server/api/monstrique/audience.get.ts')
+const generalCombineState = {
+  ...newCase(77),
+  inventory: ['camera', 'plastic-fangs'],
+}
+const generalCombine = actionForAudience(
+  generalCombineState,
+  { verb: 'combine', item: 'camera', target: 'plastic-fangs' },
+  'general',
+)
+assert.equal(generalCombine.changed, true)
+assert.ok(generalCombine.state.evidence.includes('fangs-detail'))
+assert.equal(
+  actionForAudience(
+    { ...generalCombineState, inventory: ['camera', 'garlic-protection'] },
+    { verb: 'combine', item: 'camera', target: 'garlic-protection' },
+    'general',
+  ).changed,
+  false,
+  'mature-only inventory does not enter general-edition combine actions',
+)
 const page = source('pages/play/monstrique.vue')
 const adminPage = source('pages/admin/monstrique.vue')
 const launcher = source('content/channels/arcade/monstrique.md')
@@ -62,6 +82,11 @@ assert.match(
   /roomForAudience\(story\.value\.state\.room, audience\.value\)/,
 )
 assert.match(scene, /audience === 'mature'/)
+assert.match(scene, /@click="walkTo"/)
+assert.match(scene, /@keydown.left.prevent="selectAdjacent\(-1\)"/)
+assert.match(scene, /@keydown.right.prevent="selectAdjacent\(1\)"/)
+assert.match(scene, /@click="pickInventory\(item\)"/)
+assert.match(scene, /verb: 'combine', item: held\.value, target: item/)
 assert.match(archive, /props\.creatorMode && showAuthorNotes/)
 assert.match(archive, /props\.publicEdition \? publicStory : adminStory/)
 assert.equal(effectiveShowMature(null), false)

@@ -572,7 +572,7 @@ const rewarded = computed(
 const kindLabel = computed(
   () =>
     ({
-      practice: 'PRACTICE',
+      practice: 'VS CPU',
       reward: 'REWARD MATCH',
       rival: 'JOURNEY BOUT',
       contract: 'JOURNEY CONTRACT',
@@ -589,7 +589,7 @@ const backTarget = computed(() => {
   if (kind === 'campaign') return 'BACK TO JOURNEY ›'
   if (kind === 'tower') return 'BACK TO TOWER ›'
   if (kind === 'rival' || kind === 'contract') return 'BACK TO JOURNEY MAP ›'
-  return ''
+  return 'BACK TO VS ›'
 })
 /** Phones hide the mode tabs during a fight; this leads back out. */
 const exitLabel = computed(() =>
@@ -597,19 +597,24 @@ const exitLabel = computed(() =>
     ? lab.clashLaunch.kind === 'tower'
       ? 'Back to the Tower'
       : 'Back to the Journey'
-    : 'Back to Slime City home',
+    : 'Back to VS',
 )
 function leave(): void {
   const kind = lab.clashLaunch.kind
   if (kind === 'campaign') lab.showCampaign()
   else if (kind === 'tower') lab.showTower()
   else if (kind === 'rival' || kind === 'contract') lab.showCity()
-  else lab.view = 'home'
+  else lab.showVs()
 }
 function goBack(): void {
   if (lab.clashResult?.kind === 'campaign') lab.showCampaign()
   else if (lab.clashResult?.kind === 'tower') lab.showTower()
-  else lab.showCity()
+  else if (
+    lab.clashResult?.kind === 'rival' ||
+    lab.clashResult?.kind === 'contract'
+  )
+    lab.showCity()
+  else lab.showVs()
 }
 /** Every server-issued match pays: PRACTICE and, signed in, every bout. */
 const rewardNote = computed(() =>

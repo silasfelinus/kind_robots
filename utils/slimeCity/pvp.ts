@@ -224,3 +224,101 @@ export function pvpBoard(state: ClashState, seat: Side): PvpBoard {
     nextStrike: nextClashStrike(state, state.active),
   }
 }
+
+/**
+ * One row of the VS hub's game list. Silas, 2026-11-11 PT: "Practice is
+ * redundant ... change it entirely to Vs which lets a user to manage games
+ * between other users or cpu."
+ */
+export interface PvpGameSummary {
+  id: string
+  seat: Side
+  myTeam: TeamId
+  rivalTeam: TeamId | null
+  stage: 'waiting' | 'battle' | 'finished' | 'expired'
+  myTurn: boolean
+  result: 'win' | 'loss' | 'draw' | null
+  round: number
+  bosses: { mine: number; rival: number } | null
+  lastActionAt: string
+}
+
+/** Summarize a stored duel for one of its two players, or null for anyone else. */
+export function pvpGameSummary(
+  row: {
+    id: string
+    userId: number
+    teamId: string
+    foeId: string
+    seed: number
+    startedAt: Date
+    settledAt: Date | null
+    result: string | null
+  },
+  record: PvpRecord,
+  viewer: number,
+  now = Date.now(),
+): PvpGameSummary | null {
+  const seat: Side | null =
+    row.userId === viewer
+      ? 'player'
+      : record.guestId === viewer
+        ? 'enemy'
+        : null
+  if (!seat || !isPvpTeam(row.teamId)) return null
+  const joined = record.guestId !== null && isPvpTeam(row.foeId)
+  const settled = row.settledAt !== null
+  const state = joined
+    ? replayPvp(row.teamId, row.foeId as TeamId, row.seed, record.commands)
+    : null
+  const victor = settled
+    ? (row.result as ClashState['victor'])
+    : (state?.victor ?? null)
+  const rival: Side = seat === 'player' ? 'enemy' : 'player'
+  const expired = isPvpExpired(
+    row.startedAt,
+    record.lastActionAt,
+    joined,
+    settled,
+    now,
+  )
+  const stage = expired
+    ? 'expired'
+    : !joined
+      ? 'waiting'
+      : victor
+        ? 'finished'
+        : 'battle'
+  return {
+    id: row.id,
+    seat,
+    myTeam: (seat === 'player' ? row.teamId : row.foeId) as TeamId,
+    rivalTeam:
+      seat === 'player'
+        ? joined
+          ? (row.foeId as TeamId)
+          : null
+        : (row.teamId as TeamId),
+    stage,
+    myTurn: stage === 'battle' && state?.active === seat,
+    result: victor
+      ? victor === 'draw'
+        ? 'draw'
+        : victor === seat
+          ? 'win'
+          : 'loss'
+      : null,
+    round: state?.round ?? 0,
+    bosses: state ? { mine: state.boss[seat], rival: state.boss[rival] } : null,
+    lastActionAt: record.lastActionAt ?? row.startedAt.toISOString(),
+  }
+}
+
+/** The VS hub lists games waiting on you first, then the most recent. */
+export function sortPvpGames(games: PvpGameSummary[]): PvpGameSummary[] {
+  const rank = (g: PvpGameSummary) =>
+    g.myTurn ? 0 : g.stage === 'battle' ? 1 : g.stage === 'waiting' ? 2 : 3
+  return [...games].sort(
+    (a, b) => rank(a) - rank(b) || b.lastActionAt.localeCompare(a.lastActionAt),
+  )
+}

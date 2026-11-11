@@ -259,6 +259,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     | 'campaign'
     | 'rewards'
     | 'tower'
+    | 'vs'
   >('home')
   const activeTeam = ref<TeamId>('catgirls')
   const enemyTeam = ref<TeamId>('bloodfairies')
@@ -1733,6 +1734,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     stop()
     view.value = 'tower'
   }
+  /** VS: fight the CPU, or start and track games against other players. */
+  function showVs(): void {
+    stop()
+    view.value = 'vs'
+  }
 
   function beginTower(): void {
     if (!storyEditable()) return
@@ -2377,6 +2383,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     leaveTowerWithoutSpoils,
     forfeitTower,
     showTower,
+    showVs,
     currentDeck,
     currentDeckProblems,
     replacingCard,

@@ -6,7 +6,7 @@
   >
     <header-page-bar console-theme="slime-city">
       <nav class="scpvp-top" aria-label="Slime City multiplayer">
-        <NuxtLink to="/play/slime-city">← SLIME CITY</NuxtLink>
+        <NuxtLink to="/play/slime-city?vs=1">← VS</NuxtLink>
         <strong>THE TWO-PLAYER PIT</strong>
         <button
           v-if="pvp.duel?.stage === 'battle'"

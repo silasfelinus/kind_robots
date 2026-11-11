@@ -1085,6 +1085,19 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'ferris-wheel-twilight',
+    label: 'Ferris Wheel Twilight',
+    reveal:
+      'A fairground Ferris wheel turns against a dusk sky with chasing rim lights',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A Ferris wheel turns at twilight 🎡 hover to light a gondola window, click to give the wheel a push',
+    color: '#f2c66d',
+    releasedAt: '2026-11-10T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

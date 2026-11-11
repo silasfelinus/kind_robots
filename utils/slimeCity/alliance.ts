@@ -118,12 +118,30 @@ function crewSlice(team: TeamId, creatures: number, specials: number) {
  * this one kept every general within 41-59% over 20 seeds a pairing. Always
  * legal.
  */
+export type AllianceStarterMix = 'classic' | 'fighter-forward' | 'ally-forward'
+
+/** Testable starting recipes made exclusively from the account's base cards.
+ * These are deckbuilding options, not automatic replacements for saved decks. */
+export function allianceStarterWithMix(
+  general: TeamId,
+  ally: TeamId,
+  mix: AllianceStarterMix,
+): AllianceDeck {
+  const parts =
+    mix === 'fighter-forward'
+      ? [8, 5, 4, 3]
+      : mix === 'ally-forward'
+        ? [6, 5, 4, 5]
+        : [8, 7, 2, 3]
+  const cards = [
+    ...crewSlice(general, parts[0]!, parts[1]!),
+    ...crewSlice(ally, parts[2]!, parts[3]!),
+  ]
+  return { general, ally, cards }
+}
+
 export function allianceStarter(general: TeamId, ally: TeamId): AllianceDeck {
-  return {
-    general,
-    ally,
-    cards: [...crewSlice(general, 8, 7), ...crewSlice(ally, 2, 3)],
-  }
+  return allianceStarterWithMix(general, ally, 'classic')
 }
 
 /** Preserve a valid older 30-card Alliance as a deterministic 20-card deck.

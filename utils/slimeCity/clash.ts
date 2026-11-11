@@ -3207,10 +3207,14 @@ function cpuEvolutionPayoff(
 
 /** The CPU fires its faction power once its value reaches this. */
 export const CLASH_CPU_POWER_THRESHOLD = 7
+/** Baseline retained for paired, seed-and-seat-controlled CPU evaluations. */
+export type ClashCpuPolicy = 'baseline' | 'evolution-aware'
+
 /** Deterministic CPU using public fighters + only its own hand. */
 export function chooseClashCpu(
   s: ClashState,
   side: Side = 'enemy',
+  policy: ClashCpuPolicy = 'evolution-aware',
 ): ClashCommand {
   if (s.victor || s.active !== side) return { t: 'end', side }
   if (s.phase === 'attack')
@@ -3333,12 +3337,27 @@ export function chooseClashCpu(
           ? (1 as const)
           : undefined
       if (s.format === 'alliance') {
-        // Preserve Alliance's tested general-power baseline. Only lasting
-        // equipment gains situational investment value without amplifying
-        // every staged damage trigger in the full two-faction pool.
-        const evolved = clashEvolutionStage(id, b.level)
-        if (evolved?.abilities.some((ability) => ability.when === 'enter'))
-          score += b.level >= 3 ? 2.5 : 1.2
+        if (policy === 'baseline') {
+          // Exact pre-change comparator for paired match/seat experiments.
+          const evolved = clashEvolutionStage(id, b.level)
+          if (evolved?.abilities.some((ability) => ability.when === 'enter'))
+            score += b.level >= 3 ? 2.5 : 1.2
+        } else {
+          // A read-only estimate respects actual targets and conditions.
+          // Keep the extra value bounded: two crew powers already make
+          // Alliance swingy, and expensive combo cards still need fighters.
+          score += clamp(
+            cpuEvolutionPayoff(s, side, card, lane, b.level, choice ?? 0),
+            -2,
+            3,
+          )
+          if (b.level === 1)
+            score += clamp(
+              Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.12,
+              0,
+              0.7,
+            )
+        }
       } else {
         score += cpuEvolutionPayoff(s, side, card, lane, b.level, choice ?? 0)
         // Reward deliberate future leveling without counting it as immediate.

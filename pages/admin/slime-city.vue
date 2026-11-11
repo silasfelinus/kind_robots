@@ -1852,6 +1852,7 @@ onUnmounted(() => {
   font-weight: 750;
 }
 .sc-collection {
+  overflow: clip;
   gap: 0.4rem;
   padding: 0.5rem 0.6rem 0;
   background:

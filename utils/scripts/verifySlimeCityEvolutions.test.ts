@@ -5,6 +5,7 @@
 import assert from 'node:assert/strict'
 import { CARDS, cardById, type Side } from '../slimeCity/prototypes'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
+import { EXCHANGE_EVOLUTIONS } from '../slimeCity/evolutions/exchange'
 import {
   CLASH_EVOLUTIONS,
   clashEvolutionChoice,
@@ -54,6 +55,22 @@ for (const card of CARDS)
     card.id + ' has a crafted evolution',
   )
 assert.equal(CARDS.length, 300)
+// Meat Exchange evolution faces are occult, not generic corporate paperwork.
+// The mechanical abilities are still exercised by the full evolution suite below.
+const exchangeStages = Object.values(EXCHANGE_EVOLUTIONS).flatMap((e) => [
+  e[2].title,
+  e[3].title,
+  ...(e.choice ? [e.choice.stage.title] : []),
+])
+assert.equal(exchangeStages.length, 63, 'all Exchange stages have authored titles')
+assert.equal(new Set(exchangeStages).size, exchangeStages.length)
+for (const title of [
+  'The Choir of Unpaid Bones',
+  'The Drowned Chapel\\'s Mercy',
+  'The Great Devouring',
+  'The Ossuary Opens',
+  'The Bone Cart',
+]) assert.ok(exchangeStages.includes(title), title + ' must keep its occult identity')
 // Every crafted card, every faction: real stages that fit the card face.
 for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   const card = cardById(id)

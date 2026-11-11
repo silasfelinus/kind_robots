@@ -204,13 +204,14 @@ export const CAMPAIGN_CHAPTER_SUPPORT: Record<
     {
       conviction: {
         title: 'BODY AUTONOMY',
-        story: 'Freed implant wearers persuade one opponent not to fight.',
+        story:
+          'Lizards with their gene tags scratched out persuade one opponent not to fight.',
         terms: { fewerRivals: 1 },
       },
       cunning: {
-        title: 'BLACK MARKET CYBERNETICS',
+        title: 'BLACK MARKET SERUM',
         story:
-          'Modified implants protect the crew, but another lab backs the rival.',
+          'Bootleg growth serum toughens the crew’s scales, but another lab backs the rival.',
         terms: { playerHp: 1, enemyMana: 1 },
       },
     },

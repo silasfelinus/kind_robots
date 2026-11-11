@@ -220,7 +220,7 @@ export const IRONJAW_CHAPTERS: readonly (readonly IronjawBeat[])[] = [
       id: 'stolen-tails',
       title: 'STOLEN TAILS',
       speaker: 'Dr. Calla Vane',
-      text: "Lizards regrow their tails. Gene Riot technician Dr. Calla Vane has found out where the Foundry's cybernetic muscle comes from: the Exchange has been harvesting every dropped tail and growing it into machinery.",
+      text: "Lizards regrow their tails. Gene Riot technician Dr. Calla Vane has found out where the Foundry's growth serum comes from: the Exchange has been harvesting every dropped tail and boiling it down in the lab that bred the crew.",
       choices: [
         {
           id: 'left',
@@ -240,13 +240,13 @@ export const IRONJAW_CHAPTERS: readonly (readonly IronjawBeat[])[] = [
       id: 'two-unions',
       title: 'TWO UNIONS, ONE LAB',
       speaker: 'Dr. Calla Vane',
-      text: "The clone engineers who maintain the lizards' cybernetics want to join the union. Some old workers say a union of lizards should stay lizards.",
+      text: "The clone engineers who brew the lizards' growth serum want to join the union. Some old workers say a union of lizards should stay lizards.",
       choices: [
         {
           id: 'left',
           label: 'Give the clone engineers a vote',
           outcome:
-            'The union card gets a second paw print. The first joint meeting runs four hours over and ends with a shared repair manual.',
+            'The union card gets a second paw print. The first joint meeting runs four hours over and ends with a shared lab notebook.',
         },
         {
           id: 'right',
@@ -260,13 +260,13 @@ export const IRONJAW_CHAPTERS: readonly (readonly IronjawBeat[])[] = [
       id: 'the-scanner',
       title: 'THE PROTOTYPE SCANNER',
       speaker: 'Forewoman Rivet',
-      text: "The lab's prototype scanner can read any worker's cybernetics and show who really owns each bolt. The Exchange wants it back before morning.",
+      text: "The lab's prototype scanner can read the gene tag under any lizard's scales and show which lab still claims to own them. The Exchange wants it back before morning.",
       choices: [
         {
           id: 'left',
-          label: 'Make the blueprints common property',
+          label: 'Make the serum formulas common property',
           outcome:
-            'Every blueprint is copied to every locker. The scanner stays in the lab, and the lab now belongs to everyone who works in it.',
+            'Every serum formula is copied to every locker. The scanner stays in the lab, and the lab now belongs to everyone who works in it.',
         },
         {
           id: 'right',
@@ -377,7 +377,7 @@ export function ironjawSceneText(
           'Gristle is gone, but the canteen on the loading dock is still open. Old Basker saves the warmest spot for whoever arrives last.',
           'The stopped clock still reads quitting time. Workers set their lunches by it.',
           'The emergency controls sit in a wheelbarrow by the door, where anybody can reach them.',
-          'The shared repair manual has two kinds of paw prints on every page.',
+          'The shared lab notebook has two kinds of paw prints on every page.',
         ][lastChapter]
       : lastChapter >= 0 && previous === 'right'
         ? [

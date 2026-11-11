@@ -231,7 +231,7 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
     team: 'ironjaw',
     title: 'THE LAST SHIFT',
     prologue:
-      'Ironjaw Chrome Lizards were built to work until they break. Forewoman Rivet finds a hidden power switch labeled PROPERTY OF THE EXCHANGE. Her crew votes to strike.',
+      'Ironjaw Chrome Lizards were bred in a sealed lab to work until they break. Forewoman Rivet finds a hidden power switch labeled PROPERTY OF THE EXCHANGE. Her crew votes to strike.',
     principle: 'No machine, no person, and no lizard gets discarded.',
     triumph:
       'The Foundry becomes a worker-run forge. Its first product is a clock that announces when everybody gets to go home.',
@@ -283,8 +283,8 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
       chapter(
         'catgirls',
         'LIVING BLUEPRINT',
-        'Gene Riot technicians discover Ironjaw cybernetics are built from stolen clone tissue.',
-        'Catgirls and lizards recover the blueprints as common property.',
+        'Gene Riot technicians discover the Ironjaw growth serum is brewed from stolen clone tissue.',
+        'Catgirls and lizards recover the serum formulas as common property.',
         'The lab leaves with living spare parts.',
         [
           'Give the clone engineers a vote',

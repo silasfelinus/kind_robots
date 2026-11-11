@@ -37,6 +37,7 @@
             </button>
           </div>
           <nav class="sc-tabs" aria-label="Slime City modes">
+            <button type="button" :class="{ active: lab.view === 'vs' }" data-testid="slime-vs-tab" @click="lab.view = 'vs'">VS.</button>
             <button
               type="button"
               :class="{ active: lab.view === 'home' }"
@@ -112,6 +113,13 @@
 
       <div class="sc-main">
         <SlimeCitySplash v-if="lab.view === 'home'" data-testid="slime-home" />
+        <section v-else-if="lab.view === 'vs'" class="sc-stage sc-settings kr-scroll" aria-label="VS match center" data-testid="slime-vs-center">
+          <h2 class="sc-settings-heading">VS. MATCH CENTER</h2>
+          <p>Choose your opponent. Play a Solo or Alliance CLASH against the CPU, or resume a private human duel.</p>
+          <button type="button" data-testid="slime-vs-cpu" @click="lab.playClashFormat()">VS. CPU · SOLO OR ALLIANCE</button>
+          <NuxtLink v-if="userStore.isAdmin" to="/admin/slime-city-inbox" class="btn btn-primary" data-testid="slime-vs-human">VS. HUMAN · YOUR TURNS AND INVITES</NuxtLink>
+          <p v-else>Human duels are currently a private preview. CPU matches are available now.</p>
+        </section>
         <section
           v-else-if="lab.view === 'settings'"
           class="sc-stage sc-settings kr-scroll"
@@ -1030,10 +1038,12 @@ import { CLASH_MAX_LEVEL, clashCardText } from '~/utils/slimeCity/clash'
 import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
 import { STREETS } from '~/utils/slimeCity/city'
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import { useUserStore } from '~/stores/userStore'
 import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
+const userStore = useUserStore()
 const art = useSlimeCityArtStore()
 const mappedCardArtCount = Object.keys(SLIME_CITY_ART.cards).length
 

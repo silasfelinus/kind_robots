@@ -41,7 +41,8 @@ for (const bad of [
   { ...journeySave, journeyFormat: 'duo' },
   { ...journeySave, journeyDeckId: 77 },
   { ...journeySave, journeyScreen: 'skip-to-final' },
-]) assert.equal(validSlimeCityStory(bad), false)
+])
+  assert.equal(validSlimeCityStory(bad), false)
 // Silas, 2026-11-10 PT: "everyone, including me as admin, should be restricted
 // to those base cards and then cards that they particularly unlock". Every save
 // reads as TRICKLE, whatever it stored.

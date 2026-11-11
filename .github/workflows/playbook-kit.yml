@@ -29,6 +29,7 @@ on:
       - 'utils/memoryDungeon/**'
       - 'content/channels/admin/playbook-kit.md'
       - 'utils/scripts/verifyPlaybookKit.test.ts'
+      - 'utils/scripts/verifySpaceCouchKit.test.ts'
       - 'utils/scripts/scaffoldPlaybook.ts'
       - '.github/workflows/playbook-kit.yml'
   workflow_dispatch:

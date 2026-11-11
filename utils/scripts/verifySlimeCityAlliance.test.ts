@@ -574,6 +574,11 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
     cards: soloStarter('riot'),
     bout: { kind: 'campaign', bosses: { player: 46, enemy: 34 } },
   }
+  const allianceChapter: ClashRewardSetup = {
+    format: 'alliance',
+    deck: allianceStarter('riot', 'ironjaw'),
+    bout: { kind: 'campaign', bosses: { player: 46, enemy: 34 } },
+  }
   const tower: ClashRewardSetup = {
     format: 'alliance',
     deck: allianceStarter('riot', 'exchange'),
@@ -582,7 +587,7 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   assert.equal(clashRewardMode(story), 'clash-campaign')
   assert.equal(clashRewardMode(tower), 'clash-tower')
   assert.equal(clashRewardMode({ format: 'solo', cards: [] }), 'clash')
-  for (const setup of [story, tower]) {
+  for (const setup of [story, allianceChapter, tower]) {
     assert.equal(clashRewardSetupProblem('riot', setup), '')
     const start = clashRewardStart('riot', 'undertow', 777, setup)
     assert.deepEqual(start.boss, setup.bout!.bosses, 'terms move the bosses')
@@ -616,9 +621,10 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
     bad({ kind: 'tower', bosses: { player: 40, enemy: 40 } }),
     'tower fights are Alliance',
   )
-  assert.ok(
+  assert.equal(
     bad({ kind: 'campaign', bosses: { player: 40, enemy: 40 } }, 'alliance'),
-    'SOLO story bouts are Solo',
+    '',
+    'One journey accepts Solo or Alliance chapters',
   )
   assert.equal(
     bad({ kind: 'contract', bosses: { player: 20, enemy: 60 } }, 'alliance'),

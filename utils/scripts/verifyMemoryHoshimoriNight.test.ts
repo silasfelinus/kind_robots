@@ -794,7 +794,11 @@ for (let seed = 0; seed < 16; seed++) {
     const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
     progress = choose(progress, site.choices[seed % 2]!.id)
   }
-  assert.equal(progress.visited.length, 64, 'Every authored e08 site is reachable')
+  assert.equal(
+    progress.visited.length,
+    64,
+    'Every authored e08 site is reachable',
+  )
   assert.equal(Object.keys(progress.choices).length, 64)
   assert.deepEqual(
     new Set(progress.visited),

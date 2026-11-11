@@ -20,7 +20,7 @@
       <div class="campaign-title" :title="lab.campaignStory.principle">
         <span class="campaign-overline"
           >JOURNEY · CHAPTER
-          {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} / 06</span
+          {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} / 05</span
         >
         <h2>{{ lab.campaignStory.title }}</h2>
       </div>
@@ -84,7 +84,7 @@
           data-testid="slime-journey-deck-select"
           @change="onJourneyDeckChange"
         >
-          <option value="">Starter alliance</option>
+          <option value="">Current alliance</option>
           <option
             v-for="deck in lab.library.filter((item) => lab.libraryDeckReady(item.id))"
             :key="deck.id"
@@ -243,7 +243,7 @@
         <h3>{{ lab.campaignStory.title }}: THE END</h3>
         <p class="campaign-lede">{{ lab.campaignFinale }}</p>
         <small class="campaign-note"
-          >All six campaigns have independent playtest progress. Story wins
+          >Each crew has its own saved journey. Story wins
           grant no account Meat, XP or pack cards.</small
         >
       </article>

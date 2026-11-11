@@ -2047,6 +2047,34 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       ),
     )
   }
+  /** One source of truth for pre-fight cards and the actual story match. */
+  function campaignPreviewTerms(terms: BoutTerms): BoutTerms {
+    const base = campaignBattleTerms(
+      campaignSave.value,
+      activeTeam.value,
+      terms,
+      campaignFavorIndex.value,
+    )
+    const prepared =
+      activeTeam.value === 'catgirls'
+        ? geneRiotBattleTerms(campaignSave.value.catgirls, base)
+        : activeTeam.value === 'bloodfairies'
+          ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
+          : activeTeam.value === 'ironjaw'
+            ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
+            : activeTeam.value === 'riot'
+              ? riotBattleTerms(campaignSave.value.riot, base)
+              : base
+    return journeyFormat.value === 'alliance'
+      ? allianceStoryBattleTerms(
+          campaignSave.value,
+          activeTeam.value,
+          selectedJourneyAlliance.value.ally,
+          prepared,
+        )
+      : prepared
+  }
+
   function startCampaignBattle(choiceId: CampaignApproach): void {
     if (!storyEditable()) return
     if (
@@ -2072,35 +2100,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       index: campaignSave.value[teamId].wins,
       choice: choice.id,
     }
-    const base = campaignBattleTerms(
-      campaignSave.value,
-      teamId,
-      fromCity
-        ? storyMissionTerms(city.value, districtId.value, choice.terms)
-        : choice.terms,
-      campaignFavorIndex.value,
-    )
-    const prepared =
-      teamId === 'catgirls'
-        ? geneRiotBattleTerms(campaignSave.value.catgirls, base)
-        : teamId === 'bloodfairies'
-          ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
-          : teamId === 'ironjaw'
-            ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
-            : teamId === 'riot'
-              ? riotBattleTerms(campaignSave.value.riot, base)
-              : base
     launchStoryClash(
       'campaign',
       chapter.foe,
-      journeyFormat.value === 'alliance'
-        ? allianceStoryBattleTerms(
-            campaignSave.value,
-            teamId,
-            selectedJourneyAlliance.value.ally,
-            prepared,
-          )
-        : prepared,
+      campaignPreviewTerms(
+        fromCity
+          ? storyMissionTerms(city.value, districtId.value, choice.terms)
+          : choice.terms,
+      ),
     )
   }
 
@@ -2448,6 +2455,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignAllianceConsequence,
     campaignAllianceAftermath,
     chooseCampaignAlliance,
+    campaignPreviewTerms,
     campaignJourneyText,
     campaignJourneyOutcome,
     chooseCampaignJourneyBeat,

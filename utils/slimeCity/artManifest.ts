@@ -535,7 +535,7 @@ export const SLIME_CITY_ART = {
     'undertow/gloat': 267810,
     'undertow/beaten': 267811,
     // ANARKISS-ROUND-1: the glam midnight-musical ringmaster (supersedes the
-    // circus-daredevil Riot boss and the round-one Riot Saints portraits).
+    // circus-daredevil Riot boss and the round-one pre-Anarkiss Riot portraits).
     'riot/ready': 267978,
     'riot/hit': 267979,
     'riot/gloat': 267980,

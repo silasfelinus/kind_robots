@@ -352,7 +352,7 @@ export const CLASH_ARMOR_COST = 1.5
  * Volatile's base 1-damage death burst is free (it trades into armor and
  * empty-lane boss chip, and Riot's crew identity rests on it). A bigger
  * printed burst is not: each point of burst above 1 costs this much budget.
- * Grand Detonator (80% when played) and Spark Diver pay one life for their
+ * Big Top Detonator (80% when played) and Flaming High Diver pay one life for their
  * 2-damage blasts (slime-city/t-047).
  */
 export const CLASH_BURST_COST = 1
@@ -790,7 +790,7 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
  * two of its extra spells, traps or gear for two more of its own fighters, so
  * every crew fields 13 fighters of 20 like the Catgirls crafted deck. Then
  * (2026-11-11, "yes on gear to fighters") a gear card folds into a fighter
- * that already carries its ability: Roadie Megaphone (Swarm), Lit-Fuse Vest
+ * that already carries its ability: Roadie Megaphone (Swarm), Sparkler Corset
  * (Volatile) and Rubber Drysuit go, and Exchange drops Executive Health
  * Coverage. Ironjaw keeps Spare Pistons: every Ironjaw fighter is already
  * armored, and every fold tried pushed the crew past 58%. Picks are by CPU
@@ -1071,8 +1071,8 @@ function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
       note(
         s,
         hit
-          ? 'Whoops Grenade ricochets into ' + hit + ' alley!'
-          : 'Whoops Grenade fizzles after its first blast.',
+          ? 'Trapdoor Surprise ricochets into ' + hit + ' alley!'
+          : 'Trapdoor Surprise fizzles after its first blast.',
         'trap',
         trap.lane,
       )
@@ -1655,7 +1655,7 @@ function casualties(s: ClashState): void {
         'bomber',
         u.side,
         u.lane,
-        'Grand Detonator detonates across the streets!',
+        'Big Top Detonator detonates across the streets!',
         'blast',
       )
     }
@@ -1694,7 +1694,7 @@ function casualties(s: ClashState): void {
           'kaboom',
           u.side,
           survivor.lane,
-          'Sister Kaboom feeds the blast into her drill and the rival boss!',
+          'Jackhammer Kaboom feeds the blast into her drill and the rival boss!',
           'blast',
         )
       }
@@ -1775,7 +1775,7 @@ function casualties(s: ClashState): void {
         'fusevest',
         u.side,
         u.lane,
-        'The Lit-Fuse Vest bursts beyond its own lane!',
+        'The Sparkler Corset bursts beyond its own lane!',
         'blast',
       )
     }
@@ -2114,7 +2114,7 @@ export function playClash(
                 id,
                 side,
                 lane,
-                'Illegal Booster burns an ally for permanent power!',
+                'Cannonball Booster burns an ally for permanent power!',
                 'blast',
               )
               casualties(s)
@@ -2137,7 +2137,9 @@ export function playClash(
             else damage(target, level === 3 ? 2 : 1)
             note(
               s,
-              success ? 'Hold My Drink pays off!' : 'Hold My Drink spills!',
+              success
+                ? 'Hold My Sequins pays off!'
+                : 'Hold My Sequins scatters!',
               'clash',
               lane,
             )
@@ -2445,7 +2447,9 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     attackPower = failed ? 0 : attackPower * 2
     note(
       s,
-      failed ? 'Firebrand misfires!' : 'Firebrand doubles its fire!',
+      failed
+        ? 'Firebrand Dolly misfires!'
+        : 'Firebrand Dolly doubles her fire!',
       'clash',
       lane,
     )

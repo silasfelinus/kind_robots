@@ -1,4 +1,4 @@
-// THE BEAUTIFUL CATASTROPHE: Anarkiss, the Riot Saints' glam midnight
+// THE BEAUTIFUL CATASTROPHE: Anarkiss, the Anarkissed's glam midnight
 // musical, told through a SAFETY / SPECTACLE meter. Safety keeps the audience
 // (who are part of the show) out from under the explosions; spectacle makes
 // the explosions bigger. Choices shape narrative callbacks, the real Solo
@@ -99,7 +99,7 @@ export const RIOT_CHAPTERS: readonly (readonly RiotBeat[])[] = [
           id: 'left',
           label: 'Refuse the loan and make sparklers from kitchen grease',
           outcome:
-            'The Saints render a month of fryer grease into homemade sparklers. They sputter and stink, but nobody owes anybody a single cut of Meat for them.',
+            'The Anarkissed render a month of fryer grease into homemade sparklers. They sputter and stink, but nobody owes anybody a single cut of Meat for them.',
         },
         {
           id: 'right',
@@ -119,7 +119,7 @@ export const RIOT_CHAPTERS: readonly (readonly RiotBeat[])[] = [
           id: 'left',
           label: 'Make the show free and feed the queue',
           outcome:
-            'The doors come off their hinges and the Saints serve soup in the lobby. The crowd is twice as big and three times as loud. Gilt notes the lost revenue in red ink.',
+            'The doors come off their hinges and the Anarkissed serve soup in the lobby. The crowd is twice as big and three times as loud. Gilt notes the lost revenue in red ink.',
         },
         {
           id: 'right',
@@ -156,7 +156,7 @@ export const RIOT_CHAPTERS: readonly (readonly RiotBeat[])[] = [
       id: 'two-headliners',
       title: 'TWO HEADLINERS',
       speaker: 'Queen Safety Pin',
-      text: 'Queen Pin and the Bloodfairies have arrived with their whole band and they want top billing. The Saints already sold the closing slot to the Grand Detonator, whose act is mostly a very large drum and a very large fuse.',
+      text: 'Queen Pin and the Bloodfairies have arrived with their whole band and they want top billing. The Anarkissed already sold the closing slot to the Big Top Detonator, whose act is mostly a very large drum and a very large fuse.',
       choices: [
         {
           id: 'left',
@@ -231,7 +231,7 @@ export const RIOT_CHAPTERS: readonly (readonly RiotBeat[])[] = [
           id: 'right',
           label: 'Print a thousand false maps of our own',
           outcome:
-            'The Saints flood the city with a thousand fake routes, all of them gorgeous. The police chase seven parades at once. So do several very lost marching bands.',
+            'The Anarkissed flood the city with a thousand fake routes, all of them gorgeous. The police chase seven parades at once. So do several very lost marching bands.',
         },
       ],
     },
@@ -249,9 +249,9 @@ export const RIOT_CHAPTERS: readonly (readonly RiotBeat[])[] = [
         },
         {
           id: 'right',
-          label: "Drown the sirens with the Grand Detonator's drum",
+          label: "Drown the sirens with the Big Top Detonator's drum",
           outcome:
-            'The Grand Detonator beats the drum so hard the sirens shatter. The parade keeps the beat, and so does every window, chimney and loose tooth on Gutter Row.',
+            'The Big Top Detonator beats the drum so hard the sirens shatter. The parade keeps the beat, and so does every window, chimney and loose tooth on Gutter Row.',
         },
       ],
     },
@@ -314,7 +314,7 @@ export const RIOT_CHAPTERS: readonly (readonly RiotBeat[])[] = [
           id: 'right',
           label: 'Light the full charge and trust the net',
           outcome:
-            'Kaboom flies higher than any saint before her and overshoots the net into the canal. She surfaces waving. Dolly faints, then demands an encore.',
+            'Kaboom flies higher than any cannonball before her and overshoots the net into the canal. She surfaces waving. Dolly faints, then demands an encore.',
         },
       ],
     },
@@ -441,7 +441,7 @@ export function riotEpilogue(progress: CampaignProgress): string {
     return 'Every night after ten, somewhere in Slime City, Anarkiss throws a free festival nobody can charge admission to. Volunteer marshals in safety-orange fishnets count every head in and every head out. The emergency services come to dance.'
   if (spectacle >= 10 && final === 'right')
     return 'Anarkiss plays its licensed stage on Crown Market every night, louder each time. The insurance policy is forty pages long and Saint Kaboom has set fire to every copy. The city has never been brighter, or quite so singed.'
-  return 'Some nights the festival is free and careful, some nights it is ticketed and enormous, and every night the Saints argue about which. Nobody pays in Meat at the door anymore. The joy curfew is still on the books; nobody obeys it.'
+  return 'Some nights the festival is free and careful, some nights it is ticketed and enormous, and every night the Anarkissed argue about which. Nobody pays in Meat at the door anymore. The joy curfew is still on the books; nobody obeys it.'
 }
 export function validRiotJourney(progress: CampaignProgress): boolean {
   if (progress.journey === undefined) return true
@@ -461,8 +461,8 @@ export function validRiotJourney(progress: CampaignProgress): boolean {
   return true
 }
 /** The show's choices field real Anarkiss cards in the next STORY Clash:
- * a careful show brings the Volunteer Safety Vest, a wild one brings Doctor
- * Blast Radius. Nothing is added to the player's collection. */
+ * a careful show brings the Audience Volunteer Sash, a wild one brings
+ * Madame Blast Radius. Nothing is added to the player's collection. */
 export function riotStoryDeck(
   progress: CampaignProgress,
   deck: string[],

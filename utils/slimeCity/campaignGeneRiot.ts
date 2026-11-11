@@ -272,7 +272,7 @@ export const GENE_RIOT_CHAPTERS: readonly (readonly GeneRiotScene[])[] = [
           id: 'left',
           label: 'Give Moth the whole plan and a vote',
           outcome:
-            'Moth demands the explosives be moved to an empty freight tunnel. The Saints grumble, but they change the route.',
+            'Moth demands the explosives be moved to an empty freight tunnel. The Anarkissed grumble, but they change the route.',
           terms: {
             playerHp: 1,
             enemyArmor: 1,
@@ -315,7 +315,7 @@ export const GENE_RIOT_CHAPTERS: readonly (readonly GeneRiotScene[])[] = [
           id: 'right',
           label: 'Blow the vault shutter before the shredder starts',
           outcome:
-            'The records survive in the vault. The blast seals the street, and the Saints will have to face the families who were caught outside.',
+            'The records survive in the vault. The blast seals the street, and the Anarkissed will have to face the families who were caught outside.',
           terms: {
             enemyArmor: -2,
             playerHp: -1,

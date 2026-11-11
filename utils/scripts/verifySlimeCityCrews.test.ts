@@ -35,6 +35,7 @@ import {
 } from '../slimeCity/prototypes'
 import { chooseCpuAction } from '../slimeCity/cpu'
 import { playHeadless } from '../slimeCity/playtest'
+import { RIOT_EVOLUTIONS } from '../slimeCity/evolutions/riot'
 
 const classicBlackout = (
   team: Parameters<typeof createMatch>[1],
@@ -441,7 +442,7 @@ fx.units = [
   fighter({ id: 2, side: 'enemy', x: 5, y: 3, hp: 5 }),
   fighter({ id: 3, side: 'player', x: 4, y: 2, hp: 5 }),
 ]
-// Confetti Cannon: 2 to the target, 1 to everyone beside it, friends too
+// Glitter Cannon: 2 to the target, 1 to everyone beside it, friends too
 const party = deploy(fx, 'confetti', 5, 2)
 assert.equal(at(party, 1)!.hp, 3)
 assert.equal(at(party, 2)!.hp, 4)
@@ -474,7 +475,7 @@ const kit = createMatch('gridiron', 'riot', 'undertow', 4817)
 kit.mana = 10
 const kid = kit.units.find((u) => u.side === 'player')!
 const vest = deploy(kit, 'fusevest', kid.x, kid.y)
-assert.equal(vest, kit, 'Riot Rat is already volatile')
+assert.equal(vest, kit, 'Glitter Rat is already volatile')
 const shredKit = createMatch('gridiron', 'catgirls', 'undertow', 4817)
 shredKit.mana = 10
 const cat = shredKit.units.find((u) => u.side === 'player')!
@@ -809,3 +810,75 @@ for (const card of exchangeCards) {
     card.id + ' reads as occult, not finance',
   )
 }
+// t-052: Riot is ANARKISS, an anarchy circus staging a glam midnight musical.
+// A display-only reskin: the 40 card ids, stats and effects stay put, and no
+// card or evolution stage keeps the retired Riot Saints church motif.
+const ANARKISS_IDS = [
+  'rat',
+  'firebrand',
+  'kaboom',
+  'bomber',
+  'firestorm',
+  'badluck',
+  'fuse',
+  'confetti',
+  'fusevest',
+  'drink',
+  'spark-diver',
+  'firebreak-parade',
+  's1-mime-fuse',
+  's1-blast-radius',
+  's1-no-witnesses',
+  's1-chaos-firecracker',
+  's1-fuse-alley',
+  's1-volunteer-vest',
+  's2-riot-fuse-lit-bicycle-courier',
+  's2-riot-radioactive-parade-float',
+  's2-riot-friendly-fire-rehearsal',
+  's2-riot-homemade-bottle-rocket',
+  's2-riot-fusebox-fireworks',
+  's2-riot-last-stand-matchbook',
+  's3-riot-bottle-rocket',
+  's3-riot-detonation-deacon',
+  's3-riot-alley-prophet',
+  's3-riot-firework-bishop',
+  's3-riot-riot-bike-messenger',
+  's3-riot-thermite-archangel',
+  's3-riot-low-budget-grenade',
+  's3-riot-wrong-side-of-blast',
+  's3-riot-horrible-idea',
+  's3-riot-stolen-detonator',
+  's3-riot-final-benediction',
+  's3-riot-fusewire',
+  's3-riot-night-market-rocket',
+  's3-riot-confession-booth',
+  's3-riot-charred-sneakers',
+  's3-riot-posthumous-saint',
+]
+const anarkiss = CARDS.filter((card) => card.team === 'riot')
+assert.deepEqual(
+  anarkiss.map((card) => card.id).sort(),
+  [...ANARKISS_IDS].sort(),
+  'Anarkiss card ids are unchanged',
+)
+const cardNames = CARDS.map((card) => card.name)
+assert.equal(new Set(cardNames).size, cardNames.length, 'card names are unique')
+const riotSaintCopy =
+  /riot saint|\bsaints?\b|\bnun\b|deacon|bishop|archangel|rosary|confession|sermon|benediction|canoniz/i
+for (const card of anarkiss)
+  assert.doesNotMatch(
+    card.name + ' ' + card.text,
+    riotSaintCopy,
+    `Anarkiss card copy: ${card.id}`,
+  )
+for (const [id, evolution] of Object.entries(RIOT_EVOLUTIONS))
+  for (const stage of [evolution[2], evolution[3], evolution.choice?.stage])
+    if (stage)
+      assert.doesNotMatch(stage.title, riotSaintCopy, `Anarkiss stage: ${id}`)
+for (const [id, name] of [
+  ['rat', 'Glitter Rat'],
+  ['firebrand', 'Firebrand Dolly'],
+  ['kaboom', 'Jackhammer Kaboom'],
+  ['bomber', 'Big Top Detonator'],
+] as const)
+  assert.equal(cardById(id)?.name, name, `Anarkiss founder: ${id}`)

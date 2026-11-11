@@ -816,7 +816,9 @@ unpredictable.units = [
 ]
 const rolled = strikeClash(unpredictable, 'player')
 assert.ok(
-  rolled.log.some((x) => /Firebrand (misfires|doubles its fire)/.test(x.text)),
+  rolled.log.some((x) =>
+    /Firebrand Dolly (misfires|doubles her fire)/.test(x.text),
+  ),
   'RNG resolution is legible',
 )
 const sameRoll = strikeClash(structuredClone(unpredictable), 'player')
@@ -1159,7 +1161,7 @@ kaboomStage.units = [
 const kaboomed = strikeClash(kaboomStage, 'enemy')
 assert.ok(
   kaboomed.units.find((u) => u.uid === 994)!.attack >= 5,
-  'L3 Sister Kaboom profits from allied explosions',
+  'L3 Jackhammer Kaboom profits from allied explosions',
 )
 assert.equal(kaboomed.boss.enemy, clashBossMax('enemy') - 1)
 const confettiStage = evolved('riot', 'confetti')

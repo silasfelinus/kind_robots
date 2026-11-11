@@ -1,6 +1,6 @@
 // Crafted evolutions: riot (CLASH-EVOLUTION-PLAN.md in conductor). Each card is
 // designed one at a time, story first, following evolutions/catgirls.ts.
-// Anarkiss owns seeded gambles, martyrdom (last-breath blasts) and friendly
+// Anarkiss owns seeded gambles, showstopping exits (last-breath blasts) and friendly
 // fire; they never heal or armor up. Riot already leads CPU sweeps, so their
 // level threes win with decisions and moments, and most carry a price paid by
 // their own side.
@@ -99,49 +99,49 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', damage(3, 'laneFoes'), damage(1, 'allies')),
     ]),
   },
-  // Arc: a nun with a bottle rocket on her habit -> a blessed launch now
-  // and then -> ascension: she finally rides the rocket into the rival boss.
-  // Trajectory: LATE BLOOMER (a 2-power nun until her fall matters).
-  // Counterplay: stun her and ignore her; her ascension needs her to fall.
+  // Arc: a showgirl with bottle rockets on her skates -> a first spark now
+  // and then -> curtain launch: she finally rides the rocket into the rival
+  // boss. Trajectory: LATE BLOOMER (a 2-power skater until her fall matters).
+  // Counterplay: stun her and ignore her; her launch needs her to fall.
   's3-riot-bottle-rocket': {
-    2: stage('Blessed Kindling', [
-      on('enter', chance(50, damage(2, 'weakestFoe'))),
+    2: stage('First Spark', [on('enter', chance(50, damage(2, 'weakestFoe')))]),
+    3: stage('Curtain Launch', [
+      on('death', boss(3), damage(1, 'adjacentAllies')),
     ]),
-    3: stage('Ascension', [on('death', boss(3), damage(1, 'adjacentAllies'))]),
   },
-  // Arc: a church bell stuffed with fireworks -> it tolls the hour, hitting
-  // the foe across and rattling its own pews -> the deafening toll that
+  // Arc: a bass drum stuffed with fireworks -> the midnight drumroll, hitting
+  // the foe across and rattling its own band -> the deafening crash that
   // stuns both neighboring foes on arrival.
-  // Trajectory: ROLE SHIFT (ambusher, then bell ringer, then a deafener;
-  // every toll also rattles its own neighbors). Counterplay: the stun lasts
+  // Trajectory: ROLE SHIFT (ambusher, then drummer, then a deafener;
+  // every crash also rattles its own neighbors). Counterplay: the stun lasts
   // one strike; meet it with high-life blockers in its side alleys.
   's3-riot-detonation-deacon': {
-    2: stage('Tolls the Hour', [
+    2: stage('Midnight Drumroll', [
       on('turnStart', damage(1, 'across'), damage(1, 'adjacentAllies')),
     ]),
-    3: stage('Deafening Toll', [
+    3: stage('Deafening Crash', [
       on('enter', stun('adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
   },
-  // Arc: a street prophet who predicts an explosion -> sermons that
-  // sometimes spark -> the prophecy he volunteers to fulfill.
+  // Arc: a fortune-teller who foresees an explosion -> palm readings that
+  // sometimes spark -> the fortune he volunteers to fulfill.
   // Trajectory: LATE BLOOMER (a lottery each turn, paid for in his own
   // life). Counterplay: kill him fast; the odds favor patience.
   's3-riot-alley-prophet': {
-    2: stage('Street Sermon', [
+    2: stage('Palm Reading', [
       on('turnStart', chance(50, damage(1, 'across'))),
     ]),
     3: stage('Fire Foretold', [
       on('turnStart', damage(1, 'self'), chance(25, damage(3, 'allFoes'))),
     ]),
   },
-  // Arc: a bishop with a reinforced launcher -> leads a procession of the
-  // faithful -> the finale, which hits the faithful crowding closest.
-  // Trajectory: ROLE SHIFT (tank, then shepherd, then martyr). L3 keeps the
-  // blessing that draws allies close and punishes them for it.
+  // Arc: a strongman with a fireworks launcher -> leads a parade of the
+  // troupe -> the finale, which hits the troupe crowding closest.
+  // Trajectory: ROLE SHIFT (tank, then parade leader, then showstopper). L3
+  // keeps the glow that draws allies close and punishes them for it.
   // Counterplay: kill him while his neighbors stand, or never kill him.
   's3-riot-firework-bishop': {
-    2: stage('Procession', [], { aura: { n: 1, to: 'adjacentAllies' } }),
+    2: stage('Strongman Parade', [], { aura: { n: 1, to: 'adjacentAllies' } }),
     3: stage(
       'The Finale',
       [on('death', damage(3, 'allFoes'), damage(2, 'adjacentAllies'))],
@@ -157,10 +157,10 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Open Lane', [on('enter', when('acrossEmpty', power(2, 'self')))]),
     3: stage('Hit and Run', [on('strike', retreat())]),
   },
-  // Arc: a thermite archangel -> burns through her blocker into both sides
-  // -> falls like a meteor, wings gone, scorching three alleys.
+  // Arc: a thermite trapeze star -> burns through her blocker into both
+  // sides -> falls like a meteor, wings gone, scorching three alleys.
   // Trajectory: EARLY BLOOMER, Riot's one weaker level three: a much
-  // smaller body for a burning arrival. Counterplay: the fallen angel is
+  // smaller body for a burning arrival. Counterplay: the fallen star is
   // fragile; keep fighters spread so the crater hits fewer of them.
   's3-riot-thermite-archangel': {
     stats: { 3: { hp: -10 } },
@@ -194,13 +194,15 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', stun('laneFoes'), damage(2, 'adjacentAllies')),
     ]),
   },
-  // Arc: a mystery-flavor firecracker -> sour apple (it stings) -> the
-  // variety pack, every flavor at once, maybe.
+  // Arc: a mystery glitter bomb -> pink surprise (it stings) -> every
+  // color at once, maybe.
   // Trajectory: LATE BLOOMER (a gamble that grows into a lottery ticket).
   // Counterplay: high-life fighters shrug off a 2-point jackpot.
   's1-chaos-firecracker': {
-    2: stage('Sour Apple', [on('enter', chance(50, stun('target')))]),
-    3: stage('Variety Pack', [on('enter', chance(33, damage(2, 'allFoes')))]),
+    2: stage('Pink Surprise', [on('enter', chance(50, stun('target')))]),
+    3: stage('Every Color at Once', [
+      on('enter', chance(33, damage(2, 'allFoes'))),
+    ]),
   },
   // Arc: a terrible safety drill -> live-fire training pumps the crew ->
   // no safety officer at all: everyone bleeds, everyone hits harder.
@@ -215,39 +217,39 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', damage(1, 'allies'), sharpen(1, 'allies')),
     ]),
   },
-  // Arc: a friend of a friend invented ballistics -> a second stage that
-  // goes somewhere -> 'probably safe': it overshoots into the rival boss
-  // and scorches the launch pad.
+  // Arc: a daredevil fired before the drumroll ends -> a second barrel that
+  // goes somewhere -> over the net: it overshoots into the rival boss and
+  // scorches the cannon's mouth.
   // Trajectory: LATE BLOOMER (a plain zap that becomes reach).
   // Counterplay: keep your boss healthy; its launch singes your neighbors.
   's2-riot-homemade-bottle-rocket': {
-    2: stage('Friend of a Friend', [
+    2: stage('Second Barrel', [
       on('enter', chance(50, damage(1, 'weakestFoe'))),
     ]),
-    3: stage('Probably Safe', [
+    3: stage('Over the Net', [
       on('enter', boss(2), damage(1, 'adjacentAllies')),
     ]),
   },
-  // Arc: a budget grenade with no shrapnel -> the inspector looks away and
-  // the shrapnel flies both ways -> the inspector's special, a clean charge
-  // tuned for the biggest bodies.
+  // Arc: a stage-blood squib with no shrapnel -> an extra blood pack that
+  // sprays both ways -> the fire marshal's special, a clean charge tuned
+  // for the biggest bodies.
   // Trajectory: SITUATIONAL (anti-heavy at L3). Counterplay: crowd its
   // target's neighbors at L2; field cheap fighters against the special.
   's3-riot-low-budget-grenade': {
-    2: stage('Shrapnel Upgrade', [
+    2: stage('Extra Blood Pack', [
       on('enter', damage(1, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
-    3: stage("Inspector's Special", [
+    3: stage("Fire Marshal's Special", [
       on('enter', when('targetHeavy', stun('target'))),
     ]),
   },
-  // Arc: three damage on the wrong side of the blast -> the blast shadow
-  // finds the straggler -> brilliant once your team has already fled.
+  // Arc: three damage on the wrong side of the curtain -> the blast shadow
+  // finds the straggler -> brilliant once the cast has already bowed.
   // Trajectory: EARNED. L3 needs a fallen ally before it hits every foe.
   // Counterplay: avoid trading fighters early; with no fallen, no wave.
   's3-riot-wrong-side-of-blast': {
     2: stage('Blast Shadow', [on('enter', damage(2, 'weakestFoe'))]),
-    3: stage('Already Fled', [
+    3: stage('Already Bowed', [
       on('enter', when('allyFell', damage(2, 'allFoes'))),
     ]),
   },
@@ -261,10 +263,10 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', chance(50, boss(3)), chance(50, damage(1, 'allies'))),
     ]),
   },
-  // Arc: a stolen detonator strapped on -> hot-wired, burning for power ->
-  // strap a charge on the whole street, or push the button now.
+  // Arc: the ringmaster's plunger strapped on -> hot-wired, burning for
+  // power -> strap a charge on the whole street, or press the plunger now.
   // Trajectory: ROLE SHIFT with a choice. Counterplay: kill the bomb where
-  // its burst finds an empty alley; spread out against Push the Button.
+  // its burst finds an empty alley; spread out against Press the Plunger.
   's3-riot-stolen-detonator': {
     2: stage('Hot-Wired', [
       on('enter', damage(1, 'target'), power(3, 'target')),
@@ -275,67 +277,69 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
     // Choose one: or blow the charge right now, through your own fighter.
     // The CPU straps the street while it has a crowd of allies.
     choice: {
-      stage: stage('Push the Button', [
+      stage: stage('Press the Plunger', [
         on('enter', damage(3, 'target'), damage(2, 'laneFoes')),
       ]),
       cpu: 'crowd',
     },
   },
-  // Arc: five damage and a blessing -> an ember sermon that scatters the
-  // congregation -> bless the crew for the charge, or bring the brimstone.
+  // Arc: five damage and a kiss -> an ember overture that scatters the
+  // house -> a standing ovation for the charge, or bring down the house.
   // Trajectory: ROLE SHIFT with a choice (removal, then a war cry or a
-  // street-wide burn). Counterplay: Benediction lasts one round; the
-  // brimstone burns their own crew too.
+  // street-wide burn). Counterplay: the ovation lasts one round; bringing
+  // down the house burns their own crew too.
   's3-riot-final-benediction': {
-    2: stage('Ember Sermon', [
+    2: stage('Ember Overture', [
       on('enter', damage(2, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
-    3: stage('Benediction', [on('enter', power(2, 'allies'))]),
+    3: stage('Standing Ovation', [on('enter', power(2, 'allies'))]),
     // Choose one: or rain fire on every fighter, theirs and ours.
     // The CPU blesses a crowd and burns the street otherwise.
     choice: {
-      stage: stage('Fire and Brimstone', [
+      stage: stage('Bring Down the House', [
         on('enter', damage(2, 'allFoes'), damage(1, 'allies')),
       ]),
       cpu: 'crowd',
     },
   },
   // ------------------------------------------------------------------- traps
-  // Arc: bottled thunder labeled as soda -> shaken, it might blow the cap
+  // Arc: a backstage thunder sheet -> the rumble cue might blow the cap
   // -> a thunderclap down the whole block, ours included.
   // Trajectory: STEADY (a cheap trap that widens). Counterplay: scan it;
   // its clap singes the trapper's own neighbors.
   's1-fuse-alley': {
-    2: stage('Shaken Bottle', [on('spring', chance(50, damage(3, 'target')))]),
+    2: stage('Rumble Cue', [on('spring', chance(50, damage(3, 'target')))]),
     3: stage('Thunderclap', [
       on('spring', damage(2, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
   },
-  // Arc: an unattended celebration under the bridge -> the fuse chains to
-  // the next alley -> the bridge show, sparks raining on everyone.
+  // Arc: powder-packed footlights -> the fuse chains to the next alley ->
+  // the grand footlight show, sparks raining on everyone.
   // Trajectory: LATE BLOOMER. Counterplay: scan it; its show burns both
   // crews, so a wide, healthy board takes it best.
   's2-riot-fusebox-fireworks': {
     2: stage('Chain Fuse', [on('spring', damage(1, 'adjacentFoes'))]),
-    3: stage('Grand Bridge Show', [
+    3: stage('Grand Footlight Show', [
       on('spring', damage(1, 'allFoes'), damage(1, 'allies')),
     ]),
   },
-  // Arc: a rosary strung across the alley -> every bead binds a pursuer
-  // -> a Hail Mary: one prayer that the whole street goes up.
-  // Trajectory: EARLY BLOOMER (a sure control trap becomes a prayer).
-  // Counterplay: scan it; the prayer misses half the time.
+  // Arc: a fishnet strung across the alley -> every strand binds a pursuer
+  // -> a hail of sequins: one gamble that the whole street goes up.
+  // Trajectory: EARLY BLOOMER (a sure control trap becomes a gamble).
+  // Counterplay: scan it; the gamble misses half the time.
   's3-riot-fusewire': {
-    2: stage('Bound in Beads', [on('spring', stun('adjacentFoes'))]),
-    3: stage('Hail Mary', [on('spring', chance(50, damage(3, 'allFoes')))]),
+    2: stage('Caught in Fishnet', [on('spring', stun('adjacentFoes'))]),
+    3: stage('Hail of Sequins', [
+      on('spring', chance(50, damage(3, 'allFoes'))),
+    ]),
   },
-  // Arc: a hidden market rocket -> its smoke trail runs to the rival boss
-  // -> the whole night market goes up in a barrage.
+  // Arc: a rocket under a theater seat -> its smoke trail runs to the
+  // rival boss -> the whole late show goes up in a barrage.
   // Trajectory: LATE BLOOMER. Counterplay: scan it; the barrage scatters
   // at random, so many small fighters soak it.
   's3-riot-night-market-rocket': {
     2: stage('Smoke Trail', [on('spring', boss(2))]),
-    3: stage('Market Barrage', [
+    3: stage('Late Show Barrage', [
       on(
         'spring',
         damage(2, 'weakestFoe'),
@@ -344,53 +348,53 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
       ),
     ]),
   },
-  // Arc: a booby-trapped confessional -> the biggest sinner is made to
-  // kneel -> 'next sinner, please': the booth arms itself again.
-  // Trajectory: EARNED (its second spring needs a second sinner).
+  // Arc: a booby-trapped dressing room -> the biggest intruder is made to
+  // kneel -> 'places, please': the room arms itself again.
+  // Trajectory: EARNED (its second spring needs a second intruder).
   // Counterplay: scan it, or send a cheap runner in to spend each spring.
   's3-riot-confession-booth': {
-    2: stage('Name Your Sins', [on('spring', stun('strongestFoe'))]),
-    3: stage('Next Sinner', [on('spring', rearm())]),
+    2: stage('Who Goes Backstage', [on('spring', stun('strongestFoe'))]),
+    3: stage('Places, Please', [on('spring', rearm())]),
   },
   // --------------------------------------------------------------- equipment
-  // Arc: a volunteer safety vest -> the hi-vis crossing guard that leads
-  // the crowd -> a whole brigade of volunteers steps up when it falls.
+  // Arc: an audience volunteer's sash -> the usher captain who leads the
+  // crowd -> the whole house volunteers when it falls.
   // Trajectory: ROLE SHIFT (bomb, then leader, then a martyr that leaves
   // two ticking volunteers). Counterplay: fill the alleys beside the
   // wearer so the brigade has nowhere to stand.
   's1-volunteer-vest': {
-    2: stage('Crossing Guard', [], { aura: { n: 1, to: 'adjacentAllies' } }),
-    3: stage('Volunteer Brigade', [
+    2: stage('Usher Captain', [], { aura: { n: 1, to: 'adjacentAllies' } }),
+    3: stage('Whole House Volunteers', [
       on('death', summon('neighbors', 1, 1, ['volatile'])),
     ]),
   },
-  // Arc: a matchbook nobody explained -> every hit strikes a match -> the
-  // last stand: the first knockout lights the whole book.
+  // Arc: a fire-eater's last torch -> every hit juggles a flame -> the
+  // last stand: the first knockout lights the whole act.
   // Trajectory: EARNED ONE-SHOT. Counterplay: high-life or armored
   // blockers deny the knockout; stun the wearer before it lands one.
   's2-riot-last-stand-matchbook': {
-    2: stage('Strike Anywhere', [on('hit', damage(1, 'adjacentFoes'))]),
+    2: stage('Torch Juggler', [on('hit', damage(1, 'adjacentFoes'))]),
     3: stage('Last Stand', [once('kill', damage(2, 'allFoes'))]),
   },
-  // Arc: fireproof shoes -> hot feet: the wearer can charge at once -> the
-  // extra lap: it fights the foe across the moment they are laced.
+  // Arc: fireproof platform boots -> hot feet: the wearer can charge at
+  // once -> the extra lap: it fights the foe across once they are laced.
   // Trajectory: EARLY BLOOMER (the shoes trade growth for tempo).
   // Counterplay: a strong foe across wins the extra lap; stun it first.
   's3-riot-charred-sneakers': {
     2: stage('Hot Feet', [on('enter', grant('ambush', 'self'))]),
     3: stage('Extra Lap', [on('enter', duel('across'))]),
   },
-  // Arc: a medal for the dead -> the ribbon burns as the wearer falls ->
-  // canonized: the crew rises behind the saint as the relic burns.
+  // Arc: a medal for the last curtain call -> the ribbon burns as the
+  // wearer falls -> legend of the big top: the crew rises as it burns.
   // Trajectory: PRICE (it only pays when the wearer dies).
   // Counterplay: stun the wearer and leave it standing.
   's3-riot-posthumous-saint': {
-    2: stage("Martyr's Ribbon", [
+    2: stage('Burning Ribbon', [
       on('death', damage(2, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
     // (Gear cannot carry a choose-one: an installed medal would forget the
-    // pick, so the relic's flame and the canonization share one stage.)
-    3: stage('Canonized', [
+    // pick, so the ribbon's flame and the legend share one stage.)
+    3: stage('Legend of the Big Top', [
       on('death', sharpen(1, 'allies'), damage(1, 'allFoes')),
     ]),
   },

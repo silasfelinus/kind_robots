@@ -189,7 +189,7 @@ export const IRONJAW_CHAPTERS: readonly (readonly IronjawBeat[])[] = [
           id: 'right',
           label: 'Crank the heat and charge while it lasts',
           outcome:
-            "The crew charges the Saints' line at full summer speed and breaks it. Three workers collapse afterwards and spend the night in the cold room.",
+            "The crew charges the Anarkissed's line at full summer speed and breaks it. Three workers collapse afterwards and spend the night in the cold room.",
         },
       ],
     },

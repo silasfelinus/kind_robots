@@ -40,6 +40,7 @@ export interface SlimeCityStory {
   journeyTeam?: TeamId
   journeyFormat?: 'solo' | 'alliance'
   journeyDeckId?: string | null
+  journeyScreen?: 'chapter' | 'aftermath'
   /** Saved practice decks; omitted for older saves. */
   decks?: Partial<Record<TeamId, string[]>>
   /**
@@ -189,6 +190,12 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     raw.journeyDeckId !== undefined &&
     raw.journeyDeckId !== null &&
     (!text(raw.journeyDeckId, 80) || !raw.journeyDeckId)
+  )
+    return false
+  if (
+    raw.journeyScreen !== undefined &&
+    raw.journeyScreen !== 'chapter' &&
+    raw.journeyScreen !== 'aftermath'
   )
     return false
   if (raw.tower !== undefined && !validTowerSave(raw.tower)) return false

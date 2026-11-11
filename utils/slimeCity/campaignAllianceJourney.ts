@@ -5,6 +5,7 @@ import type { BoutTerms } from './city'
 import type { CampaignSave } from './campaign'
 import { TEAMS, type TeamId } from './prototypes'
 import { ALLIANCE_LATER_ARCS } from './campaignAllianceLater'
+import { allianceTacticEdge, allianceTacticLabel } from './campaignAllianceTactics'
 
 export type AllianceStoryPick = 'protect' | 'gamble'
 export interface AllianceStoryDecision {
@@ -569,6 +570,9 @@ export function allianceStoryScene(
   const recorded = save[team].allianceJourney?.[chapter]
   if (recorded?.ally === ally) return null
   const previous = save[team].allianceJourney?.[chapter - 1]
+  const protectEdge = allianceTacticEdge(ally, chapter, 'protect', previous)
+  const gambleEdge = allianceTacticEdge(ally, chapter, 'gamble', previous)
+  if (!protectEdge || !gambleEdge) return null
   const priorBeat = previous?.ally
     ? sceneBeat(team, previous.ally, chapter - 1)
     : null
@@ -597,13 +601,13 @@ export function allianceStoryScene(
         id: 'protect',
         label: current.protect[0],
         outcome: current.protect[1],
-        terms: 'BOSS +3 · RIVAL +2',
+        terms: allianceTacticLabel(protectEdge),
       },
       {
         id: 'gamble',
         label: current.gamble[0],
         outcome: current.gamble[1],
-        terms: 'RIVAL −4 · BOSS −2',
+        terms: allianceTacticLabel(gambleEdge),
       },
     ],
   }
@@ -648,21 +652,13 @@ export function allianceStoryBattleTerms(
   const chapter = save[team].wins
   const current = save[team].allianceJourney?.[chapter]
   if (!current || current.ally !== ally || team === ally) return base
-  const last = save[team].allianceJourney?.[chapter - 1]
-  const loyal = last?.ally === ally
-  const protectedCrew = current.pick === 'protect'
+  const previous = save[team].allianceJourney?.[chapter - 1]
+  const edge = allianceTacticEdge(ally, chapter, current.pick, previous)
+  if (!edge) return base
   return {
     ...base,
-    playerHp:
-      (base.playerHp ?? 0) +
-      (protectedCrew ? 1 : 0) +
-      (loyal && last.pick === 'protect' ? 1 : 0),
-    enemyMana: (base.enemyMana ?? 0) + (protectedCrew ? 1 : 0),
-    playerMana: (base.playerMana ?? 0) - (protectedCrew ? 0 : 1),
-    fewerRivals:
-      (base.fewerRivals ?? 0) +
-      (protectedCrew ? 0 : 1) +
-      (loyal && last.pick === 'gamble' ? 1 : 0),
+    playerBossLife: (base.playerBossLife ?? 0) + edge.player,
+    enemyBossLife: (base.enemyBossLife ?? 0) + edge.enemy,
   }
 }
 

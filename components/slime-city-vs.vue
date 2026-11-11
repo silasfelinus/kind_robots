@@ -79,7 +79,24 @@
       </article>
 
       <article class="vs-card vs-players" data-testid="slime-vs-players">
-        <h3><span aria-hidden="true">⚔</span> VS PLAYERS</h3>
+        <h3>
+          <span aria-hidden="true">⚔</span> VS PLAYERS
+          <small
+            v-if="pvp.gamesLoaded"
+            class="vs-record"
+            :aria-label="
+              pvp.tally.win +
+              ' wins, ' +
+              pvp.tally.loss +
+              ' losses, ' +
+              pvp.tally.draw +
+              ' draws'
+            "
+            data-testid="slime-vs-record"
+            >{{ pvp.tally.win }}W · {{ pvp.tally.loss }}L ·
+            {{ pvp.tally.draw }}D</small
+          >
+        </h3>
         <section
           class="vs-friends"
           aria-label="Challenge a friend"
@@ -518,6 +535,16 @@ onMounted(() => {
   font-size: 0.9rem;
   font-weight: 950;
   letter-spacing: 0.12em;
+}
+.vs-record {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid #5c7d72;
+  border-radius: 999px;
+  color: #c9ee5a;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 .vs-format {
   display: flex;

@@ -996,6 +996,41 @@
                 </article>
               </div>
             </div>
+            <div class="sc-reward-panel" data-testid="slime-evergreen">
+              <span class="sc-overline">NEVER RESET · CLAIM ONCE</span>
+              <strong>EVERGREEN MISSIONS</strong>
+              <div class="sc-challenge-grid">
+                <article
+                  v-for="mission in lab.evergreenList"
+                  :key="mission.id"
+                  class="sc-challenge"
+                  :class="{ 'is-claimed': mission.claimed }"
+                >
+                  <span
+                    >MISSION · {{ mission.value }}/{{ mission.target }}</span
+                  >
+                  <strong>{{ mission.title }}</strong>
+                  <p>{{ mission.description }}</p>
+                  <small>+{{ mission.meat }} MEAT · +{{ mission.xp }} XP</small>
+                  <button
+                    type="button"
+                    :disabled="
+                      !mission.ready || lab.progressBusy || !lab.progressLoaded
+                    "
+                    :data-testid="'slime-claim-' + mission.id"
+                    @click="lab.claimReward(mission.id)"
+                  >
+                    {{
+                      mission.claimed
+                        ? 'CLAIMED ✓'
+                        : mission.ready
+                          ? 'CLAIM REWARD'
+                          : 'IN PROGRESS'
+                    }}
+                  </button>
+                </article>
+              </div>
+            </div>
             <small class="sc-progression-note"
               >All XP, Meat, collection and challenge claims are account-bound
               in Kind Robots’ database. Only server-issued CPU matches award
@@ -2631,6 +2666,9 @@ button.sc-shelf-label {
 }
 .sc-challenge strong {
   font-size: 0.9rem;
+}
+.sc-challenge.is-claimed {
+  opacity: 0.6;
 }
 .sc-challenge p {
   font-size: 0.7rem;

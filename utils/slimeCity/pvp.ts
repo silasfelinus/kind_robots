@@ -90,6 +90,39 @@ export interface PvpSnapshot {
   revision: number
   outcome: ClashState['victor']
   forfeitedBy: Side | null
+  /** The other seated player, sent only to the duel's two players. */
+  rivalId?: number | null
+  rivalName?: string | null
+}
+
+/**
+ * The other player's account for one of a joined duel's two seats, or null
+ * for anyone else (a link holder sizing up a waiting duel sees no account).
+ */
+export function pvpSnapshotRival(
+  hostId: number,
+  record: Pick<PvpRecord, 'guestId'>,
+  viewer: number,
+): number | null {
+  if (record.guestId === null) return null
+  if (viewer === hostId) return record.guestId
+  if (viewer === record.guestId) return hostId
+  return null
+}
+
+/**
+ * REMATCH after the final bell: a private challenge to the same rival with
+ * the same crew. Null until the duel is over or when the rival is unknown.
+ */
+export function pvpRematch(
+  duel: Pick<
+    PvpSnapshot,
+    'stage' | 'seat' | 'hostTeam' | 'guestTeam' | 'rivalId'
+  >,
+): { team: TeamId; friendId: number } | null {
+  if (duel.stage !== 'finished' || !duel.rivalId) return null
+  const team = duel.seat === 'player' ? duel.hostTeam : duel.guestTeam
+  return team ? { team, friendId: duel.rivalId } : null
 }
 
 export function isPvpTeam(value: unknown): value is TeamId {
@@ -349,6 +382,18 @@ export function pvpGameSummary(
     bosses: state ? { mine: state.boss[seat], rival: state.boss[rival] } : null,
     lastActionAt: record.lastActionAt ?? row.startedAt.toISOString(),
   }
+}
+
+/** Wins, losses and draws across the finished games the VS list holds. */
+export function pvpTally(games: Pick<PvpGameSummary, 'stage' | 'result'>[]): {
+  win: number
+  loss: number
+  draw: number
+} {
+  const tally = { win: 0, loss: 0, draw: 0 }
+  for (const game of games)
+    if (game.stage === 'finished' && game.result) tally[game.result]++
+  return tally
 }
 
 /** The VS hub lists games waiting on you first, then the most recent. */

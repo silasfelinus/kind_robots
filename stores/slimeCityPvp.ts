@@ -2,7 +2,12 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from './utils'
 import { useFriendStore } from './friendStore'
-import type { PvpGameSummary, PvpSnapshot } from '~/utils/slimeCity/pvp'
+import {
+  pvpRematch,
+  pvpTally,
+  type PvpGameSummary,
+  type PvpSnapshot,
+} from '~/utils/slimeCity/pvp'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 
 export type PvpInput =
@@ -48,6 +53,10 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const sending = ref(false)
   const error = ref('')
   let polling: ReturnType<typeof setInterval> | null = null
+
+  /** This player's record over the finished games in the VS list. */
+  const tally = computed(() => pvpTally(games.value))
+  const canRematch = computed(() => !!duel.value && !!pvpRematch(duel.value))
 
   const isMyTurn = computed(
     () =>
@@ -114,6 +123,14 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     } finally {
       sending.value = false
     }
+  }
+
+  /** Challenge the same rival again with the same crew, privately. */
+  async function rematch(): Promise<PvpSnapshot | null> {
+    const next = duel.value ? pvpRematch(duel.value) : null
+    if (!next || sending.value) return null
+    stopWatching()
+    return start(next.team, { friendId: next.friendId })
   }
 
   async function join(id: string, team: TeamId): Promise<PvpSnapshot | null> {
@@ -309,6 +326,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   return {
     duel,
     games,
+    tally,
     gamesLoaded,
     gamesError,
     loadGames,
@@ -329,6 +347,8 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     isMyTurn,
     load,
     start,
+    rematch,
+    canRematch,
     join,
     send,
     forfeit,

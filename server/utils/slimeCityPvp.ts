@@ -12,6 +12,7 @@ import {
   parsePvpRecord,
   pvpBoard,
   pvpGameSummary,
+  pvpSnapshotRival,
   sortPvpGames,
   pvpCommand,
   replayPvp,
@@ -111,7 +112,18 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
       ? (row.result as PvpSnapshot['outcome'])
       : (state?.victor ?? null),
     forfeitedBy: record.forfeitedBy ?? null,
+    rivalId: pvpSnapshotRival(row.userId, record, userId),
   }
+}
+
+/** Add the rival's username for the two players' finished-duel panel. */
+async function withRivalName(duel: PvpSnapshot): Promise<PvpSnapshot> {
+  if (!duel.rivalId) return duel
+  const rival = await prisma.user.findUnique({
+    where: { id: duel.rivalId },
+    select: { username: true },
+  })
+  return { ...duel, rivalName: rival?.username ?? null }
 }
 
 /**
@@ -351,7 +363,7 @@ export async function getSlimeCityDuel(id: string, userId: number) {
     await prisma.slimeCityMatch.findUnique({ where: { id } }),
     id,
   )
-  return snapshot(row, record, userId)
+  return withRivalName(snapshot(row, record, userId))
 }
 
 export async function joinSlimeCityDuel(
@@ -395,7 +407,7 @@ export async function commandSlimeCityDuel(
 ) {
   if (!Number.isSafeInteger(revision) || Number(revision) < 0)
     return fail(400, 'Invalid match revision.')
-  return prisma.$transaction(async (tx) => {
+  const duel = await prisma.$transaction(async (tx) => {
     if (!validId(id)) return fail(404, 'Duel not found.')
     await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
     const { row, record } = activeRow(
@@ -436,12 +448,13 @@ export async function commandSlimeCityDuel(
     })
     return snapshot(updated, next, userId)
   })
+  return duel.stage === 'finished' ? withRivalName(duel) : duel
 }
 
 /** Atomic, idempotent forfeit. Only an authenticated participant may concede. */
 export async function forfeitSlimeCityDuel(id: string, userId: number) {
   if (!validId(id)) return fail(404, 'Duel not found.')
-  return prisma.$transaction(async (tx) => {
+  const duel = await prisma.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
     const { row, record } = activeRow(
       await tx.slimeCityMatch.findUnique({ where: { id } }),
@@ -477,4 +490,5 @@ export async function forfeitSlimeCityDuel(id: string, userId: number) {
     })
     return snapshot(updated, next, userId)
   })
+  return withRivalName(duel)
 }

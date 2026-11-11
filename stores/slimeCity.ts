@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import {
   canBuyPack,
   currentChallenges,
+  currentEvergreen,
   levelFor,
   newProgression,
   nextLevelXp,
@@ -312,6 +313,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const progressBusy = ref(false)
   const progressError = ref('')
   const challengeList = computed(() => currentChallenges(progress.value))
+  const evergreenList = computed(() => currentEvergreen(progress.value))
   const level = computed(() => levelFor(progress.value.xp))
   const nextLevel = computed(() => nextLevelXp(progress.value.xp))
   const packAffordable = computed(
@@ -2578,6 +2580,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     rewardMatchId,
     startCpuBattle,
     challengeList,
+    evergreenList,
     level,
     nextLevel,
     packAffordable,

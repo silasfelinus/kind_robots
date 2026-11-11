@@ -7,16 +7,23 @@ import {
   TEAMS,
   type MatchState,
 } from '../slimeCity/prototypes'
+import { readFileSync } from 'node:fs'
+import { createClash } from '../slimeCity/clash'
+import { clashOutcome } from '../slimeCity/clashRewards'
 import {
   awardBattle,
+  awardOutcome,
   battleReceipt,
   buyPack,
   canBuyPack,
   CHALLENGES,
   challengeValue,
   claimChallenge,
+  claimEvergreen,
   currentChallenges,
+  currentEvergreen,
   DAILY_PAID_BATTLES,
+  EVERGREEN_MISSIONS,
   levelFor,
   newProgression,
   nextLevelXp,
@@ -217,6 +224,168 @@ assert.deepEqual(
   'Account pack reveal survives refresh',
 )
 
+// Conductor slime-city/t-010: evergreen missions, claimed once ever.
+{
+  assert.ok(EVERGREEN_MISSIONS.length >= 6 && EVERGREEN_MISSIONS.length <= 10)
+  assert.equal(
+    new Set([...EVERGREEN_MISSIONS, ...CHALLENGES].map((m) => m.id)).size,
+    EVERGREEN_MISSIONS.length + CHALLENGES.length,
+    'mission ids never collide with bounty ids',
+  )
+  assert.ok(
+    EVERGREEN_MISSIONS.every((m) => m.meat > 0 && m.meat <= 150 && m.xp <= 150),
+    'evergreen rewards stay modest',
+  )
+  assert.deepEqual(fresh.evergreen, {
+    crewWins: [],
+    boutWins: [],
+    topLevel: 0,
+    claimed: [],
+  })
+
+  // An older save has no ledger: it restores empty, and lifetime wins it
+  // already recorded still count.
+  const legacy = JSON.parse(JSON.stringify(tied))
+  delete legacy.evergreen
+  const restored = restoreProgression(legacy, now)
+  assert.deepEqual(restored.evergreen, fresh.evergreen)
+  assert.equal(
+    currentEvergreen(restored).find((m) => m.id === 'ever-first-win')?.ready,
+    true,
+  )
+  assert.ok(currentEvergreen(restored).every((m) => !m.claimed))
+  assert.deepEqual(
+    restoreProgression(
+      {
+        ...legacy,
+        evergreen: {
+          crewWins: ['catgirls', 'nobody', 'catgirls'],
+          boutWins: ['tower', 'heist'],
+          topLevel: 9,
+          claimed: ['ever-tower', 'made-up', 'daily-entry'],
+        },
+      },
+      now,
+    ).evergreen,
+    {
+      crewWins: ['catgirls'],
+      boutWins: ['tower'],
+      topLevel: 3,
+      claimed: ['ever-tower'],
+    },
+    'a tampered ledger keeps only known crews, bouts and missions',
+  )
+  assert.deepEqual(
+    restoreProgression({ ...legacy, evergreen: 'junk' }, now).evergreen,
+    fresh.evergreen,
+  )
+
+  // Only verified fights move the ledger, and a replayed receipt moves nothing.
+  const tower = awardOutcome(
+    fresh,
+    {
+      victor: 'player',
+      receipt: '["clash","tower-1"]',
+      mode: 'clash',
+      teamId: 'riot',
+      plays: [],
+      bout: 'tower',
+      topLevel: 3,
+    },
+    now,
+  )
+  assert.deepEqual(tower.evergreen.crewWins, ['riot'])
+  assert.deepEqual(tower.evergreen.boutWins, ['tower'])
+  assert.equal(tower.evergreen.topLevel, 3)
+  assert.equal(
+    awardOutcome(
+      tower,
+      {
+        victor: 'player',
+        receipt: '["clash","tower-1"]',
+        mode: 'clash',
+        teamId: 'exchange',
+        plays: [],
+      },
+      now,
+    ),
+    tower,
+    'the same fight never counts twice',
+  )
+  const lostRival = awardOutcome(
+    tower,
+    {
+      victor: 'enemy',
+      receipt: '["clash","rival-1"]',
+      mode: 'clash',
+      teamId: 'undertow',
+      plays: [],
+      bout: 'rival',
+    },
+    now,
+  )
+  assert.deepEqual(
+    lostRival.evergreen.crewWins,
+    ['riot'],
+    'only wins count a crew',
+  )
+  assert.deepEqual(lostRival.evergreen.boutWins, ['tower'])
+
+  // Claim once, through the same claim path the bounties use.
+  const towerMission = EVERGREEN_MISSIONS.find((m) => m.id === 'ever-tower')!
+  const paid = claimChallenge(tower, 'ever-tower', now)
+  assert.equal(paid.meat, tower.meat + towerMission.meat)
+  assert.equal(paid.xp, tower.xp + towerMission.xp)
+  assert.deepEqual(paid.evergreen.claimed, ['ever-tower'])
+  assert.equal(
+    claimChallenge(paid, 'ever-tower', now),
+    paid,
+    'an evergreen mission pays once ever',
+  )
+  assert.equal(claimEvergreen(paid, 'ever-tower', now), paid)
+  const nextWeek = refreshPeriods(paid, pt('2026-11-09T09:00:00Z'))
+  assert.deepEqual(
+    nextWeek.evergreen,
+    paid.evergreen,
+    'Pacific resets never touch evergreen claims',
+  )
+  assert.equal(
+    claimChallenge(nextWeek, 'ever-tower', pt('2026-11-09T09:00:00Z')),
+    nextWeek,
+    'no second grant after a reset',
+  )
+  assert.equal(
+    claimChallenge(paid, 'ever-six-crews', now),
+    paid,
+    'no premature evergreen claims',
+  )
+  assert.deepEqual(
+    restoreProgression(JSON.parse(JSON.stringify(paid)), now),
+    paid,
+    'a claimed mission survives the account round trip',
+  )
+  assert.equal(
+    currentEvergreen(paid).find((m) => m.id === 'ever-tower')?.claimed,
+    true,
+  )
+
+  // Server: claims go through the compare-and-swap account write, and story
+  // bouts carry their kind and the fight's top card level into the ledger.
+  const server = readFileSync('server/utils/slimeCityProgress.ts', 'utf8')
+  assert.match(server, /claimChallenge\(state, id\)/)
+  assert.match(server, /where: \{ userId, version: row\.version \}/)
+  assert.match(server, /clashOutcome\(id, verified as never, match\.mode\)/)
+  const fight = createClash('catgirls', 'riot', 77)
+  fight.victor = 'player'
+  fight.levels.player = { lynx: 2, mau: 3 }
+  const outcome = clashOutcome('m-1', fight, 'clash-tower')
+  assert.equal(outcome.bout, 'tower')
+  assert.equal(outcome.topLevel, 3)
+  assert.equal(outcome.mode, 'clash', 'bouts still count as Clash wins')
+  assert.equal(clashOutcome('m-2', fight, 'clash-alliance').bout, undefined)
+  assert.equal(clashOutcome('m-3', fight).bout, undefined)
+}
+
 console.log(
-  'Slime City rewards: Pacific day/week resets, capped CPU XP and Meat, claims, rare-led packs from the non-starter pool, duplicate Meat refunds PASS',
+  'Slime City rewards: Pacific day/week resets, capped CPU XP and Meat, claims, evergreen missions, rare-led packs from the non-starter pool, duplicate Meat refunds PASS',
 )

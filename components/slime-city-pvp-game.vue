@@ -205,6 +205,87 @@
       </section>
 
       <section
+        v-else-if="board && pvp.duel && finished && !reviewBoard"
+        class="scpvp-result"
+        aria-label="Duel result"
+        data-testid="slime-pvp-result"
+      >
+        <div class="scpvp-result-crews">
+          <figure
+            v-for="side in resultSides"
+            :key="side"
+            :class="{
+              won: pvp.duel.outcome === side,
+              lost: pvp.duel.outcome !== side && pvp.duel.outcome !== 'draw',
+            }"
+          >
+            <SlimeCityArtwork
+              :image-id="slimeArtId('crews', teamOf(side))"
+              :alt="nameOf(teamOf(side))"
+              fallback="⚔"
+              compact
+            />
+            <figcaption>
+              <small>{{
+                side === pvp.duel.seat
+                  ? 'YOU'
+                  : (pvp.duel.rivalName ?? 'RIVAL').toUpperCase()
+              }}</small>
+              <strong>{{ nameOf(teamOf(side)) }}</strong>
+              <b>♥ {{ Math.max(0, board.boss[side]) }}</b>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="scpvp-result-copy">
+          <small>FINAL BELL · ROUND {{ board.round }}</small>
+          <strong
+            class="scpvp-result-title"
+            :class="{ 'is-loss': resultKind === 'loss' }"
+            >{{ resultHeadline }}</strong
+          >
+          <p>{{ resultNote }}</p>
+          <div class="scpvp-result-actions">
+            <button
+              v-if="rivalIsFriend || !pvp.friendsLoaded"
+              type="button"
+              class="scpvp-primary"
+              :disabled="pvp.sending || !pvp.canRematch"
+              data-testid="slime-pvp-rematch"
+              @click="rematch"
+            >
+              {{ pvp.sending ? 'SENDING…' : 'REMATCH' }}
+            </button>
+            <button
+              v-else
+              type="button"
+              class="scpvp-primary"
+              :disabled="pvp.sending || friendAsked || !pvp.duel.rivalId"
+              data-testid="slime-pvp-befriend"
+              @click="befriendRival"
+            >
+              {{
+                friendAsked ? 'FRIEND REQUEST SENT' : 'ADD FRIEND TO REMATCH'
+              }}
+            </button>
+            <NuxtLink
+              to="/play/slime-city?vs=1"
+              class="scpvp-quiet"
+              data-testid="slime-pvp-back-vs"
+              >BACK TO VS</NuxtLink
+            >
+            <button
+              type="button"
+              class="scpvp-quiet"
+              data-testid="slime-pvp-final-board"
+              @click="reviewBoard = true"
+            >
+              SEE FINAL BOARD
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section
         v-else-if="board && pvp.duel"
         class="scpvp-battle"
         aria-label="Live CLASH duel"
@@ -233,8 +314,8 @@
           </div>
           <div class="scpvp-turn" aria-live="polite">
             <b>{{
-              board.victor
-                ? victoryText
+              finished
+                ? resultHeadline
                 : pvp.isMyTurn
                   ? 'YOUR TURN'
                   : 'RIVAL THINKING'
@@ -242,9 +323,17 @@
             <small
               >ROUND {{ board.round }} · {{ board.phase.toUpperCase() }}</small
             >
+            <button
+              v-if="finished"
+              type="button"
+              class="scpvp-result-link"
+              @click="reviewBoard = false"
+            >
+              RESULT ›
+            </button>
           </div>
           <button
-            v-if="narrowScreen && !board.victor"
+            v-if="narrowScreen && !finished"
             type="button"
             class="scpvp-flag"
             :class="{ armed: forfeitArmed }"
@@ -432,7 +521,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { useSlimeCityPvpStore } from '~/stores/slimeCityPvp'
 import {
@@ -478,11 +567,56 @@ const inviteLink = computed(() => {
   const path = '/play/slime-city-pvp?duel=' + encodeURIComponent(pvp.duel.id)
   return import.meta.client ? location.origin + path : path
 })
-const victoryText = computed(() => {
-  if (!board.value?.victor) return ''
-  if (board.value.victor === 'draw') return 'DRAW · FINAL BELL'
-  return board.value.victor === pvp.duel?.seat ? 'YOU WIN!' : 'RIVAL WINS'
+
+/** Silas, 2026-11-11 PT: "finalize multiplayer": the duel ends on a result. */
+const finished = computed(() => pvp.duel?.stage === 'finished')
+const reviewBoard = ref(false)
+const friendAsked = ref(false)
+const resultSides = computed<Side[]>(() =>
+  pvp.duel?.seat === 'enemy' ? ['enemy', 'player'] : ['player', 'enemy'],
+)
+const resultKind = computed(() => {
+  const victor = pvp.duel?.outcome
+  if (!victor || victor === 'draw') return 'draw'
+  return victor === pvp.duel?.seat ? 'win' : 'loss'
 })
+const resultHeadline = computed(() =>
+  resultKind.value === 'draw'
+    ? 'DRAW'
+    : resultKind.value === 'win'
+      ? 'YOU WIN!'
+      : (pvp.duel?.rivalName?.toUpperCase() ?? 'RIVAL') + ' WINS',
+)
+const resultNote = computed(() => {
+  const forfeit = pvp.duel?.forfeitedBy
+  const how = forfeit
+    ? forfeit === pvp.duel?.seat
+      ? 'You forfeited.'
+      : 'Your rival forfeited.'
+    : 'Boss life at the final bell.'
+  return how + ' VS duels award no Meat or cards.'
+})
+const rivalIsFriend = computed(() =>
+  pvp.friends.some((friend) => friend.id === pvp.duel?.rivalId),
+)
+watch(
+  finished,
+  (done) => {
+    if (done && !pvp.friendsLoaded) void pvp.loadFriends()
+  },
+  { immediate: true },
+)
+async function rematch() {
+  const data = await pvp.rematch()
+  if (!data) return
+  reviewBoard.value = false
+  await router.replace({ query: { duel: data.id } })
+  pvp.watchDuel(data.id)
+}
+async function befriendRival() {
+  const id = pvp.duel?.rivalId
+  if (id && (await pvp.addFriend(id))) friendAsked.value = true
+}
 
 function nameOf(team: TeamId) {
   return TEAMS.find((entry) => entry.id === team)?.name ?? team
@@ -1090,9 +1224,132 @@ onBeforeUnmount(() => {
 .scpvp-log small {
   color: #c9ee5a;
 }
+.scpvp-result {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: clamp(0.6rem, 2vw, 1.6rem);
+  padding: clamp(0.6rem, 2vw, 1.4rem);
+  overflow: hidden;
+}
+.scpvp-result-crews {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  min-height: 0;
+}
+.scpvp-result-crews figure {
+  position: relative;
+  margin: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 2px solid #416264;
+  border-radius: 1.25rem;
+  background: #18242c;
+}
+.scpvp-result-crews figure.won {
+  border-color: #d4f960;
+  box-shadow: 0 0 0 2px #d4f96044;
+}
+.scpvp-result-crews figure > :first-child {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.scpvp-result-crews figure.lost > :first-child {
+  filter: grayscale(0.7) brightness(0.7);
+}
+.scpvp-result-crews figcaption {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(0.4rem, 1.5vw, 1rem);
+  background: linear-gradient(transparent, #09131bea 40%);
+}
+.scpvp-result-crews figcaption small {
+  overflow: hidden;
+  color: #c9f56c;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scpvp-result-crews figcaption strong {
+  font-size: clamp(0.75rem, 1.6vw, 1.2rem);
+}
+.scpvp-result-crews figcaption b {
+  color: #f6b6a3;
+  font-size: clamp(1.1rem, 2.6vw, 2rem);
+  font-weight: 950;
+  line-height: 1;
+}
+.scpvp-result-copy {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.7rem;
+}
+.scpvp-result-copy > small {
+  color: #c9f56c;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.scpvp-result-copy p {
+  color: #bdcfc9;
+  font-size: 0.85rem;
+}
+.scpvp-result-title {
+  color: #d2f364;
+  font-size: clamp(1.6rem, 4vw, 3.4rem);
+  font-weight: 950;
+  line-height: 1;
+}
+.scpvp-result-title.is-loss {
+  color: #f6b6a3;
+}
+.scpvp-result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.scpvp-result-actions > a {
+  text-align: center;
+}
+.scpvp-result-link {
+  margin-top: 0.15rem;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid #c9ee5a;
+  border-radius: 0.4rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+}
 @media (max-width: 690px) {
   .scpvp-top span {
     display: none;
+  }
+  .scpvp-result {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .scpvp-result-copy {
+    gap: 0.45rem;
+  }
+  .scpvp-result-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .scpvp-result-actions > * {
+    flex: 1 1 auto;
+  }
+  .scpvp-result-actions > .scpvp-primary {
+    flex-basis: 100%;
   }
   .scpvp-lobby,
   .scpvp-waiting {

@@ -8,6 +8,9 @@ import {
   parsePvpRecord,
   pvpBoard,
   pvpGameSummary,
+  pvpRematch,
+  pvpSnapshotRival,
+  pvpTally,
   sortPvpGames,
   pvpCommand,
   replayPvp,
@@ -482,3 +485,84 @@ console.log(
 console.log(
   'Slime City VS game list: seats, turns, results, expiry and order PASS',
 )
+
+// Silas, 2026-11-11 PT: "finalize multiplayer and single player routes". A
+// finished duel offers REMATCH to the same rival with the same crew, and VS
+// shows the player's record.
+{
+  const joined = { guestId: 8 }
+  assert.equal(pvpSnapshotRival(7, joined, 7), 8, 'the host sees the guest')
+  assert.equal(pvpSnapshotRival(7, joined, 8), 7, 'the guest sees the host')
+  assert.equal(
+    pvpSnapshotRival(7, joined, 9),
+    null,
+    'nobody outside the duel learns either account',
+  )
+  assert.equal(
+    pvpSnapshotRival(7, { guestId: null }, 9),
+    null,
+    'a link holder sizing up a waiting duel sees no account',
+  )
+  assert.equal(pvpSnapshotRival(7, { guestId: null }, 7), null)
+
+  const final = {
+    stage: 'finished' as const,
+    hostTeam: 'catgirls' as const,
+    guestTeam: 'riot' as const,
+  }
+  assert.deepEqual(
+    pvpRematch({ ...final, seat: 'player', rivalId: 8 }),
+    { team: 'catgirls', friendId: 8 },
+    'the host rematches the guest with the host crew',
+  )
+  assert.deepEqual(
+    pvpRematch({ ...final, seat: 'enemy', rivalId: 7 }),
+    { team: 'riot', friendId: 7 },
+    'the guest rematches the host with the guest crew',
+  )
+  assert.equal(
+    pvpRematch({ ...final, stage: 'battle', seat: 'player', rivalId: 8 }),
+    null,
+    'no rematch before the final bell',
+  )
+  assert.equal(
+    pvpRematch({ ...final, seat: 'player', rivalId: null }),
+    null,
+    'no rematch without a known rival',
+  )
+  assert.equal(pvpRematch({ ...final, seat: 'player' }), null)
+
+  assert.deepEqual(
+    pvpTally([
+      { stage: 'finished', result: 'win' },
+      { stage: 'finished', result: 'win' },
+      { stage: 'finished', result: 'loss' },
+      { stage: 'finished', result: 'draw' },
+      { stage: 'battle', result: null },
+      { stage: 'waiting', result: null },
+    ]),
+    { win: 2, loss: 1, draw: 1 },
+  )
+  assert.deepEqual(pvpTally([]), { win: 0, loss: 0, draw: 0 })
+
+  assert.match(
+    service,
+    /rivalId: pvpSnapshotRival\(row\.userId, record, userId\)/,
+    'the duel snapshot names the rival only to its two players',
+  )
+  assert.match(
+    client,
+    /start\(next\.team, \{ friendId: next\.friendId \}\)/,
+    'REMATCH is a private friend challenge through the normal start path',
+  )
+  assert.match(client, /pvpTally\(games\.value\)/)
+  const board = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+  assert.match(board, /data-testid="slime-pvp-result"/)
+  assert.match(board, /data-testid="slime-pvp-rematch"/)
+  assert.match(board, /to="\/play\/slime-city\?vs=1"[\s\S]*?BACK TO VS/)
+  assert.match(
+    readFileSync('components/slime-city-vs.vue', 'utf8'),
+    /data-testid="slime-vs-record"/,
+  )
+}
+console.log('Slime City VS finish: result, rematch and record PASS')

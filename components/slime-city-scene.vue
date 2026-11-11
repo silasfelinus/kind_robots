@@ -482,6 +482,7 @@ const missionHand = computed<KrHandChoice[]>(() =>
       lab.campaignPreviewTerms(
         storyMissionTerms(lab.city, lab.districtId, choice.terms),
       ),
+      lab.journeyFormat,
     ),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),

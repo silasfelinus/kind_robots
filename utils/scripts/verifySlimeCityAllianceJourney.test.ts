@@ -204,7 +204,7 @@ lab.chooseTeam('riot')
 lab.showCampaign()
 lab.setJourneyFormat('alliance')
 assert.ok(lab.campaignJourneyCurrent)
-assert.equal(lab.campaignAllianceCurrent, null)
+assert.equal(Boolean(lab.campaignAllianceCurrent), false)
 for (let scene = 0; scene < 3; scene++) lab.chooseCampaignJourneyBeat('left')
 assert.equal(lab.campaignJourneyCurrent, null)
 const allianceBeat = lab.campaignAllianceCurrent

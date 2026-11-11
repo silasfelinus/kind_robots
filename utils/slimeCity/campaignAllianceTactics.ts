@@ -106,9 +106,7 @@ export function allianceTacticEdge(
       pulse.player +
       (loyal && last.pick === 'protect' ? 1 : 0),
     enemy:
-      signature.enemy +
-      pulse.enemy -
-      (loyal && last.pick === 'gamble' ? 1 : 0),
+      signature.enemy + pulse.enemy - (loyal && last.pick === 'gamble' ? 1 : 0),
   }
 }
 

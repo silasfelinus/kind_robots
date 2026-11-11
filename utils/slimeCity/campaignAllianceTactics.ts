@@ -23,7 +23,7 @@ export const ALLIANCE_TACTICS: Record<TeamId, AllianceTactic> = {
   bloodfairies: {
     name: 'Crowd and encore',
     protect: { player: 6, enemy: 3 },
-    gamble: { player: -1, enemy: -4 },
+    gamble: { player: -2, enemy: -4 },
   },
   ironjaw: {
     name: 'Warmth and barricades',
@@ -38,7 +38,7 @@ export const ALLIANCE_TACTICS: Record<TeamId, AllianceTactic> = {
   undertow: {
     name: 'Secrets and misdirection',
     protect: { player: 4, enemy: 2 },
-    gamble: { player: -1, enemy: -6 },
+    gamble: { player: -2, enemy: -6 },
   },
   exchange: {
     name: 'Contracts and collateral',

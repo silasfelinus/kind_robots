@@ -1330,7 +1330,7 @@ export const CARDS: Card[] = [
     ap: 1,
     keywords: ['collect'],
     signature: true,
-    text: "The thing beneath Crown Market wears a merchant's face. Every pound of Meat belongs to it.",
+    text: "The thing beneath Crown Market wears a merchant's face and runs the Meat mint. Every pound belongs to it.",
     symbol: '♛',
   },
   {

@@ -91,7 +91,7 @@
             }}
           </button>
           <p class="scpvp-note">
-            Admin-preview accounts only. These fights award no Meat or cards.
+            Any signed-in player can join. These fights award no Meat or cards.
           </p>
         </div>
       </section>
@@ -111,8 +111,8 @@
             <small>YOUR CREW IS IN THE PIT</small>
             <strong class="scpvp-poster-title">ONE FIGHTER SHORT</strong>
             <p>
-              Share this private invite with another admin-preview account. Your
-              duel resumes from this link, even after a refresh.
+              Share this private invite with another signed-in player. Your duel
+              resumes from this link, even after a refresh.
             </p>
           </div>
         </div>
@@ -367,7 +367,7 @@ const lineup = computed<Side[]>(() =>
 )
 const inviteLink = computed(() => {
   if (!pvp.duel) return ''
-  const path = '/admin/slime-city-pvp?duel=' + encodeURIComponent(pvp.duel.id)
+  const path = '/play/slime-city-pvp?duel=' + encodeURIComponent(pvp.duel.id)
   return import.meta.client ? location.origin + path : path
 })
 const victoryText = computed(() => {

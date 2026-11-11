@@ -63,6 +63,8 @@ export const SYSTEM_ROUTES: Record<string, string> = {
   '/admin/sliding-tile-gallery':
     'legacy URL, 301-redirects to /play/sliding-tile-gallery',
   '/play/zuzu': 'legacy world hub URL, 301-redirects to /play/arcade',
+  '/play/slime-city-pvp':
+    'Slime City two-player board, opened from the VS hub game list and from ?duel= invite links',
   '/play/music-video':
     'legacy redirect to Video Studio Music Videos tab, preserving video deep links',
   '/admin/zuzu-pinball': 'legacy URL, 301-redirects to /play/zuzu-pinball',

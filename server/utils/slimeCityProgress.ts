@@ -40,6 +40,21 @@ import {
 } from '~/utils/slimeCity/progression'
 
 /** /admin/slime-city is an internal preview. Keep rewards off the public API surface. */
+/**
+ * Games between players are open to every signed-in player (Silas,
+ * 2026-11-11 PT: "Remove admin limitation"). Guests and agents stay out:
+ * a duel needs a real account on each side. Rewards stay admin-preview.
+ */
+export async function requireSlimeCityPlayer(event: H3Event) {
+  const auth = await requireHumanApiUser(event)
+  if (auth.user.isGuest)
+    throw createError({
+      statusCode: 403,
+      message: 'Sign in to play Slime City against other players.',
+    })
+  return auth
+}
+
 export async function requireSlimeCityPreviewUser(event: H3Event) {
   const auth = await requireHumanApiUser(event)
   if (!auth.isAdmin || auth.user.isGuest)

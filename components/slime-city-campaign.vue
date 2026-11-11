@@ -788,7 +788,7 @@ const approachChoices = computed<KrHandChoice[]>(() =>
   (lab.activeChapter?.choices ?? []).map((choice) => ({
     id: choice.id,
     label: choice.label,
-    chip: clashTermsLabel(lab.campaignPreviewTerms(choice.terms)),
+    chip: clashTermsLabel(lab.campaignPreviewTerms(choice.terms), lab.journeyFormat),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),
 )

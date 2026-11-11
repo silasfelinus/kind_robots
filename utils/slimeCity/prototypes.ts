@@ -1287,7 +1287,7 @@ export const CARDS: Card[] = [
     attack: 2,
     armor: 0,
     ap: 1,
-    text: 'Repossesses anything not bolted down, then the bolts, then weighs them for the Meat scale.',
+    text: 'The chapel's smallest acolyte pries loose the nails of the living. Every scrap goes on the Meat scale.',
     symbol: '¤',
   },
   {
@@ -1301,7 +1301,7 @@ export const CARDS: Card[] = [
     armor: 0,
     ap: 1,
     keywords: ['collect'],
-    text: 'Interest compounds daily, payable in Meat. Every punch goes on your tab.',
+    text: 'Each blow rings the drowned tithe-bell. The debt is measured in Meat, never money.',
     symbol: '◆',
   },
   {
@@ -1315,7 +1315,7 @@ export const CARDS: Card[] = [
     armor: 0, // t-021 founder balance: was 1 (Exchange 71% → 59%)
     ap: 1,
     keywords: ['collect'],
-    text: 'Premium collections agent. Accepts payment in mana or teeth.',
+    text: 'The butcher-priest takes payment in teeth, then whispers the balance into the drain.',
     symbol: '◇',
   },
   {
@@ -1330,7 +1330,7 @@ export const CARDS: Card[] = [
     ap: 1,
     keywords: ['collect'],
     signature: true,
-    text: 'Owns the arena, the Meat mint, the hot dogs and, contractually, you.',
+    text: 'The thing beneath Crown Market wears a merchant's face. Every pound of Meat belongs to it.',
     symbol: '♛',
   },
   {
@@ -1341,7 +1341,7 @@ export const CARDS: Card[] = [
     cost: 2,
     effect: 'zap',
     power: 2,
-    text: 'Send the butchers round: 2 damage to an enemy.',
+    text: 'The butcher-priests answer a summons: 2 damage to an enemy.',
     symbol: '⚡',
   },
   {
@@ -1353,7 +1353,7 @@ export const CARDS: Card[] = [
     effect: 'snare',
     power: 1,
     debt: 2,
-    text: 'Hidden trap: 1 damage, and the victim’s crew owes 2 mana.',
+    text: 'A sigil opens underfoot: 1 damage, and the victim's crew owes 2 mana.',
     symbol: '◇',
   },
   {
@@ -1363,7 +1363,7 @@ export const CARDS: Card[] = [
     team: 'exchange',
     cost: 2,
     effect: 'armor',
-    text: 'Binding in every jurisdiction. A fighter gains +1 armor for good.',
+    text: 'Stitched from a drowned saint's hide. A fighter gains +1 armor for good.',
     symbol: '⬟',
   },
   {
@@ -1375,7 +1375,7 @@ export const CARDS: Card[] = [
     effect: 'debt',
     power: 1,
     debt: 2,
-    text: 'Seize the furniture and the freezer: 1 damage to an enemy, and its crew owes 2 mana.',
+    text: 'The chapel takes its tithe: 1 damage to an enemy, and its crew owes 2 mana.',
     symbol: '⚖',
   },
   {
@@ -1386,7 +1386,7 @@ export const CARDS: Card[] = [
     cost: 2,
     effect: 'grant',
     grants: ['collect'],
-    text: 'A very firm grip with a very small print. A fighter gains COLLECT.',
+    text: 'The oath is sealed with a blackened palm. A fighter gains COLLECT.',
     symbol: '✋',
   },
   {
@@ -1397,7 +1397,7 @@ export const CARDS: Card[] = [
     cost: 1,
     effect: 'heal',
     power: 3,
-    text: 'Pay off the medic in steaks: restore 3 HP to a friendly fighter.',
+    text: 'The altar gives back what it swallowed: restore 3 HP to a friendly fighter.',
     symbol: '✚',
   },
   ...RESERVE_CARDS,

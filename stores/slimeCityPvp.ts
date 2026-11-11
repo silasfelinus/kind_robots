@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from './utils'
-import type { PvpSnapshot } from '~/utils/slimeCity/pvp'
+import type { PvpGameSummary, PvpSnapshot } from '~/utils/slimeCity/pvp'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 
 export type PvpInput =
@@ -11,6 +11,10 @@ export type PvpInput =
 
 export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const duel = ref<PvpSnapshot | null>(null)
+  /** The VS hub's list of this player's games against other players. */
+  const games = ref<PvpGameSummary[]>([])
+  const gamesLoaded = ref(false)
+  const gamesError = ref('')
   const loading = ref(false)
   const sending = ref(false)
   const error = ref('')
@@ -134,6 +138,25 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     }
   }
 
+  async function loadGames(): Promise<void> {
+    try {
+      const result = await performFetch<PvpGameSummary[]>(
+        '/api/slime-city/pvp',
+        {},
+        1,
+      )
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Cannot load your games.')
+      games.value = result.data
+      gamesError.value = ''
+    } catch (cause) {
+      gamesError.value =
+        cause instanceof Error ? cause.message : 'Cannot load your games.'
+    } finally {
+      gamesLoaded.value = true
+    }
+  }
+
   function watchDuel(id: string) {
     stopWatching()
     polling = setInterval(() => {
@@ -154,6 +177,10 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
 
   return {
     duel,
+    games,
+    gamesLoaded,
+    gamesError,
+    loadGames,
     loading,
     sending,
     error,

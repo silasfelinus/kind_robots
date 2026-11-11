@@ -10,6 +10,8 @@ import {
   PVP_INVITE_EXPIRY_MS,
   parsePvpRecord,
   pvpBoard,
+  pvpGameSummary,
+  sortPvpGames,
   pvpCommand,
   replayPvp,
   stepPvp,
@@ -127,6 +129,28 @@ export async function createSlimeCityDuel(userId: number, team: unknown) {
     },
   })
   return snapshot(row, parsePvpRecord(row.commands)!, userId)
+}
+
+/**
+ * The VS hub's game list: duels this player started or joined, waiting on
+ * them first. Expired invites and abandoned games drop out of the list.
+ */
+export async function listSlimeCityDuels(userId: number) {
+  const rows = await prisma.slimeCityMatch.findMany({
+    where: {
+      mode: PVP_MODE,
+      OR: [{ userId }, { commands: { path: '$.guestId', equals: userId } }],
+    },
+    orderBy: { startedAt: 'desc' },
+    take: 40,
+  })
+  return sortPvpGames(
+    rows.flatMap((row) => {
+      const record = parsePvpRecord(row.commands)
+      const game = record ? pvpGameSummary(row, record, userId) : null
+      return game && game.stage !== 'expired' ? [game] : []
+    }),
+  )
 }
 
 export async function getSlimeCityDuel(id: string, userId: number) {

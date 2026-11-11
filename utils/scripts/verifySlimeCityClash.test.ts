@@ -122,7 +122,10 @@ assert.equal(
 )
 assert.match(gamePage, /data-testid="slime-settings"/)
 assert.match(gamePage, /data-testid="slime-card-inspector"/)
-assert.match(gamePage, /data-testid="slime-clash-tab"/)
+// Silas, 2026-11-11 PT: "Practice is redundant ... change it entirely to Vs."
+assert.match(gamePage, /data-testid="slime-vs-tab"/)
+assert.doesNotMatch(gamePage, /data-testid="slime-clash-tab"|>\s*PRACTICE\s*</)
+assert.match(gamePage, /<SlimeCityVs v-else-if="lab\.view === 'vs'"/)
 assert.match(gamePage, /data-testid="slime-journey-tab"/)
 assert.doesNotMatch(
   gamePage,

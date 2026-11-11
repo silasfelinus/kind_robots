@@ -232,7 +232,7 @@ const modes = computed<
 >(() => [
   {
     id: 'clash',
-    title: 'Practice',
+    title: 'VS',
     icon: 'kind-icon:lightning',
     art: slimeArtId('boards', 'pitworks-blackout'),
   },
@@ -277,7 +277,7 @@ function enter(destination: Destination): void {
     if (destination === 'campaign') lab.showCampaign()
     else if (destination === 'tower') lab.showTower()
     else if (destination === 'collection') lab.showCards()
-    else lab.playClashFormat()
+    else lab.showVs()
   })
 }
 

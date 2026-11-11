@@ -21,12 +21,12 @@
             </button>
             <button
               type="button"
-              :class="{ active: activeMode === 'practice' }"
-              data-testid="slime-clash-tab"
-              title="Quick CLASH matches against the CPU, Solo or Alliance"
-              @click="lab.playClashFormat()"
+              :class="{ active: activeMode === 'vs' }"
+              data-testid="slime-vs-tab"
+              title="Fight the CPU, or start and track games against other players"
+              @click="lab.showVs()"
             >
-              PRACTICE
+              VS
             </button>
             <button
               type="button"
@@ -290,6 +290,7 @@
         </section>
 
         <SlimeCityCampaign v-else-if="lab.view === 'campaign'" />
+        <SlimeCityVs v-else-if="lab.view === 'vs'" />
         <SlimeCityTower v-else-if="lab.view === 'tower'" />
         <SlimeCityClash v-else-if="lab.view === 'clash'" />
 
@@ -752,10 +753,10 @@
               <span class="sc-overline">YOUR COLLECTION · BOUNTIES</span>
               <h2>THE PIT PAYS</h2>
               <p>
-                Signed-in PRACTICE matches pay XP and Meat: the server replays
-                every move before it pays, and those matches fill your daily and
-                weekly bounties. Spend Meat on packs for cards beyond your base
-                collection.
+                Signed-in fights against the CPU (VS, Journey and Tower) pay XP
+                and Meat: the server replays every move before it pays, and
+                those fights fill your daily and weekly bounties. Spend Meat on
+                packs for cards beyond your base collection.
               </p>
             </div>
             <div class="sc-progress-hud">
@@ -1092,7 +1093,7 @@ const activeMode = computed(() => {
     if (kind === 'campaign' || kind === 'rival' || kind === 'contract')
       return 'journey'
     if (kind === 'tower') return 'tower'
-    return 'practice'
+    return 'vs'
   }
   if (view === 'campaign' || view === 'city') return 'journey'
   if (view === 'tower') return 'tower'
@@ -1212,6 +1213,11 @@ const routeLabel = computed(() =>
   ].join(' › '),
 )
 onMounted(() => lab.hydrateProgression())
+/** The two-player board links back here with ?vs=1. */
+const route = useRoute()
+onMounted(() => {
+  if (route.query.vs) lab.showVs()
+})
 onUnmounted(() => {
   lab.dispose()
   art.clear()

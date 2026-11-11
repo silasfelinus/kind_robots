@@ -7,6 +7,8 @@ import {
   PVP_INVITE_EXPIRY_MS,
   parsePvpRecord,
   pvpBoard,
+  pvpGameSummary,
+  sortPvpGames,
   pvpCommand,
   replayPvp,
   stepPvp,
@@ -286,4 +288,63 @@ assert.doesNotMatch(
 
 console.log(
   'Slime City private PvP: invite, secrecy, turn, replay and route contracts OK',
+)
+
+// Silas, 2026-11-11 PT: VS "lets a user to manage games between other users
+// or cpu". Each player sees their own seat, whose turn it is and the result.
+{
+  const startedAt = new Date('2026-11-11T00:00:00.000Z')
+  const now = startedAt.getTime() + 60_000
+  const row = {
+    id: '00000000-0000-4000-8000-000000000001',
+    userId: 7,
+    teamId: 'catgirls',
+    foeId: 'riot',
+    seed: 99,
+    startedAt,
+    settledAt: null as Date | null,
+    result: null as string | null,
+  }
+  const open = { version: 1 as const, guestId: null, commands: [] }
+  const waiting = pvpGameSummary(row, open, 7, now)!
+  assert.equal(waiting.stage, 'waiting')
+  assert.equal(waiting.rivalTeam, null)
+  assert.equal(waiting.myTurn, false)
+  assert.equal(pvpGameSummary(row, open, 8, now), null, 'strangers see nothing')
+
+  const joined = { ...open, guestId: 8 }
+  const host = pvpGameSummary(row, joined, 7, now)!
+  const guest = pvpGameSummary(row, joined, 8, now)!
+  assert.equal(host.stage, 'battle')
+  assert.equal(host.myTurn, true, 'the host opens the duel')
+  assert.equal(guest.myTurn, false)
+  assert.equal(guest.myTeam, 'riot')
+  assert.equal(guest.rivalTeam, 'catgirls')
+  assert.deepEqual(host.bosses, { mine: 40, rival: 40 })
+
+  const done = { ...row, settledAt: new Date(now), result: 'enemy' }
+  assert.equal(pvpGameSummary(done, joined, 7, now)!.result, 'loss')
+  assert.equal(pvpGameSummary(done, joined, 8, now)!.result, 'win')
+  assert.equal(pvpGameSummary(done, joined, 8, now)!.stage, 'finished')
+
+  assert.equal(
+    pvpGameSummary(
+      row,
+      open,
+      7,
+      startedAt.getTime() + PVP_INVITE_EXPIRY_MS + 1,
+    )!.stage,
+    'expired',
+  )
+  const sorted = sortPvpGames([
+    pvpGameSummary(done, joined, 7, now)!,
+    waiting,
+    guest,
+    host,
+  ])
+  assert.equal(sorted[0], host, 'games waiting on you come first')
+  assert.equal(sorted.at(-1)!.stage, 'finished')
+}
+console.log(
+  'Slime City VS game list: seats, turns, results, expiry and order PASS',
 )

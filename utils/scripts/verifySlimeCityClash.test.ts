@@ -96,8 +96,7 @@ const splash = readFileSync('components/slime-city-splash.vue', 'utf8')
 for (const testid of [
   'slime-splash-crews',
   'slime-splash-battle',
-  'slime-splash-city',
-  'slime-splash-story',
+  'slime-splash-journey',
 ]) {
   assert.match(splash, new RegExp('data-testid="' + testid + '"'))
 }
@@ -121,6 +120,11 @@ assert.equal(
 assert.match(gamePage, /data-testid="slime-settings"/)
 assert.match(gamePage, /data-testid="slime-card-inspector"/)
 assert.match(gamePage, /data-testid="slime-clash-tab"/)
+assert.match(gamePage, /data-testid="slime-journey-tab"/)
+assert.doesNotMatch(
+  gamePage,
+  /data-testid="slime-campaign-tab"|data-testid="slime-city-tab"/,
+)
 // Silas, 2026-11-08 PT: "we don't need the legacy modes, period."
 assert.doesNotMatch(gamePage, /slime-legacy-toggle/)
 assert.doesNotMatch(gamePage, /<SlimeCityArena|<SlimeCityAlleys/)

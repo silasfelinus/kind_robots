@@ -553,9 +553,9 @@ const kindLabel = computed(
     ({
       practice: 'PRACTICE',
       reward: 'REWARD MATCH',
-      rival: 'CAMPAIGN BOUT',
-      contract: 'CAMPAIGN CONTRACT',
-      campaign: 'SOLO STORY BOUT',
+      rival: 'JOURNEY BOUT',
+      contract: 'JOURNEY CONTRACT',
+      campaign: 'JOURNEY CHAPTER BOUT',
       tower: 'TOWER FIGHT',
     })[lab.clashLaunch.kind] +
     ' · ' +
@@ -565,9 +565,9 @@ const kindLabel = computed(
 const backTarget = computed(() => {
   if (!game.value.victor || !lab.clashResult) return ''
   const kind = lab.clashResult.kind
-  if (kind === 'campaign') return 'BACK TO SOLO STORY ›'
+  if (kind === 'campaign') return 'BACK TO JOURNEY ›'
   if (kind === 'tower') return 'BACK TO TOWER ›'
-  if (kind === 'rival' || kind === 'contract') return 'BACK TO CAMPAIGN ›'
+  if (kind === 'rival' || kind === 'contract') return 'BACK TO JOURNEY MAP ›'
   return ''
 })
 function goBack(): void {

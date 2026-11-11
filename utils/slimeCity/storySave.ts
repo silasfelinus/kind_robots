@@ -34,8 +34,13 @@ export interface SlimeCityStory {
   revision: number
   city: CityState
   campaigns: CampaignSave
-  /** Solo narrative and Alliance roguelike have independent saves. */
+  /** The city, its crew chapters, and the deck format share one journey. */
   tower?: TowerSave
+  /** Last journey seat and deck, restored without resetting chapter choices. */
+  journeyTeam?: TeamId
+  journeyFormat?: 'solo' | 'alliance'
+  journeyDeckId?: string | null
+  journeyScreen?: 'chapter' | 'aftermath'
   /** Saved practice decks; omitted for older saves. */
   decks?: Partial<Record<TeamId, string[]>>
   /**
@@ -172,6 +177,29 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
   )
     return false
   if (raw.storyParity !== undefined && typeof raw.storyParity !== 'boolean')
+    return false
+  if (
+    raw.journeyTeam !== undefined &&
+    !teams.includes(raw.journeyTeam as TeamId)
+  )
+    return false
+  if (
+    raw.journeyFormat !== undefined &&
+    raw.journeyFormat !== 'solo' &&
+    raw.journeyFormat !== 'alliance'
+  )
+    return false
+  if (
+    raw.journeyDeckId !== undefined &&
+    raw.journeyDeckId !== null &&
+    (!text(raw.journeyDeckId, 80) || !raw.journeyDeckId)
+  )
+    return false
+  if (
+    raw.journeyScreen !== undefined &&
+    raw.journeyScreen !== 'chapter' &&
+    raw.journeyScreen !== 'aftermath'
+  )
     return false
   if (raw.tower !== undefined && !validTowerSave(raw.tower)) return false
   if (raw.decks !== undefined) {

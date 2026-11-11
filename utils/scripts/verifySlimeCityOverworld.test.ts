@@ -1274,15 +1274,14 @@ lab.choose('chimera-serum')
 lab.fightRival()
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'rival')
-assert.equal(lab.clashLaunch.format, lab.clashFormat, 'City: your deck')
-// Silas, 2026-11-10 PT: Alliance is the default deck outside the SOLO story.
-assert.equal(lab.clashLaunch.format, 'alliance', 'default pick is Alliance')
+assert.equal(lab.clashLaunch.format, lab.journeyFormat, 'City: journey deck')
+assert.equal(lab.clashLaunch.format, 'solo', 'a new journey starts Solo')
 assert.equal(lab.clashLaunch.enemy, 'catgirls', 'Mirror rival bout')
 assert.equal(lab.bout, 'chimera')
-assert.equal(lab.storyBoutLabel('blackout'), 'ALLIANCE CLASH')
-lab.clashFormat = 'solo'
 assert.equal(lab.storyBoutLabel('blackout'), 'SOLO CLASH')
-lab.clashFormat = 'alliance'
+lab.setJourneyFormat('alliance')
+assert.equal(lab.storyBoutLabel('blackout'), 'ALLIANCE CLASH')
+lab.setJourneyFormat('solo')
 assert.deepEqual(
   lab.clashLaunch.bosses,
   clashBossesFromTerms(boutTerms(lab.city, 'chimera')),
@@ -1320,8 +1319,8 @@ assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'contract', 'Contracts are city bouts')
 assert.equal(
   lab.clashLaunch.format,
-  lab.clashFormat,
-  'Contracts deal your deck',
+  lab.journeyFormat,
+  'Contracts deal the same Journey deck',
 )
 assert.equal(lab.contractBout, 'chimera')
 assert.equal(lab.clashLaunch.enemy, 'catgirls')

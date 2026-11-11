@@ -8,11 +8,11 @@
 
 The same CI execution already ran two much broader benchmarks:
 
-| Existing benchmark | Results |
-| --- | --- |
+| Existing benchmark                                                 | Results                                                                                                                                                                                                                  |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Constructed Alliance, `verifySlimeCityAllianceConstructed.test.ts` | **1,140** games including 60 general-swap controls, 48.7% first-seat wins excluding draws, 4.6% draws. General win rates: Catgirls 53.2%, Bloodfairies 41.5%, Ironjaw 56.3%, Riot 47.4%, Undertow 44.8%, Exchange 57.2%. |
-| Standard deck/evolution matchup sweep | **1,080** games, 50.5% first-seat wins excluding draws, 0.0% draws. |
-| Small Alliance general sweep, `sweepAlliance(5, 24001)` | **150** games, 54.7% first-seat wins. General win rates: Catgirls 50%, Bloodfairies 56%, Ironjaw 42%, Riot 62%, Undertow 54%, Exchange 36%. |
+| Standard deck/evolution matchup sweep                              | **1,080** games, 50.5% first-seat wins excluding draws, 0.0% draws.                                                                                                                                                      |
+| Small Alliance general sweep, `sweepAlliance(5, 24001)`            | **150** games, 54.7% first-seat wins. General win rates: Catgirls 50%, Bloodfairies 56%, Ironjaw 42%, Riot 62%, Undertow 54%, Exchange 36%.                                                                              |
 
 The different standings between 1,140 constructed matches and the 150-game starter sweep show why deck recipes and seed/opponent selection must be held constant before adjusting faction power. The constructed benchmark's specials-only plan also produced 43.3% draws at the 24-round limit; that is a separate deck-construction issue, not proof about Alliance story bonuses.
 
@@ -34,4 +34,4 @@ That gives **600 paired setups / 1,800 real CPU-versus-CPU Clashes**, with exact
 
 CI evidence source: the completed Slime City contract shard of PR #4972 (2026-11-10 PT), which printed the 1,140-game constructed results and the original 36-game smoke outcomes. The new PR's contract log will contain the expanded matched-result table, so later contributors can compare like with like.
 
-If the protected and gambled variants rarely change outcomes, improve their *mechanical distinctiveness* with replay-verifiable Clash abilities, not blanket HP changes. If a faction underperforms with multiple deck recipes and both seats, investigate the faction's core mechanics and AI card choices. Human fun and accessibility testing are still required before subjective acceptance.
+If the protected and gambled variants rarely change outcomes, improve their _mechanical distinctiveness_ with replay-verifiable Clash abilities, not blanket HP changes. If a faction underperforms with multiple deck recipes and both seats, investigate the faction's core mechanics and AI card choices. Human fun and accessibility testing are still required before subjective acceptance.

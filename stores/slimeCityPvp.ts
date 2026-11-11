@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from './utils'
+import { useFriendStore } from './friendStore'
 import type { PvpGameSummary, PvpSnapshot } from '~/utils/slimeCity/pvp'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 
@@ -9,12 +10,31 @@ export type PvpInput =
   | { t: 'power'; lane: number; team?: TeamId }
   | { t: 'pass' | 'strike' | 'end' }
 
+/** A player the VS hub can challenge or invite. */
+export interface PvpPlayer {
+  id: number
+  username: string
+  designerName?: string | null
+  avatarImage?: string | null
+  allowFriendRequests?: boolean
+}
+
 export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const duel = ref<PvpSnapshot | null>(null)
   /** The VS hub's list of this player's games against other players. */
   const games = ref<PvpGameSummary[]>([])
   const gamesLoaded = ref(false)
   const gamesError = ref('')
+  /**
+   * Silas, 2026-11-11 PT: "You should be able to challenge players on your
+   * friends list. And they should get notified. That should be the assumed
+   * method, with help to invite friend via email or username."
+   */
+  const friends = ref<PvpPlayer[]>([])
+  const friendsLoaded = ref(false)
+  const players = ref<PvpPlayer[]>([])
+  const searching = ref(false)
+  const searchMessage = ref('')
   const loading = ref(false)
   const sending = ref(false)
   const error = ref('')
@@ -61,13 +81,16 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     }
   }
 
-  async function start(team: TeamId): Promise<PvpSnapshot | null> {
+  async function start(
+    team: TeamId,
+    friendId?: number,
+  ): Promise<PvpSnapshot | null> {
     sending.value = true
     error.value = ''
     try {
       const data = await request('/api/slime-city/pvp', {
         method: 'POST',
-        body: JSON.stringify({ team }),
+        body: JSON.stringify(friendId ? { team, friendId } : { team }),
       })
       duel.value = data
       return data
@@ -161,6 +184,62 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     }
   }
 
+  async function loadFriends(): Promise<void> {
+    try {
+      const result = await performFetch<PvpPlayer[]>(
+        '/api/slime-city/pvp/friends',
+        {},
+        1,
+      )
+      if (result.success && Array.isArray(result.data))
+        friends.value = result.data
+    } finally {
+      friendsLoaded.value = true
+    }
+  }
+
+  /** Search the opt-in player directory by username. */
+  async function findPlayers(query: string): Promise<void> {
+    const text = query.trim().replace(/^@/, '')
+    players.value = []
+    searchMessage.value = ''
+    if (text.length < 2) {
+      searchMessage.value = 'Type at least two letters of a username.'
+      return
+    }
+    searching.value = true
+    try {
+      const result = await performFetch<PvpPlayer[]>(
+        '/api/users/directory?search=' + encodeURIComponent(text),
+        {},
+        1,
+      )
+      const known = new Set(friends.value.map((friend) => friend.id))
+      players.value = (
+        result.success && Array.isArray(result.data) ? result.data : []
+      )
+        .filter((player) => !known.has(player.id))
+        .slice(0, 6)
+      if (!players.value.length)
+        searchMessage.value =
+          'No listed player by that name. Invite them by email instead.'
+    } catch {
+      searchMessage.value = 'Player search is unavailable right now.'
+    } finally {
+      searching.value = false
+    }
+  }
+
+  /** Send a friend request; once accepted, they appear on the friends list. */
+  async function addFriend(userId: number): Promise<boolean> {
+    const relations = useFriendStore()
+    await relations.load()
+    await relations.sendFriendRequest(userId)
+    const state = relations.relationship(userId)
+    if (state === 'friend') await loadFriends()
+    return state === 'friend' || state === 'outgoing'
+  }
+
   function watchDuel(id: string) {
     stopWatching()
     polling = setInterval(() => {
@@ -185,6 +264,14 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     gamesLoaded,
     gamesError,
     loadGames,
+    friends,
+    friendsLoaded,
+    loadFriends,
+    players,
+    searching,
+    searchMessage,
+    findPlayers,
+    addFriend,
     loading,
     sending,
     error,

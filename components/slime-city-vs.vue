@@ -3,6 +3,10 @@
   change it entirely to Vs which lets a user to manage games between other
   users or cpu." One screen: fight the CPU now, or start, join and keep track
   of games against other players. A player game opens on the two-player board.
+  Silas, 2026-11-11 PT: "You should be able to challenge players on your
+  friends list. And they should get notified. That should be the assumed
+  method, with help to invite friend via email or username." Friends first,
+  then a username / email invite box; share links are the fallback.
 -->
 <template>
   <section
@@ -76,34 +80,105 @@
 
       <article class="vs-card vs-players" data-testid="slime-vs-players">
         <h3><span aria-hidden="true">⚔</span> VS PLAYERS</h3>
-        <div class="vs-player-actions">
+        <section
+          class="vs-friends"
+          aria-label="Challenge a friend"
+          data-testid="slime-vs-friends"
+        >
+          <span class="vs-label">CHALLENGE A FRIEND</span>
+          <ul v-if="pvp.friends.length" class="vs-friend-row">
+            <li v-for="friend in pvp.friends" :key="friend.id">
+              <button
+                type="button"
+                class="vs-friend"
+                :disabled="pvp.sending"
+                :title="'Challenge ' + friend.username"
+                :data-testid="'slime-vs-friend-' + friend.id"
+                @click="challengeFriend(friend.id)"
+              >
+                <span class="vs-avatar" aria-hidden="true">
+                  <img
+                    v-if="avatarOf(friend)"
+                    :src="avatarOf(friend)"
+                    alt=""
+                    loading="lazy"
+                  />
+                  <template v-else>{{ initialOf(friend.username) }}</template>
+                </span>
+                <b>{{ friend.username }}</b>
+                <small>{{
+                  pvp.sending && challenging === friend.id
+                    ? 'SENDING…'
+                    : 'CHALLENGE ›'
+                }}</small>
+              </button>
+            </li>
+          </ul>
+          <p v-else-if="pvp.friendsLoaded" class="vs-hint">
+            No friends yet. Find a player by username, or invite one by email.
+          </p>
+        </section>
+        <form
+          class="vs-join vs-find"
+          data-testid="slime-vs-find"
+          @submit.prevent="findOrInvite"
+        >
+          <input
+            v-model="lookup"
+            type="text"
+            autocomplete="off"
+            autocapitalize="off"
+            placeholder="Username or email"
+            aria-label="Find a player by username, or invite by email"
+            data-testid="slime-vs-lookup"
+          />
           <button
-            type="button"
-            class="vs-go"
-            data-testid="slime-vs-challenge"
-            :disabled="pvp.sending"
-            @click="challenge"
+            type="submit"
+            :disabled="!lookup.trim() || pvp.searching"
+            data-testid="slime-vs-lookup-go"
           >
-            {{ pvp.sending ? 'OPENING…' : 'NEW CHALLENGE ›' }}
+            {{ isEmail ? 'EMAIL INVITE' : pvp.searching ? '…' : 'FIND' }}
           </button>
-          <form class="vs-join" @submit.prevent="joinInvite">
-            <input
-              v-model="invite"
-              type="text"
-              inputmode="url"
-              placeholder="Paste an invite link"
-              aria-label="Invite link or code"
-              data-testid="slime-vs-invite"
-            />
+        </form>
+        <ul
+          v-if="pvp.players.length || pvp.searchMessage || mailNote"
+          class="vs-found"
+          aria-live="polite"
+        >
+          <li v-for="player in pvp.players" :key="player.id">
+            <span class="vs-avatar" aria-hidden="true">
+              <img
+                v-if="avatarOf(player)"
+                :src="avatarOf(player)"
+                alt=""
+                loading="lazy"
+              />
+              <template v-else>{{ initialOf(player.username) }}</template>
+            </span>
+            <b>{{ player.username }}</b>
             <button
-              type="submit"
-              :disabled="!inviteId"
-              data-testid="slime-vs-join"
+              type="button"
+              :disabled="
+                requested.includes(player.id) ||
+                player.allowFriendRequests === false
+              "
+              :data-testid="'slime-vs-add-' + player.id"
+              @click="addFriend(player.id)"
             >
-              JOIN
+              {{
+                requested.includes(player.id)
+                  ? 'REQUEST SENT'
+                  : player.allowFriendRequests === false
+                    ? 'NOT ACCEPTING'
+                    : 'ADD FRIEND'
+              }}
             </button>
-          </form>
-        </div>
+          </li>
+          <li v-if="pvp.searchMessage" class="vs-hint">
+            {{ pvp.searchMessage }}
+          </li>
+          <li v-if="mailNote" class="vs-hint">{{ mailNote }}</li>
+        </ul>
         <p v-if="pvp.error || pvp.gamesError" class="vs-error" role="alert">
           {{ pvp.error || pvp.gamesError }}
         </p>
@@ -111,7 +186,10 @@
           <li
             v-for="game in pvp.games"
             :key="game.id"
-            :class="['is-' + game.stage, { 'my-turn': game.myTurn }]"
+            :class="[
+              'is-' + game.stage,
+              { 'my-turn': game.myTurn || game.incoming },
+            ]"
             :data-testid="'slime-vs-game-' + game.id"
           >
             <button type="button" @click="open(game.id)">
@@ -125,11 +203,16 @@
               />
               <span class="vs-game-text">
                 <b>{{ statusOf(game) }}</b>
-                <small>
+                <small v-if="game.incoming && game.rivalTeam">
+                  They bring {{ teamName(game.rivalTeam) }} · tap to pick your
+                  crew
+                </small>
+                <small v-else>
                   {{ teamName(game.myTeam) }} vs
                   {{
                     game.rivalTeam ? teamName(game.rivalTeam) : 'an open seat'
                   }}
+                  {{ game.rivalName ? '· ' + game.rivalName : '' }}
                 </small>
               </span>
               <span v-if="game.bosses" class="vs-game-life">
@@ -138,9 +221,40 @@
             </button>
           </li>
           <li v-if="pvp.gamesLoaded && !pvp.games.length" class="vs-empty">
-            No games yet. Start a challenge and send the link to a friend.
+            No games yet. Challenge a friend above.
           </li>
         </ol>
+        <details class="vs-link-play">
+          <summary>Play by invite link instead</summary>
+          <div class="vs-player-actions">
+            <button
+              type="button"
+              class="vs-go"
+              data-testid="slime-vs-challenge"
+              :disabled="pvp.sending"
+              @click="challenge"
+            >
+              {{ pvp.sending ? 'OPENING…' : 'NEW LINK CHALLENGE ›' }}
+            </button>
+            <form class="vs-join" @submit.prevent="joinInvite">
+              <input
+                v-model="invite"
+                type="text"
+                inputmode="url"
+                placeholder="Paste an invite link"
+                aria-label="Invite link or code"
+                data-testid="slime-vs-invite"
+              />
+              <button
+                type="submit"
+                :disabled="!inviteId"
+                data-testid="slime-vs-join"
+              >
+                JOIN
+              </button>
+            </form>
+          </div>
+        </details>
       </article>
     </div>
   </section>
@@ -152,11 +266,16 @@ import { useSlimeCityStore } from '~/stores/slimeCity'
 import { useSlimeCityPvpStore } from '~/stores/slimeCityPvp'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import type { PvpGameSummary } from '~/utils/slimeCity/pvp'
+import type { PvpPlayer } from '~/stores/slimeCityPvp'
 import { TEAMS, type TeamId } from '~/utils/slimeCity/prototypes'
 
 const lab = useSlimeCityStore()
 const pvp = useSlimeCityPvpStore()
 const invite = ref('')
+const lookup = ref('')
+const mailNote = ref('')
+const challenging = ref<number | null>(null)
+const requested = ref<number[]>([])
 
 const readyDecks = computed(() =>
   lab.library.filter(
@@ -171,7 +290,10 @@ function teamName(id: TeamId): string {
   return TEAMS.find((team) => team.id === id)?.name ?? id
 }
 function statusOf(game: PvpGameSummary): string {
-  if (game.stage === 'waiting') return 'WAITING FOR A RIVAL'
+  const rival = game.rivalName?.toUpperCase() ?? ''
+  if (game.incoming) return (rival || 'A FRIEND') + ' CHALLENGED YOU'
+  if (game.stage === 'waiting')
+    return rival ? 'WAITING FOR ' + rival : 'WAITING FOR A RIVAL'
   if (game.stage === 'finished')
     return game.result === 'win'
       ? 'YOU WON'
@@ -200,9 +322,57 @@ async function challenge(): Promise<void> {
   const duel = await pvp.start(lab.activeTeam)
   if (duel) open(duel.id)
 }
+/** Challenge a friend: they get a notification that opens the duel. */
+async function challengeFriend(friendId: number): Promise<void> {
+  challenging.value = friendId
+  const duel = await pvp.start(lab.activeTeam, friendId)
+  challenging.value = null
+  if (duel) open(duel.id)
+}
+function initialOf(name: string): string {
+  return (name.trim()[0] ?? '?').toUpperCase()
+}
+/** Only real image paths; anything else falls back to the initial. */
+function avatarOf(player: PvpPlayer): string {
+  const src = player.avatarImage ?? ''
+  return /^(https:\/\/|\/)/.test(src) ? src : ''
+}
+const isEmail = computed(() =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lookup.value.trim()),
+)
+/**
+ * No mail service here: an email invite opens the player's own mail app with
+ * a written invitation. A username searches the opt-in player directory.
+ */
+async function findOrInvite(): Promise<void> {
+  mailNote.value = ''
+  if (isEmail.value) {
+    const link = location.origin + '/play/slime-city'
+    const subject = 'Fight me in Slime City'
+    const body =
+      'I challenge you to a Slime City duel. Make a Kind Robots account, ' +
+      'add me as a friend, and pick a crew:\n\n' +
+      link
+    location.href =
+      'mailto:' +
+      encodeURIComponent(lookup.value.trim()) +
+      '?subject=' +
+      encodeURIComponent(subject) +
+      '&body=' +
+      encodeURIComponent(body)
+    mailNote.value =
+      'Your mail app has the invite. Once they join and accept your friend request, challenge them here.'
+    return
+  }
+  await pvp.findPlayers(lookup.value)
+}
+async function addFriend(userId: number): Promise<void> {
+  if (await pvp.addFriend(userId)) requested.value.push(userId)
+}
 onMounted(() => {
   pvp.error = ''
   void pvp.loadGames()
+  void pvp.loadFriends()
 })
 </script>
 
@@ -363,6 +533,141 @@ onMounted(() => {
 }
 .vs-join button {
   flex: none;
+}
+.vs-label {
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #a6c7bc;
+}
+.vs-friends {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.vs-friend-row {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0 0 0.2rem;
+  list-style: none;
+  overflow-x: auto;
+}
+.vs-friend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 5.4rem;
+  padding: 0.45rem 0.3rem;
+  border: 1px solid #c5ff5977;
+  border-radius: 0.7rem;
+  background: #16262b;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.vs-friend:hover {
+  border-color: #c5ff59;
+  box-shadow: 0 0 12px #c5ff5944;
+}
+.vs-friend b {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+.vs-friend small {
+  font-size: 0.55rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  color: #c5ff59;
+}
+.vs-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6fb5, #6fd3ff);
+  color: #0a0f16;
+  font-size: 1rem;
+  font-weight: 1000;
+}
+.vs-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.vs-hint {
+  margin: 0;
+  font-size: 0.7rem;
+  color: #a6c7bc;
+}
+.vs-find {
+  flex: none;
+}
+.vs-found {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.vs-found li:not(.vs-hint) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.vs-found li .vs-avatar {
+  width: 1.8rem;
+  height: 1.8rem;
+  font-size: 0.8rem;
+}
+.vs-found b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+}
+.vs-found button {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid #c5ff59;
+  border-radius: 0.5rem;
+  background: #24383b;
+  color: #c5ff59;
+  font: inherit;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.vs-found button:disabled {
+  border-color: #586e68;
+  color: #a6c7bc;
+  cursor: default;
+}
+.vs-link-play {
+  flex: none;
+  font-size: 0.7rem;
+  color: #a6c7bc;
+}
+.vs-link-play summary {
+  cursor: pointer;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+}
+.vs-link-play .vs-player-actions {
+  margin-top: 0.4rem;
 }
 .vs-error {
   margin: 0;

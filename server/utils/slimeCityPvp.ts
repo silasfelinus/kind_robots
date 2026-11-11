@@ -2,6 +2,7 @@ import { randomInt } from 'node:crypto'
 import { createError } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
+import { createNotification } from '~/server/utils/notify'
 import {
   PVP_MAX_COMMANDS,
   PVP_MODE,
@@ -66,8 +67,19 @@ function seatFor(row: Row, record: PvpRecord, userId: number): Side {
   return fail(404, 'Duel not found.')
 }
 
+/** The challenged friend may look at a waiting duel before answering it. */
+function isInvitee(row: Row, record: PvpRecord, userId: number): boolean {
+  return (
+    record.guestId === null &&
+    record.invitedId === userId &&
+    row.userId !== userId
+  )
+}
+
 function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
-  const seat = seatFor(row, record, userId)
+  const seat: Side = isInvitee(row, record, userId)
+    ? 'enemy'
+    : seatFor(row, record, userId)
   const joined = record.guestId !== null
   const state = joined
     ? replayPvp(
@@ -87,6 +99,7 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
       : row.settledAt || state?.victor
         ? 'finished'
         : 'battle',
+    challenge: !!record.invitedId,
     board: state ? pvpBoard(state, seat) : null,
     revision: record.commands.length,
     outcome: row.settledAt
@@ -101,8 +114,30 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
  * production economy changes. Only the inviter and the first authenticated
  * invitee can see or mutate the transcript.
  */
-export async function createSlimeCityDuel(userId: number, team: unknown) {
+export async function createSlimeCityDuel(
+  userId: number,
+  team: unknown,
+  friendId?: unknown,
+) {
   if (!isPvpTeam(team)) return fail(400, 'Choose a Slime City crew.')
+  let invitedId: number | null = null
+  if (friendId !== undefined && friendId !== null) {
+    if (!Number.isSafeInteger(friendId) || Number(friendId) <= 0)
+      return fail(400, 'Choose a friend to challenge.')
+    if (friendId === userId) return fail(400, 'You cannot challenge yourself.')
+    const friendship = await prisma.userRelation.findFirst({
+      where: {
+        userId,
+        relatedUserId: Number(friendId),
+        type: 'FRIEND',
+        status: 'ACCEPTED',
+      },
+      select: { id: true },
+    })
+    if (!friendship)
+      return fail(403, 'You can only challenge players on your friends list.')
+    invitedId = Number(friendId)
+  }
   const recent = await prisma.slimeCityMatch.count({
     where: {
       userId,
@@ -123,11 +158,26 @@ export async function createSlimeCityDuel(userId: number, team: unknown) {
       commands: asJson({
         version: 1,
         guestId: null,
+        ...(invitedId ? { invitedId } : {}),
         lastActionAt: new Date().toISOString(),
         commands: [],
       } satisfies PvpRecord),
     },
   })
+  if (invitedId) {
+    const host = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    })
+    await createNotification({
+      userId: invitedId,
+      type: 'SYSTEM',
+      title: `${host?.username ?? 'A friend'} challenged you to Slime City`,
+      body: 'Pick a crew and answer the challenge.',
+      linkPath: '/play/slime-city-pvp?duel=' + row.id,
+      actorId: userId,
+    })
+  }
   return snapshot(row, parsePvpRecord(row.commands)!, userId)
 }
 
@@ -139,18 +189,57 @@ export async function listSlimeCityDuels(userId: number) {
   const rows = await prisma.slimeCityMatch.findMany({
     where: {
       mode: PVP_MODE,
-      OR: [{ userId }, { commands: { path: '$.guestId', equals: userId } }],
+      OR: [
+        { userId },
+        { commands: { path: '$.guestId', equals: userId } },
+        { commands: { path: '$.invitedId', equals: userId } },
+      ],
     },
     orderBy: { startedAt: 'desc' },
     take: 40,
   })
+  const games = rows.flatMap((row) => {
+    const record = parsePvpRecord(row.commands)
+    const game = record ? pvpGameSummary(row, record, userId) : null
+    return game && game.stage !== 'expired' ? [game] : []
+  })
+  const rivalIds = [
+    ...new Set(games.flatMap((game) => (game.rivalId ? [game.rivalId] : []))),
+  ]
+  const rivals = rivalIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: rivalIds } },
+        select: { id: true, username: true },
+      })
+    : []
+  const names = new Map(rivals.map((user) => [user.id, user.username]))
   return sortPvpGames(
-    rows.flatMap((row) => {
-      const record = parsePvpRecord(row.commands)
-      const game = record ? pvpGameSummary(row, record, userId) : null
-      return game && game.stage !== 'expired' ? [game] : []
-    }),
+    games.map((game) => ({
+      ...game,
+      rivalName: game.rivalId ? (names.get(game.rivalId) ?? null) : null,
+    })),
   )
+}
+
+/** Accepted friends, the first people a player can challenge. */
+export async function listSlimeCityFriends(userId: number) {
+  const relations = await prisma.userRelation.findMany({
+    where: { userId, type: 'FRIEND', status: 'ACCEPTED' },
+    select: {
+      RelatedUser: {
+        select: {
+          id: true,
+          username: true,
+          designerName: true,
+          avatarImage: true,
+        },
+      },
+    },
+    take: 100,
+  })
+  return relations
+    .map((relation) => relation.RelatedUser)
+    .sort((a, b) => a.username.localeCompare(b.username))
 }
 
 export async function getSlimeCityDuel(id: string, userId: number) {
@@ -177,6 +266,8 @@ export async function joinSlimeCityDuel(
     )
     if (row.userId === userId)
       return fail(403, 'You cannot fight yourself. Invite another account.')
+    if (record.invitedId && record.invitedId !== userId)
+      return fail(403, 'This challenge was sent to another player.')
     if (record.guestId !== null && record.guestId !== userId)
       return fail(409, 'This duel already has two fighters.')
     if (record.guestId === userId) return snapshot(row, record, userId)

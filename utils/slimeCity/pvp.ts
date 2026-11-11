@@ -32,6 +32,7 @@ export interface PvpRecord {
   version: 1
   guestId: number | null
   lastActionAt?: string
+  forfeitedBy?: Side
   commands: ClashCommand[]
 }
 
@@ -69,6 +70,8 @@ export interface PvpSnapshot {
   stage: 'waiting' | 'battle' | 'finished'
   board: PvpBoard | null
   revision: number
+  outcome: Side | null
+  forfeitedBy: Side | null
 }
 
 export function isPvpTeam(value: unknown): value is TeamId {
@@ -85,6 +88,9 @@ export function parsePvpRecord(value: unknown): PvpRecord | null {
     (data.lastActionAt !== undefined &&
       (typeof data.lastActionAt !== 'string' ||
         !Number.isFinite(Date.parse(data.lastActionAt)))) ||
+    (data.forfeitedBy !== undefined &&
+      data.forfeitedBy !== 'player' &&
+      data.forfeitedBy !== 'enemy') ||
     !Array.isArray(data.commands) ||
     data.commands.length > PVP_MAX_COMMANDS
   )

@@ -154,7 +154,7 @@ for (const id of CHOICE) {
   const [a, b] = clashEvolutionChoice(id, 3)!
   assert.notEqual(a.title, b.title)
   assert.equal(clashEvolutionChoice(id, 2), undefined, 'only at level three')
-  assert.match(clashCardText(cardById(id), 3), /Choose one/)
+  assert.match(clashCardText(cardById(id), 3), /Choose:/)
 }
 
 // --- helpers

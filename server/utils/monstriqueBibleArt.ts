@@ -24,6 +24,13 @@ const STYLE_TAGS =
 const STYLE_PROSE =
   'Gritty 1970s rotoscoped adult-animation pin-up illustration in an underground-comix style: heavy black ink outlines, grainy hand-painted cels over a painted watercolor backdrop, a pulpy B-movie monster-misfit attitude and a muted psychedelic palette.'
 const PINUP_NEGATIVE = [
+  '(nude:1.5)',
+  '(nipples:1.6)',
+  '(areola:1.6)',
+  '(exposed breasts:1.6)',
+  '(topless:1.5)',
+  '(see-through towel:1.4)',
+  '(gigantic breasts:1.3)',
   'nude',
   'naked',
   'nipples',

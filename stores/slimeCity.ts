@@ -249,6 +249,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
   const view = ref<
     | 'home'
+    | 'vs'
     | 'settings'
     | 'city'
     | 'arena'

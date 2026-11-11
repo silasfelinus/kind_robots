@@ -318,6 +318,7 @@ function fanStyle(index: number): Record<string, string> {
   return {
     '--i': String(index),
     '--o': offset.toFixed(2),
+    '--n1': String(Math.max(1, n - 1)),
     '--rot': (offset * 7).toFixed(2) + 'deg',
     '--drop': (Math.abs(offset) ** 2 * 0.22).toFixed(3) + 'rem',
   }
@@ -456,7 +457,13 @@ function tap(index: number): void {
 .cxh-card {
   --dx: 0px;
   --dy: 0px;
-  --x: calc(var(--o) * var(--W) * var(--rest) * 0.74);
+  --x: calc(
+    var(--o) *
+      min(
+        var(--W) * var(--rest) * 0.74,
+        (100cqw - var(--W) * var(--rest) - 2rem) / var(--n1, 1)
+      )
+  );
   --y: calc(var(--W) * 1.5 * var(--rest) * (1 - var(--peek)) + var(--drop));
   --s: var(--rest);
   --r: var(--rot);
@@ -830,6 +837,45 @@ function tap(index: number): void {
   .cxh-card {
     --rest: 0.4;
     --peek: 0.72;
+  }
+}
+/*
+  Silas, 2026-11-11 PT, on an iPhone: "Those cards are tiny, this is
+  unreadable ... the cards should start at the very screen bottom." On narrow
+  or tall screens the hand spans the whole Clash layout and rests in its own
+  bottom row at readable size; between turns it stays in view, dimmed.
+*/
+@container clash (max-width: 46rem) or (max-aspect-ratio: 1 / 1) {
+  .cxh {
+    --W: min(15rem, 44cqw, 42cqh);
+  }
+  .cxh-card {
+    --rest: 0.62;
+    --peek: 0.74;
+  }
+  .cxh:not(.open) .cxh-card {
+    --x: calc(
+      var(--o) *
+        min(
+          var(--W) * var(--rest) * 0.74,
+          (100cqw - var(--W) * var(--rest) - 2rem) / var(--n1, 1)
+        )
+    );
+    --y: calc(var(--W) * 1.5 * var(--rest) * (1 - var(--peek)) + var(--drop));
+    --s: var(--rest);
+    --r: var(--rot);
+    opacity: 0.55;
+  }
+  .cxh-card.big {
+    --s: 0.8;
+  }
+  .cxh-levels:not(.docked) {
+    top: 0.3rem;
+    bottom: auto;
+  }
+  .cxh-levels button {
+    min-width: 2.9rem;
+    padding: 0.2rem 0.45rem;
   }
 }
 @media (max-width: 700px) {

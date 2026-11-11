@@ -29,6 +29,7 @@ import {
 import { nemesisMove } from './voyageMap'
 import { planetReprise } from './planetReprises'
 import { PLOT_TABLE_LINES, transitLine } from './transitLines'
+import { CONSTELLATION_CODAS, SETBACK_LINES, freshLine } from './freshLines'
 
 export type EpisodeDeck =
   'planet' | 'casino' | 'serendipity' | 'constellation' | 'nemesis'
@@ -348,43 +349,27 @@ export function episodeChoiceStakes(
         : 'trust unchanged, operator standing +1, supplies +1'
   return `SUCCESS: ${success}. SETBACK: trust -1${venue ? venueExpense : ''}.`
 }
-/** A failed field objective cannot be described as successful consent or a settled claim. */
-const PLOT_SETBACKS: Record<EpisodeDeck, Record<EpisodeChoice, string>> = {
-  planet: {
-    ask: 'The municipal council adjourns before hearing the residents. Their objections remain on the docket.',
-    document:
-      'The archives return a receipt, not the missing evidence. Someone altered the filing dates.',
-    override:
-      'The immediate danger recedes, but the locals reject the couch as an unelected emergency service.',
-  },
-  casino: {
-    ask: 'Management sells tickets to the hearing but refuses to let the giant host testify.',
-    document:
-      'The house impounds the ledgers under a new confidentiality tariff.',
-    override:
-      'The casino security contract identifies the intervention as an unauthorized jackpot.',
-  },
-  serendipity: {
-    ask: 'Vox arranges a table for mediation; the landlord sends a rent collector instead.',
-    document:
-      'The franchise’s receipts are suddenly listed as proprietary starlight.',
-    override:
-      'The bar’s repair drones restore the machinery before anyone can discuss consent.',
-  },
-  constellation: {
-    ask: 'The omens arrive at the wrong committee and the witnesses refuse a second hearing.',
-    document:
-      'The star chart’s original ink goes dark before the final clue can be copied.',
-    override:
-      'The shortcut reaches the gate but the constellation will not open it on command.',
-  },
-  nemesis: {
-    ask: 'The adversary sends a lawyer instead of agreeing to terms.',
-    document:
-      'The transmission is intercepted and returned stamped EVIDENCE DENIED.',
-    override:
-      'The villain anticipated the maneuver and filed the counterattack in triplicate.',
-  },
+/**
+ * A failed field objective cannot be described as successful consent or a
+ * settled claim. Each deck and order walks its own pool of setbacks, counted
+ * by earlier failures of the same kind this voyage, so a repeated mistake is
+ * at least a new joke.
+ */
+function plotSetback(
+  run: VoyageRun,
+  deck: EpisodeDeck,
+  choice: EpisodeChoice,
+): string {
+  const earlier = ((run as EpisodeRun).episodeDrawHistory ?? []).filter(
+    (draw) =>
+      draw.deck === deck && draw.choice === choice && draw.successful === false,
+  ).length
+  return freshLine(
+    SETBACK_LINES[deck][choice],
+    `setback:${deck}:${choice}`,
+    run.seed,
+    earlier,
+  )
 }
 export function episodeDecks(run: VoyageRun): EpisodeDeck[] {
   const decks: EpisodeDeck[] = ['planet', 'casino', 'serendipity']
@@ -497,9 +482,9 @@ export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
       setup: quest.setup,
       link: 'STAR CHART EXCLUSIVE · ' + sign.name + ' · ' + sign.epithet,
       outcomes: {
-        ask: quest.ending + ' You listen to the people caught in the omen.',
-        document: quest.ending + ' The truth joins the official star chart.',
-        override: quest.ending + ' The captain takes the risky shortcut.',
+        ask: quest.ending + ' ' + constellationCoda(run, 'ask'),
+        document: quest.ending + ' ' + constellationCoda(run, 'document'),
+        override: quest.ending + ' ' + constellationCoda(run, 'override'),
       },
     }
   }
@@ -511,6 +496,18 @@ export function episodeCard(run: VoyageRun, deck: EpisodeDeck) {
     link: 'The principal enemy returns. Their previous decisions still count.',
     outcomes: nemesisOutcomes(nemesis.name, run.chapter),
   }
+}
+/** The coda for a constellation order, counted by earlier constellation draws. */
+function constellationCoda(run: VoyageRun, choice: EpisodeChoice): string {
+  const earlier = ((run as EpisodeRun).episodeDrawHistory ?? []).filter(
+    (draw) => draw.deck === 'constellation',
+  ).length
+  return freshLine(
+    CONSTELLATION_CODAS[choice],
+    `constellation:${choice}`,
+    run.seed,
+    earlier,
+  )
 }
 /**
  * The nemesis card comes up on chapters 2, 4, 6 and 8. Each visit escalates
@@ -797,7 +794,7 @@ export function drawEpisodeDeck(
   const outcome = card.outcomes?.[choice]
   // Failed attempts still consume this episode card, but never award a
   // completed venue stage or imply the blue-giant host consented.
-  const failureScene = `${names} cannot secure the ${skill} objective. ${PLOT_SETBACKS[deck][choice]}`
+  const failureScene = `${names} cannot secure the ${skill} objective. ${plotSetback(run, deck, choice)}`
   let changed: VoyageRun = run
   if (venue && !successful) {
     const system = chapterSystem(run.seed, run.chapter)

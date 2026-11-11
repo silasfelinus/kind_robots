@@ -143,22 +143,21 @@ assert.equal(
 // 5. No-repeat pools: casino setups, nemesis cards and transit waits.
 assert.ok(WAITING_LINES.length >= VOYAGE_CHAPTERS * 2)
 assert.equal(new Set(WAITING_LINES).size, WAITING_LINES.length)
-// The casino walks all eight incidents before one comes round again (the
-// per-chapter hash it replaced averaged 4.7 of 8), and the ninth chapter's
-// repeat is told in new words.
+// The casino never repeats an incident inside one voyage (the per-chapter
+// hash it replaced averaged 4.7 of 8), and every setup is told in new words.
 const openers = new Set<string>()
 for (let seed = 1; seed <= 400; seed++) {
   const incidents = Array.from({ length: VOYAGE_CHAPTERS }, (_, n) =>
     casinoIncident(seed, n + 1, chapterSystem(seed, n + 1)),
   )
-  assert.equal(new Set(incidents.slice(0, 8)).size, 8, `casino seed ${seed}`)
+  assert.equal(new Set(incidents).size, VOYAGE_CHAPTERS, `casino seed ${seed}`)
   const setups = Array.from({ length: VOYAGE_CHAPTERS }, (_, n) =>
     casinoIncidentSetup(seed, n + 1, chapterSystem(seed, n + 1)),
   )
   assert.equal(new Set(setups).size, VOYAGE_CHAPTERS, `casino seed ${seed}`)
   openers.add(incidents[0]!.title)
 }
-assert.equal(openers.size, 8, 'voyages open on different casino incidents')
+assert.ok(openers.size >= 8, 'voyages open on different casino incidents')
 for (const choice of ['ask', 'document', 'override'] as const) {
   const lines = [2, 4, 6, 8].map(
     (chapter) => episodeCard({ ...base, chapter }, 'nemesis').outcomes![choice],

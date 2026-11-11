@@ -52,7 +52,7 @@ assert.equal(
   'all authored planetary plot cards appear',
 )
 assert.ok(seenPlanetSkills.size >= 5)
-assert.equal(seenCasino.size, 8)
+assert.equal(seenCasino.size, 16, 'every casino incident appears')
 for (const franchise of SERENDIPITY_FRANCHISES) {
   const run = sample(1)
   const local = { ...run, seed: run.seed }

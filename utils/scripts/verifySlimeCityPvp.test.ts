@@ -238,6 +238,17 @@ assert.ok(
   ),
   'the two-player board has a public /play route',
 )
+const client = readFileSync('stores/slimeCityPvp.ts', 'utf8')
+assert.match(
+  client,
+  /if \(sending\.value && !recoverRejectedMove\) return/,
+  'normal polling must not overwrite a pending command',
+)
+assert.equal(
+  [...client.matchAll(/await load\(current\.id, true, true\)/g)].length,
+  2,
+  'rejected commands and forfeits must both reload the server snapshot',
+)
 assert.match(service, /FOR UPDATE/, 'concurrent turns must serialize')
 assert.match(
   service,

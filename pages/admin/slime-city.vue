@@ -5,7 +5,10 @@
     data-testid="slime-city-lab"
   >
     <div class="sc-shell">
-      <header-page-bar console-theme="slime-city">
+      <header-page-bar
+        v-if="!(lab.view === 'clash' && narrowScreen)"
+        console-theme="slime-city"
+      >
         <div class="sc-header" data-testid="slime-city-header">
           <div
             class="sc-crew-picker"
@@ -1024,6 +1027,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useNavStore } from '@/stores/navStore'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
 import { CLASH_MAX_LEVEL, clashCardText } from '~/utils/slimeCity/clash'
@@ -1034,6 +1038,29 @@ import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
 const lab = useSlimeCityStore()
+/**
+ * Silas, 2026-11-11 PT, on an iPhone: in battle mode "there should be at most
+ * one row of a header". On a phone the fight drops the mode bar (the fight's
+ * own strip has the way back out), so only the site header remains.
+ */
+const narrowScreen = ref(false)
+let narrowQuery: MediaQueryList | null = null
+function syncNarrow(): void {
+  narrowScreen.value = !!narrowQuery?.matches
+}
+/** The header keeps Slime City's theme even while the bar is dropped. */
+const navStore = useNavStore()
+let themeId = 0
+onMounted(() => {
+  themeId = navStore.registerConsoleTheme('slime-city')
+  narrowQuery = window.matchMedia('(max-width: 600px)')
+  syncNarrow()
+  narrowQuery.addEventListener('change', syncNarrow)
+})
+onUnmounted(() => {
+  narrowQuery?.removeEventListener('change', syncNarrow)
+  navStore.releasePageBar(themeId)
+})
 const art = useSlimeCityArtStore()
 const mappedCardArtCount = Object.keys(SLIME_CITY_ART.cards).length
 
@@ -2235,6 +2262,7 @@ onUnmounted(() => {
     display: none;
   }
 }
+
 @container (max-width: 420px) {
   .sc-header {
     padding-left: 0.25rem;

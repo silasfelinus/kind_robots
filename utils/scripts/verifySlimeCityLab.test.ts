@@ -860,9 +860,13 @@ const shellHeader = readFileSync(
 assert.match(shellHeader, /id="kr-header-page-bar"/)
 assert.match(
   page,
-  /<header-page-bar console-theme="slime-city">/,
+  /<header-page-bar[^>]*console-theme="slime-city"[^>]*>/,
   'Slime City skins the shell as its console system bar',
 )
+// Silas, 2026-11-11 PT: a phone in battle keeps one header row, so the bar
+// drops during a fight while the shell keeps the Slime City theme.
+assert.match(page, /registerConsoleTheme\('slime-city'\)/)
+assert.match(page, /v-if="!\(lab\.view === 'clash' && narrowScreen\)"/)
 const shellCss = readFileSync(
   new URL('../../assets/css/tailwind.css', import.meta.url),
   'utf8',

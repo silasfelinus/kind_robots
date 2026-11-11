@@ -265,10 +265,13 @@
                 }"
                 :title="powerTitle(team)"
                 data-testid="clash-rival-power"
-                >{{ factionPower(team).symbol }} {{ factionPower(team).name
-                }}{{
-                  clashPowerSpent(game, 'enemy', team) ? ' · USED' : ''
-                }}</span
+                >{{ factionPower(team).symbol
+                }}<span class="clash-power-name">
+                  {{ factionPower(team).name
+                  }}{{
+                    clashPowerSpent(game, 'enemy', team) ? ' · USED' : ''
+                  }}</span
+                ></span
               >
             </span>
             <span v-else class="clash-powers">
@@ -288,20 +291,32 @@
                 :disabled="!powerReady(team)"
                 @click="firePower(team)"
               >
-                {{ factionPower(team).symbol }}
-                {{
-                  clashPowerSpent(game, 'player', team)
-                    ? factionPower(team).name + ' · USED'
-                    : powerArmed === team
-                      ? 'PICK A TARGET'
-                      : (myCharged ? '⚡ ' : '') + factionPower(team).name
-                }}
+                {{ factionPower(team).symbol
+                }}<span class="clash-power-name">
+                  {{
+                    clashPowerSpent(game, 'player', team)
+                      ? factionPower(team).name + ' · USED'
+                      : powerArmed === team
+                        ? 'PICK A TARGET'
+                        : (myCharged ? '⚡ ' : '') + factionPower(team).name
+                  }}</span
+                >
               </button>
             </span>
           </div>
         </div>
 
         <div class="clash-vs-mid">
+          <button
+            type="button"
+            class="clash-exit"
+            data-testid="clash-exit"
+            :title="exitLabel"
+            :aria-label="exitLabel"
+            @click="leave"
+          >
+            ‹
+          </button>
           <span class="clash-vs-badge" aria-hidden="true">VS</span>
           <span class="clash-phase">
             <small>ROUND {{ game.round }}</small>
@@ -422,7 +437,7 @@
                 :disabled="undoAt < 0"
                 @click="undo"
               >
-                ↶ UNDO
+                ↶<span class="clash-undo-word"> UNDO</span>
               </button>
               <button
                 v-if="!game.victor"
@@ -570,6 +585,21 @@ const backTarget = computed(() => {
   if (kind === 'rival' || kind === 'contract') return 'BACK TO JOURNEY MAP ›'
   return ''
 })
+/** Phones hide the mode tabs during a fight; this leads back out. */
+const exitLabel = computed(() =>
+  inBout.value
+    ? lab.clashLaunch.kind === 'tower'
+      ? 'Back to the Tower'
+      : 'Back to the Journey'
+    : 'Back to Slime City home',
+)
+function leave(): void {
+  const kind = lab.clashLaunch.kind
+  if (kind === 'campaign') lab.showCampaign()
+  else if (kind === 'tower') lab.showTower()
+  else if (kind === 'rival' || kind === 'contract') lab.showCity()
+  else lab.view = 'home'
+}
 function goBack(): void {
   if (lab.clashResult?.kind === 'campaign') lab.showCampaign()
   else if (lab.clashResult?.kind === 'tower') lab.showTower()
@@ -820,7 +850,8 @@ const phaseLabel = computed(() => {
   if (s.phase === 'attack')
     return s.active === 'player' ? 'YOUR CREW STRIKES' : 'RIVAL STRIKES'
   if (s.active === 'enemy') return 'RIVAL PLAYING'
-  if (noLegalPlay.value) return 'NO LEGAL PLAY · PASS TO CONTINUE'
+  if (powerArmed.value)
+    return factionPower(powerArmed.value).name.toUpperCase() + ': PICK AN ALLEY'
   if (noLegalPlay.value) return 'NO LEGAL PLAY · PASS TO CONTINUE'
   return s.plays.player === 0
     ? clashPlayLimit(s, 'player') === 1
@@ -1784,7 +1815,8 @@ function forecast(lane: number): string {
   color: var(--neon);
   line-height: 1.15;
 }
-.clash-log-toggle {
+.clash-log-toggle,
+.clash-exit {
   display: none;
 }
 .clash-log {
@@ -2103,24 +2135,194 @@ function forecast(lane: number): string {
   }
 }
 @container clash (max-width: 30rem) {
-  .clash-layout {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      'rival'
-      'mid'
-      'stage'
-      'me'
-      'console';
-    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  }
-  .clash-console-main {
-    flex: 1;
-  }
-  .clash-console-row .clash-pass {
-    flex: 1;
-  }
   .clash-lane-numbers span {
     font-size: 0.48rem;
+  }
+}
+
+/*
+  Silas, 2026-11-11 PT, on an iPhone: "If we are in battle mode, the battle
+  mat should be the majority of that screen ... the cards should start at the
+  very screen bottom, and replace most of the versus section. We need that
+  info much larger." Narrow or tall: a slim rival strip, a slim round line,
+  the board, one slim strip for your boss and controls, and the hand fanned
+  up from the bottom edge in its own row (the hand overlay spans the layout).
+*/
+@container clash (max-width: 46rem) or (max-aspect-ratio: 1 / 1) {
+  .clash-layout {
+    --hand-h: calc(min(15rem, 44cqw, 42cqh) * 0.69 + 0.2rem);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto minmax(0, 1fr) auto var(--hand-h);
+    grid-template-areas:
+      'rival rival'
+      'mid mid'
+      'stage stage'
+      'me console'
+      'hand hand';
+    gap: 0.25rem;
+    padding: 0.25rem 0.25rem 0;
+  }
+  .clash-stage {
+    display: contents;
+  }
+  .clash-board {
+    grid-area: stage;
+  }
+  .clash-hand-zone {
+    grid-area: stage;
+    align-self: end;
+    z-index: 5;
+  }
+  .clash-reward-note {
+    bottom: 0.4rem;
+    max-width: 94%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.6rem;
+  }
+  .clash-ticker {
+    bottom: 2rem;
+    font-size: 0.65rem;
+  }
+  .clash-boss {
+    min-height: 0;
+    border-radius: 0.6rem;
+  }
+  .clash-portrait {
+    flex: 0 0 2.9rem;
+    border-radius: 0.6rem 0 0 0.6rem;
+  }
+  .clash-boss-info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'name line'
+      'bar powers';
+    align-items: center;
+    gap: 0.15rem 0.45rem;
+    padding: 0.2rem 0.45rem;
+  }
+  .clash-boss-info strong {
+    grid-area: name;
+    font-size: 0.7rem;
+  }
+  .clash-health {
+    grid-area: bar;
+    height: 0.35rem;
+  }
+  .clash-boss-line {
+    grid-area: line;
+    gap: 0.4rem;
+  }
+  .clash-hp {
+    font-size: 1.05rem;
+  }
+  .clash-bank {
+    font-size: 0;
+    gap: 0.2rem;
+  }
+  .clash-bank i {
+    width: 0.55rem;
+    height: 0.55rem;
+  }
+  .clash-powers {
+    grid-area: powers;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+  }
+  .clash-power-name {
+    display: none;
+  }
+  .clash-power,
+  .clash-power-chip {
+    display: grid;
+    place-items: center;
+    min-width: 1.7rem;
+    height: 1.5rem;
+    margin: 0;
+    padding: 0 0.3rem;
+    font-size: 0.85rem !important;
+  }
+  .clash-power-chip {
+    border: 1px solid #ffd76a55;
+    border-radius: 0.45rem;
+  }
+  .clash-vs-mid {
+    gap: 0.4rem;
+    min-height: 1.6rem;
+  }
+  .clash-vs-badge {
+    display: none;
+  }
+  .clash-exit {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.8rem;
+    height: 1.6rem;
+    padding: 0;
+    border: 1px solid #5c99917a;
+    border-radius: 0.45rem;
+    background: #10231f;
+    font-size: 1.1rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .clash-phase small {
+    font-size: 0.5rem;
+  }
+  .clash-phase strong {
+    font-size: 0.66rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .clash .clash-log-toggle {
+    padding: 0.25rem 0.55rem;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+  }
+  .clash .clash-exit {
+    font-size: 1.1rem;
+  }
+  .clash-log {
+    top: 4.6rem;
+  }
+  .clash-boss.is-player .clash-boss-info strong {
+    display: none;
+  }
+  .clash-boss.is-player .clash-boss-info {
+    grid-template-areas:
+      'line line'
+      'bar powers';
+  }
+  .clash-console {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.3rem;
+    padding: 0.2rem 0.3rem;
+    border-radius: 0.6rem;
+  }
+  .clash-hand-dock {
+    padding: 0;
+  }
+  .clash-stage :deep(.cxh) {
+    z-index: 20;
+  }
+  .clash-hand-dock :deep(.cxh-toggle) {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .clash-console-row .clash-reset,
+  .clash-console-row .clash-pass {
+    padding: 0.45rem 0.6rem;
+  }
+  .clash-undo-word {
+    display: none;
+  }
+  .clash-console-row .clash-pass {
+    min-width: 4.8rem;
   }
 }
 

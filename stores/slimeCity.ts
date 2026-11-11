@@ -1156,7 +1156,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     persistStory()
   }
   function selectJourneyDeck(id: string): void {
-    if (!storyEditable() || !libraryDeckReady(id)) return
+    if (!storyEditable()) return
+    if (!id) {
+      journeyDeckId.value = null
+      journeyFormat.value = 'alliance'
+      persistStory()
+      return
+    }
+    if (!libraryDeckReady(id)) return
     selectLibraryDeck(id)
     journeyDeckId.value = id
     journeyFormat.value = 'alliance'

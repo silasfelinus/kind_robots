@@ -9,7 +9,7 @@
     </header-page-bar>
     <section class="flex items-center justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-black uppercase">VS. MATCHES</h1>
+        <strong class="text-2xl font-black uppercase">VS. MATCHES</strong>
         <p class="text-sm opacity-75">Private multiplayer preview · your turns, invites and history</p>
       </div>
       <NuxtLink class="btn btn-primary" to="/admin/slime-city-pvp">NEW DUEL</NuxtLink>

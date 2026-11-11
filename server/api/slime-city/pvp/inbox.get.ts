@@ -19,10 +19,7 @@ export default defineEventHandler(async (event) => {
   const rows = await prisma.slimeCityMatch.findMany({
     where: {
       mode: PVP_MODE,
-      OR: [
-        { userId },
-        { commands: { path: '$.guestId', equals: userId } },
-      ],
+      OR: [{ userId }, { commands: { path: '$.guestId', equals: userId } }],
     },
     orderBy: { startedAt: 'desc' },
     take: 100,

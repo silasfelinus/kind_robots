@@ -802,23 +802,104 @@ const CASINO_INCIDENTS = [
       'The sleeping sister has been surveyed for terraces while she sleeps. Her siblings broadcast the warning on every channel the casino owns.',
     ],
   },
+  {
+    title: 'Loyalty Programme',
+    skill: 'culture',
+    description:
+      'The casino enrols the giant host in its own loyalty scheme without asking, and the host now earns points every time someone walks on them.',
+    again: [
+      'The loyalty scheme has a new gold tier. The host qualifies automatically, being under every member at once.',
+      'The host’s points balance is published on a leaderboard. Management would like the host to be proud of it.',
+    ],
+  },
+  {
+    title: 'Complimentary Weather',
+    skill: 'science',
+    description:
+      'Management is seeding clouds over the host’s eyes so that the guests on the observation deck get a sunset, every hour, on the hour.',
+    again: [
+      'The sunsets are now on the half hour as well. The host has not seen a horizon in a week.',
+      'A premium package adds rainbows. They are installed across the host’s eyelids and charged by the arc.',
+    ],
+  },
+  {
+    title: 'The Dress Code',
+    skill: 'diplomacy',
+    description:
+      'A doorman refuses to let the giant host into their own casino because the host is not wearing shoes.',
+    again: [
+      'The dress code has been tightened. The host is now also required to wear a tie, and the tie must be the casino’s.',
+      'The host is turned away again, this time for being “too blue for the lounge”.',
+    ],
+  },
+  {
+    title: 'Lucky Mascot',
+    skill: 'luck',
+    description:
+      'The casino has started selling small pieces of the host’s surface as lucky charms, three for the price of two.',
+    again: [
+      'The charms now come with a certificate of authenticity. The host would like to know what is being certified.',
+      'A rival casino is selling counterfeit charms. The original casino wants the host to testify that the real ones are real.',
+    ],
+  },
+  {
+    title: 'Mandatory Fun',
+    skill: 'tactics',
+    description:
+      'A conga line of four thousand guests has been routed across a bruise the host has asked everyone to avoid.',
+    again: [
+      'The conga line has been extended to the other bruise, by popular demand, though not the host’s.',
+      'The conga now has a sponsor. The sponsor has asked whether the bruise could be made bigger, for visibility.',
+    ],
+  },
+  {
+    title: 'The Gift Shop',
+    skill: 'culture',
+    description:
+      'The gift shop is selling plush toys of the giant host, and the host is not on the royalties list, or any list.',
+    again: [
+      'The plush toys have a new edition with a smile painted on. The host does not smile, and has started to wonder whether it should.',
+      'The gift shop now sells a book about the host, written by management, in which the host loves the casino very much.',
+    ],
+  },
+  {
+    title: 'The Comedy Club',
+    skill: 'diplomacy',
+    description:
+      'The resident comedian’s whole act is jokes about the host, delivered on the host, and the host can hear every word.',
+    again: [
+      'A second comedian has the same act. The host has heard the punchline about its weight four hundred times.',
+      'The comedy club has added a heckling ban. It applies only to the stage’s floor, which is the host.',
+    ],
+  },
+  {
+    title: 'All-You-Can-Eat',
+    skill: 'rescue',
+    description:
+      'The buffet has been dug into the host’s side to save on refrigeration, and the host would like to be consulted before it is used as a fridge.',
+    again: [
+      'The buffet has been expanded to a second side. The host is now three degrees colder on the left.',
+      'The dessert bar has been put somewhere the host considers private. Management calls it a feature.',
+    ],
+  },
 ] as const
 export function casinoIncident(
   seed: number,
   chapter: number,
   _system: SolarSystem,
 ) {
-  // Walk the eight incidents from a seeded start so a voyage meets each
-  // before any repeats (the old per-chapter hash averaged 4.7 of 8).
+  // Walk the incidents from a seeded start so a voyage never meets one
+  // twice (sixteen incidents, nine chapters; the old per-chapter hash over
+  // eight averaged 4.7 distinct).
   const start = hash(seed, 'casino-start') % CASINO_INCIDENTS.length
   return CASINO_INCIDENTS[
     (start + Math.max(0, chapter - 1)) % CASINO_INCIDENTS.length
   ]!
 }
 /**
- * The casino card's setup. Eight incidents over nine chapters means one
- * comes round twice; the repeat reads as the same dispute spreading to a
- * new casino rather than the identical sentence.
+ * The casino card's setup. If an incident ever comes round twice in a
+ * voyage, the repeat reads as the same dispute spreading to a new casino
+ * rather than the identical sentence.
  */
 export function casinoIncidentSetup(
   seed: number,
@@ -892,6 +973,10 @@ export function visitCasinoVenue(
       `${system.giant} is asked, answers, and is asked whether the answer can be quoted. It can. It is.`,
       `The captain asks ${system.giant} directly and writes the reply on the back of a cushion tag, the only paper to hand.`,
       `${system.giant} is consulted before anything moves. The croupiers, who have never once been consulted, watch closely.`,
+      `The crew asks ${system.giant} and waits. Somewhere on the host's surface, a slot machine pays out in the silence, and everyone pretends not to hear.`,
+      `${system.giant} is asked by name, a courtesy nobody on this floor has extended in a century. The host takes a moment to remember how to be addressed.`,
+      `The captain puts the question to ${system.giant} in plain words, with no small print. The house lawyers look for the small print anyway.`,
+      `${system.giant} is consulted, and answers with a slow pulse of light that the crew agree, after some debate, means "about time".`,
     ],
     document: [
       `The evidence is filed publicly so the blue hosts and local workers can challenge the terms.`,
@@ -914,7 +999,12 @@ export function visitCasinoVenue(
       `The crew does the obvious thing without permission. The obvious thing works. ${system.giant} notes that nobody asked.`,
     ],
   }[choice]
-  const reaction = reactions[visit % reactions.length]!
+  // Start each voyage at a seed-chosen reaction so voyages differ, while
+  // repeated orders inside one voyage still walk the pool without repeats.
+  const reaction =
+    reactions[
+      (hash(run.seed, 'reaction:' + choice) + visit) % reactions.length
+    ]!
   if (venue === 'casino' || stage >= 2) completed.push(key)
   const nextStage = venue === 'bar' && stage < 3 ? stage + 1 : stage
   const scene = `${narrative} ${reaction}`

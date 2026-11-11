@@ -1,10 +1,16 @@
 import { ACT_ONE_MISSIONS } from './actOne'
-import { ACT_TWO_MISSIONS, ACT_TWO_OPENING, ACT_TWO_RESUPPLY } from './actTwo'
+import { ACT_TWO_MISSIONS, ACT_TWO_RESUPPLY } from './actTwo'
+import { ACT_THREE_MISSIONS, ACT_THREE_RESUPPLY } from './actThree'
 import {
-  ACT_THREE_MISSIONS,
-  ACT_THREE_OPENING,
-  ACT_THREE_RESUPPLY,
-} from './actThree'
+  ACT_THREE_OPENINGS,
+  ACT_TWO_OPENINGS,
+  ERRAND_AFTERMATH,
+  ERRAND_CALLBACKS,
+  ERRAND_ENTRANCES,
+  FINALE_LINES,
+  POLICY_LINES,
+  freshLine,
+} from './freshLines'
 import {
   NEMESIS_ENDINGS,
   nemesisEndingId,
@@ -1097,15 +1103,19 @@ export function decidePolicy(run: VoyageRun, policy: PolicyId): VoyageRun {
   const mission = missionFor(run)
   const required = policy === 'aid' ? 1 : policy === 'intervene' ? 2 : 0
   const shortage = Math.max(0, required - run.supplies)
+  // Each order walks its own pool, counted by earlier uses of that order.
+  const orderLine = (key: keyof typeof POLICY_LINES) =>
+    freshLine(
+      POLICY_LINES[key],
+      'policy:' + key,
+      run.seed,
+      (run.missionHistory ?? []).filter((entry) => entry.policy === policy)
+        .length,
+    )
   const responses: Record<PolicyId, string> = {
-    aid: shortage
-      ? 'You arrive without the promised crates. Locals welcome the volunteer effort, but the material aid they requested cannot be delivered.'
-      : 'You offer help and ask first. It costs supplies, and the people you helped get to decide what happens next.',
-    observe:
-      'You keep your distance and keep a record. The treaty is intact, and so is the record of what you watched.',
-    intervene: shortage
-      ? 'You intervene without enough resources. The improvised operation succeeds in claiming authority, but the unfinished work earns additional outrage.'
-      : 'You act without permission. It works quickly, and the paperwork will take years.',
+    aid: orderLine(shortage ? 'aidShort' : 'aid'),
+    observe: orderLine('observe'),
+    intervene: orderLine(shortage ? 'interveneShort' : 'intervene'),
   }
   return {
     ...run,
@@ -1168,7 +1178,7 @@ export function beginCrewDetour(run: VoyageRun, crewId: CrewId): VoyageRun {
     .reverse()
     .find((event) => event.crewId === crewId)
   const callback = prior
-    ? ` The last stop left you with ${prior.prize ?? CREW_JOURNEYS[crewId][prior.step]?.prize ?? 'unfinished business'}. ${prior.approach === 'bold' ? 'The public attention follows the couch here.' : 'People remember that you kept their confidence.'}`
+    ? ` The last stop left you with ${prior.prize ?? CREW_JOURNEYS[crewId][prior.step]?.prize ?? 'unfinished business'}. ${freshLine(ERRAND_CALLBACKS[prior.approach === 'bold' ? 'bold' : 'careful'], 'errand-callback', run.seed, errandsResolved(run))}`
     : ''
   return {
     ...run,
@@ -1197,16 +1207,26 @@ export function stageCrewDetour(
   )
     return run
   const episode = CREW_JOURNEYS[crewId][step]!
-  const movement =
-    gambit === 'careful'
-      ? 'The crew acts quietly. For a moment it almost works.'
-      : 'The crew makes an entrance that will be difficult to apologize for.'
+  const movement = freshLine(
+    ERRAND_ENTRANCES[gambit === 'careful' ? 'careful' : 'bold'],
+    'errand-entrance',
+    run.seed,
+    errandsResolved(run),
+  )
   return {
     ...run,
     detour: { ...run.detour, gambit },
     scene: `${movement} ${episode.reversal}`,
     log: [...run.log, `Crew gambit: ${crewId} / ${episode.title} / ${gambit}.`],
   }
+}
+
+/** Crew errand steps finished this voyage; a fresh line index for each errand. */
+function errandsResolved(run: VoyageRun): number {
+  return Object.values(run.journeyProgress ?? {}).reduce(
+    (sum, steps) => sum + (steps ?? 0),
+    0,
+  )
 }
 
 /** Second decision: solve the unexpected complication, not the problem expected on arrival. */
@@ -1236,12 +1256,18 @@ export function resolveCrewDetour(
     approach === 'careful'
       ? destination.carefulOutcome
       : destination.boldOutcome
-  const pivot =
+  const aftermath =
     gambit && gambit !== approach
-      ? 'The plan changes at the last second; the crew must live with the first gamble as well as the final order.'
+      ? 'switched'
       : gambit === 'bold'
-        ? 'The first explosion is still visible from orbit.'
-        : 'The captain keeps the promise made before the trap appeared.'
+        ? 'bold'
+        : 'careful'
+  const pivot = freshLine(
+    ERRAND_AFTERMATH[aftermath],
+    'errand-' + aftermath,
+    run.seed,
+    errandsResolved(run),
+  )
   const nemesis = challenged
     ? ` ${antagonistFor(run).name} recognizes the prize. ${CREW_DOSSIERS[crewId].nemesisLink}`
     : ''
@@ -1342,8 +1368,7 @@ export function nextDestination(run: VoyageRun): VoyageRun {
     return {
       ...run,
       phase: 'finale',
-      scene:
-        'Your nemesis waits at the jump gate. The force bubble holds. On the cushions, the crew would like a word about what kind of captain you turned out to be.',
+      scene: freshLine(FINALE_LINES, 'finale', run.seed, 0),
     }
   // One earned outcome per chapter returns during the following act.
   // Never replay an Act I case in Act III or claim an unvisited mission.
@@ -1375,11 +1400,15 @@ export function nextDestination(run: VoyageRun): VoyageRun {
       : null
   const opening =
     run.chapter + 1 === ACT_TWO_FIRST_CHAPTER
-      ? { act: 'Act II', text: ACT_TWO_OPENING, supplies: ACT_TWO_RESUPPLY }
+      ? {
+          act: 'Act II',
+          text: freshLine(ACT_TWO_OPENINGS, 'act-two', run.seed, 0),
+          supplies: ACT_TWO_RESUPPLY,
+        }
       : run.chapter + 1 === ACT_THREE_FIRST_CHAPTER
         ? {
             act: 'Act III',
-            text: ACT_THREE_OPENING,
+            text: freshLine(ACT_THREE_OPENINGS, 'act-three', run.seed, 0),
             supplies: ACT_THREE_RESUPPLY,
           }
         : null

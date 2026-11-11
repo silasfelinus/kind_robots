@@ -424,6 +424,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const deckFormat = ref<DeckFormat>('alliance')
   /** Which deck the CLASH tab deals: Solo (one faction) or Alliance (two). */
   const clashFormat = ref<DeckFormat>('alliance')
+  /** One narrative journey; only its 20-card deck composition changes. */
+  const journeyFormat = ref<DeckFormat>('solo')
+  const journeyDeckId = ref<string | null>(null)
   /**
    * The Clash match to deal next. Every battle is CLASH (Silas, 2026-11-08
    * PT): the CLASH tab's practice and reward matches, and the City's rival,
@@ -482,6 +485,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     soloDrafts.value = {}
     library.value = []
     libraryId.value = null
+    journeyFormat.value = 'solo'
+    journeyDeckId.value = null
     storyMode.value = 'written'
     storyParity.value = false
     replacingCard.value = null
@@ -501,6 +506,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       city.value = response.data.city
       districtId.value = response.data.city.location
       campaignSave.value = response.data.campaigns
+      activeTeam.value = response.data.journeyTeam ?? activeTeam.value
+      journeyFormat.value = response.data.journeyFormat ?? 'solo'
+      journeyDeckId.value = response.data.journeyDeckId ?? null
       towerSave.value = response.data.tower ?? freshTower()
       savedDecks.value = response.data.decks ?? {}
       savedAlliances.value = response.data.alliances ?? {}
@@ -519,6 +527,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       if (towerRun.value?.phase === 'battle') forfeitTower()
       enforceCollection()
       seedLibrary()
+      if (journeyDeckId.value && libraryDeckReady(journeyDeckId.value))
+        selectLibraryDeck(journeyDeckId.value)
+      else journeyDeckId.value = null
+      if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
     } catch (error) {
       if (userId !== authId()) return
       storyError.value =
@@ -542,6 +554,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           alliances: savedAlliances.value,
           soloDecks: savedSolo.value,
           library: library.value,
+          journeyTeam: activeTeam.value,
+          journeyFormat: journeyFormat.value,
+          journeyDeckId: journeyDeckId.value,
           unlocks: unlockMode.value,
           storyMode: storyMode.value,
           storyParity: storyParity.value,
@@ -1125,6 +1140,28 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       entry.cards.length === ALLIANCE_DECK_SIZE
     )
   }
+  const selectedJourneyAlliance = computed<AllianceDeck>(() => {
+    const entry = library.value.find((item) => item.id === journeyDeckId.value)
+    if (entry && libraryDeckReady(entry.id) && entry.general === activeTeam.value)
+      return { general: entry.general, ally: entry.ally, cards: [...entry.cards] }
+    return playAlliance.value
+  })
+  const journeyDeckName = computed(() => {
+    if (journeyFormat.value === 'solo') return teamById(activeTeam.value).name + ' solo deck'
+    return library.value.find((item) => item.id === journeyDeckId.value)?.name ?? 'Starter alliance'
+  })
+  function setJourneyFormat(format: DeckFormat): void {
+    if (!storyEditable() || (format !== 'solo' && format !== 'alliance')) return
+    journeyFormat.value = format
+    persistStory()
+  }
+  function selectJourneyDeck(id: string): void {
+    if (!storyEditable() || !libraryDeckReady(id)) return
+    selectLibraryDeck(id)
+    journeyDeckId.value = id
+    journeyFormat.value = 'alliance'
+    persistStory()
+  }
   /** COLLECTION opens on the Alliance library; SOLO opens its crew deck. */
   function showSoloDeck(): void {
     stop()
@@ -1544,6 +1581,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function chooseTeam(id: TeamId): void {
     activeTeam.value = id
+    persistStory()
     const picked = library.value.find((item) => item.id === libraryId.value)
     if (picked && picked.general !== id) libraryId.value = null
     replacingCard.value = null
@@ -1643,6 +1681,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function showCampaign(): void {
     stop()
     campaignBout.value = null
+    if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
     view.value = 'campaign'
   }
 
@@ -1838,11 +1877,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     enemyTeam.value = enemy
     void launchBout({
       kind,
-      format: kind === 'campaign' ? 'solo' : clashFormat.value,
+      format: journeyFormat.value,
+      ...(journeyFormat.value === 'alliance'
+        ? { alliance: selectedJourneyAlliance.value }
+        : {}),
       enemy,
       seed: rollSeed(),
       bosses: clashBossesFromTerms(terms),
-      ...(kind === 'campaign'
+      ...(kind === 'campaign' && journeyFormat.value === 'solo'
         ? {
             cards:
               activeTeam.value === 'bloodfairies'
@@ -2226,6 +2268,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     showSoloDeck,
     libraryMax: LIBRARY_MAX_DECKS,
     clashFormat,
+    journeyFormat,
+    journeyDeckId,
+    journeyDeckName,
+    selectedJourneyAlliance,
+    setJourneyFormat,
+    selectJourneyDeck,
     currentAlliance,
     currentAllianceProblems,
     playAlliance,

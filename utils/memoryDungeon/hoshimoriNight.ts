@@ -1101,7 +1101,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
       'night-weir-released',
     ),
     c(
-      'night-weir-witness',
+      'night-memory-weir-witness',
       'Record the weir’s builders before dismantling it',
       'Vesper gathers accountable testimony while Oren diverts the flood.',
       'night-weir-witnessed',

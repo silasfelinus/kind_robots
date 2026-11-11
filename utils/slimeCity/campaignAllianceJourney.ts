@@ -549,7 +549,12 @@ function sceneBeat(team: TeamId, ally: TeamId, chapter: number) {
     .slice(0, 58)
     .trim()
     .toUpperCase()
-  return { title: shortTitle, crisis: late.crisis, protect: late.protect, gamble: late.gamble }
+  return {
+    title: shortTitle,
+    crisis: late.crisis,
+    protect: late.protect,
+    gamble: late.gamble,
+  }
 }
 
 export function allianceStoryScene(
@@ -567,22 +572,24 @@ export function allianceStoryScene(
   const priorBeat = previous?.ally
     ? sceneBeat(team, previous.ally, chapter - 1)
     : null
-  const recalled = previous?.ally === ally && priorBeat
-    ? 'Last chapter: ' +
-      (previous.pick === 'protect'
-        ? priorBeat.protect[1]
-        : priorBeat.gamble[1])
-    : previous
-      ? 'Last chapter your partner was ' +
-        (TEAMS.find((crew) => crew.id === previous.ally)?.name ??
-          previous.ally) +
-        '. This crew needs a different bargain.'
-      : 'This partnership has never survived a night together.'
+  const recalled =
+    previous?.ally === ally && priorBeat
+      ? 'Last chapter: ' +
+        (previous.pick === 'protect'
+          ? priorBeat.protect[1]
+          : priorBeat.gamble[1])
+      : previous
+        ? 'Last chapter your partner was ' +
+          (TEAMS.find((crew) => crew.id === previous.ally)?.name ??
+            previous.ally) +
+          '. This crew needs a different bargain.'
+        : 'This partnership has never survived a night together.'
   return {
     id: team + ':' + ally + ':' + chapter,
     title: current.title,
     speaker: config.speaker,
-    text: CHAPTER_STAKES[team][chapter]! + ' ' + current.crisis + ' ' + recalled,
+    text:
+      CHAPTER_STAKES[team][chapter]! + ' ' + current.crisis + ' ' + recalled,
     ally,
     chapter,
     choices: [
@@ -696,15 +703,18 @@ export function allianceStoryFinale(
   const chaptersTogether = history.filter(
     (decision) => decision.ally === finalePick.ally,
   ).length
-  const allyName = TEAMS.find((crew) => crew.id === finalePick.ally)?.name ??
-    finalePick.ally
+  const allyName =
+    TEAMS.find((crew) => crew.id === finalePick.ally)?.name ?? finalePick.ally
   const loyalty =
     chaptersTogether === 5
       ? 'The two crews stayed together for all five chapters; neither can pretend this victory was won alone.'
       : chaptersTogether >= 3
-        ? allyName + ' stood with you for ' + chaptersTogether +
+        ? allyName +
+          ' stood with you for ' +
+          chaptersTogether +
           ' chapters. The partnership leaves a history deeper than the final fight.'
-        : 'The final chapter brought ' + allyName +
+        : 'The final chapter brought ' +
+          allyName +
           ' into a story already shaped by other allies. They know what their promise cost.'
   const decisionsProtected = history.filter(
     (decision) => decision.pick === 'protect',
@@ -716,9 +726,7 @@ export function allianceStoryFinale(
   return {
     title: arc.finale.title,
     story: [
-      finalePick.pick === 'protect'
-        ? arc.finale.protect
-        : arc.finale.gamble,
+      finalePick.pick === 'protect' ? arc.finale.protect : arc.finale.gamble,
       loyalty,
       aftermath,
     ].join(' '),

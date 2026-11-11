@@ -329,9 +329,10 @@ const slimeCityActive = computed(
     route.path.startsWith('/play/slime-city') ||
     route.path.startsWith('/admin/slime-city'),
 )
-const slimeCityPendingTurns = computed(() =>
-  slimePvpStore.games.filter((game) => game.myTurn && game.stage === 'battle')
-    .length,
+const slimeCityPendingTurns = computed(
+  () =>
+    slimePvpStore.games.filter((game) => game.myTurn && game.stage === 'battle')
+      .length,
 )
 const slimeCityLabel = computed(() =>
   slimeCityPendingTurns.value

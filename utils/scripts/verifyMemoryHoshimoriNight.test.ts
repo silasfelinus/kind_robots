@@ -41,7 +41,7 @@ assert.deepEqual(validateHoshimoriNight(), [])
 assert.equal(HOSHIMORI_NIGHT_SITES.length, 64)
 assert.equal(
   new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.opening)).size,
-  48,
+  64,
 )
 assert.equal(
   new Set(

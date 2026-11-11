@@ -119,7 +119,7 @@ assert.equal(
 )
 assert.match(gamePage, /data-testid="slime-settings"/)
 assert.match(gamePage, /data-testid="slime-card-inspector"/)
-assert.match(gamePage, /data-testid="slime-clash-tab"/)
+assert.match(gamePage, /data-testid="slime-vs-tab"/)
 assert.match(gamePage, /data-testid="slime-journey-tab"/)
 assert.doesNotMatch(
   gamePage,

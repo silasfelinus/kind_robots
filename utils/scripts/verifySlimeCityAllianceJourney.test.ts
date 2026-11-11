@@ -6,6 +6,8 @@ import {
   ALLIANCE_THREADS,
   allianceStoryBattleTerms,
   allianceStoryConsequence,
+  allianceStoryPlan,
+  allianceStoryAftermath,
   allianceStoryScene,
   chooseAllianceStory,
   validAllianceStoryDecisions,
@@ -75,6 +77,21 @@ for (const general of TEAMS) {
       allianceStoryConsequence(decided, general.id, 0),
       first.choices[0].outcome,
     )
+    const planned = allianceStoryPlan(decided, general.id, 0)
+    assert.ok(planned)
+    assert.ok(planned.includes(first.choices[0].label))
+    assert.ok(!planned.includes(first.choices[0].outcome))
+    assert.equal(
+      allianceStoryAftermath(decided, general.id, 0, 'player'),
+      first.choices[0].outcome,
+    )
+    const defeat = allianceStoryAftermath(decided, general.id, 0, 'enemy')
+    assert.ok(defeat && defeat.length > 60)
+    assert.notEqual(defeat, first.choices[0].outcome)
+    assert.match(
+      allianceStoryAftermath(decided, general.id, 0, 'draw')!,
+      /stalemate/,
+    )
     const safe = allianceStoryBattleTerms(decided, general.id, ally.id, base)
     const safeEdge = allianceTacticEdge(ally.id, 0, 'protect')
     assert.ok(safeEdge)
@@ -91,6 +108,9 @@ for (const general of TEAMS) {
       clashBossesFromTerms(base).enemy + safeEdge.enemy,
     )
     const risky = chooseAllianceStory(save, general.id, ally.id, 'gamble')
+    const riskSetback = allianceStoryAftermath(risky, general.id, 0, 'enemy')
+    assert.ok(riskSetback && riskSetback.length > 60)
+    assert.notEqual(riskSetback, defeat)
     const riskTerms = allianceStoryBattleTerms(risky, general.id, ally.id, base)
     const riskEdge = allianceTacticEdge(ally.id, 0, 'gamble')
     assert.ok(riskEdge)

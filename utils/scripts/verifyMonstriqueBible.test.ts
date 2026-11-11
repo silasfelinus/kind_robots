@@ -133,15 +133,49 @@ assert.ok(BIBLE_LANES.some((lane) => /arthemy/i.test(lane.checkpoint ?? '')))
 assert.ok(BIBLE_LANES.some((lane) => lane.engine === 'krea2'))
 assert.ok(LORA_STATUSES.includes('dataset-requested'))
 
-// The first batch: 10 stars x 2 shots x 6 safe lanes.
-assert.equal(MONSTRIQUE_BIBLE_SEED.length, 120)
-for (const banned of ['realism-by', 'miaomiao3d']) {
-  assert.ok(
-    !BIBLE_LANES.some((lane) => lane.key === banned),
-    banned + ' rendered explicit pin-ups and stays out of the bible',
-  )
-  assert.ok(!MONSTRIQUE_BIBLE_SEED.some((row) => row.lane === banned))
+// First batches: pin-ups on 7 lanes (Miaomiao 3D out) and 10 softcore unlocks.
+assert.equal(MONSTRIQUE_BIBLE_SEED.length, 150)
+assert.ok(
+  !BIBLE_LANES.some((lane) => lane.key === 'miaomiao3d'),
+  'Miaomiao 3D broke the age and body rules and stays out',
+)
+assert.ok(!MONSTRIQUE_BIBLE_SEED.some((row) => row.lane === 'miaomiao3d'))
+
+// Softcore unlocks (Silas 2026-11-11): one nudity lane, mature/private/adult,
+// nudity allowed but explicit sex acts excluded; other lanes refuse it.
+const nudityLanes = BIBLE_LANES.filter((lane) => lane.nudity)
+assert.deepEqual(
+  nudityLanes.map((lane) => lane.key),
+  ['realism-by'],
+)
+assert.throws(() => bibleEnqueueBodies('nyx', 'softcore', ['arthemy', 'krea2']))
+assert.throws(() => bibleEnqueueBodies('iris', 'softcore', ['realism-by']))
+for (const id of stars) {
+  const [softcore] = bibleEnqueueBodies(id, 'softcore', [
+    'realism-by',
+    'arthemy',
+  ])
+  assert.ok(softcore && softcore.lane === 'realism-by')
+  assert.equal(softcore.body.isMature, true)
+  assert.equal(softcore.body.isPublic, false)
+  const negative = String(softcore.body.negativePrompt)
+  assert.match(negative, /\bchild\b/)
+  assert.match(negative, /\bminor\b/)
+  assert.match(negative, /\bteen\b/)
+  assert.match(negative, /\(penetration:1\.5\)/)
+  assert.doesNotMatch(negative, /\(nipples:/)
+  assert.match(String(softcore.body.promptString), /mature female/)
+  assert.match(String(softcore.body.promptString), /every character an adult/)
 }
+assert.equal(
+  MONSTRIQUE_BIBLE_SEED.filter((row) => row.kind === 'softcore').length,
+  10,
+)
+assert.ok(
+  MONSTRIQUE_BIBLE_SEED.filter((row) => row.kind === 'softcore').every(
+    (row) => row.lane === 'realism-by',
+  ),
+)
 assert.match(
   String(
     bibleEnqueueBodies('nyx', 'shower', ['arthemy'])[0]!.body.negativePrompt,

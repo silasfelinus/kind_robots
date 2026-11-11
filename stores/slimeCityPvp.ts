@@ -37,8 +37,12 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     return result.data
   }
 
-  async function load(id: string, quiet = false): Promise<void> {
-    if (sending.value) return
+  async function load(
+    id: string,
+    quiet = false,
+    recoverRejectedMove = false,
+  ): Promise<void> {
+    if (sending.value && !recoverRejectedMove) return
     if (!quiet) loading.value = true
     try {
       const next = await request(
@@ -110,7 +114,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
       return true
     } catch (cause) {
       error.value = cause instanceof Error ? cause.message : 'Move rejected.'
-      await load(current.id, true)
+      await load(current.id, true, true)
       return false
     } finally {
       sending.value = false
@@ -131,7 +135,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     } catch (cause) {
       error.value =
         cause instanceof Error ? cause.message : 'Cannot forfeit duel.'
-      await load(current.id, true)
+      await load(current.id, true, true)
       return false
     } finally {
       sending.value = false

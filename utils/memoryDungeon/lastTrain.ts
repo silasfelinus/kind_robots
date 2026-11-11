@@ -132,3 +132,55 @@ export function trainConsequences(progress: TrainProgress) {
       choices.e04Platform === 'md.train.e04.listen',
   }
 }
+
+/**
+ * Project a saved train ledger through encounter records verified by the expedition
+ * replay engine. A structurally valid choice is not evidence that its scene was
+ * visited. The caller must supply only replay-verified records, in visit order.
+ * The first eligible choice wins, matching the existing idempotent reducer.
+ */
+export type VerifiedTrainEncounter = {
+  world: 'e03' | 'e04'
+  scene: TrainScene
+  choice: string
+}
+
+const sceneWorld: Record<TrainScene, VerifiedTrainEncounter['world']> = {
+  e03Door: 'e03',
+  e03Timetable: 'e03',
+  e04Platform: 'e04',
+  e04Carriage: 'e04',
+}
+
+export function replayTrainEncounters(
+  verifiedEncounters: readonly VerifiedTrainEncounter[],
+): TrainProgress {
+  let progress = newTrainProgress()
+  for (const encounter of verifiedEncounters) {
+    if (
+      !Object.hasOwn(sceneWorld, encounter.scene) ||
+      sceneWorld[encounter.scene] !== encounter.world
+    )
+      continue
+    progress = chooseTrain(progress, encounter.scene, encounter.choice)
+  }
+  return progress
+}
+
+/**
+ * Accept a restored ledger only if it is exactly reproducible from the verified
+ * expedition encounters. This prevents an injected later-world choice from
+ * granting a token, route slip or echo fragment on load.
+ */
+export function restoreVerifiedTrainProgress(
+  saved: unknown,
+  verifiedEncounters: readonly VerifiedTrainEncounter[],
+): TrainProgress | null {
+  const restored = restoreTrainProgress(saved)
+  if (!restored) return null
+  const replayed = replayTrainEncounters(verifiedEncounters)
+  for (const scene of scenes) {
+    if (restored.decisions[scene] !== replayed.decisions[scene]) return null
+  }
+  return replayed
+}

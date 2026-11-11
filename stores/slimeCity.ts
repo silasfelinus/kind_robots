@@ -1145,13 +1145,25 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
   const selectedJourneyAlliance = computed<AllianceDeck>(() => {
     const entry = library.value.find((item) => item.id === journeyDeckId.value)
-    if (entry && libraryDeckReady(entry.id) && entry.general === activeTeam.value)
-      return { general: entry.general, ally: entry.ally, cards: [...entry.cards] }
+    if (
+      entry &&
+      libraryDeckReady(entry.id) &&
+      entry.general === activeTeam.value
+    )
+      return {
+        general: entry.general,
+        ally: entry.ally,
+        cards: [...entry.cards],
+      }
     return playAlliance.value
   })
   const journeyDeckName = computed(() => {
-    if (journeyFormat.value === 'solo') return teamById(activeTeam.value).name + ' solo deck'
-    return library.value.find((item) => item.id === journeyDeckId.value)?.name ?? 'Starter alliance'
+    if (journeyFormat.value === 'solo')
+      return teamById(activeTeam.value).name + ' solo deck'
+    return (
+      library.value.find((item) => item.id === journeyDeckId.value)?.name ??
+      'Current alliance'
+    )
   })
   function setJourneyFormat(format: DeckFormat): void {
     if (!storyEditable() || (format !== 'solo' && format !== 'alliance')) return

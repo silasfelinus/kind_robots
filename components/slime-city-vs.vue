@@ -16,7 +16,7 @@
   >
     <header class="vs-head">
       <h2>VS</h2>
-      <SlimeCityCrewSelect label="Your crew" />
+      <SlimeCityCrewSelect label="Your crew" align="right" />
     </header>
 
     <div class="vs-columns">
@@ -183,6 +183,30 @@
           {{ pvp.error || pvp.gamesError }}
         </p>
         <ol class="vs-games kr-scroll" aria-label="Your games against players">
+          <template v-if="pvp.openDuels.length">
+            <li class="vs-list-label">OPEN CHALLENGES · ANYONE CAN JOIN</li>
+            <li
+              v-for="duel in pvp.openDuels"
+              :key="duel.id"
+              class="is-open-duel"
+              :data-testid="'slime-vs-open-' + duel.id"
+            >
+              <button type="button" @click="open(duel.id)">
+                <SlimeCityArtwork
+                  :image-id="slimeArtId('crews', duel.hostTeam)"
+                  :alt="teamName(duel.hostTeam)"
+                  fallback="⚔"
+                  compact
+                />
+                <span class="vs-game-text">
+                  <b>{{ duel.hostName.toUpperCase() }} WANTS A FIGHT</b>
+                  <small>They bring {{ teamName(duel.hostTeam) }}</small>
+                </span>
+                <span class="vs-game-join">JOIN ›</span>
+              </button>
+            </li>
+            <li v-if="pvp.games.length" class="vs-list-label">YOUR GAMES</li>
+          </template>
           <li
             v-for="game in pvp.games"
             :key="game.id"
@@ -219,22 +243,57 @@
                 {{ game.bosses.mine }}<small>–{{ game.bosses.rival }}</small>
               </span>
             </button>
+            <button
+              v-if="game.stage === 'waiting'"
+              type="button"
+              class="vs-cancel"
+              :class="{ armed: cancelArmed === game.id }"
+              :disabled="pvp.sending"
+              :aria-label="
+                (game.incoming ? 'Decline challenge from ' : 'Cancel duel ') +
+                (game.rivalName ?? '')
+              "
+              :data-testid="'slime-vs-cancel-' + game.id"
+              @click="cancelGame(game.id)"
+            >
+              {{
+                cancelArmed === game.id
+                  ? 'SURE?'
+                  : game.incoming
+                    ? 'DECLINE'
+                    : 'CANCEL'
+              }}
+            </button>
           </li>
-          <li v-if="pvp.gamesLoaded && !pvp.games.length" class="vs-empty">
-            No games yet. Challenge a friend above.
+          <li
+            v-if="pvp.gamesLoaded && !pvp.games.length && !pvp.openDuels.length"
+            class="vs-empty"
+          >
+            No games yet. Challenge a friend above, or post an open challenge.
           </li>
         </ol>
         <details class="vs-link-play">
-          <summary>Play by invite link instead</summary>
+          <summary>Open challenge, or a private link</summary>
           <div class="vs-player-actions">
             <button
               type="button"
               class="vs-go"
+              title="Listed here for any player to join"
+              data-testid="slime-vs-open-challenge"
+              :disabled="pvp.sending"
+              @click="challenge(true)"
+            >
+              OPEN CHALLENGE ›
+            </button>
+            <button
+              type="button"
+              class="vs-go is-quiet"
+              title="Only someone with your link can join"
               data-testid="slime-vs-challenge"
               :disabled="pvp.sending"
-              @click="challenge"
+              @click="challenge(false)"
             >
-              {{ pvp.sending ? 'OPENING…' : 'NEW LINK CHALLENGE ›' }}
+              PRIVATE LINK ›
             </button>
             <form class="vs-join" @submit.prevent="joinInvite">
               <input
@@ -293,7 +352,11 @@ function statusOf(game: PvpGameSummary): string {
   const rival = game.rivalName?.toUpperCase() ?? ''
   if (game.incoming) return (rival || 'A FRIEND') + ' CHALLENGED YOU'
   if (game.stage === 'waiting')
-    return rival ? 'WAITING FOR ' + rival : 'WAITING FOR A RIVAL'
+    return rival
+      ? 'WAITING FOR ' + rival
+      : game.open
+        ? 'OPEN · WAITING FOR ANYONE'
+        : 'PRIVATE LINK · WAITING'
   if (game.stage === 'finished')
     return game.result === 'win'
       ? 'YOU WON'
@@ -318,14 +381,24 @@ function open(id: string): void {
 function joinInvite(): void {
   if (inviteId.value) open(inviteId.value)
 }
-async function challenge(): Promise<void> {
-  const duel = await pvp.start(lab.activeTeam)
+async function challenge(isPublic: boolean): Promise<void> {
+  const duel = await pvp.start(lab.activeTeam, { isPublic })
   if (duel) open(duel.id)
+}
+/** Cancelling a duel or declining a challenge takes two taps. */
+const cancelArmed = ref<string | null>(null)
+async function cancelGame(id: string): Promise<void> {
+  if (cancelArmed.value !== id) {
+    cancelArmed.value = id
+    return
+  }
+  cancelArmed.value = null
+  await pvp.cancel(id)
 }
 /** Challenge a friend: they get a notification that opens the duel. */
 async function challengeFriend(friendId: number): Promise<void> {
   challenging.value = friendId
-  const duel = await pvp.start(lab.activeTeam, friendId)
+  const duel = await pvp.start(lab.activeTeam, { friendId })
   challenging.value = null
   if (duel) open(duel.id)
 }
@@ -373,6 +446,7 @@ onMounted(() => {
   pvp.error = ''
   void pvp.loadGames()
   void pvp.loadFriends()
+  void pvp.loadOpen()
 })
 </script>
 
@@ -684,8 +758,13 @@ onMounted(() => {
   flex-direction: column;
   gap: 0.35rem;
 }
-.vs-games li > button {
-  width: 100%;
+.vs-games li:not(.vs-empty, .vs-list-label) {
+  display: flex;
+  gap: 0.35rem;
+}
+.vs-games li > button:first-child {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -748,6 +827,47 @@ onMounted(() => {
 .vs-game-life small {
   font-size: 0.7rem;
   color: #ffb4bd;
+}
+.vs-games li > .vs-cancel {
+  flex: none;
+  padding: 0 0.6rem;
+  border: 1px solid #586e68;
+  border-radius: 0.6rem;
+  background: #1a2226;
+  color: #c7d6d0;
+  font: inherit;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.vs-games li > .vs-cancel.armed {
+  border-color: #ff6f7a;
+  background: #4b1f26;
+  color: #ffd6dc;
+}
+.vs-list-label {
+  padding: 0.2rem 0.1rem 0;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #a6c7bc;
+}
+.vs-games li.is-open-duel > button {
+  border-color: #6fd3ff88;
+}
+.vs-game-join {
+  flex: none;
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  color: #6fd3ff;
+}
+.vs-go.is-quiet {
+  background: #24383b;
+  color: #e7f3ee;
+  box-shadow: none;
+  border: 1px solid #586e68;
 }
 .vs-empty {
   padding: 0.6rem;

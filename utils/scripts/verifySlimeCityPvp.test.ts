@@ -235,7 +235,50 @@ assert.equal(
   null,
 )
 
+// Open or private (Silas, 2026-11-11 PT: "Invites should be private or open
+// and seen by other visitors if public and joinable").
+assert.equal(
+  parsePvpRecord({ version: 1, guestId: null, isPublic: true, commands: [] })
+    ?.isPublic,
+  true,
+)
+assert.equal(
+  parsePvpRecord({ version: 1, guestId: null, isPublic: 'yes', commands: [] }),
+  null,
+)
+
 const service = readFileSync('server/utils/slimeCityPvp.ts', 'utf8')
+assert.match(
+  service,
+  /commands: \{ path: '\$\.isPublic', equals: true \}/,
+  'the open list only shows duels their host made public',
+)
+assert.match(
+  service,
+  /if \(isPublic && friendId !== undefined && friendId !== null\)\s*return fail\(400/,
+  'a friend challenge is never listed publicly',
+)
+// "Invites should be cancellable."
+assert.match(
+  service,
+  /if \(!host && !declining\) return fail\(404/,
+  'only the host or the challenged friend can call off a duel',
+)
+assert.match(
+  service,
+  /if \(record\.guestId !== null\)\s*return fail\(409, 'The duel has started\. Forfeit it instead\.'\)/,
+  'a started duel is forfeited, not cancelled',
+)
+assert.match(
+  service,
+  /record\.invitedId \? record\.invitedId === userId : true/,
+  'a friend challenge is visible only to that friend before they join',
+)
+assert.match(
+  readFileSync('server/api/slime-city/pvp/open.get.ts', 'utf8'),
+  /getOptionalApiUser\(/,
+  'open duels are visible to signed-out visitors',
+)
 // Silas, 2026-11-11 PT: "You should be able to challenge players on your
 // friends list. And they should get notified."
 assert.match(
@@ -259,6 +302,7 @@ for (const path of [
   'index.post.ts',
   'index.get.ts',
   'friends.get.ts',
+  '[id]/cancel.post.ts',
   '[id].get.ts',
   '[id]/join.post.ts',
   '[id]/command.post.ts',
@@ -408,6 +452,11 @@ console.log(
   assert.equal(incoming.seat, 'enemy')
   assert.equal(incoming.rivalTeam, 'catgirls')
   assert.equal(incoming.rivalId, 7)
+  assert.equal(incoming.open, false)
+  assert.equal(
+    pvpGameSummary(row, { ...open, isPublic: true }, 7, now)!.open,
+    true,
+  )
   const sent = pvpGameSummary(row, challenge, 7, now)!
   assert.equal(sent.incoming, false)
   assert.equal(sent.rivalId, 8, 'the host sees who was challenged')

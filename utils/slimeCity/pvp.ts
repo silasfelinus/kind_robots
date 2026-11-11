@@ -39,6 +39,12 @@ export interface PvpRecord {
    * notified."). Only that player may join. Absent for open link duels.
    */
   invitedId?: number | null
+  /**
+   * Silas, 2026-11-11 PT: "Invites should be private or open and seen by
+   * other visitors if public and joinable." Open duels are listed in VS for
+   * anyone to join; private ones travel by link or friend challenge.
+   */
+  isPublic?: boolean
   lastActionAt?: string
   forfeitedBy?: Side
   commands: ClashCommand[]
@@ -78,6 +84,8 @@ export interface PvpSnapshot {
   stage: 'waiting' | 'battle' | 'finished'
   /** Sent to one friend rather than shared as an open link. */
   challenge?: boolean
+  /** Listed in VS for anyone to join. */
+  open?: boolean
   board: PvpBoard | null
   revision: number
   outcome: ClashState['victor']
@@ -98,6 +106,7 @@ export function parsePvpRecord(value: unknown): PvpRecord | null {
     (data.invitedId !== undefined &&
       data.invitedId !== null &&
       (!Number.isSafeInteger(data.invitedId) || Number(data.invitedId) <= 0)) ||
+    (data.isPublic !== undefined && typeof data.isPublic !== 'boolean') ||
     (data.lastActionAt !== undefined &&
       (typeof data.lastActionAt !== 'string' ||
         !Number.isFinite(Date.parse(data.lastActionAt)))) ||
@@ -249,6 +258,8 @@ export interface PvpGameSummary {
   stage: 'waiting' | 'battle' | 'finished' | 'expired'
   /** A friend's challenge waiting for this player to accept. */
   incoming: boolean
+  /** Listed in VS for anyone to join. */
+  open: boolean
   /** The other player's account, when known (the server adds the name). */
   rivalId: number | null
   rivalName?: string | null
@@ -321,6 +332,7 @@ export function pvpGameSummary(
         : (row.teamId as TeamId),
     stage,
     incoming,
+    open: !!record.isPublic,
     rivalId:
       seat === 'player'
         ? (record.guestId ?? record.invitedId ?? null)

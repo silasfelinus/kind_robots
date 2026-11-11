@@ -51,7 +51,8 @@
             <p>
               {{
                 answering
-                  ? 'Your friend brings ' +
+                  ? (pvp.duel!.challenge ? 'Your friend' : 'Your rival') +
+                    ' brings ' +
                     nameOf(pvp.duel!.hostTeam) +
                     '. Pick your crew, then enter the pit.'
                   : invitedId
@@ -85,6 +86,29 @@
               <span>{{ team.name }}</span>
             </button>
           </div>
+          <div
+            v-if="!invitedId"
+            class="scpvp-visibility"
+            role="group"
+            aria-label="Who can join"
+          >
+            <button
+              type="button"
+              :aria-pressed="!openDuel"
+              data-testid="slime-pvp-private"
+              @click="openDuel = false"
+            >
+              PRIVATE LINK
+            </button>
+            <button
+              type="button"
+              :aria-pressed="openDuel"
+              data-testid="slime-pvp-open"
+              @click="openDuel = true"
+            >
+              OPEN TO ANYONE
+            </button>
+          </div>
           <button
             class="scpvp-primary"
             type="button"
@@ -96,14 +120,33 @@
                 ? 'OPENING THE GATES…'
                 : invitedId
                   ? 'JOIN THIS DUEL'
-                  : 'CREATE PRIVATE DUEL'
+                  : openDuel
+                    ? 'CREATE OPEN DUEL'
+                    : 'CREATE PRIVATE DUEL'
             }}
+          </button>
+          <button
+            v-if="answering && pvp.duel!.challenge"
+            type="button"
+            class="scpvp-quiet"
+            :class="{ armed: cancelArmed }"
+            :disabled="pvp.sending"
+            data-testid="slime-pvp-decline"
+            @click="cancelDuel"
+          >
+            {{ cancelArmed ? 'SURE? DECLINE' : 'DECLINE CHALLENGE' }}
           </button>
           <p class="scpvp-note">
             {{
               answering
-                ? 'This challenge was sent to you.'
-                : 'Any signed-in player can join.'
+                ? pvp.duel!.challenge
+                  ? 'This challenge was sent to you.'
+                  : pvp.duel!.open
+                    ? 'Open challenge: the first player to join takes the seat.'
+                    : 'You hold a private invite.'
+                : openDuel
+                  ? 'Open duels are listed in VS for any signed-in player.'
+                  : 'Only someone with your link can join.'
             }}
             These fights award no Meat or cards.
           </p>
@@ -124,13 +167,19 @@
           <div class="scpvp-poster-copy">
             <small>YOUR CREW IS IN THE PIT</small>
             <strong class="scpvp-poster-title">{{
-              pvp.duel.challenge ? 'CHALLENGE SENT' : 'ONE FIGHTER SHORT'
+              pvp.duel.challenge
+                ? 'CHALLENGE SENT'
+                : pvp.duel.open
+                  ? 'OPEN CHALLENGE'
+                  : 'ONE FIGHTER SHORT'
             }}</strong>
             <p>
               {{
                 pvp.duel.challenge
                   ? 'Your friend got a notification. This page wakes up when they answer.'
-                  : 'Share this private invite with another signed-in player. Your duel resumes from this link, even after a refresh.'
+                  : pvp.duel.open
+                    ? 'Listed in VS for any signed-in player to join. This page wakes up when someone does.'
+                    : 'Share this private invite with another signed-in player. Your duel resumes from this link, even after a refresh.'
               }}
             </p>
           </div>
@@ -142,6 +191,16 @@
             {{ copied ? 'COPIED!' : 'COPY INVITE' }}
           </button>
           <p>Watching for your opponent…</p>
+          <button
+            type="button"
+            class="scpvp-quiet"
+            :class="{ armed: cancelArmed }"
+            :disabled="pvp.sending"
+            data-testid="slime-pvp-cancel"
+            @click="cancelDuel"
+          >
+            {{ cancelArmed ? 'SURE? CANCEL IT' : 'CANCEL THIS DUEL' }}
+          </button>
         </div>
       </section>
 
@@ -492,8 +551,24 @@ async function advance() {
     chosenPower.value = false
   }
 }
+/** Silas, 2026-11-11 PT: "Invites should be private or open". */
+const openDuel = ref(false)
+/** Silas, 2026-11-11 PT: "Invites should be cancellable." Two taps. */
+const cancelArmed = ref(false)
+async function cancelDuel() {
+  const id = pvp.duel?.id
+  if (!id) return
+  if (!cancelArmed.value) {
+    cancelArmed.value = true
+    return
+  }
+  cancelArmed.value = false
+  pvp.stopWatching()
+  if (await pvp.cancel(id)) await navigateTo('/play/slime-city?vs=1')
+  else pvp.watchDuel(id)
+}
 async function start() {
-  const data = await pvp.start(selectedTeam.value)
+  const data = await pvp.start(selectedTeam.value, { isPublic: openDuel.value })
   if (data) {
     await router.replace({ query: { duel: data.id } })
     pvp.watchDuel(data.id)
@@ -687,6 +762,39 @@ onBeforeUnmount(() => {
   color: #111b15;
   font-weight: 950;
   letter-spacing: 0.03em;
+}
+.scpvp-visibility {
+  display: flex;
+  gap: 0.35rem;
+}
+.scpvp-visibility button {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #586e68;
+  border-radius: 0.6rem;
+  background: #16262b;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.scpvp-visibility button[aria-pressed='true'] {
+  border-color: #c4f25d;
+  color: #c4f25d;
+}
+.scpvp-quiet {
+  padding: 0.55rem 1rem;
+  border: 1px solid #586e68;
+  border-radius: 0.8rem;
+  background: transparent;
+  color: #c7d6d0;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.scpvp-quiet.armed {
+  border-color: #ff6f7a;
+  background: #4b1f26;
+  color: #ffd6dc;
 }
 .scpvp-primary:disabled {
   opacity: 0.45;

@@ -151,17 +151,17 @@
       </article>
       <div class="scs-deck">
         <button
-          v-if="lab.campaignJourneyCurrent"
+          v-if="lab.campaignJourneyCurrent || lab.campaignAllianceCurrent"
           type="button"
           class="scs-cta"
           data-testid="slime-city-faction-journey-continue"
           @click="lab.showCampaign()"
         >
-          CONTINUE {{ lab.campaignStory.title.toUpperCase() }} · SCENE
           {{
-            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
-            1
-          }}/3
+            lab.campaignAllianceCurrent
+              ? 'CONTINUE ALLIANCE STORY · ' + lab.journeyDeckName.toUpperCase()
+              : 'CONTINUE ' + lab.campaignStory.title.toUpperCase()
+          }}
         </button>
         <KrChoiceHand
           v-else-if="lab.campaignAtDestination"

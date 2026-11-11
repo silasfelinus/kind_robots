@@ -310,10 +310,32 @@
             >
               BOUNTIES &amp; REWARDS
             </button>
-            <SlimeCityCrewSelect
-              v-if="lab.deckFormat === 'alliance'"
-              label="Lead crew"
-            />
+            <SlimeCityCrewSelect label="Lead crew" />
+            <div
+              class="sc-deck-type"
+              role="group"
+              aria-label="Deck type"
+              data-testid="slime-deck-type"
+            >
+              <button
+                type="button"
+                :aria-pressed="lab.deckFormat === 'solo'"
+                title="One faction and the mercenaries"
+                data-testid="slime-deck-type-solo"
+                @click="lab.showSoloDeck()"
+              >
+                SOLO
+              </button>
+              <button
+                type="button"
+                :aria-pressed="lab.deckFormat === 'alliance'"
+                title="Add a second faction: an Alliance deck"
+                data-testid="slime-deck-type-alliance"
+                @click="lab.showCards()"
+              >
+                + SECOND FACTION
+              </button>
+            </div>
             <button
               v-if="lab.deckFormat === 'solo'"
               type="button"
@@ -485,6 +507,7 @@
                   aria-label="Choose your second faction"
                   data-testid="slime-ally-picker"
                 >
+                  <span class="sc-ally-label">SECOND FACTION</span>
                   <button
                     v-for="ally in allyChoices"
                     :key="ally.id"
@@ -653,6 +676,17 @@
                   @click="collectionFilter = filter.id"
                 >
                   {{ filter.label }}
+                </button>
+                <button
+                  v-if="lockedCount"
+                  type="button"
+                  class="sc-locked-toggle"
+                  :aria-pressed="showLocked"
+                  title="Cards you can still earn from play and packs"
+                  data-testid="slime-show-locked"
+                  @click="showLocked = !showLocked"
+                >
+                  🔒 LOCKED · {{ lockedCount }}
                 </button>
               </div>
             </div>
@@ -831,9 +865,10 @@
                   ><small>1 GUARANTEED RARE</small>
                 </div>
                 <p>
-                  Three NEW cards. Exactly one rare, plus two common/uncommon.
-                  No duplicates. Random from the cards you do not own yet, until
-                  all {{ lab.collectionSize }} are collected.
+                  Three different cards from the {{ PACK_POOL.length }} cards
+                  beyond the starters: one rare, two common or uncommon. A card
+                  you already own can come again; each duplicate refunds
+                  {{ PACK_DUPLICATE_REFUND }} Meat.
                 </p>
                 <p>
                   COLLECTION {{ lab.progress.cards.length }}/{{
@@ -851,8 +886,7 @@
                   BUY PACK · {{ lab.packPrice }} MEAT
                 </button>
                 <small v-if="!lab.packAffordable"
-                  >Earn more Meat, or the guaranteed-rare pool is
-                  exhausted.</small
+                  >Earn more Meat from fights and bounties.</small
                 >
               </div>
             </div>
@@ -864,6 +898,9 @@
               data-testid="slime-pack-reveal"
             >
               <strong>YOUR LATEST PACK</strong>
+              <p data-testid="slime-pack-result">
+                {{ lab.progress.lastReward }}
+              </p>
               <div class="sc-pack-cards">
                 <figure
                   v-for="id in lab.progress.lastPack"
@@ -1009,6 +1046,7 @@ import { factionPower } from '~/utils/slimeCity/factionPowers'
 import { CLASH_MAX_LEVEL, clashCardText } from '~/utils/slimeCity/clash'
 import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
 import { STREETS } from '~/utils/slimeCity/city'
+import { PACK_DUPLICATE_REFUND, PACK_POOL } from '~/utils/slimeCity/progression'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId, SLIME_CITY_ART } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
@@ -1120,7 +1158,7 @@ const evolutionLevel = ref(1)
 const collectionFilters = [
   { id: 'all', label: 'ALL ELIGIBLE' },
   { id: 'faction', label: 'FACTIONS' },
-  { id: 'mercenary', label: 'MERCENARIES · 60' },
+  { id: 'mercenary', label: 'MERCENARIES' },
 ] as const
 const collectionFilter = ref<(typeof collectionFilters)[number]['id']>('all')
 const inspectId = ref<string | null>(null)
@@ -1138,14 +1176,36 @@ const inspectInDeck = computed(() =>
       : lab.currentSolo.includes(inspectCard.value.id)
     : false,
 )
+/**
+ * Silas, 2026-11-11 PT: "I'm seeing too many cards. I am an admin, but I
+ * should be treated to the same limited layout to earn." The grid shows the
+ * cards you own (and anything already in the deck); locked cards stay out
+ * of sight unless you choose to look.
+ */
+const showLocked = ref(false)
+const inCurrentDeck = (card: Card): boolean =>
+  lab.deckFormat === 'alliance'
+    ? lab.currentAlliance.cards.includes(card.id)
+    : lab.currentSolo.includes(card.id)
+const byFilter = (card: Card): boolean =>
+  collectionFilter.value === 'all'
+    ? true
+    : collectionFilter.value === 'mercenary'
+      ? card.team === 'mercenary'
+      : card.team !== 'mercenary'
 const filterCards = (cards: Card[]): Card[] =>
-  cards.filter((card) =>
-    collectionFilter.value === 'all'
-      ? true
-      : collectionFilter.value === 'mercenary'
-        ? card.team === 'mercenary'
-        : card.team !== 'mercenary',
+  cards.filter(
+    (card) =>
+      byFilter(card) &&
+      (showLocked.value || lab.isCardUnlocked(card.id) || inCurrentDeck(card)),
   )
+const lockedCount = computed(
+  () =>
+    (lab.deckFormat === 'alliance' ? lab.allianceCards : lab.soloCards).filter(
+      (card) =>
+        byFilter(card) && !lab.isCardUnlocked(card.id) && !inCurrentDeck(card),
+    ).length,
+)
 const filteredAllianceCards = computed(() => filterCards(lab.allianceCards))
 const filteredSoloCards = computed(() => filterCards(lab.soloCards))
 const allyChoices = computed(() =>
@@ -1329,6 +1389,7 @@ onUnmounted(() => {
 }
 .sc-collection-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   padding: 0.45rem 0.65rem;
@@ -1797,6 +1858,37 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 0.4rem;
 }
+.sc-deck-type {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #4d5567;
+  border-radius: 0.6rem;
+  background: #0e1420;
+}
+.sc-deck-type button {
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.45rem;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #afb8c5;
+}
+.sc-deck-type button[aria-pressed='true'] {
+  background: #c5ff59;
+  color: #12200c;
+}
+.sc-ally-label {
+  align-self: center;
+  padding-right: 0.3rem;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #a6c7bc;
+}
+.sc-locked-toggle {
+  opacity: 0.85;
+}
 .sc-solo-back {
   border-color: #c5ff59 !important;
   color: #e9ffd0;
@@ -1934,6 +2026,9 @@ onUnmounted(() => {
   backdrop-filter: blur(6px);
 }
 .sc-collection-tools .sc-card-filters {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
   margin: 0;
 }
 .sc-collection-grid {

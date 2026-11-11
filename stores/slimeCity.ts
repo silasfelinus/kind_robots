@@ -988,13 +988,26 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     savedDecks.value = keep(savedDecks.value, (deck) => deck)
     savedAlliances.value = keep(savedAlliances.value, (deck) => deck.cards)
     savedSolo.value = keep(savedSolo.value, (deck) => deck)
+    // Library decks lose only the locked cards and stay as unfinished decks,
+    // so a save never carries a card the server will refuse.
+    let trimmed = 0
+    const owned = library.value.map((deck) => {
+      const cards = deck.cards.filter((id) => isCardUnlocked(id))
+      if (cards.length === deck.cards.length) return deck
+      trimmed++
+      return { ...deck, cards }
+    })
+    if (trimmed) {
+      library.value = owned
+      reset += trimmed
+    }
     if (!reset) return
     allianceDrafts.value = {}
     soloDrafts.value = {}
     deckMessage.value =
       reset +
       (reset === 1 ? ' deck held' : ' decks held') +
-      ' cards you have not unlocked yet and went back to the starter.'
+      ' cards you have not unlocked yet; those cards were taken out.'
     persistStory()
   }
   function selectDeckCard(id: string): void {

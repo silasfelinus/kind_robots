@@ -12,12 +12,7 @@ import {
 } from '../slimeCity/prototypes'
 import { RESERVE_CARDS } from '../slimeCity/reserveCards'
 import { newSlimeCityStory, validSlimeCityStory } from '../slimeCity/storySave'
-import {
-  RARE_COUNT,
-  buyPack,
-  canBuyPack,
-  newProgression,
-} from '../slimeCity/progression'
+import { RARE_COUNT, buyPack, newProgression } from '../slimeCity/progression'
 
 assert.equal(TEAMS.length, 6)
 assert.equal(RESERVE_CARDS.length, 12)
@@ -105,8 +100,23 @@ for (const team of TEAMS) {
 // add cards beyond it.
 assert.equal(newProgression().cards.length, BASE_CARD_IDS.length)
 assert.ok(BASE_CARD_IDS.length >= 120 && BASE_CARD_IDS.length < CARDS.length)
-let wallet = { ...newProgression(), meat: CARDS.length * 100 }
-while (canBuyPack(wallet)) {
+// Starters change (fighters first, gear folded into fighters) but a card
+// anyone was ever dealt stays in the base: an older saved deck must still
+// pass the server's ownership check instead of failing every story save.
+for (const id of [
+  'laser',
+  's3-catgirls-garrote',
+  'ninthlife',
+  'fusevest',
+  'drysuit',
+  's3-bloodfairies-tripcord',
+  's2-bloodfairies-roadie-megaphone',
+  's1-forge-spark',
+  's2-exchange-executive-health-coverage',
+])
+  assert.ok(BASE_CARD_SET.has(id), id + ' stays in the base collection')
+let wallet = { ...newProgression(), meat: CARDS.length * 1000 }
+for (let i = 0; i < 400 && wallet.cards.length < CARDS.length; i++) {
   const next = buyPack(wallet, 1234 + wallet.opened)
   assert.ok(next.lastPack.every((id) => !BASE_CARD_SET.has(id)))
   wallet = next
@@ -131,7 +141,12 @@ assert.match(ui, /data-testid="slime-solo-play"/)
 assert.match(ui, /data-testid="slime-alliance-workbench"/)
 assert.match(ui, /data-testid="slime-card-filters"/)
 assert.match(ui, /data-testid="slime-card-inspector"/)
-assert.match(ui, /MERCENARIES · 60/)
+// Silas, 2026-11-11 PT: owned cards only by default, a clear SOLO / SECOND
+// FACTION choice, and locked cards behind a toggle.
+assert.match(ui, /data-testid="slime-deck-type-solo"/)
+assert.match(ui, /data-testid="slime-deck-type-alliance"/)
+assert.match(ui, /data-testid="slime-show-locked"/)
+assert.match(ui, /showLocked\.value \|\|\s+lab\.isCardUnlocked\(card\.id\)/)
 assert.match(ui, /clashCardText\(inspectCard, evolutionLevel\)/)
 assert.doesNotMatch(ui, /data-testid="slime-deck-workbench"/)
 assert.match(service, /proposed\.soloDecks/)

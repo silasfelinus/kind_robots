@@ -8,7 +8,8 @@
 // Each crew's canonical 20-card Solo Clash deck (its founders included), plus
 // twenty non-rare mercenaries spread across the cost curve. Everything else
 // comes from packs and play.
-import { clashDeck } from './clash'
+import { alleyDeck } from './alleys'
+import { CLASH_GUESTS, clashDeck } from './clash'
 import { MERCENARY_RARE_IDS } from './mercenaryCards'
 import { CARDS, TEAMS } from './prototypes'
 
@@ -28,7 +29,28 @@ function baseMercenaries(dealt: ReadonlySet<string>): string[] {
   )
 }
 
-const crewCards = TEAMS.flatMap((team) => clashDeck(team.id))
+/**
+ * Starters keep changing (fighters first, gear folded into fighters), but a
+ * card that was ever dealt in a crew's starter stays in everyone's base. A
+ * saved deck built from an older starter then still passes the server's
+ * ownership check instead of failing every story save.
+ */
+const EVER_STARTER_IDS = [
+  ...TEAMS.flatMap((team) => [
+    ...alleyDeck(team.id).slice(0, 19),
+    CLASH_GUESTS[team.id],
+  ]),
+  'laser',
+  's3-catgirls-garrote',
+  'ninthlife',
+  's3-riot-firework-bishop',
+  's3-ironjaw-bridgebreaker',
+  's3-bloodfairies-karaoke-oracle',
+]
+const crewCards = [
+  ...TEAMS.flatMap((team) => clashDeck(team.id)),
+  ...EVER_STARTER_IDS,
+]
 const dealtMercenaries = new Set(
   crewCards.filter(
     (id) => CARDS.find((card) => card.id === id)?.team === 'mercenary',

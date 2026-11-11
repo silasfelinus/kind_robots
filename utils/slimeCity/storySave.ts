@@ -20,6 +20,7 @@ import { validBloodfairyJourney } from './campaignBloodfairies'
 import { validIronjawJourney } from './campaignIronjaw'
 import { validRiotJourney } from './campaignRiot'
 import { validUndertowJourney } from './campaignUndertow'
+import { validExchangeJourney } from './campaignExchange'
 import { validAllianceStoryDecisions } from './campaignAllianceJourney'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import {
@@ -328,11 +329,17 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     )
       return false
     if (
+      team === 'exchange' &&
+      !validExchangeJourney(p as unknown as CampaignSave['exchange'])
+    )
+      return false
+    if (
       team !== 'catgirls' &&
       team !== 'bloodfairies' &&
       team !== 'ironjaw' &&
       team !== 'riot' &&
       team !== 'undertow' &&
+      team !== 'exchange' &&
       p.journey !== undefined
     )
       return false

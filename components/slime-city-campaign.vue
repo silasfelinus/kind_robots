@@ -407,6 +407,21 @@
             EVERYTHING
           </p>
         </div>
+        <div
+          v-if="lab.activeTeam === 'exchange'"
+          class="campaign-recap"
+          data-testid="slime-exchange-appetite"
+        >
+          <strong
+            >THE BOOK OF FLESH ·
+            {{ lab.exchangeAppetite.rite.toUpperCase() }}</strong
+          >
+          <p>
+            {{ lab.exchangeAppetite.mercy }} MERCY ·
+            {{ lab.exchangeAppetite.appetite }} APPETITE · THE THING BELOW IS
+            LISTENING
+          </p>
+        </div>
         <span class="campaign-overline"
           >{{ lab.campaignStory.title.toUpperCase() }} · YOUR DECISION</span
         >
@@ -795,9 +810,13 @@ const campaignJourneyChoices = computed<KrHandChoice[]>(() =>
               ? option.id === 'left'
                 ? 'TELL THE TRUTH'
                 : 'KEEP THE LEVERAGE'
-              : option.id === 'left'
-                ? 'HELP THE CREW'
-                : 'TAKE THE RISK',
+              : lab.activeTeam === 'exchange'
+                ? option.id === 'left'
+                  ? 'FORGIVE THE DEBT'
+                  : 'FEED THE HUNGER'
+                : option.id === 'left'
+                  ? 'HELP THE CREW'
+                  : 'TAKE THE RISK',
     badge: lab.bloodfairyStageThree
       ? option.id === 'left'
         ? 'LV 3 · WALL OF SOUND'

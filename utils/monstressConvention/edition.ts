@@ -70,7 +70,12 @@ const GENERAL_HOTSPOTS: Record<RoomId, readonly string[]> = {
   'convention-center': ['idol-poster', 'mummy-actress'],
 }
 
-const GENERAL_INVENTORY = new Set(['camera', 'motel-key', 'odette-purse', 'plastic-fangs'])
+const GENERAL_INVENTORY = new Set([
+  'camera',
+  'motel-key',
+  'odette-purse',
+  'plastic-fangs',
+])
 
 const GENERAL_TOPICS = new Set([
   'room-access',

@@ -104,8 +104,8 @@ for (const general of crews)
       )
       assert.equal(
         deck.cards.filter((id) => cardById(id).team === 'mercenary').length,
-        baseline.cards.filter((id) => cardById(id).team === 'mercenary').length +
-          4,
+        baseline.cards.filter((id) => cardById(id).team === 'mercenary')
+          .length + 4,
         'add four new neutral cards, preserving existing mercenary guests',
       )
       assert.ok(required.every((id) => deck.cards.includes(id)))

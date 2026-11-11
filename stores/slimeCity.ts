@@ -717,7 +717,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const state = campaignSave.value[activeTeam.value]
     if (!state.lastResult) return null
     const chapter = state.lastResult === 'player' ? state.wins - 1 : state.wins
-    return allianceStoryConsequence(campaignSave.value, activeTeam.value, chapter)
+    return allianceStoryConsequence(
+      campaignSave.value,
+      activeTeam.value,
+      chapter,
+    )
   })
   function chooseCampaignAlliance(id: AllianceStoryPick): void {
     if (
@@ -725,7 +729,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       view.value !== 'campaign' ||
       campaignBout.value ||
       !campaignAllianceCurrent.value
-    ) return
+    )
+      return
     const next = chooseAllianceStory(
       campaignSave.value,
       activeTeam.value,

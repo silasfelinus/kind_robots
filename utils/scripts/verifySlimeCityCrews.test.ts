@@ -734,18 +734,6 @@ for (const [id, motif] of [
 // priesthood kneeling to the Thing That Hungers, not a crew of finance bros.
 // All 40 cards keep their ids; only display names and flavor changed. The ten
 // founders' flavor was recast in #5000; the Mogul keeps his name.
-const EXCHANGE_FOUNDERS = new Set([
-  'repo',
-  'collector',
-  'broker',
-  'mogul',
-  'collection',
-  'debttrap',
-  'contract',
-  'foreclosure',
-  'handshake',
-  'hushmoney',
-])
 const EXCHANGE_ROSTER: Record<string, string> = {
   repo: 'Ossuary Goblin',
   collector: 'Tithe-Bell Ringer',

@@ -75,7 +75,8 @@ for (const lead of TEAMS) {
           playerHp: 1,
           enemyArmor: -1,
         })
-        const chosenEdge: AllianceTacticalEdge = pick === 'protect' ? left : right
+        const chosenEdge: AllianceTacticalEdge =
+          pick === 'protect' ? left : right
         assert.equal(terms.playerBossLife, chosenEdge.player)
         assert.equal(terms.enemyBossLife, chosenEdge.enemy)
         assert.equal(terms.playerHp, 1, 'legacy stats remain unchanged')

@@ -8,7 +8,7 @@ title: Monstrique · Series bible
 subtitle: Every monster, model sheet, LoRA and pin-up in one place.
 description: Adults-only studio bible for Monstrique. Character sheets, renames, writers' notes, LoRA dataset requests and art requests across the Illustrious checkpoints and Krea.
 summary: Monstrique character bible.
-icon: kind-icon:book-open
+icon: kind-icon:scroll
 route: /admin/monstrique-bible
 sort: 12
 requiredRole: ADMIN

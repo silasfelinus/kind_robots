@@ -1,5 +1,6 @@
 import { defineEventHandler, setHeader } from 'h3'
 import { errorHandler } from '~/server/utils/error'
+import { visibilityWhere } from '~/server/utils/contentAccess'
 import {
   parseRequests,
   requireMonstriqueStudio,
@@ -12,7 +13,7 @@ import { CHARACTER_IDS } from '~/utils/monstrique/characterModels'
 export default defineEventHandler(async (event) => {
   setHeader(event, 'Cache-Control', 'private, no-store')
   try {
-    await requireMonstriqueStudio(event)
+    const auth = await requireMonstriqueStudio(event)
     const entries = await prisma.monstriqueBibleEntry.findMany()
     const byKey = new Map(entries.map((entry) => [entry.characterKey, entry]))
     const requested = new Map<string, BibleRequestRecord[]>()
@@ -33,7 +34,16 @@ export default defineEventHandler(async (event) => {
       .filter((id): id is number => Number.isInteger(id))
     const images = imageIds.length
       ? await prisma.artImage.findMany({
-          where: { id: { in: imageIds } },
+          where: {
+            AND: [
+              { id: { in: imageIds } },
+              await visibilityWhere(
+                auth.user,
+                { isPublic: true, isMature: true },
+                auth.isAdmin,
+              ),
+            ],
+          },
           select: { id: true, imagePath: true },
         })
       : []

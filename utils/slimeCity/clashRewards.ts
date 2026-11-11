@@ -17,6 +17,7 @@ import {
   type ClashCommand,
   type ClashState,
 } from './clash'
+import { clashMatchReport, reportMeat } from './matchReport'
 import type { BattleOutcome } from './progression'
 import { CARDS, TEAMS, type Side, type TeamId } from './prototypes'
 
@@ -204,5 +205,6 @@ export function clashOutcome(matchId: string, s: ClashState): BattleOutcome {
           c.t === 'play' && c.side === 'player',
       )
       .map((c) => c.card),
+    meat: reportMeat(clashMatchReport(s)),
   }
 }

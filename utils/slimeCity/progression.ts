@@ -275,6 +275,11 @@ export interface BattleOutcome {
   teamId: TeamId
   /** The player's card plays and how many of them were creatures. */
   plays: string[]
+  /**
+   * Clash pays by the after-match report (matchReport.ts): base plus life
+   * kept, flawless, damage dealt and knockouts. Absent: the flat base.
+   */
+  meat?: number
 }
 export function awardBattle(
   original: Progression,
@@ -313,7 +318,9 @@ export function awardOutcome(
   const draw = outcome.victor === 'draw'
   const paid = state.daily.paidBattles < DAILY_PAID_BATTLES
   const earnedXp = !paid ? 0 : victory ? 80 : draw ? 35 : 25
-  const earnedMeat = !paid ? 0 : victory ? 45 : draw ? 15 : 10
+  const earnedMeat = !paid
+    ? 0
+    : (outcome.meat ?? (victory ? 45 : draw ? 15 : 10))
   const creatures = outcome.plays.filter((id) =>
     CARDS.some((card) => card.id === id && card.kind === 'creature'),
   ).length

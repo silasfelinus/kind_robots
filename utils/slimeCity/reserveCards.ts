@@ -134,7 +134,7 @@ export const RESERVE_CARDS: Card[] = [
   },
   {
     id: 'audit-fiend',
-    name: 'Audit Fiend',
+    name: 'Flesh-Ledger Fiend',
     kind: 'creature',
     team: 'exchange',
     cost: 3,
@@ -148,7 +148,7 @@ export const RESERVE_CARDS: Card[] = [
   },
   {
     id: 'debt-holiday',
-    name: 'Debt Holiday',
+    name: 'Drowned Reprieve',
     kind: 'spell',
     team: 'exchange',
     cost: 2,

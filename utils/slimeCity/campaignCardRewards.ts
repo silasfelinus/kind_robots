@@ -15,7 +15,7 @@ const FEATURED = [
   'Furnace Overdrive',
   'Curtain-Call Medal',
   'Tunnel Harpoon',
-  'Acquisition Clause',
+  'Mark of the Procession',
   'Secondhand Halo',
   'Emergency Wings',
   'Theftproof Toolkit',

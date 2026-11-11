@@ -1673,7 +1673,7 @@ function casualties(s: ClashState): void {
             'repo',
             u.side,
             survivor.lane,
-            'Repo Goblin turns a fallen friend into two power and a refund!',
+            'Ossuary Goblin turns a fallen friend into two power and a refund!',
             'strike',
           )
         }
@@ -1865,7 +1865,7 @@ export function playClash(
       unit.maxHp += lifeGain
       note(
         s,
-        'Flesh Broker buys out an ally for a stronger body.',
+        'The Butcher-Priest buys out an ally for a stronger body.',
         'play',
         lane,
       )

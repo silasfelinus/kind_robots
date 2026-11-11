@@ -17,7 +17,11 @@
         <small>{{ kindLabel }}</small>
         <strong>{{ title }}</strong>
         <span class="smr-score">
-          {{ report.bossLeft }}<small>–{{ report.rivalLeft }}</small>
+          <span class="smr-life">
+            <i>YOU</i>{{ report.bossLeft }}<small>·</small
+            ><b>{{ report.rivalLeft }}</b
+            ><i>RIVAL</i>
+          </span>
           <em>BOSS LIFE · ROUND {{ report.rounds }}</em>
         </span>
       </header>
@@ -142,7 +146,7 @@ const status = computed(() => {
 .smr {
   position: absolute;
   inset: 0;
-  z-index: 80;
+  z-index: 200;
   display: grid;
   place-items: center;
   padding: 0.75rem;
@@ -219,8 +223,23 @@ const status = computed(() => {
   font-style: italic;
   line-height: 1;
 }
-.smr-score small {
+.smr-life {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+.smr-life i {
+  font-size: 0.5rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #a6c7bc;
+}
+.smr-life small {
   font-size: 0.8rem;
+  color: #586e68;
+}
+.smr-life b {
   color: #ffb4bd;
 }
 .smr-score em {
@@ -343,6 +362,13 @@ const status = computed(() => {
   border: 0;
   background: linear-gradient(180deg, #d8ff7c, #a6e33c);
   color: #13210a;
+}
+@media (prefers-reduced-motion: reduce) {
+  .smr,
+  .smr-card,
+  .smr-total.pending b {
+    animation: none;
+  }
 }
 .smr-actions button:disabled {
   opacity: 0.5;

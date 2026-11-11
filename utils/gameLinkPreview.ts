@@ -40,6 +40,12 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'Super-school drama, patrols and a very dangerous prom. Free to play in your browser.',
     image: '/comet-city-academy/front/splash.webp',
   },
+  monstrique: {
+    title: 'Monstrique | Kind Robots',
+    description:
+      'Fame. Fangs. Very bad contracts. A Midnight City mystery game, free in your browser, no account needed.',
+    image: '/monstrique/link-preview.webp',
+  },
   'rainbow-bullet-hell-space-princess': {
     title: 'Rainbow Bullet Hell Space Princess | Kind Robots',
     description:

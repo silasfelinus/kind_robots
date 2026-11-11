@@ -44,6 +44,11 @@ import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { useUserStore } from '~/stores/userStore'
 import { MONSTRIQUE_GENERAL_SPEC } from '~/utils/monstressConvention/edition'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
+
+useSeoMeta(
+  gameLinkPreviewMeta('monstrique', useRuntimeConfig().public.appBaseUrl) ?? {},
+)
 
 type MenuPanel = 'settings' | 'scrapbook' | null
 const user = useUserStore()

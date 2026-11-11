@@ -37,7 +37,9 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
   const feedback = ref('')
   const storageWarning = ref('')
   const activeCutscene = ref<Cutscene | null>(null)
+  const matureSplash = ref<{ wide: string; tall: string } | null>(null)
   let accessRequest = 0
+  let splashRequest = 0
 
   const accountId = computed(() =>
     user.isLoggedIn ? (user.user?.id ?? 'guest') : 'guest',
@@ -210,6 +212,32 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     activeCutscene.value = null
   }
 
+  async function loadSplash(): Promise<void> {
+    const sequence = ++splashRequest
+    const token = user.token
+    if (
+      !token ||
+      !user.isLoggedIn ||
+      !user.showMature ||
+      user.isMaturityRestricted
+    ) {
+      matureSplash.value = null
+      return
+    }
+    try {
+      const result = await performFetch<{
+        splash: { wide: string; tall: string } | null
+      }>('/api/monstrique/splash', {}, 1)
+      if (sequence !== splashRequest || token !== user.token) return
+      matureSplash.value =
+        result.success && user.showMature && !user.isMaturityRestricted
+          ? (result.data?.splash ?? null)
+          : null
+    } catch {
+      if (sequence === splashRequest) matureSplash.value = null
+    }
+  }
+
   function takeAction(action: CaseAction): void {
     commit(actionForAudience(state.value, action, audience.value))
   }
@@ -231,6 +259,8 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     storageWarning,
     activeCutscene,
     finishCutscene,
+    matureSplash,
+    loadSplash,
     initialize,
     verifyAudience,
     begin,

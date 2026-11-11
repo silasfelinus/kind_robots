@@ -5,376 +5,26 @@
     aria-label="Monstrique main menu"
     @keydown.esc="closePanel"
   >
-    <svg
-      class="mx-painting pointer-events-none absolute inset-0 size-full"
-      viewBox="0 0 1440 860"
-      preserveAspectRatio="xMidYMid slice"
+    <div
+      class="mx-painting pointer-events-none absolute inset-0"
+      :class="{ 'is-mature': splashIsMature }"
       aria-hidden="true"
+      data-testid="monstrique-splash"
     >
-      <defs>
-        <linearGradient id="mx-sky" x2="0" y2="1">
-          <stop offset="0" stop-color="#10182e" />
-          <stop offset=".5" stop-color="#33213f" />
-          <stop offset="1" stop-color="#642b56" />
-        </linearGradient>
-        <linearGradient id="mx-asphalt" x2="0" y2="1">
-          <stop offset="0" stop-color="#241d39" />
-          <stop offset="1" stop-color="#0c1625" />
-        </linearGradient>
-        <linearGradient id="mx-window" x2="0" y2="1">
-          <stop offset="0" stop-color="#f5c699" />
-          <stop offset="1" stop-color="#c36b92" />
-        </linearGradient>
-        <linearGradient id="mx-pink" x2="0" y2="1">
-          <stop offset="0" stop-color="#ff9cbb" />
-          <stop offset="1" stop-color="#e53d80" />
-        </linearGradient>
-        <linearGradient id="mx-iriscoat" x2="0" y2="1">
-          <stop offset="0" stop-color="#bb4b76" />
-          <stop offset="1" stop-color="#401e46" />
-        </linearGradient>
-        <filter id="mx-neon">
-          <feGaussianBlur stdDeviation="7" />
-        </filter>
-      </defs>
-      <rect width="1440" height="860" fill="url(#mx-sky)" />
-      <circle cx="1160" cy="150" r="113" fill="#e3b7c7" opacity=".6" />
-      <circle
-        cx="1160"
-        cy="150"
-        r="142"
-        fill="#f0a6ca"
-        opacity=".18"
-        filter="url(#mx-neon)"
+      <img
+        class="mx-splash is-wide"
+        :src="splash.wide"
+        alt=""
+        decoding="async"
+        fetchpriority="high"
       />
-      <path
-        d="M0 400L180 328L300 367L510 298L680 385L830 343L1020 376L1275 300L1440 358V860H0Z"
-        fill="#191c32"
+      <img
+        class="mx-splash is-tall"
+        :src="splash.tall"
+        alt=""
+        decoding="async"
       />
-      <g fill="#141b2e">
-        <path d="M101 390V233H169V390M130 233V193H150V233" />
-        <path d="M206 384V276H282V384M225 276V244H267V276" />
-        <path d="M316 384V238H350V384M380 384V289H410V384" />
-        <path d="M665 391V265H728V391M685 265V238H708V265" />
-        <path
-          d="M835 381V242H869V381M852 242V206"
-          stroke="#171628"
-          stroke-width="12"
-        />
-        <path d="M986 388V299H1061V388M1110 372V290H1160V372" />
-      </g>
-      <g opacity=".82">
-        <path d="M360 415V218H1345V515H360Z" fill="#452d48" />
-        <path d="M375 225H1330V377H375Z" fill="#77506a" />
-        <path d="M362 219H1342L1370 248H334Z" fill="#261d33" />
-        <path d="M375 383H1340" stroke="#1c1a2b" stroke-width="20" />
-        <path d="M375 400H1340" stroke="#e07b9f" stroke-width="8" />
-        <g v-for="unit in 6" :key="unit">
-          <rect
-            :x="404 + (unit - 1) * 144"
-            y="254"
-            width="94"
-            height="102"
-            fill="#252037"
-            stroke="#312c40"
-            stroke-width="9"
-          />
-          <rect
-            :x="415 + (unit - 1) * 144"
-            y="265"
-            width="72"
-            height="80"
-            fill="url(#mx-window)"
-          />
-          <path
-            :d="'M' + (451 + (unit - 1) * 144) + ' 265v80'"
-            stroke="#483750"
-            stroke-width="10"
-          />
-          <path
-            :d="'M' + (406 + (unit - 1) * 144) + ' 269l90 75'"
-            stroke="#f0b5ae"
-            opacity=".13"
-            stroke-width="6"
-          />
-        </g>
-        <path d="M405 404H1320V510H405Z" fill="#543749" />
-        <rect x="500" y="417" width="112" height="94" fill="#2c2b3b" />
-        <rect x="638" y="417" width="121" height="94" fill="#2c2b3b" />
-        <rect x="785" y="418" width="121" height="94" fill="#3b293d" />
-        <path d="M500 416H906" stroke="#f3a7a8" stroke-width="10" />
-        <rect
-          x="1090"
-          y="400"
-          width="117"
-          height="122"
-          rx="7"
-          fill="#3c8399"
-          stroke="#102d40"
-          stroke-width="13"
-        />
-        <rect
-          x="1105"
-          y="423"
-          width="87"
-          height="51"
-          fill="#123a50"
-          stroke="#adf0ee"
-          stroke-width="5"
-        />
-        <text
-          x="1121"
-          y="459"
-          font-size="33"
-          font-weight="900"
-          fill="#d8ffff"
-          letter-spacing="4"
-        >
-          ICE
-        </text>
-        <path d="M416 381H1334" stroke="#2f293b" stroke-width="10" />
-        <path
-          d="M416 298H1334"
-          stroke="#1c2634"
-          stroke-width="7"
-          opacity=".7"
-        />
-      </g>
-      <g transform="translate(286 316)">
-        <rect
-          width="243"
-          height="140"
-          rx="12"
-          fill="#1d162c"
-          stroke="#fa79b3"
-          stroke-width="11"
-        />
-        <rect x="8" y="8" width="226" height="124" rx="5" fill="#302040" />
-        <text
-          x="121"
-          y="54"
-          text-anchor="middle"
-          font-family="Georgia, serif"
-          font-style="italic"
-          font-size="49"
-          fill="#ffd4de"
-        >
-          Last Call
-        </text>
-        <text
-          x="121"
-          y="99"
-          text-anchor="middle"
-          font-size="25"
-          font-weight="900"
-          letter-spacing="4"
-          fill="#7fe6e5"
-        >
-          MOTOR LODGE
-        </text>
-        <text
-          x="121"
-          y="123"
-          text-anchor="middle"
-          font-size="14"
-          font-weight="800"
-          letter-spacing="2"
-          fill="#efb2cd"
-        >
-          NO REFUNDS
-        </text>
-      </g>
-      <path d="M0 525L1440 515V860H0Z" fill="url(#mx-asphalt)" />
-      <g opacity=".48" stroke-linecap="round">
-        <path d="M370 560L830 574" stroke="#fe83bb" stroke-width="6" />
-        <path d="M490 610L1100 633" stroke="#8cdbdf" stroke-width="8" />
-        <path d="M260 708L1190 744" stroke="#d65f91" stroke-width="7" />
-        <path d="M400 774L1400 795" stroke="#c5a3c5" stroke-width="5" />
-        <path d="M125 829L750 842" stroke="#7e9bae" stroke-width="10" />
-        <path d="M720 560L1110 570" stroke="#e9acaa" stroke-width="4" />
-      </g>
-      <g transform="translate(940 222)">
-        <path
-          d="M-100 390Q-104 210 2 190Q110 195 151 405L185 625H-161Z"
-          fill="#1c172c"
-          opacity=".7"
-        />
-        <path
-          d="M-67 425Q-84 266 1 233Q73 231 122 310L178 640L-151 640Z"
-          fill="url(#mx-iriscoat)"
-          stroke="#1b2034"
-          stroke-width="17"
-        />
-        <path
-          d="M-67 298L-7 430L58 287L98 632H-119Z"
-          fill="#542a4a"
-          opacity=".72"
-        />
-        <path
-          d="M-40 274L-12 354L24 280"
-          fill="none"
-          stroke="#e9abc0"
-          stroke-width="13"
-        />
-        <path
-          d="M-20 277Q-45 212-40 133Q-11 56 54 80Q96 111 72 221L48 291Z"
-          fill="#201a2e"
-        />
-        <path
-          d="M-50 171Q-66 110-34 89Q-25 56 5 57Q40 40 64 80Q112 89 100 167L86 250L61 235Q71 203 67 188L-30 208Z"
-          fill="#22162a"
-        />
-        <path
-          d="M-16 118Q28 98 60 127L70 183Q68 227 31 250Q-14 252-21 213Z"
-          fill="#e3a48f"
-          stroke="#492a3d"
-          stroke-width="7"
-        />
-        <path
-          d="M-10 168L12 166M39 164L58 170"
-          stroke="#402634"
-          stroke-width="8"
-          stroke-linecap="round"
-        />
-        <path
-          d="M0 193Q24 184 31 193"
-          stroke="#6c334b"
-          stroke-width="5"
-          fill="none"
-        />
-        <path
-          d="M9 215Q30 227 45 214"
-          stroke="#ac4f66"
-          stroke-width="8"
-          fill="none"
-        />
-        <circle
-          cx="-12"
-          cy="215"
-          r="10"
-          fill="none"
-          stroke="#f0c3af"
-          stroke-width="5"
-        />
-        <path
-          d="M-29 112Q-65 134-45 190Q-79 217-42 251M50 88Q105 112 87 190Q110 246 66 273"
-          stroke="#271525"
-          stroke-width="24"
-          fill="none"
-        />
-        <path
-          d="M-105 423Q-77 366-34 391L10 515L-67 550Z"
-          fill="#773753"
-          stroke="#301c33"
-          stroke-width="14"
-        />
-        <path
-          d="M72 391Q127 376 155 438L138 545L91 544Z"
-          fill="#a0476c"
-          stroke="#301c33"
-          stroke-width="14"
-        />
-        <rect
-          x="-8"
-          y="496"
-          width="102"
-          height="82"
-          rx="15"
-          fill="#222939"
-          stroke="#a2b1b7"
-          stroke-width="10"
-          transform="rotate(-8 45 535)"
-        />
-        <circle
-          cx="43"
-          cy="533"
-          r="26"
-          fill="#132e41"
-          stroke="#d3c5c6"
-          stroke-width="8"
-        />
-        <circle cx="43" cy="533" r="12" fill="#5488a5" />
-        <rect x="4" y="484" width="36" height="20" rx="4" fill="#b6c7c5" />
-      </g>
-      <g transform="translate(1195 432)">
-        <ellipse
-          cx="110"
-          cy="393"
-          rx="100"
-          ry="27"
-          fill="#17132b"
-          opacity=".7"
-        />
-        <path
-          d="M45 334L30 390H92L104 325M134 320L146 390H206L173 320"
-          fill="#302b47"
-          stroke="#171c2f"
-          stroke-width="9"
-        />
-        <path
-          d="M31 342Q2 222 52 190Q112 158 175 212Q214 272 186 347Z"
-          fill="#a8a0a0"
-          stroke="#302d3e"
-          stroke-width="13"
-        />
-        <path d="M53 223L96 291L151 217L174 350H37Z" fill="#544959" />
-        <path d="M88 220L100 315L118 229" fill="#e5d2c3" />
-        <path
-          d="M39 243Q-6 243 2 330L27 347L65 267M181 244Q225 251 227 322L200 341L161 266"
-          fill="#a6a0a5"
-          stroke="#2d293d"
-          stroke-width="12"
-        />
-        <path d="M21 315L24 349L57 351L56 320" fill="#e9e6d8" />
-        <path d="M192 319L190 347L218 346L220 318" fill="#e9e6d8" />
-        <path
-          d="M54 189Q24 138 43 77Q51 24 110 21Q173 24 181 92Q191 146 153 190Z"
-          fill="#dbaf98"
-          stroke="#412d40"
-          stroke-width="12"
-        />
-        <path
-          d="M40 94Q17 52 64 36Q121-9 174 50L184 111L158 74L88 66L51 104Z"
-          fill="#322638"
-        />
-        <ellipse
-          cx="112"
-          cy="132"
-          rx="30"
-          ry="24"
-          fill="#d19b8b"
-          stroke="#985e65"
-          stroke-width="5"
-        />
-        <path
-          d="M85 162Q106 177 140 158"
-          stroke="#7e5151"
-          stroke-width="5"
-          fill="none"
-        />
-        <path
-          d="M94 164V177M111 165V178M129 163V176"
-          stroke="#fff3df"
-          stroke-width="8"
-        />
-        <g fill="none" stroke="#242b42" stroke-width="11">
-          <circle cx="72" cy="105" r="30" />
-          <circle cx="144" cy="105" r="30" />
-          <path d="M101 105H116" />
-        </g>
-        <g fill="#222436">
-          <circle cx="74" cy="105" r="7" />
-          <circle cx="142" cy="105" r="7" />
-        </g>
-        <path
-          d="M43 170Q68 185 73 210M145 205Q168 184 179 166"
-          stroke="#31263a"
-          stroke-width="18"
-          fill="none"
-        />
-        <path d="M100 235L103 262L118 239" fill="#f5b5c8" />
-      </g>
-    </svg>
+    </div>
     <div
       class="mx-vignette pointer-events-none absolute inset-0"
       aria-hidden="true"
@@ -625,7 +275,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { useUserStore } from '~/stores/userStore'
 import { useMonstressConventionStore } from '~/stores/monstressConventionStore'
 import { useMonstriquePublicStore } from '~/stores/monstriquePublicStore'
 import { MONSTRIQUE_GENERAL_SPEC } from '~/utils/monstressConvention/edition'
@@ -650,8 +301,33 @@ const adminStory = useMonstressConventionStore()
 const publicStory = useMonstriquePublicStore()
 const story = computed(() => (props.publicEdition ? publicStory : adminStory))
 const kit = usePlaybookKitStore()
+const user = useUserStore()
+onMounted(() => {
+  watch(
+    () => [
+      user.token,
+      user.showMature,
+      user.isMaturityRestricted,
+      audience.value,
+    ],
+    () => void publicStory.loadSplash(),
+    { immediate: true },
+  )
+})
 const audience = computed(() =>
   props.publicEdition ? publicStory.audience : 'mature',
+)
+const GENERAL_SPLASH = {
+  wide: '/monstrique/front/splash-wide.webp',
+  tall: '/monstrique/front/splash-tall.webp',
+}
+const splashIsMature = computed(
+  () => audience.value === 'mature' && Boolean(publicStory.matureSplash),
+)
+const splash = computed(() =>
+  splashIsMature.value && publicStory.matureSplash
+    ? publicStory.matureSplash
+    : GENERAL_SPLASH,
 )
 const spec = computed(() =>
   props.publicEdition && audience.value === 'general'
@@ -725,7 +401,45 @@ function stepSetting(key: KitSettingKey, direction: number): void {
   --mx-cyan: #8ce0e2;
 }
 .mx-painting {
-  filter: contrast(1.06) saturate(1.1);
+  overflow: hidden;
+  background: #17182c;
+}
+.mx-splash {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 68% 50%;
+  animation: mx-drift 38s ease-in-out infinite alternate;
+}
+.mx-splash.is-tall {
+  display: none;
+  object-position: 50% 62%;
+}
+.mx-painting.is-mature .mx-splash {
+  filter: saturate(1.12);
+}
+@keyframes mx-drift {
+  from {
+    transform: scale(1.02) translate(0, 0);
+  }
+  to {
+    transform: scale(1.09) translate(-1.5%, -1%);
+  }
+}
+@media (orientation: portrait) {
+  .mx-splash.is-wide {
+    display: none;
+  }
+  .mx-splash.is-tall {
+    display: block;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mx-splash {
+    animation: none;
+  }
 }
 .mx-vignette {
   background:

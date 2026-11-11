@@ -291,6 +291,44 @@ assert.match(scene, /data-testid="monstrique-stage-cast"/)
 assert.match(scene, /data-testid="monstrexx-cold-open"/)
 assert.match(scene, /story\.activeCutscene/)
 
+// Painted title splash: general art is static, mature art is server-gated.
+const repoFile = (path: string) =>
+  readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
+const splashRoute = repoFile('server/api/monstrique/splash.get.ts')
+assert.match(splashRoute, /'Cache-Control', 'private, no-store'/)
+assert.match(
+  splashRoute,
+  /auth\?\.kind === 'jwt' && viewerShowsMature\(auth\?\.user\)/,
+)
+assert.match(splashRoute, /isMature: true/)
+assert.doesNotMatch(splashRoute, /getQuery\(|readBody\(/)
+const front = repoFile('components/monstrexx/monstrexx-front.vue')
+assert.match(front, /data-testid="monstrique-splash"/)
+assert.match(
+  front,
+  /audience\.value === 'mature' && Boolean\(publicStory\.matureSplash\)/,
+)
+assert.doesNotMatch(
+  front,
+  /<svg[\s\S]*viewBox="0 0 1440 860"/,
+  'vector title scene retired',
+)
+for (const client of [
+  front,
+  repoFile('stores/monstriquePublicStore.ts'),
+  repoFile('pages/play/monstrique.vue'),
+  repoFile('pages/admin/monstrique.vue'),
+])
+  assert.doesNotMatch(client, /MONSTRIQUE_MATURE_SPLASH|monstriqueSplash'/)
+for (const asset of ['splash-wide.webp', 'splash-tall.webp', 'hero.webp'])
+  readFileSync(
+    new URL('../../public/monstrique/front/' + asset, import.meta.url),
+  )
+assert.match(
+  repoFile('content/channels/arcade/monstrique.md'),
+  /^image: \/monstrique\/front\/hero\.webp$/m,
+)
+
 console.log(
   'Monstrique art pipeline: model sheets, multi-style prompts, LoRA datasets, dual-medium cutscenes, score and narrator passed',
 )

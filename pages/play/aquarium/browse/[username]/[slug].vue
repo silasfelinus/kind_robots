@@ -122,6 +122,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import type { TankViewOccupant } from '~/utils/cthulhuquariumStage'
+import { publicTankLinkPreviewMeta } from '~/utils/gameLinkPreview'
 
 interface PublicTankMonster {
   id: number
@@ -194,6 +195,14 @@ const occupants = computed<TankViewOccupant[]>(() =>
     hunger: entry.hunger,
     hue: entry.Monster.hue,
   })),
+)
+
+useSeoMeta(
+  publicTankLinkPreviewMeta(
+    username.value,
+    slug.value,
+    useRuntimeConfig().public.appBaseUrl,
+  ),
 )
 
 useHead(() => ({

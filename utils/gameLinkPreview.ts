@@ -226,3 +226,35 @@ export function gameLinkPreviewMeta(slug: string, origin: string) {
     twitterImage: image,
   }
 }
+
+/**
+ * Share preview for one public Cthulhuquarium tank. The tank itself loads
+ * client-side, so crawlers only ever see the route: build the card from the
+ * owner's username (cleaned and capped) and reuse the Cthulhuquarium art.
+ * No `title` key, so the page's own live tank title still wins in the tab.
+ */
+export function publicTankLinkPreviewMeta(
+  username: string,
+  slug: string,
+  origin: string,
+) {
+  const owner = username.replace(/[^\w.-]/g, '').slice(0, 32)
+  const base = origin.replace(/\/+$/, '')
+  const image = `${base}/cthulhuquarium-front/hero.webp`
+  const title = owner
+    ? `@${owner}'s tank | Cthulhuquarium`
+    : 'A public tank | Cthulhuquarium'
+  const description = `Peek into ${owner ? `@${owner}'s` : 'a'} tank of strange, friendly deep-sea creatures. Free to look around, then start a tank of your own.`
+  return {
+    description,
+    ogTitle: title,
+    ogDescription: description,
+    ogType: 'website' as const,
+    ogUrl: `${base}/play/aquarium/browse/${encodeURIComponent(username)}/${encodeURIComponent(slug)}`,
+    ogImage: image,
+    twitterCard: 'summary_large_image' as const,
+    twitterTitle: title,
+    twitterDescription: description,
+    twitterImage: image,
+  }
+}

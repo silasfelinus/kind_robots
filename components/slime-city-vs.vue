@@ -188,7 +188,7 @@ const inviteId = computed(() => {
   const match = text.match(
     /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
   )
-  return match ? match[0] : ''
+  return match?.[0] ?? ''
 })
 function open(id: string): void {
   void navigateTo({ path: '/admin/slime-city-pvp', query: { duel: id } })

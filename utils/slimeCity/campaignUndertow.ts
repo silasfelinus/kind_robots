@@ -276,7 +276,7 @@ export const UNDERTOW_CHAPTERS: readonly (readonly UndertowBeat[])[] = [
       ],
     },
   ],
-  // vs Anarkiss, the Riot Saints: THE LAST BROADCAST
+  // vs Anarkiss, the Anarkissed: THE LAST BROADCAST
   [
     {
       id: 'pirate-radio-big-top',

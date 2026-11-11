@@ -1,4 +1,4 @@
-// THE BEAUTIFUL CATASTROPHE: the Anarkiss Riot Saints' midnight festival.
+// THE BEAUTIFUL CATASTROPHE: the Anarkissed's midnight festival.
 // Follows the Ironjaw THE LAST SHIFT pattern (Silas, 2026-11-09 PT: "we need
 // to lean into the world. We exchange meat, for chrissakes.")
 import assert from 'node:assert/strict'

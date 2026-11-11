@@ -238,7 +238,7 @@ export const CAMPAIGN_BATTLEFIELDS: Record<
       title: 'THE FURNACE CONTROLS',
       objective: 'smash',
       briefing:
-        'Saint Kaboom’s crew packed the corridor with grenades and sent two Riot Rats sprinting at your line with their tails lit. A Spark Welder stays on the emergency furnace controls, because somebody has to.',
+        'Saint Kaboom’s crew packed the corridor with grenades and sent two Glitter Rats sprinting at your line with their tails lit. A Spark Welder stays on the emergency furnace controls, because somebody has to.',
       fighters: [
         ally('welder', 1, 2, 'defend'),
         rival('rat', 5, 1),
@@ -275,7 +275,7 @@ export const CAMPAIGN_BATTLEFIELDS: Record<
       title: 'INTEREST PER EXPLOSION',
       objective: 'smash',
       briefing:
-        'The Exchange fronted you three mana worth of fireworks, no questions asked. The questions are buried in the field: four hidden-fee mines that charge interest on every Saint who steps on one.',
+        'The Exchange fronted you three mana worth of fireworks, no questions asked. The questions are buried in the field: four hidden-fee mines that charge interest on every Anarkissed performer who steps on one.',
       mana: { player: 3 },
       traps: [
         mine('enemy', 4, 0, 1, { debt: 1 }),
@@ -295,7 +295,7 @@ export const CAMPAIGN_BATTLEFIELDS: Record<
       title: 'THE AMBUSH ROUTE',
       objective: 'smash',
       briefing:
-        'The fake parade map leads straight through five Undertow tripwires. A Frog Trooper waits at the end of it. Saint Kaboom’s solution is to send two Riot Rats ahead to find the wires the loud way.',
+        'The fake parade map leads straight through five Undertow tripwires. A Frog Trooper waits at the end of it. Saint Kaboom’s solution is to send two Glitter Rats ahead to find the wires the loud way.',
       fighters: [
         ally('rat', 2, 1),
         ally('rat', 2, 4),
@@ -360,7 +360,7 @@ export const CAMPAIGN_BATTLEFIELDS: Record<
       title: 'PIRATE RADIO',
       objective: 'smash',
       briefing:
-        'The concert goes live at the bell. Two Riot Rats are crowd-surfing toward your transmitter with lit tails while the false Oracle broadcasts from theirs. Both antennae are rigged with fireworks: whichever falls first loses the signal.',
+        'The concert goes live at the bell. Two Glitter Rats are crowd-surfing toward your transmitter with lit tails while the false Oracle broadcasts from theirs. Both antennae are rigged with fireworks: whichever falls first loses the signal.',
       bases: { player: 14, enemy: 14 },
       rounds: 20,
       fighters: [rival('rat', 6, 2), rival('rat', 6, 3)],
@@ -375,7 +375,7 @@ export const CAMPAIGN_BATTLEFIELDS: Record<
       title: 'THE RUINED BANK',
       objective: 'smash',
       briefing:
-        'Half the bank is already rubble, and the Anarkissed are back for the other half: a Riot Rat is sprinting at the vault with its tail lit. The vault still stands. So does Gilt.',
+        'Half the bank is already rubble, and the Anarkissed are back for the other half: a Glitter Rat is sprinting at the vault with its tail lit. The vault still stands. So does Gilt.',
       fighters: [rival('rat', 6, 3)],
     },
     {

@@ -13,7 +13,7 @@ const FEATURED = [
   'Encore or Die',
   'Union Reallocation',
   'Furnace Overdrive',
-  'Posthumous Saint Medal',
+  'Curtain-Call Medal',
   'Tunnel Harpoon',
   'Acquisition Clause',
   'Secondhand Halo',

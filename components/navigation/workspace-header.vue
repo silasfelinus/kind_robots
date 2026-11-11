@@ -145,6 +145,26 @@
         <Icon name="kind-icon:image" class="kr-icon-5" />
       </NuxtLink>
 
+      <NuxtLink
+        to="/play/slime-city"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="slimeCityActive ? 'border-primary bg-primary/15 text-primary' : 'bg-base-100'"
+        :aria-current="slimeCityActive ? 'page' : undefined"
+        :aria-label="slimeCityLabel"
+        :title="slimeCityLabel"
+        data-testid="header-slime-city"
+      >
+        <span class="indicator">
+          <Icon name="kind-icon:cat" class="kr-icon-5" />
+          <span
+            v-if="userStore.isAdmin && slimeCityPendingTurns"
+            class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
+            aria-hidden="true"
+            data-testid="header-slime-city-turns"
+          >{{ slimeCityPendingTurns > 99 ? '99+' : slimeCityPendingTurns }}</span>
+        </span>
+      </NuxtLink>
+
       <!--
         MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
         game, it was one of my first projects and still one that I occasionally
@@ -213,6 +233,7 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useArtJobStore } from '@/stores/artJobStore'
+import { useSlimeCityPvpStore } from '@/stores/slimeCityPvp'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -226,6 +247,7 @@ const navStore = useNavStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
 const artJobStore = useArtJobStore()
+const slimePvpStore = useSlimeCityPvpStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -296,6 +318,32 @@ const workspaceToggleLabel = computed(() => {
 // Lit when you are already in the dungeon, matching how the workspace toggle
 // shows its own open state. startsWith rather than an equality check because
 // the game's deeper routes (a level, a run) should keep the button lit too.
+const slimeCityActive = computed(() => route.path.startsWith('/play/slime-city') || route.path.startsWith('/admin/slime-city'))
+const slimeCityPendingTurns = computed(() =>
+  slimePvpStore.games.filter((game) => game.myTurn && game.stage === 'battle').length,
+)
+const slimeCityLabel = computed(() =>
+  slimeCityPendingTurns.value
+    ? `Slime City: ${slimeCityPendingTurns.value} games awaiting your turn`
+    : 'Slime City games',
+)
+let slimeCityBadgeTimer: ReturnType<typeof setInterval> | null = null
+watch(
+  () => userStore.isAdmin,
+  (admin) => {
+    if (slimeCityBadgeTimer) clearInterval(slimeCityBadgeTimer)
+    slimeCityBadgeTimer = null
+    if (import.meta.client && admin) {
+      void slimePvpStore.loadGames()
+      slimeCityBadgeTimer = setInterval(() => void slimePvpStore.loadGames(), 30000)
+    }
+  },
+  { immediate: true },
+)
+onBeforeUnmount(() => {
+  if (slimeCityBadgeTimer) clearInterval(slimeCityBadgeTimer)
+})
+
 const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 
 // Exact match, unlike memoryActive: /artjob is a single page with no children,

@@ -29,6 +29,7 @@ import {
   chooseAllianceStory,
   allianceStoryBattleTerms,
   allianceStoryConsequence,
+  allianceStoryFinale,
   type AllianceStoryPick,
 } from '../utils/slimeCity/campaignAllianceJourney'
 import {
@@ -874,6 +875,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const field = campaignBattlefield(current.team, current.index)
     return field ? { ...field, label: OBJECTIVE_LABELS[field.objective] } : null
   })
+  const campaignAllianceFinale = computed(() =>
+    allianceStoryFinale(campaignSave.value, activeTeam.value),
+  )
   const campaignFinale = computed(() => {
     const ending = campaignEnding(campaignSave.value, activeTeam.value)
     if (!ending) return null
@@ -2468,6 +2472,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     selectCampaignFavor,
     activeChapter,
     campaignFinale,
+    campaignAllianceFinale,
     chapterField,
     boutField,
     campaignDistrict,

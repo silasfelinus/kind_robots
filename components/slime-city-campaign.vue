@@ -796,7 +796,6 @@ const allianceChoices = computed<KrHandChoice[]>(() =>
     id: choice.id,
     label: choice.label,
     chip: choice.terms,
-    details: [choice.outcome],
   })),
 )
 function playCampaignAlliance(choice: KrHandChoice) {

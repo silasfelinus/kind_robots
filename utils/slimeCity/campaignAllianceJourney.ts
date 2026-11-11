@@ -5,6 +5,10 @@ import type { BoutTerms } from './city'
 import type { CampaignSave } from './campaign'
 import { TEAMS, type TeamId } from './prototypes'
 import { ALLIANCE_LATER_ARCS } from './campaignAllianceLater'
+import {
+  allianceTacticEdge,
+  allianceTacticLabel,
+} from './campaignAllianceTactics'
 
 export type AllianceStoryPick = 'protect' | 'gamble'
 export interface AllianceStoryDecision {
@@ -569,6 +573,9 @@ export function allianceStoryScene(
   const recorded = save[team].allianceJourney?.[chapter]
   if (recorded?.ally === ally) return null
   const previous = save[team].allianceJourney?.[chapter - 1]
+  const protectEdge = allianceTacticEdge(ally, chapter, 'protect', previous)
+  const gambleEdge = allianceTacticEdge(ally, chapter, 'gamble', previous)
+  if (!protectEdge || !gambleEdge) return null
   const priorBeat = previous?.ally
     ? sceneBeat(team, previous.ally, chapter - 1)
     : null
@@ -597,13 +604,13 @@ export function allianceStoryScene(
         id: 'protect',
         label: current.protect[0],
         outcome: current.protect[1],
-        terms: 'BOSS +3 · RIVAL +2',
+        terms: allianceTacticLabel(protectEdge),
       },
       {
         id: 'gamble',
         label: current.gamble[0],
         outcome: current.gamble[1],
-        terms: 'RIVAL −4 · BOSS −2',
+        terms: allianceTacticLabel(gambleEdge),
       },
     ],
   }
@@ -648,22 +655,81 @@ export function allianceStoryBattleTerms(
   const chapter = save[team].wins
   const current = save[team].allianceJourney?.[chapter]
   if (!current || current.ally !== ally || team === ally) return base
-  const last = save[team].allianceJourney?.[chapter - 1]
-  const loyal = last?.ally === ally
-  const protectedCrew = current.pick === 'protect'
+  const previous = save[team].allianceJourney?.[chapter - 1]
+  const edge = allianceTacticEdge(ally, chapter, current.pick, previous)
+  if (!edge) return base
   return {
     ...base,
-    playerHp:
-      (base.playerHp ?? 0) +
-      (protectedCrew ? 1 : 0) +
-      (loyal && last.pick === 'protect' ? 1 : 0),
-    enemyMana: (base.enemyMana ?? 0) + (protectedCrew ? 1 : 0),
-    playerMana: (base.playerMana ?? 0) - (protectedCrew ? 0 : 1),
-    fewerRivals:
-      (base.fewerRivals ?? 0) +
-      (protectedCrew ? 0 : 1) +
-      (loyal && last.pick === 'gamble' ? 1 : 0),
+    playerBossLife: (base.playerBossLife ?? 0) + edge.player,
+    enemyBossLife: (base.enemyBossLife ?? 0) + edge.enemy,
   }
+}
+
+/** A selected narrative choice is a plan until the Clash has been settled.
+ * Do not narrate a successful rescue on a pre-battle screen. */
+export function allianceStoryPlan(
+  save: CampaignSave,
+  team: TeamId,
+  chapter: number,
+): string | null {
+  const record = save[team].allianceJourney?.[chapter]
+  if (!record) return null
+  const beat = sceneBeat(team, record.ally, chapter)
+  if (!beat) return null
+  const label = record.pick === 'protect' ? beat.protect[0] : beat.gamble[0]
+  return 'The plan: ' + label + '. The outcome depends on the Clash.'
+}
+
+const ALLIANCE_SETBACKS: Record<TeamId, Record<AllianceStoryPick, string>> = {
+  catgirls: {
+    protect:
+      'The escape corridor is blocked again. Your catgirl allies keep the fugitives hidden while the crew regroups.',
+    gamble:
+      'The hunters recognize the decoy and return with reinforcements. The catgirls know the trap will need a new route.',
+  },
+  bloodfairies: {
+    protect:
+      'The band gets everyone out of the crush, but the rival holds the stage. The unfinished song can wait.',
+    gamble:
+      'The risky encore fizzles against the opposition. The roadies gather what remains of the rig for another show.',
+  },
+  ironjaw: {
+    protect:
+      'The lizards carry their exhausted people back to warmth. The gate is still locked, but nobody is abandoned.',
+    gamble:
+      'The foundry alarm overwhelms the raid. Ironjaw hauls the injured into a heated workshop and starts another plan.',
+  },
+  riot: {
+    protect:
+      'The crowd reaches the exits, but the guards hold the stage. Anarkiss calls for another rehearsal.',
+    gamble:
+      'The explosive flourish goes wrong and the rival keeps the venue. The troupe retreats with the prop crew intact.',
+  },
+  undertow: {
+    protect:
+      'The warning travels, but the rival finds the relay. Undertow switches frequencies and protects its witnesses.',
+    gamble:
+      'The forged signal is traced back to a decoy transmitter. The Oracle goes silent long enough to build a better lie.',
+  },
+  exchange: {
+    protect:
+      'The creditors delay the release and keep the vault. The Exchange saves its witnesses rather than signing away another life.',
+    gamble:
+      'The contract snaps back on its author. The auction stays open, and the collectors need a new bargain.',
+  },
+}
+
+export function allianceStoryAftermath(
+  save: CampaignSave,
+  team: TeamId,
+  chapter: number,
+  outcome: 'player' | 'enemy' | 'draw',
+): string | null {
+  const record = save[team].allianceJourney?.[chapter]
+  if (!record) return null
+  if (outcome === 'player') return allianceStoryConsequence(save, team, chapter)
+  if (outcome === 'enemy') return ALLIANCE_SETBACKS[record.ally][record.pick]
+  return 'Neither crew could break the stalemate. The choice remains, but the chapter is not won.'
 }
 
 export function allianceStoryConsequence(

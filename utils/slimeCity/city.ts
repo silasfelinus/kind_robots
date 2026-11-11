@@ -26,6 +26,10 @@ export const CAMPAIGN_DISTRICTS: Record<TeamId, DistrictId> = {
 
 /** Adjustments one decision makes to a rival bout. All optional. */
 export interface BoutTerms {
+  /** Direct starting boss life adjustment for Clash narratives. */
+  playerBossLife?: number
+  /** Direct rival boss life adjustment, independent of legacy armor terms. */
+  enemyBossLife?: number
   playerMana?: number
   enemyMana?: number
   /** Added to every starting rival fighter's armor. */

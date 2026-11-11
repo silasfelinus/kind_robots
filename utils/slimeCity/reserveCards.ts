@@ -143,7 +143,7 @@ export const RESERVE_CARDS: Card[] = [
     armor: 1,
     ap: 1,
     keywords: ['collect'],
-    text: 'A walking ledger who charges interest on every attack and never forgets the last penny.',
+    text: 'A ledger stitched from skin. Its pages tally every blow against the Meat tithe.',
     symbol: '▣',
   },
   {
@@ -154,7 +154,7 @@ export const RESERVE_CARDS: Card[] = [
     cost: 2,
     effect: 'debt',
     debt: 1,
-    text: 'One delayed payment for you, one mana of debt for them. The offer expires at the worst possible moment.',
+    text: 'The drowned chapel grants a reprieve, then calls in the debt: one mana owed by the enemy.',
     symbol: '¤',
   },
 ]

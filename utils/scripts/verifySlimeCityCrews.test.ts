@@ -709,3 +709,22 @@ assert.equal(monsterVictory.victor, 'player')
 console.log(
   'Slime City crews: six legal decks, nine keywords, special effects, debt, roots and t-003 objective variants PASS',
 )
+
+// t-053: Exchange's occult identity must survive future balance/text passes.
+// These are narrative-only changes; IDs, effects and deck legality remain intact.
+for (const [id, motif] of [
+  ['repo', /chapel/i],
+  ['collector', /tithe-bell/i],
+  ['broker', /butcher-priest/i],
+  ['mogul', /Crown Market/i],
+  ['collection', /butcher-priests/i],
+  ['debttrap', /sigil/i],
+  ['contract', /drowned saint/i],
+  ['foreclosure', /chapel/i],
+  ['handshake', /oath/i],
+  ['hushmoney', /altar/i],
+] as const) {
+  const card = cardById(id)
+  assert.equal(card?.team, 'exchange')
+  assert.match(card?.text ?? '', motif, `Exchange occult identity: ${id}`)
+}

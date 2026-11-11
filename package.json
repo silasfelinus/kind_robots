@@ -682,6 +682,7 @@
     "flag:mature-resources": "tsx utils/scripts/flagMatureResources.ts",
     "test:mature-terms": "tsx utils/scripts/flagMatureResources.ts --self-test",
     "test:artjob-priority-bounds": "tsx utils/scripts/verifyArtJobPriorityBounds.ts",
+    "test:artjob-queue-groups": "tsx utils/scripts/verifyArtJobQueueGroups.test.ts",
     "test:wan-i2v-modes": "tsx utils/scripts/verifyWanI2vModes.ts",
     "test:video-image-fit": "tsx utils/scripts/verifyVideoImageFit.test.ts",
     "test:entity-art-prompt-style": "tsx utils/scripts/verifyEntityArtPromptStyle.test.ts",

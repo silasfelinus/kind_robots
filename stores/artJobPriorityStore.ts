@@ -10,10 +10,16 @@ import {
   FRONT_OF_QUEUE_PRIORITY,
   NORMAL_QUEUE_PRIORITY,
 } from '@/utils/artJobPriority'
+import type { ArtJobQueueGroupSummary } from '@/utils/artJobQueueGroups'
 
 export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
   const prioritizingJobIds = ref<number[]>([])
   const error = ref<string | null>(null)
+  const groupSummary = ref<ArtJobQueueGroupSummary | null>(null)
+  const loadingGroups = ref(false)
+  const updatingGroupNames = ref<string[]>([])
+  const groupError = ref<string | null>(null)
+  const groupMessage = ref<string | null>(null)
 
   async function setPriority(id: number, priority: number): Promise<boolean> {
     if (prioritizingJobIds.value.includes(id)) return false
@@ -60,7 +66,84 @@ export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
     return setPriority(id, BACK_OF_QUEUE_PRIORITY)
   }
 
+  async function fetchGroups(): Promise<boolean> {
+    loadingGroups.value = true
+    groupError.value = null
+
+    try {
+      const res = await performFetch<ArtJobQueueGroupSummary>(
+        '/api/art/queue/groups',
+        {},
+        1,
+        30000,
+      )
+
+      if (!res.success || !res.data) {
+        groupError.value = res.message || 'Failed to load queue groups.'
+        return false
+      }
+
+      groupSummary.value = res.data
+      return true
+    } finally {
+      loadingGroups.value = false
+    }
+  }
+
+  async function setGroupPriority(
+    group: string,
+    priority: number,
+  ): Promise<boolean> {
+    if (updatingGroupNames.value.includes(group)) return false
+
+    const artJobStore = useArtJobStore()
+    updatingGroupNames.value = [...updatingGroupNames.value, group]
+    groupError.value = null
+    groupMessage.value = null
+
+    try {
+      const res = await performFetch<{
+        group: string
+        priority: number
+        updated: number
+      }>(
+        '/api/art/queue/groups/priority',
+        {
+          method: 'POST',
+          body: JSON.stringify({ group, priority }),
+        },
+        1,
+        30000,
+      )
+
+      if (!res.success || !res.data) {
+        groupError.value =
+          res.message || `Failed to update priority for "${group}".`
+        return false
+      }
+
+      groupMessage.value = res.message || null
+      await Promise.all([
+        fetchGroups(),
+        artJobStore.fetchJobs(),
+        artJobStore.fetchStats(),
+      ])
+      return true
+    } finally {
+      updatingGroupNames.value = updatingGroupNames.value.filter(
+        (name) => name !== group,
+      )
+    }
+  }
+
   return {
+    groupSummary,
+    loadingGroups,
+    updatingGroupNames,
+    groupError,
+    groupMessage,
+    fetchGroups,
+    setGroupPriority,
     prioritizingJobIds,
     error,
     setPriority,

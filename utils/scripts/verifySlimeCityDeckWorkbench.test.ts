@@ -161,14 +161,26 @@ assert.match(ui, /'slime-quick-' \+ card\.id/)
 // "If I select a card I should see a large display with all three of its
 // evolutions."
 assert.match(hand, /data-testid="slime-hand-evolutions"/)
-assert.match(hand, /length: CLASH_MAX_LEVEL/)
-assert.match(hand, /clashEvolutionChoice\(id, CLASH_MAX_LEVEL\)/)
-assert.match(hand, /:level="stage\.level"\s+:pick="stage\.pick"/)
+assert.match(hand, /<SlimeCityCardEvolutions class="sdh-evo-levels"/)
+const evolutions = readFileSync(
+  'components/slime-city-card-evolutions.vue',
+  'utf8',
+)
+assert.match(evolutions, /length: CLASH_MAX_LEVEL/)
+assert.match(
+  evolutions,
+  /clashEvolutionChoice\(props\.cardId, CLASH_MAX_LEVEL\)/,
+)
+assert.match(evolutions, /:level="stage\.level"\s+:pick="stage\.pick"/)
+assert.match(evolutions, /--rules-open: 1/)
 // "Still not seeing how to create/edit solo decks from this screen."
 assert.match(store, /const customSoloTeams = computed/)
 assert.match(ui, /'slime-solo-deck-' \+ team/)
 assert.match(ui, /showLocked\.value \|\|\s+lab\.isCardUnlocked\(card\.id\)/)
-assert.match(ui, /clashCardText\(inspectCard, evolutionLevel\)/)
+// Silas, 2026-11-11 PT: "Layout issues with the card display." The inspector
+// shows every evolution as a whole card and never repeats the rules beside it.
+assert.match(ui, /<SlimeCityCardEvolutions\s+class="sc-inspect-evolutions"/)
+assert.doesNotMatch(ui, /sc-inspect-rules|clashCardText\(inspectCard/)
 assert.doesNotMatch(ui, /data-testid="slime-deck-workbench"/)
 assert.match(service, /proposed\.soloDecks/)
 assert.match(service, /proposed\.alliances/)

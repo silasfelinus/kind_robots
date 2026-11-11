@@ -1,5 +1,5 @@
-// Real Clash setup and seeded CPU-versus-CPU smoke runs for Alliance choice
-// consequences. These exercise battle mechanics, not subjective fun.
+// Targeted Clash smoke: lead is primarily Riot, opponent primarily Ironjaw.
+// These 36 results verify mechanics, NOT faction win rates or subjective fun.
 import assert from 'node:assert/strict'
 import {
   allianceTacticEdge,
@@ -143,6 +143,9 @@ for (const ally of TEAMS) {
   }
 }
 assert.equal(bouts, 36)
+console.log(
+  'Targeted 36-game smoke is not a faction balance sample: mostly Riot versus Ironjaw.'
+)
 console.log(
   'Alliance tactics: 300 partner/chapter/choice terms and 36 real Alliance ' +
     'CPU-versus-CPU Clash completions PASS; outcomes: ' +

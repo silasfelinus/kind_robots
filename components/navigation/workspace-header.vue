@@ -157,11 +157,21 @@
             : 'bg-base-100'
         "
         :aria-current="slimeCityActive ? 'page' : undefined"
-        aria-label="Slime City games"
-        title="Slime City games"
+         :aria-label="slimeCityHeaderLabel"
+        :title="slimeCityHeaderLabel"
         data-testid="header-slime-city"
       >
-        <Icon name="kind-icon:cat" class="kr-icon-5" />
+        <span class="indicator">
+          <Icon name="kind-icon:cat" class="kr-icon-5" />
+          <span
+            v-if="userStore.isAdmin && slimeCityPendingTurns > 0"
+            class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
+            aria-hidden="true"
+            data-testid="header-slime-city-turns"
+          >
+            {{ slimeCityPendingTurns > 99 ? '99+' : slimeCityPendingTurns }}
+          </span>
+        </span>
       </NuxtLink>
 
       <!--
@@ -228,7 +238,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useArtJobStore } from '@/stores/artJobStore'
@@ -316,6 +326,48 @@ const workspaceToggleLabel = computed(() => {
 // shows its own open state. startsWith rather than an equality check because
 // the game's deeper routes (a level, a run) should keep the button lit too.
 const slimeCityActive = computed(() => route.path.startsWith('/play/slime-city'))
+
+const slimeCityPendingTurns = ref(0)
+const slimeCityHeaderLabel = computed(() =>
+  slimeCityPendingTurns.value > 0
+    ? `Slime City games: ${slimeCityPendingTurns.value} awaiting your turn`
+    : 'Slime City games',
+)
+let slimeCityInboxTimer: ReturnType<typeof setInterval> | null = null
+async function refreshSlimeCityInbox() {
+  if (!userStore.isAdmin) {
+    slimeCityPendingTurns.value = 0
+    return
+  }
+  try {
+    const response = await $fetch<{
+      success: boolean
+      data: { pendingTurns: number }
+    }>('/api/slime-city/pvp/inbox')
+    slimeCityPendingTurns.value = response.success
+      ? Math.max(0, response.data.pendingTurns)
+      : 0
+  } catch {
+    slimeCityPendingTurns.value = 0
+  }
+}
+watch(
+  () => userStore.isAdmin,
+  (admin) => {
+    if (slimeCityInboxTimer) clearInterval(slimeCityInboxTimer)
+    slimeCityInboxTimer = null
+    slimeCityPendingTurns.value = 0
+    if (import.meta.client && admin) {
+      void refreshSlimeCityInbox()
+      slimeCityInboxTimer = setInterval(() => void refreshSlimeCityInbox(), 30000)
+    }
+  },
+  { immediate: true },
+)
+onBeforeUnmount(() => {
+  if (slimeCityInboxTimer) clearInterval(slimeCityInboxTimer)
+})
+
 
 const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 

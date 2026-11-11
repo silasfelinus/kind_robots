@@ -149,16 +149,16 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     species: 'human woman',
     apparentAge: 'adult woman, about 30',
     silhouette:
-      'tall and leggy with a belted trench coat flaring at the knee and a chunky press camera on a strap',
+      'tall and leggy in a belted rose trench coat flaring at the knee, shoulder-length dark hair and a chunky press camera on a strap',
     identity: [
       'adult human woman about 30',
-      'tousled auburn bob with one stubborn curl over her eye',
-      'freckles, bold red lipstick, mischievous green eyes',
+      'shoulder-length tousled dark brown hair with one stubborn curl over her eye',
+      'warm complexion, bold berry lipstick, mischievous half-lidded eyes',
       'chunky vintage press camera with a flash bulb on a strap',
-      'belted mustard trench coat over a black turtleneck and pencil skirt',
+      'belted rose-and-plum trench coat over a black turtleneck and pencil skirt',
     ],
     wardrobe:
-      'mustard trench coat, black turtleneck, pencil skirt, scuffed ankle boots, press pass clipped to the belt',
+      'rose-and-plum trench coat, black turtleneck, pencil skirt, scuffed ankle boots, press pass clipped to the belt',
     acting:
       'Leads with her hips and her camera. Leans on things Norb would never touch. Winks at the audience after every bad idea, then commits to it anyway.',
     expressions: expressions(
@@ -171,10 +171,10 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
       height: 1,
       heads: 5.2,
       build: 'curvy',
-      skin: '#f1c7a8',
-      hair: '#b4532a',
+      skin: '#d9a48c',
+      hair: '#2c2234',
       hairStyle: 'bob',
-      outfit: '#c99a2e',
+      outfit: '#a8466f',
       accent: '#141414',
       prop: 'camera',
     },
@@ -199,7 +199,7 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
       'yellow latex gloves held up like a surgeon',
     ],
     wardrobe:
-      'rumpled brown suit one size too big, crooked bow tie, pocket square used as a sneeze guard, galoshes',
+      'rumpled grey suit one size too big, crooked bow tie, pocket square used as a sneeze guard, galoshes',
     acting:
       'Recoils from every surface. Gestures with his elbows. Stands at least two metres from anyone. His rebuffs are about germs and the case, never about Iris being undesirable.',
     expressions: expressions(
@@ -227,7 +227,7 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
       skin: '#e8c4a0',
       hair: '#4a3b2a',
       hairStyle: 'comb-over',
-      outfit: '#6d4c35',
+      outfit: '#8d8790',
       accent: '#f2d64b',
       prop: 'gloves',
       glasses: true,

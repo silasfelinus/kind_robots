@@ -73,9 +73,9 @@
           data-testid="monstrique-score"
           :title="'Score: ' + score + ' of ' + scoreMax"
         >
-          <small>SCORE</small>
+          <small class="hidden @md:inline">SCORE</small>
           <strong>{{ score }}</strong
-          ><span>/{{ scoreMax }}</span>
+          ><span class="hidden @md:inline">/{{ scoreMax }}</span>
           <em v-if="scoreGain" :key="scoreBump" class="mc-score-gain"
             >+{{ scoreGain }}</em
           >
@@ -558,7 +558,8 @@
         >
           <MonstriqueCharacterSprite
             v-if="speaker"
-            class="mc-bust"
+            class="mc-bust size-full"
+            bust
             :character="speaker"
             :mood="speakerMood"
           />
@@ -902,9 +903,7 @@ function verbIcon(verb: Verb): string {
   animation: mc-gain 1.4s ease-out forwards;
 }
 .mc-bust {
-  height: 260%;
-  align-self: start;
-  margin-top: 6%;
+  background: radial-gradient(circle at 50% 40%, #ffffff22, transparent 70%);
 }
 @keyframes mc-gain {
   to {

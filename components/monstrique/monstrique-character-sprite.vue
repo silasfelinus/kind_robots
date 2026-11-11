@@ -9,12 +9,16 @@
         'is-flipped': facing === 'left',
       },
     ]"
-    :style="{ '--mq-height': rig.height }"
+    :style="{ aspectRatio: bust ? '1' : undefined }"
     :data-character="model.id"
     role="img"
     :aria-label="model.name"
   >
-    <svg viewBox="0 0 100 220" class="size-full overflow-visible">
+    <svg
+      :viewBox="viewBox"
+      class="size-full"
+      :class="bust ? 'overflow-hidden' : 'overflow-visible'"
+    >
       <ellipse
         v-if="!rig.ghost || living"
         cx="50"
@@ -460,12 +464,18 @@ const props = defineProps<{
   talking?: boolean
   facing?: 'left' | 'right'
   living?: boolean
+  bust?: boolean
 }>()
 
 const model = computed(() => CHARACTER_MODELS[props.character])
 const rig = computed(() => model.value.sprite)
 const headR = computed(() => Math.min(34, 100 / rig.value.heads))
 const headCy = computed(() => 8 + headR.value)
+const viewBox = computed(() => {
+  if (!props.bust) return '0 0 100 220'
+  const size = headR.value * 3.4
+  return `${50 - size / 2} ${headCy.value - size * 0.45} ${size} ${size}`
+})
 const neckY = computed(() => headCy.value + headR.value + 2)
 const hipY = computed(() => neckY.value + (214 - neckY.value) * 0.48)
 const torsoWidth = computed(

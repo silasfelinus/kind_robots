@@ -28,7 +28,8 @@ import {
   allianceStoryScene,
   chooseAllianceStory,
   allianceStoryBattleTerms,
-  allianceStoryConsequence,
+  allianceStoryPlan,
+  allianceStoryAftermath,
   allianceStoryFinale,
   type AllianceStoryPick,
 } from '../utils/slimeCity/campaignAllianceJourney'
@@ -708,7 +709,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       : null,
   )
   const campaignAllianceConsequence = computed(() =>
-    allianceStoryConsequence(
+    allianceStoryPlan(
       campaignSave.value,
       activeTeam.value,
       campaignSave.value[activeTeam.value].wins,
@@ -718,10 +719,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const state = campaignSave.value[activeTeam.value]
     if (!state.lastResult) return null
     const chapter = state.lastResult === 'player' ? state.wins - 1 : state.wins
-    return allianceStoryConsequence(
+    return allianceStoryAftermath(
       campaignSave.value,
       activeTeam.value,
       chapter,
+      state.lastResult,
     )
   })
   function chooseCampaignAlliance(id: AllianceStoryPick): void {

@@ -876,3 +876,16 @@ assert.match(shellCss, /name: 'slime-city';/)
 console.log(
   'Slime City: square topology, fog, AP, cards, combat, flag drops, lane flow, BLOODRUSH ticks, CPU, replays and hidden-info contract PASS',
 )
+
+// Silas, 2026-11-11 PT: "We repeat the faction select twice. The top one is
+// too much freedom ... Make sure the elements that need it: story, vs,
+// deckbuilder, have their space to select." No crew picker in the header;
+// Journey, Practice and Collection each carry their own.
+assert.doesNotMatch(page, /sc-crew-picker/, 'no crew picker in the header')
+assert.match(page, /<SlimeCityCrewSelect[^>]*label="Lead crew"/)
+for (const file of ['slime-city-campaign.vue', 'slime-city-clash.vue'])
+  assert.match(
+    readFileSync(new URL('../../components/' + file, import.meta.url), 'utf8'),
+    /<SlimeCityCrewSelect/,
+    file + ' lets the player pick a crew',
+  )

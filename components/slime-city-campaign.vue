@@ -61,6 +61,7 @@
         aria-label="Story bout format"
         data-testid="slime-story-format"
       >
+        <SlimeCityCrewSelect label="Journey crew" />
         <button
           type="button"
           :aria-pressed="lab.journeyFormat === 'solo'"

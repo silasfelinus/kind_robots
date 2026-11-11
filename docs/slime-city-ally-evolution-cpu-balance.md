@@ -4,7 +4,7 @@
 
 ## Why this matters
 
-The previous matched 1,800-Clash narrative study found a larger difference **between allies** than between generals: with the classic starter recipe, Bloodfairies as support won 41% and Undertow as support won 70% under that test's CPU decisions and opponent sample. It did not establish an intrinsic crew imbalance. Earlier broad deck-construction runs showed much narrower *general* differences with differing deck recipes.
+The previous matched 1,800-Clash narrative study found a larger difference **between allies** than between generals: with the classic starter recipe, Bloodfairies as support won 41% and Undertow as support won 70% under that test's CPU decisions and opponent sample. It did not establish an intrinsic crew imbalance. Earlier broad deck-construction runs showed much narrower _general_ differences with differing deck recipes.
 
 Alliance's CPU did not actually inspect its current evolution conditions while choosing cards. It granted +1.2/+2.5 to any evolved **enter** ability in Alliance, ignoring whether a target exists; the richer `cpuEvolutionPayoff` already existed for Solo and was discounted for Alliance, but never consulted by its Alliance card-scoring branch. The difference may encourage the wrong cards and obscure tactical synergies.
 
@@ -20,7 +20,7 @@ The source report will be the current PR's contract-job log. Win rates should re
 
 - 1,140 constructed Alliance matches: 48.7% first-seat wins excluding draws, 4.6% draws.
 - 1,800 story choice matches with ally/chapter/rival Latin-square controls: 52.3% baseline, 55.3% protect, 58.5% gamble, with 600 matches per condition.
-- Prior 36-game test used mostly Riot as the general against Ironjaw; the keys for Catgirls and Bloodfairies named *allies*, not player generals. It cannot establish those crews' win rates.
+- Prior 36-game test used mostly Riot as the general against Ironjaw; the keys for Catgirls and Bloodfairies named _allies_, not player generals. It cannot establish those crews' win rates.
 
 ## Safety and follow-up
 

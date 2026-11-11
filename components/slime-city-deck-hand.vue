@@ -31,7 +31,7 @@
         v-for="(id, index) in cards"
         :key="id"
         class="sdh-slot"
-        :class="{ big: lifted === id }"
+        :class="{ picked: lifted === id }"
         :style="fanStyle(index)"
         :data-testid="'slime-hand-card-' + id"
       >
@@ -44,33 +44,6 @@
         >
           <SlimeCityClashCardFace :card-id="id" />
         </button>
-        <span v-if="lifted === id" class="sdh-actions">
-          <button
-            type="button"
-            aria-label="Previous card"
-            :disabled="index === 0"
-            @click="step(-1)"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            class="sdh-out"
-            :data-testid="'slime-hand-remove-' + id"
-            @click="remove(id)"
-          >
-            ✕ OUT
-          </button>
-          <button type="button" @click="emit('inspect', id)">INFO</button>
-          <button
-            type="button"
-            aria-label="Next card"
-            :disabled="index === cards.length - 1"
-            @click="step(1)"
-          >
-            ›
-          </button>
-        </span>
       </li>
       <li
         v-for="n in Math.max(0, size - cards.length)"
@@ -82,6 +55,65 @@
         <span>＋</span>
       </li>
     </ol>
+    <div
+      v-if="lifted"
+      class="sdh-evo"
+      role="dialog"
+      :aria-label="cardName(lifted) + ': all three evolutions'"
+      data-testid="slime-hand-evolutions"
+    >
+      <header class="sdh-evo-head">
+        <b>{{ cardName(lifted) }}</b>
+        <small>{{ liftedIndex + 1 }} / {{ cards.length }}</small>
+        <button
+          type="button"
+          class="sdh-evo-close"
+          aria-label="Close"
+          @click="lifted = null"
+        >
+          ✕
+        </button>
+      </header>
+      <ol class="sdh-evo-levels" :style="{ '--count': stages.length }">
+        <li v-for="stage in stages" :key="stage.label">
+          <span class="sdh-evo-tag">{{ stage.label }}</span>
+          <span class="sdh-evo-card">
+            <SlimeCityClashCardFace
+              :card-id="lifted"
+              :level="stage.level"
+              :pick="stage.pick"
+            />
+          </span>
+        </li>
+      </ol>
+      <footer class="sdh-actions">
+        <button
+          type="button"
+          aria-label="Previous card"
+          :disabled="liftedIndex <= 0"
+          @click="step(-1)"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          class="sdh-out"
+          :data-testid="'slime-hand-remove-' + lifted"
+          @click="remove(lifted)"
+        >
+          ✕ OUT OF DECK
+        </button>
+        <button type="button" @click="emit('inspect', lifted)">INFO</button>
+        <button
+          type="button"
+          aria-label="Next card"
+          :disabled="liftedIndex >= cards.length - 1"
+          @click="step(1)"
+        >
+          ›
+        </button>
+      </footer>
+    </div>
   </section>
 </template>
 
@@ -89,6 +121,11 @@
 import { computed, ref, watch } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
+import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
+import {
+  clashEvolutionChoice,
+  type EvoPick,
+} from '~/utils/slimeCity/clashEvolutions'
 import { cardById } from '~/utils/slimeCity/prototypes'
 
 const emit = defineEmits<{ inspect: [id: string] }>()
@@ -108,6 +145,24 @@ const title = computed(() => {
   return (
     lab.team.name.split(' ')[0] + ' + ' + (ally?.name.split(' ')[0] ?? 'ALLY')
   )
+})
+const liftedIndex = computed(() => cards.value.indexOf(lifted.value ?? ''))
+/**
+ * Silas, 2026-11-11 PT: "If I select a card I should see a large display with
+ * all three of its evolutions." A choose-one level three shows both options.
+ */
+const stages = computed(() => {
+  const id = lifted.value
+  if (!id) return []
+  const out: { label: string; level: number; pick?: EvoPick }[] = Array.from(
+    { length: CLASH_MAX_LEVEL },
+    (_, i) => ({ label: 'LV ' + (i + 1), level: i + 1 }),
+  )
+  if (clashEvolutionChoice(id, CLASH_MAX_LEVEL)) {
+    out[CLASH_MAX_LEVEL - 1]!.label = 'LV 3 · OPTION A'
+    out.push({ label: 'LV 3 · OPTION B', level: CLASH_MAX_LEVEL, pick: 1 })
+  }
+  return out
 })
 watch(
   () => [lab.deckFormat, lab.activeTeam, lab.libraryId],
@@ -151,6 +206,7 @@ function remove(id: string): void {
   --ease: cubic-bezier(0.2, 0.9, 0.25, 1.12);
   flex: none;
   position: relative;
+  z-index: 10;
   display: flex;
   align-items: flex-end;
   height: calc(var(--W) * 1.5 * var(--rest) * var(--peek) + 0.5rem);
@@ -159,6 +215,7 @@ function remove(id: string): void {
   background: linear-gradient(180deg, #0b1219ee, #05090ef8);
   box-shadow: 0 -10px 24px #0009;
   clip-path: inset(-60rem 0 0 0);
+  container-type: inline-size;
 }
 .sdh-head {
   position: relative;
@@ -233,15 +290,11 @@ function remove(id: string): void {
     z-index: 40;
   }
 }
-.sdh.holding .sdh-slot:not(.big) {
-  --y: calc(var(--W) * 1.5 * var(--rest) * 0.82);
-}
-.sdh-slot.big {
-  --x: 0px;
-  --y: -0.6rem;
-  --s: 1;
+.sdh-slot.picked {
+  --y: calc(var(--W) * 1.5 * var(--rest) * (1 - var(--peek)) * 0.15);
+  --s: calc(var(--rest) * 1.1);
   --r: 0deg;
-  z-index: 50;
+  z-index: 45;
 }
 .sdh-card {
   position: relative;
@@ -259,7 +312,7 @@ function remove(id: string): void {
     -4px 0 10px #000b,
     0 6px 18px #000a;
 }
-.big .sdh-card {
+.picked .sdh-card {
   outline: 3px solid #c5ff59;
   outline-offset: 2px;
   box-shadow:
@@ -279,12 +332,106 @@ function remove(id: string): void {
 .sdh-ghost span {
   margin-bottom: 40%;
 }
-.sdh-actions {
+.sdh-evo {
   position: absolute;
-  inset: auto 0.4rem 0.5rem;
-  z-index: 2;
+  bottom: calc(100% + 0.4rem);
+  left: 50%;
+  z-index: 60;
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: calc(100cqw - 1rem);
+  padding: 0.6rem 0.7rem 0.7rem;
+  border: 2px solid #c5ff59aa;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #13222af7, #0a1117fa);
+  box-shadow:
+    0 0 40px #c5ff5926,
+    0 20px 50px #000d;
+  transform: translateX(-50%);
+  animation: sdh-evo-in 0.25s var(--ease);
+}
+@keyframes sdh-evo-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 1rem) scale(0.96);
+  }
+}
+.sdh-evo-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.sdh-evo-head b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 950;
+  letter-spacing: 0.02em;
+}
+.sdh-evo-head small {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #a6c7bc;
+}
+.sdh-evo-close {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #586e68;
+  border-radius: 50%;
+  background: #16262b;
+  color: #eef4ee;
+  font: inherit;
+  cursor: pointer;
+}
+.sdh-evo-levels {
+  --E: max(
+    10.5rem,
+    min(15rem, (100cqw - 3rem - (var(--count) - 1) * 0.6rem) / var(--count))
+  );
+  display: flex;
+  gap: 0.6rem;
+  max-width: calc(100cqw - 2.4rem);
+  margin: 0 auto;
+  padding: 0 0 0.2rem;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+}
+.sdh-evo-levels li {
+  flex: none;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0.3rem;
+  width: var(--E);
+}
+.sdh-evo-tag {
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  color: #c5ff59;
+}
+.sdh-evo-card {
+  --rules-open: 1;
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 0.8rem;
+  container-type: inline-size;
+  box-shadow: 0 8px 20px #000a;
+}
+.sdh-actions {
+  display: flex;
+  gap: 0.4rem;
 }
 .sdh-actions button {
   flex: 1 1 auto;
@@ -329,6 +476,9 @@ function remove(id: string): void {
 @media (prefers-reduced-motion: reduce) {
   .sdh-slot {
     transition: none;
+  }
+  .sdh-evo {
+    animation: none;
   }
 }
 </style>

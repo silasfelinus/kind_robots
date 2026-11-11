@@ -216,12 +216,15 @@ assert.equal(
   allianceBeat.ally,
 )
 assert.ok(lab.campaignAllianceConsequence)
+const expectedBosses = clashBossesFromTerms(
+  lab.campaignPreviewTerms(lab.activeChapter!.choices[0]!.terms),
+)
 lab.startCampaignBattle('conviction')
 assert.equal(lab.view, 'clash')
 assert.equal(lab.clashLaunch.kind, 'campaign')
 assert.equal(lab.clashLaunch.format, 'alliance')
 assert.equal(lab.clashLaunch.alliance?.ally, allianceBeat.ally)
-assert.ok(lab.clashLaunch.bosses)
+assert.deepEqual(lab.clashLaunch.bosses, expectedBosses)
 lab.showCampaign()
 lab.setJourneyFormat('solo')
 assert.equal(

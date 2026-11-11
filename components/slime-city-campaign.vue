@@ -633,9 +633,6 @@ import { computed } from 'vue'
 import { describeTerms } from '~/utils/slimeCity/campaign'
 import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
 
-
-
-
 import { rarityOf } from '~/utils/slimeCity/progression'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
@@ -788,7 +785,10 @@ const approachChoices = computed<KrHandChoice[]>(() =>
   (lab.activeChapter?.choices ?? []).map((choice) => ({
     id: choice.id,
     label: choice.label,
-    chip: clashTermsLabel(lab.campaignPreviewTerms(choice.terms), lab.journeyFormat),
+    chip: clashTermsLabel(
+      lab.campaignPreviewTerms(choice.terms),
+      lab.journeyFormat,
+    ),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),
 )

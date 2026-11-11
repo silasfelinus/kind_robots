@@ -84,15 +84,34 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
 }
 
 // Counterfactual fighters-first pilot: compare the shipped Catgirls starter
-// against its previous nonfighter slot under identical seeds and seats.
+// against its exact pre-pilot starter under identical seeds and seats.
 // This is a diagnostic, not a balance gate: report both win and card-use rates.
 export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
   const current = clashDeck('catgirls')
+  // Reconstruct the original from commit 81a7e2b9's three-slot diff.
+  // The prior list already contained Patent Saboteur and Bicycle Clinic:
+  // replacing only Organ Donor with Laser would invent a deck that never shipped.
   const original = current.map((id) =>
-    id === 's2-catgirls-backstreet-organ-donor' ? 'laser' : id,
+    id === 's3-catgirls-patent-saboteur'
+      ? 'laser'
+      : id === 's3-catgirls-bicycle-clinic'
+        ? 's3-catgirls-patent-saboteur'
+        : id === 's2-catgirls-backstreet-organ-donor'
+          ? 's3-catgirls-bicycle-clinic'
+          : id,
   )
-  if (new Set(original).size !== 20 || original.join() === current.join())
-    throw new Error('Catgirls counterfactual deck no longer matches the pilot')
+  const changed = current.filter((id, index) => id !== original[index])
+  if (
+    current.length !== 20 ||
+    original.length !== 20 ||
+    new Set(original).size !== 20 ||
+    changed.length !== 3 ||
+    !original.includes('laser') ||
+    original.includes('s2-catgirls-backstreet-organ-donor')
+  )
+    throw new Error(
+      'Catgirls counterfactual no longer matches the pre-pilot deck',
+    )
   const results = {
     current: { wins: 0, games: 0, two: 0, three: 0, played: 0 },
     original: { wins: 0, games: 0, two: 0, three: 0, played: 0 },

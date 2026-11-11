@@ -42,7 +42,10 @@ import {
   type ClashState,
   type ClashUnit,
 } from '../slimeCity/clash'
-import { sweepClash } from './slimeCityClashBalanceReport'
+import {
+  compareCatgirlsStarter,
+  sweepClash,
+} from './slimeCityClashBalanceReport'
 import { clashSpectacle } from '../slimeCity/clashSpectacle'
 
 function follower(
@@ -1879,6 +1882,21 @@ assert.ok(
 // pairing keep each crew and the first seat near even. Report:
 // npx tsx utils/scripts/slimeCityClashBalanceReport.ts 150 9000
 // 40 seeds (1200 games): a 10-seed sample swung the first seat by 13 points.
+
+// Paired both-seat counterfactual is executed in CI, not merely available as
+// a manual script. Diagnostic metrics must not impose arbitrary win-rate gates.
+const catgirlsPilot = compareCatgirlsStarter(4)
+assert.equal(catgirlsPilot.current.games, 40)
+assert.equal(catgirlsPilot.original.games, 40)
+for (const [version, result] of Object.entries(catgirlsPilot)) {
+  assert.ok(result.wins >= 0 && result.wins <= result.games, version)
+  assert.ok(result.played > 0, version + ': cards must actually be played')
+}
+console.log(
+  'Catgirls fighters-first paired counterfactual (40 games/deck):',
+  catgirlsPilot,
+)
+
 const sweep = sweepClash(40, 700)
 console.log(
   'CLASH crew win rates (40 acceptance seeds):',

@@ -93,9 +93,9 @@ export const CAMPAIGN_RIVAL_EXCHANGES: Record<
     },
     {
       rival:
-        'Those implants were made from our tissue. You need to stop using them.',
+        'That serum was brewed from our tissue. You need to stop using it.',
       reply:
-        "You're right. Help us unplug the machines without killing the people connected to them.",
+        "You're right. Help us wean the crew off it without hurting anyone who already took it.",
     },
     {
       rival: "We won't stop singing until every missing worker gets a name.",

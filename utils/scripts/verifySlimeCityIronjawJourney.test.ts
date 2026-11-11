@@ -27,6 +27,9 @@ import {
 import { clashBossesFromTerms } from '../slimeCity/clashBouts'
 import { newSlimeCityStory, validSlimeCityStory } from '../slimeCity/storySave'
 import { soloProblems, soloStarter } from '../slimeCity/alliance'
+import { CAMPAIGN_CHAPTER_SUPPORT } from '../slimeCity/campaignSupport'
+import { CAMPAIGN_RIVAL_EXCHANGES } from '../slimeCity/campaignDialogue'
+import { CAMPAIGN_RIVAL_REACTIONS } from '../slimeCity/campaignAftermath'
 
 // Fifteen authored scenes, thirty distinct decisions, one story per rival.
 assert.equal(IRONJAW_CHAPTERS.length, 5)
@@ -171,6 +174,23 @@ assert.equal(
   ironjawBeat(legacy.campaigns.ironjaw)?.id,
   IRONJAW_CHAPTERS[2]![0]!.id,
 )
+// t-054 (Silas, 2026-11-10 PT): Ironjaw are escaped bio-lab mutant lizards,
+// not ogres or cybernetic workers. Chrome jaws stay; implants and machine
+// bodies do not.
+const ironjawProse = JSON.stringify([
+  FACTION_CAMPAIGNS.ironjaw,
+  IRONJAW_CHAPTERS,
+  CAMPAIGN_CHAPTER_SUPPORT.ironjaw,
+  CAMPAIGN_RIVAL_EXCHANGES.ironjaw,
+  CAMPAIGN_RIVAL_REACTIONS.ironjaw,
+])
+for (const word of [
+  /\bogres?\b/i,
+  /cybernetic/i,
+  /\bimplants?\b/i,
+  /\borcs?\b/i,
+])
+  assert.doesNotMatch(ironjawProse, word)
 console.log(
   'Ironjaw THE LAST SHIFT: 15 lizard-strike scenes, 30 decisions, Solidarity/Heat meter, real boss effects, story deck, save/retry, legacy saves PASS',
 )

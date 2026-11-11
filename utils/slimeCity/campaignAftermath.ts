@@ -97,9 +97,8 @@ export const CAMPAIGN_RIVAL_REACTIONS: Record<
     },
     {
       victory:
-        'The implants work and the stolen tissue is free. Our lawyers are panicking.',
-      defeat:
-        'Those implants answer to our lab. Did you ask who owns the nerves?',
+        'The serum works and the stolen tissue is free. Our lawyers are panicking.',
+      defeat: 'That serum answers to our lab. Did you ask who owns the cells?',
     },
     {
       victory:

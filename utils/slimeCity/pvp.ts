@@ -33,6 +33,12 @@ export function isPvpExpired(
 export interface PvpRecord {
   version: 1
   guestId: number | null
+  /**
+   * A challenge sent to one friend (Silas, 2026-11-11 PT: "You should be able
+   * to challenge players on your friends list. And they should get
+   * notified."). Only that player may join. Absent for open link duels.
+   */
+  invitedId?: number | null
   lastActionAt?: string
   forfeitedBy?: Side
   commands: ClashCommand[]
@@ -70,6 +76,8 @@ export interface PvpSnapshot {
   hostTeam: TeamId
   guestTeam: TeamId | null
   stage: 'waiting' | 'battle' | 'finished'
+  /** Sent to one friend rather than shared as an open link. */
+  challenge?: boolean
   board: PvpBoard | null
   revision: number
   outcome: ClashState['victor']
@@ -87,6 +95,9 @@ export function parsePvpRecord(value: unknown): PvpRecord | null {
     data.version !== 1 ||
     (data.guestId !== null &&
       (!Number.isSafeInteger(data.guestId) || Number(data.guestId) <= 0)) ||
+    (data.invitedId !== undefined &&
+      data.invitedId !== null &&
+      (!Number.isSafeInteger(data.invitedId) || Number(data.invitedId) <= 0)) ||
     (data.lastActionAt !== undefined &&
       (typeof data.lastActionAt !== 'string' ||
         !Number.isFinite(Date.parse(data.lastActionAt)))) ||
@@ -236,6 +247,11 @@ export interface PvpGameSummary {
   myTeam: TeamId
   rivalTeam: TeamId | null
   stage: 'waiting' | 'battle' | 'finished' | 'expired'
+  /** A friend's challenge waiting for this player to accept. */
+  incoming: boolean
+  /** The other player's account, when known (the server adds the name). */
+  rivalId: number | null
+  rivalName?: string | null
   myTurn: boolean
   result: 'win' | 'loss' | 'draw' | null
   round: number
@@ -259,10 +275,14 @@ export function pvpGameSummary(
   viewer: number,
   now = Date.now(),
 ): PvpGameSummary | null {
+  const incoming =
+    record.guestId === null &&
+    record.invitedId === viewer &&
+    row.userId !== viewer
   const seat: Side | null =
     row.userId === viewer
       ? 'player'
-      : record.guestId === viewer
+      : record.guestId === viewer || incoming
         ? 'enemy'
         : null
   if (!seat || !isPvpTeam(row.teamId)) return null
@@ -300,6 +320,11 @@ export function pvpGameSummary(
           : null
         : (row.teamId as TeamId),
     stage,
+    incoming,
+    rivalId:
+      seat === 'player'
+        ? (record.guestId ?? record.invitedId ?? null)
+        : row.userId,
     myTurn: stage === 'battle' && state?.active === seat,
     result: victor
       ? victor === 'draw'
@@ -317,7 +342,15 @@ export function pvpGameSummary(
 /** The VS hub lists games waiting on you first, then the most recent. */
 export function sortPvpGames(games: PvpGameSummary[]): PvpGameSummary[] {
   const rank = (g: PvpGameSummary) =>
-    g.myTurn ? 0 : g.stage === 'battle' ? 1 : g.stage === 'waiting' ? 2 : 3
+    g.incoming
+      ? 0
+      : g.myTurn
+        ? 1
+        : g.stage === 'battle'
+          ? 2
+          : g.stage === 'waiting'
+            ? 3
+            : 4
   return [...games].sort(
     (a, b) => rank(a) - rank(b) || b.lastActionAt.localeCompare(a.lastActionAt),
   )

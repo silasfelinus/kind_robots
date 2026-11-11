@@ -30,13 +30,15 @@
       </p>
 
       <section
-        v-if="!pvp.duel"
+        v-if="!pvp.duel || answering"
         class="scpvp-lobby"
         aria-label="Create or join a duel"
       >
         <div class="scpvp-poster">
           <SlimeCityArtwork
-            :image-id="slimeArtId('crews', selectedTeam)"
+            :image-id="
+              slimeArtId('crews', answering ? pvp.duel!.hostTeam : selectedTeam)
+            "
             :alt="nameOf(selectedTeam) + ' crew poster'"
             fallback="⚔"
             compact
@@ -48,9 +50,13 @@
             </strong>
             <p>
               {{
-                invitedId
-                  ? 'Pick your crew, then enter the pit.'
-                  : 'Choose a crew, create a private duel, and send your opponent the invitation.'
+                answering
+                  ? 'Your friend brings ' +
+                    nameOf(pvp.duel!.hostTeam) +
+                    '. Pick your crew, then enter the pit.'
+                  : invitedId
+                    ? 'Pick your crew, then enter the pit.'
+                    : 'Choose a crew, create a private duel, and send your opponent the invitation.'
               }}
             </p>
           </div>
@@ -94,7 +100,12 @@
             }}
           </button>
           <p class="scpvp-note">
-            Any signed-in player can join. These fights award no Meat or cards.
+            {{
+              answering
+                ? 'This challenge was sent to you.'
+                : 'Any signed-in player can join.'
+            }}
+            These fights award no Meat or cards.
           </p>
         </div>
       </section>
@@ -112,10 +123,15 @@
           />
           <div class="scpvp-poster-copy">
             <small>YOUR CREW IS IN THE PIT</small>
-            <strong class="scpvp-poster-title">ONE FIGHTER SHORT</strong>
+            <strong class="scpvp-poster-title">{{
+              pvp.duel.challenge ? 'CHALLENGE SENT' : 'ONE FIGHTER SHORT'
+            }}</strong>
             <p>
-              Share this private invite with another signed-in player. Your duel
-              resumes from this link, even after a refresh.
+              {{
+                pvp.duel.challenge
+                  ? 'Your friend got a notification. This page wakes up when they answer.'
+                  : 'Share this private invite with another signed-in player. Your duel resumes from this link, even after a refresh.'
+              }}
             </p>
           </div>
         </div>
@@ -385,6 +401,10 @@ const invitedId = computed(() =>
   typeof route.query.duel === 'string' ? route.query.duel : '',
 )
 const selectedTeam = ref<TeamId>('catgirls')
+/** A friend's challenge waiting for this player to pick a crew and join. */
+const answering = computed(
+  () => pvp.duel?.stage === 'waiting' && pvp.duel.seat === 'enemy',
+)
 const selectedCard = ref<string | null>(null)
 const chosenPower = ref(false)
 const choice = ref<0 | 1>(0)

@@ -217,11 +217,48 @@ assert.equal(
   null,
 )
 
+// Friend challenges: one invited player, a positive account id or nothing.
+assert.equal(
+  parsePvpRecord({ version: 1, guestId: null, invitedId: 9, commands: [] })
+    ?.invitedId,
+  9,
+)
+assert.ok(
+  parsePvpRecord({ version: 1, guestId: null, invitedId: null, commands: [] }),
+)
+assert.equal(
+  parsePvpRecord({ version: 1, guestId: null, invitedId: 0, commands: [] }),
+  null,
+)
+assert.equal(
+  parsePvpRecord({ version: 1, guestId: null, invitedId: '9', commands: [] }),
+  null,
+)
+
 const service = readFileSync('server/utils/slimeCityPvp.ts', 'utf8')
+// Silas, 2026-11-11 PT: "You should be able to challenge players on your
+// friends list. And they should get notified."
+assert.match(
+  service,
+  /relatedUserId: Number\(friendId\),\s*type: 'FRIEND',\s*status: 'ACCEPTED'/,
+  'only accepted friends can be challenged',
+)
+assert.match(
+  service,
+  /createNotification\(\{\s*userId: invitedId,[\s\S]*?linkPath: '\/play\/slime-city-pvp\?duel=' \+ row\.id/,
+  'the challenged friend is notified with a link to the duel',
+)
+assert.match(
+  service,
+  /record\.invitedId && record\.invitedId !== userId\)\s*return fail\(403/,
+  'only the challenged friend may join',
+)
+assert.match(service, /path: '\$\.invitedId', equals: userId/)
 const handlerDir = 'server/api/slime-city/pvp/'
 for (const path of [
   'index.post.ts',
   'index.get.ts',
+  'friends.get.ts',
   '[id].get.ts',
   '[id]/join.post.ts',
   '[id]/command.post.ts',
@@ -364,6 +401,27 @@ console.log(
   ])
   assert.equal(sorted[0], host, 'games waiting on you come first')
   assert.equal(sorted.at(-1)!.stage, 'finished')
+
+  const challenge = { ...open, invitedId: 8 }
+  const incoming = pvpGameSummary(row, challenge, 8, now)!
+  assert.equal(incoming.incoming, true, 'the friend sees the challenge')
+  assert.equal(incoming.seat, 'enemy')
+  assert.equal(incoming.rivalTeam, 'catgirls')
+  assert.equal(incoming.rivalId, 7)
+  const sent = pvpGameSummary(row, challenge, 7, now)!
+  assert.equal(sent.incoming, false)
+  assert.equal(sent.rivalId, 8, 'the host sees who was challenged')
+  assert.equal(pvpGameSummary(row, challenge, 9, now), null)
+  assert.equal(
+    pvpGameSummary(row, { ...challenge, guestId: 8 }, 8, now)!.incoming,
+    false,
+    'an answered challenge is an ordinary game',
+  )
+  assert.equal(
+    sortPvpGames([host, incoming])[0],
+    incoming,
+    'challenges waiting for an answer come first',
+  )
 }
 console.log(
   'Slime City VS game list: seats, turns, results, expiry and order PASS',

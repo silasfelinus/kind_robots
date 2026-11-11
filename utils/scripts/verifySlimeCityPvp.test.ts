@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import {
   newPvpGame,
   isPvpExpired,
@@ -313,11 +313,18 @@ for (const path of [
   assert.match(source, /requireSlimeCityPlayer\(/)
   assert.doesNotMatch(source, /requireSlimeCityPreviewUser/)
 }
-assert.ok(
-  readFileSync('pages/play/slime-city-pvp.vue', 'utf8').includes(
-    "from '~/pages/admin/slime-city-pvp.vue'",
-  ),
+assert.match(
+  readFileSync('pages/play/slime-city-pvp.vue', 'utf8'),
+  /<SlimeCityPvpGame \/>/,
   'the two-player board has a public /play route',
+)
+// Silas, 2026-11-11 PT: the private-duel admin tile "isn't admin locked and
+// shouldn't be there". The board is a player feature reached from VS; the old
+// admin URL only redirects to it.
+assert.ok(!existsSync('content/channels/admin/slime-city-pvp.md'))
+assert.match(
+  readFileSync('pages/admin/slime-city-pvp.vue', 'utf8'),
+  /navigateTo\('\/play\/slime-city-pvp', \{ redirectCode: 301 \}\)/,
 )
 const client = readFileSync('stores/slimeCityPvp.ts', 'utf8')
 assert.match(

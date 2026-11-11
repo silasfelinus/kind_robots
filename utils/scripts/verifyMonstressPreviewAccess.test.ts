@@ -131,7 +131,8 @@ const childAdminVisible = visibleFor(childAdminContext)
 assert.equal(
   navigationDestinations(adultAdmin[0]!).some(
     (entry) =>
-      entry.label === 'Monstrique' && entry.route === '/admin/monstrique',
+      entry.label === 'Monstrique Studio' &&
+      entry.route === '/admin/monstrique',
   ),
   true,
   'the Admin launcher must expose a clickable Monstrique destination',

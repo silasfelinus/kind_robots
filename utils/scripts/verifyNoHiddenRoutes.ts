@@ -52,6 +52,8 @@ export const SYSTEM_ROUTES: Record<string, string> = {
   '/admin/crystal-street': 'legacy URL, 301-redirects to /play/crystal-street',
   '/admin/monstress-convention':
     'legacy Monstrique preview URL, 302-redirects to /admin/monstrique',
+  '/admin/monstrique-bible':
+    'legacy series-bible URL, 302-redirects to /admin/monstrique?view=bible',
   '/admin/monstrexx':
     'legacy Monstrique (formerly MONSTREXX) URL, 302-redirects to /admin/monstrique',
   '/admin/emperor-of-dust':
@@ -63,6 +65,8 @@ export const SYSTEM_ROUTES: Record<string, string> = {
   '/admin/sliding-tile-gallery':
     'legacy URL, 301-redirects to /play/sliding-tile-gallery',
   '/play/zuzu': 'legacy world hub URL, 301-redirects to /play/arcade',
+  '/admin/slime-city-pvp':
+    'legacy admin preview URL, 301-redirects to /play/slime-city-pvp',
   '/play/slime-city-pvp':
     'Slime City two-player board, opened from the VS hub game list and from ?duel= invite links',
   '/play/music-video':

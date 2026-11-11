@@ -50,7 +50,7 @@ export const CAMPAIGN_CHOICE_CONSEQUENCES: Record<
         victory:
           'Nine redirects the march into a moving evacuation corridor. When the fireworks finally burst, the gene-bank doors stand open and the crowd is safely elsewhere.',
         defeat:
-          'The evacuation works, but security seals the laboratory with the prisoners still inside. The Saints promise to return with a quieter plan.',
+          'The evacuation works, but security seals the laboratory with the prisoners still inside. The Anarkissed promise to return with a quieter plan.',
       },
       cunning: {
         victory:
@@ -94,11 +94,11 @@ export const CAMPAIGN_CHOICE_CONSEQUENCES: Record<
         victory:
           'Thimble turns the demolition contest into a rescue concert, making the wrecking ball a stage and the threatened music hall an evacuation hub.',
         defeat:
-          "The band keeps the audience safe, but the Saints knock the hall's roof loose. Thimble books the next concert in the street.",
+          "The band keeps the audience safe, but the Anarkissed knock the hall's roof loose. Thimble books the next concert in the street.",
       },
       cunning: {
         victory:
-          "Thimble rewires the Saints' charges into a perfectly timed finale, sending sparks skyward while the occupied hall stands.",
+          "Thimble rewires the Anarkissed's charges into a perfectly timed finale, sending sparks skyward while the occupied hall stands.",
         defeat:
           'The charge timer outruns the last chorus. Thimble gets everyone out, but the stage and the amplifiers become scrap.',
       },
@@ -192,13 +192,13 @@ export const CAMPAIGN_CHOICE_CONSEQUENCES: Record<
     {
       conviction: {
         victory:
-          'Rivet secures the emergency furnace controls before the Saints set off their celebration charge. The workers keep their jobs and the old locks come off.',
+          'Rivet secures the emergency furnace controls before the Anarkissed set off their celebration charge. The workers keep their jobs and the old locks come off.',
         defeat:
           'The controls are safe, but the office blast seals the loading door. Rivet cuts a ventilation route for the trapped crew.',
       },
       cunning: {
         victory:
-          'Rivet blows through the locked blast doors with a precisely measured charge. Even the Saints applaud the engineering.',
+          'Rivet blows through the locked blast doors with a precisely measured charge. Even the Anarkissed applaud the engineering.',
         defeat:
           'The doors deform instead of opening. Rivet orders a retreat and sketches a safer demolition plan on the back of a shift roster.',
       },

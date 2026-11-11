@@ -852,7 +852,7 @@ export const CITY_PLAN: Record<DistrictId, DistrictPlan> = {
         id: 'redline-defuse',
         label: 'Quietly defuse it',
         outcome:
-          'You keep your eyebrows (+1 HP to your starters); the Saints call you a wet blanket.',
+          'You keep your eyebrows (+1 HP to your starters); the Anarkissed call you a wet blanket.',
         standing: -1,
         heat: -1,
         terms: { playerHp: 1 },
@@ -965,7 +965,7 @@ export const CITY_CONTRACTS: Record<DistrictId, CityContract> = {
     terms: { rounds: -4, enemyMana: 1 },
     victory:
       'The crowd survives the show and chants your name through a siren chorus.',
-    failure: 'The Saints sell footage of the catastrophe to every rival.',
+    failure: 'The Anarkissed sell footage of the catastrophe to every rival.',
     standing: 2,
     heat: 1,
   },

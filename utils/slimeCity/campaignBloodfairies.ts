@@ -45,7 +45,7 @@ export const BLOODFAIRY_CHAPTERS: readonly (readonly BloodfairyBeat[])[] = [
       id: 'the-roof-has-a-vote',
       title: 'EVERY ROOF HAS A VOTE',
       speaker: 'Purl',
-      text: "Anarkiss promoter Purl offers a replacement venue: a gleaming arena on top of the demolished hall. She wants naming rights and exclusive access to its sound system. Outside, the hall's wheelchair ramp is being dismantled by men in Saints jackets.",
+      text: "Anarkiss promoter Purl offers a replacement venue: a gleaming arena on top of the demolished hall. She wants naming rights and exclusive access to its sound system. Outside, the hall's wheelchair ramp is being dismantled by men in Anarkiss sequin jackets.",
       choices: [
         {
           id: 'left',
@@ -65,7 +65,7 @@ export const BLOODFAIRY_CHAPTERS: readonly (readonly BloodfairyBeat[])[] = [
       id: 'the-first-chorus',
       title: 'THE FIRST CHORUS',
       speaker: 'Brine',
-      text: "The wrecking ball is hung from the hall's ceiling rig, waiting for midnight. Brine has one bolt left holding her grandmother's sign above the door. The band can save the sign or use the rig to knock the Saints' fuses into the flooded orchestra pit.",
+      text: "The wrecking ball is hung from the hall's ceiling rig, waiting for midnight. Brine has one bolt left holding her grandmother's sign above the door. The band can save the sign or use the rig to knock the Anarkissed's fuses into the flooded orchestra pit.",
       choices: [
         {
           id: 'left',

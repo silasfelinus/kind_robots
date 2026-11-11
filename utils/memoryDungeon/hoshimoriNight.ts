@@ -1,6 +1,6 @@
 /**
  * Hoshimori's authored night-procession sites. e08 mirrors e07's immutable
- * coordinates but records a separate Scylla-viewpoint expedition and testimony.
+ * coordinates but records a Vesper-led expedition and testimony.
  */
 export interface NightChoice {
   id: string
@@ -42,13 +42,13 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'name-the-trapped',
       'Ask the wall to repeat the travelers’ own names',
-      'Scylla writes down only names the voices consent to share. The wall yields the first processional sign.',
+      'Vesper writes down only names the voices consent to share. The wall yields the first processional sign.',
       'wall-consent',
     ),
     c(
       'hear-the-silence',
       'Listen for those who refuse to be named',
-      'Char hears a refusal beneath the plaster. Scylla leaves their identities unwritten and remembers the first sign.',
+      'Char hears a refusal beneath the plaster. Vesper leaves their identities unwritten and remembers the first sign.',
       'wall-privacy',
     ),
   ),
@@ -76,7 +76,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'follow-the-coat',
       'Follow without pretending the child is safe',
-      'The coat leads to a locked room. Scylla keeps the third sign and a promise to ask who is inside.',
+      'The coat leads to a locked room. Vesper keeps the third sign and a promise to ask who is inside.',
       'coat-witness',
     ),
     c(
@@ -106,7 +106,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
   s(
     '1,2',
     'Lantern Stall / The Mask Exchange',
-    'The stall sells masks that smile after their wearers stop. A vendor asks Scylla to choose the expression the village will permit.',
+    'The stall sells masks that smile after their wearers stop. A vendor asks Vesper to choose the expression the village will permit.',
     c(
       'remove-the-mask',
       'Ask the vendor to show their own face',
@@ -127,7 +127,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'seal-the-children',
       'Seal children’s addresses from public testimony',
-      'Pip signs a protected witness statement. Scylla learns that secrecy can preserve agency.',
+      'Pip signs a protected witness statement. Vesper learns that secrecy can preserve agency.',
       'ledger-private',
     ),
     c(
@@ -161,7 +161,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'accept-the-mark',
       'Accept a visible escort mark to cross now',
-      'The wall opens, but the mark tells every patrol where you went. Scylla keeps the risk on record.',
+      'The wall opens, but the mark tells every patrol where you went. Vesper keeps the risk on record.',
       'door-bargain',
     ),
     c(
@@ -195,7 +195,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'keep-the-question',
       'Preserve the contradiction for a living witness',
-      'Scylla refuses to call exhaustion safety. The night workers are allowed to speak for themselves.',
+      'Vesper refuses to call exhaustion safety. The night workers are allowed to speak for themselves.',
       'nightcrew-witness',
     ),
     c(
@@ -218,7 +218,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'share-custody',
       'Put the map under recallable community custody',
-      'The clerk refuses a single owner. Scylla makes the witnesses define how access can be withdrawn.',
+      'The clerk refuses a single owner. Vesper makes the witnesses define how access can be withdrawn.',
       'registry-custody',
     ),
   ),
@@ -246,7 +246,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'ask-the-colleague',
       'Ask who invited the helpers inside',
-      'Scylla keeps the invitation distinct from any claim that the stolen life was justified.',
+      'Vesper keeps the invitation distinct from any claim that the stolen life was justified.',
       'e08-photo-invitation',
     ),
     c(
@@ -297,7 +297,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'allow-departure',
       'Write an enforceable right to leave',
-      'The council accepts voluntary shelter and a revocable map. Scylla demands follow-up for those still trapped.',
+      'The council accepts voluntary shelter and a revocable map. Vesper demands follow-up for those still trapped.',
       'council-departure',
     ),
     c(
@@ -331,7 +331,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-kites-cut',
       'Cut the strings without choosing where the kites must land',
-      'Three kites flee into the dark. A fourth stays to carry a warning; Scylla cannot promise that every runaway will return.',
+      'Three kites flee into the dark. A fourth stays to carry a warning; Vesper cannot promise that every runaway will return.',
       'night-kites-free',
     ),
     c(
@@ -399,7 +399,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-ticket-oneway',
       'Take the one-way door and leave the fare for the next traveler',
-      'Scylla leaves without naming a destination. The seller loses a guaranteed return, but someone else can afford to choose.',
+      'Vesper leaves without naming a destination. The seller loses a guaranteed return, but someone else can afford to choose.',
       'night-ticket-free',
     ),
     c(
@@ -450,7 +450,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-mooncake-portion',
       'Feed the living guests before counting the bowls',
-      'Scylla breaks the repeating meal into real portions. The spirit admits its perfect service record never counted a stomach.',
+      'Vesper breaks the repeating meal into real portions. The spirit admits its perfect service record never counted a stomach.',
       'night-mooncake-fed',
     ),
     c(
@@ -575,7 +575,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-shrine-release',
       'Release the biting tags before asking for testimony',
-      'Scylla and Char cut the tags loose. The keeper must now invite people home rather than drag them by the name.',
+      'Vesper and Char cut the tags loose. The keeper must now invite people home rather than drag them by the name.',
       'night-shrine-unbound',
     ),
   ),
@@ -586,7 +586,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-flood-keys',
       'Carry the neighbors’ keys to higher ground without signing away their homes',
-      'Scylla leads them uphill. The houses remain theirs, but the lower street loses its last two night watchkeepers.',
+      'Vesper leads them uphill. The houses remain theirs, but the lower street loses its last two night watchkeepers.',
       'night-flood-homes-kept',
     ),
     c(
@@ -722,7 +722,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-ferry-seal',
       'Seal the letters and let their authors choose whether to send them',
-      'Scylla pays the ferryman in blank paper. The boat rises, but families must now speak for themselves without the comfort of a forced confession.',
+      'Vesper pays the ferryman in blank paper. The boat rises, but families must now speak for themselves without the comfort of a forced confession.',
       'night-ferry-consent',
     ),
     c(
@@ -769,17 +769,17 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
   s(
     '4,7',
     'Ashen Orchard / The Harvest of Tomorrow',
-    'Fruit ripens into small glass futures. The orchard keeper offers Scylla a vision of Char alive, but demands the names of every child who might one day be born here.',
+    'Fruit ripens into small glass futures. The orchard keeper offers Vesper a vision of Char alive, but demands the names of every child who might one day be born here.',
     c(
       'night-orchard-refuse',
       'Refuse the bargain and ask Char what future she wants',
-      'Char breaks the glass fruit herself. Scylla leaves without certainty, carrying her sister’s freely given promise to keep trying.',
+      'Char breaks the glass fruit herself. Vesper records her choice without treating it as a promise of survival.',
       'night-orchard-agency',
     ),
     c(
       'night-orchard-share',
       'Let each family decide whether to see its own possible tomorrow',
-      'The keeper loses the right to trade anyone else’s future. Some families look; others walk past. Scylla cannot choose for Char.',
+      'The keeper loses the right to trade anyone else’s future. Vesper refuses to sell Char’s fate as collateral; families decide whether to look.',
       'night-orchard-choice',
     ),
   ),
@@ -804,11 +804,11 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
   s(
     '6,7',
     'The Unclaimed Supper / The Empty Place Setting',
-    'A photograph rests beneath an untouched plate. An Earth supper table is set for three, with a fourth plate squeezed into the corner. The procession demands that Scylla identify the absent guest as proof of a family.',
+    'A photograph rests beneath an untouched plate. An Earth supper table is set for three, with a fourth plate squeezed into the corner. The procession demands that Vesper identify the absent guest as proof of a family.',
     c(
       'night-supper-ask',
       'Ask who came to dinner, without guessing who stayed',
-      'Scylla records the question beside the photograph. A place setting is evidence of hospitality, not proof of a permanent household.',
+      'Vesper records the question beside the photograph. A place setting is evidence of hospitality, not proof of a permanent household.',
       'night-supper-question',
     ),
     c(
@@ -825,7 +825,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-causeway-refuse',
       'Help the travelers mark a free crossing',
-      'Vesper draws a route that the tollkeeper cannot own. Scylla holds the bridge while the first family crosses without surrendering a name.',
+      'Vesper draws a route that the tollkeeper cannot own. Vesper holds the bridge while the first family crosses without surrendering a name.',
       'night-causeway-free',
     ),
     c(
@@ -842,7 +842,7 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
     c(
       'night-platform-witness',
       'Record the arrivals without publishing their destinations',
-      'Scylla makes a private witness roll. The conductor cannot erase the passengers, but no hunter receives an address.',
+      'Vesper makes a private witness roll. The conductor cannot erase the passengers, but no hunter receives an address.',
       'night-platform-witnessed',
     ),
     c(

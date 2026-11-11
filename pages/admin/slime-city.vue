@@ -56,21 +56,12 @@
             </button>
             <button
               type="button"
-              :class="{ active: activeMode === 'solo' }"
-              data-testid="slime-campaign-tab"
-              title="Your crew's own story, five chapters, with a Solo deck"
+              :class="{ active: activeMode === 'journey' }"
+              data-testid="slime-journey-tab"
+              title="One branching story, your choice of Solo or Alliance deck, with a city to explore"
               @click="lab.showCampaign()"
             >
-              SOLO
-            </button>
-            <button
-              type="button"
-              :class="{ active: activeMode === 'campaign' }"
-              data-testid="slime-city-tab"
-              title="The open city: pick a deck, walk seven districts, beat their champions"
-              @click="lab.showCity()"
-            >
-              CAMPAIGN
+              JOURNEY
             </button>
             <button
               type="button"
@@ -250,7 +241,7 @@
                 data-testid="slime-city-story-shortcut"
                 @click="lab.showCampaign()"
               >
-                SOLO STORY · {{ lab.campaignState.wins }}/5
+                CONTINUE JOURNEY · {{ lab.campaignState.wins }}/5
               </button>
               <button
                 type="button"
@@ -282,7 +273,7 @@
                   >{{ routeLabel }}</small
                 >
                 <small v-else-if="!lab.cityEvent && lab.storyHere"
-                  >SOLO STORY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
+                  >JOURNEY · CHAPTER {{ lab.campaignState.wins + 1 }}/5 WAITS
                   HERE</small
                 >
               </div>
@@ -351,7 +342,7 @@
               data-testid="slime-solo-deck-back"
               @click="lab.showCampaign()"
             >
-              ← SOLO STORY · {{ lab.team.name }} DECK
+              ← JOURNEY · {{ lab.team.name }} DECK
             </button>
             <span
               >LEVEL {{ lab.level }} · {{ lab.progress.cards.length }} /
@@ -1096,13 +1087,12 @@ const activeMode = computed(() => {
   const view = lab.view
   if (view === 'clash') {
     const kind = lab.clashLaunch.kind
-    if (kind === 'campaign') return 'solo'
-    if (kind === 'rival' || kind === 'contract') return 'campaign'
+    if (kind === 'campaign' || kind === 'rival' || kind === 'contract')
+      return 'journey'
     if (kind === 'tower') return 'tower'
     return 'practice'
   }
-  if (view === 'campaign') return 'solo'
-  if (view === 'city') return 'campaign'
+  if (view === 'campaign' || view === 'city') return 'journey'
   if (view === 'tower') return 'tower'
   if (view === 'cards' || view === 'rewards') return 'collection'
   return view

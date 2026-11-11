@@ -178,7 +178,10 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     return false
   if (raw.storyParity !== undefined && typeof raw.storyParity !== 'boolean')
     return false
-  if (raw.journeyTeam !== undefined && !teams.includes(raw.journeyTeam as TeamId))
+  if (
+    raw.journeyTeam !== undefined &&
+    !teams.includes(raw.journeyTeam as TeamId)
+  )
     return false
   if (
     raw.journeyFormat !== undefined &&

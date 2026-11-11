@@ -24,6 +24,7 @@ import {
 } from '../slimeCity/campaignAllianceTactics'
 import { newSlimeCityStory, validSlimeCityStory } from '../slimeCity/storySave'
 import { TEAMS } from '../slimeCity/prototypes'
+import type { BoutTerms } from '../slimeCity/city'
 
 assert.match(clashTermsLabel({}), /^SOLO CLASH/)
 assert.match(clashTermsLabel({}, 'alliance'), /^ALLIANCE CLASH/)
@@ -45,7 +46,7 @@ for (const general of TEAMS) {
     assert.notEqual(first.choices[0].label, first.choices[1].label)
     assert.notEqual(first.choices[0].outcome, first.choices[1].outcome)
     assert.ok(first.choices.every((choice) => choice.outcome.length >= 60))
-    const base = { playerHp: 1, enemyArmor: 0 }
+    const base: BoutTerms = { playerHp: 1, enemyArmor: 0 }
     assert.strictEqual(
       allianceStoryBattleTerms(save, general.id, ally.id, base),
       base,

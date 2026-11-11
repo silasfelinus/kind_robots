@@ -177,12 +177,7 @@ for (const general of TEAMS) {
         true,
       )
       const terms = allianceStoryBattleTerms(save, general.id, ally.id, {})
-      const withLoyalty = allianceTacticEdge(
-        ally.id,
-        chapter,
-        pick,
-        previous,
-      )
+      const withLoyalty = allianceTacticEdge(ally.id, chapter, pick, previous)
       assert.ok(withLoyalty)
       assert.equal(terms.playerBossLife, withLoyalty.player)
       assert.equal(terms.enemyBossLife, withLoyalty.enemy)

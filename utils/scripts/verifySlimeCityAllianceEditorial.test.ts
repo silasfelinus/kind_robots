@@ -16,7 +16,7 @@ import {
 } from '../slimeCity/campaignAllianceJourney'
 import { ALLIANCE_LATER_ARCS } from '../slimeCity/campaignAllianceLater'
 import { newSlimeCityStory, validSlimeCityStory } from '../slimeCity/storySave'
-import { TEAMS, type TeamId } from '../slimeCity/prototypes'
+import { TEAMS } from '../slimeCity/prototypes'
 import { clashBossesFromTerms } from '../slimeCity/clashBouts'
 
 const outcomes = new Set<string>()

@@ -244,10 +244,10 @@ assert.match(
   /if \(sending\.value && !recoverRejectedMove\) return/,
   'normal polling must not overwrite a pending command',
 )
-assert.match(
-  client,
-  /await load\(current\.id, true, true\)/g,
-  'rejected commands and forfeits must reload the server snapshot while sending',
+assert.equal(
+  [...client.matchAll(/await load\(current\.id, true, true\)/g)].length,
+  2,
+  'rejected commands and forfeits must both reload the server snapshot',
 )
 assert.match(service, /FOR UPDATE/, 'concurrent turns must serialize')
 assert.match(

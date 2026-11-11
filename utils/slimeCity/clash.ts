@@ -509,7 +509,10 @@ export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
   // Named spells, traps and gear now evolve their RULES as well as their stats.
   // The active level's promise must match its actual Clash handler.
   const evolvedText = clashTwistText(card.id, level)
-  if (card.kind !== 'creature' && evolvedText) return evolvedText
+  if (card.kind !== 'creature' && evolvedText)
+    return isArmorCutterSnare(card)
+      ? evolvedText + ' Cuts armor, defuses VOLATILE.'
+      : evolvedText
   if (card.kind === 'creature')
     return [
       ...(b.armor ? ['Armor: blocks 1 damage per hit.'] : []),
@@ -528,11 +531,11 @@ function clashBaseText(card: Card, level: number): string {
   const b = clashBalance(card, level)
   if (card.kind === 'trap')
     return (
-      'Hits the next rival fighter in this alley for ' +
+      'Hits the next rival in this alley for ' +
       b.power +
       '.' +
-      (card.roots ? ' It misses its next strike.' : '') +
-      (isArmorCutterSnare(card) ? ' Cuts armor.' : '')
+      (card.roots ? ' It misses a strike.' : '') +
+      (isArmorCutterSnare(card) ? ' Cuts armor, defuses VOLATILE.' : '')
     )
   switch (card.effect) {
     case 'heal':
@@ -1032,6 +1035,18 @@ function springTrap(s: ClashState, trap: ClashTrap, victim: ClashUnit): number {
     note(
       s,
       'The snare shears plating off ' + nameOf(victim) + '!',
+      'trap',
+      trap.lane,
+    )
+  }
+  // ...and they defuse: a VOLATILE fighter caught by a one-play snare loses its
+  // death burst, so laying one where a Riot bomber will strike or land is a real
+  // read rather than a flat tax (slime-city/t-048).
+  if (cutter && victim.keywords.includes('volatile')) {
+    victim.keywords = victim.keywords.filter((k) => k !== 'volatile')
+    note(
+      s,
+      'The snare snips the fuse on ' + nameOf(victim) + '!',
       'trap',
       trap.lane,
     )
@@ -3321,7 +3336,7 @@ export function chooseClashCpu(
           )
             ? 1.5
             : 0
-      } else if (card.kind === 'trap')
+      } else if (card.kind === 'trap') {
         score =
           foe && !mine
             ? 2 +
@@ -3330,7 +3345,15 @@ export function chooseClashCpu(
             : mine
               ? 0.4
               : 1.4
-      else if (card.effect === 'scan')
+        // Value the snare's real payoff on the fighter that will spring it.
+        if (foe && !mine) {
+          if (isArmorCutterSnare(card)) {
+            if (foe.armor > 0) score += 1.5
+            if (has(foe, 'volatile')) score += 1.5
+          }
+          if (card.roots && !foe.snareWard) score += clashPower(s, foe) * 0.4
+        }
+      } else if (card.effect === 'scan')
         score = s.traps.some((t) => t.side === foeSide && t.lane === lane)
           ? 5
           : 0.5

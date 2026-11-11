@@ -12,14 +12,17 @@
 // lizards, but also needs art to represent"): the Ironjaw crew poster and its
 // 15 creature cards now use the curated IRONJAW-LIZARDS-ROUND-1 renders
 // (ArtImages 267360-267417), replacing the ogre paintings.
+// 2026-11-11 PT boss/title pass (slime-city/t-017): new ANARKISS (riot) and
+// Meat Exchange crew posters, the generated title key art, 23 boss mood
+// portraits and two re-rendered cards, each fetched and contact-sheet reviewed.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
     bloodfairies: 258340,
     ironjaw: 267360,
-    riot: 258342,
+    riot: 267977,
     undertow: 258343,
-    exchange: 258344,
+    exchange: 267983,
   },
   districts: {
     pitworks: 258345,
@@ -95,6 +98,7 @@ export const SLIME_CITY_ART = {
     's1-mime-fuse': 260671,
     's1-needle-wire': 260682,
     's1-nine-lives': 260656,
+    's1-pocket-punk': 265519,
     's1-no-witnesses': 260673,
     's1-riot-choir': 260659,
     's1-roof-phantom': 260653,
@@ -310,6 +314,7 @@ export const SLIME_CITY_ART = {
     's3-undertow-drain-sniper': 264938,
     's3-undertow-floodgate-clamp': 261525,
     's3-undertow-interrogation-eel': 264948,
+    's3-undertow-long-drain-sting': 265520,
     's3-undertow-needle-rain-agent': 261516,
     's3-undertow-periscope-lens': 261527,
     's3-undertow-quiet-interdiction': 261522,
@@ -507,6 +512,7 @@ export const SLIME_CITY_ART = {
    */
   ui: {
     'card-back': 260371,
+    'title-splash': 267791,
   } as Readonly<Record<string, number>>,
   /**
    * Boss reaction portraits for the Clash versus console, keyed
@@ -514,7 +520,37 @@ export const SLIME_CITY_ART = {
    * Silas, 2026-11-10 PT: "we should assign some more space for the matchup
    * pictures, so there are reactions". A missing mood shows the crew poster.
    */
-  bosses: {} as Readonly<Record<string, number>>,
+  bosses: {
+    // TITLE-AND-BOSS-REACTIONS-ROUND-1 (crews whose identity did not change).
+    'catgirls/ready': 267792,
+    'catgirls/hit': 267793,
+    'catgirls/gloat': 267794,
+    'catgirls/beaten': 267795,
+    'bloodfairies/ready': 267796,
+    'bloodfairies/hit': 267797,
+    'bloodfairies/gloat': 267798,
+    'bloodfairies/beaten': 267799,
+    'undertow/ready': 267808,
+    'undertow/hit': 267809,
+    'undertow/gloat': 267810,
+    'undertow/beaten': 267811,
+    // ANARKISS-ROUND-1: the glam midnight-musical ringmaster (supersedes the
+    // circus-daredevil Riot boss and the round-one Riot Saints portraits).
+    'riot/ready': 267978,
+    'riot/hit': 267979,
+    'riot/gloat': 267980,
+    'riot/beaten': 267981,
+    // FACTION-IDENTITY-ROUND-1: the occult Meat Exchange and the lab-mutant
+    // Ironjaw lizard. Ironjaw 'ready' (267992) was rejected for a misspelled
+    // painted sign and falls back to the crew poster until re-rendered.
+    'exchange/ready': 267988,
+    'exchange/hit': 267989,
+    'exchange/gloat': 267990,
+    'exchange/beaten': 267991,
+    'ironjaw/hit': 267993,
+    'ironjaw/gloat': 267994,
+    'ironjaw/beaten': 267995,
+  } as Readonly<Record<string, number>>,
   /**
    * Evolution paintings (Silas, 2026-11-08 PT: "We should have fresh art on
    * the evolutions, not just frame effects"). Keys are '<cardId>@2' and
@@ -1330,4 +1366,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 787
+export const SLIME_CITY_ART_COUNT = 790

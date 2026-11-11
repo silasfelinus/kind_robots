@@ -109,13 +109,30 @@ const artIds = [
   ...Object.values(SLIME_CITY_ART.story),
   ...Object.values(SLIME_CITY_ART.attacks),
   ...Object.values(SLIME_CITY_ART.tokens),
+  ...Object.values(SLIME_CITY_ART.bosses),
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  787,
-  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10)',
+  790,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10), plus the title key art and two re-rendered cards (2026-11-11)',
 )
-assert.equal(artIds.length, 787)
+// 23 boss mood portraits (2026-11-11 PT) sit outside SLIME_CITY_ART_COUNT.
+assert.equal(artIds.length, 790 + 23)
+// Boss reactions for the Clash versus console: every key is
+// '<crew>/<ready|hit|gloat|beaten>' for a real crew.
+for (const key of Object.keys(SLIME_CITY_ART.bosses)) {
+  const [crew, mood] = key.split('/')
+  assert.ok(
+    TEAMS.some((team) => team.id === crew),
+    key + ' names a crew',
+  )
+  assert.ok(
+    ['ready', 'hit', 'gloat', 'beaten'].includes(mood!),
+    key + ' is a mood',
+  )
+}
+assert.equal(Object.keys(SLIME_CITY_ART.bosses).length, 23)
+assert.ok(slimeArtId('ui', 'title-splash'), 'Generated title key art')
 // Evolution paintings (2026-11-11 PT curation of the Krea escalation ledgers):
 // every key names a real card and level, and no painting is reused.
 const evolutionKeys = Object.keys(SLIME_CITY_ART.evolutions)
@@ -180,8 +197,9 @@ assert.equal(
   slimeBoardArtId('nowhere', 'blackout'),
   slimeArtId('boards', 'blackout'),
 )
-// 291 since the lizard round painted Union Cook (2026-11-10 PT).
-assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 291)
+// 291 since the lizard round painted Union Cook (2026-11-10 PT); 293 with
+// Pocket-Sized Problem and Long Drain Sting (2026-11-11 PT).
+assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 293)
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
   60,
@@ -194,8 +212,8 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
-  291,
-  '291 illustrations correspond to actual playable card IDs',
+  293,
+  '293 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
@@ -206,7 +224,7 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  CARDS.length - 291,
+  CARDS.length - 293,
   'Unrendered faction and neutral cards retain image-shaped fallbacks',
 )
 assert.ok(slimeArtId('cards', 'calico'), 'curation redo replaced Calico')

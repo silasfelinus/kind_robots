@@ -1,0 +1,195 @@
+import type { TeamId } from './prototypes'
+import {
+  arc,
+  beat,
+  end,
+  type AllianceLaterArc,
+} from './campaignAllianceArcTypes'
+
+export const undertowAllianceArcs = {
+  catgirls: arc(
+    [
+      beat(
+        'An escapee’s tracker starts emitting the location of the Oracle’s oldest listening post.',
+        'Move the escapees before silencing the post',
+        'The catgirls leave the tunnel safely, and the Oracle relocates the receiver by hand.',
+        'Spoof the signal into the police barracks',
+        'The hunters raid their own command center and discover a pile of counterfeit tags.',
+      ),
+      beat(
+        'A catgirl courier admits she was programmed to report everything she hears in her sleep.',
+        'Help her remove the transmitter gently',
+        'The courier wakes without another voice giving orders inside her head.',
+        'Broadcast false dreams through the transmitter',
+        'The lab hunts a secret safehouse that exists only in its own records.',
+      ),
+      beat(
+        'The lab offers to free the remaining escapees in return for Undertow’s entire archive.',
+        'Make a rescue plan without surrendering the files',
+        'The archive stays in safe hands while the catgirls break their relatives out of the trucks.',
+        'Exchange a forged archive for the captives',
+        'The scientists leave with a box of recordings of their own security meetings.',
+      ),
+      beat(
+        'A new citywide sensor net goes live just as the last catgirls approach the surface.',
+        'Carry them through blind service corridors',
+        'The escapees reach daylight without tripping a single scanner.',
+        'Turn the sensor net into a public accusation',
+        'The scanners project the scientists’ illicit purchase receipts across every street.',
+      ),
+    ],
+    end(
+      'THE CITY THAT CANNOT TRACK YOU',
+      'Undertow keeps its witnesses safe and its receivers pointed away from the homes of the free catgirls. The last tracker is dismantled, not sold.',
+      'The laboratory’s network becomes evidence against its owners. The Oracle keeps a copy for the courts and burns every map of the escapees.',
+    ),
+  ),
+  bloodfairies: arc(
+    [
+      beat(
+        'The band’s second single accidentally reveals a forgotten entrance to Undertow’s relay.',
+        'Remix the single without the entrance tone',
+        'The radio hit still plays, but no hunter can follow its bassline home.',
+        'Send the hunters to a decoy venue',
+        'The police arrive at an empty basement and find only an unplugged speaker.',
+      ),
+      beat(
+        'A missing bassist has hidden a code for the arrested fans in the rhythm of a live recording.',
+        'Protect the code until families hear it',
+        'The families identify their loved ones without giving the police another target.',
+        'Broadcast the code through the police feed',
+        'Every holding cell hears the rescue schedule at once, and the guards lose control.',
+      ),
+      beat(
+        'A rainstorm floods the tunnels where the band is supposed to hide after the encore.',
+        'Open an upper exit for the musicians',
+        'The entire road crew climbs into dry streets while the Oracle saves the transmitters.',
+        'Use the flood to wash out the police microphones',
+        'The guards lose their surveillance equipment while the band escapes along the pipes.',
+      ),
+      beat(
+        'The city jams every pirate frequency on the night the band promised a song to the disappeared.',
+        'Carry the song from roof to roof by hand',
+        'People sing the missing fans’ names across the district without needing a transmitter.',
+        'Hijack the official missing-person announcement',
+        'The police must read their own secret detention list between concert dates.',
+      ),
+    ],
+    end(
+      'THE LAST FREE FREQUENCY',
+      'Undertow protects the bands and witnesses who kept the network alive. The song remains free to sing and the emergency channel stays open.',
+      'The stolen radio tower broadcasts the names of the disappeared, not the police denials. The band plays a final verse for each person who returns.',
+    ),
+  ),
+  ironjaw: arc(
+    [
+      beat(
+        'The coolant tunnels begin charging the lizard workers for every degree of heat they keep.',
+        'Reroute warm water to a shared chamber',
+        'Ironjaw wakes in a dry, heated room with no meter on the door.',
+        'Cut the collectors’ pressure line',
+        'The collectors’ offices freeze while the union takes control of the valve.',
+      ),
+      beat(
+        'A worker finds a hidden recording of the lab ordering heat withdrawals during the first mutant trials.',
+        'Keep the recording with its witnesses',
+        'The old workers testify together while the Oracle secures the only surviving copy.',
+        'Play the order over the factory speakers',
+        'The current managers hear their predecessors scheduling the suffering of their own workforce.',
+      ),
+      beat(
+        'An Ironjaw hatchling goes missing between two floodgates that the authorities refuse to open.',
+        'Search the sluice chamber together',
+        'The hatchling is carried out wrapped in a warm union jacket.',
+        'Force the gates from the control deck',
+        'The guards run for the exits as the empty gate swings open for the rescue team.',
+      ),
+      beat(
+        'The final strike requires draining the coolant lines, but doing so may silence the only emergency relay.',
+        'Build a temporary relay on the warm side',
+        'The signal survives and the workers control the water without losing their contact.',
+        'Make the pump station broadcast its shutdown',
+        'Every factory display announces the owners’ illegal heat contract before going dark.',
+      ),
+    ],
+    end(
+      'THE UNDERGROUND WARMTH AGREEMENT',
+      'The union runs the pumps and Undertow keeps a working warning channel. Neither crew can bill a neighbor for warmth or an emergency call.',
+      'The police lose the tunnels and the owners lose their heat meters. The Oracle announces the workers’ new terms over the station speaker.',
+    ),
+  ),
+  riot: arc(
+    [
+      beat(
+        'Anarkiss’s second rehearsal overloads the microphone grid protecting Undertow’s hidden witnesses.',
+        'Rewire the stage into separate circuits',
+        'The crowd gets a full show while the Oracle’s quiet conversations stay private.',
+        'Flood the police speakers with rehearsals',
+        'The officers record twelve versions of an absurd curtain call and miss the real escape.',
+      ),
+      beat(
+        'The troupe’s most beloved prop is discovered to contain a live surveillance transmitter.',
+        'Remove it without exposing the stagehand',
+        'The prop goes into a locked case, and the stagehand learns who planted it.',
+        'Turn the transmitter into an on-air interrogation',
+        'The inspector gives away the raid schedule while arguing with a ventriloquist dummy.',
+      ),
+      beat(
+        'A storm gate threatens to drown the audience during a pirate performance under the city.',
+        'Move the concert to high ground',
+        'The crowd leaves safely while the relay keeps sending emergency instructions.',
+        'Use the rising water to sweep away the barricades',
+        'The guards lose their blockade and the troupe escapes on a dry maintenance platform.',
+      ),
+      beat(
+        'The mayor plans to claim the underground broadcast was a hoax before the final performance.',
+        'Release witnesses with their consent',
+        'Residents tell the story themselves and the troupe does not turn survivors into props.',
+        'Stage the mayor’s own rehearsed lie',
+        'The entire district watches the mayor’s confidential script acted out word for word.',
+      ),
+    ],
+    end(
+      'THE SHOW THE CITY COULD HEAR',
+      'The underground venue becomes a public shelter that doubles as a theatre. The Oracle keeps the alarms; Anarkiss keeps the stage.',
+      'The mayor’s rehearsal tape closes the citywide broadcast. The troupe bows to the crowd and leaves the microphone for the witnesses.',
+    ),
+  ),
+  exchange: arc(
+    [
+      beat(
+        'The Exchange’s new ledger includes prices for every member of Undertow’s hidden witness network.',
+        'Notify each witness in private',
+        'The witnesses move before any collector can match a name to a door.',
+        'Replace the ledger with counterfeit buyers',
+        'The collectors spend the night tracing fake bidders to their own vault.',
+      ),
+      beat(
+        'A creditor offers to destroy the ledger if the Oracle reveals the location of one secret relay.',
+        'Protect the relay and copy the evidence',
+        'The witness records survive without giving the Exchange a door to kick in.',
+        'Trade a dummy relay location for the ledger',
+        'The collectors storm a disused bathhouse and find their own unpaid bills.',
+      ),
+      beat(
+        'Undertow learns the Exchange has started charging people for secrets they never told.',
+        'Give the debtors the hidden receipts',
+        'The debtors recognize the fraud and gather enough witnesses to contest it together.',
+        'Broadcast the collector’s confession',
+        'The collectors hear their manager admit that every secret was invented.',
+      ),
+      beat(
+        'The final ledger contains a prophecy that the Oracle must betray an ally to end the debt market.',
+        'Refuse the prophecy and protect the ally',
+        'The Oracle burns the prediction without asking anyone to be sacrificed.',
+        'Write the prophecy in the creditor’s name',
+        'The ancient collector fulfills his own curse when the vault doors close.',
+      ),
+    ],
+    end(
+      'NO PRICE ON A SECRET',
+      'Every protected witness gets their own records back. The Oracle keeps the network, and the Exchange can no longer auction the people who trusted it.',
+      'The creditor’s own prediction swallows his fortune. Undertow releases the falsified ledgers and erases the maps that could harm its allies.',
+    ),
+  ),
+} satisfies Partial<Record<TeamId, AllianceLaterArc>>

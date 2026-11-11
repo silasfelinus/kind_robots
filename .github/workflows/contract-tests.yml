@@ -164,6 +164,9 @@ jobs:
       - name: ArtJob priority bounds contract
         run: npm run test:artjob-priority-bounds
 
+      - name: ArtJob queue groups contract
+        run: npm run test:artjob-queue-groups
+
       - name: ArtJob slideshow rotation contract
         run: npm run test:art-slideshow-rotation
 

@@ -151,17 +151,17 @@
       </article>
       <div class="scs-deck">
         <button
-          v-if="lab.campaignJourneyCurrent"
+          v-if="lab.campaignJourneyCurrent || lab.campaignAllianceCurrent"
           type="button"
           class="scs-cta"
           data-testid="slime-city-faction-journey-continue"
           @click="lab.showCampaign()"
         >
-          CONTINUE {{ lab.campaignStory.title.toUpperCase() }} · SCENE
           {{
-            (lab.campaignState.journey?.[lab.campaignState.wins]?.length ?? 0) +
-            1
-          }}/3
+            lab.campaignAllianceCurrent
+              ? 'CONTINUE ALLIANCE STORY · ' + lab.journeyDeckName.toUpperCase()
+              : 'CONTINUE ' + lab.campaignStory.title.toUpperCase()
+          }}
         </button>
         <KrChoiceHand
           v-else-if="lab.campaignAtDestination"
@@ -307,7 +307,8 @@ import {
   type StreetChoice,
   type StreetStory,
 } from '~/utils/slimeCity/city'
-import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
+import { describeTerms } from '~/utils/slimeCity/campaign'
+import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore, type CityScreen } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
@@ -477,13 +478,11 @@ const missionHand = computed<KrHandChoice[]>(() =>
   (lab.activeChapter?.choices ?? []).map((choice) => ({
     id: choice.id,
     label: choice.label,
-    chip: describeTerms(
-      campaignBattleTerms(
-        lab.campaignSave,
-        lab.activeTeam,
+    chip: clashTermsLabel(
+      lab.campaignPreviewTerms(
         storyMissionTerms(lab.city, lab.districtId, choice.terms),
-        lab.campaignFavorIndex,
       ),
+      lab.journeyFormat,
     ),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',
   })),

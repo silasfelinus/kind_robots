@@ -267,6 +267,16 @@
 
           <button
             type="button"
+            class="btn btn-xs h-6 min-h-6 rounded-full px-2 text-[10px]"
+            :class="groupsOpen ? 'btn-accent' : 'btn-accent btn-outline'"
+            :aria-pressed="groupsOpen"
+            title="Pending jobs grouped by name, with bulk priority"
+            @click="groupsOpen = !groupsOpen"
+          >
+            Groups
+          </button>
+          <button
+            type="button"
             class="btn btn-secondary btn-xs h-6 min-h-6 rounded-full px-2 text-[10px]"
             title="Watch finished renders full screen, newest first"
             @click="slideshowOpen = true"
@@ -331,6 +341,8 @@
           </button>
         </div>
       </div>
+
+      <artjob-queue-groups v-if="groupsOpen" />
 
       <div
         v-if="artJobStore.error"
@@ -432,6 +444,7 @@ const pageInput = ref('1')
 const queueLoadMessage = ref(loadStore.randomLoadMessage())
 const editorJob = ref<ArtJobRecord | null>(null)
 const slideshowOpen = ref(false)
+const groupsOpen = ref(false)
 const hasMounted = ref(false)
 const editorAction = ref<EditorAction>('EDIT')
 const refreshingServerIds = ref<number[]>([])

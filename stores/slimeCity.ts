@@ -25,6 +25,13 @@ import {
 } from '../utils/slimeCity/campaign'
 import { campaignConversationFor } from '../utils/slimeCity/campaignDialogue'
 import {
+  allianceStoryScene,
+  chooseAllianceStory,
+  allianceStoryBattleTerms,
+  allianceStoryConsequence,
+  type AllianceStoryPick,
+} from '../utils/slimeCity/campaignAllianceJourney'
+import {
   geneRiotScene,
   geneRiotSceneText,
   geneRiotLastOutcome,
@@ -685,6 +692,55 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       ironjawCurrent.value ??
       riotCurrent.value,
   )
+  /** After the crew's existing scenes, an Alliance gets its own authored
+   * decision before the chapter battle. Solo skips this beat. */
+  const campaignAllianceCurrent = computed(() =>
+    journeyFormat.value === 'alliance' &&
+    activeChapter.value &&
+    !campaignJourneyCurrent.value &&
+    !campaignRewardChoices.value
+      ? allianceStoryScene(
+          campaignSave.value,
+          activeTeam.value,
+          selectedJourneyAlliance.value.ally,
+        )
+      : null,
+  )
+  const campaignAllianceConsequence = computed(() =>
+    allianceStoryConsequence(
+      campaignSave.value,
+      activeTeam.value,
+      campaignSave.value[activeTeam.value].wins,
+    ),
+  )
+  const campaignAllianceAftermath = computed(() => {
+    const state = campaignSave.value[activeTeam.value]
+    if (!state.lastResult) return null
+    const chapter = state.lastResult === 'player' ? state.wins - 1 : state.wins
+    return allianceStoryConsequence(
+      campaignSave.value,
+      activeTeam.value,
+      chapter,
+    )
+  })
+  function chooseCampaignAlliance(id: AllianceStoryPick): void {
+    if (
+      !storyEditable() ||
+      view.value !== 'campaign' ||
+      campaignBout.value ||
+      !campaignAllianceCurrent.value
+    )
+      return
+    const next = chooseAllianceStory(
+      campaignSave.value,
+      activeTeam.value,
+      campaignAllianceCurrent.value.ally,
+      id,
+    )
+    if (next === campaignSave.value) return
+    campaignSave.value = next
+    persistStory()
+  }
   const campaignJourneyText = computed(() =>
     geneRiotCurrent.value
       ? geneRiotText.value
@@ -1991,12 +2047,41 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       ),
     )
   }
+  /** One source of truth for pre-fight cards and the actual story match. */
+  function campaignPreviewTerms(terms: BoutTerms): BoutTerms {
+    const base = campaignBattleTerms(
+      campaignSave.value,
+      activeTeam.value,
+      terms,
+      campaignFavorIndex.value,
+    )
+    const prepared =
+      activeTeam.value === 'catgirls'
+        ? geneRiotBattleTerms(campaignSave.value.catgirls, base)
+        : activeTeam.value === 'bloodfairies'
+          ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
+          : activeTeam.value === 'ironjaw'
+            ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
+            : activeTeam.value === 'riot'
+              ? riotBattleTerms(campaignSave.value.riot, base)
+              : base
+    return journeyFormat.value === 'alliance'
+      ? allianceStoryBattleTerms(
+          campaignSave.value,
+          activeTeam.value,
+          selectedJourneyAlliance.value.ally,
+          prepared,
+        )
+      : prepared
+  }
+
   function startCampaignBattle(choiceId: CampaignApproach): void {
     if (!storyEditable()) return
     if (
       campaignBout.value ||
       campaignRewardChoices.value ||
-      campaignJourneyCurrent.value
+      campaignJourneyCurrent.value ||
+      campaignAllianceCurrent.value
     )
       return
     const fromCity =
@@ -2015,25 +2100,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       index: campaignSave.value[teamId].wins,
       choice: choice.id,
     }
-    const base = campaignBattleTerms(
-      campaignSave.value,
-      teamId,
-      fromCity
-        ? storyMissionTerms(city.value, districtId.value, choice.terms)
-        : choice.terms,
-      campaignFavorIndex.value,
+    launchStoryClash(
+      'campaign',
+      chapter.foe,
+      campaignPreviewTerms(
+        fromCity
+          ? storyMissionTerms(city.value, districtId.value, choice.terms)
+          : choice.terms,
+      ),
     )
-    const prepared =
-      teamId === 'catgirls'
-        ? geneRiotBattleTerms(campaignSave.value.catgirls, base)
-        : teamId === 'bloodfairies'
-          ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
-          : teamId === 'ironjaw'
-            ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
-            : teamId === 'riot'
-              ? riotBattleTerms(campaignSave.value.riot, base)
-              : base
-    launchStoryClash('campaign', chapter.foe, prepared)
   }
 
   async function finishCpuBattle(id: string, commands: unknown): Promise<void> {
@@ -2376,6 +2451,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     riotCurrent,
     riotShow,
     campaignJourneyCurrent,
+    campaignAllianceCurrent,
+    campaignAllianceConsequence,
+    campaignAllianceAftermath,
+    chooseCampaignAlliance,
+    campaignPreviewTerms,
     campaignJourneyText,
     campaignJourneyOutcome,
     chooseCampaignJourneyBeat,

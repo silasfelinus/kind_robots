@@ -19,6 +19,7 @@ import { validGeneRiotJourney } from './campaignGeneRiot'
 import { validBloodfairyJourney } from './campaignBloodfairies'
 import { validIronjawJourney } from './campaignIronjaw'
 import { validRiotJourney } from './campaignRiot'
+import { validAllianceStoryDecisions } from './campaignAllianceJourney'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import {
   normalizeLegacyAllianceDeck,
@@ -292,6 +293,14 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     )
       return false
     if (p.wins > FACTION_CAMPAIGNS[team as TeamId].chapters.length) return false
+    if (
+      !validAllianceStoryDecisions(
+        p.allianceJourney,
+        team as TeamId,
+        p.wins as number,
+      )
+    )
+      return false
     if (
       team === 'catgirls' &&
       !validGeneRiotJourney(p as unknown as CampaignSave['catgirls'])

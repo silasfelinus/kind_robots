@@ -22,7 +22,7 @@
       :aria-label="label + ': ' + lab.team.name + '. Change crew'"
       :title="label + ': ' + lab.team.name"
       data-testid="slime-crew-select-toggle"
-      @click="open = !open"
+      @click="toggle"
     >
       <SlimeCityArtwork
         :image-id="slimeArtId('crews', lab.activeTeam)"
@@ -38,8 +38,9 @@
     </button>
     <div
       v-if="open"
+      ref="menu"
       class="scs-menu"
-      :class="'align-' + align"
+      :class="'align-' + (flipped ? flipSide(align) : align)"
       role="group"
       :aria-label="'Choose ' + label.toLowerCase()"
     >
@@ -67,12 +68,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     label?: string
     compact?: boolean
@@ -84,6 +85,25 @@ const emit = defineEmits<{ picked: [team: TeamId] }>()
 const lab = useSlimeCityStore()
 const open = ref(false)
 const root = ref<HTMLElement | null>(null)
+const menu = ref<HTMLElement | null>(null)
+/**
+ * Silas, 2026-11-11 PT (iPad screenshot): the VS crew menu ran off the right
+ * edge. The menu opens toward whichever side has room.
+ */
+const flipped = ref(false)
+function flipSide(side: 'left' | 'right'): 'left' | 'right' {
+  return side === 'left' ? 'right' : 'left'
+}
+async function toggle(): Promise<void> {
+  open.value = !open.value
+  flipped.value = false
+  if (!open.value) return
+  await nextTick()
+  const box = menu.value?.getBoundingClientRect()
+  if (!box) return
+  const width = document.documentElement.clientWidth
+  flipped.value = props.align === 'left' ? box.right > width - 4 : box.left < 4
+}
 
 function pick(team: TeamId): void {
   open.value = false

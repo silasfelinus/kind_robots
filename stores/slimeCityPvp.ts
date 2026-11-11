@@ -19,6 +19,13 @@ export interface PvpPlayer {
   allowFriendRequests?: boolean
 }
 
+/** An open duel anyone can join, from the VS list. */
+export interface PvpOpenDuel {
+  id: string
+  hostTeam: TeamId
+  hostName: string
+}
+
 export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const duel = ref<PvpSnapshot | null>(null)
   /** The VS hub's list of this player's games against other players. */
@@ -33,6 +40,8 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const friends = ref<PvpPlayer[]>([])
   const friendsLoaded = ref(false)
   const players = ref<PvpPlayer[]>([])
+  /** Open duels other players listed for anyone to join. */
+  const openDuels = ref<PvpOpenDuel[]>([])
   const searching = ref(false)
   const searchMessage = ref('')
   const loading = ref(false)
@@ -83,14 +92,18 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
 
   async function start(
     team: TeamId,
-    friendId?: number,
+    options: { friendId?: number; isPublic?: boolean } = {},
   ): Promise<PvpSnapshot | null> {
     sending.value = true
     error.value = ''
     try {
       const data = await request('/api/slime-city/pvp', {
         method: 'POST',
-        body: JSON.stringify(friendId ? { team, friendId } : { team }),
+        body: JSON.stringify({
+          team,
+          ...(options.friendId ? { friendId: options.friendId } : {}),
+          ...(options.isPublic ? { isPublic: true } : {}),
+        }),
       })
       duel.value = data
       return data
@@ -184,6 +197,41 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     }
   }
 
+  async function loadOpen(): Promise<void> {
+    const result = await performFetch<PvpOpenDuel[]>(
+      '/api/slime-city/pvp/open',
+      {},
+      1,
+    )
+    if (result.success && Array.isArray(result.data))
+      openDuels.value = result.data
+  }
+
+  /** Withdraw a waiting duel, or decline a friend's challenge. */
+  async function cancel(id: string): Promise<boolean> {
+    if (sending.value) return false
+    sending.value = true
+    error.value = ''
+    try {
+      const result = await performFetch<{ id: string }>(
+        '/api/slime-city/pvp/' + encodeURIComponent(id) + '/cancel',
+        { method: 'POST' },
+        1,
+      )
+      if (!result.success)
+        throw new Error(result.message || 'Cannot cancel this duel.')
+      games.value = games.value.filter((game) => game.id !== id)
+      if (duel.value?.id === id) clearDuel()
+      return true
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Cannot cancel this duel.'
+      return false
+    } finally {
+      sending.value = false
+    }
+  }
+
   async function loadFriends(): Promise<void> {
     try {
       const result = await performFetch<PvpPlayer[]>(
@@ -272,6 +320,9 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     searchMessage,
     findPlayers,
     addFriend,
+    openDuels,
+    loadOpen,
+    cancel,
     loading,
     sending,
     error,

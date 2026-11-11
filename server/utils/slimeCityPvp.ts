@@ -67,17 +67,21 @@ function seatFor(row: Row, record: PvpRecord, userId: number): Side {
   return fail(404, 'Duel not found.')
 }
 
-/** The challenged friend may look at a waiting duel before answering it. */
-function isInvitee(row: Row, record: PvpRecord, userId: number): boolean {
+/**
+ * Who may look at a waiting duel before answering it: the challenged friend,
+ * or, for a duel sent to nobody in particular, anyone holding its link or
+ * finding it in the open list. Nothing but the host's crew is visible yet.
+ */
+function canAnswer(row: Row, record: PvpRecord, userId: number): boolean {
   return (
     record.guestId === null &&
-    record.invitedId === userId &&
-    row.userId !== userId
+    row.userId !== userId &&
+    (record.invitedId ? record.invitedId === userId : true)
   )
 }
 
 function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
-  const seat: Side = isInvitee(row, record, userId)
+  const seat: Side = canAnswer(row, record, userId)
     ? 'enemy'
     : seatFor(row, record, userId)
   const joined = record.guestId !== null
@@ -100,6 +104,7 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
         ? 'finished'
         : 'battle',
     challenge: !!record.invitedId,
+    open: !!record.isPublic,
     board: state ? pvpBoard(state, seat) : null,
     revision: record.commands.length,
     outcome: row.settledAt
@@ -118,8 +123,13 @@ export async function createSlimeCityDuel(
   userId: number,
   team: unknown,
   friendId?: unknown,
+  isPublic?: unknown,
 ) {
   if (!isPvpTeam(team)) return fail(400, 'Choose a Slime City crew.')
+  if (isPublic !== undefined && typeof isPublic !== 'boolean')
+    return fail(400, 'Choose an open or private duel.')
+  if (isPublic && friendId !== undefined && friendId !== null)
+    return fail(400, 'A friend challenge is private.')
   let invitedId: number | null = null
   if (friendId !== undefined && friendId !== null) {
     if (!Number.isSafeInteger(friendId) || Number(friendId) <= 0)
@@ -159,6 +169,7 @@ export async function createSlimeCityDuel(
         version: 1,
         guestId: null,
         ...(invitedId ? { invitedId } : {}),
+        ...(isPublic ? { isPublic: true } : {}),
         lastActionAt: new Date().toISOString(),
         commands: [],
       } satisfies PvpRecord),
@@ -219,6 +230,98 @@ export async function listSlimeCityDuels(userId: number) {
       rivalName: game.rivalId ? (names.get(game.rivalId) ?? null) : null,
     })),
   )
+}
+
+/**
+ * Open duels other players can join, newest first. Readable by any visitor:
+ * the host chose to list it, and only their username and crew are shown.
+ */
+export async function listOpenSlimeCityDuels(viewerId: number | null) {
+  const now = Date.now()
+  const rows = await prisma.slimeCityMatch.findMany({
+    where: {
+      mode: PVP_MODE,
+      settledAt: null,
+      startedAt: { gte: new Date(now - PVP_INVITE_EXPIRY_MS) },
+      commands: { path: '$.isPublic', equals: true },
+      ...(viewerId ? { NOT: { userId: viewerId } } : {}),
+    },
+    orderBy: { startedAt: 'desc' },
+    take: 40,
+  })
+  const open = rows.flatMap((row) => {
+    const record = parsePvpRecord(row.commands)
+    if (
+      !record?.isPublic ||
+      record.guestId !== null ||
+      !isPvpTeam(row.teamId) ||
+      isPvpExpired(row.startedAt, record.lastActionAt, false, false, now)
+    )
+      return []
+    return [{ id: row.id, hostId: row.userId, hostTeam: row.teamId as TeamId }]
+  })
+  const hosts = open.length
+    ? await prisma.user.findMany({
+        where: { id: { in: [...new Set(open.map((duel) => duel.hostId))] } },
+        select: { id: true, username: true },
+      })
+    : []
+  const names = new Map(hosts.map((user) => [user.id, user.username]))
+  return open.slice(0, 20).map((duel) => ({
+    id: duel.id,
+    hostTeam: duel.hostTeam,
+    hostName: names.get(duel.hostId) ?? 'A player',
+  }))
+}
+
+/**
+ * Silas, 2026-11-11 PT: "Invites should be cancellable." The host withdraws a
+ * waiting duel, or the challenged friend declines it; either way it is gone.
+ */
+export async function cancelSlimeCityDuel(id: string, userId: number) {
+  if (!validId(id)) return fail(404, 'Duel not found.')
+  const outcome = await prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM SlimeCityMatch WHERE id = ${id} FOR UPDATE`
+    const row = await tx.slimeCityMatch.findUnique({ where: { id } })
+    if (!row || row.mode !== PVP_MODE) return fail(404, 'Duel not found.')
+    const record = parsePvpRecord(row.commands)
+    if (!record) return fail(409, 'Duel record is invalid.')
+    const host = row.userId === userId
+    const declining = !host && !!record.invitedId && record.invitedId === userId
+    if (!host && !declining) return fail(404, 'Duel not found.')
+    if (record.guestId !== null)
+      return fail(409, 'The duel has started. Forfeit it instead.')
+    await tx.slimeCityMatch.delete({ where: { id } })
+    return {
+      hostId: row.userId,
+      invitedId: record.invitedId ?? null,
+      declining,
+    }
+  })
+  const link = '/play/slime-city-pvp?duel=' + id
+  if (outcome.invitedId) {
+    try {
+      await prisma.notification.deleteMany({
+        where: { userId: outcome.invitedId, linkPath: link },
+      })
+    } catch (err) {
+      console.error('[slime-city] could not clear challenge notice:', err)
+    }
+  }
+  if (outcome.declining) {
+    const friend = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { username: true },
+    })
+    await createNotification({
+      userId: outcome.hostId,
+      type: 'SYSTEM',
+      title: `${friend?.username ?? 'Your friend'} declined your Slime City challenge`,
+      linkPath: '/play/slime-city?vs=1',
+      actorId: userId,
+    })
+  }
+  return { id, cancelled: true }
 }
 
 /** Accepted friends, the first people a player can challenge. */

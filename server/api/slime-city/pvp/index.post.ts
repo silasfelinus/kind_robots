@@ -4,9 +4,18 @@ import { createSlimeCityDuel } from '~/server/utils/slimeCityPvp'
 
 export default defineEventHandler(async (event) => {
   const auth = await requireSlimeCityPlayer(event)
-  const body = await readBody<{ team?: unknown; friendId?: unknown }>(event)
+  const body = await readBody<{
+    team?: unknown
+    friendId?: unknown
+    isPublic?: unknown
+  }>(event)
   return {
     success: true,
-    data: await createSlimeCityDuel(auth.user.id, body?.team, body?.friendId),
+    data: await createSlimeCityDuel(
+      auth.user.id,
+      body?.team,
+      body?.friendId,
+      body?.isPublic,
+    ),
   }
 })

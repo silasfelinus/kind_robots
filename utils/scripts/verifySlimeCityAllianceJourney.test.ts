@@ -43,18 +43,31 @@ for (const general of TEAMS) {
       base,
       'no free buff before an alliance decision',
     )
-    assert.strictEqual(chooseAllianceStory(save, general.id, general.id, 'protect'), save)
-    assert.strictEqual(chooseAllianceStory(save, general.id, ally.id, 'stolen' as 'protect'), save)
+    assert.strictEqual(
+      chooseAllianceStory(save, general.id, general.id, 'protect'),
+      save,
+    )
+    assert.strictEqual(
+      chooseAllianceStory(save, general.id, ally.id, 'stolen' as 'protect'),
+      save,
+    )
     const decided = chooseAllianceStory(save, general.id, ally.id, 'protect')
     assert.notStrictEqual(decided, original)
-    assert.equal(original[general.id].allianceJourney, undefined, 'immutable save')
+    assert.equal(
+      original[general.id].allianceJourney,
+      undefined,
+      'immutable save',
+    )
     assert.equal(allianceStoryScene(decided, general.id, ally.id), null)
     assert.equal(
       chooseAllianceStory(decided, general.id, ally.id, 'protect'),
       decided,
       'repeated clicks do not rewrite the save',
     )
-    assert.equal(validSlimeCityStory({ ...newSlimeCityStory(), campaigns: decided }), true)
+    assert.equal(
+      validSlimeCityStory({ ...newSlimeCityStory(), campaigns: decided }),
+      true,
+    )
     assert.equal(
       allianceStoryConsequence(decided, general.id, 0),
       first.choices[0].outcome,
@@ -62,15 +75,29 @@ for (const general of TEAMS) {
     const safe = allianceStoryBattleTerms(decided, general.id, ally.id, base)
     assert.equal(safe.playerHp, 2)
     assert.equal(safe.enemyMana, 1)
-    assert.equal(clashBossesFromTerms(safe).player, clashBossesFromTerms(base).player + 3)
-    assert.equal(clashBossesFromTerms(safe).enemy, clashBossesFromTerms(base).enemy + 2)
+    assert.equal(
+      clashBossesFromTerms(safe).player,
+      clashBossesFromTerms(base).player + 3,
+    )
+    assert.equal(
+      clashBossesFromTerms(safe).enemy,
+      clashBossesFromTerms(base).enemy + 2,
+    )
     const risky = chooseAllianceStory(save, general.id, ally.id, 'gamble')
     const riskTerms = allianceStoryBattleTerms(risky, general.id, ally.id, base)
     assert.equal(riskTerms.playerMana, -1)
     assert.equal(riskTerms.fewerRivals, 1)
-    assert.equal(clashBossesFromTerms(riskTerms).player, clashBossesFromTerms(base).player - 2)
-    assert.equal(clashBossesFromTerms(riskTerms).enemy, clashBossesFromTerms(base).enemy - 4)
-    const other = TEAMS.find((team) => team.id !== general.id && team.id !== ally.id)!
+    assert.equal(
+      clashBossesFromTerms(riskTerms).player,
+      clashBossesFromTerms(base).player - 2,
+    )
+    assert.equal(
+      clashBossesFromTerms(riskTerms).enemy,
+      clashBossesFromTerms(base).enemy - 4,
+    )
+    const other = TEAMS.find(
+      (team) => team.id !== general.id && team.id !== ally.id,
+    )!
     const switched = allianceStoryScene(decided, general.id, other.id)
     assert.ok(switched, 'changing partners requires a fresh scene')
     assert.strictEqual(
@@ -78,10 +105,18 @@ for (const general of TEAMS) {
       base,
       'old partner can never grant a new partner its bonus',
     )
-    const redecided = chooseAllianceStory(decided, general.id, other.id, 'gamble')
+    const redecided = chooseAllianceStory(
+      decided,
+      general.id,
+      other.id,
+      'gamble',
+    )
     assert.equal(redecided[general.id].allianceJourney?.[0]?.ally, other.id)
     assert.equal(allianceStoryScene(redecided, general.id, other.id), null)
-    assert.equal(allianceStoryScene(redecided, general.id, ally.id)?.ally, ally.id)
+    assert.equal(
+      allianceStoryScene(redecided, general.id, ally.id)?.ally,
+      ally.id,
+    )
 
     // Five consecutive victories unlock five separate decisions without
     // leaking the next chapter's scene before it is earned.
@@ -93,24 +128,41 @@ for (const general of TEAMS) {
       if (chapter > 0) assert.match(beat.text, /Last chapter/)
       const pick = chapter % 2 ? 'gamble' : 'protect'
       save = chooseAllianceStory(save, general.id, ally.id, pick)
-      assert.equal(validSlimeCityStory({ ...newSlimeCityStory(), campaigns: save }), true)
+      assert.equal(
+        validSlimeCityStory({ ...newSlimeCityStory(), campaigns: save }),
+        true,
+      )
       const terms = allianceStoryBattleTerms(save, general.id, ally.id, {})
       if (chapter > 0) {
-        if (pick === 'gamble') assert.equal(terms.playerHp, 1, 'prior protected crew remembers')
-        else assert.equal(terms.fewerRivals, 1, 'prior risky attack is remembered')
+        if (pick === 'gamble')
+          assert.equal(terms.playerHp, 1, 'prior protected crew remembers')
+        else
+          assert.equal(terms.fewerRivals, 1, 'prior risky attack is remembered')
       }
       const rival = FACTION_CAMPAIGNS[general.id].chapters[chapter]!
       save = resolveCampaignBattle(
-        save, general.id, chapter, rival.foe, 'conviction', 'player',
+        save,
+        general.id,
+        chapter,
+        rival.foe,
+        'conviction',
+        'player',
       )
       assert.equal(save[general.id].wins, chapter + 1)
-      assert.equal(validSlimeCityStory({ ...newSlimeCityStory(), campaigns: save }), true)
+      assert.equal(
+        validSlimeCityStory({ ...newSlimeCityStory(), campaigns: save }),
+        true,
+      )
     }
     assert.equal(allianceStoryScene(save, general.id, ally.id), null)
     assert.equal(Object.keys(save[general.id].allianceJourney ?? {}).length, 5)
   }
 }
-assert.equal(titles.size, 30, 'all thirty directed ally relationships are authored')
+assert.equal(
+  titles.size,
+  30,
+  'all thirty directed ally relationships are authored',
+)
 
 // Legacy solo saves are valid; malformed/foreign/future alliance decisions are not.
 const base = newSlimeCityStory()
@@ -127,13 +179,16 @@ for (const bad of [
   [],
 ]) {
   assert.equal(validAllianceStoryDecisions(bad, 'riot', 0), false)
-  assert.equal(validSlimeCityStory({
-    ...base,
-    campaigns: {
-      ...base.campaigns,
-      riot: { ...base.campaigns.riot, allianceJourney: bad },
-    },
-  }), false)
+  assert.equal(
+    validSlimeCityStory({
+      ...base,
+      campaigns: {
+        ...base.campaigns,
+        riot: { ...base.campaigns.riot, allianceJourney: bad },
+      },
+    }),
+    false,
+  )
 }
 
 // Store integration: the ally scene appears only after the normal three
@@ -169,7 +224,11 @@ assert.equal(lab.clashLaunch.alliance?.ally, allianceBeat.ally)
 assert.ok(lab.clashLaunch.bosses)
 lab.showCampaign()
 lab.setJourneyFormat('solo')
-assert.equal(lab.campaignAllianceCurrent, null, 'Solo shares the journey but skips ally scenes')
+assert.equal(
+  lab.campaignAllianceCurrent,
+  null,
+  'Solo shares the journey but skips ally scenes',
+)
 
 // Contract: the same campaign page and city mission must both reach the
 // interlude before battle, while all the actual bout terms are computed
@@ -182,5 +241,10 @@ assert.match(store, /allianceStoryBattleTerms\(/)
 assert.match(store, /persistStory\(\)/)
 assert.match(page, /data-testid="slime-alliance-story-scene"/)
 assert.match(page, /testid-prefix="slime-alliance-story-choice"/)
-assert.match(city, /lab\.campaignJourneyCurrent \|\| lab\.campaignAllianceCurrent/)
-console.log('Slime City Alliance Journey: 30 directed partnerships, 150 scenes, dual outcomes, save validation, partner switching, one-beat loyalty callbacks and CLASH boss effects PASS')
+assert.match(
+  city,
+  /lab\.campaignJourneyCurrent \|\| lab\.campaignAllianceCurrent/,
+)
+console.log(
+  'Slime City Alliance Journey: 30 directed partnerships, 150 scenes, dual outcomes, save validation, partner switching, one-beat loyalty callbacks and CLASH boss effects PASS',
+)

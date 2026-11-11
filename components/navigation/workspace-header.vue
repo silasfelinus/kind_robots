@@ -157,7 +157,7 @@
             : 'bg-base-100'
         "
         :aria-current="slimeCityActive ? 'page' : undefined"
-         :aria-label="slimeCityHeaderLabel"
+        :aria-label="slimeCityHeaderLabel"
         :title="slimeCityHeaderLabel"
         data-testid="header-slime-city"
       >
@@ -325,7 +325,9 @@ const workspaceToggleLabel = computed(() => {
 // Lit when you are already in the dungeon, matching how the workspace toggle
 // shows its own open state. startsWith rather than an equality check because
 // the game's deeper routes (a level, a run) should keep the button lit too.
-const slimeCityActive = computed(() => route.path.startsWith('/play/slime-city'))
+const slimeCityActive = computed(() =>
+  route.path.startsWith('/play/slime-city'),
+)
 
 const slimeCityPendingTurns = ref(0)
 const slimeCityHeaderLabel = computed(() =>
@@ -359,7 +361,10 @@ watch(
     slimeCityPendingTurns.value = 0
     if (import.meta.client && admin) {
       void refreshSlimeCityInbox()
-      slimeCityInboxTimer = setInterval(() => void refreshSlimeCityInbox(), 30000)
+      slimeCityInboxTimer = setInterval(
+        () => void refreshSlimeCityInbox(),
+        30000,
+      )
     }
   },
   { immediate: true },
@@ -367,7 +372,6 @@ watch(
 onBeforeUnmount(() => {
   if (slimeCityInboxTimer) clearInterval(slimeCityInboxTimer)
 })
-
 
 const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 

@@ -16,6 +16,7 @@ import {
   chooseClashCpu,
   createClash,
   CLASH_ROUND_LIMIT,
+  CLASH_GUESTS,
 } from '../slimeCity/clash'
 import {
   TEAMS,
@@ -75,6 +76,12 @@ assert.notDeepEqual(
   synergy,
   'distinct tools for protection and combos',
 )
+assert.ok(
+  [...control, ...synergy].every(
+    (id) => !Object.values(CLASH_GUESTS).includes(id),
+  ),
+  'bridge kits must not duplicate pre-owned faction guest mercenaries',
+)
 for (const pkg of [control, synergy]) {
   assert.ok(pkg.every((id) => STARTER_CARD_IDS.has(id)))
   assert.equal(pkg.filter((id) => cardById(id).kind === 'creature').length, 2)
@@ -97,7 +104,9 @@ for (const general of crews)
       )
       assert.equal(
         deck.cards.filter((id) => cardById(id).team === 'mercenary').length,
-        4,
+        baseline.cards.filter((id) => cardById(id).team === 'mercenary').length +
+          4,
+        'add four new neutral cards, preserving existing mercenary guests',
       )
       assert.ok(required.every((id) => deck.cards.includes(id)))
       assert.ok(deck.cards.every((id) => STARTER_CARD_IDS.has(id)))

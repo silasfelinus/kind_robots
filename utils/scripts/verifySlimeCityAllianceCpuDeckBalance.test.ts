@@ -17,7 +17,12 @@ import {
   replayClash,
   type ClashCpuPolicy,
 } from '../slimeCity/clash'
-import { TEAMS, cardById, type Side, type TeamId } from '../slimeCity/prototypes'
+import {
+  TEAMS,
+  cardById,
+  type Side,
+  type TeamId,
+} from '../slimeCity/prototypes'
 
 const crews = TEAMS.map((crew) => crew.id)
 type Trial = 'legacy' | 'board-aware' | 'fighter-forward' | 'ally-forward'
@@ -31,19 +36,33 @@ type Score = {
   thirdStagePlays: number
 }
 const empty = (): Score => ({
-  games: 0, wins: 0, draws: 0, rounds: 0,
-  creaturePlays: 0, evolvedPlays: 0, thirdStagePlays: 0,
+  games: 0,
+  wins: 0,
+  draws: 0,
+  rounds: 0,
+  creaturePlays: 0,
+  evolvedPlays: 0,
+  thirdStagePlays: 0,
 })
-const plans = ['legacy', 'board-aware', 'fighter-forward', 'ally-forward'] as const
+const plans = [
+  'legacy',
+  'board-aware',
+  'fighter-forward',
+  'ally-forward',
+] as const
 const all = () =>
-  Object.fromEntries(plans.map((plan) => [plan, empty()])) as Record<Trial, Score>
+  Object.fromEntries(plans.map((plan) => [plan, empty()])) as Record<
+    Trial,
+    Score
+  >
 const totals = all()
 const byGeneral = Object.fromEntries(
   crews.map((team) => [team, all()]),
 ) as Record<TeamId, Record<Trial, Score>>
-const byAlly = Object.fromEntries(
-  crews.map((team) => [team, all()]),
-) as Record<TeamId, Record<Trial, Score>>
+const byAlly = Object.fromEntries(crews.map((team) => [team, all()])) as Record<
+  TeamId,
+  Record<Trial, Score>
+>
 const bySeat: Record<Side, Record<Trial, Score>> = {
   player: all(),
   enemy: all(),
@@ -54,10 +73,14 @@ for (const general of crews)
     for (const plan of plans) {
       const deck = deckFor(general, ally, plan)
       assert.deepEqual(
-        allianceProblems(deck), [], 'legal ' + plan + ' ' + general + '/' + ally,
+        allianceProblems(deck),
+        [],
+        'legal ' + plan + ' ' + general + '/' + ally,
       )
-      assert.ok(deck.cards.every((id) => STARTER_CARD_IDS.has(id)),
-        'all presets fit the free starter collection')
+      assert.ok(
+        deck.cards.every((id) => STARTER_CARD_IDS.has(id)),
+        'all presets fit the free starter collection',
+      )
       assert.equal(new Set(deck.cards).size, 20)
     }
 
@@ -119,11 +142,7 @@ function match(
     replays++
   }
   const outcome =
-    state.victor === 'draw'
-      ? 'draw'
-      : state.victor === seat
-        ? 'win'
-        : 'loss'
+    state.victor === 'draw' ? 'draw' : state.victor === seat ? 'win' : 'loss'
   for (const tally of [
     totals[plan],
     byGeneral[deck.general][plan],
@@ -152,9 +171,8 @@ for (const general of crews)
       for (const trial of [0, 1])
         for (const seat of ['player', 'enemy'] as const) {
           const rivalOptions = crews.filter((team) => team !== rival)
-          const rivalAlly = rivalOptions[
-            (crews.indexOf(ally) + trial) % rivalOptions.length
-          ]!
+          const rivalAlly =
+            rivalOptions[(crews.indexOf(ally) + trial) % rivalOptions.length]!
           const opponent = allianceStarter(rival, rivalAlly)
           const seed =
             37601 +
@@ -164,9 +182,16 @@ for (const general of crews)
             trial * 503
           const outcomes = {} as Record<Trial, 'win' | 'loss' | 'draw'>
           for (const plan of plans)
-            outcomes[plan] = match(deckFor(general, ally, plan), opponent, seat, seed, plan)
+            outcomes[plan] = match(
+              deckFor(general, ally, plan),
+              opponent,
+              seat,
+              seed,
+              plan,
+            )
           if (outcomes.legacy !== outcomes['board-aware']) cpuChangedOutcome++
-          if (outcomes.legacy !== outcomes['fighter-forward']) fighterChangedOutcome++
+          if (outcomes.legacy !== outcomes['fighter-forward'])
+            fighterChangedOutcome++
           if (outcomes.legacy !== outcomes['ally-forward']) allyChangedOutcome++
           scenarios++
         }
@@ -182,17 +207,23 @@ for (const plan of plans) {
   assert.equal(bySeat.enemy[plan].games, 300)
 }
 const pct = (data: Score) =>
-  (100 * data.wins / Math.max(1, data.games - data.draws)).toFixed(1) + '%'
+  ((100 * data.wins) / Math.max(1, data.games - data.draws)).toFixed(1) + '%'
 const report = (group: Record<Trial, Score>) =>
-  plans.map((plan) => {
-    const s = group[plan]
-    return plan + '=' + pct(s)
-  }).join(', ')
+  plans
+    .map((plan) => {
+      const s = group[plan]
+      return plan + '=' + pct(s)
+    })
+    .join(', ')
 
 console.log(
-  'Alliance CPU and deck controlled trials: ' + scenarios +
-  ' matched matchups / ' + (scenarios * plans.length) +
-  ' completed CPU Clashes, ' + replays + ' deterministic replays PASS',
+  'Alliance CPU and deck controlled trials: ' +
+    scenarios +
+    ' matched matchups / ' +
+    scenarios * plans.length +
+    ' completed CPU Clashes, ' +
+    replays +
+    ' deterministic replays PASS',
 )
 console.log('  overall: ' + report(totals))
 for (const crew of crews) {
@@ -203,16 +234,26 @@ for (const side of ['player', 'enemy'] as const)
   console.log('  seat ' + side + ': ' + report(bySeat[side]))
 console.log(
   '  changed outcomes relative to old CPU and classic decks: board-aware ' +
-  cpuChangedOutcome + '/600, fighter-forward ' + fighterChangedOutcome +
-  '/600, ally-forward ' + allyChangedOutcome + '/600',
+    cpuChangedOutcome +
+    '/600, fighter-forward ' +
+    fighterChangedOutcome +
+    '/600, ally-forward ' +
+    allyChangedOutcome +
+    '/600',
 )
 for (const plan of plans) {
   const s = totals[plan]
   console.log(
-    '  plays ' + plan + ': creatures=' + s.creaturePlays +
-    ', at L2+=' + s.evolvedPlays +
-    ', at L3=' + s.thirdStagePlays +
-    ', mean rounds=' + (s.rounds / s.games).toFixed(1),
+    '  plays ' +
+      plan +
+      ': creatures=' +
+      s.creaturePlays +
+      ', at L2+=' +
+      s.evolvedPlays +
+      ', at L3=' +
+      s.thirdStagePlays +
+      ', mean rounds=' +
+      (s.rounds / s.games).toFixed(1),
   )
 }
 console.log('  Diagnostic CPU controls; not a human-play balance verdict.')

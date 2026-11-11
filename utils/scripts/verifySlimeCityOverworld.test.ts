@@ -122,7 +122,7 @@ const evolutionKeys = Object.keys(SLIME_CITY_ART.evolutions)
 assert.equal(evolutionKeys.length, 425, '425 curated L2/L3 evolution paintings')
 const cardIds = new Set(CARDS.map((c) => c.id))
 for (const key of evolutionKeys) {
-  const [cardId, level] = key.split('@')
+  const [cardId = '', level = ''] = key.split('@')
   assert.ok(cardIds.has(cardId), key + ' evolves a real card')
   assert.ok(['2', '3', '3b'].includes(level), key + ' is level 2, 3 or 3b')
 }

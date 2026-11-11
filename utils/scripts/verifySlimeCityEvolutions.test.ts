@@ -66,11 +66,12 @@ assert.equal(exchangeStages.length, 63, 'all Exchange stages have authored title
 assert.equal(new Set(exchangeStages).size, exchangeStages.length)
 for (const title of [
   'The Choir of Unpaid Bones',
-  'The Drowned Chapel\\'s Mercy',
+  "The Drowned Chapel's Mercy",
   'The Great Devouring',
   'The Ossuary Opens',
   'The Bone Cart',
-]) assert.ok(exchangeStages.includes(title), title + ' must keep its occult identity')
+ ])
+  assert.ok(exchangeStages.includes(title), title + ' must keep its occult identity')
 // Every crafted card, every faction: real stages that fit the card face.
 for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   const card = cardById(id)

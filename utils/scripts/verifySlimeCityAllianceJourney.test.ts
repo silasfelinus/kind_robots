@@ -136,6 +136,41 @@ for (const bad of [
   }), false)
 }
 
+// Store integration: the ally scene appears only after the normal three
+// authored Riot beats, prevents an early battle and produces a legal Alliance
+// CLASH with the recorded opening-life effects.
+const { createPinia, setActivePinia } = await import('pinia')
+const { useSlimeCityStore } = await import('../../stores/slimeCity')
+setActivePinia(createPinia())
+const lab = useSlimeCityStore()
+lab.chooseTeam('riot')
+lab.showCampaign()
+lab.setJourneyFormat('alliance')
+assert.ok(lab.campaignJourneyCurrent)
+assert.equal(lab.campaignAllianceCurrent, null)
+for (let scene = 0; scene < 3; scene++) lab.chooseCampaignJourneyBeat('left')
+assert.equal(lab.campaignJourneyCurrent, null)
+const allianceBeat = lab.campaignAllianceCurrent
+assert.ok(allianceBeat, 'crew chapter hands off to the alliance interlude')
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'campaign', 'cannot skip the ally decision')
+lab.chooseCampaignAlliance('protect')
+assert.equal(lab.campaignAllianceCurrent, null)
+assert.equal(
+  lab.campaignSave.riot.allianceJourney?.[0]?.ally,
+  allianceBeat.ally,
+)
+assert.ok(lab.campaignAllianceConsequence)
+lab.startCampaignBattle('conviction')
+assert.equal(lab.view, 'clash')
+assert.equal(lab.clashLaunch.kind, 'campaign')
+assert.equal(lab.clashLaunch.format, 'alliance')
+assert.equal(lab.clashLaunch.alliance?.ally, allianceBeat.ally)
+assert.ok(lab.clashLaunch.bosses)
+lab.showCampaign()
+lab.setJourneyFormat('solo')
+assert.equal(lab.campaignAllianceCurrent, null, 'Solo shares the journey but skips ally scenes')
+
 // Contract: the same campaign page and city mission must both reach the
 // interlude before battle, while all the actual bout terms are computed
 // from the partner and the persisted choice.

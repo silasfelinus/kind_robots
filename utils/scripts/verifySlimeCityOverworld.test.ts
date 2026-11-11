@@ -116,6 +116,21 @@ assert.equal(
   '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10)',
 )
 assert.equal(artIds.length, 787)
+// Evolution paintings (2026-11-11 PT curation of the Krea escalation ledgers):
+// every key names a real card and level, and no painting is reused.
+const evolutionKeys = Object.keys(SLIME_CITY_ART.evolutions)
+assert.equal(evolutionKeys.length, 425, '425 curated L2/L3 evolution paintings')
+const cardIds = new Set(CARDS.map((c) => c.id))
+for (const key of evolutionKeys) {
+  const [cardId, level] = key.split('@')
+  assert.ok(cardIds.has(cardId), key + ' evolves a real card')
+  assert.ok(['2', '3', '3b'].includes(level), key + ' is level 2, 3 or 3b')
+}
+assert.equal(
+  new Set(Object.values(SLIME_CITY_ART.evolutions)).size,
+  evolutionKeys.length,
+  'each evolution painting is used once',
+)
 assert.ok(
   CARDS.filter((c) => slimeArtId('cards', c.id)).length >= 290,
   'nearly the whole catalog is illustrated',

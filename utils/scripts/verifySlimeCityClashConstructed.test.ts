@@ -207,11 +207,14 @@ function record(a: Deck, b: Deck, s: ClashState, mirror: boolean): void {
 }
 
 // Cross-crew field: every deck against every other crew's decks. Every ordered
-// pair is played, so each pairing is seen from both seats.
+// pair is played, so each pairing is seen from both seats, and each ordered
+// pair is played on CROSS_BOUTS seeds so one lucky draw cannot swing a crew.
+const CROSS_BOUTS = 4
 for (const [i, a] of decks.entries())
   for (const [j, b] of decks.entries()) {
     if (a.team === b.team) continue
-    record(a, b, play(a, b, 1 + ((i * 31 + j * 17) % 97)), false)
+    for (let k = 0; k < CROSS_BOUTS; k++)
+      record(a, b, play(a, b, 1 + ((i * 31 + j * 17) % 97) + k * 1000), false)
   }
 // Same-crew mirrors: does any archetype dominate its own crew's other builds?
 for (const [i, a] of decks.entries())
@@ -220,7 +223,8 @@ for (const [i, a] of decks.entries())
     record(a, b, play(a, b, 101 + i * 7 + j), true)
   }
 
-const crossGames = decks.length * (decks.length - ARCHETYPES.length)
+const crossGames =
+  CROSS_BOUTS * decks.length * (decks.length - ARCHETYPES.length)
 assert.equal(games - mirrorGames, crossGames)
 assert.equal(
   mirrorGames,
@@ -236,21 +240,24 @@ assert.ok(
 )
 assert.ok(roundLimit / games < 0.05, 'constructed bouts end by knockout')
 // Crew identity holds across a whole constructed field, not just starters.
-// One bout per ordered pairing is noisy (two seed sets on 2026-11-11 PT read
-// spreads of 0.19 and 0.20, Exchange ~0.60 both times, Riot 0.41-0.44), so
-// this is a looser band than the 40-seed starter guard (42-58%, 12 points).
+// One bout per ordered pairing was noisy (Riot read 0.41-0.44, spread 0.20).
+// At four bouts, five disjoint seed families on 2026-11-11 PT (slime-city/t-056)
+// read Riot 0.430-0.473, Catgirls 0.435-0.457, Exchange 0.593-0.612 and
+// spread 0.138-0.177: Exchange running hot is the stable signal, Riot is only
+// a little low. The band is tighter than t-021's 35-65% / 24 points and still
+// looser than the 40-seed starter guard (42-58%, 12 points).
 const crews = [...crewScore.entries()].map(
   ([team, r]) => [team, rate(r)] as const,
 )
 for (const [team, r] of crews)
   assert.ok(
-    r > 0.35 && r < 0.65,
+    r > 0.4 && r < 0.64,
     team + ' constructed-field score ' + (100 * r).toFixed(1) + '%',
   )
 assert.ok(
   Math.max(...crews.map(([, r]) => r)) - Math.min(...crews.map(([, r]) => r)) <=
-    0.24,
-  'constructed crew spread stays within 24 points',
+    0.2,
+  'constructed crew spread stays within 20 points',
 )
 // No single constructed build runs away with the field.
 const deckRows = decks.map((d) => ({

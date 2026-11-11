@@ -1108,21 +1108,37 @@ function useItem(state: CaseState, item: string, target: string): CaseResult {
   )
 }
 
-function combineItems(state: CaseState, first: string, second: string): CaseResult {
+function combineItems(
+  state: CaseState,
+  first: string,
+  second: string,
+): CaseResult {
   if (state.actor === 'nico')
-    return withLine(state, 'Norb: My gloves are not rated for arts and crafts, Iris.', false)
+    return withLine(
+      state,
+      'Norb: My gloves are not rated for arts and crafts, Iris.',
+      false,
+    )
   if (
     first === second ||
     !state.inventory.includes(first) ||
     !state.inventory.includes(second)
   )
-    return withLine(state, 'Iris needs two different items from her own pockets.', false)
+    return withLine(
+      state,
+      'Iris needs two different items from her own pockets.',
+      false,
+    )
   if (
     (first === 'camera' && second === 'plastic-fangs') ||
     (first === 'plastic-fangs' && second === 'camera')
   ) {
     if (state.evidence.includes('fangs-detail'))
-      return withLine(state, 'Iris already has a close-up of the rental stamp.', false)
+      return withLine(
+        state,
+        'Iris already has a close-up of the rental stamp.',
+        false,
+      )
     const next = copyState(state)
     add(next.evidence, 'fangs-detail')
     return withLine(
@@ -1132,8 +1148,10 @@ function combineItems(state: CaseState, first: string, second: string): CaseResu
   }
   return withLine(
     state,
-    'Iris tries the ' + (ITEMS[first] ?? first).toLowerCase() +
-      ' with the ' + (ITEMS[second] ?? second).toLowerCase() +
+    'Iris tries the ' +
+      (ITEMS[first] ?? first).toLowerCase() +
+      ' with the ' +
+      (ITEMS[second] ?? second).toLowerCase() +
       '. The laws of chemistry and comedy decline to cooperate.',
     false,
   )

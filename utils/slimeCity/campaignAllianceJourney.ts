@@ -179,8 +179,8 @@ export function allianceStoryScene(
     ally,
     chapter,
     choices: [
-      { id: 'protect', label: config.protect[0], outcome: config.protect[1], terms: 'Protect the crew · your boss +3 HP · rival +2 HP' },
-      { id: 'gamble', label: config.gamble[0], outcome: config.gamble[1], terms: 'Risk the crew · rival boss −4 HP · your boss −2 HP' },
+      { id: 'protect', label: config.protect[0], outcome: config.protect[1], terms: 'BOSS +3 · RIVAL +2' },
+      { id: 'gamble', label: config.gamble[0], outcome: config.gamble[1], terms: 'RIVAL −4 · BOSS −2' },
     ],
   }
 }

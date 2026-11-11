@@ -56,7 +56,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Shifting Desks | Kind Robots',
     description:
       'A classroom puzzle where the furniture will not sit still. Free to play in your browser.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/shifting-desks/link-preview.webp',
   },
   'slime-city': {
     title: 'Slime City | Kind Robots',

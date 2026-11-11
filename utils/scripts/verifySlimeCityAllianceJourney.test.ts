@@ -170,17 +170,37 @@ for (const general of TEAMS) {
       assert.equal(beat.chapter, chapter)
       if (chapter > 0) assert.match(beat.text, /Last chapter/)
       const pick = chapter % 2 ? 'gamble' : 'protect'
+      const previous = save[general.id].allianceJourney?.[chapter - 1]
       save = chooseAllianceStory(save, general.id, ally.id, pick)
       assert.equal(
         validSlimeCityStory({ ...newSlimeCityStory(), campaigns: save }),
         true,
       )
       const terms = allianceStoryBattleTerms(save, general.id, ally.id, {})
+      const withLoyalty = allianceTacticEdge(
+        ally.id,
+        chapter,
+        pick,
+        previous,
+      )
+      assert.ok(withLoyalty)
+      assert.equal(terms.playerBossLife, withLoyalty.player)
+      assert.equal(terms.enemyBossLife, withLoyalty.enemy)
       if (chapter > 0) {
-        if (pick === 'gamble')
-          assert.equal(terms.playerHp, 1, 'prior protected crew remembers')
-        else
-          assert.equal(terms.fewerRivals, 1, 'prior risky attack is remembered')
+        const without = allianceTacticEdge(ally.id, chapter, pick)
+        assert.ok(without)
+        if (previous?.pick === 'protect')
+          assert.equal(
+            withLoyalty.player,
+            without.player + 1,
+            'the protected crew remembers the previous chapter',
+          )
+        if (previous?.pick === 'gamble')
+          assert.equal(
+            withLoyalty.enemy,
+            without.enemy - 1,
+            'the risky attack carries into the next showdown',
+          )
       }
       const rival = FACTION_CAMPAIGNS[general.id].chapters[chapter]!
       save = resolveCampaignBattle(

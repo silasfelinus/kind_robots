@@ -364,6 +364,27 @@
                   }}</small>
                 </button>
                 <button
+                  v-for="team in lab.customSoloTeams"
+                  :key="'solo-' + team"
+                  type="button"
+                  class="sc-shelf-deck"
+                  :class="{ chosen: lab.activeSoloDeck === team }"
+                  :aria-pressed="lab.activeSoloDeck === team"
+                  :title="'Your ' + teamName(team) + ' Solo deck'"
+                  :data-testid="'slime-solo-deck-' + team"
+                  @click="lab.selectSoloDeck(team)"
+                >
+                  <span class="sc-shelf-art solo" aria-hidden="true">
+                    <SlimeCityArtwork
+                      :image-id="slimeArtId('crews', team)"
+                      :alt="teamName(team)"
+                      compact
+                    />
+                  </span>
+                  <b>{{ teamName(team).split(' ')[0] }}</b>
+                  <small>SOLO</small>
+                </button>
+                <button
                   v-if="lab.library.length < lab.libraryMax"
                   type="button"
                   class="sc-shelf-deck is-new"
@@ -695,7 +716,20 @@
                     :card-id="card.id"
                     :level="evolutionLevel"
                   />
-                  <span class="sc-collect-ribbon">{{
+                  <button
+                    v-if="allianceState(card) !== 'locked'"
+                    type="button"
+                    class="sc-collect-ribbon sc-collect-quick"
+                    :aria-label="
+                      (allianceState(card) === 'deck' ? 'Take out ' : 'Add ') +
+                      card.name
+                    "
+                    :data-testid="'slime-quick-' + card.id"
+                    @click="lab.toggleAllianceCard(card.id)"
+                  >
+                    {{ allianceLabel(card) }}
+                  </button>
+                  <span v-else class="sc-collect-ribbon">{{
                     allianceLabel(card)
                   }}</span>
                 </span>
@@ -731,7 +765,22 @@
                     :card-id="card.id"
                     :level="evolutionLevel"
                   />
-                  <span class="sc-collect-ribbon">{{ soloLabel(card) }}</span>
+                  <button
+                    v-if="soloState(card) !== 'locked'"
+                    type="button"
+                    class="sc-collect-ribbon sc-collect-quick"
+                    :aria-label="
+                      (soloState(card) === 'deck' ? 'Take out ' : 'Add ') +
+                      card.name
+                    "
+                    :data-testid="'slime-quick-' + card.id"
+                    @click="lab.toggleSoloCard(card.id)"
+                  >
+                    {{ soloLabel(card) }}
+                  </button>
+                  <span v-else class="sc-collect-ribbon">{{
+                    soloLabel(card)
+                  }}</span>
                 </span>
                 <button
                   type="button"
@@ -749,6 +798,7 @@
               </li>
             </ul>
           </div>
+          <SlimeCityDeckHand @inspect="inspectId = $event" />
         </section>
 
         <section
@@ -2264,6 +2314,24 @@ button.sc-shelf-label {
   top: 0.4rem;
   right: 0.4rem;
   z-index: 2;
+}
+/*
+  The ribbon is a one-tap add / take-out above the inspect button. The tile is
+  a size container (its own stacking context), so the whole tile rises above
+  the inspect button and lets every tap but the ribbon's fall through to it.
+*/
+.sc-collect .sc-clash-tile {
+  z-index: 4;
+  pointer-events: none;
+}
+.sc-clash-tile .sc-collect-quick {
+  z-index: 4;
+  pointer-events: auto;
+  cursor: pointer;
+  font-family: inherit;
+}
+.sc-clash-tile .sc-collect-quick:hover {
+  border-color: #c5ff59;
 }
 .sc-evolution {
   display: flex;

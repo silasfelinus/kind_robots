@@ -150,6 +150,17 @@ assert.match(ui, /'slime-starter-' \+ deck\.id/)
 assert.match(store, /STARTER_MATCHUPS/)
 assert.match(store, /function dealStarterDeck/)
 assert.match(ui, /data-testid="slime-show-locked"/)
+// Silas, 2026-11-11 PT: "Should have the 20 deck cards as an actual hand at
+// the bottom of the screen, with the ability to remove, add, etc."
+const hand = readFileSync('components/slime-city-deck-hand.vue', 'utf8')
+assert.match(ui, /<SlimeCityDeckHand @inspect="inspectId = \$event" \/>/)
+assert.match(hand, /lab\.toggleAllianceCard\(id\)/)
+assert.match(hand, /lab\.toggleSoloCard\(id\)/)
+assert.match(hand, /v-for="n in Math\.max\(0, size - cards\.length\)"/)
+assert.match(ui, /'slime-quick-' \+ card\.id/)
+// "Still not seeing how to create/edit solo decks from this screen."
+assert.match(store, /const customSoloTeams = computed/)
+assert.match(ui, /'slime-solo-deck-' \+ team/)
 assert.match(ui, /showLocked\.value \|\|\s+lab\.isCardUnlocked\(card\.id\)/)
 assert.match(ui, /clashCardText\(inspectCard, evolutionLevel\)/)
 assert.doesNotMatch(ui, /data-testid="slime-deck-workbench"/)

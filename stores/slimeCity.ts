@@ -257,6 +257,14 @@ export interface ClashLaunch {
   /** City and Story terms moved onto the bosses. */
   bosses?: Record<Side, number>
 }
+/** Two decks hold the same cards, in any order. */
+function sameCards(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) return false
+  const left = [...a].sort()
+  const right = [...b].sort()
+  return left.every((id, index) => id === right[index])
+}
+
 export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   // Account + network services load lazily so the pure game store stays
   // importable (and testable) outside the Nuxt runtime.
@@ -1370,9 +1378,34 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     libraryId.value
       ? null
       : deckFormat.value === 'solo'
-        ? 'solo-' + activeTeam.value
+        ? sameCards(currentSolo.value, soloStarter(activeTeam.value))
+          ? 'solo-' + activeTeam.value
+          : null
         : 'mix-' + activeTeam.value + '-' + currentAlliance.value.ally,
   )
+  /**
+   * Silas, 2026-11-11 PT: "Still not seeing how to create/edit solo decks
+   * from this screen." Each crew keeps one Solo deck; once it differs from
+   * the starter it sits on the YOUR DECKS shelf.
+   */
+  const customSoloTeams = computed(() =>
+    TEAMS.map((team) => team.id).filter((team) => {
+      const cards = soloDrafts.value[team] ?? savedSolo.value[team]
+      return !!cards && !sameCards(cards, soloStarter(team))
+    }),
+  )
+  const activeSoloDeck = computed<TeamId | null>(() =>
+    deckFormat.value === 'solo' &&
+    !libraryId.value &&
+    customSoloTeams.value.includes(activeTeam.value)
+      ? activeTeam.value
+      : null,
+  )
+  function selectSoloDeck(team: TeamId): void {
+    if (team !== activeTeam.value) chooseTeam(team)
+    libraryId.value = null
+    setDeckAlly(null)
+  }
   /** Deal a prebuilt deck into the builder (and into play). */
   function dealStarterDeck(general: TeamId, ally: TeamId | null): void {
     if (general !== activeTeam.value) chooseTeam(general)
@@ -2597,6 +2630,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     dealStarterDeck,
     setDeckAlly,
     copyCurrentDeck,
+    customSoloTeams,
+    activeSoloDeck,
+    selectSoloDeck,
     playAllianceClash,
     currentSolo,
     currentSoloProblems,

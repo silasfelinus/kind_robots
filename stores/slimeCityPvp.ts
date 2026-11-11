@@ -113,6 +113,27 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     }
   }
 
+  async function forfeit(): Promise<boolean> {
+    const current = duel.value
+    if (!current || current.stage !== 'battle' || sending.value) return false
+    sending.value = true
+    error.value = ''
+    try {
+      duel.value = await request(
+        '/api/slime-city/pvp/' + encodeURIComponent(current.id) + '/forfeit',
+        { method: 'POST' },
+      )
+      return true
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Cannot forfeit duel.'
+      await load(current.id, true)
+      return false
+    } finally {
+      sending.value = false
+    }
+  }
+
   function watchDuel(id: string) {
     stopWatching()
     polling = setInterval(() => {
@@ -141,6 +162,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     start,
     join,
     send,
+    forfeit,
     watchDuel,
     stopWatching,
     clearDuel,

@@ -4,7 +4,10 @@
     data-layout="console-fixed"
     data-testid="slime-pvp"
   >
-    <header-page-bar console-theme="slime-city">
+    <header-page-bar
+      v-if="!(narrowScreen && pvp.duel?.stage === 'battle')"
+      console-theme="slime-city"
+    >
       <nav class="scpvp-top" aria-label="Slime City multiplayer">
         <NuxtLink to="/play/slime-city?vs=1">← VS</NuxtLink>
         <strong>THE TWO-PLAYER PIT</strong>
@@ -132,6 +135,13 @@
         aria-label="Live CLASH duel"
       >
         <div class="scpvp-versus">
+          <NuxtLink
+            v-if="narrowScreen"
+            class="scpvp-back"
+            to="/play/slime-city?vs=1"
+            aria-label="Back to VS"
+            >‹</NuxtLink
+          >
           <div v-for="side in lineup" :key="side" class="scpvp-boss">
             <SlimeCityArtwork
               :image-id="slimeArtId('crews', teamOf(side))"
@@ -158,6 +168,18 @@
               >ROUND {{ board.round }} · {{ board.phase.toUpperCase() }}</small
             >
           </div>
+          <button
+            v-if="narrowScreen && !board.victor"
+            type="button"
+            class="scpvp-flag"
+            :class="{ armed: forfeitArmed }"
+            :disabled="pvp.sending"
+            :aria-label="forfeitArmed ? 'Confirm forfeit' : 'Forfeit'"
+            data-testid="slime-pvp-forfeit"
+            @click="confirmForfeit"
+          >
+            {{ forfeitArmed ? 'SURE?' : '⚑' }}
+          </button>
         </div>
 
         <div class="scpvp-field" role="grid" aria-label="Five CLASH alleys">
@@ -167,7 +189,13 @@
             alt="Painted arena floor"
             compact
           />
-          <div v-for="side in lineup" :key="side" class="scpvp-row" role="row">
+          <div
+            v-for="(side, row) in lineup"
+            :key="side"
+            class="scpvp-row"
+            :class="row === 0 ? 'is-top' : 'is-bottom'"
+            role="row"
+          >
             <button
               v-for="lane in 5"
               :key="side + lane"
@@ -330,6 +358,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useNavStore } from '@/stores/navStore'
 import { useSlimeCityPvpStore } from '~/stores/slimeCityPvp'
 import {
   cardById,
@@ -471,6 +500,30 @@ onMounted(async () => {
   }
 })
 onBeforeUnmount(() => pvp.stopWatching())
+
+/**
+ * Silas, 2026-11-11 PT: the two-player board gets the phone battle layout.
+ * In battle on a phone only the site header remains ("at most one row of a
+ * header"); back and forfeit ride in the versus strip, the board takes the
+ * rest and the hand fans up from the bottom edge.
+ */
+const narrowScreen = ref(false)
+let narrowQuery: MediaQueryList | null = null
+function syncNarrow(): void {
+  narrowScreen.value = !!narrowQuery?.matches
+}
+const navStore = useNavStore()
+let themeId = 0
+onMounted(() => {
+  themeId = navStore.registerConsoleTheme('slime-city')
+  narrowQuery = window.matchMedia('(max-width: 600px)')
+  syncNarrow()
+  narrowQuery.addEventListener('change', syncNarrow)
+})
+onBeforeUnmount(() => {
+  narrowQuery?.removeEventListener('change', syncNarrow)
+  navStore.releasePageBar(themeId)
+})
 </script>
 
 <style scoped>
@@ -515,7 +568,7 @@ onBeforeUnmount(() => pvp.stopWatching())
   flex: 1;
   min-height: 0;
   position: relative;
-  overflow: hidden;
+  overflow: clip;
 }
 .scpvp-error {
   position: absolute;
@@ -635,11 +688,13 @@ onBeforeUnmount(() => pvp.stopWatching())
 .scpvp-battle {
   height: 100%;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 0.4rem;
   padding: 0.5rem;
 }
 .scpvp-versus {
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -705,6 +760,41 @@ onBeforeUnmount(() => pvp.stopWatching())
   inset: 0;
   opacity: 0.42;
   pointer-events: none;
+}
+.scpvp-row.is-top {
+  grid-row: 1;
+}
+.scpvp-row.is-bottom {
+  grid-row: 3;
+}
+.scpvp-midline {
+  grid-row: 2;
+}
+.scpvp-back,
+.scpvp-flag {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 1.9rem;
+  height: 2.2rem;
+  padding: 0 0.4rem;
+  border: 1px solid #5c99917a;
+  border-radius: 0.5rem;
+  background: #10231f;
+  color: #c9ee5a;
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.scpvp-flag {
+  color: #f6b6a3;
+  font-size: 0.9rem;
+}
+.scpvp-flag.armed {
+  border-color: #ff6f7a;
+  background: #4b1f26;
+  color: #ffd6dc;
+  font-size: 0.6rem;
 }
 .scpvp-row {
   position: relative;
@@ -796,12 +886,15 @@ onBeforeUnmount(() => pvp.stopWatching())
 .scpvp-hand {
   display: flex;
   align-items: stretch;
+  justify-content: center;
   gap: 0.35rem;
   min-width: 0;
   min-height: 0;
+  height: clamp(8rem, 30vh, 13rem);
 }
 .scpvp-card {
-  flex: 1;
+  flex: 0 1 auto;
+  height: 100%;
   min-width: 0;
   aspect-ratio: 2 / 3;
   position: relative;
@@ -920,8 +1013,90 @@ onBeforeUnmount(() => pvp.stopWatching())
   .scpvp-actions > button {
     flex: 1;
   }
+  .scpvp-battle {
+    gap: 0.3rem;
+    padding: 0.3rem 0.3rem 0;
+    overflow: clip;
+  }
+  .scpvp-versus {
+    gap: 0.3rem;
+  }
+  .scpvp-boss {
+    flex: 1 1 0;
+    width: auto;
+    padding: 0.15rem;
+  }
+  .scpvp-boss > :first-child {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+  .scpvp-boss b {
+    white-space: nowrap;
+    font-size: 0.7rem;
+  }
+  .scpvp-turn {
+    flex: none;
+    max-width: 5.2rem;
+    line-height: 1.1;
+  }
+  .scpvp-turn small {
+    font-size: 0.52rem;
+  }
+  .scpvp-field {
+    padding: 0.3rem;
+    gap: 0.2rem;
+  }
+  .scpvp-midline {
+    font-size: 0.5rem;
+  }
+  .scpvp-controls {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.3rem;
+  }
+  .scpvp-actions {
+    flex-wrap: nowrap;
+    gap: 0.3rem;
+  }
+  .scpvp-actions p {
+    display: none;
+  }
+  .scpvp-actions > button {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.68rem;
+  }
+  .scpvp-actions > .scpvp-primary {
+    flex: 2;
+  }
+  .scpvp-choice {
+    flex: 2;
+  }
+  .scpvp-hand {
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0;
+    height: 7.4rem;
+    overflow: visible;
+  }
   .scpvp-card {
-    max-height: 7.5rem;
+    flex: 0 0 auto;
+    width: min(29vw, 8.5rem);
+    height: auto;
+    max-height: none;
+    margin-left: -13.5vw;
+    align-self: flex-start;
+    box-shadow: 0 -4px 14px #000a;
+  }
+  .scpvp-card:first-child {
+    margin-left: 0;
+  }
+  .scpvp-card:hover,
+  .scpvp-card:focus-visible {
+    transform: translateY(-0.4rem);
+  }
+  .scpvp-card.selected {
+    transform: translateY(-48%) scale(1.18);
+    z-index: 5;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -852,6 +852,278 @@ export const HOSHIMORI_NIGHT_SITES: readonly NightSite[] = [
       'night-platform-sheltered',
     ),
   ),
+  s(
+    '7,5',
+    'The Salt Registry',
+    'A clerk weighs refugees' footprints against sacks of salt. The scale declares anyone who fled too lightly to deserve shelter.',
+    c(
+      'night-salt-appeal',
+      'Let families challenge the weighing',
+      'Vesper obtains signed appeals; the clerk must hear people instead of measuring their fear.',
+      'night-salt-appealed',
+    ),
+    c(
+      'night-salt-break',
+      'Dismantle the rigged scale',
+      'Char breaks the hidden counterweight. The village loses a quick census but nobody is denied a bed.',
+      'night-salt-broken',
+    ),
+  ),
+  s(
+    '8,5',
+    'The Lantern Ferry',
+    'A boatman ferries only those who surrender the names of people still hiding upriver.',
+    c(
+      'night-ferry-pool',
+      'Pool fares without naming passengers',
+      'Oren arranges anonymous tickets; each rider contributes what they can.',
+      'night-ferry-pooled',
+    ),
+    c(
+      'night-ferry-return',
+      'Send the boat back for the stranded',
+      'Vesper gives up the last seat and marks a safe landing for those still waiting.',
+      'night-ferry-returned',
+    ),
+  ),
+  s(
+    '5,6',
+    'The Paper Orchard',
+    'Trees grow paper notices promising permanent safety. Their roots have trapped the gardeners who planted them.',
+    c(
+      'night-paper-release',
+      'Cut the notices, not the roots',
+      'The gardeners walk free; Vesper preserves their testimony without leaving the promises intact.',
+      'night-paper-released',
+    ),
+    c(
+      'night-paper-rewrite',
+      'Invite the gardeners to rewrite the signs',
+      'The orchard advertises shelter with an exit instead of a lifetime sentence.',
+      'night-paper-rewritten',
+    ),
+  ),
+  s(
+    '6,6',
+    'The Ashwell Clinic',
+    'A physician offers to erase a child's frightening memories before asking what the child wants to keep.',
+    c(
+      'night-clinic-consent',
+      'Ask the child which memories matter',
+      'The child keeps a map drawn by a missing parent. The physician agrees that relief cannot mean erasure.',
+      'night-clinic-consent-earned',
+    ),
+    c(
+      'night-clinic-witness',
+      'Call an independent advocate',
+      'Char stays while an advocate explains the risks. Treatment becomes a choice, not a condition of rescue.',
+      'night-clinic-witnessed',
+    ),
+  ),
+  s(
+    '7,6',
+    'The Umbrella Court',
+    'Umbrellas hover over empty benches. A magistrate calls every absent neighbor a satisfied witness.',
+    c(
+      'night-court-recess',
+      'Demand a recess until witnesses can arrive',
+      'Vesper arranges safe testimony and the court postpones its verdict.',
+      'night-court-recessed',
+    ),
+    c(
+      'night-court-proxy',
+      'Challenge the forged proxy signatures',
+      'Pip compares the signatures with his old ledger and exposes the absent votes.',
+      'night-court-proxies-rejected',
+    ),
+  ),
+  s(
+    '8,6',
+    'The Tide Bell',
+    'A bronze bell rings each time a household tries to leave the floodplain; rescuers mistake its warning for a curfew.',
+    c(
+      'night-bell-clarify',
+      'Retune the bell to mark rising water',
+      'Oren changes the signal so families hear the flood, not an order to stay.',
+      'night-bell-retuned',
+    ),
+    c(
+      'night-bell-escort',
+      'Organize departures between tolls',
+      'Vesper draws a route that keeps families together without publishing their destinations.',
+      'night-bell-escorted',
+    ),
+  ),
+  s(
+    '7,7',
+    'The Borrowed Shore',
+    'A strip of beach appears only at night. A spirit demands the right to decide which children belong to the sea.',
+    c(
+      'night-shore-bargain',
+      'Offer a temporary crossing agreement',
+      'The spirit accepts a tide-bound promise that expires at sunrise.',
+      'night-shore-agreed',
+    ),
+    c(
+      'night-shore-refuse',
+      'Reject ownership of the children',
+      'Char stands with the families. The spirit withdraws its claim, though the crossing takes longer.',
+      'night-shore-refused',
+    ),
+  ),
+  s(
+    '8,7',
+    'The House of Dry Shoes',
+    'A shelter displays rows of dry shoes, each tagged with the name of a guest who never returned.',
+    c(
+      'night-shoes-audit',
+      'Trace the departures with consent',
+      'Vesper discovers a second exit and gives families its route without exposing names.',
+      'night-shoes-traced',
+    ),
+    c(
+      'night-shoes-open',
+      'Open the locked back door',
+      'Pip removes the bolt. Guests may leave without proving gratitude.',
+      'night-shoes-opened',
+    ),
+  ),
+  s(
+    '1,8',
+    'The Rootbound Jetty',
+    'The old jetty is tangled in roots that whisper every secret told by travelers passing above.',
+    c(
+      'night-jetty-mute',
+      'Muffle the roots with river clay',
+      'The whispers stop. Vesper crosses without turning private grief into directions.',
+      'night-jetty-muted',
+    ),
+    c(
+      'night-jetty-listen',
+      'Ask which roots want to be heard',
+      'One root asks for water rather than an audience; Char carries a bucket.',
+      'night-jetty-watered',
+    ),
+  ),
+  s(
+    '2,8',
+    'The Lanternless Market',
+    'Merchants sell directions that lead buyers back to the stall. Nobody can leave without purchasing another map.',
+    c(
+      'night-market-open',
+      'Publish a free public route',
+      'Vesper posts a path verified by local walkers; the merchants must compete on useful goods.',
+      'night-market-opened',
+    ),
+    c(
+      'night-market-refund',
+      'Demand refunds for trapped travelers',
+      'Pip recovers the fares while Oren guides people out one by one.',
+      'night-market-refunded',
+    ),
+  ),
+  s(
+    '3,8',
+    'The Heron's Toll',
+    'A giant heron counts crossings by swallowing one memory from each passenger.',
+    c(
+      'night-heron-trade',
+      'Trade a false map for safe passage',
+      'Vesper draws a road that exists only on paper; the heron releases the travelers' memories.',
+      'night-heron-fooled',
+    ),
+    c(
+      'night-heron-feed',
+      'Offer fish instead of memories',
+      'Char feeds the heron. It learns to recognize hunger without taking a person's past.',
+      'night-heron-fed',
+    ),
+  ),
+  s(
+    '4,8',
+    'The Rain Archive',
+    'A roofless library stores accounts of every evacuation, but rain has washed away the names of those who stayed.',
+    c(
+      'night-archive-restore',
+      'Restore the missing testimony',
+      'Vesper invites survivors to correct the record and lets them choose whether to sign.',
+      'night-archive-restored',
+    ),
+    c(
+      'night-archive-seal',
+      'Seal sensitive pages from the census',
+      'Oren locks away addresses while leaving the evacuation failures available for review.',
+      'night-archive-sealed',
+    ),
+  ),
+  s(
+    '5,8',
+    'The Needle Causeway',
+    'An iron causeway stitches two banks together with threads drawn from the sleeves of stranded families.',
+    c(
+      'night-needle-unpick',
+      'Unpick the binding without destroying the bridge',
+      'Char cuts only the captive threads. The crossing remains but no longer holds anyone in place.',
+      'night-needle-freed',
+    ),
+    c(
+      'night-needle-repair',
+      'Ask travelers to rebuild the crossing',
+      'Vesper organizes a voluntary repair rota; no one's clothing becomes a toll.',
+      'night-needle-repaired',
+    ),
+  ),
+  s(
+    '6,8',
+    'The Moth Signal',
+    'A tower flashes Vesper's childhood route marks. The signals now guide hunters toward the very shelters they once protected.',
+    c(
+      'night-signal-change',
+      'Change the code with the shelter keepers',
+      'Vesper gives control of the signals to the community and destroys the hunters' key.',
+      'night-signal-changed',
+    ),
+    c(
+      'night-signal-dark',
+      'Extinguish the tower until a new code exists',
+      'Oren lights hand lanterns for the next crossing; safety costs speed but protects the hidden.',
+      'night-signal-darkened',
+    ),
+  ),
+  s(
+    '7,8',
+    'The Memory Weir',
+    'A sluice collects memories that the village calls too painful for children. The reservoir is close to bursting.',
+    c(
+      'night-weir-release',
+      'Return memories to willing owners',
+      'Char opens small gates and asks each person what they wish to reclaim.',
+      'night-weir-released',
+    ),
+    c(
+      'night-weir-witness',
+      'Record the weir's builders before dismantling it',
+      'Vesper gathers accountable testimony while Oren diverts the flood.',
+      'night-weir-witnessed',
+    ),
+  ),
+  s(
+    '8,8',
+    'The Unfinished Gate',
+    'At the last gate, the procession offers Vesper a flawless map of Hoshimori if every future traveler agrees never to alter it.',
+    c(
+      'night-gate-share',
+      'Give the map to a recallable community council',
+      'Vesper refuses permanent ownership. Families can redraw the route as the village changes.',
+      'night-gate-shared',
+    ),
+    c(
+      'night-gate-blank',
+      'Leave a blank margin for the missing',
+      'Char marks the names of those still unaccounted for; the gate opens without pretending the journey is over.',
+      'night-gate-opened',
+    ),
+  ),
 ]
 
 export const HOSHIMORI_NIGHT_CLUE_SITES = ['1,1', '2,1', '3,1'] as const
@@ -1166,7 +1438,7 @@ export function restoreHoshimoriNight(value: unknown): NightProgress | null {
 
 export function validateHoshimoriNight(): string[] {
   const errors: string[] = []
-  if (SITES.size !== 48) errors.push('Expected forty-eight unique night sites')
+  if (SITES.size !== 64) errors.push('Expected sixty-four unique night sites')
   const choiceIds = HOSHIMORI_NIGHT_SITES.flatMap((site) =>
     site.choices.map((choice) => choice.id),
   )
@@ -1206,7 +1478,7 @@ export function validateHoshimoriNight(): string[] {
       }
     }
   }
-  if (reached.size !== 48)
+  if (reached.size !== 64)
     errors.push('A night site requires a blind or sealed crossing')
   if (!SITES.has('1,4') || !SITES.has('6,7'))
     errors.push('e08 photo reservations drifted')

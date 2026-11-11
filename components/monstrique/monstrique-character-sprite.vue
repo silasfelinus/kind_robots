@@ -87,13 +87,14 @@
       />
       <ellipse
         v-if="rig.hunch"
-        :cx="50 - torsoWidth * 0.35"
-        :cy="neckY + 6"
-        :rx="torsoWidth * 0.55"
-        :ry="torsoWidth * 0.5"
-        fill="#7d7884"
+        :cx="50 - torsoWidth * 0.62"
+        :cy="neckY + (hipY - neckY) * 0.3"
+        :rx="torsoWidth * 0.75"
+        :ry="torsoWidth * 0.85"
+        fill="#8d8790"
         stroke="#000"
-        stroke-opacity=".5"
+        stroke-opacity=".55"
+        stroke-width="1.2"
       />
       <path
         :d="torsoPath"
@@ -104,6 +105,7 @@
       />
       <text
         v-if="rig.shirt"
+        :transform="facing === 'left' ? 'matrix(-1 0 0 1 100 0)' : undefined"
         x="50"
         :y="neckY + (hipY - neckY) * 0.45"
         text-anchor="middle"
@@ -595,11 +597,13 @@ const legWidth = computed(() =>
 )
 const legGap = computed(() => (rig.value.build === 'curvy' ? 1.5 : 2.5))
 const legColor = computed(() =>
-  model.value.id === 'gavin' || model.value.id === 'iris'
-    ? rig.value.skin
-    : rig.value.build === 'towering'
+  rig.value.hunch
+    ? '#6f6a73'
+    : model.value.id === 'gavin' || model.value.id === 'iris'
       ? rig.value.skin
-      : rig.value.accent,
+      : rig.value.build === 'towering'
+        ? rig.value.skin
+        : rig.value.accent,
 )
 const handColor = computed(() =>
   rig.value.prop === 'gloves' || model.value.id === 'marta'

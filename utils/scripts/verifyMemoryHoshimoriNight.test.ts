@@ -789,6 +789,32 @@ for (let seed = 0; seed < 16; seed++) {
     restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
     progress,
   )
+  for (const key of ['6,5', '5,5']) {
+    progress = visit(progress, key)
+    const site = HOSHIMORI_NIGHT_SITES.find((item) => item.key === key)!
+    progress = choose(progress, site.choices[seed % 2]!.id)
+  }
+  assert.equal(progress.visited.length, 64, 'Every authored e08 site is reachable')
+  assert.equal(Object.keys(progress.choices).length, 64)
+  assert.deepEqual(
+    new Set(progress.visited),
+    new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.key)),
+  )
+  assert.deepEqual(
+    restoreHoshimoriNight(JSON.parse(JSON.stringify(progress))),
+    progress,
+    'A complete 64-site night expedition survives save restoration',
+  )
+  const forgedPlatform = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forgedPlatform.choices['6,5'] =
+    forgedPlatform.choices['6,5'] === 'night-platform-witness'
+      ? 'night-platform-shelter'
+      : 'night-platform-witness'
+  assert.equal(
+    restoreHoshimoriNight(forgedPlatform),
+    null,
+    'A forged Last Train platform verdict cannot survive restoration',
+  )
   const forgedExtension = JSON.parse(JSON.stringify(progress)) as NightProgress
   forgedExtension.choices['8,8'] = 'night-gate-forged'
   assert.equal(restoreHoshimoriNight(forgedExtension), null)
@@ -802,5 +828,5 @@ assert.equal(
   'Three earned Lowbank decisions must produce eight distinct flood accounts',
 )
 console.log(
-  'Hoshimori e08: 64 authored sites, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
+  'Hoshimori e08: all 64 sites traversed across 16 seeds, 96 original + 64 Windward + 64 Bellroad + 64 Lowbank seeded routes, eight council/ridge/Bellroad/Lowbank accounts, save forgery protection OK',
 )

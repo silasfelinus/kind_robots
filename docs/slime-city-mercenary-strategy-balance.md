@@ -6,7 +6,7 @@
 
 Keep crew identities distinct. When a strategy is underserved, first inspect the **shared 60-card mercenary class** instead of increasing one faction's printed stats or granting that crew a private compensating power. Players should be able to recruit broadly useful defenders, engine pieces and support cards from a common toolbox.
 
-**Equal availability is not equal benefit.** A neutral healing card benefits bulky Ironjaw differently from fragile Catgirls, and a SWARM enabler interacts with different crew boards differently. Always measure win-rate changes by both *general* and *ally*, against comparable opponents and both seats. Neutral changes must not accidentally make an already dominant strategy even stronger.
+**Equal availability is not equal benefit.** A neutral healing card benefits bulky Ironjaw differently from fragile Catgirls, and a SWARM enabler interacts with different crew boards differently. Always measure win-rate changes by both _general_ and _ally_, against comparable opponents and both seats. Neutral changes must not accidentally make an already dominant strategy even stronger.
 
 ## First reversible experiment
 

@@ -307,7 +307,8 @@ import {
   type StreetChoice,
   type StreetStory,
 } from '~/utils/slimeCity/city'
-import { campaignBattleTerms, describeTerms } from '~/utils/slimeCity/campaign'
+import { describeTerms } from '~/utils/slimeCity/campaign'
+import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore, type CityScreen } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
@@ -477,12 +478,9 @@ const missionHand = computed<KrHandChoice[]>(() =>
   (lab.activeChapter?.choices ?? []).map((choice) => ({
     id: choice.id,
     label: choice.label,
-    chip: describeTerms(
-      campaignBattleTerms(
-        lab.campaignSave,
-        lab.activeTeam,
+    chip: clashTermsLabel(
+      lab.campaignPreviewTerms(
         storyMissionTerms(lab.city, lab.districtId, choice.terms),
-        lab.campaignFavorIndex,
       ),
     ),
     badge: choice.id === 'conviction' ? 'Conviction' : 'Cunning',

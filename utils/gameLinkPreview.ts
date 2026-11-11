@@ -62,7 +62,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Slime City | Kind Robots',
     description:
       'Brawl, scheme and campaign through a city of slimes. Quick CPU matches and story campaigns, free in your browser, no account needed.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/slime-city/link-preview.webp',
   },
   'zuzu-gamebook': {
     title: 'Zuzu: Koala Assassin | The Bell That Never Rang',

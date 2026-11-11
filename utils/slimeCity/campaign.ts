@@ -574,7 +574,9 @@ export const FACTION_CAMPAIGNS: Record<TeamId, FactionCampaign> = {
 
 export interface CampaignProgress {
   /** One decision per chapter when this crew brings an ally. Absent in older saves. */
-  allianceJourney?: Partial<Record<number, { ally: TeamId; pick: 'protect' | 'gamble' }>>
+  allianceJourney?: Partial<
+    Record<number, { ally: TeamId; pick: 'protect' | 'gamble' }>
+  >
   /** Story-only cards drafted after earned chapter victories. */
   rewards?: string[]
   /** Crew-specific Story scene decisions (Gene Riot, Bloodfairies); absent in legacy saves. */

@@ -71,7 +71,8 @@ function choose(
     const pb = ib < 0 ? preferred.length : ib
     return pa - pb || a.cost - b.cost || a.id.localeCompare(b.id)
   })
-  if (sorted.length < 2) throw new Error('Mercenary starter pool has no ' + kind)
+  if (sorted.length < 2)
+    throw new Error('Mercenary starter pool has no ' + kind)
   return sorted.slice(0, 2)
 }
 

@@ -1287,7 +1287,7 @@ export const CARDS: Card[] = [
     attack: 2,
     armor: 0,
     ap: 1,
-    text: 'The chapel's smallest acolyte pries loose the nails of the living. Every scrap goes on the Meat scale.',
+    text: "The chapel's smallest acolyte pries loose the nails of the living. Every scrap goes on the Meat scale.",
     symbol: '¤',
   },
   {

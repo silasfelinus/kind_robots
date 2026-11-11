@@ -55,6 +55,16 @@ import {
   ironjawStoryDeck,
 } from '../utils/slimeCity/campaignIronjaw'
 import {
+  riotBeat,
+  riotSceneText,
+  riotLastOutcome,
+  riotBattleTerms,
+  riotEpilogue,
+  riotLedger,
+  chooseRiotBeat,
+  riotStoryDeck,
+} from '../utils/slimeCity/campaignRiot'
+import {
   campaignCardChoices,
   campaignSoloDeck,
   chooseCampaignCard,
@@ -94,10 +104,18 @@ import {
   soloProblems,
   soloStarter,
   swapGeneral,
+  LIBRARY_MAX_DECKS,
+  libraryDeck,
+  libraryDeckProblem,
   type AllianceDeck,
+  type LibraryDeck,
 } from '../utils/slimeCity/alliance'
 import type { ClashOptions, ClashState } from '../utils/slimeCity/clash'
 import { clashBossesFromTerms } from '../utils/slimeCity/clashBouts'
+import {
+  CLASH_BOUT_KINDS,
+  type ClashBoutKind,
+} from '../utils/slimeCity/clashRewards'
 import { computed, ref, shallowRef, watch } from 'vue'
 import {
   advance,
@@ -396,10 +414,19 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   /** SOLO CLASH 20-card decks, one per faction (saved when legal). */
   const savedSolo = ref<Partial<Record<TeamId, string[]>>>({})
   const soloDrafts = ref<Partial<Record<TeamId, string[]>>>({})
-  /** Which deck the COLLECTION armory is editing. */
-  const deckFormat = ref<DeckFormat>('solo')
+  /** COLLECTION's named Alliance deck library, and the deck in hand. */
+  const library = ref<LibraryDeck[]>([])
+  const libraryId = ref<string | null>(null)
+  /**
+   * Which deck the COLLECTION armory is editing: the Alliance library by
+   * default; 'solo' only when the SOLO story opens its crew deck.
+   */
+  const deckFormat = ref<DeckFormat>('alliance')
   /** Which deck the CLASH tab deals: Solo (one faction) or Alliance (two). */
-  const clashFormat = ref<DeckFormat>('solo')
+  const clashFormat = ref<DeckFormat>('alliance')
+  /** One narrative journey; only its 20-card deck composition changes. */
+  const journeyFormat = ref<DeckFormat>('solo')
+  const journeyDeckId = ref<string | null>(null)
   /**
    * The Clash match to deal next. Every battle is CLASH (Silas, 2026-11-08
    * PT): the CLASH tab's practice and reward matches, and the City's rival,
@@ -456,12 +483,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     allianceDrafts.value = {}
     savedSolo.value = {}
     soloDrafts.value = {}
+    library.value = []
+    libraryId.value = null
+    journeyFormat.value = 'solo'
+    journeyDeckId.value = null
+    campaignScreen.value = 'chapter'
     storyMode.value = 'written'
     storyParity.value = false
     replacingCard.value = null
     districtId.value = 'pitworks'
     cityScreen.value = 'map'
-    if (!userId || isGuest()) return
+    if (!userId || isGuest()) {
+      seedLibrary()
+      return
+    }
     try {
       const response = await performFetch<SlimeCityStory>(
         '/api/slime-city/story',
@@ -472,12 +507,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       city.value = response.data.city
       districtId.value = response.data.city.location
       campaignSave.value = response.data.campaigns
+      activeTeam.value = response.data.journeyTeam ?? activeTeam.value
+      journeyFormat.value = response.data.journeyFormat ?? 'solo'
+      journeyDeckId.value = response.data.journeyDeckId ?? null
+      campaignScreen.value = response.data.journeyScreen ?? 'chapter'
       towerSave.value = response.data.tower ?? freshTower()
       savedDecks.value = response.data.decks ?? {}
       savedAlliances.value = response.data.alliances ?? {}
       allianceDrafts.value = {}
       savedSolo.value = response.data.soloDecks ?? {}
       soloDrafts.value = {}
+      library.value = response.data.library ?? []
+      libraryId.value = null
       storyMode.value = response.data.storyMode ?? 'written'
       storyParity.value = response.data.storyParity ?? false
       storyRevision.value = response.data.revision
@@ -487,6 +528,18 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       // Until command-by-command save/resume exists, reload forfeits this floor.
       if (towerRun.value?.phase === 'battle') forfeitTower()
       enforceCollection()
+      seedLibrary()
+      const selectedJourney = library.value.find(
+        (item) => item.id === journeyDeckId.value,
+      )
+      if (
+        selectedJourney &&
+        selectedJourney.general === activeTeam.value &&
+        libraryDeckReady(selectedJourney.id)
+      )
+        selectLibraryDeck(selectedJourney.id)
+      else journeyDeckId.value = null
+      if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
     } catch (error) {
       if (userId !== authId()) return
       storyError.value =
@@ -509,6 +562,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           decks: savedDecks.value,
           alliances: savedAlliances.value,
           soloDecks: savedSolo.value,
+          library: library.value,
+          journeyTeam: activeTeam.value,
+          journeyFormat: journeyFormat.value,
+          journeyDeckId: journeyDeckId.value,
+          journeyScreen: campaignScreen.value,
           unlocks: unlockMode.value,
           storyMode: storyMode.value,
           storyParity: storyParity.value,
@@ -617,9 +675,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const ironjawCurrent = computed(() =>
     activeTeam.value === 'ironjaw' ? ironjawBeat(campaignState.value) : null,
   )
+  const riotCurrent = computed(() =>
+    activeTeam.value === 'riot' ? riotBeat(campaignState.value) : null,
+  )
   const campaignJourneyCurrent = computed(
     () =>
-      geneRiotCurrent.value ?? bloodfairyCurrent.value ?? ironjawCurrent.value,
+      geneRiotCurrent.value ??
+      bloodfairyCurrent.value ??
+      ironjawCurrent.value ??
+      riotCurrent.value,
   )
   const campaignJourneyText = computed(() =>
     geneRiotCurrent.value
@@ -628,7 +692,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? bloodfairySceneText(campaignState.value, bloodfairyCurrent.value)
         : ironjawCurrent.value
           ? ironjawSceneText(campaignState.value, ironjawCurrent.value)
-          : '',
+          : riotCurrent.value
+            ? riotSceneText(campaignState.value, riotCurrent.value)
+            : '',
   )
   const campaignJourneyOutcome = computed(() =>
     activeTeam.value === 'catgirls'
@@ -637,7 +703,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         ? bloodfairyLastOutcome(campaignState.value)
         : activeTeam.value === 'ironjaw'
           ? ironjawLastOutcome(campaignState.value)
-          : null,
+          : activeTeam.value === 'riot'
+            ? riotLastOutcome(campaignState.value)
+            : null,
   )
   const bloodfairyChorus = computed(() =>
     bloodfairyLedger(campaignSave.value.bloodfairies),
@@ -648,6 +716,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       bloodfairyStageThreeReveal(campaignState.value),
   )
   const ironjawShift = computed(() => ironjawLedger(campaignSave.value.ironjaw))
+  const riotShow = computed(() => riotLedger(campaignSave.value.riot))
   function chooseCampaignJourneyBeat(id: GeneRiotPick): void {
     if (
       !storyEditable() ||
@@ -663,7 +732,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ? chooseBloodfairyBeat(campaignSave.value, id)
           : activeTeam.value === 'ironjaw'
             ? chooseIronjawBeat(campaignSave.value, id)
-            : campaignSave.value
+            : activeTeam.value === 'riot'
+              ? chooseRiotBeat(campaignSave.value, id)
+              : campaignSave.value
     if (next === campaignSave.value) return
     campaignSave.value = next
     persistStory()
@@ -757,7 +828,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ? bloodfairyEpilogue(campaignState.value)
           : activeTeam.value === 'ironjaw'
             ? ironjawEpilogue(campaignState.value)
-            : ''
+            : activeTeam.value === 'riot'
+              ? riotEpilogue(campaignState.value)
+              : ''
     return [ending, epilogue].filter(Boolean).join(' ')
   })
   /** A finished campaign's chosen favor, carried into rivals and contracts. */
@@ -903,6 +976,13 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function commitAlliance(deck: AllianceDeck, done: string): void {
     const problems = allianceProblems(deck)
     allianceDrafts.value = { ...allianceDrafts.value, [deck.general]: deck }
+    const entry = library.value.find((item) => item.id === libraryId.value)
+    if (entry) {
+      library.value = library.value.map((item) =>
+        item.id === entry.id ? libraryDeck(deck, item.id, item.name) : item,
+      )
+      persistStory()
+    }
     if (problems.length) {
       deckMessage.value =
         done + ' Draft not in play until legal: ' + problems.join(' · ')
@@ -971,6 +1051,165 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       { ...deck, cards: [...deck.cards, id] },
       card.name + ' joins the alliance.',
     )
+  }
+  function libraryName(deck: AllianceDeck): string {
+    return (
+      teamById(deck.general).name.split(' ')[0] +
+      ' + ' +
+      teamById(deck.ally).name.split(' ')[0]
+    )
+  }
+  function newLibraryId(): string {
+    return 'd' + Date.now().toString(36) + rollSeed().toString(36)
+  }
+  /** Older saves: their saved Alliance decks become the first library. */
+  function seedLibrary(): void {
+    if (library.value.length) return
+    const seeds = Object.values(savedAlliances.value).filter(
+      (deck): deck is AllianceDeck => !!deck,
+    )
+    if (!seeds.length) seeds.push(playAlliance.value)
+    library.value = seeds
+      .slice(0, LIBRARY_MAX_DECKS)
+      .map((deck) => libraryDeck(deck, newLibraryId(), libraryName(deck)))
+    persistStory()
+  }
+  /** Pick a library deck: it becomes the deck Clash, Campaign and Tower deal. */
+  function selectLibraryDeck(id: string): void {
+    const entry = library.value.find((item) => item.id === id)
+    if (!entry) return
+    const deck: AllianceDeck = {
+      general: entry.general,
+      ally: entry.ally,
+      cards: [...entry.cards],
+    }
+    if (entry.general !== activeTeam.value) chooseTeam(entry.general)
+    libraryId.value = id
+    clashFormat.value = 'alliance'
+    allianceDrafts.value = { ...allianceDrafts.value, [deck.general]: deck }
+    if (!allianceProblems(deck).length) {
+      savedAlliances.value = { ...savedAlliances.value, [deck.general]: deck }
+      deckMessage.value = entry.name + ' is your deck.'
+      persistStory()
+    } else
+      deckMessage.value =
+        entry.name +
+        ' needs ' +
+        (ALLIANCE_DECK_SIZE - entry.cards.length) +
+        ' more cards before it can play.'
+  }
+  function newLibraryDeck(): void {
+    if (library.value.length >= LIBRARY_MAX_DECKS) {
+      deckMessage.value = 'The library holds ' + LIBRARY_MAX_DECKS + ' decks.'
+      return
+    }
+    const deck = allianceStarter(
+      activeTeam.value,
+      defaultAlly(activeTeam.value),
+    )
+    const entry = libraryDeck(
+      { ...deck, cards: deck.cards.filter((id) => isCardUnlocked(id)) },
+      newLibraryId(),
+      'New deck ' + (library.value.length + 1),
+    )
+    library.value = [...library.value, entry]
+    selectLibraryDeck(entry.id)
+    persistStory()
+  }
+  function copyLibraryDeck(id: string): void {
+    const entry = library.value.find((item) => item.id === id)
+    if (!entry || library.value.length >= LIBRARY_MAX_DECKS) return
+    const copy = libraryDeck(entry, newLibraryId(), entry.name + ' copy')
+    library.value = [...library.value, copy]
+    selectLibraryDeck(copy.id)
+    persistStory()
+  }
+  function deleteLibraryDeck(id: string): void {
+    library.value = library.value.filter((item) => item.id !== id)
+    if (libraryId.value === id) {
+      libraryId.value = null
+      const next = library.value[0]
+      if (next) selectLibraryDeck(next.id)
+    }
+    deckMessage.value = 'Deck deleted.'
+    persistStory()
+  }
+  function renameLibraryDeck(id: string, name: string): void {
+    const clean = name.trim()
+    if (!clean) return
+    library.value = library.value.map((item) =>
+      item.id === id ? libraryDeck(item, item.id, clean) : item,
+    )
+    persistStory()
+  }
+  function libraryDeckReady(id: string): boolean {
+    const entry = library.value.find((item) => item.id === id)
+    return (
+      !!entry &&
+      !libraryDeckProblem(entry) &&
+      entry.cards.length === ALLIANCE_DECK_SIZE
+    )
+  }
+  const selectedJourneyAlliance = computed<AllianceDeck>(() => {
+    const entry = library.value.find((item) => item.id === journeyDeckId.value)
+    if (
+      entry &&
+      libraryDeckReady(entry.id) &&
+      entry.general === activeTeam.value
+    )
+      return {
+        general: entry.general,
+        ally: entry.ally,
+        cards: [...entry.cards],
+      }
+    return playAlliance.value
+  })
+  const journeyDeckName = computed(() => {
+    if (journeyFormat.value === 'solo')
+      return teamById(activeTeam.value).name + ' solo deck'
+    return (
+      library.value.find((item) => item.id === journeyDeckId.value)?.name ??
+      'Current alliance'
+    )
+  })
+  function setJourneyFormat(format: DeckFormat): void {
+    if (!storyEditable() || (format !== 'solo' && format !== 'alliance')) return
+    journeyFormat.value = format
+    persistStory()
+  }
+  function selectJourneyDeck(id: string): void {
+    if (!storyEditable()) return
+    if (!id) {
+      journeyDeckId.value = null
+      journeyFormat.value = 'alliance'
+      persistStory()
+      return
+    }
+    const selected = library.value.find((item) => item.id === id)
+    if (
+      !selected ||
+      selected.general !== activeTeam.value ||
+      !libraryDeckReady(id)
+    )
+      return
+    selectLibraryDeck(id)
+    journeyDeckId.value = id
+    journeyFormat.value = 'alliance'
+    persistStory()
+  }
+  function showJourneyDeck(): void {
+    if (journeyFormat.value === 'solo') return showSoloDeck()
+    stop()
+    deckFormat.value = 'alliance'
+    if (journeyDeckId.value && libraryDeckReady(journeyDeckId.value))
+      selectLibraryDeck(journeyDeckId.value)
+    view.value = 'cards'
+  }
+  /** COLLECTION opens on the Alliance library; SOLO opens its crew deck. */
+  function showSoloDeck(): void {
+    stop()
+    deckFormat.value = 'solo'
+    view.value = 'cards'
   }
   function restoreAllianceStarter(): void {
     commitAlliance(
@@ -1053,6 +1292,78 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     clashLaunch.value = { ...next, id: clashLaunch.value.id + 1 }
     view.value = 'clash'
   }
+  /** Why the bout being dealt pays nothing, for the battle console. */
+  const boutUnrewarded = ref('')
+  /**
+   * Silas, 2026-11-10 PT ("Do it"): SOLO story, CAMPAIGN and TOWER fights pay
+   * XP and Meat and count toward bounties, like PRACTICE. Signed in, the
+   * server issues the seed and keeps the deck and terms, then replays the
+   * fight before paying. A deck that borrows cards you have not unlocked, or
+   * a server that cannot be reached, still deals the bout, unrewarded.
+   */
+  async function launchBout(next: Omit<ClashLaunch, 'id'>): Promise<void> {
+    boutUnrewarded.value = ''
+    const signedIn = progressLoaded.value && correctAccount()
+    const alliance =
+      next.format === 'alliance' ? (next.alliance ?? playAlliance.value) : null
+    const cards = alliance ? alliance.cards : (next.cards ?? playSolo.value)
+    if (
+      !signedIn ||
+      !next.bosses ||
+      !(CLASH_BOUT_KINDS as readonly string[]).includes(next.kind)
+    ) {
+      launchClash(next)
+      return
+    }
+    if (!cards.every((id) => isCardUnlocked(id))) {
+      boutUnrewarded.value =
+        'Unrewarded: this deck borrows cards you have not unlocked.'
+      launchClash(next)
+      return
+    }
+    if (progressBusy.value) {
+      boutUnrewarded.value = 'Unrewarded: the last reward is still settling.'
+      launchClash(next)
+      return
+    }
+    progressBusy.value = true
+    progressError.value = ''
+    try {
+      const result = await performFetch<{
+        id: string
+        teamId: TeamId
+        foeId: TeamId
+        seed: number
+      }>('/api/slime-city/match', {
+        method: 'POST',
+        body: JSON.stringify({
+          teamId: alliance ? alliance.general : activeTeam.value,
+          foeId: next.enemy,
+          clash: {
+            ...(alliance
+              ? { format: 'alliance', deck: alliance }
+              : { format: 'solo', cards }),
+            bout: { kind: next.kind as ClashBoutKind, bosses: next.bosses },
+          },
+        }),
+      })
+      if (!result.success || !result.data)
+        throw new Error(result.message || 'Could not issue the bout.')
+      launchClash({
+        ...next,
+        seed: result.data.seed,
+        rewardId: result.data.id,
+        ...(alliance ? { alliance } : { cards: [...cards] }),
+      })
+    } catch (error) {
+      boutUnrewarded.value =
+        'Unrewarded: ' +
+        (error instanceof Error ? error.message : 'the server is unreachable.')
+      launchClash(next)
+    } finally {
+      progressBusy.value = false
+    }
+  }
   /** createClash arguments for the current launch. */
   function clashSetup(launch: ClashLaunch = clashLaunch.value): {
     player: TeamId
@@ -1102,6 +1413,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const launch = clashLaunch.value
     if (launchId !== launch.id || !state.victor || clashResult.value) return
     clashResult.value = { kind: launch.kind, victor: state.victor }
+    if (launch.kind !== 'reward' && launch.rewardId)
+      void finishCpuBattle(launch.rewardId, [...state.commands])
     if (launch.kind === 'tower' && towerRun.value?.phase === 'battle') {
       towerSave.value = {
         ...towerSave.value,
@@ -1311,6 +1624,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function chooseTeam(id: TeamId): void {
     activeTeam.value = id
+    const journeyPicked = library.value.find(
+      (item) => item.id === journeyDeckId.value,
+    )
+    if (journeyPicked && journeyPicked.general !== id)
+      journeyDeckId.value = null
+    persistStory()
+    const picked = library.value.find((item) => item.id === libraryId.value)
+    if (picked && picked.general !== id) libraryId.value = null
     replacingCard.value = null
     campaignScreen.value = 'chapter'
     if (enemyTeam.value === id)
@@ -1370,7 +1691,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (next === run || !next.chosen) return
     towerSave.value = { ...towerSave.value, run: next }
     persistStory()
-    launchClash({
+    void launchBout({
       kind: 'tower',
       format: 'alliance',
       alliance: next.deck,
@@ -1408,20 +1729,26 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function showCampaign(): void {
     stop()
     campaignBout.value = null
+    if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
     view.value = 'campaign'
   }
 
   function continueCampaign(): void {
     if (campaignRewardChoices.value) return
     campaignScreen.value = 'chapter'
+    persistStory()
   }
 
   function showCampaignAftermath(): void {
     campaignScreen.value = 'aftermath'
+    persistStory()
   }
 
   function showCards(): void {
     stop()
+    deckFormat.value = 'alliance'
+    if (!libraryId.value && library.value[0])
+      selectLibraryDeck(library.value[0].id)
     view.value = 'cards'
   }
   function showRewards(): void {
@@ -1550,7 +1877,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
    */
   /** City campaign bouts deal the deck format you picked. */
   function storyBoutLabel(_written?: ModeId): string {
-    return clashFormat.value === 'alliance' ? 'ALLIANCE CLASH' : 'SOLO CLASH'
+    return journeyFormat.value === 'alliance' ? 'ALLIANCE CLASH' : 'SOLO CLASH'
   }
   /** Play story bouts as written or as TURF, and with or without PARITY. */
   function setStoryFormat(next: { mode?: StoryMode; parity?: boolean }): void {
@@ -1588,9 +1915,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     lastCampaign.value = null
   }
   /**
-   * Story bouts, terms moving the bosses' life. Silas, 2026-11-10 PT: the crew
-   * story is SOLO; the city campaign is "the open ended pick a deck and have
-   * an experience game", so its bouts deal the format you picked.
+   * One Journey deck format drives chapter and city fights. Written outcomes,
+   * local city decisions, and faction callbacks still alter the boss terms.
    */
   function launchStoryClash(
     kind: ClashKind,
@@ -1598,13 +1924,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     terms: BoutTerms,
   ): void {
     enemyTeam.value = enemy
-    launchClash({
+    void launchBout({
       kind,
-      format: kind === 'campaign' ? 'solo' : clashFormat.value,
+      format: journeyFormat.value,
+      ...(journeyFormat.value === 'alliance'
+        ? { alliance: selectedJourneyAlliance.value }
+        : {}),
       enemy,
       seed: rollSeed(),
       bosses: clashBossesFromTerms(terms),
-      ...(kind === 'campaign'
+      ...(kind === 'campaign' && journeyFormat.value === 'solo'
         ? {
             cards:
               activeTeam.value === 'bloodfairies'
@@ -1625,11 +1954,20 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
                         playSolo.value,
                       ),
                     )
-                  : campaignSoloDeck(
-                      campaignSave.value,
-                      activeTeam.value,
-                      playSolo.value,
-                    ),
+                  : activeTeam.value === 'riot'
+                    ? riotStoryDeck(
+                        campaignSave.value.riot,
+                        campaignSoloDeck(
+                          campaignSave.value,
+                          activeTeam.value,
+                          playSolo.value,
+                        ),
+                      )
+                    : campaignSoloDeck(
+                        campaignSave.value,
+                        activeTeam.value,
+                        playSolo.value,
+                      ),
           }
         : {}),
     })
@@ -1692,7 +2030,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           ? bloodfairyBattleTerms(campaignSave.value.bloodfairies, base)
           : teamId === 'ironjaw'
             ? ironjawBattleTerms(campaignSave.value.ironjaw, base)
-            : base
+            : teamId === 'riot'
+              ? riotBattleTerms(campaignSave.value.riot, base)
+              : base
     launchStoryClash('campaign', chapter.foe, prepared)
   }
 
@@ -1739,9 +2079,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         victor,
       )
       lastCampaign.value = team
-      persistStory()
       campaignBout.value = null
       campaignScreen.value = 'aftermath'
+      persistStory()
       return
     }
     if (contractBout.value) {
@@ -1966,7 +2306,24 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     restoreFounderDeck,
     testCustomDeck,
     deckFormat,
+    library,
+    libraryId,
+    selectLibraryDeck,
+    newLibraryDeck,
+    copyLibraryDeck,
+    deleteLibraryDeck,
+    renameLibraryDeck,
+    libraryDeckReady,
+    showSoloDeck,
+    showJourneyDeck,
+    libraryMax: LIBRARY_MAX_DECKS,
     clashFormat,
+    journeyFormat,
+    journeyDeckId,
+    journeyDeckName,
+    selectedJourneyAlliance,
+    setJourneyFormat,
+    selectJourneyDeck,
     currentAlliance,
     currentAllianceProblems,
     playAlliance,
@@ -1983,6 +2340,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     toggleSoloCard,
     restoreSoloStarter,
     clashLaunch,
+    boutUnrewarded,
     clashResult,
     clashSetup,
     playClashFormat,
@@ -2015,6 +2373,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     bloodfairyStageThree,
     ironjawCurrent,
     ironjawShift,
+    riotCurrent,
+    riotShow,
     campaignJourneyCurrent,
     campaignJourneyText,
     campaignJourneyOutcome,

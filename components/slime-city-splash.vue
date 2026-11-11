@@ -43,6 +43,16 @@
           Six rival crews. Seven districts. One radioactive megacity, and the
           currency is meat.
         </p>
+        <button
+          type="button"
+          class="scs-settings"
+          aria-label="Settings"
+          title="Settings"
+          data-testid="slime-splash-settings"
+          @click="go(() => (lab.view = 'settings'))"
+        >
+          <icon name="kind-icon:settings" class="h-6 w-6" />
+        </button>
       </header>
 
       <section class="scs-crew-pane" aria-labelledby="slime-splash-crew-head">
@@ -70,7 +80,6 @@
         </article>
         <div class="scs-roster-head">
           <h2 id="slime-splash-crew-head">Choose your crew</h2>
-          <span>Switch any time.</span>
         </div>
         <div
           class="scs-roster"
@@ -101,95 +110,75 @@
         </div>
       </section>
 
-      <nav class="scs-actions" aria-label="Start playing">
+      <nav class="scs-modes" aria-label="Play Slime City">
         <button
           type="button"
-          class="scs-go primary"
+          class="scs-tile primary"
           :disabled="leaving"
           data-testid="slime-splash-battle"
           @click="enter(modes[0]!.id)"
         >
           <SlimeCityArtwork
-            class="scs-go-art"
+            class="scs-tile-art"
             :image-id="modes[0]!.art"
             :fallback-image-id="slimeArtId('crews', picked.id)"
             :alt="modes[0]!.title"
-            :fallback="modes[0]!.symbol"
             compact
           />
-          <span class="scs-go-copy">
-            <small class="scs-go-tag">{{ modes[0]!.tag }}</small>
-            <strong>{{ modes[0]!.title }}</strong>
-            <span class="scs-go-text">{{ modes[0]!.text }}</span>
-          </span>
+          <icon :name="modes[0]!.icon" class="scs-tile-icon" />
+          <strong>{{ modes[0]!.title }}</strong>
         </button>
         <button
           type="button"
-          class="scs-go"
+          class="scs-tile"
           :disabled="leaving"
-          data-testid="slime-splash-story"
+          data-testid="slime-splash-journey"
           @click="enter(modes[1]!.id)"
         >
           <SlimeCityArtwork
-            class="scs-go-art"
+            class="scs-tile-art"
             :image-id="modes[1]!.art"
             :fallback-image-id="slimeArtId('crews', picked.id)"
             :alt="modes[1]!.title"
-            :fallback="modes[1]!.symbol"
             compact
           />
-          <span class="scs-go-copy">
-            <small class="scs-go-tag">{{ modes[1]!.tag }}</small>
-            <strong>{{ modes[1]!.title }}</strong>
-            <span class="scs-go-text">{{ modes[1]!.text }}</span>
-          </span>
+          <icon :name="modes[1]!.icon" class="scs-tile-icon" />
+          <strong>{{ modes[1]!.title }}</strong>
         </button>
         <button
           type="button"
-          class="scs-go"
+          class="scs-tile"
           :disabled="leaving"
-          data-testid="slime-splash-city"
+          data-testid="slime-splash-tower"
           @click="enter(modes[2]!.id)"
         >
           <SlimeCityArtwork
-            class="scs-go-art"
+            class="scs-tile-art"
             :image-id="modes[2]!.art"
             :fallback-image-id="slimeArtId('crews', picked.id)"
             :alt="modes[2]!.title"
-            :fallback="modes[2]!.symbol"
             compact
           />
-          <span class="scs-go-copy">
-            <small class="scs-go-tag">{{ modes[2]!.tag }}</small>
-            <strong>{{ modes[2]!.title }}</strong>
-            <span class="scs-go-text">{{ modes[2]!.text }}</span>
-          </span>
+          <icon :name="modes[2]!.icon" class="scs-tile-icon" />
+          <strong>{{ modes[2]!.title }}</strong>
         </button>
-      </nav>
-
-      <nav class="scs-more" aria-label="More Slime City">
         <button
           type="button"
+          class="scs-tile"
+          :disabled="leaving"
           data-testid="slime-splash-decks"
-          @click="go(() => lab.showCards())"
+          @click="enter(modes[3]!.id)"
         >
-          Decks &amp; collection
+          <SlimeCityArtwork
+            class="scs-tile-art"
+            :image-id="modes[3]!.art"
+            :fallback-image-id="slimeArtId('crews', picked.id)"
+            :alt="modes[3]!.title"
+            compact
+          />
+          <icon :name="modes[3]!.icon" class="scs-tile-icon" />
+          <strong>{{ modes[3]!.title }}</strong>
         </button>
-        <button
-          type="button"
-          data-testid="slime-splash-tower"
-          @click="go(() => lab.showTower())"
-        >
-          Alliance tower
-        </button>
-        <button
-          type="button"
-          data-testid="slime-splash-settings"
-          @click="go(() => (lab.view = 'settings'))"
-        >
-          Settings
-        </button>
-        <span>Free in your browser · a playable work in progress</span>
       </nav>
     </div>
   </section>
@@ -202,7 +191,7 @@ import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { CAMPAIGN_DISTRICTS } from '~/utils/slimeCity/city'
 import type { Team } from '~/utils/slimeCity/prototypes'
 
-type Destination = 'clash' | 'city' | 'campaign'
+type Destination = 'clash' | 'campaign' | 'tower' | 'collection'
 
 const lab = useSlimeCityStore()
 
@@ -233,41 +222,39 @@ const picked = computed(
 )
 const homeDistrict = computed(() => CAMPAIGN_DISTRICTS[picked.value.id])
 
+/**
+ * Silas, 2026-11-10 PT: "It's confusing to have no parity between top of the
+ * dashboard and the bottom buttons. Simple!" The title screen's tiles are the
+ * game's tabs, in tab order, named exactly as the tabs are.
+ */
 const modes = computed<
-  {
-    id: Destination
-    tag: string
-    title: string
-    text: string
-    symbol: string
-    art: number | null
-  }[]
+  { id: Destination; title: string; icon: string; art: number | null }[]
 >(() => [
   {
     id: 'clash',
-    tag: 'PRACTICE · ONE MATCH',
-    title: 'Quick battle',
-    text: 'One card fight against a random rival crew, Solo or Alliance.',
-    symbol: '⚔',
+    title: 'Practice',
+    icon: 'kind-icon:lightning',
     art: slimeArtId('boards', 'pitworks-blackout'),
   },
   {
     id: 'campaign',
-    tag: 'SOLO · YOUR CREW · 5 CHAPTERS',
-    title: 'Solo story',
-    text: 'Your crew’s own story: beat the other five crews, one chapter at a time.',
-    symbol: '✦',
+    title: 'Journey',
+    icon: 'kind-icon:story',
     art:
       slimeArtId('story', picked.value.id + '/opening') ??
       slimeArtId('story', picked.value.id + '/1/scene'),
   },
   {
-    id: 'city',
-    tag: 'ANY DECK · 7 DISTRICTS',
-    title: 'Campaign',
-    text: 'Pick a deck and take the open city, district by district, champion by champion.',
-    symbol: '▧',
-    art: slimeArtId('districts', homeDistrict.value),
+    id: 'tower',
+    title: 'Tower',
+    icon: 'kind-icon:castle',
+    art: slimeArtId('districts', 'crown'),
+  },
+  {
+    id: 'collection',
+    title: 'Collection',
+    icon: 'kind-icon:cards',
+    art: slimeArtId('ui', 'card-back'),
   },
 ])
 
@@ -287,8 +274,9 @@ function go(open: () => void): void {
 }
 function enter(destination: Destination): void {
   go(() => {
-    if (destination === 'city') lab.showCityMap()
-    else if (destination === 'campaign') lab.showCampaign()
+    if (destination === 'campaign') lab.showCampaign()
+    else if (destination === 'tower') lab.showTower()
+    else if (destination === 'collection') lab.showCards()
     else lab.playClashFormat()
   })
 }
@@ -400,15 +388,15 @@ onBeforeUnmount(() => clearTimeout(timer))
   padding: clamp(0.6rem, 3cqh, 2rem) clamp(0.75rem, 3cqw, 2rem);
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
     'head crew'
-    'modes crew'
-    'foot crew';
+    'modes modes';
   gap: clamp(0.5rem, 2cqh, 1.25rem) clamp(0.75rem, 3cqw, 2.5rem);
 }
 
 .scs-head {
+  position: relative;
   grid-area: head;
   display: flex;
   flex-direction: column;
@@ -562,10 +550,6 @@ onBeforeUnmount(() => clearTimeout(timer))
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
-.scs-roster-head span {
-  color: #a6aac0;
-  font-size: 0.72rem;
-}
 .scs-roster {
   flex: none;
   display: grid;
@@ -609,155 +593,125 @@ onBeforeUnmount(() => clearTimeout(timer))
   transform: translateY(-3px) scale(1.04);
   box-shadow: 0 0 18px color-mix(in srgb, var(--tone) 55%, transparent);
 }
-.scs-crew:focus-visible,
-.scs-go:focus-visible {
+.scs-crew:focus-visible {
   outline: 2px solid #c5ff59;
   outline-offset: 2px;
 }
 
-.scs-actions {
-  grid-area: modes;
-  min-height: 0;
+.scs-settings {
+  position: absolute;
+  top: 0;
+  right: 0;
   display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: clamp(0.35rem, 1.4cqh, 0.7rem);
-  align-content: end;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid #c5ff5955;
+  border-radius: 999px;
+  background: #0e1420d9;
+  color: #e7ecf3;
+  cursor: pointer;
 }
-.scs-go {
+.scs-settings:hover {
+  border-color: #c5ff59;
+  color: #c5ff59;
+}
+.scs-modes {
+  grid-area: modes;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.4rem, 1.4cqw, 0.9rem);
+}
+.scs-tile {
   position: relative;
   isolation: isolate;
-  min-height: 0;
-  max-height: 8.5rem;
+  aspect-ratio: 5 / 4;
+  max-height: 22cqh;
+  min-width: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   overflow: hidden;
-  padding: 0;
-  border: 1px solid #c5ff5966;
-  border-radius: 0.9rem;
-  background: #0e1420e6;
-  color: #eef2f8;
-  text-align: left;
+  padding: 0.5rem;
+  border: 2px solid #c5ff5955;
+  border-radius: 1rem;
+  background: #0e1420;
+  color: #f7f2e8;
   cursor: pointer;
   transition:
     transform 0.15s,
     border-color 0.15s,
     box-shadow 0.15s;
 }
-.scs-go-art {
+.scs-tile-art {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: -2;
   margin: 0;
-  opacity: 0.55;
+  opacity: 0.6;
   transition:
     opacity 0.2s,
     transform 0.4s;
 }
-.scs-go-art :deep(img) {
+.scs-tile-art :deep(img) {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.scs-go-art :deep(.slime-art-fallback) {
+.scs-tile-art :deep(.slime-art-fallback) {
   display: none;
 }
-.scs-go::before {
+.scs-tile::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, #070b12f0 0%, #070b12b8 55%, #070b1240);
+  background: radial-gradient(circle at 50% 45%, #070b1288, #070b12e6 75%);
 }
-.scs-go:hover:not(:disabled) {
-  transform: translateX(4px);
+.scs-tile-icon {
+  width: clamp(1.6rem, 5cqw, 2.8rem);
+  height: clamp(1.6rem, 5cqw, 2.8rem);
+  color: #c5ff59;
+  filter: drop-shadow(0 2px 6px #000);
+}
+.scs-tile strong {
+  font-size: clamp(0.72rem, 1.8cqw, 1.15rem);
+  font-weight: 1000;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 6px #000;
+}
+.scs-tile:hover:not(:disabled) {
+  transform: translateY(-3px);
   border-color: #c5ff59;
   box-shadow: 0 0 22px #c5ff5944;
 }
-.scs-go:hover:not(:disabled) .scs-go-art {
-  opacity: 0.8;
-  transform: scale(1.04);
+.scs-tile:hover:not(:disabled) .scs-tile-art {
+  opacity: 0.85;
+  transform: scale(1.05);
 }
-.scs-go-copy {
-  min-width: 0;
-  padding: clamp(0.4rem, 1.6cqh, 0.9rem) 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-.scs-go-tag {
-  color: #c5ff59;
-  font-size: 0.6rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-}
-.scs-go strong {
-  font-size: clamp(1rem, 3.2cqh, 1.5rem);
-  font-weight: 1000;
-  font-style: italic;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  line-height: 1.05;
-}
-.scs-go-text {
-  color: #c9d0dc;
-  font-size: 0.8rem;
-  line-height: 1.3;
-}
-.scs-go.primary {
-  border: 2px solid #c5ff59;
-  box-shadow: 0 0 24px #c5ff5955;
-}
-.scs-go.primary::before {
-  background: linear-gradient(90deg, #c5ff59f2 0%, #c5ff59c4 40%, #c5ff5900);
-}
-.scs-go.primary .scs-go-copy {
-  color: #142016;
-}
-.scs-go.primary .scs-go-tag {
-  color: #2c4a1a;
-}
-.scs-go.primary .scs-go-text {
-  color: #213a14;
-}
-.scs-go:disabled {
-  cursor: default;
-}
-.scs-more {
-  grid-area: foot;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.5rem;
-}
-.scs-more button {
-  padding: 0.3rem 0.7rem;
-  border: 1px solid #c5ff5955;
-  border-radius: 999px;
-  background: #0e1420d9;
-  color: #e7ecf3;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-}
-.scs-more button:hover {
-  border-color: #c5ff59;
-}
-.scs-more button:focus-visible {
+.scs-tile:focus-visible,
+.scs-settings:focus-visible {
   outline: 2px solid #c5ff59;
   outline-offset: 2px;
 }
-.scs-more span {
-  color: #a6aec0;
-  font-size: 0.68rem;
+.scs-tile.primary {
+  border-color: #c5ff59;
+  box-shadow: 0 0 24px #c5ff5955;
+}
+.scs-tile:disabled {
+  cursor: default;
 }
 
-/* Tall or narrow screens: the poster sits between the title and the modes. */
+/* Tall or narrow screens: title, poster, then the five tiles. */
 @container slime-splash (max-aspect-ratio: 5 / 4) {
   .scs-content {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) auto auto;
-    grid-template-areas: 'head' 'crew' 'modes' 'foot';
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'head' 'crew' 'modes';
     text-align: center;
   }
   .scs-head {
@@ -766,43 +720,33 @@ onBeforeUnmount(() => clearTimeout(timer))
   .scs-title {
     font-size: clamp(2.2rem, min(13cqw, 10cqh), 7rem);
   }
-  .scs-actions {
-    grid-template-rows: none;
-    grid-template-columns: 1.2fr 1fr 1fr;
-  }
-  .scs-go {
-    min-height: 4.5rem;
-  }
-  .scs-go-copy {
-    padding: 0.5rem 0.6rem;
-  }
-  .scs-go.primary::before {
-    background: linear-gradient(#c5ff59e6, #c5ff59c8);
+  .scs-tile {
+    max-height: 14cqh;
   }
 }
-@container slime-splash (max-aspect-ratio: 5 / 4) and (max-width: 40rem) {
-  .scs-go-text,
-  .scs-tagline {
+@container slime-splash (max-width: 34rem) {
+  .scs-tagline,
+  .scs-overline {
     display: none;
   }
-  .scs-go strong {
-    font-size: 0.95rem;
-  }
-  .scs-go-tag {
-    font-size: 0.5rem;
-    letter-spacing: 0.08em;
-  }
-  .scs-poster-copy p {
-    -webkit-line-clamp: 1;
-  }
-  .scs-roster {
+  .scs-modes {
     gap: 0.3rem;
+  }
+  .scs-tile {
+    padding: 0.3rem 0.15rem;
+    border-radius: 0.7rem;
+  }
+  .scs-tile strong {
+    font-size: 0.58rem;
+    letter-spacing: 0.01em;
+  }
+  .scs-settings {
+    width: 2.1rem;
+    height: 2.1rem;
   }
 }
 @container slime-splash (max-height: 34rem) {
   .scs-overline,
-  .scs-more span,
-  .scs-roster-head span,
   .scs-poster-copy p {
     display: none;
   }
@@ -878,8 +822,8 @@ onBeforeUnmount(() => clearTimeout(timer))
   .scs-backdrop,
   .scs-poster-art,
   .scs-crew,
-  .scs-go,
-  .scs-go-art {
+  .scs-tile,
+  .scs-tile-art {
     animation: none !important;
     transition: none !important;
   }

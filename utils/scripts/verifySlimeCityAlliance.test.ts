@@ -37,10 +37,18 @@ import {
   type ClashUnit,
 } from '../slimeCity/clash'
 import { validSlimeCityStory, newSlimeCityStory } from '../slimeCity/storySave'
+import {
+  LIBRARY_MAX_DECKS,
+  libraryDeck,
+  libraryDeckProblem,
+  validLibrary,
+} from '../slimeCity/alliance'
 import { sweepAlliance } from './slimeCityAllianceBalanceReport'
 import { clashBossesFromTerms } from '../slimeCity/clashBouts'
 import {
+  clashBoutProblem,
   clashOutcome,
+  clashRewardMode,
   clashRewardSetupProblem,
   clashRewardStart,
   replayClashTranscript,
@@ -558,19 +566,144 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   )
 }
 
+// Silas, 2026-11-10 PT ("Do it"): SOLO story, CAMPAIGN and TOWER bouts are
+// server-issued too. Their terms ride with the deck and replay exactly.
+{
+  const story: ClashRewardSetup = {
+    format: 'solo',
+    cards: soloStarter('riot'),
+    bout: { kind: 'campaign', bosses: { player: 46, enemy: 34 } },
+  }
+  const allianceChapter: ClashRewardSetup = {
+    format: 'alliance',
+    deck: allianceStarter('riot', 'ironjaw'),
+    bout: { kind: 'campaign', bosses: { player: 46, enemy: 34 } },
+  }
+  const tower: ClashRewardSetup = {
+    format: 'alliance',
+    deck: allianceStarter('riot', 'exchange'),
+    bout: { kind: 'tower', bosses: { player: 40, enemy: 38 } },
+  }
+  assert.equal(clashRewardMode(story), 'clash-campaign')
+  assert.equal(clashRewardMode(tower), 'clash-tower')
+  assert.equal(clashRewardMode({ format: 'solo', cards: [] }), 'clash')
+  for (const setup of [story, allianceChapter, tower]) {
+    assert.equal(clashRewardSetupProblem('riot', setup), '')
+    const start = clashRewardStart('riot', 'undertow', 777, setup)
+    assert.deepEqual(start.boss, setup.bout!.bosses, 'terms move the bosses')
+    let g = start
+    for (let i = 0; !g.victor && i < 1500; i++)
+      g = applyClashCommand(g, chooseClashCpu(g, g.active))
+    const transcript = JSON.parse(JSON.stringify(g.commands))
+    const ok = replayClashTranscript(
+      clashRewardStart('riot', 'undertow', 777, setup),
+      transcript,
+    )
+    assert.ok('state' in ok, setup.bout!.kind + ' bout replays')
+    // The same moves under different terms are not the same fight.
+    const { bout: _bout, ...plain } = setup
+    const plainStart = clashRewardStart(
+      'riot',
+      'undertow',
+      777,
+      plain as ClashRewardSetup,
+    )
+    assert.notDeepEqual(plainStart.boss, start.boss)
+  }
+  const bad = (bout: unknown, format = 'solo') => clashBoutProblem(format, bout)
+  assert.ok(bad(null))
+  assert.ok(bad({ kind: 'practice', bosses: { player: 40, enemy: 40 } }))
+  assert.ok(bad({ kind: 'rival', bosses: { player: 61, enemy: 40 } }))
+  assert.ok(bad({ kind: 'rival', bosses: { player: 40, enemy: 19 } }))
+  assert.ok(bad({ kind: 'rival', bosses: { player: 40.5, enemy: 40 } }))
+  assert.ok(bad({ kind: 'rival' }))
+  assert.ok(
+    bad({ kind: 'tower', bosses: { player: 40, enemy: 40 } }),
+    'tower fights are Alliance',
+  )
+  assert.equal(
+    bad({ kind: 'campaign', bosses: { player: 40, enemy: 40 } }, 'alliance'),
+    '',
+    'One journey accepts Solo or Alliance chapters',
+  )
+  assert.equal(
+    bad({ kind: 'contract', bosses: { player: 20, enemy: 60 } }, 'alliance'),
+    '',
+  )
+  assert.ok(
+    clashRewardSetupProblem('riot', {
+      ...story,
+      bout: { kind: 'campaign', bosses: { player: 99, enemy: 20 } },
+    }),
+  )
+}
+
+// COLLECTION's deck library (Silas, 2026-11-10 PT): named Alliance decks
+// that may be unfinished while being built, but never break the format.
+{
+  const starter = allianceStarter('catgirls', 'riot')
+  const deck = libraryDeck(starter, 'd1', '  Cat Riot  ')
+  assert.equal(deck.name, 'Cat Riot')
+  assert.equal(libraryDeckProblem(deck), '')
+  assert.equal(
+    libraryDeckProblem({ ...deck, cards: deck.cards.slice(0, 7) }),
+    '',
+    'an unfinished deck is a valid library entry',
+  )
+  assert.notEqual(libraryDeckProblem({ ...deck, ally: 'catgirls' }), '')
+  assert.notEqual(
+    libraryDeckProblem({ ...deck, cards: [...deck.cards, deck.cards[0]!] }),
+    '',
+  )
+  const outsider = TEAMS.map((t) => t.id).find(
+    (id) => id !== 'catgirls' && id !== 'riot',
+  )!
+  const foreign = allianceStarter(outsider, 'catgirls').cards.find(
+    (id) => cardById(id).team === outsider,
+  )!
+  assert.notEqual(
+    libraryDeckProblem({ ...deck, cards: [...deck.cards.slice(1), foreign] }),
+    '',
+    'cards outside the two crews and mercenaries are refused',
+  )
+  assert.equal(validLibrary([deck, { ...deck, id: 'd2' }]), true)
+  assert.equal(validLibrary([deck, deck]), false, 'ids are unique')
+  assert.equal(
+    validLibrary(
+      Array.from({ length: LIBRARY_MAX_DECKS + 1 }, (_, i) => ({
+        ...deck,
+        id: 'd' + i,
+      })),
+    ),
+    false,
+  )
+  const story = { ...newSlimeCityStory(), library: [deck] }
+  assert.equal(validSlimeCityStory(JSON.parse(JSON.stringify(story))), true)
+  assert.equal(
+    validSlimeCityStory({ ...story, library: [{ ...deck, name: '' }] }),
+    false,
+  )
+}
+
 // The armory and Clash expose the format.
 const page = readFileSync('pages/admin/slime-city.vue', 'utf8')
 const view = readFileSync('components/slime-city-clash.vue', 'utf8')
 const store = readFileSync('stores/slimeCity.ts', 'utf8')
 for (const id of [
-  'slime-format-alliance',
+  // Silas, 2026-11-10 PT: the collection is an Alliance deck library; SOLO
+  // story decks open from the SOLO story, not a format switch.
+  'slime-deck-library',
+  'slime-library-new',
+  'slime-library-copy',
+  'slime-library-delete',
+  'slime-library-name',
+  'slime-solo-deck-back',
   'slime-alliance-workbench',
   'slime-ally-picker',
   'slime-alliance-swap',
   'slime-alliance-power',
   'slime-alliance-play',
   'slime-alliance-grid',
-  'slime-format-solo',
   'slime-solo-workbench',
   'slime-solo-grid',
   'slime-solo-play',

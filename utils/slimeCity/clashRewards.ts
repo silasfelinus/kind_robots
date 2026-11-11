@@ -12,24 +12,73 @@ import {
 import {
   applyClashCommand,
   chooseClashCpu,
+  CLASH_BOSS_RANGE,
   createClash,
   type ClashCommand,
   type ClashState,
 } from './clash'
 import type { BattleOutcome } from './progression'
-import { CARDS, TEAMS, type TeamId } from './prototypes'
+import { CARDS, TEAMS, type Side, type TeamId } from './prototypes'
 
 export type ClashRewardFormat = 'solo' | 'alliance'
+/**
+ * Silas, 2026-11-10 PT: "bounties and rewards should be activated", then "Do
+ * it" to SOLO story, CAMPAIGN and TOWER fights paying out like PRACTICE. A
+ * bout brings its own rival and boss life (its story terms); the server checks
+ * the terms stay inside the Clash band and replays the fight like any other.
+ */
+export const CLASH_BOUT_KINDS = [
+  'rival',
+  'contract',
+  'campaign',
+  'tower',
+] as const
+export type ClashBoutKind = (typeof CLASH_BOUT_KINDS)[number]
+export interface ClashBoutTerms {
+  kind: ClashBoutKind
+  bosses: Record<Side, number>
+}
 /** What the server stores when it issues a Clash reward match. */
-export type ClashRewardSetup =
+export type ClashRewardSetup = (
   | { format: 'solo'; cards: string[] }
   | { format: 'alliance'; deck: AllianceDeck }
+) & { bout?: ClashBoutTerms }
 
 export const CLASH_REWARD_MODES = {
   solo: 'clash',
   alliance: 'clash-alliance',
 } as const
 export const CLASH_TRANSCRIPT_MAX = 2000
+
+/** The stored match mode: PRACTICE by format, bouts by kind. */
+export function clashRewardMode(setup: ClashRewardSetup): string {
+  return setup.bout
+    ? 'clash-' + setup.bout.kind
+    : CLASH_REWARD_MODES[setup.format]
+}
+
+/** Why bout terms are unusable, or ''. */
+export function clashBoutProblem(format: unknown, raw: unknown): string {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw))
+    return 'Malformed bout terms.'
+  const v = raw as Record<string, unknown>
+  if (!CLASH_BOUT_KINDS.includes(v.kind as ClashBoutKind))
+    return 'Unknown bout.'
+  if (v.kind === 'tower' && format !== 'alliance')
+    return 'Tower fights deal an Alliance deck.'
+  const bosses = v.bosses as Record<string, unknown> | null
+  const [low, high] = CLASH_BOSS_RANGE
+  const life = (n: unknown) =>
+    Number.isSafeInteger(n) && (n as number) >= low && (n as number) <= high
+  if (
+    !bosses ||
+    typeof bosses !== 'object' ||
+    !life(bosses.player) ||
+    !life(bosses.enemy)
+  )
+    return 'Boss life must stay between ' + low + ' and ' + high + '.'
+  return ''
+}
 
 const isTeam = (v: unknown): v is TeamId =>
   typeof v === 'string' && TEAMS.some((t) => t.id === v)
@@ -42,6 +91,10 @@ export function clashRewardSetupProblem(
   if (!isTeam(teamId)) return 'Unknown Slime City crew.'
   if (!setup || typeof setup !== 'object') return 'Choose a Clash deck.'
   const v = setup as Record<string, unknown>
+  if (v.bout !== undefined) {
+    const problem = clashBoutProblem(v.format, v.bout)
+    if (problem) return problem
+  }
   if (v.format === 'solo') {
     if (!Array.isArray(v.cards) || v.cards.length > 60)
       return 'Malformed Solo deck.'
@@ -71,11 +124,16 @@ export function clashRewardStart(
   seed: number,
   setup: ClashRewardSetup,
 ): ClashState {
+  const bosses = setup.bout ? { bosses: setup.bout.bosses } : {}
   return setup.format === 'alliance'
     ? createClash(teamId, foeId, seed, {
         alliance: { player: setup.deck, enemy: cpuAlliance(foeId, seed) },
+        ...bosses,
       })
-    : createClash(teamId, foeId, seed, { decks: { player: setup.cards } })
+    : createClash(teamId, foeId, seed, {
+        decks: { player: setup.cards },
+        ...bosses,
+      })
 }
 
 const SHAPES: Record<string, (c: Record<string, unknown>) => boolean> = {

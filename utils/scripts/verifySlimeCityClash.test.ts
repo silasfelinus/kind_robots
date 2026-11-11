@@ -96,8 +96,7 @@ const splash = readFileSync('components/slime-city-splash.vue', 'utf8')
 for (const testid of [
   'slime-splash-crews',
   'slime-splash-battle',
-  'slime-splash-city',
-  'slime-splash-story',
+  'slime-splash-journey',
 ]) {
   assert.match(splash, new RegExp('data-testid="' + testid + '"'))
 }
@@ -121,6 +120,11 @@ assert.equal(
 assert.match(gamePage, /data-testid="slime-settings"/)
 assert.match(gamePage, /data-testid="slime-card-inspector"/)
 assert.match(gamePage, /data-testid="slime-clash-tab"/)
+assert.match(gamePage, /data-testid="slime-journey-tab"/)
+assert.doesNotMatch(
+  gamePage,
+  /data-testid="slime-campaign-tab"|data-testid="slime-city-tab"/,
+)
 // Silas, 2026-11-08 PT: "we don't need the legacy modes, period."
 assert.doesNotMatch(gamePage, /slime-legacy-toggle/)
 assert.doesNotMatch(gamePage, /<SlimeCityArena|<SlimeCityAlleys/)
@@ -1410,6 +1414,53 @@ assert.deepEqual(
   'armor-cutting snare must replay deterministically',
 )
 
+// The six lowest-performing cheap snares must all remain useful against plating.
+// Resolve catalog IDs by name to cover every faction's actual printed card.
+for (const name of [
+  'Moshpit Tripcord',
+  'Bloodwire',
+  'Leech Grate',
+  'Escrow Snare',
+  'Culvert Tollwire',
+  'Floodgate Clamp',
+]) {
+  const trap = CARDS.find((card) => card.name === name)
+  assert.ok(trap, `missing weak-snare fixture: ${name}`)
+  assert.equal(trap.kind, 'trap', `${name} must remain a trap`)
+  assert.equal(trap.effect, 'snare', `${name} must remain a snare`)
+  assert.equal(clashPlayCost(trap), 1, `${name} must cost one Clash play`)
+  if (trap.team === 'mercenary')
+    throw new Error(`${name} must belong to a playable faction`)
+  const state = createClash('ironjaw', trap.team, 1962)
+  state.round = 2
+  state.hands.player = ['scrapper']
+  state.traps = [{ side: 'enemy', lane: 2, cardId: trap.id, level: 1 }]
+  const clear = structuredClone(state)
+  clear.traps = []
+  const safe = playClash(clear, 'player', 'scrapper', 2)
+  const caught = playClash(state, 'player', 'scrapper', 2)
+  const safeUnit = safe.units.find(
+    (unit) => unit.side === 'player' && unit.lane === 2,
+  )
+  const caughtUnit = caught.units.find(
+    (unit) => unit.side === 'player' && unit.lane === 2,
+  )
+  assert.ok(safeUnit && caughtUnit, `${name} must allow fighter entry`)
+  assert.ok(safeUnit.armor > 0, 'Scrapper must retain its armor fixture')
+  assert.equal(
+    caughtUnit.armor,
+    safeUnit.armor - 1,
+    `${name} must shear plating`,
+  )
+  assert.ok(caughtUnit.hp < safeUnit.hp, `${name} must damage a plated target`)
+  assert.equal(caught.traps.length, 0, `${name} must be consumed`)
+  assert.deepEqual(
+    caught,
+    playClash(structuredClone(state), 'player', 'scrapper', 2),
+    `${name} must replay identically`,
+  )
+}
+
 const wireTrap = createClash('catgirls', 'ironjaw', 962)
 wireTrap.round = 2
 wireTrap.hands.player = ['lynx']
@@ -1421,19 +1472,24 @@ wireTrap.traps = [{ side: 'enemy', lane: 2, cardId: 'bloodwire', level: 3 }]
 const wireFired = playClash(wireTrap, 'player', 'lynx', 2)
 assert.equal(wireFired.units.find((u) => u.uid === 2031)?.hp, 10)
 assert.equal(wireFired.units.find((u) => u.uid === 2033)?.hp, 10)
-let criticalFound = false
-for (let seed = 1; seed <= 20; seed++) {
+// Silas, 2026-11-10 PT ("less random things"): L3 Pinprick always doubles,
+// and splashes nearby rivals for 2 only when its target was already hurt.
+for (const hurt of [false, true]) {
   const pin = third('bloodfairies', 'pinprick')
-  pin.rng = seed
-  pin.units = [follower('enemy', 2, 2042, 25), follower('enemy', 3, 2043, 12)]
+  const target = follower('enemy', 2, 2042, 25)
+  if (hurt) target.hp = 20
+  pin.units = [target, follower('enemy', 3, 2043, 12)]
   const hit = playClash(pin, 'player', 'pinprick', 2)
   assert.deepEqual(
     hit,
     playClash(structuredClone(pin), 'player', 'pinprick', 2),
   )
-  if (hit.units.find((u) => u.uid === 2043)?.hp === 10) criticalFound = true
+  assert.equal(
+    hit.units.find((u) => u.uid === 2043)?.hp,
+    hurt ? 10 : 12,
+    'L3 Pinprick splashes only a hurt target',
+  )
 }
-assert.ok(criticalFound, 'L3 Pinprick has reachable seeded critical splash')
 const feedback = third('bloodfairies', 'feedback')
 feedback.units = [
   ...[0, 1, 3, 4].map((lane) => follower('player', lane, 2050 + lane, 10)),
@@ -1813,9 +1869,10 @@ for (let seed = 1; seed <= 64; seed++) {
   assert.deepEqual(foretold, strikeClash(structuredClone(oracle), 'player'))
 }
 assert.ok(recruited, 'weak enemy can be recruited by an evolved bribe rat')
+// Silas, 2026-11-10 PT ("less random things"): the Oracle's +2 is certain.
 assert.ok(
-  prophecyRaised && prophecyMissed,
-  'oracle has two seeded, observable outcomes',
+  prophecyRaised && !prophecyMissed,
+  'an L3 oracle always raises a neighbor strike',
 )
 
 // Balance acceptance (2026-11-07 Clash rebalance): CPU sweeps across every crew

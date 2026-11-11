@@ -23,14 +23,26 @@ export const BOSS_QUIPS: Record<
     gloat: 'ENCORE!',
     beaten: 'Show’s cancelled…',
   },
-  ironjaw: { hit: 'Dented!', gloat: 'Union strong.', beaten: 'Shift’s over…' },
-  riot: { hit: 'Ow! Again!', gloat: 'KA-BOOM!', beaten: 'Fizzled…' },
+  ironjaw: {
+    hit: 'Lab-grade scales!',
+    gloat: 'Union strong.',
+    beaten: 'Back to the sewer…',
+  },
+  riot: {
+    hit: 'Tough crowd!',
+    gloat: 'Get Anarkissed!',
+    beaten: 'The show… must… go on…',
+  },
   undertow: {
     hit: 'Unforeseen.',
     gloat: 'As predicted.',
     beaten: 'Recalculating…',
   },
-  exchange: { hit: 'My margins!', gloat: 'Paid in full.', beaten: 'Bankrupt…' },
+  exchange: {
+    hit: 'The ledger bleeds!',
+    gloat: 'Your soul is collateral.',
+    beaten: 'The Deep forecloses…',
+  },
 }
 
 export function bossQuip(team: TeamId, mood: BossMood): string {

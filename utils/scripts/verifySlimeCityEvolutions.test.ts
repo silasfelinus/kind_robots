@@ -94,8 +94,8 @@ for (const id of Object.keys(CLASH_EVOLUTIONS)) {
 }
 
 // --- The pilot is a full Solo Clash side: twenty Catgirls, every one with
-// its own level-two and level-three story (ten twists + ten crafted, with
-// the crafted Second Pounce Rig left to the deck builder for an 11th fighter).
+// its own level-two and level-three story (nine twists + eleven crafted, with
+// the crafted Second Pounce Rig left to the deck builder).
 {
   const deck = clashDeck('catgirls')
   assert.equal(deck.length, 20)
@@ -104,11 +104,15 @@ for (const id of Object.keys(CLASH_EVOLUTIONS)) {
     assert.equal(cardById(id).team, 'catgirls', id)
     assert.ok(CLASH_TWISTS[id] || CLASH_EVOLUTIONS[id], id + ' evolves')
   }
-  assert.equal(deck.filter((id) => CLASH_TWISTS[id]).length, 10)
-  assert.equal(deck.filter((id) => CLASH_EVOLUTIONS[id]).length, 10)
+  assert.equal(deck.filter((id) => CLASH_TWISTS[id]).length, 9)
+  assert.equal(deck.filter((id) => CLASH_EVOLUTIONS[id]).length, 11)
   assert.ok(!deck.includes('s3-catgirls-pounce-rig'))
   const fighters = deck.filter((id) => cardById(id).kind === 'creature')
-  assert.equal(fighters.length, 11, 'enough fighters to hold five alleys')
+  assert.equal(
+    fighters.length,
+    13,
+    'fighters-first pilot fields thirteen bodies',
+  )
 }
 
 // --- Choose one at level three (approved 2026-11-08 PT).
@@ -561,3 +565,13 @@ console.log(
     Object.keys(CLASH_EVOLUTIONS).length +
     ' crafted cards through the real engine; 20-card Catgirls pilot deck, choose-one level threes, art fallback and replay OK',
 )
+
+// Silas, 2026-11-10 PT: "we need less random things, and less different
+// random things." No evolution picks a random target, and seeded gambles
+// are ANARKISS's daredevil signature alone.
+for (const [id, evolution] of Object.entries(CLASH_EVOLUTIONS)) {
+  const tree = JSON.stringify(evolution)
+  assert.ok(!tree.includes('"randomFoe"'), id + ' picks a random target')
+  if (tree.includes('"do":"chance"'))
+    assert.equal(cardById(id).team, 'riot', id + ' gambles outside ANARKISS')
+}

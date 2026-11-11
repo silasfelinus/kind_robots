@@ -163,7 +163,7 @@ for (const tactic of ['left', 'right'] as const) {
   future.campaigns.catgirls.journey!.push(['left'])
   assert.equal(validSlimeCityStory(future), false, 'no sixth chapter')
   const invalid = structuredClone(story)
-  invalid.campaigns.riot.journey = [['left']]
+  invalid.campaigns.undertow.journey = [['left']]
   assert.equal(
     validSlimeCityStory(invalid),
     false,

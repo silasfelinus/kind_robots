@@ -1,4 +1,5 @@
 import { computed, ref, watch } from 'vue'
+import { letterProgressFromEarthChoices } from '~/utils/memoryDungeon/earthLetterBinding'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from './memoryWorldStore'
 import type { SublevelEnding } from '~/utils/memoryDungeon/sublevelB'
@@ -67,6 +68,9 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
   const e03Flags = computed(() => save.value.records.e03.flags)
   const e04Flags = computed(() => save.value.records.e04.flags)
   const e04Choices = computed(() => save.value.records.e04.choices)
+  const letterProgress = computed(() =>
+    letterProgressFromEarthChoices(e03Choices.value, e04Choices.value),
+  )
   /**
    * e04 revisits e03's places, so its openings also answer to what Morrow
    * did there in e03 and to how he left Sublevel B.
@@ -338,6 +342,7 @@ export const useMemoryEarthStore = defineStore('memoryEarth', () => {
     e03Flags,
     e04Flags,
     e04Choices,
+    letterProgress,
     chosen,
     tiles,
     photographs,

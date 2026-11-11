@@ -18,12 +18,15 @@ import { campaignCardChoices } from './campaignCardRewards'
 import { validGeneRiotJourney } from './campaignGeneRiot'
 import { validBloodfairyJourney } from './campaignBloodfairies'
 import { validIronjawJourney } from './campaignIronjaw'
+import { validRiotJourney } from './campaignRiot'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import {
   normalizeLegacyAllianceDeck,
   validAllianceDeck,
+  validLibrary,
   validSoloDeck,
   type AllianceDeck,
+  type LibraryDeck,
 } from './alliance'
 
 export interface SlimeCityStory {
@@ -31,8 +34,13 @@ export interface SlimeCityStory {
   revision: number
   city: CityState
   campaigns: CampaignSave
-  /** Solo narrative and Alliance roguelike have independent saves. */
+  /** The city, its crew chapters, and the deck format share one journey. */
   tower?: TowerSave
+  /** Last journey seat and deck, restored without resetting chapter choices. */
+  journeyTeam?: TeamId
+  journeyFormat?: 'solo' | 'alliance'
+  journeyDeckId?: string | null
+  journeyScreen?: 'chapter' | 'aftermath'
   /** Saved practice decks; omitted for older saves. */
   decks?: Partial<Record<TeamId, string[]>>
   /**
@@ -43,6 +51,8 @@ export interface SlimeCityStory {
   alliances?: Partial<Record<TeamId, AllianceDeck>>
   /** SOLO CLASH 20-card decks, one per faction. Omitted for older saves. */
   soloDecks?: Partial<Record<TeamId, string[]>>
+  /** COLLECTION's named Alliance deck library. Omitted for older saves. */
+  library?: LibraryDeck[]
   /**
    * Card unlocks (Silas, 2026-11-04: "we start with all card unlocked as a
    * default mode, but then they can try a mode where it gets trickled out").
@@ -168,6 +178,29 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     return false
   if (raw.storyParity !== undefined && typeof raw.storyParity !== 'boolean')
     return false
+  if (
+    raw.journeyTeam !== undefined &&
+    !teams.includes(raw.journeyTeam as TeamId)
+  )
+    return false
+  if (
+    raw.journeyFormat !== undefined &&
+    raw.journeyFormat !== 'solo' &&
+    raw.journeyFormat !== 'alliance'
+  )
+    return false
+  if (
+    raw.journeyDeckId !== undefined &&
+    raw.journeyDeckId !== null &&
+    (!text(raw.journeyDeckId, 80) || !raw.journeyDeckId)
+  )
+    return false
+  if (
+    raw.journeyScreen !== undefined &&
+    raw.journeyScreen !== 'chapter' &&
+    raw.journeyScreen !== 'aftermath'
+  )
+    return false
   if (raw.tower !== undefined && !validTowerSave(raw.tower)) return false
   if (raw.decks !== undefined) {
     if (!record(raw.decks)) return false
@@ -186,6 +219,7 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     for (const [team, deck] of Object.entries(raw.soloDecks))
       if (!validSoloDeck(team, deck)) return false
   }
+  if (raw.library !== undefined && !validLibrary(raw.library)) return false
   if (raw.alliances !== undefined) {
     if (!record(raw.alliances)) return false
     for (const [team, deck] of Object.entries(raw.alliances))
@@ -274,9 +308,15 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
     )
       return false
     if (
+      team === 'riot' &&
+      !validRiotJourney(p as unknown as CampaignSave['riot'])
+    )
+      return false
+    if (
       team !== 'catgirls' &&
       team !== 'bloodfairies' &&
       team !== 'ironjaw' &&
+      team !== 'riot' &&
       p.journey !== undefined
     )
       return false

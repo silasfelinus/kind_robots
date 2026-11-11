@@ -90,3 +90,17 @@ for (const scene of scenes) {
     }
   }
 }
+
+// A forged ledger can arrive from an unvalidated caller, not just localStorage.
+// A valid new choice must never launder that invalid history into a trusted save.
+for (const malformed of [
+  { version: 1, decisions: { e03Letter: 'forged' } },
+  { version: 1, decisions: { e03Witness: undefined } },
+  { version: 1, decisions: { unknown: 'earth-letter-copy' } },
+  { version: 2, decisions: {} },
+]) {
+  const forged = malformed as unknown as ReturnType<typeof newLetterProgress>
+  const result = chooseLetter(forged, 'e04Archive', 'earth-archive-seal')
+  assert.equal(result, forged, 'invalid prior state cannot gain a choice')
+  assert.equal(restoreLetterProgress(result), null)
+}

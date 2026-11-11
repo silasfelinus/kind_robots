@@ -8,11 +8,15 @@
 // curation are never used; 31 new renders were left out (trademark logo,
 // baked card frames or banners, white frames, childlike fairies, ogres that
 // read as a famous film character) and fall back until re-rendered.
+// 2026-11-10 PT lizard pass (Silas: "ogre should have already been rebranded
+// lizards, but also needs art to represent"): the Ironjaw crew poster and its
+// 15 creature cards now use the curated IRONJAW-LIZARDS-ROUND-1 renders
+// (ArtImages 267360-267417), replacing the ogre paintings.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
     bloodfairies: 258340,
-    ironjaw: 258341,
+    ironjaw: 267360,
     riot: 258342,
     undertow: 258343,
     exchange: 258344,
@@ -39,9 +43,9 @@ export const SLIME_CITY_ART = {
     mosh: 258361,
     bloodwire: 258362,
     spurs: 258363,
-    scrapper: 258364,
-    bulldozer: 258365,
-    juggernaut: 258366,
+    scrapper: 267361,
+    bulldozer: 267369,
+    juggernaut: 267373,
     overclock: 258367,
     shocktrap: 258368,
     plating: 258390,
@@ -94,14 +98,14 @@ export const SLIME_CITY_ART = {
     's1-no-witnesses': 260673,
     's1-riot-choir': 260659,
     's1-roof-phantom': 260653,
-    's1-scrap-welder': 260666,
+    's1-scrap-welder': 267385,
     's1-stage-dive': 260662,
     's1-static-listener': 260678,
     's1-union-plate': 260670,
     'snitch-grate': 260650,
     'spare-pistons': 260646,
     'splice-runner': 260641,
-    welder: 259942,
+    welder: 267365,
     'amp-tripwire': 262294,
     calico: 262213,
     choker: 264926,
@@ -152,7 +156,7 @@ export const SLIME_CITY_ART = {
     'merc-mortgage-holiday': 264954,
     'merc-mothball-storm': 261580,
     'merc-parking-meter': 261590,
-    'merc-picket-troll': 261560,
+    'merc-picket-troll': 267417,
     'merc-red-tape-scissors': 261599,
     'merc-reputation-laundry': 261568,
     'merc-roof-dentist': 261547,
@@ -188,7 +192,7 @@ export const SLIME_CITY_ART = {
     's1-guild-clerk': 262307,
     's1-surgical-piercers': 264941,
     's1-volunteer-vest': 262304,
-    's1-walking-foundry': 262302,
+    's1-walking-foundry': 267381,
     's1-wiretap-order': 262306,
     's2-bloodfairies-bassquake-colossus': 261420,
     's2-bloodfairies-earworm-feedback': 261423,
@@ -211,7 +215,7 @@ export const SLIME_CITY_ART = {
     's2-ironjaw-hydraulic-lockjaw': 261429,
     's2-ironjaw-overtime-pistons': 264943,
     's2-ironjaw-shift-change-shove': 264942,
-    's2-ironjaw-union-bridgebearer': 261425,
+    's2-ironjaw-union-bridgebearer': 267389,
     's2-riot-friendly-fire-rehearsal': 261433,
     's2-riot-fuse-lit-bicycle-courier': 261431,
     's2-riot-fusebox-fireworks': 261435,
@@ -270,15 +274,16 @@ export const SLIME_CITY_ART = {
     's3-exchange-retainer-clerk': 261531,
     's3-exchange-seizure-executive': 264940,
     's3-exchange-wage-garnisher': 261529,
-    's3-ironjaw-bridgebreaker': 261484,
-    's3-ironjaw-coal-racer': 261485,
-    's3-ironjaw-dreadnought': 261482,
+    's3-ironjaw-bridgebreaker': 267405,
+    's3-ironjaw-coal-racer': 267409,
+    's3-ironjaw-dreadnought': 267397,
     's3-ironjaw-foreman-crowbar': 261496,
     's3-ironjaw-forklift-chock': 261492,
     's3-ironjaw-furnace-overdrive': 261491,
     's3-ironjaw-hammer-register': 261489,
-    's3-ironjaw-matriarch': 264936,
-    's3-ironjaw-night-welder': 264935,
+    's3-ironjaw-matriarch': 267413,
+    's3-ironjaw-night-welder': 267393,
+    's3-ironjaw-union-cook': 267401,
     's3-ironjaw-overtime-toll': 264947,
     's3-ironjaw-reallocation': 261488,
     's3-ironjaw-slag-spill': 261493,
@@ -317,7 +322,7 @@ export const SLIME_CITY_ART = {
     slap: 264927,
     sonar: 262227,
     'spark-diver': 262296,
-    'union-millwright': 262295,
+    'union-millwright': 267377,
     wreckingfist: 262221,
   },
   boards: {
@@ -896,4 +901,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 786
+export const SLIME_CITY_ART_COUNT = 787

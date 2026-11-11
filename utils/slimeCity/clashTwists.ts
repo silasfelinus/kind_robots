@@ -97,9 +97,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Stuns both adjacent rivals as the laser dances across three alleys.',
   ],
   pogo: [
-    'An unpredictable crowd-surfer.',
-    'On a strike, a seeded 50/50 roll makes it whiff or hit for double.',
-    'Hits double without whiffing while an ally stands next door.',
+    'A crowd-surfer who lands harder with friends.',
+    'Hits for double while an ally stands next door.',
+    'Always hits for double.',
   ],
   razor: [
     'A duelist who heals from a hit.',
@@ -214,8 +214,8 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   pinprick: [
     'Reliable single-target damage.',
-    'Seeded 50% critical doubles the pin stab.',
-    'Seeded 75% critical doubles damage and hits nearby rivals for 2.',
+    'Doubles the stab against a rival who is already hurt.',
+    'Always doubles; against a hurt rival it also hits nearby rivals for 2.',
   ],
   feedback: [
     'Focused sonic blast in one alley.',
@@ -350,8 +350,8 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   'merc-grease-oracle': [
     'Snare rivals with a mysteriously accurate prophecy.',
-    'Nearby allies have 50% chance of gaining +2 strike power.',
-    'Nearby allies roll twice, taking the favorable +2 strike outcome.',
+    'Nearby allies strike for +1.',
+    'Nearby allies strike for +2.',
   ],
 }
 

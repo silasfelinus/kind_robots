@@ -183,6 +183,14 @@
           </div>
         </div>
         <div
+          v-if="lab.campaignAllianceAftermath"
+          class="campaign-recap"
+          data-testid="slime-alliance-aftermath"
+        >
+          <strong>WHAT YOUR ALLY CHANGED</strong>
+          <p>{{ lab.campaignAllianceAftermath }}</p>
+        </div>
+        <div
           v-if="lab.campaignState.lastScene"
           class="campaign-recap"
           data-testid="slime-campaign-recap"

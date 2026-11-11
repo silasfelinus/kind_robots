@@ -145,6 +145,25 @@
         <Icon name="kind-icon:image" class="kr-icon-5" />
       </NuxtLink>
 
+      <!-- Slime City is a permanent game destination, not merely a launcher tab.
+           Game-turn notifications require a participant-scoped inbox endpoint;
+           do not display a fabricated unread count before that exists. -->
+      <NuxtLink
+        to="/play/slime-city"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="
+          slimeCityActive
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-current="slimeCityActive ? 'page' : undefined"
+        aria-label="Slime City games"
+        title="Slime City games"
+        data-testid="header-slime-city"
+      >
+        <Icon name="kind-icon:cat" class="kr-icon-5" />
+      </NuxtLink>
+
       <!--
         MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
         game, it was one of my first projects and still one that I occasionally
@@ -296,6 +315,8 @@ const workspaceToggleLabel = computed(() => {
 // Lit when you are already in the dungeon, matching how the workspace toggle
 // shows its own open state. startsWith rather than an equality check because
 // the game's deeper routes (a level, a run) should keep the button lit too.
+const slimeCityActive = computed(() => route.path.startsWith('/play/slime-city'))
+
 const memoryActive = computed(() => route.path.startsWith('/play/memory'))
 
 // Exact match, unlike memoryActive: /artjob is a single page with no children,

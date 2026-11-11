@@ -149,7 +149,7 @@
            Game-turn notifications require a participant-scoped inbox endpoint;
            do not display a fabricated unread count before that exists. -->
       <NuxtLink
-        to="/play/slime-city"
+        :to="userStore.isAdmin ? '/admin/slime-city-inbox' : '/play/slime-city'"
         class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
         :class="
           slimeCityActive

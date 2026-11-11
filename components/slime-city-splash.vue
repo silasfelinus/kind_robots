@@ -132,7 +132,7 @@
           type="button"
           class="scs-tile"
           :disabled="leaving"
-          data-testid="slime-splash-story"
+          data-testid="slime-splash-journey"
           @click="enter(modes[1]!.id)"
         >
           <SlimeCityArtwork
@@ -149,7 +149,7 @@
           type="button"
           class="scs-tile"
           :disabled="leaving"
-          data-testid="slime-splash-city"
+          data-testid="slime-splash-tower"
           @click="enter(modes[2]!.id)"
         >
           <SlimeCityArtwork
@@ -166,7 +166,7 @@
           type="button"
           class="scs-tile"
           :disabled="leaving"
-          data-testid="slime-splash-tower"
+          data-testid="slime-splash-decks"
           @click="enter(modes[3]!.id)"
         >
           <SlimeCityArtwork
@@ -178,23 +178,6 @@
           />
           <icon :name="modes[3]!.icon" class="scs-tile-icon" />
           <strong>{{ modes[3]!.title }}</strong>
-        </button>
-        <button
-          type="button"
-          class="scs-tile"
-          :disabled="leaving"
-          data-testid="slime-splash-decks"
-          @click="enter(modes[4]!.id)"
-        >
-          <SlimeCityArtwork
-            class="scs-tile-art"
-            :image-id="modes[4]!.art"
-            :fallback-image-id="slimeArtId('crews', picked.id)"
-            :alt="modes[4]!.title"
-            compact
-          />
-          <icon :name="modes[4]!.icon" class="scs-tile-icon" />
-          <strong>{{ modes[4]!.title }}</strong>
         </button>
       </nav>
     </div>
@@ -208,7 +191,7 @@ import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { CAMPAIGN_DISTRICTS } from '~/utils/slimeCity/city'
 import type { Team } from '~/utils/slimeCity/prototypes'
 
-type Destination = 'clash' | 'city' | 'campaign' | 'tower' | 'collection'
+type Destination = 'clash' | 'campaign' | 'tower' | 'collection'
 
 const lab = useSlimeCityStore()
 
@@ -255,17 +238,11 @@ const modes = computed<
   },
   {
     id: 'campaign',
-    title: 'Solo',
+    title: 'Journey',
     icon: 'kind-icon:story',
     art:
       slimeArtId('story', picked.value.id + '/opening') ??
       slimeArtId('story', picked.value.id + '/1/scene'),
-  },
-  {
-    id: 'city',
-    title: 'Campaign',
-    icon: 'kind-icon:map',
-    art: slimeArtId('districts', homeDistrict.value),
   },
   {
     id: 'tower',
@@ -297,8 +274,7 @@ function go(open: () => void): void {
 }
 function enter(destination: Destination): void {
   go(() => {
-    if (destination === 'city') lab.showCityMap()
-    else if (destination === 'campaign') lab.showCampaign()
+    if (destination === 'campaign') lab.showCampaign()
     else if (destination === 'tower') lab.showTower()
     else if (destination === 'collection') lab.showCards()
     else lab.playClashFormat()
@@ -643,7 +619,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 .scs-modes {
   grid-area: modes;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(0.4rem, 1.4cqw, 0.9rem);
 }
 .scs-tile {

@@ -158,6 +158,12 @@ assert.match(hand, /lab\.toggleAllianceCard\(id\)/)
 assert.match(hand, /lab\.toggleSoloCard\(id\)/)
 assert.match(hand, /v-for="n in Math\.max\(0, size - cards\.length\)"/)
 assert.match(ui, /'slime-quick-' \+ card\.id/)
+// "If I select a card I should see a large display with all three of its
+// evolutions."
+assert.match(hand, /data-testid="slime-hand-evolutions"/)
+assert.match(hand, /length: CLASH_MAX_LEVEL/)
+assert.match(hand, /clashEvolutionChoice\(id, CLASH_MAX_LEVEL\)/)
+assert.match(hand, /:level="stage\.level"\s+:pick="stage\.pick"/)
 // "Still not seeing how to create/edit solo decks from this screen."
 assert.match(store, /const customSoloTeams = computed/)
 assert.match(ui, /'slime-solo-deck-' \+ team/)

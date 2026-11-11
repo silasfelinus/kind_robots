@@ -221,14 +221,23 @@ const service = readFileSync('server/utils/slimeCityPvp.ts', 'utf8')
 const handlerDir = 'server/api/slime-city/pvp/'
 for (const path of [
   'index.post.ts',
+  'index.get.ts',
   '[id].get.ts',
   '[id]/join.post.ts',
   '[id]/command.post.ts',
   '[id]/forfeit.post.ts',
 ]) {
   const source = readFileSync(handlerDir + path, 'utf8')
-  assert.match(source, /requireSlimeCityPreviewUser/)
+  // Silas, 2026-11-11 PT: "Remove admin limitation" on player games.
+  assert.match(source, /requireSlimeCityPlayer\(/)
+  assert.doesNotMatch(source, /requireSlimeCityPreviewUser/)
 }
+assert.ok(
+  readFileSync('pages/play/slime-city-pvp.vue', 'utf8').includes(
+    "from '~/pages/admin/slime-city-pvp.vue'",
+  ),
+  'the two-player board has a public /play route',
+)
 assert.match(service, /FOR UPDATE/, 'concurrent turns must serialize')
 assert.match(
   service,

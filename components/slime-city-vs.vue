@@ -191,7 +191,7 @@ const inviteId = computed(() => {
   return match?.[0] ?? ''
 })
 function open(id: string): void {
-  void navigateTo({ path: '/admin/slime-city-pvp', query: { duel: id } })
+  void navigateTo({ path: '/play/slime-city-pvp', query: { duel: id } })
 }
 function joinInvite(): void {
   if (inviteId.value) open(inviteId.value)

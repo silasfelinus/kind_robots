@@ -97,9 +97,9 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
 }
 
 /**
- * Admin-only invite preview. No matchmaking, wallet, payout or production
- * economy changes. Only the inviter and the first authenticated invitee
- * can see or mutate the transcript.
+ * Invite duels for signed-in players. No matchmaking, wallet, payout or
+ * production economy changes. Only the inviter and the first authenticated
+ * invitee can see or mutate the transcript.
  */
 export async function createSlimeCityDuel(userId: number, team: unknown) {
   if (!isPvpTeam(team)) return fail(400, 'Choose a Slime City crew.')

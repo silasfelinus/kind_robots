@@ -116,7 +116,7 @@
               </div>
               <div class="flex flex-wrap gap-2">
                 <label
-                  v-for="lane in BIBLE_LANES"
+                  v-for="lane in visibleLanes"
                   :key="lane.key"
                   class="mb-lane"
                 >
@@ -299,6 +299,21 @@ const requestKinds = computed(() =>
       (!kind.monsterStarsOnly || model.value.monsterStar),
   ),
 )
+const visibleLanes = computed(() =>
+  artKind.value === 'softcore'
+    ? BIBLE_LANES.filter((lane) => lane.nudity)
+    : BIBLE_LANES,
+)
+watch(artKind, (kind) => {
+  if (kind === 'softcore')
+    lanes.value = BIBLE_LANES.filter((lane) => lane.nudity).map(
+      (lane) => lane.key,
+    )
+  else
+    lanes.value = lanes.value.filter((key) =>
+      BIBLE_LANES.some((lane) => lane.key === key),
+    )
+})
 const galleryGroups = computed(() => {
   const items = entry.value?.gallery ?? []
   const kinds = [...new Set(items.map((item) => item.kind))]

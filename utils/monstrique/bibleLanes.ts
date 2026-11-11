@@ -1,9 +1,11 @@
 /**
  * Render lanes the Monstrique series bible can request art on: the house
- * Illustrious checkpoints (Arthemy first) and Krea 2. Realism Illustrious By
- * and Miaomiao 3D are excluded: in the first pin-up batch (2026-11-11) they
- * ignored the no-nudity negatives and rendered explicit or near-explicit
- * images, which Monstrique never allows. Prompt recipes for
+ * Illustrious checkpoints (Arthemy first) and Krea 2, plus one nudity lane.
+ * Realism Illustrious By renders nudity even when told not to, so it is the
+ * dedicated softcore lane (Silas, 2026-11-11: "a nudity checkpoint should not
+ * be fully excluded"): mature edition only, adults only, nudity allowed,
+ * explicit sex acts excluded. Miaomiao 3D stays out: it also broke the
+ * lookbook's age and body rules. Prompt recipes for
  * these lanes live server-side in server/utils/monstriqueBible.ts.
  */
 export interface BibleLane {
@@ -12,6 +14,8 @@ export interface BibleLane {
   engine: 'comfy' | 'krea2'
   checkpoint?: string
   prompt: 'tags' | 'prose'
+  /** The softcore nudity lane. Only lanes with this flag take 'softcore'. */
+  nudity?: boolean
 }
 
 export const BIBLE_LANES: BibleLane[] = [
@@ -51,9 +55,18 @@ export const BIBLE_LANES: BibleLane[] = [
     prompt: 'tags',
   },
   { key: 'krea2', label: 'Krea 2', engine: 'krea2', prompt: 'prose' },
+  {
+    key: 'realism-by',
+    label: 'Realism Illustrious By · softcore',
+    engine: 'comfy',
+    checkpoint: 'Illustrious/realismIllustriousBy_v55FP16.safetensors',
+    prompt: 'tags',
+    nudity: true,
+  },
 ]
 
-export type BibleArtKind = 'swimsuit' | 'shower' | 'portrait' | 'lora-dataset'
+export type BibleArtKind =
+  'swimsuit' | 'shower' | 'softcore' | 'portrait' | 'lora-dataset'
 
 export const BIBLE_ART_KINDS: Array<{
   id: BibleArtKind
@@ -63,6 +76,7 @@ export const BIBLE_ART_KINDS: Array<{
   { id: 'portrait', label: 'Character portrait', monsterStarsOnly: false },
   { id: 'swimsuit', label: 'Cheesecake swimsuit', monsterStarsOnly: true },
   { id: 'shower', label: 'Steamy shower pin-up', monsterStarsOnly: true },
+  { id: 'softcore', label: 'Softcore unlock (nudity)', monsterStarsOnly: true },
   {
     id: 'lora-dataset',
     label: 'LoRA dataset (10 renders)',

@@ -58,8 +58,40 @@ const PINUP_NEGATIVE = [
   ...UNIVERSAL_NEGATIVE,
 ].join(', ')
 
+/**
+ * Softcore unlocks (mature edition, adults only): nudity is allowed, explicit
+ * sex acts and genital focus are not, and the age negatives always apply.
+ */
+const SOFTCORE_NEGATIVE = [
+  '(sex:1.4)',
+  '(penetration:1.5)',
+  '(genitals:1.4)',
+  '(pussy:1.4)',
+  '(penis:1.5)',
+  '(spread legs:1.3)',
+  'cum',
+  'masturbation',
+  'explicit sex',
+  'loli',
+  'petite',
+  'flat chest',
+  'lowres',
+  'worst quality',
+  'bad anatomy',
+  'bad hands',
+  'extra limbs',
+  'text',
+  'watermark',
+  'signature',
+  '2girls',
+  '1boy',
+  ...UNIVERSAL_NEGATIVE.filter(
+    (term) => term !== 'nude' && term !== 'explicit',
+  ),
+].join(', ')
+
 export const BIBLE_PINUP_SHOTS: Record<
-  'swimsuit' | 'shower',
+  'swimsuit' | 'shower' | 'softcore',
   { tags: string; prose: string }
 > = {
   swimsuit: {
@@ -71,6 +103,11 @@ export const BIBLE_PINUP_SHOTS: Record<
     tags: 'steamy shower pinup, wrapped in bath towel, towel covering body, thick steam, water droplets, wet hair, shower curtain pulled aside, motel bathroom, looking over shoulder, sultry smile, upper body',
     prose:
       'She peeks out from behind a pulled-aside shower curtain in a steamy motel bathroom, wrapped snugly in a bath towel, water droplets on her shoulders, thick steam swirling, giving a sultry look over her shoulder.',
+  },
+  softcore: {
+    tags: 'softcore boudoir pinup, topless, artistic nude, tasteful, seductive pose, lounging on a motel bed with red satin sheets, neon light through venetian blinds, looking at viewer, sultry smile, upper body',
+    prose:
+      'She lounges topless on red satin sheets in a motel room, neon light striping her through venetian blinds, an artistic softcore boudoir pin-up with a sultry smile.',
   },
 }
 
@@ -100,7 +137,11 @@ export function bibleEnqueueBodies(
       lane: 'model-sheet:' + entry.shot,
       body: { ...entry.request, priority: 60 },
     }))
-  const lanes = BIBLE_LANES.filter((lane) => laneKeys.includes(lane.key))
+  const lanes = BIBLE_LANES.filter(
+    (lane) =>
+      laneKeys.includes(lane.key) &&
+      (kind === 'softcore' ? lane.nudity === true : true),
+  )
   if (!lanes.length)
     throw createError({ statusCode: 400, statusMessage: 'Pick a lane.' })
   if (kind === 'portrait')
@@ -138,8 +179,8 @@ export function bibleEnqueueBodies(
       promptString:
         lane.prompt === 'tags'
           ? `${STYLE_TAGS}, 1girl, solo, mature female, ${traits}, ${model.wardrobe}, ${shot.tags}, every character an adult`
-          : `${STYLE_PROSE} ${name}: ${traits}. ${shot.prose} Suggestive and playful, every character an adult.`,
-      negativePrompt: PINUP_NEGATIVE,
+          : `${STYLE_PROSE} ${name}: ${traits}. ${shot.prose} ${kind === 'softcore' ? 'Softcore and artistic' : 'Suggestive and playful'}, every character an adult.`,
+      negativePrompt: kind === 'softcore' ? SOFTCORE_NEGATIVE : PINUP_NEGATIVE,
       width: 832,
       height: 1216,
       seed: stableSeed(`${character}:${kind}:${lane.key}:${Date.now()}`),

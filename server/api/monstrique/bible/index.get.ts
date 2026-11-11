@@ -63,18 +63,20 @@ export default defineEventHandler(async (event) => {
             loraResourceName: entry?.loraResourceName ?? null,
             heroArtImageId: entry?.heroArtImageId ?? null,
             heroImagePath: null as string | null,
-            gallery: (requested.get(id) ?? []).map((row) => {
-              const job = jobById.get(row.jobId)
-              const artImageId = job?.artImageId ?? null
-              return {
-                ...row,
-                status: job?.status ?? 'UNKNOWN',
-                artImageId,
-                imagePath: artImageId
-                  ? (pathById.get(artImageId) ?? null)
-                  : null,
-              }
-            }),
+            gallery: (requested.get(id) ?? [])
+              .filter((row) => jobById.get(row.jobId)?.status !== 'CANCELLED')
+              .map((row) => {
+                const job = jobById.get(row.jobId)
+                const artImageId = job?.artImageId ?? null
+                return {
+                  ...row,
+                  status: job?.status ?? 'UNKNOWN',
+                  artImageId,
+                  imagePath: artImageId
+                    ? (pathById.get(artImageId) ?? null)
+                    : null,
+                }
+              }),
           }
         }).map((character) => ({
           ...character,

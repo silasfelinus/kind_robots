@@ -301,6 +301,11 @@ assert.match(
   /auth\?\.kind === 'jwt' && viewerShowsMature\(auth\?\.user\)/,
 )
 assert.match(splashRoute, /isMature: true/)
+assert.match(
+  repoFile('server/utils/monstriqueSplash.ts'),
+  /wide: 268798,\s+tall: 268801,/,
+  'Silas approved the mature splash (2026-11-11)',
+)
 assert.doesNotMatch(splashRoute, /getQuery\(|readBody\(/)
 const front = repoFile('components/monstrexx/monstrexx-front.vue')
 assert.match(front, /data-testid="monstrique-splash"/)

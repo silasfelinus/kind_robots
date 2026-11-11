@@ -134,7 +134,7 @@ assert.ok(BIBLE_LANES.some((lane) => lane.engine === 'krea2'))
 assert.ok(LORA_STATUSES.includes('dataset-requested'))
 
 // First batches: pin-ups on 7 lanes (Miaomiao 3D out) and 10 softcore unlocks.
-assert.equal(MONSTRIQUE_BIBLE_SEED.length, 150)
+assert.equal(MONSTRIQUE_BIBLE_SEED.length, 170)
 assert.ok(
   !BIBLE_LANES.some((lane) => lane.key === 'miaomiao3d'),
   'Miaomiao 3D broke the age and body rules and stays out',
@@ -144,17 +144,15 @@ assert.ok(!MONSTRIQUE_BIBLE_SEED.some((row) => row.lane === 'miaomiao3d'))
 // Softcore unlocks (Silas 2026-11-11): one nudity lane, mature/private/adult,
 // nudity allowed but explicit sex acts excluded; other lanes refuse it.
 const nudityLanes = BIBLE_LANES.filter((lane) => lane.nudity)
-assert.deepEqual(
-  nudityLanes.map((lane) => lane.key),
-  ['realism-by'],
-)
-assert.throws(() => bibleEnqueueBodies('nyx', 'softcore', ['arthemy', 'krea2']))
+assert.deepEqual(nudityLanes.map((lane) => lane.key).sort(), [
+  'arthemy',
+  'furrytoon',
+  'realism-by',
+])
+assert.throws(() => bibleEnqueueBodies('nyx', 'softcore', ['krea2', 'ntrmix']))
 assert.throws(() => bibleEnqueueBodies('iris', 'softcore', ['realism-by']))
 for (const id of stars) {
-  const [softcore] = bibleEnqueueBodies(id, 'softcore', [
-    'realism-by',
-    'arthemy',
-  ])
+  const [softcore] = bibleEnqueueBodies(id, 'softcore', ['realism-by', 'krea2'])
   assert.ok(softcore && softcore.lane === 'realism-by')
   assert.equal(softcore.body.isMature, true)
   assert.equal(softcore.body.isPublic, false)
@@ -169,11 +167,11 @@ for (const id of stars) {
 }
 assert.equal(
   MONSTRIQUE_BIBLE_SEED.filter((row) => row.kind === 'softcore').length,
-  10,
+  30,
 )
 assert.ok(
-  MONSTRIQUE_BIBLE_SEED.filter((row) => row.kind === 'softcore').every(
-    (row) => row.lane === 'realism-by',
+  MONSTRIQUE_BIBLE_SEED.filter((row) => row.kind === 'softcore').every((row) =>
+    nudityLanes.some((lane) => lane.key === row.lane),
   ),
 )
 assert.match(

@@ -662,6 +662,64 @@ export function allianceStoryBattleTerms(
   }
 }
 
+/** A selected narrative choice is a plan until the Clash has been settled.
+ * Do not narrate a successful rescue on a pre-battle screen. */
+export function allianceStoryPlan(
+  save: CampaignSave,
+  team: TeamId,
+  chapter: number,
+): string | null {
+  const record = save[team].allianceJourney?.[chapter]
+  if (!record) return null
+  const beat = sceneBeat(team, record.ally, chapter)
+  if (!beat) return null
+  const label = record.pick === 'protect' ? beat.protect[0] : beat.gamble[0]
+  return 'The plan: ' + label + '. The outcome depends on the Clash.'
+}
+
+const ALLIANCE_SETBACKS: Record<
+  TeamId,
+  Record<AllianceStoryPick, string>
+> = {
+  catgirls: {
+    protect: 'The escape corridor is blocked again. Your catgirl allies keep the fugitives hidden while the crew regroups.',
+    gamble: 'The hunters recognize the decoy and return with reinforcements. The catgirls know the trap will need a new route.',
+  },
+  bloodfairies: {
+    protect: 'The band gets everyone out of the crush, but the rival holds the stage. The unfinished song can wait.',
+    gamble: 'The risky encore fizzles against the opposition. The roadies gather what remains of the rig for another show.',
+  },
+  ironjaw: {
+    protect: 'The lizards carry their exhausted people back to warmth. The gate is still locked, but nobody is abandoned.',
+    gamble: 'The foundry alarm overwhelms the raid. Ironjaw hauls the injured into a heated workshop and starts another plan.',
+  },
+  riot: {
+    protect: 'The crowd reaches the exits, but the guards hold the stage. Anarkiss calls for another rehearsal.',
+    gamble: 'The explosive flourish goes wrong and the rival keeps the venue. The troupe retreats with the prop crew intact.',
+  },
+  undertow: {
+    protect: 'The warning travels, but the rival finds the relay. Undertow switches frequencies and protects its witnesses.',
+    gamble: 'The forged signal is traced back to a decoy transmitter. The Oracle goes silent long enough to build a better lie.',
+  },
+  exchange: {
+    protect: 'The creditors delay the release and keep the vault. The Exchange saves its witnesses rather than signing away another life.',
+    gamble: 'The contract snaps back on its author. The auction stays open, and the collectors need a new bargain.',
+  },
+}
+
+export function allianceStoryAftermath(
+  save: CampaignSave,
+  team: TeamId,
+  chapter: number,
+  outcome: 'player' | 'enemy' | 'draw',
+): string | null {
+  const record = save[team].allianceJourney?.[chapter]
+  if (!record) return null
+  if (outcome === 'player') return allianceStoryConsequence(save, team, chapter)
+  if (outcome === 'enemy') return ALLIANCE_SETBACKS[record.ally][record.pick]
+  return 'Neither crew could break the stalemate. The choice remains, but the chapter is not won.'
+}
+
 export function allianceStoryConsequence(
   save: CampaignSave,
   team: TeamId,

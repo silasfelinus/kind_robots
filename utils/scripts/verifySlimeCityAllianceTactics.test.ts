@@ -55,8 +55,14 @@ for (const lead of TEAMS) {
       assert.ok(left && right)
       assert.equal(scene.choices[0].terms, allianceTacticLabel(left))
       assert.equal(scene.choices[1].terms, allianceTacticLabel(right))
-      assert.ok(left.player > right.player, 'protection always saves more boss life')
-      assert.ok(right.enemy < left.enemy, 'gambling always hits the opposing boss harder')
+      assert.ok(
+        left.player > right.player,
+        'protection always saves more boss life',
+      )
+      assert.ok(
+        right.enemy < left.enemy,
+        'gambling always hits the opposing boss harder',
+      )
       assert.ok(left.player >= 0 && left.player <= 10)
       assert.ok(left.enemy >= -2 && left.enemy <= 8)
       assert.ok(right.player < 0 && right.player >= -9)
@@ -81,7 +87,12 @@ for (const lead of TEAMS) {
       save = chooseAllianceStory(save, lead.id, ally.id, 'protect')
       const chapterData = FACTION_CAMPAIGNS[lead.id].chapters[chapter]!
       save = resolveCampaignBattle(
-        save, lead.id, chapter, chapterData.foe, 'conviction', 'player',
+        save,
+        lead.id,
+        chapter,
+        chapterData.foe,
+        'conviction',
+        'player',
       )
     }
     assert.equal(
@@ -100,7 +111,12 @@ for (const ally of TEAMS) {
   const enemy = ally.id === 'ironjaw' ? 'undertow' : 'ironjaw'
   for (const pick of ['protect', 'gamble'] as const) {
     for (const seed of [11, 29, 53]) {
-      const save = chooseAllianceStory(createCampaignSave(), lead, ally.id, pick)
+      const save = chooseAllianceStory(
+        createCampaignSave(),
+        lead,
+        ally.id,
+        pick,
+      )
       const terms = allianceStoryBattleTerms(save, lead, ally.id, {})
       const bosses = clashBossesFromTerms(terms)
       const setup = {
@@ -115,7 +131,10 @@ for (const ally of TEAMS) {
       assert.deepEqual(game.boss, bosses)
       for (let step = 0; !game.victor && step < 2500; step++)
         game = applyClashCommand(game, chooseClashCpu(game, game.active))
-      assert.ok(game.victor, 'every seeded Alliance choice finishes a real Clash')
+      assert.ok(
+        game.victor,
+        'every seeded Alliance choice finishes a real Clash',
+      )
       results.push(ally.id + ':' + pick + ':' + game.victor)
       bouts++
     }
@@ -125,9 +144,12 @@ assert.equal(bouts, 36)
 console.log(
   'Alliance tactics: 300 partner/chapter/choice terms and 36 real Alliance ' +
     'CPU-versus-CPU Clash completions PASS; outcomes: ' +
-    JSON.stringify(results.reduce<Record<string, number>>((counts, result) => {
-      const key = result.split(':').slice(0, 2).join(':') + ':' + result.split(':')[2]
-      counts[key] = (counts[key] ?? 0) + 1
-      return counts
-    }, {})),
+    JSON.stringify(
+      results.reduce<Record<string, number>>((counts, result) => {
+        const key =
+          result.split(':').slice(0, 2).join(':') + ':' + result.split(':')[2]
+        counts[key] = (counts[key] ?? 0) + 1
+        return counts
+      }, {}),
+    ),
 )

@@ -4,7 +4,7 @@
 
 ## Root cause of the alarming smoke result
 
-`verifySlimeCityAllianceTactics.test.ts` deals only 36 fights, with three seeds per story-choice pairing. Its lead is **Riot for five allies and Catgirls for the Riot ally**; its opponent is **Ironjaw for five allies and Undertow for the Ironjaw ally**. That deliberately exercises the new story-term mapping, but does **not** survey the six general factions or both seats. Its 9/36 wins cannot establish an overall 25% player win rate, nor that Catgirls and Bloodfairies are broken.
+`verifySlimeCityAllianceTactics.test.ts` deals only 36 fights, with three seeds per story-choice pairing. Its lead is **Riot for five allies and Catgirls for the Riot ally**; its opponent is **Ironjaw for five allies and Undertow for the Ironjaw ally**. That deliberately exercises the new story-term mapping, but does **not** survey the six general factions or both seats. Its 9/36 wins cannot establish an overall 25% player win rate, nor that Catgirls and Bloodfairies are broken. **Crucially, the output keys such as `catgirls:protect:enemy` describe the allied faction, not the player's general.** In those six Catgirl-ally matches the general was Riot. Earlier summaries claiming the Catgirls general went 0/6 were a misread of the test label.
 
 The same CI execution already ran two much broader benchmarks:
 

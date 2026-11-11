@@ -18,6 +18,21 @@ for (const [slug, p] of Object.entries(GAME_LINK_PREVIEWS)) {
   assert.ok(existsSync(join(pub, p.image)), `${slug}: image missing ${p.image}`)
 }
 
+// These front doors have their own designed cards, never the site icon.
+for (const slug of [
+  'sliding-tile-gallery',
+  'brainstorm',
+  'mandarin',
+  'music-mentor',
+  'coloring-page',
+]) {
+  assert.equal(
+    GAME_LINK_PREVIEWS[slug]?.image,
+    `/${slug}/link-preview.webp`,
+    `${slug}: designed preview card`,
+  )
+}
+
 const meta = gameLinkPreviewMeta('ecotone', 'https://kindrobots.org/')
 assert.equal(meta?.ogUrl, 'https://kindrobots.org/play/ecotone')
 assert.equal(

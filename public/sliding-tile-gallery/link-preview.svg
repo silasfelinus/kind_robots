@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2145"/><stop offset="1" stop-color="#140f24"/></linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.28"/><stop offset="1" stop-color="#000" stop-opacity="0.12"/></linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g transform="translate(700 110)"><rect x="4" y="4" width="138" height="138" rx="10" fill="#f6a25a"/><rect x="4" y="4" width="138" height="138" rx="10" fill="url(#sheen)"/></g><g transform="translate(850 110)"><rect x="4" y="4" width="138" height="138" rx="10" fill="#f28a6b"/><rect x="4" y="4" width="138" height="138" rx="10" fill="url(#sheen)"/></g><g transform="translate(1000 110)"><rect x="4" y="4" width="138" height="138" rx="10" fill="#e56f7e"/><rect x="4" y="4" width="138" height="138" rx="10" fill="url(#sheen)"/></g><g transform="translate(700 260)"><rect x="4" y="4" width="138" height="138" rx="10" fill="#f9c46b"/><rect x="4" y="4" width="138" height="138" rx="10" fill="url(#sheen)"/></g><g transform="translate(850 260)"><rect x="4" y="4" width="138" height="138" rx="10" fill="#7fc7c0"/><rect x="4" y="4" width="138" height="138" rx="10" fill="url(#sheen)"/></g><g transform="translate(1000 260)"><rect x="4" y="4" width="138" height="138" rx="10" fill="#5aa7c9"/><rect x="4" y="4" width="138" height="138" rx="10" fill="url(#sheen)"/></g><g transform="translate(700 410)"><rect x="4" y="4" width="138" height="138" rx="10" fill="#8fbf6a"/><rect x="4" y="4" width="138" height="138" rx="10" fill="url(#sheen)"/></g><g transform="translate(850 410)"><rect x="4" y="4" width="138" height="138" rx="10" fill="#4f8fb0"/><rect x="4" y="4" width="138" height="138" rx="10" fill="url(#sheen)"/></g><rect x="1004" y="414" width="138" height="138" rx="10" fill="#1d1830" stroke="#ffffff" stroke-opacity="0.25" stroke-dasharray="8 6" stroke-width="3"/>
+  <circle cx="850" cy="230" r="70" fill="#fff3c4" opacity="0.8"/>
+  <path d="M704 400 q90 -70 180 -10 q90 60 192 -20 v182 h-372z" fill="#2f5d4a" opacity="0.55"/>
+  <path d="M1000 560 l70 -56 m-70 56 l26 -4 m-26 4 l4 -26" stroke="#ffd36b" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <text x="70" y="180" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="78" fill="#ffd36b" letter-spacing="3">SLIDING TILE</text>
+  <text x="70" y="270" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="78" fill="#ffd36b" letter-spacing="3">GALLERY</text>
+  <text x="74" y="364" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="32" fill="#ffffff">Slide eight panes into place.</text>
+  <text x="74" y="408" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">Reveal a painted postcard every day.</text>
+  <text x="74" y="452" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">Free in your browser, no account needed.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#ffd36b" letter-spacing="2">kindrobots.org</text>
+</svg>

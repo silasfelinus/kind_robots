@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff8ec"/><stop offset="1" stop-color="#f3e6d2"/></linearGradient>
+  <clipPath id="left"><rect x="640" y="90" width="250" height="440"/></clipPath>
+  <clipPath id="right"><rect x="890" y="90" width="250" height="440"/></clipPath></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="640" y="90" width="500" height="440" rx="18" fill="#ffffff" stroke="#2b2233" stroke-width="4"/>
+  <g clip-path="url(#left)">
+    <rect x="640" y="90" width="500" height="440" fill="#bfe6ff"/>
+    <circle cx="890" cy="200" r="64" fill="#ffd36b"/>
+    <path d="M640 430 q130 -100 250 -40 q130 60 250 -20 v160 h-500z" fill="#8fd18a"/>
+    <path d="M890 300 v110" stroke="#4f9a4a" stroke-width="8"/>
+    <path d="M850 300 q40 -90 80 0 q-40 60 -80 0z" fill="#ff8fb1"/>
+    <path d="M700 470 q30 -40 60 0 M1020 460 q30 -40 60 0" stroke="#4f9a4a" stroke-width="6" fill="none"/>
+  </g>
+  <g clip-path="url(#right)" stroke="#2b2233" stroke-width="4" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="890" cy="200" r="64"/>
+    <path d="M640 430 q130 -100 250 -40 q130 60 250 -20"/>
+    <path d="M890 300 v110"/>
+    <path d="M850 300 q40 -90 80 0 q-40 60 -80 0z"/>
+    <path d="M700 470 q30 -40 60 0 M1020 460 q30 -40 60 0"/>
+  </g>
+  <line x1="890" y1="90" x2="890" y2="530" stroke="#2b2233" stroke-width="3" stroke-dasharray="10 8"/>
+  <g transform="translate(1080 360) rotate(-35)"><rect x="-12" y="-110" width="24" height="120" rx="4" fill="#5aa7c9"/><path d="M-12 10 l12 30 l12 -30z" fill="#f2c79a"/><path d="M-4 30 l4 10 l4 -10z" fill="#5aa7c9"/></g>
+  <text x="70" y="180" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="72" fill="#e2566f" letter-spacing="3">COLORING</text>
+  <text x="70" y="262" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="72" fill="#e2566f" letter-spacing="3">PAGE MAKER</text>
+  <text x="74" y="352" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="32" fill="#2b2233">Any photo becomes line art.</text>
+  <text x="74" y="396" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#4a3d55">Print it, color it, share it.</text>
+  <text x="74" y="440" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#4a3d55">Free to try in your browser.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#5aa7c9" letter-spacing="2">kindrobots.org</text>
+</svg>

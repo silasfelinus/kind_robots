@@ -18,7 +18,13 @@ import {
 // localStorage record per game; unreadable records are held, never overwritten.
 
 export type KitPane =
-  'cast' | 'factions' | 'secrets' | 'scrapbook' | 'endings' | 'settings'
+  | 'cast'
+  | 'factions'
+  | 'secrets'
+  | 'scrapbook'
+  | 'endings'
+  | 'achievements'
+  | 'settings'
 
 export type KitUnlockKind = 'moments' | 'reveals' | 'endings'
 

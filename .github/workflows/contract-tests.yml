@@ -1383,6 +1383,9 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      - name: Save the Plumber permanent collection and ending ledger
+        run: npx tsx utils/scripts/verifySavePlumberCollection.test.ts
+
       - name: Zuzu Pinball no stuck balls
         run: npm run test:zuzu-pinball-no-stuck
 

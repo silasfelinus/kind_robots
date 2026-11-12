@@ -99,7 +99,7 @@
                   class="plumber-option"
                   @click="go('worlds')"
                 >
-                  WORLD SELECT <span>›</span>
+                  WORLD SCRAPBOOK <span>›</span>
                 </button>
                 <button
                   type="button"
@@ -178,13 +178,36 @@
             class="plumber-view plumber-world-view"
             aria-labelledby="world-heading"
           >
-            <div class="plumber-world-panel">
-              <p class="plumber-eyebrow">WORLD {{ currentWorld.id }} / 08</p>
+            <nav class="plumber-album-nav" aria-label="Scrapbook sections">
+              <button
+                v-for="section in scrapbookSections"
+                :key="section.id"
+                type="button"
+                class="plumber-control"
+                :class="{
+                  'plumber-control--accent': scrapbookView === section.id,
+                }"
+                :aria-pressed="scrapbookView === section.id"
+                @click="scrapbookView = section.id"
+              >
+                {{ section.label }}
+              </button>
+            </nav>
+            <div v-if="scrapbookView === 'worlds'" class="plumber-world-panel">
+              <p class="plumber-eyebrow">
+                SCRAPBOOK · WORLD {{ currentWorld.id }} / 08
+              </p>
               <h2 id="world-heading" class="plumber-section-title">
                 {{ currentWorld.name }}
               </h2>
               <p class="plumber-world-tag">{{ currentWorld.tagline }}</p>
               <p class="plumber-world-mechanic">{{ currentWorld.mechanic }}</p>
+              <p class="plumber-world-tag" aria-live="polite">
+                {{ worldClearedCount }} /
+                {{ currentWorld.stages.length }} stages cleared ·
+                {{ worldGearCount }} / {{ currentWorld.stages.length }} Golden
+                Gears
+              </p>
               <div class="plumber-stage-grid" aria-label="World stages">
                 <div
                   v-for="stage in currentWorld.stages"
@@ -193,6 +216,7 @@
                 >
                   <small>{{ stage.code }} · {{ stage.beat }}</small>
                   <strong>{{ stage.name }}</strong>
+                  <small>{{ stageStatus(stage.code) }}</small>
                 </div>
               </div>
               <div class="plumber-world-nav">
@@ -222,6 +246,12 @@
                 ENTER GAME ▶
               </button>
             </div>
+            <PlumberCollection
+              v-else
+              :view="albumView"
+              :album="plumber.album"
+              :slots="plumber.file.slots"
+            />
           </section>
 
           <section
@@ -342,9 +372,17 @@
       </div>
 
       <footer class="plumber-console-bottom">
-        <span v-if="screen === 'story' || screen === 'worlds'">
+        <span
+          v-if="
+            screen === 'story' ||
+            (screen === 'worlds' && scrapbookView === 'worlds')
+          "
+        >
           <span class="plumber-dpad">← →</span> CHANGE SCENE
         </span>
+        <span v-else-if="screen === 'worlds'"
+          >SCRAPBOOK · SAVED ON THIS DEVICE</span
+        >
         <span v-else-if="screen === 'play' || screen === 'maker'">
           GAME CONTROLS ACTIVE
         </span>
@@ -382,6 +420,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import ArcadePlumberLevelMaker from '~/components/arcade/plumber-level-maker.vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
+import { stageNode } from '~/utils/arcade/games/savePlumberOverworld'
 
 type Screen = 'title' | 'story' | 'worlds' | 'crew' | 'guide' | 'maker' | 'play'
 const route = useRoute()
@@ -394,8 +433,42 @@ const heroine = computed(() => plumber.heroine)
 const viewport = ref<HTMLElement | null>(null)
 const storyIndex = ref(0)
 const worldIndex = ref(0)
+const scrapbookSections = [
+  { id: 'worlds', label: 'WORLDS' },
+  { id: 'collection', label: 'COLLECTION' },
+  { id: 'endings', label: 'ENDINGS' },
+] as const
+const scrapbookView = ref<(typeof scrapbookSections)[number]['id']>('worlds')
+const albumView = computed(() =>
+  scrapbookView.value === 'endings' ? 'endings' : 'collection',
+)
 const reducedMotion = ref(false)
 const currentWorld = computed(() => PLUMBER_WORLDS[worldIndex.value]!)
+const clearedNodes = computed(() => new Set(plumber.progress?.done ?? []))
+const secretNodes = computed(() => new Set(plumber.progress?.secrets ?? []))
+const worldClearedCount = computed(
+  () =>
+    currentWorld.value.stages.filter((stage) => {
+      const node = stageNode(stage.code)?.id
+      return (
+        node && (clearedNodes.value.has(node) || secretNodes.value.has(node))
+      )
+    }).length,
+)
+const worldGearCount = computed(
+  () =>
+    currentWorld.value.stages.filter((stage) => plumber.gears.has(stage.code))
+      .length,
+)
+function stageStatus(code: string): string {
+  const node = stageNode(code)?.id
+  if (!node) return 'UNDISCOVERED'
+  const cleared = clearedNodes.value.has(node) || secretNodes.value.has(node)
+  if (!cleared) return 'UNDISCOVERED'
+  const gear = plumber.gears.has(code) ? ' · GEAR FOUND' : ''
+  const secret = secretNodes.value.has(node) ? ' · SECRET EXIT' : ''
+  return `CLEARED${gear}${secret}`
+}
 const clipWorld = computed(() =>
   screen.value === 'worlds'
     ? currentWorld.value.id
@@ -494,7 +567,10 @@ function onScreenKey(event: KeyboardEvent) {
     target.closest('button, a, input, select, textarea')
   )
     return
-  if (screen.value === 'story' || screen.value === 'worlds') {
+  if (
+    screen.value === 'story' ||
+    (screen.value === 'worlds' && scrapbookView.value === 'worlds')
+  ) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault()
       const step = event.key === 'ArrowLeft' ? -1 : 1
@@ -842,6 +918,19 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 .plumber-world-view {
   justify-content: flex-end;
 }
+.plumber-album-nav {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.6rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.plumber-album-nav .plumber-control {
+  min-height: 2rem;
+  padding: 0.3rem 0.6rem;
+}
 .plumber-world-panel {
   width: min(33rem, 49%);
   height: 100%;
@@ -849,6 +938,7 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   justify-content: center;
   gap: clamp(0.25rem, 1.1vh, 0.85rem);
   padding: clamp(0.75rem, 2vw, 2.5rem);
+  padding-top: max(3.7rem, 0.75rem);
   background: linear-gradient(
     90deg,
     rgba(6, 20, 32, 0.85),

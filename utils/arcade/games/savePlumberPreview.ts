@@ -51,6 +51,7 @@ import {
 import {
   SLOT_COUNT,
   readPlumberFile,
+  mergePlumberAlbum,
   readPlumberSave,
   type PlumberFile,
   type PlumberSave,
@@ -591,7 +592,13 @@ export class PlumberRun implements ArcadeGameInstance {
   get save(): PlumberFile | null | undefined {
     if (this.demo || this.customLevel) return undefined
     const empty = this.file.slots.every((slot) => !slot)
-    return empty && !this.file.endlessBest ? null : this.file
+    const hasSouvenirs =
+      this.file.album.done.length > 0 ||
+      this.file.album.secrets.length > 0 ||
+      this.file.album.gears.length > 0 ||
+      this.file.album.heroines.length > 0 ||
+      this.file.album.endings.length > 0
+    return empty && !this.file.endlessBest && !hasSouvenirs ? null : this.file
   }
 
   private get slot(): PlumberSlot | null {
@@ -654,7 +661,11 @@ export class PlumberRun implements ArcadeGameInstance {
       time: this.timeBase + Math.floor(this.playFrames / 60),
       ...extra,
     }
-    this.file = { ...this.file, slots }
+    this.file = {
+      ...this.file,
+      slots,
+      album: mergePlumberAlbum(this.file.album, slots),
+    }
   }
 
   /** Keep a new Endless best beside (never inside) the save slots. */

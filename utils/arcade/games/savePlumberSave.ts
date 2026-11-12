@@ -61,7 +61,7 @@ export type PlumberAlbum = {
   secrets: string[]
   gears: string[]
   heroines: number[]
-  endings: ('rivers-run-home')[]
+  endings: 'rivers-run-home'[]
 }
 
 /** What the cabinet actually stores: three slots and the Endless best. */
@@ -158,9 +158,7 @@ export function mergePlumberAlbum(
   slots: (PlumberSlot | null)[],
 ): PlumberAlbum {
   const a =
-    raw && typeof raw === 'object'
-      ? (raw as Record<string, unknown>)
-      : {}
+    raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {}
   const array = (value: unknown): unknown[] =>
     Array.isArray(value) ? value : []
   const done = nodeIds(

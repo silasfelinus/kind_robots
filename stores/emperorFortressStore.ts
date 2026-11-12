@@ -343,7 +343,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     const rawLegacy = read(LEGACY_KEY)
     const savedLegacy = decodeLegacy(rawLegacy)
     legacyHeld = rawLegacy === undefined || (!!rawLegacy && !savedLegacy)
-    if (legacyHeld) hold('The legacy record is unreadable and was not overwritten.')
+    if (legacyHeld)
+      hold('The legacy record is unreadable and was not overwritten.')
     legacy.value = savedLegacy ?? emptyLegacy()
     const rawRelics = read(RELIC_KEY)
     const vault = decodeRelicVault(rawRelics ?? null)
@@ -369,7 +370,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     slotUnreadable.value = rawSlots.map(
       (rawSlot, i) => rawSlot === undefined || (!!rawSlot && !slots.value[i]),
     )
-    book.value = saved ?? newBook(applyLegacy(createRun(newSeed(), equippedRelics()), legacy.value))
+    book.value =
+      saved ??
+      newBook(applyLegacy(createRun(newSeed(), equippedRelics()), legacy.value))
     const untouched =
       !saved ||
       (saved.current.day === 1 &&

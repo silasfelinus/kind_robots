@@ -1738,7 +1738,10 @@ assert.match(
   /@click="beginHire\(true\)"/,
   'the front desk offers the memo',
 )
-assert.match(page, /store\.start\(jobId, \{\s+daily: dailyNext\.value,\s+identity: \{/)
+assert.match(
+  page,
+  /store\.start\(jobId, \{\s+daily: dailyNext\.value,\s+identity: \{/,
+)
 assert.match(
   readFileSync(
     fileURLToPath(

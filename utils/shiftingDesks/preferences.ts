@@ -101,10 +101,10 @@ export function parseDeskSettings(value: unknown): DeskSettings {
       ? (value as Record<string, unknown>)
       : {}
   return {
-    textSize: oneOf(raw.textSize, ['normal', 'large', 'extra-large'], 'normal'),
-    readingSpeed: oneOf(raw.readingSpeed, ['normal', 'fast', 'instant'], 'normal'),
-    motion: oneOf(raw.motion, ['system', 'reduced'], 'system'),
-    contrast: oneOf(raw.contrast, ['standard', 'high'], 'standard'),
+    textSize: oneOf(raw.textSize, ['normal', 'large', 'extra-large'] as const, 'normal'),
+    readingSpeed: oneOf(raw.readingSpeed, ['normal', 'fast', 'instant'] as const, 'normal'),
+    motion: oneOf(raw.motion, ['system', 'reduced'] as const, 'system'),
+    contrast: oneOf(raw.contrast, ['standard', 'high'] as const, 'standard'),
     musicVolume: volume(raw.musicVolume, DEFAULT_DESK_SETTINGS.musicVolume),
     soundVolume: volume(raw.soundVolume, DEFAULT_DESK_SETTINGS.soundVolume),
   }

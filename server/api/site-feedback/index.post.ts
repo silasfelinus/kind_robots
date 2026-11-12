@@ -197,7 +197,7 @@ export default defineEventHandler(async (event) => {
     '',
     '![' +
       'Screenshot of ' +
-      path.replace(/[\[\]]/g, '') +
+      path.replaceAll('[', '').replaceAll(']', '') +
       '](' +
       imageUrl +
       ')',

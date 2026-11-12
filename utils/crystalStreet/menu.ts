@@ -2,7 +2,8 @@
 export type MenuView = 'scrapbook' | 'settings' | 'theme'
 
 // Tabs inside the scrapbook: each shows only what play has uncovered.
-export type ScrapbookTab = 'weeks' | 'nightmares' | 'endings' | 'friends'
+export type ScrapbookTab =
+  'weeks' | 'nightmares' | 'endings' | 'friends' | 'achievements'
 
 // One stop on the screen dial across the top of the game.
 export type DialItem = {

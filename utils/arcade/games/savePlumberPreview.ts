@@ -78,6 +78,13 @@ import {
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
 import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
+import {
+  PLUMBER_BOSS_FEATS,
+  PLUMBER_ENDLESS_GOAL,
+  plumberProgressFeats,
+  rosterComplete,
+  type PlumberFeat,
+} from './savePlumberAchievements'
 
 const W = 480
 const H = 270
@@ -454,6 +461,14 @@ export class PlumberRun implements ArcadeGameInstance {
   deaths = 0
   private playFrames = 0
   private timeBase = 0
+  /** Achievement keys earned since the cabinet last drained them (main-game standard). */
+  private feats: string[] = []
+  /** Keys and roster parts earned this game, reported as mastery so they backfill and add up. */
+  private earnedMastery: string[] = []
+  private masteryHeld: ReadonlySet<string>
+  /** Hits taken on the stage under way, and the deaths when this world's first stage began. */
+  private stageHits = 0
+  private worldWatch: { world: number; deaths: number } | null = null
 
   hero: Body = { x: 0, y: 0, vx: 0, vy: 0 }
   ground = false
@@ -540,6 +555,7 @@ export class PlumberRun implements ArcadeGameInstance {
   constructor(options: ArcadeGameOptions, run: PlumberRunOptions = {}) {
     this.demo = options.demo
     this.customLevel = run.customLevel ?? null
+    this.masteryHeld = new Set(options.mastery ?? [])
     this.autopilot = options.demo || run.autopilot === true
     this.sound = options.sound
     this.rng = options.rng
@@ -597,6 +613,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.done = new Set(slot?.done ?? [])
     this.secrets = new Set(slot?.secrets ?? [])
     this.deaths = slot?.deaths ?? 0
+    this.worldWatch = null
     this.timeBase = slot?.time ?? 0
     this.playFrames = 0
     const node = mapNode(slot?.node)
@@ -645,6 +662,35 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.distance <= this.endlessBest) return
     this.endlessBest = this.distance
     this.file = { ...this.file, endlessBest: this.endlessBest }
+  }
+
+  /** Achievement keys earned since the cabinet last asked. */
+  drainFeats(): string[] {
+    return this.feats.splice(0)
+  }
+
+  /** What this game earned for good: achievement keys and roster parts. */
+  get mastered(): string[] {
+    return this.demo || this.customLevel ? [] : this.earnedMastery
+  }
+
+  /** Keep a mastery id (never in the demo or a Maker course). */
+  private master(id: string) {
+    if (this.demo || this.customLevel) return
+    if (!this.earnedMastery.includes(id)) this.earnedMastery.push(id)
+  }
+
+  /** Queue an achievement at its deed (never in the demo or a Maker course). */
+  private feat(id: PlumberFeat) {
+    if (this.demo || this.customLevel || this.earnedMastery.includes(id)) return
+    this.master(id)
+    this.feats.push(id)
+  }
+
+  /** The completion achievements the slot's progress now proves. */
+  private progressFeats() {
+    for (const id of plumberProgressFeats(this.progress, this.world))
+      this.feat(id)
   }
 
   private setMode(mode: Mode, timer = 0) {
@@ -910,6 +956,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private beginStage(index: number) {
     this.stageIndex = index
     this.loadStage(index)
+    this.watchStage()
     const node = stageNode(this.stage.code)
     if (node) this.mapNodeId = node.id
     this.remember()
@@ -932,6 +979,18 @@ export class PlumberRun implements ArcadeGameInstance {
     )
     const opened = newlyOpened(before, this.progress)
     if (this.boss) {
+      const world = this.world
+      const bossFeat = PLUMBER_BOSS_FEATS[world]
+      if (bossFeat) this.feat(bossFeat)
+      if (last) this.feat('teo-freed')
+      if (
+        this.worldWatch?.world === world &&
+        this.deaths === this.worldWatch.deaths
+      )
+        this.feat('deathless-world')
+    }
+    this.progressFeats()
+    if (this.boss) {
       this.mapReveal = opened
       this.remember({ cleared: this.slot?.cleared === true || last })
       this.setMode('victory', last ? 900 : 600)
@@ -943,7 +1002,17 @@ export class PlumberRun implements ArcadeGameInstance {
   private beginDemoStage(index: number) {
     this.stageIndex = index
     this.loadStage(index)
+    this.watchStage()
     this.setMode('play')
+  }
+
+  /** A fresh stage: no hits yet, and a world's first stage starts its no-lives-lost watch. */
+  private watchStage() {
+    this.stageHits = 0
+    const world = this.world
+    if (this.stage.code === `${world}-1`)
+      this.worldWatch = { world, deaths: this.deaths }
+    else if (this.worldWatch?.world !== world) this.worldWatch = null
   }
 
   loadStage(index: number) {
@@ -1593,6 +1662,7 @@ export class PlumberRun implements ArcadeGameInstance {
         this.distance,
         this.zoneStart + Math.floor(hero.x / TILE),
       )
+      if (this.distance >= PLUMBER_ENDLESS_GOAL) this.feat('endless-500')
       if (hero.x > (this.stage.cols - ENDLESS_PAD / 2) * TILE)
         return this.nextZone()
     }
@@ -2120,6 +2190,10 @@ export class PlumberRun implements ArcadeGameInstance {
       this.score += 1000
       this.gearFlash = 120
       if (!this.demo) this.remember()
+      if (!this.endless) {
+        this.feat('first-gear')
+        this.progressFeats()
+      }
       this.sound.play('level')
     }
     for (const pickup of this.pickups) {
@@ -2286,6 +2360,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.tokens < 100) return false
     this.lives += Math.floor(this.tokens / 100)
     this.tokens %= 100
+    this.feat('hundred-tokens')
     this.sound.play('level')
     return true
   }
@@ -3043,6 +3118,7 @@ export class PlumberRun implements ArcadeGameInstance {
 
   private hurt(dir: number) {
     if (this.immune || this.shielded || this.mode !== 'play') return
+    this.stageHits++
     if (this.power) {
       this.power = null
       this.carrying = false
@@ -3057,6 +3133,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private die() {
+    this.stageHits++
     this.specialTimer = 0
     this.power = null
     this.carrying = false
@@ -3096,6 +3173,15 @@ export class PlumberRun implements ArcadeGameInstance {
   private stageClear() {
     if (this.mode !== 'play') return
     this.cleared.push(this.stage.code)
+    if (!this.endless) {
+      if (this.stageHits === 0) this.feat('full-hearts')
+      if (this.stage.code === '1-1') {
+        this.feat('first-valve')
+        this.master(`roster-${this.member.key}`)
+        const held = new Set([...this.masteryHeld, ...this.earnedMastery])
+        if (rosterComplete(held)) this.feat('full-roster')
+      }
+    }
     this.score += 1000 + this.hearts * 200
     this.sound.play('level')
     this.setMode('clear', this.autopilot ? 30 : 170)

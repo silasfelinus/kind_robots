@@ -33,6 +33,12 @@
       v-else-if="tab === 'endings'"
       :initial="focusVillain"
     />
+    <div
+      v-else-if="tab === 'achievements'"
+      class="cs-frame kr-scroll min-h-0 overflow-y-auto p-3"
+    >
+      <GameAchievementStrip game="crystal-street" layout="icons" />
+    </div>
     <crystal-street-crew v-else roster />
   </section>
 </template>
@@ -40,6 +46,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+import { achievementsForGame } from '~/utils/achievements/gameAchievements'
 import { villainEndings } from '~/utils/crystalStreet/rules'
 import type { ScrapbookTab } from '~/utils/crystalStreet/menu'
 
@@ -78,6 +85,12 @@ const TABS: {
     label: 'Friends',
     icon: 'kind-icon:users',
     count: () => String(store.scrapbook.friends.length),
+  },
+  {
+    id: 'achievements',
+    label: 'Achievements',
+    icon: 'kind-icon:reward',
+    count: () => String(achievementsForGame('crystal-street').length),
   },
 ]
 

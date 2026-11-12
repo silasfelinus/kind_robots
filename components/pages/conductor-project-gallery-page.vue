@@ -420,7 +420,7 @@ const filters = [
     label: 'Continuous',
     icon: 'kind-icon:refresh',
   },
-  { value: 'PLAYTEST' as const, label: 'Playtest', icon: 'kind-icon:gamepad' },
+  { value: 'PLAYTEST' as const, label: 'Playtest', icon: 'kind-icon:swords' },
   { value: 'PAUSED' as const, label: 'Paused', icon: 'kind-icon:pause' },
   {
     value: 'DONE' as const,

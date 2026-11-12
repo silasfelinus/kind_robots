@@ -37,7 +37,7 @@
           @click="store.openScreen('story')"
         >
           <span class="evf-item-label">New Story</span>
-          <small>Mission 01 · First Bell · four viewpoints</small>
+          <small>Mission 01 · First Bell · Hero or Villain</small>
         </button>
         <button
           type="button"
@@ -479,6 +479,7 @@ import { DEFAULT_FOIL, isValidFoil } from '~/utils/everyVillainTactics/training'
 import {
   ANIMATION_SPEEDS,
   PERSPECTIVE_ART,
+  PLAYABLE_PERSPECTIVES,
   oneShotStages,
 } from '~/utils/everyVillainTactics/frontMenu'
 import {
@@ -489,7 +490,9 @@ import {
 
 const store = useEveryVillainTacticsStore()
 const root = ref<HTMLElement | null>(null)
-const pickedView = ref<TacticalPerspective>(store.perspective)
+const playableView = (view: TacticalPerspective): TacticalPerspective =>
+  PLAYABLE_PERSPECTIVES.includes(view) ? view : 'hero'
+const pickedView = ref<TacticalPerspective>(playableView(store.perspective))
 const pickedLead = ref(store.leadSignature)
 const pickedFoil = ref(store.foilSignature ?? DEFAULT_FOIL)
 watch(pickedLead, (lead) => {
@@ -530,7 +533,7 @@ const BACKDROPS: Record<string, string> = {
 }
 const backdrop = computed(() => promArt(BACKDROPS[store.screen ?? 'title']!))
 const views = computed(() =>
-  (Object.keys(PERSPECTIVES) as TacticalPerspective[]).map((id) => ({
+  PLAYABLE_PERSPECTIVES.map((id) => ({
     id,
     label: PERSPECTIVES[id].label,
     headline: PERSPECTIVES[id].headline,
@@ -650,7 +653,7 @@ watch(
   () => store.screen,
   () => {
     confirming.value = null
-    pickedView.value = store.perspective
+    pickedView.value = playableView(store.perspective)
     pickedLead.value = store.leadSignature
     pickedFoil.value = store.foilSignature ?? DEFAULT_FOIL
     focusScreen()
@@ -671,17 +674,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   box-sizing: border-box;
 }
 .evf {
-  --ink: #fff4d6;
-  --muted: #cfc4e6;
-  --rose: #ff7d8c;
-  --gold: #ffd98a;
-  --panel: #10152cee;
+  --ink: #fff8ec;
+  --muted: #f5d7eb;
+  --rose: #ff4485;
+  --gold: #ffe46b;
+  --panel: #21144bea;
   position: absolute;
   inset: 0;
   z-index: 40;
   display: flex;
   color: var(--ink);
-  background: #080e23;
+  background: #1c0d42;
   overflow: hidden;
   font-family: system-ui, sans-serif;
 }
@@ -692,6 +695,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   height: 100%;
   object-fit: cover;
   object-position: center 35%;
+  filter: saturate(1.6) contrast(1.12);
   animation: evf-drift calc(24s * var(--evt-anim, 1)) ease-in-out infinite
     alternate;
 }
@@ -704,8 +708,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .evf-on-title .evf-shade {
   background:
-    linear-gradient(90deg, #070b1de6 0%, #0a0f25a8 38%, #0a0f2500 70%),
-    linear-gradient(0deg, #070b1dd9 0%, transparent 40%);
+    repeating-radial-gradient(
+      circle at 82% 36%,
+      transparent 0 11px,
+      #ffdf5933 12px 15px
+    ),
+    linear-gradient(100deg, #271057f2 0%, #571d8db5 43%, #fc4f6429 85%),
+    linear-gradient(0deg, #160c40e3 0%, transparent 58%);
 }
 .evf-title {
   position: relative;
@@ -713,7 +722,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   flex-direction: column;
   justify-content: space-between;
   gap: clamp(12px, 3cqh, 28px);
-  width: min(520px, 100%);
+  width: min(620px, 100%);
   padding: clamp(16px, 4cqw, 56px);
   animation: evf-rise calc(0.7s * var(--evt-anim, 1)) ease-out both;
 }
@@ -732,14 +741,17 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     'Arial Narrow',
     sans-serif;
   letter-spacing: 0.05em;
+  color: #fff07c;
+  -webkit-text-stroke: 1px #2b1257;
   text-shadow:
-    0 4px 0 #2b1840,
-    0 8px 30px #000c;
+    3px 4px 0 #241044,
+    6px 8px 0 #05aeca,
+    0 12px 34px #000e;
 }
 .evf-wordmark em {
   display: block;
   font-style: normal;
-  color: var(--rose);
+  color: #ff559f;
 }
 .evf-tagline {
   margin: 0.6rem 0 0;
@@ -758,16 +770,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   padding: 10px 16px;
   text-align: left;
   color: var(--ink);
-  border: 1px solid #b3a3da55;
-  border-left: 4px solid #b3a3da88;
-  border-radius: 10px;
-  background: #121732d9;
+  border: 2px solid #ffc7f077;
+  border-left: 6px solid #69e8f0;
+  border-radius: 6px;
+  background: linear-gradient(105deg, #3c1668ef, #1c235adf);
   backdrop-filter: blur(4px);
   transition: transform calc(0.15s * var(--evt-anim, 1)) ease;
 }
 .evf-item.is-primary {
-  border-left-color: var(--rose);
-  background: linear-gradient(90deg, #4a1f3fe6, #1a1d3de6);
+  border-left-color: #ffe46b;
+  background: linear-gradient(105deg, #e52b73ed, #672ac5ee);
 }
 .evf-item.is-quiet {
   background: #0c1027b8;
@@ -869,7 +881,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .evf-views {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 .evf-view,
@@ -885,6 +897,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border: 1px solid #b3a3da55;
   border-radius: 14px;
   background: var(--panel);
+}
+.evf-view img {
+  aspect-ratio: 16 / 10;
+  object-position: center 20%;
 }
 .evf-view img,
 .evf-stage img,

@@ -1,4 +1,5 @@
 import { identityFor } from './identityArcs'
+import { promArt } from './artManifest'
 import { henchmanForVillain } from './villainHenchmen'
 import { campaignStagesFor } from './identityCampaignStages'
 import { identityArtKey } from './artSlots'
@@ -89,3 +90,17 @@ export const COMIC_INTRO_PROMPT = {
     'Character identity, costume and pose must agree with the approved poster. Keep all names and captions OUT of the image; rendered UI adds lettering.',
   aspect: '3:2',
 } as const
+
+/** A rendered outcome illustration is valid pop-up art when the dedicated poster
+ * has not been delivered yet. Minions without original art keep a distinct
+ * silhouette instead of borrowing their villain's face. */
+export function comicIntroArt(intro: ComicIntro): string | null {
+  const dedicated = intro.artKey ? promArt(intro.artKey) : null
+  if (dedicated) return dedicated
+  if (intro.role !== 'hero' && intro.role !== 'villain') return null
+  const signature = intro.key.split(':')[0]
+  return (
+    promArt('identities/' + signature + '/outcomes/' + intro.role) ??
+    promArt('identities/' + signature + '/student')
+  )
+}

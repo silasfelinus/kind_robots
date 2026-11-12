@@ -3704,7 +3704,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-radius: 5px;
   background: linear-gradient(140deg, #7e2c9d, #164c75);
   color: #ffe070;
-  font: 900 1.2rem Impact, sans-serif;
+  font:
+    900 1.2rem Impact,
+    sans-serif;
 }
 .evt-dialogue-portrait img {
   width: 100%;

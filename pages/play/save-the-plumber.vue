@@ -99,7 +99,7 @@
                   class="plumber-option"
                   @click="go('worlds')"
                 >
-                  WORLD SELECT <span>›</span>
+                  WORLD SCRAPBOOK <span>›</span>
                 </button>
                 <button
                   type="button"
@@ -179,12 +179,16 @@
             aria-labelledby="world-heading"
           >
             <div class="plumber-world-panel">
-              <p class="plumber-eyebrow">WORLD {{ currentWorld.id }} / 08</p>
+              <p class="plumber-eyebrow">SCRAPBOOK · WORLD {{ currentWorld.id }} / 08</p>
               <h2 id="world-heading" class="plumber-section-title">
                 {{ currentWorld.name }}
               </h2>
               <p class="plumber-world-tag">{{ currentWorld.tagline }}</p>
               <p class="plumber-world-mechanic">{{ currentWorld.mechanic }}</p>
+              <p class="plumber-world-tag" aria-live="polite">
+                {{ worldClearedCount }} / {{ currentWorld.stages.length }} stages cleared ·
+                {{ worldGearCount }} / {{ currentWorld.stages.length }} Golden Gears
+              </p>
               <div class="plumber-stage-grid" aria-label="World stages">
                 <div
                   v-for="stage in currentWorld.stages"
@@ -193,6 +197,7 @@
                 >
                   <small>{{ stage.code }} · {{ stage.beat }}</small>
                   <strong>{{ stage.name }}</strong>
+                  <small>{{ stageStatus(stage.code) }}</small>
                 </div>
               </div>
               <div class="plumber-world-nav">
@@ -382,6 +387,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import ArcadePlumberLevelMaker from '~/components/arcade/plumber-level-maker.vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
+import { stageNode } from '~/utils/arcade/games/savePlumberOverworld'
 
 type Screen = 'title' | 'story' | 'worlds' | 'crew' | 'guide' | 'maker' | 'play'
 const route = useRoute()
@@ -396,6 +402,26 @@ const storyIndex = ref(0)
 const worldIndex = ref(0)
 const reducedMotion = ref(false)
 const currentWorld = computed(() => PLUMBER_WORLDS[worldIndex.value]!)
+const clearedNodes = computed(() => new Set(plumber.progress?.done ?? []))
+const secretNodes = computed(() => new Set(plumber.progress?.secrets ?? []))
+const worldClearedCount = computed(() =>
+  currentWorld.value.stages.filter((stage) => {
+    const node = stageNode(stage.code)?.id
+    return node && (clearedNodes.value.has(node) || secretNodes.value.has(node))
+  }).length,
+)
+const worldGearCount = computed(() =>
+  currentWorld.value.stages.filter((stage) => plumber.gears.has(stage.code)).length,
+)
+function stageStatus(code: string): string {
+  const node = stageNode(code)?.id
+  if (!node) return 'UNDISCOVERED'
+  const cleared = clearedNodes.value.has(node) || secretNodes.value.has(node)
+  if (!cleared) return 'UNDISCOVERED'
+  const gear = plumber.gears.has(code) ? ' · GEAR FOUND' : ''
+  const secret = secretNodes.value.has(node) ? ' · SECRET EXIT' : ''
+  return `CLEARED${gear}${secret}`
+}
 const clipWorld = computed(() =>
   screen.value === 'worlds'
     ? currentWorld.value.id

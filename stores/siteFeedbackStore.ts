@@ -12,11 +12,28 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 export function feedbackProjectForPath(path: string): string {
-  if (path.startsWith('/play/memory') || path.startsWith('/admin/memory')) return 'memory-dungeon'
-  if (path.startsWith('/play/space-couch') || path.startsWith('/play/game-of-captains')) return 'game-of-captains'
-  if (path.startsWith('/play/ecotone') || path.startsWith('/play/weird-humboldt')) return 'weird-humboldt'
-  if (path.startsWith('/admin/monstrique') || path.startsWith('/play/monstrique')) return 'monstress-convention'
-  if (path.startsWith('/play/prom-of-doom') || path.startsWith('/play/comet-city-academy')) return 'comet-city-academy'
+  if (path.startsWith('/play/memory') || path.startsWith('/admin/memory'))
+    return 'memory-dungeon'
+  if (
+    path.startsWith('/play/space-couch') ||
+    path.startsWith('/play/game-of-captains')
+  )
+    return 'game-of-captains'
+  if (
+    path.startsWith('/play/ecotone') ||
+    path.startsWith('/play/weird-humboldt')
+  )
+    return 'weird-humboldt'
+  if (
+    path.startsWith('/admin/monstrique') ||
+    path.startsWith('/play/monstrique')
+  )
+    return 'monstress-convention'
+  if (
+    path.startsWith('/play/prom-of-doom') ||
+    path.startsWith('/play/comet-city-academy')
+  )
+    return 'comet-city-academy'
   if (path.startsWith('/admin/')) return path.split('/')[2] || 'kind-robots'
   if (path.startsWith('/play/')) return path.split('/')[2] || 'kind-robots'
   if (path.startsWith('/conductor')) return 'conductor'
@@ -37,7 +54,9 @@ export const useSiteFeedbackStore = defineStore('siteFeedback', () => {
   const viewport = ref('')
 
   const canCapture = computed(
-    () => import.meta.client && typeof navigator.mediaDevices?.getDisplayMedia === 'function',
+    () =>
+      import.meta.client &&
+      typeof navigator.mediaDevices?.getDisplayMedia === 'function',
   )
 
   function setScreenshot(file: File | null): void {
@@ -75,7 +94,8 @@ export const useSiteFeedbackStore = defineStore('siteFeedback', () => {
 
   async function capture(): Promise<void> {
     if (!canCapture.value) {
-      error.value = 'This browser requires an uploaded screenshot. Use Choose screenshot.'
+      error.value =
+        'This browser requires an uploaded screenshot. Use Choose screenshot.'
       return
     }
 
@@ -91,10 +111,13 @@ export const useSiteFeedbackStore = defineStore('siteFeedback', () => {
       video.srcObject = stream
       await new Promise<void>((resolve, reject) => {
         video.onloadedmetadata = () => resolve()
-        video.onerror = () => reject(new Error('Could not read the captured screen.'))
+        video.onerror = () =>
+          reject(new Error('Could not read the captured screen.'))
       })
       await video.play()
-      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      )
       const width = video.videoWidth
       const height = video.videoHeight
       if (!width || !height) throw new Error('The captured screen was empty.')
@@ -107,16 +130,22 @@ export const useSiteFeedbackStore = defineStore('siteFeedback', () => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       const blob = await new Promise<Blob>((resolve, reject) =>
         canvas.toBlob(
-          (value) => value ? resolve(value) : reject(new Error('Could not encode screenshot.')),
+          (value) =>
+            value
+              ? resolve(value)
+              : reject(new Error('Could not encode screenshot.')),
           'image/webp',
           0.82,
         ),
       )
-      setScreenshot(new File([blob], 'site-screenshot.webp', { type: 'image/webp' }))
+      setScreenshot(
+        new File([blob], 'site-screenshot.webp', { type: 'image/webp' }),
+      )
     } catch (reason) {
-      error.value = reason instanceof Error
-        ? 'Capture cancelled or unavailable: ' + reason.message
-        : 'Screen capture was cancelled. You can upload a screenshot instead.'
+      error.value =
+        reason instanceof Error
+          ? 'Capture cancelled or unavailable: ' + reason.message
+          : 'Screen capture was cancelled. You can upload a screenshot instead.'
     } finally {
       stream?.getTracks().forEach((track) => track.stop())
       open.value = true

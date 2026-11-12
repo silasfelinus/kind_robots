@@ -88,11 +88,19 @@ export default defineEventHandler(async (event) => {
     if (status === 'playtest') {
       const roadmap = await conductorGet(`projects/${slug}/roadmap.yaml`)
       if (!roadmap) {
-        throw createError({ statusCode: 409, message: `Playtest requires a roadmap for ${slug}.` })
+        throw createError({
+          statusCode: 409,
+          message: `Playtest requires a roadmap for ${slug}.`,
+        })
       }
-      const errors = playtestReadinessErrors(parseRoadmapYaml(roadmap.content).tasks)
+      const errors = playtestReadinessErrors(
+        parseRoadmapYaml(roadmap.content).tasks,
+      )
       if (errors.length) {
-        throw createError({ statusCode: 409, message: `${slug} is not playtest-ready: ${errors.join(' ')}` })
+        throw createError({
+          statusCode: 409,
+          message: `${slug} is not playtest-ready: ${errors.join(' ')}`,
+        })
       }
     }
     const priority = VALID_PRIORITIES.includes(o?.priority as Priority)

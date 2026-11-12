@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { useAchievementStore } from '~/stores/achievementStore'
 import { useUserStore } from '~/stores/userStore'
 import { performFetch } from '~/stores/utils'
 import {
@@ -14,6 +15,10 @@ import {
   type CaseState,
   type RoomId,
 } from '~/utils/monstressConvention/prologue'
+import {
+  achievementsFor,
+  MONSTRIQUE_ENDINGS,
+} from '~/utils/monstressConvention/achievements'
 import {
   cutsceneTriggeredBy,
   type Cutscene,
@@ -103,6 +108,7 @@ export const useMonstressConventionStore = defineStore(
 
     function commit(next: CaseState): void {
       if (!authorized.value) return
+      const prev = state.value
       activeCutscene.value =
         cutsceneTriggeredBy(state.value, next, 'mature') ?? activeCutscene.value
       state.value = next
@@ -120,7 +126,19 @@ export const useMonstressConventionStore = defineStore(
         kit.unlock('moments', 'rental-fangs')
       if (next.flags.includes('ghost-kiss')) kit.unlock('moments', 'cold-kiss')
       if (next.ending) kit.unlock('endings', next.ending)
+      awardAchievements(prev, next)
       persist()
+    }
+
+    // Achievements follow the action that changed the case; a loaded save
+    // only becomes the next comparison's starting point.
+    function awardAchievements(prev: CaseState, next: CaseState): void {
+      const endingsSeen = MONSTRIQUE_ENDINGS.filter((id) =>
+        kit.isUnlocked('endings', id),
+      ).length
+      const achievements = useAchievementStore()
+      for (const code of achievementsFor(prev, next, endingsSeen))
+        void achievements.rewardAchievementByCode(code)
     }
 
     function begin(): void {

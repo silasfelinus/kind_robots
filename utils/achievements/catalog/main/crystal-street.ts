@@ -75,7 +75,7 @@ export const CRYSTAL_STREET_ACHIEVEMENTS: GameAchievementDef[] = [
     subtleHint: 'Not every week goes your way.',
     icon: 'kind-icon:ghost',
     rule: { kind: 'event' },
-    artPrompt: `An empty suburban street at night with every porch light dark except one flickering bulb, a lone sneaker in the middle of the road, a long monstrous shadow stretching across the front lawns from somewhere out of frame. ${STYLE}`,
+    artPrompt: `An empty suburban street at night with every porch light dark except one flickering bulb, a lone sneaker in the middle of the road, a long monstrous shadow stretching across the front lawns, its owner hidden beyond the last house. ${STYLE}`,
   },
   {
     game: 'crystal-street',
@@ -211,7 +211,7 @@ export const CRYSTAL_STREET_ACHIEVEMENTS: GameAchievementDef[] = [
     subtleHint: 'Try a different kind of kid next week.',
     icon: 'kind-icon:character',
     rule: { kind: 'event' },
-    artPrompt: `A high school yearbook spread with six portrait frames, a jock, a brain, a rebel, a goth, a skater and a theater kid, each holding a different monster-fighting tool, a lunchroom table and lockers in the background. ${STYLE}`,
+    artPrompt: `A high school yearbook spread with six class portraits side by side, a jock, a brain, a rebel, a goth, a skater and a theater kid, each holding a different monster-fighting tool, a lunchroom table and lockers in the background. ${STYLE}`,
   },
   {
     game: 'crystal-street',

@@ -250,6 +250,7 @@
               <button
                 type="button"
                 class="mx-reset"
+                :class="{ 'mx-reset-confirm': confirmingErase }"
                 data-testid="monstrique-erase-progress"
                 :aria-label="
                   confirmingErase
@@ -268,6 +269,13 @@
             <p class="mx-small-note">
               This erases only the current edition in this browser. Other
               editions and account achievements are unaffected.
+            </p>
+            <p
+              v-if="eraseFeedback || story.storageWarning || kit.storageWarning"
+              class="mx-small-note"
+              role="status"
+            >
+              {{ eraseFeedback || story.storageWarning || kit.storageWarning }}
             </p>
           </template>
           <template v-else-if="panel === 'achievements'">
@@ -412,6 +420,7 @@ const spec = computed(() =>
 )
 const confirming = ref(false)
 const confirmingErase = ref(false)
+const eraseFeedback = ref('')
 const scrapTab = ref<'people' | 'moments' | 'albums' | 'endings'>('people')
 const closeButton = ref<HTMLButtonElement | null>(null)
 const currentLocation = computed(
@@ -437,6 +446,7 @@ watch(
   () => props.panel,
   (panel) => {
     confirmingErase.value = false
+    eraseFeedback.value = ''
     if (panel) void nextTick(() => closeButton.value?.focus())
   },
 )
@@ -468,12 +478,19 @@ function closePanel(): void {
 
 function forgetAll(): void {
   if (!confirmingErase.value) {
+    eraseFeedback.value = ''
     confirmingErase.value = true
     return
   }
-  if (!story.value.forgetCase()) return
-  kit.resetProgress()
   confirmingErase.value = false
+  if (!story.value.forgetCase()) {
+    eraseFeedback.value =
+      story.value.storageWarning || 'Could not erase the case on this device.'
+    return
+  }
+  kit.resetProgress()
+  eraseFeedback.value =
+    kit.storageWarning || 'This edition’s case and keepsakes were erased.'
 }
 
 function settingLabel(key: KitSettingKey): string {
@@ -808,6 +825,11 @@ function stepSetting(key: KitSettingKey, direction: number): void {
   border: 1px solid #b17897;
   border-radius: 0.45rem;
   font-size: 0.83rem;
+}
+.mx-reset-confirm {
+  border-color: #ffd3e1;
+  background: #81304c;
+  color: #fff4f6;
 }
 .mx-scrap-tabs {
   display: flex;

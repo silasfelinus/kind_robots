@@ -1,3 +1,9 @@
+import {
+  badgeToneClass,
+  normalizeEmployeeIdentity,
+  parseDeskSettings,
+  isEmployeeIdentity,
+} from '../shiftingDesks/preferences'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -603,7 +609,7 @@ assert.deepEqual(
 assert.equal(a.meters.successors, 6, 'Intern perk adds a Successor')
 assert.equal(newRun('x', 'night-janitor').meters.clearance, 2)
 assert.ok(isRunState(JSON.parse(JSON.stringify(a))))
-assert.equal(isRunState({ ...a, version: 6 }), false)
+assert.equal(isRunState({ ...a, version: 7 }), false)
 assert.deepEqual(a.restructurings, {}, 'a new run has no Restructuring yet')
 assert.deepEqual(a.grades, START_GRADES, 'Test Results start blank')
 assert.equal(isRunState({ ...a, grades: undefined }), false)
@@ -654,7 +660,7 @@ const v1 = {
   version: 1,
 }
 const upgraded = upgradeRun(v1)
-assert.ok(upgraded && upgraded.version === 5, 'v1 saves upgrade')
+assert.ok(upgraded && upgraded.version === 6, 'v1 saves upgrade')
 assert.equal(upgradeRun({ version: 1, seed: 'x' }), null, 'junk v1 rejected')
 
 function withDossier(
@@ -1270,7 +1276,7 @@ assert.match(
 const v4 = { ...JSON.parse(JSON.stringify(elimRun)), version: 4 }
 delete v4.restructurings
 const fromV4 = upgradeRun(v4)
-assert.ok(fromV4 && fromV4.version === 5, 'v4 saves upgrade')
+assert.ok(fromV4 && fromV4.version === 6, 'v4 saves upgrade')
 assert.deepEqual(
   fromV4.restructurings,
   {},
@@ -2133,3 +2139,55 @@ assert.match(
 console.log(
   `shifting desks contract ok (${completed}/3000 completed, ${eliminated} eliminated; endings reached: ${[...endingsSeen].sort().join(', ')})`,
 )
+
+
+const namedRun = newRun('personalized-employment', 'temp', {
+  name: '  M.   Scribble  ',
+  pronouns: 'they/them',
+  badgeTone: 'plum',
+})
+assert.deepEqual(namedRun.identity, {
+  name: 'M. Scribble',
+  pronouns: 'they/them',
+  badgeTone: 'plum',
+})
+assert.equal(upgradeRun({ ...namedRun, identity: undefined }), null)
+assert.ok(isEmployeeIdentity(namedRun.identity))
+assert.ok(badgeToneClass('plum'))
+const legacyV5 = { ...namedRun, version: 5, identity: undefined }
+const migratedV5 = upgradeRun(legacyV5)
+assert.ok(migratedV5 && migratedV5.version === 6)
+assert.deepEqual(migratedV5.identity, {
+  name: '',
+  pronouns: 'unspecified',
+  badgeTone: 'classic',
+})
+assert.deepEqual(
+  upgradeRun(JSON.parse(JSON.stringify(namedRun))),
+  namedRun,
+  'named saves survive a reload without losing their identity',
+)
+assert.deepEqual(normalizeEmployeeIdentity({ name: 42, badgeTone: 'bad' }), {
+  name: '',
+  pronouns: 'unspecified',
+  badgeTone: 'classic',
+})
+assert.deepEqual(
+  parseDeskSettings({
+    textSize: 'large',
+    readingSpeed: 'instant',
+    contrast: 'high',
+    motion: 'reduced',
+    musicVolume: 140,
+    soundVolume: -4,
+  }),
+  {
+    textSize: 'large',
+    readingSpeed: 'instant',
+    contrast: 'high',
+    motion: 'reduced',
+    musicVolume: 100,
+    soundVolume: 0,
+  },
+)
+assert.equal(parseDeskSettings({ textSize: 'enormous' }).textSize, 'normal')

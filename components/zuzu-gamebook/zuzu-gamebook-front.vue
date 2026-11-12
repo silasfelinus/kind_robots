@@ -12,12 +12,20 @@
         alt="The desolate watering hole on the road to the Hollow Bell"
         class="absolute inset-0 size-full object-cover"
       />
-      <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
-      <figcaption class="absolute inset-x-0 bottom-0 space-y-1 p-4 text-stone-100 sm:p-7">
-        <p class="text-[10px] font-black uppercase tracking-[.3em] text-amber-300">
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"
+      />
+      <figcaption
+        class="absolute inset-x-0 bottom-0 space-y-1 p-4 text-stone-100 sm:p-7"
+      >
+        <p
+          class="text-[10px] font-black uppercase tracking-[.3em] text-amber-300"
+        >
           Zuzu · Koala Assassin
         </p>
-        <h1 class="max-w-2xl font-serif text-3xl font-black leading-tight sm:text-5xl">
+        <h1
+          class="max-w-2xl font-serif text-3xl font-black leading-tight sm:text-5xl"
+        >
           The Bell That Never Rang
         </h1>
         <p class="max-w-md text-sm text-stone-100/85">
@@ -26,7 +34,9 @@
       </figcaption>
     </figure>
 
-    <div class="kr-scroll min-h-0 overflow-y-auto rounded-2xl border border-warning/25 bg-base-200 p-4 sm:p-6">
+    <div
+      class="kr-scroll min-h-0 overflow-y-auto rounded-2xl border border-warning/25 bg-base-200 p-4 sm:p-6"
+    >
       <template v-if="pane === 'home'">
         <p class="text-xs font-black uppercase tracking-widest text-warning">
           {{ current.chapter }}
@@ -90,7 +100,10 @@
         </p>
         <ul class="mt-4 grid gap-3">
           <li v-for="key in settingKeys" :key="key">
-            <label :for="'zuzu-setting-' + key" class="mb-1 block text-sm font-bold">
+            <label
+              :for="'zuzu-setting-' + key"
+              class="mb-1 block text-sm font-bold"
+            >
               {{ KIT_SETTING_LABELS[key].label }}
             </label>
             <select
@@ -99,16 +112,27 @@
               :value="kit.settings[key]"
               @change="changeSetting(key, $event)"
             >
-              <option v-for="option in KIT_SETTING_OPTIONS[key]" :key="option" :value="option">
+              <option
+                v-for="option in KIT_SETTING_OPTIONS[key]"
+                :key="option"
+                :value="option"
+              >
                 {{ KIT_SETTING_LABELS[key].options[option] ?? option }}
               </option>
             </select>
           </li>
         </ul>
-        <p class="mt-4 text-sm font-serif" :class="kit.settings.font === 'sans' ? 'font-sans' : ''">
+        <p
+          class="mt-4 text-sm font-serif"
+          :class="kit.settings.font === 'sans' ? 'font-sans' : ''"
+        >
           The wind turns a page of dust. The road is yours to choose.
         </p>
-        <button type="button" class="btn btn-ghost btn-sm mt-3" @click="kit.resetSettings()">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm mt-3"
+          @click="kit.resetSettings()"
+        >
           Reset reading preferences
         </button>
       </template>

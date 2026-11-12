@@ -285,7 +285,15 @@
               An investigator's reputation outlives a case. Earn badges by
               following clues, making discoveries and reaching endings.
             </p>
-            <GameAchievementStrip game="monstress-convention" layout="row" />
+            <GameAchievementStrip
+              v-if="hasAchievementDefinitions"
+              game="monstress-convention"
+              layout="row"
+            />
+            <p v-else class="mx-small-note" role="status">
+              The achievement catalog for this case has not been published yet.
+              Case progress is saved independently.
+            </p>
           </template>
           <template v-else>
             <p class="mx-sheet-intro">
@@ -366,6 +374,7 @@ import { MONSTRIQUE_GENERAL_SPEC } from '~/utils/monstressConvention/edition'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { HOTEL_ROOMS } from '~/utils/monstressConvention/prologue'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
+import { achievementsForGame } from '~/utils/achievements/gameAchievements'
 import {
   KIT_SETTING_LABELS,
   KIT_SETTING_OPTIONS,
@@ -417,6 +426,8 @@ const spec = computed(() =>
     ? MONSTRIQUE_GENERAL_SPEC
     : MONSTRESS_CONVENTION,
 )
+const hasAchievementDefinitions =
+  achievementsForGame('monstress-convention').length > 0
 const confirming = ref(false)
 const confirmingErase = ref(false)
 const eraseFeedback = ref('')

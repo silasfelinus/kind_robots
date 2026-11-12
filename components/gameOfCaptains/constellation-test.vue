@@ -10,14 +10,23 @@
   >
     <div class="couchscope-sky" aria-hidden="true">
       <img
-        v-if="!assessment && artworkReady"
+        v-if="wildMode && wildArtwork"
+        :key="wildArtKey"
+        class="scope-question-art scope-sign-art"
+        data-testid="space-couch-wild-art"
+        :src="wildArtwork"
+        alt=""
+        @error="wildArtFailed = true"
+      />
+      <img
+        v-else-if="!wildMode && !assessment && artworkReady"
         class="scope-question-art"
         :src="questionArtwork"
         alt=""
         @error="onQuestionArtError"
       />
       <img
-        v-else-if="assessment && signArtwork && !signArtFailed"
+        v-else-if="!wildMode && assessment && signArtwork && !signArtFailed"
         class="scope-question-art scope-sign-art"
         data-testid="space-couch-star-sign-art"
         :src="signArtwork"
@@ -67,6 +76,7 @@
         >
         <strong>MANDATORY PERSONALITY AND LIABILITY SCREENING</strong>
         <div
+          v-if="!wildMode"
           class="scope-progress"
           role="group"
           aria-label="Assessment progress"
@@ -84,7 +94,87 @@
         </div>
       </header>
 
-      <template v-if="!assessment">
+      <div
+        v-if="wildMode && wildScene"
+        class="scope-content scope-wild"
+        data-testid="space-couch-wild-break"
+      >
+        <span class="scope-episode"
+          >WILD BREAK · STEP {{ wildPath!.length + 1 }} OF
+          {{ WILD_BREAK_STEPS }}</span
+        >
+        <span class="scope-kicker">{{ wildScene.kicker }}</span>
+        <h2>{{ wildScene.title }}</h2>
+        <p>{{ wildScene.text }}</p>
+        <SpaceCouchChoiceHand
+          class="scope-wild-hand"
+          :choices="wildChoices"
+          :deal-key="'wild-' + wildPath!.join('-')"
+          testid-prefix="space-couch-wild-choice"
+          @play="(choice) => chooseWild(Number(choice.id))"
+        />
+      </div>
+      <div
+        v-else-if="wildMode && wildEndingNow"
+        class="scope-reveal scope-wild"
+        data-testid="space-couch-wild-ending"
+      >
+        <span class="scope-episode"
+          >WILD BREAK ENDING
+          {{ String(wildBreakNumber(wildEndingNow.id)).padStart(2, '0') }} OF
+          {{ WILD_BREAK_ENDING_COUNT }}</span
+        >
+        <h2>{{ wildEndingNow.title }}</h2>
+        <p class="scope-hr-verdict">{{ wildEndingNow.text }}</p>
+        <p class="scope-omen">
+          ✧ No constellation. The voyage starts with
+          {{ WILD_BREAK_METER_LABELS[wildEndingNow.perk.meter] }}.
+        </p>
+        <div
+          class="scope-wild-ledger"
+          role="img"
+          :aria-label="
+            'Wild break endings found: ' +
+            foundWild.length +
+            ' of ' +
+            WILD_BREAK_ENDING_COUNT
+          "
+          data-testid="space-couch-wild-ledger"
+        >
+          <span
+            v-for="end in WILD_BREAK_ENDINGS"
+            :key="end.id"
+            :class="{
+              found: foundWild.includes(end.id),
+              current: end.id === wildEndingNow.id,
+            }"
+            :title="foundWild.includes(end.id) ? end.title : 'Not yet found'"
+          />
+          <small
+            >FOUND {{ foundWild.length }} OF
+            {{ WILD_BREAK_ENDING_COUNT }}</small
+          >
+        </div>
+        <div class="scope-final-actions">
+          <button
+            type="button"
+            class="scope-secondary"
+            data-testid="space-couch-wild-again"
+            @click="startWild"
+          >
+            TRY ANOTHER BREAK
+          </button>
+          <button
+            type="button"
+            class="scope-confirm"
+            data-testid="space-couch-wild-launch"
+            @click="launchWild"
+          >
+            LAUNCH UNSIGNED <b>➜</b>
+          </button>
+        </div>
+      </div>
+      <template v-else-if="!assessment">
         <div class="scope-content" data-testid="space-couch-star-question">
           <span class="scope-episode"
             >QUESTION {{ answers.length + 1 }} OF
@@ -156,8 +246,25 @@
         </div>
       </template>
       <footer class="scope-footer">
+        <template v-if="wildMode">
+          <button
+            v-if="wildPath!.length"
+            type="button"
+            data-testid="space-couch-wild-back"
+            @click="stepBackWild"
+          >
+            ← STEP BACK
+          </button>
+          <button
+            type="button"
+            data-testid="space-couch-wild-return"
+            @click="leaveWild"
+          >
+            RETURN TO THE COUCHSCOPE
+          </button>
+        </template>
         <button
-          v-if="answers.length && !assessment"
+          v-else-if="answers.length && !assessment"
           type="button"
           data-testid="space-couch-star-back"
           @click="previousQuestion"
@@ -173,7 +280,15 @@
           ← BACK TO BACKGROUND
         </button>
         <span v-else>ASSESSMENT RESULTS ARE NOT APPEALABLE</span>
-        <span>COMING UP NEXT: YOUR CREW, YOUR TROUBLE</span>
+        <button
+          v-if="!wildMode"
+          type="button"
+          class="scope-wild-exit"
+          data-testid="space-couch-wild-break-start"
+          @click="startWild"
+        >
+          ⚡ WILD BREAK · REFUSE THE SCREENING
+        </button>
       </footer>
     </div>
   </section>
@@ -190,19 +305,39 @@ import {
   type StarAssessment,
 } from '~/utils/gameOfCaptains/starSigns'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
+import {
+  WILD_BREAK_ENDINGS,
+  WILD_BREAK_ENDING_COUNT,
+  WILD_BREAK_METER_LABELS,
+  WILD_BREAK_STEPS,
+  createWildBreak,
+  walkWildBreak,
+  wildBreakEndingArtKey,
+  wildBreakNumber,
+  wildBreakSceneArtKey,
+  type WildBreakRecord,
+} from '~/utils/gameOfCaptains/wildBreak'
 
 const {
   largeText = false,
   reducedMotion = false,
   artwork = {},
   artworkReady = true,
+  wildFound = [],
 } = defineProps<{
   largeText?: boolean
   reducedMotion?: boolean
   artwork?: Record<string, string>
   artworkReady?: boolean
+  /** Wild break ending ids this browser has already found. */
+  wildFound?: readonly string[]
 }>()
-const emit = defineEmits<{ confirm: [assessment: StarAssessment]; back: [] }>()
+const emit = defineEmits<{
+  confirm: [assessment: StarAssessment]
+  back: []
+  wildEnding: [id: string]
+  wildBreak: [record: WildBreakRecord]
+}>()
 const answers = ref<number[]>([])
 const artReady = ref<Record<number, boolean>>({})
 const signArtFailed = ref(false)
@@ -277,6 +412,74 @@ function previousQuestion() {
   answers.value = answers.value.slice(0, -1)
   artReady.value = {}
   signArtFailed.value = false
+}
+// The wild break: refuse the screening and take one of 32 endings instead.
+const wildPath = ref<number[] | null>(null)
+const wildArtFailed = ref(false)
+const wildMode = computed(() => wildPath.value !== null)
+const wildAt = computed(() =>
+  wildPath.value ? walkWildBreak(wildPath.value) : null,
+)
+const wildScene = computed(() =>
+  wildAt.value && 'scene' in wildAt.value ? wildAt.value.scene : null,
+)
+const wildEndingNow = computed(() =>
+  wildAt.value && 'ending' in wildAt.value ? wildAt.value.ending : null,
+)
+const foundWild = computed(() => {
+  const found = new Set(wildFound)
+  if (wildEndingNow.value) found.add(wildEndingNow.value.id)
+  return WILD_BREAK_ENDINGS.map((end) => end.id).filter((id) => found.has(id))
+})
+const wildArtKey = computed(() =>
+  wildEndingNow.value
+    ? wildBreakEndingArtKey(wildEndingNow.value.id)
+    : wildScene.value
+      ? wildBreakSceneArtKey(wildScene.value.id)
+      : '',
+)
+// Until a wild-break plate is rendered, the painted screening office stands in.
+const wildArtwork = computed(() => {
+  if (!wildMode.value) return ''
+  const own = artwork[wildArtKey.value] || warpArt(wildArtKey.value)
+  if (own && !wildArtFailed.value) return own
+  return artwork['couchscope/question-01'] || ''
+})
+const WILD_CARD_FOCUS = ['12% 50%', '38% 50%', '62% 50%', '88% 50%']
+const WILD_CARD_ICONS = ['⚡', '✷', '☄', '⌁']
+const wildChoices = computed<KrHandChoice[]>(() =>
+  (wildScene.value?.choices ?? []).map((choice, index) => ({
+    id: String(index),
+    label: choice.label,
+    chip: 'Break ' + String.fromCharCode(65 + index),
+    hint: choice.hint,
+    image: wildArtwork.value || null,
+    artPosition: WILD_CARD_FOCUS[index],
+    icon: WILD_CARD_ICONS[index],
+  })),
+)
+function startWild() {
+  wildPath.value = []
+  wildArtFailed.value = false
+}
+function chooseWild(index: number) {
+  if (!wildPath.value || !wildScene.value?.choices[index]) return
+  wildPath.value = [...wildPath.value, index]
+  wildArtFailed.value = false
+  if (wildEndingNow.value) emit('wildEnding', wildEndingNow.value.id)
+}
+function stepBackWild() {
+  if (!wildPath.value?.length) return
+  wildPath.value = wildPath.value.slice(0, -1)
+  wildArtFailed.value = false
+}
+function leaveWild() {
+  wildPath.value = null
+  wildArtFailed.value = false
+}
+function launchWild() {
+  const record = wildPath.value ? createWildBreak(wildPath.value) : null
+  if (record) emit('wildBreak', record)
 }
 function choose(index: number) {
   if (answers.value.length >= STAR_QUESTIONS.length || index < 0 || index > 2)
@@ -525,6 +728,47 @@ function choose(index: number) {
   font-size: 0.61rem;
   font-weight: 900;
   letter-spacing: 0.08em;
+}
+.scope-wild-exit {
+  color: #ff9f8a !important;
+  letter-spacing: 0.1em;
+}
+.scope-wild-hand {
+  flex: none;
+  margin-top: clamp(0.45rem, 1.5vh, 0.9rem);
+}
+.scope-wild h2 {
+  color: #ffcfb8;
+}
+.scope-wild-ledger {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.22rem;
+  margin-top: 0.8rem;
+  max-width: 26rem;
+}
+.scope-wild-ledger span {
+  width: 0.62rem;
+  height: 0.62rem;
+  border: 1px solid #5d7489;
+  border-radius: 50%;
+  background: #0b1628;
+}
+.scope-wild-ledger span.found {
+  border-color: #ffb48f;
+  background: #f29b78;
+}
+.scope-wild-ledger span.current {
+  box-shadow: 0 0 0 2px #ffe2b8;
+}
+.scope-wild-ledger small {
+  flex-basis: 100%;
+  margin-top: 0.3rem;
+  color: #f4c58b;
+  font-weight: 900;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
 }
 .scope-footer button {
   min-height: 2rem;

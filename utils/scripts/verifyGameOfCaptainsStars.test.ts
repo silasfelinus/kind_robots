@@ -92,7 +92,7 @@ assert.equal(
     ...Object.values(COUCH_EXPRESSION_ART_IDS),
     ...Object.values(COUCH_CONSEQUENCE_ART_IDS),
   ]).size,
-  193,
+  212,
   'no two registered art keys collide across the four delivered batches',
 )
 for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
@@ -187,18 +187,18 @@ assert.equal(
     ...Object.values(COUCH_VOYAGE_ART_IDS),
     ...Object.values(COUCH_EXPRESSION_ART_IDS),
   ]).size,
-  172,
+  191,
   'previously mapped painting IDs stay distinct from character expressions',
 )
 assert.equal(
   Object.keys(COUCH_VOYAGE_ART_IDS).length,
-  106,
+  109,
   'finished runtime, venue and opening art is registered',
 )
 assert.equal(
   Object.keys(COUCH_VOYAGE_ART_IDS).filter((key) => key.startsWith('missions/'))
     .length,
-  27,
+  30,
 )
 assert.equal(
   Object.keys(COUCH_VOYAGE_ART_IDS).filter((key) => key.startsWith('venues/'))
@@ -215,12 +215,12 @@ assert.equal(
     ...Object.values(COUCH_ONBOARDING_ART_IDS),
     ...Object.values(COUCH_VOYAGE_ART_IDS),
   ]).size,
-  128,
+  147,
   'no two paintings overwrite the same ArtImage slot',
 )
 assert.equal(
   COUCH_ONBOARDING_ART_COUNT,
-  22,
+  38,
   'all painted onboarding images are linked',
 )
 assert.equal(
@@ -244,7 +244,8 @@ assert.equal(
   Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) =>
     key.includes('-answer-'),
   ).length,
-  12,
+  15,
+  'twelve legacy question answers plus the trolley question’s three',
 )
 assert.equal(Object.keys(STAR_HR_VERDICTS).length, 12)
 assert.ok(STAR_SIGNS.every((sign) => STAR_HR_VERDICTS[sign.id].length > 35))
@@ -742,3 +743,26 @@ assert.ok(store.includes('assessment?: StarAssessment'))
 console.log(
   'Space Couch 12 constellations, 3-question test, 36 sign quests, save and finale contract verified',
 )
+
+// Silas 2026-11-12: "whatever horoscope i get, there is no original art."
+// Every constellation the Couchscope can reveal, the trolley question and its
+// three answers, and the three Act I opening calls point at a DONE
+// COUCHSCOPE-AND-OPENING-ROUND-1 ArtImage instead of the drawn couch.
+for (const sign of STAR_SIGNS)
+  assert.ok(
+    'couchscope/sign-' + sign.id in COUCH_ONBOARDING_ART_IDS,
+    sign.id + ' has a painted reveal plate',
+  )
+for (const question of STAR_QUESTIONS) {
+  assert.ok(question.art in COUCH_ONBOARDING_ART_IDS, question.art)
+  for (const letter of ['a', 'b', 'c'])
+    assert.ok(
+      question.art + '-answer-' + letter in COUCH_ONBOARDING_ART_IDS,
+      question.art + ' answer ' + letter,
+    )
+}
+for (const mission of ['refugees', 'archive', 'bar'])
+  assert.ok(
+    'missions/' + mission in COUCH_VOYAGE_ART_IDS,
+    mission + ' has a red-couch mission card',
+  )

@@ -15,714 +15,601 @@
         @ledger="openLedgerFromCover"
       />
       <template v-else>
-      <header-page-bar>
-        <div
-          class="flex min-w-0 flex-1 items-center justify-between gap-1.5 @lg:gap-2"
-          data-testid="zuzu-gamebook-hud"
-        >
-          <p
-            class="hidden min-w-0 truncate text-[11px] font-bold uppercase tracking-[.22em] text-base-content/60 @xl:block"
-            :title="current.chapter"
-          >
-            {{ current.chapter }}
-          </p>
-          <div class="ml-auto flex shrink-0 items-center gap-1.5 @lg:gap-2">
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm px-2"
-              title="Return to title screen"
-              data-testid="zuzu-gamebook-home"
-              @click="frontOpen = true"
-            >
-              <icon name="kind-icon:arrow-left" class="size-4" />
-              <span class="sr-only @3xl:not-sr-only">Title</span>
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              data-testid="zuzu-gamebook-ledger-menu"
-              :aria-expanded="ledgerOpen"
-              @click="ledgerOpen = true"
-            >
-              <icon name="kind-icon:book-open" class="size-4" />
-              <span class="hidden @3xl:inline">The Bell Ledger</span>
-              <span class="@3xl:hidden">Ledger</span>
-            </button>
-            <span
-              :key="'hp' + (hit?.serial ?? 0)"
-              class="rounded-md bg-base-200 px-2 py-1 text-xs font-bold @lg:px-3"
-              :class="hit?.taken ? 'zuzu-hurt-hud' : ''"
-              aria-label="Resources"
-              data-testid="zuzu-gamebook-resources"
-            >
-              <span class="text-error">♥ {{ store.run.health }}/12</span>
-              <span class="opacity-40"> · </span>
-              <span class="text-info">✦ {{ store.run.resolve }}/4</span>
-            </span>
-            <span
-              :key="store.savedAt ?? 'unsaved'"
-              class="zuzu-saved inline-flex items-center gap-1 text-xs font-bold"
-              :class="store.saveFailed ? 'text-error' : 'text-success'"
-              :title="saveTitle"
-              data-testid="zuzu-gamebook-saved"
-            >
-              <span aria-hidden="true">{{ store.saveFailed ? '!' : '✓' }}</span>
-              <span class="sr-only @3xl:not-sr-only">{{
-                store.saveFailed ? 'Not saved' : 'Saved'
-              }}</span>
-            </span>
-            <button
-              ref="sheetToggle"
-              type="button"
-              class="btn btn-sm"
-              :class="showSheet ? 'btn-warning' : 'btn-outline'"
-              :aria-expanded="showSheet"
-              aria-controls="zuzu-sheet"
-              data-testid="zuzu-gamebook-sheet-toggle"
-              @click="showSheet ? closeSheet() : (showSheet = true)"
-            >
-              <icon name="kind-icon:book-open" class="size-4" /><span
-                class="@3xl:hidden"
-                >Sheet</span
-              ><span class="hidden @3xl:inline">Character sheet</span>
-            </button>
-            <button
-              v-if="store.recoverable"
-              type="button"
-              class="btn btn-ghost btn-sm px-2 @3xl:px-3"
-              title="Restore previous journey"
-              @click="recover"
-            >
-              <span aria-hidden="true">↶</span>
-              <span class="sr-only @3xl:not-sr-only">Restore</span>
-            </button>
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm px-2 @3xl:px-3"
-              title="New journey"
-              @click="restart"
-            >
-              <icon name="kind-icon:refresh" class="size-4 @3xl:hidden" />
-              <span class="sr-only @3xl:not-sr-only">New journey</span>
-            </button>
-          </div>
-        </div>
-      </header-page-bar>
-
-      <section
-        v-if="ledgerOpen"
-        class="fixed inset-0 z-40 flex min-h-0 flex-col gap-3 bg-base-100 p-3 sm:p-6"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="bell-ledger-heading"
-        data-testid="zuzu-gamebook-ledger"
-      >
-        <header
-          class="flex shrink-0 items-center justify-between gap-3 border-b border-warning/30 pb-3"
-        >
-          <div>
-            <p
-              class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
-            >
-              Zuzu · The Bell That Never Rang
-            </p>
-            <h2
-              id="bell-ledger-heading"
-              class="font-serif text-2xl font-black sm:text-4xl"
-            >
-              The Bell Ledger
-            </h2>
-          </div>
-          <button
-            type="button"
-            class="btn btn-warning btn-sm"
-            @click="ledgerOpen = false"
-          >
-            <icon name="kind-icon:arrow-left" class="size-4" />
-            Continue reading
-          </button>
-        </header>
-        <div class="kr-scroll min-h-0 flex-1 overflow-y-auto">
+        <header-page-bar>
           <div
-            class="grid gap-4 @container lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]"
+            class="flex min-w-0 flex-1 items-center justify-between gap-1.5 @lg:gap-2"
+            data-testid="zuzu-gamebook-hud"
           >
-            <section
-              class="overflow-hidden rounded-2xl border border-warning/25 bg-base-200"
+            <p
+              class="hidden min-w-0 truncate text-[11px] font-bold uppercase tracking-[.22em] text-base-content/60 @xl:block"
+              :title="current.chapter"
             >
-              <img
-                src="/zuzu-gamebook/scenes/waterhole.webp"
-                alt="The western road where Zuzu's journeys began"
-                class="max-h-48 w-full object-cover sm:max-h-64"
-              />
-              <div class="space-y-3 p-4">
-                <p class="font-serif text-lg font-bold">
-                  The road remembers the roads you took.
-                </p>
-                <div class="grid grid-cols-2 gap-2 text-center">
-                  <div class="rounded-xl bg-base-300 p-3">
-                    <strong class="block text-2xl">{{
-                      rememberedScenes.length
-                    }}</strong>
-                    <span class="text-xs">Unique scenes walked</span>
-                  </div>
-                  <div class="rounded-xl bg-base-300 p-3">
-                    <strong class="block text-2xl"
-                      >{{ store.discovered.length }}/{{
-                        ENDING_IDS.length
-                      }}</strong
-                    >
-                    <span class="text-xs">Endings uncovered</span>
-                  </div>
-                </div>
-                <p class="text-sm">
-                  Current chapter: <strong>{{ current.chapter }}</strong>
-                </p>
-                <p v-if="notes.deeds.length" class="text-sm">
-                  <strong>Deeds:</strong>
-                  {{ notes.deeds.map((deed) => deed.text).join(' · ') }}
-                </p>
-                <p v-if="notes.debts.length" class="text-sm">
-                  <strong>Debts:</strong> {{ notes.debts.join(' · ') }}
-                </p>
-                <p v-if="notes.learned.length" class="text-sm">
-                  <strong>Learned:</strong> {{ notes.learned.join(' · ') }}
-                </p>
-                <button
-                  type="button"
-                  class="btn btn-outline btn-sm w-full"
-                  @click="restart"
-                >
-                  <icon name="kind-icon:refresh" class="size-4" />
-                  Begin a new journey
-                </button>
-                <button
-                  v-if="store.recoverable"
-                  type="button"
-                  class="btn btn-ghost btn-sm w-full"
-                  @click="recover"
-                >
-                  Restore previous journey
-                </button>
-                <section
-                  class="rounded-xl border border-base-content/15 bg-base-300 p-3"
-                  aria-labelledby="zuzu-save-code-heading"
-                  data-testid="zuzu-gamebook-save-code"
-                >
-                  <h3
-                    id="zuzu-save-code-heading"
-                    class="font-serif text-lg font-bold"
-                  >
-                    Carry this journey
-                  </h3>
-                  <p class="mt-1 text-xs opacity-75">
-                    {{
-                      store.saveFailed
-                        ? 'This browser is not keeping your journey.'
-                        : 'Your journey saves on this device after every move.'
-                    }}
-                    To keep it safe or play on another device, copy its save
-                    code and load it there.
-                  </p>
-                  <button
-                    type="button"
-                    class="btn btn-outline btn-sm mt-2 w-full"
-                    @click="copyCode"
-                  >
-                    Copy save code
-                  </button>
-                  <textarea
-                    v-if="shownCode"
-                    readonly
-                    rows="3"
-                    class="textarea textarea-bordered mt-2 w-full break-all font-mono text-[10px] leading-tight"
-                    aria-label="Your save code"
-                    :value="shownCode"
-                    @focus="selectAll"
-                  />
-                  <label
-                    class="mt-3 block text-xs font-bold"
-                    for="zuzu-import-code"
-                    >Load a journey from a save code</label
-                  >
-                  <textarea
-                    id="zuzu-import-code"
-                    v-model="importText"
-                    rows="2"
-                    class="textarea textarea-bordered mt-1 w-full break-all font-mono text-[10px] leading-tight"
-                    placeholder="ZUZU1.…"
-                    spellcheck="false"
-                    autocomplete="off"
-                  />
-                  <button
-                    type="button"
-                    class="btn btn-warning btn-sm mt-2 w-full"
-                    :disabled="!importText.trim()"
-                    @click="loadCode"
-                  >
-                    Load journey
-                  </button>
-                  <p v-if="codeNote" class="mt-2 text-xs" role="status">
-                    {{ codeNote }}
-                  </p>
-                </section>
-              </div>
-            </section>
-            <div class="min-w-0 space-y-4">
-              <section
-                class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+              {{ current.chapter }}
+            </p>
+            <div class="ml-auto flex shrink-0 items-center gap-1.5 @lg:gap-2">
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm px-2"
+                title="Return to title screen"
+                data-testid="zuzu-gamebook-home"
+                @click="frontOpen = true"
               >
-                <h3 class="font-serif text-xl font-bold">Endings</h3>
-                <p class="mb-3 text-xs opacity-70">
-                  Unfound endings stay secret until the story reveals them.
-                </p>
-                <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  <li
-                    v-for="(ending, index) in ENDING_IDS"
-                    :key="ending"
-                    class="rounded-lg border border-base-content/15 p-2 text-xs"
-                    :class="
-                      store.discovered.includes(ending)
-                        ? 'bg-warning/15'
-                        : 'bg-base-300/60 opacity-60'
-                    "
-                  >
-                    <img
-                      v-if="store.discovered.includes(ending)"
-                      :src="shownPlate(sceneArt(ending))"
-                      :alt="scene(ending).title"
-                      class="mb-2 aspect-video w-full rounded-md object-cover"
-                      @error="plateFailed(sceneArt(ending))"
-                    />
-                    <div
-                      v-else
-                      class="mb-2 grid aspect-video place-items-center rounded-md bg-base-300"
-                      aria-hidden="true"
-                    >
-                      <icon name="kind-icon:lock" class="size-5" />
-                    </div>
-                    <span class="block font-bold">
-                      {{
-                        store.discovered.includes(ending)
-                          ? scene(ending).title
-                          : 'Unknown ending ' + (index + 1)
-                      }}
-                    </span>
-                  </li>
-                </ul>
-              </section>
-              <section
-                class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+                <icon name="kind-icon:arrow-left" class="size-4" />
+                <span class="sr-only @3xl:not-sr-only">Title</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                data-testid="zuzu-gamebook-ledger-menu"
+                :aria-expanded="ledgerOpen"
+                @click="ledgerOpen = true"
               >
-                <h3 class="font-serif text-xl font-bold">Illustrated trail</h3>
-                <p class="mb-3 text-xs opacity-70">
-                  Recent scenes from this journey. Earlier discoveries remain in
-                  your saved route.
-                </p>
-                <p v-if="!recentTrail.length" class="text-sm opacity-70">
-                  Your story is just beginning.
-                </p>
-                <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  <li
-                    v-for="entry in recentTrail"
-                    :key="entry.id"
-                    class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
-                  >
-                    <img
-                      :src="shownPlate(entry.art)"
-                      :alt="entry.title"
-                      class="aspect-video w-full object-cover"
-                      @error="plateFailed(entry.art)"
-                    />
-                    <p class="p-2 text-xs font-bold">{{ entry.title }}</p>
-                  </li>
-                </ol>
-              </section>
-              <section
-                class="rounded-2xl border border-warning/25 bg-base-200 p-4"
-                aria-label="Past journeys"
-                data-testid="zuzu-gamebook-scrapbook"
+                <icon name="kind-icon:book-open" class="size-4" />
+                <span class="hidden @3xl:inline">The Bell Ledger</span>
+                <span class="@3xl:hidden">Ledger</span>
+              </button>
+              <span
+                :key="'hp' + (hit?.serial ?? 0)"
+                class="rounded-md bg-base-200 px-2 py-1 text-xs font-bold @lg:px-3"
+                :class="hit?.taken ? 'zuzu-hurt-hud' : ''"
+                aria-label="Resources"
+                data-testid="zuzu-gamebook-resources"
               >
-                <h3 class="font-serif text-xl font-bold">Journeys remembered</h3>
-                <p class="mb-3 text-xs opacity-70">
-                  Finished and abandoned journeys stay in this browser's scrapbook.
-                  Importing another player's save code does not award achievements.
-                </p>
-                <p v-if="!store.scrapbook.length" class="text-sm opacity-70">
-                  Turn the last page or begin another journey to preserve your first memory.
-                </p>
-                <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  <li
-                    v-for="memory in store.scrapbook"
-                    :key="memory.id"
-                    class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
-                  >
-                    <img
-                      :src="shownPlate(sceneArt(memory.sceneId))"
-                      :alt="scene(memory.sceneId).title"
-                      class="aspect-video w-full object-cover"
-                      @error="plateFailed(sceneArt(memory.sceneId))"
-                    />
-                    <div class="p-2">
-                      <strong class="block text-xs">
-                        {{ scene(memory.sceneId).title }}
-                      </strong>
-                      <p class="mt-1 text-[11px] opacity-70">
-                        {{ memory.ending ? 'Ending reached' : 'Journey paused' }}
-                        · {{ memory.pages }} pages
-                        · {{ memory.health }} health
-                      </p>
-                    </div>
-                  </li>
-                </ol>
-              </section>
+                <span class="text-error">♥ {{ store.run.health }}/12</span>
+                <span class="opacity-40"> · </span>
+                <span class="text-info">✦ {{ store.run.resolve }}/4</span>
+              </span>
+              <span
+                :key="store.savedAt ?? 'unsaved'"
+                class="zuzu-saved inline-flex items-center gap-1 text-xs font-bold"
+                :class="store.saveFailed ? 'text-error' : 'text-success'"
+                :title="saveTitle"
+                data-testid="zuzu-gamebook-saved"
+              >
+                <span aria-hidden="true">{{
+                  store.saveFailed ? '!' : '✓'
+                }}</span>
+                <span class="sr-only @3xl:not-sr-only">{{
+                  store.saveFailed ? 'Not saved' : 'Saved'
+                }}</span>
+              </span>
+              <button
+                ref="sheetToggle"
+                type="button"
+                class="btn btn-sm"
+                :class="showSheet ? 'btn-warning' : 'btn-outline'"
+                :aria-expanded="showSheet"
+                aria-controls="zuzu-sheet"
+                data-testid="zuzu-gamebook-sheet-toggle"
+                @click="showSheet ? closeSheet() : (showSheet = true)"
+              >
+                <icon name="kind-icon:book-open" class="size-4" /><span
+                  class="@3xl:hidden"
+                  >Sheet</span
+                ><span class="hidden @3xl:inline">Character sheet</span>
+              </button>
+              <button
+                v-if="store.recoverable"
+                type="button"
+                class="btn btn-ghost btn-sm px-2 @3xl:px-3"
+                title="Restore previous journey"
+                @click="recover"
+              >
+                <span aria-hidden="true">↶</span>
+                <span class="sr-only @3xl:not-sr-only">Restore</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm px-2 @3xl:px-3"
+                title="New journey"
+                @click="restart"
+              >
+                <icon name="kind-icon:refresh" class="size-4 @3xl:hidden" />
+                <span class="sr-only @3xl:not-sr-only">New journey</span>
+              </button>
             </div>
           </div>
-        </div>
-      </section>
+        </header-page-bar>
 
-      <div
-        class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 px-3 pb-3 sm:px-6 lg:px-8 lg:pb-5"
-        :class="showSheet ? 'lg:grid-cols-[minmax(0,1fr)_20rem]' : ''"
-      >
-        <!-- Below lg the sheet slides over the story instead of replacing it;
-             the story stays in view behind it but out of reach until it closes. -->
-        <div
-          ref="pane"
-          class="kr-pane-scroll rounded-2xl"
-          :inert="sheetModal && showSheet"
+        <section
+          v-if="ledgerOpen"
+          class="fixed inset-0 z-40 flex min-h-0 flex-col gap-3 bg-base-100 p-3 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bell-ledger-heading"
+          data-testid="zuzu-gamebook-ledger"
         >
-          <article
-            class="flex min-h-full flex-col gap-4 md:gap-6"
-            :data-short-wide="shortWide ? '' : undefined"
-            :class="
-              layout === 'right'
-                ? 'md:flex-row'
-                : 'md:grid md:grid-rows-[minmax(9rem,1fr)_auto]'
-            "
+          <header
+            class="flex shrink-0 items-center justify-between gap-3 border-b border-warning/30 pb-3"
           >
-            <figure
-              class="relative isolate shrink-0 overflow-hidden rounded-2xl border border-warning/20 bg-stone-950 shadow-2xl md:flex md:aspect-auto md:items-center md:justify-center md:[container-type:size]"
-              :class="plateClass"
+            <div>
+              <p
+                class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
+              >
+                Zuzu · The Bell That Never Rang
+              </p>
+              <h2
+                id="bell-ledger-heading"
+                class="font-serif text-2xl font-black sm:text-4xl"
+              >
+                The Bell Ledger
+              </h2>
+            </div>
+            <button
+              type="button"
+              class="btn btn-warning btn-sm"
+              @click="ledgerOpen = false"
             >
-              <img
-                :src="platePath(art)"
-                class="absolute inset-0 hidden size-full scale-110 object-cover opacity-90 blur-2xl brightness-75 md:block"
-                alt=""
-                aria-hidden="true"
-                @error="plateFailed(platePath(art))"
-              />
-              <div
-                class="relative size-full overflow-hidden md:shadow-2xl md:ring-1 md:ring-black/50"
-                :class="frameClass"
+              <icon name="kind-icon:arrow-left" class="size-4" />
+              Continue reading
+            </button>
+          </header>
+          <div class="kr-scroll min-h-0 flex-1 overflow-y-auto">
+            <div
+              class="grid gap-4 @container lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]"
+            >
+              <section
+                class="overflow-hidden rounded-2xl border border-warning/25 bg-base-200"
+              >
+                <img
+                  src="/zuzu-gamebook/scenes/waterhole.webp"
+                  alt="The western road where Zuzu's journeys began"
+                  class="max-h-48 w-full object-cover sm:max-h-64"
+                />
+                <div class="space-y-3 p-4">
+                  <p class="font-serif text-lg font-bold">
+                    The road remembers the roads you took.
+                  </p>
+                  <div class="grid grid-cols-2 gap-2 text-center">
+                    <div class="rounded-xl bg-base-300 p-3">
+                      <strong class="block text-2xl">{{
+                        rememberedScenes.length
+                      }}</strong>
+                      <span class="text-xs">Unique scenes walked</span>
+                    </div>
+                    <div class="rounded-xl bg-base-300 p-3">
+                      <strong class="block text-2xl"
+                        >{{ store.discovered.length }}/{{
+                          ENDING_IDS.length
+                        }}</strong
+                      >
+                      <span class="text-xs">Endings uncovered</span>
+                    </div>
+                  </div>
+                  <p class="text-sm">
+                    Current chapter: <strong>{{ current.chapter }}</strong>
+                  </p>
+                  <p v-if="notes.deeds.length" class="text-sm">
+                    <strong>Deeds:</strong>
+                    {{ notes.deeds.map((deed) => deed.text).join(' · ') }}
+                  </p>
+                  <p v-if="notes.debts.length" class="text-sm">
+                    <strong>Debts:</strong> {{ notes.debts.join(' · ') }}
+                  </p>
+                  <p v-if="notes.learned.length" class="text-sm">
+                    <strong>Learned:</strong> {{ notes.learned.join(' · ') }}
+                  </p>
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-sm w-full"
+                    @click="restart"
+                  >
+                    <icon name="kind-icon:refresh" class="size-4" />
+                    Begin a new journey
+                  </button>
+                  <button
+                    v-if="store.recoverable"
+                    type="button"
+                    class="btn btn-ghost btn-sm w-full"
+                    @click="recover"
+                  >
+                    Restore previous journey
+                  </button>
+                  <section
+                    class="rounded-xl border border-base-content/15 bg-base-300 p-3"
+                    aria-labelledby="zuzu-save-code-heading"
+                    data-testid="zuzu-gamebook-save-code"
+                  >
+                    <h3
+                      id="zuzu-save-code-heading"
+                      class="font-serif text-lg font-bold"
+                    >
+                      Carry this journey
+                    </h3>
+                    <p class="mt-1 text-xs opacity-75">
+                      {{
+                        store.saveFailed
+                          ? 'This browser is not keeping your journey.'
+                          : 'Your journey saves on this device after every move.'
+                      }}
+                      To keep it safe or play on another device, copy its save
+                      code and load it there.
+                    </p>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm mt-2 w-full"
+                      @click="copyCode"
+                    >
+                      Copy save code
+                    </button>
+                    <textarea
+                      v-if="shownCode"
+                      readonly
+                      rows="3"
+                      class="textarea textarea-bordered mt-2 w-full break-all font-mono text-[10px] leading-tight"
+                      aria-label="Your save code"
+                      :value="shownCode"
+                      @focus="selectAll"
+                    />
+                    <label
+                      class="mt-3 block text-xs font-bold"
+                      for="zuzu-import-code"
+                      >Load a journey from a save code</label
+                    >
+                    <textarea
+                      id="zuzu-import-code"
+                      v-model="importText"
+                      rows="2"
+                      class="textarea textarea-bordered mt-1 w-full break-all font-mono text-[10px] leading-tight"
+                      placeholder="ZUZU1.…"
+                      spellcheck="false"
+                      autocomplete="off"
+                    />
+                    <button
+                      type="button"
+                      class="btn btn-warning btn-sm mt-2 w-full"
+                      :disabled="!importText.trim()"
+                      @click="loadCode"
+                    >
+                      Load journey
+                    </button>
+                    <p v-if="codeNote" class="mt-2 text-xs" role="status">
+                      {{ codeNote }}
+                    </p>
+                  </section>
+                </div>
+              </section>
+              <div class="min-w-0 space-y-4">
+                <section
+                  class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+                >
+                  <h3 class="font-serif text-xl font-bold">Endings</h3>
+                  <p class="mb-3 text-xs opacity-70">
+                    Unfound endings stay secret until the story reveals them.
+                  </p>
+                  <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    <li
+                      v-for="(ending, index) in ENDING_IDS"
+                      :key="ending"
+                      class="rounded-lg border border-base-content/15 p-2 text-xs"
+                      :class="
+                        store.discovered.includes(ending)
+                          ? 'bg-warning/15'
+                          : 'bg-base-300/60 opacity-60'
+                      "
+                    >
+                      <img
+                        v-if="store.discovered.includes(ending)"
+                        :src="shownPlate(sceneArt(ending))"
+                        :alt="scene(ending).title"
+                        class="mb-2 aspect-video w-full rounded-md object-cover"
+                        @error="plateFailed(sceneArt(ending))"
+                      />
+                      <div
+                        v-else
+                        class="mb-2 grid aspect-video place-items-center rounded-md bg-base-300"
+                        aria-hidden="true"
+                      >
+                        <icon name="kind-icon:lock" class="size-5" />
+                      </div>
+                      <span class="block font-bold">
+                        {{
+                          store.discovered.includes(ending)
+                            ? scene(ending).title
+                            : 'Unknown ending ' + (index + 1)
+                        }}
+                      </span>
+                    </li>
+                  </ul>
+                </section>
+                <section
+                  class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+                >
+                  <h3 class="font-serif text-xl font-bold">
+                    Illustrated trail
+                  </h3>
+                  <p class="mb-3 text-xs opacity-70">
+                    Recent scenes from this journey. Earlier discoveries remain
+                    in your saved route.
+                  </p>
+                  <p v-if="!recentTrail.length" class="text-sm opacity-70">
+                    Your story is just beginning.
+                  </p>
+                  <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    <li
+                      v-for="entry in recentTrail"
+                      :key="entry.id"
+                      class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
+                    >
+                      <img
+                        :src="shownPlate(entry.art)"
+                        :alt="entry.title"
+                        class="aspect-video w-full object-cover"
+                        @error="plateFailed(entry.art)"
+                      />
+                      <p class="p-2 text-xs font-bold">{{ entry.title }}</p>
+                    </li>
+                  </ol>
+                </section>
+                <section
+                  class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+                  aria-label="Past journeys"
+                  data-testid="zuzu-gamebook-scrapbook"
+                >
+                  <h3 class="font-serif text-xl font-bold">
+                    Journeys remembered
+                  </h3>
+                  <p class="mb-3 text-xs opacity-70">
+                    Finished and abandoned journeys stay in this browser's
+                    scrapbook. Importing another player's save code does not
+                    award achievements.
+                  </p>
+                  <p v-if="!store.scrapbook.length" class="text-sm opacity-70">
+                    Turn the last page or begin another journey to preserve your
+                    first memory.
+                  </p>
+                  <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    <li
+                      v-for="memory in store.scrapbook"
+                      :key="memory.id"
+                      class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
+                    >
+                      <img
+                        :src="shownPlate(sceneArt(memory.sceneId))"
+                        :alt="scene(memory.sceneId).title"
+                        class="aspect-video w-full object-cover"
+                        @error="plateFailed(sceneArt(memory.sceneId))"
+                      />
+                      <div class="p-2">
+                        <strong class="block text-xs">
+                          {{ scene(memory.sceneId).title }}
+                        </strong>
+                        <p class="mt-1 text-[11px] opacity-70">
+                          {{
+                            memory.ending ? 'Ending reached' : 'Journey paused'
+                          }}
+                          · {{ memory.pages }} pages ·
+                          {{ memory.health }} health
+                        </p>
+                      </div>
+                    </li>
+                  </ol>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div
+          class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 px-3 pb-3 sm:px-6 lg:px-8 lg:pb-5"
+          :class="showSheet ? 'lg:grid-cols-[minmax(0,1fr)_20rem]' : ''"
+        >
+          <!-- Below lg the sheet slides over the story instead of replacing it;
+             the story stays in view behind it but out of reach until it closes. -->
+          <div
+            ref="pane"
+            class="kr-pane-scroll rounded-2xl"
+            :inert="sheetModal && showSheet"
+          >
+            <article
+              class="flex min-h-full flex-col gap-4 md:gap-6"
+              :data-short-wide="shortWide ? '' : undefined"
+              :class="
+                layout === 'right'
+                  ? 'md:flex-row'
+                  : 'md:grid md:grid-rows-[minmax(9rem,1fr)_auto]'
+              "
+            >
+              <figure
+                class="relative isolate shrink-0 overflow-hidden rounded-2xl border border-warning/20 bg-stone-950 shadow-2xl md:flex md:aspect-auto md:items-center md:justify-center md:[container-type:size]"
+                :class="plateClass"
               >
                 <img
                   :src="platePath(art)"
-                  class="absolute inset-0 size-full object-cover"
-                  :style="{ objectPosition: art.focus ?? 'center' }"
-                  :alt="art.alt"
-                  :width="PLATE_SIZE[shape].width"
-                  :height="PLATE_SIZE[shape].height"
+                  class="absolute inset-0 hidden size-full scale-110 object-cover opacity-90 blur-2xl brightness-75 md:block"
+                  alt=""
+                  aria-hidden="true"
                   @error="plateFailed(platePath(art))"
                 />
-              </div>
-            </figure>
-
-            <div
-              class="flex flex-col gap-6 rounded-2xl border border-warning/20 bg-base-200 px-5 py-5 shadow-xl sm:px-8"
-              :class="
-                layout === 'top'
-                  ? 'md:grid md:items-start md:gap-6 xl:grid-cols-[minmax(0,7fr)_minmax(22rem,5fr)] xl:gap-10'
-                  : 'md:min-w-0 md:flex-1 md:justify-center'
-              "
-            >
-              <div>
-                <p
-                  v-if="opening"
-                  class="mb-2 font-serif text-sm font-black uppercase tracking-[.32em] text-warning"
-                  data-testid="zuzu-gamebook-act-opening"
-                >
-                  Act {{ opening }}
-                </p>
-                <p class="text-xs uppercase tracking-[.28em] text-warning">
-                  Section
-                  {{ String(store.run.visited.length).padStart(3, '0') }}
-                </p>
-                <h2
-                  ref="heading"
-                  tabindex="-1"
-                  class="mt-1 font-serif text-2xl font-black leading-tight outline-none sm:text-3xl"
-                >
-                  {{ current.title }}
-                </h2>
-                <p
-                  class="zuzu-prose mt-4 max-w-3xl text-lg leading-[1.75] text-base-content xl:text-xl"
-                  :class="kit.settings.font === 'sans' ? 'font-sans' : 'font-serif'"
-                  :style="{
-                    fontSize:
-                      kit.settings.textSize === 'extra-large'
-                        ? '1.5rem'
-                        : kit.settings.textSize === 'large'
-                          ? '1.25rem'
-                          : undefined,
-                  }"
-                >
-                  <template v-for="(part, i) in prose" :key="i">
-                    <em v-if="part.em">{{ part.text }}</em>
-                    <template v-else>{{ part.text }}</template>
-                  </template>
-                </p>
-                <p
-                  v-if="art.fit === 'stand-in'"
-                  class="mt-3 text-xs opacity-55"
-                >
-                  This section shows the nearest existing plate while its own
-                  illustration is painted.
-                </p>
-                <section
-                  v-if="store.run.lastRoll"
-                  class="zuzu-roll mt-5 border-y border-base-content/15 py-4"
-                  aria-live="polite"
-                  aria-label="Last dice result"
-                >
-                  <div
-                    class="flex flex-wrap items-center justify-between gap-3"
-                  >
-                    <div>
-                      <p
-                        class="text-xs font-black uppercase tracking-[.22em] opacity-65"
-                      >
-                        {{ store.run.lastRoll.label }} CHECK
-                      </p>
-                      <p class="mt-1 text-sm">
-                        <strong>{{ store.run.lastRoll.total }}</strong> vs
-                        {{ store.run.lastRoll.target }} ·
-                        <span
-                          :class="
-                            store.run.lastRoll.success
-                              ? 'text-success'
-                              : 'text-error'
-                          "
-                          >{{
-                            store.run.lastRoll.success ? 'SUCCESS' : 'SETBACK'
-                          }}</span
-                        >
-                      </p>
-                    </div>
-                    <div
-                      :key="store.rollSerial"
-                      class="flex items-center gap-2"
-                      aria-hidden="true"
-                    >
-                      <span
-                        v-for="(die, index) of store.run.lastRoll.dice"
-                        :key="index"
-                        class="zuzu-die zuzu-die-face grid size-12 place-items-center rounded-lg border-2 border-amber-900 bg-amber-100 font-serif text-2xl font-black text-stone-900 shadow-lg"
-                        >{{ die }}</span
-                      >
-                      <span class="ml-2 text-sm opacity-70"
-                        >{{ store.run.lastRoll.modifier < 0 ? '−' : '+' }}
-                        {{ Math.abs(store.run.lastRoll.modifier) }}</span
-                      >
-                    </div>
-                  </div>
-                </section>
-                <section
-                  v-if="fightReport"
-                  class="mt-4 rounded-xl border bg-base-300/60 p-3"
-                  :class="
-                    fightReport.won ? 'border-success/40' : 'border-error/40'
-                  "
-                  data-testid="zuzu-gamebook-fight-report"
-                >
-                  <p
-                    class="text-xs font-black uppercase tracking-[.2em]"
-                    :class="fightReport.won ? 'text-success' : 'text-error'"
-                  >
-                    {{ fightReport.won ? 'Fight won' : 'Fight lost' }} ·
-                    {{ fightReport.foe }} · {{ fightReport.fought }}
-                    {{ fightReport.fought === 1 ? 'round' : 'rounds' }}
-                  </p>
-                  <details class="mt-1 text-sm">
-                    <summary class="cursor-pointer opacity-80">
-                      Read the combat log
-                    </summary>
-                    <ol class="mt-2 space-y-1.5">
-                      <li
-                        v-for="entry in fightReport.entries"
-                        :key="entry.turn"
-                        class="rounded-lg border-l-4 bg-base-200/70 px-3 py-1.5"
-                        :class="
-                          entry.landed ? 'border-success' : 'border-error'
-                        "
-                      >
-                        <p class="font-semibold">{{ entry.head }}</p>
-                        <p class="text-xs opacity-80">{{ entry.tail }}</p>
-                      </li>
-                    </ol>
-                  </details>
-                </section>
-              </div>
-              <div class="min-w-0">
-                <section
-                  v-if="store.run.pendingLoot?.length"
-                  class="rounded-xl border border-warning/40 bg-base-300 p-4 sm:p-6"
-                  aria-label="Full pack, choose what to keep"
-                  aria-live="polite"
-                >
-                  <h3 class="font-serif text-xl font-bold">
-                    Your pack is full
-                  </h3>
-                  <p class="mt-2 text-sm">
-                    You found
-                    <strong>{{
-                      itemInfo(store.run.pendingLoot[0]!).name
-                    }}</strong
-                    >: {{ itemInfo(store.run.pendingLoot[0]!).use }} Replace one
-                    carried item or leave this find behind.
-                  </p>
-                  <p
-                    v-if="store.run.pendingLoot.length > 1"
-                    class="mt-1 text-xs opacity-65"
-                  >
-                    {{ store.run.pendingLoot.length - 1 }} more find(s) to
-                    consider.
-                  </p>
-                  <div class="mt-3 grid gap-2 sm:grid-cols-2">
-                    <button
-                      v-for="(item, index) in store.run.items"
-                      :key="index"
-                      type="button"
-                      class="btn btn-outline btn-sm justify-start"
-                      @click="store.claimLoot(index)"
-                    >
-                      Replace {{ itemInfo(item).name }}
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-ghost btn-sm justify-start"
-                      @click="store.claimLoot(null)"
-                    >
-                      Leave {{ itemInfo(store.run.pendingLoot[0]!).name }}
-                      behind
-                    </button>
-                  </div>
-                </section>
                 <div
-                  v-else-if="current.battle && store.run.battle"
-                  class="zuzu-battle relative rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
+                  class="relative size-full overflow-hidden md:shadow-2xl md:ring-1 md:ring-black/50"
+                  :class="frameClass"
                 >
-                  <!-- Hit feedback: the round's blows land on screen for a
-                       moment (remounted per round; still under reduced motion). -->
-                  <span
-                    v-if="battleHit?.taken"
-                    :key="'hurt' + battleHit.serial"
-                    class="zuzu-hurt-flash pointer-events-none absolute inset-0 rounded-xl"
-                    aria-hidden="true"
-                    data-testid="zuzu-gamebook-hurt-flash"
+                  <img
+                    :src="platePath(art)"
+                    class="absolute inset-0 size-full object-cover"
+                    :style="{ objectPosition: art.focus ?? 'center' }"
+                    :alt="art.alt"
+                    :width="PLATE_SIZE[shape].width"
+                    :height="PLATE_SIZE[shape].height"
+                    @error="plateFailed(platePath(art))"
                   />
-                  <div
-                    :key="'round' + (battleHit?.serial ?? 0)"
-                    :class="battleHit?.taken ? 'zuzu-shake' : ''"
+                </div>
+              </figure>
+
+              <div
+                class="flex flex-col gap-6 rounded-2xl border border-warning/20 bg-base-200 px-5 py-5 shadow-xl sm:px-8"
+                :class="
+                  layout === 'top'
+                    ? 'md:grid md:items-start md:gap-6 xl:grid-cols-[minmax(0,7fr)_minmax(22rem,5fr)] xl:gap-10'
+                    : 'md:min-w-0 md:flex-1 md:justify-center'
+                "
+              >
+                <div>
+                  <p
+                    v-if="opening"
+                    class="mb-2 font-serif text-sm font-black uppercase tracking-[.32em] text-warning"
+                    data-testid="zuzu-gamebook-act-opening"
+                  >
+                    Act {{ opening }}
+                  </p>
+                  <p class="text-xs uppercase tracking-[.28em] text-warning">
+                    Section
+                    {{ String(store.run.visited.length).padStart(3, '0') }}
+                  </p>
+                  <h2
+                    ref="heading"
+                    tabindex="-1"
+                    class="mt-1 font-serif text-2xl font-black leading-tight outline-none sm:text-3xl"
+                  >
+                    {{ current.title }}
+                  </h2>
+                  <p
+                    class="zuzu-prose mt-4 max-w-3xl text-lg leading-[1.75] text-base-content xl:text-xl"
+                    :class="
+                      kit.settings.font === 'sans' ? 'font-sans' : 'font-serif'
+                    "
+                    :style="{
+                      fontSize:
+                        kit.settings.textSize === 'extra-large'
+                          ? '1.5rem'
+                          : kit.settings.textSize === 'large'
+                            ? '1.25rem'
+                            : undefined,
+                    }"
+                  >
+                    <template v-for="(part, i) in prose" :key="i">
+                      <em v-if="part.em">{{ part.text }}</em>
+                      <template v-else>{{ part.text }}</template>
+                    </template>
+                  </p>
+                  <p
+                    v-if="art.fit === 'stand-in'"
+                    class="mt-3 text-xs opacity-55"
+                  >
+                    This section shows the nearest existing plate while its own
+                    illustration is painted.
+                  </p>
+                  <section
+                    v-if="store.run.lastRoll"
+                    class="zuzu-roll mt-5 border-y border-base-content/15 py-4"
+                    aria-live="polite"
+                    aria-label="Last dice result"
                   >
                     <div
                       class="flex flex-wrap items-center justify-between gap-3"
                     >
                       <div>
-                        <p class="text-xs uppercase tracking-[.2em] opacity-60">
-                          CONFRONTATION · ROUND {{ store.run.battle.turn }}
-                        </p>
-                        <h3 class="font-serif text-xl font-bold">
-                          {{ current.battle.name }}
-                        </h3>
-                      </div>
-                      <span
-                        class="relative inline-block text-sm font-bold text-error"
-                        :class="battleHit?.dealt ? 'zuzu-hit-foe' : ''"
-                        >Foe HP {{ store.run.battle.hp }}/{{ current.battle.hp
-                        }}<span
-                          v-if="battleHit?.dealt"
-                          class="zuzu-float absolute -top-4 right-0 text-base font-black text-warning"
-                          aria-hidden="true"
-                          >−{{ battleHit.dealt }}</span
-                        ></span
-                      >
-                    </div>
-                    <progress
-                      class="progress progress-error mt-3 w-full"
-                      :value="store.run.battle.hp"
-                      :max="current.battle.hp"
-                      aria-label="Enemy health"
-                    />
-                  </div>
-                  <div
-                    v-if="battleLog.length"
-                    class="mt-3"
-                    data-testid="zuzu-gamebook-combat-log"
-                  >
-                    <p class="sr-only" aria-live="polite">
-                      {{ battleLog[0]!.text }}
-                    </p>
-                    <ol
-                      class="space-y-1.5 text-sm"
-                      aria-label="Combat log, newest round first"
-                    >
-                      <li
-                        v-for="(entry, index) in battleLog.slice(0, 3)"
-                        :key="entry.turn"
-                        class="rounded-lg border-l-4 bg-base-200/70 px-3 py-1.5"
-                        :class="[
-                          entry.landed ? 'border-success' : 'border-error',
-                          index ? 'opacity-70' : '',
-                        ]"
-                      >
-                        <p class="font-semibold">{{ entry.head }}</p>
-                        <p class="text-xs opacity-80">{{ entry.tail }}</p>
-                      </li>
-                    </ol>
-                    <details v-if="battleLog.length > 3" class="mt-1 text-xs">
-                      <summary class="cursor-pointer opacity-70">
-                        Earlier rounds ({{ battleLog.length - 3 }})
-                      </summary>
-                      <ol class="mt-1 space-y-1">
-                        <li
-                          v-for="entry in battleLog.slice(3)"
-                          :key="entry.turn"
-                          class="rounded-lg bg-base-200/70 px-3 py-1"
+                        <p
+                          class="text-xs font-black uppercase tracking-[.22em] opacity-65"
                         >
-                          {{ entry.text }}
+                          {{ store.run.lastRoll.label }} CHECK
+                        </p>
+                        <p class="mt-1 text-sm">
+                          <strong>{{ store.run.lastRoll.total }}</strong> vs
+                          {{ store.run.lastRoll.target }} ·
+                          <span
+                            :class="
+                              store.run.lastRoll.success
+                                ? 'text-success'
+                                : 'text-error'
+                            "
+                            >{{
+                              store.run.lastRoll.success ? 'SUCCESS' : 'SETBACK'
+                            }}</span
+                          >
+                        </p>
+                      </div>
+                      <div
+                        :key="store.rollSerial"
+                        class="flex items-center gap-2"
+                        aria-hidden="true"
+                      >
+                        <span
+                          v-for="(die, index) of store.run.lastRoll.dice"
+                          :key="index"
+                          class="zuzu-die zuzu-die-face grid size-12 place-items-center rounded-lg border-2 border-amber-900 bg-amber-100 font-serif text-2xl font-black text-stone-900 shadow-lg"
+                          >{{ die }}</span
+                        >
+                        <span class="ml-2 text-sm opacity-70"
+                          >{{ store.run.lastRoll.modifier < 0 ? '−' : '+' }}
+                          {{ Math.abs(store.run.lastRoll.modifier) }}</span
+                        >
+                      </div>
+                    </div>
+                  </section>
+                  <section
+                    v-if="fightReport"
+                    class="mt-4 rounded-xl border bg-base-300/60 p-3"
+                    :class="
+                      fightReport.won ? 'border-success/40' : 'border-error/40'
+                    "
+                    data-testid="zuzu-gamebook-fight-report"
+                  >
+                    <p
+                      class="text-xs font-black uppercase tracking-[.2em]"
+                      :class="fightReport.won ? 'text-success' : 'text-error'"
+                    >
+                      {{ fightReport.won ? 'Fight won' : 'Fight lost' }} ·
+                      {{ fightReport.foe }} · {{ fightReport.fought }}
+                      {{ fightReport.fought === 1 ? 'round' : 'rounds' }}
+                    </p>
+                    <details class="mt-1 text-sm">
+                      <summary class="cursor-pointer opacity-80">
+                        Read the combat log
+                      </summary>
+                      <ol class="mt-2 space-y-1.5">
+                        <li
+                          v-for="entry in fightReport.entries"
+                          :key="entry.turn"
+                          class="rounded-lg border-l-4 bg-base-200/70 px-3 py-1.5"
+                          :class="
+                            entry.landed ? 'border-success' : 'border-error'
+                          "
+                        >
+                          <p class="font-semibold">{{ entry.head }}</p>
+                          <p class="text-xs opacity-80">{{ entry.tail }}</p>
                         </li>
                       </ol>
                     </details>
-                  </div>
-                  <p v-else class="mt-3 text-sm opacity-80" aria-live="polite">
-                    {{ store.run.battle.log }}
-                  </p>
-                  <p class="mt-3 text-sm font-semibold text-warning">
-                    {{
-                      store.run.battle.exposed
-                        ? 'The foe is open: an attack needs 2 less this round.'
-                        : 'The foe circles and prepares to strike. Choose your approach.'
-                    }}
-                  </p>
-                  <KrChoiceHand
-                    class="zuzu-hand mt-2"
-                    :choices="moveCards"
-                    :deal-key="'battle:' + store.run.sceneId"
-                    testid-prefix="zuzu-move"
-                    @play="playMove"
-                  />
+                  </section>
                 </div>
-                <template v-else-if="current.ending">
-                  <div
-                    class="rounded-xl border border-warning/30 bg-warning/10 p-5"
+                <div class="min-w-0">
+                  <section
+                    v-if="store.run.pendingLoot?.length"
+                    class="rounded-xl border border-warning/40 bg-base-300 p-4 sm:p-6"
+                    aria-label="Full pack, choose what to keep"
+                    aria-live="polite"
                   >
-                    <p
-                      class="text-xs font-black uppercase tracking-[.2em] text-warning"
-                    >
-                      {{ current.ending }} ending discovered
+                    <h3 class="font-serif text-xl font-bold">
+                      Your pack is full
+                    </h3>
+                    <p class="mt-2 text-sm">
+                      You found
+                      <strong>{{
+                        itemInfo(store.run.pendingLoot[0]!).name
+                      }}</strong
+                      >: {{ itemInfo(store.run.pendingLoot[0]!).use }} Replace
+                      one carried item or leave this find behind.
                     </p>
-                    <p class="mt-2 font-serif text-lg">
-                      One story ends. Others are hidden in the dust.
+                    <p
+                      v-if="store.run.pendingLoot.length > 1"
+                      class="mt-1 text-xs opacity-65"
+                    >
+                      {{ store.run.pendingLoot.length - 1 }} more find(s) to
+                      consider.
+                    </p>
+                    <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                      <button
+                        v-for="(item, index) in store.run.items"
+                        :key="index"
+                        type="button"
+                        class="btn btn-outline btn-sm justify-start"
+                        @click="store.claimLoot(index)"
+                      >
+                        Replace {{ itemInfo(item).name }}
+                      </button>
+          
                     </p>
                     <p class="mt-2 text-sm opacity-75">
                       Found {{ store.discovered.length }} of

@@ -286,7 +286,9 @@
                 class="rounded-lg border-2 border-stone-800"
                 frame="aspect-[4/3]"
                 :src="stationArt('jobs', job.id)"
-                :class="job.id === pickedJob.id ? badgeToneClass(badgeTone) : ''"
+                :class="
+                  job.id === pickedJob.id ? badgeToneClass(badgeTone) : ''
+                "
                 :prompt="jobPrompt(job.id)"
                 :alt="`Portrait: ${job.title}`"
                 :show-brief="false"
@@ -319,8 +321,12 @@
                 {{ pickedJob.title }}
               </p>
               <p class="text-sm">{{ pickedJob.tagline }}</p>
-              <div class="grid grid-cols-2 gap-2 rounded-xl border border-stone-800/30 bg-stone-50/80 p-2">
-                <label class="col-span-2 flex flex-col gap-1 text-xs font-bold uppercase sm:col-span-1">
+              <div
+                class="grid grid-cols-2 gap-2 rounded-xl border border-stone-800/30 bg-stone-50/80 p-2"
+              >
+                <label
+                  class="col-span-2 flex flex-col gap-1 text-xs font-bold uppercase sm:col-span-1"
+                >
                   Employee name
                   <input
                     v-model="employeeName"
@@ -666,7 +672,9 @@
                       >first roll {{ run.pending.rerolled.join(' + ') }}</span
                     >
                   </div>
-                  <p class="desk-story-copy text-sm leading-relaxed sm:text-base lg:text-lg">
+                  <p
+                    class="desk-story-copy text-sm leading-relaxed sm:text-base lg:text-lg"
+                  >
                     {{ run.pending.text }}
                   </p>
                   <shifting-desks-effect-chips :effects="run.pending.effects" />
@@ -908,10 +916,7 @@
       </section>
 
       <shifting-desks-personnel-archive ref="personnelArchive" />
-      <shifting-desks-settings
-        ref="settingsDialog"
-        @reset="screen = 'front'"
-      />
+      <shifting-desks-settings ref="settingsDialog" @reset="screen = 'front'" />
 
       <dialog ref="artPicker" class="modal" aria-label="Choose your art style">
         <div class="modal-box flex max-w-3xl flex-col gap-3 p-3 sm:p-4">
@@ -1962,7 +1967,8 @@ useHead({ title: 'Shifting Desks' })
   height: 100%;
   min-height: 0;
   transform-style: preserve-3d;
-  transition: transform var(--sd-flip-duration, 560ms) cubic-bezier(0.4, 0.1, 0.2, 1);
+  transition: transform var(--sd-flip-duration, 560ms)
+    cubic-bezier(0.4, 0.1, 0.2, 1);
 }
 
 .desk-flip-inner.is-open {

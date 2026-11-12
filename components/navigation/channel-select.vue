@@ -243,13 +243,13 @@
         <div
           v-if="previewedChannel"
           ref="channelFlyout"
-          @wheel="handleLauncherWheel"
           class="channel-submenu @container min-w-0 flex-1 flex-nowrap overflow-x-hidden kr-anchor-scroll p-3 xl:p-4"
           :style="{
             maxHeight: `${channelFlyoutMaxHeight}px`,
             scrollbarGutter: 'stable',
           }"
           :aria-label="previewedChannel.label + ' destinations'"
+          @wheel="handleLauncherWheel"
         >
           <section
             class="mb-2 flex min-w-0 items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3 py-2"

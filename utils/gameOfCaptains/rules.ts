@@ -383,6 +383,7 @@ export type Mission = (typeof MISSIONS)[number]
 export type MissionReport = {
   missionId: string
   result: Result
+  supplyDelta?: number
   names: string
   text: string
 }
@@ -911,6 +912,9 @@ export const MISSION_RETURN_SUPPLIES: Record<Result, number> = {
   costly: -1,
   disaster: -2,
 }
+export function missionReturnSupplyDelta(supplies: number, result: Result): number {
+  return Math.max(0, supplies + MISSION_RETURN_SUPPLIES[result]) - supplies
+}
 /** The displayed chance and the eventual return roll share one immutable preview. */
 export function previewMission(run: VoyageRun): MissionPreview {
   const base = previewCrewMission(run, missionFor(run).id, run.away)
@@ -1073,6 +1077,7 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
     .map((threat) => threat.event)
     .join(' ')
   const scene = `${base} ${routes} ${nemesisMove(antagonistFor(run), run.chapter)} ${twist}`
+  const supplyDelta = missionReturnSupplyDelta(run.supplies, grade)
   return {
     ...next,
     phase: 'decision',
@@ -1080,13 +1085,14 @@ export function advanceVoyageDay(run: VoyageRun): VoyageRun {
     report: {
       missionId: active.missionId,
       result: grade,
+      supplyDelta,
       names: chosen,
       text: `${base} ${routes}`,
     },
     injuredUntil,
     trust:
       run.trust + (grade === 'flawless' ? 1 : grade === 'disaster' ? -1 : 0),
-    supplies: Math.max(0, run.supplies + MISSION_RETURN_SUPPLIES[grade]),
+    supplies: run.supplies + supplyDelta,
     scene,
     log: [
       ...run.log,

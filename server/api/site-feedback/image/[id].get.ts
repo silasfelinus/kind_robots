@@ -5,6 +5,7 @@ import {
   setHeader,
 } from 'h3'
 import prisma from '~/server/utils/prisma'
+import { readArtImageBytes } from '~/server/utils/artImageBytes'
 
 export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'))
@@ -20,14 +21,19 @@ export default defineEventHandler(async (event) => {
       isPublic: true,
       isMature: false,
     },
-    select: { imageData: true, fileType: true },
+    select: { id: true, fileType: true },
   })
-  if (!image?.imageData || !['png', 'jpeg', 'webp'].includes(image.fileType ?? '')) {
+  if (!image || !['png', 'jpeg', 'webp'].includes(image.fileType ?? '')) {
     throw createError({ statusCode: 404, message: 'Screenshot not found.' })
   }
 
-  setHeader(event, 'Content-Type', 'image/' + image.fileType)
+  const bytes = await readArtImageBytes(image.id)
+  if (!bytes || !['png', 'jpeg', 'webp'].includes(bytes.fileType)) {
+    throw createError({ statusCode: 404, message: 'Screenshot not found.' })
+  }
+
+  setHeader(event, 'Content-Type', 'image/' + bytes.fileType)
   setHeader(event, 'X-Content-Type-Options', 'nosniff')
   setHeader(event, 'Cache-Control', 'public, max-age=3600')
-  return Buffer.from(image.imageData, 'base64')
+  return Buffer.from(bytes.base64, 'base64')
 })

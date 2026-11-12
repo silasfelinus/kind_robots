@@ -1,5 +1,231 @@
 // /utils/achievements/catalog/main/game-of-captains.ts
+//
+// Space Couch (/play/game-of-captains). stores/gameOfCaptainsStore.ts awards
+// these from what each action newly earned (utils/gameOfCaptains/
+// achievements.ts): endings when the voyage reaches them, beside the Playbook
+// Kit unlocks in persist(). Loading a saved voyage never awards.
 
 import type { GameAchievementDef } from '../../gameAchievements'
 
-export const GAME_OF_CAPTAINS_ACHIEVEMENTS: GameAchievementDef[] = []
+const STYLE =
+  'Original gouache painting, a long scarlet velvet couch flying through space inside a transparent force bubble, violet stars, amber lamps, brown ink outlines, warm comic space opera, centered emblem composition, no text labels, every surface bare and unmarked.'
+
+export const GAME_OF_CAPTAINS_ACHIEVEMENTS: GameAchievementDef[] = [
+  {
+    game: 'game-of-captains',
+    key: 'launch',
+    tier: 1,
+    label: 'Unlicensed and Airborne',
+    message: 'The couch has left the atmosphere. Nobody checked your licence.',
+    tooltip: 'In Space Couch, choose a captain and crew and launch a voyage.',
+    subtleHint: 'Every voyage starts with somebody sitting down.',
+    icon: 'kind-icon:rocket',
+    rule: { kind: 'event' },
+    artPrompt: `A scarlet velvet couch blasting off from a suburban backyard into the night sky, its force bubble shimmering, a brand-new captain gripping the armrest while three crewmates cheer and a cushion tumbles away behind them. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'homeward',
+    tier: 1,
+    label: 'The Couch Comes Home',
+    message:
+      'The voyage is over. The couch reached the gate in one piece, mostly.',
+    tooltip: 'In Space Couch, reach any ending of a voyage.',
+    subtleHint: 'Finish what the mission board started.',
+    icon: 'kind-icon:home',
+    rule: { kind: 'event' },
+    artPrompt: `A weary scarlet couch drifting through a glowing ring-shaped jump gate toward a small blue home planet, the crew asleep against each other inside the force bubble while a single amber lamp still glows. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'open-horizon',
+    tier: 3,
+    label: 'Captain of the Open Horizon',
+    message:
+      'You protected the worlds without owning them. Vox saved your place at the bar.',
+    tooltip: 'In Space Couch, reach the ending Captain of the Open Horizon.',
+    subtleHint: 'A crew that trusts you and a name worth keeping.',
+    icon: 'kind-icon:sun',
+    rule: { kind: 'event' },
+    artPrompt: `Four crewmates celebrating on a long red couch inside a delicate safety bubble before a sunrise planet, Barkeep Vox the grey tardigrade raising a glass from a distant orbital bar window. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'last-ship-home',
+    tier: 2,
+    label: 'The Last Ship Home',
+    message:
+      'You brought the wounded home. The rescued families call you by name.',
+    tooltip: 'In Space Couch, reach the ending The Last Ship Home.',
+    subtleHint: 'Some rescues cost more than reputation.',
+    icon: 'kind-icon:hand-heart',
+    rule: { kind: 'event' },
+    artPrompt: `A battered yet intact red sofa spaceship crowded with bandaged rescued families inside its force bubble, passing a distant quiet planet at dusk as the captain waves from the armrest. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'galactic-bargain',
+    tier: 2,
+    label: 'The Galactic Bargain',
+    message:
+      'The galaxy survives, and the protection comes with a public debt.',
+    tooltip: 'In Space Couch, reach the ending The Galactic Bargain.',
+    subtleHint: 'Bargain with something in the hold.',
+    icon: 'kind-icon:scroll',
+    rule: { kind: 'event' },
+    artPrompt: `An ominous cosmic auditor with ledger-page wings presenting a glowing contract to a seated crew on a scarlet space couch, a quill hovering between them in the violet dark. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'cost-of-command',
+    tier: 1,
+    label: 'The Cost of Command',
+    message: 'Your gambit failed. Your written warning outlived you.',
+    tooltip: 'In Space Couch, reach the ending The Cost of Command.',
+    subtleHint: 'An empty hold makes a poor bargaining chip.',
+    icon: 'kind-icon:feather',
+    rule: { kind: 'event' },
+    artPrompt: `A lonely scarlet couch adrift against a huge starfield, a folded handwritten letter tucked into the cushions, its transparent shield shimmering around weary survivors who read it by lamplight. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'off-the-record',
+    tier: 3,
+    label: 'Off the Record',
+    message: 'Your crew’s evidence opened a secret ending.',
+    tooltip:
+      'In Space Couch, reach a secret ending: The Union Cancellation or The Witness Coalition.',
+    subtleHint: 'Your crew’s detours were collecting something.',
+    icon: 'kind-icon:key',
+    rule: { kind: 'event' },
+    artPrompt: `A spotlit cosmic arena going dark as performers walk off holding a crumpled contract, while a council of ordinary witnesses gathers at a jump gate table, the red couch waiting quietly in the wings. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'anthology',
+    tier: 3,
+    label: 'Anthology',
+    message: 'Six different voyages, six different endings in the scrapbook.',
+    tooltip:
+      'In Space Couch, collect six different endings in the Endings pane.',
+    subtleHint: 'Try a different captain, a different crew, a different order.',
+    icon: 'kind-icon:library',
+    rule: { kind: 'event' },
+    artPrompt: `Six small framed paintings of different space voyages hanging on the wall of a cosy orbital lounge, each showing the scarlet couch in a new predicament, with a satisfied captain sipping tea beneath them. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'first-contact',
+    tier: 1,
+    label: 'First Contact, Sort Of',
+    message: 'Your first alien species is logged in the scrapbook.',
+    tooltip:
+      'In Space Couch, record your first alien species in the field guide.',
+    subtleHint: 'Look out of the bubble now and then.',
+    icon: 'kind-icon:alien',
+    rule: { kind: 'event' },
+    artPrompt: `A curious many-eyed alien creature pressing its face against the couch's force bubble while a delighted crewmate sketches it in a battered field notebook, both equally fascinated. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'xenologist',
+    tier: 2,
+    label: 'Xenologist',
+    message:
+      'Twenty-five species in the scrapbook. The Natural History Society wrote back.',
+    tooltip: 'In Space Couch, record 25 alien species in the field guide.',
+    subtleHint: 'Different worlds keep different neighbours.',
+    icon: 'kind-icon:species',
+    rule: { kind: 'event' },
+    artPrompt: `A crowded field-guide spread of twenty-five whimsical alien species sketched around the margins of a giant open scrapbook floating beside the scarlet couch, a crewmate pinning the newest page in place. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'field-guide',
+    tier: 3,
+    label: 'Galactic Field Guide',
+    message:
+      'Every species is logged. The galaxy has no strangers left, only neighbours.',
+    tooltip: 'In Space Couch, record every alien species in the field guide.',
+    subtleHint: 'All of them, including the shy ones.',
+    icon: 'kind-icon:globe',
+    rule: { kind: 'event' },
+    artPrompt: `A grand parade of over a hundred friendly alien species of every size orbiting the scarlet couch in a great spiral, the crew presenting a completed leather-bound field guide to the stars. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'couch-for-two',
+    tier: 2,
+    label: 'Couch for Two',
+    message:
+      'Romance in the force bubble. The rest of the crew pretends not to notice.',
+    tooltip: 'In Space Couch, see a romance through to commitment.',
+    subtleHint: 'Invite, listen, and do not rush it.',
+    icon: 'kind-icon:heart',
+    rule: { kind: 'event' },
+    artPrompt: `Two crewmates sharing one end of the scarlet couch under a nebula shaped like a heart, sharing a blanket and a mug of cocoa while the rest of the crew very obviously looks the other way. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'print-another',
+    tier: 1,
+    label: 'Print Another Me',
+    message:
+      'The clone lab printed a redshirt back. Their old lives stay on the wall.',
+    tooltip: 'In Space Couch, print a clone in the clone lab.',
+    subtleHint: 'The memorial wall is not always the last word.',
+    icon: 'kind-icon:copy',
+    rule: { kind: 'event' },
+    artPrompt: `A humming retro clone printer in a cramped couch-side lab sliding out a bewildered redshirt in a fresh uniform, beside a memorial wall of earlier portraits of the very same person. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'trio',
+    tier: 2,
+    label: 'Three’s a Crew',
+    message: 'You saw a trio adventure through to its end.',
+    tooltip: 'In Space Couch, finish a trio adventure with your crew.',
+    subtleHint: 'Some crews come with their own story.',
+    icon: 'kind-icon:users',
+    rule: { kind: 'event' },
+    artPrompt: `Three mismatched crewmates triumphantly stepping out of a strange alien doorway together, arms linked, as the scarlet couch hovers behind them with its force bubble glowing. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'names-known',
+    tier: 2,
+    label: 'Learned Their Names',
+    message: 'You remember ten redshirts by name and by skill.',
+    tooltip: 'In Space Couch, learn what ten different redshirts are good at.',
+    subtleHint: 'Send them out, then remember who came back with what.',
+    icon: 'kind-icon:checklist',
+    rule: { kind: 'event' },
+    artPrompt: `A captain carefully writing ten names onto a long scroll pinned to the back of the scarlet couch, each name with a tiny doodle of the redshirt's talent, while the redshirts beam with pride. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'detour',
+    tier: 1,
+    label: 'Personal Business',
+    message: 'You followed a crewmate home on a detour of their own.',
+    tooltip: 'In Space Couch, see a crew detour through to its end.',
+    subtleHint: 'Ask your crew what they left behind.',
+    icon: 'kind-icon:map',
+    rule: { kind: 'event' },
+    artPrompt: `The scarlet couch parked outside a crewmate's tiny childhood home on a mossy asteroid, the crewmate hugging an elderly relative at the door while the rest of the crew waits politely with flowers. ${STYLE}`,
+  },
+  {
+    game: 'game-of-captains',
+    key: 'ask-the-host',
+    tier: 1,
+    label: 'Ask the Host',
+    message:
+      'At the casino you asked the giant who carries it before deciding.',
+    tooltip:
+      'In Space Couch, settle a casino dilemma by asking the host first.',
+    subtleHint: 'The casino stands on someone. Ask them.',
+    icon: 'kind-icon:handshake',
+    rule: { kind: 'event' },
+    artPrompt: `A tiny captain on a glittering casino terrace cupping their hands to call up to the enormous gentle blue face of the living giant that carries the casino on its skin, the giant leaning down to listen. ${STYLE}`,
+  },
+]

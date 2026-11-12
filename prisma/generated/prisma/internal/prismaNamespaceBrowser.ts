@@ -60,6 +60,8 @@ export const ModelName = {
   ArcadeGuestRating: 'ArcadeGuestRating',
   ArchiveEntry: 'ArchiveEntry',
   ArchiveActionPreset: 'ArchiveActionPreset',
+  ArtSlot: 'ArtSlot',
+  ArtCandidate: 'ArtCandidate',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
   BrainstormRiff: 'BrainstormRiff',
@@ -341,6 +343,40 @@ export const ArchiveActionPresetScalarFieldEnum = {
 } as const
 
 export type ArchiveActionPresetScalarFieldEnum = (typeof ArchiveActionPresetScalarFieldEnum)[keyof typeof ArchiveActionPresetScalarFieldEnum]
+
+
+export const ArtSlotScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slotKey: 'slotKey',
+  projectSlug: 'projectSlug',
+  label: 'label',
+  selectedArtImageId: 'selectedArtImageId',
+  selectedAt: 'selectedAt',
+  selectedBy: 'selectedBy'
+} as const
+
+export type ArtSlotScalarFieldEnum = (typeof ArtSlotScalarFieldEnum)[keyof typeof ArtSlotScalarFieldEnum]
+
+
+export const ArtCandidateScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slotId: 'slotId',
+  artImageId: 'artImageId',
+  artJobId: 'artJobId',
+  source: 'source',
+  sourceRef: 'sourceRef',
+  seed: 'seed',
+  checkpoint: 'checkpoint',
+  renderFingerprint: 'renderFingerprint',
+  verdict: 'verdict',
+  note: 'note'
+} as const
+
+export type ArtCandidateScalarFieldEnum = (typeof ArtCandidateScalarFieldEnum)[keyof typeof ArtCandidateScalarFieldEnum]
 
 
 export const BrainstormSessionScalarFieldEnum = {
@@ -3014,6 +3050,27 @@ export const ArchiveActionPresetOrderByRelevanceFieldEnum = {
 } as const
 
 export type ArchiveActionPresetOrderByRelevanceFieldEnum = (typeof ArchiveActionPresetOrderByRelevanceFieldEnum)[keyof typeof ArchiveActionPresetOrderByRelevanceFieldEnum]
+
+
+export const ArtSlotOrderByRelevanceFieldEnum = {
+  slotKey: 'slotKey',
+  projectSlug: 'projectSlug',
+  label: 'label'
+} as const
+
+export type ArtSlotOrderByRelevanceFieldEnum = (typeof ArtSlotOrderByRelevanceFieldEnum)[keyof typeof ArtSlotOrderByRelevanceFieldEnum]
+
+
+export const ArtCandidateOrderByRelevanceFieldEnum = {
+  source: 'source',
+  sourceRef: 'sourceRef',
+  checkpoint: 'checkpoint',
+  renderFingerprint: 'renderFingerprint',
+  verdict: 'verdict',
+  note: 'note'
+} as const
+
+export type ArtCandidateOrderByRelevanceFieldEnum = (typeof ArtCandidateOrderByRelevanceFieldEnum)[keyof typeof ArtCandidateOrderByRelevanceFieldEnum]
 
 
 export const BrainstormSessionOrderByRelevanceFieldEnum = {

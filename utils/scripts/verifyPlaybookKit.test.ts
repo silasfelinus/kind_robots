@@ -257,9 +257,21 @@ for (const pane of [
   'Secrets',
   'Scrapbook',
   'Endings',
+  'Achievements',
   'Settings',
 ])
   assert.ok(shell.includes(`label: '${pane}'`), pane)
+// Every kit game with site achievements shows them in its own pane.
+assert.match(
+  shell,
+  /<GameAchievementStrip\s+v-else-if="active\.id === 'achievements'"\s+:game="spec\.conductorSlug"/,
+)
+assert.ok(
+  shell.includes(
+    'show: achievementsForGame(props.spec.conductorSlug).length > 0',
+  ),
+  'the achievements pane hides for a playbook with no achievements',
+)
 assert.ok(
   !/localStorage|\$fetch/.test(shell),
   'components never touch storage or the API',

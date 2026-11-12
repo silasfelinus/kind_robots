@@ -134,6 +134,33 @@ export type ArchiveEntry = Prisma.ArchiveEntryModel
  */
 export type ArchiveActionPreset = Prisma.ArchiveActionPresetModel
 /**
+ * Model ArtSlot
+ * Art slots: one place an image is used (a game card, an evolution stage, a
+ * cast portrait, a Conductor request's target), with every render made for it
+ * kept as a candidate and one chosen by an admin.
+ * 
+ * Silas, 2026-11-11 PT: "In most cases, we should support having multiple art
+ * sources for art. They should be manageable from a back end, so that the admin
+ * interfaces can choose a better choice. If the art is actually duplicated (same
+ * seed), they can be deleted." Before this, every game kept its keeper in a
+ * hard-coded manifest (utils/slimeCity/artManifest.ts and friends) and every
+ * other render of the same slot was invisible -- Ruler Hooked alone had ~690
+ * renders nobody could compare.
+ * 
+ * `slotKey` is the asset's stable name, e.g. `slime-city/evolutions/union-millwright@2`
+ * (the `asset:` of a Conductor ledger subject) or `ruler-hooked:public/images/...`.
+ * artImageId / artJobId are plain scalars with no relation back to ArtImage or
+ * ArtJob (same as ComicAttempt), so the migration is purely additive and an image
+ * cleanup can never cascade into curation history. Verdicts are short text
+ * validated by server/utils/artSlots.ts, so a new one needs no migration.
+ */
+export type ArtSlot = Prisma.ArtSlotModel
+/**
+ * Model ArtCandidate
+ * 
+ */
+export type ArtCandidate = Prisma.ArtCandidateModel
+/**
  * Model BrainstormSession
  * Durable private Brainstorm workspaces. `userId` is intentionally an indexed
  * ownership scalar rather than another back-relation on the already enormous

@@ -694,6 +694,7 @@
     "test:facet-taxonomy-first": "tsx utils/scripts/verifyFacetTaxonomyFirst.test.ts",
     "test:queued-prompt-gate": "tsx utils/scripts/verifyQueuedPromptGate.test.ts",
     "test:art-request-key": "tsx utils/scripts/verifyArtRequestKey.test.ts",
+    "test:art-slots": "tsx utils/scripts/verifyArtSlots.test.ts",
     "test:arcade-soundtrack-briefs": "tsx utils/scripts/verifyArcadeSoundtrackBriefs.test.ts",
     "test:arcade-soundtrack-mixer": "tsx utils/scripts/verifyArcadeSoundtrackMixer.test.ts",
     "test:sliding-tiles": "tsx utils/scripts/verifySlidingTileGallery.test.ts",

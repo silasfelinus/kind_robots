@@ -30,6 +30,9 @@ on:
       - 'content/channels/admin/playbook-kit.md'
       - 'utils/scripts/verifyPlaybookKit.test.ts'
       - 'utils/scripts/verifySpaceCouchKit.test.ts'
+      - 'stores/gameOfCaptainsStore.ts'
+      - 'utils/achievements/catalog/main/game-of-captains.ts'
+      - 'utils/scripts/verifySpaceCouchAchievements.test.ts'
       - 'utils/scripts/scaffoldPlaybook.ts'
       - '.github/workflows/playbook-kit.yml'
   workflow_dispatch:
@@ -56,6 +59,8 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Audit every playbook against its complexity budget
         run: npm run test:playbook-kit
+      - name: Space Couch achievements (earned by actions, never by loads)
+        run: npx tsx utils/scripts/verifySpaceCouchAchievements.test.ts
       - name: Forge factors, forecasts, handoff and live counts of existing playbooks
         run: npm run test:playbook-forge
       - name: Art prompts for every unpainted beat in games marked complete

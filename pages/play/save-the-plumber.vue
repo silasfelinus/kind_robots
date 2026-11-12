@@ -184,7 +184,9 @@
                 :key="section.id"
                 type="button"
                 class="plumber-control"
-                :class="{ 'plumber-control--accent': scrapbookView === section.id }"
+                :class="{
+                  'plumber-control--accent': scrapbookView === section.id,
+                }"
                 :aria-pressed="scrapbookView === section.id"
                 @click="scrapbookView = section.id"
               >
@@ -192,15 +194,19 @@
               </button>
             </nav>
             <div v-if="scrapbookView === 'worlds'" class="plumber-world-panel">
-              <p class="plumber-eyebrow">SCRAPBOOK · WORLD {{ currentWorld.id }} / 08</p>
+              <p class="plumber-eyebrow">
+                SCRAPBOOK · WORLD {{ currentWorld.id }} / 08
+              </p>
               <h2 id="world-heading" class="plumber-section-title">
                 {{ currentWorld.name }}
               </h2>
               <p class="plumber-world-tag">{{ currentWorld.tagline }}</p>
               <p class="plumber-world-mechanic">{{ currentWorld.mechanic }}</p>
               <p class="plumber-world-tag" aria-live="polite">
-                {{ worldClearedCount }} / {{ currentWorld.stages.length }} stages cleared ·
-                {{ worldGearCount }} / {{ currentWorld.stages.length }} Golden Gears
+                {{ worldClearedCount }} /
+                {{ currentWorld.stages.length }} stages cleared ·
+                {{ worldGearCount }} / {{ currentWorld.stages.length }} Golden
+                Gears
               </p>
               <div class="plumber-stage-grid" aria-label="World stages">
                 <div
@@ -366,10 +372,17 @@
       </div>
 
       <footer class="plumber-console-bottom">
-        <span v-if="screen === 'story' || (screen === 'worlds' && scrapbookView === 'worlds')">
+        <span
+          v-if="
+            screen === 'story' ||
+            (screen === 'worlds' && scrapbookView === 'worlds')
+          "
+        >
           <span class="plumber-dpad">← →</span> CHANGE SCENE
         </span>
-        <span v-else-if="screen === 'worlds'">SCRAPBOOK · SAVED ON THIS DEVICE</span>
+        <span v-else-if="screen === 'worlds'"
+          >SCRAPBOOK · SAVED ON THIS DEVICE</span
+        >
         <span v-else-if="screen === 'play' || screen === 'maker'">
           GAME CONTROLS ACTIVE
         </span>
@@ -426,19 +439,26 @@ const scrapbookSections = [
   { id: 'endings', label: 'ENDINGS' },
 ] as const
 const scrapbookView = ref<(typeof scrapbookSections)[number]['id']>('worlds')
-const albumView = computed(() => scrapbookView.value === 'endings' ? 'endings' : 'collection')
+const albumView = computed(() =>
+  scrapbookView.value === 'endings' ? 'endings' : 'collection',
+)
 const reducedMotion = ref(false)
 const currentWorld = computed(() => PLUMBER_WORLDS[worldIndex.value]!)
 const clearedNodes = computed(() => new Set(plumber.progress?.done ?? []))
 const secretNodes = computed(() => new Set(plumber.progress?.secrets ?? []))
-const worldClearedCount = computed(() =>
-  currentWorld.value.stages.filter((stage) => {
-    const node = stageNode(stage.code)?.id
-    return node && (clearedNodes.value.has(node) || secretNodes.value.has(node))
-  }).length,
+const worldClearedCount = computed(
+  () =>
+    currentWorld.value.stages.filter((stage) => {
+      const node = stageNode(stage.code)?.id
+      return (
+        node && (clearedNodes.value.has(node) || secretNodes.value.has(node))
+      )
+    }).length,
 )
-const worldGearCount = computed(() =>
-  currentWorld.value.stages.filter((stage) => plumber.gears.has(stage.code)).length,
+const worldGearCount = computed(
+  () =>
+    currentWorld.value.stages.filter((stage) => plumber.gears.has(stage.code))
+      .length,
 )
 function stageStatus(code: string): string {
   const node = stageNode(code)?.id
@@ -547,7 +567,10 @@ function onScreenKey(event: KeyboardEvent) {
     target.closest('button, a, input, select, textarea')
   )
     return
-  if (screen.value === 'story' || (screen.value === 'worlds' && scrapbookView.value === 'worlds')) {
+  if (
+    screen.value === 'story' ||
+    (screen.value === 'worlds' && scrapbookView.value === 'worlds')
+  ) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault()
       const step = event.key === 'ArrowLeft' ? -1 : 1

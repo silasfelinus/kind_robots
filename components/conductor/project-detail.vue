@@ -609,6 +609,7 @@ type ProjectPatch = {
 const LIFECYCLE_STATUSES: ProjectLifecycleStatus[] = [
   'ACTIVE',
   'CONTINUOUS',
+  'PLAYTEST',
   'PAUSED',
   'DONE',
   'ARCHIVED',

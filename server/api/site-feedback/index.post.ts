@@ -77,14 +77,20 @@ async function ensureProjectLabel(
       color: '277da1',
       description: 'Route GitHub issue to the Conductor project roadmap.',
     })
-    if (!created.ok && created.status !== 422) {
-      throw createError({
-        statusCode: 502,
-        message:
-          'Could not create the Conductor project label (' +
-          created.status +
-          ').',
-      })
+    if (!created.ok) {
+      const existing =
+        created.status === 422
+          ? await github('/labels/' + encodeURIComponent(name), token)
+          : null
+      if (!existing?.ok) {
+        throw createError({
+          statusCode: 502,
+          message:
+            'Could not create the Conductor project label (' +
+            created.status +
+            ').',
+        })
+      }
     }
   } else if (!found.ok) {
     throw createError({

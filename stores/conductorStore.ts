@@ -154,7 +154,9 @@ export const useConductorStore = defineStore('conductor', () => {
   )
   const humanGates = computed<ConductorHumanGate[]>(() =>
     allHumanGates.value.filter(({ project }) =>
-      ['active', 'continuous', 'playtest'].includes(project.conductorStatus ?? ''),
+      ['active', 'continuous', 'playtest'].includes(
+        project.conductorStatus ?? '',
+      ),
     ),
   )
   const pausedHumanGates = computed<ConductorHumanGate[]>(() =>

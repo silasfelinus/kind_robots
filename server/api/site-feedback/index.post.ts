@@ -7,7 +7,10 @@ import {
 } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
-import { conductorGet, conductorGithubToken } from '~/server/utils/conductor-github'
+import {
+  conductorGet,
+  conductorGithubToken,
+} from '~/server/utils/conductor-github'
 
 const REPO = 'silasfelinus/kind_robots'
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
@@ -155,7 +158,8 @@ export default defineEventHandler(async (event) => {
   if (!roadmap) {
     throw createError({
       statusCode: 400,
-      message: 'That Conductor project does not exist. Correct the project slug.',
+      message:
+        'That Conductor project does not exist. Correct the project slug.',
     })
   }
 

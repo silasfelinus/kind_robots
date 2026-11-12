@@ -306,6 +306,16 @@
           <strong>{{ lab.campaignLegacy.echo.title }}</strong> ·
           {{ describeTerms(lab.campaignLegacy.echo.terms) }}
         </p>
+        <p
+          v-if="finishedTrophy"
+          class="campaign-legacy-terms"
+          data-testid="slime-campaign-trophy-unlocked"
+        >
+          <strong>UNLOCKED</strong> · {{ finishedTrophy.trophy }} · title “{{
+            finishedTrophy.title
+          }}” · {{ finishedTrophy.frame.name }} card back. Kept on your account;
+          no cards or Meat.
+        </p>
       </div>
       <div class="campaign-deck">
         <div class="campaign-actions">
@@ -710,10 +720,20 @@ import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
 import { rarityOf } from '~/utils/slimeCity/progression'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import {
+  CREW_TROPHIES,
+  crewTrophyUnlocked,
+} from '~/utils/slimeCity/crewTrophies'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const lab = useSlimeCityStore()
+/** The active crew's trophy once its campaign is finished (slime-city/t-061). */
+const finishedTrophy = computed(() =>
+  crewTrophyUnlocked(lab.activeTeam, lab.endingsFound)
+    ? CREW_TROPHIES[lab.activeTeam]
+    : null,
+)
 function onJourneyDeckChange(event: Event): void {
   lab.selectJourneyDeck((event.target as HTMLSelectElement).value)
 }

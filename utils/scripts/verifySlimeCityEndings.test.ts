@@ -25,6 +25,12 @@ import {
   validSlimeCityStory,
 } from '../slimeCity/storySave'
 import { TEAMS } from '../slimeCity/prototypes'
+import {
+  CREW_TROPHIES,
+  crewTrophyShelf,
+  crewTrophyUnlocked,
+  earnedCrewTitles,
+} from '../slimeCity/crewTrophies'
 
 // Every crew: two plates, three journey epilogues, two endings per ally arc.
 for (const crew of TEAMS) {
@@ -173,3 +179,43 @@ assert.ok(campaign.includes('<SlimeCityEndings v-if="lab.endingsOpen" />'))
 assert.ok(campaign.includes('data-testid="slime-campaign-open-endings"'))
 
 console.log('slime-city endings gallery + scrapbook: ok')
+
+// Crew trophies (slime-city/t-061): cosmetic only, derived from the gallery.
+{
+  for (const crew of TEAMS) {
+    const t = CREW_TROPHIES[crew.id]
+    assert.ok(t, crew.id + ' has a trophy')
+    assert.ok(t.trophy && t.title && t.line && t.frame.name, crew.id)
+    assert.ok(t.frame.background.includes('gradient'), crew.id + ' frame')
+    assert.equal(crewTrophyUnlocked(crew.id, []), false)
+    assert.equal(crewTrophyUnlocked(crew.id, [crew.id + ':compromise']), true)
+    assert.equal(crewTrophyUnlocked(crew.id, [crew.id + ':triumph']), true)
+    // Journey or alliance endings alone never unlock it.
+    assert.equal(
+      crewTrophyUnlocked(crew.id, [crew.id + ':journey:left']),
+      false,
+    )
+  }
+  assert.equal(
+    new Set(TEAMS.map((c) => CREW_TROPHIES[c.id].title)).size,
+    TEAMS.length,
+    'titles are unique',
+  )
+  const empty = crewTrophyShelf([])
+  assert.equal(empty.unlocked, 0)
+  assert.equal(empty.total, TEAMS.length)
+  // A real finished run unlocks exactly that crew's trophy.
+  const won = finishRiot('left')
+  const rec = recordFinishedRuns({ endings: [], scrapbook: [] }, won)
+  const shelf = crewTrophyShelf(rec.endings)
+  assert.equal(shelf.unlocked, 1)
+  assert.deepEqual(earnedCrewTitles(rec.endings), [CREW_TROPHIES.riot.title])
+  // Cosmetic only: the story save shape is unchanged.
+  const ui = readFileSync('components/slime-city-endings.vue', 'utf8')
+  assert.match(ui, /slime-trophy-shelf/)
+  assert.match(
+    readFileSync('components/slime-city-campaign.vue', 'utf8'),
+    /slime-campaign-trophy-unlocked/,
+  )
+}
+console.log('slime-city crew trophies verified')

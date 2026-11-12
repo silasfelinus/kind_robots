@@ -4,10 +4,16 @@
 from __future__ import annotations
 
 import argparse
+import json
+import os
+import re
 import subprocess
+import urllib.request
+from pathlib import Path
 from datetime import datetime, timezone
 
 DEFAULT_PREFIXES = ("claude/", "worker/", "agent/")
+RETIREMENTS_FILE = Path(__file__).resolve().parent.parent / "ops" / "branch-retirements.json"
 
 
 def git(*args: str) -> str:
@@ -76,11 +82,90 @@ def all_remote_branches() -> list[str]:
     return branches
 
 
+def read_retirements(path: Path) -> dict[str, str]:
+    """Retire only explicitly reviewed branches whose HEAD matches the recorded SHA."""
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("version") != 1 or not isinstance(payload.get("retirements"), dict):
+        raise ValueError("Invalid branch retirement manifest")
+    for name, sha in payload["retirements"].items():
+        if (
+            not isinstance(name, str)
+            or name in ("main", "master", "HEAD")
+            or not isinstance(sha, str)
+            or re.fullmatch(r"[0-9a-f]{40}", sha) is None
+        ):
+            raise ValueError(f"Invalid retirement entry: {name!r}")
+    return payload["retirements"]
+
+
+def open_pr_heads() -> set[str] | None:
+    """Fail closed when GitHub's live open-PR list is unavailable."""
+    repo, token = os.environ.get("GITHUB_REPOSITORY"), os.environ.get("GITHUB_TOKEN")
+    if not repo or not token:
+        return None
+    heads: set[str] = set()
+    try:
+        page = 1
+        while True:
+            request = urllib.request.Request(
+                f"https://api.github.com/repos/{repo}/pulls?state=open&per_page=100&page={page}",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Accept": "application/vnd.github+json",
+                    "User-Agent": "kind-robots-branch-janitor",
+                },
+            )
+            with urllib.request.urlopen(request, timeout=15) as response:
+                prs = json.load(response)
+            if not isinstance(prs, list):
+                return None
+            heads.update(
+                pr["head"]["ref"]
+                for pr in prs
+                if pr["head"]["repo"] is not None
+                and pr["head"]["repo"]["full_name"].casefold() == repo.casefold()
+            )
+            if len(prs) < 100:
+                return heads
+            page += 1
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def eligible_retirements(
+    manifest: dict[str, str],
+    existing: set[str],
+    heads: set[str] | None,
+    current_sha,
+) -> tuple[set[str], dict[str, str]]:
+    eligible: set[str] = set()
+    skipped: dict[str, str] = {}
+    for name, expected_sha in manifest.items():
+        if name not in existing:
+            continue
+        if heads is None:
+            skipped[name] = "open PR lookup unavailable"
+        elif name in heads:
+            skipped[name] = "open PR"
+        elif current_sha(name) != expected_sha:
+            skipped[name] = "tip moved"
+        else:
+            eligible.add(name)
+    return eligible, skipped
+
+
 def delete(branch: str, dry_run: bool) -> bool:
     if dry_run:
         return True
+    # A branch pushed after the fetch must not be deleted.
+    expected = git("rev-parse", f"refs/remotes/origin/{branch}")
+    if re.fullmatch(r"[0-9a-f]{40}", expected) is None:
+        return False
     return subprocess.run(
-        ["git", "push", "origin", "--delete", branch],
+        ["git", "push", "origin", f":refs/heads/{branch}",
+         f"--force-with-lease=refs/heads/{branch}:{expected}"],
         capture_output=True,
         text=True,
         check=False,
@@ -100,6 +185,7 @@ def main() -> int:
         "commit trail, or scratch/diagnostic work the branch's own later commits "
         "describe as retired).",
     )
+    parser.add_argument("--retirements-file", type=Path, default=RETIREMENTS_FILE)
     args = parser.parse_args()
 
     git("fetch", "origin", "+refs/heads/*:refs/remotes/origin/*", "--prune")
@@ -110,6 +196,13 @@ def main() -> int:
 
     force_set = {b.strip() for b in args.force_delete.split(",") if b.strip()}
     branches = remote_branches(DEFAULT_PREFIXES)
+    retirements = read_retirements(args.retirements_file)
+    eligible, skipped = eligible_retirements(
+        retirements, set(all_remote_branches()),
+        open_pr_heads() if retirements else set(),
+        lambda name: git("rev-parse", f"refs/remotes/origin/{name}"),
+    )
+    force_set.update(eligible)
     # A forced name is explicit operator/agent intent regardless of naming
     # convention — it must not be silently dropped just because it falls
     # outside DEFAULT_PREFIXES.
@@ -131,6 +224,8 @@ def main() -> int:
     print(f"{verb} (merged, patch-equivalent, or forced): {', '.join(deleted) or '(none)'}")
     print(f"Stranded (review only): {', '.join(stranded) or '(none)'}")
     print(f"Active (left alone): {', '.join(active) or '(none)'}")
+    if skipped:
+        print(f"Retirements skipped (safety): {skipped}")
     if failed:
         print(f"Delete failed: {', '.join(failed)}")
     return 1 if failed else 0

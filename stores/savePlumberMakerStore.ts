@@ -2,6 +2,8 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from '~/stores/utils'
 import { useUserStore } from '~/stores/userStore'
+import { useAchievementStore } from '~/stores/achievementStore'
+import { PLUMBER_ACHIEVEMENT_CODES } from '~/utils/arcade/games/savePlumberAchievements'
 import {
   MAKER_SAVE_KEY,
   decodeMakerLevel,
@@ -307,6 +309,9 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       persist()
       message.value = 'Course saved on this device.'
       error.value = ''
+      void useAchievementStore().rewardAchievementByCode(
+        PLUMBER_ACHIEVEMENT_CODES.maker,
+      )
       return true
     } catch (cause) {
       error.value =

@@ -65,8 +65,8 @@
         >
           <button
             v-for="section in sections"
-            :key="section.id"
             :id="`personnel-archive-tab-${section.id}`"
+            :key="section.id"
             type="button"
             role="tab"
             aria-controls="personnel-archive-panel"

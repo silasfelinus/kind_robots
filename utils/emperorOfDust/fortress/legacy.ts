@@ -18,8 +18,7 @@ export function decodeLegacy(
   if (!raw) return emptyLegacy()
   try {
     const value: unknown = JSON.parse(raw)
-    if (!value || typeof value !== 'object' || Array.isArray(value))
-      return null
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null
     const record = value as Record<string, unknown>
     if (
       !Array.isArray(record.endings) ||
@@ -27,10 +26,9 @@ export function decodeLegacy(
     )
       return null
     return {
-      endings: [...new Set(record.endings.filter((id) => id.length <= 80))].slice(
-        0,
-        8,
-      ),
+      endings: [
+        ...new Set(record.endings.filter((id) => id.length <= 80)),
+      ].slice(0, 8),
       useWrit: record.useWrit === true,
     }
   } catch {

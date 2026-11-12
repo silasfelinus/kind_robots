@@ -24,6 +24,46 @@
       </button>
     </header>
 
+    <section
+      class="endings-trophies"
+      aria-label="Crew trophies"
+      data-testid="slime-trophy-shelf"
+    >
+      <span class="endings-overline"
+        >CREW TROPHIES · {{ shelf.unlocked }}/{{ shelf.total }} UNLOCKED</span
+      >
+      <ul>
+        <li
+          v-for="t in shelf.trophies"
+          :key="t.team"
+          class="endings-trophy"
+          :class="{ locked: !t.unlocked }"
+          :data-testid="'slime-trophy-' + t.team"
+          :data-unlocked="t.unlocked ? 'true' : 'false'"
+        >
+          <span
+            class="endings-trophy-back"
+            :style="t.unlocked ? { background: t.frame.background } : {}"
+            :aria-label="
+              t.unlocked ? t.frame.name + ' card back' : 'Locked card back'
+            "
+            role="img"
+            >{{ crewInsignia(t.team) }}</span
+          >
+          <div>
+            <strong>{{ t.unlocked ? t.trophy : '? ? ?' }}</strong>
+            <small v-if="t.unlocked"
+              >TITLE: {{ t.title }} · CARD BACK: {{ t.frame.name }}</small
+            >
+            <small v-else
+              >Finish {{ teamName(t.team) }}'s campaign to unlock.</small
+            >
+            <p v-if="t.unlocked">{{ t.line }}</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
     <nav class="endings-crews" aria-label="Choose a crew's endings">
       <button
         v-for="team in lab.teams"
@@ -128,6 +168,7 @@ import {
   type EndingEntry,
   type EndingKind,
 } from '~/utils/slimeCity/endings'
+import { crewTrophyShelf } from '~/utils/slimeCity/crewTrophies'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
 
@@ -136,6 +177,7 @@ const picked = ref<TeamId | null>(null)
 const crew = computed<TeamId>(() => picked.value ?? lab.activeTeam)
 const story = computed(() => FACTION_CAMPAIGNS[crew.value])
 const gallery = computed(() => endingGallery(crew.value, lab.endingsFound))
+const shelf = computed(() => crewTrophyShelf(lab.endingsFound))
 const pages = computed(() =>
   lab.scrapbook.filter((page) => page.team === crew.value).reverse(),
 )
@@ -365,5 +407,48 @@ function tileArt(entry: EndingEntry): number | null {
   color: #f4f0e2;
   font-size: 0.7rem;
   font-weight: 800;
+}
+.endings-trophies ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.5rem;
+  margin: 0.4rem 0 0.8rem;
+  padding: 0;
+  list-style: none;
+}
+.endings-trophy {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.5rem;
+  border: 1px solid #ffffff2e;
+  border-radius: 0.5rem;
+  background: #ffffff0d;
+}
+.endings-trophy.locked {
+  opacity: 0.55;
+}
+.endings-trophy-back {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 3.6rem;
+  border: 2px solid #ffffff59;
+  border-radius: 0.35rem;
+  background: #1a2230;
+  color: #fff;
+  font-size: 1.1rem;
+}
+.endings-trophy strong {
+  display: block;
+}
+.endings-trophy small {
+  display: block;
+  opacity: 0.8;
+}
+.endings-trophy p {
+  margin: 0.25rem 0 0;
+  font-size: 0.85em;
 }
 </style>

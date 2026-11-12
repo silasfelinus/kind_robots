@@ -19,7 +19,9 @@ export function playtestReadinessErrors(tasks: ConductorTask[]): string[] {
 
   const errors: string[] = []
   if (unfinished.length) {
-    errors.push(`Finish agent-owned roadmap tasks: ${unfinished.slice(0, 12).join(', ')}.`)
+    errors.push(
+      `Finish agent-owned roadmap tasks: ${unfinished.slice(0, 12).join(', ')}.`,
+    )
   }
   const finalGate = tasks.some(
     (task) =>
@@ -31,7 +33,9 @@ export function playtestReadinessErrors(tasks: ConductorTask[]): string[] {
       !task.approvedByHuman,
   )
   if (!finalGate) {
-    errors.push('The final human playtest gate must be needs-human and unapproved.')
+    errors.push(
+      'The final human playtest gate must be needs-human and unapproved.',
+    )
   }
   return errors
 }

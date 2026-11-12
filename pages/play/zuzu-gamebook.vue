@@ -286,18 +286,24 @@
                         : 'bg-base-300/60 opacity-60'
                     "
                   >
-                    <icon
-                      :name="
-                        store.discovered.includes(ending)
-                          ? 'kind-icon:book-open'
-                          : 'kind-icon:lock'
-                      "
-                      class="mb-1 size-4"
+                    <img
+                      v-if="store.discovered.includes(ending)"
+                      :src="shownPlate(sceneArt(ending))"
+                      :alt="scene(ending).title"
+                      class="mb-2 aspect-video w-full rounded-md object-cover"
+                      @error="plateFailed(sceneArt(ending))"
                     />
+                    <div
+                      v-else
+                      class="mb-2 grid aspect-video place-items-center rounded-md bg-base-300"
+                      aria-hidden="true"
+                    >
+                      <icon name="kind-icon:lock" class="size-5" />
+                    </div>
                     <span class="block font-bold">
                       {{
                         store.discovered.includes(ending)
-                          ? ending
+                          ? scene(ending).title
                           : 'Unknown ending ' + (index + 1)
                       }}
                     </span>
@@ -328,6 +334,44 @@
                       @error="plateFailed(entry.art)"
                     />
                     <p class="p-2 text-xs font-bold">{{ entry.title }}</p>
+                  </li>
+                </ol>
+              </section>
+              <section
+                class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+                aria-label="Past journeys"
+                data-testid="zuzu-gamebook-scrapbook"
+              >
+                <h3 class="font-serif text-xl font-bold">Journeys remembered</h3>
+                <p class="mb-3 text-xs opacity-70">
+                  Finished and abandoned journeys stay in this browser's scrapbook.
+                  Importing another player's save code does not award achievements.
+                </p>
+                <p v-if="!store.scrapbook.length" class="text-sm opacity-70">
+                  Turn the last page or begin another journey to preserve your first memory.
+                </p>
+                <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <li
+                    v-for="memory in store.scrapbook"
+                    :key="memory.id"
+                    class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
+                  >
+                    <img
+                      :src="shownPlate(sceneArt(memory.sceneId))"
+                      :alt="scene(memory.sceneId).title"
+                      class="aspect-video w-full object-cover"
+                      @error="plateFailed(sceneArt(memory.sceneId))"
+                    />
+                    <div class="p-2">
+                      <strong class="block text-xs">
+                        {{ scene(memory.sceneId).title }}
+                      </strong>
+                      <p class="mt-1 text-[11px] opacity-70">
+                        {{ memory.ending ? 'Ending reached' : 'Journey paused' }}
+                        · {{ memory.pages }} pages
+                        · {{ memory.health }} health
+                      </p>
+                    </div>
                   </li>
                 </ol>
               </section>
@@ -1026,6 +1070,9 @@ const prose = computed(() => emphasis(current.value.text))
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
 const rememberedScenes = computed(() => [...new Set(store.run.visited)])
+function sceneArt(id: string): string {
+  return platePath(sectionPlate(scene(id)))
+}
 const recentTrail = computed(() =>
   rememberedScenes.value
     .slice(-12)

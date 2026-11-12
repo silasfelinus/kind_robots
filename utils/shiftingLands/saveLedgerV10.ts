@@ -7,10 +7,19 @@ import {
 } from './characters'
 import { readCheck, type Skill } from './journey'
 import {
+  activeV6Card,
   adoptSpentDeeds,
   spentDeedsFromSave,
+  v6Card,
   withSpentDeedsFrom,
+  type JourneyRules,
+  type V6Card,
 } from './deckV6'
+import {
+  PERSONAL_DECK_VERSION,
+  personalRulesFor,
+  personalStartFlags,
+} from './personalDeckV10'
 import { sameReplay } from './saveLedger'
 import {
   newJourneyLedgerV9,
@@ -25,10 +34,16 @@ import {
 // signature deeds, and the identity the draw keeps you from meeting. V9 and
 // older saves keep their own reducers and keys; they are Zuzu's journeys.
 
+// t-053: `personalDeckVersion` marks a journey on a personal road
+// (personalDeckV10.ts): the traveler's own cards, own choices and identity
+// deed. It is optional, like t-049's spentDeedsFrom: a V10 save written
+// before personal roads has no field and replays under exactly the rules it
+// was played by. Only "Begin another journey" starts a personal road.
 export type JourneyLedgerV10 = Omit<JourneyLedgerV9, 'version'> & {
   version: 10
   castDeckVersion: number
   character: ShiftingCharacter
+  personalDeckVersion?: number
 }
 
 const MAX_ACTIONS = 1200
@@ -41,6 +56,7 @@ const isValidSeed = (seed: unknown): seed is number =>
 export function newJourneyLedgerV10(
   seed: number,
   character: ShiftingCharacter = ZUZU,
+  personal = false,
 ): JourneyLedgerV10 {
   const base = newJourneyLedgerV9(seed)
   const snapshot = JSON.parse(JSON.stringify(character)) as ShiftingCharacter
@@ -49,15 +65,45 @@ export function newJourneyLedgerV10(
     version: 10,
     castDeckVersion: CAST_DECK_VERSION,
     character: snapshot,
+    ...(personal ? { personalDeckVersion: PERSONAL_DECK_VERSION } : {}),
     current: {
       ...base.current,
-      flags: [...snapshot.signatureFlags],
+      flags: personal
+        ? personalStartFlags(snapshot)
+        : [...snapshot.signatureFlags],
       journey: {
         ...base.current.journey,
         provisions: snapshot.startProvisions,
       },
     },
   }
+}
+
+// The same fresh journey, on its traveler's personal road. A journey already
+// under way keeps the road it started on.
+export const onPersonalRoad = (ledger: JourneyLedgerV10): JourneyLedgerV10 =>
+  ledger.actions.length
+    ? ledger
+    : newJourneyLedgerV10(ledger.seed, ledger.character, true)
+
+export const rulesForLedgerV10 = (
+  ledger: Pick<JourneyLedgerV10, 'character' | 'personalDeckVersion'>,
+): JourneyRules =>
+  ledger.personalDeckVersion !== undefined
+    ? personalRulesFor(ledger.character)
+    : rulesForCharacter(ledger.character)
+
+// The card this traveler is facing, with their own choices on a personal road.
+export function activeCardV10(ledger: JourneyLedgerV10): V6Card | null {
+  return activeV6Card(ledger.current, rulesForLedgerV10(ledger).card)
+}
+
+// Any card by id, as this traveler would see it.
+export function cardForLedgerV10(
+  ledger: JourneyLedgerV10,
+  cardId: string,
+): V6Card | null {
+  return (rulesForLedgerV10(ledger).card ?? v6Card)(cardId)
 }
 
 export function stepJourneyLedgerV10(
@@ -69,13 +115,20 @@ export function stepJourneyLedgerV10(
     version: _version,
     castDeckVersion,
     character,
+    personalDeckVersion,
     actions,
     ...rest
   } = ledger
   const legacy: JourneyLedgerV9 = { ...rest, version: 9, actions }
-  const next = stepJourneyLedgerV9(legacy, action, rulesForCharacter(character))
+  const next = stepJourneyLedgerV9(legacy, action, rulesForLedgerV10(ledger))
   if (next === legacy) return ledger
-  return { ...next, version: 10, castDeckVersion, character }
+  return {
+    ...next,
+    version: 10,
+    castDeckVersion,
+    character,
+    ...(personalDeckVersion === undefined ? {} : { personalDeckVersion }),
+  }
 }
 
 // Who walked a saved journey: V10 records it; everything older was Zuzu.
@@ -93,6 +146,7 @@ export function v9View(ledger: JourneyLedgerV10): JourneyLedgerV9 {
     version: _version,
     castDeckVersion: _deck,
     character: _character,
+    personalDeckVersion: _personal,
     ...rest
   } = ledger
   return { ...rest, version: 9 }
@@ -136,9 +190,11 @@ export function restoreJourneyLedgerV10(
   if (!isValidSeed(saved.seed)) return null
   const character = characterFromSnapshot(saved.character)
   if (!character) return null
-  const fresh = newJourneyLedgerV10(saved.seed, character)
+  const personal = Object.hasOwn(saved, 'personalDeckVersion')
+  const fresh = newJourneyLedgerV10(saved.seed, character, personal)
   if (
     saved.version !== 10 ||
+    (personal && saved.personalDeckVersion !== fresh.personalDeckVersion) ||
     saved.castDeckVersion !== fresh.castDeckVersion ||
     saved.trialRulesVersion !== fresh.trialRulesVersion ||
     saved.worldSha !== fresh.worldSha ||

@@ -17,6 +17,10 @@ import { normalizeQueuedArtJobPayload } from '../../../utils/artJobNormalization
 import { assertQueuedArtPromptContract } from '../../../utils/artJobQueueSettings'
 import { repairQueuedArtSampler } from '../../../utils/artJobSamplerRepair'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
+import {
+  artRequestKeyFingerprint,
+  normalizeArtRequestKey,
+} from '../../../utils/artRequestKey'
 
 const ENGINES = new Set(['A1111', 'COMFY'])
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
@@ -27,6 +31,8 @@ type QueueRequestBody = {
   priority?: number | null
   projectSlug?: string | null
   idempotencyKey?: string | null
+  /** Stable caller name for this request; see server/utils/artRequestKey.ts. */
+  requestKey?: string | null
   requireCompletionProof?: boolean | null
 }
 
@@ -87,6 +93,7 @@ export default defineEventHandler(async (event) => {
     if (projectSlug && !SLUG_PATTERN.test(projectSlug)) {
       throw createError({ statusCode: 400, message: 'Invalid projectSlug.' })
     }
+    const requestKey = normalizeArtRequestKey(body?.requestKey)
 
     const priority = Number.isInteger(body?.priority)
       ? Number(body?.priority)
@@ -146,8 +153,21 @@ export default defineEventHandler(async (event) => {
         : {}
     payload.save = { ...save, ...resolveMaturityPrivacy(save, payload) }
 
-    const lockName =
-      `artjob:${auth.user.id}:${provenance.attemptFingerprint}`.slice(0, 64)
+    /*
+     * A NAMED REQUEST DEDUPS BY NAME. The payload fingerprint below only
+     * matches a byte-identical resubmit, and Conductor's request lane picks a
+     * fresh seed per submit, so a resubmit after a lost job id (a cancelled
+     * Auto Art run) rendered the same request again: Ruler Hooked's 211 cast
+     * and scene requests rendered about twice each over 2026-11-10/11 PT. With
+     * a requestKey the column holds the key's fingerprint instead (the
+     * provenance fingerprint stays in the payload). See artRequestKey.ts.
+     */
+    if (requestKey) payload.requestKey = requestKey
+    const dedupFingerprint = requestKey
+      ? artRequestKeyFingerprint(requestKey)
+      : provenance.attemptFingerprint
+
+    const lockName = `artjob:${auth.user.id}:${dedupFingerprint}`.slice(0, 64)
 
     const result = await prisma.$transaction(
       async (tx) => {
@@ -180,7 +200,7 @@ export default defineEventHandler(async (event) => {
             where: {
               userId: auth.user.id,
               status: { in: ['PENDING', 'RUNNING', 'DONE'] },
-              attemptFingerprint: provenance.attemptFingerprint,
+              attemptFingerprint: dedupFingerprint,
             },
             orderBy: { id: 'desc' },
           })
@@ -193,7 +213,7 @@ export default defineEventHandler(async (event) => {
             data: {
               engine: engine as 'A1111' | 'COMFY',
               payload: serializeArtJobPayload(payload),
-              attemptFingerprint: provenance.attemptFingerprint,
+              attemptFingerprint: dedupFingerprint,
               priority,
               projectSlug,
               userId: auth.user.id,

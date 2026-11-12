@@ -1429,6 +1429,11 @@ export function restoreHoshimoriNight(value: unknown): NightProgress | null {
     'doorOpen',
     'events',
   ]
+  if (
+    Object.keys(saved).length !== keys.length ||
+    Object.keys(saved).some((key) => !keys.includes(key as keyof NightProgress))
+  )
+    return null
   return keys.every(
     (key) => JSON.stringify(saved[key]) === JSON.stringify(replay[key]),
   )

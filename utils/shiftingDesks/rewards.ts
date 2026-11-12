@@ -1,3 +1,4 @@
+import { isEmployeeIdentity, type EmployeeIdentity } from './preferences'
 import {
   ENDINGS,
   endingFor,
@@ -16,6 +17,8 @@ export type RunReceipt = {
   endingId: string
   completedAt: string
   jobTitle: string
+  jobId?: string
+  identity?: EmployeeIdentity
   society: string
   mutation: string
   floors: number
@@ -220,6 +223,8 @@ function isRunReceipt(value: unknown): value is RunReceipt {
     typeof run.completedAt === 'string' &&
     !Number.isNaN(Date.parse(run.completedAt)) &&
     typeof run.jobTitle === 'string' &&
+    (run.jobId === undefined || typeof run.jobId === 'string') &&
+    (run.identity === undefined || isEmployeeIdentity(run.identity)) &&
     typeof run.society === 'string' &&
     typeof run.mutation === 'string' &&
     nonNegativeInteger(run.floors) &&
@@ -246,8 +251,14 @@ function isRunReceipt(value: unknown): value is RunReceipt {
  */
 export function runFingerprint(run: RunState): string {
   let hash = 2166136261
+  const identity = run.identity
+  const personalized =
+    identity.name || identity.pronouns !== 'unspecified' || identity.badgeTone !== 'classic'
+      ? `${identity.name}/${identity.pronouns}/${identity.badgeTone}`
+      : ''
   const trail = [
     run.jobId,
+    ...(personalized ? [personalized] : []),
     ...run.log.map(
       (entry) =>
         `${entry.cardId}/${entry.choiceId}/${entry.total ?? ''}/${entry.success ? 1 : 0}`,
@@ -273,6 +284,11 @@ export function sameCompletion(filed: RunReceipt, run: RunReceipt): boolean {
     filed.id === legacyReceiptId(run.id) &&
     filed.endingId === run.endingId &&
     filed.jobTitle === run.jobTitle &&
+    (filed.identity?.name ?? '') === (run.identity?.name ?? '') &&
+    (filed.identity?.pronouns ?? 'unspecified') ===
+      (run.identity?.pronouns ?? 'unspecified') &&
+    (filed.identity?.badgeTone ?? 'classic') ===
+      (run.identity?.badgeTone ?? 'classic') &&
     filed.floors === run.floors &&
     filed.files === run.files &&
     filed.employees === run.employees &&
@@ -316,6 +332,10 @@ export function receiptFor(
     endingId: ending.id,
     completedAt,
     jobTitle: jobById(run.jobId).title,
+    jobId: run.jobId,
+    ...(run.identity.name || run.identity.pronouns !== 'unspecified' || run.identity.badgeTone !== 'classic'
+      ? { identity: { ...run.identity } }
+      : {}),
     society: societyById(run.societyId).title,
     mutation: mutationById(run.mutationId).title,
     floors: Object.keys(run.departmentOutcomes).length,

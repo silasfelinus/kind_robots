@@ -13,8 +13,14 @@ export function playtestReadinessErrors(tasks: ConductorTask[]): string[] {
       (task) =>
         !task.recurring &&
         !task.playtestIteration &&
-        !task.gateHuman &&
-        !['done', 'cancelled'].includes(task.status),
+        !['done', 'cancelled'].includes(task.status) &&
+        !(
+          task.gateHuman &&
+          task.status === 'needs-human' &&
+          ['subjective-acceptance', 'creative-approval', 'publish'].includes(
+            task.gateReason || '',
+          )
+        ),
     )
     .map((task) => task.id)
 

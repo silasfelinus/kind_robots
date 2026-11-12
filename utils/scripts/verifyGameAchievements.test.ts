@@ -339,8 +339,19 @@ assert.ok(
   ) &&
     runtime.includes('!this.demo && this.ruleset.feats') &&
     cabinet.includes('game.drainFeats?.()') &&
-    arcadeStore.includes('`${game}-${feat}`'),
+    arcadeStore.includes('achievementCode({ game, key: feat })'),
   'Table feats are queued outside the attract demo and awarded by the cabinet.',
+)
+assert.equal(
+  achievementCode({ game: 'zuzu-pinball', key: 'k' }),
+  'zuzu-pinball-k',
+  'Table feats keep their <slug>-<feat> codes.',
+)
+assert.ok(
+  arcadeStore.includes('async function awardMasteryAchievements(game') &&
+    arcadeStore.includes('if (!isMainGame(game)) return') &&
+    cabinet.includes('store.awardMasteryAchievements(props.slug)'),
+  'A cabinet-born main game backfills achievements for mastery already held.',
 )
 assert.ok(
   source('components/navigation/workspace-sheet.vue').includes(

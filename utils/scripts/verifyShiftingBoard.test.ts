@@ -63,7 +63,8 @@ assert.match(board, /onMounted\(\(\) => \{/)
 assert.match(board, /game\.initialize\(\)/)
 assert.doesNotMatch(board, /\b(?:localStorage|\$fetch|fetch\()\b/)
 
-assert.match(store, /restoreJourneyLedgerV9\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV10\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV9\(JSON\.parse\(savedV9\)\)/)
 assert.match(store, /restoreJourneyLedgerV8\(JSON\.parse\(savedV8\)\)/)
 assert.match(store, /restoreJourneyLedgerV7\(JSON\.parse\(savedV7\)\)/)
 assert.match(store, /restoreJourneyLedgerV6\(JSON\.parse\(savedV6\)\)/)
@@ -83,7 +84,11 @@ assert.match(
 assert.match(store, /stepJourneyLedgerV5\(active, action as JourneyActionV5\)/)
 assert.match(store, /stepJourneyLedgerV6\(active, action as JourneyActionV6\)/)
 assert.match(store, /stepJourneyLedgerV7\(active, action as JourneyActionV7\)/)
-assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v9'/)
+assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v10'/)
+assert.match(
+  store,
+  /const LEGACY_V9_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v9'/,
+)
 assert.match(
   store,
   /const LEGACY_V8_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v8'/,
@@ -115,7 +120,10 @@ assert.match(
 assert.match(store, /if \(saved !== null\) \{/)
 assert.match(store, /if \(restored\) ledger\.value = restored/)
 assert.match(store, /else restoreWarning\.value = true/)
-assert.match(store, /if \(legacy === null\) return/)
+assert.match(
+  store,
+  /if \(legacy === null\) \{\s+needsCharacter\.value = true\s+return/,
+)
 assert.match(store, /persist\(\)/)
 assert.match(store, /useReward\(rewardId: string\)/)
 assert.match(legacy, /const SAVE_KEY = 'kr\.shiftingLands\.homestead\.v1'/)
@@ -124,16 +132,20 @@ assert.match(store, /if \(!import\.meta\.client\) return/)
 assert.match(store, /window\.localStorage\.setItem\(key/)
 assert.match(
   store,
-  /const key =\s+ledger\.value\.version === 9\s+\? SAVE_KEY\s+: ledger\.value\.version === 8\s+\? LEGACY_V8_SAVE_KEY\s+: ledger\.value\.version === 7\s+\? LEGACY_V7_SAVE_KEY\s+: ledger\.value\.version === 6/,
+  /const key =\s+ledger\.value\.version === 10\s+\? SAVE_KEY\s+: ledger\.value\.version === 9\s+\? LEGACY_V9_SAVE_KEY\s+: ledger\.value\.version === 8\s+\? LEGACY_V8_SAVE_KEY\s+: ledger\.value\.version === 7\s+\? LEGACY_V7_SAVE_KEY\s+: ledger\.value\.version === 6/,
 )
 assert.match(store, /if \(savedV7 !== null\) \{/)
 assert.match(store, /if \(savedV6 !== null\) \{/)
 assert.match(store, /if \(savedV3 !== null\) \{/)
 assert.match(board, /game\.prepareTrial\(\)/)
-assert.match(board, /trialSuccessPercent\(choice\)/)
+// t-052: odds read the chosen traveler's skills, not a fixed table.
+assert.match(board, /trialSuccessPercent\(choice, game\.skills\)/)
 // Trial intents are story prose, so the odds, skill, cost and locks they
 // used to spell out must stay visible beside them.
-assert.match(board, /readCheck\(choice\.skill, choice\.target\)\.explain/)
+assert.match(
+  board,
+  /game\.checkReading\(choice\.skill, choice\.target\)\.explain/,
+)
 assert.match(board, /choice\.cost \? `\$\{choice\.cost\} provision` : ''/)
 assert.match(board, /scout: 'Scout this gate first, spending 1 HP'/)
 assert.match(board, /solidarity: 'Requires 4 mercy and 2 honesty marks'/)

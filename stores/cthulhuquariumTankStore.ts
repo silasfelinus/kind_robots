@@ -14,6 +14,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
 import { useIntroStore } from './introStore'
+import { useAchievementStore } from './achievementStore'
 import { formatMilestoneToastMessage } from '~/utils/aquariumMilestoneToast'
 import { useCthulhuquariumStory } from './helpers/cthulhuquariumStory'
 import {
@@ -21,6 +22,14 @@ import {
   useOneShotQueue,
   useOneShotReveal,
 } from '~/utils/useOneShotSignal'
+import {
+  CTHULHUQUARIUM_DECORATOR,
+  CTHULHUQUARIUM_FEEDING_FRENZY,
+  anyUpgradeMaxed,
+  bestiaryAchievementCodes,
+  milestoneAchievementCodes,
+  unlockAchievementCodes,
+} from '~/utils/cthulhuquariumAchievements'
 
 export interface TankMonster {
   id: number
@@ -461,14 +470,35 @@ export const useCthulhuquariumTankStore = defineStore(
 
     const story = useCthulhuquariumStory()
 
+    // Achievements (main-game standard): every award follows a server
+    // response that confirms the deed, never a load of saved state.
+    function award(...codes: string[]): void {
+      if (!codes.length) return
+      const achievements = useAchievementStore()
+      for (const code of codes) void achievements.rewardAchievementByCode(code)
+    }
+
     function announceMilestones(...milestones: FiredMilestone[]): void {
       milestoneToastSignal.push(...milestones)
       story.announceMilestones(milestones.map((milestone) => milestone.id))
+      award(
+        ...milestones.flatMap((milestone) =>
+          milestoneAchievementCodes(milestone.id),
+        ),
+      )
     }
 
     function announceBestiaryComplete(): void {
       bestiaryCompletionSignal.trigger()
       story.queueScene('bestiary_complete')
+      award('cthulhuquarium-bestiary-complete')
+    }
+
+    async function chooseBackground(key: string): Promise<boolean> {
+      const changed = key !== story.backgroundKey.value
+      const saved = await story.chooseBackground(key)
+      if (saved && changed) award('cthulhuquarium-new-scenery')
+      return saved
     }
 
     // cthulhuquarium/t-026's set-piece catalog. Loaded lazily, same
@@ -667,6 +697,8 @@ export const useCthulhuquariumTankStore = defineStore(
         if (!(await feed(entry.id))) break
         fed.push(entry.id)
       }
+      if (fed.length >= CTHULHUQUARIUM_FEEDING_FRENZY)
+        award('cthulhuquarium-feeding-frenzy')
       return fed
     }
 
@@ -691,13 +723,18 @@ export const useCthulhuquariumTankStore = defineStore(
           story.queueScene('first_unlock')
         }
         story.notifyAction('unlock')
+        award(...unlockAchievementCodes(res.data.stock?.Monster?.tier))
         if (res.data.justCompletedBestiary) announceBestiaryComplete()
         if (res.data.firedMilestones?.length) {
           announceMilestones(...res.data.firedMilestones)
         }
         // A stale bestiary panel (or one never loaded yet) would otherwise
         // still show this species as uncollected after unlocking it.
-        if (bestiary.value.length > 0) await loadBestiary()
+        if (bestiary.value.length > 0) {
+          await loadBestiary()
+          if (!isCopy)
+            award(...bestiaryAchievementCodes(bestiaryCollectedCount.value))
+        }
         return true
       }
       error.value = res.message || 'Could not unlock that species.'
@@ -723,6 +760,7 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         story.sayBark('sell', 0.6)
+        award('cthulhuquarium-release')
         if (bestiary.value.length > 0) await loadBestiary()
         return true
       }
@@ -836,6 +874,8 @@ export const useCthulhuquariumTankStore = defineStore(
         )
         if (res.success && res.data) {
           tank.value = res.data.aquarium
+          if (anyUpgradeMaxed(res.data.aquarium.upgrades ?? []))
+            award('cthulhuquarium-fully-appointed')
           return true
         }
         error.value = res.message || 'Could not buy that upgrade.'
@@ -902,6 +942,7 @@ export const useCthulhuquariumTankStore = defineStore(
       )
       if (res.success && res.data) {
         tank.value = res.data.aquarium
+        award('cthulhuquarium-first-set')
         if (setCatalog.value.length) await loadSets()
         return true
       }
@@ -966,6 +1007,8 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         pendingDecorKind.value = null
+        if ((res.data.aquarium.Decor?.length ?? 0) >= CTHULHUQUARIUM_DECORATOR)
+          award('cthulhuquarium-decorator')
         return true
       }
       error.value = res.message || 'Could not place that decor item.'
@@ -1031,6 +1074,8 @@ export const useCthulhuquariumTankStore = defineStore(
       )
       if (res.success && res.data) {
         tank.value = res.data.aquarium
+        if (isPublic && res.data.aquarium.isPublic)
+          award('cthulhuquarium-visiting-hours')
         return true
       }
       error.value = res.message || "Could not update the tank's visibility."
@@ -1063,7 +1108,10 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         finaleTriggered.value = true
-        if (res.data.finaleJustTriggered) finaleRevealSignal.trigger()
+        if (res.data.finaleJustTriggered) {
+          finaleRevealSignal.trigger()
+          award('cthulhuquarium-last-aquarium')
+        }
         return true
       }
       error.value = res.message || 'Could not buy the last aquarium.'
@@ -1096,6 +1144,7 @@ export const useCthulhuquariumTankStore = defineStore(
 
     return {
       ...story,
+      chooseBackground,
       storyShowing,
       tank,
       catalog,

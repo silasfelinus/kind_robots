@@ -1,22 +1,22 @@
 <template>
   <section
     class="overflow-hidden rounded-2xl border border-base-content/15 bg-base-200 shadow"
-    aria-label="Zuzu character, equipment and relationships"
+    :aria-label="character.name + ' character, equipment and relationships'"
   >
     <div class="relative">
       <img
-        src="/zuzu-gamebook/scenes/zuzu-alone.webp"
-        alt="Zuzu the grey koala ronin on the frontier"
+        :src="characterPortrait(character)"
+        :alt="character.name + ', ' + character.blurb"
         class="h-20 w-full object-cover object-[center_30%] sm:h-24"
       />
       <div
         class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-3 pb-1.5 pt-6 text-white"
       >
         <p class="text-[10px] font-black uppercase tracking-[.22em] opacity-80">
-          The traveling ronin
+          {{ speciesLabel(character.species) }} · {{ character.pronouns }}
         </p>
         <h3 class="font-serif text-lg font-black leading-tight">
-          Zuzu · Character sheet
+          {{ character.name }} · Character sheet
         </h3>
       </div>
     </div>
@@ -213,9 +213,15 @@ import {
   type JourneyCharacterSheet,
 } from '~/utils/shiftingLands/progression'
 import type { Skill } from '~/utils/shiftingLands/journey'
+import {
+  characterPortrait,
+  speciesLabel,
+  type ShiftingCharacter,
+} from '~/utils/shiftingLands/characters'
 
 const props = defineProps<{
   sheet: JourneyCharacterSheet
+  character: ShiftingCharacter
   seed: number
   phase: string
 }>()

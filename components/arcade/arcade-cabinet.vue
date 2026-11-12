@@ -1213,6 +1213,7 @@ function startGame() {
   // before the instance exists or on the next requestAnimationFrame tick.
   if (meta.value?.touchLayout === 'pinball') unlockArcadeAudio()
   dispatch({ type: 'start' })
+  void store.awardMasteryAchievements(props.slug)
 }
 
 // --- the table guide (conductor kind-pinball/t-015) -------------------------

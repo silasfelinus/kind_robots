@@ -190,7 +190,14 @@
         </button>
       </div>
 
-      <div class="kr-panes journey-layout gap-2">
+      <ShiftingLandsCharacterCreator
+        v-if="creatorOpen || game.needsCharacter"
+        :current="game.character"
+        :can-cancel="!game.needsCharacter"
+        @start="beginJourneyAs"
+        @cancel="creatorOpen = false"
+      />
+      <div v-else class="kr-panes journey-layout gap-2">
         <section
           class="kr-pane relative isolate rounded-3xl border border-base-content/15 bg-base-300 shadow-2xl"
           :class="tab === 'road' ? '' : 'journey-hidden-narrow'"
@@ -674,8 +681,8 @@
               >
                 <ShiftingLandsSceneImage
                   class="absolute inset-0"
-                  src="/zuzu-gamebook/scenes/zuzu-alone.webp"
-                  alt="A lone traveler at journey's end"
+                  :src="characterPortrait(game.character)"
+                  :alt="game.character.name + ' at journey\'s end'"
                 />
                 <button
                   type="button"
@@ -1219,6 +1226,7 @@
             <ShiftingLandsCharacterRail
               v-if="sideTab === 'zuzu'"
               :sheet="game.characterSheet"
+              :character="game.character"
               :seed="game.state.seed"
               :phase="game.state.phase"
               @use-reward="useEarnedReward"
@@ -1234,7 +1242,7 @@
                 <p
                   class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
                 >
-                  Zuzu's travels
+                  {{ travelsLabel }}
                 </p>
                 <h2 class="font-serif text-2xl font-black">The Trail Ledger</h2>
                 <p class="mt-1 text-xs opacity-70">
@@ -1460,14 +1468,18 @@ import {
 } from '~/utils/shiftingLands/authoredBosses'
 import { outcomeArt } from '~/utils/shiftingLands/sceneArt'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
-import {
-  readCheck,
-  type BossApproach,
-  type EncounterApproach,
+import type {
+  BossApproach,
+  EncounterApproach,
 } from '~/utils/shiftingLands/journey'
 import type { V6Choice } from '~/utils/shiftingLands/deckV6'
 import { trialSuccessPercent } from '~/utils/shiftingLands/trialOdds'
 import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
+import ShiftingLandsCharacterCreator from '~/components/shifting-lands-character-creator.vue'
+import {
+  characterPortrait,
+  type ShiftingCharacter,
+} from '~/utils/shiftingLands/characters'
 import {
   readShiftingLandsPresentation,
   writeShiftingLandsPresentation,
@@ -1499,11 +1511,19 @@ type JournalFilter = 'all' | 'encounter' | 'boss' | 'shift'
 const journalFilter = ref<JournalFilter>('all')
 type JourneyTab = 'road' | 'zuzu' | 'journal'
 const tab = ref<JourneyTab>('road')
-const tabs: Array<{ value: JourneyTab; label: string; icon: string }> = [
+const tabs = computed<
+  Array<{ value: JourneyTab; label: string; icon: string }>
+>(() => [
   { value: 'road', label: 'Road', icon: 'kind-icon:map' },
-  { value: 'zuzu', label: 'Zuzu', icon: 'kind-icon:user' },
+  { value: 'zuzu', label: game.character.name, icon: 'kind-icon:user' },
   { value: 'journal', label: 'Trail Ledger', icon: 'kind-icon:book' },
-]
+])
+const travelsLabel = computed(() =>
+  game.character.name.endsWith('s')
+    ? `${game.character.name}' travels`
+    : `${game.character.name}'s travels`,
+)
+const creatorOpen = ref(false)
 const sideTab = computed<JourneyTab>(() =>
   tab.value === 'road' ? 'zuzu' : tab.value,
 )
@@ -1549,7 +1569,11 @@ const encounterHand = computed<KrHandChoice[]>(() => {
   return [...openChoices.value, ...lockedChoices.value].map((option) => {
     const lock = lockOf(option)
     const reading = option.roll
-      ? readCheck(option.roll.skill, option.roll.target, option.roll.modifier)
+      ? game.checkReading(
+          option.roll.skill,
+          option.roll.target,
+          option.roll.modifier,
+        )
       : null
     return {
       id: option.id,
@@ -1596,14 +1620,14 @@ const trialHand = computed<KrHandChoice[]>(() =>
       id: choice.id,
       label: choice.label,
       chip: [
-        `${trialSuccessPercent(choice)}% success`,
+        `${trialSuccessPercent(choice, game.skills)}% success`,
         choice.cost ? `${choice.cost} provision` : '',
       ]
         .filter(Boolean)
         .join(' · '),
       hint: choice.intent,
       details: [
-        readCheck(choice.skill, choice.target).explain,
+        game.checkReading(choice.skill, choice.target).explain,
         choice.id === 'coerce'
           ? 'Someone else bears this danger; the debt will be remembered'
           : '',
@@ -1882,7 +1906,12 @@ function inspectLastDiscard() {
   if (mostRecent) openInspector(mostRecent.locationId)
 }
 function startOver() {
-  game.fresh()
+  confirmNew.value = false
+  creatorOpen.value = true
+}
+function beginJourneyAs(traveler: ShiftingCharacter) {
+  game.fresh(traveler)
+  creatorOpen.value = false
   confirmNew.value = false
   inspectorOpen.value = false
   roadPeek.value = false

@@ -97,6 +97,7 @@ export function stepAuthoredTrial(
   flags: readonly string[],
   choiceId: string,
   trialOverride?: AuthoredTrial,
+  skills: Readonly<Record<Skill, number>> = SKILLS,
 ): { journey: JourneyState; outcome: TrialResult } | null {
   if (state.phase !== 'boss') return null
   const land = JOURNEY_WORLD.lands[state.landIndex]
@@ -111,7 +112,7 @@ export function stepAuthoredTrial(
     Math.floor(left * 6) + 1,
     Math.floor(right * 6) + 1,
   ]
-  const modifier = SKILLS[choice.skill]
+  const modifier = skills[choice.skill]
   const total = dice[0] + dice[1] + modifier
   const roll: JourneyRoll = {
     landId: land.id,

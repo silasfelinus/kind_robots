@@ -14,6 +14,7 @@ import {
   v6SheetSource,
   withSpentDeedsFrom,
   type ActionV6,
+  type JourneyRules,
   type JourneyStateV6,
 } from './deckV6'
 import { JOURNEY_WORLD } from './journey'
@@ -137,6 +138,7 @@ function applyAction(
   usedRewards: readonly string[],
   trialResults: readonly TrialResult[],
   action: JourneyActionV6,
+  rules: JourneyRules = {},
 ): Step | null {
   if (!action || typeof action !== 'object') return null
   const keep = (current: JourneyStateV6): Step => ({
@@ -146,7 +148,13 @@ function applyAction(
   })
   if (action.type === 'TRIAL') {
     if (typeof action.choiceId !== 'string') return null
-    const next = stepAuthoredTrial(state.journey, state.flags, action.choiceId)
+    const next = stepAuthoredTrial(
+      state.journey,
+      state.flags,
+      action.choiceId,
+      undefined,
+      rules.skills,
+    )
     if (!next) return null
     return {
       current: { ...state, journey: next.journey },
@@ -170,13 +178,14 @@ function applyAction(
       : null
   }
   if (action.type !== 'TRAVEL' && action.type !== 'CHOOSE') return null
-  const next = stepJourneyV6(state, action)
+  const next = stepJourneyV6(state, action, rules)
   return next === state ? null : keep(next)
 }
 
 export function stepJourneyLedgerV6(
   ledger: JourneyLedgerV6,
   action: JourneyActionV6,
+  rules: JourneyRules = {},
 ): JourneyLedgerV6 {
   if (ledger.actions.length >= MAX_ACTIONS) return ledger
   const next = applyAction(
@@ -184,6 +193,7 @@ export function stepJourneyLedgerV6(
     ledger.usedRewards,
     ledger.trialResults,
     action,
+    rules,
   )
   if (!next) return ledger
   return { ...ledger, actions: [...ledger.actions, action], ...next }

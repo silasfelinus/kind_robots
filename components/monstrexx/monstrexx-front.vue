@@ -184,13 +184,15 @@
           />
           <div class="min-w-0 flex-1">
             <p class="mx-eyebrow">MONSTRIQUE · PERSONAL FILE</p>
-            <h2>{{
-              panel === 'settings'
-                ? 'Settings'
-                : panel === 'achievements'
-                  ? 'Achievements'
-                  : 'Scrapbook'
-            }}</h2>
+            <h2>
+              {{
+                panel === 'settings'
+                  ? 'Settings'
+                  : panel === 'achievements'
+                    ? 'Achievements'
+                    : 'Scrapbook'
+              }}
+            </h2>
           </div>
           <button
             ref="closeButton"
@@ -205,8 +207,8 @@
         <div class="kr-scroll mx-sheet-scroll min-h-0 flex-1 overflow-y-auto">
           <template v-if="panel === 'settings'">
             <p class="mx-sheet-intro">
-              Make the investigation comfortable. Settings and case progress
-              are saved in this browser for the current edition.
+              Make the investigation comfortable. Settings and case progress are
+              saved in this browser for the current edition.
             </p>
             <div class="mx-settings-list">
               <div v-for="key in settingKeys" :key="key" class="mx-setting">
@@ -283,10 +285,7 @@
               An investigator's reputation outlives a case. Earn badges by
               following clues, making discoveries and reaching endings.
             </p>
-            <GameAchievementStrip
-              game="monstress-convention"
-              layout="row"
-            />
+            <GameAchievementStrip game="monstress-convention" layout="row" />
           </template>
           <template v-else>
             <p class="mx-sheet-intro">

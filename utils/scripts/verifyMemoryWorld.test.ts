@@ -3803,10 +3803,13 @@ const linkedImageLookup = memoryDeckSource
   .split('batch.map(async (record) => {')[1]
   ?.split('const unseen = unseenDeckPaths(paths, seen)')[0]
 assert.ok(linkedImageLookup, 'Character art batch resolver exists')
-assert.match(linkedImageLookup, /try\\s*\\{[\\s\\S]*?await art\\.getArtImageById\\(artId\\)/)
-assert.match(linkedImageLookup, /catch\\s*\\{[\\s\\S]*?return ''/)
 assert.match(
   linkedImageLookup,
-  /isEligibleDungeonArt\\(\\s*linkedArt/,
+  /try\s*\{[\s\S]*?await art\.getArtImageById\(artId\)/,
+)
+assert.match(linkedImageLookup, /catch\s*\{[\s\S]*?return ''/)
+assert.match(
+  linkedImageLookup,
+  /isEligibleDungeonArt\(\s*linkedArt/,
   'A recovered linked image must still pass privacy and maturity filtering',
 )

@@ -1187,6 +1187,15 @@
                 :key="index"
                 class="evt-dialogue-line"
               >
+                <span class="evt-dialogue-portrait" aria-hidden="true">
+                  <img
+                    v-if="speakerPortrait(line.speaker)"
+                    :src="speakerPortrait(line.speaker)!"
+                    alt=""
+                    loading="lazy"
+                  />
+                  <span v-else>{{ line.speaker.slice(0, 2) }}</span>
+                </span>
                 <strong>{{ line.speaker }}</strong>
                 <p>{{ line.text }}</p>
               </div>
@@ -1239,6 +1248,15 @@
                 :key="index"
                 class="evt-dialogue-line"
               >
+                <span class="evt-dialogue-portrait" aria-hidden="true">
+                  <img
+                    v-if="speakerPortrait(entry.speaker)"
+                    :src="speakerPortrait(entry.speaker)!"
+                    alt=""
+                    loading="lazy"
+                  />
+                  <span v-else>{{ entry.speaker.slice(0, 2) }}</span>
+                </span>
                 <strong>{{ entry.speaker }}</strong>
                 <p>{{ entry.text }}</p>
               </div>
@@ -1293,6 +1311,15 @@
                   class="evt-dialogue-line"
                   :data-emotion="line.emotion"
                 >
+                  <span class="evt-dialogue-portrait" aria-hidden="true">
+                    <img
+                      v-if="line.art || speakerPortrait(line.name)"
+                      :src="line.art || speakerPortrait(line.name)!"
+                      alt=""
+                      loading="lazy"
+                    />
+                    <span v-else>{{ line.name.slice(0, 2) }}</span>
+                  </span>
                   <strong
                     >{{ line.name }}
                     <small v-if="line.role">· the {{ line.role }}</small>
@@ -1500,6 +1527,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { IDENTITY_CAMPAIGN_STAGES } from '~/utils/cometAcademy/identityCampaignStages'
 import { VILLAIN_HENCHMEN } from '~/utils/cometAcademy/villainHenchmen'
 import {
+  comicIntroArt,
   comicIntroFor,
   type ComicIntro,
   type ComicIntroRole,
@@ -1543,9 +1571,7 @@ const activeComicIntro = ref<ComicIntro | null>(null)
 const comicQueue: ComicIntro[] = []
 const seenComics = new Set<string>()
 const activeComicArt = computed(() =>
-  activeComicIntro.value?.artKey
-    ? promArt(activeComicIntro.value.artKey)
-    : null,
+  activeComicIntro.value ? comicIntroArt(activeComicIntro.value) : null,
 )
 function queueComicIntro(intro: ComicIntro, replay = false) {
   if (!replay && seenComics.has(intro.key)) return
@@ -1744,8 +1770,28 @@ function unitPortrait(unit: Unit): string | null {
   const role = unit.team === 'rival' ? 'villain' : 'hero'
   return (
     promArt('identities/' + unit.identity + '/' + role) ??
-    promArt('identities/' + unit.identity + '/student') ??
-    promArt('identities/' + unit.identity + '/outcomes/' + role)
+    promArt('identities/' + unit.identity + '/outcomes/' + role) ??
+    promArt('identities/' + unit.identity + '/student')
+  )
+}
+function speakerPortrait(speaker: string): string | null {
+  const name = speaker.trim().toLowerCase()
+  const unit = store.state.units.find(
+    (candidate) => candidate.id.toLowerCase() === name,
+  )
+  if (unit && !unit.henchmanType && !unit.lieutenantName)
+    return unitPortrait(unit)
+  const person = store.roster.find(
+    (candidate) =>
+      candidate.hero.alias.toLowerCase() === name ||
+      candidate.villain.alias.toLowerCase() === name ||
+      candidate.realName.toLowerCase() === name,
+  )
+  if (!person) return null
+  const role = person.villain.alias.toLowerCase() === name ? 'villain' : 'hero'
+  return (
+    promArt('identities/' + person.signature + '/outcomes/' + role) ??
+    promArt('identities/' + person.signature + '/student')
   )
 }
 function coverEdges(cell: Cell) {
@@ -3581,16 +3627,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   align-items: center;
   justify-content: center;
   padding: clamp(10px, 3cqw, 44px);
-  background: #04091ad9;
+  background: #150c37d9;
   overflow: auto;
 }
 .evt-cinematic-scenery {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, #080d20ed 2%, #121633c4 50%, #0a0f20f2 100%),
-    url('/comet-city-academy/front/splash.webp') center 40% / cover;
-  filter: saturate(0.8);
+    repeating-radial-gradient(
+      circle at 80% 25%,
+      transparent 0 18px,
+      #fff0a416 19px 22px
+    ),
+    linear-gradient(110deg, #240e63e8 4%, #6b2284bb 53%, #cf375899 100%),
+    url('/comet-city-academy/front/splash-v2.webp') center 40% / cover;
+  filter: saturate(1.4);
   pointer-events: none;
 }
 .evt-cinematic-content {
@@ -3602,10 +3653,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   max-height: 100%;
   min-height: 0;
   padding: clamp(14px, 2cqw, 28px);
-  background: linear-gradient(140deg, #161b33ef, #292744f2);
-  border: 1px solid #eac69e90;
-  border-left: 5px solid #ffb669;
-  border-radius: 14px;
+  background: linear-gradient(140deg, #171543f5, #36215aee);
+  border: 2px solid #ffdf83;
+  border-left: 7px solid #ff5b93;
+  border-radius: 8px;
   box-shadow: 0 12px 80px #000b;
   overflow-y: auto;
 }
@@ -3632,11 +3683,34 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .evt-dialogue-line {
   display: grid;
-  grid-template-columns: minmax(70px, 124px) minmax(0, 1fr);
-  gap: 12px;
-  padding: 9px 12px;
-  border-left: 2px solid #a6abdf;
-  background: #030b2088;
+  grid-template-columns: 60px minmax(70px, 120px) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 5px 10px;
+  border-left: 4px solid #57ddef;
+  background: #130d39d9;
+}
+.evt-dialogue-line:nth-child(even) {
+  border-left-color: #ff649a;
+  background: #251145d9;
+}
+.evt-dialogue-portrait {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 66px;
+  overflow: hidden;
+  border: 2px solid #ffe070;
+  border-radius: 5px;
+  background: linear-gradient(140deg, #7e2c9d, #164c75);
+  color: #ffe070;
+  font: 900 1.2rem Impact, sans-serif;
+}
+.evt-dialogue-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
 }
 .evt-dialogue-line strong {
   color: #ffd191;
@@ -3709,12 +3783,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     padding: 11px;
   }
   .evt-dialogue-line {
-    display: block;
-    padding: 7px;
+    grid-template-columns: 46px minmax(0, 1fr);
+    column-gap: 8px;
+    row-gap: 2px;
+    padding: 5px;
   }
-  .evt-dialogue-line strong {
-    display: block;
-    margin-bottom: 2px;
+  .evt-dialogue-portrait {
+    grid-row: 1 / span 2;
+    width: 46px;
+    height: 54px;
+  }
+  .evt-dialogue-line strong,
+  .evt-dialogue-line p {
+    grid-column: 2;
+    margin: 0;
   }
   .evt-cinematic-actions {
     grid-template-columns: 1fr;

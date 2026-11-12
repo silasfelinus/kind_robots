@@ -131,8 +131,8 @@
         <button
           v-for="t in tabs"
           :key="t.id"
-          type="button"
           :id="`personnel-file-tab-${t.id}`"
+          type="button"
           role="tab"
           :aria-controls="`personnel-file-panel-${t.id}`"
           :aria-selected="tab === t.id"

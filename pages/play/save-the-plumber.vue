@@ -246,7 +246,7 @@
                 ENTER GAME ▶
               </button>
             </div>
-            <ArcadePlumberCollection
+            <PlumberCollection
               v-else
               :view="albumView"
               :album="plumber.album"

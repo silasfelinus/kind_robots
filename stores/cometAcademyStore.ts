@@ -11,6 +11,15 @@ import {
   type PowerVowId,
 } from '~/utils/cometAcademy/specialPowers'
 import { defineStore } from 'pinia'
+import { useAchievementStore } from './achievementStore'
+import {
+  NO_ACADEMY_FACTS,
+  academyDeedAchievements,
+  academyDeedFacts,
+  yearbookAchievements,
+  yearbookFacts,
+  type YearbookFacts,
+} from '~/utils/cometAcademy/achievements'
 import {
   DEFAULT_SETTINGS,
   SETTINGS_KEY,
@@ -91,6 +100,27 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   const yearbook = ref<AcademyYearbook>({})
   const settings = ref<PromSettings>({ ...DEFAULT_SETTINGS })
   const dossiers = ref<string[]>([])
+  // What the term had already earned at the last action, so the next action
+  // awards only what it newly earned. A load or import resets it silently.
+  let deedFacts = NO_ACADEMY_FACTS
+
+  function award(...codes: string[]) {
+    if (!codes.length) return
+    const achievements = useAchievementStore()
+    for (const code of codes) void achievements.rewardAchievementByCode(code)
+  }
+
+  function awardDeeds(before: YearbookFacts) {
+    const facts = academyDeedFacts(run.value)
+    award(
+      ...academyDeedAchievements(deedFacts, facts),
+      ...yearbookAchievements(
+        before,
+        yearbookFacts(yearbook.value, dossiers.value),
+      ),
+    )
+    deedFacts = facts
+  }
 
   function recordDossier() {
     const current = run.value
@@ -128,6 +158,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   const tactical = computed(() => run.value?.tacticalBattle ?? null)
 
   function persist() {
+    const before = yearbookFacts(yearbook.value, dossiers.value)
     try {
       recordIdentity()
       recordDossier()
@@ -140,6 +171,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       storageWarning.value =
         'This browser cannot save your term. Keep the page open to continue.'
     }
+    awardDeeds(before)
   }
 
   function load() {
@@ -197,6 +229,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     try {
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreAcademy(raw ? JSON.parse(raw) : null)
+      deedFacts = academyDeedFacts(run.value)
       if (run.value?.signature && !yearbook.value[run.value.signature])
         recordIdentity(true)
       else recordIdentity()
@@ -235,6 +268,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       playbookRunKey(run.value),
     )
     persist()
+    award('comet-city-academy-enrolled')
   }
 
   function beginFirstWeek(
@@ -249,6 +283,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       playbookRunKey(run.value),
     )
     persist()
+    award('comet-city-academy-enrolled')
   }
 
   function heal(studentId: StudentId) {
@@ -500,6 +535,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     const restored = decodeSaveCode(code)
     if (!restored) return false
     run.value = restored
+    deedFacts = academyDeedFacts(restored)
     recordIdentity(
       Boolean(restored.signature && !yearbook.value[restored.signature]),
     )

@@ -25,6 +25,8 @@ on:
       - 'utils/scripts/verifyCometOctoberCast.test.ts'
       - 'utils/scripts/verifyCometConsoleScreens.test.ts'
       - 'utils/scripts/verifyCometPlaytestReadiness.test.ts'
+      - 'utils/scripts/verifyCometAchievements.test.ts'
+      - 'utils/achievements/catalog/main/comet-city-academy.ts'
       - 'components/play/cometAcademy/**'
       - 'utils/scripts/verifyPromVillainHenchmen.test.ts'
       - 'utils/cometAcademy/identityCampaignStages.json'
@@ -86,6 +88,8 @@ jobs:
         run: npx tsx utils/scripts/verifyCapesStyleCheck.test.ts
       - name: Villain-specific one-hit bestiary parity
         run: npx tsx utils/scripts/verifyPromVillainHenchmen.test.ts
+      - name: Prom of Doom achievements (earned by actions, never by loads)
+        run: npx tsx utils/scripts/verifyCometAchievements.test.ts
       - name: Captains seeded missions and ethical ending verification
         run: npm run test:game-of-captains
       - name: Space Couch expedition roster, fatalities and allocation verification

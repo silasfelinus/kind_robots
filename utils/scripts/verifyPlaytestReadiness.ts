@@ -55,14 +55,22 @@ assert(
 assert(
   'unfinished human-blocked art prevents playtest',
   playtestReadinessErrors([
-    task('art', { status: 'waiting', gateHuman: true, gateReason: 'creative-approval' }),
+    task('art', {
+      status: 'waiting',
+      gateHuman: true,
+      gateReason: 'creative-approval',
+    }),
     gate,
   ]).length > 0,
 )
 assert(
   'unresolved legal gate prevents playtest',
   playtestReadinessErrors([
-    task('legal', { status: 'needs-human', gateHuman: true, gateReason: 'legal' }),
+    task('legal', {
+      status: 'needs-human',
+      gateHuman: true,
+      gateReason: 'legal',
+    }),
     gate,
   ]).length > 0,
 )

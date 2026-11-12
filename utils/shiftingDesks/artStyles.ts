@@ -52,7 +52,9 @@ export type ShiftingDesksArtStyle = (typeof ART_STYLES)[number]['id']
 export const ART_STYLE_STORAGE_KEY = 'shifting-desks-art-style-v3'
 
 export function normalizeArtStyle(value: unknown): ShiftingDesksArtStyle {
-  return SELECTABLE_ART_STYLES.find((s) => s.id === value)?.id ?? DEFAULT_ART_STYLE
+  return (
+    SELECTABLE_ART_STYLES.find((s) => s.id === value)?.id ?? DEFAULT_ART_STYLE
+  )
 }
 
 // Renders pulled from a style after review (they show Classic instead) until

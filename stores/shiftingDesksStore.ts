@@ -19,6 +19,13 @@ import {
 } from '~/utils/shiftingDesks/rules'
 import { dailySeed } from '~/utils/shiftingDesks/daily'
 import {
+  DEFAULT_DESK_SETTINGS,
+  SETTINGS_KEY,
+  parseDeskSettings,
+  type DeskSettings,
+  type EmployeeIdentity,
+} from '~/utils/shiftingDesks/preferences'
+import {
   completionAchievements,
   instantAchievements,
 } from '~/utils/shiftingDesks/achievements'
@@ -44,6 +51,7 @@ const REWARD_KEY = 'shifting-desks-rewards-v1'
 
 export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   const run = ref<RunState | null>(null)
+  const settings = ref<DeskSettings>({ ...DEFAULT_DESK_SETTINGS })
   const discovered = ref<string[]>([])
   const endingsFound = ref<string[]>([])
   const rewardArchive = ref<RewardArchive>(emptyRewardArchive())
@@ -85,10 +93,54 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     }
   }
 
+  function setSetting(key: keyof DeskSettings, value: string | number): void {
+    settings.value = parseDeskSettings({ ...settings.value, [key]: value })
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings.value))
+    } catch {
+      // Preferences remain available until the next visit.
+    }
+  }
+
+  function resetSettings(): void {
+    settings.value = { ...DEFAULT_DESK_SETTINGS }
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings.value))
+    } catch {
+      // Browser storage is optional.
+    }
+  }
+
+  function resetProgress(): void {
+    run.value = null
+    discovered.value = []
+    endingsFound.value = []
+    rewardArchive.value = emptyRewardArchive()
+    printReceipt.value = null
+    newlyEarnedMilestones.value = []
+    envelopeOpened.value = false
+    rollSerial.value = 0
+    try {
+      for (const key of [
+        SAVE_KEY,
+        ENVELOPE_KEY,
+        OUTCOMES_KEY,
+        ENDINGS_KEY,
+        REWARD_KEY,
+      ])
+        localStorage.removeItem(key)
+    } catch {
+      // In-memory progress still resets if storage is unavailable.
+    }
+  }
+
   function load(): void {
     if (loaded.value) return
     newlyEarnedMilestones.value = []
     try {
+      settings.value = parseDeskSettings(
+        parseSavedJSON(localStorage.getItem(SETTINGS_KEY)),
+      )
       run.value = upgradeRun(parseSavedJSON(localStorage.getItem(SAVE_KEY)))
       envelopeOpened.value =
         localStorage.getItem(ENVELOPE_KEY) === run.value?.seed
@@ -120,12 +172,15 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   }
 
   // `daily` deals today's Daily Memo seed, the same run for everyone.
-  function start(jobId: string, options: { daily?: boolean } = {}): void {
+  function start(
+    jobId: string,
+    options: { daily?: boolean; identity?: Partial<EmployeeIdentity> } = {},
+  ): void {
     const seed = options.daily
       ? dailySeed()
       : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
     printReceipt.value = null
-    run.value = newRun(seed, jobId)
+    run.value = newRun(seed, jobId, options.identity)
     newlyEarnedMilestones.value = []
     usePlaybookRunReviewStore().begin('shifting-desks', seed)
     envelopeOpened.value = false
@@ -259,6 +314,10 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
 
   return {
     run,
+    settings,
+    setSetting,
+    resetSettings,
+    resetProgress,
     envelopeOpened,
     useInstant,
     openEnvelope,

@@ -15,6 +15,9 @@
 // 2026-11-11 PT boss/title pass (slime-city/t-017): new ANARKISS (riot) and
 // Meat Exchange crew posters, the generated title key art, 23 boss mood
 // portraits and two re-rendered cards, each fetched and contact-sheet reviewed.
+// 2026-11-12 PT journey epilogues (slime-city/t-062): 17 of the 18
+// JOURNEY-EPILOGUES-ROUND-1 plates (ArtImages 269914-269931), each fetched and
+// contact-sheet reviewed, so the finale paints the journey ending earned.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
@@ -495,6 +498,27 @@ export const SLIME_CITY_ART = {
     'undertow/2/cunning': 262275,
     'undertow/2/defeat': 262276,
     'undertow/2/scene': 262273,
+    // Journey epilogue plates (2026-11-12 PT, conductor slime-city/t-062,
+    // JOURNEY-EPILOGUES-ROUND-1): one per authored journey ending,
+    // '<crew>/journey-<left|right|mixed>'. ironjaw/journey-left is held back for
+    // a re-render (its sign painted misspelled lettering).
+    'catgirls/journey-left': 269914,
+    'catgirls/journey-right': 269915,
+    'catgirls/journey-mixed': 269916,
+    'bloodfairies/journey-left': 269917,
+    'bloodfairies/journey-right': 269918,
+    'bloodfairies/journey-mixed': 269919,
+    'ironjaw/journey-right': 269921,
+    'ironjaw/journey-mixed': 269922,
+    'riot/journey-left': 269923,
+    'riot/journey-right': 269924,
+    'riot/journey-mixed': 269925,
+    'undertow/journey-left': 269926,
+    'undertow/journey-right': 269927,
+    'undertow/journey-mixed': 269928,
+    'exchange/journey-left': 269929,
+    'exchange/journey-right': 269930,
+    'exchange/journey-mixed': 269931,
   },
   /** Attack-family icons, same round. */
   attacks: {
@@ -1366,4 +1390,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 790
+export const SLIME_CITY_ART_COUNT = 807

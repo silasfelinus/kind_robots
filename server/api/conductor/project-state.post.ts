@@ -14,6 +14,8 @@ import {
   updateConductorProjectOverride,
 } from '@/server/utils/conductorProjectRegistry'
 import { errorHandler } from '@/server/utils/error'
+import { parseRoadmapYaml } from '@/server/utils/conductorRoadmap'
+import { playtestReadinessErrors } from '@/server/utils/playtestReadiness'
 import prisma from '@/server/utils/prisma'
 import {
   projectInclude,
@@ -68,7 +70,17 @@ export default defineEventHandler(async (event) => {
     }
 
     const conductorSlug = project.conductorSlug || project.slug
-    const conductorStatus = nextStatus
+    if (nextStatus === 'PLAYTEST') {
+      const roadmap = await conductorGet(`projects/${conductorSlug}/roadmap.yaml`)
+      if (!roadmap) {
+        throw createError({ statusCode: 409, message: 'A Conductor roadmap is required before playtest.' })
+      }
+      const errors = playtestReadinessErrors(parseRoadmapYaml(roadmap.content).tasks)
+      if (errors.length) {
+        throw createError({ statusCode: 409, message: `Playtest is not ready: ${errors.join(' ')}` })
+      }
+    }
+    const conductorStatus
       ? projectStatusToConductorStatus(nextStatus)
       : undefined
     if (nextStatus === 'BRAINSTORM' && conductorSlug) {

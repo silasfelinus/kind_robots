@@ -126,7 +126,10 @@ import type {
   StoryMode,
   UnlockMode,
 } from '../utils/slimeCity/storySave'
-import { readGuestSlimeStory, writeGuestSlimeStory } from '../utils/slimeCity/guestStorySave'
+import {
+  readGuestSlimeStory,
+  writeGuestSlimeStory,
+} from '../utils/slimeCity/guestStorySave'
 import {
   ALLIANCE_DECK_SIZE,
   SOLO_DECK_SIZE,

@@ -308,7 +308,7 @@
       :has-save="!!run && (run.day > 1 || run.roster.length > 0)"
       :day="run?.day ?? 1"
       @done="splashing = false"
-      @settings="settingsOpen = true"
+      @settings="openSettingsFromSplash"
       @new-run="beginNewReign"
       @chronicle="openChronicleFromSplash"
     />
@@ -437,6 +437,11 @@ onBeforeUnmount(() => barObserver?.disconnect())
 function enter(room: RoomId) {
   activeRoom.value = room
   stage.value?.scrollTo({ top: 0 })
+}
+
+function openSettingsFromSplash() {
+  splashing.value = false
+  settingsOpen.value = true
 }
 
 function beginNewReign() {

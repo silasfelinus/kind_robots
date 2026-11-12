@@ -148,7 +148,9 @@ function toTask(raw: unknown): ConductorTask | null {
     gateHuman: bool(pick(source, 'gateHuman', 'gate_human')),
     gateReason: str(pick(source, 'gateReason', 'gate_reason')),
     recurring: bool(source.recurring),
-    playtestIteration: bool(pick(source, 'playtestIteration', 'playtest_iteration')),
+    playtestIteration: bool(
+      pick(source, 'playtestIteration', 'playtest_iteration'),
+    ),
     softGate: bool(pick(source, 'softGate', 'soft_gate')),
     note: str(source.note),
     dependsOn: Array.isArray(rawDependsOn)

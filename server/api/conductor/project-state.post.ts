@@ -73,11 +73,19 @@ export default defineEventHandler(async (event) => {
     if (nextStatus === 'PLAYTEST') {
       const roadmap = await conductorGet(`projects/${conductorSlug}/roadmap.yaml`)
       if (!roadmap) {
-        throw createError({ statusCode: 409, message: 'A Conductor roadmap is required before playtest.' })
+        throw createError({
+          statusCode: 409,
+          message: 'A Conductor roadmap is required before playtest.',
+        })
       }
-      const errors = playtestReadinessErrors(parseRoadmapYaml(roadmap.content).tasks)
+      const errors = playtestReadinessErrors(
+        parseRoadmapYaml(roadmap.content).tasks,
+      )
       if (errors.length) {
-        throw createError({ statusCode: 409, message: `Playtest is not ready: ${errors.join(' ')}` })
+        throw createError({
+          statusCode: 409,
+          message: `Playtest is not ready: ${errors.join(' ')}`,
+        })
       }
     }
     const conductorStatus = nextStatus

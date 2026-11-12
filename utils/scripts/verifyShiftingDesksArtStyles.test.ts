@@ -97,7 +97,10 @@ assert.match(
 const picker = asset(
   '../../components/shifting-desks/shifting-desks-style-picker.vue',
 )
-assert.match(picker, /role="radiogroup"[\s\S]*v-for="option in SELECTABLE_ART_STYLES"/)
+assert.match(
+  picker,
+  /role="radiogroup"[\s\S]*v-for="option in SELECTABLE_ART_STYLES"/,
+)
 assert.match(picker, /artStyleImageSrc\(ART_STYLE_SAMPLE, option\.id\)/)
 
 // The complete eleven-ending Western Cartoon batch was inspected, not just

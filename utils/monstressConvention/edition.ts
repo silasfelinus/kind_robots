@@ -70,6 +70,13 @@ const GENERAL_HOTSPOTS: Record<RoomId, readonly string[]> = {
   'convention-center': ['idol-poster', 'mummy-actress'],
 }
 
+const GENERAL_INVENTORY = new Set([
+  'camera',
+  'motel-key',
+  'odette-purse',
+  'plastic-fangs',
+])
+
 const GENERAL_TOPICS = new Set([
   'room-access',
   'unknown-visitor',
@@ -187,6 +194,18 @@ export function actionForAudience(
   audience: MonstriqueAudience,
 ): CaseResult {
   if (audience === 'mature') return performAction(state, action)
+  if (action.verb === 'combine') {
+    if (
+      !GENERAL_INVENTORY.has(action.item ?? '') ||
+      !GENERAL_INVENTORY.has(action.target)
+    )
+      return {
+        state,
+        changed: false,
+        line: 'That item combination is unavailable in the general edition.',
+      }
+    return performAction(state, action)
+  }
   if (
     !GENERAL_HOTSPOTS[state.room]?.includes(action.target) ||
     (action.verb === 'ask' && !GENERAL_TOPICS.has(action.topic ?? ''))

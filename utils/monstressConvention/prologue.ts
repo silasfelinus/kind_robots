@@ -59,7 +59,7 @@ export interface CaseState {
   ending: CaseEnding | null
 }
 export interface CaseAction {
-  verb: Verb
+  verb: Verb | 'combine'
   target: string
   topic?: string
   /** An inventory item used on the target (giving counts as using). */
@@ -456,6 +456,7 @@ export const EVIDENCE: Record<string, string> = {
   'ice-ring': 'An ice bucket was taken out of 205 after the murders',
   'makeup-smear': 'Skin-tone foundation on the missing ice bucket',
   'violet-scent': 'Violet smelled cold cream when the ice came',
+  'fangs-detail': 'A rental serial number on Violet’s costume fangs',
 }
 
 export const ITEMS: Record<string, string> = {
@@ -1107,12 +1108,63 @@ function useItem(state: CaseState, item: string, target: string): CaseResult {
   )
 }
 
+function combineItems(
+  state: CaseState,
+  first: string,
+  second: string,
+): CaseResult {
+  if (state.actor === 'nico')
+    return withLine(
+      state,
+      'Norb: My gloves are not rated for arts and crafts, Iris.',
+      false,
+    )
+  if (
+    first === second ||
+    !state.inventory.includes(first) ||
+    !state.inventory.includes(second)
+  )
+    return withLine(
+      state,
+      'Iris needs two different items from her own pockets.',
+      false,
+    )
+  if (
+    (first === 'camera' && second === 'plastic-fangs') ||
+    (first === 'plastic-fangs' && second === 'camera')
+  ) {
+    if (state.evidence.includes('fangs-detail'))
+      return withLine(
+        state,
+        'Iris already has a close-up of the rental stamp.',
+        false,
+      )
+    const next = copyState(state)
+    add(next.evidence, 'fangs-detail')
+    return withLine(
+      next,
+      'Iris photographs the fangs beside her camera lens. A tiny costume-rental number is scratched into the hinge. Norb: Finally, a lead with decent lighting.',
+    )
+  }
+  return withLine(
+    state,
+    'Iris tries the ' +
+      (ITEMS[first] ?? first).toLowerCase() +
+      ' with the ' +
+      (ITEMS[second] ?? second).toLowerCase() +
+      '. The laws of chemistry and comedy decline to cooperate.',
+    false,
+  )
+}
+
 export function performAction(
   state: CaseState,
   action: CaseAction,
 ): CaseResult {
   if (state.ending)
     return withLine(state, 'Chapter One has gone to press.', false)
+  if (action.verb === 'combine')
+    return combineItems(state, action.item ?? '', action.target)
   const hotspot = HOTEL_ROOMS[state.room].hotspots.find(
     (item) => item.id === action.target,
   )

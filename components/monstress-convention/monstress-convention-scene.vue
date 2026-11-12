@@ -2,6 +2,7 @@
   <section
     class="mc-console @container flex h-full min-h-0 w-full flex-col overflow-hidden text-white"
     data-testid="monstrexx-point-click"
+    @keydown.esc="closeOverlay"
   >
     <div
       v-if="screen === 'title'"
@@ -121,7 +122,13 @@
       <div
         class="mc-scene relative min-h-0 flex-1 overflow-hidden"
         :data-room="story.state.room"
-        :aria-label="room.label"
+        :aria-label="
+          room.label + '. Arrow keys cycle objects. Tap empty ground to walk.'
+        "
+        tabindex="0"
+        @click="walkTo"
+        @keydown.left.prevent="selectAdjacent(-1)"
+        @keydown.right.prevent="selectAdjacent(1)"
       >
         <svg
           class="mc-painted-scene absolute inset-0 size-full"
@@ -448,7 +455,7 @@
           :style="{ left: hotspot.x + '%', top: hotspot.y + '%' }"
           :aria-pressed="selected === hotspot.id"
           :aria-label="'Inspect ' + hotspot.label"
-          @click="selected = selected === hotspot.id ? null : hotspot.id"
+          @click="selectHotspot(hotspot.id)"
         >
           <span class="mc-hotspot-pip"
             ><Icon name="kind-icon:search" class="size-4"
@@ -631,8 +638,12 @@
             class="mc-item"
             :class="{ 'is-held': held === item }"
             :aria-pressed="held === item"
-            :title="'Hold ' + (ITEMS[item] ?? item) + ', then pick a hotspot'"
-            @click="held = held === item ? null : item"
+            :title="
+              'Hold ' +
+              (ITEMS[item] ?? item) +
+              ', then pick a hotspot or another inventory item to combine'
+            "
+            @click="pickInventory(item)"
           >
             <Icon
               :name="
@@ -725,6 +736,7 @@ const openingScene = computed(() => coldOpen(audience.value))
 const drawer = ref<'case' | 'map' | null>(null)
 const selected = ref<string | null>(null)
 const held = ref<string | null>(null)
+const walkTarget = ref<number | null>(null)
 const room = computed(() =>
   roomForAudience(story.value.state.room, audience.value),
 )
@@ -775,7 +787,7 @@ const stageNpcs = computed(() =>
 )
 const irisX = computed(() => {
   const target = activeHotspot.value
-  if (!target) return 20
+  if (!target) return walkTarget.value ?? 20
   const side = target.x > 50 ? -11 : 11
   return Math.min(92, Math.max(8, target.x + side))
 })
@@ -803,7 +815,51 @@ function begin(): void {
   selected.value = null
   held.value = null
   drawer.value = null
+  walkTarget.value = null
   screen.value = 'intro'
+}
+
+function selectHotspot(id: string): void {
+  selected.value = selected.value === id ? null : id
+  if (selected.value) walkTarget.value = null
+}
+
+function walkTo(event: MouseEvent): void {
+  const target = event.target as Element | null
+  if (target?.closest('button, aside')) return
+  const stage = event.currentTarget as HTMLElement
+  const bounds = stage.getBoundingClientRect()
+  if (bounds.width === 0) return
+  walkTarget.value = Math.min(
+    92,
+    Math.max(8, ((event.clientX - bounds.left) / bounds.width) * 100),
+  )
+  selected.value = null
+  drawer.value = null
+}
+
+function selectAdjacent(direction: -1 | 1): void {
+  if (drawer.value || room.value.hotspots.length === 0) return
+  const spots = room.value.hotspots
+  const current = spots.findIndex((spot) => spot.id === selected.value)
+  const start = current < 0 ? (direction === 1 ? -1 : 0) : current
+  selected.value = spots[(start + direction + spots.length) % spots.length]!.id
+  walkTarget.value = null
+}
+
+function pickInventory(item: string): void {
+  if (held.value && held.value !== item) {
+    story.value.takeAction({ verb: 'combine', item: held.value, target: item })
+    held.value = null
+    return
+  }
+  held.value = held.value === item ? null : item
+}
+
+function closeOverlay(): void {
+  if (drawer.value) drawer.value = null
+  else if (held.value) held.value = null
+  else selected.value = null
 }
 
 function useHeld(): void {
@@ -820,6 +876,7 @@ function go(destination: RoomId): void {
   story.value.move(destination)
   selected.value = null
   drawer.value = null
+  walkTarget.value = null
 }
 
 function toggleDrawer(value: 'case' | 'map'): void {

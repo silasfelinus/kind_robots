@@ -7,6 +7,8 @@ import { mock } from 'node:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useSlimeCityStore } from '../../stores/slimeCity'
 import { flagSquare, replayMatch, RUSH_TICK_MS } from '../slimeCity/prototypes'
+// Slime City achievements are fired by this store (conductor slime-city t-060).
+import './verifySlimeCityAchievements.test'
 
 mock.timers.enable({ apis: ['setInterval'] })
 setActivePinia(createPinia())

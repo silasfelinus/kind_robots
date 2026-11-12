@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { newCase, monstrexxKitId } from '../monstressConvention/prologue'
 import { MONSTRIQUE_ALBUMS } from '../monstrique/albumHistory'
+// The achievement contract rides along with the title menu's contract run.
+import './verifyMonstriqueAchievements.test'
 
 function file(name: string): string {
   return readFileSync(new URL('../../' + name, import.meta.url), 'utf8')

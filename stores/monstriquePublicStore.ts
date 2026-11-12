@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { useAchievementStore } from '~/stores/achievementStore'
 import { useUserStore } from '~/stores/userStore'
 import { performFetch } from '~/stores/utils'
 import {
@@ -17,6 +18,10 @@ import {
   type CaseState,
   type RoomId,
 } from '~/utils/monstressConvention/prologue'
+import {
+  achievementsFor,
+  MONSTRIQUE_ENDINGS,
+} from '~/utils/monstressConvention/achievements'
 import {
   cutsceneTriggeredBy,
   type Cutscene,
@@ -174,6 +179,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
       feedback.value = result.line
       return
     }
+    const prev = state.value
     activeCutscene.value =
       cutsceneTriggeredBy(state.value, result.state, audience.value) ??
       activeCutscene.value
@@ -197,7 +203,19 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     )
       kit.unlock('moments', 'cold-kiss')
     if (result.state.ending) kit.unlock('endings', result.state.ending)
+    awardAchievements(prev, result.state)
     persist()
+  }
+
+  // Achievements follow the action that changed the case, in either edition;
+  // a loaded save only becomes the next comparison's starting point.
+  function awardAchievements(prev: CaseState, next: CaseState): void {
+    const endingsSeen = MONSTRIQUE_ENDINGS.filter((id) =>
+      kit.isUnlocked('endings', id),
+    ).length
+    const achievements = useAchievementStore()
+    for (const code of achievementsFor(prev, next, endingsSeen))
+      void achievements.rewardAchievementByCode(code)
   }
 
   function forgetCase(): boolean {

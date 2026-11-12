@@ -8,7 +8,9 @@ export function canScrollVertically(
 ): boolean {
   const tolerance = 2
   if (deltaY > 0) {
-    return scroll.scrollTop + scroll.clientHeight < scroll.scrollHeight - tolerance
+    return (
+      scroll.scrollTop + scroll.clientHeight < scroll.scrollHeight - tolerance
+    )
   }
   if (deltaY < 0) return scroll.scrollTop > tolerance
   return false

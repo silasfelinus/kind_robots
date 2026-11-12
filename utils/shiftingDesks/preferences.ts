@@ -30,7 +30,7 @@ export function normalizeEmployeeIdentity(value: unknown): EmployeeIdentity {
       : {}
   const name =
     typeof raw.name === 'string'
-      ? raw.name.trim().replace(/\\s+/g, ' ').slice(0, 32)
+      ? raw.name.trim().replace(/\s+/g, ' ').slice(0, 32)
       : ''
   return {
     name,

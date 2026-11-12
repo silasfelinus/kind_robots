@@ -179,6 +179,17 @@ export function finaleEndingTitle(
   return FINALE_ENDINGS[roadOf(allegiance)][choice].title
 }
 
+/** The caption under the ending plate: the road the crew flew, then the ending's name. */
+export function finaleEndingCaption(
+  choice: FinaleChoice,
+  allegiance: RainbowAllegiance | null = null,
+): string {
+  const title = finaleEndingTitle(choice, allegiance)
+  return allegiance
+    ? `${RAINBOW_ALLEGIANCE_LABEL[allegiance]} · ${title}`
+    : title
+}
+
 /** Lilt's resolution: their arc is letting the crew choose, and each road shows what that cost or won. */
 const LILT_RESOLUTION: Record<FinaleRoad, string> = {
   rebel:

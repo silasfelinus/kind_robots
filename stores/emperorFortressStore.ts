@@ -54,6 +54,11 @@ import {
   encodeRelicVault,
 } from '~/utils/emperorOfDust/fortress/relics'
 import type { RelicId, RelicVault } from '~/utils/emperorOfDust/fortress/relics'
+import {
+  codexAchievements,
+  dawnAchievements,
+  relicAchievements,
+} from '~/utils/emperorOfDust/fortress/achievements'
 import { useAchievementStore } from './achievementStore'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
@@ -257,7 +262,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   }
 
   function claimRelic(id: RelicId) {
-    saveRelics(acquireRelic(relicVault.value, current(), id))
+    const before = relicVault.value
+    saveRelics(acquireRelic(before, current(), id))
+    award(relicAchievements(before, relicVault.value))
   }
 
   function setNextRelics(ids: RelicId[]) {
@@ -283,6 +290,13 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     textSpeed.value = 'normal'
     write(PREFERENCES_KEY, JSON.stringify(preferences.value))
     write(SPEED_KEY, 'normal')
+  }
+
+  /** Fires catalog codes at the deed; the achievement store ignores repeats. */
+  function award(codes: string[]) {
+    if (!codes.length) return
+    const achievements = useAchievementStore()
+    for (const code of codes) void achievements.rewardAchievementByCode(code)
   }
 
   function awardAchievements(next: FortressRun) {
@@ -400,19 +414,23 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
 
   /** Answers a barracks talk; returns the beat it moves on to, if it goes on. */
   function talk(talkId: string, optionId: string): string | undefined {
+    const known = codex.value
     const result = chooseTalkOption(current(), talkId, optionId)
     lastResponse.value = result.response
     commit(result.run)
     absorbAllegiances()
+    award(codexAchievements(known, codex.value))
     return result.next
   }
 
   /** Answers the audience; returns the beat it moves on to, if it goes on. */
   function answer(audienceId: string, optionId: string): string | undefined {
+    const known = codex.value
     const result = chooseAudienceOption(current(), audienceId, optionId)
     lastResponse.value = result.response
     commit(result.run)
     absorbAllegiances()
+    award(codexAchievements(known, codex.value))
     return result.next
   }
 
@@ -447,7 +465,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   }
 
   function finish() {
-    const result = finishDay(current(), codex.value.revealed)
+    const dusk = current()
+    const known = codex.value
+    const result = finishDay(dusk, codex.value.revealed)
     remember(result.report.quests.flatMap((quest) => quest.revealedTraits))
     lastLearned.value = []
     book.value = recordDawn(book.value!, result.run)
@@ -455,6 +475,10 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     persist()
     awardAchievements(result.run)
     absorbAllegiances()
+    award([
+      ...dawnAchievements(dusk, result.run),
+      ...codexAchievements(known, codex.value),
+    ])
   }
 
   function rewind(toDay: number) {
@@ -478,8 +502,10 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   }
 
   function learn(flag: string) {
+    const known = codex.value
     commit(earnFlag(current(), flag))
     absorbAllegiances()
+    award(codexAchievements(known, codex.value))
   }
 
   function hire(followerId: string) {

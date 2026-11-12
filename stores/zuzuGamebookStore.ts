@@ -14,16 +14,24 @@ import {
   type BattleAction,
 } from '~/utils/zuzuGamebook/adventure'
 import { decodeSaveCode, encodeSaveCode } from '~/utils/zuzuGamebook/saveCode'
+import {
+  ENDING_IDS,
+  collectionAchievements,
+  stepAchievements,
+} from '~/utils/zuzuGamebook/achievements'
 import { useAchievementStore } from './achievementStore'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
 const SAVE_KEY = 'kr-zuzu-gamebook-v1'
 const ENDINGS_KEY = 'kr-zuzu-gamebook-endings-v1'
 const RECOVERY_KEY = 'kr-zuzu-gamebook-recovery-v1'
+/** Endings reached in play here, for the collection achievements; never fed by a save code. */
+const PLAYED_KEY = 'kr-zuzu-gamebook-played-endings-v1'
 
 export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   const run = ref<Run>(startRun(1))
   const discovered = ref<string[]>([])
+  const played = ref<string[]>([])
   const recoverable = ref<Run | null>(null)
   const loaded = ref(false)
   const rollSerial = ref(0)
@@ -35,6 +43,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
       localStorage.setItem(ENDINGS_KEY, JSON.stringify(discovered.value))
+      localStorage.setItem(PLAYED_KEY, JSON.stringify(played.value))
       if (recoverable.value)
         localStorage.setItem(RECOVERY_KEY, JSON.stringify(recoverable.value))
       else localStorage.removeItem(RECOVERY_KEY)
@@ -81,6 +90,15 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
         discovered.value = endings.filter(
           (entry): entry is string => typeof entry === 'string',
         )
+      // Before this record existed the gallery was the only one: start from it once.
+      const reached: unknown = JSON.parse(
+        localStorage.getItem(PLAYED_KEY) ?? JSON.stringify(discovered.value),
+      )
+      if (Array.isArray(reached))
+        played.value = reached.filter(
+          (entry): entry is string =>
+            typeof entry === 'string' && ENDING_IDS.includes(entry),
+        )
     } catch {
       // Corrupt or blocked storage starts a new adventure safely.
     }
@@ -99,7 +117,18 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     const foe = scene(before.sceneId).battle
     if (foe && before.battle && after.sceneId === foe.win)
       void achievements.rewardAchievementByCode('zuzu-gamebook-first-fight-won')
+    for (const code of stepAchievements(before, after))
+      void achievements.rewardAchievementByCode(code)
     if (after.endings.length <= before.endings.length) return
+    if (
+      ENDING_IDS.includes(after.sceneId) &&
+      !played.value.includes(after.sceneId)
+    ) {
+      const earlier = played.value
+      played.value = [...earlier, after.sceneId]
+      for (const code of collectionAchievements(earlier, played.value))
+        void achievements.rewardAchievementByCode(code)
+    }
     if (scene(after.sceneId).ending === 'hope')
       void achievements.rewardAchievementByCode('zuzu-gamebook-hopeful-ending')
     if (after.sceneId === 'ending-bell')

@@ -1,0 +1,38 @@
+name: Zuzu Gamebook achievements
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/zuzuGamebook/achievements.ts'
+      - 'utils/zuzuGamebook/adventure.ts'
+      - 'utils/zuzuGamebook/book.ts'
+      - 'stores/zuzuGamebookStore.ts'
+      - 'utils/achievements/catalog/main/zuzu-gamebook.ts'
+      - 'utils/scripts/verifyZuzuGamebookAchievements.test.ts'
+      - '.github/workflows/zuzu-gamebook-achievements.yml'
+  workflow_dispatch:
+
+concurrency:
+  # Cancel superseded runs on the same PR; dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  achievements:
+    name: Gamebook achievements award in play, never from a save code
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx tsx utils/scripts/verifyZuzuGamebookAchievements.test.ts

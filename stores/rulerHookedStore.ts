@@ -64,6 +64,12 @@ import {
   learn as learnLesson,
   skipAll as skipAllLessons,
 } from '~/utils/rulerHooked/tutorial'
+import {
+  rulerHookedCatchDeeds,
+  rulerHookedChoiceDeeds,
+  rulerHookedEndingDeeds,
+} from '~/utils/rulerHooked/achievements'
+import { useAchievementStore } from './achievementStore'
 import type {
   Card,
   CatchResult,
@@ -73,6 +79,13 @@ import type {
 } from '~/types/ruler-hooked'
 
 const nowStamp = (): string => new Date().toISOString()
+
+/** Site achievements, awarded at the deed (never from init or loadSlot). */
+function award(codes: readonly string[]) {
+  if (!codes.length) return
+  const achievements = useAchievementStore()
+  for (const code of codes) void achievements.rewardAchievementByCode(code)
+}
 
 export const useRulerHookedStore = defineStore('rulerHooked', () => {
   const bundle = BUNDLE
@@ -183,6 +196,11 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     clearTransientPlayState()
     writeSave(run, stamp)
     refreshSlots()
+    award(
+      customPortraitId
+        ? ['ruler-hooked-crowned', 'ruler-hooked-own-face']
+        : ['ruler-hooked-crowned'],
+    )
   }
 
   /**
@@ -223,6 +241,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       void deletePortrait(prevPortraitId)
     }
     persist()
+    if (customPortraitId) award(['ruler-hooked-own-face'])
   }
 
   function loadSlot(saveId: string) {
@@ -296,7 +315,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (!simpleFishingFinished(nextEncounter)) return
     const narrativeRng = makeRng(`${save.value.seed}:${save.value.turnCount}`)
     if (nextEncounter.stage === 'LANDED') {
+      const before = save.value
       const result = takeTurn(bundle, save.value, narrativeRng)
+      award(rulerHookedCatchDeeds(before, result.save, result.catch))
       save.value = result.save
       lastCatch.value = result.catch
       lastEscape.value = null
@@ -336,15 +357,18 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     const ending = eligibleEnding(bundle, next)
     if (ending && next.status !== 'COMPLETE') pendingEnding.value = ending
     persist()
+    award(rulerHookedChoiceDeeds(choice.effects))
   }
 
   function acceptEnding() {
     if (!save.value || !pendingEnding.value) return
+    const endingKey = pendingEnding.value
     const next = cloneSave(save.value)
-    applyEffect(next, { ending: pendingEnding.value })
+    applyEffect(next, { ending: endingKey })
     save.value = next
     pendingEnding.value = null
     persist()
+    award(rulerHookedEndingDeeds(endingKey))
   }
 
   function declineEnding() {
@@ -354,6 +378,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     save.value = next
     pendingEnding.value = null
     persist()
+    award(['ruler-hooked-one-more-cast'])
   }
 
   /** Mark this reign's opening as seen (t-028) -- skip or finish both call this. */
@@ -406,6 +431,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     next.updatedAt = nowStamp()
     save.value = next
     persist()
+    award(['ruler-hooked-tackle-shop'])
   }
 
   /** Spend coins on a kingdom investment: moves the real kingdomHealth

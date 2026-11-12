@@ -1,9 +1,8 @@
 <template>
   <section
-    class="eod-splash absolute inset-0 z-30 grid cursor-pointer place-items-center overflow-hidden bg-base-200"
+    class="eod-splash absolute inset-0 z-30 grid place-items-center overflow-hidden bg-base-200"
     :class="leaving ? 'eod-splash-leave' : ''"
     aria-label="Emperor of Dust"
-    @click="leave"
   >
     <img
       src="/emperor-of-dust/map/wasteland.webp"
@@ -52,7 +51,7 @@
           @click.stop="leave"
         >
           <Icon name="kind-icon:crown" class="size-5" />
-          Enter fortress
+          {{ hasSave ? `Continue · Day ${day}` : 'Enter fortress' }}
         </button>
         <button
           type="button"
@@ -65,6 +64,52 @@
           Chronicle of Ash
         </button>
       </nav>
+      <div class="flex flex-wrap justify-center gap-2">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline border-warning/70 text-warning"
+          :disabled="!ready || leaving"
+          @click="emit('settings')"
+        >
+          <Icon name="kind-icon:settings" class="size-4" /> Settings
+        </button>
+        <button
+          v-if="hasSave"
+          type="button"
+          class="btn btn-sm btn-outline border-warning/70 text-warning"
+          :disabled="!ready || leaving"
+          @click="confirmNew = true"
+        >
+          New reign
+        </button>
+      </div>
+      <div
+        v-if="confirmNew"
+        class="rounded-2xl border border-warning/60 bg-base-300/95 p-4 text-sm"
+        role="group"
+        aria-label="Confirm new reign"
+      >
+        <p>
+          Begin a new reign? Your current autosave will be replaced. Chronicle
+          slots remain available.
+        </p>
+        <div class="mt-3 flex justify-center gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-warning"
+            @click="startNew"
+          >
+            Begin new reign
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-ghost"
+            @click="confirmNew = false"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
       <p class="eod-splash-hint text-xs italic">
         {{
           ready ? 'The court remembers every reign.' : 'The dust is settling…'
@@ -77,8 +122,13 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
 
-const props = defineProps<{ ready: boolean }>()
-const emit = defineEmits<{ done: []; chronicle: [] }>()
+const props = defineProps<{ ready: boolean; hasSave: boolean; day: number }>()
+const emit = defineEmits<{
+  done: []
+  chronicle: []
+  settings: []
+  newRun: []
+}>()
 
 const TITLE = 'Emperor of Dust'.split('')
 const MOTES = Array.from({ length: 26 }, (_, id) => {
@@ -97,6 +147,14 @@ const MOTES = Array.from({ length: 26 }, (_, id) => {
 })
 
 const leaving = ref(false)
+const confirmNew = ref(false)
+
+function startNew() {
+  if (!props.ready || leaving.value) return
+  confirmNew.value = false
+  emit('newRun')
+  leave()
+}
 let timer: ReturnType<typeof setTimeout> | null = null
 
 function leave() {

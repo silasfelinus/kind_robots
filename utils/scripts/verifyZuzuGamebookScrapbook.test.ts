@@ -1,12 +1,17 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { startRun } from '../zuzuGamebook/adventure'
+import { ENDING_IDS, startRun } from '../zuzuGamebook/adventure'
+import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
 import {
   SCRAPBOOK_LIMIT,
   addJourney,
   captureJourney,
   decodeScrapbook,
 } from '../zuzuGamebook/scrapbook'
+
+for (const ending of ENDING_IDS) {
+  assert.ok(SECTION_PLATES[ending]?.artImageId, `${ending} needs its own registered painted ending plate`)
+}
 
 const first = startRun(719)
 first.sceneId = 'ending-bell'

@@ -36,9 +36,12 @@
         </button>
       </header>
       <fieldset class="mb-5 rounded-lg border border-warning/30 p-3">
-        <legend class="px-1 font-semibold text-warning">Legacy of the crown</legend>
+        <legend class="px-1 font-semibold text-warning">
+          Legacy of the crown
+        </legend>
         <p class="mb-2 text-sm opacity-75">
-          {{ court.legacy.endings.length }} of 8 endings remembered. Finish a reign to earn the Veteran's Writ.
+          {{ court.legacy.endings.length }} of 8 endings remembered. Finish a
+          reign to earn the Veteran's Writ.
         </p>
         <label class="flex items-center gap-3 text-sm">
           <input
@@ -46,7 +49,9 @@
             class="checkbox checkbox-warning"
             :disabled="!court.legacy.endings.length"
             :checked="court.legacy.useWrit"
-            @change="court.setLegacyWrit(($event.target as HTMLInputElement).checked)"
+            @change="
+              court.setLegacyWrit(($event.target as HTMLInputElement).checked)
+            "
           />
           Carry a five-brass writ into the next new reign (optional).
         </label>

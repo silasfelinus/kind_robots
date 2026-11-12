@@ -1,9 +1,4 @@
-import {
-  createError,
-  defineEventHandler,
-  getRouterParam,
-  setHeader,
-} from 'h3'
+import { createError, defineEventHandler, getRouterParam, setHeader } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { readArtImageBytes } from '~/server/utils/artImageBytes'
 

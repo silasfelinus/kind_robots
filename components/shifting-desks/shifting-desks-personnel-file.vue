@@ -130,8 +130,8 @@
       >
         <button
           v-for="t in tabs"
-          :key="t.id"
           :id="`personnel-file-tab-${t.id}`"
+          :key="t.id"
           type="button"
           role="tab"
           :aria-controls="`personnel-file-panel-${t.id}`"

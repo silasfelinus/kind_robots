@@ -36,8 +36,8 @@ export function bestiaryAchievementCodes(collected: number): string[] {
 export function milestoneAchievementCodes(milestoneId: string): string[] {
   const landmark = LANDMARK_ACHIEVEMENTS[milestoneId]
   if (landmark) return [landmark]
-  const match = /^bestiary_(\d+)$/.exec(milestoneId)
-  return match ? bestiaryAchievementCodes(Number(match[1])) : []
+  const threshold = /^bestiary_(\d+)$/.exec(milestoneId)?.[1]
+  return threshold ? bestiaryAchievementCodes(Number(threshold)) : []
 }
 
 /** Codes adopting a fish earns; `tier` is its rarity as the server sends it. */

@@ -138,7 +138,7 @@
               survive.
             </p>
             <p class="mt-2 text-xs font-semibold text-[#e5c98b]">
-              🌿 Briar Marches · World 1 of 16 · House That Remembers
+              Briar Marches · The House That Remembers
             </p>
           </div>
         </section>

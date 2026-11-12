@@ -3739,6 +3739,18 @@ assert.doesNotMatch(
   /state\.value\.wildflowers \+= 1/,
 )
 
+// The title screen must not reveal a production world count or promise retired realms.
+const memoryLauncherSource = readFileSync(
+  'components/pages/memory-dungeon-launcher.vue',
+  'utf8',
+)
+assert.match(memoryLauncherSource, /Briar Marches · The House That Remembers/)
+assert.doesNotMatch(
+  memoryLauncherSource,
+  /World\s+\d+\s+of\s+\d+/i,
+  'The launcher must not expose an obsolete or spoiler-heavy realm count',
+)
+
 // Campaign progression contract: legacy e13-e16 saves must never become playable stages.
 const campaignCanon = await import('../memoryDungeon/reimaginerCampaign')
 const expectedPairs = [

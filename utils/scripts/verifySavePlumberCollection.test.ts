@@ -5,6 +5,7 @@ import {
   type PlumberSlot,
 } from '../arcade/games/savePlumberSave'
 import { stageNode } from '../arcade/games/savePlumberOverworld'
+import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import { rosterIndex } from '../arcade/games/savePlumberRoster'
 
 const start: PlumberSlot = {
@@ -47,6 +48,19 @@ assert.deepEqual(
   slotsReplaced.album,
   first.album,
   'replacing local save files cannot delete collection memories',
+)
+
+const reopened = createSavePlumberPreview({
+  rng: () => 0.5,
+  sound: { play() {} },
+  demo: false,
+  hiScore: 0,
+  resume: slotsReplaced,
+})
+assert.deepEqual(
+  readPlumberFile(reopened.save).album,
+  first.album,
+  'the cabinet must serialize the album even with no remaining run slots',
 )
 
 const later = mergePlumberAlbum(slotsReplaced.album, [

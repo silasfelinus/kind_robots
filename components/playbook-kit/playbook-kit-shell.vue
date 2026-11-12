@@ -186,6 +186,10 @@
               v-else-if="active.id === 'endings'"
               :spec="spec"
             />
+            <GameAchievementStrip
+              v-else-if="active.id === 'achievements'"
+              :game="spec.conductorSlug"
+            />
             <PlaybookKitSettings v-else :spec="spec" />
           </div>
         </aside>
@@ -232,6 +236,7 @@ import {
   type InputDevice,
 } from '~/utils/consoleInput'
 import { visibleMoments } from '~/utils/playbookKit/view'
+import { achievementsForGame } from '~/utils/achievements/gameAchievements'
 import type { KitMeter, PlaybookKitSpec } from '~/utils/playbookKit/types'
 
 const props = defineProps<{
@@ -313,6 +318,14 @@ const panes = computed(() => {
         props.spec.endings.map((e) => e.id),
       ),
       show: true,
+    },
+    {
+      // The site achievements this playbook's game awards, if it has any.
+      id: 'achievements',
+      label: 'Achievements',
+      icon: 'kind-icon:trophy',
+      count: '',
+      show: achievementsForGame(props.spec.conductorSlug).length > 0,
     },
     {
       id: 'settings',

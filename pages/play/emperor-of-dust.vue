@@ -446,7 +446,7 @@ function openSettingsFromSplash() {
 
 function beginNewReign() {
   court.newRun()
-  enter("briefing")
+  enter('briefing')
 }
 
 function openChronicleFromSplash() {

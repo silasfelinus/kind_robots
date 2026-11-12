@@ -12,9 +12,11 @@ import { chooseRiotBeat, riotEpilogue } from '../slimeCity/campaignRiot'
 import { ALLIANCE_LATER_ARCS } from '../slimeCity/campaignAllianceLater'
 import {
   earnedEndingIds,
+  endingArtSlug,
   endingById,
   endingCatalog,
   endingGallery,
+  finaleArtSlugs,
   recordFinishedRuns,
   validEndings,
   validScrapbook,
@@ -25,6 +27,7 @@ import {
   validSlimeCityStory,
 } from '../slimeCity/storySave'
 import { TEAMS } from '../slimeCity/prototypes'
+import { SLIME_CITY_ART, slimeArtId } from '../slimeCity/artManifest'
 import {
   CREW_TROPHIES,
   crewTrophyShelf,
@@ -219,3 +222,36 @@ console.log('slime-city endings gallery + scrapbook: ok')
   )
 }
 console.log('slime-city crew trophies verified')
+
+// Journey ending plates (slime-city/t-062): the finale paints the journey
+// ending the final choice earned, ahead of the triumph/compromise plate.
+{
+  assert.deepEqual(finaleArtSlugs(createCampaignSave(), 'riot'), [])
+  const won = finishRiot('left')
+  const slugs = finaleArtSlugs(won, 'riot')
+  assert.equal(slugs[0], 'riot/journey-left')
+  assert.match(slugs[1] ?? '', /^riot\/ending-(triumph|compromise)$/)
+  assert.ok(slimeArtId('story', slugs[0]), 'the earned journey plate is wired')
+  assert.equal(endingArtSlug('riot:journey:mixed'), 'riot/journey-mixed')
+  assert.equal(endingArtSlug('riot:triumph'), 'riot/ending-triumph')
+  assert.equal(endingArtSlug('riot:journey:sideways'), null)
+  const alliance = endingCatalog('riot').find((e) => e.kind === 'alliance')
+  assert.ok(alliance)
+  assert.equal(endingArtSlug(alliance.id), null)
+  // Every wired journey plate belongs to a real ending, and no two share art.
+  const journeyKeys = Object.keys(SLIME_CITY_ART.story).filter((key) =>
+    key.includes('/journey-'),
+  )
+  assert.ok(journeyKeys.length >= 17)
+  for (const key of journeyKeys) {
+    const [team, rest] = key.split('/journey-')
+    assert.equal(endingArtSlug(team + ':journey:' + rest), key, key)
+  }
+  assert.equal(
+    new Set(journeyKeys.map((key) => slimeArtId('story', key))).size,
+    journeyKeys.length,
+  )
+  const ui = readFileSync('components/slime-city-campaign.vue', 'utf8')
+  assert.match(ui, /finaleArtSlugs\(lab\.campaignSave, lab\.activeTeam\)/)
+}
+console.log('slime-city journey ending plates verified')

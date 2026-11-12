@@ -163,6 +163,7 @@ import { computed, ref } from 'vue'
 import { FACTION_CAMPAIGNS } from '~/utils/slimeCity/campaign'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import {
+  endingArtSlug,
   endingById,
   endingGallery,
   type EndingEntry,
@@ -220,7 +221,9 @@ function tileArt(entry: EndingEntry): number | null {
         entry.team + '/ending-' + entry.title.toLowerCase(),
       ) ?? slimeArtId('crews', entry.team)
     )
+  const slug = endingArtSlug(entry.id)
   return (
+    (slug ? slimeArtId('story', slug) : null) ??
     slimeArtId('story', entry.team + '/opening') ??
     slimeArtId('crews', entry.team)
   )

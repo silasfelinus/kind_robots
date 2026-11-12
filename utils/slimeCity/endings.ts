@@ -181,6 +181,34 @@ export function earnedEndingIds(save: CampaignSave, team: TeamId): string[] {
   return ids.filter(isEndingId)
 }
 
+/**
+ * The story-art slug ('<team>/…' in SLIME_CITY_ART.story) painted for an
+ * ending: journey endings have their own plate, the two approach endings keep
+ * theirs, and alliance endings have none (the gallery shows the ally's poster).
+ */
+export function endingArtSlug(id: string): string | null {
+  if (!isEndingId(id)) return null
+  const [team, kind, key] = id.split(':')
+  if (kind === 'journey') return team + '/journey-' + key
+  if (kind === 'triumph' || kind === 'compromise')
+    return team + '/ending-' + kind
+  return null
+}
+
+/**
+ * Story-art slugs for a finished run's finale, best first: the journey ending
+ * the final choice earned, then the approach ending. Empty until the run ends.
+ */
+export function finaleArtSlugs(save: CampaignSave, team: TeamId): string[] {
+  const ids = earnedEndingIds(save, team)
+  return [
+    ...ids.filter((id) => id.includes(':journey:')),
+    ...ids.filter((id) => !id.includes(':journey:')),
+  ]
+    .map(endingArtSlug)
+    .filter((slug): slug is string => slug !== null)
+}
+
 /** A finished run, stored as ids so a page stays small and re-renders text. */
 export interface ScrapbookPage {
   team: TeamId

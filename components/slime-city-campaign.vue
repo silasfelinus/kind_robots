@@ -715,6 +715,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { describeTerms } from '~/utils/slimeCity/campaign'
+import { finaleArtSlugs } from '~/utils/slimeCity/endings'
 import { clashTermsLabel } from '~/utils/slimeCity/clashBouts'
 
 import { rarityOf } from '~/utils/slimeCity/progression'
@@ -781,10 +782,13 @@ const recapArtId = computed(() => {
 })
 const endingArtId = computed(() => {
   if (!lab.campaignFinale) return null
-  const conviction = lab.campaignState.decisions.filter(
-    (id) => id === 'conviction',
-  ).length
-  return storyArt(conviction >= 3 ? 'ending-triumph' : 'ending-compromise')
+  // The journey ending the final choice earned has its own plate; until one is
+  // rendered the finale keeps the triumph/compromise plate.
+  for (const slug of finaleArtSlugs(lab.campaignSave, lab.activeTeam)) {
+    const id = slimeArtId('story', slug)
+    if (id) return id
+  }
+  return null
 })
 const backdrop = computed<{
   key: string

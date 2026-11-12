@@ -152,6 +152,27 @@ for (let seed = 0; seed < 96; seed++) {
     progress,
   )
   assert.equal(progress.events.length, 32)
+  const extraField = {
+    ...JSON.parse(JSON.stringify(progress)),
+    earnedExit: true,
+  }
+  assert.equal(
+    restoreHoshimoriNight(extraField),
+    null,
+    'An injected top-level exit claim must invalidate a saved expedition',
+  )
+  const missingField = JSON.parse(JSON.stringify(progress))
+  delete missingField.doorOpen
+  assert.equal(
+    restoreHoshimoriNight(missingField),
+    null,
+    'A missing canonical field must invalidate a saved expedition',
+  )
+  assert.equal(
+    restoreHoshimoriNight(Object.assign([], progress)),
+    null,
+    'An array disguised as a save must not restore',
+  )
   const forged = JSON.parse(JSON.stringify(progress))
   forged.doorOpen = false
   assert.equal(restoreHoshimoriNight(forged), null)

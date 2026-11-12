@@ -1402,7 +1402,7 @@ export function hoshimoriNightLowbankAccount(
 
 /** Replay every legal event rather than trusting client-supplied flags or routes. */
 export function restoreHoshimoriNight(value: unknown): NightProgress | null {
-  if (!value || typeof value !== 'object') return null
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const saved = value as Partial<NightProgress>
   if (
     saved.version !== 1 ||
@@ -1429,6 +1429,11 @@ export function restoreHoshimoriNight(value: unknown): NightProgress | null {
     'doorOpen',
     'events',
   ]
+  if (
+    Object.keys(saved).length !== keys.length ||
+    Object.keys(saved).some((key) => !keys.includes(key as keyof NightProgress))
+  )
+    return null
   return keys.every(
     (key) => JSON.stringify(saved[key]) === JSON.stringify(replay[key]),
   )

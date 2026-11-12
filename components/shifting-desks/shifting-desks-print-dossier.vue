@@ -103,8 +103,8 @@
       <section class="sd-print-section" aria-label="Personnel distinctions">
         <h2>Distinctions on Record</h2>
         <p class="sd-print-small">
-          These are verified local archive milestones, not claims of additional
-          account-level rewards.
+          These are local milestones recorded when this run was filed,
+          not later accomplishments or additional account-level rewards.
         </p>
         <div v-if="awards.length" class="sd-print-awards">
           <div v-for="award in awards" :key="award.id" class="sd-print-award">
@@ -171,7 +171,7 @@ import {
   type RunState,
 } from '~/utils/shiftingDesks/rules'
 import {
-  MILESTONES,
+  milestonesAsOfReceipt,
   receiptFor,
   sameCompletion,
   type RunReceipt,
@@ -198,7 +198,7 @@ const personalEndingLines = computed(() =>
 const grades = computed(() => rankedGrades(props.receipt.grades))
 const resultsVerdict = computed(() => finalVerdict(props.receipt.grades))
 const awards = computed(() =>
-  MILESTONES.filter((m) => !!store.rewardArchive.milestones[m.id]).map((m) => ({
+  milestonesAsOfReceipt(store.rewardArchive, props.receipt).map((m) => ({
     ...m,
     date: new Date(store.rewardArchive.milestones[m.id]!).toLocaleDateString(),
   })),

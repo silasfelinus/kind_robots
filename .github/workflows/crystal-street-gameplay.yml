@@ -15,6 +15,8 @@ on:
       - 'utils/playbook/crystalStreet.ts'
       - 'utils/scripts/verifyCrystalStreet.test.ts'
       - 'utils/scripts/verifyCrystalStreetFuzz.test.ts'
+      - 'utils/scripts/verifyCrystalStreetAchievements.test.ts'
+      - 'utils/achievements/catalog/main/crystal-street.ts'
       - 'utils/scripts/checkCrystalStreetFile.ts'
       - 'utils/scripts/crystalStreetArtContract.ts'
       - 'server/utils/artPromptContract.ts'
@@ -40,5 +42,6 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyCrystalStreet.test.ts
       - run: npx tsx utils/scripts/verifyCrystalStreetFuzz.test.ts
+      - run: npx tsx utils/scripts/verifyCrystalStreetAchievements.test.ts
       - run: npx tsx utils/scripts/crystalStreetArtContract.ts
       - run: npx tsx utils/scripts/verifyPlaybook.test.ts

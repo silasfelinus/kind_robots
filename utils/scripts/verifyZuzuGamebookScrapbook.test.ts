@@ -10,7 +10,10 @@ import {
 } from '../zuzuGamebook/scrapbook'
 
 for (const ending of ENDING_IDS) {
-  assert.ok(sectionPlate(scene(ending)).artImageId, `${ending} must have a delivered painted plate`)
+  assert.ok(
+    sectionPlate(scene(ending)).artImageId,
+    `${ending} must have a delivered painted plate`,
+  )
 }
 
 const first = startRun(719)
@@ -27,7 +30,10 @@ assert.deepEqual(memory.trail, first.visited)
 const text = JSON.stringify({ version: 1, runs: [memory] })
 assert.deepEqual(decodeScrapbook(text), [memory])
 assert.deepEqual(decodeScrapbook('broken json'), [])
-assert.deepEqual(decodeScrapbook(JSON.stringify({ version: 999, runs: [memory] })), [])
+assert.deepEqual(
+  decodeScrapbook(JSON.stringify({ version: 999, runs: [memory] })),
+  [],
+)
 assert.deepEqual(
   decodeScrapbook(
     JSON.stringify({
@@ -44,8 +50,10 @@ const memories = Array.from({ length: SCRAPBOOK_LIMIT + 6 }, (_, index) => ({
   id: 'journey-' + index,
 }))
 assert.equal(
-  memories.reduce((existing, item) => addJourney(existing, item), [] as typeof memories)
-    .length,
+  memories.reduce(
+    (existing, item) => addJourney(existing, item),
+    [] as typeof memories,
+  ).length,
   SCRAPBOOK_LIMIT,
 )
 
@@ -63,4 +71,6 @@ assert.match(front, /data-testid="zuzu-gamebook-title"/)
 assert.match(front, /data-testid="zuzu-gamebook-continue"/)
 assert.match(front, /game-achievement-strip game="zuzu-gamebook"/)
 assert.match(store, /captureJourney\(run.value/)
-console.log('Zuzu title, settings, painted endings and scrapbook contracts passed')
+console.log(
+  'Zuzu title, settings, painted endings and scrapbook contracts passed',
+)

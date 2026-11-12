@@ -29,6 +29,9 @@ export interface ConductorTask {
   passes: number
   stakes?: string
   gateHuman: boolean
+  gateReason?: string
+  recurring?: boolean
+  playtestIteration?: boolean
   softGate: boolean
   note?: string
   dependsOn?: string | string[] | null
@@ -143,6 +146,11 @@ function toTask(raw: unknown): ConductorTask | null {
     passes: Number(source.passes) || 0,
     stakes: str(source.stakes),
     gateHuman: bool(pick(source, 'gateHuman', 'gate_human')),
+    gateReason: str(pick(source, 'gateReason', 'gate_reason')),
+    recurring: bool(source.recurring),
+    playtestIteration: bool(
+      pick(source, 'playtestIteration', 'playtest_iteration'),
+    ),
     softGate: bool(pick(source, 'softGate', 'soft_gate')),
     note: str(source.note),
     dependsOn: Array.isArray(rawDependsOn)

@@ -1288,7 +1288,7 @@ function projectIconPath(slug: string | null): string {
 const activeProjects = computed(() =>
   projects.value.filter((project) => {
     if (project.conductorStatus) {
-      return ['active', 'continuous'].includes(project.conductorStatus)
+      return ['active', 'continuous', 'playtest'].includes(project.conductorStatus)
     }
     // Database-only projects have no Conductor lifecycle yet. Treat only the
     // live runtime ACTIVE state as workspace-active; DONE/PAUSED/ARCHIVED stay out.
@@ -1298,7 +1298,7 @@ const activeProjects = computed(() =>
 
 const sortedActiveProjects = computed(() =>
   [...activeProjects.value].sort((a, b) => {
-    const lifecycleOrder = { active: 0, continuous: 1 } as const
+    const lifecycleOrder = { active: 0, playtest: 1, continuous: 1 } as const
     const lifecycleA = a.conductorStatus ?? 'active'
     const lifecycleB = b.conductorStatus ?? 'active'
     const lifecycleDelta =
@@ -1727,6 +1727,7 @@ const milestoneTaskCounts = computed(() => {
 function lifecycleBadgeClass(status: string): string {
   if (status === 'active') return 'badge-success'
   if (status === 'continuous') return 'badge-accent'
+  if (status === 'playtest') return 'badge-info'
   if (status === 'paused') return 'badge-warning'
   if (status === 'finished') return 'badge-success'
   return 'badge-ghost'

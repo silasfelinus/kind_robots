@@ -448,7 +448,7 @@
     "test:adventure-validator": "tsx utils/scripts/verifyAdventureValidator.test.ts",
     "test:capture-group-guards": "tsx utils/scripts/verifyCaptureGroupGuards.ts",
     "test:capture-group-guards-selftest": "tsx utils/scripts/verifyCaptureGroupGuards.test.ts",
-    "test:conductor-api-auth-guards": "tsx utils/scripts/verifyConductorApiAuthGuards.ts && tsx utils/scripts/verifyConductorProjectRegistry.ts",
+    "test:conductor-api-auth-guards": "tsx utils/scripts/verifyConductorApiAuthGuards.ts && tsx utils/scripts/verifyConductorProjectRegistry.ts && tsx utils/scripts/verifyPlaytestReadiness.ts",
     "test:conductor-api-auth-guards-selftest": "tsx utils/scripts/verifyConductorApiAuthGuards.test.ts",
     "test:conductor-progress-parity": "tsx utils/scripts/verifyConductorProgressParity.ts",
     "test:conductor-task-actions": "tsx utils/scripts/verifyConductorTaskActions.test.ts",

@@ -38,6 +38,9 @@ overrides:
   - slug: continuous-project
     status: continuous
     priority: normal
+  - slug: playtest-project
+    status: playtest
+    priority: high
   - slug: paused-project
     status: paused # tabled by Silas
     priority: low
@@ -53,7 +56,7 @@ console.log('Conductor registry parsing')
 const parsed = parseConductorProjectOverrides(fixture)
 check(
   'all lifecycle entries are parsed',
-  parsed.length === 5,
+  parsed.length === 6,
   String(parsed.length),
 )
 check(
@@ -65,20 +68,24 @@ check(
   conductorStatusToProjectStatus(parsed[1]!.status) === 'CONTINUOUS',
 )
 check(
+  'playtest maps to PLAYTEST',
+  conductorStatusToProjectStatus(parsed[2]!.status) === 'PLAYTEST',
+)
+check(
   'paused maps to PAUSED',
-  conductorStatusToProjectStatus(parsed[2]!.status) === 'PAUSED',
+  conductorStatusToProjectStatus(parsed[3]!.status) === 'PAUSED',
 )
 check(
   'finished maps to DONE',
-  conductorStatusToProjectStatus(parsed[3]!.status) === 'DONE',
+  conductorStatusToProjectStatus(parsed[4]!.status) === 'DONE',
 )
 check(
   'retired maps to ARCHIVED',
-  conductorStatusToProjectStatus(parsed[4]!.status) === 'ARCHIVED',
+  conductorStatusToProjectStatus(parsed[5]!.status) === 'ARCHIVED',
 )
 check(
   'urgent maps to HIGH',
-  conductorPriorityToProjectPriority(parsed[3]!.priority) === 'HIGH',
+  conductorPriorityToProjectPriority(parsed[4]!.priority) === 'HIGH',
 )
 check(
   'ACTIVE maps back to active',
@@ -87,6 +94,10 @@ check(
 check(
   'CONTINUOUS maps back to continuous',
   projectStatusToConductorStatus('CONTINUOUS') === 'continuous',
+)
+check(
+  'PLAYTEST maps back to playtest',
+  projectStatusToConductorStatus('PLAYTEST') === 'playtest',
 )
 check(
   'DONE maps back to finished',
@@ -336,7 +347,7 @@ check(
 )
 check(
   'progress route serves only active/continuous slugs and no task lists',
-  progressRoute.includes("new Set(['active', 'continuous'])") &&
+  progressRoute.includes("new Set(['active', 'continuous', 'playtest'])") &&
     !progressRoute.includes('tasks:') &&
     !progressRoute.includes('.tasks'),
 )

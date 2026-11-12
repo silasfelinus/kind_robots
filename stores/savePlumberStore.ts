@@ -30,6 +30,8 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
     screen.value = next
   }
 
+  const file = computed(() => readPlumberFile(arcade.saveFor(PLUMBER_SLUG)))
+  const album = computed(() => file.value.album)
   const progress = computed(() => readPlumberSave(arcade.saveFor(PLUMBER_SLUG)))
   const seed = computed(() => progress.value?.heroine ?? DEFAULT_HEROINE_SEED)
   const heroine = computed(() => rosterHeroine(seed.value))
@@ -65,6 +67,8 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
     chosen,
     nextStage,
     progress,
+    file,
+    album,
     gears,
     gearCount,
     gearTotal,

@@ -17,6 +17,7 @@
  */
 import { CAMPAIGN } from './savePlumberLevels'
 import { mapNode, stageNode, startId } from './savePlumberOverworld'
+import { PLUMBER_ROSTER, rosterIndex } from './savePlumberRoster'
 
 /** One save slot: a heroine's whole adventure. */
 export type PlumberSlot = {
@@ -54,6 +55,15 @@ export type PlumberSave = PlumberSlot & {
   endlessBest?: number
 }
 
+/** Collectibles survive replacing or erasing individual run slots. */
+export type PlumberAlbum = {
+  done: string[]
+  secrets: string[]
+  gears: string[]
+  heroines: number[]
+  endings: ('rivers-run-home')[]
+}
+
 /** What the cabinet actually stores: three slots and the Endless best. */
 export type PlumberFile = {
   v: 3
@@ -61,6 +71,7 @@ export type PlumberFile = {
   active: number
   slots: (PlumberSlot | null)[]
   endlessBest: number
+  album: PlumberAlbum
 }
 
 export const PLUMBER_SLUG = 'save-the-plumber'
@@ -138,6 +149,53 @@ export function readPlumberSlot(
   }
 }
 
+/**
+ * A monotonic, validated collection. A slot contributes only earned progress,
+ * and deleting that slot never takes away an already recorded souvenir.
+ */
+export function mergePlumberAlbum(
+  raw: unknown,
+  slots: (PlumberSlot | null)[],
+): PlumberAlbum {
+  const a =
+    raw && typeof raw === 'object'
+      ? (raw as Record<string, unknown>)
+      : {}
+  const array = (value: unknown): unknown[] =>
+    Array.isArray(value) ? value : []
+  const done = nodeIds(
+    [...array(a.done), ...slots.flatMap((slot) => slot?.done ?? [])],
+    false,
+  )
+  const secrets = nodeIds(
+    [...array(a.secrets), ...slots.flatMap((slot) => slot?.secrets ?? [])],
+    false,
+  )
+  const gears = codes([
+    ...array(a.gears),
+    ...slots.flatMap((slot) => slot?.gears ?? []),
+  ])
+  const heroines = [
+    ...new Set([
+      ...array(a.heroines).filter(
+        (v): v is number =>
+          typeof v === 'number' &&
+          Number.isInteger(v) &&
+          v >= 0 &&
+          v < PLUMBER_ROSTER.length,
+      ),
+      ...slots
+        .filter((slot): slot is PlumberSlot => slot !== null)
+        .map((slot) => rosterIndex(slot.heroine)),
+    ]),
+  ]
+  const finale =
+    array(a.endings).includes('rivers-run-home') ||
+    slots.some((slot) => slot?.cleared === true)
+  const endings: PlumberAlbum['endings'] = finale ? ['rivers-run-home'] : []
+  return { done, secrets, gears, heroines, endings }
+}
+
 /** The cabinet's file from untrusted data: version 3, or an older file migrated forward. */
 export function readPlumberFile(raw: unknown): PlumberFile {
   const empty: PlumberFile = {
@@ -145,19 +203,22 @@ export function readPlumberFile(raw: unknown): PlumberFile {
     active: 0,
     slots: Array(SLOT_COUNT).fill(null),
     endlessBest: 0,
+    album: mergePlumberAlbum(null, []),
   }
   if (!raw || typeof raw !== 'object') return empty
   const r = raw as Record<string, unknown>
   const best = (v: unknown) => (count(v, 9_999_999) ? v : 0)
   if (r.v === 3 || r.v === 2) {
     const slots = Array.isArray(r.slots) ? r.slots : []
+    const normalized = Array.from({ length: SLOT_COUNT }, (_, i) =>
+      readPlumberSlot(slots[i], r.v === 2),
+    )
     return {
       v: 3,
       active: count(r.active, SLOT_COUNT - 1) ? r.active : 0,
-      slots: Array.from({ length: SLOT_COUNT }, (_, i) =>
-        readPlumberSlot(slots[i], r.v === 2),
-      ),
+      slots: normalized,
       endlessBest: best(r.endlessBest),
+      album: mergePlumberAlbum(r.album, normalized),
     }
   }
   if (r.v !== 1) return empty
@@ -168,6 +229,7 @@ export function readPlumberFile(raw: unknown): PlumberFile {
     ...empty,
     slots: [slot, null, null],
     endlessBest: best(r.endlessBest),
+    album: mergePlumberAlbum(null, [slot, null, null]),
   }
 }
 

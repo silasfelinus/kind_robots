@@ -44,6 +44,17 @@
           currency is meat.
         </p>
         <button
+          v-if="canContinue"
+          type="button"
+          class="scs-continue"
+          :disabled="leaving"
+          data-testid="slime-splash-continue"
+          @click="resumeJourney"
+        >
+          <span aria-hidden="true">▶</span> Continue Journey
+          <small>{{ lab.team.name }} · Chapter {{ lab.campaignState.wins + 1 }}</small>
+        </button>
+        <button
           type="button"
           class="scs-settings"
           aria-label="Settings"
@@ -221,6 +232,9 @@ const picked = computed(
   () => lab.teams.find((team) => team.id === pickedId.value) ?? lab.team,
 )
 const homeDistrict = computed(() => CAMPAIGN_DISTRICTS[picked.value.id])
+const canContinue = computed(
+  () => lab.storyLoaded && lab.campaignState.wins > 0,
+)
 
 /**
  * Silas, 2026-11-10 PT: "It's confusing to have no parity between top of the
@@ -272,6 +286,12 @@ function go(open: () => void): void {
   leaving.value = true
   timer = setTimeout(open, 260)
 }
+function resumeJourney(): void {
+  // Continue always restores the saved crew, even if the roster preview changed.
+  pickedId.value = lab.activeTeam
+  go(() => lab.showCampaign())
+}
+
 function enter(destination: Destination): void {
   go(() => {
     if (destination === 'campaign') lab.showCampaign()
@@ -596,6 +616,35 @@ onBeforeUnmount(() => clearTimeout(timer))
 .scs-crew:focus-visible {
   outline: 2px solid #c5ff59;
   outline-offset: 2px;
+}
+
+.scs-continue {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  border: 2px solid #c5ff59;
+  border-radius: 0.75rem;
+  background: #0c1823e8;
+  color: #c5ff59;
+  font-weight: 900;
+  cursor: pointer;
+}
+.scs-continue small {
+  color: #f7f2e8;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+.scs-continue:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.scs-continue:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .scs-settings {

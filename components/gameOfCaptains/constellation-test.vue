@@ -74,7 +74,11 @@
         <span class="scope-kicker"
           >THE COUCHSCOPE · OFFICE OF CELESTIAL HUMAN RESOURCES</span
         >
-        <strong>MANDATORY PERSONALITY AND LIABILITY SCREENING</strong>
+        <strong>{{
+          wildMode
+            ? 'SCREENING REFUSED · UNSUPERVISED EXIT'
+            : 'MANDATORY PERSONALITY AND LIABILITY SCREENING'
+        }}</strong>
         <div
           v-if="!wildMode"
           class="scope-progress"
@@ -733,20 +737,25 @@ function choose(index: number) {
   color: #ff9f8a !important;
   letter-spacing: 0.1em;
 }
+.scope-content.scope-wild {
+  justify-content: flex-start;
+  overflow-y: auto;
+  padding-top: clamp(0.5rem, 1.6vh, 1rem);
+}
 .scope-wild-hand {
   flex: none;
-  margin-top: clamp(0.45rem, 1.5vh, 0.9rem);
+  margin-top: clamp(0.3rem, 1vh, 0.7rem);
+  --hand-card-max: 9.5rem;
+  --hand-card-vh: 15vh;
 }
 .scope-wild h2 {
   color: #ffcfb8;
 }
 .scope-wild-ledger {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.22rem;
+  display: grid;
+  grid-template-columns: repeat(16, 0.62rem);
+  gap: 0.24rem;
   margin-top: 0.8rem;
-  max-width: 26rem;
 }
 .scope-wild-ledger span {
   width: 0.62rem;
@@ -763,7 +772,7 @@ function choose(index: number) {
   box-shadow: 0 0 0 2px #ffe2b8;
 }
 .scope-wild-ledger small {
-  flex-basis: 100%;
+  grid-column: 1 / -1;
   margin-top: 0.3rem;
   color: #f4c58b;
   font-weight: 900;

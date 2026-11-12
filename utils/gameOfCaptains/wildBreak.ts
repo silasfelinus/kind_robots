@@ -53,7 +53,7 @@ export const WILD_BREAK_SHIELD_MAX = 3
 export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   {
     id: 'walkout',
-    kicker: 'WILD BREAK · UNSCHEDULED DEPARTURE FROM SCREENING',
+    kicker: 'UNSCHEDULED DEPARTURE FROM SCREENING',
     title: 'You stand up in the middle of a question.',
     text: 'Nobody has ever stood up in the middle of a question. The Assessor, a floating filing cabinet with excellent posture, opens one drawer very slowly, which is how it frowns. The exit sign is lit. So is the window.',
     choices: [
@@ -81,7 +81,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'window',
-    kicker: 'WILD BREAK · EXIT VIA WINDOW',
+    kicker: 'EXIT VIA WINDOW',
     title: 'The zodiac is parked outside.',
     text: 'Beyond the window, twelve constellations idle in a neat row like taxis waiting for a fare. Between two of them is a stretch of sky nobody has claimed. A comet is pulling away from the curb with its doors still open.',
     choices: [
@@ -99,7 +99,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'heist',
-    kicker: 'WILD BREAK · UNAUTHORIZED REMOVAL OF EQUIPMENT',
+    kicker: 'UNAUTHORIZED REMOVAL OF EQUIPMENT',
     title: 'The Couchscope is under your arm.',
     text: 'It is a brass instrument with a velvet eyepiece and a cushion for the elbow. The alarm is very polite. It asks everyone to remain seated and to note the time, which is now.',
     choices: [
@@ -117,7 +117,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'audit',
-    kicker: 'WILD BREAK · REVERSE SCREENING',
+    kicker: 'REVERSE SCREENING',
     title: 'You pick up the clipboard.',
     text: 'The Assessor has screened four million captains. Nobody has ever screened the Assessor. It hovers a little lower. Somewhere in its bottom drawer, a very old form rustles.',
     choices: [
@@ -135,7 +135,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'stars',
-    kicker: 'WILD BREAK · DIRECT APPEAL TO THE SKY',
+    kicker: 'DIRECT APPEAL TO THE SKY',
     title: 'You address the constellations by name.',
     text: 'The constellations are, technically, the people in charge. You lean out of the screening office and shout up at them. After a while, the whole sky clicks and begins to play a short, cheerful tune.',
     choices: [
@@ -153,7 +153,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'comet',
-    kicker: 'WILD BREAK · COMMUTER COMET 9',
+    kicker: 'COMMUTER COMET 9',
     title: 'The comet is full.',
     text: 'A notice on the tail reads NO STANDING ABOVE NINE THOUSAND DEGREES. The other passengers are two minor deities, a family of ice moths and a quiet man holding a lamp. The next stop is in four centuries.',
     choices: [
@@ -181,7 +181,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'gap',
-    kicker: 'WILD BREAK · UNCLAIMED SKY',
+    kicker: 'UNCLAIMED SKY',
     title: 'The dark between signs is very quiet.',
     text: 'Between the Northern Sloth and the Velvet Comet is a strip of sky nobody was ever assigned. It is dark, comfortable and slightly warmer than it should be. You are not the first person to hide here.',
     choices: [
@@ -209,7 +209,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'chase',
-    kicker: 'WILD BREAK · PURSUIT IN PROGRESS',
+    kicker: 'PURSUIT IN PROGRESS',
     title: 'Human Resources sends a tandem bicycle.',
     text: 'Two clerks pedal after you through vacuum out of pure policy. Their bell works. Physically, it should not. The couch is fifty meters away and you are carrying an instrument with an elbow cushion.',
     choices: [
@@ -237,7 +237,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'reverse',
-    kicker: 'WILD BREAK · INSTRUMENT HELD BACKWARDS',
+    kicker: 'INSTRUMENT HELD BACKWARDS',
     title: 'The stars have futures too.',
     text: 'Through the wrong end, the Couchscope shows not your fortune but the constellations’ fortunes. Several of them are worried. Most of them are worried about you, specifically.',
     choices: [
@@ -265,7 +265,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'cabinet',
-    kicker: 'WILD BREAK · ASSESSOR UNDER ASSESSMENT',
+    kicker: 'ASSESSOR UNDER ASSESSMENT',
     title: 'The Assessor requests a moment.',
     text: 'Its drawers rattle in sequence, top to bottom. It requests the moment in writing, then retracts the request, then asks whether retracting counts as an answer. Nobody has ever asked what it is.',
     choices: [
@@ -293,7 +293,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'archive',
-    kicker: 'WILD BREAK · COMPLETE SCREENING ARCHIVE',
+    kicker: 'COMPLETE SCREENING ARCHIVE',
     title: 'The archive arrives on a moon.',
     text: 'The file comes on a cart, then a second cart, then a small moon of paper towed into orbit outside the window. Most captains gave the same answers. One folder is marked DO NOT OPEN, in your own handwriting.',
     choices: [
@@ -321,7 +321,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'hold',
-    kicker: 'WILD BREAK · PLEASE CONTINUE TO HOLD',
+    kicker: 'PLEASE CONTINUE TO HOLD',
     title: 'The sky has put you on hold.',
     text: 'The hold music is the background radiation of the universe in a slightly faster arrangement. Every eleven minutes a recorded voice says that your call is important to the stars and that the stars are experiencing high volume.',
     choices: [
@@ -349,7 +349,7 @@ export const WILD_BREAK_SCENES: readonly WildBreakScene[] = [
   },
   {
     id: 'climb',
-    kicker: 'WILD BREAK · ASCENT BY DOTTED LINE',
+    kicker: 'ASCENT BY DOTTED LINE',
     title: 'At the top of the zodiac is a door.',
     text: 'The dotted lines between stars hold your weight if you do not look down. At the top is a plain door marked CONSTELLATIONS · STAFF ONLY. Behind it, someone is shuffling cards.',
     choices: [

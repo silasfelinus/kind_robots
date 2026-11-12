@@ -459,7 +459,10 @@
                 <p class="text-xs opacity-70">
                   {{ dateLabel(receipt.completedAt) }} · {{ receipt.jobTitle }}
                 </p>
-                <p v-if="receipt.identity?.name" class="font-mono text-xs font-bold">
+                <p
+                  v-if="receipt.identity?.name"
+                  class="font-mono text-xs font-bold"
+                >
                   {{ receipt.identity.name }}
                   <span v-if="receipt.identity.pronouns !== 'unspecified'">
                     · {{ receipt.identity.pronouns }}

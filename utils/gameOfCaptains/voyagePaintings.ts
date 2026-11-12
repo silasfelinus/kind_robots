@@ -3,6 +3,11 @@
 // These ArtImage IDs are confirmed DONE in their ledgers, not proof of public delivery.
 // A server-filtered lookup supplies authorized URLs; a missing image keeps the couch SVG.
 export const COUCH_VOYAGE_ART_IDS = {
+  // The three Act I opening calls, repainted for the red couch
+  // (COUCHSCOPE-AND-OPENING-ROUND-1, wired 2026-11-12).
+  'missions/refugees': 261262,
+  'missions/archive': 261263,
+  'missions/bar': 261264,
   'missions/ashdock': 258259,
   'missions/windglass': 258260,
   'missions/nacre': 258261,

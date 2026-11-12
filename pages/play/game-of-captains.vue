@@ -168,6 +168,10 @@
             <p v-if="run.starAssessment">
               Under {{ starSignFor(run.starAssessment.sign).name }}
             </p>
+            <p v-else-if="run.wildBreak">
+              Unsigned · Wild break:
+              {{ wildBreakEnding(run.wildBreak.ending)?.title }}
+            </p>
             <div class="cap-menu-journal">
               <p v-if="!run.log.length">
                 No incidents entered. An encouraging sign, statistically.
@@ -421,7 +425,10 @@
                 :reduced-motion="store.preferences.reducedMotion"
                 :artwork="store.onboardingArt"
                 :artwork-ready="store.onboardingArtLoaded"
+                :wild-found="store.wildBreakFound"
                 @confirm="confirmStarAssessment"
+                @wild-ending="store.recordWildBreakEnding"
+                @wild-break="confirmWildBreak"
                 @back="selectionScreen = 'background'"
               />
               <div
@@ -1945,6 +1952,10 @@ import {
   type StarAssessment,
 } from '~/utils/gameOfCaptains/starSigns'
 import {
+  wildBreakEnding,
+  type WildBreakRecord,
+} from '~/utils/gameOfCaptains/wildBreak'
+import {
   CREW_JOURNEYS,
   NEMESIS_COUNTERPLAY,
 } from '~/utils/gameOfCaptains/crewJourneys'
@@ -2003,6 +2014,7 @@ const logEntries = computed(() => {
   )
 })
 const starAssessment = ref<StarAssessment | null>(null)
+const wildBreak = ref<WildBreakRecord | null>(null)
 const focusedCrew = ref<CrewId>('pell')
 type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
@@ -2439,25 +2451,34 @@ const panelLabel = computed(() =>
 
 function confirmStarAssessment(assessment: StarAssessment) {
   starAssessment.value = assessment
+  wildBreak.value = null
+  selectionScreen.value = 'crew'
+}
+/** The Couchscope's wild break: no constellation, one of 32 endings instead. */
+function confirmWildBreak(record: WildBreakRecord) {
+  wildBreak.value = record
+  starAssessment.value = null
   selectionScreen.value = 'crew'
 }
 function beginWithStarSign() {
   if (
     !selectedOrigin.value ||
-    !starAssessment.value ||
+    (!starAssessment.value && !wildBreak.value) ||
     chosenCrew.value.length !== 3
   )
     return
   store.begin(
     selectedCaptain.value,
     chosenCrew.value,
-    starAssessment.value,
+    starAssessment.value ?? undefined,
     selectedOrigin.value,
+    starAssessment.value ? undefined : (wildBreak.value ?? undefined),
   )
 }
 function restartVoyage() {
   store.restart()
   starAssessment.value = null
+  wildBreak.value = null
   selectionScreen.value = 'captain'
   chosenCrew.value = []
   captainDossierTab.value = 'stats'

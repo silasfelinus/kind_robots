@@ -56,6 +56,7 @@ import {
 import { starterRedshirts, REDSHIRT_BY_ID } from './redshirts'
 import type { ExpeditionVisit } from './expedition'
 import { validStarAssessment, type StarAssessment } from './starSigns'
+import { validWildBreak, type WildBreakRecord } from './wildBreak'
 import { CAPTAIN_ORIGINS, type CaptainOriginId } from './captainOrigins'
 import {
   DETOUR_LINES,
@@ -395,6 +396,8 @@ export type VoyageRun = {
   captain: CaptainId
   origin?: CaptainOriginId
   starAssessment?: StarAssessment
+  /** Set instead of a constellation when the captain took the Couchscope's wild break. */
+  wildBreak?: WildBreakRecord
   crew: CrewId[]
   away: CrewId[]
   pocketRoom?: PocketRoom | null
@@ -1637,6 +1640,8 @@ export function restoreVoyage(raw: unknown): VoyageRun | null {
       !CAPTAIN_ORIGINS.some((item) => item.id === data.origin)) ||
     (data.starAssessment !== undefined &&
       !validStarAssessment(data.starAssessment)) ||
+    (data.wildBreak !== undefined &&
+      (!validWildBreak(data.wildBreak) || data.starAssessment !== undefined)) ||
     !Array.isArray(data.crew) ||
     data.crew.length < 3 ||
     data.crew.length > 4 ||

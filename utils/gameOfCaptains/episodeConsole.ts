@@ -16,6 +16,7 @@ import { currentExpedition, deployExpedition } from './expedition'
 import type { ExpeditionEncounter } from './expeditionLocal'
 import { REDSHIRT_BY_ID } from './redshirts'
 import { availableStarQuest, starSignFor } from './starSigns'
+import { wildBreakCoda } from './wildBreak'
 import { cloneOddsBonus } from './cloneSaga'
 import {
   chapterSystem,
@@ -944,7 +945,8 @@ export function episodeEndingCoda(run: VoyageRun): VoyageRun {
           finished +
           ' completed secret mission(s). Some stars are still waiting for the next season.'
       : ''
-  if (!coda && !constellationCoda) return run
+  const wildCoda = wildBreakCoda(run.wildBreak)
+  if (!coda && !constellationCoda && !wildCoda) return run
   return {
     ...run,
     ending:
@@ -952,12 +954,15 @@ export function episodeEndingCoda(run: VoyageRun): VoyageRun {
         ? (run.ending ?? 'Voyage Complete') + ' · ' + sign!.name
         : run.ending,
     scene:
-      run.scene + ' ' + [coda, constellationCoda].filter(Boolean).join(' '),
+      run.scene +
+      ' ' +
+      [coda, constellationCoda, wildCoda].filter(Boolean).join(' '),
     log: [
       ...run.log,
       ...[
         coda && 'Earned faction epilogue: ' + coda,
         constellationCoda && 'Earned star epilogue: ' + constellationCoda,
+        wildCoda && 'Wild break epilogue: ' + wildCoda,
       ].filter((line): line is string => Boolean(line)),
     ],
   }

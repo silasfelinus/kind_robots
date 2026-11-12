@@ -638,25 +638,25 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function storySnapshot(): SlimeCityStory {
     return {
-          version: 1,
-          revision: storyRevision.value,
-          city: city.value,
-          campaigns: campaignSave.value,
-          tower: towerSave.value,
-          decks: savedDecks.value,
-          alliances: savedAlliances.value,
-          soloDecks: savedSolo.value,
-          library: library.value,
-          journeyTeam: activeTeam.value,
-          journeyFormat: journeyFormat.value,
-          journeyDeckId: journeyDeckId.value,
-          journeyScreen: campaignScreen.value,
-          unlocks: unlockMode.value,
-          storyMode: storyMode.value,
-          storyParity: storyParity.value,
-          endings: endingsFound.value,
-          scrapbook: scrapbook.value,
-        }
+      version: 1,
+      revision: storyRevision.value,
+      city: city.value,
+      campaigns: campaignSave.value,
+      tower: towerSave.value,
+      decks: savedDecks.value,
+      alliances: savedAlliances.value,
+      soloDecks: savedSolo.value,
+      library: library.value,
+      journeyTeam: activeTeam.value,
+      journeyFormat: journeyFormat.value,
+      journeyDeckId: journeyDeckId.value,
+      journeyScreen: campaignScreen.value,
+      unlocks: unlockMode.value,
+      storyMode: storyMode.value,
+      storyParity: storyParity.value,
+      endings: endingsFound.value,
+      scrapbook: scrapbook.value,
+    }
   }
 
   async function flushStory(): Promise<void> {

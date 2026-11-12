@@ -200,6 +200,29 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     persist()
   }
 
+  function forgetCase(): boolean {
+    if (!import.meta.client || loadedAccount.value !== accountId.value)
+      return false
+    const mode = audience.value
+    try {
+      localStorage.removeItem(key(mode))
+    } catch {
+      storageWarning.value = 'Could not erase the case on this device.'
+      return false
+    }
+    if (mode === 'mature') {
+      matureState.value = newCase()
+      matureSaved.value = false
+    } else {
+      generalState.value = newCase()
+      generalSaved.value = false
+    }
+    feedback.value = ''
+    activeCutscene.value = null
+    storageWarning.value = ''
+    return true
+  }
+
   function begin(): void {
     if (audience.value === 'mature') matureState.value = newCase()
     else generalState.value = newCase()
@@ -264,6 +287,7 @@ export const useMonstriquePublicStore = defineStore('monstriquePublic', () => {
     initialize,
     verifyAudience,
     begin,
+    forgetCase,
     takeAction,
     move,
     switchActor,

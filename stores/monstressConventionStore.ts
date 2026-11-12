@@ -123,6 +123,22 @@ export const useMonstressConventionStore = defineStore(
       persist()
     }
 
+    function forgetCase(): boolean {
+      if (!authorized.value || !import.meta.client) return false
+      try {
+        localStorage.removeItem(saveKey.value)
+      } catch {
+        storageWarning.value = 'Could not erase the studio case on this device.'
+        return false
+      }
+      state.value = newCase()
+      hasSavedCase.value = false
+      feedback.value = ''
+      activeCutscene.value = null
+      storageWarning.value = ''
+      return true
+    }
+
     function begin(): void {
       if (!authorized.value) return
       commit(newCase())
@@ -168,6 +184,7 @@ export const useMonstressConventionStore = defineStore(
       verifyAccess,
       load,
       begin,
+      forgetCase,
       takeAction,
       move,
       switchActor,

@@ -50,7 +50,7 @@ useSeoMeta(
   gameLinkPreviewMeta('monstrique', useRuntimeConfig().public.appBaseUrl) ?? {},
 )
 
-type MenuPanel = 'settings' | 'scrapbook' | null
+type MenuPanel = 'settings' | 'scrapbook' | 'achievements' | null
 const user = useUserStore()
 const game = useMonstriquePublicStore()
 const kit = usePlaybookKitStore()

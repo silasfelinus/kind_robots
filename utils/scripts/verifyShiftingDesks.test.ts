@@ -128,7 +128,7 @@ const archiveTabsMarkup = asset(
 )
 for (const markup of [personnelFileMarkup, archiveTabsMarkup]) {
   assert.match(markup, /@keydown="onTabKeydown"/)
-  assert.match(markup, /:tabindex="tab === .*\\? 0 : -1"/)
+  assert.match(markup, /:tabindex="tab === .*\? 0 : -1"/)
   assert.match(markup, /role="tabpanel"/)
   assert.match(markup, /aria-labelledby=/)
   assert.match(markup, /aria-controls=/)

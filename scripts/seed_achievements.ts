@@ -188,6 +188,23 @@ export async function deactivateRetiredFeatures(
   return result.count
 }
 
+// Codes the catalog says are live but the database cannot serve as live rows:
+// rewardAchievementByCode cannot award them, so the seed must not pass.
+export async function missingCatalogCodes(
+  prisma: PrismaClient,
+  catalog: CatalogAchievement[],
+): Promise<string[]> {
+  const live = catalog
+    .filter((achievement) => achievement.isActive ?? false)
+    .map((achievement) => achievement.triggerCode as string)
+  const rows = await prisma.achievement.findMany({
+    where: { triggerCode: { in: live }, isActive: true },
+    select: { triggerCode: true },
+  })
+  const stored = new Set(rows.map((row) => row.triggerCode))
+  return live.filter((code) => !stored.has(code))
+}
+
 async function main() {
   const WRITE = process.argv.includes('--write')
 
@@ -230,6 +247,16 @@ async function main() {
       })
       console.log(
         `Done. Totals now: ${after} stored, ${activeAfter} active achievements.`,
+      )
+
+      const missing = await missingCatalogCodes(prisma, catalog)
+      if (missing.length) {
+        throw new Error(
+          `Seed self-check failed: ${missing.length} catalog code(s) have no active row after --write: ${missing.join(', ')}`,
+        )
+      }
+      console.log(
+        `Self-check passed: every active catalog code has an active row.`,
       )
     } finally {
       await prisma.$disconnect()

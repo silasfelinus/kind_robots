@@ -12,6 +12,7 @@ export function playtestReadinessErrors(tasks: ConductorTask[]): string[] {
     .filter(
       (task) =>
         !task.recurring &&
+        !task.playtestIteration &&
         !task.gateHuman &&
         !['done', 'cancelled'].includes(task.status),
     )

@@ -173,6 +173,9 @@
           class="badge badge-warning badge-outline"
           >Starts knowing: {{ DEED_FLAGS[flag] ?? flag }}</span
         >
+        <span v-if="ownRoad(chosen.id)" class="badge badge-accent badge-outline"
+          >Own road: {{ ownRoad(chosen.id) }}</span
+        >
       </div>
       <ul
         v-if="picked === 'custom' && problems.length"
@@ -216,6 +219,11 @@ import {
   type ShiftingCharacter,
 } from '~/utils/shiftingLands/characters'
 import { DEED_FLAGS } from '~/utils/shiftingLands/deckV6'
+import {
+  personalCardsFor,
+  personalOptionsFor,
+} from '~/utils/shiftingLands/personalDeckV10'
+import { personalEndingsFor } from '~/utils/shiftingLands/personalEndings'
 import type { Skill } from '~/utils/shiftingLands/journey'
 import type { TrialChoice } from '~/utils/shiftingLands/authoredBosses'
 import { trialSuccessPercent } from '~/utils/shiftingLands/trialOdds'
@@ -227,6 +235,14 @@ const props = defineProps<{
 defineEmits<{ start: [character: ShiftingCharacter]; cancel: [] }>()
 
 const PRONOUNS: readonly Pronouns[] = ['she', 'he', 'they']
+// t-053: what only this traveler meets on the road.
+function ownRoad(id: PlayableId): string {
+  const cards = personalCardsFor(id).length
+  const choices = personalOptionsFor(id).length
+  const endings = personalEndingsFor(id).length
+  if (!cards && !choices && !endings) return ''
+  return `${cards} encounters, ${choices} choices and ${endings} endings of their own`
+}
 const picked = ref<PlayableId>(props.current.id)
 const draft = reactive<CustomCharacterInput>(
   props.current.id === 'custom'

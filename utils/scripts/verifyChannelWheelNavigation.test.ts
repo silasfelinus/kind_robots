@@ -4,7 +4,11 @@ import {
   canScrollVertically,
 } from '../channelWheelNavigation'
 
-const scroll = (scrollTop: number, scrollHeight = 1600, clientHeight = 600) => ({
+const scroll = (
+  scrollTop: number,
+  scrollHeight = 1600,
+  clientHeight = 600,
+) => ({
   scrollTop,
   scrollHeight,
   clientHeight,

@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { promArt } from '../cometAcademy/artManifest'
-import { comicIntroArt, comicIntroFor } from '../cometAcademy/comicIntroductions'
+import {
+  comicIntroArt,
+  comicIntroFor,
+} from '../cometAcademy/comicIntroductions'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { chanceFrom } from '../everyVillainTactics/combat'
 import {
@@ -329,7 +332,10 @@ for (const identity of IDENTITY_ARCS) {
     comicIntroArt(comicIntroFor(identity.signature, 'villain')),
     identity.signature + ' villain intro must reuse existing painted art',
   )
-  assert.equal(comicIntroArt(comicIntroFor(identity.signature, 'henchman')), null)
+  assert.equal(
+    comicIntroArt(comicIntroFor(identity.signature, 'henchman')),
+    null,
+  )
 }
 
 // UI contracts: menu items, keyboard roving, motion and confirm wiring.

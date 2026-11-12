@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { promArt } from '../cometAcademy/artManifest'
+import { comicIntroArt, comicIntroFor } from '../cometAcademy/comicIntroductions'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { chanceFrom } from '../everyVillainTactics/combat'
 import {
@@ -13,6 +14,7 @@ import {
   DEFAULT_SETTINGS,
   ONE_SHOT_MENU,
   PERSPECTIVE_ART,
+  PLAYABLE_PERSPECTIVES,
   SCRAPBOOK_MOMENTS,
   SCRAPBOOK_TRIGGERS,
   animationScale,
@@ -315,6 +317,21 @@ assert.equal(
   'dropping the foil field cannot smuggle a different rival in',
 )
 
+// Only hero and villain are available at a new game's front door. Existing
+// sidekick/henchman save content is still readable by the underlying engine.
+assert.deepEqual(PLAYABLE_PERSPECTIVES, ['hero', 'villain'])
+for (const identity of IDENTITY_ARCS) {
+  assert.ok(
+    comicIntroArt(comicIntroFor(identity.signature, 'hero')),
+    identity.signature + ' hero intro must reuse existing painted art',
+  )
+  assert.ok(
+    comicIntroArt(comicIntroFor(identity.signature, 'villain')),
+    identity.signature + ' villain intro must reuse existing painted art',
+  )
+  assert.equal(comicIntroArt(comicIntroFor(identity.signature, 'henchman')), null)
+}
+
 // UI contracts: menu items, keyboard roving, motion and confirm wiring.
 const menu = readFileSync(
   new URL(
@@ -337,6 +354,8 @@ for (const id of [
 ])
   assert.match(menu, new RegExp('data-testid="' + id + '"'))
 assert.match(menu, /'front-foil-' \+ person\.signature/)
+assert.match(menu, /PLAYABLE_PERSPECTIVES\.map/)
+assert.doesNotMatch(menu, /four viewpoints/)
 assert.match(menu, /aria-modal="true"/)
 assert.match(menu, /data-roving="vertical"/)
 assert.match(menu, /event\.key === 'Escape'/)
@@ -351,6 +370,11 @@ assert.match(page, /store\.requestEndTurn\(\)/)
 assert.match(page, /store\.loadPreferences\(\)/)
 assert.match(page, /var\(--evt-anim, 1\)/)
 assert.match(page, /data-testid="tactics-open-menu"/)
+assert.match(page, /comicIntroArt\(activeComicIntro.value\)/)
+assert.ok(
+  (page.match(/class="evt-dialogue-portrait"/g) ?? []).length >= 3,
+  'all three cinematic dialogue surfaces provide portrait slots',
+)
 
 console.log(
   'Every Villain Tactics front menu: settings, ' +

@@ -15,7 +15,7 @@
       aria-label="Art style"
     >
       <button
-        v-for="option in ART_STYLES"
+        v-for="option in SELECTABLE_ART_STYLES"
         :key="option.id"
         type="button"
         role="radio"
@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { inject, reactive, ref, type Ref } from 'vue'
 import {
-  ART_STYLES,
+  SELECTABLE_ART_STYLES,
   ART_STYLE_SAMPLE,
   DEFAULT_ART_STYLE,
   artStyleImageSrc,

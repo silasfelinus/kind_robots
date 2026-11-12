@@ -300,11 +300,12 @@ describe('Shifting Desks settings and employee identity', () => {
     cy.contains('button', 'Begin').click()
     cy.contains('button', /^Hire on as /).click()
     cy.get('button[title="Game settings"]').click()
-    cy.get('dialog[aria-labelledby="shifting-desks-settings-heading"]')
-      .within(() => {
+    cy.get('dialog[aria-labelledby="shifting-desks-settings-heading"]').within(
+      () => {
         cy.get('select[aria-label="Story text size"]').select('extra-large')
         cy.contains('button', 'Erase local game progress').click()
-      })
+      },
+    )
     cy.window().should((win) => {
       expect(win.localStorage.getItem(SAVE_KEY)).not.to.be.null
     })
@@ -312,7 +313,11 @@ describe('Shifting Desks settings and employee identity', () => {
     cy.window().should((win) => {
       expect(win.localStorage.getItem(SAVE_KEY)).to.be.null
       expect(win.localStorage.getItem('shifting-desks-rewards-v1')).to.be.null
-      expect(JSON.parse(win.localStorage.getItem('shifting-desks-settings-v1') ?? '{}').textSize).to.equal('extra-large')
+      expect(
+        JSON.parse(
+          win.localStorage.getItem('shifting-desks-settings-v1') ?? '{}',
+        ).textSize,
+      ).to.equal('extra-large')
     })
     cy.contains('button', 'Begin').should('be.visible')
   })

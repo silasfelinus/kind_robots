@@ -83,6 +83,7 @@ import {
   newMilestonesForRun,
   recordReward,
   receiptFor,
+  runFingerprint,
   restoreRewardArchive,
 } from '../shiftingDesks/rewards'
 
@@ -2191,3 +2192,36 @@ assert.deepEqual(
   },
 )
 assert.equal(parseDeskSettings({ textSize: 'enormous' }).textSize, 'normal')
+
+
+const namedFinish = { ...namedRun, status: 'eliminated' as const }
+const namedReceipt = receiptFor(namedFinish, '2026-11-12T22:30:00Z')
+assert.ok(namedReceipt)
+assert.equal(namedReceipt.identity?.name, 'M. Scribble')
+assert.equal(namedReceipt.identity?.pronouns, 'they/them')
+assert.equal(namedReceipt.jobId, 'temp')
+assert.equal(
+  restoreRewardArchive({
+    version: 1,
+    milestones: {},
+    runs: [namedReceipt],
+  }).runs[0]?.identity?.badgeTone,
+  'plum',
+)
+assert.notEqual(
+  runFingerprint(namedRun),
+  runFingerprint(newRun('personalized-employment', 'temp')),
+  'a personalized Daily Memo run must keep a distinct historical receipt',
+)
+const unpersonalized = newRun('personalized-employment', 'temp')
+const restoredOldV5 = upgradeRun({
+  ...unpersonalized,
+  version: 5,
+  identity: undefined,
+})
+assert.ok(restoredOldV5)
+assert.equal(
+  runFingerprint(restoredOldV5),
+  runFingerprint(unpersonalized),
+  'old v5 Daily Memo receipts keep their original fingerprint',
+)

@@ -1,0 +1,38 @@
+name: Arcade main-game achievements
+
+on:
+  pull_request:
+    paths:
+      - 'utils/arcade/games/rainbowAchievements.ts'
+      - 'utils/arcade/games/rainbowPrincessPreview.ts'
+      - 'utils/arcade/games/rainbowLoadouts.ts'
+      - 'utils/achievements/catalog/main/rainbow-bullet-hell-space-princess.ts'
+      - 'utils/scripts/verifyRainbowAchievements.test.ts'
+      - 'stores/arcadeStore.ts'
+      - 'components/arcade/arcade-cabinet.vue'
+      - '.github/workflows/arcade-main-achievements.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  achievements:
+    name: Cabinet-born main games queue and backfill achievements
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Rainbow Bullet Hell Space Princess achievements
+        run: npx tsx utils/scripts/verifyRainbowAchievements.test.ts
+      - name: Rainbow mastery ladder and saves still hold
+        run: npx tsx utils/scripts/verifyRainbowLoadouts.test.ts

@@ -11,7 +11,14 @@ import { achievementData } from './../training/achievementData'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
 import { mergeDefinedRecord, mergeRecordsById } from './helpers/recordMerge'
+import {
+  parsePendingAchievementCodes,
+  resolvePendingAchievementCodes,
+  withPendingAchievementCode,
+  withoutAchievementCodes,
+} from './helpers/pendingAchievementCodes'
 import { slugify } from '~/utils/slugify'
+import { gameAchievementByCode } from '~/utils/achievements/gameAchievements'
 import type { ApiResponse } from '~/types/api'
 
 type UserScore = {
@@ -31,6 +38,17 @@ const isClient = typeof window !== 'undefined'
 const achievementsStorageKey = 'achievements'
 const achievementRecordsStorageKey = 'achievementRecords'
 const pendingGuestAchievementsStorageKey = 'pendingGuestAchievements'
+const pendingAchievementCodesStorageKey = 'pendingAchievementCodes'
+
+const catalogCodes = new Set(
+  achievementData
+    .map((entry) => slugify(String(entry.triggerCode ?? '')))
+    .filter(Boolean),
+)
+
+function isKnownAchievementCode(code: string) {
+  return catalogCodes.has(code) || Boolean(gameAchievementByCode(code))
+}
 
 const routeAchievementCodes: Record<string, string> = {
   '/achievements': 'achievement-tour',
@@ -98,7 +116,11 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   const highClickScores = ref<UserScore[]>([])
   const highMatchScores = ref<UserScore[]>([])
   const pendingGuestAchievements = ref<number[]>([])
+  const pendingAchievementCodes = ref<string[]>([])
   const rewardAchievementPromises = new Map<number, Promise<void>>()
+  const refreshedForMissingCodes = new Set<string>()
+  const reportedMissingCodes = new Set<string>()
+  let retryPendingCodesPromise: Promise<void> | null = null
 
   const hasPendingGuestAchievements = computed(
     () => pendingGuestAchievements.value.length > 0,
@@ -190,6 +212,10 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     pendingGuestAchievements.value = safeParseArray<number>(
       safeGetLocalStorage(pendingGuestAchievementsStorageKey),
     ).filter((id) => Number.isInteger(id) && id > 0)
+
+    pendingAchievementCodes.value = parsePendingAchievementCodes(
+      safeGetLocalStorage(pendingAchievementCodesStorageKey),
+    )
   }
 
   function shouldRun(): boolean {
@@ -264,6 +290,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
           usingSnapshot.value = false
           markSnapshotActive('achievements', false)
           persist()
+          void retryPendingAchievementCodes()
           return achievements.value
         }
 
@@ -357,6 +384,8 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         if (options.migratePendingGuestAchievements) {
           await migratePendingGuestAchievements()
         }
+
+        await retryPendingAchievementCodes()
       } catch (error) {
         isInitialized.value = false
         handleError(error, 'initializing achievementStore')
@@ -829,14 +858,88 @@ export const useAchievementStore = defineStore('achievementStore', () => {
       await fetchAchievements()
     }
 
-    const achievement = achievementByCode(target)
+    let achievement = achievementByCode(target)
+    const known = isKnownAchievementCode(target)
+
+    if (!achievement && known && !refreshedForMissingCodes.has(target)) {
+      refreshedForMissingCodes.add(target)
+      await fetchAchievements(true)
+      achievement = achievementByCode(target)
+    }
 
     if (!achievement) {
+      if (known) {
+        queuePendingAchievementCode(target)
+        return
+      }
       console.warn(`[achievementStore] No achievement with triggerCode "${target}"`)
       return
     }
 
     return rewardAchievement(achievement.id)
+  }
+
+  // The app knows this code but the catalog has no row for it yet (the seed
+  // has not run since the code shipped). Keep the deed on this device and say
+  // so once; retryPendingAchievementCodes awards it when the row appears.
+  function queuePendingAchievementCode(code: string) {
+    const queued = withPendingAchievementCode(
+      parsePendingAchievementCodes(
+        safeGetLocalStorage(pendingAchievementCodesStorageKey),
+      ),
+      code,
+    )
+    safeSetLocalStorage(pendingAchievementCodesStorageKey, JSON.stringify(queued))
+    pendingAchievementCodes.value = queued
+
+    if (reportedMissingCodes.has(code)) return
+    reportedMissingCodes.add(code)
+    errorStore.report(
+      `Achievement "${code}" is not in the catalog yet. It is saved on this device and will be awarded once the catalog has it.`,
+      ErrorType.STORE_ERROR,
+      'rewarding achievement by code',
+    )
+  }
+
+  async function retryPendingAchievementCodes(): Promise<void> {
+    if (!isClient) return
+    if (retryPendingCodesPromise) return retryPendingCodesPromise
+
+    const queued = parsePendingAchievementCodes(
+      safeGetLocalStorage(pendingAchievementCodesStorageKey),
+    )
+    pendingAchievementCodes.value = queued
+    const ready = resolvePendingAchievementCodes(queued, achievementByCode)
+    if (!ready.length) return
+
+    retryPendingCodesPromise = (async () => {
+      try {
+        for (const { achievement } of ready) {
+          await rewardAchievement(achievement.id)
+        }
+      } catch (error) {
+        handleError(error, 'awarding pending achievement codes')
+      } finally {
+        const remaining = withoutAchievementCodes(
+          parsePendingAchievementCodes(
+            safeGetLocalStorage(pendingAchievementCodesStorageKey),
+          ),
+          ready.map(({ code }) => code),
+        )
+        if (remaining.length) {
+          safeSetLocalStorage(
+            pendingAchievementCodesStorageKey,
+            JSON.stringify(remaining),
+          )
+        } else {
+          safeRemoveLocalStorage(pendingAchievementCodesStorageKey)
+        }
+        pendingAchievementCodes.value = remaining
+        retryPendingCodesPromise = null
+      }
+    })()
+
+    return retryPendingCodesPromise
   }
 
   async function rewardAchievementForPath(path: string) {
@@ -886,6 +989,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     loadingScores,
     lastError,
     hasPendingGuestAchievements,
+    pendingAchievementCodes,
 
     initialize,
     resetInitialization,
@@ -900,6 +1004,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     rewardAchievementByCode,
     rewardAchievementForPath,
     migratePendingGuestAchievements,
+    retryPendingAchievementCodes,
 
     addAchievementRecord,
     confirmAchievement,

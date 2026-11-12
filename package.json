@@ -2,6 +2,7 @@
   "name": "kind-robots",
   "private": true,
   "scripts": {
+    "test:emperor-legacy": "tsx tests/emperorLegacy.test.ts",
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
     "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",

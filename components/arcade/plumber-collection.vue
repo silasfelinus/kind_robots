@@ -6,9 +6,8 @@
     <template v-if="view === 'collection'">
       <h2 class="plumber-album-heading">THE SOUVENIR CABINET</h2>
       <p class="plumber-album-summary">
-        {{ clearedNodes.size }} cleared paths ·
-        {{ album.gears.length }} / 32 Golden Gears ·
-        {{ album.heroines.length }} / 8 heroines
+        {{ clearedNodes.size }} cleared paths · {{ album.gears.length }} / 32
+        Golden Gears · {{ album.heroines.length }} / 8 heroines
       </p>
       <div class="plumber-album-grid" aria-label="World medals">
         <figure
@@ -24,8 +23,13 @@
           />
           <figcaption>
             <strong>WORLD {{ world.id }} · {{ world.name }}</strong>
-            <span>{{ world.cleared }} / {{ world.total }} stages · {{ world.gears }} gears</span>
-            <span>{{ world.bossCleared ? 'BOSS DEFEATED' : 'BOSS UNDISCOVERED' }}</span>
+            <span
+              >{{ world.cleared }} / {{ world.total }} stages ·
+              {{ world.gears }} gears</span
+            >
+            <span>{{
+              world.bossCleared ? 'BOSS DEFEATED' : 'BOSS UNDISCOVERED'
+            }}</span>
           </figcaption>
         </figure>
       </div>
@@ -37,18 +41,34 @@
           class="plumber-album-heroine"
           :class="{ 'is-locked': !member.played }"
         >
-          <img :src="member.portrait" :alt="member.name + ' portrait'" loading="lazy" />
-          <figcaption>{{ member.played ? member.name : 'NOT YET PLAYED' }}</figcaption>
+          <img
+            :src="member.portrait"
+            :alt="member.name + ' portrait'"
+            loading="lazy"
+          />
+          <figcaption>
+            {{ member.played ? member.name : 'NOT YET PLAYED' }}
+          </figcaption>
         </figure>
       </div>
       <h3 class="plumber-album-subheading">LOCAL SAVE FILES</h3>
       <div class="plumber-album-files">
-        <div v-for="(slot, index) in slots" :key="index" class="plumber-album-file">
+        <div
+          v-for="(slot, index) in slots"
+          :key="index"
+          class="plumber-album-file"
+        >
           <strong>FILE {{ index + 1 }}</strong>
           <template v-if="slot">
             <span>{{ heroineName(slot.heroine) }}</span>
-            <span>{{ slot.done?.length ?? 0 }} stages · {{ slot.gears?.length ?? 0 }} gears</span>
-            <span>{{ slot.deaths ?? 0 }} falls · {{ playedTime(slot.time ?? 0) }}</span>
+            <span
+              >{{ slot.done?.length ?? 0 }} stages ·
+              {{ slot.gears?.length ?? 0 }} gears</span
+            >
+            <span
+              >{{ slot.deaths ?? 0 }} falls ·
+              {{ playedTime(slot.time ?? 0) }}</span
+            >
           </template>
           <span v-else>EMPTY FILE</span>
         </div>
@@ -61,16 +81,26 @@
     <template v-else>
       <h2 class="plumber-album-heading">THE ENDING GALLERY</h2>
       <p class="plumber-album-summary">
-        {{ album.endings.length }} discovered ending · More outcomes are being developed
+        {{ album.endings.length }} discovered ending · More outcomes are being
+        developed
       </p>
-      <figure class="plumber-album-finale" :class="{ 'is-locked': !finaleEarned }">
+      <figure
+        class="plumber-album-finale"
+        :class="{ 'is-locked': !finaleEarned }"
+      >
         <img
           :src="finaleArt"
-          :alt="finaleEarned ? 'The rivers return home' : 'Undiscovered finale artwork'"
+          :alt="
+            finaleEarned
+              ? 'The rivers return home'
+              : 'Undiscovered finale artwork'
+          "
           loading="lazy"
         />
         <figcaption>
-          <strong>{{ finaleEarned ? 'THE RIVERS RUN HOME' : 'ENDING UNDISCOVERED' }}</strong>
+          <strong>{{
+            finaleEarned ? 'THE RIVERS RUN HOME' : 'ENDING UNDISCOVERED'
+          }}</strong>
           <span>
             {{
               finaleEarned
@@ -99,8 +129,15 @@
 import { computed } from 'vue'
 import { PLUMBER_ART } from '~/utils/arcade/games/savePlumberArt'
 import { stageNode } from '~/utils/arcade/games/savePlumberOverworld'
-import { PLUMBER_ROSTER, rosterHeroine, rosterPortrait } from '~/utils/arcade/games/savePlumberRoster'
-import type { PlumberAlbum, PlumberSlot } from '~/utils/arcade/games/savePlumberSave'
+import {
+  PLUMBER_ROSTER,
+  rosterHeroine,
+  rosterPortrait,
+} from '~/utils/arcade/games/savePlumberRoster'
+import type {
+  PlumberAlbum,
+  PlumberSlot,
+} from '~/utils/arcade/games/savePlumberSave'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 
 const props = defineProps<{
@@ -126,7 +163,9 @@ const worlds = computed(() =>
       boss: world.boss.name,
       total: world.stages.length,
       cleared,
-      gears: world.stages.filter((stage) => collectedGears.value.has(stage.code)).length,
+      gears: world.stages.filter((stage) =>
+        collectedGears.value.has(stage.code),
+      ).length,
       bossCleared: bossId ? clearedNodes.value.has(bossId) : false,
     }
   }),
@@ -159,7 +198,11 @@ function playedTime(seconds: number): string {
   min-height: 0;
   padding: 4rem clamp(0.7rem, 2vw, 2rem) 1.5rem;
   overflow-y: auto;
-  background: linear-gradient(110deg, rgba(6, 19, 31, 0.94), rgba(9, 38, 50, 0.94));
+  background: linear-gradient(
+    110deg,
+    rgba(6, 19, 31, 0.94),
+    rgba(9, 38, 50, 0.94)
+  );
   color: #fff5df;
 }
 .plumber-album-heading {

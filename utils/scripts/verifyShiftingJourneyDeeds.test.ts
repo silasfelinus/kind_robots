@@ -63,8 +63,7 @@ function trial(
       id: land.boss.id,
       turn,
       approach: (choiceId === 'confront' ? 'challenge' : 'parley') as
-        | 'challenge'
-        | 'parley',
+        'challenge' | 'parley',
       roll,
     },
     result: {

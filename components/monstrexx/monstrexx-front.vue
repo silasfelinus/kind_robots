@@ -124,6 +124,20 @@
             >
           </span>
         </button>
+        <button
+          type="button"
+          class="mx-choice"
+          data-testid="monstrexx-achievements"
+          @click="openPanel('achievements')"
+        >
+          <span class="mx-choice-icon"
+            ><Icon name="kind-icon:star" class="size-6"
+          /></span>
+          <span class="min-w-0 flex-1 text-left">
+            <strong>ACHIEVEMENTS</strong>
+            <small>Badges earned on the case</small>
+          </span>
+        </button>
       </div>
 
       <div
@@ -150,7 +164,11 @@
         role="dialog"
         aria-modal="true"
         :aria-label="
-          panel === 'settings' ? 'Monstrique settings' : 'Monstrique scrapbook'
+          panel === 'settings'
+            ? 'Monstrique settings'
+            : panel === 'achievements'
+              ? 'Monstrique achievements'
+              : 'Monstrique scrapbook'
         "
       >
         <div class="mx-sheet-header flex shrink-0 items-center gap-3">
@@ -158,13 +176,21 @@
             :name="
               panel === 'settings'
                 ? 'kind-icon:settings'
-                : 'kind-icon:book-open'
+                : panel === 'achievements'
+                  ? 'kind-icon:star'
+                  : 'kind-icon:book-open'
             "
             class="size-6"
           />
           <div class="min-w-0 flex-1">
             <p class="mx-eyebrow">MONSTRIQUE · PERSONAL FILE</p>
-            <h2>{{ panel === 'settings' ? 'Settings' : 'Scrapbook' }}</h2>
+            <h2>{{
+              panel === 'settings'
+                ? 'Settings'
+                : panel === 'achievements'
+                  ? 'Achievements'
+                  : 'Scrapbook'
+            }}</h2>
           </div>
           <button
             ref="closeButton"
@@ -179,8 +205,8 @@
         <div class="kr-scroll mx-sheet-scroll min-h-0 flex-1 overflow-y-auto">
           <template v-if="panel === 'settings'">
             <p class="mx-sheet-intro">
-              Make the investigation comfortable. These choices are saved for
-              your account.
+              Make the investigation comfortable. Settings and case progress
+              are saved in this browser for the current edition.
             </p>
             <div class="mx-settings-list">
               <div v-for="key in settingKeys" :key="key" class="mx-setting">
@@ -213,9 +239,46 @@
                   : 'General edition: the full investigation without adult romance or mature keepsakes. Sign in and enable mature content for the separate optional edition.'
               }}
             </p>
-            <button type="button" class="mx-reset" @click="kit.resetSettings()">
-              Restore default settings
-            </button>
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="mx-reset"
+                @click="kit.resetSettings()"
+              >
+                Restore default settings
+              </button>
+              <button
+                type="button"
+                class="mx-reset"
+                data-testid="monstrique-erase-progress"
+                :aria-label="
+                  confirmingErase
+                    ? 'Confirm erase this edition case and keepsakes'
+                    : 'Erase this edition case and keepsakes'
+                "
+                @click="forgetAll"
+              >
+                {{
+                  confirmingErase
+                    ? 'Tap again to erase this edition'
+                    : 'Erase case and keepsakes'
+                }}
+              </button>
+            </div>
+            <p class="mx-small-note">
+              This erases only the current edition in this browser. Other
+              editions and account achievements are unaffected.
+            </p>
+          </template>
+          <template v-else-if="panel === 'achievements'">
+            <p class="mx-sheet-intro">
+              An investigator's reputation outlives a case. Earn badges by
+              following clues, making discoveries and reaching endings.
+            </p>
+            <GameAchievementStrip
+              game="monstress-convention"
+              layout="row"
+            />
           </template>
           <template v-else>
             <p class="mx-sheet-intro">
@@ -250,11 +313,24 @@
               >
                 <Icon name="kind-icon:music" class="size-4" /> Albums (7)
               </button>
+              <button
+                type="button"
+                data-testid="monstrique-scrapbook-endings"
+                :aria-pressed="scrapTab === 'endings'"
+                @click="scrapTab = 'endings'"
+              >
+                <Icon name="kind-icon:star" class="size-4" />
+                Endings ({{ unlockedEndings }}/{{ spec.endings.length }})
+              </button>
             </div>
             <div class="mx-scrap-content">
               <PlaybookKitCast v-if="scrapTab === 'people'" :spec="spec" />
               <PlaybookKitScrapbook
                 v-else-if="scrapTab === 'moments'"
+                :spec="spec"
+              />
+              <PlaybookKitEndings
+                v-else-if="scrapTab === 'endings'"
                 :spec="spec"
               />
               <MonstriqueAlbumArchive
@@ -290,7 +366,7 @@ import {
   type KitSettings,
 } from '~/utils/playbookKit/settings'
 
-type FrontPanel = 'settings' | 'scrapbook' | null
+type FrontPanel = 'settings' | 'scrapbook' | 'achievements' | null
 const props = defineProps<{ panel: FrontPanel; publicEdition?: boolean }>()
 const emit = defineEmits<{
   new: []
@@ -335,7 +411,8 @@ const spec = computed(() =>
     : MONSTRESS_CONVENTION,
 )
 const confirming = ref(false)
-const scrapTab = ref<'people' | 'moments' | 'albums'>('people')
+const confirmingErase = ref(false)
+const scrapTab = ref<'people' | 'moments' | 'albums' | 'endings'>('people')
 const closeButton = ref<HTMLButtonElement | null>(null)
 const currentLocation = computed(
   () => HOTEL_ROOMS[story.value.state.room].label,
@@ -343,6 +420,11 @@ const currentLocation = computed(
 const unlockedMoments = computed(
   () =>
     spec.value.moments.filter((moment) => kit.isUnlocked('moments', moment.id))
+      .length,
+)
+const unlockedEndings = computed(
+  () =>
+    spec.value.endings.filter((ending) => kit.isUnlocked('endings', ending.id))
       .length,
 )
 const settingKeys = computed(() =>
@@ -354,6 +436,7 @@ const settingKeys = computed(() =>
 watch(
   () => props.panel,
   (panel) => {
+    confirmingErase.value = false
     if (panel) void nextTick(() => closeButton.value?.focus())
   },
 )
@@ -374,11 +457,23 @@ function chooseContinue(): void {
 
 function openPanel(value: Exclude<FrontPanel, null>): void {
   confirming.value = false
+  confirmingErase.value = false
   emit('panel', value)
 }
 
 function closePanel(): void {
+  confirmingErase.value = false
   if (props.panel) emit('panel', null)
+}
+
+function forgetAll(): void {
+  if (!confirmingErase.value) {
+    confirmingErase.value = true
+    return
+  }
+  if (!story.value.forgetCase()) return
+  kit.resetProgress()
+  confirmingErase.value = false
 }
 
 function settingLabel(key: KitSettingKey): string {
@@ -534,6 +629,18 @@ function stepSetting(key: KitSettingKey, direction: number): void {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.45rem, 1cqw, 0.85rem);
   margin-top: auto;
+}
+.mx-choice:last-child {
+  grid-column: span 2;
+}
+@container (min-width: 44rem) {
+  .mx-menu {
+    width: min(100%, 51rem);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mx-choice:last-child {
+    grid-column: auto;
+  }
 }
 .mx-choice {
   display: flex;

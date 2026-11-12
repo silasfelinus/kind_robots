@@ -2141,7 +2141,6 @@ console.log(
   `shifting desks contract ok (${completed}/3000 completed, ${eliminated} eliminated; endings reached: ${[...endingsSeen].sort().join(', ')})`,
 )
 
-
 const namedRun = newRun('personalized-employment', 'temp', {
   name: '  M.   Scribble  ',
   pronouns: 'they/them',
@@ -2192,7 +2191,6 @@ assert.deepEqual(
   },
 )
 assert.equal(parseDeskSettings({ textSize: 'enormous' }).textSize, 'normal')
-
 
 const namedFinish = { ...namedRun, status: 'eliminated' as const }
 const namedReceipt = receiptFor(namedFinish, '2026-11-12T22:30:00Z')

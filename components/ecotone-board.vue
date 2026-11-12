@@ -1772,19 +1772,23 @@
               >
             </div>
             <div class="mt-2 grid grid-cols-7 gap-1.5">
-              <div
+              <button
                 v-for="slot in slotsFor(row.id)"
                 :key="slot.id"
-                class="relative flex aspect-[2/3] flex-col items-center justify-center overflow-hidden rounded-lg border bg-cover bg-center text-center"
+                type="button"
+                class="relative flex aspect-[2/3] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border bg-cover bg-center text-center transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d9b877]"
                 :class="
                   slot.unlocked
-                    ? 'border-2 border-[#d9b877] shadow-[0_0_10px_rgb(217_184_119/0.55)]'
-                    : 'border-white/10 bg-white/5 opacity-70 grayscale-[.6]'
+                    ? 'border-2 border-[#d9b877] shadow-[0_0_10px_rgb(217_184_119/0.55)] hover:shadow-[0_0_18px_rgb(217_184_119/0.9)] hover:brightness-110'
+                    : 'border-white/10 bg-white/5 opacity-70 grayscale-[.6] hover:border-white/35 hover:opacity-100'
                 "
                 :style="slotStyle(slot)"
                 :data-unlocked="slot.unlocked ? 'true' : 'false'"
+                data-testid="ecotone-ending-slot"
+                aria-haspopup="dialog"
                 :aria-label="`${slot.unlocked && slot.title ? `${slot.title}: ` : ''}${slot.lens} · ${slot.fate === 'hope' ? 'hopeful' : 'dark'} · ${slot.unlocked ? 'earned' : 'locked'}`"
                 :title="`${slot.unlocked && slot.title ? `${slot.title}: ` : ''}${slot.lens} · ${slot.fate === 'hope' ? 'hopeful' : 'dark'} · ${slot.unlocked ? 'earned' : 'locked'}`"
+                @click="openDossier(slot.id)"
               >
                 <span
                   v-if="slot.unlocked"
@@ -1811,7 +1815,7 @@
                     slot.unlocked && slot.title ? slot.title : slot.short
                   }}</span
                 >
-              </div>
+              </button>
             </div>
           </section>
         </div>
@@ -1978,6 +1982,176 @@
         <button type="submit">Close</button>
       </form>
     </dialog>
+
+    <dialog
+      ref="dossierDialog"
+      class="modal"
+      aria-labelledby="ecotone-dossier-heading"
+      data-testid="ecotone-ending-dossier"
+    >
+      <div
+        v-if="dossier"
+        class="modal-box max-h-[90dvh] w-11/12 max-w-4xl overflow-y-auto border border-[#d9b877]/50 bg-[#0c1a24] p-0 text-[#f3e6c8]"
+        :data-earned="dossierEarned ? 'true' : 'false'"
+      >
+        <template v-if="dossierEarned">
+          <figure class="relative">
+            <EcotoneScene
+              :kind="dossier.scene"
+              :art="dossier.art"
+              :label="`${dossier.title}: the ending in full`"
+              class="aspect-[7/4] max-h-[62dvh] w-full"
+            />
+            <figcaption
+              class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0c1a24] via-[#0c1a24]/80 to-transparent px-4 pb-3 pt-14 @2xl:px-6"
+            >
+              <p class="eco-label flex items-center gap-2">
+                <span
+                  class="size-3 shrink-0 rounded-full"
+                  :class="
+                    dossier.fate === 'hope'
+                      ? 'ecotone-fate-hope'
+                      : 'ecotone-fate-dark'
+                  "
+                />
+                {{ endingFateLabel(dossier.fate) }} future ·
+                {{ dossier.leadName }} · {{ dossier.lensLabel }}
+              </p>
+              <h3
+                id="ecotone-dossier-heading"
+                class="mt-1 font-serif text-2xl font-black leading-tight @2xl:text-4xl"
+              >
+                {{ dossier.title }}
+              </h3>
+            </figcaption>
+          </figure>
+          <div
+            class="grid gap-4 p-4 @2xl:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] @2xl:gap-6 @2xl:p-6"
+          >
+            <section
+              class="self-start rounded-xl border border-[#c9a96e]/30 bg-black/25 p-3"
+              aria-labelledby="ecotone-dossier-file"
+            >
+              <p id="ecotone-dossier-file" class="eco-label">
+                Dossier · No. {{ dossier.number }} of {{ dossier.total }}
+              </p>
+              <dl class="mt-3 grid gap-3">
+                <div v-for="fact in dossier.facts" :key="fact.label">
+                  <dt
+                    class="text-[10px] font-black uppercase tracking-[.18em] text-[#8fb8b0]"
+                  >
+                    {{ fact.label }}
+                  </dt>
+                  <dd class="font-serif text-base font-bold leading-snug">
+                    {{ fact.value }}
+                  </dd>
+                  <dd
+                    v-if="fact.detail"
+                    class="text-xs leading-snug text-[#f3e6c8]/65"
+                  >
+                    {{ fact.detail }}
+                  </dd>
+                </div>
+                <div>
+                  <dt
+                    class="text-[10px] font-black uppercase tracking-[.18em] text-[#8fb8b0]"
+                  >
+                    The other future
+                  </dt>
+                  <dd>
+                    <button
+                      type="button"
+                      class="flex items-center gap-1.5 text-left font-serif text-base font-bold leading-snug underline decoration-[#d9b877]/50 underline-offset-4 hover:decoration-[#d9b877]"
+                      data-testid="ecotone-dossier-twin"
+                      @click="openDossier(dossier.twin.id)"
+                    >
+                      {{
+                        dossierTwinEarned ? dossier.twin.title : 'Not found yet'
+                      }}
+                      <Icon
+                        name="kind-icon:chevron-right"
+                        class="size-4 shrink-0 text-[#d9b877]"
+                      />
+                    </button>
+                  </dd>
+                </div>
+              </dl>
+            </section>
+            <section class="flex min-w-0 flex-col gap-3">
+              <p
+                v-if="dossier.line"
+                class="font-serif text-lg italic leading-snug text-[#f3e6c8]/85"
+              >
+                {{ dossier.line }}
+              </p>
+              <p
+                v-for="(paragraph, index) in dossier.paragraphs"
+                :key="index"
+                class="font-serif text-base leading-relaxed"
+              >
+                {{ paragraph }}
+              </p>
+              <p
+                v-if="dossier.coda"
+                class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
+              >
+                {{ dossier.coda }}
+              </p>
+            </section>
+          </div>
+        </template>
+        <div
+          v-else
+          class="grid gap-4 p-4 @2xl:grid-cols-[minmax(0,11rem)_minmax(0,1fr)] @2xl:gap-6 @2xl:p-6"
+        >
+          <div
+            class="mx-auto aspect-[2/3] w-28 rounded-xl border border-white/15 bg-white/5 bg-cover bg-center grayscale-[.6] @2xl:w-full"
+            :style="slotBack"
+            aria-hidden="true"
+          />
+          <div class="min-w-0">
+            <p class="eco-label flex items-center gap-2">
+              <Icon name="kind-icon:lock" class="size-4 shrink-0" />
+              Not found yet · No. {{ dossier.number }} of {{ dossier.total }}
+            </p>
+            <h3
+              id="ecotone-dossier-heading"
+              class="mt-1 font-serif text-2xl font-black leading-tight"
+            >
+              Unfound ending
+            </h3>
+            <p class="mt-1 flex items-center gap-2 text-sm text-[#f3e6c8]/75">
+              <span
+                class="size-3 shrink-0 rounded-full"
+                :class="
+                  dossier.fate === 'hope'
+                    ? 'ecotone-fate-hope'
+                    : 'ecotone-fate-dark'
+                "
+              />
+              {{ endingFateLabel(dossier.fate) }} future ·
+              {{ dossier.leadName }} · {{ dossier.lensLabel }}
+            </p>
+            <p class="eco-label mt-4">How to find it</p>
+            <ol
+              class="mt-1 list-decimal space-y-1 pl-5 font-serif text-base leading-snug"
+            >
+              <li v-for="step in dossier.recipe" :key="step">{{ step }}</li>
+            </ol>
+          </div>
+        </div>
+        <div class="modal-action mt-0 px-4 pb-4 @2xl:px-6 @2xl:pb-6">
+          <form method="dialog">
+            <button type="submit" class="eco-gold-button">
+              Back to your endings
+            </button>
+          </form>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button type="submit">Close</button>
+      </form>
+    </dialog>
   </div>
 </template>
 
@@ -2038,6 +2212,7 @@ import {
   routeLength,
 } from '~/utils/ecotone/story'
 import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
+import { endingDossier, endingFateLabel } from '~/utils/ecotone/endingDossier'
 import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
 import { chosenFamilyEnding } from '~/utils/ecotone/chosenFamily'
 import {
@@ -3147,6 +3322,23 @@ function slotStyle(slot: { id: string; unlocked: boolean }) {
 
 function endingsFor(id: EndingLine) {
   return game.endings.filter((key) => key.startsWith(`${id}.`)).length
+}
+
+const dossierDialog = ref<HTMLDialogElement | null>(null)
+const dossierId = ref<string | null>(null)
+const dossier = computed(() =>
+  dossierId.value ? endingDossier(dossierId.value) : null,
+)
+const dossierEarned = computed(() =>
+  Boolean(dossier.value && game.endings.includes(dossier.value.id)),
+)
+const dossierTwinEarned = computed(() =>
+  Boolean(dossier.value && game.endings.includes(dossier.value.twin.id)),
+)
+
+function openDossier(id: string) {
+  dossierId.value = id
+  if (!dossierDialog.value?.open) dossierDialog.value?.showModal()
 }
 </script>
 

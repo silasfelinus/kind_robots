@@ -15,6 +15,7 @@ import './verifyEcotoneHangouts.test'
 import './verifyEcotoneCompanionTime.test'
 import './verifyEcotoneAtlas.test'
 import './verifyEcotoneArtPrompts.test'
+import './verifyEcotoneEndingDossier.test'
 import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
 import {
   isEcotoneReviewHeldArt,

@@ -4,6 +4,7 @@ import { requireAdminApiUser } from '@/server/utils/authGuard'
 const VALID_STATUSES = [
   'active',
   'continuous',
+  'playtest',
   'paused',
   'retired',
   'finished',

@@ -43,7 +43,7 @@ An optimistic browser update is temporary feedback. It is not canonical completi
 The sync endpoint updates only coordination fields on an existing `Project`:
 
 - `conductorSlug`, when missing;
-- `status` (including first-class `CONTINUOUS` and `PLAYTEST` for Conductor's `continuous` and `playtest` lifecycles);
+- `status` (including first-class `CONTINUOUS` and `PLAYTEST` for Conductor's `continuous` and `playtest` lifecycles; new post-handoff polish tasks may use `playtest_iteration: true` without claiming the original production checklist unfinished);
 - `priority`;
 - `lastSyncedAt`.
 

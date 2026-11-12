@@ -9,6 +9,7 @@ import {
   artStyleImageSrc,
   normalizeArtStyle,
 } from '../shiftingDesks/artStyles'
+import { ENDINGS } from '../shiftingDesks/rules'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
@@ -84,6 +85,25 @@ const picker = asset(
 )
 assert.match(picker, /role="radiogroup"[\s\S]*v-for="option in ART_STYLES"/)
 assert.match(picker, /artStyleImageSrc\(ART_STYLE_SAMPLE, option\.id\)/)
+
+// The complete eleven-ending Western Cartoon batch was inspected, not just
+// probed for HTTP 200. Their key finale compositions were absent, so no
+// player should see them in place of the authored Classic ending plates.
+assert.equal(ENDINGS.length, 11)
+for (const ending of ENDINGS) {
+  const src = `/images/shifting-desks/endings/${ending.id}.webp`
+  assert.equal(
+    artStyleImageSrc(src, 'western-cartoon'),
+    src,
+    `rejected Western Cartoon finale ${ending.id} must use Classic art`,
+  )
+  assert.equal(artStyleImageSrc(src, 'classic'), src)
+  assert.equal(
+    artStyleImageSrc(src, 'corporate-noir'),
+    `/images/shifting-desks/styles/corporate-noir/endings/${ending.id}.webp`,
+    'only the rejected Western edition is withdrawn',
+  )
+}
 
 // A render withdrawn after review always shows Classic, in that style only.
 const jam = '/images/shifting-desks/cards/records/the-jam-in-tube-14.webp'

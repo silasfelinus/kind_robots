@@ -1337,7 +1337,8 @@
               >
                 <strong data-testid="space-couch-mission-supply-swing">
                   {{ run.report.result.toUpperCase() }} ·
-                  {{ missionSupplySwing > 0 ? '+' : '' }}{{ missionSupplySwing }}
+                  {{ missionSupplySwing > 0 ? '+' : ''
+                  }}{{ missionSupplySwing }}
                   SUPPLY
                 </strong>
                 <span>{{ run.report.names }}</span>
@@ -2009,7 +2010,9 @@ const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const run = computed(() => store.run)
 const missionSupplySwing = computed(() => {
   const report = run.value?.report
-  return report?.supplyDelta ?? (report ? MISSION_RETURN_SUPPLIES[report.result] : 0)
+  return (
+    report?.supplyDelta ?? (report ? MISSION_RETURN_SUPPLIES[report.result] : 0)
+  )
 })
 // Playbook Kit bar meters mirror the four VoyageRun meters the spec declares
 // (supplies, trust, force bubble charge, reputation); before a voyage starts

@@ -46,6 +46,13 @@ assert(
   ]).length === 0,
 )
 assert(
+  'newly scoped playtest iteration can remain ready',
+  playtestReadinessErrors([
+    task('polish', { status: 'ready', playtestIteration: true }),
+    gate,
+  ]).length === 0,
+)
+assert(
   'missing human gate blocks playtest',
   playtestReadinessErrors([task('built')]).length > 0,
 )

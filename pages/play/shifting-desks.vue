@@ -537,7 +537,7 @@
                     {{ view.card.title }}
                   </p>
                   <p
-                    class="max-h-48 overflow-y-auto text-base leading-relaxed lg:text-lg"
+                    class="desk-story-copy max-h-48 overflow-y-auto text-base leading-relaxed lg:text-lg"
                   >
                     {{ view.card.flavor_text }}
                   </p>
@@ -666,7 +666,7 @@
                       >first roll {{ run.pending.rerolled.join(' + ') }}</span
                     >
                   </div>
-                  <p class="text-sm leading-relaxed sm:text-base lg:text-lg">
+                  <p class="desk-story-copy text-sm leading-relaxed sm:text-base lg:text-lg">
                     {{ run.pending.text }}
                   </p>
                   <shifting-desks-effect-chips :effects="run.pending.effects" />
@@ -1321,7 +1321,11 @@ const cardIcon = computed(() => {
   return TAG_ICONS[view.value.card.tags[0] ?? ''] ?? 'kind-icon:folder'
 })
 
-const employee = computed(() => employeeId(run.value?.generation ?? 0))
+const employee = computed(() =>
+  run.value?.generation === 0 && run.value.identity.name
+    ? run.value.identity.name
+    : employeeId(run.value?.generation ?? 0),
+)
 const jobTitle = computed(() => jobById(run.value?.jobId ?? '').title)
 
 const society = computed(() => societyById(run.value?.societyId ?? ''))

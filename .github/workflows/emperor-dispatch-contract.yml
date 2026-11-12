@@ -20,6 +20,8 @@ on:
       - 'utils/scripts/verifyEmperorFortressChanceEvents.test.ts'
       - 'utils/scripts/verifyEmperorQuestBriefs.test.ts'
       - 'utils/scripts/verifyEmperorFortressSecretTalks.test.ts'
+      - 'utils/scripts/verifyEmperorOfDustAchievements.test.ts'
+      - 'utils/achievements/catalog/main/emperor-of-dust.ts'
       - 'utils/scripts/emperorFortressBalanceReport.ts'
       - 'stores/emperorFortressStore.ts'
       - 'components/EmperorFortressThrone.vue'
@@ -69,6 +71,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortressChanceEvents.test.ts
       - run: npx tsx utils/scripts/verifyEmperorQuestBriefs.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorOfDustAchievements.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressAdversarial.test.ts
       - name: Eighteen real five-act campaigns through earned recent choices
         run: npx tsx utils/scripts/verifyEmperorGuidedCampaigns.test.ts

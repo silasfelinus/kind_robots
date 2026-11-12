@@ -168,6 +168,10 @@
             <p v-if="run.starAssessment">
               Under {{ starSignFor(run.starAssessment.sign).name }}
             </p>
+            <p v-else-if="run.wildBreak">
+              Unsigned · Wild break:
+              {{ wildBreakEnding(run.wildBreak.ending)?.title }}
+            </p>
             <div class="cap-menu-journal">
               <p v-if="!run.log.length">
                 No incidents entered. An encouraging sign, statistically.
@@ -421,7 +425,10 @@
                 :reduced-motion="store.preferences.reducedMotion"
                 :artwork="store.onboardingArt"
                 :artwork-ready="store.onboardingArtLoaded"
+                :wild-found="store.wildBreakFound"
                 @confirm="confirmStarAssessment"
+                @wild-ending="store.recordWildBreakEnding"
+                @wild-break="confirmWildBreak"
                 @back="selectionScreen = 'background'"
               />
               <div
@@ -1330,6 +1337,20 @@
                   </p>
                 </div>
               </div>
+              <div
+                v-if="run.report"
+                class="cap-mission-report"
+                data-testid="space-couch-mission-report"
+              >
+                <strong data-testid="space-couch-mission-supply-swing">
+                  {{ run.report.result.toUpperCase() }} ·
+                  {{ missionSupplySwing > 0 ? '+' : ''
+                  }}{{ missionSupplySwing }}
+                  SUPPLY
+                </strong>
+                <span>{{ run.report.names }}</span>
+                <p>{{ run.report.text }}</p>
+              </div>
               <template v-if="featuredConsequence">
                 <p class="cap-narrative">{{ featuredConsequence.opening }}</p>
                 <p class="cap-alert">{{ featuredConsequence.conflict }}</p>
@@ -1353,14 +1374,6 @@
               </template>
               <template v-else>
                 <p class="cap-narrative">{{ mission.dilemma }}</p>
-                <div v-if="run.report" class="cap-mission-report">
-                  <strong
-                    >{{ run.report.result.toUpperCase() }} / MISSION
-                    STATUS</strong
-                  >
-                  <span>{{ run.report.names }}</span>
-                  <p>{{ run.report.text }}</p>
-                </div>
                 <p class="cap-alert">{{ nemesisLine }}</p>
                 <SpaceCouchChoiceHand
                   :choices="ethicalHand"
@@ -1865,6 +1878,7 @@ import {
   MISSIONS,
   POCKET_ROOMS,
   previewMission,
+  MISSION_RETURN_SUPPLIES,
   antagonistFor,
   missionFor,
   missionBoard,
@@ -1938,6 +1952,10 @@ import {
   type StarAssessment,
 } from '~/utils/gameOfCaptains/starSigns'
 import {
+  wildBreakEnding,
+  type WildBreakRecord,
+} from '~/utils/gameOfCaptains/wildBreak'
+import {
   CREW_JOURNEYS,
   NEMESIS_COUNTERPLAY,
 } from '~/utils/gameOfCaptains/crewJourneys'
@@ -1996,11 +2014,18 @@ const logEntries = computed(() => {
   )
 })
 const starAssessment = ref<StarAssessment | null>(null)
+const wildBreak = ref<WildBreakRecord | null>(null)
 const focusedCrew = ref<CrewId>('pell')
 type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const run = computed(() => store.run)
+const missionSupplySwing = computed(() => {
+  const report = run.value?.report
+  return (
+    report?.supplyDelta ?? (report ? MISSION_RETURN_SUPPLIES[report.result] : 0)
+  )
+})
 // Playbook Kit bar meters mirror the four VoyageRun meters the spec declares
 // (supplies, trust, force bubble charge, reputation); before a voyage starts
 // they read the spec's start values.
@@ -2426,25 +2451,34 @@ const panelLabel = computed(() =>
 
 function confirmStarAssessment(assessment: StarAssessment) {
   starAssessment.value = assessment
+  wildBreak.value = null
+  selectionScreen.value = 'crew'
+}
+/** The Couchscope's wild break: no constellation, one of 32 endings instead. */
+function confirmWildBreak(record: WildBreakRecord) {
+  wildBreak.value = record
+  starAssessment.value = null
   selectionScreen.value = 'crew'
 }
 function beginWithStarSign() {
   if (
     !selectedOrigin.value ||
-    !starAssessment.value ||
+    (!starAssessment.value && !wildBreak.value) ||
     chosenCrew.value.length !== 3
   )
     return
   store.begin(
     selectedCaptain.value,
     chosenCrew.value,
-    starAssessment.value,
+    starAssessment.value ?? undefined,
     selectedOrigin.value,
+    starAssessment.value ? undefined : (wildBreak.value ?? undefined),
   )
 }
 function restartVoyage() {
   store.restart()
   starAssessment.value = null
+  wildBreak.value = null
   selectionScreen.value = 'captain'
   chosenCrew.value = []
   captainDossierTab.value = 'stats'

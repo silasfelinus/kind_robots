@@ -78,6 +78,11 @@ import {
   applyConsequenceEpilogue,
 } from '~/utils/gameOfCaptains/consequenceStories'
 import type { StarAssessment } from '~/utils/gameOfCaptains/starSigns'
+import {
+  WILD_BREAK_ENDINGS,
+  startWildBreakVoyage,
+  type WildBreakRecord,
+} from '~/utils/gameOfCaptains/wildBreak'
 import type { CaptainOriginId } from '~/utils/gameOfCaptains/captainOrigins'
 import {
   dispatchEpisodeBatch,
@@ -121,6 +126,9 @@ const ALIEN_GUIDE_OWNER_KEY = 'game-of-captains-alien-legacy-import-owner-v1'
 const ALIEN_PENDING_PREFIX = 'game-of-captains-alien-pending-user-'
 const KNOWLEDGE_KEY = 'game-of-captains-redshirt-knowledge-v1'
 const PREFERENCES_KEY = 'game-of-captains-preferences-v1'
+/** Wild break endings this browser has found, across every voyage. */
+const WILD_BREAK_KEY = 'game-of-captains-wild-break-endings-v1'
+const WILD_BREAK_IDS = new Set(WILD_BREAK_ENDINGS.map((ending) => ending.id))
 type CouchPreferences = { largeText: boolean; reducedMotion: boolean }
 
 export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
@@ -128,6 +136,16 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const run = ref<VoyageRun | null>(null)
   const loaded = ref(false)
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
+  const wildBreakFound = ref<string[]>([])
+  function recordWildBreakEnding(id: string) {
+    if (!WILD_BREAK_IDS.has(id) || wildBreakFound.value.includes(id)) return
+    wildBreakFound.value = [...wildBreakFound.value, id]
+    try {
+      localStorage.setItem(WILD_BREAK_KEY, JSON.stringify(wildBreakFound.value))
+    } catch {
+      // The ending still counts this session when storage is unavailable.
+    }
+  }
   const storageWarning = ref('')
   const alienSyncStatus = ref<'guest' | 'loading' | 'synced' | 'pending'>(
     'guest',
@@ -597,6 +615,17 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         // A damaged knowledge cache cannot invalidate an otherwise valid voyage.
         redshirtKnowledge.value = {}
       }
+      try {
+        const found = JSON.parse(localStorage.getItem(WILD_BREAK_KEY) ?? '[]')
+        wildBreakFound.value = Array.isArray(found)
+          ? [...new Set(found)].filter(
+              (id): id is string =>
+                typeof id === 'string' && WILD_BREAK_IDS.has(id),
+            )
+          : []
+      } catch {
+        wildBreakFound.value = []
+      }
       alienGuide.value = userStore.authenticatedUserId
         ? emptyAlienGuide()
         : readCachedGuide(ALIEN_GUIDE_KEY)
@@ -621,8 +650,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     crew: CrewId[],
     assessment?: StarAssessment,
     origin?: CaptainOriginId,
+    wildBreak?: WildBreakRecord,
   ) {
-    run.value = startVoyage(captain, crew, Date.now(), assessment, origin)
+    const started = startVoyage(captain, crew, Date.now(), assessment, origin)
+    run.value =
+      wildBreak && !assessment
+        ? startWildBreakVoyage(started, wildBreak)
+        : started
     usePlaybookRunReviewStore().begin(
       'game-of-captains',
       playbookRunKey(run.value),
@@ -799,6 +833,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run,
     loaded,
     redshirtKnowledge,
+    wildBreakFound,
+    recordWildBreakEnding,
     alienGuide,
     alienSyncStatus,
     alienSyncWarning,

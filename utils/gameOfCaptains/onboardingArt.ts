@@ -21,6 +21,24 @@ export const COUCH_ONBOARDING_ART_IDS = {
   'couchscope/question-04-answer-a': 258463,
   'couchscope/question-04-answer-b': 258464,
   'couchscope/question-04-answer-c': 258465,
+  // COUCHSCOPE-AND-OPENING-ROUND-1 (Conductor): trolley question and the
+  // twelve constellation reveal plates, DONE 2026-11, wired 2026-11-12.
+  'couchscope/trolley': 261265,
+  'couchscope/trolley-answer-a': 261266,
+  'couchscope/trolley-answer-b': 261267,
+  'couchscope/trolley-answer-c': 261268,
+  'couchscope/sign-northern-sloth': 261269,
+  'couchscope/sign-princess-mantic-shrimp': 261270,
+  'couchscope/sign-velvet-comet': 261271,
+  'couchscope/sign-clockwork-minnow': 261272,
+  'couchscope/sign-royal-dust-bunny': 261273,
+  'couchscope/sign-laughing-leviathan': 261274,
+  'couchscope/sign-nebular-teapot': 261275,
+  'couchscope/sign-three-headed-librarian': 261276,
+  'couchscope/sign-feral-umbrella': 261277,
+  'couchscope/sign-last-lantern': 261278,
+  'couchscope/sign-moonlit-upholsterer': 261279,
+  'couchscope/sign-cosmic-turnip': 261280,
 } as const
 
 export type CouchOnboardingArtKey = keyof typeof COUCH_ONBOARDING_ART_IDS

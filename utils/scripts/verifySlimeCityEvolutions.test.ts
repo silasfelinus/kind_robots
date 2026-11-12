@@ -498,7 +498,7 @@ const mine = (s: ClashState, id: string) =>
 // Empty alleys are a resource: the flashmob floods them with fragile 1/1s,
 // while the scaffold raises defensive 0-power wings. A full board denies both.
 {
-  const empty = cast(board([]), 'merc-flashmob-diversion', 2)
+  const empty = cast(board([fighter('player', 2, 1)]), 'merc-flashmob-diversion', 2)
   const dancers = empty.units.filter((u) => u.side === 'player' && u.token)
   assert.ok(dancers.length >= 2, 'flashmob fills more than one open alley')
   assert.ok(dancers.every((u) => u.hp === 1 && u.attack === 1))
@@ -517,7 +517,7 @@ const mine = (s: ClashState, id: string) =>
     'full allied board denies deployment before the flashmob can summon',
   )
 
-  const scaffold = cast(board([]), 'merc-living-scaffold', 2)
+  const scaffold = cast(board([fighter('player', 2, 1)]), 'merc-living-scaffold', 2)
   const wings = scaffold.units.filter((u) => u.side === 'player' && u.token)
   assert.ok(wings.length > 0, 'scaffold raises at least one wing')
   assert.ok(wings.every((u) => u.attack === 0 && u.hp === 4))

@@ -234,18 +234,23 @@ export async function resolveMemoryDungeonDeck(
       batch.map(async (record) => {
         const artId = (record as { artImageId?: number | null }).artImageId
         if (!artId) return imageUrlForDeck(record)
-        const linkedArt = await art.getArtImageById(artId)
-        if (
-          !linkedArt ||
-          !isEligibleDungeonArt(
-            linkedArt,
-            includeMature,
-            matureAllowed,
-            viewerId,
+        try {
+          const linkedArt = await art.getArtImageById(artId)
+          if (
+            !linkedArt ||
+            !isEligibleDungeonArt(
+              linkedArt,
+              includeMature,
+              matureAllowed,
+              viewerId,
+            )
           )
-        )
+            return ''
+          return imageUrlForDeck(linkedArt) || imageUrlForDeck(record)
+        } catch {
+          // One unavailable linked image must not abort the entire deck.
           return ''
-        return imageUrlForDeck(linkedArt) || imageUrlForDeck(record)
+        }
       }),
     )
     const unseen = unseenDeckPaths(paths, seen)

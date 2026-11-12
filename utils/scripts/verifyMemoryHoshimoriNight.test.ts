@@ -830,6 +830,23 @@ for (let seed = 0; seed < 16; seed++) {
     progress,
     'A complete 64-site night expedition survives save restoration',
   )
+  const truncatedHistory = JSON.parse(JSON.stringify(progress)) as NightProgress
+  truncatedHistory.events.pop()
+  assert.equal(
+    restoreHoshimoriNight(truncatedHistory),
+    null,
+    'A completed route cannot restore with its final event missing',
+  )
+  const repeatedVerdict = JSON.parse(JSON.stringify(progress)) as NightProgress
+  repeatedVerdict.events.push({
+    type: 'choose',
+    id: 'night-platform-witness',
+  })
+  assert.equal(
+    restoreHoshimoriNight(repeatedVerdict),
+    null,
+    'An appended duplicate verdict cannot rewrite completed history',
+  )
   const forgedPlatform = JSON.parse(JSON.stringify(progress)) as NightProgress
   forgedPlatform.choices['6,5'] =
     forgedPlatform.choices['6,5'] === 'night-platform-witness'

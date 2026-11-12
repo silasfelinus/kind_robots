@@ -1,5 +1,12 @@
 <template>
-  <main class="kr-surface" :data-art-style="artStyle">
+  <main
+    class="kr-surface"
+    :data-art-style="artStyle"
+    :data-text-size="store.settings.textSize"
+    :data-reading-speed="store.settings.readingSpeed"
+    :data-motion="store.settings.motion"
+    :data-contrast="store.settings.contrast"
+  >
     <div v-if="!store.loaded" class="kr-stage items-center justify-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -28,6 +35,16 @@
             <icon name="kind-icon:palette" class="size-4" />
             <span class="hidden @4xl:inline">{{ currentArtStyle.label }}</span>
             <span class="sr-only">art style, change</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-xs h-7 shrink-0 border-2 border-base-content/70 bg-base-100 px-2"
+            title="Game settings"
+            aria-haspopup="dialog"
+            @click="openSettings"
+          >
+            <icon name="kind-icon:settings" class="size-4" />
+            <span class="sr-only">Settings</span>
           </button>
           <div
             class="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto overscroll-x-contain py-0.5 [scrollbar-width:none] @lg:gap-2"
@@ -187,6 +204,22 @@
                 </button>
                 <button
                   type="button"
+                  class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900"
+                  @click="openArchive('achievements')"
+                >
+                  <icon name="kind-icon:trophy" class="size-5" />
+                  Achievements
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900"
+                  @click="openSettings"
+                >
+                  <icon name="kind-icon:settings" class="size-5" />
+                  Settings
+                </button>
+                <button
+                  type="button"
                   class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 shadow-xl hover:bg-stone-900"
                   :title="`Today's Daily Memo (${todayLabel}): the same files for everyone, every day`"
                   @click="beginHire(true)"
@@ -214,7 +247,7 @@
           class="flex shrink-0 items-center justify-between gap-3 rounded-xl bg-base-100/95 px-3 py-1"
         >
           <p class="font-mono text-sm font-black uppercase tracking-widest">
-            Choose your job title
+            Hire your next employee
             <span
               v-if="dailyNext"
               class="ml-2 rounded-md bg-amber-300 px-1.5 py-0.5 text-stone-950"
@@ -253,6 +286,9 @@
                 class="rounded-lg border-2 border-stone-800"
                 frame="aspect-[4/3]"
                 :src="stationArt('jobs', job.id)"
+                :class="
+                  job.id === pickedJob.id ? badgeToneClass(badgeTone) : ''
+                "
                 :prompt="jobPrompt(job.id)"
                 :alt="`Portrait: ${job.title}`"
                 :show-brief="false"
@@ -275,6 +311,7 @@
                 class="hire-portrait hidden shrink-0 rounded-xl border-2 border-stone-800 lg:block"
                 frame="aspect-[16/9]"
                 :src="stationArt('jobs', pickedJob.id)"
+                :class="badgeToneClass(badgeTone)"
                 :prompt="jobPrompt(pickedJob.id)"
                 :alt="`Portrait: ${pickedJob.title}`"
                 fallback-icon="kind-icon:user"
@@ -284,6 +321,56 @@
                 {{ pickedJob.title }}
               </p>
               <p class="text-sm">{{ pickedJob.tagline }}</p>
+              <div
+                class="grid grid-cols-2 gap-2 rounded-xl border border-stone-800/30 bg-stone-50/80 p-2"
+              >
+                <label
+                  class="col-span-2 flex flex-col gap-1 text-xs font-bold uppercase sm:col-span-1"
+                >
+                  Employee name
+                  <input
+                    v-model="employeeName"
+                    type="text"
+                    class="input input-bordered input-sm w-full"
+                    maxlength="32"
+                    autocomplete="off"
+                    placeholder="Name on personnel file"
+                    aria-label="Employee name"
+                  />
+                </label>
+                <label class="flex flex-col gap-1 text-xs font-bold uppercase">
+                  Pronouns
+                  <select
+                    v-model="pronouns"
+                    class="select select-bordered select-sm w-full"
+                    aria-label="Employee pronouns"
+                  >
+                    <option
+                      v-for="option in PRONOUN_OPTIONS"
+                      :key="option"
+                      :value="option"
+                    >
+                      {{ option === 'unspecified' ? 'Not specified' : option }}
+                    </option>
+                  </select>
+                </label>
+                <label class="flex flex-col gap-1 text-xs font-bold uppercase">
+                  Badge photo
+                  <select
+                    v-model="badgeTone"
+                    class="select select-bordered select-sm w-full"
+                    aria-label="Badge photo treatment"
+                  >
+                    <option
+                      v-for="tone in BADGE_TONES"
+                      :key="tone"
+                      :value="tone"
+                    >
+                      {{ tone === 'classic' ? 'Original' : tone }}
+                    </option>
+                  </select>
+                </label>
+              </div>
               <span class="grid grid-cols-2 gap-x-4 gap-y-1">
                 <span
                   v-for="skill in SKILLS"
@@ -456,7 +543,7 @@
                     {{ view.card.title }}
                   </p>
                   <p
-                    class="max-h-48 overflow-y-auto text-base leading-relaxed lg:text-lg"
+                    class="desk-story-copy max-h-48 overflow-y-auto text-base leading-relaxed lg:text-lg"
                   >
                     {{ view.card.flavor_text }}
                   </p>
@@ -585,7 +672,9 @@
                       >first roll {{ run.pending.rerolled.join(' + ') }}</span
                     >
                   </div>
-                  <p class="text-sm leading-relaxed sm:text-base lg:text-lg">
+                  <p
+                    class="desk-story-copy text-sm leading-relaxed sm:text-base lg:text-lg"
+                  >
                     {{ run.pending.text }}
                   </p>
                   <shifting-desks-effect-chips :effects="run.pending.effects" />
@@ -827,6 +916,7 @@
       </section>
 
       <shifting-desks-personnel-archive ref="personnelArchive" />
+      <shifting-desks-settings ref="settingsDialog" @reset="screen = 'front'" />
 
       <dialog ref="artPicker" class="modal" aria-label="Choose your art style">
         <div class="modal-box flex max-w-3xl flex-col gap-3 p-3 sm:p-4">
@@ -930,6 +1020,13 @@ import {
   successorLine,
 } from '~/utils/shiftingDesks/memos'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import {
+  BADGE_TONES,
+  PRONOUN_OPTIONS,
+  badgeToneClass,
+  type BadgeTone,
+  type EmployeePronouns,
+} from '~/utils/shiftingDesks/preferences'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import { dailyDateOf, dailyKey, dailyLabel } from '~/utils/shiftingDesks/daily'
 import {
@@ -1017,9 +1114,16 @@ const currentArtStyle = computed(
 function openArtPicker(): void {
   artPicker.value?.showModal()
 }
+const settingsDialog = ref<{ open: () => void } | null>(null)
+function openSettings(): void {
+  settingsDialog.value?.open()
+}
 const journalOpen = ref(false)
 const pickedJobId = ref(JOB_TITLES[0]!.id)
 const pickedJob = computed(() => jobById(pickedJobId.value))
+const employeeName = ref('')
+const pronouns = ref<EmployeePronouns>('unspecified')
+const badgeTone = ref<BadgeTone>('classic')
 
 const run = computed(() => store.run)
 const view = computed(() => store.card)
@@ -1222,7 +1326,11 @@ const cardIcon = computed(() => {
   return TAG_ICONS[view.value.card.tags[0] ?? ''] ?? 'kind-icon:folder'
 })
 
-const employee = computed(() => employeeId(run.value?.generation ?? 0))
+const employee = computed(() =>
+  run.value?.generation === 0 && run.value.identity.name
+    ? run.value.identity.name
+    : employeeId(run.value?.generation ?? 0),
+)
 const jobTitle = computed(() => jobById(run.value?.jobId ?? '').title)
 
 const society = computed(() => societyById(run.value?.societyId ?? ''))
@@ -1452,11 +1560,21 @@ const todayLabel = dailyLabel(dailyKey())
 
 function beginHire(daily: boolean): void {
   dailyNext.value = daily
+  employeeName.value = run.value?.identity.name ?? ''
+  pronouns.value = run.value?.identity.pronouns ?? 'unspecified'
+  badgeTone.value = run.value?.identity.badgeTone ?? 'classic'
   screen.value = 'hire'
 }
 
 function hire(jobId: string): void {
-  store.start(jobId, { daily: dailyNext.value })
+  store.start(jobId, {
+    daily: dailyNext.value,
+    identity: {
+      name: employeeName.value,
+      pronouns: pronouns.value,
+      badgeTone: badgeTone.value,
+    },
+  })
   opened.value = false
   spendForm.value = false
   screen.value = 'play'
@@ -1849,7 +1967,8 @@ useHead({ title: 'Shifting Desks' })
   height: 100%;
   min-height: 0;
   transform-style: preserve-3d;
-  transition: transform 560ms cubic-bezier(0.4, 0.1, 0.2, 1);
+  transition: transform var(--sd-flip-duration, 560ms)
+    cubic-bezier(0.4, 0.1, 0.2, 1);
 }
 
 .desk-flip-inner.is-open {
@@ -1930,5 +2049,48 @@ useHead({ title: 'Shifting Desks' })
     transition: none;
     animation: none;
   }
+}
+
+.kr-surface[data-reading-speed='fast'] {
+  --sd-flip-duration: 220ms;
+}
+
+.kr-surface[data-reading-speed='instant'],
+.kr-surface[data-motion='reduced'] {
+  --sd-flip-duration: 0ms;
+}
+
+.kr-surface[data-motion='reduced'] :deep(.result-slam),
+.kr-surface[data-motion='reduced'] :deep(.successor-card),
+.kr-surface[data-motion='reduced'] :deep(.desk-die),
+.kr-surface[data-motion='reduced'] :deep(.desk-flip-inner) {
+  animation: none !important;
+  transition: none !important;
+}
+
+.kr-surface[data-text-size='large'] :deep(.desk-brief-text),
+.kr-surface[data-text-size='large'] :deep(.desk-story-copy) {
+  font-size: 1.125rem !important;
+  line-height: 1.65rem !important;
+}
+
+.kr-surface[data-text-size='extra-large'] :deep(.desk-brief-text),
+.kr-surface[data-text-size='extra-large'] :deep(.desk-story-copy) {
+  font-size: 1.3rem !important;
+  line-height: 1.85rem !important;
+}
+
+.kr-surface[data-contrast='high'] :deep(.desk-card),
+.kr-surface[data-contrast='high'] :deep(.desk-brief) {
+  background-color: #fff7db !important;
+  color: #111111 !important;
+  border-color: #111111 !important;
+}
+
+.kr-surface[data-contrast='high'] :deep(button:focus-visible),
+.kr-surface[data-contrast='high'] :deep(select:focus-visible),
+.kr-surface[data-contrast='high'] :deep(input:focus-visible) {
+  outline: 3px solid #facc15;
+  outline-offset: 2px;
 }
 </style>

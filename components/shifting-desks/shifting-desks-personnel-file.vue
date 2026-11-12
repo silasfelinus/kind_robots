@@ -25,6 +25,15 @@
           {{ verdict.title }}
         </p>
         <p
+          v-if="run.identity.name"
+          class="font-mono text-xs font-black uppercase text-stone-900 sm:text-sm"
+        >
+          Case of {{ run.identity.name }}
+          <span v-if="run.identity.pronouns !== 'unspecified'">
+            · {{ run.identity.pronouns }}
+          </span>
+        </p>
+        <p
           class="file-summary mt-1 hidden max-w-2xl font-semibold sm:block sm:text-lg"
         >
           {{ verdict.summary }}
@@ -178,7 +187,14 @@
               <p class="font-mono text-base font-black uppercase sm:text-xl">
                 {{ epilogue.epilogue.title }}
               </p>
-              <p class="text-xs leading-relaxed sm:text-sm">
+              <p
+                v-if="run.identity.name"
+                class="text-xs font-bold desk-story-copy"
+              >
+                The Board reviewed {{ run.identity.name }} of the {{ jobTitle }}
+                division. Their name remains on file, regardless of outcome.
+              </p>
+              <p class="desk-story-copy text-xs leading-relaxed sm:text-sm">
                 {{ epilogue.epilogue.text }}
               </p>
               <p
@@ -263,6 +279,33 @@
           class="flex-col gap-3"
           :class="tab === 'record' ? 'flex' : 'hidden print:flex'"
         >
+          <div
+            class="flex items-center gap-3 rounded-xl border border-stone-800 bg-stone-50/80 p-2"
+          >
+            <shifting-desks-art
+              class="w-20 shrink-0 rounded-lg"
+              :class="badgeToneClass(run.identity.badgeTone)"
+              frame="aspect-[3/4]"
+              :src="stationArt('jobs', run.jobId)"
+              :alt="`Employee badge portrait for ${run.identity.name || jobTitle}`"
+              fallback-icon="kind-icon:user"
+              :show-brief="false"
+            />
+            <div class="min-w-0">
+              <p class="font-mono text-xs font-black uppercase">
+                {{ run.identity.name || 'Name withheld' }}
+              </p>
+              <p class="text-xs">{{ jobTitle }}</p>
+              <p class="text-xs opacity-75">
+                {{
+                  run.identity.pronouns === 'unspecified'
+                    ? 'Pronouns not supplied'
+                    : run.identity.pronouns
+                }}
+                · {{ run.identity.badgeTone }} badge
+              </p>
+            </div>
+          </div>
           <dl
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2 text-sm"
           >
@@ -382,6 +425,7 @@ import {
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 import { handleKeyboardTabs } from '~/utils/shiftingDesks/keyboardTabs'
+import { badgeToneClass } from '~/utils/shiftingDesks/preferences'
 import {
   MILESTONES,
   ceremonyAwardFor,

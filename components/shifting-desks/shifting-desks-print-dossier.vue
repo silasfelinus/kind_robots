@@ -19,6 +19,12 @@
 
       <div class="sd-print-file-number">
         <strong>Record ID:</strong> {{ receipt.id }}
+        <span v-if="receipt.identity?.name">
+          <strong>Employee:</strong> {{ receipt.identity.name }}
+          <span v-if="receipt.identity.pronouns !== 'unspecified'">
+            ({{ receipt.identity.pronouns }})
+          </span>
+        </span>
         <span><strong>Filed:</strong> {{ filedDate }}</span>
       </div>
 
@@ -57,6 +63,13 @@
           <div>
             <dt>Position</dt>
             <dd>{{ receipt.jobTitle }}</dd>
+          </div>
+          <div v-if="receipt.identity">
+            <dt>Employee badge</dt>
+            <dd>
+              {{ receipt.identity.name || 'Name withheld' }}
+              · {{ receipt.identity.badgeTone }} edition
+            </dd>
           </div>
           <div>
             <dt>Secret society</dt>

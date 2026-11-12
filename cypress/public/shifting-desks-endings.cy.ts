@@ -250,3 +250,75 @@ describe('Shifting Desks endings from naturally reached saves', () => {
     assertEpilogue(save)
   })
 })
+
+describe('Shifting Desks settings and employee identity', () => {
+  for (const viewport of viewports) {
+    it(`${viewport.name}: saves preferences and a personalized employee through reload`, () => {
+      cy.viewport(viewport.width, viewport.height)
+      cy.visit(PAGE, { onBeforeLoad: (win) => win.localStorage.clear() })
+      cy.get('button[title="Game settings"]').click()
+      cy.get('dialog[aria-labelledby="shifting-desks-settings-heading"]')
+        .should('be.visible')
+        .within(() => {
+          cy.get('select[aria-label="Story text size"]').select('large')
+          cy.get('select[aria-label="Card transition speed"]').select('instant')
+          cy.get('select[aria-label="Contrast"]').select('high')
+          cy.contains('button', 'Close').click()
+        })
+      cy.get('main.kr-surface')
+        .should('have.attr', 'data-text-size', 'large')
+        .and('have.attr', 'data-contrast', 'high')
+      cy.contains('button', 'Begin').click()
+      cy.get('input[aria-label="Employee name"]').type('Agent Paperclip')
+      cy.get('select[aria-label="Employee pronouns"]').select('they/them')
+      cy.get('select[aria-label="Badge photo treatment"]').select('plum')
+      cy.contains('button', /^Hire on as /).click()
+      cy.window().should((win) => {
+        const run = JSON.parse(win.localStorage.getItem(SAVE_KEY) ?? 'null')
+        expect(run?.version).to.equal(6)
+        expect(run?.identity).to.deep.equal({
+          name: 'Agent Paperclip',
+          pronouns: 'they/them',
+          badgeTone: 'plum',
+        })
+      })
+      cy.reload()
+      cy.get('main.kr-surface')
+        .should('have.attr', 'data-text-size', 'large')
+        .and('have.attr', 'data-reading-speed', 'instant')
+      cy.contains('button', 'Return to your desk').click()
+      cy.window().should((win) => {
+        const run = JSON.parse(win.localStorage.getItem(SAVE_KEY) ?? 'null')
+        expect(run?.identity?.name).to.equal('Agent Paperclip')
+      })
+    })
+  }
+
+  it('requires confirmation to erase progress without erasing preferences', () => {
+    cy.viewport(390, 844)
+    cy.visit(PAGE, { onBeforeLoad: (win) => win.localStorage.clear() })
+    cy.contains('button', 'Begin').click()
+    cy.contains('button', /^Hire on as /).click()
+    cy.get('button[title="Game settings"]').click()
+    cy.get('dialog[aria-labelledby="shifting-desks-settings-heading"]').within(
+      () => {
+        cy.get('select[aria-label="Story text size"]').select('extra-large')
+        cy.contains('button', 'Erase local game progress').click()
+      },
+    )
+    cy.window().should((win) => {
+      expect(win.localStorage.getItem(SAVE_KEY)).not.to.be.null
+    })
+    cy.contains('button', 'Confirm: erase all local game progress').click()
+    cy.window().should((win) => {
+      expect(win.localStorage.getItem(SAVE_KEY)).to.be.null
+      expect(win.localStorage.getItem('shifting-desks-rewards-v1')).to.be.null
+      expect(
+        JSON.parse(
+          win.localStorage.getItem('shifting-desks-settings-v1') ?? '{}',
+        ).textSize,
+      ).to.equal('extra-large')
+    })
+    cy.contains('button', 'Begin').should('be.visible')
+  })
+})

@@ -95,9 +95,9 @@
               <div
                 class="evt-map"
                 :data-stage="store.state.stageId ?? 'first-bell'"
-                :style="{ '--evt-board-art': 'url(' + battlefieldArt + ')' }"
                 role="group"
-                aria-label="Nine by six tactical grid"
+                data-testid="tactics-flat-map"
+                aria-label="Top-down nine by six tactical map"
               >
                 <button
                   v-for="cell in store.boardCells"
@@ -111,6 +111,7 @@
                   "
                   :data-testid="'tactics-tile-' + cell.x + '-' + cell.y"
                   :data-terrain="store.tileInfoAt(cell)"
+                  :data-ground="groundAt(cell)"
                   :title="cellDescription(cell)"
                   @pointerenter="store.hover(cell)"
                   @focus="store.hover(cell)"
@@ -158,7 +159,7 @@
                     v-if="store.tileInfoAt(cell) === 'wall'"
                     class="evt-wall"
                     aria-hidden="true"
-                    ><span>WALL</span></span
+                  ></span>
                   >
                   <span
                     v-if="store.heightAt(cell) > 0"
@@ -268,7 +269,17 @@
                   >
                 </button>
               </div>
-              <div class="evt-map-edge" aria-hidden="true">
+              <div
+                class="evt-map-edge"
+                data-testid="tactics-map-legend"
+                aria-label="Tactical map legend"
+              >
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-squad"></b> SQUAD</span
+                >
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-rival"></b> RIVALS</span
+                >
                 <span class="evt-terrain-legend"
                   ><b class="evt-key-wall"></b> WALL · BLOCKED</span
                 >
@@ -644,62 +655,64 @@
                 {{ store.isPlaytest ? 'REPLAY TEST' : 'REPLAY FIRST BELL' }}
                 <span>↺</span>
               </button>
-              <div
-                class="evt-saves"
-                aria-label="Save slots"
-                data-testid="tactics-saves"
-              >
-                <button
-                  type="button"
-                  class="evt-continue"
-                  data-testid="tactics-continue"
-                  :disabled="!store.canContinue"
-                  @click="store.continueLatest()"
-                >
-                  CONTINUE ▸
-                </button>
+              <details class="evt-save-drawer">
+                <summary>LOAD / SAVE <span aria-hidden="true">▾</span></summary>
                 <div
-                  v-for="entry in store.saveSlots"
-                  :key="entry.slot"
-                  class="evt-save-slot"
-                  data-testid="tactics-save-slot"
+                  class="evt-saves"
+                  aria-label="Save slots"
+                  data-testid="tactics-saves"
                 >
-                  <span class="evt-save-name">{{
-                    entry.slot === 'auto'
-                      ? 'AUTO'
-                      : entry.slot.replace('slot-', 'SLOT ')
-                  }}</span>
-                  <small v-if="entry.summary"
-                    >{{
-                      entry.summary.mode === 'story' ? 'Story' : 'One-shot'
-                    }}
-                    · {{ entry.summary.title }} · {{ entry.summary.lead }} · R{{
-                      entry.summary.turn
-                    }}</small
-                  >
-                  <small v-else-if="entry.problem" class="evt-save-problem"
-                    >Refused: {{ entry.problem }}</small
-                  >
-                  <small v-else>Empty</small>
-                  <button
-                    v-if="entry.slot !== 'auto'"
-                    type="button"
-                    @click="store.saveTo(entry.slot)"
-                  >
-                    SAVE
-                  </button>
                   <button
                     type="button"
-                    :disabled="!entry.summary"
-                    @click="store.loadFrom(entry.slot)"
+                    class="evt-continue"
+                    data-testid="tactics-continue"
+                    :disabled="!store.canContinue"
+                    @click="store.continueLatest()"
                   >
-                    LOAD
+                    CONTINUE ▸
                   </button>
+                  <div
+                    v-for="entry in store.saveSlots"
+                    :key="entry.slot"
+                    class="evt-save-slot"
+                    data-testid="tactics-save-slot"
+                  >
+                    <span class="evt-save-name">{{
+                      entry.slot === 'auto'
+                        ? 'AUTO'
+                        : entry.slot.replace('slot-', 'SLOT ')
+                    }}</span>
+                    <small v-if="entry.summary"
+                      >{{
+                        entry.summary.mode === 'story' ? 'Story' : 'One-shot'
+                      }}
+                      · {{ entry.summary.title }} · {{ entry.summary.lead }} ·
+                      R{{ entry.summary.turn }}</small
+                    >
+                    <small v-else-if="entry.problem" class="evt-save-problem"
+                      >Refused: {{ entry.problem }}</small
+                    >
+                    <small v-else>Empty</small>
+                    <button
+                      v-if="entry.slot !== 'auto'"
+                      type="button"
+                      @click="store.saveTo(entry.slot)"
+                    >
+                      SAVE
+                    </button>
+                    <button
+                      type="button"
+                      :disabled="!entry.summary"
+                      @click="store.loadFrom(entry.slot)"
+                    >
+                      LOAD
+                    </button>
+                  </div>
+                  <small v-if="store.saveMessage" role="status">{{
+                    store.saveMessage
+                  }}</small>
                 </div>
-                <small v-if="store.saveMessage" role="status">{{
-                  store.saveMessage
-                }}</small>
-              </div>
+              </details>
               <div class="evt-secondary">
                 <button type="button" @click="store.reset()">RESTART</button>
                 <span>SELECT • MOVE • FIRE • POWER • OVERWATCH</span>
@@ -1741,6 +1754,20 @@ function coverEdges(cell: Cell) {
     .filter((entry) => !!entry[1])
     .map(([side, kind]) => ({ side, kind }))
 }
+function groundAt(cell: Cell): string {
+  const stage = store.state.stageId ?? ''
+  if (stage === 'first-bell') {
+    if (cell.x < 2) return 'lawn'
+    if (cell.x >= 7) return 'street'
+    if (cell.x === 2 || cell.y === 2 || cell.y === 3) return 'path'
+    return 'courtyard'
+  }
+  if (/science|lab|workshop/.test(stage)) return 'lab'
+  if (/roof|broadcast/.test(stage)) return 'roof'
+  if (/picnic|quad|park|commons/.test(stage))
+    return cell.x < 3 || cell.y === 0 ? 'lawn' : 'path'
+  return 'courtyard'
+}
 const meterValues = computed(() => ({
   squad: store.players.reduce((total, unit) => total + unit.hp, 0),
   rivals: store.enemies.reduce((total, unit) => total + unit.hp, 0),
@@ -2522,8 +2549,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   grid-template-columns: repeat(9, minmax(0, 1fr));
   grid-template-rows: repeat(6, minmax(0, 1fr));
   isolation: isolate;
-  transform: perspective(1100px) rotateX(8deg);
-  filter: drop-shadow(0 18px 18px #0009);
   border: 2px solid #f8d19c64;
   box-shadow: 0 0 38px #75b9f027;
 }
@@ -4171,6 +4196,324 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-aftermath-art {
     transition: none;
     animation: none;
+  }
+}
+
+.evt-map {
+  transform: none;
+  filter: none;
+  background: #a3aba7;
+  border: 3px solid #e7e5cd;
+  border-radius: 3px;
+  outline: 2px solid #263a45;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 5px #0b2333;
+}
+.evt-tile,
+.evt-tile:nth-child(even) {
+  background: #9eaaa2;
+  border: 1px solid rgb(20 49 52 / 0.2);
+  box-shadow: none;
+  overflow: hidden;
+}
+.evt-tile[data-ground='lawn'] {
+  background-color: #457b64;
+  background-image:
+    radial-gradient(circle at 24% 32%, #92b984aa 0 5%, transparent 7%),
+    radial-gradient(circle at 75% 77%, #264e43aa 0 6%, transparent 9%),
+    repeating-linear-gradient(35deg, #6a97644f 0 4px, transparent 4px 12px);
+}
+.evt-tile[data-ground='path'] {
+  background-color: #d7c5a0;
+  background-image:
+    linear-gradient(90deg, transparent 48%, #a9947688 49% 51%, transparent 52%),
+    linear-gradient(0deg, transparent 48%, #b4a1858c 49% 51%, transparent 52%);
+  background-size: 66% 66%;
+}
+.evt-tile[data-ground='courtyard'] {
+  background-color: #b2bab3;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 17px, #788d8c59 17px 19px),
+    repeating-linear-gradient(90deg, transparent 0 29px, #788d8c59 29px 31px);
+}
+.evt-tile[data-ground='street'] {
+  background-color: #4c6268;
+  background-image:
+    repeating-linear-gradient(80deg, #61757a36 0 3px, transparent 3px 20px),
+    linear-gradient(90deg, transparent 46%, #d2c7a978 46% 50%, transparent 50%);
+}
+.evt-tile[data-ground='lab'] {
+  background-color: #8baeb0;
+  background-image:
+    linear-gradient(90deg, #c2dad44a 1px, transparent 1px),
+    linear-gradient(0deg, #c2dad44a 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.evt-tile[data-ground='roof'] {
+  background-color: #738595;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 22px, #344c5b78 22px 24px),
+    repeating-linear-gradient(90deg, transparent 0 22px, #344c5b78 22px 24px);
+}
+.evt-tile.has-wall[data-ground] {
+  background: #384a56;
+  cursor: not-allowed;
+}
+.evt-wall {
+  width: 100%;
+  height: 100%;
+  clip-path: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 3px #1b303a;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 15px, #1c343c88 15px 17px),
+    repeating-linear-gradient(90deg, #778a8d 0 22px, #63787c 22px 25px);
+}
+.evt-cover-edge {
+  z-index: 2;
+  border: 0;
+  box-shadow: inset 0 0 0 1px #473c2e;
+  background: repeating-linear-gradient(90deg, #a77e4e 0 7px, #e0bb7e 7px 13px);
+}
+.evt-cover-edge.is-full {
+  box-shadow: inset 0 0 0 1px #172e3f;
+  background: repeating-linear-gradient(90deg, #52758b 0 8px, #a8c4c6 8px 12px);
+}
+.evt-cover-edge.is-north,
+.evt-cover-edge.is-south {
+  height: 10%;
+}
+.evt-cover-edge.is-west,
+.evt-cover-edge.is-east {
+  width: 10%;
+}
+.evt-tile.reachable[data-ground] {
+  box-shadow: inset 0 0 0 3px #8af5d8;
+  z-index: 1;
+}
+.evt-tile.reachable[data-ground]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #45e3c21c;
+  pointer-events: none;
+}
+.evt-tile.selected[data-ground] {
+  outline: 3px solid #ffe18b;
+  outline-offset: -4px;
+  z-index: 4;
+}
+.evt-tile.sightline[data-ground] {
+  outline: 3px solid #ff8c83;
+  outline-offset: -4px;
+  z-index: 5;
+}
+.evt-tile:focus-visible {
+  outline: 3px solid white;
+  outline-offset: -4px;
+  z-index: 7;
+}
+.evt-tile.on-fire[data-ground]::after,
+.evt-tile.water-live[data-ground]::after,
+.evt-tile.water-calm[data-ground]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: #f8713566;
+}
+.evt-tile.water-live[data-ground]::after {
+  background: #3fd4f577;
+}
+.evt-tile.water-calm[data-ground]::after {
+  background: #3fd4f53d;
+}
+.evt-standee {
+  left: 50%;
+  bottom: 5%;
+  width: 84%;
+  height: 90%;
+  transform: translateX(-50%);
+  filter: none;
+  z-index: 3;
+  gap: 1px;
+}
+.evt-card-art {
+  flex: 0 0 70%;
+  width: 70%;
+  height: 70%;
+  min-height: 0;
+  aspect-ratio: 1;
+  border: 3px solid #b4edff;
+  border-radius: 50%;
+  transform: none;
+  background: #2d6680;
+  box-shadow: 0 0 0 2px #0a2636;
+  overflow: hidden;
+}
+.evt-rival .evt-card-art {
+  border-color: #ffafa9;
+  background: #a34d61;
+}
+.evt-tile:hover .evt-standee,
+.evt-tile.selected .evt-standee {
+  transform: translateX(-50%) scale(1.08);
+}
+.evt-unit-art {
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 24%;
+}
+.evt-crest {
+  z-index: 2;
+  top: 0;
+  left: 2%;
+  font-size: clamp(0.4rem, 0.8cqw, 0.7rem);
+  text-shadow: 0 1px 2px #10202f;
+}
+.evt-initials {
+  font-size: clamp(0.55rem, 1.7cqw, 1.3rem);
+}
+.evt-one-hit-tag {
+  z-index: 2;
+  top: auto;
+  bottom: 0;
+  right: 0;
+  font-size: clamp(0.3rem, 0.5cqw, 0.5rem);
+}
+.evt-card-label {
+  flex: none;
+  width: 100%;
+  padding: 1px 2px;
+  border: 0;
+  border-radius: 3px;
+  background: #0b2636ef;
+  font-size: clamp(0.38rem, 0.7cqw, 0.68rem);
+  line-height: 1.2;
+}
+.evt-rival .evt-card-label {
+  border: 0;
+  background: #672f45ef;
+}
+.evt-health {
+  flex: none;
+  height: 4px;
+  margin-top: 0;
+}
+.evt-health i {
+  min-width: 3px;
+}
+.evt-standee.evt-fallen .evt-card-art {
+  transform: scale(0.82);
+  filter: grayscale(1);
+  opacity: 0.42;
+}
+@keyframes evt-strike {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  40% {
+    transform: translateX(-42%) scale(1.14);
+  }
+}
+@keyframes evt-hit {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  40% {
+    transform: translateX(-50%) scale(0.88);
+    filter: brightness(1.8);
+  }
+}
+@keyframes evt-dodge {
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  45% {
+    transform: translateX(-63%);
+  }
+}
+.evt-map-edge {
+  gap: 4px 12px;
+  padding: 5px 0 2px;
+  letter-spacing: 0.05em;
+}
+.evt-terrain-legend {
+  font-size: clamp(0.51rem, 0.75cqw, 0.68rem);
+  color: #d7e6dc;
+}
+.evt-key-squad,
+.evt-key-rival {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50%;
+  background: #65d6f5;
+  border: 2px solid #dff6fa !important;
+}
+.evt-key-rival {
+  background: #dc6579;
+  border-color: #ffddd9 !important;
+}
+.evt-command {
+  gap: 6px;
+  padding: 8px;
+}
+.evt-odds {
+  min-height: 0;
+  padding: 7px;
+}
+.evt-save-drawer {
+  min-width: 0;
+  border: 1px solid #6d8ba577;
+  border-radius: 5px;
+  background: #12223a;
+}
+.evt-save-drawer summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 0.61rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  list-style: none;
+}
+.evt-save-drawer summary::-webkit-details-marker {
+  display: none;
+}
+.evt-save-drawer[open] summary span {
+  transform: rotate(180deg);
+}
+.evt-save-drawer .evt-saves {
+  padding: 5px 7px 7px;
+  margin: 0;
+  max-height: 165px;
+  overflow-y: auto;
+}
+@container (max-width: 760px) {
+  .evt-map {
+    transform: none;
+  }
+  .evt-map-edge {
+    gap: 4px 9px;
+  }
+  .evt-command {
+    gap: 4px;
+  }
+  .evt-save-drawer summary {
+    padding: 4px 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .evt-standee,
+  .evt-tile:hover .evt-standee {
+    animation: none;
+    transition: none;
   }
 }
 </style>

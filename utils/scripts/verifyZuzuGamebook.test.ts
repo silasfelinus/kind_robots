@@ -1793,7 +1793,7 @@ const page = readFileSync(
 // the shell's system bar rather than drawing a second strip over the book.
 assert.match(
   page,
-  /<header-page-bar>\s*<div[^>]*data-testid="zuzu-gamebook-hud"/,
+  /<header-page-bar v-if="!frontOpen">\s*<div[^>]*data-testid="zuzu-gamebook-hud"/,
   'the toolbar row docks into the system bar',
 )
 assert.doesNotMatch(page, /class="kr-toolbar/, 'no second header strip')

@@ -1,10 +1,20 @@
 <template>
-  <main class="kr-surface relative">
+  <main
+    class="kr-surface relative"
+    :class="kit.settings.contrast === 'high' ? 'contrast-125' : ''"
+    :data-reduced-motion="kit.settings.motion === 'reduced' ? '' : undefined"
+  >
     <div v-if="!store.loaded" class="kr-stage items-center justify-center">
       <span class="kr-spinner-lg-primary" />
     </div>
     <template v-else>
-      <header-page-bar>
+      <zuzu-gamebook-front
+        v-if="frontOpen"
+        @continue="frontOpen = false"
+        @restart="startFromCover"
+        @ledger="openLedgerFromCover"
+      />
+      <header-page-bar v-if="!frontOpen">
         <div
           class="flex min-w-0 flex-1 items-center justify-between gap-1.5 @lg:gap-2"
           data-testid="zuzu-gamebook-hud"
@@ -16,6 +26,16 @@
             {{ current.chapter }}
           </p>
           <div class="ml-auto flex shrink-0 items-center gap-1.5 @lg:gap-2">
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm px-2"
+              title="Return to title screen"
+              data-testid="zuzu-gamebook-home"
+              @click="frontOpen = true"
+            >
+              <icon name="kind-icon:arrow-left" class="size-4" />
+              <span class="sr-only @3xl:not-sr-only">Title</span>
+            </button>
             <button
               type="button"
               class="btn btn-outline btn-sm"
@@ -89,7 +109,7 @@
       </header-page-bar>
 
       <section
-        v-if="ledgerOpen"
+        v-if="!frontOpen && ledgerOpen"
         class="fixed inset-0 z-40 flex min-h-0 flex-col gap-3 bg-base-100 p-3 sm:p-6"
         role="dialog"
         aria-modal="true"
@@ -265,18 +285,24 @@
                         : 'bg-base-300/60 opacity-60'
                     "
                   >
-                    <icon
-                      :name="
-                        store.discovered.includes(ending)
-                          ? 'kind-icon:book-open'
-                          : 'kind-icon:lock'
-                      "
-                      class="mb-1 size-4"
+                    <img
+                      v-if="store.discovered.includes(ending)"
+                      :src="shownPlate(sceneArt(ending))"
+                      :alt="scene(ending).title"
+                      class="mb-2 aspect-video w-full rounded-md object-cover"
+                      @error="plateFailed(sceneArt(ending))"
                     />
+                    <div
+                      v-else
+                      class="mb-2 grid aspect-video place-items-center rounded-md bg-base-300"
+                      aria-hidden="true"
+                    >
+                      <icon name="kind-icon:lock" class="size-5" />
+                    </div>
                     <span class="block font-bold">
                       {{
                         store.discovered.includes(ending)
-                          ? ending
+                          ? scene(ending).title
                           : 'Unknown ending ' + (index + 1)
                       }}
                     </span>
@@ -310,12 +336,56 @@
                   </li>
                 </ol>
               </section>
+              <section
+                class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+                aria-label="Past journeys"
+                data-testid="zuzu-gamebook-scrapbook"
+              >
+                <h3 class="font-serif text-xl font-bold">
+                  Journeys remembered
+                </h3>
+                <p class="mb-3 text-xs opacity-70">
+                  Finished and abandoned journeys stay in this browser's
+                  scrapbook. Importing another player's save code does not award
+                  achievements.
+                </p>
+                <p v-if="!store.scrapbook.length" class="text-sm opacity-70">
+                  Turn the last page or begin another journey to preserve your
+                  first memory.
+                </p>
+                <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <li
+                    v-for="memory in store.scrapbook"
+                    :key="memory.id"
+                    class="overflow-hidden rounded-xl border border-base-content/15 bg-base-300"
+                  >
+                    <img
+                      :src="shownPlate(sceneArt(memory.sceneId))"
+                      :alt="scene(memory.sceneId).title"
+                      class="aspect-video w-full object-cover"
+                      @error="plateFailed(sceneArt(memory.sceneId))"
+                    />
+                    <div class="p-2">
+                      <strong class="block text-xs">
+                        {{ scene(memory.sceneId).title }}
+                      </strong>
+                      <p class="mt-1 text-[11px] opacity-70">
+                        {{
+                          memory.ending ? 'Ending reached' : 'Journey paused'
+                        }}
+                        · {{ memory.pages }} pages · {{ memory.health }} health
+                      </p>
+                    </div>
+                  </li>
+                </ol>
+              </section>
             </div>
           </div>
         </div>
       </section>
 
       <div
+        v-if="!frontOpen"
         class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 px-3 pb-3 sm:px-6 lg:px-8 lg:pb-5"
         :class="showSheet ? 'lg:grid-cols-[minmax(0,1fr)_20rem]' : ''"
       >
@@ -390,7 +460,18 @@
                   {{ current.title }}
                 </h2>
                 <p
-                  class="zuzu-prose mt-4 max-w-3xl font-serif text-lg leading-[1.75] text-base-content xl:text-xl"
+                  class="zuzu-prose mt-4 max-w-3xl text-lg leading-[1.75] text-base-content xl:text-xl"
+                  :class="
+                    kit.settings.font === 'sans' ? 'font-sans' : 'font-serif'
+                  "
+                  :style="{
+                    fontSize:
+                      kit.settings.textSize === 'extra-large'
+                        ? '1.5rem'
+                        : kit.settings.textSize === 'large'
+                          ? '1.25rem'
+                          : undefined,
+                  }"
                 >
                   <template v-for="(part, i) in prose" :key="i">
                     <em v-if="part.em">{{ part.text }}</em>
@@ -886,9 +967,12 @@ import {
 } from '~/utils/zuzuGamebook/terms'
 import type { Attribute, Choice } from '~/utils/zuzuGamebook/types'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
+import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useZuzuGamebookStore()
+const kit = usePlaybookKitStore()
+const frontOpen = ref(true)
 const showSheet = ref(false)
 // Below lg the sheet is a modal drawer over the story (t-008); from lg up it is a column beside it.
 const sheetModal = ref(false)
@@ -992,6 +1076,9 @@ const prose = computed(() => emphasis(current.value.text))
 const choices = computed(() => visibleChoices(store.run, current.value))
 const notes = computed(() => journal(store.run.flags))
 const rememberedScenes = computed(() => [...new Set(store.run.visited)])
+function sceneArt(id: string): string {
+  return platePath(sectionPlate(scene(id)))
+}
 const recentTrail = computed(() =>
   rememberedScenes.value
     .slice(-12)
@@ -1185,13 +1272,22 @@ const choiceRows = computed(() => {
 function playChoice(card: KrHandChoice) {
   if (handChoices.value.includes(card)) store.choose(card.id)
 }
-function restart() {
+function restart(): boolean {
   if (
-    window.confirm(
+    !window.confirm(
       'Start a new journey? Your current route is saved in a recovery slot and discovered endings stay in your ledger.',
     )
   )
-    store.restart()
+    return false
+  store.restart()
+  return true
+}
+function startFromCover() {
+  if (restart()) frontOpen.value = false
+}
+function openLedgerFromCover() {
+  frontOpen.value = false
+  ledgerOpen.value = true
 }
 function recover() {
   if (
@@ -1256,6 +1352,7 @@ watch(
   },
 )
 function onKey(event: KeyboardEvent) {
+  if (frontOpen.value) return
   if (ledgerOpen.value) {
     if (event.key === 'Escape') ledgerOpen.value = false
     return
@@ -1311,6 +1408,7 @@ onMounted(() => {
   shortWideQuery.addEventListener('change', syncShortWide)
   portraitTabletQuery.addEventListener('change', syncShortWide)
   sheetModalQuery.addEventListener('change', syncShortWide)
+  kit.open('zuzu-gamebook')
   store.load()
   window.addEventListener('keydown', onKey)
 })
@@ -1328,6 +1426,14 @@ useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
 </script>
 
 <style scoped>
+.kr-surface[data-reduced-motion] .zuzu-die,
+.kr-surface[data-reduced-motion] .zuzu-shake,
+.kr-surface[data-reduced-motion] .zuzu-hit-foe {
+  animation: none;
+}
+.kr-surface[data-reduced-motion] .zuzu-float {
+  display: none;
+}
 .zuzu-die {
   animation: zuzu-roll 0.55s cubic-bezier(0.14, 0.74, 0.36, 1.25) both;
   transform-origin: 50% 50%;

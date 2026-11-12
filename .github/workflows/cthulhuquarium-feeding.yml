@@ -10,6 +10,10 @@ on:
       - 'utils/cthulhuquariumRarity.ts'
       - 'components/cthulhuquarium/cthulhuquarium-ui-art.vue'
       - 'utils/scripts/verifyCthulhuquariumConsoleNav.test.ts'
+      - 'stores/cthulhuquariumTankStore.ts'
+      - 'utils/cthulhuquariumAchievements.ts'
+      - 'utils/achievements/catalog/main/cthulhuquarium.ts'
+      - 'utils/scripts/verifyCthulhuquariumAchievements.test.ts'
       - '.github/workflows/cthulhuquarium-feeding.yml'
 
 concurrency:
@@ -33,3 +37,5 @@ jobs:
         run: npx tsx utils/cthulhuquariumFood.selftest.ts
       - name: Console deck navigation (feed mode, tabs, painted-art fallbacks)
         run: npx tsx utils/scripts/verifyCthulhuquariumConsoleNav.test.ts
+      - name: Achievement awards (server-confirmed deeds only)
+        run: npx tsx utils/scripts/verifyCthulhuquariumAchievements.test.ts

@@ -1,0 +1,24 @@
+name: Branch janitor safety
+
+on:
+  pull_request:
+    paths:
+      - scripts/branch_janitor.py
+      - scripts/tests/test_branch_janitor.py
+      - ops/branch-retirements.json
+      - .github/workflows/branch-janitor.yml
+      - .github/workflows/branch-janitor-safety.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact-head retirement safeguards
+        run: python -m unittest discover -s scripts/tests -p 'test_branch_janitor.py'

@@ -51,7 +51,7 @@
           @click.stop="leave"
         >
           <Icon name="kind-icon:crown" class="size-5" />
-          {{ hasSave ? `Continue · Day ${day}` : "Enter fortress" }}
+          {{ hasSave ? `Continue · Day ${day}` : 'Enter fortress' }}
         </button>
         <button
           type="button"
@@ -65,18 +65,49 @@
         </button>
       </nav>
       <div class="flex flex-wrap justify-center gap-2">
-        <button type="button" class="btn btn-sm btn-outline border-warning/70 text-warning" :disabled="!ready || leaving" @click="emit('settings')">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline border-warning/70 text-warning"
+          :disabled="!ready || leaving"
+          @click="emit('settings')"
+        >
           <Icon name="kind-icon:settings" class="size-4" /> Settings
         </button>
-        <button v-if="hasSave" type="button" class="btn btn-sm btn-outline border-warning/70 text-warning" :disabled="!ready || leaving" @click="confirmNew = true">
+        <button
+          v-if="hasSave"
+          type="button"
+          class="btn btn-sm btn-outline border-warning/70 text-warning"
+          :disabled="!ready || leaving"
+          @click="confirmNew = true"
+        >
           New reign
         </button>
       </div>
-      <div v-if="confirmNew" class="rounded-2xl border border-warning/60 bg-base-300/95 p-4 text-sm" role="group" aria-label="Confirm new reign">
-        <p>Begin a new reign? Your current autosave will be replaced. Chronicle slots remain available.</p>
+      <div
+        v-if="confirmNew"
+        class="rounded-2xl border border-warning/60 bg-base-300/95 p-4 text-sm"
+        role="group"
+        aria-label="Confirm new reign"
+      >
+        <p>
+          Begin a new reign? Your current autosave will be replaced. Chronicle
+          slots remain available.
+        </p>
         <div class="mt-3 flex justify-center gap-2">
-          <button type="button" class="btn btn-sm btn-warning" @click="startNew">Begin new reign</button>
-          <button type="button" class="btn btn-sm btn-ghost" @click="confirmNew = false">Cancel</button>
+          <button
+            type="button"
+            class="btn btn-sm btn-warning"
+            @click="startNew"
+          >
+            Begin new reign
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-ghost"
+            @click="confirmNew = false"
+          >
+            Cancel
+          </button>
         </div>
       </div>
       <p class="eod-splash-hint text-xs italic">
@@ -92,7 +123,12 @@
 import { onBeforeUnmount, ref } from 'vue'
 
 const props = defineProps<{ ready: boolean; hasSave: boolean; day: number }>()
-const emit = defineEmits<{ done: []; chronicle: []; settings: []; newRun: [] }>()
+const emit = defineEmits<{
+  done: []
+  chronicle: []
+  settings: []
+  newRun: []
+}>()
 
 const TITLE = 'Emperor of Dust'.split('')
 const MOTES = Array.from({ length: 26 }, (_, id) => {
@@ -116,7 +152,7 @@ const confirmNew = ref(false)
 function startNew() {
   if (!props.ready || leaving.value) return
   confirmNew.value = false
-  emit("newRun")
+  emit('newRun')
   leave()
 }
 let timer: ReturnType<typeof setTimeout> | null = null

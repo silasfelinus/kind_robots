@@ -51,6 +51,7 @@ import {
 import {
   SLOT_COUNT,
   readPlumberFile,
+  mergePlumberAlbum,
   readPlumberSave,
   type PlumberFile,
   type PlumberSave,
@@ -654,7 +655,11 @@ export class PlumberRun implements ArcadeGameInstance {
       time: this.timeBase + Math.floor(this.playFrames / 60),
       ...extra,
     }
-    this.file = { ...this.file, slots }
+    this.file = {
+      ...this.file,
+      slots,
+      album: mergePlumberAlbum(this.file.album, slots),
+    }
   }
 
   /** Keep a new Endless best beside (never inside) the save slots. */

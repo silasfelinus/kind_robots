@@ -24,6 +24,13 @@ import { validExchangeJourney } from './campaignExchange'
 import { validAllianceStoryDecisions } from './campaignAllianceJourney'
 import { freshTower, validTowerSave, type TowerSave } from './allianceTower'
 import {
+  SCRAPBOOK_LIMIT,
+  isEndingId,
+  validEndings,
+  validScrapbook,
+  type ScrapbookPage,
+} from './endings'
+import {
   normalizeLegacyAllianceDeck,
   validAllianceDeck,
   validLibrary,
@@ -71,6 +78,10 @@ export interface SlimeCityStory {
    */
   storyMode?: StoryMode
   storyParity?: boolean
+  /** Endings gallery: every ending ever found (slime-city/t-059). */
+  endings?: string[]
+  /** One scrapbook page per finished crew run (slime-city/t-059). */
+  scrapbook?: ScrapbookPage[]
 }
 
 /** 'written': each bout's own format. 'turf': every story bout is TURF. */
@@ -205,6 +216,9 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
   )
     return false
   if (raw.tower !== undefined && !validTowerSave(raw.tower)) return false
+  if (raw.endings !== undefined && !validEndings(raw.endings)) return false
+  if (raw.scrapbook !== undefined && !validScrapbook(raw.scrapbook))
+    return false
   if (raw.decks !== undefined) {
     if (!record(raw.decks)) return false
     for (const [team, deck] of Object.entries(raw.decks)) {
@@ -399,9 +413,28 @@ function withoutRetiredAlliances(raw: unknown): unknown {
   return story
 }
 
+/**
+ * A retired ending (an arc renamed or removed later) must never void the whole
+ * story: unknown ending ids and unreadable scrapbook pages are dropped.
+ */
+function withoutRetiredEndings(raw: unknown): unknown {
+  if (!record(raw)) return raw
+  let story = raw
+  if (Array.isArray(raw.endings))
+    story = { ...story, endings: [...new Set(raw.endings.filter(isEndingId))] }
+  if (Array.isArray(raw.scrapbook))
+    story = {
+      ...story,
+      scrapbook: raw.scrapbook
+        .filter((page) => validScrapbook([page]))
+        .slice(-SCRAPBOOK_LIMIT),
+    }
+  return story
+}
+
 function savedStory(raw: unknown): SlimeCityStory | undefined {
   if (!record(raw)) return undefined
-  const story = withoutRetiredAlliances(raw.story)
+  const story = withoutRetiredEndings(withoutRetiredAlliances(raw.story))
   return validSlimeCityStory(story) ? story : undefined
 }
 

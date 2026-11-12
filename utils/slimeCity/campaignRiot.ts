@@ -4,6 +4,7 @@
 // the explosions bigger. Choices shape narrative callbacks, the real Solo
 // Clash boss terms and two Story-only deck additions; nothing here pays Meat
 // or grants cards. Follows the Ironjaw THE LAST SHIFT pattern.
+import type { EpilogueKey } from './campaignEpilogues'
 import type { CampaignProgress, CampaignSave } from './campaign'
 import type { BoutTerms } from './city'
 import { CARDS } from './prototypes'
@@ -433,15 +434,29 @@ export function riotBattleTerms(
     ...(safety >= 6 ? { rounds: (terms.rounds ?? 0) + 1 } : {}),
   }
 }
-export function riotEpilogue(progress: CampaignProgress): string {
-  if (progress.wins !== 5) return ''
+/** The crew journey's three authored endings (slime-city/t-059). */
+export const RIOT_EPILOGUES: Record<EpilogueKey, string> = {
+  left: 'Every night after ten, somewhere in Slime City, Anarkiss throws a free festival nobody can charge admission to. Volunteer marshals in safety-orange fishnets count every head in and every head out. The emergency services come to dance.',
+  right:
+    'Anarkiss plays its licensed stage on Crown Market every night, louder each time. The insurance policy is forty pages long and Saint Kaboom has set fire to every copy. The city has never been brighter, or quite so singed.',
+  mixed:
+    'Some nights the festival is free and careful, some nights it is ticketed and enormous, and every night the Anarkissed argue about which. Nobody pays in Meat at the door anymore. The joy curfew is still on the books; nobody obeys it.',
+}
+
+export function riotEpilogueKey(
+  progress: CampaignProgress,
+): EpilogueKey | null {
+  if (progress.wins !== 5) return null
   const { safety, spectacle } = riotLedger(progress)
   const final = progress.journey?.[4]?.[2]
-  if (safety >= 10 && final === 'left')
-    return 'Every night after ten, somewhere in Slime City, Anarkiss throws a free festival nobody can charge admission to. Volunteer marshals in safety-orange fishnets count every head in and every head out. The emergency services come to dance.'
-  if (spectacle >= 10 && final === 'right')
-    return 'Anarkiss plays its licensed stage on Crown Market every night, louder each time. The insurance policy is forty pages long and Saint Kaboom has set fire to every copy. The city has never been brighter, or quite so singed.'
-  return 'Some nights the festival is free and careful, some nights it is ticketed and enormous, and every night the Anarkissed argue about which. Nobody pays in Meat at the door anymore. The joy curfew is still on the books; nobody obeys it.'
+  if (safety >= 10 && final === 'left') return 'left'
+  if (spectacle >= 10 && final === 'right') return 'right'
+  return 'mixed'
+}
+
+export function riotEpilogue(progress: CampaignProgress): string {
+  const key = riotEpilogueKey(progress)
+  return key ? RIOT_EPILOGUES[key] : ''
 }
 export function validRiotJourney(progress: CampaignProgress): boolean {
   if (progress.journey === undefined) return true

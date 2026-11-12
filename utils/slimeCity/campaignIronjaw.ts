@@ -5,6 +5,7 @@
 // Story-only deck additions; nothing here pays Meat or grants cards.
 // Silas, 2026-11-09 PT: "we should have lizard people instead of orcs ... we
 // need to lean into the world. We exchange meat, for chrissakes."
+import type { EpilogueKey } from './campaignEpilogues'
 import type { CampaignProgress, CampaignSave } from './campaign'
 import type { BoutTerms } from './city'
 import { CARDS } from './prototypes'
@@ -431,15 +432,29 @@ export function ironjawBattleTerms(
     enemyArmor: (terms.enemyArmor ?? 0) + melt,
   }
 }
-export function ironjawEpilogue(progress: CampaignProgress): string {
-  if (progress.wins !== 5) return ''
+/** The crew journey's three authored endings (slime-city/t-059). */
+export const IRONJAW_EPILOGUES: Record<EpilogueKey, string> = {
+  left: 'The Foundry runs itself. Every shift ends with the whole crew basking on the same warm floor, and the clock still stops at quitting time. The company store is a canteen now. Steak is free on Fridays.',
+  right:
+    'Rivet keeps the master switch on her belt. The Foundry is hotter and faster than it has ever been. Old Basker still naps on his furnace, one eye open, watching the switch.',
+  mixed:
+    'Some shifts vote, some shifts follow Rivet, and every shift argues about it over lunch. The Meat is fairly weighed now. Nobody is sure yet what else is.',
+}
+
+export function ironjawEpilogueKey(
+  progress: CampaignProgress,
+): EpilogueKey | null {
+  if (progress.wins !== 5) return null
   const { solidarity, heat } = ironjawLedger(progress)
   const final = progress.journey?.[4]?.[2]
-  if (solidarity >= 10 && final === 'left')
-    return 'The Foundry runs itself. Every shift ends with the whole crew basking on the same warm floor, and the clock still stops at quitting time. The company store is a canteen now. Steak is free on Fridays.'
-  if (heat >= 10 && final === 'right')
-    return 'Rivet keeps the master switch on her belt. The Foundry is hotter and faster than it has ever been. Old Basker still naps on his furnace, one eye open, watching the switch.'
-  return 'Some shifts vote, some shifts follow Rivet, and every shift argues about it over lunch. The Meat is fairly weighed now. Nobody is sure yet what else is.'
+  if (solidarity >= 10 && final === 'left') return 'left'
+  if (heat >= 10 && final === 'right') return 'right'
+  return 'mixed'
+}
+
+export function ironjawEpilogue(progress: CampaignProgress): string {
+  const key = ironjawEpilogueKey(progress)
+  return key ? IRONJAW_EPILOGUES[key] : ''
 }
 export function validIronjawJourney(progress: CampaignProgress): boolean {
   if (progress.journey === undefined) return true

@@ -113,6 +113,10 @@ import {
 } from '../utils/slimeCity/allianceTower'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
 import {
+  recordFinishedRuns,
+  type ScrapbookPage,
+} from '../utils/slimeCity/endings'
+import {
   campaignBattlefield,
   describeBattlefield,
   OBJECTIVE_LABELS,
@@ -498,6 +502,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   /** Story bouts: as written or all TURF, with or without PARITY. */
   const storyMode = ref<StoryMode>('written')
   const storyParity = ref(false)
+  /** Endings gallery and scrapbook (slime-city/t-059). */
+  const endingsFound = ref<string[]>([])
+  const scrapbook = ref<ScrapbookPage[]>([])
+  const endingsOpen = ref(false)
   const replacingCard = ref<string | null>(null)
   const deckMessage = ref('')
   const storyLoaded = ref(false)
@@ -539,6 +547,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignScreen.value = 'chapter'
     storyMode.value = 'written'
     storyParity.value = false
+    endingsFound.value = []
+    scrapbook.value = []
+    endingsOpen.value = false
     replacingCard.value = null
     districtId.value = 'pitworks'
     cityScreen.value = 'map'
@@ -570,6 +581,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       libraryId.value = null
       storyMode.value = response.data.storyMode ?? 'written'
       storyParity.value = response.data.storyParity ?? false
+      endingsFound.value = response.data.endings ?? []
+      scrapbook.value = response.data.scrapbook ?? []
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
@@ -589,6 +602,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         selectLibraryDeck(selectedJourney.id)
       else journeyDeckId.value = null
       if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
+      // Runs finished before the gallery existed still earn their pages.
+      syncEndings()
     } catch (error) {
       if (userId !== authId()) return
       storyError.value =
@@ -619,6 +634,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
           unlocks: unlockMode.value,
           storyMode: storyMode.value,
           storyParity: storyParity.value,
+          endings: endingsFound.value,
+          scrapbook: scrapbook.value,
         }
         try {
           const result = await performFetch<SlimeCityStory>(
@@ -973,6 +990,24 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       campaignFavorIndex.value,
     ),
   )
+  /**
+   * Fold finished crew runs into the endings gallery and scrapbook. The
+   * active crew's chosen legacy favor is known; other crews keep theirs.
+   */
+  function syncEndings(): void {
+    const next = recordFinishedRuns(
+      { endings: endingsFound.value, scrapbook: scrapbook.value },
+      campaignSave.value,
+      campaignLegacy.value
+        ? { [activeTeam.value]: campaignLegacy.value.echo.title }
+        : {},
+    )
+    if (!next.changed) return
+    endingsFound.value = next.endings
+    scrapbook.value = next.scrapbook
+    persistStory()
+  }
+  watch([campaignSave, campaignLegacy], syncEndings)
   const campaignDistrict = computed(() =>
     activeChapter.value ? CAMPAIGN_DISTRICTS[activeChapter.value.foe] : null,
   )
@@ -2718,6 +2753,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     campaignFavorIndex,
     campaignLegacy,
     selectCampaignFavor,
+    endingsFound,
+    scrapbook,
+    endingsOpen,
     activeChapter,
     campaignFinale,
     campaignAllianceFinale,

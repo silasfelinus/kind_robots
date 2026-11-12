@@ -6,6 +6,7 @@
 // callbacks, the real Solo Clash boss terms and two Story-only deck
 // additions; nothing here pays Meat or grants cards. Follows the Undertow
 // THE CITY THAT LISTENS pattern.
+import type { EpilogueKey } from './campaignEpilogues'
 import type { CampaignProgress, CampaignSave } from './campaign'
 import type { BoutTerms } from './city'
 import { CARDS } from './prototypes'
@@ -436,15 +437,29 @@ export function exchangeBattleTerms(
     ...(appetite >= 9 ? { enemyMana: (terms.enemyMana ?? 0) + 1 } : {}),
   }
 }
-export function exchangeEpilogue(progress: CampaignProgress): string {
-  if (progress.wins !== 5) return ''
+/** The crew journey's three authored endings (slime-city/t-059). */
+export const EXCHANGE_EPILOGUES: Record<EpilogueKey, string> = {
+  left: 'The Book of Flesh is shut, and the stair under Crown Market is bricked over with gold. Meat is just meat again: you can eat it, trade it or throw it at a parade, and nobody below is counting. Gilt keeps the books for the city now, in ordinary ink.',
+  right:
+    'The Thing That Hungers sleeps well fed beneath Crown Market, and High Priestess Gilt keeps it that way. Every debt in Slime City is collected on time. The city is safe, prosperous and very, very polite to anyone wearing an apron.',
+  mixed:
+    'Some pages of the Book are torn out and some are still binding, and Gilt visits the stair once a month to renegotiate. The Thing is hungry, but not starving. The city owes less than it did, and knows exactly to whom.',
+}
+
+export function exchangeEpilogueKey(
+  progress: CampaignProgress,
+): EpilogueKey | null {
+  if (progress.wins !== 5) return null
   const { mercy, appetite } = exchangeLedger(progress)
   const final = progress.journey?.[4]?.[2]
-  if (mercy >= 10 && final === 'left')
-    return 'The Book of Flesh is shut, and the stair under Crown Market is bricked over with gold. Meat is just meat again: you can eat it, trade it or throw it at a parade, and nobody below is counting. Gilt keeps the books for the city now, in ordinary ink.'
-  if (appetite >= 10 && final === 'right')
-    return 'The Thing That Hungers sleeps well fed beneath Crown Market, and High Priestess Gilt keeps it that way. Every debt in Slime City is collected on time. The city is safe, prosperous and very, very polite to anyone wearing an apron.'
-  return 'Some pages of the Book are torn out and some are still binding, and Gilt visits the stair once a month to renegotiate. The Thing is hungry, but not starving. The city owes less than it did, and knows exactly to whom.'
+  if (mercy >= 10 && final === 'left') return 'left'
+  if (appetite >= 10 && final === 'right') return 'right'
+  return 'mixed'
+}
+
+export function exchangeEpilogue(progress: CampaignProgress): string {
+  const key = exchangeEpilogueKey(progress)
+  return key ? EXCHANGE_EPILOGUES[key] : ''
 }
 export function validExchangeJourney(progress: CampaignProgress): boolean {
   if (progress.journey === undefined) return true

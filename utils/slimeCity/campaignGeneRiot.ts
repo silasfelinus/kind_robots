@@ -1,5 +1,6 @@
 // The Ninth Life Protocol: fifteen bespoke, consequential story beats.
 // These belong to Gene Riot's authored SOLO campaign, not Alliance Tower.
+import type { EpilogueKey } from './campaignEpilogues'
 import type { BoutTerms } from './city'
 import type { CampaignProgress, CampaignSave } from './campaign'
 
@@ -595,16 +596,30 @@ export function geneRiotBattleTerms(
   }
   return next
 }
-export function geneRiotEpilogue(progress: CampaignProgress): string {
-  if (progress.wins !== 5) return ''
+/** The crew journey's three authored endings (slime-city/t-059). */
+export const GENE_RIOT_EPILOGUES: Record<EpilogueKey, string> = {
+  left: 'When the names are returned, Lark opens a modest clinic inside the old auction house. The first rule on its door is written in twelve languages: ask before you keep a record.',
+  right:
+    'The machines are gone, but Rue has kept the only surviving map of the clone archives. She leaves it with Nine on the kitchen table. This time, Lark gets a vote before anyone opens it.',
+  mixed:
+    'Lark keeps a ledger of a different kind: where people can find clean medicine, honest witnesses and a room for the night. Nobody has to surrender a name to use it.',
+}
+
+export function geneRiotEpilogueKey(
+  progress: CampaignProgress,
+): EpilogueKey | null {
+  if (progress.wins !== 5) return null
   const last = progress.journey?.[4]?.[2]
   const first = progress.journey?.[0]?.[0]
   const witness = progress.journey?.[3]?.[2]
-  if (last === 'left' && witness === 'left')
-    return 'When the names are returned, Lark opens a modest clinic inside the old auction house. The first rule on its door is written in twelve languages: ask before you keep a record.'
-  if (last === 'right' && first === 'right')
-    return 'The machines are gone, but Rue has kept the only surviving map of the clone archives. She leaves it with Nine on the kitchen table. This time, Lark gets a vote before anyone opens it.'
-  return 'Lark keeps a ledger of a different kind: where people can find clean medicine, honest witnesses and a room for the night. Nobody has to surrender a name to use it.'
+  if (last === 'left' && witness === 'left') return 'left'
+  if (last === 'right' && first === 'right') return 'right'
+  return 'mixed'
+}
+
+export function geneRiotEpilogue(progress: CampaignProgress): string {
+  const key = geneRiotEpilogueKey(progress)
+  return key ? GENE_RIOT_EPILOGUES[key] : ''
 }
 
 /** Existing saves can lack journey entirely. Once present, every chapter must

@@ -462,6 +462,21 @@ export async function saveSlimeCityStory(
       revision: current.revision + 1,
       city: proposed.city,
       campaigns: proposed.campaigns,
+      // The tower run and journey seat were validated but then dropped here,
+      // so a reload lost them; keep them like the rest of the story.
+      ...((proposed.tower ?? current.tower)
+        ? { tower: proposed.tower ?? current.tower }
+        : {}),
+      ...(proposed.journeyTeam ? { journeyTeam: proposed.journeyTeam } : {}),
+      ...(proposed.journeyFormat
+        ? { journeyFormat: proposed.journeyFormat }
+        : {}),
+      ...(proposed.journeyDeckId !== undefined
+        ? { journeyDeckId: proposed.journeyDeckId }
+        : {}),
+      ...(proposed.journeyScreen
+        ? { journeyScreen: proposed.journeyScreen }
+        : {}),
       ...((proposed.decks ?? current.decks)
         ? { decks: proposed.decks ?? current.decks }
         : {}),
@@ -480,6 +495,20 @@ export async function saveSlimeCityStory(
         : {}),
       ...((proposed.storyParity ?? current.storyParity) !== undefined
         ? { storyParity: proposed.storyParity ?? current.storyParity }
+        : {}),
+      // An ending once found stays found, even if a stale tab omits it.
+      ...((proposed.endings ?? current.endings)
+        ? {
+            endings: [
+              ...new Set([
+                ...(current.endings ?? []),
+                ...(proposed.endings ?? []),
+              ]),
+            ],
+          }
+        : {}),
+      ...((proposed.scrapbook ?? current.scrapbook)
+        ? { scrapbook: proposed.scrapbook ?? current.scrapbook }
         : {}),
     }
     const raw =

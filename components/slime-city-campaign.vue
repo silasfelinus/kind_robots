@@ -114,6 +114,15 @@
         >
           CITY MAP
         </button>
+        <button
+          type="button"
+          :aria-pressed="lab.endingsOpen"
+          title="Every ending you have found, and a scrapbook page for each finished run"
+          data-testid="slime-endings-toggle"
+          @click="lab.endingsOpen = !lab.endingsOpen"
+        >
+          ENDINGS {{ lab.endingsFound.length }}
+        </button>
       </div>
       <div
         class="campaign-stamp"
@@ -127,8 +136,10 @@
       </div>
     </div>
 
+    <SlimeCityEndings v-if="lab.endingsOpen" />
+
     <div
-      v-if="aftermathShown"
+      v-else-if="aftermathShown"
       class="campaign-scene"
       :class="lab.campaignAftermath?.result === 'player' ? 'won' : 'lost'"
     >
@@ -296,15 +307,26 @@
           {{ describeTerms(lab.campaignLegacy.echo.terms) }}
         </p>
       </div>
-      <div v-if="hasAftermath" class="campaign-deck">
-        <button
-          type="button"
-          class="campaign-cta campaign-quiet"
-          data-testid="slime-campaign-last-bout"
-          @click="lab.showCampaignAftermath()"
-        >
-          LAST BOUT
-        </button>
+      <div class="campaign-deck">
+        <div class="campaign-actions">
+          <button
+            v-if="hasAftermath"
+            type="button"
+            class="campaign-cta campaign-quiet"
+            data-testid="slime-campaign-last-bout"
+            @click="lab.showCampaignAftermath()"
+          >
+            LAST BOUT
+          </button>
+          <button
+            type="button"
+            class="campaign-cta"
+            data-testid="slime-campaign-open-endings"
+            @click="lab.endingsOpen = true"
+          >
+            ENDINGS GALLERY &amp; SCRAPBOOK →
+          </button>
+        </div>
       </div>
     </div>
 

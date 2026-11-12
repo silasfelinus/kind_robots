@@ -1,3 +1,4 @@
+import { useAchievementStore } from '~/stores/achievementStore'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -43,6 +44,7 @@ import {
   sanitizeCaseFiles,
   type CaseRecord,
 } from '~/utils/ecotone/mysteries'
+import { ecotoneDeeds } from '~/utils/ecotone/achievements'
 import { performFetch } from '~/stores/utils'
 
 const RUN_KEY = 'kr.ecotone.run.v1'
@@ -210,6 +212,9 @@ export const useEcotoneStore = defineStore('ecotone', () => {
 
   function update(next: RunState, remember = false) {
     if (next === run.value) return
+    const before = run.value
+    const endingsBefore = endings.value
+    const casesBefore = casesOpened.value
     undoSnapshot.value = remember ? run.value : null
     run.value = next
     if (
@@ -226,6 +231,18 @@ export const useEcotoneStore = defineStore('ecotone', () => {
         [record.id]: mergeCaseRecord(caseFiles.value[record.id], record),
       }
     persist()
+    // Achievements come only from a played step: loadSlot, importSave and
+    // initialize set the run directly and never reach here.
+    const deeds = ecotoneDeeds(before, next, {
+      endingsBefore,
+      endingsAfter: endings.value,
+      casesBefore,
+      casesAfter: casesOpened.value,
+    })
+    if (deeds.length) {
+      const achievements = useAchievementStore()
+      for (const code of deeds) void achievements.rewardAchievementByCode(code)
+    }
   }
 
   function begin(archetypeId: string, identity: PlayerIdentity = {}) {

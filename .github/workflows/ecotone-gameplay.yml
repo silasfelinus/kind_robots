@@ -20,6 +20,8 @@ on:
       - 'utils/scripts/verifyEcotone.test.ts'
       - 'utils/scripts/verifyEcotonePlaystyles.test.ts'
       - 'utils/scripts/verifyEcotoneMysteries.test.ts'
+      - 'utils/scripts/verifyEcotoneAchievements.test.ts'
+      - 'utils/achievements/catalog/main/weird-humboldt.ts'
       - 'utils/scripts/validateEcotoneMystery.ts'
       - 'utils/playbook/**'
       - 'stores/playbookStore.ts'
@@ -59,6 +61,7 @@ jobs:
       - run: npm run test:ecotone
       - run: npx tsx utils/scripts/verifyKrChoiceHand.test.ts
       - run: npx tsx utils/scripts/verifyEcotoneOnboarding.test.ts
+      - run: npx tsx utils/scripts/verifyEcotoneAchievements.test.ts
       - run: npm run test:ecotone-mysteries
       - run: npm run test:ecotone-companion-continuity
       - run: npm run test:ecotone-optimal-paths

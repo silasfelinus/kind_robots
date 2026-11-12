@@ -269,9 +269,17 @@
                   >
                 </button>
               </div>
-              <div class="evt-map-edge" data-testid="tactics-map-legend" aria-label="Tactical map legend">
-                <span class="evt-terrain-legend"><b class="evt-key-squad"></b> SQUAD</span>
-                <span class="evt-terrain-legend"><b class="evt-key-rival"></b> RIVALS</span>
+              <div
+                class="evt-map-edge"
+                data-testid="tactics-map-legend"
+                aria-label="Tactical map legend"
+              >
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-squad"></b> SQUAD</span
+                >
+                <span class="evt-terrain-legend"
+                  ><b class="evt-key-rival"></b> RIVALS</span
+                >
                 <span class="evt-terrain-legend"
                   ><b class="evt-key-wall"></b> WALL · BLOCKED</span
                 >
@@ -678,9 +686,8 @@
                       >{{
                         entry.summary.mode === 'story' ? 'Story' : 'One-shot'
                       }}
-                      · {{ entry.summary.title }} · {{ entry.summary.lead }} · R{{
-                        entry.summary.turn
-                      }}</small
+                      · {{ entry.summary.title }} · {{ entry.summary.lead }} ·
+                      R{{ entry.summary.turn }}</small
                     >
                     <small v-else-if="entry.problem" class="evt-save-problem"
                       >Refused: {{ entry.problem }}</small
@@ -4274,9 +4281,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   background: repeating-linear-gradient(90deg, #52758b 0 8px, #a8c4c6 8px 12px);
 }
 .evt-cover-edge.is-north,
-.evt-cover-edge.is-south { height: 10%; }
+.evt-cover-edge.is-south {
+  height: 10%;
+}
 .evt-cover-edge.is-west,
-.evt-cover-edge.is-east { width: 10%; }
+.evt-cover-edge.is-east {
+  width: 10%;
+}
 .evt-tile.reachable[data-ground] {
   box-shadow: inset 0 0 0 3px #8af5d8;
   z-index: 1;
@@ -4312,8 +4323,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   pointer-events: none;
   background: #f8713566;
 }
-.evt-tile.water-live[data-ground]::after { background: #3fd4f577; }
-.evt-tile.water-calm[data-ground]::after { background: #3fd4f53d; }
+.evt-tile.water-live[data-ground]::after {
+  background: #3fd4f577;
+}
+.evt-tile.water-calm[data-ground]::after {
+  background: #3fd4f53d;
+}
 .evt-standee {
   left: 50%;
   bottom: 5%;
@@ -4357,7 +4372,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: clamp(0.4rem, 0.8cqw, 0.7rem);
   text-shadow: 0 1px 2px #10202f;
 }
-.evt-initials { font-size: clamp(0.55rem, 1.7cqw, 1.3rem); }
+.evt-initials {
+  font-size: clamp(0.55rem, 1.7cqw, 1.3rem);
+}
 .evt-one-hit-tag {
   z-index: 2;
   top: auto;
@@ -4384,23 +4401,41 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   height: 4px;
   margin-top: 0;
 }
-.evt-health i { min-width: 3px; }
+.evt-health i {
+  min-width: 3px;
+}
 .evt-standee.evt-fallen .evt-card-art {
   transform: scale(0.82);
   filter: grayscale(1);
   opacity: 0.42;
 }
 @keyframes evt-strike {
-  0%, 100% { transform: translateX(-50%); }
-  40% { transform: translateX(-42%) scale(1.14); }
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  40% {
+    transform: translateX(-42%) scale(1.14);
+  }
 }
 @keyframes evt-hit {
-  0%, 100% { transform: translateX(-50%); }
-  40% { transform: translateX(-50%) scale(0.88); filter: brightness(1.8); }
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  40% {
+    transform: translateX(-50%) scale(0.88);
+    filter: brightness(1.8);
+  }
 }
 @keyframes evt-dodge {
-  0%, 100% { transform: translateX(-50%); }
-  45% { transform: translateX(-63%); }
+  0%,
+  100% {
+    transform: translateX(-50%);
+  }
+  45% {
+    transform: translateX(-63%);
+  }
 }
 .evt-map-edge {
   gap: 4px 12px;
@@ -4423,8 +4458,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   background: #dc6579;
   border-color: #ffddd9 !important;
 }
-.evt-command { gap: 6px; padding: 8px; }
-.evt-odds { min-height: 0; padding: 7px; }
+.evt-command {
+  gap: 6px;
+  padding: 8px;
+}
+.evt-odds {
+  min-height: 0;
+  padding: 7px;
+}
 .evt-save-drawer {
   min-width: 0;
   border: 1px solid #6d8ba577;
@@ -4442,8 +4483,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   letter-spacing: 0.08em;
   list-style: none;
 }
-.evt-save-drawer summary::-webkit-details-marker { display: none; }
-.evt-save-drawer[open] summary span { transform: rotate(180deg); }
+.evt-save-drawer summary::-webkit-details-marker {
+  display: none;
+}
+.evt-save-drawer[open] summary span {
+  transform: rotate(180deg);
+}
 .evt-save-drawer .evt-saves {
   padding: 5px 7px 7px;
   margin: 0;
@@ -4451,13 +4496,24 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   overflow-y: auto;
 }
 @container (max-width: 760px) {
-  .evt-map { transform: none; }
-  .evt-map-edge { gap: 4px 9px; }
-  .evt-command { gap: 4px; }
-  .evt-save-drawer summary { padding: 4px 6px; }
+  .evt-map {
+    transform: none;
+  }
+  .evt-map-edge {
+    gap: 4px 9px;
+  }
+  .evt-command {
+    gap: 4px;
+  }
+  .evt-save-drawer summary {
+    padding: 4px 6px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .evt-standee,
-  .evt-tile:hover .evt-standee { animation: none; transition: none; }
+  .evt-tile:hover .evt-standee {
+    animation: none;
+    transition: none;
+  }
 }
 </style>

@@ -10,7 +10,9 @@
     >
       <header class="flex shrink-0 items-start justify-between gap-3">
         <div>
-          <p class="font-mono text-[10px] font-black uppercase tracking-widest text-warning">
+          <p
+            class="font-mono text-[10px] font-black uppercase tracking-widest text-warning"
+          >
             Consolidated Wellness &amp; Defense
           </p>
           <h2
@@ -53,7 +55,10 @@
           </label>
         </div>
 
-        <section class="rounded-xl bg-base-200 p-3" aria-label="Sound preferences">
+        <section
+          class="rounded-xl bg-base-200 p-3"
+          aria-label="Sound preferences"
+        >
           <h3 class="text-sm font-black uppercase">Audio</h3>
           <p class="mt-1 text-xs opacity-70">
             This game has no soundtrack or sound effects yet. These volumes are
@@ -82,7 +87,9 @@
         </section>
 
         <section class="rounded-xl bg-base-200 p-3">
-          <h3 class="mb-2 text-sm font-black uppercase">Illustration edition</h3>
+          <h3 class="mb-2 text-sm font-black uppercase">
+            Illustration edition
+          </h3>
           <shifting-desks-style-picker class="h-44 rounded-xl sm:h-56" />
         </section>
 
@@ -175,10 +182,7 @@ function updateChoice(key: keyof DeskSettings, event: Event): void {
   store.setSetting(key, (event.target as HTMLSelectElement).value)
 }
 
-function updateVolume(
-  key: 'musicVolume' | 'soundVolume',
-  event: Event,
-): void {
+function updateVolume(key: 'musicVolume' | 'soundVolume', event: Event): void {
   store.setSetting(key, (event.target as HTMLInputElement).valueAsNumber)
 }
 

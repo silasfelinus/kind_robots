@@ -2,7 +2,7 @@ export const CONDUCTOR_PROJECT_STATUSES = [
   'active',
   'continuous',
   'playtest',
-  'paused', 
+  'paused',
   'finished',
   'retired',
 ] as const
@@ -27,7 +27,13 @@ export type ConductorProjectPriority =
 export type ConductorProjectKind = (typeof CONDUCTOR_PROJECT_KINDS)[number]
 
 export type ProjectLifecycleStatus =
-  'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM' | 'CONTINUOUS' | 'PLAYTEST'
+  | 'ACTIVE'
+  | 'PAUSED'
+  | 'DONE'
+  | 'ARCHIVED'
+  | 'BRAINSTORM'
+  | 'CONTINUOUS'
+  | 'PLAYTEST'
 export type ProjectLifecyclePriority = 'LOW' | 'NORMAL' | 'HIGH'
 
 export interface ConductorProjectOverride {

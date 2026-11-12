@@ -126,6 +126,10 @@
         </span>
       </NuxtLink>
 
+      <ClientOnly>
+        <admin-feedback-capture v-if="userStore.isAdmin" />
+      </ClientOnly>
+
       <!--
         ART STUDIO. Kept one click away beside the ArtJob queue and Memory
         Dungeon. The image icon matches the Art page's own Play-channel icon.

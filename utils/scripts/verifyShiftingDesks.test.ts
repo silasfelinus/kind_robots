@@ -71,6 +71,7 @@ import {
 import { achievementsForGame } from '../achievements/gameAchievements'
 import {
   MILESTONES,
+  milestonesAsOfReceipt,
   emptyRewardArchive,
   migrateFoundEndings,
   newMilestonesForRun,
@@ -1996,6 +1997,37 @@ assert.match(
   assert.ok(first.milestones['first-ending'])
   assert.ok(first.milestones['employee-of-the-month'])
   assert.equal(recordReward(first, receipt, [receipt.endingId]), first)
+  const futureAwards = {
+    ...first,
+    milestones: {
+      ...first.milestones,
+      'three-endings': '2026-10-25T09:58:00Z',
+    },
+  }
+  const historicAwards = milestonesAsOfReceipt(futureAwards, receipt).map(
+    (milestone) => milestone.id,
+  )
+  assert.ok(historicAwards.includes('first-ending'))
+  assert.ok(historicAwards.includes('employee-of-the-month'))
+  assert.ok(
+    !historicAwards.includes('three-endings'),
+    'reprinting an earlier run cannot show a milestone earned later',
+  )
+  assert.deepEqual(
+    milestonesAsOfReceipt(futureAwards, {
+      ...receipt,
+      completedAt: '2026-10-22T09:58:00Z',
+    }),
+    [],
+    'an earlier receipt cannot display any later awards',
+  )
+  assert.ok(
+    milestonesAsOfReceipt(futureAwards, {
+      ...receipt,
+      completedAt: '2026-10-25T09:58:00Z',
+    }).some((milestone) => milestone.id === 'three-endings'),
+    'milestones earned at filing time are included',
+  )
   assert.ok(
     newMilestonesForRun(empty, first, receipt.id).includes('first-ending'),
   )
@@ -2036,11 +2068,24 @@ assert.match(
     asset('../../components/shifting-desks/shifting-desks-personnel-file.vue'),
     /@click="emit\('archive'\)"/,
   )
+  const archiveView = asset(
+    '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
+  )
+  assert.match(archiveView, /Personnel Archive/)
   assert.match(
-    asset(
-      '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
-    ),
-    /Personnel Archive/,
+    archiveView,
+    /@click="printArchivedReceipt\(receipt\)"/,
+    'each archived run must offer its own print action',
+  )
+  assert.match(
+    archiveView,
+    /store\.selectPrintReceipt\(receipt\)/,
+    'printing an archived run selects its exact stored receipt',
+  )
+  assert.match(
+    archiveView,
+    /await nextTick\(\)/,
+    'print waits for the selected receipt to render',
   )
   const printed = asset(
     '../../components/shifting-desks/shifting-desks-print-dossier.vue',
@@ -2064,6 +2109,11 @@ assert.match(
     printed,
     /matchingRun/,
     'archived runs do not invent detailed incidents',
+  )
+  assert.match(
+    printed,
+    /milestonesAsOfReceipt\(store\.rewardArchive, props\.receipt\)/,
+    'historic dossiers show only awards earned by their filing date',
   )
   const fileView = asset(
     '../../components/shifting-desks/shifting-desks-personnel-file.vue',

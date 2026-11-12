@@ -132,6 +132,21 @@ export const MILESTONES: Milestone[] = [
   },
 ]
 
+/** Print a historical dossier without crediting accomplishments earned in later runs. */
+export function milestonesAsOfReceipt(
+  archive: RewardArchive,
+  receipt: RunReceipt,
+): Milestone[] {
+  const filedAt = Date.parse(receipt.completedAt)
+  if (!Number.isFinite(filedAt)) return []
+  return MILESTONES.filter((milestone) => {
+    const awardDate = archive.milestones[milestone.id]
+    if (!awardDate) return false
+    const earnedAt = Date.parse(awardDate)
+    return Number.isFinite(earnedAt) && earnedAt <= filedAt
+  })
+}
+
 export function emptyRewardArchive(): RewardArchive {
   return { version: REWARD_ARCHIVE_VERSION, milestones: {}, runs: [] }
 }

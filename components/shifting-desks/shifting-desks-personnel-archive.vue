@@ -472,6 +472,15 @@
                   {{ receipt.grades.obedience }} obedience /
                   {{ receipt.grades.spite }} spite
                 </p>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-xs mt-2"
+                  :aria-label="`Print personnel dossier for ${endingTitle(receipt.endingId)}, filed ${dateLabel(receipt.completedAt)}`"
+                  @click="printArchivedReceipt(receipt)"
+                >
+                  <icon name="kind-icon:document" class="size-3.5" />
+                  Print / Save PDF
+                </button>
               </div>
             </article>
           </section>
@@ -485,14 +494,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useAchievementStore } from '~/stores/achievementStore'
 import { useUserStore } from '~/stores/userStore'
 import { achievementsForGame } from '~/utils/achievements/gameAchievements'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 import { handleKeyboardTabs } from '~/utils/shiftingDesks/keyboardTabs'
 import { ENDINGS, stationArt } from '~/utils/shiftingDesks/rules'
-import { MILESTONES, type Milestone } from '~/utils/shiftingDesks/rewards'
+import {
+  MILESTONES,
+  type Milestone,
+  type RunReceipt,
+} from '~/utils/shiftingDesks/rewards'
 
 type ArchiveTab = 'milestones' | 'endings' | 'achievements' | 'runs'
 const sections: Array<{ id: ArchiveTab; label: string }> = [
@@ -587,6 +600,12 @@ function selectTab(section: ArchiveTab): void {
 function open(section: ArchiveTab = 'milestones'): void {
   selectTab(section)
   sheet.value?.showModal()
+}
+async function printArchivedReceipt(receipt: RunReceipt): Promise<void> {
+  close()
+  store.selectPrintReceipt(receipt)
+  await nextTick()
+  window.print()
 }
 function replay(): void {
   close()

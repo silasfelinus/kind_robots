@@ -178,7 +178,20 @@
             class="plumber-view plumber-world-view"
             aria-labelledby="world-heading"
           >
-            <div class="plumber-world-panel">
+            <nav class="plumber-album-nav" aria-label="Scrapbook sections">
+              <button
+                v-for="section in scrapbookSections"
+                :key="section.id"
+                type="button"
+                class="plumber-control"
+                :class="{ 'plumber-control--accent': scrapbookView === section.id }"
+                :aria-pressed="scrapbookView === section.id"
+                @click="scrapbookView = section.id"
+              >
+                {{ section.label }}
+              </button>
+            </nav>
+            <div v-if="scrapbookView === 'worlds'" class="plumber-world-panel">
               <p class="plumber-eyebrow">SCRAPBOOK · WORLD {{ currentWorld.id }} / 08</p>
               <h2 id="world-heading" class="plumber-section-title">
                 {{ currentWorld.name }}
@@ -227,6 +240,12 @@
                 ENTER GAME ▶
               </button>
             </div>
+            <ArcadePlumberCollection
+              v-else
+              :view="scrapbookView"
+              :album="plumber.album"
+              :slots="plumber.file.slots"
+            />
           </section>
 
           <section
@@ -347,9 +366,10 @@
       </div>
 
       <footer class="plumber-console-bottom">
-        <span v-if="screen === 'story' || screen === 'worlds'">
+        <span v-if="screen === 'story' || (screen === 'worlds' && scrapbookView === 'worlds')">
           <span class="plumber-dpad">← →</span> CHANGE SCENE
         </span>
+        <span v-else-if="screen === 'worlds'">SCRAPBOOK · SAVED ON THIS DEVICE</span>
         <span v-else-if="screen === 'play' || screen === 'maker'">
           GAME CONTROLS ACTIVE
         </span>
@@ -400,6 +420,12 @@ const heroine = computed(() => plumber.heroine)
 const viewport = ref<HTMLElement | null>(null)
 const storyIndex = ref(0)
 const worldIndex = ref(0)
+const scrapbookSections = [
+  { id: 'worlds', label: 'WORLDS' },
+  { id: 'collection', label: 'COLLECTION' },
+  { id: 'endings', label: 'ENDINGS' },
+] as const
+const scrapbookView = ref<(typeof scrapbookSections)[number]['id']>('worlds')
 const reducedMotion = ref(false)
 const currentWorld = computed(() => PLUMBER_WORLDS[worldIndex.value]!)
 const clearedNodes = computed(() => new Set(plumber.progress?.done ?? []))
@@ -520,7 +546,7 @@ function onScreenKey(event: KeyboardEvent) {
     target.closest('button, a, input, select, textarea')
   )
     return
-  if (screen.value === 'story' || screen.value === 'worlds') {
+  if (screen.value === 'story' || (screen.value === 'worlds' && scrapbookView.value === 'worlds')) {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault()
       const step = event.key === 'ArrowLeft' ? -1 : 1
@@ -868,6 +894,19 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 .plumber-world-view {
   justify-content: flex-end;
 }
+.plumber-album-nav {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.6rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.plumber-album-nav .plumber-control {
+  min-height: 2rem;
+  padding: 0.3rem 0.6rem;
+}
 .plumber-world-panel {
   width: min(33rem, 49%);
   height: 100%;
@@ -875,6 +914,7 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   justify-content: center;
   gap: clamp(0.25rem, 1.1vh, 0.85rem);
   padding: clamp(0.75rem, 2vw, 2.5rem);
+  padding-top: max(3.7rem, 0.75rem);
   background: linear-gradient(
     90deg,
     rgba(6, 20, 32, 0.85),

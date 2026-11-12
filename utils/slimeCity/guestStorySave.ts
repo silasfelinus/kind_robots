@@ -21,7 +21,9 @@ export function readGuestSlimeStory(
 
 export function writeGuestSlimeStory(
   story: SlimeCityStory,
-  storage: Pick<Storage, 'setItem'> | null = typeof localStorage === 'undefined' ? null : localStorage,
+  storage: Pick<Storage, 'setItem'> | null = typeof localStorage === 'undefined'
+    ? null
+    : localStorage,
 ): boolean {
   if (!storage || !validSlimeCityStory(story)) return false
   try {

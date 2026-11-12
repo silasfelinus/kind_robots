@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><radialGradient id="bg" cx="0.75" cy="0.5" r="0.8"><stop offset="0" stop-color="#1f5a45"/><stop offset="1" stop-color="#0a1a14"/></radialGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="760" cy="200" r="78" fill="#ffb86b"/><path d="M710 150 l-18 -46 l44 30z M810 150 l18 -46 l-44 30z" fill="#ffb86b"/><circle cx="738" cy="196" r="10" fill="#1b1430"/><circle cx="782" cy="196" r="10" fill="#1b1430"/><path d="M748 226 q12 10 24 0" fill="none" stroke="#1b1430" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="1060" cy="200" r="74" fill="#6bc7ff"/><path d="M1000 210 q-50 -10 -40 -60 q30 20 50 30z M1120 210 q50 -10 40 -60 q-30 20 -50 30z" fill="#a8e2ff"/><circle cx="1040" cy="192" r="10" fill="#1b1430"/><circle cx="1080" cy="192" r="10" fill="#1b1430"/><path d="M1048 224 l12 12 l12 -12" fill="#ffd36b"/>
+  <path d="M790 285 Q840 360 880 380" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="6" stroke-dasharray="12 10"/><path d="M1030 285 Q980 360 940 380" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="6" stroke-dasharray="12 10"/>
+  <circle cx="910" cy="470" r="120" fill="#a4f0a0" opacity="0.18"/>
+  <path d="M880 360 h60 v50 l60 110 q10 30 -20 30 h-140 q-30 0 -20 -30 l60 -110z" fill="#e6f7ff" fill-opacity="0.9"/>
+  <path d="M846 480 h128 l26 40 q10 30 -20 30 h-140 q-30 0 -20 -30z" fill="#a4f0a0"/>
+  <circle cx="880" cy="505" r="9" fill="#ffffff" opacity="0.8"/><circle cx="930" cy="520" r="6" fill="#ffffff" opacity="0.8"/><circle cx="905" cy="460" r="5" fill="#a4f0a0"/><circle cx="925" cy="430" r="7" fill="#a4f0a0" opacity="0.8"/>
+  <text x="910" y="300" text-anchor="middle" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-size="64" fill="#ffd36b">+</text>
+  <text x="70" y="220" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="88" fill="#a4f0a0" letter-spacing="3" textLength="520" lengthAdjust="spacingAndGlyphs">HYBRIDIZER</text>
+  <text x="74" y="292" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="32" fill="#ffffff">Fuse any two creatures.</text>
+  <text x="74" y="336" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">Pick a pair, mix them in the lab and</text>
+  <text x="74" y="380" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">meet their impossible cousin. No account</text>
+  <text x="74" y="424" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">needed to look around.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#ffd36b" letter-spacing="2">kindrobots.org</text>
+</svg>

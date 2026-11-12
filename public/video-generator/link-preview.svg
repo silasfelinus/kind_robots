@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><radialGradient id="bg" cx="0.75" cy="0.5" r="0.8"><stop offset="0" stop-color="#1f4a6b"/><stop offset="1" stop-color="#0b1624"/></radialGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g transform="rotate(-8 900 315)">
+    <rect x="640" y="190" width="540" height="250" rx="10" fill="#14141c"/>
+    <g fill="#e6e6f0" opacity="0.8"><rect x="660" y="202" width="22" height="16" rx="3"/><rect x="710" y="202" width="22" height="16" rx="3"/><rect x="760" y="202" width="22" height="16" rx="3"/><rect x="810" y="202" width="22" height="16" rx="3"/><rect x="860" y="202" width="22" height="16" rx="3"/><rect x="910" y="202" width="22" height="16" rx="3"/><rect x="960" y="202" width="22" height="16" rx="3"/><rect x="1010" y="202" width="22" height="16" rx="3"/><rect x="1060" y="202" width="22" height="16" rx="3"/><rect x="1110" y="202" width="22" height="16" rx="3"/>
+    <rect x="660" y="412" width="22" height="16" rx="3"/><rect x="710" y="412" width="22" height="16" rx="3"/><rect x="760" y="412" width="22" height="16" rx="3"/><rect x="810" y="412" width="22" height="16" rx="3"/><rect x="860" y="412" width="22" height="16" rx="3"/><rect x="910" y="412" width="22" height="16" rx="3"/><rect x="960" y="412" width="22" height="16" rx="3"/><rect x="1010" y="412" width="22" height="16" rx="3"/><rect x="1060" y="412" width="22" height="16" rx="3"/><rect x="1110" y="412" width="22" height="16" rx="3"/></g>
+    <rect x="660" y="232" width="160" height="166" rx="6" fill="#ffb86b"/><circle cx="740" cy="300" r="34" fill="#fff4c2"/><path d="M660 398 L720 340 L770 380 L820 330 V398z" fill="#c2553f"/>
+    <rect x="836" y="232" width="160" height="166" rx="6" fill="#6bc7ff"/><rect x="886" y="282" width="60" height="56" rx="12" fill="#e6e6f0"/><circle cx="904" cy="306" r="8" fill="#1b1430"/><circle cx="928" cy="306" r="8" fill="#1b1430"/><rect x="912" y="262" width="8" height="20" fill="#e6e6f0"/><circle cx="916" cy="258" r="8" fill="#ff8fb1"/><rect x="880" y="338" width="72" height="40" rx="8" fill="#9aa0b8"/>
+    <rect x="1012" y="232" width="160" height="166" rx="6" fill="#b48cff"/><g fill="#fff4c2"><circle cx="1050" cy="270" r="4"/><circle cx="1130" cy="290" r="5"/><circle cx="1090" cy="250" r="3"/><circle cx="1150" cy="360" r="4"/></g><path d="M1050 380 q40 -90 80 0" fill="none" stroke="#ffd36b" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <circle cx="916" cy="500" r="54" fill="#ff5d73"/><path d="M898 472 L944 500 L898 528z" fill="#ffffff"/>
+  <text x="70" y="220" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="88" fill="#6bc7ff" letter-spacing="3" textLength="560" lengthAdjust="spacingAndGlyphs">VIDEO STUDIO</text>
+  <text x="74" y="292" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="32" fill="#ffffff">Your ideas, now in motion.</text>
+  <text x="74" y="336" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">Describe a scene, add a song, and let</text>
+  <text x="74" y="380" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">friendly robot helpers build the video.</text>
+  <text x="74" y="424" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">Free to try in your browser.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#ff8fb1" letter-spacing="2">kindrobots.org</text>
+</svg>

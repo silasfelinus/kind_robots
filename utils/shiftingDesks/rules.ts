@@ -1,3 +1,8 @@
+import {
+  isEmployeeIdentity,
+  normalizeEmployeeIdentity,
+  type EmployeeIdentity,
+} from './preferences'
 import pack from './orientation.json'
 import recordsPack from './records.json'
 import toysPack from './toy-division.json'
@@ -725,7 +730,7 @@ export type Termination = {
 export type SocietyStatus = 'active' | 'met' | 'betrayed'
 
 export type RunState = {
-  version: 5
+  version: 6
   department: string
   departmentOutcomes: Record<string, string>
   restructurings: Record<string, string>
@@ -739,6 +744,7 @@ export type RunState = {
   seed: string
   rng: number
   jobId: string
+  identity: EmployeeIdentity
   skills: Record<Skill, number>
   meters: Meters
   grades: Grades
@@ -757,7 +763,7 @@ export const BOSS_CARD = 'boss'
 export const RESTRUCTURING_CARD = 'restructuring'
 export const THAW_PER_LEVEL = 1
 const THAW_BELOW = 2
-const SAVE_VERSION = 5
+const SAVE_VERSION = 6
 
 function hashSeed(seed: string): number {
   let h = 2166136261
@@ -1061,7 +1067,11 @@ export function stepLabels(state: RunState): string[] {
   })
 }
 
-export function newRun(seed: string, jobId: string): RunState {
+export function newRun(
+  seed: string,
+  jobId: string,
+  identity: Partial<EmployeeIdentity> = {},
+): RunState {
   const job = jobById(jobId)
   const meters = { ...START_METERS }
   if (job.id === 'intern') meters.successors += 1
@@ -1089,6 +1099,7 @@ export function newRun(seed: string, jobId: string): RunState {
     seed,
     rng,
     jobId: job.id,
+    identity: normalizeEmployeeIdentity(identity),
     skills: { ...job.skills },
     meters: clampMeters(meters),
     grades: { ...START_GRADES },
@@ -1839,6 +1850,7 @@ export function upgradeRun(value: unknown): RunState | null {
   if (isRunState(value)) return value
   if (!value || typeof value !== 'object') return null
   const raw = value as Record<string, unknown>
+  if (raw.version === 5) return upgradeV5(raw)
   if (raw.version === 4) return upgradeV4(raw)
   if (raw.version === 3) return upgradeV3(raw)
   const v = raw.version === 1 ? upgradeV1(raw) : raw
@@ -1885,7 +1897,17 @@ function upgradeV3(v: Record<string, unknown>): RunState | null {
 
 // Saves from before Restructuring keep the map they were dealt.
 function upgradeV4(v: Record<string, unknown>): RunState | null {
-  const upgraded = { ...v, version: SAVE_VERSION, restructurings: {} }
+  return upgradeV5({ ...v, version: 5, restructurings: {} })
+}
+
+// Existing v5 saves predate employee identity; preserve their actual run
+// history and deterministic card sequence while supplying a neutral badge.
+function upgradeV5(v: Record<string, unknown>): RunState | null {
+  const upgraded = {
+    ...v,
+    version: SAVE_VERSION,
+    identity: normalizeEmployeeIdentity(v.identity),
+  }
   return isRunState(upgraded) ? upgraded : null
 }
 
@@ -1931,6 +1953,7 @@ export function isRunState(value: unknown): value is RunState {
     typeof v.favorUsed === 'boolean' &&
     typeof v.mutationUsed === 'boolean' &&
     typeof v.seed === 'string' &&
+    isEmployeeIdentity(v.identity) &&
     typeof v.rng === 'number' &&
     typeof v.position === 'number' &&
     Array.isArray(v.deck) &&

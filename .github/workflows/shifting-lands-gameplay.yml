@@ -33,6 +33,8 @@ on:
       - 'utils/scripts/verifyShiftingFollowerRecruitmentV9.test.ts'
       - 'utils/scripts/verifyShiftingSpentDeeds.test.ts'
       - 'utils/scripts/verifyShiftingCharacterCreator.test.ts'
+      - 'utils/scripts/verifyShiftingJourneyDeeds.test.ts'
+      - 'utils/achievements/catalog/main/zuzu-shifting-lands.ts'
       - 'utils/playbook/shiftingLands.ts'
       - 'components/shifting-lands-scene-image.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
@@ -68,6 +70,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingV6.test.ts
       - run: npx tsx utils/scripts/verifyShiftingSpentDeeds.test.ts
       - run: npx tsx utils/scripts/verifyShiftingCharacterCreator.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingJourneyDeeds.test.ts
       - run: npx tsx utils/scripts/shiftingLandsV6BalanceReport.ts 300
       - run: npx tsx utils/scripts/verifyShiftingV7.test.ts 300
       - run: npx tsx utils/scripts/verifyShiftingV8.test.ts 300

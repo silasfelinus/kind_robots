@@ -202,3 +202,10 @@ export function moralConstellationEndingV7(
 export const MORAL_CONSTELLATION_IDS_V7 = Object.freeze(
   Object.values(CONSTELLATIONS).map((ending) => ending.id),
 )
+
+// The futures a harder, kinder road earns; the achievement deeds read these.
+export const HOPEFUL_CONSTELLATION_TITLES_V7: readonly string[] = Object.freeze(
+  (['commons', 'publicRecord', 'wayfinders'] as const).map(
+    (key) => CONSTELLATIONS[key]!.title,
+  ),
+)

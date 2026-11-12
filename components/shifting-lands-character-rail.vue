@@ -203,6 +203,23 @@
           </div>
         </div>
       </details>
+
+      <details
+        class="group rounded-xl border border-base-content/15 bg-base-300/60"
+        data-testid="shifting-lands-achievements"
+      >
+        <summary
+          class="cursor-pointer px-3 py-2 text-sm font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        >
+          <span class="inline-flex items-center gap-2">
+            <Icon name="kind-icon:trophy" class="size-4 text-warning" />
+            Road achievements
+          </span>
+        </summary>
+        <div class="border-t border-base-content/10 px-3 py-3">
+          <GameAchievementStrip game="zuzu-shifting-lands" layout="icons" />
+        </div>
+      </details>
     </div>
   </section>
 </template>

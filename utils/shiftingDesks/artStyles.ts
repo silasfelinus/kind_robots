@@ -57,6 +57,20 @@ export const WITHDRAWN_RENDERS: Record<string, readonly string[]> = {
   // 2026-11-02 (Silas: "that is not a cockroach"): the Illustrious checkpoint
   // drew the Roach Union as humans with antennae. Classic keeps the roaches.
   'western-cartoon': [
+    // 2026-11-12: actual round-18 media review found these eleven finale
+    // images fail their defining payoff composition. Keep the reviewed
+    // Classic ending plates while corrected renders are curated.
+    'endings/employee-of-the-month.webp',
+    'endings/promoted-to-management.webp',
+    'endings/escape-through-the-ducts.webp',
+    'endings/roach-union-general-strike.webp',
+    'endings/society-coup.webp',
+    'endings/whistleblower.webp',
+    'endings/early-retirement.webp',
+    'endings/the-kind-rewrite.webp',
+    'endings/position-eliminated.webp',
+    'endings/posthumous-affairs.webp',
+    'endings/permanent-adjournment.webp',
     'cards/records/the-jam-in-tube-14.webp',
     'cards/toy-division/the-union-walkthrough.webp',
     'cards/toy-division/gus-in-a-beanie.webp',

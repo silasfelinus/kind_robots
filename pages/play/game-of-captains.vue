@@ -1330,6 +1330,19 @@
                   </p>
                 </div>
               </div>
+              <div
+                v-if="run.report"
+                class="cap-mission-report"
+                data-testid="space-couch-mission-report"
+              >
+                <strong data-testid="space-couch-mission-supply-swing">
+                  {{ run.report.result.toUpperCase() }} ·
+                  {{ missionSupplySwing > 0 ? '+' : '' }}{{ missionSupplySwing }}
+                  SUPPLY
+                </strong>
+                <span>{{ run.report.names }}</span>
+                <p>{{ run.report.text }}</p>
+              </div>
               <template v-if="featuredConsequence">
                 <p class="cap-narrative">{{ featuredConsequence.opening }}</p>
                 <p class="cap-alert">{{ featuredConsequence.conflict }}</p>
@@ -1353,14 +1366,6 @@
               </template>
               <template v-else>
                 <p class="cap-narrative">{{ mission.dilemma }}</p>
-                <div v-if="run.report" class="cap-mission-report">
-                  <strong
-                    >{{ run.report.result.toUpperCase() }} / MISSION
-                    STATUS</strong
-                  >
-                  <span>{{ run.report.names }}</span>
-                  <p>{{ run.report.text }}</p>
-                </div>
                 <p class="cap-alert">{{ nemesisLine }}</p>
                 <SpaceCouchChoiceHand
                   :choices="ethicalHand"
@@ -1865,6 +1870,7 @@ import {
   MISSIONS,
   POCKET_ROOMS,
   previewMission,
+  MISSION_RETURN_SUPPLIES,
   antagonistFor,
   missionFor,
   missionBoard,
@@ -2001,6 +2007,10 @@ type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
 const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const run = computed(() => store.run)
+const missionSupplySwing = computed(() => {
+  const report = run.value?.report
+  return report?.supplyDelta ?? (report ? MISSION_RETURN_SUPPLIES[report.result] : 0)
+})
 // Playbook Kit bar meters mirror the four VoyageRun meters the spec declares
 // (supplies, trust, force bubble charge, reputation); before a voyage starts
 // they read the spec's start values.

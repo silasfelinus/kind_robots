@@ -4,6 +4,7 @@
 // callbacks, the real Solo Clash boss terms and two Story-only deck additions;
 // nothing here pays Meat or grants cards. Follows the Ironjaw THE LAST SHIFT
 // and Anarkiss THE BEAUTIFUL CATASTROPHE pattern.
+import type { EpilogueKey } from './campaignEpilogues'
 import type { CampaignProgress, CampaignSave } from './campaign'
 import type { BoutTerms } from './city'
 import { CARDS } from './prototypes'
@@ -437,15 +438,29 @@ export function undertowBattleTerms(
     ...(leverage >= 9 ? { rivalTrap: true } : {}),
   }
 }
-export function undertowEpilogue(progress: CampaignProgress): string {
-  if (progress.wins !== 5) return ''
+/** The crew journey's three authored endings (slime-city/t-059). */
+export const UNDERTOW_EPILOGUES: Record<EpilogueKey, string> = {
+  left: 'Every kitchen in Slime City has an off switch now, and most nights most of them are off. The Drain Oracle still hears the drains, but only what people choose to pour into them. The frog troopers have taken up choir.',
+  right:
+    'The Drain Oracle hears everything, and Slime City has learned to speak kindly near the plumbing. No crew moves without the Undertow knowing first. The promise has held so far. Nobody else is in a position to check.',
+  mixed:
+    'Some of the city has switches and some of it does not, and the Oracle keeps a short list of what they still hear. The forger is gone, the ledger is closed, and the drains carry rumors again, not orders. Mostly.',
+}
+
+export function undertowEpilogueKey(
+  progress: CampaignProgress,
+): EpilogueKey | null {
+  if (progress.wins !== 5) return null
   const { truth, leverage } = undertowLedger(progress)
   const final = progress.journey?.[4]?.[2]
-  if (truth >= 10 && final === 'left')
-    return 'Every kitchen in Slime City has an off switch now, and most nights most of them are off. The Drain Oracle still hears the drains, but only what people choose to pour into them. The frog troopers have taken up choir.'
-  if (leverage >= 10 && final === 'right')
-    return 'The Drain Oracle hears everything, and Slime City has learned to speak kindly near the plumbing. No crew moves without the Undertow knowing first. The promise has held so far. Nobody else is in a position to check.'
-  return 'Some of the city has switches and some of it does not, and the Oracle keeps a short list of what they still hear. The forger is gone, the ledger is closed, and the drains carry rumors again, not orders. Mostly.'
+  if (truth >= 10 && final === 'left') return 'left'
+  if (leverage >= 10 && final === 'right') return 'right'
+  return 'mixed'
+}
+
+export function undertowEpilogue(progress: CampaignProgress): string {
+  const key = undertowEpilogueKey(progress)
+  return key ? UNDERTOW_EPILOGUES[key] : ''
 }
 export function validUndertowJourney(progress: CampaignProgress): boolean {
   if (progress.journey === undefined) return true

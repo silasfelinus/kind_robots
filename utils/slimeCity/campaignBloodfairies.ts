@@ -1,6 +1,7 @@
 // MOSHPIT REPUBLIC: a labor uprising expressed through a Call & Response
 // coalition meter. Choices influence narrative callbacks and Clash boss
 // conditions; the 3rd-stage card spotlight never grants free evolutions.
+import type { EpilogueKey } from './campaignEpilogues'
 import type { CampaignProgress, CampaignSave } from './campaign'
 import type { BoutTerms } from './city'
 import { CARDS } from './prototypes'
@@ -427,15 +428,29 @@ export function bloodfairyBattleTerms(
     enemyArmor: (terms.enemyArmor ?? 0) + pressure,
   }
 }
-export function bloodfairyEpilogue(progress: CampaignProgress): string {
-  if (progress.wins !== 5) return ''
+/** The crew journey's three authored endings (slime-city/t-059). */
+export const BLOODFAIRY_EPILOGUES: Record<EpilogueKey, string> = {
+  left: 'The first vote of the Moshpit Republic is not about its leader. It is whether any leader may cancel a concert. Thimble votes last, and loses. The party that follows takes three nights to end.',
+  right:
+    'Thimble keeps the master switch by the bed. The new rooftops are free, but nobody is sure who gets to turn the music off. Brine leaves a ballot box under the stage.',
+  mixed:
+    'Tallow prints a new songbook with the mistakes left in. Some roofs choose a rotating assembly; others hire a guard. At least every tenant can hear the arguments over the music.',
+}
+
+export function bloodfairyEpilogueKey(
+  progress: CampaignProgress,
+): EpilogueKey | null {
+  if (progress.wins !== 5) return null
   const { voices, volume } = bloodfairyLedger(progress)
   const final = progress.journey?.[4]?.[2]
-  if (voices >= 10 && final === 'left')
-    return 'The first vote of the Moshpit Republic is not about its leader. It is whether any leader may cancel a concert. Thimble votes last, and loses. The party that follows takes three nights to end.'
-  if (volume >= 10 && final === 'right')
-    return 'Thimble keeps the master switch by the bed. The new rooftops are free, but nobody is sure who gets to turn the music off. Brine leaves a ballot box under the stage.'
-  return 'Tallow prints a new songbook with the mistakes left in. Some roofs choose a rotating assembly; others hire a guard. At least every tenant can hear the arguments over the music.'
+  if (voices >= 10 && final === 'left') return 'left'
+  if (volume >= 10 && final === 'right') return 'right'
+  return 'mixed'
+}
+
+export function bloodfairyEpilogue(progress: CampaignProgress): string {
+  const key = bloodfairyEpilogueKey(progress)
+  return key ? BLOODFAIRY_EPILOGUES[key] : ''
 }
 /** A true level-three reveal, using the existing authored Riot Choir
  * Wall of Sound / Backup Singers mechanical split. This preview changes

@@ -541,6 +541,7 @@ import {
   REDSHIRT_QUARTERS,
 } from '~/utils/gameOfCaptains/expedition'
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
+import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   episodeRevealArtKey,
   episodeResultArtKey,
@@ -714,7 +715,8 @@ const actors = computed(() => [
               .join(' · ')
           : 'APTITUDE SEALED') +
         (signature ? ' · ' + signature.name.toUpperCase() : ''),
-      image: null,
+      // Curated recruitment portrait when one has shipped; the glyph otherwise.
+      image: warpArt('redshirts/portraits/' + id),
       revealed,
       rank: revealed ? known.length + '/6' : '??',
       initial: '✦',

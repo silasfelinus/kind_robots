@@ -912,7 +912,10 @@ export const MISSION_RETURN_SUPPLIES: Record<Result, number> = {
   costly: -1,
   disaster: -2,
 }
-export function missionReturnSupplyDelta(supplies: number, result: Result): number {
+export function missionReturnSupplyDelta(
+  supplies: number,
+  result: Result,
+): number {
   return Math.max(0, supplies + MISSION_RETURN_SUPPLIES[result]) - supplies
 }
 /** The displayed chance and the eventual return roll share one immutable preview. */

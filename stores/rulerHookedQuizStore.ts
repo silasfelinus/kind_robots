@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { useMandarinTutorStore } from './mandarinTutorStore'
 import { performFetch } from './utils'
 import { useRulerHookedStore } from './rulerHookedStore'
+import { useAchievementStore } from './achievementStore'
+import { rulerHookedQuizDeeds } from '~/utils/rulerHooked/achievements'
 import {
   animalMandarinCards,
   geographyQuestion,
@@ -407,6 +409,12 @@ export const useRulerHookedQuizStore = defineStore('rulerHookedQuiz', () => {
         topicCorrect.value[mandarinScope.value] =
           (topicCorrect.value[mandarinScope.value] ?? 0) + 1
       saveSettings()
+      const achievements = useAchievementStore()
+      for (const code of rulerHookedQuizDeeds(
+        active.module,
+        correct.value[active.module],
+      ))
+        void achievements.rewardAchievementByCode(code)
       feedback.value = active.explanation
       settleAnswer(true)
       return true

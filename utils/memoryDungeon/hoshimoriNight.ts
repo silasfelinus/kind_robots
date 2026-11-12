@@ -1402,7 +1402,7 @@ export function hoshimoriNightLowbankAccount(
 
 /** Replay every legal event rather than trusting client-supplied flags or routes. */
 export function restoreHoshimoriNight(value: unknown): NightProgress | null {
-  if (!value || typeof value !== 'object') return null
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const saved = value as Partial<NightProgress>
   if (
     saved.version !== 1 ||

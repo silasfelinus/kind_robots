@@ -31,7 +31,9 @@
       </header>
 
       <div class="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3">
+        <div
+          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3"
+        >
           <label
             v-for="field in fields"
             :key="field.key"

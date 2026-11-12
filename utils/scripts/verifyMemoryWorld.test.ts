@@ -3747,7 +3747,7 @@ const memoryLauncherSource = readFileSync(
 assert.match(memoryLauncherSource, /Briar Marches · The House That Remembers/)
 assert.doesNotMatch(
   memoryLauncherSource,
-  /World\\s+\\d+\\s+of\\s+\\d+/i,
+  /World\s+\d+\s+of\s+\d+/i,
   'The launcher must not expose an obsolete or spoiler-heavy realm count',
 )
 

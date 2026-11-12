@@ -12,11 +12,12 @@
       :src="
         collapse
           ? `/crystal-street/endings/special-${run.ending.special}.webp`
-          : `/crystal-street/villains/${villain.id}-ending.webp`
+          : `/crystal-street/endings/${villain.id}-${run.ending.tier}.webp`
       "
+      :fallback="`/crystal-street/villains/${villain.id}-ending.webp`"
       :palette="villain.palette"
       :sigil="villain.sigil"
-      :alt="collapse ? special!.art : villain.endingPhoto"
+      :alt="collapse ? special!.art : (ending?.art ?? villain.endingPhoto)"
     >
       <span
         class="cs-stamp absolute right-3 top-3"

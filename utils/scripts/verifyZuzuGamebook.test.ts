@@ -204,6 +204,15 @@ for (const [id, own] of Object.entries(SECTION_PLATES)) {
     id + ': alt text and provenance',
   )
 }
+// Endings show their own painted plates (main-game standard item 6).
+for (const id of ['ending-wren-lamp', 'ending-bell-keeper']) {
+  assert.ok(endings.includes(id), id + ' is an ending')
+  assert.equal(sectionPlate(BOOK[id]!).file, 'sections/' + id)
+  assert.ok(
+    existsSync(join(scenesDir, 'sections', id + '.webp')),
+    id + ': ending has its own section plate',
+  )
+}
 const sectionsDir = join(scenesDir, 'sections')
 for (const file of existsSync(sectionsDir) ? readdirSync(sectionsDir) : []) {
   assert.ok(

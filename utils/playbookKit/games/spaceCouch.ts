@@ -453,6 +453,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Calls on the board do not wait forever.',
       ['independents'],
       'Red couch at a jump gate buried in returned unopened letters from distant star systems',
+      true,
     ),
     ending(
       'the-complete-record',
@@ -462,6 +463,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Watching is a choice too. Keep making it.',
       ['treaty'],
       'Towering stacks of glowing case files floating around a quiet red couch in deep space',
+      true,
     ),
     ending(
       'the-permanent-hearing',
@@ -471,6 +473,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Ask first, or answer later.',
       ['treaty'],
       'Grand cosmic tribunal benches arranged around a red couch at a ring-shaped jump gate',
+      true,
     ),
     ending(
       'a-motion-of-no-confidence',
@@ -480,6 +483,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'The crew is watching how you watch.',
       ['independents'],
       'Three crew members raising hands in a vote while the captain sits apart on the red couch',
+      true,
     ),
     ending(
       'sanctuary-without-a-map',
@@ -489,6 +493,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Some maps are kindest left sealed.',
       ['sanctuary'],
       'Sealed glowing star map zipped inside a couch cushion as families sail away in tiny lights',
+      true,
     ),
     ending(
       'names-on-the-hull-that-isnt',
@@ -498,6 +503,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Stand with the same people twice.',
       ['pell', 'fen'],
       'Dockworkers stitching names in bright thread into the underside of a long red couch',
+      true,
     ),
     ending(
       'the-unlicensed-cure',
@@ -507,6 +513,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'A healer’s errand finished, and a planet’s consent honoured.',
       ['vela', 'brin'],
       'Doctor and ecologist handing out glowing vials from a red couch to a crowd under green nebula',
+      true,
     ),
     ending(
       'the-right-to-refuse',
@@ -516,6 +523,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Recognize the workers you did not know you had.',
       ['sora', 'pell'],
       'A force bubble generator holding a tiny picket sign beside a red couch at a jump gate',
+      true,
     ),
     ending(
       'a-table-for-every-guest',
@@ -525,6 +533,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Neutral ground has to be kept more than once.',
       ['vox', 'sanctuary'],
       'Cozy orbital bar corner table where a captain and a nemesis sign papers as Vox pours',
+      true,
     ),
     ending(
       'the-courtesy-accord',
@@ -534,6 +543,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Simultaneity is a diplomatic tool.',
       ['taal', 'rue'],
       'Two delegations shaking hands at exactly the same instant over a glowing medical rail',
+      true,
     ),
     ending(
       'the-cushions-are-donated',
@@ -543,6 +553,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Give until the hold echoes.',
       ['independents', 'sanctuary'],
       'Bare red couch frame without cushions at a jump gate, grateful crowds holding cushions far below',
+      true,
     ),
     ending(
       'the-memoirs',
@@ -552,6 +563,7 @@ export const SPACE_COUCH_KIT: PlaybookKitSpec = {
       'Run your errands where people can see.',
       ['jex', 'kivo'],
       'Three competing book covers floating above a red couch, each showing a different hero',
+      true,
     ),
     ending(
       'the-union-cancellation',

@@ -75,6 +75,16 @@ for (const id of role('follower'))
     `${id} has a follower moment`,
   )
 
+// Every galactic ending family shows its own painted plate (main-game standard
+// item 6); only the two counter-council logs still await theirs.
+const galacticIds = new Set(WARP_ENDINGS.map(slugify))
+for (const ending of spec.endings.filter((e) => galacticIds.has(e.id)))
+  assert.equal(
+    ending.art.src,
+    `/game-of-captains/endings/${ending.id}.webp`,
+    `${ending.id} declares its ending plate`,
+  )
+
 // Any declared rendered art exists in public/.
 const declared = [
   spec.keyArt,

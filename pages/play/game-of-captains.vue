@@ -2084,6 +2084,7 @@ const stagePainting = computed(() => {
     return (
       paintedVoyageImage(run.value.consequenceEnding) ||
       voyageStageArt(run.value, paintedVoyageImage) ||
+      voyageStageArt(run.value) ||
       COUCH_FALLBACK
     )
   if (latestConsequence.value)
@@ -2101,7 +2102,11 @@ const stagePainting = computed(() => {
         voyageStageArt(run.value, paintedVoyageImage) ||
         COUCH_FALLBACK
       )
-    return voyageStageArt(run.value, paintedVoyageImage) || COUCH_FALLBACK
+    return (
+      voyageStageArt(run.value, paintedVoyageImage) ||
+      (run.value.phase === 'ending' ? voyageStageArt(run.value) : null) ||
+      COUCH_FALLBACK
+    )
   }
   const key =
     selectionScreen.value === 'stars' || selectionScreen.value === 'background'

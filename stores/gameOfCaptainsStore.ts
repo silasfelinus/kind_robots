@@ -21,6 +21,14 @@ import { useUserStore } from '~/stores/userStore'
 import { mergeAlienGuides } from '~/utils/gameOfCaptains/alienAccountMerge'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { useAchievementStore } from '~/stores/achievementStore'
+import {
+  NO_VOYAGE_FACTS,
+  alienAchievements,
+  redshirtAchievements,
+  voyageDeedAchievements,
+  voyageDeedFacts,
+} from '~/utils/gameOfCaptains/achievements'
 import {
   SPACE_COUCH_KIT_ID,
   spaceCouchKitUnlocks,
@@ -131,6 +139,17 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   let desiredRevision = 0
   let completedRevision = 0
   let legacyImportUserId: number | null = null
+  // What the voyage had already earned at the last action, so the next action
+  // awards only what it newly earned. load() restores a saved voyage with
+  // `restoring` set, which resets the snapshot without awarding.
+  let deedFacts = NO_VOYAGE_FACTS
+  let restoring = false
+
+  function award(...codes: string[]) {
+    if (!codes.length) return
+    const achievements = useAchievementStore()
+    for (const code of codes) void achievements.rewardAchievementByCode(code)
+  }
 
   const pendingGuideKey = (id: number): string => ALIEN_PENDING_PREFIX + id
   const readCachedGuide = (key: string): AlienGuide => {
@@ -383,7 +402,14 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     const sighting = alienSighting.value
     if (!sighting) return
     const outcome = resolveAlienSighting(alienGuide.value, sighting, choice)
+    const discoveredBefore = alienGuide.value.discovered.length
     alienGuide.value = outcome.guide
+    award(
+      ...alienAchievements(
+        discoveredBefore,
+        alienGuide.value.discovered.length,
+      ),
+    )
     if (run.value) {
       run.value = {
         ...run.value,
@@ -489,8 +515,27 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       // The scrapbook is a bonus; it can never block saving the voyage.
     }
   }
+  /** Awards what the action that just persisted newly earned. */
+  function awardDeeds(namesBefore: number) {
+    const facts = voyageDeedFacts(run.value)
+    let kitEndings = 0
+    try {
+      kitEndings = Object.keys(usePlaybookKitStore().progress.endings).length
+    } catch {
+      // Without the scrapbook, Anthology waits for the next ending.
+    }
+    award(
+      ...voyageDeedAchievements(deedFacts, facts, kitEndings),
+      ...redshirtAchievements(
+        namesBefore,
+        Object.keys(redshirtKnowledge.value).length,
+      ),
+    )
+    deedFacts = facts
+  }
   function persist() {
     recordKitUnlocks()
+    const namesBefore = Object.keys(redshirtKnowledge.value).length
     try {
       if (run.value) {
         redshirtKnowledge.value = learnRedshirtKnowledge(
@@ -524,6 +569,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       storageWarning.value =
         'Local saves are blocked by your browser. Keep this tab open to finish your voyage.'
     }
+    if (restoring) deedFacts = voyageDeedFacts(run.value)
+    else awardDeeds(namesBefore)
   }
   function load() {
     if (loaded.value) return
@@ -557,9 +604,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       run.value = restoreTrioAdventure(
         restoreVoyage(raw ? JSON.parse(raw) : null),
       )
+      deedFacts = voyageDeedFacts(run.value)
+      restoring = true
       if (run.value) persist()
+      restoring = false
       void syncAlienGuideAccount()
     } catch {
+      restoring = false
       run.value = null
       storageWarning.value =
         'Previous voyage could not be loaded. You can begin a new one.'
@@ -577,6 +628,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       playbookRunKey(run.value),
     )
     persist()
+    award('game-of-captains-launch')
   }
   function assign(crew: CrewId[]) {
     if (!run.value) return

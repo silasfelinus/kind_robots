@@ -157,13 +157,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Video Studio | Kind Robots',
     description:
       'Make short videos and music videos from your ideas with friendly robot helpers. Try it in your browser.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/video-generator/link-preview.webp',
   },
   'daily-pitches': {
     title: 'Daily Pitches | Kind Robots',
     description:
       'Fresh ideas for new games and robots, pitched every day. Browse the latest pitches free in your browser.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/daily-pitches/link-preview.webp',
   },
   'zuzu-pinball': {
     title: 'Zuzu Pinball: Last Bell | Kind Robots',
@@ -175,13 +175,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Hybridizer | Kind Robots',
     description:
       'Fuse any two creatures and discover their impossible cousin. A free fusion lab in your browser, no account needed to look around.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/hybridizer/link-preview.webp',
   },
   'comic-studio': {
     title: 'Comic Studio | Kind Robots',
     description:
       'Plan a comic series, build panels with friendly robot helpers and share your pages. Try it free in your browser.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/comic-studio/link-preview.webp',
     path: '/play/comics/studio',
   },
   'tzaddik-gallery': {
@@ -195,7 +195,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Art Archive | Kind Robots',
     description:
       'Keep, rate and sort the pictures you make with Kind Robots in one tidy gallery. Open it in your browser and start collecting.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/art-archive/link-preview.webp',
     path: '/art-archive',
   },
   'challenge-leaderboard': {

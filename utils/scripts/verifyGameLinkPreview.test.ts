@@ -25,6 +25,11 @@ for (const slug of [
   'mandarin',
   'music-mentor',
   'coloring-page',
+  'video-generator',
+  'daily-pitches',
+  'hybridizer',
+  'comic-studio',
+  'art-archive',
 ]) {
   assert.equal(
     GAME_LINK_PREVIEWS[slug]?.image,

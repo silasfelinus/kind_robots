@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><radialGradient id="bg" cx="0.75" cy="0.5" r="0.8"><stop offset="0" stop-color="#2d3a6b"/><stop offset="1" stop-color="#0d1124"/></radialGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g stroke="#c9a46b" stroke-width="10">
+    <rect x="690" y="110" width="200" height="160" fill="#ffb86b"/>
+    <rect x="920" y="90" width="200" height="200" fill="#6bc7ff"/>
+    <rect x="690" y="310" width="160" height="200" fill="#b48cff"/>
+    <rect x="880" y="330" width="240" height="160" fill="#a4f0a0"/>
+  </g>
+  <circle cx="790" cy="170" r="30" fill="#fff4c2"/><path d="M695 265 L760 210 L810 250 L885 190 V265z" fill="#c2553f"/>
+  <path d="M960 250 q60 -120 120 0z" fill="#ffffff" opacity="0.7"/><circle cx="1020" cy="160" r="24" fill="#ffd36b"/>
+  <circle cx="770" cy="390" r="36" fill="#ff8fb1"/><path d="M730 505 q40 -70 80 0z" fill="#ff8fb1"/>
+  <path d="M885 485 q60 -90 115 -30 q60 -50 115 30z" fill="#3e8e5a"/>
+  <g fill="#ffd36b"><path d="M1000 540 l7 15 l16 2 l-12 11 l3 16 l-14 -8 l-14 8 l3 -16 l-12 -11 l16 -2z"/><path d="M1046 540 l7 15 l16 2 l-12 11 l3 16 l-14 -8 l-14 8 l3 -16 l-12 -11 l16 -2z"/><path d="M1092 540 l7 15 l16 2 l-12 11 l3 16 l-14 -8 l-14 8 l3 -16 l-12 -11 l16 -2z"/></g>
+  <text x="70" y="220" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="88" fill="#ffd36b" letter-spacing="3" textLength="560" lengthAdjust="spacingAndGlyphs">ART ARCHIVE</text>
+  <text x="74" y="292" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="32" fill="#ffffff">Every picture you make, kept.</text>
+  <text x="74" y="336" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">Rate, sort and keep the art you create</text>
+  <text x="74" y="380" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">with Kind Robots in one tidy gallery.</text>
+  <text x="74" y="424" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">Open it in your browser.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#6bc7ff" letter-spacing="2">kindrobots.org</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><radialGradient id="bg" cx="0.75" cy="0.5" r="0.8"><stop offset="0" stop-color="#5a2d4a"/><stop offset="1" stop-color="#1a0f1c"/></radialGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="720" y="170" width="380" height="240" rx="14" fill="#e9dcc4" transform="rotate(9 910 290)"/>
+  <rect x="720" y="170" width="380" height="240" rx="14" fill="#f3e8d2" transform="rotate(-6 910 290)"/>
+  <g transform="rotate(2 910 320)">
+    <rect x="700" y="190" width="420" height="270" rx="14" fill="#fffaf0"/>
+    <rect x="700" y="190" width="420" height="56" rx="14" fill="#ff8f6b"/><rect x="700" y="226" width="420" height="20" fill="#ff8f6b"/>
+    <text x="730" y="230" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="26" fill="#ffffff">TODAY'S PITCH</text>
+    <g stroke="#cfd6ea" stroke-width="3"><line x1="730" y1="300" x2="1090" y2="300"/><line x1="730" y1="345" x2="1090" y2="345"/><line x1="730" y1="390" x2="1090" y2="390"/><line x1="730" y1="435" x2="1090" y2="435"/></g>
+    <text x="732" y="292" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="28" fill="#2a2140">A lighthouse run by</text>
+    <text x="732" y="337" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="28" fill="#2a2140">a nervous robot who</text>
+    <text x="732" y="382" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="28" fill="#2a2140">collects lost songs...</text>
+  </g>
+  <g transform="translate(1060 150) rotate(14)"><circle r="56" fill="#ffd36b"/><text y="-6" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="22" fill="#5a2d4a">NEW</text><text y="22" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="18" fill="#5a2d4a">daily</text></g>
+  <text x="70" y="220" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="84" fill="#ffd36b" letter-spacing="3" textLength="560" lengthAdjust="spacingAndGlyphs">DAILY PITCHES</text>
+  <text x="74" y="292" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="32" fill="#ffffff">A fresh idea every single day.</text>
+  <text x="74" y="336" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">New games, robots and stories pitched</text>
+  <text x="74" y="380" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">daily. Browse the latest and pick a</text>
+  <text x="74" y="424" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">favourite. Free in your browser.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#ff8f6b" letter-spacing="2">kindrobots.org</text>
+</svg>

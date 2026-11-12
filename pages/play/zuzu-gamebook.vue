@@ -341,13 +341,17 @@
                 aria-label="Past journeys"
                 data-testid="zuzu-gamebook-scrapbook"
               >
-                <h3 class="font-serif text-xl font-bold">Journeys remembered</h3>
+                <h3 class="font-serif text-xl font-bold">
+                  Journeys remembered
+                </h3>
                 <p class="mb-3 text-xs opacity-70">
-                  Finished and abandoned journeys stay in this browser's scrapbook.
-                  Importing another player's save code does not award achievements.
+                  Finished and abandoned journeys stay in this browser's
+                  scrapbook. Importing another player's save code does not award
+                  achievements.
                 </p>
                 <p v-if="!store.scrapbook.length" class="text-sm opacity-70">
-                  Turn the last page or begin another journey to preserve your first memory.
+                  Turn the last page or begin another journey to preserve your
+                  first memory.
                 </p>
                 <ol v-else class="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   <li
@@ -366,9 +370,10 @@
                         {{ scene(memory.sceneId).title }}
                       </strong>
                       <p class="mt-1 text-[11px] opacity-70">
-                        {{ memory.ending ? 'Ending reached' : 'Journey paused' }}
-                        · {{ memory.pages }} pages
-                        · {{ memory.health }} health
+                        {{
+                          memory.ending ? 'Ending reached' : 'Journey paused'
+                        }}
+                        · {{ memory.pages }} pages · {{ memory.health }} health
                       </p>
                     </div>
                   </li>
@@ -456,7 +461,9 @@
                 </h2>
                 <p
                   class="zuzu-prose mt-4 max-w-3xl text-lg leading-[1.75] text-base-content xl:text-xl"
-                  :class="kit.settings.font === 'sans' ? 'font-sans' : 'font-serif'"
+                  :class="
+                    kit.settings.font === 'sans' ? 'font-sans' : 'font-serif'
+                  "
                   :style="{
                     fontSize:
                       kit.settings.textSize === 'extra-large'

@@ -406,6 +406,8 @@ export const ModelName = {
   ArcadeGuestRating: 'ArcadeGuestRating',
   ArchiveEntry: 'ArchiveEntry',
   ArchiveActionPreset: 'ArchiveActionPreset',
+  ArtSlot: 'ArtSlot',
+  ArtCandidate: 'ArtCandidate',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
   BrainstormRiff: 'BrainstormRiff',
@@ -553,7 +555,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "spaceCouchAlienGuide" | "slimeCityAccount" | "slimeCityMatch" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "spaceCouchAlienGuide" | "slimeCityAccount" | "slimeCityMatch" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1148,6 +1150,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ArchiveActionPresetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ArchiveActionPresetCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArtSlot: {
+      payload: Prisma.$ArtSlotPayload<ExtArgs>
+      fields: Prisma.ArtSlotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArtSlotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArtSlotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload>
+        }
+        findFirst: {
+          args: Prisma.ArtSlotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArtSlotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload>
+        }
+        findMany: {
+          args: Prisma.ArtSlotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload>[]
+        }
+        create: {
+          args: Prisma.ArtSlotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload>
+        }
+        createMany: {
+          args: Prisma.ArtSlotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ArtSlotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload>
+        }
+        update: {
+          args: Prisma.ArtSlotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload>
+        }
+        deleteMany: {
+          args: Prisma.ArtSlotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArtSlotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ArtSlotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtSlotPayload>
+        }
+        aggregate: {
+          args: Prisma.ArtSlotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArtSlot>
+        }
+        groupBy: {
+          args: Prisma.ArtSlotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtSlotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArtSlotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtSlotCountAggregateOutputType> | number
+        }
+      }
+    }
+    ArtCandidate: {
+      payload: Prisma.$ArtCandidatePayload<ExtArgs>
+      fields: Prisma.ArtCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ArtCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ArtCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.ArtCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ArtCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.ArtCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.ArtCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.ArtCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ArtCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload>
+        }
+        update: {
+          args: Prisma.ArtCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.ArtCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ArtCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ArtCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ArtCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.ArtCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateArtCandidate>
+        }
+        groupBy: {
+          args: Prisma.ArtCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ArtCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ArtCandidateCountAggregateOutputType> | number
         }
       }
     }
@@ -10035,6 +10169,40 @@ export const ArchiveActionPresetScalarFieldEnum = {
 export type ArchiveActionPresetScalarFieldEnum = (typeof ArchiveActionPresetScalarFieldEnum)[keyof typeof ArchiveActionPresetScalarFieldEnum]
 
 
+export const ArtSlotScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slotKey: 'slotKey',
+  projectSlug: 'projectSlug',
+  label: 'label',
+  selectedArtImageId: 'selectedArtImageId',
+  selectedAt: 'selectedAt',
+  selectedBy: 'selectedBy'
+} as const
+
+export type ArtSlotScalarFieldEnum = (typeof ArtSlotScalarFieldEnum)[keyof typeof ArtSlotScalarFieldEnum]
+
+
+export const ArtCandidateScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slotId: 'slotId',
+  artImageId: 'artImageId',
+  artJobId: 'artJobId',
+  source: 'source',
+  sourceRef: 'sourceRef',
+  seed: 'seed',
+  checkpoint: 'checkpoint',
+  renderFingerprint: 'renderFingerprint',
+  verdict: 'verdict',
+  note: 'note'
+} as const
+
+export type ArtCandidateScalarFieldEnum = (typeof ArtCandidateScalarFieldEnum)[keyof typeof ArtCandidateScalarFieldEnum]
+
+
 export const BrainstormSessionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -12708,6 +12876,27 @@ export const ArchiveActionPresetOrderByRelevanceFieldEnum = {
 export type ArchiveActionPresetOrderByRelevanceFieldEnum = (typeof ArchiveActionPresetOrderByRelevanceFieldEnum)[keyof typeof ArchiveActionPresetOrderByRelevanceFieldEnum]
 
 
+export const ArtSlotOrderByRelevanceFieldEnum = {
+  slotKey: 'slotKey',
+  projectSlug: 'projectSlug',
+  label: 'label'
+} as const
+
+export type ArtSlotOrderByRelevanceFieldEnum = (typeof ArtSlotOrderByRelevanceFieldEnum)[keyof typeof ArtSlotOrderByRelevanceFieldEnum]
+
+
+export const ArtCandidateOrderByRelevanceFieldEnum = {
+  source: 'source',
+  sourceRef: 'sourceRef',
+  checkpoint: 'checkpoint',
+  renderFingerprint: 'renderFingerprint',
+  verdict: 'verdict',
+  note: 'note'
+} as const
+
+export type ArtCandidateOrderByRelevanceFieldEnum = (typeof ArtCandidateOrderByRelevanceFieldEnum)[keyof typeof ArtCandidateOrderByRelevanceFieldEnum]
+
+
 export const BrainstormSessionOrderByRelevanceFieldEnum = {
   name: 'name',
   premise: 'premise',
@@ -14870,6 +15059,8 @@ export type GlobalOmitConfig = {
   arcadeGuestRating?: Prisma.ArcadeGuestRatingOmit
   archiveEntry?: Prisma.ArchiveEntryOmit
   archiveActionPreset?: Prisma.ArchiveActionPresetOmit
+  artSlot?: Prisma.ArtSlotOmit
+  artCandidate?: Prisma.ArtCandidateOmit
   brainstormSession?: Prisma.BrainstormSessionOmit
   brainstormCandidate?: Prisma.BrainstormCandidateOmit
   brainstormRiff?: Prisma.BrainstormRiffOmit

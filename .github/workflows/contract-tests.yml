@@ -161,6 +161,9 @@ jobs:
       - name: Art request key dedup and lookup contract
         run: npm run test:art-request-key
 
+      - name: Art slots candidates and duplicate cleanup contract
+        run: npm run test:art-slots
+
       - name: ArtJob sampler repair contract
         run: npm run test:artjob-sampler-repair
 

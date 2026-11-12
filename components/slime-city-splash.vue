@@ -52,7 +52,10 @@
           @click="resumeJourney"
         >
           <span aria-hidden="true">▶</span> Continue Journey
-          <small>{{ lab.team.name }} · Chapter {{ lab.campaignState.wins + 1 }}</small>
+          <small
+            >{{ lab.team.name }} · Chapter
+            {{ lab.campaignState.wins + 1 }}</small
+          >
         </button>
         <button
           type="button"

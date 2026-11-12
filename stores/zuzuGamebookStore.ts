@@ -20,6 +20,13 @@ import {
   stepAchievements,
 } from '~/utils/zuzuGamebook/achievements'
 import { useAchievementStore } from './achievementStore'
+import {
+  SCRAPBOOK_KEY,
+  addJourney,
+  captureJourney,
+  decodeScrapbook,
+  type JourneyMemory,
+} from '~/utils/zuzuGamebook/scrapbook'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
 const SAVE_KEY = 'kr-zuzu-gamebook-v1'
@@ -33,6 +40,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   const discovered = ref<string[]>([])
   const played = ref<string[]>([])
   const recoverable = ref<Run | null>(null)
+  const scrapbook = ref<JourneyMemory[]>([])
   const loaded = ref(false)
   const rollSerial = ref(0)
   /** When this browser last kept the journey (the reader's "Saved" mark), or null when storage refused it. */
@@ -44,6 +52,10 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
       localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
       localStorage.setItem(ENDINGS_KEY, JSON.stringify(discovered.value))
       localStorage.setItem(PLAYED_KEY, JSON.stringify(played.value))
+      localStorage.setItem(
+        SCRAPBOOK_KEY,
+        JSON.stringify({ version: 1, runs: scrapbook.value }),
+      )
       if (recoverable.value)
         localStorage.setItem(RECOVERY_KEY, JSON.stringify(recoverable.value))
       else localStorage.removeItem(RECOVERY_KEY)
@@ -53,6 +65,14 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
       // The game remains playable without browser storage; the reader says so.
       saveFailed.value = true
     }
+  }
+
+  function rememberJourney() {
+    if (run.value.visited.length <= 1) return
+    scrapbook.value = addJourney(
+      scrapbook.value,
+      captureJourney(run.value, new Date().toISOString()),
+    )
   }
 
   function rememberEnding() {
@@ -83,6 +103,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
           // A bad recovery slot must not block the current adventure.
         }
       }
+      scrapbook.value = decodeScrapbook(localStorage.getItem(SCRAPBOOK_KEY))
       const endings: unknown = JSON.parse(
         localStorage.getItem(ENDINGS_KEY) ?? '[]',
       )
@@ -144,6 +165,8 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     awardDeeds(before, next)
     if (next.lastRoll) rollSerial.value++
     rememberEnding()
+    if (scene(next.sceneId).ending && next.sceneId !== before.sceneId)
+      rememberJourney()
     save()
   }
 
@@ -156,6 +179,8 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     awardDeeds(before, next)
     rollSerial.value++
     rememberEnding()
+    if (scene(next.sceneId).ending && next.sceneId !== before.sceneId)
+      rememberJourney()
     save()
   }
 
@@ -169,6 +194,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
 
   function restart() {
     if (!loaded.value) return
+    rememberJourney()
     recoverable.value = run.value
     run.value = startRun(Date.now() >>> 0 || 1)
     usePlaybookRunReviewStore().begin(
@@ -210,6 +236,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     run,
     discovered,
     recoverable,
+    scrapbook,
     loaded,
     rollSerial,
     savedAt,

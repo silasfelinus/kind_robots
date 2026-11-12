@@ -242,7 +242,7 @@
             </div>
             <ArcadePlumberCollection
               v-else
-              :view="scrapbookView"
+              :view="albumView"
               :album="plumber.album"
               :slots="plumber.file.slots"
             />
@@ -426,6 +426,7 @@ const scrapbookSections = [
   { id: 'endings', label: 'ENDINGS' },
 ] as const
 const scrapbookView = ref<(typeof scrapbookSections)[number]['id']>('worlds')
+const albumView = computed(() => scrapbookView.value === 'endings' ? 'endings' : 'collection')
 const reducedMotion = ref(false)
 const currentWorld = computed(() => PLUMBER_WORLDS[worldIndex.value]!)
 const clearedNodes = computed(() => new Set(plumber.progress?.done ?? []))

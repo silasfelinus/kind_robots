@@ -305,7 +305,11 @@
     <EmperorFortressSplash
       v-if="splashing"
       :ready="court.loaded"
+      :has-save="!!run && (run.day > 1 || run.roster.length > 0)"
+      :day="run?.day ?? 1"
       @done="splashing = false"
+      @settings="settingsOpen = true"
+      @new-run="beginNewReign"
       @chronicle="openChronicleFromSplash"
     />
     <EmperorFortressDawn
@@ -433,6 +437,11 @@ onBeforeUnmount(() => barObserver?.disconnect())
 function enter(room: RoomId) {
   activeRoom.value = room
   stage.value?.scrollTo({ top: 0 })
+}
+
+function beginNewReign() {
+  court.newRun()
+  enter("briefing")
 }
 
 function openChronicleFromSplash() {

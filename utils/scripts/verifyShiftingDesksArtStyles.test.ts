@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   ART_STYLES,
+  SELECTABLE_ART_STYLES,
   ART_STYLE_STORAGE_KEY,
   WITHDRAWN_RENDERS,
   DEFAULT_ART_STYLE,
@@ -26,7 +27,19 @@ assert.equal(
 assert.equal(normalizeArtStyle(null), 'classic')
 assert.equal(normalizeArtStyle('unknown'), 'classic')
 assert.equal(normalizeArtStyle('classic'), 'classic')
-assert.equal(normalizeArtStyle('western-cartoon'), 'western-cartoon')
+assert.equal(
+  ART_STYLES.find((style) => style.id === 'western-cartoon')?.phase,
+  'suspended',
+)
+assert.equal(
+  SELECTABLE_ART_STYLES.map((style) => style.id).join(','),
+  'classic,corporate-noir',
+)
+assert.equal(
+  normalizeArtStyle('western-cartoon'),
+  'classic',
+  'saved invalidated Western Cartoon preferences must show accepted Classic art',
+)
 
 const classic =
   '/images/shifting-desks/cards/orientation/the-guard-who-is-also-you.webp'
@@ -42,7 +55,8 @@ assert.equal(
 )
 assert.equal(
   artStyleImageSrc(classic, 'western-cartoon'),
-  '/images/shifting-desks/styles/western-cartoon/cards/orientation/the-guard-who-is-also-you.webp',
+  classic,
+  'suspended art styles cannot show rejected imagery even when passed directly',
 )
 // Silas, 2026-11-02: "that is not a cockroach". A render that drew Beverly
 // as a human falls back to the Classic roach in every style that lost her.
@@ -83,7 +97,10 @@ assert.match(
 const picker = asset(
   '../../components/shifting-desks/shifting-desks-style-picker.vue',
 )
-assert.match(picker, /role="radiogroup"[\s\S]*v-for="option in ART_STYLES"/)
+assert.match(
+  picker,
+  /role="radiogroup"[\s\S]*v-for="option in SELECTABLE_ART_STYLES"/,
+)
 assert.match(picker, /artStyleImageSrc\(ART_STYLE_SAMPLE, option\.id\)/)
 
 // The complete eleven-ending Western Cartoon batch was inspected, not just

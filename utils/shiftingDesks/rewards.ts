@@ -253,7 +253,9 @@ export function runFingerprint(run: RunState): string {
   let hash = 2166136261
   const identity = run.identity
   const personalized =
-    identity.name || identity.pronouns !== 'unspecified' || identity.badgeTone !== 'classic'
+    identity.name ||
+    identity.pronouns !== 'unspecified' ||
+    identity.badgeTone !== 'classic'
       ? `${identity.name}/${identity.pronouns}/${identity.badgeTone}`
       : ''
   const trail = [
@@ -333,7 +335,9 @@ export function receiptFor(
     completedAt,
     jobTitle: jobById(run.jobId).title,
     jobId: run.jobId,
-    ...(run.identity.name || run.identity.pronouns !== 'unspecified' || run.identity.badgeTone !== 'classic'
+    ...(run.identity.name ||
+    run.identity.pronouns !== 'unspecified' ||
+    run.identity.badgeTone !== 'classic'
       ? { identity: { ...run.identity } }
       : {}),
     society: societyById(run.societyId).title,

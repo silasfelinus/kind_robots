@@ -94,6 +94,11 @@ import {
   type JourneyLedgerV10,
 } from '~/utils/shiftingLands/saveLedgerV10'
 import type { ShiftingCharacter } from '~/utils/shiftingLands/characters'
+import {
+  journeyDeedCodes,
+  type DeedAction,
+  type DeedLedger,
+} from '~/utils/shiftingLands/journeyDeeds'
 import { computed, ref } from 'vue'
 import { useAchievementStore } from './achievementStore'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
@@ -575,33 +580,23 @@ export const useShiftingLandsJourneyStore = defineStore(
           ? stepJourneyLedgerV10(active, action as JourneyActionV9)
           : stepSavedJourney(active, action)
       if (next === ledger.value) return false
-      const before = active.current.journey
       ledger.value = next
       restoreWarning.value = false
       persist()
-      awardJourneyDeeds(before, next.current.journey)
+      awardJourneyDeeds(active, next, action)
       return true
     }
+    // t-051: only a step played here earns achievements. initialize() and
+    // fresh() never call this, so restoring or replaying a save awards nothing.
     function awardJourneyDeeds(
-      before: AuthoredJourneyState['journey'],
-      after: AuthoredJourneyState['journey'],
+      before: DeedLedger,
+      after: DeedLedger,
+      action: DeedAction,
     ) {
+      const codes = journeyDeedCodes(before, after, action)
+      if (!codes.length) return
       const achievements = useAchievementStore()
-      if (after.bosses.length > before.bosses.length) {
-        const passed = after.bosses[after.bosses.length - 1]!.landId
-        if (passed === 'homestead')
-          void achievements.rewardAchievementByCode(
-            'zuzu-shifting-lands-open-door',
-          )
-        if (passed === 'tablelands')
-          void achievements.rewardAchievementByCode(
-            'zuzu-shifting-lands-canyon-warden',
-          )
-      }
-      if (after.phase === 'complete' && before.phase !== 'complete')
-        void achievements.rewardAchievementByCode(
-          'zuzu-shifting-lands-beyond-the-verge',
-        )
+      for (const code of codes) void achievements.rewardAchievementByCode(code)
     }
     function travel(id: string) {
       return dispatch({ type: 'TRAVEL', locationId: id })

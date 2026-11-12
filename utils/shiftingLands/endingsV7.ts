@@ -5,7 +5,9 @@ import { moralConstellationEndingV7 } from './endingsConstellationsV7'
 
 // The road is easier when somebody else pays. The epilogue remembers exactly
 // which bargains were attempted; the kindness payoff requires acts, not intent.
-function authoredEndingV7Base(
+// Exported for the achievement deeds (journeyDeeds.ts), which read the path a
+// run earned before any moral constellation renames it.
+export function authoredEndingV7Base(
   state: JourneyStateV6,
   trials: readonly TrialResult[],
 ): AuthoredEndingV6 | null {

@@ -87,6 +87,7 @@
         <div
           id="personnel-archive-panel"
           role="tabpanel"
+          tabindex="0"
           :aria-labelledby="`personnel-archive-tab-${tab}`"
           class="min-h-0 flex-1 overflow-y-auto pr-1"
         >

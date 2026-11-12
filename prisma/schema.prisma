@@ -3327,6 +3327,7 @@ enum ProjectStatus {
   ARCHIVED
   BRAINSTORM
   CONTINUOUS
+  PLAYTEST
 }
 
 enum ProjectPriority {

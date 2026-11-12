@@ -380,7 +380,13 @@ import {
 const IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 type Status =
-  'ACTIVE' | 'CONTINUOUS' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
+  | 'ACTIVE'
+  | 'CONTINUOUS'
+  | 'PLAYTEST'
+  | 'PAUSED'
+  | 'DONE'
+  | 'BRAINSTORM'
+  | 'ARCHIVED'
 type Filter = Exclude<Status, 'BRAINSTORM'> | 'ALL' | 'NEEDS_ENDPOINT'
 type Item = {
   id: number
@@ -420,6 +426,7 @@ const filters = [
     label: 'Continuous',
     icon: 'kind-icon:refresh',
   },
+  { value: 'PLAYTEST' as const, label: 'Playtest', icon: 'kind-icon:swords' },
   { value: 'PAUSED' as const, label: 'Paused', icon: 'kind-icon:pause' },
   {
     value: 'DONE' as const,
@@ -469,6 +476,7 @@ const manageError = ref(false)
 const editableStatuses: Status[] = [
   'ACTIVE',
   'CONTINUOUS',
+  'PLAYTEST',
   'PAUSED',
   'DONE',
   'ARCHIVED',
@@ -562,13 +570,15 @@ const statusClass = (value: Status) =>
     ? 'badge-success'
     : value === 'CONTINUOUS'
       ? 'badge-accent'
-      : value === 'PAUSED'
-        ? 'badge-warning'
-        : value === 'ARCHIVED'
-          ? 'badge-ghost'
-          : value === 'BRAINSTORM'
-            ? 'badge-neutral'
-            : 'badge-primary'
+      : value === 'PLAYTEST'
+        ? 'badge-info'
+        : value === 'PAUSED'
+          ? 'badge-warning'
+          : value === 'ARCHIVED'
+            ? 'badge-ghost'
+            : value === 'BRAINSTORM'
+              ? 'badge-neutral'
+              : 'badge-primary'
 const priorityClass = (value: ProjectPriorityLevel) =>
   value === 'HIGH'
     ? 'badge-error'

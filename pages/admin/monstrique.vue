@@ -85,7 +85,7 @@ import { useUserStore } from '~/stores/userStore'
 import { monstrexxKitId } from '~/utils/monstressConvention/prologue'
 import { MONSTRESS_CONVENTION } from '~/utils/playbookKit/games/monstressConvention'
 
-type MenuPanel = 'settings' | 'scrapbook' | null
+type MenuPanel = 'settings' | 'scrapbook' | 'achievements' | null
 const user = useUserStore()
 const caseStore = useMonstressConventionStore()
 const kit = usePlaybookKitStore()

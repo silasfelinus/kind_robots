@@ -8,6 +8,7 @@ on:
       - 'stores/rulerHookedQuizStore.ts'
       - 'components/ruler-hooked/**'
       - 'components/conductor/ruler-hooked-page.vue'
+      - 'utils/achievements/catalog/main/ruler-hooked.ts'
       - '.github/workflows/ruler-hooked.yml'
 concurrency:
   # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
@@ -54,3 +55,5 @@ jobs:
         run: npx tsx utils/rulerHooked/timingBar.selftest.ts
       - name: Illustrated console (proclamations, tutorial, art library) self-test
         run: npx tsx utils/rulerHooked/console.selftest.ts
+      - name: Site achievements (awarded at the deed, never on load)
+        run: npx tsx utils/rulerHooked/achievements.selftest.ts

@@ -7,7 +7,7 @@
 // (retired and paused included) with full task lists and notes -- roughly 2 MB
 // of JSON for every first-time visitor. This serves the same `progress` figure
 // (computed by buildConductorData, so the strip shows exactly the number the
-// Conductor pages show) for active and continuous projects only, plus the
+// Conductor pages show) for active, continuous and playtest projects only, plus the
 // member-app map (Conductor `parent:`) so lists can keep Daily Dream Workshop
 // apps out of the first-tier project lists.
 import { createError, defineEventHandler, setHeader } from 'h3'
@@ -22,7 +22,7 @@ export interface ConductorProgressResponse {
   members: Record<string, string>
 }
 
-const LIVE_STATUSES = new Set(['active', 'continuous'])
+const LIVE_STATUSES = new Set(['active', 'continuous', 'playtest'])
 
 export default defineEventHandler(
   async (event): Promise<ConductorProgressResponse> => {

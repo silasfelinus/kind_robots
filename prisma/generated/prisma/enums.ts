@@ -463,7 +463,8 @@ export const ProjectStatus = {
   DONE: 'DONE',
   ARCHIVED: 'ARCHIVED',
   BRAINSTORM: 'BRAINSTORM',
-  CONTINUOUS: 'CONTINUOUS'
+  CONTINUOUS: 'CONTINUOUS',
+  PLAYTEST: 'PLAYTEST'
 } as const
 
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]

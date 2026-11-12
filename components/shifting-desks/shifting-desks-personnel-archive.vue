@@ -61,13 +61,17 @@
           class="flex shrink-0 gap-1 overflow-x-auto rounded-xl bg-base-200 p-1"
           role="tablist"
           aria-label="Archive collections"
+          @keydown="onTabKeydown"
         >
           <button
             v-for="section in sections"
+            :id="`personnel-archive-tab-${section.id}`"
             :key="section.id"
             type="button"
             role="tab"
+            aria-controls="personnel-archive-panel"
             :aria-selected="tab === section.id"
+            :tabindex="tab === section.id ? 0 : -1"
             class="min-w-fit flex-1 rounded-lg px-2 py-2 font-mono text-xs font-bold uppercase sm:text-sm"
             :class="
               tab === section.id
@@ -80,7 +84,12 @@
           </button>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto pr-1">
+        <div
+          id="personnel-archive-panel"
+          role="tabpanel"
+          :aria-labelledby="`personnel-archive-tab-${tab}`"
+          class="min-h-0 flex-1 overflow-y-auto pr-1"
+        >
           <section
             v-if="tab === 'milestones'"
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-2"
@@ -481,6 +490,7 @@ import { useAchievementStore } from '~/stores/achievementStore'
 import { useUserStore } from '~/stores/userStore'
 import { achievementsForGame } from '~/utils/achievements/gameAchievements'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import { handleKeyboardTabs } from '~/utils/shiftingDesks/keyboardTabs'
 import { ENDINGS, stationArt } from '~/utils/shiftingDesks/rules'
 import { MILESTONES, type Milestone } from '~/utils/shiftingDesks/rewards'
 
@@ -561,6 +571,14 @@ const dateLabel = (value?: string) =>
     ? new Date(value).toLocaleDateString()
     : 'Date redacted'
 
+function onTabKeydown(event: KeyboardEvent): void {
+  handleKeyboardTabs(
+    event,
+    sections.findIndex((section) => section.id === tab.value),
+    sections.length,
+    (index) => selectTab(sections[index]!.id),
+  )
+}
 function selectTab(section: ArchiveTab): void {
   tab.value = section
   if (section === 'achievements')

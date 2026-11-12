@@ -126,13 +126,17 @@
         class="flex shrink-0 gap-1 overflow-x-auto rounded-xl bg-stone-900/10 p-1 print:hidden"
         role="tablist"
         aria-label="Personnel file sections"
+        @keydown="onTabKeydown"
       >
         <button
           v-for="t in tabs"
+          :id="`personnel-file-tab-${t.id}`"
           :key="t.id"
           type="button"
           role="tab"
+          :aria-controls="`personnel-file-panel-${t.id}`"
           :aria-selected="tab === t.id"
+          :tabindex="tab === t.id ? 0 : -1"
           class="flex-1 whitespace-nowrap rounded-lg px-2 py-1 font-mono text-[11px] font-black uppercase tracking-wider sm:text-xs"
           :class="tab === t.id ? 'bg-stone-900 text-amber-50' : ''"
           @click="tab = t.id"
@@ -143,8 +147,9 @@
 
       <div class="min-h-0 flex-1 overflow-y-auto print:overflow-visible">
         <div
+          id="personnel-file-panel-verdict"
           role="tabpanel"
-          aria-label="Verdict"
+          aria-labelledby="personnel-file-tab-verdict"
           class="flex-col gap-2"
           :class="tab === 'verdict' ? 'flex' : 'hidden print:flex'"
         >
@@ -203,8 +208,9 @@
         </div>
 
         <div
+          id="personnel-file-panel-departments"
           role="tabpanel"
-          aria-label="Departments"
+          aria-labelledby="personnel-file-tab-departments"
           class="grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2"
           :class="tab === 'departments' ? 'grid' : 'hidden print:grid'"
         >
@@ -234,8 +240,9 @@
         </div>
 
         <div
+          id="personnel-file-panel-results"
           role="tabpanel"
-          aria-label="Test Results"
+          aria-labelledby="personnel-file-tab-results"
           :class="tab === 'results' ? 'block' : 'hidden print:block'"
         >
           <shifting-desks-test-results
@@ -246,8 +253,9 @@
         </div>
 
         <div
+          id="personnel-file-panel-record"
           role="tabpanel"
-          aria-label="Record"
+          aria-labelledby="personnel-file-tab-record"
           class="flex-col gap-3"
           :class="tab === 'record' ? 'flex' : 'hidden print:flex'"
         >
@@ -369,6 +377,7 @@ import {
   START_GRADES,
 } from '~/utils/shiftingDesks/rules'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
+import { handleKeyboardTabs } from '~/utils/shiftingDesks/keyboardTabs'
 import {
   MILESTONES,
   ceremonyAwardFor,
@@ -388,6 +397,15 @@ const tabs = [
   { id: 'results', title: 'Test Results' },
   { id: 'record', title: 'Record' },
 ] as const
+const onTabKeydown = (event: KeyboardEvent): void =>
+  handleKeyboardTabs(
+    event,
+    tabs.findIndex((item) => item.id === tab.value),
+    tabs.length,
+    (index) => {
+      tab.value = tabs[index]!.id
+    },
+  )
 const store = useShiftingDesksStore()
 const run = computed(() => store.run)
 const society = computed(() => societyById(run.value?.societyId ?? ''))

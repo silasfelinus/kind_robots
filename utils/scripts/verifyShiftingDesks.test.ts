@@ -64,6 +64,10 @@ import {
   windowApplicant,
 } from '../shiftingDesks/rules'
 import { FLAG_MEMOS } from '../shiftingDesks/memos'
+import {
+  handleKeyboardTabs,
+  nextKeyboardTabIndex,
+} from '../shiftingDesks/keyboardTabs'
 import { achievementsForGame } from '../achievements/gameAchievements'
 import {
   MILESTONES,
@@ -77,6 +81,63 @@ import {
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
+
+// Keyboard access must work without a pointer, including wrap-around and
+// the Home/End shortcuts expected by assistive technology tablists.
+assert.equal(nextKeyboardTabIndex('ArrowRight', 3, 4), 0)
+assert.equal(nextKeyboardTabIndex('ArrowLeft', 0, 4), 3)
+assert.equal(nextKeyboardTabIndex('Home', 2, 4), 0)
+assert.equal(nextKeyboardTabIndex('End', 1, 4), 3)
+assert.equal(nextKeyboardTabIndex('Enter', 2, 4), null)
+assert.equal(nextKeyboardTabIndex('ArrowRight', -1, 4), null)
+assert.equal(nextKeyboardTabIndex('ArrowLeft', 0, 0), null)
+let keyboardFocused = -1
+let keyboardSelected = -1
+let keyboardPrevented = 0
+const keyboardButtons = Array.from({ length: 4 }, (_, index) => ({
+  focus: () => {
+    keyboardFocused = index
+  },
+}))
+const keyboardEvent = (key: string, altKey = false) =>
+  ({
+    key,
+    altKey,
+    ctrlKey: false,
+    metaKey: false,
+    preventDefault: () => {
+      keyboardPrevented++
+    },
+    currentTarget: { querySelectorAll: () => keyboardButtons },
+  }) as unknown as KeyboardEvent
+handleKeyboardTabs(keyboardEvent('ArrowLeft'), 0, 4, (index) => {
+  keyboardSelected = index
+})
+assert.equal(keyboardSelected, 3)
+assert.equal(keyboardFocused, 3)
+assert.equal(keyboardPrevented, 1)
+handleKeyboardTabs(keyboardEvent('ArrowRight', true), 3, 4, () => {
+  assert.fail('Alt+Arrow should stay available to the browser')
+})
+assert.equal(keyboardPrevented, 1)
+const personnelFileMarkup = asset(
+  '../../components/shifting-desks/shifting-desks-personnel-file.vue',
+)
+const archiveTabsMarkup = asset(
+  '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
+)
+for (const markup of [personnelFileMarkup, archiveTabsMarkup]) {
+  assert.match(markup, /@keydown="onTabKeydown"/)
+  assert.match(markup, /:tabindex="tab === .*\? 0 : -1"/)
+  assert.match(markup, /role="tabpanel"/)
+  assert.match(markup, /aria-labelledby=/)
+  assert.match(markup, /aria-controls=/)
+}
+for (const panel of ['verdict', 'departments', 'results', 'record'])
+  assert.match(
+    personnelFileMarkup,
+    new RegExp('id="personnel-file-panel-' + panel + '"'),
+  )
 
 assert.equal(ORIENTATION.schemaVersion, 1)
 const cabinetMarkup = asset(

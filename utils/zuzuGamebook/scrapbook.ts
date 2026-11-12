@@ -68,8 +68,8 @@ export function addJourney(
   existing: readonly JourneyMemory[],
   latest: JourneyMemory,
 ): JourneyMemory[] {
-  return [latest, ...existing.filter((record) => record.id !== latest.id)].slice(
-    0,
-    SCRAPBOOK_LIMIT,
-  )
+  return [
+    latest,
+    ...existing.filter((record) => record.id !== latest.id),
+  ].slice(0, SCRAPBOOK_LIMIT)
 }

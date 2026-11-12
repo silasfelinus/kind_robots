@@ -1,0 +1,1676 @@
+{
+  "schemaVersion": 1,
+  "note": "zuzu-shifting-lands/t-053 personal travelers (Silas, 2026-11-12 PT). Each premade's own encounter cards, dealt only to that traveler by a V10 journey started with personal roads (personalDeckV10.ts), and their own choices on shared cards, gated by their identity deed. Card art points at a reused gamebook scene until its painted plate ships (projects/zuzu-shifting-lands/art/ROUND-9-PERSONAL.yaml).",
+  "cards": [
+    {
+      "id": "a-straw-hat-on-the-current",
+      "owner": "zuzu",
+      "locationId": "ferry-landing",
+      "title": "A Straw Hat on the Current",
+      "flavor": "A wide straw hat comes turning down the river toward the landing, shallow-crowned and woven tight, the kind your own people wear on the road. Nobody here weaves them. The old otter who runs the ferry fishes it out with his pole and turns it over: the chin cord is knotted the way your teacher knotted his. He asks if it is yours. It is not. It cannot be.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/kasa-on-water.webp",
+      "choices": [
+        {
+          "id": "ask-where-the-river-rises",
+          "label": "Ask where this river rises",
+          "intent": "Learn which water carried something from your country into this one.",
+          "risk": "Some questions open a door you cannot close.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "insight",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The otter says the river rises nowhere: it comes up out of the dry ground past the Tablelands and sinks back into it at the Verge. Things from far away wash down it every spring, he says, and none of them ever go home. You keep the hat's cord, a little length of a knot you know.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-home-remembered"],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 1
+            }
+          },
+          "failure": {
+            "text": "He shrugs and says a river is a river. You stand too long at the landing staring upstream, and the family waiting in the sun goes over without you. The next crossing is a long, hungry wait.",
+            "hp_delta": 0,
+            "provisions_delta": -1,
+            "add_flags": ["zuzu-home-remembered"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "bow-and-let-it-go",
+          "label": "Bow to it and let it go",
+          "intent": "Set the hat back on the water the way your people send off the dead.",
+          "risk": "You may never again see anything of home this close.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You take the hat from the ferryman, bow to it once, and set it back on the current. It turns twice and is gone. The otter takes off his own cap without being asked, and when you step aboard he will not take your fare.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["zuzu-home-let-go"],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "buy-the-hat",
+          "label": "Buy the hat",
+          "intent": "Keep the only thing in this land that was made where you were made.",
+          "risk": "The ferryman can read how much you want it.",
+          "requires": null,
+          "cost": {
+            "provisions": -2
+          },
+          "roll": null,
+          "success": {
+            "text": "He names a price and you pay it without bargaining, which makes him look at you twice. The hat is damp and smells of a river you have never seen. You tie it to your pack, and at night it is the last thing you look at.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-home-kept"],
+            "map_effect": "none",
+            "marks": {}
+          },
+          "failure": null
+        },
+        {
+          "id": "shade-the-child-in-the-sun",
+          "label": "Give it to the child in the sun",
+          "intent": "A family waits in the glare, and their smallest has no shade at all.",
+          "risk": "A piece of home goes on a stranger's head.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You take the hat from the ferryman and set it on the head of the smallest child waiting in the sun. It comes down past her ears. Her mother starts to refuse, sees your face, and stops. They cross under one patch of shade, and the child waves the brim at you from the far bank.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-home-given"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-smith-who-asks-for-your-blade",
+      "owner": "zuzu",
+      "locationId": "canyon-camp",
+      "title": "The Smith Who Asks for Your Blade",
+      "flavor": "A pronghorn smith works a cart forge at the edge of the camp, mending wagon iron for food. She stops hammering when she sees the sword on your back and asks, very politely, to see the steel. Nobody here folds metal that way. A blade like that, she says, could become twenty plough points, and the camp is out of plough points. Behind her a family is trying to break dry ground with a stick.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a9-forge.webp",
+      "choices": [
+        {
+          "id": "show-her-the-fold",
+          "label": "Show her how it was folded",
+          "intent": "Let her study the steel and learn the fold, and give her nothing else.",
+          "risk": "Showing a blade is close to drawing it.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "wits",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You draw it slowly, edge away, and lay it across your sleeves. She looks for a long time and asks good questions. By morning she has folded a scrap of wagon spring the way you showed her, and it holds an edge. The family in the field has a real plough point by noon.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-taught-the-fold"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1
+            }
+          },
+          "failure": {
+            "text": "Her hammer slips on the first fold and the scrap shatters across the anvil; a splinter opens your forearm. She apologizes over and over while she binds it. Your teacher spent a year on the fold, you remember, and still burned his hands.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-taught-the-fold"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "give-her-the-sword",
+          "label": "Give her the sword",
+          "intent": "Twenty plough points feed more mouths than one wanderer's sword ever will.",
+          "risk": "Where you come from, a sword is a soul. You would walk on without yours.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You unsling it, bow, and lay it in her hands. She does not understand what you have given and you do not explain. The camp eats from new furrows by spring. That night your back feels wrong and light, like a pack with nothing in it. You sleep anyway.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["zuzu-home-let-go", "zuzu-gave-the-blade"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "refuse-with-a-bow",
+          "label": "Refuse with a bow",
+          "intent": "Keep the sword. Some things are not yours to trade.",
+          "risk": "The family in the field keeps its stick.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You bow and keep your hands still. The smith nods as if she expected nothing else and goes back to her wagon iron. Before you leave you help the family turn their field the slow way, with your own hands, until dark.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-home-kept"],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 1
+            }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "your-teachers-voice-in-the-dark",
+      "owner": "zuzu",
+      "locationId": "underground-crossroads",
+      "title": "Your Teacher's Voice in the Dark",
+      "flavor": "Where three tunnels meet, someone speaks your name in the language of home: not the name the road calls you, but the one your mother used. It is your teacher's voice, patient and dry. The way back is very short from here, it says, shorter than you would believe. It needs only one small thing from this side of the wall. The torches lean toward the voice as if it were breathing in.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a7-thin-voice.webp",
+      "choices": [
+        {
+          "id": "ask-what-only-he-would-know",
+          "label": "Ask what only he would know",
+          "intent": "Answer in your own tongue and test it with a question from his gate.",
+          "risk": "Talking to it at all is how it starts.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "insight",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You ask the name of the tree outside his gate. The voice hesitates, then names a tree that never grew there. You bow to nothing and walk out of the crossroads with your hand on your hilt. Whatever it is, it does not know your home. It only knows you miss it.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 1
+            }
+          },
+          "failure": {
+            "text": "It answers correctly. It knows the tree, the gate, the crack in the third step. You stand listening much longer than you meant to, and when you come out your torch is a stub and your hands are cold to the wrist.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-home-listened"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "listen-to-the-way-home",
+          "label": "Listen to the way home",
+          "intent": "Let it tell you the road, only to hear it said.",
+          "risk": "It wants one small thing from this side of the wall.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "It tells you. The road is real and short, and at its end is the gate you left. It names the price gently, the way your teacher named pain: one small life from this side, a child nobody would miss. You do not agree. You do not forget it, either.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-home-listened"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "cover-your-ears-and-walk",
+          "label": "Cover your ears and walk on",
+          "intent": "Take whichever tunnel the voice is not in.",
+          "risk": "Wrong tunnels run long down here.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "resolve",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You press your palms over your ears and walk until the voice is only the sound of water. The tunnel you chose opens at the cave mouth a little before dawn, with the stars spilled across the sky.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          },
+          "failure": {
+            "text": "You walk until the voice stops, and then until your legs do. The tunnel loops back on itself twice, and you eat the last of your dried fruit in the dark to keep going.",
+            "hp_delta": 0,
+            "provisions_delta": -1,
+            "add_flags": ["zuzu-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "snow-through-the-last-door",
+      "owner": "zuzu",
+      "locationId": "last-threshold",
+      "title": "Snow Through the Last Door",
+      "flavor": "At the last threshold one seam in the black rock is cold to the touch. Through it, impossibly, snow is falling on a curved wooden bridge, and past the bridge stands a gate you have walked through a thousand times. A bell is ringing there for the evening meal. Behind you the line of travelers waits at the threshold with their bundles and their children while the wardens count them.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a5-dream-home.webp",
+      "choices": [
+        {
+          "id": "step-onto-the-bridge",
+          "label": "Step onto the bridge",
+          "intent": "Go home. You have earned it ten times over.",
+          "risk": "Something on the other side has been waiting for exactly this.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You step through. The snow is real, and the bridge creaks under you the way it always did. Halfway across you see that the bell at the gate has no clapper and is ringing anyway. You go back for your pack. You tell yourself it is only for your pack.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-took-the-snow-road"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "close-it-with-your-hat-off",
+          "label": "Take off your hat and close it",
+          "intent": "Bow to home once, the way you bow to the dead, and push the seam shut.",
+          "risk": "There may never be another door.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "resolve",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You take off your hat, bow to the bridge and the gate and the evening bell, and lean your shoulder into the cold rock until the seam grinds shut. Snow melts on your sleeve. A child in the line is watching you, and does not ask why your face is wet.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-closed-the-snow-door"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          },
+          "failure": {
+            "text": "The seam will not close all the way. You leave it a finger wide, snow still sifting through, and the evening bell stays in your ears all night. You did not go. That will have to be enough.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-closed-the-snow-door"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        },
+        {
+          "id": "watch-it-for-the-travelers",
+          "label": "Watch it before anyone else goes",
+          "intent": "If it is a way out, the people in this line need it more than you do.",
+          "risk": "You do not know what waits on the far side for them.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "awareness",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You watch the far side long enough to see that the bell has no clapper and is ringing anyway. You put your back to the seam and turn the first family away from it, then the next. By the time the wardens notice, the seam has closed on its own. Nobody thanks you. Nobody went.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-closed-the-snow-door"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1,
+              "honesty": 1
+            }
+          },
+          "failure": {
+            "text": "You see nothing wrong, and an old badger steps through before you can decide. The seam closes behind him like a mouth. The whole line goes very quiet, and so do you.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["zuzu-lost-one-to-the-snow"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "a-whistle-from-the-rocks",
+      "owner": "jeffery-mittens",
+      "locationId": "old-well",
+      "title": "A Whistle From the Rocks",
+      "flavor": "Two notes, low then high, come from the rocks above the old well: the crew's call. You have not heard it since the dry well. A jackal kit you remember as all ears and elbows slides down the scree, thinner now, with a rag like yours tied round her arm. Hollis sent her. The crew is starving, she says, and Hollis wants her quartermaster back.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a2-looter-watch.webp",
+      "choices": [
+        {
+          "id": "whistle-back",
+          "label": "Whistle back",
+          "intent": "Answer the call so they know you heard.",
+          "risk": "Answering is halfway to going.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You give the answer, high then low, and somewhere up in the rocks three more whistles answer you. The kit grins for the first time. She tells you where the crew is camped and which road they watch, and runs off to tell Hollis you are coming. You never said you were.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-called"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "send-food-up-the-scree",
+          "label": "Send food up the scree",
+          "intent": "Fill her arms with what you carry and send her back to the crew.",
+          "risk": "Two days of your food go to a band that robs wagons.",
+          "requires": null,
+          "cost": {
+            "provisions": -2
+          },
+          "roll": null,
+          "success": {
+            "text": "You empty your pack into her arms and add your spare boots on top. She looks at the boots longer than the food. \"Hollis said you'd do that,\" she says, and is gone. That night a whistle sounds from the ridge twice, which in the crew means thank you, and also means we owe you.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": [
+              "jeffery-crew-fed",
+              "deed-shared-bread",
+              "deed-owed-favor"
+            ],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "ask-about-the-little-ones",
+          "label": "Ask about the little ones",
+          "intent": "Find out what became of the barefoot children you looked after.",
+          "risk": "You may not like the answer.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "insight",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "She tells you straight: the little ones left the crew when the water ran low, walking toward the canyons with the oldest girl in front. Two still had no boots. She points the way, and it is not the way the crew is camped.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-heard-of-the-barefoot"],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 1
+            }
+          },
+          "failure": {
+            "text": "She shrugs and will not say, which tells you enough. You sit on the lip of the well a long time after she has gone, turning one small boot over and over in your paws.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-heard-of-the-barefoot"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "tell-her-you-are-done",
+          "label": "Tell her you're done with the crew",
+          "intent": "Say it out loud so you have to mean it.",
+          "risk": "Hollis don't take no from a scout.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "bearing",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "\"Tell Hollis I ain't coming,\" you say, and your voice only cracks once. The kit looks at you like you grew a foot. Nobody whistles from the rocks again, and you can't tell whether that is relief or the worst thing that has happened all week.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-left"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1,
+              "honesty": 1
+            }
+          },
+          "failure": {
+            "text": "You start to say it and it comes out sideways, a promise to think about it. The kit hears what you didn't say and runs to tell Hollis you're coming. Now you are expected.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-called"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "hollis-toll-at-the-seep",
+      "owner": "jeffery-mittens",
+      "locationId": "dry-delta",
+      "title": "Hollis's Toll at the Seep",
+      "flavor": "The jackals of the dry well have come down to the delta, where one muddy seep still gives water, and they are charging travelers a cup of grain for a cup of water. Hollis sits on an overturned cart beside it with a rifle across her knees and her ribs showing through her coat. She sees your mask before she sees your face. \"Mittens,\" she says. \"Come to work, or come to drink?\"",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a4-hollis-why.webp",
+      "choices": [
+        {
+          "id": "take-your-old-post",
+          "label": "Take your old post for a night",
+          "intent": "Scout for them again, just for tonight, to eat and to see.",
+          "risk": "You will be the one pointing at travelers' packs.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "wits",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You sit on the rocks with the crew's spyglass and call out the wagons worth tolling, and for one night you eat like you have not eaten in a month. In the dark you count the crew's stores: almost nothing, and three kits hidden in the reeds. Hollis claps your shoulder. \"Knew you'd come home.\"",
+            "hp_delta": 0,
+            "provisions_delta": 2,
+            "add_flags": ["jeffery-scouted-for-hollis"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1,
+              "ruthlessness": 1
+            }
+          },
+          "failure": {
+            "text": "You point out a wagon and it turns out to be a family with nothing worth taking. The crew takes their last grain anyway. The youngest of them stares at you the whole time, and you cannot make yourself look away.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["jeffery-scouted-for-hollis"],
+            "map_effect": "none",
+            "marks": {
+              "ruthlessness": 1
+            }
+          }
+        },
+        {
+          "id": "vouch-for-the-travelers",
+          "label": "Vouch for the poorest travelers",
+          "intent": "Ask Hollis to let the poorest drink free on your word.",
+          "risk": "Your word is worth what the crew thinks you owe them.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "bearing",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "Hollis looks at you a long while, then at the line. \"Your word,\" she says. \"Any of 'em brings wardens, it's your neck.\" The poorest drink free till sundown and nobody brings wardens. Hollis doesn't thank you, but she lets you fill your canteen.",
+            "hp_delta": 1,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-vouched-at-the-seep"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1,
+              "courage": 1
+            }
+          },
+          "failure": {
+            "text": "\"Your word,\" Hollis says, \"ain't what it was.\" Two of the crew walk you away from the seep with your canteen still empty. Behind you the toll goes on, a cup for a cup.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": [],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        },
+        {
+          "id": "tell-her-about-hollow-bell",
+          "label": "Tell her what you saw at Hollow Bell",
+          "intent": "Tell Hollis about the wax on the thresholds, and the beds emptied before the fire.",
+          "risk": "Some of her crew rode near Hollow Bell that week.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "insight",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You tell her about the black wax and the empty beds. Hollis goes very still. Then she sends two of the crew south to watch the mission road, and halves the toll. \"Anybody's taking kits,\" she says, \"they come through us first.\"",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-told-hollis"],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 2
+            }
+          },
+          "failure": {
+            "text": "Hollis hears you out and laughs, not kindly. \"Ghost stories,\" she says, \"from a boy who strips boots.\" The crew laughs with her, and you leave the seep with hot ears and a story nobody would hear.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": [],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 1
+            }
+          }
+        },
+        {
+          "id": "pay-your-cup-and-walk-on",
+          "label": "Pay your cup and walk on",
+          "intent": "Pay like anyone else, drink, and leave without looking back.",
+          "risk": "Hollis does not like being treated like a stranger.",
+          "requires": null,
+          "cost": {
+            "provisions": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You pour a cup of grain into the bucket and drink a cup of brown water. Hollis watches you go and does not call after you, and neither does anybody else in the crew. It is what you wanted. It feels like being skinned.",
+            "hp_delta": 1,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-left"],
+            "map_effect": "none",
+            "marks": {}
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-barefoot-line-grows",
+      "owner": "jeffery-mittens",
+      "locationId": "quarry",
+      "title": "The Barefoot Line Grows",
+      "flavor": "In a dry adit at the edge of the quarry you find them: the barefoot children from Hollow Bell, or what is left of them, and more besides. There are nine now. The oldest girl has been doing your job, badly and bravely. She stands when she sees you and says, very formally, that the quartermaster is back, and every little one looks at the boots round your neck and then down at their own feet.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a9-children.webp",
+      "choices": [
+        {
+          "id": "fit-the-smallest-first",
+          "label": "Hand out every pair, smallest first",
+          "intent": "Empty the string and fit the smallest feet first.",
+          "risk": "You will have nothing left to trade on the road.",
+          "requires": null,
+          "cost": {
+            "provisions": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You kneel in the dust and fit them one by one, smallest first, lacing each pair the way your mother showed you. Four pairs for nine children; the rest get rag wraps and a promise. When you stand up your neck feels light and wrong and good.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-barefoot-shod", "deed-kept-promise"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "lead-them-to-the-crew",
+          "label": "Lead them to Hollis's crew",
+          "intent": "The crew has water and rifles. The children have neither.",
+          "risk": "The crew has also learned to sell what it cannot feed.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You lead them down out of the quarry to the crew's fire, and Hollis takes them in without a word, which is better than you feared. The next morning the oldest girl is handed a spyglass and a post on the rocks. You know exactly what that means, because it is what it meant for you.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["jeffery-crew-rejoined"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "teach-the-oldest-the-job",
+          "label": "Teach the oldest girl the job",
+          "intent": "Show her the gaps in the rocks, the water signs, and how to trade boots without getting caught.",
+          "risk": "Teaching her means planning to leave.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "wits",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You spend the day teaching her everything: which water is safe, which wardens can be shamed, how to read a scout's whistle. By dark she is better at it than you were. She asks if you're leaving. You tell her the truth sideways, the way you always do, and she understands it anyway.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-barefoot-taught"],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 1,
+              "mercy": 1
+            }
+          },
+          "failure": {
+            "text": "She is too tired to learn, and you are too scared of what happens after you go to teach well. The day ends with nine hungry children and one plan, and it is a bad one.",
+            "hp_delta": 0,
+            "provisions_delta": -1,
+            "add_flags": ["jeffery-barefoot-taught"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "stand-watch-tonight",
+          "label": "Stand watch over them tonight",
+          "intent": "Let them sleep for once without one eye open.",
+          "risk": "Nights in the quarry run cold and long.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "resolve",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You sit at the mouth of the adit all night with your little knife across your knees. Nobody comes. In the morning the smallest one says you snored, which is a lie, and the oldest girl says thank you, which isn't.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-barefoot-watched"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          },
+          "failure": {
+            "text": "Something does come near dawn: a coyote raider after the quarry's cistern. You chase him off with stones and shouting, and he catches you once with a stick before he goes. The children saw. They will remember that you stayed.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-barefoot-watched"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-crew-hired-to-hold-the-gate",
+      "owner": "jeffery-mittens",
+      "locationId": "last-threshold",
+      "title": "The Crew Hired to Hold the Gate",
+      "flavor": "The wardens of the last threshold have hired guards to hold its gate against the refugees pressing at the fence, and the guards are Hollis's crew, fed for the first time in a year. Hollis spots your mask in the crowd outside. She sends the jackal kit to the fence with a message: there is a place for you inside, with food, if you come through now, alone.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a7-hollis-band.webp",
+      "choices": [
+        {
+          "id": "go-in-alone",
+          "label": "Go in alone",
+          "intent": "Take the place. Eat. Stop being hungry.",
+          "risk": "The crowd outside will see you go.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "The gate opens a crack for you and closes behind. Inside there is stew, a blanket, and a post on the wall with a rifle you are almost tall enough to hold. From the wall you can see the crowd outside the fence, and the children in it. You eat anyway.",
+            "hp_delta": 1,
+            "provisions_delta": 2,
+            "add_flags": ["jeffery-crew-rejoined", "deed-left-someone"],
+            "map_effect": "none",
+            "marks": {
+              "ruthlessness": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "turn-the-crew",
+          "label": "Turn the crew",
+          "intent": "Get Hollis to open the gate from inside, for everyone.",
+          "risk": "The wardens are paying her, and they have more rifles.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "bearing",
+            "modifier": 0,
+            "target": 11
+          },
+          "success": {
+            "text": "You climb the fence and talk to Hollis through the stakes for an hour, about the dry well and the kits and Hollow Bell, until she stops arguing and starts thinking. At the change of watch the whole crew walks off their posts at once and the gate stands open. The wardens have nobody left to hold it.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-turned"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1,
+              "mercy": 1
+            }
+          },
+          "failure": {
+            "text": "Hollis listens, and then she says no, gently, the way you would say it to a kit. \"They feed us, Mittens.\" The gate stays shut. You climb down on the crowd's side and you stay there.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-left"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        },
+        {
+          "id": "call-in-what-she-owes",
+          "label": "Call in what Hollis owes you",
+          "intent": "She said once she would owe you. This is the time.",
+          "risk": "A favor called is a favor gone.",
+          "requires": {
+            "anyFlags": ["deed-owed-favor"]
+          },
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You send the kit back with one word: owed. A minute later the crew's whistle goes up, two notes, low then high, and the side gate swings open for the smallest children in the crowd. Hollis does not look at you. That is how she says you're square.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-turned"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "lead-the-crowd-round-by-the-rocks",
+          "label": "Lead the crowd round by the rocks",
+          "intent": "You know every gap in these rocks. The gate is not the only way past.",
+          "risk": "The rocks are no place for the old and the small.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "awareness",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You find the gap the crew used to use and lead the crowd through it by twos and threes all night, carrying the smallest yourself. By dawn they are past the threshold and the wardens are guarding nothing. From the wall Hollis watches the line go, and does not raise her rifle.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-left", "deed-knows-old-roads"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1,
+              "cunning": 1
+            }
+          },
+          "failure": {
+            "text": "The gap has fallen in since the crew last used it. You get half the crowd through before the rocks shift, and you spend the rest of the night digging an old badger out with your paws. Everyone lives. Nobody else gets past.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["jeffery-crew-left"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "warm-beds-separate-rooms",
+      "owner": "fennec-siblings",
+      "locationId": "wayside-refuge",
+      "title": "Warm Beds, Separate Rooms",
+      "flavor": "The sisters at the refuge are kind. They scrub Bao until he is fluffy and laughing, and offer you a dress with no holes in it, which you refuse. At bedtime the eldest sister explains, gently, that the little ones sleep in the warm room at the back and the big ones in the hall. Bao is already asleep on her shoulder. She has not asked you.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a5-bath.webp",
+      "choices": [
+        {
+          "id": "take-him-back",
+          "label": "Take him back",
+          "intent": "Lift him off her shoulder. He sleeps where you sleep.",
+          "risk": "The sisters do not like being refused twice in one evening.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You hold out your arms and wait until she has to hand him over or make a scene. She hands him over. You sleep in the hall with your back to the wall and Bao on your chest, and in the morning the sisters are polite and cold and do not offer breakfast.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-kept-him-close"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "sleep-across-the-door",
+          "label": "Let him go, and sleep across the door",
+          "intent": "Give him one warm night, and lie across the doorway of the warm room.",
+          "risk": "You will have to stay awake all night.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "resolve",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You lie across the threshold in your rags and pinch yourself awake every time your eyes close. Near midnight a sister comes down the hall with a candle, sees you, and goes back the way she came. Bao sleeps warm all night. In the morning you can barely stand, and you do not care.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["ling-kept-him-close", "ling-saw-the-candle"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          },
+          "failure": {
+            "text": "You fall asleep on the threshold. When you wake the door is open and his cot is empty, and your heart stops. You find him at the end of the hall in a sister's arms, being carried toward the chapel. You take him back screaming, the whole refuge wakes, and they let you both out into the dark because it is easier than explaining.",
+            "hp_delta": -1,
+            "provisions_delta": -1,
+            "add_flags": ["ling-kept-him-close", "ling-saw-the-candle"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        },
+        {
+          "id": "take-the-bread-and-go",
+          "label": "Take the bread and go before dark",
+          "intent": "Eat what they give, fill your satchel, and be on the road by sundown.",
+          "risk": "A night on the road with a scrubbed, sleepy little brother.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "wits",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You eat, fill your satchel while the sisters clear the plates, and are out the gate with Bao on your hip before the bedtime bell. You sleep in a ditch with the satchel for a pillow. It is the best night's sleep in a week, because you know exactly where he is.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["ling-kept-him-close"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          },
+          "failure": {
+            "text": "A sister catches you at the gate with your satchel full and takes back every crust, very kindly. She tells you the road is dangerous at night. You go anyway, hungry, with Bao heavy and warm on your hip.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["ling-kept-him-close"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          }
+        },
+        {
+          "id": "let-them-keep-him-tonight",
+          "label": "Let him sleep in the warm room",
+          "intent": "He is warm and fed and asleep. Let someone else carry him for one night.",
+          "risk": "You do not know why the little ones sleep apart.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You let the sister carry him away, lie down in the hall, and sleep like a stone for the first time since Hollow Bell. In the morning they bring him back scrubbed and quiet. He is very quiet. He will not talk about the warm room, and he will not let go of your sleeve all day.",
+            "hp_delta": 1,
+            "provisions_delta": 0,
+            "add_flags": ["ling-let-them-keep-him", "deed-left-someone"],
+            "map_effect": "none",
+            "marks": {}
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "half-fare-for-a-small-one",
+      "owner": "fennec-siblings",
+      "locationId": "ferry-landing",
+      "title": "Half Fare for a Small One",
+      "flavor": "The ferryman charges full fare for a toddler, because, he says, a toddler is a passenger who can fall in. You have one ration left, and a school satchel you have carried since before the fire, with your name stitched inside the flap in your mother's thread. The water at the landing runs brown and fast. Bao is pointing at the boat and saying boat, boat, boat.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/the-crossing.webp",
+      "choices": [
+        {
+          "id": "trade-the-satchel",
+          "label": "Trade the satchel",
+          "intent": "The ferryman has been eyeing it. It is good leather.",
+          "risk": "It is the last thing you have from before.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You empty it into your arms and hand it over: a slate, a broken pencil, a ribbon, your stitched name. The ferryman takes it without knowing what it is. Bao rides the whole way across in the bow laughing at the spray, and you hold the slate and the ribbon and do not look back.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-traded-the-satchel"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "carry-him-across-the-ford",
+          "label": "Carry him across the ford",
+          "intent": "There is a ford upstream, waist-deep on a grown-up. You are not a grown-up.",
+          "risk": "Fast water, with him on your shoulders.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "steel",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You lift him onto your shoulders, wade in where the water runs brown and fast, and cross one step at a time with your teeth clenched. Once it comes up to your chin. He thinks it is a game. On the far bank you sit in the mud and shake for a long time while he pats your ear.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-crossed-the-ford"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 2
+            }
+          },
+          "failure": {
+            "text": "Halfway over the current takes your feet. You go under with him held up out of the water in both arms, and somehow come up on a gravel bar coughing brown water, with Bao still above you, screaming and alive. A fisherman pulls you both out. You do not remember the rest.",
+            "hp_delta": -2,
+            "provisions_delta": 0,
+            "add_flags": ["ling-crossed-the-ford"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        },
+        {
+          "id": "haggle-like-a-grown-up",
+          "label": "Haggle like a grown-up",
+          "intent": "Stand on a crate and talk to him the way your mother talked to traders.",
+          "risk": "Ferrymen do not like being out-talked by a child.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "wits",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You point out that a toddler on a hip takes no seat, that the boat is half empty, and that the next family will pay if they see him take you. He laughs at you and lets you both on for the one ration. Bao eats half of it anyway, from your hand, on the way across.",
+            "hp_delta": 0,
+            "provisions_delta": -1,
+            "add_flags": ["ling-out-talked-the-ferryman"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          },
+          "failure": {
+            "text": "He laughs and pushes off without you. You spend the afternoon on the bank while Bao cries, and when the boat comes back the ferryman lets you on for nothing, out of pity. Pity is worse.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": [],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "stow-away-at-dusk",
+          "label": "Stow away at dusk",
+          "intent": "Hide under the tarp on the last crossing.",
+          "risk": "A stowaway who is found gets put off midstream.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "awareness",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Under the tarp it smells of fish and wet rope, and you keep your hand over Bao's mouth every time he starts to say boat. Nobody finds you. You slip off on the far side in the dark. You feel clever for exactly one minute, and then you feel like a thief.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-stowed-away"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          },
+          "failure": {
+            "text": "Bao says boat at the worst possible moment. The ferryman drags back the tarp, says a word you are not allowed to say, then looks at the two of you and lets you stay. He makes you bail the whole way across.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": [],
+            "map_effect": "none",
+            "marks": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "fever-by-the-picket-fire",
+      "owner": "fennec-siblings",
+      "locationId": "canyon-camp",
+      "title": "Fever by the Picket Fire",
+      "flavor": "Bao burns. It came on in the afternoon, and now he lies against you by the camp's picket fire with his huge ears hot and limp, too tired to cry. He has not eaten. He keeps his paw closed round the last crust you gave him, as if someone might take it. The camp healer charges, the trader has bark, and the night will be long.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a3-fever-vigil.webp",
+      "choices": [
+        {
+          "id": "give-him-your-medicine",
+          "label": "Give him your medicine",
+          "intent": "The medicine you have been carrying was always for this.",
+          "risk": "Then you will have none left.",
+          "requires": {
+            "anyFlags": ["deed-carries-medicine"]
+          },
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You grind it between two stones and get it into him a little at a time, in water, while he fights you. By midnight he is sweating. By dawn he is cool, and hungry, and asking for apples. You did not sleep, and you do not need to.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-broke-the-fever"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "sit-up-and-keep-him-cool",
+          "label": "Sit up and keep him cool",
+          "intent": "Wet cloths and small sips all night, the way your mother did.",
+          "risk": "It might not be enough.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "resolve",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You sit up all night with a wet rag and a cup, singing the counting song from school under your breath. Near dawn the fever breaks on its own, the way they sometimes do. He opens his eyes and says your name, the first time he has ever said it right.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["ling-broke-the-fever"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          },
+          "failure": {
+            "text": "The fever does not break. At first light you carry him through the camp asking anyone, everyone. A quarry widow gives you willow bark from her own pouch, and it works, slowly. You owe her something you can never pay back.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["ling-broke-the-fever"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "pay-the-traders-price",
+          "label": "Pay the trader's price",
+          "intent": "Give the trader whatever he asks for his bark.",
+          "risk": "He will ask for a lot.",
+          "requires": null,
+          "cost": {
+            "provisions": -2
+          },
+          "roll": null,
+          "success": {
+            "text": "He asks for nearly everything in your pack, and you give it, and he hands you a strip of bark the length of your finger. It is enough. By morning Bao is eating the trader's stew out of your bowl, because you have nothing else to put in it.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-broke-the-fever"],
+            "map_effect": "none",
+            "marks": {
+              "mercy": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "take-a-strip-from-the-healer",
+          "label": "Take a strip from the healer's jar",
+          "intent": "The healer's tent has a whole jar. She will not miss one strip.",
+          "risk": "If she does, the whole camp will know who.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "awareness",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You slip into the healer's tent while she sleeps, take one strip, only one, and are back at the fire before the guard turns. Bao's fever breaks by morning. The healer counts her jar and looks at you across the camp for a long moment, and says nothing at all.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-broke-the-fever", "ling-stole-the-bark"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          },
+          "failure": {
+            "text": "She is not asleep. She catches your wrist in the dark, looks at your face and then at the burning child by the fire, and gives you the strip. She also tells the whole camp in the morning, and nobody will share a fire with you after.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-broke-the-fever", "ling-stole-the-bark"],
+            "map_effect": "none",
+            "marks": {
+              "cunning": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-voice-asks-for-the-small-one",
+      "owner": "fennec-siblings",
+      "locationId": "cave-mouth",
+      "title": "The Voice Asks for the Small One",
+      "flavor": "At the cave mouth the dark smells of bread: fresh and warm, the kind your mother baked on feast days. A voice deep in the rock speaks in your mother's voice. There is a table down here, it says, where nobody is ever hungry, and a bed for each of you, and all it asks is that the small one come down first, by himself, so it can see him.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/sections/a8-voice.webp",
+      "choices": [
+        {
+          "id": "pick-him-up-and-run",
+          "label": "Pick him up and run",
+          "intent": "Do not answer. Do not look back.",
+          "risk": "Running in the dark with him in your arms is how you fall.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "awareness",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You scoop him up before he can toddle toward the smell and run: out of the cave mouth, down the scree, all the way to the road, and you do not stop until the smell is gone. He thinks it was a game. You let him think so.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          },
+          "failure": {
+            "text": "You run and you fall hard on the scree, twisting so that he lands on you and not the rocks. Your knee is bleeding. Behind you the voice laughs in your mother's voice. You get up anyway, and you keep running.",
+            "hp_delta": -2,
+            "provisions_delta": 0,
+            "add_flags": ["ling-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        },
+        {
+          "id": "answer-it-in-her-words",
+          "label": "Answer it in her words",
+          "intent": "Tell it what your mother would have told it.",
+          "risk": "It knows her voice better than you do now.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "insight",
+            "modifier": 0,
+            "target": 10
+          },
+          "success": {
+            "text": "You tell it what she used to say at the door to traders: we feed ourselves, thank you, and you can keep your bread. The smell goes stale at once, like a loaf left out for a week, and the voice stops. Bao claps. You walk out holding his hand, and your own hand is shaking, and you do not let him see.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {
+              "honesty": 1,
+              "courage": 1
+            }
+          },
+          "failure": {
+            "text": "You open your mouth and only your own voice comes out, small and scared. The dark waits, patient. You back out of the cave step by step with Bao clutched against you, and the smell of bread follows you halfway to the road.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": ["ling-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "go-down-to-see-the-table",
+          "label": "Go down and see the table",
+          "intent": "Only to look. You will carry him the whole way and never let go.",
+          "risk": "It asked for him to come alone. It never said it would not take him another way.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You carry him down a long way, and there is a table, and there is bread, and you both eat, and it is the best thing you have ever tasted. When you climb out the sun is in the wrong place and three days of road have gone by without you. Bao is fine. Bao is fine. He keeps asking when you are going back.",
+            "hp_delta": -1,
+            "provisions_delta": 2,
+            "add_flags": ["ling-followed-the-voice"],
+            "map_effect": "none",
+            "marks": {}
+          },
+          "failure": null
+        },
+        {
+          "id": "cover-his-ears-and-sing",
+          "label": "Cover his ears and sing",
+          "intent": "Sing the counting song loud enough that he hears you and not it.",
+          "risk": "You will be singing alone at a cave mouth in the dark.",
+          "requires": null,
+          "cost": null,
+          "roll": {
+            "skill": "resolve",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You press his big ears flat and sing the counting song loud and badly, all the way to a hundred and back. By the time you finish the smell is gone, Bao is asleep, and the cave is only a cave.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1,
+              "mercy": 1
+            }
+          },
+          "failure": {
+            "text": "You get to forty and lose the numbers. In the quiet the voice says his name, gently, and he wriggles toward it. You hold on so hard he cries, and carry him away still crying, and he does not forgive you until supper.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["ling-refused-the-voice"],
+            "map_effect": "none",
+            "marks": {
+              "courage": 1
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "options": [
+    {
+      "owner": "zuzu",
+      "cardId": "salt-for-the-burial",
+      "choice": {
+        "id": "sing-what-your-people-sing",
+        "label": "Sing what your people sing for the dead",
+        "intent": "Take off your hat and give her the song your country gives its dead.",
+        "risk": "The hollow may not want a stranger's song over one of their own.",
+        "requires": {
+          "anyFlags": ["deed-ronin-from-afar"]
+        },
+        "cost": null,
+        "roll": {
+          "skill": "bearing",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You take off your hat and sing, low and plain, in a language nobody in the hollow knows. The miner stops pouring. When you finish he says she would have liked it, and that by your custom and theirs together she is covered now. He ties the pouch with half his salt still in it, and his children eat tonight.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["zuzu-sang-for-the-dead"],
+          "map_effect": "none",
+          "marks": {
+            "mercy": 1
+          }
+        },
+        "failure": {
+          "text": "Your voice catches on the second line, the way it has not since you left home. The miner waits politely until you stop, then goes on pouring. You stand with your hat in your hands until the last of the salt runs out.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["zuzu-sang-for-the-dead"],
+          "map_effect": "none",
+          "marks": {}
+        }
+      }
+    },
+    {
+      "owner": "zuzu",
+      "cardId": "the-dead-sentrys-boots",
+      "choice": {
+        "id": "bare-your-head-to-the-sentry",
+        "label": "Bare your head to the dead sentry",
+        "intent": "Take off your hat and kneel beside the body, as you would for your own dead.",
+        "risk": "Soldiers dicing over a corpse do not like being watched by a stranger.",
+        "requires": {
+          "anyFlags": ["deed-ronin-from-afar"]
+        },
+        "cost": null,
+        "roll": null,
+        "success": {
+          "text": "You take off your hat and kneel beside the blanket without a word. The dice slow, then stop. One by one the soldiers take off their caps. The youngest lifts the boots from the pot, laces them onto the sister's feet himself, and nobody throws again that night.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["zuzu-bowed-to-the-sentry"],
+          "map_effect": "none",
+          "marks": {
+            "mercy": 1,
+            "courage": 1
+          }
+        },
+        "failure": null
+      }
+    },
+    {
+      "owner": "zuzu",
+      "cardId": "the-writ-and-the-runaways",
+      "choice": {
+        "id": "stand-surety-with-your-name",
+        "label": "Stand surety with your own name",
+        "intent": "Offer the hunter your name and your word as bond for the runaways' debt.",
+        "risk": "Nobody here knows your name yet. This will be the first paper to carry it.",
+        "requires": {
+          "anyFlags": ["deed-ronin-from-afar"]
+        },
+        "cost": null,
+        "roll": {
+          "skill": "bearing",
+          "modifier": 0,
+          "target": 10
+        },
+        "success": {
+          "text": "The hunter has never been offered a stranger's honor as bond and does not know what to do with it, so he takes it, and writes your name carefully on the back of the writ. The mother and son walk out of the crack owing a debt they can carry. It is the first time your name has been written down in this land.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["zuzu-stood-surety", "deed-kept-promise"],
+          "map_effect": "none",
+          "marks": {
+            "honesty": 1,
+            "courage": 1
+          }
+        },
+        "failure": {
+          "text": "He laughs at a bond made of words and walks toward the crack. You stand in his road, hand nowhere near your hilt, until he stops; by the time he loses his temper the runaways are long gone. He leaves you a bruise to remember him by.",
+          "hp_delta": -1,
+          "provisions_delta": 0,
+          "add_flags": [],
+          "map_effect": "none",
+          "marks": {
+            "courage": 1
+          }
+        }
+      }
+    },
+    {
+      "owner": "jeffery-mittens",
+      "cardId": "the-dead-sentrys-boots",
+      "choice": {
+        "id": "fit-her-from-your-own-string",
+        "label": "Fit her from your own string",
+        "intent": "Kneel by the ditch and find her size among the boots round your neck.",
+        "risk": "It is the pair you were saving for the smallest of the barefoot line.",
+        "requires": {
+          "anyFlags": ["deed-quartermaster-to-the-barefoot"]
+        },
+        "cost": {
+          "provisions": -1
+        },
+        "roll": null,
+        "success": {
+          "text": "You kneel in the ditch, check her feet against your paw, and unlace the third pair on the string. They fit. She stares at you as if you did a magic trick. Behind you the dicing stops, and one of the soldiers lays the dead sentry's boots back at his feet under the blanket. Nobody argues.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["jeffery-gave-from-the-string"],
+          "map_effect": "none",
+          "marks": {
+            "mercy": 2
+          }
+        },
+        "failure": null
+      }
+    },
+    {
+      "owner": "jeffery-mittens",
+      "cardId": "a-tithe-basket-at-the-gate",
+      "choice": {
+        "id": "show-them-the-gap-in-the-rocks",
+        "label": "Show the children the gap in the rocks",
+        "intent": "Teach the raccoon kids where a hungry crew hides apples so no warden ever finds them.",
+        "risk": "If the wardens see you, they will learn the trick too.",
+        "requires": {
+          "anyFlags": ["deed-quartermaster-to-the-barefoot"]
+        },
+        "cost": null,
+        "roll": {
+          "skill": "wits",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "While the grown-ups argue at the gate, you take the three kids round the back and show them a crack in the rocks above the orchard, dry and cool and too narrow for a warden's arm. By dark half the apples are in it. The basket goes back to the road full of windfalls, and the wardens are none the wiser.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["jeffery-taught-the-hiding-place"],
+          "map_effect": "none",
+          "marks": {
+            "cunning": 1,
+            "mercy": 1
+          }
+        },
+        "failure": {
+          "text": "The younger warden sees you coming back down the rocks with apple juice on your paws and makes you empty your coat. He looks at your mask a long time before he lets you go.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["deed-marked-by-wardens"],
+          "map_effect": "none",
+          "marks": {
+            "cunning": 1
+          }
+        }
+      }
+    },
+    {
+      "owner": "jeffery-mittens",
+      "cardId": "the-raider-beneath-the-arch",
+      "choice": {
+        "id": "whistle-the-crews-call",
+        "label": "Whistle the crew's call",
+        "intent": "Two notes, low then high. If he ever rode with Hollis, he will know it.",
+        "risk": "If he ever rode against Hollis, he will know that too.",
+        "requires": {
+          "anyFlags": ["deed-quartermaster-to-the-barefoot"]
+        },
+        "cost": null,
+        "roll": {
+          "skill": "insight",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "His ears come up at the second note. He rode with the crew one season, before the leg. You share the arch, and he tells you where Hollis camps now and which caravans she will not touch. In the morning he hands you the saddlebags to take back. \"Tell her the coyote from the arch says hey.\"",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["jeffery-heard-of-the-crew", "deed-spared-foe"],
+          "map_effect": "none",
+          "marks": {
+            "mercy": 1
+          }
+        },
+        "failure": {
+          "text": "He does not know the call, or pretends not to. He keeps one eye on you all through the storm, with the saddlebags under his head, and neither of you sleeps. At dawn you go separate ways, both a little more tired.",
+          "hp_delta": -1,
+          "provisions_delta": 0,
+          "add_flags": [],
+          "map_effect": "none",
+          "marks": {}
+        }
+      }
+    },
+    {
+      "owner": "fennec-siblings",
+      "cardId": "the-short-ration-line",
+      "choice": {
+        "id": "let-bao-carry-the-bowl",
+        "label": "Let Bao carry your bowl to the end of the line",
+        "intent": "Put your bowl in his paws and point him at the family turning away.",
+        "risk": "Bao has never once given up a bowl. He may simply eat it.",
+        "requires": {
+          "anyFlags": ["deed-bao-on-your-hip"]
+        },
+        "cost": {
+          "provisions": -1
+        },
+        "roll": null,
+        "success": {
+          "text": "You put the bowl in his paws and point. He looks at the porridge, then at the smallest child at the end of the line, and walks it over with enormous care, spilling only a little. The child takes it. Bao climbs back into your lap very pleased with himself, and you stay hungry until noon and do not mind at all.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": ["ling-bao-shared-his-bowl"],
+          "map_effect": "none",
+          "marks": {
+            "mercy": 2
+          }
+        },
+        "failure": null
+      }
+    },
+    {
+      "owner": "fennec-siblings",
+      "cardId": "fever-bark-at-triple-price",
+      "choice": {
+        "id": "lift-bao-onto-the-counter",
+        "label": "Lift Bao onto the counter",
+        "intent": "Set a hot, coughing toddler right in front of the trader and his customers.",
+        "risk": "Bao is liable to grab the jar.",
+        "requires": {
+          "anyFlags": ["deed-bao-on-your-hip"]
+        },
+        "cost": null,
+        "roll": {
+          "skill": "bearing",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You lift him onto the counter, flushed and limp and coughing, in front of every customer in the post. The trader's chalk hand stops. Somebody in the line clicks their tongue at him. He sells the mother her bark at the first price, and breaks off a second strip for Bao without being asked.",
+          "hp_delta": 0,
+          "provisions_delta": 0,
+          "add_flags": [
+            "ling-held-him-up-to-the-counter",
+            "deed-carries-medicine"
+          ],
+          "map_effect": "none",
+          "marks": {
+            "courage": 1
+          }
+        },
+        "failure": {
+          "text": "Bao grabs the jar. It comes off the shelf and smashes, and the trader takes the cost of it out of your pack, every crust, while the mother slips out with a strip in the confusion. At least she got one.",
+          "hp_delta": 0,
+          "provisions_delta": -2,
+          "add_flags": [],
+          "map_effect": "none",
+          "marks": {}
+        }
+      }
+    },
+    {
+      "owner": "fennec-siblings",
+      "cardId": "loaves-against-the-spring",
+      "choice": {
+        "id": "ask-a-loaf-for-the-small-one",
+        "label": "Ask for a loaf for Bao, with no oath",
+        "intent": "He is too little to swear on anything. Ask her to feed him anyway.",
+        "risk": "Rules in the hollow are kept on the stone, and the stone remembers.",
+        "requires": {
+          "anyFlags": ["deed-bao-on-your-hip"]
+        },
+        "cost": null,
+        "roll": {
+          "skill": "insight",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "The baker looks at Bao, who is looking at the loaves with his whole face, and laughs. Children don't swear on her stone, she says; it is bad luck for the stone. She gives him the smallest loaf with no oath at all, and you a heel with one. Your echo comes back in his voice, which is the strangest thing you have ever heard.",
+          "hp_delta": 0,
+          "provisions_delta": 1,
+          "add_flags": ["ling-fed-him-without-an-oath"],
+          "map_effect": "none",
+          "marks": {
+            "honesty": 1
+          }
+        },
+        "failure": {
+          "text": "She says a rule is a rule. You swear for both of you, and the echo comes back twice: once in your voice, and once, very small, in his. You carry both oaths out of the hollow along with the bread.",
+          "hp_delta": 0,
+          "provisions_delta": 1,
+          "add_flags": [],
+          "map_effect": "none",
+          "marks": {}
+        }
+      }
+    }
+  ]
+}

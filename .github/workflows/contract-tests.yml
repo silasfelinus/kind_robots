@@ -158,6 +158,9 @@ jobs:
       - name: Queued prompt gate contract
         run: npm run test:queued-prompt-gate
 
+      - name: Art request key dedup and lookup contract
+        run: npm run test:art-request-key
+
       - name: ArtJob sampler repair contract
         run: npm run test:artjob-sampler-repair
 

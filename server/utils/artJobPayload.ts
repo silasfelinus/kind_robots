@@ -1,4 +1,5 @@
 import type { ArtJob } from '~/prisma/generated/prisma/client'
+import { artRequestKeyFingerprint } from './artRequestKey'
 
 export type ArtJobPayloadRecord = Record<string, unknown>
 
@@ -47,7 +48,15 @@ export function serializeArtJobPayload(value: unknown): string {
  * the minting endpoint fills would silently stop matching them.
  */
 export function attemptFingerprintFromPayload(value: unknown): string | null {
-  const fingerprint = parseArtJobPayload(value).attemptFingerprint
+  const payload = parseArtJobPayload(value)
+  // A named request (server/utils/artRequestKey.ts) keeps its name across
+  // retries. Claim re-stamps payload.attemptFingerprint with the provenance
+  // hash, so derive the column value from the key itself, or a re-enqueued
+  // ledger cell would drop out of /api/art/queue/lookup.
+  if (typeof payload.requestKey === 'string' && payload.requestKey.trim()) {
+    return artRequestKeyFingerprint(payload.requestKey.trim())
+  }
+  const fingerprint = payload.attemptFingerprint
   return typeof fingerprint === 'string' && fingerprint.length
     ? fingerprint
     : null

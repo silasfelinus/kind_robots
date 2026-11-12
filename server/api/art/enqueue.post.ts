@@ -3,6 +3,11 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { authAndGate } from '../../utils/comfyGate'
+import {
+  ART_REQUEST_KEY_REUSABLE_STATUSES,
+  artRequestKeyFingerprint,
+  normalizeArtRequestKey,
+} from '../../utils/artRequestKey'
 import { resolveEnqueueLoraResource } from '../../utils/artLoraResource'
 import {
   assertOwnedActiveArtCollectionIds,
@@ -153,6 +158,8 @@ type ArtEnqueueRequest = {
   serverId?: number | null
   serverName?: string | null
   projectSlug?: string | null
+  /** Stable caller name for this request; see server/utils/artRequestKey.ts. */
+  requestKey?: string | null
   artCollectionId?: number | null
   artCollectionIds?: number[] | null
   priority?: number | null
@@ -419,6 +426,8 @@ export default defineEventHandler(async (event) => {
     if (projectSlug && !SLUG_PATTERN.test(projectSlug)) {
       throw createError({ statusCode: 400, message: 'Invalid projectSlug.' })
     }
+    // Validated before the mana gate: a malformed key is the caller's bug, not a charge.
+    const requestKey = normalizeArtRequestKey(body?.requestKey)
     const narrativeContext = narrativeRequest(body)
     const brainstormContext = brainstormRequest(body)
     if (AUDIO_ENGINES.has(engine)) assertPlainAudioRequest(body)
@@ -489,6 +498,44 @@ export default defineEventHandler(async (event) => {
           data: {
             jobId: existingPreviewJob.id,
             status: existingPreviewJob.status,
+            deduplicated: true,
+            mana: { charged: 0 },
+          },
+        }
+      }
+    }
+
+    /*
+     * ONE REQUEST, ONE RENDER. A caller that names its request (Conductor's
+     * ledger cells) gets its existing live or finished job back instead of a
+     * second render when it resubmits -- which is exactly what happens after a
+     * killed session or a timed-out workflow lost the job id it had written to
+     * disk. FAILED/CANCELLED jobs are not reused, so a failed cell re-renders.
+     * A Resource preview keeps its own fingerprint (that column holds one).
+     */
+    const requestKeyFingerprint =
+      requestKey && !resourcePreviewFingerprint
+        ? artRequestKeyFingerprint(requestKey)
+        : null
+    if (requestKeyFingerprint) {
+      const existingRequestJob = await prisma.artJob.findFirst({
+        where: {
+          userId: gate.user.id,
+          attemptFingerprint: requestKeyFingerprint,
+          status: { in: [...ART_REQUEST_KEY_REUSABLE_STATUSES] },
+        },
+        orderBy: { id: 'desc' },
+      })
+      if (existingRequestJob) {
+        event.node.res.statusCode = 200
+        return {
+          success: true,
+          message: 'Existing art job for this requestKey reused.',
+          statusCode: 200,
+          data: {
+            jobId: existingRequestJob.id,
+            status: existingRequestJob.status,
+            artImageId: existingRequestJob.artImageId,
             deduplicated: true,
             mana: { charged: 0 },
           },
@@ -684,6 +731,10 @@ export default defineEventHandler(async (event) => {
     if (entityArt) payload.entityArt = entityArt.metadata
     if (resourcePreviewFingerprint)
       payload.attemptFingerprint = resourcePreviewFingerprint
+    else if (requestKeyFingerprint) {
+      payload.attemptFingerprint = requestKeyFingerprint
+      payload.requestKey = requestKey
+    }
 
     /*
      * And check the string the renderer actually receives, not the caller's
@@ -791,7 +842,7 @@ export default defineEventHandler(async (event) => {
       data: {
         engine: jobEngine,
         payload: JSON.stringify(payload),
-        attemptFingerprint: resourcePreviewFingerprint,
+        attemptFingerprint: resourcePreviewFingerprint ?? requestKeyFingerprint,
         priority,
         projectSlug,
         userId: gate.user.id,

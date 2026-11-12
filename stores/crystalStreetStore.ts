@@ -1,4 +1,6 @@
+import { useAchievementStore } from '~/stores/achievementStore'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
+import { crystalStreetDeeds } from '~/utils/crystalStreet/achievements'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
@@ -263,6 +265,8 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
 
   function commit(next: RunState): void {
     if (next === run.value) return
+    const before = run.value
+    const bookBefore = scrapbook.value
     run.value = next
     const met = recruitedIn(next).filter(
       (id) => !scrapbook.value.friends.includes(id),
@@ -274,6 +278,12 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
       }
     record(next)
     persist()
+    // Only a committed move awards: load() restores a saved week directly.
+    const deeds = crystalStreetDeeds(before, next, bookBefore, scrapbook.value)
+    if (deeds.length) {
+      const achievements = useAchievementStore()
+      for (const code of deeds) void achievements.rewardAchievementByCode(code)
+    }
   }
 
   function start(

@@ -1,5 +1,6 @@
 import additions from './authoredDecksV6.json'
 import castCards from './castCardsV10.json'
+import personalCards from './personalCardsV10.json'
 import {
   AUTHORED_PACK,
   type AuthoredChoice,
@@ -128,8 +129,17 @@ export const V6_CARDS: readonly V6Card[] = [
 export const CAST_CARDS_V10 = castCards.cards as unknown as Array<
   V6Card & { cast: string[]; selfVariant?: string; variantOnly?: boolean }
 >
+// t-053: a premade traveler's own cards (personalCardsV10.json) are looked
+// up by id the same way, and only a personal V10 draw (personalDeckV10.ts)
+// ever deals one.
+export const PERSONAL_CARDS_V10 = personalCards.cards as unknown as Array<
+  V6Card & { owner: string }
+>
 const cards = new Map<string, V6Card>(
-  [...V6_CARDS, ...CAST_CARDS_V10].map((card) => [card.id, card]),
+  [...V6_CARDS, ...CAST_CARDS_V10, ...PERSONAL_CARDS_V10].map((card) => [
+    card.id,
+    card,
+  ]),
 )
 const pools = new Map<string, V6Card[]>()
 for (const card of V6_CARDS)
@@ -189,6 +199,9 @@ const BASE_SKILLS: Record<Skill, number> = {
 export type JourneyRules = {
   skills?: Readonly<Record<Skill, number>>
   draw?: (seed: number, locationId: string) => V6Card | null
+  // t-053: a personal V10 road reads cards through this, which adds the
+  // traveler's own choices to a shared card. Without it a card is v6Card(id).
+  card?: (cardId: string) => V6Card | null
 }
 const random = (value: number): [number, number] => {
   const next = (Math.imul(value, 1664525) + 1013904223) >>> 0
@@ -292,10 +305,13 @@ export function adoptSpentDeeds(state: JourneyStateV6): JourneyStateV6 {
     : state
 }
 
-export function activeV6Card(state: JourneyStateV6): V6Card | null {
+export function activeV6Card(
+  state: JourneyStateV6,
+  lookup: (cardId: string) => V6Card | null = v6Card,
+): V6Card | null {
   const active = state.journey.active
   const id = active ? state.drawn[active] : null
-  return id ? v6Card(id) : null
+  return id ? lookup(id) : null
 }
 
 export function locationHash(seed: number, locationId: string): number {
@@ -353,9 +369,10 @@ function chooseV6(
   state: JourneyStateV6,
   choiceId: string,
   skills: Readonly<Record<Skill, number>>,
+  lookup: (cardId: string) => V6Card | null = v6Card,
 ): JourneyStateV6 {
   const land = JOURNEY_WORLD.lands[state.journey.landIndex]!
-  const card = activeV6Card(state)
+  const card = activeV6Card(state, lookup)
   const choice = card?.choices.find((item) => item.id === choiceId)
   if (
     !card ||
@@ -535,7 +552,12 @@ export function stepJourneyV6(
     }
   }
   if (action.type === 'CHOOSE' && typeof action.choiceId === 'string')
-    return chooseV6(state, action.choiceId, rules.skills ?? BASE_SKILLS)
+    return chooseV6(
+      state,
+      action.choiceId,
+      rules.skills ?? BASE_SKILLS,
+      rules.card,
+    )
   return state
 }
 

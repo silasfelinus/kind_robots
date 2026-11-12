@@ -84,8 +84,11 @@ import {
   type KitchenNoviceChoiceV9,
 } from '~/utils/shiftingLands/saveLedgerV9'
 import {
+  activeCardV10,
+  cardForLedgerV10,
   journeyCharacter,
   newJourneyLedgerV10,
+  onPersonalRoad,
   readCheckFor,
   restoreJourneyLedgerV10,
   stepJourneyLedgerV10,
@@ -94,6 +97,14 @@ import {
   type JourneyLedgerV10,
 } from '~/utils/shiftingLands/saveLedgerV10'
 import type { ShiftingCharacter } from '~/utils/shiftingLands/characters'
+import {
+  emptyPersonalEndingsRecord,
+  personalEndingPlate,
+  personalEndingV10,
+  personalScrapbook,
+  readPersonalEndingsRecord,
+  withPersonalEnding,
+} from '~/utils/shiftingLands/personalEndings'
 import {
   journeyDeedCodes,
   type DeedAction,
@@ -124,6 +135,9 @@ const LEGACY_V5_SAVE_KEY = 'kr.shiftingLands.journeyLedger.v5'
 const LEGACY_V4_SAVE_KEY = 'kr.shiftingLands.journeyLedger.v4'
 const LEGACY_V3_SAVE_KEY = 'kr.shiftingLands.journeyLedger.v3'
 const LEGACY_SAVE_KEY = 'kr.shiftingLands.authoredJourney.v2'
+// t-053: each premade's own endings found, across every journey, for the
+// scrapbook. Separate from the journey save, so a new journey never clears it.
+const PERSONAL_ENDINGS_KEY = 'kr.shiftingLands.personalEndings.v1'
 
 export type JourneyResult = Omit<AuthoredResult, 'roll'> & {
   roll: AuthoredResult['roll'] | null
@@ -173,7 +187,12 @@ export const useShiftingLandsJourneyStore = defineStore(
                 ledger.value.usedRewards,
               ),
     )
-    const findCard = (id: string) => v6Card(id) ?? findFiveLandCard(id)
+    // t-053: a personal road shows the traveler's own choices on shared cards.
+    const sharedCard = (id: string) => v6Card(id) ?? findFiveLandCard(id)
+    const findCard = (id: string) =>
+      (ledger.value.version === 10
+        ? cardForLedgerV10(ledger.value, id)
+        : null) ?? sharedCard(id)
     const lockFor = (choice: V6Choice): string | null =>
       ledger.value.version === 6 ||
       ledger.value.version === 7 ||
@@ -230,17 +249,18 @@ export const useShiftingLandsJourneyStore = defineStore(
         locations.value.find((card) => card.id === state.value.active) ?? null,
     )
     const activeEncounter = computed(() =>
-      ledger.value.version === 6 ||
-      ledger.value.version === 7 ||
-      ledger.value.version === 8 ||
-      ledger.value.version === 9 ||
       ledger.value.version === 10
-        ? activeV6Card(ledger.value.current)
-        : ledger.value.version >= 4
-          ? activeFiveLandEncounter(
-              ledger.value.current as AuthoredJourneyState,
-            )
-          : activeAuthoredEncounter(ledger.value.current),
+        ? activeCardV10(ledger.value)
+        : ledger.value.version === 6 ||
+            ledger.value.version === 7 ||
+            ledger.value.version === 8 ||
+            ledger.value.version === 9
+          ? activeV6Card(ledger.value.current)
+          : ledger.value.version >= 4
+            ? activeFiveLandEncounter(
+                ledger.value.current as AuthoredJourneyState,
+              )
+            : activeAuthoredEncounter(ledger.value.current),
     )
     const landArt = computed(() => landScenery(currentLand.value.id))
     const activeArt = computed(() =>
@@ -369,16 +389,64 @@ export const useShiftingLandsJourneyStore = defineStore(
     const currentWorldEchoes = computed(() =>
       worldEchoes.value.filter((echo) => echo.landId === currentLand.value.id),
     )
-    const ending = computed(() =>
-      ledger.value.version === 7 ||
-      ledger.value.version === 8 ||
-      ledger.value.version === 9 ||
-      ledger.value.version === 10
-        ? authoredEndingV7(ledger.value.current, ledger.value.trialResults)
-        : ledger.value.version === 6
-          ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
-          : null,
+    // t-053: a premade on a personal road ends on one of its own endings.
+    const personalEnding = computed(() =>
+      ledger.value.version === 10 &&
+      ledger.value.personalDeckVersion !== undefined
+        ? personalEndingV10(
+            ledger.value.character.id,
+            ledger.value.current,
+            ledger.value.trialResults,
+          )
+        : null,
     )
+    const ending = computed(() =>
+      personalEnding.value
+        ? personalEnding.value
+        : ledger.value.version === 7 ||
+            ledger.value.version === 8 ||
+            ledger.value.version === 9 ||
+            ledger.value.version === 10
+          ? authoredEndingV7(ledger.value.current, ledger.value.trialResults)
+          : ledger.value.version === 6
+            ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
+            : null,
+    )
+    // The personal ending's own painting once it ships; until then null, and
+    // the ending reader shows whoever walked the road.
+    const endingPlate = computed(() =>
+      personalEnding.value
+        ? personalEndingPlate(personalEnding.value.personal.endingId)
+        : null,
+    )
+    // The scrapbook record of every premade's own endings found so far.
+    const personalEndingsFound = ref(emptyPersonalEndingsRecord())
+    const personalScrapbookPages = computed(() =>
+      personalScrapbook(personalEndingsFound.value),
+    )
+    const personalScrapbookPage = computed(
+      () =>
+        personalScrapbookPages.value.find(
+          (page) => page.characterId === character.value.id,
+        ) ?? null,
+    )
+    function notePersonalEnding() {
+      const found = personalEnding.value?.personal
+      if (!found) return
+      const next = withPersonalEnding(
+        personalEndingsFound.value,
+        found.characterId,
+        found.endingId,
+      )
+      if (next === personalEndingsFound.value) return
+      personalEndingsFound.value = next
+      if (!import.meta.client) return
+      try {
+        window.localStorage.setItem(PERSONAL_ENDINGS_KEY, JSON.stringify(next))
+      } catch {
+        // The record is a keepsake: losing a write never blocks the journey.
+      }
+    }
     const canTrial = (choiceId: string): boolean => {
       const choice = currentTrial.value?.choices.find(
         (item) => item.id === choiceId,
@@ -446,11 +514,22 @@ export const useShiftingLandsJourneyStore = defineStore(
         if (changed) ledger.value = { ...ledger.value }
       })
       try {
+        const found = window.localStorage.getItem(PERSONAL_ENDINGS_KEY)
+        if (found !== null)
+          personalEndingsFound.value = readPersonalEndingsRecord(
+            JSON.parse(found),
+          )
+      } catch {
+        personalEndingsFound.value = emptyPersonalEndingsRecord()
+      }
+      try {
         const saved = window.localStorage.getItem(SAVE_KEY)
         if (saved !== null) {
           const restored = restoreJourneyLedgerV10(JSON.parse(saved))
-          if (restored) ledger.value = restored
-          else restoreWarning.value = true
+          if (restored) {
+            ledger.value = restored
+            notePersonalEnding()
+          } else restoreWarning.value = true
           return
         }
         const savedV9 = window.localStorage.getItem(LEGACY_V9_SAVE_KEY)
@@ -582,6 +661,7 @@ export const useShiftingLandsJourneyStore = defineStore(
       if (next === ledger.value) return false
       ledger.value = next
       restoreWarning.value = false
+      notePersonalEnding()
       persist()
       awardJourneyDeeds(active, next, action)
       return true
@@ -638,7 +718,10 @@ export const useShiftingLandsJourneyStore = defineStore(
     }
     function fresh(traveler: ShiftingCharacter = character.value) {
       if (!loaded.value) return
-      ledger.value = newJourneyLedgerV10(Date.now() % 2147483647, traveler)
+      // t-053: every new journey walks the traveler's personal road.
+      ledger.value = onPersonalRoad(
+        newJourneyLedgerV10(Date.now() % 2147483647, traveler),
+      )
       needsCharacter.value = false
       usePlaybookRunReviewStore().begin(
         'shifting-lands',
@@ -655,6 +738,9 @@ export const useShiftingLandsJourneyStore = defineStore(
       spendsFor,
       marks,
       ending,
+      endingPlate,
+      personalScrapbookPages,
+      personalScrapbookPage,
       state,
       character,
       skills,

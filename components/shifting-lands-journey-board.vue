@@ -681,7 +681,7 @@
               >
                 <ShiftingLandsSceneImage
                   class="absolute inset-0"
-                  :src="characterPortrait(game.character)"
+                  :src="game.endingPlate ?? characterPortrait(game.character)"
                   :alt="game.character.name + ' at journey\'s end'"
                 />
                 <button
@@ -709,6 +709,18 @@
                   class="text-xs font-bold uppercase tracking-wider opacity-70"
                 >
                   {{ game.ending.path }}
+                </p>
+                <p
+                  v-if="
+                    game.personalScrapbookPage &&
+                    game.ending &&
+                    'personal' in game.ending
+                  "
+                  class="text-xs font-semibold text-warning"
+                >
+                  {{ game.character.name }}'s own ending ·
+                  {{ game.personalScrapbookPage.found }} of
+                  {{ game.personalScrapbookPage.total }} found
                 </p>
                 <div v-if="game.ending" class="space-y-3">
                   <p

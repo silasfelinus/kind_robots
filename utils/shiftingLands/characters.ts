@@ -132,14 +132,18 @@ export const JEFFERY_MITTENS: ShiftingCharacter = {
   identity: ['jeffery-mittens'],
 }
 
+// t-053 (Silas, 2026-11-12 PT): the siblings take their series-bible names,
+// Ling and her toddler brother Bao. The id and every code keyed on it stay
+// 'fennec-siblings', and a save written under the old display name still
+// loads (FORMER_NAMES below).
 export const FENNEC_SIBLINGS: ShiftingCharacter = {
   id: 'fennec-siblings',
-  name: 'The fennec siblings',
+  name: 'Ling and Bao',
   species: 'fennec',
   pronouns: 'she',
   portrait: '/zuzu-gamebook/scenes/siblings.webp',
   blurb:
-    'A fierce fennec girl with her little brother in tow. She feeds him first, every time.',
+    'Ling, about ten, fierce and watchful, with her toddler brother Bao on her hip. She feeds him first, every time.',
   skills: {
     steel: 2,
     awareness: 3,
@@ -248,6 +252,12 @@ const canonical = (character: ShiftingCharacter) =>
     ),
   )
 
+// Display names a premade carried in saves before it was renamed. Only these
+// exact names are accepted as the premade; any other name is still refused.
+const FORMER_NAMES: Readonly<Record<string, readonly string[]>> = {
+  'fennec-siblings': ['The fennec siblings'],
+}
+
 // Accepts a saved snapshot only when its rules are exactly a premade's, or
 // exactly what makeCustomCharacter builds from its own fields, and returns the
 // current roster entry. Anything else (raised stats, extra provisions, a
@@ -256,7 +266,12 @@ export function characterFromSnapshot(
   value: unknown,
 ): ShiftingCharacter | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-  const saved = value as ShiftingCharacter
+  const raw = value as ShiftingCharacter
+  const premade = PREMADE_CHARACTERS.find((entry) => entry.id === raw.id)
+  const saved =
+    premade && FORMER_NAMES[raw.id]?.includes(raw.name)
+      ? { ...raw, name: premade.name }
+      : raw
   try {
     const expected =
       saved.id === 'custom'

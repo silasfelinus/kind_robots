@@ -25,6 +25,11 @@ import {
   type Cell,
   type Mode,
 } from '~/utils/everyVillainTactics/training'
+import { useAchievementStore } from './achievementStore'
+import {
+  EVT_ACHIEVEMENT_CODES,
+  achievementsFor,
+} from '~/utils/everyVillainTactics/achievements'
 import { powerBlocker } from '~/utils/everyVillainTactics/powers'
 import {
   dismissPicnicScene,
@@ -219,8 +224,12 @@ export const useEveryVillainTacticsStore = defineStore(
         return null
       }
     }
-    /** Only pages carried by validated saves are ever added to the book. */
-    function recordMoments(saves: readonly EvtSave[]) {
+    /**
+     * Only pages carried by validated saves are ever added to the book. A live
+     * save (`award`) also awards what the grown book proves; loading never does.
+     */
+    function recordMoments(saves: readonly EvtSave[], award = false) {
+      const before = scrapbook.value
       const witnessed = mergeScrapbook(
         scrapbook.value,
         saves.flatMap(momentsFromSave),
@@ -236,8 +245,13 @@ export const useEveryVillainTacticsStore = defineStore(
         scrapbook.value = next
         storeJson(evtScrapbookKey, next)
       }
+      if (!award) return
+      const achievements = useAchievementStore()
+      for (const code of achievementsFor(before, scrapbook.value, saves))
+        if (!achievements.hasEarnedCode(code))
+          void achievements.rewardAchievementByCode(code)
     }
-    function readSaves(): EvtSave[] {
+    function readSaves(award = false): EvtSave[] {
       const storage = browserStorage()
       const valid: EvtSave[] = []
       saveSlots.value = EVT_SAVE_SLOTS.map((slot) => {
@@ -249,7 +263,7 @@ export const useEveryVillainTacticsStore = defineStore(
           problem: result && !result.ok ? result.reason : null,
         }
       })
-      recordMoments(valid)
+      recordMoments(valid, award)
       return valid
     }
     function loadPreferences() {
@@ -279,6 +293,9 @@ export const useEveryVillainTacticsStore = defineStore(
       storeJson(evtDraftsKey, result.library)
       shareMessage.value =
         'Saved draft “' + result.library.drafts[0]!.name + '” in this browser.'
+      void useAchievementStore().rewardAchievementByCode(
+        EVT_ACHIEVEMENT_CODES.stageArchitect,
+      )
       return true
     }
     function loadDraft(name: string) {
@@ -425,7 +442,7 @@ export const useEveryVillainTacticsStore = defineStore(
       saveMessage.value = ok
         ? 'Saved to ' + slot + '.'
         : 'This browser blocked saving.'
-      readSaves()
+      readSaves(ok)
       return ok
     }
     function applySave(save: EvtSave) {

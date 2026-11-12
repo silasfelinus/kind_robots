@@ -1111,6 +1111,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'shishi-odoshi-garden',
+    label: 'Shishi-odoshi Garden',
+    reveal: 'Bamboo water rockers fill, tip and clack beside a moonlit pond',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Bamboo rockers fill and clack in a moonlit garden 🎋 hover to light the nearest one, click to open the spouts',
+    color: '#9fc46a',
+    releasedAt: '2026-11-12T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

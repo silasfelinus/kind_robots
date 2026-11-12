@@ -154,7 +154,7 @@ export const useConductorStore = defineStore('conductor', () => {
   )
   const humanGates = computed<ConductorHumanGate[]>(() =>
     allHumanGates.value.filter(({ project }) =>
-      ['active', 'continuous'].includes(project.conductorStatus ?? ''),
+      ['active', 'continuous', 'playtest'].includes(project.conductorStatus ?? ''),
     ),
   )
   const pausedHumanGates = computed<ConductorHumanGate[]>(() =>
@@ -232,7 +232,7 @@ export const useConductorStore = defineStore('conductor', () => {
   }
 
   /*
-   * One percent-complete number per active/continuous project, for surfaces
+   * One percent-complete number per active/continuous/playtest project, for surfaces
    * (the home strip) that need nothing else. /api/conductor/projects carries
    * every project's full task list and notes; this is a few hundred bytes.
    */

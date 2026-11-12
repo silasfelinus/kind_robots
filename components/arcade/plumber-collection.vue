@@ -6,7 +6,7 @@
     <template v-if="view === 'collection'">
       <h2 class="plumber-album-heading">THE SOUVENIR CABINET</h2>
       <p class="plumber-album-summary">
-        {{ album.done.length + album.secrets.length }} cleared paths ·
+        {{ clearedNodes.size }} cleared paths ·
         {{ album.gears.length }} / 32 Golden Gears ·
         {{ album.heroines.length }} / 8 heroines
       </p>
@@ -74,7 +74,7 @@
           <span>
             {{
               finaleEarned
-                ? 'Lady Spigot falls. The princess frees Teo. The rivers flow home.'
+                ? 'Lady Spigot releases the last river. Your heroine frees Teo.'
                 : 'Reach the end of World 8 to unlock this memory.'
             }}
           </span>

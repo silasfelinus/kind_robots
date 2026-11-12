@@ -18,6 +18,7 @@ import {
   SIMULATION_ENDINGS,
   ENDING_STAND_INS,
   endingArtKey,
+  slugify,
   identityArtKey,
   studentArtKey,
   villainArtKey,
@@ -127,7 +128,7 @@ import {
   missionRoute,
   missionRouteRoster,
 } from '../cometAcademy/missionTeams'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import {
   POWERS,
   STUDENTS,
@@ -2652,6 +2653,18 @@ assert.deepEqual(
     'identities/psychic-discipline/outcomes/villain',
   ],
 )
+// The two later real-prom endings ship their own plates (main-game standard item 6).
+for (const ending of [
+  'THE SHIELD CHANGES HANDS',
+  'THE TRANSMITTER GOES DARK',
+] as const) {
+  const plate = promArt(endingArtKey(ending))
+  assert.equal(plate, `/comet-city-academy/endings/${slugify(ending)}.webp`)
+  assert.ok(
+    existsSync(new URL(`../../public${plate}`, import.meta.url)),
+    `${plate} is committed`,
+  )
+}
 // A stand-in only covers an ending still waiting on its own painting.
 for (const [ending, plate] of Object.entries(ENDING_STAND_INS)) {
   assert.ok(PROM_ENDINGS.includes(ending as (typeof PROM_ENDINGS)[number]))

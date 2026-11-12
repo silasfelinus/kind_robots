@@ -39,6 +39,8 @@ export const PROM_ART: readonly string[] = [
   'endings/the-broken-grid',
   'endings/the-price-of-a-single-switch',
   'endings/the-rescue-that-counted',
+  'endings/the-shield-changes-hands',
+  'endings/the-transmitter-goes-dark',
   'front/dashboard-highlight',
   'front/splash',
   'front/splash-v2',

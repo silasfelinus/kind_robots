@@ -55,7 +55,7 @@ import {
   ACT_ONE_NEMESIS,
   ACT_ONE_ORDERS,
 } from '../gameOfCaptains/actOne'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import {
   CREW_JOURNEYS,
   NEMESIS_COUNTERPLAY,
@@ -1614,6 +1614,22 @@ for (const key of [
   ...BASE_ENDINGS.map(endingArtKey),
 ])
   assert.ok(warpArt(key), key)
+// Every ending family ships its own painted plate (main-game standard item 6),
+// and a finished voyage falls back to it when the access-filtered render is private.
+for (const ending of WARP_ENDINGS) {
+  const plate = warpArt(endingArtKey(ending))
+  assert.ok(plate, `${ending} has a shipped ending plate`)
+  assert.ok(
+    existsSync(new URL('../../public' + plate, import.meta.url)),
+    `${plate} is committed`,
+  )
+}
+assert.ok(
+  page.includes(
+    "(run.value.phase === 'ending' ? voyageStageArt(run.value) : null)",
+  ),
+  'a finished voyage shows its committed ending plate before the drawn couch',
+)
 assert.ok(
   fromRoot(
     'components/game-of-captains/space-couch-trio-interlude.vue',

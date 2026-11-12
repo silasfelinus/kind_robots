@@ -2475,6 +2475,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'tall',
   },
+  'ending-bell-keeper': {
+    file: 'sections/ending-bell-keeper',
+    alt: 'Zuzu sits cross-legged on worn tower boards in his straw hat and poncho, katana over his shoulder, keeping watch while smoke rises from the desert below.',
+    artImageId: 251967,
+    source: 'Gamebook round 17, gb17-ending-bell-keeper-1',
+    fit: 'exact',
+    shape: 'tall',
+  },
   'ending-coyote-road': {
     file: 'sections/ending-coyote-road',
     alt: 'Zuzu walks toward us down a dusty road beneath tall stone walls, tracks in the dirt around his feet.',
@@ -2525,6 +2533,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     alt: 'A lamplit wooden jailhouse corridor runs between barred cells to a small shuttered window.',
     artImageId: 244299,
     source: 'Gamebook round 7, gb7-ending-warning-1',
+    fit: 'exact',
+  },
+  'ending-wren-lamp': {
+    file: 'sections/ending-wren-lamp',
+    alt: 'A road runs back under a grey dawn sky to a lone mission house whose bell tower keeps one small lantern burning high above the desert.',
+    artImageId: 251963,
+    source: 'Gamebook round 17, gb17-ending-wren-lamp-3',
     fit: 'exact',
   },
   'hb-dead': {

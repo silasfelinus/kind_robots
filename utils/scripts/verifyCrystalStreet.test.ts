@@ -797,4 +797,48 @@ assert.equal(
 )
 assert.equal(Object.keys(SKILL_LABELS).length, 6)
 
+// Every ending shows its own painted plate (main-game standard item 6): the
+// end screen and endings gallery ask for endings/<villain>-<tier>.webp and fall
+// back to the villain's last photo while a tier's plate awaits a re-render.
+const endingScreen = asset(
+  '../../components/crystal-street/crystal-street-ending.vue',
+)
+assert.match(
+  endingScreen,
+  /`\/crystal-street\/endings\/\$\{villain\.id\}-\$\{run\.ending\.tier\}\.webp`/,
+)
+assert.match(
+  endingScreen,
+  /:fallback="`\/crystal-street\/villains\/\$\{villain\.id\}-ending\.webp`"/,
+)
+assert.equal(
+  asset('../../components/crystal-street/crystal-street-endings.vue').match(
+    /:fallback="`\/crystal-street\/villains\//g,
+  )?.length,
+  2,
+)
+const tierPlates = VILLAINS.flatMap((v) =>
+  Object.keys(v.endings).map((tier) => `${v.id}-${tier}`),
+)
+assert.equal(tierPlates.length, VILLAINS.length * 4)
+const shippedTierPlates = tierPlates.filter((key) =>
+  existsSync(file(`../../public/crystal-street/endings/${key}.webp`)),
+)
+assert.ok(
+  shippedTierPlates.length >= 83,
+  `${shippedTierPlates.length} of ${tierPlates.length} tier ending plates ship`,
+)
+for (const v of VILLAINS)
+  assert.ok(
+    existsSync(
+      file(`../../public/crystal-street/villains/${v.id}-ending.webp`),
+    ),
+    `${v.id} keeps its last photo as the ending fallback`,
+  )
+for (const name of readdirSync(file('../../public/crystal-street/endings')))
+  assert.ok(
+    /^special-/.test(name) || tierPlates.includes(name.replace(/\.webp$/, '')),
+    `stray ending plate ${name}`,
+  )
+
 console.log('Crystal Street contract passed')

@@ -249,18 +249,25 @@ assert.ok(roundLimit / games < 0.05, 'constructed bouts end by knockout')
 // the low crew) 0.424-0.458 and spread 0.113-0.141, so the band tightens from
 // 40-64% / 20 points to 41-59% / 16 points, one point either side of the
 // 40-seed starter guard (42-58%) because each constructed seed family is noisier.
+// slime-city/t-058 lifted NINE LIVES from +2/+3 to +3/+4: families 0-3 read
+// Catgirls 0.452-0.478, Riot 0.441-0.484, Exchange 0.541-0.573 and spread
+// 0.087-0.132, so the band tightens to the starter guard's 42-58% / 15 points.
+// The bigger Catgirls drag is the CPU paying full price for PIERCE gear
+// against unarmored fighters (their fighters deck read 0.43 with Surgical
+// Piercers, 0.60 without), but fixing that lifts the Undertow starter to 59%,
+// so it is its own task.
 const crews = [...crewScore.entries()].map(
   ([team, r]) => [team, rate(r)] as const,
 )
 for (const [team, r] of crews)
   assert.ok(
-    r > 0.41 && r < 0.59,
+    r > 0.42 && r < 0.58,
     team + ' constructed-field score ' + (100 * r).toFixed(1) + '%',
   )
 assert.ok(
   Math.max(...crews.map(([, r]) => r)) - Math.min(...crews.map(([, r]) => r)) <=
-    0.16,
-  'constructed crew spread stays within 16 points',
+    0.15,
+  'constructed crew spread stays within 15 points',
 )
 // No single constructed build runs away with the field.
 const deckRows = decks.map((d) => ({

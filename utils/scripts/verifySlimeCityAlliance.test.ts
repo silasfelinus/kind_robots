@@ -282,7 +282,7 @@ const at = (st: ClashState, uid: number) => st.units.find((u) => u.uid === uid)
   assert.equal(at(st, 101)!.hp, 8)
   assert.equal(at(st, 101)!.rooted, false)
   assert.equal(at(st, 102)!.hp, 8)
-  assert.equal(at(st, 101)!.surge, 2)
+  assert.equal(at(st, 101)!.surge, 3)
   assert.equal(at(st, 101)!.fresh, false)
 }
 {

@@ -761,7 +761,9 @@ function handleLauncherWheel(event: WheelEvent): void {
     if (
       scrollTarget instanceof HTMLElement &&
       canScrollVertically(scrollTarget, event.deltaY)
-    ) return
+    ) {
+      return
+    }
     scrollTarget = scrollTarget.parentElement
   }
   if (canScrollVertically(scroller, event.deltaY)) return

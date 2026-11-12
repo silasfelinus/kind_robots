@@ -4,7 +4,9 @@ import { validSlimeCityStory, type SlimeCityStory } from './storySave'
 export const GUEST_SLIME_STORY_KEY = 'kr-slime-city-story-v1'
 
 export function readGuestSlimeStory(
-  storage: Pick<Storage, 'getItem'> | null = typeof localStorage === 'undefined' ? null : localStorage,
+  storage: Pick<Storage, 'getItem'> | null = typeof localStorage === 'undefined'
+    ? null
+    : localStorage,
 ): SlimeCityStory | null {
   if (!storage) return null
   try {

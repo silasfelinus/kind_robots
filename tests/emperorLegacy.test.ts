@@ -6,8 +6,8 @@ import {
   earnLegacy,
   emptyLegacy,
   encodeLegacy,
-} from '~/utils/emperorOfDust/fortress/legacy'
-import { createRun } from '~/utils/emperorOfDust/fortress/engine'
+} from '../utils/emperorOfDust/fortress/legacy'
+import { createRun } from '../utils/emperorOfDust/fortress/engine'
 
 {
   {

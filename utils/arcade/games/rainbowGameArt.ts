@@ -1,5 +1,6 @@
 import { loadedImage } from '../ghostTrail/bake'
 import { RAINBOW_DOODLE_ART } from './rainbowDoodleArt'
+import type { FinaleChoice } from './rainbowEclipseFinale'
 
 /**
  * Painted art for the Rainbow Space Princess cabinet (Conductor rainbow t-022). Every image is optional:
@@ -454,6 +455,39 @@ export function drawRainbowStageCard(
   width: number,
 ): number {
   const img = loadedArt(rainbowStageCard(stage))
+  if (!img) return 0
+  const height = (width * img.naturalHeight) / img.naturalWidth
+  g.drawImage(img, x, y, width, height)
+  return height
+}
+
+/**
+ * Painted ending plates from the round-6 cinema storyboard, keyed by the final choice and shared by every
+ * road: C14 liberation (246339) for restore. C15 evacuation (246340) rendered as a framed picture on a
+ * white page and C16 (246341) painted a stranger instead of the crew, so evacuate and sever keep the halo
+ * until they are re-rendered.
+ */
+export const RAINBOW_ENDING_PLATES: Readonly<
+  Partial<Record<FinaleChoice, string>>
+> = {
+  restore: 'endings/restore',
+}
+
+export function rainbowEndingPlate(choice: FinaleChoice): string | null {
+  const path = RAINBOW_ENDING_PLATES[choice]
+  return path ? rainbowArt(path) : null
+}
+
+/** Draw the choice's ending plate at (x, y) with the given width; returns its height, or 0 when there is none. */
+export function drawRainbowEndingPlate(
+  g: CanvasRenderingContext2D,
+  choice: FinaleChoice,
+  x: number,
+  y: number,
+  width: number,
+): number {
+  const src = rainbowEndingPlate(choice)
+  const img = src ? loadedArt(src) : null
   if (!img) return 0
   const height = (width * img.naturalHeight) / img.naturalWidth
   g.drawImage(img, x, y, width, height)

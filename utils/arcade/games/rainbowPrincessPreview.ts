@@ -40,6 +40,7 @@ import { enemyBulletContact } from './rainbowHitGeometry'
 import {
   drawRainbowBossSprite,
   drawRainbowCommsPortrait,
+  drawRainbowEndingPlate,
   drawRainbowEnemySprite,
   drawRainbowGuardianSprite,
   drawRainbowPickupSprite,
@@ -240,6 +241,7 @@ import {
   finaleChoiceFor,
   finaleCredits,
   finaleDialogue,
+  finaleEndingCaption,
   finaleEndingSkip,
   finaleEndingTitle,
   finaleScene,
@@ -756,6 +758,9 @@ const HUD_LEFT = 44
 const HUD_RIGHT = W - 26
 /** A comms line replaces the HUD bar: this tall, from the top edge, for as long as it plays. */
 const COMMS_HEIGHT = 51
+/** The ending plate fills the playfield under the comms box: 340 wide is 194 tall for a 640x366 plate. */
+const ENDING_PLATE_TOP = COMMS_HEIGHT + 8
+const ENDING_PLATE_WIDTH = 340
 
 type Ship = {
   x: number
@@ -7589,6 +7594,29 @@ export function createRainbowPrincessPreview(
           g.font = 'bold 8px monospace'
           g.fillText('A ▸', HUD_RIGHT, 16)
           g.textAlign = 'left'
+          // The painted plate for the choice the crew flew sits under the ending's lines, captioned by road.
+          const plateX = (W - ENDING_PLATE_WIDTH) / 2
+          const plateHeight = drawRainbowEndingPlate(
+            g,
+            finalChoice ?? 'evacuate',
+            plateX,
+            ENDING_PLATE_TOP,
+            ENDING_PLATE_WIDTH,
+          )
+          if (plateHeight) {
+            const captionY = ENDING_PLATE_TOP + plateHeight - 15
+            g.fillStyle = '#160b34d9'
+            g.fillRect(plateX, captionY, ENDING_PLATE_WIDTH, 15)
+            g.fillStyle = '#ffe2fa'
+            g.font = 'bold 9px monospace'
+            g.textAlign = 'center'
+            g.fillText(
+              finaleEndingCaption(finalChoice ?? 'evacuate', allegiance),
+              W / 2,
+              captionY + 11,
+            )
+            g.textAlign = 'left'
+          }
         }
       } else if (restingFrames() !== null) {
         // ACT-STRUCTURE: Act V ends on a recovery and memorial tableau, the second quiet intermission.

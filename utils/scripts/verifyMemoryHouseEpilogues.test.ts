@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import {
   HOUSE_ROOMS,
@@ -202,7 +202,14 @@ assert.equal(epilogues.length, 12)
 assert.equal(new Set(epilogues.map((e) => e.title)).size, 12)
 assert.equal(new Set(epilogues.map((e) => e.artPath)).size, 12)
 for (const epilogue of epilogues) {
-  assert.ok(epilogue.artPath.startsWith('/images/memory-dungeon/house/'))
+  assert.equal(
+    epilogue.artPath,
+    `/memory-dungeon/house/epilogues/${epilogue.id}.webp`,
+  )
+  assert.ok(
+    existsSync(new URL(`../../public${epilogue.artPath}`, import.meta.url)),
+    `${epilogue.id} plate is committed`,
+  )
   assert.deepEqual(
     checkArtPromptContract({ prompt: epilogue.artPrompt, engine: 'krea2' }),
     [],
@@ -221,7 +228,7 @@ assert.equal(new Set(MEMORY_HOUSE_ACHIEVEMENTS.map((m) => m.echo)).size, 12)
 for (const medal of MEMORY_HOUSE_ACHIEVEMENTS) {
   assert.ok(medal.echo.length >= 120)
   assert.ok(medal.description.length >= 45)
-  assert.ok(medal.artPath.startsWith('/images/memory-dungeon/house/'))
+  assert.ok(medal.artPath.startsWith('/memory-dungeon/house/epilogues/'))
 }
 
 const resolutions: HouseEnding[] = ['release', 'renew', 'break']

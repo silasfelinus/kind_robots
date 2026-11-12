@@ -10,6 +10,7 @@ import {
   RAINBOW_BOSS_SPRITES,
   RAINBOW_COMMS_SPEAKERS,
   RAINBOW_CUTIN_PILOTS,
+  RAINBOW_ENDING_PLATES,
   RAINBOW_ENEMY_SPRITES,
   RAINBOW_GUARDIAN_SPRITES,
   RAINBOW_PICKUP_SPRITES,
@@ -17,6 +18,7 @@ import {
   RAINBOW_STAGE_STRIPS,
   drawRainbowBossSprite,
   drawRainbowCommsPortrait,
+  drawRainbowEndingPlate,
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
@@ -24,6 +26,7 @@ import {
   drawRainbowStageStrip,
   drawRainbowSuperCutin,
   rainbowBossSprite,
+  rainbowEndingPlate,
   rainbowEnemySprite,
   rainbowGuardianSprite,
   rainbowPickupSprite,
@@ -35,6 +38,10 @@ import {
   rainbowSuperCutin,
   setRainbowLook,
 } from '../arcade/games/rainbowGameArt'
+import {
+  finaleEndingCaption,
+  type FinaleChoice,
+} from '../arcade/games/rainbowEclipseFinale'
 import { PINKWAKE } from '../arcade/games/rainbowPinkwake'
 import { MOONJELLY } from '../arcade/games/rainbowMoonjelly'
 
@@ -297,6 +304,39 @@ assert.ok(
   'the intro card ends before either Act spawns a craft',
 )
 assert.match(engine, /drawRainbowStageCard\(g, stage, W \/ 2 - 100, top, 200\)/)
+
+// Ending plates: the painted plate for the final choice sits under the ending's lines with the road and
+// ending name as its caption. A choice without a plate that passed review keeps the halo behind the text.
+for (const [choice, path] of Object.entries(RAINBOW_ENDING_PLATES)) {
+  const src = rainbowEndingPlate(choice as FinaleChoice)
+  assert.equal(src, `/rainbow-princess-art/${path}.webp`)
+  assert.ok(existsSync(publicFile(src!)), `${choice} ending plate is committed`)
+  assert.ok(
+    statSync(publicFile(src!)).size < 40_000,
+    `${choice} ending plate stays small`,
+  )
+}
+assert.equal(
+  rainbowEndingPlate('restore'),
+  '/rainbow-princess-art/endings/restore.webp',
+)
+assert.equal(rainbowEndingPlate('sever'), null)
+assert.equal(drawRainbowEndingPlate(g, 'restore', 0, 0, 340), 0)
+assert.equal(
+  finaleEndingCaption('restore', 'rebel'),
+  'TURN ON THE EMPIRE · ASK FIRST',
+)
+assert.equal(finaleEndingCaption('restore'), 'THE CROWN REMEMBERS')
+assert.match(
+  engine,
+  /drawRainbowEndingPlate\(\s+g,\s+finalChoice \?\? 'evacuate',/,
+  'the ending draws the plate for the choice the crew flew',
+)
+assert.match(
+  engine,
+  /finaleEndingCaption\(finalChoice \?\? 'evacuate', allegiance\)/,
+  'the plate is captioned with the road',
+)
 
 console.log(
   `rainbow game art: ok (${painted}/4 painted ships, ${RAINBOW_ENEMY_SPRITES.length} enemies, ${RAINBOW_PICKUP_SPRITES.length} pickups, ${RAINBOW_BOSS_SPRITES.length} bosses x 3 phases, ${RAINBOW_CUTIN_PILOTS.length} cut-ins, ${RAINBOW_STAGE_STRIPS.length} stage strips and intro cards)`,

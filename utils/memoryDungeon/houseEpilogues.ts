@@ -201,7 +201,11 @@ const TABLEAUX: Record<
   },
 }
 
-const ROOT = '/images/memory-dungeon/house/epilogues'
+/**
+ * Committed plates (memory-dungeon art round 2, ArtImages 257312-257323), not the media host's
+ * /images tree: public/images is git-ignored, so a plate exported there never shipped.
+ */
+const ROOT = '/memory-dungeon/house/epilogues'
 
 export const HOUSE_EPILOGUES: Record<HouseEpilogue['id'], HouseEpilogue> =
   Object.fromEntries(

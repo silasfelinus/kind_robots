@@ -85,7 +85,11 @@ export type DeskSettings = {
   soundVolume: number
 }
 
-function oneOf<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
+function oneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+  fallback: T,
+): T {
   return allowed.includes(value as T) ? (value as T) : fallback
 }
 
@@ -101,8 +105,16 @@ export function parseDeskSettings(value: unknown): DeskSettings {
       ? (value as Record<string, unknown>)
       : {}
   return {
-    textSize: oneOf(raw.textSize, ['normal', 'large', 'extra-large'] as const, 'normal'),
-    readingSpeed: oneOf(raw.readingSpeed, ['normal', 'fast', 'instant'] as const, 'normal'),
+    textSize: oneOf(
+      raw.textSize,
+      ['normal', 'large', 'extra-large'] as const,
+      'normal',
+    ),
+    readingSpeed: oneOf(
+      raw.readingSpeed,
+      ['normal', 'fast', 'instant'] as const,
+      'normal',
+    ),
     motion: oneOf(raw.motion, ['system', 'reduced'] as const, 'system'),
     contrast: oneOf(raw.contrast, ['standard', 'high'] as const, 'standard'),
     musicVolume: volume(raw.musicVolume, DEFAULT_DESK_SETTINGS.musicVolume),

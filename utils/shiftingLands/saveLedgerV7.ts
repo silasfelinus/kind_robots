@@ -2,6 +2,7 @@ import {
   adoptSpentDeeds,
   spentDeedsFromSave,
   withSpentDeedsFrom,
+  type JourneyRules,
 } from './deckV6'
 import { JOURNEY_WORLD } from './journey'
 import { sameReplay } from './saveLedger'
@@ -49,6 +50,7 @@ export function stepJourneyLedgerV7(
   ledger: JourneyLedgerV7,
   action: JourneyActionV7,
   trialResolver: (landId: string) => AuthoredTrial | null = trialForLandV7,
+  rules: JourneyRules = {},
 ): JourneyLedgerV7 {
   if (
     ledger.actions.length >= MAX_ACTIONS ||
@@ -99,6 +101,7 @@ export function stepJourneyLedgerV7(
       state.flags,
       action.choiceId,
       trial,
+      rules.skills,
     )
     if (!result) return ledger
     return {
@@ -126,7 +129,7 @@ export function stepJourneyLedgerV7(
     version: 6,
     actions: [],
   }
-  const next = stepJourneyLedgerV6(temporary, action)
+  const next = stepJourneyLedgerV6(temporary, action, rules)
   if (next === temporary) return ledger
   return {
     ...ledger,

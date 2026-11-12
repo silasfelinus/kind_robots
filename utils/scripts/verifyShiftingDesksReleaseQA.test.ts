@@ -569,6 +569,16 @@ assert.equal(
 const fileView = source(
   '../../components/shifting-desks/shifting-desks-personnel-file.vue',
 )
+assert.equal(
+  (fileView.match(/role="tabpanel"\s+tabindex="0"/g) ?? []).length,
+  4,
+  'all four Personnel File panels must be keyboard reachable',
+)
+assert.equal(
+  (archiveView.match(/role="tabpanel"\s+tabindex="0"/g) ?? []).length,
+  1,
+  'the Archive tab panel must be keyboard reachable',
+)
 const panelAt = fileView.indexOf('aria-label="Your ending reward"')
 const panelOpen = fileView.slice(fileView.lastIndexOf('<div', panelAt), panelAt)
 const panel = fileView.slice(

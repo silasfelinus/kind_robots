@@ -184,7 +184,13 @@ assert.equal(v2.slots[1]!.node, '2-3')
 assert.deepEqual(v2.slots[1]!.gears, ['1-4'], 'gears stay stage codes')
 assert.deepEqual(
   readPlumberFile({ v: 3, active: 9, slots: 'x', endlessBest: -1 }),
-  { v: 3, active: 0, slots: [null, null, null], endlessBest: 0 },
+  {
+    v: 3,
+    active: 0,
+    slots: [null, null, null],
+    endlessBest: 0,
+    album: { done: [], secrets: [], gears: [], heroines: [], endings: [] },
+  },
   'junk reads as an empty file',
 )
 

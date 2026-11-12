@@ -2535,13 +2535,6 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 7, gb7-ending-warning-1',
     fit: 'exact',
   },
-  'ending-water': {
-    file: 'kasa-on-water',
-    alt: 'A lone woven straw kasa floats across the black pool at night, rings spreading into the reeds.',
-    artImageId: 243308,
-    source: 'Gamebook round 1, gb-ending-water-r2-4',
-    fit: 'exact',
-  },
   'ending-wren-lamp': {
     file: 'sections/ending-wren-lamp',
     alt: 'A road runs back under a grey dawn sky to a lone mission house whose bell tower keeps one small lantern burning high above the desert.',

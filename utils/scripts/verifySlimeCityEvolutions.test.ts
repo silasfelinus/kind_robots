@@ -494,6 +494,43 @@ const mine = (s: ClashState, id: string) =>
   assert.equal(s.pendingDraw?.player, 0)
 }
 
+// --- Mercenary board builders should have tactical, counterable L3 payoffs.
+// Empty alleys are a resource: the flashmob floods them with fragile 1/1s,
+// while the scaffold raises defensive 0-power wings. A full board denies both.
+{
+  const empty = cast(
+    board([fighter('player', 2, 1)]),
+    'merc-flashmob-diversion',
+    2,
+  )
+  const dancers = empty.units.filter((u) => u.side === 'player' && u.token)
+  assert.ok(dancers.length >= 2, 'flashmob fills more than one open alley')
+  assert.ok(dancers.every((u) => u.hp === 1 && u.attack === 1))
+
+  const crowded = board([
+    fighter('player', 0, 1),
+    fighter('player', 1, 2),
+    fighter('player', 3, 3),
+    fighter('player', 4, 4),
+  ])
+  crowded.hands.player = ['merc-flashmob-diversion']
+  crowded.levels.player['merc-flashmob-diversion'] = 3
+  assert.equal(
+    canClashPlay(crowded, 'player', 'merc-flashmob-diversion', 2),
+    false,
+    'full allied board denies deployment before the flashmob can summon',
+  )
+
+  const scaffold = cast(
+    board([fighter('player', 2, 1)]),
+    'merc-living-scaffold',
+    2,
+  )
+  const wings = scaffold.units.filter((u) => u.side === 'player' && u.token)
+  assert.ok(wings.length > 0, 'scaffold raises at least one wing')
+  assert.ok(wings.every((u) => u.attack === 0 && u.hp === 4))
+}
+
 // --- Every crafted card runs through the real engine at every level and
 // option, on crowded and empty boards, through a full exchange of strikes.
 for (const id of Object.keys(CLASH_EVOLUTIONS)) {

@@ -509,11 +509,12 @@ const mine = (s: ClashState, id: string) =>
     fighter('player', 3, 3),
     fighter('player', 4, 4),
   ])
-  const blocked = cast(crowded, 'merc-flashmob-diversion', 2)
+  crowded.hands.player = ['merc-flashmob-diversion']
+  crowded.levels.player['merc-flashmob-diversion'] = 3
   assert.equal(
-    blocked.units.filter((u) => u.side === 'player' && u.token).length,
-    0,
-    'full allied board denies the flashmob',
+    canClashPlay(crowded, 'player', 'merc-flashmob-diversion', 2),
+    false,
+    'full allied board denies deployment before the flashmob can summon',
   )
 
   const scaffold = cast(board([]), 'merc-living-scaffold', 2)

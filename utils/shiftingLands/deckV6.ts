@@ -1,4 +1,5 @@
 import additions from './authoredDecksV6.json'
+import castCards from './castCardsV10.json'
 import {
   AUTHORED_PACK,
   type AuthoredChoice,
@@ -121,7 +122,15 @@ export const V6_CARDS: readonly V6Card[] = [
   ),
   ...DECK_V6.newCards,
 ]
-const cards = new Map(V6_CARDS.map((card) => [card.id, card]))
+// t-052: cast cameo cards (castCardsV10.json) are looked up by id like any
+// other card, but never join the V6 draw pools; only a V10 character draw
+// (castDeckV10.ts) can deal one, so V6-V9 saves replay untouched.
+export const CAST_CARDS_V10 = castCards.cards as unknown as Array<
+  V6Card & { cast: string[]; selfVariant?: string; variantOnly?: boolean }
+>
+const cards = new Map<string, V6Card>(
+  [...V6_CARDS, ...CAST_CARDS_V10].map((card) => [card.id, card]),
+)
 const pools = new Map<string, V6Card[]>()
 for (const card of V6_CARDS)
   pools.set(card.locationId, [...(pools.get(card.locationId) ?? []), card])
@@ -173,6 +182,13 @@ const BASE_SKILLS: Record<Skill, number> = {
   bearing: 2,
   resolve: 2,
   insight: 2,
+}
+
+// t-052: who is walking. V6-V9 pass nothing and keep the base table and the
+// V6 draw; a V10 character supplies its own skills and an identity-aware draw.
+export type JourneyRules = {
+  skills?: Readonly<Record<Skill, number>>
+  draw?: (seed: number, locationId: string) => V6Card | null
 }
 const random = (value: number): [number, number] => {
   const next = (Math.imul(value, 1664525) + 1013904223) >>> 0
@@ -282,19 +298,29 @@ export function activeV6Card(state: JourneyStateV6): V6Card | null {
   return id ? v6Card(id) : null
 }
 
-function drawFor(seed: number, locationId: string): V6Card | null {
-  const pool = v6Pool(locationId)
-  if (!pool.length) return null
+export function locationHash(seed: number, locationId: string): number {
   let hash = (seed ^ 2166136261) >>> 0
   for (const character of locationId)
     hash = Math.imul(hash ^ character.charCodeAt(0), 16777619) >>> 0
+  return hash
+}
+
+export function weightedCard<T extends { weight: number }>(
+  pool: readonly T[],
+  hash: number,
+): T | null {
   const total = pool.reduce((sum, card) => sum + card.weight, 0)
+  if (!total) return null
   let offset = hash % total
   for (const card of pool) {
     offset -= card.weight
     if (offset < 0) return card
   }
   return null
+}
+
+export function drawV6Card(seed: number, locationId: string): V6Card | null {
+  return weightedCard(v6Pool(locationId), locationHash(seed, locationId))
 }
 
 // Why a route is closed right now, in words the board can show; null when the
@@ -323,7 +349,11 @@ export function choiceLock(
   return null
 }
 
-function chooseV6(state: JourneyStateV6, choiceId: string): JourneyStateV6 {
+function chooseV6(
+  state: JourneyStateV6,
+  choiceId: string,
+  skills: Readonly<Record<Skill, number>>,
+): JourneyStateV6 {
   const land = JOURNEY_WORLD.lands[state.journey.landIndex]!
   const card = activeV6Card(state)
   const choice = card?.choices.find((item) => item.id === choiceId)
@@ -347,7 +377,7 @@ function chooseV6(state: JourneyStateV6, choiceId: string): JourneyStateV6 {
       Math.floor(a * 6) + 1,
       Math.floor(b * 6) + 1,
     ]
-    const modifier = BASE_SKILLS[choice.roll.skill] + choice.roll.modifier
+    const modifier = skills[choice.roll.skill] + choice.roll.modifier
     const total = dice[0] + dice[1] + modifier
     roll = {
       landId: land.id,
@@ -488,6 +518,7 @@ function chooseV6(state: JourneyStateV6, choiceId: string): JourneyStateV6 {
 export function stepJourneyV6(
   state: JourneyStateV6,
   action: ActionV6,
+  rules: JourneyRules = {},
 ): JourneyStateV6 {
   if (action.type === 'TRAVEL') {
     if (typeof action.locationId !== 'string') return state
@@ -495,7 +526,7 @@ export function stepJourneyV6(
     if (next === state.journey) return state
     if (!next.active) return { ...state, journey: next }
     if (state.drawn[next.active]) return state
-    const card = drawFor(next.seed, next.active)
+    const card = (rules.draw ?? drawV6Card)(next.seed, next.active)
     if (!card) return state
     return {
       ...state,
@@ -504,7 +535,7 @@ export function stepJourneyV6(
     }
   }
   if (action.type === 'CHOOSE' && typeof action.choiceId === 'string')
-    return chooseV6(state, action.choiceId)
+    return chooseV6(state, action.choiceId, rules.skills ?? BASE_SKILLS)
   return state
 }
 
@@ -546,69 +577,7 @@ export function validateDeckV6(): string[] {
   for (const card of V6_CARDS) {
     if (ids.has(card.id)) errors.push(`duplicate card id ${card.id}`)
     ids.add(card.id)
-    if (!locations.some((location) => location.id === card.locationId))
-      errors.push(`${card.id}: unknown location ${card.locationId}`)
-    if (card.choices.length < 3 || card.choices.length > 4)
-      errors.push(`${card.id}: ${card.choices.length} choices`)
-    if (!Number.isInteger(card.weight) || card.weight < 1 || card.weight > 3)
-      errors.push(`${card.id}: weight ${card.weight}`)
-    if (card.flavor.length < 90) errors.push(`${card.id}: thin flavor`)
-    if (/\bZuzu\b/.test(JSON.stringify(card)))
-      errors.push(`${card.id}: names the hero`)
-    if (
-      !card.choices.some(
-        (choice) =>
-          !choice.requires && !choice.cost?.hp && !choice.cost?.provisions,
-      )
-    )
-      errors.push(`${card.id}: every route can be locked at once`)
-    const choiceIds = new Set<string>()
-    for (const choice of card.choices) {
-      const where = `${card.id}/${choice.id}`
-      if (!CHOICE_IDS.test(choice.id) || choiceIds.has(choice.id))
-        errors.push(`${where}: bad or repeated id`)
-      choiceIds.add(choice.id)
-      if (!choice.roll !== !choice.failure)
-        errors.push(`${where}: certain choices have no failure; rolls need one`)
-      if (
-        choice.roll &&
-        (!Object.hasOwn(BASE_SKILLS, choice.roll.skill) ||
-          choice.roll.target < 6 ||
-          choice.roll.target > 12 ||
-          Math.abs(choice.roll.modifier) > 1)
-      )
-        errors.push(`${where}: bad roll`)
-      for (const flag of choice.requires?.anyFlags ?? [])
-        if (!Object.hasOwn(DEED_FLAGS, flag))
-          errors.push(`${where}: gate on non-deed flag ${flag}`)
-      if (
-        choiceSpends(card.id, choice).length &&
-        choice.requires!.anyFlags.length !== 1
-      )
-        errors.push(`${where}: a spending route gates on one deed only`)
-      if (choice.requires && !choice.requires.anyFlags.length)
-        errors.push(`${where}: empty gate`)
-      const cost = choice.cost ?? {}
-      if ((cost.hp ?? 0) > 0 || (cost.hp ?? 0) < -2)
-        errors.push(`${where}: hp cost out of range`)
-      if ((cost.provisions ?? 0) > 0 || (cost.provisions ?? 0) < -3)
-        errors.push(`${where}: provisions cost out of range`)
-      for (const effect of [choice.success, choice.failure]) {
-        if (!effect) continue
-        if (
-          effect.text.length < 30 ||
-          Math.abs(effect.hp_delta) > 2 ||
-          effect.provisions_delta < -3 ||
-          effect.provisions_delta > 2 ||
-          !['none', 'recorded-prospective-shift'].includes(effect.map_effect) ||
-          !Array.isArray(effect.add_flags) ||
-          Object.keys(effect.marks ?? {}).some(
-            (mark) => !(MARKS as readonly string[]).includes(mark),
-          )
-        )
-          errors.push(`${where}: effect out of range`)
-      }
-    }
+    errors.push(...v6CardProblems(card))
   }
   for (const key of KEEPS_DEED) {
     const [cardId, choiceId] = key.split('/')
@@ -621,6 +590,79 @@ export function validateDeckV6(): string[] {
       )
     )
       errors.push(`${key}: kept deed names no route gated on a spendable deed`)
+  }
+  return errors
+}
+
+// The per-card editorial and rules floor every dealt card meets, shared by the
+// V6 deck and the V10 cast cameos.
+export function v6CardProblems(card: V6Card): string[] {
+  const errors: string[] = []
+  const locations: Array<{ id: string }> = JOURNEY_WORLD.lands.flatMap(
+    (land) => land.locations as Array<{ id: string }>,
+  )
+  if (!locations.some((location) => location.id === card.locationId))
+    errors.push(`${card.id}: unknown location ${card.locationId}`)
+  if (card.choices.length < 3 || card.choices.length > 4)
+    errors.push(`${card.id}: ${card.choices.length} choices`)
+  if (!Number.isInteger(card.weight) || card.weight < 1 || card.weight > 3)
+    errors.push(`${card.id}: weight ${card.weight}`)
+  if (card.flavor.length < 90) errors.push(`${card.id}: thin flavor`)
+  if (/\bZuzu\b/.test(JSON.stringify(card)))
+    errors.push(`${card.id}: names the hero`)
+  if (
+    !card.choices.some(
+      (choice) =>
+        !choice.requires && !choice.cost?.hp && !choice.cost?.provisions,
+    )
+  )
+    errors.push(`${card.id}: every route can be locked at once`)
+  const choiceIds = new Set<string>()
+  for (const choice of card.choices) {
+    const where = `${card.id}/${choice.id}`
+    if (!CHOICE_IDS.test(choice.id) || choiceIds.has(choice.id))
+      errors.push(`${where}: bad or repeated id`)
+    choiceIds.add(choice.id)
+    if (!choice.roll !== !choice.failure)
+      errors.push(`${where}: certain choices have no failure; rolls need one`)
+    if (
+      choice.roll &&
+      (!Object.hasOwn(BASE_SKILLS, choice.roll.skill) ||
+        choice.roll.target < 6 ||
+        choice.roll.target > 12 ||
+        Math.abs(choice.roll.modifier) > 1)
+    )
+      errors.push(`${where}: bad roll`)
+    for (const flag of choice.requires?.anyFlags ?? [])
+      if (!Object.hasOwn(DEED_FLAGS, flag))
+        errors.push(`${where}: gate on non-deed flag ${flag}`)
+    if (
+      choiceSpends(card.id, choice).length &&
+      choice.requires!.anyFlags.length !== 1
+    )
+      errors.push(`${where}: a spending route gates on one deed only`)
+    if (choice.requires && !choice.requires.anyFlags.length)
+      errors.push(`${where}: empty gate`)
+    const cost = choice.cost ?? {}
+    if ((cost.hp ?? 0) > 0 || (cost.hp ?? 0) < -2)
+      errors.push(`${where}: hp cost out of range`)
+    if ((cost.provisions ?? 0) > 0 || (cost.provisions ?? 0) < -3)
+      errors.push(`${where}: provisions cost out of range`)
+    for (const effect of [choice.success, choice.failure]) {
+      if (!effect) continue
+      if (
+        effect.text.length < 30 ||
+        Math.abs(effect.hp_delta) > 2 ||
+        effect.provisions_delta < -3 ||
+        effect.provisions_delta > 2 ||
+        !['none', 'recorded-prospective-shift'].includes(effect.map_effect) ||
+        !Array.isArray(effect.add_flags) ||
+        Object.keys(effect.marks ?? {}).some(
+          (mark) => !(MARKS as readonly string[]).includes(mark),
+        )
+      )
+        errors.push(`${where}: effect out of range`)
+    }
   }
   return errors
 }

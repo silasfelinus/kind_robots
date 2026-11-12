@@ -2,6 +2,7 @@ import {
   adoptSpentDeeds,
   spentDeedsFromSave,
   withSpentDeedsFrom,
+  type JourneyRules,
 } from './deckV6'
 import { JOURNEY_WORLD } from './journey'
 import { sameReplay } from './saveLedger'
@@ -250,6 +251,7 @@ export function kitchenNoviceEchoesV9(ledger: JourneyLedgerV9): WorldEchoV7[] {
 export function stepJourneyLedgerV9(
   ledger: JourneyLedgerV9,
   action: JourneyActionV9,
+  rules: JourneyRules = {},
 ): JourneyLedgerV9 {
   if (
     !action ||
@@ -298,7 +300,7 @@ export function stepJourneyLedgerV9(
     version: 8,
     actions: [],
   }
-  const next = stepJourneyLedgerV8(legacy, action)
+  const next = stepJourneyLedgerV8(legacy, action, rules)
   if (next === legacy) return ledger
   return {
     ...next,

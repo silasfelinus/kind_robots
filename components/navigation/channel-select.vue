@@ -242,6 +242,7 @@
         <div
           v-if="previewedChannel"
           ref="channelFlyout"
+          @wheel="handleChannelFlyoutWheel"
           class="channel-submenu @container min-w-0 flex-1 flex-nowrap overflow-x-hidden kr-anchor-scroll p-3 xl:p-4"
           :style="{
             maxHeight: `${channelFlyoutMaxHeight}px`,
@@ -461,6 +462,10 @@ import {
   navigationSubtabs,
 } from '@/utils/channelTabGroups'
 import { tabSharesRoute } from '@/utils/tabNavigation'
+import {
+  adjacentChannelIndex,
+  canScrollVertically,
+} from '@/utils/channelWheelNavigation'
 
 const { seamless, unifiedMobile } = withDefaults(
   defineProps<{
@@ -493,6 +498,7 @@ type Spotlight = {
 const VIEWPORT_GUTTER = 12
 const LAUNCHER_MIN_WIDTH = 480
 const LAUNCHER_MAX_WIDTH = 1760
+const CHANNEL_WHEEL_COOLDOWN_MS = 550
 
 const route = useRoute()
 const isSlimeCityPage = computed(
@@ -519,6 +525,7 @@ const launcherWidth = ref(960)
 const previewedChannelKey = ref('')
 const spotlightTabKey = ref('')
 const brokenImages = ref<Set<string>>(new Set())
+let lastWheelChannelSwitchAt = 0
 
 await channelContentStore.initialize()
 
@@ -729,13 +736,50 @@ function markBroken(src: string | undefined): void {
   brokenImages.value = next
 }
 
-function previewChannel(channel: ResolvedChannel): void {
+function previewChannel(
+  channel: ResolvedChannel,
+  arriveAt: 'start' | 'end' = 'start',
+): void {
   if (previewedChannelKey.value === channel.channelKey) return
   previewedChannelKey.value = channel.channelKey
   spotlightTabKey.value = ''
   void nextTick(() => {
-    channelFlyout.value?.scrollTo({ top: 0 })
+    const flyout = channelFlyout.value
+    if (flyout) flyout.scrollTop = arriveAt === 'end' ? flyout.scrollHeight : 0
   })
+}
+
+function handleChannelFlyoutWheel(event: WheelEvent): void {
+  if (event.ctrlKey || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return
+
+  const flyout = channelFlyout.value
+  if (!flyout) return
+
+  let scrollTarget = event.target instanceof Element ? event.target : null
+  while (scrollTarget && scrollTarget !== flyout) {
+    if (
+      scrollTarget instanceof HTMLElement &&
+      canScrollVertically(scrollTarget, event.deltaY)
+    ) return
+    scrollTarget = scrollTarget.parentElement
+  }
+  if (canScrollVertically(flyout, event.deltaY)) return
+
+  const channels = visibleChannels.value
+  const index = channels.findIndex(
+    (channel) => channel.channelKey === previewedChannel.value?.channelKey,
+  )
+  const nextIndex = adjacentChannelIndex(index, channels.length, event.deltaY)
+  event.preventDefault()
+  if (nextIndex === null) return
+
+  const now = Date.now()
+  if (now - lastWheelChannelSwitchAt < CHANNEL_WHEEL_COOLDOWN_MS) return
+  const nextChannel = channels[nextIndex]
+  if (!nextChannel) return
+
+  lastWheelChannelSwitchAt = now
+  previewChannel(nextChannel, event.deltaY < 0 ? 'end' : 'start')
 }
 
 function openSpotlight(): void {
@@ -796,6 +840,7 @@ function openChannelMenu(): void {
   } else {
     previewedChannelKey.value = activeChannel.value.channelKey
     spotlightTabKey.value = ''
+    lastWheelChannelSwitchAt = 0
   }
 
   scheduleChannelMenuViewportUpdate()

@@ -8,6 +8,11 @@ on:
       - 'utils/arcade/games/rainbowLoadouts.ts'
       - 'utils/achievements/catalog/main/rainbow-bullet-hell-space-princess.ts'
       - 'utils/scripts/verifyRainbowAchievements.test.ts'
+      - 'utils/arcade/games/savePlumberAchievements.ts'
+      - 'utils/arcade/games/savePlumberPreview.ts'
+      - 'utils/achievements/catalog/main/save-the-plumber.ts'
+      - 'stores/savePlumberMakerStore.ts'
+      - 'utils/scripts/verifySavePlumberAchievements.test.ts'
       - 'stores/arcadeStore.ts'
       - 'components/arcade/arcade-cabinet.vue'
       - '.github/workflows/arcade-main-achievements.yml'
@@ -36,3 +41,5 @@ jobs:
         run: npx tsx utils/scripts/verifyRainbowAchievements.test.ts
       - name: Rainbow mastery ladder and saves still hold
         run: npx tsx utils/scripts/verifyRainbowLoadouts.test.ts
+      - name: Save the Plumber achievements
+        run: npx tsx utils/scripts/verifySavePlumberAchievements.test.ts

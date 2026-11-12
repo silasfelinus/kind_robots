@@ -103,8 +103,8 @@
       <section class="sd-print-section" aria-label="Personnel distinctions">
         <h2>Distinctions on Record</h2>
         <p class="sd-print-small">
-          These are local milestones recorded when this run was filed,
-          not later accomplishments or additional account-level rewards.
+          These are local milestones recorded when this run was filed, not later
+          accomplishments or additional account-level rewards.
         </p>
         <div v-if="awards.length" class="sd-print-awards">
           <div v-for="award in awards" :key="award.id" class="sd-print-award">

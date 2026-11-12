@@ -20,7 +20,9 @@ export const ART_STYLES = [
     checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
     blurb: 'Illustrious. Warm animated-feature inks under green fluorescents.',
     mood: 'Cinematic western animated-feature illustration: expressive staging, bold ink, warm orange and eerie fluorescent-green light, glossy character detail.',
-    phase: 'available',
+    // 2026-11-12: 170/196 story beats failed visual art review. Hide the
+    // experimental skin until accepted replacements exist. Classic stays live.
+    phase: 'suspended',
   },
   {
     id: 'corporate-noir',
@@ -36,6 +38,9 @@ export const ART_STYLES = [
 // Silas, 2026-10-14, after playing both: "the new art is actually worse than
 // the classic. classic should be default."
 export const DEFAULT_ART_STYLE = 'classic'
+export const SELECTABLE_ART_STYLES = ART_STYLES.filter(
+  (style) => style.phase === 'available',
+)
 // The same card in every edition, so the picker compares like with like.
 // 2026-11-02: moved off gus-shop-steward, whose Western Cartoon render is a
 // woman with antennae rather than Gus (see WITHDRAWN_RENDERS).
@@ -47,7 +52,7 @@ export type ShiftingDesksArtStyle = (typeof ART_STYLES)[number]['id']
 export const ART_STYLE_STORAGE_KEY = 'shifting-desks-art-style-v3'
 
 export function normalizeArtStyle(value: unknown): ShiftingDesksArtStyle {
-  return ART_STYLES.find((s) => s.id === value)?.id ?? DEFAULT_ART_STYLE
+  return SELECTABLE_ART_STYLES.find((s) => s.id === value)?.id ?? DEFAULT_ART_STYLE
 }
 
 // Renders pulled from a style after review (they show Classic instead) until

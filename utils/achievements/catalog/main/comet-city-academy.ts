@@ -153,7 +153,7 @@ export const COMET_CITY_ACADEMY_ACHIEVEMENTS: GameAchievementDef[] = [
     subtleHint: 'Each term hides a different hand behind the curtain.',
     icon: 'kind-icon:folder',
     rule: { kind: 'event' },
-    artPrompt: `A long wall of framed villain dossiers in an academy archive, each frame holding a dramatic masked silhouette of a different mastermind, a student hero standing before them with arms folded and a satisfied smile. ${STYLE}`,
+    artPrompt: `A long academy archive wall hung with villain dossiers under glass, each dossier showing a dramatic masked silhouette of a different mastermind, a student hero standing before them with arms folded and a satisfied smile. ${STYLE}`,
   },
   {
     game: 'comet-city-academy',

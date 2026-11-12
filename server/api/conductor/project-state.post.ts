@@ -80,7 +80,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 409, message: `Playtest is not ready: ${errors.join(' ')}` })
       }
     }
-    const conductorStatus
+    const conductorStatus = nextStatus
       ? projectStatusToConductorStatus(nextStatus)
       : undefined
     if (nextStatus === 'BRAINSTORM' && conductorSlug) {

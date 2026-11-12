@@ -3,6 +3,7 @@ import { playVoyage, type Driver } from './spaceCouchTraceHarness'
 import {
   COUCH_SHIELD_FULL,
   MISSION_RETURN_SUPPLIES,
+  missionReturnSupplyDelta,
   rechargeCouchShield,
   startVoyage,
   type CaptainId,
@@ -26,6 +27,20 @@ import {
 import { ALIEN_SPECIES_STORIES } from '../gameOfCaptains/alienSpeciesStories'
 import { ALIEN_CHOICE_STORIES } from '../gameOfCaptains/alienChoiceStories'
 import { endingFamilyTitle } from '../gameOfCaptains/artSlots'
+
+assert.deepEqual(
+  [
+    missionReturnSupplyDelta(0, 'disaster'),
+    missionReturnSupplyDelta(1, 'disaster'),
+    missionReturnSupplyDelta(2, 'disaster'),
+    missionReturnSupplyDelta(3, 'disaster'),
+    missionReturnSupplyDelta(0, 'costly'),
+    missionReturnSupplyDelta(0, 'success'),
+    missionReturnSupplyDelta(3, 'flawless'),
+  ],
+  [0, -1, -2, -2, 0, 1, 2],
+  'mission receipt shows actual crate movement, never imaginary negative inventory',
+)
 
 type Player = {
   name: string

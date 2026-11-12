@@ -10,6 +10,8 @@ import type { EvtSave } from './saves'
 import { STAGE_PRESETS, type StageDraft } from './studio'
 import { KNOWN_TRIGGERS } from './training'
 
+export const PLAYABLE_PERSPECTIVES: readonly Perspective[] = ['hero', 'villain']
+
 export type AnimationSpeed = 'off' | 'fast' | 'normal' | 'slow'
 export type EvtSettings = {
   version: 1

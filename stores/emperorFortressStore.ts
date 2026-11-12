@@ -60,6 +60,15 @@ import {
   relicAchievements,
 } from '~/utils/emperorOfDust/fortress/achievements'
 import { useAchievementStore } from './achievementStore'
+import {
+  LEGACY_KEY,
+  applyLegacy,
+  decodeLegacy,
+  earnLegacy,
+  emptyLegacy,
+  encodeLegacy,
+} from '~/utils/emperorOfDust/fortress/legacy'
+import type { LegacyRecord } from '~/utils/emperorOfDust/fortress/legacy'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
 // Emperor of Dust v0.3 (Fortress), conductor SYSTEMS-V03.md.
@@ -163,6 +172,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   /** Codex ids learned by the last answer or talk, for the reveal moment. */
   const lastLearned = ref<string[]>([])
   const relicVault = ref<RelicVault>(emptyRelicVault())
+  const legacy = ref<LegacyRecord>(emptyLegacy())
+  let legacyHeld = false
   const textSpeed = ref<TextSpeed>('normal')
   const preferences = ref<FortressPreferences>({
     ...DEFAULT_FORTRESS_PREFERENCES,
@@ -329,6 +340,11 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   function load() {
     if (loaded.value) return
     if (!storage()) writeWarning.value = BLOCKED
+    const rawLegacy = read(LEGACY_KEY)
+    const savedLegacy = decodeLegacy(rawLegacy)
+    legacyHeld = rawLegacy === undefined || (!!rawLegacy && !savedLegacy)
+    if (legacyHeld) hold('The legacy record is unreadable and was not overwritten.')
+    legacy.value = savedLegacy ?? emptyLegacy()
     const rawRelics = read(RELIC_KEY)
     const vault = decodeRelicVault(rawRelics ?? null)
     relicVaultUnreadable = rawRelics === undefined || (!!rawRelics && !vault)
@@ -353,7 +369,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     slotUnreadable.value = rawSlots.map(
       (rawSlot, i) => rawSlot === undefined || (!!rawSlot && !slots.value[i]),
     )
-    book.value = saved ?? newBook(createRun(newSeed(), equippedRelics()))
+    book.value = saved ?? newBook(applyLegacy(createRun(newSeed(), equippedRelics()), legacy.value))
     const untouched =
       !saved ||
       (saved.current.day === 1 &&
@@ -395,6 +411,17 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   function releaseAutosave() {
     autosaveHeld = false
     release(AUTOSAVE_HELD)
+  }
+
+  function setLegacyWrit(enabled: boolean) {
+    if (!loaded.value) load()
+    if (legacyHeld) throw new Error('The legacy record is unreadable')
+    if (enabled && !legacy.value.endings.length)
+      throw new Error('Complete a reign before selecting the veteran writ')
+    const next = { ...legacy.value, useWrit: enabled }
+    if (!write(LEGACY_KEY, encodeLegacy(next)))
+      throw new Error('The legacy preference could not be saved')
+    legacy.value = next
   }
 
   function newRun() {
@@ -473,6 +500,10 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     book.value = recordDawn(book.value!, result.run)
     lastReport.value = result.report
     persist()
+    if (result.run.day > 50 && !legacyHeld) {
+      const nextLegacy = earnLegacy(legacy.value, result.run)
+      if (write(LEGACY_KEY, encodeLegacy(nextLegacy))) legacy.value = nextLegacy
+    }
     awardAchievements(result.run)
     absorbAllegiances()
     award([
@@ -587,6 +618,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     lastResponse,
     lastReport,
     relicVault,
+    legacy,
+    setLegacyWrit,
     claimable,
     textSpeed,
     preferences,

@@ -11,8 +11,11 @@ const SKILL_BONUS: Record<TrialChoice['skill'], number> = {
   insight: 2,
 }
 
-export function trialSuccessOutcomes(choice: TrialChoice): number {
-  const needed = choice.target - SKILL_BONUS[choice.skill]
+export function trialSuccessOutcomes(
+  choice: TrialChoice,
+  skills: Readonly<Record<TrialChoice['skill'], number>> = SKILL_BONUS,
+): number {
+  const needed = choice.target - skills[choice.skill]
   let wins = 0
   for (let first = 1; first <= 6; first++)
     for (let second = 1; second <= 6; second++)
@@ -20,6 +23,9 @@ export function trialSuccessOutcomes(choice: TrialChoice): number {
   return wins
 }
 
-export function trialSuccessPercent(choice: TrialChoice): number {
-  return Math.round((trialSuccessOutcomes(choice) * 1000) / 36) / 10
+export function trialSuccessPercent(
+  choice: TrialChoice,
+  skills: Readonly<Record<TrialChoice['skill'], number>> = SKILL_BONUS,
+): number {
+  return Math.round((trialSuccessOutcomes(choice, skills) * 1000) / 36) / 10
 }

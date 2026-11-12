@@ -2,6 +2,7 @@ import {
   adoptSpentDeeds,
   spentDeedsFromSave,
   withSpentDeedsFrom,
+  type JourneyRules,
 } from './deckV6'
 import { sameReplay } from './saveLedger'
 import {
@@ -34,13 +35,14 @@ export function newJourneyLedgerV8(seed: number): JourneyLedgerV8 {
 export function stepJourneyLedgerV8(
   ledger: JourneyLedgerV8,
   action: JourneyActionV7,
+  rules: JourneyRules = {},
 ): JourneyLedgerV8 {
   const legacy: JourneyLedgerV7 = {
     ...ledger,
     version: 7,
     trialRulesVersion: TRIAL_RULES_V7,
   }
-  const next = stepJourneyLedgerV7(legacy, action, trialForLandV8)
+  const next = stepJourneyLedgerV7(legacy, action, trialForLandV8, rules)
   if (next === legacy) return ledger
   return {
     ...next,

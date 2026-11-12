@@ -1,0 +1,658 @@
+{
+  "schemaVersion": 1,
+  "note": "zuzu-shifting-lands/t-052 cast cameos. Dealt only by a V10 character draw (castDeckV10.ts). A card whose cast includes the player's own identity is swapped for its selfVariant or not dealt at all.",
+  "cards": [
+    {
+      "id": "boots-on-a-string",
+      "locationId": "old-well",
+      "title": "Boots on a String",
+      "flavor": "A young raccoon in a coat far too big for him is trading boots at the old well, four pairs hung round his neck by their laces and his own feet bare and cut. He swears they were honestly found. When a farmhand asks his name, he only holds up one black paw, dark to the wrist like a mitten, and keeps haggling.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/looter.webp",
+      "cast": ["jeffery-mittens"],
+      "selfVariant": "the-barefoot-line",
+      "choices": [
+        {
+          "id": "ask-whose-boots",
+          "label": "Ask whose boots they were",
+          "intent": "Ask him plainly, without heat, where four pairs of boots came from.",
+          "risk": "A hungry boy hears a question as an accusation.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "insight", "modifier": 0, "target": 9 },
+          "success": {
+            "text": "He looks at you a long time before he answers. \"Weren't me. Weren't us. We only come after.\" The boots are for other children, somewhere, with feet as bare as his. He tells you which road the raiders took so you can keep off it.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["boots-on-a-string-truth"],
+            "map_effect": "none",
+            "marks": { "honesty": 1 }
+          },
+          "failure": {
+            "text": "He reads the question as a charge and is gone through the dead reeds before you finish it, boots knocking round his neck. One small boot lies in the mud where he stood.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["boots-on-a-string-fled"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "trade-a-ration-for-a-pair",
+          "label": "Trade a ration for a pair",
+          "intent": "Buy the smallest pair with food, the one currency he cannot refuse.",
+          "risk": "You will feel the missing ration on the road tonight.",
+          "requires": null,
+          "cost": { "provisions": -1 },
+          "roll": null,
+          "success": {
+            "text": "He weighs the ration in his paw as if it might be taken back, then hands you the smallest pair. At the well's edge he stops. \"Jeffery,\" he says, almost to himself. \"Jeffery Mittens.\" Then he is gone toward the rocks.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["boots-on-a-string-traded"],
+            "map_effect": "none",
+            "marks": { "mercy": 1 }
+          },
+          "failure": null
+        },
+        {
+          "id": "feed-the-ones-he-buys-for",
+          "label": "Feed the ones he is buying for",
+          "intent": "Give him food for himself and for whoever is waiting barefoot.",
+          "risk": "Two of your rations go to children you will never see.",
+          "requires": null,
+          "cost": { "provisions": -2 },
+          "roll": null,
+          "success": {
+            "text": "You give him two rations and ask for nothing. He tucks them inside the huge coat and says the others will eat first. He does not thank you; he says, \"I'll owe you,\" and you can tell he means it as a promise.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["deed-shared-bread", "deed-owed-favor"],
+            "map_effect": "none",
+            "marks": { "mercy": 2 }
+          },
+          "failure": null
+        },
+        {
+          "id": "call-the-farmhands-over",
+          "label": "Call the farmhands over",
+          "intent": "Let the farmhands who want the boots back settle it with him.",
+          "risk": "The well will remember who called them.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "bearing", "modifier": 0, "target": 8 },
+          "success": {
+            "text": "The farmhands take back every pair and send him off barefoot with nothing. They pay you a ration for your trouble. He does not look back, and the well is very quiet afterward.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["deed-left-someone", "boots-on-a-string-turned-in"],
+            "map_effect": "none",
+            "marks": { "ruthlessness": 1 }
+          },
+          "failure": {
+            "text": "He hears you call and is over the wall before the farmhands reach the well. They blame you for the noise, and somewhere in the rocks a boy will remember your face.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["boots-on-a-string-remembered"],
+            "map_effect": "none",
+            "marks": { "ruthlessness": 1 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-barefoot-line",
+      "locationId": "old-well",
+      "title": "The Barefoot Line",
+      "flavor": "Three small children with bare, cut feet are waiting on the stones of the old well, right where you told them to wait. They have already counted the boots round your neck. One pair short. A farmhand drawing water has a good pair drying on the rim behind him, and he is not watching it.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/waterhole.webp",
+      "cast": [],
+      "variantOnly": true,
+      "choices": [
+        {
+          "id": "ask-the-farmhand",
+          "label": "Ask the farmhand for the pair",
+          "intent": "Walk up and ask for the drying boots straight, the way you never do.",
+          "risk": "Asking means telling him what they are for.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "bearing", "modifier": 0, "target": 9 },
+          "success": {
+            "text": "He looks at the children, then at your mitten paws, and hands the boots down without a word. The smallest one walks away in them like a soldier. You tell the truth once and it holds.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["deed-told-truth", "the-barefoot-line-given"],
+            "map_effect": "none",
+            "marks": { "honesty": 1 }
+          },
+          "failure": {
+            "text": "He tells you to take your gang and get off his well. The children file away behind you, one still barefoot, and none of them complain, which is worse.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["the-barefoot-line-refused"],
+            "map_effect": "none",
+            "marks": { "honesty": 1 }
+          }
+        },
+        {
+          "id": "lift-the-drying-pair",
+          "label": "Lift the drying pair",
+          "intent": "Slide the boots off the rim while his back is turned.",
+          "risk": "A caught thief is remembered at every well on the road.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "wits", "modifier": 0, "target": 8 },
+          "success": {
+            "text": "The boots are off the rim and on the smallest pair of feet before the bucket comes up. Nobody on the stones says a word. Your line walks away shod, and you walk away quick.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["the-barefoot-line-lifted"],
+            "map_effect": "none",
+            "marks": { "cunning": 1 }
+          },
+          "failure": {
+            "text": "His hand closes on your wrist. He looks at the children a long time, lets you go and keeps the boots. Word will reach the next well before you do.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["the-barefoot-line-caught"],
+            "map_effect": "none",
+            "marks": { "cunning": 1 }
+          }
+        },
+        {
+          "id": "give-your-own-boots",
+          "label": "Give the smallest your own boots",
+          "intent": "Unlace your own pair and walk the next stretch barefoot.",
+          "risk": "The road is hard on bare feet, and you have only just got boots of your own.",
+          "requires": null,
+          "cost": { "hp": -1 },
+          "roll": null,
+          "success": {
+            "text": "You unlace your own boots and kneel to put them on the smallest feet. They are far too big. She walks in them anyway, proud as anything, and you walk the stones barefoot again, the way you always did.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["the-barefoot-line-own-boots"],
+            "map_effect": "none",
+            "marks": { "mercy": 2 }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "two-small-shadows",
+      "locationId": "canyon-trail",
+      "title": "Two Small Shadows",
+      "flavor": "All morning two small shadows have kept to the rocks behind you: a gaunt fennec girl with bandaged wrists and a toddler riding on her hip. When you stop, they stop. When you look, the rocks are empty. The canyon will be cold tonight, and they have no fire.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/siblings.webp",
+      "cast": ["fennec-siblings"],
+      "selfVariant": "apples-on-a-stone",
+      "choices": [
+        {
+          "id": "leave-food-on-a-stone",
+          "label": "Leave food on a flat stone",
+          "intent": "Set a ration where they will find it and walk on without looking back.",
+          "risk": "A ration you will not see again.",
+          "requires": null,
+          "cost": { "provisions": -1 },
+          "roll": null,
+          "success": {
+            "text": "You set a ration on a flat stone and walk on. At dusk the stone is bare and the shadows are a little closer. In the morning a handful of bitter berries waits by your boots, laid out in a careful row.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["deed-shared-bread", "two-small-shadows-fed"],
+            "map_effect": "none",
+            "marks": { "mercy": 1 }
+          },
+          "failure": null
+        },
+        {
+          "id": "sit-and-wait",
+          "label": "Sit with open hands and wait",
+          "intent": "Make camp in plain sight and let them decide how close to come.",
+          "risk": "Trust is earned in inches, and a wrong move spends it all.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "insight", "modifier": 0, "target": 10 },
+          "success": {
+            "text": "You wait with your hands open until the girl comes close enough to see that you mean it. She does not give her name. She lets her brother sleep by your fire, and she does not sleep at all.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["two-small-shadows-trusted"],
+            "map_effect": "none",
+            "marks": { "mercy": 1 }
+          },
+          "failure": {
+            "text": "You move too soon. The girl has a little dagger out and her brother behind her before you are on your feet, and then they are gone up the rocks. You did not mean any harm; she could not know that.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["two-small-shadows-fled"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "lose-them-in-the-rocks",
+          "label": "Lose them in the rocks",
+          "intent": "Double back through the dry washes until the shadows give up.",
+          "risk": "Two children alone in the canyon is a weight you choose to set down.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "awareness", "modifier": 0, "target": 9 },
+          "success": {
+            "text": "You cut through a dry wash and double back twice. By noon the shadows are gone. The trail is easier alone, and quieter than you expected it to be.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["deed-left-someone", "two-small-shadows-lost"],
+            "map_effect": "none",
+            "marks": { "cunning": 1 }
+          },
+          "failure": {
+            "text": "You try to lose them and only lose yourself. By the time you find the trail you have spent a day's water, and the two shadows are still there on the rocks, watching.",
+            "hp_delta": 0,
+            "provisions_delta": -1,
+            "add_flags": ["two-small-shadows-followed"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "show-them-the-old-way",
+          "label": "Lead them by the old scout line",
+          "intent": "Take the sheltered way you know, slow enough for a toddler to follow.",
+          "risk": "Only someone who knows the old roads can find it.",
+          "requires": { "anyFlags": ["deed-knows-old-roads"] },
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You walk the old scout line where the wind cannot reach, slow enough for small legs. That night the shadows sit at the edge of your firelight, and the girl lets her brother sleep warm.",
+            "hp_delta": 1,
+            "provisions_delta": 0,
+            "add_flags": ["two-small-shadows-sheltered"],
+            "map_effect": "none",
+            "marks": { "mercy": 1 }
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "apples-on-a-stone",
+      "locationId": "canyon-trail",
+      "title": "Apples on a Stone",
+      "flavor": "For two days a small grey traveler in a wide straw hat has walked the canyon ahead of you, a sword at his hip that he never touches. Each evening, where he made camp, something is left on a flat stone: an apple, a strip of dried meat, once a canteen half full. Your brother has started calling the stones his.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/apples-sister.webp",
+      "cast": ["zuzu"],
+      "variantOnly": true,
+      "choices": [
+        {
+          "id": "take-what-is-left",
+          "label": "Take what is left",
+          "intent": "Take tonight's apple and give your brother the bigger half.",
+          "risk": "Food left for you is still food you did not earn.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You take the apple and give your brother the bigger half. Tomorrow there is another stone, and another, and the distance between your fire and his grows a little shorter every night.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["apples-on-a-stone-taken"],
+            "map_effect": "none",
+            "marks": {}
+          },
+          "failure": null
+        },
+        {
+          "id": "follow-close-enough-to-be-seen",
+          "label": "Follow close enough to be seen",
+          "intent": "Walk near his camp in daylight, with your brother on your hip.",
+          "risk": "A stranger with a sword is still a stranger with a sword.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "resolve", "modifier": 0, "target": 9 },
+          "success": {
+            "text": "He stops without turning and sets down a second bowl beside his own. Neither of you says a word all evening. Your brother falls asleep against the stranger's pack, and you let him.",
+            "hp_delta": 1,
+            "provisions_delta": 0,
+            "add_flags": ["apples-on-a-stone-shared-fire"],
+            "map_effect": "none",
+            "marks": { "courage": 1 }
+          },
+          "failure": {
+            "text": "He turns when you are too close, his hand drifting toward the sword and then away from it. You are already scrambling back up the rocks with your brother, heart hammering, before you see the hand open.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["apples-on-a-stone-startled"],
+            "map_effect": "none",
+            "marks": { "courage": 1 }
+          }
+        },
+        {
+          "id": "leave-something-back",
+          "label": "Leave something back",
+          "intent": "Set a share of your own food on his stone before he wakes.",
+          "risk": "You have so little to give, and your brother is hungry.",
+          "requires": null,
+          "cost": { "provisions": -1 },
+          "roll": null,
+          "success": {
+            "text": "Before dawn you lay a share of your food on his stone in a careful row. When he finds it he stands very still, then takes off his hat, and you do not know what that means yet.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["deed-shared-bread", "apples-on-a-stone-repaid"],
+            "map_effect": "none",
+            "marks": { "mercy": 1, "honesty": 1 }
+          },
+          "failure": null
+        },
+        {
+          "id": "take-from-his-pack",
+          "label": "Take from his pack at night",
+          "intent": "Creep into his camp while he sleeps and take what your brother needs.",
+          "risk": "He may not be sleeping.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "awareness", "modifier": 0, "target": 10 },
+          "success": {
+            "text": "You are in and out of his camp without a sound, two days of food in your shirt. He never stirs. In the morning there is still an apple on the stone, and that is harder to carry than the food.",
+            "hp_delta": 0,
+            "provisions_delta": 2,
+            "add_flags": ["apples-on-a-stone-stolen"],
+            "map_effect": "none",
+            "marks": { "cunning": 1, "ruthlessness": 1 }
+          },
+          "failure": {
+            "text": "He is awake. He only looks at you, then sets a ration on the stone himself and turns his back so you can take it. You take it. Neither of you mentions it again.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["apples-on-a-stone-caught"],
+            "map_effect": "none",
+            "marks": { "cunning": 1 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "a-scout-on-the-rocks",
+      "locationId": "dry-delta",
+      "title": "A Scout on the Rocks",
+      "flavor": "A low whistle comes from the rocks of the dry delta, twice, and a young raccoon drops onto the sand in front of you, a jackal's rag tied round his arm and a coat far too big for him. \"Band's watering at the old channel,\" he says, quick and low, his voice cracking. \"They'll want a toll. I can say you're nobody worth stopping. That ain't free.\"",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/looter.webp",
+      "cast": ["jeffery-mittens"],
+      "choices": [
+        {
+          "id": "pay-the-scout",
+          "label": "Pay the scout",
+          "intent": "Give him a ration to walk you past the band.",
+          "risk": "You are paying one of the band to keep the band off you.",
+          "requires": null,
+          "cost": { "provisions": -1 },
+          "roll": null,
+          "success": {
+            "text": "He walks you along the edge of the jackals' channel as if you were his own errand. At the far bank he gives his name like a receipt, \"Jeffery Mittens,\" and is back up the rocks before you can answer.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["a-scout-on-the-rocks-paid"],
+            "map_effect": "none",
+            "marks": {}
+          },
+          "failure": null
+        },
+        {
+          "id": "ask-him-to-vouch",
+          "label": "Ask him to vouch for you",
+          "intent": "He has heard who shares food on this road. Ask him to say so.",
+          "risk": "Only works if the road has seen you share.",
+          "requires": { "anyFlags": ["deed-shared-bread"] },
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "\"Heard you fed folk back along the road,\" he says, looking at your boots and not your face. He speaks for you at the channel for nothing, and the jackals let you water before they do.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["a-scout-on-the-rocks-vouched"],
+            "map_effect": "none",
+            "marks": { "honesty": 1 }
+          },
+          "failure": null
+        },
+        {
+          "id": "go-around-the-band",
+          "label": "Go around the band",
+          "intent": "Thank him and find your own way across the open sand.",
+          "risk": "The delta is wide and the jackals have good eyes.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "awareness", "modifier": 0, "target": 10 },
+          "success": {
+            "text": "You keep to the dry cut-banks and cross after moonrise. Nobody stops you. From the rocks behind comes one low whistle, which might be approval.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["a-scout-on-the-rocks-avoided"],
+            "map_effect": "none",
+            "marks": { "cunning": 1 }
+          },
+          "failure": {
+            "text": "The jackals see you on the open sand and take their toll the hard way. You leave the delta bruised and lighter, and the scout is nowhere to be seen.",
+            "hp_delta": -1,
+            "provisions_delta": -1,
+            "add_flags": ["a-scout-on-the-rocks-tolled"],
+            "map_effect": "none",
+            "marks": {}
+          }
+        },
+        {
+          "id": "warn-him-off-the-band",
+          "label": "Tell him what the band will cost him",
+          "intent": "Tell him plainly that the band will spend him as easily as anyone.",
+          "risk": "Hard truths are cheap to say from a full pack.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "bearing", "modifier": 0, "target": 9 },
+          "success": {
+            "text": "He listens longer than he wants to. He will not leave them, not with the little ones fed by the band, but he tells you where they camp next and that he will be on the edge of it, ready to run.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["deed-told-truth", "a-scout-on-the-rocks-warned"],
+            "map_effect": "none",
+            "marks": { "honesty": 1 }
+          },
+          "failure": {
+            "text": "\"Easy to say with a full pack,\" he says, and he is gone. You still had to say it. The toll at the channel costs you a ration anyway.",
+            "hp_delta": 0,
+            "provisions_delta": -1,
+            "add_flags": ["deed-told-truth", "a-scout-on-the-rocks-scorned"],
+            "map_effect": "none",
+            "marks": { "honesty": 1 }
+          }
+        }
+      ]
+    },
+    {
+      "id": "the-hungry-hour",
+      "locationId": "trading-post",
+      "title": "The Hungry Hour",
+      "flavor": "Behind the trading post's grain bins a fennec girl with bandaged wrists is filling her shirt with loaves while a toddler holds the sack open, solemn as a clerk. The trader is two steps from the corner. She sees you see her. She does not run; she only moves to stand in front of her brother.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/stolen-bread.webp",
+      "cast": ["fennec-siblings"],
+      "selfVariant": "the-price-of-a-loaf",
+      "choices": [
+        {
+          "id": "pay-for-the-bread",
+          "label": "Pay for what she took",
+          "intent": "Step round the corner and settle the bread with the trader yourself.",
+          "risk": "Two rations of your own, for bread you will not eat.",
+          "requires": null,
+          "cost": { "provisions": -2 },
+          "roll": null,
+          "success": {
+            "text": "You pay the trader before he reaches the bins. When you look back the corner is empty except for one loaf, set on the step where you will find it, which she could not afford to leave.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["deed-shared-bread", "the-hungry-hour-paid"],
+            "map_effect": "none",
+            "marks": { "mercy": 2 }
+          },
+          "failure": null
+        },
+        {
+          "id": "distract-the-trader",
+          "label": "Keep the trader talking",
+          "intent": "Ask about every price on the slate until the corner is empty.",
+          "risk": "If he turns too soon, the bread is on you.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "wits", "modifier": 0, "target": 9 },
+          "success": {
+            "text": "You argue the price of salt until the trader is red in the face. By the time he turns, the corner holds nothing but a broom. Nobody saw anything; least of all you.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["the-hungry-hour-covered"],
+            "map_effect": "none",
+            "marks": { "cunning": 1, "mercy": 1 }
+          },
+          "failure": {
+            "text": "He turns too soon and finds the sack gone and you standing there. The children are away; the bill is yours, and you pay it to keep the peace.",
+            "hp_delta": 0,
+            "provisions_delta": -1,
+            "add_flags": ["the-hungry-hour-blamed"],
+            "map_effect": "none",
+            "marks": { "mercy": 1 }
+          }
+        },
+        {
+          "id": "call-the-trader",
+          "label": "Call the trader",
+          "intent": "Tell him his bins are being emptied.",
+          "risk": "She will remember who called.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "bearing", "modifier": 0, "target": 8 },
+          "success": {
+            "text": "The trader takes back every loaf and sends the two of them off with nothing. He thanks you with a ration. The girl looks at you exactly once as she goes, and does not need to say anything.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["deed-left-someone", "the-hungry-hour-reported"],
+            "map_effect": "none",
+            "marks": { "ruthlessness": 1 }
+          },
+          "failure": {
+            "text": "She is gone before the trader rounds the bins, loaves and brother both. He blames you for the noise and the loss, and the price of salt doubles for you alone.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["the-hungry-hour-fled"],
+            "map_effect": "none",
+            "marks": { "ruthlessness": 1 }
+          }
+        },
+        {
+          "id": "look-away",
+          "label": "Look at the price slate",
+          "intent": "Find the chalk prices very interesting for a while.",
+          "risk": "Doing nothing is a choice too.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You study the chalk prices until the shuffling behind the bins stops. When you look back the corner is empty, and the trader is still counting the wrong sacks.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["the-hungry-hour-ignored"],
+            "map_effect": "none",
+            "marks": {}
+          },
+          "failure": null
+        }
+      ]
+    },
+    {
+      "id": "the-price-of-a-loaf",
+      "locationId": "trading-post",
+      "title": "The Price of a Loaf",
+      "flavor": "Your brother has not eaten since yesterday and has stopped asking, which is worse than asking. The trading post's grain bins stand unwatched for the space of a breath. By the door the trader's own child is sweeping, and watching you, and has not decided yet whether to call out.",
+      "weight": 2,
+      "art": "/zuzu-gamebook/scenes/stolen-bread.webp",
+      "cast": [],
+      "variantOnly": true,
+      "choices": [
+        {
+          "id": "take-two-loaves",
+          "label": "Take two loaves and go",
+          "intent": "Fill your shirt while the bins are unwatched.",
+          "risk": "The sweeping child is still watching.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "awareness", "modifier": 0, "target": 9 },
+          "success": {
+            "text": "Two loaves, your brother on your hip, and the alley behind the bins. The sweeping child never calls out. You will wonder about that for a long time.",
+            "hp_delta": 0,
+            "provisions_delta": 2,
+            "add_flags": ["the-price-of-a-loaf-taken"],
+            "map_effect": "none",
+            "marks": { "cunning": 1 }
+          },
+          "failure": {
+            "text": "The child calls out. You run with one loaf and a scraped knee, your brother laughing on your hip as if it were a game. Let him think so.",
+            "hp_delta": -1,
+            "provisions_delta": 1,
+            "add_flags": ["the-price-of-a-loaf-chased"],
+            "map_effect": "none",
+            "marks": { "cunning": 1 }
+          }
+        },
+        {
+          "id": "ask-for-work",
+          "label": "Ask the trader for work",
+          "intent": "Offer to sweep and haul for bread, and keep your brother where he can see.",
+          "risk": "Traders do not hire small hands, or not often.",
+          "requires": null,
+          "cost": null,
+          "roll": { "skill": "bearing", "modifier": 0, "target": 10 },
+          "success": {
+            "text": "He looks you over and hands you a broom. You haul sacks all afternoon while your brother sits on a crate and supervises. At dusk the trader pays in bread, and adds an apple without a word.",
+            "hp_delta": 0,
+            "provisions_delta": 1,
+            "add_flags": ["the-price-of-a-loaf-earned"],
+            "map_effect": "none",
+            "marks": { "honesty": 1 }
+          },
+          "failure": {
+            "text": "\"No small hands,\" he says, not unkindly, and turns back to his slate. You walk away with your brother and your pride, which are both still hungry.",
+            "hp_delta": 0,
+            "provisions_delta": 0,
+            "add_flags": ["the-price-of-a-loaf-refused"],
+            "map_effect": "none",
+            "marks": { "honesty": 1 }
+          }
+        },
+        {
+          "id": "go-without-again",
+          "label": "Give him your share again",
+          "intent": "Feed your brother the last crust and go without.",
+          "risk": "You have done this before. It gets harder.",
+          "requires": null,
+          "cost": null,
+          "roll": null,
+          "success": {
+            "text": "You give your brother the last crust and tell him you already ate. He believes you. The walk out of town is long and light-headed, and you would do it again.",
+            "hp_delta": -1,
+            "provisions_delta": 0,
+            "add_flags": [
+              "deed-shared-bread",
+              "the-price-of-a-loaf-went-without"
+            ],
+            "map_effect": "none",
+            "marks": { "mercy": 1 }
+          },
+          "failure": null
+        }
+      ]
+    }
+  ]
+}

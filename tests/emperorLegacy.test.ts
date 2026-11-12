@@ -13,7 +13,10 @@ import { createRun } from '../utils/emperorOfDust/fortress/engine'
   {
     const start = createRun(123)
     assert.deepEqual(earnLegacy(emptyLegacy(), start), emptyLegacy())
-    assert.equal(applyLegacy(start, { endings: [], useWrit: true }).brass, start.brass)
+    assert.equal(
+      applyLegacy(start, { endings: [], useWrit: true }).brass,
+      start.brass,
+    )
   }
 
   {

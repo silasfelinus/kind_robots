@@ -91,7 +91,10 @@ assert.match(publicStore, /loadedAccount\.value !== accountId\.value/)
 assert.match(publicStore, /localStorage\.removeItem\(key\(mode\)\)/)
 assert.match(publicStore, /generalSaved\.value = false/)
 assert.match(publicStore, /matureSaved\.value = false/)
-assert.match(adminStore, /if \(!authorized\.value \|\| !import\.meta\.client\) return false/)
+assert.match(
+  adminStore,
+  /if \(!authorized\.value \|\| !import\.meta\.client\) return false/,
+)
 assert.match(adminStore, /localStorage\.removeItem\(saveKey\.value\)/)
 assert.match(adminStore, /hasSavedCase\.value = false/)
 assert.match(front, /audience\.value === 'general'/)

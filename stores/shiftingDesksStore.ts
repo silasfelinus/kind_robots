@@ -19,6 +19,10 @@ import {
 } from '~/utils/shiftingDesks/rules'
 import { dailySeed } from '~/utils/shiftingDesks/daily'
 import {
+  completionAchievements,
+  instantAchievements,
+} from '~/utils/shiftingDesks/achievements'
+import {
   emptyRewardArchive,
   migrateFoundEndings,
   newMilestonesForRun,
@@ -162,12 +166,23 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       receipt,
       endingsFound.value,
     )
-    if (announce)
+    // Only a run finished in play is judged; load() restores silently.
+    if (announce) {
       newlyEarnedMilestones.value = newMilestonesForRun(
         previousArchive,
         rewardArchive.value,
         receipt.id,
       )
+      award(
+        completionAchievements(
+          previousArchive,
+          rewardArchive.value,
+          receipt.id,
+          endingsFound.value,
+          run.value,
+        ),
+      )
+    }
     return (
       endingsFound.value.length !== before ||
       previousArchive !== rewardArchive.value
@@ -176,8 +191,17 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
 
   function useInstant(which: 'favor' | 'mutation'): void {
     if (!run.value) return
+    const before = run.value
     run.value = useInstantInRun(run.value, which)
     persist()
+    award(instantAchievements(before, run.value))
+  }
+
+  /** Fires catalog codes at the deed; the achievement store ignores repeats. */
+  function award(codes: string[]): void {
+    if (!codes.length) return
+    const achievements = useAchievementStore()
+    for (const code of codes) void achievements.rewardAchievementByCode(code)
   }
 
   function openEnvelope(): void {

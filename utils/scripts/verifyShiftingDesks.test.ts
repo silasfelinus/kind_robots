@@ -82,15 +82,18 @@ assert.equal(ORIENTATION.schemaVersion, 1)
 const cabinetMarkup = asset(
   '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
 )
-assert.deepEqual(
-  achievementsForGame('shifting-desks').map((row) => row.code),
-  [
-    'shifting-desks-survived-review',
-    'shifting-desks-sub-level-zero',
-    'shifting-desks-faced-the-board',
-  ],
-  'cabinet uses canonical three account achievement triggers',
+const deskAchievements = achievementsForGame('shifting-desks').map(
+  (row) => row.code,
 )
+for (const code of [
+  'shifting-desks-survived-review',
+  'shifting-desks-sub-level-zero',
+  'shifting-desks-faced-the-board',
+])
+  assert.ok(
+    deskAchievements.includes(code),
+    `cabinet keeps the live ${code} account achievement trigger`,
+  )
 assert.match(cabinetMarkup, /achievementStore\.achievementRecords/)
 assert.match(cabinetMarkup, /record\.userId === userStore\.userId/)
 assert.match(cabinetMarkup, /status: award/)

@@ -289,6 +289,8 @@ import {
 import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
 import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
+import { isRainbowFeat, rainbowMedalFeats } from './rainbowAchievements'
+import { partsComplete } from '../mastery'
 import {
   RAINBOW_ALLEGIANCE_LABEL,
   RAINBOW_TURN,
@@ -1180,6 +1182,9 @@ export function createRainbowPrincessPreview(
   let actContinues = 0
   /** Mastery goals earned this game. */
   const earned: string[] = []
+  /** Achievement keys earned this game, queued until the cabinet drains them. */
+  const feats: string[] = []
+  const featsSeen = new Set<string>()
   /** The progress the cabinet keeps: written at each Act start, cleared at THE END. */
   let saveRecord: RainbowSave | null | undefined = undefined
   /** A saved flight to offer before the game begins: continue from its Act, or start a new one. */
@@ -1339,6 +1344,7 @@ export function createRainbowPrincessPreview(
   function launchCrownReef() {
     // The turn: where the living crew flies as it launches is its choice (t-040).
     allegiance = allegianceFor(livingShips().map((ship) => ship.y))
+    feat(allegiance === 'rebel' ? 'rebel-road' : 'loyal-road')
     popups.push({
       x: W / 2,
       y: 92,
@@ -1852,6 +1858,7 @@ export function createRainbowPrincessPreview(
         .filter((ship) => ship.lives > 0)
         .map((ship) => ship.y),
     )
+    if (trenchRoute === 'vault') feat('vault-run')
     popups.push({
       x: W / 2,
       y: 92,
@@ -2224,10 +2231,27 @@ export function createRainbowPrincessPreview(
   function earn(id: string) {
     if (earned.includes(id)) return
     earned.push(id)
-    if (options.demo || options.mastery?.includes(id)) return
-    const goal = RAINBOW_MASTERY.find((rung) => rung.id === id)
-    if (goal)
-      popups.push({ x: W / 2, y: 112, text: `MASTERY · ${goal.title}`, age: 0 })
+    feat(id)
+    if (!options.demo && !options.mastery?.includes(id)) {
+      const goal = RAINBOW_MASTERY.find((rung) => rung.id === id)
+      if (goal)
+        popups.push({
+          x: W / 2,
+          y: 112,
+          text: `MASTERY · ${goal.title}`,
+          age: 0,
+        })
+    }
+    // A goal made of parts (EVERY ENDING) is earned with its last part.
+    const held = new Set([...(options.mastery ?? []), ...earned])
+    for (const done of partsComplete(RAINBOW_MASTERY, held)) earn(done)
+  }
+
+  /** Queue an achievement the moment it happens (never in the demo); the cabinet drains it. */
+  function feat(id: string) {
+    if (options.demo || !isRainbowFeat(id) || featsSeen.has(id)) return
+    featsSeen.add(id)
+    feats.push(id)
   }
 
   /** An Act's medal: gold for no hits, silver for no continues, bronze for the clear. */
@@ -2244,6 +2268,8 @@ export function createRainbowPrincessPreview(
     })
     if (act === 1) earn('first-light')
     if (medal === 'gold') earn('gold-wing')
+    if (activePlayers === 4) feat('full-squadron')
+    if (act === 9) for (const id of rainbowMedalFeats(medals)) feat(id)
   }
 
   /** Keep this Act start for the cabinet: the checkpoint, the difficulty, the guardians met and the medals. */
@@ -2798,6 +2824,7 @@ export function createRainbowPrincessPreview(
     if (ship.charge < 100) return
     ship.charge = 0
     supers++
+    feat('kitty-power')
     bursts.push({ seat, pilot: kind, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
     if (boss && boss.frame > 85) {
@@ -4893,6 +4920,10 @@ export function createRainbowPrincessPreview(
     /** Mastery goals earned this game (t-010). */
     get mastered() {
       return options.demo ? [] : earned
+    },
+    /** Achievement keys earned since the cabinet last asked (main-game standard). */
+    drainFeats() {
+      return feats.splice(0)
     },
     /**
      * The score for this moment (t-012): the Act's layer for the danger on screen (flying, a guardian, a boss),

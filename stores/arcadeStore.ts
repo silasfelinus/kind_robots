@@ -33,7 +33,12 @@ import {
   withSave,
   type SaveRecord,
 } from '~/utils/arcade/saves'
-import { arcadeAchievementsEarned } from '~/utils/achievements/gameAchievements'
+import {
+  achievementCode,
+  arcadeAchievementsEarned,
+  gameAchievementByCode,
+  isMainGame,
+} from '~/utils/achievements/gameAchievements'
 import {
   ARCADE_DIFFICULTIES,
   type ArcadeDifficulty,
@@ -274,14 +279,29 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     }
   }
 
-  /** Award the achievements a table reported the moment it performed them. */
+  /**
+   * Award the achievements a game reported the moment it performed them (a
+   * table's feats, a main game's deeds). Codes follow the registry, so a
+   * cabinet-born main game keeps its arcade- prefix; unknown keys are skipped.
+   */
   async function awardFeats(game: string, feats: readonly string[]) {
     const achievements = useAchievementStore()
     for (const feat of feats) {
-      const code = `${game}-${feat}`
+      const code = achievementCode({ game, key: feat })
+      if (!gameAchievementByCode(code)) continue
       if (achievements.hasEarnedCode(code)) continue
       await achievements.rewardAchievementByCode(code)
     }
+  }
+
+  /**
+   * A main game's achievements that share their key with a mastery goal this
+   * player already holds here: earned before the game had achievements, they
+   * are backfilled at the next start or finished run.
+   */
+  async function awardMasteryAchievements(game: string) {
+    if (!isMainGame(game)) return
+    await awardFeats(game, masteryFor(game))
   }
 
   /** A game's saved progress on this device, if any. */
@@ -516,6 +536,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     recordMastery,
     awardRunAchievements,
     awardFeats,
+    awardMasteryAchievements,
     saveFor,
     recordSave,
     playersFor,

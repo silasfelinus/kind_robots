@@ -33,7 +33,7 @@ const stores = {
         muted: true, volume: 0, crt: false, stillCamera: false, offline: false,
         lastSubmittedId: null, savedInitials: '',
         board: () => [], fetchBoard: async () => {}, masteryFor: () => [], recordMastery() {},
-        awardRunAchievements: async () => {}, awardFeats: async () => {}, submitScore: async () => ({ success: false }),
+        awardRunAchievements: async () => {}, awardFeats: async () => {}, awardMasteryAchievements: async () => {}, submitScore: async () => ({ success: false }),
         styleFor: () => 'hd', setGameStyle() {}, setVolume() {}, setMuted() {}, setCrt() {},
         setStillCamera() {}, difficulties: {},
         difficultyFor(game) { return this.difficulties[game] ?? 'normal' },

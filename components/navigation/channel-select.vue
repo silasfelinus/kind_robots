@@ -155,6 +155,7 @@
           class="flex w-44 shrink-0 flex-col gap-1.5 overflow-x-hidden kr-anchor-scroll border-r border-base-300 bg-base-200/40 p-2 lg:w-56 xl:w-64"
           :style="{ maxHeight: `${channelMenuMaxHeight}px` }"
           aria-label="Channels"
+          @wheel="handleLauncherWheel"
         >
           <li
             v-for="channel in visibleChannels"
@@ -242,7 +243,7 @@
         <div
           v-if="previewedChannel"
           ref="channelFlyout"
-          @wheel="handleChannelFlyoutWheel"
+          @wheel="handleLauncherWheel"
           class="channel-submenu @container min-w-0 flex-1 flex-nowrap overflow-x-hidden kr-anchor-scroll p-3 xl:p-4"
           :style="{
             maxHeight: `${channelFlyoutMaxHeight}px`,
@@ -749,21 +750,21 @@ function previewChannel(
   })
 }
 
-function handleChannelFlyoutWheel(event: WheelEvent): void {
+function handleLauncherWheel(event: WheelEvent): void {
   if (event.ctrlKey || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return
 
-  const flyout = channelFlyout.value
-  if (!flyout) return
+  const scroller = event.currentTarget
+  if (!(scroller instanceof HTMLElement)) return
 
   let scrollTarget = event.target instanceof Element ? event.target : null
-  while (scrollTarget && scrollTarget !== flyout) {
+  while (scrollTarget && scrollTarget !== scroller) {
     if (
       scrollTarget instanceof HTMLElement &&
       canScrollVertically(scrollTarget, event.deltaY)
     ) return
     scrollTarget = scrollTarget.parentElement
   }
-  if (canScrollVertically(flyout, event.deltaY)) return
+  if (canScrollVertically(scroller, event.deltaY)) return
 
   const channels = visibleChannels.value
   const index = channels.findIndex(

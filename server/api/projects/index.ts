@@ -12,6 +12,7 @@ import { userIsAdmin } from '../../utils/authUser'
 export const projectStatuses = new Set<ProjectStatus>([
   'ACTIVE',
   'CONTINUOUS',
+  'PLAYTEST',
   'PAUSED',
   'DONE',
   'ARCHIVED',

@@ -17,7 +17,7 @@ tutorial:
   body: >-
     Visitors see public projects and can open each experience or read its
     project sheet. Administrators see Conductor projects, filtered by Active,
-    Continuous, Paused, Completed, Archived, or All. Proposed opens Pitch
+    Playtest, Continuous, Paused, Completed, Archived, or All. Proposed opens Pitch
     Review, where you approve, reject, or archive pitches. Missing destinations
     are highlighted. Sync lists projects
     whose status or database record has drifted, and Blocked shows which tasks

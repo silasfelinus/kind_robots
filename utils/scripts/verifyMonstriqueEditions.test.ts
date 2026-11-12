@@ -45,6 +45,7 @@ const page = source('pages/play/monstrique.vue')
 const adminPage = source('pages/admin/monstrique.vue')
 const launcher = source('content/channels/arcade/monstrique.md')
 const publicStore = source('stores/monstriquePublicStore.ts')
+const adminStore = source('stores/monstressConventionStore.ts')
 const scene = source(
   'components/monstress-convention/monstress-convention-scene.vue',
 )
@@ -76,6 +77,26 @@ assert.match(publicStore, /'kr-monstrique-' \+ mode \+ '-v1-'/)
 assert.match(publicStore, /loadMode\('general'\)/)
 assert.match(publicStore, /loadMode\('mature'\)/)
 assert.match(front, /:public-edition="!!props\.publicEdition"/)
+assert.match(front, /data-testid="monstrexx-achievements"/)
+assert.match(front, /<GameAchievementStrip[\s\S]*game="monstress-convention"/)
+assert.match(front, /data-testid="monstrique-scrapbook-endings"/)
+assert.match(front, /<PlaybookKitEndings[\s\S]*scrapTab === 'endings'/)
+assert.match(front, /data-testid="monstrique-erase-progress"/)
+assert.match(front, /confirmingErase[\s\S]*forgetAll\(\)/)
+assert.match(front, /if \(!story\.value\.forgetCase\(\)\) \{/)
+assert.match(front, /kit\.resetProgress\(\)/)
+assert.match(front, /saved in this browser for the current edition/)
+assert.doesNotMatch(front, /saved for\s+your account/)
+assert.match(publicStore, /loadedAccount\.value !== accountId\.value/)
+assert.match(publicStore, /localStorage\.removeItem\(key\(mode\)\)/)
+assert.match(publicStore, /generalSaved\.value = false/)
+assert.match(publicStore, /matureSaved\.value = false/)
+assert.match(
+  adminStore,
+  /if \(!authorized\.value \|\| !import\.meta\.client\) return false/,
+)
+assert.match(adminStore, /localStorage\.removeItem\(saveKey\.value\)/)
+assert.match(adminStore, /hasSavedCase\.value = false/)
 assert.match(front, /audience\.value === 'general'/)
 assert.match(
   scene,

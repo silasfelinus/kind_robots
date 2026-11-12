@@ -90,6 +90,7 @@
           Delete
         </button>
       </div>
+      <GameAchievementStrip game="ruler-hooked" layout="icons" class="mt-2" />
     </div>
 
     <form v-else class="rh-title-screen__panel rh-oath" @submit.prevent="start">

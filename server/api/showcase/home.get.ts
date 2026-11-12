@@ -947,7 +947,7 @@ async function loadProjects(): Promise<ShowcaseCard[]> {
   const rows = await prisma.project.findMany({
     where: {
       ...PUBLIC,
-      status: { in: ['ACTIVE', 'CONTINUOUS'] },
+      status: { in: ['ACTIVE', 'CONTINUOUS', 'PLAYTEST'] },
     },
     orderBy: [{ priority: 'desc' }, { updatedAt: 'desc' }, { id: 'desc' }],
     select: {

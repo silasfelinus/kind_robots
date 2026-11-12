@@ -149,6 +149,7 @@
         <div
           id="personnel-file-panel-verdict"
           role="tabpanel"
+          tabindex="0"
           aria-labelledby="personnel-file-tab-verdict"
           class="flex-col gap-2"
           :class="tab === 'verdict' ? 'flex' : 'hidden print:flex'"
@@ -210,6 +211,7 @@
         <div
           id="personnel-file-panel-departments"
           role="tabpanel"
+          tabindex="0"
           aria-labelledby="personnel-file-tab-departments"
           class="grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-2"
           :class="tab === 'departments' ? 'grid' : 'hidden print:grid'"
@@ -242,6 +244,7 @@
         <div
           id="personnel-file-panel-results"
           role="tabpanel"
+          tabindex="0"
           aria-labelledby="personnel-file-tab-results"
           :class="tab === 'results' ? 'block' : 'hidden print:block'"
         >
@@ -255,6 +258,7 @@
         <div
           id="personnel-file-panel-record"
           role="tabpanel"
+          tabindex="0"
           aria-labelledby="personnel-file-tab-record"
           class="flex-col gap-3"
           :class="tab === 'record' ? 'flex' : 'hidden print:flex'"

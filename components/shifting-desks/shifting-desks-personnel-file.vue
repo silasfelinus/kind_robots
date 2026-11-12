@@ -187,7 +187,10 @@
               <p class="font-mono text-base font-black uppercase sm:text-xl">
                 {{ epilogue.epilogue.title }}
               </p>
-              <p v-if="run.identity.name" class="text-xs font-bold desk-story-copy">
+              <p
+                v-if="run.identity.name"
+                class="text-xs font-bold desk-story-copy"
+              >
                 The Board reviewed {{ run.identity.name }} of the {{ jobTitle }}
                 division. Their name remains on file, regardless of outcome.
               </p>
@@ -276,7 +279,9 @@
           class="flex-col gap-3"
           :class="tab === 'record' ? 'flex' : 'hidden print:flex'"
         >
-          <div class="flex items-center gap-3 rounded-xl border border-stone-800 bg-stone-50/80 p-2">
+          <div
+            class="flex items-center gap-3 rounded-xl border border-stone-800 bg-stone-50/80 p-2"
+          >
             <shifting-desks-art
               class="w-20 shrink-0 rounded-lg"
               :class="badgeToneClass(run.identity.badgeTone)"

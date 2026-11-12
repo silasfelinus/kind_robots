@@ -1619,7 +1619,12 @@ watch(
   () => {
     const lead = store.players[0]
     if (lead)
-      queueComicIntro(comicIntroFor(lead.identity as SignaturePowerId, 'hero'))
+      queueComicIntro(
+        comicIntroFor(
+          lead.identity as SignaturePowerId,
+          store.perspective === 'villain' ? 'villain' : 'hero',
+        ),
+      )
     for (const unit of store.enemies) {
       const role: ComicIntroRole = unit.lieutenantName
         ? 'lieutenant'
@@ -1767,7 +1772,10 @@ const aftermathArt = computed(() =>
       ) ?? promArt('front/splash-v2')),
 )
 function unitPortrait(unit: Unit): string | null {
-  const role = unit.team === 'rival' ? 'villain' : 'hero'
+  const role =
+    (unit.team === 'rival') !== (store.perspective === 'villain')
+      ? 'villain'
+      : 'hero'
   return (
     promArt('identities/' + unit.identity + '/' + role) ??
     promArt('identities/' + unit.identity + '/outcomes/' + role) ??

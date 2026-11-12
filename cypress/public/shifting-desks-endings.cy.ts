@@ -124,6 +124,66 @@ describe('Shifting Desks endings from naturally reached saves', () => {
     })
   }
 
+  // The browser contract also exercises actual keyboard focus and named panels
+  // at every supported screen shape, rather than trusting template-only checks.
+  for (const viewport of viewports) {
+    it(`${viewport.name}: personnel tabs and the archive are keyboard reachable`, () => {
+      cy.viewport(viewport.width, viewport.height)
+      cy.visit(PAGE, { onBeforeLoad: (win) => seedBrowser(win, saves[0]!) })
+      openPersonnelFile()
+
+      cy.get('#personnel-file-tab-verdict').focus().type('{rightarrow}')
+      cy.get('#personnel-file-tab-departments')
+        .should('be.focused')
+        .and('have.attr', 'aria-selected', 'true')
+      cy.get('#personnel-file-panel-departments')
+        .should('be.visible')
+        .and('have.attr', 'tabindex', '0')
+        .and('have.attr', 'aria-labelledby', 'personnel-file-tab-departments')
+      cy.get('#personnel-file-panel-departments').focus().should('be.focused')
+
+      cy.get('#personnel-file-tab-departments').focus().type('{end}')
+      cy.get('#personnel-file-tab-record').should('be.focused')
+      cy.get('#personnel-file-tab-record').type('{home}')
+      cy.get('#personnel-file-tab-verdict').should('be.focused')
+
+      cy.get('[aria-label="Your ending reward"] button').click()
+      cy.get('dialog[aria-labelledby="personnel-archive-heading"]').should(
+        'be.visible',
+      )
+      cy.get('#personnel-archive-tab-milestones').focus().type('{rightarrow}')
+      cy.get('#personnel-archive-tab-endings')
+        .should('be.focused')
+        .and('have.attr', 'aria-selected', 'true')
+      cy.get('#personnel-archive-panel')
+        .should('be.visible')
+        .and('have.attr', 'aria-labelledby', 'personnel-archive-tab-endings')
+        .and('have.attr', 'tabindex', '0')
+      cy.get('section[aria-label="Ending collection"]').should('be.visible')
+      cy.get('[data-testid="locked-ending-slot"]').should(
+        'have.length',
+        ENDINGS.length - 1,
+      )
+      cy.get('#personnel-archive-panel').focus().should('be.focused')
+      cy.get('#personnel-archive-tab-endings').focus().type('{end}')
+      cy.get('#personnel-archive-tab-runs').should('be.focused')
+      cy.get('#personnel-archive-tab-runs').type('{home}')
+      cy.get('#personnel-archive-tab-milestones').should('be.focused')
+
+      cy.get('dialog[aria-labelledby="personnel-archive-heading"]')
+        .contains('button', 'Close')
+        .click()
+      cy.get('dialog[aria-labelledby="personnel-archive-heading"]').should(
+        'not.be.visible',
+      )
+      cy.window().should((win) => {
+        expect(win.document.documentElement.scrollWidth).to.be.at.most(
+          win.innerWidth + 1,
+        )
+      })
+    })
+  }
+
   // A repeat completion presents its ending's own commendation, counted,
   // instead of replaying the first-ending award (t-046).
   for (const save of saves) {

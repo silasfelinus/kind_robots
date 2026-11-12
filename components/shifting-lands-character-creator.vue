@@ -1,10 +1,10 @@
 <template>
   <section
-    class="kr-pane min-h-0 flex-1 rounded-3xl border border-base-content/15 bg-base-200/95 shadow-xl"
+    class="kr-scroll min-h-0 flex-1 rounded-3xl border border-base-content/15 bg-base-200/95 shadow-xl"
     aria-label="Choose your traveler"
     data-testid="shifting-lands-character-creator"
   >
-    <div class="kr-pane-scroll space-y-3 p-3 sm:p-4">
+    <div class="space-y-3 p-3 sm:p-4">
       <header class="flex flex-wrap items-end justify-between gap-2">
         <div>
           <p
@@ -62,7 +62,9 @@
         v-if="picked === 'custom'"
         class="grid gap-3 rounded-2xl border border-base-content/15 bg-base-100/80 p-3"
       >
-        <div class="grid gap-2 sm:grid-cols-3">
+        <div
+          class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-2"
+        >
           <label class="form-control">
             <span class="label-text text-xs font-bold">Name</span>
             <input
@@ -115,7 +117,7 @@
       </div>
 
       <div
-        class="grid grid-cols-2 gap-1.5 sm:grid-cols-3"
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-1.5"
         aria-label="Skills and the odds of a risky check"
       >
         <div

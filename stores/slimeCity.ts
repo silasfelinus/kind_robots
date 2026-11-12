@@ -127,6 +127,10 @@ import type {
   UnlockMode,
 } from '../utils/slimeCity/storySave'
 import {
+  readGuestSlimeStory,
+  writeGuestSlimeStory,
+} from '../utils/slimeCity/guestStorySave'
+import {
   ALLIANCE_DECK_SIZE,
   SOLO_DECK_SIZE,
   STARTER_CARD_IDS,
@@ -554,7 +558,31 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     districtId.value = 'pitworks'
     cityScreen.value = 'map'
     if (!userId || isGuest()) {
+      const saved = readGuestSlimeStory()
+      if (saved) {
+        city.value = saved.city
+        districtId.value = saved.city.location
+        campaignSave.value = saved.campaigns
+        towerSave.value = saved.tower ?? freshTower()
+        savedDecks.value = saved.decks ?? {}
+        savedAlliances.value = saved.alliances ?? {}
+        savedSolo.value = saved.soloDecks ?? {}
+        library.value = saved.library ?? []
+        activeTeam.value = saved.journeyTeam ?? activeTeam.value
+        journeyFormat.value = saved.journeyFormat ?? 'solo'
+        journeyDeckId.value = saved.journeyDeckId ?? null
+        campaignScreen.value = saved.journeyScreen ?? 'chapter'
+        storyMode.value = saved.storyMode ?? 'written'
+        storyParity.value = saved.storyParity ?? false
+        endingsFound.value = saved.endings ?? []
+        scrapbook.value = saved.scrapbook ?? []
+        if (towerRun.value?.phase === 'battle') forfeitTower()
+      }
+      storyLoaded.value = true
+      enforceCollection()
       seedLibrary()
+      if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
+      syncEndings()
       return
     }
     try {
@@ -611,32 +639,36 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     }
   }
 
+  function storySnapshot(): SlimeCityStory {
+    return {
+      version: 1,
+      revision: storyRevision.value,
+      city: city.value,
+      campaigns: campaignSave.value,
+      tower: towerSave.value,
+      decks: savedDecks.value,
+      alliances: savedAlliances.value,
+      soloDecks: savedSolo.value,
+      library: library.value,
+      journeyTeam: activeTeam.value,
+      journeyFormat: journeyFormat.value,
+      journeyDeckId: journeyDeckId.value,
+      journeyScreen: campaignScreen.value,
+      unlocks: unlockMode.value,
+      storyMode: storyMode.value,
+      storyParity: storyParity.value,
+      endings: endingsFound.value,
+      scrapbook: scrapbook.value,
+    }
+  }
+
   async function flushStory(): Promise<void> {
     storySaving.value = true
     try {
       while (storyDirty && storyEditable() && storyLoaded.value) {
         storyDirty = false
         const userId = authId()
-        const snapshot: SlimeCityStory = {
-          version: 1,
-          revision: storyRevision.value,
-          city: city.value,
-          campaigns: campaignSave.value,
-          tower: towerSave.value,
-          decks: savedDecks.value,
-          alliances: savedAlliances.value,
-          soloDecks: savedSolo.value,
-          library: library.value,
-          journeyTeam: activeTeam.value,
-          journeyFormat: journeyFormat.value,
-          journeyDeckId: journeyDeckId.value,
-          journeyScreen: campaignScreen.value,
-          unlocks: unlockMode.value,
-          storyMode: storyMode.value,
-          storyParity: storyParity.value,
-          endings: endingsFound.value,
-          scrapbook: scrapbook.value,
-        }
+        const snapshot = storySnapshot()
         try {
           const result = await performFetch<SlimeCityStory>(
             '/api/slime-city/story',
@@ -665,7 +697,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   }
 
   function persistStory(): void {
-    if (!storyLoaded.value || storyAccount.value !== authId()) return
+    if (!storyLoaded.value) return
+    if (!authId() || isGuest()) {
+      if (!writeGuestSlimeStory(storySnapshot()))
+        storyError.value = 'Could not save this guest journey on this device.'
+      else storyError.value = ''
+      return
+    }
+    if (storyAccount.value !== authId()) return
     storyDirty = true
     if (!storyWrite) {
       storyWrite = flushStory().finally(() => {

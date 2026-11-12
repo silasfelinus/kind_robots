@@ -380,7 +380,13 @@ import {
 const IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 type Status =
-  'ACTIVE' | 'CONTINUOUS' | 'PLAYTEST' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
+  | 'ACTIVE'
+  | 'CONTINUOUS'
+  | 'PLAYTEST'
+  | 'PAUSED'
+  | 'DONE'
+  | 'BRAINSTORM'
+  | 'ARCHIVED'
 type Filter = Exclude<Status, 'BRAINSTORM'> | 'ALL' | 'NEEDS_ENDPOINT'
 type Item = {
   id: number
@@ -566,13 +572,13 @@ const statusClass = (value: Status) =>
       ? 'badge-accent'
       : value === 'PLAYTEST'
         ? 'badge-info'
-      : value === 'PAUSED'
-        ? 'badge-warning'
-        : value === 'ARCHIVED'
-          ? 'badge-ghost'
-          : value === 'BRAINSTORM'
-            ? 'badge-neutral'
-            : 'badge-primary'
+        : value === 'PAUSED'
+          ? 'badge-warning'
+          : value === 'ARCHIVED'
+            ? 'badge-ghost'
+            : value === 'BRAINSTORM'
+              ? 'badge-neutral'
+              : 'badge-primary'
 const priorityClass = (value: ProjectPriorityLevel) =>
   value === 'HIGH'
     ? 'badge-error'

@@ -6,29 +6,146 @@ import {
   ACHIEVEMENT_GAMES,
   ACHIEVEMENT_SECTIONS,
   GAME_ACHIEVEMENTS,
+  MAIN_GAME_SLUGS,
   TIER_KARMA,
+  achievementCode,
   achievementSectionOf,
   achievementsForGame,
   arcadeAchievementsEarned,
   gameAchievementByCode,
   gameAchievementCatalogRows,
+  isMainGame,
 } from '../achievements/gameAchievements'
 import { achievementData } from '../../training/achievementData'
 
 const source = (path: string) => readFileSync(path, 'utf8')
 
+const STANDARD_MAIN_GAMES = [
+  'slime-city',
+  'weird-humboldt',
+  'zuzu-gamebook',
+  'zuzu-shifting-lands',
+  'emperor-of-dust',
+  'rainbow-bullet-hell-space-princess',
+  'save-the-plumber',
+  'shifting-desks',
+  'memory-dungeon',
+  'crystal-street',
+  'ruler-hooked',
+  'cthulhuquarium',
+  'comet-city-academy',
+  'game-of-captains',
+  'every-villain-tactics',
+  'monstress-convention',
+]
+const MAIN_MIN = 12
+const MAIN_MAX = 30
+const RATCHET_PATH = 'utils/scripts/mainGameAchievementRatchet.json'
+const ratchet = JSON.parse(source(RATCHET_PATH)) as Record<string, number>
+const mainGames = new Set(MAIN_GAME_SLUGS)
+
+for (const slug of STANDARD_MAIN_GAMES) {
+  assert.ok(
+    mainGames.has(slug) && isMainGame(slug),
+    `${slug} is a main game in the main-game standard and must be marked main.`,
+  )
+}
+for (const [slug, floor] of Object.entries(ratchet)) {
+  assert.ok(mainGames.has(slug), `${RATCHET_PATH}: ${slug} is not a main game.`)
+  assert.ok(
+    Number.isInteger(floor) && floor >= 0 && floor < MAIN_MIN,
+    `${RATCHET_PATH}: ${slug} needs a whole count under ${MAIN_MIN}.`,
+  )
+}
+for (const slug of Object.keys(ratchet)) {
+  assert.ok(
+    STANDARD_MAIN_GAMES.includes(slug),
+    `${RATCHET_PATH} only shrinks: ${slug} must start with ${MAIN_MIN} achievements instead.`,
+  )
+}
+for (const slug of MAIN_GAME_SLUGS) {
+  assert.ok(
+    existsSync(`utils/achievements/catalog/main/${slug}.ts`),
+    `${slug} keeps its achievements in utils/achievements/catalog/main/${slug}.ts.`,
+  )
+  assert.ok(
+    source('utils/achievements/catalog/main/index.ts').includes(`'./${slug}'`),
+    `catalog/main/index.ts must include ${slug}.`,
+  )
+}
+assert.equal(
+  achievementCode({ game: 'save-the-plumber', key: 'k' }),
+  'arcade-save-the-plumber-k',
+  'Cabinet-born main games keep the arcade code prefix.',
+)
+assert.equal(
+  achievementCode({ game: 'rainbow-bullet-hell-space-princess', key: 'k' }),
+  'arcade-rainbow-bullet-hell-space-princess-k',
+  'Cabinet-born main games keep the arcade code prefix.',
+)
+for (const code of [
+  'zuzu-gamebook-first-fight-won',
+  'zuzu-gamebook-hopeful-ending',
+  'zuzu-gamebook-ring-the-bell',
+  'zuzu-shifting-lands-open-door',
+  'zuzu-shifting-lands-canyon-warden',
+  'zuzu-shifting-lands-beyond-the-verge',
+  'shifting-desks-survived-review',
+  'shifting-desks-sub-level-zero',
+  'shifting-desks-faced-the-board',
+  'emperor-of-dust-orders-carried-out',
+  'emperor-of-dust-day-well-ruled',
+  'emperor-of-dust-merciful-court',
+]) {
+  assert.ok(
+    gameAchievementByCode(code),
+    `${code} is a live DB row with earned records: never rename or drop it.`,
+  )
+}
+
 for (const game of ACHIEVEMENT_GAMES) {
   const entries = achievementsForGame(game.key)
+  const tiers = entries.map((entry) => entry.tier)
+  if (!game.main) {
+    assert.equal(
+      entries.length,
+      3,
+      `${game.key} must carry exactly three achievements.`,
+    )
+    assert.deepEqual(
+      tiers,
+      [1, 2, 3],
+      `${game.key} needs one achievement at each tier.`,
+    )
+    continue
+  }
   assert.equal(
+    new Set(entries.map((entry) => entry.code)).size,
     entries.length,
-    3,
-    `${game.key} must carry exactly three achievements.`,
+    `${game.key} achievement codes must be unique.`,
   )
-  assert.deepEqual(
-    entries.map((entry) => entry.tier),
-    [1, 2, 3],
-    `${game.key} needs one achievement at each tier.`,
+  const floor = ratchet[game.key]
+  if (floor !== undefined) {
+    assert.ok(
+      entries.length >= floor,
+      `${game.key} dropped to ${entries.length} achievements; ${RATCHET_PATH} holds it at ${floor} or more.`,
+    )
+    assert.ok(
+      entries.length < MAIN_MIN,
+      `${game.key} reached ${entries.length} achievements: remove it from ${RATCHET_PATH} so the ${MAIN_MIN}-${MAIN_MAX} rule applies.`,
+    )
+    continue
+  }
+  assert.ok(
+    entries.length >= MAIN_MIN && entries.length <= MAIN_MAX,
+    `${game.key} is a main game and must carry ${MAIN_MIN}-${MAIN_MAX} achievements (has ${entries.length}).`,
   )
+  for (const tier of [1, 2, 3] as const) {
+    assert.ok(
+      tiers.includes(tier),
+      `${game.key} needs at least one tier ${tier} achievement.`,
+    )
+  }
 }
 
 assert.deepEqual(
@@ -237,6 +354,24 @@ assert.ok(
   seed.includes('gameAchievementCatalogRows()') &&
     seed.includes('for (const achievement of catalog)'),
   'The seed must reconcile the game achievements with the site catalog.',
+)
+assert.ok(
+  /missingCatalogCodes\(prisma, catalog\)[\s\S]{0,200}if \(missing\.length\)[\s\S]{0,40}throw new Error/.test(
+    seed,
+  ) && seed.includes('process.exitCode = 1'),
+  'After --write the seed must re-read every active catalog code and fail when one has no active row.',
+)
+const driftPlugin = source('server/plugins/02-achievement-catalog-drift.ts')
+assert.ok(
+  driftPlugin.includes('gameAchievementCatalogRows()') &&
+    driftPlugin.includes('prisma.achievement.findMany') &&
+    driftPlugin.includes('void (async () =>') &&
+    /catch \(error\)\s*{\s*console\.warn/.test(driftPlugin) &&
+    !/\.(create|createMany|update|updateMany|upsert|delete|deleteMany)\(/.test(
+      driftPlugin,
+    ) &&
+    !driftPlugin.includes('throw '),
+  'The boot catalog drift check only reads and warns: it never seeds or blocks.',
 )
 const workflow = '.github/workflows/achievement-catalog-maintenance.yml'
 assert.ok(existsSync(workflow))

@@ -31,11 +31,13 @@ export const FACTION_POWERS: Record<TeamId, FactionPower> = {
   catgirls: {
     team: 'catgirls',
     name: 'NINE LIVES',
-    text: 'Every fighter you have returns to full life, shakes off its stun, gains +2 power this round and may strike this turn, even if it just landed.',
+    // +2/+3 until slime-city/t-058 (2026-11-11 PT): Catgirls were the low crew
+    // in the constructed field (0.433-0.463 on seed families 0-3).
+    text: 'Every fighter you have returns to full life, shakes off its stun, gains +3 power this round and may strike this turn, even if it just landed.',
     target: 'none',
     symbol: '🐾',
-    amount: [2, 3],
-    overcharge: '+3 power instead of +2.',
+    amount: [3, 4],
+    overcharge: '+4 power instead of +3.',
   },
   bloodfairies: {
     team: 'bloodfairies',

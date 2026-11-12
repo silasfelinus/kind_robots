@@ -15,6 +15,8 @@ on:
       - 'utils/scripts/verifyMemoryWorldOnePlaytest.test.mjs'
       - 'utils/scripts/verifyMemoryDarkRealmPlaytest.test.mjs'
       - 'utils/scripts/memoryWorldPlaytestKit.mjs'
+      - 'utils/scripts/verifyMemoryDungeonSiteAchievements.test.ts'
+      - 'utils/achievements/catalog/main/memory-dungeon.ts'
       - '.github/workflows/memory-world-browser.yml'
   workflow_dispatch:
 
@@ -39,6 +41,9 @@ jobs:
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Live achievements come from play, never a restore
+        run: npx tsx utils/scripts/verifyMemoryDungeonSiteAchievements.test.ts
 
       # About three minutes: 20 seeded personas, ~37k store actions, ~2.4k reloads.
       - name: Adversarially play World One through the real store

@@ -200,6 +200,11 @@
             These marks remember difficult choices, not stronger weapons. Earned
             medals survive a new expedition. Undiscovered stories stay unnamed.
           </p>
+          <GameAchievementStrip
+            game="memory-dungeon"
+            layout="icons"
+            class="mb-4 rounded-lg border border-[#5f6d52] bg-[#202923] p-3"
+          />
           <div
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3"
           >

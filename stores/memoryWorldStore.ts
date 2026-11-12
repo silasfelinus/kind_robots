@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { grantMemoryRewardOnce } from '~/utils/memoryDungeon/encounterRewards'
 import {
+  memoryCompletionDeeds,
+  memoryMedalDeeds,
+} from '~/utils/memoryDungeon/siteAchievements'
+import {
   canEnterDarkHouse,
   darkHouseChoose as makeDarkHouseChoice,
   darkHouseFlip as flipDarkHouseCard,
@@ -397,6 +401,31 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.house?.decisions ?? {},
     ),
   )
+  // Live site achievements come only from play. hydrate() and a loaded
+  // checkpoint reconcile medals and realities with `restoring` set, so a
+  // restored save never awards them.
+  let restoring = false
+  let knownCompleted: readonly string[] | null = null
+  function awardSite(codes: readonly string[]): void {
+    if (!codes.length || !import.meta.client) return
+    // Loaded on demand so the store stays importable on its own (the
+    // adversarial playtests bundle it without the site stores).
+    void import('~/stores/achievementStore')
+      .then(({ useAchievementStore }) => {
+        const achievements = useAchievementStore()
+        for (const code of codes)
+          void achievements.rewardAchievementByCode(code)
+      })
+      .catch(() => {
+        // The award is cosmetic; play goes on without it.
+      })
+  }
+  function syncCompletedRealities(): void {
+    const completed = [...campaign.value.completed]
+    if (!restoring && knownCompleted)
+      awardSite(memoryCompletionDeeds(knownCompleted, completed))
+    knownCompleted = completed
+  }
   function syncAchievements(
     hoshimori?: HoshimoriWarmProgress,
     hoshimoriNight?: NightProgress,
@@ -417,7 +446,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         earth.journal,
       )
     if (next.length === earnedAchievementIds.value.length) return
+    const before = earnedAchievementIds.value
     earnedAchievementIds.value = next
+    if (!restoring) awardSite(memoryMedalDeeds(before, next))
     if (!import.meta.client) return
     try {
       window.localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(next))
@@ -830,6 +861,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function persistReality(): void {
     syncAchievements()
+    syncCompletedRealities()
     if (!import.meta.client) return
     try {
       window.localStorage.setItem(
@@ -905,6 +937,16 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function loadCheckpoint(index: number): boolean {
+    restoring = true
+    try {
+      return restoreCheckpoint(index)
+    } finally {
+      restoring = false
+      knownCompleted = [...campaign.value.completed]
+    }
+  }
+
+  function restoreCheckpoint(index: number): boolean {
     if (!import.meta.client) return false
     const checkpoint = restoreMemoryCheckpoint(saveSlots.value[index])
     if (!checkpoint) {
@@ -991,6 +1033,16 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   function hydrate(): void {
     if (ready.value) return
+    restoring = true
+    try {
+      restoreSaved()
+    } finally {
+      restoring = false
+      knownCompleted = [...campaign.value.completed]
+    }
+  }
+
+  function restoreSaved(): void {
     let recoveredDarkTurn = false
     if (import.meta.client) {
       try {
@@ -1940,6 +1992,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     minefieldHint.value = null
     const board = minefieldBoard.value
     if (board?.outcome === 'escaped') {
+      awardSite(['memory-dungeon-minefield'])
       const rewardKey = minefieldRewardKey(next.size)
       if (
         grantMemoryRewardOnce(
@@ -2147,7 +2200,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (!house) return
     house.decisions[origin] =
       origin === 'HD-32' ? 'fight' : origin === 'HD-19' ? 'match' : 'duel'
-    if (origin === 'HD-32') house.wardenPassed = true
+    if (origin === 'HD-32') {
+      house.wardenPassed = true
+      awardSite(['memory-dungeon-guardian'])
+    }
     house.combatOrigin = null
     state.value.room = 'house'
     state.value.roomId = null

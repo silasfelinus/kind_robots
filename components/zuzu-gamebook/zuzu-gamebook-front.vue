@@ -1,6 +1,6 @@
 <template>
   <section
-    class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 gap-3 px-3 pb-3 sm:px-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(19rem,.8fr)] lg:px-8"
+    class="kr-panes mx-auto w-full max-w-[1500px] grid-cols-1 gap-3 px-3 pb-3 sm:px-6 @lg:grid-cols-[minmax(0,1.4fr)_minmax(19rem,.8fr)] lg:px-8"
     aria-label="Zuzu Gamebook title screen"
     data-testid="zuzu-gamebook-title"
   >

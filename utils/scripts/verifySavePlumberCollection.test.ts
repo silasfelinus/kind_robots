@@ -106,4 +106,6 @@ assert.deepEqual(legacy.album.gears, ['1-1'])
 assert.ok(legacy.album.done.includes(stageNode('1-1')!.id))
 assert.deepEqual(legacy.album.endings, [])
 
-console.log('Save the Plumber persistent collection and ending gallery contract passed')
+console.log(
+  'Save the Plumber persistent collection and ending gallery contract passed',
+)

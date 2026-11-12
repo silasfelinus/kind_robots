@@ -2542,8 +2542,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   grid-template-columns: repeat(9, minmax(0, 1fr));
   grid-template-rows: repeat(6, minmax(0, 1fr));
   isolation: isolate;
-  transform: perspective(1100px) rotateX(8deg);
-  filter: drop-shadow(0 18px 18px #0009);
   border: 2px solid #f8d19c64;
   box-shadow: 0 0 38px #75b9f027;
 }

@@ -21,6 +21,8 @@ on:
       - 'utils/scripts/verifyEveryVillainScores.test.ts'
       - 'utils/scripts/verifyEveryVillainStageRules.test.ts'
       - 'utils/scripts/verifyEveryVillainScenes.test.ts'
+      - 'utils/scripts/verifyEveryVillainAchievements.test.ts'
+      - 'utils/achievements/catalog/main/every-villain-tactics.ts'
       - 'components/every-villain-tactics/**'
       - '.github/workflows/every-villain-tactics.yml'
   workflow_dispatch:
@@ -69,6 +71,8 @@ jobs:
         run: npx tsx utils/scripts/verifyEveryVillainStageRules.test.ts
       - name: Conversation trees, scene triggers and cinematic editor
         run: npx tsx utils/scripts/verifyEveryVillainScenes.test.ts
+      - name: Achievements awarded from live saves that grow the scrapbook
+        run: npx tsx utils/scripts/verifyEveryVillainAchievements.test.ts
       - name: Shared engine keeps Prom of Doom interludes intact
         run: |
           npx tsx utils/scripts/verifyCometTacticalBridge.test.ts

@@ -20,7 +20,11 @@ function field(
   name: string,
   limit: number,
 ): string {
-  const value = parts?.find((part) => part.name === name)?.data.toString('utf8').trim() ?? ''
+  const value =
+    parts
+      ?.find((part) => part.name === name)
+      ?.data.toString('utf8')
+      .trim() ?? ''
   if (value.length > limit) {
     throw createError({ statusCode: 400, message: name + ' is too long.' })
   }
@@ -28,9 +32,17 @@ function field(
 }
 
 function validImage(data: Buffer, mime: string): boolean {
-  if (mime === 'image/png') return data.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-  if (mime === 'image/jpeg') return data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff
-  if (mime === 'image/webp') return data.toString('ascii', 0, 4) === 'RIFF' && data.toString('ascii', 8, 12) === 'WEBP'
+  if (mime === 'image/png')
+    return data
+      .subarray(0, 8)
+      .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+  if (mime === 'image/jpeg')
+    return data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff
+  if (mime === 'image/webp')
+    return (
+      data.toString('ascii', 0, 4) === 'RIFF' &&
+      data.toString('ascii', 8, 12) === 'WEBP'
+    )
   return false
 }
 
@@ -52,7 +64,10 @@ async function github(
   })
 }
 
-async function ensureProjectLabel(token: string, project: string): Promise<string[]> {
+async function ensureProjectLabel(
+  token: string,
+  project: string,
+): Promise<string[]> {
   if (project === 'kind-robots') return []
   const name = 'project:' + project
   const found = await github('/labels/' + encodeURIComponent(name), token)
@@ -65,13 +80,19 @@ async function ensureProjectLabel(token: string, project: string): Promise<strin
     if (!created.ok && created.status !== 422) {
       throw createError({
         statusCode: 502,
-        message: 'Could not create the Conductor project label (' + created.status + ').',
+        message:
+          'Could not create the Conductor project label (' +
+          created.status +
+          ').',
       })
     }
   } else if (!found.ok) {
     throw createError({
       statusCode: 502,
-      message: 'Could not validate the Conductor project label (' + found.status + ').',
+      message:
+        'Could not validate the Conductor project label (' +
+        found.status +
+        ').',
     })
   }
   return [name]
@@ -81,7 +102,10 @@ export default defineEventHandler(async (event) => {
   const auth = await requireAdminApiUser(event)
   const length = Number(getHeader(event, 'content-length') || 0)
   if (length > MAX_REQUEST_BYTES) {
-    throw createError({ statusCode: 413, message: 'Screenshot must be 5 MB or smaller.' })
+    throw createError({
+      statusCode: 413,
+      message: 'Screenshot must be 5 MB or smaller.',
+    })
   }
 
   const parts = await readMultipartFormData(event)
@@ -94,24 +118,39 @@ export default defineEventHandler(async (event) => {
   const mime = screenshot?.type?.toLowerCase() || ''
 
   if (!title || !note) {
-    throw createError({ statusCode: 400, message: 'A title and feedback note are required.' })
+    throw createError({
+      statusCode: 400,
+      message: 'A title and feedback note are required.',
+    })
   }
   if (!PROJECT_SLUG.test(project)) {
-    throw createError({ statusCode: 400, message: 'Select a valid Conductor project slug.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Select a valid Conductor project slug.',
+    })
   }
   if (!path.startsWith('/') || path.startsWith('//') || /[\r\n]/.test(path)) {
     throw createError({ statusCode: 400, message: 'Invalid page path.' })
   }
   if (!screenshot?.data?.length || screenshot.data.length > MAX_IMAGE_BYTES) {
-    throw createError({ statusCode: 400, message: 'Attach a screenshot smaller than 5 MB.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Attach a screenshot smaller than 5 MB.',
+    })
   }
   if (!IMAGE_TYPES.has(mime) || !validImage(screenshot.data, mime)) {
-    throw createError({ statusCode: 415, message: 'Screenshot must be PNG, JPEG or WebP.' })
+    throw createError({
+      statusCode: 415,
+      message: 'Screenshot must be PNG, JPEG or WebP.',
+    })
   }
 
   const token = conductorGithubToken()
   if (!token) {
-    throw createError({ statusCode: 503, message: 'GitHub write access is not configured.' })
+    throw createError({
+      statusCode: 503,
+      message: 'GitHub write access is not configured.',
+    })
   }
   const labels = await ensureProjectLabel(token, project)
 
@@ -138,7 +177,12 @@ export default defineEventHandler(async (event) => {
     '',
     '### Screenshot',
     '',
-    '![' + 'Screenshot of ' + path.replace(/[\[\]]/g, '') + '](' + imageUrl + ')',
+    '![' +
+      'Screenshot of ' +
+      path.replace(/[\[\]]/g, '') +
+      '](' +
+      imageUrl +
+      ')',
     '',
     '- **Page:** ' + pageUrl,
     '- **Conductor project:** ' + project,
@@ -155,7 +199,10 @@ export default defineEventHandler(async (event) => {
   if (!response.ok) {
     throw createError({
       statusCode: 502,
-      message: 'GitHub issue creation failed (' + response.status + '). No issue was submitted.',
+      message:
+        'GitHub issue creation failed (' +
+        response.status +
+        '). No issue was submitted.',
     })
   }
   const issue = (await response.json()) as { number: number; html_url: string }

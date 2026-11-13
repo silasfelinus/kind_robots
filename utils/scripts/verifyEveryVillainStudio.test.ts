@@ -159,7 +159,9 @@ assert.ok(
 assert.ok(finishScene(crossing, crossingOpening, [], 'hero'))
 crossing.turn = 2
 assert.ok(
-  latchScenes(crossing, crosswalkScript, crosswalk).includes('crosswalk-switch'),
+  latchScenes(crossing, crosswalkScript, crosswalk).includes(
+    'crosswalk-switch',
+  ),
 )
 const crossingSwitch = pendingScriptScene(crossing, crosswalkScript)!
 assert.equal(crossingSwitch.id, 'crosswalk-switch')

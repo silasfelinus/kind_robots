@@ -51,6 +51,10 @@ import {
   paintedMapArtId,
 } from '../everyVillainTactics/mapArt'
 import {
+  PAINTED_EVT_REVEAL_ART,
+  paintedRevealArtId,
+} from '../everyVillainTactics/revealArt'
+import {
   DEFAULT_FOIL,
   endTurn,
   exposureAt,
@@ -443,7 +447,42 @@ assert.equal(fireSelected(rangeState, rival), true)
 assert.equal(shooter.fired, true)
 assert.equal(shooter.ap, 1)
 assert.equal(fireSelected(rangeState, rival), false)
-assert.match(page, /comicIntroArt\(activeComicIntro.value\)/)
+// Exactly 12 new, distinct, generated actor paintings: hero and villain
+// portrayals of each First Bell speaker. Prom of Doom keeps its existing
+// canonical outcome art, and unauthored roles never receive fake images.
+const firstBellReveals = [
+  ['accident-fire', 270741, 270742],
+  ['tech-genius', 270743, 270744],
+  ['mutant-earth', 270745, 270746],
+  ['accident-air', 270747, 270748],
+  ['tech-fire', 270749, 270750],
+  ['magic-social', 270751, 270752],
+] as const
+assert.equal(Object.keys(PAINTED_EVT_REVEAL_ART).length, 12)
+assert.equal(new Set(Object.values(PAINTED_EVT_REVEAL_ART)).size, 12)
+for (const [signature, heroImage, villainImage] of firstBellReveals) {
+  assert.equal(paintedRevealArtId(comicIntroFor(signature, 'hero')), heroImage)
+  assert.equal(paintedRevealArtId(comicIntroFor(signature, 'villain')), villainImage)
+  assert.equal(paintedRevealArtId(comicIntroFor(signature, 'henchman')), null)
+  assert.equal(paintedRevealArtId(comicIntroFor(signature, 'lieutenant')), null)
+}
+assert.equal(paintedRevealArtId(null), null)
+for (const person of IDENTITY_ARCS) {
+  if (firstBellReveals.some(([signature]) => signature === person.signature))
+    continue
+  assert.equal(paintedRevealArtId(comicIntroFor(person.signature, 'hero')), null)
+  assert.equal(
+    paintedRevealArtId(comicIntroFor(person.signature, 'villain')),
+    null,
+  )
+  assert.ok(comicIntroArt(comicIntroFor(person.signature, 'hero')))
+}
+assert.match(page, /paintedRevealArtId\(activeComicIntro.value\)/)
+assert.match(page, /\[activeComicImageId, \(\) => viewer.token\]/)
+assert.match(page, /paintedArt.ensure\(id\)/)
+assert.match(page, /paintedArt.images\[id\]\?\.src/)
+assert.match(page, /comicIntroArt\(intro\)/)
+assert.match(page, /:art-src="activeComicArt"/)
 assert.ok(
   (page.match(/class="evt-dialogue-portrait"/g) ?? []).length >= 3,
   'all three cinematic dialogue surfaces provide portrait slots',

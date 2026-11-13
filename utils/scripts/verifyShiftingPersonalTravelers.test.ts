@@ -639,7 +639,7 @@ assert.match(
 )
 assert.match(
   store,
-  /notePersonalEnding\(\)\s*persist\(\)\s*awardJourneyDeeds\(active, next, action\)/,
+  /notePersonalEnding\(\)\s*(?:noteSharedEnding\(\)\s*)?persist\(\)\s*awardJourneyDeeds\(active, next, action\)/,
 )
 assert.match(store, /readPersonalEndingsRecord\(/)
 assert.match(store, /activeCardV10\(ledger\.value\)/)

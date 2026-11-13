@@ -11,6 +11,8 @@ on:
       - 'components/shifting-lands-journey-board.vue'
       - 'components/shifting-lands-character-rail.vue'
       - 'components/shifting-lands-character-creator.vue'
+      - 'components/shifting-lands-title.vue'
+      - 'components/shifting-lands-scrapbook.vue'
       - 'components/navigation/flip-card.vue'
       - 'public/shifting-lands/**'
       - 'pages/admin/zuzu-shifting-lands.vue'
@@ -36,6 +38,7 @@ on:
       - 'utils/scripts/verifyShiftingJourneyDeeds.test.ts'
       - 'utils/scripts/verifyShiftingPersonalTravelers.test.ts'
       - 'utils/scripts/verifyShiftingEndingsGraph.test.ts'
+      - 'utils/scripts/verifyShiftingScrapbook.test.ts'
       - 'utils/achievements/catalog/main/zuzu-shifting-lands.ts'
       - 'utils/playbook/shiftingLands.ts'
       - 'components/shifting-lands-scene-image.vue'
@@ -75,6 +78,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingJourneyDeeds.test.ts
       - run: npx tsx utils/scripts/verifyShiftingPersonalTravelers.test.ts
       - run: npx tsx utils/scripts/verifyShiftingEndingsGraph.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingScrapbook.test.ts
       - run: npx tsx utils/scripts/shiftingLandsV6BalanceReport.ts 300
       - run: npx tsx utils/scripts/verifyShiftingV7.test.ts 300
       - run: npx tsx utils/scripts/verifyShiftingV8.test.ts 300

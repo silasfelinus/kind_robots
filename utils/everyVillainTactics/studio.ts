@@ -19,6 +19,7 @@ import {
 } from './stageRules'
 import { scriptProblems, type SceneScript } from './sceneGraph'
 import { SCIENCE_WING_SCRIPT } from './scienceWingScript'
+import { CROSSWALK_CRISIS_SCRIPT } from './crosswalkCrisisScript'
 
 export type StudioBrush =
   | 'erase'
@@ -171,6 +172,52 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     activeHazards: [{ id: 'coolant-water', kind: 'water', x: 6, y: 2 }],
     script: SCIENCE_WING_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'crosswalk-crisis',
+    title: 'Crosswalk Crisis',
+    venue: 'Harborline and Third, Academy tram stop',
+    objective:
+      'Escort all three stranded pedestrians to safety in eight rounds. Fighting the patrol alone will not clear the crossing.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [5, 0]),
+        '2,1': tile(0, false, { east: 'half' }),
+        '4,2': tile(0, false, { west: 'full', east: 'full' }),
+        '5,3': tile(0, false, { north: 'half' }),
+        '6,4': tile(1),
+      },
+    },
+    spawns: DEFAULT_SPAWNS,
+    secrets: [{ x: 5, y: 1 }],
+    hazards: [],
+    turnLimit: 8,
+    props: [
+      { id: 'delivery-van', x: 4, y: 2, cover: 'full', hp: 3 },
+      { id: 'street-kiosk', x: 5, y: 3, cover: 'half', hp: 2 },
+      { id: 'concrete-planter', x: 2, y: 1, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [{ id: 'tram-runoff', kind: 'water', x: 4, y: 4 }],
+    waves: [
+      {
+        round: 4,
+        crew: 'licensed-legends',
+        spawns: [
+          { x: 8, y: 0 },
+          { x: 8, y: 5 },
+        ],
+      },
+    ],
+    civilians: [
+      { id: 'courier', name: 'The wheelchair courier', x: 3, y: 1 },
+      { id: 'conductor', name: 'The tram conductor', x: 3, y: 4 },
+      { id: 'twins', name: 'The two lost twins', x: 6, y: 5 },
+    ],
+    victory: { kind: 'rescue', count: 3 },
+    script: CROSSWALK_CRISIS_SCRIPT,
   },
   {
     version: 1,

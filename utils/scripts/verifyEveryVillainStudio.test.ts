@@ -11,6 +11,7 @@ import {
   endTurn,
   fireSelected,
   moveSelected,
+  rescueSelected,
   aliasFor,
   previewShot,
   trainingState,
@@ -24,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 9)
+assert.equal(STAGE_PRESETS.length, 10)
 for (const preset of STAGE_PRESETS) {
   assert.deepEqual(
     stageProblems(preset),
@@ -119,6 +120,121 @@ assert.ok(
 )
 assert.ok(science.fired?.includes(sceneTriggerId('science-decision')))
 assert.ok(evidenceState.fired?.includes(sceneTriggerId('science-recording')))
+
+// Crosswalk Crisis requires an evacuation, not a cosmetic second battle.
+// Civilians begin in two pockets, and eliminating the rivals alone is not a
+// win. The authored turning-point choice has save-grounded one-time effects.
+const crosswalk = clonePreset('crosswalk-crisis')
+assert.equal(crosswalk.title, 'Crosswalk Crisis')
+assert.equal(crosswalk.turnLimit, 8)
+assert.equal(crosswalk.victory?.kind, 'rescue')
+assert.equal(crosswalk.victory?.kind === 'rescue' && crosswalk.victory.count, 3)
+assert.equal(crosswalk.civilians?.length, 3)
+assert.equal(crosswalk.props?.length, 3)
+assert.equal(crosswalk.waves?.[0]?.crew, 'licensed-legends')
+assert.equal(crosswalk.waves?.[0]?.round, 4)
+assert.equal(crosswalk.activeHazards?.[0]?.kind, 'water')
+assert.ok(crosswalk.script)
+const crosswalkScript = crosswalk.script!
+assert.equal(crosswalkScript.scenes.length, 7)
+const crossing = trainingState(67, crosswalk)
+assert.equal(crossing.stageId, 'crosswalk-crisis')
+assert.equal(crossing.rules?.victory.kind, 'rescue')
+assert.deepEqual(latchScenes(crossing, crosswalkScript, crosswalk), [
+  'crosswalk-opening',
+])
+const crossingOpening = pendingScriptScene(crossing, crosswalkScript)!
+assert.ok(
+  walkScene(crossingOpening, [], {
+    state: crossing,
+    perspective: 'hero',
+  })!.nodes.some((node) => node.id === 'ah'),
+)
+assert.ok(
+  walkScene(crossingOpening, [], {
+    state: crossing,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'av'),
+)
+assert.ok(finishScene(crossing, crossingOpening, [], 'hero'))
+crossing.turn = 2
+assert.ok(
+  latchScenes(crossing, crosswalkScript, crosswalk).includes(
+    'crosswalk-switch',
+  ),
+)
+const crossingSwitch = pendingScriptScene(crossing, crosswalkScript)!
+assert.equal(crossingSwitch.id, 'crosswalk-switch')
+assert.equal(walkScene(crossingSwitch, [], { state: crossing })?.done, false)
+const crossingLead = crossing.units.find((unit) => unit.id === 'backdraft')!
+crossingLead.hp = crossingLead.maxHp - 1
+assert.ok(finishScene(crossing, crossingSwitch, [0], 'hero'))
+assert.ok(crossing.flags?.includes('crosswalk-medics'))
+assert.equal(crossingLead.hp, crossingLead.maxHp)
+assert.equal(finishScene(crossing, crossingSwitch, [1], 'hero'), false)
+const jamming = trainingState(67, crosswalk)
+jamming.turn = 2
+latchScenes(jamming, crosswalkScript, crosswalk)
+assert.ok(
+  finishScene(
+    jamming,
+    crosswalkScript.scenes.find((scene) => scene.id === 'crosswalk-switch')!,
+    [1],
+    'villain',
+  ),
+)
+assert.ok(jamming.flags?.includes('crosswalk-jammed'))
+assert.ok(
+  jamming.units.some(
+    (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+  ),
+)
+const crossingWin = crosswalkScript.scenes.find(
+  (scene) => scene.id === 'crosswalk-win',
+)!
+assert.ok(
+  walkScene(crossingWin, [], {
+    state: crossing,
+    perspective: 'hero',
+  })!.nodes.some((node) => node.id === 'wm'),
+)
+assert.ok(
+  walkScene(crossingWin, [], {
+    state: jamming,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'wj'),
+)
+for (const rival of crossing.units.filter((unit) => unit.team === 'rival'))
+  rival.hp = 0
+const crossingCivilians = crossing.civilians!
+for (const [index, civilian] of crossingCivilians.entries()) {
+  crossingLead.x = civilian.x - 1
+  crossingLead.y = civilian.y
+  crossingLead.ap = 2
+  crossing.selected = crossingLead.id
+  assert.ok(rescueSelected(crossing), civilian.name)
+  assert.equal(
+    crossing.phase,
+    index === crossingCivilians.length - 1 ? 'victory' : 'active',
+    'Rival knockout does not replace the rescue requirement',
+  )
+  if (index === 0)
+    assert.ok(
+      latchScenes(crossing, crosswalkScript, crosswalk).includes(
+        'crosswalk-first-rescue',
+      ),
+    )
+}
+assert.ok(
+  latchScenes(crossing, crosswalkScript, crosswalk).includes('crosswalk-win'),
+)
+assert.equal(
+  crossingCivilians.filter((civilian) => civilian.status === 'rescued').length,
+  3,
+)
+assert.ok(crossing.fired?.includes(sceneTriggerId('crosswalk-first-rescue')))
+assert.ok(crossing.fired?.includes(sceneTriggerId('crosswalk-win')))
+assert.ok(stageProblems(crosswalk).length === 0)
 
 const picnic = clonePreset('picnic-plaza')
 assert.ok(picnic.title.includes('Picnic'))

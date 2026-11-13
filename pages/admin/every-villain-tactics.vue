@@ -277,21 +277,21 @@
               >
                 <summary>MAP KEY · terrain &amp; cover</summary>
                 <div class="evt-map-legend-items">
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-squad"></b> SQUAD</span
-                >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-rival"></b> RIVALS</span
-                >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-wall"></b> WALL · BLOCKED</span
-                >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-cover"></b> COVER · PASSABLE</span
-                >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-rise"></b> ▲ RAISED</span
-                >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-squad"></b> SQUAD</span
+                  >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-rival"></b> RIVALS</span
+                  >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-wall"></b> WALL · BLOCKED</span
+                  >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-cover"></b> COVER · PASSABLE</span
+                  >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-rise"></b> ▲ RAISED</span
+                  >
                 </div>
               </details>
             </div>
@@ -4740,5 +4740,4 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   outline: 3px solid #9ef5f4;
   outline-offset: 2px;
 }
-
 </style>

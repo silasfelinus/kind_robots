@@ -1558,6 +1558,7 @@
       :open="true"
       :intro="activeComicIntro"
       :art-src="activeComicArt"
+      :art-fit="activeComicFit"
       :allow-skip-all="true"
       @dismiss="dismissComicIntro"
       @skip-all="skipComicIntros"
@@ -1653,6 +1654,10 @@ const activeComicArt = computed(() => {
   if (!intro) return null
   const id = activeComicImageId.value
   return (id ? paintedArt.images[id]?.src : null) || comicIntroArt(intro)
+})
+const activeComicFit = computed(() => {
+  const id = activeComicImageId.value
+  return id && paintedArt.images[id]?.src ? 'contain' : 'cover'
 })
 function queueComicIntro(intro: ComicIntro, replay = false) {
   if (!replay && seenComics.has(intro.key)) return

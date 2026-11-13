@@ -92,10 +92,24 @@ for (const [title, slug] of [
     `${title} must link to its active Play route`,
   )
   assert.ok(entry.includes("tag: 'Sign-in playtest"), 'Login gate is disclosed')
-  assert.ok(entry.includes("image: ''"), 'No invented or unrelated poster')
+  if (slug === 'slime-city') {
+    assert.ok(
+      entry.includes("image: '/api/art/images/267791/file'"),
+      'Slime City uses the delivered, publicly designated Krea title painting',
+    )
+  } else {
+    for (const id of [258076, 258083, 258078]) {
+      assert.ok(
+        entry.includes(`'/api/art/images/${id}/file'`),
+        'Hybridizer uses delivered, publicly designated starter paintings',
+      )
+    }
+    assert.ok(entry.includes('montage: ['), 'Hybridizer features real art')
+  }
 }
-assert.match(featuredHome, /v-if="feature\.image"/)
-assert.match(featuredHome, /v-else\s+class="flex h-full w-full/)
+assert.match(featuredHome, /v-if="feature\\.montage\\?\\.length"/)
+assert.match(featuredHome, /v-else-if="feature\\.image"/)
+assert.match(featuredHome, /v-else\\s+class="flex h-full w-full/)
 
 assert.match(nav('admin/retired'), /\nsort: 9999\n/)
 assert.match(nav('admin/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)

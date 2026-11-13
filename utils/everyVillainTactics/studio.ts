@@ -169,9 +169,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'bench-west', x: 2, y: 3, cover: 'full', hp: 2 },
       { id: 'bench-east', x: 6, y: 3, cover: 'half', hp: 2 },
     ],
-    activeHazards: [
-      { id: 'coolant-water', kind: 'water', x: 6, y: 2 },
-    ],
+    activeHazards: [{ id: 'coolant-water', kind: 'water', x: 6, y: 2 }],
     script: SCIENCE_WING_SCRIPT,
   },
   {

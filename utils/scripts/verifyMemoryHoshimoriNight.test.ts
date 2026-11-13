@@ -881,6 +881,34 @@ for (let seed = 0; seed < 16; seed++) {
       'Every one of the 64 sites must have a valid, restorable alternate outcome',
     )
   }
+  const forgedFlags = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forgedFlags.flags.push('night-forged-escape')
+  assert.equal(
+    restoreHoshimoriNight(forgedFlags),
+    null,
+    'A forged consequence flag cannot be loaded as earned',
+  )
+  const forgedVisited = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forgedVisited.visited.pop()
+  assert.equal(
+    restoreHoshimoriNight(forgedVisited),
+    null,
+    'A completed expedition cannot hide a visited location',
+  )
+  const forgedPosition = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forgedPosition.current = '1,1'
+  assert.equal(
+    restoreHoshimoriNight(forgedPosition),
+    null,
+    'Current location must match the replayed movement ledger',
+  )
+  const forgedDoor = JSON.parse(JSON.stringify(progress)) as NightProgress
+  forgedDoor.doorOpen = !forgedDoor.doorOpen
+  assert.equal(
+    restoreHoshimoriNight(forgedDoor),
+    null,
+    'A saved gate state must match earned unbinding events',
+  )
   const truncatedHistory = JSON.parse(JSON.stringify(progress)) as NightProgress
   truncatedHistory.events.pop()
   assert.equal(

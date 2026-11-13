@@ -252,8 +252,8 @@
         <div
           class="shrink-0 border-t border-base-content/10 px-3 py-2 text-xs opacity-75"
         >
-          {{ HOSHIMORI_NIGHT_SITES.length }} authored night sites. The Furnace of Names
-          opens after your decision at the bakery corner (4,3).
+          {{ HOSHIMORI_NIGHT_SITES.length }} authored night sites. The Furnace
+          of Names opens after your decision at the bakery corner (4,3).
         </div>
       </div>
     </div>

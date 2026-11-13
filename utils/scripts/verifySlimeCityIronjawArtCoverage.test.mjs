@@ -24,6 +24,20 @@ const tokenIds = new Map(
   ]),
 )
 
+// A curated image in another card slot must not masquerade as coverage.
+const cardSection = manifest.match(/\\bcards:\\s*\\{([\\s\\S]*?)\\n\\s*\\}/)?.[1]
+const crewSection = manifest.match(/\\bcrews:\\s*\\{([\\s\\S]*?)\\n\\s*\\}/)?.[1]
+assert.ok(cardSection, 'artManifest.ts must expose a cards mapping')
+assert.ok(crewSection, 'artManifest.ts must expose a crews mapping')
+const readMappings = (section) =>
+  new Map(
+    [...section.matchAll(/(?:'([^']+)'|([\\w-]+))\\s*:\\s*(\\d+)\\s*,/g)].map(
+      (match) => [match[1] ?? match[2], Number(match[3])],
+    ),
+  )
+const cardIds = readMappings(cardSection)
+const crewIds = readMappings(crewSection)
+
 test('Ironjaw lizard art intake tracks every plate and only verified token keepers', () => {
   const entries = coverage.entries
   assert.equal(entries.length, 61)
@@ -67,9 +81,13 @@ test('Ironjaw lizard art intake tracks every plate and only verified token keepe
     } else {
       assert.equal(entry.manifestPresent, true, entry.asset)
       assert.equal(entry.verification, 'previously-curated', entry.asset)
-      assert.ok(
-        manifest.includes(': ' + entry.imageId + ','),
-        entry.asset + ' must retain its curated image ID',
+      const isCrew = entry.asset.startsWith('slime-city/crews/')
+      const key = entry.asset.split('/').at(-1)
+      const mapped = isCrew ? crewIds.get(key) : cardIds.get(key)
+      assert.equal(
+        mapped,
+        entry.imageId,
+        entry.asset + ' must retain its exact curated image mapping',
       )
     }
   }

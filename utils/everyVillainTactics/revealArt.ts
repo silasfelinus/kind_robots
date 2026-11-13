@@ -23,8 +23,9 @@ export const PAINTED_EVT_REVEAL_ART: Readonly<Record<string, number>> = {
 }
 
 /** Only the first six First Bell actors have their own delivered reveal art. */
-export function paintedRevealArtId(intro: Pick<ComicIntro, 'key' | 'role'> | null): number | null {
-  if (!intro || (intro.role !== 'hero' && intro.role !== 'villain'))
-    return null
+export function paintedRevealArtId(
+  intro: Pick<ComicIntro, 'key' | 'role'> | null,
+): number | null {
+  if (!intro || (intro.role !== 'hero' && intro.role !== 'villain')) return null
   return PAINTED_EVT_REVEAL_ART[intro.key] ?? null
 }

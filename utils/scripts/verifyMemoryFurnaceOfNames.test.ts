@@ -139,11 +139,9 @@ for (const entry of ['named', 'unnamed'] as const) {
       assert.equal(restored.decisions['FN-32'], resolution)
     }
   }
-  const unearned = goTo(settle(D.newProgress(entry)), 'FN-32')
+  const unearned = D.newProgress(entry)
   for (const locked of ['show-evidence', 'pip-vouches']) {
-    const choice = D.rooms['FN-32']!.choices.find(
-      (item) => item.id === locked,
-    )!
+    const choice = D.rooms['FN-32']!.choices.find((item) => item.id === locked)!
     assert.ok(D.choiceLock(unearned, choice))
     assert.equal(D.choose(unearned, locked), unearned)
     assert.equal(unearned.guardianPassed, false)

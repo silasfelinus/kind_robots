@@ -123,8 +123,15 @@
         </p>
         <div class="evf-identity-steps">
           <section aria-labelledby="evf-origin-title">
-            <h3 id="evf-origin-title" class="evf-label">01 / Your power origin</h3>
-            <div class="evf-power-grid" role="radiogroup" aria-label="Power origin" data-roving="horizontal">
+            <h3 id="evf-origin-title" class="evf-label">
+              01 / Your power origin
+            </h3>
+            <div
+              class="evf-power-grid"
+              role="radiogroup"
+              aria-label="Power origin"
+              data-roving="horizontal"
+            >
               <button
                 v-for="option in POWER_ORIGINS"
                 :key="option.id"
@@ -135,15 +142,27 @@
                 :data-testid="'front-origin-' + option.id"
                 @click="selectedOrigin = option.id"
               >
-                <img v-if="art('origins/' + option.id)" :src="art('origins/' + option.id)!" alt="" loading="lazy" />
+                <img
+                  v-if="art('origins/' + option.id)"
+                  :src="art('origins/' + option.id)!"
+                  alt=""
+                  loading="lazy"
+                />
                 <span v-else aria-hidden="true">{{ option.glyph }}</span>
                 <strong>{{ option.name }}</strong>
               </button>
             </div>
           </section>
           <section aria-labelledby="evf-affinity-title">
-            <h3 id="evf-affinity-title" class="evf-label">02 / Your affinity</h3>
-            <div class="evf-power-grid" role="radiogroup" aria-label="Power affinity" data-roving="horizontal">
+            <h3 id="evf-affinity-title" class="evf-label">
+              02 / Your affinity
+            </h3>
+            <div
+              class="evf-power-grid"
+              role="radiogroup"
+              aria-label="Power affinity"
+              data-roving="horizontal"
+            >
               <button
                 v-for="option in POWER_AFFINITIES"
                 :key="option.id"
@@ -154,16 +173,29 @@
                 :data-testid="'front-affinity-' + option.id"
                 @click="selectedAffinity = option.id"
               >
-                <img v-if="art('affinities/' + option.id)" :src="art('affinities/' + option.id)!" alt="" loading="lazy" />
+                <img
+                  v-if="art('affinities/' + option.id)"
+                  :src="art('affinities/' + option.id)!"
+                  alt=""
+                  loading="lazy"
+                />
                 <span v-else aria-hidden="true">{{ option.glyph }}</span>
                 <strong>{{ option.name }}</strong>
               </button>
             </div>
           </section>
         </div>
-        <section class="evf-identity-reveal" data-testid="front-character-reveal" aria-live="polite">
+        <section
+          class="evf-identity-reveal"
+          data-testid="front-character-reveal"
+          aria-live="polite"
+        >
           <div class="evf-reveal-art">
-            <img v-if="revealArtwork" :src="revealArtwork" :alt="leadAlias + ' comic portrait'" />
+            <img
+              v-if="revealArtwork"
+              :src="revealArtwork"
+              :alt="leadAlias + ' comic portrait'"
+            />
             <span v-else class="evf-art-fallback" aria-hidden="true">✷</span>
           </div>
           <div class="evf-reveal-copy">
@@ -172,7 +204,10 @@
             <p>{{ selectedIdentity?.realName }} · {{ signaturePower.name }}</p>
             <p class="evf-reveal-power">{{ signaturePower.action }}</p>
             <small data-testid="front-lead-note">{{ leadNote }}</small>
-            <small>Support and foil are assigned with the mission, not chosen in advance.</small>
+            <small
+              >Support and foil are assigned with the mission, not chosen in
+              advance.</small
+            >
           </div>
         </section>
         <h3 class="evf-label">03 / Your story</h3>
@@ -201,7 +236,8 @@
           </button>
         </div>
         <p class="evf-foil-note" data-testid="front-foil-note">
-          First Bell foil: {{ foilAlias }} · supporting cast joins automatically.
+          First Bell foil: {{ foilAlias }} · supporting cast joins
+          automatically.
         </p>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
@@ -434,9 +470,7 @@
           type="button"
           class="evf-go"
           data-testid="front-begin-story"
-          @click="
-            store.startStory(pickedView, pickedLead)
-          "
+          @click="store.startStory(pickedView, pickedLead)"
         >
           Begin First Bell as {{ leadAlias }} ▸
         </button>
@@ -488,12 +522,15 @@ const selectedIdentity = computed(() =>
 )
 const assignedFoil = computed(() => scriptedFoilFor(pickedLead.value))
 const foilAlias = computed(
-  () => store.roster.find((person) => person.signature === assignedFoil.value)?.villain.alias ?? 'the rival',
+  () =>
+    store.roster.find((person) => person.signature === assignedFoil.value)
+      ?.villain.alias ?? 'the rival',
 )
 const revealArtwork = computed(
   () =>
-    promArt('identities/' + pickedLead.value + '/outcomes/' + pickedView.value) ??
-    promArt('identities/' + pickedLead.value + '/student'),
+    promArt(
+      'identities/' + pickedLead.value + '/outcomes/' + pickedView.value,
+    ) ?? promArt('identities/' + pickedLead.value + '/student'),
 )
 const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = oneShotStages()
@@ -518,7 +555,10 @@ const views = computed(() =>
   })),
 )
 const leadAlias = computed(
-  () => selectedIdentity.value?.[pickedView.value === 'villain' ? 'villain' : 'hero'].alias ?? 'your lead',
+  () =>
+    selectedIdentity.value?.[
+      pickedView.value === 'villain' ? 'villain' : 'hero'
+    ].alias ?? 'your lead',
 )
 const leadNote = computed(
   () =>
@@ -626,7 +666,9 @@ watch(
     confirming.value = null
     pickedView.value = playableView(store.perspective)
     selectedOrigin.value = store.leadSignature.split('-')[0] as PowerOriginId
-    selectedAffinity.value = store.leadSignature.split('-')[1] as PowerAffinityId
+    selectedAffinity.value = store.leadSignature.split(
+      '-',
+    )[1] as PowerAffinityId
     focusScreen()
   },
 )
@@ -1223,7 +1265,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .evf-reveal-copy h3 {
   margin: 0;
-  font: 900 clamp(1.35rem, 3cqw, 2.5rem)/1 Impact, 'Arial Narrow', sans-serif;
+  font:
+    900 clamp(1.35rem, 3cqw, 2.5rem)/1 Impact,
+    'Arial Narrow',
+    sans-serif;
   color: #ffe47d;
   text-transform: uppercase;
 }

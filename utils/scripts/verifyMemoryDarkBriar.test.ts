@@ -512,7 +512,7 @@ assert.deepEqual(formerSixteen.completed, [
   'e07',
   'e08',
 ])
-assert.equal(formerSixteen.finaleCommitted, true)
+assert.equal(formerSixteen.finaleCommitted, false)
 assert.deepEqual(formerSixteen.legacyCompleted, [
   'e09',
   'e10',

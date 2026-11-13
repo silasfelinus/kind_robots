@@ -268,6 +268,20 @@ const mixedVersionSave = restoreMemoryCampaignProgress({
 assert.deepEqual(mixedVersionSave.legacyCompleted, ['e16', 'e13', 'e14'])
 assert.deepEqual(mixedVersionSave.completed, [])
 assert.deepEqual(availableMemoryExperiences(mixedVersionSave), ['e01'])
+// A pre-v2 save's finale flag referred to retired worlds, not the new
+// four-map collision finale. Preserve its archive without granting entry.
+const obsoleteFinaleSave = restoreMemoryCampaignProgress({
+  completed: ['e09', 'e13', 'e16'],
+  finaleCommitted: true,
+})
+assert.deepEqual(obsoleteFinaleSave.legacyCompleted, ['e09', 'e13', 'e16'])
+assert.equal(obsoleteFinaleSave.finaleCommitted, false)
+assert.deepEqual(availableMemoryExperiences(obsoleteFinaleSave), ['e01'])
+assert.deepEqual(
+  restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(obsoleteFinaleSave))),
+  obsoleteFinaleSave,
+)
+
 assert.ok(memoryEndingConsequences(finale).includes('briar-office-key'))
 assert.ok(memoryCoreEndingId(finale) !== null)
 assert.throws(

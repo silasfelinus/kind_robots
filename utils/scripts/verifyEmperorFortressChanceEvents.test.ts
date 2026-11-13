@@ -1,4 +1,10 @@
 import assert from 'node:assert/strict'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+import {
+  chanceArtCandidates,
+  EXPORTED_CHANCE_PLATES,
+} from '../emperorOfDust/fortress/chanceArt'
 import { ACT_ONE_CHOICES } from '../emperorOfDust/fortress/dailyEventsActOne'
 import {
   CHANCE_EVENTS,
@@ -88,6 +94,38 @@ for (const act of [1, 2, 3, 4, 5]) {
     }
   }
 }
+// A queued/generated image is not a shipped public asset. Keep the art
+// manifest honest and require every playable chance choice to have a real
+// fallback image on disk, including the five secret-follower encounters.
+assert.equal(
+  new Set(EXPORTED_CHANCE_PLATES).size,
+  EXPORTED_CHANCE_PLATES.length,
+)
+for (const id of EXPORTED_CHANCE_PLATES) {
+  assert.ok(
+    CHANCE_EVENTS.some((event) => event.id === id),
+    `unknown art id: ${id}`,
+  )
+  assert.ok(
+    existsSync(
+      join(process.cwd(), 'public', 'emperor-of-dust', 'chance', `${id}.webp`),
+    ),
+    `chance plate declared delivered but absent: ${id}`,
+  )
+}
+for (const event of CHANCE_EVENTS) {
+  for (const [index] of event.choices.entries()) {
+    const candidates = chanceArtCandidates(event.id, index)
+    assert.ok(candidates.length > 0, `${event.id} choice ${index}: no art`)
+    assert.ok(
+      candidates.some((url) =>
+        existsSync(join(process.cwd(), 'public', url.replace(/^\//, ''))),
+      ),
+      `${event.id} choice ${index}: no shipped image exists`,
+    )
+  }
+}
+
 const ids = new Set(FOLLOWERS.map((follower) => follower.id))
 for (const offer of CHANCE_EVENTS.filter((entry) => entry.secretFollower))
   assert.ok(ids.has(offer.secretFollower!), offer.id)

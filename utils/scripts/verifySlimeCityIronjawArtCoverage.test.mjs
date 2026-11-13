@@ -25,13 +25,13 @@ const tokenIds = new Map(
 )
 
 // A curated image in another card slot must not masquerade as coverage.
-const cardSection = manifest.match(/\\bcards:\\s*\\{([\\s\\S]*?)\\n\\s*\\}/)?.[1]
-const crewSection = manifest.match(/\\bcrews:\\s*\\{([\\s\\S]*?)\\n\\s*\\}/)?.[1]
+const cardSection = manifest.match(/\bcards:\s*\{([\s\S]*?)\n\s*\}/)?.[1]
+const crewSection = manifest.match(/\bcrews:\s*\{([\s\S]*?)\n\s*\}/)?.[1]
 assert.ok(cardSection, 'artManifest.ts must expose a cards mapping')
 assert.ok(crewSection, 'artManifest.ts must expose a crews mapping')
 const readMappings = (section) =>
   new Map(
-    [...section.matchAll(/(?:'([^']+)'|([\\w-]+))\\s*:\\s*(\\d+)\\s*,/g)].map(
+    [...section.matchAll(/(?:'([^']+)'|([\w-]+))\s*:\s*(\d+)\s*,/g)].map(
       (match) => [match[1] ?? match[2], Number(match[3])],
     ),
   )

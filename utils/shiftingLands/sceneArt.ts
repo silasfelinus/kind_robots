@@ -11,6 +11,28 @@ const SECTION = '/zuzu-gamebook/scenes/sections/'
 const STAGE = '/zuzu-showdown-stages/'
 const CARD = '/shifting-lands/cards/'
 const OUTCOME = '/shifting-lands/outcomes/'
+const ENDING_PLATE = '/shifting-lands/endings/'
+
+// Gamebook plates that show Zuzu. Shifting Lands has thirteen travelers and
+// custom ones, so a place or a stranger's card never borrows the koala's
+// picture: these fall through to a plate with no protagonist. Filtered here
+// rather than in worldSnapshot.json or the deck files, whose source hashes and
+// fingerprints saved journeys pin.
+export const ZUZU_FEATURING_PLATES: ReadonlySet<string> = new Set([
+  SCENE + 'waterhole.webp',
+  SCENE + 'ripples.webp',
+  SCENE + 'kasa-on-water.webp',
+  SECTION + 'the-crossing.webp',
+  SECTION + 'a1-reeds.webp',
+  SECTION + 'a9-forge-crack.webp',
+  SECTION + 'a7-high-ground.webp',
+  SECTION + 'bridge-fall.webp',
+  SECTION + 'a3-one-fire.webp',
+  SECTION + 'a7-torches.webp',
+  SECTION + 'a3-fever-bandage.webp',
+])
+const neutral = (art: string | null | undefined): string | null =>
+  art && !ZUZU_FEATURING_PLATES.has(art) ? art : null
 
 // zuzu-shifting-lands t-023/t-026: cards whose own painting has been picked
 // from a conductor art round (projects/zuzu-shifting-lands/art/ROUND-*.yaml)
@@ -359,7 +381,7 @@ export function outcomeArt(
 
 export const LAND_SCENERY: Readonly<Record<string, string>> = {
   homestead: SCENE + 'dust-road.webp',
-  dustwater: SCENE + 'waterhole.webp',
+  dustwater: ENDING_PLATE + 'unmarked-ford.webp',
   tablelands: SCENE + 'canyon.webp',
   cave: SCENE + 'locked-door.webp',
   verge: SCENE + 'bone-valley.webp',
@@ -367,9 +389,9 @@ export const LAND_SCENERY: Readonly<Record<string, string>> = {
 
 export const LOCATION_ART: Readonly<Record<string, string>> = {
   'border-farm': SCENE + 'apple-tree.webp',
-  'old-well': SCENE + 'waterhole.webp',
+  'old-well': ENDING_PLATE + 'shared-well.webp',
   'wayside-refuge': SCENE + 'mission.webp',
-  'ferry-landing': SECTION + 'the-crossing.webp',
+  'ferry-landing': ENDING_PLATE + 'unmarked-ford.webp',
   'trading-post': SECTION + 'hb-store-empty.webp',
   'dry-delta': SECTION + 'bone-river.webp',
   quarry: SECTION + 'canyon-road.webp',
@@ -390,13 +412,13 @@ export const ENCOUNTER_ART: Readonly<Record<string, string>> = {
   'the-last-seed': SECTION + 'a4-dry-well.webp',
   'rope-at-dawn': SECTION + 'a5-well.webp',
   'a-cup-offered': SECTION + 'a7-cup-on-post.webp',
-  'marks-below-water': SCENE + 'ripples.webp',
+  'marks-below-water': CARD + 'marks-below-water.webp',
   'two-empty-buckets': SECTION + 'a4-well-hostage.webp',
   'gate-still-open': SECTION + 'mission-gate.webp',
   'the-locked-dormitory': SCENE + 'empty-cot.webp',
   'a-crust-for-the-road': SECTION + 'supper.webp',
   'the-silent-bell': SCENE + 'bell-tower.webp',
-  'lanterns-on-the-raft': SCENE + 'kasa-on-water.webp',
+  'lanterns-on-the-raft': CARD + 'lanterns-on-the-raft.webp',
   'toll-of-two-names': SCENE + 'names-wall.webp',
   'the-boat-that-waits': SECTION + 'a1-gun-drowned.webp',
   'weighed-in-salt': SECTION + 'a3-salt-pan.webp',
@@ -404,14 +426,14 @@ export const ENCOUNTER_ART: Readonly<Record<string, string>> = {
   'three-cups-on-the-table': SECTION + 'a6-bowl-kept.webp',
   'footprints-in-the-silt': SECTION + 'relic.webp',
   'a-road-of-bones': SCENE + 'bone-valley.webp',
-  'the-reed-music': SECTION + 'a1-reeds.webp',
+  'the-reed-music': CARD + 'the-reed-music.webp',
   'hammer-under-the-stone': SECTION + 'a3-cloth-dawn.webp',
   'the-empty-pay-cart': SECTION + 'a5-wagon-look.webp',
-  'the-glass-vein': SECTION + 'a9-forge-crack.webp',
-  'the-watchful-overhang': SECTION + 'a7-high-ground.webp',
-  'the-banner-in-the-wind': SECTION + 'bridge-fall.webp',
+  'the-glass-vein': CARD + 'the-glass-vein.webp',
+  'the-watchful-overhang': CARD + 'the-watchful-overhang.webp',
+  'the-banner-in-the-wind': CARD + 'the-banner-in-the-wind.webp',
   'the-toll-without-a-keeper': SECTION + 'a4-well-toll.webp',
-  'one-place-by-the-fire': SECTION + 'a3-one-fire.webp',
+  'one-place-by-the-fire': CARD + 'one-place-by-the-fire.webp',
   'the-map-in-ashes': SECTION + 'a5-note-burned.webp',
   'the-night-watch-debt': SECTION + 'night-watch.webp',
   'feathers-in-the-draft': SECTION + 'a4-witch-blood.webp',
@@ -426,8 +448,8 @@ export const ENCOUNTER_ART: Readonly<Record<string, string>> = {
   'the-cooling-stones': STAGE + 'bone-yard-backdrop-hd.webp',
   'mirror-in-the-ash': SECTION + 'a7-lost.webp',
   'ashes-at-the-border': SECTION + 'ending-ashes.webp',
-  'the-last-watchfire': SECTION + 'a7-torches.webp',
-  'the-closed-infirmary': SECTION + 'a3-fever-bandage.webp',
+  'the-last-watchfire': CARD + 'the-last-watchfire.webp',
+  'the-closed-infirmary': CARD + 'the-closed-infirmary.webp',
   'the-prisoner-of-dusk': SECTION + 'a6-water-house.webp',
   'the-key-with-no-door': SECTION + 'a5-crypt-key.webp',
   'a-promise-kept': SECTION + 'a6-delivered.webp',
@@ -450,7 +472,9 @@ export function locationArt(
   landId: string,
   location: { id: string; art: string | null },
 ): string {
-  return location.art ?? LOCATION_ART[location.id] ?? landScenery(landId)
+  return (
+    neutral(location.art) ?? LOCATION_ART[location.id] ?? landScenery(landId)
+  )
 }
 
 export function encounterArt(
@@ -458,7 +482,8 @@ export function encounterArt(
   encounter: { id: string; art: string | null } | null,
   location: { id: string; art: string | null } | null,
 ): string {
-  if (encounter?.art) return encounter.art
+  const authored = neutral(encounter?.art)
+  if (authored) return authored
   const painted = encounter ? bespokeArt(encounter.id) : null
   if (painted) return painted
   if (encounter && ENCOUNTER_ART[encounter.id])

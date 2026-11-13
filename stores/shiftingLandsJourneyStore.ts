@@ -53,6 +53,7 @@ import {
 } from '~/utils/shiftingLands/deckV6'
 import { authoredEndingV6 } from '~/utils/shiftingLands/endingsV6'
 import { authoredEndingV7 } from '~/utils/shiftingLands/endingsV7'
+import { sharedEndingPlate } from '~/utils/shiftingLands/endingPlates'
 import { worldEchoesV7 } from '~/utils/shiftingLands/worldEchoesV7'
 import { kitchenNoviceQuestEchoesV8 } from '~/utils/shiftingLands/followerEchoesV8'
 import {
@@ -400,24 +401,25 @@ export const useShiftingLandsJourneyStore = defineStore(
           )
         : null,
     )
-    const ending = computed(() =>
-      personalEnding.value
-        ? personalEnding.value
-        : ledger.value.version === 7 ||
-            ledger.value.version === 8 ||
-            ledger.value.version === 9 ||
-            ledger.value.version === 10
-          ? authoredEndingV7(ledger.value.current, ledger.value.trialResults)
-          : ledger.value.version === 6
-            ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
-            : null,
+    const sharedEnding = computed(() =>
+      ledger.value.version === 7 ||
+      ledger.value.version === 8 ||
+      ledger.value.version === 9 ||
+      ledger.value.version === 10
+        ? authoredEndingV7(ledger.value.current, ledger.value.trialResults)
+        : ledger.value.version === 6
+          ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
+          : null,
     )
-    // The personal ending's own painting once it ships; until then null, and
-    // the ending reader shows whoever walked the road.
-    const endingPlate = computed(() =>
-      personalEnding.value
-        ? personalEndingPlate(personalEnding.value.personal.endingId)
-        : null,
+    const ending = computed(() => personalEnding.value ?? sharedEnding.value)
+    // The personal ending's own painting once it ships, else the painting of
+    // the shared ending the road earned (no protagonist in either), else null
+    // and the ending reader shows whoever walked the road.
+    const endingPlate = computed(
+      () =>
+        (personalEnding.value
+          ? personalEndingPlate(personalEnding.value.personal.endingId)
+          : null) ?? sharedEndingPlate(sharedEnding.value?.title),
     )
     // The scrapbook record of every premade's own endings found so far.
     const personalEndingsFound = ref(emptyPersonalEndingsRecord())

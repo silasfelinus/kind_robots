@@ -481,11 +481,15 @@ for (const character of PLAYABLE) {
         ...saved,
         character: {
           ...saved.character,
-          skills: { ...saved.character.skills, steel: 4 },
+          skills: {
+            ...saved.character.skills,
+            // Augustin already starts at steel 4, so lower his instead.
+            steel: saved.character.skills.steel === 4 ? 3 : 4,
+          },
         },
       }),
       null,
-      'raised stats are refused',
+      'changed stats are refused',
     )
     assert.equal(
       restoreJourneyLedgerV10({

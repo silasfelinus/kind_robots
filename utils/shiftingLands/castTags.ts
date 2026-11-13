@@ -12,4 +12,6 @@ export const BASE_CARD_CAST: Readonly<Record<string, readonly CastId[]>> = {
   'bread-under-the-long-table': ['the-abbess'],
   'the-guest-book-on-the-lectern': ['the-abbess'],
   'the-infirmarys-last-cot': ['the-abbess'],
+  // t-053 expansion: Tamsin is the guide on this card, so she is never dealt it.
+  'five-fallen-cairns': ['tamsin'],
 }

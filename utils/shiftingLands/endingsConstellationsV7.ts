@@ -3,6 +3,7 @@ import type { JourneyStateV6 } from './deckV6'
 import type { AuthoredEndingV6 } from './endingsV6'
 import { JOURNEY_WORLD } from './journey'
 import { trialForLandV7 } from './trialRulesV7'
+import { trialForLandV8 } from './trialRulesV8'
 
 type Phase = 'complete' | 'fallen' | 'retired'
 type Constellation = {
@@ -124,7 +125,12 @@ export function verifiedSuccessfulRoutesV7(
     )
     if (index < 0 || index > state.journey.landIndex || seen.has(boss.landId))
       continue
-    const trial = trialForLandV7(boss.landId)
+    // V8 (t-042) lowered the witness, scout and solidarity targets, and every
+    // V8-V10 journey rolls against those. A route is real when it matches the
+    // rules either version rolled it under; matching only V7 left the
+    // commons, public-record, wayfinders and restitution endings unreachable
+    // from V8 on (found by the t-045 endings graph, 2026-11-13 PT).
+    const trials = [trialForLandV7(boss.landId), trialForLandV8(boss.landId)]
     const result = results.find(
       (entry) =>
         entry.landId === boss.landId &&
@@ -133,13 +139,18 @@ export function verifiedSuccessfulRoutesV7(
         entry.roll.success &&
         JSON.stringify(entry.roll) === JSON.stringify(boss.roll),
     )
-    const choice = trial?.choices.find((entry) => entry.id === result?.choiceId)
+    const choice = trials
+      .flatMap((trial) => trial?.choices ?? [])
+      .find(
+        (entry) =>
+          entry.id === result?.choiceId &&
+          entry.skill === result.roll.skill &&
+          entry.target === result.roll.difficulty,
+      )
     if (
       !result ||
       !choice ||
       !boss.roll.success ||
-      choice.skill !== result.roll.skill ||
-      choice.target !== result.roll.difficulty ||
       boss.approach !== (choice.id === 'confront' ? 'challenge' : 'parley')
     )
       continue

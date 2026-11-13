@@ -94,16 +94,20 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   }
 
   function exportBackup(): string {
-    return JSON.stringify({
-      game: 'shifting-desks',
-      version: 1,
-      run: run.value,
-      settings: settings.value,
-      discovered: discovered.value,
-      endingsFound: endingsFound.value,
-      rewardArchive: rewardArchive.value,
-      envelopeOpened: envelopeOpened.value,
-    }, null, 2)
+    return JSON.stringify(
+      {
+        game: 'shifting-desks',
+        version: 1,
+        run: run.value,
+        settings: settings.value,
+        discovered: discovered.value,
+        endingsFound: endingsFound.value,
+        rewardArchive: rewardArchive.value,
+        envelopeOpened: envelopeOpened.value,
+      },
+      null,
+      2,
+    )
   }
 
   function importBackup(text: string): boolean {
@@ -113,15 +117,24 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       if (!data || typeof data !== 'object' || Array.isArray(data)) return false
       const backup = data as Record<string, unknown>
       if (backup.game !== 'shifting-desks' || backup.version !== 1) return false
-      if (!Array.isArray(backup.discovered) || !Array.isArray(backup.endingsFound)) return false
+      if (
+        !Array.isArray(backup.discovered) ||
+        !Array.isArray(backup.endingsFound)
+      )
+        return false
       if (backup.run !== null && !upgradeRun(backup.run)) return false
       if (!backup.settings || typeof backup.settings !== 'object') return false
-      if (!backup.rewardArchive || typeof backup.rewardArchive !== 'object') return false
+      if (!backup.rewardArchive || typeof backup.rewardArchive !== 'object')
+        return false
       const restoredRun = backup.run === null ? null : upgradeRun(backup.run)
       const restoredSettings = parseDeskSettings(backup.settings)
-      const restoredDiscovered = [...new Set(backup.discovered.filter(
-        (value): value is string => typeof value === 'string',
-      ))]
+      const restoredDiscovered = [
+        ...new Set(
+          backup.discovered.filter(
+            (value): value is string => typeof value === 'string',
+          ),
+        ),
+      ]
       const restoredEndings = restoreEndingGallery(backup.endingsFound)
       const restoredRewards = migrateFoundEndings(
         restoreRewardArchive(backup.rewardArchive),
@@ -136,8 +149,17 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       ]
       if (restoredRun) entries.push([SAVE_KEY, JSON.stringify(restoredRun)])
       if (restoredRun && opened) entries.push([ENVELOPE_KEY, restoredRun.seed])
-      const keys = [SETTINGS_KEY, OUTCOMES_KEY, ENDINGS_KEY, REWARD_KEY, SAVE_KEY, ENVELOPE_KEY]
-      const previous = keys.map((key) => [key, localStorage.getItem(key)] as const)
+      const keys = [
+        SETTINGS_KEY,
+        OUTCOMES_KEY,
+        ENDINGS_KEY,
+        REWARD_KEY,
+        SAVE_KEY,
+        ENVELOPE_KEY,
+      ]
+      const previous = keys.map(
+        (key) => [key, localStorage.getItem(key)] as const,
+      )
       try {
         for (const key of keys) localStorage.removeItem(key)
         for (const [key, value] of entries) localStorage.setItem(key, value)

@@ -7,6 +7,13 @@ import {
   type FurnaceRoomId,
 } from '../memoryDungeon/furnaceOfNames'
 import { HOSHIMORI_OVEN_ROOMS } from '../memoryDungeon/hoshimoriWarm'
+import {
+  HOSHIMORI_NIGHT_SITES,
+  advanceHoshimoriNight,
+  canMoveHoshimoriNight,
+  newHoshimoriNightProgress,
+  restoreHoshimoriNight,
+} from '../memoryDungeon/hoshimoriNight'
 
 const D = FURNACE_OF_NAMES
 assert.deepEqual(D.validate(), [])
@@ -92,6 +99,60 @@ for (const entry of ['named', 'unnamed'] as const) {
       }),
     )
     assert.deepEqual(D.restore(saved, entry), run)
+  }
+}
+
+// Follow the real e08 night route into the Furnace and finish each earned exit.
+for (const ovenChoice of ['name-the-cost', 'feed-without-claim'] as const) {
+  let night = newHoshimoriNightProgress(17)
+  night = advanceHoshimoriNight(night, {
+    type: 'choose',
+    id: HOSHIMORI_NIGHT_SITES[0]!.choices[0]!.id,
+  })
+  for (const key of [
+    '2,1',
+    '3,1',
+    '4,1',
+    '4,2',
+    '3,2',
+    '2,2',
+    '1,2',
+    '1,3',
+    '2,3',
+    '3,3',
+    '4,3',
+  ]) {
+    assert.equal(canMoveHoshimoriNight(night, key), true)
+    night = advanceHoshimoriNight(night, { type: 'move', to: key })
+    const choice =
+      key === '4,3'
+        ? ovenChoice
+        : HOSHIMORI_NIGHT_SITES.find((site) => site.key === key)!.choices[0]!.id
+    night = advanceHoshimoriNight(night, { type: 'choose', id: choice })
+    assert.equal(night.choices[key], choice)
+  }
+  const restoredNight = restoreHoshimoriNight(JSON.parse(JSON.stringify(night)))
+  assert.deepEqual(restoredNight, night)
+  const entry =
+    restoredNight!.choices['4,3'] === 'feed-without-claim' ? 'unnamed' : 'named'
+  for (const ending of FURNACE_ENDINGS) {
+    let dungeon = exploreUpper(entry)
+    dungeon = D.choose(goTo(dungeon, 'FN-32'), 'truth')
+    assert.equal(dungeon.guardianPassed, true)
+    dungeon = D.choose(goTo(dungeon, 'FN-35'), ending)
+    dungeon = D.choose(goTo(dungeon, 'FN-36'), 'climb')
+    assert.equal(dungeon.completed, true)
+    assert.equal(dungeon.ending, ending)
+    const saved = {
+      version: 1,
+      visited: dungeon.visited,
+      order: dungeon.order,
+      current: dungeon.current,
+    }
+    assert.deepEqual(
+      D.restore(JSON.parse(JSON.stringify(saved)), entry),
+      dungeon,
+    )
   }
 }
 

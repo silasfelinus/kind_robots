@@ -1618,7 +1618,9 @@ watch(
   { immediate: true },
 )
 const stageBoardArt = computed(
-  () => (paintedArtId.value ? paintedArt.images[paintedArtId.value]?.src : '') ?? '',
+  () =>
+    (paintedArtId.value ? paintedArt.images[paintedArtId.value]?.src : '') ??
+    '',
 )
 const paintedMapStatus = computed(
   () =>
@@ -4698,7 +4700,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 /* Map paintings are the ground plane. Tactical walls, cover and sightlines
    remain independent overlays; translucent tiles do not erase the artwork. */
- .evt-map {
+.evt-map {
   background-image:
     linear-gradient(180deg, #16275017, #131b341a), var(--evt-board-art);
   background-size: cover;

@@ -524,6 +524,19 @@ assert.deepEqual(formerSixteen.legacyCompleted, [
   'e16',
 ])
 assert.deepEqual(availableMemoryExperiences(formerSixteen), ['e09'])
+assert.throws(
+  () => completeMemoryExperience(formerSixteen, 'e09'),
+  /explicit commitment/,
+  'Old finale completion must not authorize a new collision-map exit',
+)
+const explicitlyCommittedLegacy = commitToMemoryFinale(formerSixteen)
+assert.equal(explicitlyCommittedLegacy.finaleCommitted, true)
+assert.deepEqual(explicitlyCommittedLegacy.legacyCompleted, formerSixteen.legacyCompleted)
+assert.deepEqual(
+  restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(explicitlyCommittedLegacy))),
+  explicitlyCommittedLegacy,
+  'An explicitly renewed finale commitment survives v2 save/restore',
+)
 const skippedHoshimori = restoreMemoryCampaignProgress({
   completed: ['e01', 'e02', 'e03', 'e04', 'e05', 'e06', 'e09', 'e10', 'e13'],
   rememberedAnchors: [

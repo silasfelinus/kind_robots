@@ -1580,6 +1580,7 @@ import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
 import { paintedMapArtId } from '~/utils/everyVillainTactics/mapArt'
+import { paintedRevealArtId } from '~/utils/everyVillainTactics/revealArt'
 import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
 import {
@@ -1637,9 +1638,22 @@ const comicPreviewRoles: ComicIntroRole[] = [
 const activeComicIntro = ref<ComicIntro | null>(null)
 const comicQueue: ComicIntro[] = []
 const seenComics = new Set<string>()
-const activeComicArt = computed(() =>
-  activeComicIntro.value ? comicIntroArt(activeComicIntro.value) : null,
+const activeComicImageId = computed(() =>
+  paintedRevealArtId(activeComicIntro.value),
 )
+watch(
+  [activeComicImageId, () => viewer.token],
+  ([id]) => {
+    void paintedArt.ensure(id)
+  },
+  { immediate: true },
+)
+const activeComicArt = computed(() => {
+  const intro = activeComicIntro.value
+  if (!intro) return null
+  const id = activeComicImageId.value
+  return (id ? paintedArt.images[id]?.src : null) || comicIntroArt(intro)
+})
 function queueComicIntro(intro: ComicIntro, replay = false) {
   if (!replay && seenComics.has(intro.key)) return
   seenComics.add(intro.key)

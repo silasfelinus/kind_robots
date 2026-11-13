@@ -1,7 +1,8 @@
 /** Reject malformed backup envelopes before any existing browser progress is removed. */
-export function isShiftingDesksBackupEnvelope(
-  value: unknown,
-): value is Record<string, unknown> & {
+export function isShiftingDesksBackupEnvelope(value: unknown): value is Record<
+  string,
+  unknown
+> & {
   discovered: string[]
   endingsFound: string[]
 } {

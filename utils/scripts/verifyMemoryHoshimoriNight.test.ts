@@ -306,7 +306,9 @@ const nightConsoleSource = readFileSync(
 assert.ok(nightConsoleSource.includes("Vesper's account"))
 assert.ok(nightConsoleSource.includes('title="Vesper remembers the village.'))
 assert.ok(
-  nightConsoleSource.includes('{{ HOSHIMORI_NIGHT_SITES.length }} authored night sites'),
+  nightConsoleSource.includes(
+    '{{ HOSHIMORI_NIGHT_SITES.length }} authored night sites',
+  ),
 )
 assert.ok(nightConsoleSource.includes('data-testid="memory-enter-furnace"'))
 assert.ok(nightConsoleSource.includes("night.progress.current === '4,3'"))

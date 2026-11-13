@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
-import { DECK_V6 } from '../shiftingLands/deckV6'
+import { DECK_V6, V6_CARDS } from '../shiftingLands/deckV6'
+import { trialForLandV8 } from '../shiftingLands/trialRulesV8'
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { JOURNEY_WORLD } from '../shiftingLands/journey'
@@ -106,6 +107,23 @@ const outcomeKeys = [
     ]),
   ),
 ]
+// ROUND-7/12 (t-028): the V6 deck's choices (added choices and new cards)
+// and the V8 trials' extra routes get consequence plates too.
+for (const key of [
+  ...V6_CARDS.flatMap((card) =>
+    card.choices.flatMap((choice) => [
+      outcomeKey(card.id, choice.id, true),
+      outcomeKey(card.id, choice.id, false),
+    ]),
+  ),
+  ...JOURNEY_WORLD.lands.flatMap((land) =>
+    (trialForLandV8(land.id)?.choices ?? []).flatMap((choice) => [
+      outcomeKey('trial-' + land.id, choice.id, true),
+      outcomeKey('trial-' + land.id, choice.id, false),
+    ]),
+  ),
+])
+  if (!outcomeKeys.includes(key)) outcomeKeys.push(key)
 assert.equal(new Set(outcomeKeys).size, outcomeKeys.length)
 assert.equal(new Set(BESPOKE_OUTCOMES).size, BESPOKE_OUTCOMES.length)
 for (const key of BESPOKE_OUTCOMES) {

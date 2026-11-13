@@ -294,8 +294,25 @@ export function trainingState(
   if (
     options.lead &&
     IDENTITY_ARCS.some((person) => person.signature === options.lead)
-  )
+  ) {
     lead.identity = options.lead
+    // A chosen hero cannot also occupy a supporting squad slot. Preserve
+    // First Bell's existing companions when possible; only substitute a
+    // supporting identity when it would duplicate the player.
+    for (const support of state.units.filter(
+      (unit) => unit.team === 'squad' && unit.id !== lead.id,
+    )) {
+      if (support.identity !== lead.identity) continue
+      const replacement = IDENTITY_ARCS.find(
+        (person) =>
+          !state.units.some(
+            (unit) =>
+              unit.id !== support.id && unit.identity === person.signature,
+          ),
+      )
+      if (replacement) support.identity = replacement.signature
+    }
+  }
   const rival = state.units.find((u) => u.team === 'rival')
   if (
     !stage &&

@@ -102,6 +102,54 @@ for (const entry of ['named', 'unnamed'] as const) {
   }
 }
 
+// Every guardian resolution must be earned, replayable, and independently finishable.
+for (const entry of ['named', 'unnamed'] as const) {
+  const upper = exploreUpper(entry)
+  for (const resolution of ['truth', 'show-evidence', 'pip-vouches'] as const) {
+    const guardian = goTo(upper, 'FN-32')
+    const option = D.rooms['FN-32']!.choices.find(
+      (choice) => choice.id === resolution,
+    )!
+    assert.equal(
+      D.choiceLock(guardian, option),
+      null,
+      entry + ': ' + resolution + ' should be earned by a full expedition',
+    )
+    const passed = D.choose(guardian, resolution)
+    assert.equal(passed.guardianPassed, true)
+    assert.equal(passed.decisions['FN-32'], resolution)
+    assert.equal(
+      D.choose(passed, resolution),
+      passed,
+      'guardian cannot be claimed twice',
+    )
+    for (const ending of FURNACE_ENDINGS) {
+      let run = D.choose(goTo(passed, 'FN-35'), ending)
+      run = D.choose(goTo(run, 'FN-36'), 'climb')
+      assert.equal(run.completed, true)
+      assert.equal(run.ending, ending)
+      const saved = {
+        version: 1,
+        visited: run.visited,
+        order: run.order,
+        current: run.current,
+      }
+      const restored = D.restore(JSON.parse(JSON.stringify(saved)), entry)
+      assert.deepEqual(restored, run)
+      assert.equal(restored.decisions['FN-32'], resolution)
+    }
+  }
+  const unearned = goTo(settle(D.newProgress(entry)), 'FN-32')
+  for (const locked of ['show-evidence', 'pip-vouches']) {
+    const choice = D.rooms['FN-32']!.choices.find(
+      (item) => item.id === locked,
+    )!
+    assert.ok(D.choiceLock(unearned, choice))
+    assert.equal(D.choose(unearned, locked), unearned)
+    assert.equal(unearned.guardianPassed, false)
+  }
+}
+
 // Follow the real e08 night route into the Furnace and finish each earned exit.
 for (const ovenChoice of ['name-the-cost', 'feed-without-claim'] as const) {
   let night = newHoshimoriNightProgress(17)

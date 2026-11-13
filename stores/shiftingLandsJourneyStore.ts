@@ -235,8 +235,8 @@ export const useShiftingLandsJourneyStore = defineStore(
     )
     const locations = computed(() => {
       const land = currentLand.value
-      return state.value.layouts[land.id]!.map(
-        (id) => land.locations.find((item) => item.id === id)!,
+      return state.value.layouts[land.id]!.map((id) =>
+        land.locations.find((item) => item.id === id)!,
       )
     })
     const reachable = computed(() => reachableLocations(state.value))

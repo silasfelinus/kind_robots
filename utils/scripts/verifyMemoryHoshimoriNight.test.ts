@@ -298,6 +298,22 @@ assert.ok(worldStoreSource.includes('syncHoshimoriNightAchievements'))
 assert.ok(worldStoreSource.includes("campaign.value.completed.includes('e07')"))
 assert.ok(nightStoreSource.includes('syncHoshimoriNightAchievements(restored)'))
 assert.ok(nightStoreSource.includes('syncHoshimoriNightAchievements(next)'))
+
+const nightConsoleSource = readFileSync(
+  'components/pages/memory-dungeon-hoshimori-night.vue',
+  'utf8',
+)
+assert.ok(nightConsoleSource.includes("Vesper's account"))
+assert.ok(nightConsoleSource.includes('title="Vesper remembers the village.'))
+assert.ok(
+  nightConsoleSource.includes('{{ HOSHIMORI_NIGHT_SITES.length }} authored night sites'),
+)
+assert.ok(nightConsoleSource.includes('data-testid="memory-enter-furnace"'))
+assert.ok(nightConsoleSource.includes("night.progress.current === '4,3'"))
+assert.ok(nightConsoleSource.includes("night.progress.choices['4,3']"))
+assert.ok(!nightConsoleSource.includes("Scylla's account"))
+assert.ok(!nightConsoleSource.includes('Forty-six night sites'))
+
 const partial = newHoshimoriNightProgress(1)
 assert.equal(hoshimoriNightCouncil(partial), null)
 assert.strictEqual(

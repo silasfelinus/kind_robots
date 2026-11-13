@@ -136,8 +136,23 @@
                 <div
                   class="relative aspect-[16/10] overflow-hidden bg-base-300"
                 >
+                  <div
+                    v-if="feature.montage?.length"
+                    role="img"
+                    :aria-label="feature.title + ' illustrated ingredients'"
+                    class="grid h-full w-full grid-cols-3 overflow-hidden transition duration-300 group-hover:scale-105"
+                  >
+                    <img
+                      v-for="src in feature.montage"
+                      :key="src"
+                      :src="src"
+                      alt=""
+                      loading="lazy"
+                      class="h-full w-full min-w-0 object-cover"
+                    />
+                  </div>
                   <img
-                    v-if="feature.image"
+                    v-else-if="feature.image"
                     :src="feature.image"
                     :alt="feature.title"
                     loading="lazy"
@@ -383,7 +398,17 @@ const categories = [
 ] as const
 const selectedCategory = ref<(typeof categories)[number]['key']>('all')
 
-const features = [
+type FeaturedExperience = {
+  title: string
+  tag: string
+  category: 'play' | 'create' | 'learn'
+  route: string
+  image?: string
+  montage?: readonly string[]
+  description: string
+}
+
+const features: FeaturedExperience[] = [
   {
     title: 'The Arcade',
     tag: 'Free games',
@@ -414,7 +439,7 @@ const features = [
     tag: 'Sign-in playtest · BLACKOUT CCG',
     category: 'play',
     route: '/play/slime-city',
-    image: '',
+    image: '/api/art/images/267791/file',
     description:
       'Command six mutant crews, battle with collectible cards and explore seven rival districts.',
   },
@@ -423,7 +448,11 @@ const features = [
     tag: 'Sign-in playtest · Fusion lab',
     category: 'play',
     route: '/play/hybridizer',
-    image: '',
+    montage: [
+      '/api/art/images/258076/file',
+      '/api/art/images/258083/file',
+      '/api/art/images/258078/file',
+    ],
     description:
       'Mix animals, fruit and monsters into new species, then fuse your discoveries again.',
   },
@@ -572,7 +601,7 @@ const features = [
     description:
       'Flip into AMI Village Rescue, the original arcade pinball table.',
   },
-] as const
+]
 
 const filteredFeatures = computed(() =>
   features.filter(

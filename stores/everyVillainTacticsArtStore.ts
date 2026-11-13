@@ -2,29 +2,6 @@ import { defineStore } from 'pinia'
 import { shallowRef } from 'vue'
 import { useUserStore } from './userStore'
 
-/**
- * Art modeler results, already DONE in Conductor's tactical arena ledger.
- * These are genuine painted ArtImages (not SVG or CSS illustrations).
- * The map/cover/LOS grid remains code-owned independently of the painting.
- *
- * Source: conductor/projects/every-villain-tactics/art/TACTICAL-ARENAS-ROUND-1.yaml
- */
-export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
-  'first-bell': 265014,
-  'college-quad': 265015,
-  'science-lab': 265017,
-  'quarry-lieutenant': 265019,
-  'picnic-plaza': 265016,
-  'quad-portal-watch': 265015,
-  'lab-mascot-recall': 265017,
-  'boiler-room': 265018,
-}
-
-export function paintedMapArtId(stageId: string | null): number | null {
-  if (stageId === null) return PAINTED_EVT_MAP_ART['first-bell'] ?? null
-  return PAINTED_EVT_MAP_ART[stageId] ?? null
-}
-
 export type PaintedMapArt = {
   src: string
   status: 'loading' | 'loaded' | 'failed'

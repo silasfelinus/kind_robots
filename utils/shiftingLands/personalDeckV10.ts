@@ -57,6 +57,43 @@ export const IDENTITY_DEEDS: Readonly<
     flag: 'deed-bao-on-your-hip',
     label: 'your little brother Bao rides on your hip',
   },
+  coyote: {
+    flag: 'deed-bounty-on-your-head',
+    label: 'you have a price on your head in Dustwater',
+  },
+  mags: {
+    flag: 'deed-keeps-the-bar',
+    label: 'you keep the bar at Dustwater Crossing',
+  },
+  hollis: {
+    flag: 'deed-leads-the-dry-well-band',
+    label: 'you lead the dry well band',
+  },
+  'sister-wren': {
+    flag: 'deed-left-the-convent',
+    label: "you walked out of the Abbess's convent",
+  },
+  'brother-peddler': {
+    flag: 'deed-sells-blessed-water',
+    label: 'you sell blessed water',
+  },
+  'old-ash': {
+    flag: 'deed-storm-crow-sight',
+    label: 'you carry the Storm Crow sight, and it is never free',
+  },
+  'hester-kell': {
+    flag: 'deed-carries-the-writ',
+    label: 'you carry a sealed writ for the one-eyed coyote',
+  },
+  'gideon-vane': {
+    flag: 'deed-held-the-water-rights',
+    label: 'you held the water rights of Dustwater',
+  },
+  tamsin: { flag: 'deed-reads-the-cairns', label: 'you read the cairns' },
+  augustin: {
+    flag: 'deed-walked-out-of-the-ring',
+    label: 'you walked out of the iron ring and swore off fighting for a purse',
+  },
 }
 const identityFlags = new Set(
   Object.values(IDENTITY_DEEDS).map((deed) => deed.flag),

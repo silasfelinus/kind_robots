@@ -61,7 +61,7 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     art: '/zuzu-gamebook/scenes/apple-tree.webp',
     teaser: 'An orchard bends toward the road.',
     narrative:
-      'A weathered settler offers Zuzu water and work. A stranger need not be a foe.',
+      'A weathered settler offers you water and work. A stranger need not be a foe.',
     reward: 'A shared meal restores two provisions.',
     penalty: 'An uneasy bargain costs one provision.',
   },
@@ -71,7 +71,7 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     art: '/zuzu-gamebook/scenes/waterhole.webp',
     teaser: 'Something ripples beneath the stones.',
     narrative:
-      'Two travelers disagree over the well. Zuzu may listen before he draws steel.',
+      'Two travelers disagree over the well. You may listen before you draw steel.',
     reward: 'Careful observation restores one health.',
     penalty: 'A fall among the stones costs one health.',
   },
@@ -83,7 +83,7 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     narrative:
       'The mission promises refuge. Its Abbess greets every traveler with an immaculate smile.',
     reward: 'A night of shelter restores one health.',
-    penalty: 'The troubling bell costs Zuzu one health.',
+    penalty: 'The troubling bell costs you one health.',
   },
   {
     id: 'wagon',
@@ -91,9 +91,9 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     art: '/zuzu-gamebook/scenes/wagon.webp',
     teaser: 'A canvas wagon rests where no road runs.',
     narrative:
-      'The peddler swears every trinket was honestly come by. Zuzu may weigh the wares before he trusts the prices.',
+      'The peddler swears every trinket was honestly come by. You may weigh the wares before you trust the prices.',
     reward: 'A fair trade and a bandaged scrape restore one health.',
-    penalty: 'A sharp bargain and a sharper dog cost Zuzu one health.',
+    penalty: 'A sharp bargain and a sharper dog cost you one health.',
   },
   {
     id: 'camp',
@@ -101,9 +101,9 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     art: '/zuzu-gamebook/scenes/camp.webp',
     teaser: 'Embers glow beside a ring of unhitched carts.',
     narrative:
-      'Weary drovers share a fire and a warning about the road ahead. Zuzu may read their faces before he sits down among them.',
+      'Weary drovers share a fire and a warning about the road ahead. You may read their faces before you sit down among them.',
     reward: 'Warm stew and a few hours of rest restore one health.',
-    penalty: 'A restless night and a stolen blanket cost Zuzu one health.',
+    penalty: 'A restless night and a stolen blanket cost you one health.',
   },
   {
     id: 'rim',
@@ -111,9 +111,9 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     art: '/zuzu-gamebook/scenes/canyon.webp',
     teaser: 'Wind hums across a split in the red stone.',
     narrative:
-      'A narrow ledge crosses the canyon, and a lone cairn marks where others turned back. Zuzu may study the ledge before he trusts his weight to it.',
+      'A narrow ledge crosses the canyon, and a lone cairn marks where others turned back. You may study the ledge before you trust your weight to it.',
     reward: 'A steady crossing and a spring in the rock restore one health.',
-    penalty: 'Loose gravel and a hard slide cost Zuzu one health.',
+    penalty: 'Loose gravel and a hard slide cost you one health.',
   },
 ]
 export const BOSS_CARD: HomesteadCard = {
@@ -122,9 +122,9 @@ export const BOSS_CARD: HomesteadCard = {
   art: '/zuzu-gamebook/scenes/abbess-welcome.webp',
   teaser: 'The mission bells ring without a hand.',
   narrative:
-    'The kindness of the convent conceals years of disappearances and rituals intended to summon something hungry. Zuzu must confront its keeper.',
+    'The kindness of the convent conceals years of disappearances and rituals intended to summon something hungry. You must confront its keeper.',
   reward: 'The Homestead is liberated. The next land awaits.',
-  penalty: 'Zuzu escapes the mission wounded, carrying its dreadful truth.',
+  penalty: 'You escape the mission wounded, carrying its dreadful truth.',
 }
 const IDS = HOMESTEAD_CARDS.map((card) => card.id)
 const SPECIES_IDS = HOMESTEAD_SPECIES.map((card) => card.id)
@@ -159,7 +159,7 @@ export function createHomestead(seed: number): HomesteadState {
     lastCheck: null,
     health: 8,
     provisions: 2,
-    journal: ['Zuzu enters the Homestead, a stranger carrying an old code.'],
+    journal: ['You enter the Homestead, a stranger on an unfamiliar road.'],
     bossResolved: false,
   }
 }

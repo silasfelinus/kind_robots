@@ -20,7 +20,7 @@ export const ZUZU_SHIFTING_LANDS_ACHIEVEMENTS: GameAchievementDef[] = [
     icon: 'kind-icon:map',
     rule: { kind: 'event' },
     artPrompt:
-      'Illustrated board-game card scene: Zuzu, a chubby, very short koala ronin in a dark terracotta poncho, orange scarf and wide-brimmed woven straw hat, steps out through a tall carved mission doorway into golden light, a warm loaf of bread tucked under one arm, the dusty Homestead fields and a spiral road winding away toward distant floating islands. Vibrant fantastical landscape, rich saturated color, soft radiant lighting, dreamlike sense of adventure and discovery, centered emblem composition, clear silhouette, every surface bare and unmarked.',
+      'Illustrated board-game card scene: a lone traveler seen from behind as a small cloaked silhouette steps out through a tall carved mission doorway into golden light, a warm loaf of bread tucked under one arm, the dusty Homestead fields and a spiral road winding away toward distant floating islands. Vibrant fantastical landscape, rich saturated color, soft radiant lighting, dreamlike sense of adventure and discovery, centered emblem composition, clear silhouette, every surface bare and unmarked.',
   },
   {
     game: 'zuzu-shifting-lands',
@@ -118,7 +118,7 @@ export const ZUZU_SHIFTING_LANDS_ACHIEVEMENTS: GameAchievementDef[] = [
     icon: 'kind-icon:compass',
     rule: { kind: 'event' },
     artPrompt:
-      'Illustrated board-game card scene: Zuzu, a chubby, very short koala ronin in a dark terracotta poncho, orange scarf and wide-brimmed woven straw hat, crosses a narrow plank bridge between towering red mesas of the Broken Tablelands as a storm rolls in, watchfires glowing on stone parapets, while a tall masked canyon warden steps aside with a respectful bow. Vibrant fantastical landscape, rich saturated color, soft radiant lighting breaking through storm clouds, dreamlike sense of adventure, centered emblem composition, every surface bare and unmarked.',
+      'Illustrated board-game card scene: a lone traveler seen from behind as a small cloaked silhouette crosses a narrow plank bridge between towering red mesas of the Broken Tablelands as a storm rolls in, watchfires glowing on stone parapets, while a tall masked canyon warden steps aside with a respectful bow. Vibrant fantastical landscape, rich saturated color, soft radiant lighting breaking through storm clouds, dreamlike sense of adventure, centered emblem composition, every surface bare and unmarked.',
   },
   {
     game: 'zuzu-shifting-lands',
@@ -234,7 +234,7 @@ export const ZUZU_SHIFTING_LANDS_ACHIEVEMENTS: GameAchievementDef[] = [
     icon: 'kind-icon:portal',
     rule: { kind: 'event' },
     artPrompt:
-      'Illustrated board-game card scene: Zuzu, a chubby, very short koala ronin in a dark terracotta poncho, orange scarf and wide-brimmed woven straw hat, stands at the final threshold of the Black Verge as a hingeless stone door swings open onto a starry sky, while behind him five lands curve away like a spiral road: golden fields, a river crossing, red canyons, blue-candled caves and black cliffs. The sky shifts from sunrise to starlight. Vibrant fantastical landscape, rich saturated color, soft radiant lighting, dreamlike wonder, centered emblem composition, every surface bare and unmarked.',
+      'Illustrated board-game card scene: a lone traveler seen from behind as a small cloaked silhouette stands at the final threshold of the Black Verge as a hingeless stone door swings open onto a starry sky, while behind them five lands curve away like a spiral road: golden fields, a river crossing, red canyons, blue-candled caves and black cliffs. The sky shifts from sunrise to starlight. Vibrant fantastical landscape, rich saturated color, soft radiant lighting, dreamlike wonder, centered emblem composition, every surface bare and unmarked.',
   },
   {
     game: 'zuzu-shifting-lands',

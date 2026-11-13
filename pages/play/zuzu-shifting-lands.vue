@@ -45,7 +45,7 @@
         <div class="relative min-h-52 overflow-hidden bg-base-300 md:min-h-64">
           <img
             src="/zuzu-gamebook/scenes/dust-road.webp"
-            alt="Winding wasteland road from the established Zuzu Gamebook artwork"
+            alt="A winding wasteland road under a dusk sky"
             class="absolute inset-0 h-full w-full object-cover opacity-70"
           />
           <div
@@ -312,14 +312,14 @@
                 </p></template
               >
               <template v-else-if="game.state.health === 0"
-                ><h3 class="text-2xl font-black">Zuzu has fallen</h3>
+                ><h3 class="text-2xl font-black">You have fallen</h3>
                 <p>Begin a new journey to try another path.</p></template
               >
               <template v-else
                 ><h3 class="font-serif text-xl font-bold">The deck awaits</h3>
                 <p class="text-sm opacity-75">
                   Draw a face-down card to discover your next location and
-                  choose how Zuzu responds.
+                  choose how you respond.
                 </p></template
               >
               <PlaybookRunReview
@@ -336,12 +336,12 @@
             class="overflow-hidden rounded-2xl border border-base-content/10 bg-base-200"
           >
             <img
-              src="/zuzu-gamebook/scenes/zuzu-alone.webp"
-              alt="Zuzu the grey koala ronin"
+              src="/shifting-lands/endings/unnamed-road.webp"
+              alt="A crossroads signpost on an empty desert road at sunset"
               class="aspect-[16/9] w-full object-cover object-center"
             />
             <div class="space-y-2 p-4">
-              <h2 class="font-serif text-xl font-black">Zuzu · The Ronin</h2>
+              <h2 class="font-serif text-xl font-black">You · The Traveler</h2>
               <div class="flex justify-between text-sm">
                 <span>Health</span><strong>{{ game.state.health }} / 8</strong>
               </div>

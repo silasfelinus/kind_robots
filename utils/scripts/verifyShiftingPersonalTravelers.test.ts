@@ -111,6 +111,14 @@ const willa = makeCustomCharacter({
   },
 })!
 const PLAYABLE: ShiftingCharacter[] = [...PREMADE_CHARACTERS, willa]
+// The travelers the pinned legacy digest was computed over (t-053, before the
+// 2026-11-13 PT expansion to 13 premades). Newer premades have no legacy saves.
+const LEGACY_PLAYABLE: ShiftingCharacter[] = [
+  ZUZU,
+  JEFFERY_MITTENS,
+  FENNEC_SIBLINGS,
+  willa,
+]
 
 // 1. Content contracts, and the shape of every premade's own road.
 assert.deepEqual(validateDeckV6(), [], 'V6 deck contract unchanged')
@@ -221,7 +229,7 @@ function playLegacy(seed: number, character: ShiftingCharacter) {
 }
 const legacyDigest = createHash('sha256')
 const legacyRuns: JourneyLedgerV10[] = []
-for (const character of PLAYABLE)
+for (const character of LEGACY_PLAYABLE)
   for (let seed = 1; seed <= 60; seed++) {
     const run = playLegacy(seed, character)
     if (seed <= 6) legacyRuns.push(run)
@@ -351,7 +359,7 @@ const granted = new Set(
 for (const thread of threads)
   for (const flag of [...thread.hopeful, ...thread.dark, ...thread.redeems])
     assert.ok(granted.has(flag), `${flag} is granted on the personal road`)
-assert.equal(darkFlags.size, 3)
+assert.equal(darkFlags.size, PERSONAL_ROAD_IDS.length, 'one dark turn per road')
 const leaning = (choice: V6Choice, lean: Lean): boolean =>
   choice.success.add_flags.some((flag) =>
     lean === 'kind' ? hopefulFlags.has(flag) : darkFlags.has(flag),

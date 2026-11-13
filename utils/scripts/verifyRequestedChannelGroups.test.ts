@@ -107,9 +107,9 @@ for (const [title, slug] of [
     assert.ok(entry.includes('montage: ['), 'Hybridizer features real art')
   }
 }
-assert.match(featuredHome, /v-if="feature\\.montage\\?\\.length"/)
-assert.match(featuredHome, /v-else-if="feature\\.image"/)
-assert.match(featuredHome, /v-else\\s+class="flex h-full w-full/)
+assert.match(featuredHome, /v-if="feature\.montage\?\.length"/)
+assert.match(featuredHome, /v-else-if="feature\.image"/)
+assert.match(featuredHome, /v-else\s+class="flex h-full w-full/)
 
 assert.match(nav('admin/retired'), /\nsort: 9999\n/)
 assert.match(nav('admin/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)

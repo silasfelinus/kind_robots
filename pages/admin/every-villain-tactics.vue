@@ -94,6 +94,7 @@
             <div class="evt-grid-wrap">
               <div
                 class="evt-map"
+                :style="{ '--evt-board-art': 'url(' + stageBoardArt + ')' }"
                 :data-stage="store.state.stageId ?? 'first-bell'"
                 role="group"
                 data-testid="tactics-flat-map"
@@ -269,11 +270,13 @@
                   >
                 </button>
               </div>
-              <div
+              <details
                 class="evt-map-edge"
                 data-testid="tactics-map-legend"
                 aria-label="Tactical map legend"
               >
+                <summary>MAP KEY · terrain &amp; cover</summary>
+                <div class="evt-map-legend-items">
                 <span class="evt-terrain-legend"
                   ><b class="evt-key-squad"></b> SQUAD</span
                 >
@@ -289,7 +292,8 @@
                 <span class="evt-terrain-legend"
                   ><b class="evt-key-rise"></b> ▲ RAISED</span
                 >
-              </div>
+                </div>
+              </details>
             </div>
 
             <section
@@ -461,6 +465,26 @@
               >
                 <span class="evt-action-icon">⌖</span>
                 FIRE <small>F</small>
+              </button>
+            </div>
+            <div
+              v-if="store.mode === 'fire'"
+              class="evt-fire-targets"
+              data-testid="tactics-fire-targets"
+              aria-live="polite"
+            >
+              <strong>CHOOSE YOUR TARGET</strong>
+              <p v-if="!store.fireTargets.length">{{ store.fireAdvice }}</p>
+              <button
+                v-for="target in store.fireTargets"
+                :key="target.target"
+                type="button"
+                class="evt-fire-target"
+                :data-testid="'tactics-fire-target-' + target.target"
+                @click="store.fireAt(target.target)"
+              >
+                <span>⌖ {{ target.name }}</span>
+                <b>{{ target.hit }}% HIT</b>
               </button>
             </div>
 
@@ -1745,6 +1769,16 @@ function studioCellLabel(cell: Cell): string {
     store.studioBrush.replace('-', ' ')
   )
 }
+const stageBoardArt = computed(() => {
+  const stage = store.state.stageId ?? 'first-bell'
+  if (['picnic-plaza', 'college-quad', 'fountain-standoff'].includes(stage))
+    return '/every-villain-tactics/maps/picnic-plaza.svg'
+  if (stage === 'first-bell')
+    return '/every-villain-tactics/maps/first-bell.svg'
+  // Other authored stages retain an existing Comet City illustration until
+  // their DONE map ArtImages have been exported as dedicated game assets.
+  return battlefieldArt.value
+})
 const battlefieldArt = computed(
   () =>
     promArt(
@@ -4530,9 +4564,31 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   }
 }
 .evt-map-edge {
-  gap: 4px 12px;
-  padding: 5px 0 2px;
-  letter-spacing: 0.05em;
+  width: min(100%, 620px);
+  margin: 6px auto 2px;
+  padding: 0;
+  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+  color: #fff3d0;
+}
+.evt-map-edge summary {
+  cursor: pointer;
+  padding: 5px 8px;
+  text-align: center;
+  font-weight: 900;
+  list-style-position: inside;
+}
+.evt-map-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 9px;
+  border: 1px solid #76dbe8;
+  border-radius: 6px;
+  background: #1b2747f5;
+}
+.evt-map-legend-items .evt-terrain-legend {
+  font-size: 0.8rem;
 }
 .evt-terrain-legend {
   font-size: clamp(0.51rem, 0.75cqw, 0.68rem);
@@ -4608,4 +4664,81 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     transition: none;
   }
 }
+
+/* Map paintings are the ground plane. Tactical walls, cover and sightlines
+   remain independent overlays; translucent tiles do not erase the artwork. */
+.evt-map {
+  background-image:
+    linear-gradient(180deg, #16275017, #131b341a), var(--evt-board-art);
+  background-size: cover;
+  background-position: center;
+  background-color: #417b89;
+}
+.evt-map > .evt-tile,
+.evt-map > .evt-tile:nth-child(even),
+.evt-map > .evt-tile[data-ground] {
+  background: #f9e8b412;
+  border-color: #18354d70;
+}
+.evt-map > .evt-tile[data-ground='lawn'] {
+  background: #2c916b20;
+}
+.evt-map > .evt-tile[data-ground='path'],
+.evt-map > .evt-tile[data-ground='courtyard'] {
+  background: #ffdca817;
+}
+.evt-map > .evt-tile[data-ground='street'] {
+  background: #23385521;
+}
+.evt-map > .evt-tile[data-ground='lab'] {
+  background: #55c4cb1b;
+}
+.evt-map > .evt-tile[data-ground='roof'] {
+  background: #524ea727;
+}
+.evt-map > .evt-tile.has-wall[data-ground] {
+  background: #35455bd9;
+}
+.evt-fire-targets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 7px;
+  color: #fff2ca;
+  border: 2px solid #faaf59;
+  border-radius: 7px;
+  background: linear-gradient(100deg, #36235c, #482b64);
+}
+.evt-fire-targets > strong {
+  width: 100%;
+  font-size: 0.73rem;
+  letter-spacing: 0.1em;
+}
+.evt-fire-targets > p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+.evt-fire-target {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 1 1 140px;
+  min-height: 36px;
+  padding: 6px 8px;
+  color: #1b1740;
+  font-size: 0.78rem;
+  font-weight: 900;
+  border: 2px solid #ffedb0;
+  border-radius: 5px;
+  background: linear-gradient(130deg, #ffe777, #ffb96f);
+}
+.evt-fire-target:hover,
+.evt-fire-target:focus-visible {
+  outline: 3px solid #9ef5f4;
+  outline-offset: 2px;
+}
+
 </style>

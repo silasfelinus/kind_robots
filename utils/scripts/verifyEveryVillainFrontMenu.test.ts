@@ -41,7 +41,15 @@ import {
   loadSave,
   saveChecksum,
 } from '../everyVillainTactics/saves'
-import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
+import {
+  STAGE_PRESETS,
+  clonePreset,
+  stageProblems,
+} from '../everyVillainTactics/studio'
+import {
+  PAINTED_EVT_MAP_ART,
+  paintedMapArtId,
+} from '../everyVillainTactics/mapArt'
 import {
   DEFAULT_FOIL,
   endTurn,
@@ -393,17 +401,25 @@ assert.match(page, /data-testid="tactics-fire-targets"/)
 assert.match(page, /store\.fireAt\(target\.target\)/)
 assert.match(page, /--evt-board-art/)
 assert.match(page, /class="evt-map-legend-items"/)
-for (const asset of ['first-bell', 'picnic-plaza']) {
-  const svg = readFileSync(
-    new URL(
-      '../../public/every-villain-tactics/maps/' + asset + '.svg',
-      import.meta.url,
-    ),
-    'utf8',
-  )
-  assert.match(svg, /<svg xmlns=/)
-  assert.match(svg, /viewBox="0 0 1080 720"/)
+// Playable arenas must use real generated painted ArtImages, never code-drawn
+// SVG maps. All shipped preset stages resolve to DONE ArtImage IDs.
+for (const stage of STAGE_PRESETS) {
+  assert.ok(paintedMapArtId(stage.id), stage.id + ' needs modeler painting')
 }
+assert.equal(paintedMapArtId(null), 265014)
+assert.equal(paintedMapArtId('unknown-custom-stage'), null)
+assert.ok(Object.values(PAINTED_EVT_MAP_ART).every((id) => id > 265000))
+assert.match(page, /useEveryVillainTacticsArtStore/)
+assert.match(page, /paintedArt\.ensure\(id\)/)
+assert.match(page, /tactics-painted-map-status/)
+assert.doesNotMatch(page, /every-villain-tactics\/maps\/[^'"]+\.svg/)
+const paintedLoader = readFileSync(
+  new URL('../../stores/everyVillainTacticsArtStore.ts', import.meta.url),
+  'utf8',
+)
+assert.match(paintedLoader, /Authorization: `Bearer/)
+assert.match(paintedLoader, /URL\.createObjectURL\(blob\)/)
+assert.match(paintedLoader, /response\.headers\.get\('content-type'\)/)
 for (const origin of POWER_ORIGINS)
   for (const affinity of POWER_AFFINITIES) {
     const signature = signatureFor(origin.id, affinity.id).id

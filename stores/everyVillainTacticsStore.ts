@@ -8,6 +8,7 @@ import {
   endTurn,
   exposureAt,
   isValidFoil,
+  scriptedFoilFor,
   fireSelected,
   moveSelected,
   overwatchSelected,
@@ -409,18 +410,26 @@ export const useEveryVillainTacticsStore = defineStore(
       foil: string | null = null,
     ) {
       if (!roster.some((u) => u.signature === lead)) return false
-      if (foil && !isValidFoil(foil, lead)) return false
+      const assignedFoil = foil ?? scriptedFoilFor(lead)
+      if (!isValidFoil(assignedFoil, lead)) return false
       isPlaytest.value = false
       perspective.value = view
       leadSignature.value = lead
-      foilSignature.value = foil
+      foilSignature.value = assignedFoil
       reset()
       openScreen(null)
       return true
     }
     /** One-Shot: a replayable studio preset with its own scenes, if any. */
-    function startOneShot(presetId: string) {
+    function startOneShot(
+      presetId: string,
+      lead: string = leadSignature.value,
+      view: TacticalPerspective = perspective.value,
+    ) {
       if (!STAGE_PRESETS.some((stage) => stage.id === presetId)) return false
+      if (!roster.some((unit) => unit.signature === lead)) return false
+      leadSignature.value = lead
+      perspective.value = view
       draft.value = clonePreset(presetId)
       if (!startPlaytest()) return false
       openScreen(null)

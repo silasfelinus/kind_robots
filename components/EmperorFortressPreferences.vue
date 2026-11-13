@@ -87,11 +87,37 @@
                   {{ ending.title }}
                 </summary>
                 <p class="mt-2 text-sm leading-relaxed">{{ ending.text }}</p>
-                <div v-for="memory in court.scrapbook.filter((entry) => entry.ending === ending.id)" :key="memory.key" class="mt-3 rounded-md border border-warning/20 p-2 text-xs leading-relaxed">
-                  <p class="font-semibold">{{ new Date(memory.completedAt).toLocaleDateString() }} · {{ memory.brass }} brass · {{ memory.followers }} followers at court</p>
-                  <p>{{ memory.memorials.length }} memorials · {{ memory.cryptSealed ? 'Crypt sealed' : 'Crypt open' }} · {{ memory.bellRung ? 'Bell rung' : 'Bell silent' }}</p>
-                  <p v-if="memory.peace.length">Peace: {{ memory.peace.map((flag) => flag.replace('peace-', '').replaceAll('-', ' ')).join(', ') }}</p>
-                  <p v-if="memory.memorials.length">Lost: {{ memory.memorials.map((m) => m.followerId).join(', ') }}</p>
+                <div
+                  v-for="memory in court.scrapbook.filter(
+                    (entry) => entry.ending === ending.id,
+                  )"
+                  :key="memory.key"
+                  class="mt-3 rounded-md border border-warning/20 p-2 text-xs leading-relaxed"
+                >
+                  <p class="font-semibold">
+                    {{ new Date(memory.completedAt).toLocaleDateString() }} ·
+                    {{ memory.brass }} brass · {{ memory.followers }} followers
+                    at court
+                  </p>
+                  <p>
+                    {{ memory.memorials.length }} memorials ·
+                    {{ memory.cryptSealed ? 'Crypt sealed' : 'Crypt open' }} ·
+                    {{ memory.bellRung ? 'Bell rung' : 'Bell silent' }}
+                  </p>
+                  <p v-if="memory.peace.length">
+                    Peace:
+                    {{
+                      memory.peace
+                        .map((flag) =>
+                          flag.replace('peace-', '').replaceAll('-', ' '),
+                        )
+                        .join(', ')
+                    }}
+                  </p>
+                  <p v-if="memory.memorials.length">
+                    Lost:
+                    {{ memory.memorials.map((m) => m.followerId).join(', ') }}
+                  </p>
                 </div>
               </details>
             </template>

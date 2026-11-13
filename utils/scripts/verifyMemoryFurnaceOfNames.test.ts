@@ -134,9 +134,7 @@ for (const ovenChoice of ['name-the-cost', 'feed-without-claim'] as const) {
   const restoredNight = restoreHoshimoriNight(JSON.parse(JSON.stringify(night)))
   assert.deepEqual(restoredNight, night)
   const entry =
-    restoredNight!.choices['4,3'] === 'feed-without-claim'
-      ? 'unnamed'
-      : 'named'
+    restoredNight!.choices['4,3'] === 'feed-without-claim' ? 'unnamed' : 'named'
   for (const ending of FURNACE_ENDINGS) {
     let dungeon = exploreUpper(entry)
     dungeon = D.choose(goTo(dungeon, 'FN-32'), 'truth')

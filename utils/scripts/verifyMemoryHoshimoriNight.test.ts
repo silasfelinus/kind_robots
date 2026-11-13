@@ -830,6 +830,57 @@ for (let seed = 0; seed < 16; seed++) {
     progress,
     'A complete 64-site night expedition survives save restoration',
   )
+  if (seed === 0) {
+    let replay = newHoshimoriNightProgress(seed)
+    const forkedSites = new Set<string>()
+    for (const event of progress.events) {
+      if (event.type === 'choose') {
+        const site = HOSHIMORI_NIGHT_SITES.find(
+          (candidate) => candidate.key === replay.current,
+        )!
+        const alternative = site.choices.find(
+          (choice) => choice.id !== event.id,
+        )!
+        assert.ok(alternative, 'Every site must offer a second playable choice')
+        const fork = advanceHoshimoriNight(replay, {
+          type: 'choose',
+          id: alternative.id,
+        })
+        assert.notStrictEqual(
+          fork,
+          replay,
+          'Alternative must be playable at ' + site.key,
+        )
+        assert.equal(fork.choices[site.key], alternative.id)
+        assert.equal(
+          Object.keys(fork.choices).length,
+          Object.keys(replay.choices).length + 1,
+          'A fork must preserve prior decisions at ' + site.key,
+        )
+        assert.deepEqual(
+          restoreHoshimoriNight(JSON.parse(JSON.stringify(fork))),
+          fork,
+          'Alternative branch must survive Chronicle restoration at ' +
+            site.key,
+        )
+        assert.strictEqual(
+          advanceHoshimoriNight(fork, event),
+          fork,
+          'An alternate choice cannot be overwritten at ' + site.key,
+        )
+        forkedSites.add(site.key)
+      }
+      const next = advanceHoshimoriNight(replay, event)
+      assert.notStrictEqual(next, replay, 'Recorded event must replay legally')
+      replay = next
+    }
+    assert.deepEqual(replay, progress)
+    assert.deepEqual(
+      forkedSites,
+      new Set(HOSHIMORI_NIGHT_SITES.map((site) => site.key)),
+      'Every one of the 64 sites must have a valid, restorable alternate outcome',
+    )
+  }
   const truncatedHistory = JSON.parse(JSON.stringify(progress)) as NightProgress
   truncatedHistory.events.pop()
   assert.equal(

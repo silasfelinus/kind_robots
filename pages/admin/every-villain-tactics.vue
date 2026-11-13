@@ -1579,10 +1579,8 @@ import { promArt } from '~/utils/cometAcademy/artManifest'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
-import {
-  paintedMapArtId,
-  useEveryVillainTacticsArtStore,
-} from '~/stores/everyVillainTacticsArtStore'
+import { paintedMapArtId } from '~/utils/everyVillainTactics/mapArt'
+import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
 import {
   actorAt,

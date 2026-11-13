@@ -27,9 +27,18 @@ const tokenIds = new Map(
 test('Ironjaw lizard art intake tracks every plate and only verified token keepers', () => {
   const entries = coverage.entries
   assert.equal(entries.length, 61)
-  assert.equal(new Set(entries.map((entry) => entry.asset)).size, entries.length)
-  assert.equal(new Set(entries.map((entry) => entry.imageId)).size, entries.length)
-  assert.equal(entries.filter((entry) => entry.asset.includes('/tokens/')).length, 45)
+  assert.equal(
+    new Set(entries.map((entry) => entry.asset)).size,
+    entries.length,
+  )
+  assert.equal(
+    new Set(entries.map((entry) => entry.imageId)).size,
+    entries.length,
+  )
+  assert.equal(
+    entries.filter((entry) => entry.asset.includes('/tokens/')).length,
+    45,
+  )
 
   for (const entry of entries) {
     const isToken = entry.asset.startsWith('slime-city/tokens/')
@@ -43,7 +52,9 @@ test('Ironjaw lizard art intake tracks every plate and only verified token keepe
       )
       if (wired) {
         assert.ok(
-          ['previously-curated', 'verified-keeper'].includes(entry.verification),
+          ['previously-curated', 'verified-keeper'].includes(
+            entry.verification,
+          ),
           entry.asset + ' cannot be wired without a keeper verdict',
         )
       } else {

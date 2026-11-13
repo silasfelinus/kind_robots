@@ -113,12 +113,69 @@
         </div>
       </header>
 
-      <div v-if="store.screen === 'story'" class="evf-body kr-scroll">
+      <div
+        v-if="store.screen === 'story' || store.screen === 'oneshot'"
+        class="evf-body kr-scroll evf-setup"
+      >
         <p class="evf-lede">
-          Someone sealed the academy auditorium with students inside. The same
-          battle plays differently depending on whose side you are on.
+          Build your power, reveal your fighter, choose Hero or Villain. Your
+          scripted rival and support squad join the mission automatically.
         </p>
-        <h3 class="evf-label">Whose story?</h3>
+        <div class="evf-identity-steps">
+          <section aria-labelledby="evf-origin-title">
+            <h3 id="evf-origin-title" class="evf-label">01 / Your power origin</h3>
+            <div class="evf-power-grid" role="radiogroup" aria-label="Power origin" data-roving="horizontal">
+              <button
+                v-for="option in POWER_ORIGINS"
+                :key="option.id"
+                type="button"
+                class="evf-power-option"
+                role="radio"
+                :aria-checked="selectedOrigin === option.id"
+                :data-testid="'front-origin-' + option.id"
+                @click="selectedOrigin = option.id"
+              >
+                <img v-if="art('origins/' + option.id)" :src="art('origins/' + option.id)!" alt="" loading="lazy" />
+                <span v-else aria-hidden="true">{{ option.glyph }}</span>
+                <strong>{{ option.name }}</strong>
+              </button>
+            </div>
+          </section>
+          <section aria-labelledby="evf-affinity-title">
+            <h3 id="evf-affinity-title" class="evf-label">02 / Your affinity</h3>
+            <div class="evf-power-grid" role="radiogroup" aria-label="Power affinity" data-roving="horizontal">
+              <button
+                v-for="option in POWER_AFFINITIES"
+                :key="option.id"
+                type="button"
+                class="evf-power-option"
+                role="radio"
+                :aria-checked="selectedAffinity === option.id"
+                :data-testid="'front-affinity-' + option.id"
+                @click="selectedAffinity = option.id"
+              >
+                <img v-if="art('affinities/' + option.id)" :src="art('affinities/' + option.id)!" alt="" loading="lazy" />
+                <span v-else aria-hidden="true">{{ option.glyph }}</span>
+                <strong>{{ option.name }}</strong>
+              </button>
+            </div>
+          </section>
+        </div>
+        <section class="evf-identity-reveal" data-testid="front-character-reveal" aria-live="polite">
+          <div class="evf-reveal-art">
+            <img v-if="revealArtwork" :src="revealArtwork" :alt="leadAlias + ' comic portrait'" />
+            <span v-else class="evf-art-fallback" aria-hidden="true">✷</span>
+          </div>
+          <div class="evf-reveal-copy">
+            <span class="evf-kicker">YOUR FIGHTER / ISSUE 01</span>
+            <h3>{{ leadAlias }}</h3>
+            <p>{{ selectedIdentity?.realName }} · {{ signaturePower.name }}</p>
+            <p class="evf-reveal-power">{{ signaturePower.action }}</p>
+            <small data-testid="front-lead-note">{{ leadNote }}</small>
+            <small>Support and foil are assigned with the mission, not chosen in advance.</small>
+          </div>
+        </section>
+        <h3 class="evf-label">03 / Your story</h3>
         <div
           class="evf-views"
           role="radiogroup"
@@ -143,115 +200,35 @@
             </span>
           </button>
         </div>
-        <h3 class="evf-label">Squad lead</h3>
-        <p class="evf-note" data-testid="front-lead-note">{{ leadNote }}</p>
-        <div
-          class="evf-leads"
-          role="radiogroup"
-          aria-label="Squad lead"
-          data-roving="horizontal"
-        >
-          <button
-            v-for="person in store.roster"
-            :key="person.signature"
-            type="button"
-            role="radio"
-            class="evf-lead"
-            :aria-checked="pickedLead === person.signature"
-            :aria-label="person.hero.alias + ', ' + person.realName"
-            :data-testid="'front-lead-' + person.signature"
-            @click="pickedLead = person.signature"
-          >
-            <img
-              v-if="portrait(person.signature)"
-              :src="portrait(person.signature)!"
-              alt=""
-              loading="lazy"
-            />
-            <span v-else class="evf-art-fallback" aria-hidden="true">{{
-              person.hero.alias.slice(0, 2).toUpperCase()
-            }}</span>
-            <small>{{ person.hero.alias }}</small>
-          </button>
-        </div>
-        <h3 class="evf-label">Rival foil</h3>
-        <p class="evf-note" data-testid="front-foil-note">{{ foilNote }}</p>
-        <div
-          class="evf-leads"
-          role="radiogroup"
-          aria-label="Rival foil"
-          data-roving="horizontal"
-        >
-          <button
-            v-for="person in store.roster"
-            :key="person.signature"
-            type="button"
-            role="radio"
-            class="evf-lead"
-            :aria-checked="pickedFoil === person.signature"
-            :disabled="!isValidFoil(person.signature, pickedLead)"
-            :aria-label="person.hero.alias + ' as rival, ' + person.realName"
-            :data-testid="'front-foil-' + person.signature"
-            @click="pickedFoil = person.signature"
-          >
-            <img
-              v-if="foilPortrait(person.signature)"
-              :src="foilPortrait(person.signature)!"
-              alt=""
-              loading="lazy"
-            />
-            <span v-else class="evf-art-fallback" aria-hidden="true">{{
-              person.hero.alias.slice(0, 2).toUpperCase()
-            }}</span>
-            <small>{{ person.hero.alias }}</small>
-          </button>
-        </div>
-      </div>
-
-      <div
-        v-else-if="store.screen === 'oneshot'"
-        class="evf-body kr-scroll"
-        data-roving="grid"
-      >
-        <p class="evf-lede">
-          Replayable battles built in the Stage Studio. They never touch your
-          story save.
+        <p class="evf-foil-note" data-testid="front-foil-note">
+          First Bell foil: {{ foilAlias }} · supporting cast joins automatically.
         </p>
-        <div class="evf-stages">
-          <button
-            v-for="stage in oneShots"
-            :key="stage.id"
-            type="button"
-            class="evf-stage"
-            :data-testid="'front-oneshot-' + stage.id"
-            @click="store.startOneShot(stage.id)"
-          >
-            <img
-              v-if="art(stage.art)"
-              :src="art(stage.art)!"
-              alt=""
-              loading="lazy"
-            />
-            <span v-else class="evf-art-fallback" aria-hidden="true">✦</span>
-            <span class="evf-stage-text">
-              <small class="evf-kicker">{{ stage.tag }}</small>
-              <strong>{{ stage.title }}</strong>
-              <span>{{ stage.objective }}</span>
-              <small
-                >{{ stage.venue }} ·
-                {{
-                  stage.turnLimit
-                    ? stage.turnLimit + ' rounds'
-                    : 'No round limit'
-                }}{{
-                  stage.civilians?.length
-                    ? ' · ' + stage.civilians.length + ' civilians'
-                    : ''
-                }}</small
-              >
-            </span>
-          </button>
-        </div>
+        <template v-if="store.screen === 'oneshot'">
+          <h3 class="evf-label">04 / Pick a battlefield</h3>
+          <div class="evf-stages">
+            <button
+              v-for="stage in oneShots"
+              :key="stage.id"
+              type="button"
+              class="evf-stage"
+              :data-testid="'front-oneshot-' + stage.id"
+              @click="store.startOneShot(stage.id, pickedLead, pickedView)"
+            >
+              <img
+                v-if="art(stage.art)"
+                :src="art(stage.art)!"
+                alt=""
+                loading="lazy"
+              />
+              <span v-else class="evf-art-fallback" aria-hidden="true">✦</span>
+              <span class="evf-stage-text">
+                <small class="evf-kicker">{{ stage.tag }}</small>
+                <strong>{{ stage.title }}</strong>
+                <span>{{ stage.objective }}</span>
+              </span>
+            </button>
+          </div>
+        </template>
       </div>
 
       <div
@@ -458,11 +435,7 @@
           class="evf-go"
           data-testid="front-begin-story"
           @click="
-            store.startStory(
-              pickedView,
-              pickedLead,
-              pickedFoil === DEFAULT_FOIL ? null : pickedFoil,
-            )
+            store.startStory(pickedView, pickedLead)
           "
         >
           Begin First Bell as {{ leadAlias }} ▸
@@ -475,7 +448,14 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { promArt } from '~/utils/cometAcademy/artManifest'
-import { DEFAULT_FOIL, isValidFoil } from '~/utils/everyVillainTactics/training'
+import { scriptedFoilFor } from '~/utils/everyVillainTactics/training'
+import {
+  POWER_ORIGINS,
+  POWER_AFFINITIES,
+  signatureFor,
+  type PowerOriginId,
+  type PowerAffinityId,
+} from '~/utils/cometAcademy/specialPowers'
 import {
   ANIMATION_SPEEDS,
   PERSPECTIVE_ART,
@@ -493,37 +473,32 @@ const root = ref<HTMLElement | null>(null)
 const playableView = (view: TacticalPerspective): TacticalPerspective =>
   PLAYABLE_PERSPECTIVES.includes(view) ? view : 'hero'
 const pickedView = ref<TacticalPerspective>(playableView(store.perspective))
-const pickedLead = ref(store.leadSignature)
-const pickedFoil = ref(store.foilSignature ?? DEFAULT_FOIL)
-watch(pickedLead, (lead) => {
-  if (!isValidFoil(pickedFoil.value, lead)) pickedFoil.value = DEFAULT_FOIL
-  if (!isValidFoil(pickedFoil.value, lead))
-    pickedFoil.value =
-      store.roster.find((p) => isValidFoil(p.signature, lead))?.signature ??
-      DEFAULT_FOIL
-})
-const foilPortrait = (signature: string) =>
-  promArt('identities/' + signature + '/outcomes/villain') ??
-  promArt('identities/' + signature + '/student')
-const foilAlias = computed(
-  () =>
-    store.roster.find((p) => p.signature === pickedFoil.value)?.hero.alias ??
-    'the rival',
+const selectedOrigin = ref<PowerOriginId>(
+  store.leadSignature.split('-')[0] as PowerOriginId,
 )
-const foilNote = computed(() =>
-  pickedFoil.value === DEFAULT_FOIL
-    ? foilAlias.value +
-      ' is First Bell’s written rival lead. Pick anyone else to face them instead; the other two rivals stay.'
-    : foilAlias.value +
-      ' leads the rival patrol with their own role and signature power. The shared First Bell script plays unchanged; a bespoke foil matchup is not written yet.',
+const selectedAffinity = ref<PowerAffinityId>(
+  store.leadSignature.split('-')[1] as PowerAffinityId,
+)
+const signaturePower = computed(() =>
+  signatureFor(selectedOrigin.value, selectedAffinity.value),
+)
+const pickedLead = computed(() => signaturePower.value.id)
+const selectedIdentity = computed(() =>
+  store.roster.find((person) => person.signature === pickedLead.value),
+)
+const assignedFoil = computed(() => scriptedFoilFor(pickedLead.value))
+const foilAlias = computed(
+  () => store.roster.find((person) => person.signature === assignedFoil.value)?.villain.alias ?? 'the rival',
+)
+const revealArtwork = computed(
+  () =>
+    promArt('identities/' + pickedLead.value + '/outcomes/' + pickedView.value) ??
+    promArt('identities/' + pickedLead.value + '/student'),
 )
 const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = oneShotStages()
 
 const art = (key: string) => promArt(key)
-const portrait = (signature: string) =>
-  promArt('identities/' + signature + '/student') ??
-  promArt('identities/' + signature + '/outcomes/hero')
 const BACKDROPS: Record<string, string> = {
   title: 'front/splash-v2',
   story: 'encounters/the-fire-drill-that-wasnt',
@@ -543,16 +518,12 @@ const views = computed(() =>
   })),
 )
 const leadAlias = computed(
-  () =>
-    store.roster.find((p) => p.signature === pickedLead.value)?.hero.alias ??
-    'your lead',
+  () => selectedIdentity.value?.[pickedView.value === 'villain' ? 'villain' : 'hero'].alias ?? 'your lead',
 )
-const leadNote = computed(() =>
-  pickedLead.value === 'accident-fire'
-    ? leadAlias.value +
-      ' carries First Bell’s bespoke fixed-cast route, with personal origin dialogue in every viewpoint.'
-    : leadAlias.value +
-      ' leads the shared First Bell script with their own role and signature power. Their personal six-mission route is not written yet.',
+const leadNote = computed(
+  () =>
+    signaturePower.value.name +
+    ' is ready for battle. All 48 power identities are playable with the shared First Bell encounters; personalized six-mission scripts remain in production.',
 )
 const continueLine = computed(() => {
   const s = store.latestSummary
@@ -654,8 +625,8 @@ watch(
   () => {
     confirming.value = null
     pickedView.value = playableView(store.perspective)
-    pickedLead.value = store.leadSignature
-    pickedFoil.value = store.foilSignature ?? DEFAULT_FOIL
+    selectedOrigin.value = store.leadSignature.split('-')[0] as PowerOriginId
+    selectedAffinity.value = store.leadSignature.split('-')[1] as PowerAffinityId
     focusScreen()
   },
 )
@@ -1168,6 +1139,116 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   }
   .evf-item {
     transition: none;
+  }
+}
+
+.evf-setup {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+.evf-identity-steps {
+  display: grid;
+  gap: 8px;
+}
+.evf-power-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(91px, 1fr);
+  gap: 8px;
+  padding: 4px 4px 10px;
+  overflow-x: auto;
+}
+.evf-power-option {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 5px;
+  min-height: 94px;
+  padding: 6px;
+  color: #fff7df;
+  background: #2b1d5ae9;
+  border: 2px solid #965cd5;
+  border-radius: 8px;
+  font-size: 0.72rem;
+}
+.evf-power-option img,
+.evf-power-option > span {
+  width: 100%;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: linear-gradient(130deg, #f05f8d, #4cdcea);
+}
+.evf-power-option > span {
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+}
+.evf-power-option[aria-checked='true'] {
+  border-color: #fff07e;
+  background: #6e1fa0;
+  box-shadow: inset 0 0 0 2px #f9db81;
+}
+.evf-power-option:focus-visible {
+  outline: 3px solid #88efff;
+  outline-offset: 2px;
+}
+.evf-identity-reveal {
+  display: grid;
+  grid-template-columns: clamp(104px, 24cqw, 240px) minmax(0, 1fr);
+  gap: clamp(8px, 2cqw, 22px);
+  min-height: 165px;
+  overflow: hidden;
+  border: 3px solid #ffe275;
+  border-radius: 8px;
+  background: linear-gradient(120deg, #b32977e9, #252c72ef 75%);
+}
+.evf-reveal-art {
+  min-height: 155px;
+  background: #612473;
+}
+.evf-reveal-art img,
+.evf-reveal-art .evf-art-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+}
+.evf-reveal-copy {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 10px;
+}
+.evf-reveal-copy h3 {
+  margin: 0;
+  font: 900 clamp(1.35rem, 3cqw, 2.5rem)/1 Impact, 'Arial Narrow', sans-serif;
+  color: #ffe47d;
+  text-transform: uppercase;
+}
+.evf-reveal-copy p {
+  margin: 0;
+  font-size: clamp(0.76rem, 1.1cqw, 0.96rem);
+  line-height: 1.35;
+}
+.evf-reveal-power {
+  color: #d2f9ff;
+}
+.evf-reveal-copy small,
+.evf-foil-note {
+  color: #f8def9;
+  font-size: 0.74rem;
+}
+.evf-foil-note {
+  margin: 0;
+}
+@container (max-width: 480px) {
+  .evf-identity-reveal {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+  .evf-reveal-copy {
+    padding: 6px;
   }
 }
 </style>

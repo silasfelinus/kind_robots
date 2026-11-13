@@ -357,8 +357,10 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     legacy.value = savedLegacy ?? emptyLegacy()
     const rawScrapbook = read(SCRAPBOOK_KEY)
     const savedScrapbook = decodeScrapbook(rawScrapbook)
-    scrapbookHeld = rawScrapbook === undefined || (!!rawScrapbook && !savedScrapbook)
-    if (scrapbookHeld) hold('The reign scrapbook is unreadable and was not overwritten.')
+    scrapbookHeld =
+      rawScrapbook === undefined || (!!rawScrapbook && !savedScrapbook)
+    if (scrapbookHeld)
+      hold('The reign scrapbook is unreadable and was not overwritten.')
     scrapbook.value = savedScrapbook ?? emptyScrapbook()
     const rawRelics = read(RELIC_KEY)
     const vault = decodeRelicVault(rawRelics ?? null)
@@ -522,8 +524,13 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
       if (write(LEGACY_KEY, encodeLegacy(nextLegacy))) legacy.value = nextLegacy
     }
     if (result.run.day > 50 && !scrapbookHeld) {
-      const nextScrapbook = rememberReign(scrapbook.value, result.run, new Date().toISOString())
-      if (write(SCRAPBOOK_KEY, JSON.stringify(nextScrapbook))) scrapbook.value = nextScrapbook
+      const nextScrapbook = rememberReign(
+        scrapbook.value,
+        result.run,
+        new Date().toISOString(),
+      )
+      if (write(SCRAPBOOK_KEY, JSON.stringify(nextScrapbook)))
+        scrapbook.value = nextScrapbook
     }
     awardAchievements(result.run)
     absorbAllegiances()

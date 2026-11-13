@@ -11,6 +11,7 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'quarry-lieutenant': 265019,
   'picnic-plaza': 265016,
   'quad-portal-watch': 265015,
+  'fountain-hold': 265015,
   'lab-mascot-recall': 265017,
   'boiler-room': 265018,
 }

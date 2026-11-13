@@ -1,0 +1,521 @@
+{
+  "source": "conductor/projects/slime-city/art/EXCHANGE-OCCULT-ROUND-1.yaml",
+  "note": "DONE in ledger is not image verification. Do not copy pending entries into artManifest.ts. Record keep/redo only after authenticated image fetch and contact-sheet inspection.",
+  "entries": [
+    {
+      "asset": "slime-city/cards/repo",
+      "imageId": 269792,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/collector",
+      "imageId": 269793,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/broker",
+      "imageId": 269794,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/mogul",
+      "imageId": 269795,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/collection",
+      "imageId": 269796,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/debttrap",
+      "imageId": 269797,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/contract",
+      "imageId": 269798,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/foreclosure",
+      "imageId": 269799,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/handshake",
+      "imageId": 269800,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/hushmoney",
+      "imageId": 269801,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/audit-fiend",
+      "imageId": 269802,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/debt-holiday",
+      "imageId": 269803,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s1-executive-repo",
+      "imageId": 269804,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s1-guild-clerk",
+      "imageId": 269805,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s1-margin-call",
+      "imageId": 269806,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s1-buy-silence",
+      "imageId": 269807,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s1-debt-garnish",
+      "imageId": 269808,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s1-golden-handshake",
+      "imageId": 269809,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s2-exchange-bargain-rate-collector",
+      "imageId": 269810,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s2-exchange-golden-bailiff",
+      "imageId": 269811,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s2-exchange-compound-interest-notice",
+      "imageId": 269812,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s2-exchange-contract-amendment",
+      "imageId": 269813,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s2-exchange-invisible-lien",
+      "imageId": 269814,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s2-exchange-executive-health-coverage",
+      "imageId": 269815,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-wage-garnisher",
+      "imageId": 269816,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-mortgage-minotaur",
+      "imageId": 269817,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-retainer-clerk",
+      "imageId": 269818,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-seizure-executive",
+      "imageId": 269819,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-hostile-takeover-goon",
+      "imageId": 269820,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-golden-foreclosure",
+      "imageId": 269821,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-payment-reminder",
+      "imageId": 269822,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-compound-notice",
+      "imageId": 269823,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-executive-incentive",
+      "imageId": 269824,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-golden-parachute",
+      "imageId": 269825,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-acquisition-clause",
+      "imageId": 269826,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-late-fee-sticker",
+      "imageId": 269827,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-escrow-snare",
+      "imageId": 269828,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-repossession-notice",
+      "imageId": 269829,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-ledger-greaves",
+      "imageId": 269830,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/cards/s3-exchange-collection-badge",
+      "imageId": 269831,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/audit-fiend@2",
+      "imageId": 269832,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/audit-fiend@3",
+      "imageId": 269833,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/debt-holiday@2",
+      "imageId": 269834,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/debt-holiday@3",
+      "imageId": 269835,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-executive-repo@2",
+      "imageId": 269836,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-executive-repo@3",
+      "imageId": 269837,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-guild-clerk@2",
+      "imageId": 269838,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-guild-clerk@3",
+      "imageId": 269839,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-margin-call@2",
+      "imageId": 269840,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-margin-call@3",
+      "imageId": 269841,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-buy-silence@2",
+      "imageId": 269842,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-buy-silence@3",
+      "imageId": 269843,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-debt-garnish@2",
+      "imageId": 269844,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-debt-garnish@3",
+      "imageId": 269845,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-golden-handshake@2",
+      "imageId": 269846,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-golden-handshake@3",
+      "imageId": 269847,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-bargain-rate-collector@2",
+      "imageId": 269848,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-bargain-rate-collector@3",
+      "imageId": 269849,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-golden-bailiff@2",
+      "imageId": 269850,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-golden-bailiff@3",
+      "imageId": 269851,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-compound-interest-notice@2",
+      "imageId": 269852,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-compound-interest-notice@3",
+      "imageId": 269853,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-contract-amendment@2",
+      "imageId": 269854,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-contract-amendment@3",
+      "imageId": 269855,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-contract-amendment@3b",
+      "imageId": 269856,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-invisible-lien@2",
+      "imageId": 269857,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-invisible-lien@3",
+      "imageId": 269858,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-executive-health-coverage@2",
+      "imageId": 269859,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-exchange-executive-health-coverage@3",
+      "imageId": 269860,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-wage-garnisher@2",
+      "imageId": 269861,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-wage-garnisher@3",
+      "imageId": 269862,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-mortgage-minotaur@2",
+      "imageId": 269863,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-mortgage-minotaur@3",
+      "imageId": 269864,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-mortgage-minotaur@3b",
+      "imageId": 269865,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-retainer-clerk@2",
+      "imageId": 269866,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-retainer-clerk@3",
+      "imageId": 269867,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-seizure-executive@2",
+      "imageId": 269868,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-seizure-executive@3",
+      "imageId": 269869,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-hostile-takeover-goon@2",
+      "imageId": 269870,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-hostile-takeover-goon@3",
+      "imageId": 269871,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-golden-foreclosure@2",
+      "imageId": 269872,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-golden-foreclosure@3",
+      "imageId": 269873,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-payment-reminder@2",
+      "imageId": 269874,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-payment-reminder@3",
+      "imageId": 269875,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-compound-notice@2",
+      "imageId": 269876,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-compound-notice@3",
+      "imageId": 269877,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-executive-incentive@2",
+      "imageId": 269878,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-executive-incentive@3",
+      "imageId": 269879,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-golden-parachute@2",
+      "imageId": 269880,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-golden-parachute@3",
+      "imageId": 269881,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-golden-parachute@3b",
+      "imageId": 269882,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-acquisition-clause@2",
+      "imageId": 269883,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-acquisition-clause@3",
+      "imageId": 269884,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-late-fee-sticker@2",
+      "imageId": 269885,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-late-fee-sticker@3",
+      "imageId": 269886,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-escrow-snare@2",
+      "imageId": 269887,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-escrow-snare@3",
+      "imageId": 269888,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-repossession-notice@2",
+      "imageId": 269889,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-repossession-notice@3",
+      "imageId": 269890,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-ledger-greaves@2",
+      "imageId": 269891,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-ledger-greaves@3",
+      "imageId": 269892,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-collection-badge@2",
+      "imageId": 269893,
+      "verdict": "pending"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-exchange-collection-badge@3",
+      "imageId": 269894,
+      "verdict": "pending"
+    }
+  ]
+}

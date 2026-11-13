@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import {
   actorAt,
+  aliasFor,
   availableMove,
   endTurn,
   exposureAt,
@@ -892,6 +893,33 @@ export const useEveryVillainTacticsStore = defineStore(
         .filter((shot) => shot.hit > 0)
         .sort((a, b) => b.hit - a.hit || a.target.localeCompare(b.target))
     })
+    /** Reachable enemies can be fired on directly from a touch-friendly
+     * target row. The same chanceFrom/resolveAttack rules power board clicks. */
+    const fireTargets = computed(() => {
+      const shooter = active.value
+      if (
+        !shooter ||
+        state.value.phase !== 'active' ||
+        shooter.ap < 1 ||
+        shooter.fired
+      )
+        return []
+      return enemies.value
+        .filter((enemy) => enemy.hp > 0)
+        .map((enemy) => ({
+          ...previewShot(shooter, enemy, state.value.map),
+          name: aliasFor(enemy),
+        }))
+        .filter((target) => target.hit > 0)
+        .sort((a, b) => b.hit - a.hit || a.target.localeCompare(b.target))
+    })
+    const fireAdvice = computed(() => {
+      const shooter = active.value
+      if (!shooter) return 'Select a living squadmate first.'
+      if (shooter.ap < 1) return 'No action points left. End the turn or select another hero.'
+      if (shooter.fired) return 'This hero has already fired this turn. Choose another hero.'
+      return 'No clear shot from this position. Move to a better angle, or choose another hero.'
+    })
     const aimedTarget = computed(() => {
       if (!hovered.value || mode.value === 'power') return null
       if (mode.value === 'fire') {
@@ -977,6 +1005,17 @@ export const useEveryVillainTacticsStore = defineStore(
     function click(point: Cell) {
       clickCell(point)
       latch()
+    }
+    function fireAt(id: string): boolean {
+      if (story.value.current || sceneBlocking.value) return false
+      const target = state.value.units.find(
+        (unit) => unit.id === id && unit.team === 'rival' && unit.hp > 0,
+      )
+      if (!target || state.value.phase !== 'active') return false
+      if (!fireSelected(state.value, target)) return false
+      if (!isPlaytest.value) enqueueBeat(story.value, state.value)
+      latch()
+      return true
     }
     function clickCell(point: Cell) {
       endTurnArmed.value = false
@@ -1156,6 +1195,8 @@ export const useEveryVillainTacticsStore = defineStore(
       mode,
       aimedTarget,
       projectedTargets,
+      fireTargets,
+      fireAdvice,
       previewLabel,
       movePossible,
       activePower,
@@ -1234,6 +1275,7 @@ export const useEveryVillainTacticsStore = defineStore(
       setMode,
       hover,
       click,
+      fireAt,
       nextTurn,
       overwatch,
       hunker,

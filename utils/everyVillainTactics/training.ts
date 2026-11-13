@@ -339,11 +339,7 @@ export function isValidFoil(foil: string, lead: string): boolean {
  * possible, only substituting when the player's own power is that foil.
  * This is a stable authored-stage fallback until the 48 bespoke routes ship. */
 export function scriptedFoilFor(lead: string): string {
-  const candidates = [
-    DEFAULT_FOIL,
-    'magic-social',
-    'tech-fire',
-  ]
+  const candidates = [DEFAULT_FOIL, 'magic-social', 'tech-fire']
   return (
     candidates.find((signature) => isValidFoil(signature, lead)) ??
     IDENTITY_ARCS.find((person) => isValidFoil(person.signature, lead))!

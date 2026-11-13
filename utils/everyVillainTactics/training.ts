@@ -318,6 +318,21 @@ export function isValidFoil(foil: string, lead: string): boolean {
     ![lead, 'tech-genius', 'mutant-earth'].includes(foil)
   )
 }
+/** First Bell has a written rival patrol. Keep its default lead wherever
+ * possible, only substituting when the player's own power is that foil.
+ * This is a stable authored-stage fallback until the 48 bespoke routes ship. */
+export function scriptedFoilFor(lead: string): string {
+  const candidates = [
+    DEFAULT_FOIL,
+    'magic-social',
+    'tech-fire',
+  ]
+  return (
+    candidates.find((signature) => isValidFoil(signature, lead)) ??
+    IDENTITY_ARCS.find((person) => isValidFoil(person.signature, lead))!
+      .signature
+  )
+}
 /** Canonical one-hit crews fielded as the whole rival line-up. */
 const LACKEY_CREWS: Partial<
   Record<

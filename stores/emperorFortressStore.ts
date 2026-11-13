@@ -69,6 +69,13 @@ import {
   encodeLegacy,
 } from '~/utils/emperorOfDust/fortress/legacy'
 import type { LegacyRecord } from '~/utils/emperorOfDust/fortress/legacy'
+import {
+  SCRAPBOOK_KEY,
+  decodeScrapbook,
+  emptyScrapbook,
+  rememberReign,
+} from '~/utils/emperorOfDust/fortress/scrapbook'
+import type { ReignMemory } from '~/utils/emperorOfDust/fortress/scrapbook'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
 // Emperor of Dust v0.3 (Fortress), conductor SYSTEMS-V03.md.
@@ -173,6 +180,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   const lastLearned = ref<string[]>([])
   const relicVault = ref<RelicVault>(emptyRelicVault())
   const legacy = ref<LegacyRecord>(emptyLegacy())
+  const scrapbook = ref<ReignMemory[]>(emptyScrapbook())
+  let scrapbookHeld = false
   let legacyHeld = false
   const textSpeed = ref<TextSpeed>('normal')
   const preferences = ref<FortressPreferences>({
@@ -346,6 +355,13 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     if (legacyHeld)
       hold('The legacy record is unreadable and was not overwritten.')
     legacy.value = savedLegacy ?? emptyLegacy()
+    const rawScrapbook = read(SCRAPBOOK_KEY)
+    const savedScrapbook = decodeScrapbook(rawScrapbook)
+    scrapbookHeld =
+      rawScrapbook === undefined || (!!rawScrapbook && !savedScrapbook)
+    if (scrapbookHeld)
+      hold('The reign scrapbook is unreadable and was not overwritten.')
+    scrapbook.value = savedScrapbook ?? emptyScrapbook()
     const rawRelics = read(RELIC_KEY)
     const vault = decodeRelicVault(rawRelics ?? null)
     relicVaultUnreadable = rawRelics === undefined || (!!rawRelics && !vault)
@@ -507,6 +523,15 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
       const nextLegacy = earnLegacy(legacy.value, result.run)
       if (write(LEGACY_KEY, encodeLegacy(nextLegacy))) legacy.value = nextLegacy
     }
+    if (result.run.day > 50 && !scrapbookHeld) {
+      const nextScrapbook = rememberReign(
+        scrapbook.value,
+        result.run,
+        new Date().toISOString(),
+      )
+      if (write(SCRAPBOOK_KEY, JSON.stringify(nextScrapbook)))
+        scrapbook.value = nextScrapbook
+    }
     awardAchievements(result.run)
     absorbAllegiances()
     award([
@@ -622,6 +647,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     lastReport,
     relicVault,
     legacy,
+    scrapbook,
     setLegacyWrit,
     claimable,
     textSpeed,

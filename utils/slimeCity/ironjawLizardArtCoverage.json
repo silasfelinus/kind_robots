@@ -1,0 +1,372 @@
+{
+  "source": "conductor/projects/slime-city/art/IRONJAW-LIZARDS-ROUND-1.yaml",
+  "purpose": "Track which Ironjaw lizard art assets are represented in runtime. Pending tokens require authenticated fetch and visual review before wiring.",
+  "entries": [
+    {
+      "asset": "slime-city/crews/ironjaw",
+      "imageId": 267360,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/cards/scrapper",
+      "imageId": 267361,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/scrapper/fierce",
+      "imageId": 267362,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/scrapper/guard",
+      "imageId": 267363,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/scrapper/hurt",
+      "imageId": 267364,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/welder",
+      "imageId": 267365,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/welder/fierce",
+      "imageId": 267366,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/welder/guard",
+      "imageId": 267367,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/welder/hurt",
+      "imageId": 267368,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/bulldozer",
+      "imageId": 267369,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/bulldozer/fierce",
+      "imageId": 267370,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/bulldozer/guard",
+      "imageId": 267371,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/bulldozer/hurt",
+      "imageId": 267372,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/juggernaut",
+      "imageId": 267373,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/juggernaut/fierce",
+      "imageId": 267374,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/juggernaut/guard",
+      "imageId": 267375,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/juggernaut/hurt",
+      "imageId": 267376,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/union-millwright",
+      "imageId": 267377,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/union-millwright/fierce",
+      "imageId": 267378,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/union-millwright/guard",
+      "imageId": 267379,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/union-millwright/hurt",
+      "imageId": 267380,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s1-walking-foundry",
+      "imageId": 267381,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s1-walking-foundry/fierce",
+      "imageId": 267382,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s1-walking-foundry/guard",
+      "imageId": 267383,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s1-walking-foundry/hurt",
+      "imageId": 267384,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s1-scrap-welder",
+      "imageId": 267385,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s1-scrap-welder/fierce",
+      "imageId": 267386,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s1-scrap-welder/guard",
+      "imageId": 267387,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s1-scrap-welder/hurt",
+      "imageId": 267388,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s2-ironjaw-union-bridgebearer",
+      "imageId": 267389,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s2-ironjaw-union-bridgebearer/fierce",
+      "imageId": 267390,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s2-ironjaw-union-bridgebearer/guard",
+      "imageId": 267391,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s2-ironjaw-union-bridgebearer/hurt",
+      "imageId": 267392,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s3-ironjaw-night-welder",
+      "imageId": 267393,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-night-welder/fierce",
+      "imageId": 267394,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-night-welder/guard",
+      "imageId": 267395,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-night-welder/hurt",
+      "imageId": 267396,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s3-ironjaw-dreadnought",
+      "imageId": 267397,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-dreadnought/fierce",
+      "imageId": 267398,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-dreadnought/guard",
+      "imageId": 267399,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-dreadnought/hurt",
+      "imageId": 267400,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s3-ironjaw-union-cook",
+      "imageId": 267401,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-union-cook/fierce",
+      "imageId": 267402,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-union-cook/guard",
+      "imageId": 267403,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-union-cook/hurt",
+      "imageId": 267404,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s3-ironjaw-bridgebreaker",
+      "imageId": 267405,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-bridgebreaker/fierce",
+      "imageId": 267406,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-bridgebreaker/guard",
+      "imageId": 267407,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-bridgebreaker/hurt",
+      "imageId": 267408,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s3-ironjaw-coal-racer",
+      "imageId": 267409,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-coal-racer/fierce",
+      "imageId": 267410,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-coal-racer/guard",
+      "imageId": 267411,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-coal-racer/hurt",
+      "imageId": 267412,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/s3-ironjaw-matriarch",
+      "imageId": 267413,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-matriarch/fierce",
+      "imageId": 267414,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-matriarch/guard",
+      "imageId": 267415,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/s3-ironjaw-matriarch/hurt",
+      "imageId": 267416,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/cards/merc-picket-troll",
+      "imageId": 267417,
+      "manifestPresent": true,
+      "verification": "previously-curated"
+    },
+    {
+      "asset": "slime-city/tokens/merc-picket-troll/fierce",
+      "imageId": 267418,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/merc-picket-troll/guard",
+      "imageId": 267419,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    },
+    {
+      "asset": "slime-city/tokens/merc-picket-troll/hurt",
+      "imageId": 267420,
+      "manifestPresent": false,
+      "verification": "pending-image-review"
+    }
+  ]
+}

@@ -1367,12 +1367,23 @@ export function slimeArtId(
   return ids[slug] ?? null
 }
 
-/** Card art for a level: its evolution painting once rendered, else the card's own. */
+/**
+ * Use the closest curated evolution painting available. Alternate L3 branches
+ * often share their main L3 painting while a separate branch render is pending;
+ * never visually demote an evolved fighter all the way back to its L1 portrait.
+ */
 export function slimeCardArtId(id: string, level = 1, pick = 0): number | null {
+  if (level >= 3) {
+    if (pick) {
+      const alternate = slimeArtId('evolutions', id + '@3b')
+      if (alternate !== null) return alternate
+    }
+    const third = slimeArtId('evolutions', id + '@3')
+    if (third !== null) return third
+  }
   if (level >= 2) {
-    const key = id + '@' + Math.min(3, level) + (level >= 3 && pick ? 'b' : '')
-    const evolved = slimeArtId('evolutions', key)
-    if (evolved) return evolved
+    const second = slimeArtId('evolutions', id + '@2')
+    if (second !== null) return second
   }
   return slimeArtId('cards', id)
 }

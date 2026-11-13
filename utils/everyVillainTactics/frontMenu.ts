@@ -343,7 +343,7 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
   {
     id: 'science-lab',
     art: 'districts/engineering-workshop',
-    tag: 'Rival heroes · narrow aisles',
+    tag: 'Story encounter · eight-round lockdown, branching choice',
   },
   {
     id: 'quad-portal-watch',

@@ -202,6 +202,56 @@ for (const ovenChoice of ['name-the-cost', 'feed-without-claim'] as const) {
   }
 }
 
+// Interrupted expeditions must resume at the exact room, with no borrowed exit.
+for (const entry of ['named', 'unnamed'] as const) {
+  let run = settle(D.newProgress(entry))
+  for (const roomId of ['FN-12', 'FN-24', 'FN-31'] as const) {
+    run = settle(goTo(run, roomId))
+    const saved = JSON.parse(
+      JSON.stringify({
+        version: 1,
+        visited: run.visited,
+        order: run.order,
+        current: run.current,
+      }),
+    )
+    const restored = D.restore(saved, entry)
+    assert.deepEqual(restored, run, entry + ': interrupted at ' + roomId)
+    assert.equal(restored.completed, false)
+    assert.equal(restored.guardianPassed, false)
+    assert.equal(restored.ending, null)
+    run = restored
+  }
+  run = D.choose(goTo(run, 'FN-32'), 'truth')
+  const guardianSave = JSON.parse(
+    JSON.stringify({
+      version: 1,
+      visited: run.visited,
+      order: run.order,
+      current: run.current,
+    }),
+  )
+  run = D.restore(guardianSave, entry)
+  assert.equal(run.guardianPassed, true)
+  assert.equal(run.completed, false)
+  assert.equal(run.decisions['FN-32'], 'truth')
+  run = D.choose(goTo(run, 'FN-35'), 'return-names')
+  const climaxSave = JSON.parse(
+    JSON.stringify({
+      version: 1,
+      visited: run.visited,
+      order: run.order,
+      current: run.current,
+    }),
+  )
+  run = D.restore(climaxSave, entry)
+  assert.equal(run.ending, 'return-names')
+  assert.equal(run.completed, false, 'choosing an ending is not exiting')
+  assert.ok(D.exits(run).includes('FN-36'))
+  run = D.choose(goTo(run, 'FN-36'), 'climb')
+  assert.equal(run.completed, true)
+}
+
 // Shortcuts and instants.
 {
   let run = goTo(settle(D.newProgress('named')), 'FN-18')

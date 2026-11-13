@@ -6,6 +6,11 @@ import {
   comicIntroFor,
 } from '../cometAcademy/comicIntroductions'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
+import {
+  POWER_ORIGINS,
+  POWER_AFFINITIES,
+  signatureFor,
+} from '../cometAcademy/specialPowers'
 import { chanceFrom } from '../everyVillainTactics/combat'
 import {
   applyChoice,
@@ -42,6 +47,9 @@ import {
   endTurn,
   exposureAt,
   isValidFoil,
+  scriptedFoilFor,
+  fireSelected,
+  previewShot,
   moveSelected,
   rescueSelected,
   trainingState,
@@ -359,7 +367,12 @@ for (const id of [
   'front-foil-note',
 ])
   assert.match(menu, new RegExp('data-testid="' + id + '"'))
-assert.match(menu, /'front-foil-' \+ person\.signature/)
+assert.match(menu, /'front-origin-' \+ option\.id/)
+assert.match(menu, /'front-affinity-' \+ option\.id/)
+assert.match(menu, /data-testid="front-character-reveal"/)
+assert.match(menu, /store\.startOneShot\(stage\.id, pickedLead, pickedView\)/)
+assert.match(menu, /scriptedFoilFor\(pickedLead\.value\)/)
+assert.doesNotMatch(menu, /'front-foil-' \+ person\.signature/)
 assert.match(menu, /PLAYABLE_PERSPECTIVES\.map/)
 assert.doesNotMatch(menu, /four viewpoints/)
 assert.match(menu, /aria-modal="true"/)
@@ -376,6 +389,41 @@ assert.match(page, /store\.requestEndTurn\(\)/)
 assert.match(page, /store\.loadPreferences\(\)/)
 assert.match(page, /var\(--evt-anim, 1\)/)
 assert.match(page, /data-testid="tactics-open-menu"/)
+assert.match(page, /data-testid="tactics-fire-targets"/)
+assert.match(page, /store\.fireAt\(target\.target\)/)
+assert.match(page, /--evt-board-art/)
+assert.match(page, /class="evt-map-legend-items"/)
+for (const asset of ['first-bell', 'picnic-plaza']) {
+  const svg = readFileSync(
+    new URL('../../public/every-villain-tactics/maps/' + asset + '.svg', import.meta.url),
+    'utf8',
+  )
+  assert.match(svg, /<svg xmlns=/)
+  assert.match(svg, /viewBox="0 0 1080 720"/)
+}
+for (const origin of POWER_ORIGINS)
+  for (const affinity of POWER_AFFINITIES) {
+    const signature = signatureFor(origin.id, affinity.id).id
+    assert.ok(
+      IDENTITY_ARCS.some((identity) => identity.signature === signature),
+      signature + ' has a real canonical fighter',
+    )
+    assert.ok(isValidFoil(scriptedFoilFor(signature), signature))
+  }
+// FIRE uses the same real deterministic attack as clicking a rival on the
+// board; the new touch target list is just a direct route to that action.
+const rangeState = trainingState(12)
+const shooter = rangeState.units.find((unit) => unit.id === 'backdraft')!
+const rival = rangeState.units.find((unit) => unit.id === 'remy')!
+shooter.x = 5
+shooter.y = 4
+rival.x = 7
+rival.y = 4
+assert.ok(previewShot(shooter, rival, rangeState.map).hit > 0)
+assert.equal(fireSelected(rangeState, rival), true)
+assert.equal(shooter.fired, true)
+assert.equal(shooter.ap, 1)
+assert.equal(fireSelected(rangeState, rival), false)
 assert.match(page, /comicIntroArt\(activeComicIntro.value\)/)
 assert.ok(
   (page.match(/class="evt-dialogue-portrait"/g) ?? []).length >= 3,

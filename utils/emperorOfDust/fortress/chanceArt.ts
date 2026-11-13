@@ -18,7 +18,7 @@ export function chanceArtCandidates(
   const commission = exported.has(eventId)
     ? `/emperor-of-dust/chance/${eventId}.webp`
     : undefined
-  const rooms = ['throne', 'market', 'barracks', 'map', 'quest'] as const
+  const rooms = ['throne', 'market', 'barracks', 'map', 'quests'] as const
   const fallback = roomArtUrl(rooms[choiceIndex % rooms.length]!)
   return [commission, fallback, '/emperor-of-dust/map/wasteland.webp'].filter(
     (url): url is string => Boolean(url),

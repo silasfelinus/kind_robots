@@ -18,6 +18,7 @@ import {
   endingFor,
 } from '~/utils/shiftingDesks/rules'
 import { dailySeed } from '~/utils/shiftingDesks/daily'
+import { isShiftingDesksBackupEnvelope } from '~/utils/shiftingDesks/backupValidation'
 import {
   DEFAULT_DESK_SETTINGS,
   SETTINGS_KEY,
@@ -114,14 +115,8 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     try {
       if (text.length > 2_000_000) return false
       const data: unknown = JSON.parse(text)
-      if (!data || typeof data !== 'object' || Array.isArray(data)) return false
-      const backup = data as Record<string, unknown>
-      if (backup.game !== 'shifting-desks' || backup.version !== 1) return false
-      if (
-        !Array.isArray(backup.discovered) ||
-        !Array.isArray(backup.endingsFound)
-      )
-        return false
+      if (!isShiftingDesksBackupEnvelope(data)) return false
+      const backup = data
       if (backup.run !== null && !upgradeRun(backup.run)) return false
       if (!backup.settings || typeof backup.settings !== 'object') return false
       if (!backup.rewardArchive || typeof backup.rewardArchive !== 'object')

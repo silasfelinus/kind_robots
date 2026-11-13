@@ -98,17 +98,24 @@ assert.ok(
 const evidenceState = trainingState(78, lab)
 evidenceState.turn = 2
 latchScenes(evidenceState, script, lab)
-const labDecision = script.scenes.find((scene) => scene.id === 'science-decision')!
+const labDecision = script.scenes.find(
+  (scene) => scene.id === 'science-decision',
+)!
 assert.ok(finishScene(evidenceState, labDecision, [1], 'villain'))
 assert.ok(evidenceState.flags?.includes('lab-evidence'))
-assert.ok(evidenceState.units.some((unit) => unit.team === 'rival' && unit.statuses.includes('suppressed')))
+assert.ok(
+  evidenceState.units.some(
+    (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+  ),
+)
 assert.ok(latchScenes(evidenceState, script, lab).includes('science-recording'))
 evidenceState.phase = 'victory'
 latchScenes(evidenceState, script, lab)
 assert.ok(
-  walkScene(victory, [], { state: evidenceState, perspective: 'villain' })!.nodes.some(
-    (node) => node.id === 've',
-  ),
+  walkScene(victory, [], {
+    state: evidenceState,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 've'),
 )
 assert.ok(science.fired?.includes(sceneTriggerId('science-decision')))
 assert.ok(evidenceState.fired?.includes(sceneTriggerId('science-recording')))

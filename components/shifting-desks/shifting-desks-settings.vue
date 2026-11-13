@@ -95,6 +95,40 @@
           <shifting-desks-style-picker class="h-44 rounded-xl sm:h-56" />
         </section>
 
+        <section class="rounded-xl border border-warning/30 bg-base-200 p-3">
+          <h3 class="text-sm font-black uppercase">Personnel records transfer</h3>
+          <p class="mt-1 text-xs opacity-75">
+            Copy a backup to keep your current shift, endings and employee dossiers
+            when changing browsers. Import replaces this browser's game progress.
+          </p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline btn-sm" @click="makeBackup">
+              Prepare backup
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              :disabled="!backupText"
+              @click="restoreBackup"
+            >
+              {{ confirmingImport ? 'Confirm: replace saved progress' : 'Import backup' }}
+            </button>
+          </div>
+          <label class="mt-2 block text-xs font-semibold" for="shifting-backup">
+            Backup text
+          </label>
+          <textarea
+            id="shifting-backup"
+            v-model="backupText"
+            class="textarea textarea-bordered mt-1 h-24 w-full font-mono text-xs"
+            placeholder="Prepare a backup or paste a saved backup here"
+            @input="confirmingImport = false"
+          />
+          <p v-if="backupMessage" class="mt-1 text-xs" role="status">
+            {{ backupMessage }}
+          </p>
+        </section>
+
         <div class="flex flex-wrap items-center justify-between gap-2">
           <button
             type="button"
@@ -137,6 +171,9 @@ const store = useShiftingDesksStore()
 const emit = defineEmits<{ reset: [] }>()
 const sheet = ref<HTMLDialogElement | null>(null)
 const confirmingReset = ref(false)
+const confirmingImport = ref(false)
+const backupText = ref('')
+const backupMessage = ref('')
 
 const fields = [
   {
@@ -186,6 +223,26 @@ function updateChoice(key: keyof DeskSettings, event: Event): void {
 
 function updateVolume(key: 'musicVolume' | 'soundVolume', event: Event): void {
   store.setSetting(key, (event.target as HTMLInputElement).valueAsNumber)
+}
+
+function makeBackup(): void {
+  backupText.value = store.exportBackup()
+  confirmingImport.value = false
+  backupMessage.value = 'Backup prepared. Copy this text to a safe location.'
+}
+
+function restoreBackup(): void {
+  if (!confirmingImport.value) {
+    confirmingImport.value = true
+    backupMessage.value = 'Import will replace this browser’s saved game. Press again to confirm.'
+    return
+  }
+  confirmingImport.value = false
+  if (!store.importBackup(backupText.value)) {
+    backupMessage.value = 'Invalid backup or browser storage unavailable. Your progress was not replaced.'
+    return
+  }
+  backupMessage.value = 'Personnel records restored. Your current shift is ready.'
 }
 
 function open(): void {

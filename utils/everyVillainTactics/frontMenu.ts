@@ -346,6 +346,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     tag: 'Story encounter · eight-round lockdown, branching choice',
   },
   {
+    id: 'crosswalk-crisis',
+    art: 'incidents/skybridge',
+    tag: 'Evacuate three civilians · timed crossing and reinforcements',
+  },
+  {
     id: 'quad-portal-watch',
     art: 'encounters/a-visitor-from-the-stars',
     tag: 'Teleporting Wombat Ronin',

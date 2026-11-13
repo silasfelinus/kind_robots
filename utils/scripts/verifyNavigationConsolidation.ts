@@ -592,6 +592,21 @@ for (const image of [
     'featured artwork must exist in the public assets: ' + image,
   )
 }
+for (const artImageId of [267791, 258076, 258083, 258078]) {
+  assert.ok(
+    visitorDirectorySource.includes(`'/api/art/images/${artImageId}/file'`),
+    'homepage highlights must reference delivered generated artwork ' + artImageId,
+  )
+}
+assert.ok(
+  visitorDirectorySource.includes('v-if="feature.montage?.length"'),
+  'Hybridizer highlight must display its illustrated ingredient montage',
+)
+assert.doesNotMatch(
+  visitorDirectorySource,
+  /route: '\/play\/(slime-city|hybridizer)',\s*image: ''/,
+  'Slime City and Hybridizer must not regress to gradient-only highlights',
+)
 assert.ok(
   !visitorDirectorySource.includes("image: '/zuzu-pinball/river-croc.webp'"),
   'Zuzu pinball sprite atlas must not be used as a featured cover',

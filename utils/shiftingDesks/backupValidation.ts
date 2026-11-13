@@ -1,7 +1,10 @@
 /** Reject malformed backup envelopes before any existing browser progress is removed. */
 export function isShiftingDesksBackupEnvelope(
   value: unknown,
-): value is Record<string, unknown> {
+): value is Record<string, unknown> & {
+  discovered: string[]
+  endingsFound: string[]
+} {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const backup = value as Record<string, unknown>
   if (backup.game !== 'shifting-desks' || backup.version !== 1) return false

@@ -94,7 +94,12 @@
             <div class="evt-grid-wrap">
               <div
                 class="evt-map"
-                :style="{ '--evt-board-art': 'url(' + stageBoardArt + ')' }"
+                :style="{
+                  '--evt-board-art': stageBoardArt
+                    ? 'url(' + stageBoardArt + ')'
+                    : 'none',
+                }"
+                :data-art-image-id="paintedArtId ?? 'unmapped'"
                 :data-stage="store.state.stageId ?? 'first-bell'"
                 role="group"
                 data-testid="tactics-flat-map"
@@ -270,6 +275,20 @@
                   >
                 </button>
               </div>
+              <p
+                v-if="paintedMapStatus !== 'loaded'"
+                class="evt-painted-map-status"
+                data-testid="tactics-painted-map-status"
+                aria-live="polite"
+              >
+                {{
+                  paintedMapStatus === 'loading'
+                    ? 'Loading generated battlefield painting…'
+                    : paintedMapStatus === 'failed'
+                      ? 'Painted battlefield unavailable. Tactical grid remains playable.'
+                      : 'No painted battlefield assigned to this stage yet.'
+                }}
+              </p>
               <details
                 class="evt-map-edge"
                 data-testid="tactics-map-legend"
@@ -1561,6 +1580,11 @@ import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
 import {
+  paintedMapArtId,
+  useEveryVillainTacticsArtStore,
+} from '~/stores/everyVillainTacticsArtStore'
+import { useUserStore } from '~/stores/userStore'
+import {
   actorAt,
   displayUnitAt,
   aliasFor,
@@ -1585,6 +1609,25 @@ import {
 } from '~/utils/everyVillainTactics/powers'
 
 const store = useEveryVillainTacticsStore()
+const paintedArt = useEveryVillainTacticsArtStore()
+const viewer = useUserStore()
+const paintedArtId = computed(() => paintedMapArtId(store.state.stageId))
+watch(
+  [paintedArtId, () => viewer.token],
+  ([id]) => {
+    void paintedArt.ensure(id)
+  },
+  { immediate: true },
+)
+const stageBoardArt = computed(
+  () => (paintedArtId.value ? paintedArt.images[paintedArtId.value]?.src : '') ?? '',
+)
+const paintedMapStatus = computed(
+  () =>
+    (paintedArtId.value
+      ? paintedArt.images[paintedArtId.value]?.status
+      : null) ?? (paintedArtId.value ? 'loading' : 'unmapped'),
+)
 const comicPreviewRoles: ComicIntroRole[] = [
   'hero',
   'villain',
@@ -1769,16 +1812,6 @@ function studioCellLabel(cell: Cell): string {
     store.studioBrush.replace('-', ' ')
   )
 }
-const stageBoardArt = computed(() => {
-  const stage = store.state.stageId ?? 'first-bell'
-  if (['picnic-plaza', 'college-quad', 'fountain-standoff'].includes(stage))
-    return '/every-villain-tactics/maps/picnic-plaza.svg'
-  if (stage === 'first-bell')
-    return '/every-villain-tactics/maps/first-bell.svg'
-  // Other authored stages retain an existing Comet City illustration until
-  // their DONE map ArtImages have been exported as dedicated game assets.
-  return battlefieldArt.value
-})
 const battlefieldArt = computed(
   () =>
     promArt(
@@ -4667,7 +4700,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
 /* Map paintings are the ground plane. Tactical walls, cover and sightlines
    remain independent overlays; translucent tiles do not erase the artwork. */
-.evt-map {
+ .evt-map {
   background-image:
     linear-gradient(180deg, #16275017, #131b341a), var(--evt-board-art);
   background-size: cover;
@@ -4698,6 +4731,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 }
 .evt-map > .evt-tile.has-wall[data-ground] {
   background: #35455bd9;
+}
+.evt-painted-map-status {
+  margin: 6px 0 2px;
+  max-width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ffcf82;
+  background: #221b3ed9;
+  border: 1px solid #eeb45d88;
+  border-radius: 5px;
+  padding: 6px 8px;
 }
 .evt-fire-targets {
   display: flex;

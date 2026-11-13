@@ -248,6 +248,7 @@ import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { chanceEvent } from '~/utils/emperorOfDust/fortress/dailyEvents'
 import type { ChanceEventChoice } from '~/utils/emperorOfDust/fortress/dailyEvents'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
+import { chanceArtCandidates } from '~/utils/emperorOfDust/fortress/chanceArt'
 import {
   RUMOUR_BOUNTY,
   dayBriefings,
@@ -325,7 +326,9 @@ const chanceCards = computed<KrHandChoice[]>(() =>
         : undefined,
       hint: costLine(choice),
       disabled: acting.value || cost > props.run.brass,
-      image: recruit ? illustration('followers', recruit) : undefined,
+      image: recruit
+        ? illustration('followers', recruit)
+        : chanceArtCandidates(chance.value!.id, chance.value!.choices.indexOf(choice))[0],
       icon: recruit ? '☗' : net > 0 ? '◎' : net < 0 ? '⚖' : '✦',
     }
   }),

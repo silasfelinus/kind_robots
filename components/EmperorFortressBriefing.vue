@@ -314,7 +314,7 @@ const costLine = (choice: ChanceEventChoice): string => {
   )
 }
 const chanceCards = computed<KrHandChoice[]>(() =>
-  (chance.value?.choices ?? []).map((choice) => {
+  (chance.value?.choices ?? []).map((choice, index) => {
     const cost = choice.requires?.cost ?? 0
     const net = (choice.effects.brass ?? 0) - cost
     const recruit = choice.effects.recruitable?.[0]
@@ -328,7 +328,7 @@ const chanceCards = computed<KrHandChoice[]>(() =>
       disabled: acting.value || cost > props.run.brass,
       image: recruit
         ? illustration('followers', recruit)
-        : chanceArtCandidates(chance.value!.id, chance.value!.choices.indexOf(choice))[0],
+        : chanceArtCandidates(chance.value?.id ?? '', index)[0],
       icon: recruit ? '☗' : net > 0 ? '◎' : net < 0 ? '⚖' : '✦',
     }
   }),

@@ -96,13 +96,20 @@
         </section>
 
         <section class="rounded-xl border border-warning/30 bg-base-200 p-3">
-          <h3 class="text-sm font-black uppercase">Personnel records transfer</h3>
+          <h3 class="text-sm font-black uppercase">
+            Personnel records transfer
+          </h3>
           <p class="mt-1 text-xs opacity-75">
-            Copy a backup to keep your current shift, endings and employee dossiers
-            when changing browsers. Import replaces this browser's game progress.
+            Copy a backup to keep your current shift, endings and employee
+            dossiers when changing browsers. Import replaces this browser's game
+            progress.
           </p>
           <div class="mt-2 flex flex-wrap gap-2">
-            <button type="button" class="btn btn-outline btn-sm" @click="makeBackup">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              @click="makeBackup"
+            >
               Prepare backup
             </button>
             <button
@@ -111,7 +118,11 @@
               :disabled="!backupText"
               @click="restoreBackup"
             >
-              {{ confirmingImport ? 'Confirm: replace saved progress' : 'Import backup' }}
+              {{
+                confirmingImport
+                  ? 'Confirm: replace saved progress'
+                  : 'Import backup'
+              }}
             </button>
           </div>
           <label class="mt-2 block text-xs font-semibold" for="shifting-backup">
@@ -234,15 +245,18 @@ function makeBackup(): void {
 function restoreBackup(): void {
   if (!confirmingImport.value) {
     confirmingImport.value = true
-    backupMessage.value = 'Import will replace this browser’s saved game. Press again to confirm.'
+    backupMessage.value =
+      'Import will replace this browser’s saved game. Press again to confirm.'
     return
   }
   confirmingImport.value = false
   if (!store.importBackup(backupText.value)) {
-    backupMessage.value = 'Invalid backup or browser storage unavailable. Your progress was not replaced.'
+    backupMessage.value =
+      'Invalid backup or browser storage unavailable. Your progress was not replaced.'
     return
   }
-  backupMessage.value = 'Personnel records restored. Your current shift is ready.'
+  backupMessage.value =
+    'Personnel records restored. Your current shift is ready.'
 }
 
 function open(): void {

@@ -395,7 +395,10 @@ assert.match(page, /--evt-board-art/)
 assert.match(page, /class="evt-map-legend-items"/)
 for (const asset of ['first-bell', 'picnic-plaza']) {
   const svg = readFileSync(
-    new URL('../../public/every-villain-tactics/maps/' + asset + '.svg', import.meta.url),
+    new URL(
+      '../../public/every-villain-tactics/maps/' + asset + '.svg',
+      import.meta.url,
+    ),
     'utf8',
   )
   assert.match(svg, /<svg xmlns=/)

@@ -182,7 +182,7 @@ import {
 
 defineEmits<{ close: [] }>()
 const game = useShiftingLandsJourneyStore()
-const portraits = new Map(
+const portraits = new Map<string, string>(
   PREMADE_CHARACTERS.map((entry) => [entry.id, characterPortrait(entry)]),
 )
 const portraitOf = (id: string) => portraits.get(id) ?? CUSTOM_PORTRAIT_FALLBACK

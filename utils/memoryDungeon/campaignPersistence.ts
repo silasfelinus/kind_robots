@@ -164,7 +164,7 @@ export function restoreMemoryCampaignProgress(
         }
       }
     }
-    if (id === 'e09' && saved.finaleCommitted)
+    if (id === 'e09' && isCurrentSave && saved.finaleCommitted)
       progress = commitToMemoryFinale(progress)
     for (const fragment of MEMORY_COLLISION_FRAGMENTS) {
       if (fragment.world === id && earnedFragments.has(fragment.id))
@@ -237,6 +237,7 @@ export function restoreMemoryCampaignProgress(
 
   // The four paired acts earn the four-map finale, without old e13 locks.
   if (
+    isCurrentSave &&
     saved.finaleCommitted &&
     !progress.finaleCommitted &&
     availableMemoryExperiences(progress).includes('e09')

@@ -92,7 +92,7 @@ assert.equal(
     ...Object.values(COUCH_EXPRESSION_ART_IDS),
     ...Object.values(COUCH_CONSEQUENCE_ART_IDS),
   ]).size,
-  212,
+  255,
   'no two registered art keys collide across the four delivered batches',
 )
 for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
@@ -187,7 +187,7 @@ assert.equal(
     ...Object.values(COUCH_VOYAGE_ART_IDS),
     ...Object.values(COUCH_EXPRESSION_ART_IDS),
   ]).size,
-  191,
+  234,
   'previously mapped painting IDs stay distinct from character expressions',
 )
 assert.equal(
@@ -215,12 +215,12 @@ assert.equal(
     ...Object.values(COUCH_ONBOARDING_ART_IDS),
     ...Object.values(COUCH_VOYAGE_ART_IDS),
   ]).size,
-  147,
+  190,
   'no two paintings overwrite the same ArtImage slot',
 )
 assert.equal(
   COUCH_ONBOARDING_ART_COUNT,
-  38,
+  81,
   'all painted onboarding images are linked',
 )
 assert.equal(

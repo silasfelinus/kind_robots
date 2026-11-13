@@ -21,6 +21,7 @@ import {
   startVoyage,
   type VoyageRun,
 } from '../gameOfCaptains/rules'
+import { COUCH_ONBOARDING_ART_IDS } from '../gameOfCaptains/onboardingArt'
 import { createStarAssessment } from '../gameOfCaptains/starSigns'
 import { episodeEndingCoda } from '../gameOfCaptains/episodeConsole'
 
@@ -211,3 +212,18 @@ assert.equal(
 console.log(
   'Space Couch wild break: 13 scenes, 32 reachable endings, unsigned launch, save and finale coda verified',
 )
+
+// Curated WILD-BREAK-ROUND-1 plates: every scene and all but the two
+// redo endings point at a DONE ArtImage; the redos fall back to the office.
+const WILD_REDO = new Set(['the-long-way-round', 'nothing-in-particular'])
+for (const scene of WILD_BREAK_SCENES)
+  assert.ok(
+    wildBreakSceneArtKey(scene.id) in COUCH_ONBOARDING_ART_IDS,
+    scene.id + ' scene is painted',
+  )
+for (const ending of WILD_BREAK_ENDINGS)
+  assert.equal(
+    wildBreakEndingArtKey(ending.id) in COUCH_ONBOARDING_ART_IDS,
+    !WILD_REDO.has(ending.id),
+    ending.id + ' painted unless awaiting redo',
+  )

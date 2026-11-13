@@ -377,6 +377,26 @@
           </section>
 
           <section
+            v-else-if="tab === 'personnel'"
+            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3"
+            aria-label="Former employee dossiers"
+          >
+            <p v-if="personnel.length === 0" class="rounded-xl bg-base-200 p-4 text-sm">
+              No named employees on file yet. Complete a new run to archive a personnel badge.
+            </p>
+            <article
+              v-for="employee in personnel"
+              :key="employee.key"
+              class="rounded-xl border-2 border-warning/30 bg-base-200 p-3"
+            >
+              <p class="font-mono text-xs font-black uppercase text-warning">{{ employee.name }}</p>
+              <p class="text-xs opacity-80">{{ employee.jobTitle }} · {{ employee.pronouns }}</p>
+              <p class="mt-2 text-xs">{{ employee.badgeTone }} badge · {{ employee.reigns }} completed {{ employee.reigns === 1 ? 'reign' : 'reigns' }}</p>
+              <p class="mt-1 text-xs opacity-70">Last filed {{ dateLabel(employee.lastFiled) }}</p>
+            </article>
+          </section>
+
+          <section
             v-else-if="tab === 'endings'"
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-2"
             aria-label="Ending collection"
@@ -518,10 +538,11 @@ import {
   type RunReceipt,
 } from '~/utils/shiftingDesks/rewards'
 
-type ArchiveTab = 'milestones' | 'endings' | 'achievements' | 'runs'
+type ArchiveTab = 'milestones' | 'endings' | 'achievements' | 'personnel' | 'runs'
 const sections: Array<{ id: ArchiveTab; label: string }> = [
   { id: 'milestones', label: 'Milestones' },
   { id: 'endings', label: 'Endings' },
+  { id: 'personnel', label: 'Personnel' },
   { id: 'achievements', label: 'Distinctions' },
   { id: 'runs', label: 'Runs' },
 ]
@@ -534,6 +555,30 @@ const employeeEnding = ENDINGS.find(
 )
 const archive = computed(() => store.rewardArchive)
 const sheet = ref<HTMLDialogElement | null>(null)
+const personnel = computed(() => {
+  const entries = new Map<string, { key: string; name: string; jobTitle: string; pronouns: string; badgeTone: string; reigns: number; lastFiled: string }>()
+  for (const receipt of archive.value.runs) {
+    const identity = receipt.identity
+    if (!identity?.name) continue
+    const key = `${identity.name.toLowerCase()}|${receipt.jobTitle}|${identity.badgeTone}`
+    const existing = entries.get(key)
+    if (existing) {
+      existing.reigns += 1
+      if (receipt.completedAt > existing.lastFiled) existing.lastFiled = receipt.completedAt
+    } else {
+      entries.set(key, {
+        key,
+        name: identity.name,
+        jobTitle: receipt.jobTitle,
+        pronouns: identity.pronouns,
+        badgeTone: identity.badgeTone,
+        reigns: 1,
+        lastFiled: receipt.completedAt,
+      })
+    }
+  }
+  return [...entries.values()].sort((a, b) => b.lastFiled.localeCompare(a.lastFiled))
+})
 const tab = ref<ArchiveTab>('milestones')
 const earnedCount = computed(
   () => MILESTONES.filter((m) => earned(m.id)).length,

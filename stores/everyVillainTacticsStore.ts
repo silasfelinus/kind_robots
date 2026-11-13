@@ -925,8 +925,10 @@ export const useEveryVillainTacticsStore = defineStore(
     const fireAdvice = computed(() => {
       const shooter = active.value
       if (!shooter) return 'Select a living squadmate first.'
-      if (shooter.ap < 1) return 'No action points left. End the turn or select another hero.'
-      if (shooter.fired) return 'This hero has already fired this turn. Choose another hero.'
+      if (shooter.ap < 1)
+        return 'No action points left. End the turn or select another hero.'
+      if (shooter.fired)
+        return 'This hero has already fired this turn. Choose another hero.'
       return 'No clear shot from this position. Move to a better angle, or choose another hero.'
     })
     const aimedTarget = computed(() => {

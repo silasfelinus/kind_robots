@@ -381,8 +381,12 @@
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3"
             aria-label="Former employee dossiers"
           >
-            <p v-if="personnel.length === 0" class="rounded-xl bg-base-200 p-4 text-sm">
-              No named employees on file yet. Complete a new run to archive a personnel badge.
+            <p
+              v-if="personnel.length === 0"
+              class="rounded-xl bg-base-200 p-4 text-sm"
+            >
+              No named employees on file yet. Complete a new run to archive a
+              personnel badge.
             </p>
             <article
               v-for="employee in personnel"

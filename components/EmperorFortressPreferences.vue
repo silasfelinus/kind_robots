@@ -56,12 +56,19 @@
           Carry a five-brass writ into the next new reign (optional).
         </label>
       </fieldset>
-      <section aria-labelledby="eod-endings-title" class="mb-5 rounded-lg border border-warning/30 p-3">
-        <h3 id="eod-endings-title" class="font-serif text-lg font-bold text-warning">
+      <section
+        aria-labelledby="eod-endings-title"
+        class="mb-5 rounded-lg border border-warning/30 p-3"
+      >
+        <h3
+          id="eod-endings-title"
+          class="font-serif text-lg font-bold text-warning"
+        >
           Chronicle of endings
         </h3>
         <p class="mb-3 text-sm opacity-75">
-          Eight possible fates. Completed reigns stay remembered across new games and reloads on this device.
+          Eight possible fates. Completed reigns stay remembered across new
+          games and reloads on this device.
         </p>
         <div class="grid gap-2 @sm:grid-cols-2">
           <div
@@ -70,7 +77,9 @@
             class="rounded-lg border border-base-content/15 bg-base-200 p-3"
           >
             <template v-if="court.legacy.endings.includes(ending.id)">
-              <p class="text-xs font-semibold uppercase tracking-wide text-warning">
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-warning"
+              >
                 Fate {{ index + 1 }} · Discovered
               </p>
               <details class="mt-1">
@@ -84,7 +93,10 @@
               <p class="text-xs uppercase tracking-wide opacity-60">
                 Fate {{ index + 1 }} · Undiscovered
               </p>
-              <p class="mt-1 font-serif font-bold opacity-50" aria-label="Locked ending">
+              <p
+                class="mt-1 font-serif font-bold opacity-50"
+                aria-label="Locked ending"
+              >
                 ? ? ?
               </p>
             </template>

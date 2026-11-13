@@ -200,9 +200,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'street-kiosk', x: 5, y: 3, cover: 'half', hp: 2 },
       { id: 'concrete-planter', x: 2, y: 1, cover: 'half', hp: 2 },
     ],
-    activeHazards: [
-      { id: 'tram-runoff', kind: 'water', x: 4, y: 4 },
-    ],
+    activeHazards: [{ id: 'tram-runoff', kind: 'water', x: 4, y: 4 }],
     waves: [
       {
         round: 4,

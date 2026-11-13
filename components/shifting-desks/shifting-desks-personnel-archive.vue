@@ -389,10 +389,19 @@
               :key="employee.key"
               class="rounded-xl border-2 border-warning/30 bg-base-200 p-3"
             >
-              <p class="font-mono text-xs font-black uppercase text-warning">{{ employee.name }}</p>
-              <p class="text-xs opacity-80">{{ employee.jobTitle }} · {{ employee.pronouns }}</p>
-              <p class="mt-2 text-xs">{{ employee.badgeTone }} badge · {{ employee.reigns }} completed {{ employee.reigns === 1 ? 'reign' : 'reigns' }}</p>
-              <p class="mt-1 text-xs opacity-70">Last filed {{ dateLabel(employee.lastFiled) }}</p>
+              <p class="font-mono text-xs font-black uppercase text-warning">
+                {{ employee.name }}
+              </p>
+              <p class="text-xs opacity-80">
+                {{ employee.jobTitle }} · {{ employee.pronouns }}
+              </p>
+              <p class="mt-2 text-xs">
+                {{ employee.badgeTone }} badge · {{ employee.reigns }} completed
+                {{ employee.reigns === 1 ? 'reign' : 'reigns' }}
+              </p>
+              <p class="mt-1 text-xs opacity-70">
+                Last filed {{ dateLabel(employee.lastFiled) }}
+              </p>
             </article>
           </section>
 
@@ -538,7 +547,8 @@ import {
   type RunReceipt,
 } from '~/utils/shiftingDesks/rewards'
 
-type ArchiveTab = 'milestones' | 'endings' | 'achievements' | 'personnel' | 'runs'
+type ArchiveTab =
+  'milestones' | 'endings' | 'achievements' | 'personnel' | 'runs'
 const sections: Array<{ id: ArchiveTab; label: string }> = [
   { id: 'milestones', label: 'Milestones' },
   { id: 'endings', label: 'Endings' },
@@ -556,7 +566,18 @@ const employeeEnding = ENDINGS.find(
 const archive = computed(() => store.rewardArchive)
 const sheet = ref<HTMLDialogElement | null>(null)
 const personnel = computed(() => {
-  const entries = new Map<string, { key: string; name: string; jobTitle: string; pronouns: string; badgeTone: string; reigns: number; lastFiled: string }>()
+  const entries = new Map<
+    string,
+    {
+      key: string
+      name: string
+      jobTitle: string
+      pronouns: string
+      badgeTone: string
+      reigns: number
+      lastFiled: string
+    }
+  >()
   for (const receipt of archive.value.runs) {
     const identity = receipt.identity
     if (!identity?.name) continue
@@ -564,7 +585,8 @@ const personnel = computed(() => {
     const existing = entries.get(key)
     if (existing) {
       existing.reigns += 1
-      if (receipt.completedAt > existing.lastFiled) existing.lastFiled = receipt.completedAt
+      if (receipt.completedAt > existing.lastFiled)
+        existing.lastFiled = receipt.completedAt
     } else {
       entries.set(key, {
         key,
@@ -577,7 +599,9 @@ const personnel = computed(() => {
       })
     }
   }
-  return [...entries.values()].sort((a, b) => b.lastFiled.localeCompare(a.lastFiled))
+  return [...entries.values()].sort((a, b) =>
+    b.lastFiled.localeCompare(a.lastFiled),
+  )
 })
 const tab = ref<ArchiveTab>('milestones')
 const earnedCount = computed(

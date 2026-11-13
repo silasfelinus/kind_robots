@@ -16,6 +16,13 @@ import {
   trainingState,
 } from '../everyVillainTactics/training'
 import { lineOfSight, tileAt } from '../everyVillainTactics/combat'
+import {
+  finishScene,
+  latchScenes,
+  pendingScriptScene,
+  sceneTriggerId,
+  walkScene,
+} from '../everyVillainTactics/sceneGraph'
 
 assert.equal(STAGE_PRESETS.length, 9)
 for (const preset of STAGE_PRESETS) {
@@ -35,6 +42,84 @@ assert.equal(lineOfSight(quad.map, { x: 2, y: 2 }, { x: 7, y: 2 }), false)
 const lab = clonePreset('science-lab')
 assert.equal(tileAt(lab.map, { x: 3, y: 0 }).wall, true)
 assert.equal(tileAt(lab.map, { x: 4, y: 2 }).cover?.west, 'full')
+// Science Wing is a scripted tactical stage rather than an unlabeled arena.
+// Its real cover breaks, coolant is live on alternate turns, and both choice
+// outcomes alter the next skirmish as well as the closing comic.
+assert.equal(lab.turnLimit, 8)
+assert.equal(lab.props?.length, 2)
+assert.ok(lab.props!.every((prop) => prop.hp === 2))
+assert.equal(lab.activeHazards?.[0]?.kind, 'water')
+assert.ok(lab.script)
+const script = lab.script!
+assert.equal(script.scenes.length, 7)
+const science = trainingState(78, lab)
+assert.deepEqual(latchScenes(science, script, lab), ['science-entry'])
+const opening = pendingScriptScene(science, script)!
+assert.equal(opening.id, 'science-entry')
+const heroView = walkScene(opening, [], {
+  state: science,
+  perspective: 'hero',
+})!
+const villainView = walkScene(opening, [], {
+  state: science,
+  perspective: 'villain',
+})!
+assert.ok(heroView.done && villainView.done)
+assert.ok(heroView.nodes.some((node) => node.id === 'sh'))
+assert.ok(villainView.nodes.some((node) => node.id === 'sv'))
+assert.ok(!heroView.nodes.some((node) => node.id === 'sv'))
+assert.ok(finishScene(science, opening, [], 'hero'))
+assert.equal(finishScene(science, opening, [], 'hero'), false)
+science.turn = 2
+assert.ok(latchScenes(science, script, lab).includes('science-decision'))
+const decision = pendingScriptScene(science, script)!
+assert.equal(decision.id, 'science-decision')
+assert.equal(walkScene(decision, [], { state: science })?.done, false)
+const wounds = science.units[0]!
+wounds.hp = wounds.maxHp - 1
+const rescuePath = walkScene(decision, [0], { state: science })!
+const evidencePath = walkScene(decision, [1], { state: science })!
+assert.ok(rescuePath.done && evidencePath.done)
+assert.ok(rescuePath.nodes.some((node) => node.id === 'dr'))
+assert.ok(evidencePath.nodes.some((node) => node.id === 'de'))
+assert.ok(finishScene(science, decision, [0], 'hero'))
+assert.ok(science.flags?.includes('lab-rescued'))
+assert.equal(wounds.hp, wounds.maxHp)
+assert.ok(latchScenes(science, script, lab).includes('science-rescue'))
+assert.equal(finishScene(science, decision, [1], 'hero'), false)
+science.phase = 'victory'
+assert.ok(latchScenes(science, script, lab).includes('science-victory'))
+const victory = script.scenes.find((scene) => scene.id === 'science-victory')!
+assert.ok(
+  walkScene(victory, [], { state: science, perspective: 'hero' })!.nodes.some(
+    (node) => node.id === 'vr',
+  ),
+)
+const evidenceState = trainingState(78, lab)
+evidenceState.turn = 2
+latchScenes(evidenceState, script, lab)
+const labDecision = script.scenes.find(
+  (scene) => scene.id === 'science-decision',
+)!
+assert.ok(finishScene(evidenceState, labDecision, [1], 'villain'))
+assert.ok(evidenceState.flags?.includes('lab-evidence'))
+assert.ok(
+  evidenceState.units.some(
+    (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+  ),
+)
+assert.ok(latchScenes(evidenceState, script, lab).includes('science-recording'))
+evidenceState.phase = 'victory'
+latchScenes(evidenceState, script, lab)
+assert.ok(
+  walkScene(victory, [], {
+    state: evidenceState,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 've'),
+)
+assert.ok(science.fired?.includes(sceneTriggerId('science-decision')))
+assert.ok(evidenceState.fired?.includes(sceneTriggerId('science-recording')))
+
 const picnic = clonePreset('picnic-plaza')
 assert.ok(picnic.title.includes('Picnic'))
 

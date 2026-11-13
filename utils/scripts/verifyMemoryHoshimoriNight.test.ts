@@ -838,7 +838,9 @@ for (let seed = 0; seed < 16; seed++) {
         const site = HOSHIMORI_NIGHT_SITES.find(
           (candidate) => candidate.key === replay.current,
         )!
-        const alternative = site.choices.find((choice) => choice.id !== event.id)!
+        const alternative = site.choices.find(
+          (choice) => choice.id !== event.id,
+        )!
         assert.ok(alternative, 'Every site must offer a second playable choice')
         const fork = advanceHoshimoriNight(replay, {
           type: 'choose',
@@ -858,7 +860,8 @@ for (let seed = 0; seed < 16; seed++) {
         assert.deepEqual(
           restoreHoshimoriNight(JSON.parse(JSON.stringify(fork))),
           fork,
-          'Alternative branch must survive Chronicle restoration at ' + site.key,
+          'Alternative branch must survive Chronicle restoration at ' +
+            site.key,
         )
         assert.strictEqual(
           advanceHoshimoriNight(fork, event),

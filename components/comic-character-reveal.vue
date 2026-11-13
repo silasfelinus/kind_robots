@@ -19,6 +19,7 @@
           <img
             v-if="artSrc"
             class="comic-art"
+            :class="{ 'comic-art-contained': artFit === 'contain' }"
             :src="artSrc"
             :alt="'Comic introduction artwork for ' + intro.name"
           />
@@ -72,9 +73,10 @@ const props = withDefaults(
     open: boolean
     intro: ComicIntro
     artSrc?: string | null
+    artFit?: 'cover' | 'contain'
     allowSkipAll?: boolean
   }>(),
-  { artSrc: null, allowSkipAll: false },
+  { artSrc: null, artFit: 'cover', allowSkipAll: false },
 )
 const emit = defineEmits<{ dismiss: []; 'skip-all': [] }>()
 const panel = ref<HTMLElement | null>(null)
@@ -172,6 +174,10 @@ watch(
   object-fit: cover;
   object-position: center 28%;
   filter: contrast(1.08) saturate(1.07);
+}
+.comic-art-contained {
+  object-fit: contain;
+  object-position: center center;
 }
 .comic-placeholder {
   position: absolute;

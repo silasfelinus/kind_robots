@@ -87,12 +87,18 @@ export const SCIENCE_WING_SCRIPT: SceneScript = {
             {
               label: 'Get the researchers out',
               next: 'dr',
-              effects: [{ kind: 'flag', flag: 'lab-rescued' }, { kind: 'heal' }],
+              effects: [
+                { kind: 'flag', flag: 'lab-rescued' },
+                { kind: 'heal' },
+              ],
             },
             {
               label: 'Copy the security recordings',
               next: 'de',
-              effects: [{ kind: 'flag', flag: 'lab-evidence' }, { kind: 'suppress' }],
+              effects: [
+                { kind: 'flag', flag: 'lab-evidence' },
+                { kind: 'suppress' },
+              ],
             },
           ],
         },

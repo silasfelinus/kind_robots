@@ -6,6 +6,11 @@ import {
   comicIntroFor,
 } from '../cometAcademy/comicIntroductions'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
+import {
+  POWER_ORIGINS,
+  POWER_AFFINITIES,
+  signatureFor,
+} from '../cometAcademy/specialPowers'
 import { chanceFrom } from '../everyVillainTactics/combat'
 import {
   applyChoice,
@@ -36,12 +41,23 @@ import {
   loadSave,
   saveChecksum,
 } from '../everyVillainTactics/saves'
-import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
+import {
+  STAGE_PRESETS,
+  clonePreset,
+  stageProblems,
+} from '../everyVillainTactics/studio'
+import {
+  PAINTED_EVT_MAP_ART,
+  paintedMapArtId,
+} from '../everyVillainTactics/mapArt'
 import {
   DEFAULT_FOIL,
   endTurn,
   exposureAt,
   isValidFoil,
+  scriptedFoilFor,
+  fireSelected,
+  previewShot,
   moveSelected,
   rescueSelected,
   trainingState,
@@ -359,7 +375,12 @@ for (const id of [
   'front-foil-note',
 ])
   assert.match(menu, new RegExp('data-testid="' + id + '"'))
-assert.match(menu, /'front-foil-' \+ person\.signature/)
+assert.match(menu, /'front-origin-' \+ option\.id/)
+assert.match(menu, /'front-affinity-' \+ option\.id/)
+assert.match(menu, /data-testid="front-character-reveal"/)
+assert.match(menu, /store\.startOneShot\(stage\.id, pickedLead, pickedView\)/)
+assert.match(menu, /scriptedFoilFor\(pickedLead\.value\)/)
+assert.doesNotMatch(menu, /'front-foil-' \+ person\.signature/)
 assert.match(menu, /PLAYABLE_PERSPECTIVES\.map/)
 assert.doesNotMatch(menu, /four viewpoints/)
 assert.match(menu, /aria-modal="true"/)
@@ -376,6 +397,52 @@ assert.match(page, /store\.requestEndTurn\(\)/)
 assert.match(page, /store\.loadPreferences\(\)/)
 assert.match(page, /var\(--evt-anim, 1\)/)
 assert.match(page, /data-testid="tactics-open-menu"/)
+assert.match(page, /data-testid="tactics-fire-targets"/)
+assert.match(page, /store\.fireAt\(target\.target\)/)
+assert.match(page, /--evt-board-art/)
+assert.match(page, /class="evt-map-legend-items"/)
+// Playable arenas must use real generated painted ArtImages, never code-drawn
+// SVG maps. All shipped preset stages resolve to DONE ArtImage IDs.
+for (const stage of STAGE_PRESETS) {
+  assert.ok(paintedMapArtId(stage.id), stage.id + ' needs modeler painting')
+}
+assert.equal(paintedMapArtId(null), 265014)
+assert.equal(paintedMapArtId('unknown-custom-stage'), null)
+assert.ok(Object.values(PAINTED_EVT_MAP_ART).every((id) => id > 265000))
+assert.match(page, /useEveryVillainTacticsArtStore/)
+assert.match(page, /paintedArt\.ensure\(id\)/)
+assert.match(page, /tactics-painted-map-status/)
+assert.doesNotMatch(page, /every-villain-tactics\/maps\/[^'"]+\.svg/)
+const paintedLoader = readFileSync(
+  new URL('../../stores/everyVillainTacticsArtStore.ts', import.meta.url),
+  'utf8',
+)
+assert.match(paintedLoader, /Authorization: `Bearer/)
+assert.match(paintedLoader, /URL\.createObjectURL\(blob\)/)
+assert.match(paintedLoader, /response\.headers\.get\('content-type'\)/)
+for (const origin of POWER_ORIGINS)
+  for (const affinity of POWER_AFFINITIES) {
+    const signature = signatureFor(origin.id, affinity.id).id
+    assert.ok(
+      IDENTITY_ARCS.some((identity) => identity.signature === signature),
+      signature + ' has a real canonical fighter',
+    )
+    assert.ok(isValidFoil(scriptedFoilFor(signature), signature))
+  }
+// FIRE uses the same real deterministic attack as clicking a rival on the
+// board; the new touch target list is just a direct route to that action.
+const rangeState = trainingState(12)
+const shooter = rangeState.units.find((unit) => unit.id === 'backdraft')!
+const rival = rangeState.units.find((unit) => unit.id === 'remy')!
+shooter.x = 5
+shooter.y = 4
+rival.x = 7
+rival.y = 4
+assert.ok(previewShot(shooter, rival, rangeState.map).hit > 0)
+assert.equal(fireSelected(rangeState, rival), true)
+assert.equal(shooter.fired, true)
+assert.equal(shooter.ap, 1)
+assert.equal(fireSelected(rangeState, rival), false)
 assert.match(page, /comicIntroArt\(activeComicIntro.value\)/)
 assert.ok(
   (page.match(/class="evt-dialogue-portrait"/g) ?? []).length >= 3,

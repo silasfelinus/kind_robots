@@ -294,8 +294,25 @@ export function trainingState(
   if (
     options.lead &&
     IDENTITY_ARCS.some((person) => person.signature === options.lead)
-  )
+  ) {
     lead.identity = options.lead
+    // A chosen hero cannot also occupy a supporting squad slot. Preserve
+    // First Bell's existing companions when possible; only substitute a
+    // supporting identity when it would duplicate the player.
+    for (const support of state.units.filter(
+      (unit) => unit.team === 'squad' && unit.id !== lead.id,
+    )) {
+      if (support.identity !== lead.identity) continue
+      const replacement = IDENTITY_ARCS.find(
+        (person) =>
+          !state.units.some(
+            (unit) =>
+              unit.id !== support.id && unit.identity === person.signature,
+          ),
+      )
+      if (replacement) support.identity = replacement.signature
+    }
+  }
   const rival = state.units.find((u) => u.team === 'rival')
   if (
     !stage &&
@@ -316,6 +333,17 @@ export function isValidFoil(foil: string, lead: string): boolean {
   return (
     IDENTITY_ARCS.some((person) => person.signature === foil) &&
     ![lead, 'tech-genius', 'mutant-earth'].includes(foil)
+  )
+}
+/** First Bell has a written rival patrol. Keep its default lead wherever
+ * possible, only substituting when the player's own power is that foil.
+ * This is a stable authored-stage fallback until the 48 bespoke routes ship. */
+export function scriptedFoilFor(lead: string): string {
+  const candidates = [DEFAULT_FOIL, 'magic-social', 'tech-fire']
+  return (
+    candidates.find((signature) => isValidFoil(signature, lead)) ??
+    IDENTITY_ARCS.find((person) => isValidFoil(person.signature, lead))!
+      .signature
   )
 }
 /** Canonical one-hit crews fielded as the whole rival line-up. */

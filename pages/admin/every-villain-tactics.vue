@@ -94,6 +94,12 @@
             <div class="evt-grid-wrap">
               <div
                 class="evt-map"
+                :style="{
+                  '--evt-board-art': stageBoardArt
+                    ? 'url(' + stageBoardArt + ')'
+                    : 'none',
+                }"
+                :data-art-image-id="paintedArtId ?? 'unmapped'"
                 :data-stage="store.state.stageId ?? 'first-bell'"
                 role="group"
                 data-testid="tactics-flat-map"
@@ -269,27 +275,44 @@
                   >
                 </button>
               </div>
-              <div
+              <p
+                v-if="paintedMapStatus !== 'loaded'"
+                class="evt-painted-map-status"
+                data-testid="tactics-painted-map-status"
+                aria-live="polite"
+              >
+                {{
+                  paintedMapStatus === 'loading'
+                    ? 'Loading generated battlefield painting…'
+                    : paintedMapStatus === 'failed'
+                      ? 'Painted battlefield unavailable. Tactical grid remains playable.'
+                      : 'No painted battlefield assigned to this stage yet.'
+                }}
+              </p>
+              <details
                 class="evt-map-edge"
                 data-testid="tactics-map-legend"
                 aria-label="Tactical map legend"
               >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-squad"></b> SQUAD</span
-                >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-rival"></b> RIVALS</span
-                >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-wall"></b> WALL · BLOCKED</span
-                >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-cover"></b> COVER · PASSABLE</span
-                >
-                <span class="evt-terrain-legend"
-                  ><b class="evt-key-rise"></b> ▲ RAISED</span
-                >
-              </div>
+                <summary>MAP KEY · terrain &amp; cover</summary>
+                <div class="evt-map-legend-items">
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-squad"></b> SQUAD</span
+                  >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-rival"></b> RIVALS</span
+                  >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-wall"></b> WALL · BLOCKED</span
+                  >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-cover"></b> COVER · PASSABLE</span
+                  >
+                  <span class="evt-terrain-legend"
+                    ><b class="evt-key-rise"></b> ▲ RAISED</span
+                  >
+                </div>
+              </details>
             </div>
 
             <section
@@ -461,6 +484,26 @@
               >
                 <span class="evt-action-icon">⌖</span>
                 FIRE <small>F</small>
+              </button>
+            </div>
+            <div
+              v-if="store.mode === 'fire'"
+              class="evt-fire-targets"
+              data-testid="tactics-fire-targets"
+              aria-live="polite"
+            >
+              <strong>CHOOSE YOUR TARGET</strong>
+              <p v-if="!store.fireTargets.length">{{ store.fireAdvice }}</p>
+              <button
+                v-for="target in store.fireTargets"
+                :key="target.target"
+                type="button"
+                class="evt-fire-target"
+                :data-testid="'tactics-fire-target-' + target.target"
+                @click="store.fireAt(target.target)"
+              >
+                <span>⌖ {{ target.name }}</span>
+                <b>{{ target.hit }}% HIT</b>
               </button>
             </div>
 
@@ -1536,6 +1579,9 @@ import { promArt } from '~/utils/cometAcademy/artManifest'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
+import { paintedMapArtId } from '~/utils/everyVillainTactics/mapArt'
+import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
+import { useUserStore } from '~/stores/userStore'
 import {
   actorAt,
   displayUnitAt,
@@ -1561,6 +1607,27 @@ import {
 } from '~/utils/everyVillainTactics/powers'
 
 const store = useEveryVillainTacticsStore()
+const paintedArt = useEveryVillainTacticsArtStore()
+const viewer = useUserStore()
+const paintedArtId = computed(() => paintedMapArtId(store.state.stageId))
+watch(
+  [paintedArtId, () => viewer.token],
+  ([id]) => {
+    void paintedArt.ensure(id)
+  },
+  { immediate: true },
+)
+const stageBoardArt = computed(
+  () =>
+    (paintedArtId.value ? paintedArt.images[paintedArtId.value]?.src : '') ??
+    '',
+)
+const paintedMapStatus = computed(
+  () =>
+    (paintedArtId.value
+      ? paintedArt.images[paintedArtId.value]?.status
+      : null) ?? (paintedArtId.value ? 'loading' : 'unmapped'),
+)
 const comicPreviewRoles: ComicIntroRole[] = [
   'hero',
   'villain',
@@ -4530,9 +4597,31 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   }
 }
 .evt-map-edge {
-  gap: 4px 12px;
-  padding: 5px 0 2px;
-  letter-spacing: 0.05em;
+  width: min(100%, 620px);
+  margin: 6px auto 2px;
+  padding: 0;
+  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+  color: #fff3d0;
+}
+.evt-map-edge summary {
+  cursor: pointer;
+  padding: 5px 8px;
+  text-align: center;
+  font-weight: 900;
+  list-style-position: inside;
+}
+.evt-map-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 9px;
+  border: 1px solid #76dbe8;
+  border-radius: 6px;
+  background: #1b2747f5;
+}
+.evt-map-legend-items .evt-terrain-legend {
+  font-size: 0.8rem;
 }
 .evt-terrain-legend {
   font-size: clamp(0.51rem, 0.75cqw, 0.68rem);
@@ -4607,5 +4696,93 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     animation: none;
     transition: none;
   }
+}
+
+/* Map paintings are the ground plane. Tactical walls, cover and sightlines
+   remain independent overlays; translucent tiles do not erase the artwork. */
+.evt-map {
+  background-image:
+    linear-gradient(180deg, #16275017, #131b341a), var(--evt-board-art);
+  background-size: cover;
+  background-position: center;
+  background-color: #417b89;
+}
+.evt-map > .evt-tile,
+.evt-map > .evt-tile:nth-child(even),
+.evt-map > .evt-tile[data-ground] {
+  background: #f9e8b412;
+  border-color: #18354d70;
+}
+.evt-map > .evt-tile[data-ground='lawn'] {
+  background: #2c916b20;
+}
+.evt-map > .evt-tile[data-ground='path'],
+.evt-map > .evt-tile[data-ground='courtyard'] {
+  background: #ffdca817;
+}
+.evt-map > .evt-tile[data-ground='street'] {
+  background: #23385521;
+}
+.evt-map > .evt-tile[data-ground='lab'] {
+  background: #55c4cb1b;
+}
+.evt-map > .evt-tile[data-ground='roof'] {
+  background: #524ea727;
+}
+.evt-map > .evt-tile.has-wall[data-ground] {
+  background: #35455bd9;
+}
+.evt-painted-map-status {
+  margin: 6px 0 2px;
+  max-width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ffcf82;
+  background: #221b3ed9;
+  border: 1px solid #eeb45d88;
+  border-radius: 5px;
+  padding: 6px 8px;
+}
+.evt-fire-targets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 7px;
+  color: #fff2ca;
+  border: 2px solid #faaf59;
+  border-radius: 7px;
+  background: linear-gradient(100deg, #36235c, #482b64);
+}
+.evt-fire-targets > strong {
+  width: 100%;
+  font-size: 0.73rem;
+  letter-spacing: 0.1em;
+}
+.evt-fire-targets > p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+.evt-fire-target {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 1 1 140px;
+  min-height: 36px;
+  padding: 6px 8px;
+  color: #1b1740;
+  font-size: 0.78rem;
+  font-weight: 900;
+  border: 2px solid #ffedb0;
+  border-radius: 5px;
+  background: linear-gradient(130deg, #ffe777, #ffb96f);
+}
+.evt-fire-target:hover,
+.evt-fire-target:focus-visible {
+  outline: 3px solid #9ef5f4;
+  outline-offset: 2px;
 }
 </style>

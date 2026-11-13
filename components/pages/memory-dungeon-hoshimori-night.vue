@@ -8,7 +8,7 @@
       <div class="md-bar" data-testid="memory-hoshimori-night-header">
         <h2
           class="md-bar-title"
-          title="Scylla remembers the village. The village will not let anyone leave."
+          title="Vesper remembers the village. The village will not let anyone leave."
         >
           Hoshimori · Procession of Shut Doors
         </h2>
@@ -121,7 +121,7 @@
           aria-live="polite"
         >
           <p class="text-xs font-bold uppercase tracking-widest text-error">
-            Scylla's account · {{ night.progress.current }}
+            Vesper's account · {{ night.progress.current }}
           </p>
           <h3 class="mt-1 text-xl font-black">
             {{ night.currentSite?.title }}
@@ -252,8 +252,8 @@
         <div
           class="shrink-0 border-t border-base-content/10 px-3 py-2 text-xs opacity-75"
         >
-          Forty-six night sites are playable. Eighteen more sites and the
-          transformed Oven remain unfinished.
+          {{ HOSHIMORI_NIGHT_SITES.length }} authored night sites. The Furnace of Names
+          opens after your decision at the bakery corner (4,3).
         </div>
       </div>
     </div>

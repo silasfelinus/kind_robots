@@ -462,7 +462,10 @@ assert.equal(Object.keys(PAINTED_EVT_REVEAL_ART).length, 12)
 assert.equal(new Set(Object.values(PAINTED_EVT_REVEAL_ART)).size, 12)
 for (const [signature, heroImage, villainImage] of firstBellReveals) {
   assert.equal(paintedRevealArtId(comicIntroFor(signature, 'hero')), heroImage)
-  assert.equal(paintedRevealArtId(comicIntroFor(signature, 'villain')), villainImage)
+  assert.equal(
+    paintedRevealArtId(comicIntroFor(signature, 'villain')),
+    villainImage,
+  )
   assert.equal(paintedRevealArtId(comicIntroFor(signature, 'henchman')), null)
   assert.equal(paintedRevealArtId(comicIntroFor(signature, 'lieutenant')), null)
 }
@@ -470,7 +473,10 @@ assert.equal(paintedRevealArtId(null), null)
 for (const person of IDENTITY_ARCS) {
   if (firstBellReveals.some(([signature]) => signature === person.signature))
     continue
-  assert.equal(paintedRevealArtId(comicIntroFor(person.signature, 'hero')), null)
+  assert.equal(
+    paintedRevealArtId(comicIntroFor(person.signature, 'hero')),
+    null,
+  )
   assert.equal(
     paintedRevealArtId(comicIntroFor(person.signature, 'villain')),
     null,

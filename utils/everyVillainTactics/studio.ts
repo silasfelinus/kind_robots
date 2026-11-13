@@ -18,6 +18,7 @@ import {
   type WaveCrew,
 } from './stageRules'
 import { scriptProblems, type SceneScript } from './sceneGraph'
+import { SCIENCE_WING_SCRIPT } from './scienceWingScript'
 
 export type StudioBrush =
   | 'erase'
@@ -164,6 +165,14 @@ export const STAGE_PRESETS: StageDraft[] = [
     secrets: [{ x: 4, y: 4 }],
     hazards: [{ x: 6, y: 2 }],
     turnLimit: 8,
+    props: [
+      { id: 'bench-west', x: 2, y: 3, cover: 'full', hp: 2 },
+      { id: 'bench-east', x: 6, y: 3, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'coolant-water', kind: 'water', x: 6, y: 2 },
+    ],
+    script: SCIENCE_WING_SCRIPT,
   },
   {
     version: 1,

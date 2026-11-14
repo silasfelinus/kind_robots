@@ -21,6 +21,7 @@
           {{ forfeitArmed ? 'CONFIRM FORFEIT' : 'FORFEIT' }}
         </button>
         <span>PRIVATE INVITE · PREVIEW</span>
+        <SlimeCitySoundToggle />
       </nav>
     </header-page-bar>
 
@@ -332,6 +333,7 @@
               RESULT ›
             </button>
           </div>
+          <SlimeCitySoundToggle v-if="narrowScreen" class="scpvp-sound" />
           <button
             v-if="narrowScreen && !finished"
             type="button"
@@ -524,6 +526,12 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { useSlimeCityPvpStore } from '~/stores/slimeCityPvp'
+import { useSlimeCitySoundStore } from '~/stores/slimeCitySound'
+import {
+  clashIsTense,
+  clashSoundCues,
+  pvpSoundView,
+} from '~/utils/slimeCity/sound'
 import {
   cardById,
   TEAMS,
@@ -752,7 +760,38 @@ onMounted(() => {
 onBeforeUnmount(() => {
   narrowQuery?.removeEventListener('change', syncNarrow)
   navStore.releasePageBar(themeId)
+  sound.detach()
 })
+
+/** The duel plays the same music and effects as a CPU Clash, heard from this seat. */
+const sound = useSlimeCitySoundStore()
+onMounted(() => sound.attach())
+watch(
+  () => {
+    const live = pvp.duel?.stage === 'battle' && board.value
+    if (!live) return 'title' as const
+    return clashIsTense(board.value!.boss, board.value!.victor)
+      ? ('showdown' as const)
+      : ('battle' as const)
+  },
+  (music) => sound.setScene(music),
+  { immediate: true },
+)
+watch(
+  () => [pvp.duel?.id, board.value] as const,
+  ([id, next], [previousId, prev]) => {
+    if (!next || !prev || !pvp.duel || id !== previousId) return
+    sound.cue(
+      clashSoundCues(pvpSoundView(prev), pvpSoundView(next), pvp.duel.seat),
+    )
+  },
+)
+watch(
+  () => pvp.duel?.stage,
+  (stage, before) => {
+    if (stage === 'battle' && before === 'waiting') sound.cue('bell')
+  },
+)
 </script>
 
 <style scoped>

@@ -53,6 +53,7 @@
             >
               COLLECTION
             </button>
+            <SlimeCitySoundToggle class="sc-tab-sound" />
           </nav>
           <div
             class="sc-hud"
@@ -112,6 +113,35 @@
               @click="setDefaultFormat('alliance')"
             >
               ALLIANCE · 20 CARDS
+            </button>
+          </fieldset>
+          <fieldset data-testid="slime-settings-sound">
+            <legend>SOUND</legend>
+            <button
+              type="button"
+              :aria-pressed="sound.sound"
+              data-testid="slime-settings-sound-all"
+              @click="sound.setSound(!sound.sound)"
+            >
+              ALL SOUND · {{ sound.sound ? 'ON' : 'OFF' }}
+            </button>
+            <button
+              type="button"
+              :aria-pressed="sound.music"
+              :disabled="!sound.sound"
+              data-testid="slime-settings-music"
+              @click="sound.setMusic(!sound.music)"
+            >
+              MUSIC · {{ sound.music ? 'ON' : 'OFF' }}
+            </button>
+            <button
+              type="button"
+              :aria-pressed="sound.effects"
+              :disabled="!sound.sound"
+              data-testid="slime-settings-effects"
+              @click="sound.setEffects(!sound.effects)"
+            >
+              EFFECTS · {{ sound.effects ? 'ON' : 'OFF' }}
             </button>
           </fieldset>
           <p class="sc-settings-collection">
@@ -919,7 +949,7 @@
                   type="button"
                   data-testid="slime-buy-pack"
                   :disabled="!lab.packAffordable || lab.progressBusy"
-                  @click="lab.purchasePack()"
+                  @click="buyPack"
                 >
                   BUY PACK · {{ lab.packPrice }} MEAT
                 </button>
@@ -1096,7 +1126,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
@@ -1105,6 +1135,8 @@ import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
 import { STREETS } from '~/utils/slimeCity/city'
 import { PACK_DUPLICATE_REFUND, PACK_POOL } from '~/utils/slimeCity/progression'
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import { useSlimeCitySoundStore } from '~/stores/slimeCitySound'
+import { slimeMusicFor } from '~/utils/slimeCity/sound'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
 
@@ -1132,7 +1164,25 @@ onMounted(() => {
 onUnmounted(() => {
   narrowQuery?.removeEventListener('change', syncNarrow)
   navStore.releasePageBar(themeId)
+  sound.detach()
 })
+/** Silas, 2026-11-14 PT: music on the menus and in the fight, effects in play, and a way to turn it off. */
+const sound = useSlimeCitySoundStore()
+onMounted(() => sound.attach())
+watch(
+  () => slimeMusicFor(lab.view, sound.tense),
+  (music) => sound.setScene(music),
+  { immediate: true },
+)
+watch(
+  () => lab.view,
+  () => sound.cue('nav'),
+)
+async function buyPack(): Promise<void> {
+  const opened = lab.progress.opened
+  await lab.purchasePack()
+  if (lab.progress.opened > opened) sound.cue('pack')
+}
 const art = useSlimeCityArtStore()
 
 const hereName = computed(

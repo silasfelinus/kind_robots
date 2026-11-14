@@ -444,6 +444,7 @@
               >
                 ↻ {{ rewarded ? 'PLAY FOR REWARDS' : 'REMATCH' }}
               </button>
+              <SlimeCitySoundToggle class="clash-sound" />
               <button
                 v-if="!game.victor"
                 type="button"
@@ -543,6 +544,12 @@ import {
   type ClashUnit,
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
+import { useSlimeCitySoundStore } from '~/stores/slimeCitySound'
+import {
+  clashIsTense,
+  clashSoundCues,
+  clashSoundView,
+} from '~/utils/slimeCity/sound'
 import { bossQuip, type BossMood } from '~/utils/slimeCity/bossReactions'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
 import {
@@ -560,6 +567,7 @@ const STRIKE_SETTLE_MS = 560
 const CPU_PLAY_MS = 520
 
 const lab = useSlimeCityStore()
+const sound = useSlimeCitySoundStore()
 const lanes = Array.from({ length: CLASH_LANES }, (_, lane) => lane)
 const sides: Side[] = ['enemy', 'player']
 /** Deal whatever match the store launched (practice, reward or bout). */
@@ -737,6 +745,9 @@ function reactTo(prev: ClashState, next: ClashState): void {
 function commit(next: ClashState): number {
   const cue = clashSpectacle(game.value, next)
   reactTo(game.value, next)
+  sound.cue(
+    clashSoundCues(clashSoundView(game.value), clashSoundView(next), 'player'),
+  )
   game.value = next
   if (!cue) return 0
   spectacle.value = { ...cue, key: ++spectacleKey }
@@ -799,6 +810,7 @@ function newMatch(): void {
   resetReactions()
   dealtLaunch = lab.clashLaunch.id
   game.value = dealt()
+  sound.cue('bell')
 }
 watch(() => lab.clashLaunch.id, newMatch)
 // Changing crews mid-practice deals a new match for the new crew.
@@ -849,11 +861,18 @@ function backFromReport(): void {
 onMounted(() => {
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
     pace.value = 0.4
+  sound.cue('bell')
 })
 onBeforeUnmount(() => {
   stopTimer()
   resetReactions()
+  sound.setTense(false)
 })
+watch(
+  () => clashIsTense(game.value.boss, game.value.victor),
+  (tense) => sound.setTense(tense),
+  { immediate: true },
+)
 
 /** Silas, 2026-11-10 PT: "we should be able to see a log of an active game". */
 const logOpen = ref(false)

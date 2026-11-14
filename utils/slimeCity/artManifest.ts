@@ -19,9 +19,11 @@
 // JOURNEY-EPILOGUES-ROUND-1 plates (ArtImages 269914-269931), each fetched and
 // contact-sheet reviewed, so the finale paints the journey ending earned.
 // 2026-11-14 PT: ironjaw/journey-left re-render (ArtImage 270401) completes all 18.
-// 2026-11-14 PT key journey scenes (slime-city/t-062): the first 6 of the 18
-// JOURNEY-SCENES-ROUND-1 plates (catgirls, bloodfairies; ArtImages 271836-271841),
-// each fetched and contact-sheet reviewed. The other crews follow once rendered.
+// 2026-11-14 PT key journey scenes (slime-city/t-062): 16 of the 18
+// JOURNEY-SCENES-ROUND-1 plates (ArtImages 271836-271844, 271856-271862),
+// each fetched and contact-sheet reviewed. riot/scene-curfew-on-joy and
+// exchange/scene-the-closing-of-the-book are re-rendering (JOURNEY-SCENES-REDO-1)
+// and keep the chapter plate until wired.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
@@ -533,6 +535,16 @@ export const SLIME_CITY_ART = {
     'bloodfairies/scene-the-first-chorus': 271839,
     'bloodfairies/scene-the-picket-above-the-city': 271840,
     'bloodfairies/scene-the-last-encore': 271841,
+    'ironjaw/scene-cold-start': 271842,
+    'ironjaw/scene-the-clock-strikes-work': 271843,
+    'ironjaw/scene-band-in-the-rafters': 271844,
+    'riot/scene-confetti-vault': 271856,
+    'riot/scene-the-last-cannonball': 271857,
+    'undertow/scene-a-voice-in-the-pipes': 271858,
+    'undertow/scene-auction-of-whispers': 271859,
+    'undertow/scene-pirate-radio-big-top': 271860,
+    'exchange/scene-the-inheritance': 271861,
+    'exchange/scene-the-cold-furnace': 271862,
   },
   /** Attack-family icons, same round. */
   attacks: {
@@ -1415,4 +1427,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 814
+export const SLIME_CITY_ART_COUNT = 824

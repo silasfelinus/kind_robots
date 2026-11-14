@@ -1557,60 +1557,6 @@ assert.deepEqual(
   [...endings].sort(),
   'each authored ending must have exactly one golden full-journey transcript',
 )
-// Temporary migration probe: print each changed full-journey fixture for
-// editorial review; remove this probe once the pinned witnesses are updated.
-const refreshedGolden = goldenFile.witnesses.map((old) => {
-  let walk = startRun(old.seed)
-  let trace = ''
-  let changed = false
-  const actionsAtGolden: BattleAction[] = [
-    'strike',
-    'guard',
-    'feint',
-    'quiet-draw',
-  ]
-  for (let index = 0; index < old.trace.length; index += 2) {
-    if (walk.sceneId === 'a5-wellhouse-reckoning') {
-      walk = takeChoice(walk, 'keep')
-      trace += 'c1'
-      changed = true
-    }
-    const code = old.trace.slice(index, index + 2)
-    const slot = Number.parseInt(code[1]!, 36)
-    let move: PlaytestMove
-    if (code[0] === 'c') {
-      const choice = visibleChoices(walk, scene(walk.sceneId))[slot]
-      if (!choice)
-        throw new Error(
-          'Golden migration cannot resolve choice at ' + walk.sceneId,
-        )
-      move = { kind: 'choice', id: choice.id }
-    } else if (code[0] === 'f') {
-      move = { kind: 'fight', action: actionsAtGolden[slot]! }
-    } else {
-      move = { kind: 'loot', replace: slot ? slot - 1 : null }
-    }
-    walk = applyPlaytestMove(walk, move)
-    trace += code
-  }
-  if (walk.sceneId === 'a5-wellhouse-reckoning') {
-    walk = takeChoice(walk, 'keep')
-    trace += 'c1'
-    changed = true
-  }
-  return changed
-    ? {
-        ...old,
-        trace,
-        health: walk.health,
-        resolve: walk.resolve,
-        scenes: walk.visited.length,
-        fingerprint: witnessFingerprint(walk),
-      }
-    : old
-})
-console.log('GOLDEN_MIGRATION_JSON=' + JSON.stringify(refreshedGolden))
-
 for (const fixture of goldenFile.witnesses) {
   assert.ok(fixture.trace.length > 0 && fixture.trace.length % 2 === 0)
   const replayed = replayEncodedWitness(fixture.seed, fixture.trace)

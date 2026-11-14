@@ -1555,7 +1555,11 @@ function unitEvo(
 }
 
 /** A tap is an alternative to attacking, never an extra free fighter effect. */
-export function canClashActivate(s: ClashState, side: Side, uid: number): boolean {
+export function canClashActivate(
+  s: ClashState,
+  side: Side,
+  uid: number,
+): boolean {
   if (s.victor || s.active !== side || s.phase !== 'play') return false
   const unit = s.units.find((u) => u.uid === uid && u.side === side)
   if (
@@ -1574,7 +1578,11 @@ export function canClashActivate(s: ClashState, side: Side, uid: number): boolea
 }
 
 /** Replayed by the same pure command engine as plays, powers and strikes. */
-export function activateClash(input: ClashState, side: Side, uid: number): ClashState {
+export function activateClash(
+  input: ClashState,
+  side: Side,
+  uid: number,
+): ClashState {
   if (!canClashActivate(input, side, uid)) return input
   const s = structuredClone(input)
   const unit = s.units.find((u) => u.uid === uid && u.side === side)!
@@ -3329,7 +3337,13 @@ export type ClashCpuPolicy = 'baseline' | 'evolution-aware'
 
 /** A conservative estimate for the current tap decision, without advancing RNG. */
 function cpuTapPayoff(s: ClashState, u: ClashUnit, action: EvoAction): number {
-  const ctx: EvoContext = { side: u.side, lane: u.lane, cardId: u.cardId, level: u.level, self: u }
+  const ctx: EvoContext = {
+    side: u.side,
+    lane: u.lane,
+    cardId: u.cardId,
+    level: u.level,
+    self: u,
+  }
   switch (action.do) {
     case 'if':
       return evoCondition(s, ctx, action.cond)
@@ -3337,7 +3351,8 @@ function cpuTapPayoff(s: ClashState, u: ClashUnit, action: EvoAction): number {
         : 0
     case 'heal':
       return evoScope(s, ctx, action.to).reduce(
-        (value, target) => value + Math.min(action.n, target.maxHp - target.hp), 0,
+        (value, target) => value + Math.min(action.n, target.maxHp - target.hp),
+        0,
       )
     case 'boss':
       return action.n * 1.2
@@ -3345,7 +3360,10 @@ function cpuTapPayoff(s: ClashState, u: ClashUnit, action: EvoAction): number {
       return Math.min(action.n, clashBossCap(s, u.side) - s.boss[u.side])
     case 'damage':
       return evoScope(s, ctx, action.to).reduce(
-        (value, target) => value + (target.side !== u.side ? Math.min(action.n, target.hp) : -action.n), 0,
+        (value, target) =>
+          value +
+          (target.side !== u.side ? Math.min(action.n, target.hp) : -action.n),
+        0,
       )
     case 'guard':
       return evoScope(s, ctx, action.to).length * action.n * 0.5
@@ -3390,12 +3408,18 @@ export function chooseClashCpu(
     )
     const gain = taps.reduce(
       (value, ability) =>
-        value + ability.do.reduce((sum, action) => sum + cpuTapPayoff(s, fighter, action), 0),
+        value +
+        ability.do.reduce(
+          (sum, action) => sum + cpuTapPayoff(s, fighter, action),
+          0,
+        ),
       0,
     )
-    const strikeValue = clashPower(s, fighter) *
+    const strikeValue =
+      clashPower(s, fighter) *
       (unitAt(s, opponent(side), fighter.lane) ? 0.65 : 0.9)
-    if (gain > Math.max(1.1, strikeValue)) return { t: 'activate', side, uid: fighter.uid }
+    if (gain > Math.max(1.1, strikeValue))
+      return { t: 'activate', side, uid: fighter.uid }
   }
   const foeSide = opponent(side)
   let best:

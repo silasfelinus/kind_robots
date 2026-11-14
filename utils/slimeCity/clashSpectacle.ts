@@ -118,10 +118,15 @@ export function clashSpectacle(
     const fighter = before.units.find((u) => u.uid === command.uid)
     if (!fighter) return null
     const card = cardById(fighter.cardId)
-    const stage = clashEvolutionStage(card.id, fighter.level, fighter.evoChoice ?? 0)
-    const effect = after.lastEvolution?.commandIndex === after.commands.length
-      ? after.lastEvolution.effect
-      : 'control'
+    const stage = clashEvolutionStage(
+      card.id,
+      fighter.level,
+      fighter.evoChoice ?? 0,
+    )
+    const effect =
+      after.lastEvolution?.commandIndex === after.commands.length
+        ? after.lastEvolution.effect
+        : 'control'
     return {
       kind: 'power',
       effect,

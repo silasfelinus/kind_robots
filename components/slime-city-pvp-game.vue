@@ -482,7 +482,11 @@
               type="button"
               class="scpvp-tap"
               :disabled="pvp.sending"
-              :title="'Spend ' + cardById(fighter.cardId).name + '’s attack to use its tap ability'"
+              :title="
+                'Spend ' +
+                cardById(fighter.cardId).name +
+                '’s attack to use its tap ability'
+              "
               :data-testid="'slime-pvp-tap-' + fighter.uid"
               @click="tapFighter(fighter.uid)"
             >
@@ -584,9 +588,11 @@ const tappableUnits = computed(() => {
       !u.rooted &&
       !u.attacked &&
       u.activatedRound !== board.value!.round &&
-      !!clashEvolutionStage(u.cardId, u.level, u.evoChoice ?? 0)?.abilities.some(
-        (ability) => ability.when === 'tap',
-      ),
+      !!clashEvolutionStage(
+        u.cardId,
+        u.level,
+        u.evoChoice ?? 0,
+      )?.abilities.some((ability) => ability.when === 'tap'),
   )
 })
 const lineup = computed<Side[]>(() =>

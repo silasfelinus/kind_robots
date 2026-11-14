@@ -270,7 +270,10 @@ const mine = (s: ClashState, id: string) =>
   const landed = cast(s0, 's1-roof-phantom', 1, 2)
   const uid = mine(landed, 's1-roof-phantom')!.uid
   assert.equal(landed.boss.enemy, before, 'a tap does not fire on arrival')
-  assert.ok(!canClashActivate(landed, 'player', uid), 'fresh fighters cannot tap')
+  assert.ok(
+    !canClashActivate(landed, 'player', uid),
+    'fresh fighters cannot tap',
+  )
   const ready = structuredClone(landed)
   mine(ready, 's1-roof-phantom')!.fresh = false
   const tapped = activateClash(ready, 'player', uid)
@@ -282,7 +285,11 @@ const mine = (s: ClashState, id: string) =>
   const blockedReady = structuredClone(blocked)
   mine(blockedReady, 's1-roof-phantom')!.fresh = false
   assert.equal(
-    activateClash(blockedReady, 'player', mine(blockedReady, 's1-roof-phantom')!.uid).boss.enemy,
+    activateClash(
+      blockedReady,
+      'player',
+      mine(blockedReady, 's1-roof-phantom')!.uid,
+    ).boss.enemy,
     before,
     'a blocked alley gains no boss damage',
   )
@@ -297,7 +304,11 @@ const mine = (s: ClashState, id: string) =>
   assert.equal(at(k, movedUid)!.lane, 1, 'tap movement is a real choice')
   k = activateClash(k, 'player', movedUid)
   const moved = at(k, movedUid)!
-  assert.notEqual(moved.lane, 1, 'tapped fighter moves out of the engaged alley')
+  assert.notEqual(
+    moved.lane,
+    1,
+    'tapped fighter moves out of the engaged alley',
+  )
   assert.equal(Math.abs(moved.lane - 1), 1, 'exactly one alley away')
 }
 // Alley Veterinarian L1-L3: complete stage text, chosen healing, and Regen.
@@ -314,14 +325,21 @@ const mine = (s: ClashState, id: string) =>
   assert.ok(!at(s, 2)!.keywords.includes('regen'))
   for (const level of [1, 2, 3] as const) {
     const text = clashCardText(cardById('s1-alley-vet'), level)
-    assert.match(text, /Tap \(skip strike\): heal /, 'tap rules stand on their own')
+    assert.match(
+      text,
+      /Tap \(skip strike\): heal /,
+      'tap rules stand on their own',
+    )
     assert.ok(text.length <= 160, 'fully worded stage fits the card face')
   }
   const unit = mine(s, 's1-alley-vet')!
   const ready = structuredClone(s)
   mine(ready, 's1-alley-vet')!.fresh = false
   const next = activateClash(ready, 'player', unit.uid)
-  assert.ok(next.units.find((u) => u.uid === 1)!.hp >= s.units.find((u) => u.uid === 1)!.hp)
+  assert.ok(
+    next.units.find((u) => u.uid === 1)!.hp >=
+      s.units.find((u) => u.uid === 1)!.hp,
+  )
   assert.ok(next.units.find((u) => u.uid === unit.uid)!.attacked)
 }
 // Parapet Ghost-Kitten L3: the rare weaker level three, with a big arrival.

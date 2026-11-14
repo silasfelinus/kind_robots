@@ -2074,12 +2074,19 @@ assert.match(
   let s = createClash('catgirls', 'ironjaw', seed!)
   s = playClash(s, 'player', 's1-alley-vet', 0)
   const uid = s.units.find((u) => u.cardId === 's1-alley-vet')!.uid
-  assert.equal(canClashActivate(s, 'player', uid), false, 'fresh fighters must wait')
+  assert.equal(
+    canClashActivate(s, 'player', uid),
+    false,
+    'fresh fighters must wait',
+  )
   assert.equal(activateClash(s, 'player', uid), s, 'invalid tap is a no-op')
   s = finishRound(s)
   assert.equal(s.round, 2)
   assert.ok(canClashActivate(s, 'player', uid))
-  assert.ok(!canClashActivate(s, 'enemy', uid), 'other seat cannot tap our fighter')
+  assert.ok(
+    !canClashActivate(s, 'enemy', uid),
+    'other seat cannot tap our fighter',
+  )
   const original = s
   const tapped = activateClash(s, 'player', uid)
   assert.notEqual(tapped, original)
@@ -2087,8 +2094,16 @@ assert.match(
   assert.ok(tapped.units.find((u) => u.uid === uid)!.attacked)
   assert.equal(tapped.units.find((u) => u.uid === uid)!.activatedRound, s.round)
   assert.equal(tapped.plays.player, s.plays.player, 'taps use no card play')
-  assert.equal(canClashActivate(tapped, 'player', uid), false, 'one tap per turn')
-  assert.equal(activateClash(tapped, 'player', uid), tapped, 'double tap is illegal')
+  assert.equal(
+    canClashActivate(tapped, 'player', uid),
+    false,
+    'one tap per turn',
+  )
+  assert.equal(
+    activateClash(tapped, 'player', uid),
+    tapped,
+    'double tap is illegal',
+  )
   assert.equal(nextClashStrike(passClash(tapped, 'player'), 'player'), -1)
   assert.ok(nextClashStrike(passClash(s, 'player'), 'player') >= 0)
   assert.deepEqual(

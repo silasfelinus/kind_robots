@@ -113,8 +113,14 @@
                     <span
                       v-if="tapStage(unit(side, lane)!)"
                       class="clash-tag is-tap"
-                      :title="'Tap: ' + tapStage(unit(side, lane)!)!.title + '. Skips this turn’s attack.'"
-                      >{{ unit(side, lane)!.attacked ? '↷ USED' : '↷ TAP' }}</span
+                      :title="
+                        'Tap: ' +
+                        tapStage(unit(side, lane)!)!.title +
+                        '. Skips this turn’s attack.'
+                      "
+                      >{{
+                        unit(side, lane)!.attacked ? '↷ USED' : '↷ TAP'
+                      }}</span
                     >
                   </span>
                 </template>
@@ -455,7 +461,11 @@
                 type="button"
                 class="clash-reset clash-tap"
                 data-testid="clash-tap"
-                :title="'Activate ' + selectedTap.title + ' instead of attacking this turn'"
+                :title="
+                  'Activate ' +
+                  selectedTap.title +
+                  ' instead of attacking this turn'
+                "
                 :disabled="!canClashActivate(game, 'player', selectedTap.uid)"
                 @click="tapSelected"
               >
@@ -1185,7 +1195,8 @@ const undoAt = computed(() => {
     if (
       c.side === 'player' &&
       (c.t === 'play' || c.t === 'power' || c.t === 'activate')
-    ) return i
+    )
+      return i
   }
   return -1
 })

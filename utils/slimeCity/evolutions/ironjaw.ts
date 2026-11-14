@@ -70,10 +70,11 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
       on('turnStart', guard(2, 'self')),
       on('tap', guard(2, 'adjacentAllies')),
     ]),
-    3: stage('Narrow Corridor', [
-      on('enter', armor(2, 'self')),
-      on('tap', guard(2, 'adjacentAllies')),
-    ], { lone: 2 }),
+    3: stage(
+      'Narrow Corridor',
+      [on('enter', armor(2, 'self')), on('tap', guard(2, 'adjacentAllies'))],
+      { lone: 2 },
+    ),
   },
   // Signature: bring another worker across the bridge.
   // L1 makes a fragile 1/2 picket, a useful extra blocker now, not a

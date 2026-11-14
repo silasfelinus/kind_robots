@@ -872,6 +872,11 @@ export const SHIPPED_PERSONAL_ENDING_PLATES: ReadonlySet<string> = new Set([
   'hollis-everyone-fed-nobody-together',
   'hollis-holder-of-the-crossings',
   'hollis-kits-out-of-the-rocks',
+  'jeffery-hollis-best-scout',
+  'jeffery-one-pair-short',
+  'jeffery-quartermaster-of-the-long-table',
+  'ling-ten-years-old-twice',
+  'ling-the-table-under-the-hill',
   'mags-the-notice-comes-down',
   'mags-thirty-lamps',
   'peddler-both',
@@ -882,6 +887,9 @@ export const SHIPPED_PERSONAL_ENDING_PLATES: ReadonlySet<string> = new Set([
   'tamsin-the-companys-guide',
   'wren-counting-every-night',
   'wren-given-here-gone-now',
+  'zuzu-a-peg-by-another-door',
+  'zuzu-the-road-home-collects',
+  'zuzu-two-countries-no-map',
 ])
 export const personalEndingPlatePath = (endingId: string): string =>
   `/shifting-lands/endings/${endingId}.webp`

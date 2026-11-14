@@ -11,7 +11,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     opening:
       'A reception bell rings from a desk rooted in the old wolf road. Mara has counted nine people trapped on the office floors, but the brass visitor book insists there are ten. Rowan spots a muddy pawprint beside an empty signature line; Pip recognizes the mark as a wolf courier mark, but leaves the decision about confronting its owner to Rowan. The missing person may have escaped, or the building may be counting a wolf as staff.',
     artSubject:
-      'Pip and Mara at a fluorescent reception desk grown from thorny Briar roots, a brass bell, muddy wolf pawprint and ten spaces in an open visitor ledger',
+      'Rowan, an androgynous researcher in a grey cardigan, examines the ten signatures at a fluorescent reception desk grown from thorny Briar roots; Pip the goblin courier points out a muddy wolf pawprint while Mara holds the staff count and a brass bell sits untouched',
     choices: [
       {
         id: 'count-with-consent',
@@ -42,7 +42,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     opening:
       'Three wolves patrol a revolving security gate that only turns for people carrying their own names. The smallest wolf is wearing six visitor badges and looks deeply embarrassed. Pip translates the oath pattern for Rowan: the badges are temporary permissions, not proof of ownership. Rowan must decide whether to teach the pack or force a crossing.',
     artSubject:
-      'Three uneasy Briar wolves around a steel office turnstile, the youngest wolf burdened with six mismatched visitor badges while Pip studies the mechanism',
+      'Rowan, an androgynous researcher in a grey cardigan, faces three uneasy Briar wolves at a steel office turnstile; the youngest wolf carries six mismatched visitor badges and Pip the goblin courier explains the mechanism beside Rowan',
     choices: [
       {
         id: 'teach-the-oath',
@@ -52,7 +52,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
         flag: 'turnstile-oath-taught',
         effects: { trust: 2, supplies: -1 },
         artSubject:
-          'Pip teaching a shy wolf guard to release a steel turnstile while returned visitor badges hang on a rail',
+          'Rowan negotiates passage with a wolf captain as Pip the goblin courier teaches a shy wolf guard to release a steel turnstile; returned visitor badges hang on a rail',
       },
       {
         id: 'jam-the-gate',

@@ -285,6 +285,11 @@ const mine = (s: ClashState, id: string) =>
       )
     const evo = CLASH_EVOLUTIONS[card.id]
     if (!evo) continue
+    assert.ok(evo.levelOneText, card.id + ' has an authored L1 role')
+    assert.ok(
+      clashCardText(card, 1).includes(evo.levelOneText!),
+      card.id + ' L1 role is actually shown to the player',
+    )
     for (const st of [evo[1], evo[2], evo[3], evo.choice?.stage]) {
       if (!st) continue
       for (const ability of st.abilities) {

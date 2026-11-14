@@ -7,7 +7,7 @@ export const BRIAR_COLLISION_SCENES = {
     opening:
       'The House That Remembers has acquired a fluorescent accounting floor. Each midnight, the corridor folds back into a wolf road. Mara can prove which night-shift workers are trapped, but the wolf patrol calls their badges stolen names. Rowan coordinates the evacuation; Pip can translate the old oaths, while Mara holds the private roster. Two matching time stamps on the clock and timecard reveal the shrinking emergency stair.',
     artSubject:
-      'Pip and night-shift guard Mara in a fluorescent office grown through a dark Briar forest, a wolf captain blocking a contracting stair, two visible matching clock stamps',
+      'Rowan, an androgynous adult researcher in a rain-dark cardigan, directs the evacuation from a fluorescent office grown through a dark Briar forest; Pip the small goblin courier deciphers a wolf oath beside night-shift guard Mara, a wolf captain blocks the contracting stair, two visible matching clock stamps',
     choices: [
       {
         id: 'translate-shift-oath',
@@ -17,7 +17,7 @@ export const BRIAR_COLLISION_SCENES = {
         flag: 'briar-office-night-oath',
         effects: { supplies: -1, trust: 2 },
         artSubject:
-          'Pip signs a temporary forest oath beside Mara’s office timecard while a wolf captain opens a guarded stair',
+          'Rowan negotiates face-to-face with a wolf captain at the guarded stair; Pip the goblin courier signs a temporary forest oath beside Mara’s office timecard as workers file out',
       },
       {
         id: 'redact-and-witness',
@@ -27,7 +27,7 @@ export const BRIAR_COLLISION_SCENES = {
         flag: 'briar-office-redacted-witness',
         effects: { evidence: 1, danger: 1 },
         artSubject:
-          'Mara holds a redacted head count while workers leave a forest-grown office under a wolf patrol’s watch',
+          'Rowan directs the exit through a forest-grown office while Mara holds a redacted head count and Pip the goblin courier witnesses each worker crossing under a wolf patrol’s watch',
       },
       {
         id: 'break-midnight-clock',

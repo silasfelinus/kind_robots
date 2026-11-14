@@ -156,7 +156,16 @@ commit before editing them again. Fork PRs and `.github/workflows/` files
 (GITHUB_TOKEN can't push those) still need the printed patch applied by hand,
 all files in one commit.
 
-Most of those fix-ups were the same few rules, so write them right the first
+The same job applies the mechanical ESLint fixes that used to trip the ESLint
+ratchet in Contract shard 2 (`utils/scripts/lintFixChanged.mjs`, run locally
+with `npm run lint:fix-changed` after `npx nuxi prepare`): `vue/attributes-order`,
+`import/first`, `import/no-duplicates`, `prefer-const`, type-only imports, and
+removal of unused import specifiers (never unused locals or params). It runs
+only on the PR's changed files, so the per-rule ratchet can only shrink. Any
+other ESLint problem that grows a file's count against the ratchet baseline is
+annotated on the `Changed-file Prettier` run and still needs a hand fix.
+
+Most of those Prettier fix-ups were the same few rules, so write them right the first
 time: wrap at 80 columns the way Prettier would (about 40% of fixed hunks),
 trailing commas in every multi-line array/object/argument list (about 30%),
 single quotes unless the string contains `'` (then double quotes, never `\'`),

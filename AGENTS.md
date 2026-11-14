@@ -189,7 +189,9 @@ Run `npm run format:changed` before opening or updating a PR. Connector-only edi
 write Prettier-shaped code (no semicolons; single quotes unless the string contains `'`; wrap at
 80 columns; trailing commas in every multi-line list/object/argument list), push all files in one
 commit, and if `Changed-file Prettier` still fails, **don't hand-apply its patch** — the `Push
-Prettier autofix` job commits it and re-runs the checks; re-read files after it lands. Typecheck
+Prettier autofix` job commits it (with safe ESLint fixes: attribute order, import placement and
+duplicates, `prefer-const`, unused imports) and re-runs the checks; re-read files after it lands.
+Other new ESLint problems show as annotations on the same check; fix those by hand. Typecheck
 and run the tests that cover what you touched. Don't weaken, skip or delete a legitimate test to manufacture a pass; if a check is red
 for reasons that predate your change, say so explicitly. Hook mechanics:
 [`docs/agent-standards-detail.md`](docs/agent-standards-detail.md).

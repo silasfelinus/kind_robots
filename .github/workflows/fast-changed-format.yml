@@ -1,7 +1,10 @@
 name: Fast Changed-File Formatting
 
-# Checks Prettier on the files a PR changes. On a same-repository PR that
-# fails, the `autofix` job commits the exact Prettier patch back to the branch
+# Checks Prettier on the files a PR changes, after applying the mechanical
+# ESLint fixes that used to trip the lint ratchet (attribute order, import
+# placement/duplicates, prefer-const, unused imports; utils/scripts/
+# lintFixChanged.mjs). On a same-repository PR whose files need either, the
+# `autofix` job commits the exact patch back to the branch
 # and re-dispatches the PR's checks on the new head, so connector-only agents
 # no longer hand-apply diffs over several rounds. The patch is computed in the
 # read-only job; the write job never runs PR code (it only `git apply`s).
@@ -47,13 +50,24 @@ jobs:
       - name: Verify changed-file selector
         run: npm run test:format-changed
 
+      # Job and check names stay "Changed-file Prettier" so required-check
+      # settings keep matching; ESLint problems are fixed here, not gated.
+      - name: Generate Nuxt ESLint config
+        continue-on-error: true
+        run: npx nuxi prepare
+
+      - name: Apply safe ESLint fixes to changed files
+        id: lintfix
+        continue-on-error: true
+        run: npm run lint:fix-changed
+
       - name: Check PR formatting and print exact fixes if needed
         id: check
         run: npm run format:check-changed -- --show-fix
 
-      - name: Capture Prettier patch for autofix
+      - name: Capture autofix patch
         id: patch
-        if: failure() && steps.check.outcome == 'failure'
+        if: always() && steps.check.outcome != 'skipped'
         run: |
           npm run format:changed
           # GITHUB_TOKEN cannot push workflow files; leave those to the printed patch.
@@ -61,6 +75,14 @@ jobs:
           if [ -s "$RUNNER_TEMP/prettier-autofix.patch" ]; then
             echo "has_patch=true" >> "$GITHUB_OUTPUT"
             echo "::notice::Same-repository PRs get this patch committed automatically by the 'Push Prettier autofix' job. Do not hand-apply it; re-read the files after the 'style: autoformat' commit lands."
+          fi
+          if ! git diff --quiet; then
+            if [ "${{ steps.check.outcome }}" = 'success' ]; then
+              echo 'ESLint autofixes (Prettier was already clean):'
+              git diff -- . | head -c 60000
+            fi
+            echo "::error::Changed files need the ESLint/Prettier fixes above."
+            exit 1
           fi
 
       - name: Upload Prettier patch

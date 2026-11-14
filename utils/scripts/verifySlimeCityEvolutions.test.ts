@@ -120,6 +120,33 @@ for (const id of Object.keys(CLASH_EVOLUTIONS)) {
   assert.equal(clashStageTitle(id, 1), card.name)
 }
 
+// Active abilities are authored independently per evolution, not inherited
+// from text the player might never have seen at an earlier level.
+for (const [id, level] of [
+  ['s1-alley-vet', 1],
+  ['s1-alley-vet', 2],
+  ['s1-alley-vet', 3],
+  ['s1-roof-phantom', 2],
+  ['s1-roof-phantom', 3],
+  ['s3-catgirls-bicycle-clinic', 2],
+  ['s3-catgirls-bicycle-clinic', 3],
+  ['s3-bloodfairies-mosh-firefly', 2],
+  ['s1-scrap-welder', 2],
+  ['s1-blast-radius', 2],
+  ['s1-static-listener', 2],
+  ['audit-fiend', 2],
+] as const) {
+  assert.ok(
+    clashEvolutionStage(id, level)?.abilities.some((a) => a.when === 'tap'),
+    id + ' L' + level + ' has a real tap trigger',
+  )
+  assert.match(
+    clashCardText(cardById(id), level),
+    /Tap \(skip strike\): /,
+    id + ' L' + level + ' shows its complete active ability',
+  )
+}
+
 // --- The pilot is a full Solo Clash side: twenty Catgirls, every one with
 // its own level-two and level-three story (eight twists + twelve crafted, with
 // the crafted Second Pounce Rig left to the deck builder). Silas, 2026-11-11

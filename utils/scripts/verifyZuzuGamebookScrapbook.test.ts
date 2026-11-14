@@ -183,6 +183,28 @@ assert.match(page, /scene\(ending\)\.title/)
 assert.match(page, /sceneArt\(ending\)/)
 assert.match(front, /data-testid="zuzu-gamebook-title"/)
 assert.match(front, /data-testid="zuzu-gamebook-continue"/)
+assert.match(front, /data-testid="zuzu-gamebook-erase-progress"/)
+assert.match(front, /emit\('reset-progress'\)/)
+assert.match(front, /store\.accountStatus === 'conflict'/)
+assert.match(page, /@reset-progress="eraseProgress"/)
+assert.match(page, /function eraseProgress\(\)[\s\S]*?window\.confirm\(/)
+const resetStart = store.indexOf('function resetProgress()')
+const resetBody = store.slice(resetStart, store.indexOf('function recover()', resetStart))
+assert.ok(resetStart > 0, 'full reset is distinct from New Journey')
+for (const phrase of [
+  'recoverable.value = null',
+  'discovered.value = []',
+  'played.value = []',
+  'discoveredCast.value = []',
+  'scrapbook.value = []',
+  'save()',
+]) assert.ok(resetBody.includes(phrase), 'reset must clear ' + phrase)
+assert.match(resetBody, /accountStatus\.value === 'conflict'/)
+assert.doesNotMatch(
+  resetBody,
+  /rewardAchievementByCode/,
+  'erasing progress must never award achievements',
+)
 assert.match(front, /game-achievement-strip game="zuzu-gamebook"/)
 assert.match(store, /captureJourney\(run.value/)
 console.log(

@@ -423,7 +423,7 @@ const WHEN: Record<EvoTrigger, string> = {
   death: 'Last breath',
   roundEnd: 'Round end',
   turnStart: 'Turn start',
-  tap: 'Tap (skip this turn\'s attack)',
+  tap: 'Tap (skip strike)',
   spring: 'Sprung',
 }
 type Kind = 'creature' | 'spell' | 'trap' | 'equipment'

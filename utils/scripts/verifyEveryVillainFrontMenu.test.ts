@@ -472,6 +472,14 @@ const ids = [
 ]
 assert.equal(new Set(ids).size, 191)
 assert.ok(ids.every((id) => Number.isSafeInteger(id) && id > 0))
+const newlyRenderedIds = ids
+  .filter((id) => id >= 271955 && id <= 272131)
+  .sort((a, b) => a - b)
+assert.deepEqual(
+  newlyRenderedIds,
+  Array.from({ length: 177 }, (_, index) => 271955 + index),
+  'all 177 new Comfy render receipts are attached once',
+)
 for (const [signature, heroImage, villainImage] of firstBellReveals) {
   assert.equal(paintedRevealArtId(comicIntroFor(signature, 'hero')), heroImage)
   assert.equal(

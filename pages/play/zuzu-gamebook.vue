@@ -219,6 +219,19 @@
                     Saved to your account after each move. Your device keeps
                     its own backup too.
                   </p>
+                  <template v-else-if="store.accountStatus === 'offer-upload'">
+                    <p class="mt-1 text-xs opacity-75" role="status">
+                      Your account has no Zuzu save yet. Keep this device's
+                      journey and start backing it up to your account?
+                    </p>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm mt-2"
+                      @click="store.beginAccountSave()"
+                    >
+                      Back up this journey
+                    </button>
+                  </template>
                   <template v-else-if="store.accountStatus === 'conflict'">
                     <p class="mt-1 text-xs" role="status">
                       This device and your account have different journeys.

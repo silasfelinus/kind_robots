@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><radialGradient id="bg" cx="0.75" cy="0.5" r="0.8"><stop offset="0" stop-color="#1f3a6b"/><stop offset="1" stop-color="#0a1226"/></radialGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g>
+    <rect x="720" y="380" width="130" height="150" fill="#9aa7c7" rx="6"/><text x="785" y="470" font-family="Impact, sans-serif" font-size="64" fill="#1b2240" text-anchor="middle">2</text>
+    <rect x="860" y="320" width="130" height="210" fill="#ffd36b" rx="6"/><text x="925" y="430" font-family="Impact, sans-serif" font-size="72" fill="#3a2a05" text-anchor="middle">1</text>
+    <rect x="1000" y="420" width="130" height="110" fill="#d08a5a" rx="6"/><text x="1065" y="495" font-family="Impact, sans-serif" font-size="56" fill="#3a1c0a" text-anchor="middle">3</text>
+    <path d="M880 140 h90 v40 q0 70 -45 80 q-45 -10 -45 -80z" fill="#ffd36b"/>
+    <path d="M880 160 q-40 0 -35 30 q5 30 45 35" fill="none" stroke="#ffd36b" stroke-width="10"/>
+    <path d="M970 160 q40 0 35 30 q-5 30 -45 35" fill="none" stroke="#ffd36b" stroke-width="10"/>
+    <rect x="912" y="258" width="26" height="30" fill="#e0b54f"/><rect x="890" y="286" width="70" height="18" rx="4" fill="#e0b54f"/>
+    <path d="M925 160 l8 16 l18 2 l-13 12 l4 18 l-17 -9 l-17 9 l4 -18 l-13 -12 l18 -2z" fill="#fff4c2"/>
+    <g fill="#6bc7ff" opacity="0.8"><circle cx="760" cy="200" r="6"/><circle cx="1090" cy="160" r="8"/><circle cx="1050" cy="280" r="5"/><circle cx="800" cy="300" r="4"/></g>
+  </g>
+  <text x="70" y="220" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="88" fill="#ffd36b" letter-spacing="3" textLength="600" lengthAdjust="spacingAndGlyphs">HALL OF CONTENDERS</text>
+  <text x="74" y="292" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="32" fill="#ffffff">Who is winning the Challenge Center?</text>
+  <text x="74" y="336" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">See the championship standings,</text>
+  <text x="74" y="380" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">then join the next fight card.</text>
+  <text x="74" y="424" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.85">Free to browse in your browser.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#6bc7ff" letter-spacing="2">kindrobots.org</text>
+</svg>

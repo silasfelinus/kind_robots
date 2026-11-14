@@ -1123,6 +1123,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'windmill-polder-dusk',
+    label: 'Windmill Polder Dusk',
+    reveal: 'Windmills turn over striped tulip fields beside a canal at dusk',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Windmills turn over the tulip fields at dusk 🌷 hover to light a mill window, click to send a gust through the sails',
+    color: '#f2a65a',
+    releasedAt: '2026-11-13T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

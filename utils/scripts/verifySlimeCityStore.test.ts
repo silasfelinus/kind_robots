@@ -36,6 +36,17 @@ assert.equal(lab.deckFormat, 'solo')
 preferences.set('kr-slime-city-clash-format-v1', 'invalid')
 lab.hydrateClashFormat()
 assert.equal(lab.clashFormat, 'solo', 'Invalid saved preferences are ignored')
+assert.equal(lab.reducedMotion, false)
+lab.setReducedMotion(true)
+assert.equal(preferences.get('kr-slime-city-reduced-motion-v1'), 'on')
+lab.reducedMotion = false
+lab.hydrateReducedMotion()
+assert.equal(lab.reducedMotion, true, 'Reduced motion persists per device')
+preferences.set('kr-slime-city-reduced-motion-v1', 'sideways')
+lab.hydrateReducedMotion()
+assert.equal(lab.reducedMotion, true, 'Invalid motion values are ignored')
+lab.setReducedMotion(false)
+assert.equal(preferences.get('kr-slime-city-reduced-motion-v1'), 'off')
 Object.defineProperty(globalThis, 'window', {
   configurable: true,
   value: {
@@ -51,6 +62,10 @@ Object.defineProperty(globalThis, 'window', {
 })
 assert.doesNotThrow(() => lab.hydrateClashFormat())
 assert.doesNotThrow(() => lab.setDefaultClashFormat('alliance'))
+assert.doesNotThrow(() => lab.hydrateReducedMotion())
+assert.doesNotThrow(() => lab.setReducedMotion(true))
+assert.equal(lab.reducedMotion, true)
+lab.setReducedMotion(false)
 assert.equal(lab.clashFormat, 'alliance')
 delete (globalThis as { window?: unknown }).window
 

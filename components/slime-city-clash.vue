@@ -889,7 +889,10 @@ function backFromReport(): void {
   goBack()
 }
 onMounted(() => {
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  if (
+    lab.reducedMotion ||
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  )
     pace.value = 0.4
   sound.cue('bell')
 })

@@ -66,6 +66,28 @@ import {
 } from '../zuzuGamebook/adventure'
 import type { Attribute, Choice } from '../zuzuGamebook/types'
 
+// At the opening waterhole, a failed roll can force an 8-HP crocodile fight.
+// Warn before the player commits; the existing safe retreat must stay reachable.
+const crossingChoices = scene('the-crossing').choices ?? []
+assert.deepEqual(
+  crossingChoices.map((choice) => choice.id),
+  ['approach', 'stare', 'listen', 'avoid'],
+)
+assert.match(crossingChoices[2]!.label, /Failure draws the crocodile into a fight/)
+assert.equal(crossingChoices[3]!.to, 'dust-road')
+const standoffChoices = scene('standoff').choices ?? []
+assert.deepEqual(standoffChoices.map((choice) => choice.id), ['open-hand', 'hold'])
+assert.match(standoffChoices[0]!.label, /Failure draws the crocodile into a fight/)
+assert.match(standoffChoices[1]!.label, /Either outcome leads to the crocodile/)
+assert.equal(standoffChoices[1]!.check?.success, 'croc-ready')
+assert.equal(standoffChoices[1]!.check?.failure, 'crocodile')
+const hiddenPoolChoices = scene('hidden-pool').choices ?? []
+assert.equal(hiddenPoolChoices.find((choice) => choice.id === 'withdraw')?.to, 'dust-road')
+assert.match(
+  hiddenPoolChoices.find((choice) => choice.id === 'warn')!.label,
+  /Prepare to fight the crocodile/,
+)
+
 const ids = Object.keys(BOOK)
 assert.ok(ids.length >= 60, 'Book One has substantive scenes')
 const endings = ids.filter((id) => !!BOOK[id]?.ending)

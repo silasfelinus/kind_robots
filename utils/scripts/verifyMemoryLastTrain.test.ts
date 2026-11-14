@@ -167,3 +167,23 @@ assert.deepEqual(
   restoreVerifiedTrainProgress(orderedNight, outOfOrder),
   orderedNight,
 )
+
+// A malformed e04 choice cannot prematurely seal e03. The first valid e04
+// decision is the actual chronological boundary for replayed rewards.
+const invalidNightThenDay = [
+  { world: 'e04' as const, scene: 'e04Platform' as const, choice: 'forged' },
+  { world: 'e03' as const, scene: 'e03Door' as const, choice: 'md.train.e03.release' },
+  { world: 'e04' as const, scene: 'e04Platform' as const, choice: 'md.train.e04.listen' },
+  { world: 'e03' as const, scene: 'e03Timetable' as const, choice: 'md.train.e03.share' },
+]
+const recoveredDay = replayTrainEncounters(invalidNightThenDay)
+assert.deepEqual(recoveredDay.decisions, {
+  e03Door: 'md.train.e03.release',
+  e04Platform: 'md.train.e04.listen',
+})
+assert.equal(trainConsequences(recoveredDay).trainToken, true)
+assert.equal(recoveredDay.decisions.e03Timetable, undefined)
+assert.deepEqual(
+  restoreVerifiedTrainProgress(recoveredDay, invalidNightThenDay),
+  recoveredDay,
+)

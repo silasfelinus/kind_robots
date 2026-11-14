@@ -58,6 +58,17 @@ lab.hydrateLargeText()
 assert.equal(lab.largeText, true, 'Invalid text-size values are ignored')
 lab.setLargeText(false)
 assert.equal(preferences.get('kr-slime-city-large-text-v1'), 'off')
+assert.equal(lab.highContrast, false)
+lab.setHighContrast(true)
+assert.equal(preferences.get('kr-slime-city-high-contrast-v1'), 'on')
+lab.highContrast = false
+lab.hydrateHighContrast()
+assert.equal(lab.highContrast, true, 'High contrast persists per device')
+preferences.set('kr-slime-city-high-contrast-v1', 'max')
+lab.hydrateHighContrast()
+assert.equal(lab.highContrast, true, 'Invalid contrast values are ignored')
+lab.setHighContrast(false)
+assert.equal(preferences.get('kr-slime-city-high-contrast-v1'), 'off')
 Object.defineProperty(globalThis, 'window', {
   configurable: true,
   value: {
@@ -81,6 +92,10 @@ assert.doesNotThrow(() => lab.hydrateLargeText())
 assert.doesNotThrow(() => lab.setLargeText(true))
 assert.equal(lab.largeText, true)
 lab.setLargeText(false)
+assert.doesNotThrow(() => lab.hydrateHighContrast())
+assert.doesNotThrow(() => lab.setHighContrast(true))
+assert.equal(lab.highContrast, true)
+lab.setHighContrast(false)
 assert.equal(lab.clashFormat, 'alliance')
 delete (globalThis as { window?: unknown }).window
 

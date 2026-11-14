@@ -62,3 +62,24 @@ export function writeLargeTextPreference(on: boolean): void {
     // Storage can be disabled; the in-memory choice still works.
   }
 }
+
+const CONTRAST_KEY = 'kr-slime-city-high-contrast-v1'
+
+export function readHighContrastPreference(): boolean | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const value = window.localStorage.getItem(CONTRAST_KEY)
+    return value === 'on' ? true : value === 'off' ? false : null
+  } catch {
+    return null
+  }
+}
+
+export function writeHighContrastPreference(on: boolean): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(CONTRAST_KEY, on ? 'on' : 'off')
+  } catch {
+    // Storage can be disabled; the in-memory choice still works.
+  }
+}

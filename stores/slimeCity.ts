@@ -1,8 +1,10 @@
 import {
   readClashFormatPreference,
+  readHighContrastPreference,
   readLargeTextPreference,
   readReducedMotionPreference,
   writeClashFormatPreference,
+  writeHighContrastPreference,
   writeLargeTextPreference,
   writeReducedMotionPreference,
 } from './helpers/slimeCityClashPreference'
@@ -520,6 +522,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function setLargeText(on: boolean): void {
     largeText.value = on
     writeLargeTextPreference(on)
+  }
+  /** Settings: black backdrop, bright body text and solid control outlines. */
+  const highContrast = ref(false)
+  function hydrateHighContrast(): void {
+    const stored = readHighContrastPreference()
+    if (stored !== null) highContrast.value = stored
+  }
+  function setHighContrast(on: boolean): void {
+    highContrast.value = on
+    writeHighContrastPreference(on)
   }
 
   /** One narrative journey; only its 20-card deck composition changes. */
@@ -2755,6 +2767,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     largeText,
     hydrateLargeText,
     setLargeText,
+    highContrast,
+    hydrateHighContrast,
+    setHighContrast,
     journeyFormat,
     journeyDeckId,
     journeyDeckName,

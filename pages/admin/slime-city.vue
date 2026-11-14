@@ -9,6 +9,7 @@
       :class="{
         'sc-reduce-motion': lab.reducedMotion,
         'sc-large-text': lab.largeText,
+        'sc-high-contrast': lab.highContrast,
       }"
       data-testid="slime-city-shell"
     >
@@ -171,6 +172,14 @@
               @click="lab.setLargeText(!lab.largeText)"
             >
               LARGE TEXT · {{ lab.largeText ? 'ON' : 'OFF' }}
+            </button>
+            <button
+              type="button"
+              :aria-pressed="lab.highContrast"
+              data-testid="slime-settings-high-contrast"
+              @click="lab.setHighContrast(!lab.highContrast)"
+            >
+              HIGH CONTRAST · {{ lab.highContrast ? 'ON' : 'OFF' }}
             </button>
           </fieldset>
           <p class="sc-settings-collection">
@@ -1187,6 +1196,7 @@ onMounted(() => {
   lab.hydrateClashFormat()
   lab.hydrateReducedMotion()
   lab.hydrateLargeText()
+  lab.hydrateHighContrast()
   themeId = navStore.registerConsoleTheme('slime-city')
   narrowQuery = window.matchMedia('(max-width: 600px)')
   syncNarrow()
@@ -3105,5 +3115,28 @@ button.sc-shelf-label {
    the inner panes scroll as they already do. */
 .sc-large-text {
   zoom: 1.15;
+}
+/* HIGH CONTRAST: pure black backdrop, muted body copy lifted to white, and
+   solid outlines on every control. Text inside buttons keeps its own colour
+   because several buttons sit on bright accent fills. No filter is used, so
+   fixed overlays and painted art are untouched. */
+.sc-high-contrast {
+  background: #000 !important;
+}
+.sc-high-contrast
+  :where(p, small, li, dd, dt, legend, label, figcaption, caption, th, td):not(
+    button *
+  ) {
+  color: #fff !important;
+}
+.sc-high-contrast button,
+.sc-high-contrast select,
+.sc-high-contrast input {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+.sc-high-contrast :focus-visible {
+  outline: 3px solid #ffd76a !important;
+  outline-offset: 2px;
 }
 </style>

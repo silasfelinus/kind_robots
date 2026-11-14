@@ -50,13 +50,16 @@ export default defineEventHandler(async (event) => {
           message: 'Another device saved this journey. Review both copies.',
         })
     }
-    const saved = await prisma.zuzuGamebookSave.findUniqueOrThrow({
-      where: { userId: user.id },
-      select: { revision: true, updatedAt: true },
-    })
+    // Return the version this request actually committed. A later read could
+    // race another device's newer save and falsely acknowledge its revision.
     return {
       success: true,
-      data: { revision: saved.revision, updatedAt: saved.updatedAt },
+      data: {
+        revision:
+          input.expectedRevision === null
+            ? 0
+            : (input.expectedRevision as number) + 1,
+      },
     }
   } catch (error) {
     const failure = errorHandler(error)

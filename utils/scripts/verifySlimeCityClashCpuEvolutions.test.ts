@@ -251,8 +251,9 @@ for (const [left, right] of [
   blocked.units.push(fighter('player', 1, 62))
   blocked.units.push(fighter('player', 3, 63))
   assert.equal(
-    activateClash(endClashTurn(blocked, 'enemy'), 'player', 61)
-      .units.find((u) => u.uid === 61)?.lane,
+    activateClash(endClashTurn(blocked, 'enemy'), 'player', 61).units.find(
+      (u) => u.uid === 61,
+    )?.lane,
     2,
     'occupied adjacent alleys prevent relocation',
   )
@@ -268,8 +269,9 @@ for (const [left, right] of [
   const exposed = structuredClone(source)
   exposed.units.push(fighter('enemy', 1, 64, { attacked: true }))
   assert.equal(
-    activateClash(endClashTurn(exposed, 'enemy'), 'player', 61)
-      .units.find((u) => u.uid === 61)?.lane,
+    activateClash(endClashTurn(exposed, 'enemy'), 'player', 61).units.find(
+      (u) => u.uid === 61,
+    )?.lane,
     3,
     'a lane with an opposing blocker is not a safe escape',
   )

@@ -454,7 +454,12 @@
               {{ board.hand.length }} IN HAND · {{ board.deckCount }} IN DECK ·
               OPPONENT {{ board.opponentHandCount }} HIDDEN
             </p>
-            <div v-if="choiceStages && selectedCard" class="scpvp-choice" role="group" aria-label="Choose a level-three evolution">
+            <div
+              v-if="choiceStages && selectedCard"
+              class="scpvp-choice"
+              role="group"
+              aria-label="Choose a level-three evolution"
+            >
               <button
                 v-for="(stage, index) in choiceStages"
                 :key="stage.title"
@@ -463,8 +468,13 @@
                 :data-testid="'slime-pvp-evolution-' + index"
                 @click="choice = index === 1 ? 1 : 0"
               >
-                <strong>OPTION {{ index === 0 ? 'A' : 'B' }} · {{ stage.title }}</strong>
-                <small>{{ clashCardText(cardById(selectedCard), 3, index === 1 ? 1 : 0) }}</small>
+                <strong
+                  >OPTION {{ index === 0 ? 'A' : 'B' }} ·
+                  {{ stage.title }}</strong
+                >
+                <small>{{
+                  clashCardText(cardById(selectedCard), 3, index === 1 ? 1 : 0)
+                }}</small>
               </button>
             </div>
             <button

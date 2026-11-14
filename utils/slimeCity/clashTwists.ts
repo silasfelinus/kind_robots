@@ -82,7 +82,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Calls a weak decoy into a free neighboring alley on arrival.',
   ],
   pounce: [
-    'Boost a fighter\'s power this round and refresh its AMBUSH strike.',
+    "Boost a fighter's power this round and refresh its AMBUSH strike.",
     'Boost target and refresh AMBUSH; one adjacent ally gains +1 power and refreshes AMBUSH.',
     'Boost target; both adjacent allies gain +2 power this round and refresh AMBUSH.',
   ],
@@ -244,7 +244,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   fusevest: [
     'Equip a fighter with VOLATILE: it explodes when defeated.',
-    'Grant VOLATILE; on defeat, deal 1 to the wearer\'s adjacent foes.',
+    "Grant VOLATILE; on defeat, deal 1 to the wearer's adjacent foes.",
     'Grant VOLATILE; on defeat, deal 1 to all rivals and neighboring allies.',
   ],
   drink: [
@@ -295,7 +295,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   'merc-discount-angel': [
     'An unstable helper with a clearance-bin halo.',
     'When an allied fighter dies, heals nearby friends for 2.',
-    'Once per round, an allied fighter\'s death summons a fragile rescued echo.',
+    "Once per round, an allied fighter's death summons a fragile rescued echo.",
   ],
   // Final eleven from the first seventy-card evolution manifesto.
   shredders: [
@@ -328,8 +328,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'When sprung, a seeded 50% chance blasts a neighboring rival for 2.',
     'Each neighboring rival independently has a 50% chance to take 3.',
   ],
-  fuse: [
-    'Permanently boost a friendly fighter\'s attack.',
+  fuse: [ fighter\'s attack.',
     'Boost a friendly fighter\'s attack permanently; it takes 1 recoil damage.',
     'Boost a friendly fighter; sacrifice the weakest adjacent ally for +4 attack, or take 2 recoil.',
   ],

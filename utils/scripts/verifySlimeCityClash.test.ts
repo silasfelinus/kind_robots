@@ -70,16 +70,21 @@ const editorialCopy = CARDS.flatMap((card) => {
 })
 assert.equal(CARDS.length, 300, 'exactly 300 catalog cards are audited')
 assert.equal(
-  new Set([
-    ...Object.keys(CLASH_TWISTS),
-    ...Object.keys(CLASH_EVOLUTIONS),
-  ]).size,
+  new Set([...Object.keys(CLASH_TWISTS), ...Object.keys(CLASH_EVOLUTIONS)])
+    .size,
   300,
   'all 300 belong to a bespoke twist or authored evolution',
 )
-assert.equal(editorialCopy.length, 922, '300 x 3 plus 22 distinct level-three forks')
+assert.equal(
+  editorialCopy.length,
+  922,
+  '300 x 3 plus 22 distinct level-three forks',
+)
 for (const face of editorialCopy) {
-  assert.ok(face.text.trim(), face.id + ' ' + face.level + ' has readable rules')
+  assert.ok(
+    face.text.trim(),
+    face.id + ' ' + face.level + ' has readable rules',
+  )
   assert.ok(
     face.text.length <= 160,
     face.id + ' ' + face.level + ' must fit the 160-character face',
@@ -113,7 +118,9 @@ assert.match(
   readFileSync('components/slime-city-clash.vue', 'utf8'),
   /clashCardText\(selectedCard,\s*3,\s*i === 1 \? 1 : 0\)/,
 )
-console.log('Slime City editorial audit: 300 cards, 922 independent card faces and 22 choice pairs PASS')
+console.log(
+  'Slime City editorial audit: 300 cards, 922 independent card faces and 22 choice pairs PASS',
+)
 
 function follower(
   side: Side,

@@ -2,7 +2,10 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   GUEST_SLIME_STORY_KEY,
+  RESET_JOURNEY_PHRASE,
+  clearGuestSlimeStory,
   readGuestSlimeStory,
+  resetPhraseMatches,
   writeGuestSlimeStory,
 } from '../slimeCity/guestStorySave'
 import { newSlimeCityStory } from '../slimeCity/storySave'
@@ -46,4 +49,35 @@ test('storage denial never crashes guest gameplay', () => {
   }
   assert.equal(readGuestSlimeStory(blocked), null)
   assert.equal(writeGuestSlimeStory(newSlimeCityStory(), blocked), false)
+})
+
+test('reset clears only the guest journey and needs the typed word', () => {
+  const records = new Map<string, string>([
+    ['kr-slime-city-high-contrast-v1', 'on'],
+  ])
+  const storage = {
+    getItem: (key: string) => records.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      records.set(key, value)
+    },
+    removeItem: (key: string) => {
+      records.delete(key)
+    },
+  }
+  writeGuestSlimeStory(newSlimeCityStory(), storage)
+  assert.equal(resetPhraseMatches('reset'), true)
+  assert.equal(resetPhraseMatches('  RESET '), true)
+  assert.equal(resetPhraseMatches('RESE'), false)
+  assert.equal(resetPhraseMatches(''), false)
+  assert.equal(RESET_JOURNEY_PHRASE, 'RESET')
+  assert.equal(clearGuestSlimeStory(storage), true)
+  assert.equal(readGuestSlimeStory(storage), null)
+  assert.equal(records.get('kr-slime-city-high-contrast-v1'), 'on')
+  const blocked = {
+    removeItem: (_key: string): void => {
+      throw new Error('blocked')
+    },
+  }
+  assert.equal(clearGuestSlimeStory(blocked), false)
+  assert.equal(clearGuestSlimeStory(null), false)
 })

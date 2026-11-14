@@ -99,6 +99,36 @@ lab.setHighContrast(false)
 assert.equal(lab.clashFormat, 'alliance')
 delete (globalThis as { window?: unknown }).window
 
+const journeys = new Map<string, string>()
+Object.defineProperty(globalThis, 'localStorage', {
+  configurable: true,
+  value: {
+    getItem: (key: string) => journeys.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      journeys.set(key, value)
+    },
+    removeItem: (key: string) => {
+      journeys.delete(key)
+    },
+  },
+})
+await lab.hydrateStory()
+assert.equal(lab.canResetJourney, true, 'Guests may reset their own journey')
+lab.city = { ...lab.city, cleared: ['pitworks'] }
+lab.endingsFound = ['kept-page']
+journeys.set('kr-slime-city-story-v1', '{"kept":true}')
+assert.equal(await lab.resetGuestJourney('nope'), false)
+assert.equal(lab.resetMessage, 'Type RESET to confirm.')
+assert.equal(journeys.has('kr-slime-city-story-v1'), true)
+assert.deepEqual(lab.endingsFound, ['kept-page'])
+assert.equal(await lab.resetGuestJourney(' reset '), true)
+const afterReset = journeys.get('kr-slime-city-story-v1')
+assert.notEqual(afterReset, '{"kept":true}', 'The old journey is gone')
+if (afterReset) assert.deepEqual(JSON.parse(afterReset).city.cleared, [])
+assert.deepEqual(lab.city.cleared, [], 'The reset city starts fresh')
+assert.deepEqual(lab.endingsFound, [])
+delete (globalThis as { localStorage?: unknown }).localStorage
+
 // Seeds: a fresh one per restart, the same one on request
 assert.ok(lab.seed >= 100000 && lab.seed < 1000000)
 lab.useSeed(424242)

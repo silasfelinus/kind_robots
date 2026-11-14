@@ -33,3 +33,26 @@ export function writeGuestSlimeStory(
     return false
   }
 }
+
+/** The exact word a player types before their guest journey is wiped. */
+export const RESET_JOURNEY_PHRASE = 'RESET'
+
+export function resetPhraseMatches(typed: string): boolean {
+  return typed.trim().toUpperCase() === RESET_JOURNEY_PHRASE
+}
+
+/** Removes this device's guest journey. False when storage is unavailable. */
+export function clearGuestSlimeStory(
+  storage: Pick<Storage, 'removeItem'> | null = typeof localStorage ===
+  'undefined'
+    ? null
+    : localStorage,
+): boolean {
+  if (!storage) return false
+  try {
+    storage.removeItem(GUEST_SLIME_STORY_KEY)
+    return true
+  } catch {
+    return false
+  }
+}

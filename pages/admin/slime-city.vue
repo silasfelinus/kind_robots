@@ -182,6 +182,35 @@
               HIGH CONTRAST · {{ lab.highContrast ? 'ON' : 'OFF' }}
             </button>
           </fieldset>
+          <fieldset data-testid="slime-settings-reset">
+            <legend>RESET PROGRESS</legend>
+            <template v-if="lab.canResetJourney">
+              <label for="slime-reset-confirm">
+                Erase this device's guest journey: campaigns, Tower, decks,
+                endings and scrapbook. Type RESET to confirm.
+              </label>
+              <input
+                id="slime-reset-confirm"
+                v-model="resetTyped"
+                type="text"
+                autocomplete="off"
+                data-testid="slime-settings-reset-input"
+              />
+              <button
+                type="button"
+                :disabled="resetTyped.trim().toUpperCase() !== 'RESET'"
+                data-testid="slime-settings-reset-confirm"
+                @click="confirmReset"
+              >
+                RESET JOURNEY
+              </button>
+            </template>
+            <p v-else>
+              Signed-in journeys are saved to your account and are not reset
+              here.
+            </p>
+            <p v-if="lab.resetMessage" role="status">{{ lab.resetMessage }}</p>
+          </fieldset>
           <p class="sc-settings-collection">
             Everyone starts with {{ lab.baseCollectionSize }} base cards: each
             crew's twenty-card starter deck and twenty mercenaries. Every other
@@ -1289,6 +1318,10 @@ const activeMode = computed(() => {
 /** Settings: the format the next Clash and the deck builder start in. */
 function setDefaultFormat(format: 'solo' | 'alliance'): void {
   lab.setDefaultClashFormat(format)
+}
+const resetTyped = ref('')
+async function confirmReset(): Promise<void> {
+  if (await lab.resetGuestJourney(resetTyped.value)) resetTyped.value = ''
 }
 /** Phones fold the starter decks behind their label. */
 const startersOpen = ref(false)

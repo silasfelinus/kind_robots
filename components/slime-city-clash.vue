@@ -110,6 +110,12 @@
                       class="clash-gear"
                       >✦ {{ unit(side, lane)!.gear.length }}</span
                     >
+                    <span
+                      v-if="tapStage(unit(side, lane)!)"
+                      class="clash-tag is-tap"
+                      :title="'Tap: ' + tapStage(unit(side, lane)!)!.title + '. Skips this turn’s attack.'"
+                      >{{ unit(side, lane)!.attacked ? '↷ USED' : '↷ TAP' }}</span
+                    >
                   </span>
                 </template>
                 <span v-else class="clash-empty">{{
@@ -445,6 +451,17 @@
                 ↻ {{ rewarded ? 'PLAY FOR REWARDS' : 'REMATCH' }}
               </button>
               <button
+                v-if="selectedTap"
+                type="button"
+                class="clash-reset clash-tap"
+                data-testid="clash-tap"
+                :title="'Activate ' + selectedTap.title + ' instead of attacking this turn'"
+                :disabled="!canClashActivate(game, 'player', selectedTap.uid)"
+                @click="tapSelected"
+              >
+                ↷ TAP
+              </button>
+              <button
                 v-if="!game.victor"
                 type="button"
                 class="clash-reset clash-undo"
@@ -519,6 +536,8 @@ import {
   CLASH_LANES,
   applyClashCommand,
   canClashPower,
+  canClashActivate,
+  activateClash,
   clashOvercharged,
   clashPowers,
   clashPowerSpent,
@@ -547,6 +566,7 @@ import { bossQuip, type BossMood } from '~/utils/slimeCity/bossReactions'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
 import {
   clashEvolutionChoice,
+  clashEvolutionStage,
   type EvoPick,
 } from '~/utils/slimeCity/clashEvolutions'
 import { evoStageText } from '~/utils/slimeCity/evolutions/dsl'
@@ -878,6 +898,26 @@ const selectedCard = computed<Card | null>(() => {
     heldIndex.value === null ? null : game.value.hands.player[heldIndex.value]
   return id ? cardById(id) : null
 })
+/** The selected fighter's real on-demand ability, not a passive combat trigger. */
+function tapStage(u: ClashUnit) {
+  const current = clashEvolutionStage(u.cardId, u.level, u.evoChoice ?? 0)
+  return current?.abilities.some((ability) => ability.when === 'tap')
+    ? current
+    : undefined
+}
+const selectedTap = computed(() => {
+  const fighter = game.value.units.find(
+    (u) => u.uid === selectedUnit.value && u.side === 'player',
+  )
+  const stage = fighter && tapStage(fighter)
+  return fighter && stage ? { uid: fighter.uid, title: stage.title } : null
+})
+function tapSelected(): void {
+  if (!selectedTap.value) return
+  const next = activateClash(game.value, 'player', selectedTap.value.uid)
+  if (next === game.value) return
+  commit(next)
+}
 /** A held choose-one level three: its two options, and the one picked. */
 const evoPick = ref<EvoPick>(0)
 const choiceStages = computed(() =>
@@ -1142,7 +1182,10 @@ const undoAt = computed(() => {
   for (let i = s.commands.length - 1; i >= 0; i--) {
     const c = s.commands[i]!
     if (c.t === 'end' || c.t === 'pass' || c.t === 'strike') return -1
-    if (c.side === 'player' && (c.t === 'play' || c.t === 'power')) return i
+    if (
+      c.side === 'player' &&
+      (c.t === 'play' || c.t === 'power' || c.t === 'activate')
+    ) return i
   }
   return -1
 })

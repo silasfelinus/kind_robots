@@ -113,11 +113,11 @@ const artIds = [
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  814,
-  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10), plus the title key art and two re-rendered cards (2026-11-11), plus 17 journey epilogue plates (2026-11-12) and the Ironjaw journey-left redo (2026-11-14), plus 6 key journey scene plates (2026-11-14)',
+  824,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10), plus the title key art and two re-rendered cards (2026-11-11), plus 17 journey epilogue plates (2026-11-12) and the Ironjaw journey-left redo (2026-11-14), plus 16 key journey scene plates (2026-11-14)',
 )
 // 23 boss mood portraits (2026-11-11 PT) sit outside SLIME_CITY_ART_COUNT.
-assert.equal(artIds.length, 814 + 23)
+assert.equal(artIds.length, 824 + 23)
 // Boss reactions for the Clash versus console: every key is
 // '<crew>/<ready|hit|gloat|beaten>' for a real crew.
 for (const key of Object.keys(SLIME_CITY_ART.bosses)) {

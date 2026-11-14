@@ -9,6 +9,7 @@ import {
   type MusicVideoScene,
   type MusicVideoSection,
   type MusicVideoStatus,
+  type MusicVideoReviewVerdict,
 } from '@/utils/musicVideoDoc'
 import { briefHasGaps } from '@/utils/musicVideoBrief'
 import {
@@ -187,12 +188,12 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     error.value = null
   }
 
-  async function loadList(): Promise<void> {
+  async function loadList(series?: 'dead-air'): Promise<void> {
     loading.value = true
     clearError()
     try {
       const response = await performFetch<MusicVideoSummary[]>(
-        '/api/music-video',
+        series === 'dead-air' ? '/api/music-video?series=dead-air' : '/api/music-video',
         {},
         1,
         20_000,
@@ -748,6 +749,23 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     } finally {
       saving.value = false
     }
+  }
+
+  /** Store a private editor's verdict in the owned document, not a publication toggle. */
+  async function savePrivateReview(
+    verdict: MusicVideoReviewVerdict,
+    notes: string,
+  ): Promise<boolean> {
+    return patchDoc(
+      {
+        review: {
+          verdict,
+          notes: notes.trim().slice(0, 2000),
+          reviewedAt: new Date().toISOString(),
+        },
+      },
+      'Failed to save the private Dead Air review.',
+    )
   }
 
   /** Title, pitch and settings in one save (t-032: one brief panel). */
@@ -1374,6 +1392,7 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     create,
     uploadSong,
     saveSettings,
+    savePrivateReview,
     saveTimeline,
     assignKeyframes,
     writeLyrics,

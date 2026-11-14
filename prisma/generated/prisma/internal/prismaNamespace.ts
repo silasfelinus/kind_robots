@@ -535,6 +535,7 @@ export const ModelName = {
   HybridizerFusion: 'HybridizerFusion',
   SpaceCouchAlienGuide: 'SpaceCouchAlienGuide',
   SlimeCityAccount: 'SlimeCityAccount',
+  ZuzuGamebookSave: 'ZuzuGamebookSave',
   SlimeCityMatch: 'SlimeCityMatch',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
@@ -555,7 +556,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "spaceCouchAlienGuide" | "slimeCityAccount" | "slimeCityMatch" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "spaceCouchAlienGuide" | "slimeCityAccount" | "zuzuGamebookSave" | "slimeCityMatch" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -9667,6 +9668,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ZuzuGamebookSave: {
+      payload: Prisma.$ZuzuGamebookSavePayload<ExtArgs>
+      fields: Prisma.ZuzuGamebookSaveFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ZuzuGamebookSaveFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ZuzuGamebookSaveFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload>
+        }
+        findFirst: {
+          args: Prisma.ZuzuGamebookSaveFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ZuzuGamebookSaveFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload>
+        }
+        findMany: {
+          args: Prisma.ZuzuGamebookSaveFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload>[]
+        }
+        create: {
+          args: Prisma.ZuzuGamebookSaveCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload>
+        }
+        createMany: {
+          args: Prisma.ZuzuGamebookSaveCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ZuzuGamebookSaveDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload>
+        }
+        update: {
+          args: Prisma.ZuzuGamebookSaveUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload>
+        }
+        deleteMany: {
+          args: Prisma.ZuzuGamebookSaveDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ZuzuGamebookSaveUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ZuzuGamebookSaveUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ZuzuGamebookSavePayload>
+        }
+        aggregate: {
+          args: Prisma.ZuzuGamebookSaveAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateZuzuGamebookSave>
+        }
+        groupBy: {
+          args: Prisma.ZuzuGamebookSaveGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ZuzuGamebookSaveGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ZuzuGamebookSaveCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ZuzuGamebookSaveCountAggregateOutputType> | number
+        }
+      }
+    }
     SlimeCityMatch: {
       payload: Prisma.$SlimeCityMatchPayload<ExtArgs>
       fields: Prisma.SlimeCityMatchFieldRefs
@@ -12677,6 +12744,17 @@ export const SlimeCityAccountScalarFieldEnum = {
 export type SlimeCityAccountScalarFieldEnum = (typeof SlimeCityAccountScalarFieldEnum)[keyof typeof SlimeCityAccountScalarFieldEnum]
 
 
+export const ZuzuGamebookSaveScalarFieldEnum = {
+  userId: 'userId',
+  payload: 'payload',
+  revision: 'revision',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ZuzuGamebookSaveScalarFieldEnum = (typeof ZuzuGamebookSaveScalarFieldEnum)[keyof typeof ZuzuGamebookSaveScalarFieldEnum]
+
+
 export const SlimeCityMatchScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -14254,6 +14332,13 @@ export const HybridizerFusionOrderByRelevanceFieldEnum = {
 export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
 
 
+export const ZuzuGamebookSaveOrderByRelevanceFieldEnum = {
+  payload: 'payload'
+} as const
+
+export type ZuzuGamebookSaveOrderByRelevanceFieldEnum = (typeof ZuzuGamebookSaveOrderByRelevanceFieldEnum)[keyof typeof ZuzuGamebookSaveOrderByRelevanceFieldEnum]
+
+
 export const SlimeCityMatchOrderByRelevanceFieldEnum = {
   id: 'id',
   mode: 'mode',
@@ -15188,6 +15273,7 @@ export type GlobalOmitConfig = {
   hybridizerFusion?: Prisma.HybridizerFusionOmit
   spaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideOmit
   slimeCityAccount?: Prisma.SlimeCityAccountOmit
+  zuzuGamebookSave?: Prisma.ZuzuGamebookSaveOmit
   slimeCityMatch?: Prisma.SlimeCityMatchOmit
   siteStatDaily?: Prisma.SiteStatDailyOmit
   tzaddikCandidate?: Prisma.TzaddikCandidateOmit

@@ -1210,9 +1210,15 @@ export type SpaceCouchAlienGuide = Prisma.SpaceCouchAlienGuideModel
  */
 export type SlimeCityAccount = Prisma.SlimeCityAccountModel
 /**
- * Model SlimeCityMatch
+ * Model ZuzuGamebookSave
  * A match is issued by the server; replay and settlement are keyed to its
  * unique id and can only pay once. Stored inputs are audit evidence.
+ * * A private Zuzu Book One backup; one revisioned journey per signed-in user.
+ */
+export type ZuzuGamebookSave = Prisma.ZuzuGamebookSaveModel
+/**
+ * Model SlimeCityMatch
+ * 
  */
 export type SlimeCityMatch = Prisma.SlimeCityMatchModel
 /**

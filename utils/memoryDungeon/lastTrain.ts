@@ -156,12 +156,18 @@ export function replayTrainEncounters(
   verifiedEncounters: readonly VerifiedTrainEncounter[],
 ): TrainProgress {
   let progress = newTrainProgress()
+  // Expedition replay is chronological. Once the night-world e04 has been
+  // entered, a late e03 record cannot retroactively earn an earlier reward.
+  // Keep this boundary even if the caller accidentally passes mixed records.
+  let enteredNightWorld = false
   for (const encounter of verifiedEncounters) {
     if (
       !Object.hasOwn(sceneWorld, encounter.scene) ||
       sceneWorld[encounter.scene] !== encounter.world
     )
       continue
+    if (encounter.world === 'e03' && enteredNightWorld) continue
+    if (encounter.world === 'e04') enteredNightWorld = true
     progress = chooseTrain(progress, encounter.scene, encounter.choice)
   }
   return progress

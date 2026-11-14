@@ -45,6 +45,9 @@ jobs:
       - name: Tablet navigation audit contract
         run: node --test utils/scripts/auditTabletNavigation.test.mjs
 
+      - name: First-folder project URL contract
+        run: npx tsx utils/scripts/verifyFirstFolderAliases.test.ts
+
       - name: Solitaire engine contract
         run: npm run test:solitaire-engine
 

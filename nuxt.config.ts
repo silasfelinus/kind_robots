@@ -1,6 +1,8 @@
 // /nuxt.config.ts
+import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import { DEFAULT_STARTUP_ANIMATION_SRC } from './utils/startupAnimations'
+import { loadFirstFolderAliases } from './utils/routing/firstFolderAliases'
 
 const requireEnv = (key: string) => {
   const value = process.env[key]
@@ -375,6 +377,7 @@ export default defineNuxtConfig({
    * compatibility aliases, not temporary routing experiments.
    */
   routeRules: {
+    ...loadFirstFolderAliases(fileURLToPath(new URL('.', import.meta.url))),
     '/tzaddikim': { redirect: { to: '/tzaddik-gallery', statusCode: 302 } },
     '/memory': { redirect: { to: '/play/memory', statusCode: 301 } },
     '/wonderlab': { redirect: { to: '/plan', statusCode: 301 } },

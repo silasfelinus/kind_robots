@@ -104,6 +104,15 @@ assert.deepEqual(
 assert.deepEqual(decodeCastCollection({ version: 2, ids: ['ling'] }), [])
 assert.deepEqual(decodeCastCollection(['ling']), [])
 
+const firstCoyoteGift = {
+  ...beforeMeeting,
+  flags: [...beforeMeeting.flags, 'coyote-kindness'],
+}
+assert.deepEqual(newlyEncounteredCast(beforeMeeting, firstCoyoteGift), [
+  'coyote',
+])
+assert.deepEqual(newlyEncounteredCast(firstCoyoteGift, firstCoyoteGift), [])
+
 const page = readFileSync('pages/play/zuzu-gamebook.vue', 'utf8')
 const front = readFileSync(
   'components/zuzu-gamebook/zuzu-gamebook-front.vue',

@@ -105,6 +105,8 @@ export interface ClashUnit {
   attacked: boolean
   /** Landed this turn. */
   fresh: boolean
+  /** Last round this fighter activated its own tap ability. */
+  activatedRound?: number
   gear: string[]
   /** Authored equipment levels are recorded on the wearer, not the catalog. */
   gearLevels?: Record<string, number>
@@ -174,6 +176,8 @@ export type ClashCommand =
    * ALLIANCE ally's power; omitted, it is the side's own crew (the general).
    */
   | { t: 'power'; side: Side; lane: number; team?: TeamId }
+  /** Exhaust a ready fighter to activate its authored ability instead of striking. */
+  | { t: 'activate'; side: Side; uid: number }
 
 export type ClashFormat = 'standard' | 'alliance'
 export interface ClashOptions {
@@ -515,7 +519,7 @@ export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
       : evolvedText
   if (card.kind === 'creature')
     return [
-      ...(b.armor ? ['Armor: blocks 1 damage per hit.'] : []),
+      ...(b.armor ? ['Armor: blocks 1 per hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
       clashTwistText(card.id, level),
       clashEvolutionText(card, level, pick),
@@ -1548,6 +1552,48 @@ function unitEvo(
       self: u,
       target,
     })
+}
+
+/** A tap is an alternative to attacking, never an extra free fighter effect. */
+export function canClashActivate(
+  s: ClashState,
+  side: Side,
+  uid: number,
+): boolean {
+  if (s.victor || s.active !== side || s.phase !== 'play') return false
+  const unit = s.units.find((u) => u.uid === uid && u.side === side)
+  if (
+    !unit ||
+    unit.token ||
+    unit.hp <= 0 ||
+    unit.fresh ||
+    unit.rooted ||
+    unit.attacked ||
+    unit.activatedRound === s.round
+  )
+    return false
+  return evoStages(unit).some(({ st }) =>
+    st.abilities.some((ability) => ability.when === 'tap'),
+  )
+}
+
+/** Replayed by the same pure command engine as plays, powers and strikes. */
+export function activateClash(
+  input: ClashState,
+  side: Side,
+  uid: number,
+): ClashState {
+  if (!canClashActivate(input, side, uid)) return input
+  const s = structuredClone(input)
+  const unit = s.units.find((u) => u.uid === uid && u.side === side)!
+  unit.attacked = true
+  unit.activatedRound = s.round
+  note(s, nameOf(unit) + ' taps instead of attacking.', 'play', unit.lane)
+  unitEvo(s, unit, 'tap')
+  casualties(s)
+  checkWinner(s)
+  s.commands.push({ t: 'activate', side, uid })
+  return s
 }
 
 function casualties(s: ClashState): void {
@@ -2873,6 +2919,8 @@ export function applyClashCommand(
       return endClashTurn(s, command.side)
     case 'power':
       return useClashPower(s, command.side, command.lane, command.team)
+    case 'activate':
+      return activateClash(s, command.side, command.uid)
   }
 }
 export function replayClash(
@@ -3234,6 +3282,7 @@ function cpuEvolutionPayoff(
     strike: 0.45,
     death: 0.3,
     turnStart: 0.45,
+    tap: 0.35,
     roundEnd: 0.4,
   }
   const abilities = evolved.abilities.reduce(
@@ -3286,6 +3335,43 @@ export const CLASH_CPU_POWER_THRESHOLD = 7
 /** Baseline retained for paired, seed-and-seat-controlled CPU evaluations. */
 export type ClashCpuPolicy = 'baseline' | 'evolution-aware'
 
+/** A conservative estimate for the current tap decision, without advancing RNG. */
+function cpuTapPayoff(s: ClashState, u: ClashUnit, action: EvoAction): number {
+  const ctx: EvoContext = {
+    side: u.side,
+    lane: u.lane,
+    cardId: u.cardId,
+    level: u.level,
+    self: u,
+  }
+  switch (action.do) {
+    case 'if':
+      return evoCondition(s, ctx, action.cond)
+        ? action.then.reduce((value, a) => value + cpuTapPayoff(s, u, a), 0)
+        : 0
+    case 'heal':
+      return evoScope(s, ctx, action.to).reduce(
+        (value, target) => value + Math.min(action.n, target.maxHp - target.hp),
+        0,
+      )
+    case 'boss':
+      return action.n * 1.2
+    case 'mend':
+      return Math.min(action.n, clashBossCap(s, u.side) - s.boss[u.side])
+    case 'damage':
+      return evoScope(s, ctx, action.to).reduce(
+        (value, target) =>
+          value +
+          (target.side !== u.side ? Math.min(action.n, target.hp) : -action.n),
+        0,
+      )
+    case 'guard':
+      return evoScope(s, ctx, action.to).length * action.n * 0.5
+    default:
+      return 0
+  }
+}
+
 /** Deterministic CPU using public fighters + only its own hand. */
 export function chooseClashCpu(
   s: ClashState,
@@ -3313,6 +3399,28 @@ export function chooseClashCpu(
     return fire.team === s.teams[side]
       ? { t: 'power', side, lane: fire.lane }
       : { t: 'power', side, lane: fire.lane, team: fire.team }
+  // A ready fighter can do something useful instead of attacking.
+  // Judge the actual wounded targets and lane, not the ability's flavor text.
+  for (const fighter of s.units.filter((u) => u.side === side)) {
+    if (!canClashActivate(s, side, fighter.uid)) continue
+    const taps = evoStages(fighter).flatMap(({ st }) =>
+      st.abilities.filter((a) => a.when === 'tap'),
+    )
+    const gain = taps.reduce(
+      (value, ability) =>
+        value +
+        ability.do.reduce(
+          (sum, action) => sum + cpuTapPayoff(s, fighter, action),
+          0,
+        ),
+      0,
+    )
+    const strikeValue =
+      clashPower(s, fighter) *
+      (unitAt(s, opponent(side), fighter.lane) ? 0.65 : 0.9)
+    if (gain > Math.max(1.1, strikeValue))
+      return { t: 'activate', side, uid: fighter.uid }
+  }
   const foeSide = opponent(side)
   let best:
     { score: number; card: string; lane: number; choice?: 1 } | undefined

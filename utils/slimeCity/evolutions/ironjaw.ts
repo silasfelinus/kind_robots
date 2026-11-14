@@ -102,14 +102,21 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: keep its alley blocked to deny the leap; a big blocker
   // wins the bite.
   's2-ironjaw-foundry-lion': {
-    2: stage('Crane Arm Swipe', [on('hit', damage(1, 'adjacentFoes'))]),
+    2: stage('Crane Arm Swipe', [
+      on('hit', damage(1, 'adjacentFoes')),
+      on('tap', guard(2, 'adjacentAllies')),
+    ]),
     3: stage('Leap of the Last Crane', [
       on('enter', when('acrossEmpty', pounce())),
+      on('tap', guard(2, 'self')),
     ]),
     // Choose one: or clamp the crane jaws on the fighter across.
     // The CPU leaps whenever its alley is open.
     choice: {
-      stage: stage('Crane Jaws', [on('enter', duel('across'))]),
+      stage: stage('Crane Jaws', [
+        on('enter', duel('across')),
+        on('tap', guard(2, 'self')),
+      ]),
       cpu: 'acrossEmpty',
     },
   },

@@ -20,6 +20,8 @@ import {
   CLASH_SECOND_SEAT_BONUS,
   CLASH_TRAIT_TEXT,
   applyClashCommand,
+  activateClash,
+  canClashActivate,
   canClashPlay,
   chooseClashCpu,
   clashBalance,
@@ -2062,6 +2064,62 @@ assert.match(
   /object-fit:\s*contain\s*;/,
   'deployed fighters must show the complete card painting',
 )
+
+// Activated powers cost a fighter's entire strike, never a play slot.
+{
+  const seed = Array.from({ length: 400 }, (_, i) => i + 1).find((n) =>
+    createClash('catgirls', 'ironjaw', n).hands.player.includes('s1-alley-vet'),
+  )
+  assert.ok(seed, 'starter Catgirls deck can draw its L1 tap medic')
+  let s = createClash('catgirls', 'ironjaw', seed!)
+  s = playClash(s, 'player', 's1-alley-vet', 0)
+  const uid = s.units.find((u) => u.cardId === 's1-alley-vet')!.uid
+  assert.equal(
+    canClashActivate(s, 'player', uid),
+    false,
+    'fresh fighters must wait',
+  )
+  assert.equal(activateClash(s, 'player', uid), s, 'invalid tap is a no-op')
+  s = finishRound(s)
+  assert.equal(s.round, 2)
+  assert.ok(canClashActivate(s, 'player', uid))
+  assert.ok(
+    !canClashActivate(s, 'enemy', uid),
+    'other seat cannot tap our fighter',
+  )
+  const original = s
+  const tapped = activateClash(s, 'player', uid)
+  assert.notEqual(tapped, original)
+  assert.equal(original.units[0]!.attacked, false, 'input stays immutable')
+  assert.ok(tapped.units.find((u) => u.uid === uid)!.attacked)
+  assert.equal(tapped.units.find((u) => u.uid === uid)!.activatedRound, s.round)
+  assert.equal(tapped.plays.player, s.plays.player, 'taps use no card play')
+  assert.equal(
+    canClashActivate(tapped, 'player', uid),
+    false,
+    'one tap per turn',
+  )
+  assert.equal(
+    activateClash(tapped, 'player', uid),
+    tapped,
+    'double tap is illegal',
+  )
+  assert.equal(nextClashStrike(passClash(tapped, 'player'), 'player'), -1)
+  assert.ok(nextClashStrike(passClash(s, 'player'), 'player') >= 0)
+  assert.deepEqual(
+    applyClashCommand(s, { t: 'activate', side: 'player', uid }),
+    tapped,
+    'the public command uses the canonical reducer',
+  )
+  assert.deepEqual(
+    replayClash('catgirls', 'ironjaw', seed!, tapped.commands),
+    tapped,
+    'server replay reproduces the entire played-and-tapped turn',
+  )
+  const rooted = structuredClone(s)
+  rooted.units.find((u) => u.uid === uid)!.rooted = true
+  assert.equal(canClashActivate(rooted, 'player', uid), false)
+}
 
 // Long adversarial CPU playthroughs on every crew pairing, all rules and replay.
 let simulated = 0

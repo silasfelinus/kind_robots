@@ -479,6 +479,22 @@
               </button>
             </div>
             <button
+              v-for="fighter in tappableUnits"
+              :key="'tap-' + fighter.uid"
+              type="button"
+              class="scpvp-tap"
+              :disabled="pvp.sending"
+              :title="
+                'Spend ' +
+                cardById(fighter.cardId).name +
+                '’s attack to use its tap ability'
+              "
+              :data-testid="'slime-pvp-tap-' + fighter.uid"
+              @click="tapFighter(fighter.uid)"
+            >
+              ↷ TAP {{ cardById(fighter.cardId).name }}
+            </button>
+            <button
               v-if="pvp.isMyTurn && board.phase === 'play'"
               type="button"
               :aria-pressed="chosenPower"
@@ -538,7 +554,10 @@ import {
   type Side,
   type TeamId,
 } from '~/utils/slimeCity/prototypes'
-import { clashEvolutionChoice } from '~/utils/slimeCity/clashEvolutions'
+import {
+  clashEvolutionChoice,
+  clashEvolutionStage,
+} from '~/utils/slimeCity/clashEvolutions'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 
 const route = useRoute()
@@ -567,6 +586,23 @@ const choice = ref<0 | 1>(0)
 const copied = ref(false)
 const showLog = ref(false)
 const board = computed(() => pvp.duel?.board ?? null)
+const tappableUnits = computed(() => {
+  if (!pvp.isMyTurn || board.value?.phase !== 'play') return []
+  return board.value.units.filter(
+    (u) =>
+      u.side === pvp.duel?.seat &&
+      !u.token &&
+      !u.fresh &&
+      !u.rooted &&
+      !u.attacked &&
+      u.activatedRound !== board.value!.round &&
+      !!clashEvolutionStage(
+        u.cardId,
+        u.level,
+        u.evoChoice ?? 0,
+      )?.abilities.some((ability) => ability.when === 'tap'),
+  )
+})
 const lineup = computed<Side[]>(() =>
   pvp.duel?.seat === 'enemy' ? ['player', 'enemy'] : ['enemy', 'player'],
 )
@@ -678,6 +714,12 @@ async function playLane(lane: number) {
       })
     )
       selectedCard.value = null
+  }
+}
+async function tapFighter(uid: number) {
+  if (await pvp.send({ t: 'activate', uid })) {
+    selectedCard.value = null
+    chosenPower.value = false
   }
 }
 async function advance() {

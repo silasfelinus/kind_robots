@@ -146,6 +146,7 @@ const SHAPES: Record<string, (c: Record<string, unknown>) => boolean> = {
   power: (c) =>
     Number.isSafeInteger(c.lane) &&
     (c.team === undefined || typeof c.team === 'string'),
+  activate: (c) => Number.isSafeInteger(c.uid) && Number(c.uid) > 0,
   pass: () => true,
   strike: () => true,
   end: () => true,

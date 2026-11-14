@@ -114,6 +114,32 @@ export function clashSpectacle(
       detail,
     }
   }
+  if (command.t === 'activate') {
+    const fighter = before.units.find((u) => u.uid === command.uid)
+    if (!fighter) return null
+    const card = cardById(fighter.cardId)
+    const stage = clashEvolutionStage(
+      card.id,
+      fighter.level,
+      fighter.evoChoice ?? 0,
+    )
+    const effect =
+      after.lastEvolution?.commandIndex === after.commands.length
+        ? after.lastEvolution.effect
+        : 'control'
+    return {
+      kind: 'power',
+      effect,
+      grade: fighter.level === 3 ? 'legend' : 'feature',
+      side: command.side,
+      lane: fighter.lane,
+      crew: card.team,
+      cardId: card.id,
+      eyebrow: 'TAP ABILITY · STRIKE SPENT',
+      title: stage?.title ?? card.name,
+      detail: card.name + ' chooses a power instead of attacking.',
+    }
+  }
   if (command.t === 'power') {
     const crew = command.team ?? before.teams[command.side]
     const power = factionPower(crew)

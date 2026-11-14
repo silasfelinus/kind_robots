@@ -23,6 +23,7 @@ export type EvoTrigger =
   | 'death'
   | 'roundEnd'
   | 'turnStart'
+  | 'tap'
   | 'spring'
 
 /** Who an action touches, relative to the source's side and alley. */
@@ -108,6 +109,7 @@ export type EvoCondition =
 export interface EvoAbility {
   when: EvoTrigger
   do: EvoAction[]
+  /** Tap is a chosen, once-per-own-turn action that spends the fighter's strike. */
   /** Fires at most once per fighter (or once per cast). */
   once?: boolean
 }
@@ -421,6 +423,7 @@ const WHEN: Record<EvoTrigger, string> = {
   death: 'Last breath',
   roundEnd: 'Round end',
   turnStart: 'Turn start',
+  tap: 'Tap (skip strike)',
   spring: 'Sprung',
 }
 type Kind = 'creature' | 'spell' | 'trap' | 'equipment'

@@ -31,8 +31,14 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: armor blocks the audit's 1 entirely; its body stays small,
   // so trade a cheap fighter into it before the interest compounds.
   'audit-fiend': {
-    2: stage('The Flesh Ledger Opens', [on('hit', sharpen(1, 'self'))]),
-    3: stage('The Choir of Unpaid Bones', [on('enter', damage(1, 'allFoes'))]),
+    2: stage('The Flesh Ledger Opens', [
+      on('hit', sharpen(1, 'self')),
+      on('tap', boss(1)),
+    ]),
+    3: stage('The Choir of Unpaid Bones', [
+      on('enter', damage(1, 'allFoes')),
+      on('tap', boss(2)),
+    ]),
   },
   // Arc: a delayed payment -> the payment holiday banks a little interest
   // while the debtor is frozen -> the offer expires: a heavy debtor owes the

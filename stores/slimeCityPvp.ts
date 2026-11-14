@@ -13,6 +13,7 @@ import type { TeamId } from '~/utils/slimeCity/prototypes'
 export type PvpInput =
   | { t: 'play'; card: string; lane: number; choice?: 1 }
   | { t: 'power'; lane: number; team?: TeamId }
+  | { t: 'activate'; uid: number }
   | { t: 'pass' | 'strike' | 'end' }
 
 /** A player the VS hub can challenge or invite. */

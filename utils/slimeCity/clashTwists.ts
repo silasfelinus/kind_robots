@@ -6,14 +6,14 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Never attacks. Mends adjacent allies for 2 each full round.',
   ],
   chimera: [
-    'Unstable prototype: weak now, terrifying later.',
-    'Rebuilt for the next hunt.',
-    'Apex: +2 attack and +3 life.',
+    'Starts with 1 attack; its AMBUSH and REGEN keep it dangerous.',
+    'A rebuilt hunter with AMBUSH and REGEN; no extra triggered ability.',
+    'Apex form: +2 attack and +3 life; retains AMBUSH and REGEN.',
   ],
   sprite: [
     'The first dancer in a potential crowd.',
     'On entry, adds a weak dancer to one empty neighboring alley.',
-    'Adds dancers to both empty neighboring alleys.',
+    'On arrival, summon a weak dancer in each empty neighboring alley.',
   ],
   queen: [
     'The crowd makes the queen stronger.',
@@ -26,14 +26,14 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Mends adjacent friends for 2 life after each full round.',
   ],
   juggernaut: [
-    'Rusty chassis: barely punches until rebuilt.',
-    'The pistons wake up with a serious strike.',
-    'Siege mode: extra attack and armor for adjacent friends on entry.',
+    'Starts at 1 attack; armor lets this siege lizard hold the alley.',
+    'Rebuilt pistons give this armored fighter its full strike.',
+    'Siege form: +2 attack; on arrival, adjacent allies gain +1 armor.',
   ],
   rat: [
     'Every knockout adds +1 attack to later copies, up to +3.',
-    'Returns harder after each knockout; detonates when it falls.',
-    'On defeat, blasts neighboring enemies for 2.',
+    'Each prior Riot Rat death adds +1 attack (max +3). Explodes on defeat.',
+    'Each prior Riot Rat death adds +1 attack (max +3); death blasts adjacent foes for 2.',
   ],
   firebrand: [
     'Its fuse burns predictably. For now.',
@@ -41,24 +41,24 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'On attack, 25% chance to miss; otherwise double the strike.',
   ],
   watcher: [
-    'Low-profile lookout with a sharp eye.',
-    'Reduces a rival strike in its own alley by 1.',
-    'Never attacks. Reduces rival power across three alleys by 1.',
+    'A lookout without its suppressing aura at this level.',
+    'While present, the rival across its alley loses 1 strike power.',
+    'Never attacks. Rivals across its alley and both neighbors lose 1 strike power.',
   ],
   frogtrooper: [
     'Tongue snare interrupts a rival.',
     'Gains +1 strike power versus a rooted defender.',
-    'A damaging strike also roots nearby rival fighters.',
+    'On a damaging strike, stun rival fighters in adjacent alleys.',
   ],
   broker: [
-    'Makes a fair offer. Allegedly.',
-    'Replace a friendly fighter to inherit +2 attack and 2 life.',
-    'Replace a friendly fighter to inherit +3 attack and 4 life.',
+    'A collector with no buyout bonus at this level.',
+    'When replacing an allied fighter, kill it and gain +2 attack and +2 life.',
+    'When replacing an allied fighter, kill it and gain +3 attack and +4 life.',
   ],
   collector: [
-    'Starts a ledger every time a fighter falls.',
-    'Gains +1 attack whenever a rival fighter falls, up to 10.',
-    'Gains +1 attack and heals 1 whenever a rival fighter falls.',
+    'An apprentice collector with no death-triggered bonus yet.',
+    'Whenever a rival fighter dies, gain +1 attack (max 10).',
+    'Whenever a rival fighter dies, gain +1 attack (max 10) and heal 1.',
   ],
   'merc-roof-dentist': [
     'Sturdy medic with questionable certification.',
@@ -68,7 +68,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   'merc-smog-moth': [
     'Tiny flyer with a giant invitation list.',
     'On entry, adds a weak courier to an empty neighboring alley.',
-    'On entry, adds weak couriers to both empty neighboring alleys.',
+    'On arrival, summon a weak courier in each empty neighboring alley.',
   ],
   'merc-union-owl': [
     'Organizes one lonely shift.',
@@ -82,19 +82,19 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Calls a weak decoy into a free neighboring alley on arrival.',
   ],
   pounce: [
-    "Refresh the target fighter's Ambush strike.",
-    'Also refresh and give +1 power this round to one adjacent friend.',
-    'Both adjacent friends gain +2 power this round and refresh Ambush.',
+    'Boost a fighter\'s power this round and refresh its AMBUSH strike.',
+    'Boost target and refresh AMBUSH; one adjacent ally gains +1 power and refreshes AMBUSH.',
+    'Boost target; both adjacent allies gain +2 power this round and refresh AMBUSH.',
   ],
   reknit: [
-    'Heal a fighter.',
-    'Heal the target and wounded neighboring friends for 2 extra life.',
-    'Also revive a fallen friendly fighter as a frail echo in a free alley.',
+    'Heal one chosen friendly fighter.',
+    'Heal a friendly fighter and restore 2 life to its wounded neighbors.',
+    'Heal the target and adjacent allies for 2; revive the last fallen ally as a fragile echo.',
   ],
   laser: [
-    'Stun one rival fighter.',
-    'Also stuns one adjacent rival.',
-    'Stuns both adjacent rivals as the laser dances across three alleys.',
+    'Stun one rival fighter in the chosen alley.',
+    'Stun a rival and one adjacent rival; deal 1 damage to the main target.',
+    'Stun a rival and both adjacent rivals; deal 2 damage to the main target.',
   ],
   pogo: [
     'A crowd-surfer who lands harder with friends.',
@@ -103,13 +103,13 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   razor: [
     'A duelist who heals from a hit.',
-    'Damaging a rival also heals neighboring friends for 1.',
-    'Every friendly fighter heals 1 whenever Razorwing lands a hit.',
+    'When Razorwing damages a rival, heal adjacent allies for 1 life.',
+    'When Razorwing damages a rival, heal every friendly fighter for 1 life.',
   ],
   mosh: [
-    'Blast a rival and its neighbors.',
-    'The mosh reaches two alleys away for 1 more damage.',
-    'An entire enemy row takes 1 more; friendly fighters take 1 too.',
+    'Damage one rival and the enemies in adjacent alleys.',
+    'Damage target and adjacent rivals; deal 1 to foes two alleys away.',
+    'Damage the whole rival row; friendly fighters also take 1.',
   ],
   scrapper: [
     'Reliable armored brawler.',
@@ -119,7 +119,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   bulldozer: [
     'Overkill smashes through to the rival boss.',
     'Ignores one extra armor on a blocked strike.',
-    'A hit against a blocker also shakes 2 life from the rival boss.',
+    'A strike that damages a blocker also deals 2 to the rival boss.',
   ],
   plating: [
     'One fighter gains permanent armor.',
@@ -128,8 +128,8 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   bomber: [
     'Explodes when defeated.',
-    'Also blasts neighboring rivals for 2 on defeat.',
-    'On defeat, hits every rival fighter for 2 and nearby friends for 1.',
+    'On defeat, explode and deal 2 to rivals in adjacent alleys.',
+    'On defeat, deal 2 to all rivals and 1 to adjacent allies.',
   ],
   kaboom: [
     'A heavy piercing fighter.',
@@ -138,8 +138,8 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   confetti: [
     'Blast a rival and its neighboring enemies.',
-    'Also hits neighboring friends for 1, and rivals beside the target for 2.',
-    'Fireworks across every alley: 2 to all other enemies, 1 to friends.',
+    'Blast a rival and neighboring foes for 2; friendly neighbors take 1.',
+    'Blast the whole rival row; distant foes take 2 and your adjacent allies take 1.',
   ],
   eel: [
     'Pierces the rival armor.',

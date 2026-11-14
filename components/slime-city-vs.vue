@@ -67,9 +67,40 @@
               : 'Sign in to earn XP and Meat from CPU wins.'
           }}
         </p>
+        <div
+          v-if="lab.vsBout"
+          class="vs-resume"
+          data-testid="slime-vs-resume-panel"
+        >
+          <p class="vs-note">
+            Unfinished match vs {{ teamName(lab.vsBout.launch.enemy) }} ·
+            {{ lab.vsBout.launch.format === 'alliance' ? 'ALLIANCE' : 'SOLO' }}
+            · {{ lab.vsBout.commands.length }} moves in
+          </p>
+          <div class="vs-resume-row">
+            <button
+              type="button"
+              class="vs-go"
+              data-testid="slime-vs-resume-cpu"
+              :disabled="lab.progressBusy"
+              @click="lab.resumeVsBout()"
+            >
+              RESUME MATCH ›
+            </button>
+            <button
+              type="button"
+              class="vs-go is-quiet"
+              data-testid="slime-vs-forget-cpu"
+              @click="lab.forgetVsBout()"
+            >
+              ABANDON
+            </button>
+          </div>
+        </div>
         <button
           type="button"
           class="vs-go"
+          :class="{ 'is-quiet': lab.vsBout }"
           data-testid="slime-vs-fight-cpu"
           :disabled="lab.progressBusy"
           @click="lab.playClashFormat()"
@@ -337,7 +368,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { useSlimeCityPvpStore } from '~/stores/slimeCityPvp'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
@@ -459,7 +490,14 @@ async function findOrInvite(): Promise<void> {
 async function addFriend(userId: number): Promise<void> {
   if (await pvp.addFriend(userId)) requested.value.push(userId)
 }
+// Sign-in can land after mount; the saved match belongs to one account.
+watch(
+  () => [lab.progressLoaded, lab.storyLoaded],
+  () => lab.hydrateVsBout(),
+)
 onMounted(() => {
+  // An unfinished CPU match on this device can be picked up after a reload.
+  lab.hydrateVsBout()
   pvp.error = ''
   void pvp.loadGames()
   void pvp.loadFriends()
@@ -889,6 +927,20 @@ onMounted(() => {
   font-weight: 950;
   letter-spacing: 0.08em;
   color: #6fd3ff;
+}
+.vs-resume {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: auto;
+}
+.vs-resume-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.vs-resume-row .vs-go {
+  margin-top: 0;
+  flex: 1 1 8rem;
 }
 .vs-go.is-quiet {
   background: #24383b;

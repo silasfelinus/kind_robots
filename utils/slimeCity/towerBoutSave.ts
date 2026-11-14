@@ -40,7 +40,8 @@ const team = (id: unknown): id is TeamId =>
   typeof id === 'string' && TEAMS.some((t) => t.id === id)
 const side = (s: unknown): s is Side => s === 'player' || s === 'enemy'
 
-function validCommand(raw: unknown): raw is ClashCommand {
+/** One Clash command as it may be stored on this device. */
+export function validClashCommand(raw: unknown): raw is ClashCommand {
   if (!record(raw) || !side(raw.side)) return false
   switch (raw.t) {
     case 'pass':
@@ -85,7 +86,7 @@ export function validTowerBout(raw: unknown): raw is TowerBoutSave {
         uint(launch.bosses.enemy, 1000))) &&
     Array.isArray(raw.commands) &&
     raw.commands.length <= TOWER_BOUT_MAX_COMMANDS &&
-    raw.commands.every(validCommand)
+    raw.commands.every(validClashCommand)
   )
 }
 

@@ -608,7 +608,7 @@ const sides: Side[] = ['enemy', 'player']
 let dealtSetup = lab.clashSetup()
 function dealt(): ClashState {
   dealtSetup = lab.clashSetup()
-  // A resumed Tower fight replays its saved moves onto the same deal.
+  // A resumed Tower or VS fight replays its saved moves onto the same deal.
   const resume = lab.clashLaunch.resume
   if (resume?.length) {
     try {
@@ -884,7 +884,7 @@ watch(
 // Each Tower move is kept on this device so a reload resumes the fight.
 watch(
   () => game.value.commands.length,
-  () => lab.recordTowerCommands(dealtLaunch, game.value.commands),
+  () => lab.recordClashCommands(dealtLaunch, game.value.commands),
 )
 // Every finished match reports to the store once: City, Story or rewards.
 watch(

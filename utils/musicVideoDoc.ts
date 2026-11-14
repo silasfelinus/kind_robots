@@ -688,7 +688,7 @@ export function normalizeMusicVideoDoc(raw: unknown): MusicVideoDocResult {
       )
       const reviewedAt = text(input.review.reviewedAt, 40)
       if (!verdict) errors.push('Unknown private film review verdict.')
-      if (!/^\\d{4}-\\d{2}-\\d{2}T/.test(reviewedAt) ||
+      if (!/^\d{4}-\d{2}-\d{2}T/.test(reviewedAt) ||
           Number.isNaN(Date.parse(reviewedAt))) {
         errors.push('Private film review needs a valid timestamp.')
       }
@@ -712,7 +712,7 @@ export function normalizeMusicVideoDoc(raw: unknown): MusicVideoDocResult {
       timeline,
       scenes,
       ...(review ? { review } : {}),
-    }
+    },
     errors,
   }
 }

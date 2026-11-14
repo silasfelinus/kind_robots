@@ -171,7 +171,9 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (the clone needs a fallen ally). Counterplay:
   // keep the crew alive and the vat stays empty; the clone is small.
   's1-clone-salvage': {
-    2: stage('Spare Parts Bin', [on('enter', life(2, 'target'))]),
+    2: stage('Spare Parts Bin', [
+      on('enter', when('allyFell', summon('nearest', 1, 2))),
+    ]),
     3: stage('Clone Vat', [
       on('enter', when('allyFell', summon('nearest', 2, 3, ['regen']))),
     ]),
@@ -202,7 +204,10 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (a heal that becomes a strike). Counterplay:
   // leave the alley across empty and the husk hits nothing.
   's2-catgirls-emergency-molt': {
-    2: stage('Tougher Hide', [on('enter', armor(1, 'target'))]),
+    2: stage('Tougher Hide', [
+      on('enter', armor(1, 'target')),
+      on('hit', heal(1, 'woundedAlly')),
+    ]),
     3: stage('Husk Burst', [
       on('enter', armor(1, 'target'), damage(3, 'across')),
     ]),
@@ -326,8 +331,14 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (a slow 2-play that turns wide). Counterplay:
   // regen is slow; focused damage still kills.
   's3-catgirls-spare-lives': {
-    2: stage('Shared Graft', [on('enter', grant('regen', 'adjacentAllies'))]),
-    3: stage('Lives for Everyone', [on('enter', life(2, 'allies'))]),
+    2: stage('Shared Graft', [
+      on('enter', grant('regen', 'adjacentAllies')),
+      on('tap', heal(1, 'woundedAlly')),
+    ]),
+    3: stage('Lives for Everyone', [
+      on('enter', rescue('adjacentAllies')),
+      on('tap', heal(2, 'woundedAlly')),
+    ]),
   },
   // Arc: a surgical thread -> it stitches the victim to the street -> the
   // alley sewn shut with a barricade of sutures.

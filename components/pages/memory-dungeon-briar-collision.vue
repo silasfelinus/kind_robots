@@ -55,14 +55,16 @@
       <div
         class="kr-scroll flex min-h-0 flex-col justify-center overflow-y-auto rounded-xl border border-[#c49c71]/40 bg-[#26343a] p-4"
       >
-        <h3 class="text-xl font-black">Rowan notices the staircase is lying.</h3>
+        <h3 class="text-xl font-black">
+          Rowan notices the staircase is lying.
+        </h3>
         <p class="mt-3 text-sm leading-relaxed">
           A research office has grown through the House That Remembers. Salt
           water fills the wolf road, and the people inside are being asked to
           surrender their names for a safe exit. Rowan recognizes three
           conflicting maps of the same building. Pip knows the old courier
-          oaths, but Rowan must decide whose testimony to trust and how to
-          bring the people inside home.
+          oaths, but Rowan must decide whose testimony to trust and how to bring
+          the people inside home.
         </p>
         <p class="mt-3 text-sm leading-relaxed">
           Commit to this crossing to begin the next journey. The two displaced
@@ -226,8 +228,8 @@
             class="mt-3 rounded-xl border border-[#e9c48c]/60 bg-[#514336] p-3"
           >
             <p class="mb-2 text-sm">
-              Both displaced memories are recovered. Rowan can keep investigating
-              with Pip or carry their choices into Morrow's city.
+              Both displaced memories are recovered. Rowan can keep
+              investigating with Pip or carry their choices into Morrow's city.
             </p>
             <button
               type="button"
@@ -239,7 +241,8 @@
             </button>
           </div>
           <p v-if="collision.completed" class="mt-2 text-sm text-[#bde3cb]">
-            Rowan's crossing, with Pip's testimony, is preserved in the campaign Chronicle.
+            Rowan's crossing, with Pip's testimony, is preserved in the campaign
+            Chronicle.
           </p>
         </div>
         <memory-dungeon-choice-hand

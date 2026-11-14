@@ -94,8 +94,8 @@
         >
           <h2 class="sc-settings-heading">GAME SETTINGS</h2>
           <p>
-            Choose how the next Clash starts. Your choice is remembered on
-            this device. Your current fight is not affected.
+            Choose how the next Clash starts. Your choice is remembered on this
+            device. Your current fight is not affected.
           </p>
           <fieldset>
             <legend>DEFAULT CLASH DECK</legend>

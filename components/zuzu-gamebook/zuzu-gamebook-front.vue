@@ -147,22 +147,16 @@
           <button
             type="button"
             class="btn btn-outline btn-sm mt-3 text-error"
-            :disabled="
-              store.accountStatus === 'checking' ||
-              store.accountStatus === 'conflict'
-            "
+            :disabled="!store.canResetProgress()"
             @click="emit('reset-progress')"
           >
             Erase gamebook progress
           </button>
           <p
-            v-if="
-              store.accountStatus === 'checking' ||
-              store.accountStatus === 'conflict'
-            "
+            v-if="!store.canResetProgress()"
             class="mt-1 text-xs opacity-70"
           >
-            Resolve the account save before clearing this book.
+            Resolve your account save or reconnect before clearing this book.
           </p>
         </div>
       </template>

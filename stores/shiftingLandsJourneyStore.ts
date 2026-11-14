@@ -53,7 +53,14 @@ import {
 } from '~/utils/shiftingLands/deckV6'
 import { authoredEndingV6 } from '~/utils/shiftingLands/endingsV6'
 import { authoredEndingV7 } from '~/utils/shiftingLands/endingsV7'
-import { sharedEndingPlate } from '~/utils/shiftingLands/endingPlates'
+import {
+  emptySharedEndingsRecord,
+  readSharedEndingsRecord,
+  sharedEndingId,
+  sharedEndingPlate,
+  sharedScrapbook,
+  withSharedEnding,
+} from '~/utils/shiftingLands/endingPlates'
 import { worldEchoesV7 } from '~/utils/shiftingLands/worldEchoesV7'
 import { kitchenNoviceQuestEchoesV8 } from '~/utils/shiftingLands/followerEchoesV8'
 import {
@@ -139,6 +146,9 @@ const LEGACY_SAVE_KEY = 'kr.shiftingLands.authoredJourney.v2'
 // t-053: each premade's own endings found, across every journey, for the
 // scrapbook. Separate from the journey save, so a new journey never clears it.
 const PERSONAL_ENDINGS_KEY = 'kr.shiftingLands.personalEndings.v1'
+// Every shared ending this player has reached, across every journey, for the
+// scrapbook. Kept apart from the journey save like the personal record.
+const SHARED_ENDINGS_KEY = 'kr.shiftingLands.sharedEndings.v1'
 
 export type JourneyResult = Omit<AuthoredResult, 'roll'> & {
   roll: AuthoredResult['roll'] | null
@@ -449,6 +459,34 @@ export const useShiftingLandsJourneyStore = defineStore(
         // The record is a keepsake: losing a write never blocks the journey.
       }
     }
+    // The scrapbook record of every shared ending reached so far.
+    const sharedEndingsFound = ref(emptySharedEndingsRecord())
+    const sharedScrapbookPage = computed(() =>
+      sharedScrapbook(sharedEndingsFound.value),
+    )
+    // Endings found across the whole scrapbook: every traveler's own, then
+    // the shared ones.
+    const scrapbookTotals = computed(() => {
+      const pages = [...personalScrapbookPages.value, sharedScrapbookPage.value]
+      return {
+        found: pages.reduce((sum, page) => sum + page.found, 0),
+        total: pages.reduce((sum, page) => sum + page.total, 0),
+      }
+    })
+    function noteSharedEnding() {
+      if (!finished.value) return
+      const found = sharedEndingId(sharedEnding.value?.title)
+      if (!found) return
+      const next = withSharedEnding(sharedEndingsFound.value, found)
+      if (next === sharedEndingsFound.value) return
+      sharedEndingsFound.value = next
+      if (!import.meta.client) return
+      try {
+        window.localStorage.setItem(SHARED_ENDINGS_KEY, JSON.stringify(next))
+      } catch {
+        // The record is a keepsake: losing a write never blocks the journey.
+      }
+    }
     const canTrial = (choiceId: string): boolean => {
       const choice = currentTrial.value?.choices.find(
         (item) => item.id === choiceId,
@@ -525,12 +563,20 @@ export const useShiftingLandsJourneyStore = defineStore(
         personalEndingsFound.value = emptyPersonalEndingsRecord()
       }
       try {
+        const found = window.localStorage.getItem(SHARED_ENDINGS_KEY)
+        if (found !== null)
+          sharedEndingsFound.value = readSharedEndingsRecord(JSON.parse(found))
+      } catch {
+        sharedEndingsFound.value = emptySharedEndingsRecord()
+      }
+      try {
         const saved = window.localStorage.getItem(SAVE_KEY)
         if (saved !== null) {
           const restored = restoreJourneyLedgerV10(JSON.parse(saved))
           if (restored) {
             ledger.value = restored
             notePersonalEnding()
+            noteSharedEnding()
           } else restoreWarning.value = true
           return
         }
@@ -664,6 +710,7 @@ export const useShiftingLandsJourneyStore = defineStore(
       ledger.value = next
       restoreWarning.value = false
       notePersonalEnding()
+      noteSharedEnding()
       persist()
       awardJourneyDeeds(active, next, action)
       return true
@@ -743,6 +790,8 @@ export const useShiftingLandsJourneyStore = defineStore(
       endingPlate,
       personalScrapbookPages,
       personalScrapbookPage,
+      sharedScrapbookPage,
+      scrapbookTotals,
       state,
       character,
       skills,

@@ -13,14 +13,18 @@
           class="flex min-w-0 flex-1 items-baseline gap-1.5 font-serif text-sm font-black @3xl:text-base"
           :title="`Land ${game.state.landIndex + 1} of 5: ${game.currentLand.name}`"
         >
-          <span class="shrink-0 whitespace-nowrap text-warning"
-            >{{ game.state.landIndex + 1 }}/5</span
-          >
-          <span class="sr-only truncate @xl:not-sr-only">{{
-            game.currentLand.name
-          }}</span>
+          <span v-if="boardCovered" class="truncate">Shifting Lands</span>
+          <template v-else>
+            <span class="shrink-0 whitespace-nowrap text-warning"
+              >{{ game.state.landIndex + 1 }}/5</span
+            >
+            <span class="sr-only truncate @xl:not-sr-only">{{
+              game.currentLand.name
+            }}</span>
+          </template>
         </p>
         <nav
+          v-show="!boardCovered"
           class="flex min-w-0 shrink gap-1 overflow-x-auto overscroll-x-contain rounded-xl bg-base-200/80 p-0.5 [scrollbar-width:none]"
           role="tablist"
           aria-label="Journey views"
@@ -53,6 +57,7 @@
         </nav>
         <div class="flex shrink-0 items-center gap-1.5">
           <button
+            v-show="!boardCovered"
             type="button"
             class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
             :aria-label="
@@ -68,6 +73,7 @@
             {{ game.characterSheet.hp }}/{{ game.characterSheet.maxHp }}
           </button>
           <button
+            v-show="!boardCovered"
             type="button"
             class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
             :aria-label="
@@ -89,6 +95,24 @@
             <div
               class="dropdown-content z-30 mt-2 w-64 space-y-2 rounded-2xl border border-base-content/15 bg-base-100 p-3 shadow-2xl"
             >
+              <button
+                type="button"
+                class="btn btn-outline btn-sm w-full"
+                data-testid="shifting-lands-title-menu"
+                @click="showTitle"
+              >
+                <Icon name="kind-icon:home" class="size-4" />
+                Title screen
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-sm w-full"
+                data-testid="shifting-lands-scrapbook-menu"
+                @click="openScrapbook"
+              >
+                <Icon name="kind-icon:gallery" class="size-4" />
+                Scrapbook
+              </button>
               <NuxtLink
                 to="/admin/worlds/zuzu"
                 class="btn btn-outline btn-sm w-full"
@@ -190,14 +214,23 @@
         </button>
       </div>
 
+      <ShiftingLandsScrapbook v-if="scrapbookOpen" @close="closeScrapbook" />
+      <ShiftingLandsTitle
+        v-else-if="titleOpen"
+        @continue="titleOpen = false"
+        @new-journey="newJourneyFromTitle"
+        @scrapbook="openScrapbook"
+        @achievements="openAchievements"
+      />
       <ShiftingLandsCharacterCreator
         v-if="creatorOpen || game.needsCharacter"
+        v-show="!boardCovered"
         :current="game.character"
         :can-cancel="!game.needsCharacter"
         @start="beginJourneyAs"
         @cancel="creatorOpen = false"
       />
-      <div v-else class="kr-panes journey-layout gap-2">
+      <div v-else v-show="!boardCovered" class="kr-panes journey-layout gap-2">
         <section
           class="kr-pane relative isolate rounded-3xl border border-base-content/15 bg-base-300 shadow-2xl"
           :class="tab === 'road' ? '' : 'journey-hidden-narrow'"
@@ -1488,6 +1521,8 @@ import type { V6Choice } from '~/utils/shiftingLands/deckV6'
 import { trialSuccessPercent } from '~/utils/shiftingLands/trialOdds'
 import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
 import ShiftingLandsCharacterCreator from '~/components/shifting-lands-character-creator.vue'
+import ShiftingLandsTitle from '~/components/shifting-lands-title.vue'
+import ShiftingLandsScrapbook from '~/components/shifting-lands-scrapbook.vue'
 import {
   characterPortrait,
   type ShiftingCharacter,
@@ -1536,6 +1571,10 @@ const travelsLabel = computed(() =>
     : `${game.character.name}'s travels`,
 )
 const creatorOpen = ref(false)
+// Each visit opens on the title console; it is never saved.
+const titleOpen = ref(true)
+const scrapbookOpen = ref(false)
+const boardCovered = computed(() => titleOpen.value || scrapbookOpen.value)
 const sideTab = computed<JourneyTab>(() =>
   tab.value === 'road' ? 'zuzu' : tab.value,
 )
@@ -1801,6 +1840,41 @@ function askNewJourney() {
   if (menu.value) menu.value.open = false
   confirmNew.value = true
 }
+function showTitle() {
+  if (menu.value) menu.value.open = false
+  scrapbookOpen.value = false
+  titleOpen.value = true
+}
+function openScrapbook() {
+  if (menu.value) menu.value.open = false
+  scrapbookOpen.value = true
+}
+function closeScrapbook() {
+  scrapbookOpen.value = false
+}
+function newJourneyFromTitle() {
+  if (game.needsCharacter) {
+    titleOpen.value = false
+    creatorOpen.value = true
+  } else askNewJourney()
+}
+// The road's achievements live in the character sheet's strip.
+async function openAchievements() {
+  titleOpen.value = false
+  scrapbookOpen.value = false
+  tab.value = 'zuzu'
+  await nextTick()
+  const strip = shell.value?.querySelector<HTMLDetailsElement>(
+    '[data-testid="shifting-lands-achievements"]',
+  )
+  if (!strip) {
+    await navigateTo('/achievements?section=zuzu')
+    return
+  }
+  strip.open = true
+  strip.scrollIntoView({ block: 'nearest' })
+  strip.querySelector('summary')?.focus()
+}
 async function zoomIntoEncounter() {
   roadPeek.value = false
   tab.value = 'road'
@@ -1919,6 +1993,8 @@ function inspectLastDiscard() {
 }
 function startOver() {
   confirmNew.value = false
+  titleOpen.value = false
+  scrapbookOpen.value = false
   creatorOpen.value = true
 }
 function beginJourneyAs(traveler: ShiftingCharacter) {

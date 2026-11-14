@@ -97,6 +97,33 @@ assert.ok(remembered.startsWith(finale.opening))
 assert.ok(remembered.includes('Jun’s letter is still sealed'))
 assert.ok(remembered.includes('the Sleeping One'))
 
+// The finale reads actual choice flags after save/restore, not merely static text.
+for (const choiceId of ['care', 'risk'] as const) {
+  let progress = newOverworldEventProgress('e03')
+  progress = revealOverworldEvent(progress, '2,1')
+  progress = chooseOverworldEvent(progress, '2,1', choiceId)
+  const saved = restoreOverworldEventProgress(
+    JSON.parse(JSON.stringify(progress)),
+  )!
+  const opening = eventOpening(finale, saved.flags)
+  assert.ok(
+    opening.includes(
+      choiceId === 'care'
+        ? 'Mara wrote her name on the receipt'
+        : 'The bluff has held so long',
+    ),
+    choiceId + ' choice must change the finale after save/restore',
+  )
+  assert.ok(
+    !opening.includes(
+      choiceId === 'care'
+        ? 'The bluff has held so long'
+        : 'Mara wrote her name on the receipt',
+    ),
+    'mutually exclusive Mara outcomes must not both appear',
+  )
+}
+
 // --- Save compatibility ------------------------------------------------------
 // A template-era save answered every non-photo site with care or risk.
 function walkAll(choose: (key: string) => string): OverworldEventProgress {

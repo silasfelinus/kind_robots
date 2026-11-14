@@ -116,7 +116,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Cthulhuquarium Leaderboard | Kind Robots',
     description:
       'See which keepers have collected the most deep-sea species. Free to browse, then start a tank of your own in your browser.',
-    image: '/cthulhuquarium-front/hero.webp',
+    image: '/aquarium-leaderboard/link-preview.webp',
     path: '/play/aquarium/leaderboard',
   },
   'butterfly-gallery': {

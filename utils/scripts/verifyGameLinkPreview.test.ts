@@ -33,6 +33,7 @@ for (const slug of [
   'tzaddik-gallery',
   'challenge-leaderboard',
   'arcade',
+  'aquarium-leaderboard',
 ]) {
   assert.equal(
     GAME_LINK_PREVIEWS[slug]?.image,

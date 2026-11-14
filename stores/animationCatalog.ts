@@ -1135,6 +1135,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'laundry-line-breeze',
+    label: 'Laundry Line Breeze',
+    reveal: 'Sheets and shirts billow on sunny clotheslines',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Laundry billows on the line on a breezy afternoon 👕 hover to make a garment flutter, click to send a gust down the lines',
+    color: '#8fc1e3',
+    releasedAt: '2026-11-14T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

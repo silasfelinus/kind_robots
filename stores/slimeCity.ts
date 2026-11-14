@@ -1,7 +1,9 @@
 import {
   readClashFormatPreference,
+  readLargeTextPreference,
   readReducedMotionPreference,
   writeClashFormatPreference,
+  writeLargeTextPreference,
   writeReducedMotionPreference,
 } from './helpers/slimeCityClashPreference'
 import { BASE_CARD_IDS } from '~/utils/slimeCity/baseCollection'
@@ -508,6 +510,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function setReducedMotion(on: boolean): void {
     reducedMotion.value = on
     writeReducedMotionPreference(on)
+  }
+  /** Settings: scale the whole Slime City console up for easier reading. */
+  const largeText = ref(false)
+  function hydrateLargeText(): void {
+    const stored = readLargeTextPreference()
+    if (stored !== null) largeText.value = stored
+  }
+  function setLargeText(on: boolean): void {
+    largeText.value = on
+    writeLargeTextPreference(on)
   }
 
   /** One narrative journey; only its 20-card deck composition changes. */
@@ -2740,6 +2752,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     reducedMotion,
     hydrateReducedMotion,
     setReducedMotion,
+    largeText,
+    hydrateLargeText,
+    setLargeText,
     journeyFormat,
     journeyDeckId,
     journeyDeckName,

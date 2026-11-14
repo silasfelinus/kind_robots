@@ -4,7 +4,14 @@
     data-layout="console-fixed"
     data-testid="slime-city-lab"
   >
-    <div class="sc-shell" :class="{ 'sc-reduce-motion': lab.reducedMotion }">
+    <div
+      class="sc-shell"
+      :class="{
+        'sc-reduce-motion': lab.reducedMotion,
+        'sc-large-text': lab.largeText,
+      }"
+      data-testid="slime-city-shell"
+    >
       <header-page-bar
         v-if="!(lab.view === 'clash' && narrowScreen)"
         console-theme="slime-city"
@@ -153,6 +160,17 @@
               @click="lab.setReducedMotion(!lab.reducedMotion)"
             >
               REDUCED MOTION · {{ lab.reducedMotion ? 'ON' : 'OFF' }}
+            </button>
+          </fieldset>
+          <fieldset data-testid="slime-settings-text">
+            <legend>TEXT</legend>
+            <button
+              type="button"
+              :aria-pressed="lab.largeText"
+              data-testid="slime-settings-large-text"
+              @click="lab.setLargeText(!lab.largeText)"
+            >
+              LARGE TEXT · {{ lab.largeText ? 'ON' : 'OFF' }}
             </button>
           </fieldset>
           <p class="sc-settings-collection">
@@ -1168,6 +1186,7 @@ let themeId = 0
 onMounted(() => {
   lab.hydrateClashFormat()
   lab.hydrateReducedMotion()
+  lab.hydrateLargeText()
   themeId = navStore.registerConsoleTheme('slime-city')
   narrowQuery = window.matchMedia('(max-width: 600px)')
   syncNarrow()
@@ -3080,5 +3099,11 @@ button.sc-shelf-label {
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
+}
+/* LARGE TEXT: the console sizes its type in rem, so scale the whole shell.
+   zoom keeps the shell's percentage height, so it still fits the viewport and
+   the inner panes scroll as they already do. */
+.sc-large-text {
+  zoom: 1.15;
 }
 </style>

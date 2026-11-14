@@ -92,7 +92,13 @@ function main() {
   if (result.error || result.status !== 0) {
     if (!write && args.has('--show-fix')) {
       console.error(
-        'Prettier proposes this exact patch (checkout only, not committed):',
+        [
+          'Prettier proposes this exact patch (checkout only, not committed).',
+          "Same-repository PRs: the 'Push Prettier autofix' job commits it for you",
+          'and re-runs the checks -- do not hand-apply it; re-read the files after',
+          "the 'style: autoformat' commit lands. Fork PRs and .github/workflows",
+          'files: apply the whole patch in ONE commit.',
+        ].join('\n'),
       )
       const fix = prettier(files, '--write')
       if (fix.status === 0) {

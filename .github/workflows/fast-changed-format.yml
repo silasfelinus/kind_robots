@@ -1,14 +1,23 @@
 name: Fast Changed-File Formatting
 
+# Checks Prettier on the files a PR changes. On a same-repository PR that
+# fails, the `autofix` job commits the exact Prettier patch back to the branch
+# and re-dispatches the PR's checks on the new head, so connector-only agents
+# no longer hand-apply diffs over several rounds. The patch is computed in the
+# read-only job; the write job never runs PR code (it only `git apply`s).
 on:
   pull_request:
     branches: [main]
+  # Re-run on an autofix commit: pushes made with GITHUB_TOKEN do not trigger
+  # pull_request events, but workflow_dispatch is allowed to.
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: changed-format-${{ github.event.pull_request.number }}
+  # Cancel superseded runs on the same PR; dispatch runs never cancel.
+  group: changed-format-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -16,11 +25,14 @@ jobs:
     name: Changed-file Prettier
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    outputs:
+      has_patch: ${{ steps.patch.outputs.has_patch }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -29,9 +41,98 @@ jobs:
 
       - name: Install formatter without project lifecycle scripts
         run: npm ci --ignore-scripts
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Verify changed-file selector
         run: npm run test:format-changed
 
       - name: Check PR formatting and print exact fixes if needed
+        id: check
         run: npm run format:check-changed -- --show-fix
+
+      - name: Capture Prettier patch for autofix
+        id: patch
+        if: failure() && steps.check.outcome == 'failure'
+        run: |
+          npm run format:changed
+          # GITHUB_TOKEN cannot push workflow files; leave those to the printed patch.
+          git diff --binary -- . ':(exclude).github/workflows' > "$RUNNER_TEMP/prettier-autofix.patch"
+          if [ -s "$RUNNER_TEMP/prettier-autofix.patch" ]; then
+            echo "has_patch=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Same-repository PRs get this patch committed automatically by the 'Push Prettier autofix' job. Do not hand-apply it; re-read the files after the 'style: autoformat' commit lands."
+          fi
+
+      - name: Upload Prettier patch
+        if: failure() && steps.patch.outputs.has_patch == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prettier-autofix-patch
+          path: ${{ runner.temp }}/prettier-autofix.patch
+          retention-days: 3
+
+  autofix:
+    name: Push Prettier autofix
+    needs: prettier-changed
+    if: >-
+      failure() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.prettier-changed.outputs.has_patch == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Download Prettier patch
+        uses: actions/download-artifact@v4
+        with:
+          name: prettier-autofix-patch
+          path: ${{ runner.temp }}/autofix
+
+      - name: Commit and push the patch
+        id: push
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git apply --index "$RUNNER_TEMP/autofix/prettier-autofix.patch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "style: autoformat changed files (Prettier)"
+          # A plain push is rejected if the branch moved since this run began;
+          # the newer push gets its own check and autofix pass.
+          if git push origin "HEAD:$HEAD_REF"; then
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Branch advanced during autofix; the newer commit is checked on its own."
+          fi
+
+      - name: Re-dispatch this PR's checks on the autofix commit
+        if: steps.push.outputs.pushed == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          OLD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$OLD_SHA&event=pull_request&per_page=100" \
+            --jq '.workflow_runs[].path' | sed 's/@.*//' | sort -u > "$RUNNER_TEMP/ran.txt"
+          {
+            echo "### Prettier autofix pushed $(git rev-parse --short HEAD)"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          while read -r workflow_path; do
+            workflow_file="${workflow_path##*/}"
+            if gh workflow run "$workflow_file" --ref "$HEAD_REF" 2>"$RUNNER_TEMP/err.txt"; then
+              echo "- re-dispatched \`$workflow_file\`" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::warning::$workflow_file has no workflow_dispatch trigger; it reruns on the next push to this PR."
+              echo "- not re-runnable: \`$workflow_file\` ($(head -c 200 "$RUNNER_TEMP/err.txt"))" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done < "$RUNNER_TEMP/ran.txt"

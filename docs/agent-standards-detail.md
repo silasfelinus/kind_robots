@@ -144,9 +144,23 @@ whole-file formatting churn. `npm run format:check-changed` is the
 read-only equivalent. Both select only new/modified files on the current
 branch compared to `origin/main`, not the whole repository.
 
-**Connector-only GitHub edits bypass local hooks.** Their author must use
-the fast `Changed-file Prettier` PR check and apply its exact suggested
-patch when red. That job reports the specific formatting diff without
+**Connector-only GitHub edits bypass local hooks.** On a same-repository PR
+a red `Changed-file Prettier` check is repaired automatically: its `Push
+Prettier autofix` job commits the exact patch as `style: autoformat changed
+files (Prettier)` and re-dispatches the checks that ran on the old head (only
+workflows with a `workflow_dispatch` trigger can be re-run; the rest rerun on
+your next push). Do not hand-apply the printed patch -- that used to take
+several rounds per PR (2026-09-15..11-14: 43% of merged PRs carried Prettier
+fix-up commits; ten needed ten or more). Re-read files after the autoformat
+commit before editing them again. Fork PRs and `.github/workflows/` files
+(GITHUB_TOKEN can't push those) still need the printed patch applied by hand,
+all files in one commit.
+
+Most of those fix-ups were the same few rules, so write them right the first
+time: wrap at 80 columns the way Prettier would (about 40% of fixed hunks),
+trailing commas in every multi-line array/object/argument list (about 30%),
+single quotes unless the string contains `'` (then double quotes, never `\'`),
+and no semicolons. That job reports the specific formatting diff without
 waiting for the much slower full Contract Tests ratchet. The ratchet stays
 required as the backstop; checking green on an earlier commit does not
 prove a newer commit is green.

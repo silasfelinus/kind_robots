@@ -18,6 +18,7 @@
 // 2026-11-12 PT journey epilogues (slime-city/t-062): 17 of the 18
 // JOURNEY-EPILOGUES-ROUND-1 plates (ArtImages 269914-269931), each fetched and
 // contact-sheet reviewed, so the finale paints the journey ending earned.
+// 2026-11-14 PT: ironjaw/journey-left re-render (ArtImage 270401) completes all 18.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
@@ -500,14 +501,16 @@ export const SLIME_CITY_ART = {
     'undertow/2/scene': 262273,
     // Journey epilogue plates (2026-11-12 PT, conductor slime-city/t-062,
     // JOURNEY-EPILOGUES-ROUND-1): one per authored journey ending,
-    // '<crew>/journey-<left|right|mixed>'. ironjaw/journey-left is held back for
-    // a re-render (its sign painted misspelled lettering).
+    // '<crew>/journey-<left|right|mixed>'. ironjaw/journey-left is the
+    // JOURNEY-EPILOGUES-REDO-1 re-render (2026-11-14 PT): the first one painted a
+    // misspelled sign.
     'catgirls/journey-left': 269914,
     'catgirls/journey-right': 269915,
     'catgirls/journey-mixed': 269916,
     'bloodfairies/journey-left': 269917,
     'bloodfairies/journey-right': 269918,
     'bloodfairies/journey-mixed': 269919,
+    'ironjaw/journey-left': 270401,
     'ironjaw/journey-right': 269921,
     'ironjaw/journey-mixed': 269922,
     'riot/journey-left': 269923,

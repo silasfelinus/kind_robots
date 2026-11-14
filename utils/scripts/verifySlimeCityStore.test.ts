@@ -20,7 +20,9 @@ Object.defineProperty(globalThis, 'window', {
   value: {
     localStorage: {
       getItem: (key: string) => preferences.get(key) ?? null,
-      setItem: (key: string, value: string) => { preferences.set(key, value) },
+      setItem: (key: string, value: string) => {
+        preferences.set(key, value)
+      },
     },
   },
 })
@@ -38,8 +40,12 @@ Object.defineProperty(globalThis, 'window', {
   configurable: true,
   value: {
     localStorage: {
-      getItem: () => { throw new Error('storage blocked') },
-      setItem: () => { throw new Error('storage blocked') },
+      getItem: () => {
+        throw new Error('storage blocked')
+      },
+      setItem: () => {
+        throw new Error('storage blocked')
+      },
     },
   },
 })

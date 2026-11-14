@@ -132,7 +132,11 @@ const fountainApproaches = [
 ] as const
 for (const [chosen, expected] of fountainApproaches) {
   let progress = newOverworldEventProgress('e03')
-  progress = revealOverworldEvent(progress, '7,8')
+  // Reveal a contiguous route from the start; distant tiles cannot teleport open.
+  for (let x = 2; x <= 7; x++)
+    progress = revealOverworldEvent(progress, x + ',1')
+  for (let y = 2; y <= 8; y++)
+    progress = revealOverworldEvent(progress, '7,' + y)
   progress = chooseOverworldEvent(progress, '7,8', chosen)
   const restored = restoreOverworldEventProgress(
     JSON.parse(JSON.stringify(progress)),
@@ -141,7 +145,10 @@ for (const [chosen, expected] of fountainApproaches) {
   assert.ok(opening.includes(expected), chosen + ' must echo at the finale')
   for (const [other, phrase] of fountainApproaches)
     if (other !== chosen)
-      assert.ok(!opening.includes(phrase), 'other fountain branch must stay absent')
+      assert.ok(
+        !opening.includes(phrase),
+        'other fountain branch must stay absent',
+      )
 }
 
 // --- Save compatibility ------------------------------------------------------

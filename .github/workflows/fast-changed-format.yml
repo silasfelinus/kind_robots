@@ -5,7 +5,8 @@ name: Fast Changed-File Formatting
 # placement/duplicates, prefer-const, unused imports; utils/scripts/
 # lintFixChanged.mjs). On a same-repository PR whose files need either, the
 # `autofix` job commits the exact patch back to the branch
-# and re-dispatches the PR's checks on the new head, so connector-only agents
+# and re-runs the PR's checks on the new head (approving the runs GitHub holds
+# for a bot push, or dispatching them), so connector-only agents
 # no longer hand-apply diffs over several rounds. The patch is computed in the
 # read-only job; the write job never runs PR code (it only `git apply`s).
 on:
@@ -99,6 +100,7 @@ jobs:
     if: >-
       failure() &&
       github.event_name == 'pull_request' &&
+      github.actor != 'github-actions[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       needs.prettier-changed.outputs.has_patch == 'true'
     runs-on: ubuntu-latest
@@ -135,7 +137,7 @@ jobs:
             echo "::warning::Branch advanced during autofix; the newer commit is checked on its own."
           fi
 
-      - name: Re-dispatch this PR's checks on the autofix commit
+      - name: Re-run this PR's checks on the autofix commit
         if: steps.push.outputs.pushed == 'true'
         shell: bash
         env:
@@ -143,15 +145,51 @@ jobs:
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
           OLD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$OLD_SHA&event=pull_request&per_page=100" \
-            --jq '.workflow_runs[].path' | sed 's/@.*//' | sort -u > "$RUNNER_TEMP/ran.txt"
+          new_sha="$(git rev-parse HEAD)"
+          runs_for() {
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$1&event=pull_request&per_page=100" --jq "$2"
+          }
+          runs_for "$OLD_SHA" '.workflow_runs[].path' | sed 's/@.*//' | sort -u > "$RUNNER_TEMP/ran.txt"
           {
-            echo "### Prettier autofix pushed $(git rev-parse --short HEAD)"
+            echo "### Autofix pushed ${new_sha:0:9}"
             echo
           } >> "$GITHUB_STEP_SUMMARY"
+
+          # GitHub holds pull_request runs started by this bot push as
+          # "awaiting approval" (action_required). Silas chose (2026-11-14) to
+          # have the bot approve those: wait for them to appear, approve each;
+          # if approval is refused, delete the held run so the PR is not left
+          # waiting on a maintainer, and dispatch that workflow instead.
+          last=-1
+          stable=0
+          for attempt in $(seq 1 18); do
+            count="$(runs_for "$new_sha" '.workflow_runs | length')"
+            if [ "$count" = "$last" ]; then stable=$((stable + 1)); else stable=0; fi
+            if [ "$count" -gt 0 ] && [ "$stable" -ge 2 ]; then break; fi
+            if [ "$count" -eq 0 ] && [ "$attempt" -ge 6 ]; then break; fi
+            last="$count"
+            sleep 5
+          done
+          : > "$RUNNER_TEMP/handled.txt"
+          runs_for "$new_sha" '.workflow_runs[] | select(.conclusion == "action_required") | "\(.id) \(.path)"' > "$RUNNER_TEMP/held.txt"
+          while read -r run_id workflow_path; do
+            workflow_path="${workflow_path%%@*}"
+            if gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/${run_id}/approve" > /dev/null 2>&1; then
+              echo "$workflow_path" >> "$RUNNER_TEMP/handled.txt"
+              echo "- approved held run of \`${workflow_path##*/}\`" >> "$GITHUB_STEP_SUMMARY"
+            elif ! gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/${run_id}" > /dev/null 2>&1; then
+              echo "::warning::Could not approve or clear held run $run_id (${workflow_path##*/})."
+            fi
+          done < "$RUNNER_TEMP/held.txt"
+          runs_for "$new_sha" '.workflow_runs[] | select(.conclusion != "action_required") | .path' \
+            | sed 's/@.*//' >> "$RUNNER_TEMP/handled.txt"
+
           while read -r workflow_path; do
             workflow_file="${workflow_path##*/}"
-            if gh workflow run "$workflow_file" --ref "$HEAD_REF" 2>"$RUNNER_TEMP/err.txt"; then
+            if grep -qxF "$workflow_path" "$RUNNER_TEMP/handled.txt"; then
+              continue
+            fi
+            if gh workflow run "$workflow_file" --ref "$HEAD_REF" 2> "$RUNNER_TEMP/err.txt"; then
               echo "- re-dispatched \`$workflow_file\`" >> "$GITHUB_STEP_SUMMARY"
             else
               echo "::warning::$workflow_file has no workflow_dispatch trigger; it reruns on the next push to this PR."

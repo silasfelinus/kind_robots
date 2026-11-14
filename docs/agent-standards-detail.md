@@ -147,9 +147,10 @@ branch compared to `origin/main`, not the whole repository.
 **Connector-only GitHub edits bypass local hooks.** On a same-repository PR
 a red `Changed-file Prettier` check is repaired automatically: its `Push
 Prettier autofix` job commits the exact patch as `style: autoformat changed
-files (Prettier)` and re-dispatches the checks that ran on the old head (only
-workflows with a `workflow_dispatch` trigger can be re-run; the rest rerun on
-your next push). Do not hand-apply the printed patch -- that used to take
+files (Prettier)` and re-runs the checks that ran on the old head: it approves
+the runs GitHub holds for that bot push (Silas's call, 2026-11-14), and
+otherwise deletes the held run and dispatches the workflow (only workflows with
+a `workflow_dispatch` trigger can be; the rest rerun on your next push). Do not hand-apply the printed patch -- that used to take
 several rounds per PR (2026-09-15..11-14: 43% of merged PRs carried Prettier
 fix-up commits; ten needed ten or more). Re-read files after the autoformat
 commit before editing them again. Fork PRs and `.github/workflows/` files

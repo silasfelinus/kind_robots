@@ -128,6 +128,24 @@ assert.ok(
   cards.every((card) => card.activations <= card.activationOpportunities),
 )
 assert.ok(activationCommands <= activationOpportunities)
+// Prioritize fighters with repeated legal tap choices the CPU ignores.
+// A low activation rate without opportunities is not evidence of bad AI.
+const underactivated = cards
+  .filter((card) => card.activationOpportunities >= 8)
+  .map((card) => ({
+    card: card.card,
+    opportunities: card.activationOpportunities,
+    activations: card.activations,
+    activationRate: Number(
+      (card.activations / card.activationOpportunities).toFixed(3),
+    ),
+  }))
+  .sort(
+    (a, b) =>
+      a.activationRate - b.activationRate ||
+      b.opportunities - a.opportunities,
+  )
+  .slice(0, 25)
 const underselected = cards
   .filter((card) => card.seenGames >= 12 && card.selectionRate !== null)
   .sort((a, b) => a.selectionRate! - b.selectionRate!)
@@ -147,6 +165,7 @@ console.log(
       definition:
         'selectionRate=matches played at least once / matches seen in hand; starter CPU only, not human preference',
       underselected,
+      underactivated,
       cards,
     }),
 )

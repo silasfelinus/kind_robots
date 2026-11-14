@@ -580,7 +580,7 @@ const views = computed(() =>
     label: PERSPECTIVES[id].label,
     headline: PERSPECTIVES[id].headline,
     art:
-      paintedForRole(id) ??
+      paintedForRole(id === 'villain' ? 'villain' : 'hero') ??
       promArt(
         'identities/' + pickedLead.value + '/outcomes/' + PERSPECTIVE_ART[id],
       ),

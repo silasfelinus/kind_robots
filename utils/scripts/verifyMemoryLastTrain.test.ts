@@ -172,9 +172,21 @@ assert.deepEqual(
 // decision is the actual chronological boundary for replayed rewards.
 const invalidNightThenDay = [
   { world: 'e04' as const, scene: 'e04Platform' as const, choice: 'forged' },
-  { world: 'e03' as const, scene: 'e03Door' as const, choice: 'md.train.e03.release' },
-  { world: 'e04' as const, scene: 'e04Platform' as const, choice: 'md.train.e04.listen' },
-  { world: 'e03' as const, scene: 'e03Timetable' as const, choice: 'md.train.e03.share' },
+  {
+    world: 'e03' as const,
+    scene: 'e03Door' as const,
+    choice: 'md.train.e03.release',
+  },
+  {
+    world: 'e04' as const,
+    scene: 'e04Platform' as const,
+    choice: 'md.train.e04.listen',
+  },
+  {
+    world: 'e03' as const,
+    scene: 'e03Timetable' as const,
+    choice: 'md.train.e03.share',
+  },
 ]
 const recoveredDay = replayTrainEncounters(invalidNightThenDay)
 assert.deepEqual(recoveredDay.decisions, {

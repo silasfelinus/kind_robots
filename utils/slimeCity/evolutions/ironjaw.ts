@@ -66,8 +66,14 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (lone). Counterplay: piercing and stuns get
   // past the plate; she guards one alley, so win the other four.
   's1-scrap-welder': {
-    2: stage('Mid-Charge Barricade', [on('turnStart', guard(2, 'self'))]),
-    3: stage('Narrow Corridor', [on('enter', armor(2, 'self'))], { lone: 2 }),
+    2: stage('Mid-Charge Barricade', [
+      on('turnStart', guard(2, 'self')),
+      on('tap', guard(2, 'adjacentAllies')),
+    ]),
+    3: stage('Narrow Corridor', [
+      on('enter', armor(2, 'self')),
+      on('tap', guard(2, 'adjacentAllies')),
+    ], { lone: 2 }),
   },
   // Signature: bring another worker across the bridge.
   // L1 makes a fragile 1/2 picket, a useful extra blocker now, not a

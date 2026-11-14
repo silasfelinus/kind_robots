@@ -549,7 +549,7 @@ watch(
 )
 function paintedForRole(role: 'hero' | 'villain'): string | null {
   const id = role === 'hero' ? paintedHeroId.value : paintedVillainId.value
-  return id ? paintedArt.images[id]?.src ?? null : null
+  return id ? (paintedArt.images[id]?.src ?? null) : null
 }
 const selectedPaintedArtwork = computed(() =>
   paintedForRole(pickedView.value === 'villain' ? 'villain' : 'hero'),

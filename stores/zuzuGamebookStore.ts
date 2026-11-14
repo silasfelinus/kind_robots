@@ -99,10 +99,10 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
         return
       }
       try {
-        const result = await $fetch<{
-          success: boolean
-          data?: { revision: number }
-        }>('/api/zuzu-gamebook/save', {
+        const result = await $fetch<
+          { success: boolean; data?: { revision: number } },
+          string
+        >('/api/zuzu-gamebook/save', {
           method: 'PUT',
           headers: { Authorization: `Bearer ${user.token}` },
           body: { save: snapshot, expectedRevision: accountRevision },
@@ -135,12 +135,15 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     activeAccountId = userId
     accountStatus.value = 'checking'
     try {
-      const response = (await $fetch('/api/zuzu-gamebook/save' as string, {
+      const response = await $fetch<
+        {
+          success: boolean
+          data: { save: ZuzuAccountSave; revision: number } | null
+        },
+        string
+      >('/api/zuzu-gamebook/save', {
         headers: { Authorization: `Bearer ${user.token}` },
-      })) as {
-        success: boolean
-        data: { save: ZuzuAccountSave; revision: number } | null
-      }
+      })
       if (activeAccountId !== userId) return
       if (!response.success) throw new Error('Account unavailable')
       const remote = response.data

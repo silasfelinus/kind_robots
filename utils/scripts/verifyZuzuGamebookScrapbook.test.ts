@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { ENDING_IDS, scene, startRun } from '../zuzuGamebook/adventure'
 import { sectionPlate } from '../zuzuGamebook/art'
+import { validZuzuAccountSave } from '../zuzuGamebook/accountSave'
 import {
   BOOK_ONE_CAST,
   castFromLocalJourney,
@@ -113,6 +114,37 @@ assert.deepEqual(newlyEncounteredCast(beforeMeeting, firstCoyoteGift), [
 ])
 assert.deepEqual(newlyEncounteredCast(firstCoyoteGift, firstCoyoteGift), [])
 
+const cloud = {
+  version: 1,
+  run: first,
+  recoverable: null,
+  endings: ['ending-bell'],
+  played: ['ending-bell'],
+  cast: ['coyote'],
+  scrapbook: [memory],
+}
+assert.equal(validZuzuAccountSave(cloud), true)
+assert.equal(validZuzuAccountSave({ ...cloud, endings: ['unknown'] }), false)
+assert.equal(validZuzuAccountSave({ ...cloud, cast: ['coyote', 'coyote'] }), false)
+assert.equal(validZuzuAccountSave({ ...cloud, recoverable: {} }), false)
+assert.equal(validZuzuAccountSave({ ...cloud, version: 2 }), false)
+assert.equal(
+  validZuzuAccountSave({
+    ...cloud,
+    run: { ...first, visited: Array(90_000).fill('coyote') },
+  }),
+  false,
+  'Account backups must be bounded even when a run passes legacy validation',
+)
+
+const readAccount = readFileSync('server/api/zuzu-gamebook/save.get.ts', 'utf8')
+const writeAccount = readFileSync('server/api/zuzu-gamebook/save.put.ts', 'utf8')
+assert.match(readAccount, /requireHumanApiUser/)
+assert.match(writeAccount, /requireHumanApiUser/)
+assert.match(writeAccount, /expectedRevision/)
+assert.match(writeAccount, /updateMany/)
+assert.match(writeAccount, /P2002/)
+
 const page = readFileSync('pages/play/zuzu-gamebook.vue', 'utf8')
 const front = readFileSync(
   'components/zuzu-gamebook/zuzu-gamebook-front.vue',
@@ -122,6 +154,12 @@ const store = readFileSync('stores/zuzuGamebookStore.ts', 'utf8')
 assert.match(page, /<zuzu-gamebook-front[\s\S]*?@continue=/)
 assert.match(page, /data-testid="zuzu-gamebook-scrapbook"/)
 assert.match(page, /data-testid="zuzu-gamebook-cast"/)
+assert.match(page, /data-testid="zuzu-gamebook-account-save"/)
+assert.match(page, /store\.beginAccountSave\(\)/)
+assert.match(page, /store\.restoreAccountCopy\(\)/)
+assert.match(store, /accountStatus/)
+assert.match(store, /accountRevision/)
+assert.match(store, /accountStatus\.value = 'conflict'/)
 assert.match(page, /BOOK_ONE_CAST\.length/)
 assert.match(store, /newlyEncounteredCast\(before, after\)/)
 assert.match(store, /discoveredCast/)

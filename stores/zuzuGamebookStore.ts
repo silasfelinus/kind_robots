@@ -410,6 +410,27 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     save()
   }
 
+  /** An explicit clean slate, distinct from New Journey's recoverable restart. */
+  function resetProgress(): boolean {
+    if (
+      !loaded.value ||
+      accountStatus.value === 'checking' ||
+      accountStatus.value === 'conflict'
+    )
+      return false
+    const next = startRun(Date.now() >>> 0 || 1)
+    run.value = next
+    recoverable.value = null
+    discovered.value = []
+    played.value = []
+    discoveredCast.value = []
+    scrapbook.value = []
+    rollSerial.value++
+    usePlaybookRunReviewStore().begin('zuzu-gamebook', playbookRunKey(next))
+    save()
+    return true
+  }
+
   function recover() {
     if (!loaded.value || !recoverable.value) return
     const current = run.value
@@ -458,6 +479,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     battle,
     claimLoot,
     restart,
+    resetProgress,
     recover,
     exportCode,
     importCode,

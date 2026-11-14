@@ -223,67 +223,13 @@ async function main() {
     'Brainstorm source search must never return the cached Scenario list directly.',
   )
 
-  // The source watcher in brainstorm-manager.vue must guard against a
-  // slower, superseded resolve overwriting a later selection or resurrecting
-  // a removed source -- request-identity/token invalidation, not just a
-  // loading flag.
-  const managerSource = readFileSync(
-    'components/brainstorm/brainstorm-manager.vue',
-    'utf8',
-  )
-  assert.ok(
-    managerSource.includes('let sourceResolveToken = 0'),
-    'brainstorm-manager.vue must track a request-identity token for the ' +
-      'source resolve watcher.',
-  )
-  assert.ok(
-    managerSource.includes('if (token !== sourceResolveToken) return'),
-    'A stale resolve (token mismatch) must not overwrite resolvedSource.',
-  )
-  assert.ok(
-    /if\s*\(!ref\)\s*\{\s*resolvedSource\.value = null\s*\n\s*isResolvingSource\.value = false/.test(
-      managerSource,
-    ),
-    'Clearing the source (ref becomes null) must reset isResolvingSource too, ' +
-      'so a superseded in-flight resolve cannot leave the loading flag stuck.',
-  )
-
-  // runSourceSearch must carry the same request-identity discipline as the
-  // resolve watcher: a slower, superseded search (e.g. the user changed the
-  // type or edited the query again before the first search returned) must
-  // not overwrite a newer search's results or clear isSearchingSource while
-  // the newer search is still in flight (follow-up reviewer finding on PR
-  // #1820, second review pass).
-  assert.ok(
-    managerSource.includes('let sourceSearchToken = 0'),
-    'brainstorm-manager.vue must track a request-identity token for ' +
-      'runSourceSearch, distinct from sourceResolveToken.',
-  )
-  assert.ok(
-    /const token = \+\+sourceSearchToken/.test(managerSource),
-    'runSourceSearch must mint a fresh token for each call.',
-  )
-  assert.ok(
-    /if \(token !== sourceSearchToken\) return\s*\n\s*sourceSearchResults\.value = results/.test(
-      managerSource,
-    ),
-    'A stale search (token mismatch) must not overwrite sourceSearchResults.',
-  )
-  assert.ok(
-    /if \(token === sourceSearchToken\) \{\s*\n\s*isSearchingSource\.value = false/.test(
-      managerSource,
-    ),
-    'A stale search must not clear isSearchingSource out from under a newer, ' +
-      'still-in-flight search.',
-  )
-
   console.log(
     'Brainstorm source adapter registry verified: case-insensitive lookup, ' +
       'successful resolve passthrough, missing-row and unregistered-modelType ' +
       'fallbacks, thrown-adapter recovery, search dispatch/filtering, the ' +
       'Character/Scenario adapter force-revalidate contracts, fail-closed fresh ' +
-      "source searches, and the source watcher's and runSourceSearch's " +
-      'request-identity invalidation contracts (brainstorm/t-012, t-014).',
+      'source searches (brainstorm/t-012, t-014). The retired workbench that ' +
+      'consumed it was removed 2026-11-14.',
   )
 }
 

@@ -15,7 +15,7 @@ export const userNavigation: navigationData[] = [
   {
     title: 'Brainstorm!!!!!',
     image: '/images/avatars/brain1.webp',
-    description: 'Generate and share brainstorms',
+    description: 'Trade lines in a Brainstorm party round',
     path: '/brainstorm',
   },
   {

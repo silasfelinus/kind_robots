@@ -113,7 +113,10 @@ import {
   type BrainstormRiffFlavor,
 } from '@/utils/brainstormRiffs'
 
-const props = defineProps<{ flavor: BrainstormRiffFlavor }>()
+const props = defineProps<{
+  flavor: BrainstormRiffFlavor
+  prefillTitle?: string
+}>()
 const emit = defineEmits<{ created: [id: number]; cancel: [] }>()
 
 const store = useBrainstormRiffStore()
@@ -124,8 +127,8 @@ const crossoverNames = ref<string[]>([])
 
 const form = reactive({
   flavor: props.flavor,
-  title: '',
-  stem: '',
+  title: props.prefillTitle ?? '',
+  stem: props.flavor === 'persona' ? (props.prefillTitle ?? '') : '',
   vibe: '',
   crossoverIds: [] as number[],
 })

@@ -395,6 +395,9 @@ export default defineNuxtConfig({
     '/plan/projects/ruler-hooked': {
       redirect: { to: '/play/ruler-hooked', statusCode: 301 },
     },
+    // Silas, 2026-11-14: the Brainstorm riff-board replaced the retired admin
+    // idea workbench at /brainstorm, its home as a Projects tab.
+    '/play/brainstorm': { redirect: { to: '/brainstorm', statusCode: 301 } },
   },
 
   hooks: {

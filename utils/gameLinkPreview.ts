@@ -104,6 +104,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     description:
       'A party game for the whole table: pile on ideas, react to the best ones and watch every line get painted. Free in your browser.',
     image: '/brainstorm/link-preview.webp',
+    path: '/brainstorm',
   },
   aquarium: {
     title: 'Cthulhuquarium | Public Tanks | Kind Robots',

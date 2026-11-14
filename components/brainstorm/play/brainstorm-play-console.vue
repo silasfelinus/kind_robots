@@ -69,6 +69,7 @@
         <brainstorm-riff-new
           v-else-if="view === 'new'"
           :flavor="newFlavor"
+          :prefill-title="newTitle"
           @created="openRiff"
           @cancel="goLobby"
         />
@@ -130,6 +131,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBrainstormRiffStore } from '@/stores/brainstormRiffStore'
 import {
+  BRAINSTORM_RIFF_LIMITS,
+  cleanRiffText,
   normalizeRiffFlavor,
   type BrainstormRiffFlavor,
 } from '@/utils/brainstormRiffs'
@@ -156,6 +159,9 @@ const view = computed<'lobby' | 'new' | 'riff'>(() => {
 })
 const newFlavor = computed<BrainstormRiffFlavor>(() =>
   normalizeRiffFlavor(single(route.query.new)),
+)
+const newTitle = computed(() =>
+  cleanRiffText(single(route.query.title), BRAINSTORM_RIFF_LIMITS.title),
 )
 
 function goLobby() {

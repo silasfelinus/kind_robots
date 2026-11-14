@@ -508,13 +508,6 @@ const navigationMoves = [
     admin: false,
   },
   {
-    slug: 'brainstorm',
-    from: 'projects',
-    to: 'admin',
-    route: '/brainstorm',
-    admin: true,
-  },
-  {
     slug: 'zuzu-shifting-lands',
     from: 'projects',
     to: 'arcade',
@@ -559,7 +552,7 @@ for (const { slug, from, to, route, admin } of navigationMoves) {
   assert.ok(tab.includes(`${newline}route: ${route}${newline}`))
   assert.equal(tab.includes(`${newline}requiredRole: ADMIN${newline}`), admin)
   assert.equal(existsSync(`content/channels/${from}/${slug}.md`), false)
-  if (slug !== 'arcade' && slug !== 'brainstorm') {
+  if (slug !== 'arcade') {
     assert.deepEqual(PROJECT_PLACEMENTS[slug], {
       channelKey: to,
       tabKey: slug,
@@ -602,12 +595,12 @@ const storybookNav = readFileSync(
   'utf8',
 )
 const storybookPage = readFileSync('content/storybook.md', 'utf8')
-// Silas, 2026-11-14: Brainstorm is a project, not a Play game; its riff-board
-// tab lives in Projects and the admin idea workbench keeps /brainstorm above.
+// Silas, 2026-11-14: Brainstorm is a project, not a Play game, and the
+// riff-board superseded the retired admin idea workbench at /brainstorm.
 assert.deepEqual(PROJECT_PLACEMENTS.brainstorm, {
   channelKey: 'projects',
   tabKey: 'brainstorm',
-  route: '/play/brainstorm',
+  route: '/brainstorm',
 })
 const brainstormProjectTab = readFileSync(
   'content/channels/projects/brainstorm-party.md',
@@ -615,9 +608,13 @@ const brainstormProjectTab = readFileSync(
 )
 assert.match(brainstormProjectTab, /^channelKey: projects$/m)
 assert.match(brainstormProjectTab, /^tabKey: brainstorm$/m)
-assert.match(brainstormProjectTab, /^route: \/play\/brainstorm$/m)
+assert.match(brainstormProjectTab, /^route: \/brainstorm$/m)
 assert.doesNotMatch(brainstormProjectTab, /^requiredRole:/m)
 assert.equal(existsSync('content/channels/arcade/brainstorm.md'), false)
+assert.equal(existsSync('content/channels/admin/brainstorm.md'), false)
+assert.equal(existsSync('content/brainstorm.md'), false)
+assert.ok(existsSync('pages/brainstorm.vue'))
+assert.equal(existsSync('pages/play/brainstorm.vue'), false)
 
 const storybookIcon = readFileSync('assets/icons/storybook.svg', 'utf8')
 for (const metadata of [storybookNav, storybookPage]) {
@@ -633,11 +630,6 @@ assert.match(storybookIcon, /fill="#51ddf3"/)
 assert.match(storybookIcon, /fill="#ff77be"/)
 assert.match(storybookIcon, /fill="#ffe46b"/)
 assert.equal(existsSync('content/channels/storybook/index.md'), false)
-assert.ok(
-  readFileSync('content/brainstorm.md', 'utf8').includes(
-    `${newline}channelKey: admin${newline}`,
-  ),
-)
 
 const rulerPlayPage = readFileSync('content/play/ruler-hooked.md', 'utf8')
 assert.match(rulerPlayPage, /^channelKey: arcade$/m)

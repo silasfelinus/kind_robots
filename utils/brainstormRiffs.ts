@@ -270,6 +270,19 @@ export function normalizeRiffFlavor(value: unknown): BrainstormRiffFlavor {
     : 'list'
 }
 
+export const BRAINSTORM_ROUTE = '/brainstorm'
+
+export function brainstormRiffHandoff(
+  flavor: BrainstormRiffFlavor,
+  title: string | null | undefined,
+): { path: string; query: Record<string, string> } {
+  const prefill = cleanRiffText(title, BRAINSTORM_RIFF_LIMITS.title)
+  return {
+    path: BRAINSTORM_ROUTE,
+    query: prefill ? { new: flavor, title: prefill } : { new: flavor },
+  }
+}
+
 function stripTrailingEllipsis(text: string): string {
   return text.replace(/\s*(?:…|\.{2,})\s*$/, '').trim()
 }

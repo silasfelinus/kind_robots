@@ -17,11 +17,11 @@
           <button
             type="button"
             class="kr-btn-ghost"
-            title="Brainstorm variations grounded in this Reward"
+            title="Start a Brainstorm round about this Reward"
             @click="startBrainstormWithReward"
           >
             <Icon name="kind-icon:brain" class="kr-icon-4" />
-            <span class="hidden sm:inline">Brainstorm variations</span>
+            <span class="hidden sm:inline">Brainstorm</span>
           </button>
         </div>
         <reward-interact class="h-full min-h-0 flex-1 overflow-hidden" />
@@ -47,6 +47,7 @@ import { useRewardStore } from '@/stores/rewardStore'
 import { performFetch } from '@/stores/utils'
 import type { FacetWithAliases } from '@/stores/facetStore'
 import { querySelectionId } from '@/utils/routeSelection'
+import { brainstormRiffHandoff } from '@/utils/brainstormRiffs'
 
 const dashboardKey = 'reward'
 
@@ -83,14 +84,12 @@ function goToRewards() {
 function startBrainstormWithReward(): void {
   const reward = rewardStore.selectedReward
   if (!reward?.id) return
-  void navigateTo({
-    path: '/brainstorm',
-    query: {
-      source: 'reward',
-      sourceId: String(reward.id),
-      intent: `Generate variations for the Reward "${reward.name || 'this Reward'}" that preserve its effect and tone.`,
-    },
-  })
+  void navigateTo(
+    brainstormRiffHandoff(
+      'list',
+      reward.name ? `Surprising uses for ${reward.name}` : null,
+    ),
+  )
 }
 
 async function handleRewardSaved() {

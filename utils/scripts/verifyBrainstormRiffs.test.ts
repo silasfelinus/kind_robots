@@ -1,6 +1,6 @@
 // /utils/scripts/verifyBrainstormRiffs.test.ts
 //
-// brainstorm riff board: the pure rules behind /play/brainstorm -- starter
+// brainstorm riff board: the pure rules behind /brainstorm -- starter
 // decks, line ranking from Reactions, the art prompt every human line gets,
 // and the coach request that keeps the AI a helper rather than a player.
 import assert from 'node:assert/strict'
@@ -21,6 +21,8 @@ import {
   pickCheer,
   reactionPoints,
   sortLines,
+  BRAINSTORM_ROUTE,
+  brainstormRiffHandoff,
 } from '../brainstormRiffs'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 
@@ -175,6 +177,21 @@ assert.match(
   reactionsRoute,
   /BRAINSTORM_LINE[\s\S]*\/api\/brainstorm\/lines/,
   'generic reactions must route Brainstorm lines to their own endpoint',
+)
+
+assert.equal(BRAINSTORM_ROUTE, '/brainstorm')
+assert.deepEqual(brainstormRiffHandoff('persona', '  Sir  Beeps '), {
+  path: '/brainstorm',
+  query: { new: 'persona', title: 'Sir Beeps' },
+})
+assert.deepEqual(brainstormRiffHandoff('list', null), {
+  path: '/brainstorm',
+  query: { new: 'list' },
+})
+assert.equal(
+  brainstormRiffHandoff('list', 'x'.repeat(400)).query.title?.length,
+  BRAINSTORM_RIFF_LIMITS.title,
+  'handoff titles are clamped to the riff title limit',
 )
 
 console.log('[brainstorm-riffs] ok')

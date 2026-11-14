@@ -25,11 +25,11 @@
           <button
             type="button"
             class="kr-btn-ghost"
-            title="Brainstorm variations grounded in this Character"
+            title="Start a Brainstorm round about this Character"
             @click="startBrainstormWithCharacter"
           >
             <Icon name="kind-icon:brain" class="kr-icon-4" />
-            <span class="hidden sm:inline">Brainstorm variations</span>
+            <span class="hidden sm:inline">Brainstorm</span>
           </button>
         </div>
         <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
@@ -52,6 +52,7 @@ import { useRoute } from '#app'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useNavStore } from '@/stores/navStore'
 import { querySelectionId } from '@/utils/routeSelection'
+import { brainstormRiffHandoff } from '@/utils/brainstormRiffs'
 
 const dashboardKey = 'character'
 
@@ -103,14 +104,7 @@ function startStoryWithCharacter(): void {
 function startBrainstormWithCharacter(): void {
   const character = characterStore.selectedCharacter
   if (!character?.id) return
-  void navigateTo({
-    path: '/brainstorm',
-    query: {
-      source: 'character',
-      sourceId: String(character.id),
-      intent: `Generate art-prompt, situation, and dialogue-hook variations for ${character.name || 'this Character'} that preserve their canonical traits.`,
-    },
-  })
+  void navigateTo(brainstormRiffHandoff('persona', character.name))
 }
 
 async function refreshManagerData() {

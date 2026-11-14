@@ -166,7 +166,6 @@ for (const key of [
   'butterfly-gallery',
   'art-archive',
   'art-review',
-  'brainstorm',
   'playbook-manager',
   'playbook-kit',
 ]) {

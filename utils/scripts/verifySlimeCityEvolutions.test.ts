@@ -57,6 +57,28 @@ for (const card of CARDS)
     card.id + ' has a crafted evolution',
   )
 assert.equal(CARDS.length, 300)
+
+// Editorial source-of-truth inventory: print each actual CLASH card face for
+// this review run so a human can audit the full 300 x 3, including alternate
+// third evolutions. The print is removed once the review ledger is recorded.
+for (const card of CARDS) {
+  const choices = clashEvolutionChoice(card.id, 3)
+  console.log(
+    'SC_COPY_AUDIT|' +
+      JSON.stringify({
+        id: card.id,
+        name: card.name,
+        team: card.team,
+        kind: card.kind,
+        levels: [1, 2, 3].map((level) => ({
+          level,
+          text: clashCardText(card, level, choices && level === 3 ? 0 : undefined),
+        })),
+        ...(choices ? { alternate: clashCardText(card, 3, 1) } : {}),
+      }),
+  )
+}
+
 // Meat Exchange evolution faces are occult, not generic corporate paperwork.
 // The mechanical abilities are still exercised by the full evolution suite below.
 const exchangeStages = Object.values(EXCHANGE_EVOLUTIONS).flatMap((e) => [

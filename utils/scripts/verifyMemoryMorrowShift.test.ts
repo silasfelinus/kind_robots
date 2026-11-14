@@ -124,6 +124,26 @@ for (const choiceId of ['care', 'risk'] as const) {
   )
 }
 
+// The immediately preceding fountain approach must change the last decision.
+const fountainApproaches = [
+  ['care', 'You already promised Mara'],
+  ['risk', 'You looked into the dry basin'],
+  ['offer', 'The tea you poured into the basin'],
+] as const
+for (const [chosen, expected] of fountainApproaches) {
+  let progress = newOverworldEventProgress('e03')
+  progress = revealOverworldEvent(progress, '7,8')
+  progress = chooseOverworldEvent(progress, '7,8', chosen)
+  const restored = restoreOverworldEventProgress(
+    JSON.parse(JSON.stringify(progress)),
+  )!
+  const opening = eventOpening(finale, restored.flags)
+  assert.ok(opening.includes(expected), chosen + ' must echo at the finale')
+  for (const [other, phrase] of fountainApproaches)
+    if (other !== chosen)
+      assert.ok(!opening.includes(phrase), 'other fountain branch must stay absent')
+}
+
 // --- Save compatibility ------------------------------------------------------
 // A template-era save answered every non-photo site with care or risk.
 function walkAll(choose: (key: string) => string): OverworldEventProgress {

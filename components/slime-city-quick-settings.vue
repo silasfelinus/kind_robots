@@ -63,6 +63,23 @@
       >
         REDUCED MOTION · {{ lab.reducedMotion ? 'ON' : 'OFF' }}
       </button>
+      <div
+        class="scq-speed"
+        role="group"
+        aria-label="Clash speed"
+        data-testid="slime-quick-clash-speed"
+      >
+        <button
+          v-for="speed in CLASH_SPEEDS"
+          :key="speed"
+          type="button"
+          :aria-pressed="lab.clashSpeed === speed"
+          :data-testid="`slime-quick-speed-${speed}`"
+          @click="lab.setClashSpeed(speed)"
+        >
+          {{ speed.toUpperCase() }}
+        </button>
+      </div>
       <button
         type="button"
         :aria-pressed="lab.largeText"
@@ -94,6 +111,7 @@
 <script setup lang="ts">
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { useSlimeCitySoundStore } from '~/stores/slimeCitySound'
+import { CLASH_SPEEDS } from '~/stores/helpers/slimeCityClashPreference'
 
 const lab = useSlimeCityStore()
 const sound = useSlimeCitySoundStore()
@@ -174,6 +192,18 @@ function close(): void {
   font-weight: 850;
   letter-spacing: 0.08em;
   text-align: left;
+}
+.scq-speed {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+}
+.scq-panel .scq-speed button {
+  text-align: center;
+}
+.scq-panel .scq-speed button[aria-pressed='true'] {
+  border-color: #b9f151;
+  color: #b9f151;
 }
 .scq-panel button[aria-pressed='true'] {
   border-color: #b9f151;

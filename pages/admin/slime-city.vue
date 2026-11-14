@@ -163,6 +163,19 @@
               REDUCED MOTION · {{ lab.reducedMotion ? 'ON' : 'OFF' }}
             </button>
           </fieldset>
+          <fieldset data-testid="slime-settings-clash-speed">
+            <legend>CLASH SPEED</legend>
+            <button
+              v-for="speed in CLASH_SPEEDS"
+              :key="speed"
+              type="button"
+              :aria-pressed="lab.clashSpeed === speed"
+              :data-testid="`slime-settings-speed-${speed}`"
+              @click="lab.setClashSpeed(speed)"
+            >
+              {{ speed.toUpperCase() }}
+            </button>
+          </fieldset>
           <fieldset data-testid="slime-settings-text">
             <legend>TEXT</legend>
             <button
@@ -1206,6 +1219,7 @@ import { useSlimeCitySoundStore } from '~/stores/slimeCitySound'
 import { slimeMusicFor } from '~/utils/slimeCity/sound'
 import { slimeArtId } from '~/utils/slimeCity/artManifest'
 import { useSlimeCityArtStore } from '~/stores/slimeCityArt'
+import { CLASH_SPEEDS } from '~/stores/helpers/slimeCityClashPreference'
 
 const lab = useSlimeCityStore()
 /**
@@ -1224,6 +1238,7 @@ let themeId = 0
 onMounted(() => {
   lab.hydrateClashFormat()
   lab.hydrateReducedMotion()
+  lab.hydrateClashSpeed()
   lab.hydrateLargeText()
   lab.hydrateHighContrast()
   themeId = navStore.registerConsoleTheme('slime-city')

@@ -1,9 +1,13 @@
 import {
+  CLASH_SPEEDS,
+  type ClashSpeed,
   readClashFormatPreference,
+  readClashSpeedPreference,
   readHighContrastPreference,
   readLargeTextPreference,
   readReducedMotionPreference,
   writeClashFormatPreference,
+  writeClashSpeedPreference,
   writeHighContrastPreference,
   writeLargeTextPreference,
   writeReducedMotionPreference,
@@ -514,6 +518,17 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   function setReducedMotion(on: boolean): void {
     reducedMotion.value = on
     writeReducedMotionPreference(on)
+  }
+  /** Settings: how long automatic Clash beats linger (reading speed). */
+  const clashSpeed = ref<ClashSpeed>('normal')
+  function hydrateClashSpeed(): void {
+    const stored = readClashSpeedPreference()
+    if (stored) clashSpeed.value = stored
+  }
+  function setClashSpeed(speed: ClashSpeed): void {
+    if (!CLASH_SPEEDS.includes(speed)) return
+    clashSpeed.value = speed
+    writeClashSpeedPreference(speed)
   }
   /** Settings: scale the whole Slime City console up for easier reading. */
   const largeText = ref(false)
@@ -2787,6 +2802,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     reducedMotion,
     hydrateReducedMotion,
     setReducedMotion,
+    clashSpeed,
+    hydrateClashSpeed,
+    setClashSpeed,
     largeText,
     hydrateLargeText,
     setLargeText,

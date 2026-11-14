@@ -579,7 +579,7 @@ const copied = ref(false)
 const showLog = ref(false)
 const board = computed(() => pvp.duel?.board ?? null)
 const tappableUnits = computed(() => {
-  if (!pvp.isMyTurn.value || board.value?.phase !== 'play') return []
+  if (!pvp.isMyTurn || board.value?.phase !== 'play') return []
   return board.value.units.filter(
     (u) =>
       u.side === pvp.duel?.seat &&

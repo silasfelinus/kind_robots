@@ -185,7 +185,7 @@ assert.match(front, /data-testid="zuzu-gamebook-title"/)
 assert.match(front, /data-testid="zuzu-gamebook-continue"/)
 assert.match(front, /data-testid="zuzu-gamebook-erase-progress"/)
 assert.match(front, /emit\('reset-progress'\)/)
-assert.match(front, /store\.accountStatus === 'conflict'/)
+assert.match(front, /!store\.canResetProgress\(\)/)
 assert.match(page, /@reset-progress="eraseProgress"/)
 assert.match(page, /function eraseProgress\(\)[\s\S]*?window\.confirm\(/)
 const resetStart = store.indexOf('function resetProgress()')
@@ -199,7 +199,11 @@ for (const phrase of [
   'scrapbook.value = []',
   'save()',
 ]) assert.ok(resetBody.includes(phrase), 'reset must clear ' + phrase)
-assert.match(resetBody, /accountStatus\.value === 'conflict'/)
+assert.match(resetBody, /!canResetProgress\(\)/)
+const guardStart = store.indexOf('function canResetProgress()')
+const resetGuard = store.slice(guardStart, resetStart)
+assert.match(resetGuard, /'checking', 'conflict', 'offline'/)
+assert.match(resetGuard, /authenticatedUserId/)
 assert.doesNotMatch(
   resetBody,
   /rewardAchievementByCode/,

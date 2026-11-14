@@ -71,10 +71,11 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // it to cut the line; burst it down before the storm matters.
   's1-static-listener': {
     stats: { 1: { attack: 1 } },
-    2: stage('Quiet Alley', [on('turnStart', when('acrossEmpty', draw(1)))]),
-    3: stage('Static Storm', [on('enter', draw(1))], {
-      hex: { n: 1, to: 'laneFoes' },
-    }),
+    2: stage('Quiet Alley', [on('tap', when('acrossEmpty', draw(1)))]),
+    3: stage('Static Storm', [
+      on('enter', draw(1)),
+      on('tap', draw(2)),
+    ], { hex: { n: 1, to: 'laneFoes' } }),
   },
   // Arc: a floodlight sweeps for traps -> the glare blinds whoever stands in
   // the beam -> the spotlight marks targets for the whole crew.

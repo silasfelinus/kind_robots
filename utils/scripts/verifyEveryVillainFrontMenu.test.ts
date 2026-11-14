@@ -52,6 +52,7 @@ import {
 } from '../everyVillainTactics/mapArt'
 import {
   PAINTED_EVT_REVEAL_ART,
+  PAINTED_EVT_SUPPORT_ART,
   paintedRevealArtId,
 } from '../everyVillainTactics/revealArt'
 import {
@@ -382,6 +383,12 @@ for (const id of [
 assert.match(menu, /'front-origin-' \+ option\.id/)
 assert.match(menu, /'front-affinity-' \+ option\.id/)
 assert.match(menu, /data-testid="front-character-reveal"/)
+assert.match(menu, /paintedRevealArtId\(comicIntroFor\(pickedLead.value/)
+assert.match(menu, /useEveryVillainTacticsArtStore/)
+assert.match(menu, /paintedArt.ensure\(heroId\)/)
+assert.match(menu, /paintedArt.ensure\(villainId\)/)
+assert.match(menu, /selectedPaintedArtwork.value/)
+assert.match(menu, /evf-painted-art/)
 assert.match(menu, /store\.startOneShot\(stage\.id, pickedLead, pickedView\)/)
 assert.match(menu, /scriptedFoilFor\(pickedLead\.value\)/)
 assert.doesNotMatch(menu, /'front-foil-' \+ person\.signature/)
@@ -447,9 +454,8 @@ assert.equal(fireSelected(rangeState, rival), true)
 assert.equal(shooter.fired, true)
 assert.equal(shooter.ap, 1)
 assert.equal(fireSelected(rangeState, rival), false)
-// Exactly 12 new, distinct, generated actor paintings: hero and villain
-// portrayals of each First Bell speaker. Prom of Doom keeps its existing
-// canonical outcome art, and unauthored roles never receive fake images.
+// All 177 newly generated ArtImages are attached, without replacing the
+// 12 earlier First Bell paintings or a finished direct Prom poster.
 const firstBellReveals = [
   ['accident-fire', 270741, 270742],
   ['tech-genius', 270743, 270744],
@@ -458,30 +464,64 @@ const firstBellReveals = [
   ['tech-fire', 270749, 270750],
   ['magic-social', 270751, 270752],
 ] as const
-assert.equal(Object.keys(PAINTED_EVT_REVEAL_ART).length, 12)
-assert.equal(new Set(Object.values(PAINTED_EVT_REVEAL_ART)).size, 12)
+assert.equal(Object.keys(PAINTED_EVT_REVEAL_ART).length, 95)
+assert.equal(Object.keys(PAINTED_EVT_SUPPORT_ART).length, 96)
+const ids = [
+  ...Object.values(PAINTED_EVT_REVEAL_ART),
+  ...Object.values(PAINTED_EVT_SUPPORT_ART),
+]
+assert.equal(new Set(ids).size, 191)
+assert.ok(ids.every((id) => Number.isSafeInteger(id) && id > 0))
 for (const [signature, heroImage, villainImage] of firstBellReveals) {
   assert.equal(paintedRevealArtId(comicIntroFor(signature, 'hero')), heroImage)
   assert.equal(
     paintedRevealArtId(comicIntroFor(signature, 'villain')),
     villainImage,
   )
-  assert.equal(paintedRevealArtId(comicIntroFor(signature, 'henchman')), null)
-  assert.equal(paintedRevealArtId(comicIntroFor(signature, 'lieutenant')), null)
 }
+assert.equal(
+  paintedRevealArtId(comicIntroFor('accident-earth', 'hero')),
+  271955,
+)
+assert.equal(
+  paintedRevealArtId(comicIntroFor('accident-earth', 'villain')),
+  271956,
+)
+assert.equal(
+  paintedRevealArtId(comicIntroFor('accident-fire', 'lieutenant')),
+  272038,
+)
+assert.equal(
+  paintedRevealArtId(comicIntroFor('accident-fire', 'henchman')),
+  272085,
+)
+assert.equal(
+  paintedRevealArtId(comicIntroFor('accident-earth', 'lieutenant')),
+  257611,
+)
+assert.equal(
+  paintedRevealArtId(comicIntroFor('accident-earth', 'henchman')),
+  257626,
+)
 assert.equal(paintedRevealArtId(null), null)
 for (const person of IDENTITY_ARCS) {
-  if (firstBellReveals.some(([signature]) => signature === person.signature))
-    continue
-  assert.equal(
-    paintedRevealArtId(comicIntroFor(person.signature, 'hero')),
-    null,
-  )
-  assert.equal(
-    paintedRevealArtId(comicIntroFor(person.signature, 'villain')),
-    null,
-  )
-  assert.ok(comicIntroArt(comicIntroFor(person.signature, 'hero')))
+  for (const role of ['hero', 'villain'] as const) {
+    const intro = comicIntroFor(person.signature, role)
+    const privateId = paintedRevealArtId(intro)
+    if (person.signature === 'mutant-genius' && role === 'villain') {
+      assert.equal(privateId, null, 'use the existing direct Prom poster')
+    } else {
+      assert.ok(privateId, person.signature + ' ' + role)
+    }
+    assert.ok(privateId || comicIntroArt(intro))
+  }
+  for (const role of ['lieutenant', 'henchman'] as const) {
+    const intro = comicIntroFor(person.signature, role)
+    assert.ok(
+      paintedRevealArtId(intro),
+      person.signature + ' ' + role + ' must have its own painted actor',
+    )
+  }
 }
 assert.match(page, /paintedRevealArtId\(activeComicIntro.value\)/)
 assert.match(page, /\[activeComicImageId, \(\) => viewer.token\]/)

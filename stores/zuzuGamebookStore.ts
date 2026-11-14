@@ -62,7 +62,9 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   const accountStatus = ref<
     'local' | 'checking' | 'synced' | 'conflict' | 'offer-upload' | 'offline'
   >('local')
-  const accountCopy = ref<{ save: ZuzuAccountSave; revision: number } | null>(null)
+  const accountCopy = ref<{ save: ZuzuAccountSave; revision: number } | null>(
+    null,
+  )
   let accountRevision: number | null = null
   let activeAccountId: number | null = null
   let cloudWrites: Promise<void> = Promise.resolve()
@@ -89,7 +91,8 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
         activeAccountId !== userId ||
         user.authenticatedUserId !== userId ||
         !user.token
-      ) return
+      )
+        return
       const snapshot = accountSnapshot()
       if (!validZuzuAccountSave(snapshot)) {
         accountStatus.value = 'offline'
@@ -105,8 +108,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
           body: { save: snapshot, expectedRevision: accountRevision },
         })
         if (!result.success || !result.data) throw new Error('Save failed')
-        if (activeAccountId === userId)
-          accountRevision = result.data.revision
+        if (activeAccountId === userId) accountRevision = result.data.revision
       } catch {
         // The device copy always remains usable; never blind-overwrite a
         // newer cloud revision after a failed write.
@@ -153,7 +155,9 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
             ? 'offer-upload'
             : 'synced'
         if (accountStatus.value === 'synced') queueAccountSave()
-      } else if (JSON.stringify(accountSnapshot()) === JSON.stringify(remote.save)) {
+      } else if (
+        JSON.stringify(accountSnapshot()) === JSON.stringify(remote.save)
+      ) {
         accountStatus.value = 'synced'
       } else if (
         run.value.visited.length <= 1 &&
@@ -183,11 +187,19 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     const remote = accountCopy.value
     if (!remote || !loaded.value) return
     const previous = run.value
-    run.value = { ...remote.save.run, pendingLoot: remote.save.run.pendingLoot ?? [] }
-    recoverable.value = previous.visited.length > 1 ? previous : remote.save.recoverable
-    discovered.value = [...new Set([...discovered.value, ...remote.save.endings])]
+    run.value = {
+      ...remote.save.run,
+      pendingLoot: remote.save.run.pendingLoot ?? [],
+    }
+    recoverable.value =
+      previous.visited.length > 1 ? previous : remote.save.recoverable
+    discovered.value = [
+      ...new Set([...discovered.value, ...remote.save.endings]),
+    ]
     played.value = [...new Set([...played.value, ...remote.save.played])]
-    discoveredCast.value = [...new Set([...discoveredCast.value, ...remote.save.cast])]
+    discoveredCast.value = [
+      ...new Set([...discoveredCast.value, ...remote.save.cast]),
+    ]
     scrapbook.value = remote.save.scrapbook.reduce(
       (entries, entry) => addJourney(entries, entry),
       scrapbook.value,

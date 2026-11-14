@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
 
     const payload: unknown = JSON.parse(row.payload)
     if (!validZuzuAccountSave(payload))
-      throw createError({ statusCode: 500, message: 'Account save is invalid.' })
+      throw createError({
+        statusCode: 500,
+        message: 'Account save is invalid.',
+      })
 
     return {
       success: true,

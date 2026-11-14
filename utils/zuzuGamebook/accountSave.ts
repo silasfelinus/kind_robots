@@ -31,8 +31,7 @@ function endingList(value: unknown): value is string[] {
 
 /** Strict enough to keep corrupt or oversized account writes off the server. */
 export function validZuzuAccountSave(value: unknown): value is ZuzuAccountSave {
-  if (!value || typeof value !== 'object' || Array.isArray(value))
-    return false
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const candidate = value as Partial<ZuzuAccountSave>
   if (
     candidate.version !== 1 ||

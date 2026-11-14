@@ -125,7 +125,10 @@ const cloud = {
 }
 assert.equal(validZuzuAccountSave(cloud), true)
 assert.equal(validZuzuAccountSave({ ...cloud, endings: ['unknown'] }), false)
-assert.equal(validZuzuAccountSave({ ...cloud, cast: ['coyote', 'coyote'] }), false)
+assert.equal(
+  validZuzuAccountSave({ ...cloud, cast: ['coyote', 'coyote'] }),
+  false,
+)
 assert.equal(validZuzuAccountSave({ ...cloud, recoverable: {} }), false)
 assert.equal(validZuzuAccountSave({ ...cloud, version: 2 }), false)
 assert.equal(
@@ -138,7 +141,10 @@ assert.equal(
 )
 
 const readAccount = readFileSync('server/api/zuzu-gamebook/save.get.ts', 'utf8')
-const writeAccount = readFileSync('server/api/zuzu-gamebook/save.put.ts', 'utf8')
+const writeAccount = readFileSync(
+  'server/api/zuzu-gamebook/save.put.ts',
+  'utf8',
+)
 assert.match(readAccount, /requireHumanApiUser/)
 assert.match(writeAccount, /requireHumanApiUser/)
 assert.match(writeAccount, /expectedRevision/)

@@ -208,16 +208,27 @@
                   data-testid="zuzu-gamebook-account-save"
                 >
                   <h3 class="font-serif text-lg font-bold">Account Continue</h3>
-                  <p v-if="!user.authenticatedUserId" class="mt-1 text-xs opacity-75">
+                  <p
+                    v-if="!user.authenticatedUserId"
+                    class="mt-1 text-xs opacity-75"
+                  >
                     Sign in to carry this journey between devices. Your local
                     save and portable save code still work.
                   </p>
-                  <p v-else-if="store.accountStatus === 'checking'" class="mt-1 text-xs" role="status">
+                  <p
+                    v-else-if="store.accountStatus === 'checking'"
+                    class="mt-1 text-xs"
+                    role="status"
+                  >
                     Checking your saved journey…
                   </p>
-                  <p v-else-if="store.accountStatus === 'synced'" class="mt-1 text-xs" role="status">
-                    Saved to your account after each move. Your device keeps
-                    its own backup too.
+                  <p
+                    v-else-if="store.accountStatus === 'synced'"
+                    class="mt-1 text-xs"
+                    role="status"
+                  >
+                    Saved to your account after each move. Your device keeps its
+                    own backup too.
                   </p>
                   <template v-else-if="store.accountStatus === 'offer-upload'">
                     <p class="mt-1 text-xs opacity-75" role="status">
@@ -239,10 +250,18 @@
                       silently.
                     </p>
                     <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                      <button type="button" class="btn btn-warning btn-sm" @click="store.restoreAccountCopy()">
+                      <button
+                        type="button"
+                        class="btn btn-warning btn-sm"
+                        @click="store.restoreAccountCopy()"
+                      >
                         Restore account journey
                       </button>
-                      <button type="button" class="btn btn-outline btn-sm" @click="keepDeviceAccount">
+                      <button
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        @click="keepDeviceAccount"
+                      >
                         Keep this device's journey
                       </button>
                     </div>
@@ -1078,7 +1097,10 @@ import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useZuzuGamebookStore()
 const user = useUserStore()
-watch(() => user.authenticatedUserId, () => void store.syncAccount())
+watch(
+  () => user.authenticatedUserId,
+  () => void store.syncAccount(),
+)
 const kit = usePlaybookKitStore()
 const frontOpen = ref(true)
 const showSheet = ref(false)
@@ -1400,9 +1422,10 @@ function openLedgerFromCover() {
 function keepDeviceAccount() {
   if (
     window.confirm(
-      'Use this device\'s journey for your account? The previously saved account route will be replaced.',
+      "Use this device's journey for your account? The previously saved account route will be replaced.",
     )
-  ) store.keepDeviceCopy()
+  )
+    store.keepDeviceCopy()
 }
 function recover() {
   if (

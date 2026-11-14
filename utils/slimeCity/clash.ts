@@ -519,7 +519,7 @@ export function clashCardText(card: Card, level = 1, pick?: EvoPick): string {
       : evolvedText
   if (card.kind === 'creature')
     return [
-      ...(b.armor ? ['Armor: blocks 1 damage per hit.'] : []),
+      ...(b.armor ? ['Armor: blocks 1 per hit.'] : []),
       ...(card.keywords ?? []).map((k) => CLASH_TRAIT_TEXT[k]),
       clashTwistText(card.id, level),
       clashEvolutionText(card, level, pick),

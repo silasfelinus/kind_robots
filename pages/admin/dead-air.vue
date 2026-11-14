@@ -44,76 +44,7 @@
       v-else
       class="grid min-h-0 flex-1 gap-2 overflow-hidden p-2 lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)]"
     >
-      <aside
-        class="kr-panel kr-scroll min-h-0 overflow-y-auto p-2"
-        aria-label="Dead Air private film archive"
-      >
-        <p class="mb-2 text-xs font-black uppercase tracking-wider opacity-65">
-          Archive · newest first
-        </p>
-        <p v-if="store.error" role="alert" class="text-sm text-error">
-          {{ store.error }}
-        </p>
-        <p v-if="!films.length" class="kr-text-dim-sm p-4 text-center">
-          No private Dead Air broadcasts found. Films appear here after the
-          producer creates a saved MusicVideo.
-        </p>
-        <div
-          v-else
-          class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1"
-        >
-          <button
-            v-for="film in films"
-            :key="film.id"
-            type="button"
-            class="flex min-w-0 gap-2 rounded-xl border p-2 text-left transition-colors"
-            :class="
-              selected?.id === film.id
-                ? 'border-primary bg-primary/10'
-                : 'border-base-300 bg-base-100/70 hover:border-primary/50'
-            "
-            :aria-pressed="selected?.id === film.id"
-            :data-testid="'dead-air-film-' + film.id"
-            @click="selectFilm(film.id)"
-          >
-            <div
-              class="relative aspect-video w-[42%] shrink-0 overflow-hidden rounded-lg bg-neutral"
-            >
-              <img
-                v-if="film.hasFinal && !posterFailures[film.id]"
-                :src="store.posterUrl(film.id)"
-                :alt="'Poster for ' + film.title"
-                class="h-full w-full object-cover"
-                loading="lazy"
-                @error="posterFailures[film.id] = true"
-              />
-              <div
-                v-else
-                class="grid h-full place-items-center text-xl text-neutral-content"
-                aria-hidden="true"
-              >
-                ◉
-              </div>
-            </div>
-            <span class="flex min-w-0 flex-1 flex-col justify-center gap-1">
-              <strong class="line-clamp-2 text-sm leading-tight">
-                {{ displayTitle(film.title) }}
-              </strong>
-              <small class="text-[11px] opacity-70">
-                #{{ film.id }} · {{ dateLabel(film.createdAt) }}
-              </small>
-              <span class="flex flex-wrap gap-1">
-                <span class="kr-badge-outline text-[10px]">
-                  {{ film.hasFinal ? 'Final cut' : 'Rendering / draft' }}
-                </span>
-                <span class="kr-badge-outline text-[10px]">
-                  {{ film.isPublic ? 'Public' : 'Private' }}
-                </span>
-              </span>
-            </span>
-          </button>
-        </div>
-      </aside>
+      <DeadAirArchive :films="films" :selected-id="selected?.id ?? null" @select="selectFilm" />
 
       <section
         v-if="!selected"
@@ -157,9 +88,9 @@
             </div>
           </div>
           <div class="flex flex-wrap items-center gap-2 px-1 pt-2">
-            <h1 class="min-w-0 flex-1 truncate text-base font-black">
+            <h2 class="min-w-0 flex-1 truncate text-base font-black">
               {{ displayTitle(selected.title) }}
-            </h1>
+            </h2>
             <span class="kr-badge-outline text-xs">
               {{ selected.isPublic ? 'Public recording' : 'Private draft' }}
             </span>
@@ -321,7 +252,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMusicVideoStore } from '@/stores/musicVideoStore'
 import { useUserStore } from '@/stores/userStore'
 import type { MusicVideoReviewVerdict } from '@/utils/musicVideoDoc'
@@ -332,7 +263,6 @@ const ready = ref(false)
 const verdict = ref<MusicVideoReviewVerdict>('revise')
 const notes = ref('')
 const reviewNotice = ref('')
-const posterFailures = reactive<Record<number, boolean>>({})
 const verdictOptions = [
   { value: 'keep', label: 'Keep' },
   { value: 'revise', label: 'Revise' },
@@ -355,10 +285,6 @@ const selectedSummary = computed(
 
 function displayTitle(title: string): string {
   return title.replace(/^Dead Air:\s*/, '')
-}
-
-function dateLabel(value: string): string {
-  return value.slice(0, 10)
 }
 
 async function selectFilm(id: number): Promise<void> {

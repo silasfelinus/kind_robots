@@ -175,6 +175,13 @@ import {
   towerBoutMatches,
   writeTowerBout,
 } from '../utils/slimeCity/towerBoutSave'
+import {
+  clearVsBout,
+  readVsBout,
+  vsBoutMatches,
+  writeVsBout,
+  type VsBoutSave,
+} from '../utils/slimeCity/vsBoutSave'
 import { clashBossesFromTerms } from '../utils/slimeCity/clashBouts'
 import {
   CLASH_BOUT_KINDS,
@@ -293,7 +300,7 @@ export interface ClashLaunch {
   bosses?: Record<Side, number>
   /** The crew dealt as the player; defaults to the active crew. */
   player?: TeamId
-  /** Moves already played, replayed onto the deal (a resumed Tower fight). */
+  /** Moves already played, replayed onto the deal (a resumed fight). */
   resume?: ClashCommand[]
 }
 /** Two decks hold the same cards, in any order. */
@@ -1717,13 +1724,106 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     stop()
     // An abandoned City or Story bout never inherits a practice or reward
     // result.
-    if (next.kind === 'practice' || next.kind === 'reward') clearBouts()
+    const vs = next.kind === 'practice' || next.kind === 'reward'
+    if (vs) clearBouts()
     clashResult.value = null
     lastPayout.value = null
-    clashLaunch.value = { ...next, id: clashLaunch.value.id + 1 }
+    // A VS match freezes the crew and deck it was dealt, so a reload can
+    // rebuild the same board even if the crew or deck changes afterward.
+    const frozen: Omit<ClashLaunch, 'id'> = vs
+      ? {
+          ...next,
+          player: next.player ?? activeTeam.value,
+          ...(next.format === 'alliance'
+            ? {
+                alliance: next.alliance ?? playAlliance.value,
+                cards: undefined,
+              }
+            : {
+                cards: [...(next.cards ?? playSolo.value)],
+                alliance: undefined,
+              }),
+        }
+      : next
+    clashLaunch.value = { ...frozen, id: clashLaunch.value.id + 1 }
     if (next.kind === 'tower')
       recordTowerCommands(clashLaunch.value.id, next.resume ?? [])
+    if (vs) {
+      vsSavedAt = next.resume
+        ? (vsBout.value?.savedAt ?? Date.now())
+        : Date.now()
+      recordVsCommands(clashLaunch.value.id, next.resume ?? [])
+    }
     view.value = 'clash'
+  }
+  /** VS: the unfinished CPU match this device can resume, if any. */
+  const vsBout = ref<VsBoutSave | null>(null)
+  let vsSavedAt = 0
+  function hydrateVsBout(): void {
+    const saved = readVsBout()
+    vsBout.value = vsBoutMatches(saved, towerBoutAccount()) ? saved : null
+  }
+  /**
+   * Every move of a VS CPU match is kept on this device, so a reload can
+   * resume the same board. A reward match is still paid only by the server's
+   * replay of the full command log.
+   */
+  function recordVsCommands(
+    launchId: number,
+    commands: readonly ClashCommand[],
+  ): void {
+    const launch = clashLaunch.value
+    if (
+      launchId !== launch.id ||
+      (launch.kind !== 'practice' && launch.kind !== 'reward') ||
+      clashResult.value
+    )
+      return
+    const bout: VsBoutSave = {
+      version: 1,
+      account: towerBoutAccount(),
+      savedAt: vsSavedAt || Date.now(),
+      launch: {
+        kind: launch.kind,
+        format: launch.format,
+        player: launch.player ?? activeTeam.value,
+        enemy: launch.enemy,
+        seed: launch.seed,
+        ...(launch.rewardId ? { rewardId: launch.rewardId } : {}),
+        ...(launch.format === 'alliance'
+          ? { alliance: launch.alliance ?? playAlliance.value }
+          : { cards: [...(launch.cards ?? playSolo.value)] }),
+      },
+      commands: [...commands],
+    }
+    vsBout.value = writeVsBout(bout) ? bout : null
+  }
+  /** Every Clash move is kept for the fights that can resume after reload. */
+  function recordClashCommands(
+    launchId: number,
+    commands: readonly ClashCommand[],
+  ): void {
+    recordTowerCommands(launchId, commands)
+    recordVsCommands(launchId, commands)
+  }
+  /**
+   * RESUME CPU MATCH: rebuild the unfinished VS match from this device's
+   * record. A stale or foreign record is dropped instead.
+   */
+  function resumeVsBout(): void {
+    const saved = readVsBout()
+    if (!vsBoutMatches(saved, towerBoutAccount())) {
+      forgetVsBout()
+      return
+    }
+    vsBout.value = saved
+    boutUnrewarded.value = ''
+    launchClash({ ...saved.launch, resume: saved.commands })
+  }
+  /** Abandon the saved VS match on this device. */
+  function forgetVsBout(): void {
+    clearVsBout()
+    vsBout.value = null
   }
   /** Who owns this device's Tower fight record. */
   function towerBoutAccount(): string {
@@ -1918,6 +2018,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const launch = clashLaunch.value
     if (launchId !== launch.id || !state.victor || clashResult.value) return
     clashResult.value = { kind: launch.kind, victor: state.victor }
+    if (launch.kind === 'practice' || launch.kind === 'reward') forgetVsBout()
     if (launch.kind !== 'reward' && launch.rewardId)
       void finishCpuBattle(launch.rewardId, [...state.commands])
     if (launch.kind === 'tower' && towerRun.value?.phase === 'battle') {
@@ -2861,6 +2962,12 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     forfeitTower,
     resumeTowerBout,
     recordTowerCommands,
+    vsBout,
+    hydrateVsBout,
+    recordVsCommands,
+    recordClashCommands,
+    resumeVsBout,
+    forgetVsBout,
     showTower,
     showVs,
     currentDeck,

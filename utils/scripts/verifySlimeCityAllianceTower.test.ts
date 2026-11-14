@@ -358,7 +358,8 @@ assert.ok(
 )
 assert.ok(store.includes('function resumeTowerBout'))
 assert.ok(stage.includes('lab.resumeTowerBout()'))
-assert.ok(clash.includes('lab.recordTowerCommands(dealtLaunch'))
+assert.ok(clash.includes('lab.recordClashCommands(dealtLaunch'))
+assert.ok(store.includes('recordTowerCommands(launchId, commands)'))
 assert.ok(clash.includes('lab.clashLaunch.resume'))
 console.log(
   'Slime City Alliance Tower: 24 authored route beats, 30 faction pairs, 360 ascending branches, spoils/zero-win protection, Clash replay, mid-fight resume record, saved legacy and UI contracts PASS',

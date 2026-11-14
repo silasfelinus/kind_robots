@@ -57,17 +57,67 @@
             {{ lab.campaignState.wins + 1 }}</small
           >
         </button>
-        <button
-          type="button"
-          class="scs-settings"
-          aria-label="Settings"
-          title="Settings"
-          data-testid="slime-splash-settings"
-          @click="go(() => (lab.view = 'settings'))"
-        >
-          <icon name="kind-icon:settings" class="h-6 w-6" />
-        </button>
+        <div class="scs-corner" data-testid="slime-splash-console">
+          <button
+            type="button"
+            class="scs-settings"
+            aria-label="Achievements"
+            title="Achievements"
+            :aria-expanded="achievementsOpen"
+            aria-controls="slime-splash-achievements-panel"
+            data-testid="slime-splash-achievements"
+            @click="achievementsOpen = !achievementsOpen"
+          >
+            <icon name="kind-icon:trophy" class="h-6 w-6" />
+          </button>
+          <button
+            type="button"
+            class="scs-settings"
+            aria-label="Scrapbook and endings"
+            title="Scrapbook and endings"
+            :disabled="leaving"
+            data-testid="slime-splash-scrapbook"
+            @click="openScrapbook"
+          >
+            <icon name="kind-icon:book-open" class="h-6 w-6" />
+          </button>
+          <button
+            type="button"
+            class="scs-settings"
+            aria-label="Settings"
+            title="Settings"
+            data-testid="slime-splash-settings"
+            @click="go(() => (lab.view = 'settings'))"
+          >
+            <icon name="kind-icon:settings" class="h-6 w-6" />
+          </button>
+        </div>
       </header>
+
+      <section
+        v-if="achievementsOpen"
+        id="slime-splash-achievements-panel"
+        class="scs-trophies kr-scroll"
+        aria-label="Slime City achievements"
+        data-testid="slime-splash-achievements-panel"
+        @keydown.esc="achievementsOpen = false"
+      >
+        <div class="scs-trophies-head">
+          <strong>ACHIEVEMENTS</strong>
+          <button
+            type="button"
+            class="scs-trophies-close"
+            data-testid="slime-splash-achievements-close"
+            @click="achievementsOpen = false"
+          >
+            CLOSE
+          </button>
+        </div>
+        <GameAchievementStrip game="slime-city" layout="icons" />
+        <p class="scs-trophies-note">
+          Win Clashes, finish crew stories and climb the Tower to earn them.
+        </p>
+      </section>
 
       <section class="scs-crew-pane" aria-labelledby="slime-splash-crew-head">
         <article
@@ -293,6 +343,16 @@ function resumeJourney(): void {
   // Continue always restores the saved crew, even if the roster preview changed.
   pickedId.value = lab.activeTeam
   go(() => lab.showCampaign())
+}
+
+const achievementsOpen = ref(false)
+
+/** Title-console Scrapbook: open the Journey on its endings gallery. */
+function openScrapbook(): void {
+  go(() => {
+    lab.showCampaign()
+    lab.endingsOpen = true
+  })
 }
 
 function enter(destination: Destination): void {
@@ -650,10 +710,14 @@ onBeforeUnmount(() => clearTimeout(timer))
   cursor: default;
 }
 
-.scs-settings {
+.scs-corner {
   position: absolute;
   top: 0;
   right: 0;
+  display: flex;
+  gap: 0.4rem;
+}
+.scs-settings {
   display: grid;
   place-items: center;
   width: 2.6rem;
@@ -750,6 +814,57 @@ onBeforeUnmount(() => clearTimeout(timer))
   outline: 2px solid #c5ff59;
   outline-offset: 2px;
 }
+.scs-settings:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.scs-trophies {
+  position: absolute;
+  z-index: 3;
+  top: clamp(3.4rem, 9cqh, 4.5rem);
+  right: clamp(0.75rem, 3cqw, 2rem);
+  width: min(26rem, calc(100% - 1.5rem));
+  max-height: min(70cqh, 32rem);
+  overflow-y: auto;
+  padding: 0.85rem;
+  border: 1px solid #c5ff5966;
+  border-radius: 1rem;
+  background: #0b111be8;
+  box-shadow: 0 1rem 2.5rem #0009;
+  text-align: left;
+}
+.scs-trophies-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.scs-trophies-head strong {
+  color: #c5ff59;
+  font-size: 0.75rem;
+  font-weight: 950;
+  letter-spacing: 0.2em;
+}
+.scs-trophies-close {
+  border: 1px solid #c5ff5955;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  background: transparent;
+  color: #e7ecf3;
+  font-size: 0.65rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+.scs-trophies-close:focus-visible {
+  outline: 2px solid #c5ff59;
+  outline-offset: 2px;
+}
+.scs-trophies-note {
+  margin-top: 0.6rem;
+  color: #a6aac0;
+  font-size: 0.7rem;
+}
 .scs-tile.primary {
   border-color: #c5ff59;
   box-shadow: 0 0 24px #c5ff5955;
@@ -768,6 +883,12 @@ onBeforeUnmount(() => clearTimeout(timer))
   }
   .scs-head {
     align-items: center;
+  }
+  /* Stacked layout: the console row sits above the centered title, never on it. */
+  .scs-corner {
+    position: static;
+    order: -1;
+    align-self: flex-end;
   }
   .scs-title {
     font-size: clamp(2.2rem, min(13cqw, 10cqh), 7rem);

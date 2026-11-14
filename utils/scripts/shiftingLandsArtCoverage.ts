@@ -118,7 +118,10 @@ for (const character of PREMADE_CHARACTERS)
   add(
     'traveler-portrait',
     character.id,
-    character.portrait.startsWith('/shifting-lands/portraits/')
+    // Zuzu keeps his locked Book One cast plate; every other traveler has a
+    // dedicated traveler portrait.
+    character.portrait.startsWith('/shifting-lands/portraits/') ||
+      character.id === 'zuzu'
       ? character.portrait
       : null,
     character.portrait,

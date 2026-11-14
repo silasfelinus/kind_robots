@@ -19,6 +19,9 @@
 // JOURNEY-EPILOGUES-ROUND-1 plates (ArtImages 269914-269931), each fetched and
 // contact-sheet reviewed, so the finale paints the journey ending earned.
 // 2026-11-14 PT: ironjaw/journey-left re-render (ArtImage 270401) completes all 18.
+// 2026-11-14 PT key journey scenes (slime-city/t-062): the first 6 of the 18
+// JOURNEY-SCENES-ROUND-1 plates (catgirls, bloodfairies; ArtImages 271836-271841),
+// each fetched and contact-sheet reviewed. The other crews follow once rendered.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
@@ -522,6 +525,14 @@ export const SLIME_CITY_ART = {
     'exchange/journey-left': 269929,
     'exchange/journey-right': 269930,
     'exchange/journey-mixed': 269931,
+    // Key journey scene plates (2026-11-14 PT, JOURNEY-SCENES-ROUND-1):
+    // '<crew>/scene-<beat-id>', shown as the campaign backdrop for that beat.
+    'catgirls/scene-the-tunnel-tax': 271836,
+    'catgirls/scene-the-second-mold': 271837,
+    'catgirls/scene-number-zero': 271838,
+    'bloodfairies/scene-the-first-chorus': 271839,
+    'bloodfairies/scene-the-picket-above-the-city': 271840,
+    'bloodfairies/scene-the-last-encore': 271841,
   },
   /** Attack-family icons, same round. */
   attacks: {
@@ -1404,4 +1415,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 808
+export const SLIME_CITY_ART_COUNT = 814

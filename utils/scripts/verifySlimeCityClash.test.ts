@@ -179,6 +179,12 @@ for (const testid of [
 }
 assert.match(gamePage, /console-theme="slime-city"/)
 assert.match(splash, /data-testid="slime-splash-decks"/)
+// Main-game standard (conductor slime-city t-063): the title console reaches
+// Achievements and the Scrapbook/endings gallery as well as Settings.
+assert.match(splash, /data-testid="slime-splash-achievements"/)
+assert.match(splash, /<GameAchievementStrip game="slime-city"/)
+assert.match(splash, /data-testid="slime-splash-scrapbook"/)
+assert.match(splash, /lab\.endingsOpen = true/)
 assert.match(splash, /prefers-reduced-motion: reduce/)
 assert.match(
   store,

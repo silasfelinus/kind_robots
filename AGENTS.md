@@ -185,9 +185,12 @@ project has one Kind Robots `Project` row, joined only by `Project.conductorSlug
 ## Formatting and verifying
 
 Keep the repo-wide Prettier ratchet: **never weaken it or re-record its baseline to go green.**
-Run `npm run format:changed` before opening or updating a PR (connector-only edits: apply the
-`Changed-file Prettier` check's suggested patch). Typecheck and run the tests that cover what you
-touched. Don't weaken, skip or delete a legitimate test to manufacture a pass; if a check is red
+Run `npm run format:changed` before opening or updating a PR. Connector-only edits can't run it:
+write Prettier-shaped code (no semicolons; single quotes unless the string contains `'`; wrap at
+80 columns; trailing commas in every multi-line list/object/argument list), push all files in one
+commit, and if `Changed-file Prettier` still fails, **don't hand-apply its patch** — the `Push
+Prettier autofix` job commits it and re-runs the checks; re-read files after it lands. Typecheck
+and run the tests that cover what you touched. Don't weaken, skip or delete a legitimate test to manufacture a pass; if a check is red
 for reasons that predate your change, say so explicitly. Hook mechanics:
 [`docs/agent-standards-detail.md`](docs/agent-standards-detail.md).
 

@@ -69,9 +69,13 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // last breath hits both crews alike). Counterplay: never kill him while
   // your side is wider; stun him and leave him alive.
   's1-blast-radius': {
-    2: stage('Field Test', [on('kill', damage(2, 'adjacentFoes'))]),
+    2: stage('Field Test', [
+      on('kill', damage(2, 'adjacentFoes')),
+      on('tap', damage(1, 'adjacentFoes')),
+    ]),
     3: stage('Grand Unified Blast', [
       on('death', damage(2, 'allFoes'), damage(2, 'allies')),
+      on('tap', damage(2, 'adjacentFoes')),
     ]),
   },
   // Arc: a courier with a ticking parcel -> every open street gets a

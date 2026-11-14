@@ -328,7 +328,8 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'When sprung, a seeded 50% chance blasts a neighboring rival for 2.',
     'Each neighboring rival independently has a 50% chance to take 3.',
   ],
-  fuse: [ fighter\'s attack.',
+  fuse: [
+    'Permanently boost a friendly fighter\'s attack.',
     'Boost a friendly fighter\'s attack permanently; it takes 1 recoil damage.',
     'Boost a friendly fighter; sacrifice the weakest adjacent ally for +4 attack, or take 2 recoil.',
   ],

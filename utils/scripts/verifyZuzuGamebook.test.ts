@@ -83,10 +83,10 @@ assert.deepEqual(
 )
 assert.ok(reckoning.choices?.every((choice) => choice.to === 'posters'))
 assert.equal(
-  reckoning.choices?.[0]?.effects?.flag,
+  reckoning.choices?.[0]?.flag,
   'honor:remembered-the-gone',
 )
-assert.equal(reckoning.choices?.[1]?.effects?.flag, 'abbess-doubt')
+assert.equal(reckoning.choices?.[1]?.flag, 'abbess-doubt')
 
 const titleOwners = new Map<string, string>()
 for (const node of Object.values(BOOK)) {

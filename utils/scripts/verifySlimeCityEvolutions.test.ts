@@ -142,11 +142,21 @@ for (const [id, level] of [
     id + ' L' + level + ' has a real tap trigger',
   )
   assert.match(
-    clashCardText(cardById(id), level),
+    clashCardText(
+      cardById(id),
+      level,
+      clashEvolutionChoice(id, level) ? 0 : undefined,
+    ),
     /Tap \(skip strike\): /,
     id + ' L' + level + ' shows its complete active ability',
   )
 }
+
+assert.match(
+  clashCardText(cardById('s2-ironjaw-foundry-lion'), 3, 1),
+  /Tap \(skip strike\): /,
+  'the alternate crane-jaw evolution retains its own full tap rule',
+)
 
 // --- The pilot is a full Solo Clash side: twenty Catgirls, every one with
 // its own level-two and level-three story (eight twists + twelve crafted, with

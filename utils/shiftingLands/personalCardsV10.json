@@ -111,7 +111,7 @@
       "title": "The Smith Who Asks for Your Blade",
       "flavor": "A pronghorn smith works a cart forge at the edge of the camp, mending wagon iron for food. She stops hammering when she sees the sword on your back and asks, very politely, to see the steel. Nobody here folds metal that way. A blade like that, she says, could become twenty plough points, and the camp is out of plough points. Behind her a family is trying to break dry ground with a stick.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a9-forge.webp",
+      "art": "/shifting-lands/cards/the-smith-who-asks-for-your-blade.webp",
       "choices": [
         {
           "id": "show-her-the-fold",
@@ -875,7 +875,7 @@
       "title": "Warm Beds, Separate Rooms",
       "flavor": "The sisters at the refuge are kind. They scrub Bao until he is fluffy and laughing, and offer you a dress with no holes in it, which you refuse. At bedtime the eldest sister explains, gently, that the little ones sleep in the warm room at the back and the big ones in the hall. Bao is already asleep on her shoulder. She has not asked you.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a5-bath.webp",
+      "art": "/shifting-lands/cards/warm-beds-separate-rooms.webp",
       "choices": [
         {
           "id": "take-him-back",
@@ -1363,7 +1363,7 @@
       "title": "A Year of Water on Your Head",
       "flavor": "Your face is nailed above the trading post counter, drawn from the wrong side so the patch sits over the wrong eye. A year of water from the Dustwater water house, it says, to whoever brings you in. A thin opossum with three kits at his heels reads it twice, then looks at you, then at the kits' cracked lips. He has not decided yet. Neither have you.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/posters-boardwalk.webp",
+      "art": "/shifting-lands/cards/a-year-of-water-on-your-head.webp",
       "choices": [
         {
           "id": "let-him-bring-you-in",
@@ -1591,7 +1591,7 @@
       "title": "Runaways at the Canyon Fire",
       "flavor": "Seven travelers share one fire at the canyon camp, and two of them are children too careful for their age: a lynx girl and her small brother with no grown-up of their own. Across the flames a tall rider in a water house coat warms his paws. He knows your face. He says quietly that the water house would burn your notice for two strays who ran from a mission wagon, and he does not look at the children, which is how you know he means them.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/camp.webp",
+      "art": "/shifting-lands/cards/runaways-at-the-canyon-fire.webp",
       "choices": [
         {
           "id": "take-his-trade",
@@ -2194,7 +2194,7 @@
       "title": "A Bent Ear in the Gate Line",
       "flavor": "In the crowd pressing at the last gate there is a rabbit boy of about seven with one ear bent over, alone, holding a wardens' tag he cannot read. He is not Lark. Lark would be grown by now, or would be nothing at all. Your heart does not care. The wardens are passing families through and turning back children who have nobody to vouch for them.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a9-many.webp",
+      "art": "/shifting-lands/cards/a-bent-ear-in-the-gate-line.webp",
       "choices": [
         {
           "id": "tell-the-wardens-hes-yours",
@@ -2314,7 +2314,7 @@
       "title": "The Chalk on the Gatepost",
       "flavor": "Two seasons back, before the dry well gave out, you chalked the band's sign on this gatepost: full cellar, old ewe alone, no dogs. The chalk is still there. So is the ewe, leaning on a crutch in her doorway, watching your band come up the lane thin as rakes. Above the road, in the rocks, your three kits are keeping still the way you taught them.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a4-raider-kits.webp",
+      "art": "/shifting-lands/cards/hollis-the-chalk-on-the-gatepost.webp",
       "choices": [
         {
           "id": "take-the-cellar",
@@ -2553,7 +2553,7 @@
       "title": "The Caravan at the Fire",
       "flavor": "There is one place left at the canyon camp's fire, and the family across it are mule drivers off the salt road. Last spring your band stopped their caravan at the dry well and took everything but the mules. The father knows your notched ear before he knows your face. He does not get up. He puts a paw on his little girl's shoulder and says to the whole fire, quietly, \"That's her.\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/camp.webp",
+      "art": "/shifting-lands/cards/hollis-the-caravan-at-the-fire.webp",
       "choices": [
         {
           "id": "own-it-and-pay-what-you-can",
@@ -2893,7 +2893,7 @@
       "title": "The Sister House Barge",
       "flavor": "A flat barge with a little bell burned into its bow is loading at the landing for the sister house downriver. Two small children sit on its deck with paper tags pinned to their coats. Sister Agnete, who kept the keys when you were small, sees you on the dock and comes ashore smiling. All is forgiven, she says. You may even go your own way. She only needs to know where the rabbit kit who ran with you is hiding.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a5-wren-afraid.webp",
+      "art": "/shifting-lands/cards/the-sister-house-barge.webp",
       "choices": [
         {
           "id": "tell-her-where-the-kit-is",
@@ -3312,7 +3312,7 @@
       "title": "A Sister's Purse at the Fence",
       "flavor": "At a border farm a sister on a grey mule waits for you by the fence, as if she knew your road. Inside the farmhouse a kit is coughing. The sister has heard of the hare brother who sells water blessed by her house, and she does not mind the lie, she says. She holds out a purse that clinks: one coin for every family you send south to the sisters with a sick child. The farm wife is listening at the door.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/peddler.webp",
+      "art": "/shifting-lands/cards/a-sisters-purse-at-the-fence.webp",
       "choices": [
         {
           "id": "take-the-purse",
@@ -3432,7 +3432,7 @@
       "title": "Blessed by the Brother Himself",
       "flavor": "In the stone hollow a young vole in a black coat too big for him is selling jars of drip-pool water to the cave folk. Blessed, he cries, by the hare brother of the south road, and he rings a little tin bell exactly like yours. He has your patter down to the pauses. He does not know your face. Two children who drank from his jars yesterday are coughing against the wall, and the pool he fills from is green.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a4-peddler-exposed.webp",
+      "art": "/shifting-lands/cards/blessed-by-the-brother-himself.webp",
       "choices": [
         {
           "id": "expose-him-and-yourself",
@@ -3997,7 +3997,7 @@
       "title": "The Coven Keeps a Stool",
       "flavor": "Three crow-witches sit in the cave mouth out of the hail, black shawls pulled to their beaks, and they have kept a fourth stool empty. They knew you were coming; they always do. The eldest holds out a new tally book, its pages blank, its binding the same as the one you burned in the deep lamp. \"Write one debt in it,\" she says. \"Any debt you like. Then you can come home.\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a4-witch-blood.webp",
+      "art": "/shifting-lands/cards/the-coven-keeps-a-stool.webp",
       "choices": [
         {
           "id": "tell-them-why-you-burned-it",
@@ -4202,7 +4202,7 @@
       "title": "Supper Before the Writ",
       "flavor": "The farm wife sets a plate for you before she knows what you do for a living. Halfway through supper you recognize the farmer from the second writ in your satchel: Amos Pell, two sacks of seed owed to the land office, to be brought in alive. He sees you see it. His three kits keep eating. Nobody at the table says anything for a long time, and then his wife passes you the bread.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a6-badger-stand.webp",
+      "art": "/shifting-lands/cards/supper-before-the-writ.webp",
       "choices": [
         {
           "id": "serve-it-after-supper",
@@ -4310,7 +4310,7 @@
       "title": "The Company's Runaway",
       "flavor": "The quarry clerk meets you at the rim with a writ already filled in and a fee that would feed you for a year: one runaway apprentice, twelve years old, bound for nine more. The boy is not hard to find. He is on a ledge below the company store, splitting stone for a family who feed him, and he is very good at it. The clerk is watching to see what kind of hunter you are.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a6-badger-doubts.webp",
+      "art": "/shifting-lands/cards/the-companys-runaway.webp",
       "choices": [
         {
           "id": "serve-the-boys-writ",
@@ -4535,7 +4535,7 @@
       "title": "The Deed in Your Coat",
       "flavor": "The deed to the Dustwater water rights is folded in your coat, and the ferry is halfway across when the shouting starts on the landing behind you. Your foreman, Pruitt, a lean weasel with the water house keys still on his belt, has the pilot pole back. \"You can walk off, Mr. Vane,\" he says, loud enough for the whole landing. \"You can't walk off with the water.\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a6-vane.webp",
+      "art": "/shifting-lands/cards/the-deed-in-your-coat.webp",
       "choices": [
         {
           "id": "sign-it-to-the-town",
@@ -5644,7 +5644,7 @@
       "title": "The Lintel Over Adit Four",
       "flavor": "The timber over the fourth adit cracks like a rifle shot as you pass, and dust pours out of the dark. Six miners are shouting somewhere inside. The foreman will not send anyone in after them; the company counts timber dearer than diggers. The miners' children have come running up the spoil heap and stand in a line at the rope, safe and frightened, watching you, because you are the only thing on the hill big enough.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a3-salt-carry.webp",
+      "art": "/shifting-lands/cards/the-lintel-over-adit-four.webp",
       "choices": [
         {
           "id": "hold-the-roof-on-your-back",

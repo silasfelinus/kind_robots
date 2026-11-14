@@ -124,7 +124,9 @@ assert.equal(games, TEAMS.length * TEAMS.length * 2)
 assert.ok(cards.every((card) => card.playedGames <= card.seenGames))
 assert.ok(cards.every((card) => card.seenGames <= card.deckGames))
 assert.ok(cards.every((card) => card.upgradedGames <= card.playedGames))
-assert.ok(cards.every((card) => card.activations <= card.activationOpportunities))
+assert.ok(
+  cards.every((card) => card.activations <= card.activationOpportunities),
+)
 assert.ok(activationCommands <= activationOpportunities)
 const underselected = cards
   .filter((card) => card.seenGames >= 12 && card.selectionRate !== null)

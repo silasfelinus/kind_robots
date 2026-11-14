@@ -339,8 +339,18 @@ export const SLIME_CITY_ART = {
     'spark-diver': 262296,
     'union-millwright': 267377,
     wreckingfist: 262221,
+    // Curation redo 3 (2026-11-14 PT, conductor projects/slime-city/art/
+    // SLIME-CITY-CURATION-REDO-3.yaml): re-rendered cards whose earlier bytes were gone.
+    's2-bloodfairies-afterparty-first-aid': 269287,
+    's2-ironjaw-spare-rivet-shower': 269288,
+    's3-bloodfairies-tripcord': 269290,
+    's3-ironjaw-weld-patch': 269292,
+    's3-undertow-quiet-listener': 269293,
   },
   boards: {
+    // The five-alley Clash playmat (curation redo 3, 2026-11-14 PT). Registered only: the Clash
+    // view keeps pitworks-blackout until the playmat is checked against the alley grid.
+    'pitworks-clash': 269286,
     blackout: 258387,
     gridiron: 258388,
     bloodrush: 258389,
@@ -1430,4 +1440,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 826
+export const SLIME_CITY_ART_COUNT = 832

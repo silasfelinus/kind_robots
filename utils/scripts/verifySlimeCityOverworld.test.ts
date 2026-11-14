@@ -113,11 +113,11 @@ const artIds = [
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  826,
-  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10), plus the title key art and two re-rendered cards (2026-11-11), plus 17 journey epilogue plates (2026-11-12) and the Ironjaw journey-left redo (2026-11-14), plus 16 key journey scene plates (2026-11-14) and the riot curfew-on-joy and exchange closing-of-the-book redos (2026-11-14)',
+  832,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10), plus the title key art and two re-rendered cards (2026-11-11), plus 17 journey epilogue plates (2026-11-12) and the Ironjaw journey-left redo (2026-11-14), plus 16 key journey scene plates (2026-11-14) and the riot curfew-on-joy and exchange closing-of-the-book redos (2026-11-14), plus five redo-3 cards and the Clash playmat (2026-11-14)',
 )
 // 23 boss mood portraits (2026-11-11 PT) sit outside SLIME_CITY_ART_COUNT.
-assert.equal(artIds.length, 826 + 23)
+assert.equal(artIds.length, 832 + 23)
 // Boss reactions for the Clash versus console: every key is
 // '<crew>/<ready|hit|gloat|beaten>' for a real crew.
 for (const key of Object.keys(SLIME_CITY_ART.bosses)) {
@@ -198,8 +198,9 @@ assert.equal(
   slimeArtId('boards', 'blackout'),
 )
 // 291 since the lizard round painted Union Cook (2026-11-10 PT); 293 with
-// Pocket-Sized Problem and Long Drain Sting (2026-11-11 PT).
-assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 293)
+// Pocket-Sized Problem and Long Drain Sting (2026-11-11 PT); 298 with the five
+// curation redo-3 cards (2026-11-14 PT).
+assert.equal(Object.keys(SLIME_CITY_ART.cards).length, 298)
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).length,
   60,
@@ -212,8 +213,8 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => slimeArtId('cards', card.id)).length,
-  293,
-  '293 illustrations correspond to actual playable card IDs',
+  298,
+  '298 illustrations correspond to actual playable card IDs',
 )
 assert.equal(
   TEAMS.flatMap((team) => [...team.creatures, ...team.special]).filter(
@@ -224,7 +225,7 @@ assert.equal(
 )
 assert.equal(
   CARDS.filter((card) => !slimeArtId('cards', card.id)).length,
-  CARDS.length - 293,
+  CARDS.length - 298,
   'Unrendered faction and neutral cards retain image-shaped fallbacks',
 )
 assert.ok(slimeArtId('cards', 'calico'), 'curation redo replaced Calico')

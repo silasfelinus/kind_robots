@@ -21,9 +21,10 @@
 // 2026-11-14 PT: ironjaw/journey-left re-render (ArtImage 270401) completes all 18.
 // 2026-11-14 PT key journey scenes (slime-city/t-062): 16 of the 18
 // JOURNEY-SCENES-ROUND-1 plates (ArtImages 271836-271844, 271856-271862),
-// each fetched and contact-sheet reviewed. riot/scene-curfew-on-joy and
-// exchange/scene-the-closing-of-the-book are re-rendering (JOURNEY-SCENES-REDO-1)
-// and keep the chapter plate until wired.
+// each fetched and contact-sheet reviewed. riot/scene-curfew-on-joy is the
+// JOURNEY-SCENES-REDO-1 keeper (ArtImage 271886, no lettered plate in view);
+// exchange/scene-the-closing-of-the-book is re-rendering (JOURNEY-SCENES-REDO-2)
+// and keeps the chapter plate until wired.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
@@ -540,6 +541,7 @@ export const SLIME_CITY_ART = {
     'ironjaw/scene-band-in-the-rafters': 271844,
     'riot/scene-confetti-vault': 271856,
     'riot/scene-the-last-cannonball': 271857,
+    'riot/scene-curfew-on-joy': 271886,
     'undertow/scene-a-voice-in-the-pipes': 271858,
     'undertow/scene-auction-of-whispers': 271859,
     'undertow/scene-pirate-radio-big-top': 271860,
@@ -1427,4 +1429,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 824
+export const SLIME_CITY_ART_COUNT = 825

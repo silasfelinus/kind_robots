@@ -29,8 +29,8 @@
     >
       <h3 class="text-2xl font-black">The crossings have not been earned.</h3>
       <p class="max-w-lg text-sm leading-relaxed">
-        Complete both Hoshimori journeys and preserve the earlier witnesses. Rowan
-        cannot lead the crossing until those memories exist.
+        Complete both Hoshimori journeys and preserve the earlier witnesses.
+        Rowan cannot lead the crossing until those memories exist.
       </p>
       <button type="button" class="btn btn-warning" @click="emit('leave')">
         Return to the journey

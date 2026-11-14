@@ -6,7 +6,7 @@
   >
     <header-page-bar console-theme="memory-dungeon">
       <div class="md-bar" data-testid="memory-briar-collision-header">
-        <h2 class="md-bar-title" title="Pip · The Forest Between Floors">
+        <h2 class="md-bar-title" title="Rowan · The Forest Between Floors">
           The Briar Collision
         </h2>
         <span class="md-bar-chip">{{ collision.fragments }}/2 fragments</span>
@@ -29,8 +29,8 @@
     >
       <h3 class="text-2xl font-black">The crossings have not been earned.</h3>
       <p class="max-w-lg text-sm leading-relaxed">
-        Complete both Hoshimori journeys and preserve the earlier witnesses. Pip
-        cannot enter the rewritten forest before those memories exist.
+        Complete both Hoshimori journeys and preserve the earlier witnesses.
+        Rowan cannot lead the crossing until those memories exist.
       </p>
       <button type="button" class="btn btn-warning" @click="emit('leave')">
         Return to the journey
@@ -55,12 +55,16 @@
       <div
         class="kr-scroll flex min-h-0 flex-col justify-center overflow-y-auto rounded-xl border border-[#c49c71]/40 bg-[#26343a] p-4"
       >
-        <h3 class="text-xl font-black">Pip remembers where the stairs were.</h3>
+        <h3 class="text-xl font-black">
+          Rowan notices the staircase is lying.
+        </h3>
         <p class="mt-3 text-sm leading-relaxed">
           A research office has grown through the House That Remembers. Salt
           water fills the wolf road, and the people inside are being asked to
-          surrender their names for a safe exit. Pip can walk away, but nobody
-          else here knows which rules belong to which world.
+          surrender their names for a safe exit. Rowan recognizes three
+          conflicting maps of the same building. Pip knows the old courier
+          oaths, but Rowan must decide whose testimony to trust and how to bring
+          the people inside home.
         </p>
         <p class="mt-3 text-sm leading-relaxed">
           Commit to this crossing to begin the next journey. The two displaced
@@ -72,7 +76,7 @@
           data-testid="memory-briar-collision-begin"
           @click="collision.commit()"
         >
-          Pip enters the broken forest
+          Rowan leads the crossing
         </button>
       </div>
     </div>
@@ -83,7 +87,7 @@
     >
       <section
         class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#b19b7c]/40 bg-[#233b3b]"
-        aria-label="Pip's eight by eight Briar collision map"
+        aria-label="Rowan's eight by eight Briar collision map"
       >
         <div class="flex shrink-0 justify-between gap-2 px-3 py-2 text-xs">
           <strong>Forest / Office / Tide</strong>
@@ -206,7 +210,7 @@
             data-testid="memory-briar-collision-outcome"
           >
             <p class="text-xs font-black uppercase tracking-wider">
-              Pip's recorded decision
+              Rowan's recorded decision
             </p>
             <p class="mt-2 text-sm leading-relaxed">
               {{ collision.chosen.outcome }}
@@ -224,8 +228,8 @@
             class="mt-3 rounded-xl border border-[#e9c48c]/60 bg-[#514336] p-3"
           >
             <p class="mb-2 text-sm">
-              Both displaced memories are recovered. Pip may continue exploring
-              or carry these consequences into Morrow's city.
+              Both displaced memories are recovered. Rowan can keep
+              investigating with Pip or carry their choices into Morrow's city.
             </p>
             <button
               type="button"
@@ -237,7 +241,8 @@
             </button>
           </div>
           <p v-if="collision.completed" class="mt-2 text-sm text-[#bde3cb]">
-            Pip's crossing is preserved in the campaign Chronicle.
+            Rowan's crossing, with Pip's testimony, is preserved in the campaign
+            Chronicle.
           </p>
         </div>
         <memory-dungeon-choice-hand

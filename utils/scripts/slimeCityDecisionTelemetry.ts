@@ -142,8 +142,7 @@ const underactivated = cards
   }))
   .sort(
     (a, b) =>
-      a.activationRate - b.activationRate ||
-      b.opportunities - a.opportunities,
+      a.activationRate - b.activationRate || b.opportunities - a.opportunities,
   )
   .slice(0, 25)
 const underselected = cards

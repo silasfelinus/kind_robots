@@ -99,7 +99,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   pogo: [
     'A crowd-surfer who lands harder with friends.',
     'Hits for double while an ally stands next door.',
-    'Always hits for double.',
+    'Every strike deals double damage, with or without an adjacent ally.',
   ],
   razor: [
     'A duelist who heals from a hit.',
@@ -144,22 +144,22 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   eel: [
     'Pierces the rival armor.',
     'Hitting a stunned rival shocks one adjacent enemy for 1.',
-    'A hit also shocks rivals standing in armed trap alleys for 2.',
+    'On a damaging hit, shock rivals in trapped alleys for 2.',
   ],
   oracle: [
     'A dangerous prophet with a piercing snare.',
-    'Starts each friendly turn with 2 prophetic shield.',
-    'Shields itself and both neighboring allies for 2 each turn.',
+    'At each friendly turn start, gain 2 temporary shield.',
+    'At each friendly turn start, give itself and adjacent allies 2 shield.',
   ],
   tripwire: [
     'Lays a hidden stun trap.',
-    'Also arms an empty neighboring alley.',
-    'Arms both free neighboring alleys with separate traps.',
+    'Arm a trap here and in one empty neighboring alley.',
+    'Arm a trap here and in each empty neighboring alley.',
   ],
   sonar: [
     'Disarm a rival trap in one alley.',
-    'Also scan neighboring alleys and draw one bonus card.',
-    'Sweep all five trap alleys and draw two bonus cards.',
+    'Disarm rival traps in this and adjacent alleys; draw one card.',
+    'Disarm rival traps in all five alleys; draw two cards.',
   ],
   repo: [
     'Cheap fighter looking for collateral.',
@@ -173,13 +173,13 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   handshake: [
     'Give one friend Collect.',
-    'Adjacent friends also gain Collect.',
-    'Every friendly fighter gains Collect while the ink is wet.',
+    'Give the target fighter COLLECT and grant it to adjacent allies.',
+    'Give every friendly fighter COLLECT.',
   ],
   foreclosure: [
     'Hurt and stun a rival.',
-    'A knockout reimburses 2 of your boss life.',
-    'On knockout also hires a weak debtor in a vacant friendly alley.',
+    'Damage and stun a rival; a knockout heals your boss for 2.',
+    'Damage and stun a rival; a knockout heals your boss 2 and summons a weak debtor in a free alley.',
   ],
   'merc-debt-slug': [
     'A slow collector waiting for disaster.',
@@ -189,18 +189,18 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   'merc-fungal-bouncer': [
     'Guards its own door.',
     'Gives one neighboring ally 2 shield at the start of its turn.',
-    'Gives both neighboring friends 2 shield each friendly turn.',
+    'At each friendly turn start, give 2 shield to both adjacent allies.',
   ],
   // Wave three: every journey branches into a mechanic, not a larger number.
   mau: [
     'Ambush fighter: the first claw cuts deeper.',
     'Deals +1 against a wounded defender.',
-    'Deals +2 to wounded defenders; on a hit, scratches one adjacent rival for 2.',
+    'Deal +2 to wounded defenders; on hit, scratch one adjacent rival for 2.',
   ],
   scentmine: [
     'Hidden mine damages and roots the intruder.',
-    'When triggered, roots one neighboring rival.',
-    'When triggered, roots both neighboring rivals and damages each for 1.',
+    'The trap roots its victim and one adjacent rival.',
+    'The trap roots its victim and both adjacent rivals; those neighbors also take 1.',
   ],
   ninthlife: [
     'A collar grants Regen to its wearer.',
@@ -209,18 +209,18 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   bloodwire: [
     'Hidden razor floss punishes one intruder.',
-    'On trigger, cuts one adjacent rival for 1.',
-    'On trigger, slices both neighboring rivals for 2.',
+    'When sprung, the trap damages its intruder and an adjacent rival for 1.',
+    'When sprung, the trap damages its intruder and both adjacent rivals for 2.',
   ],
   pinprick: [
     'Reliable single-target damage.',
     'Doubles the stab against a rival who is already hurt.',
-    'Always doubles; against a hurt rival it also hits nearby rivals for 2.',
+    'Double damage against any rival; hitting a wounded rival splashes 2 to adjacent foes.',
   ],
   feedback: [
     'Focused sonic blast in one alley.',
     'A friendly neighbor makes the amp blast hit adjacent enemies for 1.',
-    'With four allies on board, sonic feedback also hits every other rival for 2.',
+    'Blast the target; with four allies fielded, deal 2 to every other rival.',
   ],
   overclock: [
     'One fighter gets a temporary power boost.',
@@ -230,7 +230,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   shocktrap: [
     'Hidden plate damages and roots its visitor.',
     'On trigger, arcs 1 damage to one adjacent rival.',
-    'On trigger, roots and shocks both adjacent rivals for 2.',
+    'When sprung, root its visitor and deal 2 damage and stun to both adjacent rivals.',
   ],
   ducttape: [
     'Repair one friendly fighter.',
@@ -254,13 +254,13 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   blackout: [
     'Stun a rival fighter.',
-    'Also stuns one neighboring rival.',
-    'Stuns both neighboring rivals, dealing 1 damage to each.',
+    'Stun target and one adjacent rival; deal 1 to the target.',
+    'Stun target and both adjacent rivals; deal 2 to target and 1 to each neighbor.',
   ],
   grate: [
     'Hidden grate wounds one intruder.',
-    'Grate also roots its victim.',
-    'Grate roots its victim and lashes both neighboring rivals for 2.',
+    'When sprung, damage and root the intruder.',
+    'When sprung, root and damage the intruder; deal 2 to both adjacent rivals.',
   ],
   drysuit: [
     'Add armor to a friendly fighter.',
@@ -274,39 +274,39 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   debttrap: [
     'Set a hidden debt trap in one alley.',
-    'Also plants a weak lien in one empty neighboring alley.',
-    'Plants weak liens in both empty neighboring alleys.',
+    'Arm a debt trap here and a weak lien in one empty adjacent alley.',
+    'Arm a debt trap here and weak liens in both empty adjacent alleys.',
   ],
   hushmoney: [
     'Heal a friendly asset.',
-    'Also refund 1 boss life.',
-    'Refund 2 boss life and give the fighter 2 temporary shield.',
+    'Heal a friendly fighter and restore 1 life to your boss.',
+    'Heal a friendly fighter, restore 2 life to your boss, and give the fighter 2 shield.',
   ],
   'merc-bus-driver': [
     'A dependable driver holds one lane.',
-    'On arrival, moves one neighboring friend into the nearest empty lane.',
-    'On arrival, reroutes up to two neighboring friends into empty lanes.',
+    'On arrival, move one adjacent ally into the nearest empty friendly alley.',
+    'On arrival, move up to two adjacent allies into empty friendly alleys.',
   ],
   'merc-clock-grandma': [
     'Old-school armored protector.',
     'At turn start, adjacent friends receive 1 temporary shield.',
-    'Once per match, prevents one adjacent ally from dying; it survives at 1 life.',
+    'Once per match, an adjacent ally survives a lethal blow at 1 life.',
   ],
   'merc-discount-angel': [
     'An unstable helper with a clearance-bin halo.',
     'When an allied fighter dies, heals nearby friends for 2.',
-    'Once per round, an allied loss summons a weak rescued echo.',
+    'Once per round, an allied fighter\'s death summons a fragile rescued echo.',
   ],
   // Final eleven from the first seventy-card evolution manifesto.
   shredders: [
     'Sharpen a fighter permanently.',
-    'Also grants armor-piercing strikes.',
-    'Piercing strikes splash half their damage into one neighboring rival.',
+    'Permanently sharpen a fighter and grant PIERCE.',
+    'Sharpen and grant PIERCE; a damaging strike splashes half its damage to one adjacent rival.',
   ],
   spurs: [
     'Strengthen one dancer permanently.',
-    'A neighboring friend also gains +1 attack.',
-    'Both neighboring friends gain +2 permanent attack.',
+    'Sharpen the wearer permanently; one adjacent friend also gains +1 attack.',
+    'Sharpen the wearer permanently; both adjacent friends gain +2 attack.',
   ],
   choker: [
     'Give one fighter Swarm.',

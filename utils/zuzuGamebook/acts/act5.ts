@@ -802,8 +802,31 @@ export const ACT_V: Act = {
         choices: [
           {
             id: 'on',
-            label: 'Walk the last hour into Dustwater.',
+            label: 'Take the water and the silver toward Dustwater.',
+            to: 'a5-wellhouse-reckoning',
+          },
+        ],
+      },
+    ),
+    s(
+      'a5-wellhouse-reckoning',
+      CH.V,
+      'The Price of Water',
+      'pilgrim-wagon',
+      'The cart has gone, but its wheels have cut two deep lines through the chalk. At the well-house, a mother waits with an empty jug and a child whose lips are split by the heat. She asks whether the water is for sale. You look at the barrel, then at the silver in your paw. The Abbess promised safety to the two you left behind. The girl under the blanket had nobody left to bargain for her. The mother is still waiting for an answer.',
+      {
+        choices: [
+          {
+            id: 'share',
+            label: 'Fill their jug without taking a coin.',
             to: 'posters',
+            flag: 'honor:remembered-the-gone',
+          },
+          {
+            id: 'keep',
+            label: 'Keep the barrel for your two and walk on.',
+            to: 'posters',
+            flag: 'abbess-doubt',
           },
         ],
       },

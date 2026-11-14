@@ -5,6 +5,7 @@ import {
   normalizeMusicVideoDoc,
   serializeMusicVideoDoc,
 } from '../musicVideoDoc'
+import { remixMusicVideoDoc } from '../musicVideoAccess'
 
 const before = emptyMusicVideoDoc({ pitch: 'A station addresses its audience.' })
 const reviewedAt = '2026-11-14T23:25:00.000Z'
@@ -23,6 +24,8 @@ assert.deepEqual(
   doc.review,
 )
 assert.equal(emptyMusicVideoDoc().review, undefined)
+assert.equal(remixMusicVideoDoc(doc, false).review, undefined)
+assert.equal(remixMusicVideoDoc(doc, true).review, undefined)
 assert.ok(
   normalizeMusicVideoDoc({
     ...before,

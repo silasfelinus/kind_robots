@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict'
 import {
   applyClashCommand,
+  canClashActivate,
   chooseClashCpu,
   clashDeck,
   createClash,
@@ -16,6 +17,7 @@ type Counts = {
   playedGames: number
   plays: number
   activations: number
+  activationOpportunities: number
   upgradedGames: number
 }
 const stats = new Map<string, Counts>()
@@ -30,6 +32,7 @@ function row(crew: string, card: string): Counts {
       playedGames: 0,
       plays: 0,
       activations: 0,
+      activationOpportunities: 0,
       upgradedGames: 0,
     }
     stats.set(id, found)
@@ -39,6 +42,7 @@ function row(crew: string, card: string): Counts {
 
 let games = 0
 let activationCommands = 0
+let activationOpportunities = 0
 let totalRounds = 0
 let draws = 0
 const sides: Side[] = ['player', 'enemy']
@@ -53,8 +57,19 @@ for (const a of TEAMS)
       const played = new Map<Side, Set<string>>(
         sides.map((side) => [side, new Set()]),
       )
+      // Count a fighter once per round, not once per CPU decision step.
+      const readyThisRound = new Set<string>()
       for (let step = 0; !state.victor && step < 700; step++) {
         const side = state.active
+        for (const unit of state.units) {
+          if (unit.side !== side || !canClashActivate(state, side, unit.uid))
+            continue
+          const opportunity = side + '/' + state.round + '/' + unit.uid
+          if (readyThisRound.has(opportunity)) continue
+          readyThisRound.add(opportunity)
+          row(state.teams[side], unit.cardId).activationOpportunities++
+          activationOpportunities++
+        }
         const command = chooseClashCpu(state, side)
         if (command.t === 'play') {
           row(state.teams[side], command.card).plays++
@@ -109,6 +124,27 @@ assert.equal(games, TEAMS.length * TEAMS.length * 2)
 assert.ok(cards.every((card) => card.playedGames <= card.seenGames))
 assert.ok(cards.every((card) => card.seenGames <= card.deckGames))
 assert.ok(cards.every((card) => card.upgradedGames <= card.playedGames))
+assert.ok(
+  cards.every((card) => card.activations <= card.activationOpportunities),
+)
+assert.ok(activationCommands <= activationOpportunities)
+// Prioritize fighters with repeated legal tap choices the CPU ignores.
+// A low activation rate without opportunities is not evidence of bad AI.
+const underactivated = cards
+  .filter((card) => card.activationOpportunities >= 8)
+  .map((card) => ({
+    card: card.card,
+    opportunities: card.activationOpportunities,
+    activations: card.activations,
+    activationRate: Number(
+      (card.activations / card.activationOpportunities).toFixed(3),
+    ),
+  }))
+  .sort(
+    (a, b) =>
+      a.activationRate - b.activationRate || b.opportunities - a.opportunities,
+  )
+  .slice(0, 25)
 const underselected = cards
   .filter((card) => card.seenGames >= 12 && card.selectionRate !== null)
   .sort((a, b) => a.selectionRate! - b.selectionRate!)
@@ -120,9 +156,15 @@ console.log(
       draws,
       averageRounds: Number((totalRounds / games).toFixed(2)),
       activationCommands,
+      activationOpportunities,
+      activationRate:
+        activationOpportunities > 0
+          ? Number((activationCommands / activationOpportunities).toFixed(3))
+          : null,
       definition:
         'selectionRate=matches played at least once / matches seen in hand; starter CPU only, not human preference',
       underselected,
+      underactivated,
       cards,
     }),
 )

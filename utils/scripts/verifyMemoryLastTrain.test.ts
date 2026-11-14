@@ -167,4 +167,3 @@ assert.deepEqual(
   restoreVerifiedTrainProgress(orderedNight, outOfOrder),
   orderedNight,
 )
-

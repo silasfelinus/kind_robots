@@ -49,4 +49,4 @@ jobs:
           git add -u
           git commit -m "style: autoformat changed files"
           # A normal push fails safely if another agent has advanced the branch.
-          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" push origin "HEAD:refs/heads/$HEAD_REF"
+          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" push origin "HEAD:$HEAD_REF"

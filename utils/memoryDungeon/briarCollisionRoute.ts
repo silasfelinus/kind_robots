@@ -42,7 +42,7 @@ export const BRIAR_COLLISION_ROUTE_SITES = {
     opening:
       'Three wolves patrol a revolving security gate that only turns for people carrying their own names. The smallest wolf is wearing six visitor badges and looks deeply embarrassed. Pip translates the oath pattern for Rowan: the badges are temporary permissions, not proof of ownership. Rowan must decide whether to teach the pack or force a crossing.',
     artSubject:
-      'Rowan, an androgynous researcher in a grey cardigan, faces three uneasy Briar wolves at a steel office turnstile; the youngest wolf carries six mismatched visitor badges and Pip the goblin courier explains the mechanism at Rowan's side',
+      'Rowan, an androgynous researcher in a grey cardigan, faces three uneasy Briar wolves at a steel office turnstile; the youngest wolf carries six mismatched visitor badges and Pip the goblin courier explains the mechanism beside Rowan',
     choices: [
       {
         id: 'teach-the-oath',

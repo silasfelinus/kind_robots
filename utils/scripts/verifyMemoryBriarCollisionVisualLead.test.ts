@@ -10,7 +10,11 @@ const scenes = [
   BRIAR_COLLISION_ROUTE_SITES['2,1'],
 ]
 for (const scene of scenes) {
-  assert.match(scene.artSubject, /Rowan/, scene.title + ': establishing art must show Rowan')
+  assert.match(
+    scene.artSubject,
+    /Rowan/,
+    scene.title + ': establishing art must show Rowan',
+  )
   assert.match(scene.artSubject, /Pip/, scene.title + ': keep courier visible')
   for (const choice of scene.choices) {
     assert.ok(choice.id, scene.title + ': choice id remains stable')
@@ -18,7 +22,15 @@ for (const scene of scenes) {
   }
 }
 for (const choice of BRIAR_COLLISION_SCENES['2,2'].choices.slice(0, 2))
-  assert.match(choice.artSubject, /Rowan/, choice.id + ': Rowan directs the rescue')
+  assert.match(
+    choice.artSubject,
+    /Rowan/,
+    choice.id + ': Rowan directs the rescue',
+  )
 for (const choice of BRIAR_COLLISION_ROUTE_SITES['2,1'].choices.slice(0, 1))
-  assert.match(choice.artSubject, /Rowan/, choice.id + ': Rowan negotiates the gate')
+  assert.match(
+    choice.artSubject,
+    /Rowan/,
+    choice.id + ': Rowan negotiates the gate',
+  )
 console.log('e09 Rowan visual lead contract passed')

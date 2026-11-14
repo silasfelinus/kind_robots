@@ -1131,7 +1131,7 @@ export const ANIMATION_EFFECTS = [
     tooltip:
       'Windmills turn over the tulip fields at dusk 🌷 hover to light a mill window, click to send a gust through the sails',
     color: '#f2a65a',
-    releasedAt: '2026-11-14T14:00:00Z',
+    releasedAt: '2026-11-13T14:00:00Z',
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },

@@ -81,48 +81,54 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     }
   }
 
+  /** Each browser slot is independent: a corrupt gallery must not erase a valid run. */
+  function readStoredJson(key: string): unknown {
+    try {
+      const raw = localStorage.getItem(key)
+      return raw === null ? null : JSON.parse(raw)
+    } catch {
+      return null
+    }
+  }
+
   function load() {
     if (loaded.value) return
+    const current = readStoredJson(SAVE_KEY)
+    if (isSavedRun(current))
+      run.value = { ...current, pendingLoot: current.pendingLoot ?? [] }
+
+    const backup = readStoredJson(RECOVERY_KEY)
+    if (isSavedRun(backup))
+      recoverable.value = { ...backup, pendingLoot: backup.pendingLoot ?? [] }
+
+    // A damaged scrapbook or gallery must not prevent the active run from loading.
     try {
-      const raw = localStorage.getItem(SAVE_KEY)
-      if (raw) {
-        const parsed: unknown = JSON.parse(raw)
-        if (isSavedRun(parsed))
-          run.value = { ...parsed, pendingLoot: parsed.pendingLoot ?? [] }
-      }
-      const backup = localStorage.getItem(RECOVERY_KEY)
-      if (backup) {
-        try {
-          const parsed: unknown = JSON.parse(backup)
-          if (isSavedRun(parsed))
-            recoverable.value = {
-              ...parsed,
-              pendingLoot: parsed.pendingLoot ?? [],
-            }
-        } catch {
-          // A bad recovery slot must not block the current adventure.
-        }
-      }
       scrapbook.value = decodeScrapbook(localStorage.getItem(SCRAPBOOK_KEY))
-      const endings: unknown = JSON.parse(
-        localStorage.getItem(ENDINGS_KEY) ?? '[]',
-      )
-      if (Array.isArray(endings))
-        discovered.value = endings.filter(
-          (entry): entry is string => typeof entry === 'string',
-        )
-      // Before this record existed the gallery was the only one: start from it once.
-      const reached: unknown = JSON.parse(
-        localStorage.getItem(PLAYED_KEY) ?? JSON.stringify(discovered.value),
-      )
-      if (Array.isArray(reached))
-        played.value = reached.filter(
-          (entry): entry is string =>
-            typeof entry === 'string' && ENDING_IDS.includes(entry),
-        )
     } catch {
-      // Corrupt or blocked storage starts a new adventure safely.
+      scrapbook.value = []
     }
+    const endings = readStoredJson(ENDINGS_KEY)
+    if (Array.isArray(endings))
+      discovered.value = [
+        ...new Set(
+          endings.filter(
+            (entry): entry is string =>
+              typeof entry === 'string' && ENDING_IDS.includes(entry),
+          ),
+        ),
+      ]
+    // Legacy installs had only the discovered gallery, not the played record.
+    const reached = readStoredJson(PLAYED_KEY)
+    const playedSource = reached === null ? discovered.value : reached
+    if (Array.isArray(playedSource))
+      played.value = [
+        ...new Set(
+          playedSource.filter(
+            (entry): entry is string =>
+              typeof entry === 'string' && ENDING_IDS.includes(entry),
+          ),
+        ),
+      ]
     loaded.value = true
     save()
     void loadPlaybookLiveText('zuzu-gamebook', GAMEBOOK_LIVE_TEXT).then(

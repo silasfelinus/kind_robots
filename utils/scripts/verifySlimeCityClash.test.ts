@@ -2233,3 +2233,39 @@ console.log(
     timeoutWinners +
     ' round-limit results; UI, two plays, alley strikes, traps, recovery, balance and replay pass',
 )
+
+// Main-game standard (slime-city/t-063): settings must be reachable mid-fight
+// without leaving the Clash, and must write the same store-owned preferences as
+// the title settings screen rather than keeping a second copy of state.
+const quickSettings = readFileSync(
+  'components/slime-city-quick-settings.vue',
+  'utf8',
+)
+assert.match(
+  clashView,
+  /<SlimeCityQuickSettings\b/,
+  'Clash HUD must mount the in-play settings gear',
+)
+for (const call of [
+  'lab.setReducedMotion(',
+  'lab.setLargeText(',
+  'lab.setHighContrast(',
+  'sound.setSound(',
+  'sound.setMusic(',
+  'sound.setEffects(',
+]) {
+  assert.ok(
+    quickSettings.includes(call),
+    `in-play settings must use the shared store setter ${call}`,
+  )
+}
+assert.doesNotMatch(
+  quickSettings,
+  /lab\.view\s*=/,
+  'in-play settings must not navigate away from the fight',
+)
+assert.doesNotMatch(
+  quickSettings,
+  /localStorage/,
+  'in-play settings must not persist preferences on its own',
+)

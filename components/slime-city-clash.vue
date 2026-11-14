@@ -350,6 +350,7 @@
           >
             LOG
           </button>
+          <SlimeCityQuickSettings class="clash-quick-settings" />
         </div>
 
         <section

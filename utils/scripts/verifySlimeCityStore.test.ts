@@ -69,6 +69,20 @@ lab.hydrateHighContrast()
 assert.equal(lab.highContrast, true, 'Invalid contrast values are ignored')
 lab.setHighContrast(false)
 assert.equal(preferences.get('kr-slime-city-high-contrast-v1'), 'off')
+assert.equal(lab.clashSpeed, 'normal')
+lab.setClashSpeed('quick')
+assert.equal(preferences.get('kr-slime-city-clash-speed-v1'), 'quick')
+lab.clashSpeed = 'normal'
+lab.hydrateClashSpeed()
+assert.equal(lab.clashSpeed, 'quick', 'Clash speed persists per device')
+preferences.set('kr-slime-city-clash-speed-v1', 'ludicrous')
+lab.hydrateClashSpeed()
+assert.equal(lab.clashSpeed, 'quick', 'Invalid speed values are ignored')
+lab.setClashSpeed('warp' as never)
+assert.equal(lab.clashSpeed, 'quick', 'Unknown speeds are refused')
+lab.setClashSpeed('relaxed')
+assert.equal(preferences.get('kr-slime-city-clash-speed-v1'), 'relaxed')
+lab.setClashSpeed('normal')
 Object.defineProperty(globalThis, 'window', {
   configurable: true,
   value: {
@@ -96,6 +110,10 @@ assert.doesNotThrow(() => lab.hydrateHighContrast())
 assert.doesNotThrow(() => lab.setHighContrast(true))
 assert.equal(lab.highContrast, true)
 lab.setHighContrast(false)
+assert.doesNotThrow(() => lab.hydrateClashSpeed())
+assert.doesNotThrow(() => lab.setClashSpeed('relaxed'))
+assert.equal(lab.clashSpeed, 'relaxed')
+lab.setClashSpeed('normal')
 assert.equal(lab.clashFormat, 'alliance')
 delete (globalThis as { window?: unknown }).window
 

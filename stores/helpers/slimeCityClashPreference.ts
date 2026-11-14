@@ -83,3 +83,39 @@ export function writeHighContrastPreference(on: boolean): void {
     // Storage can be disabled; the in-memory choice still works.
   }
 }
+
+const SPEED_KEY = 'kr-slime-city-clash-speed-v1'
+/** How long the automatic Clash beats (rival plays, alley strikes) linger. */
+export type ClashSpeed = 'relaxed' | 'normal' | 'quick'
+export const CLASH_SPEEDS: readonly ClashSpeed[] = [
+  'relaxed',
+  'normal',
+  'quick',
+]
+/** Delay multiplier per speed; reduced motion caps it at the quick pace. */
+export const CLASH_SPEED_PACE: Record<ClashSpeed, number> = {
+  relaxed: 1.6,
+  normal: 1,
+  quick: 0.4,
+}
+
+export function readClashSpeedPreference(): ClashSpeed | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const value = window.localStorage.getItem(SPEED_KEY)
+    return value === 'relaxed' || value === 'normal' || value === 'quick'
+      ? value
+      : null
+  } catch {
+    return null
+  }
+}
+
+export function writeClashSpeedPreference(speed: ClashSpeed): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(SPEED_KEY, speed)
+  } catch {
+    // Storage can be disabled; the in-memory choice still works.
+  }
+}

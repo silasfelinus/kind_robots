@@ -593,6 +593,7 @@ import {
   clashSpectacle,
   type ClashSpectacle,
 } from '~/utils/slimeCity/clashSpectacle'
+import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
 
 const STRIKE_WINDUP_MS = 320
 const STRIKE_SETTLE_MS = 560
@@ -712,7 +713,19 @@ const impact = ref<ClashStrike | null>(null)
 const impactKey = ref(0)
 const spectacle = shallowRef<(ClashSpectacle & { key: number }) | null>(null)
 let spectacleKey = 0
-const pace = ref(1)
+/** The OS asks for reduced motion; read on mount (media query). */
+const osReducedMotion = ref(false)
+/**
+ * Delay multiplier for automatic beats. Read live so the in-play settings
+ * gear changes the very next beat; reduced motion never runs slower than
+ * the quick pace.
+ */
+const pace = computed(() => {
+  const chosen = CLASH_SPEED_PACE[lab.clashSpeed] ?? 1
+  return lab.reducedMotion || osReducedMotion.value
+    ? Math.min(chosen, CLASH_SPEED_PACE.quick)
+    : chosen
+})
 let timer: ReturnType<typeof setTimeout> | null = null
 
 const busy = computed(
@@ -891,11 +904,9 @@ function backFromReport(): void {
   goBack()
 }
 onMounted(() => {
-  if (
-    lab.reducedMotion ||
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  )
-    pace.value = 0.4
+  osReducedMotion.value = !!window.matchMedia?.(
+    '(prefers-reduced-motion: reduce)',
+  ).matches
   sound.cue('bell')
 })
 onBeforeUnmount(() => {

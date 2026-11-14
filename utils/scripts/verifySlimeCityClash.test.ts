@@ -2250,6 +2250,7 @@ for (const call of [
   'lab.setReducedMotion(',
   'lab.setLargeText(',
   'lab.setHighContrast(',
+  'lab.setClashSpeed(',
   'sound.setSound(',
   'sound.setMusic(',
   'sound.setEffects(',
@@ -2259,6 +2260,16 @@ for (const call of [
     `in-play settings must use the shared store setter ${call}`,
   )
 }
+assert.match(
+  clashView,
+  /const pace = computed\(/,
+  'Clash pace must read the speed setting live so the gear applies mid-fight',
+)
+assert.match(
+  clashView,
+  /CLASH_SPEED_PACE\[lab\.clashSpeed\]/,
+  'Clash pace must come from the persisted Clash speed setting',
+)
 assert.doesNotMatch(
   quickSettings,
   /lab\.view\s*=/,

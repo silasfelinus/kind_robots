@@ -59,11 +59,15 @@ for (const [id, evolution] of Object.entries(CLASH_EVOLUTIONS)) {
     duplicateSignature.set(key, group)
     if (!stage.abilities.length && !stage.static && !stage.freeIf)
       noAbilities.push(id + '/L' + level)
-    if (stage.abilities.every((ability) =>
-      ability.do.every((action) =>
-        ['power', 'life', 'armor', 'guard'].includes(action.do),
-      ),
-    ) && !stage.static && !stage.freeIf)
+    if (
+      stage.abilities.every((ability) =>
+        ability.do.every((action) =>
+          ['power', 'life', 'armor', 'guard'].includes(action.do),
+        ),
+      ) &&
+      !stage.static &&
+      !stage.freeIf
+    )
       genericStages.push(id + '/L' + level)
   }
   if (signature(evolution[2]) === signature(evolution[3]))
@@ -84,8 +88,7 @@ const result = {
   genericStages,
   sharedSignatures: sharedSignatures.slice(0, 30),
   sharedSignatureGroupCount: sharedSignatures.length,
-  note:
-    'Structural signatures ignore names and numeric scaling. Shared verbs are leads for human editorial review, not automatic design failures.',
+  note: 'Structural signatures ignore names and numeric scaling. Shared verbs are leads for human editorial review, not automatic design failures.',
 }
 console.log('SLIME_CITY_EVOLUTION_SIGNATURE_AUDIT ' + JSON.stringify(result))
 assert.deepEqual(unknown, [], 'evolution registries must reference real cards')

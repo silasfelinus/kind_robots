@@ -3486,7 +3486,19 @@ export function chooseClashCpu(
           const missing = (card.grants ?? []).filter(
             (keyword) => !mine.keywords.includes(keyword),
           )
-          score += missing.length * 2.8 + (b.level - 1) * 1.25
+          // PIERCE only bypasses armor: against an unarmored lane it is
+          // a speculative future benefit, not a full-strength upgrade.
+          // Keep other keywords' existing value to isolate this tuning.
+          score +=
+            missing.reduce(
+              (value, keyword) =>
+                value +
+                (keyword === 'pierce' && (!across || across.armor <= 0)
+                  ? 0.6
+                  : 2.8),
+              0,
+            ) +
+            (b.level - 1) * 1.25
           if (!missing.length && b.level === 1) score -= 3
         }
         if (mine && card.kind === 'equipment') {

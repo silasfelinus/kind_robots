@@ -109,18 +109,26 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     }
     const endings = readStoredJson(ENDINGS_KEY)
     if (Array.isArray(endings))
-      discovered.value = [...new Set(endings.filter(
-        (entry): entry is string =>
-          typeof entry === 'string' && ENDING_IDS.includes(entry),
-      ))]
+      discovered.value = [
+        ...new Set(
+          endings.filter(
+            (entry): entry is string =>
+              typeof entry === 'string' && ENDING_IDS.includes(entry),
+          ),
+        ),
+      ]
     // Legacy installs had only the discovered gallery, not the played record.
     const reached = readStoredJson(PLAYED_KEY)
     const playedSource = reached === null ? discovered.value : reached
     if (Array.isArray(playedSource))
-      played.value = [...new Set(playedSource.filter(
-        (entry): entry is string =>
-          typeof entry === 'string' && ENDING_IDS.includes(entry),
-      ))]
+      played.value = [
+        ...new Set(
+          playedSource.filter(
+            (entry): entry is string =>
+              typeof entry === 'string' && ENDING_IDS.includes(entry),
+          ),
+        ),
+      ]
     loaded.value = true
     save()
     void loadPlaybookLiveText('zuzu-gamebook', GAMEBOOK_LIVE_TEXT).then(

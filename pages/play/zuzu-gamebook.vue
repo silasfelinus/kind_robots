@@ -204,6 +204,51 @@
                 </button>
                 <section
                   class="rounded-xl border border-base-content/15 bg-base-300 p-3"
+                  aria-label="Account Continue"
+                  data-testid="zuzu-gamebook-account-save"
+                >
+                  <h3 class="font-serif text-lg font-bold">Account Continue</h3>
+                  <p v-if="!user.authenticatedUserId" class="mt-1 text-xs opacity-75">
+                    Sign in to carry this journey between devices. Your local
+                    save and portable save code still work.
+                  </p>
+                  <p v-else-if="store.accountStatus === 'checking'" class="mt-1 text-xs" role="status">
+                    Checking your saved journey…
+                  </p>
+                  <p v-else-if="store.accountStatus === 'synced'" class="mt-1 text-xs" role="status">
+                    Saved to your account after each move. Your device keeps
+                    its own backup too.
+                  </p>
+                  <template v-else-if="store.accountStatus === 'conflict'">
+                    <p class="mt-1 text-xs" role="status">
+                      This device and your account have different journeys.
+                      Choose which one to continue. Neither is discarded
+                      silently.
+                    </p>
+                    <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                      <button type="button" class="btn btn-warning btn-sm" @click="store.restoreAccountCopy()">
+                        Restore account journey
+                      </button>
+                      <button type="button" class="btn btn-outline btn-sm" @click="keepDeviceAccount">
+                        Keep this device's journey
+                      </button>
+                    </div>
+                  </template>
+                  <template v-else-if="store.accountStatus === 'offline'">
+                    <p class="mt-1 text-xs opacity-75" role="status">
+                      Account backup is unavailable. Your device save is safe.
+                    </p>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm mt-2"
+                      @click="store.syncAccount()"
+                    >
+                      Retry account sync
+                    </button>
+                  </template>
+                </section>
+                <section
+                  class="rounded-xl border border-base-content/15 bg-base-300 p-3"
                   aria-labelledby="zuzu-save-code-heading"
                   data-testid="zuzu-gamebook-save-code"
                 >
@@ -1014,10 +1059,13 @@ import {
 } from '~/utils/zuzuGamebook/terms'
 import type { Attribute, Choice } from '~/utils/zuzuGamebook/types'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
+import { useUserStore } from '~/stores/userStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 
 const store = useZuzuGamebookStore()
+const user = useUserStore()
+watch(() => user.authenticatedUserId, () => void store.syncAccount())
 const kit = usePlaybookKitStore()
 const frontOpen = ref(true)
 const showSheet = ref(false)
@@ -1336,6 +1384,13 @@ function openLedgerFromCover() {
   frontOpen.value = false
   ledgerOpen.value = true
 }
+function keepDeviceAccount() {
+  if (
+    window.confirm(
+      'Use this device\'s journey for your account? The previously saved account route will be replaced.',
+    )
+  ) store.keepDeviceCopy()
+}
 function recover() {
   if (
     window.confirm(
@@ -1457,6 +1512,7 @@ onMounted(() => {
   sheetModalQuery.addEventListener('change', syncShortWide)
   kit.open('zuzu-gamebook')
   store.load()
+  void store.syncAccount()
   window.addEventListener('keydown', onKey)
 })
 onBeforeUnmount(() => {

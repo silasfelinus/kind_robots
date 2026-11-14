@@ -68,7 +68,9 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // the hurt allies first; regen is slow against focused damage.
   's1-alley-vet': {
     1: stage('Street Triage', [on('tap', heal(1, 'woundedAlly'))]),
-    2: stage('Stray Stitches', [on('tap', heal(2, 'woundedAlly'))]),
+    2: stage('Stray Stitches', [
+      on('tap', heal(2, 'woundedAlly'), cleanse('woundedAlly')),
+    ]),
     3: stage('Passes the Needle', [
       on('tap', heal(2, 'woundedAllies')),
       on('enter', grant('regen', 'woundedAllies')),
@@ -82,7 +84,10 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // and the kitten dies to almost anything.
   's2-catgirls-parapet-ghost-kitten': {
     stats: { 3: { attack: -2, hp: -12 } },
-    2: stage('Gargoyle Stillness', [on('turnStart', guard(2, 'self'))]),
+    2: stage('Gargoyle Stillness', [
+      on('turnStart', guard(2, 'self')),
+      on('death', stun('across')),
+    ]),
     3: stage('Nightmare of the Parapets', [on('enter', stun('laneFoes'))]),
   },
   // Arc: an expensive lab tiger escapes -> loose in the lab, bolder with
@@ -93,7 +98,9 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // leave nothing big on the board.
   's3-catgirls-escaped-tiger': {
     stats: { 3: { hp: 3 } },
-    2: stage('Loose in the Lab', [on('kill', sharpen(1, 'self'))]),
+    2: stage('Loose in the Lab', [
+      on('kill', sharpen(1, 'self'), heal(2, 'self')),
+    ]),
     3: stage('Apex Escapee', [on('enter', duel('strongestFoe'))]),
     // Choose one: or it slips the city entirely and grows fierce alone.
     // The CPU hunts while there is prey on the field.
@@ -125,7 +132,13 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Free Clinic Night', [
       on('enter', cleanse('target'), guard(1, 'target')),
     ]),
-    3: stage("People's Pharmacy", [on('enter', sharpen(1, 'healthyAllies'))]),
+    3: stage("People's Pharmacy", [
+      on(
+        'enter',
+        sharpen(1, 'healthyAllies'),
+        when('crewWhole', draw(1)),
+      ),
+    ]),
     // Choose one: or open the Emergency Ward and patch up the whole crew.
     // The CPU opens the ward once two or more allies are hurt.
     choice: {
@@ -275,7 +288,9 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (bruiser to assassin). Counterplay: keep no
   // weak fighter on the board; she has no armor once the shadows lift.
   's3-catgirls-scalpel-captain': {
-    2: stage('Hit and Fade', [on('strike', guard(2, 'self'))]),
+    2: stage('Hit and Fade', [
+      on('strike', guard(2, 'self'), shift('self', 'safe')),
+    ]),
     3: stage('Velvet Coup', [
       on('enter', duel('weakestFoe')),
       on('kill', guard(2, 'self')),
@@ -326,7 +341,13 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (rewards either board). Counterplay: the drop is
   // small; deny the open alley to deny the lasting power.
   's3-catgirls-fire-escape': {
-    2: stage('Drop From Above', [on('enter', damage(1, 'across'))]),
+    2: stage('Drop From Above', [
+      on(
+        'enter',
+        damage(1, 'across'),
+        when('acrossEmpty', grant('ambush', 'target')),
+      ),
+    ]),
     3: stage('King of the Fire Escape', [
       on(
         'enter',

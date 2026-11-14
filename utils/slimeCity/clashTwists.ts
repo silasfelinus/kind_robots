@@ -1,14 +1,14 @@
 /** Clash-only hand text for real, tested L1/L2/L3 departures from stat scaling. */
 export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   calico: [
-    'Guards the clinic lane.',
-    'Mends adjacent allies for 1 life after each full round.',
-    'Never attacks. Mends adjacent allies for 2 each full round.',
+    'REGEN. Holds the clinic lane, but cannot yet heal neighboring allies.',
+    'REGEN. At the end of every round, heal adjacent allies for 1 life.',
+    'REGEN. Never strikes. At the end of every round, heal adjacent allies for 2 life.',
   ],
   chimera: [
-    'A fragile escaped prototype learning to fight.',
-    'A resilient hunter with a sharper bite.',
-    'Apex mutation: +2 attack and +3 life.',
+    'AMBUSH, REGEN. An unstable prototype starts with only 1 attack.',
+    'AMBUSH, REGEN. Her full strike returns, but she does not yet share regeneration.',
+    'AMBUSH, REGEN. +2 attack and +3 life; on arrival, grant REGEN to the most injured adjacent ally.',
   ],
   sprite: [
     'The first dancer in a potential crowd.',
@@ -77,24 +77,24 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   // Second wave: earned level-three transformations, not merely stat budgets.
   lynx: [
-    'An Ambush scout strikes first.',
-    'When deployed opposite an empty alley, gains +1 attack permanently.',
-    'Calls a weak decoy into a free neighboring alley on arrival.',
+    'AMBUSH. A fragile scout whose first strike can happen on arrival.',
+    'AMBUSH. Arriving across an empty alley permanently adds +1 attack.',
+    'AMBUSH. Arriving across an empty alley adds +1 attack; also summon a fragile decoy in a free neighboring alley.',
   ],
   pounce: [
     "Boost a fighter's power this round and refresh its AMBUSH strike.",
-    'Boost target and refresh AMBUSH; one adjacent ally gains +1 power and refreshes AMBUSH.',
-    'Boost target; both adjacent allies gain +2 power this round and refresh AMBUSH.',
+    'Boost the target and refresh AMBUSH; one adjacent ally gains +1 power this round and refreshes AMBUSH.',
+    'Boost the target and refresh AMBUSH; both adjacent allies gain +2 power this round and refresh AMBUSH.',
   ],
   reknit: [
-    'Heal one chosen friendly fighter.',
-    'Heal a friendly fighter and restore 2 life to its wounded neighbors.',
-    'Heal the target; heal adjacent wounded allies for 2; revive the last fallen ally as a fragile echo.',
+    'Heal one friendly fighter with a shot of illicit regenerative serum.',
+    'Heal the chosen fighter and restore 2 life to its wounded neighbors.',
+    'Heal the target and adjacent wounded allies for 2; revive your last fallen ally as a fragile echo in a free lane.',
   ],
   laser: [
-    'Stun one rival fighter in the chosen alley.',
-    'Stun a rival and one adjacent rival; deal 1 damage to the main target.',
-    'Stun a rival and both adjacent rivals; deal 2 damage to the main target.',
+    'Stun a rival fighter in the chosen alley with the red dot.',
+    'Stun the target and one neighboring rival; damage the target for 1.',
+    'Stun the target and both neighboring rivals; damage the target for 2.',
   ],
   pogo: [
     'A crowd-surfer who lands harder with friends.',
@@ -193,19 +193,19 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   // Wave three: every journey branches into a mechanic, not a larger number.
   mau: [
-    'Ambush fighter: the first claw cuts deeper.',
-    'Deals +1 against a wounded defender.',
-    'Deal +2 to wounded defenders; on hit, scratch one adjacent rival for 2.',
+    'AMBUSH. A dangerous first scratch; opponents can answer with armor.',
+    'AMBUSH. Strike with +1 power against a wounded defender.',
+    'AMBUSH. Strike with +2 power against wounded defenders; damaging hits splash 2 onto one adjacent rival.',
   ],
   scentmine: [
-    'Hidden mine damages and roots the intruder.',
-    'The trap roots its victim and one adjacent rival.',
-    'The trap roots its victim and both adjacent rivals; those neighbors also take 1.',
+    'Hidden trap: damage and stun the first rival entering this alley.',
+    'Spring: damage and stun the intruder; stun a neighboring rival too.',
+    'Spring: damage and stun the intruder; stun both neighboring foes and deal 1 damage to each.',
   ],
   ninthlife: [
-    'A collar grants Regen to its wearer.',
-    'The wearer survives one fatal hit with 1 life.',
-    'The wearer survives one fatal hit at half life, returning with +2 attack.',
+    'Equip one fighter with REGEN; it has no last-chance rescue yet.',
+    'Equip REGEN; the wearer survives its next lethal hit at 1 life.',
+    'Equip REGEN; the wearer survives a lethal hit at half life and gains +2 attack.',
   ],
   bloodwire: [
     'Hidden razor floss punishes one intruder.',
@@ -299,9 +299,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   // Final eleven from the first seventy-card evolution manifesto.
   shredders: [
-    'Sharpen a fighter permanently.',
-    'Permanently sharpen a fighter and grant PIERCE.',
-    'Sharpen and grant PIERCE; a damaging strike splashes half its damage to one adjacent rival.',
+    'Permanently sharpen one fighter with stolen lab-grown claws.',
+    'Permanently sharpen one fighter and grant PIERCE.',
+    'Sharpen and grant PIERCE; when the wearer damages a foe, half the damage splashes onto a neighboring rival.',
   ],
   spurs: [
     'Strengthen one dancer permanently.',

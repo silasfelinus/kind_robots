@@ -72,6 +72,22 @@ const endings = ids.filter((id) => !!BOOK[id]?.ending)
 assert.ok(endings.length >= 8, 'at least eight authored endings')
 assert.deepEqual([...ENDING_IDS].sort(), [...endings].sort())
 
+// The Act V delivery route must carry its moral cost into Dustwater.
+const delivery = BOOK['a5-delivered']!
+const reckoning = BOOK['a5-wellhouse-reckoning']!
+assert.equal(delivery.effects?.flag, 'taint:delivered')
+assert.equal(delivery.choices?.[0]?.to, reckoning.id)
+assert.deepEqual(
+  reckoning.choices?.map((choice) => choice.id),
+  ['share', 'keep'],
+)
+assert.ok(reckoning.choices?.every((choice) => choice.to === 'posters'))
+assert.equal(
+  reckoning.choices?.[0]?.effects?.flag,
+  'honor:remembered-the-gone',
+)
+assert.equal(reckoning.choices?.[1]?.effects?.flag, 'abbess-doubt')
+
 const titleOwners = new Map<string, string>()
 for (const node of Object.values(BOOK)) {
   const owner = titleOwners.get(node.title)

@@ -334,6 +334,70 @@ function bloodBoard(units: ClashUnit[]): ClashState {
   assert.ok(at(s, 1)!.hp > 2, 'the patient recovers')
 }
 
+// Bassquake's final form offers a real alternative to striking: skip its
+// attack to stun the defender across. That activation is not an arrival.
+{
+  const landed = cast(
+    bloodBoard([fighter('enemy', 2, 9)]),
+    's2-bloodfairies-bassquake-colossus',
+    2,
+    3,
+  )
+  const ready = structuredClone(landed)
+  ready.phase = 'play'
+  ready.plays.player = 0
+  const boss = ready.units.find(
+    (unit) =>
+      unit.side === 'player' &&
+      unit.cardId === 's2-bloodfairies-bassquake-colossus',
+  )!
+  boss.fresh = false
+  assert.ok(canClashActivate(ready, 'player', boss.uid))
+  assert.ok(!at(ready, 9)!.rooted, 'the stun does not fire on arrival')
+  const tapped = activateClash(ready, 'player', boss.uid)
+  assert.ok(at(tapped, 9)!.rooted, 'tapping silences the opposing blocker')
+  assert.ok(
+    tapped.units.find((unit) => unit.uid === boss.uid)!.attacked,
+    'tapping forfeits the strike',
+  )
+}
+// A hidden bouncer charges the boss and conditionally adds a dancer when
+// the trap is sprung, not on its owner turn when set.
+{
+  const id = 's3-bloodfairies-banana-bouncer'
+  const armed = cast(
+    bloodBoard([
+      fighter('player', 0, 1, { cardId: 'sprite' }),
+      fighter('player', 4, 2, { cardId: 'pogo' }),
+    ]),
+    id,
+    2,
+    2,
+  )
+  assert.equal(
+    armed.units.filter((unit) => unit.side === 'player' && unit.token).length,
+    0,
+    'arming a trap does not summon a dancer',
+  )
+  const intrusion = structuredClone(armed)
+  intrusion.active = 'enemy'
+  intrusion.phase = 'play'
+  intrusion.plays.enemy = 0
+  intrusion.hands.enemy = ['rat']
+  const triggered = playClash(intrusion, 'enemy', 'rat', 2)
+  assert.notEqual(triggered, intrusion, 'the rival enters the trapped alley')
+  assert.ok(
+    triggered.units.some(
+      (unit) => unit.side === 'player' && unit.token,
+    ),
+    'the crowded pit recruits a SWARM fan on spring',
+  )
+  assert.ok(
+    triggered.boss.enemy < intrusion.boss.enemy,
+    'the bouncer also collects its boss toll',
+  )
+}
+
 // The former stat-only Chimera apex now shares REGEN with a hurt neighbor.
 {
   const helped = cast(

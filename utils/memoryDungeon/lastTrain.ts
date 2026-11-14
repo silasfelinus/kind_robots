@@ -168,7 +168,11 @@ export function replayTrainEncounters(
       continue
     // A malformed e04 choice is not evidence of entering the night world.
     // Otherwise an injected record could suppress valid later e03 rewards.
-    if (!(TRAIN_CHOICES[encounter.scene] as readonly string[]).includes(encounter.choice))
+    if (
+      !(TRAIN_CHOICES[encounter.scene] as readonly string[]).includes(
+        encounter.choice,
+      )
+    )
       continue
     if (encounter.world === 'e03' && enteredNightWorld) continue
     if (encounter.world === 'e04') enteredNightWorld = true

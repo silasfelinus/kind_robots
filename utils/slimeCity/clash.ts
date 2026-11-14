@@ -1927,29 +1927,29 @@ export function playClash(
       ))
         ally.armor = Math.min(3, ally.armor + 1)
     }
-    // Madame Chimera's final form becomes a field medic as well as an apex
-    // predator. She lends her regeneration to the most injured neighboring
-    // friend once on arrival; an isolated Chimera earns no support bonus.
-    if (id === 'chimera' && level === 3) {
-      const patient = s.units
-        .filter(
-          (u) =>
-            u.side === side &&
-            u.uid !== unit.uid &&
-            Math.abs(u.lane - lane) === 1,
-        )
-        .sort((a, b) => a.hp - b.hp || a.lane - b.lane)[0]
-      if (patient && !has(patient, 'regen')) {
-        patient.keywords.push('regen')
-        note(s, 'Madame Chimera shares her regenerative genome.', 'heal', lane)
-      }
-    }
     const trap = s.traps.find((t) => t.side === foe && t.lane === lane)
     if (trap) {
       springTrap(s, trap, unit)
       casualties(s)
     }
     if (unit.hp > 0) {
+      // Madame Chimera's final form becomes a field medic as well as an apex
+      // predator. She lends her regeneration to the most injured neighboring
+      // friend once on arrival; an isolated Chimera earns no support bonus.
+      if (id === 'chimera' && level === 3) {
+        const patient = s.units
+          .filter(
+            (u) =>
+              u.side === side &&
+              u.uid !== unit.uid &&
+              Math.abs(u.lane - lane) === 1,
+          )
+          .sort((a, b) => a.hp - b.hp || a.lane - b.lane)[0]
+        if (patient && !has(patient, 'regen')) {
+          patient.keywords.push('regen')
+          note(s, 'Madame Chimera shares her regenerative genome.', 'heal', lane)
+        }
+      }
       unitEvo(s, unit, 'enter')
       casualties(s)
     }

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import {
   applyClashCommand,
+  activateClash,
+  canClashActivate,
   canClashPlay,
   clashEffectivePlayCost,
   clashCardText,
@@ -221,9 +223,8 @@ for (const [left, right] of [
   assert.equal(endClashTurn(gone, 'enemy').units.length, 0)
 }
 
-// Existing Gutterbus routes passengers on arrival. Evolved Roof Phantom
-// now earns a different kind of lane choice: a legal one-step dodge into
-// an unopposed alley at turn start, with roots/occupancy as counterplay.
+// Roof Phantom's shift is a choice instead of a free turn-start move.
+// A tap spends its strike, and roots or occupied alleys deny the escape.
 {
   const source = createClash('catgirls', 'riot', 946)
   source.round = 5
@@ -235,33 +236,40 @@ for (const [left, right] of [
       level: 3,
     }),
   ]
-  const moved = endClashTurn(source, 'enemy')
+  const ready = endClashTurn(source, 'enemy')
+  assert.equal(ready.units.find((u) => u.uid === 61)?.lane, 2)
+  assert.ok(canClashActivate(ready, 'player', 61))
+  const moved = activateClash(ready, 'player', 61)
   assert.equal(moved.units.find((u) => u.uid === 61)?.lane, 1)
   assert.equal(source.units[0]!.lane, 2, 'lane changes are immutable')
   assert.deepEqual(
     moved,
-    endClashTurn(source, 'enemy'),
-    'the relocation is deterministic',
+    activateClash(endClashTurn(source, 'enemy'), 'player', 61),
+    'the selected relocation replays deterministically',
   )
   const blocked = structuredClone(source)
   blocked.units.push(fighter('player', 1, 62))
   blocked.units.push(fighter('player', 3, 63))
   assert.equal(
-    endClashTurn(blocked, 'enemy').units.find((u) => u.uid === 61)?.lane,
+    activateClash(endClashTurn(blocked, 'enemy'), 'player', 61)
+      .units.find((u) => u.uid === 61)?.lane,
     2,
     'occupied adjacent alleys prevent relocation',
   )
   const rooted = structuredClone(source)
   rooted.units[0]!.rooted = true
+  const rootedReady = endClashTurn(rooted, 'enemy')
+  assert.equal(canClashActivate(rootedReady, 'player', 61), false)
   assert.equal(
-    endClashTurn(rooted, 'enemy').units.find((u) => u.uid === 61)?.lane,
-    2,
-    'roots prevent relocation',
+    activateClash(rootedReady, 'player', 61),
+    rootedReady,
+    'roots prevent activation',
   )
   const exposed = structuredClone(source)
   exposed.units.push(fighter('enemy', 1, 64, { attacked: true }))
   assert.equal(
-    endClashTurn(exposed, 'enemy').units.find((u) => u.uid === 61)?.lane,
+    activateClash(endClashTurn(exposed, 'enemy'), 'player', 61)
+      .units.find((u) => u.uid === 61)?.lane,
     3,
     'a lane with an opposing blocker is not a safe escape',
   )

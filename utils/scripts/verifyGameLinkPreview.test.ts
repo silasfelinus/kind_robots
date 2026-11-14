@@ -30,6 +30,9 @@ for (const slug of [
   'hybridizer',
   'comic-studio',
   'art-archive',
+  'tzaddik-gallery',
+  'challenge-leaderboard',
+  'arcade',
 ]) {
   assert.equal(
     GAME_LINK_PREVIEWS[slug]?.image,

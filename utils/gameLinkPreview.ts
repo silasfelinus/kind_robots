@@ -137,7 +137,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Kind Robots Arcade | Free Browser Games',
     description:
       'A hall of free arcade cabinets with worldwide high scores. No account needed to play.',
-    image: '/save-the-plumber/maps/world-3.webp',
+    image: '/arcade/link-preview.webp',
   },
   'music-mentor': {
     title: 'Music Mentor | Kind Robots',
@@ -188,7 +188,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Tzaddik Gallery | Kind Robots',
     description:
       'Thirty-six just people, living and remembered, each sourced with receipts. Free to browse in your browser, sign in only to nominate someone.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/tzaddik-gallery/link-preview.webp',
     path: '/tzaddik-gallery',
   },
   'art-archive': {
@@ -202,7 +202,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Challenge Center Hall of Contenders | Kind Robots',
     description:
       'See who is winning the Kind Robots Challenge Center. Browse the championship standings and join the next fight card.',
-    image: FALLBACK_PREVIEW_IMAGE,
+    image: '/challenge-leaderboard/link-preview.webp',
     path: '/play/challenges/leaderboard',
   },
 }

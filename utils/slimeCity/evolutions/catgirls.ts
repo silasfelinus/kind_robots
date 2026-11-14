@@ -194,12 +194,12 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // keep the crew alive and the vat stays empty; the clone is small.
   's1-clone-salvage': {
     2: stage('Spare Parts Bin', [
-      on('enter', when('allyFell', summon('nearest', 1, 2))),
+      on('enter', revive(1, 2)),
     ]),
     3: stage('Clone Vat', [
       on(
         'enter',
-        when('allyFell', summon('nearest', 2, 3, ['regen']), draw(1)),
+        when('allyFell', revive(2, 3), draw(1)),
       ),
     ]),
   },

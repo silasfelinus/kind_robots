@@ -990,7 +990,7 @@
       "title": "Half Fare for a Small One",
       "flavor": "The ferryman charges full fare for a toddler, because, he says, a toddler is a passenger who can fall in. You have one ration left, and a school satchel you have carried since before the fire, with your name stitched inside the flap in your mother's thread. The water at the landing runs brown and fast. Bao is pointing at the boat and saying boat, boat, boat.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/the-crossing.webp",
+      "art": "/shifting-lands/cards/half-fare-for-a-small-one.webp",
       "choices": [
         {
           "id": "trade-the-satchel",
@@ -1116,7 +1116,7 @@
       "title": "Fever by the Picket Fire",
       "flavor": "Bao burns. It came on in the afternoon, and now he lies against you by the camp's picket fire with his huge ears hot and limp, too tired to cry. He has not eaten. He keeps his paw closed round the last crust you gave him, as if someone might take it. The camp healer charges, the trader has bark, and the night will be long.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a3-fever-vigil.webp",
+      "art": "/shifting-lands/cards/fever-by-the-picket-fire.webp",
       "choices": [
         {
           "id": "give-him-your-medicine",
@@ -1235,7 +1235,7 @@
       "title": "The Voice Asks for the Small One",
       "flavor": "At the cave mouth the dark smells of bread: fresh and warm, the kind your mother baked on feast days. A voice deep in the rock speaks in your mother's voice. There is a table down here, it says, where nobody is ever hungry, and a bed for each of you, and all it asks is that the small one come down first, by himself, so it can see him.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a8-voice.webp",
+      "art": "/shifting-lands/cards/the-voice-asks-for-the-small-one.webp",
       "choices": [
         {
           "id": "pick-him-up-and-run",

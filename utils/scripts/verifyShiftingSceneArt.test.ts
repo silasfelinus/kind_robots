@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict'
-import { DECK_V6, V6_CARDS } from '../shiftingLands/deckV6'
+import {
+  CAST_CARDS_V10,
+  DECK_V6,
+  PERSONAL_CARDS_V10,
+  V6_CARDS,
+} from '../shiftingLands/deckV6'
 import { trialForLandV8 } from '../shiftingLands/trialRulesV8'
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -83,7 +88,12 @@ for (const id of encounterIds) {
 
 const trialIds = JOURNEY_WORLD.lands.map((land) => 'trial-' + land.id)
 assert.equal(new Set(BESPOKE_CARDS).size, BESPOKE_CARDS.length)
-const v6Ids = DECK_V6.newCards.map((card) => card.id)
+const v6Ids = [
+  ...DECK_V6.newCards.map((card) => card.id),
+  // t-053: travelers' own cards and cast cameos get painted faces too.
+  ...PERSONAL_CARDS_V10.map((card) => card.id),
+  ...CAST_CARDS_V10.map((card) => card.id),
+]
 for (const id of BESPOKE_CARDS) {
   assert.ok(
     encounterIds.includes(id) || v6Ids.includes(id) || trialIds.includes(id),

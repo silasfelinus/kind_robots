@@ -1496,7 +1496,7 @@
       "title": "The Gate You Drove Up To",
       "flavor": "You know this gate. You have seen it twice before from the seat of a water house wagon, with the canvas tied down behind you and orders not to look under it. The same young sister in grey opens it now, lamp in hand, and smiles as if you were expected. \"You've come without the wagon,\" she says. \"Mother will be sorry. She asked after you.\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/mission-gate.webp",
+      "art": "/shifting-lands/cards/the-gate-you-drove-up-to.webp",
       "choices": [
         {
           "id": "ask-to-see-the-ones-you-brought",
@@ -1724,7 +1724,7 @@
       "title": "The Wagon on the Glass",
       "flavor": "A covered wagon creaks along the black glass ahead of you with its canvas tied down tight, the way you used to tie it. The driver is a young ferret in a coat too good for him, and he keeps his eyes on the road the way you were told to keep yours. Something small knocks twice on the boards from inside. Your paw is on your gun before you have decided anything.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a5-wagon-road.webp",
+      "art": "/shifting-lands/cards/the-wagon-on-the-glass.webp",
       "choices": [
         {
           "id": "step-into-the-road",
@@ -1827,7 +1827,7 @@
       "title": "The Fever Wagon at the Post",
       "flavor": "A covered wagon waits outside the trading post with a little bell burned into its tailboard: the same wagon, or its twin, that carried your boy up the mission road. A young mother stands beside it with a kit hot with fever wrapped against her chest. The driver is kind about it. The good sisters will have the child well by spring, he says. Your paw is on the scattergun before you have decided anything.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a6-pilgrim-girl.webp",
+      "art": "/shifting-lands/cards/the-fever-wagon-at-the-post.webp",
       "choices": [
         {
           "id": "tell-her-about-lark",
@@ -1947,7 +1947,7 @@
       "title": "Torches at the Refuge Wall",
       "flavor": "Word has gone round the refuge yard that a drover's kit vanished from the bunkroom in the night, and the sisters say she went home. The travelers gather by the woodpile with lamp oil and hard faces, and they keep looking at you: the Dustwater barkeep with the scattergun and the boy on a notice. One of them holds out a torch, already lit. \"You know what they are,\" he says. \"Say the word.\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a6-mob-gather.webp",
+      "art": "/shifting-lands/cards/torches-at-the-refuge-wall.webp",
       "choices": [
         {
           "id": "say-the-word",
@@ -2062,7 +2062,7 @@
       "title": "The Teamster Who Drove the Wagon",
       "flavor": "At the canyon camp a young mule-teamster shares your fire, sees the notice folded in your hatband, and goes grey under his dust. He drove for Vane two summers, he says. He remembers a rabbit boy with a bent ear who sang the whole way up the mission road to keep from crying. He has not slept right since. He holds his empty cup out to you like a kit holding out something broken.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/two-fires.webp",
+      "art": "/shifting-lands/cards/the-teamster-who-drove-the-wagon.webp",
       "choices": [
         {
           "id": "fill-his-cup-and-let-him-talk",
@@ -2433,7 +2433,7 @@
       "title": "The Rifle on the Counter",
       "flavor": "The trader sells flour to anyone with coin, and your band has no coin. What it has is the rifle: the one that lay across your knees every day at the dry well, the one the whole crew counts on without saying so. The trader has already seen it. He names a price in flour that would carry the kits to the canyons, and waits, polishing a cup that does not need it.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/hb-store.webp",
+      "art": "/shifting-lands/cards/hollis-the-rifle-on-the-counter.webp",
       "choices": [
         {
           "id": "lay-the-rifle-down",
@@ -2651,7 +2651,7 @@
       "title": "The Captain's Contract",
       "flavor": "The warden captain of the fortified camp watched your band come in, and he knows a fighting crew when he sees one. He offers you a paper. Every mouth in the band fed, kits included, a roof inside the stockade, and coin besides. All you have to do is hold the threshold gate against the refugees massing on the road behind you. He lays a pen on the paper and turns it to face you.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a8-raiders-wall.webp",
+      "art": "/shifting-lands/cards/hollis-the-captains-contract.webp",
       "choices": [
         {
           "id": "sign-the-captains-paper",
@@ -2781,7 +2781,7 @@
       "title": "Two Sisters at the Windlass",
       "flavor": "Two sisters from the convent have come down to the old well with a mule and a water cart, and they are asking the well folk, very kindly, whether anyone has seen a runaway novice. One is Sister Teasel, who taught you your letters. The other is a novice younger than you, with her paws in her sleeves. You are crouched behind the trough with your habit rolled in a sack and the stair key still warm against your ribs.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a5-well.webp",
+      "art": "/shifting-lands/cards/two-sisters-at-the-windlass.webp",
       "choices": [
         {
           "id": "drop-a-word-in-their-bucket",
@@ -3010,7 +3010,7 @@
       "title": "A Draft That Smells of Wax",
       "flavor": "At the crossroads one passage goes down: a cut stair, worn smooth in the middle, breathing up a warm draft that smells of candle wax and new bread. You know that smell. It came up under the cellar door every night you lay counting beds. Someone has chalked a child's arrow on the wall, pointing down. The iron key at your belt, the one you never gave back, has gone warm.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a8-stair.webp",
+      "art": "/shifting-lands/cards/a-draft-that-smells-of-wax.webp",
       "choices": [
         {
           "id": "try-the-convent-key",
@@ -3104,7 +3104,7 @@
       "title": "A Habit Still Worth Something",
       "flavor": "You still wear the habit because it is the only coat you have, and at the fortified camp it opens every door. Soldiers touch their caps. A sergeant asks you to come to the long tent and say the words over three of his who will not see morning; they believe a sister's blessing goes with them past the Verge. You believed it too, once. You do not know what you believe now.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/wren.webp",
+      "art": "/shifting-lands/cards/a-habit-still-worth-something.webp",
       "choices": [
         {
           "id": "say-the-words-you-were-taught",
@@ -3225,7 +3225,7 @@
       "title": "The Seep Nobody Has Claimed",
       "flavor": "Your seep is a green crack in the delta mud, a mile off the road behind a stand of dead reeds, and it gives a jar an hour if you are patient. Nobody else knows it. This morning, filling jars, you hear a cough from the road: a gopher family sitting by a dead ox, their kit licking dew off a wagon wheel. They have not seen you, or the seep. They will see your black coat in a minute.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/waterhole.webp",
+      "art": "/shifting-lands/cards/the-seep-nobody-has-claimed.webp",
       "choices": [
         {
           "id": "show-them-the-seep",

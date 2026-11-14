@@ -207,7 +207,7 @@ export const THE_COYOTE = premade({
   name: 'The Coyote',
   species: 'coyote',
   pronouns: 'he',
-  portrait: '/zuzu-gamebook/scenes/coyote.webp',
+  portrait: '/shifting-lands/portraits/traveler-coyote.webp',
   blurb:
     'A one-eyed drifter with an empty holster and a price on his head in Dustwater. He owes somebody something, and he has not decided who.',
   skills: {
@@ -228,7 +228,7 @@ export const MAGS = premade({
   name: 'Mags',
   species: 'rabbit',
   pronouns: 'she',
-  portrait: '/zuzu-gamebook/scenes/mags-bar.webp',
+  portrait: '/shifting-lands/portraits/mags.webp',
   blurb:
     "Dustwater's barkeep, scattergun under the counter, who lost her son to the mission road. She trades the truth for kindness and nothing else.",
   skills: {
@@ -248,7 +248,7 @@ export const HOLLIS = premade({
   name: 'Hollis',
   species: 'jackal',
   pronouns: 'she',
-  portrait: '/zuzu-gamebook/scenes/sections/a7-hollis-band.webp',
+  portrait: '/shifting-lands/portraits/hollis.webp',
   blurb:
     'Leader of a starving raider band at the dry well, with her kits hidden in the rocks. Hungry, not wicked, and she will tell you so.',
   skills: {
@@ -268,7 +268,7 @@ export const SISTER_WREN = premade({
   name: 'Sister Wren',
   species: 'otter',
   pronouns: 'she',
-  portrait: '/zuzu-gamebook/scenes/wren.webp',
+  portrait: '/shifting-lands/portraits/sister-wren.webp',
   blurb:
     "A young novice who walked out of the Abbess's convent the night she stopped pretending not to know. She still carries the infirmary keys.",
   skills: {
@@ -288,7 +288,7 @@ export const BROTHER_PEDDLER = premade({
   name: 'Brother Peddler',
   species: 'hare',
   pronouns: 'he',
-  portrait: '/zuzu-gamebook/scenes/peddler.webp',
+  portrait: '/shifting-lands/portraits/brother-peddler.webp',
   blurb:
     'He sells blessed water to desperate families from the back of a cart. Con man or the last kindness left on the road? Some days, both.',
   skills: {

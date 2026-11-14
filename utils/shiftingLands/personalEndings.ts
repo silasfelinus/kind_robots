@@ -856,7 +856,17 @@ export function personalTone(
 
 // Painted plates that have shipped under public/shifting-lands/endings/.
 // Until an ending is listed here, the reader shows the traveler's portrait.
-export const SHIPPED_PERSONAL_ENDING_PLATES: ReadonlySet<string> = new Set()
+export const SHIPPED_PERSONAL_ENDING_PLATES: ReadonlySet<string> = new Set([
+  'coyote-one-fire',
+  'coyote-the-water-house-gun',
+  'hollis-everyone-fed-nobody-together',
+  'hollis-holder-of-the-crossings',
+  'hollis-kits-out-of-the-rocks',
+  'mags-the-notice-comes-down',
+  'mags-thirty-lamps',
+  'wren-counting-every-night',
+  'wren-given-here-gone-now',
+])
 export const personalEndingPlatePath = (endingId: string): string =>
   `/shifting-lands/endings/${endingId}.webp`
 export const personalEndingPlate = (endingId: string): string | null =>

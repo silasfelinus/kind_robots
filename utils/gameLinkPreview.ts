@@ -14,7 +14,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Terrors on Crystal Street | Kind Robots',
     description:
       'A free, spooky-funny neighborhood adventure. Pick your clique, meet the residents and survive the week. Plays in your browser.',
-    image: '/crystal-street/endings/counselor-jess-best.webp',
+    image: '/crystal-street/link-preview.webp',
   },
   ecotone: {
     title: 'Ecotone | Kind Robots',
@@ -26,7 +26,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Emperor of Dust | Kind Robots',
     description:
       'Lead a band of exiles across a ruined empire. A free story game in your browser.',
-    image: '/emperor-of-dust/intro/fortress.webp',
+    image: '/emperor-of-dust/link-preview.webp',
   },
   'game-of-captains': {
     title: 'Space Couch | Kind Robots',
@@ -50,13 +50,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Rainbow Bullet Hell Space Princess | Kind Robots',
     description:
       'A bright, brutal shoot-em-up with bosses, banter and a princess in a hurry. Free in your browser.',
-    image: '/rainbow-princess-art/bosses/b08-phase1.webp',
+    image: '/rainbow-bullet-hell-space-princess/link-preview.webp',
   },
   'save-the-plumber': {
     title: 'Save the Plumber | Kind Robots Arcade',
     description:
       'A free rescue adventure across eight worlds. Plays in your browser.',
-    image: '/save-the-plumber/maps/world-3.webp',
+    image: '/save-the-plumber/link-preview.webp',
   },
   'shifting-desks': {
     title: 'Shifting Desks | Kind Robots',
@@ -91,7 +91,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Zuzu Ghost Trail | Kind Robots',
     description:
       'Follow a koala through a haunted trail of lantern light. A free arcade cabinet in your browser.',
-    image: '/crystal-street/scenes/deck-paranormal-ghost-light.webp',
+    image: '/zuzu-ghost-trail/link-preview.webp',
   },
   'sliding-tile-gallery': {
     title: 'Sliding Tile Gallery | Kind Robots',

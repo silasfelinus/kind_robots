@@ -208,6 +208,8 @@ const guardStart = store.indexOf('function canResetProgress()')
 const resetGuard = store.slice(guardStart, resetStart)
 assert.match(resetGuard, /'checking', 'conflict', 'offline'/)
 assert.match(resetGuard, /authenticatedUserId/)
+assert.match(resetBody, /playbookRunKey\(next\)/)
+assert.doesNotMatch(resetBody, /rememberJourney\(/)
 assert.doesNotMatch(
   resetBody,
   /rewardAchievementByCode/,

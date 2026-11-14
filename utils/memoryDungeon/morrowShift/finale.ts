@@ -58,6 +58,10 @@ export const MORROW_SHIFT_FINALE: MorrowShiftSite = {
       text: 'Sal knows you are not who she thought. She still left the stairwell light on for you tonight.',
     },
     {
+      flag: 'e03:2,1:care',
+      text: 'Mara wrote her name on the receipt when you admitted you could not remember her. You still carry it. She deserves an answer more useful than a miracle.',
+    },
+    {
       flag: 'e03:2,1:risk',
       text: 'Mara has stopped asking about the shift you missed. The bluff has held so long it has started to feel like a debt.',
     },

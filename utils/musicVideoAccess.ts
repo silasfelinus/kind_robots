@@ -137,10 +137,14 @@ export function remixMusicVideoDoc(
   keepArt: boolean,
 ): MusicVideoDoc {
   const song = keepArt && doc.song?.artImageId ? withoutJob(doc.song) : null
-  return {
+  const remixed: MusicVideoDoc = {
     ...doc,
     settings: { ...doc.settings },
     song,
     scenes: doc.scenes.map((scene) => remixScene(scene, keepArt)),
   }
+  // An editorial verdict belongs to the original cut, never the remixed copy.
+  // This also prevents private reviewer notes travelling into public remixes.
+  delete remixed.review
+  return remixed
 }

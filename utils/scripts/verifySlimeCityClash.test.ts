@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   CLASH_EVOLUTIONS,
+  clashEvolutionChoice,
   clashEvolutionStage,
 } from '../slimeCity/clashEvolutions'
 import { alleyDeck } from '../slimeCity/alleys'
@@ -49,6 +50,77 @@ import {
   sweepClash,
 } from './slimeCityClashBalanceReport'
 import { clashSpectacle } from '../slimeCity/clashSpectacle'
+
+// Canonical editorial contract: every currently playable card renders complete
+// level-specific text. Choice A and B are separately inspectable; no branch
+// silently inherits words that only appeared on an earlier evolution.
+const editorialCopy = CARDS.flatMap((card) => {
+  const faces = [1, 2, 3].map((level) => ({
+    id: card.id,
+    level: String(level),
+    text: clashCardText(card, level, level === 3 ? 0 : undefined),
+  }))
+  if (clashEvolutionChoice(card.id, 3))
+    faces.push({
+      id: card.id,
+      level: '3B',
+      text: clashCardText(card, 3, 1),
+    })
+  return faces
+})
+assert.equal(CARDS.length, 300, 'exactly 300 catalog cards are audited')
+assert.equal(
+  new Set([...Object.keys(CLASH_TWISTS), ...Object.keys(CLASH_EVOLUTIONS)])
+    .size,
+  300,
+  'all 300 belong to a bespoke twist or authored evolution',
+)
+assert.equal(
+  editorialCopy.length,
+  922,
+  '300 x 3 plus 22 distinct level-three forks',
+)
+for (const face of editorialCopy) {
+  assert.ok(
+    face.text.trim(),
+    face.id + ' ' + face.level + ' has readable rules',
+  )
+  assert.ok(
+    face.text.length <= 160,
+    face.id + ' ' + face.level + ' must fit the 160-character face',
+  )
+  assert.doesNotMatch(
+    face.text,
+    /(?:^|[.!?]\s+)(?:Also|Again|The stronger|As before)\b/i,
+    face.id + ' ' + face.level + ' cannot rely on prior-stage text',
+  )
+}
+for (const card of CARDS) {
+  const choices = clashEvolutionChoice(card.id, 3)
+  if (!choices) continue
+  assert.notEqual(
+    clashCardText(card, 3, 0),
+    clashCardText(card, 3, 1),
+    card.id + ' must explain its two final forms independently',
+  )
+}
+const cardInspector = readFileSync(
+  'components/slime-city-card-evolutions.vue',
+  'utf8',
+)
+assert.match(cardInspector, /out\[CLASH_MAX_LEVEL - 1\]!\.pick = 0/)
+assert.match(cardInspector, /pick: 1/)
+assert.match(
+  readFileSync('components/slime-city-pvp-game.vue', 'utf8'),
+  /clashCardText\(cardById\(selectedCard\),\s*3,\s*index === 1 \? 1 : 0\)/,
+)
+assert.match(
+  readFileSync('components/slime-city-clash.vue', 'utf8'),
+  /clashCardText\(selectedCard,\s*3,\s*i === 1 \? 1 : 0\)/,
+)
+console.log(
+  'Slime City editorial audit: 300 cards, 922 independent card faces and 22 choice pairs PASS',
+)
 
 function follower(
   side: Side,

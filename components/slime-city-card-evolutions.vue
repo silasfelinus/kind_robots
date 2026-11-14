@@ -45,6 +45,7 @@ const stages = computed(() => {
   )
   if (clashEvolutionChoice(props.cardId, CLASH_MAX_LEVEL)) {
     out[CLASH_MAX_LEVEL - 1]!.label = 'LV 3 · OPTION A'
+    out[CLASH_MAX_LEVEL - 1]!.pick = 0
     out.push({ label: 'LV 3 · OPTION B', level: CLASH_MAX_LEVEL, pick: 1 })
   }
   return out

@@ -262,7 +262,12 @@ export const rearm = (): EvoAction => ({ do: 'rearm' })
 export const pounce = (): EvoAction => ({ do: 'pounce' })
 
 // ------------------------------------------------------------------- text
-const PLURAL: EvoScope[] = ['adjacentAllies', 'adjacentFoes', 'laneFoes']
+const PLURAL: EvoScope[] = [
+  'adjacentAllies',
+  'adjacentFoes',
+  'laneFoes',
+  'allFoes',
+]
 const WHO: Record<EvoScope, string> = {
   self: 'itself',
   target: 'the target',
@@ -431,10 +436,10 @@ function abilityText(ab: EvoAbility, kind: Kind): string {
   const subject = kind === 'creature' ? 'it' : 'self'
   const body = ab.do.map((a) => evoActionText(a, subject)).join(', ')
   let lead: string
-  if (kind === 'spell' && ab.when === 'enter') lead = 'Also'
+  if (kind === 'spell' && ab.when === 'enter') lead = 'Cast'
   else if (kind === 'equipment' && ab.when === 'enter') lead = 'Install'
   else lead = WHEN[ab.when]
-  return lead + (ab.once ? ' (once)' : '') + ': ' + body + '.'
+  return lead + (ab.once ? ' (once per fighter)' : '') + ': ' + body + '.'
 }
 function staticText(r: EvoStatic, kind: Kind): string[] {
   const out: string[] = []

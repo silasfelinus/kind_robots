@@ -52,7 +52,11 @@
             cardById(cardId).name +
             '. ' +
             (isFree(cardId) ? 'Free play. ' : '') +
-            clashCardText(cardById(cardId), clashLevel(game, 'player', cardId))
+            clashCardText(
+              cardById(cardId),
+              clashLevel(game, 'player', cardId),
+              held === index ? choicePick : undefined,
+            )
           "
           :data-testid="'clash-hand-' + index"
           @pointerdown="grab($event, index)"
@@ -62,6 +66,7 @@
         >
           <SlimeCityClashCardFace
             :card-id="cardId"
+            :pick="held === index ? choicePick : undefined"
             :level="
               big === index && previewLevel
                 ? previewLevel
@@ -198,6 +203,7 @@ import {
 const props = defineProps<{
   game: ClashState
   held: number | null
+  choicePick?: 0 | 1
   inspect: {
     id: string
     note: string

@@ -57,6 +57,7 @@ for (const card of CARDS)
     card.id + ' has a crafted evolution',
   )
 assert.equal(CARDS.length, 300)
+
 // Meat Exchange evolution faces are occult, not generic corporate paperwork.
 // The mechanical abilities are still exercised by the full evolution suite below.
 const exchangeStages = Object.values(EXCHANGE_EVOLUTIONS).flatMap((e) => [

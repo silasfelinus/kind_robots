@@ -107,6 +107,7 @@ export const BESPOKE_CARDS: readonly string[] = [
   'tamsin-no-cairns-on-the-glass',
   'tamsin-small-cairns-in-the-dark',
   'tamsin-the-agents-list',
+  'tamsin-the-foremans-offer',
   'the-banner-in-the-wind',
   'the-barefoot-line',
   'the-barefoot-line-grows',
@@ -213,6 +214,7 @@ export const BESPOKE_CARDS: readonly string[] = [
   'vows-by-the-last-lamp',
   'warm-beds-separate-rooms',
   'weighed-in-salt',
+  'your-face-on-the-old-bill',
   'your-teachers-voice-in-the-dark',
 ]
 

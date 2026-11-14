@@ -135,6 +135,36 @@
         >
           Reset reading preferences
         </button>
+        <div
+          class="mt-5 border-t border-base-content/15 pt-4"
+          data-testid="zuzu-gamebook-erase-progress"
+        >
+          <p class="text-sm font-bold">Erase all gamebook progress</p>
+          <p class="mt-1 text-xs opacity-75">
+            Unlike New Journey, this clears your endings, discoveries,
+            scrapbook and recovery slot. Site-wide achievements remain.
+          </p>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm mt-3 text-error"
+            :disabled="
+              store.accountStatus === 'checking' ||
+              store.accountStatus === 'conflict'
+            "
+            @click="emit('reset-progress')"
+          >
+            Erase gamebook progress
+          </button>
+          <p
+            v-if="
+              store.accountStatus === 'checking' ||
+              store.accountStatus === 'conflict'
+            "
+            class="mt-1 text-xs opacity-70"
+          >
+            Resolve the account save before clearing this book.
+          </p>
+        </div>
       </template>
     </div>
   </section>
@@ -155,6 +185,7 @@ const emit = defineEmits<{
   continue: []
   restart: []
   ledger: []
+  'reset-progress': []
 }>()
 
 const store = useZuzuGamebookStore()

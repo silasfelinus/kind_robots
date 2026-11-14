@@ -68,6 +68,17 @@ for (const kind of ['puzzle', 'treasure', 'merchant', 'companion', 'dungeon'])
 assert.ok(events.filter((event) => event.kind === 'puzzle').length >= 6)
 assert.equal(worldEvent('e03', '6,2')!.kind, 'dungeon')
 
+// Both responses to Mara's first confrontation change the finale's remembered context.
+const morrowFinaleSite = MORROW_SHIFT_BY_KEY.get('8,8')!
+assert.ok(
+  morrowFinaleSite.echoes?.some((echo) => echo.flag === 'e03:2,1:care'),
+  'admitting the memory gap must be remembered at the finale',
+)
+assert.ok(
+  morrowFinaleSite.echoes?.some((echo) => echo.flag === 'e03:2,1:risk'),
+  'bluffing about the memory gap must be remembered at the finale',
+)
+
 // Echo coverage: later places remember earlier choices.
 const echoCount = MORROW_SHIFT_SITES.reduce(
   (sum, site) => sum + (site.echoes?.length ?? 0),
@@ -85,6 +96,60 @@ const remembered = eventOpening(finale, ['e03:3,3:care', 'e03:8,6:risk'])
 assert.ok(remembered.startsWith(finale.opening))
 assert.ok(remembered.includes('Jun’s letter is still sealed'))
 assert.ok(remembered.includes('the Sleeping One'))
+
+// The finale reads actual choice flags after save/restore, not merely static text.
+for (const choiceId of ['care', 'risk'] as const) {
+  let progress = newOverworldEventProgress('e03')
+  progress = revealOverworldEvent(progress, '2,1')
+  progress = chooseOverworldEvent(progress, '2,1', choiceId)
+  const saved = restoreOverworldEventProgress(
+    JSON.parse(JSON.stringify(progress)),
+  )!
+  const opening = eventOpening(finale, saved.flags)
+  assert.ok(
+    opening.includes(
+      choiceId === 'care'
+        ? 'Mara wrote her name on the receipt'
+        : 'The bluff has held so long',
+    ),
+    choiceId + ' choice must change the finale after save/restore',
+  )
+  assert.ok(
+    !opening.includes(
+      choiceId === 'care'
+        ? 'The bluff has held so long'
+        : 'Mara wrote her name on the receipt',
+    ),
+    'mutually exclusive Mara outcomes must not both appear',
+  )
+}
+
+// The immediately preceding fountain approach must change the last decision.
+const fountainApproaches = [
+  ['care', 'You already promised Mara'],
+  ['risk', 'You looked into the dry basin'],
+  ['offer', 'The tea you poured into the basin'],
+] as const
+for (const [chosen, expected] of fountainApproaches) {
+  let progress = newOverworldEventProgress('e03')
+  // Reveal a contiguous route from the start; distant tiles cannot teleport open.
+  for (let x = 2; x <= 7; x++)
+    progress = revealOverworldEvent(progress, x + ',1')
+  for (let y = 2; y <= 8; y++)
+    progress = revealOverworldEvent(progress, '7,' + y)
+  progress = chooseOverworldEvent(progress, '7,8', chosen)
+  const restored = restoreOverworldEventProgress(
+    JSON.parse(JSON.stringify(progress)),
+  )!
+  const opening = eventOpening(finale, restored.flags)
+  assert.ok(opening.includes(expected), chosen + ' must echo at the finale')
+  for (const [other, phrase] of fountainApproaches)
+    if (other !== chosen)
+      assert.ok(
+        !opening.includes(phrase),
+        'other fountain branch must stay absent',
+      )
+}
 
 // --- Save compatibility ------------------------------------------------------
 // A template-era save answered every non-photo site with care or risk.

@@ -59,7 +59,9 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   /** When this browser last kept the journey (the reader's "Saved" mark), or null when storage refused it. */
   const savedAt = ref<number | null>(null)
   const saveFailed = ref(false)
-  const accountStatus = ref<'local' | 'checking' | 'synced' | 'conflict' | 'offline'>('local')
+  const accountStatus = ref<
+    'local' | 'checking' | 'synced' | 'conflict' | 'offer-upload' | 'offline'
+  >('local')
   const accountCopy = ref<{ save: ZuzuAccountSave; revision: number } | null>(null)
   let accountRevision: number | null = null
   let activeAccountId: number | null = null
@@ -114,6 +116,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   }
 
   async function syncAccount() {
+    if (!loaded.value) return
     const user = useUserStore()
     const userId = user.authenticatedUserId
     if (!userId || !user.token) {
@@ -141,8 +144,15 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
       accountRevision = remote?.revision ?? null
       accountCopy.value = remote
       if (!remote) {
-        accountStatus.value = 'synced'
-        queueAccountSave()
+        accountStatus.value =
+          run.value.visited.length > 1 ||
+          !!recoverable.value ||
+          discovered.value.length > 0 ||
+          scrapbook.value.length > 0 ||
+          discoveredCast.value.length > 0
+            ? 'offer-upload'
+            : 'synced'
+        if (accountStatus.value === 'synced') queueAccountSave()
       } else if (JSON.stringify(accountSnapshot()) === JSON.stringify(remote.save)) {
         accountStatus.value = 'synced'
       } else if (
@@ -159,6 +169,13 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     } catch {
       if (activeAccountId === userId) accountStatus.value = 'offline'
     }
+  }
+
+  /** First cloud save is opt-in when this browser already has a story. */
+  function beginAccountSave() {
+    if (accountStatus.value !== 'offer-upload') return
+    accountStatus.value = 'synced'
+    queueAccountSave()
   }
 
   /** Explicit resolution: preserve this device's current journey in recovery. */
@@ -417,6 +434,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     syncAccount,
     restoreAccountCopy,
     keepDeviceCopy,
+    beginAccountSave,
     load,
     choose,
     battle,

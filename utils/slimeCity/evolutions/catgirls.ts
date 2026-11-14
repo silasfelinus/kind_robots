@@ -39,7 +39,9 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // fragile; with no fallen ally its arrival brings no one back.
   'splice-runner': {
     stats: { 3: { hp: 4 } },
-    2: stage('Contraband Courier', [on('enter', heal(3, 'woundedAlly'))]),
+    2: stage('Contraband Courier', [
+      on('enter', heal(2, 'woundedAlly'), cleanse('woundedAlly')),
+    ]),
     3: stage('Midnight Ambulance', [on('enter', revive(2, 3))], {
       pacifist: true,
     }),
@@ -107,7 +109,10 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (scout to showstopper defender). Counterplay:
   // the shield ends on her next turn; with no crowd, there is no roar.
   's3-catgirls-glasswalker': {
-    2: stage('Barefoot on Shards', [on('hit', damage(1, 'adjacentFoes'))]),
+    2: stage('Barefoot on Shards', [
+      on('hit', damage(1, 'adjacentFoes')),
+      on('turnStart', guard(1, 'self')),
+    ]),
     3: stage('The Glasswalk', [
       on('enter', guard(3, 'self'), when('crowd', power(1, 'allies'))),
     ]),
@@ -134,7 +139,9 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // commits a lethal hit; L3 lends one to the whole crew. Counterplay: chip
   // twice instead of one big hit, or stun and wait.
   's1-nine-lives': {
-    2: stage('Eighth Life', [on('enter', rescue('target'))]),
+    2: stage('Eighth Life', [
+      on('enter', rescue('target'), heal(1, 'woundedAlly')),
+    ]),
     3: stage('No Refunds', [on('enter', rescue('allies'))]),
   },
   // Arc: a wire across the catwalk -> it catches the heavy ones hardest ->
@@ -145,7 +152,9 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Heavy Drop', [
       on('spring', when('targetHeavy', damage(2, 'target'))),
     ]),
-    3: stage("Hangman's Line", [on('spring', rearm())]),
+    3: stage("Hangman's Line", [
+      on('spring', when('targetHeavy', damage(1, 'target')), rearm()),
+    ]),
   },
   // Arc: a medic whose donor list has one name (her own) -> every hit she
   // lands buys a stitch for someone else -> the last donation: when she
@@ -175,7 +184,10 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', when('allyFell', summon('nearest', 1, 2))),
     ]),
     3: stage('Clone Vat', [
-      on('enter', when('allyFell', summon('nearest', 2, 3, ['regen']))),
+      on(
+        'enter',
+        when('allyFell', summon('nearest', 2, 3, ['regen']), draw(1)),
+      ),
     ]),
   },
   // Arc: a lure in the alley -> the line snaps across the block -> every
@@ -205,20 +217,21 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // leave the alley across empty and the husk hits nothing.
   's2-catgirls-emergency-molt': {
     2: stage('Tougher Hide', [
-      on('enter', armor(1, 'target')),
-      on('hit', heal(1, 'woundedAlly')),
+      on('enter', armor(1, 'target'), cleanse('target')),
     ]),
     3: stage('Husk Burst', [
       on('enter', armor(1, 'target'), damage(3, 'across')),
     ]),
   },
   // Arc: one stolen stealth trick -> the trick spreads down the line -> the
-  // whole strike team moves as one needle.
+  // whole strike team gains Ambush and a temporary surge.
   // Trajectory: LATE BLOOMER (a team play). Counterplay: a lone fighter
   // gets little from it; stun the crew before the strike phase.
   's2-catgirls-needle-thread-ambush': {
     2: stage('Threaded Team', [on('enter', grant('ambush', 'adjacentAllies'))]),
-    3: stage('Needle Strike Team', [on('enter', power(1, 'allies'))]),
+    3: stage('Needle Strike Team', [
+      on('enter', grant('ambush', 'allies'), power(1, 'allies')),
+    ]),
   },
   // Arc: one hospital suture across the alley -> a sterile field that
   // dresses our wounds -> the quarantine line that freezes the block.
@@ -284,8 +297,12 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: STEADY. Counterplay: the shield ends on her next turn; wait
   // it out and strike then.
   's3-catgirls-sidewalk-stitches': {
-    2: stage('Running Stitch', [on('enter', heal(1, 'adjacentAllies'))]),
-    3: stage('Field Hospital', [on('enter', guard(2, 'allies'))]),
+    2: stage('Running Stitch', [
+      on('enter', heal(1, 'adjacentAllies'), cleanse('adjacentAllies')),
+    ]),
+    3: stage('Field Hospital', [
+      on('enter', guard(2, 'allies'), heal(1, 'adjacentAllies')),
+    ]),
   },
   // Arc: a black-market saw -> it cuts through the cage bars -> the hand
   // that strips a corporate guard of all its plating.
@@ -323,21 +340,21 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED ONE-SHOT at L3 (the rescue only matters if the rival
   // commits a lethal hit). Counterplay: chip it twice instead.
   's3-catgirls-counterfeit-heart': {
-    2: stage('Black-Market Pump', [on('enter', sharpen(1, 'target'))]),
+    2: stage('Black-Market Pump', [
+      on('enter', sharpen(1, 'target'), heal(1, 'target')),
+    ]),
     3: stage('Beats On', [on('enter', life(3, 'target'), rescue('target'))]),
   },
   // Arc: a spare-life graft -> the graft is shared down the line -> spare
   // lives for the whole crew.
-  // Trajectory: LATE BLOOMER (a slow 2-play that turns wide). Counterplay:
-  // regen is slow; focused damage still kills.
+  // Trajectory: LOCAL DEFENSE into TEAM TRIAGE. Counterplay: the
+  // outer lanes remain unprotected; rescue leaves a fighter at 1 life.
   's3-catgirls-spare-lives': {
     2: stage('Shared Graft', [
-      on('enter', grant('regen', 'adjacentAllies')),
-      on('tap', heal(1, 'woundedAlly')),
+      on('enter', grant('regen', 'adjacentAllies'), heal(1, 'woundedAlly')),
     ]),
     3: stage('Lives for Everyone', [
-      on('enter', rescue('adjacentAllies')),
-      on('tap', heal(2, 'woundedAlly')),
+      on('enter', rescue('adjacentAllies'), heal(2, 'woundedAllies')),
     ]),
   },
   // Arc: a surgical thread -> it stitches the victim to the street -> the
@@ -353,8 +370,12 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: STEADY into REACH. Counterplay: scan the sign; a cheap
   // runner springs it for the smallest bill.
   's3-catgirls-false-clinic': {
-    2: stage('Copay', [on('spring', mend(2))]),
-    3: stage('Collections Department', [on('spring', mend(2), boss(3))]),
+    2: stage('Copay', [
+      on('spring', mend(2), when('targetHeavy', boss(1))),
+    ]),
+    3: stage('Collections Department', [
+      on('spring', mend(2), boss(3), when('targetHeavy', stun('target'))),
+    ]),
   },
   // Arc: a hollow blade -> a serum reservoir that feeds the wielder -> the
   // blade that mends the whole crew with every knockout.

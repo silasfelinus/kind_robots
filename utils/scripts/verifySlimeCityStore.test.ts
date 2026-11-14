@@ -14,6 +14,46 @@ mock.timers.enable({ apis: ['setInterval'] })
 setActivePinia(createPinia())
 const lab = useSlimeCityStore()
 
+const preferences = new Map<string, string>()
+Object.defineProperty(globalThis, 'window', {
+  configurable: true,
+  value: {
+    localStorage: {
+      getItem: (key: string) => preferences.get(key) ?? null,
+      setItem: (key: string, value: string) => {
+        preferences.set(key, value)
+      },
+    },
+  },
+})
+lab.setDefaultClashFormat('solo')
+assert.equal(preferences.get('kr-slime-city-clash-format-v1'), 'solo')
+lab.clashFormat = 'alliance'
+lab.deckFormat = 'alliance'
+lab.hydrateClashFormat()
+assert.equal(lab.clashFormat, 'solo')
+assert.equal(lab.deckFormat, 'solo')
+preferences.set('kr-slime-city-clash-format-v1', 'invalid')
+lab.hydrateClashFormat()
+assert.equal(lab.clashFormat, 'solo', 'Invalid saved preferences are ignored')
+Object.defineProperty(globalThis, 'window', {
+  configurable: true,
+  value: {
+    localStorage: {
+      getItem: () => {
+        throw new Error('storage blocked')
+      },
+      setItem: () => {
+        throw new Error('storage blocked')
+      },
+    },
+  },
+})
+assert.doesNotThrow(() => lab.hydrateClashFormat())
+assert.doesNotThrow(() => lab.setDefaultClashFormat('alliance'))
+assert.equal(lab.clashFormat, 'alliance')
+delete (globalThis as { window?: unknown }).window
+
 // Seeds: a fresh one per restart, the same one on request
 assert.ok(lab.seed >= 100000 && lab.seed < 1000000)
 lab.useSeed(424242)

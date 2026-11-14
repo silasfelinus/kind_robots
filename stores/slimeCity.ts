@@ -1,3 +1,7 @@
+import {
+  readClashFormatPreference,
+  writeClashFormatPreference,
+} from './helpers/slimeCityClashPreference'
 import { BASE_CARD_IDS } from '~/utils/slimeCity/baseCollection'
 import { defineStore } from 'pinia'
 import {
@@ -481,6 +485,19 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const deckFormat = ref<DeckFormat>('alliance')
   /** Which deck the CLASH tab deals: Solo (one faction) or Alliance (two). */
   const clashFormat = ref<DeckFormat>('alliance')
+  function hydrateClashFormat(): void {
+    const stored = readClashFormatPreference()
+    if (stored) {
+      clashFormat.value = stored
+      deckFormat.value = stored
+    }
+  }
+  function setDefaultClashFormat(format: DeckFormat): void {
+    clashFormat.value = format
+    deckFormat.value = format
+    writeClashFormatPreference(format)
+  }
+
   /** One narrative journey; only its 20-card deck composition changes. */
   const journeyFormat = ref<DeckFormat>('solo')
   const journeyDeckId = ref<string | null>(null)
@@ -2706,6 +2723,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     showJourneyDeck,
     libraryMax: LIBRARY_MAX_DECKS,
     clashFormat,
+    hydrateClashFormat,
+    setDefaultClashFormat,
     journeyFormat,
     journeyDeckId,
     journeyDeckName,

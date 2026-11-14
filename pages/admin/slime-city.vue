@@ -94,8 +94,8 @@
         >
           <h2 class="sc-settings-heading">GAME SETTINGS</h2>
           <p>
-            Choose how the next Clash starts. Your current fight is not
-            affected.
+            Choose how the next Clash starts. Your choice is remembered on this
+            device. Your current fight is not affected.
           </p>
           <fieldset>
             <legend>DEFAULT CLASH DECK</legend>
@@ -1123,6 +1123,7 @@ function syncNarrow(): void {
 const navStore = useNavStore()
 let themeId = 0
 onMounted(() => {
+  lab.hydrateClashFormat()
   themeId = navStore.registerConsoleTheme('slime-city')
   narrowQuery = window.matchMedia('(max-width: 600px)')
   syncNarrow()
@@ -1196,8 +1197,7 @@ const activeMode = computed(() => {
 })
 /** Settings: the format the next Clash and the deck builder start in. */
 function setDefaultFormat(format: 'solo' | 'alliance'): void {
-  lab.clashFormat = format
-  lab.deckFormat = format
+  lab.setDefaultClashFormat(format)
 }
 /** Phones fold the starter decks behind their label. */
 const startersOpen = ref(false)

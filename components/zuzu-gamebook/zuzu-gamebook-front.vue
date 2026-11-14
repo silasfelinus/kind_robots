@@ -141,8 +141,8 @@
         >
           <p class="text-sm font-bold">Erase all gamebook progress</p>
           <p class="mt-1 text-xs opacity-75">
-            Unlike New Journey, this clears your endings, discoveries,
-            scrapbook and recovery slot. Site-wide achievements remain.
+            Unlike New Journey, this clears your endings, discoveries, scrapbook
+            and recovery slot. Site-wide achievements remain.
           </p>
           <button
             type="button"
@@ -152,10 +152,7 @@
           >
             Erase gamebook progress
           </button>
-          <p
-            v-if="!store.canResetProgress()"
-            class="mt-1 text-xs opacity-70"
-          >
+          <p v-if="!store.canResetProgress()" class="mt-1 text-xs opacity-70">
             Resolve your account save or reconnect before clearing this book.
           </p>
         </div>

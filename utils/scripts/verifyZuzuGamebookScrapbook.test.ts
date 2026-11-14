@@ -189,7 +189,10 @@ assert.match(front, /!store\.canResetProgress\(\)/)
 assert.match(page, /@reset-progress="eraseProgress"/)
 assert.match(page, /function eraseProgress\(\)[\s\S]*?window\.confirm\(/)
 const resetStart = store.indexOf('function resetProgress()')
-const resetBody = store.slice(resetStart, store.indexOf('function recover()', resetStart))
+const resetBody = store.slice(
+  resetStart,
+  store.indexOf('function recover()', resetStart),
+)
 assert.ok(resetStart > 0, 'full reset is distinct from New Journey')
 for (const phrase of [
   'recoverable.value = null',
@@ -198,7 +201,8 @@ for (const phrase of [
   'discoveredCast.value = []',
   'scrapbook.value = []',
   'save()',
-]) assert.ok(resetBody.includes(phrase), 'reset must clear ' + phrase)
+])
+  assert.ok(resetBody.includes(phrase), 'reset must clear ' + phrase)
 assert.match(resetBody, /!canResetProgress\(\)/)
 const guardStart = store.indexOf('function canResetProgress()')
 const resetGuard = store.slice(guardStart, resetStart)

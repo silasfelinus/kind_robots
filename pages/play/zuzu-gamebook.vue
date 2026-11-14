@@ -1406,7 +1406,7 @@ function playChoice(card: KrHandChoice) {
 function eraseProgress() {
   if (
     !window.confirm(
-      "Erase every Zuzu journey, ending, discovery and scrapbook page? Your synced account save will be replaced if connected. Site-wide achievement badges remain. This cannot be undone.",
+      'Erase every Zuzu journey, ending, discovery and scrapbook page? Your synced account save will be replaced if connected. Site-wide achievement badges remain. This cannot be undone.',
     )
   )
     return

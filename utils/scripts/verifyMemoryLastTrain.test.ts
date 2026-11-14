@@ -128,9 +128,21 @@ assert.deepEqual(
 // The expedition's world order is irreversible: e03 rewards cannot be
 // backfilled after e04 begins, even with otherwise valid scene/choice IDs.
 const outOfOrder = [
-  { world: 'e04' as const, scene: 'e04Platform' as const, choice: 'md.train.e04.listen' },
-  { world: 'e03' as const, scene: 'e03Door' as const, choice: 'md.train.e03.release' },
-  { world: 'e04' as const, scene: 'e04Carriage' as const, choice: 'md.train.e04.map' },
+  {
+    world: 'e04' as const,
+    scene: 'e04Platform' as const,
+    choice: 'md.train.e04.listen',
+  },
+  {
+    world: 'e03' as const,
+    scene: 'e03Door' as const,
+    choice: 'md.train.e03.release',
+  },
+  {
+    world: 'e04' as const,
+    scene: 'e04Carriage' as const,
+    choice: 'md.train.e04.map',
+  },
 ]
 const orderedNight = replayTrainEncounters(outOfOrder)
 assert.equal(orderedNight.decisions.e03Door, undefined)
@@ -139,14 +151,20 @@ assert.equal(orderedNight.decisions.e04Carriage, 'md.train.e04.map')
 assert.equal(trainConsequences(orderedNight).trainToken, false)
 assert.equal(
   restoreVerifiedTrainProgress(
-    { version: 1, decisions: {
-      e03Door: 'md.train.e03.release',
-      e04Platform: 'md.train.e04.listen',
-      e04Carriage: 'md.train.e04.map',
-    } },
+    {
+      version: 1,
+      decisions: {
+        e03Door: 'md.train.e03.release',
+        e04Platform: 'md.train.e04.listen',
+        e04Carriage: 'md.train.e04.map',
+      },
+    },
     outOfOrder,
   ),
   null,
 )
-assert.deepEqual(restoreVerifiedTrainProgress(orderedNight, outOfOrder), orderedNight)
+assert.deepEqual(
+  restoreVerifiedTrainProgress(orderedNight, outOfOrder),
+  orderedNight,
+)
 

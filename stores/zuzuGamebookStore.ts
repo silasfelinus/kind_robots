@@ -109,10 +109,13 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
         })
         if (!result.success || !result.data) throw new Error('Save failed')
         if (activeAccountId === userId) accountRevision = result.data.revision
-      } catch {
-        // The device copy always remains usable; never blind-overwrite a
-        // newer cloud revision after a failed write.
+      } catch (error) {
+        // A stale revision is a real conflict, not a network outage. Fetch
+        // the newer account copy so the reader can choose deliberately.
+        const failure = error as { status?: number; statusCode?: number }
         accountStatus.value = 'offline'
+        if (failure?.status === 409 || failure?.statusCode === 409)
+          void syncAccount()
       }
     })
   }

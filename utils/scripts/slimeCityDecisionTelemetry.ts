@@ -62,7 +62,8 @@ for (const a of TEAMS)
         }
         if (command.t === 'activate') {
           const unit = state.units.find(
-            (candidate) => candidate.uid === command.uid && candidate.side === side,
+            (candidate) =>
+              candidate.uid === command.uid && candidate.side === side,
           )
           assert.ok(unit, 'activation must target an existing friendly unit')
           row(state.teams[side], unit.cardId).activations++

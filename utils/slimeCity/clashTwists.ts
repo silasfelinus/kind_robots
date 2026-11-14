@@ -329,8 +329,8 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Each neighboring rival independently has a 50% chance to take 3.',
   ],
   fuse: [
-    'Permanently boost a friendly fighter\'s attack.',
-    'Boost a friendly fighter\'s attack permanently; it takes 1 recoil damage.',
+    "Permanently boost a friendly fighter's attack.",
+    "Boost a friendly fighter's attack permanently; it takes 1 recoil damage.",
     'Boost a friendly fighter; sacrifice the weakest adjacent ally for +4 attack, or take 2 recoil.',
   ],
   visor: [
@@ -339,13 +339,13 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Grant PIERCE; disarm both neighboring rival traps and share PIERCE with adjacent allies.',
   ],
   contract: [
-    'Increase a friendly fighter\'s armor.',
+    "Increase a friendly fighter's armor.",
     'Increase armor; if the wearer survives the full round, restore 1 boss life.',
     'Increase armor; at round end, heal boss 1, adjacent allies 1, and shield those allies for 1.',
   ],
   'merc-bribe-rat': [
     'A quick Ambush rat takes the first strike.',
-    'On a blocked strike, 50% chance to prevent the rival\'s counterattack.',
+    "On a blocked strike, 50% chance to prevent the rival's counterattack.",
     'Against a blocker, 75% chance to stop retaliation; a weak defeated foe joins as a fragile echo.',
   ],
   'merc-grease-oracle': [

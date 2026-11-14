@@ -190,6 +190,7 @@
         <SlimeCityClashHand
           :game="game"
           :held="heldIndex"
+          :choice-pick="evoPick"
           :inspect="inspect"
           @pick="onPick"
           @drop="onDrop"

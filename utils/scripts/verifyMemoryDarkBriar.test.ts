@@ -531,9 +531,14 @@ assert.throws(
 )
 const explicitlyCommittedLegacy = commitToMemoryFinale(formerSixteen)
 assert.equal(explicitlyCommittedLegacy.finaleCommitted, true)
-assert.deepEqual(explicitlyCommittedLegacy.legacyCompleted, formerSixteen.legacyCompleted)
 assert.deepEqual(
-  restoreMemoryCampaignProgress(JSON.parse(JSON.stringify(explicitlyCommittedLegacy))),
+  explicitlyCommittedLegacy.legacyCompleted,
+  formerSixteen.legacyCompleted,
+)
+assert.deepEqual(
+  restoreMemoryCampaignProgress(
+    JSON.parse(JSON.stringify(explicitlyCommittedLegacy)),
+  ),
   explicitlyCommittedLegacy,
   'An explicitly renewed finale commitment survives v2 save/restore',
 )

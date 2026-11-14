@@ -35,7 +35,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // it and leave it standing; burst the crew before it drops.
   'pogo-punk': {
     levelOneText: 'The smallest dancer is already crowd surfing.',
-    2: stage('Pit Pickpocket', [on('hit', mend(1))]),
+    2: stage('Pit Pickpocket', [
+      on('hit', mend(1), heal(1, 'woundedAlly')),
+    ]),
     3: stage('Crowd-Surf Exit', [on('death', heal(2, 'allies'), mend(2))]),
   },
   // Arc: a glitter choir screaming in harmony -> three-part harmony lifts the
@@ -77,6 +79,7 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
     ]),
     3: stage('Picks a Fight', [
       on('enter', grant('ambush', 'self'), duel('weakestFoe')),
+      on('kill', grant('swarm', 'adjacentAllies')),
     ]),
   },
   // Arc: a mosquito spinning records -> the request line passes the sip to
@@ -105,6 +108,7 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Sub-Bass Rumble', [on('hit', damage(1, 'adjacentFoes'))]),
     3: stage('The Bass Drop', [
       on('enter', damage(2, 'laneFoes'), damage(1, 'adjacentAllies')),
+      on('tap', stun('across')),
     ]),
   },
   // Arc: a tiny scout that glows in the dark -> its light dazzles the rival
@@ -142,7 +146,10 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // bite entirely; a blocker it cannot kill never turns.
   's3-bloodfairies-backstage-vamp': {
     levelOneText: 'A tiny vampire must land hits to grow.',
-    2: stage('Acquired Taste', [on('hit', life(1, 'self'))]),
+    2: stage('Acquired Taste', [
+      on('hit', life(1, 'self')),
+      on('kill', mend(1)),
+    ]),
     3: stage('Turned', [
       on('hit', life(1, 'self')),
       on('kill', summon('nearest', 2, 2, ['leech'])),
@@ -173,7 +180,10 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // it where both neighboring alleys are already full; splash the 1/1s.
   's3-bloodfairies-tour-bus': {
     levelOneText: 'A busload of fans needs an open stop.',
-    2: stage('Next Stop', [on('enter', summon('nearest', 1, 1))]),
+    2: stage('Next Stop', [
+      on('enter', summon('nearest', 1, 1)),
+      on('turnStart', grant('swarm', 'adjacentAllies')),
+    ]),
     3: stage('Everybody Off the Bus', [
       on('enter', summon('nearest', 1, 1)),
       on('death', summon('neighbors', 2, 2, ['swarm'])),
@@ -281,7 +291,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // than chip; the leech only matters on a fighter that lands hits.
   's2-bloodfairies-afterparty-first-aid': {
     levelOneText: 'One wounded fan, one stolen bandage.',
-    2: stage('Smallest Fairy First', [on('enter', heal(2, 'woundedAlly'))]),
+    2: stage('Smallest Fairy First', [
+      on('enter', heal(2, 'woundedAlly'), grant('leech', 'woundedAlly')),
+    ]),
     3: stage('Nobody Goes Home', [
       on('enter', grant('leech', 'woundedAllies'), heal(1, 'woundedAllies')),
     ]),
@@ -292,7 +304,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // under three; the howl needs the crowd.
   's3-bloodfairies-feedback-burst': {
     levelOneText: 'A loud note with nowhere to hide.',
-    2: stage('Mic Squeal', [on('enter', power(1, 'adjacentAllies'))]),
+    2: stage('Mic Squeal', [
+      on('enter', grant('swarm', 'adjacentAllies'), power(1, 'adjacentAllies')),
+    ]),
     // The band's encore costs no play slot with two other performers
     // already on the field. It never chains more than once per turn.
     3: {
@@ -335,7 +349,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // three alleys; finish the bruised diver.
   's3-bloodfairies-rafter-dive': {
     levelOneText: 'Give one singer momentum for a dive.',
-    2: stage('Rejoin the Pit', [on('enter', grant('swarm', 'target'))]),
+    2: stage('Rejoin the Pit', [
+      on('enter', grant('swarm', 'target'), power(1, 'adjacentAllies')),
+    ]),
     3: stage('The Rig Comes Down', [
       on('enter', damage(2, 'laneFoes'), damage(1, 'target')),
     ]),
@@ -347,7 +363,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // 1-point drain; it heals only a little each.
   's3-bloodfairies-festival-triage': {
     levelOneText: 'Stitch up one dancer before the next song.',
-    2: stage('Field Transfusion', [on('enter', damage(2, 'across'))]),
+    2: stage('Field Transfusion', [
+      on('enter', damage(2, 'across'), heal(1, 'woundedAlly')),
+    ]),
     3: stage('Mass Transfusion', [
       on('enter', damage(1, 'allFoes'), heal(1, 'allies')),
     ]),
@@ -373,7 +391,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // send a cheap runner first.
   'amp-tripwire': {
     levelOneText: 'A tripwire cues the next loud chord.',
-    2: stage('Cue the Band', [on('spring', sharpen(1, 'adjacentAllies'))]),
+    2: stage('Cue the Band', [
+      on('spring', sharpen(1, 'adjacentAllies'), grant('swarm', 'adjacentAllies')),
+    ]),
     3: stage('Power Chord Avalanche', [on('spring', damage(1, 'allFoes'))]),
   },
   // Arc: a hidden amplifier lead -> it siphons current into your boss ->
@@ -382,7 +402,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // burst damage outruns a 2-point patch.
   's1-feedback-wire': {
     levelOneText: 'Borrow the rival pulse to save the band.',
-    2: stage('Siphon Lead', [on('spring', mend(2))]),
+    2: stage('Siphon Lead', [
+      on('spring', mend(2), heal(1, 'woundedAlly')),
+    ]),
     3: stage('Blood Amplifier', [on('spring', heal(2, 'allies'))]),
   },
   // Arc: the wrong chord -> a catchy hook nicks the neighbors -> the earworm
@@ -400,7 +422,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // entryway: scan it, or strike when the crew is thin.
   's3-bloodfairies-tripcord': {
     levelOneText: 'The crowd punishes one clumsy intruder.',
-    2: stage('Pit Pickpockets', [on('spring', heal(2, 'woundedAlly'))]),
+    2: stage('Pit Pickpockets', [
+      on('spring', heal(2, 'woundedAlly'), grant('leech', 'woundedAlly')),
+    ]),
     3: stage('Pile-On', [on('spring', when('crowd', damage(3, 'target')))]),
   },
   // Arc: a hidden live amp -> it arcs to a random rival -> it stays live
@@ -418,7 +442,9 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: scan it; fill their remaining alleys to deny the encore.
   's3-bloodfairies-banana-bouncer': {
     levelOneText: 'A slip in the doorway costs the cover.',
-    2: stage('Cover Charge', [on('spring', boss(2))]),
+    2: stage('Cover Charge', [
+      on('spring', boss(2), when('crowd', summon('nearest', 1, 1, ['swarm']))),
+    ]),
     3: stage('The Pit Wants an Encore', [
       on('spring', boss(2), summon('nearest', 2, 3, ['swarm'])),
     ]),

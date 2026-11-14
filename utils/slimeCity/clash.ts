@@ -3494,7 +3494,7 @@ export function chooseClashCpu(
               (value, keyword) =>
                 value +
                 (keyword === 'pierce' && (!across || across.armor <= 0)
-                  ? 1.8
+                  ? 2.6
                   : 2.8),
               0,
             ) +

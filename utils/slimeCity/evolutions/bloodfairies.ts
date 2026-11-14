@@ -109,9 +109,12 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // cloud; the firefly itself dies to almost anything.
   's3-bloodfairies-mosh-firefly': {
     stats: { 3: { attack: -2, hp: -7 } },
-    2: stage('Dazzling Glow', [], { hex: { n: 1, to: 'across' } }),
+    2: stage('Dazzling Glow', [on('tap', power(1, 'adjacentAllies'))], {
+      hex: { n: 1, to: 'across' },
+    }),
     3: stage('Firefly Cloud', [
       on('enter', summon('everyEmpty', 1, 1, ['swarm'])),
+      on('tap', power(1, 'allies')),
     ]),
   },
   // Arc: a punk queen dusting pollen -> the pollen drifts and mends the

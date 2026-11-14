@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#140d07"/><stop offset="0.35" stop-color="#140d07" stop-opacity="0.55"/><stop offset="1" stop-color="#140d07" stop-opacity="0"/></linearGradient></defs>
+  <rect width="1200" height="630" fill="#140d07"/>
+  <image href="../emperor-of-dust/intro/fortress.webp" x="420" y="0" width="780" height="630" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="420" width="780" height="630" fill="url(#fade)"/>
+  <rect x="0" y="0" width="12" height="630" fill="#f2b35a"/>
+  <text x="70" y="220" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="80" fill="#f2b35a" letter-spacing="2" textLength="560" lengthAdjust="spacingAndGlyphs">EMPEROR OF DUST</text>
+  <text x="74" y="290" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="32" fill="#ffffff">Lead a band of exiles.</text>
+  <text x="74" y="344" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.88">Cross a ruined empire, one hard</text>
+  <text x="74" y="386" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.88">choice at a time. A free story</text>
+  <text x="74" y="428" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.88">game that plays in your browser.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#f2b35a" letter-spacing="2">kindrobots.org</text>
+</svg>

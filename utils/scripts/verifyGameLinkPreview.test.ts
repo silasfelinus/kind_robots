@@ -34,6 +34,11 @@ for (const slug of [
   'challenge-leaderboard',
   'arcade',
   'aquarium-leaderboard',
+  'crystal-street',
+  'emperor-of-dust',
+  'rainbow-bullet-hell-space-princess',
+  'save-the-plumber',
+  'zuzu-ghost-trail',
 ]) {
   assert.equal(
     GAME_LINK_PREVIEWS[slug]?.image,

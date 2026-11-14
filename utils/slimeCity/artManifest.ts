@@ -23,8 +23,8 @@
 // JOURNEY-SCENES-ROUND-1 plates (ArtImages 271836-271844, 271856-271862),
 // each fetched and contact-sheet reviewed. riot/scene-curfew-on-joy is the
 // JOURNEY-SCENES-REDO-1 keeper (ArtImage 271886, no lettered plate in view);
-// exchange/scene-the-closing-of-the-book is re-rendering (JOURNEY-SCENES-REDO-2)
-// and keeps the chapter plate until wired.
+// exchange/scene-the-closing-of-the-book is the JOURNEY-SCENES-REDO-2 keeper
+// (ArtImage 272149, low altar camera, adult crowd on the balcony), completing all 18.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
@@ -547,6 +547,7 @@ export const SLIME_CITY_ART = {
     'undertow/scene-pirate-radio-big-top': 271860,
     'exchange/scene-the-inheritance': 271861,
     'exchange/scene-the-cold-furnace': 271862,
+    'exchange/scene-the-closing-of-the-book': 272149,
   },
   /** Attack-family icons, same round. */
   attacks: {
@@ -1429,4 +1430,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 825
+export const SLIME_CITY_ART_COUNT = 826

@@ -170,9 +170,7 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Heavy Drop', [
       on('spring', when('targetHeavy', damage(2, 'target'))),
     ]),
-    3: stage("Hangman's Line", [
-      on('spring', when('targetHeavy', damage(1, 'target')), rearm()),
-    ]),
+    3: stage("Hangman's Line", [on('spring', rearm())]),
   },
   // Arc: a medic whose donor list has one name (her own) -> every hit she
   // lands buys a stitch for someone else -> the last donation: when she

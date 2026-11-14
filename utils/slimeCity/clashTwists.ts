@@ -6,9 +6,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'REGEN. Never strikes. At the end of every round, heal adjacent allies for 2 life.',
   ],
   chimera: [
-    'AMBUSH, REGEN. An unstable prototype starts with only 1 attack.',
-    'AMBUSH, REGEN. Her full strike returns, but she does not yet share regeneration.',
-    'AMBUSH, REGEN. +2 attack and +3 life; on arrival, grant REGEN to the most injured adjacent ally.',
+    'Prototype: only 1 attack until she evolves.',
+    'Her full strike returns; the genome is still selfish.',
+    'Apex: +2 ATK, +3 LIFE; REGEN to weakest neighbor.',
   ],
   sprite: [
     'The first dancer in a potential crowd.',

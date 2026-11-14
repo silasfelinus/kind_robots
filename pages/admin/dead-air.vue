@@ -58,7 +58,10 @@
           No private Dead Air broadcasts found. Films appear here after the
           producer creates a saved MusicVideo.
         </p>
-        <div v-else class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
+        <div
+          v-else
+          class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1"
+        >
           <button
             v-for="film in films"
             :key="film.id"
@@ -126,7 +129,9 @@
         aria-label="Selected Dead Air screening"
       >
         <div class="kr-panel overflow-hidden p-2">
-          <div class="relative mx-auto aspect-video max-h-[min(55vh,36rem)] w-full bg-black">
+          <div
+            class="relative mx-auto aspect-video max-h-[min(55vh,36rem)] w-full bg-black"
+          >
             <video
               v-if="selectedSummary?.hasFinal"
               :key="selected.id"
@@ -183,13 +188,19 @@
             <p class="text-xs font-black uppercase tracking-wider">
               Editorial verdict
             </p>
-            <div class="mt-1 flex gap-1" role="group" aria-label="Film review verdict">
+            <div
+              class="mt-1 flex gap-1"
+              role="group"
+              aria-label="Film review verdict"
+            >
               <button
                 v-for="option in verdictOptions"
                 :key="option.value"
                 type="button"
                 class="kr-btn-xs"
-                :class="verdict === option.value ? 'btn-primary' : 'btn-outline'"
+                :class="
+                  verdict === option.value ? 'btn-primary' : 'btn-outline'
+                "
                 :aria-pressed="verdict === option.value"
                 @click="verdict = option.value"
               >
@@ -214,30 +225,29 @@
           >
             {{ store.saving ? 'Saving…' : 'Save review' }}
           </button>
-          <p
-            v-if="reviewNotice"
-            class="w-full text-xs"
-            role="status"
-          >
+          <p v-if="reviewNotice" class="w-full text-xs" role="status">
             {{ reviewNotice }}
           </p>
           <p v-if="store.error" class="w-full text-xs text-error" role="alert">
             {{ store.error }}
           </p>
           <p class="w-full text-[11px] opacity-65">
-            Keep, Revise and Reject record private editorial feedback only.
-            None of these choices publishes, deletes or changes film visibility.
+            Keep, Revise and Reject record private editorial feedback only. None
+            of these choices publishes, deletes or changes film visibility.
           </p>
         </form>
 
-        <details class="kr-panel min-h-0 p-3" data-testid="dead-air-shot-credits">
+        <details
+          class="kr-panel min-h-0 p-3"
+          data-testid="dead-air-shot-credits"
+        >
           <summary class="cursor-pointer text-sm font-bold">
             Shot credits, prompts and production evidence
           </summary>
           <p class="mt-2 text-xs opacity-70">
             Exact scene IDs, saved prompts and ArtJob IDs come from this film's
-            owned production document. References and rights notes remain in
-            the Conductor authored storyboard archive.
+            owned production document. References and rights notes remain in the
+            Conductor authored storyboard archive.
           </p>
           <ol class="mt-2 grid gap-2 lg:grid-cols-2">
             <li
@@ -271,7 +281,10 @@
                 <span v-if="shot.motion.clipArtImageId">
                   Clip ArtImage #{{ shot.motion.clipArtImageId }}
                 </span>
-                <span v-if="store.sceneStatuses[shot.id]?.error" class="text-error">
+                <span
+                  v-if="store.sceneStatuses[shot.id]?.error"
+                  class="text-error"
+                >
                   {{ store.sceneStatuses[shot.id]?.error }}
                 </span>
                 <span

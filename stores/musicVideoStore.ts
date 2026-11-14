@@ -193,7 +193,9 @@ export const useMusicVideoStore = defineStore('musicVideoStore', () => {
     clearError()
     try {
       const response = await performFetch<MusicVideoSummary[]>(
-        series === 'dead-air' ? '/api/music-video?series=dead-air' : '/api/music-video',
+        series === 'dead-air'
+          ? '/api/music-video?series=dead-air'
+          : '/api/music-video',
         {},
         1,
         20_000,

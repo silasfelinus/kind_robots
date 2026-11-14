@@ -682,14 +682,13 @@ export function normalizeMusicVideoDoc(raw: unknown): MusicVideoDocResult {
     if (!isObj(input.review)) {
       errors.push('Private film review must be an object.')
     } else {
-      const verdict = oneOf(
-        input.review.verdict,
-        MUSIC_VIDEO_REVIEW_VERDICTS,
-      )
+      const verdict = oneOf(input.review.verdict, MUSIC_VIDEO_REVIEW_VERDICTS)
       const reviewedAt = text(input.review.reviewedAt, 40)
       if (!verdict) errors.push('Unknown private film review verdict.')
-      if (!/^\d{4}-\d{2}-\d{2}T/.test(reviewedAt) ||
-          Number.isNaN(Date.parse(reviewedAt))) {
+      if (
+        !/^\d{4}-\d{2}-\d{2}T/.test(reviewedAt) ||
+        Number.isNaN(Date.parse(reviewedAt))
+      ) {
         errors.push('Private film review needs a valid timestamp.')
       }
       if (verdict && reviewedAt && !Number.isNaN(Date.parse(reviewedAt))) {

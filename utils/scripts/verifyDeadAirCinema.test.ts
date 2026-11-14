@@ -7,11 +7,17 @@ import {
 } from '../musicVideoDoc'
 import { remixMusicVideoDoc } from '../musicVideoAccess'
 
-const before = emptyMusicVideoDoc({ pitch: 'A station addresses its audience.' })
+const before = emptyMusicVideoDoc({
+  pitch: 'A station addresses its audience.',
+})
 const reviewedAt = '2026-11-14T23:25:00.000Z'
 const { doc, errors } = normalizeMusicVideoDoc({
   ...before,
-  review: { verdict: 'revise', notes: '  Make the final beat land.  ', reviewedAt },
+  review: {
+    verdict: 'revise',
+    notes: '  Make the final beat land.  ',
+    reviewedAt,
+  },
 })
 assert.deepEqual(errors, [])
 assert.deepEqual(doc.review, {
@@ -30,7 +36,9 @@ assert.ok(
   normalizeMusicVideoDoc({
     ...before,
     review: { verdict: 'publish', notes: 'bad', reviewedAt },
-  }).errors.some((error) => error.includes('Unknown private film review verdict')),
+  }).errors.some((error) =>
+    error.includes('Unknown private film review verdict'),
+  ),
 )
 assert.ok(
   normalizeMusicVideoDoc({
@@ -62,5 +70,10 @@ assert.match(store, /async function loadList\(series\?: 'dead-air'\)/)
 assert.match(store, /async function savePrivateReview\(/)
 assert.match(saveRoute, /await loadOwnedMusicVideo\(id, auth\.user\.id\)/)
 assert.match(saveRoute, /data\.doc = serializeValidatedDoc\(body\.doc\)/)
-assert.match(readRoute, /if \(!isMusicVideoOwner\(record, viewer\)\) delete result\.doc\.review/)
-console.log('Dead Air private cinema: review, admin access and film provenance contracts passed.')
+assert.match(
+  readRoute,
+  /if \(!isMusicVideoOwner\(record, viewer\)\) delete result\.doc\.review/,
+)
+console.log(
+  'Dead Air private cinema: review, admin access and film provenance contracts passed.',
+)

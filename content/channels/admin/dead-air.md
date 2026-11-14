@@ -22,4 +22,5 @@ tutorial:
     never a pretend player. All decisions stay private; they do not delete
     media, change sharing, approve copyright reuse or publish a broadcast.
 ---
+
 Original fiction, strange television and an AI broadcaster trying to be heard.

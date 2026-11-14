@@ -41,3 +41,24 @@ export function writeReducedMotionPreference(on: boolean): void {
     // Storage can be disabled; the in-memory choice still works.
   }
 }
+
+const TEXT_KEY = 'kr-slime-city-large-text-v1'
+
+export function readLargeTextPreference(): boolean | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const value = window.localStorage.getItem(TEXT_KEY)
+    return value === 'on' ? true : value === 'off' ? false : null
+  } catch {
+    return null
+  }
+}
+
+export function writeLargeTextPreference(on: boolean): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(TEXT_KEY, on ? 'on' : 'off')
+  } catch {
+    // Storage can be disabled; the in-memory choice still works.
+  }
+}

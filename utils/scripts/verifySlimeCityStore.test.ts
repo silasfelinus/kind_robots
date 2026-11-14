@@ -47,6 +47,17 @@ lab.hydrateReducedMotion()
 assert.equal(lab.reducedMotion, true, 'Invalid motion values are ignored')
 lab.setReducedMotion(false)
 assert.equal(preferences.get('kr-slime-city-reduced-motion-v1'), 'off')
+assert.equal(lab.largeText, false)
+lab.setLargeText(true)
+assert.equal(preferences.get('kr-slime-city-large-text-v1'), 'on')
+lab.largeText = false
+lab.hydrateLargeText()
+assert.equal(lab.largeText, true, 'Large text persists per device')
+preferences.set('kr-slime-city-large-text-v1', 'huge')
+lab.hydrateLargeText()
+assert.equal(lab.largeText, true, 'Invalid text-size values are ignored')
+lab.setLargeText(false)
+assert.equal(preferences.get('kr-slime-city-large-text-v1'), 'off')
 Object.defineProperty(globalThis, 'window', {
   configurable: true,
   value: {
@@ -66,6 +77,10 @@ assert.doesNotThrow(() => lab.hydrateReducedMotion())
 assert.doesNotThrow(() => lab.setReducedMotion(true))
 assert.equal(lab.reducedMotion, true)
 lab.setReducedMotion(false)
+assert.doesNotThrow(() => lab.hydrateLargeText())
+assert.doesNotThrow(() => lab.setLargeText(true))
+assert.equal(lab.largeText, true)
+lab.setLargeText(false)
 assert.equal(lab.clashFormat, 'alliance')
 delete (globalThis as { window?: unknown }).window
 

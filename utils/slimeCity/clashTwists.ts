@@ -6,9 +6,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Never attacks. Mends adjacent allies for 2 each full round.',
   ],
   chimera: [
-    'Starts with 1 attack; its AMBUSH and REGEN keep it dangerous.',
-    'A rebuilt hunter with AMBUSH and REGEN; no extra triggered ability.',
-    'Apex form: +2 attack and +3 life; retains AMBUSH and REGEN.',
+    'A fragile escaped prototype learning to fight.',
+    'A resilient hunter with a sharper bite.',
+    'Apex mutation: +2 attack and +3 life.',
   ],
   sprite: [
     'The first dancer in a potential crowd.',
@@ -139,7 +139,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   confetti: [
     'Blast a rival and its neighboring enemies.',
     'Blast a rival and neighboring foes for 2; friendly neighbors take 1.',
-    'Blast the whole rival row; distant foes take 2 and your adjacent allies take 1.',
+    'Blast the whole rival row; distant foes take 2 and every friendly fighter takes 1.',
   ],
   eel: [
     'Pierces the rival armor.',
@@ -346,7 +346,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   'merc-bribe-rat': [
     'A quick Ambush rat takes the first strike.',
     'On a blocked strike, 50% chance to prevent the rival\'s counterattack.',
-    'On a blocked strike, 75% chance to recruit a defeated weak rival as a fragile echo.',
+    'Against a blocker, 75% chance to stop retaliation; a weak defeated foe joins as a fragile echo.',
   ],
   'merc-grease-oracle': [
     'Snare rivals with a mysteriously accurate prophecy.',

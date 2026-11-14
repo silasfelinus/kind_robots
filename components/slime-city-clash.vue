@@ -184,7 +184,7 @@
             @click="evoPick = i === 1 ? 1 : 0"
           >
             <b>{{ st.title }}</b>
-            <small>{{ evoStageText(st, selectedCard.kind) }}</small>
+            <small>{{ clashCardText(selectedCard, 3, i === 1 ? 1 : 0) }}</small>
           </button>
         </div>
         <SlimeCityClashHand
@@ -561,6 +561,7 @@ import {
   clashEffectivePlayCost,
   clashPower,
   clashLevel,
+  clashCardText,
   clashUnitAt,
   createClash,
   replayClash,
@@ -587,7 +588,6 @@ import {
   clashEvolutionStage,
   type EvoPick,
 } from '~/utils/slimeCity/clashEvolutions'
-import { evoStageText } from '~/utils/slimeCity/evolutions/dsl'
 import {
   clashSpectacle,
   type ClashSpectacle,

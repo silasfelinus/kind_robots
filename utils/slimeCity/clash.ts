@@ -560,7 +560,7 @@ function clashBaseText(card: Card, level: number): string {
     case 'grant':
       return (
         (card.grants ?? []).map((k) => CLASH_TRAIT_TEXT[k] ?? k).join(' ') +
-        (b.level > 1 ? ' Also +' + (b.level - 1) + ' power for good.' : '')
+        (b.level > 1 ? ' Grants +' + (b.level - 1) + ' permanent power.' : '')
       )
     case 'scan':
       return (

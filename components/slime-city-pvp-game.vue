@@ -464,7 +464,7 @@
                 @click="choice = index === 1 ? 1 : 0"
               >
                 <strong>OPTION {{ index === 0 ? 'A' : 'B' }} · {{ stage.title }}</strong>
-                <small>{{ evoStageText(stage, cardById(selectedCard).kind) }}</small>
+                <small>{{ clashCardText(cardById(selectedCard), 3, index === 1 ? 1 : 0) }}</small>
               </button>
             </div>
             <button
@@ -547,7 +547,7 @@ import {
   clashEvolutionChoice,
   clashEvolutionStage,
 } from '~/utils/slimeCity/clashEvolutions'
-import { evoStageText } from '~/utils/slimeCity/evolutions/dsl'
+import { clashCardText } from '~/utils/slimeCity/clash'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 
 const route = useRoute()

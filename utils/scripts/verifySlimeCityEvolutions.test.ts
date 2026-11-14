@@ -329,6 +329,15 @@ const mine = (s: ClashState, id: string) =>
     'Spare Parts Bin revives the real fallen veterinarian',
   )
   assert.deepEqual(s.fallen!.player, [], 'revival consumes the graveyard')
+  const wiped = board([])
+  wiped.fallen = { player: ['s1-alley-vet'], enemy: [] }
+  const recovered = cast(wiped, 's1-clone-salvage', 2, 2)
+  assert.ok(
+    recovered.units.some(
+      (unit) => unit.token && unit.cardId === 's1-alley-vet',
+    ),
+    'Secondhand Life works when no friendly fighter survived',
+  )
   const withoutLoss = cast(
     board([fighter('player', 2, 1, { hp: 2 })]),
     's1-clone-salvage',

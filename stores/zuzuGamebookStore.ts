@@ -90,7 +90,9 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   function rememberCast(before: Run, after: Run) {
     const encountered = newlyEncounteredCast(before, after)
     if (!encountered.length) return
-    discoveredCast.value = [...new Set([...discoveredCast.value, ...encountered])]
+    discoveredCast.value = [
+      ...new Set([...discoveredCast.value, ...encountered]),
+    ]
   }
 
   function rememberEnding() {

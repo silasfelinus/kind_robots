@@ -79,11 +79,7 @@ assert.deepEqual(newlyEncounteredCast(beforeMeeting, afterMeeting), [
   'bao',
   'hollis',
 ])
-assert.deepEqual(castFromLocalJourney(afterMeeting), [
-  'ling',
-  'bao',
-  'hollis',
-])
+assert.deepEqual(castFromLocalJourney(afterMeeting), ['ling', 'bao', 'hollis'])
 assert.deepEqual(newlyEncounteredCast(afterMeeting, afterMeeting), [])
 const importedHistory = {
   ...afterMeeting,
@@ -99,7 +95,10 @@ const afterWren = {
 }
 assert.deepEqual(newlyEncounteredCast(afterMeeting, afterWren), ['wren'])
 assert.deepEqual(
-  decodeCastCollection({ version: 1, ids: ['ling', 'ling', 'wren', 'invalid'] }),
+  decodeCastCollection({
+    version: 1,
+    ids: ['ling', 'ling', 'wren', 'invalid'],
+  }),
   ['ling', 'wren'],
 )
 assert.deepEqual(decodeCastCollection({ version: 2, ids: ['ling'] }), [])

@@ -91,7 +91,10 @@ export function castFromLocalJourney(run: Run): BookOneCastId[] {
 
 export function newlyEncounteredCast(before: Run, after: Run): BookOneCastId[] {
   const reachedScenes = after.visited.slice(before.visited.length)
-  if (before.sceneId !== after.sceneId && !reachedScenes.includes(after.sceneId))
+  if (
+    before.sceneId !== after.sceneId &&
+    !reachedScenes.includes(after.sceneId)
+  )
     reachedScenes.push(after.sceneId)
   const earnedFlags = after.flags.filter((flag) => !before.flags.includes(flag))
   return encountered(reachedScenes, earnedFlags)

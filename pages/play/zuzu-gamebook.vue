@@ -314,9 +314,7 @@
                 aria-label="Characters discovered"
                 data-testid="zuzu-gamebook-cast"
               >
-                <h3 class="font-serif text-xl font-bold">
-                  People of the Road
-                </h3>
+                <h3 class="font-serif text-xl font-bold">People of the Road</h3>
                 <p class="mb-3 text-xs opacity-70">
                   {{ store.discoveredCast.length }} of
                   {{ BOOK_ONE_CAST.length }} met. Characters remain in your

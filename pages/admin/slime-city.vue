@@ -4,7 +4,7 @@
     data-layout="console-fixed"
     data-testid="slime-city-lab"
   >
-    <div class="sc-shell">
+    <div class="sc-shell" :class="{ 'sc-reduce-motion': lab.reducedMotion }">
       <header-page-bar
         v-if="!(lab.view === 'clash' && narrowScreen)"
         console-theme="slime-city"
@@ -142,6 +142,17 @@
               @click="sound.setEffects(!sound.effects)"
             >
               EFFECTS · {{ sound.effects ? 'ON' : 'OFF' }}
+            </button>
+          </fieldset>
+          <fieldset data-testid="slime-settings-motion">
+            <legend>MOTION</legend>
+            <button
+              type="button"
+              :aria-pressed="lab.reducedMotion"
+              data-testid="slime-settings-reduced-motion"
+              @click="lab.setReducedMotion(!lab.reducedMotion)"
+            >
+              REDUCED MOTION · {{ lab.reducedMotion ? 'ON' : 'OFF' }}
             </button>
           </fieldset>
           <p class="sc-settings-collection">
@@ -1156,6 +1167,7 @@ const navStore = useNavStore()
 let themeId = 0
 onMounted(() => {
   lab.hydrateClashFormat()
+  lab.hydrateReducedMotion()
   themeId = navStore.registerConsoleTheme('slime-city')
   narrowQuery = window.matchMedia('(max-width: 600px)')
   syncNarrow()
@@ -3057,5 +3069,16 @@ button.sc-shelf-label {
 .sc-settings button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+</style>
+
+<style>
+.sc-reduce-motion *,
+.sc-reduce-motion *::before,
+.sc-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 </style>

@@ -1,6 +1,8 @@
 import {
   readClashFormatPreference,
+  readReducedMotionPreference,
   writeClashFormatPreference,
+  writeReducedMotionPreference,
 } from './helpers/slimeCityClashPreference'
 import { BASE_CARD_IDS } from '~/utils/slimeCity/baseCollection'
 import { defineStore } from 'pinia'
@@ -496,6 +498,16 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     clashFormat.value = format
     deckFormat.value = format
     writeClashFormatPreference(format)
+  }
+  /** Settings: calm animations on this device, on top of the OS preference. */
+  const reducedMotion = ref(false)
+  function hydrateReducedMotion(): void {
+    const stored = readReducedMotionPreference()
+    if (stored !== null) reducedMotion.value = stored
+  }
+  function setReducedMotion(on: boolean): void {
+    reducedMotion.value = on
+    writeReducedMotionPreference(on)
   }
 
   /** One narrative journey; only its 20-card deck composition changes. */
@@ -2725,6 +2737,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     clashFormat,
     hydrateClashFormat,
     setDefaultClashFormat,
+    reducedMotion,
+    hydrateReducedMotion,
+    setReducedMotion,
     journeyFormat,
     journeyDeckId,
     journeyDeckName,

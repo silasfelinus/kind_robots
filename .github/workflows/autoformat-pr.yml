@@ -48,5 +48,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -u
           git commit -m "style: autoformat changed files"
-          # Reject stale PR heads rather than overwriting concurrent agent work.
-          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" push origin "HEAD:refs/heads/$HEAD_REF" --force-with-lease="refs/heads/$HEAD_REF:$HEAD_SHA"
+          # A normal push fails safely if another agent has advanced the branch.
+          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" push origin "HEAD:refs/heads/$HEAD_REF"

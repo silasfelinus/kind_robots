@@ -1001,6 +1001,15 @@ function placementLegal(
   if (card.kind === 'trap')
     return !s.traps.some((t) => t.side === side && t.lane === lane)
   if (card.effect === 'scan') return true
+  // The Secondhand Life L2/L3 revive must remain usable after a total
+  // wipeout. Its L1 remains an ordinary heal requiring a living target.
+  if (
+    card.id === 's1-clone-salvage' &&
+    clashLevel(s, side, card.id) >= 2 &&
+    (s.fallen?.[side]?.length ?? 0) > 0 &&
+    nearestFreeAlley(s, side, lane) >= 0
+  )
+    return true
   return aim(card) === 'own'
     ? !!unitAt(s, side, lane)
     : !!unitAt(s, opponent(side), lane)

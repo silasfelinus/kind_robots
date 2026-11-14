@@ -57,16 +57,18 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: fill neighboring alleys, root it or lay a trap on the
   // escape route.
   's1-roof-phantom': {
-    2: stage('Chimney Leap', [on('enter', when('acrossEmpty', boss(2)))]),
-    3: stage('Skyline Specter', [on('turnStart', shift('self', 'safe'))]),
+    2: stage('Chimney Leap', [on('tap', when('acrossEmpty', boss(2)))]),
+    3: stage('Skyline Specter', [on('tap', shift('self', 'safe'))]),
   },
   // Arc: a back-alley vet who stitched her own tail -> night shifts for
   // strays -> the saint who passes her needle on.
   // Trajectory: SITUATIONAL (pays off on a hurt crew). Counterplay: kill
   // the hurt allies first; regen is slow against focused damage.
   's1-alley-vet': {
-    2: stage('Stray Stitches', [on('roundEnd', heal(1, 'adjacentAllies'))]),
+    1: stage('Street Triage', [on('tap', heal(1, 'woundedAlly'))]),
+    2: stage('Stray Stitches', [on('tap', heal(2, 'woundedAlly'))]),
     3: stage('Passes the Needle', [
+      on('tap', heal(2, 'woundedAllies')),
       on('enter', grant('regen', 'woundedAllies')),
       on('death', heal(3, 'adjacentAllies')),
     ]),
@@ -266,8 +268,11 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (wide). Counterplay: fill its neighboring
   // alleys first and the convoy has nowhere to park.
   's3-catgirls-bicycle-clinic': {
-    2: stage('House Calls', [on('hit', heal(1, 'woundedAlly'))]),
-    3: stage('Convoy', [on('enter', summon('neighbors', 1, 3, ['regen']))]),
+    2: stage('House Calls', [on('tap', heal(2, 'woundedAlly'))]),
+    3: stage('Convoy', [
+      on('enter', summon('neighbors', 1, 3, ['regen'])),
+      on('tap', heal(3, 'woundedAlly')),
+    ]),
   },
   // Arc: a street surgeon's two stitches -> a running stitch down the line
   // -> the field hospital that shields everyone she touched.

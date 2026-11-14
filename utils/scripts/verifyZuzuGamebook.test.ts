@@ -71,8 +71,9 @@ import type { Attribute, Choice } from '../zuzuGamebook/types'
 const crossingChoices = scene('the-crossing').choices ?? []
 assert.deepEqual(
   crossingChoices.map((choice) => choice.id),
-  ['approach', 'stare', 'listen', 'avoid'],
+  ['approach', 'stare', 'listen', 'avoid', 'stones'],
 )
+assert.equal(crossingChoices[4]!.to, 'a1-black-stones')
 assert.match(
   crossingChoices[2]!.label,
   /Failure draws the crocodile into a fight/,
@@ -81,8 +82,10 @@ assert.equal(crossingChoices[3]!.to, 'dust-road')
 const standoffChoices = scene('standoff').choices ?? []
 assert.deepEqual(
   standoffChoices.map((choice) => choice.id),
-  ['open-hand', 'hold'],
+  ['open-hand', 'hold', 'downwind'],
 )
+assert.equal(standoffChoices[2]!.check?.success, 'a1-downwind')
+assert.equal(standoffChoices[2]!.check?.failure, 'a1-downwind-fail')
 assert.match(
   standoffChoices[0]!.label,
   /Failure draws the crocodile into a fight/,

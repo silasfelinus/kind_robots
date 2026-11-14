@@ -74,7 +74,7 @@ assert.equal(
 )
 assert.match(
   launcher,
-  /previewedChannel\.channelKey === 'admin'\s*&&\s*showMatureAdminOptIn/,
+  /block\.channel\.channelKey === 'admin'\s*&&\s*showMatureAdminOptIn/,
 )
 assert.match(
   launcher,

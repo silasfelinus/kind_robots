@@ -608,6 +608,21 @@ const sides: Side[] = ['enemy', 'player']
 let dealtSetup = lab.clashSetup()
 function dealt(): ClashState {
   dealtSetup = lab.clashSetup()
+  // A resumed Tower fight replays its saved moves onto the same deal.
+  const resume = lab.clashLaunch.resume
+  if (resume?.length) {
+    try {
+      return replayClash(
+        dealtSetup.player,
+        dealtSetup.enemy,
+        dealtSetup.seed,
+        resume,
+        dealtSetup.options,
+      )
+    } catch {
+      // A record that no longer replays falls back to a fresh deal.
+    }
+  }
   return createClash(
     dealtSetup.player,
     dealtSetup.enemy,
@@ -856,6 +871,7 @@ function newMatch(): void {
   dealtLaunch = lab.clashLaunch.id
   game.value = dealt()
   sound.cue('bell')
+  if (game.value.victor) lab.settleClash(dealtLaunch, game.value)
 }
 watch(() => lab.clashLaunch.id, newMatch)
 // Changing crews mid-practice deals a new match for the new crew.
@@ -864,6 +880,11 @@ watch(
   () => {
     if (!inBout.value) lab.playClashFormat()
   },
+)
+// Each Tower move is kept on this device so a reload resumes the fight.
+watch(
+  () => game.value.commands.length,
+  () => lab.recordTowerCommands(dealtLaunch, game.value.commands),
 )
 // Every finished match reports to the store once: City, Story or rewards.
 watch(
@@ -908,6 +929,8 @@ onMounted(() => {
     '(prefers-reduced-motion: reduce)',
   ).matches
   sound.cue('bell')
+  // A resumed record that already ends the fight settles it at once.
+  if (game.value.victor) lab.settleClash(dealtLaunch, game.value)
 })
 onBeforeUnmount(() => {
   stopTimer()

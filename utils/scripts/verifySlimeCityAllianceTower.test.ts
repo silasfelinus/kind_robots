@@ -23,6 +23,15 @@ import {
   chooseClashCpu,
   replayClash,
 } from '../slimeCity/clash'
+import {
+  TOWER_BOUT_KEY,
+  clearTowerBout,
+  readTowerBout,
+  towerBoutMatches,
+  validTowerBout,
+  writeTowerBout,
+  type TowerBoutSave,
+} from '../slimeCity/towerBoutSave'
 
 // Narrative coverage is independent of the random faction opponent and the
 // four reusable mechanical hazards: each of the 12 floors has two original beats.
@@ -227,6 +236,103 @@ for (const general of crews.slice(0, 3)) {
   assert.equal(replay.victor, match.victor)
 }
 
+// Mid-fight reload: the device-local record (launch + moves) rebuilds the
+// exact board, and only for the same account, run and floor.
+{
+  const general = crews[0]!
+  const ally = crews[1]!
+  const ready = startTower(allianceStarter(general, ally), 4242)
+  const route = chooseTowerRoute(ready, towerRoutes(ready)![1]!.id)
+  const foeAlly = crews.find((team) => team !== route.chosen!.foe)!
+  const opts = {
+    alliance: {
+      player: route.deck,
+      enemy: allianceStarter(route.chosen!.foe, foeAlly),
+    },
+    bosses: towerBosses(route),
+  }
+  const seed = (route.seed + route.floor * 997 + 13) >>> 0
+  let live = createClash(general, route.chosen!.foe, seed, opts)
+  for (let turn = 0; !live.victor && turn < 40; turn++)
+    live = applyClashCommand(live, chooseClashCpu(live, live.active))
+  assert.ok(live.commands.length > 0, 'fight is under way')
+  const bout: TowerBoutSave = {
+    version: 1,
+    account: 'guest',
+    runSeed: route.seed,
+    floor: route.floor,
+    launch: {
+      kind: 'tower',
+      format: 'alliance',
+      player: general,
+      enemy: route.chosen!.foe,
+      seed,
+      alliance: route.deck,
+      bosses: towerBosses(route),
+    },
+    commands: [...live.commands],
+  }
+  assert.ok(validTowerBout(bout))
+  const memory = new Map<string, string>()
+  const storage = {
+    getItem: (k: string) => memory.get(k) ?? null,
+    setItem: (k: string, v: string) => void memory.set(k, v),
+    removeItem: (k: string) => void memory.delete(k),
+  }
+  assert.ok(writeTowerBout(bout, storage))
+  const restored = readTowerBout(storage)!
+  assert.ok(restored, 'record round-trips')
+  const resumed = replayClash(
+    restored.launch.player,
+    restored.launch.enemy,
+    restored.launch.seed,
+    restored.commands,
+    opts,
+  )
+  assert.deepEqual(resumed.boss, live.boss, 'resumed board matches live')
+  assert.deepEqual(resumed.hands, live.hands)
+  assert.deepEqual(resumed.units, live.units)
+  assert.equal(resumed.round, live.round)
+  assert.ok(towerBoutMatches(restored, route, 'guest'))
+  assert.ok(!towerBoutMatches(restored, route, '17'), 'other account')
+  assert.ok(
+    !towerBoutMatches(restored, { ...route, floor: route.floor + 1 }, 'guest'),
+    'other floor',
+  )
+  assert.ok(!towerBoutMatches(restored, { ...route, seed: 1 }, 'guest'))
+  assert.ok(!towerBoutMatches(restored, ready, 'guest'), 'route phase')
+  assert.ok(!towerBoutMatches(null, route, 'guest'))
+  // Tampered or broken records are ignored, never replayed.
+  for (const bad of [
+    { ...bout, version: 2 },
+    { ...bout, launch: { ...bout.launch, kind: 'reward' } },
+    { ...bout, launch: { ...bout.launch, enemy: 'nobody' } },
+    { ...bout, commands: [{ t: 'win', side: 'player' }] },
+    { ...bout, commands: [{ t: 'play', side: 'player', card: 'x', lane: -1 }] },
+    { ...bout, commands: Array(5000).fill({ t: 'pass', side: 'player' }) },
+  ])
+    assert.ok(!validTowerBout(bad))
+  memory.set(TOWER_BOUT_KEY, '{not json')
+  assert.equal(readTowerBout(storage), null)
+  assert.ok(clearTowerBout(storage))
+  assert.equal(readTowerBout(storage), null)
+  const throwing = {
+    getItem: () => {
+      throw new Error('blocked')
+    },
+    setItem: () => {
+      throw new Error('blocked')
+    },
+    removeItem: () => {
+      throw new Error('blocked')
+    },
+  }
+  assert.equal(readTowerBout(throwing), null)
+  assert.equal(writeTowerBout(bout, throwing), false)
+  assert.equal(clearTowerBout(throwing), false)
+  assert.equal(readTowerBout(null), null)
+}
+
 // UI route and navigation guard: a tower win should never become a paid
 // account reward or accidentally send a player to the City story chapter.
 const stage = readFileSync('components/slime-city-tower.vue', 'utf8')
@@ -246,6 +352,14 @@ assert.ok(page.includes('<SlimeCityTower'))
 assert.ok(clash.includes('BACK TO TOWER'))
 assert.ok(store.includes("launch.kind === 'tower'"))
 assert.ok(store.includes('tower: towerSave.value'))
+// Reload resumes from the device record; RETURN TO BATTLE rebuilds the fight.
+assert.ok(
+  store.includes("towerRun.value?.phase === 'battle' && !towerBoutSaved()"),
+)
+assert.ok(store.includes('function resumeTowerBout'))
+assert.ok(stage.includes('lab.resumeTowerBout()'))
+assert.ok(clash.includes('lab.recordTowerCommands(dealtLaunch'))
+assert.ok(clash.includes('lab.clashLaunch.resume'))
 console.log(
-  'Slime City Alliance Tower: 24 authored route beats, 30 faction pairs, 360 ascending branches, spoils/zero-win protection, Clash replay, saved legacy and UI contracts PASS',
+  'Slime City Alliance Tower: 24 authored route beats, 30 faction pairs, 360 ascending branches, spoils/zero-win protection, Clash replay, mid-fight resume record, saved legacy and UI contracts PASS',
 )

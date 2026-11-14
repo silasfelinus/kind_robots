@@ -1404,4 +1404,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 807
+export const SLIME_CITY_ART_COUNT = 808

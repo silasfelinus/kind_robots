@@ -194,6 +194,7 @@
             <img
               v-if="revealArtwork"
               :src="revealArtwork"
+              :class="{ 'evf-painted-art': Boolean(selectedPaintedArtwork) }"
               :alt="leadAlias + ' comic portrait'"
             />
             <span v-else class="evf-art-fallback" aria-hidden="true">✷</span>
@@ -482,6 +483,10 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
+import { paintedRevealArtId } from '~/utils/everyVillainTactics/revealArt'
+import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
+import { useUserStore } from '~/stores/userStore'
 import { scriptedFoilFor } from '~/utils/everyVillainTactics/training'
 import {
   POWER_ORIGINS,
@@ -503,6 +508,8 @@ import {
 } from '~/stores/everyVillainTacticsStore'
 
 const store = useEveryVillainTacticsStore()
+const paintedArt = useEveryVillainTacticsArtStore()
+const viewer = useUserStore()
 const root = ref<HTMLElement | null>(null)
 const playableView = (view: TacticalPerspective): TacticalPerspective =>
   PLAYABLE_PERSPECTIVES.includes(view) ? view : 'hero'
@@ -526,11 +533,34 @@ const foilAlias = computed(
     store.roster.find((person) => person.signature === assignedFoil.value)
       ?.villain.alias ?? 'the rival',
 )
+const paintedHeroId = computed(() =>
+  paintedRevealArtId(comicIntroFor(pickedLead.value, 'hero')),
+)
+const paintedVillainId = computed(() =>
+  paintedRevealArtId(comicIntroFor(pickedLead.value, 'villain')),
+)
+watch(
+  [paintedHeroId, paintedVillainId, () => viewer.token],
+  ([heroId, villainId]) => {
+    void paintedArt.ensure(heroId)
+    void paintedArt.ensure(villainId)
+  },
+  { immediate: true },
+)
+function paintedForRole(role: 'hero' | 'villain'): string | null {
+  const id = role === 'hero' ? paintedHeroId.value : paintedVillainId.value
+  return id ? paintedArt.images[id]?.src ?? null : null
+}
+const selectedPaintedArtwork = computed(() =>
+  paintedForRole(pickedView.value === 'villain' ? 'villain' : 'hero'),
+)
 const revealArtwork = computed(
   () =>
+    selectedPaintedArtwork.value ??
     promArt(
       'identities/' + pickedLead.value + '/outcomes/' + pickedView.value,
-    ) ?? promArt('identities/' + pickedLead.value + '/student'),
+    ) ??
+    promArt('identities/' + pickedLead.value + '/student'),
 )
 const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = oneShotStages()
@@ -549,9 +579,11 @@ const views = computed(() =>
     id,
     label: PERSPECTIVES[id].label,
     headline: PERSPECTIVES[id].headline,
-    art: promArt(
-      'identities/' + pickedLead.value + '/outcomes/' + PERSPECTIVE_ART[id],
-    ),
+    art:
+      paintedForRole(id) ??
+      promArt(
+        'identities/' + pickedLead.value + '/outcomes/' + PERSPECTIVE_ART[id],
+      ),
   })),
 )
 const leadAlias = computed(
@@ -1256,6 +1288,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   height: 100%;
   object-fit: cover;
   object-position: center 20%;
+}
+.evf-reveal-art img.evf-painted-art {
+  object-fit: contain;
+  object-position: center;
 }
 .evf-reveal-copy {
   display: grid;

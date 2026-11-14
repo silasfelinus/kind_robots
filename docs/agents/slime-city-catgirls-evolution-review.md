@@ -22,7 +22,7 @@ Source: `utils/slimeCity/evolutions/catgirls.ts`, `utils/slimeCity/clashTwists.t
 | `mutual-aid` | Targeted medical support | Cleanse plus immediate protection | Reward healthy team plus card draw, or choose mass healing | Keep crew wounded to deny attack bonus | Mechanic revised: choice payoff |
 | `s1-roof-phantom` | Low-cost rooftop runner | Tap instead of strike to threaten empty-lane boss | Tap to move into a safer neighboring alley | Fill escape routes; tap costs attack | Retained: actual player choice |
 | `s1-alley-vet` | Tap for single-point triage | Tap to heal and unstun the most hurt ally | Wide tap heal, REGEN and death clinic | Focus wounded members; tap consumes attack | Mechanic revised: useful tap |
-| `s1-clone-salvage` | Four-point healing spell | Conditional fragile echo from fallen friend | Stronger REGEN echo plus a drawn card | No graveyard or open alley denies payoffs | Mechanic revised |
+| `s1-clone-salvage` | Four-point healing spell | Conditional return of the actual fallen fighter | Stronger echo of actual fallen ally plus a drawn card | No graveyard or open alley denies payoffs | Mechanic revised |
 | `s1-nine-lives` | Temporary surge for a fighter | Rescue target and patch a hurt friend | One lethal-hit rescue for the whole squad | Use sequential damage or stun | Mechanic revised |
 | `s1-catnip-tripwire` | Single-lane snare | Splash to neighboring foes on spring | SWARM echoes into neighboring alleys | Scan; occupy neighboring lanes | Retained: distinct trap paths |
 | `s1-surgical-piercers` | Anti-armor equipment | Repeated armor reduction on hit | Same incision plus life stolen on kill | Use unarmored blockers; prevent kill | Retained: on-hit versus on-kill |

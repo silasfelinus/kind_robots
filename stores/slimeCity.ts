@@ -137,7 +137,9 @@ import type {
   UnlockMode,
 } from '../utils/slimeCity/storySave'
 import {
+  clearGuestSlimeStory,
   readGuestSlimeStory,
+  resetPhraseMatches,
   writeGuestSlimeStory,
 } from '../utils/slimeCity/guestStorySave'
 import {
@@ -765,6 +767,27 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         if (storyDirty && storyLoaded.value) persistStory()
       })
     }
+  }
+  const canResetJourney = computed(() => storyLoaded.value && isGuest())
+  const resetMessage = ref('')
+  async function resetGuestJourney(typed: string): Promise<boolean> {
+    await netReady
+    if (authId() && !isGuest()) {
+      resetMessage.value =
+        'Signed-in journeys are saved to your account and are not reset here.'
+      return false
+    }
+    if (!resetPhraseMatches(typed)) {
+      resetMessage.value = 'Type RESET to confirm.'
+      return false
+    }
+    if (!clearGuestSlimeStory()) {
+      resetMessage.value = 'This device would not let the journey be cleared.'
+      return false
+    }
+    await hydrateStory()
+    resetMessage.value = 'Journey reset. The city starts fresh.'
+    return true
   }
   const campaignBout = ref<{
     team: TeamId
@@ -2770,6 +2793,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     highContrast,
     hydrateHighContrast,
     setHighContrast,
+    canResetJourney,
+    resetMessage,
+    resetGuestJourney,
     journeyFormat,
     journeyDeckId,
     journeyDeckName,

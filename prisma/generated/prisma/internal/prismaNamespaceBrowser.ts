@@ -189,6 +189,7 @@ export const ModelName = {
   HybridizerFusion: 'HybridizerFusion',
   SpaceCouchAlienGuide: 'SpaceCouchAlienGuide',
   SlimeCityAccount: 'SlimeCityAccount',
+  ZuzuGamebookSave: 'ZuzuGamebookSave',
   SlimeCityMatch: 'SlimeCityMatch',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
@@ -2853,6 +2854,17 @@ export const SlimeCityAccountScalarFieldEnum = {
 export type SlimeCityAccountScalarFieldEnum = (typeof SlimeCityAccountScalarFieldEnum)[keyof typeof SlimeCityAccountScalarFieldEnum]
 
 
+export const ZuzuGamebookSaveScalarFieldEnum = {
+  userId: 'userId',
+  payload: 'payload',
+  revision: 'revision',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ZuzuGamebookSaveScalarFieldEnum = (typeof ZuzuGamebookSaveScalarFieldEnum)[keyof typeof ZuzuGamebookSaveScalarFieldEnum]
+
+
 export const SlimeCityMatchScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -4428,6 +4440,13 @@ export const HybridizerFusionOrderByRelevanceFieldEnum = {
 } as const
 
 export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
+
+
+export const ZuzuGamebookSaveOrderByRelevanceFieldEnum = {
+  payload: 'payload'
+} as const
+
+export type ZuzuGamebookSaveOrderByRelevanceFieldEnum = (typeof ZuzuGamebookSaveOrderByRelevanceFieldEnum)[keyof typeof ZuzuGamebookSaveOrderByRelevanceFieldEnum]
 
 
 export const SlimeCityMatchOrderByRelevanceFieldEnum = {

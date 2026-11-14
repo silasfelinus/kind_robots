@@ -1,4 +1,9 @@
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
+import { useUserStore } from '~/stores/userStore'
+import {
+  validZuzuAccountSave,
+  type ZuzuAccountSave,
+} from '~/utils/zuzuGamebook/accountSave'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
@@ -54,6 +59,172 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   /** When this browser last kept the journey (the reader's "Saved" mark), or null when storage refused it. */
   const savedAt = ref<number | null>(null)
   const saveFailed = ref(false)
+  const accountStatus = ref<
+    'local' | 'checking' | 'synced' | 'conflict' | 'offer-upload' | 'offline'
+  >('local')
+  const accountCopy = ref<{ save: ZuzuAccountSave; revision: number } | null>(
+    null,
+  )
+  let accountRevision: number | null = null
+  let activeAccountId: number | null = null
+  let cloudWrites: Promise<void> = Promise.resolve()
+
+  function accountSnapshot(): ZuzuAccountSave {
+    return {
+      version: 1,
+      run: run.value,
+      recoverable: recoverable.value,
+      endings: discovered.value,
+      played: played.value,
+      cast: discoveredCast.value,
+      scrapbook: scrapbook.value,
+    }
+  }
+
+  function queueAccountSave() {
+    const user = useUserStore()
+    const userId = activeAccountId
+    if (!userId || accountStatus.value !== 'synced') return
+    cloudWrites = cloudWrites.then(async () => {
+      if (
+        accountStatus.value !== 'synced' ||
+        activeAccountId !== userId ||
+        user.authenticatedUserId !== userId ||
+        !user.token
+      )
+        return
+      const snapshot = accountSnapshot()
+      if (!validZuzuAccountSave(snapshot)) {
+        accountStatus.value = 'offline'
+        return
+      }
+      try {
+        const result = await $fetch<
+          { success: boolean; data?: { revision: number } },
+          string
+        >('/api/zuzu-gamebook/save', {
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${user.token}` },
+          body: { save: snapshot, expectedRevision: accountRevision },
+        })
+        if (!result.success || !result.data) throw new Error('Save failed')
+        if (activeAccountId === userId) accountRevision = result.data.revision
+      } catch (error) {
+        // A stale revision is a real conflict, not a network outage. Fetch
+        // the newer account copy so the reader can choose deliberately.
+        const failure = error as { status?: number; statusCode?: number }
+        accountStatus.value = 'offline'
+        if (failure?.status === 409 || failure?.statusCode === 409)
+          void syncAccount()
+      }
+    })
+  }
+
+  async function syncAccount() {
+    if (!loaded.value) return
+    const user = useUserStore()
+    const userId = user.authenticatedUserId
+    if (!userId || !user.token) {
+      activeAccountId = null
+      accountRevision = null
+      accountCopy.value = null
+      accountStatus.value = 'local'
+      return
+    }
+    if (activeAccountId === userId && accountStatus.value === 'synced') return
+    activeAccountId = userId
+    accountStatus.value = 'checking'
+    try {
+      const response = await $fetch<
+        {
+          success: boolean
+          data: { save: ZuzuAccountSave; revision: number } | null
+        },
+        string
+      >('/api/zuzu-gamebook/save', {
+        headers: { Authorization: `Bearer ${user.token}` },
+      })
+      if (activeAccountId !== userId) return
+      if (!response.success) throw new Error('Account unavailable')
+      const remote = response.data
+      if (remote && !validZuzuAccountSave(remote.save))
+        throw new Error('Invalid account backup')
+      accountRevision = remote?.revision ?? null
+      accountCopy.value = remote
+      if (!remote) {
+        accountStatus.value =
+          run.value.visited.length > 1 ||
+          !!recoverable.value ||
+          discovered.value.length > 0 ||
+          scrapbook.value.length > 0 ||
+          discoveredCast.value.length > 0
+            ? 'offer-upload'
+            : 'synced'
+        if (accountStatus.value === 'synced') queueAccountSave()
+      } else if (
+        JSON.stringify(accountSnapshot()) === JSON.stringify(remote.save)
+      ) {
+        accountStatus.value = 'synced'
+      } else if (
+        run.value.visited.length <= 1 &&
+        !recoverable.value &&
+        !discovered.value.length &&
+        !scrapbook.value.length &&
+        !discoveredCast.value.length
+      ) {
+        restoreAccountCopy()
+      } else {
+        accountStatus.value = 'conflict'
+      }
+    } catch {
+      if (activeAccountId === userId) accountStatus.value = 'offline'
+    }
+  }
+
+  /** First cloud save is opt-in when this browser already has a story. */
+  function beginAccountSave() {
+    if (accountStatus.value !== 'offer-upload') return
+    accountStatus.value = 'synced'
+    queueAccountSave()
+  }
+
+  /** Explicit resolution: preserve this device's current journey in recovery. */
+  function restoreAccountCopy() {
+    const remote = accountCopy.value
+    if (!remote || !loaded.value) return
+    const previous = run.value
+    run.value = {
+      ...remote.save.run,
+      pendingLoot: remote.save.run.pendingLoot ?? [],
+    }
+    recoverable.value =
+      previous.visited.length > 1 ? previous : remote.save.recoverable
+    discovered.value = [
+      ...new Set([...discovered.value, ...remote.save.endings]),
+    ]
+    played.value = [...new Set([...played.value, ...remote.save.played])]
+    discoveredCast.value = [
+      ...new Set([...discoveredCast.value, ...remote.save.cast]),
+    ]
+    scrapbook.value = remote.save.scrapbook.reduce(
+      (entries, entry) => addJourney(entries, entry),
+      scrapbook.value,
+    )
+    accountRevision = remote.revision
+    accountCopy.value = null
+    accountStatus.value = 'synced'
+    rollSerial.value++
+    save()
+  }
+
+  /** Explicit resolution: replace the account copy with the saved local journey. */
+  function keepDeviceCopy() {
+    if (!accountCopy.value) return
+    accountRevision = accountCopy.value.revision
+    accountCopy.value = null
+    accountStatus.value = 'synced'
+    queueAccountSave()
+  }
 
   function save() {
     try {
@@ -77,6 +248,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
       // The game remains playable without browser storage; the reader says so.
       saveFailed.value = true
     }
+    if (accountStatus.value === 'synced') queueAccountSave()
   }
 
   function rememberJourney() {
@@ -275,6 +447,12 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     rollSerial,
     savedAt,
     saveFailed,
+    accountStatus,
+    accountCopy,
+    syncAccount,
+    restoreAccountCopy,
+    keepDeviceCopy,
+    beginAccountSave,
     load,
     choose,
     battle,

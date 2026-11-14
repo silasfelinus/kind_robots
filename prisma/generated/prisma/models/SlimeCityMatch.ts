@@ -14,8 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model SlimeCityMatch
- * A match is issued by the server; replay and settlement are keyed to its
- * unique id and can only pay once. Stored inputs are audit evidence.
+ * 
  */
 export type SlimeCityMatchModel = runtime.Types.Result.DefaultSelection<Prisma.$SlimeCityMatchPayload>
 

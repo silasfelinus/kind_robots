@@ -36,7 +36,8 @@ const scenes: Scene[] = [
         },
         {
           id: 'listen',
-          label: 'Study the ripples before you step closer. (Sense · 9)',
+          label:
+            'Study the ripples before you step closer. Failure draws the crocodile into a fight. (Sense · 9)',
           to: 'crocodile',
           check: {
             attribute: 'sense',
@@ -63,7 +64,8 @@ const scenes: Scene[] = [
       choices: [
         {
           id: 'open-hand',
-          label: 'Let your hand fall open, slowly. (Mercy · 9)',
+          label:
+            'Let your hand fall open, slowly. Failure draws the crocodile into a fight. (Mercy · 9)',
           to: 'coyote',
           check: {
             attribute: 'mercy',
@@ -74,7 +76,8 @@ const scenes: Scene[] = [
         },
         {
           id: 'hold',
-          label: 'Hold his eye. Do not draw. (Steel · 9)',
+          label:
+            'Hold his eye. Do not draw. Either outcome leads to the crocodile; success grants preparation. (Steel · 9)',
           to: 'crocodile',
           check: {
             attribute: 'steel',
@@ -96,7 +99,8 @@ const scenes: Scene[] = [
       choices: [
         {
           id: 'warn',
-          label: 'Warn the coyote and draw from high ground.',
+          label:
+            'Warn the coyote and draw from high ground. Prepare to fight the crocodile.',
           to: 'croc-ready',
           flag: 'coyote-warned',
         },
@@ -118,7 +122,7 @@ const scenes: Scene[] = [
       choices: [
         {
           id: 'defend',
-          label: 'Pull him clear and stand your ground.',
+          label: 'Pull him clear and stand your ground against the crocodile.',
           to: 'crocodile',
           flag: 'coyote-warned',
         },

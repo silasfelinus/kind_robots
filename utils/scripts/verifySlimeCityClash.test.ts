@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   CLASH_EVOLUTIONS,
+  clashEvolutionChoice,
   clashEvolutionStage,
 } from '../slimeCity/clashEvolutions'
 import { alleyDeck } from '../slimeCity/alleys'
@@ -49,6 +50,26 @@ import {
   sweepClash,
 } from './slimeCityClashBalanceReport'
 import { clashSpectacle } from '../slimeCity/clashSpectacle'
+
+// TEMPORARY editorial inventory: runs before any assertion can abort CLASH.
+// Replace with quiet permanent coverage after reviewing all 300 card faces.
+for (const card of CARDS) {
+  const choices = clashEvolutionChoice(card.id, 3)
+  console.log(
+    'SC_COPY_AUDIT|' +
+      JSON.stringify({
+        id: card.id,
+        name: card.name,
+        team: card.team,
+        kind: card.kind,
+        levels: [1, 2, 3].map((level) => ({
+          level,
+          text: clashCardText(card, level, choices && level === 3 ? 0 : undefined),
+        })),
+        ...(choices ? { alternate: clashCardText(card, 3, 1) } : {}),
+      }),
+  )
+}
 
 function follower(
   side: Side,

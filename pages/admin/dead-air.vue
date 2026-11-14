@@ -44,7 +44,11 @@
       v-else
       class="grid min-h-0 flex-1 gap-2 overflow-hidden p-2 lg:grid-cols-[minmax(220px,300px)_minmax(0,1fr)]"
     >
-      <DeadAirArchive :films="films" :selected-id="selected?.id ?? null" @select="selectFilm" />
+      <DeadAirArchive
+        :films="films"
+        :selected-id="selected?.id ?? null"
+        @select="selectFilm"
+      />
 
       <section
         v-if="!selected"

@@ -27,6 +27,13 @@ import {
   decodeScrapbook,
   type JourneyMemory,
 } from '~/utils/zuzuGamebook/scrapbook'
+import {
+  CAST_KEY,
+  castFromLocalJourney,
+  decodeCastCollection,
+  newlyEncounteredCast,
+  type BookOneCastId,
+} from '~/utils/zuzuGamebook/cast'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
 const SAVE_KEY = 'kr-zuzu-gamebook-v1'
@@ -41,6 +48,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   const played = ref<string[]>([])
   const recoverable = ref<Run | null>(null)
   const scrapbook = ref<JourneyMemory[]>([])
+  const discoveredCast = ref<BookOneCastId[]>([])
   const loaded = ref(false)
   const rollSerial = ref(0)
   /** When this browser last kept the journey (the reader's "Saved" mark), or null when storage refused it. */
@@ -52,6 +60,10 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
       localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
       localStorage.setItem(ENDINGS_KEY, JSON.stringify(discovered.value))
       localStorage.setItem(PLAYED_KEY, JSON.stringify(played.value))
+      localStorage.setItem(
+        CAST_KEY,
+        JSON.stringify({ version: 1, ids: discoveredCast.value }),
+      )
       localStorage.setItem(
         SCRAPBOOK_KEY,
         JSON.stringify({ version: 1, runs: scrapbook.value }),
@@ -73,6 +85,14 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
       scrapbook.value,
       captureJourney(run.value, new Date().toISOString()),
     )
+  }
+
+  function rememberCast(before: Run, after: Run) {
+    const encountered = newlyEncounteredCast(before, after)
+    if (!encountered.length) return
+    discoveredCast.value = [
+      ...new Set([...discoveredCast.value, ...encountered]),
+    ]
   }
 
   function rememberEnding() {
@@ -107,6 +127,11 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     } catch {
       scrapbook.value = []
     }
+    const storedCast = readStoredJson(CAST_KEY)
+    discoveredCast.value =
+      storedCast === null
+        ? castFromLocalJourney(run.value)
+        : decodeCastCollection(storedCast)
     const endings = readStoredJson(ENDINGS_KEY)
     if (Array.isArray(endings))
       discovered.value = [
@@ -168,6 +193,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     const next = takeChoice(run.value, id)
     if (next === run.value) return
     run.value = next
+    rememberCast(before, next)
     awardDeeds(before, next)
     if (next.lastRoll) rollSerial.value++
     rememberEnding()
@@ -182,6 +208,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     const next = fight(run.value, action)
     if (next === run.value) return
     run.value = next
+    rememberCast(before, next)
     awardDeeds(before, next)
     rollSerial.value++
     rememberEnding()
@@ -241,6 +268,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
   return {
     run,
     discovered,
+    discoveredCast,
     recoverable,
     scrapbook,
     loaded,

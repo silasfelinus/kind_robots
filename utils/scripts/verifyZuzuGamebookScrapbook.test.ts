@@ -3,6 +3,12 @@ import { readFileSync } from 'node:fs'
 import { ENDING_IDS, scene, startRun } from '../zuzuGamebook/adventure'
 import { sectionPlate } from '../zuzuGamebook/art'
 import {
+  BOOK_ONE_CAST,
+  castFromLocalJourney,
+  decodeCastCollection,
+  newlyEncounteredCast,
+} from '../zuzuGamebook/cast'
+import {
   SCRAPBOOK_LIMIT,
   addJourney,
   captureJourney,
@@ -57,6 +63,56 @@ assert.equal(
   SCRAPBOOK_LIMIT,
 )
 
+assert.equal(BOOK_ONE_CAST.length, 7)
+for (const person of BOOK_ONE_CAST)
+  assert.equal(scene(person.sceneId).id, person.sceneId)
+
+const beforeMeeting = startRun(61)
+const afterMeeting = {
+  ...beforeMeeting,
+  sceneId: 'survivors',
+  visited: [...beforeMeeting.visited, 'survivors'],
+  flags: [...beforeMeeting.flags, 'met:hollis'],
+}
+assert.deepEqual(newlyEncounteredCast(beforeMeeting, afterMeeting), [
+  'ling',
+  'bao',
+  'hollis',
+])
+assert.deepEqual(castFromLocalJourney(afterMeeting), ['ling', 'bao', 'hollis'])
+assert.deepEqual(newlyEncounteredCast(afterMeeting, afterMeeting), [])
+const importedHistory = {
+  ...afterMeeting,
+  sceneId: 'dust-road',
+  visited: [...afterMeeting.visited, 'dust-road'],
+}
+assert.deepEqual(newlyEncounteredCast(afterMeeting, importedHistory), [])
+const afterWren = {
+  ...afterMeeting,
+  sceneId: 'a5-wren-talk',
+  visited: [...afterMeeting.visited, 'a5-wren-talk'],
+  flags: [...afterMeeting.flags, 'met:wren'],
+}
+assert.deepEqual(newlyEncounteredCast(afterMeeting, afterWren), ['wren'])
+assert.deepEqual(
+  decodeCastCollection({
+    version: 1,
+    ids: ['ling', 'ling', 'wren', 'invalid'],
+  }),
+  ['ling', 'wren'],
+)
+assert.deepEqual(decodeCastCollection({ version: 2, ids: ['ling'] }), [])
+assert.deepEqual(decodeCastCollection(['ling']), [])
+
+const firstCoyoteGift = {
+  ...beforeMeeting,
+  flags: [...beforeMeeting.flags, 'coyote-kindness'],
+}
+assert.deepEqual(newlyEncounteredCast(beforeMeeting, firstCoyoteGift), [
+  'coyote',
+])
+assert.deepEqual(newlyEncounteredCast(firstCoyoteGift, firstCoyoteGift), [])
+
 const page = readFileSync('pages/play/zuzu-gamebook.vue', 'utf8')
 const front = readFileSync(
   'components/zuzu-gamebook/zuzu-gamebook-front.vue',
@@ -65,6 +121,20 @@ const front = readFileSync(
 const store = readFileSync('stores/zuzuGamebookStore.ts', 'utf8')
 assert.match(page, /<zuzu-gamebook-front[\s\S]*?@continue=/)
 assert.match(page, /data-testid="zuzu-gamebook-scrapbook"/)
+assert.match(page, /data-testid="zuzu-gamebook-cast"/)
+assert.match(page, /BOOK_ONE_CAST\.length/)
+assert.match(store, /newlyEncounteredCast\(before, after\)/)
+assert.match(store, /discoveredCast/)
+const importStart = store.indexOf('function importCode(')
+const importSlice = store.slice(
+  importStart,
+  store.indexOf('  return {', importStart),
+)
+assert.doesNotMatch(
+  importSlice,
+  /rememberCast\(/,
+  'foreign save codes must not unlock a cast',
+)
 assert.match(page, /scene\(ending\)\.title/)
 assert.match(page, /sceneArt\(ending\)/)
 assert.match(front, /data-testid="zuzu-gamebook-title"/)

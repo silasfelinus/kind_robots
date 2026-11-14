@@ -311,6 +311,52 @@
               </section>
               <section
                 class="rounded-2xl border border-warning/25 bg-base-200 p-4"
+                aria-label="Characters discovered"
+                data-testid="zuzu-gamebook-cast"
+              >
+                <h3 class="font-serif text-xl font-bold">People of the Road</h3>
+                <p class="mb-3 text-xs opacity-70">
+                  {{ store.discoveredCast.length }} of
+                  {{ BOOK_ONE_CAST.length }} met. Characters remain in your
+                  scrapbook across new journeys.
+                </p>
+                <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <li
+                    v-for="(person, index) in BOOK_ONE_CAST"
+                    :key="person.id"
+                    class="rounded-lg border border-base-content/15 p-2 text-xs"
+                    :class="
+                      store.discoveredCast.includes(person.id)
+                        ? 'bg-warning/15'
+                        : 'bg-base-300/60 opacity-60'
+                    "
+                  >
+                    <img
+                      v-if="store.discoveredCast.includes(person.id)"
+                      :src="shownPlate(sceneArt(person.sceneId))"
+                      :alt="person.name"
+                      class="mb-2 aspect-video w-full rounded-md object-cover"
+                      @error="plateFailed(sceneArt(person.sceneId))"
+                    />
+                    <div
+                      v-else
+                      class="mb-2 grid aspect-video place-items-center rounded-md bg-base-300"
+                      aria-hidden="true"
+                    >
+                      <icon name="kind-icon:lock" class="size-5" />
+                    </div>
+                    <span class="block font-bold">
+                      {{
+                        store.discoveredCast.includes(person.id)
+                          ? person.name
+                          : 'Unknown traveler ' + (index + 1)
+                      }}
+                    </span>
+                  </li>
+                </ul>
+              </section>
+              <section
+                class="rounded-2xl border border-warning/25 bg-base-200 p-4"
               >
                 <h3 class="font-serif text-xl font-bold">Illustrated trail</h3>
                 <p class="mb-3 text-xs opacity-70">
@@ -957,6 +1003,7 @@ import {
   platePath,
   sectionPlate,
 } from '~/utils/zuzuGamebook/art'
+import { BOOK_ONE_CAST } from '~/utils/zuzuGamebook/cast'
 import { journal } from '~/utils/zuzuGamebook/journal'
 import { emphasis } from '~/utils/zuzuGamebook/prose'
 import {

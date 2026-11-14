@@ -242,7 +242,19 @@ console.log('slime-city crew trophies verified')
   const journeyKeys = Object.keys(SLIME_CITY_ART.story).filter((key) =>
     key.includes('/journey-'),
   )
-  assert.ok(journeyKeys.length >= 17)
+  // Reverse guard (slime-city/t-066): every authored journey epilogue, for
+  // every crew, resolves to a wired story plate. A new crew or epilogue key
+  // fails here until its art is queued and wired, instead of silently falling
+  // back to the triumph/compromise plate.
+  const authoredJourneys = TEAMS.flatMap((crew) =>
+    endingCatalog(crew.id).filter((entry) => entry.kind === 'journey'),
+  )
+  assert.equal(authoredJourneys.length, TEAMS.length * 3)
+  const missingPlates = authoredJourneys
+    .map((entry) => endingArtSlug(entry.id))
+    .filter((slug) => !slug || !slimeArtId('story', slug))
+  assert.deepEqual(missingPlates, [], 'journey epilogues without a plate')
+  assert.equal(journeyKeys.length, authoredJourneys.length)
   for (const key of journeyKeys) {
     const [team, rest] = key.split('/journey-')
     assert.equal(endingArtSlug(team + ':journey:' + rest), key, key)

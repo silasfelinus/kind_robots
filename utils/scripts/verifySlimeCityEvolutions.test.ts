@@ -248,6 +248,103 @@ const at = (s: ClashState, uid: number) => s.units.find((u) => u.uid === uid)
 const mine = (s: ClashState, id: string) =>
   s.units.find((u) => u.side === 'player' && u.cardId === id && !u.token)
 
+// --- Catgirls full-faction review: 10 legacy arcs + 30 data-authored arcs.
+// Only units can tap or trigger combat abilities. A spell with an on-hit
+// ability prints plausible rules but can NEVER perform it; catch that here.
+{
+  const cards = CARDS.filter((card) => card.team === 'catgirls')
+  assert.equal(cards.length, 40, 'the complete Gene Riot inventory')
+  assert.equal(cards.filter((card) => CLASH_TWISTS[card.id]).length, 10)
+  assert.equal(cards.filter((card) => CLASH_EVOLUTIONS[card.id]).length, 30)
+  for (const card of cards) {
+    assert.ok(CLASH_TWISTS[card.id] || CLASH_EVOLUTIONS[card.id], card.id)
+    for (const level of [1, 2, 3])
+      assert.ok(
+        clashCardText(card, level).length <= 160,
+        card.id + ' level ' + level + ' rules fit',
+      )
+    const evo = CLASH_EVOLUTIONS[card.id]
+    if (!evo) continue
+    for (const st of [evo[1], evo[2], evo[3], evo.choice?.stage]) {
+      if (!st) continue
+      for (const ability of st.abilities) {
+        if (card.kind === 'spell')
+          assert.equal(
+            ability.when,
+            'enter',
+            card.id + ' ' + st.title + ': spells only cast once',
+          )
+        if (card.kind === 'trap')
+          assert.equal(
+            ability.when,
+            'spring',
+            card.id + ' ' + st.title + ': traps only spring',
+          )
+      }
+    }
+  }
+}
+
+// These fixtures use the actual Clash command engine, not just signatures.
+// Emergency Molt is a SPELL: its previous on-hit healing never fired.
+{
+  const s0 = board([fighter('player', 2, 1, { hp: 2, rooted: true })])
+  const s = cast(s0, 's2-catgirls-emergency-molt', 2, 2)
+  assert.equal(at(s, 1)!.rooted, false, 'molt unstuns its patient on cast')
+  assert.ok(at(s, 1)!.armor >= 1, 'molt installs protective skin')
+}
+// Secondhand Life uses a real death ledger rather than a generic stat grant.
+{
+  const s0 = board([fighter('player', 2, 1, { hp: 2 })])
+  s0.fallen = { player: ['s1-alley-vet'], enemy: [] }
+  const s = cast(s0, 's1-clone-salvage', 2, 2)
+  assert.equal(
+    s.units.filter((unit) => unit.side === 'player' && unit.token).length,
+    1,
+    'Spare Parts Bin creates an echo when an ally fell',
+  )
+  const withoutLoss = cast(
+    board([fighter('player', 2, 1, { hp: 2 })]),
+    's1-clone-salvage',
+    2,
+    2,
+  )
+  assert.equal(
+    withoutLoss.units.filter((unit) => unit.token).length,
+    0,
+    'the echo is conditional rather than free tempo',
+  )
+}
+// Needle-Thread is a spell, so its L3 arrival must mobilize actual fighters.
+{
+  const s = cast(
+    board([fighter('player', 0, 1), fighter('player', 4, 2)]),
+    's2-catgirls-needle-thread-ambush',
+    0,
+    3,
+  )
+  assert.ok(at(s, 1)!.keywords.includes('ambush'))
+  assert.ok(at(s, 2)!.keywords.includes('ambush'))
+  assert.ok(at(s, 1)!.surge >= 1, 'every fighter charges for this round')
+}
+// Spare Nine Lives' L3 spell should save nearby allies on cast. Its earlier
+// tap action was impossible: there is no spell unit to activate next turn.
+{
+  const s = cast(
+    board([
+      fighter('player', 0, 1, { hp: 2 }),
+      fighter('player', 2, 2, { hp: 2 }),
+      fighter('player', 3, 3, { hp: 2 }),
+    ]),
+    's3-catgirls-spare-lives',
+    2,
+    3,
+  )
+  assert.ok(at(s, 3)!.lastChance, 'neighbor receives an actual rescue')
+  assert.ok(!at(s, 1)!.lastChance, 'distant fighter remains vulnerable')
+  assert.ok(at(s, 1)!.hp > 2, 'the entire wounded crew gets triage')
+}
+
 // Splice Runner L3, Midnight Ambulance: role shift into a non-fighting
 // rescuer that brings back the last fallen fighter.
 {

@@ -53,7 +53,7 @@
     "test:comic-editor": "tsx utils/scripts/verifyComicEditor.test.ts",
     "test:comic-cast": "tsx utils/scripts/verifyComicCast.test.ts",
     "test:video-restyle": "tsx utils/scripts/verifyVideoRestylePlan.test.ts",
-    "test:music-video-doc": "tsx utils/scripts/verifyMusicVideoDoc.test.ts",
+    "test:music-video-doc": "tsx utils/scripts/verifyMusicVideoDoc.test.ts && tsx utils/scripts/verifyDeadAirCinema.test.ts",
     "test:music-video-lyrics": "tsx utils/scripts/verifyMusicVideoLyrics.test.ts",
     "test:music-video-scenes": "tsx utils/scripts/verifyMusicVideoScenes.test.ts",
     "test:music-video-song": "tsx utils/scripts/verifyMusicVideoSong.test.ts",

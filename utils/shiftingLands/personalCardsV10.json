@@ -4949,7 +4949,7 @@
       "title": "The Foreman's Offer",
       "flavor": "Your husband's name is still chalked on the debt board at the quarry rim, and under it, in newer chalk, is yours. The foreman knows you: the guide off the canyon ledge. Six debtors walked off the rock last week into the canyon forks, where his catchers lose every trail by noon. They left little cairns for each other, he says. Read them for him, and he will wipe the board clean with his own sleeve.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/canyon.webp",
+      "art": "/shifting-lands/cards/tamsin-the-foremans-offer.webp",
       "choices": [
         {
           "id": "read-their-cairns-for-him",
@@ -5526,7 +5526,7 @@
       "title": "Your Face on the Old Bill",
       "flavor": "Nailed behind the trader's counter, brown with years of lamp smoke, is a fight bill from the Black Verge: THE IRON SAINT, UNBEATEN, with a woodcut of you twice as wide as you are. A young hare, barely grown, has been staring at it all morning. When you duck in through the door he looks from the bill to you and back, and asks, shaking, if you will teach him to fight. There is a purse at the Verge, and his mother owes for water.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/posters-boardwalk.webp",
+      "art": "/shifting-lands/cards/your-face-on-the-old-bill.webp",
       "choices": [
         {
           "id": "tell-him-what-the-rings-are",

@@ -9,7 +9,7 @@
       "title": "A Straw Hat on the Current",
       "flavor": "A wide straw hat comes turning down the river toward the landing, shallow-crowned and woven tight, the kind your own people wear on the road. Nobody here weaves them. The old otter who runs the ferry fishes it out with his pole and turns it over: the chin cord is knotted the way your teacher knotted his. He asks if it is yours. It is not. It cannot be.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/kasa-on-water.webp",
+      "art": "/shifting-lands/cards/a-straw-hat-on-the-current.webp",
       "choices": [
         {
           "id": "ask-where-the-river-rises",
@@ -193,7 +193,7 @@
       "title": "Your Teacher's Voice in the Dark",
       "flavor": "Where three tunnels meet, someone speaks your name in the language of home: not the name the road calls you, but the one your mother used. It is your teacher's voice, patient and dry. The way back is very short from here, it says, shorter than you would believe. It needs only one small thing from this side of the wall. The torches lean toward the voice as if it were breathing in.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a7-thin-voice.webp",
+      "art": "/shifting-lands/cards/your-teachers-voice-in-the-dark.webp",
       "choices": [
         {
           "id": "ask-what-only-he-would-know",
@@ -288,7 +288,7 @@
       "title": "Snow Through the Last Door",
       "flavor": "At the last threshold one seam in the black rock is cold to the touch. Through it, impossibly, snow is falling on a curved wooden bridge, and past the bridge stands a gate you have walked through a thousand times. A bell is ringing there for the evening meal. Behind you the line of travelers waits at the threshold with their bundles and their children while the wardens count them.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a5-dream-home.webp",
+      "art": "/shifting-lands/cards/snow-through-the-last-door.webp",
       "choices": [
         {
           "id": "step-onto-the-bridge",
@@ -384,7 +384,7 @@
       "title": "A Whistle From the Rocks",
       "flavor": "Two notes, low then high, come from the rocks above the old well: the crew's call. You have not heard it since the dry well. A jackal kit you remember as all ears and elbows slides down the scree, thinner now, with a rag like yours tied round her arm. Hollis sent her. The crew is starving, she says, and Hollis wants her quartermaster back.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a2-looter-watch.webp",
+      "art": "/shifting-lands/cards/a-whistle-from-the-rocks.webp",
       "choices": [
         {
           "id": "whistle-back",
@@ -504,7 +504,7 @@
       "title": "Hollis's Toll at the Seep",
       "flavor": "The jackals of the dry well have come down to the delta, where one muddy seep still gives water, and they are charging travelers a cup of grain for a cup of water. Hollis sits on an overturned cart beside it with a rifle across her knees and her ribs showing through her coat. She sees your mask before she sees your face. \"Mittens,\" she says. \"Come to work, or come to drink?\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a4-hollis-why.webp",
+      "art": "/shifting-lands/cards/hollis-toll-at-the-seep.webp",
       "choices": [
         {
           "id": "take-your-old-post",
@@ -636,7 +636,7 @@
       "title": "The Barefoot Line Grows",
       "flavor": "In a dry adit at the edge of the quarry you find them: the barefoot children from Hollow Bell, or what is left of them, and more besides. There are nine now. The oldest girl has been doing your job, badly and bravely. She stands when she sees you and says, very formally, that the quartermaster is back, and every little one looks at the boots round your neck and then down at their own feet.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a9-children.webp",
+      "art": "/shifting-lands/cards/the-barefoot-line-grows.webp",
       "choices": [
         {
           "id": "fit-the-smallest-first",
@@ -754,7 +754,7 @@
       "title": "The Crew Hired to Hold the Gate",
       "flavor": "The wardens of the last threshold have hired guards to hold its gate against the refugees pressing at the fence, and the guards are Hollis's crew, fed for the first time in a year. Hollis spots your mask in the crowd outside. She sends the jackal kit to the fence with a message: there is a place for you inside, with food, if you come through now, alone.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a7-hollis-band.webp",
+      "art": "/shifting-lands/cards/the-crew-hired-to-hold-the-gate.webp",
       "choices": [
         {
           "id": "go-in-alone",
@@ -3552,7 +3552,7 @@
       "title": "The Widow on the Black Glass",
       "flavor": "On the black glass road a prairie dog mother is hauling a handcart with three young ones riding on the sacks. You know her before she knows you. At a burned waystation a long way back she gave you her wedding ring for a jar of water for her sick father. It is still in your coat. You never could sell it. Then she hears your bell, and stops, and turns round.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a4-waystation.webp",
+      "art": "/shifting-lands/cards/the-widow-on-the-black-glass.webp",
       "choices": [
         {
           "id": "give-back-the-ring",
@@ -3670,7 +3670,7 @@
       "title": "A Feather Under Glass",
       "flavor": "The trader keeps a black feather under a glass dome on his counter and swears a Storm Crow grew it: hold it to your eye and see your lost. An otter father traded his mule for it and stands pressing it to his face, seeing nothing. You know that feather. It came out of your own wing the night you flew from the cave. He sees the ash on you, and asks you to look for his daughter, gone three weeks down the mission road.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/hb-store-empty.webp",
+      "art": "/shifting-lands/cards/a-feather-under-glass.webp",
       "choices": [
         {
           "id": "name-the-price-first",
@@ -3790,7 +3790,7 @@
       "title": "A Reading for the Abbess",
       "flavor": "The Abbess herself meets you at the refuge gate with a warm loaf and a cup of milk. A Storm Crow at her table is a blessing, she says; would you read the year ahead for the house and its children? She will pay in bread and a bed. Behind her the chapel bell hangs with no clapper, and when you try to look at her straight, your sight slides off her face like rain off oilcloth.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a5-threshold.webp",
+      "art": "/shifting-lands/cards/a-reading-for-the-abbess.webp",
       "choices": [
         {
           "id": "read-her-true",
@@ -3878,7 +3878,7 @@
       "title": "Someone on Your Old Perch",
       "flavor": "The dead tree at the fork of the canyon trail was your perch for nine years. A young crow sits on it now, her flight feathers still cave-grey, selling sight to a line of drovers. She is quick and she is good, and she is taking the coven's price without telling anyone what it is: a drover walks away from her wiping his eyes and not knowing why. She sees the ash on you and goes still. \"They said you were dead,\" she says.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/crow-witch.webp",
+      "art": "/shifting-lands/cards/someone-on-your-old-perch.webp",
       "choices": [
         {
           "id": "teach-her-the-price",
@@ -4084,7 +4084,7 @@
       "title": "The Writ Read at the Landing",
       "flavor": "The ferry pilot remembers a one-eyed coyote crossing four days back, and says he might remember more for a price. You unfold the writ on his barrel head and read it aloud, every word, the way you always do: one year of water from the Dustwater water house, for the coyote, brought in alive. The pilot's wife stops coiling rope. \"Alive,\" she says. \"That's new. The last two hunters' papers said otherwise.\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/bounty-badger.webp",
+      "art": "/shifting-lands/cards/the-writ-read-at-the-landing.webp",
       "choices": [
         {
           "id": "pay-the-pilot-for-the-trail",
@@ -4417,7 +4417,7 @@
       "title": "The Coyote at Last",
       "flavor": "You find him at last in the fortified camp, sitting on an upturned bucket outside the closed infirmary with his hat in his paws: the one-eyed coyote, thinner than his notice, too tired to run. He sees the writ in your coat before he sees your face, and stands up slowly with his paws open. \"Read it to me,\" he says. \"I heard you always do.\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a6-coyote-roped.webp",
+      "art": "/shifting-lands/cards/the-coyote-at-last.webp",
       "choices": [
         {
           "id": "read-it-and-take-him",
@@ -4641,7 +4641,7 @@
       "title": "The Benefactor's Plate",
       "flavor": "There is a brass plate on the refuge gatepost thanking you, by name, for your generosity to the orphans of Dustwater. You paid for the brass. The sister at the gate knows you before you reach it, and her face lights up. Mother has kept your chair, she says. The children are at supper. You may see them, if you like, once you have spoken with Mother.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/mission.webp",
+      "art": "/shifting-lands/cards/the-benefactors-plate.webp",
       "choices": [
         {
           "id": "ask-to-see-the-ledger",
@@ -4737,7 +4737,7 @@
       "title": "Eleven Candles and One",
       "flavor": "Deep in the candle court a crow clerk leads you to a niche you did not know you owned. Eleven short candles burn in a row, each scratched with a child's name, and behind them burns a tall one scratched with yours. An unpaid oath, she says: your bargain with the mission. While the tall flame stands, the small ones are bound to it. She holds out a brass snuffer, and names her price for using it.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/candle-wax.webp",
+      "art": "/shifting-lands/cards/eleven-candles-and-one.webp",
       "choices": [
         {
           "id": "pay-her-price-and-snuff-it",
@@ -4833,7 +4833,7 @@
       "title": "A Cup From Her Line",
       "flavor": "At the last gate a young sister in a grey apron is ladling water to the line from a mission barrel, and she knows you. You wrote her name in a ledger four years ago, when she was nine. She looks at your coat, your face, the corner of the deed showing at your pocket, and keeps ladling. \"You're in my line, Mr. Vane,\" she says. \"Everybody gets a cup.\"",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/empty-gate.webp",
+      "art": "/shifting-lands/cards/a-cup-from-her-line.webp",
       "choices": [
         {
           "id": "tell-her-what-you-did",
@@ -5070,7 +5070,7 @@
       "title": "The Agent's List",
       "flavor": "The quarry company has sent a clerk to the ferry landing with a folding table and a list: debtors who may not cross the river until their accounts are settled. Your husband's name is on it, struck through, and yours is written underneath. Below yours, in the same careful hand, are two more lines. Wenna. Pip. Your daughter reads them before you can get your hoof over the page.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/bone-valley.webp",
+      "art": "/shifting-lands/cards/tamsin-the-agents-list.webp",
       "choices": [
         {
           "id": "give-your-mothers-name",
@@ -5204,7 +5204,7 @@
       "title": "Small Cairns in the Dark",
       "flavor": "At the crossroads someone has built little cairns at the mouth of each tunnel, no higher than your knee, in the old guides' language your father taught you on the Tablelands. Three stones and a flat one: water. Two and a split stone: wait here. And one you have seen only once in your life, a single stone set on its edge. It means followed. Down the left tunnel, faintly, a child is coughing.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/cellar.webp",
+      "art": "/shifting-lands/cards/tamsin-small-cairns-in-the-dark.webp",
       "choices": [
         {
           "id": "follow-them-to-the-end",
@@ -5303,7 +5303,7 @@
       "title": "No Cairns on the Glass",
       "flavor": "The new black glass runs a mile wide across the road, still ticking as it cools, and nothing marks where the crust will hold. A line of families waits at its edge for somebody to go first. Wenna has seen the stones in your pack, the ones you have picked up at every ledge since the Tablelands without saying why. She asks if this is what they were for.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/shifting-road.webp",
+      "art": "/shifting-lands/cards/tamsin-no-cairns-on-the-glass.webp",
       "choices": [
         {
           "id": "build-cairns-across-the-glass",
@@ -5403,7 +5403,7 @@
       "title": "A Big Back for Hire",
       "flavor": "A company collector in a clean coat is clearing a homestead for debt, and he has two hired hands and not enough of them. He sees you on the road and brightens: a dollar a load to carry the family's goods out to the ditch, and nobody need raise a hand. A stoat widow stands in her doorway holding a skillet. Behind her skirts, three kits peer out at the biggest thing they have ever seen.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a6-beaten.webp",
+      "art": "/shifting-lands/cards/a-big-back-for-hire.webp",
       "choices": [
         {
           "id": "stand-in-the-door-beside-her",
@@ -5740,7 +5740,7 @@
       "title": "Madam Ferrule's Iron Ring",
       "flavor": "Inside the fortified camp the soldiers have built a ring of iron stakes, and a mink in a brocade coat is taking bets at its gate. You know her before you know the ring: Madam Ferrule, who held your purses for eleven years and led the child into the ring the night you walked out. She sees you over the crowd and smiles as if you had only stepped out for air. \"My Saint,\" she says. \"There's a purse tonight that would feed your whole road.\" In the ring a starving deserter waits, shaking.",
       "weight": 2,
-      "art": "/zuzu-gamebook/scenes/sections/a6-hask.webp",
+      "art": "/shifting-lands/cards/madam-ferrules-iron-ring.webp",
       "choices": [
         {
           "id": "take-the-purse-and-fight",

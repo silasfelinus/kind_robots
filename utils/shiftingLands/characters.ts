@@ -93,6 +93,8 @@ export const SHIPPED_SPECIES_PORTRAITS: ReadonlySet<SpeciesId> = new Set([
   'badger',
   'pronghorn',
   'crow',
+  'bighorn',
+  'gorilla',
 ])
 export const speciesLabel = (species: SpeciesId): string =>
   SPECIES.find((entry) => entry.id === species)?.label ?? species
@@ -308,7 +310,7 @@ export const OLD_ASH = premade({
   name: 'Old Ash',
   species: 'crow',
   pronouns: 'she',
-  portrait: '/zuzu-gamebook/scenes/crow-witch.webp',
+  portrait: '/shifting-lands/portraits/old-ash.webp',
   blurb:
     'A Storm Crow witch a long way from her cave, who sells sight at crossroads and never says what it costs until after.',
   skills: {
@@ -328,7 +330,7 @@ export const HESTER_KELL = premade({
   name: 'Hester Kell',
   species: 'badger',
   pronouns: 'she',
-  portrait: '/zuzu-gamebook/scenes/bounty-badger.webp',
+  portrait: '/shifting-lands/portraits/hester-kell.webp',
   blurb:
     "A bounty hunter with a writ in her coat and no lies in her mouth. She has been following one coyote's trail for a long time.",
   skills: {
@@ -348,7 +350,7 @@ export const GIDEON_VANE = premade({
   name: 'Gideon Vane',
   species: 'pronghorn',
   pronouns: 'he',
-  portrait: '/zuzu-gamebook/scenes/sections/a6-vane.webp',
+  portrait: '/shifting-lands/portraits/gideon-vane.webp',
   blurb:
     "Dustwater's water baron, who bought the water rights with other families' children. He has walked away from the office. The ledger walks with him.",
   skills: {
@@ -368,7 +370,7 @@ export const TAMSIN = premade({
   name: 'Tamsin',
   species: 'bighorn',
   pronouns: 'she',
-  portrait: CUSTOM_PORTRAIT_FALLBACK,
+  portrait: '/shifting-lands/portraits/tamsin.webp',
   blurb:
     "A Tablelands guide and a widow, with two children and her husband's quarry debt. She knows every cairn on the ledges, including the ones she kicked down.",
   skills: {
@@ -388,7 +390,7 @@ export const AUGUSTIN = premade({
   name: 'Augustin',
   species: 'gorilla',
   pronouns: 'he',
-  portrait: CUSTOM_PORTRAIT_FALLBACK,
+  portrait: '/shifting-lands/portraits/augustin.webp',
   blurb:
     "Once the champion of the Black Verge's iron rings, he walked out the night they asked him to fight a child. Huge, gentle, and done fighting for anyone's purse.",
   skills: {

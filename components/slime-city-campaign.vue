@@ -771,6 +771,13 @@ const heroArtId = computed(
 const chapterArtId = computed(() =>
   lab.activeChapter ? storyArt(lab.campaignState.wins + 1 + '/scene') : null,
 )
+// Key journey scenes have their own plate (story['<crew>/scene-<beat-id>'],
+// conductor slime-city/t-062); scenes without one keep the chapter plate.
+const journeySceneArtId = computed(() =>
+  lab.campaignJourneyCurrent
+    ? storyArt('scene-' + lab.campaignJourneyCurrent.id)
+    : null,
+)
 const recapArtId = computed(() => {
   const state = lab.campaignState
   if (state.lastResult === 'player') {
@@ -810,11 +817,17 @@ const backdrop = computed<{
           lab.campaignStory.title + ' illustrated ending',
           'slime-campaign-ending-art',
         )
-      : plate(
+      : (plate(
+          journeySceneArtId.value,
+          (lab.campaignJourneyCurrent?.title ?? '') +
+            ' illustrated journey scene',
+          'slime-campaign-journey-scene-art',
+        ) ??
+        plate(
           chapterArtId.value,
           (lab.activeChapter?.title ?? '') + ' illustrated chapter scene',
           'slime-campaign-chapter-art',
-        )
+        ))
   return (
     chosen ?? {
       key: 'hero-' + lab.activeTeam,

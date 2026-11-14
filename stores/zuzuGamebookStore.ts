@@ -410,14 +410,17 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     save()
   }
 
+  function canResetProgress(): boolean {
+    return (
+      loaded.value &&
+      !['checking', 'conflict', 'offline'].includes(accountStatus.value) &&
+      (!useUserStore().authenticatedUserId || accountStatus.value !== 'local')
+    )
+  }
+
   /** An explicit clean slate, distinct from New Journey's recoverable restart. */
   function resetProgress(): boolean {
-    if (
-      !loaded.value ||
-      accountStatus.value === 'checking' ||
-      accountStatus.value === 'conflict'
-    )
-      return false
+    if (!canResetProgress()) return false
     const next = startRun(Date.now() >>> 0 || 1)
     run.value = next
     recoverable.value = null
@@ -480,6 +483,7 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     claimLoot,
     restart,
     resetProgress,
+    canResetProgress,
     recover,
     exportCode,
     importCode,

@@ -189,12 +189,12 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
     3: stage('Second Pounce', [on('kill', pounce())]),
   },
   // Arc: a miracle in the medical dumpster -> a bin of spare parts -> the
-  // clone vat that grows a new recruit from what was thrown away.
+  // clone vat that rebuilds a real fallen comrade from what was thrown away.
   // Trajectory: SITUATIONAL (the clone needs a fallen ally). Counterplay:
-  // keep the crew alive and the vat stays empty; the clone is small.
+  // without a fallen ally the vat stays empty; a rival can also fill its lanes.
   's1-clone-salvage': {
     2: stage('Spare Parts Bin', [
-      on('enter', revive(1, 2)),
+      on('enter', when('allyFell', revive(1, 2))),
     ]),
     3: stage('Clone Vat', [
       on(

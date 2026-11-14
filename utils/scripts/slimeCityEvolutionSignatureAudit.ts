@@ -46,10 +46,10 @@ const unknown = [...data, ...legacy].filter((id) => !ids.has(id))
 const missing = [...ids].filter(
   (id) => !CLASH_EVOLUTIONS[id] && !CLASH_TWISTS[id],
 )
-const noAbilities = []
-const sameSignature = []
+const noAbilities: string[] = []
+const sameSignature: string[] = []
 const duplicateSignature = new Map<string, string[]>()
-const genericStages = []
+const genericStages: string[] = []
 for (const [id, evolution] of Object.entries(CLASH_EVOLUTIONS)) {
   for (const level of [2, 3] as const) {
     const stage = evolution[level]

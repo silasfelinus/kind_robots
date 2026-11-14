@@ -133,11 +133,7 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', cleanse('target'), guard(1, 'target')),
     ]),
     3: stage("People's Pharmacy", [
-      on(
-        'enter',
-        sharpen(1, 'healthyAllies'),
-        when('crewWhole', draw(1)),
-      ),
+      on('enter', sharpen(1, 'healthyAllies'), when('crewWhole', draw(1))),
     ]),
     // Choose one: or open the Emergency Ward and patch up the whole crew.
     // The CPU opens the ward once two or more allies are hurt.
@@ -193,14 +189,9 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (the clone needs a fallen ally). Counterplay:
   // without a fallen ally the vat stays empty; a rival can also fill its lanes.
   's1-clone-salvage': {
-    2: stage('Spare Parts Bin', [
-      on('enter', when('allyFell', revive(1, 2))),
-    ]),
+    2: stage('Spare Parts Bin', [on('enter', when('allyFell', revive(1, 2)))]),
     3: stage('Clone Vat', [
-      on(
-        'enter',
-        when('allyFell', revive(2, 3), draw(1)),
-      ),
+      on('enter', when('allyFell', revive(2, 3), draw(1))),
     ]),
   },
   // Arc: a lure in the alley -> the line snaps across the block -> every
@@ -391,9 +382,7 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: STEADY into REACH. Counterplay: scan the sign; a cheap
   // runner springs it for the smallest bill.
   's3-catgirls-false-clinic': {
-    2: stage('Copay', [
-      on('spring', mend(2), when('targetHeavy', boss(1))),
-    ]),
+    2: stage('Copay', [on('spring', mend(2), when('targetHeavy', boss(1)))]),
     3: stage('Collections Department', [
       on('spring', mend(2), boss(3), when('targetHeavy', stun('target'))),
     ]),

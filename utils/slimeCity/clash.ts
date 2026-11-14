@@ -1956,7 +1956,12 @@ export function playClash(
           .sort((a, b) => a.hp - b.hp || a.lane - b.lane)[0]
         if (patient && !has(patient, 'regen')) {
           patient.keywords.push('regen')
-          note(s, 'Madame Chimera shares her regenerative genome.', 'play', lane)
+          note(
+            s,
+            'Madame Chimera shares her regenerative genome.',
+            'play',
+            lane,
+          )
         }
       }
       unitEvo(s, unit, 'enter')

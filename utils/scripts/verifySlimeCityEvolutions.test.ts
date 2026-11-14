@@ -321,9 +321,7 @@ const mine = (s: ClashState, id: string) =>
   assert.equal(
     s.units.filter(
       (unit) =>
-        unit.side === 'player' &&
-        unit.token &&
-        unit.cardId === 's1-alley-vet',
+        unit.side === 'player' && unit.token && unit.cardId === 's1-alley-vet',
     ).length,
     1,
     'Spare Parts Bin revives the real fallen veterinarian',

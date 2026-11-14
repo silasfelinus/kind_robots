@@ -74,15 +74,23 @@ const afterMeeting = {
   visited: [...beforeMeeting.visited, 'survivors'],
   flags: [...beforeMeeting.flags, 'met:hollis'],
 }
-assert.deepEqual(
-  newlyEncounteredCast(beforeMeeting, afterMeeting),
-  ['ling', 'bao', 'hollis'],
-)
-assert.deepEqual(
-  castFromLocalJourney(afterMeeting),
-  ['ling', 'bao', 'hollis'],
-)
+assert.deepEqual(newlyEncounteredCast(beforeMeeting, afterMeeting), [
+  'ling',
+  'bao',
+  'hollis',
+])
+assert.deepEqual(castFromLocalJourney(afterMeeting), [
+  'ling',
+  'bao',
+  'hollis',
+])
 assert.deepEqual(newlyEncounteredCast(afterMeeting, afterMeeting), [])
+const importedHistory = {
+  ...afterMeeting,
+  sceneId: 'dust-road',
+  visited: [...afterMeeting.visited, 'dust-road'],
+}
+assert.deepEqual(newlyEncounteredCast(afterMeeting, importedHistory), [])
 const afterWren = {
   ...afterMeeting,
   sceneId: 'a5-wren-talk',
@@ -109,8 +117,16 @@ assert.match(page, /data-testid="zuzu-gamebook-cast"/)
 assert.match(page, /BOOK_ONE_CAST\.length/)
 assert.match(store, /newlyEncounteredCast\(before, after\)/)
 assert.match(store, /discoveredCast/)
-const importSlice = store.slice(store.indexOf('function importCode('), store.indexOf('  return {', store.indexOf('function importCode(')))
-assert.doesNotMatch(importSlice, /rememberCast\(/, 'foreign save codes must not unlock a cast')
+const importStart = store.indexOf('function importCode(')
+const importSlice = store.slice(
+  importStart,
+  store.indexOf('  return {', importStart),
+)
+assert.doesNotMatch(
+  importSlice,
+  /rememberCast\(/,
+  'foreign save codes must not unlock a cast',
+)
 assert.match(page, /scene\(ending\)\.title/)
 assert.match(page, /sceneArt\(ending\)/)
 assert.match(front, /data-testid="zuzu-gamebook-title"/)

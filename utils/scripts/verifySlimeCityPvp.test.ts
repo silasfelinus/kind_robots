@@ -170,6 +170,20 @@ assert.equal(
   null,
 )
 assert.equal(pvpCommand({ t: 'strike', lane: 0 }, 'player'), null)
+assert.deepEqual(pvpCommand({ t: 'activate', uid: 21 }, 'enemy'), {
+  t: 'activate',
+  side: 'enemy',
+  uid: 21,
+})
+for (const bad of [
+  { t: 'activate', uid: -1 },
+  { t: 'activate', uid: 0 },
+  { t: 'activate', uid: 1.5 },
+  { t: 'activate', uid: '1' },
+  { t: 'activate', uid: 1, side: 'player' },
+  { t: 'activate', uid: 1, lane: 0 },
+])
+  assert.equal(pvpCommand(bad, 'player'), null, 'tap payload must be server-scoped')
 assert.deepEqual(pvpCommand({ t: 'pass' }, 'player'), {
   t: 'pass',
   side: 'player',

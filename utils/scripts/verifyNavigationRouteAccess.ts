@@ -267,7 +267,10 @@ assert.match(
 )
 assert.equal(isSuperkateServicesViewer({ id: 1279 }), true)
 assert.equal(isSuperkateServicesViewer({ username: ' SuperKate ' }), true)
-assert.equal(isSuperkateServicesViewer({ email: 'SUPERKATE@KINDROBOTS.ORG' }), true)
+assert.equal(
+  isSuperkateServicesViewer({ email: 'SUPERKATE@KINDROBOTS.ORG' }),
+  true,
+)
 assert.equal(isSuperkateServicesViewer({ username: 'other' }, true), true)
 assert.equal(isSuperkateServicesViewer({ username: 'other' }), false)
 
@@ -599,16 +602,22 @@ const storybookNav = readFileSync(
   'utf8',
 )
 const storybookPage = readFileSync('content/storybook.md', 'utf8')
-// Silas, 2026-11-03: the Brainstorm project is the riff-board party game in
-// Play; the admin idea workbench keeps its /brainstorm tab above.
+// Silas, 2026-11-14: Brainstorm is a project, not a Play game; its riff-board
+// tab lives in Projects and the admin idea workbench keeps /brainstorm above.
 assert.deepEqual(PROJECT_PLACEMENTS.brainstorm, {
-  channelKey: 'arcade',
+  channelKey: 'projects',
   tabKey: 'brainstorm',
   route: '/play/brainstorm',
 })
-const brainstormPlayTab = readFileSync('content/channels/arcade/brainstorm.md', 'utf8')
-assert.match(brainstormPlayTab, /^route: \/play\/brainstorm$/m)
-assert.doesNotMatch(brainstormPlayTab, /^requiredRole:/m)
+const brainstormProjectTab = readFileSync(
+  'content/channels/projects/brainstorm-party.md',
+  'utf8',
+)
+assert.match(brainstormProjectTab, /^channelKey: projects$/m)
+assert.match(brainstormProjectTab, /^tabKey: brainstorm$/m)
+assert.match(brainstormProjectTab, /^route: \/play\/brainstorm$/m)
+assert.doesNotMatch(brainstormProjectTab, /^requiredRole:/m)
+assert.equal(existsSync('content/channels/arcade/brainstorm.md'), false)
 
 const storybookIcon = readFileSync('assets/icons/storybook.svg', 'utf8')
 for (const metadata of [storybookNav, storybookPage]) {
@@ -651,7 +660,10 @@ assert.match(
   /urlPattern:.*play.*ruler-hooked/,
   'The offline game document cache must target the new Play route.',
 )
-const dashboardSource = readFileSync('stores/helpers/dashboardHelper.ts', 'utf8')
+const dashboardSource = readFileSync(
+  'stores/helpers/dashboardHelper.ts',
+  'utf8',
+)
 assert.match(
   dashboardSource,
   /key: 'ruler-hooked',[\s\S]*?route: '\/play\/ruler-hooked'/,

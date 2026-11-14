@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: arcade
+channelKey: projects
 tabKey: brainstorm
 label: Brainstorm
 title: Brainstorm
@@ -9,7 +9,7 @@ description: A party game of prompts and pile-ons. Invent a ridiculous person, a
 summary: Trade lines. Every idea gets painted.
 icon: kind-icon:brain
 route: /play/brainstorm
-sort: 151
+sort: 25
 tutorial:
   title: Show me what you got
   body: |-

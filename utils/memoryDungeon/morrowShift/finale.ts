@@ -58,6 +58,18 @@ export const MORROW_SHIFT_FINALE: MorrowShiftSite = {
       text: 'Sal knows you are not who she thought. She still left the stairwell light on for you tonight.',
     },
     {
+      flag: 'e03:7,8:care',
+      text: 'You already promised Mara you would make the morning handoff. The last train is still possible, but only if you leave the fountain now.',
+    },
+    {
+      flag: 'e03:7,8:risk',
+      text: 'You looked into the dry basin until the lights went out. Its coins and leaves offered no revelation. Returning to the rim now would be a choice, not a discovery.',
+    },
+    {
+      flag: 'e03:7,8:offer',
+      text: 'The tea you poured into the basin is gone down the drain. You can still smell it on your cuff; the city has accepted nothing and promised nothing.',
+    },
+    {
       flag: 'e03:2,1:care',
       text: 'Mara wrote her name on the receipt when you admitted you could not remember her. You still carry it. She deserves an answer more useful than a miracle.',
     },

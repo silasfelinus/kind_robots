@@ -481,6 +481,30 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const deckFormat = ref<DeckFormat>('alliance')
   /** Which deck the CLASH tab deals: Solo (one faction) or Alliance (two). */
   const clashFormat = ref<DeckFormat>('alliance')
+  const CLASH_FORMAT_KEY = 'kr-slime-city-clash-format-v1'
+  function hydrateClashFormat(): void {
+    if (typeof window === 'undefined') return
+    try {
+      const stored = window.localStorage.getItem(CLASH_FORMAT_KEY)
+      if (stored === 'solo' || stored === 'alliance') {
+        clashFormat.value = stored
+        deckFormat.value = stored
+      }
+    } catch {
+      // Private browsing or disabled storage must not prevent play.
+    }
+  }
+  function setDefaultClashFormat(format: DeckFormat): void {
+    clashFormat.value = format
+    deckFormat.value = format
+    if (typeof window === 'undefined') return
+    try {
+      window.localStorage.setItem(CLASH_FORMAT_KEY, format)
+    } catch {
+      // The preference still applies for the current session.
+    }
+  }
+
   /** One narrative journey; only its 20-card deck composition changes. */
   const journeyFormat = ref<DeckFormat>('solo')
   const journeyDeckId = ref<string | null>(null)
@@ -2706,6 +2730,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     showJourneyDeck,
     libraryMax: LIBRARY_MAX_DECKS,
     clashFormat,
+    hydrateClashFormat,
+    setDefaultClashFormat,
     journeyFormat,
     journeyDeckId,
     journeyDeckName,

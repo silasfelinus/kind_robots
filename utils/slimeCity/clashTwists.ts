@@ -36,7 +36,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Each prior Riot Rat death adds +1 attack (max +3); death blasts adjacent foes for 2.',
   ],
   firebrand: [
-    'Its fuse burns predictably. For now.',
+    'Strikes normally at this level; its dangerous double-fire comes later.',
     'On attack, 50% chance to miss; otherwise double the strike.',
     'On attack, 25% chance to miss; otherwise double the strike.',
   ],
@@ -89,7 +89,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   reknit: [
     'Heal one chosen friendly fighter.',
     'Heal a friendly fighter and restore 2 life to its wounded neighbors.',
-    'Heal the target and adjacent allies for 2; revive the last fallen ally as a fragile echo.',
+    'Heal the target; heal adjacent wounded allies for 2; revive the last fallen ally as a fragile echo.',
   ],
   laser: [
     'Stun one rival fighter in the chosen alley.',
@@ -109,7 +109,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   mosh: [
     'Damage one rival and the enemies in adjacent alleys.',
     'Damage target and adjacent rivals; deal 1 to foes two alleys away.',
-    'Damage the whole rival row; friendly fighters also take 1.',
+    'Blast the target and nearby rivals; distant rivals and all your fighters take 1.',
   ],
   scrapper: [
     'Reliable armored brawler.',
@@ -223,9 +223,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Blast the target; with four allies fielded, deal 2 to every other rival.',
   ],
   overclock: [
-    'One fighter gets a temporary power boost.',
-    'Gets +2 extra power but suffers 1 recoil.',
-    'Gets +4 extra power, suffers 3 recoil and shocks nearby rivals for 2.',
+    'Give the target fighter a temporary power boost.',
+    'Grant extra temporary power to the target fighter; it takes 1 recoil damage.',
+    'Grant the target fighter +4 temporary power; it takes 3 recoil and nearby foes take 2.',
   ],
   shocktrap: [
     'Hidden plate damages and roots its visitor.',
@@ -238,14 +238,14 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Repair, add armor and rebuild a fallen ally as a weak armored scrap echo.',
   ],
   firestorm: [
-    'Seeded burst of 1 to max damage.',
-    'Reroll a weak result once and keep the stronger blast.',
-    'Reroll a weak result; splash 2 to neighboring rivals and 1 to neighbors on your side.',
+    'Roll seeded damage against one rival fighter.',
+    'Roll seeded damage against a rival; reroll a weak result and keep the higher roll.',
+    'Roll seeded damage, reroll weak damage; deal 2 to neighboring rivals and 1 to friendly neighbors.',
   ],
   fusevest: [
-    'Wearer gains Volatile.',
-    'On death, also damages neighboring rivals for 1.',
-    'On death, hits every rival for 1 and nearby friends for 1.',
+    'Equip a fighter with VOLATILE: it explodes when defeated.',
+    'Grant VOLATILE; on defeat, deal 1 to the wearer\'s adjacent foes.',
+    'Grant VOLATILE; on defeat, deal 1 to all rivals and neighboring allies.',
   ],
   drink: [
     'A reckless temporary power-up.',
@@ -268,9 +268,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Wearer and adjacent friends each block their next root or snare.',
   ],
   collection: [
-    'Collect damages a rival fighter.',
-    'Dealing damage pays 1 boss life back.',
-    'Dealing damage pays 2 boss life; nearby Collect allies gain +1 attack.',
+    'Damage one rival fighter; this is a collection spell.',
+    'Damage a rival fighter; if damage lands, heal your boss for 1.',
+    'Damage a rival; on a hit, heal your boss 2 and grant nearby COLLECT allies +1 attack.',
   ],
   debttrap: [
     'Set a hidden debt trap in one alley.',
@@ -314,14 +314,14 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Wearer leads the show: all other Swarm allies gain +1 strike power.',
   ],
   wreckingfist: [
-    'Upgrade one fighter with a wrecking punch.',
-    'Also grants Bulldoze, spilling overkill onto the rival boss.',
-    'A damaging hit also deals 2 boss damage and 1 to a neighboring rival.',
+    'Permanently sharpen a friendly fighter.',
+    'Permanently sharpen a fighter and grant BULLDOZE (overkill hits boss).',
+    'Sharpen and grant BULLDOZE; damaging a blocker deals 2 to boss and 1 to an adjacent rival.',
   ],
   slap: [
-    'Deal damage to one opposing fighter.',
-    'A damaging slap also stuns its target.',
-    'Hit and stun its target and each adjacent rival for 2 damage.',
+    'Damage one selected rival fighter.',
+    'Damage and stun one selected rival fighter.',
+    'Damage and stun a rival and each adjacent rival for 2.',
   ],
   badluck: [
     'Arm an unpredictable grenade in one alley.',
@@ -329,29 +329,29 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Each neighboring rival independently has a 50% chance to take 3.',
   ],
   fuse: [
-    'Give a fighter a lasting illegal power boost.',
-    'The stronger boost causes 1 recoil damage to its wearer.',
-    'Sacrifice the weakest adjacent ally for +4 attack, or take 2 recoil.',
+    'Permanently boost a friendly fighter\'s attack.',
+    'Boost a friendly fighter\'s attack permanently; it takes 1 recoil damage.',
+    'Boost a friendly fighter; sacrifice the weakest adjacent ally for +4 attack, or take 2 recoil.',
   ],
   visor: [
-    'Grant piercing sight to one fighter.',
-    'Also disarm one neighboring rival trap and give +1 attack.',
-    'Disarm both neighbors and share Pierce with adjacent allies.',
+    'Grant a fighter PIERCE, which ignores 1 armor.',
+    'Grant PIERCE and +1 attack; disarm one adjacent rival trap.',
+    'Grant PIERCE; disarm both neighboring rival traps and share PIERCE with adjacent allies.',
   ],
   contract: [
-    "Increase one fighter's armor.",
-    'If the wearer survives the round, heal your boss for 1.',
-    'Survival also heals adjacent allies 1 and adds 1 temporary shield.',
+    'Increase a friendly fighter\'s armor.',
+    'Increase armor; if the wearer survives the full round, restore 1 boss life.',
+    'Increase armor; at round end, heal boss 1, adjacent allies 1, and shield those allies for 1.',
   ],
   'merc-bribe-rat': [
     'A quick Ambush rat takes the first strike.',
-    'Each blocked attack has a seeded 50% chance to stop retaliation.',
-    'A 75% bribe can recruit a defeated weak rival as a fragile echo.',
+    'On a blocked strike, 50% chance to prevent the rival\'s counterattack.',
+    'On a blocked strike, 75% chance to recruit a defeated weak rival as a fragile echo.',
   ],
   'merc-grease-oracle': [
     'Snare rivals with a mysteriously accurate prophecy.',
-    'Nearby allies strike for +1.',
-    'Nearby allies strike for +2.',
+    'Adjacent friendly fighters strike with +1 power.',
+    'Adjacent friendly fighters strike with +2 power.',
   ],
 }
 

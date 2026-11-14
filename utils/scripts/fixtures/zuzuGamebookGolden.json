@@ -122,11 +122,11 @@
     {
       "ending": "ending-wren-lamp",
       "seed": 5891737,
-      "trace": "c1c2c0f1f1f0f2f2c0c0c1c0c0c1c0c1c3c1c1c0c0c0c2c1c0c1c2c0c0c0c0c0c1c1c1c1c1c0c3c0f1f1f2f1f0f1f1f0c0c0c0c1c2c0c1c0c1c0c0c0c0c0c0c2c0c1c1c2c0c1c1c0c1c1c0c0c2c0c2c2c0c0c0c1c0l2c0c3c3c1c1c3c0c0c2c1c1c1c0c0c0c0c5c0c0c0f2f3f2f2f0c0f0c0c0c0c1c4c2c2c3c2c1c4",
+      "trace": "c1c2c0f1f1f0f2f2c0c0c1c0c0c1c0c1c3c1c1c0c0c0c2c1c0c1c2c0c0c0c0c0c1c1c1c1c1c0c3c0f1f1f2f1f0f1f1f0c0c0c0c1c2c0c1c0c1c0c0c0c0c0c0c2c0c1c1c2c0c1c1c0c1c1c0c0c2c0c2c2c0c0c0c1c0l2c0c1c3c3c1c1c3c0c0c2c1c1c1c0c0c0c0c5c0c0c0f2f3f2f2f0c0f0c0c0c0c1c4c2c2c3c2c1c4",
       "health": 2,
       "resolve": 1,
-      "scenes": 109,
-      "fingerprint": "f0fe6667"
+      "scenes": 110,
+      "fingerprint": "fd57a18d"
     },
     {
       "ending": "ending-bell-keeper",

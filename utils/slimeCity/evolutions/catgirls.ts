@@ -258,7 +258,7 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: STEADY. Counterplay: scan it; spread out so the quarantine
   // catches only one fighter.
   's2-catgirls-sterile-alley-wire': {
-    levelOneText: 'Hide the hospital\'s perimeter in plain sight.',
+    levelOneText: "Hide the hospital's perimeter in plain sight.",
     2: stage('Sterile Field', [on('spring', heal(2, 'adjacentAllies'))]),
     3: stage('Quarantine Line', [on('spring', stun('laneFoes'))]),
   },

@@ -164,7 +164,17 @@ import {
   type AllianceDeck,
   type LibraryDeck,
 } from '../utils/slimeCity/alliance'
-import type { ClashOptions, ClashState } from '../utils/slimeCity/clash'
+import type {
+  ClashCommand,
+  ClashOptions,
+  ClashState,
+} from '../utils/slimeCity/clash'
+import {
+  clearTowerBout,
+  readTowerBout,
+  towerBoutMatches,
+  writeTowerBout,
+} from '../utils/slimeCity/towerBoutSave'
 import { clashBossesFromTerms } from '../utils/slimeCity/clashBouts'
 import {
   CLASH_BOUT_KINDS,
@@ -281,6 +291,10 @@ export interface ClashLaunch {
   alliance?: AllianceDeck
   /** City and Story terms moved onto the bosses. */
   bosses?: Record<Side, number>
+  /** The crew dealt as the player; defaults to the active crew. */
+  player?: TeamId
+  /** Moves already played, replayed onto the deal (a resumed Tower fight). */
+  resume?: ClashCommand[]
 }
 /** Two decks hold the same cards, in any order. */
 function sameCards(a: readonly string[], b: readonly string[]): boolean {
@@ -646,7 +660,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         storyParity.value = saved.storyParity ?? false
         endingsFound.value = saved.endings ?? []
         scrapbook.value = saved.scrapbook ?? []
-        if (towerRun.value?.phase === 'battle') forfeitTower()
+        if (towerRun.value?.phase === 'battle' && !towerBoutSaved())
+          forfeitTower()
       }
       storyLoaded.value = true
       enforceCollection()
@@ -684,9 +699,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
-      // A partially played Clash cannot be replayed for free after refresh.
-      // Until command-by-command save/resume exists, reload forfeits this floor.
-      if (towerRun.value?.phase === 'battle') forfeitTower()
+      // A partially played Clash cannot be replayed for free after refresh:
+      // the fight resumes move for move from this device's record, and with
+      // no record (another device, cleared storage) the floor is forfeit.
+      if (towerRun.value?.phase === 'battle' && !towerBoutSaved())
+        forfeitTower()
       enforceCollection()
       seedLibrary()
       const selectedJourney = library.value.find(
@@ -1704,7 +1721,73 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     clashResult.value = null
     lastPayout.value = null
     clashLaunch.value = { ...next, id: clashLaunch.value.id + 1 }
+    if (next.kind === 'tower')
+      recordTowerCommands(clashLaunch.value.id, next.resume ?? [])
     view.value = 'clash'
+  }
+  /** Who owns this device's Tower fight record. */
+  function towerBoutAccount(): string {
+    const id = authId()
+    return !id || isGuest() ? 'guest' : String(id)
+  }
+  /** This device holds the in-progress fight for the current Tower floor. */
+  function towerBoutSaved(): boolean {
+    return towerBoutMatches(readTowerBout(), towerRun.value, towerBoutAccount())
+  }
+  /**
+   * Every move of a Tower floor fight is kept on this device, so a reload
+   * resumes the same board instead of forfeiting the floor.
+   */
+  function recordTowerCommands(
+    launchId: number,
+    commands: readonly ClashCommand[],
+  ): void {
+    const launch = clashLaunch.value
+    const run = towerRun.value
+    if (
+      launchId !== launch.id ||
+      launch.kind !== 'tower' ||
+      launch.format !== 'alliance' ||
+      !launch.alliance ||
+      clashResult.value ||
+      run?.phase !== 'battle'
+    )
+      return
+    writeTowerBout({
+      version: 1,
+      account: towerBoutAccount(),
+      runSeed: run.seed,
+      floor: run.floor,
+      launch: {
+        kind: 'tower',
+        format: 'alliance',
+        player: launch.player ?? activeTeam.value,
+        enemy: launch.enemy,
+        seed: launch.seed,
+        ...(launch.rewardId ? { rewardId: launch.rewardId } : {}),
+        alliance: launch.alliance,
+        ...(launch.bosses ? { bosses: launch.bosses } : {}),
+      },
+      commands: [...commands],
+    })
+  }
+  /**
+   * RETURN TO BATTLE: back to the live fight, or rebuild it from this
+   * device's record after a reload. With no record the floor stays forfeit.
+   */
+  function resumeTowerBout(): void {
+    if (towerRun.value?.phase !== 'battle') return
+    if (clashLaunch.value.kind === 'tower' && !clashResult.value) {
+      view.value = 'clash'
+      return
+    }
+    const saved = readTowerBout()
+    if (!towerBoutMatches(saved, towerRun.value, towerBoutAccount())) {
+      forfeitTower()
+      return
+    }
+    boutUnrewarded.value = ''
+    launchClash({ ...saved.launch, resume: saved.commands })
   }
   /** Why the bout being dealt pays nothing, for the battle console. */
   const boutUnrewarded = ref('')
@@ -1804,7 +1887,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         : { decks: { player: launch.cards ?? playSolo.value } }
     if (launch.bosses) options.bosses = launch.bosses
     return {
-      player: activeTeam.value,
+      player: launch.player ?? activeTeam.value,
       enemy: launch.enemy,
       seed: launch.seed,
       options,
@@ -1838,6 +1921,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     if (launch.kind !== 'reward' && launch.rewardId)
       void finishCpuBattle(launch.rewardId, [...state.commands])
     if (launch.kind === 'tower' && towerRun.value?.phase === 'battle') {
+      clearTowerBout()
       towerSave.value = {
         ...towerSave.value,
         run: resolveTowerBattle(towerRun.value, state.victor),
@@ -2121,6 +2205,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     void launchBout({
       kind: 'tower',
       format: 'alliance',
+      player: next.deck.general,
       alliance: next.deck,
       enemy: next.chosen.foe,
       seed: (next.seed + next.floor * 997 + 13) >>> 0,
@@ -2138,6 +2223,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function forfeitTower(): void {
     if (!storyEditable() || towerRun.value?.phase !== 'battle') return
+    clearTowerBout()
     towerSave.value = {
       ...towerSave.value,
       run: resolveTowerBattle(towerRun.value, 'enemy'),
@@ -2773,6 +2859,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     takeTowerSpoil,
     leaveTowerWithoutSpoils,
     forfeitTower,
+    resumeTowerBout,
+    recordTowerCommands,
     showTower,
     showVs,
     currentDeck,

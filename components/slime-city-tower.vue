@@ -103,7 +103,7 @@
           type="button"
           class="tower-action"
           data-testid="slime-tower-resume"
-          @click="lab.view = 'clash'"
+          @click="lab.resumeTowerBout()"
         >
           RETURN TO BATTLE
         </button>

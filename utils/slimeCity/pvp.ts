@@ -195,6 +195,14 @@ export function pvpCommand(raw: unknown, side: Side): ClashCommand | null {
         lane: Number(value.lane),
         ...(value.team ? { team: value.team as TeamId } : {}),
       }
+    case 'activate':
+      if (
+        !only('t', 'uid') ||
+        !Number.isSafeInteger(value.uid) ||
+        Number(value.uid) < 1
+      )
+        return null
+      return { t: 'activate', side, uid: Number(value.uid) }
     case 'pass':
     case 'strike':
     case 'end':

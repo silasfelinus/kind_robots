@@ -86,7 +86,14 @@ export function clashEvolutionText(
   // The card face names both; the play picker shows each option's rules.
   if (both) return 'Choose: ' + both[0].title + ' / ' + both[1].title + '.'
   const st = clashEvolutionStage(card.id, level, pick ?? 0)
-  return st ? evoStageText(st, card.kind) : ''
+  const rules = st ? evoStageText(st, card.kind) : ''
+  // L1 still uses its native keyword/effect. These authored lines explain
+  // the card's strategic role instead of silently giving it new abilities.
+  const role =
+    level < 2 && !CLASH_TWISTS[card.id]
+      ? (CLASH_EVOLUTIONS[card.id]?.levelOneText ?? '')
+      : ''
+  return [role, rules].filter(Boolean).join(' ')
 }
 
 /** The stage name a card wears at a level: its own name at level 1. */

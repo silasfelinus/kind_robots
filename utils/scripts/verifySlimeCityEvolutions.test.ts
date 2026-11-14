@@ -248,6 +248,26 @@ const at = (s: ClashState, uid: number) => s.units.find((u) => u.uid === uid)
 const mine = (s: ClashState, id: string) =>
   s.units.find((u) => u.side === 'player' && u.cardId === id && !u.token)
 
+// The former stat-only Chimera apex now shares REGEN with a hurt neighbor.
+{
+  const helped = cast(
+    board([fighter('player', 1, 1, { hp: 2 })]),
+    'chimera',
+    2,
+    3,
+  )
+  assert.ok(
+    at(helped, 1)!.keywords.includes('regen'),
+    'apex mutation lends regenerative DNA to an adjacent friend',
+  )
+  const isolated = cast(board([]), 'chimera', 2, 3)
+  assert.equal(
+    isolated.units.filter((unit) => unit.side === 'player').length,
+    1,
+    'a lone Chimera does not create free creatures',
+  )
+}
+
 // --- Catgirls full-faction review: 10 legacy arcs + 30 data-authored arcs.
 // Only units can tap or trigger combat abilities. A spell with an on-hit
 // ability prints plausible rules but can NEVER perform it; catch that here.

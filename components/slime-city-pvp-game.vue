@@ -442,6 +442,7 @@
               <SlimeCityClashCardFace
                 :card-id="id"
                 :level="board.levels[id] ?? 1"
+                :pick="selectedCard === id && choiceStages ? choice : undefined"
               />
             </button>
             <p v-if="!board.hand.length">
@@ -453,29 +454,17 @@
               {{ board.hand.length }} IN HAND · {{ board.deckCount }} IN DECK ·
               OPPONENT {{ board.opponentHandCount }} HIDDEN
             </p>
-            <div
-              v-if="
-                selectedCard &&
-                clashEvolutionChoice(
-                  selectedCard,
-                  board.levels[selectedCard] ?? 1,
-                )
-              "
-              class="scpvp-choice"
-            >
+            <div v-if="choiceStages && selectedCard" class="scpvp-choice" role="group" aria-label="Choose a level-three evolution">
               <button
+                v-for="(stage, index) in choiceStages"
+                :key="stage.title"
                 type="button"
-                :aria-pressed="choice === 0"
-                @click="choice = 0"
+                :aria-pressed="choice === index"
+                :data-testid="'slime-pvp-evolution-' + index"
+                @click="choice = index === 1 ? 1 : 0"
               >
-                EVOLUTION A
-              </button>
-              <button
-                type="button"
-                :aria-pressed="choice === 1"
-                @click="choice = 1"
-              >
-                EVOLUTION B
+                <strong>OPTION {{ index === 0 ? 'A' : 'B' }} · {{ stage.title }}</strong>
+                <small>{{ evoStageText(stage, cardById(selectedCard).kind) }}</small>
               </button>
             </div>
             <button
@@ -558,6 +547,7 @@ import {
   clashEvolutionChoice,
   clashEvolutionStage,
 } from '~/utils/slimeCity/clashEvolutions'
+import { evoStageText } from '~/utils/slimeCity/evolutions/dsl'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 
 const route = useRoute()
@@ -583,6 +573,14 @@ const answering = computed(
 const selectedCard = ref<string | null>(null)
 const chosenPower = ref(false)
 const choice = ref<0 | 1>(0)
+const choiceStages = computed(() =>
+  selectedCard.value && board.value
+    ? clashEvolutionChoice(
+        selectedCard.value,
+        board.value.levels[selectedCard.value] ?? 1,
+      )
+    : undefined,
+)
 const copied = ref(false)
 const showLog = ref(false)
 const board = computed(() => pvp.duel?.board ?? null)
@@ -1280,6 +1278,19 @@ watch(
 .scpvp-choice {
   display: flex;
   gap: 0.25rem;
+}
+.scpvp-choice button {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: left;
+}
+.scpvp-choice small {
+  font-size: 0.65rem;
+  line-height: 1.3;
+  color: #e4efe9;
 }
 .scpvp-choice button[aria-pressed='true'] {
   background: #526c2c;

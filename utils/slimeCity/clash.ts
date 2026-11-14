@@ -3487,14 +3487,14 @@ export function chooseClashCpu(
             (keyword) => !mine.keywords.includes(keyword),
           )
           // PIERCE only bypasses armor: against an unarmored lane it is
-          // a speculative future benefit, not a full-strength upgrade.
+          // a discounted future benefit, not a full-strength upgrade.
           // Keep other keywords' existing value to isolate this tuning.
           score +=
             missing.reduce(
               (value, keyword) =>
                 value +
                 (keyword === 'pierce' && (!across || across.armor <= 0)
-                  ? 0.6
+                  ? 1.8
                   : 2.8),
               0,
             ) +

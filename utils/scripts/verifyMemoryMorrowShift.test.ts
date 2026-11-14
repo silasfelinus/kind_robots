@@ -68,6 +68,17 @@ for (const kind of ['puzzle', 'treasure', 'merchant', 'companion', 'dungeon'])
 assert.ok(events.filter((event) => event.kind === 'puzzle').length >= 6)
 assert.equal(worldEvent('e03', '6,2')!.kind, 'dungeon')
 
+// Both responses to Mara's first confrontation change the finale's remembered context.
+const morrowFinaleSite = MORROW_SHIFT_BY_KEY.get('8,8')!
+assert.ok(
+  morrowFinaleSite.echoes?.some((echo) => echo.flag === 'e03:2,1:care'),
+  'admitting the memory gap must be remembered at the finale',
+)
+assert.ok(
+  morrowFinaleSite.echoes?.some((echo) => echo.flag === 'e03:2,1:risk'),
+  'bluffing about the memory gap must be remembered at the finale',
+)
+
 // Echo coverage: later places remember earlier choices.
 const echoCount = MORROW_SHIFT_SITES.reduce(
   (sum, site) => sum + (site.echoes?.length ?? 0),

@@ -62,18 +62,26 @@ export function decodeCastCollection(raw: unknown): BookOneCastId[] {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return []
   const record = raw as { version?: unknown; ids?: unknown }
   if (record.version !== 1 || !Array.isArray(record.ids)) return []
-  return [...new Set(record.ids.filter(
-    (id): id is BookOneCastId =>
-      typeof id === 'string' && validCastIds.has(id),
-  ))]
+  return [
+    ...new Set(
+      record.ids.filter(
+        (id): id is BookOneCastId =>
+          typeof id === 'string' && validCastIds.has(id),
+      ),
+    ),
+  ]
 }
 
-function encountered(scenes: readonly string[], flags: readonly string[]): BookOneCastId[] {
+function encountered(
+  scenes: readonly string[],
+  flags: readonly string[],
+): BookOneCastId[] {
   const sceneIds = new Set(scenes)
   const flagIds = new Set(flags)
-  return BOOK_ONE_CAST.filter((entry) =>
-    entry.scenes.some((id) => sceneIds.has(id)) ||
-    entry.flags.some((flag) => flagIds.has(flag)),
+  return BOOK_ONE_CAST.filter(
+    (entry) =>
+      entry.scenes.some((id) => sceneIds.has(id)) ||
+      entry.flags.some((flag) => flagIds.has(flag)),
   ).map((entry) => entry.id)
 }
 

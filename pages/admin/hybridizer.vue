@@ -244,8 +244,23 @@
               >
                 ✦ {{ remixEditorOpen ? 'Close remix' : 'Remix artwork' }}
               </button>
+              <NuxtLink
+                v-if="
+                  lab.result.isPublic === true &&
+                  reactionImageId &&
+                  !userStore.isLoggedIn
+                "
+                :to="signInHref"
+                data-testid="hybridizer-sign-in-to-review"
+              >
+                ✎ Sign in to review
+              </NuxtLink>
               <button
-                v-if="lab.result.isPublic === true && reactionImageId"
+                v-if="
+                  lab.result.isPublic === true &&
+                  reactionImageId &&
+                  userStore.isLoggedIn
+                "
                 type="button"
                 data-testid="hybridizer-upvote"
                 :disabled="upvoteBusy"
@@ -254,7 +269,11 @@
                 ♥ Upvote <span v-if="upvoteCount">({{ upvoteCount }})</span>
               </button>
               <button
-                v-if="lab.result.isPublic === true && reactionImageId"
+                v-if="
+                  lab.result.isPublic === true &&
+                  reactionImageId &&
+                  userStore.isLoggedIn
+                "
                 type="button"
                 data-testid="hybridizer-reactions"
                 @click="reactionOpen = true"
@@ -488,7 +507,16 @@
           {{ lab.working ? 'FUSION IN PROGRESS' : 'ACTIVATE FUSION' }}
           <span aria-hidden="true">✦</span>
         </button>
-        <p class="lab-status" role="status">{{ lab.status }}</p>
+        <p class="lab-status" role="status">
+          {{ lab.status }}
+          <NuxtLink
+            v-if="lab.needsSignIn && !userStore.isLoggedIn"
+            :to="signInHref"
+            data-testid="hybridizer-sign-in-to-fuse"
+          >
+            Sign in to discover it
+          </NuxtLink>
+        </p>
         <div class="hybridizer-tools">
           <button
             type="button"
@@ -772,6 +800,10 @@ const achievementStore = useAchievementStore()
 const reactionStore = useReactionStore()
 const userStore = useUserStore()
 const route = useRoute()
+const signInHref = computed(() => ({
+  path: '/login',
+  query: { redirect: route.fullPath },
+}))
 const previewJobId = ref<number | null>(null)
 const reactionOpen = ref(false)
 const shareOpen = ref(false)

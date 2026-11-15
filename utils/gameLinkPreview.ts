@@ -175,7 +175,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   hybridizer: {
     title: 'Hybridizer | Kind Robots',
     description:
-      'Fuse any two creatures and discover their impossible cousin. A free fusion lab in your browser.',
+      'Fuse any two creatures and discover their impossible cousin. Browse the lab free with no account; sign in to create new hybrids.',
     image: '/hybridizer/link-preview.webp',
   },
   'comic-studio': {

@@ -10,7 +10,6 @@ description: Mix any two specimens from a 200-ingredient illustrated starter cat
 icon: kind-icon:dna
 route: /play/hybridizer
 sort: 144
-requiredPermission: authenticated
 tutorial:
   title: Hybridizer · specimen fusion laboratory
   body: >-
@@ -21,7 +20,8 @@ tutorial:
     ArtJob generation when you have permission to generate artwork. The queue
     runs while you continue exploring the 200 starters. Not all artwork has
     been delivered, so studies without verified images display a placeholder.
-    You must sign in to save a new shared hybrid.
+    Anyone can browse the lab and every shared discovery without an account;
+    sign in to fuse a brand-new hybrid or to upvote and review artwork.
 ---
 
 Combine impossible creatures in the illustrated Hybridizer lab. More ingredients and generated combinations are in progress.

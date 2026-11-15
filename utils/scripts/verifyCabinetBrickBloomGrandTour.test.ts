@@ -49,7 +49,9 @@ import { ARCADE_GAMES } from '../arcade/games'
 
 assert.equal(bossOf(0), 'mister-mulch')
 assert.equal(bossOf(1), 'tangle-rose')
-assert.equal(bossOf(2), null, 'later houses wait for later slices')
+assert.equal(bossOf(2), 'sunny-saguaro', 'slice 3: the Cactus Dome boss')
+assert.equal(bossOf(3), 'queen-koi', 'slice 3: the Lily Pond House boss')
+assert.equal(bossOf(4), null, 'the Night Bloom House waits for slice 4')
 for (const id of ['mister-mulch', 'tangle-rose'] as const) {
   const spec = BOSS_SPECS[id]
   const guards = spec.cells.filter((c) => c.guard)
@@ -74,7 +76,8 @@ assert.equal(
   openBoss(b)
   assert.equal(b.phase, 2)
   b.hurt = 0
-  const [p2, p3] = BOSS_SPECS['mister-mulch'].hits
+  const [p1, p2, p3] = BOSS_SPECS['mister-mulch'].hits
+  assert.equal(p1, 0, 'his first phase is won on the plates, not hits')
   assert.equal(hitBoss(b), 'hit')
   assert.equal(b.hurt, HURT_TICKS)
   assert.equal(hitBoss(b), 'none', 'no double hit inside the hurt flash')
@@ -536,10 +539,13 @@ function clearWall(g: Inner, side: 'left' | 'right' = 'left') {
   }
   assert.equal(g.boss!.defeated, true)
   run(g, 170)
-  assert.equal(g.tour, null, 'past the Tangle Rose the classic walls go on')
+  // Slice 3: past the Tangle Rose the bench opens before the Cactus Dome, and the tour saves.
+  const bench = g.bench as Inner['bench']
+  assert.ok(bench, 'the bench opens before the Cactus Dome')
+  assert.equal(bench.house, 2)
   assert.equal(g.boss, null)
-  assert.equal(g.save?.house, HOUSES.length, 'nothing left to resume')
-  assert.equal(resumable(g.save ?? null), false)
+  assert.equal(g.save?.house, 2, 'saved at the Cactus Dome')
+  assert.equal(resumable(g.save ?? null), true)
 }
 {
   // Vine walls crack where the ball meets them, and the gaps let it through.

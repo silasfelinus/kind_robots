@@ -4,16 +4,24 @@
 // CABINETS.md section 11, slice 2): Seedling House and Vine Hall, nine walls each, joined by a
 // branching vent map. Clear a wall and pick the left or right vent to choose the next one; every
 // path through a house meets the house's boss. The root, vine and trellis crates live here.
+//
+// Slice 3 (conductor kr-arcade/t-080) adds glasshouses 3 and 4: the Cactus Dome (noon, prickle
+// and sand-timer crates) and the Lily Pond House (lily pads drifting on the water that fills the
+// lower wall, bubble crates). Rows with lily pads hold nothing else, so a row drifts as one.
 
 import { LEGEND, ROWS, parseWall, wallProblems } from './walls'
 import type { CrateKind, Wall } from './walls'
 
-/** The glasshouse legend: the classic characters plus root, vine and trellis crates. */
+/** The glasshouse legend: the classic characters plus the houses' own crates. */
 export const HOUSE_LEGEND: Readonly<Record<string, CrateKind>> = {
   ...LEGEND,
   r: 'root',
   v: 'vine',
   t: 'trellis',
+  k: 'prickle',
+  z: 'sand',
+  l: 'lily',
+  b: 'bubble',
 }
 
 /** What the new crates do, for the cabinet to read: hits to crack, and the quirk. */
@@ -27,6 +35,13 @@ export const HOUSE_CRATES = {
     hits: 1,
     note: 'Only breaks from below; the ball skips off its top',
   },
+  prickle: { hits: 1, note: 'Pricks the ball: every ball speeds up' },
+  sand: {
+    hits: 1,
+    note: 'Unbreakable while its sand runs; cracks while flipped',
+  },
+  lily: { hits: 1, note: 'Drifts on the pond current with its row' },
+  bubble: { hits: 1, note: 'Pops into a bouncy bumper for a few seconds' },
 } as const
 
 export type VentWall = Wall & { vents: readonly [string, string] | 'boss' }
@@ -256,7 +271,276 @@ export const VINE_HALL: House = {
   ],
 }
 
-export const HOUSES: readonly House[] = [SEEDLING_HOUSE, VINE_HALL]
+export const CACTUS_DOME: House = {
+  id: 'cactus-dome',
+  name: 'Cactus Dome',
+  boss: { id: 'sunny-saguaro', name: 'Sunny Saguaro' },
+  start: 'cactus-1',
+  walls: [
+    vw(
+      'cactus-1',
+      'Sunny Doorway',
+      [
+        EMPTY,
+        '..kk####kk..',
+        '.##########.',
+        '.#pp#zz#pp#.',
+        '.##########.',
+        '..##....##..',
+      ],
+      ['cactus-2a', 'cactus-2b'],
+    ),
+    vw(
+      'cactus-2a',
+      'Sand Steps',
+      ['############', '##zz####zz##', '.##########.', '...######...'],
+      ['cactus-3a', 'cactus-3b'],
+    ),
+    vw(
+      'cactus-2b',
+      'Prickle Patch',
+      [
+        'k.k.k.k.k.k.',
+        '.##########.',
+        '#k##p##p##k#',
+        '.##########.',
+        '..s......s..',
+      ],
+      ['cactus-3a', 'cactus-3b'],
+    ),
+    vw(
+      'cactus-3a',
+      'Hourglass',
+      [
+        '############',
+        '.##########.',
+        '..##zzzz##..',
+        '...######...',
+        '..##zzzz##..',
+        '.##########.',
+        '############',
+      ],
+      ['cactus-4a', 'cactus-4b'],
+    ),
+    vw(
+      'cactus-3b',
+      'Barrel Row',
+      [
+        'pp########pp',
+        '############',
+        '#kk#kk#kk#kk',
+        '############',
+        '..ss....ss..',
+      ],
+      ['cactus-4a', 'cactus-4b'],
+    ),
+    vw(
+      'cactus-4a',
+      'Dune Ridge',
+      [
+        '.....##.....',
+        '....####....',
+        '...##zz##...',
+        '..###pp###..',
+        '.####kk####.',
+        '############',
+      ],
+      ['cactus-5a', 'cactus-5b'],
+    ),
+    vw(
+      'cactus-4b',
+      'Mirage Wall',
+      [
+        '##########k#',
+        '#zz#zz#zz#=#',
+        '############',
+        '#p###kk###p#',
+        '############',
+        '.s........s.',
+      ],
+      ['cactus-5a', 'cactus-5b'],
+    ),
+    vw(
+      'cactus-5a',
+      'Cactus Garden',
+      [
+        '#.k.#.k.#.k.',
+        '############',
+        'z##z##z##z##',
+        '############',
+        'pp.pp..pp.pp',
+      ],
+      'boss',
+    ),
+    vw(
+      'cactus-5b',
+      'High Noon',
+      [
+        'kkkkkkkkkkkk',
+        '############',
+        '#zzzz##zzzz#',
+        '############',
+        '###pp##pp###',
+        '############',
+      ],
+      'boss',
+    ),
+  ],
+}
+
+export const LILY_POND: House = {
+  id: 'lily-pond',
+  name: 'Lily Pond House',
+  boss: { id: 'queen-koi', name: 'Queen Koi' },
+  start: 'lily-1',
+  walls: [
+    vw(
+      'lily-1',
+      'Pond Edge',
+      [
+        EMPTY,
+        '.##########.',
+        '.#b######b#.',
+        '.##########.',
+        EMPTY,
+        EMPTY,
+        '.ll..ll..ll.',
+      ],
+      ['lily-2a', 'lily-2b'],
+    ),
+    vw(
+      'lily-2a',
+      'Reed Bank',
+      [
+        '############',
+        '#b########b#',
+        '############',
+        EMPTY,
+        EMPTY,
+        EMPTY,
+        'llll....llll',
+      ],
+      ['lily-3a', 'lily-3b'],
+    ),
+    vw(
+      'lily-2b',
+      'Bubble Run',
+      [
+        '.b.b.b.b.b.b',
+        '############',
+        '#s##b##b##s#',
+        '############',
+        EMPTY,
+        EMPTY,
+        '.lll....lll.',
+      ],
+      ['lily-3a', 'lily-3b'],
+    ),
+    vw(
+      'lily-3a',
+      'Stepping Stones',
+      [
+        '##..##..##..',
+        '..##..##..##',
+        '##..##..##..',
+        '..##bb##..##',
+        EMPTY,
+        EMPTY,
+        'll..ll..ll..',
+        '...ll...ll..',
+      ],
+      ['lily-4a', 'lily-4b'],
+    ),
+    vw(
+      'lily-3b',
+      'Lotus Ring',
+      [
+        '....####....',
+        '..##bbbb##..',
+        '.##s####s##.',
+        '..##bbbb##..',
+        '....####....',
+        EMPTY,
+        '.llllllllll.',
+      ],
+      ['lily-4a', 'lily-4b'],
+    ),
+    vw(
+      'lily-4a',
+      'Rain Barrel',
+      [
+        '############',
+        '#pp######pp#',
+        '############',
+        '#b#b#b#b#b#b',
+        EMPTY,
+        EMPTY,
+        'lll......lll',
+        '...lll..lll.',
+      ],
+      ['lily-5a', 'lily-5b'],
+    ),
+    vw(
+      'lily-4b',
+      'Willow Shade',
+      [
+        '#b########b#',
+        '############',
+        '.##########.',
+        '..###ss###..',
+        EMPTY,
+        EMPTY,
+        '.ll.ll.ll.ll',
+      ],
+      ['lily-5a', 'lily-5b'],
+    ),
+    vw(
+      'lily-5a',
+      'Frog Chorus',
+      [
+        'bbbbbbbbbbbb',
+        '############',
+        '#s########s#',
+        '############',
+        EMPTY,
+        EMPTY,
+        'llll....llll',
+        '....llll....',
+      ],
+      'boss',
+    ),
+    vw(
+      'lily-5b',
+      'Moon Pool',
+      [
+        '.##########.',
+        '#bb######bb#',
+        '#b#pp##pp#b#',
+        '#bb######bb#',
+        '.##########.',
+        EMPTY,
+        '..llllllll..',
+      ],
+      'boss',
+    ),
+  ],
+}
+
+export const HOUSES: readonly House[] = [
+  SEEDLING_HOUSE,
+  VINE_HALL,
+  CACTUS_DOME,
+  LILY_POND,
+]
+
+/** Lily pads must ride a row of their own, so the whole row drifts on the current together. */
+export function lilyRowProblems(w: Wall): string[] {
+  return w.rows.flatMap((row, i) =>
+    row.includes('l') && /[^l.]/.test(row)
+      ? [`${w.id}: row ${i} mixes lily pads with other crates`]
+      : [],
+  )
+}
 
 export function houseWall(house: House, id: string): VentWall | undefined {
   return house.walls.find((w) => w.id === id)
@@ -266,7 +550,8 @@ export function houseWall(house: House, id: string): VentWall | undefined {
 export function houseProblems(h: House): string[] {
   const problems: string[] = []
   if (h.walls.length !== 9) problems.push(`${h.id}: ${h.walls.length} walls`)
-  for (const w of h.walls) problems.push(...wallProblems(w, HOUSE_LEGEND))
+  for (const w of h.walls)
+    problems.push(...wallProblems(w, HOUSE_LEGEND), ...lilyRowProblems(w))
   if (!houseWall(h, h.start)) return [...problems, `${h.id}: no start wall`]
   const seen = new Set<string>()
   const stack = [h.start]

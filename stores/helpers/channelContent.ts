@@ -46,6 +46,7 @@ export type ChannelContentItem = {
   summary?: string
   narrative?: string
   tooltip?: string
+  silasSays?: string
   icon?: string
   image?: string
   route?: string
@@ -136,6 +137,7 @@ export type ResolvedTab = {
   refreshLabel: string
   dottiTip: string
   amiTip: string
+  silasSays: string
 }
 
 export type ResolvedChannel = {
@@ -376,6 +378,7 @@ function resolveTabItem(
     refreshLabel: text(item.refreshLabel) || channel.refreshLabel,
     dottiTip: dialogue(item.dottiTip, item.dottitip) || channel.dottiTip,
     amiTip: dialogue(item.amiTip, item.amitip) || channel.amiTip,
+    silasSays: text(item.silasSays) || channel.silasSays,
   }
 }
 
@@ -417,6 +420,7 @@ export function resolveChannels(
         refreshLabel: text(item.refreshLabel) || `Refresh ${label}`,
         dottiTip: dialogue(item.dottiTip, item.dottitip),
         amiTip: dialogue(item.amiTip, item.amitip),
+        silasSays: text(item.silasSays),
       }
 
       const tabs = tabItems

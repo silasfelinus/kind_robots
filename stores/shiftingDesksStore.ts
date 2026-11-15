@@ -227,31 +227,35 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   function load(): void {
     if (loaded.value) return
     newlyEarnedMilestones.value = []
-    try {
-      settings.value = parseDeskSettings(
-        parseSavedJSON(localStorage.getItem(SETTINGS_KEY)),
-      )
-      run.value = upgradeRun(parseSavedJSON(localStorage.getItem(SAVE_KEY)))
-      envelopeOpened.value =
-        localStorage.getItem(ENVELOPE_KEY) === run.value?.seed
-      const seen = parseSavedJSON(localStorage.getItem(OUTCOMES_KEY))
-      discovered.value = Array.isArray(seen)
-        ? [...new Set(seen.filter((s): s is string => typeof s === 'string'))]
-        : []
-      endingsFound.value = restoreEndingGallery(
-        parseSavedJSON(localStorage.getItem(ENDINGS_KEY)),
-      )
-      rewardArchive.value = migrateFoundEndings(
-        restoreRewardArchive(parseSavedJSON(localStorage.getItem(REWARD_KEY))),
-        endingsFound.value,
-      )
+    let readFailed = false
+    const readSlot = (key: string): string | null => {
+      try {
+        return localStorage.getItem(key)
+      } catch {
+        readFailed = true
+        return null
+      }
+    }
+    settings.value = parseDeskSettings(parseSavedJSON(readSlot(SETTINGS_KEY)))
+    run.value = upgradeRun(parseSavedJSON(readSlot(SAVE_KEY)))
+    envelopeOpened.value =
+      !!run.value && readSlot(ENVELOPE_KEY) === run.value.seed
+    const seen = parseSavedJSON(readSlot(OUTCOMES_KEY))
+    discovered.value = Array.isArray(seen)
+      ? [...new Set(seen.filter((s): s is string => typeof s === 'string'))]
+      : []
+    endingsFound.value = restoreEndingGallery(
+      parseSavedJSON(readSlot(ENDINGS_KEY)),
+    )
+    rewardArchive.value = migrateFoundEndings(
+      restoreRewardArchive(parseSavedJSON(readSlot(REWARD_KEY))),
+      endingsFound.value,
+    )
+    // A security exception on one storage slot does not erase a valid saved run
+    // or authorize overwriting an unreadable neighboring slot.
+    if (!readFailed) {
       recordEnding()
       persist()
-    } catch {
-      run.value = null
-      discovered.value = []
-      endingsFound.value = []
-      rewardArchive.value = emptyRewardArchive()
     }
     loaded.value = true
     void loadPlaybookLiveText('shifting-desks', SHIFTING_DESKS_LIVE_TEXT).then(

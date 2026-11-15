@@ -1,19 +1,21 @@
 <template>
   <section
     class="flex flex-col gap-3"
-    :data-testid="`advert-slot-${slot.name}`"
+    :data-testid="`advert-slot-${artSlot.name}`"
   >
     <div class="flex items-start gap-3">
       <img
         :src="currentSrc"
-        :alt="`${slot.label} in use`"
+        :alt="`${artSlot.label} in use`"
         class="w-24 shrink-0 rounded-xl border border-base-300 object-cover"
-        :class="slot.name === 'hero' ? 'aspect-video' : 'aspect-square'"
-        :style="{ objectPosition: slot.position }"
+        :class="artSlot.name === 'hero' ? 'aspect-video' : 'aspect-square'"
+        :style="{ objectPosition: artSlot.position }"
       />
       <div class="min-w-0 text-xs">
-        <p class="text-sm font-bold">{{ slot.label }}</p>
-        <p class="break-all font-mono text-base-content/60">{{ slot.key }}</p>
+        <p class="text-sm font-bold">{{ artSlot.label }}</p>
+        <p class="break-all font-mono text-base-content/60">
+          {{ artSlot.key }}
+        </p>
         <p class="mt-1 text-base-content/70">
           {{ chosenId ? `Using render #${chosenId}` : 'Using the default art' }}
         </p>
@@ -49,7 +51,7 @@
             type="button"
             class="kr-btn-primary-xs-lg absolute bottom-1 left-1 right-1"
             :disabled="isSaving || candidate.artImageId === chosenId"
-            @click="advertStore.chooseCandidate(slot.key, candidate)"
+            @click="advertStore.chooseCandidate(artSlot.key, candidate)"
           >
             {{ candidate.artImageId === chosenId ? 'In use' : 'Use' }}
           </button>
@@ -165,7 +167,7 @@ import {
 
 const props = defineProps<{
   poster: AdvertPoster
-  slot: AdvertSlot
+  artSlot: AdvertSlot
   currentSrc: string
 }>()
 
@@ -173,31 +175,31 @@ const advertStore = useAdvertStore()
 const { isQueueing, selections } = storeToRefs(advertStore)
 const { isSaving } = storeToRefs(useArtSlotStore())
 
-const prompt = ref(props.slot.prompt)
+const prompt = ref(props.artSlot.prompt)
 const engine = ref<AdvertEngine>(ADVERT_DEFAULT_ENGINE)
-const width = ref(props.slot.width)
-const height = ref(props.slot.height)
+const width = ref(props.artSlot.width)
+const height = ref(props.artSlot.height)
 const seed = ref('')
 
-const chosenId = computed(() => selections.value[props.slot.key] ?? null)
-const candidates = computed(() => advertStore.candidatesFor(props.slot.key))
-const queuedJobs = computed(() => advertStore.queuedFor(props.slot.key))
+const chosenId = computed(() => selections.value[props.artSlot.key] ?? null)
+const candidates = computed(() => advertStore.candidatesFor(props.artSlot.key))
+const queuedJobs = computed(() => advertStore.queuedFor(props.artSlot.key))
 const negations = computed(() => advertPromptNegations(prompt.value))
 
 function reset(): void {
-  prompt.value = props.slot.prompt
-  width.value = props.slot.width
-  height.value = props.slot.height
+  prompt.value = props.artSlot.prompt
+  width.value = props.artSlot.width
+  height.value = props.artSlot.height
   seed.value = ''
 }
 
-watch(() => props.slot.key, reset)
+watch(() => props.artSlot.key, reset)
 
 async function queue(): Promise<void> {
   const parsedSeed = Number.parseInt(seed.value, 10)
   await advertStore.queueRender({
     posterSlug: props.poster.slug,
-    slotKey: props.slot.key,
+    slotKey: props.artSlot.key,
     prompt: prompt.value,
     engine: engine.value,
     width: width.value,

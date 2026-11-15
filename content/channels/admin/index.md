@@ -50,7 +50,9 @@ tutorial:
       title: Studios being built
       body: >-
         Comic Studio is where you pitch to the Editor, compare panel renders,
-        and lay out pages. Zuzu's Lair is a quick-time adventure under development.
+        and lay out pages. Advert Studio shows every game's playtester poster,
+        exports it as a PNG and queues new art or edit requests for it.
+        Zuzu's Lair is a quick-time adventure under development.
         Tzaddikim presents a sourced gallery. Other experimental production
         tools are on the Retired shelf.
       image: /zuzu-gamebook/scenes/zuzu-fire.webp

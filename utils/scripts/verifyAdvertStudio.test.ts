@@ -16,6 +16,7 @@ import {
   ADVERT_SLOT_KEYS,
   ADVERT_SLOT_KEY_PATTERN,
   advertEditDescription,
+  advertPlayPath,
   advertEditMarker,
   advertEditTitle,
   advertFontStylesheetUrl,
@@ -293,6 +294,38 @@ assert.ok(
   pkg.dependencies?.['modern-screenshot'],
   'modern-screenshot is a dependency',
 )
+
+const publicSelections = read('server/api/adverts/public-art.get.ts')
+assert.match(publicSelections, /isPublic: true/)
+assert.match(publicSelections, /isMature: false/)
+assert.match(publicSelections, /isActive: true/)
+assert.match(storeSource, /async function loadPublicSelections/)
+assert.match(storeSource, /'\\/api\\/adverts\\/public-art'/)
+
+const publicHighlights = read('components/home/home-visitor-directory.vue')
+assert.match(publicHighlights, /data-testid="visitor-poster-toggle"/)
+assert.match(publicHighlights, /data-testid="visitor-poster-gallery"/)
+assert.match(publicHighlights, /advertPlayPath\\(view.poster\\)/)
+assert.match(publicHighlights, /advertStore.loadPublicSelections\\(\\)/)
+
+const tutorialSheet = read('components/navigation/workspace-sheet.vue')
+assert.match(tutorialSheet, /data-testid="workspace-game-poster"/)
+assert.match(tutorialSheet, /data-testid="workspace-silas-says"/)
+assert.match(tutorialSheet, /data-testid="workspace-conversation"/)
+assert.match(tutorialSheet, /reaction-category="PROJECT"/)
+assert.match(tutorialSheet, /advertStore.loadPublicSelections\\(\\)/)
+assert.match(read('content.config.ts'), /silasSays: z\\.string\\(\\)\\.optional\\(\\)/)
+assert.match(
+  read('stores/helpers/channelContent.ts'),
+  /silasSays: text\\(item.silasSays\\)/,
+)
+assert.match(read('content/silas.md'), /navigation: false/)
+for (const poster of ADVERT_POSTERS)
+  assert.equal(
+    advertPlayPath(poster),
+    `/play${poster.path}`,
+    `${poster.slug}: visitor poster opens its game`,
+  )
 
 console.log(
   `Advert Studio contract passed: ${ADVERT_POSTERS.length} posters, ${ADVERT_SLOT_KEYS.length} art slots.`,

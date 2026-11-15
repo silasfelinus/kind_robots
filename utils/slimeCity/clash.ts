@@ -535,10 +535,10 @@ function clashBaseText(card: Card, level: number): string {
   const b = clashBalance(card, level)
   if (card.kind === 'trap')
     return (
-      'Hits the next rival in this alley for ' +
+      'Next foe: ' +
       b.power +
-      '.' +
-      (card.roots ? ' It misses a strike.' : '') +
+      ' damage.' +
+      (card.roots ? ' Skips a strike.' : '') +
       (isArmorCutterSnare(card) ? ' Cuts armor, defuses VOLATILE.' : '')
     )
   switch (card.effect) {
@@ -1001,6 +1001,15 @@ function placementLegal(
   if (card.kind === 'trap')
     return !s.traps.some((t) => t.side === side && t.lane === lane)
   if (card.effect === 'scan') return true
+  // The Secondhand Life L2/L3 revive must remain usable after a total
+  // wipeout. Its L1 remains an ordinary heal requiring a living target.
+  if (
+    card.id === 's1-clone-salvage' &&
+    clashLevel(s, side, card.id) >= 2 &&
+    (s.fallen?.[side]?.length ?? 0) > 0 &&
+    nearestFreeAlley(s, side, lane) >= 0
+  )
+    return true
   return aim(card) === 'own'
     ? !!unitAt(s, side, lane)
     : !!unitAt(s, opponent(side), lane)
@@ -1933,6 +1942,28 @@ export function playClash(
       casualties(s)
     }
     if (unit.hp > 0) {
+      // Madame Chimera's final form becomes a field medic as well as an apex
+      // predator. She lends her regeneration to the most injured neighboring
+      // friend once on arrival; an isolated Chimera earns no support bonus.
+      if (id === 'chimera' && level === 3) {
+        const patient = s.units
+          .filter(
+            (u) =>
+              u.side === side &&
+              u.uid !== unit.uid &&
+              Math.abs(u.lane - lane) === 1,
+          )
+          .sort((a, b) => a.hp - b.hp || a.lane - b.lane)[0]
+        if (patient && !has(patient, 'regen')) {
+          patient.keywords.push('regen')
+          note(
+            s,
+            'Madame Chimera shares her regenerative genome.',
+            'play',
+            lane,
+          )
+        }
+      }
       unitEvo(s, unit, 'enter')
       casualties(s)
     }

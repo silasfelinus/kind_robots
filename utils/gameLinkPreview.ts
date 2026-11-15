@@ -1,3 +1,5 @@
+import { shortArcadeBlurb } from './arcade/blurb'
+
 export interface GameLinkPreview {
   title: string
   description: string
@@ -231,6 +233,41 @@ export function gameLinkPreviewMeta(slug: string, origin: string) {
     twitterTitle: p.title,
     twitterDescription: p.description,
     twitterImage: image,
+  }
+}
+
+export interface ArcadeCabinetPreviewSource {
+  slug: string
+  title: string
+  blurb: string
+  titleArt: string
+}
+
+export function arcadeCabinetLinkPreviewMeta(
+  game: ArcadeCabinetPreviewSource,
+  origin: string,
+) {
+  const base = origin.replace(/\/+$/, '')
+  const title = `${game.title} | Kind Robots Arcade`
+  const description = shortArcadeBlurb(game.blurb)
+  const image = /^https?:\/\//.test(game.titleArt)
+    ? game.titleArt
+    : `${base}${game.titleArt}`
+  const imageAlt = `${game.title} title card`
+  return {
+    title,
+    description,
+    ogTitle: title,
+    ogDescription: description,
+    ogType: 'website' as const,
+    ogUrl: `${base}/play/arcade?game=${encodeURIComponent(game.slug)}`,
+    ogImage: image,
+    ogImageAlt: imageAlt,
+    twitterCard: 'summary_large_image' as const,
+    twitterTitle: title,
+    twitterDescription: description,
+    twitterImage: image,
+    twitterImageAlt: imageAlt,
   }
 }
 

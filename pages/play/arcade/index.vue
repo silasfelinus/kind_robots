@@ -263,20 +263,38 @@ async function shareGame() {
   setTimeout(() => (shareNote.value = ''), 2500)
 }
 
+const appBaseUrl = useRuntimeConfig().public.appBaseUrl
+const hallPreview = gameLinkPreviewMeta('arcade', appBaseUrl)!
+const linkPreview = computed(() =>
+  meta.value
+    ? arcadeCabinetLinkPreviewMeta(meta.value, appBaseUrl)
+    : {
+        ...hallPreview,
+        ogImageAlt: 'The Kind Robots Arcade hall',
+        twitterImageAlt: 'The Kind Robots Arcade hall',
+      },
+)
+
 useHead({
   title: computed(() =>
-    meta.value
-      ? `${meta.value.title} · Kind Robots Arcade`
-      : 'Kind Robots Arcade',
+    meta.value ? `${meta.value.title} · Kind Robots Arcade` : hallPreview.title,
   ),
 })
 
-// Only the hall is a stable shareable page; ?game= cabinets keep the default.
-if (!route.query.game) {
-  useSeoMeta(
-    gameLinkPreviewMeta('arcade', useRuntimeConfig().public.appBaseUrl) ?? {},
-  )
-}
+useSeoMeta({
+  description: () => linkPreview.value.description,
+  ogTitle: () => linkPreview.value.ogTitle,
+  ogDescription: () => linkPreview.value.ogDescription,
+  ogType: 'website',
+  ogUrl: () => linkPreview.value.ogUrl,
+  ogImage: () => linkPreview.value.ogImage,
+  ogImageAlt: () => linkPreview.value.ogImageAlt,
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => linkPreview.value.twitterTitle,
+  twitterDescription: () => linkPreview.value.twitterDescription,
+  twitterImage: () => linkPreview.value.twitterImage,
+  twitterImageAlt: () => linkPreview.value.twitterImageAlt,
+})
 </script>
 
 <style scoped>

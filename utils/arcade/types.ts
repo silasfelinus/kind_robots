@@ -77,6 +77,8 @@ export type ArcadeMasteryGoal = {
   parts?: readonly string[]
 }
 
+export type ArcadeHallShelf = 'showcase' | 'growing'
+
 export type ArcadeGameMeta = {
   slug: string
   title: string
@@ -98,6 +100,12 @@ export type ArcadeGameMeta = {
   route?: string
   /** Accent colour for the cabinet glow and the marquee title. */
   accent: string
+  /**
+   * Where the hall shelves this cabinet: 'showcase' cabinets have finished
+   * their whole campaign and lead the hall for first-time visitors; 'growing'
+   * ones are playable while their roadmap adds stages, and carry a stamp.
+   */
+  shelf?: ArcadeHallShelf
   /** One line describing the controls on the cabinet's control panel. */
   controls: string
   /** Omitted for the classic Canvas 2D cabinets. */

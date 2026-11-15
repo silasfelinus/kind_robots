@@ -46,6 +46,8 @@ import {
 
 export type ArcadeBoardRange = 'all' | 'today'
 
+export type ArcadeShareResult = 'shared' | 'copied' | 'cancelled' | 'failed'
+
 export type ArcadeBoardEntry = {
   id: number
   initials: string
@@ -233,6 +235,25 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       pendingCount.value = queue.length
     } finally {
       flushing = false
+    }
+  }
+
+  async function shareLink(link: {
+    title: string
+    text?: string
+    url: string
+  }): Promise<ArcadeShareResult> {
+    try {
+      if (typeof navigator.share === 'function') {
+        await navigator.share(link)
+        return 'shared'
+      }
+      await navigator.clipboard.writeText(
+        link.text ? `${link.text} ${link.url}` : link.url,
+      )
+      return 'copied'
+    } catch (err) {
+      return (err as Error)?.name === 'AbortError' ? 'cancelled' : 'failed'
     }
   }
 
@@ -519,6 +540,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     pendingCount,
     hallOfFame,
     fetchHallOfFame,
+    shareLink,
     flushPending,
     lastSubmittedId,
     muted,

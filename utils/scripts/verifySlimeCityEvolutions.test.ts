@@ -874,10 +874,16 @@ function bloodBoard(units: ClashUnit[]): ClashState {
   ])
   const second = cast(structuredClone(source), 'merc-crowd-lightning', 2, 2)
   const final = cast(structuredClone(source), 'merc-crowd-lightning', 2, 3)
+  assert.ok(
+    at(second, 9)!.hp < at(source, 9)!.hp,
+    'L2 petition already strengthens the base zap',
+  )
   assert.equal(
     at(final, 9)!.hp,
-    at(second, 9)!.hp,
-    'Lightning Rod keeps the crowd-funded zap on the blocker',
+    at(source, 9)!.hp -
+      clashBalance(cardById('merc-crowd-lightning'), 3).power -
+      2,
+    'Lightning Rod keeps the extra two-point zap on top of L3 base damage',
   )
   assert.equal(
     final.boss.enemy,
@@ -940,10 +946,10 @@ function bloodBoard(units: ClashUnit[]): ClashState {
   const second = witchStrike(2)
   const final = witchStrike(3)
   for (const uid of [1, 2])
-    assert.equal(
-      at(final, uid)!.attack,
-      at(second, uid)!.attack,
-      'Gridlock keeps each neighbor green on a successful hit',
+    assert.ok(
+      at(final, uid)!.surge >= 1 &&
+        at(final, uid)!.surge === at(second, uid)!.surge,
+      'Gridlock keeps the actual adjacent-ally power on a successful hit',
     )
   assert.equal(at(final, 10)!.rooted, true, 'traffic stops the left foe')
   assert.equal(at(final, 11)!.rooted, true, 'traffic stops the right foe')

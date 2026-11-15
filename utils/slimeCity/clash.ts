@@ -767,9 +767,9 @@ export const CLASH_GUESTS: Record<TeamId, string> = {
  * 2026-11-08 PT: "You need a sample of at least 20 from one faction ... to
  * make one side of a match"): the ten Catgirls with hand-built twists plus
  * ten crafted in evolutions/catgirls.ts, so every card in the deck has its
- * own level-two and level-three story. Eleven fighters hold the five alleys
+ * own level-two and level-three story. Fourteen fighters hold the five alleys
  * (each fighter traded for a special cost ~4 points in CPU sweeps), so the
- * crafted Second Pounce Rig is a deck-builder pick rather than a starter.
+ * crafted Second Pounce Rig and heavyweight Tiger are deck-builder picks.
  */
 export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
   catgirls: [
@@ -781,7 +781,7 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
     's1-roof-phantom',
     'splice-runner',
     's2-catgirls-parapet-ghost-kitten',
-    's3-catgirls-escaped-tiger',
+    's3-catgirls-hollow-scalpel',
     's1-alley-vet',
     'pounce',
     'scentmine',

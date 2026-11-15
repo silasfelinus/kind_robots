@@ -1597,8 +1597,7 @@ class BrickBloom implements ArcadeGameInstance {
     const target =
       input.touchPaddleX === undefined
         ? null
-        : LEFT +
-          Math.max(0, Math.min(1, input.touchPaddleX)) * (RIGHT - LEFT)
+        : LEFT + Math.max(0, Math.min(1, input.touchPaddleX)) * (RIGHT - LEFT)
     const steer =
       target === null
         ? (input.held.right ? 1 : 0) - (input.held.left ? 1 : 0)

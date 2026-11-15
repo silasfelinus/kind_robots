@@ -1270,7 +1270,8 @@ function startGame() {
   )
   lastSave = undefined
   gameMenu.value = menuOpenOf(game)
-  paddleActions.value = game && 'touchActions' in game ? (game.touchActions ?? {}) : {}
+  paddleActions.value =
+    game && 'touchActions' in game ? (game.touchActions ?? {}) : {}
   // The pinball mixer is constructed by create(). Unlock it now, not only
   // before the instance exists or on the next requestAnimationFrame tick.
   if (meta.value?.touchLayout === 'pinball') unlockArcadeAudio()
@@ -1444,7 +1445,8 @@ function tick() {
     else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
     gameMenu.value = menuOpenOf(game)
-    paddleActions.value = 'touchActions' in game ? (game.touchActions ?? {}) : {}
+    paddleActions.value =
+      'touchActions' in game ? (game.touchActions ?? {}) : {}
     const feats = game.drainFeats?.()
     if (feats?.length) void store.awardFeats(props.slug, feats)
     keepSave(game)

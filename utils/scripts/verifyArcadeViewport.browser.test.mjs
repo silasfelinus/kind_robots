@@ -66,7 +66,9 @@ try {
           assert.equal(await page.locator('.cabinet-dpad').count(), 0)
           assert.equal(await page.locator('.cabinet-ball').count(), 0)
           await page.evaluate(() => {
-            const game = (window.__blooms ?? []).find((entry) => !entry.demo)?.game
+            const game = (window.__blooms ?? []).find(
+              (entry) => !entry.demo,
+            )?.game
             if (!game) throw new Error('Brick Bloom run never started')
             game.card = null
           })

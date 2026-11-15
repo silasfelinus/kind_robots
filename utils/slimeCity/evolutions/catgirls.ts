@@ -104,7 +104,7 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
     levelOneText: 'A costly lab predator that demands a real target.',
     stats: { 3: { hp: 3 } },
     2: stage('Loose in the Lab', [
-      on('kill', sharpen(1, 'self'), heal(2, 'self')),
+      on('kill', sharpen(1, 'self'), heal(1, 'self')),
     ]),
     3: stage('Apex Escapee', [on('enter', duel('strongestFoe'))]),
     // Choose one: or it slips the city entirely and grows fierce alone.
@@ -122,10 +122,7 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // the shield ends on her next turn; with no crowd, there is no roar.
   's3-catgirls-glasswalker': {
     levelOneText: 'A fragile ambusher who needs room for her act.',
-    2: stage('Barefoot on Shards', [
-      on('hit', damage(1, 'adjacentFoes')),
-      on('turnStart', guard(1, 'self')),
-    ]),
+    2: stage('Barefoot on Shards', [on('hit', damage(1, 'adjacentFoes'))]),
     3: stage('The Glasswalk', [
       on('enter', guard(3, 'self'), when('crowd', power(1, 'allies'))),
     ]),

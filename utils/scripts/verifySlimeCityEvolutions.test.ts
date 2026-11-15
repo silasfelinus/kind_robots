@@ -248,6 +248,289 @@ const at = (s: ClashState, uid: number) => s.units.find((u) => u.uid === uid)
 const mine = (s: ClashState, id: string) =>
   s.units.find((u) => u.side === 'player' && u.cardId === id && !u.token)
 
+// Bloodfairies editorial: review every one of the 40 faction identities,
+// including the ten original hand-built twists. Spells cannot trigger combat
+// hooks; their upgraded on-cast text must describe real actions.
+{
+  const cards = CARDS.filter((card) => card.team === 'bloodfairies')
+  assert.equal(cards.length, 40, 'all 40 Bloodfairies cards are covered')
+  assert.equal(cards.filter((card) => CLASH_TWISTS[card.id]).length, 10)
+  assert.equal(cards.filter((card) => CLASH_EVOLUTIONS[card.id]).length, 30)
+  for (const card of cards) {
+    const evo = CLASH_EVOLUTIONS[card.id]
+    for (const level of [1, 2, 3] as const)
+      assert.ok(
+        clashCardText(card, level).length <= 160,
+        card.id + ' L' + level + ' must fit the card face',
+      )
+    if (!evo) continue
+    assert.ok(evo.levelOneText, card.id + ' needs authored L1 text')
+    assert.ok(
+      clashCardText(card, 1).includes(evo.levelOneText!),
+      card.id + ' L1 text must be displayed',
+    )
+    for (const stage of [evo[1], evo[2], evo[3], evo.choice?.stage]) {
+      if (!stage) continue
+      for (const ability of stage.abilities) {
+        if (card.kind === 'spell')
+          assert.equal(ability.when, 'enter', card.id + ' only casts')
+        if (card.kind === 'trap')
+          assert.equal(ability.when, 'spring', card.id + ' only springs')
+      }
+    }
+  }
+}
+
+function bloodBoard(units: ClashUnit[]): ClashState {
+  const s = createClash('bloodfairies', 'riot', 17)
+  s.units = units
+  s.nextUid = 100
+  s.round = 3
+  s.plays.player = 0
+  return s
+}
+// Afterparty L2 provides LEECH to a still-wounded teammate.
+{
+  const s = cast(
+    bloodBoard([
+      fighter('player', 1, 1, { hp: 2, cardId: 'sprite' }),
+      fighter('player', 2, 2, { hp: 3, cardId: 'razor' }),
+    ]),
+    's2-bloodfairies-afterparty-first-aid',
+    2,
+    2,
+  )
+  assert.ok(at(s, 1)!.keywords.includes('leech'))
+  assert.ok(at(s, 1)!.hp > 2, 'the patient gets real healing')
+}
+// Mic Squeal L2: rally a two-wing pit, not just an invisible stat bump.
+{
+  const s = cast(
+    bloodBoard([
+      fighter('player', 1, 1, { cardId: 'sprite' }),
+      fighter('player', 3, 2, { cardId: 'pogo' }),
+      fighter('enemy', 2, 9),
+    ]),
+    's3-bloodfairies-feedback-burst',
+    2,
+    2,
+  )
+  assert.ok(at(s, 1)!.keywords.includes('swarm'))
+  assert.ok(at(s, 2)!.keywords.includes('swarm'))
+  assert.ok(at(s, 1)!.surge >= 1, 'the pit gets an immediate surge')
+}
+// Festival Triage L2 drains the attacker across from its healed patient.
+{
+  const s = cast(
+    bloodBoard([
+      fighter('player', 2, 1, { hp: 2, cardId: 'sprite' }),
+      fighter('enemy', 2, 9, { hp: 8, maxHp: 8 }),
+    ]),
+    's3-bloodfairies-festival-triage',
+    2,
+    2,
+  )
+  assert.equal(at(s, 9)!.hp, 6, 'field transfusion hits the rival')
+  assert.ok(at(s, 1)!.hp > 2, 'the patient recovers')
+}
+
+// Bassquake's final form offers a real alternative to striking: skip its
+// attack to stun the defender across. That activation is not an arrival.
+{
+  const landed = cast(
+    bloodBoard([fighter('enemy', 2, 9)]),
+    's2-bloodfairies-bassquake-colossus',
+    2,
+    3,
+  )
+  const ready = structuredClone(landed)
+  ready.phase = 'play'
+  ready.plays.player = 0
+  const boss = ready.units.find(
+    (unit) =>
+      unit.side === 'player' &&
+      unit.cardId === 's2-bloodfairies-bassquake-colossus',
+  )!
+  boss.fresh = false
+  assert.ok(canClashActivate(ready, 'player', boss.uid))
+  assert.ok(!at(ready, 9)!.rooted, 'the stun does not fire on arrival')
+  const tapped = activateClash(ready, 'player', boss.uid)
+  assert.ok(at(tapped, 9)!.rooted, 'tapping silences the opposing blocker')
+  assert.ok(
+    tapped.units.find((unit) => unit.uid === boss.uid)!.attacked,
+    'tapping forfeits the strike',
+  )
+}
+// A hidden bouncer charges the boss and conditionally adds a dancer when
+// the trap is sprung, not on its owner turn when set.
+{
+  const id = 's3-bloodfairies-banana-bouncer'
+  const armed = cast(
+    bloodBoard([
+      fighter('player', 0, 1, { cardId: 'sprite' }),
+      fighter('player', 4, 2, { cardId: 'pogo' }),
+    ]),
+    id,
+    2,
+    2,
+  )
+  assert.equal(
+    armed.units.filter((unit) => unit.side === 'player' && unit.token).length,
+    0,
+    'arming a trap does not summon a dancer',
+  )
+  const intrusion = structuredClone(armed)
+  intrusion.active = 'enemy'
+  intrusion.phase = 'play'
+  intrusion.plays.enemy = 0
+  intrusion.hands.enemy = ['rat']
+  const triggered = playClash(intrusion, 'enemy', 'rat', 2)
+  assert.notEqual(triggered, intrusion, 'the rival enters the trapped alley')
+  assert.ok(
+    triggered.units.some((unit) => unit.side === 'player' && unit.token),
+    'the crowded pit recruits a SWARM fan on spring',
+  )
+  assert.ok(
+    triggered.boss.enemy < intrusion.boss.enemy,
+    'the bouncer also collects its boss toll',
+  )
+}
+
+// The former stat-only Chimera apex now shares REGEN with a hurt neighbor.
+{
+  const helped = cast(
+    board([fighter('player', 1, 1, { hp: 2 })]),
+    'chimera',
+    2,
+    3,
+  )
+  assert.ok(
+    at(helped, 1)!.keywords.includes('regen'),
+    'apex mutation lends regenerative DNA to an adjacent friend',
+  )
+  const isolated = cast(board([]), 'chimera', 2, 3)
+  assert.equal(
+    isolated.units.filter((unit) => unit.side === 'player').length,
+    1,
+    'a lone Chimera does not create free creatures',
+  )
+}
+
+// --- Catgirls full-faction review: 10 legacy arcs + 30 data-authored arcs.
+// Only units can tap or trigger combat abilities. A spell with an on-hit
+// ability prints plausible rules but can NEVER perform it; catch that here.
+{
+  const cards = CARDS.filter((card) => card.team === 'catgirls')
+  assert.equal(cards.length, 40, 'the complete Gene Riot inventory')
+  assert.equal(cards.filter((card) => CLASH_TWISTS[card.id]).length, 10)
+  assert.equal(cards.filter((card) => CLASH_EVOLUTIONS[card.id]).length, 30)
+  for (const card of cards) {
+    assert.ok(CLASH_TWISTS[card.id] || CLASH_EVOLUTIONS[card.id], card.id)
+    for (const level of [1, 2, 3])
+      assert.ok(
+        clashCardText(card, level).length <= 160,
+        card.id + ' level ' + level + ' rules fit',
+      )
+    const evo = CLASH_EVOLUTIONS[card.id]
+    if (!evo) continue
+    assert.ok(evo.levelOneText, card.id + ' has an authored L1 role')
+    assert.ok(
+      clashCardText(card, 1).includes(evo.levelOneText!),
+      card.id + ' L1 role is actually shown to the player',
+    )
+    for (const st of [evo[1], evo[2], evo[3], evo.choice?.stage]) {
+      if (!st) continue
+      for (const ability of st.abilities) {
+        if (card.kind === 'spell')
+          assert.equal(
+            ability.when,
+            'enter',
+            card.id + ' ' + st.title + ': spells only cast once',
+          )
+        if (card.kind === 'trap')
+          assert.equal(
+            ability.when,
+            'spring',
+            card.id + ' ' + st.title + ': traps only spring',
+          )
+      }
+    }
+  }
+}
+
+// These fixtures use the actual Clash command engine, not just signatures.
+// Emergency Molt is a SPELL: its previous on-hit healing never fired.
+{
+  const s0 = board([fighter('player', 2, 1, { hp: 2, rooted: true })])
+  const s = cast(s0, 's2-catgirls-emergency-molt', 2, 2)
+  assert.equal(at(s, 1)!.rooted, false, 'molt unstuns its patient on cast')
+  assert.ok(at(s, 1)!.armor >= 1, 'molt installs protective skin')
+}
+// Secondhand Life uses a real death ledger rather than a generic stat grant.
+{
+  const s0 = board([fighter('player', 2, 1, { hp: 2 })])
+  s0.fallen = { player: ['s1-alley-vet'], enemy: [] }
+  const s = cast(s0, 's1-clone-salvage', 2, 2)
+  assert.equal(
+    s.units.filter(
+      (unit) =>
+        unit.side === 'player' && unit.token && unit.cardId === 's1-alley-vet',
+    ).length,
+    1,
+    'Spare Parts Bin revives the real fallen veterinarian',
+  )
+  assert.deepEqual(s.fallen!.player, [], 'revival consumes the graveyard')
+  const wiped = board([])
+  wiped.fallen = { player: ['s1-alley-vet'], enemy: [] }
+  const recovered = cast(wiped, 's1-clone-salvage', 2, 2)
+  assert.ok(
+    recovered.units.some(
+      (unit) => unit.token && unit.cardId === 's1-alley-vet',
+    ),
+    'Secondhand Life works when no friendly fighter survived',
+  )
+  const withoutLoss = cast(
+    board([fighter('player', 2, 1, { hp: 2 })]),
+    's1-clone-salvage',
+    2,
+    2,
+  )
+  assert.equal(
+    withoutLoss.units.filter((unit) => unit.token).length,
+    0,
+    'the echo is conditional rather than free tempo',
+  )
+}
+// Needle-Thread is a spell, so its L3 arrival must mobilize actual fighters.
+{
+  const s = cast(
+    board([fighter('player', 0, 1), fighter('player', 4, 2)]),
+    's2-catgirls-needle-thread-ambush',
+    0,
+    3,
+  )
+  assert.ok(at(s, 1)!.keywords.includes('ambush'))
+  assert.ok(at(s, 2)!.keywords.includes('ambush'))
+  assert.ok(at(s, 1)!.surge >= 1, 'every fighter charges for this round')
+}
+// Spare Nine Lives' L3 spell should save nearby allies on cast. Its earlier
+// tap action was impossible: there is no spell unit to activate next turn.
+{
+  const s = cast(
+    board([
+      fighter('player', 0, 1, { hp: 2 }),
+      fighter('player', 2, 2, { hp: 2 }),
+      fighter('player', 3, 3, { hp: 2 }),
+    ]),
+    's3-catgirls-spare-lives',
+    2,
+    3,
+  )
+  assert.ok(at(s, 3)!.lastChance, 'neighbor receives an actual rescue')
+  assert.ok(!at(s, 1)!.lastChance, 'distant fighter remains vulnerable')
+  assert.ok(at(s, 1)!.hp > 2, 'the entire wounded crew gets triage')
+}
+
 // Splice Runner L3, Midnight Ambulance: role shift into a non-fighting
 // rescuer that brings back the last fallen fighter.
 {
@@ -273,7 +556,7 @@ const mine = (s: ClashState, id: string) =>
     2,
     2,
   )
-  assert.equal(at(two, 1)!.hp, 5, 'Contraband Courier heals the most hurt 3')
+  assert.equal(at(two, 1)!.hp, 4, 'Contraband Courier heals the most hurt 2')
 }
 // Rooftop Phantom: choose to tap rather than attack; no free automatic bonus.
 {

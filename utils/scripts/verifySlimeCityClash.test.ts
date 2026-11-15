@@ -2098,14 +2098,22 @@ assert.ok(sweep.roundLimit / sweep.games < 0.1, 'matches end by knockout')
 // a 2-damage volatile burst now costs a point of budget. Before, these seeds
 // read Ironjaw 35% / Riot 64% (a ~30-point spread); after, every crew sits at
 // 48-53%. Guard every crew to 42-58% and the crew spread to 12 points.
-const crewRates = Object.values(sweep.crews).map((r) => r.wins / r.games)
 for (const [crew, r] of Object.entries(sweep.crews))
   assert.ok(
     r.wins / r.games > 0.42 && r.wins / r.games < 0.58,
     crew + ' win rate ' + ((100 * r.wins) / r.games).toFixed(1) + '%',
   )
+const crewRecords = Object.values(sweep.crews)
+const gamesPerCrew = crewRecords[0]!.games
 assert.ok(
-  Math.max(...crewRates) - Math.min(...crewRates) <= 0.12,
+  crewRecords.every((record) => record.games === gamesPerCrew),
+  'each crew has the same number of mirrored games',
+)
+const crewWinSpread =
+  Math.max(...crewRecords.map((record) => record.wins)) -
+  Math.min(...crewRecords.map((record) => record.wins))
+assert.ok(
+  crewWinSpread * 100 <= gamesPerCrew * 12,
   'CLASH crew spread stays within 12 points',
 )
 

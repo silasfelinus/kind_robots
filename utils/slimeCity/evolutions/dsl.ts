@@ -140,6 +140,8 @@ export interface EvoStage {
 }
 
 export interface CardEvolution {
+  /** Authored level-one role text; explains native rules without inventing abilities. */
+  levelOneText?: string
   /** The name the card wears at level 1 (usually its own name). */
   base?: string
   /** Optional level-one signature ability. Like L2/L3 it fires through the

@@ -387,9 +387,7 @@ function bloodBoard(units: ClashUnit[]): ClashState {
   const triggered = playClash(intrusion, 'enemy', 'rat', 2)
   assert.notEqual(triggered, intrusion, 'the rival enters the trapped alley')
   assert.ok(
-    triggered.units.some(
-      (unit) => unit.side === 'player' && unit.token,
-    ),
+    triggered.units.some((unit) => unit.side === 'player' && unit.token),
     'the crowded pit recruits a SWARM fan on spring',
   )
   assert.ok(

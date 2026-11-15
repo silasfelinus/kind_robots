@@ -35,9 +35,7 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // it and leave it standing; burst the crew before it drops.
   'pogo-punk': {
     levelOneText: 'The smallest dancer is already crowd surfing.',
-    2: stage('Pit Pickpocket', [
-      on('hit', mend(1), heal(1, 'woundedAlly')),
-    ]),
+    2: stage('Pit Pickpocket', [on('hit', mend(1), heal(1, 'woundedAlly'))]),
     3: stage('Crowd-Surf Exit', [on('death', heal(2, 'allies'), mend(2))]),
   },
   // Arc: a glitter choir screaming in harmony -> three-part harmony lifts the
@@ -392,7 +390,11 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   'amp-tripwire': {
     levelOneText: 'A tripwire cues the next loud chord.',
     2: stage('Cue the Band', [
-      on('spring', sharpen(1, 'adjacentAllies'), grant('swarm', 'adjacentAllies')),
+      on(
+        'spring',
+        sharpen(1, 'adjacentAllies'),
+        grant('swarm', 'adjacentAllies'),
+      ),
     ]),
     3: stage('Power Chord Avalanche', [on('spring', damage(1, 'allFoes'))]),
   },
@@ -402,9 +404,7 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // burst damage outruns a 2-point patch.
   's1-feedback-wire': {
     levelOneText: 'Borrow the rival pulse to save the band.',
-    2: stage('Siphon Lead', [
-      on('spring', mend(2), heal(1, 'woundedAlly')),
-    ]),
+    2: stage('Siphon Lead', [on('spring', mend(2), heal(1, 'woundedAlly'))]),
     3: stage('Blood Amplifier', [on('spring', heal(2, 'allies'))]),
   },
   // Arc: the wrong chord -> a catchy hook nicks the neighbors -> the earworm

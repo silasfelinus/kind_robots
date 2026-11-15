@@ -377,6 +377,67 @@
           </section>
 
           <section
+            v-else-if="tab === 'art'"
+            class="flex flex-col gap-3"
+            aria-label="Discovered artwork"
+          >
+            <header class="rounded-xl border-2 border-warning/40 bg-base-200 p-3">
+              <h3 class="font-mono text-base font-black uppercase">
+                Declassified Art Files
+              </h3>
+              <p class="text-xs opacity-80">
+                {{ unlockedArtCount }}/{{ artEntries.length }} employee,
+                society and mutation portraits filed. Complete assignments to
+                preserve their artwork across new hires and later runs.
+              </p>
+            </header>
+            <div
+              class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-3"
+            >
+              <article
+                v-for="item in artEntries"
+                :key="item.key"
+                class="overflow-hidden rounded-xl border-2"
+                :class="
+                  item.unlocked
+                    ? 'border-warning/70 bg-base-100'
+                    : 'border-base-content/20 bg-base-200/65'
+                "
+              >
+                <shifting-desks-art
+                  v-if="item.unlocked"
+                  frame="aspect-[2/3]"
+                  :src="item.src"
+                  :prompt="item.prompt"
+                  :show-brief="false"
+                  :alt="item.title"
+                  fallback-icon="kind-icon:folder"
+                />
+                <div
+                  v-else
+                  class="grid aspect-[2/3] place-items-center bg-base-content/85"
+                  aria-hidden="true"
+                  data-testid="locked-art-slot"
+                >
+                  <icon name="kind-icon:lock" class="size-9 text-base-100" />
+                </div>
+                <div class="p-2">
+                  <p class="font-mono text-xs font-black uppercase">
+                    {{ item.unlocked ? item.title : 'Classified file' }}
+                  </p>
+                  <p class="text-[11px] opacity-70">
+                    {{
+                      item.unlocked
+                        ? item.category
+                        : 'Complete another assignment to declassify.'
+                    }}
+                  </p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section
             v-else-if="tab === 'personnel'"
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3"
             aria-label="Former employee dossiers"
@@ -544,6 +605,7 @@ import { useUserStore } from '~/stores/userStore'
 import { achievementsForGame } from '~/utils/achievements/gameAchievements'
 import { useShiftingDesksStore } from '~/stores/shiftingDesksStore'
 import { handleKeyboardTabs } from '~/utils/shiftingDesks/keyboardTabs'
+import { artDiscovery } from '~/utils/shiftingDesks/artDiscovery'
 import { ENDINGS, stationArt } from '~/utils/shiftingDesks/rules'
 import {
   MILESTONES,
@@ -552,10 +614,11 @@ import {
 } from '~/utils/shiftingDesks/rewards'
 
 type ArchiveTab =
-  'milestones' | 'endings' | 'achievements' | 'personnel' | 'runs'
+  'milestones' | 'endings' | 'art' | 'achievements' | 'personnel' | 'runs'
 const sections: Array<{ id: ArchiveTab; label: string }> = [
   { id: 'milestones', label: 'Milestones' },
   { id: 'endings', label: 'Endings' },
+  { id: 'art', label: 'Art Files' },
   { id: 'personnel', label: 'Personnel' },
   { id: 'achievements', label: 'Distinctions' },
   { id: 'runs', label: 'Runs' },
@@ -568,6 +631,10 @@ const employeeEnding = ENDINGS.find(
   (entry) => entry.id === 'employee-of-the-month',
 )
 const archive = computed(() => store.rewardArchive)
+const artEntries = computed(() => artDiscovery(archive.value))
+const unlockedArtCount = computed(
+  () => artEntries.value.filter((item) => item.unlocked).length,
+)
 const sheet = ref<HTMLDialogElement | null>(null)
 const personnel = computed(() => {
   const entries = new Map<

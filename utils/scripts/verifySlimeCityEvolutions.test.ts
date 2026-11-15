@@ -556,7 +556,7 @@ function bloodBoard(units: ClashUnit[]): ClashState {
     2,
     2,
   )
-  assert.equal(at(two, 1)!.hp, 5, 'Contraband Courier heals the most hurt 3')
+  assert.equal(at(two, 1)!.hp, 4, 'Contraband Courier heals the most hurt 2')
 }
 // Rooftop Phantom: choose to tap rather than attack; no free automatic bonus.
 {

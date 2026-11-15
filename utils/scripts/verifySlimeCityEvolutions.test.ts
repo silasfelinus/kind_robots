@@ -864,6 +864,91 @@ function bloodBoard(units: ClashUnit[]): ClashState {
   assert.equal(s.pendingDraw?.player, 0)
 }
 
+// Mercenaries should not forget their L2 job when L3 earns a new verb.
+// Each fixture uses real Clash board state, not only authored stage strings.
+{
+  const source = board([
+    fighter('player', 0, 1),
+    fighter('player', 4, 2),
+    fighter('enemy', 2, 9, { hp: 16, maxHp: 16 }),
+  ])
+  const second = cast(structuredClone(source), 'merc-crowd-lightning', 2, 2)
+  const final = cast(structuredClone(source), 'merc-crowd-lightning', 2, 3)
+  assert.equal(
+    at(final, 9)!.hp,
+    at(second, 9)!.hp,
+    'Lightning Rod keeps the crowd-funded zap on the blocker',
+  )
+  assert.equal(
+    final.boss.enemy,
+    second.boss.enemy - 3,
+    'the same crowded petition now reaches the enemy boss',
+  )
+  assert.deepEqual(
+    cast(structuredClone(source), 'merc-crowd-lightning', 2, 3),
+    final,
+    'Lightning Rod is deterministic on replayed board state',
+  )
+}
+{
+  const source = board([
+    fighter('player', 1, 1),
+    fighter('player', 2, 2),
+    fighter('player', 3, 3),
+    fighter('enemy', 2, 9, { hp: 16, maxHp: 16 }),
+  ])
+  const second = cast(
+    structuredClone(source),
+    'merc-streetlight-confession',
+    2,
+    2,
+  )
+  const final = cast(
+    structuredClone(source),
+    'merc-streetlight-confession',
+    2,
+    3,
+  )
+  for (const uid of [1, 3])
+    assert.equal(
+      at(final, uid)!.attack,
+      at(second, uid)!.attack,
+      'Streetlight L3 keeps the neighboring fighter rally',
+    )
+  assert.equal(
+    at(final, 9)!.hp,
+    at(second, 9)!.hp - 2,
+    'the confession now also wounds the opposing defender',
+  )
+}
+{
+  const source = board([
+    fighter('player', 1, 1, { fresh: true }),
+    fighter('player', 3, 2, { fresh: true }),
+    fighter('enemy', 1, 10, { hp: 16, maxHp: 16 }),
+    fighter('enemy', 2, 9, { hp: 16, maxHp: 16 }),
+    fighter('enemy', 3, 11, { hp: 16, maxHp: 16 }),
+  ])
+  const witchStrike = (level: number): ClashState => {
+    let game = cast(structuredClone(source), 'merc-traffic-witch', 2, level)
+    mine(game, 'merc-traffic-witch')!.fresh = false
+    game = passClash(game, 'player')
+    while (nextClashStrike(game, 'player') >= 0)
+      game = strikeClash(game, 'player')
+    return game
+  }
+  const second = witchStrike(2)
+  const final = witchStrike(3)
+  for (const uid of [1, 2])
+    assert.equal(
+      at(final, uid)!.attack,
+      at(second, uid)!.attack,
+      'Gridlock keeps each neighbor green on a successful hit',
+    )
+  assert.equal(at(final, 10)!.rooted, true, 'traffic stops the left foe')
+  assert.equal(at(final, 11)!.rooted, true, 'traffic stops the right foe')
+}
+
 // --- Mercenary board builders should have tactical, counterable L3 payoffs.
 // Empty alleys are a resource: the flashmob floods them with fragile 1/1s,
 // while the scaffold raises defensive 0-power wings. A full board denies both.

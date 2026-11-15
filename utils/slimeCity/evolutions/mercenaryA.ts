@@ -80,14 +80,17 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
       on('death', summon('neighbors', 1, 1, ['volatile'])),
     ]),
   },
-  // Arc: a witch with one red light -> she runs the intersection, green for
-  // friends -> gridlock: one perfect hit jams the whole block.
+  // Arc: a witch with one red light -> green for friends on every hit ->
+  // gridlock: keep the green wave moving while one hit jams the block.
   // Trajectory: ROLE SHIFT (stopper, then director, then a one-shot jam).
   // Counterplay: the gridlock fires once; spread out so her neighbors'
   // alleys are empty, or stun her before she lands the hit.
   'merc-traffic-witch': {
     2: stage('Green Wave', [on('hit', power(1, 'adjacentAllies'))]),
-    3: stage('Gridlock', [once('hit', stun('adjacentFoes'))]),
+    3: stage('Gridlock', [
+      on('hit', power(1, 'adjacentAllies')),
+      once('hit', stun('adjacentFoes')),
+    ]),
   },
   // Arc: a komodo walking the strike line in permanent overtime -> the line
   // only gets thicker -> the general strike: it downs tools, and the three
@@ -163,9 +166,8 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', heal(2, 'woundedAllies')),
     ]),
   },
-  // Arc: hundreds of residents sign a petition for lightning -> the
-  // signature drive works only with a crowd behind it -> the petition
-  // passes, and a lightning rod points at the rival boss.
+  // Arc: hundreds sign for lightning -> a crowd helps zap the defender ->
+  // the petition passes: keep the zap and charge the rival boss too.
   // Trajectory: SITUATIONAL (pays with 2+ allies on the field).
   // Counterplay: thin the crowd first; with fewer than two allies the
   // petition is just a zap.
@@ -173,7 +175,13 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Signature Drive', [
       on('enter', when('crowd', damage(2, 'target'))),
     ]),
-    3: stage('Lightning Rod Petition', [on('enter', when('crowd', boss(3)))]),
+    3: stage('Lightning Rod Petition', [
+      on(
+        'enter',
+        when('crowd', damage(2, 'target')),
+        when('crowd', boss(3)),
+      ),
+    ]),
   },
   // Arc: a painted arrow into a dead end -> big trucks get stuck worst ->
   // the whole road is closed for repairs.
@@ -284,14 +292,16 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Leg Day', [on('enter', life(2, 'target'))]),
     3: stage('Stairwell Sprint', [on('enter', grant('bulldoze', 'target'))]),
   },
-  // Arc: a confession under a streetlight -> the neighbors overhear and
-  // stand taller -> the truth hurts, and it hurts the foe across most.
+  // Arc: a confession under a streetlight -> the neighbors stand taller ->
+  // the truth keeps that rally and also wounds the foe across.
   // Trajectory: ROLE SHIFT (a lasting buff that grows outward, then bites).
   // Counterplay: an empty alley across wastes the sting; the neighbors'
   // boost lasts only the round.
   'merc-streetlight-confession': {
     2: stage('Overheard', [on('enter', power(1, 'adjacentAllies'))]),
-    3: stage('The Truth Hurts', [on('enter', damage(2, 'across', true))]),
+    3: stage('The Truth Hurts', [
+      on('enter', power(1, 'adjacentAllies'), damage(2, 'across', true)),
+    ]),
   },
   // Arc: one recipe, three warning labels -> side effects, sometimes a
   // jolt -> a batch that works, or a bad batch you throw instead.

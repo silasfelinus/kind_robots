@@ -113,7 +113,7 @@ jobs:
       - name: Audit Slime City Clash controls
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
-        run: npm run audit:slime-city-clash-layout -- --base "$BASE_URL" --shots audit-shots/slime-city-clash
+        run: npm run audit:slime-city-clash-layout -- --base "$BASE_URL" --shots audit-shots
 
       - name: Audit gallery chrome budget
         if: always()

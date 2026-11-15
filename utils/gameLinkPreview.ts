@@ -25,7 +25,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   'emperor-of-dust': {
     title: 'Emperor of Dust | Kind Robots',
     description:
-      'Lead a band of exiles across a ruined empire. A free story game in your browser.',
+      'Rule a salvage fortress for fifty days: hear petitions, send followers on quests and survive a betrayal. A free story game in your browser.',
     image: '/emperor-of-dust/link-preview.webp',
   },
   'game-of-captains': {
@@ -61,13 +61,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   'shifting-desks': {
     title: 'Shifting Desks | Kind Robots',
     description:
-      'A classroom puzzle where the furniture will not sit still. Free to play in your browser.',
+      'A darkly comic card adventure through a very strange workplace, where every choice costs something. Free to play in your browser.',
     image: '/shifting-desks/link-preview.webp',
   },
   'slime-city': {
     title: 'Slime City | Kind Robots',
     description:
-      'Brawl, scheme and campaign through a city of slimes. Quick CPU matches and story campaigns, free in your browser, no account needed.',
+      'Six rival crews fight for a grungy neon megacity in fast card battles. Story campaigns, CPU matches and private duels, free in your browser.',
     image: '/slime-city/link-preview.webp',
   },
   'zuzu-gamebook': {
@@ -175,7 +175,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   hybridizer: {
     title: 'Hybridizer | Kind Robots',
     description:
-      'Fuse any two creatures and discover their impossible cousin. A free fusion lab in your browser, no account needed to look around.',
+      'Fuse any two creatures and discover their impossible cousin. A free fusion lab in your browser.',
     image: '/hybridizer/link-preview.webp',
   },
   'comic-studio': {

@@ -1,4 +1,4 @@
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { getArtImageAccessContext } from '@/server/utils/artImageAccess'
 import { errorHandler } from '@/server/utils/error'
@@ -17,11 +17,17 @@ import {
 export default defineEventHandler(async (event) => {
   try {
     const viewer = await getArtImageAccessContext(event)
+    const deadAirOnly = getQuery(event).series === 'dead-air'
     const shared = { isPublic: true, finalArtImageId: { not: null } }
     const rows = await prisma.musicVideo.findMany({
-      where: viewer.userId
-        ? { OR: [{ userId: viewer.userId }, shared] }
-        : shared,
+      where: deadAirOnly
+        ? {
+            userId: viewer.userId ?? -1,
+            title: { startsWith: 'Dead Air:' },
+          }
+        : viewer.userId
+          ? { OR: [{ userId: viewer.userId }, shared] }
+          : shared,
       orderBy: { updatedAt: 'desc' },
       select: {
         id: true,
@@ -33,7 +39,7 @@ export default defineEventHandler(async (event) => {
         updatedAt: true,
         finalArtImageId: true,
       },
-      take: 200,
+      take: deadAirOnly ? 1000 : 200,
     })
     const finals = await loadMusicVideoFinals(
       rows.map((row) => row.finalArtImageId),

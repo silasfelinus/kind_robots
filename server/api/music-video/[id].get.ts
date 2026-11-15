@@ -1,5 +1,6 @@
 import { defineEventHandler } from 'h3'
 import { getArtImageAccessContext } from '@/server/utils/artImageAccess'
+import { isMusicVideoOwner } from '@/utils/musicVideoAccess'
 import { errorHandler } from '@/server/utils/error'
 import {
   loadViewableMusicVideo,
@@ -14,11 +15,14 @@ export default defineEventHandler(async (event) => {
       readMusicVideoId(event),
       viewer,
     )
+    const result = toMusicVideoDto(record)
+    // Private editorial notes must never leak through a public final's DTO.
+    if (!isMusicVideoOwner(record, viewer)) delete result.doc.review
     return {
       success: true,
       statusCode: 200,
       message: 'Music video loaded.',
-      data: toMusicVideoDto(record),
+      data: result,
     }
   } catch (error) {
     const handled = errorHandler(error)

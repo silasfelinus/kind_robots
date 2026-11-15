@@ -175,6 +175,15 @@ export type MusicVideoScene = {
   transitionSec: number
 }
 
+export const MUSIC_VIDEO_REVIEW_VERDICTS = ['keep', 'revise', 'reject'] as const
+export type MusicVideoReviewVerdict =
+  (typeof MUSIC_VIDEO_REVIEW_VERDICTS)[number]
+export type MusicVideoReview = {
+  verdict: MusicVideoReviewVerdict
+  notes: string
+  reviewedAt: string
+}
+
 export type MusicVideoDoc = {
   version: typeof MUSIC_VIDEO_DOC_VERSION
   pitch: string
@@ -186,6 +195,8 @@ export type MusicVideoDoc = {
     markers: MusicVideoMarker[]
   }
   scenes: MusicVideoScene[]
+  /** Private editorial decision; never toggles isPublic or approves release. */
+  review?: MusicVideoReview
 }
 
 export type MusicVideoDocResult = {
@@ -666,6 +677,29 @@ export function normalizeMusicVideoDoc(raw: unknown): MusicVideoDocResult {
   )
   const lengthSec = Math.max(settings.durationSec, song?.durationSec ?? 0)
   const scenes = normalizeScenes(input.scenes, sections, lengthSec, errors)
+  let review: MusicVideoReview | undefined
+  if (input.review !== undefined && input.review !== null) {
+    if (!isObj(input.review)) {
+      errors.push('Private film review must be an object.')
+    } else {
+      const verdict = oneOf(input.review.verdict, MUSIC_VIDEO_REVIEW_VERDICTS)
+      const reviewedAt = text(input.review.reviewedAt, 40)
+      if (!verdict) errors.push('Unknown private film review verdict.')
+      if (
+        !/^\d{4}-\d{2}-\d{2}T/.test(reviewedAt) ||
+        Number.isNaN(Date.parse(reviewedAt))
+      ) {
+        errors.push('Private film review needs a valid timestamp.')
+      }
+      if (verdict && reviewedAt && !Number.isNaN(Date.parse(reviewedAt))) {
+        review = {
+          verdict,
+          notes: text(input.review.notes, 2000),
+          reviewedAt,
+        }
+      }
+    }
+  }
 
   return {
     doc: {
@@ -676,6 +710,7 @@ export function normalizeMusicVideoDoc(raw: unknown): MusicVideoDocResult {
       song,
       timeline,
       scenes,
+      ...(review ? { review } : {}),
     },
     errors,
   }

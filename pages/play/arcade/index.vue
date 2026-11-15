@@ -245,6 +245,7 @@ const detailTab = ref<DetailTab>('instructions')
 const slug = computed(() =>
   typeof route.query.game === 'string' ? route.query.game : '',
 )
+const runScore = ref<number | null>(null)
 watch(slug, () => {
   runScore.value = null
   showDetails.value = false
@@ -262,7 +263,6 @@ const ranges = [
 ]
 
 const shareNote = ref('')
-const runScore = ref<number | null>(null)
 async function shareGame() {
   if (!meta.value) return
   const origin = window.location.origin

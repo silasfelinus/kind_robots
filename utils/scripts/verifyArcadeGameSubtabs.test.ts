@@ -166,7 +166,7 @@ assert.match(privateLairTab, /\nrequiredRole: ADMIN\n/)
 const page = readFileSync('pages/play/arcade/index.vue', 'utf8')
 assert.match(
   page,
-  /<ArcadeCabinet :key="meta\.slug"/,
+  /<ArcadeCabinet\s+:key="meta\.slug"/,
   'cabinet switching still remounts the game inside the arcade hall',
 )
 
@@ -176,7 +176,7 @@ assert.doesNotMatch(page, /\bkr-scroll\b/, 'no mixed single/multi scroll owner')
 assert.match(page, /class="kr-pane arcade-playfield min-w-0"/)
 assert.match(
   page,
-  /<ArcadeCabinet :key="meta\.slug" :slug="meta\.slug" contained \/>/,
+  /<ArcadeCabinet\s+:key="meta\.slug"\s+:slug="meta\.slug"\s+contained\b/,
 )
 assert.match(page, /id="arcade-cabinet-details"/)
 assert.match(page, /aria-controls="arcade-cabinet-details"/)

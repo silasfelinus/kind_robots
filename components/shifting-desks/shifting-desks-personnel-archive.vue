@@ -387,8 +387,8 @@
               </h3>
               <p class="text-xs opacity-80">
                 {{ unlockedArtCount }}/{{ artEntries.length }} employee,
-                society and mutation portraits filed. Complete assignments to
-                preserve their artwork across new hires and later runs.
+                society and mutation files discovered. Illustrations still
+                under review stay withheld until accepted.
               </p>
             </header>
             <div
@@ -405,7 +405,7 @@
                 "
               >
                 <shifting-desks-art
-                  v-if="item.unlocked"
+                  v-if="item.unlocked && item.reviewed"
                   frame="aspect-[2/3]"
                   :src="item.src"
                   :prompt="item.prompt"
@@ -413,6 +413,15 @@
                   :alt="item.title"
                   fallback-icon="kind-icon:folder"
                 />
+                <div
+                  v-else-if="item.unlocked"
+                  class="grid aspect-[2/3] place-items-center bg-base-300 p-3 text-center"
+                  role="status"
+                >
+                  <p class="font-mono text-xs font-bold uppercase">
+                    Illustration under review
+                  </p>
+                </div>
                 <div
                   v-else
                   class="grid aspect-[2/3] place-items-center bg-base-content/85"
@@ -427,9 +436,11 @@
                   </p>
                   <p class="text-[11px] opacity-70">
                     {{
-                      item.unlocked
-                        ? item.category
-                        : 'Complete another assignment to declassify.'
+                      !item.unlocked
+                        ? 'Complete another assignment to declassify.'
+                        : item.reviewed
+                          ? item.category
+                          : 'Discovered · artwork pending acceptance'
                     }}
                   </p>
                 </div>

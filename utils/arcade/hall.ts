@@ -44,6 +44,24 @@ export function arcadeCabinetShareLink(
   }
 }
 
+export function arcadeScoreShareLink(
+  origin: string,
+  game: Pick<ArcadeGameMeta, 'slug' | 'title'>,
+  score: number,
+) {
+  return {
+    ...arcadeCabinetShareLink(origin, game),
+    text: `I scored ${Math.floor(score).toLocaleString('en-US')} in ${game.title} at the Kind Robots Arcade. Can you beat it?`,
+  }
+}
+
+export function shareButtonLabel(note: string, score: number | null): string {
+  if (note) return note
+  return score && score > 0
+    ? `Share my ${Math.floor(score).toLocaleString('en-US')}`
+    : 'Share'
+}
+
 export function shareNoteFor(
   result: 'shared' | 'copied' | 'cancelled' | 'failed',
 ): string {

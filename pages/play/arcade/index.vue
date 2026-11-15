@@ -30,10 +30,14 @@
               type="button"
               class="arcade-share btn btn-ghost btn-sm shrink-0"
               data-testid="arcade-share"
-              :title="`Share ${meta.title} with a friend`"
+              :title="
+                runScore
+                  ? `Share your ${meta.title} score with a friend`
+                  : `Share ${meta.title} with a friend`
+              "
               @click="shareGame"
             >
-              {{ shareNote || 'Share' }}
+              {{ shareButtonLabel(shareNote, runScore) }}
             </button>
             <button
               type="button"
@@ -52,7 +56,12 @@
             class="kr-pane arcade-playfield min-w-0"
             :class="{ 'arcade-playfield--hidden': showDetails }"
           >
-            <ArcadeCabinet :key="meta.slug" :slug="meta.slug" contained />
+            <ArcadeCabinet
+              :key="meta.slug"
+              :slug="meta.slug"
+              contained
+              @scored="runScore = $event"
+            />
           </div>
 
           <aside
@@ -215,7 +224,12 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import { ARCADE_GAMES, findArcadeGame } from '~/utils/arcade/games'
-import { arcadeCabinetShareLink, shareNoteFor } from '~/utils/arcade/hall'
+import {
+  arcadeCabinetShareLink,
+  arcadeScoreShareLink,
+  shareButtonLabel,
+  shareNoteFor,
+} from '~/utils/arcade/hall'
 
 const route = useRoute()
 const store = useArcadeStore()
@@ -232,6 +246,7 @@ const slug = computed(() =>
   typeof route.query.game === 'string' ? route.query.game : '',
 )
 watch(slug, () => {
+  runScore.value = null
   showDetails.value = false
   detailTab.value = 'instructions'
 })
@@ -247,10 +262,14 @@ const ranges = [
 ]
 
 const shareNote = ref('')
+const runScore = ref<number | null>(null)
 async function shareGame() {
   if (!meta.value) return
+  const origin = window.location.origin
   const result = await store.shareLink(
-    arcadeCabinetShareLink(window.location.origin, meta.value),
+    runScore.value
+      ? arcadeScoreShareLink(origin, meta.value, runScore.value)
+      : arcadeCabinetShareLink(origin, meta.value),
   )
   shareNote.value = shareNoteFor(result)
   if (shareNote.value) setTimeout(() => (shareNote.value = ''), 2500)

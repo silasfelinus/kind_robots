@@ -64,6 +64,16 @@ assert.equal(
   DECKS.jobTitles.find((entry) => entry.id === job.id)?.art_prompt,
 )
 assert.ok(entries.some((entry) => !entry.unlocked))
+for (const id of [
+  'four-second-precognition',
+  'empathic-static',
+  'eyes-in-the-back-of-your-head',
+]) {
+  const pending = entries.find((entry) => entry.key === `mutations:${id}`)
+  assert.ok(pending, `missing artwork review entry for ${id}`)
+  assert.equal(pending.reviewed, false)
+}
+assert.equal(entries.find((entry) => entry.key === keys[0])?.reviewed, true)
 
 const legacy = { version: 1, milestones: {}, runs: [receipt] }
 const restored = restoreRewardArchive(legacy)

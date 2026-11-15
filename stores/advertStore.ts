@@ -172,6 +172,14 @@ export const useAdvertStore = defineStore('advertStore', () => {
     )
   }
 
+  async function loadPublicSelections(): Promise<void> {
+    try {
+      await loadSelections()
+    } catch (error) {
+      handleError(error, 'loading public advert art')
+    }
+  }
+
   async function loadSlots(): Promise<void> {
     const params = new URLSearchParams({
       prefix: ADVERT_SLOT_PREFIX,
@@ -455,6 +463,7 @@ export const useAdvertStore = defineStore('advertStore', () => {
     candidatesFor,
     queuedFor,
     refreshArt,
+    loadPublicSelections,
     syncRenders,
     open,
     chooseCandidate,

@@ -39,6 +39,7 @@ import {
   LAYOUTS,
   PATHS,
   ROOFTOP_FESTIVAL,
+  SLOT_OF,
   W,
   ZONES,
   mirrorPath,
@@ -48,6 +49,7 @@ import {
   type FormationStage,
   type Kind,
   type PathName,
+  type SlotKind,
 } from '../arcade/lanternSwarm/zones'
 import { emptyInput, type InputFrame } from '../arcade/types'
 
@@ -78,7 +80,7 @@ type Game = {
   x: number
   safe: number
   moths: Moth[]
-  beams: Array<{ x: number; y: number; vx: number }>
+  beams: Array<ReturnType<typeof beam>>
   dust: Array<{ x: number; y: number; ember: boolean }>
   drifters: unknown[]
   frenzy: boolean
@@ -101,6 +103,15 @@ type Game = {
   demoInput(): InputFrame
 }
 
+/** A lantern beam at (x, y), on its way up. */
+const beam = (x: number, y: number) => ({
+  x,
+  y,
+  vx: 0,
+  vy: -5.5,
+  owner: 'lantern' as const,
+  pierced: [] as Moth[],
+})
 const quiet = { play: () => {} }
 const fakeCtx = () =>
   new Proxy(
@@ -151,9 +162,9 @@ const formations = ROOFTOP_FESTIVAL.stages.filter(
     ['formation', 'formation', 'formation', 'glow', 'formation', 'guardian'],
     'three formations, a Glow Stage, a remix and a Guardian',
   )
-  const kinds: Kind[] = ['queen', 'escort', 'luna', 'moth']
+  const kinds: SlotKind[] = ['queen', 'escort', 'luna', 'moth']
   for (const stage of formations) {
-    const count: Record<Kind, number> = {
+    const count: Record<SlotKind, number> = {
       queen: 0,
       escort: 0,
       luna: 0,
@@ -161,7 +172,7 @@ const formations = ROOFTOP_FESTIVAL.stages.filter(
     }
     for (const g of stage.entrance) {
       assert.ok(g.path in PATHS, `${stage.name}: path ${g.path}`)
-      for (const k of g.kinds) count[k]++
+      for (const k of g.kinds) count[SLOT_OF[k]!]++
     }
     for (const k of kinds)
       assert.equal(
@@ -245,8 +256,10 @@ const formations = ROOFTOP_FESTIVAL.stages.filter(
   assert.equal(late.dust, LAP_RAMP.dust.limit)
   assert.deepEqual(tuneFor(base, 1), base)
   const place = stageAt(6)
-  assert.equal(place.lap, 2, 'after the Guardian the night goes round again')
+  assert.equal(place.lap, 1)
+  assert.equal(place.watch, 1, 'after the Guardian the next Watch begins')
   assert.equal(place.stageIndex, 0)
+  assert.equal(stageAt(12).lap, 2, 'after the last Watch, round again')
   assert.equal(stageAt(5).stage.kind, 'guardian')
   assert.equal(stageAt(3).stage.kind, 'glow')
 }
@@ -417,7 +430,7 @@ const formations = ROOFTOP_FESTIVAL.stages.filter(
   // Beam the captive itself: lost for good, no rescue.
   const c = game.captivePos(q)
   assert.ok(Math.hypot(c.x - q.x, c.y - q.y) > 8, 'it trails off her shoulder')
-  game.beams = [{ x: c.x, y: c.y + 2, vx: 0 }]
+  game.beams = [beam(c.x, c.y + 2)]
   const lives = game.lives
   game.updateShots()
   assert.equal(q.holding, false)
@@ -476,6 +489,7 @@ const formations = ROOFTOP_FESTIVAL.stages.filter(
     },
     crash: () => {},
     sound: () => {},
+    spawn: () => {},
   })
   for (let t = 0; t < GUARDIAN.enterTicks + 2; t++)
     updateGuardian(gd, world(20))
@@ -541,7 +555,7 @@ const formations = ROOFTOP_FESTIVAL.stages.filter(
   game.guardian!.phase = 3
   game.guardian!.hp = 1
   game.guardian!.act = 'hover'
-  game.beams = [{ x: game.guardian!.x, y: game.guardian!.y + 8, vx: 0 }]
+  game.beams = [beam(game.guardian!.x, game.guardian!.y + 8)]
   game.update(emptyInput())
   assert.equal(game.guardian!.phase, 4)
   assert.equal(game.tally.guardians, 1)
@@ -576,11 +590,14 @@ const formations = ROOFTOP_FESTIVAL.stages.filter(
   for (let t = 0; t < 100 && game.results; t++)
     game.update(t % 2 ? emptyInput() : press('a'))
   assert.equal(game.results, null, 'A flies on')
+  // The Evening forks: the Sky Chart (verifyCabinetLanternSwarmEvening.test.ts) picks the way.
+  for (let t = 0; t < 100 && game.stageIndex === 5; t++)
+    game.update(t % 2 ? emptyInput() : press('a'))
   assert.equal(game.stageIndex, 6)
   assert.equal(game.level, 7)
-  assert.equal(game.banner?.text, 'DUSK WATCH', 'the next lap of the night')
+  assert.equal(game.banner?.text, 'EVENING WATCH', 'on into the next Watch')
   assert.equal(game.tally.shots, 0, 'a fresh tally for the Watch')
-  assert.ok(game.night.shots >= 10 - 10, 'the night keeps its own tally')
+  assert.ok(game.night.shots > 0, 'the night keeps its own tally')
 
   // Game over shows the whole night's hit ratio.
   const over = play(16)

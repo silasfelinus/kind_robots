@@ -13,6 +13,9 @@ export type Tally = {
   escortBonuses: number
   /** The Guardians calmed. */
   guardians: number
+  /** Moths befriended, and the Flock flying with the lantern when the Watch ended. */
+  friends: number
+  flock: number
 }
 
 export const newTally = (): Tally => ({
@@ -22,6 +25,8 @@ export const newTally = (): Tally => ({
   perfectGlows: 0,
   escortBonuses: 0,
   guardians: 0,
+  friends: 0,
+  flock: 0,
 })
 
 /** Hits per shot as a percentage to one decimal (0 before the first shot). */
@@ -41,6 +46,8 @@ export function resultRows(t: Tally): Array<[string, string]> {
     ['HIT RATIO', ratioText(t)],
     ['PERFECT GLOWS', `${t.perfectGlows} / ${t.glows}`],
     ['ESCORT BONUSES', String(t.escortBonuses)],
+    ['FRIENDS MADE', String(t.friends)],
+    ['FLOCK SIZE', `${t.flock} / 4`],
     ['GUARDIANS CALMED', String(t.guardians)],
   ]
 }

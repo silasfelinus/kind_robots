@@ -51,9 +51,12 @@ type Robot = {
   phase: number
   color: string
   thirsty: boolean
-  patron: 'thirsty'
+  patron: string
   order: Topping
   stealsTips: boolean
+  refills: number
+  surfTo: number | null
+  boss: unknown
 }
 type Mug = {
   row: number
@@ -153,6 +156,9 @@ function robot(row: number, x: number, order: Topping): Robot {
     patron: 'thirsty',
     order,
     stealsTips: false,
+    refills: 0,
+    surfTo: null,
+    boss: null,
   }
 }
 
@@ -263,7 +269,7 @@ function pour(game: Game, topping: Topping) {
   for (let i = 0; i < 200; i++)
     assert.equal(pickOrder(rng, shiftRules(1)), 'plain')
   const seen = new Set<Topping>()
-  for (let i = 0; i < 300; i++) seen.add(pickOrder(rng, shiftRules(6)))
+  for (let i = 0; i < 300; i++) seen.add(pickOrder(rng, shiftRules(10)))
   assert.deepEqual([...seen].sort(), ['marshmallow', 'plain', 'swirl'])
 
   // The old curves stopped at round 12; the shift keeps climbing past it.

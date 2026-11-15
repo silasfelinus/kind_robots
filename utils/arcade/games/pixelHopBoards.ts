@@ -13,9 +13,130 @@ export type HopBoard = {
   special: Record<string, SpecialTile>
   /** Escape-disc slots: the row they hang beside and the side they sit on. */
   discSlots: Array<{ row: number; side: -1 | 1 }>
+  /**
+   * An authored board's escape discs, as the off-board cells they hover in: a
+   * hop into one rides it home. Pyramids leave this out and pick from `discSlots`.
+   */
+  discCells?: HopCell[]
+  /** Picture boards: each cube's target colour (a 1-based palette index), by "r,c". */
+  target?: Record<string, number>
+  /** Picture boards: paint pots that dip Pip's brush in their colour, by "r,c". */
+  pots?: Record<string, number>
 }
 
 export const cellKey = (r: number, c: number) => `${r},${c}`
+
+/**
+ * A board drawn as staggered text, the way it looks on screen: row i holds a
+ * cube at every other column (column k with k + i even), so each row sits half
+ * a cube along from the one above and the four diagonal hops are the four
+ * diagonal neighbours. '#' is a cube, 'S' a spring, '1'-'4' a picture cube and
+ * its target colour, 'A'-'D' a paint pot of colour 1-4, 'o' an escape disc
+ * hovering off the board; '.' and spaces are open sky.
+ */
+export function boardFromArt(id: string, rows: readonly string[]): HopBoard {
+  const cells: HopCell[] = []
+  const special: Record<string, SpecialTile> = {}
+  const target: Record<string, number> = {}
+  const pots: Record<string, number> = {}
+  const discCells: HopCell[] = []
+  rows.forEach((line, r) => {
+    for (let k = 0; k < line.length; k++) {
+      const ch = line[k]!
+      if (ch === '.' || ch === ' ') continue
+      if ((k + r) % 2) {
+        throw new Error(
+          `board ${id}: '${ch}' at row ${r} column ${k} is off the grid`,
+        )
+      }
+      const cell = { r, c: (k + r) / 2 }
+      const key = cellKey(cell.r, cell.c)
+      if (ch === 'o') {
+        discCells.push(cell)
+        continue
+      }
+      cells.push(cell)
+      if (ch === 'S') special[key] = 'spring'
+      else if (ch >= '1' && ch <= '4') target[key] = Number(ch)
+      else if (ch >= 'A' && ch <= 'D') pots[key] = ch.charCodeAt(0) - 64
+      else if (ch !== '#') throw new Error(`board ${id}: unknown tile '${ch}'`)
+    }
+  })
+  const board: HopBoard = { id, cells, special, discSlots: [], discCells }
+  if (Object.keys(target).length) {
+    board.target = target
+    board.pots = pots
+  }
+  return board
+}
+
+/**
+ * A square ring of cubes, `size` a side and `thick` cubes deep, standing on
+ * its corner like a diamond: an outside edge and an inside edge to fall off.
+ * Lattice (u, v) is (down-right hops, down-left hops) from the top corner.
+ */
+export function ringBoard(size: number, thick: number): HopBoard {
+  const n = Math.max(3, Math.min(6, Math.trunc(size)))
+  const t = Math.max(1, Math.min(Math.floor(n / 2), Math.trunc(thick)))
+  const cells: HopCell[] = []
+  for (let r = 0; r <= (n - 1) * 2; r++)
+    for (let u = 0; u < n; u++) {
+      const v = r - u
+      if (v < 0 || v >= n) continue
+      if (u < t || v < t || u >= n - t || v >= n - t) cells.push({ r, c: u })
+    }
+  return { id: `ring-${n}-${t}`, cells, special: {}, discSlots: [] }
+}
+
+/**
+ * The ring's outside edge as a loop, clockwise on screen from the top corner:
+ * the circuit Ringmaster Rattle spins round.
+ */
+export function ringLoop(size: number): HopCell[] {
+  const n = Math.max(3, Math.min(6, Math.trunc(size)))
+  const uv: Array<[number, number]> = []
+  for (let u = 0; u < n - 1; u++) uv.push([u, 0])
+  for (let v = 0; v < n - 1; v++) uv.push([n - 1, v])
+  for (let u = n - 1; u > 0; u--) uv.push([u, n - 1])
+  for (let v = n - 1; v > 0; v--) uv.push([0, v])
+  return uv.map(([u, v]) => ({ r: u + v, c: u }))
+}
+
+/** The board with escape discs fixed at these off-board cells, each beside a cube. */
+export function withDiscs(
+  board: HopBoard,
+  discs: readonly HopCell[],
+): HopBoard {
+  const known = new Set(board.cells.map((x) => cellKey(x.r, x.c)))
+  for (const d of discs) {
+    if (known.has(cellKey(d.r, d.c))) {
+      throw new Error(`disc at ${d.r},${d.c} sits on a cube`)
+    }
+    const beside = HOP_DIRS.some(([dr, dc]) =>
+      known.has(cellKey(d.r - dr, d.c - dc)),
+    )
+    if (!beside) throw new Error(`disc at ${d.r},${d.c} is out of reach`)
+  }
+  return { ...board, discCells: [...(board.discCells ?? []), ...discs] }
+}
+
+/** Every cube reachable by hops from the first one (springs aside): a board must be one piece. */
+export function boardConnected(board: HopBoard): boolean {
+  if (!board.cells.length) return false
+  const known = new Set(board.cells.map((x) => cellKey(x.r, x.c)))
+  const seen = new Set<string>([cellKey(board.cells[0]!.r, board.cells[0]!.c)])
+  const queue = [board.cells[0]!]
+  while (queue.length) {
+    const at = queue.shift()!
+    for (const [dr, dc] of HOP_DIRS) {
+      const key = cellKey(at.r + dr, at.c + dc)
+      if (!known.has(key) || seen.has(key)) continue
+      seen.add(key)
+      queue.push({ r: at.r + dr, c: at.c + dc })
+    }
+  }
+  return seen.size === known.size
+}
 
 export function pyramidBoard(rows: number): HopBoard {
   const n = Math.max(2, Math.min(10, Math.trunc(rows)))

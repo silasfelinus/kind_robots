@@ -1,24 +1,39 @@
 // /utils/arcade/cocoaCounter/rules.ts
 //
-// Cocoa Counter depth pass, slice 1 (conductor kr-arcade/t-122): the rules that are plain data
-// and arithmetic, kept out of the render loop so a test can drive them directly. What a round
-// asks for (the old curves, the Endless Shift ladder and the rush steps past the plateau), how a
-// held A turns into a topping, the Rush combo, juggles and extra mug-bots.
+// Cocoa Counter depth pass (conductor kr-arcade/t-122, t-123): the rules that are plain data and
+// arithmetic, kept out of the render loop so a test can drive them directly. What a round asks for
+// (the old curves, the Endless Shift ladder, the rush steps past the plateau, and each tour shift),
+// how a held A turns into a topping, the Rush combo, juggles and extra mug-bots, boardwalk friction
+// and gaps, the Marshmallow Mix-up shuffle, the Cafe Fund and the save.
 
 import { levelCurve } from '../curve'
 import type { CurveSpec } from '../curve'
 import {
+  COUNTER_FEATURES,
   ENDLESS_LADDER,
   EXTRA_MUG_BOTS,
+  GAP_SPEED,
   JUGGLE_WINDOW,
+  MIN_MUG_SPEED,
   OLD_PLATEAU,
+  PATRONS,
   ROUNDS_PER_VENUE,
   RUSH,
   RUSH_COMBO,
   RUSH_STEPS,
+  UPGRADES,
   VENUES,
 } from './tables'
-import type { PatronId, RushStepId, Topping, Unlock, VenueDef } from './tables'
+import type {
+  CounterDef,
+  PatronId,
+  RushStepId,
+  Topping,
+  Unlock,
+  UpgradeId,
+  VenueDef,
+  VenueId,
+} from './tables'
 
 export const COCOA_CURVES = {
   /** Robots to serve in the round. */
@@ -110,29 +125,41 @@ export function unlockedBy(round: number): Unlock[] {
   return ENDLESS_LADDER.slice(0, Math.max(1, Math.floor(round)))
 }
 
+/** The pours a venue's menu has a drink for. */
+export function menuToppings(venue: VenueDef): Topping[] {
+  return (['plain', 'marshmallow', 'swirl'] as const).filter(
+    (t) => venue.menu[t],
+  )
+}
+
+function toppedShare(round: number, firstTopped: number, orders: number) {
+  return firstTopped
+    ? Math.min(0.55, 0.3 + 0.04 * (round - firstTopped)) +
+        rushAmount('orders', orders)
+    : 0
+}
+
+/** Endless Shift: the curves, the ladder (something new every round) and the rush past it. */
 export function shiftRules(level: number): ShiftRules {
   const round = Math.max(1, Math.floor(level))
   const late = Math.max(0, round - RUSH_AFTER)
   const { counts: rush, last } = rushCounts(late)
-  const unlocked = unlockedBy(round)
+  const venue = venueForRound(round)
+  const menu = menuToppings(venue)
   const toppings: Topping[] = ['plain']
   const patrons: PatronId[] = []
   let firstTopped = 0
-  unlocked.forEach((u, i) => {
-    if (u.kind === 'topping' && !toppings.includes(u.topping)) {
-      toppings.push(u.topping)
+  unlockedBy(round).forEach((u, i) => {
+    if (u.kind === 'topping') {
       if (!firstTopped) firstTopped = i + 1
-    } else if (u.kind === 'patron' && !patrons.includes(u.patron))
-      patrons.push(u.patron)
+      if (menu.includes(u.topping) && !toppings.includes(u.topping))
+        toppings.push(u.topping)
+    } else if (!patrons.includes(u.patron)) patrons.push(u.patron)
   })
-  const topped = firstTopped
-    ? Math.min(0.55, 0.3 + 0.04 * (round - firstTopped)) +
-      rushAmount('orders', rush.orders)
-    : 0
   const rung = ENDLESS_LADDER[round - 1]
   return {
     round,
-    venue: venueForRound(round),
+    venue,
     robots:
       Math.round(levelCurve(round, COCOA_CURVES.robots)) +
       rushAmount('crowd', rush.crowd),
@@ -148,7 +175,7 @@ export function shiftRules(level: number): ShiftRules {
       rushAmount('empties', rush.empties),
     thirst: levelCurve(round, COCOA_CURVES.thirst),
     toppings,
-    topped,
+    topped: toppedShare(round, firstTopped, rush.orders),
     patrons: patrons.length ? patrons : ['thirsty'],
     rush,
     news: rung
@@ -159,16 +186,63 @@ export function shiftRules(level: number): ShiftRules {
   }
 }
 
-/** A patron's order: plain cocoa, or one of the round's toppings. */
-export function pickOrder(rng: () => number, rules: ShiftRules): Topping {
+/** Shifts per venue on the Cozy Cafe Tour, then the Rush Hour regular. */
+export const TOUR_SHIFTS = 4
+export const RUSH_HOUR = TOUR_SHIFTS + 1
+
+/**
+ * A shift of the Cozy Cafe Tour: venue `venueIndex`, shift 1-4 (or RUSH_HOUR). Shifts 1-2 bring in
+ * the venue's patrons and counters; 3-4 remix them with everything earlier. The curves run on as
+ * if each venue were four more rounds.
+ */
+export function tourRules(venueIndex: number, shift: number): ShiftRules {
+  const venue = VENUES[Math.max(0, Math.min(VENUES.length - 1, venueIndex))]!
+  const s = Math.max(1, Math.min(RUSH_HOUR, Math.floor(shift)))
+  const def = venue.shifts[Math.min(TOUR_SHIFTS, s) - 1]!
+  const round = venueIndex * TOUR_SHIFTS + Math.min(TOUR_SHIFTS, s)
+  const toppings = def.orders.filter((t) => venue.menu[t])
+  const rush = rushCounts(0).counts
+  const boss = s === RUSH_HOUR
+  return {
+    round,
+    venue,
+    robots: boss ? 0 : Math.round(levelCurve(round, COCOA_CURVES.robots)) + 2,
+    walk: levelCurve(round, COCOA_CURVES.walk),
+    gap: levelCurve(round, COCOA_CURVES.gap) + (boss ? 60 : 0),
+    push: levelCurve(round, COCOA_CURVES.push),
+    empty: levelCurve(round, COCOA_CURVES.empty),
+    thirst: levelCurve(round, COCOA_CURVES.thirst),
+    toppings: toppings.length ? toppings : ['plain'],
+    topped: toppings.length > 1 ? Math.min(0.55, 0.3 + 0.05 * (s - 1)) : 0,
+    patrons: def.patrons.filter((p) => !PATRONS[p].boss),
+    rush,
+    news: boss ? null : def.news,
+  }
+}
+
+/** A patron's order: plain, or one of the round's toppings. A VIP always wants a topped drink. */
+export function pickOrder(
+  rng: () => number,
+  rules: ShiftRules,
+  vip = false,
+): Topping {
   const fancy = rules.toppings.filter((t) => t !== 'plain')
-  if (!fancy.length || rng() >= rules.topped) return 'plain'
+  if (!fancy.length) return 'plain'
+  if (!vip && rng() >= rules.topped) return 'plain'
   return fancy[Math.floor(rng() * fancy.length)]!
 }
 
+/** A patron from the shift's pool, by weight. */
 export function pickPatron(rng: () => number, rules: ShiftRules): PatronId {
   const pool = rules.patrons
-  return pool.length === 1 ? pool[0]! : pool[Math.floor(rng() * pool.length)]!
+  if (pool.length === 1) return pool[0]!
+  const total = pool.reduce((sum, p) => sum + PATRONS[p].weight, 0)
+  let roll = rng() * total
+  for (const p of pool) {
+    roll -= PATRONS[p].weight
+    if (roll < 0) return p
+  }
+  return pool[pool.length - 1]!
 }
 
 /** A pour in progress at the urn. */
@@ -221,4 +295,124 @@ export function extraMugBotsBetween(before: number, after: number): number {
 /** A catch and a finished pour this close together make a juggle. */
 export function isJuggle(pourTick: number, catchTick: number): boolean {
   return Math.abs(pourTick - catchTick) <= JUGGLE_WINDOW
+}
+
+// --- boardwalk counters ---------------------------------------------------------------------
+
+/** A full mug's speed, as a share of its counter's start speed, after sliding `travelled` px. */
+export function mugPace(counter: CounterDef, travelled: number): number {
+  const friction = COUNTER_FEATURES[counter.feature].friction
+  return Math.max(MIN_MUG_SPEED, 1 - friction * Math.max(0, travelled))
+}
+
+/** Whether a full mug at `x` going at `pace` sinks into the sand through the counter's gap. */
+export function sinksAt(counter: CounterDef, x: number, pace: number): boolean {
+  const gap = counter.gap
+  return !!gap && x >= gap.x && x < gap.x + gap.w && pace < GAP_SPEED
+}
+
+/**
+ * Whether a mug poured at `startX` sinks before it reaches `targetX` (so the robot there can't be
+ * served yet: wait for it to cross the gap).
+ */
+export function sinksBefore(
+  counter: CounterDef,
+  startX: number,
+  targetX: number,
+): boolean {
+  const gap = counter.gap
+  if (!gap || targetX >= gap.x + gap.w) return false
+  return mugPace(counter, startX - gap.x) < GAP_SPEED
+}
+
+// --- Marshmallow Mix-up ---------------------------------------------------------------------
+
+/** The swaps of a Mix-up shuffle: pairs of cup slots, never a cup with itself. */
+export function shuffleSwaps(
+  rng: () => number,
+  cups: number,
+  count: number,
+): [number, number][] {
+  const swaps: [number, number][] = []
+  for (let i = 0; i < count; i++) {
+    const a = Math.floor(rng() * cups)
+    const b = (a + 1 + Math.floor(rng() * (cups - 1))) % cups
+    swaps.push([a, b])
+  }
+  return swaps
+}
+
+/** Where the marshmallow's cup ends up after the swaps. */
+export function followCup(start: number, swaps: [number, number][]): number {
+  let at = start
+  for (const [a, b] of swaps) at = at === a ? b : at === b ? a : at
+  return at
+}
+
+// --- the Cafe Fund and the save -------------------------------------------------------------
+
+export function upgradePrice(id: UpgradeId): number {
+  return UPGRADES.find((u) => u.id === id)!.price
+}
+
+export type TourSave = {
+  /** The venue to start at. */
+  venue: number
+  score: number
+  lives: number
+  fund: number
+  upgrades: UpgradeId[]
+}
+
+/** What Cocoa Counter keeps on this device: golden mugs for good, and a tour to continue. */
+export type CocoaSave = {
+  v: 1
+  golden: VenueId[]
+  tour: TourSave | null
+}
+
+const VENUE_IDS = new Set<string>(VENUES.map((v) => v.id))
+const UPGRADE_IDS = new Set<string>(UPGRADES.map((u) => u.id))
+
+const count = (n: unknown, max: number): n is number =>
+  typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= max
+
+/** A stored save, validated (it is untrusted), or null. */
+export function readCocoaSave(raw: unknown): CocoaSave | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  if (r.v !== 1 || !Array.isArray(r.golden)) return null
+  const golden = [
+    ...new Set(
+      r.golden.filter(
+        (g): g is VenueId => typeof g === 'string' && VENUE_IDS.has(g),
+      ),
+    ),
+  ]
+  let tour: TourSave | null = null
+  const t = r.tour as Record<string, unknown> | null | undefined
+  if (
+    t &&
+    typeof t === 'object' &&
+    count(t.venue, VENUES.length - 1) &&
+    count(t.score, 2_000_000) &&
+    count(t.lives, 9) &&
+    t.lives >= 1 &&
+    count(t.fund, 9999) &&
+    Array.isArray(t.upgrades)
+  )
+    tour = {
+      venue: t.venue,
+      score: t.score,
+      lives: t.lives,
+      fund: t.fund,
+      upgrades: [
+        ...new Set(
+          t.upgrades.filter(
+            (u): u is UpgradeId => typeof u === 'string' && UPGRADE_IDS.has(u),
+          ),
+        ),
+      ],
+    }
+  return { v: 1, golden, tour }
 }

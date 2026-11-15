@@ -10,11 +10,16 @@ import type { PickupKind } from './pickups'
 import type { RivalKind } from './rivals'
 import { GRID, T, idx, type Dir } from './grid'
 
-export type FloorId = 'dusk' | 'teal' | 'violet' | 'pier' | 'gold'
+export type FloorId =
+  'dusk' | 'teal' | 'violet' | 'pier' | 'gold' | 'boardwalk' | 'frost' | 'rink'
 
 export type Feature =
   /** Solid for good: a lamp post, a booth, a row of crates. */
   | { kind: 'pillar'; x: number; y: number; w?: number; h?: number }
+  /** Ice: a turn queued on it takes one extra cell. */
+  | { kind: 'ice'; x: number; y: number; w?: number; h?: number }
+  /** A snowbank: solid until a ribbon brushes it, then the whole bank melts. */
+  | { kind: 'snow'; x: number; y: number; w?: number; h?: number }
   /**
    * A gate on the beat: a cycle of `every` beats, open for the first `open` of them (shifted by
    * `offset`), flashing for the beat before it shuts.
@@ -51,6 +56,17 @@ export type ArenaSpec = {
   pickups?: { first: number; every: number; kinds?: readonly PickupKind[] }
   /** Where rivals line up, in crew order (the default lines otherwise). */
   rivalSpawns?: readonly Spawn[]
+  /** A carousel: a ring of solid horses turning round a centre cell. */
+  carousel?: Carousel
+}
+
+/** Horses evenly spaced round the square ring `r` cells out from (cx, cy), a step every `every` ticks. */
+export type Carousel = {
+  cx: number
+  cy: number
+  r: number
+  horses: number
+  every: number
 }
 
 export type Gate = {
@@ -60,13 +76,47 @@ export type Gate = {
   offset: number
 }
 
+/** A snowbank: its cells, and ticks left of its melt (-1 while it stands). */
+export type Bank = { cells: number[]; melt: number }
+
 export type BuiltArena = {
   spec: ArenaSpec
-  /** T.* per cell (pads carry their heading: T.PAD + dir). */
+  /** T.* per cell (pads carry their heading: T.PAD + dir). Snow melts to floor mid-round. */
   terrain: Uint8Array
   gates: Gate[]
   /** The gate (index into gates) on each gate cell, -1 elsewhere. */
   gateAt: Int16Array
+  banks: Bank[]
+  /** The bank (index into banks) on each snow cell, -1 elsewhere. */
+  bankAt: Int16Array
+}
+
+/** Ticks a brushed snowbank drips before it melts away. */
+export const MELT_TICKS = 40
+
+/** The square ring `r` cells out from (cx, cy), clockwise from its top-left corner. */
+export function ringCells(cx: number, cy: number, r: number): number[] {
+  if (r <= 0) return [idx(cx, cy)]
+  const out: number[] = []
+  const push = (x: number, y: number) => {
+    if (x >= 0 && y >= 0 && x < GRID && y < GRID) out.push(idx(x, y))
+  }
+  for (let x = cx - r; x < cx + r; x++) push(x, cy - r)
+  for (let y = cy - r; y < cy + r; y++) push(cx + r, y)
+  for (let x = cx + r; x > cx - r; x--) push(x, cy + r)
+  for (let y = cy + r; y > cy - r; y--) push(cx - r, y)
+  return out
+}
+
+/** The carousel's horse cells at turn `step`. */
+export function horseCells(c: Carousel, step: number): number[] {
+  const ring = ringCells(c.cx, c.cy, c.r)
+  const out: number[] = []
+  for (let k = 0; k < c.horses; k++) {
+    const at = Math.floor((k * ring.length) / c.horses) + step
+    out.push(ring[at % ring.length]!)
+  }
+  return out
 }
 
 /** Riders line up along the bottom, nose up. */
@@ -133,6 +183,8 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
   const terrain = new Uint8Array(GRID * GRID)
   const gateAt = new Int16Array(GRID * GRID).fill(-1)
   const gates: Gate[] = []
+  const bankAt = new Int16Array(GRID * GRID).fill(-1)
+  const banks: Bank[] = []
   const mirror = spec.mirror ?? 'none'
   for (const f of spec.features) {
     const base: Rect = {
@@ -151,13 +203,20 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
         f.kind === 'gate'
           ? { cells: [], every: f.every, open: f.open, offset: f.offset ?? 0 }
           : null
+      const bank: Bank | null =
+        f.kind === 'snow' ? { cells: [], melt: -1 } : null
       for (let y = r.y; y < r.y + r.h; y++) {
         for (let x = r.x; x < r.x + r.w; x++) {
           if (x < 0 || y < 0 || x >= GRID || y >= GRID) continue
           const i = idx(x, y)
           if (f.kind === 'pillar') terrain[i] = T.PILLAR
           else if (f.kind === 'pad') terrain[i] = T.PAD + r.dir!
-          else if (gate) {
+          else if (f.kind === 'ice') terrain[i] = T.ICE
+          else if (bank) {
+            terrain[i] = T.SNOW
+            bankAt[i] = banks.length
+            bank.cells.push(i)
+          } else if (gate) {
             terrain[i] = T.GATE
             gateAt[i] = gates.length
             gate.cells.push(i)
@@ -165,9 +224,10 @@ export function buildArena(spec: ArenaSpec): BuiltArena {
         }
       }
       if (gate?.cells.length) gates.push(gate)
+      if (bank?.cells.length) banks.push(bank)
     }
   }
-  return { spec, terrain, gates, gateAt }
+  return { spec, terrain, gates, gateAt, banks, bankAt }
 }
 
 /** Is a gate open on this beat? */

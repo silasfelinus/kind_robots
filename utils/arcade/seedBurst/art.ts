@@ -357,6 +357,134 @@ export const HEAP_SPRITE = pixelSprite(
   },
 )
 
+/** A watering can standing in the allotment (Spring): bloom it to soak its row. */
+export const CAN_SPRITE = pixelSprite(
+  [
+    '...hhhh.....',
+    '..h....h....',
+    '.SSSSSSSs..p',
+    '.SHHSSSSs.pp',
+    '.SHSSSSSspp.',
+    '.SSSSSSSsp..',
+    '.sSSSSSSs...',
+    '..ssssss....',
+  ],
+  {
+    S: RAMPS.sky[2],
+    H: RAMPS.sky[4],
+    s: RAMPS.sky[1],
+    h: RAMPS.steel[3],
+    p: RAMPS.sky[1],
+  },
+)
+
+/** A springy mushroom (Summer): step on it and it bounces you two tiles on. */
+export const MUSHROOM_SPRITES = [
+  pixelSprite(
+    [
+      '...tTTt...',
+      '.tTWTTWTt.',
+      'tTTTTTTTTt',
+      'tWTTWTTTWt',
+      '.ssssssss.',
+      '...cCc....',
+      '...cCc....',
+      '..cCCCc...',
+    ],
+    {
+      t: RAMPS.teal[1],
+      T: RAMPS.teal[2],
+      W: '#ffffff',
+      s: RAMPS.cream[1],
+      c: RAMPS.cream[3],
+      C: RAMPS.cream[4],
+    },
+  ),
+  pixelSprite(
+    [
+      '..........',
+      '...tTTt...',
+      '.tTWTTWTt.',
+      'tTTTTTTTTt',
+      'tWTTWTTTWt',
+      '.ssssssss.',
+      '..cCCCc...',
+    ],
+    {
+      t: RAMPS.teal[1],
+      T: RAMPS.teal[2],
+      W: '#ffffff',
+      s: RAMPS.cream[1],
+      c: RAMPS.cream[3],
+      C: RAMPS.cream[4],
+    },
+  ),
+] as const
+
+/** A cut hedge's stump (Spring): it sprouts back unless a second bloom digs it out. */
+export const STUMP_SPRITE = pixelSprite(
+  ['..eEEEe...', '.eEhhhEe..', '.EehEheE..', 'qEEEEEEEq.', 'qq.qq.qqq.'],
+  {
+    e: RAMPS.earth[2],
+    E: RAMPS.earth[3],
+    h: RAMPS.earth[4],
+    q: RAMPS.earth[1],
+  },
+)
+
+/** Butterfly Release's caterpillars, two crawl frames (facing right). */
+export const CATERPILLAR_SPRITES = [
+  pixelSprite(
+    ['.gG.gG.gG.yY.', 'gGGgGGgGGyYkY', 'gGGgGGgGGyYYY', '.k..k..k..yy.'],
+    {
+      g: RAMPS.leaf[2],
+      G: RAMPS.leaf[3],
+      y: RAMPS.gold[3],
+      Y: RAMPS.gold[4],
+      k: INK,
+    },
+  ),
+  pixelSprite(
+    ['..gG.gG.gGyY.', '.gGGgGGgGGYkY', 'gGGgGGgGGyYYY', 'k..k..k...yy.'],
+    {
+      g: RAMPS.leaf[2],
+      G: RAMPS.leaf[3],
+      y: RAMPS.gold[3],
+      Y: RAMPS.gold[4],
+      k: INK,
+    },
+  ),
+] as const
+
+/** Sprinkler Dash's seeds, riding the conveyors (and the rare golden one). */
+export const DASH_SEED_SPRITES = [
+  pixelSprite(['..gg..', '.g..g.', '.oOOo.', 'oOHOOo', 'oOOOOo', '.oooo.'], {
+    g: RAMPS.leaf[2],
+    o: RAMPS.earth[2],
+    O: RAMPS.earth[3],
+    H: RAMPS.cream[4],
+  }),
+  pixelSprite(['..gg..', '.g..g.', '.oOOo.', 'oOHOOo', 'oOOOOo', '.oooo.'], {
+    g: RAMPS.leaf[3],
+    o: RAMPS.gold[2],
+    O: RAMPS.gold[3],
+    H: RAMPS.gold[4],
+  }),
+] as const
+
+/** A valve on Hothouse Hector's pipes. */
+export const VALVE_SPRITE = pixelSprite(
+  ['..rRRr..', '...ss...', 'pPPssPPp', 'pPHPPPPp', 'pppppppp'],
+  {
+    r: RAMPS.ember[1],
+    R: RAMPS.ember[2],
+    s: RAMPS.steel[2],
+    p: RAMPS.steel[1],
+    P: RAMPS.steel[2],
+    H: RAMPS.steel[4],
+  },
+)
+
 /** The Grumble Cloud's colours: a sulky rain cloud nobody can bloom. */
 export const GRUMBLE_RAMP: Ramp = [
   '#141024',

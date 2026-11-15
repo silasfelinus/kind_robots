@@ -1,0 +1,414 @@
+// /utils/arcade/ribbonRiders/fairgrounds.ts
+//
+// The Lantern Festival Circuit's fairgrounds (conductor kr-arcade/t-075): Boardwalk at Dusk and
+// Frostlight Rink. Each is five authored arenas and a Grand Marshal, laid out on the Festival
+// Board as a little route map: every path reaches the Marshal, and the side events pay tickets.
+// An arena is an ArenaSpec (layout, crew, pickups) plus an objective, a par time and its place on
+// the board. Adding an arena is a new entry here, never a branch in the update loop.
+
+import type { MusicLoop } from '../sound'
+import type { ArenaSpec, Spawn } from './arenas'
+import { GRID, idx } from './grid'
+import { BOARDWALK_MUSIC, FROSTLIGHT_MUSIC } from './music'
+
+export type ObjectiveId = 'last' | 'giftwrap' | 'glowbug' | 'art' | 'taglap'
+
+export type ObjectiveSpec = { name: string; about: string }
+
+export const OBJECTIVES: Record<ObjectiveId | 'marshal', ObjectiveSpec> = {
+  last: { name: 'LAST RIDER ROLLING', about: 'BE THE LAST RIDER ROLLING' },
+  giftwrap: {
+    name: 'GIFT WRAP',
+    about: 'WRAP EVERY RIVAL BEFORE TIME RUNS OUT',
+  },
+  glowbug: {
+    name: 'GLOWBUG RUN',
+    about: 'COLLECT GLOWBUGS. FIRST TO THE COUNT WINS',
+  },
+  art: { name: 'RIBBON ART', about: 'TRACE THE GLOWING OUTLINE' },
+  taglap: { name: 'TAG LAP', about: 'RIDE THE ARCHES IN ORDER. BEAT THE CREW' },
+  marshal: { name: 'GRAND MARSHAL', about: 'WRAP THE GLOWING HUB' },
+}
+
+export type MarshalKind = 'keeper' | 'swan'
+
+export type Rect = { x: number; y: number; w: number; h: number }
+
+export type FairArena = ArenaSpec & {
+  objective: ObjectiveId | 'marshal'
+  /** Ticks to finish a timed objective (Gift Wrap, Ribbon Art). */
+  limit?: number
+  /** Finish inside this many ticks for the par bonus. */
+  par: number
+  /** Tickets for a clear (before the par and kindness bonuses). */
+  tickets: number
+  /** How fast and how cunning the crew rides (the Midway's round number). */
+  tier: number
+  /** Its lantern on the Festival Board, in board pixels. */
+  at: readonly [number, number]
+  /** The events this one opens on the board. */
+  next: readonly string[]
+  /** The fairground's special arena (a side event). */
+  special?: boolean
+  intro: string
+  /** Glowbug Run: how many hang in the air at once, and the count that wins. */
+  glowbugs?: { lit: number; target: number }
+  /** Ribbon Art: the outline's corners (a closed path of straight runs) and the share to trace. */
+  art?: { corners: readonly (readonly [number, number])[]; share: number }
+  /** Tag Lap: the arches, in order. */
+  arches?: readonly Rect[]
+  marshal?: MarshalKind
+}
+
+export type Fairground = {
+  id: string
+  name: string
+  tagline: string
+  music: MusicLoop
+  /** The board's sky and the strings between its lanterns. */
+  sky: readonly [string, string, string]
+  string: string
+  arenas: readonly FairArena[]
+}
+
+const S = 60
+
+/** A Tag Lap's crew lines up on the start line beside the rider, nose up, like a race. */
+const START_LINE: readonly Spawn[] = [
+  [17, 41, 0],
+  [31, 41, 0],
+]
+
+// --- Boardwalk at Dusk ---------------------------------------------------------------------------
+
+const BOARDWALK: Fairground = {
+  id: 'boardwalk',
+  name: 'BOARDWALK AT DUSK',
+  tagline: 'LAMPS ON, PIER LOOPS, ONE TURNING CAROUSEL',
+  music: BOARDWALK_MUSIC,
+  sky: ['#1c0f3a', '#3b1650', '#7a2d5c'],
+  string: '#fbbf24',
+  arenas: [
+    {
+      id: 'bw-gate',
+      name: 'BOARDWALK GATE',
+      floor: 'boardwalk',
+      features: [],
+      shrink: { every: 420, max: 14 },
+      crew: ['roamer', 'cutter'],
+      objective: 'last',
+      par: S * 40,
+      tickets: 3,
+      tier: 1,
+      at: [144, 222],
+      next: ['bw-lamps', 'bw-carousel'],
+      intro: 'THE OLD SQUARE, TIGHTER',
+    },
+    {
+      id: 'bw-lamps',
+      name: 'LAMPLIGHT PROMENADE',
+      floor: 'boardwalk',
+      mirror: 'xy',
+      features: [
+        { kind: 'pillar', x: 10, y: 10 },
+        { kind: 'pillar', x: 17, y: 10 },
+        { kind: 'pillar', x: 10, y: 17 },
+        { kind: 'pillar', x: 17, y: 17 },
+      ],
+      shrink: { every: 600, max: 8 },
+      crew: ['roamer', 'copycat', 'lanternKid'],
+      objective: 'giftwrap',
+      limit: S * 75,
+      par: S * 45,
+      tickets: 3,
+      tier: 2,
+      at: [72, 178],
+      next: ['bw-pier', 'bw-glowbug'],
+      intro: 'SIXTEEN LAMP POSTS TO WRAP AGAINST',
+    },
+    {
+      id: 'bw-carousel',
+      name: 'THE CAROUSEL',
+      floor: 'dusk',
+      features: [{ kind: 'pillar', x: 23, y: 22, w: 3, h: 3 }],
+      carousel: { cx: 24, cy: 23, r: 7, horses: 8, every: 18 },
+      shrink: { every: 540, max: 10 },
+      crew: ['cutter', 'copycat', 'lanternKid'],
+      objective: 'last',
+      par: S * 45,
+      tickets: 3,
+      tier: 3,
+      at: [216, 178],
+      next: ['bw-pier', 'bw-glowbug'],
+      intro: 'MIND THE HORSES. THEY TURN',
+    },
+    {
+      id: 'bw-pier',
+      name: "PIER'S END",
+      floor: 'pier',
+      mirror: 'x',
+      features: [{ kind: 'pillar', x: 12, y: 20, w: 2, h: 2 }],
+      wrap: { x: true },
+      shrink: null,
+      crew: ['pacer', 'dasher'],
+      rivalSpawns: START_LINE,
+      objective: 'taglap',
+      par: S * 30,
+      tickets: 3,
+      tier: 4,
+      at: [72, 130],
+      next: ['marshal'],
+      intro: 'RIDE OFF ONE END, COME IN THE OTHER',
+      arches: [
+        { x: 21, y: 32, w: 7, h: 1 },
+        { x: 21, y: 10, w: 7, h: 1 },
+        { x: 44, y: 5, w: 1, h: 9 },
+        { x: 4, y: 5, w: 1, h: 9 },
+        { x: 1, y: 30, w: 9, h: 1 },
+        { x: 14, y: 36, w: 1, h: 10 },
+      ],
+    },
+    {
+      id: 'bw-glowbug',
+      name: 'GLOWBUG PIER',
+      floor: 'pier',
+      mirror: 'xy',
+      features: [{ kind: 'pillar', x: 14, y: 14, w: 2, h: 2 }],
+      wrap: { x: true },
+      shrink: null,
+      crew: ['lanternKid', 'lanternKid', 'roamer'],
+      pickups: { first: S * 6, every: S * 10 },
+      objective: 'glowbug',
+      glowbugs: { lit: 5, target: 8 },
+      par: S * 40,
+      tickets: 5,
+      tier: 3,
+      special: true,
+      at: [216, 130],
+      next: ['marshal'],
+      intro: 'THE LANTERN KIDS RACE YOU FOR THE BUGS',
+    },
+    {
+      id: 'marshal',
+      name: 'THE CAROUSEL KEEPER',
+      floor: 'dusk',
+      features: [],
+      shrink: null,
+      crew: [],
+      pickups: { first: S * 8, every: S * 9, kinds: ['snip', 'spark', 'bow'] },
+      objective: 'marshal',
+      marshal: 'keeper',
+      par: S * 90,
+      tickets: 6,
+      tier: 4,
+      at: [144, 82],
+      next: [],
+      intro: 'A CAROUSEL ON WHEELS. WRAP ITS PONIES',
+    },
+  ],
+}
+
+// --- Frostlight Rink -----------------------------------------------------------------------------
+
+const FROSTLIGHT: Fairground = {
+  id: 'frostlight',
+  name: 'FROSTLIGHT RINK',
+  tagline: 'ICE SLIDES, SNOWBANKS MELT, ARROWS SPIN YOU',
+  music: FROSTLIGHT_MUSIC,
+  sky: ['#06142e', '#0e2f5c', '#3d6fa8'],
+  string: '#bae6fd',
+  arenas: [
+    {
+      id: 'fr-rink',
+      name: 'THE OPEN RINK',
+      floor: 'rink',
+      features: [{ kind: 'ice', x: 9, y: 9, w: 30, h: 28 }],
+      shrink: { every: 520, max: 10 },
+      crew: ['snowplow', 'roamer'],
+      objective: 'last',
+      par: S * 45,
+      tickets: 3,
+      tier: 5,
+      at: [144, 222],
+      next: ['fr-banks', 'fr-waltz'],
+      intro: 'ON ICE A TURN TAKES ONE MORE CELL',
+    },
+    {
+      id: 'fr-banks',
+      name: 'SNOWBANK ALLEY',
+      floor: 'frost',
+      mirror: 'x',
+      features: [
+        { kind: 'snow', x: 10, y: 11, w: 2, h: 8 },
+        { kind: 'snow', x: 10, y: 28, w: 2, h: 8 },
+        { kind: 'snow', x: 19, y: 20, w: 3, h: 3 },
+      ],
+      shrink: { every: 600, max: 8 },
+      crew: ['tandem', 'hugger'],
+      objective: 'giftwrap',
+      limit: S * 80,
+      par: S * 50,
+      tickets: 3,
+      tier: 5,
+      at: [72, 178],
+      next: ['fr-pond', 'fr-flake'],
+      intro: 'BRUSH A BANK AND IT MELTS',
+    },
+    {
+      id: 'fr-waltz',
+      name: 'ARROW WALTZ',
+      floor: 'rink',
+      mirror: 'rot',
+      features: [
+        { kind: 'pad', x: 33, y: 20, dir: 2 },
+        { kind: 'ice', x: 17, y: 17, w: 7, h: 7 },
+      ],
+      shrink: null,
+      crew: ['pacer', 'snowplow'],
+      rivalSpawns: START_LINE,
+      objective: 'taglap',
+      par: S * 32,
+      tickets: 3,
+      tier: 6,
+      at: [216, 178],
+      next: ['fr-pond', 'fr-flake'],
+      intro: 'THE ARROWS SPIN YOU. THE ARCHES WAIT',
+      arches: [
+        { x: 21, y: 33, w: 7, h: 1 },
+        { x: 21, y: 14, w: 7, h: 1 },
+        { x: 6, y: 6, w: 1, h: 9 },
+        { x: 1, y: 31, w: 9, h: 1 },
+        { x: 24, y: 42, w: 1, h: 6 },
+        { x: 39, y: 30, w: 9, h: 1 },
+      ],
+    },
+    {
+      id: 'fr-pond',
+      name: 'THE FROZEN POND',
+      floor: 'frost',
+      mirror: 'xy',
+      features: [
+        { kind: 'ice', x: 12, y: 12, w: 12, h: 12 },
+        { kind: 'snow', x: 21, y: 21, w: 3, h: 3 },
+        { kind: 'pillar', x: 6, y: 13, w: 1, h: 1 },
+      ],
+      shrink: { every: 560, max: 10 },
+      crew: ['tandem', 'cutter', 'dasher'],
+      objective: 'last',
+      par: S * 50,
+      tickets: 3,
+      tier: 6,
+      at: [72, 130],
+      next: ['marshal'],
+      intro: 'A POND OF ICE ROUND A SNOWY ISLAND',
+    },
+    {
+      id: 'fr-flake',
+      name: 'SNOWFLAKE SKATE',
+      floor: 'frost',
+      features: [],
+      shrink: null,
+      crew: ['snowplow', 'copycat'],
+      objective: 'art',
+      limit: S * 70,
+      par: S * 40,
+      tickets: 5,
+      tier: 5,
+      special: true,
+      at: [216, 130],
+      next: ['marshal'],
+      intro: 'SKATE THE SNOWFLAKE ON THE ICE',
+      art: {
+        share: 0.75,
+        corners: [
+          [21, 10],
+          [27, 10],
+          [27, 21],
+          [38, 21],
+          [38, 27],
+          [27, 27],
+          [27, 38],
+          [21, 38],
+          [21, 27],
+          [10, 27],
+          [10, 21],
+          [21, 21],
+        ],
+      },
+    },
+    {
+      id: 'marshal',
+      name: 'THE ZAMBONI SWAN',
+      floor: 'rink',
+      mirror: 'xy',
+      features: [{ kind: 'snow', x: 10, y: 16, w: 3, h: 3 }],
+      shrink: null,
+      crew: [],
+      pickups: { first: S * 8, every: S * 9, kinds: ['snip', 'spark', 'bow'] },
+      objective: 'marshal',
+      marshal: 'swan',
+      par: S * 100,
+      tickets: 6,
+      tier: 6,
+      at: [144, 82],
+      next: [],
+      intro: 'IT ERASES EVERY RIBBON IN ITS WAKE',
+    },
+  ],
+}
+
+export const FAIRGROUNDS: readonly Fairground[] = [BOARDWALK, FROSTLIGHT]
+
+export const FIRST_EVENT = 0
+
+export function arenaById(fair: Fairground, id: string): FairArena {
+  const a = fair.arenas.find((x) => x.id === id)
+  if (!a) throw new Error(`no arena ${id} in ${fair.id}`)
+  return a
+}
+
+/** Board events open now: the first, and every event a cleared one leads to, not yet cleared. */
+export function openEvents(
+  fair: Fairground,
+  cleared: ReadonlySet<string>,
+): string[] {
+  const first = fair.arenas[FIRST_EVENT]!.id
+  const open = new Set<string>()
+  if (!cleared.has(first)) open.add(first)
+  for (const a of fair.arenas) {
+    if (!cleared.has(a.id)) continue
+    for (const n of a.next) if (!cleared.has(n)) open.add(n)
+  }
+  return fair.arenas.map((a) => a.id).filter((id) => open.has(id))
+}
+
+/** Every cell along a closed path of straight runs between corners. */
+export function outlineCells(
+  corners: readonly (readonly [number, number])[],
+): number[] {
+  const out = new Set<number>()
+  for (let k = 0; k < corners.length; k++) {
+    const [ax, ay] = corners[k]!
+    const [bx, by] = corners[(k + 1) % corners.length]!
+    const sx = Math.sign(bx - ax)
+    const sy = Math.sign(by - ay)
+    let x = ax
+    let y = ay
+    out.add(idx(x, y))
+    while (x !== bx || y !== by) {
+      x += sx
+      y += sy
+      if (x >= 0 && y >= 0 && x < GRID && y < GRID) out.add(idx(x, y))
+    }
+  }
+  return [...out]
+}
+
+/** The cells of an arch. */
+export function rectCells(r: Rect): number[] {
+  const out: number[] = []
+  for (let y = r.y; y < r.y + r.h; y++)
+    for (let x = r.x; x < r.x + r.w; x++)
+      if (x >= 0 && y >= 0 && x < GRID && y < GRID) out.push(idx(x, y))
+  return out
+}

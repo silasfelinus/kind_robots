@@ -36,8 +36,21 @@
 // logical screen is twice the garden's size, so every sprite gets twice the
 // pixels across.
 //
+// Spring and Summer (conductor kr-arcade/t-089): the campaign runs through four
+// gardens of five waves, each with its own layout, look and title card. The
+// Orchard Rows' trees drop apples to catch (or that land as obstacles), the
+// Sunflower Maze's tall walls steer the worm toward the maze's exit, and the
+// Lily Pond's pads drift lamps and worm heads across the water. The dragonfly
+// bot darts and stops, friendly bee bots carry pollen across (spraying one
+// costs the wave's Kind bonus) and a wasp-glitch with jittery stripes hides
+// among them and dives. Queen Wiggle closes Spring and Mow-Bot 3000 closes
+// Summer. Between gardens the Compost Shed sells kit for petals; a golden
+// trowel rewards a special wave done without losing a sprayer; progress saves
+// at every garden, and reached gardens open in the garden select. When Summer
+// is fixed the year starts over a lap harder.
+//
 // Arrows move the sprayer around the flowerbed; A (or B) sprays. One beam at a
-// time, so get close to fire faster.
+// time (two with the shed's second beam), so get close to fire faster.
 
 import { drawText } from '../font'
 import {
@@ -49,15 +62,13 @@ import {
   bevel,
   cachedLayer,
   dropShadow,
-  drawSprite,
   glow,
   hudPanel,
   mix,
-  pixelSprite,
   rgba,
   vignette,
 } from '../snes'
-import type { PixelSprite, Ramp, SpriteDrawOptions } from '../snes'
+import type { PixelSprite, Ramp } from '../snes'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -65,13 +76,57 @@ import type {
   InputFrame,
 } from '../types'
 import {
+  APPLE_SPRITE,
+  BEE_SPRITES,
+  DENSITY,
+  DRAGONFLY_SPRITES,
+  GARDEN_LOOKS,
+  QUEEN_ARMOURED,
+  QUEEN_HEADS,
+  QUEEN_JOINT,
+  QUEEN_SEGMENTS,
+  SUNFLOWER_SPRITES,
+  TREE_SPRITE,
+  WASP_SPRITES,
+  drawHd,
+  drawLilyPad,
+  drawMower,
+  hdSprite,
+} from './glitchGardenArt'
+import {
+  BOSSES,
+  CAMPAIGN,
+  GARDENS,
   KITCHEN_PLOT,
   LAYOUT_CAN,
+  LAYOUT_EXIT,
   LAYOUT_LAMP,
+  LAYOUT_SUNFLOWER,
+  LAYOUT_TREE,
+  campaignPlay,
+  gardenStart,
   gardenWave,
+  lapWave,
   layoutCells,
 } from './glitchGardenGardens'
-import type { Garden, GardenWave } from './glitchGardenGardens'
+import type {
+  BossId,
+  CampaignStep,
+  Garden,
+  GardenWave,
+} from './glitchGardenGardens'
+import { readGardenSave } from './glitchGardenSave'
+import type { GardenSave } from './glitchGardenSave'
+import {
+  NEW_KIT,
+  SHED_ITEMS,
+  SHED_TICKS,
+  buy,
+  cannotBuy,
+} from './glitchGardenShed'
+import type { Kit } from './glitchGardenShed'
+
+export { DENSITY, scale2x } from './glitchGardenArt'
 
 const CELL = 8
 const COLS = 30
@@ -91,13 +146,56 @@ const DEATH_TICKS = 110
 const WAVE_CLEAR_TICKS = 110
 const EXTRA_EVERY = 12_000
 
+/** The score that earns the n-th extra sprayer: 12,000, 30,000, 54,000, 84,000... (each dearer). */
+export function extraAt(n: number): number {
+  return EXTRA_EVERY * n + 3_000 * n * (n - 1)
+}
+/** Spare sprayers stop piling up here. */
+export const MAX_LIVES = 6
+
 const HEAD_POINTS = 100
 const BODY_POINTS = 10
 const BLOOM_POINTS = 1
 const MOTH_POINTS = 200
 
-/** The logical screen is this many times the garden's size: sprites carry twice the pixels. */
-export const DENSITY = 2
+/** Apples: how fast they fall, what a catch pays, and how much spray a landed one takes. */
+export const APPLE_FALL = 0.9
+export const APPLE_POINTS = 250
+export const APPLE_HP = 2
+/** The dragonfly darts this fast for this long, then stops (its tell: the wings stop). */
+export const DRAGONFLY_DART = 2.4
+export const DRAGONFLY_DART_TICKS = 26
+export const DRAGONFLY_STOP_TICKS = 40
+export const DRAGONFLY_EVERY = 420
+export const DRAGONFLY_POINTS = 500
+/** Bee flights: how often, how fast; a wasp-glitch dives once it lines up over the sprayer. */
+export const BEE_EVERY = 520
+export const BEE_SPEED = 0.6
+export const WASP_DIVE = 2.6
+export const WASP_POINTS = 800
+/** A wave with bees and none sprayed pays this. */
+export const KIND_BONUS = 1000
+/** Lily pads drift a cell this often. */
+export const PAD_EVERY = 45
+/** A worm turned back by a wall this many times in a row squeezes past it. */
+export const SQUEEZE_AFTER = 3
+/** Queen Wiggle: segments, joints every so often, helmet hits, and her detached head's hits. */
+export const QUEEN_SEGMENTS_COUNT = 24
+export const QUEEN_JOINT_EVERY = 6
+export const QUEEN_ARMOUR = 3
+export const QUEEN_HEAD_HP = 8
+/** Mow-Bot 3000: size in cells, cap hits, and speed per phase. */
+export const MOWER_COLS = 4
+export const MOWER_ROWS = 2
+export const MOWER_CAP_HP = 4
+export const MOWER_SPEEDS = [0.7, 1.05, 1.5] as const
+/** Where its three fuel caps sit along its top (pixels from its left edge). */
+export const MOWER_CAPS = [5, 14, 23] as const
+/** Petals: per bloom and apple, and per objective met. */
+export const OBJECTIVE_PETALS = 5
+export const TROWEL_PETALS = 10
+/** How long a garden's title card shows over its first wave. */
+export const CARD_TICKS = 200
 /** Lamps in the first garden's authored layout (later lamps come from the moth and the creep). */
 export const START_LAMPS = layoutCells(KITCHEN_PLOT, LAYOUT_LAMP).length
 /** A sprayed can's splash reaches this many cells, and sets off cans this close. */
@@ -161,11 +259,59 @@ export function streakAfterMiss(streak: number): number {
 
 type Obstacle = {
   hp: number
-  kind: 'lamp' | 'sprout' | 'can'
+  /** Trees and sunflowers are walls: never sprayed away, never creeping. */
+  kind: 'lamp' | 'sprout' | 'can' | 'apple' | 'tree' | 'sunflower'
   /** Glitched by the snail: grey static that sends a worm plunging. */
   glitched?: boolean
   /** A can already set off by a neighbour's splash, waiting its turn. */
   lit?: boolean
+}
+const isWall = (ob: Obstacle | null): boolean =>
+  ob?.kind === 'tree' || ob?.kind === 'sunflower'
+type Apple = { x: number; y: number }
+type Dragonfly = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  /** Darting, or stopped (ticks left either way). */
+  dart: boolean
+  ticks: number
+  darts: number
+}
+type Bee = {
+  x: number
+  y: number
+  vx: number
+  wasp: boolean
+  /** A wasp that has broken off to dive at the sprayer. */
+  diving: boolean
+  ticks: number
+}
+type QueenHead = { x: number; y: number; vx: number; vy: number; hp: number }
+type Mower = {
+  x: number
+  y: number
+  dir: 1 | -1
+  /** Pixels left to drop before it runs along the next row. */
+  drop: number
+  caps: number[]
+  /** In the flowerbed, chasing the sprayer sideways. */
+  chase: boolean
+  parked: number
+}
+/** The fight in progress, while a boss step is on. */
+type BossFight = {
+  id: BossId
+  /** Queen Wiggle: 1 joints only, 2 three worms in step, 3 her head. Mow-Bot: caps fixed. */
+  phase: number
+  joints: number
+  defeated: boolean
+}
+type Shed = { cursor: number; lane: number; ticks: number; note: string }
+type Menu = {
+  items: Array<{ label: string; garden: number; resume: boolean }>
+  cursor: number
 }
 type PendingSplash = { col: number; row: number; ticks: number; chain: number }
 type Ring = { x: number; y: number; life: number }
@@ -183,6 +329,14 @@ type Worm = {
   crawler?: boolean
   /** Ticks left frozen by a cyan beam. */
   frozen?: number
+  /** A piece of Queen Wiggle. */
+  queen?: boolean
+  /** Hits left on an armoured head. */
+  armour?: number
+  /** Walls that have turned it back in a row. */
+  squeeze?: number
+  /** Queen Wiggle's segment k is her body's segment k + offset (for joints and colours). */
+  offset?: number
 }
 type Beam = {
   x: number
@@ -209,71 +363,12 @@ type Floater = { x: number; y: number; text: string; life: number }
 
 // --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
 
-/**
- * Scale2x: each art pixel becomes four, and a corner takes a neighbour's colour where two
- * neighbours agree, so diagonals come out smooth instead of stair-stepped.
- */
-export function scale2x(rows: readonly string[]): string[] {
-  const h = rows.length
-  const w = Math.max(...rows.map((r) => r.length))
-  const at = (x: number, y: number) =>
-    x < 0 || y < 0 || x >= w || y >= h ? '.' : (rows[y]![x] ?? '.')
-  const out: string[] = []
-  for (let y = 0; y < h; y++) {
-    let top = ''
-    let bottom = ''
-    for (let x = 0; x < w; x++) {
-      const p = at(x, y)
-      const a = at(x, y - 1)
-      const b = at(x + 1, y)
-      const c = at(x - 1, y)
-      const d = at(x, y + 1)
-      top += c === a && c !== d && a !== b ? a : p
-      top += a === b && a !== c && b !== d ? b : p
-      bottom += d === c && d !== b && c !== a ? c : p
-      bottom += b === d && b !== a && d !== c ? d : p
-    }
-    out.push(top, bottom)
-  }
-  return out
-}
-
-/** A double-density sprite: the art smoothed to twice the pixels, with a hairline outline. */
-function hdSprite(
-  rows: readonly string[],
-  palette: Record<string, string>,
-): PixelSprite {
-  return pixelSprite(scale2x(rows), palette)
-}
-
-/** Draw a double-density sprite at garden coordinates: one art pixel per screen pixel. */
-function drawHd(
-  g: CanvasRenderingContext2D,
-  sprite: PixelSprite,
-  x: number,
-  y: number,
-  options: SpriteDrawOptions = {},
-) {
-  g.save()
-  g.scale(1 / DENSITY, 1 / DENSITY)
-  drawSprite(g, sprite, x * DENSITY, y * DENSITY, options)
-  g.restore()
-}
-
 const LAWN_TOP = HUD
 const BED_Y = HUD + BED_TOP * CELL
 
 /** The glitch-lamps' magenta, and the HUD's deep hedge green. */
 const FUCHSIA: Ramp = ['#3a0a48', '#7a1a8a', '#c026d3', '#e879f9', '#fdf4ff']
 const HEDGE: Ramp = ['#05140b', '#0b2a17', '#15472a', '#3a8a52', '#a7f3b0']
-
-const LAWN_BANDS = [
-  mix(RAMPS.night[1], RAMPS.leaf[0], 0.35),
-  mix(RAMPS.night[1], RAMPS.leaf[0], 0.7),
-  RAMPS.leaf[0],
-  mix(RAMPS.leaf[0], RAMPS.leaf[1], 0.3),
-]
-const SOIL_BANDS = [RAMPS.earth[1], mix(RAMPS.earth[1], RAMPS.earth[0], 0.7)]
 
 const TUFTS = (() => {
   const rand = backdropRng(53)
@@ -662,15 +757,54 @@ class GlitchGarden implements ArcadeGameInstance {
   private crawlerTimer = 0
   private garden: Garden = KITCHEN_PLOT
   private wave: GardenWave = gardenWave(KITCHEN_PLOT, 1)
+  /** Where the run is in the campaign (CAMPAIGN index), and which lap of the year. */
+  private stepIndex = 0
+  private lap = 0
+  /** The garden whose layout is planted (-1 before the first). */
+  private planted = -1
   /** Lanes of the special wave's objective that have bloomed this wave. */
   private laneBlooms = new Set<number>()
   private objectiveDone = false
+  /** The special wave's objective can no longer be met (a bee sprayed, the worm got out). */
+  private objectiveFailed = false
   private splashes: PendingSplash[] = []
   private rings: Ring[] = []
   private speed = 1
+  /** Fractional worm steps carried to the next tick. */
+  private moveOwed = 0
+  // Spring and Summer's garden features and foes.
+  private exits = new Set<number>()
+  private apples: Apple[] = []
+  private appleTimer = 0
+  private caught = 0
+  private padTimer = 0
+  private padShift = 0
+  private dragonflies: Dragonfly[] = []
+  private dragonflyTimer = 0
+  private bees: Bee[] = []
+  private beeTimer = 0
+  private beesCrossed = 0
+  private kindLost = false
+  private sprayersLost = 0
+  private boss: BossFight | null = null
+  private queenHead: QueenHead | null = null
+  private mower: Mower | null = null
+  /** Mow-Bot fixed: it mows neat stripes into the lawn for the rest of the garden. */
+  private mown = false
+  // The run's meta: petals for the shed, its kit, the trowels, the furthest garden reached.
+  private petals = 0
+  private kit: Kit = { ...NEW_KIT }
+  private trowels = new Set<string>()
+  private reached = 1
+  private shed: Shed | null = null
+  private menu: Menu | null = null
+  private card = 0
+  /** What the cabinet keeps for this game (utils/arcade/saves.ts). */
+  save: GardenSave | null = null
   private dead = 0
   private clear = 0
-  private nextExtra = EXTRA_EVERY
+  private extras = 0
+  private nextExtra = extraAt(1)
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
@@ -683,12 +817,42 @@ class GlitchGarden implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.plantLayout(this.garden)
     this.startWave(1)
+    // The save is read after the first garden is planted, so its run isn't overwritten.
+    const stored = this.demo ? null : readGardenSave(options.resume)
+    if (stored) {
+      this.reached = stored.reached
+      this.trowels = new Set(stored.trowels)
+      this.save = stored
+    }
+    const items: Menu['items'] = []
+    if (stored?.run)
+      items.push({
+        label: `CONTINUE: ${GARDENS[stored.run.garden]!.name}`,
+        garden: stored.run.garden,
+        resume: true,
+      })
+    if (options.selectScreen && !this.demo && this.reached > 1)
+      for (let g = 0; g < this.reached; g++)
+        items.push({
+          label: `${g + 1}  ${GARDENS[g]!.name}`,
+          garden: g,
+          resume: false,
+        })
+    if (items.length) {
+      if (!items.some((i) => !i.resume))
+        items.push({
+          label: `1  ${KITCHEN_PLOT.name}`,
+          garden: 0,
+          resume: false,
+        })
+      this.menu = { items, cursor: 0 }
+    }
   }
 
+  /** Trail steps between one segment and the next: a cell's worth of pixel steps. */
   private get spacing(): number {
-    return Math.round(CELL / this.speed)
+    return CELL
   }
 
   private idx(col: number, row: number): number {
@@ -700,14 +864,38 @@ class GlitchGarden implements ArcadeGameInstance {
     return this.grid[this.idx(col, row)]!
   }
 
-  /** The garden's authored layout: its lamps and its sprinkler cans. */
+  /**
+   * A fresh garden: its authored layout (lamps, cans, trees, sunflowers and the maze's exit) on a
+   * cleared lawn, plus whatever the shed sent along (a prism flower in its lane, extra cans).
+   */
   private plantLayout(garden: Garden) {
-    for (const [col, row] of layoutCells(garden, LAYOUT_LAMP))
-      if (col < COLS && row < ROWS)
-        this.grid[this.idx(col, row)] = { hp: LAMP_HP, kind: 'lamp' }
-    for (const [col, row] of layoutCells(garden, LAYOUT_CAN))
-      if (col < COLS && row < ROWS)
-        this.grid[this.idx(col, row)] = { hp: 1, kind: 'can' }
+    this.grid.fill(null)
+    this.flowers = []
+    this.exits = new Set()
+    const put = (letter: string, make: () => Obstacle) => {
+      for (const [col, row] of layoutCells(garden, letter))
+        if (col < COLS && row < ROWS) this.grid[this.idx(col, row)] = make()
+    }
+    put(LAYOUT_LAMP, () => ({ hp: LAMP_HP, kind: 'lamp' }))
+    put(LAYOUT_CAN, () => ({ hp: 1, kind: 'can' }))
+    put(LAYOUT_TREE, () => ({ hp: 1, kind: 'tree' }))
+    put(LAYOUT_SUNFLOWER, () => ({ hp: 1, kind: 'sunflower' }))
+    for (const [col, row] of layoutCells(garden, LAYOUT_EXIT))
+      this.exits.add(this.idx(col, row))
+    if (this.kit.prismLane !== null) {
+      const col = this.kit.prismLane
+      const row = BED_TOP - 2
+      if (!this.at(col, row))
+        this.flowers.push({ col, row, prism: prismFor(col, row) })
+      this.kit = { ...this.kit, prismLane: null }
+    }
+    if (this.kit.cans > 0) {
+      this.plantCans(this.kit.cans)
+      this.kit = { ...this.kit, cans: 0 }
+    }
+    this.apples = []
+    this.mown = false
+    this.padShift = 0
   }
 
   private get canCount(): number {
@@ -728,11 +916,64 @@ class GlitchGarden implements ArcadeGameInstance {
 
   // --- waves -------------------------------------------------------------------
 
-  private startWave(wave: number) {
-    const plan = gardenWave(this.garden, wave)
-    this.level = wave
+  /** The n-th wave or boss of a run (1-based): the campaign decides which garden and step. */
+  private startWave(n: number) {
+    const { index, lap } = campaignPlay(n)
+    this.beginStep(index, lap, n)
+  }
+
+  /** The level number (waves and bosses so far, counting laps) of a campaign step. */
+  private levelAt(index: number, lap: number): number {
+    let plays = 0
+    for (let i = 0; i < index; i++) if (CAMPAIGN[i]!.kind !== 'shed') plays++
+    const perLap = CAMPAIGN.filter((s) => s.kind !== 'shed').length
+    return lap * perLap + plays + 1
+  }
+
+  private get step(): CampaignStep {
+    return CAMPAIGN[this.stepIndex]!
+  }
+
+  private beginStep(index: number, lap: number, level: number) {
+    const step = CAMPAIGN[index]!
+    this.stepIndex = index
+    this.lap = lap
+    if (step.kind === 'shed') {
+      this.openShed()
+      return
+    }
+    this.level = level
+    const garden = GARDENS[step.garden]!
+    const fresh = this.planted !== step.garden
+    this.garden = garden
+    if (fresh) {
+      this.plantLayout(garden)
+      this.planted = step.garden
+    }
+    const base = lapWave(
+      gardenWave(garden, step.kind === 'wave' ? step.wave : 5),
+      lap,
+    )
+    const plan: GardenWave =
+      step.kind === 'wave'
+        ? base
+        : {
+            ...base,
+            heads: 0,
+            beetleEvery: null,
+            moth: false,
+            snail: false,
+            crawlers: false,
+            cans: 0,
+            dragonflies: 0,
+            bees: 0,
+            wasp: false,
+            objective: undefined,
+            sub: BOSSES[step.boss].sub,
+          }
     this.wave = plan
     this.speed = plan.speed
+    this.moveOwed = 0
     this.worms = []
     this.snail = null
     this.snailTimer = Math.round(SNAIL_EVERY / 2)
@@ -740,9 +981,27 @@ class GlitchGarden implements ArcadeGameInstance {
     this.crawlerTimer = 0
     this.laneBlooms = new Set()
     this.objectiveDone = false
-    if (wave > 1) {
+    this.objectiveFailed = false
+    this.caught = 0
+    this.beesCrossed = 0
+    this.kindLost = false
+    this.sprayersLost = 0
+    this.dragonflies = []
+    this.bees = []
+    this.boss = null
+    this.queenHead = null
+    this.mower = null
+    this.appleTimer = garden.appleEvery ?? 0
+    this.dragonflyTimer = 150
+    this.beeTimer = 180
+    if (!fresh && level > 1) {
       this.creepLamps()
       this.plantCans(plan.cans)
+    }
+    this.beetleTimer = plan.beetleEvery ?? 0
+    if (step.kind === 'boss') {
+      this.startBoss(step.boss)
+      return
     }
     this.spawnWorm(Math.floor(COLS / 2) * CELL, plan.segments, 1)
     for (let i = 0; i < plan.heads; i++)
@@ -751,14 +1010,131 @@ class GlitchGarden implements ArcadeGameInstance {
         1,
         this.rng() < 0.5 ? 1 : -1,
       )
-    this.beetleTimer = plan.beetleEvery ?? 0
     this.banner = plan.objective
       ? { text: plan.sub, sub: plan.objective.hint, ticks: 120 }
-      : {
-          text: wave === 1 ? this.garden.name : `WAVE ${wave}`,
-          sub: plan.sub,
-          ticks: 80,
-        }
+      : { text: `WAVE ${level}`, sub: plan.sub, ticks: 80 }
+    if (step.wave === 1) {
+      // A new garden: its title card, a save point, and one more garden for the select.
+      this.card = CARD_TICKS
+      this.banner = null
+      this.reached = Math.max(this.reached, step.garden + 1)
+      this.writeSave(true)
+    }
+  }
+
+  /** What to keep: the gardens reached, the trowels, and (mid-run) where to pick up. */
+  private writeSave(run: boolean) {
+    if (this.demo) return
+    const step = this.step
+    this.save = {
+      v: 1,
+      reached: this.reached,
+      trowels: [...this.trowels],
+      run: run
+        ? {
+            garden: step.garden,
+            lap: this.lap,
+            score: this.score,
+            lives: Math.max(1, this.lives),
+            petals: this.petals,
+            kit: { ...this.kit },
+          }
+        : null,
+    }
+  }
+
+  /** On to the next step of the year (the shed, a wave, a boss), wrapping into the next lap. */
+  private advance() {
+    let index = this.stepIndex + 1
+    let lap = this.lap
+    if (index >= CAMPAIGN.length) {
+      index = 0
+      lap++
+    }
+    this.beginStep(index, lap, this.level + 1)
+    if (lap > 0 && index === 0)
+      this.banner = {
+        text: 'IT GROWS BACK!',
+        sub: `YEAR ${lap + 1}: THE GLITCH IS FASTER`,
+        ticks: 150,
+      }
+  }
+
+  // --- the Compost Shed ------------------------------------------------------------
+
+  private openShed() {
+    this.worms = []
+    this.beams = []
+    this.volley = null
+    this.beetle = null
+    this.moth = null
+    this.snail = null
+    this.apples = []
+    this.dragonflies = []
+    this.bees = []
+    this.shed = {
+      cursor: 0,
+      lane: Math.floor(COLS / 2),
+      ticks: SHED_TICKS,
+      note: '',
+    }
+    this.sound.play('level')
+  }
+
+  private updateShed(input: InputFrame) {
+    const shed = this.shed!
+    const item = SHED_ITEMS[shed.cursor]!
+    if (input.pressed.up)
+      shed.cursor = (shed.cursor + SHED_ITEMS.length - 1) % SHED_ITEMS.length
+    if (input.pressed.down) shed.cursor = (shed.cursor + 1) % SHED_ITEMS.length
+    if (item.id === 'prism') {
+      if (input.pressed.left) shed.lane = Math.max(0, shed.lane - 1)
+      if (input.pressed.right) shed.lane = Math.min(COLS - 1, shed.lane + 1)
+    }
+    if (input.pressed.a || input.pressed.start) {
+      if (item.id === 'done') return this.leaveShed()
+      const why = cannotBuy(item, this.kit, this.petals)
+      if (why) {
+        shed.note = why
+        this.sound.play('blip')
+      } else {
+        const after = buy(item, this.kit, this.petals, shed.lane)
+        this.kit = after.kit
+        this.petals = after.petals
+        shed.note = `${item.name}: THANK YOU!`
+        this.sound.play('extra')
+      }
+    }
+    if (input.pressed.b || --shed.ticks <= 0) this.leaveShed()
+  }
+
+  private leaveShed() {
+    this.shed = null
+    this.advance()
+  }
+
+  // --- the garden select -----------------------------------------------------------
+
+  private updateMenu(input: InputFrame) {
+    const menu = this.menu!
+    const n = menu.items.length
+    if (input.pressed.up) menu.cursor = (menu.cursor + n - 1) % n
+    if (input.pressed.down) menu.cursor = (menu.cursor + 1) % n
+    if (!(input.pressed.a || input.pressed.start)) return
+    const item = menu.items[menu.cursor]!
+    this.menu = null
+    const run = item.resume ? this.save?.run : null
+    this.score = run?.score ?? 0
+    this.lives = run?.lives ?? START_LIVES
+    this.petals = run?.petals ?? 0
+    this.kit = run ? { ...run.kit } : { ...NEW_KIT }
+    this.extras = 0
+    while (extraAt(this.extras + 1) <= this.score) this.extras++
+    this.nextExtra = extraAt(this.extras + 1)
+    this.planted = -1
+    const lap = run?.lap ?? 0
+    const index = gardenStart(item.garden)
+    this.beginStep(index, lap, this.levelAt(index, lap))
   }
 
   /**
@@ -771,7 +1147,7 @@ class GlitchGarden implements ArcadeGameInstance {
     for (let row = BED_TOP - 1; row >= 1; row--)
       for (let col = 0; col < COLS; col++) {
         const ob = this.at(col, row)
-        if (!ob || ob.kind === 'sprout') continue
+        if (!ob || (ob.kind !== 'lamp' && ob.kind !== 'can')) continue
         if (ob.kind === 'can') {
           this.grid[this.idx(col, row)] = null
           if (row + 1 >= BED_TOP) continue
@@ -793,13 +1169,20 @@ class GlitchGarden implements ArcadeGameInstance {
     }
   }
 
-  private spawnWorm(x: number, segments: number, dx: 1 | -1) {
+  private spawnWorm(
+    x: number,
+    segments: number,
+    dx: 1 | -1,
+    extra: Partial<Worm> = {},
+  ): Worm {
     // A worm enters at the top, its body trailing off the screen above.
     const trail: Array<{ x: number; y: number }> = []
     for (let i = 0; i < segments * this.spacing + 1; i++)
       trail.push({ x, y: HUD - Math.floor(i / this.spacing) * CELL - CELL })
     trail[0] = { x, y: HUD }
-    this.worms.push({ trail, segments, dx, dy: 1 })
+    const worm: Worm = { trail, segments, dx, dy: 1, ...extra }
+    this.worms.push(worm)
+    return worm
   }
 
   private segmentPos(w: Worm, k: number): { x: number; y: number } {
@@ -813,19 +1196,28 @@ class GlitchGarden implements ArcadeGameInstance {
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
+    if (this.menu) {
+      this.updateMenu(input)
+      return
+    }
     const controls = this.demo ? this.demoInput() : input
+    if (this.shed) {
+      this.updateShed(this.demo ? this.demoShedInput() : input)
+      return
+    }
+    if (this.card > 0) this.card--
     if (this.dead > 0) {
       if (--this.dead === 0) this.afterDeath()
       return
     }
     if (this.clear > 0) {
-      if (--this.clear === 0) this.startWave(this.level + 1)
+      if (--this.clear === 0) this.advance()
       return
     }
     this.moveSprayer(controls)
-    if ((controls.held.a || controls.held.b) && !this.beams.length) {
+    if ((controls.held.a || controls.held.b) && this.canFire()) {
       this.beams.push(this.newBeam(this.px, this.py - 6, false))
-      this.volley = { hits: 0, landed: false }
+      if (!this.volley) this.volley = { hits: 0, landed: false }
     }
     this.updateBeams()
     this.moveWorms()
@@ -833,23 +1225,73 @@ class GlitchGarden implements ArcadeGameInstance {
     this.updateMoth()
     this.updateSnail()
     this.updateCrawlers()
+    this.updateApples()
+    this.updatePads()
+    this.updateDragonflies()
+    this.updateBees()
+    this.updateBoss()
     this.updateSplashes()
     this.checkHits()
-    if (!this.worms.length && this.dead === 0) {
-      this.clear = WAVE_CLEAR_TICKS
-      const goal = this.wave.objective
+    if (
+      !this.worms.length &&
+      this.dead === 0 &&
+      (!this.boss || this.boss.defeated)
+    )
+      this.waveFixed()
+  }
+
+  /** One beam at a time; with the second beam, another once the first is well on its way. */
+  private canFire(): boolean {
+    const own = this.beams.filter((b) => !b.child)
+    if (!own.length) return true
+    if (!this.kit.twin || own.length >= 2) return false
+    return own.every((b) => b.y < this.py - 48)
+  }
+
+  /** The wave is fixed: settle its objective, the Kind bonus and the trowel, then move on. */
+  private waveFixed() {
+    this.clear = WAVE_CLEAR_TICKS
+    this.cancelSplashes()
+    const goal = this.wave.objective
+    let sub: string | undefined
+    if (goal?.kind === 'maze-exit' && !this.objectiveFailed)
+      this.meetObjective()
+    if (goal)
+      sub = this.objectiveDone ? `${goal.title} DONE` : 'OBJECTIVE MISSED'
+    if (this.wave.bees > 0 && !this.kindLost) {
+      this.addScore(KIND_BONUS, W / 2, HUD + 60)
+      sub = sub ? `${sub}  KIND +${KIND_BONUS}` : `KIND BONUS +${KIND_BONUS}`
+    }
+    if (goal && this.objectiveDone && this.sprayersLost === 0) {
+      if (!this.trowels.has(this.garden.id)) {
+        this.trowels.add(this.garden.id)
+        this.petals += TROWEL_PETALS
+        sub = 'GOLDEN TROWEL!'
+        this.sound.play('extra')
+        this.writeSave(true)
+      }
+    }
+    this.banner = { text: 'WAVE FIXED!', sub, ticks: WAVE_CLEAR_TICKS }
+    if (this.boss) {
+      const boss = BOSSES[this.boss.id]
       this.banner = {
-        text: 'WAVE FIXED!',
-        sub: !goal
-          ? undefined
-          : this.objectiveDone
-            ? 'EVERY LANE BLOOMED'
-            : 'SOME LANES STILL BARE',
+        text: 'BOSS FIXED!',
+        sub: boss.thanks,
         ticks: WAVE_CLEAR_TICKS,
       }
-      this.cancelSplashes()
-      this.sound.play('level')
     }
+    this.sound.play('level')
+  }
+
+  /** The special wave's objective met: its bonus and petals, once. */
+  private meetObjective() {
+    const goal = this.wave.objective
+    if (!goal || this.objectiveDone || this.objectiveFailed) return
+    this.objectiveDone = true
+    this.petals += OBJECTIVE_PETALS
+    this.addScore(goal.bonus, W / 2, HUD + 40)
+    this.banner = { text: goal.title, sub: 'KIND WORK, GARDENER!', ticks: 90 }
+    this.sound.play('extra')
   }
 
   private moveSprayer(input: InputFrame) {
@@ -968,11 +1410,24 @@ class GlitchGarden implements ArcadeGameInstance {
       const col = Math.floor(beam.x / CELL)
       const row = Math.floor((beam.y - HUD) / CELL)
       this.pickUpPower(beam, col, row)
+      // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
+      if (this.sprayBee(beam.x, beam.y)) return false
+      const worm = this.hitWorm(beam.x, beam.y, beam.powers.includes('cyan'))
+      const mower = this.hitMower(beam.x, beam.y)
+      if (worm === 'plink' || mower === 'body') {
+        if (this.volley) this.volley.landed = true
+        this.sound.play('blip')
+        return false
+      }
       if (
-        this.hitWorm(beam.x, beam.y, beam.powers.includes('cyan')) ||
+        worm === 'fix' ||
+        mower === 'cap' ||
         this.hitMoth(beam, beam.x, beam.y) ||
         this.hitBeetle(beam.x, beam.y) ||
-        this.hitSnail(beam.x, beam.y)
+        this.hitSnail(beam.x, beam.y) ||
+        this.hitDragonfly(beam.x, beam.y) ||
+        this.hitWasp(beam.x, beam.y) ||
+        this.hitQueenHead(beam.x, beam.y)
       ) {
         this.registerHit()
         if (beam.pierce <= 0) return false
@@ -980,9 +1435,12 @@ class GlitchGarden implements ArcadeGameInstance {
         if (beam.pierce === 0)
           beam.powers = beam.powers.filter((p) => p !== 'gold')
       }
-      const ob = this.at(col, row)
+      const found = this.at(col, row)
+      // The beam slips between the sunflowers' tall stalks.
+      const ob = found?.kind === 'sunflower' ? null : found
       const cell = this.idx(col, row)
       if (ob && cell !== beam.lastCell) {
+        if (ob.kind === 'tree') return false
         if (this.volley) this.volley.landed = true
         this.water(col, row, ob)
         if (beam.pierce <= 0) return false
@@ -1001,8 +1459,16 @@ class GlitchGarden implements ArcadeGameInstance {
       if (!ob.lit) this.splash(col, row, 1)
       return
     }
+    if (isWall(ob)) return
     ob.hp--
     this.sound.play('blip')
+    if (ob.kind === 'apple' && ob.hp <= 0) {
+      // A fallen apple sprayed clean: the lane is open again.
+      this.grid[this.idx(col, row)] = null
+      this.addScore(20, col * CELL + 4, HUD + row * CELL)
+      this.burst(col * CELL + 4, HUD + row * CELL + 4, 5, RAMPS.ember[3])
+      return
+    }
     if (ob.hp > 0) {
       this.fx.burst(col * CELL + 4, HUD + row * CELL + 3, this.fxRng, {
         count: 3,
@@ -1017,6 +1483,7 @@ class GlitchGarden implements ArcadeGameInstance {
   /** A lamp or sprout opens into a flower of its cell's colour. */
   private bloom(col: number, row: number, ob: Obstacle) {
     this.grid[this.idx(col, row)] = null
+    this.petals++
     this.flowers = this.flowers.filter((f) => f.col !== col || f.row !== row)
     this.flowers.push({ col, row, prism: prismFor(col, row) })
     if (this.flowers.length > 120) this.flowers.shift()
@@ -1036,13 +1503,11 @@ class GlitchGarden implements ArcadeGameInstance {
   /** The special wave's objective: a bloom in each marked lane pays the bonus once. */
   private markLane(col: number) {
     const goal = this.wave.objective
-    if (!goal || this.objectiveDone || !goal.lanes.includes(col)) return
+    if (goal?.kind !== 'bloom-lanes' || this.objectiveDone) return
+    if (!goal.lanes.includes(col)) return
     this.laneBlooms.add(col)
     if (goal.lanes.some((lane) => !this.laneBlooms.has(lane))) return
-    this.objectiveDone = true
-    this.addScore(goal.bonus, W / 2, HUD + 40)
-    this.banner = { text: goal.title, sub: 'KIND WORK, GARDENER!', ticks: 90 }
-    this.sound.play('extra')
+    this.meetObjective()
   }
 
   // --- sprinkler cans ------------------------------------------------------------
@@ -1065,9 +1530,10 @@ class GlitchGarden implements ArcadeGameInstance {
     })
     this.addScore(CAN_POINTS * chain, cx, cy - 8)
     for (let guard = 0; guard < 64; guard++) {
-      const hit = this.segmentNear(cx, cy, reach)
+      const hit = this.segmentNear(cx, cy, reach, true)
       if (!hit) break
       this.fixSegment(hit.worm, hit.k)
+      if (hit.worm.queen) this.queenSplit(hit.worm, hit.k)
     }
     const near = (x: number, y: number) => Math.hypot(x - cx, y - cy) <= reach
     const b = this.beetle
@@ -1092,10 +1558,14 @@ class GlitchGarden implements ArcadeGameInstance {
               chain: chain + 1,
             })
           }
-        } else if (d <= SPLASH_RADIUS) {
-          this.bloom(c, r, ob)
+        } else if (d <= SPLASH_RADIUS && !isWall(ob)) {
+          if (ob.kind === 'apple') this.grid[this.idx(c, r)] = null
+          else this.bloom(c, r, ob)
         }
       }
+    for (const d of this.dragonflies) if (near(d.x, d.y)) this.fixDragonfly(d)
+    const head = this.queenHead
+    if (head && near(head.x, head.y)) this.hitQueenHead(head.x, head.y)
   }
 
   private updateSplashes() {
@@ -1119,29 +1589,64 @@ class GlitchGarden implements ArcadeGameInstance {
     x: number,
     y: number,
     reach: number,
+    fixableOnly = false,
   ): { worm: Worm; k: number } | null {
     let best: { worm: Worm; k: number; d: number } | null = null
     for (const worm of this.worms)
       for (let k = 0; k < worm.segments; k++) {
         const p = this.segmentPos(worm, k)
         if (p.y < HUD) continue
+        if (fixableOnly && !this.fixable(worm, k)) continue
         const d = Math.hypot(p.x + CELL / 2 - x, p.y + CELL / 2 - y)
         if (d <= reach && (!best || d < best.d)) best = { worm, k, d }
       }
     return best
   }
 
-  private hitWorm(x: number, y: number, freeze = false): boolean {
+  /**
+   * A beam meets a worm: 'fix' when a segment was fixed, 'plink' when it bounced off Queen
+   * Wiggle's armour or a plain segment she won't split at yet, null when it missed.
+   */
+  private hitWorm(
+    x: number,
+    y: number,
+    freeze = false,
+  ): 'fix' | 'plink' | null {
+    const pad = this.kit.nozzle ? 2 : 0
     for (const w of this.worms) {
       for (let k = 0; k < w.segments; k++) {
         const p = this.segmentPos(w, k)
         if (p.y < HUD) continue
-        if (x < p.x || x >= p.x + CELL || y < p.y || y >= p.y + CELL) continue
+        if (x < p.x - pad || x >= p.x + CELL + pad) continue
+        if (y < p.y || y >= p.y + CELL) continue
+        if (w.queen && k === 0 && (w.armour ?? 0) > 0) {
+          w.armour = (w.armour ?? 0) - 1
+          this.registerHit()
+          this.fx.burst(p.x + 4, p.y + 2, this.fxRng, {
+            count: 6,
+            colours: [RAMPS.steel[4], RAMPS.gold[4]],
+          })
+          return 'plink'
+        }
+        if (!this.fixable(w, k)) return 'plink'
         this.fixSegment(w, k, freeze)
-        return true
+        if (w.queen) this.queenSplit(w, k)
+        return 'fix'
       }
     }
-    return false
+    return null
+  }
+
+  /** Queen Wiggle only splits at her bright joints at first (and her head, once unhelmeted). */
+  private fixable(w: Worm, k: number): boolean {
+    if (!w.queen || this.boss?.phase !== 1) return true
+    if (k === 0) return (w.armour ?? 0) <= 0
+    return this.isJoint(w, k)
+  }
+
+  private isJoint(w: Worm, k: number): boolean {
+    const n = k + (w.offset ?? 0)
+    return w.queen === true && n > 0 && n % QUEEN_JOINT_EVERY === 0
   }
 
   /** A fixed segment drops out as a sprout; the worm splits around it. */
@@ -1185,17 +1690,57 @@ class GlitchGarden implements ArcadeGameInstance {
         dx: dx as 1 | -1,
         dy: w.dy,
         frozen,
+        ...(w.queen
+          ? { queen: true, offset: (w.offset ?? 0) + k + 1, armour: 0 }
+          : {}),
       })
     }
   }
 
   private moveWorms() {
+    // Fractional speeds carry over, so 1.5 really is half again as fast as 1.
+    this.moveOwed += this.speed
+    const steps = Math.floor(this.moveOwed)
+    this.moveOwed -= steps
+    const marching = this.boss?.id === 'queen-wiggle' && this.boss.phase === 2
     for (const w of this.worms) {
       if (w.frozen && w.frozen > 0) {
         w.frozen--
         continue
       }
-      for (let s = 0; s < this.speed; s++) this.stepWorm(w)
+      if (marching && w.queen) continue
+      for (let s = 0; s < steps; s++) this.stepWorm(w)
+    }
+    if (marching) for (let s = 0; s < steps; s++) this.marchQueens()
+  }
+
+  /**
+   * Queen Wiggle's second phase: her three worms move in step, like a dance line. They all slide
+   * the same way, and when any one reaches the edge they all drop a row and turn together.
+   */
+  private marchQueens() {
+    const line = this.worms.filter(
+      (w) => w.queen && !(w.frozen && w.frozen > 0),
+    )
+    if (!line.length) return
+    const lead = line[0]!
+    const edge = line.some((w) => {
+      const x = w.trail[0]!.x
+      return lead.dx > 0 ? x + CELL >= W : x <= 0
+    })
+    let dy = lead.dy
+    if (edge) {
+      const rows = line.map((w) => Math.round((w.trail[0]!.y - HUD) / CELL))
+      if (dy > 0 && Math.max(...rows) + 1 >= ROWS) dy = -1
+      else if (dy < 0 && Math.min(...rows) - 1 < BED_TOP) dy = 1
+    }
+    const dx = (edge ? -lead.dx : lead.dx) as 1 | -1
+    for (const w of line) {
+      const { x, y } = w.trail[0]!
+      w.trail.unshift(edge ? { x, y: y + dy * CELL } : { x: x + lead.dx, y })
+      this.trimTrail(w)
+      w.dx = dx
+      w.dy = dy
     }
   }
 
@@ -1218,6 +1763,15 @@ class GlitchGarden implements ArcadeGameInstance {
           return
         }
       }
+      // The sunflower maze's exit: a worm passing over the gap drops through it.
+      if (w.dy > 0 && this.exits.has(this.idx(col, row + 1))) {
+        this.wormEscaped()
+        w.squeeze = 0
+        y += CELL
+        w.trail.unshift({ x, y })
+        this.trimTrail(w)
+        return
+      }
       const nextCol = col + w.dx
       const ahead =
         nextCol < 0 || nextCol >= COLS ? null : this.at(nextCol, row)
@@ -1236,6 +1790,23 @@ class GlitchGarden implements ArcadeGameInstance {
         if (row + w.dy >= ROWS) w.dy = -1
         else if (w.dy < 0 && row + w.dy < BED_TOP) w.dy = 1
         w.dx = (w.dx * -1) as 1 | -1
+        // A wall below turns it back along its row instead (it follows the lanes), until it has
+        // been turned back so often that it squeezes past.
+        if (
+          w.dy > 0 &&
+          isWall(this.at(col, row + 1)) &&
+          (w.squeeze ?? 0) < SQUEEZE_AFTER
+        ) {
+          w.squeeze = (w.squeeze ?? 0) + 1
+          const back = col + w.dx
+          if (back >= 0 && back < COLS && !this.at(back, row)) {
+            x += w.dx
+            w.trail.unshift({ x, y })
+            this.trimTrail(w)
+            return
+          }
+        }
+        w.squeeze = 0
         y += w.dy * CELL
         w.trail.unshift({ x, y })
         this.trimTrail(w)
@@ -1245,6 +1816,19 @@ class GlitchGarden implements ArcadeGameInstance {
     x += w.dx
     w.trail.unshift({ x, y })
     this.trimTrail(w)
+  }
+
+  /** A worm found the maze exit: the special wave's objective can no longer be met. */
+  private wormEscaped() {
+    const goal = this.wave.objective
+    if (goal?.kind !== 'maze-exit' || this.objectiveFailed) return
+    this.objectiveFailed = true
+    this.banner = {
+      text: 'IT FOUND THE EXIT!',
+      sub: 'FIX IT ANYWAY',
+      ticks: 90,
+    }
+    this.sound.play('warn')
   }
 
   private trimTrail(w: Worm) {
@@ -1280,7 +1864,7 @@ class GlitchGarden implements ArcadeGameInstance {
     const col = Math.floor(b.x / CELL)
     const row = Math.floor((b.y - HUD) / CELL)
     const ob = this.at(col, row)
-    if (ob && ob.kind !== 'can' && this.rng() < 0.05)
+    if (ob && ob.kind !== 'can' && !isWall(ob) && this.rng() < 0.05)
       this.grid[this.idx(col, row)] = null
     if (b.x < -10 || b.x > W + 10) this.beetle = null
   }
@@ -1297,6 +1881,14 @@ class GlitchGarden implements ArcadeGameInstance {
         vx: (fromLeft ? 1 : -1) * 0.5,
       }
       this.sound.play('warn')
+      if (this.kit.siren) {
+        this.sound.play('extra')
+        this.banner = {
+          text: 'SNAIL SIREN!',
+          sub: fromLeft ? '→ FROM THE LEFT' : 'FROM THE RIGHT ←',
+          ticks: 70,
+        }
+      }
     }
     const s = this.snail
     if (!s) return
@@ -1329,13 +1921,465 @@ class GlitchGarden implements ArcadeGameInstance {
     return true
   }
 
+  // --- the orchard's apples ----------------------------------------------------------
+
+  /**
+   * Now and then a tree drops an apple. It falls down its column: catch it in the bed for points
+   * (and a petal), or it lands on whatever is below it in the lawn and stays as an obstacle that
+   * takes a couple of sprays to clear. One that reaches the bed's floor bruises and is gone.
+   */
+  private updateApples() {
+    const harvest = this.wave.objective?.kind === 'catch-apples'
+    const every = this.garden.appleEvery
+    if (every && --this.appleTimer <= 0) {
+      // The Apple Harvest shakes the trees: twice the apples.
+      this.appleTimer = harvest ? Math.round(every / 2) : every
+      const trees: Array<[number, number]> = []
+      for (let r = 0; r < BED_TOP; r++)
+        for (let c = 0; c < COLS; c++)
+          if (this.at(c, r)?.kind === 'tree') trees.push([c, r])
+      if (trees.length) {
+        const [c, r] = trees[Math.floor(this.rng() * trees.length)]!
+        if (!this.at(c, r + 1))
+          this.apples.push({ x: c * CELL + 4, y: HUD + (r + 1) * CELL + 2 })
+      }
+    }
+    for (const a of [...this.apples]) {
+      a.y += APPLE_FALL
+      if (Math.abs(a.x - this.px) < 7 && Math.abs(a.y - this.py) < 8) {
+        this.catchApple(a)
+        continue
+      }
+      const col = Math.floor(a.x / CELL)
+      const row = Math.floor((a.y + 3 - HUD) / CELL)
+      const drop = () => (this.apples = this.apples.filter((o) => o !== a))
+      if (row >= ROWS) {
+        drop()
+        this.burst(a.x, H - 4, 5, RAMPS.ember[3])
+        continue
+      }
+      const below = this.at(col, row)
+      if (!below || below.kind === 'sunflower') continue
+      drop()
+      const rest = row - 1
+      if (rest >= 1 && rest < BED_TOP && !this.at(col, rest))
+        this.grid[this.idx(col, rest)] = { hp: APPLE_HP, kind: 'apple' }
+    }
+  }
+
+  private catchApple(a: Apple) {
+    this.apples = this.apples.filter((o) => o !== a)
+    this.caught++
+    this.petals++
+    this.addScore(APPLE_POINTS, a.x, a.y - 8)
+    this.sound.play('blip')
+    this.fx.burst(a.x, a.y, this.fxRng, {
+      count: 8,
+      colours: [RAMPS.ember[3], RAMPS.leaf[3], '#ffffff'],
+    })
+    const goal = this.wave.objective
+    if (goal?.kind === 'catch-apples' && this.caught >= goal.count)
+      this.meetObjective()
+  }
+
+  // --- the lily pond ---------------------------------------------------------------
+
+  /** The pond's pads drift a cell at a time, carrying their lamps, flowers and worm heads. */
+  private updatePads() {
+    const rows = this.garden.pondRows
+    if (!rows?.length || ++this.padTimer < PAD_EVERY) return
+    this.padTimer = 0
+    this.padShift++
+    rows.forEach((row, i) => {
+      const dir = i % 2 === 0 ? 1 : -1
+      const line = Array.from({ length: COLS }, (_, c) => this.at(c, row))
+      line.forEach((ob, c) => {
+        this.grid[this.idx((c + dir + COLS) % COLS, row)] = ob
+      })
+      for (const f of this.flowers)
+        if (f.row === row) f.col = (f.col + dir + COLS) % COLS
+      for (const w of this.worms) {
+        const h = w.trail[0]!
+        if (h.y !== HUD + row * CELL || h.x % CELL !== 0) continue
+        const nx = h.x + dir * CELL
+        if (nx < 0 || nx + CELL > W || this.at(nx / CELL, row)) continue
+        w.trail.unshift({ x: nx, y: h.y })
+        this.trimTrail(w)
+      }
+    })
+  }
+
+  // --- the dragonfly bot -----------------------------------------------------------
+
+  /** It darts in a straight burst toward the bed, then stops dead (wings still) before the next. */
+  private updateDragonflies() {
+    const max = this.wave.dragonflies
+    if (
+      max > 0 &&
+      this.dragonflies.length < max &&
+      --this.dragonflyTimer <= 0
+    ) {
+      this.dragonflyTimer = DRAGONFLY_EVERY
+      const fromLeft = this.rng() < 0.5
+      this.dragonflies.push({
+        x: fromLeft ? -6 : W + 6,
+        y: HUD + (16 + Math.floor(this.rng() * 10)) * CELL,
+        vx: 0,
+        vy: 0,
+        dart: false,
+        ticks: 20,
+        darts: 0,
+      })
+      this.sound.play('warn')
+    }
+    for (const d of [...this.dragonflies]) {
+      if (--d.ticks <= 0) {
+        if (d.dart) {
+          d.dart = false
+          d.ticks = DRAGONFLY_STOP_TICKS
+        } else {
+          d.darts++
+          d.dart = true
+          d.ticks = DRAGONFLY_DART_TICKS
+          if (d.darts > 6) {
+            d.vx = 0
+            d.vy = -DRAGONFLY_DART
+          } else {
+            const tx = this.px + (this.rng() - 0.5) * 90
+            const ty = Math.min(
+              H - 10,
+              Math.max(HUD + 14 * CELL, this.py - 24 + (this.rng() - 0.5) * 60),
+            )
+            const dist = Math.hypot(tx - d.x, ty - d.y) || 1
+            d.vx = ((tx - d.x) / dist) * DRAGONFLY_DART
+            d.vy = ((ty - d.y) / dist) * DRAGONFLY_DART
+          }
+        }
+      }
+      if (d.dart) {
+        d.x += d.vx
+        d.y = Math.min(H - 6, d.y + d.vy)
+      }
+      if (d.y < HUD - 10 || d.x < -24 || d.x > W + 24)
+        this.dragonflies = this.dragonflies.filter((o) => o !== d)
+    }
+  }
+
+  private hitDragonfly(x: number, y: number): boolean {
+    const pad = this.kit.nozzle ? 2 : 0
+    const d = this.dragonflies.find(
+      (o) => Math.abs(o.x - x) <= 6 + pad && Math.abs(o.y - y) <= 5,
+    )
+    if (!d) return false
+    this.fixDragonfly(d)
+    return true
+  }
+
+  private fixDragonfly(d: Dragonfly) {
+    this.dragonflies = this.dragonflies.filter((o) => o !== d)
+    this.addScore(DRAGONFLY_POINTS * this.multiplier, d.x, d.y - 8)
+    this.burst(d.x, d.y, 10, RAMPS.teal[3])
+    this.fx.burst(d.x, d.y, this.fxRng, {
+      count: 12,
+      colours: [RAMPS.sky[4], RAMPS.teal[3], RAMPS.gold[4]],
+    })
+    this.sound.play('pop')
+  }
+
+  // --- bee bots and the wasp-glitch --------------------------------------------------
+
+  /**
+   * A flight of bee bots crosses the lawn carrying pollen. Spray one and it's soaked (the Kind
+   * bonus is gone). A wasp-glitch among them breaks off and dives once it lines up over you.
+   */
+  private updateBees() {
+    const count = this.wave.bees
+    if (count > 0 && !this.bees.length && --this.beeTimer <= 0) {
+      this.beeTimer = BEE_EVERY
+      const fromLeft = this.rng() < 0.5
+      const row = 8 + Math.floor(this.rng() * 12)
+      const wasp = this.wave.wasp ? Math.floor(this.rng() * count) : -1
+      for (let i = 0; i < count; i++)
+        this.bees.push({
+          x: fromLeft ? -8 - i * 16 : W + 8 + i * 16,
+          y: HUD + row * CELL + 4 + (i % 2) * 5,
+          vx: (fromLeft ? 1 : -1) * BEE_SPEED,
+          wasp: i === wasp,
+          diving: false,
+          ticks: 0,
+        })
+    }
+    for (const b of [...this.bees]) {
+      b.ticks++
+      if (b.diving) {
+        b.y += WASP_DIVE
+        if (b.y > H + 8) this.bees = this.bees.filter((o) => o !== b)
+        continue
+      }
+      b.x += b.vx
+      b.y += Math.sin((this.tick + b.x) / 12) * 0.3
+      if (
+        b.wasp &&
+        b.ticks > 90 &&
+        b.x > 8 &&
+        b.x < W - 8 &&
+        Math.abs(b.x - this.px) < 4
+      ) {
+        b.diving = true
+        this.sound.play('warn')
+      }
+      const across = b.vx > 0 ? b.x > W + 10 : b.x < -10
+      if (!across || b.ticks < 30) continue
+      this.bees = this.bees.filter((o) => o !== b)
+      if (b.wasp) continue
+      this.beesCrossed++
+      const goal = this.wave.objective
+      if (goal?.kind === 'escort-bees' && this.beesCrossed >= goal.count)
+        this.meetObjective()
+    }
+  }
+
+  /** The spray hit a friendly bee: it's soaked and buzzes off, and the Kind bonus is lost. */
+  private sprayBee(x: number, y: number): boolean {
+    const b = this.bees.find(
+      (o) => !o.wasp && Math.abs(o.x - x) <= 5 && Math.abs(o.y - y) <= 5,
+    )
+    if (!b) return false
+    this.bees = this.bees.filter((o) => o !== b)
+    this.kindLost = true
+    if (this.wave.objective?.kind === 'escort-bees') this.objectiveFailed = true
+    this.floaters.push({ x: b.x, y: b.y - 8, text: 'SORRY, BEE!', life: 50 })
+    this.burst(b.x, b.y, 6, RAMPS.water[3])
+    this.sound.play('blip')
+    if (this.volley) this.volley.landed = true
+    return true
+  }
+
+  private hitWasp(x: number, y: number): boolean {
+    const pad = this.kit.nozzle ? 2 : 0
+    const b = this.bees.find(
+      (o) => o.wasp && Math.abs(o.x - x) <= 5 + pad && Math.abs(o.y - y) <= 5,
+    )
+    if (!b) return false
+    this.bees = this.bees.filter((o) => o !== b)
+    this.addScore(WASP_POINTS * this.multiplier, b.x, b.y - 8)
+    this.burst(b.x, b.y, 10, RAMPS.ember[3])
+    this.fx.burst(b.x, b.y, this.fxRng, {
+      count: 12,
+      colours: [RAMPS.gold[4], RAMPS.ember[3], '#ffffff'],
+    })
+    this.sound.play('pop')
+    return true
+  }
+
+  // --- the season bosses -------------------------------------------------------------
+
+  private startBoss(id: BossId) {
+    this.boss = { id, phase: 1, joints: 0, defeated: false }
+    this.card = CARD_TICKS
+    this.banner = null
+    if (id === 'queen-wiggle')
+      this.spawnWorm(Math.floor(COLS / 2) * CELL, QUEEN_SEGMENTS_COUNT, 1, {
+        queen: true,
+        armour: QUEEN_ARMOUR,
+        offset: 0,
+      })
+    else this.mower = this.newMower([MOWER_CAP_HP, MOWER_CAP_HP, MOWER_CAP_HP])
+    this.sound.play('warn')
+  }
+
+  /** A queen segment was fixed: two joints split her into three worms that march in step. */
+  private queenSplit(w: Worm, k: number) {
+    const boss = this.boss
+    if (boss?.id !== 'queen-wiggle' || boss.phase !== 1) return
+    if (!this.isJoint(w, k)) return
+    boss.joints++
+    if (boss.joints < 2) return
+    boss.phase = 2
+    this.worms = this.worms.filter((o) => !o.queen)
+    for (const col of [4, 13, 22])
+      this.spawnWorm(col * CELL, 6, 1, { queen: true, offset: 1 })
+    this.banner = {
+      text: 'SHE SPLITS IN THREE!',
+      sub: 'THEY MOVE IN STEP',
+      ticks: 90,
+    }
+    this.sound.play('warn')
+  }
+
+  private updateBoss() {
+    const boss = this.boss
+    if (!boss || boss.defeated) return
+    if (boss.id === 'mow-bot') {
+      this.updateMower()
+      return
+    }
+    if (boss.phase < 3 && !this.worms.some((w) => w.queen)) {
+      boss.phase = 3
+      this.queenHead = {
+        x: W / 2,
+        y: HUD + (BED_TOP - 2) * CELL,
+        vx: 1.3 + 0.15 * this.lap,
+        vy: 1,
+        hp: QUEEN_HEAD_HP,
+      }
+      this.banner = {
+        text: 'HER CROWN BUZZES!',
+        sub: 'FIX IT IN THE BED',
+        ticks: 90,
+      }
+      this.sound.play('warn')
+    }
+    const h = this.queenHead
+    if (!h) return
+    h.x += h.vx
+    h.y += h.vy
+    if (h.x < 6 || h.x > W - 6) h.vx = -h.vx
+    const top = HUD + (BED_TOP - 3) * CELL
+    if (h.y < top || h.y > H - 6) h.vy = -h.vy
+    if (this.tick % 37 === 0)
+      h.vy = (this.rng() < 0.5 ? -1 : 1) * (0.7 + this.rng() * 0.9)
+  }
+
+  private hitQueenHead(x: number, y: number): boolean {
+    const h = this.queenHead
+    if (!h || Math.abs(h.x - x) > 7 || Math.abs(h.y - y) > 6) return false
+    h.hp--
+    this.fx.burst(h.x, h.y, this.fxRng, {
+      count: 6,
+      colours: [RAMPS.gold[4], RAMPS.pink[3]],
+    })
+    this.sound.play('blip')
+    if (h.hp > 0) return true
+    this.queenHead = null
+    this.defeatBoss(h.x, h.y)
+    return true
+  }
+
+  private defeatBoss(x: number, y: number) {
+    const boss = this.boss
+    if (!boss) return
+    boss.defeated = true
+    this.addScore(BOSSES[boss.id].bonus, x, y - 10)
+    this.petals += TROWEL_PETALS
+    this.burst(x, y, 24, RAMPS.gold[4])
+    this.fx.burst(x, y, this.fxRng, {
+      count: 30,
+      speed: 2.4,
+      colours: [RAMPS.pink[3], RAMPS.gold[4], RAMPS.leaf[3], RAMPS.sky[3]],
+    })
+    this.sound.play('extra')
+  }
+
+  private newMower(caps: number[]): Mower {
+    return {
+      x: -MOWER_COLS * CELL,
+      y: HUD + CELL,
+      dir: 1,
+      drop: 0,
+      caps,
+      chase: false,
+      parked: 0,
+    }
+  }
+
+  /**
+   * Mow-Bot 3000 crosses the garden row by row, mowing everything under it. Each fixed fuel cap
+   * makes it faster; once it reaches the bed, or with two caps fixed, it chases you sideways.
+   */
+  private updateMower() {
+    const m = this.mower
+    if (!m) return
+    const mw = MOWER_COLS * CELL
+    const mh = MOWER_ROWS * CELL
+    const fixed = m.caps.filter((c) => c <= 0).length
+    const speed = MOWER_SPEEDS[Math.min(fixed, 2)]! + 0.15 * this.lap
+    const bedY = HUD + BED_TOP * CELL
+    if (!m.chase && (fixed >= 2 || m.y + mh >= bedY)) {
+      m.chase = true
+      this.banner = {
+        text: 'IT IS IN THE BED!',
+        sub: 'DODGE AND AIM AT A CAP',
+        ticks: 70,
+      }
+    }
+    if (m.chase) {
+      const cx = m.x + mw / 2
+      const gap = this.px - cx
+      m.x += Math.sign(gap) * Math.min(Math.abs(gap), speed)
+      if (gap !== 0) m.dir = gap > 0 ? 1 : -1
+      const ty = Math.max(bedY, Math.min(H - mh, this.py - mh / 2))
+      const dy = ty - m.y
+      m.y += Math.sign(dy) * Math.min(Math.abs(dy), speed * 0.6)
+      m.x = Math.max(0, Math.min(W - mw, m.x))
+    } else if (m.drop > 0) {
+      const d = Math.min(speed, m.drop)
+      m.y += d
+      m.drop -= d
+    } else {
+      m.x += m.dir * speed
+      if (m.dir > 0 && m.x + mw >= W) {
+        m.x = W - mw
+        m.dir = -1
+        m.drop = mh
+      } else if (m.dir < 0 && m.x <= 0) {
+        m.x = 0
+        m.dir = 1
+        m.drop = mh
+      }
+    }
+    // It mows whatever it rolls over (but never the trees or sunflowers).
+    const c0 = Math.floor(m.x / CELL)
+    const c1 = Math.floor((m.x + mw - 1) / CELL)
+    const r0 = Math.floor((m.y - HUD) / CELL)
+    const r1 = Math.floor((m.y + mh - 1 - HUD) / CELL)
+    for (let r = r0; r <= r1; r++)
+      for (let c = c0; c <= c1; c++) {
+        const ob = this.at(c, r)
+        if (ob && !isWall(ob)) this.grid[this.idx(c, r)] = null
+      }
+  }
+
+  /** A beam meets the mower: a fuel cap if it's under one, else it plinks off the body. */
+  private hitMower(x: number, y: number): 'cap' | 'body' | null {
+    const m = this.mower
+    if (!m || this.boss?.defeated) return null
+    const mw = MOWER_COLS * CELL
+    const mh = MOWER_ROWS * CELL
+    if (x < m.x || x >= m.x + mw || y < m.y - 2 || y >= m.y + mh) return null
+    const i = MOWER_CAPS.findIndex(
+      (off, k) =>
+        (m.caps[k] ?? 0) > 0 && x >= m.x + off - 1 && x < m.x + off + 6,
+    )
+    if (i < 0) return 'body'
+    m.caps[i]!--
+    this.sound.play('blip')
+    if (m.caps[i]! > 0) return 'cap'
+    const left = m.caps.filter((c) => c > 0).length
+    this.boss!.phase++
+    this.burst(m.x + MOWER_CAPS[i]! + 2, m.y + 2, 10, RAMPS.leaf[3])
+    if (left > 0) {
+      this.banner = {
+        text: 'FUEL CAP FIXED!',
+        sub: left === 1 ? 'ONE CAP LEFT' : `${left} CAPS LEFT`,
+        ticks: 70,
+      }
+      this.sound.play('pop')
+      return 'cap'
+    }
+    m.parked = 1
+    this.mown = true
+    this.defeatBoss(m.x + mw / 2, m.y)
+    return 'cap'
+  }
+
   /** A worm that lingers in the flowerbed sends loose heads in from the sides. */
   private updateCrawlers() {
     const inBed = this.worms.some(
       (w) => (w.trail[0]!.y - HUD) / CELL >= BED_TOP,
     )
     this.bedTicks = inBed ? this.bedTicks + 1 : 0
-    if (this.bedTicks < CRAWLER_AFTER) return
+    if (!this.wave.crawlers || this.bedTicks < CRAWLER_AFTER) return
     if (--this.crawlerTimer > 0) return
     this.crawlerTimer = CRAWLER_EVERY
     const crawlers = this.worms.filter((w) => w.crawler).length
@@ -1440,11 +2484,31 @@ class GlitchGarden implements ArcadeGameInstance {
       this.lose()
     const m = this.moth
     if (m && Math.abs(m.x - this.px) < 6 && Math.abs(m.y - this.py) < 6)
-      this.lose()
+      return this.lose()
+    const touch = (x: number, y: number, rx: number, ry: number) =>
+      Math.abs(x - this.px) < rx && Math.abs(y - this.py) < ry
+    if (this.dragonflies.some((d) => touch(d.x, d.y, 7, 5))) return this.lose()
+    if (this.bees.some((b) => b.wasp && b.diving && touch(b.x, b.y, 6, 6)))
+      return this.lose()
+    const h = this.queenHead
+    if (h && touch(h.x, h.y, 7, 6)) return this.lose()
+    const mo = this.mower
+    if (mo && !this.boss?.defeated) {
+      const mw = MOWER_COLS * CELL
+      const mh = MOWER_ROWS * CELL
+      if (
+        this.px > mo.x - 3 &&
+        this.px < mo.x + mw + 3 &&
+        this.py > mo.y - 3 &&
+        this.py < mo.y + mh + 3
+      )
+        this.lose()
+    }
   }
 
   private lose() {
     this.lives--
+    this.sprayersLost++
     this.dead = DEATH_TICKS
     this.beams = []
     this.volley = null
@@ -1460,24 +2524,43 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.lives <= 0) {
       this.over = true
       this.banner = { text: 'GAME OVER', ticks: 9999 }
+      this.writeSave(false)
       return
     }
     for (const ob of this.grid) {
-      if (!ob || ob.kind === 'can') continue
+      if (!ob || (ob.kind !== 'lamp' && ob.kind !== 'sprout')) continue
       if (ob.hp < (ob.kind === 'lamp' ? LAMP_HP : SPROUT_HP)) {
         ob.hp = ob.kind === 'lamp' ? LAMP_HP : SPROUT_HP
         this.addScore(5, W / 2, H / 2)
       }
     }
-    // The worms start the wave over from the top, the same lengths.
-    const lengths = this.worms.filter((w) => !w.crawler).map((w) => w.segments)
+    // The worms start the wave over from the top, the same lengths (a queen stays a queen).
+    const kept = this.worms.filter((w) => !w.crawler)
     this.worms = []
-    lengths.forEach((n, i) =>
-      this.spawnWorm(((i * 7 + 15) % COLS) * CELL, n, i % 2 ? -1 : 1),
+    kept.forEach((w, i) =>
+      this.spawnWorm(
+        this.boss?.phase === 2
+          ? (4 + ((i * 9) % 27)) * CELL
+          : ((i * 7 + 15) % COLS) * CELL,
+        w.segments,
+        this.boss?.phase === 2 ? 1 : i % 2 ? -1 : 1,
+        w.queen ? { queen: true, offset: w.offset, armour: w.armour } : {},
+      ),
     )
     this.beetle = null
     this.moth = null
     this.snail = null
+    this.dragonflies = []
+    this.bees = []
+    this.beeTimer = BEE_EVERY / 2
+    if (this.queenHead)
+      this.queenHead = {
+        ...this.queenHead,
+        x: W / 2,
+        y: HUD + (BED_TOP - 2) * CELL,
+      }
+    if (this.mower && !this.boss?.defeated)
+      this.mower = this.newMower(this.mower.caps)
     this.bedTicks = 0
     this.px = W / 2
     this.py = HUD + (ROWS - 2) * CELL
@@ -1494,8 +2577,9 @@ class GlitchGarden implements ArcadeGameInstance {
     if (points >= 100)
       this.floaters.push({ x, y, text: String(points), life: 36 })
     if (this.score >= this.nextExtra) {
-      this.nextExtra += EXTRA_EVERY
-      this.lives++
+      this.extras++
+      this.nextExtra = extraAt(this.extras + 1)
+      this.lives = Math.min(MAX_LIVES, this.lives + 1)
       this.banner = { text: 'EXTRA SPRAYER!', ticks: 80 }
       this.sound.play('extra')
     }
@@ -1555,9 +2639,32 @@ class GlitchGarden implements ArcadeGameInstance {
         if (!target || p.y > target.y) target = { x: p.x + 4, y: p.y }
       }
     }
+    // Bosses and darting foes are the targets when they're about.
+    for (const d of this.dragonflies)
+      if (!d.dart && d.y > HUD) target = { x: d.x, y: d.y }
+    if (this.queenHead) target = this.queenHead
+    const mo = this.mower
+    if (mo && !this.boss?.defeated) {
+      const i = mo.caps.findIndex((c) => c > 0)
+      if (i >= 0) target = { x: mo.x + MOWER_CAPS[i]! + 2, y: mo.y }
+    }
     // Danger close: get away from it first.
     const threats: Array<{ x: number; y: number }> = []
     if (this.beetle) threats.push(this.beetle)
+    for (const d of this.dragonflies) threats.push(d)
+    for (const b of this.bees) if (b.wasp && b.diving) threats.push(b)
+    if (this.queenHead) threats.push(this.queenHead)
+    if (mo && !this.boss?.defeated)
+      threats.push({
+        x: mo.x + (MOWER_COLS * CELL) / 2,
+        y: mo.y + (MOWER_ROWS * CELL) / 2 + (mo.chase ? 6 : 0),
+      })
+    // Never spray a bee bot: hold fire while one is over the nozzle.
+    if (this.bees.some((b) => !b.wasp && Math.abs(b.x - this.px) < 8))
+      held.a = false
+    // A falling apple in reach is worth catching.
+    const apple = this.apples.find((a) => a.y > HUD + (BED_TOP - 8) * CELL)
+    if (apple) target = { x: apple.x, y: apple.y }
     for (const w of this.worms)
       for (let k = 0; k < w.segments; k++) {
         const p = this.segmentPos(w, k)
@@ -1584,6 +2691,31 @@ class GlitchGarden implements ArcadeGameInstance {
     // Hang near the bottom of the bed.
     if (this.py < H - 14) held.down = true
     return frame
+  }
+
+  /** The attract pilot's shopping: the best thing it can afford, then back out to the garden. */
+  private demoShedInput(): InputFrame {
+    const held = {
+      up: false,
+      down: false,
+      left: false,
+      right: false,
+      a: false,
+      b: false,
+      start: false,
+    }
+    const shed = this.shed!
+    const want = ['nozzle', 'twin', 'siren', 'can', 'prism', 'done']
+      .map((id) => SHED_ITEMS.findIndex((i) => i.id === id))
+      .find((i) => {
+        const item = SHED_ITEMS[i]!
+        return item.id === 'done' || !cannotBuy(item, this.kit, this.petals)
+      })!
+    if (this.tick % 6 === 0) {
+      if (shed.cursor !== want) held.down = true
+      else held.a = true
+    }
+    return { held, pressed: { ...held } }
   }
 
   /** The lowest can with a worm segment inside its splash, as a point to line up under. */
@@ -1617,6 +2749,9 @@ class GlitchGarden implements ArcadeGameInstance {
       g.fillStyle = rgba(tint, 0.14)
       g.fillRect(0, LAWN_TOP, W, BED_Y - LAWN_TOP)
     }
+    if (this.mown) this.renderMownStripes(g)
+    this.renderPond(g)
+    this.renderExits(g)
     this.renderLanes(g)
     for (const f of this.flowers) {
       const sprite = FLOWER_SPRITES.get(f.prism)
@@ -1628,13 +2763,30 @@ class GlitchGarden implements ArcadeGameInstance {
         const ob = this.at(c, r)
         if (ob) this.renderObstacle(g, c, r, ob)
       }
+    for (const a of this.apples) drawHd(g, APPLE_SPRITE, a.x, a.y)
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
     if (this.snail) this.renderSnail(g, this.snail)
     if (this.moth) this.renderMoth(g, this.moth)
+    for (const d of this.dragonflies) this.renderDragonfly(g, d)
+    for (const b of this.bees) this.renderBee(g, b)
+    if (this.queenHead) this.renderQueenHead(g, this.queenHead)
+    if (this.mower)
+      drawMower(g, {
+        x: this.mower.x,
+        y: this.mower.y,
+        w: MOWER_COLS * CELL,
+        h: MOWER_ROWS * CELL,
+        caps: this.mower.caps,
+        capOffsets: MOWER_CAPS,
+        tick: this.tick,
+        dir: this.mower.dir,
+        parked: this.boss?.defeated ?? false,
+      })
     for (const beam of this.beams) this.renderBeam(g, beam)
     this.renderRings(g)
-    if (this.dead === 0) this.renderSprayer(g)
+    if (this.dead === 0 && !this.shed) this.renderSprayer(g)
+    this.renderSiren(g)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 26)
       g.fillStyle = INK
@@ -1652,16 +2804,20 @@ class GlitchGarden implements ArcadeGameInstance {
       })
     vignette(g, W, H, 0.3)
     this.renderHud(g)
+    if (this.card > 0) this.renderCard(g)
+    if (this.shed) this.renderShed(g, this.shed)
+    if (this.menu) this.renderMenu(g, this.menu)
   }
 
-  /** The lawn and the flowerbed, painted once. */
+  /** The lawn and the flowerbed, painted once per garden in its own colours. */
   private renderGarden(g: CanvasRenderingContext2D) {
-    cachedLayer(g, 'glitch-garden-floor', W, H, (k) => {
+    const look = GARDEN_LOOKS[this.garden.id] ?? GARDEN_LOOKS['kitchen-plot']!
+    cachedLayer(g, `glitch-garden-floor-${this.garden.id}`, W, H, (k) => {
       k.fillStyle = HEDGE[0]
       k.fillRect(0, 0, W, LAWN_TOP)
-      // A lawn at dusk, banded darker toward the top, mowed in stripes.
-      bandedGradient(k, 0, LAWN_TOP, W, BED_Y - LAWN_TOP, LAWN_BANDS, 8)
-      k.fillStyle = rgba(RAMPS.leaf[2], 0.07)
+      // The lawn, banded darker toward the top, mowed in stripes.
+      bandedGradient(k, 0, LAWN_TOP, W, BED_Y - LAWN_TOP, look.lawn, 8)
+      k.fillStyle = rgba(look.stripe, 0.07)
       for (let x = 0; x < W; x += CELL * 4)
         k.fillRect(x, LAWN_TOP, CELL * 2, BED_Y - LAWN_TOP)
       // The glitch: the garden's cell grid shows through as faint dots.
@@ -1687,7 +2843,7 @@ class GlitchGarden implements ArcadeGameInstance {
         }
       }
       // The flowerbed: banded tilled soil, a furrow every row.
-      bandedGradient(k, 0, BED_Y, W, H - BED_Y, SOIL_BANDS, 4)
+      bandedGradient(k, 0, BED_Y, W, H - BED_Y, look.soil, 4)
       for (let y = BED_Y + CELL - 1; y < H; y += CELL) {
         k.fillStyle = RAMPS.earth[0]
         k.fillRect(0, y, W, 1)
@@ -1703,14 +2859,252 @@ class GlitchGarden implements ArcadeGameInstance {
       }
       // A bevelled brick edging between the lawn and the bed.
       for (let x = 0; x < W; x += 12)
-        bevel(k, x + 1, BED_Y - 1, 10, 3, RAMPS.rust, { depth: 1 })
+        bevel(k, x + 1, BED_Y - 1, 10, 3, look.edging, { depth: 1 })
+    })
+  }
+
+  /** After Mow-Bot parks it has mown the lawn into neat diagonal stripes. */
+  private renderMownStripes(g: CanvasRenderingContext2D) {
+    g.fillStyle = rgba(RAMPS.leaf[3], 0.08)
+    for (let y = LAWN_TOP; y < BED_Y; y += 4)
+      for (let x = ((y >> 2) * 2) % 16; x < W; x += 16) g.fillRect(x, y, 8, 4)
+  }
+
+  /** The lily pond: a strip of water, and pads drifting along it under the lamps. */
+  private renderPond(g: CanvasRenderingContext2D) {
+    const rows = this.garden.pondRows
+    if (!rows?.length) return
+    const top = HUD + Math.min(...rows) * CELL - 2
+    const bottom = HUD + (Math.max(...rows) + 1) * CELL + 2
+    g.fillStyle = rgba(RAMPS.water[1], 0.85)
+    g.fillRect(0, top, W, bottom - top)
+    g.fillStyle = rgba(RAMPS.water[3], 0.4)
+    for (let x = (this.tick >> 2) % 12; x < W; x += 12) {
+      g.fillRect(x, top + 2, 4, 1)
+      g.fillRect((x + 6) % W, bottom - 3, 4, 1)
+    }
+    rows.forEach((row, i) => {
+      const dir = i % 2 === 0 ? 1 : -1
+      for (let c = 0; c < COLS; c++) {
+        const has = this.at(c, row) !== null
+        const deco = (((c - dir * this.padShift) % 3) + 3) % 3 === 0
+        if (has || deco)
+          drawLilyPad(g, c * CELL + 4, HUD + row * CELL + 6, deco && !has)
+      }
+    })
+  }
+
+  /** The sunflower maze's exit: a warm glow in the gap. */
+  private renderExits(g: CanvasRenderingContext2D) {
+    for (const i of this.exits) {
+      const col = i % COLS
+      const row = Math.floor(i / COLS)
+      const pulse = 0.25 + 0.15 * Math.sin(this.tick / 10)
+      g.fillStyle = rgba(RAMPS.gold[3], pulse)
+      g.fillRect(col * CELL, HUD + row * CELL, CELL, CELL)
+    }
+  }
+
+  /** With the snail siren fitted, an arrow at the lawn's edge points out a crossing snail. */
+  private renderSiren(g: CanvasRenderingContext2D) {
+    const s = this.snail
+    if (!s || !this.kit.siren || (this.tick >> 3) % 2) return
+    const left = s.vx > 0
+    drawText(g, left ? '→' : '←', left ? 4 : W - 4, s.y - 4, {
+      align: left ? 'left' : 'right',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+  }
+
+  private renderDragonfly(g: CanvasRenderingContext2D, d: Dragonfly) {
+    dropShadow(g, d.x, d.y + 7, 4, 1, 0.3)
+    const flip = d.vx < 0
+    if (d.dart) {
+      // Darting: wings a blur, with a ghost trailing it.
+      drawHd(g, DRAGONFLY_SPRITES[0], d.x - d.vx * 2, d.y - d.vy * 2, {
+        flipX: flip,
+        alpha: 0.35,
+      })
+      drawHd(g, DRAGONFLY_SPRITES[0], d.x, d.y, { flipX: flip, alpha: 0.85 })
+    } else {
+      // Stopped: wings folded and still (the moment to lead a shot into).
+      glow(g, d.x, d.y, 7, RAMPS.teal[3], 0.25)
+      drawHd(g, DRAGONFLY_SPRITES[1], d.x, d.y, { flipX: flip })
+    }
+  }
+
+  private renderBee(g: CanvasRenderingContext2D, b: Bee) {
+    const flap = (this.tick >> 2) % 2
+    const flip = b.vx < 0
+    if (b.wasp) {
+      // The stripes jitter: it flickers between the bee's look and its own.
+      const jitter = (this.tick >> 1) % 3 === 0 ? 1 : 0
+      if (b.diving) glow(g, b.x, b.y, 8, RAMPS.ember[2], 0.4)
+      drawHd(
+        g,
+        WASP_SPRITES[jitter]!,
+        b.x + (b.diving ? 0 : jitter * 0.5),
+        b.y,
+        {
+          flipX: flip,
+        },
+      )
+      return
+    }
+    drawHd(g, BEE_SPRITES[flap]!, b.x, b.y, { flipX: flip })
+  }
+
+  private renderQueenHead(g: CanvasRenderingContext2D, h: QueenHead) {
+    const frame = (this.tick >> 2) % 2
+    glow(g, h.x, h.y, 12, RAMPS.gold[3], 0.4)
+    // Buzzing wings either side of the crown.
+    g.fillStyle = rgba(RAMPS.sky[4], 0.6)
+    g.fillRect(h.x - 8, h.y - 4 - frame, 4, 2)
+    g.fillRect(h.x + 4, h.y - 4 - frame, 4, 2)
+    drawHd(g, QUEEN_HEADS[frame]!, h.x, h.y, { flipX: h.vx < 0 })
+    for (let i = 0; i < h.hp; i++) {
+      g.fillStyle = RAMPS.pink[3]
+      g.fillRect(h.x - h.hp + i * 2, h.y - 9, 1, 1)
+    }
+  }
+
+  /** Over a garden's first wave: its name, season and what's new there. */
+  private renderCard(g: CanvasRenderingContext2D) {
+    const step = this.step
+    const fade = Math.min(1, this.card / 30)
+    g.globalAlpha = fade
+    g.fillStyle = rgba(INK, 0.72)
+    g.fillRect(12, H / 2 - 56, W - 24, 92)
+    g.strokeStyle = RAMPS.gold[3]
+    g.lineWidth = 1
+    g.strokeRect(12.5, H / 2 - 55.5, W - 25, 91)
+    const line = (text: string, y: number, color: string, scale = 1) =>
+      drawText(g, text, W / 2, y, {
+        align: 'center',
+        color,
+        outline: INK,
+        scale,
+      })
+    if (step.kind === 'boss') {
+      const boss = BOSSES[step.boss]
+      line('SEASON BOSS', H / 2 - 46, RAMPS.ember[3])
+      line(boss.name, H / 2 - 30, '#ffffff', 2)
+      line(boss.sub, H / 2 - 4, RAMPS.gold[3])
+    } else {
+      const garden = this.garden
+      const season = garden.season.toUpperCase()
+      line(`${season}  GARDEN ${step.garden + 1}`, H / 2 - 46, RAMPS.leaf[3])
+      line(garden.name, H / 2 - 30, '#ffffff', 2)
+      line(garden.intro[0], H / 2 - 4, RAMPS.gold[3])
+      line(garden.intro[1], H / 2 + 8, RAMPS.pink[3])
+      if (this.trowels.has(garden.id))
+        line('GOLDEN TROWEL EARNED', H / 2 + 22, RAMPS.gold[4])
+    }
+    g.globalAlpha = 1
+  }
+
+  /** The Compost Shed: the kit for sale, petals to spend, and the lane for a prism flower. */
+  private renderShed(g: CanvasRenderingContext2D, shed: Shed) {
+    g.fillStyle = rgba(INK, 0.85)
+    g.fillRect(0, HUD, W, H - HUD)
+    bevel(g, 10, HUD + 8, W - 20, 30, RAMPS.earth, { depth: 2 })
+    const text = (s: string, x: number, y: number, color: string, scale = 1) =>
+      drawText(g, s, x, y, { align: 'center', color, outline: INK, scale })
+    text('THE COMPOST SHED', W / 2, HUD + 13, RAMPS.cream[3], 2)
+    text(`PETALS ${this.petals}`, W / 2, HUD + 46, RAMPS.pink[3])
+    text(
+      `GOLDEN TROWELS ${this.trowels.size}/${GARDENS.length}`,
+      W / 2,
+      HUD + 58,
+      RAMPS.gold[3],
+    )
+    SHED_ITEMS.forEach((item, i) => {
+      const y = HUD + 78 + i * 24
+      const on = i === shed.cursor
+      const why = cannotBuy(item, this.kit, this.petals)
+      if (on) {
+        g.fillStyle = rgba(RAMPS.leaf[2], 0.35)
+        g.fillRect(14, y - 3, W - 28, 21)
+      }
+      const colour =
+        item.id === 'done' ? RAMPS.leaf[3] : why ? RAMPS.steel[2] : '#ffffff'
+      drawText(g, `${on ? '>' : ' '} ${item.name}`, 18, y, {
+        color: colour,
+        outline: INK,
+      })
+      if (item.cost > 0)
+        drawText(g, String(item.cost), W - 18, y, {
+          align: 'right',
+          color: RAMPS.pink[3],
+          outline: INK,
+        })
+      if (item.line)
+        drawText(g, item.line, 30, y + 9, {
+          color: RAMPS.steel[3],
+          outline: INK,
+        })
+    })
+    // The prism flower's lane: its column and the colour that cell blooms in.
+    if (SHED_ITEMS[shed.cursor]!.id === 'prism') {
+      const y = HUD + 78 + SHED_ITEMS.length * 24
+      g.fillStyle = RAMPS.earth[1]
+      g.fillRect(14, y, W - 28, 6)
+      const prism = prismFor(shed.lane, BED_TOP - 2)
+      g.fillStyle = PRISM_COLORS[prism]
+      g.fillRect(14 + (shed.lane * (W - 28)) / COLS, y - 1, 8, 8)
+      text(
+        `LANE ${shed.lane + 1}: ${prism.toUpperCase()}`,
+        W / 2,
+        y + 10,
+        PRISM_COLORS[prism],
+      )
+    }
+    if (shed.note) text(shed.note, W / 2, H - 40, RAMPS.gold[3])
+    text(
+      `A BUY  B LEAVE  ${Math.ceil(shed.ticks / 60)}`,
+      W / 2,
+      H - 22,
+      RAMPS.leaf[3],
+    )
+  }
+
+  /** The garden select: carry on the saved run, or start at any garden reached. */
+  private renderMenu(g: CanvasRenderingContext2D, menu: Menu) {
+    g.fillStyle = rgba(INK, 0.8)
+    g.fillRect(0, HUD, W, H - HUD)
+    drawText(g, 'GARDEN SELECT', W / 2, HUD + 30, {
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+      scale: 2,
+    })
+    menu.items.forEach((item, i) => {
+      const on = i === menu.cursor
+      const garden = GARDENS[item.garden]!
+      const y = HUD + 70 + i * 22
+      if (on) {
+        g.fillStyle = rgba(RAMPS.leaf[2], 0.35)
+        g.fillRect(14, y - 4, W - 28, 18)
+      }
+      drawText(g, `${on ? '>' : ' '} ${item.label}`, 18, y, {
+        color: item.resume ? RAMPS.gold[3] : '#ffffff',
+        outline: INK,
+      })
+      if (this.trowels.has(garden.id))
+        drawText(g, '*', W - 20, y, { color: RAMPS.gold[4], outline: INK })
+    })
+    drawText(g, 'UP/DOWN PICK  A START', W / 2, H - 24, {
+      align: 'center',
+      color: RAMPS.leaf[3],
+      outline: INK,
     })
   }
 
   /** The special wave's marked lanes: a faint gold furrow and a flag that turns into a bloom. */
   private renderLanes(g: CanvasRenderingContext2D) {
     const goal = this.wave.objective
-    if (!goal || this.clear > 0) return
+    if (goal?.kind !== 'bloom-lanes' || this.clear > 0) return
     const pulse = 0.06 + 0.04 * Math.sin(this.tick / 14)
     for (const lane of goal.lanes) {
       const x = lane * CELL
@@ -1773,6 +3167,22 @@ class GlitchGarden implements ArcadeGameInstance {
       g.fillStyle = PRISM_COLORS[prismFor(c, r)]
       g.fillRect(x + 2, y + 1, 2, 1)
     }
+    if (ob.kind === 'tree') {
+      drawHd(g, TREE_SPRITE, x + 4, y + 2)
+      return
+    }
+    if (ob.kind === 'sunflower') {
+      // They nod in a slow wave along the row.
+      const nod = (c + Math.floor(this.tick / 30)) % 4 === 0 ? 1 : 0
+      drawHd(g, SUNFLOWER_SPRITES[nod]!, x + 4, y + 2)
+      return
+    }
+    if (ob.kind === 'apple') {
+      drawHd(g, APPLE_SPRITE, x + 4, y + 4, {
+        alpha: ob.hp < APPLE_HP ? 0.7 : 1,
+      })
+      return
+    }
     if (ob.kind === 'can') {
       // The can's tell: its glint and drip blink, faster once it's lit.
       const frame = Math.floor(this.tick / (ob.lit ? 3 : 18)) % 2
@@ -1817,6 +3227,23 @@ class GlitchGarden implements ArcadeGameInstance {
       if (w.frozen && w.frozen > 0) {
         g.fillStyle = rgba(PRISM_COLORS.cyan, 0.5)
         g.fillRect(x, y, CELL, CELL)
+      }
+      if (w.queen) {
+        // Queen Wiggle: a rainbow body, gold-ringed joints, a crowned (maybe helmeted) head.
+        const n = k + (w.offset ?? 0)
+        const sprite =
+          k === 0
+            ? ((w.armour ?? 0) > 0 ? QUEEN_ARMOURED : QUEEN_HEADS)[frame]!
+            : this.isJoint(w, k)
+              ? QUEEN_JOINT[frame]!
+              : QUEEN_SEGMENTS[n % QUEEN_SEGMENTS.length]![frame]!
+        if (k === 0 || this.isJoint(w, k))
+          glow(g, x + 4, y + 4, 9, RAMPS.gold[3], 0.35)
+        drawHd(g, sprite, x + 0.5, y - (k === 0 ? 1.5 : 0), {
+          anchor: 'topleft',
+          flipX: k === 0 && w.dx < 0,
+        })
+        continue
       }
       if (k === 0) {
         glow(g, x + 4, y + 4, 10, RAMPS.pink[3], 0.35)
@@ -1937,6 +3364,28 @@ class GlitchGarden implements ArcadeGameInstance {
       color: RAMPS.leaf[3],
       shadow: INK,
     })
+    // The special wave's progress, just under the HUD.
+    const goal = this.wave.objective
+    if (goal && this.clear === 0 && !this.shed) {
+      const progress =
+        goal.kind === 'catch-apples'
+          ? `APPLES ${Math.min(this.caught, goal.count)}/${goal.count}`
+          : goal.kind === 'escort-bees'
+            ? `BEES ACROSS ${Math.min(this.beesCrossed, goal.count)}/${goal.count}`
+            : goal.kind === 'maze-exit'
+              ? 'GUARD THE MAZE EXIT'
+              : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
+      const state = this.objectiveDone
+        ? 'DONE!'
+        : this.objectiveFailed
+          ? 'MISSED'
+          : ''
+      drawText(g, `${progress} ${state}`.trim(), W / 2, HUD + 2, {
+        align: 'center',
+        color: this.objectiveFailed ? RAMPS.steel[3] : RAMPS.gold[3],
+        outline: INK,
+      })
+    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, H / 2 - 20, {
         scale: 2,

@@ -43,6 +43,8 @@ export const GRUMPS: Record<GrumpKind, GrumpInfo> = {
   thief: { name: 'SEED THIEF', pace: 1.05, worth: 2 },
   puffball: { name: 'PUFFBALL', pace: 0.75, worth: 2 },
   spore: { name: 'SPORE GNAT', pace: 1.25, worth: 1 },
+  /** Butterfly Release's harmless wanderers (a Bonus Bed, not a grump). */
+  caterpillar: { name: 'CATERPILLAR', pace: 1, worth: 0.5 },
 }
 
 /** A slug out of its shell hurries at this share of the plot's speed. */
@@ -172,6 +174,7 @@ export function bloomable(kind: GrumpKind, phase: GrumpPhase): boolean {
 
 /** Whether a grump of this kind in this phase bonks a gardener it touches. */
 export function touches(kind: GrumpKind, phase: GrumpPhase): boolean {
+  if (kind === 'caterpillar') return false
   if (kind === 'mole') return phase === 'walk' || phase === 'tell'
   if (kind === 'hopper') return phase !== 'air'
   return true

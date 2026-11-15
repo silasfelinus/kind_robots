@@ -3,7 +3,7 @@
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
     <NuxtLink
       v-if="activePoster"
-      :to="activePoster.poster.path"
+      :to="advertPlayPath(activePoster.poster)"
       class="group block overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-2 transition hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
       data-testid="workspace-game-poster"
     >
@@ -497,6 +497,7 @@ import { useBuilderStore } from '@/stores/builderStore'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { useAdvertStore } from '@/stores/advertStore'
+import { advertPlayPath } from '@/utils/adverts/posters'
 import { useProjectStore } from '@/stores/projectStore'
 import { useReactionStore } from '@/stores/reactionStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -552,7 +553,9 @@ const sheetStore = useSheetStore()
 
 const activePoster = computed(
   () =>
-    advertStore.posters.find((view) => view.poster.path === route.path) ?? null,
+    advertStore.posters.find(
+      (view) => advertPlayPath(view.poster) === route.path,
+    ) ?? null,
 )
 
 const silasNote = computed(

@@ -241,6 +241,12 @@ for (const mode of ['blackout', 'bloodrush'] as const) {
       }
     }
   const crewRates = TEAMS.map((t) => crewScore[t.id]! / 120)
+  console.log(
+    mode + ' PARITY crew win rates:',
+    Object.fromEntries(
+      TEAMS.map((team, i) => [team.id, crewRates[i]!.toFixed(3)]),
+    ),
+  )
   const crewMean = crewRates.reduce((a, b) => a + b, 0) / crewRates.length
   const crewSpread = Math.sqrt(
     crewRates.reduce((a, r) => a + (r - crewMean) ** 2, 0) /

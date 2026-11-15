@@ -95,11 +95,20 @@ for (const [title, slug] of [
     entry.includes(`route: '/play/${slug}'`),
     `${title} must link to its active Play route`,
   )
-  assert.ok(entry.includes("tag: 'Sign-in playtest"), 'Login gate is disclosed')
+  if (slug === 'hybridizer')
+    assert.ok(
+      !entry.includes('Sign-in') && entry.includes("tag: 'Browse free"),
+      'Hybridizer is browsable without an account (Silas, 2026-11-14)',
+    )
+  else
+    assert.ok(
+      entry.includes("tag: 'Sign-in playtest"),
+      'Login gate is disclosed',
+    )
   if (slug === 'slime-city') {
     assert.ok(
-      entry.includes("image: '/api/art/images/267791/file'"),
-      'Slime City uses the delivered, publicly designated Krea title painting',
+      entry.includes("image: '/api/art/images/272640/file'"),
+      'Slime City uses the delivered six-crew face-off key art',
     )
   } else {
     for (const id of [258076, 258083, 258078]) {

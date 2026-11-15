@@ -38,7 +38,7 @@
             class="visitor-hero relative mb-2 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-neutral text-neutral-content"
           >
             <img
-              src="/crystal-street/cover.webp"
+              src="/api/art/images/272634/file"
               alt=""
               class="visitor-hero-art absolute inset-0 h-full w-full object-cover"
             />
@@ -439,13 +439,13 @@ const features: FeaturedExperience[] = [
     tag: 'Sign-in playtest · BLACKOUT CCG',
     category: 'play',
     route: '/play/slime-city',
-    image: '/api/art/images/267791/file',
+    image: '/api/art/images/272640/file',
     description:
       'Command six mutant crews, battle with collectible cards and explore seven rival districts.',
   },
   {
     title: 'Hybridizer',
-    tag: 'Sign-in playtest · Fusion lab',
+    tag: 'Browse free · Fusion lab',
     category: 'play',
     route: '/play/hybridizer',
     montage: [
@@ -461,7 +461,7 @@ const features: FeaturedExperience[] = [
     tag: 'New · 80s horror comedy',
     category: 'play',
     route: '/play/crystal-street',
-    image: '/crystal-street/cover.webp',
+    image: '/api/art/images/272634/file',
     description:
       'Survive Halloween week, 1986, against twenty-three remixed nightmares.',
   },

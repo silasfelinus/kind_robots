@@ -570,12 +570,13 @@ export const SLIME_CITY_ART = {
   },
   /**
    * UI art, round 4 (ArtJob 53119). 'title-splash' is the title screen's key
-   * art (conductor projects/slime-city/art/TITLE-AND-BOSS-REACTIONS-ROUND-1.yaml);
-   * until it is wired the title screen paints the chosen crew's home district.
+   * art: the six-crew face-off from conductor
+   * projects/slime-city/art/KEY-ART-2.yaml (Silas, 2026-11-14: "slime city
+   * need[s] better custom art"), replacing round 13's distant skyline.
    */
   ui: {
     'card-back': 260371,
-    'title-splash': 267791,
+    'title-splash': 272640,
   } as Readonly<Record<string, number>>,
   /**
    * Boss reaction portraits for the Clash versus console, keyed

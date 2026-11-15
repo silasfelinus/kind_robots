@@ -223,7 +223,9 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // ends at round end; stun the target or the neighbors before they swing.
   's1-hydraulic-shift': {
     2: stage('Time and a Half', [on('enter', sharpen(1, 'target'))]),
-    3: stage('Everybody Clocks In', [on('enter', power(2, 'adjacentAllies'))]),
+    3: stage('Everybody Clocks In', [
+      on('enter', sharpen(1, 'target'), power(2, 'adjacentAllies')),
+    ]),
   },
   // Arc: lightning off the forge -> it arcs along the chrome to the
   // fighters beside the target -> it grounds straight through the boss.
@@ -257,7 +259,9 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: stun the spiked fighter, or kill it with piercing hits.
   's3-ironjaw-bonus-plate': {
     2: stage('Overtime Bonus', [on('enter', life(2, 'target'))]),
-    3: stage('Spiked Bonus Plate', [on('enter', sharpen(2, 'target'))]),
+    3: stage('Spiked Bonus Plate', [
+      on('enter', life(2, 'target'), sharpen(2, 'target')),
+    ]),
   },
   // Arc: a shop-floor vote -> a show of hands from the crew -> every hand
   // raised: the whole floor bulldozes.
@@ -276,7 +280,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   's3-ironjaw-hammer-register': {
     2: stage('Signed Out', [on('enter', cleanse('target'))]),
     3: stage('Every Hammer Accounted For', [
-      on('enter', sharpen(1, 'adjacentAllies')),
+      on('enter', cleanse('target'), sharpen(1, 'adjacentAllies')),
     ]),
   },
   // Arc: cold weld on a wounded worker -> the weld hardens into a shield ->

@@ -252,6 +252,28 @@ assert.ok(
 )
 assert.ok(existsSync(join(ROOT, 'pages/admin/adverts.vue')))
 
+const advertPage = read('pages/admin/adverts.vue')
+assert.match(
+  advertPage,
+  /advert-focus[^"]*overflow-hidden md:flex-row/,
+  'tablet advert view places the poster beside the editor',
+)
+assert.match(
+  advertPage,
+  /kr-scroll min-h-0 flex-1 flex-col[^"]*bg-base-100\\/95[^"]*md:w-\\[23rem\\]/,
+  'the editor owns bounded scrolling and an opaque reading surface',
+)
+assert.match(
+  advertPage,
+  /@media \\(min-width: 768px\\) \\{/,
+  'the bounded poster stage switches layout at tablet width',
+)
+assert.match(
+  advertPage,
+  /\\.advert-stage \\{[^}]*min-height: 0;[^}]*overflow: hidden;/,
+  'the preview cannot spill into the control deck',
+)
+
 const sync = read('server/api/adverts/art/sync.post.ts')
 assert.match(sync, /requireAdminApiUser\(event\)/, 'sync route is admin-only')
 assert.match(sync, /registerCandidates\(/, 'sync route registers candidates')

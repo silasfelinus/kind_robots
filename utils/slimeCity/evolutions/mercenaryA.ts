@@ -176,11 +176,7 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', when('crowd', damage(2, 'target'))),
     ]),
     3: stage('Lightning Rod Petition', [
-      on(
-        'enter',
-        when('crowd', damage(2, 'target')),
-        when('crowd', boss(3)),
-      ),
+      on('enter', when('crowd', damage(2, 'target')), when('crowd', boss(3))),
     ]),
   },
   // Arc: a painted arrow into a dead end -> big trucks get stuck worst ->

@@ -313,13 +313,12 @@ export const PLATES: Record<string, ScenePlate> = {
     shape: 'square',
   },
   'bell-view': {
-    file: 'bell-view-original',
-    alt: 'From the bell canopy, a cold blue iron bell hangs above the ochre-and-white desert, small tracks running toward a lone pale tower on the horizon.',
-    artImageId: 0,
+    file: 'bell-view',
+    alt: 'From the bell canopy, a dark iron bell hangs over the rail above the ochre-and-white desert, a straight line of small tracks running toward a lone pale tower on the horizon.',
+    artImageId: 272618,
     source:
-      'Original scene-specific vector illustration (no generated ArtImage)',
+      'Gamebook round 23, gb23-a2-bell-view-mid (house-style pass of Krea composition 252193)',
     fit: 'exact',
-    format: 'svg',
   },
   'stolen-bread': {
     file: 'stolen-bread',
@@ -385,13 +384,12 @@ export const PLATES: Record<string, ScenePlate> = {
     fit: 'stand-in',
   },
   'desert-bloom': {
-    file: 'desert-bloom-original',
-    alt: 'After the storm, hundreds of yellow, white and violet wildflowers bloom across damp desert ground beyond a stone shrine doorway.',
-    artImageId: 0,
+    file: 'desert-bloom',
+    alt: 'After the night rain, a carpet of yellow, white and deep violet wildflowers covers the damp desert, rainwater standing in the hollows.',
+    artImageId: 272620,
     source:
-      'Original scene-specific vector illustration (no generated ArtImage)',
+      'Gamebook round 23, gb23-a4-bloom-mid (house-style pass of Krea composition 252199)',
     fit: 'exact',
-    format: 'svg',
   },
   'hb-noon': {
     file: 'hb-noon',

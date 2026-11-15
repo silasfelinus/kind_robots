@@ -139,14 +139,16 @@ const original = useShiftingDesksStore()
 original.load()
 const backupText = original.exportBackup()
 assert.equal(isShiftingDesksBackupEnvelope(JSON.parse(backupText)), true)
-const beforeInvalid = [...values]
+const sortedEntries = () =>
+  [...values].sort(([left], [right]) => left.localeCompare(right))
+const beforeInvalid = sortedEntries()
 assert.equal(original.importBackup('{"game":"unrelated"}'), false)
-assert.deepEqual([...values], beforeInvalid)
+assert.deepEqual(sortedEntries(), beforeInvalid)
 
 refuseNextWrite = ENDINGS_KEY
 assert.equal(original.importBackup(backupText), false)
 assert.equal(original.run?.seed, savedRun.seed)
-assert.deepEqual([...values], beforeInvalid, 'Failed import must roll back all slots')
+assert.deepEqual(sortedEntries(), beforeInvalid, 'Failed import must roll back all slots')
 
 // A portable backup restores a current run after local browser data is cleared.
 values.clear()

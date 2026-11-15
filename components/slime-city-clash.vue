@@ -2081,7 +2081,20 @@ function forecast(lane: number): string {
 }
 .clash-console-row {
   display: flex;
-  gap: 0.35rem;
+  min-width: 0;
+  gap: 0.25rem;
+}
+.clash-console-row :deep(.sc-sound-toggle) {
+  flex: 0 0 2.25rem;
+  min-width: 0;
+  padding: 0.35rem;
+}
+.clash-console-row :deep(.sc-sound-word) {
+  display: none;
+}
+.clash-console-row .clash-reset,
+.clash-console-row .clash-pass {
+  min-width: 0;
 }
 .clash-log-meta {
   display: flex;

@@ -128,8 +128,8 @@
         v-if="linkedProject"
         type="button"
         class="kr-btn-ghost-xs-lg"
-        title="Brainstorm variations grounded in this Project"
-        aria-label="Brainstorm variations grounded in this Project"
+        title="Start a Brainstorm round about this Project"
+        aria-label="Start a Brainstorm round about this Project"
         @click="startBrainstormWithProject"
       >
         <Icon name="kind-icon:brain" class="kr-icon-3-5" />
@@ -573,6 +573,7 @@ import {
   projectSheetPath,
 } from '@/utils/projectDestination'
 import type { ConductorProjectPriority } from '@/server/utils/conductorProjectRegistry'
+import { brainstormRiffHandoff } from '@/utils/brainstormRiffs'
 
 const props = defineProps<{ slug: string }>()
 
@@ -965,14 +966,12 @@ async function refreshProject() {
 function startBrainstormWithProject(): void {
   const project = linkedProject.value
   if (!project?.id) return
-  void navigateTo({
-    path: '/brainstorm',
-    query: {
-      source: 'project',
-      sourceId: String(project.id),
-      intent: `Generate variations for the Project "${project.title || 'this Project'}" that preserve its goal and direction.`,
-    },
-  })
+  void navigateTo(
+    brainstormRiffHandoff(
+      'list',
+      project.title ? `Big ideas for ${project.title}` : null,
+    ),
+  )
 }
 
 async function submitProjectTask() {

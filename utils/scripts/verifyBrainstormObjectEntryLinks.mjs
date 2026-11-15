@@ -1,20 +1,17 @@
 // /utils/scripts/verifyBrainstormObjectEntryLinks.mjs
 //
-// conductor brainstorm/t-013: Character-aware brainstorming and a reusable
-// deep-link/query-state contract. Mirrors
-// verifyStorybookObjectEntryLinks.mjs's shape and rationale: nothing
-// directly asserted that a Character surface can actually launch a
-// Brainstorm session grounded in that Character, only that the pieces
-// existed separately. This contract closes that gap for Brainstorm the same
-// way PR #1706's kaizen closed it for Storybook.
+// Character, Scenario, Reward, Bot and Project surfaces each carry a Brainstorm
+// button. Silas, 2026-11-14: the retired admin idea workbench is gone and those
+// buttons open the current Brainstorm riff-board at /brainstorm instead, with
+// a new round pre-titled after the object (brainstormRiffHandoff).
 //
-// Deliberately narrow: it checks that the CTA's click handler exists and
-// performs the navigation with the object's id/intent threaded through the
-// right query keys, and that Brainstorm's own seedFromQuery() still consumes
-// those keys. It does NOT assert button classes, icon names, or layout -- a
-// restyle of the CTA must not fail this check.
+// Deliberately narrow: it checks that each CTA's click handler exists and
+// hands off through brainstormRiffHandoff with the right round kind, and that
+// the riff-board still reads the ?new= and ?title= keys it is handed. It does
+// NOT assert button classes, icon names, or layout -- a restyle of the CTA
+// must not fail this check.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 function source(path) {
@@ -28,81 +25,65 @@ function includesAll(path, values) {
   }
 }
 
-const characterManagerPath = 'components/characters/character-manager.vue'
-const scenarioManagerPath = 'components/scenarios/scenario-manager.vue'
-const rewardManagerPath = 'components/rewards/reward-manager.vue'
-const botManagerPath = 'components/bots/bot-manager.vue'
-const projectDetailPath = 'components/conductor/project-detail.vue'
-const brainstormManagerPath = 'components/brainstorm/brainstorm-manager.vue'
+function excludesAll(path, values) {
+  const contents = source(path)
+  for (const value of values) {
+    assert.ok(!contents.includes(value), `${path} must not include ${value}`)
+  }
+}
 
-includesAll(characterManagerPath, [
-  'startBrainstormWithCharacter',
-  '@click="startBrainstormWithCharacter"',
-  "path: '/brainstorm'",
-  "source: 'character'",
-  'sourceId: String(character.id)',
+const surfaces = [
+  ['components/characters/character-manager.vue', 'Character', "'persona'"],
+  ['components/scenarios/scenario-manager.vue', 'Scenario', "'list'"],
+  ['components/rewards/reward-manager.vue', 'Reward', "'list'"],
+  ['components/bots/bot-manager.vue', 'Bot', "'persona'"],
+  ['components/conductor/project-detail.vue', 'Project', "'list'"],
+]
+
+for (const [path, label, flavor] of surfaces) {
+  includesAll(path, [
+    `startBrainstormWith${label}`,
+    `@click="startBrainstormWith${label}"`,
+    "import { brainstormRiffHandoff } from '@/utils/brainstormRiffs'",
+    'brainstormRiffHandoff(',
+    flavor,
+  ])
+  excludesAll(path, ["source: '", 'sourceId: String(', 'intent: `'])
+}
+
+includesAll('utils/brainstormRiffs.ts', [
+  "export const BRAINSTORM_ROUTE = '/brainstorm'",
+  'export function brainstormRiffHandoff(',
+  'query: prefill ? { new: flavor, title: prefill } : { new: flavor }',
 ])
 
-// brainstorm/t-027: Scenario is the second surface to wire into the same
-// seedFromQuery() contract -- its BRAINSTORM_SOURCE_ADAPTERS entry already
-// existed (brainstorm/t-014) with no UI entry point driving traffic to it.
-includesAll(scenarioManagerPath, [
-  'startBrainstormWithScenario',
-  '@click="startBrainstormWithScenario"',
-  "path: '/brainstorm'",
-  "source: 'scenario'",
-  'sourceId: String(scenario.id)',
+includesAll('components/brainstorm/play/brainstorm-play-console.vue', [
+  'single(route.query.new)',
+  'single(route.query.title)',
+  ':prefill-title="newTitle"',
 ])
 
-// brainstorm/t-028: Reward is the third surface wired into the same
-// seedFromQuery() contract -- its BRAINSTORM_SOURCE_ADAPTERS entry (this
-// task) ships alongside its own gated CTA, unlike Scenario's adapter/CTA
-// gap in t-027.
-includesAll(rewardManagerPath, [
-  'startBrainstormWithReward',
-  '@click="startBrainstormWithReward"',
-  "path: '/brainstorm'",
-  "source: 'reward'",
-  'sourceId: String(reward.id)',
+includesAll('components/brainstorm/play/brainstorm-riff-new.vue', [
+  'prefillTitle?: string',
+  "title: props.prefillTitle ?? ''",
 ])
 
-// brainstorm/t-029: Bot is the fourth surface wired into the same
-// seedFromQuery() contract, following the same adapter/CTA pair Reward
-// shipped in t-028 (BRAINSTORM_SOURCE_ADAPTERS entry + a gated CTA in the
-// same PR, not split across two tasks the way Scenario's was in t-027).
-includesAll(botManagerPath, [
-  'startBrainstormWithBot',
-  '@click="startBrainstormWithBot"',
-  "path: '/brainstorm'",
-  "source: 'bot'",
-  'sourceId: String(bot.id)',
-])
-
-// brainstorm/t-030: Project is the fifth surface wired into the same
-// seedFromQuery() contract, following the same adapter/CTA pair Reward and
-// Bot shipped (BRAINSTORM_SOURCE_ADAPTERS entry + a gated CTA in the same
-// PR).
-includesAll(projectDetailPath, [
-  'startBrainstormWithProject',
-  '@click="startBrainstormWithProject"',
-  "path: '/brainstorm'",
-  "source: 'project'",
-  'sourceId: String(project.id)',
-])
-
-includesAll(brainstormManagerPath, [
-  'function seedFromQuery',
-  'seedFromQuery()',
-  'route.query.source',
-  'route.query.sourceId',
-  'route.query.intent',
-  'store.setSource(',
-  'store.setPremise(intent)',
-])
+assert.equal(
+  existsSync(
+    resolve(process.cwd(), 'components/brainstorm/brainstorm-manager.vue'),
+  ),
+  false,
+  'the retired idea workbench stays retired',
+)
+assert.equal(
+  existsSync(resolve(process.cwd(), 'content/brainstorm.md')),
+  false,
+  '/brainstorm is the riff-board page, not the retired workbench content page',
+)
+assert.ok(existsSync(resolve(process.cwd(), 'pages/brainstorm.vue')))
 
 console.log(
   'Brainstorm object-entry links contract passed: Character, Scenario, ' +
-    'Reward, Bot, and Project can each launch a Brainstorm session grounded ' +
-    'in themselves, and Brainstorm still seeds its source and premise from ' +
-    'the source/sourceId/intent query keys.',
+    'Reward, Bot, and Project each open a pre-titled Brainstorm round at ' +
+    '/brainstorm, and the riff-board reads the ?new= and ?title= keys.',
 )

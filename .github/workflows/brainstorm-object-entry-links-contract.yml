@@ -11,6 +11,8 @@ on:
       - 'components/rewards/reward-manager.vue'
       - 'components/bots/bot-manager.vue'
       - 'components/conductor/project-detail.vue'
+      - 'pages/brainstorm.vue'
+      - 'utils/brainstormRiffs.ts'
       - 'utils/scripts/verifyBrainstormObjectEntryLinks.mjs'
   workflow_dispatch:
 
@@ -23,7 +25,7 @@ concurrency:
 
 jobs:
   contract:
-    name: Character/Scenario/Reward -> Brainstorm object-entry contract
+    name: Object surfaces -> Brainstorm riff-board entry contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

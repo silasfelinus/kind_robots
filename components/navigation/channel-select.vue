@@ -155,13 +155,11 @@
           class="flex w-44 shrink-0 flex-col gap-1.5 overflow-x-hidden kr-anchor-scroll border-r border-base-300 bg-base-200/40 p-2 lg:w-56 xl:w-64"
           :style="{ maxHeight: `${channelMenuMaxHeight}px` }"
           aria-label="Channels"
-          @wheel="handleLauncherWheel"
         >
           <li
             v-for="channel in visibleChannels"
             :key="channel.channelKey"
             class="channel-menu-item"
-            @mouseenter="previewChannel(channel)"
             @focusin="previewChannel(channel)"
           >
             <div
@@ -227,9 +225,13 @@
                 v-if="channel.tabs.length > 1"
                 type="button"
                 class="relative flex w-9 shrink-0 items-center justify-center text-base-content/70 hover:text-primary"
-                :aria-label="'Show ' + channel.label + ' destinations'"
-                :aria-expanded="previewedChannelKey === channel.channelKey"
-                @click.stop="previewChannel(channel)"
+                :aria-label="'Jump to ' + channel.label + ' destinations'"
+                :aria-current="
+                  previewedChannelKey === channel.channelKey
+                    ? 'true'
+                    : undefined
+                "
+                @click.stop="previewChannel(channel, true)"
               >
                 <Icon
                   name="kind-icon:chevron-right"
@@ -241,15 +243,15 @@
         </ul>
 
         <div
-          v-if="previewedChannel"
+          v-if="visibleChannels.length"
           ref="channelFlyout"
           class="channel-submenu @container min-w-0 flex-1 flex-nowrap overflow-x-hidden kr-anchor-scroll p-3 xl:p-4"
           :style="{
             maxHeight: `${channelFlyoutMaxHeight}px`,
             scrollbarGutter: 'stable',
           }"
-          :aria-label="previewedChannel.label + ' destinations'"
-          @wheel="handleLauncherWheel"
+          aria-label="Destinations in every channel"
+          @scroll.passive="scheduleScrollSync"
         >
           <section
             class="mb-2 flex min-w-0 items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3 py-2"
@@ -328,118 +330,191 @@
             </span>
           </button>
 
-          <MaturityToggle
-            v-if="
-              previewedChannel.channelKey === 'admin' && showMatureAdminOptIn
-            "
-            variant="resource"
-            class="mb-3"
-            label="Mature studios are hidden"
-            hidden-text="Enable mature content to see private adult previews in Admin."
-            visible-text="Mature previews are visible."
-          />
-
           <section
-            v-for="section in launcherSections"
-            :key="section.key"
-            class="mb-3 last:mb-0"
-            :aria-label="section.label || previewedChannel.label"
+            v-for="block in channelBlocks"
+            :key="block.channel.channelKey"
+            :data-channel-key="block.channel.channelKey"
+            class="mb-4 last:mb-0"
+            :aria-label="block.channel.label + ' destinations'"
           >
-            <p
-              v-if="section.label"
-              class="kr-text-eyebrow mb-1.5 flex items-center gap-2 px-1 text-[0.65rem] tracking-[0.18em] text-base-content/55"
+            <header
+              class="sticky -top-3 z-10 -mx-3 mb-2 flex items-center gap-2 border-b border-base-300 bg-base-100/95 px-3 py-2 backdrop-blur xl:-top-4 xl:-mx-4 xl:px-4"
             >
               <Icon
-                v-if="section.parent"
-                :name="section.parent.icon || previewedChannel.icon"
-                class="h-3 w-3"
+                :name="block.channel.icon"
+                class="h-4 w-4 shrink-0 text-primary"
               />
-              {{ section.label }}
-              <span
-                v-if="section.admin"
-                class="kr-text-eyebrow-bold kr-badge-warning-xs"
-              >
-                Admin
+              <span class="kr-text-black-sm truncate lg:text-base">
+                {{ block.channel.label }}
               </span>
-            </p>
+              <span
+                v-if="block.channel.room"
+                class="truncate text-xs font-semibold text-base-content/55"
+              >
+                {{ block.channel.room }}
+              </span>
+            </header>
 
-            <div
-              class="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2.5 @5xl:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] @5xl:gap-3"
+            <MaturityToggle
+              v-if="
+                block.channel.channelKey === 'admin' && showMatureAdminOptIn
+              "
+              variant="resource"
+              class="mb-3"
+              label="Mature studios are hidden"
+              hidden-text="Enable mature content to see private adult previews in Admin."
+              visible-text="Mature previews are visible."
+            />
+
+            <section
+              v-for="section in block.sections"
+              :key="section.key"
+              class="mb-3 last:mb-0"
+              :aria-label="section.label || block.channel.label"
             >
               <button
-                v-for="(tab, index) in section.tabs"
-                :key="tab.tabKey"
+                v-if="section.parent"
                 type="button"
-                class="kr-launcher-card group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-base-100 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                :class="
-                  isActiveTab(previewedChannel, tab)
-                    ? 'border-secondary ring-2 ring-secondary'
-                    : 'border-base-300'
-                "
-                :style="{ animationDelay: `${Math.min(index, 12) * 25}ms` }"
-                :aria-current="
-                  isActiveTab(previewedChannel, tab) ? 'page' : undefined
-                "
-                @mouseenter="spotlightTabKey = tab.tabKey"
-                @focus="spotlightTabKey = tab.tabKey"
-                @click="selectTab(previewedChannel, tab)"
+                class="group flex w-full min-w-0 items-center gap-3 rounded-2xl border border-base-300 bg-base-200/50 p-2 text-left transition-colors hover:border-primary/50 hover:bg-base-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                :aria-expanded="isSectionOpen(block.channel, section)"
+                :aria-controls="sectionDomId(block.channel, section)"
+                @click="toggleSection(block.channel, section)"
               >
                 <span
-                  class="relative block aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-primary/25 via-base-200 to-secondary/25"
+                  class="relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/25 via-base-200 to-secondary/25"
                 >
-                  <Icon
-                    :name="tab.icon || previewedChannel.icon"
-                    class="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 text-base-content/30"
-                  />
                   <img
-                    v-if="imageOk(tab.image)"
-                    :src="tab.image"
-                    :alt="tab.title || tab.label"
+                    v-if="imageOk(section.parent.image)"
+                    :src="section.parent.image"
+                    alt=""
+                    aria-hidden="true"
                     loading="lazy"
-                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    @error="markBroken(tab.image)"
+                    class="absolute inset-0 h-full w-full object-cover"
+                    @error="markBroken(section.parent.image)"
                   />
-                  <span
-                    class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-base-content/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
-                    aria-hidden="true"
+                  <Icon
+                    v-else
+                    :name="section.parent.icon || block.channel.icon"
+                    class="h-6 w-6 text-base-content/40"
                   />
+                </span>
+                <span class="flex min-w-0 flex-1 flex-col leading-tight">
+                  <span class="kr-text-black-sm truncate">
+                    {{ section.label }}
+                  </span>
+                  <span class="truncate text-xs text-base-content/60">
+                    {{ section.tabs.length }}
+                    {{ section.tabs.length === 1 ? 'page' : 'pages' }}
+                  </span>
+                </span>
+                <span
+                  v-if="section.admin"
+                  class="kr-text-eyebrow-bold kr-badge-warning-xs"
+                >
+                  Admin
+                </span>
+                <Icon
+                  name="kind-icon:chevron-right"
+                  class="h-4 w-4 shrink-0 text-base-content/60 transition-transform"
+                  :class="
+                    isSectionOpen(block.channel, section) ? 'rotate-90' : ''
+                  "
+                />
+              </button>
+              <p
+                v-else-if="section.label"
+                class="kr-text-eyebrow mb-1.5 flex items-center gap-2 px-1 text-[0.65rem] tracking-[0.18em] text-base-content/55"
+              >
+                {{ section.label }}
+                <span
+                  v-if="section.admin"
+                  class="kr-text-eyebrow-bold kr-badge-warning-xs"
+                >
+                  Admin
+                </span>
+              </p>
+
+              <div
+                v-if="isSectionOpen(block.channel, section)"
+                :id="sectionDomId(block.channel, section)"
+                class="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2.5 @5xl:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] @5xl:gap-3"
+                :class="section.parent ? 'mt-2' : ''"
+              >
+                <button
+                  v-for="(tab, index) in section.tabs"
+                  :key="tab.tabKey"
+                  type="button"
+                  class="kr-launcher-card group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-base-100 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  :class="
+                    isActiveTab(block.channel, tab)
+                      ? 'border-secondary ring-2 ring-secondary'
+                      : 'border-base-300'
+                  "
+                  :style="{ animationDelay: `${Math.min(index, 12) * 25}ms` }"
+                  :aria-current="
+                    isActiveTab(block.channel, tab) ? 'page' : undefined
+                  "
+                  @mouseenter="spotlightOn(block.channel, tab)"
+                  @focus="spotlightOn(block.channel, tab)"
+                  @click="selectTab(block.channel, tab)"
+                >
                   <span
-                    class="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-lg bg-base-100/85 shadow-sm backdrop-blur"
-                    aria-hidden="true"
+                    class="relative block aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-primary/25 via-base-200 to-secondary/25"
                   >
                     <Icon
-                      :name="tab.icon || previewedChannel.icon"
-                      class="h-4 w-4"
+                      :name="tab.icon || block.channel.icon"
+                      class="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 text-base-content/30"
                     />
+                    <img
+                      v-if="imageOk(tab.image)"
+                      :src="tab.image"
+                      :alt="tab.title || tab.label"
+                      loading="lazy"
+                      class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      @error="markBroken(tab.image)"
+                    />
+                    <span
+                      class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-base-content/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+                      aria-hidden="true"
+                    />
+                    <span
+                      class="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded-lg bg-base-100/85 shadow-sm backdrop-blur"
+                      aria-hidden="true"
+                    >
+                      <Icon
+                        :name="tab.icon || block.channel.icon"
+                        class="h-4 w-4"
+                      />
+                    </span>
+                    <span
+                      v-if="isActiveTab(block.channel, tab)"
+                      class="kr-text-eyebrow-bold absolute right-2 top-2 rounded-full bg-secondary px-2 py-0.5 text-[0.6rem] text-secondary-content shadow"
+                    >
+                      Here
+                    </span>
+                    <span
+                      v-else-if="isAdminOnlyTab(block.channel, tab)"
+                      class="kr-text-eyebrow-bold kr-badge-warning-xs absolute right-2 top-2"
+                      title="Admin-only page"
+                    >
+                      Admin
+                    </span>
                   </span>
-                  <span
-                    v-if="isActiveTab(previewedChannel, tab)"
-                    class="kr-text-eyebrow-bold absolute right-2 top-2 rounded-full bg-secondary px-2 py-0.5 text-[0.6rem] text-secondary-content shadow"
-                  >
-                    Here
-                  </span>
-                  <span
-                    v-else-if="isAdminOnlyTab(previewedChannel, tab)"
-                    class="kr-text-eyebrow-bold kr-badge-warning-xs absolute right-2 top-2"
-                    title="Admin-only page"
-                  >
-                    Admin
-                  </span>
-                </span>
 
-                <span class="flex min-w-0 flex-col gap-0.5 px-2.5 py-2">
-                  <span class="kr-text-black-sm truncate xl:text-base">
-                    {{ tab.label }}
+                  <span class="flex min-w-0 flex-col gap-0.5 px-2.5 py-2">
+                    <span class="kr-text-black-sm truncate xl:text-base">
+                      {{ tab.label }}
+                    </span>
+                    <span
+                      v-if="tab.summary || tab.description"
+                      class="line-clamp-2 text-[0.72rem] font-medium leading-snug text-base-content/65"
+                    >
+                      {{ tab.summary || tab.description }}
+                    </span>
                   </span>
-                  <span
-                    v-if="tab.summary || tab.description"
-                    class="line-clamp-2 text-[0.72rem] font-medium leading-snug text-base-content/65"
-                  >
-                    {{ tab.summary || tab.description }}
-                  </span>
-                </span>
-              </button>
-            </div>
+                </button>
+              </div>
+            </section>
           </section>
         </div>
       </div>
@@ -457,16 +532,16 @@ import type {
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
-import {
-  channelTabGroups,
-  isAdminOnlyTab,
-  navigationSubtabs,
-} from '@/utils/channelTabGroups'
+import { isAdminOnlyTab } from '@/utils/channelTabGroups'
 import { tabSharesRoute } from '@/utils/tabNavigation'
 import {
-  adjacentChannelIndex,
-  canScrollVertically,
-} from '@/utils/channelWheelNavigation'
+  channelAtScroll,
+  initiallyExpandedSections,
+  isCollapsibleSection,
+  launcherSectionId,
+  launcherSections,
+  type LauncherSection,
+} from '@/utils/channelLauncher'
 
 const { seamless, unifiedMobile } = withDefaults(
   defineProps<{
@@ -479,12 +554,9 @@ const { seamless, unifiedMobile } = withDefaults(
   },
 )
 
-type LauncherSection = {
-  key: string
-  label: string
-  admin: boolean
-  parent: ResolvedTab | null
-  tabs: ResolvedTab[]
+type LauncherChannelBlock = {
+  channel: ResolvedChannel
+  sections: LauncherSection[]
 }
 
 type Spotlight = {
@@ -499,7 +571,6 @@ type Spotlight = {
 const VIEWPORT_GUTTER = 12
 const LAUNCHER_MIN_WIDTH = 480
 const LAUNCHER_MAX_WIDTH = 1760
-const CHANNEL_WHEEL_COOLDOWN_MS = 550
 
 const route = useRoute()
 const isSlimeCityPage = computed(
@@ -525,8 +596,10 @@ const channelFlyoutMaxHeight = ref(320)
 const launcherWidth = ref(960)
 const previewedChannelKey = ref('')
 const spotlightTabKey = ref('')
+const spotlightChannelKey = ref('')
+const expandedSections = ref<Set<string>>(new Set())
 const brokenImages = ref<Set<string>>(new Set())
-let lastWheelChannelSwitchAt = 0
+let scrollSyncFrame = 0
 
 await channelContentStore.initialize()
 
@@ -644,44 +717,20 @@ const previewedChannel = computed<ResolvedChannel | null>(() => {
   )
 })
 
-const launcherSections = computed<LauncherSection[]>(() => {
-  const channel = previewedChannel.value
-  if (!channel) return []
-
-  const sections: LauncherSection[] = []
-  for (const group of channelTabGroups(channel)) {
-    const leaves = group.tabs.filter(
-      (tab) => navigationSubtabs(channel, tab).length === 0,
-    )
-    if (leaves.length) {
-      sections.push({
-        key: group.key,
-        label: group.label,
-        admin: group.admin,
-        parent: null,
-        tabs: leaves,
-      })
-    }
-
-    for (const parent of group.tabs) {
-      const subtabs = navigationSubtabs(channel, parent)
-      if (!subtabs.length) continue
-
-      sections.push({
-        key: `${group.key}:${parent.tabKey}`,
-        label: parent.label,
-        admin: group.admin,
-        parent,
-        tabs: parent.route ? [parent, ...subtabs] : subtabs,
-      })
-    }
-  }
-
-  return sections
-})
+const channelBlocks = computed<LauncherChannelBlock[]>(() =>
+  visibleChannels.value.map((channel) => ({
+    channel,
+    sections: launcherSections(channel),
+  })),
+)
 
 const spotlight = computed<Spotlight>(() => {
-  const channel = previewedChannel.value ?? fallbackChannel
+  const channel =
+    visibleChannels.value.find(
+      (candidate) => candidate.channelKey === spotlightChannelKey.value,
+    ) ??
+    previewedChannel.value ??
+    fallbackChannel
   const tab =
     channel.tabs.find(
       (candidate) => candidate.tabKey === spotlightTabKey.value,
@@ -737,56 +786,104 @@ function markBroken(src: string | undefined): void {
   brokenImages.value = next
 }
 
-function previewChannel(
+function spotlightOn(channel: ResolvedChannel, tab: ResolvedTab): void {
+  spotlightChannelKey.value = channel.channelKey
+  spotlightTabKey.value = tab.tabKey
+}
+
+function sectionKey(channel: ResolvedChannel, section: LauncherSection) {
+  return launcherSectionId(channel.channelKey, section.key)
+}
+
+function sectionDomId(channel: ResolvedChannel, section: LauncherSection) {
+  return `launcher-${sectionKey(channel, section).replace(/[^\w-]+/g, '-')}`
+}
+
+function isSectionOpen(
   channel: ResolvedChannel,
-  arriveAt: 'start' | 'end' = 'start',
+  section: LauncherSection,
+): boolean {
+  return (
+    !isCollapsibleSection(section) ||
+    expandedSections.value.has(sectionKey(channel, section))
+  )
+}
+
+function toggleSection(
+  channel: ResolvedChannel,
+  section: LauncherSection,
 ): void {
-  if (previewedChannelKey.value === channel.channelKey) return
-  previewedChannelKey.value = channel.channelKey
-  spotlightTabKey.value = ''
+  const key = sectionKey(channel, section)
+  const next = new Set(expandedSections.value)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
+  expandedSections.value = next
+}
+
+function channelBlockElement(channelKey: string): HTMLElement | null {
+  const flyout = channelFlyout.value
+  if (!flyout) return null
+  return (
+    Array.from(flyout.querySelectorAll<HTMLElement>('[data-channel-key]')).find(
+      (element) => element.dataset.channelKey === channelKey,
+    ) ?? null
+  )
+}
+
+function scrollStageTo(channelKey: string, smooth: boolean): void {
   void nextTick(() => {
     const flyout = channelFlyout.value
-    if (flyout) flyout.scrollTop = arriveAt === 'end' ? flyout.scrollHeight : 0
+    const block = channelBlockElement(channelKey)
+    if (!flyout) return
+    if (!block) {
+      scheduleScrollSync()
+      return
+    }
+    const top =
+      block.getBoundingClientRect().top -
+      flyout.getBoundingClientRect().top +
+      flyout.scrollTop
+    flyout.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' })
+    if (!smooth) scheduleScrollSync()
   })
 }
 
-function handleLauncherWheel(event: WheelEvent): void {
-  if (event.ctrlKey || Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return
+function previewChannel(channel: ResolvedChannel, smooth = false): void {
+  previewedChannelKey.value = channel.channelKey
+  spotlightTabKey.value = ''
+  spotlightChannelKey.value = ''
+  scrollStageTo(channel.channelKey, smooth)
+}
 
-  const scroller = event.currentTarget
-  if (!(scroller instanceof HTMLElement)) return
-
-  let scrollTarget = event.target instanceof Element ? event.target : null
-  while (scrollTarget && scrollTarget !== scroller) {
-    if (
-      scrollTarget instanceof HTMLElement &&
-      canScrollVertically(scrollTarget, event.deltaY)
-    ) {
-      return
-    }
-    scrollTarget = scrollTarget.parentElement
+function syncPreviewFromScroll(): void {
+  scrollSyncFrame = 0
+  const flyout = channelFlyout.value
+  if (!flyout) return
+  const flyoutTop = flyout.getBoundingClientRect().top
+  const offsets = Array.from(
+    flyout.querySelectorAll<HTMLElement>('[data-channel-key]'),
+  ).map((element) => ({
+    channelKey: element.dataset.channelKey ?? '',
+    top: element.getBoundingClientRect().top - flyoutTop + flyout.scrollTop,
+  }))
+  const atEnd =
+    flyout.scrollTop + flyout.clientHeight >= flyout.scrollHeight - 2
+  const current = channelAtScroll(offsets, flyout.scrollTop, atEnd)
+  if (current && current !== previewedChannelKey.value) {
+    previewedChannelKey.value = current
   }
-  if (canScrollVertically(scroller, event.deltaY)) return
+}
 
-  const channels = visibleChannels.value
-  const index = channels.findIndex(
-    (channel) => channel.channelKey === previewedChannel.value?.channelKey,
-  )
-  const nextIndex = adjacentChannelIndex(index, channels.length, event.deltaY)
-  event.preventDefault()
-  if (nextIndex === null) return
-
-  const now = Date.now()
-  if (now - lastWheelChannelSwitchAt < CHANNEL_WHEEL_COOLDOWN_MS) return
-  const nextChannel = channels[nextIndex]
-  if (!nextChannel) return
-
-  lastWheelChannelSwitchAt = now
-  previewChannel(nextChannel, event.deltaY < 0 ? 'end' : 'start')
+function scheduleScrollSync(): void {
+  if (typeof window === 'undefined' || scrollSyncFrame) return
+  scrollSyncFrame = window.requestAnimationFrame(syncPreviewFromScroll)
 }
 
 function openSpotlight(): void {
-  const channel = previewedChannel.value
+  const channel =
+    visibleChannels.value.find(
+      (candidate) => candidate.channelKey === spotlightChannelKey.value,
+    ) ?? previewedChannel.value
   if (!channel) return
 
   const tab = spotlight.value.tab
@@ -843,7 +940,12 @@ function openChannelMenu(): void {
   } else {
     previewedChannelKey.value = activeChannel.value.channelKey
     spotlightTabKey.value = ''
-    lastWheelChannelSwitchAt = 0
+    spotlightChannelKey.value = ''
+    expandedSections.value = initiallyExpandedSections(
+      activeChannel.value,
+      activeTab.value,
+    )
+    scrollStageTo(activeChannel.value.channelKey, false)
   }
 
   scheduleChannelMenuViewportUpdate()
@@ -870,6 +972,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (scrollSyncFrame) window.cancelAnimationFrame(scrollSyncFrame)
   window.removeEventListener('resize', scheduleChannelMenuViewportUpdate)
   window.visualViewport?.removeEventListener(
     'resize',
@@ -922,6 +1025,7 @@ function selectTab(channel: ResolvedChannel, tab: ResolvedTab): void {
 
 function closeDropdown(): void {
   spotlightTabKey.value = ''
+  spotlightChannelKey.value = ''
   if (typeof document === 'undefined') return
 
   const element = document.activeElement as HTMLElement | null

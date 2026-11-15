@@ -28,11 +28,11 @@
           <button
             type="button"
             class="kr-btn-ghost"
-            title="Brainstorm variations grounded in this Scenario"
+            title="Start a Brainstorm round about this Scenario"
             @click="startBrainstormWithScenario"
           >
             <Icon name="kind-icon:brain" class="kr-icon-4" />
-            <span class="hidden sm:inline">Brainstorm variations</span>
+            <span class="hidden sm:inline">Brainstorm</span>
           </button>
         </div>
         <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
@@ -56,6 +56,7 @@ import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { querySelectionId } from '@/utils/routeSelection'
+import { brainstormRiffHandoff } from '@/utils/brainstormRiffs'
 
 const dashboardKey = 'scenario'
 
@@ -131,14 +132,12 @@ function startStoryWithScenario(): void {
 function startBrainstormWithScenario(): void {
   const scenario = scenarioStore.selectedScenario
   if (!scenario?.id) return
-  void navigateTo({
-    path: '/brainstorm',
-    query: {
-      source: 'scenario',
-      sourceId: String(scenario.id),
-      intent: `Generate premise, plot-twist, and setting variations for "${scenario.title || 'this Scenario'}" that preserve its canonical tone.`,
-    },
-  })
+  void navigateTo(
+    brainstormRiffHandoff(
+      'list',
+      scenario.title ? `Plot twists for ${scenario.title}` : null,
+    ),
+  )
 }
 
 async function loadManagerData(force = false) {

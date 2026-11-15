@@ -270,13 +270,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'academy',
     route: '/academy',
   },
-  // Silas, 2026-11-14: Brainstorm is a project, not a Play game, so the
-  // riff-board lives in the Projects channel. The admin idea workbench stays
-  // at /brainstorm.
+  // Silas, 2026-11-14: Brainstorm is a project, not a Play game. The riff-board
+  // superseded the retired admin idea workbench and took over /brainstorm.
   brainstorm: {
     channelKey: 'projects',
     tabKey: 'brainstorm',
-    route: '/play/brainstorm',
+    route: '/brainstorm',
   },
   conductor: {
     channelKey: 'projects',

@@ -344,12 +344,6 @@ const PAGES: PageSeed[] = [
       'A warm kiln room where framed canvases move slowly along a wooden rail, some still blank, some glowing as they finish. Ledgers and numbered tags hang at the sides. Patient industry.',
   },
   {
-    page: 'brainstorm',
-    title: 'Brainstorm — The Idea Storm',
-    scene:
-      'A tall airy loft where sticky notes, chalk sketches and paper aeroplanes swirl on a strong indoor draught, lightning-bug sparks of inspiration drifting near the ceiling. Energetic, not chaotic.',
-  },
-  {
     page: 'cart',
     title: 'Cart — The Packing Room',
     scene:

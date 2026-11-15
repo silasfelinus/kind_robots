@@ -14,11 +14,11 @@
           <button
             type="button"
             class="kr-btn-ghost"
-            title="Brainstorm variations grounded in this Bot"
+            title="Start a Brainstorm round about this Bot"
             @click="startBrainstormWithBot"
           >
             <Icon name="kind-icon:brain" class="kr-icon-4" />
-            <span class="hidden sm:inline">Brainstorm variations</span>
+            <span class="hidden sm:inline">Brainstorm</span>
           </button>
         </div>
         <bot-interact class="h-full min-h-0 flex-1 overflow-hidden" />
@@ -37,6 +37,7 @@ import { useRoute } from '#app'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
 import { querySelectionId } from '@/utils/routeSelection'
+import { brainstormRiffHandoff } from '@/utils/brainstormRiffs'
 
 const dashboardKey = 'bot'
 
@@ -90,14 +91,7 @@ function goToBots() {
 function startBrainstormWithBot(): void {
   const bot = botStore.selectedBot
   if (!bot?.id) return
-  void navigateTo({
-    path: '/brainstorm',
-    query: {
-      source: 'bot',
-      sourceId: String(bot.id),
-      intent: `Generate variations for the Bot "${bot.name || 'this Bot'}" that preserve its personality and voice.`,
-    },
-  })
+  void navigateTo(brainstormRiffHandoff('persona', bot.name))
 }
 
 async function handleBotSaved() {

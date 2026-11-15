@@ -15,8 +15,45 @@
 //
 // Up/down hop between counters (always to the urn end), left/right walk along
 // one, A pours.
+//
+// Depth pass slice 1 (conductor kr-arcade/t-122), Orders and the Cozy core:
+// every robot shows an order bubble. Tap A for plain cocoa, hold A for
+// marshmallows, hold A and press B for a peppermint swirl; a wrong drink is
+// politely handed back full and has to be caught. Right drinks, caught empties
+// and tips fill the Cozy meter, and B on a full meter starts the Sing-along
+// (everyone stops to sway for 5 s). Tips also pay into the Cafe Fund and can
+// be snatched by a patron that steals them. Clean serves build the Rush combo
+// (x1 to x5), an empty caught as a pour goes out is a Juggle, and 30k, 80k and
+// 150k each bring an extra mug-bot. Venues, counter features, patrons and the
+// Endless Shift ladder (something new every round, then rush steps that keep
+// climbing past the old round-12 plateau) are data in ../cocoaCounter/.
 
-import { levelCurve } from '../curve'
+import {
+  RUSH_AFTER,
+  TOPPING_TICKS,
+  comboMultiplier,
+  extraMugBotsBetween,
+  isJuggle,
+  newPour,
+  pickOrder,
+  pickPatron,
+  pourStep,
+  shiftRules,
+} from '../cocoaCounter/rules'
+import type { Pour, ShiftRules } from '../cocoaCounter/rules'
+import {
+  COUNTER_FEATURES,
+  COZY,
+  ENDLESS_LADDER,
+  EXTRA_MUG_BOTS,
+  HANDBACK_CATCH_POINTS,
+  JUGGLE_POINTS,
+  PATRONS,
+  RUSH_COMBO,
+  TOPPINGS,
+  TOPPING_ORDER,
+} from '../cocoaCounter/tables'
+import type { PatronId, Topping } from '../cocoaCounter/tables'
 import { drawText } from '../font'
 import {
   INK,
@@ -45,6 +82,7 @@ import type {
   ArcadeGameInstance,
   ArcadeGameModule,
   ArcadeGameOptions,
+  ArcadeGuidePage,
   InputFrame,
 } from '../types'
 
@@ -60,40 +98,26 @@ const WALK_SPEED = 1.6
 const MUG_SPEED = 2.4
 const PUSH_SPEED = 2.2
 const LEAVE_SPEED = 1.1
-const POUR_TICKS = 10
-const DRINK_TICKS = 70
 const CATCH_RANGE = 7
 const REACH_X = TAP_X - 14
-const TIP_CHANCE = 0.22
 const TIP_LIFE = 360
 const START_LIVES = 3
 /** Spills the mop-bot cleans up for free, per life. */
 const MOPS = 2
 const LOSE_TICKS = 110
 const CLEAR_TICKS = 130
+/** How long a robot handed the wrong drink stands shaking its head. */
+const REFUSE_TICKS = 40
+/** A handed-back mug comes home a little quicker than an empty. */
+const HANDBACK_SPEED = 1.15
 
-const SERVE_POINTS = 50
 const DOOR_POINTS = 100
 const EMPTY_POINTS = 100
-const TIP_POINTS = 250
 const ROUND_BONUS = 500
 
-export const COCOA_CURVES = {
-  /** Robots to serve in the round. */
-  robots: { start: 6, step: 2, limit: 26 },
-  /** How fast a robot shuffles while it is stepping. */
-  walk: { start: 0.42, step: 0.05, limit: 0.95 },
-  /** Ticks between robots walking in. */
-  gap: { start: 150, step: -12, limit: 48 },
-  /** How far a caught mug nudges a robot back. */
-  push: { start: 84, step: -5, limit: 44 },
-  /** Empty-mug slide speed. */
-  empty: { start: 0.8, step: 0.08, limit: 1.5 },
-  /** Chance a robot is still thirsty after a mug (it comes back for more). */
-  thirst: { start: 0.25, step: 0.08, limit: 0.7 },
-} as const
+export { COCOA_CURVES } from '../cocoaCounter/rules'
 
-type RobotState = 'walk' | 'pushed' | 'drink' | 'leave'
+type RobotState = 'walk' | 'pushed' | 'drink' | 'leave' | 'refuse'
 type Robot = {
   row: number
   x: number
@@ -102,9 +126,27 @@ type Robot = {
   phase: number
   color: string
   thirsty: boolean
+  patron: PatronId
+  /** What its bubble asks for. */
+  order: Topping
+  stealsTips: boolean
 }
-type Mug = { row: number; x: number; full: boolean }
-type Tip = { row: number; x: number; life: number }
+/** A sliding mug: full ones slide to the door, empties and handed-back ones to the urn. */
+type Mug = {
+  row: number
+  x: number
+  full: boolean
+  topping: Topping
+  /** A full mug handed back because it was the wrong drink. */
+  back: boolean
+}
+type Tip = {
+  row: number
+  x: number
+  life: number
+  points: number
+  coins: number
+}
 type Particle = {
   x: number
   y: number
@@ -328,10 +370,36 @@ const MUG_PALETTE = {
   R: RAMPS.ember[2],
   r: RAMPS.ember[1],
   H: RAMPS.cream[2],
+  M: RAMPS.teal[3],
+  m: RAMPS.teal[2],
+  P: RAMPS.pink[4],
+  p: RAMPS.pink[3],
 }
 const MUG_BODY = ['hWWWws..', 'hRRRrsHH', 'hWWWws.H', 'hWWWwsHH', '.ssss...']
 const FULL_MUG = pixelSprite(['cCFFCc..', ...MUG_BODY], MUG_PALETTE)
 const EMPTY_MUG = pixelSprite(['seeees..', ...MUG_BODY], MUG_PALETTE)
+/** Marshmallows heaped over the rim. */
+const MARSH_MUG = pixelSprite(
+  ['.hP.hp..', 'hPPhPPp.', 'cPpCPpc.', ...MUG_BODY],
+  MUG_PALETTE,
+)
+/** A peppermint swirl: mint and white twisted up out of the cocoa. */
+const SWIRL_MUG = pixelSprite(
+  ['..hM....', '.MhmM...', 'cMhMmhc.', ...MUG_BODY],
+  MUG_PALETTE,
+)
+const TOPPED_MUGS: Record<Topping, PixelSprite> = {
+  plain: FULL_MUG,
+  marshmallow: MARSH_MUG,
+  swirl: SWIRL_MUG,
+}
+
+/** A music note for the Sing-along. */
+const NOTE_SPRITE = pixelSprite(
+  ['...hH', '...hH', '...h.', '...h.', '.hhh.', 'hHHh.', '.hh..'],
+  { h: RAMPS.gold[3], H: RAMPS.gold[4] },
+  { outline: RAMPS.night[0] },
+)
 
 const URN_SPRITE = pixelSprite(
   [
@@ -458,7 +526,8 @@ class CocoaCounter implements ArcadeGameInstance {
   private tick = 0
   private row = 0
   private x = TAP_X
-  private pour = 0
+  /** The mug filling at the urn, if any. */
+  private pouring: Pour | null = null
   private prevUp = false
   private prevDown = false
   private robots: Robot[] = []
@@ -471,9 +540,29 @@ class CocoaCounter implements ArcadeGameInstance {
   private spawnTimer = 40
   private lose = 0
   private clear = 0
+  private rules: ShiftRules = shiftRules(1)
+  /** The Cozy meter, 0..COZY.max. */
+  private cozy = 0
+  /** Ticks left in the Sing-along. */
+  private singing = 0
+  /** Clean serves since the last miss (the Rush combo). */
+  private streak = 0
+  /** Tips banked for the Cafe Fund. */
+  private fund = 0
+  /** No wrong drink and no spill yet this round. */
+  private cleanRound = true
+  private lastPourTick = -999
+  private lastCatchTick = -999
+  /** What the attract pilot is pouring, so it holds A (and presses B) for the right order. */
+  private pilotOrder: Topping = 'plain'
   private particles: Particle[] = []
   private floaters: Floater[] = []
-  private banner: { text: string; sub?: string; ticks: number } | null = null
+  private banner: {
+    text: string
+    sub?: string
+    note?: string
+    ticks: number
+  } | null = null
   // Cosmetic sparkles roll their own dice, so the game's seeded rng is untouched.
   private fx = new Sparkles()
   private fxRng = backdropRng(61)
@@ -490,7 +579,8 @@ class CocoaCounter implements ArcadeGameInstance {
 
   private startRound(round: number) {
     this.level = round
-    this.toSpawn = Math.round(levelCurve(round, COCOA_CURVES.robots))
+    this.rules = shiftRules(round)
+    this.toSpawn = this.rules.robots
     this.spawnTimer = 30
     this.greet = true
     this.robots = []
@@ -498,10 +588,14 @@ class CocoaCounter implements ArcadeGameInstance {
     this.tips = []
     this.row = 0
     this.x = TAP_X
+    this.pouring = null
+    this.singing = 0
+    this.cleanRound = true
     this.banner = {
       text: `ROUND ${round}`,
       sub: `${this.toSpawn} THIRSTY ROBOTS`,
-      ticks: 100,
+      note: this.rules.news ?? undefined,
+      ticks: this.rules.news ? 150 : 100,
     }
   }
 
@@ -527,6 +621,7 @@ class CocoaCounter implements ArcadeGameInstance {
       if (--this.clear === 0) this.startRound(this.level + 1)
       return
     }
+    if (this.singing > 0) this.singing--
     this.move(controls)
     this.spawn()
     this.updateRobots()
@@ -547,13 +642,19 @@ class CocoaCounter implements ArcadeGameInstance {
     const down = input.held.down && !this.prevDown
     this.prevUp = input.held.up
     this.prevDown = input.held.down
-    if (this.pour > 0) {
-      if (--this.pour === 0) {
-        this.mugs.push({ row: this.row, x: TAP_X - 8, full: true })
-        this.sound.play('shoot')
+    if (this.pouring) {
+      const pour = this.pouring
+      const swirled = pour.swirl
+      const topping = pourStep(pour, input.held.a, input.pressed.b)
+      // B while A is held is the swirl; any other B is a call for the Sing-along.
+      if (input.pressed.b && pour.swirl === swirled) this.startSingAlong()
+      if (topping) {
+        this.pouring = null
+        this.sendMug(topping)
       }
       return
     }
+    if (input.pressed.b) this.startSingAlong()
     if (up || down) {
       this.row = (this.row + (up ? ROWS - 1 : 1)) % ROWS
       this.x = TAP_X
@@ -563,7 +664,7 @@ class CocoaCounter implements ArcadeGameInstance {
     if (input.held.left) this.x = Math.max(DOOR_X + 14, this.x - WALK_SPEED)
     if (input.held.right) this.x = Math.min(TAP_X, this.x + WALK_SPEED)
     if (input.pressed.a) {
-      if (this.x >= TAP_X - 1) this.pour = POUR_TICKS
+      if (this.x >= TAP_X - 1) this.pouring = newPour()
       else {
         // Away from the urn, A runs straight back to it.
         this.x = TAP_X
@@ -571,8 +672,21 @@ class CocoaCounter implements ArcadeGameInstance {
     }
   }
 
+  private sendMug(topping: Topping) {
+    this.mugs.push({
+      row: this.row,
+      x: TAP_X - 8,
+      full: true,
+      topping,
+      back: false,
+    })
+    this.sound.play('shoot')
+    this.lastPourTick = this.tick
+    if (isJuggle(this.lastPourTick, this.lastCatchTick)) this.juggle()
+  }
+
   private spawn() {
-    if (this.toSpawn <= 0 || --this.spawnTimer > 0) return
+    if (this.toSpawn <= 0 || this.singing > 0 || --this.spawnTimer > 0) return
     // Pick a counter whose doorway is clear.
     const open = [0, 1, 2, 3].filter(
       (r) => !this.robots.some((b) => b.row === r && b.x < DOOR_X + 26),
@@ -586,6 +700,7 @@ class CocoaCounter implements ArcadeGameInstance {
         ? this.row
         : open[Math.floor(this.rng() * open.length)]!
     this.greet = false
+    const patron = pickPatron(this.rng, this.rules)
     this.robots.push({
       row,
       x: DOOR_X - 2,
@@ -594,28 +709,38 @@ class CocoaCounter implements ArcadeGameInstance {
       phase: Math.floor(this.rng() * 60),
       color: ROBOT_COLORS[Math.floor(this.rng() * ROBOT_COLORS.length)]!,
       thirsty: false,
+      patron,
+      order: pickOrder(this.rng, this.rules),
+      stealsTips: PATRONS[patron].stealsTips,
     })
     this.toSpawn--
-    const gap = levelCurve(this.level, COCOA_CURVES.gap)
-    this.spawnTimer = Math.round(gap * (0.7 + this.rng() * 0.6))
+    this.spawnTimer = Math.round(this.rules.gap * (0.7 + this.rng() * 0.6))
   }
 
   private updateRobots() {
-    const walk = levelCurve(this.level, COCOA_CURVES.walk)
     for (const robot of this.robots) {
+      const def = PATRONS[robot.patron]
       if (robot.state === 'walk') {
         // Shuffle: step for two thirds of every second, pause for the rest.
-        if ((this.tick + robot.phase) % 60 < 40) robot.x += walk
+        // In the Sing-along everyone stands and sways instead.
+        if (this.singing === 0 && (this.tick + robot.phase) % 60 < 40)
+          robot.x += this.rules.walk * def.walk
         if (robot.x >= REACH_X) {
           this.loseMug('A ROBOT REACHED THE URN', robot.x, rowY(robot.row))
           return
         }
+      } else if (robot.state === 'refuse') {
+        if (--robot.timer <= 0) robot.state = 'walk'
       } else if (robot.state === 'pushed') {
         robot.x -= PUSH_SPEED
         robot.timer -= PUSH_SPEED
         if (robot.x < DOOR_X) {
           robot.timer = -1
-          this.addScore(DOOR_POINTS, DOOR_X + 12, rowY(robot.row) - 26)
+          this.addScore(
+            DOOR_POINTS * this.multiplier(),
+            DOOR_X + 12,
+            rowY(robot.row) - 26,
+          )
           this.burst(DOOR_X + 4, rowY(robot.row) - 10, 8, robot.color)
           this.fx.burst(DOOR_X + 4, rowY(robot.row) - 14, this.fxRng, {
             count: 10,
@@ -623,16 +748,23 @@ class CocoaCounter implements ArcadeGameInstance {
           this.sound.play('pickup')
         } else if (robot.timer <= 0) {
           robot.state = 'drink'
-          robot.timer = DRINK_TICKS
+          robot.timer = def.drinkTicks
         }
       } else if (robot.state === 'leave') {
         robot.x -= LEAVE_SPEED
       } else if (--robot.timer <= 0) {
         // Done drinking: the empty slides back. A robot that is still thirsty
-        // shuffles on; a cosy one strolls home.
-        this.mugs.push({ row: robot.row, x: robot.x + 6, full: false })
+        // orders again and shuffles on; a cosy one strolls home.
+        this.mugs.push({
+          row: robot.row,
+          x: robot.x + 6,
+          full: false,
+          topping: robot.order,
+          back: false,
+        })
         robot.state = robot.thirsty ? 'walk' : 'leave'
-        if (!robot.thirsty)
+        if (robot.thirsty) robot.order = pickOrder(this.rng, this.rules)
+        else
           this.fx.burst(robot.x, rowY(robot.row) - 24, this.fxRng, {
             count: 6,
             speed: 1,
@@ -646,30 +778,21 @@ class CocoaCounter implements ArcadeGameInstance {
   }
 
   private updateMugs() {
-    const empty = levelCurve(this.level, COCOA_CURVES.empty)
-    const thirst = levelCurve(this.level, COCOA_CURVES.thirst)
+    const empty = this.rules.empty
     for (const mug of this.mugs) {
-      if (mug.full) {
-        mug.x -= MUG_SPEED
+      const feature =
+        COUNTER_FEATURES[this.rules.venue.counters[mug.row]!.feature]
+      if (mug.full && !mug.back) {
+        mug.x -= MUG_SPEED * feature.mugSpeed
         const robot = this.robots.find(
           (r) =>
             r.row === mug.row &&
-            r.state === 'walk' &&
+            (r.state === 'walk' || r.state === 'refuse') &&
             Math.abs(r.x - mug.x) <= CATCH_RANGE,
         )
         if (robot) {
-          mug.x = -999
-          robot.state = 'pushed'
-          robot.timer = levelCurve(this.level, COCOA_CURVES.push)
-          robot.thirsty = this.rng() < thirst
-          this.addScore(SERVE_POINTS, robot.x, rowY(robot.row) - 28)
-          this.fx.burst(robot.x + 6, rowY(robot.row) - 10, this.fxRng, {
-            count: 4,
-            speed: 1,
-          })
-          this.sound.play('pop')
-          if (this.rng() < TIP_CHANCE)
-            this.tips.push({ row: robot.row, x: robot.x, life: TIP_LIFE })
+          if (robot.order === mug.topping) this.serve(robot, mug)
+          else this.handBack(robot, mug)
         } else if (mug.x < DOOR_X - 4) {
           if (this.mops > 0) {
             this.mopUp(mug)
@@ -679,18 +802,16 @@ class CocoaCounter implements ArcadeGameInstance {
           return
         }
       } else {
-        mug.x += empty
+        mug.x += empty * feature.emptySpeed * (mug.back ? HANDBACK_SPEED : 1)
         if (mug.row === this.row && Math.abs(mug.x - this.x) <= CATCH_RANGE) {
-          mug.x = -999
-          this.addScore(EMPTY_POINTS, this.x, rowY(this.row) + 4)
-          this.fx.burst(this.x, rowY(this.row) - 6, this.fxRng, {
-            count: 4,
-            speed: 0.9,
-            colours: [RAMPS.teal[3], RAMPS.cream[4]],
-          })
-          this.sound.play('blip')
+          if (mug.back) this.catchHandBack(mug)
+          else this.catchEmpty(mug)
         } else if (mug.x >= TAP_X + 10) {
-          this.loseMug('AN EMPTY MUG FELL', TAP_X + 10, rowY(mug.row))
+          this.loseMug(
+            mug.back ? 'THE HANDED-BACK MUG FELL' : 'AN EMPTY MUG FELL',
+            TAP_X + 10,
+            rowY(mug.row),
+          )
           return
         }
       }
@@ -698,18 +819,139 @@ class CocoaCounter implements ArcadeGameInstance {
     this.mugs = this.mugs.filter((m) => m.x > -999)
   }
 
+  /** The right drink: the robot catches it, is nudged back, and maybe leaves a tip. */
+  private serve(robot: Robot, mug: Mug) {
+    const def = PATRONS[robot.patron]
+    const topping = TOPPINGS[mug.topping]
+    mug.x = -999
+    robot.state = 'pushed'
+    robot.timer = this.rules.push * def.push
+    robot.thirsty = this.rng() < this.rules.thirst
+    const before = this.multiplier()
+    this.streak++
+    const after = this.multiplier()
+    this.addScore(topping.points * after, robot.x, rowY(robot.row) - 28)
+    this.addCozy(topping.cozy)
+    if (after > before) {
+      this.floaters.push({
+        x: robot.x,
+        y: rowY(robot.row) - 38,
+        text: `RUSH X${after}`,
+        life: 60,
+      })
+      this.sound.play('extra')
+    }
+    this.fx.burst(
+      robot.x + 6,
+      rowY(robot.row) - 10,
+      this.fxRng,
+      mug.topping === 'plain'
+        ? { count: 4, speed: 1 }
+        : { count: 8, speed: 1, colours: [topping.rim, '#ffffff'] },
+    )
+    this.sound.play('pop')
+    if (this.rng() < def.tipChance)
+      this.tips.push({
+        row: robot.row,
+        x: robot.x,
+        life: TIP_LIFE,
+        points: def.tipPoints,
+        coins: def.tipCoins,
+      })
+  }
+
+  /** The wrong drink: politely handed back, still full, for the mug-bot to catch. */
+  private handBack(robot: Robot, mug: Mug) {
+    mug.back = true
+    mug.x = robot.x + 8
+    robot.state = 'refuse'
+    robot.timer = REFUSE_TICKS
+    this.cleanRound = false
+    this.breakCombo()
+    this.floaters.push({
+      x: robot.x,
+      y: rowY(robot.row) - 38,
+      text: 'NO THANKS!',
+      life: 50,
+    })
+    this.sound.play('warn')
+  }
+
+  private catchEmpty(mug: Mug) {
+    mug.x = -999
+    this.addScore(EMPTY_POINTS, this.x, rowY(this.row) + 4)
+    this.addCozy(COZY.empty)
+    this.fx.burst(this.x, rowY(this.row) - 6, this.fxRng, {
+      count: 4,
+      speed: 0.9,
+      colours: [RAMPS.teal[3], RAMPS.cream[4]],
+    })
+    this.sound.play('blip')
+    this.lastCatchTick = this.tick
+    if (isJuggle(this.lastPourTick, this.lastCatchTick)) this.juggle()
+  }
+
+  private catchHandBack(mug: Mug) {
+    mug.x = -999
+    this.addScore(HANDBACK_CATCH_POINTS, this.x, rowY(this.row) + 4)
+    this.sound.play('blip')
+  }
+
+  /** An empty caught just as a pour goes out (or a pour sent just as one lands). */
+  private juggle() {
+    this.lastPourTick = -999
+    this.lastCatchTick = -999
+    this.addScore(
+      JUGGLE_POINTS * this.multiplier(),
+      this.x - 10,
+      rowY(this.row) - 34,
+    )
+    this.addCozy(COZY.juggle)
+    this.floaters.push({
+      x: this.x - 16,
+      y: rowY(this.row) - 44,
+      text: 'JUGGLE!',
+      life: 50,
+    })
+    this.fx.burst(this.x, rowY(this.row) - 16, this.fxRng, {
+      count: 10,
+      colours: [RAMPS.gold[4], RAMPS.teal[3], '#ffffff'],
+    })
+  }
+
   private updateTips() {
     for (const tip of this.tips) {
       tip.life--
       if (tip.row === this.row && Math.abs(tip.x - this.x) <= CATCH_RANGE) {
         tip.life = 0
-        this.addScore(TIP_POINTS, tip.x, rowY(tip.row) - 14)
+        this.addScore(tip.points, tip.x, rowY(tip.row) - 14)
+        this.addCozy(COZY.tip)
+        if (!this.demo) this.fund += tip.coins
         this.burst(tip.x, rowY(tip.row) - 2, 8, '#fde047')
         this.fx.burst(tip.x, rowY(tip.row) - 4, this.fxRng, {
           count: 12,
           colours: [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
         })
         this.sound.play('extra')
+        continue
+      }
+      // The tip-stealing hook: a patron that steals tips pockets one it walks over.
+      const thief = this.robots.find(
+        (r) =>
+          r.stealsTips &&
+          r.row === tip.row &&
+          (r.state === 'walk' || r.state === 'refuse') &&
+          Math.abs(r.x - tip.x) <= CATCH_RANGE,
+      )
+      if (thief) {
+        tip.life = 0
+        this.floaters.push({
+          x: tip.x,
+          y: rowY(tip.row) - 30,
+          text: 'SNATCHED!',
+          life: 50,
+        })
+        this.sound.play('warn')
       }
     }
     this.tips = this.tips.filter((t) => t.life > 0)
@@ -719,6 +961,8 @@ class CocoaCounter implements ArcadeGameInstance {
   private mopUp(mug: Mug) {
     this.mops--
     mug.x = -999
+    this.cleanRound = false
+    this.breakCombo()
     this.burst(DOOR_X, rowY(mug.row) - 4, 10, '#7c2d12')
     this.sound.play('warn')
     this.banner = {
@@ -726,6 +970,53 @@ class CocoaCounter implements ArcadeGameInstance {
       sub: this.mops > 0 ? 'THE MOP-BOT CAN MOP 1 MORE' : 'NO MORE MOPS!',
       ticks: 60,
     }
+  }
+
+  // --- the Cozy meter, the Sing-along and the Rush combo ----------------------
+
+  private multiplier(): number {
+    return comboMultiplier(this.streak)
+  }
+
+  private breakCombo() {
+    this.streak = 0
+  }
+
+  private addCozy(amount: number) {
+    if (this.cozy >= COZY.max) return
+    this.cozy = Math.min(COZY.max, this.cozy + amount)
+    if (this.cozy >= COZY.max) {
+      this.floaters.push({
+        x: W / 2,
+        y: HUD_H + 10,
+        text: 'COZY! PRESS B TO SING',
+        life: 90,
+      })
+      this.sound.play('start')
+    }
+  }
+
+  /** B on a full Cozy meter: everyone stops to sway for five seconds. */
+  private startSingAlong() {
+    if (this.cozy < COZY.max || this.singing > 0) return
+    this.cozy = 0
+    this.singing = COZY.singTicks
+    this.banner = {
+      text: 'SING-ALONG!',
+      sub: 'EVERYONE STOPS TO SWAY',
+      ticks: 90,
+    }
+    if (this.sound.playNotes)
+      this.sound.playNotes(
+        [523, 659, 784, 659, 698, 880, 784].map((freq, i) => ({
+          freq,
+          dur: 0.16,
+          type: 'triangle' as const,
+          vol: 0.07,
+          at: i * 0.18,
+        })),
+      )
+    else this.sound.play('level')
   }
 
   private roundClear() {
@@ -738,10 +1029,15 @@ class CocoaCounter implements ArcadeGameInstance {
       })
     this.clear = CLEAR_TICKS
     this.mugs = []
+    this.pouring = null
     this.sound.play('level')
+    // A clean round of right drinks fills the Cozy meter for the next one.
+    const clean = this.cleanRound
+    if (clean && this.cozy < COZY.max) this.addCozy(COZY.max)
     this.banner = {
       text: 'ROUND CLEAR!',
       sub: `EVERYONE IS COSY  +${bonus}`,
+      note: clean ? 'A CLEAN ROUND! THE COZY METER IS FULL' : undefined,
       ticks: CLEAR_TICKS,
     }
   }
@@ -750,6 +1046,7 @@ class CocoaCounter implements ArcadeGameInstance {
     if (this.lose > 0) return
     this.lives--
     this.lose = LOSE_TICKS
+    this.breakCombo()
     this.burst(x, y - 6, 18, '#92400e')
     this.burst(x, y - 6, 8, '#fef3c7')
     this.sound.play('die')
@@ -768,18 +1065,31 @@ class CocoaCounter implements ArcadeGameInstance {
     this.tips = []
     this.row = 0
     this.x = TAP_X
-    this.pour = 0
+    this.pouring = null
+    this.singing = 0
     this.mops = MOPS
     this.greet = true
     this.spawnTimer = 30
+    this.cleanRound = false
   }
 
   // --- scoring and effects ----------------------------------------------------
 
   private addScore(points: number, x: number, y: number) {
     if (this.demo || points <= 0) return
+    const before = this.score
     this.score += points
     this.floaters.push({ x, y, text: String(points), life: 50 })
+    const extra = extraMugBotsBetween(before, this.score)
+    if (extra > 0) {
+      this.lives += extra
+      this.sound.play('extra')
+      this.banner = {
+        text: 'EXTRA MUG-BOT!',
+        sub: 'A NEW HELPER JOINS THE COUNTER',
+        ticks: 90,
+      }
+    }
   }
 
   private burst(x: number, y: number, count: number, color: string) {
@@ -830,13 +1140,34 @@ class CocoaCounter implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
-    if (this.pour > 0) return frame
-    const empty = levelCurve(this.level, COCOA_CURVES.empty)
+    if (this.pouring) {
+      // Hold A through the topping for marshmallows; hold it and tap B for a swirl.
+      held.a = this.pilotOrder !== 'plain'
+      if (
+        this.pilotOrder === 'swirl' &&
+        this.pouring.ticks >= 2 &&
+        !this.pouring.swirl
+      ) {
+        held.b = true
+        frame.pressed.b = true
+      }
+      return frame
+    }
+    if (
+      this.cozy >= COZY.max &&
+      this.robots.some((r) => r.state === 'walk' && r.x > REACH_X - 70)
+    ) {
+      // A robot is getting close: spend the Cozy meter on a Sing-along.
+      held.b = true
+      frame.pressed.b = true
+      return frame
+    }
+    const empty = this.rules.empty
     let target = -1
     let soonest = Infinity
     for (const mug of this.mugs) {
-      if (mug.full) continue
-      const eta = (TAP_X - mug.x) / empty
+      if (mug.full && !mug.back) continue
+      const eta = (TAP_X - mug.x) / (empty * (mug.back ? HANDBACK_SPEED : 1))
       const hop = this.hopsTo(mug.row) * 2 + 8
       if (eta < hop + 12 && eta < soonest) {
         soonest = eta
@@ -846,12 +1177,10 @@ class CocoaCounter implements ArcadeGameInstance {
     if (target < 0) {
       let urgent = -Infinity
       for (let r = 0; r < ROWS; r++) {
-        const walking = this.robots.filter(
-          (b) => b.row === r && b.state === 'walk',
-        )
-        const coming = this.mugs.filter((m) => m.row === r && m.full).length
-        if (walking.length <= coming) continue
-        const lead = Math.max(...walking.map((b) => b.x))
+        const waiting = this.waitingOn(r)
+        const coming = this.comingTo(r)
+        if (waiting.length <= coming) continue
+        const lead = waiting[0]!.x
         if (lead > urgent) {
           urgent = lead
           target = r
@@ -861,7 +1190,7 @@ class CocoaCounter implements ArcadeGameInstance {
     if (target < 0) {
       // Nothing to do: pick up a tip on this counter if one is handy.
       const tip = this.tips.find((t) => t.row === this.row)
-      if (tip && !this.mugs.some((m) => !m.full)) {
+      if (tip && !this.mugs.some((m) => !m.full || m.back)) {
         held.left = tip.x < this.x
         held.right = tip.x > this.x
       } else held.right = true
@@ -881,21 +1210,32 @@ class CocoaCounter implements ArcadeGameInstance {
       return frame
     }
     const waitingEmpty = this.mugs.some(
-      (m) => !m.full && m.row === this.row && TAP_X - m.x < 40,
+      (m) => (!m.full || m.back) && m.row === this.row && TAP_X - m.x < 40,
     )
     if (!waitingEmpty) {
-      const walking = this.robots.filter(
-        (b) => b.row === this.row && b.state === 'walk',
-      ).length
-      const coming = this.mugs.filter(
-        (m) => m.row === this.row && m.full,
-      ).length
-      if (walking > coming) {
+      // Pour what the next robot down this counter is asking for.
+      const next = this.waitingOn(this.row)[this.comingTo(this.row)]
+      if (next) {
+        this.pilotOrder = next.order
         held.a = true
         frame.pressed.a = true
       }
     }
     return frame
+  }
+
+  /** Robots on a counter who still want a mug, nearest the urn first. */
+  private waitingOn(row: number): Robot[] {
+    return this.robots
+      .filter(
+        (b) => b.row === row && (b.state === 'walk' || b.state === 'refuse'),
+      )
+      .sort((a, b) => b.x - a.x)
+  }
+
+  /** Full mugs already sliding down a counter. */
+  private comingTo(row: number): number {
+    return this.mugs.filter((m) => m.row === row && m.full && !m.back).length
   }
 
   private hopsTo(row: number): number {
@@ -914,12 +1254,14 @@ class CocoaCounter implements ArcadeGameInstance {
     g.save()
     g.translate(shake, 0)
     this.renderCafe(g)
+    if (this.singing > 0) this.renderSingAlong(g)
     for (const tip of this.tips) {
       if (tip.life < 90 && Math.floor(tip.life / 6) % 2) continue
       this.renderTip(g, tip)
     }
     for (const robot of this.robots) this.renderRobot(g, robot)
     for (const mug of this.mugs) this.renderSlidingMug(g, mug)
+    for (const robot of this.robots) this.renderOrder(g, robot)
     if (this.lose === 0 || Math.floor(this.lose / 6) % 2)
       this.renderBartender(g)
     for (const p of this.particles) {
@@ -997,22 +1339,32 @@ class CocoaCounter implements ArcadeGameInstance {
     }
   }
 
+  /** How far a robot leans this tick: swaying in the Sing-along, shaking its head at a wrong drink. */
+  private lean(robot: Robot): number {
+    if (robot.state === 'refuse') return Math.floor(this.tick / 4) % 2 ? 1 : -1
+    if (this.singing > 0 && robot.state === 'walk')
+      return Math.round(Math.sin((this.tick + robot.phase) / 10) * 2)
+    return 0
+  }
+
   private renderRobot(g: CanvasRenderingContext2D, robot: Robot) {
     const y = rowY(robot.row)
     const look =
       ROBOT_LOOKS.get(robot.color) ?? ROBOT_LOOKS.get(ROBOT_COLORS[0]!)!
     const stepping =
-      (robot.state === 'walk' && (this.tick + robot.phase) % 60 < 40) ||
+      (robot.state === 'walk' &&
+        this.singing === 0 &&
+        (this.tick + robot.phase) % 60 < 40) ||
       robot.state === 'leave'
     const frame = stepping ? Math.floor((this.tick + robot.phase) / 8) % 2 : 0
-    const x = Math.round(robot.x)
+    const x = Math.round(robot.x) + this.lean(robot)
     dropShadow(g, x, y + 1, 7, 1.5, 0.4)
     const sprite =
       robot.state === 'drink'
         ? look.drink
         : robot.state === 'pushed'
           ? look.hold
-          : robot.state === 'leave'
+          : robot.state === 'leave' || this.singing > 0
             ? look.happy[frame]!
             : look.walk[frame]!
     const top = y - frame
@@ -1032,17 +1384,18 @@ class CocoaCounter implements ArcadeGameInstance {
     g.fillRect(bx - 1, top - 23, 1, 1)
     if (lit || Math.floor((this.tick + robot.phase) / 20) % 2)
       glow(g, bx, top - 22, 6, bulb, 0.5)
+    const mug = TOPPED_MUGS[robot.order]
     if (robot.state === 'drink') {
       // Mug up to the visor and down again, sipping until it is empty.
       const sip = Math.floor(robot.timer / 14) % 2
-      const full = robot.timer > DRINK_TICKS / 3
-      drawSprite(g, full ? FULL_MUG : EMPTY_MUG, x + 10, y - 9 - sip * 3, {
+      const full = robot.timer > PATRONS[robot.patron].drinkTicks / 3
+      drawSprite(g, full ? mug : EMPTY_MUG, x + 10, y - 9 - sip * 3, {
         anchor: 'feet',
         flipX: true,
       })
       if (full) this.steam(g, x + 10, y - 16 - sip * 3, robot.phase)
     } else if (robot.state === 'pushed') {
-      drawSprite(g, FULL_MUG, x + 11, y - 5, { anchor: 'feet', flipX: true })
+      drawSprite(g, mug, x + 11, y - 5, { anchor: 'feet', flipX: true })
       this.steam(g, x + 11, y - 12, robot.phase)
     } else if (robot.state === 'leave') {
       const t = (this.tick + robot.phase) % 36
@@ -1051,21 +1404,85 @@ class CocoaCounter implements ArcadeGameInstance {
           anchor: 'feet',
           alpha: 1 - t / 28,
         })
-    } else if (robot.x > REACH_X - 60 && Math.floor(this.tick / 10) % 2) {
-      // A little thirsty grumble mark.
-      drawText(g, '!', x + 8, y - 28, { color: RAMPS.ember[3], outline: INK })
+    }
+  }
+
+  /** The order bubble over a robot that still wants a mug: big, colour-coded, the drink drawn in it. */
+  private renderOrder(g: CanvasRenderingContext2D, robot: Robot) {
+    if (robot.state !== 'walk' && robot.state !== 'refuse') return
+    const topping = TOPPINGS[robot.order]
+    const x = Math.round(robot.x) + this.lean(robot)
+    const y = rowY(robot.row)
+    const w = 16
+    const h = 14
+    const left = x - w / 2
+    const top = y - 43
+    // Close to the urn, the rim blinks red as a warning.
+    const urgent =
+      robot.state === 'walk' &&
+      robot.x > REACH_X - 60 &&
+      Math.floor(this.tick / 8) % 2 === 0
+    g.fillStyle = INK
+    g.fillRect(left - 1, top - 1, w + 2, h + 2)
+    g.fillRect(x - 2, top + h, 4, 3)
+    g.fillStyle = urgent ? RAMPS.ember[3] : topping.rim
+    g.fillRect(left, top, w, h)
+    g.fillRect(x - 1, top + h, 2, 2)
+    g.fillStyle = RAMPS.cream[4]
+    g.fillRect(left + 2, top + 2, w - 4, h - 4)
+    drawSprite(g, TOPPED_MUGS[robot.order], x + 1, top + h - 2, {
+      anchor: 'feet',
+    })
+    if (robot.state === 'refuse') {
+      // A wrong drink: a red cross over the bubble while it shakes its head.
+      g.fillStyle = RAMPS.ember[2]
+      for (let i = 0; i < 6; i++) {
+        g.fillRect(left + 5 + i, top + 4 + i, 1, 1)
+        g.fillRect(left + 10 - i, top + 4 + i, 1, 1)
+      }
+    }
+  }
+
+  /** Warm stage light and floating notes while everyone sways. */
+  private renderSingAlong(g: CanvasRenderingContext2D) {
+    const fade = Math.min(1, this.singing / 30)
+    for (let r = 0; r < ROWS; r++)
+      glow(g, W / 2, rowY(r) - 20, 150, RAMPS.gold[3], 0.12 * fade)
+    for (const robot of this.robots) {
+      if (robot.state !== 'walk' && robot.state !== 'refuse') continue
+      const t = (this.tick + robot.phase * 3) % 50
+      drawSprite(
+        g,
+        NOTE_SPRITE,
+        Math.round(robot.x) + 8 + Math.round(Math.sin(t / 6) * 2),
+        rowY(robot.row) - 22 - Math.floor(t / 4),
+        { anchor: 'feet', alpha: fade * (1 - t / 50) },
+      )
     }
   }
 
   private renderSlidingMug(g: CanvasRenderingContext2D, mug: Mug) {
     const y = rowY(mug.row)
     const x = Math.round(mug.x)
+    const toDoor = mug.full && !mug.back
+    if (mug.back)
+      // A handed-back mug glows on its way home: catch it.
+      glow(
+        g,
+        x + 1,
+        y - 4,
+        9,
+        RAMPS.ember[3],
+        0.35 + 0.15 * Math.sin(this.tick / 3),
+      )
     // Speed streaks trail behind a sliding mug.
     g.fillStyle = rgba(RAMPS.cream[4], 0.45)
-    const behind = mug.full ? x + 6 : x - 10
+    const behind = toDoor ? x + 6 : x - 10
     g.fillRect(behind, y - 5, 5, 1)
-    g.fillRect(behind + (mug.full ? 2 : -1), y - 3, 4, 1)
-    drawSprite(g, mug.full ? FULL_MUG : EMPTY_MUG, x + 1, y, { anchor: 'feet' })
+    g.fillRect(behind + (toDoor ? 2 : -1), y - 3, 4, 1)
+    drawSprite(g, mug.full ? TOPPED_MUGS[mug.topping] : EMPTY_MUG, x + 1, y, {
+      anchor: 'feet',
+    })
     if (mug.full) this.steam(g, x, y - 7, mug.row * 31)
   }
 
@@ -1090,25 +1507,41 @@ class CocoaCounter implements ArcadeGameInstance {
     const y = rowY(this.row)
     const x = Math.round(this.x)
     const moved = this.x - this.walkFrom
-    const pouring = this.pour > 0
+    const pour = this.pouring
     // Faces the door while it waits, its heading while it walks, the urn while it pours.
-    const facingRight = pouring || moved > 0
-    const sprite = pouring
+    const facingRight = !!pour || moved > 0
+    const sprite = pour
       ? SERVER_SPRITES.pour
       : moved !== 0 && Math.floor(this.tick / 6) % 2
         ? SERVER_SPRITES.step
         : SERVER_SPRITES.stand
     dropShadow(g, x, y + 1, 7, 1.5, 0.4)
     drawSprite(g, sprite, x, y, { anchor: 'feet', flipX: !facingRight })
-    if (pouring) {
-      // Cocoa runs from the urn's spout into the mug beneath it.
-      g.fillStyle = RAMPS.earth[2]
-      g.fillRect(URN_X - 7, y - 8, 1, 2)
-      const full = this.pour < POUR_TICKS / 2
-      drawSprite(g, full ? FULL_MUG : EMPTY_MUG, URN_X - 5, y, {
-        anchor: 'feet',
-      })
-      glow(g, URN_X - 7, y - 6, 6, RAMPS.gold[3], 0.35)
+    if (!pour) return
+    // Cocoa runs from the urn's spout into the mug beneath it.
+    g.fillStyle = RAMPS.earth[2]
+    g.fillRect(URN_X - 7, y - 8, 1, 2)
+    const holding = !pour.released && pour.ticks >= pour.base
+    const mug = pour.swirl
+      ? SWIRL_MUG
+      : pour.ticks < pour.base / 2
+        ? EMPTY_MUG
+        : FULL_MUG
+    drawSprite(g, mug, URN_X - 5, y, { anchor: 'feet' })
+    glow(g, URN_X - 7, y - 6, 6, RAMPS.gold[3], 0.35)
+    if (holding && !pour.swirl) {
+      // Holding A heaps marshmallows on: a gauge fills over the mug.
+      const fill = Math.min(1, (pour.ticks - pour.base) / TOPPING_TICKS)
+      g.fillStyle = INK
+      g.fillRect(URN_X - 12, y - 20, 14, 4)
+      g.fillStyle = RAMPS.cream[1]
+      g.fillRect(URN_X - 11, y - 19, 12, 2)
+      g.fillStyle = TOPPINGS.marshmallow.rim
+      g.fillRect(URN_X - 11, y - 19, Math.round(12 * fill), 2)
+      for (let i = 0; i < Math.floor(fill * 3); i++) {
+        g.fillStyle = '#ffffff'
+        g.fillRect(URN_X - 8 + i * 3, y - 9, 2, 2)
+      }
     }
   }
 
@@ -1120,22 +1553,25 @@ class CocoaCounter implements ArcadeGameInstance {
       shadow: INK,
     })
     const waiting = this.toSpawn + this.robots.length
-    hudPanel(g, 92, 3, 74, 20, RAMPS.earth)
-    drawText(g, `THIRSTY ${waiting}`, 97, 5, {
+    hudPanel(g, 90, 3, 70, 20, RAMPS.earth)
+    drawText(g, `THIRSTY ${waiting}`, 95, 5, {
       color: RAMPS.cream[3],
       outline: INK,
     })
-    drawText(g, `MOPS ${this.mops}`, 97, 14, {
+    drawText(g, `MOPS ${this.mops}`, 95, 14, {
       color: this.mops > 0 ? RAMPS.teal[3] : RAMPS.ember[3],
       outline: INK,
     })
     // Spare mug-bots.
-    const spares = Math.min(this.lives - 1, 4)
+    const spares = this.lives - 1
     if (spares > 0) {
-      hudPanel(g, 171, 3, spares * 11 + 6, 20, RAMPS.earth)
-      for (let i = 0; i < spares; i++)
-        drawSprite(g, FULL_MUG, 178 + i * 11, 19, { anchor: 'feet' })
+      drawSprite(g, FULL_MUG, 138, 21, { anchor: 'feet' })
+      drawText(g, `X${spares}`, 145, 14, {
+        color: RAMPS.cream[3],
+        outline: INK,
+      })
     }
+    this.renderCozyPanel(g, 163, 3)
     hudPanel(g, W - 86, 3, 83, 20, RAMPS.earth)
     drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 8, 5, {
       align: 'right',
@@ -1161,7 +1597,69 @@ class CocoaCounter implements ArcadeGameInstance {
           color: RAMPS.gold[3],
           outline: INK,
         })
+      if (this.banner.note)
+        drawText(g, this.banner.note, W / 2, 128, {
+          align: 'center',
+          color: RAMPS.cream[4],
+          outline: INK,
+        })
     }
+  }
+
+  /** The Cozy meter, the Rush combo and the Cafe Fund. */
+  private renderCozyPanel(g: CanvasRenderingContext2D, px: number, py: number) {
+    hudPanel(g, px, py, 68, 20, RAMPS.earth)
+    const full = this.cozy >= COZY.max
+    const blink = Math.floor(this.tick / 10) % 2 === 0
+    drawText(g, 'COZY', px + 5, py + 2, {
+      color: full && blink ? '#ffffff' : RAMPS.pink[3],
+      outline: INK,
+    })
+    const barX = px + 31
+    const barW = 32
+    const fill =
+      this.singing > 0 ? this.singing / COZY.singTicks : this.cozy / COZY.max
+    g.fillStyle = INK
+    g.fillRect(barX - 1, py + 2, barW + 2, 7)
+    g.fillStyle = RAMPS.night[2]
+    g.fillRect(barX, py + 3, barW, 5)
+    g.fillStyle =
+      this.singing > 0
+        ? RAMPS.gold[3]
+        : full && blink
+          ? '#ffffff'
+          : RAMPS.pink[3]
+    g.fillRect(barX, py + 3, Math.round(barW * fill), 5)
+    g.fillStyle = rgba('#ffffff', 0.35)
+    g.fillRect(barX, py + 3, Math.round(barW * fill), 1)
+    if (full && this.singing === 0) {
+      if (blink)
+        drawText(g, 'B: SING!', px + 34, py + 11, {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        })
+      return
+    }
+    const mult = this.multiplier()
+    drawText(g, `X${mult}`, px + 5, py + 11, {
+      color: mult > 1 ? RAMPS.gold[3] : RAMPS.cream[2],
+      outline: INK,
+    })
+    // Pips toward the next Rush step.
+    const pips =
+      mult >= RUSH_COMBO.max ? RUSH_COMBO.step : this.streak % RUSH_COMBO.step
+    for (let i = 0; i < RUSH_COMBO.step; i++) {
+      g.fillStyle = INK
+      g.fillRect(px + 19 + i * 4, py + 12, 3, 5)
+      g.fillStyle = i < pips ? RAMPS.gold[3] : RAMPS.night[2]
+      g.fillRect(px + 19 + i * 4, py + 13, 2, 3)
+    }
+    shadedOrb(g, px + 41, py + 14, 3, RAMPS.gold)
+    drawText(g, String(Math.min(this.fund, 999)), px + 46, py + 11, {
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
   }
 }
 
@@ -1399,8 +1897,59 @@ function paintCounter(k: CanvasRenderingContext2D, r: number) {
   drawSprite(k, URN_SPRITE, URN_X, y, { anchor: 'feet' })
 }
 
+/** The table guide: orders, the Cozy meter and the Endless Shift. */
+export function cocoaGuide(): ArcadeGuidePage[] {
+  return [
+    {
+      title: 'READ THE BUBBLE',
+      scale: 1,
+      lines: [
+        'EVERY ROBOT SHOWS WHAT IT WANTS IN A BUBBLE.',
+        ...TOPPING_ORDER.map((t) => `${TOPPINGS[t].name}: ${TOPPINGS[t].pour}`),
+        'THE WRONG DRINK IS HANDED BACK FULL: CATCH IT!',
+        'CATCH EVERY EMPTY. NO ROBOT MAY REACH THE URN.',
+        'THE MOP-BOT MOPS TWO SPILLS PER MUG-BOT.',
+      ],
+    },
+    {
+      title: 'THE COZY METER',
+      scale: 1,
+      lines: [
+        'RIGHT DRINKS, CAUGHT EMPTIES AND TIPS FILL IT.',
+        'A CLEAN ROUND OF RIGHT DRINKS FILLS IT RIGHT UP.',
+        'FULL? PRESS B FOR THE SING-ALONG: EVERYONE',
+        'STOPS TO SWAY FOR 5 SECONDS. PICK YOUR MOMENT.',
+        'TIPS ALSO PAY INTO THE CAFE FUND. GRAB THEM FAST.',
+      ],
+    },
+    {
+      title: 'RUSH AND JUGGLE',
+      scale: 1,
+      lines: [
+        `EVERY ${RUSH_COMBO.step} CLEAN SERVES RAISE THE RUSH: X1 TO X${RUSH_COMBO.max}.`,
+        'IT MULTIPLIES SERVES, DOOR BONUSES AND JUGGLES.',
+        'A WRONG DRINK, A SPILL OR A LOST MUG ENDS IT.',
+        'CATCH AN EMPTY AS A POUR GOES OUT: JUGGLE!',
+        `EXTRA MUG-BOTS AT ${EXTRA_MUG_BOTS.map((s) => `${s / 1000}K`).join(', ')}.`,
+      ],
+    },
+    {
+      title: 'ENDLESS SHIFT',
+      scale: 1,
+      lines: [
+        'SOMETHING NEW JOINS THE SHIFT EVERY ROUND:',
+        ...ENDLESS_LADDER.map((u, i) => `ROUND ${i + 1}: ${u.banner}`),
+        `FROM ROUND ${RUSH_AFTER + 1} THE RUSH NEVER STOPS CLIMBING:`,
+        'MORE ROBOTS, QUICKER FEET, FANCIER ORDERS,',
+        'CLOSER ARRIVALS AND FASTER EMPTIES, IN TURN.',
+      ],
+    },
+  ]
+}
+
 const cocoaCounter: ArcadeGameModule = {
   create: (options) => new CocoaCounter(options),
+  guide: () => cocoaGuide(),
 }
 
 export const create = cocoaCounter.create

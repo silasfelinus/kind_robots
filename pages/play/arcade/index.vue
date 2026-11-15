@@ -215,6 +215,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import { ARCADE_GAMES, findArcadeGame } from '~/utils/arcade/games'
+import { arcadeCabinetShareLink, shareNoteFor } from '~/utils/arcade/hall'
 
 const route = useRoute()
 const store = useArcadeStore()
@@ -247,20 +248,12 @@ const ranges = [
 
 const shareNote = ref('')
 async function shareGame() {
-  const url = `${window.location.origin}/play/arcade?game=${encodeURIComponent(meta.value?.slug ?? '')}`
-  const title = `${meta.value?.title ?? 'Arcade'} · Kind Robots Arcade`
-  try {
-    if (navigator.share) {
-      await navigator.share({ title, url })
-      return
-    }
-    await navigator.clipboard.writeText(url)
-    shareNote.value = 'Link copied!'
-  } catch (err) {
-    if ((err as Error)?.name === 'AbortError') return
-    shareNote.value = 'Copy the address bar'
-  }
-  setTimeout(() => (shareNote.value = ''), 2500)
+  if (!meta.value) return
+  const result = await store.shareLink(
+    arcadeCabinetShareLink(window.location.origin, meta.value),
+  )
+  shareNote.value = shareNoteFor(result)
+  if (shareNote.value) setTimeout(() => (shareNote.value = ''), 2500)
 }
 
 useHead({

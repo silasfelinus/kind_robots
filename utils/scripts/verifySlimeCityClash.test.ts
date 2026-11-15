@@ -1877,23 +1877,44 @@ for (const id of finalEleven) {
 }
 assert.equal(Object.keys(CLASH_TWISTS).length, 70)
 
-// Equipment earns permanent effects on real fighters and adjacent allies.
+// Patent Shredder is a real fighter: no ally is required to field her,
+// but positioning between teammates unlocks the L3 two-sided claw handoff.
 const shredderStage = third('catgirls', 'shredders')
 shredderStage.units = [
-  follower('player', 2, 3100, 14, 3),
+  follower('player', 1, 3100, 14, 3),
+  follower('player', 3, 3103, 14, 3),
   follower('enemy', 2, 3101, 12, 3),
-  follower('enemy', 3, 3102, 12, 3),
 ]
-const equippedShredders = playClash(shredderStage, 'player', 'shredders', 2)
-const shredder = equippedShredders.units.find((u) => u.uid === 3100)!
-assert.ok(shredder.keywords.includes('pierce'))
-assert.equal(shredder.gearLevels?.shredders, 3)
-const shredderHit = strikeClash(
-  passClash(equippedShredders, 'player'),
-  'player',
+const deployedShredder = playClash(shredderStage, 'player', 'shredders', 2)
+assert.ok(
+  deployedShredder.units.some((u) => u.cardId === 'shredders' && u.lane === 2),
+  'Patent Shredder enters the board as a fighter',
 )
-assert.ok(shredderHit.units.find((u) => u.uid === 3102)!.hp < 12)
+for (const uid of [3100, 3103]) {
+  const neighbor = deployedShredder.units.find((u) => u.uid === uid)!
+  assert.equal(neighbor.attack, 4, 'each adjacent ally gains lasting power')
+  assert.ok(neighbor.keywords.includes('pierce'), 'each gains PIERCE')
+}
+const lonelyShredder = third('catgirls', 'shredders')
+lonelyShredder.units = []
+const soloShredder = playClash(lonelyShredder, 'player', 'shredders', 2)
+assert.equal(
+  soloShredder.units.filter((u) => u.cardId === 'shredders').length,
+  1,
+  'an empty board still gets a useful fighter, not a fizzled spell',
+)
+const juniorShredder = third('catgirls', 'shredders')
+juniorShredder.levels.player.shredders = 1
+juniorShredder.units = [follower('player', 1, 3104, 12, 2)]
+const shortBurst = playClash(juniorShredder, 'player', 'shredders', 2)
+assert.equal(
+  shortBurst.units.find((u) => u.uid === 3104)?.attack,
+  2,
+  'the first-stage claw buff is temporary, not permanent',
+)
+assert.equal(shortBurst.units.find((u) => u.uid === 3104)?.surge, 1)
 
+// The remaining gear cards still equip, without accidentally spawning fighters.
 const spursStage = third('bloodfairies', 'spurs')
 spursStage.units = [
   follower('player', 1, 3111, 10, 2),

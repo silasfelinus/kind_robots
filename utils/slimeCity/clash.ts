@@ -448,6 +448,13 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
   // armor lifted plated bases, and the bonus must not stack past the cap).
   if (curve?.hp)
     evolvedHp = clamp(evolvedHp + curve.hp, 1, LIFE_CAP[plays][tier])
+  // A gear-to-fighter conversion must not inherit a full two-play bruiser
+  // budget on top of its adjacent-ally support. It is a vulnerable medic-like
+  // claw carrier until the crew earns the third-stage two-sided handoff.
+  if (card.id === 'shredders') {
+    evolvedAttack = [1, 1, 2][tier]!
+    evolvedHp = [3, 4, 5][tier]!
+  }
   return {
     plays,
     level: lv,

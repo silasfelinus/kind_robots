@@ -238,7 +238,9 @@
               :aria-label="`Play ${view.poster.name}`"
             >
               <advert-poster :poster="view.poster" :images="view.images" />
-              <p class="truncate px-1 py-1 text-sm font-bold group-hover:text-primary">
+              <p
+                class="truncate px-1 py-1 text-sm font-bold group-hover:text-primary"
+              >
                 {{ view.poster.name }}
               </p>
             </NuxtLink>

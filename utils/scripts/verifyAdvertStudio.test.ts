@@ -314,7 +314,10 @@ assert.match(tutorialSheet, /data-testid="workspace-silas-says"/)
 assert.match(tutorialSheet, /data-testid="workspace-conversation"/)
 assert.match(tutorialSheet, /reaction-category="PROJECT"/)
 assert.match(tutorialSheet, /advertStore.loadPublicSelections\(\)/)
-assert.match(read('content.config.ts'), /silasSays: z\.string\(\)\.optional\(\)/)
+assert.match(
+  read('content.config.ts'),
+  /silasSays: z\.string\(\)\.optional\(\)/,
+)
 assert.match(
   read('stores/helpers/channelContent.ts'),
   /silasSays: text\(item.silasSays\)/,

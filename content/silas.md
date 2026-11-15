@@ -11,7 +11,7 @@ navigation: false
 
 Silas is the programmer and creative instigator behind [Kind Robots](/), an ongoing collection of original browser games, illustrated stories and AI-supported creative tools built to encourage creativity and turn it toward human benefit.
 
-Based in Northern California, he has spent roughly three decades programming and has also worked as a casino dealer, a street performer and a writer. Two summers performing across Europe as a glasswalker, acrobat and fire juggler became the material for his novel *Mermaids of Venice*.
+Based in Northern California, he has spent roughly three decades programming and has also worked as a casino dealer, a street performer and a writer. Two summers performing across Europe as a glasswalker, acrobat and fire juggler became the material for his novel _Mermaids of Venice_.
 
 Kind Robots is both a playground and a long-running experiment: can creative AI tools make more room for original human ideas, collaborative storytelling and useful social impact?
 

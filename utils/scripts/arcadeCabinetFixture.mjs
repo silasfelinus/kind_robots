@@ -93,6 +93,7 @@ window.__app = app
 
 /** Games whose instances the fixture records on `window`, so a test can read (and stage) them. */
 const exposed = [
+  { file: /games\/brickBloom\.ts$/, ctor: 'BrickBloom', list: '__blooms' },
   { file: /games\/rescueRally\.ts$/, ctor: 'RescueRally', list: '__rallies' },
   { file: /games\/batteryMaze\.ts$/, ctor: 'BatteryMaze', list: '__batteries' },
   {

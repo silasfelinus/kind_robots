@@ -456,7 +456,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     blurb:
       'A paddle bot bounces a pollen ball into walls of glitch crates, and every crate cracked frees a flower. Where the ball meets the paddle sets its angle. Catch falling seeds for a wide paddle, a sticky paddle, three balls or a calmer ball. Tough crates take several hits, bolted crates never break, and a drifting gloom puff knocks the ball off course.',
     howTo: [
-      'LEFT/RIGHT  MOVE',
+      'LEFT/RIGHT OR DRAG  MOVE',
       'A  LAUNCH THE BALL',
       'EDGES ANGLE IT',
       'SEEDS  W S M C +',
@@ -469,6 +469,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/brick-bloom-title.webp',
     accent: '#f472b6',
     controls: 'Move, launch',
+    touchLayout: 'paddle',
   },
   {
     slug: 'seed-lander',

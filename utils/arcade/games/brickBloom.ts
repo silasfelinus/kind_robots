@@ -869,6 +869,20 @@ class BrickBloom implements ArcadeGameInstance {
     return !!(this.bench || this.offer)
   }
 
+  get touchActions(): Readonly<Partial<Record<'a' | 'b', string>>> {
+    if (this.offer || this.bench || this.clear > 0 || this.lost > 0) return {}
+    if (this.card) return { a: 'Skip' }
+    if (this.balls.some((ball) => ball.stuck !== null)) return { a: 'Launch' }
+    if (
+      this.balls.some(
+        (ball) =>
+          ball.curl === 0 && ball.hitDir !== 0 && ball.since <= CURL_WINDOW,
+      )
+    )
+      return { b: 'Curl' }
+    return {}
+  }
+
   private get paddleW(): number {
     return this.wide > 0 ? WIDE_W : this.roomy ? ROOMY_W : PADDLE_W
   }
@@ -1580,11 +1594,18 @@ class BrickBloom implements ArcadeGameInstance {
 
   private movePaddle(input: InputFrame) {
     // A rose petal's sting holds the paddle still; a dirt clod makes it sluggish.
-    const dir = this.stung
-      ? 0
-      : (input.held.right ? 1 : 0) - (input.held.left ? 1 : 0)
-    const push = this.muddy ? 0.9 : 2.2
-    const top = this.muddy ? 2.2 : 5
+    const target =
+      input.touchPaddleX === undefined
+        ? null
+        : LEFT + Math.max(0, Math.min(1, input.touchPaddleX)) * (RIGHT - LEFT)
+    const steer =
+      target === null
+        ? (input.held.right ? 1 : 0) - (input.held.left ? 1 : 0)
+        : Math.max(-1, Math.min(1, (target - this.paddleX) / 7))
+    const dir = this.stung ? 0 : steer
+    const touch = target !== null
+    const push = this.muddy ? 0.9 : touch ? 3.8 : 2.2
+    const top = this.muddy ? 2.2 : touch ? 10 : 5
     // A little momentum: quick to start, quick to stop.
     this.paddleV = dir ? this.paddleV * 0.6 + dir * push : this.paddleV * 0.4
     this.paddleV = Math.max(-top, Math.min(top, this.paddleV))

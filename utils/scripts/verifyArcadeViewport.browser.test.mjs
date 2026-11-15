@@ -13,11 +13,13 @@ import {
 const RAINBOW = 'rainbow-bullet-hell-space-princess'
 const PLUMBER = 'save-the-plumber'
 const GHOST = 'zuzu-ghost-trail'
+const BRICK = 'brick-bloom'
 const cases = [
   { slug: PLUMBER, width: 360, height: 640, touch: true },
   { slug: RAINBOW, width: 390, height: 844, touch: true },
   { slug: RAINBOW, width: 844, height: 390, touch: true },
   { slug: GHOST, width: 768, height: 1024, touch: true },
+  { slug: BRICK, width: 390, height: 844, touch: true },
   { slug: RAINBOW, width: 1024, height: 768, touch: true, seats: 4 },
   { slug: PLUMBER, width: 1440, height: 900, touch: false },
   { slug: RAINBOW, width: 1920, height: 1080, touch: false },
@@ -58,6 +60,38 @@ try {
           const box = canvas?.getBoundingClientRect()
           return box && box.width > 0 && box.height > 0 && canvas.width > 0
         })
+        if (testCase.slug === BRICK) {
+          await page.keyboard.press('Enter')
+          await page.waitForSelector('.cabinet-overlay--paddle')
+          assert.equal(await page.locator('.cabinet-dpad').count(), 0)
+          assert.equal(await page.locator('.cabinet-ball').count(), 0)
+          await page.evaluate(() => {
+            const game = (window.__blooms ?? []).find(
+              (entry) => !entry.demo,
+            )?.game
+            if (!game) throw new Error('Brick Bloom run never started')
+            game.card = null
+          })
+          const canvas = page.locator('.cabinet-canvas')
+          const box = await canvas.boundingBox()
+          const y = box.y + box.height * 0.8
+          await page.mouse.move(box.x + box.width * 0.4, y)
+          await page.mouse.down()
+          await page.mouse.move(box.x + box.width * 0.9, y, { steps: 8 })
+          await page.waitForTimeout(450)
+          const right = await page.evaluate(
+            () => window.__blooms.find((entry) => !entry.demo).game.paddleX,
+          )
+          assert.ok(right > 165, 'drag right steers the paddle')
+          await page.mouse.move(box.x + box.width * 0.1, y, { steps: 8 })
+          await page.waitForTimeout(450)
+          const left = await page.evaluate(
+            () => window.__blooms.find((entry) => !entry.demo).game.paddleX,
+          )
+          assert.ok(left < right - 35, 'drag left steers the paddle')
+          await page.mouse.up()
+          assert.equal(await page.locator('.cabinet-dpad').count(), 0)
+        }
         if (testCase.slug === RAINBOW) {
           await startRainbowRun(page)
           if (testCase.seats === 4)

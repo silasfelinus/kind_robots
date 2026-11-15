@@ -39,6 +39,8 @@ export type InputFrame = {
    * a game that has one (Kind Pinball's touch layout); absent otherwise.
    */
   plunger?: number
+  /** Finger target across a paddle cabinet's playfield, from left (0) to right (1). */
+  touchPaddleX?: number
   /**
    * Where a twin-stick game's second stick points, each axis -1..1 and at most length 1: the
    * gamepad's right stick, the on-screen aim stick, or the arrows of a split keyboard. Only a
@@ -111,9 +113,9 @@ export type ArcadeGameMeta = {
   mastery?: readonly ArcadeMasteryGoal[]
   /**
    * The game's own touch layout in place of the d-pad and buttons while it
-   * plays ('pinball': utils/arcade/pinballTouch.ts).
+   * plays ('pinball': flippers and plunger; 'paddle': drag across the playfield).
    */
-  touchLayout?: 'pinball'
+  touchLayout?: 'pinball' | 'paddle'
   /**
    * The game honours calm motion (ArcadeGameOptions.stillCamera: no flashes, slower scenery), so the cabinet
    * shows its motion switch; a pinball table's still camera shows its own.
@@ -223,6 +225,8 @@ export interface ArcadeGameInstance {
    * gives the arrow keys back to moving the cursor instead of aiming (kr-arcade t-147).
    */
   readonly menuOpen?: boolean
+  /** Contextual touch actions (shown only when they can do something). */
+  readonly touchActions?: Readonly<Partial<Record<'a' | 'b', string>>>
   /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.

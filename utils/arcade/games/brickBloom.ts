@@ -22,6 +22,12 @@
 // a paddle hit while moving is the Leaf Curl, the ball glows hotter as it speeds up, the roof glass
 // chimes for a double, and sprout, hinge and puffball crates plus the R, T and Q seeds join in.
 // The rules' numbers live in utils/arcade/brickBloom/rules.ts.
+//
+// Slice 2 (conductor kr-arcade/t-079): the Grand Tour climbs the Seedling House and Vine Hall vent
+// maps (houses.ts) past pollen mites, snail bots and ladybot rings to each house's boss, Mister Mulch
+// and the Tangle Rose (bosses.ts). A house map card follows every wall and a title card opens every
+// house (map.ts); between houses the Potting Bench sells kit for petals earned in play, a vault on
+// each house's rich route hides a golden seed, and the tour saves at each glasshouse (bench.ts).
 
 import { levelCurve } from '../curve'
 import {
@@ -39,6 +45,7 @@ import {
   RAIN_EVERY,
   RAIN_TICKS,
   RIGHT,
+  RUSH_AT,
   THORN_TICKS,
   TOP,
   W,
@@ -96,6 +103,39 @@ import {
 import type { TourPos } from '../brickBloom/houses'
 import { COLS, ROWS, parseWall, wallFor } from '../brickBloom/walls'
 import type { CrateKind } from '../brickBloom/walls'
+import {
+  BOSS_SPECS,
+  SHOT_R,
+  SWEEP_H,
+  bossHealth,
+  bossOf,
+  bossRect,
+  bossTouches,
+  hitBoss,
+  openBoss,
+  spawnBoss,
+  stepBoss,
+  sweepCellAt,
+} from '../brickBloom/bosses'
+import type { Boss, BossShot, Sweep } from '../brickBloom/bosses'
+import {
+  BENCH_ITEMS,
+  GOLDEN_TOTAL,
+  MAX_PETALS,
+  PETALS,
+  STARTER_SEEDS,
+  VAULTS,
+  VAULT_HITS,
+  buy,
+  emptyKit,
+  freshSave,
+  owned,
+  readBloomSave,
+  resumable,
+  vaultAt,
+} from '../brickBloom/bench'
+import type { BloomSave, Kit, StarterSeed } from '../brickBloom/bench'
+import { HOUSE_CARDS, houseMap, richRoute } from '../brickBloom/map'
 import { drawText } from '../font'
 import {
   INK,
@@ -131,7 +171,17 @@ const H = 320
 const PADDLE_Y = 296
 const PADDLE_H = 6
 const PADDLE_W = 36
+/** The Potting Bench's wider base paddle. */
+const ROOMY_W = 44
 const WIDE_W = 56
+/** Mister Mulch's clods make the paddle sluggish; a Tangle Rose petal stings it still. */
+const MUDDY_TICKS = 120
+const STUNG_TICKS = 50
+/** Swat a clod with the paddle moving at least this fast and it flies off. */
+const SWAT_SPEED = 2.5
+const GOLDEN_FALL = 0.9
+const MAP_TICKS = 150
+const HOUSE_CARD_TICKS = 240
 const BRICK_W = (RIGHT - LEFT) / COLS
 const BRICK_H = 10
 const BRICK_TOP = 48
@@ -203,7 +253,17 @@ type Brick = {
   /** A hinge crate swings open on a beat and the ball passes through. */
   open: boolean
   flash: number
+  /** A boss's guard: Mister Mulch's face plates, the Tangle Rose's feeding roots. */
+  guard?: boolean
+  /** The house's golden seed vault. */
+  vault?: boolean
 }
+/** A golden seed falling from its cracked vault: catch it to keep it for good. */
+type Golden = { x: number; y: number; house: string }
+/** A full-screen card between walls: the house title card or the house map. */
+type Card = { kind: 'house' | 'map'; ticks: number; total: number }
+type Bench = { house: number; cursor: number; seed: number; ticks: number }
+type Note = { text: string; ticks: number }
 type Ball = {
   x: number
   y: number
@@ -315,6 +375,8 @@ const PUFF_CRATE = crateSprite(RAMPS.pink, 'crate')
 const ROOT_CRATE = crateSprite(RAMPS.rust, 'crate')
 const VINE_CRATE = crateSprite(RAMPS.leaf, 'crate')
 const TRELLIS_CRATE = crateSprite(RAMPS.cream, 'crate')
+const VAULT_CRATE = crateSprite(RAMPS.gold, 'bolt')
+const PLATE_CRATE = crateSprite(RAMPS.earth, 'bolt')
 
 /**
  * The paddle bot: a lit tray with pink bumper caps and an inked visor with two shining eyes
@@ -379,7 +441,11 @@ function paddleSet(w: number) {
   } as const
 }
 
-const PADDLE_SPRITES = { normal: paddleSet(PADDLE_W), wide: paddleSet(WIDE_W) }
+const PADDLE_SPRITES = {
+  normal: paddleSet(PADDLE_W),
+  roomy: paddleSet(ROOMY_W),
+  wide: paddleSet(WIDE_W),
+}
 
 const LIFE_SPRITE = pixelSprite(['hLLLLLLLs', 'pBkykykBs', 'pSSSSSSSd'], {
   h: RAMPS.pink[4],
@@ -754,22 +820,137 @@ class BrickBloom implements ArcadeGameInstance {
   private fxRng = backdropRng(43)
   private trails = new Map<Ball, { x: number; y: number }[]>()
 
+  // --- slice 2: bosses, the Potting Bench, golden seeds, the house map, saves ----------------
+  /** The house boss in play (Mister Mulch, the Tangle Rose), or null on a wall. */
+  private boss: Boss | null = null
+  /** Ticks the paddle stays sluggish (a clod) or stung still (a rose petal). */
+  private muddy = 0
+  private stung = 0
+  /** Petals to spend at the Potting Bench, earned in play. */
+  private purse = 0
+  /** The bench's wider base paddle, kept for the run. */
+  private roomy = false
+  /** What the bench sold for house `kitHouse`. */
+  private kit: Kit = emptyKit()
+  private kitHouse = -1
+  /** House ids whose golden seed is home for good. */
+  private golden = new Set<string>()
+  private goldenDrop: Golden | null = null
+  /** The walls this house's run has visited, for the map. */
+  private path: string[] = [TOUR_START.wall]
+  /** This wall was reached by a right (rich) vent. */
+  private richWall = false
+  private card: Card | null = null
+  private bench: Bench | null = null
+  private benchNote: Note | null = null
+  /** A saved tour waiting for continue (A) or a new tour (B). */
+  private offer: BloomSave | null = null
+  private shieldNoteAt = -999
+  /** The tour's resume point (utils/arcade/saves.ts); undefined until there is one. */
+  save: BloomSave | null | undefined = undefined
+
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
+    const stored = this.demo ? null : readBloomSave(options.resume)
+    if (stored) {
+      this.golden = new Set(stored.golden)
+      this.save = stored
+      if (resumable(stored)) this.offer = stored
+    }
     this.startStage(1)
+    if (!this.offer && options.selectScreen && !this.demo)
+      this.card = this.newCard('house')
+  }
+
+  get menuOpen(): boolean {
+    return !!(this.bench || this.offer)
   }
 
   private get paddleW(): number {
-    return this.wide > 0 ? WIDE_W : PADDLE_W
+    return this.wide > 0 ? WIDE_W : this.roomy ? ROOMY_W : PADDLE_W
+  }
+
+  private get houseNow(): number {
+    return this.tour ? this.tour.house : -1
+  }
+
+  /** The bench's kit works only in the house it was bought for. */
+  private get kitLive(): boolean {
+    return this.kitHouse >= 0 && this.houseNow === this.kitHouse
+  }
+
+  private newCard(kind: Card['kind']): Card {
+    const total =
+      kind === 'house'
+        ? this.demo
+          ? 90
+          : HOUSE_CARD_TICKS
+        : this.demo
+          ? 60
+          : MAP_TICKS
+    return { kind, ticks: total, total }
+  }
+
+  private earn(petals: number) {
+    this.purse = Math.min(MAX_PETALS, this.purse + petals)
+  }
+
+  /** The save as of now: resume at the Potting Bench before house `house`. */
+  private snapshot(house: number, stage: number): BloomSave {
+    return {
+      v: 1,
+      house,
+      stage,
+      score: this.score,
+      lives: Math.max(1, this.lives),
+      continued: false,
+      petals: this.purse,
+      wide: this.roomy,
+      kit: { ...this.kit },
+      golden: [...this.golden],
+    }
+  }
+
+  private keepSave(house: number, stage: number) {
+    if (this.demo) return
+    this.save = this.snapshot(house, stage)
+  }
+
+  /** Continue a saved tour: back at the Potting Bench before its glasshouse. */
+  private resumeFrom(s: BloomSave) {
+    this.score = s.continued ? 0 : s.score
+    this.lives = s.continued ? START_LIVES : s.lives
+    this.extraIndex = EXTRA_AT.filter((at) => at <= this.score).length
+    this.purse = s.petals
+    this.roomy = s.wide
+    this.kit = { ...s.kit }
+    this.kitHouse = s.house
+    this.level = s.stage - 1
+    this.save = { ...s, continued: false }
+    this.openBench(s.house)
+  }
+
+  private updateOffer(input: InputFrame) {
+    const s = this.offer!
+    if (input.pressed.a || input.pressed.start) {
+      this.offer = null
+      this.resumeFrom(s)
+    } else if (input.pressed.b) {
+      // A new tour: the golden seeds stay, the rest starts over.
+      this.offer = null
+      this.save = freshSave([...this.golden])
+      this.card = this.newCard('house')
+    }
   }
 
   // --- stages --------------------------------------------------------------------
 
   private startStage(stage: number) {
     this.level = stage
+    this.boss = null
     const tough = Math.round(levelCurve(stage, BLOOM_CURVES.tough))
     this.bricks = []
     const house = this.tour ? HOUSES[this.tour.house] : undefined
@@ -823,6 +1004,17 @@ class BrickBloom implements ArcadeGameInstance {
       const r = this.brickRect(this.ringBrick)
       this.ring = spawnRing(r.x + r.w / 2, r.y + r.h / 2)
     } else this.ring = null
+    // The house's golden seed waits in a vault crate on its rich route.
+    const vault =
+      vented && this.tour ? vaultAt(this.tour.house, vented.id) : null
+    const safe = this.bricks.find(
+      (b) => vault && b.col === vault.col && b.row === vault.row && !b.bolt,
+    )
+    if (safe) {
+      safe.vault = true
+      safe.hp = VAULT_HITS
+      safe.maxHp = VAULT_HITS
+    }
     this.puffs = []
     const puffs = Math.max(0, Math.round(levelCurve(stage, BLOOM_CURVES.puffs)))
     for (let i = 0; i < puffs; i++) {
@@ -835,6 +1027,17 @@ class BrickBloom implements ArcadeGameInstance {
       })
     }
     this.speed = levelCurve(stage, BLOOM_CURVES.speed)
+    this.resetRound()
+    // The bench's starter seed: every wall of the house it was bought for starts with it.
+    if (vented && this.kitLive && this.kit.seed) this.giveSeed(this.kit.seed)
+    this.serve()
+    this.banner = vented
+      ? { text: vented.name.toUpperCase(), sub: house!.name, ticks: 90 }
+      : { text: `STAGE ${stage}`, sub: 'BLOOM EVERY CRATE', ticks: 90 }
+  }
+
+  /** What every wall and boss starts without: seeds, falling things and the chain. */
+  private resetRound() {
     this.drops = []
     this.wide = 0
     this.sticky = 0
@@ -842,16 +1045,127 @@ class BrickBloom implements ArcadeGameInstance {
     this.rain = 0
     this.thorn = 0
     this.compass = 0
+    this.muddy = 0
+    this.stung = 0
     this.droplets = []
     this.petals = []
     this.bumble = null
+    this.goldenDrop = null
     this.chain = 0
     this.chime = false
     this.rushTicks = 0
+  }
+
+  /** A seed's timer, without the catch's points (the bench's starter seed). */
+  private giveSeed(kind: StarterSeed) {
+    if (kind === 'W') this.wide = POWER_TICKS
+    if (kind === 'S') this.sticky = POWER_TICKS
+    if (kind === 'C') this.calm = POWER_TICKS
+    if (kind === 'R') this.rain = RAIN_TICKS
+    if (kind === 'T') this.thorn = THORN_TICKS
+    if (kind === 'Q') this.compass = COMPASS_TICKS
+  }
+
+  /** The house boss: guards and a few crates on the wall, the boss hanging over them. */
+  private startBoss(stage: number, house: number) {
+    const id = bossOf(house)!
+    this.level = stage
+    this.boss = spawnBoss(id)
+    this.bricks = BOSS_SPECS[id].cells.map((c) => ({
+      col: c.col,
+      row: c.row,
+      hp: c.hp,
+      maxHp: c.hp,
+      bolt: false,
+      kind: c.kind,
+      open: false,
+      flash: 0,
+      guard: c.guard,
+    }))
+    this.miteLine = null
+    this.snail = null
+    this.ring = null
+    this.ringBrick = null
+    this.puffs = []
+    this.speed = levelCurve(stage, BLOOM_CURVES.speed)
+    this.resetRound()
+    if (this.kitLive && this.kit.seed) this.giveSeed(this.kit.seed)
     this.serve()
-    this.banner = vented
-      ? { text: vented.name.toUpperCase(), sub: house!.name, ticks: 90 }
-      : { text: `STAGE ${stage}`, sub: 'BLOOM EVERY CRATE', ticks: 90 }
+    const spec = BOSS_SPECS[id]
+    this.banner = { text: spec.name, sub: spec.phases[0], ticks: 150 }
+    this.sound.play('warn')
+  }
+
+  /** Into a glasshouse from the bench: its kit goes to work and its title card shows. */
+  private enterHouse(house: number) {
+    this.bench = null
+    this.benchNote = null
+    const h = HOUSES[house]!
+    this.tour = { house, wall: h.start }
+    this.path = [h.start]
+    this.richWall = false
+    this.kitHouse = house
+    if (this.kit.plots) {
+      this.bed[3] = FULL_BLOOM
+      this.bed[4] = FULL_BLOOM
+    }
+    this.keepSave(house, this.level + 1)
+    this.startStage(this.level + 1)
+    this.card = this.newCard('house')
+  }
+
+  private openBench(house: number) {
+    this.bench = { house, cursor: 0, seed: 0, ticks: 0 }
+    this.benchNote = null
+    this.balls = []
+    this.sound.play('level')
+  }
+
+  /** What comes after a cleared wall or a cheered-up boss. */
+  private afterClear() {
+    const tour = this.tour
+    if (this.boss) {
+      this.boss = null
+      const next = tour ? nextTourPos(tour, 0) : null
+      // The bench's kit was for the house just finished.
+      this.kit = emptyKit()
+      this.kitHouse = -1
+      if (next) {
+        this.tour = next
+        this.keepSave(next.house, this.level + 1)
+        this.openBench(next.house)
+        return
+      }
+      // Past the last house the classic walls begin again from their first.
+      this.tour = null
+      this.tourStages = this.level
+      this.keepSave(HOUSES.length, this.level + 1)
+      this.startStage(this.level + 1)
+      this.banner = {
+        text: 'THE TOUR GOES ON',
+        sub: 'MORE GLASSHOUSES SOON',
+        ticks: 150,
+      }
+      return
+    }
+    if (tour) {
+      const here = houseWall(HOUSES[tour.house]!, tour.wall)
+      if (here?.vents === 'boss' && bossOf(tour.house)) {
+        this.startBoss(this.level + 1, tour.house)
+        return
+      }
+      const side = ventSide(this.lastCrackX, W)
+      this.tour = nextTourPos(tour, side)
+      if (!this.tour) this.tourStages = this.level
+      else {
+        this.path.push(this.tour.wall)
+        this.richWall = side === 1
+      }
+      this.startStage(this.level + 1)
+      if (this.tour) this.card = this.newCard('map')
+      return
+    }
+    this.startStage(this.level + 1)
   }
 
   private serve() {
@@ -887,18 +1201,30 @@ class BrickBloom implements ArcadeGameInstance {
   update(input: InputFrame) {
     this.tick++
     this.updateEffects()
-    if (this.banner && --this.banner.ticks <= 0) this.banner = null
+    if (this.benchNote && --this.benchNote.ticks <= 0) this.benchNote = null
     if (this.over) return
+    if (this.offer) {
+      this.updateOffer(input)
+      return
+    }
+    if (this.bench) {
+      this.updateBench(input)
+      return
+    }
+    if (this.card) {
+      const card = this.card
+      card.ticks--
+      const skip =
+        !this.demo &&
+        card.total - card.ticks > 20 &&
+        (input.pressed.a || input.pressed.start)
+      if (card.ticks <= 0 || skip) this.card = null
+      return
+    }
+    if (this.banner && --this.banner.ticks <= 0) this.banner = null
     const controls = this.demo ? this.demoInput() : input
     if (this.clear > 0) {
-      if (--this.clear === 0) {
-        if (this.tour) {
-          this.tour = nextTourPos(this.tour, ventSide(this.lastCrackX, W))
-          // Past the last house the classic walls begin again from their first.
-          if (!this.tour) this.tourStages = this.level
-        }
-        this.startStage(this.level + 1)
-      }
+      if (--this.clear === 0) this.afterClear()
       return
     }
     if (this.lost > 0) {
@@ -906,6 +1232,9 @@ class BrickBloom implements ArcadeGameInstance {
         if (this.lives <= 0) {
           this.over = true
           this.banner = { text: 'GAME OVER', ticks: 9999 }
+          // A continue keeps the glasshouse, never the score.
+          if (this.save && resumable(this.save))
+            this.save = { ...this.save, continued: true }
         } else this.serve()
       }
       return
@@ -916,10 +1245,13 @@ class BrickBloom implements ArcadeGameInstance {
     if (this.rain > 0) this.rain--
     if (this.thorn > 0) this.thorn--
     if (this.compass > 0) this.compass--
+    if (this.muddy > 0) this.muddy--
+    if (this.stung > 0) this.stung--
     this.movePaddle(controls)
     this.updateHinges()
     this.updateBalls(controls)
     this.updateDrops()
+    this.updateGolden()
     this.updatePetals()
     this.updateRain()
     this.updateRush()
@@ -928,7 +1260,213 @@ class BrickBloom implements ArcadeGameInstance {
     this.updateRing()
     if (this.snail) stepSnail(this.snail)
     for (const b of this.bricks) if (b.flash > 0) b.flash--
-    if (!this.bricks.some((b) => !b.bolt)) this.stageClear()
+    if (this.boss) this.updateBoss()
+    else if (!this.bricks.some((b) => !b.bolt)) this.stageClear()
+  }
+
+  // --- the house bosses -------------------------------------------------------------------
+
+  private updateBoss() {
+    const boss = this.boss!
+    if (this.lost > 0 || this.clear > 0) return
+    stepBoss(boss, this.paddleX, this.rng)
+    // Phase 1 ends when the last guard cracks: the face (or the bud) is open.
+    if (boss.phase === 1 && !this.bricks.some((b) => b.guard)) {
+      openBoss(boss)
+      this.banner = {
+        text: 'PHASE 2',
+        sub: BOSS_SPECS[boss.id].phases[1],
+        ticks: 120,
+      }
+      this.sound.play('warn')
+    }
+    const half = this.paddleW / 2
+    for (const s of [...boss.shots]) {
+      const onPaddle =
+        s.y + SHOT_R >= PADDLE_Y &&
+        s.y - SHOT_R <= PADDLE_Y + PADDLE_H &&
+        Math.abs(s.x - this.paddleX) <= half + SHOT_R
+      if (!onPaddle) continue
+      boss.shots = boss.shots.filter((o) => o !== s)
+      this.shotOnPaddle(s)
+    }
+    if (boss.defeated) this.bossCheered(boss)
+  }
+
+  /** A clod or a petal meets the paddle: swat it while moving, or wear it for a moment. */
+  private shotOnPaddle(s: BossShot) {
+    if (s.kind === 'clod' && Math.abs(this.paddleV) >= SWAT_SPEED) {
+      this.addScore(150, s.x, PADDLE_Y - 10)
+      this.floaters.push({ x: s.x, y: PADDLE_Y - 18, text: 'SWAT!', life: 30 })
+      this.burst(s.x, PADDLE_Y - 4, 8, RAMPS.earth[3])
+      this.sound.play('pop')
+      return
+    }
+    if (s.kind === 'clod') {
+      this.muddy = MUDDY_TICKS
+      this.floaters.push({ x: s.x, y: PADDLE_Y - 18, text: 'MUDDY!', life: 40 })
+      this.burst(s.x, PADDLE_Y - 2, 10, RAMPS.earth[2])
+    } else {
+      this.stung = STUNG_TICKS
+      this.floaters.push({ x: s.x, y: PADDLE_Y - 18, text: 'STUNG!', life: 40 })
+      this.burst(s.x, PADDLE_Y - 2, 8, RAMPS.pink[3])
+    }
+    this.sound.play('warn')
+  }
+
+  /** The ball meets the boss: a shield, a hit, a new phase, or the cheering-up. */
+  private bonkBoss(ball: Ball) {
+    const boss = this.boss!
+    const result = hitBoss(boss)
+    if (result === 'shielded') {
+      this.sound.play('blip')
+      if (this.tick - this.shieldNoteAt > 90) {
+        this.shieldNoteAt = this.tick
+        this.floaters.push({
+          x: boss.x,
+          y: boss.y + boss.h / 2 + 8,
+          text: boss.id === 'tangle-rose' ? 'ROOTED!' : 'PLATED!',
+          life: 36,
+        })
+      }
+      return
+    }
+    if (result === 'none') return
+    this.addScore(400 * this.level, ball.x, ball.y - 6)
+    this.burst(
+      ball.x,
+      ball.y,
+      10,
+      boss.id === 'tangle-rose' ? '#fb7185' : '#c9926a',
+    )
+    this.fx.burst(ball.x, ball.y, this.fxRng, { count: 10, speed: 1.8 })
+    this.sound.play('pop')
+    if (result === 'phase')
+      this.banner = {
+        text: 'PHASE 3',
+        sub: BOSS_SPECS[boss.id].phases[2],
+        ticks: 120,
+      }
+  }
+
+  /** The last hit: Mister Mulch sneezes a shower of flowers; the Tangle Rose bursts into bloom. */
+  private bossCheered(boss: Boss) {
+    const spec = BOSS_SPECS[boss.id]
+    this.addScore(spec.score, boss.x, boss.y)
+    this.earn(spec.petals)
+    for (let i = 0; i < 28; i++) {
+      this.flowers.push({
+        x: LEFT + 6 + this.fxRng() * (RIGHT - LEFT - 12),
+        y: boss.y + (this.fxRng() - 0.5) * boss.h,
+        vy: 0.4 + this.fxRng() * 0.9,
+        life: 70,
+        color: FLOWER_COLORS[i % FLOWER_COLORS.length]!,
+      })
+    }
+    // The shower plants the bed: every plot grows two steps.
+    for (let p = 0; p < PLOTS; p++)
+      this.bed[p] = Math.min(FULL_BLOOM, this.bed[p]! + 2)
+    this.fx.burst(boss.x, boss.y, this.fxRng, { count: 24, speed: 2.4 })
+    this.bricks = []
+    this.stageClear()
+    this.banner = {
+      text: boss.id === 'mister-mulch' ? 'ACHOO!' : 'IN FULL BLOOM!',
+      sub: `${spec.name} FEELS MUCH BETTER`,
+      ticks: CLEAR_TICKS,
+    }
+  }
+
+  // --- golden seeds and the Potting Bench ---------------------------------------------------
+
+  private updateGolden() {
+    const seed = this.goldenDrop
+    if (!seed) return
+    seed.y += GOLDEN_FALL
+    const half = this.paddleW / 2
+    if (
+      seed.y > PADDLE_Y - 5 &&
+      seed.y < PADDLE_Y + PADDLE_H + 5 &&
+      Math.abs(seed.x - this.paddleX) < half + 6
+    ) {
+      this.collectGolden(seed)
+      return
+    }
+    if (seed.y > H + 6) {
+      this.goldenDrop = null
+      this.floaters.push({
+        x: seed.x,
+        y: PADDLE_Y - 20,
+        text: 'IT ROLLED AWAY...',
+        life: 60,
+      })
+    }
+  }
+
+  private collectGolden(seed: Golden) {
+    this.goldenDrop = null
+    this.golden.add(seed.house)
+    this.earn(PETALS.golden)
+    this.addScore(5000, seed.x, PADDLE_Y - 14)
+    this.banner = {
+      text: 'GOLDEN SEED!',
+      sub: `${this.golden.size} OF ${GOLDEN_TOTAL} FOUND`,
+      ticks: 120,
+    }
+    this.sound.play('extra')
+    this.fx.burst(seed.x, PADDLE_Y - 4, this.fxRng, {
+      count: 18,
+      colours: [RAMPS.gold[4], RAMPS.gold[3], '#ffffff'],
+    })
+    // Kept for good the moment it is caught.
+    if (!this.demo)
+      this.save = {
+        ...(this.save ?? freshSave()),
+        golden: [...this.golden],
+      }
+  }
+
+  private updateBench(input: InputFrame) {
+    const bench = this.bench!
+    bench.ticks++
+    if (this.demo) {
+      if (bench.ticks > 90) this.enterHouse(bench.house)
+      return
+    }
+    const rows = BENCH_ITEMS.length + 1
+    if (input.pressed.up) bench.cursor = (bench.cursor + rows - 1) % rows
+    if (input.pressed.down) bench.cursor = (bench.cursor + 1) % rows
+    const item = BENCH_ITEMS[bench.cursor]
+    if (item?.id === 'seed' && this.kit.seed === null) {
+      const n = STARTER_SEEDS.length
+      if (input.pressed.left) bench.seed = (bench.seed + n - 1) % n
+      if (input.pressed.right) bench.seed = (bench.seed + 1) % n
+    }
+    if (bench.ticks > 20 && input.pressed.b) {
+      this.enterHouse(bench.house)
+      return
+    }
+    if (!(input.pressed.a || input.pressed.start)) return
+    if (!item) {
+      this.enterHouse(bench.house)
+      return
+    }
+    const seed = STARTER_SEEDS[bench.seed]!
+    const sold = buy(this.purse, this.kit, this.roomy, item.id, seed)
+    if (!sold) {
+      this.benchNote = {
+        text: owned(this.kit, this.roomy, item.id)
+          ? 'ALREADY ON YOUR BENCH'
+          : 'NOT ENOUGH PETALS YET',
+        ticks: 70,
+      }
+      this.sound.play('blip')
+      return
+    }
+    this.purse = sold.purse
+    this.kit = sold.kit
+    this.roomy = sold.wide
+    this.benchNote = { text: `${item.name} POTTED!`, ticks: 70 }
+    this.sound.play('pickup')
   }
 
   /** Hinge crates swing on a beat; one stays open while a ball is inside it, so none traps a ball. */
@@ -995,7 +1533,9 @@ class BrickBloom implements ArcadeGameInstance {
   /** Last-Crate Rush: with four or fewer crates left, Bumble the bee loops in and taps the nearest. */
   private updateRush() {
     const left = this.breakable
-    if (!rushActive(left.length)) {
+    // A boss is no wall to rush; a bench Bumble pass brings Bumble in for the last six.
+    const at = this.kitLive && this.kit.bumble ? RUSH_AT + 2 : RUSH_AT
+    if (this.boss || !rushActive(left.length, at)) {
       this.bumble = null
       return
     }
@@ -1039,10 +1579,15 @@ class BrickBloom implements ArcadeGameInstance {
   }
 
   private movePaddle(input: InputFrame) {
-    const dir = (input.held.right ? 1 : 0) - (input.held.left ? 1 : 0)
+    // A rose petal's sting holds the paddle still; a dirt clod makes it sluggish.
+    const dir = this.stung
+      ? 0
+      : (input.held.right ? 1 : 0) - (input.held.left ? 1 : 0)
+    const push = this.muddy ? 0.9 : 2.2
+    const top = this.muddy ? 2.2 : 5
     // A little momentum: quick to start, quick to stop.
-    this.paddleV = dir ? this.paddleV * 0.6 + dir * 2.2 : this.paddleV * 0.4
-    this.paddleV = Math.max(-5, Math.min(5, this.paddleV))
+    this.paddleV = dir ? this.paddleV * 0.6 + dir * push : this.paddleV * 0.4
+    this.paddleV = Math.max(-top, Math.min(top, this.paddleV))
     const half = this.paddleW / 2
     this.paddleX = Math.max(
       LEFT + half,
@@ -1177,6 +1722,18 @@ class BrickBloom implements ArcadeGameInstance {
         if (hitX.kind !== 'trellis') this.crack(hitX)
       }
     }
+    const boss = this.boss
+    if (boss && !boss.defeated) {
+      if (bossTouches(boss, ball.x, ball.y, BALL_R)) {
+        ball.x -= dx
+        ball.vx = -ball.vx
+        this.bonkBoss(ball)
+      }
+      if (this.hitSweep(ball)) {
+        ball.x -= dx
+        ball.vx = -ball.vx
+      }
+    }
     ball.y += dy
     if (ball.y < TOP + BALL_R) {
       ball.y = TOP + BALL_R
@@ -1191,6 +1748,32 @@ class BrickBloom implements ArcadeGameInstance {
         ball.vy = -ball.vy
         // A trellis only breaks from below; the ball skips off its top and sides.
         if (hitY.kind !== 'trellis' || dy < 0) this.crack(hitY)
+      }
+    }
+    if (boss && !boss.defeated) {
+      if (bossTouches(boss, ball.x, ball.y, BALL_R)) {
+        ball.y -= dy
+        ball.vy = -ball.vy
+        this.bonkBoss(ball)
+        // A boss that moved onto the ball pushes it out underneath.
+        if (bossTouches(boss, ball.x, ball.y, BALL_R)) {
+          const r = bossRect(boss)
+          ball.y = r.y + r.h + BALL_R + 0.5
+          ball.vy = Math.abs(ball.vy)
+        }
+      }
+      if (this.hitSweep(ball)) {
+        ball.y -= dy
+        ball.vy = -ball.vy
+      }
+      // The ball bonks clods and petals out of the air.
+      for (const s of [...boss.shots]) {
+        if (Math.hypot(s.x - ball.x, s.y - ball.y) > SHOT_R + BALL_R + 1)
+          continue
+        boss.shots = boss.shots.filter((o) => o !== s)
+        this.addScore(60, s.x, s.y - 6)
+        this.burst(s.x, s.y, 6, s.kind === 'clod' ? '#c9926a' : '#f9a8d4')
+        this.sound.play('pop')
       }
     }
     this.hitPaddle(ball)
@@ -1224,10 +1807,26 @@ class BrickBloom implements ArcadeGameInstance {
       this.sound.play('pop')
       if (score > 0) {
         this.addScore(score, snail.x, snail.y - 10)
+        this.earn(PETALS.pest)
         this.burst(snail.x, snail.y, 10, '#86efac')
         this.snail = null
       }
     }
+  }
+
+  /** A Tangle Rose vine wall meets the ball: the segment it hits cracks. */
+  private hitSweep(ball: Ball): boolean {
+    for (const s of this.boss?.sweeps ?? []) {
+      const c = sweepCellAt(s, ball.x, ball.y, BALL_R)
+      if (c < 0) continue
+      s.cells[c] = false
+      const cx = LEFT + (c + 0.5) * BRICK_W
+      this.addScore(20, cx, s.y)
+      this.burst(cx, s.y + SWEEP_H / 2, 5, RAMPS.leaf[3])
+      this.sound.play('blip')
+      return true
+    }
+    return false
   }
 
   private updateMites() {
@@ -1250,6 +1849,7 @@ class BrickBloom implements ArcadeGameInstance {
   private popLadybot(ring: LadybotRing, dot: Ladybot) {
     const score = popDot(ring, dot, this.level)
     this.addScore(score, dot.x, dot.y - 8)
+    this.earn(PETALS.pest)
     this.burst(dot.x, dot.y, 6, '#f87171')
     this.sound.play('pop')
   }
@@ -1271,6 +1871,7 @@ class BrickBloom implements ArcadeGameInstance {
   private popPollenMite(line: MiteLine, mite: Mite) {
     const score = popMite(line, mite, this.level)
     this.addScore(score, mite.x, mite.y - 8)
+    this.earn(PETALS.pest)
     this.burst(mite.x, mite.y, 8, '#fde047')
     this.sound.play('pop')
     if (line.popped === line.total) this.miteLine = null
@@ -1411,6 +2012,15 @@ class BrickBloom implements ArcadeGameInstance {
     this.chain++
     this.bestChain = Math.max(this.bestChain, this.chain)
     this.bricks = this.bricks.filter((o) => o !== b)
+    this.earn(PETALS.crate)
+    if (b.vault) this.openVault(cx, cy)
+    if (b.guard && this.bricks.some((o) => o.guard))
+      this.floaters.push({
+        x: cx,
+        y: cy + 8,
+        text: `${this.bricks.filter((o) => o.guard).length} LEFT`,
+        life: 30,
+      })
     const points = (ROWS - b.row) * 10 * b.maxHp * link * chimed
     this.addScore(points, cx, cy - 4)
     if (link > 1 && !this.demo)
@@ -1471,6 +2081,22 @@ class BrickBloom implements ArcadeGameInstance {
           this.crack(o)
       }
     }
+  }
+
+  /** A cracked vault lets its golden seed fall (or pays petals if that seed is already home). */
+  private openVault(x: number, y: number) {
+    const id = this.tour ? HOUSES[this.tour.house]?.id : undefined
+    if (!id || !VAULTS[id]) return
+    // Keep the long words on the glass, whichever edge the vault sits by.
+    const tx = Math.max(LEFT + 44, Math.min(RIGHT - 44, x))
+    if (this.golden.has(id)) {
+      this.earn(PETALS.vault)
+      this.floaters.push({ x: tx, y: y + 8, text: 'VAULT PETALS', life: 40 })
+      return
+    }
+    this.goldenDrop = { x, y, house: id }
+    this.floaters.push({ x: tx, y: y + 8, text: 'A GOLDEN SEED!', life: 50 })
+    this.sound.play('extra')
   }
 
   private updateDrops() {
@@ -1554,6 +2180,7 @@ class BrickBloom implements ArcadeGameInstance {
     if (puff.hp > 0) return
     this.puffs = this.puffs.filter((p) => p !== puff)
     this.addScore(100 * this.level, puff.x, puff.y - 8)
+    this.earn(PETALS.pest)
     this.burst(puff.x, puff.y, 12, '#c4b5fd')
     this.fx.burst(puff.x, puff.y, this.fxRng, { count: 14, speed: 2 })
     this.sound.play('pop')
@@ -1572,6 +2199,9 @@ class BrickBloom implements ArcadeGameInstance {
     this.chain = 0
     this.chime = false
     this.drops = []
+    this.muddy = 0
+    this.stung = 0
+    if (this.boss) this.boss.shots = []
     this.burst(this.paddleX, PADDLE_Y, 12, '#f9a8d4')
     this.sound.play('die')
     if (this.lives > 0) this.banner = { text: 'BALL LOST', ticks: LOST_TICKS }
@@ -1595,6 +2225,22 @@ class BrickBloom implements ArcadeGameInstance {
       ticks: CLEAR_TICKS,
     }
     this.sound.play('level')
+    // A wall on the rich route pays extra petals for the bench.
+    if (this.richWall && this.tour && !this.boss) {
+      this.earn(10)
+      this.floaters.push({ x: W / 2, y: 236, text: 'RICH VENT +10', life: 70 })
+    }
+    // A golden seed still falling when the wall blooms: Bumble catches it.
+    const seed = this.goldenDrop
+    if (seed) {
+      this.collectGolden(seed)
+      this.floaters.push({
+        x: W / 2,
+        y: 250,
+        text: 'BUMBLE CAUGHT IT!',
+        life: 80,
+      })
+    }
   }
 
   // --- scoring and effects ----------------------------------------------------
@@ -1703,11 +2349,17 @@ class BrickBloom implements ArcadeGameInstance {
     let aim = this.paddleX
     if (falling) {
       // Meet it a little off-centre, toward the crates' side, to send it there.
-      const bricksLeft = this.bricks.filter((b) => !b.bolt)
+      // At a boss: its guards first, then the boss itself.
+      const guards = this.bricks.filter((b) => b.guard)
+      const bricksLeft = this.boss ? guards : this.bricks.filter((b) => !b.bolt)
       const meanCol = bricksLeft.length
         ? bricksLeft.reduce((s, b) => s + b.col, 0) / bricksLeft.length
         : COLS / 2
-      const towards = Math.sign(LEFT + (meanCol + 0.5) * BRICK_W - this.paddleX)
+      const goal =
+        this.boss && !guards.length
+          ? this.boss.x
+          : LEFT + (meanCol + 0.5) * BRICK_W
+      const towards = Math.sign(goal - this.paddleX)
       aim = this.landingX(falling) - towards * this.paddleW * 0.2
     } else if (this.drops.length) {
       aim = this.drops[0]!.x
@@ -1723,7 +2375,9 @@ class BrickBloom implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderGarden(g)
+    if (this.boss) this.renderBossBack(g, this.boss)
     this.renderWall(g)
+    if (this.boss) this.renderBoss(g, this.boss)
     this.renderBed(g)
     if (this.compass > 0) this.renderCompass(g)
     for (const f of this.flowers) this.renderFlower(g, f)
@@ -1741,6 +2395,8 @@ class BrickBloom implements ArcadeGameInstance {
     if (this.snail) this.renderSnail(g, this.snail)
     if (this.ring) for (const d of this.ring.dots) this.renderLadybot(g, d)
     for (const d of this.drops) this.renderDrop(g, d)
+    if (this.boss) for (const s of this.boss.shots) this.renderShot(g, s)
+    if (this.goldenDrop) this.renderGolden(g, this.goldenDrop)
     this.renderPaddle(g)
     for (const ball of this.balls) this.renderBall(g, ball)
     for (const p of this.particles) {
@@ -1764,6 +2420,532 @@ class BrickBloom implements ArcadeGameInstance {
       })
     vignette(g, W, H, 0.28)
     this.renderHud(g)
+    if (this.card) this.renderCard(g, this.card)
+    if (this.bench) this.renderBench(g, this.bench)
+    if (this.offer) this.renderOffer(g, this.offer)
+  }
+
+  // --- slice 2 art: bosses, shots, the golden seed, the map, the bench ------------------------
+
+  /** Chains for Mister Mulch, roots and stems for the Tangle Rose, drawn behind the wall. */
+  private renderBossBack(g: CanvasRenderingContext2D, boss: Boss) {
+    const x = Math.round(boss.x)
+    const top = Math.round(boss.y - boss.h / 2)
+    if (boss.id === 'mister-mulch') {
+      for (const cx of [x - 18, x + 18]) {
+        for (let y = TOP; y < top; y += 4) {
+          g.fillStyle = INK
+          g.fillRect(cx - 2, y, 4, 4)
+          g.fillStyle = (y >> 2) % 2 ? RAMPS.steel[3] : RAMPS.steel[2]
+          g.fillRect(cx - 1, y, 2, 3)
+        }
+      }
+      return
+    }
+    // The rose's stem climbs from the roof; each living root feeds a vine to her bud.
+    g.fillStyle = RAMPS.leaf[1]
+    g.fillRect(x - 2, TOP, 4, top - TOP)
+    g.fillStyle = RAMPS.leaf[2]
+    g.fillRect(x - 1, TOP, 1, top - TOP)
+    for (const b of this.bricks) {
+      if (!b.guard) continue
+      const r = this.brickRect(b)
+      const fx = r.x + r.w / 2
+      const fy = r.y + r.h / 2
+      const steps = 16
+      for (let i = 1; i < steps; i++) {
+        const t = i / steps
+        const px = fx + (boss.x - fx) * t
+        const py =
+          fy +
+          (boss.y - fy) * t -
+          Math.sin(t * Math.PI) * 14 +
+          Math.sin(this.tick / 20 + i) * 1
+        g.fillStyle = INK
+        g.fillRect(Math.round(px) - 1, Math.round(py) - 1, 3, 3)
+        g.fillStyle = i % 4 === 0 ? RAMPS.ember[3] : RAMPS.leaf[2]
+        g.fillRect(Math.round(px), Math.round(py), 1, 1)
+      }
+    }
+  }
+
+  private renderBoss(g: CanvasRenderingContext2D, boss: Boss) {
+    const r = bossRect(boss)
+    const x = Math.round(r.x)
+    const y = Math.round(r.y)
+    const hurt = boss.hurt > 0 && Math.floor(boss.hurt / 3) % 2 === 0
+    const tell = boss.tell > 0
+    const shake = tell ? (Math.floor(this.tick / 2) % 2) * 2 - 1 : 0
+    dropShadow(g, boss.x, r.y + r.h + 4, r.w / 2, 3, 0.35)
+    if (boss.id === 'mister-mulch') {
+      const ramp = hurt ? RAMPS.cream : RAMPS.earth
+      bevel(g, x + shake, y, r.w, r.h, ramp, { depth: 2 })
+      // Compost slats, leaf litter and a happy face once he is cheered.
+      g.fillStyle = ramp[1]
+      for (let sx = x + 8; sx < x + r.w - 4; sx += 12)
+        g.fillRect(sx + shake, y + 3, 2, r.h - 6)
+      for (const [lx, ly] of [
+        [6, 5],
+        [r.w - 12, 7],
+        [20, r.h - 7],
+      ] as const)
+        drawSprite(g, LEAF_SPRITE, x + lx + shake, y + ly, {
+          anchor: 'topleft',
+        })
+      const fx = Math.round(boss.x) + shake
+      const fy = y + r.h - 14
+      g.fillStyle = INK
+      g.fillRect(fx - 14, fy - 2, 28, 12)
+      g.fillStyle = boss.phase === 1 ? RAMPS.earth[0] : RAMPS.earth[2]
+      g.fillRect(fx - 13, fy - 1, 26, 10)
+      const eye = boss.defeated
+        ? RAMPS.leaf[4]
+        : tell
+          ? RAMPS.ember[3]
+          : RAMPS.gold[3]
+      g.fillStyle = eye
+      g.fillRect(fx - 9, fy + 1, 4, 3)
+      g.fillRect(fx + 5, fy + 1, 4, 3)
+      g.fillStyle = INK
+      if (boss.defeated) g.fillRect(fx - 4, fy + 6, 8, 1)
+      else g.fillRect(fx - 3, fy + 6, 6, 2)
+      if (tell) {
+        // Dirt dribbles from his base: a clod is coming.
+        g.fillStyle = RAMPS.earth[2]
+        for (let i = 0; i < 3; i++)
+          g.fillRect(fx - 6 + i * 6, y + r.h + ((this.tick + i * 5) % 8), 2, 2)
+      }
+      return
+    }
+    // The Tangle Rose: a thorny bush of leaves around a big bud, shielded while roots feed her.
+    const cx = Math.round(boss.x)
+    const cy = Math.round(boss.y)
+    g.fillStyle = INK
+    g.beginPath()
+    g.ellipse(cx, cy, r.w / 2 + 1, r.h / 2 + 1, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = RAMPS.leaf[1]
+    g.beginPath()
+    g.ellipse(cx, cy + 3, r.w / 2, r.h / 2 - 2, 0, 0, Math.PI * 2)
+    g.fill()
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 + this.tick / 120
+      const tx = Math.round(cx + Math.cos(a) * (r.w / 2 - 1))
+      const ty = Math.round(cy + 3 + Math.sin(a) * (r.h / 2 - 3))
+      g.fillStyle = RAMPS.cream[3]
+      g.fillRect(tx - 1, ty - 1, 2, 2)
+    }
+    const petal = hurt
+      ? RAMPS.cream
+      : boss.defeated
+        ? RAMPS.pink
+        : tell
+          ? RAMPS.ember
+          : RAMPS.pink
+    // Two rings of round petals that open wider with every phase, lit from the top.
+    const open = boss.defeated ? 11 : boss.phase === 1 ? 7 : 9
+    for (const [ring, count, radius, size] of [
+      [0, 7, open, 6],
+      [1, 5, open * 0.5, 5],
+    ] as const) {
+      for (let i = 0; i < count; i++) {
+        const a = (i / count) * Math.PI * 2 + ring * 0.6 + this.tick / 240
+        const px = cx + Math.cos(a) * radius
+        const py = cy + Math.sin(a) * radius * 0.85
+        g.fillStyle = INK
+        g.beginPath()
+        g.arc(px, py, size + 1, 0, Math.PI * 2)
+        g.fill()
+        g.fillStyle = petal[ring ? 3 : 2]
+        g.beginPath()
+        g.arc(px, py, size, 0, Math.PI * 2)
+        g.fill()
+        g.fillStyle = petal[4]
+        g.fillRect(Math.round(px) - 2, Math.round(py - size + 1), 3, 1)
+      }
+    }
+    g.fillStyle = INK
+    g.fillRect(cx - 5, cy - 5, 10, 10)
+    g.fillStyle = petal[1]
+    g.fillRect(cx - 4, cy - 4, 8, 8)
+    // A gentle face in the bud's heart.
+    g.fillStyle = INK
+    g.fillRect(cx - 3, cy - 2, 2, 2)
+    g.fillRect(cx + 1, cy - 2, 2, 2)
+    if (boss.defeated) g.fillRect(cx - 2, cy + 2, 4, 1)
+    else g.fillRect(cx - 1, cy + 2, 2, 1)
+    if (boss.phase === 1) {
+      // The root-fed shield: a ring of thorns.
+      g.strokeStyle = rgba(RAMPS.leaf[4], 0.55 + 0.25 * Math.sin(this.tick / 8))
+      g.lineWidth = 2
+      g.beginPath()
+      g.ellipse(cx, cy, r.w / 2 + 5, r.h / 2 + 5, 0, 0, Math.PI * 2)
+      g.stroke()
+    }
+    for (const s of boss.sweeps) this.renderSweep(g, s)
+  }
+
+  private renderSweep(g: CanvasRenderingContext2D, s: Sweep) {
+    const y = Math.round(s.y)
+    s.cells.forEach((on, c) => {
+      if (!on) return
+      const x = Math.round(LEFT + c * BRICK_W)
+      g.fillStyle = INK
+      g.fillRect(x, y, Math.round(BRICK_W), SWEEP_H)
+      g.fillStyle = RAMPS.leaf[2]
+      g.fillRect(x + 1, y + 1, Math.round(BRICK_W) - 2, SWEEP_H - 2)
+      g.fillStyle = RAMPS.leaf[3]
+      g.fillRect(x + 1, y + 1, Math.round(BRICK_W) - 2, 2)
+      g.fillStyle = RAMPS.cream[3]
+      g.fillRect(x + 5, y + SWEEP_H - 2, 1, 1)
+      g.fillRect(x + 13, y + SWEEP_H - 2, 1, 1)
+    })
+  }
+
+  private renderShot(g: CanvasRenderingContext2D, s: BossShot) {
+    const x = Math.round(s.x)
+    const y = Math.round(s.y)
+    if (s.kind === 'clod') {
+      g.fillStyle = INK
+      g.fillRect(x - 4, y - 3, 8, 7)
+      g.fillStyle = RAMPS.earth[2]
+      g.fillRect(x - 3, y - 2, 6, 5)
+      g.fillStyle = RAMPS.earth[3]
+      g.fillRect(x - 3, y - 2, 3, 2)
+      return
+    }
+    glow(g, x, y, 6, RAMPS.pink[3], 0.35)
+    g.fillStyle = INK
+    g.fillRect(x - 3, y - 2, 6, 5)
+    g.fillStyle = RAMPS.pink[3]
+    g.fillRect(x - 2, y - 1, 4, 3)
+    g.fillStyle = '#ffffff'
+    g.fillRect(x - 2, y - 1, 1, 1)
+  }
+
+  private renderGolden(g: CanvasRenderingContext2D, s: Golden) {
+    const x = Math.round(s.x)
+    const y = Math.round(s.y)
+    glow(g, x, y, 14, RAMPS.gold[3], 0.5)
+    g.fillStyle = INK
+    g.fillRect(x - 4, y - 5, 8, 10)
+    g.fillStyle = RAMPS.gold[2]
+    g.fillRect(x - 3, y - 4, 6, 8)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(x - 3, y - 4, 2, 4)
+    g.fillStyle = RAMPS.leaf[3]
+    g.fillRect(x, y - 7, 2, 3)
+    if (Math.floor(this.tick / 6) % 2) {
+      g.fillStyle = '#ffffff'
+      g.fillRect(x + 4, y - 6, 1, 1)
+      g.fillRect(x - 6, y + 2, 1, 1)
+    }
+  }
+
+  /** A dim panel over the garden for the cards, the bench and the continue offer. */
+  private panel(g: CanvasRenderingContext2D) {
+    g.fillStyle = rgba(INK, 0.82)
+    g.fillRect(0, 0, W, H)
+    hudPanel(g, 8, 10, W - 16, H - 20)
+  }
+
+  /** The house map: the title card when a house begins, then the climb so far after each wall. */
+  private renderCard(g: CanvasRenderingContext2D, card: Card) {
+    const house = HOUSES[this.houseNow]
+    if (!house) return
+    this.panel(g)
+    const info = HOUSE_CARDS[house.id]
+    drawText(g, house.name.toUpperCase(), W / 2, 18, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    let mapTop = 76
+    if (card.kind === 'house' && info) {
+      drawText(g, info.tagline, W / 2, 36, {
+        align: 'center',
+        color: RAMPS.teal[3],
+        outline: INK,
+      })
+      drawText(g, `PESTS: ${info.pests}`, W / 2, 48, {
+        align: 'center',
+        color: '#ffffff',
+        outline: INK,
+      })
+      drawText(g, `NEW SEED: ${info.seed}`, W / 2, 58, {
+        align: 'center',
+        color: RAMPS.pink[3],
+        outline: INK,
+      })
+    } else {
+      drawText(g, 'THE HOUSE MAP', W / 2, 38, {
+        align: 'center',
+        color: RAMPS.teal[3],
+        outline: INK,
+      })
+      mapTop = 60
+    }
+    const map = houseMap(house, W, mapTop + 16, 254)
+    const hint = this.kitLive && this.kit.hint
+    const rich = new Set(hint ? richRoute(house) : [])
+    const visited = new Set(this.path)
+    const here = this.tour?.wall
+    const at = (id: string) => map.nodes.find((n) => n.id === id)
+    // Vents first, under the walls: the path taken lit, the rich route gold with a hint.
+    for (const e of map.edges) {
+      const a = at(e.from)
+      const b = at(e.to)
+      if (!a || !b) continue
+      const taken =
+        this.path.indexOf(e.to) === this.path.indexOf(e.from) + 1 &&
+        visited.has(e.from)
+      const colour = taken
+        ? RAMPS.leaf[3]
+        : hint && e.rich && rich.has(e.to)
+          ? RAMPS.gold[3]
+          : rgba(RAMPS.steel[3], 0.35)
+      this.dottedLine(g, a.x, a.y, b.x, b.y, colour)
+    }
+    const top = map.nodes.filter(
+      (n) => n.tier === Math.max(...map.nodes.map((m) => m.tier)),
+    )
+    for (const n of top)
+      this.dottedLine(
+        g,
+        n.x,
+        n.y,
+        map.boss.x,
+        map.boss.y,
+        rgba(RAMPS.ember[3], 0.5),
+      )
+    const vault = VAULTS[house.id]
+    for (const n of map.nodes) {
+      const seen = visited.has(n.id)
+      const now = n.id === here
+      const pulse = now && Math.floor(this.tick / 10) % 2 === 0
+      const ramp = now ? RAMPS.gold : seen ? RAMPS.leaf : RAMPS.steel
+      bevel(g, n.x - 9, n.y - 6, 18, 12, ramp, { depth: 1 })
+      if (pulse) glow(g, n.x, n.y, 16, RAMPS.gold[3], 0.4)
+      if (seen || now)
+        drawText(g, n.name.toUpperCase(), n.x, n.y + 8, {
+          align: 'center',
+          color: now ? RAMPS.gold[4] : RAMPS.leaf[4],
+          outline: INK,
+        })
+      else drawText(g, '?', n.x + 1, n.y - 3, { align: 'center', color: INK })
+      // The vault: shown with a hint, or once its golden seed is home.
+      if (vault?.wall === n.id && (hint || this.golden.has(house.id))) {
+        const home = this.golden.has(house.id)
+        g.fillStyle = INK
+        g.fillRect(n.x + 8, n.y - 10, 7, 7)
+        g.fillStyle = home ? RAMPS.leaf[3] : RAMPS.gold[3]
+        g.fillRect(n.x + 9, n.y - 9, 5, 5)
+      }
+    }
+    // The boss waits at the top.
+    const bx = map.boss.x
+    const by = map.boss.y
+    glow(g, bx, by, 18, RAMPS.ember[3], 0.35)
+    bevel(g, bx - 12, by - 8, 24, 16, RAMPS.ember, { depth: 1 })
+    g.fillStyle = INK
+    g.fillRect(bx - 6, by - 3, 3, 3)
+    g.fillRect(bx + 3, by - 3, 3, 3)
+    g.fillRect(bx - 4, by + 3, 8, 1)
+    drawText(g, BOSS_SPECS[bossOf(this.houseNow)!].name, bx, by - 18, {
+      align: 'center',
+      color: RAMPS.ember[4],
+      outline: INK,
+    })
+    const next = here ? houseWall(house, here) : undefined
+    drawText(
+      g,
+      card.kind === 'house'
+        ? `FIRST WALL: ${next?.name.toUpperCase() ?? ''}`
+        : `NEXT: ${next?.name.toUpperCase() ?? ''}`,
+      W / 2,
+      278,
+      { align: 'center', color: '#ffffff', outline: INK },
+    )
+    drawText(
+      g,
+      `PETALS ${this.purse}   GOLDEN ${this.golden.size}/${GOLDEN_TOTAL}`,
+      W / 2,
+      290,
+      { align: 'center', color: RAMPS.pink[3], outline: INK },
+    )
+    if (!this.demo && card.total - card.ticks > 20)
+      drawText(g, 'A: GO', W / 2, 300, {
+        align: 'center',
+        color: RAMPS.teal[3],
+        outline: INK,
+      })
+  }
+
+  private dottedLine(
+    g: CanvasRenderingContext2D,
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    colour: string,
+  ) {
+    const steps = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / 4))
+    g.fillStyle = colour
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps
+      g.fillRect(
+        Math.round(x0 + (x1 - x0) * t) - 1,
+        Math.round(y0 + (y1 - y0) * t) - 1,
+        2,
+        2,
+      )
+    }
+  }
+
+  /** The Potting Bench: a shelf of pots, one per thing to buy, with Bumble minding the shop. */
+  private renderBench(g: CanvasRenderingContext2D, bench: Bench) {
+    this.panel(g)
+    drawText(g, 'THE POTTING BENCH', W / 2, 18, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    drawText(g, `PETALS ${this.purse}`, W / 2, 38, {
+      align: 'center',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+    // Bumble keeps the shop.
+    const bee = {
+      x: 214,
+      y: 42 + Math.sin(this.tick / 12) * 3,
+      angle: 0,
+      tap: 0,
+    }
+    this.renderBumble(g, bee)
+    const rows = [...BENCH_ITEMS, null]
+    rows.forEach((item, i) => {
+      const y = 56 + i * 32
+      const on = bench.cursor === i
+      if (on) {
+        g.fillStyle = rgba(RAMPS.gold[3], 0.18)
+        g.fillRect(16, y - 4, W - 32, 28)
+        drawText(g, '>', 20, y + 6, { color: RAMPS.gold[3], outline: INK })
+      }
+      if (!item) {
+        const next = HOUSES[bench.house]
+        drawText(g, `ON TO ${next?.name.toUpperCase() ?? ''}`, 60, y + 6, {
+          color: on ? '#ffffff' : RAMPS.teal[3],
+          outline: INK,
+        })
+        return
+      }
+      // A terracotta pot holding the item's sprout.
+      bevel(g, 30, y + 6, 18, 12, RAMPS.rust, { depth: 1 })
+      g.fillStyle = RAMPS.rust[3]
+      g.fillRect(28, y + 4, 22, 3)
+      const has = owned(this.kit, this.roomy, item.id)
+      drawSprite(
+        g,
+        has ? FLOWER_SPRITES[FLOWER_COLORS[i]!]![2]! : SPROUT_SPRITE,
+        39,
+        y + 4,
+        {
+          anchor: 'feet',
+          scale: has ? 1 : 2,
+        },
+      )
+      const seedName =
+        item.id === 'seed'
+          ? ` ${this.kit.seed ?? STARTER_SEEDS[bench.seed]}`
+          : ''
+      drawText(g, `${item.name}${seedName}`, 60, y + 1, {
+        color: has ? RAMPS.leaf[4] : '#ffffff',
+        outline: INK,
+      })
+      drawText(g, has ? 'ON YOUR BENCH' : `${item.price} PETALS`, 60, y + 11, {
+        color: has
+          ? RAMPS.leaf[3]
+          : this.purse >= item.price
+            ? RAMPS.gold[3]
+            : RAMPS.ember[3],
+        outline: INK,
+      })
+      if (on && item.id === 'seed' && !has)
+        drawText(g, '< >', W - 30, y + 6, {
+          align: 'right',
+          color: RAMPS.teal[3],
+          outline: INK,
+        })
+    })
+    const item = BENCH_ITEMS[bench.cursor]
+    drawText(
+      g,
+      this.benchNote?.text ?? item?.line ?? 'A: LEAVE THE BENCH',
+      W / 2,
+      254,
+      {
+        align: 'center',
+        color: this.benchNote ? RAMPS.gold[4] : RAMPS.teal[3],
+        outline: INK,
+      },
+    )
+    drawText(g, 'UP/DOWN PICK  A BUY  B LEAVE', W / 2, 270, {
+      align: 'center',
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
+    drawText(g, 'PETALS COME FROM PLAY, NEVER MONEY', W / 2, 284, {
+      align: 'center',
+      color: RAMPS.steel[2],
+      outline: INK,
+    })
+  }
+
+  private renderOffer(g: CanvasRenderingContext2D, s: BloomSave) {
+    this.panel(g)
+    const house = HOUSES[s.house]
+    drawText(g, 'WELCOME BACK!', W / 2, 90, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    drawText(g, 'YOUR TOUR WAITS AT THE BENCH', W / 2, 120, {
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+    })
+    drawText(g, `BEFORE ${house?.name.toUpperCase() ?? ''}`, W / 2, 132, {
+      align: 'center',
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
+    drawText(
+      g,
+      s.continued ? 'A CONTINUE: SCORE STARTS AT 0' : `SCORE ${s.score}`,
+      W / 2,
+      150,
+      { align: 'center', color: RAMPS.pink[3], outline: INK },
+    )
+    drawText(g, `GOLDEN SEEDS ${s.golden.length}/${GOLDEN_TOTAL}`, W / 2, 162, {
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    drawText(g, 'A: CONTINUE', W / 2, 196, {
+      align: 'center',
+      color: RAMPS.leaf[4],
+      outline: INK,
+      scale: 2,
+    })
+    drawText(g, 'B: NEW TOUR (GOLDEN SEEDS STAY)', W / 2, 220, {
+      align: 'center',
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
   }
 
   private renderGarden(g: CanvasRenderingContext2D) {
@@ -1801,19 +2983,23 @@ class BrickBloom implements ArcadeGameInstance {
       ? FLASH_SPRITE
       : b.bolt
         ? BOLT_SPRITE
-        : b.kind === 'sprout'
-          ? SPROUT_CRATE
-          : b.kind === 'hinge'
-            ? HINGE_CRATE
-            : b.kind === 'puffball'
-              ? PUFF_CRATE
-              : b.kind === 'root'
-                ? ROOT_CRATE
-                : b.kind === 'vine'
-                  ? VINE_CRATE
-                  : b.kind === 'trellis'
-                    ? TRELLIS_CRATE
-                    : CRATE_SPRITES[b.row]!
+        : b.vault
+          ? VAULT_CRATE
+          : b.guard && this.boss?.id === 'mister-mulch'
+            ? PLATE_CRATE
+            : b.kind === 'sprout'
+              ? SPROUT_CRATE
+              : b.kind === 'hinge'
+                ? HINGE_CRATE
+                : b.kind === 'puffball'
+                  ? PUFF_CRATE
+                  : b.kind === 'root'
+                    ? ROOT_CRATE
+                    : b.kind === 'vine'
+                      ? VINE_CRATE
+                      : b.kind === 'trellis'
+                        ? TRELLIS_CRATE
+                        : CRATE_SPRITES[b.row]!
     // An open hinge crate is a ghost the ball flies through.
     drawSprite(g, sprite, x - 1, y - 1, {
       anchor: 'topleft',
@@ -1824,6 +3010,23 @@ class BrickBloom implements ArcadeGameInstance {
       for (const px of [x, x + CRATE_W - 2]) g.fillRect(px, y + 2, 2, 4)
     }
     if (b.bolt || b.flash) return
+    if (b.vault) {
+      // A golden seed glints behind the vault's bars.
+      const glint = Math.floor(this.tick / 12) % 4 === 0
+      glow(g, x + CRATE_W / 2, y + CRATE_H / 2, 12, RAMPS.gold[3], 0.35)
+      g.fillStyle = INK
+      g.fillRect(x + CRATE_W / 2 - 3, y + 1, 6, 6)
+      g.fillStyle = glint ? '#ffffff' : RAMPS.gold[4]
+      g.fillRect(x + CRATE_W / 2 - 2, y + 2, 4, 4)
+      g.fillStyle = RAMPS.gold[1]
+      g.fillRect(x + CRATE_W / 2, y + 3, 1, 3)
+    }
+    if (b.guard && this.boss?.id === 'tangle-rose') {
+      const sway = Math.floor(this.tick / 15) % 2
+      g.fillStyle = RAMPS.leaf[3]
+      g.fillRect(x + 2 + sway, y - 2, 2, 2)
+      g.fillRect(x + CRATE_W - 5 - sway, y - 2, 2, 2)
+    }
     if (b.kind === 'sprout')
       drawSprite(g, SPROUT_SPRITE, x + CRATE_W / 2, y + CRATE_H - 1, {
         anchor: 'feet',
@@ -1950,7 +3153,12 @@ class BrickBloom implements ArcadeGameInstance {
       g.fillStyle = RAMPS.gold[4]
       g.fillRect(jx, PADDLE_Y + PADDLE_H, 2, jet - 1)
     }
-    const set = w === WIDE_W ? PADDLE_SPRITES.wide : PADDLE_SPRITES.normal
+    const set =
+      w === WIDE_W
+        ? PADDLE_SPRITES.wide
+        : w === ROOMY_W
+          ? PADDLE_SPRITES.roomy
+          : PADDLE_SPRITES.normal
     const frames = this.sticky > 0 ? set.leaf : set.sky
     const blink = this.tick % 150 < 7 ? 1 : 0
     drawSprite(g, frames[blink], x - 1, PADDLE_Y - 1, { anchor: 'topleft' })
@@ -2125,7 +3333,21 @@ class BrickBloom implements ArcadeGameInstance {
         color: RAMPS.gold[3],
         outline: INK,
       })
-    else if (this.chime)
+    else if (this.boss) {
+      const boss = this.boss
+      drawText(g, boss.id === 'mister-mulch' ? 'MULCH' : 'ROSE', W - 7, 23, {
+        align: 'right',
+        color: RAMPS.ember[3],
+        outline: INK,
+      })
+      gauge(g, W - 62, 32, 54, 4, bossHealth(boss), RAMPS.ember)
+      if (this.chime)
+        drawText(g, 'x2', W - 42, 23, {
+          align: 'right',
+          color: RAMPS.teal[3],
+          outline: INK,
+        })
+    } else if (this.chime)
       drawText(g, 'CHIME x2', W - 7, 24, {
         align: 'right',
         color: RAMPS.teal[3],

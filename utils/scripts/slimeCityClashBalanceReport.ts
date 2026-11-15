@@ -95,7 +95,7 @@ export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
   // replacing only Organ Donor with Laser would invent a deck that never shipped.
   const original = current.map((id) =>
     id === 's3-catgirls-hollow-scalpel'
-      ? 's3-catgirls-escaped-tiger'
+      ? 's2-catgirls-parapet-ghost-kitten'
       : id === 's3-catgirls-patent-saboteur'
         ? 'laser'
         : id === 's3-catgirls-bicycle-clinic'

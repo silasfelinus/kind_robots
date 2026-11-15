@@ -187,10 +187,7 @@ for (const custody of ['release', 'renew', 'break'] as const) {
         '2,4',
         firstTwoWorldFrames(forgedOriginal, forgedMirror),
       ),
-      firstTwoPhysicalConsequence(
-        '2,4',
-        firstTwoWorldFrames(base, mirror),
-      ),
+      firstTwoPhysicalConsequence('2,4', firstTwoWorldFrames(base, mirror)),
       'Forged histories must not alter the physical aftermath',
     )
   }

@@ -2104,8 +2104,17 @@ for (const [crew, r] of Object.entries(sweep.crews))
     r.wins / r.games > 0.42 && r.wins / r.games < 0.58,
     crew + ' win rate ' + ((100 * r.wins) / r.games).toFixed(1) + '%',
   )
+const crewRecords = Object.values(sweep.crews)
+const gamesPerCrew = crewRecords[0]!.games
 assert.ok(
-  Math.max(...crewRates) - Math.min(...crewRates) <= 0.12,
+  crewRecords.every((record) => record.games === gamesPerCrew),
+  'each crew has the same number of mirrored games',
+)
+const crewWinSpread =
+  Math.max(...crewRecords.map((record) => record.wins)) -
+  Math.min(...crewRecords.map((record) => record.wins))
+assert.ok(
+  crewWinSpread * 100 <= gamesPerCrew * 12,
   'CLASH crew spread stays within 12 points',
 )
 

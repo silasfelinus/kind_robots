@@ -157,6 +157,42 @@ for (const custody of ['release', 'renew', 'break'] as const) {
   }
 }
 
+// Forged endings must not become cross-realm facts merely because their
+// serialized labels match an otherwise valid combination.
+for (const custody of ['release', 'renew', 'break'] as const) {
+  const forgedOriginal = restoreBriarSave(
+    JSON.parse(
+      JSON.stringify({
+        ...base,
+        house: { ...house, ending: custody },
+      }),
+    ),
+  )
+  for (const crossing of ['return', 'commons'] as const) {
+    const forgedMirror = restoreDarkHouseProgress(
+      JSON.parse(
+        JSON.stringify({
+          ...mirror,
+          ending: crossing,
+        }),
+      ),
+    )
+    assert.equal(
+      firstTwoWorldFrames(forgedOriginal, forgedMirror).combination,
+      'unset:unset',
+      'Unvisited Houses cannot manufacture cross-realm ending consequences',
+    )
+    assert.equal(
+      firstTwoPhysicalConsequence(
+        '2,4',
+        firstTwoWorldFrames(forgedOriginal, forgedMirror),
+      ),
+      firstTwoPhysicalConsequence('2,4', firstTwoWorldFrames(base, mirror)),
+      'Forged histories must not alter the physical aftermath',
+    )
+  }
+}
+
 const choiceChannels = [
   ['2,4', 'lend', 'copy'],
   ['4,3', 'plan', 'load'],

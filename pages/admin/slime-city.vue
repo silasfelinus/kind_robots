@@ -68,7 +68,9 @@
             :title="
               lab.progressLoaded
                 ? 'Meat earned in Slime City'
-                : 'Sign in to keep Slime City progress'
+                : lab.accountPreviewOnly
+                  ? lab.progressNotice
+                  : 'Sign in to keep Slime City progress'
             "
           >
             <span class="sc-led"></span>
@@ -87,7 +89,11 @@
               STORY SYNC ERROR · RELOAD
             </button>
             <strong v-else>{{
-              lab.progressLoaded ? lab.progress.meat + ' MEAT' : 'SIGN IN'
+              lab.progressLoaded
+                ? lab.progress.meat + ' MEAT'
+                : lab.accountPreviewOnly
+                  ? 'LOCAL PLAY'
+                  : 'SIGN IN'
             }}</strong>
           </div>
         </div>
@@ -950,6 +956,13 @@
           <div class="sc-progression-scroll kr-scroll">
             <p v-if="lab.progressBusy" class="sc-progress-alert" role="status">
               Syncing with your Kind Robots account…
+            </p>
+            <p
+              v-if="lab.progressNotice"
+              class="sc-progress-alert"
+              role="status"
+            >
+              {{ lab.progressNotice }}
             </p>
             <p
               v-if="lab.progressError"

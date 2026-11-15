@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs'
 import { HALL_GAMES } from '../arcade/games'
 import {
   arcadeCabinetShareLink,
+  arcadeScoreShareLink,
+  shareButtonLabel,
   arcadeHallShareLink,
   arrangeArcadeHall,
   isGrowingCabinet,
@@ -73,6 +75,20 @@ assert.equal(
   }).url,
   'https://kindrobots.org/play/arcade?game=pipe-pals',
 )
+const scoreLink = arcadeScoreShareLink(
+  'https://kindrobots.org',
+  { slug: 'pipe-pals', title: 'Pipe Pals' },
+  12345.7,
+)
+assert.equal(scoreLink.url, 'https://kindrobots.org/play/arcade?game=pipe-pals')
+assert.equal(
+  scoreLink.text,
+  'I scored 12,345 in Pipe Pals at the Kind Robots Arcade. Can you beat it?',
+)
+assert.equal(shareButtonLabel('', null), 'Share')
+assert.equal(shareButtonLabel('', 0), 'Share', 'a zero run shares the cabinet')
+assert.equal(shareButtonLabel('', 4200), 'Share my 4,200')
+assert.equal(shareButtonLabel('Link copied!', 4200), 'Link copied!')
 assert.equal(shareNoteFor('copied'), 'Link copied!')
 assert.equal(shareNoteFor('failed'), 'Copy the address bar')
 assert.equal(shareNoteFor('shared'), '')
@@ -100,6 +116,17 @@ assert.match(
   'the AMI link stays in the hall',
 )
 const page = readFileSync('pages/play/arcade/index.vue', 'utf8')
+assert.match(
+  page,
+  /@scored="runScore = \$event"/,
+  'the page hears each finished run',
+)
+assert.match(page, /arcadeScoreShareLink\(/, 'a finished run shares its score')
+assert.match(
+  page,
+  /runScore\.value = null/,
+  'a new cabinet forgets the last run',
+)
 for (const [name, source] of [
   ['hall', hall],
   ['arcade page', page],

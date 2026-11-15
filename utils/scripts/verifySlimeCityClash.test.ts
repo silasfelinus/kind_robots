@@ -2098,7 +2098,6 @@ assert.ok(sweep.roundLimit / sweep.games < 0.1, 'matches end by knockout')
 // a 2-damage volatile burst now costs a point of budget. Before, these seeds
 // read Ironjaw 35% / Riot 64% (a ~30-point spread); after, every crew sits at
 // 48-53%. Guard every crew to 42-58% and the crew spread to 12 points.
-const crewRates = Object.values(sweep.crews).map((r) => r.wins / r.games)
 for (const [crew, r] of Object.entries(sweep.crews))
   assert.ok(
     r.wins / r.games > 0.42 && r.wins / r.games < 0.58,

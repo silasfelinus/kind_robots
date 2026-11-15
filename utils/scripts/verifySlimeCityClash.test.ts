@@ -292,6 +292,33 @@ assert.match(
   /\.clash-console-row \.clash-reset,[\s\S]*?\.clash-console-row \.clash-pass \{[^}]*min-width: 0;/,
   'undo and fight controls can shrink rather than overflowing the rail',
 )
+const browserLayoutAudit = readFileSync(
+  new URL('./auditSlimeCityClashLayout.mjs', import.meta.url),
+  'utf8',
+)
+const responsiveWorkflow = readFileSync(
+  new URL(
+    '../../.github/workflows/responsive-layout-audit.yml',
+    import.meta.url,
+  ),
+  'utf8',
+)
+for (const width of [390, 768, 1440])
+  assert.match(
+    browserLayoutAudit,
+    new RegExp('width: ' + width),
+    'real-browser Clash audit covers ' + width + 'px',
+  )
+assert.match(browserLayoutAudit, /getByTestId\('slime-vs-fight-cpu'\)/)
+assert.match(browserLayoutAudit, /getBoundingClientRect\(\)/)
+assert.match(browserLayoutAudit, /row\.scrollWidth <= row\.clientWidth/)
+assert.match(browserLayoutAudit, /tapBox\.right <= fightBox\.left/)
+assert.match(browserLayoutAudit, /withTap of \[false, true\]/)
+assert.match(
+  responsiveWorkflow,
+  /npm run audit:slime-city-clash-layout -- --base/,
+  'the scheduled real-browser audit exercises Clash controls',
+)
 {
   const opening = createClash('catgirls', 'riot', 4242)
   const card = opening.hands.player.find((id) =>

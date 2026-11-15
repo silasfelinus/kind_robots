@@ -26,6 +26,7 @@
     "test:rebel-button-stage": "tsx utils/scripts/verifyRebelButtonStage.test.ts",
     "test:rebel-encounters": "tsx utils/scripts/verifyRebelEncounters.test.ts",
     "test:hybridizer-cache": "tsx utils/scripts/verifyHybridizerFusion.test.ts",
+    "audit:slime-city-clash-layout": "node utils/scripts/auditSlimeCityClashLayout.mjs",
     "audit:slime-city-blackout": "tsx utils/scripts/reportSlimeCityMatchups.ts",
     "audit:slime-city-parity": "tsx utils/scripts/reportSlimeCityParity.ts",
     "test:slime-city-clash": "tsx utils/scripts/verifySlimeCityClash.test.ts",

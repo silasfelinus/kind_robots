@@ -41,7 +41,7 @@ const items: ChannelContentItem[] = [
     contentType: 'tab',
     channelKey: 'arcade',
     tabKey: 'shifting-desks',
-    label: 'Shifting Desks',
+    label: 'The Elevator Only Goes Down',
     route: '/play/shifting-desks',
   },
   {

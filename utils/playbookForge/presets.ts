@@ -167,7 +167,7 @@ export const GENRES: Genre[] = [
     cover: '/shifting-desks/front-poster.svg',
     label: 'Office dystopia',
     pitch: 'File, stamp, survive. No clean wins.',
-    lineage: 'Shifting Desks',
+    lineage: 'The Elevator Only Goes Down',
     tones: 'dark comic, satirical',
     shape: {
       creator: 'fixed',

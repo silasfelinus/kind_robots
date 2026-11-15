@@ -138,6 +138,17 @@ export const GENERIC_MEMOS = [
   'Kevin has been promoted again.',
 ]
 
+export const FRONT_DESK_MEMOS = [
+  'PAL is your pal!',
+  'Kevin has been promoted to a paperless role!',
+  'Refreshments will be served.',
+  'Your smile is sixty-one percent sincere.',
+  'The elevator only goes down. This is a feature.',
+  'Please keep your badge visible and your thoughts compliant.',
+  'The fourth floor does not exist. Please stop taking the stairs to it.',
+  'Lost and found now accepts Successors.',
+]
+
 export const SUCCESSOR_LINES = [
   'Welcome! Your predecessor left you a desk, a mug and an unresolved Incident Report.',
   'You have been thawed early. Please do not ask how early.',

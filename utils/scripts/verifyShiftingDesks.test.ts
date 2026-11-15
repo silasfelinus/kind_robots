@@ -1696,8 +1696,13 @@ assert.match(page, /class="kr-panes desk-layout/, 'the desk is two panes')
 // The pitch copy belongs to the tutorial, not the front page.
 assert.match(
   page,
-  /class="front-hero[\s\S]*stationArt\('departments', 'orientation'\)/,
+  /class="front-hero[\s\S]*?<shifting-desks-art[\s\S]*?:src="FRONT_KEY_ART"/,
   'the front desk opens on a full-bleed hero',
+)
+assert.match(
+  page,
+  /<shifting-desks-floor-indicator[\s\S]*?The Elevator[\s\S]*?Only Goes[\s\S]*?Down/,
+  'the title is elevator signage under a floor indicator',
 )
 assert.doesNotMatch(
   page,

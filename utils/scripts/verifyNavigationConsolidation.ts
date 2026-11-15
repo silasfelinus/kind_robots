@@ -715,9 +715,9 @@ assert.ok(
   visitorDirectorySource.includes("image: '/shifting-desks/front-poster.svg'"),
 )
 assert.ok(
-  visitorDirectorySource.indexOf("title: 'Shifting Desks'") <
+  visitorDirectorySource.indexOf("title: 'The Elevator Only Goes Down'") <
     visitorDirectorySource.indexOf("title: 'Storybook'"),
-  'Shifting Desks must remain a flagship visitor attraction',
+  'The Elevator Only Goes Down must remain a flagship visitor attraction',
 )
 
 for (const route of [

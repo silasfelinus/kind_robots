@@ -47,6 +47,8 @@ export const SELECTABLE_ART_STYLES = ART_STYLES.filter(
 export const ART_STYLE_SAMPLE =
   '/images/shifting-desks/cards/orientation/the-guard-who-is-also-you.webp'
 
+export const FRONT_KEY_ART = '/api/art/images/272631/file'
+
 export type ShiftingDesksArtStyle = (typeof ART_STYLES)[number]['id']
 // v3: v2 visitors were saved on Western Cartoon while it was the default.
 export const ART_STYLE_STORAGE_KEY = 'shifting-desks-art-style-v3'

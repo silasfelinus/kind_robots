@@ -2,7 +2,7 @@
   <Teleport to="body">
     <article
       class="shifting-desks-print-dossier"
-      aria-label="Printable Shifting Desks personnel dossier"
+      aria-label="Printable personnel dossier from The Elevator Only Goes Down"
     >
       <header class="sd-print-heading">
         <div>
@@ -163,8 +163,9 @@
       </p>
 
       <footer>
-        This document is a keepsake of a completed Shifting Desks run. Official
-        account achievements, where available, remain in Kind Robots.
+        This document is a keepsake of a completed run of The Elevator Only Goes
+        Down. Official account achievements, where available, remain in Kind
+        Robots.
       </footer>
     </article>
   </Teleport>

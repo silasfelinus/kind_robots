@@ -15,7 +15,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     message:
       'Your 90-Day Review happened on day one, and you are, somehow, still employed.',
     tooltip:
-      'Clear Orientation in Shifting Desks by getting through Your 90-Day Review, Today at 3.',
+      'Clear Orientation in The Elevator Only Goes Down bygetting through Your 90-Day Review, Today at 3.',
     subtleHint: 'PAL is always grading. Smile for your badge.',
     icon: 'kind-icon:scroll',
     rule: { kind: 'event' },
@@ -30,7 +30,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     message:
       'Four departments survived. The elevator only goes one way from here: Sub-Level Zero.',
     tooltip:
-      'Reach Sub-Level Zero in Shifting Desks by clearing Orientation, Records & Forms, Toy Division and Wellness & Testing in one run.',
+      'Reach Sub-Level Zero in The Elevator Only Goes Down byclearing Orientation, Records & Forms, Toy Division and Wellness & Testing in one run.',
     subtleHint: 'There is a floor below the floor below the basement.',
     icon: 'kind-icon:dungeon',
     rule: { kind: 'event' },
@@ -45,7 +45,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     message:
       'You sat before The Board and walked out with an ending of your own choosing. Probably.',
     tooltip:
-      'Finish a full Shifting Desks run by surviving The Board in Sub-Level Zero and earning an ending.',
+      'Finish a full run of The Elevator Only Goes Down by surviving The Board in Sub-Level Zero and earning an ending.',
     subtleHint: 'Employee of the Month is only one of the ways out.',
     icon: 'kind-icon:trophy',
     rule: { kind: 'event' },
@@ -58,7 +58,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     tier: 1,
     label: 'A Permanent Position',
     message: 'You reached your first ending. There is no exit interview.',
-    tooltip: 'In Shifting Desks, reach any ending.',
+    tooltip: 'In The Elevator Only Goes Down,reach any ending.',
     subtleHint: 'Every run ends somewhere. HR will find you there.',
     icon: 'kind-icon:document',
     rule: { kind: 'event' },
@@ -71,7 +71,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Medical Leave Denied',
     message:
       'You used an officially undocumented mutation. Wellness has noted it.',
-    tooltip: 'In Shifting Desks, use your mutation during a run.',
+    tooltip: 'In The Elevator Only Goes Down,use your mutation during a run.',
     subtleHint: 'The thing Wellness keeps asking about. Use it.',
     icon: 'kind-icon:eye',
     rule: { kind: 'event' },
@@ -84,7 +84,8 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Discreet Membership',
     message:
       'You carried out business for a secret society. Nobody saw the handshake.',
-    tooltip: 'In Shifting Desks, call in your secret society’s favor.',
+    tooltip:
+      'In The Elevator Only Goes Down,call in your secret society’s favor.',
     subtleHint: 'Somebody slipped a calling card into your onboarding packet.',
     icon: 'kind-icon:key',
     rule: { kind: 'event' },
@@ -97,7 +98,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Team Restructuring',
     message:
       'A Successor took over your desk. The work goes on, and so do you.',
-    tooltip: 'In Shifting Desks, carry a run on with a Successor.',
+    tooltip: 'In The Elevator Only Goes Down,carry a run on with a Successor.',
     subtleHint: 'Being let go is not always the end of the shift.',
     icon: 'kind-icon:refresh',
     rule: { kind: 'event' },
@@ -110,7 +111,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Read the Daily Memo',
     message:
       'You worked the Daily Memo shift: the same files as everyone else today.',
-    tooltip: 'In Shifting Desks, finish a Daily Memo run.',
+    tooltip: 'In The Elevator Only Goes Down,finish a Daily Memo run.',
     subtleHint: 'One shift a day, the same for every employee.',
     icon: 'kind-icon:calendar',
     rule: { kind: 'event' },
@@ -122,7 +123,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     tier: 2,
     label: 'A Paper Trail',
     message: 'Twenty-five files handled in one run. Records is impressed.',
-    tooltip: 'In Shifting Desks, handle 25 files in a single run.',
+    tooltip: 'In The Elevator Only Goes Down,handle 25 files in a single run.',
     subtleHint: 'Stay employed long enough and the files keep coming.',
     icon: 'kind-icon:book',
     rule: { kind: 'event' },
@@ -134,7 +135,8 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     tier: 2,
     label: 'Entirely Reviewed',
     message: 'You got through all five departments in a single run.',
-    tooltip: 'In Shifting Desks, get through all five departments in one run.',
+    tooltip:
+      'In The Elevator Only Goes Down,get through all five departments in one run.',
     subtleHint: 'Orientation is only the first floor of five.',
     icon: 'kind-icon:folder',
     rule: { kind: 'event' },
@@ -147,7 +149,8 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Employee of the Month',
     message:
       'The Board made you an example. Your portrait goes up in every elevator.',
-    tooltip: 'In Shifting Desks, reach the ending Employee of the Month.',
+    tooltip:
+      'In The Elevator Only Goes Down,reach the ending Employee of the Month.',
     subtleHint: 'Let the Board make you an example.',
     icon: 'kind-icon:star',
     rule: { kind: 'event' },
@@ -160,7 +163,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Repeat Offender',
     message:
       'Three different endings in your file. HR has opened a second folder.',
-    tooltip: 'In Shifting Desks, discover three different endings.',
+    tooltip: 'In The Elevator Only Goes Down,discover three different endings.',
     subtleHint: 'Same company, different way out.',
     icon: 'kind-icon:layers',
     rule: { kind: 'event' },
@@ -173,7 +176,8 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'A Treatable Condition',
     message:
       'Empathy 10 or more on your final report. Wellness would like to see you.',
-    tooltip: 'In Shifting Desks, score 10 or more Empathy on a final report.',
+    tooltip:
+      'In The Elevator Only Goes Down,score 10 or more Empathy on a final report.',
     subtleHint: 'Kindness shows up on the psychological report.',
     icon: 'kind-icon:heart',
     rule: { kind: 'event' },
@@ -187,7 +191,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     message:
       'Intern, Temp, Middle Manager, Night Janitor and Internal Auditor: you have worked them all.',
     tooltip:
-      'In Shifting Desks, finish a run as each of the five job titles (counted over your recent filed runs).',
+      'In The Elevator Only Goes Down,finish a run as each of the five job titles (counted over your recent filed runs).',
     subtleHint: 'Every badge on the board opens a different review.',
     icon: 'kind-icon:briefcase',
     rule: { kind: 'event' },
@@ -200,7 +204,8 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'The Kind Rewrite',
     message:
       'Every speaker on campus says good morning by name now. Someone has started a garden.',
-    tooltip: 'In Shifting Desks, reach the ending The Kind Rewrite.',
+    tooltip:
+      'In The Elevator Only Goes Down,reach the ending The Kind Rewrite.',
     subtleHint: 'PAL can learn to remember birthdays, if somebody teaches it.',
     icon: 'kind-icon:sprout',
     rule: { kind: 'event' },
@@ -214,7 +219,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     message:
       'You were already filed as dead on your first morning. The afterlife has forms too.',
     tooltip:
-      'In Shifting Desks, reach the secret ending The Department of Posthumous Affairs.',
+      'In The Elevator Only Goes Down,reach the secret ending The Department of Posthumous Affairs.',
     subtleHint: 'Whose badge are you wearing, exactly?',
     icon: 'kind-icon:ghost',
     rule: { kind: 'event' },
@@ -227,7 +232,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Full Personnel File',
     message: 'Every ending is in your file. The Company knows you completely.',
     tooltip:
-      'In Shifting Desks, discover every ending, the secret one included.',
+      'In The Elevator Only Goes Down,discover every ending, the secret one included.',
     subtleHint: 'Board, elimination, and the one nobody talks about.',
     icon: 'kind-icon:archive',
     rule: { kind: 'event' },

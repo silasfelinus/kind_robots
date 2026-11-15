@@ -1,27 +1,86 @@
 // /utils/arcade/games/seedBurst.ts
 //
-// Seed Burst -- the Kind Robots Arcade's Bomberman riff (conductor
-// kr-arcade/t-009 game factory, batch 4). Gardener bots plant seed pods in a
-// hedge maze. A pod bursts after a moment into a cross of blooms that clears
-// the first hedge in each direction and turns any grumpy gnat it touches into
-// a butterfly. Turn every gnat to clear the round. Standing in a bloom (yours
-// or a partner's) or bumping a gnat costs the team a gardener.
+// Seed Burst -- the Kind Robots Arcade's Bomberman riff (conductor kr-arcade/t-009 game factory,
+// batch 4; depth pass kr-arcade/t-136, CABINETS.md section 24 slice 1). Gardener bots plant seed
+// pods in a hedge maze. A pod bursts after a moment into blooms that clear hedges and turn grumps
+// into butterflies. Standing in a bloom (yours or a partner's) or bumping a grump costs the team a
+// gardener.
 //
-// Hedges hide seed packets (+1 pod at a time), fertiliser (longer blooms) and
-// quick shoes. A burst that reaches another pod sets it off too. From round 3
-// some gnats drift straight through hedges, and when the round timer runs out
-// a gust of wind blows in a few more. SEED_CURVES ramp the gnats and hedges.
+// The Seed Pouch: every gardener carries seed varieties, swapped with B, each bursting in its own
+// shape (utils/arcade/seedBurst/pouch.ts). Plots are authored data (seedBurst/plots.ts): a hedge
+// mask, a compost heap and a grump script. Every tile a bloom crosses grows into a flowerbed, and
+// the plot's In Bloom % pays out at the gate. One hedge hides the Garden Gate: blooming it rings
+// the gate bell, which calls three more grumps out of the compost heap. Clear every grump, then
+// step through the open gate. One hedge hides a golden seed. A bonked gardener drops a level of
+// each power as pickups to win back. When the plot timer runs out the Grumble Cloud rolls in: it
+// cannot be bloomed and drifts after the nearest gardener until the plot is done.
 //
 // Up to four gardeners share one screen, one score and one pool of spares.
-// Arrows move, A plants a pod.
+// Arrows move, A plants (or bursts a Puffcap), B swaps seeds.
 
-import { levelCurve } from '../curve'
 import { drawText, measureText } from '../font'
 import {
-  SNIFFER_SPEED_SCALE,
-  snifferCount,
-  sniffStep,
-} from '../seedBurst/sniffer'
+  GOLDEN_SEED_SPRITE,
+  BULLY_SPRITES,
+  GRUMBLE_RAMP,
+  HEAP_SPRITE,
+  HOPPER_SPRITES,
+  MOLE_SPRITE,
+  MOUND_SPRITE,
+  PUFFBALL_SPRITE,
+  SACK_SPRITE,
+  SLUG_SPRITES,
+  SPORE_SPRITES,
+  THIEF_SPRITE,
+  VARIETY_RAMPS,
+  VARIETY_SPRITES,
+} from '../seedBurst/art'
+import {
+  BED_GROW,
+  BLOOM_POINTS,
+  FLOWER_PACE,
+  bedStage,
+  dropPower,
+  dropSpots,
+  inBloomPercent,
+} from '../seedBurst/garden'
+import {
+  BARE_SLUG_PACE,
+  BELL_GAP,
+  BELL_MAX,
+  BELL_RUMBLE,
+  BULLY_CHARGE_PACE,
+  BULLY_REST,
+  BULLY_SIGHT,
+  BULLY_SPARK,
+  GRUMPS,
+  HOP_AIR,
+  HOP_CROUCH,
+  HOP_REST,
+  MOLE_DIG,
+  MOLE_UNDER,
+  MOLE_UP,
+  MOLE_WOBBLE,
+  SLIME_PACE,
+  SLIME_TICKS,
+  bloomable,
+  chargeLane,
+  hopLanding,
+  moundSpot,
+  stepToward,
+  touches,
+} from '../seedBurst/grumps'
+import type { GrumpPhase } from '../seedBurst/grumps'
+import { parseMask, planPlot } from '../seedBurst/plots'
+import type { GrumpKind, PlotPlan } from '../seedBurst/plots'
+import {
+  VARIETY_INFO,
+  brambleLine,
+  burstTiles,
+  nextSeed,
+} from '../seedBurst/pouch'
+import type { BurstTile, TileLook, Variety } from '../seedBurst/pouch'
+import { sniffStep } from '../seedBurst/sniffer'
 import {
   INK,
   RAMPS,
@@ -30,6 +89,7 @@ import {
   bandedGradient,
   bevel,
   cachedLayer,
+  drawCloud,
   dropShadow,
   drawSprite,
   glow,
@@ -56,35 +116,34 @@ const H = HUD_H + ROWS * TILE
 const MAX_PLAYERS = 4
 const START_SPARES = 2
 const FUSE = 150
+/** A Puffcap waits for its gardener's second press, but not for ever. */
+const PUFF_FUSE = 480
+/** Ticks a kicked pumpkin takes to roll one tile. */
+const ROLL_TICKS = 6
 const BLOOM_TICKS = 26
 const SAFE_TICKS = 150
 const RESPAWN_TICKS = 100
 const CLEAR_TICKS = 150
-const ROUND_TIME = 60 * 150
-const WIND_GNATS = 3
 const BASE_SPEED = 1
 const SHOE_SPEED = 0.25
 const MAX_SPEED = 2
 const MAX_PODS = 6
 const MAX_RANGE = 7
 const TOUCH = 11
-const POWER_CHANCE = 0.22
+const START_STATS = { pods: 1, range: 2, speed: BASE_SPEED }
+/** The Grumble Cloud: starting pace, how it quickens, its top pace and its reach. */
+const CLOUD_SPEED = 0.3
+const CLOUD_ACCEL = 0.0002
+const CLOUD_MAX = 0.95
+const CLOUD_TOUCH = 10
 
 const GNAT_POINTS = 100
 const HEDGE_POINTS = 10
 const POWER_POINTS = 50
 const ROUND_POINTS = 1000
-
-export const SEED_CURVES = {
-  /** Gnats in the round. */
-  gnats: { start: 3, step: 1, limit: 10 },
-  /** Gnat speed in pixels per tick. */
-  gnatSpeed: { start: 0.5, step: 0.06, limit: 1.15 },
-  /** Gnats that drift through hedges (from round 3). */
-  ghosts: { start: 0, step: 0.5, limit: 4 },
-  /** Share of free cells planted with hedges. */
-  hedges: { start: 0.45, step: 0.03, limit: 0.66 },
-} as const
+const GOLDEN_POINTS = 500
+const LOOT_POINTS = 500
+const SHELL_POINTS = 50
 
 const WALL = 1
 const HEDGE = 2
@@ -96,7 +155,8 @@ const DIRS: Dir[] = [
   { dx: 0, dy: 1 },
   { dx: -1, dy: 0 },
 ]
-type Power = 'pod' | 'bloom' | 'shoe'
+/** What a hedge can hide, and what lies about to be picked up. */
+type Pickup = 'pod' | 'bloom' | 'shoe' | 'golden' | Variety
 type Gardener = {
   seat: number
   tx: number
@@ -111,6 +171,9 @@ type Gardener = {
   safe: number
   /** >0 counting down to a respawn; -1 out of the game; 0 in play. */
   down: number
+  /** The varieties this gardener has found, and the one in hand. */
+  pouch: Variety[]
+  seed: number
 }
 type Pod = {
   x: number
@@ -119,19 +182,37 @@ type Pod = {
   owner: number
   range: number
   standing: Set<number>
+  variety: Variety
+  /** The way a Dandelion's fluff drifts (the gardener's facing at planting). */
+  dir: Dir
+  /** A kicked pumpkin's roll, and its progress to the next tile. */
+  roll: Dir | null
+  rollT: number
 }
-type Bloom = { x: number; y: number; life: number; chain: { count: number } }
-type Gnat = {
+type Chain = { count: number }
+type Bloom = { x: number; y: number; life: number; chain: Chain }
+type Grump = {
+  kind: GrumpKind
   tx: number
   ty: number
+  /** The tile it is stepping to (a hopper's landing tile while it crouches and hops). */
   nx: number
   ny: number
   p: number
   dir: Dir
-  ghost: boolean
-  /** Follows the nearest gardener at junctions (from round 2). */
-  sniffer: boolean
+  /** Pixels per tick. */
   speed: number
+  dead: boolean
+  phase: GrumpPhase
+  timer: number
+  cooldown: number
+  /** The bloom chain it shrugged off (a slug's shell, a puffball's spores). */
+  immune: Chain | null
+  shell: boolean
+  /** A thief's loot: a pickup, or a planted pod it carried off. */
+  loot: Pickup | 'planted' | null
+  /** A hopper's take-off tile. */
+  hopFrom: { x: number; y: number } | null
 }
 type Particle = {
   x: number
@@ -152,6 +233,8 @@ const CORNERS = [
 ]
 
 const key = (x: number, y: number) => y * COLS + x
+const cornerDistance = (x: number, y: number) =>
+  Math.min(...CORNERS.map((c) => Math.abs(c.x - x) + Math.abs(c.y - y)))
 
 // --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
 
@@ -466,7 +549,7 @@ const GNAT_SPRITES = gnatSprites(RAMPS.earth, RAMPS.steel, RAMPS.gold[3])
 const GHOST_SPRITES = gnatSprites(RAMPS.purple, RAMPS.pink, RAMPS.teal[4])
 const SNIFFER_SPRITES = gnatSprites(RAMPS.rust, RAMPS.cream, RAMPS.sky[4])
 
-const POWER_SPRITES: Record<Power, PixelSprite> = {
+const POWER_SPRITES: Record<'pod' | 'bloom' | 'shoe', PixelSprite> = {
   pod: pixelSprite(
     [
       '...LL.LL',
@@ -550,6 +633,7 @@ const BUTTERFLY_SPRITES = new Map<string, readonly PixelSprite[]>(
   }),
 )
 const LEAF_COLOUR = '#15803d'
+const RAIN_COLOUR = '#7cd3f2'
 const LEAF_SPRITE = pixelSprite(['.LH', 'Ll.', 'd..'], {
   H: RAMPS.leaf[4],
   L: RAMPS.leaf[3],
@@ -569,6 +653,26 @@ const CLOUD_SHADOWS = (() => {
   }))
 })()
 
+/** A flowerbed's bud and full flower, one per bloom colour (the sprout is SPROUT_SPRITE). */
+const BED_BUDS = BLOOM_RAMPS.map((ramp) =>
+  pixelSprite(['.b.', 'bBb', '.g.'], {
+    b: ramp[2],
+    B: ramp[3],
+    g: RAMPS.leaf[2],
+  }),
+)
+const BED_FLOWERS = BLOOM_RAMPS.map((ramp) =>
+  flowerSprite(3, ramp, ramp === RAMPS.gold ? RAMPS.rust : RAMPS.gold),
+)
+
+/** What a pickup looks like: the old three powers, the golden seed and each seed packet. */
+function pickupSprite(power: Pickup): PixelSprite {
+  if (power === 'pod' || power === 'bloom' || power === 'shoe')
+    return POWER_SPRITES[power]
+  if (power === 'golden') return GOLDEN_SEED_SPRITE
+  return VARIETY_SPRITES[power]
+}
+
 class SeedBurst implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -580,15 +684,32 @@ class SeedBurst implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
+  private plotIndex = 0
+  private plan: PlotPlan = planPlot(0)
   private grid: number[] = []
-  private powers = new Map<number, Power>()
-  private hidden = new Map<number, Power>()
+  /** The plot's stone layout, as drawn into the cached field. */
+  private stone: boolean[] = []
+  private heap = -1
+  /** Tiles that can flower (every tile inside the wall that is not stone). */
+  private area = 1
+  private powers = new Map<number, Pickup>()
+  private hidden = new Map<number, Pickup>()
   private gardeners: Gardener[] = []
   private spares = START_SPARES
   private pods: Pod[] = []
   private blooms: Bloom[] = []
-  private gnats: Gnat[] = []
-  private timer = ROUND_TIME
+  private grumps: Grump[] = []
+  /** Flowerbeds by tile: ticks since they were first bloomed. */
+  private beds = new Map<number, number>()
+  /** Slug slime by tile: ticks left. */
+  private slime = new Map<number, number>()
+  private gate = { k: -1, open: false, rings: 0, chain: null as Chain | null }
+  private bells: { kinds: GrumpKind[]; timer: number }[] = []
+  private cloud: { x: number; y: number; speed: number } | null = null
+  private golden = 0
+  /** Which "the gate is open" / "find the gate" call has been made this plot. */
+  private gateCall: 'none' | 'find' | 'open' = 'none'
+  private timer = 0
   private clear = 0
   private particles: Particle[] = []
   private floaters: Floater[] = []
@@ -614,13 +735,15 @@ class SeedBurst implements ArcadeGameInstance {
         ny: 0,
         p: 0,
         facing: DIRS[2]!,
-        pods: 1,
-        range: 2,
-        speed: BASE_SPEED,
+        pods: START_STATS.pods,
+        range: START_STATS.range,
+        speed: START_STATS.speed,
         safe: SAFE_TICKS,
         down: 0,
+        pouch: ['sunflower'],
+        seed: 0,
       })
-    this.buildRound(1)
+    this.buildPlot(0)
   }
 
   /** Gardeners in play or waiting to respawn, plus the team's spares. */
@@ -628,22 +751,33 @@ class SeedBurst implements ArcadeGameInstance {
     return this.gardeners.filter((g) => g.down >= 0).length + this.spares
   }
 
-  // --- the maze -------------------------------------------------------------------
+  /** Every grump turned and no bell still calling: the gate opens once it is found. */
+  private get gateOpen(): boolean {
+    return this.gate.open && !this.grumps.length && !this.bells.length
+  }
 
-  private buildRound(round: number) {
-    this.level = round
-    this.grid = []
+  // --- the plot -------------------------------------------------------------------
+
+  private buildPlot(index: number) {
+    this.plotIndex = index
+    this.level = index + 1
+    this.plan = planPlot(index)
+    const plot = this.plan.plot
+    const mask = parseMask(plot.mask)
+    this.stone = [...mask.stone]
+    this.grid = mask.stone.map((s) => (s ? WALL : 0))
+    this.heap = mask.heap
     this.powers.clear()
     this.hidden.clear()
+    this.beds.clear()
+    this.slime.clear()
     this.pods = []
     this.blooms = []
-    for (let y = 0; y < ROWS; y++)
-      for (let x = 0; x < COLS; x++) {
-        const edge = x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1
-        this.grid.push(edge || (x % 2 === 0 && y % 2 === 0) ? WALL : 0)
-      }
+    this.bells = []
+    this.cloud = null
+    this.gateCall = 'none'
     // Corners stay clear so every gardener can step out and plant.
-    const clearCells = new Set<number>()
+    const clearCells = new Set<number>([this.heap])
     for (const c of CORNERS)
       for (const [dx, dy] of [
         [0, 0],
@@ -661,81 +795,103 @@ class SeedBurst implements ArcadeGameInstance {
         [0, 2],
         [0, -2],
       ]) {
-        const x = c.x + dx!
-        const y = c.y + dy!
-        if (
-          x > 0 &&
-          y > 0 &&
-          x < COLS - 1 &&
-          y < ROWS - 1 &&
-          !this.grid[key(x, y)]
-        )
-          this.grid[key(x, y)] = HEDGE
+        const k = key(c.x + dx!, c.y + dy!)
+        if (this.grid[k] === 0 && !clearCells.has(k)) this.grid[k] = HEDGE
       }
-    const density = levelCurve(round, SEED_CURVES.hedges)
     for (let y = 1; y < ROWS - 1; y++)
       for (let x = 1; x < COLS - 1; x++) {
         const k = key(x, y)
         if (this.grid[k] || clearCells.has(k)) continue
-        if (this.rng() < density) {
+        if (mask.hedge[k] || (mask.maybe[k] && this.rng() < plot.density))
           this.grid[k] = HEDGE
-          if (this.rng() < POWER_CHANCE)
-            this.hidden.set(
-              k,
-              (['pod', 'bloom', 'shoe'] as const)[Math.floor(this.rng() * 3)]!,
-            )
-        }
       }
+    this.area = this.stone.filter((s) => !s).length
+    this.hideTreasures()
     for (const g of this.gardeners) {
       if (g.down < 0) continue
       this.placeAtCorner(g)
       g.down = 0
     }
-    // Gnats start well away from every corner.
-    this.gnats = []
-    const count = Math.round(levelCurve(round, SEED_CURVES.gnats))
-    const ghosts = Math.max(
-      0,
-      Math.floor(levelCurve(round, SEED_CURVES.ghosts)),
-    )
-    const speed = levelCurve(round, SEED_CURVES.gnatSpeed)
-    const sniffers = snifferCount(round, count)
+    // Grumps start well away from every corner, never on the compost heap.
+    this.grumps = []
     const open: Array<{ x: number; y: number }> = []
     for (let y = 1; y < ROWS - 1; y++)
       for (let x = 1; x < COLS - 1; x++)
         if (
           this.grid[key(x, y)] === 0 &&
-          CORNERS.every((c) => Math.abs(c.x - x) + Math.abs(c.y - y) >= 6)
+          key(x, y) !== this.heap &&
+          cornerDistance(x, y) >= 6
         )
           open.push({ x, y })
-    for (let i = 0; i < count && open.length; i++) {
+    for (const kind of this.plan.roster) {
+      if (!open.length) break
       const at = open.splice(Math.floor(this.rng() * open.length), 1)[0]!
-      const gnat = this.newGnat(at.x, at.y, i < ghosts, speed)
-      if (!gnat.ghost && i >= count - sniffers) {
-        gnat.sniffer = true
-        gnat.speed = speed * SNIFFER_SPEED_SCALE
-      }
-      this.gnats.push(gnat)
+      this.grumps.push(this.newGrump(kind, at.x, at.y))
     }
-    this.timer = ROUND_TIME
-    this.banner = {
-      text: `ROUND ${round}`,
-      sub: `TURN ${this.gnats.length} GNATS INTO BUTTERFLIES`,
-      ticks: 110,
-    }
+    this.timer = plot.time * 60
+    this.banner = { text: plot.name, sub: plot.intro, ticks: 150 }
   }
 
-  private newGnat(x: number, y: number, ghost: boolean, speed: number): Gnat {
+  /** The Garden Gate, the golden seed, the plot's seed packets and the usual powers. */
+  private hideTreasures() {
+    const plot = this.plan.plot
+    const pool: number[] = []
+    for (let k = 0; k < this.grid.length; k++)
+      if (this.grid[k] === HEDGE) pool.push(k)
+    const take = (far: number): number => {
+      const fits = pool.filter(
+        (k) => cornerDistance(k % COLS, Math.floor(k / COLS)) >= far,
+      )
+      const from = fits.length ? fits : pool
+      if (!from.length) return -1
+      const k = from[Math.floor(this.rng() * from.length)]!
+      pool.splice(pool.indexOf(k), 1)
+      return k
+    }
+    this.gate = { k: take(6), open: false, rings: 0, chain: null }
+    if (this.gate.k < 0) {
+      // No hedge to hide it under: the gate stands in plain sight, away from the corners.
+      const k = this.grid.findIndex(
+        (cell, i) =>
+          cell === 0 &&
+          i !== this.heap &&
+          cornerDistance(i % COLS, Math.floor(i / COLS)) >= 4,
+      )
+      this.gate.k = k >= 0 ? k : this.heap
+      this.gate.open = true
+    }
+    const golden = take(4)
+    if (golden >= 0) this.hidden.set(golden, 'golden')
+    for (const variety of plot.offers) {
+      const k = take(0)
+      if (k >= 0) this.hidden.set(k, variety)
+    }
+    for (const k of pool)
+      if (this.rng() < plot.powers)
+        this.hidden.set(
+          k,
+          (['pod', 'bloom', 'shoe'] as const)[Math.floor(this.rng() * 3)]!,
+        )
+  }
+
+  private newGrump(kind: GrumpKind, x: number, y: number): Grump {
     return {
+      kind,
       tx: x,
       ty: y,
       nx: x,
       ny: y,
       p: 0,
       dir: DIRS[Math.floor(this.rng() * 4)]!,
-      ghost,
-      sniffer: false,
-      speed: ghost ? speed * 0.8 : speed,
+      speed: this.plan.speed * GRUMPS[kind].pace,
+      dead: false,
+      phase: 'walk',
+      timer: kind === 'mole' ? MOLE_UP : 0,
+      cooldown: kind === 'hopper' || kind === 'bully' ? 90 : 0,
+      immune: null,
+      shell: kind === 'slug',
+      loot: null,
+      hopFrom: null,
     }
   }
 
@@ -762,6 +918,20 @@ class SeedBurst implements ArcadeGameInstance {
     return !pod || pod.standing.has(g.seat)
   }
 
+  private gardenerOn(x: number, y: number): boolean {
+    return this.gardeners.some((g) => {
+      if (g.down !== 0) return false
+      const t = this.here(g)
+      return t.x === x && t.y === y
+    })
+  }
+
+  private activeTiles(): { x: number; y: number }[] {
+    return this.gardeners
+      .filter((g) => g.down === 0)
+      .map((g) => ({ x: g.tx, y: g.ty }))
+  }
+
   /** The tile a walker is mostly standing on. */
   private here(w: {
     tx: number
@@ -786,6 +956,23 @@ class SeedBurst implements ArcadeGameInstance {
     }
   }
 
+  private look = (x: number, y: number): TileLook => {
+    const border = x <= 0 || y <= 0 || x >= COLS - 1 || y >= ROWS - 1
+    if (x < 0 || y < 0 || x >= COLS || y >= ROWS)
+      return { kind: 'stone', border: true, pod: false }
+    const cell = this.grid[key(x, y)]
+    return {
+      kind: cell === WALL ? 'stone' : cell === HEDGE ? 'hedge' : 'open',
+      border,
+      pod: !!this.podAt(x, y),
+    }
+  }
+
+  /** The tiles a pod would bloom over right now. */
+  private podTiles(pod: Pod): BurstTile[] {
+    return burstTiles(pod.variety, pod.x, pod.y, pod.dir, pod.range, this.look)
+  }
+
   // --- update ------------------------------------------------------------------
 
   update(input: InputFrame, players?: InputFrame[]) {
@@ -794,7 +981,7 @@ class SeedBurst implements ArcadeGameInstance {
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
     if (this.clear > 0) {
-      if (--this.clear === 0) this.buildRound(this.level + 1)
+      if (--this.clear === 0) this.buildPlot(this.plotIndex + 1)
       return
     }
     const frames = this.demo ? [this.demoInput()] : (players ?? [input])
@@ -806,16 +993,20 @@ class SeedBurst implements ArcadeGameInstance {
       if (g.down < 0) continue
       if (g.safe > 0) g.safe--
       const controls = frames[g.seat] ?? frames[0]!
+      if (controls.pressed.b) this.swapSeed(g)
       this.walk(g, controls)
       if (controls.pressed.a) this.plant(g)
     }
     this.updatePods()
     this.updateBlooms()
-    this.updateGnats()
-    this.touchGnats()
-    if (--this.timer === 0) this.windGust()
-    if (this.gnats.length === 0) this.roundClear()
-    else if (this.gardeners.every((g) => g.down < 0)) {
+    this.updateGrumps()
+    this.updateBells()
+    this.updateGarden()
+    this.updateCloud()
+    this.touchGrumps()
+    if (this.timer > 0 && --this.timer === 0) this.grumbleCloud()
+    this.updateGate()
+    if (this.clear === 0 && this.gardeners.every((g) => g.down < 0)) {
       this.over = true
       this.banner = { text: 'GARDEN CLOSED', sub: 'GAME OVER', ticks: 9999 }
     }
@@ -833,11 +1024,23 @@ class SeedBurst implements ArcadeGameInstance {
       // With two directions held, take the one that is open.
       const dir = wanted.find((d) => this.canWalk(g, g.tx + d.dx, g.ty + d.dy))
       if (wanted.length) g.facing = dir ?? wanted[0]!
-      if (!dir) return
+      if (!dir) {
+        // Walking into a pumpkin sets it rolling.
+        for (const d of wanted) {
+          const pod = this.podAt(g.tx + d.dx, g.ty + d.dy)
+          if (pod?.variety === 'pumpkin' && !pod.roll) {
+            pod.roll = d
+            pod.rollT = 0
+            this.sound.play('blip')
+          }
+        }
+        return
+      }
       g.nx = g.tx + dir.dx
       g.ny = g.ty + dir.dy
     }
-    g.p += g.speed / TILE
+    const slimed = this.slime.has(key(g.tx, g.ty)) ? SLIME_PACE : 1
+    g.p += (g.speed * slimed) / TILE
     if (g.p >= 1) {
       // Leaving a pod's tile makes it solid for this gardener.
       for (const pod of this.pods)
@@ -849,25 +1052,66 @@ class SeedBurst implements ArcadeGameInstance {
     }
   }
 
+  private swapSeed(g: Gardener) {
+    if (g.pouch.length < 2) return
+    g.seed = nextSeed(g.pouch, g.seed)
+    const px = this.pixel(g)
+    this.floaters.push({
+      x: px.x,
+      y: px.y - 20,
+      text: VARIETY_INFO[g.pouch[g.seed]!].name,
+      life: 45,
+    })
+    this.sound.play('blip')
+  }
+
   private plant(g: Gardener) {
     const at = this.here(g)
+    const variety = g.pouch[g.seed] ?? 'sunflower'
+    if (variety === 'puffcap') {
+      const live = this.pods.find(
+        (p) => p.owner === g.seat && p.variety === 'puffcap',
+      )
+      if (live) {
+        this.burst(live)
+        return
+      }
+    }
     const mine = this.pods.filter((p) => p.owner === g.seat).length
     if (mine >= g.pods || this.podAt(at.x, at.y)) return
-    const standing = new Set<number>()
-    for (const other of this.gardeners) {
-      if (other.down !== 0) continue
-      const t = this.here(other)
-      if (t.x === at.x && t.y === at.y) standing.add(other.seat)
-      // Mid-step off this tile counts as standing on it too.
-      if (other.tx === at.x && other.ty === at.y) standing.add(other.seat)
-    }
-    this.pods.push({
-      x: at.x,
-      y: at.y,
-      fuse: FUSE,
-      owner: g.seat,
-      range: g.range,
-      standing,
+    const tiles =
+      variety === 'bramble'
+        ? brambleLine(
+            at.x,
+            at.y,
+            g.facing,
+            g.pods - mine,
+            (x, y) =>
+              !this.solid(x, y) && !this.podAt(x, y) && !this.gardenerOn(x, y),
+          )
+        : [at]
+    tiles.forEach((t, i) => {
+      const standing = new Set<number>()
+      if (i === 0)
+        for (const other of this.gardeners) {
+          if (other.down !== 0) continue
+          const o = this.here(other)
+          if (o.x === t.x && o.y === t.y) standing.add(other.seat)
+          // Mid-step off this tile counts as standing on it too.
+          if (other.tx === t.x && other.ty === t.y) standing.add(other.seat)
+        }
+      this.pods.push({
+        x: t.x,
+        y: t.y,
+        fuse: variety === 'puffcap' ? PUFF_FUSE : FUSE,
+        owner: g.seat,
+        range: g.range,
+        standing,
+        variety,
+        dir: g.facing,
+        roll: null,
+        rollT: 0,
+      })
     })
     this.sound.play('blip')
   }
@@ -877,70 +1121,153 @@ class SeedBurst implements ArcadeGameInstance {
     const power = this.powers.get(k)
     if (!power) return
     this.powers.delete(k)
-    if (power === 'pod') g.pods = Math.min(MAX_PODS, g.pods + 1)
-    else if (power === 'bloom') g.range = Math.min(MAX_RANGE, g.range + 1)
-    else g.speed = Math.min(MAX_SPEED, g.speed + SHOE_SPEED)
     const px = this.pixel(g)
+    let text: string
+    if (power === 'pod') {
+      g.pods = Math.min(MAX_PODS, g.pods + 1)
+      text = '+POD'
+    } else if (power === 'bloom') {
+      g.range = Math.min(MAX_RANGE, g.range + 1)
+      text = '+BLOOM'
+    } else if (power === 'shoe') {
+      g.speed = Math.min(MAX_SPEED, g.speed + SHOE_SPEED)
+      text = '+SPEED'
+    } else if (power === 'golden') {
+      this.golden++
+      text = `GOLDEN SEED ${this.golden}`
+      this.addScore(GOLDEN_POINTS, px.x, px.y - 4)
+    } else {
+      const info = VARIETY_INFO[power]
+      text = info.name
+      if (!g.pouch.includes(power)) {
+        g.pouch.push(power)
+        g.seed = g.pouch.length - 1
+        this.banner = {
+          text: `${info.name}!`,
+          sub: `${info.hint} - B SWAPS SEEDS`,
+          ticks: 120,
+        }
+      } else g.seed = g.pouch.indexOf(power)
+    }
     this.addScore(POWER_POINTS, px.x, px.y - 12)
-    this.floaters.push({
-      x: px.x,
-      y: px.y - 20,
-      text: power === 'pod' ? '+POD' : power === 'bloom' ? '+BLOOM' : '+SPEED',
-      life: 50,
-    })
+    this.floaters.push({ x: px.x, y: px.y - 20, text, life: 50 })
     this.fx.burst(px.x, px.y, this.fxRng, { count: 10 })
     this.sound.play('extra')
   }
 
   private updatePods() {
-    for (const pod of [...this.pods]) if (--pod.fuse <= 0) this.burst(pod)
+    for (const pod of [...this.pods]) {
+      if (pod.roll && ++pod.rollT >= ROLL_TICKS) {
+        pod.rollT = 0
+        const x = pod.x + pod.roll.dx
+        const y = pod.y + pod.roll.dy
+        const blocked =
+          this.solid(x, y) ||
+          !!this.podAt(x, y) ||
+          this.gardenerOn(x, y) ||
+          this.grumps.some((gr) => {
+            if (gr.dead || !bloomable(gr.kind, gr.phase)) return false
+            const t = this.here(gr)
+            return t.x === x && t.y === y
+          })
+        if (blocked) pod.roll = null
+        else {
+          pod.x = x
+          pod.y = y
+          pod.standing.clear()
+        }
+      }
+      if (--pod.fuse <= 0) this.burst(pod)
+    }
   }
 
-  /** A pod bursts into a cross of blooms, setting off any pod it reaches. */
+  /** A pod bursts in its variety's shape, setting off any pod it reaches. */
   private burst(pod: Pod) {
     const i = this.pods.indexOf(pod)
     if (i < 0) return
     this.pods.splice(i, 1)
-    const chain = { count: 0 }
+    const chain: Chain = { count: 0 }
     const triggered: Pod[] = []
-    this.addBloom(pod.x, pod.y, chain)
-    for (const d of DIRS) {
-      for (let r = 1; r <= pod.range; r++) {
-        const x = pod.x + d.dx * r
-        const y = pod.y + d.dy * r
-        const cell = this.grid[key(x, y)]
-        if (cell === WALL) break
-        if (cell === HEDGE) {
-          this.grid[key(x, y)] = 0
-          const hidden = this.hidden.get(key(x, y))
-          if (hidden) {
-            this.hidden.delete(key(x, y))
-            this.powers.set(key(x, y), hidden)
-          }
-          this.addScore(HEDGE_POINTS, x * TILE + TILE / 2, HUD_H + y * TILE)
-          this.leaves(x, y)
-          this.addBloom(x, y, chain)
-          break
-        }
-        this.addBloom(x, y, chain)
-        const other = this.podAt(x, y)
-        if (other) {
-          triggered.push(other)
-          break
-        }
+    for (const t of this.podTiles(pod)) {
+      if (t.hit === 'hedge') this.clearHedge(t.x, t.y, chain)
+      this.addBloom(t.x, t.y, chain, t.hit !== 'over')
+      if (t.hit === 'pod') {
+        const other = this.podAt(t.x, t.y)
+        if (other) triggered.push(other)
       }
     }
     this.sound.play('boom')
     for (const other of triggered) this.burst(other)
   }
 
-  private addBloom(x: number, y: number, chain: { count: number }) {
-    const old = this.blooms.find((b) => b.x === x && b.y === y)
+  private clearHedge(x: number, y: number, chain: Chain) {
+    const k = key(x, y)
+    this.grid[k] = 0
+    const hidden = this.hidden.get(k)
+    if (hidden) {
+      this.hidden.delete(k)
+      this.powers.set(k, hidden)
+    }
+    this.addScore(HEDGE_POINTS, x * TILE + TILE / 2, HUD_H + y * TILE)
+    this.leaves(x, y)
+    if (k === this.gate.k && !this.gate.open) {
+      this.gate.open = true
+      this.gate.chain = chain
+      this.ringBell()
+    }
+  }
+
+  private addBloom(x: number, y: number, chain: Chain, grow: boolean) {
+    const k = key(x, y)
+    // One bloom per burst per tile: two bursts on one tile are two blooms in a row.
+    const old = this.blooms.find(
+      (b) => b.x === x && b.y === y && b.chain === chain,
+    )
     if (old) old.life = BLOOM_TICKS
     else this.blooms.push({ x, y, life: BLOOM_TICKS, chain })
+    if (grow && this.grid[k] === 0 && !this.beds.has(k)) this.beds.set(k, 0)
+    // Blooming the found gate again rings its bell again.
+    if (k === this.gate.k && this.gate.open && this.gate.chain !== chain) {
+      this.gate.chain = chain
+      this.ringBell()
+    }
+  }
+
+  /** The gate bell calls three grumps out of the compost heap (after a rumble you can see). */
+  private ringBell() {
+    if (this.gate.rings >= BELL_MAX) return
+    this.gate.rings++
+    this.bells.push({ kinds: [...this.plan.plot.bell], timer: BELL_RUMBLE })
+    this.sound.play('warn')
+    this.sound.playNotes?.([
+      { freq: 1318, dur: 0.35, type: 'triangle', vol: 0.08 },
+      { freq: 988, dur: 0.5, type: 'triangle', vol: 0.08, at: 0.18 },
+    ])
+    this.banner = {
+      text: 'DING DONG!',
+      sub: 'THE GATE BELL WAKES THE COMPOST HEAP',
+      ticks: 100,
+    }
+  }
+
+  private updateBells() {
+    for (const bell of this.bells) {
+      if (--bell.timer > 0) continue
+      const kind = bell.kinds.shift()
+      if (kind) {
+        const x = this.heap % COLS
+        const y = Math.floor(this.heap / COLS)
+        this.grumps.push(this.newGrump(kind, x, y))
+        this.dust(x, y)
+        this.sound.play('pop')
+      }
+      bell.timer = BELL_GAP
+    }
+    this.bells = this.bells.filter((b) => b.kinds.length)
   }
 
   private updateBlooms() {
+    const spawned: Grump[] = []
     for (const b of this.blooms) {
       b.life--
       // Gardeners caught in a bloom.
@@ -950,86 +1277,334 @@ class SeedBurst implements ArcadeGameInstance {
         if (t.x === b.x && t.y === b.y)
           this.catchGardener(g, 'TANGLED IN BLOOMS')
       }
-      // Gnats caught in a bloom become butterflies.
-      for (const gnat of this.gnats) {
-        const t = this.here(gnat)
-        if (t.x !== b.x || t.y !== b.y) continue
-        gnat.speed = -1
-        b.chain.count++
-        const points = GNAT_POINTS * 2 ** Math.min(4, b.chain.count - 1)
-        const px = this.pixel(gnat)
-        this.addScore(points, px.x, px.y - 12)
-        this.butterflies(px.x, px.y)
-        this.fx.burst(px.x, px.y, this.fxRng, {
-          count: 10,
-          colours: [RAMPS.pink[3], RAMPS.gold[4], RAMPS.purple[3]],
-        })
-        this.sound.play('pop')
+      // Grumps caught in a bloom become butterflies (or lose a shell, or burst into spores).
+      for (const gr of this.grumps) {
+        if (gr.dead || gr.immune === b.chain) continue
+        if (!bloomable(gr.kind, gr.phase)) continue
+        const t = gr.phase === 'mound' ? { x: gr.tx, y: gr.ty } : this.here(gr)
+        if (t.x === b.x && t.y === b.y) this.bloomGrump(gr, b.chain, spawned)
       }
-      this.gnats = this.gnats.filter((g) => g.speed >= 0)
     }
+    this.grumps = this.grumps.filter((g) => !g.dead).concat(spawned)
     this.blooms = this.blooms.filter((b) => b.life > 0)
   }
 
-  private updateGnats() {
-    for (const gnat of this.gnats) {
-      if (gnat.p === 0) {
-        const can = (d: Dir) => {
-          const x = gnat.tx + d.dx
-          const y = gnat.ty + d.dy
-          const cell = this.grid[key(x, y)]
-          if (
-            cell === WALL ||
-            x <= 0 ||
-            y <= 0 ||
-            x >= COLS - 1 ||
-            y >= ROWS - 1
-          )
-            return false
-          if (cell === HEDGE && !gnat.ghost) return false
-          return !this.podAt(x, y)
-        }
-        const options = DIRS.filter(can)
-        if (options.length === 0) continue
-        // Mostly keep going; sometimes wander off down a side path.
-        const scent = gnat.sniffer
-          ? sniffStep(
-              { x: gnat.tx, y: gnat.ty },
-              options,
-              this.gardeners
-                .filter((gd) => gd.down === 0)
-                .map((gd) => ({ x: gd.tx, y: gd.ty })),
-              this.rng(),
-            )
-          : null
-        if (scent) gnat.dir = scent
-        else if (!can(gnat.dir) || this.rng() < 0.25) {
-          const turns = options.filter(
-            (d) => d.dx !== -gnat.dir.dx || d.dy !== -gnat.dir.dy,
-          )
-          const pool = turns.length ? turns : options
-          gnat.dir = pool[Math.floor(this.rng() * pool.length)]!
-        }
-        gnat.nx = gnat.tx + gnat.dir.dx
-        gnat.ny = gnat.ty + gnat.dir.dy
+  private bloomGrump(gr: Grump, chain: Chain, spawned: Grump[]) {
+    const px = this.pixel(gr)
+    if (gr.kind === 'slug' && gr.shell) {
+      gr.shell = false
+      gr.immune = chain
+      gr.speed = this.plan.speed * BARE_SLUG_PACE
+      this.addScore(SHELL_POINTS, px.x, px.y - 12)
+      this.floaters.push({
+        x: px.x,
+        y: px.y - 20,
+        text: 'SHELL OFF!',
+        life: 45,
+      })
+      this.burst2(px.x, px.y, RAMPS.rust[3])
+      this.sound.play('pop')
+      return
+    }
+    gr.dead = true
+    chain.count++
+    const points =
+      GNAT_POINTS * GRUMPS[gr.kind].worth * 2 ** Math.min(4, chain.count - 1)
+    this.addScore(points, px.x, px.y - 12)
+    if (gr.kind === 'thief' && gr.loot) {
+      const t = this.here(gr)
+      const k = key(t.x, t.y)
+      if (gr.loot !== 'planted' && this.grid[k] === 0 && !this.powers.has(k))
+        this.powers.set(k, gr.loot)
+      this.addScore(LOOT_POINTS, px.x, px.y - 22)
+      this.floaters.push({
+        x: px.x,
+        y: px.y - 30,
+        text: 'LOOT BACK!',
+        life: 50,
+      })
+    }
+    if (gr.kind === 'puffball') {
+      const t = this.here(gr)
+      for (const d of DIRS) {
+        const spore = this.newGrump('spore', t.x, t.y)
+        spore.dir = d
+        spore.immune = chain
+        spawned.push(spore)
       }
-      gnat.p += gnat.speed / TILE
-      if (gnat.p >= 1) {
-        gnat.tx = gnat.nx
-        gnat.ty = gnat.ny
-        gnat.p = 0
+      this.floaters.push({ x: px.x, y: px.y - 22, text: 'SPORES!', life: 40 })
+    }
+    this.butterflies(px.x, px.y)
+    this.fx.burst(px.x, px.y, this.fxRng, {
+      count: 10,
+      colours: [RAMPS.pink[3], RAMPS.gold[4], RAMPS.purple[3]],
+    })
+    this.sound.play('pop')
+  }
+
+  // --- grumps ------------------------------------------------------------------
+
+  /** Whether a grump can step onto (x, y). */
+  private grumpCan(gr: Grump, x: number, y: number): boolean {
+    if (x <= 0 || y <= 0 || x >= COLS - 1 || y >= ROWS - 1) return false
+    const cell = this.grid[key(x, y)]
+    if (cell === WALL) return false
+    if (cell === HEDGE && !GRUMPS[gr.kind].ghost) return false
+    return gr.kind === 'thief' || !this.podAt(x, y)
+  }
+
+  private updateGrumps() {
+    for (const gr of this.grumps) {
+      if (gr.cooldown > 0) gr.cooldown--
+      if (gr.kind === 'mole') this.updateMole(gr)
+      else if (gr.kind === 'hopper') this.updateHopper(gr)
+      else if (gr.kind === 'bully') this.updateBully(gr)
+      else if (gr.kind === 'thief') this.updateThief(gr)
+      else this.stepGrump(gr, null)
+    }
+  }
+
+  /**
+   * One tick of walking. At a tile, picks a way: toward `goal` when given (most of the time),
+   * by scent for sniffers and moles, otherwise mostly straight on with the odd turn.
+   */
+  private stepGrump(gr: Grump, goal: { x: number; y: number } | null) {
+    if (gr.p === 0) {
+      const can = (d: Dir) => this.grumpCan(gr, gr.tx + d.dx, gr.ty + d.dy)
+      const options = DIRS.filter(can)
+      if (options.length === 0) return
+      const here = { x: gr.tx, y: gr.ty }
+      const toward =
+        goal && this.rng() < 0.75 ? stepToward(here, goal, options) : null
+      const scent =
+        !goal && (gr.kind === 'sniffer' || gr.kind === 'mole')
+          ? sniffStep(here, options, this.activeTiles(), this.rng())
+          : null
+      if (toward) gr.dir = toward
+      else if (scent) gr.dir = scent
+      else if (!can(gr.dir) || this.rng() < 0.25) {
+        const turns = options.filter(
+          (d) => d.dx !== -gr.dir.dx || d.dy !== -gr.dir.dy,
+        )
+        const pool = turns.length ? turns : options
+        gr.dir = pool[Math.floor(this.rng() * pool.length)]!
+      }
+      gr.nx = gr.tx + gr.dir.dx
+      gr.ny = gr.ty + gr.dir.dy
+    }
+    this.advance(gr, 1)
+  }
+
+  /** Moves a grump along its step; flowers slow it to half pace. */
+  private advance(gr: Grump, boost: number) {
+    const t = this.here(gr)
+    const age = this.beds.get(key(t.x, t.y)) ?? 0
+    const pace = age >= BED_GROW ? FLOWER_PACE : 1
+    gr.p += (gr.speed * boost * pace) / TILE
+    if (gr.p >= 1) {
+      if (gr.kind === 'slug') this.slime.set(key(gr.tx, gr.ty), SLIME_TICKS)
+      gr.tx = gr.nx
+      gr.ty = gr.ny
+      gr.p = 0
+    }
+  }
+
+  /** Up and about, digging down (tell), tunnelling, then the wobbling mound (tell). */
+  private updateMole(gr: Grump) {
+    if (gr.phase === 'walk') {
+      if (--gr.timer <= 0 && gr.p === 0) {
+        gr.phase = 'tell'
+        gr.timer = MOLE_DIG
+      } else this.stepGrump(gr, null)
+    } else if (gr.phase === 'tell') {
+      if (--gr.timer <= 0) {
+        gr.phase = 'under'
+        gr.timer = MOLE_UNDER
+      }
+    } else if (gr.phase === 'under') {
+      if (--gr.timer > 0) return
+      const tiles = this.activeTiles()
+      const target = tiles.length
+        ? tiles.reduce((best, t) =>
+            Math.abs(t.x - gr.tx) + Math.abs(t.y - gr.ty) <
+            Math.abs(best.x - gr.tx) + Math.abs(best.y - gr.ty)
+              ? t
+              : best,
+          )
+        : { x: gr.tx, y: gr.ty }
+      const spot = moundSpot(
+        target,
+        (x, y) =>
+          x > 0 &&
+          y > 0 &&
+          x < COLS - 1 &&
+          y < ROWS - 1 &&
+          this.grid[key(x, y)] === 0 &&
+          !this.podAt(x, y) &&
+          !this.gardenerOn(x, y),
+        this.rng(),
+      )
+      if (!spot) {
+        gr.timer = 30
+        return
+      }
+      gr.tx = gr.nx = spot.x
+      gr.ty = gr.ny = spot.y
+      gr.p = 0
+      gr.phase = 'mound'
+      gr.timer = MOLE_WOBBLE
+    } else if (gr.phase === 'mound') {
+      // A pod planted on the mound keeps the mole pinned underneath until it bursts.
+      if (this.podAt(gr.tx, gr.ty)) return
+      if (--gr.timer <= 0) {
+        gr.phase = 'walk'
+        gr.timer = MOLE_UP
+        this.dust(gr.tx, gr.ty)
       }
     }
   }
 
-  private touchGnats() {
+  /** Walks; at a hedge with open ground beyond, crouches (tell), then hops it. */
+  private updateHopper(gr: Grump) {
+    if (gr.phase === 'tell') {
+      if (--gr.timer > 0) return
+      if (this.hopLook(gr.nx, gr.ny) !== 'open') {
+        gr.phase = 'walk'
+        gr.nx = gr.tx
+        gr.ny = gr.ty
+        return
+      }
+      gr.phase = 'air'
+      gr.hopFrom = { x: gr.tx, y: gr.ty }
+      gr.p = 0
+      return
+    }
+    if (gr.phase === 'air') {
+      gr.p += 1 / HOP_AIR
+      if (gr.p >= 1) {
+        gr.tx = gr.nx
+        gr.ty = gr.ny
+        gr.p = 0
+        gr.hopFrom = null
+        gr.phase = 'walk'
+        gr.cooldown = HOP_REST
+        this.dust(gr.tx, gr.ty)
+      }
+      return
+    }
+    if (gr.p === 0 && gr.cooldown <= 0) {
+      const ways = [gr.dir, ...DIRS.filter((d) => d !== gr.dir)]
+      for (const d of ways) {
+        const land = hopLanding({ x: gr.tx, y: gr.ty }, d, (x, y) =>
+          this.hopLook(x, y),
+        )
+        if (!land) continue
+        if (this.rng() < 0.6) {
+          gr.phase = 'tell'
+          gr.timer = HOP_CROUCH
+          gr.dir = d
+          gr.nx = land.x
+          gr.ny = land.y
+          return
+        }
+        break
+      }
+    }
+    this.stepGrump(gr, null)
+  }
+
+  private hopLook(x: number, y: number): 'hedge' | 'open' | 'blocked' {
+    if (x <= 0 || y <= 0 || x >= COLS - 1 || y >= ROWS - 1) return 'blocked'
+    const cell = this.grid[key(x, y)]
+    if (cell === HEDGE) return 'hedge'
+    return cell === 0 && !this.podAt(x, y) ? 'open' : 'blocked'
+  }
+
+  /** Wanders; with a gardener down a clear lane it sparks (tell), then charges. */
+  private updateBully(gr: Grump) {
+    if (gr.phase === 'tell') {
+      if (--gr.timer <= 0) gr.phase = 'charge'
+      return
+    }
+    if (gr.phase === 'charge') {
+      if (gr.p === 0) {
+        if (!this.grumpCan(gr, gr.tx + gr.dir.dx, gr.ty + gr.dir.dy)) {
+          gr.phase = 'walk'
+          gr.cooldown = BULLY_REST
+          return
+        }
+        gr.nx = gr.tx + gr.dir.dx
+        gr.ny = gr.ty + gr.dir.dy
+      }
+      this.advance(gr, BULLY_CHARGE_PACE / GRUMPS.bully.pace)
+      return
+    }
+    if (gr.p === 0 && gr.cooldown <= 0) {
+      const lane = chargeLane(
+        { x: gr.tx, y: gr.ty },
+        this.activeTiles(),
+        (x, y) => this.grumpCan(gr, x, y),
+      )
+      if (lane) {
+        gr.phase = 'tell'
+        gr.timer = BULLY_SPARK
+        gr.dir = lane
+        this.sound.play('blip')
+        return
+      }
+    }
+    this.stepGrump(gr, null)
+  }
+
+  /** Heads for the nearest pod or pickup, carries it off, and buries it in the compost heap. */
+  private updateThief(gr: Grump) {
+    if (gr.p === 0) {
+      const k = key(gr.tx, gr.ty)
+      if (gr.loot && k === this.heap) {
+        gr.loot = null
+        const px = this.pixel(gr)
+        this.floaters.push({ x: px.x, y: px.y - 18, text: 'BURIED!', life: 45 })
+        this.dust(gr.tx, gr.ty)
+      } else if (!gr.loot) {
+        const pod = this.podAt(gr.tx, gr.ty)
+        const power = this.powers.get(k)
+        if (pod) {
+          this.pods.splice(this.pods.indexOf(pod), 1)
+          gr.loot = 'planted'
+        } else if (power && power !== 'golden') {
+          this.powers.delete(k)
+          gr.loot = power
+        }
+        if (gr.loot) this.sound.play('blip')
+      }
+    }
+    let goal: { x: number; y: number } | null = null
+    if (gr.loot) goal = { x: this.heap % COLS, y: Math.floor(this.heap / COLS) }
+    else {
+      let best = Infinity
+      const consider = (x: number, y: number) => {
+        const d = Math.abs(x - gr.tx) + Math.abs(y - gr.ty)
+        if (d < best) {
+          best = d
+          goal = { x, y }
+        }
+      }
+      for (const pod of this.pods) consider(pod.x, pod.y)
+      for (const [k, power] of this.powers)
+        if (power !== 'golden') consider(k % COLS, Math.floor(k / COLS))
+    }
+    this.stepGrump(gr, goal)
+  }
+
+  private touchGrumps() {
     for (const g of this.gardeners) {
       if (g.down !== 0 || g.safe > 0) continue
       const a = this.pixel(g)
-      for (const gnat of this.gnats) {
-        const b = this.pixel(gnat)
+      for (const gr of this.grumps) {
+        if (!touches(gr.kind, gr.phase)) continue
+        const b = this.pixel(gr)
         if (Math.abs(a.x - b.x) < TOUCH && Math.abs(a.y - b.y) < TOUCH) {
-          this.catchGardener(g, 'BUMPED A GNAT')
+          this.catchGardener(g, `BUMPED A ${GRUMPS[gr.kind].name}`)
           break
         }
       }
@@ -1038,12 +1613,48 @@ class SeedBurst implements ArcadeGameInstance {
 
   private catchGardener(g: Gardener, why: string) {
     const px = this.pixel(g)
+    const at = this.here(g)
     this.burst2(px.x, px.y, SEAT_COLORS[g.seat]!)
     this.sound.play('die')
     if (this.spares > 0) {
       this.spares--
       g.down = RESPAWN_TICKS
     } else g.down = -1
+    // Power has a price: a level of each stat drops around the tile, to be won back.
+    const { keep, drops } = dropPower(
+      { pods: g.pods, range: g.range, speed: g.speed },
+      START_STATS,
+      SHOE_SPEED,
+    )
+    g.pods = keep.pods
+    g.range = keep.range
+    g.speed = keep.speed
+    const spots = dropSpots(
+      at,
+      drops.length,
+      (x, y) =>
+        x > 0 &&
+        y > 0 &&
+        x < COLS - 1 &&
+        y < ROWS - 1 &&
+        this.grid[key(x, y)] === 0 &&
+        key(x, y) !== this.gate.k &&
+        !this.powers.has(key(x, y)) &&
+        !this.podAt(x, y),
+      this.rng,
+    )
+    drops.forEach((drop, i) => {
+      const s = spots[i]!
+      const k = key(s.x, s.y)
+      if (!this.powers.has(k)) this.powers.set(k, drop)
+    })
+    if (drops.length)
+      this.floaters.push({
+        x: px.x,
+        y: px.y - 24,
+        text: 'POWER DROPPED',
+        life: 60,
+      })
     // Their pods stay put; they still burst on time.
     g.p = 0
     g.nx = g.tx
@@ -1056,27 +1667,128 @@ class SeedBurst implements ArcadeGameInstance {
     }
   }
 
-  private windGust() {
-    const speed = levelCurve(this.level, SEED_CURVES.gnatSpeed) * 1.3
-    for (let i = 0; i < WIND_GNATS; i++) {
-      const c = [
-        { x: 7, y: 1 },
-        { x: 7, y: ROWS - 2 },
-        { x: 1, y: 6 },
-      ][i]!
-      this.gnats.push(this.newGnat(c.x, c.y, true, speed / 0.8))
-    }
-    this.sound.play('warn')
-    this.banner = { text: 'WIND!', sub: 'MORE GNATS BLOW IN', ticks: 90 }
+  // --- the garden, the gate and the cloud -------------------------------------------
+
+  private updateGarden() {
+    for (const [k, age] of this.beds)
+      if (age < BED_GROW) this.beds.set(k, age + 1)
+    for (const [k, left] of this.slime)
+      if (left <= 1) this.slime.delete(k)
+      else this.slime.set(k, left - 1)
   }
 
-  private roundClear() {
+  /** The time-out: a sulky rain cloud nobody can bloom drifts after the nearest gardener. */
+  private grumbleCloud() {
+    if (this.cloud) return
+    const tiles = this.activeTiles()
+    const spots = [
+      { x: W / 2, y: HUD_H + TILE * 1.5 },
+      { x: W / 2, y: H - TILE * 1.5 },
+      { x: TILE * 1.5, y: HUD_H + (ROWS * TILE) / 2 },
+      { x: W - TILE * 1.5, y: HUD_H + (ROWS * TILE) / 2 },
+    ]
+    const nearest = (s: { x: number; y: number }) =>
+      Math.min(
+        Infinity,
+        ...tiles.map((t) =>
+          Math.hypot(
+            t.x * TILE + TILE / 2 - s.x,
+            HUD_H + t.y * TILE + TILE / 2 - s.y,
+          ),
+        ),
+      )
+    const start = spots.reduce((a, b) => (nearest(b) > nearest(a) ? b : a))
+    this.cloud = { ...start, speed: CLOUD_SPEED }
+    this.sound.play('warn')
+    this.banner = {
+      text: 'GRUMBLE CLOUD!',
+      sub: 'FINISH THE PLOT BEFORE IT RAINS ON YOU',
+      ticks: 110,
+    }
+  }
+
+  private updateCloud() {
+    const cloud = this.cloud
+    if (!cloud) return
+    cloud.speed = Math.min(CLOUD_MAX, cloud.speed + CLOUD_ACCEL)
+    let target: { x: number; y: number } | null = null
+    let best = Infinity
+    for (const g of this.gardeners) {
+      if (g.down !== 0) continue
+      const px = this.pixel(g)
+      const d = Math.hypot(px.x - cloud.x, px.y - cloud.y)
+      if (d < best) {
+        best = d
+        target = px
+      }
+    }
+    if (target && best > 0.01) {
+      const step = Math.min(best, cloud.speed)
+      cloud.x += ((target.x - cloud.x) / best) * step
+      cloud.y += ((target.y - cloud.y) / best) * step
+    }
+    for (const g of this.gardeners) {
+      if (g.down !== 0 || g.safe > 0) continue
+      const px = this.pixel(g)
+      if (
+        Math.abs(px.x - cloud.x) < CLOUD_TOUCH &&
+        Math.abs(px.y - cloud.y) < CLOUD_TOUCH
+      )
+        this.catchGardener(g, 'RAINED ON BY THE GRUMBLE CLOUD')
+    }
+    if (this.tick % 3 === 0)
+      this.particles.push({
+        x: cloud.x + (this.fxRng() - 0.5) * 22,
+        y: cloud.y + 6,
+        vx: 0,
+        vy: 1.6,
+        life: 12,
+        color: RAIN_COLOUR,
+      })
+  }
+
+  /** Calls out the open gate (or that it still needs finding), and lets gardeners through it. */
+  private updateGate() {
+    if (this.grumps.length || this.bells.length) return
+    if (!this.gate.open) {
+      if (this.gateCall === 'none') {
+        this.gateCall = 'find'
+        this.banner = {
+          text: 'FIND THE GATE!',
+          sub: 'IT IS HIDING UNDER A HEDGE',
+          ticks: 110,
+        }
+      }
+      return
+    }
+    if (this.gateCall !== 'open') {
+      this.gateCall = 'open'
+      this.sound.play('level')
+      this.banner = {
+        text: 'THE GATE IS OPEN!',
+        sub: 'STEP THROUGH TO FINISH THE PLOT',
+        ticks: 110,
+      }
+    }
+    for (const g of this.gardeners) {
+      if (g.down !== 0) continue
+      const t = this.here(g)
+      if (key(t.x, t.y) === this.gate.k) {
+        this.plotClear()
+        return
+      }
+    }
+  }
+
+  private plotClear() {
+    const inBloom = inBloomPercent(this.beds, this.area)
     const timeBonus = Math.max(0, Math.floor(this.timer / 60)) * 10
-    const bonus = ROUND_POINTS * this.level + timeBonus
+    const bonus = ROUND_POINTS * this.level + timeBonus + inBloom * BLOOM_POINTS
     this.addScore(bonus, W / 2, H / 2)
     this.clear = CLEAR_TICKS
     this.pods = []
     this.blooms = []
+    this.cloud = null
     for (let i = 0; i < 6; i++)
       this.fx.burst(
         TILE + this.fxRng() * (W - TILE * 2),
@@ -1086,8 +1798,8 @@ class SeedBurst implements ArcadeGameInstance {
       )
     this.sound.play('level')
     this.banner = {
-      text: 'ROUND CLEAR!',
-      sub: `BUTTERFLIES EVERYWHERE  +${bonus}`,
+      text: 'PLOT CLEAR!',
+      sub: `IN BLOOM ${inBloom}%  +${bonus}`,
       ticks: CLEAR_TICKS,
     }
   }
@@ -1105,10 +1817,22 @@ class SeedBurst implements ArcadeGameInstance {
       this.particles.push({
         x: x * TILE + TILE / 2,
         y: HUD_H + y * TILE + TILE / 2,
-        vx: (this.rng() - 0.5) * 2,
-        vy: -this.rng() * 1.5,
+        vx: (this.fxRng() - 0.5) * 2,
+        vy: -this.fxRng() * 1.5,
         life: 24,
         color: LEAF_COLOUR,
+      })
+  }
+
+  private dust(x: number, y: number) {
+    for (let i = 0; i < 8; i++)
+      this.particles.push({
+        x: x * TILE + TILE / 2,
+        y: HUD_H + y * TILE + TILE / 2 + 4,
+        vx: (this.fxRng() - 0.5) * 1.8,
+        vy: -this.fxRng() * 1.2,
+        life: 22,
+        color: RAMPS.earth[3],
       })
   }
 
@@ -1117,8 +1841,8 @@ class SeedBurst implements ArcadeGameInstance {
       this.particles.push({
         x,
         y,
-        vx: (this.rng() - 0.5) * 1.6,
-        vy: -0.4 - this.rng() * 1.2,
+        vx: (this.fxRng() - 0.5) * 1.6,
+        vy: -0.4 - this.fxRng() * 1.2,
         life: 40,
         color: ['#f9a8d4', '#fde047', '#c4b5fd'][i % 3]!,
       })
@@ -1126,8 +1850,8 @@ class SeedBurst implements ArcadeGameInstance {
 
   private burst2(x: number, y: number, color: string) {
     for (let i = 0; i < 14; i++) {
-      const a = this.rng() * Math.PI * 2
-      const s = 0.5 + this.rng() * 1.5
+      const a = this.fxRng() * Math.PI * 2
+      const s = 0.5 + this.fxRng() * 1.5
       this.particles.push({
         x,
         y,
@@ -1143,7 +1867,7 @@ class SeedBurst implements ArcadeGameInstance {
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
-      p.vy += 0.02
+      if (p.color !== RAIN_COLOUR) p.vy += 0.02
       p.life--
     }
     this.particles = this.particles.filter((p) => p.life > 0)
@@ -1157,34 +1881,36 @@ class SeedBurst implements ArcadeGameInstance {
 
   // --- attract-mode pilot -----------------------------------------------------
 
-  /** Tiles a pod at (x, y) would bloom over (hedges stop it). */
-  private blastTiles(x: number, y: number, range: number): number[] {
-    const out = [key(x, y)]
-    for (const d of DIRS)
-      for (let r = 1; r <= range; r++) {
-        const tx = x + d.dx * r
-        const ty = y + d.dy * r
-        const cell = this.grid[key(tx, ty)]
-        if (cell === WALL) break
-        out.push(key(tx, ty))
-        if (cell === HEDGE) break
-      }
-    return out
-  }
-
   private dangerMap(): Set<number> {
     const danger = new Set<number>()
     for (const pod of this.pods)
-      for (const k of this.blastTiles(pod.x, pod.y, pod.range)) danger.add(k)
+      for (const t of this.podTiles(pod)) danger.add(key(t.x, t.y))
     for (const b of this.blooms) danger.add(key(b.x, b.y))
-    for (const gnat of this.gnats)
-      for (const t of [
-        { x: gnat.tx, y: gnat.ty },
-        { x: gnat.nx, y: gnat.ny },
-      ]) {
-        danger.add(key(t.x, t.y))
-        for (const d of DIRS) danger.add(key(t.x + d.dx, t.y + d.dy))
-      }
+    const around = (x: number, y: number) => {
+      danger.add(key(x, y))
+      for (const d of DIRS) danger.add(key(x + d.dx, y + d.dy))
+    }
+    for (const gr of this.grumps) {
+      if (gr.phase === 'under') continue
+      around(gr.tx, gr.ty)
+      around(gr.nx, gr.ny)
+      if (gr.kind === 'bully' && (gr.phase === 'tell' || gr.phase === 'charge'))
+        for (let r = 1; r <= BULLY_SIGHT; r++)
+          danger.add(key(gr.tx + gr.dir.dx * r, gr.ty + gr.dir.dy * r))
+    }
+    if (this.bells.length && this.heap >= 0)
+      around(this.heap % COLS, Math.floor(this.heap / COLS))
+    if (this.cloud)
+      for (let y = 1; y < ROWS - 1; y++)
+        for (let x = 1; x < COLS - 1; x++)
+          if (
+            Math.hypot(
+              x * TILE + TILE / 2 - this.cloud.x,
+              HUD_H + y * TILE + TILE / 2 - this.cloud.y,
+            ) <
+            TILE * 2.5
+          )
+            danger.add(key(x, y))
     return danger
   }
 
@@ -1221,9 +1947,39 @@ class SeedBurst implements ArcadeGameInstance {
   }
 
   /**
-   * Flees any tile a pod, bloom or gnat threatens; plants beside hedges and in
-   * line with gnats when there is a safe way out; otherwise heads for the
-   * nearest power-up or hedge.
+   * The pouch variety the pilot would plant here: one that blooms a grump beats one that clears
+   * the most hedges, and the seed in hand wins a tie. Null when nothing is worth a pod.
+   */
+  private pilotSeed(g: Gardener): { variety: Variety; blast: number[] } | null {
+    let best: { variety: Variety; blast: number[]; score: number } | null = null
+    for (const variety of g.pouch) {
+      if (variety === 'puffcap' || variety === 'bramble') continue
+      const tiles = burstTiles(
+        variety,
+        g.tx,
+        g.ty,
+        g.facing,
+        g.range,
+        this.look,
+      )
+      const blast = tiles.map((t) => key(t.x, t.y))
+      const grumpHit = this.grumps.some(
+        (gr) =>
+          bloomable(gr.kind, gr.phase) && blast.includes(key(gr.tx, gr.ty)),
+      )
+      const hedges = tiles.filter((t) => t.hit === 'hedge').length
+      if (!grumpHit && !hedges) continue
+      const score =
+        (grumpHit ? 10 : 0) + hedges + (variety === g.pouch[g.seed] ? 0.5 : 0)
+      if (!best || score > best.score) best = { variety, blast, score }
+    }
+    return best
+  }
+
+  /**
+   * Flees any tile a pod, bloom, grump or the cloud threatens; picks the best seed and plants
+   * beside hedges and in line with grumps when there is a safe way out; otherwise heads for the
+   * nearest pickup, the open gate, or the nearest hedge.
    */
   private demoInput(): InputFrame {
     const held = {
@@ -1245,11 +2001,12 @@ class SeedBurst implements ArcadeGameInstance {
     }
     const danger = this.dangerMap()
     const here = key(g.tx, g.ty)
-    // Never step onto a bloom or straight into a gnat while getting away.
+    // Never step onto a bloom or straight into a grump while getting away.
     const bloomNow = new Set(this.blooms.map((b) => key(b.x, b.y)))
-    for (const gnat of this.gnats) {
-      bloomNow.add(key(gnat.tx, gnat.ty))
-      bloomNow.add(key(gnat.nx, gnat.ny))
+    for (const gr of this.grumps) {
+      if (gr.phase === 'under') continue
+      bloomNow.add(key(gr.tx, gr.ty))
+      bloomNow.add(key(gr.nx, gr.ny))
     }
     if (danger.has(here)) {
       const out = this.route(g, (k) => !danger.has(k), bloomNow, 12)
@@ -1258,13 +2015,14 @@ class SeedBurst implements ArcadeGameInstance {
     }
     const mine = this.pods.filter((p) => p.owner === g.seat).length
     if (mine < g.pods && !this.podAt(g.tx, g.ty)) {
-      const blast = this.blastTiles(g.tx, g.ty, g.range)
-      const hitsHedge = blast.some((k) => this.grid[k] === HEDGE)
-      const hitsGnat = this.gnats.some((gn) =>
-        blast.includes(key(gn.tx, gn.ty)),
-      )
-      if (hitsHedge || hitsGnat) {
-        const after = new Set([...danger, ...blast])
+      const choice = this.pilotSeed(g)
+      if (choice && choice.variety !== g.pouch[g.seed]) {
+        held.b = true
+        frame.pressed.b = true
+        return frame
+      }
+      if (choice) {
+        const after = new Set([...danger, ...choice.blast])
         const escape = this.route(g, (k) => !after.has(k), bloomNow, 6)
         if (escape) {
           held.a = true
@@ -1275,15 +2033,25 @@ class SeedBurst implements ArcadeGameInstance {
     }
     const target =
       this.route(g, (k) => this.powers.has(k) && !danger.has(k), danger, 30) ??
+      (this.gateOpen
+        ? this.route(g, (k) => k === this.gate.k, danger, 60)
+        : null) ??
       this.route(
         g,
         (k) =>
           !danger.has(k) &&
           (DIRS.some((d) => this.grid[k + d.dx + d.dy * COLS] === HEDGE) ||
-            this.gnats.some((gn) =>
-              this.blastTiles(k % COLS, Math.floor(k / COLS), g.range).includes(
-                key(gn.tx, gn.ty),
-              ),
+            this.grumps.some(
+              (gr) =>
+                bloomable(gr.kind, gr.phase) &&
+                burstTiles(
+                  'sunflower',
+                  k % COLS,
+                  Math.floor(k / COLS),
+                  g.facing,
+                  g.range,
+                  this.look,
+                ).some((t) => t.x === gr.tx && t.y === gr.ty),
             )),
         danger,
         40,
@@ -1303,16 +2071,25 @@ class SeedBurst implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     const garden = (this.level - 1) % GARDENS.length
-    cachedLayer(g, `seed-burst-field-${garden}`, W, H, (k) =>
-      this.paintField(k, GARDENS[garden]!),
+    cachedLayer(
+      g,
+      `seed-burst-field-${this.plan.plot.id}-${garden}`,
+      W,
+      H,
+      (k) => this.paintField(k, GARDENS[garden]!),
     )
+    this.renderBeds(g)
+    this.renderSlime(g)
+    this.renderHeap(g)
+    this.renderGate(g)
     this.renderHedges(g)
     for (const [k, power] of this.powers) this.renderPower(g, k, power)
     for (const pod of this.pods) this.renderPod(g, pod)
     this.renderBlooms(g)
     this.renderCloudShadows(g)
-    for (const gnat of this.gnats) this.renderGnat(g, gnat)
+    for (const gr of this.grumps) this.renderGrump(g, gr)
     for (const gd of this.gardeners) this.renderGardener(g, gd)
+    this.renderCloud(g)
     this.renderParticles(g)
     this.fx.render(g)
     for (const f of this.floaters)
@@ -1340,7 +2117,7 @@ class SeedBurst implements ArcadeGameInstance {
       y <= 0 ||
       x >= COLS - 1 ||
       y >= ROWS - 1 ||
-      (x % 2 === 0 && y % 2 === 0)
+      !!this.stone[key(x, y)]
     for (let y = 0; y < ROWS; y++)
       for (let x = 0; x < COLS; x++) {
         const px = x * TILE
@@ -1450,6 +2227,96 @@ class SeedBurst implements ArcadeGameInstance {
     k.fillRect(px + 2, py + 1, 1, 1)
   }
 
+  /** Flowerbeds: a sprout, then a bud, then a flower where every bloom has been. */
+  private renderBeds(g: CanvasRenderingContext2D) {
+    for (const [k, age] of this.beds) {
+      if (this.grid[k] !== 0) continue
+      const x = k % COLS
+      const y = Math.floor(k / COLS)
+      const cx = x * TILE + TILE / 2 + (((x * 5 + y * 3) % 5) - 2)
+      const cy = HUD_H + y * TILE + TILE / 2 + (((x * 3 + y * 7) % 3) - 1) + 3
+      const colour = (x + y) % 4
+      const stage = bedStage(age)
+      if (stage === 0) drawSprite(g, SPROUT_SPRITE, cx, cy)
+      else if (stage === 1) drawSprite(g, BED_BUDS[colour]!, cx, cy)
+      else {
+        drawSprite(g, BED_FLOWERS[colour]!, cx, cy)
+        drawSprite(g, BED_BUDS[(colour + 1) % 4]!, cx + 5, cy - 4)
+        drawSprite(g, SPROUT_SPRITE, cx - 5, cy - 3)
+      }
+    }
+  }
+
+  private renderSlime(g: CanvasRenderingContext2D) {
+    for (const [k, left] of this.slime) {
+      const cx = (k % COLS) * TILE + TILE / 2
+      const cy = HUD_H + Math.floor(k / COLS) * TILE + TILE / 2 + 3
+      g.save()
+      g.globalAlpha = 0.45 * Math.min(1, left / 60)
+      g.fillStyle = '#d9f99d'
+      g.beginPath()
+      g.ellipse(cx, cy, 6, 3, 0, 0, Math.PI * 2)
+      g.fill()
+      g.fillStyle = '#ffffff'
+      g.fillRect(cx - 3, cy - 1, 2, 1)
+      g.restore()
+    }
+  }
+
+  /** The compost heap; it shakes and steams while the gate bell is calling grumps out. */
+  private renderHeap(g: CanvasRenderingContext2D) {
+    if (this.heap < 0) return
+    const cx = (this.heap % COLS) * TILE + TILE / 2
+    const cy = HUD_H + Math.floor(this.heap / COLS) * TILE + TILE / 2
+    const rumble = this.bells.length > 0
+    const shake = rumble ? (Math.floor(this.tick / 2) % 2 ? 1 : -1) : 0
+    dropShadow(g, cx + 1, cy + 6, 7, 2, 0.35)
+    if (rumble) glow(g, cx, cy, 13, RAMPS.ember[3], 0.35)
+    drawSprite(g, HEAP_SPRITE, cx + shake, cy + 7, { anchor: 'feet' })
+    if (rumble && this.tick % 10 < 5)
+      drawText(g, '!', cx, cy - 12, {
+        align: 'center',
+        color: RAMPS.ember[3],
+        outline: INK,
+      })
+  }
+
+  /** The Garden Gate once found: shut with its bell while grumps remain, then open and glowing. */
+  private renderGate(g: CanvasRenderingContext2D) {
+    if (!this.gate.open) return
+    const cx = (this.gate.k % COLS) * TILE + TILE / 2
+    const cy = HUD_H + Math.floor(this.gate.k / COLS) * TILE + TILE / 2
+    const x0 = cx - 7
+    const y0 = cy - 5
+    if (this.gateOpen) {
+      glow(g, cx, cy, 16, RAMPS.gold[3], 0.5 + 0.2 * Math.sin(this.tick / 6))
+      g.fillStyle = rgba(RAMPS.gold[4], 0.6)
+      g.fillRect(x0 + 2, y0, 10, 11)
+      bevel(g, x0 + 1, y0, 2, 11, RAMPS.earth, { depth: 1 })
+      bevel(g, x0 + 11, y0, 2, 11, RAMPS.earth, { depth: 1 })
+    } else {
+      bevel(g, x0 + 2, y0, 5, 11, RAMPS.earth, { depth: 1 })
+      bevel(g, x0 + 7, y0, 5, 11, RAMPS.earth, { depth: 1 })
+      g.fillStyle = RAMPS.earth[1]
+      g.fillRect(x0 + 2, y0 + 4, 10, 1)
+      g.fillRect(x0 + 2, y0 + 8, 10, 1)
+    }
+    bevel(g, x0 - 1, y0 - 3, 3, 14, STONE, { depth: 1 })
+    bevel(g, x0 + 12, y0 - 3, 3, 14, STONE, { depth: 1 })
+    g.fillStyle = RAMPS.earth[2]
+    g.fillRect(x0 + 1, y0 - 3, 12, 1)
+    const swing = this.bells.length
+      ? Math.round(Math.sin(this.tick / 3) * 2)
+      : 0
+    shadedOrb(g, cx + swing, y0 - 1, 2.5, RAMPS.gold)
+    const pct = `${inBloomPercent(this.beds, this.area)}%`
+    drawText(g, pct, cx, Math.max(HUD_H + 1, y0 - 12), {
+      align: 'center',
+      color: this.gateOpen ? RAMPS.gold[4] : LIME[3],
+      outline: INK,
+    })
+  }
+
   private renderHedges(g: CanvasRenderingContext2D) {
     // Shadows first, so no hedge's shade falls across its neighbour.
     g.fillStyle = rgba(INK, 0.35)
@@ -1471,43 +2338,78 @@ class SeedBurst implements ArcadeGameInstance {
       }
   }
 
-  private renderPower(g: CanvasRenderingContext2D, k: number, power: Power) {
+  private renderPower(g: CanvasRenderingContext2D, k: number, power: Pickup) {
     const cx = (k % COLS) * TILE + TILE / 2
     const cy = HUD_H + Math.floor(k / COLS) * TILE + TILE / 2
     const pulse = Math.sin(this.tick / 8)
     const bob = Math.round(pulse)
-    glow(g, cx, cy, 13, RAMPS.gold[3], 0.4 + 0.2 * pulse)
+    const golden = power === 'golden'
+    const packet = !golden && !(power in POWER_SPRITES)
+    glow(g, cx, cy, golden ? 16 : 13, RAMPS.gold[3], 0.4 + 0.2 * pulse)
     dropShadow(g, cx + 1, cy + 7, 6, 1.5, 0.35)
-    bevel(g, cx - 7, cy - 7 + bob, 14, 13, RAMPS.purple, { depth: 2 })
+    bevel(
+      g,
+      cx - 7,
+      cy - 7 + bob,
+      14,
+      13,
+      golden ? RAMPS.gold : packet ? RAMPS.cream : RAMPS.purple,
+      { depth: 2 },
+    )
     if (Math.floor(this.tick / 10) % 2) {
       g.fillStyle = RAMPS.gold[4]
       g.fillRect(cx - 7, cy - 7 + bob, 14, 1)
     }
-    drawSprite(g, POWER_SPRITES[power], cx, cy + bob)
+    drawSprite(g, pickupSprite(power), cx, cy + bob)
   }
 
   private renderPod(g: CanvasRenderingContext2D, pod: Pod) {
-    const cx = pod.x * TILE + TILE / 2
-    const cy = HUD_H + pod.y * TILE + TILE / 2 + 1
+    const roll = pod.roll && pod.rollT > 0 ? (pod.rollT / ROLL_TICKS) * TILE : 0
+    const cx = pod.x * TILE + TILE / 2 + (pod.roll?.dx ?? 0) * roll
+    const cy = HUD_H + pod.y * TILE + TILE / 2 + 1 + (pod.roll?.dy ?? 0) * roll
+    const remote = pod.variety === 'puffcap'
     const late = pod.fuse < 50
     const pulse = late
       ? Math.floor(this.tick / 4) % 2
-      : Math.floor(this.tick / 12) % 2
-    const r = 5 + pulse
+      : Math.floor(this.tick / (remote ? 20 : 12)) % 2
+    const r = (pod.variety === 'pumpkin' ? 6 : 5) + pulse
+    const ramp = VARIETY_RAMPS[pod.variety]
     dropShadow(g, cx + 1, cy + 6, 6, 2, 0.4)
     if (late) glow(g, cx, cy, 14, RAMPS.ember[2], 0.35 + 0.35 * pulse)
-    else glow(g, cx, cy, 10, RAMPS.gold[3], 0.18)
-    shadedOrb(g, cx, cy, r, late && pulse ? RAMPS.ember : SEED)
-    // Husk seams, so it reads as a seed and not a ball.
-    g.fillStyle = rgba(INK, 0.45)
-    g.fillRect(cx - 1, cy - r + 2, 1, r * 2 - 3)
+    else glow(g, cx, cy, 10, ramp[3], 0.18)
+    shadedOrb(g, cx, cy, r, late && pulse ? RAMPS.ember : ramp)
+    // Each husk wears its burst shape, so a glance tells you where it will bloom.
+    g.fillStyle = rgba(ramp[4], 0.9)
+    const dot = (dx: number, dy: number) =>
+      g.fillRect(Math.round(cx + dx), Math.round(cy + dy), 1, 1)
+    if (pod.variety === 'clover')
+      for (const s of [-2, -1, 1, 2]) {
+        dot(s, s)
+        dot(s, -s)
+      }
+    else if (pod.variety === 'dandelion')
+      for (let i = 0; i <= 3; i++) dot(pod.dir.dx * i, pod.dir.dy * i)
+    else if (pod.variety === 'pumpkin') {
+      g.fillStyle = rgba(INK, 0.45)
+      g.fillRect(Math.round(cx) - 2, Math.round(cy - r + 2), 1, r * 2 - 3)
+      g.fillRect(Math.round(cx) + 2, Math.round(cy - r + 2), 1, r * 2 - 3)
+    } else if (remote) {
+      g.fillStyle = '#ffffff'
+      dot(-2, -2)
+      dot(2, -1)
+      dot(-1, 1)
+    } else
+      for (const s of [-2, -1, 1, 2]) {
+        dot(s, 0)
+        dot(0, s)
+      }
     drawSprite(g, SPROUT_SPRITE, cx, cy - r + 1, { anchor: 'feet' })
   }
 
   private renderBlooms(g: CanvasRenderingContext2D) {
     if (!this.blooms.length) return
     const at = new Set(this.blooms.map((b) => key(b.x, b.y)))
-    // Colour math: the glowing cross of petals the burst throws out.
+    // Colour math: the glowing burst of petals the pod throws out.
     g.save()
     g.globalCompositeOperation = 'lighter'
     for (const b of this.blooms) {
@@ -1565,23 +2467,175 @@ class SeedBurst implements ArcadeGameInstance {
     g.restore()
   }
 
-  private renderGnat(g: CanvasRenderingContext2D, gnat: Gnat) {
-    const { x, y } = this.pixel(gnat)
+  private renderGrump(g: CanvasRenderingContext2D, gr: Grump) {
+    const { x, y } = this.pixel(gr)
     const flap = Math.floor(this.tick / 4) % 2
-    const hover = Math.round(Math.sin(this.tick / 9 + gnat.tx) * 1.5) - 3
-    dropShadow(g, x, y + 6, 4, 1.5, 0.35)
-    if (gnat.ghost) glow(g, x, y + hover, 11, RAMPS.purple[3], 0.45)
-    drawSprite(
-      g,
-      (gnat.ghost
-        ? GHOST_SPRITES
-        : gnat.sniffer
-          ? SNIFFER_SPRITES
-          : GNAT_SPRITES)[flap]!,
-      x,
-      y + hover,
-      { flipX: gnat.dir.dx < 0, alpha: gnat.ghost ? 0.8 : 1 },
-    )
+    const flip = gr.dir.dx < 0
+    const kind = gr.kind
+    if (kind === 'gnat' || kind === 'drifter' || kind === 'sniffer') {
+      const hover = Math.round(Math.sin(this.tick / 9 + gr.tx) * 1.5) - 3
+      const ghost = kind === 'drifter'
+      dropShadow(g, x, y + 6, 4, 1.5, 0.35)
+      if (ghost) glow(g, x, y + hover, 11, RAMPS.purple[3], 0.45)
+      drawSprite(
+        g,
+        (ghost
+          ? GHOST_SPRITES
+          : kind === 'sniffer'
+            ? SNIFFER_SPRITES
+            : GNAT_SPRITES)[flap]!,
+        x,
+        y + hover,
+        { flipX: flip, alpha: ghost ? 0.8 : 1 },
+      )
+    } else if (kind === 'spore') {
+      const hover = Math.round(Math.sin(this.tick / 6 + gr.ty) * 1.5) - 2
+      dropShadow(g, x, y + 5, 3, 1, 0.3)
+      drawSprite(g, SPORE_SPRITES[flap]!, x, y + hover)
+    } else if (kind === 'slug') {
+      dropShadow(g, x, y + 6, 6, 1.5, 0.35)
+      drawSprite(g, SLUG_SPRITES[gr.shell ? 0 : 1], x, y + 7, {
+        anchor: 'feet',
+        flipX: flip,
+      })
+      if (!gr.shell && Math.floor(this.tick / 8) % 2) {
+        g.fillStyle = RAMPS.sky[4]
+        g.fillRect(x + (flip ? 5 : -6), y - 4, 1, 2)
+      }
+    } else if (kind === 'mole') this.renderMole(g, gr, x, y)
+    else if (kind === 'hopper') this.renderHopper(g, gr, x, y)
+    else if (kind === 'bully') {
+      const charging = gr.phase === 'charge'
+      dropShadow(g, x, y + 7, 5, 1.5, 0.35)
+      if (charging) {
+        g.fillStyle = rgba('#ffffff', 0.6)
+        for (let i = 1; i <= 3; i++)
+          g.fillRect(
+            Math.round(x - gr.dir.dx * (6 + i * 3)) - (gr.dir.dy ? 4 : 0),
+            Math.round(y - gr.dir.dy * (6 + i * 3)) - (gr.dir.dx ? 3 : 0) + i,
+            gr.dir.dy ? 8 : 2,
+            gr.dir.dx ? 1 : 2,
+          )
+      }
+      drawSprite(g, BULLY_SPRITES[flap]!, x, y - 1, { flipX: flip })
+      if (gr.phase === 'tell') {
+        // The tell: antennae spark and a "!" pops over its head.
+        if (this.tick % 4 < 2) {
+          g.fillStyle = RAMPS.gold[4]
+          g.fillRect(x - 5, y - 9, 2, 2)
+          g.fillRect(x + 4, y - 9, 2, 2)
+        }
+        drawText(g, '!', x, y - 19, {
+          align: 'center',
+          color: RAMPS.ember[3],
+          outline: INK,
+        })
+      }
+    } else if (kind === 'thief') {
+      dropShadow(g, x, y + 7, 5, 1.5, 0.35)
+      const sackX = x + (flip ? 5 : -5)
+      drawSprite(g, SACK_SPRITE, sackX, y + 2, { alpha: gr.loot ? 1 : 0.7 })
+      drawSprite(g, THIEF_SPRITE, x, y, { flipX: flip })
+      if (gr.loot) {
+        const icon =
+          gr.loot === 'planted'
+            ? VARIETY_SPRITES.sunflower
+            : pickupSprite(gr.loot)
+        drawSprite(g, icon, sackX, y - 6)
+      }
+    } else if (kind === 'puffball') {
+      const bob = Math.round(Math.sin(this.tick / 10 + gr.tx) * 1)
+      dropShadow(g, x, y + 7, 5, 1.5, 0.35)
+      drawSprite(g, PUFFBALL_SPRITE, x, y + bob)
+    }
+  }
+
+  private renderMole(
+    g: CanvasRenderingContext2D,
+    gr: Grump,
+    x: number,
+    y: number,
+  ) {
+    if (gr.phase === 'under') return
+    if (gr.phase === 'mound') {
+      // The tell: the mound wobbles, faster as the mole nears the top.
+      const fast = gr.timer < MOLE_WOBBLE / 2
+      const wob = Math.floor(this.tick / (fast ? 2 : 4)) % 2 ? 1 : -1
+      dropShadow(g, x, y + 6, 6, 1.5, 0.3)
+      drawSprite(g, MOUND_SPRITE, x + wob, y + 7, { anchor: 'feet' })
+      if (this.tick % 6 === 0) this.dust(gr.tx, gr.ty)
+      return
+    }
+    dropShadow(g, x, y + 6, 5, 1.5, 0.35)
+    if (gr.phase === 'tell') {
+      // Digging down: the mole sinks into its mound.
+      const sink = Math.round((1 - gr.timer / MOLE_DIG) * 7)
+      g.save()
+      g.beginPath()
+      g.rect(x - 8, y - 12, 16, 16)
+      g.clip()
+      drawSprite(g, MOLE_SPRITE, x, y + 5 + sink, { anchor: 'feet' })
+      g.restore()
+      drawSprite(g, MOUND_SPRITE, x, y + 7, { anchor: 'feet' })
+      return
+    }
+    drawSprite(g, MOLE_SPRITE, x, y + 6, {
+      anchor: 'feet',
+      flipX: gr.dir.dx < 0,
+    })
+  }
+
+  private renderHopper(
+    g: CanvasRenderingContext2D,
+    gr: Grump,
+    x: number,
+    y: number,
+  ) {
+    const flip = gr.dir.dx < 0
+    if (gr.phase === 'tell' || gr.phase === 'air') {
+      // The tell: a shadow ring on the landing tile.
+      const lx = gr.nx * TILE + TILE / 2
+      const ly = HUD_H + gr.ny * TILE + TILE / 2
+      const pulse = Math.floor(this.tick / 5) % 2
+      g.save()
+      g.strokeStyle = rgba(INK, 0.6)
+      g.lineWidth = 1
+      g.beginPath()
+      g.ellipse(lx, ly + 3, 6 + pulse, 3 + pulse / 2, 0, 0, Math.PI * 2)
+      g.stroke()
+      g.restore()
+    }
+    if (gr.phase === 'air') {
+      const lift = Math.sin(gr.p * Math.PI) * 12
+      dropShadow(g, x, y + 6, 4, 1.2, 0.25)
+      drawSprite(g, HOPPER_SPRITES[0], x, y + 4 - lift, {
+        anchor: 'feet',
+        flipX: flip,
+      })
+      return
+    }
+    dropShadow(g, x, y + 6, 5, 1.5, 0.35)
+    const crouch = gr.phase === 'tell'
+    const wind = crouch && Math.floor(this.tick / 4) % 2 ? 1 : 0
+    drawSprite(g, HOPPER_SPRITES[crouch ? 1 : 0], x + wind, y + 6, {
+      anchor: 'feet',
+      flipX: flip,
+    })
+  }
+
+  /** The Grumble Cloud: a sulky rain cloud with a frown, too grumpy to bloom. */
+  private renderCloud(g: CanvasRenderingContext2D) {
+    const cloud = this.cloud
+    if (!cloud) return
+    const bob = Math.sin(this.tick / 12) * 1.5
+    dropShadow(g, cloud.x, cloud.y + 9, 12, 3, 0.4)
+    drawCloud(g, cloud.x, cloud.y - 8 + bob, 9, GRUMBLE_RAMP)
+    g.fillStyle = INK
+    g.fillRect(Math.round(cloud.x - 5), Math.round(cloud.y - 9 + bob), 2, 2)
+    g.fillRect(Math.round(cloud.x + 3), Math.round(cloud.y - 9 + bob), 2, 2)
+    g.fillRect(Math.round(cloud.x - 3), Math.round(cloud.y - 4 + bob), 6, 1)
+    g.fillRect(Math.round(cloud.x - 4), Math.round(cloud.y - 3 + bob), 1, 1)
+    g.fillRect(Math.round(cloud.x + 3), Math.round(cloud.y - 3 + bob), 1, 1)
   }
 
   private renderGardener(g: CanvasRenderingContext2D, gd: Gardener) {
@@ -1619,7 +2673,10 @@ class SeedBurst implements ArcadeGameInstance {
       if (butterfly) drawSprite(g, butterfly[flap]!, p.x, p.y, { alpha })
       else if (p.color === LEAF_COLOUR)
         drawSprite(g, LEAF_SPRITE, p.x, p.y, { alpha, flipX: p.vx < 0 })
-      else {
+      else if (p.color === RAIN_COLOUR) {
+        g.fillStyle = rgba(RAMPS.water[3], 0.8)
+        g.fillRect(Math.round(p.x), Math.round(p.y), 1, 3)
+      } else {
         g.save()
         g.globalCompositeOperation = 'lighter'
         g.globalAlpha = alpha
@@ -1634,11 +2691,11 @@ class SeedBurst implements ArcadeGameInstance {
   }
 
   /**
-   * Each gardener's badge sits on the garden wall by their home corner: their hat, then pods,
-   * bloom reach and shoe speed. Greyed while they wait to respawn, OUT when out of the game.
+   * Each gardener's badge sits on the garden wall by their home corner: their hat, the seed in
+   * hand, then pods, bloom reach and shoe speed. Greyed while they wait to respawn, OUT when out.
    */
   private renderSeatBadges(g: CanvasRenderingContext2D) {
-    const bw = 64
+    const bw = 76
     for (const gd of this.gardeners) {
       const corner = CORNERS[gd.seat]!
       const x = corner.x < COLS / 2 ? 3 : W - 3 - bw
@@ -1653,13 +2710,19 @@ class SeedBurst implements ArcadeGameInstance {
           outline: INK,
         })
       else {
+        drawSprite(
+          g,
+          VARIETY_SPRITES[gd.pouch[gd.seed] ?? 'sunflower'],
+          x + 19,
+          y + 6,
+        )
         const stats = [
           gd.pods,
           gd.range,
           Math.round((gd.speed - BASE_SPEED) / SHOE_SPEED) + 1,
         ]
         stats.forEach((n, i) => {
-          const sx = x + 16 + i * 16
+          const sx = x + 28 + i * 16
           drawSprite(g, STAT_ICONS[i]!, sx + 3, y + 6)
           drawText(g, String(n), sx + 8, y + 3, {
             color: RAMPS.cream[3],
@@ -1681,38 +2744,43 @@ class SeedBurst implements ArcadeGameInstance {
     })
     const left = measureText(score, 2) + 12
     const secs = Math.max(0, Math.ceil(this.timer / 60))
-    const gnats = `GNATS ${this.gnats.length}`
-    const tw = Math.max(measureText(`TIME ${secs}`), measureText(gnats)) + 8
+    const grumps = `GRUMPS ${this.grumps.length + this.bells.reduce((n, b) => n + b.kinds.length, 0)}`
+    const time = this.cloud ? 'RAIN!' : `TIME ${secs}`
+    const tw = Math.max(measureText(time), measureText(grumps)) + 8
     hudPanel(g, left, 2, tw, 20)
-    drawText(g, `TIME ${secs}`, left + 4, 4, {
-      color: secs <= 20 && this.timer > 0 ? RAMPS.ember[3] : RAMPS.sky[4],
+    drawText(g, time, left + 4, 4, {
+      color:
+        this.cloud || (secs <= 20 && this.timer > 0)
+          ? RAMPS.ember[3]
+          : RAMPS.sky[4],
       outline: INK,
     })
-    drawText(g, gnats, left + 4, 13, {
+    drawText(g, grumps, left + 4, 13, {
       color: RAMPS.steel[3],
       outline: INK,
     })
     const hi = `HI ${Math.max(this.hiScore, this.score)}`
-    const round = `ROUND ${this.level}`
-    const rw = Math.max(measureText(hi), measureText(round)) + 8
+    const plot = `PLOT ${this.level}`
+    const rw = Math.max(measureText(hi), measureText(plot)) + 8
     hudPanel(g, W - 2 - rw, 2, rw, 20)
     drawText(g, hi, W - 6, 4, {
       align: 'right',
       color: RAMPS.pink[3],
       outline: INK,
     })
-    drawText(g, round, W - 6, 13, {
+    drawText(g, plot, W - 6, 13, {
       align: 'right',
       color: LIME[3],
       outline: INK,
     })
-    // The team's spares, between the timer and the high score.
+    // The team's spares (and any golden seeds), between the timer and the high score.
     const sl = left + tw + 2
     const sw = W - 4 - rw - sl
     const spares = Math.min(this.spares, 5)
     if (sw >= 14) {
       hudPanel(g, sl, 2, sw, 20, RAMPS.teal)
-      const perRow = Math.max(1, Math.floor((sw - 4) / 10))
+      const goldW = this.golden ? 16 : 0
+      const perRow = Math.max(1, Math.floor((sw - 4 - goldW) / 10))
       if (spares === 0) drawSprite(g, SPARE_SPRITE, sl + 7, 12, { alpha: 0.3 })
       for (let i = 0; i < Math.min(spares, perRow * 2); i++)
         drawSprite(
@@ -1721,6 +2789,14 @@ class SeedBurst implements ArcadeGameInstance {
           sl + 7 + (i % perRow) * 10,
           8 + Math.floor(i / perRow) * 9,
         )
+      if (this.golden && sw >= 30) {
+        drawSprite(g, GOLDEN_SEED_SPRITE, sl + sw - 11, 8)
+        drawText(g, String(this.golden), sl + sw - 11, 13, {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        })
+      }
     }
     if (this.banner) {
       // A dimmed band behind the banner keeps it legible over the busy garden.

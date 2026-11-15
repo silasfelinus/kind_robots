@@ -334,7 +334,7 @@
             v-for="block in channelBlocks"
             :key="block.channel.channelKey"
             :data-channel-key="block.channel.channelKey"
-            class="kr-launcher-channel mb-4 last:mb-0"
+            class="mb-4 last:mb-0"
             :aria-label="block.channel.label + ' destinations'"
           >
             <header

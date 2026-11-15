@@ -4626,7 +4626,7 @@ export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
   // Re-tuned 2026-11-04 with dithered rounding, picked on 48 held-out seeds
   // (1,440 games): Blackout spread 0.079, Bloodrush 0.037.
   blackout: {
-    catgirls: -0.75,
+    catgirls: -0.25,
     bloodfairies: 1.5,
     ironjaw: -1.625,
     riot: 0.5,

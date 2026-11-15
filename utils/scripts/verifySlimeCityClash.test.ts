@@ -1879,6 +1879,18 @@ assert.equal(Object.keys(CLASH_TWISTS).length, 70)
 
 // Patent Shredder is a real fighter: no ally is required to field her,
 // but positioning between teammates unlocks the L3 two-sided claw handoff.
+for (const [level, expected] of [
+  [1, [1, 3]],
+  [2, [1, 4]],
+  [3, [2, 5]],
+] as const) {
+  const body = clashBalance(cardById('shredders'), level)
+  assert.deepEqual(
+    [body.attack, body.hp],
+    expected,
+    'Patent Shredder must pay for support with a fragile body',
+  )
+}
 const shredderStage = third('catgirls', 'shredders')
 shredderStage.units = [
   follower('player', 1, 3100, 14, 3),

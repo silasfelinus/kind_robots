@@ -13,6 +13,7 @@ on:
       - 'public/shifting-desks/**'
       - 'utils/scripts/verifyShiftingDesks.test.ts'
       - 'utils/scripts/verifyShiftingDesksBackup.test.ts'
+      - 'utils/scripts/verifyShiftingDesksArtDiscovery.test.ts'
       - 'utils/scripts/verifyShiftingDesksAchievements.test.ts'
       - 'utils/achievements/catalog/main/shifting-desks.ts'
       - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
@@ -50,6 +51,7 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyShiftingDesks.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksBackup.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingDesksArtDiscovery.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksAchievements.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksBalance.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksAdversarial.test.ts

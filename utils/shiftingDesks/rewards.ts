@@ -3,7 +3,10 @@ import {
   ENDINGS,
   endingFor,
   jobById,
+  JOB_TITLES,
+  MUTATIONS,
   mutationById,
+  SOCIETIES,
   societyById,
   type Grades,
   type RunState,
@@ -36,7 +39,27 @@ export type RewardArchive = {
   version: 1
   milestones: Record<string, string>
   runs: RunReceipt[]
+  artUnlocked?: string[]
 }
+
+export function artUnlockKeysForReceipt(receipt: RunReceipt): string[] {
+  const job = JOB_TITLES.find(
+    (item) => item.id === receipt.jobId || item.title === receipt.jobTitle,
+  )
+  const society = SOCIETIES.find((item) => item.title === receipt.society)
+  const mutation = MUTATIONS.find((item) => item.title === receipt.mutation)
+  return [
+    ...(job ? [`jobs:${job.id}`] : []),
+    ...(society ? [`societies:${society.id}`] : []),
+    ...(mutation ? [`mutations:${mutation.id}`] : []),
+  ]
+}
+
+const knownArtUnlocks = new Set([
+  ...JOB_TITLES.map((item) => `jobs:${item.id}`),
+  ...SOCIETIES.map((item) => `societies:${item.id}`),
+  ...MUTATIONS.map((item) => `mutations:${item.id}`),
+])
 
 export type Milestone = {
   id: string
@@ -151,7 +174,12 @@ export function milestonesAsOfReceipt(
 }
 
 export function emptyRewardArchive(): RewardArchive {
-  return { version: REWARD_ARCHIVE_VERSION, milestones: {}, runs: [] }
+  return {
+    version: REWARD_ARCHIVE_VERSION,
+    milestones: {},
+    runs: [],
+    artUnlocked: [],
+  }
 }
 
 /** A corrupt companion storage key must not erase a valid ongoing game. */
@@ -202,6 +230,14 @@ export function restoreRewardArchive(raw: unknown): RewardArchive {
     version: 1,
     milestones,
     runs: [...uniqueRuns.values()].slice(-REWARD_ARCHIVE_LIMIT),
+    artUnlocked: [
+      ...new Set([
+        ...(Array.isArray(value.artUnlocked) ? value.artUnlocked : []),
+        ...[...uniqueRuns.values()].flatMap(artUnlockKeysForReceipt),
+      ].filter((key): key is string =>
+        typeof key === 'string' && knownArtUnlocks.has(key),
+      )),
+    ],
   }
 }
 
@@ -367,6 +403,13 @@ export function recordReward(
     version: 1,
     milestones: { ...archive.milestones },
     runs,
+    artUnlocked: [
+      ...new Set([
+        ...(archive.artUnlocked ?? []),
+        ...archive.runs.flatMap(artUnlockKeysForReceipt),
+        ...artUnlockKeysForReceipt(run),
+      ]),
+    ],
   }
   for (const milestone of MILESTONES) {
     if (

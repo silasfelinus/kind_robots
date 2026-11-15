@@ -122,6 +122,11 @@ const SIZES: Record<Family, readonly [number, number][]> = {
     [22, 16],
     [34, 28],
   ],
+  mimic: [
+    [18, 16],
+    [18, 16],
+    [18, 16],
+  ],
 }
 
 function roller(at: Stage, frame: number): string[] {
@@ -290,6 +295,33 @@ const ACCENTS: Record<Family, Ramp> = {
   biter: RAMPS.purple,
   puffer: RAMPS.teal,
   gloop: RAMPS.sky,
+  mimic: RAMPS.gold,
+}
+
+/** A mimic crate: planks, a lid that lifts to show its teeth, and eyes when it blinks awake. */
+function mimic(open: boolean, eyes: boolean): string[] {
+  const [w, h] = SIZES.mimic[0]!
+  const g = new Grid(w, h)
+  const lidTop = open ? 0 : 1
+  g.rect(0, 4, w, h - 4, 'l')
+  for (const y of [8, 12]) g.rect(0, y, w, 1, 'd')
+  g.rect(0, 4, 1, h - 4, 'D')
+  g.rect(w - 1, 4, 1, h - 4, 'D')
+  g.rect(1, 5, w - 2, 1, 'L')
+  g.rect(3, 9, 2, 6, 'a')
+  g.rect(w - 5, 9, 2, 6, 'a')
+  g.rect(0, lidTop, w, 3, 'L')
+  g.rect(0, lidTop, w, 1, 'H')
+  g.rect(0, lidTop + 2, w, 1, 'd')
+  if (open) {
+    g.rect(1, 3, w - 2, 1, 'm')
+    for (let x = 2; x < w - 2; x += 3) g.set(x, 3, 't')
+  }
+  if (eyes) {
+    g.eye(5, 6)
+    g.eye(w - 7, 6)
+  }
+  return g.rows
 }
 
 function build(family: Family, at: Stage): CritterSprites {
@@ -320,6 +352,11 @@ function build(family: Family, at: Stage): CritterSprites {
       return {
         walk: [make(gloop(at, 0)), make(gloop(at, 0))],
         tell: make(gloop(at, 1)),
+      }
+    case 'mimic':
+      return {
+        walk: [make(mimic(false, false)), make(mimic(true, true))],
+        tell: make(mimic(false, true)),
       }
   }
 }

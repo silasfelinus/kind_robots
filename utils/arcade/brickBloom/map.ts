@@ -98,4 +98,14 @@ export const HOUSE_CARDS: Readonly<
     pests: 'SNAIL BOTS AND LADYBOT RINGS',
     seed: 'T THORN BALL',
   },
+  'cactus-dome': {
+    tagline: 'GLASSHOUSE 3 - HIGH NOON',
+    pests: 'TUMBLEWEEDS AND SHELL BEETLES',
+    seed: 'V VENT',
+  },
+  'lily-pond': {
+    tagline: 'GLASSHOUSE 4 - AFTERNOON RAIN',
+    pests: 'FROG BOTS AND MIRROR BUGS',
+    seed: 'D DUO PADDLE',
+  },
 }

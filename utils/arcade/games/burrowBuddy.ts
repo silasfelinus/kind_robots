@@ -11,6 +11,16 @@
 // are harmless until they settle back into a tunnel). The last grub left runs
 // for the surface; let it go and the garden is still safe, but pop it for the
 // points. Arrows dig, A puffs bubbles (tap or hold to keep puffing).
+//
+// Depth pass slice 1, "soil that moves" (conductor kr-arcade/t-106): every garden
+// is a plan (utils/arcade/burrowBuddy/gardens.ts) with stones, cracked stones that
+// hold bubble tools, and slump blocks: cut a block free on both sides and
+// undercut it, and it slides down as one piece, carrying its turnips and stones,
+// squashing the grumps under it and the ones riding on top, and setting off any
+// block it frees for a chain. Grumps show their mood (calm, restless, ghost); the
+// pill bug curls up when faced, the mole cricket digs its own tunnels and the
+// mimic turnip bites. Two turnips bring out the next veggie on a twelve-rung
+// ladder, and a five-grump crush brings out the Golden Beet. B runs the sprinkler.
 
 import { levelCurve } from '../curve'
 import { drawText, measureText } from '../font'
@@ -42,20 +52,78 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import {
+  BOULDER_SPRITE,
+  CRACKED_SPRITES,
+  CRICKET_SPRITES,
+  PILLBUG_BALL_SPRITE,
+  PILLBUG_SPRITES,
+  TOOL_COLOURS,
+  TOOL_ICONS,
+  VEGGIE_SPRITES,
+  happySprite,
+} from '../burrowBuddy/art'
+import {
+  BURROW_CURVES,
+  COLS,
+  GRUMP_KINDS,
+  ROWS,
+  TOOL_KINDS,
+  cellKey,
+  gardenFor,
+} from '../burrowBuddy/gardens'
+import type {
+  Cell,
+  GardenPlan,
+  GrumpKind,
+  ToolKind,
+} from '../burrowBuddy/gardens'
+import {
+  CHAIN_WINDOW,
+  CRACK_PUSH,
+  CREAK_TICKS,
+  CRICKET_DIG,
+  CURL_RANGE,
+  CURL_REST,
+  CURL_TICKS,
+  GOLDEN_BEET,
+  GOLDEN_BEET_CRUSH,
+  GRUMPS,
+  HEADLAMP_RADIUS,
+  LAMP_RADIUS,
+  MIMIC_AWAKE,
+  MIMIC_BLINK,
+  MIMIC_BLINK_EVERY,
+  MIMIC_POINTS,
+  MIMIC_RANGE,
+  SLUMP_FALL,
+  SPRAY_TICKS,
+  SPRINKLER_REACH,
+  TOOLS,
+  VEGGIE_LADDER,
+  crushBonus,
+  leadingCells,
+  moodFor,
+  popAt,
+  puffStats,
+  slumpBonus,
+  slumpFree,
+  topCells,
+  undercut,
+  veggieForGarden,
+} from '../burrowBuddy/rules'
+import type { Mood, SlumpWorld, Veggie } from '../burrowBuddy/rules'
+
+export { BURROW_CURVES, VEGGIE_LADDER, veggieForGarden }
 
 const T = 16
-const COLS = 16
-const ROWS = 14
 const FY = 20
 const W = COLS * T
 const H = FY + ROWS * T + 18
 
-const START = { tx: 7, ty: 6 }
 const WALK_SPEED = 1 / 9
 const DIG_SPEED = 1 / 15
-const PUMP_REACH = 3
 const PUMP_REPEAT = 12
-const POP_AT = 4
 const DEFLATE_TICKS = 50
 const GHOST_MIN = 70
 const START_LIVES = 3
@@ -63,18 +131,6 @@ const DEATH_TICKS = 100
 const LEVEL_CLEAR_TICKS = 140
 const EXTRA_EVERY = 20_000
 const DIG_POINTS = 10
-const CRUSH_BONUS = [0, 1000, 2500, 4000, 6000, 8000, 10_000, 12_000]
-
-export const BURROW_CURVES = {
-  grubs: { start: 3, step: 1, limit: 5 },
-  /** First beetle in garden 2 (the blurb's promise), then one more every two gardens. */
-  beetles: { start: 0.5, step: 0.5, limit: 3 },
-  /** Enemy speed in tiles per tick. */
-  speed: { start: 1 / 22, step: 1 / 300, limit: 1 / 12 },
-  /** Ticks before a grub gets bored and ghosts through the soil. */
-  ghostEvery: { start: 520, step: -40, limit: 220 },
-  turnips: { start: 3, step: 0.34, limit: 5 },
-} as const
 
 type Dir = 0 | 1 | 2 | 3
 const DX = [0, 1, 0, -1]
@@ -82,7 +138,7 @@ const DY = [-1, 0, 1, 0]
 
 type Mover = { tx: number; ty: number; nx: number; ny: number; p: number }
 type Enemy = {
-  kind: 'grub' | 'beetle'
+  kind: GrumpKind
   m: Mover
   spawn: { tx: number; ty: number }
   facing: Dir
@@ -97,6 +153,24 @@ type Enemy = {
   fireCooldown: number
   fireWarn: number
   fire: number
+  /** Pill bug: ticks left curled up, then ticks before it can curl again. */
+  curl: number
+  curlRest: number
+  /** Mole cricket: the dirt-spray tell, then the cells it still means to dig. */
+  spray: number
+  digLeft: number
+  /** Mimic turnip: ticks left awake (0 while it pretends to be a turnip). */
+  awake: number
+}
+type Stone = { cracked: ToolKind | null; push: number }
+type Slump = {
+  cells: Cell[]
+  state: 'held' | 'creak' | 'fall'
+  t: number
+  drop: number
+  chain: number
+  crushed: number
+  riders: { kind: GrumpKind; x: number; y: number }[]
 }
 type Turnip = {
   tx: number
@@ -115,7 +189,7 @@ type Particle = {
   life: number
   color: string
 }
-type Floating = { x: number; y: number; life: number; kind: 'grub' | 'beetle' }
+type Floating = { x: number; y: number; life: number; kind: GrumpKind }
 
 function centre(tx: number, ty: number) {
   return { x: tx * T + T / 2, y: FY + ty * T + T / 2 }
@@ -432,10 +506,21 @@ const GRUB_BODY = [
   '.dpPPPPPPpd.',
   '..ddppppdd..',
 ]
-const GRUB_SPRITES = [
-  pixelSprite([...GRUB_BODY, '..dd...dd...'], GRUB_PALETTE),
-  pixelSprite([...GRUB_BODY, '...dd.dd....'], GRUB_PALETTE),
-] as const
+const grubFrames = (palette: Record<string, string>) =>
+  [
+    pixelSprite([...GRUB_BODY, '..dd...dd...'], palette),
+    pixelSprite([...GRUB_BODY, '...dd.dd....'], palette),
+  ] as const
+const GRUB_SPRITES = grubFrames(GRUB_PALETTE)
+/** A restless grub flushes ember-red: it is about to ghost through the soil. */
+const GRUB_RESTLESS_SPRITES = grubFrames({
+  ...GRUB_PALETTE,
+  h: RAMPS.ember[4],
+  H: RAMPS.ember[3],
+  P: RAMPS.ember[2],
+  p: RAMPS.ember[1],
+  d: RAMPS.ember[0],
+})
 
 const beetlePalette = (shell: Ramp) => ({
   h: shell[4],
@@ -470,15 +555,35 @@ const beetleFrames = (shell: Ramp) =>
     pixelSprite([...BEETLE_BODY, ...BEETLE_LEGS[1]], beetlePalette(shell)),
   ] as const
 const BEETLE_SPRITES = beetleFrames(RAMPS.leaf)
+const BEETLE_RESTLESS_SPRITES = beetleFrames(RAMPS.gold)
 const BEETLE_HOT_SPRITES = beetleFrames(RAMPS.ember)
 
-/** A grub or beetle pumped up to stage 1..3: a shaded sphere with a face that worries more. */
-function puffedSprite(kind: 'grub' | 'beetle', stage: number): PixelSprite {
+/** Each grump's walk frames in its calm and restless colours. */
+const MOOD_SPRITES: Record<
+  'grub' | 'beetle' | 'pillbug' | 'cricket',
+  { calm: readonly PixelSprite[]; restless: readonly PixelSprite[] }
+> = {
+  grub: { calm: GRUB_SPRITES, restless: GRUB_RESTLESS_SPRITES },
+  beetle: { calm: BEETLE_SPRITES, restless: BEETLE_RESTLESS_SPRITES },
+  pillbug: PILLBUG_SPRITES,
+  cricket: CRICKET_SPRITES,
+}
+
+const PUFF_SHELLS: Record<GrumpKind, Ramp> = {
+  grub: RAMPS.pink,
+  beetle: RAMPS.leaf,
+  pillbug: RAMPS.steel,
+  cricket: RAMPS.earth,
+  mimic: RAMPS.purple,
+}
+
+/** A grump pumped up to stage 1..3: a shaded sphere with a face that worries more. */
+function puffedSprite(kind: GrumpKind, stage: number): PixelSprite {
   const r = Math.round(6 + stage * 2.2)
   const grid = orbRows(r)
   const ex = Math.round(r * 0.42)
   const ey = r - Math.round(r * 0.25)
-  if (kind === 'grub') {
+  if (kind !== 'beetle') {
     const goggle =
       stage < 3
         ? ['YYY', 'YkY', 'YYY']
@@ -487,27 +592,16 @@ function puffedSprite(kind: 'grub' | 'beetle', stage: number): PixelSprite {
     stamp(grid, r - ex - o, ey - o, goggle)
     stamp(grid, r + ex - o, ey - o, goggle)
     stamp(grid, r - 1, r + Math.round(r * 0.4), ['.k.', 'k.k', '.k.'])
+    if (kind === 'pillbug')
+      for (let x = 3; x < r * 2 - 2; x += 3) stamp(grid, x, 2, ['k', 'k'])
+    if (kind === 'mimic') stamp(grid, r - 2, 0, ['h.h.h', '.hhh.'])
   } else {
     stamp(grid, r + ex - 1, ey - 1, ['GGG', 'GeG', 'GGG'])
     for (let y = 2; y < r; y += 2) stamp(grid, r - 1, y, ['h'])
     stamp(grid, r * 2 - 1, r, ['a', 'a'])
   }
-  const shell =
-    kind === 'grub'
-      ? ([
-          RAMPS.pink[1],
-          RAMPS.pink[2],
-          RAMPS.pink[3],
-          RAMPS.pink[4],
-          '#ffffff',
-        ] as const)
-      : ([
-          RAMPS.leaf[1],
-          RAMPS.leaf[2],
-          RAMPS.leaf[3],
-          RAMPS.leaf[4],
-          '#ffffff',
-        ] as const)
+  const ramp = PUFF_SHELLS[kind]
+  const shell = [ramp[1], ramp[2], ramp[3], ramp[4], '#ffffff'] as const
   return pixelSprite(
     grid.map((row) => row.join('')),
     {
@@ -526,17 +620,19 @@ function puffedSprite(kind: 'grub' | 'beetle', stage: number): PixelSprite {
     },
   )
 }
-const PUFFED_SPRITES = {
-  grub: [1, 2, 3].map((s) => puffedSprite('grub', s)),
-  beetle: [1, 2, 3].map((s) => puffedSprite('beetle', s)),
-}
+const PUFFED_SPRITES = Object.fromEntries(
+  GRUMP_KINDS.map((kind) => [
+    kind,
+    [1, 2, 3].map((s) => puffedSprite(kind, s)),
+  ]),
+) as Record<GrumpKind, PixelSprite[]>
 
 const GHOST_SPRITE = pixelSprite(
   ['.YYY.YYY.', 'YwwkYwwkY', 'YwwkYwwkY', '.YYY.YYY.'],
   { Y: RAMPS.purple[3], w: '#ffffff', k: INK },
 )
 
-const HAPPY_SPRITES = {
+const HAPPY_SPRITES: Record<GrumpKind, PixelSprite> = {
   grub: pixelSprite(
     ['.HHPp.', 'HhPPPp', 'PkPPkp', 'PPPPPp', 'pkkkpd', '.pppd.'],
     GRUB_PALETTE,
@@ -545,6 +641,9 @@ const HAPPY_SPRITES = {
     ['.hLLM.', 'hLMMMm', 'MkMMkm', 'MMMMMm', 'mkkkmd', '.mmmd.'],
     beetlePalette(RAMPS.leaf),
   ),
+  pillbug: happySprite(RAMPS.steel),
+  cricket: happySprite(RAMPS.earth),
+  mimic: happySprite(RAMPS.purple),
 }
 
 const TURNIP_ROWS = [
@@ -583,109 +682,19 @@ const TURNIP_BROKEN = pixelSprite(
   TURNIP_PALETTE,
 )
 
-const CARROT_SPRITE = pixelSprite(
-  [
-    '.l..L..l.',
-    '..lLLLl..',
-    '...dLd...',
-    '..hOOOo..',
-    '..OOOOo..',
-    '..hOOoq..',
-    '...OOo...',
-    '...hOq...',
-    '...Ooq...',
-    '....o....',
-    '....q....',
-  ],
-  {
-    l: RAMPS.leaf[2],
-    L: RAMPS.leaf[3],
-    d: RAMPS.leaf[1],
-    h: RAMPS.rust[4],
-    O: RAMPS.rust[3],
-    o: RAMPS.rust[2],
-    q: RAMPS.rust[1],
-  },
-)
-
-const veggieSprite = (
-  rows: string[],
-  leaf: string,
-  body: [string, string, string, string],
-) =>
-  pixelSprite(rows, {
-    l: RAMPS.leaf[2],
-    L: leaf,
-    d: RAMPS.leaf[1],
-    h: body[0],
-    O: body[1],
-    o: body[2],
-    q: body[3],
+/** The mimic turnip: a turnip until its eyes open (the tell), then a toothy grin when awake. */
+const mimicRows = (eyes: boolean, grin: boolean) =>
+  TURNIP_ROWS.map((row, y) => {
+    if (eyes && y === 6) return 'pPhEkPPEkPPq'
+    if (grin && y === 5) return '.qPkPPPPkPq.'
+    if (grin && y === 9) return 'WwkEkEkEkEwC'
+    return row
   })
-
-const ROUND_VEGGIE = [
-  '....d....',
-  '..lLdLl..',
-  '...LdL...',
-  '.hOOOOOo.',
-  'hOOOOOOOo',
-  'hOOOOOOoq',
-  'OOOOOOOoq',
-  '.OOOOOoq.',
-  '..oooqq..',
-]
-
-/** The veggie ladder: a richer prize every few gardens, so dropping turnips keeps paying. */
-export const VEGGIE_LADDER = [
-  { from: 1, name: 'CARROT', points: 400 },
-  { from: 3, name: 'RADISH', points: 1000 },
-  { from: 5, name: 'PEA POD', points: 2000 },
-  { from: 8, name: 'PUMPKIN', points: 4000 },
-  { from: 11, name: 'GOLDEN BEET', points: 8000 },
-] as const
-
-export const veggieForGarden = (garden: number) => {
-  let rung: (typeof VEGGIE_LADDER)[number] = VEGGIE_LADDER[0]
-  for (const r of VEGGIE_LADDER) if (garden >= r.from) rung = r
-  return rung
+const MIMIC_PALETTE = { ...TURNIP_PALETTE, E: '#ffffff', k: INK }
+const MIMIC_SPRITES = {
+  blink: pixelSprite(mimicRows(true, false), MIMIC_PALETTE),
+  awake: pixelSprite(mimicRows(true, true), MIMIC_PALETTE),
 }
-
-const VEGGIE_SPRITES = [
-  CARROT_SPRITE,
-  veggieSprite(
-    [
-      '.l..L..l.',
-      '..lLLLl..',
-      '...dLd...',
-      '..hOOOo..',
-      '..OOOOo..',
-      '..hOOoq..',
-      '...OOo...',
-      '....o....',
-      '....q....',
-    ],
-    RAMPS.leaf[3],
-    [RAMPS.pink[3], RAMPS.pink[2], RAMPS.pink[1], RAMPS.pink[0]],
-  ),
-  veggieSprite(ROUND_VEGGIE, RAMPS.leaf[3], [
-    RAMPS.leaf[4],
-    RAMPS.leaf[3],
-    RAMPS.leaf[2],
-    RAMPS.leaf[1],
-  ]),
-  veggieSprite(ROUND_VEGGIE, RAMPS.leaf[3], [
-    RAMPS.rust[4],
-    RAMPS.rust[3],
-    RAMPS.rust[2],
-    RAMPS.rust[1],
-  ]),
-  veggieSprite(ROUND_VEGGIE, RAMPS.gold[3], [
-    RAMPS.gold[4],
-    RAMPS.gold[3],
-    RAMPS.gold[2],
-    RAMPS.gold[1],
-  ]),
-]
 
 const BUBBLE_SPRITES = [
   pixelSprite(
@@ -771,15 +780,38 @@ class BurrowBuddy implements ArcadeGameInstance {
   private levelTick = 0
   private dug = new Uint8Array(COLS * ROWS)
   private links = new Set<number>()
-  private player: Mover = {
-    tx: START.tx,
-    ty: START.ty,
-    nx: START.tx,
-    ny: START.ty,
-    p: 0,
+  /** Bumped on every change to the soil, so the cached ground knows to repaint. */
+  private soilVersion = 0
+  private plan!: GardenPlan
+  private start = { tx: 7, ty: 6 }
+  private stones = new Map<number, Stone>()
+  private slumps: Slump[] = []
+  private slumpAt = new Map<number, Slump>()
+  /** The last slump to move, for a short while: a block it frees joins its chain. */
+  private slumpEcho = { ticks: 0, chain: 0 }
+  /** What the last slump to land squashed and paid. */
+  lastSlump: { crushed: number; chain: number; bonus: number } | null = null
+  /** Ticks left on each timed bubble tool (the headlamp lasts the garden, at -1). */
+  private tools: Record<ToolKind, number> = {
+    wide: 0,
+    long: 0,
+    quick: 0,
+    drill: 0,
+    headlamp: 0,
+    sprinkler: 0,
   }
+  private spray: {
+    x0: number
+    y0: number
+    x1: number
+    y1: number
+    t: number
+  } | null = null
+  private player: Mover = { tx: 7, ty: 6, nx: 7, ny: 6, p: 0 }
   private facing: Dir = 2
   private pumpTarget: Enemy | null = null
+  /** With Wide Puff, the second grump in the line puffs up along with the first. */
+  private pumpExtra: Enemy | null = null
   private pumpCooldown = 0
   private stream: {
     x0: number
@@ -791,7 +823,7 @@ class BurrowBuddy implements ArcadeGameInstance {
   private enemies: Enemy[] = []
   private turnips: Turnip[] = []
   private dropped = 0
-  private veggie: { ticks: number } | null = null
+  private veggie: { ticks: number; prize: Veggie } | null = null
   private dead = 0
   private levelClear = 0
   private nextExtra = EXTRA_EVERY
@@ -844,6 +876,62 @@ class BurrowBuddy implements ArcadeGameInstance {
       this.addScore(DIG_POINTS)
     }
     this.links.add(this.linkKey(fromX, fromY, tx, ty))
+    this.soilVersion++
+  }
+
+  /** Join a dug cell to every dug neighbour (authored tunnels, and the gap a slump leaves). */
+  private linkAround(tx: number, ty: number) {
+    for (let d = 0; d < 4; d++) {
+      const nx = tx + DX[d]!
+      const ny = ty + DY[d]!
+      if (this.isDug(nx, ny) && !this.solidAt(nx, ny))
+        this.links.add(this.linkKey(tx, ty, nx, ny))
+    }
+  }
+
+  private inField(tx: number, ty: number): boolean {
+    return tx >= 0 && ty >= 0 && tx < COLS && ty < ROWS
+  }
+
+  private stoneAt(tx: number, ty: number): Stone | undefined {
+    return this.inField(tx, ty) ? this.stones.get(cellKey(tx, ty)) : undefined
+  }
+
+  private blockAt(tx: number, ty: number): Slump | undefined {
+    return this.inField(tx, ty) ? this.slumpAt.get(cellKey(tx, ty)) : undefined
+  }
+
+  /** Stones and slump blocks: Buddy can't dig them and nothing crawls through them. */
+  private solidAt(tx: number, ty: number): boolean {
+    return !!this.stoneAt(tx, ty) || !!this.blockAt(tx, ty)
+  }
+
+  private indexSlumps() {
+    this.slumpAt.clear()
+    for (const s of this.slumps)
+      for (const c of s.cells) this.slumpAt.set(cellKey(c.x, c.y), s)
+  }
+
+  private readonly slumpWorld: SlumpWorld = {
+    cut: (x, y) => !this.inField(x, y) || this.dug[cellKey(x, y)] === 1,
+    open: (x, y) =>
+      this.inField(x, y) &&
+      y >= 1 &&
+      this.dug[cellKey(x, y)] === 1 &&
+      !this.solidAt(x, y) &&
+      !this.turnipAt(x, y),
+  }
+
+  private toolOn(tool: ToolKind): boolean {
+    return this.tools[tool] !== 0
+  }
+
+  /** How Buddy's mood-reading grumps feel: calm, restless (about to act), or a ghost. */
+  grumpMood(e: Enemy): Mood {
+    if (e.kind === 'cricket')
+      return e.spray > 0 || e.digLeft > 0 ? 'restless' : 'calm'
+    if (e.kind === 'mimic') return e.awake > 0 ? 'restless' : 'calm'
+    return moodFor(e.ghost, e.ghostTimer)
   }
 
   private turnipAt(tx: number, ty: number): Turnip | undefined {
@@ -858,87 +946,79 @@ class BurrowBuddy implements ArcadeGameInstance {
   private startLevel(level: number) {
     this.level = level
     this.levelTick = 0
-    this.dug.fill(0)
-    this.links.clear()
-    // Buddy's shaft from the surface down to the middle.
-    for (let ty = 1; ty <= START.ty; ty++) {
-      this.dug[this.key(START.tx, ty)] = 1
-      this.links.add(this.linkKey(START.tx, ty - 1, START.tx, ty))
-    }
-    this.enemies = []
-    const grubs = Math.round(levelCurve(level, BURROW_CURVES.grubs))
-    const beetles = Math.floor(levelCurve(level, BURROW_CURVES.beetles))
-    const kinds: Array<'grub' | 'beetle'> = [
-      ...new Array<'grub'>(grubs).fill('grub'),
-      ...new Array<'beetle'>(beetles).fill('beetle'),
-    ]
-    for (const kind of kinds) this.placeEnemy(kind)
-    this.turnips = []
-    const turnips = Math.round(levelCurve(level, BURROW_CURVES.turnips))
-    for (let tries = 0; this.turnips.length < turnips && tries < 200; tries++) {
-      const tx = 1 + Math.floor(this.rng() * (COLS - 2))
-      const ty = 2 + Math.floor(this.rng() * (ROWS - 5))
-      if (this.isDug(tx, ty) || this.isDug(tx, ty + 1)) continue
-      if (Math.abs(tx - START.tx) < 2) continue
-      if (
-        this.turnips.some((t) => Math.abs(t.tx - tx) + Math.abs(t.ty - ty) < 3)
-      )
-        continue
-      this.turnips.push({ tx, ty, state: 'idle', t: 0, drop: 0, crushed: 0 })
-    }
+    this.loadGarden(gardenFor(level, this.rng))
     this.dropped = 0
     this.veggie = null
+    this.tools.headlamp = 0
     this.resetPlayer()
+    const authored = this.plan.name !== `GARDEN ${level}`
     this.banner = {
       text: `GARDEN ${level}`,
-      sub: 'PUFF THE GRUMPS AWAY',
+      sub: authored ? this.plan.name : 'PUFF THE GRUMPS AWAY',
       ticks: 90,
     }
   }
 
-  /** A grub's starting burrow: a short dug tunnel away from Buddy. */
-  private placeEnemy(kind: 'grub' | 'beetle') {
-    for (let tries = 0; tries < 200; tries++) {
-      const across = this.rng() < 0.5
-      const tx = 1 + Math.floor(this.rng() * (COLS - (across ? 4 : 2)))
-      const ty = 3 + Math.floor(this.rng() * (ROWS - (across ? 4 : 6)))
-      const cells: Array<[number, number]> = [0, 1, 2].map((i) =>
-        across ? [tx + i, ty] : [tx, ty + i],
-      )
-      const clash = cells.some(
-        ([x, y]) =>
-          this.isDug(x, y) ||
-          this.isDug(x, y - 1) ||
-          this.isDug(x, y + 1) ||
-          (Math.abs(x - START.tx) < 3 && Math.abs(y - START.ty) < 3),
-      )
-      if (clash) continue
-      cells.forEach(([x, y], i) => {
-        this.dug[this.key(x, y)] = 1
-        if (i > 0) {
-          const [px, py] = cells[i - 1]!
-          this.links.add(this.linkKey(px, py, x, y))
-        }
-      })
-      const [sx, sy] = cells[1]!
-      this.enemies.push({
-        kind,
-        m: { tx: sx, ty: sy, nx: sx, ny: sy, p: 0 },
-        spawn: { tx: sx, ty: sy },
-        facing: across ? 1 : 2,
-        ghost: false,
-        gx: 0,
-        gy: 0,
-        ghostTicks: 0,
-        ghostTimer: this.ghostDelay(),
-        inflate: 0,
-        deflate: 0,
-        fleeing: false,
-        fireCooldown: 200 + Math.floor(this.rng() * 200),
-        fireWarn: 0,
-        fire: 0,
-      })
-      return
+  /** Lay a garden plan out on the field: the one loader every garden runs through. */
+  private loadGarden(plan: GardenPlan) {
+    this.plan = plan
+    this.start = { tx: plan.start.x, ty: plan.start.y }
+    this.dug.fill(0)
+    this.links.clear()
+    this.soilVersion++
+    this.stones.clear()
+    for (const c of plan.stones)
+      this.stones.set(cellKey(c.x, c.y), { cracked: null, push: 0 })
+    for (const { at, tool } of plan.cracked)
+      this.stones.set(cellKey(at.x, at.y), { cracked: tool, push: 0 })
+    this.slumps = plan.slumps.map((cells) => ({
+      cells: cells.map((c) => ({ ...c })),
+      state: 'held',
+      t: 0,
+      drop: 0,
+      chain: 0,
+      crushed: 0,
+      riders: [],
+    }))
+    this.indexSlumps()
+    this.slumpEcho = { ticks: 0, chain: 0 }
+    for (const c of plan.tunnels) this.dug[cellKey(c.x, c.y)] = 1
+    for (const c of plan.tunnels) this.linkAround(c.x, c.y)
+    this.turnips = plan.turnips.map((c) => ({
+      tx: c.x,
+      ty: c.y,
+      state: 'idle',
+      t: 0,
+      drop: 0,
+      crushed: 0,
+    }))
+    this.enemies = plan.burrows.map((b) =>
+      this.newEnemy(b.kind, b.at, b.across),
+    )
+  }
+
+  private newEnemy(kind: GrumpKind, at: Cell, across: boolean): Enemy {
+    return {
+      kind,
+      m: { tx: at.x, ty: at.y, nx: at.x, ny: at.y, p: 0 },
+      spawn: { tx: at.x, ty: at.y },
+      facing: across ? 1 : 2,
+      ghost: false,
+      gx: 0,
+      gy: 0,
+      ghostTicks: 0,
+      ghostTimer: this.ghostDelay(),
+      inflate: 0,
+      deflate: 0,
+      fleeing: false,
+      fireCooldown: 200 + Math.floor(this.rng() * 200),
+      fireWarn: 0,
+      fire: 0,
+      curl: 0,
+      curlRest: 0,
+      spray: 0,
+      digLeft: 0,
+      awake: 0,
     }
   }
 
@@ -948,15 +1028,11 @@ class BurrowBuddy implements ArcadeGameInstance {
   }
 
   private resetPlayer() {
-    this.player = {
-      tx: START.tx,
-      ty: START.ty,
-      nx: START.tx,
-      ny: START.ty,
-      p: 0,
-    }
+    const { tx, ty } = this.start
+    this.player = { tx, ty, nx: tx, ny: ty, p: 0 }
     this.facing = 2
     this.pumpTarget = null
+    this.pumpExtra = null
     this.stream = null
   }
 
@@ -975,9 +1051,13 @@ class BurrowBuddy implements ArcadeGameInstance {
       return
     }
     if (this.enemies.length === 0) {
-      // Let a falling turnip land (and pay its bonus) before the garden clears.
+      // Let a falling turnip or slump land (and pay its bonus) before the garden clears.
       this.updateTurnips()
-      if (!this.turnips.some((t) => t.state === 'fall')) this.clearLevel()
+      this.updateSlumps()
+      const settling =
+        this.turnips.some((t) => t.state === 'fall') ||
+        this.slumps.some((s) => s.state === 'fall')
+      if (!settling) this.clearLevel()
       return
     }
     if (this.dead > 0) {
@@ -993,10 +1073,36 @@ class BurrowBuddy implements ArcadeGameInstance {
       return
     }
     this.levelTick++
+    this.updateTools()
     this.updatePlayer(controls)
     for (const e of [...this.enemies]) this.updateEnemy(e)
     this.updateTurnips()
+    this.updateSlumps()
     this.updateVeggie()
+  }
+
+  private updateTools() {
+    for (const tool of TOOL_KINDS) {
+      if (TOOLS[tool].ticks > 0 && this.tools[tool] > 0) this.tools[tool]--
+    }
+    if (this.spray && --this.spray.t <= 0) this.spray = null
+  }
+
+  private grantTool(tool: ToolKind, x: number, y: number) {
+    const rules = TOOLS[tool]
+    this.tools[tool] = rules.charges
+      ? this.tools[tool] + rules.charges
+      : rules.ticks || -1
+    this.banner = {
+      text: `${rules.name}!`,
+      sub: 'OUT OF A CRACKED STONE',
+      ticks: 80,
+    }
+    this.fx.burst(x, y, this.fxRng, {
+      count: 16,
+      colours: [TOOL_COLOURS[tool][3], TOOL_COLOURS[tool][4], '#ffffff'],
+    })
+    this.sound.play('pickup')
   }
 
   private updatePlayer(input: InputFrame) {
@@ -1005,13 +1111,20 @@ class BurrowBuddy implements ArcadeGameInstance {
     const want = this.wanted(input)
     const m = this.player
 
+    if (input.pressed.b && this.tools.sprinkler > 0 && !this.pumpTarget) {
+      this.sprinkle()
+    }
+
     if (this.pumpTarget) {
       if (want !== null || !this.enemies.includes(this.pumpTarget)) {
         this.pumpTarget = null
+        this.pumpExtra = null
       } else {
         if (input.pressed.a || (input.held.a && this.pumpCooldown === 0)) {
           this.pumpCooldown = PUMP_REPEAT
+          const extra = this.pumpExtra
           this.puff(this.pumpTarget)
+          if (extra && this.enemies.includes(extra)) this.puff(extra)
         }
         return
       }
@@ -1025,8 +1138,16 @@ class BurrowBuddy implements ArcadeGameInstance {
         m.p = 1 - m.p
         this.facing = want
       }
+      if (this.solidAt(m.nx, m.ny)) {
+        // A slump slid into the cell Buddy was heading for: back off.
+        m.nx = m.tx
+        m.ny = m.ty
+        m.p = 0
+        return
+      }
+      const drill = this.toolOn('drill')
       m.p +=
-        this.isDug(m.nx, m.ny) && this.linked(m.tx, m.ty, m.nx, m.ny)
+        drill || (this.isDug(m.nx, m.ny) && this.linked(m.tx, m.ty, m.nx, m.ny))
           ? WALK_SPEED
           : DIG_SPEED
       if (m.p >= 1) {
@@ -1048,7 +1169,9 @@ class BurrowBuddy implements ArcadeGameInstance {
       const nx = m.tx + DX[want]!
       const ny = m.ty + DY[want]!
       const inside = nx >= 0 && ny >= 0 && nx < COLS && ny < ROWS
-      if (inside && !this.turnipAt(nx, ny)) {
+      const stone = this.stoneAt(nx, ny)
+      if (stone?.cracked) this.pushStone(stone, nx, ny)
+      if (inside && !this.turnipAt(nx, ny) && !this.solidAt(nx, ny)) {
         m.nx = nx
         m.ny = ny
         m.p = 0
@@ -1093,32 +1216,86 @@ class BurrowBuddy implements ArcadeGameInstance {
 
   // --- bubbles -------------------------------------------------------------------
 
+  private puffable(e: Enemy): boolean {
+    return !(e.inflate === 0 && e.ghost && !e.fleeing)
+  }
+
+  private near(e: Enemy, c: { x: number; y: number }, r = 10): boolean {
+    const p = this.enemyPos(e)
+    return Math.abs(p.x - c.x) < r && Math.abs(p.y - c.y) < r
+  }
+
+  /** The tile a crawling grump is mostly on. */
+  private enemyTile(e: Enemy): { tx: number; ty: number } {
+    if (e.ghost) {
+      return {
+        tx: Math.round((e.gx - T / 2) / T),
+        ty: Math.round((e.gy - FY - T / 2) / T),
+      }
+    }
+    return e.m.p < 0.5 ? { tx: e.m.tx, ty: e.m.ty } : { tx: e.m.nx, ty: e.m.ny }
+  }
+
   private shoot() {
+    const stats = puffStats((tool) => this.toolOn(tool))
     const from = this.playerTile()
     const start = at(this.player)
     let tx = from.tx
     let ty = from.ty
     let end = { x: start.x, y: start.y }
-    for (let step = 0; step < PUMP_REACH; step++) {
+    const hits: Enemy[] = []
+    let hitEnd = end
+    for (let step = 0; step < stats.reach; step++) {
       const nx = tx + DX[this.facing]!
       const ny = ty + DY[this.facing]!
       if (!this.isDug(nx, ny) || !this.linked(tx, ty, nx, ny)) break
       tx = nx
       ty = ny
       end = centre(tx, ty)
-      const target = this.enemies.find((e) => {
-        if (e.inflate === 0 && e.ghost && !e.fleeing) return false
-        const p = this.enemyPos(e)
-        return Math.abs(p.x - end.x) < 10 && Math.abs(p.y - end.y) < 10
-      })
-      if (target) {
-        this.stream = { x0: start.x, y0: start.y, x1: end.x, y1: end.y, t: 10 }
-        this.pumpTarget = target
-        this.puff(target)
-        return
+      const here = end
+      const target = this.enemies.find(
+        (e) => !hits.includes(e) && this.puffable(e) && this.near(e, here),
+      )
+      if (!target) continue
+      if (target.curl > 0) {
+        // A curled pill bug bounces the bubbles straight back.
+        this.bounce(target, start, end)
+        if (!hits.length) return
+        break
       }
+      hits.push(target)
+      hitEnd = end
+      if (!stats.wide || hits.length === 2) break
+    }
+    if (hits.length) {
+      this.stream = {
+        x0: start.x,
+        y0: start.y,
+        x1: hitEnd.x,
+        y1: hitEnd.y,
+        t: 10,
+      }
+      this.pumpTarget = hits[0]!
+      this.pumpExtra = hits[1] ?? null
+      for (const e of hits) this.puff(e)
+      return
     }
     this.stream = { x0: start.x, y0: start.y, x1: end.x, y1: end.y, t: 8 }
+    this.sound.play('shoot')
+  }
+
+  private bounce(
+    e: Enemy,
+    start: { x: number; y: number },
+    end: { x: number; y: number },
+  ) {
+    this.stream = { x0: start.x, y0: start.y, x1: end.x, y1: end.y, t: 6 }
+    const p = this.enemyPos(e)
+    this.floaters.push({ x: p.x, y: p.y - 10, text: 'BOING', life: 30 })
+    this.fx.burst(p.x, p.y, this.fxRng, {
+      count: 6,
+      colours: [RAMPS.water[3], RAMPS.steel[4]],
+    })
     this.sound.play('shoot')
   }
 
@@ -1127,14 +1304,19 @@ class BurrowBuddy implements ArcadeGameInstance {
     e.deflate = DEFLATE_TICKS
     e.fireWarn = 0
     e.fire = 0
+    e.spray = 0
+    e.digLeft = 0
     this.sound.play('blip')
-    if (e.inflate >= POP_AT) this.pop(e)
+    if (e.inflate >= popAt(e.kind, this.toolOn('quick'))) {
+      if (e.kind === 'mimic') this.unmask(e)
+      else this.pop(e)
+    }
   }
 
   private pop(e: Enemy) {
     const p = this.enemyPos(e)
     const row = Math.max(1, Math.round((p.y - FY - T / 2) / T))
-    let points = depthPoints(row)
+    let points = Math.round(depthPoints(row) * GRUMPS[e.kind].worth)
     // A beetle puffed from the side is worth double, as in the classic.
     if (e.kind === 'beetle' && (this.facing === 1 || this.facing === 3)) {
       points *= 2
@@ -1146,9 +1328,85 @@ class BurrowBuddy implements ArcadeGameInstance {
     this.sound.play('pop')
   }
 
+  /** Two puffs and a mimic turns back into a real turnip, right where it sat. */
+  private unmask(e: Enemy) {
+    const { tx, ty } = this.enemyTile(e)
+    this.removeEnemy(e)
+    const c = centre(tx, ty)
+    this.addScore(MIMIC_POINTS, c.x, c.y - 10)
+    this.fx.burst(c.x, c.y, this.fxRng, {
+      count: 12,
+      colours: [RAMPS.purple[3], RAMPS.cream[4], RAMPS.leaf[3]],
+    })
+    this.sound.play('pop')
+    const m = this.player
+    const buddyThere =
+      (m.tx === tx && m.ty === ty) || (m.nx === tx && m.ny === ty)
+    if (ty < 1 || buddyThere || this.solidAt(tx, ty) || this.turnipAt(tx, ty))
+      return
+    this.dug[cellKey(tx, ty)] = 0
+    for (let d = 0; d < 4; d++)
+      this.links.delete(this.linkKey(tx, ty, tx + DX[d]!, ty + DY[d]!))
+    this.soilVersion++
+    this.turnips.push({ tx, ty, state: 'idle', t: 0, drop: 0, crushed: 0 })
+    this.floaters.push({ x: c.x, y: c.y - 20, text: 'TURNIP!', life: 40 })
+  }
+
   private removeEnemy(e: Enemy) {
     this.enemies = this.enemies.filter((other) => other !== e)
-    if (this.pumpTarget === e) this.pumpTarget = null
+    if (this.pumpTarget === e) {
+      this.pumpTarget = this.pumpExtra
+      this.pumpExtra = null
+    }
+    if (this.pumpExtra === e) this.pumpExtra = null
+  }
+
+  /** Crack a cracked stone open by pushing into it, for the bubble tool inside. */
+  private pushStone(stone: Stone, tx: number, ty: number) {
+    stone.push++
+    const c = centre(tx, ty)
+    if (stone.push % 10 === 0) {
+      this.burst(c.x, c.y, 3, RAMPS.steel[3])
+      this.sound.play('blip')
+    }
+    if (stone.push < CRACK_PUSH || !stone.cracked) return
+    this.stones.delete(cellKey(tx, ty))
+    this.soilVersion++
+    this.burst(c.x, c.y, 12, RAMPS.steel[3])
+    this.grantTool(stone.cracked, c.x, c.y)
+  }
+
+  /** The sprinkler washes the tunnel ahead clear: every grump in it goes home, fires out. */
+  private sprinkle() {
+    this.tools.sprinkler--
+    const from = this.playerTile()
+    const start = at(this.player)
+    let tx = from.tx
+    let ty = from.ty
+    let end = { x: start.x, y: start.y }
+    let washed = 0
+    for (let step = 0; step < SPRINKLER_REACH; step++) {
+      const nx = tx + DX[this.facing]!
+      const ny = ty + DY[this.facing]!
+      if (!this.isDug(nx, ny) || !this.linked(tx, ty, nx, ny)) break
+      tx = nx
+      ty = ny
+      end = centre(tx, ty)
+      const here = end
+      for (const e of this.enemies) {
+        if (e.ghost && !e.fleeing) continue
+        if (!this.near(e, here, 12)) continue
+        if (this.pumpTarget === e) this.pumpTarget = null
+        if (this.pumpExtra === e) this.pumpExtra = null
+        this.sendHome(e)
+        washed++
+      }
+    }
+    this.spray = { x0: start.x, y0: start.y, x1: end.x, y1: end.y, t: 24 }
+    if (washed) {
+      this.floaters.push({ x: end.x, y: end.y - 10, text: 'WASHED!', life: 40 })
+    }
+    this.sound.play('shoot')
   }
 
   // --- grubs and beetles ----------------------------------------------------------
@@ -1165,7 +1423,14 @@ class BurrowBuddy implements ArcadeGameInstance {
     e.inflate = 0
     e.fire = 0
     e.fireWarn = 0
+    e.curl = 0
+    e.curlRest = 0
+    e.spray = 0
+    e.digLeft = 0
+    e.awake = 0
     e.ghostTimer = this.ghostDelay()
+    // A slump may have buried its burrow: then it drifts out as a ghost.
+    if (!this.isDug(e.spawn.tx, e.spawn.ty)) this.becomeGhost(e)
   }
 
   private updateEnemy(e: Enemy) {
@@ -1176,20 +1441,156 @@ class BurrowBuddy implements ArcadeGameInstance {
       }
       return
     }
-    // The last grub left makes a run for the surface.
-    if (this.enemies.length === 1 && this.levelTick > 300 && !e.fleeing) {
+    // The last grump left makes a run for the surface.
+    if (
+      this.enemies.length === 1 &&
+      this.levelTick > this.plan.escapeAfter &&
+      !e.fleeing
+    ) {
       e.fleeing = true
+      e.curl = 0
+      e.spray = 0
+      e.digLeft = 0
+      e.awake = 0
       this.becomeGhost(e)
     }
-    const speed = levelCurve(this.level, BURROW_CURVES.speed)
-    if (!e.ghost) e.ghostTimer--
+    const speed =
+      levelCurve(this.level, BURROW_CURVES.speed) * GRUMPS[e.kind].pace
+    if (!e.ghost) {
+      if (e.kind === 'pillbug' && this.curled(e)) return
+      if (e.kind === 'mimic' && !this.mimicAwake(e)) {
+        if (this.dead === 0) this.touchPlayer(e)
+        return
+      }
+      if (GRUMPS[e.kind].ghosts || e.kind === 'cricket') e.ghostTimer--
+    }
     if (e.ghost) {
       this.drift(e, speed)
+    } else if (e.kind === 'cricket') {
+      this.burrow(e, speed)
     } else {
       this.crawl(e, speed)
       if (e.kind === 'beetle') this.breathe(e)
     }
     if (this.dead === 0) this.touchPlayer(e)
+  }
+
+  /** Is Buddy lined up on a grump and facing it, within a few tiles? */
+  private faced(e: Enemy, range: number): boolean {
+    const p = this.playerTile()
+    const q = this.enemyTile(e)
+    const dx = q.tx - p.tx
+    const dy = q.ty - p.ty
+    if (dx !== 0 && dy !== 0) return false
+    const dist = Math.abs(dx) + Math.abs(dy)
+    if (dist === 0 || dist > range) return false
+    const dir: Dir = dx > 0 ? 1 : dx < 0 ? 3 : dy > 0 ? 2 : 0
+    return this.facing === dir
+  }
+
+  /** A pill bug curls into a ball when Buddy faces it, then must rest before it can again. */
+  private curled(e: Enemy): boolean {
+    if (e.curl > 0) {
+      if (--e.curl === 0) e.curlRest = CURL_REST
+      return true
+    }
+    if (e.curlRest > 0) {
+      e.curlRest--
+      return false
+    }
+    if (!this.faced(e, CURL_RANGE)) return false
+    e.curl = CURL_TICKS
+    this.sound.play('blip')
+    return true
+  }
+
+  /** A mimic pretends to be a turnip until Buddy comes close, then hops after it. */
+  private mimicAwake(e: Enemy): boolean {
+    if (e.awake > 0) {
+      e.awake--
+      return true
+    }
+    const p = this.playerTile()
+    const q = this.enemyTile(e)
+    if (Math.abs(p.tx - q.tx) + Math.abs(p.ty - q.ty) > MIMIC_RANGE)
+      return false
+    e.awake = MIMIC_AWAKE
+    this.sound.play('warn')
+    return true
+  }
+
+  /** Open a cell for a grump that digs (no points: only Buddy's digging scores). */
+  private openCell(tx: number, ty: number, fromX: number, fromY: number) {
+    this.dug[cellKey(tx, ty)] = 1
+    this.links.add(this.linkKey(fromX, fromY, tx, ty))
+    this.soilVersion++
+  }
+
+  /** The next cell a mole cricket would dig toward Buddy, or null when it is boxed in. */
+  private cricketStep(e: Enemy): Dir | null {
+    const m = e.m
+    const p = this.playerTile()
+    const dx = p.tx - m.tx
+    const dy = p.ty - m.ty
+    const across: Dir = dx > 0 ? 1 : 3
+    const down: Dir = dy > 0 ? 2 : 0
+    const order: Dir[] =
+      Math.abs(dx) >= Math.abs(dy) ? [across, down] : [down, across]
+    for (const d of order) {
+      if ((d === 1 || d === 3) && dx === 0) continue
+      if ((d === 0 || d === 2) && dy === 0) continue
+      const nx = m.tx + DX[d]!
+      const ny = m.ty + DY[d]!
+      if (!this.inField(nx, ny) || ny < 1) continue
+      if (this.solidAt(nx, ny) || this.turnipAt(nx, ny)) continue
+      return d
+    }
+    return null
+  }
+
+  /** A mole cricket crawls like a grub, but when restless it digs new tunnels toward Buddy. */
+  private burrow(e: Enemy, speed: number) {
+    const m = e.m
+    if (moving(m)) {
+      if (this.solidAt(m.nx, m.ny)) {
+        m.nx = m.tx
+        m.ny = m.ty
+        m.p = 0
+        return
+      }
+      const digging = !this.isDug(m.nx, m.ny)
+      m.p += digging ? speed * 0.6 : speed
+      if (m.p < 1) return
+      if (digging || !this.linked(m.tx, m.ty, m.nx, m.ny))
+        this.openCell(m.nx, m.ny, m.tx, m.ty)
+      m.tx = m.nx
+      m.ty = m.ny
+      m.p = 0
+    }
+    if (e.spray > 0) {
+      if (--e.spray > 0) return
+      const d = this.cricketStep(e)
+      if (d === null) {
+        e.digLeft = 0
+        return
+      }
+      e.facing = d
+      m.nx = m.tx + DX[d]!
+      m.ny = m.ty + DY[d]!
+      e.digLeft--
+      return
+    }
+    if (e.digLeft > 0) {
+      if (this.cricketStep(e) === null) e.digLeft = 0
+      else e.spray = e.digLeft === CRICKET_DIG ? SPRAY_TICKS : 10
+      return
+    }
+    if (e.ghostTimer <= 0) {
+      e.ghostTimer = this.ghostDelay()
+      e.digLeft = CRICKET_DIG
+      return
+    }
+    this.crawl(e, speed)
   }
 
   private becomeGhost(e: Enemy) {
@@ -1238,6 +1639,11 @@ class BurrowBuddy implements ArcadeGameInstance {
 
   private crawl(e: Enemy, speed: number) {
     const m = e.m
+    if (moving(m) && this.solidAt(m.nx, m.ny)) {
+      m.nx = m.tx
+      m.ny = m.ty
+      m.p = 0
+    }
     if (moving(m)) {
       m.p += speed
       if (m.p >= 1) {
@@ -1326,9 +1732,10 @@ class BurrowBuddy implements ArcadeGameInstance {
         return
       }
     }
-    if (e.ghost) return
+    if (e.ghost || e.curl > 0) return
     const q = at(e.m)
-    if (Math.hypot(p.x - q.x, p.y - q.y) < 11) this.die('CAUGHT!')
+    if (Math.hypot(p.x - q.x, p.y - q.y) < 11)
+      this.die(e.kind === 'mimic' ? 'CHOMPED BY A MIMIC!' : 'CAUGHT!')
   }
 
   private die(text: string) {
@@ -1346,6 +1753,8 @@ class BurrowBuddy implements ArcadeGameInstance {
 
   private updateTurnips() {
     for (const t of this.turnips) {
+      // A turnip set in a slump block rides with the block, never on its own.
+      if (t.state === 'idle' && this.blockAt(t.tx, t.ty)) continue
       if (t.state === 'idle') {
         const p = this.playerTile()
         const under = p.tx === t.tx && p.ty === t.ty + 1
@@ -1403,20 +1812,29 @@ class BurrowBuddy implements ArcadeGameInstance {
     const y = FY + t.ty * T + t.drop + T / 2
     this.burst(x, y, 10, '#e9d5ff')
     this.sound.play('boom')
-    const bonus = CRUSH_BONUS[Math.min(t.crushed, CRUSH_BONUS.length - 1)]!
+    const bonus = crushBonus(t.crushed)
     if (bonus) {
       this.addScore(bonus, x, y - 12)
       this.fx.burst(x, y, this.fxRng, { count: 18, speed: 2.2 })
     }
     this.dropped++
-    if (this.dropped === 2) {
-      this.veggie = { ticks: 600 }
-      this.banner = {
-        text: `${veggieForGarden(this.level).name} BONUS!`,
-        sub: 'GRAB IT IN THE MIDDLE',
-        ticks: 90,
-      }
+    if (this.dropped === 2) this.offerVeggie(veggieForGarden(this.level))
+    this.checkGoldenBeet(t.crushed)
+  }
+
+  private offerVeggie(prize: Veggie) {
+    // The Golden Beet outranks any veggie already waiting.
+    if (this.veggie?.prize === GOLDEN_BEET) return
+    this.veggie = { ticks: 600, prize }
+    this.banner = {
+      text: `${prize.name}!`,
+      sub: 'GRAB IT WHERE BUDDY STARTED',
+      ticks: 90,
     }
+  }
+
+  private checkGoldenBeet(crushed: number) {
+    if (crushed >= GOLDEN_BEET_CRUSH) this.offerVeggie(GOLDEN_BEET)
   }
 
   private updateVeggie() {
@@ -1426,9 +1844,9 @@ class BurrowBuddy implements ArcadeGameInstance {
       return
     }
     const p = this.playerTile()
-    if (p.tx === START.tx && p.ty === START.ty) {
-      const c = centre(START.tx, START.ty)
-      this.addScore(veggieForGarden(this.level).points, c.x, c.y - 12)
+    if (p.tx === this.start.tx && p.ty === this.start.ty) {
+      const c = centre(this.start.tx, this.start.ty)
+      this.addScore(this.veggie.prize.points, c.x, c.y - 12)
       this.fx.burst(c.x, c.y, this.fxRng, {
         count: 14,
         colours: [RAMPS.gold[4], RAMPS.rust[3], RAMPS.leaf[3]],
@@ -1436,6 +1854,148 @@ class BurrowBuddy implements ArcadeGameInstance {
       this.veggie = null
       this.sound.play('pickup')
     }
+  }
+
+  // --- slumps ------------------------------------------------------------------
+
+  /** Slump blocks: held, then a creaking tell once cut free, then a fall as one piece. */
+  private updateSlumps() {
+    if (this.slumpEcho.ticks > 0) this.slumpEcho.ticks--
+    for (const s of this.slumps) {
+      if (s.state === 'held') {
+        if (!slumpFree(s.cells, this.slumpWorld)) continue
+        // Like a turnip, a block waits while Buddy stands right under it.
+        const p = this.playerTile()
+        if (leadingCells(s.cells).some((c) => c.x === p.tx && c.y === p.ty))
+          continue
+        s.state = 'creak'
+        s.t = CREAK_TICKS
+        s.chain = this.slumpEcho.ticks > 0 ? this.slumpEcho.chain + 1 : 1
+        s.crushed = 0
+        this.sound.play('warn')
+      } else if (s.state === 'creak') {
+        if (!slumpFree(s.cells, this.slumpWorld)) {
+          s.state = 'held'
+          continue
+        }
+        if (--s.t > 0) continue
+        s.state = 'fall'
+        s.drop = 0
+        this.boardRiders(s)
+      } else {
+        s.drop += SLUMP_FALL
+        this.crushUnderSlump(s)
+        if (s.drop < T) continue
+        this.shiftSlump(s)
+        s.drop = 0
+        this.slumpEcho = { ticks: CHAIN_WINDOW, chain: s.chain }
+        // Once sliding it keeps going until something solid is under it.
+        if (!undercut(s.cells, this.slumpWorld)) this.landSlump(s)
+      }
+    }
+  }
+
+  /** Grumps standing on top of a block when it lets go ride all the way down with it. */
+  private boardRiders(s: Slump) {
+    for (const c of topCells(s.cells)) {
+      for (const e of [...this.enemies]) {
+        if (e.ghost || e.inflate > 0) continue
+        const q = this.enemyTile(e)
+        if (q.tx !== c.x || q.ty !== c.y) continue
+        const p = this.enemyPos(e)
+        s.riders.push({ kind: e.kind, x: p.x, y: p.y })
+        this.removeEnemy(e)
+      }
+    }
+  }
+
+  /** The block's bottom edge sweeps down through the row under it, squashing what it meets. */
+  private crushUnderSlump(s: Slump) {
+    for (const c of leadingCells(s.cells)) {
+      const x = c.x * T + T / 2
+      const top = FY + c.y * T
+      const edge = top + s.drop
+      for (const e of [...this.enemies]) {
+        if (e.ghost && !e.fleeing) continue
+        const p = this.enemyPos(e)
+        if (Math.abs(p.x - x) >= 10 || p.y < top - 4 || p.y > edge + 6) continue
+        s.crushed++
+        this.floating.push({ x: p.x, y: p.y, life: 50, kind: e.kind })
+        this.removeEnemy(e)
+        this.sound.play('pop')
+      }
+      const p = at(this.player)
+      if (
+        this.dead === 0 &&
+        Math.abs(p.x - x) < 10 &&
+        p.y > top - 4 &&
+        p.y < edge + 4
+      ) {
+        this.die('BONKED BY A SLUMP')
+      }
+    }
+  }
+
+  /** Move a block down one row: the gap it leaves is open tunnel, the row it fills is solid. */
+  private shiftSlump(s: Slump) {
+    const before = new Set(s.cells.map((c) => cellKey(c.x, c.y)))
+    const moved = s.cells.map((c) => ({ x: c.x, y: c.y + 1 }))
+    const after = new Set(moved.map((c) => cellKey(c.x, c.y)))
+    for (const c of moved) {
+      if (before.has(cellKey(c.x, c.y))) continue
+      this.dug[cellKey(c.x, c.y)] = 0
+      for (let d = 0; d < 4; d++)
+        this.links.delete(this.linkKey(c.x, c.y, c.x + DX[d]!, c.y + DY[d]!))
+    }
+    const vacated = s.cells.filter((c) => !after.has(cellKey(c.x, c.y)))
+    for (const c of vacated) this.dug[cellKey(c.x, c.y)] = 1
+    // Stones and turnips set in the block come down with it, lowest first.
+    const carried = [...this.stones.entries()]
+      .filter(([k]) => before.has(k))
+      .sort(([a], [b]) => b - a)
+    for (const [k, stone] of carried) {
+      this.stones.delete(k)
+      this.stones.set(k + COLS, stone)
+    }
+    for (const t of this.turnips) {
+      if (t.state === 'idle' && before.has(cellKey(t.tx, t.ty))) t.ty++
+    }
+    s.cells = moved
+    this.indexSlumps()
+    for (const c of vacated) this.linkAround(c.x, c.y)
+    for (const r of s.riders) r.y += T
+    this.soilVersion++
+    this.sound.play('boom')
+  }
+
+  private landSlump(s: Slump) {
+    s.state = 'held'
+    const crushed = s.crushed + s.riders.length
+    const lead = leadingCells(s.cells)
+    const xs = lead.map((c) => c.x)
+    const x = ((Math.min(...xs) + Math.max(...xs) + 1) * T) / 2
+    const y = FY + lead[0]!.y * T
+    for (const r of s.riders) {
+      this.floating.push({ x: r.x, y: r.y, life: 60, kind: r.kind })
+    }
+    s.riders = []
+    this.burst(x, y, 16, RAMPS.earth[3])
+    this.sound.play('boom')
+    const bonus = slumpBonus(crushed, s.chain)
+    if (bonus) {
+      this.addScore(bonus, x, y - 16)
+      this.fx.burst(x, y, this.fxRng, { count: 24, speed: 2.4 })
+    }
+    if (s.chain > 1) {
+      this.banner = {
+        text: `SLUMP CHAIN X${s.chain}!`,
+        sub: crushed ? `${crushed} GRUMPS SQUASHED` : undefined,
+        ticks: 80,
+      }
+    }
+    this.lastSlump = { crushed, chain: s.chain, bonus }
+    this.checkGoldenBeet(crushed)
+    s.crushed = 0
   }
 
   private clearLevel() {
@@ -1526,25 +2086,26 @@ class BurrowBuddy implements ArcadeGameInstance {
       return frame
     }
     const me = this.playerTile()
-    // A grub lined up in a tunnel within reach: face it and puff.
+    const { reach } = puffStats((tool) => this.toolOn(tool))
+    // A grump lined up in a tunnel within reach: face it and puff (or, close up, sprinkle it).
     for (let d = 0 as Dir; d < 4; d = (d + 1) as Dir) {
       let tx = me.tx
       let ty = me.ty
-      for (let step = 0; step < PUMP_REACH; step++) {
+      for (let step = 0; step < reach; step++) {
         const nx = tx + DX[d]!
         const ny = ty + DY[d]!
         if (!this.isDug(nx, ny) || !this.linked(tx, ty, nx, ny)) break
         tx = nx
         ty = ny
         const c = centre(tx, ty)
-        const hit = this.enemies.some((e) => {
-          if (e.ghost && !e.fleeing) return false
-          const p = this.enemyPos(e)
-          return Math.abs(p.x - c.x) < 10 && Math.abs(p.y - c.y) < 10
-        })
+        const hit = this.enemies.some(
+          (e) => this.puffable(e) && e.curl === 0 && this.near(e, c),
+        )
         if (hit) {
           held[names[d]] = true
-          frame.pressed.a = true
+          if (step === 0 && this.tools.sprinkler > 0 && this.facing === d)
+            frame.pressed.b = true
+          else frame.pressed.a = true
           return frame
         }
       }
@@ -1552,24 +2113,36 @@ class BurrowBuddy implements ArcadeGameInstance {
     if (moving(this.player)) return frame
     // Otherwise line up with the nearest grub two or three tiles out, then
     // dig toward it to break into its tunnel (and puff next frame).
-    const target = this.enemies
+    const away = (c: { tx: number; ty: number }) =>
+      Math.abs(c.tx - me.tx) + Math.abs(c.ty - me.ty)
+    const grump = this.enemies
       .filter((e) => !e.ghost)
       .map((e) => e.m)
-      .sort(
-        (a, b) =>
-          Math.abs(a.tx - me.tx) +
-          Math.abs(a.ty - me.ty) -
-          (Math.abs(b.tx - me.tx) + Math.abs(b.ty - me.ty)),
-      )[0]
+      .sort((a, b) => away(a) - away(b))[0]
+    // With no grump close by, a cracked stone nearby is worth pushing open for its tool.
+    const cracked = [...this.stones]
+      .filter(([, s]) => s.cracked)
+      .map(([k]) => ({ tx: k % COLS, ty: Math.floor(k / COLS) }))
+      .sort((a, b) => away(a) - away(b))[0]
+    const forStone =
+      !!cracked && away(cracked) <= 5 && (!grump || away(grump) > 4)
+    const target = forStone ? cracked : grump
     if (!target) return frame
     const dx = target.tx - me.tx
     const dy = target.ty - me.ty
     const dist = Math.abs(dx) + Math.abs(dy)
+    if (forStone && dist === 1) {
+      held[names[dx === 0 ? (dy > 0 ? 2 : 0) : dx > 0 ? 1 : 3]] = true
+      return frame
+    }
     const step = (dir: Dir) => {
       const nx = me.tx + DX[dir]!
       const ny = me.ty + DY[dir]!
       if (nx < 0 || nx >= COLS || ny < 1 || ny >= ROWS) return false
-      if (this.turnipAt(nx, ny)) return false
+      if (this.turnipAt(nx, ny) || this.blockAt(nx, ny)) return false
+      // Plain stones are in the way; a cracked one is worth pushing open.
+      const stone = this.stoneAt(nx, ny)
+      if (stone && !stone.cracked) return false
       held[names[dir]] = true
       return true
     }
@@ -1595,13 +2168,22 @@ class BurrowBuddy implements ArcadeGameInstance {
   render(g: CanvasRenderingContext2D) {
     const set = (this.level - 1) % SOIL_SETS.length
     this.renderGarden(g, set)
+    for (const s of this.slumps) this.renderSlump(g, s, set)
+    for (const [k, stone] of this.stones) this.renderStone(g, k, stone)
     for (const t of this.turnips) this.renderTurnip(g, t)
     if (this.veggie) this.renderVeggie(g)
+    for (const e of this.enemies) if (e.fleeing) this.renderEscapePath(g, e)
     for (const e of this.enemies) this.renderEnemy(g, e)
     for (const e of this.enemies) {
       if (!e.ghost && (e.fire > 0 || e.fireWarn > 0)) this.renderFire(g, e)
+      if (!e.ghost && e.spray > 0) this.renderDirtSpray(g, e)
     }
     if (this.stream) this.renderStream(g)
+    if (this.spray) this.renderSprinkler(g)
+    if (this.toolOn('headlamp') && this.dead === 0) {
+      const p = at(this.player)
+      glow(g, p.x, p.y, this.lightRadius() * T, RAMPS.cream[4], 0.18)
+    }
     if (this.dead === 0 && !this.over) this.renderBuddy(g)
     for (const f of this.floating) this.renderFloating(g, f)
     for (const p of this.particles) {
@@ -1629,9 +2211,7 @@ class BurrowBuddy implements ArcadeGameInstance {
   private renderGarden(g: CanvasRenderingContext2D, set: number) {
     // The soil only changes when Buddy digs, so the dug garden lives on its own canvas and is
     // repainted (soil layer plus shaded tunnels) only when the dig state moves on.
-    let dugCount = 0
-    for (const v of this.dug) dugCount += v
-    const key = `${this.level}:${this.links.size}:${dugCount}`
+    const key = `${this.level}:${this.soilVersion}`
     if (this.ground === undefined) this.ground = makeCanvas(W, H)
     const canvas = this.ground
     if (!canvas || key !== this.groundKey) {
@@ -1792,7 +2372,7 @@ class BurrowBuddy implements ArcadeGameInstance {
     const wobble =
       t.state === 'wobble' ? Math.round(Math.sin(this.tick) * 1.5) : 0
     const x = t.tx * T + T / 2 + wobble
-    const y = FY + t.ty * T + t.drop + T / 2
+    const y = FY + t.ty * T + t.drop + T / 2 + this.slumpOffset(t.tx, t.ty)
     if (t.state === 'broken') {
       drawSprite(g, TURNIP_BROKEN, x, y, { alpha: t.t / 30 })
       return
@@ -1809,13 +2389,16 @@ class BurrowBuddy implements ArcadeGameInstance {
   }
 
   private renderVeggie(g: CanvasRenderingContext2D) {
-    const c = centre(START.tx, START.ty)
-    if (this.veggie!.ticks < 120 && Math.floor(this.tick / 6) % 2) return
+    const c = centre(this.start.tx, this.start.ty)
+    const veggie = this.veggie!
+    if (veggie.ticks < 120 && Math.floor(this.tick / 6) % 2) return
+    const golden = veggie.prize === GOLDEN_BEET
     glow(g, c.x, c.y, 14 + Math.sin(this.tick / 8) * 2, RAMPS.gold[3], 0.5)
+    if (golden) glow(g, c.x, c.y, 22, RAMPS.gold[4], 0.35)
     dropShadow(g, c.x, c.y + 6, 4, 1.2)
     drawSprite(
       g,
-      VEGGIE_SPRITES[VEGGIE_LADDER.indexOf(veggieForGarden(this.level))]!,
+      VEGGIE_SPRITES[veggie.prize.name]!,
       c.x,
       c.y + Math.round(Math.sin(this.tick / 10)),
     )
@@ -1838,7 +2421,8 @@ class BurrowBuddy implements ArcadeGameInstance {
     this.lastFlip.set(e, flip)
     if (e.ghost) {
       // A ghost is just goggles drifting through the soil, its body a faint shimmer.
-      const body = e.kind === 'grub' ? GRUB_SPRITES[0] : BEETLE_SPRITES[0]
+      const body =
+        e.kind === 'mimic' ? TURNIP_SPRITE : MOOD_SPRITES[e.kind].calm[0]!
       const shimmer = Math.floor(this.tick / 3) % 2
       drawSprite(g, body, p.x, p.y, {
         flipX: flip,
@@ -1855,14 +2439,192 @@ class BurrowBuddy implements ArcadeGameInstance {
       return
     }
     const frame = moving(e.m) ? Math.floor(this.tick / 8) % 2 : 0
-    dropShadow(g, p.x, p.y + 7, 5, 1.5, 0.4)
-    if (e.kind === 'grub') {
-      drawSprite(g, GRUB_SPRITES[frame]!, p.x, p.y, { flipX: flip })
+    if (e.kind === 'mimic') {
+      // Just a turnip... except it sits in a tunnel, and now and then it blinks.
+      const awake = e.awake > 0
+      const blink =
+        this.toolOn('headlamp') ||
+        (this.tick + e.spawn.tx * 37) % MIMIC_BLINK_EVERY < MIMIC_BLINK
+      const sprite = awake
+        ? MIMIC_SPRITES.awake
+        : blink
+          ? MIMIC_SPRITES.blink
+          : TURNIP_SPRITE
+      const hop =
+        awake && moving(e.m)
+          ? -Math.abs(Math.round(Math.sin(this.tick / 4) * 3))
+          : 0
+      drawSprite(g, sprite, p.x, p.y - 1 + hop, { flipX: flip })
       return
     }
+    dropShadow(g, p.x, p.y + 7, 5, 1.5, 0.4)
+    if (e.kind === 'pillbug' && e.curl > 0) {
+      const rock = Math.floor(this.tick / 10) % 2
+      drawSprite(g, PILLBUG_BALL_SPRITE, p.x + rock, p.y + 1)
+      return
+    }
+    const mood = this.grumpMood(e)
     const hot = e.fireWarn > 0 && Math.floor(this.tick / 4) % 2 === 0
-    const sprites = hot ? BEETLE_HOT_SPRITES : BEETLE_SPRITES
+    const sprites = hot
+      ? BEETLE_HOT_SPRITES
+      : MOOD_SPRITES[e.kind][mood === 'restless' ? 'restless' : 'calm']
     drawSprite(g, sprites[frame]!, p.x, p.y, { flipX: flip })
+    if (mood === 'restless') {
+      // Grumbling: a little puff of steam over its head.
+      const k = Math.floor(this.tick / 6) % 3
+      g.fillStyle = rgba(RAMPS.cream[4], 0.8)
+      g.fillRect(Math.round(p.x) - 3 + k, Math.round(p.y) - 11 - k, 2, 2)
+      g.fillRect(Math.round(p.x) + 2 - k, Math.round(p.y) - 13 + k, 1, 1)
+    }
+  }
+
+  /** How far a slump block carrying this cell has slid into its next row. */
+  private slumpOffset(tx: number, ty: number): number {
+    const s = this.blockAt(tx, ty)
+    return s?.state === 'fall' ? s.drop : 0
+  }
+
+  /** The light round Buddy: the headlamp widens it (dark pockets arrive with the Seasons). */
+  lightRadius(): number {
+    return this.toolOn('headlamp') ? HEADLAMP_RADIUS : LAMP_RADIUS
+  }
+
+  /** A slump block: a chunk of the soil set apart by its fault lines, creaking before it slides. */
+  private renderSlump(g: CanvasRenderingContext2D, s: Slump, set: number) {
+    const shake =
+      s.state === 'creak' ? (Math.floor(this.tick / 3) % 2 ? 1 : -1) : 0
+    const dy = s.state === 'fall' ? s.drop : 0
+    const inBlock = (x: number, y: number) =>
+      s.cells.some((c) => c.x === x && c.y === y)
+    const tones = TUNNEL_TONES[set]!
+    s.cells.forEach((c, i) => {
+      const cx = c.x * T + T / 2
+      const band = bandAt(cx, FY + c.y * T + T / 2)
+      const ramp = SOIL_SETS[set]![band]!
+      const x = c.x * T + shake
+      const y = FY + c.y * T + dy
+      if (dy > 0 && !inBlock(c.x, c.y - 1)) {
+        g.fillStyle = tones[band]!.mid
+        g.fillRect(c.x * T, FY + c.y * T, T, dy)
+      }
+      g.fillStyle = ramp[2]
+      g.fillRect(x, y, T, T)
+      g.fillStyle = ramp[1]
+      for (let k = 0; k < 5; k++) {
+        const px = Math.floor(soilHash(i * 5 + k, 3) * (T - 2)) + 1
+        const py = Math.floor(soilHash(i * 5 + k, 9) * (T - 2)) + 1
+        g.fillRect(x + px, y + py, 1, 1)
+      }
+      g.fillStyle = ramp[3]
+      if (!inBlock(c.x, c.y - 1)) g.fillRect(x, y, T, 2)
+      if (!inBlock(c.x - 1, c.y)) g.fillRect(x, y, 1, T)
+      g.fillStyle = ramp[0]
+      if (!inBlock(c.x, c.y + 1)) g.fillRect(x, y + T - 2, T, 2)
+      if (!inBlock(c.x + 1, c.y)) g.fillRect(x + T - 1, y, 1, T)
+      // The fault line round the block, and a crack through every chunk.
+      g.fillStyle = INK
+      if (!inBlock(c.x, c.y - 1)) g.fillRect(x, y - 1, T, 1)
+      if (!inBlock(c.x, c.y + 1)) g.fillRect(x, y + T, T, 1)
+      if (!inBlock(c.x - 1, c.y)) g.fillRect(x - 1, y, 1, T)
+      if (!inBlock(c.x + 1, c.y)) g.fillRect(x + T, y, 1, T)
+      g.fillStyle = mix(INK, ramp[0], 0.5)
+      const h = soilHash(i, 17)
+      let ky = y + 4 + Math.floor(h * 8)
+      for (let kx = 1; kx < T - 1; kx += 2) {
+        ky += soilHash(i * 13 + kx, 5) > 0.5 ? 1 : -1
+        ky = Math.max(y + 3, Math.min(y + T - 4, ky))
+        g.fillRect(x + kx, ky, 2, 1)
+      }
+    })
+    if (s.state === 'creak') {
+      // Crumbs trickle off the bottom edge: the tell that it is about to go.
+      g.fillStyle = RAMPS.cream[2]
+      for (const c of leadingCells(s.cells)) {
+        const k = (this.tick + c.x * 5) % 12
+        g.fillRect(c.x * T + 4 + ((c.x * 7) % 8), FY + c.y * T + k, 1, 2)
+      }
+    }
+    for (const r of s.riders) {
+      const sprite =
+        r.kind === 'mimic' ? TURNIP_SPRITE : MOOD_SPRITES[r.kind].restless[0]!
+      drawSprite(g, sprite, r.x, r.y + dy)
+    }
+  }
+
+  private renderStone(g: CanvasRenderingContext2D, k: number, stone: Stone) {
+    const tx = k % COLS
+    const ty = Math.floor(k / COLS)
+    const c = centre(tx, ty)
+    const y = c.y + this.slumpOffset(tx, ty)
+    if (!stone.cracked) {
+      drawSprite(g, BOULDER_SPRITE, c.x, y)
+      return
+    }
+    const jiggle = stone.push > 0 && this.tick % 4 < 2 ? 1 : 0
+    const colour = TOOL_COLOURS[stone.cracked]
+    glow(g, c.x, y, 9 + Math.sin(this.tick / 9) * 2, colour[3], 0.35)
+    drawSprite(g, CRACKED_SPRITES[stone.cracked], c.x + jiggle, y)
+    if (Math.floor(this.tick / 10) % 6 === 0) {
+      g.fillStyle = colour[4]
+      g.fillRect(c.x + 3, y - 4, 1, 3)
+      g.fillRect(c.x + 2, y - 3, 3, 1)
+    }
+  }
+
+  /** The escaping last grump shows the way it is going: a dotted trail to the corner. */
+  private renderEscapePath(g: CanvasRenderingContext2D, e: Enemy) {
+    const goal = centre(0, 0)
+    const dx = goal.x - e.gx
+    const dy = goal.y - e.gy
+    const steps = Math.floor(Math.hypot(dx, dy) / 7)
+    for (let i = 1; i < steps; i++) {
+      if ((i + Math.floor(this.tick / 5)) % 3 === 0) continue
+      const x = Math.round(e.gx + (dx * i) / steps)
+      const y = Math.round(e.gy + (dy * i) / steps)
+      g.fillStyle = INK
+      g.fillRect(x - 1, y - 1, 3, 3)
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x, y, 1, 1)
+    }
+    g.fillStyle = INK
+    g.fillRect(goal.x - 4, goal.y - 10, 1, 12)
+    g.fillStyle = RAMPS.ember[3]
+    g.fillRect(goal.x - 3, goal.y - 10, 5, 2)
+    g.fillRect(goal.x - 3, goal.y - 8, 3, 2)
+  }
+
+  /** A mole cricket's tell: dirt spraying from the face it is about to dig. */
+  private renderDirtSpray(g: CanvasRenderingContext2D, e: Enemy) {
+    const d = this.cricketStep(e)
+    if (d === null) return
+    const p = at(e.m)
+    const fx = p.x + DX[d]! * 9
+    const fy = p.y + DY[d]! * 9
+    for (let i = 0; i < 6; i++) {
+      const k = (this.tick * 2 + i * 5) % 10
+      const sx = fx + DX[d]! * (k / 2) + (DY[d] ? (i - 3) * 2 : 0)
+      const sy = fy + DY[d]! * (k / 2) + (DX[d] ? (i - 3) * 2 : 0) - (k % 3)
+      g.fillStyle = i % 2 ? RAMPS.earth[3] : RAMPS.earth[1]
+      g.fillRect(Math.round(sx), Math.round(sy), 2, 1)
+    }
+  }
+
+  private renderSprinkler(g: CanvasRenderingContext2D) {
+    const s = this.spray!
+    const dx = s.x1 - s.x0
+    const dy = s.y1 - s.y0
+    const len = Math.max(1, Math.hypot(dx, dy))
+    g.globalAlpha = Math.min(1, s.t / 12)
+    for (let i = 0; i < len; i += 3) {
+      const f = i / len
+      const wob = ((i + this.tick * 2) % 5) - 2
+      const x = s.x0 + dx * f + (dy ? wob : 0)
+      const y = s.y0 + dy * f + (dx ? wob : 0)
+      g.fillStyle = i % 2 ? RAMPS.sky[3] : RAMPS.water[4]
+      g.fillRect(Math.round(x), Math.round(y), 2, 2)
+    }
+    g.globalAlpha = 1
+    glow(g, s.x1, s.y1, 10, RAMPS.sky[3], 0.4)
   }
 
   /** A beetle's warning glow and its breath of fire, lit with colour math. */
@@ -2010,6 +2772,27 @@ class BurrowBuddy implements ArcadeGameInstance {
         base + 15,
         { anchor: 'feet' },
       )
+    }
+    // The bubble tools Buddy is carrying, bottom middle, each with what it has left.
+    const held = TOOL_KINDS.filter((tool) => this.toolOn(tool))
+    if (held.length) {
+      const tw = held.length * 13 + 5
+      const tx = Math.round(W / 2 - tw / 2)
+      hudPanel(g, tx, base + 2, tw, 14, RAMPS.water)
+      held.forEach((tool, i) => {
+        const x = tx + 9 + i * 13
+        const left = this.tools[tool]
+        const flash = left > 0 && left < 120 && Math.floor(this.tick / 6) % 2
+        if (!flash) drawSprite(g, TOOL_ICONS[tool], x, base + 8)
+        const rules = TOOLS[tool]
+        g.fillStyle = TOOL_COLOURS[tool][3]
+        if (rules.ticks > 0) {
+          g.fillRect(x - 5, base + 14, Math.ceil((left / rules.ticks) * 10), 1)
+        } else if (rules.charges > 0) {
+          for (let c = 0; c < left; c++)
+            g.fillRect(x - 5 + c * 3, base + 14, 2, 1)
+        }
+      })
     }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, FY + 64, {

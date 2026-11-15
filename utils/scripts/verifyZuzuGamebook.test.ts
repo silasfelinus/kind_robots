@@ -1225,6 +1225,22 @@ assert.equal(cueAt('a1-terrain', 'stones').ahead?.when, 'success')
 assert.equal(cueAt('a1-bad-ground', 'up', { health: 6 }).ahead?.wounded, true)
 // Scene damage on the way in counts: the bone bowl's 1-HP sting is projected.
 assert.equal(cueAt('a1-bowl-bones', 'lay', { health: 3 }).ahead?.health, 2)
+// Preview scene effects in the same order as the live reducer: heal, then hurt.
+// A low-health character must not see an optimistic battle entry estimate.
+const bowlFightId = cueAt('a1-bowl-bones', 'lay').ahead?.sceneId
+assert.ok(bowlFightId)
+const bowlFightScene = BOOK[bowlFightId]!
+const originalBowlEffects = bowlFightScene.effects
+try {
+  bowlFightScene.effects = { ...originalBowlEffects, heal: 4, hurt: 3 }
+  assert.equal(
+    cueAt('a1-bowl-bones', 'lay', { health: 2 }).ahead?.health,
+    3,
+    'heal precedes damage in the fight preview, matching applyEffects',
+  )
+} finally {
+  bowlFightScene.effects = originalBowlEffects
+}
 // The wounded bargain: the same refusal is final alone, survivable with the sister.
 assert.equal(
   cueAt('a8-voice-wound', 'refuse', { health: 2 }).ahead?.deadly,

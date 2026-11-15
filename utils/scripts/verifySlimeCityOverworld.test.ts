@@ -158,10 +158,7 @@ assert.deepEqual(
 )
 assert.equal(slimeArtId('cards', 'rat'), 269690)
 assert.equal(slimeArtId('cards', 'firebrand'), 269691)
-assert.equal(
-  slimeArtId('evolutions', 's3-riot-posthumous-saint@3'),
-  269791,
-)
+assert.equal(slimeArtId('evolutions', 's3-riot-posthumous-saint@3'), 269791)
 const cardIds = new Set(CARDS.map((c) => c.id))
 for (const key of evolutionKeys) {
   const [cardId = '', level = ''] = key.split('@')

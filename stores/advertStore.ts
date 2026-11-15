@@ -174,7 +174,14 @@ export const useAdvertStore = defineStore('advertStore', () => {
 
   async function loadPublicSelections(): Promise<void> {
     try {
-      await loadSelections()
+      const res = await performFetch<{
+        slots: Array<{ slotKey: string; artImageId: number }>
+      }>('/api/adverts/public-art')
+      if (!res.success || !res.data)
+        throw new Error(res.message || 'Could not read public poster art.')
+      selections.value = Object.fromEntries(
+        res.data.slots.map((slot) => [slot.slotKey, slot.artImageId]),
+      )
     } catch (error) {
       handleError(error, 'loading public advert art')
     }

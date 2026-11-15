@@ -786,7 +786,7 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
     'pounce',
     'scentmine',
     'reknit',
-    'shredders',
+    'ninthlife',
     's3-catgirls-alley-vet',
     's3-catgirls-patent-saboteur',
     'mutual-aid',

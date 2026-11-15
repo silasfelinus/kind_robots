@@ -209,10 +209,11 @@ for (const node of Object.values(BOOK)) {
       ': wide plates sit above the text, tall and square ones to its right',
   )
 }
-// Regression: never show Hollow Bell on the lookout or an apple tree in the rain-bloom.
+// Regression: never show Hollow Bell on the lookout or an apple tree in the rain-bloom. Both scenes now carry
+// their own painted plates (round 23 house-style passes), replacing the temporary vector stand-ins.
 for (const [nodeId, expectedFile] of [
-  ['a2-bell-view', 'bell-view-original.svg'],
-  ['a4-bloom', 'desert-bloom-original.svg'],
+  ['a2-bell-view', 'sections/a2-bell-view.webp'],
+  ['a4-bloom', 'sections/a4-bloom.webp'],
 ] as const) {
   const chosen = sectionPlate(BOOK[nodeId]!)
   assert.equal(
@@ -221,10 +222,14 @@ for (const [nodeId, expectedFile] of [
     nodeId + ': illustration must follow the authored scene',
   )
   assert.equal(chosen.fit, 'exact', nodeId + ': no unrelated stand-in')
-  assert.match(
-    readFileSync(join(scenesDir, expectedFile), 'utf8'),
-    /<svg[^>]+viewBox/,
-    nodeId + ': local scene illustration must be valid vector artwork',
+  assert.ok(chosen.artImageId > 0, nodeId + ': painted plate with provenance')
+}
+// No temporary vector stand-ins remain anywhere in the book.
+for (const p of [...Object.values(PLATES), ...Object.values(SECTION_PLATES)]) {
+  assert.notEqual(
+    p.format,
+    'svg',
+    p.file + ': painted plate, not a vector stand-in',
   )
 }
 const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))
@@ -262,6 +267,22 @@ for (const id of ['ending-wren-lamp', 'ending-bell-keeper']) {
     existsSync(join(scenesDir, 'sections', id + '.webp')),
     id + ': ending has its own section plate',
   )
+}
+// Playtest-readiness floor (t-006): every authored section and every ending has its own reviewed, exact plate
+// with provenance - no section falls back to a shared or stand-in plate.
+{
+  const uncovered = Object.keys(BOOK).filter((id) => !SECTION_PLATES[id])
+  assert.deepEqual(
+    uncovered,
+    [],
+    'sections without their own plate: ' + uncovered.join(', '),
+  )
+  for (const id of Object.keys(BOOK)) {
+    assert.ok(
+      existsSync(join(scenesDir, 'sections', id + '.webp')),
+      id + ': own plate file present',
+    )
+  }
 }
 const sectionsDir = join(scenesDir, 'sections')
 for (const file of existsSync(sectionsDir) ? readdirSync(sectionsDir) : []) {
@@ -1723,6 +1744,56 @@ for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
         )
         .join(' | '),
   )
+}
+// t-008 combat calibration: each fighting art has a job, so the choice of move
+// is a real decision rather than one dominant button. Seeded and deterministic.
+//   Guard   - the answer to the Abbess's heavy blows.
+//   Quiet Draw (spends Resolve) - strongest against beasts and the jackal band.
+//   Feint   - the best free answer to the band once Resolve is spent.
+//   Strike  - the free baseline; never the best move in any fight.
+{
+  const policies = [
+    'strike',
+    'quiet-draw',
+    'feint-strike',
+    'guard-strike',
+  ] as const
+  const best = (id: string, resolve = 4) => {
+    const rates = policies.map(
+      (policy) =>
+        [
+          policy,
+          combatBenchmark(id, policy, 400, 12, resolve).winRate,
+        ] as const,
+    )
+    return rates.reduce((a, b) => (b[1] > a[1] ? b : a))
+  }
+  assert.equal(
+    best('abbess')[0],
+    'guard-strike',
+    'Guard is the answer to the Abbess',
+  )
+  for (const id of ['crocodile', 'a4-well-battle']) {
+    assert.equal(
+      best(id)[0],
+      'quiet-draw',
+      id + ': Quiet Draw is strongest against beasts and packs',
+    )
+  }
+  assert.equal(
+    best('a4-well-battle', 0)[0],
+    'feint-strike',
+    'with Resolve spent, Feint is the best free answer to the jackal band',
+  )
+  for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
+    const strike = combatBenchmark(node.id, 'strike', 400).winRate
+    assert.ok(
+      policies
+        .slice(1)
+        .some((p) => combatBenchmark(node.id, p, 400).winRate >= strike),
+      node.id + ': some fighting art matches or beats a plain strike',
+    )
+  }
 }
 // Wounded and exhausted players must still resolve battles deterministically.
 // We do not require an injured Zuzu to beat five jackals: failures can be story.

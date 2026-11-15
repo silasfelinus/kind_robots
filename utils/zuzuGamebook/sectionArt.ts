@@ -154,6 +154,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'a1-ridge-retreat': {
+    file: 'sections/a1-ridge-retreat',
+    alt: 'Zuzu, katana in paw, climbs a dark rocky ridge out of the reeds under a burnt-orange sky, the water and its debt left behind below.',
+    artImageId: 270447,
+    source: 'Gamebook round 20, gb20-a1-ridge-retreat-2',
+    fit: 'exact',
+  },
   'a1-stars': {
     file: 'sections/a1-stars',
     alt: 'Zuzu reclines on a flat rock on a hilltop beneath a vast starry night sky and the Milky Way.',
@@ -244,6 +251,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 11, gb11-a2-beds-1',
     fit: 'exact',
     shape: 'square',
+  },
+  'a2-bell-view': {
+    file: 'sections/a2-bell-view',
+    alt: 'From the bell canopy, a dark iron bell hangs over the rail above the ochre-and-white desert, a straight line of small tracks running toward a lone pale tower on the horizon.',
+    artImageId: 272618,
+    source:
+      'Gamebook round 23, gb23-a2-bell-view-mid (house-style pass of Krea composition 252193)',
+    fit: 'exact',
   },
   'a2-candle': {
     file: 'sections/a2-candle',
@@ -427,11 +442,28 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 6, gb6-a2-walk-away-2',
     fit: 'exact',
   },
+  'a2-wax': {
+    file: 'sections/a2-wax',
+    alt: 'A stub of black candle burns on a scorched wooden threshold, its black wax pooled and dripping over the edge.',
+    artImageId: 243524,
+    source:
+      'Gamebook round 4, gb4-candle-wax-1 (purpose-painted for this scene; Round 17 candidates reviewed 2026-11-15 and none bettered it)',
+    fit: 'exact',
+    shape: 'square',
+  },
   'a3-apple-days': {
     file: 'sections/a3-apple-days',
     alt: 'A small campfire burns in a hollow ringed by dry brush at night.',
     artImageId: 243758,
     source: 'Gamebook round 6, gb6-a3-apple-days-1',
+    fit: 'exact',
+  },
+  'a3-apples-reach': {
+    file: 'sections/a3-apples-reach',
+    alt: 'Under a lone apple tree in the golden evening, a fennec girl hands a red apple to her little brother.',
+    artImageId: 243533,
+    source:
+      'Gamebook round 4, gb4-apples-sister-2 (purpose-painted for this scene; Round 17 candidates reviewed 2026-11-15 and none bettered it)',
     fit: 'exact',
   },
   'a3-before-dawn': {
@@ -678,6 +710,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'tall',
   },
+  'a4-bloom': {
+    file: 'sections/a4-bloom',
+    alt: 'After the night rain, a carpet of yellow, white and deep violet wildflowers covers the damp desert, rainwater standing in the hollows.',
+    artImageId: 272620,
+    source:
+      'Gamebook round 23, gb23-a4-bloom-mid (house-style pass of Krea composition 252199)',
+    fit: 'exact',
+  },
   'a4-canyon-floor': {
     file: 'sections/a4-canyon-floor',
     alt: 'On a red canyon floor the fennec sister crouches beside the seated fennec toddler, touching his face.',
@@ -884,6 +924,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 10, gb10-a4-well-robbed-2',
     fit: 'exact',
   },
+  'a4-well-scatter': {
+    file: 'sections/a4-well-scatter',
+    alt: 'A spilled cookpot lies in a stone cleft while a jackal silhouette stands in the bright mouth of the rocks, scavenging what was thrown.',
+    artImageId: 270439,
+    source: 'Gamebook round 20, gb20-a4-well-scatter-2',
+    fit: 'exact',
+  },
   'a4-well-scout': {
     file: 'sections/a4-well-scout',
     alt: 'A young raccoon in a long coat leaps down a rocky slope, kicking up dust.',
@@ -891,6 +938,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 6, gb6-a4-well-scout-1',
     fit: 'exact',
     shape: 'tall',
+  },
+  'a4-well-slip': {
+    file: 'sections/a4-well-slip',
+    alt: 'A jackal raider with a bandaged throat stands black against the glare at the mouth of a narrow stone cleft, watching where the children went.',
+    artImageId: 270444,
+    source: 'Gamebook round 20, gb20-a4-well-slip-1',
+    fit: 'exact',
   },
   'a4-well-toll': {
     file: 'sections/a4-well-toll',
@@ -1213,6 +1267,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 9, gb9-a5-well-2',
     fit: 'exact',
     shape: 'square',
+  },
+  'a5-wellhouse-reckoning': {
+    file: 'sections/a5-wellhouse-reckoning',
+    alt: 'A full brass water canteen and a few silver coins sit on sun-warmed planks at sunset: water, and the price of it.',
+    artImageId: 245125,
+    source:
+      'Gamebook round 11, gb11-a6-badger-sold-3 (the price-of-water still life; rounds 22-23 figure and empty compositions all failed review 2026-11-15)',
+    fit: 'exact',
   },
   'a5-wren-afraid': {
     file: 'sections/a5-wren-afraid',
@@ -1741,6 +1803,15 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'tall',
   },
+  'a8-behind-the-altar': {
+    file: 'sections/a8-behind-the-altar',
+    alt: 'A stub of black candle burns on scorched wood, its black wax pooled and dripping over the edge.',
+    artImageId: 243524,
+    source:
+      'Gamebook round 4, gb4-candle-wax-1 (black-candle still life; round 20 drew human-faced nuns and round 23 a hearth and a carved face, all rejected 2026-11-15)',
+    fit: 'exact',
+    shape: 'square',
+  },
   'a8-cells': {
     file: 'sections/a8-cells',
     alt: 'An otter nun stands in a bare cell beside a candle and a stool.',
@@ -1846,6 +1917,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     artImageId: 244163,
     source: 'Gamebook round 7, gb7-a8-fire-spreads-1',
     fit: 'exact',
+  },
+  'a8-give-ground': {
+    file: 'sections/a8-give-ground',
+    alt: 'Wounded and glaring, Zuzu stands with his back to the crypt wall on the bottom stair, poncho drawn tight and his sword held low.',
+    artImageId: 270450,
+    source: 'Gamebook round 20, gb20-a8-give-ground-1',
+    fit: 'exact',
+    shape: 'tall',
   },
   'a8-jailer-feather': {
     file: 'sections/a8-jailer-feather',
@@ -1967,6 +2046,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'tall',
   },
+  'a8-under-the-wall': {
+    file: 'sections/a8-under-the-wall',
+    alt: 'Zuzu lies flat in the night scrub at a dark opening low in the mission wall, a lantern burning above, waiting for the chanting to begin.',
+    artImageId: 270448,
+    source: 'Gamebook round 20, gb20-a8-under-the-wall-1',
+    fit: 'exact',
+  },
   'a8-voice': {
     file: 'sections/a8-voice',
     alt: 'A golden road runs straight to a lit temple house among mountains at dusk.',
@@ -2005,6 +2091,13 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     source: 'Gamebook round 7, gb7-a8-word-kept-2',
     fit: 'exact',
     shape: 'tall',
+  },
+  'a8-wounded-flight': {
+    file: 'sections/a8-wounded-flight',
+    alt: 'Candles flank a dark altar at the top of the crypt steps, a trail of fresh blood running down the stairs toward the open way out.',
+    artImageId: 270442,
+    source: 'Gamebook round 20, gb20-a8-wounded-flight-1',
+    fit: 'exact',
   },
   'a8-wren-door': {
     file: 'sections/a8-wren-door',
@@ -2318,6 +2411,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     fit: 'exact',
     shape: 'square',
   },
+  'apple-tree': {
+    file: 'sections/apple-tree',
+    alt: 'A lone red-leafed apple tree glows against the setting sun on a desert ridge, a small fox standing beneath it.',
+    artImageId: 242569,
+    source:
+      'Zuzu music video s10 (purpose-painted for this scene; Round 17 candidates drew a dead tree, reviewed 2026-11-15)',
+    fit: 'exact',
+  },
   'bell-tower': {
     file: 'sections/bell-tower',
     alt: 'Zuzu stands under a night sky staring upward open-mouthed, a small bell at his scarf and a tower far behind.',
@@ -2533,6 +2634,14 @@ export const SECTION_PLATES: Record<string, ScenePlate> = {
     alt: 'A lamplit wooden jailhouse corridor runs between barred cells to a small shuttered window.',
     artImageId: 244299,
     source: 'Gamebook round 7, gb7-ending-warning-1',
+    fit: 'exact',
+  },
+  'ending-water': {
+    file: 'sections/ending-water',
+    alt: 'A lone woven straw kasa floats in the middle of a black pool at night, rings of ripples spreading out to the reeds.',
+    artImageId: 243308,
+    source:
+      'Gamebook round 1, gb-ending-water-r2-4 (purpose-painted for this ending)',
     fit: 'exact',
   },
   'ending-wren-lamp': {

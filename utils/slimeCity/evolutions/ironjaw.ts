@@ -239,7 +239,12 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
     levelOneText: 'Push one worker into an immediate extra-power shift.',
     2: stage('Time and a Half', [on('enter', sharpen(1, 'target'))]),
     3: stage('Everybody Clocks In', [
-      on('enter', power(2, 'adjacentAllies'), guard(1, 'adjacentAllies')),
+      on(
+        'enter',
+        sharpen(1, 'target'),
+        power(2, 'adjacentAllies'),
+        guard(1, 'adjacentAllies'),
+      ),
     ]),
   },
   // Arc: lightning off the forge -> it arcs along the chrome to the
@@ -282,7 +287,9 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   's3-ironjaw-bonus-plate': {
     levelOneText: 'Fit a worker with permanent armor against chip hits.',
     2: stage('Overtime Bonus', [on('enter', life(2, 'target'))]),
-    3: stage('Spiked Bonus Plate', [on('enter', sharpen(2, 'target'))]),
+    3: stage('Spiked Bonus Plate', [
+      on('enter', life(2, 'target'), sharpen(2, 'target')),
+    ])
   },
   // Arc: a shop-floor vote -> a show of hands from the crew -> every hand
   // raised: the whole floor bulldozes.

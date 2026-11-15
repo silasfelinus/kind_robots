@@ -549,7 +549,7 @@ export const TEAMS: Team[] = [
       'pounce',
       'scentmine',
       'reknit',
-      'shredders',
+      's3-catgirls-hollow-scalpel',
       'ninthlife',
       'laser',
     ],

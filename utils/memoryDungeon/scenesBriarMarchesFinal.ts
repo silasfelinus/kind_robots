@@ -9,6 +9,7 @@ import type { BriarScene } from './scenes'
 export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
   '1,1': {
     title: 'North Star Twin',
+    autoChoiceId: 'trace',
     opening:
       'At the northern stone a seven-point star has been engraved twice. One copy has a missing notch, removed with a blade so delicate it could be a forgery or a mercy. A carved instruction reads: THE SECOND SKY REMEMBERS THE FIRST. The landscape beyond Briar keeps its answers.',
     artPrompt:
@@ -30,6 +31,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
   },
   '8,1': {
     title: 'Whitewing Cipher',
+    autoChoiceId: 'copy',
     opening:
       "A single white feather floats above the old border mark. Each time the wind turns it, the feather's reflection loses a barb. A cartographer claimed a counterpart on the Salt Cliffs before vanishing without taking their boots.",
     artPrompt:
@@ -51,6 +53,7 @@ export const BRIAR_MARCHES_FINAL_BATCH: Record<string, BriarScene> = {
   },
   '5,2': {
     title: 'Sleeping Sigil',
+    autoChoiceId: 'remember',
     opening:
       "The House's rootwork has grown around half a sleeping seal. It exhales in time with the footsteps above it. Someone deliberately removed the other half, not to break the symbol but to stop it from being misused.",
     artPrompt:

@@ -94,7 +94,9 @@ export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
   // The prior list already contained Patent Saboteur and Bicycle Clinic:
   // replacing only Organ Donor with Laser would invent a deck that never shipped.
   const original = current.map((id) =>
-    id === 's3-catgirls-patent-saboteur'
+    id === 's3-catgirls-hollow-scalpel'
+      ? 's3-catgirls-escaped-tiger'
+      : id === 's3-catgirls-patent-saboteur'
       ? 'laser'
       : id === 's3-catgirls-bicycle-clinic'
         ? 's3-catgirls-patent-saboteur'
@@ -107,7 +109,7 @@ export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
     current.length !== 20 ||
     original.length !== 20 ||
     new Set(original).size !== 20 ||
-    changed.length !== 3 ||
+    changed.length !== 4 ||
     !original.includes('laser') ||
     !original.includes('shredders') ||
     original.includes('s2-catgirls-backstreet-organ-donor')

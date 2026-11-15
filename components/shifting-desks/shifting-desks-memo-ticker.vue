@@ -5,7 +5,7 @@
     aria-label="PAL announcements"
   >
     <span
-      class="z-10 shrink-0 bg-amber-300 px-3 py-1.5 font-mono text-[11px] font-black uppercase tracking-[.2em] text-stone-900"
+      class="ticker-label z-10 shrink-0 bg-amber-300 px-3 py-1.5 font-mono text-[11px] font-black uppercase tracking-[.2em] text-stone-900"
       >PAL</span
     >
     <div class="ticker-window min-w-0 flex-1 overflow-hidden">

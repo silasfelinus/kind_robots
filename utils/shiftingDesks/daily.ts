@@ -53,7 +53,7 @@ export type DailyShare = {
 /** The spoiler-light result line a player pastes to friends. */
 export function dailyShareText(share: DailyShare): string {
   return [
-    `Shifting Desks · Daily Memo ${dailyLabel(share.key)}`,
+    `The Elevator Only Goes Down · Daily Memo ${dailyLabel(share.key)}`,
     `${share.title} · Successor #${share.successor} · ${share.files} files handled`,
     `PAL's verdict: ${share.verdict}`,
     'https://kindrobots.org/play/shifting-desks',

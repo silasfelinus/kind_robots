@@ -18,7 +18,8 @@ tutorial:
   body: >-
     Achievements are hidden around Kind Robots, and each one you find earns a
     jellybean and one mana. Every game has three more of its own: each arcade
-    cabinet, the Zuzu games, Shifting Desks and Emperor of Dust. Use the
+    cabinet, the Zuzu games, The Elevator Only Goes Down and Emperor of Dust.
+    Use the
     section buttons to see the site, the Arcade, Zuzu or another game on its
     own. This page lists the achievements you have earned, a Jellybean
     Collectors leaderboard, and the ones still undiscovered. Reset clears your

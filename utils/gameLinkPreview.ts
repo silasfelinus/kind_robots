@@ -59,9 +59,9 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     image: '/save-the-plumber/link-preview.webp',
   },
   'shifting-desks': {
-    title: 'Shifting Desks | Kind Robots',
+    title: 'The Elevator Only Goes Down | Kind Robots',
     description:
-      'A darkly comic card adventure through a very strange workplace, where every choice costs something. Free to play in your browser.',
+      'A darkly comic card adventure down five floors of a very strange company, where every choice costs something. Free in your browser, with a new Daily Memo every day.',
     image: '/shifting-desks/link-preview.webp',
   },
   'slime-city': {

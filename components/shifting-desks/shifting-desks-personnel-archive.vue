@@ -164,7 +164,7 @@
           <section
             v-else-if="tab === 'achievements'"
             class="flex flex-col gap-4"
-            aria-label="Shifting Desks achievement cabinet"
+            aria-label="The Elevator Only Goes Down achievement cabinet"
           >
             <header
               class="rounded-xl border-2 border-warning/40 bg-base-200 p-3"

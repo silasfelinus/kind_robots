@@ -2,8 +2,8 @@
 contentType: tab
 channelKey: arcade
 tabKey: shifting-desks
-label: Shifting Desks
-title: Shifting Desks
+label: The Elevator Only Goes Down
+title: The Elevator Only Goes Down
 subtitle: A darkly comic card adventure through a paranoid office
 summary: Every choice costs something.
 description: 'Your complimentary Wellness Weekend at Consolidated Wellness & Defense. Open each file, pick an option that costs something, roll the dice, and survive your 90-Day Review on day one. HR has five more of you on file.'

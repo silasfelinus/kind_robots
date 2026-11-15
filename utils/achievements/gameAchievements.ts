@@ -45,7 +45,7 @@ export const ACHIEVEMENT_SECTIONS: readonly AchievementSection[] = [
   { key: 'zuzu', label: 'Zuzu', icon: 'kind-icon:dragon' },
   {
     key: 'shifting-desks',
-    label: 'Shifting Desks',
+    label: 'The Elevator Only Goes Down',
     icon: 'kind-icon:briefcase',
   },
   { key: 'emperor-of-dust', label: 'Emperor of Dust', icon: 'kind-icon:crown' },
@@ -225,7 +225,7 @@ const MAIN_GAMES: AchievementGame[] = [
   },
   {
     key: 'shifting-desks',
-    title: 'Shifting Desks',
+    title: 'The Elevator Only Goes Down',
     section: 'shifting-desks',
     route: '/play/shifting-desks',
     arcade: false,

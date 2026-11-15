@@ -142,97 +142,122 @@
         <div
           class="front-hero relative min-h-0 flex-1 overflow-hidden rounded-2xl border-4 border-stone-900 bg-stone-950"
         >
-          <div class="absolute inset-0">
+          <div class="front-art absolute inset-0">
             <shifting-desks-art
               frame="h-full w-full"
-              position="object-[50%_35%]"
-              :src="stationArt('departments', 'orientation')"
-              alt="Orientation day at Consolidated Wellness & Defense"
+              position="object-[38%_40%]"
+              :src="FRONT_KEY_ART"
+              alt="Orientation at Consolidated Wellness & Defense: Gus the cockroach waves from the front row of folding chairs while PAL, a beige speaker box, waves from the podium beside a glowing green elevator"
               fallback-icon="kind-icon:folder"
               icon-size="4rem"
               :show-brief="false"
             />
           </div>
+          <div class="front-glow absolute inset-0" aria-hidden="true" />
+          <div class="front-grain absolute inset-0" aria-hidden="true" />
           <div class="front-vignette absolute inset-0" aria-hidden="true" />
           <div
-            class="relative z-10 flex h-full flex-col justify-between gap-3 p-3 text-amber-50 sm:p-6"
+            class="relative z-10 flex h-full flex-col justify-between gap-2 p-2 sm:gap-3 sm:p-4"
           >
-            <p
-              class="front-title font-mono text-5xl font-black uppercase leading-[.9] sm:text-8xl"
-            >
-              Shifting<br />Desks
-            </p>
-            <div class="flex flex-col gap-3 sm:gap-4">
-              <div class="flex flex-wrap gap-2 sm:gap-3">
-                <button
-                  v-if="run"
-                  type="button"
-                  class="btn btn-lg border-amber-300 bg-amber-300 text-stone-950 shadow-xl hover:bg-amber-200"
-                  @click="screen = 'play'"
-                >
-                  <icon name="kind-icon:play" class="size-5" />
-                  Return to your desk
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-lg shadow-xl"
-                  :class="
-                    run
-                      ? 'border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900'
-                      : 'border-amber-300 bg-amber-300 text-stone-950 hover:bg-amber-200'
-                  "
-                  @click="beginHire(false)"
-                >
-                  <icon
-                    :name="run ? 'kind-icon:refresh' : 'kind-icon:play'"
-                    class="size-5"
-                  />
-                  {{ run ? 'New game' : 'Begin' }}
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 shadow-xl hover:bg-stone-900"
-                  @click="openArchive('milestones')"
-                >
-                  <icon name="kind-icon:folder" class="size-5" />
-                  Personnel Archive ·
-                  {{
-                    store.archiveUnlocked
-                      ? store.rewardArchive.runs.length + ' filed'
-                      : 'Sealed'
-                  }}
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900"
-                  @click="openArchive('achievements')"
-                >
-                  <icon name="kind-icon:trophy" class="size-5" />
-                  Achievements
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 hover:bg-stone-900"
-                  @click="openSettings"
-                >
-                  <icon name="kind-icon:settings" class="size-5" />
-                  Settings
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 shadow-xl hover:bg-stone-900"
-                  :title="`Today's Daily Memo (${todayLabel}): the same files for everyone, every day`"
-                  @click="beginHire(true)"
-                >
-                  <icon name="kind-icon:calendar" class="size-5" />
-                  Daily Memo
-                  <span class="text-sm font-normal opacity-80">{{
-                    todayLabel
-                  }}</span>
-                </button>
+            <div class="front-sign flex flex-col items-center">
+              <shifting-desks-floor-indicator class="front-indicator" />
+              <div class="front-plate">
+                <p class="front-title">
+                  <span class="block">The Elevator</span>
+                  <span class="block"
+                    >Only Goes <span class="front-title-down">Down</span></span
+                  >
+                </p>
+                <p class="front-plaque">
+                  Consolidated Wellness &amp; Defense · Personnel Car No. 4471
+                </p>
               </div>
-              <shifting-desks-style-picker
-                class="h-32 w-full rounded-2xl bg-stone-950/85 p-2 text-amber-50 sm:h-40 sm:p-3 lg:w-[38rem]"
+            </div>
+            <div class="flex min-w-0 flex-col gap-2">
+              <div class="front-deck">
+                <div class="front-console">
+                  <div class="front-calls">
+                    <button
+                      v-if="run"
+                      type="button"
+                      class="call-button is-lit"
+                      @click="screen = 'play'"
+                    >
+                      <span class="call-lamp" aria-hidden="true">
+                        <icon name="kind-icon:play" class="size-5" />
+                      </span>
+                      <span class="call-label">Return to your desk</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="call-button"
+                      :class="{ 'is-lit': !run }"
+                      @click="beginHire(false)"
+                    >
+                      <span class="call-lamp" aria-hidden="true">
+                        <icon
+                          v-if="run"
+                          name="kind-icon:refresh"
+                          class="size-5"
+                        />
+                        <span v-else class="call-arrow" />
+                      </span>
+                      <span class="call-label">{{
+                        run ? 'New game' : 'Begin'
+                      }}</span>
+                    </button>
+                  </div>
+                  <div class="front-folders">
+                    <button
+                      type="button"
+                      class="folder-tab"
+                      @click="openArchive('milestones')"
+                    >
+                      <icon name="kind-icon:folder" class="size-4 shrink-0" />
+                      <span class="folder-label"
+                        >Personnel Archive
+                        <span class="folder-date">{{
+                          store.archiveUnlocked
+                            ? store.rewardArchive.runs.length + ' filed'
+                            : 'Sealed'
+                        }}</span></span
+                      >
+                    </button>
+                    <button
+                      type="button"
+                      class="folder-tab"
+                      @click="openArchive('achievements')"
+                    >
+                      <icon name="kind-icon:trophy" class="size-4 shrink-0" />
+                      <span class="folder-label">Achievements</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="folder-tab"
+                      @click="openSettings"
+                    >
+                      <icon name="kind-icon:settings" class="size-4 shrink-0" />
+                      <span class="folder-label">Settings</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="folder-tab is-memo"
+                      :title="`Today's Daily Memo (${todayLabel}): the same files for everyone, every day`"
+                      @click="beginHire(true)"
+                    >
+                      <icon name="kind-icon:calendar" class="size-4 shrink-0" />
+                      <span class="folder-label"
+                        >Daily Memo
+                        <span class="folder-date">{{ todayLabel }}</span></span
+                      >
+                    </button>
+                  </div>
+                </div>
+                <shifting-desks-style-picker class="front-styles" />
+              </div>
+              <shifting-desks-memo-ticker
+                class="front-ticker"
+                :lines="FRONT_DESK_MEMOS"
               />
             </div>
           </div>
@@ -1015,6 +1040,7 @@ import {
   ENDINGS,
 } from '~/utils/shiftingDesks/rules'
 import {
+  FRONT_DESK_MEMOS,
   memoLines,
   restructuringMemo,
   successorLine,
@@ -1033,6 +1059,7 @@ import {
   ART_STYLES,
   ART_STYLE_SAMPLE,
   DEFAULT_ART_STYLE,
+  FRONT_KEY_ART,
   artStyleImageSrc,
   loadArtStylePreference,
   saveArtStylePreference,
@@ -1650,13 +1677,20 @@ watch([() => run.value?.position, () => run.value?.department], () => {
 onMounted(() => {
   artStyle.value = loadArtStylePreference()
   store.load()
+  if (!document.getElementById('sd-display-font')) {
+    const link = document.createElement('link')
+    link.id = 'sd-display-font'
+    link.rel = 'stylesheet'
+    link.href = 'https://fonts.googleapis.com/css2?family=Bungee&display=swap'
+    document.head.appendChild(link)
+  }
 })
 
 useSeoMeta(
   gameLinkPreviewMeta('shifting-desks', useRuntimeConfig().public.appBaseUrl) ??
     {},
 )
-useHead({ title: 'Shifting Desks' })
+useHead({ title: 'The Elevator Only Goes Down' })
 </script>
 
 <style scoped>
@@ -1808,20 +1842,511 @@ useHead({ title: 'Shifting Desks' })
   border-bottom: 4px solid #292524;
 }
 
-.front-vignette {
-  background: linear-gradient(
-    to bottom,
-    rgb(12 10 9 / 0.55) 0%,
-    rgb(12 10 9 / 0) 30%,
-    rgb(12 10 9 / 0) 55%,
-    rgb(12 10 9 / 0.7) 100%
+.front-hero {
+  --sd-manila: #e8d3a2;
+  --sd-carbon: #2b3f73;
+  --sd-orange: #e8692a;
+  --sd-tube: #9bd88a;
+  --sd-oxblood: #6e1f24;
+  --sd-ink: #2b2622;
+  --sd-display: 'Bungee', 'Arial Black', Impact, sans-serif;
+  container-type: size;
+}
+
+.front-art {
+  transform: scale(1.1);
+}
+
+.kr-surface[data-art-style='corporate-noir'] .front-art {
+  filter: grayscale(1) contrast(1.2) brightness(0.92);
+}
+
+.front-glow {
+  background: radial-gradient(
+    ellipse 16% 70% at 50% 62%,
+    rgb(155 216 138 / 0.32),
+    rgb(155 216 138 / 0) 70%
   );
+  mix-blend-mode: screen;
+}
+
+.front-grain {
+  background-image:
+    radial-gradient(rgb(43 38 34 / 0.55) 0.7px, transparent 1.1px),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.17 0 0 0 0 0.15 0 0 0 0 0.13 0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size:
+    5px 5px,
+    160px 160px;
+  mix-blend-mode: multiply;
+  opacity: 0.32;
+}
+
+.front-vignette {
+  background:
+    linear-gradient(
+      to bottom,
+      rgb(18 15 12 / 0.4) 0%,
+      rgb(18 15 12 / 0) 26%,
+      rgb(18 15 12 / 0) 50%,
+      rgb(18 15 12 / 0.82) 100%
+    ),
+    radial-gradient(
+      ellipse at 50% 45%,
+      rgb(110 31 36 / 0) 55%,
+      rgb(110 31 36 / 0.4) 100%
+    );
+}
+
+.front-sign {
+  align-self: center;
+  max-width: 100%;
+}
+
+.front-indicator {
+  --floor-width: clamp(9.5rem, 30cqw, 14rem);
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 10px 14px rgb(0 0 0 / 0.45));
+}
+
+.front-plate {
+  position: relative;
+  margin-top: -1px;
+  border-radius: 0.9rem;
+  padding: 0.6rem 1.6rem 0.5rem;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.12) 0%,
+      rgb(255 255 255 / 0) 45%,
+      rgb(0 0 0 / 0.18) 100%
+    ),
+    var(--sd-carbon);
+  box-shadow:
+    inset 0 0 0 3px var(--sd-carbon),
+    inset 0 0 0 5px rgb(232 211 162 / 0.75),
+    0 0 0 3px #3b2a10,
+    0 5px 0 3px #15203d,
+    0 16px 28px rgb(0 0 0 / 0.5);
+  text-align: center;
+}
+
+.front-plate::before,
+.front-plate::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: -0.275rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, #f1d79a, #7a5420);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.5);
+}
+
+.front-plate::before {
+  left: 0.55rem;
+}
+
+.front-plate::after {
+  right: 0.55rem;
 }
 
 .front-title {
-  text-shadow:
-    0 4px 0 rgb(12 10 9 / 0.85),
-    0 0 32px rgb(12 10 9 / 0.9);
+  color: var(--sd-manila);
+  font-family: var(--sd-display);
+  font-size: clamp(1.4rem, min(5.4cqw, 7.2cqh), 3.6rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-shadow: 0 0.08em 0 #15203d;
+}
+
+.front-title-down {
+  color: var(--sd-orange);
+  white-space: nowrap;
+}
+
+.front-title-down::after {
+  content: '';
+  display: inline-block;
+  margin-left: 0.12em;
+  border-top: 0.5em solid currentColor;
+  border-right: 0.3em solid transparent;
+  border-left: 0.3em solid transparent;
+  vertical-align: 0.12em;
+}
+
+.front-plaque {
+  margin-top: 0.35rem;
+  color: rgb(232 211 162 / 0.78);
+  font-family: ui-monospace, monospace;
+  font-size: clamp(0.55rem, 1.4cqw, 0.72rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.front-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: 0.5rem;
+}
+
+.front-console {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.front-calls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.call-button {
+  display: inline-flex;
+  min-height: 3.1rem;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  padding: 0.3rem 1.2rem 0.3rem 0.35rem;
+  background: linear-gradient(160deg, #f1d79a, #c9973f 45%, #7a5420);
+  color: #1c1917;
+  font-family: var(--sd-display);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.5),
+    inset 0 -2px 0 rgb(0 0 0 / 0.3),
+    0 4px 0 #3b2a10,
+    0 10px 18px rgb(0 0 0 / 0.45);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
+}
+
+.call-button:hover {
+  filter: brightness(1.08);
+}
+
+.call-button:active {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.5),
+    inset 0 -2px 0 rgb(0 0 0 / 0.3),
+    0 1px 0 #3b2a10,
+    0 4px 10px rgb(0 0 0 / 0.45);
+}
+
+.call-button:focus-visible,
+.folder-tab:focus-visible {
+  outline: 3px solid var(--sd-tube);
+  outline-offset: 3px;
+}
+
+.call-lamp {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  background: radial-gradient(circle at 40% 35%, #4a4038, #1c1917 70%);
+  color: #a8957a;
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 0.7),
+    0 0 0 3px #3b2a10;
+}
+
+.call-button.is-lit .call-lamp {
+  background: radial-gradient(
+    circle at 40% 35%,
+    #ffd9b5,
+    var(--sd-orange) 55%,
+    #9a3412
+  );
+  color: #fff7ed;
+  box-shadow:
+    inset 0 -2px 4px rgb(0 0 0 / 0.35),
+    0 0 0 3px #3b2a10,
+    0 0 18px rgb(232 105 42 / 0.85);
+}
+
+.call-arrow {
+  width: 0;
+  height: 0;
+  margin-top: 0.2rem;
+  border-top: 0.8rem solid currentColor;
+  border-right: 0.55rem solid transparent;
+  border-left: 0.55rem solid transparent;
+}
+
+.call-label {
+  white-space: nowrap;
+}
+
+.front-folders {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 0.5rem;
+  padding-top: 0.55rem;
+}
+
+.folder-tab {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 2.4rem;
+  align-items: center;
+  gap: 0.4rem;
+  border: 2px solid var(--sd-ink);
+  border-radius: 0 0.5rem 0.5rem 0.5rem;
+  padding: 0.4rem 0.7rem;
+  background-color: var(--sd-manila);
+  background-image: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.35),
+    rgb(255 255 255 / 0) 40%,
+    rgb(43 38 34 / 0.08)
+  );
+  color: var(--sd-carbon);
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: left;
+  text-transform: uppercase;
+  box-shadow: 0 3px 0 var(--sd-ink);
+  transition:
+    transform 0.12s ease,
+    background-color 0.12s ease;
+}
+
+.folder-label {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-height: 1.2;
+}
+
+.folder-tab::before {
+  content: '';
+  position: absolute;
+  top: -0.6rem;
+  left: -2px;
+  width: 42%;
+  height: 0.6rem;
+  border: 2px solid var(--sd-ink);
+  border-bottom: 0;
+  border-radius: 0.45rem 0.45rem 0 0;
+  background-color: inherit;
+}
+
+.folder-tab:hover {
+  transform: translateY(-2px);
+  background-color: #f3e4bf;
+}
+
+.folder-tab.is-memo {
+  background-color: #f2c79f;
+}
+
+.folder-tab.is-memo:hover {
+  background-color: #f7d6b6;
+}
+
+.folder-date {
+  display: inline-block;
+  margin-left: 0.25rem;
+  transform: rotate(-4deg);
+  border: 1.5px solid currentColor;
+  border-radius: 0.25rem;
+  padding: 0 0.25rem;
+  color: var(--sd-oxblood);
+  font-size: 0.68rem;
+}
+
+.front-styles {
+  height: 6rem;
+  border: 2px solid rgb(232 211 162 / 0.4);
+  border-radius: 1rem;
+  padding: 0.4rem 0.5rem 0.5rem;
+  background: rgb(28 25 23 / 0.86);
+  color: var(--sd-manila);
+}
+
+.front-ticker {
+  border-color: var(--sd-ink);
+  background-color: var(--sd-manila);
+  color: var(--sd-ink);
+}
+
+.front-ticker :deep(.ticker-label) {
+  background-color: var(--sd-orange);
+  color: #fff7ed;
+}
+
+.front-ticker :deep(.ticker-track) {
+  font-weight: 700;
+}
+
+@container (max-width: 479px) {
+  .front-plaque {
+    display: none;
+  }
+
+  .front-plate {
+    padding-inline: 1.3rem;
+  }
+}
+
+@container (min-width: 560px) {
+  .folder-tab {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+
+  .front-folders {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .folder-tab {
+    flex: 0 1 auto;
+  }
+
+  .call-button {
+    flex: 0 0 auto;
+  }
+}
+
+@container (min-width: 900px) {
+  .front-sign {
+    align-self: flex-start;
+  }
+
+  .front-indicator {
+    --floor-width: clamp(11rem, 17cqw, 15rem);
+    position: absolute;
+    top: 0.5rem;
+    left: 80%;
+    transform: translateX(-50%);
+  }
+
+  .front-deck {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 24rem);
+  }
+
+  .front-styles {
+    height: 8.5rem;
+  }
+
+  .call-button {
+    min-height: 4rem;
+    padding-right: 1.6rem;
+    font-size: 1.35rem;
+  }
+
+  .call-lamp {
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+
+  .folder-tab {
+    min-height: 2.6rem;
+    font-size: 0.85rem;
+  }
+}
+
+@container (max-height: 620px) {
+  .front-plaque {
+    display: none;
+  }
+
+  .front-indicator {
+    --floor-width: clamp(8rem, 24cqw, 11rem);
+  }
+
+  .front-styles {
+    height: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .front-art {
+    animation: front-descend 40s cubic-bezier(0.3, 0, 0.3, 1) both;
+  }
+
+  .front-glow {
+    animation: front-flicker 9s steps(1, end) infinite;
+  }
+
+  .call-button.is-lit .call-lamp {
+    animation: call-pulse 2.6s ease-in-out infinite;
+  }
+}
+
+@keyframes front-descend {
+  from {
+    transform: scale(1.1) translateY(3.5%);
+  }
+  to {
+    transform: scale(1.1) translateY(-3.5%);
+  }
+}
+
+@keyframes front-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  61% {
+    opacity: 0.45;
+  }
+  62% {
+    opacity: 1;
+  }
+  64% {
+    opacity: 0.6;
+  }
+  65% {
+    opacity: 1;
+  }
+}
+
+@keyframes call-pulse {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 -2px 4px rgb(0 0 0 / 0.35),
+      0 0 0 3px #3b2a10,
+      0 0 10px rgb(232 105 42 / 0.55);
+  }
+  50% {
+    box-shadow:
+      inset 0 -2px 4px rgb(0 0 0 / 0.35),
+      0 0 0 3px #3b2a10,
+      0 0 22px rgb(232 105 42 / 0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .front-ticker :deep(.ticker-track) {
+    white-space: nowrap;
+  }
+
+  .front-ticker :deep(.ticker-track > span:nth-child(n + 2)) {
+    display: none;
+  }
 }
 
 .desk-layout {
@@ -2063,7 +2588,11 @@ useHead({ title: 'Shifting Desks' })
 .kr-surface[data-motion='reduced'] :deep(.result-slam),
 .kr-surface[data-motion='reduced'] :deep(.successor-card),
 .kr-surface[data-motion='reduced'] :deep(.desk-die),
-.kr-surface[data-motion='reduced'] :deep(.desk-flip-inner) {
+.kr-surface[data-motion='reduced'] :deep(.desk-flip-inner),
+.kr-surface[data-motion='reduced'] .front-art,
+.kr-surface[data-motion='reduced'] .front-glow,
+.kr-surface[data-motion='reduced'] .call-lamp,
+.kr-surface[data-motion='reduced'] :deep(.floor-anim) {
   animation: none !important;
   transition: none !important;
 }

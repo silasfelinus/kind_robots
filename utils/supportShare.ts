@@ -103,7 +103,7 @@ const PLAY_TITLES: Record<string, string> = {
   'zuzu-gamebook': 'the Zuzu Gamebook',
   'zuzu-showdown': 'Zuzu Showdown',
   ecotone: 'Ecotone: Weird Humboldt',
-  'shifting-desks': 'Shifting Desks',
+  'shifting-desks': 'The Elevator Only Goes Down',
   aquarium: 'Cthulhuquarium',
   memory: 'Memory Dungeon',
   mandarin: 'the Mandarin Tutor',

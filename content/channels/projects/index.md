@@ -60,7 +60,7 @@ tutorial:
     - key: games
       title: Where to find games
       body: >-
-        Games have moved out of Projects. The Play channel holds the cabinets, Memory Dungeon, Shifting Desks,
+        Games have moved out of Projects. The Play channel holds the cabinets, Memory Dungeon, The Elevator Only Goes Down,
         Cthulhuquarium, Ecotone, Emperor of Dust, Zuzu's gamebook, Shifting
         Lands, Showdown, Ghost Trail and the pinball table.
       image: /images/arcade/arcade-attract-splash.webp

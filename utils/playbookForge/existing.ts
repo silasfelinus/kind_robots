@@ -532,11 +532,11 @@ export const EXISTING_PLAYBOOKS: ExistingPlaybook[] = [
   {
     slug: 'shifting-desks',
     studio: 'shifting-desks',
-    title: 'Shifting Desks',
+    title: 'The Elevator Only Goes Down',
     cover: '/shifting-desks/front-poster.svg',
     route: '/play/shifting-desks',
     planSource: 'Conductor goal',
-    plan: plan('shifting-desks', 'Shifting Desks', {
+    plan: plan('shifting-desks', 'The Elevator Only Goes Down', {
       genre: 'office-dystopia',
       creator: 'fixed',
       factions: 6,

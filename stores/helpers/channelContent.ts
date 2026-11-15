@@ -137,7 +137,7 @@ export type ResolvedTab = {
   refreshLabel: string
   dottiTip: string
   amiTip: string
-  silasSays: string
+  silasSays?: string
 }
 
 export type ResolvedChannel = {
@@ -163,7 +163,7 @@ export type ResolvedChannel = {
   refreshLabel: string
   dottiTip: string
   amiTip: string
-  silasSays: string
+  silasSays?: string
   tutorial: ResolvedTutorialChannel | null
   tabs: ResolvedTab[]
 }

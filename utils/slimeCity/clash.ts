@@ -535,7 +535,7 @@ function clashBaseText(card: Card, level: number): string {
   const b = clashBalance(card, level)
   if (card.kind === 'trap')
     return (
-      'Hits the next rival in this alley for ' +
+      'Next rival here takes ' +
       b.power +
       '.' +
       (card.roots ? ' It misses a strike.' : '') +

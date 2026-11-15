@@ -1982,7 +1982,12 @@ export function playClash(
           }
         }
         if (neighbors.length)
-          note(s, 'The Patent Shredder lends her claws next door.', 'play', lane)
+          note(
+            s,
+            'The Patent Shredder lends her claws next door.',
+            'play',
+            lane,
+          )
       }
       unitEvo(s, unit, 'enter')
       casualties(s)

@@ -8,7 +8,7 @@ import {
   type EndingSave,
   naturalEndingSaves,
 } from '../../utils/shiftingDesks/endingSaves'
-import { ENDINGS } from '../../utils/shiftingDesks/rules'
+import { ENDINGS, MUTATIONS } from '../../utils/shiftingDesks/rules'
 import {
   ENDING_COMMENDATIONS,
   emptyRewardArchive,
@@ -223,6 +223,39 @@ describe('Shifting Desks endings from naturally reached saves', () => {
       assertEpilogue(save)
     })
   }
+
+  it('withholds rejected Classic illustrations without losing discoveries', () => {
+    const save = saves[0]!
+    const receipt = receiptFor(save.run, '2026-11-15T12:00:00Z')!
+    const rejected = MUTATIONS.find(
+      (mutation) => mutation.id === 'eyes-in-the-back-of-your-head',
+    )!
+    cy.viewport(390, 844)
+    cy.visit(PAGE, {
+      onBeforeLoad: (win) => {
+        seedBrowser(win, save)
+        win.localStorage.setItem(
+          REWARD_KEY,
+          JSON.stringify(
+            recordReward(
+              emptyRewardArchive(),
+              { ...receipt, mutation: rejected.title },
+              [save.ending],
+            ),
+          ),
+        )
+      },
+    })
+    openPersonnelFile()
+    cy.get('[aria-label="Your ending reward"] button').click()
+    cy.get('#personnel-archive-tab-art').click()
+    cy.get('section[aria-label="Discovered artwork"]')
+      .contains('Illustration under review')
+      .should('be.visible')
+    cy.get('section[aria-label="Discovered artwork"]')
+      .contains(rejected.title)
+      .should('be.visible')
+  })
 
   it('keeps the same saved run across a real reload', () => {
     const save = saves.find((s) => s.lines.length > 1) ?? saves[0]!

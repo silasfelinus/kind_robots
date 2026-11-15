@@ -170,6 +170,14 @@ describe('Shifting Desks endings from naturally reached saves', () => {
       cy.get('#personnel-archive-tab-runs').type('{home}')
       cy.get('#personnel-archive-tab-milestones').should('be.focused')
 
+      cy.get('#personnel-archive-tab-art').click()
+      cy.get('section[aria-label="Discovered artwork"]')
+        .should('be.visible')
+        .and('contain.text', 'Declassified Art Files')
+      cy.get('section[aria-label="Discovered artwork"]')
+        .find('[data-testid="locked-art-slot"]')
+        .should('have.length.greaterThan', 0)
+
       cy.get('dialog[aria-labelledby="personnel-archive-heading"]')
         .contains('button', 'Close')
         .click()

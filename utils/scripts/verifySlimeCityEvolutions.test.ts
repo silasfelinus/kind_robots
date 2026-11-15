@@ -916,10 +916,10 @@ function bloodBoard(units: ClashUnit[]): ClashState {
     3,
   )
   for (const uid of [1, 3])
-    assert.equal(
-      at(final, uid)!.attack,
-      at(second, uid)!.attack,
-      'Streetlight L3 keeps the neighboring fighter rally',
+    assert.ok(
+      at(final, uid)!.surge >= 1 &&
+        at(final, uid)!.surge === at(second, uid)!.surge,
+      'Streetlight L3 keeps the actual neighboring-fighter rally',
     )
   assert.equal(
     at(final, 9)!.hp,

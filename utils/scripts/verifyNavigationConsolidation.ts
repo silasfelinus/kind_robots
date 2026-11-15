@@ -27,8 +27,12 @@ assert.equal(
 )
 assert.ok(
   workspaceHeader.includes('unified-mobile') &&
-    workspaceHeader.includes('class="nav-launcher-phone min-w-0 flex-1 sm:hidden"') &&
-    workspaceHeader.includes('class="nav-launcher-desktop hidden min-w-0 sm:block"'),
+    workspaceHeader.includes(
+      'class="nav-launcher-phone min-w-0 flex-1 sm:hidden"',
+    ) &&
+    workspaceHeader.includes(
+      'class="nav-launcher-desktop hidden min-w-0 sm:block"',
+    ),
   'phone and desktop must have one active navigation launcher at their respective widths',
 )
 assert.doesNotMatch(
@@ -580,7 +584,6 @@ for (const image of [
   '/save-the-plumber/maps/world-1.webp',
   '/rainbow-princess-art/hero-pearl-palace.webp',
   '/zuzu-pinball/last-bell-cover.webp',
-  '/crystal-street/cover.webp',
   '/storybook-art/dashboard-highlight.webp',
 ]) {
   assert.ok(
@@ -592,10 +595,11 @@ for (const image of [
     'featured artwork must exist in the public assets: ' + image,
   )
 }
-for (const artImageId of [267791, 258076, 258083, 258078]) {
+for (const artImageId of [272640, 272634, 258076, 258083, 258078]) {
   assert.ok(
     visitorDirectorySource.includes(`'/api/art/images/${artImageId}/file'`),
-    'homepage highlights must reference delivered generated artwork ' + artImageId,
+    'homepage highlights must reference delivered generated artwork ' +
+      artImageId,
   )
 }
 assert.ok(

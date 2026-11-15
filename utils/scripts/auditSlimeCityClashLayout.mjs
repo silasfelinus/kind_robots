@@ -78,9 +78,7 @@ function measureClashControls(withTap) {
     rowScrollWidth: row.scrollWidth,
     rowClientWidth: row.clientWidth,
     fight: [Math.round(fightBox.left), Math.round(fightBox.right)],
-    tap: tapBox
-      ? [Math.round(tapBox.left), Math.round(tapBox.right)]
-      : null,
+    tap: tapBox ? [Math.round(tapBox.left), Math.round(tapBox.right)] : null,
   }
 }
 

@@ -297,7 +297,10 @@ const browserLayoutAudit = readFileSync(
   'utf8',
 )
 const responsiveWorkflow = readFileSync(
-  new URL('../../.github/workflows/responsive-layout-audit.yml', import.meta.url),
+  new URL(
+    '../../.github/workflows/responsive-layout-audit.yml',
+    import.meta.url,
+  ),
   'utf8',
 )
 for (const width of [390, 768, 1440])

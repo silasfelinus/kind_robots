@@ -121,19 +121,28 @@ export type Progress = {
   bestHill: number
   /** Time Trial best times by mission id. */
   trials: Readonly<Record<string, number>>
+  /** Best crew medals (1 bronze, 2 silver, 3 gold) by mission id, from Tandem and Relay. */
+  crew?: Readonly<Record<string, number>>
 }
 
-/** Mastery points: medals, acorns, replanted islands, Free Flight depth and trial bests. */
+/**
+ * Mastery points: medals, acorns, replanted islands, Free Flight depth, trial bests and the crew
+ * medals two pods earn together.
+ */
 export function masteryPoints(p: Progress): number {
   let medals = 0
   for (const bits of Object.values(p.medals))
     medals += (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1)
+  let crew = 0
+  for (const v of Object.values(p.crew ?? {}))
+    crew += Math.max(0, Math.min(3, v))
   return (
     medals +
     p.acorns * 2 +
     p.cleared * 4 +
     Math.floor(p.bestHill / 4) +
-    Object.keys(p.trials).length
+    Object.keys(p.trials).length +
+    crew
   )
 }
 

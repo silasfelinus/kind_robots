@@ -11,6 +11,7 @@ import { TIER_ORDER } from './flight'
 import type { MissionSpec } from './missions'
 import { readDaily, readTrials } from './modes'
 import type { DailyBest } from './modes'
+import { readCrewMedals } from './tandem'
 
 /** The Pod Shed's upgrades. */
 export type UpgradeId = 'tank' | 'legs' | 'gyros' | 'lamp' | 'winch'
@@ -79,6 +80,9 @@ export type LanderSave = {
   /** Time Trial best times (ticks) by mission id, and the best Daily Hill score on its day. */
   trials?: Record<string, number>
   daily?: DailyBest
+  /** Best crew medals (Tandem and Relay) by mission id, and Free Flight's furthest crew hill. */
+  crew?: Record<string, number>
+  crewHill?: number
 }
 
 export const GALE_MAX = 9
@@ -190,6 +194,8 @@ export function readLanderSave(
     gale: count(r.gale, GALE_MAX) ? (r.gale as number) : 0,
     trials: readTrials(r.trials),
     daily: readDaily(r.daily),
+    crew: readCrewMedals(r.crew),
+    crewHill: count(r.crewHill, 9_999) ? (r.crewHill as number) : 0,
   }
 }
 

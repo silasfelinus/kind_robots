@@ -12,6 +12,8 @@ export const ZOOM_FROM = 44
 export const ZOOM_FULL = 14
 /** The close-up's magnification. */
 export const ZOOM_MAX = 2.25
+/** The furthest out it pulls to keep two Tandem pods on screen. */
+export const ZOOM_MIN = 0.6
 
 /** The play view under the HUD. */
 export const VIEW_H = H - HUD_H
@@ -37,7 +39,10 @@ export class Camera {
     this.clamp(mapW, mapH)
   }
 
-  /** Ease toward the target and the zoom its altitude asks for, kept inside the map. */
+  /**
+   * Ease toward the target and the zoom its altitude asks for, kept inside the map. `fit` caps the
+   * zoom (Tandem passes what keeps both pods in view, which may pull the view out past 1).
+   */
   follow(
     x: number,
     y: number,
@@ -45,8 +50,9 @@ export class Camera {
     mapW: number,
     mapH: number,
     lookAhead = 0,
+    fit = Infinity,
   ) {
-    const want = Camera.zoomFor(altitude)
+    const want = Math.min(Camera.zoomFor(altitude), Math.max(ZOOM_MIN, fit))
     this.zoom += (want - this.zoom) * 0.08
     if (Math.abs(want - this.zoom) < 0.002) this.zoom = want
     // Zoomed in, the camera holds the pod centred; out, it leads a little the way it flies.

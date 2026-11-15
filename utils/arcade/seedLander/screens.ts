@@ -51,6 +51,18 @@ export type HudView = {
     view: { x0: number; y0: number; x1: number; y1: number }
   }
   tick: number
+  /** Tandem: the second pod's own gauges, drawn small above the bottom strip. */
+  partner?: PartnerGauges
+}
+
+export type PartnerGauges = {
+  label: string
+  sun: number
+  vx: number
+  vy: number
+  tilt: number
+  /** Bonked or out of sun and waiting to drop back in (or sitting out). */
+  down: boolean
 }
 
 /** The cockpit strip across the top and the garden strip along the bottom. */
@@ -138,6 +150,170 @@ export function drawHud(g: CanvasRenderingContext2D, v: HudView) {
     shadow: INK,
   })
   drawStrip(g, v)
+  if (v.partner) drawPartner(g, v.partner, v.tick)
+}
+
+/** Tandem's second cockpit: a small panel over the strip's right end with P2's sun and lamps. */
+function drawPartner(
+  g: CanvasRenderingContext2D,
+  p: PartnerGauges,
+  tick: number,
+) {
+  const x = W - 92
+  const y = H - 27
+  hudPanel(g, x, y, 90, 13, RAMPS.pink)
+  drawText(g, p.label, x + 4, y + 3, { color: RAMPS.pink[4], shadow: INK })
+  if (p.down) {
+    if (tick % 30 < 20)
+      drawText(g, 'DROPPING IN', x + 22, y + 3, {
+        color: RAMPS.cream[3],
+        shadow: INK,
+      })
+    return
+  }
+  const sunny = p.sun > 0.25
+  gauge(g, x + 20, y + 4, 34, 5, p.sun, sunny ? RAMPS.gold : RAMPS.ember)
+  const safe = [
+    Math.abs(p.vx) <= SAFE.vx,
+    p.vy <= SAFE.vy,
+    Math.abs(p.tilt) <= SAFE.tilt,
+  ]
+  safe.forEach((ok, i) => {
+    const lx = x + 60 + i * 9
+    g.fillStyle = INK
+    g.fillRect(lx - 1, y + 3, 7, 7)
+    g.fillStyle = ok ? RAMPS.leaf[3] : DANGER
+    g.fillRect(lx, y + 4, 5, 5)
+  })
+}
+
+/** One mission's line on the medal board. */
+export type BoardRow = {
+  name: string
+  /** Campaign medal bits (Feather, Thrifty, Swift). */
+  medals: number
+  /** The Time Trial best's medal, if raced. */
+  trial: 'gold' | 'silver' | 'bronze' | null
+  /** The best crew medal from Tandem or Relay. */
+  crew: 'gold' | 'silver' | 'bronze' | null
+}
+
+const TIER_RAMP = {
+  gold: RAMPS.gold,
+  silver: RAMPS.steel,
+  bronze: RAMPS.ember,
+} as const
+
+/**
+ * The medal board: one island a page, each mission's three medals, its Time Trial medal and its
+ * best crew medal, with the side modes' bests and the mastery rank along the bottom.
+ */
+export function drawMedalBoard(
+  g: CanvasRenderingContext2D,
+  view: {
+    title: string
+    about: string
+    page: number
+    pages: number
+    rows: readonly BoardRow[]
+    /** Lines for a page with no missions (the side modes' summary). */
+    notes: readonly TallyLine[]
+    rank: string
+    tick: number
+  },
+) {
+  bandedGradient(
+    g,
+    0,
+    0,
+    W,
+    H,
+    [RAMPS.night[1], RAMPS.night[2], RAMPS.purple[1], RAMPS.purple[2]],
+    6,
+  )
+  drawText(g, 'MEDAL BOARD', W / 2, 6, {
+    scale: 2,
+    align: 'center',
+    color: '#ffffff',
+    outline: INK,
+    shadow: RAMPS.gold[1],
+  })
+  drawText(g, view.rank, W / 2, 25, {
+    align: 'center',
+    color: RAMPS.leaf[3],
+    outline: INK,
+  })
+  const top = 38
+  hudPanel(g, 10, top, W - 20, 170, RAMPS.gold)
+  drawText(
+    g,
+    `${view.page > 0 ? '< ' : '  '}${view.title}${view.page < view.pages - 1 ? ' >' : '  '}`,
+    W / 2,
+    top + 6,
+    { scale: 2, align: 'center', color: '#ffffff', outline: INK },
+  )
+  drawText(g, view.about, W / 2, top + 24, {
+    align: 'center',
+    color: RAMPS.gold[4],
+    outline: INK,
+  })
+  if (view.rows.length) {
+    drawText(g, 'F T S', W - 104, top + 38, {
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
+    drawText(g, 'TRIAL CREW', W - 18, top + 38, {
+      align: 'right',
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
+  }
+  const medalColours = [RAMPS.teal[3], RAMPS.gold[3], RAMPS.pink[3]]
+  view.rows.forEach((r, i) => {
+    const y = top + 52 + i * 15
+    drawText(g, r.name, 20, y, { color: RAMPS.cream[3], outline: INK })
+    medalColours.forEach((c, k) => {
+      const mx = W - 104 + k * 12
+      g.fillStyle = INK
+      g.fillRect(mx - 1, y - 1, 7, 7)
+      g.fillStyle = r.medals & (1 << k) ? c : RAMPS.night[2]
+      g.fillRect(mx, y, 5, 5)
+    })
+    const coin = (cx: number, tier: BoardRow['trial']) => {
+      g.fillStyle = INK
+      g.beginPath()
+      g.arc(cx, y + 3, 4.5, 0, Math.PI * 2)
+      g.fill()
+      const ramp = tier ? TIER_RAMP[tier] : RAMPS.night
+      g.fillStyle = ramp[tier ? 3 : 2]!
+      g.beginPath()
+      g.arc(cx, y + 3, 3.5, 0, Math.PI * 2)
+      g.fill()
+      if (tier) {
+        g.fillStyle = ramp[4]!
+        g.fillRect(cx - 2, y + 1, 1, 1)
+        if (tier === 'gold' && view.tick % 60 < 8)
+          glow(g, cx, y + 3, 7, RAMPS.gold[4], 0.5)
+      }
+    }
+    coin(W - 52, r.trial)
+    coin(W - 26, r.crew)
+  })
+  view.notes.forEach((line, i) => {
+    const y = top + 46 + i * 15
+    drawText(g, line.label, 24, y, { color: RAMPS.cream[3], outline: INK })
+    drawText(g, line.value, W - 24, y, {
+      align: 'right',
+      color: line.value === '-' ? RAMPS.steel[2] : RAMPS.gold[4],
+      outline: INK,
+    })
+  })
+  if (view.tick % 40 < 28)
+    drawText(g, 'LEFT/RIGHT ISLAND  A OR B BACK', W / 2, H - 14, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
 }
 
 /** The bottom strip: beds planted, the minimap, the streak and the tier's hops. */

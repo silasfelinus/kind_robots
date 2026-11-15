@@ -1964,6 +1964,26 @@ export function playClash(
           )
         }
       }
+      if (id === 'shredders') {
+        const neighbors = s.units
+          .filter(
+            (ally) =>
+              ally.side === side &&
+              ally.uid !== unit.uid &&
+              Math.abs(ally.lane - lane) === 1,
+          )
+          .sort((a, b) => a.lane - b.lane)
+        for (const ally of level === 3 ? neighbors : neighbors.slice(0, 1)) {
+          if (level === 1) ally.surge += 1
+          else {
+            ally.attack = Math.min(10, ally.attack + 1)
+            if (level === 3 && !has(ally, 'pierce'))
+              ally.keywords.push('pierce')
+          }
+        }
+        if (neighbors.length)
+          note(s, 'The Patent Shredder lends her claws next door.', 'play', lane)
+      }
       unitEvo(s, unit, 'enter')
       casualties(s)
     }
@@ -2142,10 +2162,6 @@ export function playClash(
           break
         case 'sharpen':
           target.attack = clamp(target.attack + profile.bonus, 1, 10)
-          if (id === 'shredders' && level >= 2) {
-            if (!has(target, 'pierce')) target.keywords.push('pierce')
-            if (level === 3) (target.gearLevels ??= {}).shredders = level
-          }
           if (id === 'wreckingfist' && level >= 2) {
             if (!has(target, 'bulldoze')) target.keywords.push('bulldoze')
             if (level === 3) (target.gearLevels ??= {}).wreckingfist = level
@@ -2642,15 +2658,6 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     )
     if (has(attacker, 'bulldoze') && defender.hp < 0)
       s.boss[foeSide] += defender.hp
-    if (dealt > 0 && attacker.gearLevels?.shredders === 3) {
-      const victim = s.units.find(
-        (u) =>
-          u.side === foeSide &&
-          u.uid !== defender.uid &&
-          Math.abs(u.lane - lane) === 1,
-      )
-      if (victim) damage(victim, Math.max(1, Math.ceil(dealt / 2)))
-    }
     if (dealt > 0 && attacker.gearLevels?.wreckingfist === 3) {
       s.boss[foeSide] -= 2
       const victim = s.units.find(

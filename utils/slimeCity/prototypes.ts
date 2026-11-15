@@ -549,7 +549,7 @@ export const TEAMS: Team[] = [
       'pounce',
       'scentmine',
       'reknit',
-      'shredders',
+      's3-catgirls-hollow-scalpel',
       'ninthlife',
       'laser',
     ],
@@ -756,12 +756,12 @@ export const CARDS: Card[] = [
   },
   {
     id: 'shredders',
-    name: 'Patent Shredders',
-    kind: 'equipment',
+    name: 'Patent Shredder',
+    kind: 'creature',
     team: 'catgirls',
     cost: 2,
-    effect: 'sharpen',
-    text: 'Lab-grown claws, formerly corporate property. A fighter gains +1 attack for good.',
+    attack: 2,
+    text: 'A claw-handed lab escapee lends her stolen weapons to nearby allies.',
     symbol: '⟋',
   },
   {
@@ -4626,15 +4626,15 @@ export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
   // Re-tuned 2026-11-04 with dithered rounding, picked on 48 held-out seeds
   // (1,440 games): Blackout spread 0.079, Bloodrush 0.037.
   blackout: {
-    catgirls: -0.75,
+    catgirls: -0.625,
     bloodfairies: 1.5,
-    ironjaw: -1.625,
+    ironjaw: -1.75,
     riot: 0.5,
-    undertow: 1.375,
+    undertow: 1.5,
     exchange: -0.625,
   },
   bloodrush: {
-    catgirls: -0.75,
+    catgirls: -0.5,
     bloodfairies: 1.375,
     ironjaw: -2,
     riot: 0.625,

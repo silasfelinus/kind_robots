@@ -180,7 +180,7 @@ assert.match(
   assert.equal(
     fighters.length,
     14,
-    'fighters-first pilot fields fourteen bodies',
+    'fighters-first pilot fields fourteen bodies including Patent Shredder',
   )
 }
 

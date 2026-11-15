@@ -448,6 +448,13 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
   // armor lifted plated bases, and the bonus must not stack past the cap).
   if (curve?.hp)
     evolvedHp = clamp(evolvedHp + curve.hp, 1, LIFE_CAP[plays][tier])
+  // A gear-to-fighter conversion must not inherit a full two-play bruiser
+  // budget on top of its adjacent-ally support. It is a vulnerable medic-like
+  // claw carrier until the crew earns the third-stage two-sided handoff.
+  if (card.id === 'shredders') {
+    evolvedAttack = [1, 1, 2][tier]!
+    evolvedHp = [3, 4, 5][tier]!
+  }
   return {
     plays,
     level: lv,
@@ -760,9 +767,9 @@ export const CLASH_GUESTS: Record<TeamId, string> = {
  * 2026-11-08 PT: "You need a sample of at least 20 from one faction ... to
  * make one side of a match"): the ten Catgirls with hand-built twists plus
  * ten crafted in evolutions/catgirls.ts, so every card in the deck has its
- * own level-two and level-three story. Eleven fighters hold the five alleys
+ * own level-two and level-three story. Fourteen fighters hold the five alleys
  * (each fighter traded for a special cost ~4 points in CPU sweeps), so the
- * crafted Second Pounce Rig is a deck-builder pick rather than a starter.
+ * crafted Second Pounce Rig and Ghost-Kitten are deck-builder picks.
  */
 export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
   catgirls: [
@@ -773,7 +780,7 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
     's3-catgirls-glasswalker',
     's1-roof-phantom',
     'splice-runner',
-    's2-catgirls-parapet-ghost-kitten',
+    's3-catgirls-hollow-scalpel',
     's3-catgirls-escaped-tiger',
     's1-alley-vet',
     'pounce',
@@ -1964,6 +1971,31 @@ export function playClash(
           )
         }
       }
+      if (id === 'shredders') {
+        const neighbors = s.units
+          .filter(
+            (ally) =>
+              ally.side === side &&
+              ally.uid !== unit.uid &&
+              Math.abs(ally.lane - lane) === 1,
+          )
+          .sort((a, b) => a.lane - b.lane)
+        for (const ally of level === 3 ? neighbors : neighbors.slice(0, 1)) {
+          if (level === 1) ally.surge += 1
+          else {
+            ally.attack = Math.min(10, ally.attack + 1)
+            if (level === 3 && !has(ally, 'pierce'))
+              ally.keywords.push('pierce')
+          }
+        }
+        if (neighbors.length)
+          note(
+            s,
+            'The Patent Shredder lends her claws next door.',
+            'play',
+            lane,
+          )
+      }
       unitEvo(s, unit, 'enter')
       casualties(s)
     }
@@ -2142,10 +2174,6 @@ export function playClash(
           break
         case 'sharpen':
           target.attack = clamp(target.attack + profile.bonus, 1, 10)
-          if (id === 'shredders' && level >= 2) {
-            if (!has(target, 'pierce')) target.keywords.push('pierce')
-            if (level === 3) (target.gearLevels ??= {}).shredders = level
-          }
           if (id === 'wreckingfist' && level >= 2) {
             if (!has(target, 'bulldoze')) target.keywords.push('bulldoze')
             if (level === 3) (target.gearLevels ??= {}).wreckingfist = level
@@ -2642,15 +2670,6 @@ export function strikeClash(input: ClashState, side: Side): ClashState {
     )
     if (has(attacker, 'bulldoze') && defender.hp < 0)
       s.boss[foeSide] += defender.hp
-    if (dealt > 0 && attacker.gearLevels?.shredders === 3) {
-      const victim = s.units.find(
-        (u) =>
-          u.side === foeSide &&
-          u.uid !== defender.uid &&
-          Math.abs(u.lane - lane) === 1,
-      )
-      if (victim) damage(victim, Math.max(1, Math.ceil(dealt / 2)))
-    }
     if (dealt > 0 && attacker.gearLevels?.wreckingfist === 3) {
       s.boss[foeSide] -= 2
       const victim = s.units.find(

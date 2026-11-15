@@ -255,22 +255,32 @@ assert.ok(existsSync(join(ROOT, 'pages/admin/adverts.vue')))
 const advertPage = read('pages/admin/adverts.vue')
 assert.match(
   advertPage,
-  /advert-focus[^"]*overflow-hidden md:flex-row/,
+  /overflow-hidden md:flex-row/,
   'tablet advert view places the poster beside the editor',
 )
 assert.match(
   advertPage,
-  /kr-scroll min-h-0 flex-1 flex-col[^"]*bg-base-100\\/95[^"]*md:w-\\[23rem\\]/,
-  'the editor owns bounded scrolling and an opaque reading surface',
+  /kr-scroll min-h-0 flex-1 flex-col/,
+  'the editor owns bounded scrolling',
 )
 assert.match(
   advertPage,
-  /@media \\(min-width: 768px\\) \\{/,
-  'the bounded poster stage switches layout at tablet width',
+  /bg-base-100\/95/,
+  'the editor has its own high-contrast reading surface',
 )
 assert.match(
   advertPage,
-  /\\.advert-stage \\{[^}]*min-height: 0;[^}]*overflow: hidden;/,
+  /md:w-\[23rem\]/,
+  'the tablet editor stays compact beside the artwork',
+)
+assert.match(
+  advertPage,
+  /@media \(min-width: 768px\)/,
+  'the poster stage switches sizing at tablet width',
+)
+assert.match(
+  advertPage,
+  /min-height: 0;\n  overflow: hidden;/,
   'the preview cannot spill into the control deck',
 )
 

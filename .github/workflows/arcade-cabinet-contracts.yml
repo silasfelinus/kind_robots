@@ -1,7 +1,7 @@
 name: Arcade Cabinet Browser Contracts
 
 # Real ArcadeCabinet + real game in headless Chromium, driven by synthetic keyboard,
-# gamepad and touch (conductor kr-arcade t-147, t-148). One job installs Chromium once
+# gamepad and touch (conductor kr-arcade t-147, t-148, t-151). One job installs Chromium once
 # and runs every cabinet contract; add new ones as further steps.
 
 on:
@@ -46,6 +46,9 @@ jobs:
       - name: Battery Maze — saved-entry modes through the cabinet and arcade store
         if: always()
         run: node utils/scripts/verifyBatteryMazeSavesCabinet.browser.test.mjs
+      - name: Bumper Bubbles — pantry cards through cabinet retirement and Continue
+        if: always()
+        run: node utils/scripts/verifyBumperBubblesSavesCabinet.browser.test.mjs
       - name: Preserve cabinet states
         if: always()
         uses: actions/upload-artifact@v4

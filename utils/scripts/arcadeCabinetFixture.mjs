@@ -95,6 +95,11 @@ window.__app = app
 const exposed = [
   { file: /games\/rescueRally\.ts$/, ctor: 'RescueRally', list: '__rallies' },
   { file: /games\/batteryMaze\.ts$/, ctor: 'BatteryMaze', list: '__batteries' },
+  {
+    file: /games\/bumperBubbles\.ts$/,
+    ctor: 'BumperBubbles',
+    list: '__bubbles',
+  },
 ]
 
 /**

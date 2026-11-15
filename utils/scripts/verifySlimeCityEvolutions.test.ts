@@ -179,8 +179,8 @@ assert.match(
   const fighters = deck.filter((id) => cardById(id).kind === 'creature')
   assert.equal(
     fighters.length,
-    14,
-    'fighters-first pilot fields fourteen bodies',
+    15,
+    'fighters-first pilot fields fifteen bodies, including Patent Shredder',
   )
 }
 

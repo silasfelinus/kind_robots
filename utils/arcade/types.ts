@@ -219,6 +219,11 @@ export interface ArcadeGameInstance {
    */
   readonly music?: MusicLoop | null
   /**
+   * A twin-stick game showing its own menu mid-play (a mode list, a shop): while true the cabinet
+   * gives the arrow keys back to moving the cursor instead of aiming (kr-arcade t-147).
+   */
+  readonly menuOpen?: boolean
+  /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.
    */

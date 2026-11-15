@@ -1300,6 +1300,11 @@ class RescueRally implements ArcadeGameInstance {
 
   // --- the menu of modes -------------------------------------------------------------------------
 
+  /** The modes, Welcome Back or the Shelter is up: the cabinet's arrows move the cursor, not aim. */
+  get menuOpen(): boolean {
+    return Boolean(this.menu || this.offer || this.shelter)
+  }
+
   private openMenu() {
     this.menu = { cursor: 0, district: 0, board: false, ticks: 0 }
     this.banner = null

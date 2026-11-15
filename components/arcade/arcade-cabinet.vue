@@ -445,6 +445,7 @@ import {
   loadArcadeGame,
 } from '~/utils/arcade/games'
 import {
+  AIM_KEYS,
   ArcadeInput,
   assignPads,
   keepPads,
@@ -598,6 +599,10 @@ const twinStick = computed(() => meta.value?.twinStick === true && !duo.value)
 const fourButtons = computed(() => meta.value?.fourButtons === true)
 /** Aiming is live only while such a game plays, so menus keep the arrows. */
 const aiming = computed(() => twinStick.value && phase.value === 'playing')
+/** The game's own menu is up mid-play (ArcadeGameInstance.menuOpen). */
+const gameMenu = ref(false)
+/** The arrows aim only while aiming and no game menu wants them for its cursor. */
+const arrowsAim = computed(() => aiming.value && !gameMenu.value)
 const seatList = computed(() =>
   Array.from({ length: players.value }, (_, seat) => seat),
 )
@@ -967,7 +972,7 @@ function releaseAim() {
 function seatOneKeys() {
   return duo.value
     ? P1_KEYS
-    : aiming.value
+    : arrowsAim.value
       ? TWIN_KEYS
       : props.slug === 'save-the-plumber'
         ? SAVE_PLUMBER_KEYS
@@ -1076,6 +1081,11 @@ let sceneNow: ArcadeMusicScene = 'level'
 function musicSceneOf(instance: ArcadePlayableInstance): ArcadeMusicScene {
   const scene = (instance as { musicScene?: unknown }).musicScene
   return isArcadeMusicScene(scene) ? scene : 'level'
+}
+
+/** A game's own menu is up mid-play (`menuOpen`), so the arrows move its cursor. */
+function menuOpenOf(instance: ArcadePlayableInstance | null): boolean {
+  return (instance as { menuOpen?: unknown } | null)?.menuOpen === true
 }
 
 /** Follow the real game's music (a demo plays silent; a finished game stops it). */
@@ -1209,6 +1219,7 @@ function startGame() {
     }),
   )
   lastSave = undefined
+  gameMenu.value = menuOpenOf(game)
   // The pinball mixer is constructed by create(). Unlock it now, not only
   // before the instance exists or on the next requestAnimationFrame tick.
   if (meta.value?.touchLayout === 'pinball') unlockArcadeAudio()
@@ -1379,6 +1390,7 @@ function tick() {
     if (hintLives === null) hintLives = game.lives
     else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
+    gameMenu.value = menuOpenOf(game)
     const feats = game.drainFeats?.()
     if (feats?.length) void store.awardFeats(props.slug, feats)
     keepSave(game)
@@ -2047,9 +2059,10 @@ watch(players, () => {
   }
 })
 
-watch(aiming, (on) => {
-  releaseAim()
-  input.setAiming(on)
+watch(aiming, releaseAim)
+
+watch([aiming, arrowsAim], ([on, arrows]) => {
+  input.setAiming(on, arrows ? AIM_KEYS : {})
   input.setKeyMap(seatOneKeys())
 })
 

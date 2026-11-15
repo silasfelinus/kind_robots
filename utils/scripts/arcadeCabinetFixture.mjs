@@ -7,8 +7,9 @@ import { build } from 'esbuild'
 
 // Shared browser fixture for the actual ArcadeCabinet (and the tutorial flyer that renders a Play tab's
 // help). Compiles the real single-file components with esbuild, stubs only the stores (no network), and
-// wraps the Rainbow engine's create so a test can read its snapshot. Used by the Rainbow cabinet help/
-// controls contract (t-015) and the touch replay contract (t-018).
+// wraps the Rainbow engine's and Rescue Rally's create so a test can read (and stage) their games. Used
+// by the Rainbow cabinet help/controls contract (t-015), the touch replay contract (t-018) and the
+// Rescue Rally seat contract (kr-arcade t-147).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -128,6 +129,30 @@ export async function bundleCabinetFixture() {
               ;(window.__games ||= []).push({ demo: Boolean(options.demo), game })
               return game
             }\n`,
+            loader: 'ts',
+            resolveDir: path.dirname(file),
+          }
+        },
+      )
+      // Expose each Rescue Rally game the cabinet creates, so a test can read and stage it.
+      builder.onLoad(
+        { filter: /games\/rescueRally\.ts$/ },
+        ({ path: file }) => {
+          const marker = 'create: (options) => new RescueRally(options),'
+          const source = readFileSync(file, 'utf8')
+          if (!source.includes(marker))
+            throw new Error(
+              'rescueRally.ts: the fixture hook lost its create()',
+            )
+          return {
+            contents: source.replace(
+              marker,
+              `create: (options) => {
+              const game = new RescueRally(options)
+              ;(window.__rallies ||= []).push({ demo: Boolean(options.demo), game })
+              return game
+            },`,
+            ),
             loader: 'ts',
             resolveDir: path.dirname(file),
           }

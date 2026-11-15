@@ -154,15 +154,16 @@ function fightFrom(
   const node = BOOK[id]
   if (!node) return null
   const after = withFlags(flags, sceneFlags(node))
-  const hurt = Math.max(1, health - (node.effects?.hurt ?? 0))
-  const healed = Math.min(MAX_HEALTH, hurt + (node.effects?.heal ?? 0))
-  if (node.battle) return { sceneId: id, flags: after, health: healed }
+  const healed = Math.min(MAX_HEALTH, health + (node.effects?.heal ?? 0))
+  const resultingHealth = Math.max(1, healed - (node.effects?.hurt ?? 0))
+  if (node.battle)
+    return { sceneId: id, flags: after, health: resultingHealth }
   const only = node.choices?.length === 1 ? node.choices[0] : null
   if (node.ending || hops >= 3 || !only || only.check) return null
   return fightFrom(
     only.to,
     withFlags(after, choiceFlags(only)),
-    healed,
+    resultingHealth,
     hops + 1,
   )
 }

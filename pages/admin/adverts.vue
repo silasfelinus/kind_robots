@@ -1,5 +1,5 @@
 <template>
-  <main class="advert-studio kr-surface gap-0">
+  <main class="advert-studio kr-surface gap-0 overflow-hidden">
     <header-page-bar compact>
       <div
         class="flex min-w-0 flex-1 items-center justify-end gap-1"
@@ -95,7 +95,7 @@
 
     <div
       v-else
-      class="advert-focus flex min-h-0 flex-1 flex-col lg:flex-row"
+      class="advert-focus flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row"
       data-testid="advert-focus"
     >
       <section class="advert-stage" aria-label="Poster preview">
@@ -105,10 +105,10 @@
       </section>
 
       <aside
-        class="kr-scroll flex flex-col gap-3 border-t border-base-300 p-3 lg:w-[26rem] lg:flex-none lg:border-l lg:border-t-0"
+        class="kr-scroll min-h-0 flex-1 flex-col gap-3 border-t border-base-300 bg-base-100/95 p-3 text-base-content shadow-lg md:w-[23rem] md:flex-none md:border-l md:border-t-0 md:p-4"
         data-testid="advert-deck"
       >
-        <div class="flex items-center gap-1">
+        <div class="flex min-w-0 items-center gap-1">
           <button
             type="button"
             class="kr-btn-ghost-circle-xs"
@@ -285,6 +285,8 @@ onMounted(async () => {
 .advert-stage {
   flex: none;
   height: 50%;
+  min-height: 0;
+  overflow: hidden;
   container-type: size;
   display: grid;
   place-items: center;
@@ -299,7 +301,7 @@ onMounted(async () => {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .advert-stage {
     flex: 1 1 0%;
     height: auto;

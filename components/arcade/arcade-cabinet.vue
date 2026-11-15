@@ -9,6 +9,7 @@
         'arcade-cabinet--locked': locked,
         'arcade-cabinet--fullscreen': fullscreen,
         'arcade-cabinet--contained': contained,
+        'arcade-cabinet--paddle': paddleMode,
       }"
       :style="{ '--arcade-accent': meta?.accent ?? '#f472b6' }"
       @contextmenu="onContextMenu"
@@ -89,6 +90,21 @@
           @press="(button, down) => press(button, down)"
           @plunger="(depth) => (pinballPull = depth)"
         />
+        <div
+          v-if="paddleMode"
+          class="cabinet-paddle-track"
+          role="group"
+          aria-label="Slide left or right to steer the Brick Bloom paddle"
+          @pointerdown.prevent="beginPaddleDrag"
+          @pointermove.prevent="onPaddlePointerMove"
+          @pointerup.prevent="releasePaddlePointer"
+          @pointercancel="releasePaddlePointer"
+          @lostpointercapture="releasePaddlePointer"
+        >
+          <span class="cabinet-paddle-track-label" aria-hidden="true">
+            ◀ SLIDE TO STEER ▶
+          </span>
+        </div>
         <div
           v-if="paddleMode && (paddleActions.a || paddleActions.b)"
           class="cabinet-paddle-actions"
@@ -1923,15 +1939,20 @@ function onScreenPointer(event: PointerEvent) {
   canvasRef.value?.focus({ preventScroll: true })
   if (paddleMode.value) {
     if (paddlePointer !== null) return
-    paddlePointer = event.pointerId
-    capture(canvasRef.value, event.pointerId)
-    onPaddlePointerMove(event)
+    beginPaddleDrag(event)
     return
   }
   if (guide.value) turnGuide(1)
   else if (ATTRACT_PHASES.includes(machine.phase)) startGame()
   else if (machine.phase === 'paused') dispatch({ type: 'resume' })
   else if (machine.phase === 'gameover') dispatch({ type: 'skip' })
+}
+
+function beginPaddleDrag(event: PointerEvent) {
+  if (!paddleMode.value || paddlePointer !== null) return
+  paddlePointer = event.pointerId
+  capture(event.currentTarget as HTMLElement | null, event.pointerId)
+  onPaddlePointerMove(event)
 }
 
 function onPaddlePointerMove(event: PointerEvent) {
@@ -2144,6 +2165,7 @@ watch(players, () => {
 watch(aiming, releaseAim)
 watch(paddleMode, (on) => {
   if (!on) clearPaddlePointer()
+  void nextTick(fitScreen)
 })
 
 watch([aiming, arrowsAim], ([on, arrows]) => {
@@ -2384,6 +2406,14 @@ onBeforeUnmount(() => {
   display: none;
 }
 
+.arcade-cabinet--paddle {
+  --paddle-track-height: clamp(6rem, 14svh, 10rem);
+}
+
+.arcade-cabinet--locked.arcade-cabinet--paddle .cabinet-screen-wrap {
+  bottom: var(--paddle-track-height);
+}
+
 .arcade-cabinet--locked .cabinet-screen-wrap {
   position: absolute;
   inset: 0;
@@ -2421,6 +2451,50 @@ onBeforeUnmount(() => {
 .cabinet-cluster > * {
   position: absolute;
   pointer-events: auto;
+}
+
+.cabinet-paddle-track {
+  left: max(0.5rem, env(safe-area-inset-left));
+  right: max(0.5rem, env(safe-area-inset-right));
+  bottom: max(0.5rem, env(safe-area-inset-bottom));
+  height: calc(
+    var(--paddle-track-height) - max(1rem, env(safe-area-inset-bottom))
+  );
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(253, 230, 138, 0.48);
+  border-radius: 1.2rem;
+  background: linear-gradient(
+    180deg,
+    rgba(49, 46, 129, 0.84),
+    rgba(15, 10, 46, 0.92)
+  );
+  box-shadow: inset 0 0 16px rgba(167, 139, 250, 0.2);
+  touch-action: none;
+}
+
+.cabinet-paddle-track::before {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fde68a, transparent);
+  opacity: 0.5;
+}
+
+.cabinet-paddle-track-label {
+  position: relative;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  background: rgba(15, 10, 46, 0.9);
+  color: #fde68a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .cabinet-paddle-actions {
@@ -2569,6 +2643,12 @@ onBeforeUnmount(() => {
     right: auto;
     left: calc(50% - 1.3rem);
     bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--key) * 2);
+  }
+}
+
+@media (orientation: landscape) {
+  .arcade-cabinet--paddle {
+    --paddle-track-height: clamp(4.25rem, 13svh, 5.75rem);
   }
 }
 

@@ -83,30 +83,35 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
   return out
 }
 
-// Counterfactual fighters-first pilot: compare the shipped Catgirls starter
-// against its exact pre-pilot starter under identical seeds and seats.
-// This is a diagnostic, not a balance gate: report both win and card-use rates.
+// Counterfactual fighters-first pilot: compare the current Catgirls roster
+// against its pre-pilot card ID roster under identical seeds and seats.
+// The historical roster is replayed with today's card rules: Patent Shredder
+// is now a fighter in both versions, not its retired equipment incarnation.
+// This is a diagnostic, not a balance gate: report win and card-use rates.
 export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
   const current = clashDeck('catgirls')
   // Reconstruct the original from commit 81a7e2b9's three-slot diff.
   // The prior list already contained Patent Saboteur and Bicycle Clinic:
   // replacing only Organ Donor with Laser would invent a deck that never shipped.
   const original = current.map((id) =>
-    id === 's3-catgirls-patent-saboteur'
-      ? 'laser'
-      : id === 's3-catgirls-bicycle-clinic'
-        ? 's3-catgirls-patent-saboteur'
-        : id === 's2-catgirls-backstreet-organ-donor'
-          ? 's3-catgirls-bicycle-clinic'
-          : id,
+    id === 'laser'
+      ? 'shredders'
+      : id === 's3-catgirls-patent-saboteur'
+        ? 'laser'
+        : id === 's3-catgirls-bicycle-clinic'
+          ? 's3-catgirls-patent-saboteur'
+          : id === 's2-catgirls-backstreet-organ-donor'
+            ? 's3-catgirls-bicycle-clinic'
+            : id,
   )
   const changed = current.filter((id, index) => id !== original[index])
   if (
     current.length !== 20 ||
     original.length !== 20 ||
     new Set(original).size !== 20 ||
-    changed.length !== 3 ||
+    changed.length !== 4 ||
     !original.includes('laser') ||
+    !original.includes('shredders') ||
     original.includes('s2-catgirls-backstreet-organ-donor')
   )
     throw new Error(

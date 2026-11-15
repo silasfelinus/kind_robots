@@ -15,26 +15,65 @@
 // each power as pickups to win back. When the plot timer runs out the Grumble Cloud rolls in: it
 // cannot be bloomed and drifts after the nearest gardener until the plot is done.
 //
+// The campaign (slice 2, kr-arcade/t-137) is played a season at a time, each with its own tile
+// set, backdrop, title card and music: six plots, a Bonus Bed after plot 3 and a boss plot.
+// Spring (the Kitchen Allotment) has regrowing hedges and watering cans, Butterfly Release and Old
+// Bramblebeard; Summer (the Glasshouse Rows) has irrigation channels, glass panes and springy
+// mushrooms, Sprinkler Dash and Hothouse Hector. The Potting Shed opens between seasons, and the
+// run saves at each season start (utils/arcade/saves.ts via `save` / `resume`).
+//
 // Up to four gardeners share one screen, one score and one pool of spares.
 // Arrows move, A plants (or bursts a Puffcap), B swaps seeds.
 
 import { drawText, measureText } from '../font'
 import {
-  GOLDEN_SEED_SPRITE,
   BULLY_SPRITES,
+  CAN_SPRITE,
+  CATERPILLAR_SPRITES,
+  DASH_SEED_SPRITES,
+  GOLDEN_SEED_SPRITE,
   GRUMBLE_RAMP,
   HEAP_SPRITE,
   HOPPER_SPRITES,
   MOLE_SPRITE,
   MOUND_SPRITE,
+  MUSHROOM_SPRITES,
   PUFFBALL_SPRITE,
   SACK_SPRITE,
   SLUG_SPRITES,
   SPORE_SPRITES,
+  STUMP_SPRITE,
   THIEF_SPRITE,
+  VALVE_SPRITE,
   VARIETY_RAMPS,
   VARIETY_SPRITES,
 } from '../seedBurst/art'
+import { makeBoss } from '../seedBurst/bosses'
+import type { Boss, BossHost } from '../seedBurst/bosses'
+import {
+  SEASON_LOOKS,
+  paintGround,
+  paintPillar,
+  paintWall,
+} from '../seedBurst/looks'
+import {
+  BONUS_MUSIC,
+  BOSS_MUSIC,
+  SHED_MUSIC,
+  SPRING_MUSIC,
+  SUMMER_MUSIC,
+} from '../seedBurst/music'
+import { MAX_SAVED_SPARES, readSeedSave } from '../seedBurst/save'
+import type { SeedSave } from '../seedBurst/save'
+import {
+  SHED_ITEMS,
+  SHED_NAMES,
+  nextVariety,
+  shedBlock,
+  shedPrice,
+} from '../seedBurst/shed'
+import type { ShedItem } from '../seedBurst/shed'
+import type { MusicLoop } from '../sound'
 import {
   BED_GROW,
   BLOOM_POINTS,
@@ -71,8 +110,8 @@ import {
   touches,
 } from '../seedBurst/grumps'
 import type { GrumpPhase } from '../seedBurst/grumps'
-import { parseMask, planPlot } from '../seedBurst/plots'
-import type { GrumpKind, PlotPlan } from '../seedBurst/plots'
+import { STEPS_PER_SEASON, campaignStep, parseMask } from '../seedBurst/plots'
+import type { CampaignStep, GrumpKind, PlotPlan } from '../seedBurst/plots'
 import {
   VARIETY_INFO,
   brambleLine,
@@ -136,6 +175,25 @@ const CLOUD_SPEED = 0.3
 const CLOUD_ACCEL = 0.0002
 const CLOUD_MAX = 0.95
 const CLOUD_TOUCH = 10
+/** A cut hedge's stump on a Spring plot sprouts back after this long. */
+const REGROW_TICKS = 60 * 20
+/** The last stretch of a stump's wait, when its shoots show (the tell). */
+const REGROW_TELL = 120
+/** Irrigation channels: a gardener's pace when carried, and a pod's ticks per tile. */
+const CHANNEL_PACE = 0.8
+const CHANNEL_TICKS = 14
+/** A springy mushroom's bounce, in ticks. */
+const BOUNCE_TICKS = 22
+/** The season title card, and how soon a press may skip it. */
+const CARD_TICKS = 210
+const CARD_SKIP = 40
+/** The Potting Shed shuts itself after this long, so an idle run moves on. */
+const SHED_TICKS = 60 * 40
+/** Sprinkler Dash: ticks per conveyor tile and between new seeds. */
+const DASH_TICKS = 10
+const DASH_EVERY = 26
+/** Butterfly Release keeps this many caterpillars about. */
+const CATERPILLARS = 6
 
 const GNAT_POINTS = 100
 const HEDGE_POINTS = 10
@@ -144,9 +202,15 @@ const ROUND_POINTS = 1000
 const GOLDEN_POINTS = 500
 const LOOT_POINTS = 500
 const SHELL_POINTS = 50
+const BOSS_POINTS = 5000
+const CATERPILLAR_POINTS = 50
+const DASH_POINTS = 50
+const DASH_GOLD_POINTS = 250
 
 const WALL = 1
 const HEDGE = 2
+const CAN = 3
+const GLASS = 4
 
 type Dir = { dx: number; dy: number }
 const DIRS: Dir[] = [
@@ -174,6 +238,10 @@ type Gardener = {
   /** The varieties this gardener has found, and the one in hand. */
   pouch: Variety[]
   seed: number
+  /** Bouncing off a springy mushroom (tx/ty to nx/ny, two tiles). */
+  bouncing: boolean
+  /** Carried along an irrigation channel this step. */
+  drifting: boolean
 }
 type Pod = {
   x: number
@@ -188,8 +256,12 @@ type Pod = {
   /** A kicked pumpkin's roll, and its progress to the next tile. */
   roll: Dir | null
   rollT: number
+  /** Progress along an irrigation channel to the next tile. */
+  driftT: number
 }
 type Chain = { count: number }
+/** A seed riding Sprinkler Dash's conveyors. */
+type DashSeed = { k: number; t: number; gold: boolean }
 type Bloom = { x: number; y: number; life: number; chain: Chain }
 type Grump = {
   kind: GrumpKind
@@ -684,8 +756,9 @@ class SeedBurst implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
-  private plotIndex = 0
-  private plan: PlotPlan = planPlot(0)
+  private stepIndex = 0
+  private step: CampaignStep = campaignStep(0)
+  private plan: PlotPlan = this.step.plan
   private grid: number[] = []
   /** The plot's stone layout, as drawn into the cached field. */
   private stone: boolean[] = []
@@ -711,6 +784,32 @@ class SeedBurst implements ArcadeGameInstance {
   private gateCall: 'none' | 'find' | 'open' = 'none'
   private timer = 0
   private clear = 0
+  // Season gimmicks: stumps that regrow, watering cans and the rows they soaked, cracked glass,
+  // irrigation channels (and whether they run), springy mushrooms and Hector's valves.
+  private stumps = new Map<number, { t: number; chain: Chain }>()
+  private soaked = new Set<number>()
+  private cracked = new Map<number, Chain>()
+  private channels = new Map<number, Dir>()
+  private channelsOn = true
+  private mushrooms = new Set<number>()
+  private valves: { x: number; y: number }[] = []
+  private boss: Boss | null = null
+  /** Butterflies released or seeds caught in this Bonus Bed. */
+  private bonusCaught = 0
+  private dashSeeds: DashSeed[] = []
+  /** The season's title card, counting down. */
+  private card = 0
+  /** The Potting Shed between seasons: the cursor, a message and how long it stays open. */
+  private shed: { cursor: number; note: string; ticks: number } | null = null
+  /** A saved season offered at the start: continue it (A) or start anew (B). */
+  private offer: SeedSave | null = null
+  /** Seeds earned in play, spent in the Potting Shed. */
+  private seeds = 0
+  /** Golden seeds found, by plot id (kept in the save for good). */
+  private goldenFound = new Set<string>()
+  /** A golden-seed hint bought for this season: the golden seed's hedge glints. */
+  private hint = false
+  private saved: SeedSave | null = null
   private particles: Particle[] = []
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
@@ -742,8 +841,16 @@ class SeedBurst implements ArcadeGameInstance {
         down: 0,
         pouch: ['sunflower'],
         seed: 0,
+        bouncing: false,
+        drifting: false,
       })
-    this.buildPlot(0)
+    const stored = this.demo ? null : readSeedSave(options.resume)
+    if (stored) {
+      this.goldenFound = new Set(stored.golden)
+      this.saved = stored
+      if (stored.season > 0) this.offer = stored
+    }
+    this.buildStep(0)
   }
 
   /** Gardeners in play or waiting to respawn, plus the team's spares. */
@@ -751,18 +858,84 @@ class SeedBurst implements ArcadeGameInstance {
     return this.gardeners.filter((g) => g.down >= 0).length + this.spares
   }
 
+  /** Progress kept between visits: the start of the current season. */
+  get save(): SeedSave | null {
+    return this.demo ? null : this.saved
+  }
+
+  get music(): MusicLoop | null {
+    if (this.over || this.offer) return null
+    if (this.shed) return SHED_MUSIC
+    if (this.step.kind === 'boss') return BOSS_MUSIC
+    if (this.step.kind === 'bonus') return BONUS_MUSIC
+    return this.step.season.id === 'summer' ? SUMMER_MUSIC : SPRING_MUSIC
+  }
+
   /** Every grump turned and no bell still calling: the gate opens once it is found. */
   private get gateOpen(): boolean {
     return this.gate.open && !this.grumps.length && !this.bells.length
   }
 
-  // --- the plot -------------------------------------------------------------------
+  // --- the campaign ----------------------------------------------------------------
 
-  private buildPlot(index: number) {
-    this.plotIndex = index
+  /** Starts campaign step `index`: a plot, a Bonus Bed or a boss; a new season shows its card. */
+  private buildStep(index: number) {
+    this.stepIndex = index
     this.level = index + 1
-    this.plan = planPlot(index)
-    const plot = this.plan.plot
+    this.step = campaignStep(index)
+    if (this.step.inSeason === 0) {
+      this.card = CARD_TICKS
+      // A saved season waiting to be continued is never overwritten by the menu's backdrop.
+      if (!this.offer) this.snapshot(false)
+    }
+    this.buildPlot(this.step.plan)
+  }
+
+  /** The save for the start of this season (or, after a game over, a continue). */
+  private snapshot(continued: boolean) {
+    if (this.demo) return
+    const pouch = this.gardeners[0]?.pouch ?? ['sunflower']
+    this.saved = {
+      v: 1,
+      season: this.step.seasonNumber,
+      score: this.score,
+      spares: Math.min(MAX_SAVED_SPARES, this.spares),
+      seeds: this.seeds,
+      pouch: [...pouch],
+      golden: [...this.goldenFound],
+      hint: this.hint,
+      continued,
+    }
+  }
+
+  /** Picks a saved run back up at the start of its season. */
+  private resumeFrom(s: SeedSave) {
+    this.score = s.continued ? 0 : s.score
+    this.spares = s.continued ? START_SPARES : s.spares
+    this.seeds = s.seeds
+    this.hint = s.hint
+    for (const g of this.gardeners) {
+      g.pouch = [...s.pouch]
+      g.seed = 0
+    }
+    this.buildStep(s.season * STEPS_PER_SEASON)
+  }
+
+  /** After a step is done: the next one, with the Potting Shed before a new season. */
+  private nextStep() {
+    const next = this.stepIndex + 1
+    if (next % STEPS_PER_SEASON === 0 && !this.shed) {
+      this.shed = { cursor: 0, note: '', ticks: SHED_TICKS }
+      this.hint = false
+      this.stepIndex = next - 1
+      return
+    }
+    this.buildStep(next)
+  }
+
+  private buildPlot(plan: PlotPlan) {
+    this.plan = plan
+    const plot = plan.plot
     const mask = parseMask(plot.mask)
     this.stone = [...mask.stone]
     this.grid = mask.stone.map((s) => (s ? WALL : 0))
@@ -771,13 +944,34 @@ class SeedBurst implements ArcadeGameInstance {
     this.hidden.clear()
     this.beds.clear()
     this.slime.clear()
+    this.stumps.clear()
+    this.soaked.clear()
+    this.cracked.clear()
+    this.channels = new Map(mask.channels)
+    this.channelsOn = plot.boss !== 'hector'
+    this.mushrooms = new Set(mask.mushrooms)
+    this.valves = mask.valves.map((k) => ({
+      x: k % COLS,
+      y: Math.floor(k / COLS),
+    }))
+    for (const k of mask.cans) this.grid[k] = CAN
+    for (const k of mask.glass) this.grid[k] = GLASS
     this.pods = []
     this.blooms = []
     this.bells = []
     this.cloud = null
+    this.boss = null
+    this.bonusCaught = 0
+    this.dashSeeds = []
     this.gateCall = 'none'
     // Corners stay clear so every gardener can step out and plant.
     const clearCells = new Set<number>([this.heap])
+    for (const k of [
+      ...mask.channels.keys(),
+      ...mask.mushrooms,
+      ...mask.valves,
+    ])
+      clearCells.add(k)
     for (const c of CORNERS)
       for (const [dx, dy] of [
         [0, 0],
@@ -788,16 +982,17 @@ class SeedBurst implements ArcadeGameInstance {
       ])
         clearCells.add(key(c.x + dx!, c.y + dy!))
     // A hedge two steps out from each corner, so a first pod always clears one.
-    for (const c of CORNERS)
-      for (const [dx, dy] of [
-        [2, 0],
-        [-2, 0],
-        [0, 2],
-        [0, -2],
-      ]) {
-        const k = key(c.x + dx!, c.y + dy!)
-        if (this.grid[k] === 0 && !clearCells.has(k)) this.grid[k] = HEDGE
-      }
+    if (!plot.bonus)
+      for (const c of CORNERS)
+        for (const [dx, dy] of [
+          [2, 0],
+          [-2, 0],
+          [0, 2],
+          [0, -2],
+        ]) {
+          const k = key(c.x + dx!, c.y + dy!)
+          if (this.grid[k] === 0 && !clearCells.has(k)) this.grid[k] = HEDGE
+        }
     for (let y = 1; y < ROWS - 1; y++)
       for (let x = 1; x < COLS - 1; x++) {
         const k = key(x, y)
@@ -806,7 +1001,9 @@ class SeedBurst implements ArcadeGameInstance {
           this.grid[k] = HEDGE
       }
     this.area = this.stone.filter((s) => !s).length
-    this.hideTreasures()
+    if (plot.bonus || plot.boss)
+      this.gate = { k: -1, open: false, rings: 0, chain: null }
+    else this.hideTreasures()
     for (const g of this.gardeners) {
       if (g.down < 0) continue
       this.placeAtCorner(g)
@@ -820,14 +1017,18 @@ class SeedBurst implements ArcadeGameInstance {
         if (
           this.grid[key(x, y)] === 0 &&
           key(x, y) !== this.heap &&
+          !this.channels.has(key(x, y)) &&
           cornerDistance(x, y) >= 6
         )
           open.push({ x, y })
-    for (const kind of this.plan.roster) {
+    for (const kind of plan.roster) {
       if (!open.length) break
       const at = open.splice(Math.floor(this.rng() * open.length), 1)[0]!
       this.grumps.push(this.newGrump(kind, at.x, at.y))
     }
+    if (plot.boss) this.boss = makeBoss(plot.boss, this.valves)
+    if (plot.bonus === 'butterfly-release')
+      for (let i = 0; i < CATERPILLARS; i++) this.spawnCaterpillar()
     this.timer = plot.time * 60
     this.banner = { text: plot.name, sub: plot.intro, ticks: 150 }
   }
@@ -874,6 +1075,25 @@ class SeedBurst implements ArcadeGameInstance {
         )
   }
 
+  private spawnCaterpillar() {
+    const open: number[] = []
+    for (let k = 0; k < this.grid.length; k++) {
+      const x = k % COLS
+      const y = Math.floor(k / COLS)
+      if (
+        this.grid[k] === 0 &&
+        cornerDistance(x, y) >= 3 &&
+        !this.gardenerOn(x, y)
+      )
+        open.push(k)
+    }
+    if (!open.length) return
+    const k = open[Math.floor(this.rng() * open.length)]!
+    this.grumps.push(
+      this.newGrump('caterpillar', k % COLS, Math.floor(k / COLS)),
+    )
+  }
+
   private newGrump(kind: GrumpKind, x: number, y: number): Grump {
     return {
       kind,
@@ -901,11 +1121,18 @@ class SeedBurst implements ArcadeGameInstance {
     g.ty = g.ny = c.y
     g.p = 0
     g.safe = SAFE_TICKS
+    g.bouncing = false
+    g.drifting = false
+  }
+
+  /** The tiles the boss's body stands on (solid; a bump bonks). */
+  private bossAt(x: number, y: number): boolean {
+    return !!this.boss?.body().some((t) => t.x === x && t.y === y)
   }
 
   private solid(x: number, y: number): boolean {
     if (x < 0 || y < 0 || x >= COLS || y >= ROWS) return true
-    return this.grid[key(x, y)] !== 0
+    return this.grid[key(x, y)] !== 0 || this.bossAt(x, y)
   }
 
   private podAt(x: number, y: number): Pod | undefined {
@@ -956,21 +1183,93 @@ class SeedBurst implements ArcadeGameInstance {
     }
   }
 
+  /**
+   * A tile as the pouch sees it: hedges, watering cans, glass and the boss's body all stop a
+   * burst (and take its bloom); stone stops it short.
+   */
   private look = (x: number, y: number): TileLook => {
     const border = x <= 0 || y <= 0 || x >= COLS - 1 || y >= ROWS - 1
     if (x < 0 || y < 0 || x >= COLS || y >= ROWS)
       return { kind: 'stone', border: true, pod: false }
     const cell = this.grid[key(x, y)]
     return {
-      kind: cell === WALL ? 'stone' : cell === HEDGE ? 'hedge' : 'open',
+      kind:
+        cell === WALL
+          ? 'stone'
+          : cell !== 0 || this.bossAt(x, y)
+            ? 'hedge'
+            : 'open',
       border,
       pod: !!this.podAt(x, y),
     }
   }
 
-  /** The tiles a pod would bloom over right now. */
+  /** The tiles a pod would bloom over right now (a soaked row doubles its reach along it). */
   private podTiles(pod: Pod): BurstTile[] {
-    return burstTiles(pod.variety, pod.x, pod.y, pod.dir, pod.range, this.look)
+    const soaked = this.soaked.has(pod.y)
+    return burstTiles(
+      pod.variety,
+      pod.x,
+      pod.y,
+      pod.dir,
+      (d) => (soaked && d.dy === 0 && d.dx !== 0 ? pod.range * 2 : pod.range),
+      this.look,
+    )
+  }
+
+  /** The cabinet's side of a boss fight. */
+  private hostCache: BossHost | null = null
+  private get host(): BossHost {
+    if (!this.hostCache) this.hostCache = this.bossHost()
+    return this.hostCache
+  }
+
+  private bossHost(): BossHost {
+    return {
+      rng: () => this.rng(),
+      ground: (x, y) =>
+        x > 0 &&
+        y > 0 &&
+        x < COLS - 1 &&
+        y < ROWS - 1 &&
+        !this.stone[key(x, y)],
+      free: (x, y) =>
+        x > 0 &&
+        y > 0 &&
+        x < COLS - 1 &&
+        y < ROWS - 1 &&
+        this.grid[key(x, y)] === 0 &&
+        !this.podAt(x, y) &&
+        !this.gardenerOn(x, y) &&
+        !this.powers.has(key(x, y)) &&
+        !this.grumps.some((gr) => gr.tx === x && gr.ty === y),
+      hedge: (x, y) => this.grid[key(x, y)] === HEDGE,
+      podAt: (x, y) => !!this.podAt(x, y),
+      gardeners: () => this.activeTiles(),
+      plantHedge: (x, y) => {
+        this.grid[key(x, y)] = HEDGE
+        this.beds.delete(key(x, y))
+        this.leaves(x, y)
+      },
+      clearHedge: (x, y) => {
+        this.grid[key(x, y)] = 0
+        this.leaves(x, y)
+      },
+      bonkAt: (x, y, why) => {
+        for (const g of this.gardeners) {
+          if (g.down !== 0 || g.safe > 0 || g.bouncing) continue
+          const t = this.here(g)
+          if (t.x === x && t.y === y) this.catchGardener(g, why)
+        }
+      },
+      setChannels: (on) => {
+        this.channelsOn = on
+      },
+      sound: (name) => this.sound.play(name),
+      say: (text, sub) => {
+        this.banner = { text, sub, ticks: 110 }
+      },
+    }
   }
 
   // --- update ------------------------------------------------------------------
@@ -980,11 +1279,35 @@ class SeedBurst implements ArcadeGameInstance {
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
-    if (this.clear > 0) {
-      if (--this.clear === 0) this.buildPlot(this.plotIndex + 1)
+    const frames = this.demo ? [this.demoInput()] : (players ?? [input])
+    const lead = frames[0]!
+    if (this.offer) {
+      if (lead.pressed.a || lead.pressed.start) {
+        const s = this.offer
+        this.offer = null
+        this.resumeFrom(s)
+      } else if (lead.pressed.b) {
+        // A new run: the golden seeds stay, the campaign starts over.
+        this.offer = null
+        this.snapshot(false)
+      }
       return
     }
-    const frames = this.demo ? [this.demoInput()] : (players ?? [input])
+    if (this.shed) {
+      this.updateShed(frames)
+      return
+    }
+    if (this.card > 0) {
+      this.card--
+      const skip = frames.some((f) => f.pressed.a || f.pressed.start)
+      if (!this.demo && skip && this.card < CARD_TICKS - CARD_SKIP)
+        this.card = 0
+      return
+    }
+    if (this.clear > 0) {
+      if (--this.clear === 0) this.nextStep()
+      return
+    }
     for (const g of this.gardeners) {
       if (g.down > 0) {
         if (--g.down === 0) this.placeAtCorner(g)
@@ -995,24 +1318,34 @@ class SeedBurst implements ArcadeGameInstance {
       const controls = frames[g.seat] ?? frames[0]!
       if (controls.pressed.b) this.swapSeed(g)
       this.walk(g, controls)
-      if (controls.pressed.a) this.plant(g)
+      if (controls.pressed.a && !g.bouncing) this.plant(g)
     }
     this.updatePods()
     this.updateBlooms()
     this.updateGrumps()
     this.updateBells()
     this.updateGarden()
+    if (this.boss) this.boss.update(this.host)
     this.updateCloud()
     this.touchGrumps()
-    if (this.timer > 0 && --this.timer === 0) this.grumbleCloud()
-    this.updateGate()
+    if (this.plan.plot.bonus) this.updateBonus()
+    else if (this.timer > 0 && --this.timer === 0) this.grumbleCloud()
+    if (this.boss?.done) this.bossBeaten()
+    else this.updateGate()
     if (this.clear === 0 && this.gardeners.every((g) => g.down < 0)) {
       this.over = true
       this.banner = { text: 'GARDEN CLOSED', sub: 'GAME OVER', ticks: 9999 }
+      if (this.saved) this.saved = { ...this.saved, continued: true }
     }
   }
 
   private walk(g: Gardener, input: InputFrame) {
+    if (g.bouncing) {
+      // Sailing over whatever is between, two tiles in BOUNCE_TICKS.
+      g.p += 1 / BOUNCE_TICKS
+      if (g.p >= 1) this.arrive(g)
+      return
+    }
     if (g.p === 0) {
       const wanted = DIRS.filter(
         (d) =>
@@ -1024,6 +1357,7 @@ class SeedBurst implements ArcadeGameInstance {
       // With two directions held, take the one that is open.
       const dir = wanted.find((d) => this.canWalk(g, g.tx + d.dx, g.ty + d.dy))
       if (wanted.length) g.facing = dir ?? wanted[0]!
+      g.drifting = false
       if (!dir) {
         // Walking into a pumpkin sets it rolling.
         for (const d of wanted) {
@@ -1034,22 +1368,52 @@ class SeedBurst implements ArcadeGameInstance {
             this.sound.play('blip')
           }
         }
-        return
+        // Standing still on a running channel: the water carries you along.
+        const flow = this.channelsOn ? this.channels.get(key(g.tx, g.ty)) : null
+        if (
+          wanted.length ||
+          !flow ||
+          !this.canWalk(g, g.tx + flow.dx, g.ty + flow.dy)
+        )
+          return
+        g.drifting = true
+        g.nx = g.tx + flow.dx
+        g.ny = g.ty + flow.dy
+      } else {
+        g.nx = g.tx + dir.dx
+        g.ny = g.ty + dir.dy
       }
-      g.nx = g.tx + dir.dx
-      g.ny = g.ty + dir.dy
     }
     const slimed = this.slime.has(key(g.tx, g.ty)) ? SLIME_PACE : 1
-    g.p += (g.speed * slimed) / TILE
-    if (g.p >= 1) {
-      // Leaving a pod's tile makes it solid for this gardener.
-      for (const pod of this.pods)
-        if (pod.x === g.tx && pod.y === g.ty) pod.standing.delete(g.seat)
-      g.tx = g.nx
-      g.ty = g.ny
-      g.p = 0
-      this.pickUp(g)
-    }
+    g.p += (g.drifting ? CHANNEL_PACE : g.speed * slimed) / TILE
+    if (g.p >= 1) this.arrive(g)
+  }
+
+  /** A gardener reaches a tile: pickups, then a springy mushroom may bounce them on. */
+  private arrive(g: Gardener) {
+    // Leaving a pod's tile makes it solid for this gardener.
+    for (const pod of this.pods)
+      if (pod.x === g.tx && pod.y === g.ty) pod.standing.delete(g.seat)
+    const bounced = g.bouncing
+    g.tx = g.nx
+    g.ty = g.ny
+    g.p = 0
+    g.bouncing = false
+    this.pickUp(g)
+    if (bounced || !this.mushrooms.has(key(g.tx, g.ty))) return
+    const d = g.facing
+    const x = g.tx + d.dx * 2
+    const y = g.ty + d.dy * 2
+    if (x <= 0 || y <= 0 || x >= COLS - 1 || y >= ROWS - 1) return
+    if (this.solid(x, y) || this.podAt(x, y)) return
+    g.bouncing = true
+    g.drifting = false
+    g.nx = x
+    g.ny = y
+    this.sound.play('blip')
+    this.sound.playNotes?.([
+      { freq: 330, to: 880, dur: 0.18, type: 'square', vol: 0.05 },
+    ])
   }
 
   private swapSeed(g: Gardener) {
@@ -1111,6 +1475,7 @@ class SeedBurst implements ArcadeGameInstance {
         dir: g.facing,
         roll: null,
         rollT: 0,
+        driftT: 0,
       })
     })
     this.sound.play('blip')
@@ -1118,6 +1483,7 @@ class SeedBurst implements ArcadeGameInstance {
 
   private pickUp(g: Gardener) {
     const k = key(g.tx, g.ty)
+    this.catchDashSeed(k)
     const power = this.powers.get(k)
     if (!power) return
     this.powers.delete(k)
@@ -1134,8 +1500,13 @@ class SeedBurst implements ArcadeGameInstance {
       text = '+SPEED'
     } else if (power === 'golden') {
       this.golden++
+      this.seeds += 5
       text = `GOLDEN SEED ${this.golden}`
       this.addScore(GOLDEN_POINTS, px.x, px.y - 4)
+      // Found golden seeds are kept for good, even past a game over.
+      this.goldenFound.add(this.plan.plot.id)
+      if (this.saved)
+        this.saved = { ...this.saved, golden: [...this.goldenFound] }
     } else {
       const info = VARIETY_INFO[power]
       text = info.name
@@ -1155,28 +1526,46 @@ class SeedBurst implements ArcadeGameInstance {
     this.sound.play('extra')
   }
 
+  /** Whether a pod could roll or float onto (x, y). */
+  private podBlocked(x: number, y: number): boolean {
+    return (
+      this.solid(x, y) ||
+      !!this.podAt(x, y) ||
+      this.gardenerOn(x, y) ||
+      this.grumps.some((gr) => {
+        if (gr.dead || !bloomable(gr.kind, gr.phase)) return false
+        const t = this.here(gr)
+        return t.x === x && t.y === y
+      })
+    )
+  }
+
   private updatePods() {
     for (const pod of [...this.pods]) {
       if (pod.roll && ++pod.rollT >= ROLL_TICKS) {
         pod.rollT = 0
         const x = pod.x + pod.roll.dx
         const y = pod.y + pod.roll.dy
-        const blocked =
-          this.solid(x, y) ||
-          !!this.podAt(x, y) ||
-          this.gardenerOn(x, y) ||
-          this.grumps.some((gr) => {
-            if (gr.dead || !bloomable(gr.kind, gr.phase)) return false
-            const t = this.here(gr)
-            return t.x === x && t.y === y
-          })
-        if (blocked) pod.roll = null
+        if (this.podBlocked(x, y)) pod.roll = null
         else {
           pod.x = x
           pod.y = y
           pod.standing.clear()
         }
       }
+      // A pod on a running channel floats along it.
+      const flow = this.channelsOn ? this.channels.get(key(pod.x, pod.y)) : null
+      if (!pod.roll && flow) {
+        const x = pod.x + flow.dx
+        const y = pod.y + flow.dy
+        if (this.podBlocked(x, y)) pod.driftT = 0
+        else if (++pod.driftT >= CHANNEL_TICKS) {
+          pod.driftT = 0
+          pod.x = x
+          pod.y = y
+          pod.standing.clear()
+        }
+      } else pod.driftT = 0
       if (--pod.fuse <= 0) this.burst(pod)
     }
   }
@@ -1188,9 +1577,19 @@ class SeedBurst implements ArcadeGameInstance {
     this.pods.splice(i, 1)
     const chain: Chain = { count: 0 }
     const triggered: Pod[] = []
-    for (const t of this.podTiles(pod)) {
-      if (t.hit === 'hedge') this.clearHedge(t.x, t.y, chain)
-      this.addBloom(t.x, t.y, chain, t.hit !== 'over')
+    const tiles = this.podTiles(pod)
+    // A soaked row's doubled reach is spent by the first burst along it.
+    if (
+      this.soaked.has(pod.y) &&
+      pod.variety !== 'clover' &&
+      pod.variety !== 'pumpkin' &&
+      (pod.variety !== 'dandelion' || pod.dir.dy === 0)
+    )
+      this.soaked.delete(pod.y)
+    for (const t of tiles) {
+      const opened = t.hit === 'hedge' ? this.hitSolid(t.x, t.y, chain) : true
+      if (opened || this.bossAt(t.x, t.y))
+        this.addBloom(t.x, t.y, chain, t.hit !== 'over')
       if (t.hit === 'pod') {
         const other = this.podAt(t.x, t.y)
         if (other) triggered.push(other)
@@ -1198,6 +1597,50 @@ class SeedBurst implements ArcadeGameInstance {
     }
     this.sound.play('boom')
     for (const other of triggered) this.burst(other)
+  }
+
+  /**
+   * A burst meets something solid: a hedge clears, a watering can tips and soaks its row, glass
+   * cracks (and shatters to a second burst). Returns whether the tile is open to bloom now.
+   */
+  private hitSolid(x: number, y: number, chain: Chain): boolean {
+    const k = key(x, y)
+    const cell = this.grid[k]
+    if (cell === HEDGE) {
+      this.clearHedge(x, y, chain)
+      return true
+    }
+    if (cell === CAN) {
+      this.grid[k] = 0
+      this.soaked.add(y)
+      this.splash(x, y)
+      this.addScore(HEDGE_POINTS * 5, x * TILE + TILE / 2, HUD_H + y * TILE)
+      this.floaters.push({
+        x: x * TILE + TILE / 2,
+        y: HUD_H + y * TILE - 8,
+        text: 'ROW SOAKED!',
+        life: 50,
+      })
+      this.sound.play('pickup')
+      return true
+    }
+    if (cell === GLASS) {
+      const crackedBy = this.cracked.get(k)
+      if (crackedBy && crackedBy !== chain) {
+        this.grid[k] = 0
+        this.cracked.delete(k)
+        this.burst2(x * TILE + TILE / 2, HUD_H + y * TILE + TILE / 2, '#d8f4ff')
+        this.addScore(HEDGE_POINTS * 3, x * TILE + TILE / 2, HUD_H + y * TILE)
+        this.sound.play('shoot')
+        return true
+      }
+      if (!crackedBy) {
+        this.cracked.set(k, chain)
+        this.sound.play('blip')
+      }
+      return false
+    }
+    return false
   }
 
   private clearHedge(x: number, y: number, chain: Chain) {
@@ -1214,7 +1657,8 @@ class SeedBurst implements ArcadeGameInstance {
       this.gate.open = true
       this.gate.chain = chain
       this.ringBell()
-    }
+    } else if (this.plan.plot.regrow)
+      this.stumps.set(k, { t: REGROW_TICKS, chain })
   }
 
   private addBloom(x: number, y: number, chain: Chain, grow: boolean) {
@@ -1225,7 +1669,14 @@ class SeedBurst implements ArcadeGameInstance {
     )
     if (old) old.life = BLOOM_TICKS
     else this.blooms.push({ x, y, life: BLOOM_TICKS, chain })
-    if (grow && this.grid[k] === 0 && !this.beds.has(k)) this.beds.set(k, 0)
+    if (grow && this.grid[k] === 0 && !this.bossAt(x, y) && !this.beds.has(k))
+      this.beds.set(k, 0)
+    // A second bloom digs a stump out for good.
+    const stump = this.stumps.get(k)
+    if (stump && stump.chain !== chain) {
+      this.stumps.delete(k)
+      this.dust(x, y)
+    }
     // Blooming the found gate again rings its bell again.
     if (k === this.gate.k && this.gate.open && this.gate.chain !== chain) {
       this.gate.chain = chain
@@ -1268,15 +1719,18 @@ class SeedBurst implements ArcadeGameInstance {
 
   private updateBlooms() {
     const spawned: Grump[] = []
+    const bonus = !!this.plan.plot.bonus
     for (const b of this.blooms) {
       b.life--
-      // Gardeners caught in a bloom.
-      for (const g of this.gardeners) {
-        if (g.down !== 0 || g.safe > 0) continue
-        const t = this.here(g)
-        if (t.x === b.x && t.y === b.y)
-          this.catchGardener(g, 'TANGLED IN BLOOMS')
-      }
+      // Gardeners caught in a bloom (Bonus Beds are bonk-free).
+      if (!bonus)
+        for (const g of this.gardeners) {
+          if (g.down !== 0 || g.safe > 0 || g.bouncing) continue
+          const t = this.here(g)
+          if (t.x === b.x && t.y === b.y)
+            this.catchGardener(g, 'TANGLED IN BLOOMS')
+        }
+      this.boss?.bloom(b.x, b.y, b.chain, this.host)
       // Grumps caught in a bloom become butterflies (or lose a shell, or burst into spores).
       for (const gr of this.grumps) {
         if (gr.dead || gr.immune === b.chain) continue
@@ -1308,6 +1762,16 @@ class SeedBurst implements ArcadeGameInstance {
     }
     gr.dead = true
     chain.count++
+    this.seeds++
+    if (gr.kind === 'caterpillar') {
+      // Butterfly Release: every caterpillar in the same chain doubles.
+      this.bonusCaught++
+      const points = CATERPILLAR_POINTS * 2 ** Math.min(5, chain.count - 1)
+      this.addScore(points, px.x, px.y - 12)
+      this.butterflies(px.x, px.y)
+      this.sound.play('pop')
+      return
+    }
     const points =
       GNAT_POINTS * GRUMPS[gr.kind].worth * 2 ** Math.min(4, chain.count - 1)
     this.addScore(points, px.x, px.y - 12)
@@ -1348,8 +1812,9 @@ class SeedBurst implements ArcadeGameInstance {
   private grumpCan(gr: Grump, x: number, y: number): boolean {
     if (x <= 0 || y <= 0 || x >= COLS - 1 || y >= ROWS - 1) return false
     const cell = this.grid[key(x, y)]
-    if (cell === WALL) return false
+    if (cell === WALL || cell === CAN || cell === GLASS) return false
     if (cell === HEDGE && !GRUMPS[gr.kind].ghost) return false
+    if (this.bossAt(x, y)) return false
     return gr.kind === 'thief' || !this.podAt(x, y)
   }
 
@@ -1374,6 +1839,15 @@ class SeedBurst implements ArcadeGameInstance {
       const options = DIRS.filter(can)
       if (options.length === 0) return
       const here = { x: gr.tx, y: gr.ty }
+      // A running channel carries a grump along with it.
+      const flow = this.channelsOn ? this.channels.get(key(gr.tx, gr.ty)) : null
+      if (flow && can(flow)) {
+        gr.dir = flow
+        gr.nx = gr.tx + flow.dx
+        gr.ny = gr.ty + flow.dy
+        this.advance(gr, 1)
+        return
+      }
       const toward =
         goal && this.rng() < 0.75 ? stepToward(here, goal, options) : null
       const scent =
@@ -1598,7 +2072,7 @@ class SeedBurst implements ArcadeGameInstance {
 
   private touchGrumps() {
     for (const g of this.gardeners) {
-      if (g.down !== 0 || g.safe > 0) continue
+      if (g.down !== 0 || g.safe > 0 || g.bouncing) continue
       const a = this.pixel(g)
       for (const gr of this.grumps) {
         if (!touches(gr.kind, gr.phase)) continue
@@ -1675,6 +2149,27 @@ class SeedBurst implements ArcadeGameInstance {
     for (const [k, left] of this.slime)
       if (left <= 1) this.slime.delete(k)
       else this.slime.set(k, left - 1)
+    // Stumps sprout back into hedges unless something is standing on them.
+    for (const [k, stump] of this.stumps) {
+      if (--stump.t > 0) continue
+      const x = k % COLS
+      const y = Math.floor(k / COLS)
+      const busy =
+        this.grid[k] !== 0 ||
+        this.gardenerOn(x, y) ||
+        !!this.podAt(x, y) ||
+        this.powers.has(k) ||
+        this.grumps.some((gr) => gr.tx === x && gr.ty === y) ||
+        this.bossAt(x, y)
+      if (busy) {
+        stump.t = 30
+        continue
+      }
+      this.stumps.delete(k)
+      this.grid[k] = HEDGE
+      this.beds.delete(k)
+      this.leaves(x, y)
+    }
   }
 
   /** The time-out: a sulky rain cloud nobody can bloom drifts after the nearest gardener. */
@@ -1728,7 +2223,7 @@ class SeedBurst implements ArcadeGameInstance {
       cloud.y += ((target.y - cloud.y) / best) * step
     }
     for (const g of this.gardeners) {
-      if (g.down !== 0 || g.safe > 0) continue
+      if (g.down !== 0 || g.safe > 0 || g.bouncing) continue
       const px = this.pixel(g)
       if (
         Math.abs(px.x - cloud.x) < CLOUD_TOUCH &&
@@ -1749,6 +2244,7 @@ class SeedBurst implements ArcadeGameInstance {
 
   /** Calls out the open gate (or that it still needs finding), and lets gardeners through it. */
   private updateGate() {
+    if (this.plan.plot.bonus || this.plan.plot.boss) return
     if (this.grumps.length || this.bells.length) return
     if (!this.gate.open) {
       if (this.gateCall === 'none') {
@@ -1771,7 +2267,7 @@ class SeedBurst implements ArcadeGameInstance {
       }
     }
     for (const g of this.gardeners) {
-      if (g.down !== 0) continue
+      if (g.down !== 0 || g.bouncing) continue
       const t = this.here(g)
       if (key(t.x, t.y) === this.gate.k) {
         this.plotClear()
@@ -1780,11 +2276,9 @@ class SeedBurst implements ArcadeGameInstance {
     }
   }
 
-  private plotClear() {
-    const inBloom = inBloomPercent(this.beds, this.area)
-    const timeBonus = Math.max(0, Math.floor(this.timer / 60)) * 10
-    const bonus = ROUND_POINTS * this.level + timeBonus + inBloom * BLOOM_POINTS
-    this.addScore(bonus, W / 2, H / 2)
+  /** The plot is done: tidy up and celebrate; the next step follows after CLEAR_TICKS. */
+  private finishStep(points: number, text: string, sub: string) {
+    this.addScore(points, W / 2, H / 2)
     this.clear = CLEAR_TICKS
     this.pods = []
     this.blooms = []
@@ -1797,11 +2291,185 @@ class SeedBurst implements ArcadeGameInstance {
         { count: 12, speed: 2 },
       )
     this.sound.play('level')
-    this.banner = {
-      text: 'PLOT CLEAR!',
-      sub: `IN BLOOM ${inBloom}%  +${bonus}`,
-      ticks: CLEAR_TICKS,
+    this.banner = { text, sub, ticks: CLEAR_TICKS }
+  }
+
+  private plotClear() {
+    const inBloom = inBloomPercent(this.beds, this.area)
+    const timeBonus = Math.max(0, Math.floor(this.timer / 60)) * 10
+    const bonus = ROUND_POINTS * this.level + timeBonus + inBloom * BLOOM_POINTS
+    this.finishStep(bonus, 'PLOT CLEAR!', `IN BLOOM ${inBloom}%  +${bonus}`)
+  }
+
+  private bossBeaten() {
+    const boss = this.boss
+    if (!boss) return
+    this.seeds += 10
+    const timeBonus = Math.max(0, Math.floor(this.timer / 60)) * 20
+    const bonus = BOSS_POINTS * (this.step.seasonNumber + 1) + timeBonus
+    this.finishStep(bonus, `${this.step.season.name} IS SAVED!`, `+${bonus}`)
+    this.boss = null
+  }
+
+  // --- the Bonus Beds ------------------------------------------------------------------
+
+  private updateBonus() {
+    const kind = this.plan.plot.bonus
+    if (kind === 'butterfly-release') {
+      const left = this.grumps.filter((g) => g.kind === 'caterpillar').length
+      if (left < CATERPILLARS && this.tick % 40 === 0) this.spawnCaterpillar()
+    } else if (kind === 'sprinkler-dash') this.updateDash()
+    if (--this.timer > 0) return
+    const caught = this.bonusCaught
+    const points = 100 * caught
+    this.seeds += Math.floor(caught / 2)
+    this.grumps = []
+    this.dashSeeds = []
+    this.finishStep(
+      points,
+      'BONUS BED DONE!',
+      kind === 'butterfly-release'
+        ? `${caught} BUTTERFLIES SET FREE  +${points}`
+        : `${caught} SEEDS SAVED  +${points}`,
+    )
+  }
+
+  /** Channel tiles nothing flows into: where Sprinkler Dash's seeds land. */
+  private laneStarts(): number[] {
+    const fed = new Set<number>()
+    for (const [k, d] of this.channels)
+      fed.add(key((k % COLS) + d.dx, Math.floor(k / COLS) + d.dy))
+    return [...this.channels.keys()].filter((k) => !fed.has(k))
+  }
+
+  private updateDash() {
+    if (this.tick % DASH_EVERY === 0) {
+      const starts = this.laneStarts()
+      if (starts.length)
+        this.dashSeeds.push({
+          k: starts[Math.floor(this.rng() * starts.length)]!,
+          t: 0,
+          gold: this.rng() < 0.12,
+        })
     }
+    for (const s of this.dashSeeds) {
+      if (++s.t < DASH_TICKS) continue
+      s.t = 0
+      const d = this.channels.get(s.k)
+      const next = d
+        ? key((s.k % COLS) + d.dx, Math.floor(s.k / COLS) + d.dy)
+        : -1
+      if (d && this.channels.has(next)) s.k = next
+      else {
+        // Off the end of the conveyor and into the soil.
+        this.splash(s.k % COLS, Math.floor(s.k / COLS))
+        s.k = -1
+      }
+    }
+    this.dashSeeds = this.dashSeeds.filter((s) => s.k >= 0)
+    for (const g of this.gardeners) {
+      if (g.down !== 0) continue
+      const t = this.here(g)
+      this.catchDashSeed(key(t.x, t.y))
+    }
+  }
+
+  private catchDashSeed(k: number) {
+    const i = this.dashSeeds.findIndex((s) => s.k === k)
+    if (i < 0) return
+    const [s] = this.dashSeeds.splice(i, 1)
+    const x = (k % COLS) * TILE + TILE / 2
+    const y = HUD_H + Math.floor(k / COLS) * TILE + TILE / 2
+    this.bonusCaught++
+    this.seeds += s!.gold ? 3 : 1
+    this.addScore(s!.gold ? DASH_GOLD_POINTS : DASH_POINTS, x, y - 10)
+    this.fx.burst(x, y, this.fxRng, { count: 8 })
+    this.sound.play('pickup')
+  }
+
+  // --- the Potting Shed ------------------------------------------------------------------
+
+  /** The season the shed is stocking up for (its prices follow it). */
+  private get shedSeason(): number {
+    return Math.floor((this.stepIndex + 1) / STEPS_PER_SEASON)
+  }
+
+  private updateShed(frames: InputFrame[]) {
+    const shed = this.shed!
+    shed.ticks--
+    const lead = this.demo ? this.demoShed(shed) : frames[0]!
+    const any = (b: keyof InputFrame['pressed']) =>
+      this.demo ? lead.pressed[b] : frames.some((f) => f.pressed[b])
+    if (any('up'))
+      shed.cursor = (shed.cursor + SHED_ITEMS.length - 1) % SHED_ITEMS.length
+    if (any('down')) shed.cursor = (shed.cursor + 1) % SHED_ITEMS.length
+    if (any('up') || any('down')) {
+      shed.note = ''
+      this.sound.play('blip')
+    }
+    if (any('a')) this.buy(SHED_ITEMS[shed.cursor]!)
+    if (this.shed && (any('start') || shed.ticks <= 0)) this.leaveShed()
+  }
+
+  private buy(item: ShedItem) {
+    const shed = this.shed!
+    if (item === 'leave') {
+      this.leaveShed()
+      return
+    }
+    const pouch = this.gardeners[0]?.pouch ?? ['sunflower']
+    const block = shedBlock(
+      item,
+      { seeds: this.seeds, spares: this.spares, pouch, hint: this.hint },
+      this.shedSeason,
+    )
+    if (block) {
+      shed.note = block
+      this.sound.play('blip')
+      return
+    }
+    this.seeds -= shedPrice(item, this.shedSeason)
+    if (item === 'spare') {
+      this.spares++
+      shed.note = 'ONE MORE GARDENER!'
+    } else if (item === 'variety') {
+      const v = nextVariety(pouch)!
+      for (const g of this.gardeners) if (!g.pouch.includes(v)) g.pouch.push(v)
+      shed.note = `${VARIETY_INFO[v].name} FOR EVERYONE`
+    } else {
+      this.hint = true
+      shed.note = 'GOLDEN SEEDS WILL GLINT'
+    }
+    this.sound.play('extra')
+  }
+
+  private leaveShed() {
+    this.shed = null
+    this.sound.play('start')
+    this.buildStep(this.stepIndex + 1)
+  }
+
+  /** The attract pilot in the shed: buys a spare if it can, then heads back out. */
+  private demoShed(shed: { cursor: number; ticks: number }): InputFrame {
+    const frame = this.idleFrame()
+    const t = SHED_TICKS - shed.ticks
+    if (t === 60) frame.pressed.a = true
+    if (t === 100) frame.pressed.start = true
+    void shed.cursor
+    return frame
+  }
+
+  private idleFrame(): InputFrame {
+    const held = {
+      up: false,
+      down: false,
+      left: false,
+      right: false,
+      a: false,
+      b: false,
+      start: false,
+    }
+    return { held, pressed: { ...held } }
   }
 
   // --- scoring and effects ----------------------------------------------------
@@ -1833,6 +2501,18 @@ class SeedBurst implements ArcadeGameInstance {
         vy: -this.fxRng() * 1.2,
         life: 22,
         color: RAMPS.earth[3],
+      })
+  }
+
+  private splash(x: number, y: number) {
+    for (let i = 0; i < 8; i++)
+      this.particles.push({
+        x: x * TILE + TILE / 2,
+        y: HUD_H + y * TILE + TILE / 2,
+        vx: (this.fxRng() - 0.5) * 2,
+        vy: -0.5 - this.fxRng() * 1.4,
+        life: 22,
+        color: RAMPS.water[3],
       })
   }
 
@@ -1883,6 +2563,17 @@ class SeedBurst implements ArcadeGameInstance {
 
   private dangerMap(): Set<number> {
     const danger = new Set<number>()
+    // Bonus Beds are bonk-free.
+    if (this.plan.plot.bonus) return danger
+    if (this.boss) {
+      for (const t of this.boss.body()) {
+        danger.add(key(t.x, t.y))
+        for (const d of DIRS) danger.add(key(t.x + d.dx, t.y + d.dy))
+      }
+      for (const t of this.boss.danger()) danger.add(key(t.x, t.y))
+      // Running channels carry an idle pilot into Hector's steam: keep off them.
+      if (this.channelsOn) for (const k of this.channels.keys()) danger.add(k)
+    }
     for (const pod of this.pods)
       for (const t of this.podTiles(pod)) danger.add(key(t.x, t.y))
     for (const b of this.blooms) danger.add(key(b.x, b.y))
@@ -1963,10 +2654,11 @@ class SeedBurst implements ArcadeGameInstance {
         this.look,
       )
       const blast = tiles.map((t) => key(t.x, t.y))
-      const grumpHit = this.grumps.some(
-        (gr) =>
-          bloomable(gr.kind, gr.phase) && blast.includes(key(gr.tx, gr.ty)),
-      )
+      const grumpHit =
+        this.grumps.some(
+          (gr) =>
+            bloomable(gr.kind, gr.phase) && blast.includes(key(gr.tx, gr.ty)),
+        ) || !!this.boss?.weak().some((t) => blast.includes(key(t.x, t.y)))
       const hedges = tiles.filter((t) => t.hit === 'hedge').length
       if (!grumpHit && !hedges) continue
       const score =
@@ -2023,7 +2715,9 @@ class SeedBurst implements ArcadeGameInstance {
       }
       if (choice) {
         const after = new Set([...danger, ...choice.blast])
-        const escape = this.route(g, (k) => !after.has(k), bloomNow, 6)
+        const escape =
+          this.plan.plot.bonus ||
+          this.route(g, (k) => !after.has(k), bloomNow, 6)
         if (escape) {
           held.a = true
           frame.pressed.a = true
@@ -2031,8 +2725,29 @@ class SeedBurst implements ArcadeGameInstance {
         }
       }
     }
+    const weak = this.boss?.weak() ?? []
     const target =
+      (this.dashSeeds.length
+        ? this.route(g, (k) => this.dashSeeds.some((s) => s.k === k), null, 30)
+        : null) ??
       this.route(g, (k) => this.powers.has(k) && !danger.has(k), danger, 30) ??
+      (weak.length
+        ? this.route(
+            g,
+            (k) =>
+              !danger.has(k) &&
+              burstTiles(
+                'sunflower',
+                k % COLS,
+                Math.floor(k / COLS),
+                g.facing,
+                g.range,
+                this.look,
+              ).some((t) => weak.some((w) => w.x === t.x && w.y === t.y)),
+            danger,
+            40,
+          )
+        : null) ??
       (this.gateOpen
         ? this.route(g, (k) => k === this.gate.k, danger, 60)
         : null) ??
@@ -2070,24 +2785,31 @@ class SeedBurst implements ArcadeGameInstance {
   // --- render -------------------------------------------------------------------
 
   render(g: CanvasRenderingContext2D) {
-    const garden = (this.level - 1) % GARDENS.length
+    const season = this.step.season.id
     cachedLayer(
       g,
-      `seed-burst-field-${this.plan.plot.id}-${garden}`,
+      `seed-burst-field-${season}-${this.plan.plot.id}`,
       W,
       H,
-      (k) => this.paintField(k, GARDENS[garden]!),
+      (k) => this.paintField(k),
     )
+    this.renderSoaked(g)
+    this.renderChannels(g)
     this.renderBeds(g)
     this.renderSlime(g)
+    this.renderStumps(g)
+    this.renderFixtures(g)
     this.renderHeap(g)
     this.renderGate(g)
+    this.boss?.renderUnder(g, this.tick)
     this.renderHedges(g)
     for (const [k, power] of this.powers) this.renderPower(g, k, power)
+    this.renderDashSeeds(g)
     for (const pod of this.pods) this.renderPod(g, pod)
     this.renderBlooms(g)
     this.renderCloudShadows(g)
     for (const gr of this.grumps) this.renderGrump(g, gr)
+    this.boss?.render(g, this.tick)
     for (const gd of this.gardeners) this.renderGardener(g, gd)
     this.renderCloud(g)
     this.renderParticles(g)
@@ -2102,14 +2824,14 @@ class SeedBurst implements ArcadeGameInstance {
     this.renderSeatBadges(g)
     for (const gd of this.gardeners) this.renderSeatLabel(g, gd)
     this.renderHud(g)
+    if (this.card > 0) this.renderCard(g)
+    if (this.shed) this.renderShed(g)
+    if (this.offer) this.renderOffer(g)
   }
 
-  /** The static garden: banded grass, stone pillars with lit tops, the brick wall, the HUD bed. */
-  private paintField(
-    k: CanvasRenderingContext2D,
-    garden: (typeof GARDENS)[number],
-  ) {
-    const { grass, flowers } = garden
+  /** The static garden in the season's tile set: ground, pillars, the wall, the HUD bed. */
+  private paintField(k: CanvasRenderingContext2D) {
+    const season = this.step.season.id
     const rand = backdropRng(71)
     bandedGradient(k, 0, 0, W, HUD_H, [RAMPS.night[2], RAMPS.night[0]], 2)
     const isWall = (x: number, y: number) =>
@@ -2123,39 +2845,7 @@ class SeedBurst implements ArcadeGameInstance {
         const px = x * TILE
         const py = HUD_H + y * TILE
         if (isWall(x, y)) continue
-        // Grass in lit bands, a checker of two mowing stripes.
-        const dark = (x + y) % 2 === 1
-        bandedGradient(
-          k,
-          px,
-          py,
-          TILE,
-          TILE,
-          dark
-            ? [grass[2], grass[1], grass[1], grass[0]]
-            : [grass[3], grass[2], grass[2], grass[1]],
-          4,
-        )
-        k.fillStyle = dark ? grass[2] : grass[3]
-        k.fillRect(px, py, TILE, 1)
-        for (let i = 0; i < 3; i++) {
-          const tx = px + 2 + Math.floor(rand() * (TILE - 4))
-          const ty = py + 3 + Math.floor(rand() * (TILE - 6))
-          k.fillStyle = grass[4]
-          k.fillRect(tx, ty, 1, 2)
-          k.fillStyle = dark ? grass[3] : grass[4]
-          k.fillRect(tx - 1, ty + 1, 1, 1)
-          k.fillRect(tx + 1, ty + 1, 1, 1)
-        }
-        if (rand() < 0.22) {
-          const fx = px + 3 + Math.floor(rand() * (TILE - 6))
-          const fy = py + 3 + Math.floor(rand() * (TILE - 6))
-          k.fillStyle = flowers[Math.floor(rand() * flowers.length)]!
-          k.fillRect(fx - 1, fy, 3, 1)
-          k.fillRect(fx, fy - 1, 1, 3)
-          k.fillStyle = RAMPS.gold[4]
-          k.fillRect(fx, fy, 1, 1)
-        }
+        paintGround(k, season, px, py, x, y, rand)
         // Walls cast their shadow down and to the right, away from the light.
         k.fillStyle = rgba(INK, 0.4)
         if (isWall(x, y - 1)) k.fillRect(px, py, TILE, 5)
@@ -2167,64 +2857,306 @@ class SeedBurst implements ArcadeGameInstance {
         const px = x * TILE
         const py = HUD_H + y * TILE
         if (x === 0 || y === 0 || x === COLS - 1 || y === ROWS - 1)
-          this.paintBricks(k, px, py, y)
-        else this.paintPillar(k, px, py)
+          paintWall(k, season, px, py, y)
+        else paintPillar(k, season, px, py)
       }
     // A lit lip where the wall meets the HUD.
     k.fillStyle = INK
     k.fillRect(0, HUD_H - 1, W, 1)
   }
 
-  private paintBricks(
-    k: CanvasRenderingContext2D,
-    px: number,
-    py: number,
-    row: number,
-  ) {
-    const ramp = RAMPS.earth
-    k.fillStyle = ramp[0]
-    k.fillRect(px, py, TILE, TILE)
-    for (let r = 0; r < 4; r++) {
-      const shift = (r + row) % 2 ? 4 : 0
-      for (let c = -1; c < 2; c++) {
-        const bx = px + c * 8 + shift
-        const left = Math.max(px, bx)
-        const right = Math.min(px + TILE, bx + 8)
-        if (right - left < 2) continue
-        bevel(k, left, py + r * 4, right - left - 1, 3, ramp, {
-          depth: 1,
-          outline: null,
-        })
-      }
+  /** A watering can's soaked row shimmers until a burst spends it. */
+  private renderSoaked(g: CanvasRenderingContext2D) {
+    if (!this.soaked.size) return
+    g.save()
+    for (const y of this.soaked) {
+      const py = HUD_H + y * TILE
+      g.fillStyle = rgba(RAMPS.water[3], 0.18 + 0.06 * Math.sin(this.tick / 6))
+      g.fillRect(TILE, py + 2, W - TILE * 2, TILE - 4)
+      g.fillStyle = rgba('#ffffff', 0.35)
+      for (let x = TILE; x < W - TILE; x += 12)
+        g.fillRect(x + ((this.tick / 3 + y * 5) % 12), py + 6, 3, 1)
     }
-    k.fillStyle = rgba(RAMPS.leaf[2], 0.8)
-    if ((px / TILE + row) % 3 === 0) {
-      k.fillRect(px + 3, py, 3, 1)
-      k.fillRect(px + 4, py + 1, 1, 2)
+    g.restore()
+  }
+
+  /** Irrigation channels: water lanes with ripples running the way they flow. */
+  private renderChannels(g: CanvasRenderingContext2D) {
+    if (!this.channels.size) return
+    for (const [k, d] of this.channels) {
+      const px = (k % COLS) * TILE
+      const py = HUD_H + Math.floor(k / COLS) * TILE
+      // One continuous lane: banks only where the channel turns or ends.
+      g.fillStyle = this.channelsOn ? RAMPS.water[2] : RAMPS.water[1]
+      g.fillRect(px, py, TILE, TILE)
+      g.fillStyle = RAMPS.water[0]
+      const x = k % COLS
+      const y = Math.floor(k / COLS)
+      if (!this.channels.has(key(x, y - 1))) g.fillRect(px, py, TILE, 2)
+      if (!this.channels.has(key(x, y + 1)))
+        g.fillRect(px, py + TILE - 2, TILE, 2)
+      if (!this.channels.has(key(x - 1, y))) g.fillRect(px, py, 2, TILE)
+      if (!this.channels.has(key(x + 1, y)))
+        g.fillRect(px + TILE - 2, py, 2, TILE)
+      if (!this.channelsOn) continue
+      g.fillStyle = rgba(RAMPS.water[4], 0.85)
+      const shift = Math.floor(this.tick / 2) % 8
+      for (let i = 0; i < 2; i++) {
+        const t = (shift + i * 8) % 16
+        if (d.dx)
+          g.fillRect(
+            d.dx > 0 ? px + t : px + TILE - 1 - t,
+            py + 5 + i * 5,
+            3,
+            1,
+          )
+        else
+          g.fillRect(
+            px + 5 + i * 5,
+            d.dy > 0 ? py + t : py + TILE - 1 - t,
+            1,
+            3,
+          )
+      }
     }
   }
 
-  private paintPillar(k: CanvasRenderingContext2D, px: number, py: number) {
-    // A raised stone block: a bevelled top face over a darker front face.
-    k.fillStyle = INK
-    k.fillRect(px, py, TILE, TILE)
-    k.fillStyle = STONE[1]
-    k.fillRect(px + 1, py + 11, TILE - 2, 4)
-    k.fillStyle = STONE[0]
-    k.fillRect(px + 1, py + 14, TILE - 2, 1)
-    k.fillRect(px + 5, py + 11, 1, 3)
-    k.fillRect(px + 10, py + 11, 1, 3)
-    bevel(k, px + 1, py + 1, TILE - 2, 10, STONE, { depth: 2, outline: null })
-    k.fillStyle = STONE[3]
-    k.fillRect(px + 4, py + 4, 3, 1)
-    k.fillStyle = STONE[1]
-    k.fillRect(px + 9, py + 6, 3, 1)
-    k.fillRect(px + 11, py + 5, 1, 1)
-    k.fillStyle = RAMPS.leaf[2]
-    k.fillRect(px + 1, py + 1, 3, 1)
-    k.fillRect(px + 1, py + 2, 1, 2)
-    k.fillStyle = RAMPS.leaf[3]
-    k.fillRect(px + 2, py + 1, 1, 1)
+  /** Stumps waiting to sprout back; their shoots show in the last two seconds (the tell). */
+  private renderStumps(g: CanvasRenderingContext2D) {
+    for (const [k, stump] of this.stumps) {
+      if (this.grid[k] !== 0) continue
+      const cx = (k % COLS) * TILE + TILE / 2
+      const cy = HUD_H + Math.floor(k / COLS) * TILE + TILE / 2
+      drawSprite(g, STUMP_SPRITE, cx, cy + 6, { anchor: 'feet' })
+      if (stump.t < REGROW_TELL) {
+        const grow = Math.ceil((1 - stump.t / REGROW_TELL) * 4)
+        const shake = Math.floor(this.tick / 3) % 2
+        g.fillStyle = RAMPS.leaf[3]
+        g.fillRect(cx - 3 + shake, cy - grow, 1, grow)
+        g.fillRect(cx + 2 - shake, cy - grow - 1, 1, grow + 1)
+        g.fillStyle = RAMPS.leaf[4]
+        g.fillRect(cx - 1, cy - grow - 2, 2, 2)
+      }
+    }
+  }
+
+  /** Watering cans, glass panes, springy mushrooms and Hector's valves. */
+  private renderFixtures(g: CanvasRenderingContext2D) {
+    for (let k = 0; k < this.grid.length; k++) {
+      const cell = this.grid[k]
+      if (cell !== CAN && cell !== GLASS) continue
+      const px = (k % COLS) * TILE
+      const py = HUD_H + Math.floor(k / COLS) * TILE
+      if (cell === CAN) {
+        dropShadow(g, px + 8, py + 13, 6, 2, 0.35)
+        drawSprite(g, CAN_SPRITE, px + 8, py + 14, { anchor: 'feet' })
+        continue
+      }
+      // A glass pane in a white frame; cracked, it shows the crack it will shatter along.
+      bevel(g, px + 1, py + 1, TILE - 2, TILE - 2, RAMPS.steel, { depth: 1 })
+      g.fillStyle = rgba(RAMPS.water[3], 0.75)
+      g.fillRect(px + 3, py + 3, TILE - 6, TILE - 6)
+      g.fillStyle = rgba('#ffffff', 0.8)
+      g.fillRect(px + 4, py + 4, 1, 4)
+      g.fillRect(px + 5, py + 4, 2, 1)
+      if (this.cracked.has(k)) {
+        g.fillStyle = INK
+        g.fillRect(px + 6, py + 3, 1, 3)
+        g.fillRect(px + 7, py + 6, 1, 2)
+        g.fillRect(px + 8, py + 8, 2, 1)
+        g.fillRect(px + 10, py + 9, 1, 3)
+        g.fillRect(px + 5, py + 8, 2, 1)
+        g.fillRect(px + 4, py + 9, 1, 3)
+      }
+    }
+    for (const k of this.mushrooms) {
+      const cx = (k % COLS) * TILE + TILE / 2
+      const cy = HUD_H + Math.floor(k / COLS) * TILE + TILE / 2
+      const squash = this.gardeners.some(
+        (gd) => gd.down === 0 && gd.bouncing && key(gd.tx, gd.ty) === k,
+      )
+      dropShadow(g, cx, cy + 6, 6, 2, 0.35)
+      drawSprite(g, MUSHROOM_SPRITES[squash ? 1 : 0], cx, cy + 7, {
+        anchor: 'feet',
+      })
+    }
+    const vents = this.boss?.ventsLeft?.() ?? []
+    for (const v of this.valves) {
+      const cx = v.x * TILE + TILE / 2
+      const cy = HUD_H + v.y * TILE + TILE / 2
+      const live = vents.some((t) => t.x === v.x && t.y === v.y)
+      drawSprite(g, VALVE_SPRITE, cx, cy + 6, {
+        anchor: 'feet',
+        alpha: live ? 1 : 0.55,
+      })
+      if (live && this.tick % 20 < 10)
+        shadedOrb(g, cx + 2, cy - 6 - ((this.tick / 2) % 6), 2, RAMPS.steel, {
+          outline: null,
+          glint: false,
+        })
+    }
+  }
+
+  private renderDashSeeds(g: CanvasRenderingContext2D) {
+    for (const s of this.dashSeeds) {
+      const d = this.channels.get(s.k)
+      const shift = d ? (s.t / DASH_TICKS) * TILE : 0
+      const cx = (s.k % COLS) * TILE + TILE / 2 + (d?.dx ?? 0) * shift
+      const cy =
+        HUD_H + Math.floor(s.k / COLS) * TILE + TILE / 2 + (d?.dy ?? 0) * shift
+      if (s.gold) glow(g, cx, cy, 10, RAMPS.gold[3], 0.5)
+      drawSprite(g, DASH_SEED_SPRITES[s.gold ? 1 : 0], cx, cy)
+    }
+  }
+
+  /** The season's title card: its name, its place and what grows there. */
+  private renderCard(g: CanvasRenderingContext2D) {
+    const season = this.step.season
+    const look = SEASON_LOOKS[season.id]
+    const fade = Math.min(1, this.card / 30, (CARD_TICKS - this.card) / 20)
+    g.save()
+    g.globalAlpha = fade
+    bandedGradient(g, 0, 0, W, H, [...look.sky], 6)
+    // Rolling garden hills and a row of the season's flowers.
+    g.fillStyle = look.ground[2]
+    g.beginPath()
+    g.ellipse(W * 0.3, H - 10, W * 0.5, 60, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = look.ground[3]
+    g.beginPath()
+    g.ellipse(W * 0.8, H, W * 0.5, 50, 0, 0, Math.PI * 2)
+    g.fill()
+    for (let i = 0; i < 9; i++) {
+      const x = 14 + i * 27
+      const y = H - 34 + ((i * 7) % 3) * 4
+      g.fillStyle = RAMPS.leaf[2]
+      g.fillRect(x, y, 1, 10)
+      drawSprite(g, BLOOM_SPRITES[i % 4]!, x, y)
+    }
+    if (season.id === 'summer') {
+      glow(g, W - 40, 48, 30, RAMPS.gold[3], 0.7)
+      shadedOrb(g, W - 40, 48, 12, RAMPS.gold)
+      for (let i = 0; i < 4; i++)
+        bevel(g, 20 + i * 22, 58, 18, 24, RAMPS.water, { depth: 1 })
+    } else {
+      drawSprite(g, CAN_SPRITE, 40, 80, { anchor: 'feet', scale: 3 })
+      drawSprite(g, STUMP_SPRITE, W - 46, 80, { anchor: 'feet', scale: 2 })
+    }
+    drawText(g, season.name, W / 2, 96, {
+      scale: 3,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+      shadow: look.accent[1],
+    })
+    drawText(g, season.title, W / 2, 124, {
+      align: 'center',
+      color: look.accent[1],
+      outline: '#ffffff',
+    })
+    drawText(g, season.tagline, W / 2, 138, {
+      align: 'center',
+      color: INK,
+    })
+    if (this.step.lap > 0)
+      drawText(g, `LAP ${this.step.lap + 1}`, W / 2, 150, {
+        align: 'center',
+        color: RAMPS.ember[2],
+      })
+    g.restore()
+  }
+
+  /** The Potting Shed: spend seeds between seasons. */
+  private renderShed(g: CanvasRenderingContext2D) {
+    const shed = this.shed!
+    g.fillStyle = rgba(INK, 0.82)
+    g.fillRect(0, 0, W, H)
+    hudPanel(g, 12, 30, W - 24, H - 50, RAMPS.earth)
+    drawText(g, 'THE POTTING SHED', W / 2, 40, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    drawSprite(g, DASH_SEED_SPRITES[0], W / 2 - 34, 66)
+    drawText(g, `SEEDS ${this.seeds}`, W / 2 - 26, 63, {
+      color: RAMPS.cream[4],
+      outline: INK,
+    })
+    const pouch = this.gardeners[0]?.pouch ?? ['sunflower']
+    const season = this.shedSeason
+    SHED_ITEMS.forEach((item, i) => {
+      const y = 82 + i * 26
+      const on = shed.cursor === i
+      hudPanel(g, 24, y, W - 48, 22, on ? RAMPS.leaf : RAMPS.night)
+      const block = shedBlock(
+        item,
+        { seeds: this.seeds, spares: this.spares, pouch, hint: this.hint },
+        season,
+      )
+      const icon =
+        item === 'spare'
+          ? SPARE_SPRITE
+          : item === 'variety'
+            ? VARIETY_SPRITES[nextVariety(pouch) ?? 'sunflower']
+            : item === 'hint'
+              ? GOLDEN_SEED_SPRITE
+              : MUSHROOM_SPRITES[0]
+      drawSprite(g, icon, 38, y + 11)
+      const name =
+        item === 'variety' && nextVariety(pouch)
+          ? VARIETY_INFO[nextVariety(pouch)!].name
+          : item === 'leave'
+            ? `ON TO ${campaignStep(this.stepIndex + 1).season.name}`
+            : SHED_NAMES[item]
+      drawText(g, name, 50, y + 4, {
+        color: block && item !== 'leave' ? RAMPS.steel[2] : RAMPS.cream[4],
+        outline: INK,
+      })
+      if (item !== 'leave')
+        drawText(g, `${shedPrice(item, season)} SEEDS`, 50, y + 13, {
+          color: block ? RAMPS.ember[3] : RAMPS.gold[3],
+          outline: INK,
+        })
+      if (on && Math.floor(this.tick / 15) % 2)
+        drawText(g, '>', 28, y + 8, { color: RAMPS.gold[4], outline: INK })
+    })
+    drawText(g, shed.note || 'UP DOWN CHOOSE  A BUY', W / 2, H - 30, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+  }
+
+  private renderOffer(g: CanvasRenderingContext2D) {
+    const offer = this.offer!
+    g.fillStyle = rgba(INK, 0.85)
+    g.fillRect(0, 0, W, H)
+    const season = campaignStep(offer.season * STEPS_PER_SEASON).season
+    hudPanel(g, 20, 70, W - 40, 90, RAMPS.leaf)
+    drawText(g, 'WELCOME BACK!', W / 2, 80, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    drawText(g, `CONTINUE AT ${season.name}?`, W / 2, 104, {
+      align: 'center',
+      color: RAMPS.cream[4],
+      outline: INK,
+    })
+    drawText(
+      g,
+      offer.continued ? 'SCORE STARTS FROM ZERO' : `SCORE ${offer.score}`,
+      W / 2,
+      116,
+      { align: 'center', color: RAMPS.cream[3], outline: INK },
+    )
+    drawText(g, 'A CONTINUE   B NEW GARDEN', W / 2, 140, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
   }
 
   /** Flowerbeds: a sprout, then a bud, then a flower where every bloom has been. */
@@ -2336,6 +3268,18 @@ class SeedBurst implements ArcadeGameInstance {
         const sprite = HEDGE_SPRITES[(x * 7 + y * 3) % 5 === 0 ? 1 : 0]
         drawSprite(g, sprite, x * TILE + TILE / 2, HUD_H + y * TILE + TILE / 2)
       }
+    // The Potting Shed's golden-seed hint: its hedge glints now and then.
+    if (this.hint && this.tick % 90 < 24)
+      for (const [k, what] of this.hidden)
+        if (what === 'golden' && this.grid[k] === HEDGE)
+          glow(
+            g,
+            (k % COLS) * TILE + TILE / 2,
+            HUD_H + Math.floor(k / COLS) * TILE + TILE / 2,
+            10,
+            RAMPS.gold[4],
+            0.7,
+          )
   }
 
   private renderPower(g: CanvasRenderingContext2D, k: number, power: Pickup) {
@@ -2543,6 +3487,17 @@ class SeedBurst implements ArcadeGameInstance {
             : pickupSprite(gr.loot)
         drawSprite(g, icon, sackX, y - 6)
       }
+    } else if (kind === 'caterpillar') {
+      dropShadow(g, x, y + 5, 6, 1.5, 0.3)
+      drawSprite(
+        g,
+        CATERPILLAR_SPRITES[Math.floor(this.tick / 8) % 2]!,
+        x,
+        y + 3,
+        {
+          flipX: flip,
+        },
+      )
     } else if (kind === 'puffball') {
       const bob = Math.round(Math.sin(this.tick / 10 + gr.tx) * 1)
       dropShadow(g, x, y + 7, 5, 1.5, 0.35)
@@ -2645,8 +3600,10 @@ class SeedBurst implements ArcadeGameInstance {
     const face: Face =
       gd.facing.dy < 0 ? 'up' : gd.facing.dy > 0 ? 'down' : 'side'
     const pose = gd.p > 0 ? 1 + (Math.floor(this.tick / 6) % 2) : 0
-    dropShadow(g, x, y + 7, 6, 2, 0.4)
-    drawSprite(g, GARDENER_SPRITES[gd.seat]![face][pose]!, x, y + 8, {
+    // A mushroom bounce arcs over whatever is between.
+    const lift = gd.bouncing ? Math.sin(gd.p * Math.PI) * 14 : 0
+    dropShadow(g, x, y + 7, gd.bouncing ? 4 : 6, 2, 0.4)
+    drawSprite(g, GARDENER_SPRITES[gd.seat]![face][pose]!, x, y + 8 - lift, {
       anchor: 'feet',
       flipX: gd.facing.dx < 0,
     })
@@ -2744,7 +3701,12 @@ class SeedBurst implements ArcadeGameInstance {
     })
     const left = measureText(score, 2) + 12
     const secs = Math.max(0, Math.ceil(this.timer / 60))
-    const grumps = `GRUMPS ${this.grumps.length + this.bells.reduce((n, b) => n + b.kinds.length, 0)}`
+    const bonus = this.plan.plot.bonus
+    const grumps = this.boss
+      ? `BOSS ${this.boss.hitsLeft}`
+      : bonus
+        ? `${bonus === 'butterfly-release' ? 'FREED' : 'SAVED'} ${this.bonusCaught}`
+        : `GRUMPS ${this.grumps.length + this.bells.reduce((n, b) => n + b.kinds.length, 0)}`
     const time = this.cloud ? 'RAIN!' : `TIME ${secs}`
     const tw = Math.max(measureText(time), measureText(grumps)) + 8
     hudPanel(g, left, 2, tw, 20)
@@ -2760,7 +3722,13 @@ class SeedBurst implements ArcadeGameInstance {
       outline: INK,
     })
     const hi = `HI ${Math.max(this.hiScore, this.score)}`
-    const plot = `PLOT ${this.level}`
+    const step = this.step
+    const plot =
+      step.kind === 'bonus'
+        ? 'BONUS BED'
+        : step.kind === 'boss'
+          ? 'BOSS PLOT'
+          : `${step.season.name} ${step.inSeason < 3 ? step.inSeason + 1 : step.inSeason}`
     const rw = Math.max(measureText(hi), measureText(plot)) + 8
     hudPanel(g, W - 2 - rw, 2, rw, 20)
     drawText(g, hi, W - 6, 4, {
@@ -2797,6 +3765,17 @@ class SeedBurst implements ArcadeGameInstance {
           outline: INK,
         })
       }
+    }
+    if (this.boss) {
+      // The boss's bloom-o-meter: how many hits are still to land.
+      const bw = 80
+      const bx = (W - bw) / 2
+      hudPanel(g, bx, HUD_H + 3, bw, 8, RAMPS.night)
+      const share = this.boss.hitsLeft / this.boss.maxHits
+      g.fillStyle = RAMPS.ember[2]
+      g.fillRect(bx + 3, HUD_H + 5, Math.round((bw - 6) * share), 4)
+      g.fillStyle = RAMPS.ember[4]
+      g.fillRect(bx + 3, HUD_H + 5, Math.round((bw - 6) * share), 1)
     }
     if (this.banner) {
       // A dimmed band behind the banner keeps it legible over the busy garden.

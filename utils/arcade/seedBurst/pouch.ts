@@ -105,21 +105,23 @@ function ray(
 
 /**
  * The tiles a pod of `variety` at (x, y) blooms over, its own tile first. `dir` is the way a
- * Dandelion's fluff drifts; `reach` is the planting gardener's bloom reach.
+ * Dandelion's fluff drifts; `reach` is the planting gardener's bloom reach, or a reach per
+ * direction (a watering can's soaked row doubles it along the row).
  */
 export function burstTiles(
   variety: Variety,
   x: number,
   y: number,
   dir: Step,
-  reach: number,
+  reach: number | ((d: Step) => number),
   look: (x: number, y: number) => TileLook,
 ): BurstTile[] {
   const out: BurstTile[] = [{ x, y, hit: 'open' }]
+  const along = (d: Step) => (typeof reach === 'number' ? reach : reach(d))
   if (variety === 'clover')
-    for (const d of DIAGONALS) ray(out, x, y, d, reach, look, 'clover')
+    for (const d of DIAGONALS) ray(out, x, y, d, along(d), look, 'clover')
   else if (variety === 'dandelion')
-    ray(out, x, y, dir, reach + DANDELION_EXTRA, look, 'fluff')
+    ray(out, x, y, dir, along(dir) + DANDELION_EXTRA, look, 'fluff')
   else if (variety === 'pumpkin') {
     for (let dy = -1; dy <= 1; dy++)
       for (let dx = -1; dx <= 1; dx++) {
@@ -132,7 +134,7 @@ export function burstTiles(
           hit: t.kind === 'hedge' ? 'hedge' : t.pod ? 'pod' : 'open',
         })
       }
-  } else for (const d of CROSS) ray(out, x, y, d, reach, look, 'cross')
+  } else for (const d of CROSS) ray(out, x, y, d, along(d), look, 'cross')
   return out
 }
 

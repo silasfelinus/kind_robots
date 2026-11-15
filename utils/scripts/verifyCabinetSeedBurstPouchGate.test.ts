@@ -95,7 +95,7 @@ for (const plot of PLOTS) {
   assert.equal(plot.mask.length, PLOT_ROWS, `${plot.id}: 13 rows`)
   for (const row of plot.mask)
     assert.equal(row.length, PLOT_COLS, `${plot.id}: 15 columns`)
-  assert.ok(/^[#H?.C]+$/.test(plot.mask.join('')), `${plot.id}: legend`)
+  assert.ok(/^[#H?.CWG<>^vMV]+$/.test(plot.mask.join('')), `${plot.id}: legend`)
   assert.equal(plot.mask.join('').split('C').length - 1, 1, `${plot.id}: heap`)
   const mask = parseMask(plot.mask)
   const hx = mask.heap % PLOT_COLS
@@ -132,9 +132,9 @@ for (const v of VARIETIES.filter((v) => v !== 'sunflower'))
     `${v} is offered`,
   )
 // The loop quickens the grumps and adds gnats, capped.
-const first = planPlot(0)
-const lap = planPlot(PLOTS.length)
-const late = planPlot(PLOTS.length * 20)
+const first = planPlot(PLOTS[0]!)
+const lap = planPlot(PLOTS[0]!, 1)
+const late = planPlot(PLOTS[0]!, 20)
 assert.equal(lap.plot, first.plot)
 assert.equal(lap.loop, 1)
 assert.ok(lap.speed > first.speed)
@@ -319,7 +319,8 @@ type Inner = ArcadeGameInstance & {
   clear: number
   spares: number
   plan: { plot: { id: string } }
-  buildPlot(index: number): void
+  card: number
+  buildPlot(plan: ReturnType<typeof planPlot>): void
   newGrump(kind: string, x: number, y: number): Grump
 }
 const COLS = PLOT_COLS
@@ -333,7 +334,8 @@ function sandbox(index = 0, seed = 3): Inner {
     demo: false,
     hiScore: 0,
   }) as Inner
-  if (index) game.buildPlot(index)
+  if (index) game.buildPlot(planPlot(PLOTS[index]!))
+  game.card = 0
   game.grid = game.grid.map((c) => (c === 2 ? 0 : c))
   game.grumps = []
   game.hidden.clear()
@@ -359,9 +361,13 @@ for (let i = 0; i < PLOTS.length; i++)
       demo: false,
       hiScore: 0,
     }) as Inner
-    game.buildPlot(i)
+    game.buildPlot(planPlot(PLOTS[i]!))
     assert.equal(game.plan.plot.id, PLOTS[i]!.id)
-    assert.equal(game.grumps.length, planPlot(i).roster.length, PLOTS[i]!.id)
+    assert.equal(
+      game.grumps.length,
+      planPlot(PLOTS[i]!).roster.length,
+      PLOTS[i]!.id,
+    )
     assert.ok(game.gate.k >= 0 && game.grid[game.gate.k] === 2, 'gate hidden')
     assert.ok(
       [...game.hidden.values()].includes('golden'),

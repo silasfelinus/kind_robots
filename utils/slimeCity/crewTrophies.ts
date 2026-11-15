@@ -123,3 +123,36 @@ export function earnedCrewTitles(endings: readonly string[]): string[] {
     .trophies.filter((t) => t.unlocked)
     .map((t) => t.title)
 }
+
+/**
+ * Equipped cosmetics (slime-city/t-065). The story save keeps an optional
+ * crew id for the card back and one for the worn title; either is honoured
+ * only while that crew's trophy is unlocked, so a save can never wear a
+ * frame or title its endings have not earned.
+ */
+export function canEquipCrew(
+  team: unknown,
+  endings: readonly string[],
+): team is TeamId {
+  return (
+    typeof team === 'string' &&
+    Object.hasOwn(CREW_TROPHIES, team) &&
+    crewTrophyUnlocked(team as TeamId, endings)
+  )
+}
+
+/** The frame to draw on Clash card backs, or null for the default back. */
+export function equippedFrame(
+  team: TeamId | null | undefined,
+  endings: readonly string[],
+): CrewTrophy['frame'] | null {
+  return team && canEquipCrew(team, endings) ? CREW_TROPHIES[team].frame : null
+}
+
+/** The title the player wears, or null when none is equipped and earned. */
+export function equippedTitle(
+  team: TeamId | null | undefined,
+  endings: readonly string[],
+): string | null {
+  return team && canEquipCrew(team, endings) ? CREW_TROPHIES[team].title : null
+}

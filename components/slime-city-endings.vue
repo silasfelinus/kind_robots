@@ -59,6 +59,41 @@
               >Finish {{ teamName(t.team) }}'s campaign to unlock.</small
             >
             <p v-if="t.unlocked">{{ t.line }}</p>
+            <div
+              v-if="t.unlocked && lab.storyLoaded"
+              class="endings-equip"
+              role="group"
+              :aria-label="'Wear ' + teamName(t.team) + ' cosmetics'"
+            >
+              <button
+                type="button"
+                :aria-pressed="lab.equippedBack === t.team"
+                :data-testid="'slime-equip-back-' + t.team"
+                @click="
+                  lab.equipCosmetic(
+                    'cardBack',
+                    lab.equippedBack === t.team ? null : t.team,
+                  )
+                "
+              >
+                {{
+                  lab.equippedBack === t.team ? 'CARD BACK ON' : 'USE CARD BACK'
+                }}
+              </button>
+              <button
+                type="button"
+                :aria-pressed="lab.wornTitle === t.team"
+                :data-testid="'slime-equip-title-' + t.team"
+                @click="
+                  lab.equipCosmetic(
+                    'title',
+                    lab.wornTitle === t.team ? null : t.team,
+                  )
+                "
+              >
+                {{ lab.wornTitle === t.team ? 'TITLE WORN' : 'WEAR TITLE' }}
+              </button>
+            </div>
           </div>
         </li>
       </ul>
@@ -453,5 +488,27 @@ function tileArt(entry: EndingEntry): number | null {
 .endings-trophy p {
   margin: 0.25rem 0 0;
   font-size: 0.85em;
+}
+.endings-equip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+.endings-equip button {
+  min-height: 2rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid #ffffff4d;
+  border-radius: 999px;
+  background: #ffffff12;
+  color: inherit;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+.endings-equip button[aria-pressed='true'] {
+  border-color: #d7ff89;
+  background: #d7ff8933;
+  color: #f4ffd9;
 }
 </style>

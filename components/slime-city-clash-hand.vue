@@ -176,8 +176,19 @@
         data-testid="clash-hand-toggle"
         @click="toggle"
       >
-        <span class="cxh-stack" aria-hidden="true"
-          ><i v-for="n in 3" :key="n" :style="{ '--n': n }"
+        <span
+          class="cxh-stack"
+          aria-hidden="true"
+          :data-card-back="backFrame ? backFrame.name : 'default'"
+          data-testid="clash-hand-card-back"
+          ><i
+            v-for="n in 3"
+            :key="n"
+            :style="
+              backFrame
+                ? { '--n': n, background: backFrame.background }
+                : { '--n': n }
+            "
         /></span>
         <b>{{ cards.length }}</b>
         <small>{{ game.decks.player.length }} DECK</small>
@@ -212,6 +223,8 @@ const props = defineProps<{
     hover?: boolean
     dock?: 'left' | 'right'
   } | null
+  /** Equipped crew card-back frame (slime-city/t-065); default back if absent. */
+  backFrame?: { name: string; background: string } | null
 }>()
 const emit = defineEmits<{
   pick: [index: number | null]

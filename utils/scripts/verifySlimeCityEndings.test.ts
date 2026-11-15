@@ -31,8 +31,11 @@ import { SLIME_CITY_ART, slimeArtId } from '../slimeCity/artManifest'
 import {
   CREW_TROPHIES,
   crewTrophyShelf,
+  canEquipCrew,
   crewTrophyUnlocked,
   earnedCrewTitles,
+  equippedFrame,
+  equippedTitle,
 } from '../slimeCity/crewTrophies'
 
 // Every crew: two plates, three journey epilogues, two endings per ally arc.
@@ -213,7 +216,7 @@ console.log('slime-city endings gallery + scrapbook: ok')
   const shelf = crewTrophyShelf(rec.endings)
   assert.equal(shelf.unlocked, 1)
   assert.deepEqual(earnedCrewTitles(rec.endings), [CREW_TROPHIES.riot.title])
-  // Cosmetic only: the story save shape is unchanged.
+  // Cosmetic only: trophies change no cards, Meat or wallet.
   const ui = readFileSync('components/slime-city-endings.vue', 'utf8')
   assert.match(ui, /slime-trophy-shelf/)
   assert.match(
@@ -222,6 +225,81 @@ console.log('slime-city endings gallery + scrapbook: ok')
   )
 }
 console.log('slime-city crew trophies verified')
+
+// Equip an unlocked crew card back and title (slime-city/t-065).
+{
+  const endings = ['riot:triumph']
+  assert.equal(canEquipCrew('riot', endings), true)
+  assert.equal(canEquipCrew('exchange', endings), false, 'locked crew')
+  assert.equal(canEquipCrew('not-a-crew', endings), false)
+  assert.equal(canEquipCrew(undefined, endings), false)
+  assert.deepEqual(equippedFrame('riot', endings), CREW_TROPHIES.riot.frame)
+  assert.equal(equippedFrame('exchange', endings), null)
+  assert.equal(equippedFrame(null, endings), null)
+  assert.equal(equippedTitle('riot', endings), CREW_TROPHIES.riot.title)
+  assert.equal(equippedTitle('riot', []), null)
+
+  // The save accepts earned cosmetics and rejects unearned ones.
+  const base = { ...newSlimeCityStory(), endings }
+  assert.equal(
+    validSlimeCityStory({ ...base, cardBack: 'riot', title: 'riot' }),
+    true,
+  )
+  assert.equal(validSlimeCityStory({ ...base, cardBack: 'exchange' }), false)
+  assert.equal(validSlimeCityStory({ ...base, title: 'exchange' }), false)
+  assert.equal(validSlimeCityStory({ ...base, title: 42 }), false)
+  assert.equal(
+    validSlimeCityStory({ ...newSlimeCityStory(), cardBack: 'riot' }),
+    false,
+    'no endings, nothing to wear',
+  )
+  // Older saves without the fields still load.
+  assert.equal(validSlimeCityStory(base), true)
+
+  // A retired ending unequips its cosmetics; the story itself survives.
+  const loaded = storyFromAccount({
+    story: {
+      ...newSlimeCityStory(),
+      revision: 7,
+      endings: ['riot:retired-ending'],
+      cardBack: 'riot',
+      title: 'riot',
+    },
+  })
+  assert.equal(loaded.revision, 7, 'story kept')
+  assert.equal(loaded.cardBack, undefined)
+  assert.equal(loaded.title, undefined)
+  const kept = storyFromAccount({
+    story: { ...base, revision: 3, cardBack: 'riot', title: 'riot' },
+  })
+  assert.equal(kept.cardBack, 'riot')
+  assert.equal(kept.title, 'riot')
+
+  // The server keeps the proposal's cosmetics, the store saves and equips
+  // them, and the UI shows the picker, the Clash back and the worn title.
+  const server = readFileSync('server/utils/slimeCityProgress.ts', 'utf8')
+  assert.match(server, /cardBack: proposed\.cardBack/)
+  assert.match(server, /title: proposed\.title/)
+  const store = readFileSync('stores/slimeCity.ts', 'utf8')
+  assert.match(store, /function equipCosmetic\(/)
+  assert.match(store, /canEquipCrew\(team, endingsFound\.value\)/)
+  const endingsUi = readFileSync('components/slime-city-endings.vue', 'utf8')
+  assert.match(endingsUi, /slime-equip-back-/)
+  assert.match(endingsUi, /slime-equip-title-/)
+  assert.match(
+    readFileSync('components/slime-city-clash.vue', 'utf8'),
+    /:back-frame="lab\.cardBackFrame"/,
+  )
+  assert.match(
+    readFileSync('components/slime-city-clash-hand.vue', 'utf8'),
+    /background: backFrame\.background/,
+  )
+  assert.match(
+    readFileSync('components/slime-city-campaign.vue', 'utf8'),
+    /slime-campaign-worn-title/,
+  )
+}
+console.log('slime-city equipped card back and title verified')
 
 // Journey ending plates (slime-city/t-062): the finale paints the journey
 // ending the final choice earned, ahead of the triumph/compromise plate.

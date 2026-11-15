@@ -30,6 +30,7 @@ import {
   validScrapbook,
   type ScrapbookPage,
 } from './endings'
+import { canEquipCrew } from './crewTrophies'
 import {
   normalizeLegacyAllianceDeck,
   validAllianceDeck,
@@ -82,6 +83,12 @@ export interface SlimeCityStory {
   endings?: string[]
   /** One scrapbook page per finished crew run (slime-city/t-059). */
   scrapbook?: ScrapbookPage[]
+  /**
+   * Equipped crew card back and worn title (slime-city/t-065). Each names a
+   * crew whose trophy the endings above unlock. Cosmetic only.
+   */
+  cardBack?: TeamId
+  title?: TeamId
 }
 
 /** 'written': each bout's own format. 'turf': every story bout is TURF. */
@@ -219,6 +226,10 @@ export function validSlimeCityStory(raw: unknown): raw is SlimeCityStory {
   if (raw.endings !== undefined && !validEndings(raw.endings)) return false
   if (raw.scrapbook !== undefined && !validScrapbook(raw.scrapbook))
     return false
+  const earned = Array.isArray(raw.endings) ? (raw.endings as string[]) : []
+  if (raw.cardBack !== undefined && !canEquipCrew(raw.cardBack, earned))
+    return false
+  if (raw.title !== undefined && !canEquipCrew(raw.title, earned)) return false
   if (raw.decks !== undefined) {
     if (!record(raw.decks)) return false
     for (const [team, deck] of Object.entries(raw.decks)) {
@@ -428,6 +439,13 @@ function withoutRetiredEndings(raw: unknown): unknown {
       scrapbook: raw.scrapbook
         .filter((page) => validScrapbook([page]))
         .slice(-SCRAPBOOK_LIMIT),
+    }
+  // A cosmetic whose ending was retired is unequipped, never a voided story.
+  const earned = Array.isArray(story.endings) ? (story.endings as string[]) : []
+  for (const key of ['cardBack', 'title'] as const)
+    if (story[key] !== undefined && !canEquipCrew(story[key], earned)) {
+      const { [key]: _dropped, ...rest } = story
+      story = rest
     }
   return story
 }

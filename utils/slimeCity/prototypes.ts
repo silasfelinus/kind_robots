@@ -756,12 +756,12 @@ export const CARDS: Card[] = [
   },
   {
     id: 'shredders',
-    name: 'Patent Shredders',
-    kind: 'equipment',
+    name: 'Patent Shredder',
+    kind: 'creature',
     team: 'catgirls',
     cost: 2,
-    effect: 'sharpen',
-    text: 'Lab-grown claws, formerly corporate property. A fighter gains +1 attack for good.',
+    attack: 2,
+    text: 'A claw-handed lab escapee lends her stolen weapons to nearby allies.',
     symbol: '⟋',
   },
   {

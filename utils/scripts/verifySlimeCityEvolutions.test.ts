@@ -994,7 +994,10 @@ const ironWorker = (lane: number, uid: number) =>
   assert.equal(at(after, 72)!.rooted, false, 'L3 frees the target worker')
   assert.ok(at(after, 71)!.attack > at(s, 71)!.attack)
   assert.ok(at(after, 73)!.attack > at(s, 73)!.attack)
-  assert.deepEqual(ironPlay(structuredClone(s), 's3-ironjaw-hammer-register'), after)
+  assert.deepEqual(
+    ironPlay(structuredClone(s), 's3-ironjaw-hammer-register'),
+    after,
+  )
 }
 
 // Rivet Shower is no longer a no-op on L3 when no one has fallen.
@@ -1022,7 +1025,8 @@ const ironWorker = (lane: number, uid: number) =>
   for (const uid of [78, 79])
     assert.ok(at(after, uid)!.keywords.includes('pierce'))
   const welder = after.units.find(
-    (unit) => unit.side === 'player' && unit.cardId === 's3-ironjaw-night-welder',
+    (unit) =>
+      unit.side === 'player' && unit.cardId === 's3-ironjaw-night-welder',
   )!
   assert.ok(welder.keywords.includes('pierce'))
 }

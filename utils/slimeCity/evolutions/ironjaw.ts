@@ -40,7 +40,8 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // it turns into the crew's mechanic and gate-opener. Counterplay: block
   // its alley; with a foe across there is no boss hit and no rush.
   'union-millwright': {
-    levelOneText: 'An armored millwright advances even when the line is jammed.',
+    levelOneText:
+      'An armored millwright advances even when the line is jammed.',
     stats: { 3: { attack: -1 } },
     2: stage('Keeps the Line Running', [
       on('turnStart', heal(2, 'woundedAlly')),
@@ -289,7 +290,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
     2: stage('Overtime Bonus', [on('enter', life(2, 'target'))]),
     3: stage('Spiked Bonus Plate', [
       on('enter', life(2, 'target'), sharpen(2, 'target')),
-    ])
+    ]),
   },
   // Arc: a shop-floor vote -> a show of hands from the crew -> every hand
   // raised: the whole floor bulldozes.

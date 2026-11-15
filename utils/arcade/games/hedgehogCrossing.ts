@@ -11,14 +11,39 @@
 // step forward scores, every hedgehog home scores more for the time it has
 // left, and all five home starts the next level: faster lanes, shorter logs,
 // more diving turtles.
+//
+// Depth pass slice 1 (kr-arcade/t-102): lanes are data (../hedgehogCrossing/
+// lanes.ts) and each lane kind brings its own spawn, step, touch and draw
+// (LANE_BEHAVIOURS below). The board remixes as the levels climb: snapping
+// logs from level 3, delivery bots weaving across rows 9-10 from level 4, a
+// heron fishing the creek from level 6, and new mixes every level past 11.
 
 import { drawText } from '../font'
+import {
+  BOT_MERGE,
+  LANE_KINDS,
+  SNAP_PERIOD,
+  SNAP_YAWN,
+  SPAN,
+  boardLanes,
+  botRows,
+  newArrivals,
+  newBot,
+  snapPhase,
+  snapperTouch,
+  stepBot,
+} from '../hedgehogCrossing/lanes'
+import type { Bot, LaneKind, LaneSpec, Touch } from '../hedgehogCrossing/lanes'
 import {
   DASH_COOLDOWN,
   DASH_ROWS,
   DASH_TICKS,
   HALF,
   HEDGEHOG_CURVES,
+  HERON_FROM,
+  HERON_REACH,
+  HERON_STAB,
+  HERON_SWEEP,
   HOP_TICKS,
   MAX_PARADE,
   MEDIAN_ROW,
@@ -29,14 +54,17 @@ import {
   W,
   canDash,
   escalation,
+  heronStrikes,
   landing,
+  newHeron,
   newSnake,
   paradeBonus,
   paradeMultiplier,
   snakeBites,
+  stepHeron,
   stepSnake,
 } from '../hedgehogCrossing/rules'
-import type { Delta, Snake } from '../hedgehogCrossing/rules'
+import type { Delta, Escalation, Heron, Snake } from '../hedgehogCrossing/rules'
 import {
   INK,
   RAMPS,
@@ -70,7 +98,6 @@ import type {
 
 const H = 320
 const TOP = 28
-const SPAN = W + 140
 const START_LIVES = 4
 const HOP_REPEAT = 4
 const TIME_TICKS = 60 * 30
@@ -87,17 +114,14 @@ const LADYBUG_POINTS = 200
 
 export { HEDGEHOG_CURVES }
 
-type LaneKind = 'car' | 'tractor' | 'racer' | 'bus' | 'log' | 'turtles'
-type LaneSpec = {
-  row: number
-  kind: LaneKind
+type Thing = {
+  x: number
   len: number
-  count: number
-  speed: number
-  dir: 1 | -1
-  color: string
+  /** A turtle group's dive beat, or a snapping log's yawn beat (-1: never). */
+  dive: number
+  /** A delivery bot's road sense: which row it is in, and its blinker. */
+  bot?: Bot
 }
-type Thing = { x: number; len: number; dive: number }
 type Lane = LaneSpec & { things: Thing[]; vx: number }
 type Hop = {
   fromX: number
@@ -129,100 +153,10 @@ type Particle = {
   color: string
 }
 type Floater = { x: number; y: number; text: string; life: number }
+type Banner = { text: string; sub?: string; ticks: number }
 
-/** The lanes, from the bottom of the road to the top of the creek. */
-const LANES: LaneSpec[] = [
-  {
-    row: 11,
-    kind: 'car',
-    len: 1,
-    count: 3,
-    speed: 0.6,
-    dir: -1,
-    color: '#f472b6',
-  },
-  {
-    row: 10,
-    kind: 'tractor',
-    len: 1,
-    count: 3,
-    speed: 0.45,
-    dir: 1,
-    color: '#facc15',
-  },
-  {
-    row: 9,
-    kind: 'car',
-    len: 1,
-    count: 3,
-    speed: 0.85,
-    dir: -1,
-    color: '#38bdf8',
-  },
-  {
-    row: 8,
-    kind: 'racer',
-    len: 1,
-    count: 1,
-    speed: 2,
-    dir: 1,
-    color: '#fb7185',
-  },
-  {
-    row: 7,
-    kind: 'bus',
-    len: 2,
-    count: 2,
-    speed: 0.7,
-    dir: -1,
-    color: '#2dd4bf',
-  },
-  {
-    row: 5,
-    kind: 'turtles',
-    len: 3,
-    count: 4,
-    speed: 0.6,
-    dir: -1,
-    color: '#15803d',
-  },
-  {
-    row: 4,
-    kind: 'log',
-    len: 3,
-    count: 3,
-    speed: 0.5,
-    dir: 1,
-    color: '#92400e',
-  },
-  {
-    row: 3,
-    kind: 'log',
-    len: 5,
-    count: 2,
-    speed: 1.15,
-    dir: 1,
-    color: '#92400e',
-  },
-  {
-    row: 2,
-    kind: 'turtles',
-    len: 2,
-    count: 4,
-    speed: 0.7,
-    dir: -1,
-    color: '#15803d',
-  },
-  {
-    row: 1,
-    kind: 'log',
-    len: 4,
-    count: 3,
-    speed: 0.8,
-    dir: 1,
-    color: '#92400e',
-  },
-]
+/** How long a newcomer's introduction stays up. */
+const INTRO_TICKS = 150
 
 /** Turtle groups dive on this cycle: [start, end) of the submerged stretch. */
 const DIVE_PERIOD = 300
@@ -490,6 +424,14 @@ const LOG_SPRITES = [1, 2, 3, 4, 5, 6].map((len) =>
   pixelSprite(logRows(len), LOG_PALETTE),
 )
 
+/** Snapping logs: the same bark, gone mossy green, so they read apart from plain logs. */
+const SNAP_RAMP = RAMPS.earth.map((c, i) =>
+  mix(c, RAMPS.leaf[i]!, 0.42),
+) as unknown as Ramp
+const SNAPPER_SPRITES = [1, 2, 3, 4, 5, 6].map((len) =>
+  pixelSprite(logRows(len), { ...LOG_PALETTE, ...rampPalette(SNAP_RAMP) }),
+)
+
 function vehiclePalette(ramp: Ramp) {
   return rampPalette(ramp, {
     G: RAMPS.sky[4],
@@ -585,33 +527,48 @@ function busRows() {
   })
 }
 
-const LANE_RAMPS: Record<number, Ramp> = {
-  11: RAMPS.pink,
-  10: RAMPS.gold,
-  9: RAMPS.sky,
-  8: RAMPS.ember,
-  7: RAMPS.teal,
-}
+/** A delivery bot, side on and facing right: a parcel strapped on top, a face screen, wheels. */
+const BOT_ROWS = [
+  '..nnnnnnnn........',
+  '..nBBBBBBn........',
+  '..nbbbybbn....a...',
+  '..nbbbybbn....a...',
+  '.3444444444444443.',
+  '.4333333333GGGG3..',
+  '.4322222222GkGk3y.',
+  '.432222222GGGGG3y.',
+  '.3222222222222221.',
+  '.21tTt111111tTt1..',
+  '...TkT......TkT...',
+  '...ttt......ttt...',
+]
 
-const VEHICLE_ROWS: Record<LaneKind, readonly string[]> = {
+const VEHICLE_ROWS: Partial<Record<LaneKind, readonly string[]>> = {
   car: CAR_ROWS,
   racer: RACER_ROWS,
   tractor: TRACTOR_ROWS,
   bus: busRows(),
-  log: [],
-  turtles: [],
+  bot: BOT_ROWS,
 }
 
-/** One vehicle sprite per road lane, painted in that lane's ramp. */
-const VEHICLE_SPRITES: Record<number, PixelSprite> = Object.fromEntries(
-  LANES.filter((l) => isRoad(l.row)).map((l) => [
-    l.row,
-    pixelSprite(
-      VEHICLE_ROWS[l.kind],
-      vehiclePalette(LANE_RAMPS[l.row] ?? RAMPS.steel),
-    ),
-  ]),
-)
+/** Vehicle sprites, painted once per kind and lane ramp the first time a lane needs them. */
+const VEHICLE_SPRITES = new Map<string, PixelSprite>()
+
+function vehicleSprite(lane: Lane): PixelSprite | null {
+  const key = `${lane.kind}:${lane.ramp}`
+  const cached = VEHICLE_SPRITES.get(key)
+  if (cached) return cached
+  const rows = VEHICLE_ROWS[lane.kind]
+  if (!rows) return null
+  const sprite = pixelSprite(rows, {
+    ...vehiclePalette(RAMPS[lane.ramp]),
+    n: RAMPS.earth[1],
+    b: RAMPS.earth[2],
+    B: RAMPS.earth[3],
+  })
+  VEHICLE_SPRITES.set(key, sprite)
+  return sprite
+}
 
 const FOX_PALETTE = rampPalette(RAMPS.rust, {
   n: RAMPS.pink[2],
@@ -741,6 +698,378 @@ const SHIMMER = (() => {
   }))
 })()
 
+// --- lane behaviours: each lane kind's spawn, step, touch and draw ---------------------
+
+/** What the lanes need from the game while they step. */
+type LaneWorld = {
+  rng: () => number
+  laneAt(row: number): Lane | undefined
+  /** Everything on the road in this row right now (cars, and bots in or merging into it). */
+  occupants(row: number): Thing[]
+}
+
+type LaneBehaviour = {
+  spawn(spec: LaneSpec, esc: Escalation, rng: () => number): Thing[]
+  step(lane: Lane, world: LaneWorld): void
+  /** A thing as it will be `dt` ticks from now (for the pilot's look-ahead). */
+  project(lane: Lane, t: Thing, dt: number): Thing
+  /** What a body at x on `row` meets on this thing at tick `at`; `pad` is a cautious margin. */
+  touch(
+    lane: Lane,
+    t: Thing,
+    x: number,
+    row: number,
+    at: number,
+    pad: number,
+  ): Touch | null
+  draw(g: CanvasRenderingContext2D, lane: Lane, t: Thing, tick: number): void
+}
+
+function submergedAt(t: Thing, at: number): boolean {
+  if (t.dive < 0) return false
+  const phase = (at + t.dive) % DIVE_PERIOD
+  return phase >= DIVE_DOWN && phase < DIVE_UP
+}
+
+/** A lane's things spaced evenly round the wrap, from one seeded offset. */
+function spread(spec: LaneSpec, len: number, rng: () => number): Thing[] {
+  const gap = SPAN / spec.count
+  const offset = rng() * gap
+  return Array.from({ length: spec.count }, (_, i) => ({
+    x: -70 + offset + i * gap,
+    len,
+    dive: -1,
+  }))
+}
+
+function wrapX(lane: Lane, x: number, len: number): number {
+  while (lane.vx > 0 && x > W + 30) x -= SPAN
+  while (lane.vx < 0 && x + len * TILE < -30) x += SPAN
+  return x
+}
+
+function drift(lane: Lane) {
+  for (const t of lane.things) t.x = wrapX(lane, t.x + lane.vx, t.len)
+}
+
+function shift(lane: Lane, t: Thing, dt: number): Thing {
+  return { ...t, x: wrapX(lane, t.x + lane.vx * dt, t.len) }
+}
+
+/** Does a body at x overlap this thing (traffic)? */
+function hits(t: Thing, x: number, pad: number): boolean {
+  return x + HALF - 4 + pad > t.x && x - HALF + 4 - pad < t.x + t.len * TILE
+}
+
+/** Is a body at x standing on this thing (a platform)? */
+function rides(t: Thing, x: number, pad: number): boolean {
+  return x > t.x + 2 + pad && x < t.x + t.len * TILE - 2 - pad
+}
+
+/** Where a delivery bot is drawn: in its row, or partway across while it merges. */
+function botY(lane: Lane, t: Thing): number {
+  const b = t.bot
+  if (!b) return rowY(lane.row)
+  if (b.merge <= 0) return rowY(b.at)
+  const f = 1 - b.merge / BOT_MERGE
+  return rowY(b.at) + (rowY(b.to) - rowY(b.at)) * f
+}
+
+function drawVehicle(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  x: number,
+  y: number,
+  w: number,
+) {
+  const sprite = vehicleSprite(lane)
+  if (!sprite) return
+  const cx = x + w / 2
+  dropShadow(g, cx + 1, y + TILE - 4, w / 2 - 1, 2.5, 0.45)
+  if (lane.kind === 'racer') {
+    // Speed streaks trailing the racer.
+    g.fillStyle = rgba(RAMPS.pink[4], 0.7)
+    for (let i = 1; i <= 3; i++) {
+      g.fillRect(
+        Math.round(lane.dir > 0 ? x - i * 6 : x + w + i * 6 - 4),
+        y + 7 + i * 3,
+        4,
+        1,
+      )
+    }
+  }
+  drawSprite(g, sprite, cx, y + TILE - 3, {
+    anchor: 'feet',
+    flipX: lane.dir < 0,
+  })
+  // Headlamps: the robots' eyes light the road ahead.
+  const front = lane.dir > 0 ? x + w + 2 : x - 2
+  glow(g, front, y + 10, 7, RAMPS.gold[3], 0.3)
+}
+
+function drawBot(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const w = t.len * TILE
+  const y = botY(lane, t)
+  drawVehicle(g, lane, t.x, y, w)
+  const b = t.bot
+  if (!b || b.blink <= 0 || Math.floor(tick / 8) % 2 === 1) return
+  // The tell: an amber blinker on the side it is about to move to, and an arrow.
+  const up = b.to < b.at
+  const lx = Math.round(lane.dir > 0 ? t.x + w - 4 : t.x + 2)
+  const ly = Math.round(up ? y + 2 : y + TILE - 5)
+  glow(g, lx + 1, ly + 1, 8, RAMPS.gold[3], 0.6)
+  g.fillStyle = INK
+  g.fillRect(lx - 1, ly - 1, 4, 4)
+  g.fillStyle = RAMPS.gold[4]
+  g.fillRect(lx, ly, 2, 2)
+  drawText(g, up ? '↑' : '↓', t.x + w / 2, up ? y - 7 : y + TILE - 2, {
+    align: 'center',
+    color: RAMPS.gold[3],
+    outline: INK,
+  })
+}
+
+function drawLog(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const y = rowY(lane.row)
+  const w = t.len * TILE
+  const x = Math.round(t.x)
+  // A dark wake under the log, foam curling off its leading end.
+  g.fillStyle = rgba(INK, 0.32)
+  g.fillRect(x + 3, y + 15, w - 4, 3)
+  const sprites = lane.kind === 'snapper' ? SNAPPER_SPRITES : LOG_SPRITES
+  const sprite = sprites[t.len - 1] ?? sprites[2]!
+  drawSprite(g, sprite, x, y + 3, {
+    anchor: 'topleft',
+    flipX: lane.dir < 0,
+  })
+  const nose = lane.dir > 0 ? x + w + 1 : x - 3
+  const f = Math.floor(tick / 8) % 2
+  g.fillStyle = RAMPS.water[4]
+  g.fillRect(nose, y + 5 + f * 2, 2, 1)
+  g.fillRect(nose + lane.dir, y + 12 - f * 2, 2, 1)
+  g.fillStyle = RAMPS.water[3]
+  g.fillRect(nose + lane.dir * 2, y + 8 + f, 1, 1)
+}
+
+/** A snapping log: a mossy log whose leading end has eyes, and, when it yawns, jaws. */
+function drawSnapper(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  drawLog(g, lane, t, tick)
+  const y = rowY(lane.row)
+  const w = t.len * TILE
+  const dir = lane.dir
+  const head = Math.round(dir > 0 ? t.x + w : t.x)
+  const phase = snapPhase(t.dive, tick)
+  if (phase === 'yawn') {
+    // The jaws open across the head half: a wedge of pink mouth and little cream teeth.
+    const into = ((tick + t.dive) % SNAP_PERIOD) - (SNAP_PERIOD - SNAP_YAWN)
+    const open = Math.min(1, into / 8) * (into > SNAP_YAWN - 8 ? 0.6 : 1)
+    const tip = head - dir * (w / 2)
+    const mid = y + 10
+    const top = mid - 7 * open
+    const bottom = mid + 6 * open
+    g.fillStyle = INK
+    g.beginPath()
+    g.moveTo(tip, mid)
+    g.lineTo(head + dir, top - 1)
+    g.lineTo(head + dir, bottom + 1)
+    g.closePath()
+    g.fill()
+    g.fillStyle = RAMPS.pink[1]
+    g.beginPath()
+    g.moveTo(tip + dir * 3, mid)
+    g.lineTo(head - dir, top + 1)
+    g.lineTo(head - dir, bottom - 1)
+    g.closePath()
+    g.fill()
+    g.fillStyle = RAMPS.cream[4]
+    for (let i = 1; i <= 3; i++) {
+      const tx = Math.round(head - dir * i * (w / 8))
+      const f = 1 - (i * (w / 8)) / (w / 2)
+      g.fillRect(tx, Math.round(mid - 7 * open * f) + 1, 1, 2)
+      g.fillRect(tx, Math.round(mid + 6 * open * f) - 3, 1, 2)
+    }
+  }
+  // Eyes on top of the head end: shut while it dozes; open, and glowing, before it yawns.
+  for (const back of [9, 15]) {
+    const ex = Math.round(head - dir * back)
+    if (phase === 'doze') {
+      g.fillStyle = INK
+      g.fillRect(ex - 1, y + 4, 3, 1)
+      continue
+    }
+    if (phase === 'eyes') glow(g, ex, y + 4, 6, RAMPS.gold[3], 0.45)
+    g.fillStyle = INK
+    g.fillRect(ex - 2, y + 2, 5, 5)
+    g.fillStyle = phase === 'yawn' ? RAMPS.ember[4] : RAMPS.gold[4]
+    g.fillRect(ex - 1, y + 3, 3, 3)
+    g.fillStyle = INK
+    g.fillRect(ex + (dir > 0 ? 1 : -1), y + 4, 1, 1)
+  }
+}
+
+function drawTurtles(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const dir = lane.dir
+  const cy = rowY(lane.row) + TILE / 2
+  if (submergedAt(t, tick)) {
+    // Rings and bubbles where the turtles went down.
+    g.save()
+    g.lineWidth = 1
+    for (let i = 0; i < t.len; i++) {
+      const cx = Math.round(t.x + i * TILE + TILE / 2)
+      const grow = ((tick + i * 7) % 24) / 24
+      g.strokeStyle = rgba(RAMPS.water[4], 0.7 * (1 - grow))
+      g.beginPath()
+      g.ellipse(cx, cy, 4 + grow * 5, 2 + grow * 3, 0, 0, Math.PI * 2)
+      g.stroke()
+      g.fillStyle = RAMPS.water[4]
+      const b = Math.floor(tick / 10 + i) % 3
+      g.fillRect(cx - 2 + b * 2, cy - 2 - b, 1, 1)
+    }
+    g.restore()
+    return
+  }
+  const phase = t.dive < 0 ? -1 : (tick + t.dive) % DIVE_PERIOD
+  const warning = phase >= DIVE_WARN && phase < DIVE_DOWN
+  const surfacing = phase >= DIVE_UP && phase < DIVE_UP + 14
+  const sinking = surfacing || (warning && Math.floor(tick / 6) % 2 === 0)
+  for (let i = 0; i < t.len; i++) {
+    const cx = t.x + i * TILE + TILE / 2
+    g.fillStyle = rgba(RAMPS.water[0], 0.45)
+    g.beginPath()
+    g.ellipse(cx + 1, cy + 3, 7, 3, 0, 0, Math.PI * 2)
+    g.fill()
+    const paddle = Math.floor((tick + i * 5) / 10) % 2
+    const sprite = sinking
+      ? TURTLE_SINKING
+      : paddle
+        ? TURTLE_SPRITES[1]
+        : TURTLE_SPRITES[0]
+    drawSprite(g, sprite, cx, cy, { flipX: dir < 0 })
+  }
+}
+
+const VEHICLE: LaneBehaviour = {
+  spawn: (spec, _esc, rng) => spread(spec, spec.len, rng),
+  step: drift,
+  project: shift,
+  touch: (lane, t, x, row, _at, pad) =>
+    row === lane.row && hits(t, x, pad) ? 'hit' : null,
+  draw: (g, lane, t) => drawVehicle(g, lane, t.x, rowY(lane.row), t.len * TILE),
+}
+
+export const LANE_BEHAVIOURS: Record<LaneKind, LaneBehaviour> = {
+  car: VEHICLE,
+  tractor: VEHICLE,
+  racer: VEHICLE,
+  bus: VEHICLE,
+  log: {
+    spawn: (spec, esc, rng) =>
+      spread(spec, Math.max(2, spec.len - esc.logTrim), rng),
+    step: drift,
+    project: shift,
+    touch: (_lane, t, x, _row, _at, pad) => (rides(t, x, pad) ? 'ride' : null),
+    draw: drawLog,
+  },
+  turtles: {
+    spawn: (spec, esc, rng) => {
+      const things = spread(spec, spec.len, rng)
+      // Some turtle groups dive, each on its own beat.
+      const groups = Math.min(esc.divingGroups, things.length)
+      for (let i = 0; i < groups; i += esc.diveStride) {
+        things[i]!.dive = Math.floor(rng() * DIVE_PERIOD)
+      }
+      return things
+    },
+    step: drift,
+    project: shift,
+    touch: (_lane, t, x, _row, at, pad) =>
+      rides(t, x, pad) && !submergedAt(t, at) ? 'ride' : null,
+    draw: drawTurtles,
+  },
+  snapper: {
+    spawn: (spec, esc, rng) => {
+      // Long enough for a head half and a tail half; each wakes on its own beat.
+      const things = spread(spec, Math.max(3, spec.len - esc.logTrim), rng)
+      for (const t of things) t.dive = Math.floor(rng() * SNAP_PERIOD)
+      return things
+    },
+    step: drift,
+    project: shift,
+    touch: (lane, t, x, _row, at, pad) =>
+      snapperTouch(t.x, t.len, lane.dir, x, snapPhase(t.dive, at), pad),
+    draw: drawSnapper,
+  },
+  bot: {
+    spawn: (spec, _esc, rng) =>
+      spread(spec, spec.len, rng).map((t) => ({
+        ...t,
+        bot: newBot(spec.row, 60 + Math.floor(rng() * 120)),
+      })),
+    step: (lane, world) => {
+      drift(lane)
+      const pair = lane.pair
+      if (pair === undefined) return
+      const pairVx = world.laneAt(pair)?.vx ?? 0
+      for (const t of lane.things) {
+        if (!t.bot) continue
+        stepBot(
+          t.bot,
+          t,
+          lane.vx,
+          pairVx,
+          lane.row,
+          pair,
+          world.occupants,
+          world.rng,
+        )
+      }
+    },
+    project: (lane, t, dt) => {
+      const moved = shift(lane, t, dt)
+      if (!t.bot) return moved
+      const bot = { ...t.bot }
+      // Assume the worst: a blinker about to finish merges, covering both rows.
+      if (bot.merge > 0 && bot.merge <= dt) {
+        bot.at = bot.to
+        bot.merge = 0
+      } else if (bot.blink > 0 && bot.blink <= dt + BOT_MERGE) {
+        bot.merge = BOT_MERGE
+      }
+      return { ...moved, bot }
+    },
+    touch: (lane, t, x, row, _at, pad) =>
+      (t.bot ? botRows(t.bot) : [lane.row]).includes(row) && hits(t, x, pad)
+        ? 'hit'
+        : null,
+    draw: drawBot,
+  },
+}
+
+/** Lanes whose things can be in this row (a lane's own row, or the row its bots weave into). */
+function covers(lane: Lane, row: number): boolean {
+  return lane.row === row || lane.pair === row
+}
+
 class HedgehogCrossing implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -783,7 +1112,11 @@ class HedgehogCrossing implements ArcadeGameInstance {
   private nextExtra = EXTRA_EVERY
   private particles: Particle[] = []
   private floaters: Floater[] = []
-  private banner: { text: string; sub?: string; ticks: number } | null = null
+  private banner: Banner | null = null
+  /** Banners waiting their turn (new lane kinds and creatures introducing themselves). */
+  private bannerQueue: Banner[] = []
+  private heron: Heron | null = null
+  private heronTimer = 0
   /** Cosmetic sparkles, on their own rng so the game's stays seeded. */
   private fx = new Sparkles()
   private fxRng = backdropRng(37)
@@ -802,33 +1135,24 @@ class HedgehogCrossing implements ArcadeGameInstance {
     this.level = level
     this.home = new Array(BURROWS).fill(false)
     const esc = escalation(level)
-    const speed = esc.speed
-    const trim = esc.logTrim
-    const diving = esc.divingGroups
-    this.lanes = LANES.map((base, index) => {
+    // The board is data: Park Lane with this level's remixes, built lane by lane by its kind.
+    this.lanes = boardLanes(level).map((base, index) => {
       const flip = esc.flipParity !== null && index % 2 === esc.flipParity
       const spec: LaneSpec = flip
         ? { ...base, dir: base.dir > 0 ? -1 : 1 }
         : base
-      const len = spec.kind === 'log' ? Math.max(2, spec.len - trim) : spec.len
-      const gap = SPAN / spec.count
-      const offset = this.rng() * gap
-      const things: Thing[] = []
-      for (let i = 0; i < spec.count; i++) {
-        things.push({ x: -70 + offset + i * gap, len, dive: -1 })
-      }
-      if (spec.kind === 'turtles') {
-        // Some turtle groups dive, each on its own beat.
-        for (
-          let i = 0;
-          i < Math.min(diving, things.length);
-          i += esc.diveStride
-        ) {
-          things[i]!.dive = Math.floor(this.rng() * DIVE_PERIOD)
-        }
-      }
-      return { ...spec, things, vx: spec.speed * spec.dir * speed }
+      const things = LANE_BEHAVIOURS[spec.kind].spawn(spec, esc, this.rng)
+      return { ...spec, things, vx: spec.speed * spec.dir * esc.speed }
     })
+    // A lane that weaves into another keeps to that lane's direction of travel.
+    for (const lane of this.lanes) {
+      const pair = lane.pair === undefined ? undefined : this.laneAt(lane.pair)
+      if (!pair) continue
+      lane.dir = pair.vx >= 0 ? 1 : -1
+      lane.vx = Math.abs(lane.vx) * lane.dir
+    }
+    this.heron = null
+    this.heronTimer = Math.floor(esc.heronEvery / 2)
     this.fox = null
     this.foxTimer = esc.foxEvery
     this.ladybug = null
@@ -845,8 +1169,8 @@ class HedgehogCrossing implements ArcadeGameInstance {
     this.waiting = []
     this.parade = []
     this.lost = null
-    if (esc.lostHoglet) {
-      const logs = this.lanes.filter((lane) => lane.kind === 'log')
+    const logs = this.lanes.filter((lane) => lane.kind === 'log')
+    if (esc.lostHoglet && logs.length > 0) {
       const lane = logs[Math.floor(this.rng() * logs.length)]!
       const thing = Math.floor(this.rng() * lane.things.length)
       this.lost = {
@@ -857,6 +1181,31 @@ class HedgehogCrossing implements ArcadeGameInstance {
     }
     this.resetHedgehog()
     this.banner = { text: `LEVEL ${level}`, sub: 'WALK THEM HOME', ticks: 90 }
+    this.bannerQueue = this.introsFor(level)
+  }
+
+  /** Banners for whatever turns up for the first time on this level. */
+  private introsFor(level: number): Banner[] {
+    const intros: Banner[] = []
+    for (const kind of newArrivals(level)) {
+      const intro = LANE_KINDS[kind].intro
+      if (intro) intros.push({ ...intro, ticks: INTRO_TICKS })
+    }
+    if (level === 2) {
+      intros.push({
+        text: 'GRASS SNAKE',
+        sub: 'ITS TONGUE FLICKS BEFORE IT TURNS',
+        ticks: INTRO_TICKS,
+      })
+    }
+    if (level === HERON_FROM) {
+      intros.push({
+        text: 'HERON!',
+        sub: 'ITS SHADOW PICKS A COLUMN: LEAVE IT',
+        ticks: INTRO_TICKS,
+      })
+    }
+    return intros
   }
 
   private resetHedgehog() {
@@ -898,13 +1247,15 @@ class HedgehogCrossing implements ArcadeGameInstance {
   update(input: InputFrame) {
     this.tick++
     this.updateEffects()
-    if (this.banner && --this.banner.ticks <= 0) this.banner = null
+    if (this.banner && --this.banner.ticks <= 0)
+      this.banner = this.bannerQueue.shift() ?? null
     if (this.over) return
     const controls = this.demo ? this.demoInput() : input
 
-    this.moveLanes()
+    this.stepLanes()
     this.updateSnakes()
     this.updateVisitors()
+    this.updateHeron()
 
     if (this.levelClear > 0) {
       if (--this.levelClear === 0) this.startLevel(this.level + 1)
@@ -914,6 +1265,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
       if (--this.dead === 0) {
         if (this.lives <= 0) {
           this.over = true
+          this.bannerQueue = []
           this.banner = { text: 'GAME OVER', ticks: 9999 }
         } else {
           this.resetHedgehog()
@@ -1058,13 +1410,50 @@ class HedgehogCrossing implements ArcadeGameInstance {
     return Math.round(hop.fromRow + (hop.toRow - hop.fromRow) * f)
   }
 
-  private moveLanes() {
+  private stepLanes() {
+    const world: LaneWorld = {
+      rng: this.rng,
+      laneAt: (row) => this.laneAt(row),
+      occupants: (row) => this.occupants(row),
+    }
+    for (const lane of this.lanes) LANE_BEHAVIOURS[lane.kind].step(lane, world)
+  }
+
+  /** Everything that can be in a road row right now: its own traffic and bots weaving into it. */
+  private occupants(row: number): Thing[] {
+    const out: Thing[] = []
     for (const lane of this.lanes) {
+      if (!covers(lane, row)) continue
       for (const t of lane.things) {
-        t.x += lane.vx
-        if (lane.vx > 0 && t.x > W + 30) t.x -= SPAN
-        if (lane.vx < 0 && t.x + t.len * TILE < -30) t.x += SPAN
+        const rows = t.bot ? botRows(t.bot) : [lane.row]
+        if (rows.includes(row)) out.push(t)
       }
+    }
+    return out
+  }
+
+  /**
+   * The heron: every so often its shadow sweeps the creek, closing on the hedgehog's column,
+   * holds there (the tell), then the beak stabs. Leave the column.
+   */
+  private updateHeron() {
+    const every = escalation(this.level).heronEvery
+    if (this.heron) {
+      if (!stepHeron(this.heron, this.hx)) this.heron = null
+      else if (this.heron.phase === 'stab' && this.heron.t === 0) {
+        this.sound.play('pop')
+        this.fx.burst(this.heron.x, rowY(3) + TILE / 2, this.fxRng, {
+          count: 10,
+          colours: [RAMPS.water[4], RAMPS.water[3]],
+          speed: 1.6,
+        })
+      }
+      return
+    }
+    if (every <= 0 || this.levelClear > 0) return
+    if (--this.heronTimer <= 0) {
+      this.heronTimer = every
+      this.heron = newHeron(this.rng() < 0.5)
     }
   }
 
@@ -1232,34 +1621,52 @@ class HedgehogCrossing implements ArcadeGameInstance {
     return this.lanes.find((lane) => lane.row === row)
   }
 
-  /** Is this turtle group under water right now (or at tick `at`)? */
-  private submerged(t: Thing, at = this.tick): boolean {
-    if (t.dive < 0) return false
-    const phase = (at + t.dive) % DIVE_PERIOD
-    return phase >= DIVE_DOWN && phase < DIVE_UP
+  /**
+   * What every lane covering `row` does to a body at x, at tick `at`, each through its kind's
+   * own `touch`. `dt` looks ahead (the pilot); `pad` is a cautious margin.
+   */
+  private touches(
+    x: number,
+    row: number,
+    at = this.tick,
+    pad = 0,
+    dt = 0,
+  ): Array<{ touch: Touch; kind: LaneKind }> {
+    const out: Array<{ touch: Touch; kind: LaneKind }> = []
+    for (const lane of this.lanes) {
+      if (!covers(lane, row)) continue
+      const behaviour = LANE_BEHAVIOURS[lane.kind]
+      for (const thing of lane.things) {
+        const t = dt > 0 ? behaviour.project(lane, thing, dt) : thing
+        const touch = behaviour.touch(lane, t, x, row, at, pad)
+        if (touch) out.push({ touch, kind: lane.kind })
+      }
+    }
+    return out
   }
 
   /**
    * What would catch a body (the leader or a hoglet) at x on this row, or null. `row` is -1 while
-   * a dash is in the air between its rows; the creek only matters once a body has landed.
+   * a dash is in the air between its rows; the creek only matters once a body has landed, but
+   * the heron's beak finds a body hopping through its column.
    */
   private hazardAt(x: number, row: number, hopping: boolean): Hazard | null {
     if (isRoad(row)) {
-      const lane = this.laneAt(row)!
-      const hit = lane.things.some(
-        (t) => x + HALF - 2 > t.x + 2 && x - HALF + 2 < t.x + t.len * TILE - 2,
-      )
-      if (hit) return { kind: 'bonk', text: 'BEEP BEEP! TRY AGAIN' }
+      const hit = this.touches(x, row).find((t) => t.touch === 'hit')
+      if (hit) return { kind: 'bonk', text: LANE_KINDS[hit.kind].bonk }
     }
     if (row === MEDIAN_ROW && this.snakes.some((snake) => snakeBites(snake, x)))
       return { kind: 'bonk', text: 'HISS! A SNAKE' }
+    if (isCreek(row) && this.heron && heronStrikes(this.heron, x))
+      return { kind: 'bonk', text: 'PECK! LEAVE THE SHADOW' }
     if (hopping || !isCreek(row)) return null
     if (x < 4 || x > W - 4) return { kind: 'splash', text: 'SWEPT DOWNSTREAM' }
-    const lane = this.laneAt(row)!
-    const afloat = lane.things.some(
-      (t) => x > t.x + 2 && x < t.x + t.len * TILE - 2 && !this.submerged(t),
-    )
-    return afloat ? null : { kind: 'splash', text: 'SPLASH!' }
+    const met = this.touches(x, row)
+    const bite = met.find((t) => t.touch === 'bite')
+    if (bite) return { kind: 'bonk', text: LANE_KINDS[bite.kind].bonk }
+    return met.some((t) => t.touch === 'ride')
+      ? null
+      : { kind: 'splash', text: 'SPLASH!' }
   }
 
   private checkHazards() {
@@ -1333,41 +1740,56 @@ class HedgehogCrossing implements ArcadeGameInstance {
 
   // --- attract-mode pilot -----------------------------------------------------
 
-  /** Where a lane's things will be `dt` ticks from now (wrapped like the lane). */
-  private futureSpans(lane: Lane, dt: number) {
-    return lane.things.map((t) => {
-      let x = t.x + lane.vx * dt
-      while (lane.vx > 0 && x > W + 30) x -= SPAN
-      while (lane.vx < 0 && x + t.len * TILE < -30) x += SPAN
-      return {
-        x0: x,
-        x1: x + t.len * TILE,
-        sunk: this.submerged(t, this.tick + dt),
-      }
-    })
+  /** Will a road row stay clear of traffic at x from `from` to `to` ticks ahead? */
+  private roadClear(row: number, x: number, from: number, to: number): boolean {
+    if (!isRoad(row)) return true
+    for (let dt = from; dt <= to; dt += 2) {
+      const met = this.touches(x, row, this.tick + dt, 6, dt)
+      if (met.some((t) => t.touch === 'hit')) return false
+    }
+    return true
   }
 
-  private roadClear(row: number, x: number, from: number, to: number): boolean {
+  /** Is a ride under x on this creek row `dt` ticks ahead -- and still there 40 ticks later? */
+  private safeRide(row: number, x: number, dt: number): boolean {
     const lane = this.laneAt(row)
-    if (!lane || !isRoad(row)) return true
-    for (let dt = from; dt <= to; dt += 2) {
-      const hit = this.futureSpans(lane, dt).some(
-        (s) => x + HALF + 2 > s.x0 && x - HALF - 2 < s.x1,
-      )
-      if (hit) return false
+    if (!lane) return true
+    // Stay off a turtle group about to dive, and off a snapping log's head as its eyes open.
+    for (const [ahead, at] of [
+      [dt, x],
+      [dt + 40, x + lane.vx * 40],
+    ] as const) {
+      const met = this.touches(at, row, this.tick + ahead, 3, ahead)
+      if (met.some((t) => t.touch === 'bite')) return false
+      if (!met.some((t) => t.touch === 'ride')) return false
     }
     return true
   }
 
   private creekSafe(row: number, x: number, dt: number): boolean {
-    const lane = this.laneAt(row)
-    if (!lane) return true
-    const now = this.futureSpans(lane, dt)
-    // Stay off a turtle group that is about to dive.
-    const soon = this.futureSpans(lane, dt + 40)
-    return now.some(
-      (s, i) => x > s.x0 + 5 && x < s.x1 - 5 && !s.sunk && !soon[i]!.sunk,
-    )
+    return this.safeRide(row, x, dt) && !this.heronNear(x)
+  }
+
+  /** Is the heron's shadow settling on (or holding over) this column? */
+  private heronNear(x: number): boolean {
+    const h = this.heron
+    if (!h) return false
+    if (h.phase === 'sweep' && h.t < HERON_SWEEP - 24) return false
+    return Math.abs(h.x - x) < HERON_REACH + HALF + 6
+  }
+
+  /** Is staying put in the creek about to go wrong (a dive, a yawn, a beak)? */
+  private creekDanger(): boolean {
+    const lane = this.laneAt(this.row)
+    if (!lane || !isCreek(this.row)) return false
+    if (this.heronNear(this.hx)) return true
+    for (let dt = 0; dt <= 30; dt += 6) {
+      const x = this.hx + lane.vx * dt
+      const met = this.touches(x, this.row, this.tick + dt, 0, dt)
+      if (met.some((t) => t.touch === 'bite')) return true
+      if (!met.some((t) => t.touch === 'ride')) return true
+    }
+    return false
   }
 
   /** Is a snake close enough to reach x within a hop or two? */
@@ -1409,7 +1831,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
       ? this.roadClear(this.row, this.hx, 0, HOP_TICKS + 6)
       : this.row === MEDIAN_ROW
         ? !this.snakeNear(this.hx)
-        : true
+        : !this.creekDanger()
     if (this.safeLanding(this.row - 1, x)) {
       held.up = true
       return frame
@@ -1444,14 +1866,16 @@ class HedgehogCrossing implements ArcadeGameInstance {
       }
     }
     if (!hereSafe) {
-      for (const step of [-TILE, TILE]) {
-        if (this.safeLanding(this.row, this.hx + step)) {
+      // Toward the tail of a log first (a snapping log's head is the dangerous end).
+      const tail = isCreek(this.row) && this.laneAt(this.row)!.vx < 0 ? -1 : 1
+      for (const step of [-TILE * tail, TILE * tail]) {
+        if (this.safeLanding(this.row, x + step)) {
           if (step < 0) held.left = true
           else held.right = true
           return frame
         }
       }
-      if (this.safeLanding(this.row + 1, this.hx)) held.down = true
+      if (this.safeLanding(this.row + 1, x)) held.down = true
     }
     return frame
   }
@@ -1461,7 +1885,11 @@ class HedgehogCrossing implements ArcadeGameInstance {
   render(g: CanvasRenderingContext2D) {
     this.renderGround(g)
     this.renderCreek(g)
-    for (const lane of this.lanes) this.renderLane(g, lane)
+    for (const lane of this.lanes) {
+      const behaviour = LANE_BEHAVIOURS[lane.kind]
+      for (const t of lane.things) behaviour.draw(g, lane, t, this.tick)
+    }
+    this.renderHeronShadow(g)
     this.renderBurrows(g)
     this.renderSnakes(g)
     this.renderHoglets(g)
@@ -1470,6 +1898,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
     } else if (this.dead > 0) {
       this.renderMishap(g)
     }
+    this.renderHeronBeak(g)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, p.life / 30)
       g.fillStyle = INK
@@ -1705,124 +2134,84 @@ class HedgehogCrossing implements ArcadeGameInstance {
     drawStars(g, SKY_STARS, this.tick, RAMPS.purple)
   }
 
-  private renderLane(g: CanvasRenderingContext2D, lane: Lane) {
-    const y = rowY(lane.row)
-    for (const t of lane.things) {
-      const w = t.len * TILE
-      switch (lane.kind) {
-        case 'log':
-          this.renderLog(g, lane, t, y, w)
-          break
-        case 'turtles':
-          this.renderTurtles(g, t, y, lane.dir)
-          break
-        default:
-          this.renderVehicle(g, lane, t.x, y, w)
-      }
+  /** The heron's shadow on the creek: it glides in, settles on a column, and darkens. */
+  private renderHeronShadow(g: CanvasRenderingContext2D) {
+    const h = this.heron
+    if (!h || h.phase === 'stab') return
+    const top = rowY(1)
+    const height = TILE * 5
+    const x = Math.round(h.x)
+    const settle = h.phase === 'sweep' ? h.t / HERON_SWEEP : 1
+    g.fillStyle = rgba(INK, 0.1 + 0.18 * settle)
+    g.fillRect(x - HERON_REACH, top, HERON_REACH * 2, height)
+    // The bird itself, a glide-shaped shadow drifting up and down the column.
+    const cy = top + height / 2 + Math.sin(this.tick / 12) * 18
+    const span = h.phase === 'sweep' ? 18 : 12
+    g.fillStyle = rgba(INK, 0.38)
+    g.beginPath()
+    g.ellipse(x, cy, span, 3, 0, 0, Math.PI * 2)
+    g.fill()
+    g.beginPath()
+    g.ellipse(x, cy + 2, 4, 9, 0, 0, Math.PI * 2)
+    g.fill()
+    if (h.phase === 'hold' && Math.floor(this.tick / 6) % 2 === 0) {
+      // The column is chosen: its edges flash.
+      g.fillStyle = rgba(RAMPS.ember[3], 0.7)
+      g.fillRect(x - HERON_REACH, top, 1, height)
+      g.fillRect(x + HERON_REACH - 1, top, 1, height)
+      drawText(g, '!', x, top + 2, {
+        align: 'center',
+        color: RAMPS.ember[4],
+        outline: INK,
+      })
     }
   }
 
-  private renderLog(
-    g: CanvasRenderingContext2D,
-    lane: Lane,
-    t: Thing,
-    y: number,
-    w: number,
-  ) {
-    const x = Math.round(t.x)
-    // A dark wake under the log, foam curling off its leading end.
-    g.fillStyle = rgba(INK, 0.32)
-    g.fillRect(x + 3, y + 15, w - 4, 3)
-    const sprite = LOG_SPRITES[t.len - 1] ?? LOG_SPRITES[2]!
-    drawSprite(g, sprite, x, y + 3, {
-      anchor: 'topleft',
-      flipX: lane.dir < 0,
-    })
-    const nose = lane.dir > 0 ? x + w + 1 : x - 3
-    const f = Math.floor(this.tick / 8) % 2
-    g.fillStyle = RAMPS.water[4]
-    g.fillRect(nose, y + 5 + f * 2, 2, 1)
-    g.fillRect(nose + lane.dir, y + 12 - f * 2, 2, 1)
-    g.fillStyle = RAMPS.water[3]
-    g.fillRect(nose + lane.dir * 2, y + 8 + f, 1, 1)
-  }
-
-  private renderTurtles(
-    g: CanvasRenderingContext2D,
-    t: Thing,
-    y: number,
-    dir: 1 | -1,
-  ) {
-    const cy = y + TILE / 2
-    if (this.submerged(t)) {
-      // Rings and bubbles where the turtles went down.
-      g.save()
-      g.lineWidth = 1
-      for (let i = 0; i < t.len; i++) {
-        const cx = Math.round(t.x + i * TILE + TILE / 2)
-        const grow = ((this.tick + i * 7) % 24) / 24
-        g.strokeStyle = rgba(RAMPS.water[4], 0.7 * (1 - grow))
-        g.beginPath()
-        g.ellipse(cx, cy, 4 + grow * 5, 2 + grow * 3, 0, 0, Math.PI * 2)
-        g.stroke()
-        g.fillStyle = RAMPS.water[4]
-        const b = Math.floor(this.tick / 10 + i) % 3
-        g.fillRect(cx - 2 + b * 2, cy - 2 - b, 1, 1)
-      }
-      g.restore()
-      return
+  /** The stab: a long grey neck and a gold beak plunging into the chosen column. */
+  private renderHeronBeak(g: CanvasRenderingContext2D) {
+    const h = this.heron
+    if (!h || h.phase !== 'stab') return
+    const x = Math.round(h.x)
+    const hit =
+      isCreek(this.row) && Math.abs(this.hx - h.x) < HERON_REACH + HALF
+    const targetY = rowY(hit ? this.row : 3) + TILE / 2
+    const down = Math.min(1, (h.t + 1) / 4)
+    const up = h.t > HERON_STAB - 6 ? (HERON_STAB - h.t) / 6 : 1
+    const startY = rowY(0) - 6
+    const tip = Math.round(startY + (targetY - startY) * down * up)
+    const neckEnd = tip - 12
+    if (neckEnd > startY) {
+      g.fillStyle = INK
+      g.fillRect(x - 3, startY, 6, neckEnd - startY)
+      g.fillStyle = RAMPS.steel[3]
+      g.fillRect(x - 2, startY, 4, neckEnd - startY)
+      g.fillStyle = RAMPS.steel[4]
+      g.fillRect(x - 2, startY, 1, neckEnd - startY)
     }
-    const phase = t.dive < 0 ? -1 : (this.tick + t.dive) % DIVE_PERIOD
-    const warning = phase >= DIVE_WARN && phase < DIVE_DOWN
-    const surfacing = phase >= DIVE_UP && phase < DIVE_UP + 14
-    const sinking =
-      surfacing || (warning && Math.floor(this.tick / 6) % 2 === 0)
-    for (let i = 0; i < t.len; i++) {
-      const cx = t.x + i * TILE + TILE / 2
-      g.fillStyle = rgba(RAMPS.water[0], 0.45)
-      g.beginPath()
-      g.ellipse(cx + 1, cy + 3, 7, 3, 0, 0, Math.PI * 2)
-      g.fill()
-      const paddle = Math.floor((this.tick + i * 5) / 10) % 2
-      const sprite = sinking
-        ? TURTLE_SINKING
-        : paddle
-          ? TURTLE_SPRITES[1]
-          : TURTLE_SPRITES[0]
-      drawSprite(g, sprite, cx, cy, { flipX: dir < 0 })
-    }
-  }
-
-  private renderVehicle(
-    g: CanvasRenderingContext2D,
-    lane: Lane,
-    x: number,
-    y: number,
-    w: number,
-  ) {
-    const sprite = VEHICLE_SPRITES[lane.row]
-    if (!sprite) return
-    const cx = x + w / 2
-    dropShadow(g, cx + 1, y + TILE - 4, w / 2 - 1, 2.5, 0.45)
-    if (lane.kind === 'racer') {
-      // Speed streaks trailing the racer.
-      g.fillStyle = rgba(RAMPS.pink[4], 0.7)
-      for (let i = 1; i <= 3; i++) {
-        g.fillRect(
-          Math.round(lane.dir > 0 ? x - i * 6 : x + w + i * 6 - 4),
-          y + 7 + i * 3,
-          4,
-          1,
-        )
-      }
-    }
-    drawSprite(g, sprite, cx, y + TILE - 3, {
-      anchor: 'feet',
-      flipX: lane.dir < 0,
-    })
-    // Headlamps: the robots' eyes light the road ahead.
-    const front = lane.dir > 0 ? x + w + 2 : x - 2
-    glow(g, front, y + 10, 7, RAMPS.gold[3], 0.3)
+    shadedOrb(g, x, neckEnd, 4, RAMPS.steel)
+    g.fillStyle = INK
+    g.fillRect(x + 1, neckEnd - 1, 1, 1)
+    g.fillStyle = INK
+    g.beginPath()
+    g.moveTo(x - 3, neckEnd + 2)
+    g.lineTo(x + 3, neckEnd + 2)
+    g.lineTo(x, tip + 1)
+    g.closePath()
+    g.fill()
+    g.fillStyle = RAMPS.gold[3]
+    g.beginPath()
+    g.moveTo(x - 2, neckEnd + 2)
+    g.lineTo(x + 2, neckEnd + 2)
+    g.lineTo(x, tip)
+    g.closePath()
+    g.fill()
+    g.save()
+    g.strokeStyle = rgba(RAMPS.water[4], 0.8)
+    g.lineWidth = 1
+    g.beginPath()
+    g.ellipse(x, targetY + 2, 6 + h.t * 0.6, 2 + h.t * 0.2, 0, 0, Math.PI * 2)
+    g.stroke()
+    g.restore()
   }
 
   private renderBurrows(g: CanvasRenderingContext2D) {

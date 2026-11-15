@@ -3,8 +3,9 @@
 // Hedgehog Crossing depth pass, slice 1 (conductor kr-arcade/t-102): the rules that are plain
 // data and arithmetic, kept out of the render loop so a test can drive them directly. The
 // escalation table (every level asks for something new, with no plateau), the grass snake and
-// its tongue-flick tell, the Family Parade's scoring, and where a hop lands -- shared by the lead
-// hedgehog, every hoglet in the parade, and Bristle Dash.
+// its tongue-flick tell, the heron and its sweeping shadow, the Family Parade's scoring, and where
+// a hop lands -- shared by the lead hedgehog, every hoglet in the parade, and Bristle Dash. The
+// lanes themselves (kinds, the Park Lane board, the per-level remixes) live in ./lanes.ts.
 
 import { levelCurve } from '../curve'
 import type { CurveSpec } from '../curve'
@@ -56,6 +57,8 @@ export type Escalation = {
   hoglets: number
   /** Whether a lost hoglet rides a log. */
   lostHoglet: boolean
+  /** Ticks between heron visits (0 = no heron yet). */
+  heronEvery: number
 }
 
 /** Past the old plateau the climb continues, slower, until a ceiling nobody reaches by accident. */
@@ -81,7 +84,76 @@ export function escalation(level: number): Escalation {
     flipParity: lvl > OLD_PLATEAU ? ((lvl % 2) as 0 | 1) : null,
     hoglets: Math.min(MAX_PARADE, 1 + Math.floor(lvl / 2)),
     lostHoglet: lvl >= 2,
+    heronEvery: heronEvery(lvl),
   }
+}
+
+// --- the heron ------------------------------------------------------------------------
+
+/** The heron starts fishing the creek on this level. */
+export const HERON_FROM = 6
+/** Ticks the shadow sweeps across the creek toward the hedgehog's column. */
+export const HERON_SWEEP = 70
+/** Ticks the shadow holds still over the chosen column: the tell, time to leave. */
+export const HERON_HOLD = 40
+/** Ticks the beak is down in the water. */
+export const HERON_STAB = 18
+/** How close to the column's centre a body must be for the beak to find it. */
+export const HERON_REACH = 12
+
+/** Ticks between herons: every 12 s on level 6, falling to every 5 s. */
+export function heronEvery(level: number): number {
+  if (level < HERON_FROM) return 0
+  return Math.max(300, 720 - 60 * (Math.floor(level) - HERON_FROM))
+}
+
+export type Heron = {
+  phase: 'sweep' | 'hold' | 'stab'
+  t: number
+  /** Where the shadow came in from (one bank or the other). */
+  from: number
+  /** The shadow's column right now. */
+  x: number
+}
+
+const HERON_MIN = HALF + 6
+const HERON_MAX = W - HALF - 6
+
+export function newHeron(fromLeft: boolean): Heron {
+  const from = fromLeft ? 0 : W
+  return { phase: 'sweep', t: 0, from, x: from }
+}
+
+/**
+ * One tick of the heron. Its shadow sweeps in from a bank and closes on `targetX` (the hedgehog's
+ * column, followed while it sweeps), holds there, then the beak stabs. Returns false once the
+ * heron has flown off.
+ */
+export function stepHeron(h: Heron, targetX: number): boolean {
+  h.t++
+  const target = Math.max(HERON_MIN, Math.min(HERON_MAX, targetX))
+  if (h.phase === 'sweep') {
+    h.x = h.from + (target - h.from) * Math.min(1, h.t / HERON_SWEEP)
+    if (h.t >= HERON_SWEEP) {
+      h.phase = 'hold'
+      h.t = 0
+      h.x = target
+    }
+    return true
+  }
+  if (h.phase === 'hold') {
+    if (h.t >= HERON_HOLD) {
+      h.phase = 'stab'
+      h.t = 0
+    }
+    return true
+  }
+  return h.t < HERON_STAB
+}
+
+/** Is the beak down on a body standing at x in the creek? */
+export function heronStrikes(h: Heron, x: number): boolean {
+  return h.phase === 'stab' && Math.abs(x - h.x) < HERON_REACH
 }
 
 // --- the grass snake ------------------------------------------------------------------

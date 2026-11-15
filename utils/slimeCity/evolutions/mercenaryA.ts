@@ -148,12 +148,16 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   // Arc: a night janitor who mops up champions and takes no overtime ->
   // every knockout is a mess cleaned and a breather earned -> closing
-  // time: after a knockout, he mops the weakest foe on the way out.
+  // time: after a knockout, he still takes his breather and mops the
+  // weakest foe on the way out.
   // Trajectory: LATE BLOOMER (knockouts chain at L3). Counterplay: keep
   // big-life blockers across him so he never gets the first knockout.
   'merc-midnight-janitor': {
     2: stage('Mops Up', [on('kill', heal(3, 'self'))]),
-    3: stage('Closing Time', [on('kill', duel('weakestFoe'))]),
+    3: stage('Closing Time', [
+      on('kill', heal(3, 'self')),
+      on('kill', duel('weakestFoe')),
+    ]),
   },
   // Arc: a parcel of gauze sent to the wrong door -> forwarded to the
   // neighbors on the way -> delivered to every door on the block.
@@ -274,10 +278,13 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
   // its previous owner and brings them back for one more shift.
   // Trajectory: EARNED (the L3 return needs someone to have fallen).
   // Counterplay: the echo is a fragile 2/3; with no fallen ally, it only
-  // blesses the target.
+  // blesses and mends the target (L3 keeps the L2 mend, never weaker).
   'merc-secondhand-halo': {
     2: stage('Still Warm', [on('enter', heal(2, 'target'))]),
-    3: stage('Previous Owner', [on('enter', revive(2, 3))]),
+    3: stage('Previous Owner', [
+      on('enter', heal(2, 'target')),
+      on('enter', revive(2, 3)),
+    ]),
   },
   // Arc: elevators are for the syndicate -> leg day pays off in lasting
   // stamina -> a stairwell sprint that bursts out the roof door.

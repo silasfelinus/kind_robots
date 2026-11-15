@@ -252,11 +252,15 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   // Arc: a sting on a very long line -> it reaches past the target to the
   // weakest -> a paralytic line that also catches the biggest fish.
-  // Trajectory: LATE BLOOMER (one stun becomes two). Counterplay: the second
-  // stun picks the strongest, so a lone heavy is stunned only once.
+  // Trajectory: LATE BLOOMER (one stun becomes two; L3 keeps the L2 reach).
+  // Counterplay: the second stun picks the strongest, so a lone heavy is
+  // stunned only once.
   's3-undertow-long-drain-sting': {
     2: stage('Long Reach', [on('enter', damage(1, 'weakestFoe', true))]),
-    3: stage('Paralytic Line', [on('enter', stun('strongestFoe'))]),
+    3: stage('Paralytic Line', [
+      on('enter', damage(1, 'weakestFoe', true)),
+      on('enter', stun('strongestFoe')),
+    ]),
   },
   // Arc: a second listening post sweeps the convoy route -> the convoy
   // shakes off its stuns -> the ledger opens: publish a hit list, or quietly

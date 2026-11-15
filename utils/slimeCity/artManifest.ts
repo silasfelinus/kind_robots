@@ -346,11 +346,18 @@ export const SLIME_CITY_ART = {
     's3-bloodfairies-tripcord': 269290,
     's3-ironjaw-weld-patch': 269292,
     's3-undertow-quiet-listener': 269293,
+    // Curation redo 4 (2026-11-14 PT, conductor projects/slime-city/art/
+    // SLIME-CITY-CURATION-REDO-4.yaml): adult fairy medic and lizard paymaster re-renders.
+    's3-bloodfairies-festival-triage': 272504,
+    's3-ironjaw-bonus-plate': 272505,
   },
   boards: {
     // The five-alley Clash playmat (curation redo 3, 2026-11-14 PT). Registered only: the Clash
     // view keeps pitworks-blackout until the playmat is checked against the alley grid.
     'pitworks-clash': 269286,
+    // The shared TURF rooftop court (curation redo 4, 2026-11-14 PT). Registered only: TURF keeps
+    // each district's own Blackout floor until a design pass decides whether the court replaces it.
+    'turf-court': 272507,
     blackout: 258387,
     gridiron: 258388,
     bloodrush: 258389,
@@ -403,6 +410,8 @@ export const SLIME_CITY_ART = {
     'exchange/2/defeat': 260065,
     'exchange/2/scene': 260062,
     'exchange/3/defeat': 260069,
+    // Curation redo 4 (2026-11-14 PT): grown punk fairies retreat from the Meat Exchange steps.
+    'exchange/5/defeat': 272506,
     'exchange/3/scene': 260066,
     'exchange/4/cunning': 260072,
     'exchange/4/scene': 260070,
@@ -1441,4 +1450,4 @@ export function slimeBoardArtId(district: string, mode: string): number | null {
   )
 }
 
-export const SLIME_CITY_ART_COUNT = 832
+export const SLIME_CITY_ART_COUNT = 836

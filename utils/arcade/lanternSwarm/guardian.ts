@@ -22,6 +22,14 @@ import {
   rgba,
 } from '../snes'
 import type { PixelSprite } from '../snes'
+import { ESCORTS, drawLantern, drawMoth } from './art'
+import {
+  lean,
+  type BossFight,
+  type GuardianHit,
+  type GuardianWorld,
+  type PilotHint,
+} from './boss'
 import { H, W, type Pt } from './zones'
 
 export const GUARDIAN = {
@@ -98,31 +106,7 @@ export type Guardian = {
   done: boolean
 }
 
-export type GuardianWorld = {
-  rng: () => number
-  lanternX: number
-  shipY: number
-  /** The lantern is out and not blinking: it can be hit or caught. */
-  open: boolean
-  diveSpeed: number
-  dust(x: number, y: number, vx: number): void
-  /** The glow took hold of the lantern; true when it was carried off (not a twin knocked loose). */
-  caught(x: number): boolean
-  /** The Guardian or a ring escort flew into the lantern. */
-  crash(x: number): void
-  sound(name: 'warn' | 'blip' | 'boom'): void
-}
-
-export type GuardianHit = {
-  kind: 'panel' | 'ring' | 'body' | 'shrug'
-  points: number
-  x: number
-  y: number
-  /** This hit ended a phase. */
-  phaseOver?: boolean
-  /** This hit calmed it for good. */
-  calmed?: boolean
-}
+export type { GuardianHit, GuardianWorld }
 
 export function newGuardian(lap: number): Guardian {
   const panels: GuardianPanel[] = [
@@ -515,4 +499,66 @@ export function renderGuardian(
   }
   const lit = gd.flash > 0 && Math.floor(gd.flash / 2) % 2 === 0
   drawSprite(g, calm || lit ? BODY_CALM : BODY_SPRITE, gd.x, gd.y)
+  const beat = Math.floor(tick / 8) % 2
+  for (const a of gd.ring) {
+    const p = ringPos(gd, a)
+    drawMoth(g, ESCORTS, p.x, p.y, Math.PI / 2, beat)
+  }
+  if (gd.holding) {
+    glow(g, gd.x, gd.y + 19, 10, RAMPS.ember[2], 0.35)
+    drawLantern(g, gd.x, gd.y + 20, true, tick)
+  }
+}
+
+/** Where the attract pilot aims and leans in this fight (it dashes through the sweep). */
+export function guardianPilot(
+  gd: Guardian,
+  lanternX: number,
+  shipY: number,
+): PilotHint {
+  let push = 0
+  if (gd.phase === 3 && gd.act === 'dive') {
+    push += lean(lanternX, shipY, gd.x, gd.y, 24)
+    for (const a of gd.ring) {
+      const p = ringPos(gd, a)
+      push += lean(lanternX, shipY, p.x, p.y, 18)
+    }
+  }
+  if (gd.phase === 2) {
+    const ahead = (lanternX - gd.sweepX) * gd.sweepDir
+    // Clear of the sweep's starting edge while the guide line shows; then dash through it.
+    if (gd.act === 'tell' && Math.abs(lanternX - gd.sweepX) < 50)
+      push += gd.sweepDir * 3
+    if (gd.act === 'sweep' && ahead > -GUARDIAN.sweepHalf && ahead < 46)
+      push -= gd.sweepDir * 3
+  }
+  if (gd.phase === 4 || gd.act === 'enter') return { aim: null, push }
+  const panels = gd.panels.filter((p) => p.hp > 0)
+  const aim =
+    gd.phase === 1 && panels.length > 0
+      ? panels
+          .map((p) => gd.x + p.dx)
+          .sort((a, b) => Math.abs(a - lanternX) - Math.abs(b - lanternX))[0]!
+      : gd.x
+  return { aim, push }
+}
+
+/** The Grand Lantern Moth as a Guardian fight the game can run. */
+export function grandLanternMoth(lap: number): Guardian & BossFight {
+  const gd = newGuardian(lap)
+  return Object.assign(gd, {
+    name: 'THE GRAND LANTERN MOTH',
+    calmLine: 'THE GRAND LANTERN MOTH FLOATS HOME',
+    update: (w: GuardianWorld) => updateGuardian(gd, w),
+    hit: (x: number, y: number) => hitGuardian(gd, x, y),
+    render: (g: CanvasRenderingContext2D, tick: number, shipY: number) =>
+      renderGuardian(g, gd, tick, shipY),
+    pilot: (lanternX: number, shipY: number) =>
+      guardianPilot(gd, lanternX, shipY),
+    phaseBanner: () =>
+      gd.phase === 2
+        ? { text: 'WINGS DOWN!', sub: 'SLIP THROUGH ITS GLOW' }
+        : { text: 'IT DIVES!', sub: 'MIND ITS RING OF ESCORTS' },
+    grip: () => gripShare(gd),
+  })
 }

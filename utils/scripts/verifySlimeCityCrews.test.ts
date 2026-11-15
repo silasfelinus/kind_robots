@@ -479,8 +479,11 @@ assert.equal(vest, kit, 'Glitter Rat is already volatile')
 const shredKit = createMatch('gridiron', 'catgirls', 'undertow', 4817)
 shredKit.mana = 10
 const cat = shredKit.units.find((u) => u.side === 'player')!
-const clawed = deploy(shredKit, 'shredders', cat.x, cat.y)
-assert.equal(at(clawed, cat.id)!.attack, cat.attack + 1)
+assert.equal(
+  cardById('shredders').kind,
+  'creature',
+  'Patent Shredder is now a fighter, not an equipment buff',
+)
 const collared = deploy(shredKit, 'ninthlife', cat.x, cat.y)
 assert.ok(at(collared, cat.id)!.keywords!.includes('regen'))
 // Trap riders: roots and debt

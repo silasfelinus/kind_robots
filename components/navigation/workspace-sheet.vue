@@ -220,14 +220,14 @@
       <h2 class="mb-2 text-lg font-black">Reactions &amp; comments</h2>
       <template v-if="discussionProject">
         <p class="mb-3 text-sm text-base-content/65">
-          Tell us what you think about {{ discussionProject.name }}.
+          Tell us what you think about {{ discussionProject.title }}.
         </p>
         <reaction-card
           :key="discussionProject.id"
           :target-id="discussionProject.id"
           target-type="project"
           reaction-category="PROJECT"
-          :target-title="discussionProject.name"
+          :target-title="discussionProject.title"
           compact
           :show-header="false"
           @submitted="refreshDiscussion"

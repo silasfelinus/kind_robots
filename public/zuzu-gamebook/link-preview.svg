@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1a1009"/><stop offset="0.35" stop-color="#1a1009" stop-opacity="0.55"/><stop offset="1" stop-color="#1a1009" stop-opacity="0"/></linearGradient></defs>
+  <rect width="1200" height="630" fill="#1a1009"/>
+  <image href="../zuzu-gamebook/scenes/ripples.webp" x="420" y="0" width="780" height="630" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="420" width="780" height="630" fill="url(#fade)"/>
+  <rect x="0" y="0" width="12" height="630" fill="#f0a54a"/>
+  <text x="70" y="220" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-weight="900" font-size="80" fill="#f0a54a" letter-spacing="2" textLength="210" lengthAdjust="spacingAndGlyphs">ZUZU</text>
+  <text x="74" y="290" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="30" fill="#ffffff">Koala assassin. A bell that never rang.</text>
+  <text x="74" y="344" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.88">An illustrated choose-your-path</text>
+  <text x="74" y="386" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.88">gamebook with dice, combat, powers</text>
+  <text x="74" y="428" font-family="Helvetica, Arial, sans-serif" font-size="25" fill="#e6e6f0" opacity="0.88">and many endings. Free to read and play.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#f0a54a" letter-spacing="2">kindrobots.org</text>
+</svg>

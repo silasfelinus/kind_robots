@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14251a"/>
+      <stop offset="1" stop-color="#0a120d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#b8ff5c" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#4fbf3a" stop-opacity="1"/>
+    </radialGradient>
+    <radialGradient id="pink" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#ffb3e0"/>
+      <stop offset="1" stop-color="#d94fa0"/>
+    </radialGradient>
+    <radialGradient id="blue" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#a9e8ff"/>
+      <stop offset="1" stop-color="#3a8fd9"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#sky)"/>
+  <!-- city towers -->
+  <g fill="#1f3a26">
+    <rect x="620" y="140" width="110" height="490"/>
+    <rect x="740" y="210" width="90" height="420"/>
+    <rect x="840" y="100" width="130" height="530"/>
+    <rect x="980" y="180" width="100" height="450"/>
+    <rect x="1090" y="250" width="110" height="380"/>
+  </g>
+  <g fill="#b8ff5c" opacity="0.55">
+    <rect x="640" y="170" width="16" height="22"/><rect x="690" y="230" width="16" height="22"/>
+    <rect x="860" y="130" width="16" height="22"/><rect x="920" y="200" width="16" height="22"/>
+    <rect x="1000" y="220" width="16" height="22"/><rect x="1110" y="290" width="16" height="22"/>
+  </g>
+  <!-- drips off rooftops -->
+  <g fill="#7ee04f">
+    <path d="M840 100 h130 v18 q-10 30 -20 0 q-12 46 -26 0 q-14 20 -28 0 q-10 36 -22 0 q-14 22 -34 0z"/>
+    <path d="M620 140 h110 v14 q-12 26 -24 0 q-14 40 -30 0 q-12 18 -26 0 q-10 20 -30 0z"/>
+  </g>
+    <!-- two crews face off -->
+  <g transform="translate(760 520)">
+    <path d="M-120 60 q-10 -120 120 -130 q130 10 120 130z" fill="url(#glow)"/>
+    <circle cx="-38" cy="-10" r="20" fill="#fff"/><circle cx="38" cy="-10" r="20" fill="#fff"/>
+    <circle cx="-26" cy="-6" r="9" fill="#0a120d"/><circle cx="50" cy="-6" r="9" fill="#0a120d"/>
+    <path d="M-52 -40 l26 12 M52 -40 l-26 12" stroke="#0a120d" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-26 30 h56" stroke="#0a120d" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(1040 520)">
+    <path d="M-110 60 q-10 -116 110 -124 q120 8 110 124z" fill="url(#pink)"/>
+    <circle cx="-36" cy="-8" r="19" fill="#fff"/><circle cx="36" cy="-8" r="19" fill="#fff"/>
+    <circle cx="-48" cy="-4" r="8" fill="#0a120d"/><circle cx="24" cy="-4" r="8" fill="#0a120d"/>
+    <path d="M-50 -38 l24 12 M50 -38 l-24 12" stroke="#0a120d" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-24 34 q24 -16 48 0" stroke="#0a120d" stroke-width="7" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- spark between them -->
+  <path d="M900 330 l-22 52 h26 l-18 56 l52 -70 h-28 l20 -38z" fill="#fff36b" stroke="#0a120d" stroke-width="4" stroke-linejoin="round"/>
+  <!-- title block -->
+  <text x="70" y="180" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-size="96" font-weight="900" fill="#b8ff5c" letter-spacing="2" textLength="500" lengthAdjust="spacingAndGlyphs">SLIME CITY</text>
+  <text x="70" y="300" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" font-size="112" font-weight="900" fill="#ff8fd0" letter-spacing="4" textLength="320" lengthAdjust="spacingAndGlyphs">DUELS</text>
+  <text x="74" y="370" font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="34" fill="#f2ffe6">You've been challenged.</text>
+  <text x="74" y="418" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#cfe8c0">Pick a crew and settle it in a</text>
+  <text x="74" y="456" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#cfe8c0">private card battle, in your browser.</text>
+  <text x="74" y="590" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#7ee04f" letter-spacing="2">kindrobots.org</text>
+</svg>

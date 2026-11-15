@@ -152,6 +152,10 @@ import {
   writeGuestSlimeStory,
 } from '../utils/slimeCity/guestStorySave'
 import {
+  isSlimeCityPreviewGate,
+  SLIME_CITY_LOCAL_PLAY_NOTICE,
+} from '../utils/slimeCity/previewGate'
+import {
   ALLIANCE_DECK_SIZE,
   SOLO_DECK_SIZE,
   STARTER_CARD_IDS,
@@ -362,6 +366,14 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const progressAccount = ref<number | null>(null)
   const progressBusy = ref(false)
   const progressError = ref('')
+  // Signed-in non-preview accounts get a calm local-play state, not an error.
+  const previewAccount = ref<number | null>(null)
+  const accountPreviewOnly = computed(
+    () => previewAccount.value !== null && previewAccount.value === authId(),
+  )
+  const progressNotice = computed(() =>
+    accountPreviewOnly.value ? SLIME_CITY_LOCAL_PLAY_NOTICE : '',
+  )
   const challengeList = computed(() => currentChallenges(progress.value))
   const evergreenList = computed(() => currentEvergreen(progress.value))
   const level = computed(() => levelFor(progress.value.xp))
@@ -391,6 +403,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     const requestUserId = authId()
     try {
       const result = await performFetch<Progression>('/api/slime-city/progress')
+      if (isSlimeCityPreviewGate(result)) {
+        if (requestUserId === authId()) previewAccount.value = requestUserId
+        return
+      }
       if (!result.success || !result.data)
         throw new Error(
           result.message || 'Could not load your Slime City account.',
@@ -629,6 +645,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     return (
       !authId() ||
       isGuest() ||
+      accountPreviewOnly.value ||
       (storyLoaded.value && storyAccount.value === authId())
     )
   }
@@ -664,7 +681,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     replacingCard.value = null
     districtId.value = 'pitworks'
     cityScreen.value = 'map'
-    if (!userId || isGuest()) {
+    const loadDeviceStory = () => {
       const saved = readGuestSlimeStory()
       if (saved) {
         city.value = saved.city
@@ -693,12 +710,21 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       seedLibrary()
       if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
       syncEndings()
+    }
+    if (!userId || isGuest() || accountPreviewOnly.value) {
+      loadDeviceStory()
       return
     }
     try {
       const response = await performFetch<SlimeCityStory>(
         '/api/slime-city/story',
       )
+      if (isSlimeCityPreviewGate(response)) {
+        if (userId !== authId()) return
+        previewAccount.value = userId
+        loadDeviceStory()
+        return
+      }
       if (!response.success || !response.data)
         throw new Error(response.message || 'Could not load your city story.')
       if (userId !== authId()) return
@@ -834,7 +860,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
 
   function persistStory(): void {
     if (!storyLoaded.value) return
-    if (!authId() || isGuest()) {
+    if (!authId() || isGuest() || accountPreviewOnly.value) {
       if (!writeGuestSlimeStory(storySnapshot()))
         storyError.value = 'Could not save this guest journey on this device.'
       else storyError.value = ''
@@ -2971,6 +2997,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     progressLoaded,
     progressBusy,
     progressError,
+    progressNotice,
+    accountPreviewOnly,
     rewardMatchId,
     startCpuBattle,
     challengeList,

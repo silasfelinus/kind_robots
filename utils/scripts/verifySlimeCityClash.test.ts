@@ -269,6 +269,29 @@ assert.match(view, /commit\(useClashPower\(/, 'general powers receive VFX')
 // the same round". Undo replays the deal without your last play this turn.
 assert.match(view, /data-testid="clash-undo"/)
 assert.match(view, /replayClash\(/)
+const desktopRailAt1440 = Math.min(21 * 16, Math.max(15 * 16, 1440 * 0.24))
+assert.equal(desktopRailAt1440, 336, '1440px Clash sidebar is 336px wide')
+assert.match(view, /--rail: clamp\(15rem, 24cqw, 21rem\)/)
+assert.match(
+  view,
+  /\.clash-console-row \{[^}]*min-width: 0;/s,
+  'control row must shrink within the desktop sidebar',
+)
+assert.match(
+  view,
+  /\.clash-console-row :deep\(\.sc-sound-word\) \{[^}]*display: none;/s,
+  'desktop control strip uses the accessible sound icon, not its long label',
+)
+assert.match(
+  view,
+  /\.clash-console-row :deep\(\.sc-sound-toggle\) \{[^}]*flex: 0 0 2\.25rem;/s,
+  'sound toggle has a bounded desktop width',
+)
+assert.match(
+  view,
+  /\.clash-console-row \.clash-reset,[\s\S]*?\.clash-console-row \.clash-pass \{[^}]*min-width: 0;/,
+  'undo and fight controls can shrink rather than overflowing the rail',
+)
 {
   const opening = createClash('catgirls', 'riot', 4242)
   const card = opening.hands.player.find((id) =>

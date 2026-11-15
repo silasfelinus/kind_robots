@@ -133,7 +133,11 @@ for (const key of Object.keys(SLIME_CITY_ART.bosses)) {
   )
 }
 assert.equal(Object.keys(SLIME_CITY_ART.bosses).length, 24)
-assert.equal(slimeArtId('bosses', 'ironjaw/ready'), 269661, 'lizard Forewoman Rivet')
+assert.equal(
+  slimeArtId('bosses', 'ironjaw/ready'),
+  269661,
+  'lizard Forewoman Rivet',
+)
 assert.ok(slimeArtId('ui', 'title-splash'), 'Generated title key art')
 // Evolution paintings (2026-11-11 PT curation of the Krea escalation ledgers):
 // every key names a real card and level, and no painting is reused.

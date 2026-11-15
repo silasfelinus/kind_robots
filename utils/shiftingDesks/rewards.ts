@@ -231,12 +231,15 @@ export function restoreRewardArchive(raw: unknown): RewardArchive {
     milestones,
     runs: [...uniqueRuns.values()].slice(-REWARD_ARCHIVE_LIMIT),
     artUnlocked: [
-      ...new Set([
-        ...(Array.isArray(value.artUnlocked) ? value.artUnlocked : []),
-        ...[...uniqueRuns.values()].flatMap(artUnlockKeysForReceipt),
-      ].filter((key): key is string =>
-        typeof key === 'string' && knownArtUnlocks.has(key),
-      )),
+      ...new Set(
+        [
+          ...(Array.isArray(value.artUnlocked) ? value.artUnlocked : []),
+          ...[...uniqueRuns.values()].flatMap(artUnlockKeysForReceipt),
+        ].filter(
+          (key): key is string =>
+            typeof key === 'string' && knownArtUnlocks.has(key),
+        ),
+      ),
     ],
   }
 }

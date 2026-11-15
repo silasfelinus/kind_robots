@@ -381,14 +381,16 @@
             class="flex flex-col gap-3"
             aria-label="Discovered artwork"
           >
-            <header class="rounded-xl border-2 border-warning/40 bg-base-200 p-3">
+            <header
+              class="rounded-xl border-2 border-warning/40 bg-base-200 p-3"
+            >
               <h3 class="font-mono text-base font-black uppercase">
                 Declassified Art Files
               </h3>
               <p class="text-xs opacity-80">
-                {{ unlockedArtCount }}/{{ artEntries.length }} employee,
-                society and mutation files discovered. Illustrations still
-                under review stay withheld until accepted.
+                {{ unlockedArtCount }}/{{ artEntries.length }} employee, society
+                and mutation files discovered. Illustrations still under review
+                stay withheld until accepted.
               </p>
             </header>
             <div

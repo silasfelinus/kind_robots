@@ -56,7 +56,8 @@ assert.deepEqual(
   entries.filter((entry) => entry.unlocked).map((entry) => entry.key),
   keys,
 )
-assert.equal(entries.find((entry) => entry.key === keys[0])?.src,
+assert.equal(
+  entries.find((entry) => entry.key === keys[0])?.src,
   `/images/shifting-desks/jobs/${job.id}.webp`,
 )
 assert.equal(
@@ -99,10 +100,14 @@ assert.deepEqual(
   keys,
 )
 
-const recovered = recordReward(permanent, {
-  ...receipt,
-  id: 'art-discovery-test:second',
-}, [receipt.endingId])
+const recovered = recordReward(
+  permanent,
+  {
+    ...receipt,
+    id: 'art-discovery-test:second',
+  },
+  [receipt.endingId],
+)
 assert.deepEqual(recovered.artUnlocked, keys)
 assert.equal(recovered.runs.length, 1)
 

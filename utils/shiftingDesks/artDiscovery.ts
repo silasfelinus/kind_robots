@@ -1,14 +1,5 @@
-import {
-  DECKS,
-  JOB_TITLES,
-  MUTATIONS,
-  SOCIETIES,
-  stationArt,
-} from './rules'
-import {
-  artUnlockKeysForReceipt,
-  type RewardArchive,
-} from './rewards'
+import { DECKS, JOB_TITLES, MUTATIONS, SOCIETIES, stationArt } from './rules'
+import { artUnlockKeysForReceipt, type RewardArchive } from './rewards'
 
 export type ArtDiscoveryEntry = {
   key: string

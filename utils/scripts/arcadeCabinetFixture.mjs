@@ -105,6 +105,11 @@ const exposed = [
     ctor: 'ButterflyBlaster',
     list: '__butterflies',
   },
+  {
+    file: /games\/cableCrawler\.ts$/,
+    ctor: 'CableCrawler',
+    list: '__crawlers',
+  },
 ]
 
 /**

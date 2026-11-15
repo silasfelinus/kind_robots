@@ -233,7 +233,7 @@
             <NuxtLink
               v-for="view in advertStore.posters"
               :key="view.poster.slug"
-              :to="view.poster.path"
+              :to="advertPlayPath(view.poster)"
               class="group min-w-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-1.5 transition hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
               :aria-label="`Play ${view.poster.name}`"
             >
@@ -403,6 +403,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useAdvertStore } from '@/stores/advertStore'
+import { advertPlayPath } from '@/utils/adverts/posters'
 import { defaultArtFor } from '@/utils/defaultArtPool'
 import {
   freshShowcaseCards,

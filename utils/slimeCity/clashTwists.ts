@@ -299,9 +299,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   ],
   // Final eleven from the first seventy-card evolution manifesto.
   shredders: [
-    'Permanently sharpen one fighter with stolen lab-grown claws.',
-    'Permanently sharpen one fighter and grant PIERCE.',
-    'Sharpen and grant PIERCE; when the wearer damages a foe, half the damage splashes onto a neighboring rival.',
+    'Claw-handed fighter. Arrive beside an ally to give it +1 power this round.',
+    'Arrive beside an ally: permanently sharpen that neighbor by +1 attack.',
+    'Arrive: both neighboring allies gain +1 lasting attack and PIERCE.',
   ],
   spurs: [
     'Sharpen a dancer permanently with Razor Spurs.',

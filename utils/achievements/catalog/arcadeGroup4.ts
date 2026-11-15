@@ -8,12 +8,12 @@ export const GROUP_4: GameAchievementDef[] = [
     tier: 1,
     label: 'Into the Glow!',
     message:
-      'You beamed two swarms home and flew your lantern into the aurora of the first Glow Stage.',
+      'You beamed three swarms home and flew your lantern into the aurora of the first Glow Stage.',
     tooltip:
-      'Reach Stage 3, the first Glow Stage, in one game of Lantern Swarm.',
-    subtleHint: 'Every third night, the moths only want to dance.',
+      'Reach Stage 4, the first Glow Stage, in one game of Lantern Swarm.',
+    subtleHint: 'After three swarms, the paper cranes only want to dance.',
     icon: 'kind-icon:lamp',
-    rule: { kind: 'level', min: 3 },
+    rule: { kind: 'level', min: 4 },
     artPrompt:
       'A round glowing paper lantern hovering at the centre of the scene, twin beams of warm light rising into a shimmering green and pink aurora, dozens of soft lavender moths swirling happily through the glow in looping ribbons, a starry night sky behind, centered badge-like composition with a clear silhouette. 80s Saturday-morning cartoon cel painting, bold black ink outlines, flat cel colour with soft two-tone shadows, candy palette of teal, pink, purple and gold, glossy highlights, neon glow, sparkles and tiny stars',
   },
@@ -37,7 +37,7 @@ export const GROUP_4: GameAchievementDef[] = [
     tier: 3,
     label: 'Queen of the Night Sky',
     message:
-      'Stage 15! Fourteen swarms beamed home, and the fifth Glow Stage lights the whole night for you.',
+      'Stage 15! Fourteen stages flown, a Guardian sent floating home, and the whole festival night glowing for you.',
     tooltip: 'Reach Stage 15 in one game of Lantern Swarm.',
     subtleHint:
       'Let a queen borrow your lantern, then win it back twice as bright.',

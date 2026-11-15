@@ -943,6 +943,141 @@ for (const id of Object.keys(CLASH_EVOLUTIONS)) {
       }
 }
 
+// --- Ironjaw: thirty authored L1 jobs, eight retained L3 interactions.
+// Real Clash plays catch stages that look good in copy but never execute.
+{
+  const cards = CARDS.filter((card) => card.team === 'ironjaw')
+  assert.equal(cards.length, 40)
+  assert.equal(cards.filter((card) => CLASH_TWISTS[card.id]).length, 10)
+  assert.equal(cards.filter((card) => CLASH_EVOLUTIONS[card.id]).length, 30)
+  for (const card of cards) {
+    const evo = CLASH_EVOLUTIONS[card.id]
+    if (!evo) continue
+    assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
+    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    for (const level of [1, 2, 3])
+      assert.ok(
+        clashCardText(card, level).length <= 160,
+        card.id + ' L' + level + ' must fit the card face',
+      )
+  }
+}
+const ironBoard = (units: ClashUnit[] = []): ClashState => {
+  const s = createClash('ironjaw', 'bloodfairies', 41724)
+  s.units = units
+  s.nextUid = 100
+  s.round = 3
+  s.phase = 'play'
+  s.plays.player = 0
+  return s
+}
+const ironPlay = (s: ClashState, id: string, lane = 2): ClashState => {
+  s.hands.player = [id]
+  s.levels.player[id] = 3
+  assert.ok(canClashPlay(s, 'player', id, lane), id + ' can be played')
+  return playClash(s, 'player', id, lane)
+}
+const ironWorker = (lane: number, uid: number) =>
+  fighter('player', lane, uid, { cardId: 'union-millwright' })
+
+// Hammer Register keeps its L2 anti-stun option when L3 arms the whole line.
+{
+  const s = ironBoard([
+    ironWorker(1, 71),
+    fighter('player', 2, 72, {
+      cardId: 's1-scrap-welder',
+      rooted: true,
+    }),
+    ironWorker(3, 73),
+  ])
+  const after = ironPlay(s, 's3-ironjaw-hammer-register')
+  assert.equal(at(after, 72)!.rooted, false, 'L3 frees the target worker')
+  assert.ok(at(after, 71)!.attack > at(s, 71)!.attack)
+  assert.ok(at(after, 73)!.attack > at(s, 73)!.attack)
+  assert.deepEqual(
+    ironPlay(structuredClone(s), 's3-ironjaw-hammer-register'),
+    after,
+  )
+}
+
+// Rivet Shower is no longer a no-op on L3 when no one has fallen.
+{
+  const s = ironBoard([ironWorker(1, 74), ironWorker(2, 75)])
+  s.fallen = { player: [], enemy: [] }
+  const after = ironPlay(s, 's2-ironjaw-spare-rivet-shower')
+  assert.equal(at(after, 74)!.guard, 1)
+}
+
+// The Cook still feeds the next-door crew at L3 and makes the picket tougher.
+{
+  const s = ironBoard([ironWorker(1, 76), ironWorker(3, 77)])
+  const after = ironPlay(s, 's3-ironjaw-union-cook')
+  for (const uid of [76, 77]) {
+    assert.ok(at(after, uid)!.keywords.includes('regen'))
+    assert.equal(at(after, uid)!.maxHp, at(s, uid)!.maxHp + 2)
+  }
+}
+
+// Night Welder keeps its own L2 incision while arming L3 neighbors.
+{
+  const s = ironBoard([ironWorker(1, 78), ironWorker(3, 79)])
+  const after = ironPlay(s, 's3-ironjaw-night-welder')
+  for (const uid of [78, 79])
+    assert.ok(at(after, uid)!.keywords.includes('pierce'))
+  const welder = after.units.find(
+    (unit) =>
+      unit.side === 'player' && unit.cardId === 's3-ironjaw-night-welder',
+  )!
+  assert.ok(welder.keywords.includes('pierce'))
+}
+
+// Forklift Chock keeps L2 armor coverage when L3 rearms for a second intruder.
+{
+  const s = ironBoard([ironWorker(1, 80)])
+  const armed = ironPlay(s, 's3-ironjaw-forklift-chock')
+  assert.equal(armed.traps.filter((trap) => trap.side === 'player').length, 1)
+  const attack = structuredClone(armed)
+  attack.active = 'enemy'
+  attack.phase = 'play'
+  attack.plays.enemy = 0
+  attack.hands.enemy = ['sprite']
+  assert.ok(
+    canClashPlay(attack, 'enemy', 'sprite', 2),
+    'Bloodfairies opponent must have a legal trap-triggering play',
+  )
+  const sprung = playClash(attack, 'enemy', 'sprite', 2)
+  assert.notEqual(sprung, attack)
+  assert.ok(at(sprung, 80)!.armor > at(armed, 80)!.armor)
+  assert.equal(
+    sprung.traps.filter((trap) => trap.side === 'player' && trap.lane === 2)
+      .length,
+    1,
+    'L3 rearms once after its first spring',
+  )
+}
+
+// Union Bolt Clamp continues sheltering the home line at the final lockout.
+{
+  const s = ironBoard([
+    ironWorker(1, 81),
+    fighter('enemy', 3, 82, { cardId: 'pogo' }),
+  ])
+  const armed = ironPlay(s, 's1-bolt-clamp')
+  const attack = structuredClone(armed)
+  attack.active = 'enemy'
+  attack.phase = 'play'
+  attack.plays.enemy = 0
+  attack.hands.enemy = ['sprite']
+  assert.ok(
+    canClashPlay(attack, 'enemy', 'sprite', 2),
+    'Bloodfairies opponent must have a legal trap-triggering play',
+  )
+  const sprung = playClash(attack, 'enemy', 'sprite', 2)
+  assert.notEqual(sprung, attack)
+  assert.equal(at(sprung, 81)!.guard, 1)
+  assert.equal(at(sprung, 82)!.rooted, true)
+}
+
 // --- Evolution art: a level shows its painting once wired, else falls back.
 assert.equal(
   slimeCardArtId('splice-runner', 1),

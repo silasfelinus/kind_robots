@@ -32,13 +32,13 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Space Couch | Kind Robots',
     description:
       'Command a starship from the sofa. A free, silly-serious space adventure in your browser.',
-    image: '/game-of-captains/front/splash.webp',
+    image: '/game-of-captains/link-preview.webp',
   },
   'comet-city-academy': {
     title: 'Prom of Doom | Capes & Tassels | Kind Robots',
     description:
       'Super-school drama, patrols and a very dangerous prom. Free to play in your browser.',
-    image: '/comet-city-academy/front/splash.webp',
+    image: '/comet-city-academy/link-preview.webp',
   },
   monstrique: {
     title: 'Monstrique | Kind Robots',
@@ -70,11 +70,17 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
       'Six rival crews fight for a grungy neon megacity in fast card battles. Story campaigns, CPU matches and private duels, free in your browser.',
     image: '/slime-city/link-preview.webp',
   },
+  'slime-city-pvp': {
+    title: 'Slime City Duels | Kind Robots',
+    description:
+      'You have been challenged. Pick one of six rival crews and settle it in a private Slime City card battle, in your browser.',
+    image: '/slime-city-pvp/link-preview.webp',
+  },
   'zuzu-gamebook': {
     title: 'Zuzu: Koala Assassin | The Bell That Never Rang',
     description:
       'An illustrated choose-your-path gamebook starring a koala assassin. Free to read and play.',
-    image: '/zuzu-gamebook/scenes/ripples.webp',
+    image: '/zuzu-gamebook/link-preview.webp',
   },
   'zuzu-showdown': {
     title: 'Zuzu Showdown | Kind Robots',
@@ -85,7 +91,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Zuzu: Shifting Lands | Kind Robots',
     description:
       'Draw a card, shape the land and see what the road asks of you. A free card journey in your browser.',
-    image: '/shifting-lands/cards/one-place-by-the-fire.webp',
+    image: '/zuzu-shifting-lands/link-preview.webp',
   },
   'zuzu-ghost-trail': {
     title: 'Zuzu Ghost Trail | Kind Robots',

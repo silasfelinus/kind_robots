@@ -39,6 +39,11 @@ for (const slug of [
   'rainbow-bullet-hell-space-princess',
   'save-the-plumber',
   'zuzu-ghost-trail',
+  'game-of-captains',
+  'comet-city-academy',
+  'zuzu-gamebook',
+  'zuzu-shifting-lands',
+  'slime-city-pvp',
 ]) {
   assert.equal(
     GAME_LINK_PREVIEWS[slug]?.image,
@@ -113,6 +118,7 @@ assert.ok(tankPage.includes('publicTankLinkPreviewMeta('), 'tank page wired')
 // Crystal Street's card counts its real nightmares.
 for (const [slug, tab] of [
   ['slime-city', 'slime-city'],
+  ['slime-city-pvp', 'slime-city'],
   ['hybridizer', 'hybridizer'],
 ] as const) {
   const tabSource = readFileSync(

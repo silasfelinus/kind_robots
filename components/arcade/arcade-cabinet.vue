@@ -56,6 +56,10 @@
               role="img"
               tabindex="0"
               @pointerdown="onScreenPointer"
+              @pointermove="onPaddlePointerMove"
+              @pointerup="releasePaddlePointer"
+              @pointercancel="releasePaddlePointer"
+              @lostpointercapture="releasePaddlePointer"
             />
             <div v-if="crt" class="cabinet-crt" aria-hidden="true" />
             <p v-if="loadError || snag" class="cabinet-error">
@@ -70,7 +74,11 @@
         class="cabinet-overlay"
         :class="[
           `cabinet-overlay--seats-${players}`,
-          { 'cabinet-overlay--duo': duo, 'cabinet-overlay--twin': aiming },
+          {
+            'cabinet-overlay--duo': duo,
+            'cabinet-overlay--twin': aiming,
+            'cabinet-overlay--paddle': paddleMode,
+          },
         ]"
         aria-label="Touch controls"
       >
@@ -81,6 +89,37 @@
           @press="(button, down) => press(button, down)"
           @plunger="(depth) => (pinballPull = depth)"
         />
+        <div
+          v-if="paddleMode && (paddleActions.a || paddleActions.b)"
+          class="cabinet-paddle-actions"
+          role="group"
+          aria-label="Brick Bloom special actions"
+        >
+          <button
+            v-if="paddleActions.a"
+            type="button"
+            class="cabinet-paddle-action"
+            :aria-label="paddleActions.a"
+            @pointerdown.prevent="holdButton($event, 'a')"
+            @pointerup.prevent="press('a', false)"
+            @pointercancel="press('a', false)"
+            @lostpointercapture="press('a', false)"
+          >
+            {{ paddleActions.a }}
+          </button>
+          <button
+            v-if="paddleActions.b"
+            type="button"
+            class="cabinet-paddle-action"
+            :aria-label="paddleActions.b"
+            @pointerdown.prevent="holdButton($event, 'b')"
+            @pointerup.prevent="press('b', false)"
+            @pointercancel="press('b', false)"
+            @lostpointercapture="press('b', false)"
+          >
+            {{ paddleActions.b }}
+          </button>
+        </div>
         <button
           type="button"
           class="cabinet-pause-chip"
@@ -113,7 +152,7 @@
           </button>
         </div>
         <div
-          v-for="seat in pinballPad ? [] : seatList"
+          v-for="seat in pinballPad || paddleMode ? [] : seatList"
           :key="seat"
           class="cabinet-cluster"
           :class="`cabinet-cluster-${seat + 1}`"
@@ -576,6 +615,9 @@ const canvasStyle = computed<CSSProperties>(() => {
   }
 })
 const touchControls = ref(false)
+const paddleTouchX = ref<number | null>(null)
+let paddlePointer: number | null = null
+const paddleActions = ref<Partial<Record<'a' | 'b', string>>>({})
 const compactDpad = computed(
   () => props.slug === 'rainbow-bullet-hell-space-princess' || labelled.value,
 )
@@ -704,6 +746,13 @@ const pinballPad = computed(
     locked.value &&
     phase.value === 'playing' &&
     meta.value?.touchLayout === 'pinball',
+)
+const paddleMode = computed(
+  () =>
+    locked.value &&
+    phase.value === 'playing' &&
+    meta.value?.touchLayout === 'paddle' &&
+    !gameMenu.value,
 )
 const pinballPadRef = ref<{ release(): void } | null>(null)
 /** The plunger's pull from a finger on the lane (0..1), or null. */
@@ -981,6 +1030,7 @@ function seatOneKeys() {
 
 /** Let go of every touch control on every seat. */
 function releaseTouch() {
+  clearPaddlePointer()
   releaseAim()
   pinballPadRef.value?.release()
   pinballPull.value = null
@@ -1220,6 +1270,7 @@ function startGame() {
   )
   lastSave = undefined
   gameMenu.value = menuOpenOf(game)
+  paddleActions.value = game && 'touchActions' in game ? (game.touchActions ?? {}) : {}
   // The pinball mixer is constructed by create(). Unlock it now, not only
   // before the instance exists or on the next requestAnimationFrame tick.
   if (meta.value?.touchLayout === 'pinball') unlockArcadeAudio()
@@ -1386,11 +1437,14 @@ function tick() {
     }
     if (pinballPad.value && pinballPull.value !== null)
       frames[0]!.plunger = pinballPull.value
+    if (paddleMode.value && paddleTouchX.value !== null)
+      frames[0]!.touchPaddleX = paddleTouchX.value
     // The first ball gone: the touch hints have done their job.
     if (hintLives === null) hintLives = game.lives
     else if (game.lives < hintLives) pinballHints.value = false
     game.update(frames[0]!, frames)
     gameMenu.value = menuOpenOf(game)
+    paddleActions.value = 'touchActions' in game ? (game.touchActions ?? {}) : {}
     const feats = game.drainFeats?.()
     if (feats?.length) void store.awardFeats(props.slug, feats)
     keepSave(game)
@@ -1862,13 +1916,39 @@ function resizeCanvas() {
   render()
 }
 
-function onScreenPointer() {
+function onScreenPointer(event: PointerEvent) {
   unlockArcadeAudio()
   canvasRef.value?.focus({ preventScroll: true })
+  if (paddleMode.value) {
+    if (paddlePointer !== null) return
+    paddlePointer = event.pointerId
+    capture(canvasRef.value, event.pointerId)
+    onPaddlePointerMove(event)
+    return
+  }
   if (guide.value) turnGuide(1)
   else if (ATTRACT_PHASES.includes(machine.phase)) startGame()
   else if (machine.phase === 'paused') dispatch({ type: 'resume' })
   else if (machine.phase === 'gameover') dispatch({ type: 'skip' })
+}
+
+function onPaddlePointerMove(event: PointerEvent) {
+  if (!paddleMode.value || event.pointerId !== paddlePointer) return
+  const box = canvasRef.value?.getBoundingClientRect()
+  if (!box?.width) return
+  paddleTouchX.value = Math.max(
+    0,
+    Math.min(1, (event.clientX - box.left) / box.width),
+  )
+}
+
+function releasePaddlePointer(event: PointerEvent) {
+  if (event.pointerId === paddlePointer) clearPaddlePointer()
+}
+
+function clearPaddlePointer() {
+  paddlePointer = null
+  paddleTouchX.value = null
 }
 
 function onKey(event: KeyboardEvent) {
@@ -2060,6 +2140,9 @@ watch(players, () => {
 })
 
 watch(aiming, releaseAim)
+watch(paddleMode, (on) => {
+  if (!on) clearPaddlePointer()
+})
 
 watch([aiming, arrowsAim], ([on, arrows]) => {
   input.setAiming(on, arrows ? AIM_KEYS : {})
@@ -2336,6 +2419,27 @@ onBeforeUnmount(() => {
 .cabinet-cluster > * {
   position: absolute;
   pointer-events: auto;
+}
+
+.cabinet-paddle-actions {
+  top: max(4rem, calc(env(safe-area-inset-top) + 3.5rem));
+  right: max(0.75rem, env(safe-area-inset-right));
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cabinet-paddle-action {
+  min-width: 3.3rem;
+  min-height: 2.9rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid rgba(253, 230, 138, 0.65);
+  border-radius: 0.9rem;
+  background: rgba(15, 10, 46, 0.8);
+  color: #fde68a;
+  font-weight: 800;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  touch-action: none;
 }
 
 /* Each seat's controls; the cluster itself lets touches through to the game. */

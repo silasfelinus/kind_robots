@@ -13,6 +13,7 @@
         @continue="frontOpen = false"
         @restart="startFromCover"
         @ledger="openLedgerFromCover"
+        @reset-progress="eraseProgress"
       />
       <header-page-bar v-if="!frontOpen">
         <div
@@ -1401,6 +1402,18 @@ const choiceRows = computed(() => {
 })
 function playChoice(card: KrHandChoice) {
   if (handChoices.value.includes(card)) store.choose(card.id)
+}
+function eraseProgress() {
+  if (
+    !window.confirm(
+      'Erase every Zuzu journey, ending, discovery and scrapbook page? Your synced account save will be replaced if connected. Site-wide achievement badges remain. This cannot be undone.',
+    )
+  )
+    return
+  if (store.resetProgress()) {
+    ledgerOpen.value = false
+    frontOpen.value = true
+  }
 }
 function restart(): boolean {
   if (

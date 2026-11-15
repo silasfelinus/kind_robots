@@ -410,6 +410,30 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     save()
   }
 
+  function canResetProgress(): boolean {
+    return (
+      loaded.value &&
+      !['checking', 'conflict', 'offline'].includes(accountStatus.value) &&
+      (!useUserStore().authenticatedUserId || accountStatus.value !== 'local')
+    )
+  }
+
+  /** An explicit clean slate, distinct from New Journey's recoverable restart. */
+  function resetProgress(): boolean {
+    if (!canResetProgress()) return false
+    const next = startRun(Date.now() >>> 0 || 1)
+    run.value = next
+    recoverable.value = null
+    discovered.value = []
+    played.value = []
+    discoveredCast.value = []
+    scrapbook.value = []
+    rollSerial.value++
+    usePlaybookRunReviewStore().begin('zuzu-gamebook', playbookRunKey(next))
+    save()
+    return true
+  }
+
   function recover() {
     if (!loaded.value || !recoverable.value) return
     const current = run.value
@@ -458,6 +482,8 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     battle,
     claimLoot,
     restart,
+    resetProgress,
+    canResetProgress,
     recover,
     exportCode,
     importCode,

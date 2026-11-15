@@ -127,6 +127,11 @@ import {
 } from '../utils/slimeCity/allianceTower'
 import { campaignAftermathFor } from '../utils/slimeCity/campaignAftermath'
 import {
+  canEquipCrew,
+  equippedFrame,
+  equippedTitle,
+} from '../utils/slimeCity/crewTrophies'
+import {
   recordFinishedRuns,
   type ScrapbookPage,
 } from '../utils/slimeCity/endings'
@@ -601,6 +606,15 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const endingsFound = ref<string[]>([])
   const scrapbook = ref<ScrapbookPage[]>([])
   const endingsOpen = ref(false)
+  /** Equipped crew card back and worn title (slime-city/t-065). */
+  const equippedBack = ref<TeamId | null>(null)
+  const wornTitle = ref<TeamId | null>(null)
+  const cardBackFrame = computed(() =>
+    equippedFrame(equippedBack.value, endingsFound.value),
+  )
+  const wornTitleText = computed(() =>
+    equippedTitle(wornTitle.value, endingsFound.value),
+  )
   const replacingCard = ref<string | null>(null)
   const deckMessage = ref('')
   const storyLoaded = ref(false)
@@ -644,6 +658,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     storyParity.value = false
     endingsFound.value = []
     scrapbook.value = []
+    equippedBack.value = null
+    wornTitle.value = null
     endingsOpen.value = false
     replacingCard.value = null
     districtId.value = 'pitworks'
@@ -667,6 +683,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
         storyParity.value = saved.storyParity ?? false
         endingsFound.value = saved.endings ?? []
         scrapbook.value = saved.scrapbook ?? []
+        equippedBack.value = saved.cardBack ?? null
+        wornTitle.value = saved.title ?? null
         if (towerRun.value?.phase === 'battle' && !towerBoutSaved())
           forfeitTower()
       }
@@ -703,6 +721,8 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       storyParity.value = response.data.storyParity ?? false
       endingsFound.value = response.data.endings ?? []
       scrapbook.value = response.data.scrapbook ?? []
+      equippedBack.value = response.data.cardBack ?? null
+      wornTitle.value = response.data.title ?? null
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
@@ -753,7 +773,29 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       storyParity: storyParity.value,
       endings: endingsFound.value,
       scrapbook: scrapbook.value,
+      ...(canEquipCrew(equippedBack.value, endingsFound.value)
+        ? { cardBack: equippedBack.value }
+        : {}),
+      ...(canEquipCrew(wornTitle.value, endingsFound.value)
+        ? { title: wornTitle.value }
+        : {}),
     }
+  }
+
+  /**
+   * Equip (or with null, take off) an unlocked crew's card back or title.
+   * Cosmetic only: no cards, Meat or wallet change (slime-city/t-065).
+   */
+  function equipCosmetic(
+    kind: 'cardBack' | 'title',
+    team: TeamId | null,
+  ): boolean {
+    if (!storyEditable() || !storyLoaded.value) return false
+    if (team !== null && !canEquipCrew(team, endingsFound.value)) return false
+    if (kind === 'cardBack') equippedBack.value = team
+    else wornTitle.value = team
+    persistStory()
+    return true
   }
 
   async function flushStory(): Promise<void> {
@@ -3098,6 +3140,11 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     endingsFound,
     scrapbook,
     endingsOpen,
+    equippedBack,
+    wornTitle,
+    cardBackFrame,
+    wornTitleText,
+    equipCosmetic,
     activeChapter,
     campaignFinale,
     campaignAllianceFinale,

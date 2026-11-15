@@ -510,6 +510,10 @@ export async function saveSlimeCityStory(
       ...((proposed.scrapbook ?? current.scrapbook)
         ? { scrapbook: proposed.scrapbook ?? current.scrapbook }
         : {}),
+      // Equipped cosmetics follow the proposal (omitted = unequipped); the
+      // validator already checked each against the proposal's endings.
+      ...(proposed.cardBack ? { cardBack: proposed.cardBack } : {}),
+      ...(proposed.title ? { title: proposed.title } : {}),
     }
     const raw =
       row.data && typeof row.data === 'object' && !Array.isArray(row.data)

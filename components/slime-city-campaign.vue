@@ -23,6 +23,12 @@
           {{ String(lab.campaignState.wins + 1).padStart(2, '0') }} / 05</span
         >
         <h2>{{ lab.campaignStory.title }}</h2>
+        <span
+          v-if="lab.wornTitleText"
+          class="campaign-worn-title"
+          data-testid="slime-campaign-worn-title"
+          >{{ lab.wornTitleText }}</span
+        >
       </div>
       <ol class="campaign-track" aria-label="Five rival chapters">
         <li
@@ -987,6 +993,21 @@ function playApproach(choice: KrHandChoice) {
   gap: 0.15rem;
   min-width: 0;
   flex: 1 1 auto;
+}
+.campaign-worn-title {
+  justify-self: start;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--campaign-accent);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 .campaign-overline {
   display: block;

@@ -192,6 +192,7 @@
           :held="heldIndex"
           :choice-pick="evoPick"
           :inspect="inspect"
+          :back-frame="lab.cardBackFrame"
           @pick="onPick"
           @drop="onDrop"
         />

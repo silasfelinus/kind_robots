@@ -4634,7 +4634,7 @@ export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
     exchange: -0.625,
   },
   bloodrush: {
-    catgirls: -0.375,
+    catgirls: -0.5,
     bloodfairies: 1.375,
     ironjaw: -2,
     riot: 0.625,

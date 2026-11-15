@@ -413,7 +413,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     howTo: [
       'LEFT/RIGHT  WALK',
       'DOWN  CROUCH, SWEEP LOW',
-      'UP OR B  JUMP',
+      'UP JUMP  B TOOL (OR JUMP)',
       'A  SWEEPER BEAM',
       'JUMP TO SHAKE CRAWLERS',
       'IN A LIFT UP OR DOWN RIDES',
@@ -425,7 +425,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 10_000_000,
     titleArt: '/images/arcade/games/station-sweep-title.webp',
     accent: '#34d399',
-    controls: 'Walk, crouch, jump, sweep, ride',
+    controls: 'Walk, crouch, jump, sweep, tools, ride',
     maxPlayers: 3,
   },
   {
@@ -630,7 +630,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     howTo: [
       'RIGHT  FASTER',
       'LEFT  SLOWER',
-      'UP OR B  JUMP',
+      'UP JUMP  B TOOL (OR JUMP)',
       'A  ZAP AHEAD + UP',
       'JUMP THE CRATERS',
       'BIG ROCKS TAKE 2',

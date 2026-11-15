@@ -4,28 +4,35 @@
 // kr-arcade/t-009 game factory: decks, lifts, critter growth, the station
 // timer, and split-screen co-op). Mop, the station's cleaning robot, sweeps a
 // station overrun by glitch critters, deck by deck. Egg sacs on the floor
-// hatch rollers and biters, sacs on the ceiling drop crawlers, and a deck is
-// clean once every sac is popped (or spent) and every critter swept up. Two
-// lifts on every deck ride up and down (Up or Down while standing in one);
-// clean every deck and the station is done.
+// hatch critters, sacs on the ceiling drop crawlers, and a deck is clean once
+// every sac is popped (or spent) and every critter swept up. Two lifts on
+// every deck ride up and down (Up or Down while standing in one); clean every
+// deck and the station is done.
 //
-// As in the classic, critters left alone grow (they glow just before): a big
-// crawler takes three sweeps and nibbles harder, a big roller hits harder and
-// takes two, and a big biter spits faster. And
-// the station is on a clock: run it out and the station is lost, costing a
-// spare Mop; time left over pays a bonus.
+// The Orbit Line depth pass, slice 1 (kr-arcade/t-141): critters that grow up,
+// and tools to match. Five families (rollers, crawlers, biters, puffers and
+// gloops; utils/arcade/stationSweep/critters.ts) each grow through three
+// stages, the adults with behaviours of their own: boulderbellies roll in
+// bouncing pairs, web weavers hang webs that drop babies, snappers spit three
+// ways, spore clouds shed sticky spores and big gloops split when swept. Every
+// one has a tell. Critters are never hurt: they are swept into Mop's bin, and
+// a bin emptied at a lift pays credits that buy upgrades at the Supply Locker
+// between stations. Popped sacs drop the seven pickup tools (Mop carries one
+// on B; utils/arcade/stationSweep/tools.ts) alongside the Sweeper Beam on A.
 //
 // As in the classic, height matters: rollers bowl along the floor under a
 // standing shot, so crouch (Down) to sweep low. Crawlers drop and cling,
-// draining charge until Mop jumps (Up or B) to shake them. Left/right walk,
-// A fires the sweeper beam.
+// draining charge until Mop jumps (Up, or B with no tool) to shake them.
+// And the station is on a clock: run it out and the station is lost, costing
+// a spare Mop; time left over pays a bonus.
 //
 // Up to three can play on one device, as in the classic's split screen: one
 // strip per Mop, player 1's (blue) on top, then player 2's (pink) and player
-// 3's (green), each free to ride to a deck of their own. Every deck with a Mop on it is live. The score, the clock
-// and the spare Mops are shared; a Mop that goes down reboots on a spare, and
-// with no spares left it sits out until one is earned (back at the next
-// station). The run ends when no Mop is left sweeping.
+// 3's (green), each free to ride to a deck of their own. Every deck with a Mop
+// on it is live. The score, the clock, the credits and the spare Mops are
+// shared; a Mop that goes down reboots on a spare, and with no spares left it
+// sits out until one is earned (back at the next station). The run ends when
+// no Mop is left sweeping.
 
 import { levelCurve } from '../curve'
 import { drawText } from '../font'
@@ -52,10 +59,66 @@ import {
   type PixelSprite,
   type Ramp,
 } from '../snes'
+import type { MusicLoop } from '../sound'
+import {
+  BIN_ICON,
+  CANISTER,
+  CREDIT_ICON,
+  CRITTER_SPRITES,
+  TOOL_ICONS,
+  flash,
+} from '../stationSweep/art'
+import {
+  BITER,
+  CRAWLER,
+  DECK_CRITTER_CAP,
+  FAMILIES,
+  FAMILY_NAMES,
+  GLOOP,
+  PUFFER,
+  ROLLER,
+  growTicks,
+  pickFloorFamily,
+  stageDef,
+  type Family,
+  type Stage,
+  type StageDef,
+} from '../stationSweep/critters'
+import {
+  CREDITS,
+  LOCKER,
+  LOCKER_ITEMS,
+  beamTuning,
+  binRoom,
+  cannotBuy,
+  emptyKit,
+  priceOf,
+  toolOfTheDay,
+  type Kit,
+  type LockerItem,
+  type Visit,
+} from '../stationSweep/locker'
+import { ALARM_MUSIC, LOCKER_MUSIC, STATION_MUSIC } from '../stationSweep/music'
+import {
+  BUBBLE,
+  DROPS,
+  FOAM_TICKS,
+  PICKUP_TOOLS,
+  STEAM,
+  TOOLS,
+  TOOL_LIFE,
+  VAC,
+  WIDE_HEIGHTS,
+  ZAP_DAMAGE,
+  pickTool,
+  toolCharge,
+  type PickupTool,
+} from '../stationSweep/tools'
 import type {
   ArcadeGameInstance,
   ArcadeGameModule,
   ArcadeGameOptions,
+  ArcadeGuidePage,
   InputFrame,
 } from '../types'
 
@@ -68,8 +131,6 @@ const WALK = 1.4
 const GRAVITY = 0.25
 const JUMP_VY = -4.2
 const SHOT_SPEED = 5
-const SHOT_LIFE = 34
-const FIRE_COOLDOWN = 9
 const MAX_HEALTH = 100
 const CLEAR_TICKS = 150
 const DEATH_TICKS = 110
@@ -82,6 +143,12 @@ const RIDE_TICKS = 50
 const STATION_BASE_SECS = 45
 const SECS_PER_DECK = 24
 const GLOW_TICKS = 150
+/** The alarm layer joins the music with this many seconds left. */
+const ALARM_SECS = 20
+/** A full bin slows Mop this much. */
+const FULL_BIN_PACE = 0.8
+/** A raised Squeegee Shield slows Mop this much. */
+const SHIELD_PACE = 0.6
 
 /** Mops that can share a station, as in the classic. */
 const MAX_PLAYERS = 3
@@ -98,12 +165,10 @@ export const SWEEP_CURVES = {
   ceilingSacs: { start: 1, step: 0.6, limit: 5 },
   hatchEvery: { start: 420, step: -35, limit: 110 },
   critterSpeed: { start: 1, step: 0.12, limit: 2.1 },
-  biterChance: { start: 0.25, step: 0.08, limit: 0.6 },
-  /** Ticks a crawler or roller lives before it grows into the next form. */
+  /** Ticks a critter's full growth takes (the young stage grows after part of it). */
   growAfter: { start: 60 * 26, step: -60 * 2, limit: 60 * 10 },
 } as const
 
-type Kind = 'roller' | 'crawler' | 'biter'
 /** One player's cleaning robot. */
 type Mop = {
   seat: number
@@ -125,23 +190,49 @@ type Mop = {
   dead: number
   /** No spare left to reboot on: sitting out until one comes free. */
   out: boolean
+  /** The tool Mop carries on B, and what's left in it. */
+  tool: PickupTool | null
+  toolCharge: number
+  toolCool: number
+  /** B held on a held tool (vac, steam, shield) this tick. */
+  using: boolean
+  /** Room taken in the bin, and the credits it will pay at a lift. */
+  bin: number
+  binCredits: number
+  /** Ticks of spores still stuck to Mop's treads. */
+  sticky: number
 }
 type Critter = {
-  kind: Kind
+  kind: Family
+  stage: Stage
   x: number
   y: number
   vx: number
   vy: number
   hp: number
+  /** Ticks at this stage (growth runs on it). */
   t: number
   /** Crawlers ride the ceiling until a Mop walks under, then drop and cling. */
   onCeiling: boolean
   /** The Mop a crawler is clinging to, if any. */
   clinging: Mop | null
-  /** Only a crawler dropping from the ceiling can latch on; shaken off, it stays down. */
+  /** Only a dropping or leaping crawler can latch on; shaken off, it stays down. */
   canCling: boolean
-  /** Grown: tougher and harder-hitting (and a big biter spits faster). */
-  big: boolean
+  /** Ticks of a tell still to run: a growl, a leap crouch, a swell, a wobble. */
+  tell: number
+  /** Ticks to the next charge, leap, spit, drop, shed or lunge. */
+  cool: number
+  /** Ticks left glued in foam, stunned by steam, or floating in a bubble. */
+  foam: number
+  stun: number
+  bubble: number
+  /** A snapper's facing, and how long a Mop has been behind it. */
+  face: 1 | -1
+  turn: number
+  /** A boulderbelly's partner. */
+  pair: Critter | null
+  /** Hit flash. */
+  flash: number
 }
 type Sac = {
   x: number
@@ -151,15 +242,40 @@ type Sac = {
   hatches: number
   pulse: number
 }
-type Shot = { x: number; y: number; vx: number; life: number }
-type Spit = { x: number; y: number; vx: number; life: number }
-type Kit = { x: number; life: number }
+type ShotKind = 'beam' | 'foam' | 'zap'
+type Shot = {
+  x: number
+  y: number
+  vx: number
+  life: number
+  kind: ShotKind
+  /** The seat whose bin a swept critter goes into. */
+  owner: number
+  /** What a piercing bolt has already swept through. */
+  hit: Array<Critter | Sac>
+}
+type Spit = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  life: number
+  /** A lobbed spit arcs down and splats where it lands. */
+  lob: boolean
+}
+type RepairKit = { x: number; life: number }
+type ToolDrop = { x: number; tool: PickupTool; life: number }
+type Bomb = { x: number; y: number; vx: number; vy: number; owner: number }
+type Spore = { x: number; r: number; life: number }
 type Deck = {
   sacs: Sac[]
   critters: Critter[]
-  kits: Kit[]
+  kits: RepairKit[]
+  drops: ToolDrop[]
   shots: Shot[]
   spits: Spit[]
+  bombs: Bomb[]
+  spores: Spore[]
   clean: boolean
 }
 type Particle = {
@@ -177,9 +293,14 @@ type Floater = {
   y: number
   text: string
   life: number
+  color?: string
 }
-
-const POINTS: Record<Kind, number> = { roller: 100, crawler: 150, biter: 300 }
+type Locker = {
+  cursor: number
+  ticks: number
+  visit: Visit
+  note: string
+}
 
 function idleFrame(): InputFrame {
   const held = {
@@ -212,7 +333,52 @@ function newMop(seat: number): Mop {
     ride: null,
     dead: 0,
     out: false,
+    tool: null,
+    toolCharge: 0,
+    toolCool: 0,
+    using: false,
+    bin: 0,
+    binCredits: 0,
+    sticky: 0,
   }
+}
+
+/** A fresh critter of `kind` at `stage`, feet at (x, y). */
+function newCritter(kind: Family, stage: Stage, x: number, y: number): Critter {
+  return {
+    kind,
+    stage,
+    x,
+    y,
+    vx: 0,
+    vy: 0,
+    hp: stageDef(kind, stage).hp,
+    t: 0,
+    onCeiling: false,
+    clinging: null,
+    canCling: false,
+    tell: 0,
+    cool: 60,
+    foam: 0,
+    stun: 0,
+    bubble: 0,
+    face: 1,
+    turn: 0,
+    pair: null,
+    flash: 0,
+  }
+}
+
+/** Where a critter rests: the floor, or for a web weaver and a spore cloud, above it. */
+function restY(c: Critter): number {
+  if (c.kind === 'crawler' && c.stage === 2) return FLOOR - CRAWLER.hang
+  if (c.kind === 'puffer' && c.stage === 2) return FLOOR - 8
+  return FLOOR
+}
+
+/** A bubble's radius round a trapped critter. */
+function bubbleR(def: StageDef): number {
+  return Math.max(def.hitH, def.halfW * 2) / 2 + 5
 }
 
 // --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
@@ -352,185 +518,6 @@ const SPARE_SPRITE = pixelSprite(
   ['.dffd.', 'dfgkyk', 'cdccbb', 'cdecba', 'qTTTTq', 'sksksk'],
   mopPalette(RAMPS.sky),
 )
-
-// --- critters ---------------------------------------------------------------
-
-const ROLLER_PALETTE = {
-  W: '#ffffff',
-  H: LIME[4],
-  L: LIME[3],
-  l: LIME[2],
-  d: LIME[1],
-  D: LIME[0],
-  k: INK,
-  r: RAMPS.ember[2],
-  R: RAMPS.ember[4],
-}
-const ROLLER_SPRITES = {
-  small: [
-    pixelSprite(
-      [
-        '..dlLd...',
-        '.dLHLldd.',
-        'dLHWLdlld',
-        'dLLLdkRkd',
-        'dlLldkrkD',
-        'dlldllldD',
-        '.dDdlldD.',
-        '..DDDDD..',
-      ],
-      ROLLER_PALETTE,
-    ),
-    pixelSprite(
-      [
-        '..ddLl...',
-        '.dLHdLld.',
-        'dLHWdllld',
-        'dLLdlkRkd',
-        'dlLdlkrkD',
-        'dldllldlD',
-        '.dDlldDD.',
-        '..DDDDD..',
-      ],
-      ROLLER_PALETTE,
-    ),
-  ],
-  big: [
-    pixelSprite(
-      [
-        '....dLLLd....',
-        '..dLHHLdld...',
-        '.dLHWHLdlldd.',
-        '.dLHHLdllkkd.',
-        'dLLLLdllkRWkd',
-        'dLLLLdllkRrkd',
-        'dlLLldlllkkdD',
-        'dllldllllddlD',
-        '.dlldlllldllD',
-        '.DdldllldlDD.',
-        '..DDddlldDD..',
-        '....DDDDD....',
-      ],
-      ROLLER_PALETTE,
-    ),
-    pixelSprite(
-      [
-        '....ddLLd....',
-        '..dLHdLLld...',
-        '.dLHWdLlldd..',
-        '.dLHHdlllkkd.',
-        'dLLLdLllkRWkd',
-        'dLLLdlllkRrkd',
-        'dlLLdllllkkdD',
-        'dlldlllldllDD',
-        '.dldllllddlD.',
-        '.DdllllldlDD.',
-        '..DDdlllddD..',
-        '....DDDDD....',
-      ],
-      ROLLER_PALETTE,
-    ),
-  ],
-}
-
-const CRAWLER_PALETTE = {
-  H: RAMPS.purple[4],
-  L: RAMPS.purple[3],
-  l: RAMPS.purple[2],
-  d: RAMPS.purple[1],
-  D: RAMPS.purple[0],
-  k: INK,
-  y: RAMPS.gold[3],
-  W: '#ffffff',
-  p: RAMPS.pink[3],
-}
-const CRAWLER_SPRITES = {
-  small: [
-    pixelSprite(
-      ['.Ll.Ll.LLl..', 'LHlLHlLHHWl.', 'llldlldllyk.', '.dD.dD.dDpdd'],
-      CRAWLER_PALETTE,
-    ),
-    pixelSprite(
-      ['....Ll.LLl..', '.LlLHlLHHWl.', 'LHldlldllyk.', 'ldD.dD.dDpdd'],
-      CRAWLER_PALETTE,
-    ),
-  ],
-  big: [
-    pixelSprite(
-      [
-        '..LL..LL..LLL.....',
-        '.LHHlLHHlLHHLl.LL.',
-        'LHHlLHHllHHlLLHWWl',
-        'lllldllldlllldlykl',
-        'dlldDdlldDdlldllkd',
-        '.dD..dD..dD..dDpdd',
-      ],
-      CRAWLER_PALETTE,
-    ),
-    pixelSprite(
-      [
-        '......LL..LLL.....',
-        '..LLlLHHlLHHLl.LL.',
-        '.LHHlLHHllHHlLLHWWl',
-        'LHHldllldlllldlykl',
-        'llldDdlldDdlldllkd',
-        'dD...dD..dD..dDpdd',
-      ],
-      CRAWLER_PALETTE,
-    ),
-  ],
-}
-
-const BITER_PALETTE = {
-  H: RAMPS.pink[4],
-  L: RAMPS.pink[3],
-  l: RAMPS.pink[2],
-  d: RAMPS.pink[1],
-  D: RAMPS.pink[0],
-  k: INK,
-  y: RAMPS.gold[4],
-  Y: RAMPS.gold[3],
-  W: '#ffffff',
-  m: RAMPS.ember[1],
-  s: RAMPS.purple[1],
-  S: RAMPS.purple[2],
-}
-const BITER_HEAD = [
-  '...dLLLLLd....',
-  '..dLHHLLLlld..',
-  '.dLHLLLLlkyYd.',
-  '.dLLLLLLlkkkd.',
-  'dLLLLllllllld.',
-  'dLLllllllWdWdk',
-  'dLllllllmmmmmk',
-  'dlllllllmmmmmk',
-  'dlllllldWdWdk.',
-  'dllllllddddd..',
-  '.dllllldd.....',
-  '.ddlllldd.....',
-]
-const BITER_LEGS = [
-  ['.dDd...dDd....', '.DD....DD.....', 'DDD...DDD.....'],
-  ['..dDd.dDd.....', '..DD..DD......', '.DDD.DDD......'],
-]
-const BITER_SPIKES = ['..s...s...s...', '.sS..sS..sS...']
-const BITER_SPRITES = {
-  small: BITER_LEGS.map((legs) =>
-    pixelSprite([...BITER_HEAD, ...legs], BITER_PALETTE),
-  ),
-  big: BITER_LEGS.map((legs) =>
-    pixelSprite(
-      [
-        ...BITER_SPIKES,
-        ...BITER_HEAD.map((r) =>
-          r.replace(/l/g, 'd').replace(/L/g, 'l').replace(/H/g, 'L'),
-        ),
-        ...legs,
-      ],
-      BITER_PALETTE,
-    ),
-  ),
-}
 
 const SAC_PALETTE = {
   W: '#ffffff',
@@ -994,6 +981,19 @@ function paintWall(k: CanvasRenderingContext2D, look: DeckLook) {
   }
 }
 
+/** Each sprite's hit flash, made once. */
+const FLASHES = new Map<PixelSprite, PixelSprite>()
+function flashOf(sprite: PixelSprite): PixelSprite {
+  let lit = FLASHES.get(sprite)
+  if (!lit) FLASHES.set(sprite, (lit = flash(sprite)))
+  return lit
+}
+
+/** The lob of a snapper's third spit. */
+const LOB_GRAVITY = 0.06
+/** A deck keeps at most this many spore patches. */
+const MAX_SPORES = 8
+
 class StationSweep implements ArcadeGameInstance {
   score = 0
   level = 1
@@ -1026,6 +1026,26 @@ class StationSweep implements ArcadeGameInstance {
   )
   private fxRng = backdropRng(61)
 
+  /** The team's credits, earned emptying bins and cleaning decks, spent at the Supply Locker. */
+  private credits = 0
+  /** What the crew has fitted from the locker, kept all run. */
+  private kit: Kit = emptyKit()
+  /** Seconds bought for the next station's clock. */
+  private extraClock = 0
+  /** The tool every Mop starts the next station with, if the crew bought one. */
+  private startTool: PickupTool | null = null
+  /** Docked at the Supply Locker between stations. */
+  private locker: Locker | null = null
+  /** The critter count: every critter swept this run, by family, and this station's. */
+  private swept: Record<Family, number> = {
+    roller: 0,
+    crawler: 0,
+    biter: 0,
+    puffer: 0,
+    gloop: 0,
+  }
+  private stationSwept = 0
+
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
@@ -1041,6 +1061,15 @@ class StationSweep implements ArcadeGameInstance {
   /** Mops still in play plus the spares behind them. */
   get lives(): number {
     return this.spares + this.mops.filter((m) => !m.out).length
+  }
+
+  /** The sweep shift's tune, its alarm in the last seconds, and the locker's. */
+  get music(): MusicLoop | null {
+    if (this.over || this.demo) return null
+    if (this.locker) return LOCKER_MUSIC
+    return this.clear === 0 && this.timer <= 60 * ALARM_SECS
+      ? ALARM_MUSIC
+      : STATION_MUSIC
   }
 
   private get duo(): boolean {
@@ -1071,11 +1100,17 @@ class StationSweep implements ArcadeGameInstance {
   private set critters(v: Critter[]) {
     this.cur.critters = v
   }
-  private get kits(): Kit[] {
+  private get kits(): RepairKit[] {
     return this.cur.kits
   }
-  private set kits(v: Kit[]) {
+  private set kits(v: RepairKit[]) {
     this.cur.kits = v
+  }
+  private get drops(): ToolDrop[] {
+    return this.cur.drops
+  }
+  private set drops(v: ToolDrop[]) {
+    this.cur.drops = v
   }
   private get shots(): Shot[] {
     return this.cur.shots
@@ -1089,10 +1124,34 @@ class StationSweep implements ArcadeGameInstance {
   private set spits(v: Spit[]) {
     this.cur.spits = v
   }
+  private get bombs(): Bomb[] {
+    return this.cur.bombs
+  }
+  private set bombs(v: Bomb[]) {
+    this.cur.bombs = v
+  }
+  private get spores(): Spore[] {
+    return this.cur.spores
+  }
+  private set spores(v: Spore[]) {
+    this.cur.spores = v
+  }
 
   private use(index: number) {
     this.curIndex = index
     this.cur = this.decks[index]!
+    for (const c of this.cur.critters) this.settle(c)
+  }
+
+  /**
+   * A critter from an older shape (a launch-era save of the world, or a test that builds one by
+   * hand with `big`) gets the fields the grown-up roster needs.
+   */
+  private settle(c: Critter) {
+    const loose = c as Partial<Critter> & { big?: boolean }
+    if (loose.stage !== undefined) return
+    const stage: Stage = loose.big ? 1 : 0
+    Object.assign(c, { ...newCritter(c.kind, stage, c.x, c.y), ...c, stage })
   }
 
   /** Mops up and sweeping on the current deck (not riding, rebooting or out). */
@@ -1121,8 +1180,11 @@ class StationSweep implements ArcadeGameInstance {
         sacs: this.placeSacs(station),
         critters: [],
         kits: [],
+        drops: [],
         shots: [],
         spits: [],
+        bombs: [],
+        spores: [],
         clean: false,
       })
     this.use(0)
@@ -1145,10 +1207,21 @@ class StationSweep implements ArcadeGameInstance {
       m.vy = 0
       m.onGround = true
       m.camX = 0
+      m.sticky = 0
+      m.bin = 0
+      m.binCredits = 0
       // A short top-up between stations, not a full repair.
       m.health = Math.min(MAX_HEALTH, m.health + 25)
+      if (this.startTool && !m.out) {
+        m.tool = this.startTool
+        m.toolCharge = toolCharge(this.startTool, this.kit.tanks)
+      }
     }
-    this.timer = 60 * (STATION_BASE_SECS + SECS_PER_DECK * count)
+    this.startTool = null
+    this.stationSwept = 0
+    this.timer =
+      60 * (STATION_BASE_SECS + SECS_PER_DECK * count + this.extraClock)
+    this.extraClock = 0
     this.banner = {
       text: `STATION ${station}`,
       sub: `${count} DECKS TO SWEEP`,
@@ -1220,8 +1293,12 @@ class StationSweep implements ArcadeGameInstance {
     if (this.demo) this.use(this.mops[0]!.deck)
     const frames = this.demo ? [this.demoInput()] : (players ?? [input])
 
+    if (this.locker) {
+      this.updateLocker(frames)
+      return
+    }
     if (this.clear > 0) {
-      if (--this.clear === 0) this.startStation(this.level + 1)
+      if (--this.clear === 0) this.leaveStation()
       return
     }
     // The clock runs while any Mop is out sweeping (not riding or rebooting).
@@ -1236,11 +1313,14 @@ class StationSweep implements ArcadeGameInstance {
       this.use(d)
       if (!this.here().length) continue
       this.updateShots()
+      this.updateBombs()
       this.updateSacs()
       this.updateCritters()
       this.grow()
       this.updateSpits()
+      this.updateSpores()
       this.updateKits()
+      this.updateDrops()
       for (const m of this.here()) if (m.health <= 0) this.down(m)
       this.checkClean()
       if (this.clear > 0) break
@@ -1266,11 +1346,16 @@ class StationSweep implements ArcadeGameInstance {
     }
     if (m.hurt > 0) m.hurt--
     if (m.fireCooldown > 0) m.fireCooldown--
+    if (m.toolCool > 0) m.toolCool--
+    if (m.sticky > 0) m.sticky--
     this.use(m.deck)
+    m.using = false
     this.move(m, controls)
+    this.tryEmptyBin(m)
     if (m.ride) return
     if (controls.pressed.a || (controls.held.a && m.fireCooldown === 0))
       this.fire(m)
+    if (m.tool) this.useTool(m, controls)
   }
 
   /** Back up after a fall, on a spare if there is one; otherwise sit out. */
@@ -1292,12 +1377,23 @@ class StationSweep implements ArcadeGameInstance {
     d.spits = []
   }
 
+  /** How fast Mop walks: slower with a full bin, spores on its treads, or the shield up. */
+  private pace(m: Mop, shielding: boolean): number {
+    let pace = 1
+    if (m.bin >= binRoom(this.kit.bin)) pace *= FULL_BIN_PACE
+    if (m.sticky > 0) pace *= PUFFER.slow
+    if (shielding) pace *= SHIELD_PACE
+    return pace
+  }
+
   private move(m: Mop, input: InputFrame) {
     m.crouch = m.onGround && input.held.down
+    const shielding = m.tool === 'shield' && input.held.b
+    const walk = WALK * this.pace(m, shielding)
     let vx = 0
     if (!m.crouch) {
-      if (input.held.left) vx = -WALK
-      if (input.held.right) vx = WALK
+      if (input.held.left) vx = -walk
+      if (input.held.right) vx = walk
     }
     if (input.held.left) m.facing = -1
     if (input.held.right) m.facing = 1
@@ -1318,11 +1414,13 @@ class StationSweep implements ArcadeGameInstance {
       if (!this.here().length) {
         this.shots = []
         this.spits = []
+        this.bombs = []
       }
       this.sound.play('pickup')
       return
     }
-    if (m.onGround && (input.pressed.up || input.pressed.b)) {
+    // Up jumps; so does B, while Mop carries no tool to use on it.
+    if (m.onGround && (input.pressed.up || (input.pressed.b && !m.tool))) {
       m.vy = JUMP_VY
       m.onGround = false
       // A jump shakes off any crawler clinging to this Mop.
@@ -1345,28 +1443,192 @@ class StationSweep implements ArcadeGameInstance {
     }
   }
 
+  /** The beam's height: low while crouched, level standing. */
+  private beamY(m: Mop): number {
+    return m.crouch ? m.y - 5 : m.y - 15
+  }
+
+  /** Does a beam at (x, y) reach the critter? A bubble is a bigger, rounder target. */
+  private reaches(c: Critter, x: number, y: number, pad = 1): boolean {
+    const def = stageDef(c.kind, c.stage)
+    if (c.bubble > 0) {
+      const r = bubbleR(def)
+      return Math.abs(x - c.x) < r && Math.abs(y - (c.y - def.hitH / 2)) < r
+    }
+    return (
+      Math.abs(c.x - x) < def.halfW + pad &&
+      y >= c.y - def.hitH - 1 &&
+      y <= c.y + 1
+    )
+  }
+
   private fire(m: Mop) {
-    m.fireCooldown = FIRE_COOLDOWN
-    const y = m.crouch ? m.y - 5 : m.y - 15
+    const tune = beamTuning(this.kit.beam)
+    m.fireCooldown = tune.cooldown
+    const y = this.beamY(m)
     this.sound.play('shoot')
     // Point-blank: anything right at the nozzle is swept at once.
     const close = this.critters.find((c) => {
       if (c.onCeiling || c.clinging) return false
+      const def = stageDef(c.kind, c.stage)
       const ahead = (c.x - m.x) * m.facing
-      const top = c.y - this.critterHeight(c)
-      return ahead > -6 && ahead < 12 && y >= top - 1 && y <= c.y + 1
+      return (
+        ahead + def.halfW > -6 &&
+        ahead - def.halfW < 10 &&
+        this.reaches(c, c.x, y)
+      )
     })
     if (close) {
       this.burst(close.x, y, 3, '#a5f3fc')
-      if (--close.hp <= 0) this.sweep(close)
+      this.hitCritter(close, 1, m.seat)
       return
     }
-    this.shots.push({
+    this.shots.push(this.shot(m, y, 'beam', SHOT_SPEED, tune.life))
+  }
+
+  private shot(
+    m: Mop,
+    y: number,
+    kind: ShotKind,
+    speed: number,
+    life: number,
+  ): Shot {
+    return {
       x: m.x + m.facing * 9,
       y,
-      vx: m.facing * SHOT_SPEED,
-      life: SHOT_LIFE,
+      vx: m.facing * speed,
+      life,
+      kind,
+      owner: m.seat,
+      hit: [],
+    }
+  }
+
+  /** B with a tool: a shot tool fires on its own cooldown; a held tool runs while B is held. */
+  private useTool(m: Mop, input: InputFrame) {
+    const tool = m.tool!
+    const def = TOOLS[tool]
+    if (def.use === 'shot') {
+      if (!input.held.b || m.toolCool > 0) return
+      m.toolCool = def.cooldown
+      m.toolCharge--
+      this.fireTool(m, tool)
+    } else if (input.held.b) {
+      m.using = true
+      if (tool === 'vac') {
+        this.vacuum(m)
+        m.toolCharge--
+      } else if (tool === 'steam') {
+        this.steam(m)
+        m.toolCharge--
+      }
+    }
+    this.checkToolEmpty(m)
+  }
+
+  private checkToolEmpty(m: Mop) {
+    if (!m.tool || m.toolCharge > 0) return
+    this.floaters.push({
+      deck: this.curIndex,
+      x: m.x,
+      y: m.y - 34,
+      text: `${TOOLS[m.tool].short} EMPTY`,
+      life: 50,
+      color: RAMPS.steel[3],
     })
+    m.tool = null
+    m.using = false
+  }
+
+  private fireTool(m: Mop, tool: PickupTool) {
+    const life = beamTuning(this.kit.beam).life
+    switch (tool) {
+      case 'wide':
+        for (const h of WIDE_HEIGHTS)
+          this.shots.push(this.shot(m, m.y - h, 'beam', SHOT_SPEED, life))
+        this.sound.play('shoot')
+        return
+      case 'foam':
+        this.shots.push(this.shot(m, this.beamY(m), 'foam', 4, 44))
+        this.sound.play('pop')
+        return
+      case 'zap':
+        this.shots.push(this.shot(m, this.beamY(m), 'zap', 7, 40))
+        this.sound.play('shoot')
+        return
+      case 'bubble':
+        this.bombs.push({
+          x: m.x + m.facing * 8,
+          y: m.y - 20,
+          vx: m.facing * BUBBLE.vx,
+          vy: BUBBLE.vy,
+          owner: m.seat,
+        })
+        this.sound.play('blip')
+        return
+      default:
+    }
+  }
+
+  /** The Vac Pack: critters in front are pulled in, and swallowed whole into the bin. */
+  private vacuum(m: Mop) {
+    for (const c of [...this.critters]) {
+      if (c.clinging === m) continue
+      const def = stageDef(c.kind, c.stage)
+      const ahead = (c.x - m.x) * m.facing
+      if (ahead < -4 || ahead - def.halfW > VAC.reach) continue
+      if (c.onCeiling) {
+        // Pulled down off the ceiling, too startled to cling.
+        c.onCeiling = false
+        c.canCling = false
+        c.vy = 0
+        continue
+      }
+      if (c.clinging) {
+        c.clinging = null
+        c.canCling = false
+      }
+      c.tell = 0
+      c.x -= m.facing * VAC.pull * (c.stage === 2 ? 0.5 : 1)
+      if (ahead - def.halfW < VAC.swallow) this.sweep(c, m.seat, true)
+    }
+  }
+
+  /** The Steam Wand: critters in its cloud are stunned, swells fizzle, and spores wash away. */
+  private steam(m: Mop) {
+    for (const c of [...this.critters]) {
+      if (c.onCeiling) continue
+      const def = stageDef(c.kind, c.stage)
+      const ahead = (c.x - m.x) * m.facing
+      if (ahead < -4 || ahead - def.halfW > STEAM.reach) continue
+      c.stun = Math.max(
+        c.stun,
+        c.kind === 'biter' ? STEAM.biterStun : STEAM.stun,
+      )
+      if (c.clinging && c.clinging !== m) c.clinging = null
+      if (c.kind === 'puffer') {
+        c.tell = 0
+        c.cool = 60
+        if (this.tick % STEAM.deflateEvery === 0) this.hitCritter(c, 1, m.seat)
+      }
+    }
+    for (const s of this.spores) {
+      const ahead = (s.x - m.x) * m.facing
+      if (ahead > -s.r && ahead - s.r < STEAM.reach) s.life -= 12
+    }
+  }
+
+  /** Is this Mop's Squeegee Shield up and facing something coming from `fromX`? */
+  private shields(m: Mop, fromX: number): boolean {
+    return m.tool === 'shield' && m.using && Math.sign(fromX - m.x) === m.facing
+  }
+
+  /** The shield takes a blow: one charge spent, with a squeak. */
+  private block(m: Mop, x: number, y: number) {
+    m.toolCharge--
+    this.sparkle(x, y, 6, [RAMPS.pink[3], '#ffffff', RAMPS.teal[3]])
+    this.sound.play('blip')
+    this.checkToolEmpty(m)
   }
 
   private updateShots() {
@@ -1375,48 +1637,212 @@ class StationSweep implements ArcadeGameInstance {
       s.life--
       if (s.x < 0 || s.x > DECK_W) s.life = 0
       if (s.life <= 0) continue
-      const critter = this.critters.find((c) => {
-        if (c.onCeiling) return false
-        const top = c.y - this.critterHeight(c)
-        return Math.abs(c.x - s.x) < 7 && s.y >= top - 1 && s.y <= c.y + 1
-      })
+      const critter = this.critters.find(
+        (c) => !c.onCeiling && !s.hit.includes(c) && this.reaches(c, s.x, s.y),
+      )
       if (critter) {
+        if (s.kind === 'zap') {
+          s.hit.push(critter)
+          this.burst(s.x, s.y, 4, RAMPS.gold[4])
+          this.hitCritter(critter, ZAP_DAMAGE, s.owner)
+          continue
+        }
         s.life = 0
-        this.burst(s.x, s.y, 3, '#a5f3fc')
-        if (--critter.hp <= 0) this.sweep(critter)
+        this.burst(s.x, s.y, 3, s.kind === 'foam' ? '#ffffff' : '#a5f3fc')
+        if (s.kind === 'foam') this.foamCritter(critter, s.owner)
+        else this.hitCritter(critter, 1, s.owner)
         continue
       }
       const sac = this.sacs.find(
         (k) =>
-          !k.ceiling && k.hp > 0 && Math.abs(k.x - s.x) < 8 && s.y > FLOOR - 18,
+          !k.ceiling &&
+          k.hp > 0 &&
+          !s.hit.includes(k) &&
+          Math.abs(k.x - s.x) < 8 &&
+          s.y > FLOOR - 18,
       )
-      if (sac) {
-        s.life = 0
-        sac.hp--
-        sac.pulse = 6
-        this.sound.play('blip')
-        if (sac.hp <= 0) this.popSac(sac)
+      if (!sac) continue
+      if (s.kind === 'zap') s.hit.push(sac)
+      else s.life = 0
+      if (s.kind === 'foam') {
+        this.burst(s.x, s.y, 4, '#ffffff')
+        continue
       }
+      sac.hp -= s.kind === 'zap' ? ZAP_DAMAGE : 1
+      sac.pulse = 6
+      this.sound.play('blip')
+      if (sac.hp <= 0) this.popSac(sac)
     }
     this.shots = this.shots.filter((s) => s.life > 0)
   }
 
-  private critterHeight(c: Critter): number {
-    return c.kind === 'roller'
-      ? c.big
-        ? 12
-        : 8
-      : c.kind === 'crawler'
-        ? 7
-        : 18
+  /** Bubble Grenades: lobbed, they pop on a critter or the floor and bubble everything near. */
+  private updateBombs() {
+    for (const b of this.bombs) {
+      b.x += b.vx
+      b.y += b.vy
+      b.vy += BUBBLE.gravity
+      const struck = this.critters.some(
+        (c) => !c.onCeiling && c.bubble === 0 && this.reaches(c, b.x, b.y, 2),
+      )
+      if (struck || b.y >= FLOOR - 3 || b.x < 0 || b.x > DECK_W) {
+        this.popBubble(b)
+        b.vy = Infinity
+      }
+    }
+    this.bombs = this.bombs.filter((b) => b.vy !== Infinity)
   }
 
-  private sweep(c: Critter) {
-    this.critters = this.critters.filter((o) => o !== c)
-    this.addScore(POINTS[c.kind] * this.level, c.x, c.y - 20)
-    this.burst(c.x, c.y - 6, 10, c.kind === 'biter' ? '#f472b6' : '#a3e635')
-    this.sparkle(c.x, c.y - 6, 8)
+  private popBubble(b: Bomb) {
+    for (const c of this.critters) {
+      if (c.onCeiling || c.bubble > 0) continue
+      const def = stageDef(c.kind, c.stage)
+      const dx = c.x - b.x
+      const dy = c.y - def.hitH / 2 - b.y
+      if (Math.hypot(dx, dy) > BUBBLE.radius + def.halfW) continue
+      c.bubble = BUBBLE.hold
+      c.clinging = null
+      c.canCling = false
+      c.vx = 0
+      c.vy = 0
+      c.tell = 0
+    }
+    this.sparkle(b.x, b.y, 12, [RAMPS.water[3], RAMPS.water[4], '#ffffff'])
     this.sound.play('pop')
+  }
+
+  /** A beam, bolt or steam scald lands: enough of them and the critter is swept. */
+  private hitCritter(c: Critter, damage: number, owner: number) {
+    if (c.bubble > 0) {
+      // A bubbled critter is swept whole, bubble and all.
+      this.sweep(c, owner, true)
+      return
+    }
+    c.hp -= damage
+    c.flash = 4
+    if (c.hp <= 0) this.sweep(c, owner, c.foam > 0)
+  }
+
+  /** Foam glues a critter in place; foam on a foamed critter sweeps it. */
+  private foamCritter(c: Critter, owner: number) {
+    if (c.bubble > 0 || c.foam > 0) {
+      this.hitCritter(c, 1, owner)
+      return
+    }
+    c.foam = FOAM_TICKS
+    c.clinging = null
+    c.canCling = false
+    c.onCeiling = false
+    c.tell = 0
+    c.vx = 0
+    this.sound.play('pop')
+  }
+
+  /**
+   * Swept: into the sweeping Mop's bin, never hurt. A gloop that wasn't foamed (or vacuumed, or
+   * bubbled) splits in two instead, and a puffer caught mid-swell still pops its spores.
+   */
+  private sweep(c: Critter, owner: number, whole: boolean) {
+    const def = stageDef(c.kind, c.stage)
+    this.critters = this.critters.filter((o) => o !== c)
+    for (const o of this.critters) if (o.pair === c) o.pair = null
+    this.addScore(def.points * this.level, c.x, c.y - def.hitH - 6)
+    this.burst(c.x, c.y - def.hitH / 2, 10, FAMILIES[c.kind].spark)
+    this.sparkle(c.x, c.y - def.hitH / 2, 8)
+    this.sound.play('pop')
+    if (c.kind === 'puffer' && c.tell > 0)
+      this.addSpore(c.x, PUFFER.sporeR[c.stage])
+    if (
+      c.kind === 'gloop' &&
+      c.stage > 0 &&
+      !whole &&
+      this.critters.length + 2 <= DECK_CRITTER_CAP
+    ) {
+      this.split(c)
+      return
+    }
+    this.swept[c.kind]++
+    this.stationSwept++
+    const m = this.mops[owner]
+    if (m) this.binIt(m, def, c.x, c.y - def.hitH - 14)
+  }
+
+  /** A gloop swept without foam: two of the stage below hop apart. */
+  private split(c: Critter) {
+    const def = stageDef(c.kind, c.stage)
+    for (const dir of [-1, 1]) {
+      const half = newCritter(
+        'gloop',
+        (c.stage - 1) as Stage,
+        Math.max(8, Math.min(DECK_W - 8, c.x + (dir * def.halfW) / 2)),
+        c.y,
+      )
+      half.vx = dir * 1.4
+      half.vy = -2
+      half.cool = 50
+      this.critters.push(half)
+    }
+    this.floaters.push({
+      deck: this.curIndex,
+      x: c.x,
+      y: c.y - def.hitH - 16,
+      text: 'SPLIT!',
+      life: 40,
+      color: RAMPS.teal[3],
+    })
+    this.sound.play('warn')
+  }
+
+  /** Into the bin, if there's room; a full bin can't take it (but it's swept all the same). */
+  private binIt(m: Mop, def: StageDef, x: number, y: number) {
+    if (m.bin + def.bin > binRoom(this.kit.bin)) {
+      if (!this.demo)
+        this.floaters.push({
+          deck: this.curIndex,
+          x,
+          y,
+          text: 'BIN FULL!',
+          life: 40,
+          color: RAMPS.ember[3],
+        })
+      return
+    }
+    m.bin += def.bin
+    m.binCredits += def.credits
+  }
+
+  /** Standing on a lift pad empties Mop's bin down the chute, for credits. */
+  private tryEmptyBin(m: Mop) {
+    if (m.bin <= 0 || !m.onGround || this.atLift(m) === undefined) return
+    const credits = m.binCredits
+    m.bin = 0
+    m.binCredits = 0
+    this.addCredits(credits)
+    if (!this.demo)
+      this.floaters.push({
+        deck: this.curIndex,
+        x: m.x,
+        y: m.y - 36,
+        text: `BIN EMPTIED +${credits} CR`,
+        life: 60,
+        color: RAMPS.gold[3],
+      })
+    this.sparkle(m.x, m.y - 14, 10, [RAMPS.gold[3], RAMPS.gold[4], LIME[3]])
+    this.sound.play('pickup')
+  }
+
+  /** At the end of a station the shuttle empties every bin. */
+  private emptyAllBins() {
+    for (const m of this.mops) {
+      this.addCredits(m.binCredits)
+      m.bin = 0
+      m.binCredits = 0
+    }
+  }
+
+  private addCredits(n: number) {
+    if (this.demo || n <= 0) return
+    this.credits += n
   }
 
   private popSac(sac: Sac) {
@@ -1425,7 +1851,14 @@ class StationSweep implements ArcadeGameInstance {
     this.burst(sac.x, FLOOR - 8, 14, '#a3e635')
     this.sparkle(sac.x, FLOOR - 10, 12, SAC_SPARKS)
     this.sound.play('boom')
-    if (this.rng() < 0.25) this.kits.push({ x: sac.x, life: 60 * 10 })
+    const roll = this.rng()
+    if (roll < DROPS.kit) this.kits.push({ x: sac.x, life: 60 * 10 })
+    else if (roll < DROPS.kit + DROPS.tool)
+      this.drops.push({
+        x: sac.x,
+        tool: pickTool(this.level, this.rng()),
+        life: TOOL_LIFE,
+      })
   }
 
   private updateSacs() {
@@ -1438,157 +1871,541 @@ class StationSweep implements ArcadeGameInstance {
       if (!mops.some((m) => Math.abs(sac.x - m.x) <= W)) continue
       if (--sac.timer > 0) continue
       sac.timer = Math.round(every * (0.7 + this.rng() * 0.6))
+      // A crowded deck: the sac waits its turn.
+      if (this.critters.length >= DECK_CRITTER_CAP) continue
       sac.hatches--
       this.hatch(sac)
     }
   }
 
+  /** A sac hatches the young stage: a ceiling bub from the ceiling, any floor family below. */
   private hatch(sac: Sac) {
     const speed = levelCurve(this.heat, SWEEP_CURVES.critterSpeed)
     if (sac.ceiling) {
-      this.critters.push({
-        kind: 'crawler',
-        x: sac.x,
-        y: CEILING + 8,
-        vx: 0.4 * speed,
-        vy: 0,
-        hp: 1,
-        t: 0,
-        onCeiling: true,
-        clinging: null,
-        canCling: true,
-        big: false,
-      })
+      const c = newCritter('crawler', 0, sac.x, CEILING + 8)
+      c.vx = 0.4 * speed
+      c.onCeiling = true
+      c.canCling = true
+      this.critters.push(c)
     } else {
-      const biter = this.rng() < levelCurve(this.heat, SWEEP_CURVES.biterChance)
+      const kind = pickFloorFamily(this.level, this.rng())
       const prey = this.nearest(sac.x)
       const dir = prey && prey.x < sac.x ? -1 : 1
-      this.critters.push({
-        kind: biter ? 'biter' : 'roller',
-        x: sac.x + dir * 8,
-        y: FLOOR,
-        vx: dir * (biter ? 0.5 : 1.3) * speed,
-        vy: 0,
-        hp: biter ? 3 : 1,
-        t: 0,
-        onCeiling: false,
-        clinging: null,
-        canCling: false,
-        big: false,
-      })
+      const c = newCritter(kind, 0, sac.x + dir * 8, FLOOR)
+      if (kind === 'roller') c.vx = dir * speed
+      c.face = dir
+      this.critters.push(c)
     }
     this.burst(sac.x, sac.ceiling ? CEILING + 6 : FLOOR - 10, 5, '#d9f99d')
     this.sound.play('warn')
   }
 
+  // --- critters ------------------------------------------------------------------
+
   private updateCritters() {
     const speed = levelCurve(this.heat, SWEEP_CURVES.critterSpeed)
     const mops = this.here()
-    for (const c of this.critters) {
+    for (const c of [...this.critters]) {
+      if (!this.critters.includes(c)) continue
+      if (c.flash > 0) c.flash--
+      if (c.bubble > 0) {
+        this.floatBubble(c)
+        continue
+      }
+      if (c.foam > 0 || c.stun > 0) {
+        if (c.foam > 0) c.foam--
+        else c.stun--
+        if (!c.onCeiling && !c.clinging && c.y < restY(c)) this.fall(c)
+        continue
+      }
       c.t++
+      if (c.cool > 0) c.cool--
       // Each critter goes after the nearest Mop on its deck.
       const prey = c.clinging ?? this.nearest(c.x)
       if (!prey) continue
-      if (c.kind === 'crawler') {
-        if (c.clinging) {
-          // Riding the lift with its Mop: the deck it left is still live
-          // (a partner is there), but the Mop isn't, so no nibbling in transit.
-          if (prey.ride) continue
-          c.x = prey.x
-          c.y = prey.y - 18
-          if (c.t % 10 === 0) this.damage(prey, 1)
-          continue
-        }
-        if (c.onCeiling) {
-          c.x += Math.sign(prey.x - c.x) * Math.abs(c.vx)
-          // Drop when right above a Mop.
-          if (Math.abs(c.x - prey.x) < 10) {
-            c.onCeiling = false
-            c.vy = 0
-          }
-          continue
-        }
-        c.vy += GRAVITY
-        c.x += c.vx
-        c.y += c.vy
-        const landing = c.canCling
-          ? mops.find(
-              (m) =>
-                c.y >= m.y - 18 &&
-                Math.abs(c.x - m.x) < 9 &&
-                m.y - 18 > CEILING,
-            )
-          : undefined
-        if (landing) {
-          c.clinging = landing
-          this.sound.play('warn')
-          continue
-        }
-        if (c.y >= FLOOR) {
-          c.y = FLOOR
-          c.vy = 0
-          c.vx = Math.sign(prey.x - c.x) * 0.7 * speed
-        }
-        // On the floor it nibbles at a Mop's treads.
-        if (c.y >= FLOOR && c.t % 30 === 0)
-          for (const m of mops)
-            if (this.touching(c, 7, m)) this.damage(m, c.big ? 6 : 3)
-      } else if (c.kind === 'roller') {
-        c.x += c.vx
-        if (c.x < 8 || c.x > DECK_W - 8) c.vx = -c.vx
-        // Rollers turn back toward a Mop once they've rolled past.
-        if (
-          Math.abs(c.x - prey.x) > 140 &&
-          Math.sign(prey.x - c.x) !== Math.sign(c.vx)
-        )
-          c.vx = -c.vx
-        const hit = mops.find((m) => this.touching(c, 8, m))
-        if (hit) {
-          this.damage(hit, c.big ? 12 : 8)
-          c.vx = -c.vx * 1.5
-          c.x += c.vx * 6
-        }
-      } else {
-        // Biters stalk, then spit when lined up.
-        const dist = prey.x - c.x
-        if (Math.abs(dist) > 50) c.x += Math.sign(dist) * 0.5 * speed
-        if (c.t % (c.big ? 70 : 110) === 0 && Math.abs(dist) < 150) {
-          this.spits.push({
-            x: c.x,
-            y: FLOOR - 14,
-            vx: Math.sign(dist) * 2.2,
-            life: 90,
-          })
-          this.sound.play('blip')
-        }
-        if (c.t % 30 === 0)
-          for (const m of mops) if (this.touching(c, 18, m)) this.damage(m, 12)
+      const airborne =
+        !c.onCeiling && !c.clinging && (c.y < restY(c) - 0.01 || c.vy < 0)
+      const ownsAir =
+        (c.kind === 'crawler' && c.stage < 2) ||
+        c.kind === 'gloop' ||
+        (c.kind === 'roller' && c.stage === 2)
+      if (airborne && !ownsAir) {
+        this.fall(c)
+        continue
+      }
+      switch (c.kind) {
+        case 'roller':
+          this.updateRoller(c, prey, mops, speed)
+          break
+        case 'crawler':
+          this.updateCrawler(c, prey, mops, speed)
+          break
+        case 'biter':
+          this.updateBiter(c, prey, mops, speed)
+          break
+        case 'puffer':
+          this.updatePuffer(c, prey, mops, speed)
+          break
+        case 'gloop':
+          this.updateGloop(c, prey, mops, speed)
+          break
       }
     }
   }
 
-  private touching(c: Critter, height: number, m: Mop): boolean {
-    if (Math.abs(c.x - m.x) > 9) return false
+  /** Down under gravity to where it rests; true on landing. */
+  private fall(c: Critter): boolean {
+    const rest = restY(c)
+    c.vy += GRAVITY
+    c.x = Math.max(8, Math.min(DECK_W - 8, c.x + c.vx))
+    c.y += c.vy
+    if (c.y < rest) return false
+    c.y = rest
+    c.vy = 0
+    return true
+  }
+
+  /** Trapped in a bubble: it floats up to beam height and bobs, harmless, until it pops. */
+  private floatBubble(c: Critter) {
+    const def = stageDef(c.kind, c.stage)
+    const target = FLOOR - BUBBLE.floatTo + def.hitH / 2
+    c.y += Math.sign(target - c.y) * Math.min(0.7, Math.abs(target - c.y))
+    c.x += Math.sin(c.bubble / 20) * 0.2
+    if (--c.bubble === 0) {
+      c.vx = 0
+      c.vy = 0
+    }
+  }
+
+  /** Every 30 ticks a critter touching a Mop bumps it. */
+  private contact(c: Critter, mops: Mop[]) {
+    if (c.t % 30 !== 0) return
+    const def = stageDef(c.kind, c.stage)
+    for (const m of mops) if (this.touching(c, m)) this.damage(m, def.damage)
+  }
+
+  private touching(c: Critter, m: Mop): boolean {
+    const def = stageDef(c.kind, c.stage)
+    if (Math.abs(c.x - m.x) > def.halfW + 3) return false
     const myTop = m.y - (m.crouch ? 10 : 22)
-    return c.y > myTop && c.y - height < m.y
+    return c.y > myTop && c.y - def.hitH < m.y
+  }
+
+  /** A roller hits a Mop: it bounces off (a raised shield takes the blow instead). */
+  private bump(c: Critter, m: Mop) {
+    const away = Math.sign(c.x - m.x) || -m.facing
+    c.vx = away * Math.min(3, Math.abs(c.vx) * 1.5 + 0.3)
+    c.x += c.vx * 6
+    if (this.shields(m, c.x)) {
+      this.block(m, c.x, c.y - 8)
+      return
+    }
+    this.damage(m, stageDef(c.kind, c.stage).damage)
+  }
+
+  private updateRoller(c: Critter, prey: Mop, mops: Mop[], speed: number) {
+    if (c.stage < 2) {
+      c.x += c.vx
+      if (c.x < 8 || c.x > DECK_W - 8) c.vx = -c.vx
+      // Rollers turn back toward a Mop once they've rolled past.
+      if (
+        Math.abs(c.x - prey.x) > 140 &&
+        Math.sign(prey.x - c.x) !== Math.sign(c.vx)
+      )
+        c.vx = -c.vx
+      const hit = mops.find((m) => this.touching(c, m))
+      if (hit) this.bump(c, hit)
+      return
+    }
+    // A boulderbelly bounces as it rolls; every so often it growls, then charges.
+    if (c.tell > 0) {
+      if (--c.tell === 0) {
+        c.vx = (Math.sign(prey.x - c.x) || 1) * 2.6 * speed
+        c.cool = ROLLER.chargeEvery
+        this.sound.play('warn')
+      }
+    } else if (c.cool === 0) {
+      c.tell = ROLLER.growl
+      c.vx = 0
+    } else {
+      // Between charges it rolls at a steady pace, turning back once it's well past Mop.
+      if (c.cool <= ROLLER.chargeEvery - ROLLER.charge) {
+        const toward = Math.sign(prey.x - c.x) || 1
+        const heading =
+          Math.abs(c.x - prey.x) > 160 ? toward : Math.sign(c.vx) || toward
+        c.vx = heading * 1.2 * speed
+      }
+      c.x += c.vx
+      if (c.x < 16 || c.x > DECK_W - 16) {
+        c.vx = -c.vx
+        c.x = Math.max(16, Math.min(DECK_W - 16, c.x))
+      }
+      if (c.y >= FLOOR) c.vy = ROLLER.bounceVy
+    }
+    c.vy += GRAVITY
+    c.y += c.vy
+    if (c.y >= FLOOR) {
+      c.y = FLOOR
+      c.vy = 0
+    }
+    const hit = mops.find((m) => this.touching(c, m) && m.hurt === 0)
+    if (hit) {
+      // A bump ends a charge.
+      this.bump(c, hit)
+      c.cool = Math.min(c.cool, ROLLER.chargeEvery - ROLLER.charge)
+    }
+  }
+
+  private updateCrawler(c: Critter, prey: Mop, mops: Mop[], speed: number) {
+    if (c.clinging) {
+      // Riding the lift with its Mop: the deck it left is still live
+      // (a partner is there), but the Mop isn't, so no nibbling in transit.
+      if (prey.ride) return
+      c.x = prey.x
+      c.y = prey.y - 18
+      if (c.t % 10 === 0) this.damage(prey, c.stage === 0 ? 1 : 2)
+      return
+    }
+    if (c.stage === 2) {
+      this.updateWeaver(c, prey, mops, speed)
+      return
+    }
+    if (c.onCeiling) {
+      c.x += Math.sign(prey.x - c.x) * Math.abs(c.vx)
+      // Drop when right above a Mop (its shadow on the floor gives it away).
+      if (Math.abs(c.x - prey.x) < 10) {
+        c.onCeiling = false
+        c.vy = 0
+      }
+      return
+    }
+    const airborne = c.y < FLOOR || c.vy < 0
+    if (airborne) {
+      c.vy += GRAVITY
+      c.x = Math.max(8, Math.min(DECK_W - 8, c.x + c.vx))
+      c.y += c.vy
+      const landing = c.canCling
+        ? mops.find(
+            (m) =>
+              c.y >= m.y - 18 && Math.abs(c.x - m.x) < 10 && m.y - 18 > CEILING,
+          )
+        : undefined
+      if (landing) {
+        c.clinging = landing
+        c.canCling = false
+        c.vy = 0
+        this.sound.play('warn')
+        return
+      }
+      if (c.y >= FLOOR) {
+        c.y = FLOOR
+        c.vy = 0
+        c.vx = c.stage === 0 ? Math.sign(prey.x - c.x) * 0.7 * speed : 0
+        c.canCling = false
+        if (c.stage === 1) c.cool = 90
+      }
+      return
+    }
+    if (c.stage === 0) {
+      // On the floor a bub creeps after Mop and nibbles at its treads.
+      c.vx = Math.sign(prey.x - c.x) * 0.7 * speed
+      c.x += c.vx
+      this.contact(c, mops)
+      return
+    }
+    // A clinger crouches, then leaps on a Mop in reach.
+    if (c.tell > 0) {
+      if (--c.tell === 0) {
+        c.vx = (Math.sign(prey.x - c.x) || 1) * 1.6
+        c.vy = -3.4
+        c.canCling = true
+        this.sound.play('blip')
+      }
+      return
+    }
+    const dist = prey.x - c.x
+    if (Math.abs(dist) < CRAWLER.leapReach && c.cool === 0) {
+      c.tell = CRAWLER.leapTell
+      return
+    }
+    if (Math.abs(dist) > 4) c.x += Math.sign(dist) * 0.7 * speed
+    this.contact(c, mops)
+  }
+
+  /** A web weaver climbs its thread, follows Mop slowly, and drops babies from its web. */
+  private updateWeaver(c: Critter, prey: Mop, mops: Mop[], speed: number) {
+    const rest = restY(c)
+    if (c.y > rest) c.y = Math.max(rest, c.y - 0.4)
+    if (Math.abs(prey.x - c.x) > 4) c.x += Math.sign(prey.x - c.x) * 0.2 * speed
+    if (c.cool === 0) {
+      c.cool = CRAWLER.dropEvery
+      if (this.critters.length < DECK_CRITTER_CAP) {
+        const side = Math.floor(c.t / CRAWLER.dropEvery) % 2 ? 14 : -14
+        const baby = newCritter('crawler', 0, c.x + side, CEILING + 8)
+        baby.onCeiling = true
+        baby.canCling = true
+        baby.vx = 0.4 * speed
+        this.critters.push(baby)
+        this.burst(c.x + side, CEILING + 8, 5, RAMPS.purple[3])
+        this.sound.play('warn')
+      }
+    }
+    this.contact(c, mops)
+  }
+
+  private updateBiter(c: Critter, prey: Mop, mops: Mop[], speed: number) {
+    const dist = prey.x - c.x
+    const dir = Math.sign(dist) || 1
+    if (c.stage === 0) {
+      // A nipper scurries right up and nips.
+      c.face = dir as 1 | -1
+      if (Math.abs(dist) > 6) c.x += dir * 0.8 * speed
+      this.contact(c, mops)
+      return
+    }
+    if (c.stage === 1) {
+      c.face = dir as 1 | -1
+      if (Math.abs(dist) > 50) c.x += dir * 0.5 * speed
+    } else {
+      // A snapper turns slowly: get round behind it and it takes a while to face you.
+      if (dir !== c.face) {
+        if (++c.turn >= BITER.turn) {
+          c.face = dir as 1 | -1
+          c.turn = 0
+        }
+      } else c.turn = 0
+      if (dir === c.face && Math.abs(dist) > 60) c.x += dir * 0.35 * speed
+    }
+    if (c.cool === 0) {
+      if (this.wouldSpit(c, prey)) this.spit(c)
+      c.cool = BITER.spitEvery[c.stage]
+    }
+    this.contact(c, mops)
+  }
+
+  /** In range, and (for a snapper) in front. */
+  private wouldSpit(c: Critter, prey: Mop): boolean {
+    const dist = prey.x - c.x
+    if (c.stage === 0) return false
+    if (c.stage === 2 && (Math.sign(dist) || 1) !== c.face) return false
+    return Math.abs(dist) < (c.stage === 2 ? 170 : 150)
+  }
+
+  private spit(c: Critter) {
+    const f = c.face
+    const at = (y: number, vx: number, vy = 0, lob = false): Spit => ({
+      x: c.x + f * 8,
+      y,
+      vx: f * vx,
+      vy,
+      life: lob ? 120 : 90,
+      lob,
+    })
+    if (c.stage === 1) this.spits.push(at(FLOOR - 14, 2.2))
+    else
+      this.spits.push(
+        at(FLOOR - 14, 2.2),
+        at(FLOOR - 23, 2),
+        at(FLOOR - 30, 1.5, -1.6, true),
+      )
+    this.sound.play('blip')
+  }
+
+  private updatePuffer(c: Critter, prey: Mop, mops: Mop[], speed: number) {
+    const dist = prey.x - c.x
+    if (c.stage === 2) {
+      const rest = restY(c)
+      if (c.y > rest) c.y = Math.max(rest, c.y - 0.4)
+    }
+    if (c.tell > 0) {
+      if (--c.tell === 0) this.popPuffer(c, mops)
+      return
+    }
+    const reach = PUFFER.swellAt - (c.stage === 2 ? 6 : 0)
+    if (Math.abs(dist) < reach && c.cool === 0) {
+      c.tell = PUFFER.swell
+      this.sound.play('warn')
+      return
+    }
+    if (Math.abs(dist) > 4)
+      c.x += Math.sign(dist) * (c.stage === 2 ? 0.35 : 0.45) * speed
+    if (c.stage === 2 && c.t % PUFFER.shedEvery === 0) this.addSpore(c.x, 16)
+    this.contact(c, mops)
+  }
+
+  /** Swelled up and popped: a patch of sticky spores, and a sting for any Mop inside it. */
+  private popPuffer(c: Critter, mops: Mop[]) {
+    const def = stageDef(c.kind, c.stage)
+    const r = PUFFER.sporeR[c.stage]
+    this.critters = this.critters.filter((o) => o !== c)
+    this.addSpore(c.x, r)
+    for (const m of mops)
+      if (Math.abs(m.x - c.x) < r) this.damage(m, def.damage)
+    this.burst(c.x, c.y - def.hitH / 2, 16, RAMPS.gold[3])
+    this.floaters.push({
+      deck: this.curIndex,
+      x: c.x,
+      y: c.y - def.hitH - 10,
+      text: 'POP!',
+      life: 35,
+      color: RAMPS.gold[3],
+    })
+    this.sound.play('boom')
+  }
+
+  private addSpore(x: number, r: number) {
+    this.spores.push({ x, r, life: PUFFER.sporeLife })
+    if (this.spores.length > MAX_SPORES) this.spores.shift()
+  }
+
+  private updateGloop(c: Critter, prey: Mop, mops: Mop[], speed: number) {
+    const dist = prey.x - c.x
+    const dir = Math.sign(dist) || 1
+    if (c.y < FLOOR || c.vy < 0) {
+      if (this.fall(c)) c.vx = 0
+      // A lunge that lands on a Mop splats it once.
+      const hit = mops.find((m) => this.touching(c, m) && m.hurt === 0)
+      if (hit) {
+        this.damage(hit, stageDef(c.kind, c.stage).damage)
+        c.vx = -c.vx * 0.5
+      }
+      return
+    }
+    if (c.tell > 0) {
+      if (--c.tell === 0) {
+        c.vx = dir * GLOOP.lungeVx
+        c.vy = GLOOP.lungeVy * (c.stage === 2 ? 0.8 : 1)
+        c.cool = 100
+      }
+      return
+    }
+    if (Math.abs(dist) < GLOOP.lungeAt && c.cool === 0) {
+      c.tell = GLOOP.wobble
+      return
+    }
+    if (Math.abs(dist) > 4) c.x += dir * (c.stage === 2 ? 0.25 : 0.35) * speed
+    this.contact(c, mops)
+  }
+
+  /** Critters left alone grow up: young to middle, middle to adult. */
+  private grow() {
+    const after = levelCurve(this.heat, SWEEP_CURVES.growAfter)
+    const speed = levelCurve(this.heat, SWEEP_CURVES.critterSpeed)
+    for (const c of [...this.critters]) {
+      if (c.stage >= 2 || c.foam > 0 || c.stun > 0 || c.bubble > 0) continue
+      // Crawlers only grow once they're down on the floor.
+      if (c.kind === 'crawler' && (c.onCeiling || c.clinging)) continue
+      if (c.y < restY(c) - 0.5 || c.vy < 0 || c.tell > 0) continue
+      if (c.t < growTicks(c.stage, after)) continue
+      this.growUp(c, speed)
+    }
+  }
+
+  private growUp(c: Critter, speed: number) {
+    const before = stageDef(c.kind, c.stage)
+    c.stage = (c.stage + 1) as Stage
+    const now = stageDef(c.kind, c.stage)
+    c.hp = Math.max(1, now.hp - (before.hp - c.hp))
+    c.t = 0
+    c.tell = 0
+    c.cool = 60
+    const prey = this.nearest(c.x)
+    const dir = Math.sign((prey?.x ?? c.x) - c.x) || 1
+    if (c.kind === 'roller') {
+      const heading = Math.sign(c.vx) || dir
+      c.vx = heading * (c.stage === 2 ? 1.2 : 1.3) * speed
+      if (c.stage === 2) {
+        c.cool = Math.round(ROLLER.chargeEvery / 2)
+        // Boulderbellies roll in pairs: a partner bounds in behind.
+        if (this.critters.length < DECK_CRITTER_CAP) {
+          const partner = newCritter(
+            'roller',
+            2,
+            Math.max(16, Math.min(DECK_W - 16, c.x - heading * ROLLER.pairGap)),
+            FLOOR,
+          )
+          partner.vx = c.vx
+          partner.vy = ROLLER.bounceVy / 2
+          partner.cool = c.cool
+          partner.pair = c
+          c.pair = partner
+          this.critters.push(partner)
+        }
+      }
+    } else if (c.kind === 'crawler') {
+      c.vx = 0
+      if (c.stage === 2) c.cool = Math.round(CRAWLER.dropEvery / 2)
+    } else if (c.kind === 'biter') {
+      c.face = dir as 1 | -1
+    }
+    this.burst(c.x, c.y - now.hitH / 2, 12, '#f0abfc')
+    this.floaters.push({
+      deck: this.curIndex,
+      x: c.x,
+      y: c.y - now.hitH - 12,
+      text: `${now.name}!`,
+      life: 50,
+      color: FAMILIES[c.kind].spark,
+    })
+    this.sound.play('warn')
   }
 
   private updateSpits() {
     const mops = this.here()
     for (const s of this.spits) {
       s.x += s.vx
+      if (s.lob) {
+        s.vy += LOB_GRAVITY
+        s.y += s.vy
+      }
       s.life--
       if (s.life <= 0) continue
-      // A spit flies at waist height: crouch under it.
+      const blocker = mops.find(
+        (m) =>
+          this.shields(m, s.x) &&
+          Math.abs(s.x - m.x) < 14 &&
+          s.y > m.y - 30 &&
+          s.y < m.y,
+      )
+      if (blocker) {
+        s.life = 0
+        this.block(blocker, s.x, s.y)
+        continue
+      }
+      if (s.lob && s.y >= FLOOR - 2) {
+        // A lob splats where it lands: step out from under it.
+        s.life = 0
+        this.burst(s.x, FLOOR - 2, 6, RAMPS.pink[3])
+        for (const m of mops)
+          if (Math.abs(m.x - s.x) < 10 && m.y > FLOOR - 8) this.damage(m, 8)
+        continue
+      }
+      // A spit flies at waist height (or head height): crouch under it.
       const hit = mops.find(
-        (m) => Math.abs(s.x - m.x) < 6 && !m.crouch && m.y > FLOOR - 4,
+        (m) =>
+          Math.abs(s.x - m.x) < 6 &&
+          s.y < m.y &&
+          s.y > m.y - (m.crouch ? 12 : 24),
       )
       if (hit) {
         s.life = 0
-        this.damage(hit, 6)
+        this.damage(hit, s.lob ? 8 : 6)
       }
     }
     this.spits = this.spits.filter((s) => s.life > 0)
+  }
+
+  /** Spore patches stick to Mop's treads (slowing it) and nibble its charge. */
+  private updateSpores() {
+    if (!this.spores.length) return
+    for (const s of this.spores) s.life--
+    for (const m of this.here()) {
+      if (m.y < FLOOR - 20) continue
+      if (!this.spores.some((s) => Math.abs(m.x - s.x) < s.r)) continue
+      m.sticky = 6
+      if (this.tick % PUFFER.drainEvery === 0) this.damage(m, 1)
+    }
+    this.spores = this.spores.filter((s) => s.life > 0)
   }
 
   private updateKits() {
@@ -1612,6 +2429,35 @@ class StationSweep implements ArcadeGameInstance {
     this.kits = this.kits.filter((k) => k.life > 0)
   }
 
+  /** A tool canister: walk over it to carry the tool on B (it swaps for any tool carried). */
+  private updateDrops() {
+    const mops = this.here()
+    for (const d of this.drops) {
+      d.life--
+      const m = mops.find((o) => Math.abs(d.x - o.x) < 10 && o.y > FLOOR - 6)
+      if (!m) continue
+      d.life = 0
+      m.tool = d.tool
+      m.toolCharge = toolCharge(d.tool, this.kit.tanks)
+      m.toolCool = 0
+      this.sparkle(d.x, FLOOR - 10, 12, [
+        TOOLS[d.tool].ramp[3],
+        TOOLS[d.tool].ramp[4],
+        '#ffffff',
+      ])
+      this.floaters.push({
+        deck: this.curIndex,
+        x: d.x,
+        y: FLOOR - 36,
+        text: TOOLS[d.tool].name,
+        life: 60,
+        color: TOOLS[d.tool].ramp[3],
+      })
+      this.sound.play('pickup')
+    }
+    this.drops = this.drops.filter((d) => d.life > 0)
+  }
+
   private damage(m: Mop, amount: number) {
     if (m.dead > 0) return
     m.health -= amount
@@ -1624,6 +2470,7 @@ class StationSweep implements ArcadeGameInstance {
     const lead = this.mops.find((m) => !m.out)
     if (lead) this.burstOn(lead.deck, lead.x, lead.y - 10, 18, '#f87171')
     this.sound.play('die')
+    this.emptyAllBins()
     if (this.spares > 0) {
       this.spares--
     } else {
@@ -1639,29 +2486,8 @@ class StationSweep implements ArcadeGameInstance {
     this.clear = CLEAR_TICKS
     this.banner = {
       text: 'STATION LOST',
-      sub: 'ON TO THE NEXT ONE',
+      sub: 'ON TO THE SUPPLY LOCKER',
       ticks: CLEAR_TICKS,
-    }
-  }
-
-  /** Critters left alone grow big: tougher, and harder-hitting. */
-  private grow() {
-    const after = levelCurve(this.heat, SWEEP_CURVES.growAfter)
-    const speed = levelCurve(this.heat, SWEEP_CURVES.critterSpeed)
-    for (const c of this.critters) {
-      if (c.t < after) continue
-      const prey = this.nearest(c.x)
-      const dir = Math.sign((prey?.x ?? c.x) - c.x) || 1
-      // Crawlers only grow once they're down on the floor.
-      const loose =
-        c.kind !== 'crawler' || (!c.onCeiling && !c.clinging && c.y >= FLOOR)
-      if (c.big || !loose) continue
-      c.big = true
-      c.hp += 2
-      if (c.kind === 'roller') c.vx = Math.sign(c.vx || dir) * 1.8 * speed
-      c.t = 0
-      this.burst(c.x, c.y - 8, 10, '#f0abfc')
-      this.sound.play('warn')
     }
   }
 
@@ -1671,7 +2497,11 @@ class StationSweep implements ArcadeGameInstance {
     for (const c of this.critters) if (c.clinging === m) c.clinging = null
     // Loose crawlers scatter; any clinging to a partner stay on (to be swept).
     this.critters = this.critters.filter(
-      (c) => c.kind !== 'crawler' || c.onCeiling || c.clinging !== null,
+      (c) =>
+        c.kind !== 'crawler' ||
+        c.onCeiling ||
+        c.clinging !== null ||
+        c.stage === 2,
     )
     this.burst(m.x, m.y - 10, 18, '#fde68a')
     this.sound.play('die')
@@ -1693,6 +2523,7 @@ class StationSweep implements ArcadeGameInstance {
       d.clean = true
       const bonus = 1000 * this.level
       this.addScore(bonus, at.x, at.y - 40)
+      this.addCredits(CREDITS.deck)
       for (const dx of [-40, 0, 40]) this.sparkle(at.x + dx, at.y - 30, 12)
       if (this.decks.some((k) => !k.clean)) {
         this.banner = {
@@ -1713,15 +2544,107 @@ class StationSweep implements ArcadeGameInstance {
       Math.round(health) * 10 +
       Math.floor(this.timer / 60) * 10 * this.level
     this.addScore(bonus, at.x, at.y - 50)
+    this.addCredits(CREDITS.station)
+    this.emptyAllBins()
     for (const dx of [-80, -40, 0, 40, 80])
       this.sparkle(at.x + dx, at.y - 40, 14)
     this.clear = CLEAR_TICKS
     this.banner = {
       text: 'STATION CLEAN!',
-      sub: `BONUS ${bonus}`,
+      sub: `BONUS ${bonus}  ${this.stationSwept} SWEPT`,
       ticks: CLEAR_TICKS,
     }
     this.sound.play('level')
+  }
+
+  // --- the Supply Locker -------------------------------------------------------
+
+  /** Off the station: the attract demo flies straight on; a crew docks at the locker. */
+  private leaveStation() {
+    if (this.demo) {
+      this.startStation(this.level + 1)
+      return
+    }
+    this.locker = {
+      cursor: 0,
+      ticks: 0,
+      visit: { tool: toolOfTheDay(this.rng()), bought: {} },
+      note: 'WELCOME ABOARD, CREW!',
+    }
+    this.banner = null
+    this.sound.play('start')
+  }
+
+  private updateLocker(frames: InputFrame[]) {
+    const l = this.locker!
+    if (++l.ticks >= LOCKER.wait) {
+      this.launch()
+      return
+    }
+    if (l.ticks < LOCKER.doors) return
+    const pressed = (b: 'up' | 'down' | 'a' | 'b' | 'start') =>
+      frames.some((f) => f.pressed[b])
+    const n = LOCKER_ITEMS.length
+    if (pressed('up')) {
+      l.cursor = (l.cursor + n - 1) % n
+      this.sound.play('blip')
+    }
+    if (pressed('down')) {
+      l.cursor = (l.cursor + 1) % n
+      this.sound.play('blip')
+    }
+    if (pressed('b') || pressed('start')) {
+      this.launch()
+      return
+    }
+    if (pressed('a')) this.buy(LOCKER_ITEMS[l.cursor]!)
+  }
+
+  private buy(item: LockerItem) {
+    const l = this.locker!
+    if (item.id === 'launch') {
+      this.launch()
+      return
+    }
+    const why = cannotBuy(item, this.kit, l.visit, this.credits)
+    if (why) {
+      l.note = why
+      this.sound.play('warn')
+      return
+    }
+    this.credits -= priceOf(item, this.kit)
+    l.visit.bought[item.id] = (l.visit.bought[item.id] ?? 0) + 1
+    l.note = 'THANKS! KEEP IT TIDY'
+    switch (item.id) {
+      case 'spare':
+        this.spares++
+        break
+      case 'clock':
+        this.extraClock += LOCKER.clockSecs
+        break
+      case 'bin':
+        this.kit.bin++
+        break
+      case 'tanks':
+        this.kit.tanks++
+        break
+      case 'beam':
+        this.kit.beam++
+        break
+      case 'radar':
+        this.kit.radar = 1
+        break
+      case 'tool':
+        this.startTool = l.visit.tool
+        l.note = `${TOOLS[l.visit.tool].name} PACKED`
+        break
+    }
+    this.sound.play('extra')
+  }
+
+  private launch() {
+    this.locker = null
+    this.startStation(this.level + 1)
   }
 
   // --- scoring and effects ----------------------------------------------------
@@ -1809,26 +2732,57 @@ class StationSweep implements ArcadeGameInstance {
       frame.pressed.up = true
       return frame
     }
-    // A spit coming in: crouch under it.
-    if (
-      this.spits.some(
-        (s) =>
-          Math.abs(s.x - me.x) < 40 &&
-          Math.sign(me.x - s.x) === Math.sign(s.vx),
-      )
-    ) {
-      held.down = true
+    // A spit coming in: raise the shield to it, or crouch under it.
+    const spit = this.spits.find(
+      (s) =>
+        !s.lob &&
+        Math.abs(s.x - me.x) < 40 &&
+        Math.sign(me.x - s.x) === Math.sign(s.vx),
+    )
+    if (spit) {
+      if (me.tool === 'shield') {
+        held.b = true
+        if (Math.sign(spit.x - me.x) !== me.facing) {
+          if (spit.x > me.x) held.right = true
+          else held.left = true
+        }
+      } else held.down = true
       return frame
     }
-    // Pick the nearest floor target: a critter first, then a live sac, then a kit if hurt.
-    const targets: Array<{ x: number; low: boolean }> = [
+    // A puffer swelling up close: back off and let it pop out of reach.
+    const swelling = this.critters.find(
+      (c) => c.kind === 'puffer' && c.tell > 0 && Math.abs(c.x - me.x) < 60,
+    )
+    if (swelling) {
+      if (swelling.x > me.x) held.left = true
+      else held.right = true
+      return frame
+    }
+    // A full bin: off to the nearest lift to empty it.
+    const room = binRoom(this.kit.bin)
+    const near = this.critters.some(
+      (c) => !c.onCeiling && Math.abs(c.x - me.x) < 60,
+    )
+    if (me.bin >= room && !near) return this.pilotToLift(me, frame, true)
+    // Pick the nearest target: a critter first, then a live sac, a canister or a kit.
+    type Target = { x: number; low: boolean; critter?: Critter }
+    const targets: Target[] = [
       ...this.critters
         .filter((c) => !c.onCeiling && !c.clinging)
-        .map((c) => ({ x: c.x, low: c.kind !== 'biter' })),
+        .map((c) => ({
+          x: c.x,
+          low:
+            c.bubble === 0 &&
+            c.y - stageDef(c.kind, c.stage).hitH > FLOOR - 14 &&
+            c.y >= FLOOR - 1,
+          critter: c,
+        })),
       ...this.sacs
         .filter((s) => !s.ceiling && s.hp > 0 && s.hatches > 0)
         .map((s) => ({ x: s.x, low: false })),
     ]
+    if (!me.tool)
+      for (const d of this.drops) targets.push({ x: d.x, low: false })
     if (me.health < 50 && this.kits.length)
       targets.unshift({ x: this.kits[0]!.x, low: false })
     // With nothing on the floor, walk under a ceiling sac to bring its crawlers down.
@@ -1842,7 +2796,7 @@ class StationSweep implements ArcadeGameInstance {
     const target = targets.sort(
       (a, b) => Math.abs(a.x - me.x) - Math.abs(b.x - me.x),
     )[0]
-    if (!target) return this.pilotToLift(me, frame)
+    if (!target) return this.pilotToLift(me, frame, false)
     const dist = target.x - me.x
     const dir = dist > 0 ? 1 : -1
     // Too close to aim at: back off a step first.
@@ -1858,6 +2812,12 @@ class StationSweep implements ArcadeGameInstance {
     }
     if (target.low) held.down = true
     held.a = true
+    // A tool in hand: use it on a critter in its reach.
+    if (me.tool && me.tool !== 'shield' && target.critter) {
+      const reach =
+        me.tool === 'vac' ? VAC.reach : me.tool === 'steam' ? STEAM.reach : 110
+      if (Math.abs(dist) < reach) held.b = true
+    }
     if (Math.abs(dist) > 50) {
       if (dir > 0) held.right = true
       else held.left = true
@@ -1865,13 +2825,13 @@ class StationSweep implements ArcadeGameInstance {
     return frame
   }
 
-  /** Walk to the nearest lift and ride toward the nearest deck still dirty. */
-  private pilotToLift(me: Mop, frame: InputFrame): InputFrame {
+  /** Walk to the nearest lift: to empty the bin there, or to ride toward a deck still dirty. */
+  private pilotToLift(me: Mop, frame: InputFrame, emptyOnly: boolean) {
     const dirty = this.decks
       .map((d, i) => (d.clean ? -1 : i))
       .filter((i) => i >= 0 && i !== me.deck)
       .sort((a, b) => Math.abs(a - me.deck) - Math.abs(b - me.deck))[0]
-    if (dirty === undefined) return frame
+    if (dirty === undefined && !emptyOnly) return frame
     const lift = LIFTS.reduce((a, b) =>
       Math.abs(a - me.x) < Math.abs(b - me.x) ? a : b,
     )
@@ -1880,6 +2840,7 @@ class StationSweep implements ArcadeGameInstance {
       else frame.held.left = true
       return frame
     }
+    if (emptyOnly || dirty === undefined) return frame
     if (dirty < me.deck) frame.pressed.up = true
     else frame.pressed.down = true
     return frame
@@ -1890,6 +2851,10 @@ class StationSweep implements ArcadeGameInstance {
   render(g: CanvasRenderingContext2D) {
     g.fillStyle = INK
     g.fillRect(0, 0, W, H)
+    if (this.locker) {
+      this.renderLocker(g, this.locker)
+      return
+    }
     if (this.duo) {
       this.renderSplit(g)
       return
@@ -1912,14 +2877,16 @@ class StationSweep implements ArcadeGameInstance {
   ) {
     this.use(deck)
     const look = DECK_LOOKS[deck % DECK_LOOKS.length]!
-    const left = camX - 24
-    const right = camX + viewW + 24
+    const left = camX - 40
+    const right = camX + viewW + 40
     const inView = (x: number) => x > left && x < right
     this.renderDeck(g, deck, look, camX, viewW)
     for (const lift of LIFTS)
       if (inView(lift)) this.renderLift(g, lift, deck, look)
+    for (const s of this.spores) if (inView(s.x)) this.renderSpore(g, s)
     for (const sac of this.sacs) if (inView(sac.x)) this.renderSac(g, sac)
     for (const k of this.kits) if (inView(k.x)) this.renderKit(g, k)
+    for (const d of this.drops) if (inView(d.x)) this.renderDrop(g, d)
     for (const c of this.critters) if (inView(c.x)) this.renderCritter(g, c)
     for (const s of this.spits) {
       if (!inView(s.x)) continue
@@ -1928,22 +2895,12 @@ class StationSweep implements ArcadeGameInstance {
         flipX: s.vx < 0,
       })
     }
-    for (const s of this.shots) {
-      if (!inView(s.x)) continue
-      const x = Math.round(s.x)
-      const y = Math.round(s.y)
-      const back = s.vx > 0 ? -1 : 1
-      glow(g, x, y, 10, RAMPS.teal[3], 0.55)
-      g.fillStyle = rgba(RAMPS.teal[3], 0.5)
-      g.fillRect(x + back * 9 - 1, y - 1, 2, 1)
-      g.fillRect(x + back * 13, y, 1, 1)
-      g.fillStyle = RAMPS.teal[2]
-      g.fillRect(x - 5, y - 2, 10, 4)
-      g.fillStyle = RAMPS.teal[3]
-      g.fillRect(x - 4, y - 1, 8, 2)
-      g.fillStyle = RAMPS.teal[4]
-      g.fillRect(x - back * 2 - 1, y - 1, 3, 2)
+    for (const b of this.bombs) {
+      if (!inView(b.x)) continue
+      glow(g, b.x, b.y, 8, RAMPS.water[3], 0.5)
+      shadedOrb(g, b.x, b.y, 3, RAMPS.water)
     }
+    for (const s of this.shots) if (inView(s.x)) this.renderShot(g, s)
     for (const m of this.mops) {
       if (m.deck !== deck || m.dead > 0 || m.out || this.over) continue
       // A Mop shows in the doorway while the lift doors are open.
@@ -1965,9 +2922,73 @@ class StationSweep implements ArcadeGameInstance {
       if (f.deck === deck)
         drawText(g, f.text, f.x, f.y, {
           align: 'center',
-          color: RAMPS.gold[3],
+          color: f.color ?? RAMPS.gold[3],
           outline: INK,
         })
+  }
+
+  private renderShot(g: CanvasRenderingContext2D, s: Shot) {
+    const x = Math.round(s.x)
+    const y = Math.round(s.y)
+    const back = s.vx > 0 ? -1 : 1
+    if (s.kind === 'foam') {
+      glow(g, x, y, 8, RAMPS.cream[4], 0.4)
+      shadedOrb(g, x, y, 3, RAMPS.cream, { glint: false })
+      shadedOrb(g, x + back * 4, y + 1, 2, RAMPS.cream, { glint: false })
+      return
+    }
+    if (s.kind === 'zap') {
+      glow(g, x, y, 12, RAMPS.gold[3], 0.6)
+      g.fillStyle = RAMPS.gold[2]
+      for (let i = 0; i < 4; i++)
+        g.fillRect(x + back * i * 4, y - 1 + ((i + this.tick) % 2) * 2, 4, 2)
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x - 2, y - 1, 4, 2)
+      return
+    }
+    glow(g, x, y, 10, RAMPS.teal[3], 0.55)
+    g.fillStyle = rgba(RAMPS.teal[3], 0.5)
+    g.fillRect(x + back * 9 - 1, y - 1, 2, 1)
+    g.fillRect(x + back * 13, y, 1, 1)
+    g.fillStyle = RAMPS.teal[2]
+    g.fillRect(x - 5, y - 2, 10, 4)
+    g.fillStyle = RAMPS.teal[3]
+    g.fillRect(x - 4, y - 1, 8, 2)
+    g.fillStyle = RAMPS.teal[4]
+    g.fillRect(x - back * 2 - 1, y - 1, 3, 2)
+  }
+
+  /** A sticky patch of spores on the floor, with motes drifting up from it. */
+  private renderSpore(g: CanvasRenderingContext2D, s: Spore) {
+    const fade = Math.min(1, s.life / 60)
+    g.save()
+    g.globalAlpha *= 0.55 * fade
+    g.fillStyle = RAMPS.gold[1]
+    g.beginPath()
+    g.ellipse(s.x, FLOOR, s.r, 3, 0, 0, Math.PI * 2)
+    g.fill()
+    g.fillStyle = RAMPS.gold[3]
+    for (let i = -s.r + 4; i < s.r - 3; i += 7)
+      g.fillRect(Math.round(s.x + i), FLOOR - 1, 3, 2)
+    g.restore()
+    for (let i = 0; i < 4; i++) {
+      const rise = (this.tick * 0.5 + i * 9) % 26
+      const mx = s.x + Math.sin(i * 1.7 + this.tick / 20) * s.r * 0.7
+      g.fillStyle = rgba(RAMPS.gold[4], 0.7 * fade * (1 - rise / 26))
+      g.fillRect(Math.round(mx), Math.round(FLOOR - 3 - rise), 2, 2)
+    }
+  }
+
+  private renderDrop(g: CanvasRenderingContext2D, d: ToolDrop) {
+    if (d.life < 90 && Math.floor(this.tick / 5) % 2) return
+    const bob = Math.round(Math.sin(this.tick / 9) * 1.5)
+    const ramp = TOOLS[d.tool].ramp
+    glow(g, d.x, FLOOR - 8, 16, ramp[3], 0.45)
+    dropShadow(g, d.x, FLOOR, 6, 1.5, 0.4)
+    drawSprite(g, CANISTER, d.x, FLOOR - 1 + bob, { anchor: 'feet' })
+    drawSprite(g, TOOL_ICONS[d.tool], d.x, FLOOR - 6 + bob, {
+      anchor: 'center',
+    })
   }
 
   /** Split screen: a slim shared HUD, then a strip per Mop, player 1's on top. */
@@ -2029,7 +3050,7 @@ class StationSweep implements ArcadeGameInstance {
     this.renderSplitHud(g)
   }
 
-  /** Over each view: whose Mop, its charge, its deck, and a map of that deck. */
+  /** Over each view: whose Mop, its charge, its deck, its tool and bin, and a map of that deck. */
   private renderViewHud(g: CanvasRenderingContext2D, m: Mop, top: number) {
     const y = Math.round(top) + 2
     hudPanel(g, 2, y, 78, 10, RAMPS.night)
@@ -2044,7 +3065,15 @@ class StationSweep implements ArcadeGameInstance {
       color: LIME[3],
       outline: INK,
     })
-    hudPanel(g, 128, y, W - 130, 10, RAMPS.night)
+    hudPanel(g, 128, y, 30, 10, RAMPS.night)
+    this.renderToolBadge(g, m, 131, y + 1, 24)
+    hudPanel(g, 161, y, 30, 10, RAMPS.night)
+    drawSprite(g, BIN_ICON, 164, y + 1, { anchor: 'topleft' })
+    drawText(g, String(m.bin), 175, y + 2, {
+      color: this.binColour(m),
+      outline: INK,
+    })
+    hudPanel(g, 194, y, W - 196, 10, RAMPS.night)
     if (m.dead > 0) {
       drawText(g, 'REBOOTING', W - 6, y + 2, {
         align: 'right',
@@ -2053,10 +3082,30 @@ class StationSweep implements ArcadeGameInstance {
       })
       return
     }
-    this.renderRadar(g, 132, y + 3, W - 138, 4, m.deck, m)
+    this.renderRadar(g, 198, y + 3, W - 204, 4, m.deck, m)
   }
 
-  /** A deck's radar: lift doors, live sacs, critters, and every Mop on it. */
+  /** A tool's badge and what's left in it; just the beam's badge while Mop carries none. */
+  private renderToolBadge(
+    g: CanvasRenderingContext2D,
+    m: Mop,
+    x: number,
+    y: number,
+    w: number,
+  ) {
+    drawSprite(g, TOOL_ICONS[m.tool ?? 'beam'], x, y, { anchor: 'topleft' })
+    if (!m.tool) return
+    const frac = m.toolCharge / toolCharge(m.tool, this.kit.tanks)
+    gauge(g, x + 11, y + 3, w - 12, 3, frac, TOOLS[m.tool].ramp)
+  }
+
+  private binColour(m: Mop): string {
+    const full = m.bin >= binRoom(this.kit.bin)
+    if (!full) return RAMPS.leaf[3]
+    return Math.floor(this.tick / 10) % 2 ? RAMPS.ember[3] : RAMPS.gold[3]
+  }
+
+  /** A deck's radar: lift doors, sacs, critters, canisters, and every Mop on it. */
   private renderRadar(
     g: CanvasRenderingContext2D,
     x: number,
@@ -2077,11 +3126,17 @@ class StationSweep implements ArcadeGameInstance {
     g.fillRect(at(me.camX), y, span, h)
     g.fillStyle = RAMPS.steel[2]
     for (const lift of LIFTS) g.fillRect(at(lift) - 1, y, 3, 1)
+    // The Sac Radar adds the ceiling sacs, and blinks any about to hatch.
+    const radar = this.kit.radar > 0
     for (const s of d.sacs) {
       if (s.hatches <= 0 || (!s.ceiling && s.hp <= 0)) continue
-      g.fillStyle = LIME[3]
+      if (s.ceiling && !radar) continue
+      const soon = radar && s.timer < 60
+      g.fillStyle = soon && this.tick % 10 < 5 ? '#ffffff' : LIME[3]
       g.fillRect(at(s.x) - 1, s.ceiling ? y : y + h - 2, 2, 2)
     }
+    g.fillStyle = RAMPS.gold[3]
+    for (const t of d.drops) g.fillRect(at(t.x), y + h - 1, 1, 1)
     g.fillStyle = RAMPS.pink[3]
     for (const c of d.critters) g.fillRect(at(c.x), y + 1, 1, h - 2)
     for (const o of this.mops) {
@@ -2140,7 +3195,7 @@ class StationSweep implements ArcadeGameInstance {
       color: RAMPS.pink[3],
       outline: INK,
     })
-    drawText(g, `STATION ${this.level}`, W - 6, 12, {
+    drawText(g, `ST ${this.level}  CR ${this.credits}`, W - 6, 12, {
       align: 'right',
       color: LIME[3],
       outline: INK,
@@ -2172,7 +3227,7 @@ class StationSweep implements ArcadeGameInstance {
     r: number,
   ) {
     const secs = Math.max(0, this.timer / 60)
-    const urgent = secs <= 20
+    const urgent = secs <= ALARM_SECS
     if (urgent) glow(g, x, y, r + 8, RAMPS.ember[2], 0.5)
     shadedOrb(g, x, y, r, urgent ? RAMPS.ember : RAMPS.steel, { glint: false })
     g.fillStyle = RAMPS.cream[4]
@@ -2203,7 +3258,7 @@ class StationSweep implements ArcadeGameInstance {
   }
 
   private clockColour(secs: number): string {
-    return secs <= 20 && Math.floor(this.tick / 10) % 2
+    return secs <= ALARM_SECS && Math.floor(this.tick / 10) % 2
       ? RAMPS.ember[2]
       : RAMPS.gold[3]
   }
@@ -2387,7 +3442,7 @@ class StationSweep implements ArcadeGameInstance {
     }
     arrow(deck - 1, true)
     arrow(deck + 1, false)
-    // The pad Mop stands on to ride: it lights when someone is on it.
+    // The pad Mop stands on to ride (and to empty its bin): it lights when someone is on it.
     const onPad = this.mops.some(
       (m) =>
         m.deck === deck &&
@@ -2406,6 +3461,13 @@ class StationSweep implements ArcadeGameInstance {
       g.fillStyle = look.trim[4]
       g.fillRect(x - 15, FLOOR, 30, 1)
     }
+    // The bin chute beside the doors: a little hatch with a lit arrow.
+    bevel(g, x + 24, FLOOR - 14, 8, 10, RAMPS.leaf, { depth: 1 })
+    g.fillStyle = INK
+    g.fillRect(x + 26, FLOOR - 11, 4, 5)
+    g.fillStyle = LIME[3]
+    g.fillRect(x + 27, FLOOR - 10, 2, 1)
+    g.fillRect(x + 26, FLOOR - 9, 4, 1)
   }
 
   private renderSac(g: CanvasRenderingContext2D, sac: Sac) {
@@ -2424,7 +3486,7 @@ class StationSweep implements ArcadeGameInstance {
     drawSprite(g, sprite, sac.x, y, { flipY: sac.ceiling })
   }
 
-  private renderKit(g: CanvasRenderingContext2D, k: Kit) {
+  private renderKit(g: CanvasRenderingContext2D, k: RepairKit) {
     if (k.life < 90 && Math.floor(this.tick / 5) % 2) return
     const bob = Math.round(Math.sin(this.tick / 10) * 1)
     glow(g, k.x, FLOOR - 6, 14, RAMPS.leaf[3], 0.45)
@@ -2432,84 +3494,214 @@ class StationSweep implements ArcadeGameInstance {
     drawSprite(g, KIT_SPRITE, k.x, FLOOR - 1 + bob, { anchor: 'feet' })
   }
 
-  private renderCritter(g: CanvasRenderingContext2D, c: Critter) {
-    const x = c.x
-    const y = c.y
-    const after = levelCurve(this.heat, SWEEP_CURVES.growAfter)
-    const growing =
-      !c.big &&
-      (c.kind !== 'crawler' || (!c.onCeiling && !c.clinging)) &&
-      c.t > after - GLOW_TICKS
-    const h = this.critterHeight(c)
-    if (growing) {
-      // About to grow: a pulsing halo, and in the last moments it flickers big.
-      const beat = Math.floor(this.tick / 6) % 2
-      glow(g, x, y - h / 2, 14, RAMPS.pink[3], beat ? 0.7 : 0.35)
-    }
-    const big = c.big || (growing && c.t > after - 30 && this.tick % 8 < 4)
-    const size = big ? 'big' : 'small'
-    const grounded = y >= FLOOR - 1
-    if (c.kind === 'roller') {
-      const spin = Math.floor(c.t / 4) % 2
-      dropShadow(g, x, FLOOR, big ? 7 : 5, 1.5, 0.4)
-      drawSprite(g, ROLLER_SPRITES[size][spin]!, x, y + 1, {
-        anchor: 'feet',
-        flipX: c.vx < 0,
-      })
-      return
-    }
-    if (c.kind === 'crawler') {
-      // A wriggly glitch grub; upside down while it rides the ceiling.
-      const frame = CRAWLER_SPRITES[size][Math.floor(c.t / 5) % 2]!
-      const toward = Math.sign((this.nearest(x)?.x ?? x + 1) - x) || 1
-      if (c.onCeiling) {
-        g.fillStyle = rgba(RAMPS.purple[4], 0.5)
-        g.fillRect(
-          Math.round(x),
-          CEILING,
-          1,
-          Math.max(0, Math.round(y) - CEILING),
+  /** Is the critter showing its tell right now? */
+  private showsTell(c: Critter): boolean {
+    if (c.foam > 0 || c.stun > 0 || c.bubble > 0) return false
+    switch (c.kind) {
+      case 'biter': {
+        const prey = this.nearest(c.x)
+        return (
+          !!prey &&
+          c.cool > 0 &&
+          c.cool <= BITER.cheeks &&
+          this.wouldSpit(c, prey)
         )
-        drawSprite(g, frame, x, y - 1, {
-          anchor: 'topleft',
-          flipY: true,
-          flipX: toward < 0,
-        })
-        return
       }
-      if (grounded) dropShadow(g, x, FLOOR, big ? 9 : 6, 1.5, 0.35)
-      drawSprite(g, frame, x, y + 1, {
-        anchor: 'feet',
-        flipX: (c.clinging ? c.clinging.facing : c.vx || toward) < 0,
+      case 'puffer':
+        return (
+          c.tell > 0 ||
+          (c.stage === 2 && c.t % PUFFER.shedEvery > PUFFER.shedEvery - 20)
+        )
+      default:
+        return c.tell > 0
+    }
+  }
+
+  private renderCritter(g: CanvasRenderingContext2D, c: Critter) {
+    const def = stageDef(c.kind, c.stage)
+    const after = levelCurve(this.heat, SWEEP_CURVES.growAfter)
+    const need = growTicks(c.stage, after)
+    const growing =
+      c.stage < 2 &&
+      c.foam === 0 &&
+      c.stun === 0 &&
+      c.bubble === 0 &&
+      (c.kind !== 'crawler' || (!c.onCeiling && !c.clinging)) &&
+      c.t > need - GLOW_TICKS
+    const midY = c.y - def.hitH / 2
+    if (growing) {
+      // About to grow: a pulsing halo, and in the last moments it flickers into its next stage.
+      const beat = Math.floor(this.tick / 6) % 2
+      glow(g, c.x, midY, def.halfW + 10, RAMPS.pink[3], beat ? 0.7 : 0.35)
+    }
+    const next =
+      growing && c.t > need - 30 && this.tick % 8 < 4
+        ? ((c.stage + 1) as Stage)
+        : c.stage
+    const set = CRITTER_SPRITES[c.kind][next]
+    const tell = this.showsTell(c)
+    const fast = c.kind === 'gloop' || c.kind === 'puffer' ? 3 : 1
+    let sprite =
+      tell && (fast === 1 || Math.floor(this.tick / fast) % 2)
+        ? set.tell
+        : set.walk[Math.floor(this.tick / 8) % 2]!
+    if (c.flash > 0) sprite = flashOf(sprite)
+    const toward = Math.sign((this.nearest(c.x)?.x ?? c.x + 1) - c.x) || 1
+    const facing =
+      c.kind === 'roller'
+        ? c.vx || toward
+        : c.kind === 'biter'
+          ? c.face
+          : c.kind === 'crawler'
+            ? c.clinging
+              ? c.clinging.facing
+              : c.vx || toward
+            : toward
+    const shake = tell && c.kind === 'roller' ? (this.tick % 4 < 2 ? 1 : -1) : 0
+    const x = Math.round(c.x) + shake
+    if (c.onCeiling) {
+      // A ceiling bub hangs upside down; right over a Mop, its shadow falls on the floor.
+      const prey = this.nearest(c.x)
+      if (prey && Math.abs(prey.x - c.x) < CRAWLER.shadowAt)
+        dropShadow(g, c.x, FLOOR, def.halfW, 2, 0.55)
+      g.fillStyle = rgba(RAMPS.purple[4], 0.5)
+      g.fillRect(x, CEILING, 1, 3)
+      drawSprite(g, sprite, x - sprite.width / 2, CEILING + 1, {
+        anchor: 'topleft',
+        flipY: true,
+        flipX: facing < 0,
       })
       return
     }
-    // Biter: a hunched glitch beast with a big jaw, facing its prey.
-    const face = Math.sign((this.nearest(x)?.x ?? x + 1) - x) || 1
-    dropShadow(g, x, FLOOR, big ? 9 : 8, 2, 0.4)
-    drawSprite(g, BITER_SPRITES[size][Math.floor(c.t / 10) % 2]!, x, y + 1, {
+    if (c.kind === 'crawler' && c.stage === 2 && c.bubble === 0)
+      this.renderWeb(g, c, def)
+    if (c.y >= FLOOR - 1 && c.bubble === 0)
+      dropShadow(g, c.x, FLOOR, def.halfW * 0.8, 2, 0.4)
+    else if (c.bubble === 0)
+      dropShadow(g, c.x, FLOOR, def.halfW * 0.5, 1.5, 0.25)
+    drawSprite(g, sprite, x, Math.round(c.y) + 1, {
       anchor: 'feet',
-      flipX: face < 0,
+      flipX: facing < 0,
     })
+    if (c.foam > 0 && (c.foam > 60 || this.tick % 8 < 5)) {
+      for (let i = 0; i < 4; i++)
+        shadedOrb(
+          g,
+          c.x - def.halfW + 2 + (i * (def.halfW * 2 - 4)) / 3,
+          c.y - 2 - (i % 2) * 3,
+          3 + (i % 2),
+          RAMPS.cream,
+          { glint: false },
+        )
+    }
+    if (c.stun > 0)
+      for (let i = 0; i < 3; i++) {
+        const a = this.tick / 6 + i * 2.1
+        g.fillStyle = RAMPS.gold[4]
+        g.fillRect(
+          Math.round(c.x + Math.cos(a) * (def.halfW * 0.6 + 3)),
+          Math.round(c.y - def.hitH - 4 + Math.sin(a) * 2),
+          2,
+          2,
+        )
+      }
+    if (c.bubble > 0 && (c.bubble > 60 || this.tick % 8 < 5)) {
+      const r = bubbleR(def)
+      glow(g, c.x, midY, r + 4, RAMPS.water[3], 0.35)
+      g.strokeStyle = rgba(RAMPS.water[4], 0.85)
+      g.lineWidth = 1
+      g.beginPath()
+      g.arc(c.x, midY, r, 0, Math.PI * 2)
+      g.stroke()
+      g.fillStyle = '#ffffff'
+      g.fillRect(Math.round(c.x - r * 0.5), Math.round(midY - r * 0.6), 2, 2)
+    }
+  }
+
+  /** A web weaver's thread to the ceiling, and its web spread across the plating. */
+  private renderWeb(g: CanvasRenderingContext2D, c: Critter, def: StageDef) {
+    const top = c.y - def.hitH + 4
+    g.fillStyle = rgba(RAMPS.purple[4], 0.6)
+    g.fillRect(
+      Math.round(c.x),
+      CEILING,
+      1,
+      Math.max(0, Math.round(top - CEILING)),
+    )
+    g.strokeStyle = rgba(RAMPS.purple[4], 0.4)
+    g.lineWidth = 1
+    for (let i = -2; i <= 2; i++) {
+      g.beginPath()
+      g.moveTo(c.x, CEILING + 10)
+      g.lineTo(c.x + i * 12, CEILING)
+      g.stroke()
+    }
+    for (const r of [5, 9]) {
+      g.beginPath()
+      g.ellipse(c.x, CEILING, r * 2.4, r, 0, 0, Math.PI)
+      g.stroke()
+    }
   }
 
   private renderMop(g: CanvasRenderingContext2D, m: Mop) {
     const x = Math.round(m.x)
     const y = Math.round(m.y)
-    const flash = m.hurt > 0 && Math.floor(this.tick / 2) % 2
+    const blink = m.hurt > 0 && Math.floor(this.tick / 2) % 2
     const lift = Math.max(0, FLOOR - y)
     dropShadow(g, x, FLOOR, Math.max(4, 9 - lift / 6), 2, 0.45)
     const frame = Math.floor(m.walkPhase) % 2
-    const set = flash ? MOP_FLASH : (MOP_SPRITES[m.seat] ?? MOP_SPRITES[0]!)
+    const set = blink ? MOP_FLASH : (MOP_SPRITES[m.seat] ?? MOP_SPRITES[0]!)
     const sprite = (m.crouch ? set.crouch : set.stand)[frame]!
     drawSprite(g, sprite, x, y + 1, { anchor: 'feet', flipX: m.facing < 0 })
+    const gunY = m.crouch ? y - 5 : y - 15
+    const nx = x + m.facing * 10
     // The sweeper nozzle flares as it fires.
-    if (m.fireCooldown > FIRE_COOLDOWN - 3) {
-      const gunY = m.crouch ? y - 5 : y - 15
-      const nx = x + m.facing * 10
+    if (m.fireCooldown > beamTuning(this.kit.beam).cooldown - 3) {
       glow(g, nx, gunY, 9, RAMPS.teal[3], 0.8)
       g.fillStyle = RAMPS.teal[4]
       g.fillRect(nx - 1, gunY - 1, 2, 2)
+    }
+    if (m.bin > 0) {
+      // The bin on Mop's back, filling up.
+      const room = binRoom(this.kit.bin)
+      const bx = x - m.facing * 9 - 3
+      const by = y - (m.crouch ? 12 : 20)
+      bevel(g, bx, by, 6, 8, RAMPS.steel, { depth: 1 })
+      const fill = Math.round((Math.min(m.bin, room) / room) * 6)
+      g.fillStyle = m.bin >= room ? RAMPS.ember[3] : LIME[3]
+      g.fillRect(bx + 1, by + 7 - fill, 4, fill)
+    }
+    if (!m.using || !m.tool) return
+    if (m.tool === 'shield') {
+      // The squeegee raised: a rubber blade on a handle, out front.
+      const sx = x + m.facing * 13
+      bevel(g, sx - 1, gunY - 12, 3, 20, RAMPS.pink, { depth: 1 })
+      g.fillStyle = RAMPS.steel[3]
+      g.fillRect(Math.min(sx, x + m.facing * 8), gunY, 5, 1)
+      glow(g, sx, gunY - 2, 12, RAMPS.pink[3], 0.3)
+    } else if (m.tool === 'vac') {
+      // Air rushing into the nozzle.
+      g.fillStyle = rgba(RAMPS.purple[4], 0.8)
+      for (let i = 0; i < 5; i++) {
+        const d = VAC.reach - ((this.tick * 3 + i * 13) % VAC.reach)
+        const spread = (d / VAC.reach) * (i % 2 ? 6 : -6)
+        g.fillRect(
+          Math.round(nx + m.facing * d),
+          Math.round(gunY + spread),
+          3,
+          1,
+        )
+      }
+    } else if (m.tool === 'steam') {
+      // A billow of steam, puffing out and fading.
+      for (let i = 0; i < 5; i++) {
+        const d = (this.tick * 2 + i * 9) % STEAM.reach
+        const r = 2 + d / 9
+        g.fillStyle = rgba('#ffffff', 0.55 * (1 - d / STEAM.reach))
+        g.beginPath()
+        g.arc(nx + m.facing * d, gunY - d / 6 + (i % 2) * 3, r, 0, Math.PI * 2)
+        g.fill()
+      }
     }
   }
 
@@ -2538,8 +3730,13 @@ class StationSweep implements ArcadeGameInstance {
     hudPanel(g, 100, 3, 74, 20)
     this.renderClock(g, 112, 13, 7)
     const secs = Math.max(0, Math.ceil(this.timer / 60))
-    drawText(g, `TIME ${secs}`, 124, 9, {
+    drawText(g, `TIME ${secs}`, 124, 5, {
       color: this.clockColour(secs),
+      outline: INK,
+    })
+    drawSprite(g, CREDIT_ICON, 124, 14, { anchor: 'topleft' })
+    drawText(g, `${this.credits} CR`, 133, 14, {
+      color: RAMPS.gold[3],
       outline: INK,
     })
     hudPanel(g, 178, 3, 138, 20)
@@ -2553,15 +3750,34 @@ class StationSweep implements ArcadeGameInstance {
       color: LIME[3],
       outline: INK,
     })
-    hudPanel(g, 4, 26, 142, 13)
-    drawText(g, 'CHARGE', 9, 29, { color: RAMPS.leaf[4], outline: INK })
+    hudPanel(g, 4, 26, 94, 13)
+    drawText(g, 'CHARGE', 8, 29, { color: RAMPS.leaf[4], outline: INK })
     const frac = Math.max(0, me.health) / MAX_HEALTH
-    gauge(g, 50, 29, 90, 6, frac, chargeRamp(frac))
-    const spares = Math.min(this.spares, 5)
-    if (spares > 0) {
-      hudPanel(g, 150, 26, spares * 10 + 6, 13)
-      for (let i = 0; i < spares; i++)
-        drawSprite(g, SPARE_SPRITE, 153 + i * 10, 29, { anchor: 'topleft' })
+    gauge(g, 47, 30, 47, 5, frac, chargeRamp(frac))
+    // What Mop carries on B, and its bin.
+    hudPanel(g, 102, 26, 64, 13)
+    drawSprite(g, TOOL_ICONS[me.tool ?? 'beam'], 105, 28, { anchor: 'topleft' })
+    if (me.tool) {
+      drawText(g, TOOLS[me.tool].short, 117, 28, {
+        color: TOOLS[me.tool].ramp[3],
+        outline: INK,
+      })
+      const left = me.toolCharge / toolCharge(me.tool, this.kit.tanks)
+      gauge(g, 117, 36, 45, 1, left, TOOLS[me.tool].ramp)
+    } else drawText(g, 'BEAM', 117, 29, { color: RAMPS.teal[3], outline: INK })
+    hudPanel(g, 170, 26, 52, 13)
+    drawSprite(g, BIN_ICON, 173, 28, { anchor: 'topleft' })
+    drawText(g, `${me.bin}/${binRoom(this.kit.bin)}`, 184, 29, {
+      color: this.binColour(me),
+      outline: INK,
+    })
+    if (this.spares > 0) {
+      hudPanel(g, 226, 26, 26, 13)
+      drawSprite(g, SPARE_SPRITE, 229, 29, { anchor: 'topleft' })
+      drawText(g, `X${this.spares}`, 237, 29, {
+        color: RAMPS.sky[3],
+        outline: INK,
+      })
     }
     // The station, top deck first: clean decks green, dirty ones red, Mop's lit.
     const n = this.decks.length
@@ -2576,6 +3792,161 @@ class StationSweep implements ArcadeGameInstance {
     this.renderRadar(g, 8, 45, W - 16, 4, me.deck, me)
     this.renderBanner(g, 110)
   }
+
+  /** The Supply Locker: a shelf of upgrades, the crew's credits, and the critter count. */
+  private renderLocker(g: CanvasRenderingContext2D, l: Locker) {
+    bandedGradient(
+      g,
+      0,
+      0,
+      W,
+      H,
+      [RAMPS.night[2], RAMPS.night[1], RAMPS.night[0], RAMPS.night[1]],
+      6,
+    )
+    hudPanel(g, 4, 4, 160, 20, RAMPS.purple)
+    // The locker's two doors, swinging open as the shuttle docks.
+    const doors = Math.min(1, l.ticks / LOCKER.doors)
+    const steel = shade(RAMPS.steel, RAMPS.night[0], 0.3)
+    bevel(g, 170, 4, 60, 20, RAMPS.night, { depth: 1 })
+    for (let s = 0; s < 3; s++) {
+      g.fillStyle = [LIME[3], RAMPS.gold[3], RAMPS.pink[3]][s]!
+      g.fillRect(176 + s * 18, 18, 10, 3)
+    }
+    const door = Math.max(1, Math.round(30 * (1 - doors)))
+    bevel(g, 170, 4, door, 20, steel, { depth: 1 })
+    bevel(g, 230 - door, 4, door, 20, steel, { depth: 1 })
+    drawText(g, 'SUPPLY LOCKER', 8, 8, {
+      scale: 2,
+      color: '#ffffff',
+      outline: INK,
+      shadow: RAMPS.purple[2],
+    })
+    hudPanel(g, 236, 6, 80, 14, RAMPS.gold)
+    drawSprite(g, CREDIT_ICON, 241, 10, { anchor: 'topleft' })
+    drawText(g, `${this.credits} CREDITS`, 249, 10, {
+      color: '#ffffff',
+      outline: INK,
+    })
+    // The shelf.
+    LOCKER_ITEMS.forEach((item, i) => {
+      const y = 28 + i * 21
+      const on = i === l.cursor
+      const why = cannotBuy(item, this.kit, l.visit, this.credits)
+      if (on) glow(g, 100, y + 9, 70, RAMPS.teal[3], 0.25)
+      hudPanel(g, 6, y, 196, 18, on ? RAMPS.teal : RAMPS.night)
+      this.renderLockerIcon(g, item, l, 11, y + 4)
+      const name = item.id === 'tool' ? TOOLS[l.visit.tool].name : item.name
+      drawText(g, name, 26, y + 6, {
+        color: why && item.id !== 'launch' ? RAMPS.steel[2] : '#ffffff',
+        outline: INK,
+      })
+      if (item.id === 'launch') return
+      const owned = item.id in this.kit ? this.kit[item.id as keyof Kit] : 0
+      for (let p = 0; p < (Number.isFinite(item.max) ? item.max : 0); p++) {
+        g.fillStyle = INK
+        g.fillRect(151 + p * 5, y + 7, 4, 4)
+        g.fillStyle = p < owned ? LIME[3] : RAMPS.night[2]
+        g.fillRect(151 + p * 5, y + 7, 3, 3)
+      }
+      drawText(
+        g,
+        why === 'SOLD OUT' ? 'OUT' : String(priceOf(item, this.kit)),
+        196,
+        y + 6,
+        {
+          align: 'right',
+          color: why === 'NEED CREDITS' ? RAMPS.ember[3] : RAMPS.gold[3],
+          outline: INK,
+        },
+      )
+    })
+    // The critter count: every family swept this run.
+    hudPanel(g, 208, 28, 108, 104, RAMPS.night)
+    drawText(g, 'CRITTERS SWEPT', 262, 32, {
+      align: 'center',
+      color: LIME[3],
+      outline: INK,
+    })
+    FAMILY_NAMES.forEach((f, i) => {
+      const y = 44 + i * 17
+      const sprite = CRITTER_SPRITES[f][0].walk[Math.floor(this.tick / 12) % 2]!
+      drawSprite(g, sprite, 226, y + 13, { anchor: 'feet' })
+      drawText(g, FAMILIES[f].name, 242, y + 3, {
+        color: FAMILIES[f].spark,
+        outline: INK,
+      })
+      drawText(g, String(this.swept[f]), 312, y + 3, {
+        align: 'right',
+        color: '#ffffff',
+        outline: INK,
+      })
+    })
+    // Mop, waving from the hatch.
+    const wave = Math.floor(this.tick / 16) % 2
+    drawSprite(g, MOP_SPRITES[0]!.stand[wave]!, 262, 168, { anchor: 'feet' })
+    drawText(g, 'MOP', 262, 172, {
+      align: 'center',
+      color: RAMPS.sky[3],
+      outline: INK,
+    })
+    // What the chosen item does, the locker's word, and the shuttle's countdown.
+    const item = LOCKER_ITEMS[l.cursor]!
+    hudPanel(g, 6, 198, W - 12, 38, RAMPS.purple)
+    drawText(g, item.blurb, 12, 203, { color: '#ffffff', outline: INK })
+    drawText(g, l.note, 12, 214, { color: RAMPS.gold[3], outline: INK })
+    const left = Math.ceil((LOCKER.wait - l.ticks) / 60)
+    drawText(g, 'UP/DOWN PICK  A BUY  B LAUNCH', 12, 225, {
+      color: RAMPS.steel[3],
+      outline: INK,
+    })
+    drawText(g, `SHUTTLE ${left}`, W - 12, 225, {
+      align: 'right',
+      color: left <= 10 ? RAMPS.ember[3] : RAMPS.teal[3],
+      outline: INK,
+    })
+  }
+
+  private renderLockerIcon(
+    g: CanvasRenderingContext2D,
+    item: LockerItem,
+    l: Locker,
+    x: number,
+    y: number,
+  ) {
+    switch (item.id) {
+      case 'spare':
+        drawSprite(g, SPARE_SPRITE, x + 1, y + 1, { anchor: 'topleft' })
+        return
+      case 'clock':
+        shadedOrb(g, x + 4, y + 4, 4, RAMPS.gold, { glint: false })
+        g.fillStyle = RAMPS.cream[4]
+        g.fillRect(x + 2, y + 2, 5, 5)
+        g.fillStyle = INK
+        g.fillRect(x + 4, y + 2, 1, 3)
+        g.fillRect(x + 4, y + 4, 2, 1)
+        return
+      case 'bin':
+        drawSprite(g, BIN_ICON, x, y, { anchor: 'topleft' })
+        return
+      case 'tanks':
+        drawSprite(g, TOOL_ICONS.vac, x, y, { anchor: 'topleft' })
+        return
+      case 'beam':
+        drawSprite(g, TOOL_ICONS.beam, x, y, { anchor: 'topleft' })
+        return
+      case 'radar':
+        bevel(g, x, y + 1, 10, 7, RAMPS.night, { depth: 1 })
+        g.fillStyle = LIME[3]
+        g.fillRect(x + 2 + (Math.floor(this.tick / 8) % 6), y + 4, 2, 2)
+        return
+      case 'tool':
+        drawSprite(g, TOOL_ICONS[l.visit.tool], x, y, { anchor: 'topleft' })
+        return
+      case 'launch':
+        drawText(g, '>>', x, y + 2, { color: LIME[3], outline: INK })
+    }
+  }
 }
 
 /** The charge gauge's colour: green while healthy, gold when low, red near empty. */
@@ -2583,8 +3954,47 @@ function chargeRamp(frac: number): Ramp {
   return frac > 0.5 ? RAMPS.leaf : frac > 0.25 ? RAMPS.gold : RAMPS.ember
 }
 
+/** The table guide: the families and their stages, the tools, the bin and the locker. */
+function stationGuide(): ArcadeGuidePage[] {
+  return [
+    {
+      title: 'CRITTERS THAT GROW UP',
+      scale: 1,
+      lines: FAMILY_NAMES.flatMap((f) => [
+        FAMILIES[f].stages.map((s) => s.name).join(' > '),
+        `  TELL: ${FAMILIES[f].tell}`,
+        `  ${FAMILIES[f].answer}`,
+      ]),
+    },
+    {
+      title: 'TOOLS',
+      scale: 1,
+      lines: [
+        'A: SWEEPER BEAM. B: THE TOOL MOP CARRIES',
+        'POPPED SACS DROP TOOLS. B JUMPS WITHOUT ONE',
+        ...PICKUP_TOOLS.map((t) => `${TOOLS[t].short}: ${TOOLS[t].does}`),
+      ],
+    },
+    {
+      title: 'THE BIN AND THE LOCKER',
+      scale: 1,
+      lines: [
+        'SWEPT CRITTERS GO IN YOUR BIN, NEVER HURT.',
+        'A FULL BIN SLOWS MOP. STAND ON A LIFT PAD',
+        'TO EMPTY IT: EACH CRITTER PAYS CREDITS.',
+        'CLEAN DECKS AND STATIONS PAY CREDITS TOO.',
+        'BETWEEN STATIONS THE SUPPLY LOCKER SELLS',
+        'SPARE MOPS, CLOCK, BIGGER BINS, TOOL TANKS,',
+        'BEAM BOOSTS, THE SAC RADAR AND A TOOL OF',
+        'THE DAY. THE SHUTTLE WAITS 40 SECONDS.',
+      ],
+    },
+  ]
+}
+
 const stationSweep: ArcadeGameModule = {
   create: (options) => new StationSweep(options),
+  guide: () => stationGuide(),
 }
 
 export const create = stationSweep.create

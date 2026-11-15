@@ -163,6 +163,7 @@ export type ResolvedChannel = {
   refreshLabel: string
   dottiTip: string
   amiTip: string
+  silasSays: string
   tutorial: ResolvedTutorialChannel | null
   tabs: ResolvedTab[]
 }

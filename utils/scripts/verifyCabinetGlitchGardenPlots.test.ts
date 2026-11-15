@@ -28,6 +28,7 @@ import {
   MAX_HEADS,
   MIN_BEETLE_EVERY,
   MIN_BODY,
+  ORCHARD_ROWS,
   gardenWave,
   layoutCells,
 } from '../arcade/games/glitchGardenGardens'
@@ -117,9 +118,10 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
 
   for (let n = 1; n <= 12; n++) {
     const w = gardenWave(KITCHEN_PLOT, n)
+    // Fractional speeds carry over tick to tick (slice 2), in quarter steps.
     assert.ok(
-      [1, 1.5, 2].includes(w.speed),
-      `wave ${n} speed keeps whole spacing`,
+      w.speed >= 1 && w.speed <= 2 && Number.isInteger(w.speed * 4),
+      `wave ${n} speed is a quarter step`,
     )
     assert.ok(w.segments >= MIN_BODY && w.heads >= 0 && w.heads <= MAX_HEADS)
     if (w.beetleEvery !== null) assert.ok(w.beetleEvery >= MIN_BEETLE_EVERY)
@@ -138,6 +140,7 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
 
   // The special wave's lanes each have a lamp to bloom.
   const goal = KITCHEN_PLOT.waves.find((w) => w.objective)!.objective!
+  assert.ok(goal.kind === 'bloom-lanes')
   const lamps = layoutCells(KITCHEN_PLOT, LAYOUT_LAMP)
   for (const lane of goal.lanes)
     assert.ok(
@@ -157,9 +160,11 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
     g.grid.filter(Boolean).length,
     START_LAMPS + layoutCells(KITCHEN_PLOT, LAYOUT_CAN).length,
   )
+  // Waves 1-10 are the Kitchen Plot's and then the Orchard Rows' five (slice 2's campaign).
   for (let n = 1; n <= 10; n++) {
     g.startWave(n)
-    const plan = gardenWave(KITCHEN_PLOT, n)
+    const garden = n <= 5 ? KITCHEN_PLOT : ORCHARD_ROWS
+    const plan = gardenWave(garden, n <= 5 ? n : n - 5)
     assert.equal(g.worms.length, 1 + plan.heads, `wave ${n} heads`)
     assert.equal(g.worms[0]!.segments, plan.segments, `wave ${n} body`)
     assert.ok(
@@ -237,6 +242,7 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   const g = make(4)
   const special = KITCHEN_PLOT.waves.findIndex((w) => w.objective) + 1
   const goal = KITCHEN_PLOT.waves[special - 1]!.objective!
+  assert.ok(goal.kind === 'bloom-lanes')
   g.startWave(special)
   g.grid.fill(null)
   g.worms = [anchor()]

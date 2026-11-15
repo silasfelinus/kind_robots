@@ -185,7 +185,8 @@ const lampsIn = (g: Probe, from: number, to: number) => {
 {
   const g = make(9)
   g.grid.fill(null)
-  g.startWave(1)
+  // Side-crawlers arrive with the Orchard Rows, the campaign's sixth wave (slice 2).
+  g.startWave(6)
   g.worms = [
     {
       trail: [{ x: 4 * CELL, y: HUD + (BED_TOP + 1) * CELL }],

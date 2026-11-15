@@ -110,6 +110,11 @@ const exposed = [
     ctor: 'CableCrawler',
     list: '__crawlers',
   },
+  {
+    file: /games\/ribbonRiders\.ts$/,
+    ctor: 'RibbonRiders',
+    list: '__ribbons',
+  },
 ]
 
 /**

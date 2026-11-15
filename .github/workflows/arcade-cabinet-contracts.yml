@@ -1,7 +1,7 @@
 name: Arcade Cabinet Browser Contracts
 
 # Real ArcadeCabinet + real game in headless Chromium, driven by synthetic keyboard,
-# gamepad and touch (conductor kr-arcade t-147, t-148, t-151, t-152, t-153). One job installs Chromium once
+# gamepad and touch (conductor kr-arcade t-147, t-148, t-151, t-152, t-153, t-150). One job installs Chromium once
 # and runs every cabinet contract; add new ones as further steps.
 
 on:
@@ -55,6 +55,11 @@ jobs:
       - name: Cable Crawler — earned spares through cabinet retirement and the Workbench
         if: always()
         run: node utils/scripts/verifyCableCrawlerSavesCabinet.browser.test.mjs
+      - name: Ribbon Riders — wraps steered through the cabinet, seam renderer
+        if: always()
+        run: node utils/scripts/verifyRibbonRidersWrapCabinet.browser.test.mjs
+        env:
+          RIBBON_SEAM_SHOTS: cabinet-contract-shots/ribbon-riders
       - name: Preserve cabinet states
         if: always()
         uses: actions/upload-artifact@v4

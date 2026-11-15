@@ -3,7 +3,7 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
   calico: [
     'REGEN. Holds the clinic lane, but cannot yet heal neighboring allies.',
     'REGEN. At the end of every round, heal adjacent allies for 1 life.',
-    'REGEN. Never strikes. At the end of every round, heal adjacent allies for 2 life.',
+    'REGEN. Never attacks. At the end of every round, heal adjacent allies for 2 life.',
   ],
   chimera: [
     'Prototype: only 1 attack until she evolves.',

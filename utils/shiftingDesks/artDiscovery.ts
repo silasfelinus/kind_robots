@@ -17,7 +17,14 @@ export type ArtDiscoveryEntry = {
   src: string
   prompt: string
   unlocked: boolean
+  reviewed: boolean
 }
+
+const awaitingClassicArtReview = new Set([
+  'mutations:four-second-precognition',
+  'mutations:empathic-static',
+  'mutations:eyes-in-the-back-of-your-head',
+])
 
 export function artDiscovery(archive: RewardArchive): ArtDiscoveryEntry[] {
   const unlocked = new Set([
@@ -32,6 +39,7 @@ export function artDiscovery(archive: RewardArchive): ArtDiscoveryEntry[] {
     prompt:
       DECKS.jobTitles.find((entry) => entry.id === job.id)?.art_prompt ?? '',
     unlocked: unlocked.has(`jobs:${job.id}`),
+    reviewed: true,
   }))
   const societies = SOCIETIES.map((society) => ({
     key: `societies:${society.id}`,
@@ -40,6 +48,7 @@ export function artDiscovery(archive: RewardArchive): ArtDiscoveryEntry[] {
     src: stationArt('societies', society.id),
     prompt: society.art_prompt,
     unlocked: unlocked.has(`societies:${society.id}`),
+    reviewed: true,
   }))
   const mutations = MUTATIONS.map((mutation) => ({
     key: `mutations:${mutation.id}`,
@@ -48,6 +57,7 @@ export function artDiscovery(archive: RewardArchive): ArtDiscoveryEntry[] {
     src: stationArt('mutations', mutation.id),
     prompt: mutation.art_prompt,
     unlocked: unlocked.has(`mutations:${mutation.id}`),
+    reviewed: !awaitingClassicArtReview.has(`mutations:${mutation.id}`),
   }))
   return [...jobs, ...societies, ...mutations]
 }

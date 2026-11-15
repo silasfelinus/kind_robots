@@ -300,24 +300,24 @@ assert.match(publicSelections, /isPublic: true/)
 assert.match(publicSelections, /isMature: false/)
 assert.match(publicSelections, /isActive: true/)
 assert.match(storeSource, /async function loadPublicSelections/)
-assert.match(storeSource, /'\\/api\\/adverts\\/public-art'/)
+assert.match(storeSource, /'\/api\/adverts\/public-art'/)
 
 const publicHighlights = read('components/home/home-visitor-directory.vue')
 assert.match(publicHighlights, /data-testid="visitor-poster-toggle"/)
 assert.match(publicHighlights, /data-testid="visitor-poster-gallery"/)
-assert.match(publicHighlights, /advertPlayPath\\(view.poster\\)/)
-assert.match(publicHighlights, /advertStore.loadPublicSelections\\(\\)/)
+assert.match(publicHighlights, /advertPlayPath\(view.poster\)/)
+assert.match(publicHighlights, /advertStore.loadPublicSelections\(\)/)
 
 const tutorialSheet = read('components/navigation/workspace-sheet.vue')
 assert.match(tutorialSheet, /data-testid="workspace-game-poster"/)
 assert.match(tutorialSheet, /data-testid="workspace-silas-says"/)
 assert.match(tutorialSheet, /data-testid="workspace-conversation"/)
 assert.match(tutorialSheet, /reaction-category="PROJECT"/)
-assert.match(tutorialSheet, /advertStore.loadPublicSelections\\(\\)/)
-assert.match(read('content.config.ts'), /silasSays: z\\.string\\(\\)\\.optional\\(\\)/)
+assert.match(tutorialSheet, /advertStore.loadPublicSelections\(\)/)
+assert.match(read('content.config.ts'), /silasSays: z\.string\(\)\.optional\(\)/)
 assert.match(
   read('stores/helpers/channelContent.ts'),
-  /silasSays: text\\(item.silasSays\\)/,
+  /silasSays: text\(item.silasSays\)/,
 )
 assert.match(read('content/silas.md'), /navigation: false/)
 for (const poster of ADVERT_POSTERS)

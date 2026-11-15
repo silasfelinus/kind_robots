@@ -76,9 +76,10 @@ const bundledGlob = storeSource.match(
   /import\.meta\.glob<string>\(\s*\[([\s\S]*?)\]/,
 )
 assert.ok(bundledGlob, 'the store globs the bundled poster art')
-const bundledPaths = [...bundledGlob[1]!.matchAll(/'([^']+)'/g)].map(
+const bundledPaths = [...(bundledGlob?.[1] ?? '').matchAll(/'([^']+)'/g)].map(
   (m) => m[1],
 )
+assert.ok(bundledPaths.length > 0, 'the bundled poster art glob lists files')
 
 function assertDefaultSource(src: string, where: string): void {
   if (/^\/api\/art\/images\/\d+\/file$/.test(src)) return

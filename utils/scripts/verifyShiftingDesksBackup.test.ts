@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { registerHooks } from 'node:module'
 import { isShiftingDesksBackupEnvelope } from '../shiftingDesks/backupValidation'
 
 const valid = {
@@ -35,7 +36,6 @@ for (const corrupted of [
 }
 console.log('Shifting Desks backup envelope contract passed')
 
-import { registerHooks } from 'node:module'
 const stub = (source: string) =>
   `data:text/javascript,${encodeURIComponent(source)}`
 const storeStubs: Record<string, string> = {

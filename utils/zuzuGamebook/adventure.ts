@@ -156,8 +156,7 @@ function fightFrom(
   const after = withFlags(flags, sceneFlags(node))
   const healed = Math.min(MAX_HEALTH, health + (node.effects?.heal ?? 0))
   const resultingHealth = Math.max(1, healed - (node.effects?.hurt ?? 0))
-  if (node.battle)
-    return { sceneId: id, flags: after, health: resultingHealth }
+  if (node.battle) return { sceneId: id, flags: after, health: resultingHealth }
   const only = node.choices?.length === 1 ? node.choices[0] : null
   if (node.ending || hops >= 3 || !only || only.check) return null
   return fightFrom(

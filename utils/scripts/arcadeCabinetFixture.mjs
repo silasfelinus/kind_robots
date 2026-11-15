@@ -9,7 +9,8 @@ import { build } from 'esbuild'
 // help). Compiles the real single-file components with esbuild, stubs only the stores (no network), and
 // wraps the Rainbow engine's and Rescue Rally's create so a test can read (and stage) their games. Used
 // by the Rainbow cabinet help/controls contract (t-015), the touch replay contract (t-018) and the
-// Rescue Rally seat contract (kr-arcade t-147).
+// Rescue Rally seat contract (kr-arcade t-147). With `realArcadeStore` the cabinet runs on the real
+// arcade store (saves, seats, preferences in localStorage), for the Battery Maze save contract (t-148).
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -65,35 +66,79 @@ const stores = {
     }`,
 }
 
-const entry = `
+// With the real arcade store (kr-arcade t-148) only its network and achievement neighbours are stubbed:
+// saves, seats and preferences go through the store itself and this page's localStorage.
+const realStoreNeighbours = {
+  arcadeFetch: `export async function performFetch() { return { success: false, message: 'fixture: offline', status: 0 } }`,
+  arcadeAchievements: `export function useAchievementStore() { return { hasEarnedCode: () => true, rewardAchievementByCode: async () => {} } }`,
+}
+
+const entryFor = (realStore) => `
 import { createApp, h, Suspense } from 'vue'
+${realStore ? "import { createPinia } from 'pinia'" : ''}
 import ArcadeCabinet from '@/components/arcade/arcade-cabinet.vue'
 import TutorialFlyer from '@/components/navigation/tutorial-flyer.vue'
-createApp({
+const app = createApp({
   render: () => h('main', { id: 'deck' }, [
     window.__help
       ? h('section', { id: 'help' }, [h(Suspense, null, { default: () => h(TutorialFlyer, { channel: 'arcade', tab: window.__help, inline: true }) })])
       : null,
     h('section', { id: 'cabinet' }, [h(ArcadeCabinet, { slug: window.__slug })]),
   ]),
-}).mount('#app')
+})
+${realStore ? 'app.use(createPinia())' : ''}
+app.mount('#app')
+window.__app = app
 `
 
-/** Bundle the fixture once: the page script and the components' compiled styles. */
-export async function bundleCabinetFixture() {
+/** Games whose instances the fixture records on `window`, so a test can read (and stage) them. */
+const exposed = [
+  { file: /games\/rescueRally\.ts$/, ctor: 'RescueRally', list: '__rallies' },
+  { file: /games\/batteryMaze\.ts$/, ctor: 'BatteryMaze', list: '__batteries' },
+]
+
+/**
+ * Bundle the fixture once: the page script and the components' compiled styles. `realArcadeStore`
+ * uses stores/arcadeStore.ts itself (with Pinia) instead of the in-memory stand-in.
+ */
+export async function bundleCabinetFixture({ realArcadeStore = false } = {}) {
   const styles = []
   let scopeCounter = 0
+  const stubbed = [
+    ...(realArcadeStore ? [] : ['arcadeStore']),
+    'userStore',
+    'channelContentStore',
+    'tutorialStore',
+    'supportStore',
+  ]
   const plugin = {
     name: 'arcade-cabinet-fixture',
     setup(builder) {
       builder.onResolve(
-        {
-          filter:
-            /^@\/stores\/(arcadeStore|userStore|channelContentStore|tutorialStore|supportStore)$/,
-        },
+        { filter: new RegExp(`^@/stores/(${stubbed.join('|')})$`) },
         ({ path: name }) => ({
           path: name.split('/').pop(),
           namespace: 'store-stub',
+        }),
+      )
+      if (realArcadeStore)
+        builder.onResolve(
+          { filter: /^\.\/(utils|achievementStore)$/ },
+          ({ path: name, importer }) =>
+            importer.endsWith(path.join('stores', 'arcadeStore.ts'))
+              ? {
+                  path:
+                    name === './utils' ? 'arcadeFetch' : 'arcadeAchievements',
+                  namespace: 'store-neighbour',
+                }
+              : undefined,
+        )
+      builder.onLoad(
+        { filter: /.*/, namespace: 'store-neighbour' },
+        ({ path: name }) => ({
+          contents: realStoreNeighbours[name],
+          loader: 'ts',
+          resolveDir: root,
         }),
       )
       builder.onLoad(
@@ -134,30 +179,27 @@ export async function bundleCabinetFixture() {
           }
         },
       )
-      // Expose each Rescue Rally game the cabinet creates, so a test can read and stage it.
-      builder.onLoad(
-        { filter: /games\/rescueRally\.ts$/ },
-        ({ path: file }) => {
-          const marker = 'create: (options) => new RescueRally(options),'
+      // Record each Rescue Rally and Battery Maze game the cabinet creates.
+      for (const { file: filter, ctor, list } of exposed) {
+        builder.onLoad({ filter }, ({ path: file }) => {
+          const marker = `create: (options) => new ${ctor}(options),`
           const source = readFileSync(file, 'utf8')
           if (!source.includes(marker))
-            throw new Error(
-              'rescueRally.ts: the fixture hook lost its create()',
-            )
+            throw new Error(`${ctor}: the fixture hook lost its create()`)
           return {
             contents: source.replace(
               marker,
               `create: (options) => {
-              const game = new RescueRally(options)
-              ;(window.__rallies ||= []).push({ demo: Boolean(options.demo), game })
+              const game = new ${ctor}(options)
+              ;(window.${list} ||= []).push({ demo: Boolean(options.demo), game })
               return game
             },`,
             ),
             loader: 'ts',
             resolveDir: path.dirname(file),
           }
-        },
-      )
+        })
+      }
       builder.onLoad({ filter: /\.vue$/ }, ({ path: file }) => {
         const { descriptor } = parse(readFileSync(file, 'utf8'), {
           filename: file,
@@ -192,7 +234,11 @@ export async function bundleCabinetFixture() {
     },
   }
   const bundled = await build({
-    stdin: { contents: entry, resolveDir: root, loader: 'ts' },
+    stdin: {
+      contents: entryFor(realArcadeStore),
+      resolveDir: root,
+      loader: 'ts',
+    },
     bundle: true,
     write: false,
     format: 'iife',
@@ -204,17 +250,36 @@ export async function bundleCabinetFixture() {
     plugins: [plugin],
     logLevel: 'error',
   })
-  return { script: bundled.outputFiles[0].text, styles: styles.join('\n') }
+  return {
+    script: bundled.outputFiles[0].text,
+    styles: styles.join('\n'),
+    realStore: realArcadeStore,
+  }
 }
+
+const PAGE =
+  '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0"><div id="app"></div></body></html>'
+/** A real (routed, never fetched) origin, so the real store has localStorage to read and write. */
+const ORIGIN = 'http://arcade-cabinet.fixture.test/'
 
 /**
  * Open a page with the fixture mounted. `touch` gives a coarse-pointer phone-like context, so the
  * cabinet shows its on-screen controls. `help` names a Play tab whose tutorial is mounted above.
+ * `storage` seeds localStorage (key -> JSON value) before the cabinet mounts (real store only).
  */
 export async function openCabinet(
   browser,
   fixture,
-  { slug, width, height, seats = 1, touch = false, help = null, dpr = 1 },
+  {
+    slug,
+    width,
+    height,
+    seats = 1,
+    touch = false,
+    help = null,
+    dpr = 1,
+    storage = null,
+  },
 ) {
   const context = await browser.newContext({
     viewport: { width, height },
@@ -225,23 +290,46 @@ export async function openCabinet(
   const page = await context.newPage()
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
-  await page.setContent(
-    '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0"><div id="app"></div></body></html>',
-  )
+  if (fixture.realStore) {
+    await page.route(`${ORIGIN}**`, (route) =>
+      route.fulfill({ contentType: 'text/html', body: PAGE }),
+    )
+    await page.goto(ORIGIN)
+  } else {
+    await page.setContent(PAGE)
+  }
+  await mountCabinet(page, fixture, { slug, seats, help, storage })
+  return { page, errors, context }
+}
+
+/**
+ * Leave the cabinet the way the site does (the app unmounts, so the cabinet keeps its game's save),
+ * then load the page again and mount a fresh cabinet over the same localStorage (real store only).
+ */
+export async function reopenCabinet(page, fixture, { slug, seats = 1 }) {
+  await page.evaluate(() => window.__app?.unmount())
+  await page.reload()
+  await mountCabinet(page, fixture, { slug, seats })
+}
+
+async function mountCabinet(page, fixture, { slug, seats, help, storage }) {
   await page.evaluate(
-    ({ items, seatCount, game, tab }) => {
+    ({ items, seatCount, game, tab, storage }) => {
       window.__content = items
       window.__seats = seatCount
       window.__slug = game
       window.__help = tab
       window.__pads = []
       navigator.getGamepads = () => window.__pads
+      for (const [key, value] of Object.entries(storage ?? {}))
+        localStorage.setItem(key, JSON.stringify(value))
     },
     {
       items: help ? playTabContent(help) : [],
       seatCount: seats,
       game: slug,
       tab: help,
+      storage,
     },
   )
   // The site's Tailwind preflight sizes every box by its border; the fixture keeps that one global rule.
@@ -250,7 +338,6 @@ export async function openCabinet(
   })
   await page.addScriptTag({ content: fixture.script })
   await page.waitForSelector('#cabinet canvas')
-  return { page, errors, context }
 }
 
 export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))

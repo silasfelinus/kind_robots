@@ -50,6 +50,7 @@ import {
   type ToolId,
 } from '../arcade/stationSweep/tools'
 import { parseLoop } from '../arcade/sound'
+import { LAUNDRY_MOON } from '../arcade/stationSweep/stations'
 import {
   emptyInput,
   type ArcadeGameInstance,
@@ -223,16 +224,13 @@ function run(game: ArcadeGameInstance, ticks: number, input = idle) {
   for (let i = 0; i < ticks; i++) game.update(input())
 }
 
+// The families that grow (slice 2's mimic crate waits instead).
+const GROWERS = FAMILY_NAMES.filter((f) => FAMILIES[f].grows !== false)
+
 // --- the roster: five families, three stages each, drawn bigger ---------------------------------
 {
-  assert.deepEqual(FAMILY_NAMES, [
-    'roller',
-    'crawler',
-    'biter',
-    'puffer',
-    'gloop',
-  ])
-  for (const f of FAMILY_NAMES) {
+  assert.deepEqual(GROWERS, ['roller', 'crawler', 'biter', 'puffer', 'gloop'])
+  for (const f of GROWERS) {
     const stages = FAMILIES[f].stages
     assert.equal(stages.length, 3, `${f}: three stages`)
     for (let s = 1; s < 3; s++) {
@@ -286,7 +284,7 @@ function run(game: ArcadeGameInstance, ticks: number, input = idle) {
   assert.equal(growTicks(0, after), Math.round(60 * 26 * 0.6))
   assert.equal(growTicks(1, after), 60 * 26)
   assert.equal(growTicks(2, after), Infinity)
-  for (const f of FAMILY_NAMES) {
+  for (const f of GROWERS) {
     const { game, deck } = quiet(11)
     const c = critter(f, 0, 1300)
     deck.critters = [c]
@@ -718,7 +716,8 @@ function toLocker(seed: number) {
   assert.equal(inner.extraClock, 30)
   game.update(frame('b'))
   const decks = inner.decks.length
-  assert.equal(inner.timer, 60 * (45 + 24 * decks + 30))
+  assert.equal(decks, LAUNDRY_MOON.decks.length + 11)
+  assert.equal(inner.timer, 60 * (LAUNDRY_MOON.clockSecs + 30))
 }
 {
   // The attract demo never docks: it flies straight on.
@@ -761,7 +760,6 @@ function toLocker(seed: number) {
     f.pressed.a = t % 9 === 0
     f.held.b = t % 200 < 40
     f.pressed.b = t % 200 === 0
-    f.pressed.up = t % 333 === 0
     return f
   }
   const snapshot = (seed: number) => {
@@ -816,7 +814,7 @@ function toLocker(seed: number) {
 // --- the table guide -----------------------------------------------------------------------------
 {
   const pages = stationSweep.guide!(new Set())
-  assert.equal(pages.length, 3)
+  assert.equal(pages.length, 5)
   for (const page of pages)
     for (const line of page.lines)
       assert.ok(measureText(line) <= W - 8, `guide line fits: ${line}`)

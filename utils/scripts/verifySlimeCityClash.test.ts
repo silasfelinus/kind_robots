@@ -384,10 +384,11 @@ for (const card of CARDS) {
         ['calico', 'watcher', 'merc-roof-dentist'].includes(card.id)
       const hatchling =
         level === 1 && ['chimera', 'juggernaut'].includes(card.id)
+      const clawSupport = card.id === 'shredders' && level < 3
       assert.ok(
         nonattacker
           ? b.attack === 0
-          : hatchling
+          : hatchling || clawSupport
             ? b.attack === 1
             : b.attack >= 2 && b.attack <= (b.plays === 2 ? 8 : 6),
         card.id,

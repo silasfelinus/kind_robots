@@ -137,6 +137,28 @@ assert.ok(slimeArtId('ui', 'title-splash'), 'Generated title key art')
 // every key names a real card and level, and no painting is reused.
 const evolutionKeys = Object.keys(SLIME_CITY_ART.evolutions)
 assert.equal(evolutionKeys.length, 425, '425 curated L2/L3 evolution paintings')
+// ANARKISS round 2 replaces art, rather than adding catalog or evolution keys.
+// A missing ledger ID leaves a card or stage painted in the retired Riot style.
+const anarkissCards = Object.values(SLIME_CITY_ART.cards).filter(
+  (id) => id >= 269690 && id <= 269729,
+)
+const anarkissEvolutions = Object.values(SLIME_CITY_ART.evolutions).filter(
+  (id) => id >= 269730 && id <= 269791,
+)
+assert.equal(anarkissCards.length, 40, 'all 40 Anarkiss base cards repainted')
+assert.equal(
+  anarkissEvolutions.length,
+  62,
+  'all 62 round-two Anarkiss evolution paintings mapped',
+)
+assert.deepEqual(
+  [...anarkissCards, ...anarkissEvolutions].sort((a, b) => a - b),
+  Array.from({ length: 102 }, (_, index) => 269690 + index),
+  'each finished Anarkiss ledger ArtImage mapped exactly once',
+)
+assert.equal(slimeArtId('cards', 'rat'), 269690)
+assert.equal(slimeArtId('cards', 'firebrand'), 269691)
+assert.equal(slimeArtId('evolutions', 's3-riot-posthumous-saint@3'), 269791)
 const cardIds = new Set(CARDS.map((c) => c.id))
 for (const key of evolutionKeys) {
   const [cardId = '', level = ''] = key.split('@')

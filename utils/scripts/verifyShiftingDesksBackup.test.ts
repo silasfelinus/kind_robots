@@ -116,7 +116,10 @@ for (const key of [
   const writeCount = writes
   setActivePinia(createPinia())
   const game = useShiftingDesksStore()
-  assert.doesNotThrow(() => game.load(), `Unreadable ${key} must not abort load`)
+  assert.doesNotThrow(
+    () => game.load(),
+    `Unreadable ${key} must not abort load`,
+  )
   assert.equal(game.run?.seed, savedRun.seed)
   assert.equal(game.loaded, true)
   assert.equal(writes, writeCount, 'A partial load must not rewrite storage')
@@ -148,7 +151,11 @@ assert.deepEqual(sortedEntries(), beforeInvalid)
 refuseNextWrite = ENDINGS_KEY
 assert.equal(original.importBackup(backupText), false)
 assert.equal(original.run?.seed, savedRun.seed)
-assert.deepEqual(sortedEntries(), beforeInvalid, 'Failed import must roll back all slots')
+assert.deepEqual(
+  sortedEntries(),
+  beforeInvalid,
+  'Failed import must roll back all slots',
+)
 
 // A portable backup restores a current run after local browser data is cleared.
 values.clear()

@@ -167,6 +167,9 @@ jobs:
       - name: Art slots candidates and duplicate cleanup contract
         run: npm run test:art-slots
 
+      - name: Advert Studio posters, art slots and render sync contract
+        run: npm run test:advert-studio
+
       - name: ArtJob sampler repair contract
         run: npm run test:artjob-sampler-repair
 

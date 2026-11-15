@@ -1,6 +1,7 @@
 // /utils/arcade/ribbonRiders/rivals.ts
 //
-// The rival crews' personalities (conductor kr-arcade/t-074): one steering brain became a table.
+// The rival crews' personalities (conductor kr-arcade/t-074; the Snowplow, the Tandem, the Lantern
+// Kid and the Carousel Keeper's ponies joined in t-075): one steering brain became a table.
 // Every rival weighs the same three choices each cell (straight on, left or right) by how much room
 // lies that way, then leans by its own personality. Each has a look you can read (its tell) and a
 // way to beat it (its answer), shown on the arena's title card.
@@ -8,7 +9,16 @@
 import { DX, DY, mirrorY, turnLeft, turnRight, type Dir } from './grid'
 
 export type RivalKind =
-  'roamer' | 'cutter' | 'copycat' | 'pacer' | 'hugger' | 'dasher'
+  | 'roamer'
+  | 'cutter'
+  | 'copycat'
+  | 'pacer'
+  | 'hugger'
+  | 'dasher'
+  | 'snowplow'
+  | 'tandem'
+  | 'lanternKid'
+  | 'pony'
 
 /** What a rival's brain can see. */
 export type SteerCtx = {
@@ -23,6 +33,8 @@ export type SteerCtx = {
   solid(x: number, y: number): boolean
   /** The nearest rider still rolling. */
   target: { x: number; y: number; dir: Dir } | null
+  /** Somewhere this rival wants to be (its next arch, the nearest glowbug), or null. */
+  goal?: { x: number; y: number } | null
 }
 
 export type SteerBike = { x: number; y: number; dir: Dir }
@@ -36,6 +48,14 @@ export type RivalSpec = {
   wander: number
   tell: string
   answer: string
+  /** Drives over ribbons, erasing them (the Snowplow). */
+  plow?: boolean
+  /** Lays no ribbon and bumps nobody (the Lantern Kid). It is never needed to clear a round. */
+  harmless?: boolean
+  /** Spawns as two bikes riding a fixed offset apart and turning together (the Tandem). */
+  pair?: boolean
+  /** How hard it pulls toward its goal, when it has one. */
+  goalPull?: number
   /** Points of preference for heading `d` into (nx, ny) with `space` room beyond. */
   lean?(
     ctx: SteerCtx,
@@ -160,6 +180,100 @@ export const RIVALS: Record<RivalKind, RivalSpec> = {
       return aimPull(ctx, nx, ny, ax, ay, 2 + ctx.cunning * 2)
     },
   },
+  snowplow: {
+    name: 'SNOWPLOW',
+    colour: '#e2e8f0',
+    speed: 0.88,
+    wander: 0.03,
+    tell: 'A SHOVEL NOSE AND WHITE SPRAY',
+    answer: 'BAIT IT INTO A LAMP POST',
+    plow: true,
+    lean(ctx, _b, _d, nx, ny, space) {
+      const t = ctx.target
+      if (!t || space <= 20) return 0
+      return aimPull(ctx, nx, ny, t.x, t.y, 2 + ctx.cunning * 3)
+    },
+  },
+  tandem: {
+    name: 'TANDEM',
+    colour: '#facc15',
+    speed: 0.92,
+    wander: 0.02,
+    tell: 'TWO BIKES ON A BRIGHT TETHER',
+    answer: 'ONE LOOP ROUND BOTH WRAPS BOTH',
+    pair: true,
+  },
+  lanternKid: {
+    name: 'LANTERN KID',
+    colour: '#fde047',
+    speed: 0.9,
+    wander: 0.04,
+    tell: 'CARRIES A LANTERN, LAYS NO RIBBON',
+    answer: 'RACE IT TO THE GLOWBUGS. BE KIND',
+    harmless: true,
+    goalPull: 9,
+  },
+  pony: {
+    name: 'PONY',
+    colour: '#f9a8d4',
+    speed: 0.85,
+    wander: 0.05,
+    tell: 'A CAROUSEL POLE',
+    answer: 'WRAP ALL THREE TO CRACK THE RING',
+  },
+}
+
+/** Pull toward a goal for a rival with no pull of its own (a Tag Lap racer). */
+export const GOAL_PULL = 5
+
+/** Clear cells straight on from (x, y) heading d, up to `n`. */
+function clearRun(
+  ctx: SteerCtx,
+  x: number,
+  y: number,
+  d: Dir,
+  n: number,
+): number {
+  let at: [number, number] | null = [x, y]
+  for (let k = 0; k < n; k++) {
+    at = ctx.next(at[0], at[1], d)
+    if (!at || ctx.solid(at[0], at[1])) return k
+  }
+  return n
+}
+
+/**
+ * A Tandem's one shared turn: the way that leaves room for both bikes. A turn toward the partner
+ * would cross its ribbon, so a way whose next few cells are not clear for both is all but ruled out.
+ */
+export function steerPair(
+  ctx: SteerCtx,
+  lead: SteerBike,
+  follow: SteerBike,
+): Dir {
+  const spec = RIVALS.tandem
+  let best: Dir = lead.dir
+  let bestScore = -Infinity
+  for (const d of [lead.dir, turnLeft(lead.dir), turnRight(lead.dir)]) {
+    const a = ctx.next(lead.x, lead.y, d)
+    const b = ctx.next(follow.x, follow.y, d)
+    if (!a || !b) continue
+    const space = Math.min(ctx.room(a[0], a[1]), ctx.room(b[0], b[1]))
+    if (space === 0) continue
+    const run = Math.min(
+      clearRun(ctx, lead.x, lead.y, d, 3),
+      clearRun(ctx, follow.x, follow.y, d, 3),
+    )
+    let score = Math.min(space, FLOOD_LIMIT) + (d === lead.dir ? 4 : 0)
+    score -= (3 - run) * 30
+    score += ctx.rng() * 3
+    if (ctx.rng() < spec.wander) score += 20
+    if (score > bestScore) {
+      bestScore = score
+      best = d
+    }
+  }
+  return best
 }
 
 /** The way a rival turns on this cell: the roomiest choice, bent by its personality. */
@@ -174,7 +288,10 @@ export function steer(ctx: SteerCtx, b: SteerBike, kind: RivalKind): Dir {
     const space = ctx.room(n[0], n[1])
     if (space === 0) continue
     let score = Math.min(space, FLOOD_LIMIT) + (d === b.dir ? 4 : 0)
-    if (spec.lean) score += spec.lean(ctx, b, d, n[0], n[1], space)
+    if (ctx.goal && space > 12) {
+      const pull = spec.goalPull ?? GOAL_PULL
+      score += aimPull(ctx, n[0], n[1], ctx.goal.x, ctx.goal.y, pull)
+    } else if (spec.lean) score += spec.lean(ctx, b, d, n[0], n[1], space)
     score += ctx.rng() * 3
     if (ctx.rng() < spec.wander) score += 20
     if (score > bestScore) {

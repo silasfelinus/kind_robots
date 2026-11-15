@@ -293,4 +293,45 @@ export const FLOORS: Record<FloorId, FloorTheme> = {
     face: ['#140a06', '#24140c', '#361e12', '#4a2a18', '#683c22'],
     line: RAMPS.gold,
   },
+  /** Boardwalk at Dusk: plum planks under amber festoon light. */
+  boardwalk: {
+    face: ['#160a1c', '#26112e', '#381a3e', '#4e2550', '#6c3566'],
+    line: RAMPS.gold,
+  },
+  /** Frostlight Rink: packed snow, faint blue lines. */
+  frost: {
+    face: ['#1a2c48', '#24405e', '#30577a', '#406f96', '#5a8cb4'],
+    line: RAMPS.sky,
+  },
+  /** The rink proper: deep night ice ringed in white. */
+  rink: {
+    face: ['#050f24', '#0a1c3a', '#102a52', '#183a6a', '#244e88'],
+    line: ['#3a5f8a', '#6a91bd', '#a5c6e8', '#e0f2ff', '#ffffff'],
+  },
 }
+
+// --- the festival's extras (t-075) ----------------------------------------------------------------
+
+/** A glowbug: a little firefly, its tail lit. */
+export const GLOWBUG = pixelSprite(
+  ['.w.w.', 'wkkkw', '.kgk.', '.ggg.', '..g..'],
+  { w: '#e0f2fe', k: RAMPS.night[2], g: RAMPS.gold[4] },
+)
+
+/** A festival ticket, for the HUD and the Paint Shop. */
+export const TICKET = pixelSprite(
+  ['aaaaaaa', 'a.b.b.a', 'abbbbba', 'a.b.b.a', 'aaaaaaa'],
+  { a: RAMPS.ember[3], b: RAMPS.gold[4] },
+  { outline: INK },
+)
+
+/** The marks a Paint Shop pattern sprinkles along a ribbon. */
+export const HEART = pixelSprite(['a.a', 'aaa', '.a.'], { a: '#ff5fa2' })
+export const STAR = pixelSprite(['.a.', 'aaa', '.a.'], { a: '#fff6a8' })
+
+/** The Lantern Kid's lantern, held up beside the bike. */
+export const LANTERN = pixelSprite(
+  ['.k.', 'kak', 'aya', 'kak'],
+  { k: RAMPS.steel[1], a: RAMPS.gold[3], y: RAMPS.gold[4] },
+  { outline: INK },
+)

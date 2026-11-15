@@ -40,6 +40,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // it turns into the crew's mechanic and gate-opener. Counterplay: block
   // its alley; with a foe across there is no boss hit and no rush.
   'union-millwright': {
+    levelOneText: 'An armored millwright advances even when the line is jammed.',
     stats: { 3: { attack: -1 } },
     2: stage('Keeps the Line Running', [
       on('turnStart', heal(2, 'woundedAlly')),
@@ -55,6 +56,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // L3) on the crew. Counterplay: fill or empty its neighboring alleys
   // first; the cast workers hit for 1 and fall to any sweep.
   's1-walking-foundry': {
+    levelOneText: 'A BULLDOZE furnace holds a lane while workers assemble.',
     stats: { 3: { attack: -1 } },
     2: stage('Pours Fresh Plate', [on('enter', armor(1, 'adjacentAllies'))]),
     3: stage('Casting Day', [
@@ -66,6 +68,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (lone). Counterplay: piercing and stuns get
   // past the plate; she guards one alley, so win the other four.
   's1-scrap-welder': {
+    levelOneText: 'A cheap plated BULLDOZE worker keeps the breach narrow.',
     2: stage('Mid-Charge Barricade', [on('turnStart', guard(2, 'self'))]),
     3: stage('Narrow Corridor', [on('enter', armor(2, 'self'))], { lone: 2 }),
   },
@@ -81,6 +84,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: clear the workers, occupy the surrounding lanes, or
   // strike the pacifist bridge before its next guard window.
   's2-ironjaw-union-bridgebearer': {
+    levelOneText: 'A tough bridge makes a fragile picket on arrival.',
     stats: { 3: { hp: 4 } },
     1: stage('Night Shift Crossing', [on('enter', summon('nearest', 1, 2))]),
     2: stage('Load-Bearing Shift', [on('enter', summon('nearest', 1, 3))], {
@@ -102,6 +106,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: keep its alley blocked to deny the leap; a big blocker
   // wins the bite.
   's2-ironjaw-foundry-lion': {
+    levelOneText: 'A costly armored crane pushes through a blocked lane.',
     2: stage('Crane Arm Swipe', [
       on('hit', damage(1, 'adjacentFoes')),
       on('tap', guard(2, 'adjacentAllies')),
@@ -126,11 +131,13 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // get the torch). Counterplay: she only arms the allies already beside
   // her; kill the neighbors or play around the pierce with big life.
   's3-ironjaw-night-welder': {
+    levelOneText: 'A cheap plated worker buys time for the welding line.',
     stats: { 3: { attack: -1 } },
     2: stage('Finds the Seams', [on('enter', grant('pierce', 'self'))]),
     3: stage('Dawn Shift Handoff', [
       on(
         'enter',
+        grant('pierce', 'self'),
         grant('pierce', 'adjacentAllies'),
         sharpen(1, 'adjacentAllies'),
       ),
@@ -146,6 +153,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: pierce/burst before round end, clear the adjacent
   // workforce, or spread out of the three-alley shockwave.
   's3-ironjaw-dreadnought': {
+    levelOneText: 'A BULLDOZE convoy shields its neighbor as it arrives.',
     stats: { 3: { hp: -4 } },
     1: stage('Welded Convoy', [on('enter', guard(1, 'adjacentAllies'))]),
     2: stage('Scrap Magnet', [
@@ -162,8 +170,11 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: piercing burst ends her before the soup matters; the
   // extra life is spread thin, so focus one fighter.
   's3-ironjaw-union-cook': {
+    levelOneText: 'A plated REGEN cook can hold a lane through chip damage.',
     2: stage('Soup Line', [on('enter', grant('regen', 'adjacentAllies'))]),
-    3: stage('Strike Kitchen', [on('enter', life(2, 'otherAllies'))]),
+    3: stage('Strike Kitchen', [
+      on('enter', grant('regen', 'adjacentAllies'), life(2, 'otherAllies')),
+    ]),
     // Choose one: or she picks up the ladle herself.
     // The CPU feeds the picket once two or more allies stand.
     choice: {
@@ -179,6 +190,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // (3/16 instead of 6/22) for a crew-wide arrival. Counterplay: the
   // gifts land only on fighters already standing; the weak body falls.
   's3-ironjaw-bridgebreaker': {
+    levelOneText: 'A heavy BULLDOZE monitor punches a route for the crew.',
     stats: { 3: { attack: -3, hp: -6 } },
     2: stage('Route Punched Through', [on('boss', boss(2))]),
     3: stage('Bridge of Its Own Back', [
@@ -191,6 +203,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // hit and must be replayed. Counterplay: block its alley or leave a trap
   // there; a root trap stops freight trains too.
   's3-ironjaw-coal-racer': {
+    levelOneText: 'A quick plated racer threatens an open boss lane.',
     2: stage('Full Steam', [on('enter', grant('ambush', 'self'))]),
     3: stage('Runaway Freight', [
       on('enter', grant('ambush', 'self')),
@@ -204,6 +217,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: thin her crew before she arrives; the bulwark has no
   // reach beyond her own alley.
   's3-ironjaw-matriarch': {
+    levelOneText: 'A REGEN matriarch builds a slow BULLDOZE front.',
     2: stage('Shop Steward', [], { aura: { n: 1, to: 'adjacentAllies' } }),
     3: stage('General Strike', [on('enter', sharpen(1, 'otherAllies'))]),
     // Choose one: or plant herself as the iron bulwark.
@@ -222,14 +236,18 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (positional at L3). Counterplay: the surge
   // ends at round end; stun the target or the neighbors before they swing.
   's1-hydraulic-shift': {
+    levelOneText: 'Push one worker into an immediate extra-power shift.',
     2: stage('Time and a Half', [on('enter', sharpen(1, 'target'))]),
-    3: stage('Everybody Clocks In', [on('enter', power(2, 'adjacentAllies'))]),
+    3: stage('Everybody Clocks In', [
+      on('enter', power(2, 'adjacentAllies'), guard(1, 'adjacentAllies')),
+    ]),
   },
   // Arc: lightning off the forge -> it arcs along the chrome to the
   // fighters beside the target -> it grounds straight through the boss.
   // Trajectory: ROLE SHIFT (removal -> splash -> boss breakthrough).
   // Counterplay: armor eats the splash; spread out; the boss hit is fixed.
   's1-forge-spark': {
+    levelOneText: 'Arc damage into a rival fighter before it can swing.',
     2: stage('Arcs Along the Chrome', [on('enter', damage(1, 'adjacentFoes'))]),
     3: stage('Grounded Through the Boss', [on('enter', boss(3))]),
   },
@@ -238,6 +256,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (a buff -> a shield wall -> a shove).
   // Counterplay: shields fade on your turn; the stun is one strike long.
   's2-ironjaw-shift-change-shove': {
+    levelOneText: 'Give a worker BULLDOZE to break a jammed lane.',
     2: stage('Linked Arms', [on('enter', guard(2, 'adjacentAllies'))]),
     3: stage('A Very Violent Wedge', [on('enter', stun('across'))]),
   },
@@ -246,9 +265,14 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED ONE-SHOT (an ally must have fallen first).
   // Counterplay: don't trade early; armor caps at 3 and pierce still bites.
   's2-ironjaw-spare-rivet-shower': {
+    levelOneText: 'Plate one worker before repeated small blows land.',
     2: stage('Rivets for the Line', [on('enter', guard(1, 'adjacentAllies'))]),
     3: stage('A Thousand Cuts Answered', [
-      on('enter', when('allyFell', armor(1, 'allies'))),
+      on(
+        'enter',
+        guard(1, 'adjacentAllies'),
+        when('allyFell', armor(1, 'allies')),
+      ),
     ]),
   },
   // Arc: an extra sheet of steel -> the overtime bonus thickens the worker
@@ -256,6 +280,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (a defensive plate becomes a weapon).
   // Counterplay: stun the spiked fighter, or kill it with piercing hits.
   's3-ironjaw-bonus-plate': {
+    levelOneText: 'Fit a worker with permanent armor against chip hits.',
     2: stage('Overtime Bonus', [on('enter', life(2, 'target'))]),
     3: stage('Spiked Bonus Plate', [on('enter', sharpen(2, 'target'))]),
   },
@@ -264,6 +289,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (a 2-play that finally pays at L3).
   // Counterplay: big-life blockers leave no overkill to spill.
   's3-ironjaw-reallocation': {
+    levelOneText: 'Give one worker BULLDOZE to open a path.',
     2: stage('Show of Hands', [
       on('enter', when('crowd', sharpen(2, 'target'))),
     ]),
@@ -274,15 +300,17 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (one hammer -> a fix -> an armory).
   // Counterplay: keep the crew apart; stun the bearer after the cast.
   's3-ironjaw-hammer-register': {
+    levelOneText: 'Issue one worker a permanent attack upgrade.',
     2: stage('Signed Out', [on('enter', cleanse('target'))]),
     3: stage('Every Hammer Accounted For', [
-      on('enter', sharpen(1, 'adjacentAllies')),
+      on('enter', cleanse('target'), sharpen(1, 'adjacentAllies')),
     ]),
   },
   // Arc: cold weld on a wounded worker -> the weld hardens into a shield ->
   // the patch becomes plate.
   // Trajectory: STEADY. Counterplay: one big piercing hit beats any patch.
   's3-ironjaw-weld-patch': {
+    levelOneText: 'Repair a wounded worker before the next strike.',
     2: stage('Hardened Weld', [on('enter', guard(2, 'target'))]),
     3: stage('Patch Becomes Plate', [
       on('enter', armor(1, 'target'), life(2, 'target')),
@@ -293,6 +321,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (the meltdown scorches its own fighter for 2).
   // Counterplay: finish the scorched fighter before it swings.
   's3-ironjaw-furnace-overdrive': {
+    levelOneText: 'Surge one worker into an immediate heavy attack.',
     2: stage('Stoked Furnace', [on('enter', guard(2, 'target'))]),
     3: stage('Meltdown Charge', [
       on(
@@ -310,14 +339,18 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (pays off on a crowded enemy front).
   // Counterplay: scan it, or spring it with a lone runner.
   's1-bolt-clamp': {
+    levelOneText: 'Hide a damaging snare to delay an intruder.',
     2: stage('Braced Line', [on('spring', guard(2, 'adjacentAllies'))]),
-    3: stage('Union Lockout', [on('spring', stun('adjacentFoes'))]),
+    3: stage('Union Lockout', [
+      on('spring', guard(1, 'adjacentAllies'), stun('adjacentFoes')),
+    ]),
   },
   // Arc: a hidden jaw buys the foundry another shift -> the shift is spent
   // well (a card) -> the jaw remembers the fallen and bites to the bone.
   // Trajectory: EARNED ONE-SHOT (L3's bite needs a fallen ally).
   // Counterplay: scan it; avoid trading before you cross it.
   's2-ironjaw-hydraulic-lockjaw': {
+    levelOneText: 'Lock an intruder with a damaging hidden jaw.',
     2: stage('Another Shift Bought', [on('spring', draw(1))]),
     3: stage('The Jaw Remembers', [
       on('spring', draw(1), when('allyFell', damage(3, 'target', true))),
@@ -328,13 +361,17 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (a snare -> cover -> a second snare).
   // Counterplay: send a cheap runner through twice, or scan it.
   's3-ironjaw-forklift-chock': {
+    levelOneText: 'Snare one crossing foe while the crew regroups.',
     2: stage('Pallet Cover', [on('spring', armor(1, 'adjacentAllies'))]),
-    3: stage('Back on the Forks', [on('spring', rearm())]),
+    3: stage('Back on the Forks', [
+      on('spring', armor(1, 'adjacentAllies'), rearm()),
+    ]),
   },
   // Arc: a hidden bucket of slag -> it spreads to the alleys beside ->
   // the furnace floods the whole block.
   // Trajectory: LATE BLOOMER. Counterplay: scan it; keep the front thin.
   's3-ironjaw-slag-spill': {
+    levelOneText: 'Burn the first intruder with hidden furnace slag.',
     2: stage('Slag Spreads', [on('spring', damage(1, 'adjacentFoes'))]),
     3: stage('Slag Flood', [on('spring', damage(2, 'laneFoes', true))]),
   },
@@ -343,6 +380,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (a snare -> a boss toll -> crew payday).
   // Counterplay: scan it; the payday surge ends at round end.
   's3-ironjaw-overtime-toll': {
+    levelOneText: 'Make an intruder pay in wounds, stun, and debt.',
     2: stage('Toll Billed Upstairs', [on('spring', boss(2))]),
     3: stage('Union Payday', [on('spring', boss(2), mend(2))]),
   },
@@ -353,6 +391,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (protection -> offense).
   // Counterplay: stun the wearer; the stomp splashes only 1.
   'spare-pistons': {
+    levelOneText: 'Install permanent armor on a working fighter.',
     2: stage('Shock Absorbers', [on('turnStart', guard(1, 'self'))]),
     3: stage('Piston Stomp', [
       on('enter', grant('bulldoze', 'self')),
@@ -364,6 +403,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (insurance on a lethal hit). Counterplay: chip
   // it twice, or stun and wait.
   's1-union-plate': {
+    levelOneText: 'Fit one worker with armor before the push.',
     2: stage('Seat at the Table', [], { aura: { n: 1, to: 'adjacentAllies' } }),
     3: stage('Ironclad Contract', [on('enter', rescue('self'))], {
       aura: { n: 1, to: 'adjacentAllies' },
@@ -374,6 +414,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (two trades means taking the return blow twice).
   // Counterplay: a heavy blocker punishes the second trade; stun it.
   's2-ironjaw-overtime-pistons': {
+    levelOneText: 'Sharpen one worker for lasting frontline pressure.',
     2: stage('Mandatory Overtime', [on('enter', grant('ambush', 'self'))]),
     3: stage('Double Shift', [on('strike', duel('across'))]),
   },
@@ -382,6 +423,7 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER. Counterplay: keep no weak fighter on the
   // board; a strong patroller can still be stunned.
   's3-ironjaw-toe-pistons': {
+    levelOneText: 'Give one worker lasting power to patrol the line.',
     2: stage('Two-Tile Patrol', [on('hit', damage(1, 'adjacentFoes'))]),
     3: stage('Night Patrol', [on('turnStart', duel('weakestFoe'))]),
   },
@@ -390,7 +432,10 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED ONE-SHOT (one knockout). Counterplay: armored
   // blockers deny the knockout; stun the wearer before it lands one.
   's3-ironjaw-foreman-crowbar': {
+    levelOneText: 'Give a worker BULLDOZE to force a breakthrough.',
     2: stage('Leverage', [], { bully: 2 }),
-    3: stage('Pry the Office Door', [once('kill', boss(5))]),
+    3: stage('Pry the Office Door', [once('kill', boss(5))], {
+      bully: 2,
+    }),
   },
 }

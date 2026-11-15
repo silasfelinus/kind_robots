@@ -80,6 +80,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const resultKey = ref<string | null>(null)
   const working = ref(false)
   const status = ref('Select two ingredients and activate the chamber.')
+  const needsSignIn = ref(false)
   const availableArt = ref<Record<string, string>>({})
   const pendingKeys = ref<string[]>([])
   const readyNotice = ref<HybridizerDiscovery | null>(null)
@@ -834,7 +835,25 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     resultKey.value = null
     versions.value = []
     canEditResult.value = false
+    needsSignIn.value = false
     status.value = 'Checking the shared discovery archive…'
+    if (!userStore.isLoggedIn) {
+      try {
+        const known = await fetchKnownPair(a.key, b.key)
+        if (userStore.isLoggedIn) return
+        if (known) {
+          adoptDiscovery(known)
+          status.value = 'Shared illustrated discovery retrieved.'
+          return
+        }
+        needsSignIn.value = true
+        status.value =
+          'Nobody has discovered this hybrid yet. Sign in to fuse it and add it to the shared archive.'
+      } finally {
+        working.value = false
+      }
+      return
+    }
     try {
       const animation = import.meta.client
         ? new Promise<void>((resolve) => {
@@ -963,6 +982,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   )
 
   return {
+    needsSignIn,
     leftKey,
     rightKey,
     left,

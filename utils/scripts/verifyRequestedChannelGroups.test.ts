@@ -64,7 +64,11 @@ for (const key of ['hybridizer', 'slime-city'] as const) {
   const adminTab = nav(`admin/${key}`)
   const playPage = read(`pages/play/${key}.vue`)
   assert.match(playTab, /\nchannelKey: arcade\n/)
-  assert.match(playTab, /\nrequiredPermission: authenticated\n/)
+  // Silas, 2026-11-14: Hybridizer is browsable without an account; only
+  // creating a hybrid or reviewing art needs sign-in (in the lab itself).
+  if (key === 'hybridizer')
+    assert.doesNotMatch(playTab, /\nrequiredPermission: /)
+  else assert.match(playTab, /\nrequiredPermission: authenticated\n/)
   assert.ok(playTab.includes(`route: /play/${key}`))
   assert.doesNotMatch(playTab, /\nrequiredRole: ADMIN\n/)
   assert.match(adminTab, /\nnavigation: false\n/)

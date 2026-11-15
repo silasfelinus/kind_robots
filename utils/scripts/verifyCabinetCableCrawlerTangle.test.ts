@@ -2,7 +2,8 @@
 //
 // Cable Crawler depth pass, slice 5 part 2 (conductor kr-arcade/t-068): the Tangle rules. 2-4 cables,
 // bodies are walls, plug against plug is a pause and never a knockout, Team shares a battery,
-// Race crowns the most sparks. The rules module only; the game does not seat players yet.
+// Race crowns the most sparks. The rules module only; the seated game is
+// verifyCabinetCableCrawlerTanglePlay.test.ts.
 //
 //   npx tsx utils/scripts/verifyCabinetCableCrawlerTangle.test.ts
 

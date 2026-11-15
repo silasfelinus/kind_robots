@@ -22,6 +22,9 @@
 // and The Glitch), and the CPU Core (t-067: clock cycles, interrupts, rival cables and the Sleepy
 // Kernel, whose defeat boots the Mainframe), with the Workbench between components. Mazes, components, glitches, bosses, pickups, art and music live
 // in utils/arcade/cableCrawler/. Arrows steer; A and B work the Workbench and menus.
+//
+// Beside the Odyssey (t-068): Marathon and Maze Trials for one, and with two to four seated a
+// Tangle (Team or Race), one cable per `players` frame, played by cableCrawler/tangleMatch.ts.
 
 import { drawText, measureText } from '../font'
 import {
@@ -58,6 +61,7 @@ import {
   CRAB_SPRITES,
   DRIP_SPRITES,
   ELBOWS_SURGE,
+  type CableCoat,
   FLIPPER_SPRITES,
   FUSE_BEETLE,
   type Facing,
@@ -212,6 +216,20 @@ import {
   buy,
   cannotBuy,
 } from '../cableCrawler/workbench'
+import {
+  TANGLE_BLURBS,
+  TANGLE_KINDS,
+  TANGLE_NAMES,
+  type TangleKind,
+  tangleSeats,
+} from '../cableCrawler/tangle'
+import {
+  RACE_ROUNDS,
+  REBOOT_TICKS,
+  type TangleCable,
+  type TangleEvent,
+  TangleMatch,
+} from '../cableCrawler/tangleMatch'
 
 const W = 240
 const H = 224
@@ -331,6 +349,16 @@ type Saver = {
 }
 /** A ring of sound spreading from a cone or the Subwoofer. */
 type Wave = { x: number; y: number; life: number; max: number; big: boolean }
+/** What renderCable draws: the campaign's one cable, or one of a Tangle's. */
+type CableView = {
+  body: readonly number[]
+  dir: Dir
+  coat: CableCoat
+  surging: boolean
+  chomp: boolean
+  insulated: boolean
+  magnet: boolean
+}
 type Fan = { hub: number; timer: number }
 
 const px = (k: number) => cellX(k) * TILE + TILE / 2
@@ -379,12 +407,19 @@ class CableCrawler implements ArcadeGameInstance {
   private offer: CableSave | null = null
   /** Which way the cabinet is played: the Odyssey campaign, Marathon, or one Maze Trial. */
   private mode: Mode = 'odyssey'
-  /** The mode select (a real game only): the mode list, then the Maze Trials list. */
+  /**
+   * The mode select (a real game only): the mode list, then the Maze Trials list; with two or
+   * more seated, the Tangle list.
+   */
   private menu: {
-    stage: 'mode' | 'trial'
+    stage: 'mode' | 'trial' | 'tangle'
     cursor: number
     note: string
   } | null = null
+  /** Players seated: two to four play a Tangle, one cable each. */
+  private seats = 1
+  /** The Tangle in play (Team or Race), when two or more are seated. */
+  private tangle: TangleMatch | null = null
   /** Marathon's wave (from 0), and a Maze Trial's clock in ticks. */
   private wave = 0
   private trialTicks = 0
@@ -462,7 +497,7 @@ class CableCrawler implements ArcadeGameInstance {
   private fxRng = backdropRng(53)
   /** This instance's board, painted once per set of walls onto one reused canvas. */
   private boardArt: {
-    walls: boolean[]
+    walls: readonly boolean[]
     canvas: HTMLCanvasElement | null
   } | null = null
   /** The attract pilot's last plan, kept until the plug moves on. */
@@ -484,12 +519,23 @@ class CableCrawler implements ArcadeGameInstance {
       this.save = stored
     }
     this.beginComponent(0)
+    const seated = options.players ?? 1
+    this.seats = !this.demo && seated >= 2 ? tangleSeats(seated) : 1
+    if (this.seats > 1) {
+      // Two or more seated: a Tangle, with the Odyssey's save left as it was.
+      this.offer = null
+      if (options.selectScreen)
+        this.menu = { stage: 'tangle', cursor: 0, note: '' }
+      else this.startTangle('team')
+      return
+    }
     if (options.selectScreen && !this.demo)
       this.menu = { stage: 'mode', cursor: 0, note: '' }
   }
 
   get music(): MusicLoop | null {
     if (this.over || this.offer || this.menu) return null
+    if (this.tangle) return this.component.music
     const kind = this.steps[this.stepIndex]?.kind
     if (kind === 'boss') return BOSS_MUSIC
     if (kind === 'screensaver') return SCREENSAVER_MUSIC
@@ -634,6 +680,14 @@ class CableCrawler implements ArcadeGameInstance {
 
   private updateMenu(input: InputFrame) {
     const m = this.menu!
+    if (m.stage === 'tangle') {
+      const n = TANGLE_KINDS.length
+      if (input.pressed.down) m.cursor = (m.cursor + 1) % n
+      else if (input.pressed.up) m.cursor = (m.cursor + n - 1) % n
+      else if (input.pressed.a || input.pressed.start)
+        this.startTangle(TANGLE_KINDS[m.cursor]!)
+      return
+    }
     const trial = m.stage === 'trial'
     const n = trial ? CYCLE.length : MODES.length
     if (input.pressed.down) m.cursor = (m.cursor + 1) % n
@@ -661,6 +715,123 @@ class CableCrawler implements ArcadeGameInstance {
           this.sound.play('warn')
         }
       }
+    }
+  }
+
+  // --- Tangle ---------------------------------------------------------------------------------
+
+  /** Seat every player's cable in a Team Tangle or a Tangle Race. */
+  private startTangle(kind: TangleKind) {
+    this.menu = null
+    this.offer = null
+    this.tangle = new TangleMatch(kind, this.seats)
+    this.syncTangle()
+  }
+
+  /** The cabinet's readouts follow the match: its score, cables left, arenas and look. */
+  private syncTangle() {
+    const m = this.tangle!
+    this.score = m.score
+    this.lives = m.lives
+    this.level = m.arenas
+    this.over = m.over
+    this.component = COMPONENTS[m.arena.comp]!
+    if (m.banner) this.banner = { ...m.banner, ticks: m.over ? 9999 : 2 }
+  }
+
+  private updateTangle(input: InputFrame, players?: InputFrame[]) {
+    const m = this.tangle!
+    m.update(players?.length ? players : [input])
+    for (const e of m.events) this.tangleEvent(e)
+    this.syncTangle()
+  }
+
+  /** What the match reports, as sound, sparkle and floating words. */
+  private tangleEvent(e: TangleEvent) {
+    const coat = (seat: number) => CABLE_COATS[seat] ?? CABLE_COATS[0]!
+    const say = (k: number, text: string, life = 60) =>
+      this.floaters.push({ x: px(k), y: py(k) - 10, text, life })
+    switch (e.kind) {
+      case 'spark':
+        this.crumbs.burst(px(e.k), py(e.k), this.fxRng, {
+          count: 3,
+          speed: 0.9,
+          colours: [RAMPS.gold[4], coat(e.seat).glow, '#ffffff'],
+        })
+        this.sound.play('blip')
+        break
+      case 'byte':
+        say(e.k, String(e.points), 70)
+        this.fx.burst(px(e.k), py(e.k), this.fxRng, { count: 18, speed: 2.2 })
+        this.sound.play('extra')
+        break
+      case 'byte-shown':
+        say(e.k, 'GOLDEN BYTE!', 80)
+        this.sound.play('pickup')
+        break
+      case 'surge':
+        say(
+          e.k,
+          e.linked > 1
+            ? `LINK SURGE X${e.chain}`
+            : e.chain
+              ? `SURGE X${e.chain}`
+              : 'SURGE!',
+          70,
+        )
+        this.sound.play('extra')
+        break
+      case 'arc':
+        this.arcs.push({ from: e.from, to: e.to, life: 22 })
+        break
+      case 'bump':
+        say(e.k, 'BOOP!', 40)
+        this.burst(px(e.k), py(e.k), RAMPS.pink[3], 8)
+        this.sound.play('pop')
+        break
+      case 'bite':
+        say(e.k, `P${e.seat + 1} ZAP!`, 60)
+        this.burst(px(e.k), py(e.k), '#f87171', 16)
+        this.sound.play('die')
+        break
+      case 'reboot':
+        this.fx.burst(px(e.k), py(e.k), this.fxRng, {
+          count: 10,
+          speed: 1.6,
+          colours: [coat(e.seat).glow, '#ffffff'],
+        })
+        this.sound.play('pickup')
+        break
+      case 'flat':
+        this.banner = {
+          text: 'BATTERY FLAT',
+          sub: 'EVERY CABLE REBOOTS',
+          ticks: 90,
+        }
+        this.sound.play('warn')
+        break
+      case 'extra':
+        this.floaters.push({
+          x: W / 2,
+          y: H / 2,
+          text: 'SPARE CABLE!',
+          life: 70,
+        })
+        this.sound.play('extra')
+        break
+      case 'clear':
+        for (let i = 0; i < 6; i++)
+          this.fx.burst(
+            TILE * 2 + this.fxRng() * (BOARD_W - TILE * 4),
+            TILE * 2 + this.fxRng() * (BOARD_H - TILE * 4),
+            this.fxRng,
+            { count: 10, speed: 2 },
+          )
+        this.sound.play('level')
+        break
+      case 'over':
+        this.sound.play('level')
+        break
     }
   }
 
@@ -957,13 +1128,17 @@ class CableCrawler implements ArcadeGameInstance {
 
   // --- update ---------------------------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
     if (this.menu) {
       this.updateMenu(input)
+      return
+    }
+    if (this.tangle) {
+      this.updateTangle(input, players)
       return
     }
     if (this.offer) {
@@ -2954,6 +3129,10 @@ class CableCrawler implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderChassis(g)
+    if (this.tangle) {
+      this.renderTangle(g, this.tangle)
+      return
+    }
     if (this.bench) {
       this.renderBench(g)
       this.renderHud(g)
@@ -2961,22 +3140,9 @@ class CableCrawler implements ArcadeGameInstance {
       if (this.menu) this.renderMenu(g, this.menu)
       return
     }
-    if (!this.boardArt || this.boardArt.walls !== this.walls) {
-      const canvas = this.boardArt?.canvas ?? boardCanvas()
-      const board = canvas?.getContext('2d')
-      if (canvas && board) paintBoard(board, this.walls, this.component.look)
-      this.boardArt = { walls: this.walls, canvas: board ? canvas : null }
-    }
     g.save()
     g.translate(BX, BY)
-    if (this.boardArt.canvas) {
-      g.save()
-      g.imageSmoothingEnabled = false
-      g.drawImage(this.boardArt.canvas, 0, 0)
-      g.restore()
-    } else {
-      paintBoard(g, this.walls, this.component.look)
-    }
+    this.renderBoardArt(g, this.walls)
     this.renderFloor(g)
     this.renderPicture(g)
     this.renderBeat(g)
@@ -2996,8 +3162,46 @@ class CableCrawler implements ArcadeGameInstance {
       }
     this.renderGlitches(g)
     this.crumbs.render(g)
-    if (this.dead === 0 || Math.floor(this.dead / 5) % 2) this.renderCable(g)
+    if (this.dead === 0 || Math.floor(this.dead / 5) % 2)
+      this.renderCable(g, this.ownCable())
     if (this.boss) this.renderBoss(g, this.boss)
+    this.renderEffects(g)
+    g.restore()
+    vignette(g, W, H, 0.3)
+    this.renderHud(g)
+    if (this.ending > 0) {
+      this.renderBoot(g)
+      return
+    }
+    if (this.banner && this.cardTicks === 0 && !this.offer) this.renderBanner(g)
+    if (this.cardTicks > 0 && !this.offer) this.renderCard(g)
+    if (this.offer && !this.menu) this.renderOffer(g, this.offer)
+    if (this.menu) this.renderMenu(g, this.menu)
+  }
+
+  /** The board's walls in the component's look, painted once per set of walls. */
+  private renderBoardArt(
+    g: CanvasRenderingContext2D,
+    walls: readonly boolean[],
+  ) {
+    if (!this.boardArt || this.boardArt.walls !== walls) {
+      const canvas = this.boardArt?.canvas ?? boardCanvas()
+      const board = canvas?.getContext('2d')
+      if (canvas && board) paintBoard(board, walls, this.component.look)
+      this.boardArt = { walls, canvas: board ? canvas : null }
+    }
+    if (this.boardArt.canvas) {
+      g.save()
+      g.imageSmoothingEnabled = false
+      g.drawImage(this.boardArt.canvas, 0, 0)
+      g.restore()
+    } else {
+      paintBoard(g, walls, this.component.look)
+    }
+  }
+
+  /** Surge arcs, particles, sparkles and floating words, over the board. */
+  private renderEffects(g: CanvasRenderingContext2D) {
     this.renderArcs(g)
     g.save()
     g.globalCompositeOperation = 'lighter'
@@ -3021,17 +3225,126 @@ class CableCrawler implements ArcadeGameInstance {
         f.y,
         { align: 'center', color: RAMPS.gold[4], outline: INK },
       )
+  }
+
+  /** The campaign's cable, for renderCable. */
+  private ownCable(): CableView {
+    return {
+      body: this.body,
+      dir: this.dir,
+      coat: CABLE_COATS[this.colour] ?? CABLE_COATS[0]!,
+      surging: this.surgeGlow > 0,
+      chomp: this.dead === 0 && this.stepTimer < this.crawlTicks() / 2,
+      insulated: this.insulation > 0,
+      magnet: this.magnet > 0,
+    }
+  }
+
+  /** One Tangle cable, in its seat's colour (sky, pink, leaf, gold). */
+  private tangleCable(m: TangleMatch, c: TangleCable): CableView {
+    return {
+      body: c.body,
+      dir: c.dir,
+      coat: CABLE_COATS[c.seat] ?? CABLE_COATS[0]!,
+      surging: c.surgeGlow > 0,
+      chomp: m.phase === 'play' && c.pause === 0 && c.stepTimer < m.pace / 2,
+      insulated: false,
+      magnet: false,
+    }
+  }
+
+  /**
+   * A Tangle: the arena in its component's look, a pad at each seat in that player's colour
+   * (blinking while its cable reboots), every cable, and the Tangle HUD.
+   */
+  private renderTangle(g: CanvasRenderingContext2D, m: TangleMatch) {
+    g.save()
+    g.translate(BX, BY)
+    this.renderBoardArt(g, m.walls)
+    m.cables.forEach((c) => {
+      const k = m.arena.seats[c.seat]!
+      const colour = CABLE_COATS[c.seat]?.glow ?? RAMPS.sky[3]
+      const rebooting = c.down > 0 && c.down < REBOOT_TICKS - 20
+      if (rebooting && Math.floor(this.tick / 6) % 2) return
+      glow(g, px(k), py(k), rebooting ? 10 : 7, colour, rebooting ? 0.5 : 0.25)
+      g.strokeStyle = rgba(colour, c.out ? 0.25 : 0.8)
+      g.lineWidth = 1
+      g.strokeRect(px(k) - 4.5, py(k) - 4.5, 9, 9)
+    })
+    this.renderSockets(g, m.sockets)
+    this.renderSparks(g, m.sparks)
+    if (m.byte?.shown) this.renderByte(g, m.byte.k)
+    this.crumbs.render(g)
+    for (const c of m.cables)
+      if (c.body.length) this.renderCable(g, this.tangleCable(m, c))
+    // Who is who: each plug's player number over it while the arena's card shows.
+    if (m.phase === 'card')
+      for (const c of m.cables) {
+        const head = c.body[0]
+        if (head === undefined) continue
+        drawText(g, `P${c.seat + 1}`, px(head), py(head) - 14, {
+          align: 'center',
+          color: CABLE_COATS[c.seat]?.glow ?? '#ffffff',
+          outline: INK,
+        })
+      }
+    this.renderEffects(g)
     g.restore()
     vignette(g, W, H, 0.3)
-    this.renderHud(g)
-    if (this.ending > 0) {
-      this.renderBoot(g)
+    this.renderTangleHud(g, m)
+    if (this.banner) this.renderBanner(g)
+  }
+
+  /**
+   * The Tangle HUD: the score; Team's shared battery and spare cables, or each Race player's
+   * sparks this arena in their colour over the arena clock; and which arena it is.
+   */
+  private renderTangleHud(g: CanvasRenderingContext2D, m: TangleMatch) {
+    const score = String(m.score).padStart(6, '0')
+    const scoreW = measureText(score, 2) + 12
+    hudPanel(g, 2, 2, scoreW, 20)
+    drawText(g, score, 8, 5, { scale: 2, color: RAMPS.gold[3], outline: INK })
+    const where =
+      m.kind === 'race' ? `RACE ${m.arenas}/${RACE_ROUNDS}` : `TEAM ${m.arenas}`
+    const hi = `HI ${Math.max(this.hiScore, m.score)}`
+    const rightW = Math.max(measureText(hi), measureText(where)) + 10
+    const rightX = W - 2 - rightW
+    hudPanel(g, rightX, 2, rightW, 20)
+    drawText(g, hi, W - 7, 4, {
+      align: 'right',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+    drawText(g, where, W - 7, 13, {
+      align: 'right',
+      color: this.component.look.accent[3],
+      outline: INK,
+    })
+    const midX = scoreW + 5
+    const midW = rightX - 3 - midX
+    hudPanel(g, midX, 2, midW, 20, RAMPS.night)
+    const frac = m.batteryMax ? m.battery / m.batteryMax : 0
+    const ramp =
+      frac > 0.3 ? RAMPS.leaf : frac > 0.15 ? RAMPS.gold : RAMPS.ember
+    if (m.kind === 'team') {
+      const gaugeX = midX + 6
+      const gaugeW = 32
+      gauge(g, gaugeX, 8, gaugeW, 8, frac, ramp)
+      bevel(g, gaugeX + gaugeW + 1, 10, 3, 4, RAMPS.steel, { depth: 1 })
+      const room = Math.floor((midW - gaugeW - 16) / 9)
+      for (let i = 0; i < Math.min(m.spares, room); i++)
+        drawSprite(g, LIFE_SPRITE, gaugeX + gaugeW + 12 + i * 9, 12)
       return
     }
-    if (this.banner && this.cardTicks === 0 && !this.offer) this.renderBanner(g)
-    if (this.cardTicks > 0 && !this.offer) this.renderCard(g)
-    if (this.offer && !this.menu) this.renderOffer(g, this.offer)
-    if (this.menu) this.renderMenu(g, this.menu)
+    const cell = Math.floor((midW - 8) / m.seats)
+    m.cables.forEach((c, i) =>
+      drawText(g, String(c.sparks), midX + 4 + cell * i + cell / 2, 5, {
+        align: 'center',
+        color: CABLE_COATS[c.seat]?.glow ?? '#ffffff',
+        outline: INK,
+      }),
+    )
+    gauge(g, midX + 5, 15, midW - 10, 4, frac, ramp)
   }
 
   /** The Mainframe's chassis round the board: a steel case with vents. */
@@ -3256,12 +3569,15 @@ class CableCrawler implements ArcadeGameInstance {
     }
   }
 
-  private renderSockets(g: CanvasRenderingContext2D) {
+  private renderSockets(
+    g: CanvasRenderingContext2D,
+    sockets: readonly Socket[] = this.sockets,
+  ) {
     const shuffling =
       this.boss?.kind === 'surge-protector' &&
       bossPhase(this.boss) >= 2 &&
       this.boss.shuffle < SHUFFLE_TELL
-    for (const s of this.sockets) {
+    for (const s of sockets) {
       const x = px(s.k)
       const y = py(s.k)
       if (shuffling && Math.floor(this.tick / 4) % 2) continue
@@ -3341,18 +3657,20 @@ class CableCrawler implements ArcadeGameInstance {
     }
   }
 
-  private renderSparks(g: CanvasRenderingContext2D) {
+  private renderSparks(
+    g: CanvasRenderingContext2D,
+    sparks: ReadonlySet<number> = this.sparks,
+  ) {
     const set = SPARK_SPRITES[this.component.look.spark]
     const stamp = glowStamp(this.component.look.accent[3], 3, 0.45)
     if (stamp) {
       g.save()
       g.globalCompositeOperation = 'lighter'
       g.imageSmoothingEnabled = true
-      for (const k of this.sparks)
-        g.drawImage(stamp, px(k) - 6, py(k) - 6, 12, 12)
+      for (const k of sparks) g.drawImage(stamp, px(k) - 6, py(k) - 6, 12, 12)
       g.restore()
     }
-    for (const k of this.sparks) {
+    for (const k of sparks) {
       const twinkle = (this.tick + k * 7) % 40 < 8
       drawSprite(g, set[twinkle ? 1 : 0], px(k), py(k))
     }
@@ -3954,10 +4272,11 @@ class CableCrawler implements ArcadeGameInstance {
    * energy pulse lighting the core as it runs from tail to plug (the whole length glows gold in a
    * surge), pink cable ties every few cells, and the plug head sprite for its facing.
    */
-  private renderCable(g: CanvasRenderingContext2D) {
-    const coat = CABLE_COATS[this.colour] ?? CABLE_COATS[0]!
-    const pts = this.body.map((k) => ({ x: px(k), y: py(k) }))
+  private renderCable(g: CanvasRenderingContext2D, cable: CableView) {
+    const coat = cable.coat
+    const pts = cable.body.map((k) => ({ x: px(k), y: py(k) }))
     const n = pts.length
+    if (!n) return
     const run = (i: number, hw: number, dx = 0, dy = 0) => {
       const a = pts[i]!
       const b = pts[Math.min(n - 1, i + 1)]!
@@ -3968,7 +4287,7 @@ class CableCrawler implements ArcadeGameInstance {
         Math.abs(a.y - b.y) + hw * 2,
       )
     }
-    const surging = this.surgeGlow > 0
+    const surging = cable.surging
     const pulseAt = n - 1 - (Math.floor(this.tick / 2) % (n + 10))
     const lit = (i: number) => surging || (i >= pulseAt - 1 && i <= pulseAt + 1)
     g.fillStyle = rgba(INK, 0.4)
@@ -4055,16 +4374,15 @@ class CableCrawler implements ArcadeGameInstance {
       else g.fillRect(p.x - 3, p.y, 6, 1)
     }
     const head = pts[0]!
-    const d = this.dir
+    const d = cable.dir
     const facing: Facing = d.dy < 0 ? 'up' : d.dy > 0 ? 'down' : 'side'
-    const chomp =
-      this.dead === 0 && this.stepTimer < this.crawlTicks() / 2 ? 1 : 0
+    const chomp = cable.chomp ? 1 : 0
     const sprite = PLUG[facing][chomp]
     const left =
       facing === 'side' && d.dx < 0 ? head.x + 5 - sprite.width : head.x - 5
     const top = facing === 'up' ? head.y + 5 - sprite.height : head.y - 5
-    if (this.insulation > 0) glow(g, head.x, head.y, 10, RAMPS.pink[3], 0.35)
-    if (this.magnet > 0) glow(g, head.x, head.y, 14, RAMPS.ember[3], 0.3)
+    if (cable.insulated) glow(g, head.x, head.y, 10, RAMPS.pink[3], 0.35)
+    if (cable.magnet) glow(g, head.x, head.y, 14, RAMPS.ember[3], 0.3)
     glow(
       g,
       head.x + d.dx * 6,
@@ -4299,6 +4617,46 @@ class CableCrawler implements ArcadeGameInstance {
     g.fillRect(0, 0, W, H)
     g.restore()
     hudPanel(g, 14, 22, W - 28, 180)
+    if (m.stage === 'tangle') {
+      drawText(g, 'TANGLE', W / 2, 32, {
+        scale: 2,
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+      drawText(g, `${this.seats} CABLES PLUGGED IN`, W / 2, 52, {
+        align: 'center',
+        color: RAMPS.steel[3],
+        outline: INK,
+      })
+      for (let s = 0; s < this.seats; s++)
+        drawText(g, `P${s + 1}`, W / 2 + (s - (this.seats - 1) / 2) * 24, 64, {
+          align: 'center',
+          color: CABLE_COATS[s]?.glow ?? '#ffffff',
+          outline: INK,
+        })
+      TANGLE_KINDS.forEach((kind, i) => {
+        const y = 88 + i * 36
+        const on = i === m.cursor
+        drawText(g, `${on ? '> ' : ''}${TANGLE_NAMES[kind]}`, W / 2, y, {
+          scale: 2,
+          align: 'center',
+          color: on ? '#ffffff' : RAMPS.steel[3],
+          outline: INK,
+        })
+        drawText(g, TANGLE_BLURBS[kind], W / 2, y + 15, {
+          align: 'center',
+          color: RAMPS.teal[3],
+          outline: INK,
+        })
+      })
+      drawText(g, 'UP/DOWN  A: PLAY', W / 2, 186, {
+        align: 'center',
+        color: RAMPS.steel[3],
+        outline: INK,
+      })
+      return
+    }
     const trial = m.stage === 'trial'
     drawText(g, trial ? 'MAZE TRIALS' : 'CHOOSE A MODE', W / 2, 32, {
       scale: 2,

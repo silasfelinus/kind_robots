@@ -2,7 +2,8 @@
 //
 // Cable Crawler depth pass, slice 5 part 1 (conductor kr-arcade/t-068): the mode select, Marathon
 // (all 33 mazes in a fixed cycle, a steep speed ramp, a per-wave clock, a nine-digit counter) and
-// Maze Trials (time attack on a cleared maze, best times kept in the save). Tangle is a later part.
+// Maze Trials (time attack on a cleared maze, best times kept in the save). Tangle has its own
+// suites (verifyCabinetCableCrawlerTangle*.test.ts).
 //
 //   npx tsx utils/scripts/verifyCabinetCableCrawlerModes.test.ts
 

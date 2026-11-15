@@ -19,6 +19,15 @@
 // living gardens (what a bed grows changes the island), golden acorns, medals, and the Pod Shed
 // between islands; progress saves as it is earned. Free Flight builds an endless run of hills from
 // the seeded rng and unlocks a new hazard every 4 hills. The flight tier is chosen at the start.
+// The Daily Hill flies one island seeded from the date, Time Trials race a cleared mission against
+// its par, and the medal board shows every medal earned with the mastery rank they add up to.
+//
+// Two seated (seedLander/tandem.ts), the islands and Free Flight fly as a crew. Tandem puts both
+// pods on one island: either can winch the other's crate, a bed planted by both is a double plant,
+// a bonked pod drops back in beside its partner, and a buddy vine keeps the pair on one screen.
+// Relay hands a single pod from player to player after every planting or bonk, the classic's
+// alternate play, with one shared score. Each crew clear earns a crew medal against the mission's
+// par for the board.
 //
 // Left/right lean the pod; Up or A puffs; B hops; DOWN works the winch.
 
@@ -38,6 +47,7 @@ import type {
   ArcadeGameOptions,
   InputFrame,
 } from '../types'
+import { emptyInput } from '../types'
 import {
   BLOOM_COLOURS,
   FLOWER_SPARKS,
@@ -178,13 +188,36 @@ import type { PilotGoal } from '../seedLander/pilot'
 import {
   drawHud,
   drawIslandMap,
+  drawMedalBoard,
   drawMenu,
   drawMissionCard,
   drawShed,
   drawSoon,
   drawTally,
 } from '../seedLander/screens'
-import type { MenuRow, TallyLine } from '../seedLander/screens'
+import type {
+  BoardRow,
+  MenuRow,
+  PartnerGauges,
+  TallyLine,
+} from '../seedLander/screens'
+import {
+  CREW_BLURBS,
+  CREW_NAMES,
+  CREW_ORDER,
+  DOUBLE_PLANT_BONUS,
+  DOUBLE_WIDE,
+  LEASH,
+  PLANT_POINTS,
+  TIER_VALUE,
+  crewMedal,
+  crewPar,
+  leash,
+  plantScore,
+  relayHolder,
+  tierFromValue,
+} from '../seedLander/tandem'
+import type { Crew } from '../seedLander/tandem'
 import {
   WINCH,
   canHook,
@@ -221,11 +254,18 @@ export const ACORN_NECTAR = 5
 export const MEDAL_NECTAR = 3
 export const BOSS_NECTAR = 10
 
+/** A double plant (both Tandem pods on one bed) pays this times the bed's multiplier. */
+export const DOUBLE_PLANT_PAY = 4
+/** Where Tandem's second pod starts, across from the first. */
+export const PARTNER_START = 22
+
 const BONK_TICKS = 110
 const DRY_TICKS = 100
 const CLEAR_TICKS = 200
 const PLANT_SETTLE = 40
 const CARD_TICKS = 150
+/** A second seat with nobody pressing anything. */
+const NO_INPUT: InputFrame = emptyInput()
 
 type Particle = {
   x: number
@@ -254,8 +294,16 @@ type Bloom = {
 }
 type Phase = 'fly' | 'bonk' | 'dry' | 'clear'
 type Mode = 'free' | 'campaign' | 'daily' | 'trial'
-type Screen = 'map' | 'shed' | 'soon'
-type MenuId = 'continue' | 'campaign' | 'free' | 'daily' | 'trial' | 'tier'
+type Screen = 'map' | 'shed' | 'soon' | 'board'
+type MenuId =
+  | 'continue'
+  | 'campaign'
+  | 'free'
+  | 'daily'
+  | 'trial'
+  | 'board'
+  | 'crew'
+  | 'tier'
 
 class SeedLander implements ArcadeGameInstance {
   score = 0
@@ -313,7 +361,8 @@ class SeedLander implements ArcadeGameInstance {
   private hillsCleared = 0
   private lastRank: LandingRank | null = null
   private tally: TallyLine[] = []
-  private hookTicks = 0
+  /** Ticks each seat's crate has been hooked (a fresh hook cannot be let go at once). */
+  private hookTicks = [0, 0]
   /** The HUD's name for the mission flying now. */
   private missionLabel = 'HILL 1'
   /** The bed the pilot has chosen. */
@@ -344,6 +393,31 @@ class SeedLander implements ArcadeGameInstance {
   private shedPick = 0
   private shedNote = ''
 
+  // Two seated: who flies (Tandem, Relay or player 1 alone), and the crew's own records.
+  private seats = 1
+  /** The crew picked on the mode card, and the crew flying the run now. */
+  private crewPick: Crew = 'solo'
+  private crew: Crew = 'solo'
+  /** Each seat's input this tick, player 1 first. */
+  private frames: InputFrame[] = [NO_INPUT, NO_INPUT]
+  /** Tandem: ticks until a seat's pod drops back in (0 flying, -1 sitting out). */
+  private downFor = [0, 0]
+  /** Relay: plantings and bonks so far, which say whose turn it is. */
+  private relayTurn = 0
+  /** Tandem: who planted each bed and when (for the double plant), and beds already doubled. */
+  private plantedBy = new Map<string, { seat: number; tick: number }>()
+  private doubled = new Set<string>()
+  private doubles = 0
+  /** Points each seat earned this mission, and the score the mission began at. */
+  private seatPoints = [0, 0]
+  private missionStart = 0
+  /** How taut the buddy vine is (1 at full stretch), for drawing it. */
+  private vine = 0
+  private crewMedals: Record<string, number> = {}
+  private crewHill = 0
+  private boardPage = 0
+  private bonkTick = -999
+
   private camera = new Camera()
   private particles: Particle[] = []
   private floaters: Floater[] = []
@@ -360,6 +434,10 @@ class SeedLander implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
+    this.seats = this.demo
+      ? 1
+      : Math.max(1, Math.min(2, Math.floor(options.players ?? 1)))
+    if (this.seats > 1) this.crewPick = 'tandem'
     const stored = this.demo
       ? null
       : readLanderSave(options.resume, VAULT_INDEX + 1, MISSIONS_PER_ISLAND)
@@ -424,6 +502,8 @@ class SeedLander implements ArcadeGameInstance {
     this.bestHill = s.bestHill
     this.trials = { ...(s.trials ?? {}) }
     this.daily = s.daily
+    this.crewMedals = { ...(s.crew ?? {}) }
+    this.crewHill = s.crewHill ?? 0
     this.island = s.island
     this.missionIndex = s.mission
     this.resumeScore = s.score
@@ -453,6 +533,8 @@ class SeedLander implements ArcadeGameInstance {
       gale: this.gale,
       trials: { ...this.trials },
       daily: this.daily,
+      crew: { ...this.crewMedals },
+      crewHill: this.crewHill,
     }
   }
 
@@ -504,6 +586,21 @@ class SeedLander implements ArcadeGameInstance {
         picker: true,
       })
     }
+    if (this.hasBoard()) {
+      const golds = Object.values(this.crewMedals).filter((v) => v >= 3).length
+      rows.push({
+        id: 'board',
+        name: 'MEDAL BOARD',
+        about: `${this.medalTotal()} MEDALS  ${golds} CREW GOLD${golds === 1 ? '' : 'S'}`,
+      })
+    }
+    if (this.seats > 1)
+      rows.push({
+        id: 'crew',
+        name: `CREW: ${CREW_NAMES[this.crewPick]}`,
+        about: CREW_BLURBS[this.crewPick],
+        picker: true,
+      })
     rows.push({
       id: 'tier',
       name: `FLIGHT: ${t.name}`,
@@ -536,16 +633,142 @@ class SeedLander implements ArcadeGameInstance {
       this.sound.play('blip')
       return
     }
+    if (row.id === 'crew' && (turn || input.pressed.a)) {
+      const i = CREW_ORDER.indexOf(this.crewPick)
+      const n = CREW_ORDER.length
+      this.crewPick = CREW_ORDER[(i + (turn || 1) + n) % n]!
+      this.sound.play('blip')
+      return
+    }
     if (!(input.pressed.a || input.pressed.start)) return
+    if (row.id === 'board') {
+      this.menu = null
+      this.screen = 'board'
+      this.boardPage = Math.min(this.island, this.boardPages().length - 1)
+      this.sound.play('blip')
+      return
+    }
     this.menu = null
     this.sound.play('start')
+    // The crew flies the islands and Free Flight; the Daily Hill and Time Trials are solo bests.
+    this.crew =
+      row.id === 'daily' || row.id === 'trial' || this.seats < 2
+        ? 'solo'
+        : this.crewPick
+    this.relayTurn = 0
     if (row.id === 'continue') this.continueCampaign()
     else if (row.id === 'campaign') this.newCampaign()
     else if (row.id === 'daily') this.startDaily()
     else if (row.id === 'trial') this.startTrial()
     else {
       this.mode = 'free'
+      this.score = 0
+      this.lives = this.startingPods()
       this.startHill(1)
+    }
+  }
+
+  /** Pods to begin a run with: Tandem flies two at once, so its crate holds one more. */
+  private startingPods(): number {
+    return this.crew === 'tandem' ? START_PODS + 1 : START_PODS
+  }
+
+  // --- the medal board ---------------------------------------------------------------------
+
+  private medalTotal(): number {
+    let n = 0
+    for (const bits of Object.values(this.medals))
+      n += (bits & 1) + ((bits >> 1) & 1) + ((bits >> 2) & 1)
+    return n
+  }
+
+  /** Is there anything on the board yet? */
+  private hasBoard(): boolean {
+    return (
+      Object.keys(this.medals).length > 0 ||
+      Object.keys(this.trials).length > 0 ||
+      Object.keys(this.crewMedals).length > 0 ||
+      this.bestHill > 1 ||
+      this.crewHill > 1
+    )
+  }
+
+  /** The board's pages: every island reached (the Vault once open), then the side modes. */
+  private boardPages(): Array<{
+    title: string
+    about: string
+    rows: BoardRow[]
+    notes: TallyLine[]
+  }> {
+    const pages: Array<{
+      title: string
+      about: string
+      rows: BoardRow[]
+      notes: TallyLine[]
+    }> = []
+    for (let i = 0; i <= VAULT_INDEX; i++) {
+      const isle = islandAt(i, this.acorns)
+      if (!isle) continue
+      pages.push({
+        title: isle.name,
+        about: this.cleared.has(i) ? 'REPLANTED' : isle.about,
+        rows: isle.missions.map((m) => {
+          const best = this.trials[m.id]
+          return {
+            name: m.kind === 'boss' ? `BOSS: ${m.name}` : m.name,
+            medals: this.medals[m.id] ?? 0,
+            trial: best ? trialMedal(best, m.par.ticks) : null,
+            crew: tierFromValue(this.crewMedals[m.id] ?? 0),
+          }
+        }),
+        notes: [],
+      })
+    }
+    const today = this.daily?.date === this.today ? this.daily.score : 0
+    const m = this.mastery()
+    pages.push({
+      title: 'SIDE MODES',
+      about: 'FREE FLIGHT, THE DAILY HILL, THE CREW',
+      rows: [],
+      notes: [
+        {
+          label: 'FREE FLIGHT BEST',
+          value: this.bestHill ? `HILL ${this.bestHill}` : '-',
+        },
+        {
+          label: 'CREW BEST',
+          value: this.crewHill ? `HILL ${this.crewHill}` : '-',
+        },
+        { label: "TODAY'S DAILY HILL", value: today ? `${today}` : '-' },
+        {
+          label: 'MISSION MEDALS',
+          value: `${this.medalTotal()}`,
+        },
+        {
+          label: 'TRIAL TIMES',
+          value: `${Object.keys(this.trials).length}`,
+        },
+        {
+          label: 'CREW MEDALS',
+          value: `${Object.keys(this.crewMedals).length}`,
+        },
+        { label: 'MASTERY', value: `${m.points}` },
+      ],
+    })
+    return pages
+  }
+
+  private updateBoard(input: InputFrame) {
+    const n = this.boardPages().length
+    const turn = input.pressed.left ? -1 : input.pressed.right ? 1 : 0
+    if (turn) {
+      this.boardPage = Math.max(0, Math.min(n - 1, this.boardPage + turn))
+      this.sound.play('blip')
+    }
+    if (input.pressed.a || input.pressed.b || input.pressed.start) {
+      this.screen = null
+      this.menu = { pick: this.menuRows().findIndex((r) => r.id === 'board') }
+      this.sound.play('blip')
     }
   }
 
@@ -597,6 +820,7 @@ class SeedLander implements ArcadeGameInstance {
   /** Back from a side mode to the mode card, on a quiet Free Flight hill behind it. */
   private toMenu(pick: number) {
     this.mode = 'free'
+    this.crew = 'solo'
     this.menu = { pick }
     this.score = 0
     this.lives = START_PODS
@@ -605,15 +829,15 @@ class SeedLander implements ArcadeGameInstance {
 
   /** Today's mastery points and rank. */
   private mastery() {
-    return masteryRank(
-      masteryPoints({
-        medals: this.medals,
-        acorns: this.acorns.size,
-        cleared: this.cleared.size,
-        bestHill: this.bestHill,
-        trials: this.trials,
-      }),
-    )
+    const points = masteryPoints({
+      medals: this.medals,
+      acorns: this.acorns.size,
+      cleared: this.cleared.size,
+      bestHill: Math.max(this.bestHill, this.crewHill),
+      trials: this.trials,
+      crew: this.crewMedals,
+    })
+    return { ...masteryRank(points), points }
   }
 
   // --- the campaign ------------------------------------------------------------------------
@@ -630,9 +854,9 @@ class SeedLander implements ArcadeGameInstance {
     this.shed = emptyShed()
     this.cleared = new Set()
     this.score = 0
-    this.lives = START_PODS
+    this.lives = this.startingPods()
     this.resumeScore = 0
-    this.resumeLives = START_PODS
+    this.resumeLives = this.lives
     this.offer = null
     this.keep()
     this.toMap()
@@ -669,6 +893,10 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   private updateScreen(input: InputFrame) {
+    if (this.screen === 'board') {
+      this.updateBoard(input)
+      return
+    }
     const go = input.pressed.a || input.pressed.start
     if (this.screen === 'soon') {
       if (this.cleared.has(VAULT_INDEX) && this.gale < GALE_MAX) {
@@ -732,14 +960,15 @@ class SeedLander implements ArcadeGameInstance {
   private startHill(hill: number) {
     this.level = hill
     this.missionLabel = `HILL ${hill}`
-    if (
-      !this.demo &&
-      this.mode === 'free' &&
-      !this.menu &&
-      hill > this.bestHill
-    ) {
-      this.bestHill = hill
-      this.keep()
+    if (!this.demo && this.mode === 'free' && !this.menu) {
+      // A crew's furthest hill is kept apart from the solo best.
+      if (this.crew === 'solo' && hill > this.bestHill) {
+        this.bestHill = hill
+        this.keep()
+      } else if (this.crew !== 'solo' && hill > this.crewHill) {
+        this.crewHill = hill
+        this.keep()
+      }
     }
     this.startMission(freeHill(hill, this.rng))
   }
@@ -775,7 +1004,22 @@ class SeedLander implements ArcadeGameInstance {
         this.flightTier.sun *
         (1 + UPGRADE_EFFECT.tank * this.upgrades.tank),
     )
-    this.pods = [newPod(0, spec.start.x, spec.start.y, this.sunMax)]
+    this.pods = [
+      newPod(this.leadSeat(), spec.start.x, spec.start.y, this.sunMax),
+    ]
+    this.downFor = [0, 0]
+    if (this.crew === 'tandem') {
+      const at = this.dropInPoint(1, null)
+      this.pods.push(newPod(1, at.x, at.y, this.sunMax))
+      // With one pod left in the crate, player 2 sits this mission out.
+      if (this.lives < 2) this.downFor[1] = -1
+    }
+    this.plantedBy.clear()
+    this.doubled.clear()
+    this.doubles = 0
+    this.seatPoints = [0, 0]
+    this.missionStart = this.score
+    this.vine = 0
     this.growths = []
     this.blooms = []
     this.planted = 0
@@ -796,6 +1040,227 @@ class SeedLander implements ArcadeGameInstance {
       this.terrain.w,
       this.terrain.h,
     )
+  }
+
+  // --- the crew -----------------------------------------------------------------------------
+
+  /** The seat flying the first pod: player 1, or in Relay whoever's turn it is. */
+  private leadSeat(): number {
+    return this.crew === 'relay' ? relayHolder(this.relayTurn) : 0
+  }
+
+  /** Pods in the air or resting on a bed (a bonked Tandem pod waits out of play). */
+  private activePods(): Pod[] {
+    return this.pods.filter((p) => this.downFor[p.seat] === 0)
+  }
+
+  /** Whose controls fly this pod. */
+  private frameFor(pod: Pod, controls: InputFrame): InputFrame {
+    if (this.demo || this.crew === 'solo') return controls
+    return this.frames[pod.seat] ?? NO_INPUT
+  }
+
+  /**
+   * Where a Tandem pod drops in: beside the start for the first flight, else as near the start as
+   * the buddy vine allows from its partner, in open sky (never inside a roof or a ledge).
+   */
+  private dropInPoint(
+    seat: number,
+    partner: Pod | null,
+  ): { x: number; y: number } {
+    const s = this.mission.start
+    const t = this.terrain
+    const reach = LEASH * 0.6
+    const base = partner
+      ? Math.max(partner.x - reach, Math.min(partner.x + reach, s.x))
+      : s.x + (seat ? PARTNER_START : 0)
+    const open = (x: number) =>
+      x > POD_HALF + 2 &&
+      x < t.w - POD_HALF - 2 &&
+      t.ceilingAt(x, s.y) < s.y - POD_TOP - 6 &&
+      t.floorAt(x, s.y) > s.y + POD_FEET + 24 &&
+      !t.insideLedge(x - POD_HALF, s.y) &&
+      !t.insideLedge(x + POD_HALF, s.y)
+    for (const x of [base, base - PARTNER_START, base + PARTNER_START])
+      if (open(x)) return { x, y: s.y }
+    return { x: s.x, y: s.y }
+  }
+
+  /**
+   * Tandem's bookkeeping each tick: a bonked or dry pod waits, then drops back in if the crate
+   * still holds a pod for it (else it sits the mission out); with nobody flying and nobody coming
+   * the run is over. Two pods in the air are kept on one screen by the buddy vine.
+   */
+  private updateCrew() {
+    for (const pod of [...this.pods]) {
+      const seat = pod.seat
+      if (this.downFor[seat]! <= 0) continue
+      this.downFor[seat]!--
+      if (this.downFor[seat]! > 0) continue
+      const flying = this.activePods().length
+      if (this.lives > flying) this.dropIn(pod)
+      else this.downFor[seat] = -1
+    }
+    const flying = this.activePods()
+    if (!flying.length) {
+      if (!this.downFor.some((t) => t > 0)) this.endRun()
+      return
+    }
+    this.vine = flying.length === 2 ? leash(flying[0]!, flying[1]!) : 0
+  }
+
+  /** A spare pod for this seat drops in near its partner, with at least a quarter tank. */
+  private dropIn(old: Pod) {
+    const partner = this.activePods().find((p) => p.seat !== old.seat) ?? null
+    const at = this.dropInPoint(old.seat, partner)
+    const pod = newPod(
+      old.seat,
+      at.x,
+      at.y,
+      Math.max(old.sun, Math.round(this.sunMax * SPARE_SUN)),
+    )
+    pod.hops = old.hops
+    this.pods[this.pods.indexOf(old)] = pod
+    this.downFor[old.seat] = 0
+    this.floaters.push({
+      x: at.x,
+      y: at.y - 16,
+      text: `P${old.seat + 1} DROPS IN`,
+      life: 60,
+      color: RAMPS.pink[4],
+    })
+    this.sound.play('blip')
+  }
+
+  /** Relay: the pod passes to the other player, towing whatever it towed. */
+  private passRelay(pod: Pod) {
+    this.relayTurn++
+    const seat = relayHolder(this.relayTurn)
+    for (const c of this.cargo) if (c.hookedBy === pod.seat) c.hookedBy = seat
+    pod.seat = seat
+    this.hookTicks[seat] = 0
+    this.floaters.push({
+      x: pod.x,
+      y: pod.y - 30,
+      text: `P${seat + 1}'S TURN`,
+      life: 80,
+      color: seat ? RAMPS.pink[4] : RAMPS.leaf[4],
+    })
+  }
+
+  /**
+   * Out of sun with nowhere to refuel. Alone, the mission is tried again with a spare pod; in
+   * Tandem only that pod sits down (it costs a pod) while its partner flies on.
+   */
+  private dryOut(pod: Pod, banner: { text: string; sub: string } | null) {
+    if (this.crew === 'tandem') {
+      if (this.downFor[pod.seat] !== 0) return
+      this.lives--
+      this.dropHooked(pod)
+      pod.restOn = null
+      pod.chute = false
+      pod.puffing = false
+      this.downFor[pod.seat] = DRY_TICKS
+      this.banner = {
+        text: `P${pod.seat + 1} IS OUT OF SUN`,
+        sub: `${Math.max(0, this.lives)} POD${this.lives === 1 ? '' : 'S'} LEFT`,
+        ticks: 100,
+      }
+      this.sound.play('warn')
+      return
+    }
+    this.phase = 'dry'
+    this.phaseTicks = 0
+    if (banner) this.banner = { ...banner, ticks: 100 }
+  }
+
+  /**
+   * Tandem: a pod landing on a bed its partner planted moments ago, or while the partner still
+   * stands on it, makes a double plant. The bed must be wide enough for two.
+   */
+  private doublePlant(pod: Pod, pad: Pad): boolean {
+    const by = this.plantedBy.get(pad.id)
+    if (!by || by.seat === pod.seat || this.doubled.has(pad.id)) return false
+    if (pad.x1 - pad.x0 < DOUBLE_WIDE) return false
+    const partner = this.pods.find((p) => p.seat === by.seat)
+    const waiting = partner?.restOn === pad.id
+    const quick = plantScore(this.tick, by.tick) > PLANT_POINTS
+    if (!waiting && !quick) return false
+    if (partner && waiting) {
+      // Stand beside the partner, not on top of it.
+      const left = partner.x >= (pad.x0 + pad.x1) / 2
+      pod.x = left
+        ? Math.max(pad.x0 + POD_HALF, partner.x - POD_HALF * 2 - 1)
+        : Math.min(pad.x1 - POD_HALF, partner.x + POD_HALF * 2 + 1)
+    }
+    this.doubled.add(pad.id)
+    this.doubles++
+    const points = DOUBLE_PLANT_BONUS * pad.mult * DOUBLE_PLANT_PAY
+    this.addScore(points, pod.x, pad.y - 30, RAMPS.pink[3], pod.seat)
+    const colour =
+      BLOOM_COLOURS[Math.floor(this.fxRng() * BLOOM_COLOURS.length)]!
+    this.blooms.push({
+      x: pod.x,
+      y: pad.y,
+      colour,
+      age: 0,
+      pad: pad.live ? pad.id : undefined,
+      dx: pod.x - (pad.x0 + pad.x1) / 2,
+    })
+    this.fx.burst(pod.x, pad.y - 10, this.fxRng, {
+      count: 20,
+      colours: [RAMPS.pink[3], RAMPS.pink[4], RAMPS.gold[4], '#ffffff'],
+      speed: 2,
+    })
+    this.banner = {
+      text: 'DOUBLE PLANT!',
+      sub: `TWO PODS, ONE BED  ${points}`,
+      ticks: 110,
+    }
+    this.sound.play('extra')
+    return true
+  }
+
+  /** How many goals the mission sets (beds, crates, lanterns, rings or boss phases). */
+  private goalCount(): number {
+    const m = this.mission
+    switch (m.kind) {
+      case 'deliver':
+      case 'water':
+      case 'rescue':
+        return m.deliveries ?? this.cargo.length
+      case 'lantern':
+        return m.lanterns?.length ?? 1
+      case 'rings':
+        return m.rings?.length ?? 1
+      case 'boss':
+        return this.boss?.view().phases ?? 3
+      default:
+        return m.seeds
+    }
+  }
+
+  /** The crew's lines on the tally, and a new best crew medal for the board. */
+  private crewTally() {
+    const points = this.score - this.missionStart
+    const par = crewPar(
+      this.goalCount(),
+      this.level,
+      this.mission.kind === 'boss',
+    )
+    const tier = crewMedal(points, par)
+    this.tally.push({
+      label: `P1 ${this.seatPoints[0]}  P2 ${this.seatPoints[1]}`,
+      value: tier ? `CREW ${tier.toUpperCase()}` : '-',
+    })
+    if (this.doubles)
+      this.tally.push({ label: 'DOUBLE PLANTS', value: `${this.doubles}` })
+    if (!tier || this.mode !== 'campaign' || this.demo) return
+    const id = this.mission.id
+    const v = TIER_VALUE[tier]
+    if ((this.crewMedals[id] ?? 0) >= v) return
+    this.crewMedals[id] = v
+    this.keep()
   }
 
   /** Try the same mission again: the same island, a full tank, beds unplanted. */
@@ -849,7 +1314,8 @@ class SeedLander implements ArcadeGameInstance {
 
   // --- update ----------------------------------------------------------------------------
 
-  update(input: InputFrame) {
+  update(input: InputFrame, players?: InputFrame[]) {
+    this.frames = [input, players?.[1] ?? NO_INPUT]
     this.tick++
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
@@ -877,7 +1343,12 @@ class SeedLander implements ArcadeGameInstance {
     for (const m of this.windmills) m.angle += m.speed
     switch (this.phase) {
       case 'fly':
-        for (const pod of this.pods) this.flyPod(pod, controls)
+        for (const pod of this.activePods()) {
+          if (this.phase !== 'fly') break
+          this.flyPod(pod, this.frameFor(pod, controls))
+        }
+        if (this.crew === 'tandem' && this.phase === 'fly') this.updateCrew()
+        if (this.over) break
         this.updateCargo()
         this.updateHazards()
         this.updateRace()
@@ -1031,9 +1502,7 @@ class SeedLander implements ArcadeGameInstance {
     }
     // Dry on a pad with no sunflower: nothing to lift off with, so the mission is tried again.
     if (pod.sun <= 0 && pad?.kind !== 'sun' && pod.rest >= SETTLE_TICKS) {
-      this.phase = 'dry'
-      this.phaseTicks = 0
-      this.banner = { text: 'OUT OF SUN', sub: 'NO SUNFLOWER HERE', ticks: 100 }
+      this.dryOut(pod, { text: 'OUT OF SUN', sub: 'NO SUNFLOWER HERE' })
       return
     }
     if (lift && pod.rest >= SETTLE_TICKS && pod.sun > 0) {
@@ -1085,8 +1554,7 @@ class SeedLander implements ArcadeGameInstance {
       pod.y = floor - POD_FEET
       pod.vx = 0
       pod.vy = 0
-      this.phase = 'dry'
-      this.phaseTicks = 0
+      this.dryOut(pod, null)
       return
     }
     if (pad?.kind === 'bounce') {
@@ -1150,7 +1618,15 @@ class SeedLander implements ArcadeGameInstance {
       this.plant(pod, pad, rank, cx)
       return
     }
-    this.relight(cx)
+    if (
+      this.crew === 'tandem' &&
+      pad.kind === 'seed' &&
+      this.doublePlant(pod, pad)
+    ) {
+      this.relight(cx, pod.seat)
+      return
+    }
+    this.relight(cx, pod.seat)
     // Any other pad: a rest stop. Sunflowers refuel; the shed and planted beds just hold the pod.
     this.floaters.push({
       x: cx,
@@ -1170,12 +1646,18 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   /** Landing beside an unlit cave lantern relights it. */
-  private relight(cx: number) {
+  private relight(cx: number, seat?: number) {
     for (const l of this.mission.lanterns ?? []) {
       if (this.lit.has(l.id) || !lanternReached(l, cx)) continue
       this.lit.add(l.id)
       this.earnNectar(1)
-      this.addScore(300, l.x, this.terrain.groundAt(l.x) - 30, RAMPS.gold[3])
+      this.addScore(
+        300,
+        l.x,
+        this.terrain.groundAt(l.x) - 30,
+        RAMPS.gold[3],
+        seat,
+      )
       this.fx.burst(l.x, this.terrain.groundAt(l.x) - 20, this.fxRng, {
         count: 14,
         colours: [RAMPS.gold[3], RAMPS.gold[4], '#ffffff'],
@@ -1204,7 +1686,9 @@ class SeedLander implements ArcadeGameInstance {
       pod.sun + Math.round(this.sunMax * PLANT_SUN),
     )
     pod.rest = SETTLE_TICKS - PLANT_SETTLE
-    this.addScore(points, cx, pad.y - 22, RAMPS.gold[3])
+    if (this.crew === 'tandem')
+      this.plantedBy.set(pad.id, { seat: pod.seat, tick: this.tick })
+    this.addScore(points, cx, pad.y - 22, RAMPS.gold[3], pod.seat)
     const colour =
       BLOOM_COLOURS[Math.floor(this.fxRng() * BLOOM_COLOURS.length)]!
     if (pad.grows === 'flower')
@@ -1232,6 +1716,7 @@ class SeedLander implements ArcadeGameInstance {
       ticks: 110,
     }
     this.sound.play('level')
+    if (this.crew === 'relay') this.passRelay(pod)
     if (this.boss && this.boss.pads.includes(pad)) this.bossPlanted(pad)
     if (this.goalMet()) this.clearMission()
   }
@@ -1296,7 +1781,7 @@ class SeedLander implements ArcadeGameInstance {
       if (Math.hypot(pod.x - a.x, pod.y - a.y) > 11) continue
       this.acorns.add(a.id)
       if (!this.demo) this.nectar += ACORN_NECTAR
-      this.addScore(ACORN_POINTS, a.x, a.y - 12, RAMPS.gold[4])
+      this.addScore(ACORN_POINTS, a.x, a.y - 12, RAMPS.gold[4], pod.seat)
       this.fx.burst(a.x, a.y, this.fxRng, {
         count: 16,
         colours: [RAMPS.gold[3], RAMPS.gold[4], '#ffffff'],
@@ -1313,6 +1798,8 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   private crash(pod: Pod, why: string) {
+    // A Tandem pod already bonked (and waiting to drop in) cannot bonk again.
+    if (this.downFor[pod.seat] !== 0) return
     if (this.mode !== 'trial') this.lives--
     this.streak = 0
     this.lastRank = 'bonk'
@@ -1324,22 +1811,31 @@ class SeedLander implements ArcadeGameInstance {
       pod.x,
       pod.y - 12,
       RAMPS.leaf[3],
+      pod.seat,
     )
-    this.phase = 'bonk'
-    this.phaseTicks = 0
+    this.bonkTick = this.tick
     this.bonkAt = { x: pod.x, y: pod.y }
     this.chips(pod.x, pod.y, 22, '#a3e635')
     this.chips(pod.x, pod.y, 10, '#fde047')
     pod.puffing = false
     this.sound.play('die')
-    this.banner = {
-      text: 'BONK!',
-      sub:
-        this.lives > 0
-          ? `${why}  ${this.lives} POD${this.lives > 1 ? 'S' : ''} LEFT`
-          : why,
-      ticks: BONK_TICKS,
+    const left =
+      this.lives > 0
+        ? `${why}  ${this.lives} POD${this.lives > 1 ? 'S' : ''} LEFT`
+        : why
+    if (this.crew === 'tandem') {
+      // Only this pod is out: it drops back in after a moment while its partner flies on.
+      this.downFor[pod.seat] = BONK_TICKS
+      this.banner = {
+        text: `P${pod.seat + 1} BONK!`,
+        sub: left,
+        ticks: BONK_TICKS,
+      }
+      return
     }
+    this.phase = 'bonk'
+    this.phaseTicks = 0
+    this.banner = { text: 'BONK!', sub: left, ticks: BONK_TICKS }
   }
 
   /** After a bonk: a spare pod drops in at the start (or the run ends). */
@@ -1349,8 +1845,10 @@ class SeedLander implements ArcadeGameInstance {
       return
     }
     const old = this.pod
+    // Relay: a bonk passes the pod to the other player too.
+    if (this.crew === 'relay') this.relayTurn++
     const pod = newPod(
-      0,
+      this.leadSeat(),
       this.mission.start.x,
       this.mission.start.y,
       Math.max(old.sun, Math.round(this.sunMax * SPARE_SUN)),
@@ -1359,6 +1857,12 @@ class SeedLander implements ArcadeGameInstance {
     this.pods[0] = pod
     this.phase = 'fly'
     this.phaseTicks = 0
+    if (this.crew === 'relay')
+      this.banner = {
+        text: `P${pod.seat + 1}'S TURN`,
+        sub: 'THE POD PASSES ON',
+        ticks: 90,
+      }
   }
 
   /** The leaf-cap parachute has set down (or time ran out): try again with a spare pod. */
@@ -1369,6 +1873,7 @@ class SeedLander implements ArcadeGameInstance {
       this.endRun()
       return
     }
+    if (this.crew === 'relay') this.relayTurn++
     this.retryMission(
       this.mission.kind === 'rings' && this.ringTicks <= 0
         ? 'THE RINGS ARE BACK'
@@ -1401,9 +1906,12 @@ class SeedLander implements ArcadeGameInstance {
     this.phase = 'clear'
     this.phaseTicks = 0
     this.hillsCleared++
-    const pod = this.pod
-    const sunUsed = this.sunMax - pod.sun
-    const bonus = Math.round((pod.sun / this.sunMax) * 100) * 10
+    const pod = this.activePods()[0] ?? this.pod
+    // A crew's sun is the tanks' average, so Thrifty asks both pods to fly lean.
+    const sunLeft =
+      this.pods.reduce((n, p) => n + p.sun, 0) / Math.max(1, this.pods.length)
+    const sunUsed = this.sunMax - sunLeft
+    const bonus = Math.round((sunLeft / this.sunMax) * 100) * 10
     const thrifty = sunUsed <= this.mission.par.sun * this.flightTier.sun
     const swift = this.missionTicks <= this.mission.par.ticks
     const feather = this.allFeather && this.landings > 0
@@ -1465,6 +1973,7 @@ class SeedLander implements ArcadeGameInstance {
       this.lives++
       this.tally.push({ label: 'SPARE POD', value: '+1' })
     }
+    if (this.crew !== 'solo') this.crewTally()
     if (this.mode === 'trial') this.finishTrial()
     this.sound.play(this.islandWon ? 'extra' : 'level')
     this.banner = null
@@ -1509,11 +2018,21 @@ class SeedLander implements ArcadeGameInstance {
   private updateRace() {
     const rings = this.mission.rings
     if (!rings || this.phase !== 'fly') return
-    const pod = this.pod
     const next = rings[this.ring]
-    if (next && Math.hypot(pod.x - next.x, pod.y - next.y) < next.r) {
+    const through = next
+      ? this.activePods().find(
+          (p) => Math.hypot(p.x - next.x, p.y - next.y) < next.r,
+        )
+      : undefined
+    if (next && through) {
       this.ring++
-      this.addScore(100 * this.ring, next.x, next.y - next.r - 6, RAMPS.pink[3])
+      this.addScore(
+        100 * this.ring,
+        next.x,
+        next.y - next.r - 6,
+        RAMPS.pink[3],
+        through.seat,
+      )
       this.fx.burst(next.x, next.y, this.fxRng, {
         count: 10,
         colours: [RAMPS.pink[3], RAMPS.gold[4]],
@@ -1536,14 +2055,18 @@ class SeedLander implements ArcadeGameInstance {
   // --- hazards -----------------------------------------------------------------------------
 
   private updateHazards() {
-    const pod = this.pod
+    const fly = this.phase === 'fly'
+    // Every pod in play (two in Tandem), those under their own puff, and those in the air.
+    const active = fly ? this.activePods() : []
+    const puffing = active.filter((p) => !p.chute)
+    const airborne = puffing.filter((p) => !p.restOn)
     // Dandelion fluff: blown across; it sticks to a flying pod.
     for (const field of this.mission.fluff ?? []) {
       const f = spawnFluff(field, this.tick, this.rng)
       if (f) this.fluffs.push(f)
     }
     for (const f of this.fluffs) driftFluff(f, this.tick)
-    if (this.phase === 'fly' && !pod.restOn && !pod.chute)
+    for (const pod of airborne)
       for (const f of this.fluffs) {
         if (f.life <= 0 || pod.fluff >= FLUFF.max) continue
         if (Math.hypot(f.x - pod.x, f.y - pod.y) >= FLUFF.reach) continue
@@ -1559,11 +2082,14 @@ class SeedLander implements ArcadeGameInstance {
           })
       }
     this.fluffs = this.fluffs.filter((f) => f.life > 0)
-    // Crow-bots: towed cargo first, else a pod in the air.
+    // Crow-bots: towed cargo first, else the nearest pod in the air.
     const towed = this.cargo.find((c) => c.hookedBy >= 0)
-    const flying = this.phase === 'fly' && !pod.restOn && !pod.chute
-    const quarry = towed ?? (flying ? pod : null)
     for (const c of this.crows) {
+      const prey = [...airborne].sort(
+        (a, b) =>
+          Math.hypot(a.x - c.x, a.y - c.y) - Math.hypot(b.x - c.x, b.y - c.y),
+      )[0]
+      const quarry = towed ?? prey ?? null
       if (flyCrow(c, quarry) === 'caw') this.sound.play('warn')
       if (c.state !== 'dive') continue
       if (c.y > this.terrain.floorAt(c.x, c.y - 4) - 4) {
@@ -1583,7 +2109,10 @@ class SeedLander implements ArcadeGameInstance {
           })
           this.sound.play('pop')
         }
-      } else if (flying && crowHits(c, pod.x, pod.y)) {
+        continue
+      }
+      const pod = airborne.find((p) => crowHits(c, p.x, p.y))
+      if (pod) {
         rise(c)
         const dir = c.vx >= 0 ? 1 : -1
         pod.tilt += CROW.knock * dir
@@ -1601,7 +2130,7 @@ class SeedLander implements ArcadeGameInstance {
     // Crystal bumpers bounce a flying pod gently; a puffball it brushes blurs the gauges.
     if (this.blur > 0) this.blur--
     this.sporeWait = this.sporeWait.map((w) => Math.max(0, w - 1))
-    if (this.phase === 'fly' && !pod.chute && !pod.restOn) {
+    for (const pod of airborne) {
       for (const c of this.mission.crystals ?? []) {
         const v = crystalBump(c, pod.x, pod.y, pod.vx, pod.vy)
         if (!v) continue
@@ -1632,13 +2161,18 @@ class SeedLander implements ArcadeGameInstance {
         this.sound.play('pop')
       })
     }
-    if (this.mission.rain && this.phase === 'fly')
-      this.wet = soakStep(this.wet, !pod.restOn)
+    if (this.mission.rain && fly)
+      this.wet = soakStep(
+        this.wet,
+        active.some((p) => !p.restOn),
+      )
     // Stalactite drips and pebble rollers knock a flying pod about, and bonk a resting one.
-    if (this.phase === 'fly' && !pod.chute) {
+    for (const pod of puffing) {
+      const first = pod === puffing[0]
       for (const d of this.mission.drips ?? []) {
         const v = dripAt(d, this.tick, this.terrain.groundAt(d.x))
         if (
+          first &&
           v.state === 'swell' &&
           this.tick % 30 === 0 &&
           d.x > this.camera.x - 20
@@ -1655,6 +2189,7 @@ class SeedLander implements ArcadeGameInstance {
       for (const c of this.mission.clouds ?? []) {
         const v = stormCloudAt(c, this.tick)
         if (
+          first &&
           v.state === 'charge' &&
           this.tick % 12 === 0 &&
           c.x > this.camera.x - 20
@@ -1668,7 +2203,11 @@ class SeedLander implements ArcadeGameInstance {
         if (!v?.rolling) continue
         const near = Math.hypot(v.x - pod.x, v.y - pod.y) < PEBBLE.hit + 4
         if (!near) continue
-        if (pod.restOn) return this.crash(pod, 'ROLLED OVER BY A PEBBLE')
+        if (pod.restOn) {
+          this.crash(pod, 'ROLLED OVER BY A PEBBLE')
+          if (this.phase !== 'fly') return
+          break
+        }
         this.knockPod(pod, p.x1 > p.x0 ? 1 : -1, PEBBLE.knock, 'BUMP!')
       }
     }
@@ -1699,28 +2238,38 @@ class SeedLander implements ArcadeGameInstance {
   // --- the tether winch -------------------------------------------------------------------
 
   private workWinch(pod: Pod, input: InputFrame) {
-    const hooked = this.cargo.find((c) => c.hookedBy === pod.seat)
+    const seat = pod.seat
+    const hooked = this.cargo.find((c) => c.hookedBy === seat)
     if (hooked) {
-      this.hookTicks++
-      if (input.pressed.down && this.hookTicks > 20) {
+      this.hookTicks[seat]!++
+      if (input.pressed.down && this.hookTicks[seat]! > 20) {
         hooked.hookedBy = -1
         this.sound.play('blip')
       }
       return
     }
     if (!input.held.down || pod.chute) return
-    const crate = this.cargo.find((c) => canHook(pod, c, this.winchLine))
+    let crate = this.cargo.find((c) => canHook(pod, c, this.winchLine))
+    // Tandem shares one hold: a pod can take its partner's crate onto its own line.
+    if (!crate && this.crew === 'tandem')
+      crate = this.cargo.find(
+        (c) =>
+          c.hookedBy >= 0 &&
+          c.hookedBy !== seat &&
+          canHook(pod, { ...c, hookedBy: -1 }, this.winchLine),
+      )
     if (!crate) return
-    crate.hookedBy = pod.seat
+    const handed = crate.hookedBy >= 0
+    crate.hookedBy = seat
     crate.resting = false
-    this.hookTicks = 0
+    this.hookTicks[seat] = 0
     this.sound.play('pickup')
     this.floaters.push({
       x: crate.x,
       y: crate.y - 14,
-      text: 'HOOKED',
+      text: handed ? 'HANDED OVER' : 'HOOKED',
       life: 40,
-      color: RAMPS.cream[3],
+      color: handed ? RAMPS.pink[4] : RAMPS.cream[3],
     })
   }
 
@@ -1785,12 +2334,19 @@ class SeedLander implements ArcadeGameInstance {
     const pad = this.terrain.pad(this.cargoTo.get(c.id) ?? '')
     if (!pad || c.x < pad.x0 || c.x > pad.x1 || Math.abs(c.y + c.r - pad.y) > 3)
       return
+    const by = c.hookedBy
     c.delivered = true
     c.hookedBy = -1
     c.resting = true
     this.delivered++
     const points = DELIVERY_POINTS * c.seedlings + 100
-    this.addScore(points, c.x, c.y - 18, RAMPS.gold[3])
+    this.addScore(
+      points,
+      c.x,
+      c.y - 18,
+      RAMPS.gold[3],
+      by >= 0 ? by : undefined,
+    )
     this.earnNectar(c.seedlings)
     this.fx.burst(c.x, c.y - 6, this.fxRng, { count: 12 })
     this.banner = {
@@ -1820,9 +2376,17 @@ class SeedLander implements ArcadeGameInstance {
 
   // --- scoring and effects ---------------------------------------------------------------
 
-  private addScore(points: number, x: number, y: number, color: string) {
+  private addScore(
+    points: number,
+    x: number,
+    y: number,
+    color: string,
+    seat?: number,
+  ) {
     if (this.demo || points <= 0 || this.mode === 'trial') return
     this.score += points
+    if (seat !== undefined && seat >= 0 && seat < this.seatPoints.length)
+      this.seatPoints[seat]! += points
     this.floaters.push({ x, y, text: String(points), life: 50, color })
   }
 
@@ -1929,7 +2493,28 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   private followCamera() {
-    const pod = this.pod
+    const active = this.activePods()
+    if (active.length === 2) {
+      // Tandem: frame both pods; zoom in only when both are low, and pull out to keep both in view.
+      const [a, b] = active as [Pod, Pod]
+      const altitude = (p: Pod) =>
+        this.terrain.floorAt(p.x, p.y) - (p.y + POD_FEET)
+      const fit = Math.min(
+        (W - 48) / Math.max(1, Math.abs(a.x - b.x)),
+        (VIEW_H - 48) / Math.max(1, Math.abs(a.y - b.y)),
+      )
+      this.camera.follow(
+        (a.x + b.x) / 2,
+        (a.y + b.y) / 2,
+        Math.max(altitude(a), altitude(b)),
+        this.terrain.w,
+        this.terrain.h,
+        0,
+        fit,
+      )
+      return
+    }
+    const pod = active[0] ?? this.pod
     const floor = this.terrain.floorAt(pod.x, pod.y)
     const altitude = floor - (pod.y + POD_FEET)
     // Lean the view down toward the ground under the pod, keeping the pod well inside it.
@@ -2173,8 +2758,9 @@ class SeedLander implements ArcadeGameInstance {
     if (this.mode === 'campaign')
       for (const a of this.mission.acorns ?? [])
         if (!this.acorns.has(a.id)) drawAcorn(g, a, this.tick)
-    if (this.flightTier.arc && this.phase === 'fly' && !this.pod.restOn)
-      this.renderArc(g)
+    if (this.flightTier.arc && this.phase === 'fly')
+      for (const pod of this.activePods())
+        if (!pod.restOn) this.renderArc(g, pod)
     for (const c of this.cargo)
       drawCargo(
         g,
@@ -2184,8 +2770,9 @@ class SeedLander implements ArcadeGameInstance {
       )
     this.renderParticles(g)
     for (const f of this.fluffs) drawFluff(g, f, this.tick)
-    if (this.phase === 'bonk' && this.phaseTicks < 24) {
-      const t = 1 - this.phaseTicks / 24
+    const sinceBonk = this.tick - this.bonkTick
+    if (sinceBonk >= 0 && sinceBonk < 24) {
+      const t = 1 - sinceBonk / 24
       glow(
         g,
         this.bonkAt.x,
@@ -2195,8 +2782,10 @@ class SeedLander implements ArcadeGameInstance {
         0.7 * t,
       )
     }
-    if (this.phase !== 'bonk' && !this.over)
-      for (const pod of this.pods) {
+    if (this.phase !== 'bonk' && !this.over) {
+      const pods = this.activePods()
+      if (pods.length === 2 && this.vine > 0.6) this.renderVine(g, pods)
+      for (const pod of pods) {
         const floor = this.terrain.floorAt(pod.x, pod.y)
         const near = Math.max(0, 1 - (floor - (pod.y + POD_FEET)) / 110)
         if (near > 0) {
@@ -2205,9 +2794,16 @@ class SeedLander implements ArcadeGameInstance {
           g.ellipse(pod.x, floor + 1, 3 + near * 4, 1 + near, 0, 0, Math.PI * 2)
           g.fill()
         }
-        drawPod(g, pod, this.tick)
+        drawPod(g, pod, this.tick, 1, pod.seat === 1 ? RAMPS.pink : undefined)
         if (pod.fluff) drawPodFluff(g, pod.x, pod.y, pod.fluff, this.tick)
+        if (this.crew !== 'solo')
+          drawText(g, `P${pod.seat + 1}`, pod.x, pod.y - 22, {
+            align: 'center',
+            color: pod.seat ? RAMPS.pink[4] : RAMPS.leaf[4],
+            outline: INK,
+          })
       }
+    }
     for (const f of this.mission.falls ?? []) drawFall(g, f, this.tick)
     this.renderCave(g)
     for (const c of this.crows)
@@ -2325,7 +2921,20 @@ class SeedLander implements ArcadeGameInstance {
     const label =
       this.mode === 'trial'
         ? `TRIAL ${clock(this.missionTicks)}`
-        : this.missionLabel
+        : this.crew === 'relay'
+          ? `${this.missionLabel} P${pod.seat + 1}`
+          : this.missionLabel
+    const second = this.crew === 'tandem' ? this.pods[1] : undefined
+    const partner: PartnerGauges | undefined = second
+      ? {
+          label: 'P2',
+          sun: second.sun / Math.max(1, this.sunMax),
+          vx: second.vx,
+          vy: second.vy,
+          tilt: second.tilt,
+          down: this.downFor[1] !== 0,
+        }
+      : undefined
     drawHud(g, {
       score: this.score,
       hi: Math.max(this.hiScore, this.score),
@@ -2344,15 +2953,35 @@ class SeedLander implements ArcadeGameInstance {
       zoom: this.camera.zoom,
       map: {
         terrain: this.terrain,
-        pods: this.pods,
+        pods: this.activePods(),
         cargo: this.cargo,
         view: this.camera.view(),
       },
       tick: this.tick,
+      partner,
     })
   }
 
   private renderScreen(g: CanvasRenderingContext2D) {
+    if (this.screen === 'board') {
+      const pages = this.boardPages()
+      const page = pages[Math.min(this.boardPage, pages.length - 1)]!
+      const m = this.mastery()
+      drawMedalBoard(g, {
+        title: page.title,
+        about: page.about,
+        page: this.boardPage,
+        pages: pages.length,
+        rows: page.rows,
+        notes: page.notes,
+        rank:
+          m.next === null
+            ? `${m.rank.name}  ${m.points} MASTERY`
+            : `${m.rank.name}  ${m.next} TO RANK UP`,
+        tick: this.tick,
+      })
+      return
+    }
     if (this.screen === 'soon') {
       drawSoon(g, this.tick, {
         got: ALL_ACORNS.filter((a) => this.acorns.has(a)).length,
@@ -2447,8 +3076,37 @@ class SeedLander implements ArcadeGameInstance {
     g.restore()
   }
 
-  private renderArc(g: CanvasRenderingContext2D) {
-    const pod = this.pod
+  /** Tandem's buddy vine, drawn once the pods drift far apart: it sags loose, then pulls taut. */
+  private renderVine(g: CanvasRenderingContext2D, pods: readonly Pod[]) {
+    const [a, b] = pods as [Pod, Pod]
+    const taut = Math.min(1, Math.max(0, (this.vine - 0.6) / 0.4))
+    const sag = (1 - taut) * 26 + 2
+    const mx = (a.x + b.x) / 2
+    const my = (a.y + b.y) / 2 + sag
+    g.save()
+    g.globalAlpha = 0.35 + 0.5 * taut
+    g.lineWidth = 2.4
+    g.strokeStyle = INK
+    g.beginPath()
+    g.moveTo(a.x, a.y)
+    g.quadraticCurveTo(mx, my, b.x, b.y)
+    g.stroke()
+    g.lineWidth = 1.2
+    g.strokeStyle =
+      taut > 0.85 && this.tick % 16 < 8 ? RAMPS.ember[3] : RAMPS.leaf[3]
+    g.stroke()
+    // A few leaves along it.
+    g.fillStyle = RAMPS.leaf[4]
+    for (const k of [0.25, 0.5, 0.75]) {
+      const u = 1 - k
+      const x = u * u * a.x + 2 * u * k * mx + k * k * b.x
+      const y = u * u * a.y + 2 * u * k * my + k * k * b.y
+      g.fillRect(Math.round(x) - 1, Math.round(y) - 2, 2, 2)
+    }
+    g.restore()
+  }
+
+  private renderArc(g: CanvasRenderingContext2D, pod: Pod) {
     const points = predictArc(pod, this.gravityFor(pod), this.wind, (x) =>
       this.terrain.floorAt(x, pod.y),
     )
@@ -2472,6 +3130,10 @@ class SeedLander implements ArcadeGameInstance {
     type Goal = { x: number; y: number; label: string; ramp: readonly string[] }
     const goals: Goal[] = []
     const towing = this.cargo.filter((c) => c.hookedBy >= 0)
+    const active = this.activePods()
+    const lowSun = (active.length ? active : this.pods).some(
+      (p) => p.sun < this.sunMax * 0.3,
+    )
     for (const p of this.terrain.pads) {
       const x = (p.x0 + p.x1) / 2
       if (p.kind === 'seed' && !p.planted)
@@ -2486,9 +3148,18 @@ class SeedLander implements ArcadeGameInstance {
         towing.some((c) => this.cargoTo.get(c.id) === p.id)
       )
         goals.push({ x, y: p.y, label: 'S', ramp: RAMPS.steel })
-      else if (p.kind === 'sun' && this.pod.sun < this.sunMax * 0.3)
+      else if (p.kind === 'sun' && lowSun)
         goals.push({ x, y: p.y, label: '*', ramp: RAMPS.gold })
     }
+    // Tandem: a partner out of view gets its own marker, so nobody is lost off screen.
+    if (this.crew === 'tandem')
+      for (const pod of active)
+        goals.push({
+          x: pod.x,
+          y: pod.y,
+          label: `${pod.seat + 1}`,
+          ramp: pod.seat ? RAMPS.pink : RAMPS.leaf,
+        })
     if (
       (this.mission.kind === 'deliver' || this.mission.kind === 'rescue') &&
       !towing.length

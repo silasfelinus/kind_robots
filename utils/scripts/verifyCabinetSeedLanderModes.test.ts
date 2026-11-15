@@ -137,6 +137,7 @@ assert.deepEqual(ids, [
   'free',
   'daily',
   'trial',
+  'board',
   'tier',
 ])
 g.menu!.pick = ids.indexOf('trial')

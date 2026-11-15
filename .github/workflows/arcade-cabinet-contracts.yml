@@ -1,0 +1,64 @@
+name: Arcade Cabinet Browser Contracts
+
+# Real ArcadeCabinet + real game in headless Chromium, driven by synthetic keyboard,
+# gamepad and touch (conductor kr-arcade t-147, t-148, t-151, t-152, t-153). One job installs Chromium once
+# and runs every cabinet contract; add new ones as further steps.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/arcade/arcade-cabinet.vue'
+      - 'stores/arcadeStore.ts'
+      - 'utils/arcade/**'
+      - 'utils/scripts/arcadeCabinetFixture.mjs'
+      - 'utils/scripts/*Cabinet.browser.test.mjs'
+      - '.github/workflows/arcade-cabinet-contracts.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arcade-cabinet-contracts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cabinet-contracts:
+    name: Seats, menus, aim and saves through the actual cabinet in Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Rescue Rally — 1-4 seats by keyboard, gamepad and touch
+        run: node utils/scripts/verifyRescueRallyCabinet.browser.test.mjs
+        env:
+          RESCUE_RALLY_SHOTS: cabinet-contract-shots/rescue-rally
+      - name: Battery Maze — saved-entry modes through the cabinet and arcade store
+        if: always()
+        run: node utils/scripts/verifyBatteryMazeSavesCabinet.browser.test.mjs
+      - name: Bumper Bubbles — pantry cards through cabinet retirement and Continue
+        if: always()
+        run: node utils/scripts/verifyBumperBubblesSavesCabinet.browser.test.mjs
+      - name: Butterfly Blaster — earned history through cabinet retirement and reload
+        if: always()
+        run: node utils/scripts/verifyButterflyBlasterSavesCabinet.browser.test.mjs
+      - name: Cable Crawler — earned spares through cabinet retirement and the Workbench
+        if: always()
+        run: node utils/scripts/verifyCableCrawlerSavesCabinet.browser.test.mjs
+      - name: Preserve cabinet states
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arcade-cabinet-contract-states
+          path: cabinet-contract-shots
+          if-no-files-found: ignore

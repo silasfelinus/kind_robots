@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   GAME_LINK_PREVIEWS,
@@ -108,4 +108,65 @@ const tankPage = readFileSync(
   'utf8',
 )
 assert.ok(tankPage.includes('publicTankLinkPreviewMeta('), 'tank page wired')
+// Silas, 2026-11-14: share cards must match the games as they ship. A game
+// whose Play tab requires sign-in never promises "no account needed", and
+// Crystal Street's card counts its real nightmares.
+for (const [slug, tab] of [
+  ['slime-city', 'slime-city'],
+  ['hybridizer', 'hybridizer'],
+] as const) {
+  const tabSource = readFileSync(
+    join(process.cwd(), `content/channels/arcade/${tab}.md`),
+    'utf8',
+  )
+  if (/^requiredPermission: authenticated$/m.test(tabSource)) {
+    assert.doesNotMatch(
+      GAME_LINK_PREVIEWS[slug]!.description,
+      /no account needed/i,
+      `${slug}: sign-in game must not promise no account`,
+    )
+    const card = join(pub, slug, 'link-preview.svg')
+    if (existsSync(card)) {
+      assert.doesNotMatch(readFileSync(card, 'utf8'), /no account/i)
+    }
+  }
+}
+assert.doesNotMatch(
+  GAME_LINK_PREVIEWS['shifting-desks']!.description,
+  /classroom/i,
+)
+assert.doesNotMatch(
+  GAME_LINK_PREVIEWS['emperor-of-dust']!.description,
+  /exiles/i,
+)
+assert.doesNotMatch(
+  readFileSync(join(pub, 'emperor-of-dust/link-preview.svg'), 'utf8'),
+  /band of exiles|ruined empire/i,
+)
+const nightmareWords = [
+  '',
+  'ONE',
+  'TWO',
+  'THREE',
+  'FOUR',
+  'FIVE',
+  'SIX',
+  'SEVEN',
+  'EIGHT',
+  'NINE',
+]
+const villainCount = readdirSync(
+  join(process.cwd(), 'utils/crystalStreet/villains'),
+).filter((file) => file.endsWith('.json')).length
+const tens = ['', '', 'TWENTY', 'THIRTY'][Math.floor(villainCount / 10)]
+const spelled = [tens, nightmareWords[villainCount % 10]]
+  .filter(Boolean)
+  .join('-')
+assert.ok(
+  readFileSync(join(pub, 'crystal-street/poster.svg'), 'utf8').includes(
+    `${spelled} NIGHTMARES`,
+  ),
+  `Crystal Street card must count ${villainCount} nightmares (${spelled})`,
+)
+
 console.log('game link preview checks passed')

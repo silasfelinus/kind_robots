@@ -197,8 +197,8 @@
           </div>
           <advert-slot-panel
             v-if="activeSlot"
-            :poster="selected.poster"
             :slot="activeSlot"
+            :poster="selected.poster"
             :current-src="selected.images[activeSlot.key] ?? ''"
           />
           <p class="text-xs text-base-content/60">

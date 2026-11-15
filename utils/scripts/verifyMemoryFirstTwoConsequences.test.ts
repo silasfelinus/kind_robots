@@ -115,6 +115,27 @@ assert.equal(
   'Only two global switches yield six worldframes',
 )
 
+// Each earned ending pair must survive a serialized checkpoint without
+// changing its bounded worldframe or physical consequence projection.
+for (const custody of ['release', 'renew', 'break'] as const) {
+  for (const crossing of ['return', 'commons'] as const) {
+    const original = restoreBriarSave(
+      JSON.parse(
+        JSON.stringify({ ...base, house: { ...house, ending: custody } }),
+      ),
+    )
+    const reflected = restoreDarkHouseProgress(
+      JSON.parse(JSON.stringify({ ...mirror, ending: crossing })),
+    )
+    const frames = firstTwoWorldFrames(original, reflected)
+    assert.equal(frames.combination, `${custody}:${crossing}`)
+    assert.equal(
+      firstTwoPhysicalConsequence('6,3', frames),
+      firstTwoPhysicalConsequence('2,4', frames),
+    )
+  }
+}
+
 const choiceChannels = [
   ['2,4', 'lend', 'copy'],
   ['4,3', 'plan', 'load'],

@@ -102,8 +102,9 @@ export const RUSH_MAX_TURN = 0.03
 export const RUSH_BONUS = 1000
 export const RUSH_BONUS_TICKS = 3
 
-export function rushActive(breakableLeft: number): boolean {
-  return breakableLeft > 0 && breakableLeft <= RUSH_AT
+/** `at` is RUSH_AT, or more with a Potting Bench Bumble pass. */
+export function rushActive(breakableLeft: number, at = RUSH_AT): boolean {
+  return breakableLeft > 0 && breakableLeft <= at
 }
 
 export function rushBonus(ticksInRush: number): number {

@@ -122,8 +122,25 @@
             >
               {{ filter.label }}
             </button>
+            <button
+              type="button"
+              class="rounded-full border px-3 py-1 text-xs font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              :class="
+                showPosters
+                  ? 'border-primary bg-primary text-primary-content'
+                  : 'border-base-300 bg-base-200 hover:border-primary/60'
+              "
+              :aria-pressed="showPosters"
+              data-testid="visitor-poster-toggle"
+              @click="showPosters = !showPosters"
+            >
+              {{ showPosters ? 'Show experiences' : 'View posters' }}
+            </button>
           </div>
-          <div class="visitor-featured-grid grid grid-cols-1 gap-2">
+          <div
+            v-if="!showPosters"
+            class="visitor-featured-grid grid grid-cols-1 gap-2"
+          >
             <article
               v-for="feature in filteredFeatures"
               :key="feature.route"
@@ -207,6 +224,26 @@
                 </div>
               </NuxtLink>
             </article>
+          </div>
+          <div
+            v-else
+            class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,12rem),1fr))] gap-3"
+            data-testid="visitor-poster-gallery"
+          >
+            <NuxtLink
+              v-for="view in advertStore.posters"
+              :key="view.poster.slug"
+              :to="advertPlayPath(view.poster)"
+              class="group min-w-0 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-1.5 transition hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              :aria-label="`Play ${view.poster.name}`"
+            >
+              <advert-poster :poster="view.poster" :images="view.images" />
+              <p
+                class="truncate px-1 py-1 text-sm font-bold group-hover:text-primary"
+              >
+                {{ view.poster.name }}
+              </p>
+            </NuxtLink>
           </div>
         </div>
       </section>
@@ -366,7 +403,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useAdvertStore } from '@/stores/advertStore'
+import { advertPlayPath } from '@/utils/adverts/posters'
 import { defaultArtFor } from '@/utils/defaultArtPool'
 import {
   freshShowcaseCards,
@@ -374,6 +413,9 @@ import {
   type HomeShowcase,
   type LabeledShowcaseCard,
 } from '@/utils/homeShowcase'
+
+const advertStore = useAdvertStore()
+onMounted(() => void advertStore.loadPublicSelections())
 
 const props = defineProps<{
   showcase: HomeShowcase
@@ -397,6 +439,7 @@ const categories = [
   { key: 'learn', label: 'Learn' },
 ] as const
 const selectedCategory = ref<(typeof categories)[number]['key']>('all')
+const showPosters = ref(false)
 
 type FeaturedExperience = {
   title: string

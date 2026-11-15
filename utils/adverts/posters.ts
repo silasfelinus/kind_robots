@@ -129,6 +129,10 @@ export type AdvertPoster = {
   cards: AdvertCard[]
 }
 
+export function advertPlayPath(poster: AdvertPoster): string {
+  return `/play${poster.path}`
+}
+
 type CardInput = {
   label: string
   src: string

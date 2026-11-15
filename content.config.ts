@@ -111,6 +111,7 @@ const sharedNavigationSchema = z.object({
    * layer earlier.
    */
   tabMessage: z.string().optional(),
+  silasSays: z.string().optional(),
   dottiTip: z.string().optional(),
   amiTip: z.string().optional(),
   // Simple author-facing narrator selector. The page loader normalizes this
@@ -181,6 +182,7 @@ export type PageBrief = {
   image: string
   tooltip: string
   tabMessage?: string
+  silasSays?: string
   dottiTip: string
   amiTip: string
   narratorSlug?: string

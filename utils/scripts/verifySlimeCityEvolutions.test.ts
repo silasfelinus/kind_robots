@@ -1040,8 +1040,12 @@ const ironWorker = (lane: number, uid: number) =>
   attack.active = 'enemy'
   attack.phase = 'play'
   attack.plays.enemy = 0
-  attack.hands.enemy = ['rat']
-  const sprung = playClash(attack, 'enemy', 'rat', 2)
+  attack.hands.enemy = ['sprite']
+  assert.ok(
+    canClashPlay(attack, 'enemy', 'sprite', 2),
+    'Bloodfairies opponent must have a legal trap-triggering play',
+  )
+  const sprung = playClash(attack, 'enemy', 'sprite', 2)
   assert.notEqual(sprung, attack)
   assert.ok(at(sprung, 80)!.armor > at(armed, 80)!.armor)
   assert.equal(
@@ -1063,8 +1067,12 @@ const ironWorker = (lane: number, uid: number) =>
   attack.active = 'enemy'
   attack.phase = 'play'
   attack.plays.enemy = 0
-  attack.hands.enemy = ['rat']
-  const sprung = playClash(attack, 'enemy', 'rat', 2)
+  attack.hands.enemy = ['sprite']
+  assert.ok(
+    canClashPlay(attack, 'enemy', 'sprite', 2),
+    'Bloodfairies opponent must have a legal trap-triggering play',
+  )
+  const sprung = playClash(attack, 'enemy', 'sprite', 2)
   assert.notEqual(sprung, attack)
   assert.equal(at(sprung, 81)!.guard, 1)
   assert.equal(at(sprung, 82)!.rooted, true)

@@ -13,7 +13,7 @@ import {
   settleBriarWavePair,
 } from '../memoryDungeonWaves'
 import { BRIAR_SCENES, canChooseBriarScene } from '../memoryDungeon/scenes'
-import { newHouseProgress } from '../memoryDungeon/house'
+import { HOUSE_ROOMS, newHouseProgress } from '../memoryDungeon/house'
 import {
   DARK_HOUSE_ROOMS,
   newDarkHouseProgress,
@@ -115,17 +115,38 @@ assert.equal(
   'Only two global switches yield six worldframes',
 )
 
-// Each earned ending pair must survive a serialized checkpoint without
-// changing its bounded worldframe or physical consequence projection.
+// A saved ending is only earned after traversing the House and making
+// its final decision. Both restorers intentionally reject forged flags.
 for (const custody of ['release', 'renew', 'break'] as const) {
   for (const crossing of ['return', 'commons'] as const) {
     const original = restoreBriarSave(
       JSON.parse(
-        JSON.stringify({ ...base, house: { ...house, ending: custody } }),
+        JSON.stringify({
+          ...base,
+          house: {
+            ...house,
+            current: 'HD-35',
+            visited: Object.keys(HOUSE_ROOMS),
+            wardenPassed: true,
+            decisions: { 'HD-35': custody },
+            ending: custody,
+          },
+        }),
       ),
     )
     const reflected = restoreDarkHouseProgress(
-      JSON.parse(JSON.stringify({ ...mirror, ending: crossing })),
+      JSON.parse(
+        JSON.stringify({
+          ...mirror,
+          current: 'HD-35',
+          visited: Object.keys(DARK_HOUSE_ROOMS),
+          decisions: {
+            'HD-32': 'attend',
+            'HD-35': crossing === 'return' ? 'attend' : 'refuse',
+          },
+          ending: crossing,
+        }),
+      ),
     )
     const frames = firstTwoWorldFrames(original, reflected)
     assert.equal(frames.combination, `${custody}:${crossing}`)

@@ -280,7 +280,7 @@ assert.match(
 )
 assert.match(
   advertPage,
-  /min-height: 0;\n  overflow: hidden;/,
+  /min-height: 0;\n\s+overflow: hidden;/,
   'the preview cannot spill into the control deck',
 )
 

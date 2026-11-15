@@ -248,6 +248,156 @@ const at = (s: ClashState, uid: number) => s.units.find((u) => u.uid === uid)
 const mine = (s: ClashState, id: string) =>
   s.units.find((u) => u.side === 'player' && u.cardId === id && !u.token)
 
+// Bloodfairies editorial: review every one of the 40 faction identities,
+// including the ten original hand-built twists. Spells cannot trigger combat
+// hooks; their upgraded on-cast text must describe real actions.
+{
+  const cards = CARDS.filter((card) => card.team === 'bloodfairies')
+  assert.equal(cards.length, 40, 'all 40 Bloodfairies cards are covered')
+  assert.equal(cards.filter((card) => CLASH_TWISTS[card.id]).length, 10)
+  assert.equal(cards.filter((card) => CLASH_EVOLUTIONS[card.id]).length, 30)
+  for (const card of cards) {
+    const evo = CLASH_EVOLUTIONS[card.id]
+    for (const level of [1, 2, 3] as const)
+      assert.ok(
+        clashCardText(card, level).length <= 160,
+        card.id + ' L' + level + ' must fit the card face',
+      )
+    if (!evo) continue
+    assert.ok(evo.levelOneText, card.id + ' needs authored L1 text')
+    assert.ok(
+      clashCardText(card, 1).includes(evo.levelOneText!),
+      card.id + ' L1 text must be displayed',
+    )
+    for (const stage of [evo[1], evo[2], evo[3], evo.choice?.stage]) {
+      if (!stage) continue
+      for (const ability of stage.abilities) {
+        if (card.kind === 'spell')
+          assert.equal(ability.when, 'enter', card.id + ' only casts')
+        if (card.kind === 'trap')
+          assert.equal(ability.when, 'spring', card.id + ' only springs')
+      }
+    }
+  }
+}
+
+function bloodBoard(units: ClashUnit[]): ClashState {
+  const s = createClash('bloodfairies', 'riot', 17)
+  s.units = units
+  s.nextUid = 100
+  s.round = 3
+  s.plays.player = 0
+  return s
+}
+// Afterparty L2 provides LEECH to a still-wounded teammate.
+{
+  const s = cast(
+    bloodBoard([
+      fighter('player', 1, 1, { hp: 2, cardId: 'sprite' }),
+      fighter('player', 2, 2, { hp: 3, cardId: 'razor' }),
+    ]),
+    's2-bloodfairies-afterparty-first-aid',
+    2,
+    2,
+  )
+  assert.ok(at(s, 1)!.keywords.includes('leech'))
+  assert.ok(at(s, 1)!.hp > 2, 'the patient gets real healing')
+}
+// Mic Squeal L2: rally a two-wing pit, not just an invisible stat bump.
+{
+  const s = cast(
+    bloodBoard([
+      fighter('player', 1, 1, { cardId: 'sprite' }),
+      fighter('player', 3, 2, { cardId: 'pogo' }),
+      fighter('enemy', 2, 9),
+    ]),
+    's3-bloodfairies-feedback-burst',
+    2,
+    2,
+  )
+  assert.ok(at(s, 1)!.keywords.includes('swarm'))
+  assert.ok(at(s, 2)!.keywords.includes('swarm'))
+  assert.ok(at(s, 1)!.surge >= 1, 'the pit gets an immediate surge')
+}
+// Festival Triage L2 drains the attacker across from its healed patient.
+{
+  const s = cast(
+    bloodBoard([
+      fighter('player', 2, 1, { hp: 2, cardId: 'sprite' }),
+      fighter('enemy', 2, 9, { hp: 8, maxHp: 8 }),
+    ]),
+    's3-bloodfairies-festival-triage',
+    2,
+    2,
+  )
+  assert.equal(at(s, 9)!.hp, 6, 'field transfusion hits the rival')
+  assert.ok(at(s, 1)!.hp > 2, 'the patient recovers')
+}
+
+// Bassquake's final form offers a real alternative to striking: skip its
+// attack to stun the defender across. That activation is not an arrival.
+{
+  const landed = cast(
+    bloodBoard([fighter('enemy', 2, 9)]),
+    's2-bloodfairies-bassquake-colossus',
+    2,
+    3,
+  )
+  const ready = structuredClone(landed)
+  ready.phase = 'play'
+  ready.plays.player = 0
+  const boss = ready.units.find(
+    (unit) =>
+      unit.side === 'player' &&
+      unit.cardId === 's2-bloodfairies-bassquake-colossus',
+  )!
+  boss.fresh = false
+  assert.ok(canClashActivate(ready, 'player', boss.uid))
+  assert.ok(!at(ready, 9)!.rooted, 'the stun does not fire on arrival')
+  const tapped = activateClash(ready, 'player', boss.uid)
+  assert.ok(at(tapped, 9)!.rooted, 'tapping silences the opposing blocker')
+  assert.ok(
+    tapped.units.find((unit) => unit.uid === boss.uid)!.attacked,
+    'tapping forfeits the strike',
+  )
+}
+// A hidden bouncer charges the boss and conditionally adds a dancer when
+// the trap is sprung, not on its owner turn when set.
+{
+  const id = 's3-bloodfairies-banana-bouncer'
+  const armed = cast(
+    bloodBoard([
+      fighter('player', 0, 1, { cardId: 'sprite' }),
+      fighter('player', 4, 2, { cardId: 'pogo' }),
+    ]),
+    id,
+    2,
+    2,
+  )
+  assert.equal(
+    armed.units.filter((unit) => unit.side === 'player' && unit.token).length,
+    0,
+    'arming a trap does not summon a dancer',
+  )
+  const intrusion = structuredClone(armed)
+  intrusion.active = 'enemy'
+  intrusion.phase = 'play'
+  intrusion.plays.enemy = 0
+  intrusion.hands.enemy = ['rat']
+  const triggered = playClash(intrusion, 'enemy', 'rat', 2)
+  assert.notEqual(triggered, intrusion, 'the rival enters the trapped alley')
+  assert.ok(
+    triggered.units.some(
+      (unit) => unit.side === 'player' && unit.token,
+    ),
+    'the crowded pit recruits a SWARM fan on spring',
+  )
+  assert.ok(
+    triggered.boss.enemy < intrusion.boss.enemy,
+    'the bouncer also collects its boss toll',
+  )
+}
+
 // The former stat-only Chimera apex now shares REGEN with a hurt neighbor.
 {
   const helped = cast(

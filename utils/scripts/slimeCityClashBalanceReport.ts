@@ -97,12 +97,12 @@ export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
     id === 's3-catgirls-hollow-scalpel'
       ? 's3-catgirls-escaped-tiger'
       : id === 's3-catgirls-patent-saboteur'
-      ? 'laser'
-      : id === 's3-catgirls-bicycle-clinic'
-        ? 's3-catgirls-patent-saboteur'
-        : id === 's2-catgirls-backstreet-organ-donor'
-          ? 's3-catgirls-bicycle-clinic'
-          : id,
+        ? 'laser'
+        : id === 's3-catgirls-bicycle-clinic'
+          ? 's3-catgirls-patent-saboteur'
+          : id === 's2-catgirls-backstreet-organ-donor'
+            ? 's3-catgirls-bicycle-clinic'
+            : id,
   )
   const changed = current.filter((id, index) => id !== original[index])
   if (

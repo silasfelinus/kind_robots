@@ -1234,7 +1234,8 @@ const originalBowlEffects = bowlFightScene.effects
 try {
   bowlFightScene.effects = { ...originalBowlEffects, heal: 4, hurt: 3 }
   assert.equal(
-    cueAt('a1-bowl-bones', 'lay', { health: 2 }).ahead?.health,
+    fightAhead({ ...startRun(1), health: 2 }, { id: 'probe', to: bowlFightId })
+      ?.health,
     3,
     'heal precedes damage in the fight preview, matching applyEffects',
   )

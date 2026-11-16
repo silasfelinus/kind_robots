@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery } from 'h3'
-import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
+import { readTutorialCopy } from '~/server/utils/tutorialNotePersistence'
 import {
   normalizeTutorialPath,
   publicTutorialText,
@@ -9,19 +9,16 @@ import {
 export default defineEventHandler(async (event) => {
   try {
     const path = normalizeTutorialPath(getQuery(event).path)
-    const note = path.startsWith('/admin/')
-      ? null
-      : await prisma.tutorialNote.findUnique({
-          where: { path },
-          select: { publishedText: true, publishedAt: true },
-        })
+    const { copy } = path.startsWith('/admin/')
+      ? { copy: null }
+      : await readTutorialCopy(path)
     return {
       success: true,
       data: {
         path,
-        text: publicTutorialText(path, note?.publishedText),
-        hasRecord: Boolean(note),
-        publishedAt: note?.publishedAt?.toISOString() ?? null,
+        text: publicTutorialText(path, copy?.publishedText),
+        hasRecord: Boolean(copy),
+        publishedAt: copy?.publishedAt ?? null,
       },
       statusCode: 200,
     }

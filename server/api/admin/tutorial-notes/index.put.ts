@@ -1,7 +1,10 @@
 import { createError, defineEventHandler, getQuery, readBody } from 'h3'
-import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { errorHandler } from '~/server/utils/error'
+import {
+  readTutorialCopy,
+  writeTutorialCopy,
+} from '~/server/utils/tutorialNotePersistence'
 import {
   normalizeTutorialPath,
   normalizeTutorialText,
@@ -24,25 +27,31 @@ export default defineEventHandler(async (event) => {
         message: 'Write a note before publishing.',
       })
     }
-    const updated = await prisma.tutorialNote.upsert({
-      where: { path },
-      create: {
-        path,
-        draftText: text ?? '',
-        publishedText: action === 'publish' ? text : null,
-        publishedAt: action === 'publish' ? new Date() : null,
-        updatedById: auth.user.id,
-      },
-      update: {
-        ...(text !== null ? { draftText: text } : {}),
-        ...(action === 'publish'
-          ? { publishedText: text, publishedAt: new Date() }
+    const { projectId, copy: existing } = await readTutorialCopy(path)
+    if (!projectId) {
+      throw createError({
+        statusCode: 503,
+        message: 'Kind Robots project record is unavailable.',
+      })
+    }
+    const now = new Date().toISOString()
+    const copy = {
+      path,
+      draftText: text ?? existing?.draftText ?? '',
+      publishedText:
+        action === 'publish'
+          ? text
           : action === 'unpublish'
-            ? { publishedText: null, publishedAt: null }
-            : {}),
-        updatedById: auth.user.id,
-      },
-    })
+            ? null
+            : existing?.publishedText ?? null,
+      publishedAt:
+        action === 'publish'
+          ? now
+          : action === 'unpublish'
+            ? null
+            : existing?.publishedAt ?? null,
+    }
+    await writeTutorialCopy(projectId, path, copy, auth.user.id)
     return {
       success: true,
       message:
@@ -52,11 +61,8 @@ export default defineEventHandler(async (event) => {
             ? 'Developer note published.'
             : 'Developer note unpublished.',
       data: {
-        path,
-        draftText: updated.draftText,
-        publishedText: updated.publishedText,
-        publishedAt: updated.publishedAt?.toISOString() ?? null,
-        updatedAt: updated.updatedAt.toISOString(),
+        ...copy,
+        updatedAt: now,
       },
       statusCode: 200,
     }

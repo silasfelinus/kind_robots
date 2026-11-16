@@ -30,6 +30,7 @@ import {
 import {
   normalizeTutorialPath,
   normalizeTutorialText,
+  tutorialPageKey,
   publicTutorialText,
   TUTORIAL_NOTE_LIMIT,
 } from '../../server/utils/tutorialNotes'
@@ -335,6 +336,8 @@ assert.ok(
 
 assert.equal(normalizeTutorialPath('/play/slime-city'), '/play/slime-city')
 assert.equal(normalizeTutorialPath('/'), '/')
+assert.notEqual(tutorialPageKey('/a/b'), tutorialPageKey('/a-b'))
+assert.ok(tutorialPageKey('/play/slime-city').length <= 128)
 assert.throws(() => normalizeTutorialPath('/play/../private'))
 assert.throws(() => normalizeTutorialPath('/play/slime-city?admin=true'))
 assert.throws(() => normalizeTutorialPath('//example.com'))
@@ -344,7 +347,7 @@ assert.equal(publicTutorialText('/play/slime-city', 'Published'), 'Published')
 assert.equal(publicTutorialText('/admin/adverts', 'Private'), '')
 assert.equal(publicTutorialText('/play/slime-city', null), '')
 const publicNoteRoute = read('server/api/tutorial-notes/index.get.ts')
-assert.match(publicNoteRoute, /hasRecord: Boolean\(note\)/)
+assert.match(publicNoteRoute, /hasRecord: Boolean\(copy\)/)
 const tutorialNotesStore = read('stores/tutorialNotesStore.ts')
 assert.match(
   tutorialNotesStore,
@@ -384,7 +387,11 @@ assert.match(
 )
 assert.match(
   read('server/api/tutorial-notes/index.get.ts'),
-  /publishedText: true/,
+  /publicTutorialText/,
+)
+assert.match(
+  read('server/utils/tutorialNotePersistence.ts'),
+  /prisma.projectPageContent.upsert/,
 )
 assert.match(read('server/utils/tutorialNotes.ts'), /publicTutorialText/)
 assert.match(tutorialSheet, /reaction-category="PROJECT"/)

@@ -1,22 +1,22 @@
 import { defineEventHandler, getQuery } from 'h3'
-import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { errorHandler } from '~/server/utils/error'
+import { readTutorialCopy } from '~/server/utils/tutorialNotePersistence'
 import { normalizeTutorialPath } from '~/server/utils/tutorialNotes'
 
 export default defineEventHandler(async (event) => {
   try {
     await requireAdminApiUser(event)
     const path = normalizeTutorialPath(getQuery(event).path)
-    const note = await prisma.tutorialNote.findUnique({ where: { path } })
+    const { copy } = await readTutorialCopy(path)
     return {
       success: true,
       data: {
         path,
-        draftText: note?.draftText ?? null,
-        publishedText: note?.publishedText ?? null,
-        publishedAt: note?.publishedAt?.toISOString() ?? null,
-        updatedAt: note?.updatedAt.toISOString() ?? null,
+        draftText: copy?.draftText ?? null,
+        publishedText: copy?.publishedText ?? null,
+        publishedAt: copy?.publishedAt ?? null,
+        updatedAt: null,
       },
       statusCode: 200,
     }

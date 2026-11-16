@@ -1293,7 +1293,7 @@ const ironWorker = (lane: number, uid: number) =>
   }
   assert.equal(roles.size, 30, 'shared native text gets distinct L1 roles')
 }
-const tideBoard =(units: ClashUnit[] = []): ClashState => {
+const tideBoard = (units: ClashUnit[] = []): ClashState => {
   const s = createClash('undertow', 'bloodfairies', 51724)
   s.units = units
   s.nextUid = 100

@@ -6,7 +6,7 @@ label: 'Deepheart'
 title: 'Deepheart'
 subtitle: 'Three layers down. Bring someone you would follow anywhere.'
 description: 'A party dungeon crawl: pick a hero and up to three companions from fifty delvers, then go down through puzzles, treasure, fights, choices and campfires to the living heart at the bottom.'
-summary: 'A playbook dungeon crawler in development.'
+summary: 'Party dungeon crawler in development.'
 icon: kind-icon:theater
 route: /admin/deepheart
 sort: 176

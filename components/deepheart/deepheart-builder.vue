@@ -1,6 +1,6 @@
 <template>
   <section
-    class="dh-builder"
+    class="dh-builder kr-panes"
     data-testid="dh-builder"
     aria-label="Choose your party"
   >
@@ -43,7 +43,7 @@
           </option>
         </select>
       </div>
-      <div class="dh-roster-grid kr-scroll" data-testid="dh-roster">
+      <div class="dh-roster-grid kr-pane-scroll" data-testid="dh-roster">
         <button
           v-for="c in shown"
           :key="c.id"
@@ -72,7 +72,7 @@
       </div>
     </div>
 
-    <aside class="dh-builder-detail kr-scroll" aria-label="Delver details">
+    <aside class="dh-builder-detail kr-pane-scroll" aria-label="Delver details">
       <div class="flex gap-3">
         <DeepheartPortrait :id="focused.id" size="lg" class="w-28 shrink-0" />
         <div class="min-w-0">

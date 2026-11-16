@@ -375,9 +375,10 @@ export const useDeepheartStore = defineStore('deepheart', () => {
       .filter((o) => romanceOn.value || o.kind !== 'romance')
   })
 
-  const meterValues = computed(() => {
+  const meterValues = computed((): Record<string, number> => {
     const r = run.value
-    if (!r) return {}
+    const values: Record<string, number> = {}
+    if (!r) return values
     return {
       depth: engine.depthMeter(r),
       health: engine.partyHealth(r),

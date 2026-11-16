@@ -346,7 +346,10 @@ assert.equal(publicTutorialText('/play/slime-city', null), '')
 const publicNoteRoute = read('server/api/tutorial-notes/index.get.ts')
 assert.match(publicNoteRoute, /hasRecord: Boolean\(note\)/)
 const tutorialNotesStore = read('stores/tutorialNotesStore.ts')
-assert.match(tutorialNotesStore, /overrides.value\[path\] = response.data.hasRecord/)
+assert.match(
+  tutorialNotesStore,
+  /overrides.value\[path\] = response.data.hasRecord/,
+)
 assert.match(tutorialNotesStore, /overrides.value\[path\] = true/)
 
 const publicSelections = read('server/api/adverts/public-art.get.ts')

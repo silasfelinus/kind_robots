@@ -1316,6 +1316,29 @@ const ironWorker = (lane: number, uid: number) =>
   }
   assert.equal(roles.size, 30, 'shared native text gets distinct L1 roles')
 }
+// --- Mercenaries: fifty authored L1 jobs. Hired help shares keyword lines
+// (three "+1 power for good", fifteen "Next foe" traps, repeated swarm,
+// ambush and armor lines), so each card names the job a crew hires it for.
+{
+  const cards = CARDS.filter((card) => card.team === 'mercenary')
+  const roles = new Set<string>()
+  let authored = 0
+  for (const card of cards) {
+    const evo = CLASH_EVOLUTIONS[card.id]
+    if (!evo || CLASH_TWISTS[card.id]) continue
+    authored++
+    assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
+    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    roles.add(evo.levelOneText!)
+    for (const level of [1, 2, 3])
+      assert.ok(
+        clashCardText(card, level).length <= 160,
+        card.id + ' L' + level + ' must fit the card face',
+      )
+  }
+  assert.equal(authored, 50)
+  assert.equal(roles.size, 50, 'shared native text gets distinct L1 roles')
+}
 const tideBoard = (units: ClashUnit[] = []): ClashState => {
   const s = createClash('undertow', 'bloodfairies', 51724)
   s.units = units

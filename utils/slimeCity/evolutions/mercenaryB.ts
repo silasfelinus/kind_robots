@@ -40,6 +40,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: spread out so the splash and the closet both miss; the
   // shields end on the caster's next turn.
   'merc-mothball-storm': {
+    levelOneText: 'A heavy cloud that drops a big fighter and dusts its flank.',
     2: stage('Cedar Closet', [on('enter', guard(2, 'adjacentAllies'))]),
     3: stage('Whole-Block Fumigation', [on('enter', damage(2, 'allFoes'))]),
     // Choose one: or seal the crew in mothballs. The CPU fumigates while its
@@ -57,6 +58,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (your own crew takes the splash). Counterplay: kill
   // the hurt front row first; a thin rival crew makes the encore cheap.
   'merc-festival-no-refunds': {
+    levelOneText: 'A cheap crowd crush for a lane of small fighters.',
     2: stage('Crowd Surge', [
       on('enter', damage(1, 'adjacentAllies'), power(2, 'adjacentAllies')),
     ]),
@@ -70,6 +72,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: thin the crew first; bulldoze needs overkill, so big
   // blockers absorb the shove.
   'merc-union-solidarity': {
+    levelOneText: "A shove that sends a fighter's overkill on to the boss.",
     2: stage('Union Local', [on('enter', grant('bulldoze', 'adjacentAllies'))]),
     3: stage('General Strike', [
       on(
@@ -90,6 +93,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (alarm to crowd-maker). Counterplay: send a lone
   // runner into an empty block so nothing is beside it; the echoes are 1/2.
   'merc-glass-echo': {
+    levelOneText: 'A one-cost chime that stalls the next intruder.',
     2: stage('Ringing Ears', [on('spring', stun('adjacentFoes'))]),
     3: stage('Echo Chamber', [on('spring', summon('neighbors', 1, 2))]),
   },
@@ -98,6 +102,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (L3 pays off against a crowded rival line).
   // Counterplay: scan it, or step in where no rival neighbors stand.
   'merc-tourist-trapdoor': {
+    levelOneText: 'A cheap pit that cracks the next armored tourist.',
     2: stage('Gift Shop Exit', [on('spring', mend(2))]),
     3: stage('The Whole Tour Group', [
       on('spring', mend(2), damage(2, 'adjacentFoes')),
@@ -108,6 +113,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (anti-heavy), then a jam. Counterplay: send a
   // cheap 1-play runner first; the jam lasts one strike.
   'merc-concealed-tollbooth': {
+    levelOneText: 'A hidden toll that strips armor from the next arrival.',
     2: stage('Surge Pricing', [on('spring', when('targetHeavy', boss(3)))]),
     3: stage('Gridlock at the Gate', [
       on('spring', boss(2), stun('adjacentFoes')),
@@ -119,6 +125,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: spring it with a token or cheap runner, twice; it heals
   // only allies beside it.
   'merc-boomerang-buffet': {
+    levelOneText: 'A heavy trap built to flatten a mid-sized fighter.',
     2: stage('Buffet Line', [on('spring', heal(2, 'adjacentAllies'))]),
     3: stage('It Comes Back Around', [
       on('spring', heal(2, 'adjacentAllies'), rearm()),
@@ -129,6 +136,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (damage to defense). Counterplay: the cones never
   // strike; splash and area damage clear them, and full alleys get none.
   'merc-invisible-bump': {
+    levelOneText: 'A cheap bump that slows and stings the next runner.',
     2: stage('Cone Zone', [on('spring', summon('nearest', 0, 3))]),
     3: stage('Road Works Republic', [on('spring', summon('everyEmpty', 0, 2))]),
   },
@@ -137,6 +145,8 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: STEADY into a SITUATIONAL L3 (needs allies beside it).
   // Counterplay: scan it, or trip it where no ally of the setter stands.
   'merc-market-tripwire': {
+    levelOneText:
+      'A stall wire that trips the next fighter and cuts its guard.',
     2: stage('Dropped Bargains', [on('spring', draw(1))]),
     3: stage('Everything Must Go', [
       on('spring', draw(1), sharpen(1, 'adjacentAllies')),
@@ -147,6 +157,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (the blackout zaps your crew). Counterplay: spread
   // thin so the puddle misses; punish the setter's hurt crew after.
   'merc-flooded-fusebox': {
+    levelOneText: 'A five-cost shock that can drop a big arriving fighter.',
     2: stage('Live Puddle', [on('spring', damage(2, 'adjacentFoes'))]),
     3: stage('Ten-Block Blackout', [
       on('spring', damage(2, 'allFoes'), damage(1, 'allies')),
@@ -157,6 +168,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (small boss swing that grows into a lockdown).
   // Counterplay: scan it; the clamp lasts one strike.
   'merc-parking-meter': {
+    levelOneText: 'A cheap meter that defuses the next volatile arrival.',
     2: stage('Ticketed', [on('spring', boss(1), mend(1))]),
     3: stage('Clamped and Towed', [
       on('spring', stun('target'), boss(2), mend(2)),
@@ -167,6 +179,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: STEADY (the file's one plain scaler). Counterplay: scan it,
   // or step in with no neighbors.
   'merc-dog-eared-mine': {
+    levelOneText: 'A heavy mine that wounds the next fighter and stalls it.',
     2: stage('Footnote Shrapnel', [on('spring', damage(1, 'adjacentFoes'))]),
     3: stage('Required Reading', [
       on('spring', damage(2, 'adjacentFoes'), draw(1)),
@@ -178,6 +191,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: keep no single star; the curse lands on your toughest
   // fighter, so give it life to spare.
   'merc-cursed-sign': {
+    levelOneText: 'A one-cost curse that dents the next fighter in.',
     2: stage('Wandering Curse', [on('spring', damage(2, 'weakestFoe'))]),
     3: stage('The Committee Convenes', [
       on('spring', damage(3, 'strongestFoe'), boss(1)),
@@ -188,6 +202,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (a trap that leaves bodies). Counterplay: full
   // alleys beside it leave the ghouls nowhere to rise; they are only 2/2.
   'merc-ghoul-et-lot': {
+    levelOneText: 'A guarded lot that bites whoever claims it next.',
     2: stage('Restless Tenant', [on('spring', summon('nearest', 2, 2))]),
     3: stage('The Ghouls Collect', [
       on('spring', summon('neighbors', 2, 2, ['leech'])),
@@ -198,6 +213,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (a big L3 moment). Counterplay: scan it; the
   // stun lasts one strike, so hold your best striker back a turn.
   'merc-angry-bees': {
+    levelOneText: 'A bag of bees that stings the next fighter off its swing.',
     2: stage('Bees Everywhere', [
       on('spring', damage(1, 'weakestFoe'), damage(1, 'strongestFoe')),
     ]),
@@ -210,6 +226,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (the payoff needs the wearer to fall). Counterplay:
   // stun the wearer instead of killing it, or kill its neighbors first.
   'merc-borrowed-kneepads': {
+    levelOneText: 'One-cost pads that blunt chip damage on a frontliner.',
     2: stage('Pass It Down', [on('death', armor(1, 'woundedAlly'))]),
     3: stage('Family Heirloom', [
       on('death', armor(1, 'adjacentAllies'), life(2, 'adjacentAllies')),
@@ -220,6 +237,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (to a durable annoyance). Counterplay: burst the
   // wearer in one round; the heal only lands at round end.
   'merc-squeaky-wheel': {
+    levelOneText: 'A cheap wheel that gives a runner a permanent edge.',
     2: stage('Gets the Oil', [on('roundEnd', heal(2, 'self'))]),
     3: stage('Complaint Department', [on('roundEnd', heal(2, 'self'))], {
       hex: { n: 1, to: 'across' },
@@ -231,6 +249,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // snack only lands at round end, so finish the wearer before it; the
   // potluck heals only what is already hurt.
   'merc-edible-kevlar': {
+    levelOneText: 'Gear that lets any fighter freeze the rivals it hits.',
     2: stage('Midnight Snack', [once('roundEnd', heal(3, 'self'))]),
     3: stage('Kevlar Potluck', [
       on('enter', heal(2, 'allies'), guard(1, 'adjacentAllies')),
@@ -241,6 +260,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (the L3 dive leaves the board). Counterplay: the
   // wearer is gone after the dive; block every alley at L2.
   'merc-emergency-wings': {
+    levelOneText: 'Wings that make a fighter stronger beside its crew.',
     2: stage('Gliding In', [on('enter', when('acrossEmpty', pounce()))]),
     3: stage('Emergency Exit', [on('enter', pounce(), retreat())]),
   },
@@ -249,6 +269,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (best against stuns). Counterplay: do not
   // bother stunning; the surge lasts one round.
   'merc-red-tape-scissors': {
+    levelOneText: 'Scissors that let a fighter cut through armored walls.',
     2: stage('Snip the Forms', [
       on('enter', cleanse('self'), cleanse('adjacentAllies')),
     ]),
@@ -261,6 +282,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (self-care to street clinic). Counterplay: kill
   // the wearer before round end; regen is slow against focused damage.
   'merc-theftproof-toolkit': {
+    levelOneText: 'A locked kit that keeps one fighter healing every round.',
     2: stage('House Calls', [on('roundEnd', heal(1, 'adjacentAllies'))]),
     3: stage('Clinic in a Case', [
       on('enter', grant('regen', 'adjacentAllies')),
@@ -272,6 +294,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER. Counterplay: chip it twice instead of one
   // big hit; armored blockers deny the knockouts.
   'merc-counterfeit-license': {
+    levelOneText: 'A forged permit that marks your lead fighter for growth.',
     2: stage('Laminated', [on('kill', sharpen(1, 'self'))]),
     3: stage('Diplomatic Immunity', [
       on('enter', rescue('self')),
@@ -283,6 +306,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (solo ambusher to group ambush). Counterplay:
   // ambush is one first strike; block with high-life fighters.
   'merc-rooftop-map': {
+    levelOneText: 'A map that lets a new fighter strike the moment it lands.',
     2: stage('Marked Ledges', [on('enter', draw(1))]),
     3: stage('Every Rooftop Known', [
       on('enter', draw(1), grant('ambush', 'adjacentAllies')),
@@ -294,6 +318,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // someone to bring back). Counterplay: stun the wearer instead of killing
   // it; the echo is fragile.
   'merc-broken-halo': {
+    levelOneText: 'A halo that heals its wearer with every landed hit.',
     2: stage('Second-Hand Grace', [on('hit', heal(1, 'adjacentAllies'))]),
     3: stage('One Last Miracle', [
       on('death', heal(2, 'allies'), revive(2, 3)),
@@ -304,6 +329,7 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (bruiser to organizer). Counterplay: kill its
   // neighbors; the shield ends on its turn.
   'merc-union-suit': {
+    levelOneText: "Long johns that push a big hitter's overkill into the boss.",
     2: stage('Flannel Layers', [on('turnStart', guard(1, 'self'))]),
     3: stage('Shop Steward', [on('turnStart', guard(1, 'self'))], {
       aura: { n: 1, to: 'adjacentAllies' },

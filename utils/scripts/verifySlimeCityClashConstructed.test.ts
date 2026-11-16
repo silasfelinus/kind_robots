@@ -336,15 +336,12 @@ const lowSelection = [...inDeckGames.entries()]
     l2: reachedL2.get(id) ?? 0,
     l3: reachedL3.get(id) ?? 0,
   }))
-  .sort(
-    (a, b) =>
-      a.selectionRate - b.selectionRate ||
-      a.id.localeCompare(b.id),
-  )
+  .sort((a, b) => a.selectionRate - b.selectionRate || a.id.localeCompare(b.id))
   .slice(0, 25)
 assert.ok(
   lowSelection.every(
-    (row) => row.selectedBouts <= row.appearances &&
+    (row) =>
+      row.selectedBouts <= row.appearances &&
       row.selectionRate >= 0 &&
       row.selectionRate <= 1,
   ),

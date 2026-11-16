@@ -150,6 +150,7 @@ const score = new Map<Deck, { games: number; points: number }>()
 const crewScore = new Map<TeamId, { games: number; points: number }>()
 const inDeckGames = new Map<string, number>()
 const played = new Map<string, number>()
+const selectedBouts = new Map<string, number>()
 const reachedL2 = new Map<string, number>()
 const reachedL3 = new Map<string, number>()
 const replayedArchetypes = new Set<string>()
@@ -184,8 +185,15 @@ function record(a: Deck, b: Deck, s: ClashState, mirror: boolean): void {
       crew.points += points
       crewScore.set(deck.team, crew)
     }
+    const selected = new Set(
+      s.commands.flatMap((c) =>
+        c.t === 'play' && c.side === side ? [c.card] : [],
+      ),
+    )
     for (const id of deck.cards) {
       inDeckGames.set(id, (inDeckGames.get(id) ?? 0) + 1)
+      if (selected.has(id))
+        selectedBouts.set(id, (selectedBouts.get(id) ?? 0) + 1)
       const level = s.levels[side][id] ?? 1
       if (level >= 2) reachedL2.set(id, (reachedL2.get(id) ?? 0) + 1)
       if (level >= 3) reachedL3.set(id, (reachedL3.get(id) ?? 0) + 1)
@@ -313,24 +321,32 @@ assert.deepEqual(
   [],
   'every crew fighter in the field gets played',
 )
-// The bottom of the selection funnel matters more than the mean: these
-// cards are present in legal constructed decks but rarely chosen by the CPU.
-// Keep their IDs and evolution reachability visible for the next editorial
-// and AI-valuation pass instead of silently averaging them into crew wins.
+// Count distinct bouts in which a card was chosen, not raw play commands.
+// A repeatedly played card must not masquerade as a high selection rate.
+// Keep repeat plays and evolution reachability for editorial diagnosis.
 const lowSelection = [...inDeckGames.entries()]
   .map(([id, appearances]) => ({
     id,
     appearances,
     plays: played.get(id) ?? 0,
+    selectedBouts: selectedBouts.get(id) ?? 0,
+    selectionRate: Number(
+      ((selectedBouts.get(id) ?? 0) / appearances).toFixed(3),
+    ),
     l2: reachedL2.get(id) ?? 0,
     l3: reachedL3.get(id) ?? 0,
   }))
-  .sort(
-    (a, b) =>
-      a.plays / a.appearances - b.plays / b.appearances ||
-      a.id.localeCompare(b.id),
-  )
+  .sort((a, b) => a.selectionRate - b.selectionRate || a.id.localeCompare(b.id))
   .slice(0, 25)
+assert.ok(
+  lowSelection.every(
+    (row) =>
+      row.selectedBouts <= row.appearances &&
+      row.selectionRate >= 0 &&
+      row.selectionRate <= 1,
+  ),
+  'constructed selection rates are bounded per card appearance',
+)
 const crewPool = CARDS.filter((c) => c.team !== 'mercenary')
 const covered = crewPool.filter((c) => inDeckGames.has(c.id)).length
 

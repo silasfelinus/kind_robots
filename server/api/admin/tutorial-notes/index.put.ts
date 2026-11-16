@@ -43,13 +43,13 @@ export default defineEventHandler(async (event) => {
           ? text
           : action === 'unpublish'
             ? null
-            : existing?.publishedText ?? null,
+            : (existing?.publishedText ?? null),
       publishedAt:
         action === 'publish'
           ? now
           : action === 'unpublish'
             ? null
-            : existing?.publishedAt ?? null,
+            : (existing?.publishedAt ?? null),
     }
     await writeTutorialCopy(projectId, path, copy, auth.user.id)
     return {

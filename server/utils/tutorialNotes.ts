@@ -12,18 +12,16 @@ export type TutorialCopy = {
 
 export function normalizeTutorialPath(raw: unknown): string {
   const path = typeof raw === 'string' ? raw.trim() : ''
-  if (
-    path.length > 180 ||
-    !/^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/.test(path)
-  ) {
+  if (path.length > 180 || !/^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/.test(path)) {
     throw createError({ statusCode: 400, message: 'Invalid tutorial route.' })
   }
   return path
 }
 
 export function tutorialPageKey(path: string): string {
-  const slug = (path === '/' ? 'home' : path.slice(1).replaceAll('/', '-'))
-    .slice(0, 60)
+  const slug = (
+    path === '/' ? 'home' : path.slice(1).replaceAll('/', '-')
+  ).slice(0, 60)
   const hash = createHash('sha256').update(path).digest('hex').slice(0, 16)
   return 'tutorial-' + slug + '-' + hash
 }
@@ -50,7 +48,10 @@ export function parseTutorialCopy(
     Array.isArray(payload) ||
     (payload as Record<string, unknown>).path !== path
   ) {
-    throw createError({ statusCode: 500, message: 'Invalid saved tutorial note.' })
+    throw createError({
+      statusCode: 500,
+      message: 'Invalid saved tutorial note.',
+    })
   }
   const data = payload as Record<string, unknown>
   return {
@@ -58,8 +59,7 @@ export function parseTutorialCopy(
     draftText: typeof data.draftText === 'string' ? data.draftText : '',
     publishedText:
       typeof data.publishedText === 'string' ? data.publishedText : null,
-    publishedAt:
-      typeof data.publishedAt === 'string' ? data.publishedAt : null,
+    publishedAt: typeof data.publishedAt === 'string' ? data.publishedAt : null,
   }
 }
 

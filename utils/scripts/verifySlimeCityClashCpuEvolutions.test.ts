@@ -10,7 +10,9 @@ import {
   chooseClashCpu,
   createClash,
   endClashTurn,
+  nextClashStrike,
   playClash,
+  strikeClash,
   type ClashUnit,
 } from '../slimeCity/clash'
 import { CLASH_EVOLUTIONS } from '../slimeCity/clashEvolutions'
@@ -150,6 +152,52 @@ const fighter = (
     [id],
     'an isolated midwife has nobody else to prime',
   )
+}
+
+// Broken Halo used to drop its L2 Second-Hand Grace at L3, so the evolved
+// halo did nothing for the crew until its wearer fell. The miracle is now
+// an extra payoff: a living wearer's landed hit still heals both
+// neighbors, a stunned wearer heals nobody, and the strike replays exactly.
+{
+  const id = 'merc-broken-halo'
+  const s = createClash('catgirls', 'riot', 202618)
+  s.round = 5
+  s.active = 'player'
+  s.phase = 'attack'
+  s.cursor = 0
+  s.powersUsed = { player: ['catgirls'], enemy: ['riot'] }
+  s.units = [
+    fighter('player', 1, 81, { hp: 5, attacked: true }),
+    fighter('player', 2, 82, {
+      gear: [id],
+      gearLevels: { [id]: 3 },
+      keywords: ['leech'],
+    }),
+    fighter('player', 3, 83, { hp: 5, attacked: true }),
+    fighter('enemy', 2, 84, { hp: 20, maxHp: 20, armor: 0 }),
+  ]
+  assert.equal(nextClashStrike(s, 'player'), 2)
+  const graced = strikeClash(s, 'player')
+  for (const uid of [81, 83])
+    assert.equal(
+      graced.units.find((unit) => unit.uid === uid)!.hp,
+      6,
+      'One Last Miracle keeps Second-Hand Grace for neighbor ' + uid,
+    )
+  assert.deepEqual(strikeClash(s, 'player'), graced, 'the hit replays')
+  assert.ok(
+    clashCardText(cardById(id), 3).includes('Hit: heal adjacent allies 1'),
+  )
+
+  const stunned = structuredClone(s)
+  stunned.units.find((unit) => unit.uid === 82)!.rooted = true
+  const quiet = strikeClash(stunned, 'player')
+  for (const uid of [81, 83])
+    assert.equal(
+      quiet.units.find((unit) => unit.uid === uid)!.hp,
+      5,
+      'a stunned wearer spills no grace',
+    )
 }
 
 // A situational L3 still chooses by the *actual* board: one wounded

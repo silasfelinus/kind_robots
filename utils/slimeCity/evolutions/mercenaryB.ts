@@ -315,13 +315,18 @@ export const MERCENARY_B_EVOLUTIONS: Record<string, CardEvolution> = {
   // Arc: an obsolete saint's halo -> its grace spills onto the neighbors ->
   // when the wearer falls, the halo works one last miracle.
   // Trajectory: EARNED ONE-SHOT (the miracle needs the wearer to fall and
-  // someone to bring back). Counterplay: stun the wearer instead of killing
-  // it; the echo is fragile.
+  // someone to bring back). The L3 halo keeps spilling its L2 grace on
+  // every landed hit while the wearer lives; the miracle (the echo) is the
+  // extra payoff, not a replacement. The old death-time crew heal was
+  // traded for the kept grace so the face stays legible and the L3 budget
+  // stays flat. Counterplay: stun the wearer instead of killing it, which
+  // denies both the grace and the miracle; the echo is fragile.
   'merc-broken-halo': {
     levelOneText: 'A halo that heals its wearer with every landed hit.',
     2: stage('Second-Hand Grace', [on('hit', heal(1, 'adjacentAllies'))]),
     3: stage('One Last Miracle', [
-      on('death', heal(2, 'allies'), revive(2, 3)),
+      on('hit', heal(1, 'adjacentAllies')),
+      on('death', revive(2, 3)),
     ]),
   },
   // Arc: collective long underwear -> flannel layers against the cold ->

@@ -33,6 +33,9 @@
 // Exchange cards and evolution stages, each fetched and contact-sheet reviewed.
 // The 7 redo plates (lettered signs, child-looking acolytes, Klan-like hoods)
 // keep current art; verdicts live in exchangeOccultArtIntake.json.
+// EXCHANGE-OCCULT-REDO-1 (2026-11-16 PT contact sheet): invisible-lien card,
+// wage-garnisher card and wage-garnisher@2 kept (273424/273425/273427); the
+// other 4 still showed sign lettering (or pointed hoods) and keep current art.
 export const SLIME_CITY_ART = {
   crews: {
     catgirls: 258339,
@@ -232,7 +235,7 @@ export const SLIME_CITY_ART = {
     's2-exchange-contract-amendment': 269813,
     's2-exchange-executive-health-coverage': 269815,
     's2-exchange-golden-bailiff': 269811,
-    's2-exchange-invisible-lien': 261447,
+    's2-exchange-invisible-lien': 273424,
     's2-ironjaw-foundry-lion': 261426,
     's2-ironjaw-hydraulic-lockjaw': 261429,
     's2-ironjaw-overtime-pistons': 269654,
@@ -295,7 +298,7 @@ export const SLIME_CITY_ART = {
     's3-exchange-repossession-notice': 269829,
     's3-exchange-retainer-clerk': 269818,
     's3-exchange-seizure-executive': 269819,
-    's3-exchange-wage-garnisher': 261529,
+    's3-exchange-wage-garnisher': 273425,
     's3-ironjaw-bridgebreaker': 267405,
     's3-ironjaw-coal-racer': 267409,
     's3-ironjaw-dreadnought': 267397,
@@ -846,7 +849,7 @@ export const SLIME_CITY_ART = {
     's3-exchange-retainer-clerk@3': 269867,
     's3-exchange-seizure-executive@2': 269868,
     's3-exchange-seizure-executive@3': 269869,
-    's3-exchange-wage-garnisher@2': 266738,
+    's3-exchange-wage-garnisher@2': 273427,
     's3-exchange-wage-garnisher@3': 266739,
     'merc-allergy-season@2': 266859,
     'merc-allergy-season@3': 266860,

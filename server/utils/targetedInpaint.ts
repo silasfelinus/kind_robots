@@ -58,9 +58,10 @@ function targetPoints(target: EditTarget): Array<[number, number]> {
     if (!Array.isArray(target.box) || target.box.length !== 4) {
       throw new Error('Each box target requires four normalized coordinates.')
     }
-    const [x1, y1, x2, y2] = target.box.map((value) =>
-      finiteRange(value, 0, 1, 'box coordinate'),
-    )
+    const [x1, y1, x2, y2] = target.box
+    for (const value of [x1, y1, x2, y2]) {
+      finiteRange(value, 0, 1, 'box coordinate')
+    }
     if (x2 <= x1 || y2 <= y1) {
       throw new Error('Box targets must have positive width and height.')
     }
@@ -187,6 +188,7 @@ export async function prepareTargetedEdit(
       maxY = Math.max(maxY, y * height + padding)
     }
     const rendered = await sharp(svgForTarget(points, width, height, padding))
+      .flatten({ background: '#000000' })
       .greyscale()
       .raw()
       .toBuffer()

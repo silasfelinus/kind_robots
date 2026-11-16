@@ -1,9 +1,23 @@
 // Screens reachable from the Terrors on Crystal Street main menu.
 export type MenuView = 'scrapbook' | 'settings' | 'theme'
 
-// Tabs inside the scrapbook: each shows only what play has uncovered.
+// Tabs inside the scrapbook show discoveries and anonymous locked slots.
 export type ScrapbookTab =
   'weeks' | 'nightmares' | 'endings' | 'friends' | 'achievements'
+
+/** Count only real catalog entries, not duplicate or obsolete saved IDs. */
+export function discoveryProgress<T extends { id: string }>(
+  catalog: readonly T[],
+  knownIds: Iterable<string>,
+) {
+  const known = new Set(knownIds)
+  const discovered = catalog.filter((entry) => known.has(entry.id))
+  return {
+    discovered,
+    total: catalog.length,
+    missing: catalog.length - discovered.length,
+  }
+}
 
 // One stop on the screen dial across the top of the game.
 export type DialItem = {

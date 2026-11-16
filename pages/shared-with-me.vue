@@ -13,4 +13,11 @@
 
 <script setup lang="ts">
 import SharedWithMe from '@/components/sharing/shared-with-me.vue'
+
+useSeoMeta({
+  title: 'Shared with me | Kind Robots',
+  description:
+    'Art, stories and projects other Kind Robots members have shared with you.',
+  robots: 'noindex',
+})
 </script>

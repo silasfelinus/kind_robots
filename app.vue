@@ -425,12 +425,24 @@ watch(
 )
 
 const sharePreview = computed(() => findSharePreview(route.path))
+/*
+ * Only trust the page store's title/description when it describes THIS route.
+ * Dedicated pages (/build-bench, /login, /shared-with-me) never call setPage,
+ * so the store either still holds the previous content page or falls back to
+ * "Robots" -- both showed up as the browser tab title.
+ */
+const routePageTitle = computed(() =>
+  pageStore.describesPath(route.path) ? pageStore.title : '',
+)
+const routePageDescription = computed(() =>
+  pageStore.describesPath(route.path) ? pageStore.description : '',
+)
 const shareTitle = computed(
-  () => sharePreview.value?.title || pageStore.title || SITE_NAME,
+  () => sharePreview.value?.title || routePageTitle.value || SITE_NAME,
 )
 const shareDescription = computed(
   () =>
-    pageStore.description ||
+    routePageDescription.value ||
     sharePreview.value?.description ||
     pageStore.subtitle ||
     'Free handmade games and stories. No ads, no account needed.',
@@ -439,7 +451,7 @@ const shareUrl = computed(() => absoluteSiteUrl(route.path))
 const shareImage = computed(() => sharePreviewImageUrl(route.path))
 
 useSeoMeta({
-  title: () => pageStore.title || SITE_NAME,
+  title: () => routePageTitle.value || SITE_NAME,
   description: () => shareDescription.value,
   ogType: 'website',
   ogSiteName: SITE_NAME,

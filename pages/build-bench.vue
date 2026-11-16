@@ -13,4 +13,10 @@
 
 <script setup lang="ts">
 import BuildBench from '@/components/art/build-bench.vue'
+
+useSeoMeta({
+  title: 'Build Bench | Kind Robots',
+  description: 'Compare two image-generation builds side by side.',
+  robots: 'noindex',
+})
 </script>

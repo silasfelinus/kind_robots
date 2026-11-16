@@ -67,6 +67,15 @@
         </div>
 
         <div
+          v-if="destinationTitle && !store.isLoggedIn"
+          class="kr-note kr-note-info mb-4 border-info/30 p-3 text-center"
+          data-testid="login-destination-note"
+        >
+          <strong>{{ destinationTitle }}</strong> needs a free account. Sign in
+          or create one below and we'll take you straight there.
+        </div>
+
+        <div
           v-if="store.loading"
           class="mb-5 flex flex-col items-center gap-3 rounded-2xl border border-info/30 bg-info/10 px-4 py-6 text-info"
         >
@@ -93,7 +102,8 @@
             v-if="returnTarget"
             class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-sm font-semibold text-secondary"
           >
-            Sign in to continue to the trusted Kind Robots service that sent you here.
+            Sign in to continue to the trusted Kind Robots service that sent you
+            here.
           </div>
 
           <label for="login" class="flex flex-col gap-2">
@@ -263,9 +273,32 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useErrorStore, ErrorType } from '~/stores/errorStore'
 import { useUserStore } from '~/stores/userStore'
+import { useChannelContentStore } from '~/stores/channelContentStore'
+import {
+  LOGIN_PAGE_DESCRIPTION,
+  loginPageTitle,
+  loginRedirectPath,
+} from '~/utils/loginDestination'
 
 const store = useUserStore()
 const route = useRoute()
+const channelContentStore = useChannelContentStore()
+
+// Name the gated page the visitor was sent here from, e.g. "Slime City".
+const destinationTitle = computed(() => {
+  const path = loginRedirectPath(route.query.redirect)
+  if (!path) return ''
+  const location = channelContentStore.resolveActiveLocation({ path })
+  return location?.tab?.title || location?.channel?.title || ''
+})
+
+useSeoMeta({
+  title: () => loginPageTitle(destinationTitle.value),
+  description: LOGIN_PAGE_DESCRIPTION,
+  ogTitle: () => loginPageTitle(destinationTitle.value),
+  ogDescription: LOGIN_PAGE_DESCRIPTION,
+  robots: 'noindex',
+})
 const router = useRouter()
 const errorStore = useErrorStore()
 

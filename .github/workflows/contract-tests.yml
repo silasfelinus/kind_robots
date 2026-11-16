@@ -1395,6 +1395,12 @@ jobs:
       - name: Save the Plumber permanent collection and ending ledger
         run: npx tsx utils/scripts/verifySavePlumberCollection.test.ts
 
+      - name: Front door link previews and sign-in titles
+        run: |
+          npx tsx utils/scripts/verifyGameLinkPreview.test.ts
+          npx tsx utils/scripts/verifyLoginDestination.test.ts
+          npx tsx utils/scripts/verifyFrontDoorPolish.test.ts
+
       - name: Zuzu Pinball no stuck balls
         run: npm run test:zuzu-pinball-no-stuck
 

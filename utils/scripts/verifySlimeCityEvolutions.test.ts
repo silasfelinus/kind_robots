@@ -1271,6 +1271,28 @@ const ironWorker = (lane: number, uid: number) =>
   }
   assert.equal(roles.size, 30, 'shared native text gets distinct L1 roles')
 }
+// --- Riot: thirty authored L1 jobs. Eleven fighters, gear and spells share
+// the bare VOLATILE line, so each needs its own strategic role.
+{
+  const cards = CARDS.filter((card) => card.team === 'riot')
+  assert.equal(cards.length, 40)
+  assert.equal(cards.filter((card) => CLASH_TWISTS[card.id]).length, 10)
+  assert.equal(cards.filter((card) => CLASH_EVOLUTIONS[card.id]).length, 30)
+  const roles = new Set<string>()
+  for (const card of cards) {
+    const evo = CLASH_EVOLUTIONS[card.id]
+    if (!evo) continue
+    assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
+    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    roles.add(evo.levelOneText!)
+    for (const level of [1, 2, 3])
+      assert.ok(
+        clashCardText(card, level).length <= 160,
+        card.id + ' L' + level + ' must fit the card face',
+      )
+  }
+  assert.equal(roles.size, 30, 'shared native text gets distinct L1 roles')
+}
 const tideBoard = (units: ClashUnit[] = []): ClashState => {
   const s = createClash('undertow', 'bloodfairies', 51724)
   s.units = units

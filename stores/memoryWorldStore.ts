@@ -198,7 +198,9 @@ import {
 import type { EarthReality } from '~/utils/memoryDungeon/earthAct'
 import type { EarthJournalAction } from '~/utils/memoryDungeon/earthJournal'
 import type { HoshimoriWarmProgress } from '~/utils/memoryDungeon/hoshimoriWarm'
+import type { FurnaceProgress } from '~/utils/memoryDungeon/furnaceOfNames'
 import type { NightProgress } from '~/utils/memoryDungeon/hoshimoriNight'
+import { concludeHoshimoriNight } from '~/utils/memoryDungeon/hoshimoriNightCompletion'
 import { briarLossContinuation } from '~/utils/memoryDungeon/lossContinuations'
 import {
   BRIAR_REVEAL_WAVES,
@@ -850,6 +852,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (next === earthChronicle.value) return
     earthChronicle.value = next
     persistEarthChronicle()
+  }
+
+  function finishHoshimoriNightReality(
+    progress: NightProgress,
+    furnace: FurnaceProgress,
+  ): boolean {
+    const next = concludeHoshimoriNight(campaign.value, progress, furnace)
+    if (!next) return false
+    campaign.value = next
+    persistReality()
+    return true
   }
 
   function answerEarthPhoto(id: string, response: PhotoResponse): void {
@@ -2644,6 +2657,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     finishScyllaReality,
     syncHoshimoriNightAchievements,
     syncHoshimoriNightPhoto,
+    finishHoshimoriNightReality,
     activeReality,
     dark,
     darkHouse,

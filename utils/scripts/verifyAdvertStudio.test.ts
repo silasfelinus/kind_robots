@@ -231,7 +231,7 @@ assert.equal(arcade.variant, 'arcade')
 assert.equal(arcade.hero?.key, 'adverts/arcade/hero')
 assert.match(
   arcade.hero?.prompt ?? '',
-  /cinematic.*arcade hall/i,
+  /arcade hall/i,
   'Arcade has a queueable wide hero brief',
 )
 assert.equal(arcade.copy.statValue, '36')

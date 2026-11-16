@@ -1159,6 +1159,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'frozen-pond-skaters',
+    label: 'Frozen Pond Skaters',
+    reveal: 'Skaters glide figure-eights under festival lights',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Skaters loop across a frozen pond on a snowy night ⛸️ hover to make a skater spin, click to send a twirl wave across the ice',
+    color: '#9fd8ff',
+    releasedAt: '2026-11-16T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

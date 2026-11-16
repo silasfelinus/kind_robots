@@ -513,7 +513,8 @@ export const useAdvertStore = defineStore('advertStore', () => {
 
   async function exportAll(): Promise<number> {
     if (needsNativeSave()) {
-      notice.value = 'On iPhone or iPad, save posters individually using Share PNG.'
+      notice.value =
+        'On iPhone or iPad, save posters individually using Share PNG.'
       return 0
     }
     let saved = 0

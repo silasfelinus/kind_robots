@@ -232,9 +232,7 @@
       @keydown.esc="advertStore.closePreview()"
     >
       <div class="mb-3 flex items-center gap-2">
-        <p class="min-w-0 flex-1 truncate text-sm font-bold">
-          Full poster PNG
-        </p>
+        <p class="min-w-0 flex-1 truncate text-sm font-bold">Full poster PNG</p>
         <button
           type="button"
           class="btn btn-sm btn-primary"
@@ -263,15 +261,18 @@
         />
       </div>
       <p class="mt-2 text-center text-xs text-neutral-content/80">
-        {{ isIos
-          ? 'Use Share PNG to save to Photos or Files, or touch and hold the whole image.'
-          : 'This is one complete image, ready to download or copy.' }}
+        {{
+          isIos
+            ? 'Use Share PNG to save to Photos or Files, or touch and hold the whole image.'
+            : 'This is one complete image, ready to download or copy.'
+        }}
         <a
           :href="previewUrl"
           target="_blank"
           rel="noopener noreferrer"
           class="ml-2 underline"
-        >Open image</a>
+          >Open image</a
+        >
       </p>
     </div>
   </main>
@@ -298,8 +299,7 @@ const {
   previewUrl,
   errorMessage,
   notice,
-} =
-  storeToRefs(advertStore)
+} = storeToRefs(advertStore)
 
 const ready = ref(false)
 const isIos = ref(false)

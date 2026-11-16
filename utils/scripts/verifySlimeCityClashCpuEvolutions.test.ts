@@ -6,6 +6,7 @@ import {
   canClashPlay,
   clashEffectivePlayCost,
   clashCardText,
+  clashPower,
   chooseClashCpu,
   createClash,
   endClashTurn,
@@ -73,6 +74,81 @@ const fighter = (
     chooseClashCpu(s, 'player'),
     cmd,
     'identical board, identical choice',
+  )
+}
+
+// Two mercenary upgrades used to discard their level-two tactical job. The
+// auction golem now keeps pricing down a surviving tenant after its L3 hit,
+// while an empty lot still bills the rival boss. The spark midwife still
+// shares VOLATILE before its separate death payoff. Occupancy remains the
+// counterplay, and both commands replay exactly.
+{
+  const id = 'merc-auction-golem'
+  const occupied = createClash('catgirls', 'riot', 202616)
+  occupied.round = 5
+  occupied.hands.player = [id]
+  occupied.levels.player[id] = 3
+  occupied.units = [fighter('enemy', 2, 90, { hp: 12, maxHp: 12, attack: 6 })]
+  occupied.powersUsed = { player: ['catgirls'], enemy: ['riot'] }
+  const golemChoice = chooseClashCpu(occupied, 'player')
+  assert.equal(golemChoice.t, 'play')
+  if (golemChoice.t === 'play') assert.equal(golemChoice.card, id)
+  assert.deepEqual(
+    chooseClashCpu(occupied, 'player'),
+    golemChoice,
+    'the evolved golem has a deterministic CPU valuation',
+  )
+  const sold = playClash(occupied, 'player', id, 2)
+  const tenant = sold.units.find((unit) => unit.uid === 90)!
+  assert.equal(tenant.hp, 8, 'the occupied lot takes the authored L3 hit')
+  assert.equal(
+    clashPower(sold, tenant),
+    4,
+    'a surviving tenant remains priced down by the L2 job',
+  )
+  assert.equal(sold.boss.enemy, occupied.boss.enemy)
+  assert.deepEqual(playClash(occupied, 'player', id, 2), sold)
+  assert.ok(clashCardText(cardById(id), 3).includes('pierce 4 across'))
+
+  const empty = structuredClone(occupied)
+  empty.units = []
+  const foreclosed = playClash(empty, 'player', id, 2)
+  assert.equal(foreclosed.boss.enemy, empty.boss.enemy - 3)
+  assert.deepEqual(playClash(empty, 'player', id, 2), foreclosed)
+}
+{
+  const id = 'merc-spark-midwife'
+  const s = createClash('catgirls', 'riot', 202617)
+  s.round = 5
+  s.hands.player = [id]
+  s.levels.player[id] = 3
+  s.units = [fighter('player', 1, 91), fighter('player', 3, 93)]
+  s.powersUsed = { player: ['catgirls'], enemy: ['riot'] }
+  assert.deepEqual(chooseClashCpu(s, 'player'), {
+    t: 'play',
+    side: 'player',
+    card: id,
+    lane: 2,
+  })
+  const brainstorm = playClash(s, 'player', id, 2)
+  for (const uid of [91, 93])
+    assert.ok(
+      brainstorm.units
+        .find((unit) => unit.uid === uid)!
+        .keywords.includes('volatile'),
+      'Brainstorm keeps Ideas Are Catching for ally ' + uid,
+    )
+  assert.deepEqual(playClash(s, 'player', id, 2), brainstorm)
+
+  const isolated = structuredClone(s)
+  isolated.units = []
+  const alone = playClash(isolated, 'player', id, 2)
+  assert.deepEqual(
+    alone.units
+      .filter((unit) => unit.keywords.includes('volatile'))
+      .map((unit) => unit.cardId),
+    [id],
+    'an isolated midwife has nobody else to prime',
   )
 }
 

@@ -324,7 +324,7 @@ assert.deepEqual(
 // Count distinct bouts in which a card was chosen, not raw play commands.
 // A repeatedly played card must not masquerade as a high selection rate.
 // Keep repeat plays and evolution reachability for editorial diagnosis.
-const lowSelection = [...inDeckGames.entries()]
+const selectionRows = [...inDeckGames.entries()]
   .map(([id, appearances]) => ({
     id,
     appearances,
@@ -337,7 +337,10 @@ const lowSelection = [...inDeckGames.entries()]
     l3: reachedL3.get(id) ?? 0,
   }))
   .sort((a, b) => a.selectionRate - b.selectionRate || a.id.localeCompare(b.id))
-  .slice(0, 25)
+const lowSelection = selectionRows.slice(0, 25)
+const mercenarySelection = selectionRows.filter(
+  (row) => cardById(row.id).team === 'mercenary',
+)
 assert.ok(
   lowSelection.every(
     (row) =>
@@ -382,6 +385,7 @@ console.log(
       },
       replayedArchetypes: replayedArchetypes.size,
       lowSelection,
+      mercenarySelection,
     }),
 )
 console.log(

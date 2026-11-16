@@ -1,7 +1,4 @@
-import {
-  FURNACE_ENDINGS,
-  type FurnaceProgress,
-} from './furnaceOfNames'
+import { FURNACE_ENDINGS, type FurnaceProgress } from './furnaceOfNames'
 import {
   HOSHIMORI_NIGHT_SITES,
   restoreHoshimoriNight,

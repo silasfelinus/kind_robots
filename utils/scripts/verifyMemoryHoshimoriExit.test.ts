@@ -36,11 +36,7 @@ function campaignThroughE07(): MemoryCampaignProgress {
   campaign = chooseMemoryScyllaDeparture(campaign, 'tell-char')
   campaign = rememberMemoryWish(campaign, 'scylla-home-wish')
   campaign = completeMemoryExperience(campaign, 'e05')
-  campaign = chooseMemoryPairEnding(
-    campaign,
-    'e06',
-    'publish-twin-testimony',
-  )
+  campaign = chooseMemoryPairEnding(campaign, 'e06', 'publish-twin-testimony')
   campaign = completeMemoryExperience(campaign, 'e06')
   return completeMemoryExperience(campaign, 'e07')
 }
@@ -53,7 +49,10 @@ function adjacent(key: string): string[] {
     [x!, y! - 1],
     [x!, y! + 1],
   ]
-    .filter(([nextX, nextY]) => nextX! >= 1 && nextX! <= 8 && nextY! >= 1 && nextY! <= 8)
+    .filter(
+      ([nextX, nextY]) =>
+        nextX! >= 1 && nextX! <= 8 && nextY! >= 1 && nextY! <= 8,
+    )
     .map(([nextX, nextY]) => nextX + ',' + nextY)
 }
 
@@ -81,8 +80,7 @@ function completeNight(
     }
     const next = adjacent(progress.current).find(
       (key) =>
-        !progress.visited.includes(key) &&
-        canMoveHoshimoriNight(progress, key),
+        !progress.visited.includes(key) && canMoveHoshimoriNight(progress, key),
     )
     if (next) {
       progress = advanceHoshimoriNight(progress, { type: 'move', to: next })
@@ -128,9 +126,7 @@ function settle(progress: FurnaceProgress): FurnaceProgress {
   if (progress.decisions[room.id]) return progress
   const choice = room.choices
     .filter((candidate) => !D.choiceLock(progress, candidate))
-    .sort(
-      (a, b) => (b.gain?.evidence ?? 0) - (a.gain?.evidence ?? 0),
-    )[0]
+    .sort((a, b) => (b.gain?.evidence ?? 0) - (a.gain?.evidence ?? 0))[0]
   assert.ok(choice, room.id + ' must have an earned choice')
   return D.choose(progress, choice.id)
 }
@@ -142,10 +138,7 @@ function completeFurnace(
   let progress = settle(D.newProgress(entry))
   for (let room = 2; room <= 31; room += 1)
     progress = settle(
-      goTo(
-        progress,
-        ('FN-' + String(room).padStart(2, '0')) as FurnaceRoomId,
-      ),
+      goTo(progress, ('FN-' + String(room).padStart(2, '0')) as FurnaceRoomId),
     )
   progress = D.choose(goTo(progress, 'FN-32'), 'truth')
   progress = D.choose(goTo(progress, 'FN-35'), ending)
@@ -161,11 +154,7 @@ for (const [councilChoice, expectedEnding] of [
 ] as const) {
   const night = completeNight(councilChoice)
   assert.equal(
-    concludeHoshimoriNight(
-      campaign,
-      night,
-      D.newProgress('named'),
-    ),
+    concludeHoshimoriNight(campaign, night, D.newProgress('named')),
     null,
     'reaching the Furnace is not an earned e08 exit',
   )
@@ -192,9 +181,7 @@ for (const [councilChoice, expectedEnding] of [
   }
   const forged = JSON.parse(JSON.stringify(night)) as NightProgress
   forged.choices['4,4'] =
-    councilChoice === 'allow-departure'
-      ? 'require-consent'
-      : 'allow-departure'
+    councilChoice === 'allow-departure' ? 'require-consent' : 'allow-departure'
   assert.equal(
     concludeHoshimoriNight(
       campaign,

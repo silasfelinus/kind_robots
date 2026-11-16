@@ -24,8 +24,10 @@ const REWARD_KEY = 'shifting-desks-rewards-v1'
 const PAGE = '/play/shifting-desks'
 
 const viewports = [
+  { name: 'compact phone', width: 375, height: 667 },
   { name: 'phone', width: 390, height: 844 },
   { name: 'tablet', width: 768, height: 1024 },
+  { name: 'wide tablet', width: 820, height: 1180 },
   { name: 'desktop', width: 1440, height: 900 },
 ]
 
@@ -221,6 +223,29 @@ describe('Shifting Desks endings from naturally reached saves', () => {
         expect(text).not.to.include('A Permanent Position')
       })
       assertEpilogue(save)
+      // Reload must not turn a repeat completion into a fresh first-clear
+      // award or add a second receipt for the same completed run.
+      cy.window().then((win) => {
+        const archive = JSON.parse(win.localStorage.getItem(REWARD_KEY) ?? '{}')
+        const count = archive.runs?.length ?? 0
+        cy.reload()
+        openPersonnelFile()
+        cy.get('[aria-label="Your ending reward"]').should(($panel) => {
+          const text = squash($panel[0]?.textContent)
+          expect(text).to.include(commendation.title)
+          expect(text).to.include(
+            squash(commendation.repeat.replace('{nth}', ordinal(2))),
+          )
+        })
+        cy.window().should((reloaded) => {
+          const persisted = JSON.parse(
+            reloaded.localStorage.getItem(REWARD_KEY) ?? '{}',
+          )
+          expect(persisted.runs?.length ?? 0, 'reload is idempotent').to.equal(
+            count,
+          )
+        })
+      })
     })
   }
 

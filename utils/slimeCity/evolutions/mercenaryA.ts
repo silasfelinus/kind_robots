@@ -55,20 +55,25 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   // Arc: a wrecking wall that sells the ground you stand on -> the opening
   // bid prices the tenant across out of a fight -> SOLD: the occupant is
-  // evicted, or the empty lot is sold straight to the rival boss.
+  // hit and stays priced down if it survives, or the empty lot is sold
+  // straight to the rival boss.
   // Trajectory: SITUATIONAL (eviction if occupied, a boss bill if empty).
   // Counterplay: a big-life foe across survives the eviction; the golem is
   // a slow 2-play body, so race it in the other alleys.
   'merc-auction-golem': {
     2: stage('Priced Out', [], { hex: { n: 2, to: 'across' } }),
-    3: stage('Sold Out From Under You', [
-      on('enter', damage(4, 'across', true)),
-      on('enter', when('acrossEmpty', boss(3))),
-    ]),
+    3: stage(
+      'Sold Out From Under You',
+      [
+        on('enter', damage(4, 'across', true)),
+        on('enter', when('acrossEmpty', boss(3))),
+      ],
+      { hex: { n: 2, to: 'across' } },
+    ),
   },
   // Arc: she keeps every dangerous new idea alive -> the ideas are
-  // catching, and her neighbors start to fizz -> when she finally goes off,
-  // two fresh sparks are born beside her.
+  // catching, and her neighbors start to fizz -> the final brainstorm keeps
+  // them primed, then two fresh sparks are born when she finally goes off.
   // Trajectory: PRICE (her big payoff needs her to fall). Counterplay: stun
   // her instead of killing her, or bring her down while her neighbors'
   // alleys are full so no spark has room to land.
@@ -77,6 +82,7 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
       on('enter', grant('volatile', 'adjacentAllies')),
     ]),
     3: stage('Brainstorm', [
+      on('enter', grant('volatile', 'adjacentAllies')),
       on('death', summon('neighbors', 1, 1, ['volatile'])),
     ]),
   },

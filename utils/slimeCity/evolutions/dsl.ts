@@ -314,6 +314,7 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
   const signed = (n: number) => (n < 0 ? String(n) : '+' + n)
   switch (a.do) {
     case 'damage':
+      if (a.pierce && a.to === 'across') return 'pierce ' + a.n + ' across'
       return a.n + (a.pierce ? ' piercing' : '') + ' to ' + who(a.to)
     case 'heal':
       return 'heal ' + who(a.to) + ' ' + a.n

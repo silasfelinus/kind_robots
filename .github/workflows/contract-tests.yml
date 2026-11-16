@@ -193,6 +193,9 @@ jobs:
       - name: Comfy-only generation contract
         run: npm run test:comfy-only-generation
 
+      - name: SDXL targeted region editing and unchanged-pixel contract
+        run: npx tsx utils/scripts/verifyTargetedInpaint.test.ts
+
       - name: LoRA cfg ceiling contract
         run: npm run test:lora-cfg-ceiling
 

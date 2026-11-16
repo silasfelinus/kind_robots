@@ -387,8 +387,8 @@ export function evoActionText(a: EvoAction, subject: 'it' | 'self'): string {
       return (
         (a.to === 'self' ? 'sidestep' : 'shift the target') +
         (a.where === 'safe'
-          ? ' to an empty neighboring alley with no foe across'
-          : ' to an empty neighboring alley across from a foe')
+          ? ' to a free adjacent alley with no foe across'
+          : ' to a free adjacent alley across from a foe')
       )
     case 'duel':
       return (

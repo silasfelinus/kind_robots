@@ -1,6 +1,6 @@
 {
   "source": "conductor/projects/slime-city/art/IRONJAW-LIZARDS-ROUND-1.yaml",
-  "purpose": "Track which Ironjaw lizard art assets are represented in runtime. Tokens were fetched with authentication and reviewed on contact sheets on 2026-11-15 PT (slime-city/t-044): 42 verified keepers wired, 3 rejected for lettering.",
+  "purpose": "Track which Ironjaw lizard art assets are represented in runtime. Tokens were fetched with authentication and reviewed on contact sheets on 2026-11-15 PT (slime-city/t-044): 42 verified keepers wired, 3 rejected for lettering. Redo round 1 (2026-11-16 PT) replaced the 3 rejected union-millwright tokens with verified keepers.",
   "entries": [
     {
       "asset": "slime-city/crews/ironjaw",
@@ -112,24 +112,24 @@
     },
     {
       "asset": "slime-city/tokens/union-millwright/fierce",
-      "imageId": 267378,
-      "manifestPresent": false,
-      "verification": "rejected-image-review",
-      "note": "Union sash shows painted lettering (2026-11-15 PT contact sheet); keeps the older token until re-rendered."
+      "imageId": 273007,
+      "manifestPresent": true,
+      "verification": "verified-keeper",
+      "note": "IRONJAW-LIZARDS-REDO-1 re-render with a plain sash; kept on the 2026-11-16 PT contact sheet (replaces rejected 267378)."
     },
     {
       "asset": "slime-city/tokens/union-millwright/guard",
-      "imageId": 267379,
-      "manifestPresent": false,
-      "verification": "rejected-image-review",
-      "note": "Union sash shows painted lettering (2026-11-15 PT contact sheet); keeps the older token until re-rendered."
+      "imageId": 273008,
+      "manifestPresent": true,
+      "verification": "verified-keeper",
+      "note": "IRONJAW-LIZARDS-REDO-1 re-render with a plain sash; kept on the 2026-11-16 PT contact sheet (replaces rejected 267379)."
     },
     {
       "asset": "slime-city/tokens/union-millwright/hurt",
-      "imageId": 267380,
-      "manifestPresent": false,
-      "verification": "rejected-image-review",
-      "note": "Union sash shows painted lettering (2026-11-15 PT contact sheet); keeps the older token until re-rendered."
+      "imageId": 273009,
+      "manifestPresent": true,
+      "verification": "verified-keeper",
+      "note": "IRONJAW-LIZARDS-REDO-1 re-render with a plain sash; kept on the 2026-11-16 PT contact sheet (replaces rejected 267380)."
     },
     {
       "asset": "slime-city/cards/s1-walking-foundry",

@@ -236,7 +236,7 @@ export const SLIME_CITY_ART = {
     's2-ironjaw-foundry-lion': 261426,
     's2-ironjaw-hydraulic-lockjaw': 261429,
     's2-ironjaw-overtime-pistons': 269654,
-    's2-ironjaw-shift-change-shove': 264942,
+    's2-ironjaw-shift-change-shove': 273019,
     's2-ironjaw-union-bridgebearer': 267389,
     's2-riot-friendly-fire-rehearsal': 269710,
     's2-riot-fuse-lit-bicycle-courier': 269708,
@@ -307,7 +307,7 @@ export const SLIME_CITY_ART = {
     's3-ironjaw-night-welder': 267393,
     's3-ironjaw-union-cook': 267401,
     's3-ironjaw-overtime-toll': 264947,
-    's3-ironjaw-reallocation': 261488,
+    's3-ironjaw-reallocation': 273020,
     's3-ironjaw-slag-spill': 261493,
     's3-ironjaw-toe-pistons': 269659,
     's3-riot-alley-prophet': 269716,
@@ -1078,6 +1078,12 @@ export const SLIME_CITY_ART = {
     // s2-ironjaw-shift-change-shove@2, s3-ironjaw-bonus-plate@2,
     // s3-ironjaw-reallocation@2, s1-bolt-clamp@2, s3-ironjaw-forklift-chock@3,
     // s2-ironjaw-overtime-pistons@2; those levels fall back to card art.
+    // IRONJAW-LIZARDS-REDO-1 (2026-11-16 PT contact sheet): union-millwright@2/@3
+    // and s1-bolt-clamp@2 kept below; the other redo stages still showed sign
+    // lettering or human figures and keep falling back to card art.
+    'union-millwright@2': 273010,
+    'union-millwright@3': 273011,
+    's1-bolt-clamp@2': 273016,
     's1-walking-foundry@2': 269580,
     's1-walking-foundry@3': 269581,
     's1-scrap-welder@2': 269582,
@@ -1458,9 +1464,9 @@ export const SLIME_CITY_ART = {
     'sprite/fierce': 263468,
     'sprite/guard': 263469,
     'sprite/hurt': 263470,
-    'union-millwright/fierce': 266004,
-    'union-millwright/guard': 266005,
-    'union-millwright/hurt': 266006,
+    'union-millwright/fierce': 273007,
+    'union-millwright/guard': 273008,
+    'union-millwright/hurt': 273009,
     'watcher/hurt': 263479,
     // 2026-11-09 PT ogre redo 2 (BOARD-TOKENS-OGRE-REDO-2.yaml): moods for
     // Ironjaw creatures that had no token yet.

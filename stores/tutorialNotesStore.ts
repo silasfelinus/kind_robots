@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores/userStore'
 type PublicNote = {
   path: string
   text: string
+  hasRecord: boolean
   publishedAt: string | null
 }
 
@@ -23,6 +24,7 @@ export const useTutorialNotesStore = defineStore('tutorialNotesStore', () => {
   const userStore = useUserStore()
   const publicNotes = ref<Record<string, string>>({})
   const loadedPaths = ref<Record<string, boolean>>({})
+  const overrides = ref<Record<string, boolean>>({})
   const editorNotes = ref<Record<string, EditorNote>>({})
   const loading = ref(false)
   const saving = ref(false)
@@ -39,6 +41,7 @@ export const useTutorialNotesStore = defineStore('tutorialNotesStore', () => {
         throw new Error(response.message || 'Could not load developer note.')
       }
       publicNotes.value[path] = response.data.text
+      overrides.value[path] = response.data.hasRecord
       loadedPaths.value[path] = true
     } catch {
       publicNotes.value[path] = ''
@@ -92,6 +95,7 @@ export const useTutorialNotesStore = defineStore('tutorialNotesStore', () => {
       }
       editorNotes.value[path] = response.data
       publicNotes.value[path] = response.data.publishedText ?? ''
+      overrides.value[path] = true
       loadedPaths.value[path] = true
       notice.value = response.message || 'Developer note saved.'
       return true
@@ -106,6 +110,7 @@ export const useTutorialNotesStore = defineStore('tutorialNotesStore', () => {
   return {
     publicNotes,
     loadedPaths,
+    overrides,
     editorNotes,
     loading,
     saving,

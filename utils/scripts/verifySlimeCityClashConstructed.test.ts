@@ -151,7 +151,6 @@ const crewScore = new Map<TeamId, { games: number; points: number }>()
 const inDeckGames = new Map<string, number>()
 const played = new Map<string, number>()
 const selectedBouts = new Map<string, number>()
-const activatedBouts = new Map<string, number>()
 const reachedL2 = new Map<string, number>()
 const reachedL3 = new Map<string, number>()
 const replayedArchetypes = new Set<string>()
@@ -191,20 +190,10 @@ function record(a: Deck, b: Deck, s: ClashState, mirror: boolean): void {
         .filter((c) => c.t === 'play' && c.side === side)
         .map((c) => c.card),
     )
-    const activated = new Set(
-      s.commands
-        .filter((c) => c.t === 'activate' && c.side === side)
-        .map((c) =>
-          s.units.find((unit) => unit.uid === c.uid)?.cardId,
-        )
-        .filter((id): id is string => Boolean(id)),
-    )
     for (const id of deck.cards) {
       inDeckGames.set(id, (inDeckGames.get(id) ?? 0) + 1)
       if (selected.has(id))
         selectedBouts.set(id, (selectedBouts.get(id) ?? 0) + 1)
-      if (activated.has(id))
-        activatedBouts.set(id, (activatedBouts.get(id) ?? 0) + 1)
       const level = s.levels[side][id] ?? 1
       if (level >= 2) reachedL2.set(id, (reachedL2.get(id) ?? 0) + 1)
       if (level >= 3) reachedL3.set(id, (reachedL3.get(id) ?? 0) + 1)
@@ -344,7 +333,6 @@ const lowSelection = [...inDeckGames.entries()]
     selectionRate: Number(
       ((selectedBouts.get(id) ?? 0) / appearances).toFixed(3),
     ),
-    activatedBouts: activatedBouts.get(id) ?? 0,
     l2: reachedL2.get(id) ?? 0,
     l3: reachedL3.get(id) ?? 0,
   }))

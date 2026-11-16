@@ -150,6 +150,9 @@ const score = new Map<Deck, { games: number; points: number }>()
 const crewScore = new Map<TeamId, { games: number; points: number }>()
 const inDeckGames = new Map<string, number>()
 const played = new Map<string, number>()
+const reachedL2 = new Map<string, number>()
+const reachedL3 = new Map<string, number>()
+const replayedArchetypes = new Set<string>()
 let games = 0
 let firstSeat = 0
 let draws = 0
@@ -181,8 +184,12 @@ function record(a: Deck, b: Deck, s: ClashState, mirror: boolean): void {
       crew.points += points
       crewScore.set(deck.team, crew)
     }
-    for (const id of deck.cards)
+    for (const id of deck.cards) {
       inDeckGames.set(id, (inDeckGames.get(id) ?? 0) + 1)
+      const level = s.levels[side][id] ?? 1
+      if (level >= 2) reachedL2.set(id, (reachedL2.get(id) ?? 0) + 1)
+      if (level >= 3) reachedL3.set(id, (reachedL3.get(id) ?? 0) + 1)
+    }
     // No card is duplicated across draw pile, hand and spent pile.
     const zones = [...s.decks[side], ...s.hands[side], ...s.discards[side]]
     assert.equal(new Set(zones).size, zones.length, 'no duplicated card')
@@ -193,8 +200,11 @@ function record(a: Deck, b: Deck, s: ClashState, mirror: boolean): void {
   }
   for (const c of s.commands)
     if (c.t === 'play') played.set(c.card, (played.get(c.card) ?? 0) + 1)
-  // One exact command replay per crew, through the server replay path.
-  if (!mirror && !replayed.has(a.team) && a.name !== 'starter') {
+  // Replay each crew/archetype once, not just one arbitrary crew deck.
+  // This exercises all five constructed strategies through server replay.
+  const replayKey = a.team + '/' + a.name
+  if (!mirror && !replayedArchetypes.has(replayKey)) {
+    replayedArchetypes.add(replayKey)
     replayed.add(a.team)
     assert.deepEqual(
       replayClash(a.team, b.team, s.seed, s.commands, {
@@ -231,6 +241,7 @@ assert.equal(
   TEAMS.length * ARCHETYPES.length * (ARCHETYPES.length - 1),
 )
 assert.equal(replayed.size, TEAMS.length)
+assert.equal(replayedArchetypes.size, decks.length)
 
 const rate = (r: { games: number; points: number }) => r.points / r.games
 const firstSeatRate = firstSeat / games
@@ -302,6 +313,24 @@ assert.deepEqual(
   [],
   'every crew fighter in the field gets played',
 )
+// The bottom of the selection funnel matters more than the mean: these
+// cards are present in legal constructed decks but rarely chosen by the CPU.
+// Keep their IDs and evolution reachability visible for the next editorial
+// and AI-valuation pass instead of silently averaging them into crew wins.
+const lowSelection = [...inDeckGames.entries()]
+  .map(([id, appearances]) => ({
+    id,
+    appearances,
+    plays: played.get(id) ?? 0,
+    l2: reachedL2.get(id) ?? 0,
+    l3: reachedL3.get(id) ?? 0,
+  }))
+  .sort(
+    (a, b) =>
+      a.plays / a.appearances - b.plays / b.appearances ||
+      a.id.localeCompare(b.id),
+  )
+  .slice(0, 25)
 const crewPool = CARDS.filter((c) => c.team !== 'mercenary')
 const covered = crewPool.filter((c) => inDeckGames.has(c.id)).length
 
@@ -331,6 +360,12 @@ console.log(
           .map((r) => [r.deck, Number(r.rate.toFixed(3))]),
       ),
       deadTwoSlotCards: dead,
+      evolutionReach: {
+        l2: reachedL2.size,
+        l3: reachedL3.size,
+      },
+      replayedArchetypes: replayedArchetypes.size,
+      lowSelection,
     }),
 )
 console.log(
@@ -339,8 +374,8 @@ console.log(
     ' bouts across ' +
     decks.length +
     ' legal 20-card decks, ' +
-    replayed.size +
-    ' exact replays; ' +
+    replayedArchetypes.size +
+    ' exact archetype replays; ' +
     dead.length +
     ' dead two-slot cards (t-051), no dead crew fighter or one-slot card PASS',
 )

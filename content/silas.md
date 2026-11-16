@@ -25,4 +25,4 @@ Find Silas's public code and projects on [GitHub](https://github.com/silasfelinu
 
 ## Silas Says
 
-Each game's help sidebar has a **Silas Says** section for firsthand development notes: design decisions, lessons from playtesting, and plans for what comes next. These notes are written by Silas, rather than generated in his voice.
+Each game's help sidebar has a **Silas Says** section for firsthand development notes: design decisions, lessons from playtesting, and plans for what comes next. These notes are written by Silas, rather than generated in his voice. When signed in as an administrator, Silas can open a tutorial sidebar, choose **Write / edit**, save a private draft, and publish it explicitly when it is ready.

@@ -27,6 +27,13 @@ import {
   parseAdvertSlotKey,
   slotKeyFromAdvertRequestKey,
 } from '../adverts/posters'
+import {
+  normalizeTutorialPath,
+  normalizeTutorialText,
+  tutorialPageKey,
+  publicTutorialText,
+  TUTORIAL_NOTE_LIMIT,
+} from '../../server/utils/tutorialNotes'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { normalizeArtRequestKey } from '../../server/utils/artRequestKey'
 import { normalizeSlotKey } from '../../server/utils/artSlotRules'
@@ -327,6 +334,27 @@ assert.ok(
   'modern-screenshot is a dependency',
 )
 
+assert.equal(normalizeTutorialPath('/play/slime-city'), '/play/slime-city')
+assert.equal(normalizeTutorialPath('/'), '/')
+assert.notEqual(tutorialPageKey('/a/b'), tutorialPageKey('/a-b'))
+assert.ok(tutorialPageKey('/play/slime-city').length <= 128)
+assert.throws(() => normalizeTutorialPath('/play/../private'))
+assert.throws(() => normalizeTutorialPath('/play/slime-city?admin=true'))
+assert.throws(() => normalizeTutorialPath('//example.com'))
+assert.equal(normalizeTutorialText('  Roadmap draft  '), 'Roadmap draft')
+assert.throws(() => normalizeTutorialText('x'.repeat(TUTORIAL_NOTE_LIMIT + 1)))
+assert.equal(publicTutorialText('/play/slime-city', 'Published'), 'Published')
+assert.equal(publicTutorialText('/admin/adverts', 'Private'), '')
+assert.equal(publicTutorialText('/play/slime-city', null), '')
+const publicNoteRoute = read('server/api/tutorial-notes/index.get.ts')
+assert.match(publicNoteRoute, /hasRecord: Boolean\(copy\)/)
+const tutorialNotesStore = read('stores/tutorialNotesStore.ts')
+assert.match(
+  tutorialNotesStore,
+  /overrides.value\[path\] = response.data.hasRecord/,
+)
+assert.match(tutorialNotesStore, /overrides.value\[path\] = true/)
+
 const publicSelections = read('server/api/adverts/public-art.get.ts')
 assert.match(publicSelections, /isPublic: true/)
 assert.match(publicSelections, /isMature: false/)
@@ -344,6 +372,28 @@ const tutorialSheet = read('components/navigation/workspace-sheet.vue')
 assert.match(tutorialSheet, /data-testid="workspace-game-poster"/)
 assert.match(tutorialSheet, /data-testid="workspace-silas-says"/)
 assert.match(tutorialSheet, /data-testid="workspace-conversation"/)
+assert.match(tutorialSheet, /data-testid="silas-says-edit"/)
+assert.match(tutorialSheet, /data-testid="silas-says-save-draft"/)
+assert.match(tutorialSheet, /data-testid="silas-says-publish"/)
+assert.match(tutorialSheet, /tutorialNotesStore.save\(/)
+assert.match(read('stores/tutorialNotesStore.ts'), /loadEditor\(path:/)
+assert.match(
+  read('server/api/admin/tutorial-notes/index.get.ts'),
+  /requireAdminApiUser\(event\)/,
+)
+assert.match(
+  read('server/api/admin/tutorial-notes/index.put.ts'),
+  /requireAdminApiUser\(event\)/,
+)
+assert.match(
+  read('server/api/tutorial-notes/index.get.ts'),
+  /publicTutorialText/,
+)
+assert.match(
+  read('server/utils/tutorialNotePersistence.ts'),
+  /prisma.projectPageContent.upsert/,
+)
+assert.match(read('server/utils/tutorialNotes.ts'), /publicTutorialText/)
 assert.match(tutorialSheet, /reaction-category="PROJECT"/)
 assert.match(tutorialSheet, /advertStore.loadPublicSelections\(\)/)
 assert.match(

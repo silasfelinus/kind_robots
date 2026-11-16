@@ -196,6 +196,68 @@
       <div class="mb-2 flex items-center gap-2">
         <Icon name="kind-icon:comment" class="kr-icon-primary-5" />
         <h2 class="text-lg font-black">Silas Says</h2>
+        <button
+          v-if="userStore.isAdmin"
+          type="button"
+          class="kr-btn-ghost-xs ml-auto"
+          data-testid="silas-says-edit"
+          :disabled="tutorialNotesStore.loading"
+          @click="toggleNoteEditor"
+        >
+          {{ editingNote ? 'Close editor' : 'Write / edit' }}
+        </button>
+      </div>
+      <div v-if="editingNote" class="mb-3 space-y-2">
+        <label class="block text-sm font-bold" for="silas-note-draft">
+          Your developer note for this page
+        </label>
+        <textarea
+          id="silas-note-draft"
+          v-model="noteDraft"
+          maxlength="5000"
+          rows="6"
+          class="textarea textarea-bordered w-full"
+          placeholder="What is happening behind the scenes? What comes next?"
+        />
+        <p class="text-xs text-base-content/60">
+          {{ noteDraft.length }}/5000 characters. Saving a draft does not
+          publish it. Publish explicitly to show your writing to visitors.
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            :disabled="tutorialNotesStore.saving"
+            data-testid="silas-says-save-draft"
+            @click="saveNote('draft')"
+          >
+            Save draft
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            :disabled="tutorialNotesStore.saving || !noteDraft.trim()"
+            data-testid="silas-says-publish"
+            @click="saveNote('publish')"
+          >
+            Publish note
+          </button>
+          <button
+            v-if="tutorialNotesStore.editorNotes[route.path]?.publishedText"
+            type="button"
+            class="btn btn-sm btn-ghost text-error"
+            :disabled="tutorialNotesStore.saving"
+            @click="saveNote('unpublish')"
+          >
+            Unpublish
+          </button>
+        </div>
+        <p v-if="tutorialNotesStore.error" class="text-sm text-error" role="alert">
+          {{ tutorialNotesStore.error }}
+        </p>
+        <p v-if="tutorialNotesStore.notice" class="text-sm text-success" role="status">
+          {{ tutorialNotesStore.notice }}
+        </p>
       </div>
       <p v-if="silasNote" class="whitespace-pre-line text-sm leading-relaxed">
         {{ silasNote }}
@@ -500,6 +562,8 @@ import { useAdvertStore } from '@/stores/advertStore'
 import { advertPlayPath } from '@/utils/adverts/posters'
 import { useProjectStore } from '@/stores/projectStore'
 import { useReactionStore } from '@/stores/reactionStore'
+import { useTutorialNotesStore } from '@/stores/tutorialNotesStore'
+import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useSheetStore } from '@/stores/sheetStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
@@ -548,6 +612,10 @@ const navStore = useNavStore()
 const advertStore = useAdvertStore()
 const projectStore = useProjectStore()
 const reactionStore = useReactionStore()
+const tutorialNotesStore = useTutorialNotesStore()
+const userStore = useUserStore()
+const editingNote = ref(false)
+const noteDraft = ref('')
 const pageStore = usePageStore()
 const sheetStore = useSheetStore()
 
@@ -560,19 +628,71 @@ const activePoster = computed(
 
 const silasNote = computed(
   () =>
-    tutorialLocation.value?.tab?.silasSays ||
-    tutorialLocation.value?.channel?.silasSays ||
-    '',
+    tutorialNotesStore.overrides[route.path]
+      ? (tutorialNotesStore.publicNotes[route.path] ?? '')
+      : tutorialLocation.value?.tab?.silasSays ||
+        tutorialLocation.value?.channel?.silasSays ||
+        '',
 )
+
+async function toggleNoteEditor(): Promise<void> {
+  if (editingNote.value) {
+    editingNote.value = false
+    return
+  }
+  const path = route.path
+  const note = await tutorialNotesStore.loadEditor(path)
+  if (!note || route.path !== path) return
+  noteDraft.value = note.draftText ?? silasNote.value
+  editingNote.value = true
+}
+
+async function saveNote(
+  action: 'draft' | 'publish' | 'unpublish',
+): Promise<void> {
+  const success = await tutorialNotesStore.save(
+    route.path,
+    noteDraft.value,
+    action,
+  )
+  if (success && action === 'publish') editingNote.value = false
+}
+
+watch(
+  () => route.path,
+  (path) => {
+    editingNote.value = false
+    noteDraft.value = ''
+    if (import.meta.client) void tutorialNotesStore.loadPublic(path)
+  },
+  { immediate: true },
+)
+
+function projectRoutePath(href: string | null | undefined): string {
+  if (!href) return ''
+  if (href.startsWith('/')) return href.split('?')[0] ?? ''
+  try {
+    const url = new URL(href)
+    if (url.hostname !== 'kindrobots.org' && url.hostname !== 'www.kindrobots.org') {
+      return ''
+    }
+    return url.pathname.replace(/[/]+$/, '') || '/'
+  } catch {
+    return ''
+  }
+}
 
 const discussionProject = computed(() => {
   const match =
     projectStore.projects.find(
-      (project) => project.liveUrl?.split('?')[0] === route.path,
+      (project) => projectRoutePath(project.liveUrl) === route.path,
     ) ??
-    projectStore.projectForSlug(activePoster.value?.poster.conductorSlug)
+    projectStore.projectForSlug(activePoster.value?.poster.conductorSlug) ??
+    projectStore.projectForSlug(tutorialLocation.value?.tab?.tabKey)
 
-  return match?.isPublic && !match.isMature ? match : null
+  return match?.isPublic && !match.isMature && match.allowReviews
+    ? match
+    : null
 })
 
 const discussionComments = computed(() => {

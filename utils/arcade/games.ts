@@ -68,6 +68,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 12_000_000,
     titleArt: '/images/arcade/games/butterfly-blaster-title.webp',
     accent: '#f472b6',
+    shelf: 'showcase',
     controls: 'Turn, flutter, sparkle, hop',
     maxPlayers: 4,
   },
@@ -91,6 +92,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 3_000_000,
     titleArt: '/images/arcade/games/battery-maze-title.webp',
     accent: '#facc15',
+    shelf: 'showcase',
     controls: 'Steer, flip switches',
     maxPlayers: 4,
   },
@@ -114,6 +116,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 20_000_000,
     titleArt: '/images/arcade/games/rescue-rally-title.webp',
     accent: '#22d3ee',
+    shelf: 'showcase',
     controls: 'Twin-stick or move to aim, beam, strafe and lead',
     twinStick: true,
     maxPlayers: 4,
@@ -139,6 +142,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlayers: 4,
     titleArt: '/images/arcade/games/sink-suds-title.webp',
     accent: '#a5f3fc',
+    shelf: 'showcase',
     controls: 'Steer, puff, shoot soap',
   },
   {
@@ -161,6 +165,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 5_000_000,
     titleArt: '/images/arcade/games/pipe-pals-title.webp',
     accent: '#4ade80',
+    shelf: 'showcase',
     controls: 'Run, jump, bump',
     maxPlayers: 2,
   },
@@ -185,6 +190,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 5_000_000,
     titleArt: '/images/arcade/games/butterfly-joust-title.webp',
     accent: '#f9a8d4',
+    shelf: 'showcase',
     controls: 'Flap, steer, joust',
     maxPlayers: 4,
   },
@@ -238,6 +244,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 2_000_000,
     titleArt: '/images/arcade/games/gloom-invaders-title.webp',
     accent: '#fde047',
+    shelf: 'growing',
     controls: 'Move, shine',
   },
   {
@@ -261,6 +268,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 2_000_000,
     titleArt: '/images/arcade/games/hedgehog-crossing-title.webp',
     accent: '#86efac',
+    shelf: 'growing',
     controls: 'Hop, dash',
   },
   {
@@ -281,6 +289,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 5_000_000,
     titleArt: '/images/arcade/games/ribbon-riders-title.webp',
     accent: '#22d3ee',
+    shelf: 'growing',
     controls: 'Steer, turbo, brake',
   },
   {
@@ -301,6 +310,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 5_000_000,
     titleArt: '/images/arcade/games/burrow-buddy-title.webp',
     accent: '#fb923c',
+    shelf: 'growing',
     controls: 'Dig, puff',
   },
   {
@@ -322,6 +332,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 5_000_000,
     titleArt: '/images/arcade/games/repair-rampage-title.webp',
     accent: '#f87171',
+    shelf: 'growing',
     controls: 'Climb, fix, shoo',
   },
   {
@@ -345,6 +356,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 10_000_000,
     titleArt: '/images/arcade/games/kindness-gauntlet-title.webp',
     accent: '#fbbf24',
+    shelf: 'showcase',
     controls: 'Pick a bot and a mode, move, spark, pulse',
     maxPlayers: 4,
   },
@@ -369,6 +381,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 250_000_000,
     titleArt: '/images/arcade/games/prize-show-panic-title.webp',
     accent: '#e879f9',
+    shelf: 'showcase',
     controls: 'Move, spray, aim with a second stick',
     twinStick: true,
     maxPlayers: 4,
@@ -394,6 +407,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 5_000_000,
     titleArt: '/images/arcade/games/zuzu-ghost-trail-title.webp',
     accent: '#ea580c',
+    shelf: 'growing',
     controls: 'Walk, jump, throw, cut',
   },
   {
@@ -417,6 +431,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 10_000_000,
     titleArt: '/images/arcade/games/station-sweep-title.webp',
     accent: '#34d399',
+    shelf: 'growing',
     controls: 'Walk, crouch, jump, sweep, tools, ride',
     maxPlayers: 3,
   },
@@ -439,6 +454,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 3_000_000,
     titleArt: '/images/arcade/games/rain-catcher-title.webp',
     accent: '#38bdf8',
+    shelf: 'growing',
     controls: 'Aim, burst',
   },
   {
@@ -460,6 +476,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 3_000_000,
     titleArt: '/images/arcade/games/brick-bloom-title.webp',
     accent: '#f472b6',
+    shelf: 'growing',
     controls: 'Move, launch',
     touchLayout: 'paddle',
   },
@@ -484,6 +501,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 2_000_000,
     titleArt: '/images/arcade/games/seed-lander-title.webp',
     accent: '#84cc16',
+    shelf: 'showcase',
     controls: 'Lean, puff, hop, winch',
     maxPlayers: 2,
   },
@@ -507,6 +525,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 3_000_000,
     titleArt: '/images/arcade/games/pixel-hop-title.webp',
     accent: '#fb923c',
+    shelf: 'growing',
     controls: 'Hop diagonally',
   },
   {
@@ -528,6 +547,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 3_000_000,
     titleArt: '/images/arcade/games/glitch-garden-title.webp',
     accent: '#a855f7',
+    shelf: 'growing',
     controls: 'Move, spray',
   },
   {
@@ -549,6 +569,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 3_000_000,
     titleArt: '/images/arcade/games/quilt-quest-title.webp',
     accent: '#f9a8d4',
+    shelf: 'growing',
     controls: 'Move, stitch',
   },
   {
@@ -570,6 +591,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 2_000_000,
     titleArt: '/images/arcade/games/cocoa-counter-title.webp',
     accent: '#f97316',
+    shelf: 'growing',
     controls: 'Change counter, pour',
   },
   {
@@ -591,6 +613,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 2_000_000,
     titleArt: '/images/arcade/games/seed-burst-title.webp',
     accent: '#22c55e',
+    shelf: 'growing',
     controls: 'Move, plant',
     maxPlayers: 4,
   },
@@ -614,6 +637,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 3_000_000,
     titleArt: '/images/arcade/games/lantern-swarm-title.webp',
     accent: '#fb923c',
+    shelf: 'growing',
     controls: 'Move, beam',
   },
   {
@@ -636,6 +660,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 2_000_000,
     titleArt: '/images/arcade/games/rover-ramble-title.webp',
     accent: '#38bdf8',
+    shelf: 'growing',
     controls: 'Speed, jump, zap',
   },
   {
@@ -659,6 +684,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 60_000_000,
     titleArt: '/images/arcade/games/cable-crawler-title.webp',
     accent: '#2dd4bf',
+    shelf: 'showcase',
     controls: 'Steer',
   },
   {
@@ -680,6 +706,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 2_000_000,
     titleArt: '/images/arcade/games/petal-post-title.webp',
     accent: '#ec4899',
+    shelf: 'growing',
     controls: 'Ride, steer, toss',
   },
   {
@@ -704,6 +731,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     maxPlausibleScore: 20_000_000,
     titleArt: '/images/arcade/games/bumper-bubbles-title.webp',
     accent: '#38bdf8',
+    shelf: 'showcase',
     controls: 'Walk, hop, blow',
   },
   {

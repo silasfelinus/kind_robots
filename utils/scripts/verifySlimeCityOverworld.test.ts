@@ -113,11 +113,12 @@ const artIds = [
 ]
 assert.equal(
   SLIME_CITY_ART_COUNT,
-  836,
-  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10), plus the title key art and two re-rendered cards (2026-11-11), plus 17 journey epilogue plates (2026-11-12) and the Ironjaw journey-left redo (2026-11-14), plus 16 key journey scene plates (2026-11-14) and the riot curfew-on-joy and exchange closing-of-the-book redos (2026-11-14), plus five redo-3 cards and the Clash playmat (2026-11-14), plus two redo-4 cards, the exchange chapter-5 defeat plate and the registered TURF court (2026-11-14)',
+  839,
+  '233 curated ids plus the 2026-11-07 art pass: 542 verified renders (217 cards, 263 board tokens, 60 story plates, 2 attacks), plus 11 new Ironjaw board-token moods from the 2026-11-09 ogre redo, plus the lizard Union Cook (2026-11-10), plus the title key art and two re-rendered cards (2026-11-11), plus 17 journey epilogue plates (2026-11-12) and the Ironjaw journey-left redo (2026-11-14), plus 16 key journey scene plates (2026-11-14) and the riot curfew-on-joy and exchange closing-of-the-book redos (2026-11-14), plus five redo-3 cards and the Clash playmat (2026-11-14), plus two redo-4 cards, the exchange chapter-5 defeat plate and the registered TURF court (2026-11-14), plus three lizard Union Lunch Lady board tokens (2026-11-15)',
 )
-// 23 boss mood portraits (2026-11-11 PT) sit outside SLIME_CITY_ART_COUNT.
-assert.equal(artIds.length, 836 + 23)
+// 23 boss mood portraits (2026-11-11 PT) plus the lizard Forewoman Rivet
+// 'ready' portrait (2026-11-15 PT) sit outside SLIME_CITY_ART_COUNT.
+assert.equal(artIds.length, 839 + 24)
 // Boss reactions for the Clash versus console: every key is
 // '<crew>/<ready|hit|gloat|beaten>' for a real crew.
 for (const key of Object.keys(SLIME_CITY_ART.bosses)) {
@@ -131,12 +132,21 @@ for (const key of Object.keys(SLIME_CITY_ART.bosses)) {
     key + ' is a mood',
   )
 }
-assert.equal(Object.keys(SLIME_CITY_ART.bosses).length, 23)
+assert.equal(Object.keys(SLIME_CITY_ART.bosses).length, 24)
+assert.equal(
+  slimeArtId('bosses', 'ironjaw/ready'),
+  269661,
+  'lizard Forewoman Rivet',
+)
 assert.ok(slimeArtId('ui', 'title-splash'), 'Generated title key art')
 // Evolution paintings (2026-11-11 PT curation of the Krea escalation ledgers):
 // every key names a real card and level, and no painting is reused.
 const evolutionKeys = Object.keys(SLIME_CITY_ART.evolutions)
-assert.equal(evolutionKeys.length, 425, '425 curated L2/L3 evolution paintings')
+assert.equal(
+  evolutionKeys.length,
+  425 + 56,
+  '425 curated L2/L3 evolution paintings plus 56 Ironjaw lizard stages (t-044)',
+)
 // ANARKISS round 2 replaces art, rather than adding catalog or evolution keys.
 // A missing ledger ID leaves a card or stage painted in the retired Riot style.
 const anarkissCards = Object.values(SLIME_CITY_ART.cards).filter(
@@ -252,7 +262,8 @@ assert.equal(
   'no playable card is left on an image-shaped fallback',
 )
 assert.ok(slimeArtId('cards', 'calico'), 'curation redo replaced Calico')
-assert.equal(slimeArtId('cards', 'plating'), 258390)
+// t-044: Foundry Plating repainted with a lizard crew (IRONJAW-LIZARDS-ROUND-2).
+assert.equal(slimeArtId('cards', 'plating'), 269644)
 
 const classicBlackout = (
   team: Parameters<typeof createMatch>[1],

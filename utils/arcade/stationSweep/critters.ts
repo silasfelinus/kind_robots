@@ -10,10 +10,14 @@
 //   Biter    nipper -> biter -> snapper            stalks and spits; the adult spits three ways
 //   Puffer   puff -> puffer -> spore cloud         swells near Mop and pops into sticky spores
 //   Gloop    blob -> gloop -> big gloop            splits in two when swept, unless foamed first
+//
+// Slice 2 (kr-arcade/t-142) adds the mimic crate: it doesn't grow, it waits. A crate that blinks,
+// then snaps at a Mop who steps up to it, and hops after it from then on.
 
 import { RAMPS, type Ramp } from '../snes'
 
-export type Family = 'roller' | 'crawler' | 'biter' | 'puffer' | 'gloop'
+export type Family =
+  'roller' | 'crawler' | 'biter' | 'puffer' | 'gloop' | 'mimic'
 export type Stage = 0 | 1 | 2
 
 export const FAMILY_NAMES: readonly Family[] = [
@@ -22,6 +26,7 @@ export const FAMILY_NAMES: readonly Family[] = [
   'biter',
   'puffer',
   'gloop',
+  'mimic',
 ]
 
 export type StageDef = {
@@ -52,6 +57,8 @@ export type FamilyDef = {
   /** Its body ramp, and the sparkle when it is swept. */
   ramp: Ramp
   spark: string
+  /** False for a family that never grows (the mimic crate). */
+  grows?: false
 }
 
 const LIME: Ramp = ['#1f3d0a', '#3f6212', '#65a30d', '#a3e635', '#ecfccb']
@@ -135,6 +142,20 @@ export const FAMILIES: Record<Family, FamilyDef> = {
     ramp: RAMPS.teal,
     spark: RAMPS.teal[3],
   },
+  mimic: {
+    name: 'MIMIC',
+    stages: [
+      stage('MIMIC CRATE', 3, 16, 9, 350, 3, 1, 10),
+      stage('MIMIC CRATE', 3, 16, 9, 350, 3, 1, 10),
+      stage('MIMIC CRATE', 3, 16, 9, 350, 3, 1, 10),
+    ],
+    does: 'A CRATE THAT SNAPS WHEN YOU COME CLOSE',
+    tell: 'IT BLINKS',
+    answer: 'SWEEP IT BEFORE YOU STAND ON IT',
+    ramp: RAMPS.earth,
+    spark: RAMPS.earth[3],
+    grows: false,
+  },
 }
 
 /** A stage's numbers. */
@@ -170,12 +191,18 @@ export const FLOOR_HATCH: ReadonlyArray<{
   { family: 'gloop', from: 2, weight: { start: 0.4, step: 0.08, limit: 0.7 } },
 ]
 
-/** The floor family a sac hatches, from one roll of the dice. */
+/**
+ * The floor family a sac hatches, from one roll of the dice; an authored station names the
+ * families its sacs hold (`allowed`), weighted as the endless stations weight them.
+ */
 export function pickFloorFamily(
   station: number,
   roll: number,
+  allowed?: readonly Family[],
 ): Exclude<Family, 'crawler'> {
-  const open = FLOOR_HATCH.filter((h) => station >= h.from)
+  const open = FLOOR_HATCH.filter((h) =>
+    allowed ? allowed.includes(h.family) : station >= h.from,
+  )
   const weights = open.map((h) => {
     const { start, step, limit } = h.weight
     const w = start + step * (station - h.from)
@@ -238,6 +265,16 @@ export const PUFFER = {
   /** Walking in spores: speed, and a nibble of charge this often. */
   slow: 0.45,
   drainEvery: 20,
+} as const
+
+export const MIMIC = {
+  /** It blinks this often while it waits, and snaps at a Mop this close. */
+  blinkEvery: 150,
+  snapAt: 22,
+  /** Once awake it hops after Mop: a hop this often. */
+  hopEvery: 50,
+  hopVx: 1.5,
+  hopVy: -2.6,
 } as const
 
 export const GLOOP = {

@@ -1,6 +1,21 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
+    <NuxtLink
+      v-if="activePoster"
+      :to="advertPlayPath(activePoster.poster)"
+      class="group block overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-2 transition hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+      data-testid="workspace-game-poster"
+    >
+      <advert-poster
+        :poster="activePoster.poster"
+        :images="activePoster.images"
+      />
+      <p class="mt-2 flex items-center justify-between gap-2 px-1 text-sm font-bold group-hover:text-primary">
+        <span>{{ activePoster.poster.name }}</span>
+        <span>Play this game →</span>
+      </p>
+    </NuxtLink>
     <button
       v-if="navStore.pageHelpLabel"
       type="button"
@@ -172,6 +187,133 @@
         inline
       />
     </template>
+
+    <section
+      v-if="tutorialChannelKey || pageTutorial || activePoster"
+      class="kr-panel p-4"
+      data-testid="workspace-silas-says"
+    >
+      <div class="mb-2 flex items-center gap-2">
+        <Icon name="kind-icon:comment" class="kr-icon-primary-5" />
+        <h2 class="text-lg font-black">Silas Says</h2>
+        <button
+          v-if="userStore.isAdmin"
+          type="button"
+          class="kr-btn-ghost-xs ml-auto"
+          data-testid="silas-says-edit"
+          :disabled="tutorialNotesStore.loading"
+          @click="toggleNoteEditor"
+        >
+          {{ editingNote ? 'Close editor' : 'Write / edit' }}
+        </button>
+      </div>
+      <div v-if="editingNote" class="mb-3 space-y-2">
+        <label class="block text-sm font-bold" for="silas-note-draft">
+          Your developer note for this page
+        </label>
+        <textarea
+          id="silas-note-draft"
+          v-model="noteDraft"
+          maxlength="5000"
+          rows="6"
+          class="textarea textarea-bordered w-full"
+          placeholder="What is happening behind the scenes? What comes next?"
+        />
+        <p class="text-xs text-base-content/60">
+          {{ noteDraft.length }}/5000 characters. Saving a draft does not
+          publish it. Publish explicitly to show your writing to visitors.
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            :disabled="tutorialNotesStore.saving"
+            data-testid="silas-says-save-draft"
+            @click="saveNote('draft')"
+          >
+            Save draft
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            :disabled="tutorialNotesStore.saving || !noteDraft.trim()"
+            data-testid="silas-says-publish"
+            @click="saveNote('publish')"
+          >
+            Publish note
+          </button>
+          <button
+            v-if="tutorialNotesStore.editorNotes[route.path]?.publishedText"
+            type="button"
+            class="btn btn-sm btn-ghost text-error"
+            :disabled="tutorialNotesStore.saving"
+            @click="saveNote('unpublish')"
+          >
+            Unpublish
+          </button>
+        </div>
+        <p v-if="tutorialNotesStore.error" class="text-sm text-error" role="alert">
+          {{ tutorialNotesStore.error }}
+        </p>
+        <p v-if="tutorialNotesStore.notice" class="text-sm text-success" role="status">
+          {{ tutorialNotesStore.notice }}
+        </p>
+      </div>
+      <p v-if="silasNote" class="whitespace-pre-line text-sm leading-relaxed">
+        {{ silasNote }}
+      </p>
+      <p v-else class="text-sm leading-relaxed text-base-content/65">
+        Developer notes, behind-the-scenes stories and plans for this corner
+        of Kind Robots will appear here as they're written.
+      </p>
+      <NuxtLink
+        to="/silas"
+        class="mt-3 inline-flex text-sm font-bold text-primary hover:underline"
+      >
+        Meet Silas, the human behind Kind Robots →
+      </NuxtLink>
+    </section>
+
+    <section
+      v-if="tutorialChannelKey || pageTutorial || activePoster"
+      class="kr-panel p-4"
+      data-testid="workspace-conversation"
+    >
+      <h2 class="mb-2 text-lg font-black">Reactions &amp; comments</h2>
+      <template v-if="discussionProject">
+        <p class="mb-3 text-sm text-base-content/65">
+          Tell us what you think about {{ discussionProject.title }}.
+        </p>
+        <reaction-card
+          :key="discussionProject.id"
+          :target-id="discussionProject.id"
+          target-type="project"
+          reaction-category="PROJECT"
+          :target-title="discussionProject.title"
+          compact
+          :show-header="false"
+          @submitted="refreshDiscussion"
+        />
+        <div v-if="discussionComments.length" class="mt-3 space-y-2">
+          <p class="text-xs font-black uppercase tracking-wider text-base-content/60">
+            Community comments
+          </p>
+          <p
+            v-for="reaction in discussionComments"
+            :key="reaction.id"
+            class="rounded-xl bg-base-200 p-3 text-sm leading-relaxed"
+          >
+            {{ reaction.comment }}
+          </p>
+        </div>
+      </template>
+      <p v-else class="text-sm leading-relaxed text-base-content/65">
+        This area doesn't have its own project discussion yet.
+        <NuxtLink to="/forum" class="font-bold text-primary hover:underline">
+          Join the community conversation.
+        </NuxtLink>
+      </p>
+    </section>
 
     <GameAchievementStrip
       v-if="routeAchievementGame"
@@ -410,12 +552,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { achievementGameForPath } from '~/utils/achievements/gameAchievements'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
+import { useAdvertStore } from '@/stores/advertStore'
+import { advertPlayPath } from '@/utils/adverts/posters'
+import { useProjectStore } from '@/stores/projectStore'
+import { useReactionStore } from '@/stores/reactionStore'
+import { useTutorialNotesStore } from '@/stores/tutorialNotesStore'
+import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useSheetStore } from '@/stores/sheetStore'
 import { NAV_CARDS } from '@/stores/helpers/navCards'
@@ -461,8 +609,124 @@ const routeAchievementGame = computed(() => achievementGameForPath(route.path))
 const builderStore = useBuilderStore()
 const channelContentStore = useChannelContentStore()
 const navStore = useNavStore()
+const advertStore = useAdvertStore()
+const projectStore = useProjectStore()
+const reactionStore = useReactionStore()
+const tutorialNotesStore = useTutorialNotesStore()
+const userStore = useUserStore()
+const editingNote = ref(false)
+const noteDraft = ref('')
 const pageStore = usePageStore()
 const sheetStore = useSheetStore()
+
+const activePoster = computed(
+  () =>
+    advertStore.posters.find(
+      (view) => advertPlayPath(view.poster) === route.path,
+    ) ?? null,
+)
+
+const silasNote = computed(
+  () =>
+    tutorialNotesStore.overrides[route.path]
+      ? (tutorialNotesStore.publicNotes[route.path] ?? '')
+      : tutorialLocation.value?.tab?.silasSays ||
+        tutorialLocation.value?.channel?.silasSays ||
+        '',
+)
+
+async function toggleNoteEditor(): Promise<void> {
+  if (editingNote.value) {
+    editingNote.value = false
+    return
+  }
+  const path = route.path
+  const note = await tutorialNotesStore.loadEditor(path)
+  if (!note || route.path !== path) return
+  noteDraft.value = note.draftText ?? silasNote.value
+  editingNote.value = true
+}
+
+async function saveNote(
+  action: 'draft' | 'publish' | 'unpublish',
+): Promise<void> {
+  const success = await tutorialNotesStore.save(
+    route.path,
+    noteDraft.value,
+    action,
+  )
+  if (success && action === 'publish') editingNote.value = false
+}
+
+watch(
+  () => route.path,
+  (path) => {
+    editingNote.value = false
+    noteDraft.value = ''
+    if (import.meta.client) void tutorialNotesStore.loadPublic(path)
+  },
+  { immediate: true },
+)
+
+function projectRoutePath(href: string | null | undefined): string {
+  if (!href) return ''
+  if (href.startsWith('/')) return href.split('?')[0] ?? ''
+  try {
+    const url = new URL(href)
+    if (url.hostname !== 'kindrobots.org' && url.hostname !== 'www.kindrobots.org') {
+      return ''
+    }
+    return url.pathname.replace(/[/]+$/, '') || '/'
+  } catch {
+    return ''
+  }
+}
+
+const discussionProject = computed(() => {
+  const match =
+    projectStore.projects.find(
+      (project) => projectRoutePath(project.liveUrl) === route.path,
+    ) ??
+    projectStore.projectForSlug(activePoster.value?.poster.conductorSlug) ??
+    projectStore.projectForSlug(tutorialLocation.value?.tab?.tabKey)
+
+  return match?.isPublic && !match.isMature && match.allowReviews
+    ? match
+    : null
+})
+
+const discussionComments = computed(() => {
+  const id = discussionProject.value?.id
+  if (!id) return []
+  return reactionStore
+    .getReactionsByTarget('project', id)
+    .filter((reaction) => Boolean(reaction.comment?.trim()))
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, 8)
+})
+
+function refreshDiscussion(): void {
+  const id = discussionProject.value?.id
+  if (id) void reactionStore.fetchReactionsByTarget('project', id, true)
+}
+
+onMounted(() => {
+  void advertStore.loadPublicSelections()
+  void projectStore.fetchProjects().catch(() => {})
+})
+
+watch(
+  () => discussionProject.value?.id,
+  (id) => {
+    if (import.meta.client && id) {
+      void reactionStore.fetchReactionsByTarget('project', id)
+    }
+  },
+  { immediate: true },
+)
 
 const showDebugPath = ref(false)
 const showTutorial = ref(false)

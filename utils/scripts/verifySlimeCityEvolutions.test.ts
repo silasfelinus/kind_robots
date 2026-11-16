@@ -864,6 +864,178 @@ function bloodBoard(units: ClashUnit[]): ClashState {
   assert.equal(s.pendingDraw?.player, 0)
 }
 
+// L3 must not quietly drop the L2 job its own design note promises to keep.
+// Midnight Janitor still takes his breather, Secondhand Halo still mends,
+// and Long Drain Sting still reaches the weakest foe. Real Clash board state.
+{
+  const janitorStrike = (level: number): ClashState => {
+    const source = board([
+      fighter('enemy', 2, 9, { hp: 1, maxHp: 8, attack: 0 }),
+      fighter('enemy', 4, 10, { hp: 10, maxHp: 10, rooted: true }),
+    ])
+    let game = cast(source, 'merc-midnight-janitor', 2, level)
+    const janitor = mine(game, 'merc-midnight-janitor')!
+    janitor.fresh = false
+    janitor.hp = 1
+    game = passClash(game, 'player')
+    while (nextClashStrike(game, 'player') >= 0)
+      game = strikeClash(game, 'player')
+    return game
+  }
+  const second = janitorStrike(2)
+  const final = janitorStrike(3)
+  assert.equal(at(second, 9), undefined, 'the janitor mops up the foe across')
+  assert.equal(at(final, 9), undefined, 'Closing Time still needs a knockout')
+  const mopped = mine(second, 'merc-midnight-janitor')!.hp
+  assert.ok(mopped > 1, 'L2 Mops Up heals the janitor after a knockout')
+  assert.equal(
+    mine(final, 'merc-midnight-janitor')!.hp,
+    mopped,
+    'Closing Time keeps the L2 breather on the same knockout',
+  )
+  assert.ok(
+    at(final, 10)!.hp < at(second, 10)!.hp,
+    'and then mops the weakest foe on the way out',
+  )
+}
+{
+  const source = board([
+    fighter('player', 2, 1, { hp: 3, maxHp: 8 }),
+    fighter('enemy', 2, 9),
+  ])
+  source.fallen = { player: [], enemy: [] }
+  const second = cast(structuredClone(source), 'merc-secondhand-halo', 2, 2)
+  const final = cast(structuredClone(source), 'merc-secondhand-halo', 2, 3)
+  assert.ok(at(second, 1)!.hp > 3, 'L2 Still Warm mends the target')
+  assert.equal(
+    at(final, 1)!.hp,
+    at(second, 1)!.hp,
+    'with no fallen ally, Previous Owner still mends instead of going weaker',
+  )
+}
+{
+  const source = board([
+    fighter('enemy', 0, 9, { hp: 3, maxHp: 8, attack: 1 }),
+    fighter('enemy', 2, 10, { hp: 12, maxHp: 12, attack: 3 }),
+    fighter('enemy', 4, 11, { hp: 16, maxHp: 16, attack: 9 }),
+  ])
+  source.teams.player = 'undertow'
+  const second = cast(
+    structuredClone(source),
+    's3-undertow-long-drain-sting',
+    2,
+    2,
+  )
+  const final = cast(
+    structuredClone(source),
+    's3-undertow-long-drain-sting',
+    2,
+    3,
+  )
+  assert.ok(
+    at(second, 9)!.hp < at(source, 9)!.hp,
+    'L2 Long Reach stings the weakest foe',
+  )
+  assert.equal(
+    at(final, 9)!.hp,
+    at(second, 9)!.hp,
+    'Paralytic Line keeps the L2 reach to the weakest',
+  )
+  assert.ok(!at(second, 11)!.rooted, 'L2 leaves the biggest fish loose')
+  assert.ok(at(final, 11)!.rooted, 'L3 also catches the biggest fish')
+}
+
+// Mercenaries should not forget their L2 job when L3 earns a new verb.
+// Each fixture uses real Clash board state, not only authored stage strings.
+{
+  const source = board([
+    fighter('player', 0, 1),
+    fighter('player', 4, 2),
+    fighter('enemy', 2, 9, { hp: 16, maxHp: 16 }),
+  ])
+  const second = cast(structuredClone(source), 'merc-crowd-lightning', 2, 2)
+  const final = cast(structuredClone(source), 'merc-crowd-lightning', 2, 3)
+  assert.ok(
+    at(second, 9)!.hp < at(source, 9)!.hp,
+    'L2 petition already strengthens the base zap',
+  )
+  assert.equal(
+    at(final, 9)!.hp,
+    at(source, 9)!.hp -
+      clashBalance(cardById('merc-crowd-lightning'), 3).power -
+      2,
+    'Lightning Rod keeps the extra two-point zap on top of L3 base damage',
+  )
+  assert.equal(
+    final.boss.enemy,
+    second.boss.enemy - 3,
+    'the same crowded petition now reaches the enemy boss',
+  )
+  assert.deepEqual(
+    cast(structuredClone(source), 'merc-crowd-lightning', 2, 3),
+    final,
+    'Lightning Rod is deterministic on replayed board state',
+  )
+}
+{
+  const source = board([
+    fighter('player', 1, 1),
+    fighter('player', 2, 2),
+    fighter('player', 3, 3),
+    fighter('enemy', 2, 9, { hp: 16, maxHp: 16 }),
+  ])
+  const second = cast(
+    structuredClone(source),
+    'merc-streetlight-confession',
+    2,
+    2,
+  )
+  const final = cast(
+    structuredClone(source),
+    'merc-streetlight-confession',
+    2,
+    3,
+  )
+  for (const uid of [1, 3])
+    assert.ok(
+      at(final, uid)!.surge >= 1 &&
+        at(final, uid)!.surge === at(second, uid)!.surge,
+      'Streetlight L3 keeps the actual neighboring-fighter rally',
+    )
+  assert.equal(
+    at(final, 9)!.hp,
+    at(second, 9)!.hp - 2,
+    'the confession now also wounds the opposing defender',
+  )
+}
+{
+  const source = board([
+    fighter('player', 1, 1, { fresh: true }),
+    fighter('player', 3, 2, { fresh: true }),
+    fighter('enemy', 1, 10, { hp: 16, maxHp: 16 }),
+    fighter('enemy', 2, 9, { hp: 16, maxHp: 16 }),
+    fighter('enemy', 3, 11, { hp: 16, maxHp: 16 }),
+  ])
+  const witchStrike = (level: number): ClashState => {
+    let game = cast(structuredClone(source), 'merc-traffic-witch', 2, level)
+    mine(game, 'merc-traffic-witch')!.fresh = false
+    game = passClash(game, 'player')
+    while (nextClashStrike(game, 'player') >= 0)
+      game = strikeClash(game, 'player')
+    return game
+  }
+  const second = witchStrike(2)
+  const final = witchStrike(3)
+  for (const uid of [1, 2])
+    assert.ok(
+      at(final, uid)!.surge >= 1 &&
+        at(final, uid)!.surge === at(second, uid)!.surge,
+      'Gridlock keeps the actual adjacent-ally power on a successful hit',
+    )
+  assert.equal(at(final, 10)!.rooted, true, 'traffic stops the left foe')
+  assert.equal(at(final, 11)!.rooted, true, 'traffic stops the right foe')
+}
+
 // --- Mercenary board builders should have tactical, counterable L3 payoffs.
 // Empty alleys are a resource: the flashmob floods them with fragile 1/1s,
 // while the scaffold raises defensive 0-power wings. A full board denies both.

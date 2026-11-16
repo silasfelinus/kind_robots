@@ -72,11 +72,15 @@ test('Ironjaw lizard art intake tracks every plate and only verified token keepe
           entry.asset + ' cannot be wired without a keeper verdict',
         )
       } else {
-        assert.equal(
-          entry.verification,
-          'pending-image-review',
+        assert.ok(
+          ['pending-image-review', 'rejected-image-review'].includes(
+            entry.verification,
+          ),
           entry.asset + ' requires image review before manifest integration',
         )
+        if (entry.verification === 'rejected-image-review') {
+          assert.ok(entry.note, entry.asset + ' rejection needs a reason')
+        }
       }
     } else {
       assert.equal(entry.manifestPresent, true, entry.asset)

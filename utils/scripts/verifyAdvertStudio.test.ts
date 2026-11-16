@@ -16,6 +16,7 @@ import {
   ADVERT_SLOT_KEYS,
   ADVERT_SLOT_KEY_PATTERN,
   advertEditDescription,
+  advertPlayPath,
   advertEditMarker,
   advertEditTitle,
   advertFontStylesheetUrl,
@@ -26,6 +27,13 @@ import {
   parseAdvertSlotKey,
   slotKeyFromAdvertRequestKey,
 } from '../adverts/posters'
+import {
+  normalizeTutorialPath,
+  normalizeTutorialText,
+  tutorialPageKey,
+  publicTutorialText,
+  TUTORIAL_NOTE_LIMIT,
+} from '../../server/utils/tutorialNotes'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { normalizeArtRequestKey } from '../../server/utils/artRequestKey'
 import { normalizeSlotKey } from '../../server/utils/artSlotRules'
@@ -325,6 +333,84 @@ assert.ok(
   pkg.dependencies?.['modern-screenshot'],
   'modern-screenshot is a dependency',
 )
+
+assert.equal(normalizeTutorialPath('/play/slime-city'), '/play/slime-city')
+assert.equal(normalizeTutorialPath('/'), '/')
+assert.notEqual(tutorialPageKey('/a/b'), tutorialPageKey('/a-b'))
+assert.ok(tutorialPageKey('/play/slime-city').length <= 128)
+assert.throws(() => normalizeTutorialPath('/play/../private'))
+assert.throws(() => normalizeTutorialPath('/play/slime-city?admin=true'))
+assert.throws(() => normalizeTutorialPath('//example.com'))
+assert.equal(normalizeTutorialText('  Roadmap draft  '), 'Roadmap draft')
+assert.throws(() => normalizeTutorialText('x'.repeat(TUTORIAL_NOTE_LIMIT + 1)))
+assert.equal(publicTutorialText('/play/slime-city', 'Published'), 'Published')
+assert.equal(publicTutorialText('/admin/adverts', 'Private'), '')
+assert.equal(publicTutorialText('/play/slime-city', null), '')
+const publicNoteRoute = read('server/api/tutorial-notes/index.get.ts')
+assert.match(publicNoteRoute, /hasRecord: Boolean\(copy\)/)
+const tutorialNotesStore = read('stores/tutorialNotesStore.ts')
+assert.match(
+  tutorialNotesStore,
+  /overrides.value\[path\] = response.data.hasRecord/,
+)
+assert.match(tutorialNotesStore, /overrides.value\[path\] = true/)
+
+const publicSelections = read('server/api/adverts/public-art.get.ts')
+assert.match(publicSelections, /isPublic: true/)
+assert.match(publicSelections, /isMature: false/)
+assert.match(publicSelections, /isActive: true/)
+assert.match(storeSource, /async function loadPublicSelections/)
+assert.match(storeSource, /'\/api\/adverts\/public-art'/)
+
+const publicHighlights = read('components/home/home-visitor-directory.vue')
+assert.match(publicHighlights, /data-testid="visitor-poster-toggle"/)
+assert.match(publicHighlights, /data-testid="visitor-poster-gallery"/)
+assert.match(publicHighlights, /advertPlayPath\(view.poster\)/)
+assert.match(publicHighlights, /advertStore.loadPublicSelections\(\)/)
+
+const tutorialSheet = read('components/navigation/workspace-sheet.vue')
+assert.match(tutorialSheet, /data-testid="workspace-game-poster"/)
+assert.match(tutorialSheet, /data-testid="workspace-silas-says"/)
+assert.match(tutorialSheet, /data-testid="workspace-conversation"/)
+assert.match(tutorialSheet, /data-testid="silas-says-edit"/)
+assert.match(tutorialSheet, /data-testid="silas-says-save-draft"/)
+assert.match(tutorialSheet, /data-testid="silas-says-publish"/)
+assert.match(tutorialSheet, /tutorialNotesStore.save\(/)
+assert.match(read('stores/tutorialNotesStore.ts'), /loadEditor\(path:/)
+assert.match(
+  read('server/api/admin/tutorial-notes/index.get.ts'),
+  /requireAdminApiUser\(event\)/,
+)
+assert.match(
+  read('server/api/admin/tutorial-notes/index.put.ts'),
+  /requireAdminApiUser\(event\)/,
+)
+assert.match(
+  read('server/api/tutorial-notes/index.get.ts'),
+  /publicTutorialText/,
+)
+assert.match(
+  read('server/utils/tutorialNotePersistence.ts'),
+  /prisma.projectPageContent.upsert/,
+)
+assert.match(read('server/utils/tutorialNotes.ts'), /publicTutorialText/)
+assert.match(tutorialSheet, /reaction-category="PROJECT"/)
+assert.match(tutorialSheet, /advertStore.loadPublicSelections\(\)/)
+assert.match(
+  read('content.config.ts'),
+  /silasSays: z\.string\(\)\.optional\(\)/,
+)
+assert.match(
+  read('stores/helpers/channelContent.ts'),
+  /silasSays: text\(item.silasSays\)/,
+)
+assert.match(read('content/silas.md'), /navigation: false/)
+for (const poster of ADVERT_POSTERS)
+  assert.equal(
+    advertPlayPath(poster),
+    `/play${poster.path}`,
+    `${poster.slug}: visitor poster opens its game`,
+  )
 
 console.log(
   `Advert Studio contract passed: ${ADVERT_POSTERS.length} posters, ${ADVERT_SLOT_KEYS.length} art slots.`,

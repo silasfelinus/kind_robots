@@ -1,0 +1,44 @@
+name: Arcade share live check
+
+# kr-arcade/t-167 and t-171: a shared cabinet link needs its title art served
+# on kindrobots.org and og: tags a crawler can read. Runs daily and on demand
+# after a deploy; the job summary lists every cabinet that needs a fix.
+# Missing title art fails the run. Unfurl problems are reported, and fail
+# only when dispatched with strict_unfurl (t-171 turns that on after deploy).
+
+on:
+  schedule:
+    - cron: '17 15 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Site to check
+        default: https://kindrobots.org
+      strict_unfurl:
+        description: Fail on unfurl problems too
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arcade-share-live-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Check title art and crawler unfurls
+        env:
+          ARCADE_BASE_URL: ${{ inputs.base_url || 'https://kindrobots.org' }}
+          STRICT: ${{ inputs.strict_unfurl && '--strict-unfurl' || '' }}
+        run: npx tsx utils/scripts/checkArcadeShareLive.ts --unfurl $STRICT

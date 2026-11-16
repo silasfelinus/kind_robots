@@ -338,7 +338,9 @@ try {
     let during = await holding(page, ['KeyD'], 400)
     assert.ok(during.heroes[0].x > before[0].x + 10, 'WASD moves seat 1')
     assert.ok(moved(during.heroes[1], before[1]) < 0.01, 'and not seat 2')
-    before = during.heroes
+    // Compare from the released-key frame, not the mid-hold sample.
+    // Seat 1 can still move while KeyD is being released.
+    before = (await rally(page)).heroes
     during = await holding(page, ['ArrowUp'], 400)
     assert.ok(during.heroes[1].y < before[1].y - 10, 'the arrows move seat 2')
     assert.ok(moved(during.heroes[0], before[0]) < 0.01, 'and not seat 1')

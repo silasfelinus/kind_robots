@@ -12,9 +12,19 @@
 
     <section class="arcade-hall-intro">
       <p class="arcade-neon">Kind Robots Arcade</p>
-      <NuxtLink to="/achievements?section=arcade" class="arcade-link">
-        Arcade achievements · {{ arcadeEarned }}/{{ arcadeTotal }} earned
-      </NuxtLink>
+      <div class="arcade-hall-actions">
+        <NuxtLink to="/achievements?section=arcade" class="arcade-link">
+          Arcade achievements · {{ arcadeEarned }}/{{ arcadeTotal }} earned
+        </NuxtLink>
+        <button
+          type="button"
+          class="btn btn-sm btn-warning rounded-2xl"
+          data-testid="arcade-hall-share"
+          @click="shareHall"
+        >
+          {{ shareNote || 'Share the Arcade' }}
+        </button>
+      </div>
     </section>
 
     <ul class="arcade-row" aria-label="Cabinets">
@@ -22,6 +32,7 @@
         <NuxtLink
           :to="hallLink(game)"
           class="arcade-mini"
+          :class="{ 'arcade-mini--showcase': game.shelf === 'showcase' }"
           :style="{ '--arcade-accent': game.accent }"
         >
           <span class="arcade-mini-marquee">{{ game.title }}</span>
@@ -34,6 +45,13 @@
               loading="lazy"
               @error="onArtError(game.slug)"
             />
+            <span
+              v-if="isGrowingCabinet(game)"
+              class="arcade-mini-stamp"
+              data-testid="arcade-growing-stamp"
+              title="Playable now; new stages are still being added"
+              >Growing</span
+            >
             <span class="arcade-mini-press">Press start</span>
           </span>
           <span class="arcade-mini-panel">
@@ -159,13 +177,19 @@
 //
 // The Kind Robots Arcade hall: a row of cabinets, live ones linking to their
 // own page and queued ones shown as "coming soon" (conductor kr-arcade).
+// Showcase cabinets lead; growing ones carry a stamp (kr-arcade/t-168).
 
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useArcadeStore } from '@/stores/arcadeStore'
 import { useArcadeReviewsStore } from '@/stores/arcadeReviewsStore'
 import { COMING_SOON, HALL_GAMES, shortArcadeBlurb } from '~/utils/arcade/games'
 import { formatChampion } from '~/utils/arcade/leaderboard'
-import { sortArcadeGamesByRating } from '~/utils/arcade/reviews'
+import {
+  arcadeHallShareLink,
+  arrangeArcadeHall,
+  isGrowingCabinet,
+  shareNoteFor,
+} from '~/utils/arcade/hall'
 import type { ArcadeGameMeta } from '~/utils/arcade/types'
 import { useAchievementStore } from '@/stores/achievementStore'
 import {
@@ -177,8 +201,17 @@ const store = useArcadeStore()
 const reviewStore = useArcadeReviewsStore()
 const selectedReview = ref('')
 const games = computed(() =>
-  sortArcadeGamesByRating(HALL_GAMES, reviewStore.summaries),
+  arrangeArcadeHall(HALL_GAMES, reviewStore.summaries),
 )
+const shareNote = ref('')
+
+async function shareHall() {
+  const result = await store.shareLink(
+    arcadeHallShareLink(window.location.origin),
+  )
+  shareNote.value = shareNoteFor(result)
+  if (shareNote.value) setTimeout(() => (shareNote.value = ''), 2500)
+}
 const comingSoon = COMING_SOON
 const backdrop = ref('/images/arcade/arcade-hall-backdrop.webp')
 // '' = use the game's own art, 'fallback' = it 404'd so show the arcade
@@ -295,6 +328,13 @@ onMounted(async () => {
   max-width: 46rem;
 }
 
+.arcade-hall-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
 .arcade-neon {
   margin: 0;
   font-family: ui-monospace, 'Courier New', monospace;
@@ -403,6 +443,25 @@ a.arcade-mini:focus-visible {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #fde68a;
+}
+
+.arcade-mini-stamp {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.3rem;
+  background: rgba(11, 6, 32, 0.78);
+  border: 1px solid #86efac;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #bbf7d0;
+}
+
+.arcade-mini--showcase {
+  border-color: #fde68a;
 }
 
 .arcade-mini-panel {

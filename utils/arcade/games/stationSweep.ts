@@ -20,6 +20,20 @@
 // between stations. Popped sacs drop the seven pickup tools (Mop carries one
 // on B; utils/arcade/stationSweep/tools.ts) alongside the Sweeper Beam on A.
 //
+// The Orbit Line depth pass, slice 2 (kr-arcade/t-142): rooms and the first
+// two stations. Stations are authored data (utils/arcade/stationSweep/
+// stations.ts): decks of their own lengths, lift shafts wherever the layout
+// puts them, vents between decks, and doorways (press Up) into side rooms:
+// supply closets, crew cabins (walk the crewmate to a lift for +10 seconds),
+// labs of specimen jars (and mimic crates), galleys, nest rooms, control rooms
+// that switch a hazard off, washing-machine rooms, the Seed Vault and the
+// Queen's room. The Greenhouse Ring has sprinklers that slick the floor and
+// vine curtains that hide critters; the Laundry Moon has conveyors and steam
+// vents. A Nest Mother lays sacs in the middle deck's nest; Mother Gloop and the
+// Laundry Kraken wait on the bottom decks (utils/arcade/stationSweep/bosses.ts).
+// Each station has a job (Seed Vault, Spin Cycle), and the run saves a resume
+// point at every station through utils/arcade/saves.ts.
+//
 // As in the classic, height matters: rollers bowl along the floor under a
 // standing shot, so crouch (Down) to sweep low. Crawlers drop and cling,
 // draining charge until Mop jumps (Up, or B with no tool) to shake them.
@@ -75,6 +89,7 @@ import {
   FAMILIES,
   FAMILY_NAMES,
   GLOOP,
+  MIMIC,
   PUFFER,
   ROLLER,
   growTicks,
@@ -99,6 +114,59 @@ import {
   type Visit,
 } from '../stationSweep/locker'
 import { ALARM_MUSIC, LOCKER_MUSIC, STATION_MUSIC } from '../stationSweep/music'
+import { readStationSave, type StationSave } from '../stationSweep/save'
+import {
+  ROOM_RAMPS,
+  drawBossBar,
+  drawConsole,
+  drawConveyor,
+  drawDoorway,
+  drawHelp,
+  drawJar,
+  drawKrakenHead,
+  drawMotherGloop,
+  drawNestMother,
+  drawRoomDecor,
+  drawSeedSack,
+  drawSnack,
+  drawSock,
+  drawSprinkler,
+  drawSteamVent,
+  drawTentacle,
+  drawVent,
+  drawVines,
+  drawWasher,
+  drawWet,
+} from '../stationSweep/scenery'
+import {
+  BOSS_NAMES,
+  KRAKEN,
+  MOTHER_GLOOP,
+  NEST_MOTHER,
+  type BossKind,
+} from '../stationSweep/bosses'
+import {
+  CREW_RESCUE,
+  GREENHOUSE_RING,
+  HAZARDS,
+  JOBS,
+  ORBIT_LINE,
+  ROOMS,
+  ROOM_EXIT_X,
+  SEED_VAULT_SECS,
+  SWITCH_NAMES,
+  doorsOn,
+  endlessStation,
+  hazardPhase,
+  liftsOn,
+  type Conveyor,
+  type Door,
+  type DoorKind,
+  type JobId,
+  type RoomKind,
+  type StationPlan,
+  type Switchable,
+} from '../stationSweep/stations'
 import {
   BUBBLE,
   DROPS,
@@ -136,12 +204,12 @@ const CLEAR_TICKS = 150
 const DEATH_TICKS = 110
 const START_LIVES = 3
 const EXTRA_EVERY = 25_000
-/** Lift doors on every deck, at the same spots. */
-const LIFTS = [180, DECK_W - 180]
 const RIDE_TICKS = 50
-/** Station clock: a base allowance plus time per deck. */
-const STATION_BASE_SECS = 45
-const SECS_PER_DECK = 24
+/** Stepping through a doorway, and crawling through a vent. */
+const DOOR_TICKS = 24
+const VENT_TICKS = 36
+/** How close to a doorway (or a console) Up reaches. */
+const DOOR_REACH = 12
 const GLOW_TICKS = 150
 /** The alarm layer joins the music with this many seconds left. */
 const ALARM_SECS = 20
@@ -185,7 +253,8 @@ type Mop = {
   camX: number
   /** Index into decks; deck 0 is the top of the station. */
   deck: number
-  ride: { to: number; t: number } | null
+  /** Riding a lift, stepping through a doorway or crawling a vent: where to, and how far along. */
+  ride: Ride | null
   /** Ticks until a downed Mop reboots (0 while it's up). */
   dead: number
   /** No spare left to reboot on: sitting out until one comes free. */
@@ -201,6 +270,16 @@ type Mop = {
   binCredits: number
   /** Ticks of spores still stuck to Mop's treads. */
   sticky: number
+  /** Mop's slide across a wet floor. */
+  slide: number
+}
+type Ride = {
+  to: number
+  t: number
+  total: number
+  /** Where Mop comes out on the deck it rides to. */
+  x: number
+  via: 'lift' | 'door' | 'vent'
 }
 type Critter = {
   kind: Family
@@ -233,6 +312,10 @@ type Critter = {
   pair: Critter | null
   /** Hit flash. */
   flash: number
+  /** A mimic crate that has snapped: it hops after Mop from then on. */
+  awake: boolean
+  /** One of Mother Gloop's own pieces. */
+  tag: boolean
 }
 type Sac = {
   x: number
@@ -241,6 +324,8 @@ type Sac = {
   timer: number
   hatches: number
   pulse: number
+  /** A washing machine that tumbles critters out, in place of a sac. */
+  machine?: boolean
 }
 type ShotKind = 'beam' | 'foam' | 'zap'
 type Shot = {
@@ -252,7 +337,7 @@ type Shot = {
   /** The seat whose bin a swept critter goes into. */
   owner: number
   /** What a piercing bolt has already swept through. */
-  hit: Array<Critter | Sac>
+  hit: unknown[]
 }
 type Spit = {
   x: number
@@ -262,8 +347,11 @@ type Spit = {
   life: number
   /** A lobbed spit arcs down and splats where it lands. */
   lob: boolean
+  /** A sock flung by the Laundry Kraken. */
+  sock?: boolean
 }
-type RepairKit = { x: number; life: number }
+/** A repair kit from a sac, or a galley snack. */
+type RepairKit = { x: number; life: number; snack?: boolean }
 type ToolDrop = { x: number; tool: PickupTool; life: number }
 type Bomb = { x: number; y: number; vx: number; vy: number; owner: number }
 type Spore = { x: number; r: number; life: number }
@@ -277,7 +365,56 @@ type Deck = {
   bombs: Bomb[]
   spores: Spore[]
   clean: boolean
+  width: number
+  lifts: Lift[]
+  doors: DoorState[]
+  /** For a room: what it is, and the corridor doorway it opens off. */
+  room: { kind: RoomKind; parent: number; doorX: number } | null
+  sprinklers: number[]
+  vines: Array<[number, number]>
+  conveyors: Conveyor[]
+  steamVents: number[]
+  wet: Array<{ x: number; life: number }>
+  jars: Jar[]
+  console: ControlConsole | null
+  bosses: Boss[]
 }
+type Lift = { x: number; up: boolean; down: boolean }
+/** A doorway on a corridor: into a room (its deck), or a vent to another deck. */
+type DoorState = { x: number; kind: DoorKind; room: number; to: number }
+/** A specimen jar in a lab, or a sack of seeds in the vault. */
+type Jar = { x: number; taken: boolean; seeds: boolean }
+type ControlConsole = { x: number; switches: Switchable; used: boolean }
+type Boss = {
+  kind: BossKind
+  x: number
+  hp: number
+  maxHp: number
+  phase: number
+  t: number
+  cool: number
+  /** A swell before a sac, a bulge before a blob. */
+  tell: number
+  flash: number
+  /** Mother Gloop's pieces flow back together when this runs out. */
+  reform: number
+  /** A Kraken tentacle on its way down (its shadow first), or lying on the floor. */
+  slam: { x: number; t: number } | null
+  /** The Kraken's head: how far risen, and how long it stays soft after steam. */
+  head: number
+  stun: number
+  /** Ticks to the next steam canister in the Kraken's room. */
+  aid: number
+}
+type Crew = {
+  name: string
+  deck: number
+  x: number
+  state: 'waiting' | 'following' | 'saved'
+  /** The Mop it follows. */
+  seat: number
+}
+type Job = { id: JobId; state: 'on' | 'done' | 'failed'; ticks: number }
 type Particle = {
   deck: number
   x: number
@@ -340,6 +477,7 @@ function newMop(seat: number): Mop {
     bin: 0,
     binCredits: 0,
     sticky: 0,
+    slide: 0,
   }
 }
 
@@ -366,6 +504,59 @@ function newCritter(kind: Family, stage: Stage, x: number, y: number): Critter {
     turn: 0,
     pair: null,
     flash: 0,
+    awake: false,
+    tag: false,
+  }
+}
+
+function newDeck(width: number): Deck {
+  return {
+    sacs: [],
+    critters: [],
+    kits: [],
+    drops: [],
+    shots: [],
+    spits: [],
+    bombs: [],
+    spores: [],
+    clean: false,
+    width,
+    lifts: [],
+    doors: [],
+    room: null,
+    sprinklers: [],
+    vines: [],
+    conveyors: [],
+    steamVents: [],
+    wet: [],
+    jars: [],
+    console: null,
+    bosses: [],
+  }
+}
+
+function newBoss(kind: BossKind, x: number): Boss {
+  const hp =
+    kind === 'nestMother'
+      ? NEST_MOTHER.hp
+      : kind === 'motherGloop'
+        ? MOTHER_GLOOP.hp
+        : KRAKEN.hp
+  return {
+    kind,
+    x,
+    hp,
+    maxHp: hp,
+    phase: 1,
+    t: 0,
+    cool: 0,
+    tell: 0,
+    flash: 0,
+    reform: 0,
+    slam: null,
+    head: 0,
+    stun: 0,
+    aid: 0,
   }
 }
 
@@ -519,6 +710,14 @@ const SPARE_SPRITE = pixelSprite(
   mopPalette(RAMPS.sky),
 )
 
+/** Stranded crewmates: Mop's model in other colours. */
+const CREW_SPRITES = [RAMPS.gold, RAMPS.teal, RAMPS.purple, RAMPS.ember].map(
+  (ramp) => {
+    const palette = mopPalette(ramp)
+    return [0, 1].map((f) => pixelSprite(mopRows(f, STAND_BODY), palette))
+  },
+)
+
 const SAC_PALETTE = {
   W: '#ffffff',
   H: LIME[4],
@@ -658,6 +857,62 @@ const DECK_LOOKS: readonly DeckLook[] = [
     space: [RAMPS.night[0], RAMPS.night[1], RAMPS.purple[0], RAMPS.night[2]],
     planet: RAMPS.purple,
     rings: true,
+  },
+]
+
+/** The Greenhouse Ring: leafy walls, brass trim, potting-soil floors. */
+const GREENHOUSE_LOOKS: readonly DeckLook[] = [
+  {
+    wall: shade(RAMPS.leaf, RAMPS.night[0], 0.55),
+    trim: RAMPS.gold,
+    floor: shade(RAMPS.earth, RAMPS.steel[1], 0.4),
+    space: [RAMPS.night[0], RAMPS.night[1], RAMPS.leaf[0], RAMPS.night[2]],
+    planet: RAMPS.gold,
+    rings: true,
+  },
+  {
+    wall: shade(RAMPS.teal, RAMPS.night[0], 0.55),
+    trim: RAMPS.leaf,
+    floor: shade(RAMPS.earth, RAMPS.steel[1], 0.5),
+    space: [RAMPS.night[0], RAMPS.sky[0], RAMPS.night[1], RAMPS.leaf[0]],
+    planet: RAMPS.rust,
+    rings: false,
+  },
+  {
+    wall: shade(RAMPS.leaf, RAMPS.earth[0], 0.6),
+    trim: RAMPS.pink,
+    floor: shade(RAMPS.earth, RAMPS.night[0], 0.3),
+    space: [RAMPS.night[0], RAMPS.night[1], RAMPS.purple[0], RAMPS.night[2]],
+    planet: RAMPS.leaf,
+    rings: true,
+  },
+]
+
+/** The Laundry Moon: tiled walls, soap-bubble trim, scrubbed floors. */
+const LAUNDRY_LOOKS: readonly DeckLook[] = [
+  {
+    wall: shade(RAMPS.water, RAMPS.night[0], 0.45),
+    trim: RAMPS.pink,
+    floor: shade(RAMPS.cream, RAMPS.steel[1], 0.5),
+    space: [RAMPS.night[0], RAMPS.night[1], RAMPS.water[0], RAMPS.night[2]],
+    planet: RAMPS.cream,
+    rings: false,
+  },
+  {
+    wall: shade(RAMPS.sky, RAMPS.night[0], 0.5),
+    trim: RAMPS.cream,
+    floor: shade(RAMPS.steel, RAMPS.water[1], 0.4),
+    space: [RAMPS.night[0], RAMPS.sky[0], RAMPS.night[1], RAMPS.water[0]],
+    planet: RAMPS.pink,
+    rings: true,
+  },
+  {
+    wall: shade(RAMPS.purple, RAMPS.water[0], 0.5),
+    trim: RAMPS.water,
+    floor: shade(RAMPS.cream, RAMPS.night[0], 0.4),
+    space: [RAMPS.night[0], RAMPS.night[1], RAMPS.pink[0], RAMPS.night[2]],
+    planet: RAMPS.water,
+    rings: false,
   },
 ]
 
@@ -1020,10 +1275,7 @@ class StationSweep implements ArcadeGameInstance {
   private floaters: Floater[] = []
   private banner: { text: string; sub?: string; ticks: number } | null = null
   // Cosmetic sparkles, a set per deck, roll their own dice: the seeded rng is untouched.
-  private fx = Array.from(
-    { length: SWEEP_CURVES.decks.limit },
-    () => new Sparkles(),
-  )
+  private fx = Array.from({ length: 40 }, () => new Sparkles())
   private fxRng = backdropRng(61)
 
   /** The team's credits, earned emptying bins and cleaning decks, spent at the Supply Locker. */
@@ -1043,8 +1295,23 @@ class StationSweep implements ArcadeGameInstance {
     biter: 0,
     puffer: 0,
     gloop: 0,
+    mimic: 0,
   }
   private stationSwept = 0
+
+  /** The station being swept, as laid out: its corridors come first in `decks`, then its rooms. */
+  private plan: StationPlan = GREENHOUSE_RING
+  private corridors = 0
+  /** Stranded crewmates, in their cabins until a Mop walks them to a lift. */
+  private crew: Crew[] = []
+  /** The station's job, if it has one. */
+  private job: Job | null = null
+  /** Hazards a control room has switched off. */
+  private off = new Set<Switchable>()
+  /** A resume point at the start of each station (utils/arcade/saves.ts). */
+  save: StationSave | null = null
+  /** A saved run to offer to continue, before the first station starts. */
+  private offer: StationSave | null = null
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -1055,6 +1322,8 @@ class StationSweep implements ArcadeGameInstance {
       ? 1
       : Math.max(1, Math.min(MAX_PLAYERS, Math.round(options.players ?? 1)))
     this.mops = Array.from({ length: seats }, (_, seat) => newMop(seat))
+    const stored = this.demo ? null : readStationSave(options.resume)
+    if (stored && stored.station > 1) this.offer = stored
     this.startStation(1)
   }
 
@@ -1065,7 +1334,7 @@ class StationSweep implements ArcadeGameInstance {
 
   /** The sweep shift's tune, its alarm in the last seconds, and the locker's. */
   get music(): MusicLoop | null {
-    if (this.over || this.demo) return null
+    if (this.over || this.demo || this.offer) return null
     if (this.locker) return LOCKER_MUSIC
     return this.clear === 0 && this.timer <= 60 * ALARM_SECS
       ? ALARM_MUSIC
@@ -1137,6 +1406,11 @@ class StationSweep implements ArcadeGameInstance {
     this.cur.spores = v
   }
 
+  /** The width of the deck being simulated or drawn. */
+  private get deckW(): number {
+    return this.cur.width
+  }
+
   private use(index: number) {
     this.curIndex = index
     this.cur = this.decks[index]!
@@ -1173,20 +1447,8 @@ class StationSweep implements ArcadeGameInstance {
 
   private startStation(station: number) {
     this.level = station
-    const count = Math.round(levelCurve(station, SWEEP_CURVES.decks))
-    this.decks = []
-    for (let d = 0; d < count; d++)
-      this.decks.push({
-        sacs: this.placeSacs(station),
-        critters: [],
-        kits: [],
-        drops: [],
-        shots: [],
-        spits: [],
-        bombs: [],
-        spores: [],
-        clean: false,
-      })
+    this.plan = ORBIT_LINE[station - 1] ?? endlessStation(station, this.rng)
+    this.buildDecks()
     this.use(0)
     for (const m of this.mops) {
       // A Mop rebooting or sitting out comes back on a spare, if there is one.
@@ -1208,6 +1470,7 @@ class StationSweep implements ArcadeGameInstance {
       m.onGround = true
       m.camX = 0
       m.sticky = 0
+      m.slide = 0
       m.bin = 0
       m.binCredits = 0
       // A short top-up between stations, not a full repair.
@@ -1219,36 +1482,155 @@ class StationSweep implements ArcadeGameInstance {
     }
     this.startTool = null
     this.stationSwept = 0
-    this.timer =
-      60 * (STATION_BASE_SECS + SECS_PER_DECK * count + this.extraClock)
+    this.timer = 60 * (this.plan.clockSecs + this.extraClock)
     this.extraClock = 0
+    this.off = new Set()
+    const job = this.plan.job
+    this.job = job
+      ? {
+          id: job,
+          state: 'on',
+          ticks: job === 'seedVault' ? 60 * SEED_VAULT_SECS : 0,
+        }
+      : null
     this.banner = {
-      text: `STATION ${station}`,
-      sub: `${count} DECKS TO SWEEP`,
-      ticks: 110,
+      text: this.plan.name,
+      sub: job ? JOBS[job].blurb : `${this.corridors} DECKS TO SWEEP`,
+      ticks: 150,
+    }
+    this.keep()
+  }
+
+  /** Lay the station out: its corridors, then a deck for every room behind their doorways. */
+  private buildDecks() {
+    const plan = this.plan
+    this.decks = []
+    this.crew = []
+    this.corridors = plan.decks.length
+    plan.decks.forEach((p, d) => {
+      const deck = newDeck(p.width)
+      deck.lifts = liftsOn(plan, d)
+      deck.sacs = [
+        ...p.floorSacs.map((x) => this.sac(x, false)),
+        ...p.ceilingSacs.map((x) => this.sac(x, true)),
+      ]
+      deck.sprinklers = [...(p.sprinklers ?? [])]
+      deck.vines = (p.vines ?? []).map(([a, b]) => [a, b] as [number, number])
+      deck.conveyors = (p.conveyors ?? []).map((c) => ({ ...c }))
+      deck.steamVents = [...(p.steamVents ?? [])]
+      for (const x of p.mimics ?? [])
+        deck.critters.push(newCritter('mimic', 0, x, FLOOR))
+      this.decks.push(deck)
+    })
+    for (let d = 0; d < this.corridors; d++)
+      for (const door of doorsOn(plan, d)) {
+        if (door.kind === 'vent') {
+          const to = d + (door.to === 'up' ? -1 : 1)
+          this.decks[d]!.doors.push({ x: door.x, kind: 'vent', room: -1, to })
+          continue
+        }
+        const room = this.decks.length
+        this.decks.push(this.buildRoom(door, d, room))
+        this.decks[d]!.doors.push({ x: door.x, kind: door.kind, room, to: -1 })
+      }
+    for (const deck of this.decks) deck.clean = this.isClean(deck)
+  }
+
+  private isClean(d: Deck): boolean {
+    return (
+      !d.bosses.length &&
+      !d.critters.length &&
+      !d.sacs.some((s) => s.hatches > 0 && (s.ceiling || s.hp > 0))
+    )
+  }
+
+  private sac(x: number, ceiling: boolean, machine = false): Sac {
+    return {
+      x,
+      ceiling,
+      hp: ceiling ? 999 : machine ? 8 : 3,
+      timer: 120 + Math.floor(this.rng() * 240),
+      hatches: ceiling ? 2 : machine ? 3 : 4,
+      pulse: 0,
+      ...(machine ? { machine: true } : {}),
     }
   }
 
-  private placeSacs(station: number): Sac[] {
-    const sacs: Sac[] = []
-    const place = (count: number, ceiling: boolean) => {
-      for (let i = 0; i < count; i++) {
-        let x = 220 + ((DECK_W - 300) * (i + 0.3 + this.rng() * 0.4)) / count
-        // Keep the lift doors clear.
-        for (const lift of LIFTS) if (Math.abs(x - lift) < 24) x = lift + 30
-        sacs.push({
-          x,
-          ceiling,
-          hp: ceiling ? 999 : 3,
-          timer: 120 + Math.floor(this.rng() * 240),
-          hatches: ceiling ? 2 : 4,
-          pulse: 0,
+  /** A room behind a doorway, furnished by what it is. */
+  private buildRoom(door: Door, parent: number, index: number): Deck {
+    const kind = door.kind as RoomKind
+    const w = ROOMS[kind].width
+    const deck = newDeck(w)
+    deck.room = { kind, parent, doorX: door.x }
+    switch (kind) {
+      case 'closet':
+        deck.drops.push({
+          x: w - 70,
+          tool: door.tool ?? pickTool(this.level, this.rng()),
+          life: Infinity,
         })
+        break
+      case 'cabin':
+        this.crew.push({
+          name: door.crew ?? 'CREWMATE',
+          deck: index,
+          x: w - 60,
+          state: 'waiting',
+          seat: -1,
+        })
+        break
+      case 'lab':
+        for (const x of [110, 160, 215, 255])
+          deck.jars.push({ x, taken: false, seeds: false })
+        if (door.mimic) deck.critters.push(newCritter('mimic', 0, 188, FLOOR))
+        break
+      case 'galley':
+        for (const x of [110, 160, 210])
+          deck.kits.push({ x, life: Infinity, snack: true })
+        break
+      case 'nest':
+        for (let i = 0; i < (door.sacs ?? 3); i++)
+          deck.sacs.push(this.sac(100 + i * 60, false))
+        deck.sacs.push(this.sac(170, true))
+        if (door.mother) deck.bosses.push(newBoss('nestMother', w - 70))
+        break
+      case 'control':
+        deck.console = {
+          x: w - 80,
+          switches: door.switches ?? 'sprinklers',
+          used: false,
+        }
+        break
+      case 'washer':
+        for (let i = 0; i < (door.machines ?? 2); i++)
+          deck.sacs.push(this.sac(130 + i * 130, false, true))
+        break
+      case 'vault':
+        for (const x of [150, 200, 250])
+          deck.jars.push({ x, taken: false, seeds: true })
+        break
+      case 'boss': {
+        const boss = door.boss ?? 'motherGloop'
+        deck.bosses.push(
+          newBoss(boss, boss === 'kraken' ? KRAKEN.bigMachine : 300),
+        )
+        break
       }
     }
-    place(Math.round(levelCurve(station, SWEEP_CURVES.floorSacs)), false)
-    place(Math.round(levelCurve(station, SWEEP_CURVES.ceilingSacs)), true)
-    return sacs
+    return deck
+  }
+
+  /** Is this corridor clean, and every room behind its doorways? */
+  private corridorClean(i: number): boolean {
+    return (
+      !!this.decks[i]?.clean &&
+      this.decks.every((d) => !d.room || d.room.parent !== i || d.clean)
+    )
+  }
+
+  /** The corridor a deck belongs to (itself, or the one its room opens off). */
+  private corridorOf(deck: number): number {
+    return this.decks[deck]?.room?.parent ?? deck
   }
 
   /** Critters toughen per station, about as fast as they did per deck before lifts. */
@@ -1256,24 +1638,104 @@ class StationSweep implements ArcadeGameInstance {
     return 1 + (this.level - 1) * 3
   }
 
-  private atLift(m: Mop): number | undefined {
-    return LIFTS.find((l) => Math.abs(m.x - l) < 10)
+  private atLift(m: Mop): Lift | undefined {
+    return this.cur.lifts.find((l) => Math.abs(m.x - l.x) < 10)
+  }
+
+  /** Off through a lift, a doorway or a vent, to come out at `x` on deck `to`. */
+  private ride(m: Mop, to: number, x: number, via: Ride['via']) {
+    const total =
+      via === 'lift' ? RIDE_TICKS : via === 'door' ? DOOR_TICKS : VENT_TICKS
+    m.ride = { to, t: total, total, x, via }
+    m.crouch = false
+    m.slide = 0
+    // Leaving the deck to itself: its shots and spit settle.
+    if (!this.here().length) {
+      this.shots = []
+      this.spits = []
+      this.bombs = []
+    }
+    this.sound.play(via === 'lift' ? 'pickup' : 'blip')
+  }
+
+  /** Up at a doorway, a vent, a room's way out or a control console. */
+  private tryDoor(m: Mop): boolean {
+    const room = this.cur.room
+    if (room) {
+      if (Math.abs(m.x - ROOM_EXIT_X) < DOOR_REACH) {
+        this.ride(m, room.parent, room.doorX, 'door')
+        return true
+      }
+      const con = this.cur.console
+      if (con && !con.used && Math.abs(m.x - con.x) < DOOR_REACH + 4) {
+        this.switchOff(con)
+        return true
+      }
+      return false
+    }
+    const door = this.cur.doors.find((d) => Math.abs(m.x - d.x) < DOOR_REACH)
+    if (!door) return false
+    if (door.kind === 'vent') this.ride(m, door.to, door.x, 'vent')
+    else this.ride(m, door.room, ROOM_EXIT_X, 'door')
+    return true
+  }
+
+  /** A control room's lever: its hazard stands down for the rest of the station. */
+  private switchOff(con: ControlConsole) {
+    con.used = true
+    this.off.add(con.switches)
+    if (con.switches === 'sprinklers') for (const d of this.decks) d.wet = []
+    const stopped =
+      con.switches === 'conveyors' &&
+      this.job?.id === 'spinCycle' &&
+      this.job.state === 'on'
+    if (stopped) this.job!.state = 'failed'
+    this.banner = {
+      text: `${SWITCH_NAMES[con.switches]} OFF`,
+      sub: stopped
+        ? 'THE SPIN CYCLE STOPS WITH THEM'
+        : 'ONE LESS THING TO MIND',
+      ticks: 100,
+    }
+    this.sound.play('extra')
   }
 
   private updateRide(m: Mop) {
     const ride = m.ride!
     ride.t--
-    if (ride.t === Math.floor(RIDE_TICKS / 2)) {
-      // Anything clinging to this Mop rides along.
+    if (ride.t === Math.floor(ride.total / 2)) {
+      // Anything clinging to this Mop rides along, and so does a crewmate in tow.
       const from = this.decks[m.deck]!
       const riders = from.critters.filter((c) => c.clinging === m)
       from.critters = from.critters.filter((c) => c.clinging !== m)
       m.deck = ride.to
+      m.x = ride.x
+      m.y = FLOOR
+      m.vy = 0
+      m.onGround = true
       this.decks[ride.to]!.critters.push(...riders)
+      for (const c of this.crew)
+        if (c.state === 'following' && c.seat === m.seat) {
+          c.deck = ride.to
+          c.x = ride.x
+        }
     }
     if (ride.t > 0) return
     m.ride = null
     const d = this.decks[m.deck]!
+    if (d.room) {
+      const boss = d.bosses[0]
+      this.banner = boss
+        ? { text: BOSS_NAMES[boss.kind], sub: 'SWEEP HER UP!', ticks: 110 }
+        : {
+            text: ROOMS[d.room.kind].name,
+            sub: ROOMS[d.room.kind].blurb,
+            ticks: 80,
+          }
+      if (d.room.kind === 'vault') this.reachVault(m)
+      return
+    }
+    if (ride.via === 'door') return
     this.banner = {
       text: this.duo
         ? `${m.seat + 1}P DECK ${m.deck + 1}`
@@ -1293,6 +1755,10 @@ class StationSweep implements ArcadeGameInstance {
     if (this.demo) this.use(this.mops[0]!.deck)
     const frames = this.demo ? [this.demoInput()] : (players ?? [input])
 
+    if (this.offer) {
+      this.updateOffer(frames)
+      return
+    }
     if (this.locker) {
       this.updateLocker(frames)
       return
@@ -1309,29 +1775,83 @@ class StationSweep implements ArcadeGameInstance {
     }
 
     for (const m of this.mops) this.updateMop(m, frames[m.seat] ?? idleFrame())
+    this.updateCrew()
+    this.updateJob()
     for (let d = 0; d < this.decks.length; d++) {
       this.use(d)
       if (!this.here().length) continue
+      this.updateHazards()
       this.updateShots()
       this.updateBombs()
       this.updateSacs()
       this.updateCritters()
       this.grow()
+      this.updateBosses()
       this.updateSpits()
       this.updateSpores()
       this.updateKits()
       this.updateDrops()
+      this.updateJars()
       for (const m of this.here()) if (m.health <= 0) this.down(m)
       this.checkClean()
       if (this.clear > 0) break
     }
     const viewW = this.viewW
-    for (const m of this.mops)
-      m.camX = Math.max(0, Math.min(DECK_W - viewW, m.x - viewW / 2))
+    for (const m of this.mops) {
+      const dw = this.decks[m.deck]?.width ?? DECK_W
+      // A room narrower than the view sits in the middle of it.
+      m.camX =
+        dw <= viewW
+          ? (dw - viewW) / 2
+          : Math.max(0, Math.min(dw - viewW, m.x - viewW / 2))
+    }
     if (this.mops.every((m) => m.out)) {
       this.over = true
       this.banner = { text: 'GAME OVER', ticks: 9999 }
+      this.markOver()
     }
+  }
+
+  /** The cabinet's continue offer: A picks the saved run up, B starts a new shift. */
+  private updateOffer(frames: InputFrame[]) {
+    const pressed = (b: 'a' | 'b' | 'start') => frames.some((f) => f.pressed[b])
+    if (pressed('a') || pressed('start')) this.resumeFrom(this.offer!)
+    else if (pressed('b')) {
+      this.offer = null
+      this.keep()
+    }
+  }
+
+  private resumeFrom(s: StationSave) {
+    this.offer = null
+    this.score = s.continued ? 0 : s.score
+    this.spares = s.continued ? START_LIVES - 1 : s.spares
+    this.credits = s.credits
+    this.kit = { ...s.kit }
+    this.swept = { ...s.swept }
+    this.nextExtra = EXTRA_EVERY
+    while (this.nextExtra <= this.score)
+      this.nextExtra = this.nextExtra * 2 + EXTRA_EVERY
+    this.startStation(s.station)
+  }
+
+  /** Remember the run at this station's start (a real game only). */
+  private keep() {
+    if (this.demo || this.offer) return
+    this.save = {
+      v: 1,
+      station: this.level,
+      score: this.score,
+      spares: this.spares,
+      credits: this.credits,
+      kit: { ...this.kit },
+      swept: { ...this.swept },
+    }
+  }
+
+  /** The run is over: continuing will start the score and the spares afresh. */
+  private markOver() {
+    if (this.save && !this.demo) this.save = { ...this.save, continued: true }
   }
 
   private updateMop(m: Mop, controls: InputFrame) {
@@ -1397,26 +1917,29 @@ class StationSweep implements ArcadeGameInstance {
     }
     if (input.held.left) m.facing = -1
     if (input.held.right) m.facing = 1
-    if (vx !== 0) m.walkPhase += 0.2
-    m.x = Math.max(12, Math.min(DECK_W - 12, m.x + vx))
+    // A wet floor is slick: Mop slides into a walk, and out of one.
+    const wet =
+      m.onGround &&
+      this.cur.wet.some((w) => Math.abs(m.x - w.x) < HAZARDS.sprinkler.wetR)
+    if (wet) {
+      m.slide += (vx - m.slide) * HAZARDS.sprinkler.slip
+      vx = m.slide
+    } else m.slide = vx
+    if (Math.abs(vx) > 0.05) m.walkPhase += 0.2
+    m.x = Math.max(12, Math.min(this.deckW - 12, m.x + vx))
+    // Up at a doorway goes through it (or works a console).
+    if (m.onGround && input.pressed.up && this.tryDoor(m)) return
     // Standing in a lift, Up or a fresh press of Down rides a deck that way.
     const lift = m.onGround ? this.atLift(m) : undefined
-    const to = input.pressed.up
-      ? m.deck - 1
-      : input.pressed.down
-        ? m.deck + 1
-        : -1
-    if (lift !== undefined && to >= 0 && to < this.decks.length) {
-      m.x = lift
-      m.crouch = false
-      m.ride = { to, t: RIDE_TICKS }
-      // Leaving the deck to itself: its shots and spit settle.
-      if (!this.here().length) {
-        this.shots = []
-        this.spits = []
-        this.bombs = []
-      }
-      this.sound.play('pickup')
+    const to =
+      input.pressed.up && lift?.up
+        ? m.deck - 1
+        : input.pressed.down && lift?.down
+          ? m.deck + 1
+          : -1
+    if (lift && to >= 0) {
+      m.x = lift.x
+      this.ride(m, to, lift.x, 'lift')
       return
     }
     // Up jumps; so does B, while Mop carries no tool to use on it.
@@ -1616,6 +2139,21 @@ class StationSweep implements ArcadeGameInstance {
       const ahead = (s.x - m.x) * m.facing
       if (ahead > -s.r && ahead - s.r < STEAM.reach) s.life -= 12
     }
+    for (const b of this.cur.bosses) {
+      if (b.kind !== 'kraken' || b.phase !== 3 || b.head < 40) continue
+      const ahead = (b.x - m.x) * m.facing
+      if (ahead < -4 || ahead - KRAKEN.headHalfW > STEAM.reach) continue
+      if (b.stun === 0)
+        this.floaters.push({
+          deck: this.curIndex,
+          x: b.x,
+          y: KRAKEN.headY - 40,
+          text: 'SOFT! SWEEP IT!',
+          life: 50,
+          color: RAMPS.gold[3],
+        })
+      b.stun = KRAKEN.headStun
+    }
   }
 
   /** Is this Mop's Squeegee Shield up and facing something coming from `fromX`? */
@@ -1635,7 +2173,7 @@ class StationSweep implements ArcadeGameInstance {
     for (const s of this.shots) {
       s.x += s.vx
       s.life--
-      if (s.x < 0 || s.x > DECK_W) s.life = 0
+      if (s.x < 0 || s.x > this.deckW) s.life = 0
       if (s.life <= 0) continue
       const critter = this.critters.find(
         (c) => !c.onCeiling && !s.hit.includes(c) && this.reaches(c, s.x, s.y),
@@ -1653,13 +2191,25 @@ class StationSweep implements ArcadeGameInstance {
         else this.hitCritter(critter, 1, s.owner)
         continue
       }
+      const boss = this.bossAt(s.x, s.y)
+      if (boss && !s.hit.includes(boss)) {
+        if (s.kind === 'zap') s.hit.push(boss)
+        else s.life = 0
+        this.strikeBoss(
+          boss,
+          s.x,
+          s.y,
+          s.kind === 'zap' ? ZAP_DAMAGE : s.kind === 'foam' ? 0 : 1,
+        )
+        continue
+      }
       const sac = this.sacs.find(
         (k) =>
           !k.ceiling &&
           k.hp > 0 &&
           !s.hit.includes(k) &&
-          Math.abs(k.x - s.x) < 8 &&
-          s.y > FLOOR - 18,
+          Math.abs(k.x - s.x) < (k.machine ? 16 : 8) &&
+          s.y > FLOOR - (k.machine ? 36 : 18),
       )
       if (!sac) continue
       if (s.kind === 'zap') s.hit.push(sac)
@@ -1685,7 +2235,7 @@ class StationSweep implements ArcadeGameInstance {
       const struck = this.critters.some(
         (c) => !c.onCeiling && c.bubble === 0 && this.reaches(c, b.x, b.y, 2),
       )
-      if (struck || b.y >= FLOOR - 3 || b.x < 0 || b.x > DECK_W) {
+      if (struck || b.y >= FLOOR - 3 || b.x < 0 || b.x > this.deckW) {
         this.popBubble(b)
         b.vy = Infinity
       }
@@ -1774,12 +2324,13 @@ class StationSweep implements ArcadeGameInstance {
       const half = newCritter(
         'gloop',
         (c.stage - 1) as Stage,
-        Math.max(8, Math.min(DECK_W - 8, c.x + (dir * def.halfW) / 2)),
+        Math.max(8, Math.min(this.deckW - 8, c.x + (dir * def.halfW) / 2)),
         c.y,
       )
       half.vx = dir * 1.4
       half.vy = -2
       half.cool = 50
+      half.tag = c.tag
       this.critters.push(half)
     }
     this.floaters.push({
@@ -1888,7 +2439,7 @@ class StationSweep implements ArcadeGameInstance {
       c.canCling = true
       this.critters.push(c)
     } else {
-      const kind = pickFloorFamily(this.level, this.rng())
+      const kind = pickFloorFamily(this.level, this.rng(), this.plan.hatch)
       const prey = this.nearest(sac.x)
       const dir = prey && prey.x < sac.x ? -1 : 1
       const c = newCritter(kind, 0, sac.x + dir * 8, FLOOR)
@@ -1928,6 +2479,7 @@ class StationSweep implements ArcadeGameInstance {
       const ownsAir =
         (c.kind === 'crawler' && c.stage < 2) ||
         c.kind === 'gloop' ||
+        c.kind === 'mimic' ||
         (c.kind === 'roller' && c.stage === 2)
       if (airborne && !ownsAir) {
         this.fall(c)
@@ -1949,15 +2501,50 @@ class StationSweep implements ArcadeGameInstance {
         case 'gloop':
           this.updateGloop(c, prey, mops, speed)
           break
+        case 'mimic':
+          this.updateMimic(c, prey, mops)
+          break
       }
     }
+  }
+
+  /** A mimic crate sits still and blinks, until a Mop steps up to it: then it snaps, and hops after Mop. */
+  private updateMimic(c: Critter, prey: Mop, mops: Mop[]) {
+    const dist = prey.x - c.x
+    if (!c.awake) {
+      if (Math.abs(dist) < MIMIC.snapAt && prey.y > FLOOR - 30) {
+        c.awake = true
+        c.cool = 40
+        this.damage(prey, stageDef('mimic', 0).damage)
+        this.floaters.push({
+          deck: this.curIndex,
+          x: c.x,
+          y: FLOOR - 30,
+          text: 'SNAP!',
+          life: 40,
+          color: RAMPS.ember[3],
+        })
+        this.sound.play('warn')
+      }
+      return
+    }
+    if (c.y < FLOOR || c.vy < 0) {
+      if (this.fall(c)) c.vx = 0
+      return
+    }
+    if (c.cool === 0) {
+      c.vx = (Math.sign(dist) || 1) * MIMIC.hopVx
+      c.vy = MIMIC.hopVy
+      c.cool = MIMIC.hopEvery
+    }
+    this.contact(c, mops)
   }
 
   /** Down under gravity to where it rests; true on landing. */
   private fall(c: Critter): boolean {
     const rest = restY(c)
     c.vy += GRAVITY
-    c.x = Math.max(8, Math.min(DECK_W - 8, c.x + c.vx))
+    c.x = Math.max(8, Math.min(this.deckW - 8, c.x + c.vx))
     c.y += c.vy
     if (c.y < rest) return false
     c.y = rest
@@ -2006,7 +2593,7 @@ class StationSweep implements ArcadeGameInstance {
   private updateRoller(c: Critter, prey: Mop, mops: Mop[], speed: number) {
     if (c.stage < 2) {
       c.x += c.vx
-      if (c.x < 8 || c.x > DECK_W - 8) c.vx = -c.vx
+      if (c.x < 8 || c.x > this.deckW - 8) c.vx = -c.vx
       // Rollers turn back toward a Mop once they've rolled past.
       if (
         Math.abs(c.x - prey.x) > 140 &&
@@ -2036,9 +2623,9 @@ class StationSweep implements ArcadeGameInstance {
         c.vx = heading * 1.2 * speed
       }
       c.x += c.vx
-      if (c.x < 16 || c.x > DECK_W - 16) {
+      if (c.x < 16 || c.x > this.deckW - 16) {
         c.vx = -c.vx
-        c.x = Math.max(16, Math.min(DECK_W - 16, c.x))
+        c.x = Math.max(16, Math.min(this.deckW - 16, c.x))
       }
       if (c.y >= FLOOR) c.vy = ROLLER.bounceVy
     }
@@ -2082,7 +2669,7 @@ class StationSweep implements ArcadeGameInstance {
     const airborne = c.y < FLOOR || c.vy < 0
     if (airborne) {
       c.vy += GRAVITY
-      c.x = Math.max(8, Math.min(DECK_W - 8, c.x + c.vx))
+      c.x = Math.max(8, Math.min(this.deckW - 8, c.x + c.vx))
       c.y += c.vy
       const landing = c.canCling
         ? mops.find(
@@ -2293,6 +2880,7 @@ class StationSweep implements ArcadeGameInstance {
     const speed = levelCurve(this.heat, SWEEP_CURVES.critterSpeed)
     for (const c of [...this.critters]) {
       if (c.stage >= 2 || c.foam > 0 || c.stun > 0 || c.bubble > 0) continue
+      if (FAMILIES[c.kind].grows === false || c.tag) continue
       // Crawlers only grow once they're down on the floor.
       if (c.kind === 'crawler' && (c.onCeiling || c.clinging)) continue
       if (c.y < restY(c) - 0.5 || c.vy < 0 || c.tell > 0) continue
@@ -2321,7 +2909,10 @@ class StationSweep implements ArcadeGameInstance {
           const partner = newCritter(
             'roller',
             2,
-            Math.max(16, Math.min(DECK_W - 16, c.x - heading * ROLLER.pairGap)),
+            Math.max(
+              16,
+              Math.min(this.deckW - 16, c.x - heading * ROLLER.pairGap),
+            ),
             FLOOR,
           )
           partner.vx = c.vx
@@ -2415,13 +3006,13 @@ class StationSweep implements ArcadeGameInstance {
       const m = mops.find((o) => Math.abs(k.x - o.x) < 10 && o.y > FLOOR - 6)
       if (!m) continue
       k.life = 0
-      m.health = Math.min(MAX_HEALTH, m.health + 30)
+      m.health = Math.min(MAX_HEALTH, m.health + (k.snack ? 20 : 30))
       this.sparkle(k.x, FLOOR - 8, 10, KIT_SPARKS)
       this.floaters.push({
         deck: this.curIndex,
         x: k.x,
         y: FLOOR - 30,
-        text: 'REPAIRED!',
+        text: k.snack ? 'YUM!' : 'REPAIRED!',
         life: 45,
       })
       this.sound.play('pickup')
@@ -2481,6 +3072,7 @@ class StationSweep implements ArcadeGameInstance {
     if (this.mops.every((m) => m.out)) {
       this.over = true
       this.banner = { text: 'STATION LOST', sub: 'GAME OVER', ticks: 9999 }
+      this.markOver()
       return
     }
     this.clear = CLEAR_TICKS
@@ -2518,17 +3110,17 @@ class StationSweep implements ArcadeGameInstance {
       (s) => s.hatches > 0 && (s.ceiling || s.hp > 0),
     )
     const m = this.here()[0]
-    const at = m ?? { x: DECK_W / 2, y: FLOOR }
-    if (!d.clean && !sacsLeft && !this.critters.length) {
+    const at = m ?? { x: this.deckW / 2, y: FLOOR }
+    if (!d.clean && !sacsLeft && !this.critters.length && !d.bosses.length) {
       d.clean = true
-      const bonus = 1000 * this.level
+      const bonus = (d.room ? 500 : 1000) * this.level
       this.addScore(bonus, at.x, at.y - 40)
-      this.addCredits(CREDITS.deck)
+      this.addCredits(d.room ? 1 : CREDITS.deck)
       for (const dx of [-40, 0, 40]) this.sparkle(at.x + dx, at.y - 30, 12)
       if (this.decks.some((k) => !k.clean)) {
         this.banner = {
-          text: 'DECK CLEAN!',
-          sub: `BONUS ${bonus}  TO THE LIFT`,
+          text: d.room ? 'ROOM CLEAN!' : 'DECK CLEAN!',
+          sub: `BONUS ${bonus}  ${d.room ? 'ON YOU GO' : 'TO THE LIFT'}`,
           ticks: 110,
         }
         this.sound.play('extra')
@@ -2554,6 +3146,491 @@ class StationSweep implements ArcadeGameInstance {
       sub: `BONUS ${bonus}  ${this.stationSwept} SWEPT`,
       ticks: CLEAR_TICKS,
     }
+    this.sound.play('level')
+  }
+
+  // --- hazards, crew, the job and the bosses ----------------------------------------
+
+  /** The deck's hazards: sprinklers misting the floor slick, steam vents, conveyors. */
+  private updateHazards() {
+    const d = this.cur
+    const mops = this.here()
+    const S = HAZARDS.sprinkler
+    if (!this.off.has('sprinklers'))
+      for (const x of d.sprinklers) {
+        if (hazardPhase(this.tick, x, S.period) < S.mist) continue
+        const w = d.wet.find((o) => o.x === x)
+        if (w) w.life = S.wetLife
+        else d.wet.push({ x, life: S.wetLife })
+      }
+    for (const w of d.wet) w.life--
+    if (d.wet.length) d.wet = d.wet.filter((w) => w.life > 0)
+    const V = HAZARDS.steam
+    if (!this.off.has('steam'))
+      for (const x of d.steamVents) {
+        if (hazardPhase(this.tick, x, V.period) < V.blow) continue
+        if (this.tick % V.every === 0)
+          for (const m of mops)
+            if (Math.abs(m.x - x) < V.reach && m.y > FLOOR - 50)
+              this.damage(m, V.damage)
+        for (const c of d.critters)
+          if (!c.onCeiling && Math.abs(c.x - x) < V.reach + 4)
+            c.stun = Math.max(c.stun, 30)
+      }
+    if (!this.off.has('conveyors'))
+      for (const belt of d.conveyors) {
+        for (const m of mops)
+          if (m.onGround && m.x >= belt.from && m.x <= belt.to)
+            m.x = Math.max(12, Math.min(this.deckW - 12, m.x + belt.speed))
+        for (const c of d.critters)
+          if (
+            !c.onCeiling &&
+            !c.clinging &&
+            c.y >= FLOOR - 1 &&
+            c.x >= belt.from &&
+            c.x <= belt.to
+          )
+            c.x += belt.speed
+      }
+  }
+
+  /** Specimen jars and seed sacks: walk over them for points. */
+  private updateJars() {
+    for (const j of this.cur.jars) {
+      if (j.taken) continue
+      const m = this.here().find(
+        (o) => Math.abs(o.x - j.x) < 10 && o.y > FLOOR - 6,
+      )
+      if (!m) continue
+      j.taken = true
+      this.addScore((j.seeds ? 300 : 500) * this.level, j.x, FLOOR - 26)
+      this.sparkle(j.x, FLOOR - 10, 10, [
+        RAMPS.teal[3],
+        RAMPS.leaf[3],
+        '#ffffff',
+      ])
+      this.sound.play('pickup')
+    }
+  }
+
+  /** Stranded crewmates: found, they follow their Mop; walked onto a lift pad, they're safe. */
+  private updateCrew() {
+    for (const c of this.crew) {
+      if (c.state === 'saved') continue
+      if (c.state === 'waiting') {
+        const m = this.mops.find(
+          (o) =>
+            !o.out &&
+            o.dead === 0 &&
+            !o.ride &&
+            o.deck === c.deck &&
+            Math.abs(o.x - c.x) < CREW_RESCUE.reach,
+        )
+        if (!m) continue
+        c.state = 'following'
+        c.seat = m.seat
+        this.banner = {
+          text: `${c.name}!`,
+          sub: 'THANKS, MOP! TO A LIFT, PLEASE',
+          ticks: 90,
+        }
+        this.sound.play('pickup')
+        continue
+      }
+      const m = this.mops[c.seat]
+      if (!m || m.out) {
+        c.state = 'waiting'
+        continue
+      }
+      if (m.ride || m.dead > 0) continue
+      c.deck = m.deck
+      const want = m.x - m.facing * 18
+      c.x +=
+        Math.sign(want - c.x) *
+        Math.min(CREW_RESCUE.follow, Math.abs(want - c.x))
+      const deck = this.decks[m.deck]!
+      if (
+        !deck.room &&
+        m.onGround &&
+        deck.lifts.some((l) => Math.abs(m.x - l.x) < 10)
+      )
+        this.rescue(c, m)
+    }
+  }
+
+  private rescue(c: Crew, m: Mop) {
+    c.state = 'saved'
+    this.use(m.deck)
+    this.timer += 60 * CREW_RESCUE.secs
+    this.addCredits(CREW_RESCUE.credits)
+    this.addScore(CREW_RESCUE.points * this.level, m.x, m.y - 46)
+    this.sparkle(m.x, m.y - 20, 14, [RAMPS.gold[3], RAMPS.gold[4], '#ffffff'])
+    this.banner = {
+      text: `${c.name} IS SAFE!`,
+      sub: `+${CREW_RESCUE.secs} SECONDS ON THE CLOCK`,
+      ticks: 110,
+    }
+    this.sound.play('extra')
+  }
+
+  /** The station's job: the goo racing for the Seed Vault, or the Spin Cycle's rooms. */
+  private updateJob() {
+    const j = this.job
+    if (!j || j.state !== 'on') return
+    if (j.id === 'seedVault') {
+      if (--j.ticks > 0) return
+      j.state = 'failed'
+      this.banner = {
+        text: 'THE GOO GOT THERE FIRST',
+        sub: 'THE SEEDS WILL HAVE TO WAIT',
+        ticks: 110,
+      }
+      return
+    }
+    const rooms = this.decks.filter((d) => d.room && d.room.kind !== 'boss')
+    if (!rooms.every((d) => d.clean)) return
+    this.jobDone('SPIN CYCLE DONE!', 'EVERY ROOM CLEAN WHILE IT SPUN')
+  }
+
+  private reachVault(m: Mop) {
+    if (this.job?.id !== 'seedVault' || this.job.state !== 'on') return
+    this.use(m.deck)
+    this.jobDone('SEED VAULT SAFE!', 'THE SEEDS BEAT THE GOO')
+  }
+
+  private jobDone(text: string, sub: string) {
+    this.job!.state = 'done'
+    const m = this.mops.find((o) => !o.out) ?? this.mops[0]!
+    this.addScore(5000 * this.level, m.x, m.y - 56)
+    this.addCredits(6)
+    this.banner = { text, sub, ticks: 130 }
+    this.sound.play('level')
+  }
+
+  private updateBosses() {
+    const mops = this.here()
+    for (const b of [...this.cur.bosses]) {
+      b.t++
+      if (b.flash > 0) b.flash--
+      if (b.kind === 'nestMother') this.updateNestMother(b, mops)
+      else if (b.kind === 'motherGloop') this.updateMotherGloop(b, mops)
+      else this.updateKraken(b, mops)
+    }
+  }
+
+  /** The Nest Mother swells, then lays a fresh sac beside her. */
+  private updateNestMother(b: Boss, mops: Mop[]) {
+    const N = NEST_MOTHER
+    if (b.tell > 0) {
+      if (--b.tell === 0) {
+        const x = Math.max(60, b.x - 50 - Math.floor(this.rng() * 90))
+        const sac = this.sac(x, false)
+        sac.timer = 150
+        this.sacs.push(sac)
+        this.cur.clean = false
+        this.burst(x, FLOOR - 10, 10, LIME[3])
+        this.sound.play('boom')
+      }
+    } else if (++b.cool >= N.layEvery) {
+      b.cool = 0
+      const live = this.sacs.filter(
+        (s) => !s.ceiling && s.hp > 0 && s.hatches > 0,
+      ).length
+      if (live < N.maxSacs) {
+        b.tell = N.layTell
+        this.sound.play('warn')
+      }
+    }
+    if (b.t % 40 === 0)
+      for (const m of mops)
+        if (Math.abs(m.x - b.x) < N.halfW + 4) this.damage(m, 8)
+  }
+
+  /** Mother Gloop: blobs slop off her; then she splits; then she pours into the vents. */
+  private updateMotherGloop(b: Boss, mops: Mop[]) {
+    const G = MOTHER_GLOOP
+    if (b.phase === 2) {
+      const parts = this.critters.filter((c) => c.tag)
+      if (!parts.length) {
+        this.pourIntoVents(b)
+        return
+      }
+      if (--b.reform > 0) return
+      // Left alone, her pieces flow home.
+      this.critters = this.critters.filter((c) => !c.tag)
+      b.phase = 1
+      b.cool = 0
+      b.hp = Math.min(b.maxHp, G.splitAt + 2 * parts.length)
+      this.banner = {
+        text: 'MOTHER GLOOP RE-FORMS!',
+        sub: 'FOAM THE PIECES SO THEY STAY APART',
+        ticks: 100,
+      }
+      this.sound.play('warn')
+      return
+    }
+    if (b.tell > 0) {
+      if (--b.tell === 0) this.slop(b)
+    } else if (++b.cool >= G.slopEvery[b.phase]!) {
+      b.cool = 0
+      b.tell = G.slopTell
+    }
+    const reach = G.halfW * (b.phase === 3 ? 0.7 : 1)
+    if (b.t % 45 === 0)
+      for (const m of mops) if (Math.abs(m.x - b.x) < reach) this.damage(m, 6)
+  }
+
+  /** A blob slops off Mother Gloop's surface toward the nearest Mop. */
+  private slop(b: Boss) {
+    if (this.critters.length >= DECK_CRITTER_CAP) return
+    const prey = this.nearest(b.x)
+    const dir = Math.sign((prey?.x ?? b.x) - b.x) || -1
+    const blob = newCritter('gloop', 0, b.x + dir * 30, FLOOR - 8)
+    blob.vx = dir * 1.6
+    blob.vy = -2.6
+    blob.cool = 60
+    this.critters.push(blob)
+    this.sound.play('pop')
+  }
+
+  /** The Kraken: tentacles slam (a shadow first), socks fly, and at last its head rises. */
+  private updateKraken(b: Boss, mops: Mop[]) {
+    const K = KRAKEN
+    if (b.phase === 3 && b.head < 40) b.head++
+    if (b.stun > 0) b.stun--
+    // The room's floor is one long conveyor, faster as the fight goes on.
+    for (const m of mops)
+      if (m.onGround)
+        m.x = Math.min(this.deckW - 12, m.x + K.conveyor[b.phase]!)
+    if (b.slam) {
+      const s = b.slam
+      s.t++
+      if (s.t === K.slamTell) {
+        for (const m of mops)
+          if (Math.abs(m.x - s.x) < K.tentacleHalfW + 4)
+            this.damage(m, K.slamDamage)
+        this.burst(s.x, FLOOR - 4, 12, RAMPS.purple[3])
+        this.sound.play('boom')
+      }
+      if (s.t >= K.slamTell + K.slamDown) b.slam = null
+    } else if (++b.cool >= K.slamEvery[b.phase]!) {
+      b.cool = 0
+      const prey = this.nearest(b.x)
+      if (prey) {
+        const near = [...K.machines].sort(
+          (p, q) => Math.abs(p - prey.x) - Math.abs(q - prey.x),
+        )
+        b.slam = { x: near[Math.floor(this.rng() * 2)]!, t: 0 }
+        this.sound.play('warn')
+      }
+    }
+    if (b.phase >= 2 && b.t % K.sockEvery === 0) {
+      const prey = this.nearest(b.x)
+      if (prey) {
+        const from =
+          b.phase === 3
+            ? b.x
+            : [...K.machines].sort(
+                (p, q) => Math.abs(p - prey.x) - Math.abs(q - prey.x),
+              )[2]!
+        this.spits.push({
+          x: from,
+          y: FLOOR - 40,
+          vx: (Math.sign(prey.x - from) || 1) * 1.6,
+          vy: -2.2,
+          life: 150,
+          lob: true,
+          sock: true,
+        })
+        this.sound.play('blip')
+      }
+    }
+    // The head's armour needs steam: a canister for any crew without a Steam Wand.
+    if (b.phase === 3 && --b.aid <= 0) {
+      b.aid = 600
+      if (
+        !mops.some((m) => m.tool === 'steam') &&
+        !this.drops.some((d) => d.tool === 'steam')
+      )
+        this.drops.push({ x: 70, tool: 'steam', life: Infinity })
+    }
+  }
+
+  /** A boss that a beam at (x, y) would hit, if any. */
+  private bossAt(x: number, y: number): Boss | null {
+    for (const b of this.cur.bosses) {
+      if (b.kind === 'nestMother') {
+        if (
+          Math.abs(x - b.x) < NEST_MOTHER.halfW &&
+          y >= FLOOR - NEST_MOTHER.hitH
+        )
+          return b
+      } else if (b.kind === 'motherGloop') {
+        const w = MOTHER_GLOOP.halfW * (b.phase === 3 ? 0.7 : 1)
+        if (
+          b.phase !== 2 &&
+          Math.abs(x - b.x) < w &&
+          y >= FLOOR - MOTHER_GLOOP.hitH
+        )
+          return b
+      } else {
+        const s = b.slam
+        if (
+          s &&
+          s.t >= KRAKEN.slamTell &&
+          Math.abs(x - s.x) < KRAKEN.tentacleHalfW &&
+          y >= FLOOR - 14
+        )
+          return b
+        if (
+          b.phase === 3 &&
+          b.head >= 40 &&
+          Math.abs(x - b.x) < KRAKEN.headHalfW &&
+          Math.abs(y - KRAKEN.headY) < 18
+        )
+          return b
+      }
+    }
+    return null
+  }
+
+  /** A beam on a boss: the Kraken's head clangs off unless steam has softened it. */
+  private strikeBoss(b: Boss, x: number, y: number, damage: number) {
+    const tentacle =
+      b.kind === 'kraken' &&
+      !!b.slam &&
+      Math.abs(x - b.slam.x) < KRAKEN.tentacleHalfW &&
+      y >= FLOOR - 14
+    if (b.kind === 'kraken' && !tentacle && b.stun === 0) {
+      this.burst(x, y, 4, RAMPS.steel[3])
+      if (this.tick % 8 === 0)
+        this.floaters.push({
+          deck: this.curIndex,
+          x,
+          y: y - 12,
+          text: 'CLANG',
+          life: 25,
+          color: RAMPS.steel[3],
+        })
+      this.sound.play('blip')
+      return
+    }
+    this.burst(x, y, 4, RAMPS.pink[3])
+    if (damage <= 0) return
+    b.hp -= damage
+    b.flash = 4
+    this.sound.play('blip')
+    if (
+      b.kind === 'motherGloop' &&
+      b.phase === 1 &&
+      b.hp <= MOTHER_GLOOP.splitAt
+    ) {
+      this.splitMother(b)
+      return
+    }
+    if (b.kind === 'kraken') {
+      const phase = b.hp > KRAKEN.phase2 ? 1 : b.hp > KRAKEN.phase3 ? 2 : 3
+      if (phase !== b.phase && b.hp > 0) {
+        b.phase = phase
+        b.cool = 0
+        this.banner =
+          phase === 2
+            ? { text: 'SOCKS INCOMING!', sub: 'THE BELT SPEEDS UP', ticks: 100 }
+            : {
+                text: 'THE KRAKEN RISES!',
+                sub: 'STEAM ITS HEAD SOFT, THEN SWEEP IT',
+                ticks: 120,
+              }
+        this.sound.play('warn')
+      }
+    }
+    if (b.hp <= 0) this.bossSwept(b)
+  }
+
+  /** Mother Gloop splits into four gloops that re-form if left. */
+  private splitMother(b: Boss) {
+    b.phase = 2
+    b.reform = MOTHER_GLOOP.reform
+    for (const dx of [-90, -30, 30, 90]) {
+      const part = newCritter(
+        'gloop',
+        1,
+        Math.max(60, Math.min(this.deckW - 20, b.x + dx)),
+        FLOOR,
+      )
+      part.vy = -2.5
+      part.vx = Math.sign(dx) * 1.2
+      part.cool = 60
+      part.tag = true
+      this.critters.push(part)
+    }
+    this.banner = {
+      text: 'MOTHER GLOOP SPLITS!',
+      sub: 'FOAM THE GLOOPS BEFORE THEY RE-FORM',
+      ticks: 110,
+    }
+    this.sound.play('warn')
+  }
+
+  /** Every piece swept: what's left of her pours into the vents, up to the nest room above. */
+  private pourIntoVents(b: Boss) {
+    this.cur.bosses = this.cur.bosses.filter((o) => o !== b)
+    const above = this.corridorOf(this.curIndex) - 1
+    const nest = this.decks.find(
+      (d) => d.room?.kind === 'nest' && d.room.parent === above,
+    )
+    if (!nest) {
+      this.bossSwept(b)
+      return
+    }
+    const pool = newBoss('motherGloop', nest.width / 2 + 20)
+    pool.phase = 3
+    pool.hp = MOTHER_GLOOP.poolHp
+    pool.maxHp = MOTHER_GLOOP.poolHp
+    nest.bosses.push(pool)
+    nest.clean = false
+    this.banner = {
+      text: 'SHE POURED INTO THE VENTS!',
+      sub: 'FINISH HER IN THE NEST ROOM ABOVE',
+      ticks: 140,
+    }
+    this.sound.play('warn')
+  }
+
+  private bossSwept(b: Boss) {
+    this.cur.bosses = this.cur.bosses.filter((o) => o !== b)
+    const at = b.kind === 'kraken' && b.phase < 3 && b.slam ? b.slam.x : b.x
+    const def =
+      b.kind === 'nestMother'
+        ? NEST_MOTHER
+        : b.kind === 'motherGloop'
+          ? MOTHER_GLOOP
+          : KRAKEN
+    this.addScore(def.points * this.level, at, FLOOR - 60)
+    this.addCredits(def.credits)
+    for (const dx of [-30, 0, 30]) this.sparkle(at + dx, FLOOR - 30, 16)
+    this.burst(at, FLOOR - 20, 24, RAMPS.pink[3])
+    if (b.kind === 'kraken') this.critters = this.critters.filter((c) => !c.tag)
+    if (b.kind === 'nestMother')
+      this.drops.push({
+        x: b.x,
+        tool: pickTool(this.level, this.rng()),
+        life: TOOL_LIFE,
+      })
+    this.banner =
+      b.kind === 'nestMother'
+        ? { text: 'NEST MOTHER SWEPT!', sub: 'NO MORE FRESH SACS', ticks: 110 }
+        : b.kind === 'motherGloop'
+          ? {
+              text: 'MOTHER GLOOP SWEPT UP!',
+              sub: 'SNUG IN THE BIN AT LAST',
+              ticks: 140,
+            }
+          : {
+              text: 'THE KRAKEN IS SWEPT UP!',
+              sub: 'AND EVERY SOCK IS CLEAN',
+              ticks: 140,
+            }
     this.sound.play('level')
   }
 
@@ -2727,9 +3804,16 @@ class StationSweep implements ArcadeGameInstance {
     const frame = idleFrame()
     const held = frame.held
     const me = this.mops[0]!
-    // A clinging crawler: jump to shake it.
+    if (me.ride || me.dead > 0 || me.out) return frame
+    this.use(me.deck)
+    // A clinging crawler: jump to shake it (B, or Up away from a doorway, where Up goes through).
     if (this.critters.some((c) => c.clinging === me) && me.onGround) {
-      frame.pressed.up = true
+      const atDoor =
+        this.cur.doors.some((d) => Math.abs(d.x - me.x) < DOOR_REACH + 2) ||
+        (!!this.cur.room && Math.abs(me.x - ROOM_EXIT_X) < DOOR_REACH + 2)
+      if (!me.tool) frame.pressed.b = true
+      else if (atDoor) held.right = true
+      else frame.pressed.up = true
       return frame
     }
     // A spit coming in: raise the shield to it, or crouch under it.
@@ -2749,22 +3833,38 @@ class StationSweep implements ArcadeGameInstance {
       } else held.down = true
       return frame
     }
-    // A puffer swelling up close: back off and let it pop out of reach.
-    const swelling = this.critters.find(
-      (c) => c.kind === 'puffer' && c.tell > 0 && Math.abs(c.x - me.x) < 60,
-    )
-    if (swelling) {
-      if (swelling.x > me.x) held.left = true
+    // A puffer swelling up close, or a tentacle's shadow underfoot: step away.
+    const danger =
+      this.critters.find(
+        (c) => c.kind === 'puffer' && c.tell > 0 && Math.abs(c.x - me.x) < 60,
+      )?.x ??
+      this.cur.bosses.find(
+        (b) =>
+          b.slam &&
+          b.slam.t < KRAKEN.slamTell &&
+          Math.abs(b.slam.x - me.x) < 26,
+      )?.slam?.x
+    if (danger !== undefined) {
+      if (danger > me.x) held.left = true
       else held.right = true
       return frame
     }
+    // A crewmate in tow: lead them to a lift.
+    if (this.crew.some((c) => c.state === 'following' && c.seat === me.seat))
+      return this.pilotToLift(me, frame, true)
     // A full bin: off to the nearest lift to empty it.
-    const room = binRoom(this.kit.bin)
     const near = this.critters.some(
       (c) => !c.onCeiling && Math.abs(c.x - me.x) < 60,
     )
-    if (me.bin >= room && !near) return this.pilotToLift(me, frame, true)
-    // Pick the nearest target: a critter first, then a live sac, a canister or a kit.
+    if (me.bin >= binRoom(this.kit.bin) && !near)
+      return this.pilotToLift(me, frame, true)
+    // The goo is racing for the Seed Vault: get there first.
+    const vault =
+      this.job?.id === 'seedVault' && this.job.state === 'on'
+        ? this.decks.findIndex((d) => d.room?.kind === 'vault')
+        : -1
+    if (vault >= 0 && !near) return this.pilotToRoom(me, frame, vault)
+    // Something to sweep: a critter, a live sac, a boss.
     type Target = { x: number; low: boolean; critter?: Critter }
     const targets: Target[] = [
       ...this.critters
@@ -2781,10 +3881,51 @@ class StationSweep implements ArcadeGameInstance {
         .filter((s) => !s.ceiling && s.hp > 0 && s.hatches > 0)
         .map((s) => ({ x: s.x, low: false })),
     ]
-    if (!me.tool)
-      for (const d of this.drops) targets.push({ x: d.x, low: false })
-    if (me.health < 50 && this.kits.length)
-      targets.unshift({ x: this.kits[0]!.x, low: false })
+    for (const b of this.cur.bosses) {
+      if (
+        b.kind === 'nestMother' ||
+        (b.kind === 'motherGloop' && b.phase !== 2)
+      )
+        targets.push({ x: b.x, low: false })
+      if (b.kind !== 'kraken') continue
+      if (b.slam && b.slam.t >= KRAKEN.slamTell)
+        targets.push({ x: b.slam.x, low: true })
+      if (b.phase === 3 && b.head >= 40) {
+        if (b.stun > 0) targets.push({ x: b.x, low: false })
+        else if (me.tool === 'steam') {
+          // Get in close and steam the head soft.
+          const dist = b.x - me.x
+          if (Math.abs(dist) > 40 || Math.sign(dist) !== me.facing) {
+            if (dist > 0) held.right = true
+            else held.left = true
+          } else held.b = true
+          return frame
+        }
+      }
+    }
+    // With nothing to sweep: something to pick up, someone to find, a lever to pull.
+    const visits: number[] = []
+    if (!targets.length) {
+      if (
+        !me.tool ||
+        (this.cur.bosses.some((b) => b.kind === 'kraken') &&
+          me.tool !== 'steam')
+      )
+        for (const d of this.drops) visits.push(d.x)
+      for (const k of this.kits) if (me.health < 70 || k.snack) visits.push(k.x)
+      for (const j of this.cur.jars) if (!j.taken) visits.push(j.x)
+      for (const c of this.crew)
+        if (c.state === 'waiting' && c.deck === me.deck) visits.push(c.x)
+      const con = this.cur.console
+      if (con && !con.used && con.switches !== 'conveyors')
+        return this.pilotTo(me, frame, con.x, true)
+    }
+    if (!targets.length && visits.length) {
+      const x = visits.sort(
+        (a, b) => Math.abs(a - me.x) - Math.abs(b - me.x),
+      )[0]!
+      return this.pilotTo(me, frame, x, false)
+    }
     // With nothing on the floor, walk under a ceiling sac to bring its crawlers down.
     if (!targets.length) {
       const sac = this.sacs.find((s) => s.ceiling && s.hatches > 0)
@@ -2796,7 +3937,7 @@ class StationSweep implements ArcadeGameInstance {
     const target = targets.sort(
       (a, b) => Math.abs(a.x - me.x) - Math.abs(b.x - me.x),
     )[0]
-    if (!target) return this.pilotToLift(me, frame, false)
+    if (!target) return this.pilotOnward(me, frame)
     const dist = target.x - me.x
     const dir = dist > 0 ? 1 : -1
     // Too close to aim at: back off a step first.
@@ -2825,18 +3966,71 @@ class StationSweep implements ArcadeGameInstance {
     return frame
   }
 
+  /** Walk to `x`; once there, press Up (through a doorway, or at a console) if asked. */
+  private pilotTo(me: Mop, frame: InputFrame, x: number, up: boolean) {
+    if (Math.abs(x - me.x) > 3) {
+      if (x > me.x) frame.held.right = true
+      else frame.held.left = true
+    } else if (up && me.onGround) frame.pressed.up = true
+    return frame
+  }
+
+  /** This deck is done: out of a room, into a room still dirty, or a lift to a dirty deck. */
+  private pilotOnward(me: Mop, frame: InputFrame) {
+    // A room not yet done (a boss between attacks): wait mid-room for the next opening.
+    if (this.cur.room && !this.cur.clean)
+      return this.pilotTo(me, frame, Math.min(200, this.deckW / 2), false)
+    if (this.cur.room) return this.pilotTo(me, frame, ROOM_EXIT_X, true)
+    const job = this.job?.state === 'on' ? this.job.id : null
+    const door = this.cur.doors
+      .filter((d) => {
+        if (d.kind === 'vent') return false
+        const room = this.decks[d.room]!
+        return (
+          !room.clean ||
+          this.crew.some((c) => c.state === 'waiting' && c.deck === d.room) ||
+          (job === 'seedVault' && d.kind === 'vault')
+        )
+      })
+      .sort((a, b) => Math.abs(a.x - me.x) - Math.abs(b.x - me.x))[0]
+    if (door) return this.pilotTo(me, frame, door.x, true)
+    return this.pilotToLift(me, frame, false)
+  }
+
+  /** Make for a room: out of this one, along to its corridor, and in at its doorway. */
+  private pilotToRoom(me: Mop, frame: InputFrame, room: number) {
+    if (this.cur.room) return this.pilotTo(me, frame, ROOM_EXIT_X, true)
+    const corridor = this.corridorOf(room)
+    if (corridor !== me.deck)
+      return this.pilotToLift(me, frame, false, corridor)
+    const door = this.cur.doors.find((d) => d.room === room)
+    return door ? this.pilotTo(me, frame, door.x, true) : frame
+  }
+
   /** Walk to the nearest lift: to empty the bin there, or to ride toward a deck still dirty. */
-  private pilotToLift(me: Mop, frame: InputFrame, emptyOnly: boolean) {
-    const dirty = this.decks
-      .map((d, i) => (d.clean ? -1 : i))
-      .filter((i) => i >= 0 && i !== me.deck)
-      .sort((a, b) => Math.abs(a - me.deck) - Math.abs(b - me.deck))[0]
+  private pilotToLift(
+    me: Mop,
+    frame: InputFrame,
+    emptyOnly: boolean,
+    goal?: number,
+  ) {
+    if (this.cur.room) return this.pilotTo(me, frame, ROOM_EXIT_X, true)
+    const dirty =
+      goal ??
+      Array.from({ length: this.corridors }, (_, i) => i)
+        .filter((i) => i !== me.deck && !this.corridorClean(i))
+        .sort((a, b) => Math.abs(a - me.deck) - Math.abs(b - me.deck))[0]
     if (dirty === undefined && !emptyOnly) return frame
-    const lift = LIFTS.reduce((a, b) =>
-      Math.abs(a - me.x) < Math.abs(b - me.x) ? a : b,
+    const lifts = this.cur.lifts.filter(
+      (l) =>
+        emptyOnly || dirty === undefined || (dirty < me.deck ? l.up : l.down),
     )
-    if (Math.abs(lift - me.x) > 4) {
-      if (lift > me.x) frame.held.right = true
+    const lift = lifts.sort(
+      (a, b) => Math.abs(a.x - me.x) - Math.abs(b.x - me.x),
+    )[0]
+    if (!lift) return frame
+    if (Math.abs(lift.x - me.x) > 4) {
+      if (lift.x > me.x) frame.held.right = true
       else frame.held.left = true
       return frame
     }
@@ -2851,6 +4045,10 @@ class StationSweep implements ArcadeGameInstance {
   render(g: CanvasRenderingContext2D) {
     g.fillStyle = INK
     g.fillRect(0, 0, W, H)
+    if (this.offer) {
+      this.renderOffer(g, this.offer)
+      return
+    }
     if (this.locker) {
       this.renderLocker(g, this.locker)
       return
@@ -2876,20 +4074,115 @@ class StationSweep implements ArcadeGameInstance {
     viewW: number,
   ) {
     this.use(deck)
-    const look = DECK_LOOKS[deck % DECK_LOOKS.length]!
+    const d = this.cur
+    const { look, key, theme } = this.lookOf(deck)
     const left = camX - 40
     const right = camX + viewW + 40
     const inView = (x: number) => x > left && x < right
-    this.renderDeck(g, deck, look, camX, viewW)
-    for (const lift of LIFTS)
-      if (inView(lift)) this.renderLift(g, lift, deck, look)
+    this.renderDeck(g, deck, look, key, theme, camX, viewW)
+    if (d.room) {
+      drawRoomDecor(g, d.room.kind, d.width, this.tick)
+      drawDoorway(g, ROOM_EXIT_X, 'EXIT', ROOM_RAMPS.exit, false, this.tick)
+    }
+    for (const door of d.doors) {
+      if (!inView(door.x)) continue
+      if (door.kind === 'vent') {
+        drawVent(g, door.x, door.to < deck, this.tick)
+        continue
+      }
+      const room = this.decks[door.room]!
+      const waiting = this.crew.some(
+        (c) => c.state === 'waiting' && c.deck === door.room,
+      )
+      drawDoorway(
+        g,
+        door.x,
+        ROOMS[door.kind as RoomKind].sign,
+        ROOM_RAMPS[door.kind],
+        room.clean && !waiting,
+        this.tick,
+      )
+    }
+    for (const lift of d.lifts)
+      if (inView(lift.x)) this.renderLift(g, lift, deck, look)
+    for (const belt of d.conveyors)
+      if (belt.to > left && belt.from < right)
+        drawConveyor(
+          g,
+          belt.from,
+          belt.to,
+          belt.speed,
+          !this.off.has('conveyors'),
+          this.tick,
+        )
+    const V = HAZARDS.steam
+    for (const x of d.steamVents) {
+      if (!inView(x)) continue
+      const p = hazardPhase(this.tick, x, V.period)
+      const on = !this.off.has('steam')
+      drawSteamVent(
+        g,
+        x,
+        !on ? 'idle' : p >= V.blow ? 'blow' : p >= V.tell ? 'tell' : 'idle',
+        this.tick,
+      )
+    }
+    const S = HAZARDS.sprinkler
+    for (const w of d.wet)
+      if (inView(w.x))
+        drawWet(g, w.x, S.wetR, Math.min(1, w.life / 60), this.tick)
+    for (const x of d.sprinklers) {
+      if (!inView(x)) continue
+      const p = hazardPhase(this.tick, x, S.period)
+      const on = !this.off.has('sprinklers')
+      drawSprinkler(
+        g,
+        x,
+        !on ? 'idle' : p >= S.mist ? 'mist' : p >= S.tell ? 'tell' : 'idle',
+        this.tick,
+      )
+    }
+    if (d.console)
+      drawConsole(
+        g,
+        d.console.x,
+        SWITCH_NAMES[d.console.switches],
+        d.console.used || this.off.has(d.console.switches),
+        this.tick,
+      )
+    for (const j of d.jars) {
+      if (j.taken || !inView(j.x)) continue
+      if (j.seeds) drawSeedSack(g, j.x)
+      else drawJar(g, j.x, this.tick)
+    }
+    for (const b of d.bosses) this.renderBoss(g, b)
     for (const s of this.spores) if (inView(s.x)) this.renderSpore(g, s)
     for (const sac of this.sacs) if (inView(sac.x)) this.renderSac(g, sac)
     for (const k of this.kits) if (inView(k.x)) this.renderKit(g, k)
-    for (const d of this.drops) if (inView(d.x)) this.renderDrop(g, d)
+    for (const k of this.drops) if (inView(k.x)) this.renderDrop(g, k)
     for (const c of this.critters) if (inView(c.x)) this.renderCritter(g, c)
+    this.crew.forEach((c, i) => {
+      if (c.state === 'saved' || c.deck !== deck || !inView(c.x)) return
+      const sprite =
+        CREW_SPRITES[i % CREW_SPRITES.length]![
+          Math.floor(this.tick / (c.state === 'waiting' ? 20 : 8)) % 2
+        ]!
+      dropShadow(g, c.x, FLOOR, 7, 2, 0.4)
+      const following = c.state === 'following'
+      const facing = following ? (this.mops[c.seat]?.facing ?? 1) : -1
+      drawSprite(g, sprite, c.x, FLOOR + 1, {
+        anchor: 'feet',
+        flipX: facing < 0,
+      })
+      if (!following && Math.floor(this.tick / 30) % 2)
+        drawHelp(g, c.x, FLOOR - 32, 'HELP!')
+    })
     for (const s of this.spits) {
       if (!inView(s.x)) continue
+      if (s.sock) {
+        drawSock(g, s.x, s.y, this.tick)
+        continue
+      }
       glow(g, s.x, s.y, 9, RAMPS.pink[2], 0.5)
       drawSprite(g, SPIT_SPRITES[Math.floor(this.tick / 4) % 2]!, s.x, s.y, {
         flipX: s.vx < 0,
@@ -2917,7 +4210,21 @@ class StationSweep implements ArcadeGameInstance {
       g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 2, 2)
     }
     g.globalAlpha = 1
+    // Vine curtains hang in front of everything behind them.
+    for (const [a, b] of d.vines)
+      if (b > left && a < right) drawVines(g, a, b, this.tick)
     this.fx[deck]?.render(g)
+    const boss = d.bosses[0]
+    if (boss)
+      drawBossBar(
+        g,
+        Math.round(camX) + 6,
+        this.duo ? CEILING + 2 : CEILING - 13,
+        // Solo, the job's line shares the strip: the bar keeps to the left of it.
+        this.duo ? Math.min(viewW, W) - 12 : 196,
+        BOSS_NAMES[boss.kind],
+        Math.max(0, boss.hp) / boss.maxHp,
+      )
     for (const f of this.floaters)
       if (f.deck === deck)
         drawText(g, f.text, f.x, f.y, {
@@ -2925,6 +4232,114 @@ class StationSweep implements ArcadeGameInstance {
           color: f.color ?? RAMPS.gold[3],
           outline: INK,
         })
+  }
+
+  /** A deck's look, by its station and its corridor (a room borrows its corridor's). */
+  private lookOf(deck: number): { look: DeckLook; key: string; theme: number } {
+    const set =
+      this.plan.look === 'greenhouse'
+        ? GREENHOUSE_LOOKS
+        : this.plan.look === 'laundry'
+          ? LAUNDRY_LOOKS
+          : DECK_LOOKS
+    const theme = this.corridorOf(deck) % set.length
+    return { look: set[theme]!, key: `${this.plan.look}-${theme}`, theme }
+  }
+
+  /** A boss in its room. */
+  private renderBoss(g: CanvasRenderingContext2D, b: Boss) {
+    const flash = b.flash > 0
+    if (b.kind === 'nestMother') {
+      const ramp =
+        this.plan.look === 'greenhouse'
+          ? RAMPS.leaf
+          : this.plan.look === 'laundry'
+            ? RAMPS.water
+            : RAMPS.purple
+      const swell = b.tell > 0 ? 1 - b.tell / NEST_MOTHER.layTell : 0
+      drawNestMother(g, b.x, ramp, swell, flash, this.tick)
+      return
+    }
+    if (b.kind === 'motherGloop') {
+      const size = b.phase === 1 ? 1 : b.phase === 2 ? 0.35 : 0.7
+      const bulge = b.tell > 0 ? 1 - b.tell / MOTHER_GLOOP.slopTell : 0
+      drawMotherGloop(g, b.x, size, bulge, flash, this.tick)
+      return
+    }
+    const K = KRAKEN
+    // The room's floor is one long belt, faster as the fight goes on.
+    drawConveyor(g, 60, this.deckW - 10, K.conveyor[b.phase]!, true, this.tick)
+    drawWasher(g, K.bigMachine, 58, b.phase === 3, false, this.tick)
+    for (const x of K.machines)
+      drawWasher(g, x, 40, b.slam?.x === x, false, this.tick)
+    if (b.phase === 3 && b.head > 0)
+      drawKrakenHead(
+        g,
+        b.x,
+        K.headY + (40 - b.head),
+        b.stun > 0,
+        flash,
+        this.tick,
+      )
+    const s = b.slam
+    if (!s) return
+    if (s.t < K.slamTell) {
+      // Its tell: the shadow of a tentacle, growing on the floor, and a tip peeking out.
+      dropShadow(g, s.x, FLOOR, 4 + s.t / 3, 2.5, 0.25 + s.t / 100)
+      drawTentacle(g, s.x, FLOOR - 32, s.x + 6, FLOOR - 44, false)
+    } else drawTentacle(g, s.x, FLOOR - 32, s.x + 22, FLOOR - 6, flash)
+  }
+
+  /** The continue offer: pick up a saved run at its station, or start a new shift. */
+  private renderOffer(g: CanvasRenderingContext2D, o: StationSave) {
+    bandedGradient(
+      g,
+      0,
+      0,
+      W,
+      H,
+      [RAMPS.night[2], RAMPS.night[1], RAMPS.night[0], RAMPS.night[1]],
+      6,
+    )
+    drawText(g, 'THE ORBIT LINE', W / 2, 36, {
+      scale: 2,
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+      shadow: RAMPS.purple[2],
+    })
+    hudPanel(g, 30, 64, W - 60, 74, RAMPS.purple)
+    drawText(g, `CONTINUE AT STATION ${o.station}?`, W / 2, 74, {
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+    })
+    drawText(
+      g,
+      ORBIT_LINE[o.station - 1]?.name ?? `STATION ${o.station}`,
+      W / 2,
+      90,
+      { align: 'center', color: LIME[3], outline: INK },
+    )
+    drawText(
+      g,
+      o.continued ? 'A FRESH SHIFT: SCORE FROM 0' : `SCORE ${o.score}`,
+      W / 2,
+      106,
+      { align: 'center', color: RAMPS.gold[3], outline: INK },
+    )
+    drawText(g, `${o.credits} CREDITS SAVED`, W / 2, 120, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    const wave = Math.floor(this.tick / 16) % 2
+    drawSprite(g, MOP_SPRITES[0]!.stand[wave]!, W / 2, 186, { anchor: 'feet' })
+    drawText(g, 'A  CONTINUE     B  NEW SHIFT', W / 2, 206, {
+      align: 'center',
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
   }
 
   private renderShot(g: CanvasRenderingContext2D, s: Shot) {
@@ -3061,10 +4476,17 @@ class StationSweep implements ArcadeGameInstance {
     const frac = Math.max(0, m.health) / MAX_HEALTH
     gauge(g, 20, y + 3, 56, 4, frac, chargeRamp(frac))
     hudPanel(g, 83, y, 42, 10, RAMPS.night)
-    drawText(g, `DECK ${m.deck + 1}`, 86, y + 2, {
-      color: LIME[3],
-      outline: INK,
-    })
+    const room = this.decks[m.deck]?.room
+    drawText(
+      g,
+      room ? ROOMS[room.kind].short : `DECK ${m.deck + 1}`,
+      86,
+      y + 2,
+      {
+        color: room ? ROOM_RAMPS[room.kind][3] : LIME[3],
+        outline: INK,
+      },
+    )
     hudPanel(g, 128, y, 30, 10, RAMPS.night)
     this.renderToolBadge(g, m, 131, y + 1, 24)
     hudPanel(g, 161, y, 30, 10, RAMPS.night)
@@ -3116,16 +4538,24 @@ class StationSweep implements ArcadeGameInstance {
     me: Mop,
   ) {
     const d = this.decks[deck]!
-    const at = (wx: number) => Math.round(x + (wx / DECK_W) * w)
+    const at = (wx: number) => Math.round(x + (wx / d.width) * w)
     g.fillStyle = INK
     g.fillRect(x - 1, y - 1, w + 2, h + 2)
     bandedGradient(g, x, y, w, h, [RAMPS.night[0], RAMPS.night[1]], 1)
     // What this view can see, as a faint bracket.
-    const span = Math.max(4, Math.round((this.viewW / DECK_W) * w))
+    const span = Math.max(4, Math.round((this.viewW / d.width) * w))
     g.fillStyle = rgba(RAMPS.teal[3], 0.18)
-    g.fillRect(at(me.camX), y, span, h)
+    g.fillRect(Math.max(x, at(me.camX)), y, Math.min(w, span), h)
     g.fillStyle = RAMPS.steel[2]
-    for (const lift of LIFTS) g.fillRect(at(lift) - 1, y, 3, 1)
+    for (const lift of d.lifts) g.fillRect(at(lift.x) - 1, y, 3, 1)
+    // Doorways: lit in their room's colour until the room is clean.
+    for (const door of d.doors) {
+      const clean = door.kind === 'vent' || this.decks[door.room]!.clean
+      g.fillStyle = clean ? RAMPS.steel[1] : ROOM_RAMPS[door.kind][3]
+      g.fillRect(at(door.x) - 1, y, 2, 1)
+    }
+    g.fillStyle = RAMPS.pink[4]
+    for (const b of d.bosses) g.fillRect(at(b.x) - 2, y, 5, h)
     // The Sac Radar adds the ceiling sacs, and blinks any about to hatch.
     const radar = this.kit.radar > 0
     for (const s of d.sacs) {
@@ -3137,8 +4567,15 @@ class StationSweep implements ArcadeGameInstance {
     }
     g.fillStyle = RAMPS.gold[3]
     for (const t of d.drops) g.fillRect(at(t.x), y + h - 1, 1, 1)
+    // Critters behind a vine curtain stay hidden.
     g.fillStyle = RAMPS.pink[3]
-    for (const c of d.critters) g.fillRect(at(c.x), y + 1, 1, h - 2)
+    for (const c of d.critters)
+      if (!d.vines.some(([a, b]) => c.x > a && c.x < b))
+        g.fillRect(at(c.x), y + 1, 1, h - 2)
+    g.fillStyle = RAMPS.gold[4]
+    for (const c of this.crew)
+      if (c.deck === deck && c.state !== 'saved')
+        g.fillRect(at(c.x) - 1, y + 1, 2, h - 2)
     for (const o of this.mops) {
       if (o.deck !== deck || o.out) continue
       g.fillStyle = INK
@@ -3176,19 +4613,19 @@ class StationSweep implements ArcadeGameInstance {
     for (let i = 0; i < Math.min(this.spares, 5); i++)
       drawSprite(g, SPARE_SPRITE, 110 + i * 8, 12, { anchor: 'topleft' })
     // The station, top deck first: clean green, dirty red, and who's on each.
-    const n = this.decks.length
+    const n = this.corridors
     hudPanel(g, 162, 2, n * 12 + 6, 18)
-    this.decks.forEach((d, i) => {
+    for (let i = 0; i < n; i++) {
       const bx = 166 + i * 12
-      this.renderDeckBox(g, bx, 5, d.clean, false)
+      this.renderDeckBox(g, bx, 5, this.corridorClean(i), false)
       for (const m of this.mops) {
-        if (m.out || m.deck !== i) continue
+        if (m.out || this.corridorOf(m.deck) !== i) continue
         g.fillStyle = INK
         g.fillRect(bx + m.seat * 3, 13, 4, 4)
         g.fillStyle = SEAT_COLORS[m.seat]!
         g.fillRect(bx + m.seat * 3, 13, 3, 3)
       }
-    })
+    }
     hudPanel(g, 236, 2, 82, 18)
     drawText(g, `HI ${Math.max(this.hiScore, this.score)}`, W - 6, 4, {
       align: 'right',
@@ -3290,16 +4727,17 @@ class StationSweep implements ArcadeGameInstance {
     g: CanvasRenderingContext2D,
     deck: number,
     look: DeckLook,
+    key: string,
+    theme: number,
     camX: number,
     viewW: number,
   ) {
-    const theme = deck % DECK_LOOKS.length
     const drift = camX * 0.3 + this.tick * 0.05
     const shift = ((drift % SPACE_W) + SPACE_W) % SPACE_W
     for (let x = camX - shift; x < camX + viewW; x += SPACE_W) {
       g.save()
       g.translate(Math.round(x), 0)
-      cachedLayer(g, `station-sweep-space-${theme}`, SPACE_W, H, (k) =>
+      cachedLayer(g, `station-sweep-space-${key}`, SPACE_W, H, (k) =>
         paintSpace(k, look, theme),
       )
       g.restore()
@@ -3308,7 +4746,7 @@ class StationSweep implements ArcadeGameInstance {
     for (let x = first; x < camX + viewW; x += TILE_W) {
       g.save()
       g.translate(x, 0)
-      cachedLayer(g, `station-sweep-wall-${theme}`, TILE_W, H, (k) =>
+      cachedLayer(g, `station-sweep-wall-${key}`, TILE_W, H, (k) =>
         paintWall(k, look),
       )
       g.restore()
@@ -3327,12 +4765,33 @@ class StationSweep implements ArcadeGameInstance {
         g.fillRect(x + 80 + 37, 148, 3, 1)
       }
     }
+    // The deck's end walls, where a deck (or a room) stops short of the view.
+    const width = this.decks[deck]!.width
+    for (const [from, to] of [
+      [camX - 2, 0],
+      [width, camX + viewW + 2],
+    ] as const) {
+      if (to <= from) continue
+      bandedGradient(
+        g,
+        Math.floor(from),
+        CEILING - 14,
+        Math.ceil(to - from),
+        H - CEILING + 14,
+        [look.wall[1], look.wall[0], INK],
+        6,
+      )
+      const edge = from === width ? width : 0
+      bevel(g, edge - 4, CEILING - 14, 8, FLOOR - CEILING + 24, look.wall, {
+        depth: 1,
+      })
+    }
     // The deck's number by each lift (the split screen's strips say it already).
     if (!this.duo)
-      for (const lift of LIFTS) {
-        if (lift < camX - 40 || lift > camX + viewW + 40) continue
-        hudPanel(g, lift - 22, 71, 44, 11, look.wall)
-        drawText(g, `DECK ${deck + 1}`, lift, 73, {
+      for (const lift of this.decks[deck]!.lifts) {
+        if (lift.x < camX - 40 || lift.x > camX + viewW + 40) continue
+        hudPanel(g, lift.x - 22, 71, 44, 11, look.wall)
+        drawText(g, `DECK ${deck + 1}`, lift.x, 73, {
           align: 'center',
           color: look.trim[3],
           outline: INK,
@@ -3342,14 +4801,15 @@ class StationSweep implements ArcadeGameInstance {
 
   private renderLift(
     g: CanvasRenderingContext2D,
-    x: number,
+    lift: Lift,
     deck: number,
     look: DeckLook,
   ) {
+    const x = lift.x
     const top = CEILING + 34
     // The doors slide open while a Mop steps in or out.
     const rider = this.mops.find(
-      (m) => m.ride && m.deck === deck && Math.abs(m.x - x) < 2,
+      (m) => m.ride?.via === 'lift' && m.deck === deck && Math.abs(m.x - x) < 2,
     )
     const t = rider?.ride ? rider.ride.t : 0
     const open = rider
@@ -3429,19 +4889,20 @@ class StationSweep implements ArcadeGameInstance {
     const arrow = (to: number, up: boolean) => {
       const ay = up ? top - 14 : top - 7
       const d = this.decks[to]
-      const colour = !d ? RAMPS.steel[0] : d.clean ? RAMPS.steel[2] : LIME[3]
-      if (d && !d.clean)
+      const dirty = !!d && !this.corridorClean(to)
+      const colour = !d ? RAMPS.steel[0] : dirty ? LIME[3] : RAMPS.steel[2]
+      if (dirty)
         glow(g, x, ay + 2, 9, LIME[3], 0.4 + 0.2 * Math.sin(this.tick / 8))
       for (let i = 0; i < 4; i++) {
         const row = up ? i : 3 - i
         g.fillStyle = INK
         g.fillRect(x - row - 1, ay + i, row * 2 + 3, 1)
-        g.fillStyle = i === (up ? 1 : 2) && d && !d.clean ? LIME[4] : colour
+        g.fillStyle = i === (up ? 1 : 2) && dirty ? LIME[4] : colour
         g.fillRect(x - row, ay + i, row * 2 + 1, 1)
       }
     }
-    arrow(deck - 1, true)
-    arrow(deck + 1, false)
+    arrow(lift.up ? deck - 1 : -1, true)
+    arrow(lift.down ? deck + 1 : -1, false)
     // The pad Mop stands on to ride (and to empty its bin): it lights when someone is on it.
     const onPad = this.mops.some(
       (m) =>
@@ -3472,6 +4933,17 @@ class StationSweep implements ArcadeGameInstance {
 
   private renderSac(g: CanvasRenderingContext2D, sac: Sac) {
     const spent = sac.hatches <= 0 || (!sac.ceiling && sac.hp <= 0)
+    if (sac.machine) {
+      drawWasher(
+        g,
+        sac.x,
+        34,
+        !spent && sac.timer < 60,
+        sac.pulse > 0,
+        this.tick,
+      )
+      return
+    }
     if (spent) {
       drawSprite(g, HUSK_SPRITE, sac.x, sac.ceiling ? CEILING + 2 : FLOOR - 2, {
         flipY: sac.ceiling,
@@ -3489,6 +4961,10 @@ class StationSweep implements ArcadeGameInstance {
   private renderKit(g: CanvasRenderingContext2D, k: RepairKit) {
     if (k.life < 90 && Math.floor(this.tick / 5) % 2) return
     const bob = Math.round(Math.sin(this.tick / 10) * 1)
+    if (k.snack) {
+      drawSnack(g, k.x, bob)
+      return
+    }
     glow(g, k.x, FLOOR - 6, 14, RAMPS.leaf[3], 0.45)
     dropShadow(g, k.x, FLOOR, 6, 1.5, 0.4)
     drawSprite(g, KIT_SPRITE, k.x, FLOOR - 1 + bob, { anchor: 'feet' })
@@ -3512,6 +4988,8 @@ class StationSweep implements ArcadeGameInstance {
           c.tell > 0 ||
           (c.stage === 2 && c.t % PUFFER.shedEvery > PUFFER.shedEvery - 20)
         )
+      case 'mimic':
+        return !c.awake && this.tick % MIMIC.blinkEvery < 14
       default:
         return c.tell > 0
     }
@@ -3523,6 +5001,8 @@ class StationSweep implements ArcadeGameInstance {
     const need = growTicks(c.stage, after)
     const growing =
       c.stage < 2 &&
+      FAMILIES[c.kind].grows !== false &&
+      !c.tag &&
       c.foam === 0 &&
       c.stun === 0 &&
       c.bubble === 0 &&
@@ -3545,6 +5025,7 @@ class StationSweep implements ArcadeGameInstance {
       tell && (fast === 1 || Math.floor(this.tick / fast) % 2)
         ? set.tell
         : set.walk[Math.floor(this.tick / 8) % 2]!
+    if (c.kind === 'mimic' && !c.awake && !tell) sprite = set.walk[0]
     if (c.flash > 0) sprite = flashOf(sprite)
     const toward = Math.sign((this.nearest(c.x)?.x ?? c.x + 1) - c.x) || 1
     const facing =
@@ -3745,11 +5226,18 @@ class StationSweep implements ArcadeGameInstance {
       color: RAMPS.pink[3],
       outline: INK,
     })
-    drawText(g, `STATION ${this.level}  DECK ${me.deck + 1}`, W - 9, 14, {
-      align: 'right',
-      color: LIME[3],
-      outline: INK,
-    })
+    const room = this.decks[me.deck]?.room
+    drawText(
+      g,
+      room ? ROOMS[room.kind].name : `${this.plan.name}  D${me.deck + 1}`,
+      W - 9,
+      14,
+      {
+        align: 'right',
+        color: room ? ROOM_RAMPS[room.kind][3] : LIME[3],
+        outline: INK,
+      },
+    )
     hudPanel(g, 4, 26, 94, 13)
     drawText(g, 'CHARGE', 8, 29, { color: RAMPS.leaf[4], outline: INK })
     const frac = Math.max(0, me.health) / MAX_HEALTH
@@ -3780,17 +5268,55 @@ class StationSweep implements ArcadeGameInstance {
       })
     }
     // The station, top deck first: clean decks green, dirty ones red, Mop's lit.
-    const n = this.decks.length
+    const n = this.corridors
     hudPanel(g, W - 10 - n * 13, 26, n * 13 + 6, 13)
-    this.decks.forEach((d, i) => {
+    for (let i = 0; i < n; i++) {
       const bx = W - 6 - (n - i) * 13
-      this.renderDeckBox(g, bx, 29, d.clean, i === me.deck)
-    })
+      this.renderDeckBox(
+        g,
+        bx,
+        29,
+        this.corridorClean(i),
+        i === this.corridorOf(me.deck),
+      )
+    }
     // Deck map: sacs left (green), critters (pink), Mop (cyan).
     this.use(me.deck)
     hudPanel(g, 4, 42, W - 8, 10)
     this.renderRadar(g, 8, 45, W - 16, 4, me.deck, me)
+    this.renderJob(g)
     this.renderBanner(g, 110)
+  }
+
+  /** The station's job, under the HUD's right-hand end, and a crewmate in tow. */
+  private renderJob(g: CanvasRenderingContext2D) {
+    const tow = this.crew.find((c) => c.state === 'following')
+    if (tow && !this.decks[this.mops[0]!.deck]?.bosses.length)
+      drawText(g, `${tow.name} IN TOW`, 8, 59, {
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    const j = this.job
+    if (!j) return
+    const name = JOBS[j.id].name
+    let text: string
+    if (j.state === 'done') text = `${name} DONE!`
+    else if (j.state === 'failed') text = `${name} MISSED`
+    else if (j.id === 'seedVault') text = `${name} ${Math.ceil(j.ticks / 60)}`
+    else {
+      const rooms = this.decks.filter((d) => d.room && d.room.kind !== 'boss')
+      text = `${name} ${rooms.filter((d) => d.clean).length}/${rooms.length}`
+    }
+    drawText(g, text, W - 8, 59, {
+      align: 'right',
+      color:
+        j.state === 'done'
+          ? LIME[3]
+          : j.state === 'failed'
+            ? RAMPS.steel[2]
+            : RAMPS.teal[3],
+      outline: INK,
+    })
   }
 
   /** The Supply Locker: a shelf of upgrades, the crew's credits, and the critter count. */
@@ -3862,14 +5388,14 @@ class StationSweep implements ArcadeGameInstance {
       )
     })
     // The critter count: every family swept this run.
-    hudPanel(g, 208, 28, 108, 104, RAMPS.night)
+    hudPanel(g, 208, 28, 108, 112, RAMPS.night)
     drawText(g, 'CRITTERS SWEPT', 262, 32, {
       align: 'center',
       color: LIME[3],
       outline: INK,
     })
     FAMILY_NAMES.forEach((f, i) => {
-      const y = 44 + i * 17
+      const y = 42 + i * 16
       const sprite = CRITTER_SPRITES[f][0].walk[Math.floor(this.tick / 12) % 2]!
       drawSprite(g, sprite, 226, y + 13, { anchor: 'feet' })
       drawText(g, FAMILIES[f].name, 242, y + 3, {
@@ -3957,14 +5483,32 @@ function chargeRamp(frac: number): Ramp {
 /** The table guide: the families and their stages, the tools, the bin and the locker. */
 function stationGuide(): ArcadeGuidePage[] {
   return [
-    {
-      title: 'CRITTERS THAT GROW UP',
-      scale: 1,
-      lines: FAMILY_NAMES.flatMap((f) => [
-        FAMILIES[f].stages.map((s) => s.name).join(' > '),
+    ...[FAMILY_NAMES.slice(0, 3), FAMILY_NAMES.slice(3)].map((families, i) => ({
+      title: i ? 'MORE CRITTERS' : 'CRITTERS THAT GROW UP',
+      scale: 1 as const,
+      lines: families.flatMap((f) => [
+        FAMILIES[f].grows === false
+          ? FAMILIES[f].stages[0].name
+          : FAMILIES[f].stages.map((s) => s.name).join(' > '),
         `  TELL: ${FAMILIES[f].tell}`,
         `  ${FAMILIES[f].answer}`,
       ]),
+    })),
+    {
+      title: 'ROOMS AND STATIONS',
+      scale: 1,
+      lines: [
+        'UP AT A DOORWAY GOES IN; UP AT EXIT COMES OUT.',
+        'CLOSET: A TOOL. GALLEY: SNACKS. LAB: JARS.',
+        'CABIN: WALK THE CREWMATE TO A LIFT: +10 SECS.',
+        'NEST: SACS, AND THE NEST MOTHER LAYING MORE.',
+        'CONTROL: UP AT THE LEVER SWITCHES A HAZARD OFF.',
+        'VENTS ARE A CRAWL TO THE DECK ABOVE OR BELOW.',
+        'GREENHOUSE: SPRINKLERS SLICK THE FLOOR. VINES',
+        '  HIDE CRITTERS. MOTHER GLOOP: FOAM HER PIECES.',
+        'LAUNDRY: BELTS, STEAM VENTS, WASHERS. THE',
+        '  KRAKEN: STEAM ITS HEAD, THEN SWEEP IT.',
+      ],
     },
     {
       title: 'TOOLS',

@@ -368,6 +368,38 @@ assert.match(publicHighlights, /data-testid="visitor-poster-gallery"/)
 assert.match(publicHighlights, /advertPlayPath\(view.poster\)/)
 assert.match(publicHighlights, /advertStore.loadPublicSelections\(\)/)
 
+const posterComponent = read('components/adverts/advert-poster.vue')
+assert.match(
+  posterComponent,
+  /container-type: inline-size/,
+  'poster frame is a width query container',
+)
+assert.match(
+  posterComponent,
+  /transform: scale\(calc\(100cqw \/ 1080px\)\)/,
+  'poster scales in CSS before hydration even in narrow tutorial panels',
+)
+assert.match(
+  posterComponent,
+  /const legacyScale = ref<number \| null>\(null\)/,
+  'initial render does not hide the poster at zero scale',
+)
+assert.match(
+  posterComponent,
+  /legacyScale === null/,
+  'legacy inline scale cannot override container-sized CSS on first paint',
+)
+assert.match(
+  posterComponent,
+  /if \(width > 0\) legacyScale.value =/,
+  'a hidden frame cannot reset the fallback to zero',
+)
+assert.match(
+  posterComponent,
+  /if \(!CSS\.supports\(/,
+  'older browsers retain a measured scale fallback',
+)
+
 const tutorialSheet = read('components/navigation/workspace-sheet.vue')
 assert.match(tutorialSheet, /data-testid="workspace-game-poster"/)
 assert.match(tutorialSheet, /data-testid="workspace-silas-says"/)

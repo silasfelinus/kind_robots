@@ -1250,7 +1250,7 @@ const ironWorker = (lane: number, uid: number) =>
   assert.equal(at(sprung, 82)!.rooted, true)
 }
 
-// --- Undertow: thirty authored L1 jobs, five L3s that keep their L2 job.
+// --- Undertow: thirty authored L1 jobs, four L3s that keep their L2 job.
 {
   const cards = CARDS.filter((card) => card.team === 'undertow')
   assert.equal(cards.length, 40)
@@ -1288,20 +1288,6 @@ const tidePlay = (s: ClashState, id: string, lane = 2): ClashState => {
 }
 const tideFoe = (lane: number, uid: number, extra: Partial<ClashUnit> = {}) =>
   fighter('enemy', lane, uid, { cardId: 'sprite', fresh: false, ...extra })
-
-// Quiet Room Listener keeps its L2 soundproofing while L3 sharpens.
-{
-  let k = tidePlay(tideBoard(), 's3-undertow-quiet-listener')
-  const uid = mine(k, 's3-undertow-quiet-listener')!.uid
-  const before = at(k, uid)!.attack
-  for (const side of ['player', 'enemy'] as const) {
-    k = passClash(k, side)
-    while (nextClashStrike(k, side) >= 0) k = strikeClash(k, side)
-    k = endClashTurn(k, side)
-  }
-  assert.ok((at(k, uid)!.guard ?? 0) >= 1, 'L3 still raises its shield')
-  assert.equal(at(k, uid)!.attack, before + 1, 'and grows for good')
-}
 
 // Needle Rain Agent: the L2 cloudburst still lands before the L3 lockdown.
 {

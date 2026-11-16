@@ -219,15 +219,13 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   // Arc: a watcher in a hidden room -> soundproofed walls blunt each raid ->
   // the long game: every night it survives, it knows more.
-  // Trajectory: LATE BLOOMER (patience payoff). Counterplay: raid early and
-  // hard; regen and shields lose to burst.
+  // Trajectory: LATE BLOOMER (patience payoff; L3 trades the L2 shield for
+  // growth). Counterplay: raid early and hard; regen loses to burst, and the
+  // L3 listener has no shield left.
   's3-undertow-quiet-listener': {
     levelOneText: 'A tough REGEN listener that waits out early raids.',
     2: stage('Soundproofed', [on('turnStart', guard(1, 'self'))]),
-    // L3 keeps the L2 soundproofing: the counterplay still names shields.
-    3: stage('The Long Game', [
-      on('turnStart', guard(1, 'self'), sharpen(1, 'self')),
-    ]),
+    3: stage('The Long Game', [on('turnStart', sharpen(1, 'self'))]),
   },
   // Arc: an operative who brings the rain -> a cloudburst of needles on
   // arrival -> the monsoon pins down everyone beside the target.

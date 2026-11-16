@@ -108,6 +108,9 @@ export const useAdvertStore = defineStore('advertStore', () => {
   const notice = ref('')
   const lastSync = ref<AdvertSyncSummary | null>(null)
   const posterElements = new Map<string, HTMLElement>()
+  const previewUrl = ref<string | null>(null)
+  const previewSlug = ref<string | null>(null)
+  let previewBlob: Blob | null = null
 
   function imageForSlot(slotKey: string, defaultSrc: string): string {
     const chosen = selections.value[slotKey]
@@ -400,13 +403,14 @@ export const useAdvertStore = defineStore('advertStore', () => {
     if (posterElements.get(slug) === element) posterElements.delete(slug)
   }
 
-  async function renderPng(slug: string): Promise<string> {
+  async function renderPng(slug: string): Promise<Blob> {
     const element = posterElements.get(slug)
     const entry = advertPosterBySlug(slug)
     if (!element || !entry) throw new Error('That poster is not on screen.')
     await document.fonts?.ready
-    const { domToPng } = await import('modern-screenshot')
-    return domToPng(element, {
+    const { domToBlob } = await import('modern-screenshot')
+    return domToBlob(element, {
+      type: 'image/png',
       width: ADVERT_POSTER_WIDTH,
       height: ADVERT_POSTER_HEIGHT,
       scale: ADVERT_EXPORT_PIXEL_RATIO,
@@ -415,20 +419,87 @@ export const useAdvertStore = defineStore('advertStore', () => {
     })
   }
 
-  function saveDataUrl(dataUrl: string, filename: string): void {
+  function needsNativeSave(): boolean {
+    if (typeof navigator === 'undefined') return false
+    return (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)
+    )
+  }
+
+  function saveBlob(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.href = dataUrl
+    link.href = url
     link.download = filename
     document.body.appendChild(link)
     link.click()
     link.remove()
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000)
   }
 
-  async function exportPng(slug: string): Promise<boolean> {
+  function closePreview(): void {
+    if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+    previewUrl.value = null
+    previewSlug.value = null
+    previewBlob = null
+  }
+
+  async function previewPng(slug: string): Promise<boolean> {
+    if (exportingSlug.value) return false
     exportingSlug.value = slug
     errorMessage.value = ''
     try {
-      saveDataUrl(await renderPng(slug), `kind-robots-${slug}-splash.png`)
+      const blob = await renderPng(slug)
+      closePreview()
+      previewBlob = blob
+      previewSlug.value = slug
+      previewUrl.value = URL.createObjectURL(blob)
+      return true
+    } catch (error) {
+      errorMessage.value =
+        error instanceof Error ? error.message : 'Could not build the PNG.'
+      handleError(error, 'previewing an advert poster')
+      return false
+    } finally {
+      exportingSlug.value = null
+    }
+  }
+
+  async function savePreview(): Promise<boolean> {
+    if (!previewBlob || !previewSlug.value) return false
+    const file = new File(
+      [previewBlob],
+      `kind-robots-${previewSlug.value}-splash.png`,
+      { type: 'image/png' },
+    )
+    try {
+      if (
+        typeof navigator.share === 'function' &&
+        navigator.canShare?.({ files: [file] })
+      ) {
+        await navigator.share({ files: [file], title: 'Kind Robots poster' })
+      } else {
+        saveBlob(previewBlob, file.name)
+      }
+      return true
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError')
+        return false
+      errorMessage.value =
+        error instanceof Error ? error.message : 'Could not save the PNG.'
+      handleError(error, 'saving an advert poster')
+      return false
+    }
+  }
+
+  async function exportPng(slug: string): Promise<boolean> {
+    if (needsNativeSave()) return previewPng(slug)
+    if (exportingSlug.value) return false
+    exportingSlug.value = slug
+    errorMessage.value = ''
+    try {
+      saveBlob(await renderPng(slug), `kind-robots-${slug}-splash.png`)
       return true
     } catch (error) {
       errorMessage.value =
@@ -441,6 +512,11 @@ export const useAdvertStore = defineStore('advertStore', () => {
   }
 
   async function exportAll(): Promise<number> {
+    if (needsNativeSave()) {
+      notice.value =
+        'On iPhone or iPad, save posters individually using Share PNG.'
+      return 0
+    }
     let saved = 0
     for (const entry of ADVERT_POSTERS) {
       if (await exportPng(entry.slug)) saved += 1
@@ -459,6 +535,8 @@ export const useAdvertStore = defineStore('advertStore', () => {
     isQueueing,
     isFiling,
     exportingSlug,
+    previewUrl,
+    previewSlug,
     errorMessage,
     notice,
     lastSync,
@@ -480,6 +558,10 @@ export const useAdvertStore = defineStore('advertStore', () => {
     fileEditRequest,
     registerPosterElement,
     releasePosterElement,
+    needsNativeSave,
+    previewPng,
+    closePreview,
+    savePreview,
     exportPng,
     exportAll,
   }

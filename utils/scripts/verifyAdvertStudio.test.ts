@@ -323,6 +323,19 @@ assert.match(storeSource, /'\/api\/adverts\/art\/sync'/)
 assert.match(storeSource, /category: 'AGENT'/)
 assert.match(storeSource, /scale: ADVERT_EXPORT_PIXEL_RATIO/)
 assert.match(storeSource, /import\('modern-screenshot'\)/)
+assert.ok(storeSource.includes('domToBlob(element,'))
+assert.ok(storeSource.includes('URL.createObjectURL(blob)'))
+assert.ok(storeSource.includes('navigator.canShare?.({ files: [file] })'))
+assert.ok(storeSource.includes('navigator.share({ files: [file]'))
+assert.ok(storeSource.includes('needsNativeSave()'))
+assert.ok(storeSource.includes('URL.revokeObjectURL'))
+assert.ok(advertPage.includes('data-testid="advert-image-preview"'))
+assert.ok(advertPage.includes('data-testid="advert-complete-image"'))
+assert.ok(
+  advertPage.includes('@click="advertStore.previewPng(selected.poster.slug)"'),
+)
+assert.ok(advertPage.includes('@click="advertStore.savePreview()"'))
+assert.ok(!storeSource.includes('saveDataUrl('))
 
 const FETCHES =
   /\$fetch|performFetch|useFetch|\bfetch\(|localStorage|sessionStorage/

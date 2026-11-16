@@ -33,7 +33,7 @@
           <Icon v-else name="kind-icon:refresh" class="size-4" />
         </button>
         <button
-          v-if="!selected"
+          v-if="!selected && !isIos"
           type="button"
           class="kr-btn-ghost shrink-0"
           title="Download every poster as a PNG"
@@ -99,8 +99,22 @@
       data-testid="advert-focus"
     >
       <section class="advert-stage" aria-label="Poster preview">
-        <div class="advert-stage-poster">
+        <div class="advert-stage-poster relative select-none">
           <advert-poster :poster="selected.poster" :images="selected.images" />
+          <button
+            type="button"
+            class="absolute inset-0 cursor-zoom-in rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            aria-label="View the entire poster as a single PNG image"
+            :disabled="Boolean(exportingSlug)"
+            @click="advertStore.previewPng(selected.poster.slug)"
+          >
+            <span
+              class="absolute bottom-2 right-2 rounded-full bg-base-100/90 px-3 py-1 text-xs font-bold text-base-content shadow"
+            >
+              <Icon name="kind-icon:image" class="mr-1 inline size-3" />
+              View whole image
+            </span>
+          </button>
         </div>
       </section>
 
@@ -139,7 +153,7 @@
               class="loading loading-spinner loading-xs"
             />
             <Icon v-else name="kind-icon:download" class="size-4" />
-            Download PNG
+            {{ isIos ? 'Save / Share PNG' : 'Download PNG' }}
           </button>
         </div>
 
@@ -209,11 +223,65 @@
         <advert-edit-panel v-else :poster="selected.poster" />
       </aside>
     </div>
+
+    <div
+      v-if="previewUrl"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Complete poster image"
+      class="fixed inset-0 z-[120] flex min-h-0 flex-col bg-neutral/95 p-3 text-neutral-content sm:p-6"
+      data-testid="advert-image-preview"
+      @keydown.esc="advertStore.closePreview()"
+    >
+      <div class="mb-3 flex items-center gap-2">
+        <p class="min-w-0 flex-1 truncate text-sm font-bold">Full poster PNG</p>
+        <button
+          type="button"
+          class="btn btn-sm btn-primary"
+          @click="advertStore.savePreview()"
+        >
+          <Icon name="kind-icon:download" class="size-4" />
+          {{ isIos ? 'Share PNG' : 'Download PNG' }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-ghost"
+          @click="advertStore.closePreview()"
+        >
+          Close
+        </button>
+      </div>
+      <p v-if="errorMessage" class="mb-2 text-sm text-error">
+        {{ errorMessage }}
+      </p>
+      <div class="kr-scroll flex min-h-0 flex-1 justify-center">
+        <img
+          :src="previewUrl"
+          :alt="`Complete ${selected?.poster.name ?? 'Kind Robots'} poster PNG`"
+          class="h-fit max-h-full max-w-full object-contain"
+          data-testid="advert-complete-image"
+        />
+      </div>
+      <p class="mt-2 text-center text-xs text-neutral-content/80">
+        {{
+          isIos
+            ? 'Use Share PNG to save to Photos or Files, or touch and hold the whole image.'
+            : 'This is one complete image, ready to download or copy.'
+        }}
+        <a
+          :href="previewUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="ml-2 underline"
+          >Open image</a
+        >
+      </p>
+    </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '~/stores/userStore'
 import { useAdvertStore } from '~/stores/advertStore'
@@ -225,10 +293,18 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const advertStore = useAdvertStore()
-const { posters, selected, isSyncing, exportingSlug, errorMessage, notice } =
-  storeToRefs(advertStore)
+const {
+  posters,
+  selected,
+  isSyncing,
+  exportingSlug,
+  previewUrl,
+  errorMessage,
+  notice,
+} = storeToRefs(advertStore)
 
 const ready = ref(false)
+const isIos = ref(false)
 const deckTab = ref<'art' | 'edit'>('art')
 const activeSlotKey = ref('')
 
@@ -259,6 +335,7 @@ watch(
   () => advertStore.selectedSlug,
   () => {
     activeSlotKey.value = ''
+    advertStore.closePreview()
   },
 )
 
@@ -268,6 +345,7 @@ watch(
 )
 
 onMounted(async () => {
+  isIos.value = advertStore.needsNativeSave()
   await userStore.initialize()
   advertStore.select(
     typeof route.query.poster === 'string' ? route.query.poster : null,
@@ -275,6 +353,8 @@ onMounted(async () => {
   ready.value = true
   if (userStore.isAdmin) await advertStore.open()
 })
+
+onBeforeUnmount(() => advertStore.closePreview())
 </script>
 
 <style scoped>

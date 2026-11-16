@@ -1,6 +1,13 @@
 <template>
   <div ref="frame" class="advert-poster-frame">
-    <div class="ad-scaler" :style="{ transform: `scale(${scale})` }">
+    <div
+      class="ad-scaler"
+      :style="
+        legacyScale === null
+          ? undefined
+          : { transform: `scale(${legacyScale})` }
+      "
+    >
       <div
         ref="posterEl"
         class="ad-poster"
@@ -213,7 +220,7 @@ const kickerEl = ref<HTMLElement | null>(null)
 const stripEl = ref<HTMLElement | null>(null)
 const brandEl = ref<HTMLElement | null>(null)
 const urlEl = ref<HTMLElement | null>(null)
-const scale = ref(0)
+const legacyScale = ref<number | null>(null)
 let resizeObserver: ResizeObserver | null = null
 let registeredSlug = ''
 
@@ -345,7 +352,7 @@ async function fit(): Promise<void> {
 
 function measure(): void {
   const width = frame.value?.clientWidth ?? 0
-  scale.value = width / ADVERT_POSTER_WIDTH
+  if (width > 0) legacyScale.value = width / ADVERT_POSTER_WIDTH
 }
 
 function register(): void {
@@ -366,9 +373,11 @@ watch(
 )
 
 onMounted(() => {
-  measure()
-  resizeObserver = new ResizeObserver(measure)
-  if (frame.value) resizeObserver.observe(frame.value)
+  if (!CSS.supports('transform', 'scale(calc(100cqw / 1080px))')) {
+    measure()
+    resizeObserver = new ResizeObserver(measure)
+    if (frame.value) resizeObserver.observe(frame.value)
+  }
   register()
   void fit()
 })
@@ -385,6 +394,7 @@ onBeforeUnmount(() => {
   position: relative;
   width: 100%;
   aspect-ratio: 1080 / 1350;
+  container-type: inline-size;
   overflow: hidden;
   border-radius: 0.75rem;
   background: #0b0618;
@@ -397,6 +407,7 @@ onBeforeUnmount(() => {
   width: 1080px;
   height: 1350px;
   transform-origin: 0 0;
+  transform: scale(calc(100cqw / 1080px));
 }
 
 .ad-poster {

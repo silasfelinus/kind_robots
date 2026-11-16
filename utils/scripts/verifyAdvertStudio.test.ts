@@ -371,33 +371,33 @@ assert.match(publicHighlights, /advertStore.loadPublicSelections\(\)/)
 const posterComponent = read('components/adverts/advert-poster.vue')
 assert.match(
   posterComponent,
-  /container-type: inline-size/,
-  'poster frame is a width query container',
+  /const scale = ref\(1\)/,
+  'SSR paints poster content at a nonzero scale before measurements',
 )
 assert.match(
   posterComponent,
-  /transform: scale\(calc\(100cqw \/ 1080px\)\)/,
-  'poster scales in CSS before hydration even in narrow tutorial panels',
+  /:style="\{ transform: `scale\(\$\{scale\}\)` \}"/,
+  'poster uses the browser-measured numeric scale',
 )
 assert.match(
   posterComponent,
-  /const legacyScale = ref<number \| null>\(null\)/,
-  'initial render does not hide the poster at zero scale',
+  /getBoundingClientRect\(\)\.width/,
+  'poster measures the actual sidebar frame width',
 )
 assert.match(
   posterComponent,
-  /legacyScale === null/,
-  'legacy inline scale cannot override container-sized CSS on first paint',
+  /Number\.isFinite\(width\) && width > 0/,
+  'temporarily hidden or unmeasurable panels cannot blank the poster',
 )
 assert.match(
   posterComponent,
-  /if \(width > 0\) legacyScale.value =/,
-  'a hidden frame cannot reset the fallback to zero',
+  /resizeObserver = new ResizeObserver\(measure\)/,
+  'all supported browsers measure the container on resize',
 )
-assert.match(
+assert.doesNotMatch(
   posterComponent,
-  /if \(!CSS\.supports\(/,
-  'older browsers retain a measured scale fallback',
+  /CSS\.supports\(|100cqw/,
+  'poster visibility never depends on a CSS feature probe',
 )
 
 const tutorialSheet = read('components/navigation/workspace-sheet.vue')

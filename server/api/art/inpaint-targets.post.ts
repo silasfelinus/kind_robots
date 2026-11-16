@@ -45,8 +45,12 @@ function bounded(
   label: string,
 ): number {
   const result = value ?? fallback
-  if (typeof result !== 'number' || !Number.isFinite(result) ||
-      result < min || result > max) {
+  if (
+    typeof result !== 'number' ||
+    !Number.isFinite(result) ||
+    result < min ||
+    result > max
+  ) {
     throw createError({
       statusCode: 400,
       message: label + ' must be between ' + min + ' and ' + max + '.',
@@ -88,11 +92,15 @@ export default defineEventHandler(async (event) => {
         message: 'steps and priority must be integers.',
       })
     }
-    const seed = body.seed === undefined
-      ? undefined
-      : bounded(body.seed, 0, 0, 2_147_483_647, 'seed')
+    const seed =
+      body.seed === undefined
+        ? undefined
+        : bounded(body.seed, 0, 0, 2_147_483_647, 'seed')
     if (seed !== undefined && !Number.isInteger(seed)) {
-      throw createError({ statusCode: 400, message: 'seed must be an integer.' })
+      throw createError({
+        statusCode: 400,
+        message: 'seed must be an integer.',
+      })
     }
     const projectSlug = body.projectSlug?.trim().toLowerCase() || null
     if (projectSlug && !/^[a-z0-9][a-z0-9_-]*$/.test(projectSlug)) {
@@ -105,7 +113,8 @@ export default defineEventHandler(async (event) => {
     } catch (error) {
       throw createError({
         statusCode: 400,
-        message: error instanceof Error ? error.message : 'Invalid edit targets.',
+        message:
+          error instanceof Error ? error.message : 'Invalid edit targets.',
       })
     }
     if (body.previewOnly === true) {
@@ -130,9 +139,7 @@ export default defineEventHandler(async (event) => {
       width: prepared.sampleWidth,
       height: prepared.sampleHeight,
     })
-    const fingerprint = requestKey
-      ? artRequestKeyFingerprint(requestKey)
-      : null
+    const fingerprint = requestKey ? artRequestKeyFingerprint(requestKey) : null
     if (fingerprint) {
       const existing = await prisma.artJob.findFirst({
         where: {
@@ -155,10 +162,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const checkpoint = typeof body.checkpoint === 'string' &&
-      body.checkpoint.trim()
-      ? body.checkpoint.trim()
-      : DEFAULT_SDXL_CHECKPOINT
+    const checkpoint =
+      typeof body.checkpoint === 'string' && body.checkpoint.trim()
+        ? body.checkpoint.trim()
+        : DEFAULT_SDXL_CHECKPOINT
     if (!checkpoint.endsWith('.safetensors')) {
       throw createError({
         statusCode: 400,
@@ -212,7 +219,12 @@ export default defineEventHandler(async (event) => {
         denoise,
         seed: built.seed,
         checkpoint,
-        filenames: { sourceName, originalName, noiseMaskName, compositeMaskName },
+        filenames: {
+          sourceName,
+          originalName,
+          noiseMaskName,
+          compositeMaskName,
+        },
       },
       save: {
         isPublic: false,

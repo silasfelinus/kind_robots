@@ -25,7 +25,14 @@ const request: TargetedEditRequest = {
   featherPx: 4,
   targets: [
     { type: 'box', box: [0.2, 0.2, 0.4, 0.45], bleedPx: 5 },
-    { type: 'polygon', points: [[0.6, 0.6], [0.85, 0.6], [0.7, 0.9]] },
+    {
+      type: 'polygon',
+      points: [
+        [0.6, 0.6],
+        [0.85, 0.6],
+        [0.7, 0.9],
+      ],
+    },
   ],
 }
 const prepared = await prepareTargetedEdit(request)
@@ -92,7 +99,9 @@ assert.equal(workflow.workflow['6']?.inputs?.seed, 4321)
 
 const larger = await sharp({
   create: { width: 1024, height: 768, channels: 3, background: '#b4b0a1' },
-}).png().toBuffer()
+})
+  .png()
+  .toBuffer()
 const crop = await prepareTargetedEdit({
   imageData: 'data:image/png;base64,' + larger.toString('base64'),
   mode: 'crop',
@@ -125,7 +134,19 @@ const badRequests: Array<Partial<TargetedEditRequest>> = [
   { ...request, targets: [] },
   { ...request, targets: [{ type: 'box', box: [0.4, 0.3, 0.1, 0.7] }] },
   { ...request, targets: [{ type: 'box', box: [-0.1, 0.3, 0.2, 0.7] }] },
-  { ...request, targets: [{ type: 'polygon', points: [[0, 0], [0, 0], [0, 0]] }] },
+  {
+    ...request,
+    targets: [
+      {
+        type: 'polygon',
+        points: [
+          [0, 0],
+          [0, 0],
+          [0, 0],
+        ],
+      },
+    ],
+  },
   { ...request, bleedPx: 120 },
   { ...request, mode: 'crop', featherPx: 100 },
   { ...request, imageData: 'not image data' },
@@ -136,9 +157,11 @@ for (const bad of badRequests) {
 
 const api = readFileSync('server/api/art/inpaint-targets.post.ts', 'utf8')
 assert.ok(api.includes("requireScopedApiUser(event, 'generation:art')"))
-assert.ok(api.includes("isPublic: false"))
+assert.ok(api.includes('isPublic: false'))
 assert.ok(api.includes('serializeArtJobPayload(payload)'))
 assert.ok(api.includes('body.previewOnly === true'))
 assert.ok(api.includes('attemptFingerprint: fingerprint'))
 assert.ok(api.includes('await gate.commit('))
-console.log('Targeted SDXL inpaint: masks, bleed lock, crop, graph and API validated.')
+console.log(
+  'Targeted SDXL inpaint: masks, bleed lock, crop, graph and API validated.',
+)

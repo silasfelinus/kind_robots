@@ -1,7 +1,4 @@
-import {
-  buildSdxlImg2ImgWorkflow,
-  type ComfyWorkflow,
-} from './workflow'
+import { buildSdxlImg2ImgWorkflow, type ComfyWorkflow } from './workflow'
 
 export type SdxlRegionWorkflowInput = {
   prompt: string
@@ -23,9 +20,10 @@ export type SdxlRegionWorkflowInput = {
   filenamePrefix?: string
 }
 
-export function buildSdxlRegionWorkflow(
-  input: SdxlRegionWorkflowInput,
-): { workflow: ComfyWorkflow; seed: number } {
+export function buildSdxlRegionWorkflow(input: SdxlRegionWorkflowInput): {
+  workflow: ComfyWorkflow
+  seed: number
+} {
   const built = buildSdxlImg2ImgWorkflow({
     prompt: input.prompt,
     negativePrompt: input.negativePrompt,

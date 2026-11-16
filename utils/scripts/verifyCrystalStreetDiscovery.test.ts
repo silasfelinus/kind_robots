@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { discoveryProgress } from '../crystalStreet/menu'
-import { COMPANIONS, VILLAINS } from '../crystalStreet/rules'
+import { COMPANIONS, ENDING_KEYS, VILLAINS } from '../crystalStreet/rules'
 
 const catalog = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
 assert.deepEqual(discoveryProgress(catalog, []), {
@@ -37,5 +37,15 @@ for (const entries of [
     known,
   )
 }
+
+assert.equal(ENDING_KEYS.length, VILLAINS.length * 4 + 4)
+assert.equal(new Set(ENDING_KEYS).size, ENDING_KEYS.length)
+const endingProgress = discoveryProgress(
+  ENDING_KEYS.map((id) => ({ id })),
+  [ENDING_KEYS[0]!, ENDING_KEYS[0]!, ENDING_KEYS.at(-1)!, 'removed:ending'],
+)
+assert.equal(endingProgress.discovered.length, 2)
+assert.equal(endingProgress.total, ENDING_KEYS.length)
+assert.equal(endingProgress.missing, ENDING_KEYS.length - 2)
 
 console.log('Crystal Street discovery progress: passed')

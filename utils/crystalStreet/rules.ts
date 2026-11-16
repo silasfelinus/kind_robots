@@ -1032,6 +1032,13 @@ export function specialKey(special: SpecialEnding): string {
   return `special:${special}`
 }
 
+export const ENDING_KEYS = [
+  ...VILLAINS.flatMap((villain) =>
+    ENDING_TIERS.map((tier) => endingKey(villain.id, tier)),
+  ),
+  ...(Object.keys(SPECIAL_ENDINGS) as SpecialEnding[]).map(specialKey),
+]
+
 /** Villain ending keys only (special endings are tallied on their own). */
 export function villainEndings(keys: string[]): string[] {
   return keys.filter((k) => !k.startsWith('special:'))

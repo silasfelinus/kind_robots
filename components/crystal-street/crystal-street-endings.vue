@@ -6,11 +6,10 @@
     <div class="kr-pane cs-frame">
       <div class="kr-toolbar px-3 pt-3">
         <h2 class="cs-display text-xl">Endings</h2>
-        <span class="cs-pill cs-pill-good ml-auto"
-          >{{ villainEndings(store.scrapbook.endings).length }}/{{
-            VILLAINS.length * 4
-          }}</span
-        >
+        <span class="cs-pill cs-pill-good ml-auto">
+          {{ endingProgress.discovered.length }}/{{ endingProgress.total }}
+          found
+        </span>
       </div>
       <div class="kr-pane-scroll p-3">
         <button
@@ -37,15 +36,31 @@
           <li
             v-for="special in SPECIALS"
             :key="special"
-            class="cs-card p-2 text-xs"
+            class="cs-card overflow-hidden text-xs"
             :class="foundSpecial(special) ? '' : 'opacity-60'"
           >
-            <p class="font-semibold">
-              {{
-                foundSpecial(special) ? SPECIAL_ENDINGS[special].title : '???'
-              }}
-            </p>
-            <p class="opacity-75">{{ SPECIAL_HOW[special] }}</p>
+            <crystal-street-art
+              v-if="foundSpecial(special)"
+              frame="aspect-[16/9]"
+              kind="ending"
+              :seed="`special:${special}`"
+              :src="`/crystal-street/endings/special-${special}.webp`"
+              :alt="SPECIAL_ENDINGS[special].art"
+            />
+            <crystal-street-locked-silhouette
+              v-else
+              kind="ending"
+              landscape
+              compact
+            />
+            <div class="p-2">
+              <p class="font-semibold">
+                {{
+                  foundSpecial(special) ? SPECIAL_ENDINGS[special].title : '???'
+                }}
+              </p>
+              <p class="opacity-75">{{ SPECIAL_HOW[special] }}</p>
+            </div>
           </li>
         </ul>
       </div>
@@ -102,12 +117,12 @@
                 :sigil="v.sigil"
                 :alt="v.endings[tier].art"
               />
-              <span
+              <crystal-street-locked-silhouette
                 v-else
-                class="flex aspect-[16/9] items-center justify-center bg-base-300 text-sm font-black opacity-40"
-                aria-hidden="true"
-                >?</span
-              >
+                kind="ending"
+                landscape
+                compact
+              />
               <span
                 class="block truncate px-1 cs-micro uppercase tracking-wider"
                 >{{ TIER_LABELS[tier] }}</span
@@ -149,11 +164,12 @@
           class="grid grid-cols-1 gap-3 @xl:grid-cols-2"
         >
           <li
-            v-for="tier in foundTiers"
+            v-for="tier in ENDING_TIERS"
             :key="tier"
             class="cs-card overflow-hidden"
           >
             <crystal-street-art
+              v-if="found(tier)"
               frame="aspect-[16/9]"
               kind="ending"
               :seed="`${villain.id}:${tier}`"
@@ -169,7 +185,13 @@
                 >{{ TIER_LABELS[tier] }}</span
               >
             </crystal-street-art>
-            <div class="space-y-1 p-3">
+            <crystal-street-locked-silhouette
+              v-else
+              kind="ending"
+              landscape
+              compact
+            />
+            <div v-if="found(tier)" class="space-y-1 p-3">
               <p class="font-semibold leading-tight">
                 {{ villain.endings[tier].title }}
               </p>
@@ -177,19 +199,14 @@
                 {{ villain.endings[tier].text }}
               </p>
             </div>
+            <div v-else class="space-y-1 p-3">
+              <p class="font-semibold leading-tight">???</p>
+              <p class="cs-micro uppercase tracking-wider opacity-70">
+                {{ TIER_LABELS[tier] }} ending undiscovered
+              </p>
+            </div>
           </li>
         </ul>
-        <p
-          v-if="villain && met && foundTiers.length < ENDING_TIERS.length"
-          class="text-xs opacity-75"
-        >
-          Still to find:
-          {{
-            ENDING_TIERS.filter((t) => !found(t))
-              .map((t) => TIER_LABELS[t])
-              .join(', ')
-          }}.
-        </p>
         <p v-if="!met" class="text-sm opacity-80">
           Finish a week and its ending is pasted in here.
         </p>
@@ -201,7 +218,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+import { discoveryProgress } from '~/utils/crystalStreet/menu'
 import {
+  ENDING_KEYS,
   ENDING_TIERS,
   TIER_LABELS,
   VILLAINS,
@@ -209,7 +228,6 @@ import {
   endingKey,
   specialKey,
   villainById,
-  villainEndings,
 } from '~/utils/crystalStreet/rules'
 import type { EndingTier, SpecialEnding } from '~/utils/crystalStreet/types'
 
@@ -235,6 +253,12 @@ function openVillain(id: string): void {
   wall.value = false
 }
 const foundCount = computed(() => foundTiers.value.length)
+const endingProgress = computed(() =>
+  discoveryProgress(
+    ENDING_KEYS.map((id) => ({ id })),
+    store.scrapbook.endings,
+  ),
+)
 
 const SPECIALS: SpecialEnding[] = [
   'final-girl',

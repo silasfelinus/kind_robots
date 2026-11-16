@@ -61,7 +61,9 @@ export const useTutorialNotesStore = defineStore('tutorialNotesStore', () => {
       return response.data
     } catch (cause) {
       error.value =
-        cause instanceof Error ? cause.message : 'Could not load developer draft.'
+        cause instanceof Error
+          ? cause.message
+          : 'Could not load developer draft.'
       return null
     } finally {
       loading.value = false

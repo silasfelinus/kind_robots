@@ -349,9 +349,18 @@ assert.match(tutorialSheet, /data-testid="silas-says-save-draft"/)
 assert.match(tutorialSheet, /data-testid="silas-says-publish"/)
 assert.match(tutorialSheet, /tutorialNotesStore.save\\(/)
 assert.match(read('stores/tutorialNotesStore.ts'), /loadEditor\\(path:/)
-assert.match(read('server/api/admin/tutorial-notes/index.get.ts'), /requireAdminApiUser\\(event\\)/)
-assert.match(read('server/api/admin/tutorial-notes/index.put.ts'), /requireAdminApiUser\\(event\\)/)
-assert.match(read('server/api/tutorial-notes/index.get.ts'), /publishedText: true/)
+assert.match(
+  read('server/api/admin/tutorial-notes/index.get.ts'),
+  /requireAdminApiUser\\(event\\)/,
+)
+assert.match(
+  read('server/api/admin/tutorial-notes/index.put.ts'),
+  /requireAdminApiUser\\(event\\)/,
+)
+assert.match(
+  read('server/api/tutorial-notes/index.get.ts'),
+  /publishedText: true/,
+)
 assert.match(read('server/utils/tutorialNotes.ts'), /publicTutorialText/)
 assert.match(tutorialSheet, /reaction-category="PROJECT"/)
 assert.match(tutorialSheet, /advertStore.loadPublicSelections\(\)/)

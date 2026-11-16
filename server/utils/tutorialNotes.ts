@@ -4,10 +4,7 @@ export const TUTORIAL_NOTE_LIMIT = 5000
 
 export function normalizeTutorialPath(raw: unknown): string {
   const path = typeof raw === 'string' ? raw.trim() : ''
-  if (
-    path.length > 180 ||
-    !/^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/.test(path)
-  ) {
+  if (path.length > 180 || !/^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/.test(path)) {
     throw createError({ statusCode: 400, message: 'Invalid tutorial route.' })
   }
   return path
@@ -27,5 +24,5 @@ export function publicTutorialText(
   path: string,
   publishedText: string | null | undefined,
 ): string {
-  return path.startsWith('/admin/') ? '' : publishedText ?? ''
+  return path.startsWith('/admin/') ? '' : (publishedText ?? '')
 }

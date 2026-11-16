@@ -109,8 +109,8 @@ lit along its lower edge in the theme's primary) that carries home, navigation p
 icons. Pages do not add a second persistent header above their stage.
 
 - A page's own title/wordmark, view tabs and HUD chips go inside `<header-page-bar>`
-  (`components/navigation/header-page-bar.vue`). Below `xl` they form a second row inside the same
-  header card, under the icons; from `xl` they sit inline in the single header row. The slot is an
+  (`components/navigation/header-page-bar.vue`). Below `2xl` they form a second row inside the same
+  header card, under the icons; from `2xl` they sit inline in the single header row. The slot is an
   `@container`, so the page's scoped styles respond to the bar's width.
 - Keep it to one compact row. Overlines, "working title" labels and caveats go in a tooltip or the
   tutorial sidebar; tabs scroll horizontally on narrow widths.

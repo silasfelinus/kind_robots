@@ -667,14 +667,31 @@ watch(
   { immediate: true },
 )
 
+function projectRoutePath(href: string | null | undefined): string {
+  if (!href) return ''
+  if (href.startsWith('/')) return href.split('?')[0] ?? ''
+  try {
+    const url = new URL(href)
+    if (url.hostname !== 'kindrobots.org' && url.hostname !== 'www.kindrobots.org') {
+      return ''
+    }
+    return url.pathname.replace(/\\/+$/, '') || '/'
+  } catch {
+    return ''
+  }
+}
+
 const discussionProject = computed(() => {
   const match =
     projectStore.projects.find(
-      (project) => project.liveUrl?.split('?')[0] === route.path,
+      (project) => projectRoutePath(project.liveUrl) === route.path,
     ) ??
-    projectStore.projectForSlug(activePoster.value?.poster.conductorSlug)
+    projectStore.projectForSlug(activePoster.value?.poster.conductorSlug) ??
+    projectStore.projectForSlug(tutorialLocation.value?.tab?.tabKey)
 
-  return match?.isPublic && !match.isMature ? match : null
+  return match?.isPublic && !match.isMature && match.allowReviews
+    ? match
+    : null
 })
 
 const discussionComments = computed(() => {

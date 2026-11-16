@@ -131,12 +131,15 @@
                   class="visitor-feature-art relative aspect-[16/11] overflow-hidden bg-neutral"
                 >
                   <div
-                    v-if="feature.montage?.length && !hasCuratedFeatureHero(feature)"
+                    v-if="
+                      feature.montage?.length && !hasCuratedFeatureHero(feature)
+                    "
                     role="img"
                     :aria-label="feature.title + ' illustrated game art'"
                     class="visitor-montage grid h-full w-full grid-cols-3 overflow-hidden"
                     :class="{
-                      'visitor-montage--arcade': feature.route === '/play/arcade',
+                      'visitor-montage--arcade':
+                        feature.route === '/play/arcade',
                     }"
                   >
                     <img
@@ -173,8 +176,17 @@
                     {{ feature.tag }}
                   </span>
                   <div class="absolute inset-x-0 bottom-0 p-3 text-white">
-                    <p class="mb-1 text-[0.6rem] font-black uppercase tracking-[0.17em] text-white/80">
-                      {{ feature.category === 'play' ? 'Play' : feature.category === 'create' ? 'Create' : 'Learn' }} / Kind Robots
+                    <p
+                      class="mb-1 text-[0.6rem] font-black uppercase tracking-[0.17em] text-white/80"
+                    >
+                      {{
+                        feature.category === 'play'
+                          ? 'Play'
+                          : feature.category === 'create'
+                            ? 'Create'
+                            : 'Learn'
+                      }}
+                      / Kind Robots
                     </p>
                     <h3
                       class="visitor-feature-title font-serif text-2xl font-black leading-none drop-shadow-lg"
@@ -183,14 +195,19 @@
                     </h3>
                   </div>
                 </div>
-                <div class="flex min-w-0 items-center justify-between gap-2 px-3 py-2.5">
-                  <p class="line-clamp-2 min-w-0 text-xs leading-relaxed opacity-75">
+                <div
+                  class="flex min-w-0 items-center justify-between gap-2 px-3 py-2.5"
+                >
+                  <p
+                    class="line-clamp-2 min-w-0 text-xs leading-relaxed opacity-75"
+                  >
                     {{ feature.description }}
                   </p>
                   <span
                     aria-hidden="true"
                     class="shrink-0 text-lg font-black text-primary transition group-hover:translate-x-0.5"
-                  >↗</span>
+                    >↗</span
+                  >
                 </div>
               </NuxtLink>
             </article>
@@ -644,7 +661,9 @@ function hasCuratedFeatureHero(feature: FeaturedExperience): boolean {
 
 function featureArt(feature: FeaturedExperience): string | undefined {
   const view = posterForFeature(feature)
-  return (view?.poster.hero && view.images[view.poster.hero.key]) || feature.image
+  return (
+    (view?.poster.hero && view.images[view.poster.hero.key]) || feature.image
+  )
 }
 
 function featureStyle(feature: FeaturedExperience) {
@@ -733,7 +752,8 @@ const newest = computed<LabeledShowcaseCard[]>(() =>
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border: 1px solid color-mix(in srgb, var(--visitor-accent, white) 38%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--visitor-accent, white) 38%, transparent);
   border-radius: inherit;
 }
 

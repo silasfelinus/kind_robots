@@ -263,8 +263,8 @@ const hasCuratedArcadeHero = computed(() => {
   const hero = props.poster.hero
   return Boolean(
     hero &&
-      props.images[hero.key] &&
-      props.images[hero.key] !== hero.defaultSrc,
+    props.images[hero.key] &&
+    props.images[hero.key] !== hero.defaultSrc,
   )
 })
 

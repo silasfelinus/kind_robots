@@ -47,8 +47,11 @@
 import { ref } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import { achievementsForGame } from '~/utils/achievements/gameAchievements'
-import { villainEndings } from '~/utils/crystalStreet/rules'
-import type { ScrapbookTab } from '~/utils/crystalStreet/menu'
+import {
+  discoveryProgress,
+  type ScrapbookTab,
+} from '~/utils/crystalStreet/menu'
+import { ENDING_KEYS } from '~/utils/crystalStreet/rules'
 
 const props = defineProps<{ initial?: ScrapbookTab }>()
 
@@ -78,7 +81,13 @@ const TABS: {
     id: 'endings',
     label: 'Endings',
     icon: 'kind-icon:trophy',
-    count: () => String(villainEndings(store.scrapbook.endings).length),
+    count: () => {
+      const progress = discoveryProgress(
+        ENDING_KEYS.map((id) => ({ id })),
+        store.scrapbook.endings,
+      )
+      return `${progress.discovered.length}/${progress.total}`
+    },
   },
   {
     id: 'friends',

@@ -14,7 +14,10 @@ import {
   prepareTargetedEdit,
   type TargetedEditRequest,
 } from '~/server/utils/targetedInpaint'
-import { DEFAULT_SDXL_CHECKPOINT, sdxlSamplerProfile } from '../comfy/sdxl/utils/workflow'
+import {
+  DEFAULT_SDXL_CHECKPOINT,
+  sdxlSamplerProfile,
+} from '../comfy/sdxl/utils/workflow'
 import { buildSdxlRegionWorkflow } from '../comfy/sdxl/utils/targetedWorkflow'
 
 type InpaintRequest = TargetedEditRequest & {

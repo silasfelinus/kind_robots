@@ -1,4 +1,8 @@
-import { buildSdxlImg2ImgWorkflow, sdxlSamplerProfile, type ComfyWorkflow } from './workflow'
+import {
+  buildSdxlImg2ImgWorkflow,
+  sdxlSamplerProfile,
+  type ComfyWorkflow,
+} from './workflow'
 
 export type SdxlRegionWorkflowInput = {
   prompt: string

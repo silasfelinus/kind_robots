@@ -104,7 +104,7 @@ const directory = read('components/home/home-visitor-directory.vue')
 const mission = directory.match(/<p\s+class="visitor-mission-line([^"]*)"/)
 assert.ok(mission, 'mission line present')
 assert.doesNotMatch(
-  mission[1],
+  mission?.[1] ?? '',
   /\btruncate\b/,
   'mission line must not truncate',
 )

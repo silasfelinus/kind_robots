@@ -1,21 +1,6 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
-    <NuxtLink
-      v-if="activePoster"
-      :to="advertPlayPath(activePoster.poster)"
-      class="group block overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-2 transition hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-      data-testid="workspace-game-poster"
-    >
-      <advert-poster
-        :poster="activePoster.poster"
-        :images="activePoster.images"
-      />
-      <p class="mt-2 flex items-center justify-between gap-2 px-1 text-sm font-bold group-hover:text-primary">
-        <span>{{ activePoster.poster.name }}</span>
-        <span>Play this game →</span>
-      </p>
-    </NuxtLink>
     <button
       v-if="navStore.pageHelpLabel"
       type="button"
@@ -189,7 +174,7 @@
     </template>
 
     <section
-      v-if="tutorialChannelKey || pageTutorial || activePoster"
+      v-if="tutorialChannelKey || pageTutorial || currentAdvertGameSlug"
       class="kr-panel p-4"
       data-testid="workspace-silas-says"
     >
@@ -275,7 +260,7 @@
     </section>
 
     <section
-      v-if="tutorialChannelKey || pageTutorial || activePoster"
+      v-if="tutorialChannelKey || pageTutorial || currentAdvertGameSlug"
       class="kr-panel p-4"
       data-testid="workspace-conversation"
     >
@@ -558,8 +543,7 @@ import { achievementGameForPath } from '~/utils/achievements/gameAchievements'
 import { useBuilderStore } from '@/stores/builderStore'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
-import { useAdvertStore } from '@/stores/advertStore'
-import { advertPlayPath } from '@/utils/adverts/posters'
+import { ADVERT_POSTERS, advertPlayPath } from '@/utils/adverts/posters'
 import { useProjectStore } from '@/stores/projectStore'
 import { useReactionStore } from '@/stores/reactionStore'
 import { useTutorialNotesStore } from '@/stores/tutorialNotesStore'
@@ -609,7 +593,6 @@ const routeAchievementGame = computed(() => achievementGameForPath(route.path))
 const builderStore = useBuilderStore()
 const channelContentStore = useChannelContentStore()
 const navStore = useNavStore()
-const advertStore = useAdvertStore()
 const projectStore = useProjectStore()
 const reactionStore = useReactionStore()
 const tutorialNotesStore = useTutorialNotesStore()
@@ -619,11 +602,10 @@ const noteDraft = ref('')
 const pageStore = usePageStore()
 const sheetStore = useSheetStore()
 
-const activePoster = computed(
+const currentAdvertGameSlug = computed(
   () =>
-    advertStore.posters.find(
-      (view) => advertPlayPath(view.poster) === route.path,
-    ) ?? null,
+    ADVERT_POSTERS.find((poster) => advertPlayPath(poster) === route.path)
+      ?.conductorSlug ?? '',
 )
 
 const silasNote = computed(
@@ -687,7 +669,7 @@ const discussionProject = computed(() => {
     projectStore.projects.find(
       (project) => projectRoutePath(project.liveUrl) === route.path,
     ) ??
-    projectStore.projectForSlug(activePoster.value?.poster.conductorSlug) ??
+    projectStore.projectForSlug(currentAdvertGameSlug.value) ??
     projectStore.projectForSlug(tutorialLocation.value?.tab?.tabKey)
 
   return match?.isPublic && !match.isMature && match.allowReviews
@@ -714,7 +696,6 @@ function refreshDiscussion(): void {
 }
 
 onMounted(() => {
-  void advertStore.loadPublicSelections()
   void projectStore.fetchProjects().catch(() => {})
 })
 

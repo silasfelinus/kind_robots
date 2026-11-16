@@ -154,12 +154,15 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   // Arc: an ambush courier -> finds the open lane -> hit and run, never
   // standing still.
-  // Trajectory: EARLY BLOOMER. L3 trades its standing body for a repeat
-  // ambush: it strikes, then rides back to the top of your deck.
+  // Trajectory: EARLY BLOOMER. L3 keeps the L2 open-lane ambush bonus
+  // while trading its standing body for repeat strikes from the deck.
   // Counterplay: a trap in its lane; at L3 it never stays to block.
   's3-riot-riot-bike-messenger': {
     2: stage('Open Lane', [on('enter', when('acrossEmpty', power(2, 'self')))]),
-    3: stage('Hit and Run', [on('strike', retreat())]),
+    3: stage('Hit and Run', [
+      on('enter', when('acrossEmpty', power(2, 'self'))),
+      on('strike', retreat()),
+    ]),
   },
   // Arc: a thermite trapeze star -> burns through her blocker into both
   // sides -> falls like a meteor, wings gone, scorching three alleys.

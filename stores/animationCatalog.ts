@@ -1147,6 +1147,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'honeycomb-hive',
+    label: 'Honeycomb Hive',
+    reveal: 'Bees tend a glowing comb as cells fill and seal',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Honey slowly fills each cell before it is sealed with wax 🐝 hover to draw the bees close, click to pour a golden ripple through the comb',
+    color: '#f6c431',
+    releasedAt: '2026-11-15T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

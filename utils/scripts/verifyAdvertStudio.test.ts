@@ -372,15 +372,15 @@ assert.match(tutorialSheet, /data-testid="workspace-conversation"/)
 assert.match(tutorialSheet, /data-testid="silas-says-edit"/)
 assert.match(tutorialSheet, /data-testid="silas-says-save-draft"/)
 assert.match(tutorialSheet, /data-testid="silas-says-publish"/)
-assert.match(tutorialSheet, /tutorialNotesStore.save\\(/)
-assert.match(read('stores/tutorialNotesStore.ts'), /loadEditor\\(path:/)
+assert.match(tutorialSheet, /tutorialNotesStore.save\(/)
+assert.match(read('stores/tutorialNotesStore.ts'), /loadEditor\(path:/)
 assert.match(
   read('server/api/admin/tutorial-notes/index.get.ts'),
-  /requireAdminApiUser\\(event\\)/,
+  /requireAdminApiUser\(event\)/,
 )
 assert.match(
   read('server/api/admin/tutorial-notes/index.put.ts'),
-  /requireAdminApiUser\\(event\\)/,
+  /requireAdminApiUser\(event\)/,
 )
 assert.match(
   read('server/api/tutorial-notes/index.get.ts'),

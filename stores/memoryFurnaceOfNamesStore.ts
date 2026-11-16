@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { useMemoryEarthStore } from './memoryEarthStore'
 import { useMemoryHoshimoriStore } from './memoryHoshimoriStore'
 import { useMemoryHoshimoriNightStore } from './memoryHoshimoriNightStore'
+import { useMemoryWorldStore } from './memoryWorldStore'
 import { useAuthoredDungeonState } from './helpers/authoredDungeonStore'
 import {
   FURNACE_OF_NAMES,
@@ -25,6 +26,7 @@ export const useMemoryFurnaceOfNamesStore = defineStore(
     const earth = useMemoryEarthStore()
     const warm = useMemoryHoshimoriStore()
     const night = useMemoryHoshimoriNightStore()
+    const world = useMemoryWorldStore()
     return useAuthoredDungeonState({
       dungeon: FURNACE_OF_NAMES,
       storageKey: 'memory-dungeon-furnace-of-names-v1',
@@ -47,6 +49,8 @@ export const useMemoryFurnaceOfNamesStore = defineStore(
         warm.hydrate()
         night.hydrate()
       },
+      onProgress: (progress) =>
+        world.finishHoshimoriNightReality(night.progress, progress),
       ui: {
         title: 'The Furnace of Names',
         subtitle: 'The Red Oven, after the procession took Hoshimori',

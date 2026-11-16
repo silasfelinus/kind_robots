@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
       data: {
         path,
         text: publicTutorialText(path, note?.publishedText),
+        hasRecord: Boolean(note),
         publishedAt: note?.publishedAt?.toISOString() ?? null,
       },
       statusCode: 200,

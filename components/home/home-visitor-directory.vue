@@ -131,7 +131,7 @@
                   class="visitor-feature-art relative aspect-[16/11] overflow-hidden bg-neutral"
                 >
                   <div
-                    v-if="feature.montage?.length"
+                    v-if="feature.montage?.length && !hasCuratedFeatureHero(feature)"
                     role="img"
                     :aria-label="feature.title + ' illustrated game art'"
                     class="visitor-montage grid h-full w-full grid-cols-3 overflow-hidden"
@@ -631,6 +631,14 @@ const features: FeaturedExperience[] = [
 function posterForFeature(feature: FeaturedExperience) {
   return advertStore.posters.find(
     (view) => view.poster.slug === feature.posterSlug,
+  )
+}
+
+function hasCuratedFeatureHero(feature: FeaturedExperience): boolean {
+  const view = posterForFeature(feature)
+  const hero = view?.poster.hero
+  return Boolean(
+    hero && view?.images[hero.key] && view.images[hero.key] !== hero.defaultSrc,
   )
 }
 

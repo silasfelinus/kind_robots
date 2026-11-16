@@ -46,7 +46,7 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
       engine: 'krea2',
       label: 'Krea 2 Turbo',
       blurb:
-        'The house default. Its model is baked into the workflow, so there is no checkpoint to pick — but it takes a LoRA.',
+        'The house default. Supports LoRAs and optional source-image edits with adjustable strength.',
       supports: {
         checkpoint: false,
         lora: true,
@@ -55,9 +55,9 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
         scheduler: true,
         size: true,
         guidance: false,
-        sourceImage: 'none',
-        sourceImageStrength: false,
-        sourceImageOwnsSize: false,
+        sourceImage: 'optional',
+        sourceImageStrength: true,
+        sourceImageOwnsSize: true,
       },
       negativePromptNote:
         'At the default CFG 1, negative conditioning has little to no effect. Raise CFG only when you intentionally want it active.',

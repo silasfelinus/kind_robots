@@ -69,6 +69,41 @@ assert.equal(
   'an unspecified krea2 render must execute at 8 steps',
 )
 assert.equal(krea2.cfg, 1, 'an unspecified krea2 render must execute at cfg 1')
+assert.deepEqual(krea2.latent_image, ['6', 0], 'Krea txt2img starts from an empty latent')
+
+const kreaEdit = buildKrea2WorkflowFromRequest({
+  prompt: 'a worker with two open eyes embedded in the back of her hair',
+  imageName: 'reference.png',
+  seed: 98765,
+  denoise: 0.68,
+  loraName: 'illustration.safetensors',
+  loraStrength: 0.7,
+}).workflow as Nodes
+const kreaLoad = Object.entries(kreaEdit).find(
+  ([, node]) => node.class_type === 'LoadImage',
+)
+const kreaEncode = Object.entries(kreaEdit).find(
+  ([, node]) => node.class_type === 'VAEEncode',
+)
+assert.ok(kreaLoad && kreaEncode, 'Krea img2img must load AND VAE-encode the source')
+assert.equal(kreaLoad[1].inputs?.image, 'reference.png')
+assert.deepEqual(kreaEncode[1].inputs?.pixels, [kreaLoad[0], 0])
+assert.deepEqual(kreaEncode[1].inputs?.vae, ['5', 0])
+assert.deepEqual(sampler(kreaEdit).latent_image, [kreaEncode[0], 0])
+assert.equal(sampler(kreaEdit).denoise, 0.68)
+assert.equal(sampler(kreaEdit).seed, 98765)
+assert.ok(
+  !Object.values(kreaEdit).some((node) => node.class_type === 'EmptyLatentImage'),
+  'source edit may not silently start from an unrelated empty latent',
+)
+const kreaDefaultEdit = sampler(
+  buildKrea2WorkflowFromRequest({ prompt: 'fix detail', imageName: 'source.webp' })
+    .workflow,
+)
+assert.equal(kreaDefaultEdit.denoise, 0.65)
+assert.equal(krea2.denoise, 1)
+
+
 
 // ── Random seed, everywhere, always ─────────────────────────────────────────
 //
@@ -249,6 +284,13 @@ assert.deepEqual(sampler(withoutLora).model, ['1', 0])
 // exists to prevent. Assert the call site, not just the builder.
 
 const enqueue = code('server/api/art/enqueue.post.ts')
+const kreaEnqueueLane = enqueue.slice(
+  enqueue.indexOf("if (engine === 'krea2')"),
+  enqueue.indexOf("if (engine === 'flux2')"),
+)
+assert.ok(kreaEnqueueLane.includes('normalizeArtSourceImage(body.sourceImageBase64'))
+assert.ok(kreaEnqueueLane.includes('imageName: source?.name'))
+assert.ok(kreaEnqueueLane.includes('images: [source]'))
 const comfyLane = enqueue.slice(enqueue.indexOf('buildDefaultComfyWorkflow({'))
 for (const field of [
   'loraName: body.loraName',

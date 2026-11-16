@@ -459,11 +459,12 @@ export default defineEventHandler(async (event) => {
     if (
       entityArt?.metadata.mode === 'img2img' &&
       engine !== 'sdxl-img2img' &&
-      engine !== 'kontext'
+      engine !== 'kontext' &&
+      engine !== 'krea2'
     ) {
       throw createError({
         statusCode: 400,
-        message: 'Entity img2img supports SDXL img2img or Kontext.',
+        message: 'Entity img2img supports Krea 2, SDXL img2img or Kontext.',
       })
     }
     if (
@@ -960,6 +961,7 @@ function buildJobPayload(
   }
 
   if (engine === 'krea2') {
+    const source = normalizeArtSourceImage(body.sourceImageBase64, 'krea2')
     const { workflow } = buildKrea2WorkflowFromRequest({
       prompt: promptString,
       negativePrompt: body.negativePrompt ?? null,
@@ -971,11 +973,20 @@ function buildJobPayload(
       sampler: body.sampler ?? null,
       scheduler: body.scheduler ?? null,
       denoise: body.denoise ?? null,
+      imageName: source?.name ?? null,
       loraName: body.loraName ?? null,
       loraStrength: body.loraStrength ?? null,
       loras: body.loras ?? null,
     })
-    return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
+    return {
+      jobEngine: 'COMFY',
+      payload: {
+        workflow,
+        promptString,
+        ...(source ? { images: [source] } : {}),
+        save,
+      },
+    }
   }
 
   if (engine === 'flux2') {

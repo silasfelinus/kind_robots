@@ -67,7 +67,9 @@ assert.equal(
   ART_GENERATOR_PRESETS.some((entry) => entry.engine === 'sdxl-img2img'),
   false,
 )
-assert.equal(ART_ENGINE_PROFILES.krea2.supports.sourceImage, 'none')
+assert.equal(ART_ENGINE_PROFILES.krea2.supports.sourceImage, 'optional')
+assert.equal(ART_ENGINE_PROFILES.krea2.supports.sourceImageStrength, true)
+assert.equal(ART_ENGINE_PROFILES.krea2.supports.sourceImageOwnsSize, true)
 assert.equal(ART_ENGINE_PROFILES.flux.supports.sourceImage, 'optional')
 assert.equal(ART_ENGINE_PROFILES.flux.supports.sourceImageStrength, true)
 assert.equal(ART_ENGINE_PROFILES.flux2.supports.sourceImage, 'optional')

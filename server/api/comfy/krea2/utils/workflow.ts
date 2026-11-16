@@ -49,12 +49,18 @@ export function buildKrea2WorkflowFromRequest(input: {
   sampler?: string | null
   scheduler?: string | null
   denoise?: number | null
+  imageName?: string | null
   loraName?: string | null
   loraStrength?: number | null
   loras?: LoraSelectionInput[] | null
 }): { workflow: ComfyWorkflow; seed: number } {
   const requestPrompt = input.prompt?.trim() || ''
   const semanticPrompt = buildKreaSemanticPrompt(requestPrompt)
+  const imageName = input.imageName?.trim()
+  const denoise = input.denoise ?? (imageName ? 0.65 : 1)
+  if (!Number.isFinite(denoise) || denoise <= 0 || denoise > 1) {
+    throw new Error('Krea 2 denoise must be greater than 0 and at most 1.')
+  }
   const built = buildSimpleCheckpointWorkflow({
     prompt: semanticPrompt,
     negativePrompt: input.negativePrompt ?? '',
@@ -65,7 +71,7 @@ export function buildKrea2WorkflowFromRequest(input: {
     seed: input.seed ?? -1,
     sampler: input.sampler ?? KREA2_DEFAULT_SAMPLER,
     scheduler: input.scheduler ?? KREA2_DEFAULT_SCHEDULER,
-    denoise: input.denoise ?? 1,
+    denoise,
     unetLoader: KREA2_UNET_LOADER,
     unetName: KREA2_MODEL,
     clipName: KREA2_CLIP,
@@ -85,6 +91,28 @@ export function buildKrea2WorkflowFromRequest(input: {
     built.workflow,
     requestPrompt || semanticPrompt,
   )
+
+  if (imageName) {
+    const workflow = rewritten.workflow
+    const imageId = String(Math.max(...Object.keys(workflow).map(Number)) + 1)
+    const encodeId = String(Number(imageId) + 1)
+    workflow[imageId] = {
+      class_type: 'LoadImage',
+      inputs: { image: imageName },
+      _meta: { title: 'Load Krea Source Image' },
+    }
+    workflow[encodeId] = {
+      class_type: 'VAEEncode',
+      inputs: { pixels: [imageId, 0], vae: ['5', 0] },
+      _meta: { title: 'Encode Krea Source Image' },
+    }
+    const sampler = workflow['7']?.inputs
+    if (!sampler) {
+      throw new Error('Krea 2 sampler is missing from the workflow.')
+    }
+    sampler.latent_image = [encodeId, 0]
+    delete workflow['6']
+  }
 
   return { workflow: rewritten.workflow, seed: built.seed }
 }

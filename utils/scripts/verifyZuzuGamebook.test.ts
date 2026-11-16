@@ -1984,7 +1984,7 @@ assert.match(
   /const risk = locked \? null : fightCue\(store\.run, choice\)/,
   'open choice cards carry the fight cue',
 )
-  assert.match(page, /hint: locked \\?\\? risk\\?\\.hint \\?\\? followup \\?\\? rest/)
+assert.match(page, /hint: locked \?\? risk\?\.hint/)
 
 // t-007 chapter pacing. Acts run in book order: a way on stays in its act or
 // opens the next one. Act V's early arrivals at the altar skip Dustwater and
@@ -2563,7 +2563,7 @@ assert.match(page, /:src="shownPlate\(entry\.art\)"/)
     page,
     /\[\.\.\.terms\.chip, shownHint \? rest : null, risk\?\.chip\]/,
   )
-  assert.match(page, /hint: locked \?\? risk\?\.hint \?\? rest/)
+  assert.match(page, /hint: locked \?\? risk\?\.hint \?\? followup \?\? rest/)
 
   // Chips wrap between their parts on a narrow card (shared hand).
   const hand = readFileSync(

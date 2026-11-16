@@ -116,6 +116,8 @@ assert.doesNotMatch(
 assert.match(hand, /--rot: var\(--fan-rot, 0deg\);/)
 
 const adopters: Array<[game: string, file: string, pattern: RegExp]> = [
+  ['Deepheart', 'components/deepheart/deepheart-hand.vue', /<KrChoiceHand/],
+  ['Deepheart', 'components/deepheart/deepheart-delve.vue', /<DeepheartHand/],
   ['Ecotone', 'components/ecotone-choice-hand.vue', /<KrChoiceHand/],
   [
     'The Ruler Is Hooked',

@@ -34,6 +34,12 @@ on:
       - 'utils/achievements/catalog/main/game-of-captains.ts'
       - 'utils/scripts/verifySpaceCouchAchievements.test.ts'
       - 'utils/scripts/scaffoldPlaybook.ts'
+      - 'utils/deepheart/**'
+      - 'stores/deepheartStore.ts'
+      - 'components/deepheart/**'
+      - 'pages/admin/deepheart.vue'
+      - 'utils/achievements/catalog/main/deepheart.ts'
+      - 'utils/scripts/verifyDeepheart.test.ts'
       - '.github/workflows/playbook-kit.yml'
   workflow_dispatch:
 
@@ -61,6 +67,8 @@ jobs:
         run: npm run test:playbook-kit
       - name: Space Couch achievements (earned by actions, never by loads)
         run: npx tsx utils/scripts/verifySpaceCouchAchievements.test.ts
+      - name: Deepheart roster, seeded delves, every ending, saves and achievements
+        run: npm run test:deepheart
       - name: Forge factors, forecasts, handoff and live counts of existing playbooks
         run: npm run test:playbook-forge
       - name: Art prompts for every unpainted beat in games marked complete

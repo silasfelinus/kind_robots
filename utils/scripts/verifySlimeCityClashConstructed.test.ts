@@ -186,9 +186,9 @@ function record(a: Deck, b: Deck, s: ClashState, mirror: boolean): void {
       crewScore.set(deck.team, crew)
     }
     const selected = new Set(
-      s.commands
-        .filter((c) => c.t === 'play' && c.side === side)
-        .map((c) => c.card),
+      s.commands.flatMap((c) =>
+        c.t === 'play' && c.side === side ? [c.card] : [],
+      ),
     )
     for (const id of deck.cards) {
       inDeckGames.set(id, (inDeckGames.get(id) ?? 0) + 1)

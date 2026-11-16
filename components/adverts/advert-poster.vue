@@ -935,7 +935,7 @@ onBeforeUnmount(() => {
   filter: saturate(1.15);
 }
 
-.ad-arc-wall--hero img {
+.ad-arc-wall.ad-arc-wall--hero img {
   width: 100%;
   height: 100%;
   aspect-ratio: auto;

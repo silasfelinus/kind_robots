@@ -33,9 +33,16 @@
             class="kr-spinner-sm"
             aria-label="Loading facets"
           />
-          <span class="badge badge-ghost shrink-0 whitespace-nowrap">{{
-            shownLabel
-          }}</span>
+          <!-- Phone (t-154 audit, 2026-11-16): the full "N taxonomies · M
+               facets" badge plus a default-width select pushed the layout
+               select 280px past a 390px viewport. The facet total is detail;
+               it waits for a container wide enough to hold it. -->
+          <span class="badge badge-ghost shrink-0 whitespace-nowrap"
+            >{{ shownLabel
+            }}<span v-if="showIndex" class="hidden @md:inline"
+              >&nbsp;· {{ totalFacets }} facets</span
+            ></span
+          >
         </span>
 
         <template v-if="showControls">
@@ -70,7 +77,7 @@
 
           <select
             v-model="mode"
-            class="kr-select-sm shrink-0"
+            class="kr-select-sm w-auto shrink-0"
             aria-label="Facet gallery layout"
           >
             <option
@@ -196,7 +203,7 @@ const visibleEntries = computed(() =>
 
 const shownLabel = computed(() =>
   showIndex.value
-    ? `${summaries.value.length} taxonomies · ${totalFacets.value} facets`
+    ? `${summaries.value.length} taxonomies`
     : `${visibleEntries.value.length} shown`,
 )
 

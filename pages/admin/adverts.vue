@@ -99,21 +99,23 @@
       data-testid="advert-focus"
     >
       <section class="advert-stage" aria-label="Poster preview">
-        <button
-          type="button"
-          class="advert-stage-poster group relative cursor-zoom-in select-none"
-          aria-label="View the entire poster as a single PNG image"
-          :disabled="Boolean(exportingSlug)"
-          @click="advertStore.previewPng(selected.poster.slug)"
-        >
+        <div class="advert-stage-poster relative select-none">
           <advert-poster :poster="selected.poster" :images="selected.images" />
-          <span
-            class="absolute bottom-2 right-2 rounded-full bg-base-100/90 px-3 py-1 text-xs font-bold text-base-content shadow"
+          <button
+            type="button"
+            class="absolute inset-0 cursor-zoom-in rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            aria-label="View the entire poster as a single PNG image"
+            :disabled="Boolean(exportingSlug)"
+            @click="advertStore.previewPng(selected.poster.slug)"
           >
-            <Icon name="kind-icon:image" class="mr-1 inline size-3" />
-            View whole image
-          </span>
-        </button>
+            <span
+              class="absolute bottom-2 right-2 rounded-full bg-base-100/90 px-3 py-1 text-xs font-bold text-base-content shadow"
+            >
+              <Icon name="kind-icon:image" class="mr-1 inline size-3" />
+              View whole image
+            </span>
+          </button>
+        </div>
       </section>
 
       <aside
@@ -372,12 +374,7 @@ onBeforeUnmount(() => advertStore.closePreview())
 }
 
 .advert-stage-poster {
-  display: block;
   width: min(100cqw, 80cqh);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  text-align: left;
 }
 
 .advert-slot-tiles {

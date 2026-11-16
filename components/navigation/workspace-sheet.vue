@@ -675,7 +675,7 @@ function projectRoutePath(href: string | null | undefined): string {
     if (url.hostname !== 'kindrobots.org' && url.hostname !== 'www.kindrobots.org') {
       return ''
     }
-    return url.pathname.replace(/\\/+$/, '') || '/'
+    return url.pathname.replace(/[/]+$/, '') || '/'
   } catch {
     return ''
   }

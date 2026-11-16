@@ -37,7 +37,9 @@
             aria-label="Against Malaria Foundation"
             class="visitor-mission mb-2 flex shrink-0 items-center justify-between gap-2 rounded-xl border border-base-300 bg-base-200/75 px-3 py-2"
           >
-            <p class="min-w-0 truncate text-[0.7rem] font-semibold sm:text-xs">
+            <p
+              class="visitor-mission-line min-w-0 text-[0.7rem] font-semibold leading-snug text-pretty sm:text-xs"
+            >
               Free games. No ads. Helping fund mosquito nets.
             </p>
             <a

@@ -69,7 +69,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   'slime-city': {
     title: 'Slime City | Kind Robots',
     description:
-      'Six rival crews fight for a grungy neon megacity in fast card battles. Story campaigns, CPU matches and private duels, free in your browser.',
+      'Six rival crews fight for a grungy neon megacity in fast card battles. Story campaigns, CPU matches and private duels. Sign in free to play.',
     image: '/slime-city/link-preview.webp',
   },
   'slime-city-pvp': {
@@ -131,7 +131,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   'butterfly-gallery': {
     title: 'Butterfly Gallery | Kind Robots',
     description:
-      'A gallery of butterflies and kind robots, drifting in motion. Free to browse in your browser.',
+      'A gallery of butterflies and kind robots, drifting in motion. In private preview while the archive is sorted.',
     image: '/butterfly-gallery-motion/butterfly-loop.webp',
     path: '/butterfly-gallery',
   },
@@ -171,7 +171,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   'daily-pitches': {
     title: 'Daily Pitches | Kind Robots',
     description:
-      'Fresh ideas for new games and robots, pitched every day. Browse the latest pitches free in your browser.',
+      'Fresh ideas for new games and robots, pitched every day. A private preview of the Daily Dream workshop.',
     image: '/daily-pitches/link-preview.webp',
   },
   'zuzu-pinball': {
@@ -189,21 +189,21 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   'comic-studio': {
     title: 'Comic Studio | Kind Robots',
     description:
-      'Plan a comic series, build panels with friendly robot helpers and share your pages. Try it free in your browser.',
+      'Plan a comic series, build panels with friendly robot helpers and lay out pages. In private preview for now.',
     image: '/comic-studio/link-preview.webp',
     path: '/play/comics/studio',
   },
   'tzaddik-gallery': {
     title: 'Tzaddik Gallery | Kind Robots',
     description:
-      'Thirty-six just people, living and remembered, each sourced with receipts. Free to browse in your browser, sign in only to nominate someone.',
+      'Thirty-six just people, living and remembered, each sourced with receipts. In private preview while the list is vetted.',
     image: '/tzaddik-gallery/link-preview.webp',
     path: '/tzaddik-gallery',
   },
   'art-archive': {
     title: 'Art Archive | Kind Robots',
     description:
-      'Keep, rate and sort the pictures you make with Kind Robots in one tidy gallery. Open it in your browser and start collecting.',
+      'Keep, rate and sort the pictures made with Kind Robots in one tidy gallery. In private preview while the archive is curated.',
     image: '/art-archive/link-preview.webp',
     path: '/art-archive',
   },

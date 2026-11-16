@@ -524,5 +524,62 @@
       "verdict": "redo",
       "reason": "painted sign lettering"
     }
+  ],
+  "redoRounds": [
+    {
+      "source": "conductor/projects/slime-city/art/EXCHANGE-OCCULT-REDO-1.yaml",
+      "note": "2026-11-16 PT (slime-city/t-053): all 7 re-renders fetched through the authenticated image endpoint and reviewed on a contact sheet. keep entries replace the current art in artManifest.ts; redo entries keep the current art.",
+      "entries": [
+        {
+          "asset": "slime-city/cards/s2-exchange-invisible-lien",
+          "imageId": 273424,
+          "replacesImageId": 269814,
+          "verdict": "keep",
+          "reason": "signs and awnings bare; courier and hook read clearly"
+        },
+        {
+          "asset": "slime-city/cards/s3-exchange-wage-garnisher",
+          "imageId": 273425,
+          "replacesImageId": 269816,
+          "verdict": "keep",
+          "reason": "acolyte now reads as an adult; banners carry symbols only"
+        },
+        {
+          "asset": "slime-city/evolutions/s2-exchange-invisible-lien@2",
+          "imageId": 273426,
+          "replacesImageId": 269857,
+          "verdict": "redo",
+          "reason": "painted sign lettering persists despite the bare-surface clause"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-exchange-wage-garnisher@2",
+          "imageId": 273427,
+          "replacesImageId": 269861,
+          "verdict": "keep",
+          "reason": "adult acolyte on a balcony; no lettering"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-exchange-wage-garnisher@3",
+          "imageId": 273428,
+          "replacesImageId": 269862,
+          "verdict": "redo",
+          "reason": "painted sign lettering at both edges"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-exchange-payment-reminder@3",
+          "imageId": 273429,
+          "replacesImageId": 269875,
+          "verdict": "redo",
+          "reason": "painted banner and sign lettering; rounded cowls fixed"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-exchange-collection-badge@3",
+          "imageId": 273430,
+          "replacesImageId": 269894,
+          "verdict": "redo",
+          "reason": "heavy sign lettering and pointed white hoods again"
+        }
+      ]
+    }
   ]
 }

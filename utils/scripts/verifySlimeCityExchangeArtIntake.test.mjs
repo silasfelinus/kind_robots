@@ -40,3 +40,32 @@ test('Meat Exchange occult art intake has one traceable plate per subject', () =
     }
   }
 })
+
+test('Meat Exchange occult redo rounds wire only reviewed keepers at their exact slot', () => {
+  const rounds = intake.redoRounds ?? []
+  assert.ok(rounds.length >= 1)
+  const original = new Map(intake.entries.map((e) => [e.asset, e]))
+  for (const round of rounds) {
+    assert.ok(round.source && round.note)
+    for (const entry of round.entries) {
+      assert.ok(['keep', 'redo'].includes(entry.verdict), entry.asset)
+      assert.ok(entry.reason, entry.asset + ' needs a review reason')
+      // A redo round only re-renders plates that round 1 rejected.
+      assert.equal(original.get(entry.asset)?.verdict, 'redo', entry.asset)
+      assert.equal(original.get(entry.asset)?.imageId, entry.replacesImageId)
+      const key = entry.asset.split('/').at(-1)
+      const slot = "'" + key + "': " + entry.imageId + ','
+      if (entry.verdict === 'keep') {
+        assert.ok(
+          manifest.includes(slot),
+          entry.asset + ' keeper must be wired',
+        )
+      } else {
+        assert.ok(
+          !manifest.includes(': ' + entry.imageId + ','),
+          entry.asset + ' must not ship rejected redo ' + entry.imageId,
+        )
+      }
+    }
+  }
+})

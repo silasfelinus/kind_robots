@@ -4,9 +4,9 @@ name: Responsive Layout Audit
 # deployments are retired; scheduled and manual runs exercise kindrobots.org.
 on:
   schedule:
-    # Daily, not hourly: each run is ~45 runner-minutes against production and
-    # competed with PR checks for runner slots. Dispatch manually after a
-    # layout-heavy deploy if you need a fresh reading sooner.
+    # Daily, not hourly: the sweep costs ~an hour of runner time against
+    # production and competes with PR checks for runner slots. Dispatch
+    # manually after a layout-heavy deploy if you need a fresh reading sooner.
     - cron: '41 12 * * *' # 12:41 UTC ≈ 4:41am Pacific
   workflow_dispatch:
     inputs:
@@ -24,9 +24,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # interface-vision/t-154: the single-job sweep (~78 routes x 3 viewports)
+  # outgrew its 60-minute timeout every day, and the Clash, gallery-chrome and
+  # tablet-menu audits queued behind it were skipped. The route sweep is now a
+  # matrix of disjoint round-robin shards (every route still audited at every
+  # viewport), and the other audits run in their own job so a slow sweep can
+  # never skip them.
   audit:
+    name: Route sweep shard ${{ matrix.shard }}/6
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      # Measured 2026-11-16 against production: ~34s per route/viewport
+      # page, so 234 pages is ~130 runner-minutes. Six shards keep each job
+      # near 22 minutes; three at a time limits concurrent load on prod.
+      max-parallel: 3
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,13 +117,98 @@ jobs:
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
           ROUTES: ${{ github.event.inputs.routes }}
+          SHARD: ${{ matrix.shard }}/6
         run: |
           set -euo pipefail
           if [ -n "${ROUTES:-}" ]; then
-            npm run audit:responsive -- --base "$BASE_URL" --routes "$ROUTES" --shots audit-shots --viewport-report audit-shots/viewport-ownership.json
+            npm run audit:responsive -- --base "$BASE_URL" --shard "$SHARD" --routes "$ROUTES" --shots audit-shots --viewport-report audit-shots/viewport-ownership.json
           else
-            npm run audit:responsive -- --base "$BASE_URL" --shots audit-shots --viewport-report audit-shots/viewport-ownership.json
+            npm run audit:responsive -- --base "$BASE_URL" --shard "$SHARD" --shots audit-shots --viewport-report audit-shots/viewport-ownership.json
           fi
+
+      - name: Upload screenshots and viewport ownership atlas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-audit-${{ github.run_id }}-shard-${{ matrix.shard }}
+          path: audit-shots/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  controls:
+    name: Clash, gallery chrome and tablet menu
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Resolve target URL
+        id: target
+        env:
+          INPUT_URL: ${{ github.event.inputs.base_url }}
+        run: |
+          set -euo pipefail
+          url="${INPUT_URL:-https://kindrobots.org}"
+          url="${url%/}"
+          echo "url=$url" >>"$GITHUB_OUTPUT"
+          echo "Auditing $url"
+
+      - name: Wait for the site to answer
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: |
+          set -euo pipefail
+          echo "Waiting up to 300s for ${BASE_URL} to return 200..."
+          deadline=$(( $(date +%s) + 300 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${BASE_URL}/" || echo 000)"
+            if [ "$code" = "200" ]; then
+              echo "Site is answering."
+              exit 0
+            fi
+            echo "  got ${code}; retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::${BASE_URL} never returned 200 within 300s."
+          exit 1
+
+      - name: Wait for the database
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: |
+          set -euo pipefail
+          echo "Waiting for three consecutive healthy database checks..."
+          deadline=$(( $(date +%s) + 180 ))
+          consecutive=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            if curl -sf --max-time 15 "${BASE_URL}/api/health/database" \
+                 | jq -e '.success == true and .statusCode == 200' >/dev/null 2>&1; then
+              consecutive=$(( consecutive + 1 ))
+              echo "  database healthy (${consecutive}/3)"
+              [ "$consecutive" -ge 3 ] && exit 0
+            else
+              consecutive=0
+              echo "  database unavailable; retrying in 5s..."
+            fi
+            sleep 5
+          done
+          echo "::error::Database was not healthy for three consecutive checks; an audit now would measure empty states rather than real galleries."
+          exit 1
 
       - name: Audit Slime City Clash controls
         env:
@@ -127,11 +227,11 @@ jobs:
           BASE_URL: ${{ steps.target.outputs.url }}
         run: npm run audit:tablet-nav -- --base "$BASE_URL"
 
-      - name: Upload screenshots and viewport ownership atlas
+      - name: Upload Clash screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: responsive-audit-${{ github.run_id }}
+          name: responsive-audit-${{ github.run_id }}-controls
           path: audit-shots/
           retention-days: 7
           if-no-files-found: ignore

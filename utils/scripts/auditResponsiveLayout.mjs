@@ -25,6 +25,7 @@
  *     npm run audit:responsive                    # in another
  *
  *     npm run audit:responsive -- --routes /dreams,/bots --shots ./out
+ *     npm run audit:responsive -- --shard 2/3      # one CI matrix slice
  *
  * Or against any deployment, which is what CI does — see
  * .github/workflows/responsive-layout-audit.yml. Auditing a deployment rather
@@ -48,6 +49,7 @@
 
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
+import { parseShard, selectShard } from './responsiveAuditShard.mjs'
 
 const args = process.argv.slice(2)
 const flag = (name, fallback) => {
@@ -56,7 +58,7 @@ const flag = (name, fallback) => {
 }
 
 const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
-const ROUTES = flag(
+const ALL_ROUTES = flag(
   'routes',
   // interface-vision/t-103: growing this list toward the t-102 inventory's
   // full 51-route gap, in scoped slices. Slice 1 added the 11 reachable,
@@ -102,6 +104,13 @@ const ROUTES = flag(
   .split(',')
   .map((r) => r.trim())
   .filter(Boolean)
+/*
+ * interface-vision/t-154: CI runs this sweep as a matrix (`--shard 1/3` etc.)
+ * because the single-job sweep outgrew its 60-minute timeout. Each shard is a
+ * disjoint round-robin slice; together they cover every route above.
+ */
+const SHARD = parseShard(flag('shard', ''))
+const ROUTES = selectShard(ALL_ROUTES, SHARD)
 const SHOTS = flag('shots', '')
 const VIEWPORT_REPORT = flag('viewport-report', '')
 const STRICT_VIEWPORT = args.includes('--strict-viewport')
@@ -109,6 +118,16 @@ const STRICT_VIEWPORT = args.includes('--strict-viewport')
 const MIN_FLEX_WIDTH = Number(flag('min-flex', '32'))
 /** How long to let in-flight images finish before judging them broken. */
 const IMAGE_SETTLE_MS = Number(flag('image-settle', '20000'))
+/**
+ * How long to wait for the network to go quiet after `load` (t-154). Pages
+ * that poll or hold a socket never reach `networkidle`; waiting the old 90s
+ * navigation timeout for each of them is what pushed the daily sweep past
+ * its 60-minute job limit. Bounded here; the splash and image-settle waits
+ * below still apply, so measurement still happens after the page settles.
+ */
+const NETWORK_IDLE_MS = Number(flag('network-idle', '15000'))
+/** Navigation (`load` event) timeout. A route slower than this is a failure. */
+const NAVIGATION_MS = Number(flag('navigation-timeout', '60000'))
 
 const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844, mobile: true },
@@ -423,6 +442,8 @@ const browser = await chromium.launch({
 
 let failures = 0
 const viewportReadings = []
+/** Wall-clock per route/viewport, so a slow sweep names its slow routes. */
+const routeTimings = []
 
 /** route -> { phone, tablet, desktop } resolved backdrop URLs. */
 const backdropsByRoute = {}
@@ -436,11 +457,18 @@ for (const vp of VIEWPORTS) {
   for (const route of ROUTES) {
     const page = await ctx.newPage()
     let loaded = true
+    const started = Date.now()
     await page
-      .goto(BASE + route, { waitUntil: 'networkidle', timeout: 90000 })
+      .goto(BASE + route, { waitUntil: 'load', timeout: NAVIGATION_MS })
       .catch(() => {
         loaded = false
       })
+    if (loaded)
+      await page
+        .waitForLoadState('networkidle', { timeout: NETWORK_IDLE_MS })
+        .catch(() => {
+          // Still polling: measure anyway after the splash/art waits below.
+        })
     // The startup splash paints over the app and is itself slightly wider than
     // a phone; measuring before it clears reports the splash, not the page.
     await page.waitForTimeout(7000)
@@ -586,10 +614,24 @@ for (const vp of VIEWPORTS) {
       })
     }
     await page.close()
+    routeTimings.push({
+      label: `${vp.name} ${route}`,
+      ms: Date.now() - started,
+    })
   }
   await ctx.close()
 }
 await browser.close()
+
+// Make the next slow-down diagnosable from the log instead of a bare timeout.
+const totalMs = routeTimings.reduce((sum, t) => sum + t.ms, 0)
+console.log(
+  `\nAudited ${routeTimings.length} route/viewport page(s)` +
+    (SHARD ? ` (shard ${SHARD.index}/${SHARD.total})` : '') +
+    ` in ${Math.round(totalMs / 1000)}s. Slowest:`,
+)
+for (const t of [...routeTimings].sort((a, b) => b.ms - a.ms).slice(0, 5))
+  console.log(`  ${String(Math.round(t.ms / 1000)).padStart(4)}s  ${t.label}`)
 
 /*
  * PER-BREAKPOINT BACKDROPS actually differ per breakpoint.

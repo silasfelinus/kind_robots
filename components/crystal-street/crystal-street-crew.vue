@@ -12,6 +12,9 @@
               : 'Friends of Crystal Street'
           }}
         </h2>
+        <span v-if="roster" class="text-xs opacity-75" aria-live="polite">
+          {{ friendProgress.discovered.length }}/{{ friendProgress.total }} met
+        </span>
         <div class="join ml-auto">
           <button
             v-for="f in ['portrait', 'poster'] as const"
@@ -68,6 +71,11 @@
               >
             </button>
           </li>
+          <template v-if="roster">
+            <li v-for="slot in friendProgress.missing" :key="`locked-${slot}`">
+              <crystal-street-locked-silhouette kind="friend" />
+            </li>
+          </template>
         </ul>
       </div>
     </div>
@@ -163,6 +171,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+import { discoveryProgress } from '~/utils/crystalStreet/menu'
 import {
   ARC_STEPS,
   COMPANIONS,
@@ -194,10 +203,12 @@ watch(selected, () => (previewEmotion.value = null))
 
 const inCrew = (id: string) => !!run.value?.crew.includes(id as CompanionId)
 const met = (id: string) => !!run.value?.flags.includes(`recruit:${id}`)
-// The scrapbook roster shows only friends you have met (Silas, 2026-10-24 PT).
+const friendProgress = computed(() =>
+  discoveryProgress(COMPANIONS, store.scrapbook.friends),
+)
 const friends = computed(() =>
   props.roster
-    ? COMPANIONS.filter((c) => store.scrapbook.friends.includes(c.id))
+    ? friendProgress.value.discovered
     : [...COMPANIONS].sort(
         (a, b) =>
           Number(inCrew(b.id)) - Number(inCrew(a.id)) ||

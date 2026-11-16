@@ -380,6 +380,96 @@ for (const [left, right] of [
   assert.ok(clashCardText(cardById(id), 3).includes('wounded'))
 }
 
+// A late Rooftop Phantom must keep the L2 open-lane pressure even when
+// the L3 activation moves her to safety. A blocker denies the boss shot;
+// a free neighbor still permits the reposition. Neither is a free strike.
+{
+  const id = 's1-roof-phantom'
+  const s = createClash('catgirls', 'riot', 202614)
+  s.round = 5
+  s.phase = 'play'
+  s.units = [
+    fighter('player', 2, 70, {
+      cardId: id,
+      level: 3,
+      attacked: false,
+      fresh: false,
+    }),
+    fighter('enemy', 4, 71),
+  ]
+  assert.equal(canClashActivate(s, 'player', 70), true)
+  const shifted = activateClash(s, 'player', 70)
+  assert.equal(shifted.boss.enemy, s.boss.enemy - 2)
+  assert.equal(shifted.units.find((u) => u.uid === 70)?.lane, 1)
+  assert.deepEqual(
+    applyClashCommand(s, { t: 'activate', side: 'player', uid: 70 }),
+    shifted,
+    'open-lane rooftop activation replays exactly',
+  )
+  const blocked = structuredClone(s)
+  blocked.units.push(fighter('enemy', 2, 72))
+  const escaped = activateClash(blocked, 'player', 70)
+  assert.equal(escaped.boss.enemy, blocked.boss.enemy)
+  assert.equal(escaped.units.find((u) => u.uid === 70)?.lane, 1)
+  const surrounded = structuredClone(blocked)
+  surrounded.units.push(fighter('player', 1, 73))
+  surrounded.units.push(fighter('player', 3, 74))
+  assert.equal(
+    activateClash(surrounded, 'player', 70).units.find(
+      (u) => u.uid === 70,
+    )?.lane,
+    2,
+    'crowded friendly alleys stop the escape',
+  )
+}
+
+// A Level 3 Wall-of-Death Rider keeps its open-lane ambush surge but
+// still loses the bonus opposite a blocker. The hit-and-run departure
+// stays a distinct payoff instead of turning into a generic stat bump.
+{
+  const id = 's3-riot-riot-bike-messenger'
+  const s = createClash('riot', 'catgirls', 202615)
+  s.round = 5
+  s.hands.player = [id]
+  s.levels.player[id] = 3
+  s.units = [fighter('enemy', 4, 75)]
+  assert.equal(canClashPlay(s, 'player', id, 2), true)
+  const surge = playClash(s, 'player', id, 2)
+  const rider = surge.units.find((u) => u.cardId === id)!
+  assert.equal(rider.surge, 2)
+  assert.ok(
+    CLASH_EVOLUTIONS[id]![3].abilities.some(
+      (ability) =>
+        ability.when === 'strike' &&
+        ability.do.some((action) => action.do === 'retreat'),
+    ),
+    'the upgraded rider still retreats after striking',
+  )
+  assert.deepEqual(
+    applyClashCommand(s, { t: 'play', side: 'player', card: id, lane: 2 }),
+    surge,
+    'level-three ambush replays deterministically',
+  )
+  const counter = structuredClone(s)
+  counter.units.push(fighter('enemy', 2, 76))
+  assert.equal(
+    playClash(counter, 'player', id, 2).units.find(
+      (u) => u.cardId === id,
+    )?.surge,
+    0,
+    'an opposing blocker denies the open-lane surge',
+  )
+  const levelTwo = structuredClone(s)
+  levelTwo.levels.player[id] = 2
+  assert.equal(
+    playClash(levelTwo, 'player', id, 2).units.find(
+      (u) => u.cardId === id,
+    )?.surge,
+    2,
+    'the original Level 2 ambush remains intact',
+  )
+}
+
 console.log(
   'Slime City CLASH CPU evolved decision-making, heavy gear, distinct faction payoff fixtures PASS',
 )

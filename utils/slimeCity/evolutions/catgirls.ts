@@ -55,14 +55,16 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   },
   // Arc: a phantom on the lab roofs -> leaps chimney to chimney -> a
   // skyline specter that escapes a crowded street for an open rooftop.
-  // Trajectory: LATE BLOOMER (position). At L3 it chooses a vacant
-  // adjacent lane opposite no enemy at the start of its own turn.
-  // Counterplay: fill neighboring alleys, root it or lay a trap on the
-  // escape route.
+  // Trajectory: LATE BLOOMER (position). At L3 the rooftop scout keeps
+  // her L2 open-lane boss pressure while moving to a vacant safe alley.
+  // Counterplay: block her original lane to stop the boss shot, and
+  // fill neighboring alleys or root her to deny the escape.
   's1-roof-phantom': {
     levelOneText: 'A light rooftop scout: open lanes are her route.',
     2: stage('Chimney Leap', [on('tap', when('acrossEmpty', boss(2)))]),
-    3: stage('Skyline Specter', [on('tap', shift('self', 'safe'))]),
+    3: stage('Skyline Specter', [
+      on('tap', when('acrossEmpty', boss(2)), shift('self', 'safe')),
+    ]),
   },
   // Arc: a back-alley vet who stitched her own tail -> night shifts for
   // strays -> the saint who passes her needle on.

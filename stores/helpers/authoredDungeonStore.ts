@@ -30,6 +30,7 @@ export interface AuthoredDungeonOptions<
   /** Hydrate whatever `unlocked`, `entry` and `externalFlags` depend on. */
   beforeHydrate: () => void
   onEnding?: (ending: Ending | null) => void
+  onProgress?: (progress: DungeonProgress<Id, Entry, Ending>) => void
   ui: AuthoredDungeonUi
 }
 
@@ -133,6 +134,7 @@ export function useAuthoredDungeonState<
       const raw = window.localStorage.getItem(options.storageKey)
       save.value = dungeon.restore(raw ? JSON.parse(raw) : null, entry.value)
       options.onEnding?.(save.value.ending)
+      options.onProgress?.(save.value)
     } catch {
       save.value = dungeon.newProgress(entry.value)
       notice.value = 'A damaged ' + ui.saveName + ' save was ignored.'
@@ -162,6 +164,7 @@ export function useAuthoredDungeonState<
     }
     save.value = next
     options.onEnding?.(next.ending)
+    options.onProgress?.(next)
     notice.value = choice?.outcome ?? ''
     persist()
   }

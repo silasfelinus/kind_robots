@@ -371,5 +371,62 @@
       "manifestPresent": true,
       "verification": "verified-keeper"
     }
+  ],
+  "redoRounds": [
+    {
+      "source": "conductor/projects/slime-city/art/IRONJAW-LIZARDS-REDO-2.yaml",
+      "note": "2026-11-16 PT (slime-city/t-044): all 7 re-renders fetched through the authenticated image endpoint and reviewed on a contact sheet. keep entries are wired at their exact artManifest.ts slot; redo entries keep falling back.",
+      "entries": [
+        {
+          "asset": "slime-city/evolutions/merc-picket-troll@2",
+          "imageId": 273517,
+          "replacesImageId": 273012,
+          "verdict": "redo",
+          "reason": "glowing armband carries letter-like glyphs"
+        },
+        {
+          "asset": "slime-city/evolutions/s2-ironjaw-shift-change-shove@2",
+          "imageId": 273518,
+          "replacesImageId": 273013,
+          "verdict": "keep",
+          "reason": "bearded-dragon foreman and a lizard crew line; no lettering"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-ironjaw-bonus-plate@2",
+          "imageId": 273519,
+          "replacesImageId": 273014,
+          "verdict": "redo",
+          "reason": "lettering on the payroll booth roof"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-ironjaw-reallocation@2",
+          "imageId": 273520,
+          "replacesImageId": 273015,
+          "verdict": "keep",
+          "reason": "every crowd figure reads as a lizard; walls bare"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-ironjaw-forklift-chock@3",
+          "imageId": 273521,
+          "replacesImageId": 273017,
+          "verdict": "keep",
+          "reason": "gecko forklift convoy; no neon glyphs"
+        },
+        {
+          "asset": "slime-city/evolutions/s2-ironjaw-overtime-pistons@2",
+          "imageId": 273522,
+          "replacesImageId": 273018,
+          "verdict": "keep",
+          "reason": "banners blank; lizard bystanders"
+        },
+        {
+          "asset": "slime-city/cards/s3-ironjaw-overtime-toll",
+          "imageId": 273523,
+          "replacesImageId": 273021,
+          "verdict": "keep",
+          "reason": "lizard toll keeper alone in a blank booth"
+        }
+      ]
+    }
   ]
 }

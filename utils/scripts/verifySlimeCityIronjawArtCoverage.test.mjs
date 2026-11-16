@@ -96,3 +96,30 @@ test('Ironjaw lizard art intake tracks every plate and only verified token keepe
     }
   }
 })
+
+test('Ironjaw lizard redo rounds wire only reviewed keepers at their exact slot', () => {
+  const rounds = coverage.redoRounds ?? []
+  assert.ok(rounds.length >= 1)
+  for (const round of rounds) {
+    assert.ok(round.source && round.note)
+    for (const entry of round.entries) {
+      assert.ok(['keep', 'redo'].includes(entry.verdict), entry.asset)
+      assert.ok(entry.reason, entry.asset + ' needs a review reason')
+      // The rejected render this redo replaces must never ship.
+      assert.ok(!manifest.includes(': ' + entry.replacesImageId + ','))
+      const key = entry.asset.split('/').at(-1)
+      const slot = "'" + key + "': " + entry.imageId + ','
+      if (entry.verdict === 'keep') {
+        assert.ok(
+          manifest.includes(slot),
+          entry.asset + ' keeper must be wired',
+        )
+      } else {
+        assert.ok(
+          !manifest.includes(': ' + entry.imageId + ','),
+          entry.asset + ' must not ship rejected redo ' + entry.imageId,
+        )
+      }
+    }
+  }
+})

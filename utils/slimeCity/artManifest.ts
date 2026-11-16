@@ -309,7 +309,7 @@ export const SLIME_CITY_ART = {
     's3-ironjaw-matriarch': 267413,
     's3-ironjaw-night-welder': 267393,
     's3-ironjaw-union-cook': 267401,
-    's3-ironjaw-overtime-toll': 264947,
+    's3-ironjaw-overtime-toll': 273523,
     's3-ironjaw-reallocation': 273020,
     's3-ironjaw-slag-spill': 261493,
     's3-ironjaw-toe-pistons': 269659,
@@ -1084,9 +1084,17 @@ export const SLIME_CITY_ART = {
     // IRONJAW-LIZARDS-REDO-1 (2026-11-16 PT contact sheet): union-millwright@2/@3
     // and s1-bolt-clamp@2 kept below; the other redo stages still showed sign
     // lettering or human figures and keep falling back to card art.
+    // IRONJAW-LIZARDS-REDO-2 (2026-11-16 PT contact sheet): shift-change-shove@2,
+    // reallocation@2, forklift-chock@3, overtime-pistons@2 and the overtime-toll
+    // card (273523) kept; merc-picket-troll@2 (lettered armband) and
+    // bonus-plate@2 (lettered booth) still fall back to card art.
     'union-millwright@2': 273010,
     'union-millwright@3': 273011,
     's1-bolt-clamp@2': 273016,
+    's2-ironjaw-shift-change-shove@2': 273518,
+    's3-ironjaw-reallocation@2': 273520,
+    's3-ironjaw-forklift-chock@3': 273521,
+    's2-ironjaw-overtime-pistons@2': 273522,
     's1-walking-foundry@2': 269580,
     's1-walking-foundry@3': 269581,
     's1-scrap-welder@2': 269582,

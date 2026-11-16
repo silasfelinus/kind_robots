@@ -94,7 +94,9 @@ export const restoreWitnessedEncounterLedger = (
   }
   const events = ledger.events as WitnessedEncounterEvent[]
   const ids = new Set(events.map((event) => event.eventId))
-  const scenes = new Set(events.map((event) => event.sceneId))
+  const scenes = new Set(
+    events.map((event) => `${event.worldId}:${event.sceneId}`),
+  )
   if (ids.size !== events.length || scenes.size !== events.length) return null
   if (
     events.some(
@@ -122,7 +124,8 @@ export const commitWitnessedEncounter = (
   if (!current || !validEvent(event, definitions)) return null
   const prior = current.events.find(
     (entry) =>
-      entry.eventId === event.eventId || entry.sceneId === event.sceneId,
+      entry.eventId === event.eventId ||
+      (entry.worldId === event.worldId && entry.sceneId === event.sceneId),
   )
   if (prior) {
     return prior.eventId === event.eventId &&

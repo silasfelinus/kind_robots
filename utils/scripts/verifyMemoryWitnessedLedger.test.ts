@@ -132,4 +132,69 @@ assert.equal(
   null,
   'duplicate events are rejected',
 )
-console.log('Memory Dungeon witnessed encounter ledger: 13 assertions passed')
+
+const sharedSceneDefinitions: WitnessedEncounterDefinition[] = [
+  {
+    sceneId: 'night-shift-crossing',
+    worldId: 'e03',
+    choices: { 'stay-behind': ['e03-crossing-witness'] },
+  },
+  {
+    sceneId: 'night-shift-crossing',
+    worldId: 'e04',
+    choices: { 'board-train': ['e04-crossing-witness'] },
+  },
+]
+const firstCrossing = commitWitnessedEncounter(
+  emptyWitnessedEncounterLedger(),
+  {
+    eventId: 'e03-crossing-1',
+    sceneId: 'night-shift-crossing',
+    worldId: 'e03',
+    choiceId: 'stay-behind',
+    turn: 1,
+  },
+  sharedSceneDefinitions,
+)
+assert.ok(firstCrossing)
+const bothCrossings = commitWitnessedEncounter(
+  firstCrossing,
+  {
+    eventId: 'e04-crossing-2',
+    sceneId: 'night-shift-crossing',
+    worldId: 'e04',
+    choiceId: 'board-train',
+    turn: 2,
+  },
+  sharedSceneDefinitions,
+)
+assert.ok(bothCrossings)
+assert.deepEqual(bothCrossings.evidence, [
+  'e03-crossing-witness',
+  'e04-crossing-witness',
+])
+assert.deepEqual(
+  restoreWitnessedEncounterLedger(
+    JSON.parse(JSON.stringify(bothCrossings)),
+    sharedSceneDefinitions,
+  ),
+  bothCrossings,
+  'same scene slug in separate worlds survives save restoration',
+)
+assert.equal(
+  commitWitnessedEncounter(
+    bothCrossings,
+    {
+      eventId: 'e04-crossing-repeat',
+      sceneId: 'night-shift-crossing',
+      worldId: 'e04',
+      choiceId: 'board-train',
+      turn: 3,
+    },
+    sharedSceneDefinitions,
+  ),
+  null,
+  'the same world-scoped scene cannot pay twice',
+)
+
+console.log('Memory Dungeon witnessed encounter ledger: 18 assertions passed')

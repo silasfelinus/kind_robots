@@ -415,9 +415,8 @@ for (const [left, right] of [
   surrounded.units.push(fighter('player', 1, 73))
   surrounded.units.push(fighter('player', 3, 74))
   assert.equal(
-    activateClash(surrounded, 'player', 70).units.find(
-      (u) => u.uid === 70,
-    )?.lane,
+    activateClash(surrounded, 'player', 70).units.find((u) => u.uid === 70)
+      ?.lane,
     2,
     'crowded friendly alleys stop the escape',
   )
@@ -453,18 +452,16 @@ for (const [left, right] of [
   const counter = structuredClone(s)
   counter.units.push(fighter('enemy', 2, 76))
   assert.equal(
-    playClash(counter, 'player', id, 2).units.find(
-      (u) => u.cardId === id,
-    )?.surge,
+    playClash(counter, 'player', id, 2).units.find((u) => u.cardId === id)
+      ?.surge,
     0,
     'an opposing blocker denies the open-lane surge',
   )
   const levelTwo = structuredClone(s)
   levelTwo.levels.player[id] = 2
   assert.equal(
-    playClash(levelTwo, 'player', id, 2).units.find(
-      (u) => u.cardId === id,
-    )?.surge,
+    playClash(levelTwo, 'player', id, 2).units.find((u) => u.cardId === id)
+      ?.surge,
     2,
     'the original Level 2 ambush remains intact',
   )

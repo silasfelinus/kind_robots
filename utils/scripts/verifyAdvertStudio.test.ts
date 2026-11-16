@@ -323,24 +323,17 @@ assert.match(storeSource, /'\/api\/adverts\/art\/sync'/)
 assert.match(storeSource, /category: 'AGENT'/)
 assert.match(storeSource, /scale: ADVERT_EXPORT_PIXEL_RATIO/)
 assert.match(storeSource, /import\('modern-screenshot'\)/)
-assert.match(
-  storeSource,
-  /domToBlob\\(element,/,
-  'poster export creates PNG Blobs instead of unreliable data URL clicks',
-)
-assert.match(storeSource, /URL\\.createObjectURL\\(blob\\)/)
-assert.match(storeSource, /navigator\\.canShare\\?\\.\\(\\{ files: \\[file\\] \\}\\)/)
-assert.match(storeSource, /navigator\\.share\\(\\{ files: \\[file\\]/)
-assert.match(storeSource, /needsNativeSave\\(\\)/)
-assert.match(storeSource, /URL\\.revokeObjectURL/)
-assert.doesNotMatch(storeSource, /saveDataUrl\\(/)
-assert.match(advertPage, /data-testid="advert-image-preview"/)
-assert.match(advertPage, /data-testid="advert-complete-image"/)
-assert.match(
-  advertPage,
-  /@click="advertStore\\.previewPng\\(selected\\.poster\\.slug\\)"/,
-)
-assert.match(advertPage, /@click="advertStore\\.savePreview\\(\\)"/)
+assert.ok(storeSource.includes("domToBlob(element,"))
+assert.ok(storeSource.includes("URL.createObjectURL(blob)"))
+assert.ok(storeSource.includes("navigator.canShare?.({ files: [file] })"))
+assert.ok(storeSource.includes("navigator.share({ files: [file]"))
+assert.ok(storeSource.includes("needsNativeSave()"))
+assert.ok(storeSource.includes("URL.revokeObjectURL"))
+assert.ok(advertPage.includes("data-testid=\"advert-image-preview\""))
+assert.ok(advertPage.includes("data-testid=\"advert-complete-image\""))
+assert.ok(advertPage.includes("@click=\"advertStore.previewPng(selected.poster.slug)\""))
+assert.ok(advertPage.includes("@click=\"advertStore.savePreview()\""))
+assert.ok(!storeSource.includes('saveDataUrl('))
 
 const FETCHES =
   /\$fetch|performFetch|useFetch|\bfetch\(|localStorage|sessionStorage/

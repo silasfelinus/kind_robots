@@ -32,6 +32,7 @@ export type AchievementSectionKey =
   | 'game-of-captains'
   | 'every-villain-tactics'
   | 'monstress-convention'
+  | 'deepheart'
 
 export type AchievementSection = {
   key: AchievementSectionKey
@@ -81,6 +82,7 @@ export const ACHIEVEMENT_SECTIONS: readonly AchievementSection[] = [
     label: 'MONSTRIQUE',
     icon: 'kind-icon:mask',
   },
+  { key: 'deepheart', label: 'Deepheart', icon: 'kind-icon:dungeon' },
 ]
 
 export type GameAchievementRule =
@@ -294,6 +296,15 @@ const MAIN_GAMES: AchievementGame[] = [
     section: 'monstress-convention',
     route: '/play/monstrique',
     arcade: false,
+    main: true,
+  },
+  {
+    key: 'deepheart',
+    title: 'Deepheart',
+    section: 'deepheart',
+    route: '/admin/deepheart',
+    arcade: false,
+    adminOnly: true,
     main: true,
   },
 ]

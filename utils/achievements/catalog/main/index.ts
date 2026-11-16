@@ -9,6 +9,7 @@ import type { GameAchievementDef } from '../../gameAchievements'
 import { COMET_CITY_ACADEMY_ACHIEVEMENTS } from './comet-city-academy'
 import { CRYSTAL_STREET_ACHIEVEMENTS } from './crystal-street'
 import { CTHULHUQUARIUM_ACHIEVEMENTS } from './cthulhuquarium'
+import { DEEPHEART_ACHIEVEMENTS } from './deepheart'
 import { EMPEROR_OF_DUST_ACHIEVEMENTS } from './emperor-of-dust'
 import { EVERY_VILLAIN_TACTICS_ACHIEVEMENTS } from './every-villain-tactics'
 import { GAME_OF_CAPTAINS_ACHIEVEMENTS } from './game-of-captains'
@@ -40,4 +41,5 @@ export const MAIN_GAME_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
   ...GAME_OF_CAPTAINS_ACHIEVEMENTS,
   ...EVERY_VILLAIN_TACTICS_ACHIEVEMENTS,
   ...MONSTRESS_CONVENTION_ACHIEVEMENTS,
+  ...DEEPHEART_ACHIEVEMENTS,
 ]

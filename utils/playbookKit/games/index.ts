@@ -3,6 +3,7 @@ import { LANTERN_FERRY } from './lanternFerry'
 import { SPACE_COUCH_KIT } from './spaceCouch'
 import { EVERY_VILLAIN_TACTICS } from './everyVillainTactics'
 import { MONSTRESS_CONVENTION } from './monstressConvention'
+import { DEEPHEART } from './deepheart'
 // playbook:new imports
 
 // Every playbook built on the kit. `npm run playbook:new` adds new ones at the
@@ -13,6 +14,7 @@ export const KIT_PLAYBOOKS: PlaybookKitSpec[] = [
   SPACE_COUCH_KIT,
   EVERY_VILLAIN_TACTICS,
   MONSTRESS_CONVENTION,
+  DEEPHEART,
   // playbook:new entries
 ]
 

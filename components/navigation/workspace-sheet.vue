@@ -628,10 +628,11 @@ const activePoster = computed(
 
 const silasNote = computed(
   () =>
-    tutorialNotesStore.publicNotes[route.path] ||
-    tutorialLocation.value?.tab?.silasSays ||
-    tutorialLocation.value?.channel?.silasSays ||
-    '',
+    tutorialNotesStore.overrides[route.path]
+      ? (tutorialNotesStore.publicNotes[route.path] ?? '')
+      : tutorialLocation.value?.tab?.silasSays ||
+        tutorialLocation.value?.channel?.silasSays ||
+        '',
 )
 
 async function toggleNoteEditor(): Promise<void> {

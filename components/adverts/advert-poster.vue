@@ -16,13 +16,23 @@
         :data-advert-poster="poster.slug"
       >
         <template v-if="poster.variant === 'arcade'">
-          <div class="ad-arc-wall">
+          <div
+            class="ad-arc-wall"
+            :class="{ 'ad-arc-wall--hero': hasCuratedArcadeHero }"
+          >
             <img
-              v-for="(src, index) in poster.wall"
-              :key="index"
-              :src="src"
-              alt=""
+              v-if="hasCuratedArcadeHero && poster.hero"
+              :src="images[poster.hero.key]"
+              :alt="`${poster.name} panoramic hero artwork`"
             />
+            <template v-else>
+              <img
+                v-for="(src, index) in poster.wall"
+                :key="index"
+                :src="src"
+                alt=""
+              />
+            </template>
           </div>
           <div class="ad-arc-wall-fade" />
           <div class="ad-arc-ribbon">
@@ -247,6 +257,15 @@ const posterVars = computed(() => {
     '--hook-size': `${type.hookSize}px`,
     '--url-size': `${type.urlSize}px`,
   }
+})
+
+const hasCuratedArcadeHero = computed(() => {
+  const hero = props.poster.hero
+  return Boolean(
+    hero &&
+    props.images[hero.key] &&
+    props.images[hero.key] !== hero.defaultSrc,
+  )
 })
 
 const marquee = computed(() => [
@@ -903,6 +922,27 @@ onBeforeUnmount(() => {
   gap: 16px;
   opacity: 0.62;
   filter: saturate(1.15);
+}
+
+.ad-arc-wall--hero {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 800px;
+  transform: none;
+  display: block;
+  opacity: 0.9;
+  filter: saturate(1.15);
+}
+
+.ad-arc-wall.ad-arc-wall--hero img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .ad-arc-wall img {

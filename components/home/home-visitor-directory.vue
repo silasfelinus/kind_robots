@@ -33,50 +33,23 @@
         :class="activeSection === 'featured' ? 'flex' : 'hidden'"
       >
         <div class="kr-pane-scroll min-h-0 pr-1">
-          <section
-            aria-labelledby="visitor-hero-title"
-            class="visitor-hero relative mb-2 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-neutral text-neutral-content"
+          <aside
+            aria-label="Against Malaria Foundation"
+            class="visitor-mission mb-2 flex shrink-0 items-center justify-between gap-2 rounded-xl border border-base-300 bg-base-200/75 px-3 py-2"
           >
-            <img
-              src="/api/art/images/272634/file"
-              alt=""
-              class="visitor-hero-art absolute inset-0 h-full w-full object-cover"
-            />
-            <div
-              class="visitor-hero-shade absolute inset-0 bg-linear-to-r from-neutral via-neutral/85 to-neutral/40"
-            />
-            <div class="visitor-hero-copy relative flex flex-col gap-1.5 p-3">
-              <h2
-                id="visitor-hero-title"
-                class="font-serif text-base font-black leading-tight"
-              >
-                Free handmade games and stories. No ads, no account needed.
-              </h2>
-              <p class="text-xs leading-snug opacity-85">
-                Kind Robots raises money for the Against Malaria Foundation.
-              </p>
-              <div class="mt-0.5 flex flex-wrap gap-2">
-                <NuxtLink
-                  to="/play/crystal-street"
-                  class="btn btn-primary btn-sm rounded-xl"
-                >
-                  <icon name="kind-icon:play" class="h-4 w-4" />
-                  Play Terrors on Crystal Street
-                </NuxtLink>
-                <a
-                  href="https://www.againstmalaria.com/amibot"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn btn-outline btn-sm rounded-xl border-neutral-content/60 text-neutral-content hover:border-neutral-content hover:bg-neutral-content hover:text-neutral"
-                >
-                  <icon name="kind-icon:hand-heart" class="h-4 w-4" />
-                  Give to fight malaria
-                  <span aria-hidden="true">↗</span>
-                  <span class="sr-only">(opens in a new tab)</span>
-                </a>
-              </div>
-            </div>
-          </section>
+            <p class="min-w-0 truncate text-[0.7rem] font-semibold sm:text-xs">
+              Free games. No ads. Helping fund mosquito nets.
+            </p>
+            <a
+              href="https://www.againstmalaria.com/amibot"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="shrink-0 whitespace-nowrap text-xs font-black text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            >
+              Fight malaria ↗
+              <span class="sr-only">(opens in a new tab)</span>
+            </a>
+          </aside>
           <header
             class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2"
           >
@@ -144,20 +117,30 @@
             <article
               v-for="feature in filteredFeatures"
               :key="feature.route"
-              class="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-200/55 transition hover:border-primary/60 hover:shadow-md"
+              class="visitor-feature-card group relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-200 transition duration-300 hover:-translate-y-0.5 hover:border-primary/70 hover:shadow-xl"
+              :class="{
+                'visitor-feature-card--lead': feature.route === '/play/arcade',
+              }"
+              :style="featureStyle(feature)"
             >
               <NuxtLink
                 :to="feature.route"
                 class="flex min-w-0 flex-1 flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
               >
                 <div
-                  class="relative aspect-[16/10] overflow-hidden bg-base-300"
+                  class="visitor-feature-art relative aspect-[16/11] overflow-hidden bg-neutral"
                 >
                   <div
-                    v-if="feature.montage?.length"
+                    v-if="
+                      feature.montage?.length && !hasCuratedFeatureHero(feature)
+                    "
                     role="img"
-                    :aria-label="feature.title + ' illustrated ingredients'"
-                    class="grid h-full w-full grid-cols-3 overflow-hidden transition duration-300 group-hover:scale-105"
+                    :aria-label="feature.title + ' illustrated game art'"
+                    class="visitor-montage grid h-full w-full grid-cols-3 overflow-hidden"
+                    :class="{
+                      'visitor-montage--arcade':
+                        feature.route === '/play/arcade',
+                    }"
                   >
                     <img
                       v-for="src in feature.montage"
@@ -169,58 +152,62 @@
                     />
                   </div>
                   <img
-                    v-else-if="feature.image"
-                    :src="feature.image"
-                    :alt="feature.title"
+                    v-else-if="featureArt(feature)"
+                    :src="featureArt(feature)"
+                    :alt="feature.title + ' cover artwork'"
                     loading="lazy"
-                    class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                    class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
                   <div
                     v-else
-                    class="flex h-full w-full flex-col items-center justify-center gap-2 bg-linear-to-br p-3 text-center text-white transition duration-300 group-hover:scale-105"
-                    :class="
-                      feature.route === '/play/slime-city'
-                        ? 'from-fuchsia-900 via-violet-950 to-slate-950'
-                        : 'from-emerald-900 via-teal-950 to-indigo-950'
-                    "
+                    class="flex h-full items-center justify-center bg-linear-to-br from-indigo-950 via-fuchsia-950 to-slate-950 p-4 text-center text-white"
                   >
-                    <Icon
-                      :name="
-                        feature.route === '/play/slime-city'
-                          ? 'kind-icon:cat'
-                          : 'kind-icon:dna'
-                      "
-                      class="h-12 w-12 drop-shadow-lg"
-                      aria-hidden="true"
-                    />
-                    <span
-                      class="text-lg font-black tracking-[0.12em] drop-shadow-lg"
-                    >
+                    <span class="font-serif text-2xl font-black">
                       {{ feature.title }}
                     </span>
-                    <span class="text-[0.65rem] font-semibold opacity-75">
-                      {{
-                        feature.route === '/play/slime-city'
-                          ? 'BLACKOUT CCG'
-                          : 'FUSION LAB'
-                      }}
-                    </span>
                   </div>
+                  <div
+                    aria-hidden="true"
+                    class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/95 via-black/25 to-transparent"
+                  />
                   <span
-                    class="absolute bottom-1 left-1 rounded-md bg-base-100/95 px-1.5 py-0.5 text-[0.6rem] font-black text-base-content"
+                    class="absolute left-3 top-3 max-w-[calc(100%-1.5rem)] truncate rounded-md border border-white/30 bg-black/55 px-2 py-1 text-[0.65rem] font-bold text-white backdrop-blur-sm"
                   >
                     {{ feature.tag }}
                   </span>
+                  <div class="absolute inset-x-0 bottom-0 p-3 text-white">
+                    <p
+                      class="mb-1 text-[0.6rem] font-black uppercase tracking-[0.17em] text-white/80"
+                    >
+                      {{
+                        feature.category === 'play'
+                          ? 'Play'
+                          : feature.category === 'create'
+                            ? 'Create'
+                            : 'Learn'
+                      }}
+                      / Kind Robots
+                    </p>
+                    <h3
+                      class="visitor-feature-title font-serif text-2xl font-black leading-none drop-shadow-lg"
+                    >
+                      {{ feature.title }}
+                    </h3>
+                  </div>
                 </div>
-                <div class="min-w-0 flex-1 space-y-1 p-2">
-                  <h3
-                    class="text-sm font-black leading-tight group-hover:text-primary"
+                <div
+                  class="flex min-w-0 items-center justify-between gap-2 px-3 py-2.5"
+                >
+                  <p
+                    class="line-clamp-2 min-w-0 text-xs leading-relaxed opacity-75"
                   >
-                    {{ feature.title }}
-                  </h3>
-                  <p class="text-xs leading-snug opacity-70">
                     {{ feature.description }}
                   </p>
+                  <span
+                    aria-hidden="true"
+                    class="shrink-0 text-lg font-black text-primary transition group-hover:translate-x-0.5"
+                    >↗</span
+                  >
                 </div>
               </NuxtLink>
             </article>
@@ -387,17 +374,9 @@
       <span class="opacity-70"
         >Kind Robots builds creative tools for human benefit.</span
       >
-      <div class="flex flex-wrap gap-x-3 gap-y-1 font-bold text-primary">
-        <NuxtLink to="/about" class="hover:underline">Our mission</NuxtLink>
-        <a
-          href="https://www.againstmalaria.com/amibot"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hover:underline"
-        >
-          Fight malaria ↗
-        </a>
-      </div>
+      <NuxtLink to="/about" class="font-bold text-primary hover:underline">
+        Our mission →
+      </NuxtLink>
     </footer>
   </div>
 </template>
@@ -447,6 +426,7 @@ type FeaturedExperience = {
   category: 'play' | 'create' | 'learn'
   route: string
   image?: string
+  posterSlug?: string
   montage?: readonly string[]
   description: string
 }
@@ -457,11 +437,17 @@ const features: FeaturedExperience[] = [
     tag: 'Free games',
     category: 'play',
     route: '/play/arcade',
-    image: '/images/arcade/arcade-attract-splash.webp',
+    posterSlug: 'arcade',
+    montage: [
+      '/images/arcade/games/zuzu-ghost-trail-title.webp',
+      '/images/arcade/games/prize-show-panic-title.webp',
+      '/images/arcade/games/zuzu-last-bell-title.webp',
+    ],
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
     title: 'Prom of Doom',
+    posterSlug: 'prom-of-doom',
     tag: 'Capes & Tassels · Playable superhero school',
     category: 'play',
     route: '/play/comet-city-academy',
@@ -470,6 +456,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Space Couch',
+    posterSlug: 'space-couch',
     tag: 'Playable space adventure',
     category: 'play',
     route: '/play/game-of-captains',
@@ -479,6 +466,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Slime City',
+    posterSlug: 'slime-city',
     tag: 'Sign-in playtest · BLACKOUT CCG',
     category: 'play',
     route: '/play/slime-city',
@@ -488,6 +476,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Hybridizer',
+    posterSlug: 'hybridizer',
     tag: 'Browse free · Fusion lab',
     category: 'play',
     route: '/play/hybridizer',
@@ -501,6 +490,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Terrors on Crystal Street',
+    posterSlug: 'crystal-street',
     tag: 'New · 80s horror comedy',
     category: 'play',
     route: '/play/crystal-street',
@@ -510,6 +500,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Emperor of Dust',
+    posterSlug: 'emperor-of-dust',
     tag: 'Fortress adventure',
     category: 'play',
     route: '/play/emperor-of-dust',
@@ -518,6 +509,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Save the Plumber',
+    posterSlug: 'save-the-plumber',
     tag: 'Playable preview',
     category: 'play',
     route: '/play/save-the-plumber',
@@ -527,6 +519,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Rainbow Bullet Hell Space Princess',
+    posterSlug: 'rainbow-princess',
     tag: 'Playable preview',
     category: 'play',
     route: '/play/rainbow-bullet-hell-space-princess',
@@ -545,6 +538,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Zuzu: Shifting Lands',
+    posterSlug: 'shifting-lands',
     tag: 'Board adventure',
     category: 'play',
     route: '/play/zuzu-shifting-lands',
@@ -554,6 +548,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Zuzu Gamebook',
+    posterSlug: 'zuzu-gamebook',
     tag: 'Illustrated gamebook',
     category: 'play',
     route: '/play/zuzu-gamebook',
@@ -563,6 +558,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Ecotone: Weird Humboldt',
+    posterSlug: 'ecotone',
     tag: 'Comedy-horror adventure',
     category: 'play',
     route: '/play/ecotone',
@@ -575,7 +571,8 @@ const features: FeaturedExperience[] = [
     tag: 'Interactive satire',
     category: 'play',
     route: '/play/shifting-desks',
-    image: '/shifting-desks/front-poster.svg',
+    posterSlug: 'the-elevator-only-goes-down',
+    image: '/api/art/images/272631/file',
     description:
       'Survive office politics, impossible choices and your first 90-day review.',
   },
@@ -597,6 +594,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Cthulhuquarium',
+    posterSlug: 'aquarium',
     tag: 'Creature collecting',
     category: 'play',
     route: '/play/aquarium',
@@ -605,6 +603,7 @@ const features: FeaturedExperience[] = [
   },
   {
     title: 'Memory Dungeon',
+    posterSlug: 'memory-dungeon',
     tag: 'Card adventure',
     category: 'play',
     route: '/play/memory',
@@ -645,6 +644,32 @@ const features: FeaturedExperience[] = [
       'Flip into AMI Village Rescue, the original arcade pinball table.',
   },
 ]
+
+function posterForFeature(feature: FeaturedExperience) {
+  return advertStore.posters.find(
+    (view) => view.poster.slug === feature.posterSlug,
+  )
+}
+
+function hasCuratedFeatureHero(feature: FeaturedExperience): boolean {
+  const view = posterForFeature(feature)
+  const hero = view?.poster.hero
+  return Boolean(
+    hero && view?.images[hero.key] && view.images[hero.key] !== hero.defaultSrc,
+  )
+}
+
+function featureArt(feature: FeaturedExperience): string | undefined {
+  const view = posterForFeature(feature)
+  return (
+    (view?.poster.hero && view.images[view.poster.hero.key]) || feature.image
+  )
+}
+
+function featureStyle(feature: FeaturedExperience) {
+  const accent = posterForFeature(feature)?.poster.palette.a1
+  return accent ? { '--visitor-accent': accent } : undefined
+}
 
 const filteredFeatures = computed(() =>
   features.filter(
@@ -718,30 +743,60 @@ const newest = computed<LabeledShowcaseCard[]>(() =>
   grid-template-columns: minmax(0, 1fr);
 }
 
-.visitor-hero-art {
-  object-position: center 30%;
+.visitor-feature-card {
+  isolation: isolate;
+}
+
+.visitor-feature-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid
+    color-mix(in srgb, var(--visitor-accent, white) 38%, transparent);
+  border-radius: inherit;
+}
+
+.visitor-feature-card:hover .visitor-feature-title {
+  color: var(--visitor-accent, white);
+}
+
+.visitor-montage--arcade {
+  gap: 0.65rem;
+  padding: 0.85rem;
+  background: radial-gradient(circle at 50% 0%, #79255c, #101027 76%);
+}
+
+.visitor-montage--arcade img {
+  border: 1px solid rgb(255 255 255 / 40%);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 55%);
+  transform: rotate(-5deg) translateY(7%);
+}
+
+.visitor-montage--arcade img:nth-child(2) {
+  transform: rotate(4deg) translateY(-3%) scale(1.07);
+}
+
+.visitor-montage--arcade img:nth-child(3) {
+  transform: rotate(7deg) translateY(9%);
 }
 
 @container (min-width: 36rem) {
   .visitor-featured-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
 
-@container (min-width: 40rem) {
-  .visitor-hero-art {
-    left: auto;
-    right: 0;
-    width: 62%;
+  .visitor-feature-card--lead {
+    grid-column: span 2;
   }
 
-  .visitor-hero-copy {
-    max-width: 34rem;
-    padding: 0.875rem 1rem;
+  .visitor-feature-card--lead .visitor-feature-art {
+    aspect-ratio: 16 / 7;
   }
 
-  .visitor-hero h2 {
-    font-size: 1.25rem;
+  .visitor-feature-card--lead .visitor-feature-title {
+    font-size: 2.75rem;
   }
 }
 

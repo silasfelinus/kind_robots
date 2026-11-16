@@ -602,8 +602,9 @@ for (const artImageId of [272640, 272634, 258076, 258083, 258078]) {
       artImageId,
   )
 }
-assert.ok(
-  visitorDirectorySource.includes('v-if="feature.montage?.length"'),
+assert.match(
+  visitorDirectorySource,
+  /v-if="\s*feature\.montage\?\.length\s*&&\s*!hasCuratedFeatureHero\(feature\)\s*"/,
   'Hybridizer highlight must display its illustrated ingredient montage',
 )
 assert.doesNotMatch(
@@ -685,8 +686,18 @@ const featuredPanel =
     ?.split('id="visitor-updates"')[0] ?? ''
 assert.match(
   featuredPanel,
-  /class="kr-pane-scroll min-h-0 pr-1"[\s\S]*?id="visitor-hero-title"[\s\S]*?Featured experiences[\s\S]*?Filter experiences[\s\S]*?visitor-featured-grid/,
-  'the Crystal Street promo, heading, filters, and gallery must share the one bounded scroll owner',
+  /class="kr-pane-scroll min-h-0 pr-1"[\s\S]*?aria-label="Against Malaria Foundation"[\s\S]*?Featured experiences[\s\S]*?Filter experiences[\s\S]*?visitor-featured-grid/,
+  'the compact mission row, heading, filters, and gallery must share the one bounded scroll owner',
+)
+assert.doesNotMatch(
+  featuredPanel,
+  /visitor-hero|Play Terrors on Crystal Street/,
+  'a single game must not consume the opening viewport with a dedicated hero',
+)
+assert.match(
+  featuredPanel,
+  /visitor-mission[\s\S]*?https:\/\/www\.againstmalaria\.com\/amibot[\s\S]*?Fight malaria/,
+  'the single-row malaria mission link must remain visible ahead of the games',
 )
 assert.match(
   visitorDirectorySource,
@@ -712,7 +723,27 @@ assert.doesNotMatch(
 assert.ok(visitorDirectorySource.includes('activeSection'))
 assert.ok(visitorDirectorySource.includes('selectedCategory'))
 assert.ok(
-  visitorDirectorySource.includes("image: '/shifting-desks/front-poster.svg'"),
+  visitorDirectorySource.includes("image: '/api/art/images/272631/file'"),
+  'the Elevator highlight must use delivered painted art, not its old SVG',
+)
+assert.ok(
+  visitorDirectorySource.includes(
+    "posterSlug: 'the-elevator-only-goes-down'",
+  ),
+  'the Elevator cover must follow the latest curated Advert Studio selection',
+)
+assert.ok(
+  visitorDirectorySource.includes(
+    "'/images/arcade/games/prize-show-panic-title.webp'",
+  ) &&
+    visitorDirectorySource.includes(
+      "'/images/arcade/games/zuzu-ghost-trail-title.webp'",
+    ),
+  'the Arcade headline must show actual cabinet key art, not the generic splash',
+)
+assert.ok(
+  visitorDirectorySource.includes('function featureArt(feature: FeaturedExperience)'),
+  'the gallery must reuse curated Advert Studio hero art when selected',
 )
 assert.ok(
   visitorDirectorySource.indexOf("title: 'The Elevator Only Goes Down'") <

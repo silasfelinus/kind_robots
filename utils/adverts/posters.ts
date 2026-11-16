@@ -435,7 +435,13 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
     path: '/arcade',
     conductorSlug: 'kr-arcade',
     style:
-      'bright retro arcade cabinet art, glowing neon, playful chunky shapes',
+      'premium cinematic hand-painted arcade fantasy key art, neon theatrical lighting, bold silhouettes, maximalist adventure',
+    hero: {
+      src: '/images/arcade/arcade-attract-splash.webp',
+      pos: 'center 45%',
+      subject:
+        'an immense dazzling midnight arcade hall extending into impossible worlds, heroic silhouettes from distinct original cabinet adventures bursting out into the aisle, a koala ronin raising a glowing lantern, shimmering pinball planets, a gigantic holographic prize wheel, an overhead galaxy of luminous pixels, dramatic low-angle cinematic composition, extraordinary depth, saturated electric violet cyan and molten gold, beautifully hand-painted theatrical key art, clear central negative space for a title',
+    },
     wall: ARCADE_WALL,
     cards: [
       {
@@ -899,7 +905,7 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
       src: artImageFile(272631),
       pos: 'center 55%',
       subject:
-        'a cheerful office worker and a beige robot assistant riding a green elevator down past endless office floors',
+        'vertigo-inducing cutaway of an impossibly tall corporate tower, a tiny brass elevator plunging through hundreds of wildly different surreal office floors, two determined workers silhouetted against a glowing elevator window, enormous brutalist architecture, exaggerated dramatic perspective, deep teal shadows and burnt-amber highlights, darkly hilarious retro-futurist prestige film key art, richly painted atmospheric detail, compelling central focal point',
     },
     cards: [
       {

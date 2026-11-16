@@ -135,9 +135,16 @@ for (const poster of ADVERT_POSTERS) {
     assert.match(color, /^#[0-9a-f]{6}$/i, `${where}: palette color ${color}`)
   assert.equal(poster.cards.length, 3, `${where}: three cards`)
   assert.ok(
-    Boolean(poster.hero) !== poster.wall.length > 0,
-    `${where}: either a hero slot or a fixed wall`,
+    Boolean(poster.hero) || poster.wall.length > 0,
+    `${where}: a hero slot or a fixed wall exists`,
   )
+  if (poster.hero && poster.wall.length) {
+    assert.equal(
+      poster.slug,
+      'arcade',
+      'only Arcade keeps a fixed cabinet wall behind its optional cinematic hero',
+    )
+  }
   for (const src of poster.wall)
     assert.match(src, /^\/images\//, `${where}: wall art is site-served`)
 
@@ -221,6 +228,12 @@ assert.equal(
 )
 const arcade = ADVERT_POSTERS.find((p) => p.slug === 'arcade')!
 assert.equal(arcade.variant, 'arcade')
+assert.equal(arcade.hero?.key, 'adverts/arcade/hero')
+assert.match(
+  arcade.hero?.prompt ?? '',
+  /arcade hall/i,
+  'Arcade has a queueable wide hero brief',
+)
 assert.equal(arcade.copy.statValue, '36')
 assert.equal(new Set(arcade.wall).size, 33, 'the Arcade wall shows 33 cabinets')
 
@@ -369,6 +382,11 @@ assert.match(publicHighlights, /advertPlayPath\(view.poster\)/)
 assert.match(publicHighlights, /advertStore.loadPublicSelections\(\)/)
 
 const posterComponent = read('components/adverts/advert-poster.vue')
+assert.match(
+  posterComponent,
+  /hasCuratedArcadeHero/,
+  'the poster upgrades to a chosen hero but preserves the cabinet wall until curated',
+)
 assert.match(
   posterComponent,
   /container-type: inline-size/,

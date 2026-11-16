@@ -129,6 +129,10 @@ const cropWorkflow = buildSdxlRegionWorkflow({
 })
 assert.equal(cropWorkflow.workflow['83']?.inputs?.x, crop.crop.x)
 assert.equal(cropWorkflow.workflow['83']?.inputs?.y, crop.crop.y)
+assert.equal(cropWorkflow.workflow['6']?.inputs?.steps, 8)
+assert.equal(cropWorkflow.workflow['6']?.inputs?.cfg, 2)
+assert.equal(cropWorkflow.workflow['6']?.inputs?.sampler_name, 'dpmpp_sde')
+assert.equal(cropWorkflow.workflow['6']?.inputs?.scheduler, 'karras')
 
 const badRequests: Array<Partial<TargetedEditRequest>> = [
   { ...request, targets: [] },

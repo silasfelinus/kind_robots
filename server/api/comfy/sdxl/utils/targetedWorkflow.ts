@@ -1,4 +1,4 @@
-import { buildSdxlImg2ImgWorkflow, type ComfyWorkflow } from './workflow'
+import { buildSdxlImg2ImgWorkflow, sdxlSamplerProfile, type ComfyWorkflow } from './workflow'
 
 export type SdxlRegionWorkflowInput = {
   prompt: string
@@ -24,17 +24,18 @@ export function buildSdxlRegionWorkflow(input: SdxlRegionWorkflowInput): {
   workflow: ComfyWorkflow
   seed: number
 } {
+  const profile = sdxlSamplerProfile(input.checkpoint)
   const built = buildSdxlImg2ImgWorkflow({
     prompt: input.prompt,
     negativePrompt: input.negativePrompt,
     imageName: input.sourceName,
     checkpoint: input.checkpoint,
-    steps: input.steps ?? 24,
-    cfgValue: input.cfg ?? 5,
+    steps: input.steps ?? profile.steps,
+    cfgValue: input.cfg ?? profile.cfg,
     denoise: input.denoise ?? 0.65,
     seed: input.seed,
-    sampler: input.sampler ?? 'dpmpp_2m',
-    scheduler: input.scheduler ?? 'karras',
+    sampler: input.sampler ?? profile.sampler,
+    scheduler: input.scheduler ?? profile.scheduler,
     filenamePrefix: input.filenamePrefix ?? 'kindrobots_region_inpaint',
   })
   const workflow = built.workflow

@@ -14,7 +14,7 @@ import {
   prepareTargetedEdit,
   type TargetedEditRequest,
 } from '~/server/utils/targetedInpaint'
-import { DEFAULT_SDXL_CHECKPOINT } from '../comfy/sdxl/utils/workflow'
+import { DEFAULT_SDXL_CHECKPOINT, sdxlSamplerProfile } from '../comfy/sdxl/utils/workflow'
 import { buildSdxlRegionWorkflow } from '../comfy/sdxl/utils/targetedWorkflow'
 
 type InpaintRequest = TargetedEditRequest & {
@@ -82,8 +82,19 @@ export default defineEventHandler(async (event) => {
         message: 'Prompt length must be between 8 and 2400 characters.',
       })
     }
-    const steps = bounded(body.steps, 24, 1, 60, 'steps')
-    const cfg = bounded(body.cfg, 5, 1, 15, 'cfg')
+    const checkpoint =
+      typeof body.checkpoint === 'string' && body.checkpoint.trim()
+        ? body.checkpoint.trim()
+        : DEFAULT_SDXL_CHECKPOINT
+    if (!checkpoint.endsWith('.safetensors')) {
+      throw createError({
+        statusCode: 400,
+        message: 'SDXL checkpoint must name an installed .safetensors model.',
+      })
+    }
+    const profile = sdxlSamplerProfile(checkpoint)
+    const steps = bounded(body.steps, profile.steps, 1, 60, 'steps')
+    const cfg = bounded(body.cfg, profile.cfg, 1, 15, 'cfg')
     const denoise = bounded(body.denoise, 0.65, 0.15, 1, 'denoise')
     const priority = bounded(body.priority, 85, 1, 1000, 'priority')
     if (!Number.isInteger(steps) || !Number.isInteger(priority)) {
@@ -162,16 +173,6 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const checkpoint =
-      typeof body.checkpoint === 'string' && body.checkpoint.trim()
-        ? body.checkpoint.trim()
-        : DEFAULT_SDXL_CHECKPOINT
-    if (!checkpoint.endsWith('.safetensors')) {
-      throw createError({
-        statusCode: 400,
-        message: 'SDXL checkpoint must name an installed .safetensors model.',
-      })
-    }
     const prefix = 'kr_region_' + randomUUID()
     const sourceName = prefix + '_sample.png'
     const originalName = prefix + '_original.png'
@@ -192,8 +193,8 @@ export default defineEventHandler(async (event) => {
       cfg,
       denoise,
       seed,
-      sampler: body.sampler,
-      scheduler: body.scheduler,
+      sampler: body.sampler ?? profile.sampler,
+      scheduler: body.scheduler ?? profile.scheduler,
     })
     const payload = {
       workflow: built.workflow,

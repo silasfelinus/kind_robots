@@ -34,6 +34,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // its alley; the pressure point hits once, so keep the biggest foe armored
   // or in reserve.
   'pipe-seer': {
+    levelOneText: 'A piercing lookout that reads the drains for its crew.',
     2: stage('Reading the Flow', [on('enter', draw(1))]),
     3: stage('Oracle of the Drains', [on('turnStart', draw(1))], {
       pacifist: true,
@@ -53,6 +54,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: scan it; at L3 lead with a cheap runner while your strongest
   // fighter is off the board.
   'snitch-grate': {
+    levelOneText: 'A hidden grate that stalls the first intruder cold.',
     2: stage('Tip-Off', [on('spring', sharpen(1, 'adjacentAllies'))]),
     3: stage('Snitch Network', [on('spring', damage(2, 'strongestFoe', true))]),
   },
@@ -61,6 +63,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (the L3 payoff needs it to fall). Counterplay: stun it
   // or leave it alive; kill it on a turn when your own strikes are spent.
   's1-basement-ghost': {
+    levelOneText: 'A fragile vent sniper that pins whoever it strikes.',
     2: stage('Vent Shot', [on('enter', damage(1, 'weakestFoe', true))]),
     3: stage('The Haunting', [on('death', stun('laneFoes'))]),
   },
@@ -70,6 +73,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // fight for information and jamming). Counterplay: park a fighter across
   // it to cut the line; burst it down before the storm matters.
   's1-static-listener': {
+    levelOneText: 'A cheap snaring listener that holds a quiet alley.',
     stats: { 1: { attack: 1 } },
     2: stage('Quiet Alley', [on('tap', when('acrossEmpty', draw(1)))]),
     3: stage('Static Storm', [on('enter', draw(1)), on('tap', draw(2))], {
@@ -82,6 +86,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: keep your alleys empty of prey; the crew's boost lasts one
   // round only.
   's1-floodlight-sweep': {
+    levelOneText: 'A cheap sweep that scouts one alley before you commit.',
     2: stage('Blinding Glare', [on('enter', stun('target'))]),
     3: stage('Spotlight the Crew', [
       on('enter', stun('target'), power(1, 'allies')),
@@ -92,6 +97,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (anti-heavy at L3). Counterplay: field cheap
   // fighters; the warrant only bites a 2-play target.
   's1-wiretap-order': {
+    levelOneText: 'A cheap stun that buys a turn against the biggest threat.',
     2: stage('Transcript', [on('enter', draw(1))]),
     // A proper warrant cannot seize a healthy subject or a cheap decoy.
     // The chosen expensive rival must already be hurt and at 4 life or less.
@@ -104,6 +110,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (single trap -> cover -> citywide sting).
   // Counterplay: scan it; the sting is only 1, so sturdy fighters shrug it.
   's1-blue-ink-deadfall': {
+    levelOneText: 'An ink-loaded deadfall that stalls the first raider.',
     2: stage('Ink Cloud', [on('spring', guard(2, 'adjacentAllies'))]),
     3: stage('Blackwater Bloom', [on('spring', damage(1, 'allFoes', true))]),
   },
@@ -113,6 +120,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: spread out so the needle finds no neighbors; strike the
   // wearer before it lands a hit.
   's1-needle-wire': {
+    levelOneText: 'An antenna that lets one fighter cut through plating.',
     2: stage('Relay Spike', [on('enter', stun('across'))]),
     3: stage('Threaded Needle', [on('hit', damage(1, 'adjacentFoes', true))]),
   },
@@ -122,6 +130,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED (the L3 confession needs a knockout). Counterplay:
   // armor up the suspect across; without a knockout nobody is named.
   's2-undertow-drainpipe-interrogator': {
+    levelOneText: 'A sturdy questioner that keeps its suspect from swinging.',
     2: stage('Good Cop', [], { hex: { n: 1, to: 'across' } }),
     3: stage('The Confession', [
       on('enter', stun('across')),
@@ -135,6 +144,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // alley across empty or feed it a cheap decoy, and race its lane: it no
   // longer hits back.
   's2-undertow-subsurface-warden': {
+    levelOneText: 'A slow armored warden that outlasts a long siege.',
     2: stage('Night Shift', [on('turnStart', guard(1, 'adjacentAllies'))]),
     3: stage('Jailer of the Deep', [on('roundEnd', stun('across'))], {
       pacifist: true,
@@ -147,6 +157,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: keep its alley occupied at L2; at L3 avoid knockouts until
   // it is spent.
   's2-undertow-floodlight-leak': {
+    levelOneText: 'A cheap sweep that opens one alley for a lone runner.',
     2: stage('Wrong Desk', [on('enter', when('acrossEmpty', boss(2)))]),
     3: stage('Whistleblower', [on('enter', when('allyFell', boss(4)))]),
   },
@@ -155,6 +166,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (a heavy stun evolves into a three-lane lockdown).
   // Counterplay: spread threats apart and force this two-play spell early.
   's2-undertow-backwater-iou': {
+    levelOneText: "A heavy stun that freezes the rival's best fighter.",
     // A paper trail promotes one still-unseen card, so the upgrade arrives
     // naturally on the next shuffle instead of generating an extra card.
     2: stage('Paper Trail', [on('enter', promote('deck'), draw(1))]),
@@ -167,6 +179,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: STEADY (sustain, then a second toll). Counterplay: scan it,
   // or spend it with a cheap runner twice.
   's2-undertow-culvert-tollwire': {
+    levelOneText: 'A costly wire that stops a heavy raider in its tracks.',
     2: stage('Toll Collected', [on('spring', mend(2))]),
     3: stage('Toll Plaza', [on('spring', mend(2), rearm())]),
   },
@@ -175,6 +188,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (one snare -> information -> crew-wide snares).
   // Counterplay: armor blunts snare; kill the wearer's neighbors first.
   's2-undertow-wiretap-spikes': {
+    levelOneText: 'Spikes that turn any fighter into a snaring blocker.',
     2: stage('Live Feed', [on('enter', draw(1))]),
     3: stage('Party Line', [on('enter', grant('snare', 'adjacentAllies'))]),
   },
@@ -184,6 +198,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // a steady shot). Counterplay: rush its lane, it never hits back; armor
   // the strongest foe or keep it in hand.
   's3-undertow-drain-sniper': {
+    levelOneText: 'A one-drop piercing sniper that chips armored foes.',
     stats: { 1: { attack: 1 } },
     2: stage('Lone Perch', [], { lone: 2 }),
     3: stage('Overwatch', [on('turnStart', damage(2, 'strongestFoe', true))], {
@@ -197,6 +212,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // body for a citywide shock. Counterplay: the shock is one burst; the eel
   // left behind dies to an ordinary strike.
   's3-undertow-interrogation-eel': {
+    levelOneText: 'A snaring eel that keeps the rival line off balance.',
     stats: { 3: { attack: -2, hp: -12 } },
     2: stage('Live Wire', [on('hit', damage(1, 'adjacentFoes'))]),
     3: stage('Shock Net', [on('enter', damage(2, 'allFoes', true))]),
@@ -206,8 +222,12 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (patience payoff). Counterplay: raid early and
   // hard; regen and shields lose to burst.
   's3-undertow-quiet-listener': {
+    levelOneText: 'A tough REGEN listener that waits out early raids.',
     2: stage('Soundproofed', [on('turnStart', guard(1, 'self'))]),
-    3: stage('The Long Game', [on('turnStart', sharpen(1, 'self'))]),
+    // L3 keeps the L2 soundproofing: the counterplay still names shields.
+    3: stage('The Long Game', [
+      on('turnStart', guard(1, 'self'), sharpen(1, 'self')),
+    ]),
   },
   // Arc: an operative who brings the rain -> a cloudburst of needles on
   // arrival -> the monsoon pins down everyone beside the target.
@@ -215,24 +235,35 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // chip, then lockdown, instead of more bulk). Counterplay: spread out;
   // pierce through its armor before it strikes.
   's3-undertow-needle-rain-agent': {
+    levelOneText: 'An armored operative that pins and pierces at once.',
     stats: { 1: { hp: 2 } },
     2: stage('Cloudburst', [on('enter', damage(1, 'laneFoes', true))]),
-    3: stage('Needle Monsoon', [on('hit', stun('adjacentFoes'))]),
+    // L3 adds the lockdown on top of the L2 area chip, as the arc promises.
+    3: stage('Needle Monsoon', [
+      on('enter', damage(1, 'laneFoes', true)),
+      on('hit', stun('adjacentFoes')),
+    ]),
   },
   // Arc: a basement guard dog -> its last bark holds the intruder in place
   // -> off the leash, it goes straight for the weakest trespasser.
   // Trajectory: EARLY BLOOMER (a sharp one-drop, then utility). Counterplay:
   // keep the weakest foe sturdy; flank wide of its alley.
   's3-undertow-basement-watchdog': {
+    levelOneText: 'An armored guard dog that holds the basement door.',
     stats: { 1: { attack: 1 } },
     2: stage('Alarm Bark', [on('death', stun('across'))]),
-    3: stage('Off the Leash', [on('enter', duel('weakestFoe'))]),
+    // L3 keeps the Alarm Bark, so flanking wide of its alley still matters.
+    3: stage('Off the Leash', [
+      on('enter', duel('weakestFoe')),
+      on('death', stun('across')),
+    ]),
   },
   // Arc: something huge stirs below -> the undertow pulls its opposite under
   // -> it surfaces as a tidal surge, or sinks deep and waits.
   // Trajectory: LATE BLOOMER, choose one at L3. Counterplay: kite it (short
   // stride); the surge needs foes nearby, the deep dweller never reaches.
   's3-undertow-sewer-leviathan': {
+    levelOneText: 'A huge armored beast that grinds down any lane.',
     2: stage('Undertow Pull', [on('enter', stun('across'))]),
     3: stage('Tidal Surge', [on('enter', damage(2, 'laneFoes'))]),
     // Choose one: or stay down in the deep and shrug off every blow. The CPU
@@ -247,6 +278,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (a scan that becomes a mass stun).
   // Counterplay: spread fighters out; the flood holds one strike only.
   's3-undertow-weep-holes': {
+    levelOneText: 'Seeps through one wall to spoil a hidden trap.',
     2: stage('Seepage', [on('enter', damage(1, 'laneFoes'))]),
     3: stage('The Wall Weeps Open', [on('enter', stun('laneFoes'))]),
   },
@@ -256,6 +288,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: the second stun picks the strongest, so a lone heavy is
   // stunned only once.
   's3-undertow-long-drain-sting': {
+    levelOneText: 'A long-reach stun that halts one fighter from afar.',
     2: stage('Long Reach', [on('enter', damage(1, 'weakestFoe', true))]),
     3: stage('Paralytic Line', [
       on('enter', damage(1, 'weakestFoe', true)),
@@ -268,6 +301,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL, choose one at L3. Counterplay: keep weak
   // fighters off the board; against the books, simply out-damage the heal.
   's3-undertow-reveal-the-ledger': {
+    levelOneText: 'Clears one alley and keeps the convoy moving.',
     2: stage('Convoy Cleared', [on('enter', cleanse('allies'))]),
     3: stage('Hit List', [on('enter', damage(3, 'weakestFoe', true))]),
     // Choose one: or cook the books and patch the boss. The CPU publishes
@@ -282,6 +316,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (gear-like spell becomes control).
   // Counterplay: leave the alley across empty; the stun lasts one strike.
   's3-undertow-quiet-interdiction': {
+    levelOneText: 'Arms one fighter with a lasting snare.',
     2: stage('Piercing Warrant', [on('enter', grant('pierce', 'target'))]),
     3: stage('Interdiction', [on('enter', stun('across'))]),
   },
@@ -290,6 +325,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (L3 freezes your own crew too, for a full stall).
   // Counterplay: fighters played after it strike freely; hold them back.
   's3-undertow-citywide-blackmail': {
+    levelOneText: 'A costly stun that silences one enforcer.',
     2: stage('Hush Money', [on('enter', mend(2))]),
     3: stage('Everyone Has a File', [
       on('enter', stun('allFoes'), stun('allies'), mend(3)),
@@ -301,6 +337,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // on a crowded line). Counterplay: scan it; walk a lone runner into an
   // empty stretch.
   's3-undertow-red-tape-sensor': {
+    levelOneText: 'A cheap sensor that stalls the first runner through.',
     2: stage('Sensor Relay', [on('spring', damage(1, 'adjacentFoes'))]),
     3: stage('Pending Review', [on('spring', stun('adjacentFoes'))]),
   },
@@ -309,6 +346,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (anti-heavy, then area). Counterplay: take the
   // wider route; send a cheap runner first.
   's3-undertow-floodgate-clamp': {
+    levelOneText: 'A hidden clamp that bites hard on the first intruder.',
     2: stage('Clamp Down', [
       on('spring', when('targetHeavy', damage(2, 'target'))),
     ]),
@@ -319,6 +357,7 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (damage -> stall -> boss pressure). Counterplay:
   // scan it; at L3 the runner walks on unharmed.
   's3-undertow-anonymous-invoice': {
+    levelOneText: 'A hidden bill that hits the first intruder hard.',
     2: stage('Late Fee', [on('spring', stun('target'))]),
     3: stage('Billed to the Boss', [on('spring', boss(3))]),
   },
@@ -328,15 +367,23 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED (the L3 shot needs a knockout). Counterplay: armor
   // and big life deny the knockout; spread out to dodge the spotter.
   's3-undertow-periscope-lens': {
+    levelOneText: 'A lens that lets one fighter see through armor.',
     2: stage('Spotter', [], { aura: { n: 1, to: 'adjacentAllies' } }),
-    3: stage('Firing Solution', [on('kill', damage(3, 'strongestFoe', true))]),
+    // L3 keeps spotting for its neighbors; spreading out still dodges it.
+    3: stage('Firing Solution', [on('kill', damage(3, 'strongestFoe', true))], {
+      aura: { n: 1, to: 'adjacentAllies' },
+    }),
   },
   // Arc: a tunnel harpoon on a barbed line -> it punishes a pinned foe ->
   // the whaler's gamble: fire at the biggest thing in the sewer.
   // Trajectory: PRICE (the L3 duel can cost the wearer). Counterplay: a
   // stronger foe wins the duel; stun-proof heavies shrug the barbs.
   's3-undertow-tunnel-harpoon': {
+    levelOneText: 'A barbed harpoon that makes its wearer a snaring hunter.',
     2: stage('Barbed Line', [], { bully: 2 }),
-    3: stage("Whaler's Gamble", [on('enter', duel('strongestFoe'))]),
+    // L3 keeps the barbs, so stun-proof heavies still shrug them.
+    3: stage("Whaler's Gamble", [on('enter', duel('strongestFoe'))], {
+      bully: 2,
+    }),
   },
 }

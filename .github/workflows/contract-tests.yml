@@ -45,6 +45,9 @@ jobs:
       - name: Tablet navigation audit contract
         run: node --test utils/scripts/auditTabletNavigation.test.mjs
 
+      - name: Responsive audit sharding contract
+        run: node --test utils/scripts/responsiveAuditShard.test.mjs
+
       - name: First-folder project URL contract
         run: npx tsx utils/scripts/verifyFirstFolderAliases.test.ts
 

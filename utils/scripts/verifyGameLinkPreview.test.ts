@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { ARCADE_GAMES } from '../arcade/games'
 import {
   GAME_LINK_PREVIEWS,
+  arcadeCabinetLinkPreviewMeta,
   gameLinkPreviewMeta,
   publicTankLinkPreviewMeta,
 } from '../gameLinkPreview'
@@ -89,6 +91,37 @@ for (const slug of Object.keys(GAME_LINK_PREVIEWS)) {
     `${slug}: ${file} does not wire its link preview`,
   )
 }
+// A shared ?game= link unfurls as that cabinet, not the generic hall card.
+for (const game of ARCADE_GAMES) {
+  const card = arcadeCabinetLinkPreviewMeta(game, 'https://kindrobots.org/')
+  assert.ok(card.ogTitle.length <= 70, `${game.slug}: cabinet title length`)
+  assert.ok(
+    card.ogDescription.length >= 40 && card.ogDescription.length <= 200,
+    `${game.slug}: cabinet description length`,
+  )
+  assert.match(card.ogImage, /\.(webp|png|jpe?g)$/, `${game.slug}: raster art`)
+  assert.ok(card.ogImage.startsWith('https://'), `${game.slug}: absolute art`)
+  assert.equal(
+    card.ogUrl,
+    `https://kindrobots.org/play/arcade?game=${encodeURIComponent(game.slug)}`,
+  )
+}
+const pipePals = ARCADE_GAMES.find((game) => game.slug === 'pipe-pals')!
+const pipeCard = arcadeCabinetLinkPreviewMeta(pipePals, 'https://x.test')
+assert.equal(pipeCard.ogTitle, 'Pipe Pals | Kind Robots Arcade')
+assert.equal(
+  pipeCard.ogImage,
+  'https://x.test/images/arcade/games/pipe-pals-title.webp',
+)
+const arcadePage = readFileSync(
+  join(process.cwd(), 'pages/play/arcade/index.vue'),
+  'utf8',
+)
+assert.ok(
+  arcadePage.includes('arcadeCabinetLinkPreviewMeta('),
+  'arcade page wires per-cabinet previews',
+)
+
 // Shared public tanks unfurl with the owner's name, never raw markup.
 const tank = publicTankLinkPreviewMeta(
   'deep_one',

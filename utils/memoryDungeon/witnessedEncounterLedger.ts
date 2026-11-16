@@ -52,10 +52,7 @@ const validEvent = (
   )
   return Boolean(
     definition &&
-      Object.prototype.hasOwnProperty.call(
-        definition.choices,
-        event.choiceId,
-      ),
+    Object.prototype.hasOwnProperty.call(definition.choices, event.choiceId),
   )
 }
 
@@ -109,9 +106,7 @@ export const restoreWitnessedEncounterLedger = (
   const canonical = rebuild(events, definitions)
   if (
     ledger.evidence.length !== canonical.evidence.length ||
-    ledger.evidence.some(
-      (key, index) => key !== canonical.evidence[index],
-    )
+    ledger.evidence.some((key, index) => key !== canonical.evidence[index])
   ) {
     return null
   }
@@ -126,7 +121,8 @@ export const commitWitnessedEncounter = (
   const current = restoreWitnessedEncounterLedger(ledger, definitions)
   if (!current || !validEvent(event, definitions)) return null
   const prior = current.events.find(
-    (entry) => entry.eventId === event.eventId || entry.sceneId === event.sceneId,
+    (entry) =>
+      entry.eventId === event.eventId || entry.sceneId === event.sceneId,
   )
   if (prior) {
     return prior.eventId === event.eventId &&

@@ -419,7 +419,21 @@ assert.match(
 )
 
 const tutorialSheet = read('components/navigation/workspace-sheet.vue')
-assert.match(tutorialSheet, /data-testid="workspace-game-poster"/)
+assert.doesNotMatch(
+  tutorialSheet,
+  /<advert-poster|workspace-game-poster|useAdvertStore|loadPublicSelections/,
+  'sidebar does not mount posters or fetch their art',
+)
+assert.match(
+  tutorialSheet,
+  /ADVERT_POSTERS\.find\(/,
+  'public game slug remains available for Silas Says and discussions',
+)
+assert.match(
+  tutorialSheet,
+  /projectStore\.projectForSlug\(currentAdvertGameSlug\.value\)/,
+  'project conversations keep their route-to-project fallback',
+)
 assert.match(tutorialSheet, /data-testid="workspace-silas-says"/)
 assert.match(tutorialSheet, /data-testid="workspace-conversation"/)
 assert.match(tutorialSheet, /data-testid="silas-says-edit"/)

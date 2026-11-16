@@ -27,6 +27,12 @@ import {
   parseAdvertSlotKey,
   slotKeyFromAdvertRequestKey,
 } from '../adverts/posters'
+import {
+  normalizeTutorialPath,
+  normalizeTutorialText,
+  publicTutorialText,
+  TUTORIAL_NOTE_LIMIT,
+} from '../../server/utils/tutorialNotes'
 import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { normalizeArtRequestKey } from '../../server/utils/artRequestKey'
 import { normalizeSlotKey } from '../../server/utils/artSlotRules'
@@ -326,6 +332,22 @@ assert.ok(
   pkg.dependencies?.['modern-screenshot'],
   'modern-screenshot is a dependency',
 )
+
+assert.equal(normalizeTutorialPath('/play/slime-city'), '/play/slime-city')
+assert.equal(normalizeTutorialPath('/'), '/')
+assert.throws(() => normalizeTutorialPath('/play/../private'))
+assert.throws(() => normalizeTutorialPath('/play/slime-city?admin=true'))
+assert.throws(() => normalizeTutorialPath('//example.com'))
+assert.equal(normalizeTutorialText('  Roadmap draft  '), 'Roadmap draft')
+assert.throws(() => normalizeTutorialText('x'.repeat(TUTORIAL_NOTE_LIMIT + 1)))
+assert.equal(publicTutorialText('/play/slime-city', 'Published'), 'Published')
+assert.equal(publicTutorialText('/admin/adverts', 'Private'), '')
+assert.equal(publicTutorialText('/play/slime-city', null), '')
+const publicNoteRoute = read('server/api/tutorial-notes/index.get.ts')
+assert.match(publicNoteRoute, /hasRecord: Boolean\(note\)/)
+const tutorialNotesStore = read('stores/tutorialNotesStore.ts')
+assert.match(tutorialNotesStore, /overrides.value\[path\] = response.data.hasRecord/)
+assert.match(tutorialNotesStore, /overrides.value\[path\] = true/)
 
 const publicSelections = read('server/api/adverts/public-art.get.ts')
 assert.match(publicSelections, /isPublic: true/)

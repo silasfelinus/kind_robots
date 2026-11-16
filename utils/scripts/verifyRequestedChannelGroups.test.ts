@@ -122,7 +122,7 @@ for (const [title, slug] of [
 }
 assert.match(
   featuredHome,
-  /v-if="feature\.montage\?\.length && !hasCuratedFeatureHero\(feature\)"/,
+  /v-if="\s*feature\.montage\?\.length\s*&&\s*!hasCuratedFeatureHero\(feature\)\s*"/,
 )
 assert.match(featuredHome, /v-else-if="featureArt\(feature\)"/)
 assert.match(featuredHome, /v-else\s+class="flex h-full items-center/)

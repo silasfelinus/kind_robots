@@ -602,10 +602,9 @@ for (const artImageId of [272640, 272634, 258076, 258083, 258078]) {
       artImageId,
   )
 }
-assert.ok(
-  visitorDirectorySource.includes(
-    'v-if="feature.montage?.length && !hasCuratedFeatureHero(feature)"',
-  ),
+assert.match(
+  visitorDirectorySource,
+  /v-if="\s*feature\.montage\?\.length\s*&&\s*!hasCuratedFeatureHero\(feature\)\s*"/,
   'Hybridizer highlight must display its illustrated ingredient montage',
 )
 assert.doesNotMatch(

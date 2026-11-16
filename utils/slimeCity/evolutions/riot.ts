@@ -34,6 +34,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: stun her and leave her standing; kill her when your
   // fighters are healthy enough to shrug off 2.
   'spark-diver': {
+    levelOneText: 'A cheap stunt diver who trades her life for a bang.',
     2: stage('Countdown Briefing', [
       on(
         'turnStart',
@@ -56,6 +57,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // whole crew). Counterplay: VOLATILE only hurts the foe across, so spread
   // out against his crew; the match burns his own neighbors on arrival.
   's1-mime-fuse': {
+    levelOneText: 'A one-drop mime who makes killing him cost a neighbor.',
     2: stage('Silent Fuse', [
       on('death', damage(1, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
@@ -69,6 +71,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // last breath hits both crews alike). Counterplay: never kill him while
   // your side is wider; stun him and leave him alive.
   's1-blast-radius': {
+    levelOneText: 'A sturdy fuse that punishes a crowded enemy line.',
     2: stage('Field Test', [
       on('kill', damage(2, 'adjacentFoes')),
       on('tap', damage(1, 'adjacentFoes')),
@@ -85,6 +88,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: block her lane to deny the signature; at L3, kill the
   // parcel where its burst lands on a cheap blocker.
   's2-riot-fuse-lit-bicycle-courier': {
+    levelOneText: 'A cheap runner whose fall still hurts the foe across.',
     2: stage('Signature Required', [on('boss', boss(1))]),
     3: stage('Final Delivery', [
       on('death', summon('nearest', 2, 1, ['volatile'])),
@@ -96,6 +100,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // shakes every ally. Counterplay: fight it from the far alleys; at L3,
   // keep your fighters out of the three alleys it faces.
   's2-riot-radioactive-parade-float': {
+    levelOneText: 'A slow heavy float that makes every blocker pay.',
     2: stage('Glowing Procession', [
       on('roundEnd', damage(1, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
@@ -108,6 +113,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // boss. Trajectory: LATE BLOOMER (a 2-power skater until her fall matters).
   // Counterplay: stun her and ignore her; her launch needs her to fall.
   's3-riot-bottle-rocket': {
+    levelOneText: 'A one-drop skater who blocks early and bursts late.',
     2: stage('First Spark', [on('enter', chance(50, damage(2, 'weakestFoe')))]),
     3: stage('Curtain Launch', [
       on('death', boss(3), damage(1, 'adjacentAllies')),
@@ -120,6 +126,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // every crash also rattles its own neighbors). Counterplay: the stun lasts
   // one strike; meet it with high-life blockers in its side alleys.
   's3-riot-detonation-deacon': {
+    levelOneText: 'A heavy ambusher who hits first and bursts last.',
     2: stage('Midnight Drumroll', [
       on('turnStart', damage(1, 'across'), damage(1, 'adjacentAllies')),
     ]),
@@ -132,6 +139,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (a lottery each turn, paid for in his own
   // life). Counterplay: kill him fast; the odds favor patience.
   's3-riot-alley-prophet': {
+    levelOneText: 'A sturdy two-drop who dares the rival to strike him.',
     2: stage('Palm Reading', [
       on('turnStart', chance(50, damage(1, 'across'))),
     ]),
@@ -145,6 +153,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // keeps the glow that draws allies close and punishes them for it.
   // Counterplay: kill him while his neighbors stand, or never kill him.
   's3-riot-firework-bishop': {
+    levelOneText: 'An armored strongman who anchors the Riot line.',
     2: stage('Strongman Parade', [], { aura: { n: 1, to: 'adjacentAllies' } }),
     3: stage(
       'The Finale',
@@ -158,6 +167,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // while trading its standing body for repeat strikes from the deck.
   // Counterplay: a trap in its lane; at L3 it never stays to block.
   's3-riot-riot-bike-messenger': {
+    levelOneText: 'An ambush courier who strikes before blockers settle.',
     2: stage('Open Lane', [on('enter', when('acrossEmpty', power(2, 'self')))]),
     3: stage('Hit and Run', [
       on('enter', when('acrossEmpty', power(2, 'self'))),
@@ -170,6 +180,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // smaller body for a burning arrival. Counterplay: the fallen star is
   // fragile; keep fighters spread so the crater hits fewer of them.
   's3-riot-thermite-archangel': {
+    levelOneText: 'A big piercing finisher who cracks armored walls.',
     stats: { 3: { hp: -10 } },
     2: stage('Burns Through', [
       on('hit', damage(1, 'adjacentFoes'), damage(1, 'adjacentAllies')),
@@ -184,6 +195,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (wants a crowd of allies). Counterplay: thin
   // their board first; with fewer than two allies the parade fizzles.
   'firebreak-parade': {
+    levelOneText: 'A burst that breaks up a shoulder-to-shoulder line.',
     2: stage('Paint the Line Red', [on('enter', power(1, 'adjacentAllies'))]),
     3: stage('Grand Parade', [
       on('enter', when('crowd', damage(1, 'allFoes'))),
@@ -194,6 +206,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE. Each level hits harder and singes your own side.
   // Counterplay: crowd your fighters beside theirs; the stun lasts a strike.
   's1-no-witnesses': {
+    levelOneText: 'Cheap removal that clears a weak foe and its escort.',
     2: stage('Including Us', [
       on('enter', damage(2, 'target'), damage(1, 'adjacentAllies')),
     ]),
@@ -206,6 +219,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (a gamble that grows into a lottery ticket).
   // Counterplay: high-life fighters shrug off a 2-point jackpot.
   's1-chaos-firecracker': {
+    levelOneText: 'A one-drop sparkler that finishes off a hurt foe.',
     2: stage('Pink Surprise', [on('enter', chance(50, stun('target')))]),
     3: stage('Every Color at Once', [
       on('enter', chance(33, damage(2, 'allFoes'))),
@@ -217,6 +231,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: punish the chipped crew with splash; low-life allies may
   // not survive their own drill.
   's2-riot-friendly-fire-rehearsal': {
+    levelOneText: 'Heavy removal that clears a big foe and its flank.',
     2: stage('Live-Fire Drill', [
       on('enter', damage(1, 'adjacentAllies'), power(2, 'adjacentAllies')),
     ]),
@@ -230,6 +245,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER (a plain zap that becomes reach).
   // Counterplay: keep your boss healthy; its launch singes your neighbors.
   's2-riot-homemade-bottle-rocket': {
+    levelOneText: 'A straight zap that removes a fragile rival outright.',
     2: stage('Second Barrel', [
       on('enter', chance(50, damage(1, 'weakestFoe'))),
     ]),
@@ -243,6 +259,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: SITUATIONAL (anti-heavy at L3). Counterplay: crowd its
   // target's neighbors at L2; field cheap fighters against the special.
   's3-riot-low-budget-grenade': {
+    levelOneText: 'A one-drop squib that tidies up a wounded fighter.',
     2: stage('Extra Blood Pack', [
       on('enter', damage(1, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
@@ -255,6 +272,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED. L3 needs a fallen ally before it hits every foe.
   // Counterplay: avoid trading fighters early; with no fallen, no wave.
   's3-riot-wrong-side-of-blast': {
+    levelOneText: 'A late blast that cleans up a whole wounded corner.',
     2: stage('Blast Shadow', [on('enter', damage(2, 'weakestFoe'))]),
     3: stage('Already Bowed', [
       on('enter', when('allyFell', damage(2, 'allFoes'))),
@@ -265,6 +283,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (two coin flips, one of them against you).
   // Counterplay: keep your boss out of reach; their crew may burn itself.
   's3-riot-horrible-idea': {
+    levelOneText: 'A risky spark that may finish a chipped foe, or fizzle.',
     2: stage('Double Down', [on('enter', chance(50, damage(2, 'target')))]),
     3: stage('It Actually Worked', [
       on('enter', chance(50, boss(3)), chance(50, damage(1, 'allies'))),
@@ -275,6 +294,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT with a choice. Counterplay: kill the bomb where
   // its burst finds an empty alley; spread out against Press the Plunger.
   's3-riot-stolen-detonator': {
+    levelOneText: 'A detonator that wires one of your fighters to blow.',
     2: stage('Hot-Wired', [
       on('enter', damage(1, 'target'), power(3, 'target')),
     ]),
@@ -296,6 +316,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // street-wide burn). Counterplay: the ovation lasts one round; bringing
   // down the house burns their own crew too.
   's3-riot-final-benediction': {
+    levelOneText: "Riot's heaviest removal, for the one foe that must fall.",
     2: stage('Ember Overture', [
       on('enter', damage(2, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),
@@ -315,6 +336,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: STEADY (a cheap trap that widens). Counterplay: scan it;
   // its clap singes the trapper's own neighbors.
   's1-fuse-alley': {
+    levelOneText: 'A cheap fuse that defuses a rival bomb before it blows.',
     2: stage('Rumble Cue', [on('spring', chance(50, damage(3, 'target')))]),
     3: stage('Thunderclap', [
       on('spring', damage(2, 'adjacentFoes'), damage(1, 'adjacentAllies')),
@@ -325,6 +347,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER. Counterplay: scan it; its show burns both
   // crews, so a wide, healthy board takes it best.
   's2-riot-fusebox-fireworks': {
+    levelOneText: 'A powder trap that stalls a runner and spends its fuse.',
     2: stage('Chain Fuse', [on('spring', damage(1, 'adjacentFoes'))]),
     3: stage('Grand Footlight Show', [
       on('spring', damage(1, 'allFoes'), damage(1, 'allies')),
@@ -335,6 +358,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARLY BLOOMER (a sure control trap becomes a gamble).
   // Counterplay: scan it; the gamble misses half the time.
   's3-riot-fusewire': {
+    levelOneText: 'A one-drop wire that stalls the first raider a turn.',
     2: stage('Caught in Fishnet', [on('spring', stun('adjacentFoes'))]),
     3: stage('Hail of Sequins', [
       on('spring', chance(50, damage(3, 'allFoes'))),
@@ -345,6 +369,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER. Counterplay: scan it; the barrage scatters
   // at random, so many small fighters soak it.
   's3-riot-night-market-rocket': {
+    levelOneText: 'A hidden rocket that hits the first intruder hardest.',
     2: stage('Smoke Trail', [on('spring', boss(2))]),
     3: stage('Late Show Barrage', [
       on(
@@ -360,6 +385,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED (its second spring needs a second intruder).
   // Counterplay: scan it, or send a cheap runner in to spend each spring.
   's3-riot-confession-booth': {
+    levelOneText: 'A costly booth that stalls a heavy raider and burns it.',
     2: stage('Who Goes Backstage', [on('spring', stun('strongestFoe'))]),
     3: stage('Places, Please', [on('spring', rearm())]),
   },
@@ -370,6 +396,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // two ticking volunteers). Counterplay: fill the alleys beside the
   // wearer so the brigade has nowhere to stand.
   's1-volunteer-vest': {
+    levelOneText: 'A sash that turns any fighter into a walking bomb.',
     2: stage('Usher Captain', [], { aura: { n: 1, to: 'adjacentAllies' } }),
     3: stage('Whole House Volunteers', [
       on('death', summon('neighbors', 1, 1, ['volatile'])),
@@ -380,6 +407,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARNED ONE-SHOT. Counterplay: high-life or armored
   // blockers deny the knockout; stun the wearer before it lands one.
   's2-riot-last-stand-matchbook': {
+    levelOneText: 'A matchbook that makes the wearer too costly to kill.',
     2: stage('Torch Juggler', [on('hit', damage(1, 'adjacentFoes'))]),
     3: stage('Last Stand', [once('kill', damage(2, 'allFoes'))]),
   },
@@ -388,6 +416,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: EARLY BLOOMER (the shoes trade growth for tempo).
   // Counterplay: a strong foe across wins the extra lap; stun it first.
   's3-riot-charred-sneakers': {
+    levelOneText: 'Sneakers that give a fighter a permanent extra punch.',
     2: stage('Hot Feet', [on('enter', grant('ambush', 'self'))]),
     3: stage('Extra Lap', [on('enter', duel('across'))]),
   },
@@ -396,6 +425,7 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (it only pays when the wearer dies).
   // Counterplay: stun the wearer and leave it standing.
   's3-riot-posthumous-saint': {
+    levelOneText: 'A medal that makes a fallen fighter go out with a bang.',
     2: stage('Burning Ribbon', [
       on('death', damage(2, 'adjacentFoes'), damage(1, 'adjacentAllies')),
     ]),

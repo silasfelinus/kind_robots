@@ -1250,6 +1250,102 @@ const ironWorker = (lane: number, uid: number) =>
   assert.equal(at(sprung, 82)!.rooted, true)
 }
 
+// --- Undertow: thirty authored L1 jobs, four L3s that keep their L2 job.
+{
+  const cards = CARDS.filter((card) => card.team === 'undertow')
+  assert.equal(cards.length, 40)
+  assert.equal(cards.filter((card) => CLASH_TWISTS[card.id]).length, 10)
+  assert.equal(cards.filter((card) => CLASH_EVOLUTIONS[card.id]).length, 30)
+  const roles = new Set<string>()
+  for (const card of cards) {
+    const evo = CLASH_EVOLUTIONS[card.id]
+    if (!evo) continue
+    assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
+    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    roles.add(evo.levelOneText!)
+    for (const level of [1, 2, 3])
+      assert.ok(
+        clashCardText(card, level).length <= 160,
+        card.id + ' L' + level + ' must fit the card face',
+      )
+  }
+  assert.equal(roles.size, 30, 'shared native text gets distinct L1 roles')
+}
+const tideBoard = (units: ClashUnit[] = []): ClashState => {
+  const s = createClash('undertow', 'bloodfairies', 51724)
+  s.units = units
+  s.nextUid = 100
+  s.round = 3
+  s.phase = 'play'
+  s.plays.player = 0
+  return s
+}
+const tidePlay = (s: ClashState, id: string, lane = 2): ClashState => {
+  s.hands.player = [id]
+  s.levels.player[id] = 3
+  assert.ok(canClashPlay(s, 'player', id, lane), id + ' can be played')
+  return playClash(s, 'player', id, lane)
+}
+const tideFoe = (lane: number, uid: number, extra: Partial<ClashUnit> = {}) =>
+  fighter('enemy', lane, uid, { cardId: 'sprite', fresh: false, ...extra })
+
+// Needle Rain Agent: the L2 cloudburst still lands before the L3 lockdown.
+{
+  const s = tideBoard([tideFoe(1, 61), tideFoe(2, 62), tideFoe(3, 63)])
+  const after = tidePlay(s, 's3-undertow-needle-rain-agent')
+  for (const uid of [61, 62, 63])
+    assert.equal(at(after, uid)!.hp, at(s, uid)!.hp - 1, 'cloudburst chip')
+  assert.deepEqual(
+    tidePlay(structuredClone(s), 's3-undertow-needle-rain-agent'),
+    after,
+  )
+}
+
+// Basement Watchdog: off the leash at L3, its last bark still holds the door.
+// The duel goes badly against a brute across, and the dying bark roots it.
+{
+  const s = tideBoard([tideFoe(2, 64, { hp: 30, maxHp: 30, attack: 12 })])
+  const after = tidePlay(s, 's3-undertow-basement-watchdog', 2)
+  assert.equal(mine(after, 's3-undertow-basement-watchdog'), undefined)
+  assert.equal(at(after, 64)!.rooted, true, 'L3 keeps the Alarm Bark')
+  assert.deepEqual(
+    tidePlay(structuredClone(s), 's3-undertow-basement-watchdog', 2),
+    after,
+  )
+}
+
+// Periscope Lens keeps spotting for both neighbors at L3.
+{
+  const s = tideBoard([
+    fighter('player', 1, 65, { fresh: false }),
+    fighter('player', 2, 66, { fresh: false }),
+    fighter('player', 3, 67, { fresh: false }),
+  ])
+  const after = tidePlay(s, 's3-undertow-periscope-lens', 2)
+  for (const uid of [65, 67])
+    assert.equal(
+      clashPower(after, at(after, uid)!),
+      clashPower(s, at(s, uid)!) + 1,
+      'spotter aura survives L3',
+    )
+}
+
+// Tunnel Harpoon keeps its barbs: +2 power against a stunned foe at L3.
+{
+  const s = tideBoard([
+    fighter('player', 2, 68, { fresh: false, hp: 20, maxHp: 20 }),
+    tideFoe(2, 69, { hp: 30, maxHp: 30, attack: 1 }),
+  ])
+  const after = tidePlay(s, 's3-undertow-tunnel-harpoon', 2)
+  const pinned = structuredClone(after)
+  at(pinned, 69)!.rooted = true
+  assert.equal(
+    clashPower(pinned, at(pinned, 68)!),
+    clashPower(after, at(after, 68)!) + 2,
+    'barbs bite a stunned foe at L3',
+  )
+}
+
 // --- Evolution art: a level shows its painting once wired, else falls back.
 assert.equal(
   slimeCardArtId('splice-runner', 1),

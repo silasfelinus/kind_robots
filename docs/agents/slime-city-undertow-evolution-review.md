@@ -1,0 +1,55 @@
+# Undertow: individual 40-card CLASH evolution review
+
+Part of Conductor `slime-city/t-041`, following the Catgirls, Bloodfairies and Ironjaw editorial passes. Review is based on `utils/slimeCity/clashTwists.ts` (ten native arcs), `utils/slimeCity/evolutions/undertow.ts` (thirty DSL arcs), and actual Clash card state. Every ID is existing: no new cards, faction changes, account changes, art jobs, or production release.
+
+**Editorial choice:** Undertow wins by information, stuns, patience and precision. It never grows big bodies or swarms. An L3 keeps its L2 job whenever the arc's own comment or counterplay still describes that job; documented ROLE SHIFT and PRICE arcs are allowed to trade it away. Four disarm spells share the same native L1 text, so their authored L1 roles are deliberately distinct.
+
+| Card ID                              | Useful L1                       | L2 synergy                         | L3 payoff                                                  | Opponent's answer                       |
+| ------------------------------------ | ------------------------------- | ---------------------------------- | ---------------------------------------------------------- | --------------------------------------- |
+| `watcher`                            | Piercing lookout (native)       | Saps the rival across              | Pacifist sap across three alleys                           | Race its lane; it never strikes         |
+| `frogtrooper`                        | Snaring trooper (native)        | Bonus versus rooted defender       | Damaging strike stuns adjacent rivals                      | Spread out; armor the defender          |
+| `eel`                                | Piercing courier (native)       | Shocks a neighbor of a stunned foe | Shocks rivals in trapped alleys                            | Avoid trapped alleys                    |
+| `oracle`                             | Armored piercing snare (native) | Self shield each turn              | Shields itself and neighbors each turn                     | Burst through shields                   |
+| `blackout`                           | Single stun (native)            | Adds a neighbor and 1 damage       | Stuns three, damages target and neighbors                  | Spread threats                          |
+| `tripwire`                           | Hidden stun trap (native)       | Second trap next door              | Traps every empty neighbor                                 | Scan; fill neighbors                    |
+| `visor`                              | Grants PIERCE (native)          | Adds attack, disarms a trap        | Shares PIERCE, disarms both neighbors                      | Big life over armor                     |
+| `grate`                              | Wounding grate (native)         | Roots the intruder                 | Roots and splashes both neighbors                          | Scan; spread                            |
+| `sonar`                              | Disarms one trap (native)       | Disarms three alleys, draws        | Disarms all five, draws two                                | Play traps after it                     |
+| `drysuit`                            | Armor fitting (native)          | Blocks next root/snare             | Neighbors block next root/snare too                        | Damage, not control                     |
+| `pipe-seer`                          | Piercing lookout                | Draws on arrival                   | Choose oracle draw engine or 3-pierce shot                 | Race oracle's alley; armor the big foe  |
+| `snitch-grate`                       | Stalls first intruder           | Sprung: neighbors +1 power         | Sprung: 2 piercing to strongest foe                        | Scan; lead with a cheap runner          |
+| `s1-basement-ghost`                  | Fragile vent sniper             | Arrival chip on weakest            | Last breath stuns three facing foes                        | Leave it alive or kill it when spent    |
+| `s1-static-listener`                 | Cheap snaring listener          | Tap draws in an empty alley        | Draws more; saps three facing foes                         | Park a fighter across                   |
+| `s1-floodlight-sweep`                | Scouts one alley                | Stuns the target                   | Stuns target; crew +1 power now                            | Keep alleys empty of prey               |
+| `s1-wiretap-order`                   | Cheap stun                      | Draws on cast                      | Executes a wounded heavy at 4 life or less                 | Field cheap fighters                    |
+| `s1-blue-ink-deadfall`               | Stalls first raider             | Shields neighbors when sprung      | 1 piercing to all foes                                     | Scan; sturdy fighters shrug it          |
+| `s1-needle-wire`                     | Lets one fighter cut plating    | Install stuns the foe across       | Hit splashes adjacent foes                                 | Spread out; strike wearer first         |
+| `s2-undertow-drainpipe-interrogator` | Keeps its suspect from swinging | Saps foe across                    | Arrival stun; knockout stuns strongest                     | Armor the suspect                       |
+| `s2-undertow-subsurface-warden`      | Armored REGEN warden            | Shields neighbors each turn        | Pacifist jailer stuns across each round                    | Empty or decoy the alley; race its lane |
+| `s2-undertow-floodlight-leak`        | Opens an alley for a runner     | Open alley: 2 to boss              | After an ally falls: 4 to boss                             | Occupy its alley; avoid knockouts       |
+| `s2-undertow-backwater-iou`          | Heavy stun                      | Promotes a deck card, draws        | Stuns adjacent foes, promotes a hand card                  | Spread threats; force it early          |
+| `s2-undertow-culvert-tollwire`       | Stops a heavy raider            | Sprung: boss +2                    | Sprung: boss +2 and rearms once                            | Scan; spend it with two cheap runners   |
+| `s2-undertow-wiretap-spikes`         | Makes a snaring blocker         | Install draws                      | Adjacent allies gain SNARE                                 | Armor; kill neighbors first             |
+| `s3-undertow-drain-sniper`           | One-drop piercing sniper        | +2 power alone                     | Pacifist 2 piercing to strongest each turn                 | Rush its lane                           |
+| `s3-undertow-interrogation-eel`      | Snaring eel                     | Hit splashes neighbors             | Weaker body, 2 piercing to all foes                        | The eel left behind dies to a strike    |
+| `s3-undertow-quiet-listener`         | REGEN listener                  | Self shield each turn              | Trades shield for +1 power each turn Raid early with burst |
+| `s3-undertow-needle-rain-agent`      | Armored piercing snare          | Arrival chip on three facing foes  | **Keeps chip**; hit stuns adjacent foes                    | Spread out; pierce its armor            |
+| `s3-undertow-basement-watchdog`      | Armored guard dog               | Last breath stuns across           | Duels weakest; **keeps the last bark**                     | Keep weakest sturdy; flank wide         |
+| `s3-undertow-sewer-leviathan`        | Huge armored REGEN beast        | Arrival stuns across               | Choose tidal surge or deep-dweller shield                  | Kite it; nothing to surge at            |
+| `s3-undertow-weep-holes`             | Spoils a hidden trap            | Chip on three facing foes          | Stuns three facing foes                                    | Spread fighters out                     |
+| `s3-undertow-long-drain-sting`       | Long-reach stun                 | Pierces the weakest                | Keeps reach, also stuns strongest                          | A lone heavy is stunned once            |
+| `s3-undertow-reveal-the-ledger`      | Keeps the convoy moving         | Unstuns all allies                 | Choose hit list or boss heal                               | Keep weak fighters off; out-damage heal |
+| `s3-undertow-quiet-interdiction`     | Arms a lasting snare            | Target gains PIERCE                | Stuns the foe across                                       | Leave the alley across empty            |
+| `s3-undertow-citywide-blackmail`     | Costly single stun              | Boss +2                            | Stuns everyone, both sides; boss +3                        | Hold fighters back until after it       |
+| `s3-undertow-red-tape-sensor`        | Stalls first runner             | Sprung: splash neighbors           | Sprung: stun neighbors                                     | Scan; lone runner in an empty stretch   |
+| `s3-undertow-floodgate-clamp`        | Bites first intruder hard       | Bonus versus a heavy               | Sprung: 2 to three facing foes                             | Wider route; cheap runner first         |
+| `s3-undertow-anonymous-invoice`      | Hits first intruder hard        | Sprung: stun target                | Sprung: 3 to the rival boss                                | Scan; the runner walks on at L3         |
+| `s3-undertow-periscope-lens`         | Lets one fighter see armor      | Adjacent allies +1 power           | **Keeps spotter aura**; knockout fires 3 piercing          | Deny knockouts; spread out              |
+| `s3-undertow-tunnel-harpoon`         | Makes a snaring hunter          | +2 power vs stunned foes           | **Keeps barbs**; duels the strongest on install            | A stronger foe wins the duel            |
+
+## Source and verification status
+
+- Inventory: **40/40** Undertow IDs; ten native twists and thirty DSL arcs. All thirty authored L1 role lines are rendered by `clashCardText`, are distinct from each other, and fit the 160-character card face at every level.
+- Four L3 continuity repairs (bold above): Needle Rain Agent, Basement Watchdog, Periscope Lens and Tunnel Harpoon. In each case the arc's own design comment or counterplay still described the L2 job, but the L3 code had dropped it. Quiet Room Listener had the same contradiction, but keeping its shield pushed the CLASH crew spread past the 12-point acceptance bound (Catgirls 44.8% to 44.5%, with main already at exactly 12.0). Its comment now documents the trade instead.
+- The new fixtures in `utils/scripts/verifySlimeCityEvolutions.test.ts` run all four repaired cards on a real Clash board (arrival chip, lethal duel into the dying bark, aura power and the stunned-foe bonus), with deterministic replay where a command resolves. Each fixture fails against the previous definitions.
+- Not covered here: Riot, Exchange and shared Mercenaries editorial passes; constructed Solo/Alliance balance after these buffs; the dead two-slot cards tied to `t-051`; evolution art; human fun acceptance; and production deployment.

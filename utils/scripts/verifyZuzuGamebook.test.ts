@@ -1984,7 +1984,7 @@ assert.match(
   /const risk = locked \? null : fightCue\(store\.run, choice\)/,
   'open choice cards carry the fight cue',
 )
-assert.match(page, /hint: locked \?\? risk\?\.hint/)
+  assert.match(page, /hint: locked \\?\\? risk\\?\\.hint \\?\\? followup \\?\\? rest/)
 
 // t-007 chapter pacing. Acts run in book order: a way on stays in its act or
 // opens the next one. Act V's early arrivals at the altar skip Dustwater and

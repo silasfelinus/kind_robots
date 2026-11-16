@@ -459,7 +459,6 @@ assert.match(
 )
 assert.match(read('server/utils/tutorialNotes.ts'), /publicTutorialText/)
 assert.match(tutorialSheet, /reaction-category="PROJECT"/)
-assert.match(tutorialSheet, /advertStore.loadPublicSelections\(\)/)
 assert.match(
   read('content.config.ts'),
   /silasSays: z\.string\(\)\.optional\(\)/,

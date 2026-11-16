@@ -139,6 +139,13 @@ check('group rows never select the whole payload', () => {
   assert.match(source, /WHERE status = 'PENDING'/)
 })
 
+check('queue browser shows groups by default, and can still toggle them', () => {
+  const source = readFileSync('components/art/artjob-queue-browser.vue', 'utf8')
+  assert.match(source, /const groupsOpen = ref\(true\)/)
+  assert.match(source, /@click="groupsOpen = !groupsOpen"/)
+  assert.match(source, /<artjob-queue-groups v-if="groupsOpen" \/>/)
+})
+
 if (failures.length) {
   console.error(failures.join('\n'))
   process.exit(1)

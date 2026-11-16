@@ -57,6 +57,23 @@ export function itemInfo(item: string): ItemInfo {
   )
 }
 
+/** Keep the action on the card; the second sentence belongs in the hint
+ * or the accessible detail, not beneath the title's three-line clamp. */
+export function splitCardLabel(label: string): {
+  title: string
+  note?: string
+  followup?: string
+} {
+  const rules = /^(.+?)\s*\(([^()]+)\)\s*$/.exec(label)
+  const action = rules?.[1] ?? label
+  const end = action.indexOf('. ')
+  return {
+    title: end < 0 ? action : action.slice(0, end + 1),
+    note: rules?.[2],
+    followup: end < 0 ? undefined : action.slice(end + 2),
+  }
+}
+
 const ATTRIBUTE_NAMES = {
   steel: 'Steel',
   sense: 'Sense',

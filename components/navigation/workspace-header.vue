@@ -55,26 +55,18 @@
       </div>
 
       <!-- The page bar's teleport target must stay mounted even while hidden.
-           Pages with a custom action bar still dock below the header on small
-           screens and into the main row at xl. No duplicate room/tagline. -->
+           Keep the HUD in its own row until 2xl, where there is room for
+           the channel picker and all utility controls. -->
       <div
         v-show="hasPageBar"
         data-kr-page-row
-        class="order-last flex min-w-0 basis-full items-center border-t border-base-300 pt-1.5 xl:contents"
+        class="order-last flex min-w-0 basis-full items-center border-t border-base-300 pt-1.5 2xl:contents"
       >
         <div
           id="kr-header-page-bar"
           class="@container flex min-w-0 flex-1 items-center"
         />
       </div>
-
-      <p
-        v-if="greeting"
-        class="kr-text-black-lg hidden min-w-0 flex-1 truncate text-right text-base-content/80 xl:block xl:text-xl"
-        :title="greeting"
-      >
-        {{ greeting }}
-      </p>
 
       <account-hub class="header-account shrink-0" />
 
@@ -496,26 +488,6 @@ watch(
     if (open && pageKey) tutorialStore.markPageSeen(pageKey)
   },
   { immediate: true },
-)
-
-/*
- * The brand, and then whatever this particular page has to say for itself.
- *
- * `tabMessage` is the authored, page-specific line and wins where it exists.
- * Everything after it is a fallback so the stretch is never empty: a tab's own
- * subtitle, then the page's. `activeTabConfig` resolves to fallbackTab (built
- * from pageStore) on routes outside any channel, so this holds there too.
- */
-/**
- * "Welcome <username>", or nothing at all.
- *
- * Nothing for a signed-out visitor: userStore.username falls back to the
- * literal "Kind Guest" so that everyone has a name for attribution purposes,
- * and greeting a stranger by a placeholder reads worse than not greeting them.
- * `isLoggedIn` is the check that distinguishes the two.
- */
-const greeting = computed(() =>
-  userStore.isLoggedIn ? `Welcome ${userStore.username}` : '',
 )
 
 watch(

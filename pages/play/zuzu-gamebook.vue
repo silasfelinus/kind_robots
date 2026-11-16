@@ -1089,6 +1089,7 @@ import {
   itemInfo,
   moveTerms,
   noteBeyondRoll,
+  splitCardLabel,
 } from '~/utils/zuzuGamebook/terms'
 import type { Attribute, Choice } from '~/utils/zuzuGamebook/types'
 import { useZuzuGamebookStore } from '~/stores/zuzuGamebookStore'
@@ -1357,19 +1358,19 @@ function destinationPlate(choice: Choice): string | null {
     return null
   }
 }
-function splitRules(label: string): { title: string; note?: string } {
-  const match = /^(.+?)\s*\(([^()]+)\)\s*$/.exec(label)
-  return match?.[1] ? { title: match[1], note: match[2] } : { title: label }
-}
 const handChoices = computed<KrHandChoice[]>(() =>
   choices.value.map((choice, index) => {
-    const { title, note } = splitRules(choice.label)
+    const { title, note, followup } = splitCardLabel(choice.label)
     const check = choice.check
     const locked = lockReason(store.run, choice)
     const risk = locked ? null : fightCue(store.run, choice)
     // Dice odds, Resolve, items and healing read on the card itself, not only in its caption.
     const terms = choiceTerms(store.run, choice, note)
-    const details = [...terms.details, ...(risk?.details ?? [])]
+    const details = [
+      ...terms.details,
+      ...(followup && (locked || risk?.hint) ? [followup] : []),
+      ...(risk?.details ?? []),
+    ]
     // The note less the roll the chip already quotes with its odds; what a
     // failure costs reads on the card's bottom line when that line is free.
     const rest = noteBeyondRoll(note, check)
@@ -1382,7 +1383,7 @@ const handChoices = computed<KrHandChoice[]>(() =>
           .filter(Boolean)
           .join(' · ') || undefined,
       shortcut: index < 9 ? String(index + 1) : undefined,
-      hint: locked ?? risk?.hint ?? rest,
+      hint: locked ?? risk?.hint ?? followup ?? rest,
       details: details.length ? details : undefined,
       disabled: !!locked,
       image: destinationPlate(choice),
@@ -1762,6 +1763,9 @@ useHead({ title: 'Zuzu: Koala Assassin · The Bell That Never Rang' })
   --hand-band-ink: #f5ead2;
   --hand-card-max: 8.5rem;
   --hand-text-scale: 1.1;
+}
+.zuzu-hand :deep(.krh-title strong) {
+  -webkit-line-clamp: 4;
 }
 .zuzu-hand :deep(.krh-title strong),
 .zuzu-hand :deep(.krh-detail strong) {

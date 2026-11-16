@@ -36,6 +36,7 @@ import {
   ITEM_INFO,
   moveTerms,
   noteBeyondRoll,
+  splitCardLabel,
 } from '../zuzuGamebook/terms'
 import { emphasis } from '../zuzuGamebook/prose'
 import { CH } from '../zuzuGamebook/sections'
@@ -66,6 +67,13 @@ import {
 } from '../zuzuGamebook/adventure'
 import type { Attribute, Choice } from '../zuzuGamebook/types'
 
+const headerMarkup = readFileSync(
+  'components/navigation/workspace-header.vue',
+  'utf8',
+)
+assert.doesNotMatch(headerMarkup, /v-if="greeting"/)
+assert.match(headerMarkup, /2xl:contents/)
+
 // At the opening waterhole, a failed roll can force an 8-HP crocodile fight.
 // Warn before the player commits; the existing safe retreat must stay reachable.
 const crossingChoices = scene('the-crossing').choices ?? []
@@ -74,6 +82,21 @@ assert.deepEqual(
   ['approach', 'stare', 'listen', 'avoid', 'stones'],
 )
 assert.equal(crossingChoices[4]!.to, 'a1-black-stones')
+assert.deepEqual(splitCardLabel(crossingChoices[0]!.label), {
+  title: 'Approach the stranger.',
+  note: undefined,
+  followup: 'Offer the last of your water.',
+})
+assert.deepEqual(splitCardLabel(crossingChoices[2]!.label), {
+  title: 'Study the ripples before you step closer.',
+  note: 'Sense · 9',
+  followup: 'Failure draws the crocodile into a fight.',
+})
+assert.deepEqual(splitCardLabel('Retreat (Sense · 9)'), {
+  title: 'Retreat',
+  note: 'Sense · 9',
+  followup: undefined,
+})
 assert.match(
   crossingChoices[2]!.label,
   /Failure draws the crocodile into a fight/,
@@ -2540,7 +2563,7 @@ assert.match(page, /:src="shownPlate\(entry\.art\)"/)
     page,
     /\[\.\.\.terms\.chip, shownHint \? rest : null, risk\?\.chip\]/,
   )
-  assert.match(page, /hint: locked \?\? risk\?\.hint \?\? rest/)
+  assert.match(page, /hint: locked \?\? risk\?\.hint \?\? followup \?\? rest/)
 
   // Chips wrap between their parts on a narrow card (shared hand).
   const hand = readFileSync(

@@ -7,8 +7,8 @@
 
   A page that owns its own title, view tabs or HUD wraps them in this component
   instead of rendering a second persistent header above its stage. The content
-  is teleported into workspace-header's page-bar row: below xl it is a second
-  row inside the same header card, under the icons; at xl it joins the icon
+  is teleported into workspace-header's page-bar row: below 2xl it is a second
+  row inside the same header card, under the icons; at 2xl it joins the icon
   row. The page keeps its own markup, handlers and scoped styles.
 
   CONSOLE THEME. Silas, same day: "the top header still feels out of place.

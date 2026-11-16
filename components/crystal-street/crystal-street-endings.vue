@@ -70,8 +70,8 @@
       <div class="kr-toolbar px-3 pt-3">
         <h3 class="cs-display text-lg">Every ending</h3>
         <span class="ml-auto text-xs opacity-75"
-          >{{ villainEndings(store.scrapbook.endings).length }}/{{
-            VILLAINS.length * ENDING_TIERS.length
+          >{{ nightmareProgress.discovered.length }}/{{
+            nightmareProgress.total
           }}
           found</span
         >
@@ -253,6 +253,16 @@ function openVillain(id: string): void {
   wall.value = false
 }
 const foundCount = computed(() => foundTiers.value.length)
+// Nightmare endings only (the wall), grounded in the catalog so stale or
+// duplicate save keys can't inflate the count.
+const nightmareProgress = computed(() =>
+  discoveryProgress(
+    VILLAINS.flatMap((v) =>
+      ENDING_TIERS.map((tier) => ({ id: endingKey(v.id, tier) })),
+    ),
+    store.scrapbook.endings,
+  ),
+)
 const endingProgress = computed(() =>
   discoveryProgress(
     ENDING_KEYS.map((id) => ({ id })),

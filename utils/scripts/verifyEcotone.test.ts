@@ -80,6 +80,7 @@ import {
 } from '../ecotone/engine'
 import { philosophyNeedles, VALUE_AXES } from '../ecotone/valueNeedles'
 import { QUEST_CARDS } from '../ecotone/questExpansion'
+import { MYSTERY_CARDS } from '../ecotone/mysteries'
 import {
   SUBSTANCE_CHOICES,
   momentPerspective,
@@ -1937,13 +1938,18 @@ assert.equal(slots.cards.length, BEATS.length + ENCOUNTERS.length)
 assert.equal(slots.endings.length, ENDING_IDS.length)
 const allSlots = [...slots.cards, ...slots.outcomes, ...slots.endings]
 assert.equal(new Set(allSlots).size, allSlots.length, 'slots are unique')
+// Mystery case cards (MY-NN-*) are drawn by cardArtKey(card.id) like any
+// other card, so their exported renders are known pictures too.
+const mysteryCardArt = MYSTERY_CARDS.map((card) => cardArtKey(card.id))
 assert.ok(slots.outcomes.includes(outcomeArtKey('KN-5', 'pedal', 'failure')))
 assert.ok(slots.cards.includes(cardArtKey('KN-7')))
 assert.equal(endingArtKey('mara.sober.hope'), 'endings/mara-sober-hope')
 for (const [style, renders] of Object.entries(STYLE_RENDERS))
   for (const asset of renders ?? [])
     assert.ok(
-      allSlots.includes(asset) || ECOTONE_ART.includes(asset),
+      allSlots.includes(asset) ||
+        ECOTONE_ART.includes(asset) ||
+        mysteryCardArt.includes(asset),
       `${style} ${asset} is a known picture`,
     )
 for (const entry of racer.log.filter((e) => e.source.startsWith('KN-')))

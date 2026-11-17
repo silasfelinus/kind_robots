@@ -14,11 +14,13 @@ sort: 62
 tutorial:
   title: K8 Wildlife Portfolio
   body: >-
-    The animal selector belongs to the Critical Mass trading application,
-    which has its own sign-in and fund-scoped account access. A numbered
-    animal previews trading aggressiveness. Changing live settings takes
-    a separate confirmation. The dashboard distinguishes a tracked fund
-    position from the full exchange account balance.
+    Use the numbered animal slider to preview Critical Mass risk levels
+    without changing the engine. The Kind Robots panel reads the private
+    fund snapshot through an authorized server-to-server bridge. K8 may
+    edit animal profiles and explicitly confirm an application; administrators
+    have read-only access. Saving a profile never starts the engine. Level
+    zero stops the engine but does not sell positions or cancel orders.
+    Estimated fund equity is not the exchange account balance.
 ---
 
 Private access to the K8 Wildlife portfolio.

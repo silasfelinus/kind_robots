@@ -168,8 +168,7 @@ assert.deepEqual(
   [thirdArmHard.info.width, thirdArmHard.info.height],
 )
 const relativeIndex = (x: number, y: number) =>
-  (y - thirdArm.crop.y) * thirdArmSoft.info.width +
-  (x - thirdArm.crop.x)
+  (y - thirdArm.crop.y) * thirdArmSoft.info.width + (x - thirdArm.crop.x)
 const oldPen = relativeIndex(250, 425)
 const newArm = relativeIndex(460, 785)
 assert.equal(thirdArmHard.data[oldPen], 255)

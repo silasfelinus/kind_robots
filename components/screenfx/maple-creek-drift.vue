@@ -13,6 +13,10 @@ const SHOWER_LEAVES = 14
 const TWO_PI = Math.PI * 2
 const LEAF_COLORS = ['#e8572a', '#f2a23a', '#c9302c', '#f6c945', '#b5541c']
 
+function leafColor(index: number): string {
+  return LEAF_COLORS[index % LEAF_COLORS.length] ?? '#e8572a'
+}
+
 let context: CanvasRenderingContext2D | null = null
 let resizeObserver: ResizeObserver | null = null
 let motionQuery: MediaQueryList | null = null
@@ -129,7 +133,7 @@ function drawBackdrop(): void {
   for (let i = 0; i < litter; i += 1) {
     const x = hash(i * 1.7) * width
     const y = height * (0.4 + hash(i * 2.9) * 0.6)
-    context.fillStyle = LEAF_COLORS[i % LEAF_COLORS.length]
+    context.fillStyle = leafColor(i)
     context.globalAlpha = 0.35 + hash(i * 6.1) * 0.3
     context.beginPath()
     context.ellipse(
@@ -242,7 +246,7 @@ function drawCanopy(): void {
     const x = hash(i * 2.2) * width
     const y = hash(i * 3.6) * height * 0.24
     const sway = Math.sin(clock * 0.9 + i) * 2
-    context.fillStyle = LEAF_COLORS[i % LEAF_COLORS.length]
+    context.fillStyle = leafColor(i)
     context.globalAlpha = 0.85
     drawLeafShape(x + sway, y, 7 + hash(i * 5.5) * 7, hash(i * 7.1) * TWO_PI)
   }
@@ -361,7 +365,7 @@ function drawLeaf(state: LeafState, size: number, colorIndex: number): void {
     )
     context.fill()
   }
-  context.fillStyle = LEAF_COLORS[colorIndex % LEAF_COLORS.length]
+  context.fillStyle = leafColor(colorIndex)
   drawLeafShape(state.x, state.y, size, state.angle)
 }
 

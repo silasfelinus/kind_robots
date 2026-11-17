@@ -217,12 +217,12 @@ const sceneMoments: KitMoment[] = [
   ),
   m(
     'goblin-snare',
-    'Goblin in a Snare',
+    'Snag in a Snare',
     'Snag swears in three languages, then goes very quiet.',
     'scene',
     1,
     ['snag'],
-    'A skinny young goblin hangs upside down by one ankle from a rope snare in a crypt, coins dropping from his pockets, as an adventurer with a knife steps closer. Medium shot.',
+    'A small anthropomorphic raccoon with a black eye mask hangs upside down by one ankle from a rope snare in a crypt, coins dropping from his pockets, as an adventurer with a knife steps closer. Medium shot.',
   ),
   m(
     'drowned-crown',

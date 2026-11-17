@@ -1247,24 +1247,48 @@
           >
             <div class="relative aspect-[4/3] overflow-hidden rounded-2xl">
               <EcotoneScene
+                v-if="guideRevealed(companion.id)"
                 kind="grove"
                 :art="companion.art"
                 :label="`${companion.name}, ${companion.role}`"
                 portrait
                 class="absolute inset-0"
               />
+              <div
+                v-else
+                class="absolute inset-0 grid place-items-center bg-gradient-to-b from-[#0f2230] to-black/60"
+                role="img"
+                :aria-label="'A guide you have not met yet'"
+                :data-testid="`guide-silhouette-${companion.id}`"
+              >
+                <span
+                  class="font-serif text-6xl font-black text-white/15"
+                  aria-hidden="true"
+                  >?</span
+                >
+              </div>
             </div>
             <div class="flex items-center gap-3">
               <EcotoneEmblem
+                v-if="guideRevealed(companion.id)"
                 :id="companion.id"
                 :name="companion.name"
                 class="size-14 shrink-0"
               />
               <div class="min-w-0">
                 <h3 class="font-serif text-xl font-black">
-                  {{ companion.name }}
+                  {{
+                    guideRevealed(companion.id)
+                      ? companion.name
+                      : 'A guide not yet met'
+                  }}
                 </h3>
-                <p class="text-xs text-white/70">{{ companion.role }}</p>
+                <p
+                  v-if="guideRevealed(companion.id)"
+                  class="text-xs text-white/70"
+                >
+                  {{ companion.role }}
+                </p>
                 <p
                   class="text-[11px] font-bold uppercase tracking-wider text-[#d9b877]"
                 >
@@ -1272,9 +1296,15 @@
                 </p>
               </div>
             </div>
-            <p class="text-sm text-white/85">{{ companion.bio }}</p>
-            <p class="font-serif text-sm italic text-white/75">
-              {{ companion.line }}
+            <template v-if="guideRevealed(companion.id)">
+              <p class="text-sm text-white/85">{{ companion.bio }}</p>
+              <p class="font-serif text-sm italic text-white/75">
+                {{ companion.line }}
+              </p>
+            </template>
+            <p v-else class="text-sm italic text-white/60">
+              You haven't crossed paths yet. Their story opens when you meet
+              them on the road.
             </p>
             <p
               v-if="bondCount(companion.id) > 0"
@@ -1283,7 +1313,10 @@
             >
               {{ bondLabel(companion.id) }}
             </p>
-            <p class="mt-auto text-xs text-white/60">
+            <p
+              v-if="guideRevealed(companion.id)"
+              class="mt-auto text-xs text-white/60"
+            >
               First met at {{ companion.meetAt }}. Helps with
               {{ skillLabel(LEAD_BONUS[companion.id]) }} (+1).
             </p>
@@ -2215,6 +2248,7 @@ import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
 import { endingDossier, endingFateLabel } from '~/utils/ecotone/endingDossier'
 import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
 import { chosenFamilyEnding } from '~/utils/ecotone/chosenFamily'
+import { revealedGuides } from '~/utils/ecotone/guideReveal'
 import {
   companionBondCounts,
   companionBondTier,
@@ -2755,6 +2789,14 @@ function bondLabel(id: CompanionId) {
   const n = bondCount(id)
   const memories = n === 1 ? '1 shared memory' : `${n} shared memories`
   return `${companionBondTier(n)} · ${memories}`
+}
+
+const revealedGuideIds = computed(() =>
+  revealedGuides(game.run?.meetingOrder, game.endings),
+)
+
+function guideRevealed(id: CompanionId) {
+  return revealedGuideIds.value.has(id)
 }
 
 function guideStatus(id: CompanionId) {

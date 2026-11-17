@@ -35,6 +35,7 @@ import {
   DEEPHEART_STYLE_DESIGNER,
   DEEPHEART_STYLE_LANES,
   DEEPHEART_STYLE_SUBJECTS,
+  deepheartStyleLaneFromRequest,
 } from '../deepheart/styleCheck'
 import type { EndingId, HeroSetup, Room, RunState } from '../deepheart/types'
 import { auditPlaybookKit } from '../playbookKit/budget'
@@ -445,6 +446,18 @@ assert.equal(
   7,
 )
 assert.ok(DEEPHEART_STYLE_DESIGNER.startsWith('Deepheart Anthro Style Trial'))
+assert.equal(
+  deepheartStyleLaneFromRequest('conductor:ledger:deepheart@krea2=abc', ''),
+  'krea2',
+)
+assert.equal(
+  deepheartStyleLaneFromRequest('conductor:ledger:deepheart@arthemy=abc', ''),
+  'arthemy',
+)
+assert.equal(
+  deepheartStyleLaneFromRequest('', 'Illustrious/furrytoonmix_xlV3.safetensors'),
+  'furrytoon',
+)
 assert.match(
   readFileSync('components/deepheart/deepheart-title.vue', 'utf8'),
   /user\.isAdmin && user\.showMature/,

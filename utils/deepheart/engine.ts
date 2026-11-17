@@ -744,6 +744,42 @@ function checkCombatEnd(run: RunState): boolean {
   return true
 }
 
+/** A voluntary nonviolent escape from an ordinary encounter.
+ * Failure costs health, and the one attempt is recorded in the run save.
+ * Bosses still demand their authored resolution.
+ */
+export function attemptParley(run: RunState) {
+  const combat = run.combat
+  if (
+    run.phase !== 'fight' ||
+    !combat ||
+    combat.parleyTried ||
+    combat.boss
+  )
+    return
+  combat.parleyTried = true
+  const dc = 12 + run.layer * 2 + Math.max(0, combat.enemies.length - 1) * 2
+  const roll = rollAbilityCheck(run, 'wit', dc)
+  if (roll.success) {
+    run.mercy += 1
+    run.flags.parley = true
+    note(
+      run,
+      'good',
+      `d20 ${roll.die} + ${roll.modifier} = ${roll.total} vs ${dc}. You settle the dispute and leave the passage peacefully.`,
+    )
+    run.combat = null
+    finishRoom(run)
+  } else {
+    hurtAll(run, 0.08)
+    note(
+      run,
+      'bad',
+      `d20 ${roll.die} + ${roll.modifier} = ${roll.total} vs ${dc}. Your appeal is rejected. The crowd presses closer.`,
+    )
+  }
+}
+
 /** A sensible move for the current actor: what Auto plays and what the tests use. */
 export function autoAction(run: RunState): CombatAction {
   const member = currentActor(run)!

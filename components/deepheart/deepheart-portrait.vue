@@ -20,9 +20,7 @@
     </div>
     <figcaption v-if="caption" class="dh-portrait-caption">
       <span class="dh-portrait-name">{{ displayName }}</span>
-      <span class="dh-portrait-sub"
-        >{{ role.label }}</span
-      >
+      <span class="dh-portrait-sub">{{ role.label }}</span>
     </figcaption>
     <span v-if="badge" class="dh-portrait-badge">{{ badge }}</span>
   </figure>

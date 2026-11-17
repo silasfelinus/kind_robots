@@ -79,9 +79,7 @@
           <h2 class="pf-display text-xl leading-tight text-primary">
             {{ focused.name }}
           </h2>
-          <p class="text-sm opacity-80">
-            {{ role.label }} · {{ pronoun }}
-          </p>
+          <p class="text-sm opacity-80">{{ role.label }} · {{ pronoun }}</p>
           <p class="pk-prose mt-1 text-sm">{{ focused.blurb }}</p>
         </div>
       </div>

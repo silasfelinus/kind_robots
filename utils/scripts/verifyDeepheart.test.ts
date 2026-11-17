@@ -29,6 +29,7 @@ import {
   scoreParty,
   startingPartners,
 } from '../deepheart/party'
+import { ANTHRO_BLURB, ANTHRO_LOOK } from '../deepheart/anthro'
 import { CHARACTERS, ROLES, SUPPORTS, character } from '../deepheart/roster'
 import type { EndingId, HeroSetup, Room, RunState } from '../deepheart/types'
 import { auditPlaybookKit } from '../playbookKit/budget'
@@ -51,6 +52,11 @@ const hero = (presetId: string, extra: Partial<HeroSetup> = {}): HeroSetup => {
 
 // ── Roster ───────────────────────────────────────────────────────────────
 assert.equal(CHARACTERS.length, 50, 'fifty presets')
+assert.equal(Object.keys(ANTHRO_LOOK).length, 50, 'fifty painted anthro designs')
+assert.equal(Object.keys(ANTHRO_BLURB).length, 50, 'fifty species-free blurbs')
+assert.ok(CHARACTERS.every((c) => c.look.startsWith('Anthropomorphic ')))
+assert.ok(CHARACTERS.every((c) => c.blurb === ANTHRO_BLURB[c.id]))
+assert.ok(CHARACTERS.every((c) => !/\\b(orc|dwarf|elf|gnome|halfling|tiefling|human|faun|lizardfolk|mothkin|goblin)\\b/i.test(c.blurb)))
 assert.equal(new Set(CHARACTERS.map((c) => c.id)).size, 50, 'unique ids')
 for (const c of CHARACTERS) {
   assert.ok(ROLES[c.role], `${c.id} has a real role`)

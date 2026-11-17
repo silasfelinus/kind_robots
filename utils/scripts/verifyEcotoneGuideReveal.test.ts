@@ -30,7 +30,7 @@ assert.equal(
 assert.equal(revealedGuides(['nobody'], ['stranger.sober.hope']).size, 0)
 
 // A fresh run with no meetings yet keeps every guide hidden until met.
-const run = createRun(7)
+const run = createRun(7, 'reporter')
 for (const id of run.meetingOrder)
   assert.ok(revealedGuides(run.meetingOrder, []).has(id))
 assert.equal(

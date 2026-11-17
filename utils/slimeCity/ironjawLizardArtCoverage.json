@@ -448,5 +448,174 @@
         }
       ]
     }
+  ],
+  "storyRounds": [
+    {
+      "source": "conductor/projects/slime-city/art/IRONJAW-LIZARDS-STORY-ROUND-1.yaml",
+      "note": "2026-11-17 PT (slime-city/t-044): all 23 story plates fetched through the authenticated image endpoint and reviewed on contact sheets. keep entries replace their ogre-era id at the exact SLIME_CITY_ART.story slot; redo entries keep the old plate until a re-render passes review.",
+      "entries": [
+        {
+          "slot": "ironjaw/opening",
+          "imageId": 274142,
+          "replacesImageId": 260637,
+          "verdict": "keep",
+          "reason": "cobalt tegu Rivet on the silent press, broken padlock, lizard strike-vote crowd; no lettering"
+        },
+        {
+          "slot": "ironjaw/1/cunning",
+          "imageId": 274145,
+          "replacesImageId": 260000,
+          "verdict": "keep",
+          "reason": "hard-hat lizards board the gold payroll wagon on the iron bridge; canisters roll free; no lettering"
+        },
+        {
+          "slot": "ironjaw/1/defeat",
+          "imageId": 274146,
+          "replacesImageId": 260001,
+          "verdict": "keep",
+          "reason": "paymaster wheels the canister cart out the gate past slumped lizard workers; blank wall plaque only"
+        },
+        {
+          "slot": "ironjaw/2/scene",
+          "imageId": 274147,
+          "replacesImageId": 260002,
+          "verdict": "keep",
+          "reason": "frog divers slip through the drain grate under a tick-mark shift-clock; lizard workers in overalls; no numerals or lettering"
+        },
+        {
+          "slot": "ironjaw/2/defeat",
+          "imageId": 274150,
+          "replacesImageId": 260005,
+          "verdict": "keep",
+          "reason": "goggled frog divers carry crates into the dark archive while lizards peer through the grate; no lettering"
+        },
+        {
+          "slot": "ironjaw/3/scene",
+          "imageId": 274151,
+          "replacesImageId": 260006,
+          "verdict": "keep",
+          "reason": "sequinned Anarkiss performers on the catwalk beside the glass office and furnace wheel; no lettering"
+        },
+        {
+          "slot": "ironjaw/3/conviction",
+          "imageId": 274152,
+          "replacesImageId": 260007,
+          "verdict": "keep",
+          "reason": "welding-masked lizards heave the red furnace wheels clear as the office roof blows; no lettering"
+        },
+        {
+          "slot": "ironjaw/3/cunning",
+          "imageId": 274153,
+          "replacesImageId": 262260,
+          "verdict": "keep",
+          "reason": "showgirl in black lace and lizard welders cheer the pink-gold blast; no lettering"
+        },
+        {
+          "slot": "ironjaw/3/defeat",
+          "imageId": 274154,
+          "replacesImageId": 260009,
+          "verdict": "keep",
+          "reason": "lizard workers retreat across the smoky yard from the runaway furnace; everyone safe"
+        },
+        {
+          "slot": "ironjaw/4/scene",
+          "imageId": 274155,
+          "replacesImageId": 260010,
+          "verdict": "keep",
+          "reason": "catgirl technicians raise the green serum vial before clone tanks beside lizard workers"
+        },
+        {
+          "slot": "ironjaw/4/conviction",
+          "imageId": 274156,
+          "replacesImageId": 260011,
+          "verdict": "keep",
+          "reason": "catgirls and lizards share a workbench vote with serum vials; blank wall papers"
+        },
+        {
+          "slot": "ironjaw/4/cunning",
+          "imageId": 274157,
+          "replacesImageId": 262261,
+          "verdict": "keep",
+          "reason": "lizard and catgirl sprint the scanner down a steam corridor under red alarm lamps"
+        },
+        {
+          "slot": "ironjaw/4/defeat",
+          "imageId": 274158,
+          "replacesImageId": 260013,
+          "verdict": "keep",
+          "reason": "white-coat porters load glowing tanks into a blank black truck; lizards and a catgirl behind the fence"
+        },
+        {
+          "slot": "ironjaw/5/scene",
+          "imageId": 274159,
+          "replacesImageId": 262262,
+          "verdict": "keep",
+          "reason": "punk fairy choir in the rafters over frozen lizard workers at the silent line"
+        },
+        {
+          "slot": "ironjaw/5/conviction",
+          "imageId": 274160,
+          "replacesImageId": 262263,
+          "verdict": "keep",
+          "reason": "lizard welder lifts a punk fairy to her shoulder in the warm foundry; no lettering"
+        },
+        {
+          "slot": "ironjaw/5/cunning",
+          "imageId": 274161,
+          "replacesImageId": 262264,
+          "verdict": "keep",
+          "reason": "hard-hat lizards climb the generator scaffold as fairies scatter; no lettering"
+        },
+        {
+          "slot": "ironjaw/5/defeat",
+          "imageId": 274162,
+          "replacesImageId": 262265,
+          "verdict": "keep",
+          "reason": "fairies flee the broken skylight while pinstriped owners retake the control panel; lizards silent"
+        },
+        {
+          "slot": "ironjaw/ending-triumph",
+          "imageId": 274163,
+          "replacesImageId": 260082,
+          "verdict": "keep",
+          "reason": "chromatic lizard crowd unveils the hands-only brass clock and bell at a dawn gate; no numerals"
+        },
+        {
+          "slot": "ironjaw/ending-compromise",
+          "imageId": 274164,
+          "replacesImageId": 260083,
+          "verdict": "keep",
+          "reason": "cobalt Rivet slides blank deed pages to the lizard crew; owner lingers in the doorway; scribble-only wall notes"
+        },
+        {
+          "slot": "ironjaw/1/scene",
+          "imageId": 274143,
+          "replacesImageId": 262257,
+          "verdict": "redo",
+          "reason": "lettered COMPANY STORE sign and shelf signage; human armored guards"
+        },
+        {
+          "slot": "ironjaw/1/conviction",
+          "imageId": 274144,
+          "replacesImageId": 262258,
+          "verdict": "redo",
+          "reason": "strike ring is mostly human workers instead of lizards"
+        },
+        {
+          "slot": "ironjaw/2/conviction",
+          "imageId": 274148,
+          "replacesImageId": 260003,
+          "verdict": "redo",
+          "reason": "roman numerals on the shift-clock face; workers read as toads"
+        },
+        {
+          "slot": "ironjaw/2/cunning",
+          "imageId": 274149,
+          "replacesImageId": 262259,
+          "verdict": "redo",
+          "reason": "arabic numerals on the clock face; workers read as toads"
+        }
+      ]
+    }
   ]
 }

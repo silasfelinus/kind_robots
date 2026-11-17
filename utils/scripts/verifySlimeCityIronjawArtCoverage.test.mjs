@@ -123,3 +123,41 @@ test('Ironjaw lizard redo rounds wire only reviewed keepers at their exact slot'
     }
   }
 })
+
+test('Ironjaw lizard story rounds replace ogre-era plates only with reviewed keepers', () => {
+  const rounds = coverage.storyRounds ?? []
+  assert.ok(rounds.length >= 1)
+  const storySection = manifest.match(/\bstory:\s*\{([\s\S]*?)\n\s*\}/)?.[1]
+  assert.ok(storySection, 'artManifest.ts must expose a story mapping')
+  const storyIds = new Map(
+    [...storySection.matchAll(/'([^']+)'\s*:\s*(\d+)\s*,/g)].map((match) => [
+      match[1],
+      Number(match[2]),
+    ]),
+  )
+  for (const round of rounds) {
+    assert.ok(round.source && round.note)
+    assert.equal(
+      new Set(round.entries.map((entry) => entry.slot)).size,
+      round.entries.length,
+    )
+    for (const entry of round.entries) {
+      assert.ok(['keep', 'redo'].includes(entry.verdict), entry.slot)
+      assert.ok(entry.reason, entry.slot + ' needs a review reason')
+      assert.ok(storyIds.has(entry.slot), entry.slot + ' must be a story slot')
+      const wired = storyIds.get(entry.slot)
+      if (entry.verdict === 'keep') {
+        assert.equal(wired, entry.imageId, entry.slot + ' keeper must be wired')
+        assert.ok(
+          !manifest.includes(': ' + entry.replacesImageId + ','),
+          entry.slot + ' must not still ship ogre-era ' + entry.replacesImageId,
+        )
+      } else {
+        assert.ok(
+          !manifest.includes(': ' + entry.imageId + ','),
+          entry.slot + ' must not ship rejected render ' + entry.imageId,
+        )
+      }
+    }
+  }
+})

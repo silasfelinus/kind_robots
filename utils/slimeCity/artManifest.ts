@@ -21,7 +21,9 @@
 // 2026-11-14 PT: ironjaw/journey-left re-render (ArtImage 270401) completes all 18.
 // 2026-11-15 PT Anarkiss (slime-city/t-052): replace 40 base cards and 62
 // evolution stage paintings with completed ANARKISS-CARDS-ROUND-2 renders.
-// The three older Riot Choir evolution variants are not in that new ledger.
+// The three older Riot Choir evolution variants belong to Bloodfairies, not Anarkiss.
+// 2026-11-17 PT: all 102 contact-sheet reviewed and kept; verdicts live in
+// anarkissArtCuration.json.
 // 2026-11-14 PT key journey scenes (slime-city/t-062): 16 of the 18
 // JOURNEY-SCENES-ROUND-1 plates (ArtImages 271836-271844, 271856-271862),
 // each fetched and contact-sheet reviewed. riot/scene-curfew-on-joy is the

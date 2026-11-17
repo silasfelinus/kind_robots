@@ -1,0 +1,516 @@
+{
+  "source": "conductor/projects/slime-city/art/ANARKISS-CARDS-ROUND-2.yaml",
+  "note": "2026-11-17 PT (slime-city/t-052): all 102 renders fetched through the authenticated image endpoint (102/102 bytes OK) and reviewed on contact sheets plus 5-up zooms of every sign-prone plate (trapdoor, fuse alley, fusebox, confession booth, console, stolen detonator). Every plate reads as the glam midnight-musical anarchy circus, every figure adult, no painted lettering; all 102 kept and already wired by #5206.",
+  "entries": [
+    {
+      "asset": "slime-city/cards/rat",
+      "imageId": 269690,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/firebrand",
+      "imageId": 269691,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/kaboom",
+      "imageId": 269692,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/bomber",
+      "imageId": 269693,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/firestorm",
+      "imageId": 269694,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/badluck",
+      "imageId": 269695,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/fuse",
+      "imageId": 269696,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/confetti",
+      "imageId": 269697,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/fusevest",
+      "imageId": 269698,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/drink",
+      "imageId": 269699,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/spark-diver",
+      "imageId": 269700,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/firebreak-parade",
+      "imageId": 269701,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s1-mime-fuse",
+      "imageId": 269702,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s1-blast-radius",
+      "imageId": 269703,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s1-no-witnesses",
+      "imageId": 269704,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s1-chaos-firecracker",
+      "imageId": 269705,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s1-fuse-alley",
+      "imageId": 269706,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s1-volunteer-vest",
+      "imageId": 269707,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s2-riot-fuse-lit-bicycle-courier",
+      "imageId": 269708,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s2-riot-radioactive-parade-float",
+      "imageId": 269709,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s2-riot-friendly-fire-rehearsal",
+      "imageId": 269710,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s2-riot-homemade-bottle-rocket",
+      "imageId": 269711,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s2-riot-fusebox-fireworks",
+      "imageId": 269712,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s2-riot-last-stand-matchbook",
+      "imageId": 269713,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-bottle-rocket",
+      "imageId": 269714,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-detonation-deacon",
+      "imageId": 269715,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-alley-prophet",
+      "imageId": 269716,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-firework-bishop",
+      "imageId": 269717,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-riot-bike-messenger",
+      "imageId": 269718,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-thermite-archangel",
+      "imageId": 269719,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-low-budget-grenade",
+      "imageId": 269720,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-wrong-side-of-blast",
+      "imageId": 269721,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-horrible-idea",
+      "imageId": 269722,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-stolen-detonator",
+      "imageId": 269723,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-final-benediction",
+      "imageId": 269724,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-fusewire",
+      "imageId": 269725,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-night-market-rocket",
+      "imageId": 269726,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-confession-booth",
+      "imageId": 269727,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-charred-sneakers",
+      "imageId": 269728,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/cards/s3-riot-posthumous-saint",
+      "imageId": 269729,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/spark-diver@2",
+      "imageId": 269730,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/spark-diver@3",
+      "imageId": 269731,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/firebreak-parade@2",
+      "imageId": 269732,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/firebreak-parade@3",
+      "imageId": 269733,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-mime-fuse@2",
+      "imageId": 269734,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-mime-fuse@3",
+      "imageId": 269735,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-blast-radius@2",
+      "imageId": 269736,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-blast-radius@3",
+      "imageId": 269737,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-no-witnesses@2",
+      "imageId": 269738,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-no-witnesses@3",
+      "imageId": 269739,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-chaos-firecracker@2",
+      "imageId": 269740,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-chaos-firecracker@3",
+      "imageId": 269741,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-fuse-alley@2",
+      "imageId": 269742,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-fuse-alley@3",
+      "imageId": 269743,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-volunteer-vest@2",
+      "imageId": 269744,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s1-volunteer-vest@3",
+      "imageId": 269745,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-fuse-lit-bicycle-courier@2",
+      "imageId": 269746,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-fuse-lit-bicycle-courier@3",
+      "imageId": 269747,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-radioactive-parade-float@2",
+      "imageId": 269748,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-radioactive-parade-float@3",
+      "imageId": 269749,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-friendly-fire-rehearsal@2",
+      "imageId": 269750,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-friendly-fire-rehearsal@3",
+      "imageId": 269751,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-homemade-bottle-rocket@2",
+      "imageId": 269752,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-homemade-bottle-rocket@3",
+      "imageId": 269753,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-fusebox-fireworks@2",
+      "imageId": 269754,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-fusebox-fireworks@3",
+      "imageId": 269755,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-last-stand-matchbook@2",
+      "imageId": 269756,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s2-riot-last-stand-matchbook@3",
+      "imageId": 269757,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-bottle-rocket@2",
+      "imageId": 269758,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-bottle-rocket@3",
+      "imageId": 269759,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-detonation-deacon@2",
+      "imageId": 269760,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-detonation-deacon@3",
+      "imageId": 269761,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-alley-prophet@2",
+      "imageId": 269762,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-alley-prophet@3",
+      "imageId": 269763,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-firework-bishop@2",
+      "imageId": 269764,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-firework-bishop@3",
+      "imageId": 269765,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-riot-bike-messenger@2",
+      "imageId": 269766,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-riot-bike-messenger@3",
+      "imageId": 269767,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-thermite-archangel@2",
+      "imageId": 269768,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-thermite-archangel@3",
+      "imageId": 269769,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-low-budget-grenade@2",
+      "imageId": 269770,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-low-budget-grenade@3",
+      "imageId": 269771,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-wrong-side-of-blast@2",
+      "imageId": 269772,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-wrong-side-of-blast@3",
+      "imageId": 269773,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-horrible-idea@2",
+      "imageId": 269774,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-horrible-idea@3",
+      "imageId": 269775,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-stolen-detonator@2",
+      "imageId": 269776,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-stolen-detonator@3",
+      "imageId": 269777,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-stolen-detonator@3b",
+      "imageId": 269778,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-final-benediction@2",
+      "imageId": 269779,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-final-benediction@3",
+      "imageId": 269780,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-final-benediction@3b",
+      "imageId": 269781,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-fusewire@2",
+      "imageId": 269782,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-fusewire@3",
+      "imageId": 269783,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-night-market-rocket@2",
+      "imageId": 269784,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-night-market-rocket@3",
+      "imageId": 269785,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-confession-booth@2",
+      "imageId": 269786,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-confession-booth@3",
+      "imageId": 269787,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-charred-sneakers@2",
+      "imageId": 269788,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-charred-sneakers@3",
+      "imageId": 269789,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-posthumous-saint@2",
+      "imageId": 269790,
+      "verdict": "keep"
+    },
+    {
+      "asset": "slime-city/evolutions/s3-riot-posthumous-saint@3",
+      "imageId": 269791,
+      "verdict": "keep"
+    }
+  ]
+}

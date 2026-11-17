@@ -342,6 +342,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     step((r) => {
       if (engine.currentActor(r)) engine.act(r, engine.autoAction(r))
     })
+  const attemptParley = () => step((r) => engine.attemptParley(r))
   const autoFight = () =>
     step((r) => {
       for (let i = 0; i < 400 && r.phase === 'fight'; i++)
@@ -360,6 +361,8 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   const equip = (id: string | null) => step((r) => engine.equipLoot(r, id))
   const leaveCamp = () => step((r) => engine.leaveCamp(r))
   const chooseEnding = (e: EndingId) => step((r) => engine.chooseEnding(r, e))
+  const chooseCourtOption = (id: string) =>
+    step((r) => engine.chooseCourtOption(r, id))
 
   function campAction(option: engine.CampOption) {
     step((r) => {
@@ -442,6 +445,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     act,
     autoTurn,
     autoFight,
+    attemptParley,
     answerRiddle,
     pressRune,
     pressGlyph,
@@ -455,6 +459,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     campAction,
     leaveCamp,
     chooseEnding,
+    chooseCourtOption,
     finishedTo,
     resetChronicle,
   }

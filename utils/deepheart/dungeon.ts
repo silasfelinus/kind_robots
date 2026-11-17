@@ -1,4 +1,11 @@
 import type { EndingId, EnemyDef, EventDef, ItemDef } from './types'
+import {
+  COURT_CHOICE_KEYS,
+  COURT_DEITIES,
+  COURT_EVENTS,
+  COURT_LINKS,
+} from './court'
+import { UNDERCITY_EVENTS } from './society'
 
 // The dungeon: three layers, each with its own monsters, boss, treasures and
 // choice rooms. The bottom of the third layer holds the Deepheart itself.
@@ -19,7 +26,7 @@ export const LAYERS: Layer[] = [
     id: 0,
     name: 'The Ossuary Gate',
     blurb:
-      'Crypts stacked with the bones of every delver who came before, kept in order by something that still keeps watch.',
+      'Beneath the surface lies Bellmouth: freight lifts, family crypts, porters, night schools and a customs gate kept by the faithful dead.',
     moment: 'ossuary-gate',
     enemies: ['rats', 'skeleton', 'slime', 'cutthroat', 'shade'],
     boss: 'warden',
@@ -30,7 +37,7 @@ export const LAYERS: Layer[] = [
     id: 1,
     name: 'The Drowned Halls',
     blurb:
-      'A sunken palace where the tide comes in from nowhere and the choir under the water never stops singing.',
+      'Floodline markets and waterlogged tenements occupy a sunken palace; the choir sings while the people above the water fight over a dry stair.',
     moment: 'drowned-halls',
     enemies: ['knight', 'lamprey', 'cultist', 'golem', 'wisp'],
     boss: 'brine',
@@ -41,7 +48,7 @@ export const LAYERS: Layer[] = [
     id: 2,
     name: 'The Ember Deep',
     blurb:
-      'The hot heart of the mountain, where an empty king sits on a throne of cooling stone and waits for whoever comes next.',
+      'The heatworks and root commons surround the living mountain heart, where labourers, noble courts and an empty king compete for what comes next.',
     moment: 'ember-deep',
     enemies: ['imp', 'obsidian', 'hound', 'pyre', 'hollow'],
     boss: 'king',
@@ -1004,6 +1011,8 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  ...UNDERCITY_EVENTS,
+  ...COURT_EVENTS,
 ]
 
 export function event(id: string): EventDef {
@@ -1117,4 +1126,48 @@ export const REVEAL_TEXT: Record<string, { title: string; text: string }> = {
     title: 'The Undermerchant',
     text: 'Ottoline the Undermerchant buys anything from the deep, at any price, and has been waiting a long time for someone to bring her the Heart.',
   },
+  ...Object.fromEntries(
+    COURT_DEITIES.map((deity) => [
+      `court-meet-${deity.id}`,
+      {
+        title: `A Human Face: ${deity.name}`,
+        text: `${deity.name}, ${deity.epithet}: ${deity.power} ${deity.impact}`,
+      },
+    ]),
+  ),
+  ...Object.fromEntries(
+    COURT_DEITIES.map((deity) => [
+      `court-immortality-${deity.id}`,
+      {
+        title: `The Eternal ${deity.epithet}`,
+        text: deity.immortalTruth,
+      },
+    ]),
+  ),
+  ...Object.fromEntries(
+    COURT_LINKS.map((link) => [
+      link.id,
+      { title: link.label, text: link.detail },
+    ]),
+  ),
+  ...Object.fromEntries(
+    COURT_DEITIES.flatMap((deity) =>
+      COURT_CHOICE_KEYS.flatMap((choice) => [
+        [
+          `court-ending-${deity.id}-${choice}-success`,
+          {
+            title: `${deity.name}: ${choice} accepted`,
+            text: deity.choices[choice].epilogue,
+          },
+        ],
+        [
+          `court-ending-${deity.id}-${choice}-failure`,
+          {
+            title: `${deity.name}: ${choice} refused`,
+            text: deity.choices[choice].failure,
+          },
+        ],
+      ]),
+    ),
+  ),
 }

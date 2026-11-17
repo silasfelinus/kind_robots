@@ -14,13 +14,27 @@ import {
   recordProgress,
   recordStart,
 } from '../deepheart/chronicle'
+import {
+  COURT_CHOICE_KEYS,
+  COURT_DEITIES,
+  COURT_LINKS,
+} from '../deepheart/court'
+import { UNDERCITY_EVENTS } from '../deepheart/society'
 import { EVENTS, LAYERS, REVEAL_TEXT } from '../deepheart/dungeon'
 import {
   SUPPORT_MOMENTS,
   autoplay,
+  attemptParley,
   createRun,
+  chooseCourtOption,
+  chooseDoor,
+  chooseEnding,
+  chooseOption,
+  courtOptions,
   finaleOptions,
+  rollAbilityCheck,
   romanceMoment,
+  startFight,
 } from '../deepheart/engine'
 import {
   activeSynergies,
@@ -509,6 +523,162 @@ assert.match(
   readFileSync('stores/deepheartStore.ts', 'utf8'),
   /rewardAchievementByCode/,
 )
+
+// ── The human-faced fairy court: seeded, optional, and scrapbook-backed ──
+assert.equal(COURT_DEITIES.length, 12)
+assert.equal(COURT_LINKS.length, 32)
+assert.equal(new Set(COURT_DEITIES.map((deity) => deity.id)).size, 12)
+for (const layer of [0, 1, 2])
+  assert.equal(
+    COURT_DEITIES.filter((deity) => deity.layer === layer).length,
+    4,
+    `four gods inhabit depth ${layer + 1}`,
+  )
+assert.equal(DEEPHEART.reveals.length, 136, 'full court lore is accounted for')
+assert.equal(
+  EVENTS.filter((event) => event.id.startsWith('fairy-')).length,
+  COURT_DEITIES.length,
+)
+assert.equal(UNDERCITY_EVENTS.length, 6)
+for (const ev of [
+  ...UNDERCITY_EVENTS,
+  ...EVENTS.filter((e) => e.id.startsWith('fairy-')),
+]) {
+  assert.ok(
+    ev.options.filter((option) => option.check).length >= 2,
+    `${ev.id} offers at least two nonviolent dice checks`,
+  )
+  assert.ok(
+    ev.options.some((option) => !option.check && !option.gamble),
+    `${ev.id} offers an alternative to rolling`,
+  )
+}
+for (const deity of COURT_DEITIES) {
+  assert.ok(deity.look.includes('human-looking'))
+  assert.equal(deity.immortal, true, `${deity.id} is deathless`)
+  assert.ok(deity.mythicEcho.length > 5)
+  assert.ok(deity.power.length > 45, `${deity.id} can rewrite reality`)
+  assert.ok(deity.obsession.length > 40)
+  assert.ok(deity.immortalTruth.length > 45)
+  assert.ok(REVEAL_TEXT[`court-immortality-${deity.id}`])
+  assert.deepEqual(
+    Object.keys(deity.choices).sort(),
+    [...COURT_CHOICE_KEYS].sort(),
+  )
+  assert.ok(DEEPHEART.cast.some((member) => member.id === `fairy-${deity.id}`))
+  assert.ok(REVEAL_TEXT[`court-meet-${deity.id}`])
+  for (const choice of COURT_CHOICE_KEYS) {
+    assert.ok(
+      COURT_LINKS.some((link) => link.id === deity.choices[choice].revealLink),
+    )
+    assert.ok(REVEAL_TEXT[`court-ending-${deity.id}-${choice}-success`])
+    assert.ok(REVEAL_TEXT[`court-ending-${deity.id}-${choice}-failure`])
+  }
+}
+for (const link of COURT_LINKS) {
+  assert.ok(COURT_DEITIES.some((deity) => deity.id === link.from))
+  assert.ok(COURT_DEITIES.some((deity) => deity.id === link.to))
+  assert.ok(REVEAL_TEXT[link.id])
+}
+const courtFlowchart = readFileSync(
+  'components/deepheart/deepheart-court-flowchart.vue',
+  'utf8',
+)
+assert.match(courtFlowchart, /data-testid="dh-court-flowchart"/)
+for (const deity of COURT_DEITIES)
+  assert.ok(
+    courtFlowchart.includes(`${deity.id}: { x:`),
+    `court diagram has a distinct home for ${deity.id}`,
+  )
+assert.ok(courtFlowchart.includes('court-immortality-'))
+assert.match(
+  readFileSync('components/playbook-kit/playbook-kit-scrapbook.vue', 'utf8'),
+  /DeepheartCourtFlowchart/,
+)
+
+for (const deity of COURT_DEITIES) {
+  const play = (seed: number) => {
+    const run = createRun(hero('idris'), ['brannoc', 'fen'], seed)
+    run.rooms[0] = [{ kind: 'choice', known: true, event: `fairy-${deity.id}` }]
+    chooseDoor(run, 0)
+    assert.equal(run.phase, 'choice')
+    assert.ok(run.reveals.includes(`court-meet-${deity.id}`))
+    chooseOption(run, 'expose')
+    assert.ok(run.log.some((line) => line.includes('d20 ')))
+    run.phase = 'finale'
+    chooseEnding(run, 'delver')
+    assert.equal(run.phase, 'court')
+    assert.ok(
+      courtOptions(run).some((choice) => choice.id === `audience:${deity.id}`),
+    )
+    chooseCourtOption(run, `audience:${deity.id}`)
+    for (const choice of COURT_CHOICE_KEYS) {
+      assert.ok(
+        courtOptions(run).some((option) => option.id === `resolve:${choice}`),
+      )
+    }
+    chooseCourtOption(run, 'resolve:defy')
+    assert.ok(
+      run.reveals.includes(`court-immortality-${deity.id}`),
+      'last audience unlocks the immortality revelation',
+    )
+    assert.equal(run.phase, 'ended')
+    assert.equal(run.ending, 'delver')
+    assert.equal(run.courtOutcome?.deity, deity.id)
+    assert.equal(run.courtOutcome?.path, 'defy')
+    assert.ok(run.courtOutcome!.die >= 1 && run.courtOutcome!.die <= 20)
+    assert.ok(
+      run.reveals.includes(
+        `court-ending-${deity.id}-defy-${run.courtOutcome!.success ? 'success' : 'failure'}`,
+      ),
+    )
+    return {
+      outcome: run.courtOutcome,
+      reveals: run.reveals,
+      choices: run.choices,
+    }
+  }
+  assert.deepEqual(play(743), play(743), `${deity.id} is seed-replayable`)
+}
+{
+  const run = createRun(hero('idris'), ['brannoc'], 159)
+  const check = rollAbilityCheck(run, 'wit', 14)
+  assert.ok(check.die >= 1 && check.die <= 20)
+  assert.equal(check.total, check.die + check.modifier)
+  run.phase = 'finale'
+  chooseEnding(run, 'delver')
+  assert.equal(
+    run.phase,
+    'ended',
+    'an unmet court does not interrupt the finale',
+  )
+}
+
+// One peaceful attempt per ordinary fight; no free rerolls on save/resume.
+{
+  const fight = (seed: number) => {
+    const run = createRun(hero('idris'), ['brannoc'], seed)
+    run.room = { kind: 'fight', known: true }
+    startFight(run, ['cutthroat'])
+    attemptParley(run)
+    const first = {
+      phase: run.phase,
+      log: [...run.log],
+      rng: run.rng,
+      mercy: run.mercy,
+      hp: run.party.map((member) => member.hp),
+    }
+    attemptParley(run)
+    assert.equal(run.rng, first.rng, 'a second parley cannot reroll')
+    assert.deepEqual(run.log, first.log, 'failed parley cannot be spammed')
+    return first
+  }
+  assert.deepEqual(fight(106), fight(106))
+  assert.match(
+    readFileSync('components/deepheart/deepheart-fight.vue', 'utf8'),
+    /data-testid="dh-parley"/,
+  )
+}
 
 console.log(
   `Deepheart: 50 presets, ${SUPPORTS.length} supports, 60 seeded delves (${finished} survived), all ${ALL_ENDINGS.length} endings reachable (${Object.entries(

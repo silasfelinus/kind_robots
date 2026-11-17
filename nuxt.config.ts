@@ -341,7 +341,9 @@ export default defineNuxtConfig({
     brevoNewsletterListId: process.env.BREVO_NEWSLETTER_LIST_ID || '',
     public: {
       appBaseUrl: process.env.APP_BASE_URL || 'https://kindrobots.org',
-      k8PortalUrl: process.env.NUXT_PUBLIC_K8_PORTAL_URL || '',
+      k8PortalUrl:
+        process.env.NUXT_PUBLIC_K8_PORTAL_URL ||
+        'https://critical-mass.acrocatranch.com',
       buildId,
     },
   },

@@ -395,7 +395,7 @@ export function courtDeity(id: string): CourtDeity | undefined {
   return COURT_DEITIES.find((deity) => deity.id === id)
 }
 
-export const COURT_EVENTS: EventDef[] = COURT_DEITIES.map((deity) => ({
+export const COURT_EVENTS: EventDef[] = COURT_DEITIES.map((deity): EventDef => ({
   id: `fairy-${deity.id}`,
   layer: deity.layer,
   title: `An Audience with ${deity.name}`,

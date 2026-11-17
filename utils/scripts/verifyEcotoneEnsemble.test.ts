@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { COMPANIONS } from '../ecotone/content'
+import { COMPANIONS, ENDING_LENSES } from '../ecotone/content'
 import { ensembleFuture } from '../ecotone/ensembleFuture'
 import {
   advance,
@@ -233,6 +233,37 @@ assert.equal(encounterEligible(juniperQuest, movedOn), false)
     }
   }
   assert.equal(futures.size, 10)
+
+  // Each crew future is lens-aware: 5 crews x 7 lenses x 2 fates are all distinct,
+  // derived from the existing opening state (no save change); pairs stay lens-free.
+  const lensed = new Set<string>()
+  for (const crew of sets) {
+    for (const lens of ENDING_LENSES) {
+      const run = {
+        ...base,
+        openingState: lens,
+        activeLead: crew[0]!,
+        travelCompanions: crew.slice(1),
+      }
+      for (const fate of ['hope', 'dark'] as const) {
+        const text = ensembleFuture(run, fate)!
+        assert.ok(text.length > 250, `crew ${crew.join('+')} ${lens} ${fate}`)
+        assert.ok(!lensed.has(text), 'crew x lens x fate futures are distinct')
+        lensed.add(text)
+      }
+    }
+  }
+  assert.equal(lensed.size, 5 * ENDING_LENSES.length * 2)
+  const pairRun = {
+    ...base,
+    activeLead: guides[0]!,
+    travelCompanions: [guides[1]!],
+  }
+  assert.equal(
+    ensembleFuture({ ...pairRun, openingState: 'mdma' }, 'hope'),
+    ensembleFuture({ ...pairRun, openingState: 'sober' }, 'hope'),
+    'pair futures are not lens-dependent',
+  )
 }
 
 const board = readFileSync('components/ecotone-board.vue', 'utf8')

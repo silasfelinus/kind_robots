@@ -1,4 +1,4 @@
-import type { Fate } from './content'
+import type { Fate, LensId } from './content'
 import type { RunState } from './engine'
 import { travelParty } from './engine'
 
@@ -62,9 +62,51 @@ const CREW_FUTURES: Record<string, Record<Fate, string>> = {
   },
 }
 
+/**
+ * How the weekend's opening lens colors the crew's memory of it, ten years on.
+ * Crew futures (three or four guides) are 5 crews x 7 lenses x 2 fates, derived at
+ * render time from the existing opening state: no save field or ending ID changes,
+ * and no new illustrated slots while art stays with the art-standard task.
+ */
+const CREW_LENS_CODAS: Record<LensId, Record<Fate, string>> = {
+  sober: {
+    hope: 'You remember that weekend in plain daylight: who said what, who showed up, which promises got kept. The crew still asks you to check the minutes. You still bring sandwiches.',
+    dark: 'You remember every detail clearly, which is its own kind of weight. When the crew argues about what went wrong, you are the one who can say exactly what happened, and they are grateful even when it stings.',
+  },
+  tipsy: {
+    hope: 'Somewhere in the retelling, the dance circle became the founding meeting. Nobody can agree who started the toast, and every anniversary someone new claims it. The crew lets them.',
+    dark: 'The story of the night everyone was a little too honest at the dance circle gets told at every hard dinner. It does not fix anything. It reminds the crew they chose each other before the trouble came.',
+  },
+  stoned: {
+    hope: 'You were the one who kept saying everything was connected, and the crew teases you about it to this day. Then they pin another map to the wall, draw another line between two things, and admit you had a point.',
+    dark: 'You saw the connections early and slowly, and could not make anyone move fast enough. The crew keeps your notebook of crooked diagrams on the shared shelf. Lately, people borrow it.',
+  },
+  tripping_balls: {
+    hope: 'Half of what you remember from that weekend probably did not happen, and the crew has quietly decided to build the other half. There is a mural now of the talking heron. Nobody will say who painted it.',
+    dark: 'For a while you were not sure the weekend was real at all. The crew sends you postcards of the places you went, in case you ever need proof. You keep every one, in order, on the fridge.',
+  },
+  cocaine: {
+    hope: 'You arrived talking too fast and left having learned to wait for the slowest person in the room. The crew still calls the urgent ideas "fast-track ideas" and sleeps on them before voting. Most survive the night.',
+    dark: 'The weekend moved too fast to hold, and the crash after it was real. The crew did not lecture. They took turns sitting with you, and the slow, ordinary months that followed are the part you are proudest of.',
+  },
+  meth: {
+    hope: 'That long, sleepless watch taught you who stays up with you when the night does not end. The crew keeps a rota now, for anyone who needs it, and nobody has to ask twice. You finally sleep through most nights.',
+    dark: 'The signal never quite went quiet, and some years were hard. The crew kept the porch light on and a cot made up, without conditions. You are still here. So are they.',
+  },
+  mdma: {
+    hope: 'You told everyone you loved them that weekend and, inconveniently, it turned out to be true. The crew treats it as a binding document. Every year, someone reads it back to you, and you do not take it back.',
+    dark: 'The warmth of that weekend faded faster than the hard news did. What lasted was smaller and sturdier: four or five people who still answer when you call at a bad hour, and say they meant it too.',
+  },
+}
+
 export function ensembleFuture(state: RunState, fate: Fate): string | null {
   const party = travelParty(state)
   if (party.length < 2) return null
   const key = [...party].sort().join('|')
-  return (PAIR_FUTURES[key] ?? CREW_FUTURES[key])?.[fate] ?? null
+  const pair = PAIR_FUTURES[key]?.[fate]
+  if (pair) return pair
+  const crew = CREW_FUTURES[key]?.[fate]
+  if (!crew) return null
+  const coda = CREW_LENS_CODAS[state.openingState ?? 'sober']?.[fate]
+  return coda ? `${crew} ${coda}` : crew
 }

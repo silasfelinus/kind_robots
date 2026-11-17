@@ -616,6 +616,44 @@
           "reason": "arabic numerals on the clock face; workers read as toads"
         }
       ]
+    },
+    {
+      "source": "conductor/projects/slime-city/art/IRONJAW-LIZARDS-STORY-REDO-1.yaml",
+      "note": "2026-11-17 PT (slime-city/t-044): all 4 story re-renders fetched through the authenticated image endpoint and reviewed. keep entries replace the ogre-era id at the exact SLIME_CITY_ART.story slot; the redo entry keeps the ogre-era plate until a re-render passes review.",
+      "entries": [
+        {
+          "slot": "ironjaw/1/scene",
+          "imageId": 274340,
+          "replacesImageId": 262257,
+          "supersedesRejected": 274143,
+          "verdict": "keep",
+          "reason": "pinstripe Meat Exchange financier hands blank coupon stacks to lizard workers; iguana retainers in gold armor; plain shelves, no signage or lettering"
+        },
+        {
+          "slot": "ironjaw/1/conviction",
+          "imageId": 274341,
+          "replacesImageId": 262258,
+          "supersedesRejected": 274144,
+          "verdict": "keep",
+          "reason": "chromatic lizard strike ring links claws on the foundry floor; helmeted gold-pinstripe retainers hesitate at the gate; no lettering"
+        },
+        {
+          "slot": "ironjaw/2/conviction",
+          "imageId": 274342,
+          "replacesImageId": 260003,
+          "supersedesRejected": 274148,
+          "verdict": "keep",
+          "reason": "lizard workers hold blank punch cards at the drawers of a tick-only brass shift-clock; no numerals or lettering"
+        },
+        {
+          "slot": "ironjaw/2/cunning",
+          "imageId": 274343,
+          "replacesImageId": 262259,
+          "supersedesRejected": 274149,
+          "verdict": "redo",
+          "reason": "foreground overalls worker reads as a toad again and the clock grew a third hand; frog divers and cobalt Rivet are fine"
+        }
+      ]
     }
   ]
 }

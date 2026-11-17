@@ -72,7 +72,10 @@ export async function forwardK8Fund(
   } catch {
     throw createError({
       statusCode: 502,
-      message: 'Critical Mass is unreachable. No settings were changed.',
+      message:
+        method === 'PUT'
+          ? 'Critical Mass did not confirm the request. Refresh the fund before retrying.'
+          : 'Critical Mass is unreachable. Live fund data is unavailable.',
     })
   }
   const data: unknown = await response.json().catch(() => null)

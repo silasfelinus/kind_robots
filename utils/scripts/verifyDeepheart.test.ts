@@ -521,9 +521,9 @@ assert.match(
 )
 
 // ── The human-faced fairy court: seeded, optional, and scrapbook-backed ──
-assert.equal(COURT_DEITIES.length, 6)
-assert.equal(COURT_LINKS.length, 12)
-assert.equal(new Set(COURT_DEITIES.map((deity) => deity.id)).size, 6)
+assert.equal(COURT_DEITIES.length, 12)
+assert.equal(COURT_LINKS.length, 32)
+assert.equal(new Set(COURT_DEITIES.map((deity) => deity.id)).size, 12)
 assert.equal(
   EVENTS.filter((event) => event.id.startsWith('fairy-')).length,
   COURT_DEITIES.length,
@@ -541,6 +541,12 @@ for (const ev of [...UNDERCITY_EVENTS, ...EVENTS.filter((e) => e.id.startsWith('
 }
 for (const deity of COURT_DEITIES) {
   assert.ok(deity.look.includes('human-looking'))
+  assert.equal(deity.immortal, true, `${deity.id} is deathless`)
+  assert.ok(deity.mythicEcho.length > 5)
+  assert.ok(deity.power.length > 45, `${deity.id} can rewrite reality`)
+  assert.ok(deity.obsession.length > 40)
+  assert.ok(deity.immortalTruth.length > 45)
+  assert.ok(REVEAL_TEXT[`court-immortality-${deity.id}`])
   assert.deepEqual(Object.keys(deity.choices).sort(), [...COURT_CHOICE_KEYS].sort())
   assert.ok(DEEPHEART.cast.some((member) => member.id === `fairy-${deity.id}`))
   assert.ok(REVEAL_TEXT[`court-meet-${deity.id}`])
@@ -557,10 +563,17 @@ for (const link of COURT_LINKS) {
   assert.ok(COURT_DEITIES.some((deity) => deity.id === link.to))
   assert.ok(REVEAL_TEXT[link.id])
 }
-assert.match(
-  readFileSync('components/deepheart/deepheart-court-flowchart.vue', 'utf8'),
-  /data-testid="dh-court-flowchart"/,
+const courtFlowchart = readFileSync(
+  'components/deepheart/deepheart-court-flowchart.vue',
+  'utf8',
 )
+assert.match(courtFlowchart, /data-testid="dh-court-flowchart"/)
+for (const deity of COURT_DEITIES)
+  assert.ok(
+    courtFlowchart.includes(`${deity.id}: { x:`),
+    `court diagram has a distinct home for ${deity.id}`,
+  )
+assert.ok(courtFlowchart.includes('court-immortality-'))
 assert.match(
   readFileSync('components/playbook-kit/playbook-kit-scrapbook.vue', 'utf8'),
   /DeepheartCourtFlowchart/,
@@ -590,6 +603,10 @@ for (const deity of COURT_DEITIES) {
       assert.ok(courtOptions(run).some((option) => option.id === `resolve:${choice}`))
     }
     chooseCourtOption(run, 'resolve:defy')
+    assert.ok(
+      run.reveals.includes(`court-immortality-${deity.id}`),
+      'last audience unlocks the immortality revelation',
+    )
     assert.equal(run.phase, 'ended')
     assert.equal(run.ending, 'delver')
     assert.equal(run.courtOutcome?.deity, deity.id)

@@ -1138,12 +1138,21 @@ export const REVEAL_TEXT: Record<string, { title: string; text: string }> = {
   ),
   ...Object.fromEntries(
     COURT_DEITIES.flatMap((deity) =>
-      COURT_CHOICE_KEYS.map((choice) => [
-        `court-ending-${deity.id}-${choice}`,
-        {
-          title: `${deity.name}: ${choice}`,
-          text: deity.choices[choice].epilogue,
-        },
+      COURT_CHOICE_KEYS.flatMap((choice) => [
+        [
+          `court-ending-${deity.id}-${choice}-success`,
+          {
+            title: `${deity.name}: ${choice} accepted`,
+            text: deity.choices[choice].epilogue,
+          },
+        ],
+        [
+          `court-ending-${deity.id}-${choice}-failure`,
+          {
+            title: `${deity.name}: ${choice} refused`,
+            text: deity.choices[choice].failure,
+          },
+        ],
       ]),
     ),
   ),

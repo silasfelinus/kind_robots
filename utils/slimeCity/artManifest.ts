@@ -238,7 +238,7 @@ export const SLIME_CITY_ART = {
     's2-exchange-executive-health-coverage': 269815,
     's2-exchange-golden-bailiff': 269811,
     's2-exchange-invisible-lien': 273424,
-    's2-ironjaw-foundry-lion': 261426,
+    's2-ironjaw-foundry-lion': 274534,
     's2-ironjaw-hydraulic-lockjaw': 261429,
     's2-ironjaw-overtime-pistons': 269654,
     's2-ironjaw-shift-change-shove': 273019,

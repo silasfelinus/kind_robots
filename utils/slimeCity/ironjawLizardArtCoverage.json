@@ -447,6 +447,19 @@
           "reason": "iguana paymaster at counter height against a plain black wall; blank steel plates and tags; no booth roof or lettering"
         }
       ]
+    },
+    {
+      "source": "conductor/projects/slime-city/art/IRONJAW-LIZARDS-REDO-4.yaml",
+      "note": "2026-11-17 PT (slime-city/t-054): the Foundry Lion card repaint was fetched from the public image endpoint and reviewed. The keeper is wired at its exact artManifest.ts card slot.",
+      "entries": [
+        {
+          "asset": "slime-city/cards/s2-ironjaw-foundry-lion",
+          "imageId": 274534,
+          "replacesImageId": 261426,
+          "verdict": "keep",
+          "reason": "slate-grey gecko bookkeeper in a yellow hard hat rides the crane lion, matching the L2/L3 ladder; no ogre, no lettering"
+        }
+      ]
     }
   ],
   "storyRounds": [

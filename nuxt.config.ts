@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import { DEFAULT_STARTUP_ANIMATION_SRC } from './utils/startupAnimations'
 import { loadFirstFolderAliases } from './utils/routing/firstFolderAliases'
+import { FRONT_DOOR_ALIASES } from './utils/routing/frontDoorAliases'
 
 const requireEnv = (key: string) => {
   const value = process.env[key]
@@ -401,6 +402,9 @@ export default defineNuxtConfig({
     // Silas, 2026-11-14: the Brainstorm riff-board replaced the retired admin
     // idea workbench at /brainstorm, its home as a Projects tab.
     '/play/brainstorm': { redirect: { to: '/brainstorm', statusCode: 301 } },
+    // Front-door hubs and guessable URLs (2026-11-17 PT live audit): each of
+    // these answered 200 with "Page not found". 302 so a hub can move later.
+    ...FRONT_DOOR_ALIASES,
   },
 
   hooks: {

@@ -243,6 +243,10 @@ export async function prepareTargetedEdit(
       fade > 0
         ? await sharp(rendered, { raw: { width, height, channels: 1 } })
             .blur(Math.max(fade, 0.3))
+            // Sharp promotes a blurred 1-channel raw buffer to 3 RGB channels
+            // unless greyscale is re-applied AFTER blur. Reading that RGB
+            // buffer as 1 byte per pixel made the composite mask black.
+            .greyscale()
             .raw()
             .toBuffer()
         : rendered
@@ -251,6 +255,12 @@ export async function prepareTargetedEdit(
       hard[i] = Math.max(hard[i]!, opaque)
       soft[i] = Math.max(soft[i]!, Math.min(opaque, blurred[i]!))
     }
+  }
+
+  // A blank feather would discard every generated pixel at final composite.
+  // Fail before creating an ArtJob even when hard target geometry is valid.
+  if (!soft.some((pixel) => pixel >= 128)) {
+    throw new Error('Target edit composite mask has no usable pixels.')
   }
 
   const minSide = 512

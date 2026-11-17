@@ -43,16 +43,18 @@ test('Meat Exchange occult art intake has one traceable plate per subject', () =
 
 test('Meat Exchange occult redo rounds wire only reviewed keepers at their exact slot', () => {
   const rounds = intake.redoRounds ?? []
-  assert.ok(rounds.length >= 1)
-  const original = new Map(intake.entries.map((e) => [e.asset, e]))
+  assert.ok(rounds.length >= 2)
+  // latest holds each asset's most recent verdict; a redo round only
+  // re-renders plates whose latest render (round 1 or an earlier redo) was rejected.
+  const latest = new Map(intake.entries.map((e) => [e.asset, e]))
   for (const round of rounds) {
     assert.ok(round.source && round.note)
     for (const entry of round.entries) {
       assert.ok(['keep', 'redo'].includes(entry.verdict), entry.asset)
       assert.ok(entry.reason, entry.asset + ' needs a review reason')
-      // A redo round only re-renders plates that round 1 rejected.
-      assert.equal(original.get(entry.asset)?.verdict, 'redo', entry.asset)
-      assert.equal(original.get(entry.asset)?.imageId, entry.replacesImageId)
+      assert.equal(latest.get(entry.asset)?.verdict, 'redo', entry.asset)
+      assert.equal(latest.get(entry.asset)?.imageId, entry.replacesImageId)
+      latest.set(entry.asset, entry)
       const key = entry.asset.split('/').at(-1)
       const slot = "'" + key + "': " + entry.imageId + ','
       if (entry.verdict === 'keep') {

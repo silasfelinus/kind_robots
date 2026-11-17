@@ -1,4 +1,6 @@
 import type { EndingId, EnemyDef, EventDef, ItemDef } from './types'
+import { COURT_CHOICE_KEYS, COURT_DEITIES, COURT_EVENTS, COURT_LINKS } from './court'
+import { UNDERCITY_EVENTS } from './society'
 
 // The dungeon: three layers, each with its own monsters, boss, treasures and
 // choice rooms. The bottom of the third layer holds the Deepheart itself.
@@ -1004,6 +1006,8 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  ...UNDERCITY_EVENTS,
+  ...COURT_EVENTS,
 ]
 
 export function event(id: string): EventDef {
@@ -1117,4 +1121,30 @@ export const REVEAL_TEXT: Record<string, { title: string; text: string }> = {
     title: 'The Undermerchant',
     text: 'Ottoline the Undermerchant buys anything from the deep, at any price, and has been waiting a long time for someone to bring her the Heart.',
   },
+  ...Object.fromEntries(
+    COURT_DEITIES.map((deity) => [
+      `court-meet-${deity.id}`,
+      {
+        title: `A Human Face: ${deity.name}`,
+        text: `${deity.name}, ${deity.epithet}: ${deity.power} ${deity.impact}`,
+      },
+    ]),
+  ),
+  ...Object.fromEntries(
+    COURT_LINKS.map((link) => [
+      link.id,
+      { title: link.label, text: link.detail },
+    ]),
+  ),
+  ...Object.fromEntries(
+    COURT_DEITIES.flatMap((deity) =>
+      COURT_CHOICE_KEYS.map((choice) => [
+        `court-ending-${deity.id}-${choice}`,
+        {
+          title: `${deity.name}: ${choice}`,
+          text: deity.choices[choice].epilogue,
+        },
+      ]),
+    ),
+  ),
 }

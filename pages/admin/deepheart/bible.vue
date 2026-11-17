@@ -244,6 +244,48 @@
       </section>
 
       <section
+        v-else-if="tab === 'court'"
+        class="kr-scroll min-h-0 flex-1 overflow-y-auto p-1"
+        aria-label="Private Glass Family pantheon"
+        data-testid="dh-pantheon-bible"
+      >
+        <p class="mb-3 text-sm opacity-80">
+          Twelve immortal gods with human faces, in a world of animal folk.
+          Greek and Roman archetypes are starting points, not the characters'
+          identities. Each can alter reality itself, but never escape their
+          own boredom, obsessions or family politics. Private visual prompts
+          belong here, not in the mortal hero selector.
+        </p>
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <article
+            v-for="deity in COURT_DEITIES"
+            :key="deity.id"
+            class="grid gap-2 rounded-xl border border-base-content/15 bg-base-200 p-3"
+            :data-testid="'dh-pantheon-' + deity.id"
+          >
+            <div>
+              <p class="text-xs uppercase tracking-wider opacity-65">
+                {{ deity.mythicEcho }} · Depth {{ deity.layer + 1 }}
+              </p>
+              <h3 class="font-bold">{{ deity.name }}</h3>
+              <p class="text-xs italic opacity-80">{{ deity.epithet }}</p>
+            </div>
+            <p class="text-xs">{{ deity.power }}</p>
+            <p class="text-xs text-secondary">{{ deity.obsession }}</p>
+            <p class="text-xs opacity-80">
+              {{ deity.immortalTruth }}
+            </p>
+            <details class="text-xs">
+              <summary class="cursor-pointer font-semibold">
+                Human-faced character art prompt
+              </summary>
+              <p class="mt-2 leading-relaxed">{{ deity.look }}</p>
+            </details>
+          </article>
+        </div>
+      </section>
+
+      <section
         v-else
         class="kr-scroll min-h-0 flex-1 overflow-y-auto p-3"
         aria-label="Art direction canon"
@@ -260,13 +302,13 @@
           </article>
           <article class="rounded-xl bg-base-200 p-4">
             <h2 class="mb-2 text-lg font-bold">
-              Every person is an animal person
+              Every mortal person is an animal person
             </h2>
             <p>
               Mammals, birds, reptiles, amphibians and insects share this world.
               Distinct snouts, muzzles, ears, scales, feathers, tails, wings and
               different body builds. The illustrated species belongs in prompts.
-              On screen: Oona the Guardian, Vex the Rogue.
+              On screen: Oona the Guardian, Vex the Rogue. The twelve immortal fairy rulers alone have fully human faces.
             </p>
           </article>
           <article class="rounded-xl bg-base-200 p-4">
@@ -321,6 +363,7 @@ import { useArtJobStore } from '~/stores/artJobStore'
 import { useUserStore } from '~/stores/userStore'
 import { performFetch } from '~/stores/utils'
 import { ANTHRO_LOOK } from '~/utils/deepheart/anthro'
+import { COURT_DEITIES } from '~/utils/deepheart/court'
 import { CHARACTERS, ROLES } from '~/utils/deepheart/roster'
 import {
   DEEPHEART_STYLE_LANES,
@@ -334,6 +377,7 @@ const canAccess = computed(() => user.isAdmin && user.showMature)
 const tabs = [
   { key: 'compare', label: 'Model comparison' },
   { key: 'cast', label: 'Character bible' },
+  { key: 'court', label: 'Twelve gods' },
   { key: 'canon', label: 'World & style' },
 ] as const
 const tab = ref<(typeof tabs)[number]['key']>('compare')

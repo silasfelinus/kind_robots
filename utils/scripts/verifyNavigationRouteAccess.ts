@@ -219,6 +219,13 @@ const serviceChannels = resolveChannels([
   {
     contentType: 'tab',
     channelKey: 'projects',
+    tabKey: 'k8-wildlife',
+    label: 'K8 Wildlife',
+    route: '/k8-wildlife',
+  },
+  {
+    contentType: 'tab',
+    channelKey: 'projects',
     tabKey: 'restricted',
     label: 'Restricted',
     route: '/restricted',
@@ -236,7 +243,7 @@ const serviceChannels = resolveChannels([
 const unrelatedViewerChannels = serviceChannels.map((channel) => ({
   ...channel,
   tabs: channel.tabs.filter(
-    (tab) => !['stylist', 'restricted', 'gated-direct'].includes(tab.tabKey),
+    (tab) => !['stylist', 'k8-wildlife', 'restricted', 'gated-direct'].includes(tab.tabKey),
   ),
 }))
 assert.equal(
@@ -245,6 +252,20 @@ assert.equal(
   }).allowed,
   true,
   'An unlisted services tab must still allow a direct link.',
+)
+assert.equal(
+  evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, {
+    path: '/k8-wildlife',
+  }).allowed,
+  false,
+  'An unrelated viewer cannot open the private wildlife launch route.',
+)
+assert.equal(
+  evaluateNavigationRouteAccess(serviceChannels, serviceChannels, {
+    path: '/k8-wildlife',
+  }).allowed,
+  true,
+  'The K8 / administrator viewer can open the wildlife route.',
 )
 assert.equal(
   evaluateNavigationRouteAccess(serviceChannels, unrelatedViewerChannels, {
@@ -273,6 +294,16 @@ assert.equal(
 )
 assert.equal(isSuperkateServicesViewer({ username: 'other' }, true), true)
 assert.equal(isSuperkateServicesViewer({ username: 'other' }), false)
+assert.match(
+  readFileSync('content/channels/projects/k8-wildlife.md', 'utf8'),
+  /\nroute:\s*\/k8-wildlife\n/,
+  'The wildlife tab must remain inside Projects.',
+)
+assert.doesNotMatch(
+  readFileSync('content/channels/projects/k8-wildlife.md', 'utf8'),
+  /allowDirectAccess:\s*true/,
+  'The private wildlife project must not opt into public direct-link bypass.',
+)
 
 const middlewareSource = readFileSync(
   'middleware/navigation-access.global.ts',

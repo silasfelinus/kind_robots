@@ -109,7 +109,10 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
             return !userStore.isLoggedIn
           }
 
-          if (channel.channelKey === 'projects' && tab.tabKey === 'stylist') {
+          if (
+            channel.channelKey === 'projects' &&
+            (tab.tabKey === 'stylist' || tab.tabKey === 'k8-wildlife')
+          ) {
             return isSuperkate
           }
 

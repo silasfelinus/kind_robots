@@ -524,6 +524,13 @@ assert.match(
 assert.equal(COURT_DEITIES.length, 12)
 assert.equal(COURT_LINKS.length, 32)
 assert.equal(new Set(COURT_DEITIES.map((deity) => deity.id)).size, 12)
+for (const layer of [0, 1, 2])
+  assert.equal(
+    COURT_DEITIES.filter((deity) => deity.layer === layer).length,
+    4,
+    `four gods inhabit depth ${layer + 1}`,
+  )
+assert.equal(DEEPHEART.reveals.length, 136, 'full court lore is accounted for')
 assert.equal(
   EVENTS.filter((event) => event.id.startsWith('fairy-')).length,
   COURT_DEITIES.length,

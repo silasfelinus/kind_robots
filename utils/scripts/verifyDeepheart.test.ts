@@ -14,12 +14,20 @@ import {
   recordProgress,
   recordStart,
 } from '../deepheart/chronicle'
+import { COURT_CHOICE_KEYS, COURT_DEITIES, COURT_LINKS } from '../deepheart/court'
+import { UNDERCITY_EVENTS } from '../deepheart/society'
 import { EVENTS, LAYERS, REVEAL_TEXT } from '../deepheart/dungeon'
 import {
   SUPPORT_MOMENTS,
   autoplay,
   createRun,
+  chooseCourtOption,
+  chooseDoor,
+  chooseEnding,
+  chooseOption,
+  courtOptions,
   finaleOptions,
+  rollAbilityCheck,
   romanceMoment,
 } from '../deepheart/engine'
 import {
@@ -509,6 +517,100 @@ assert.match(
   readFileSync('stores/deepheartStore.ts', 'utf8'),
   /rewardAchievementByCode/,
 )
+
+// ── The human-faced fairy court: seeded, optional, and scrapbook-backed ──
+assert.equal(COURT_DEITIES.length, 6)
+assert.equal(COURT_LINKS.length, 12)
+assert.equal(new Set(COURT_DEITIES.map((deity) => deity.id)).size, 6)
+assert.equal(
+  EVENTS.filter((event) => event.id.startsWith('fairy-')).length,
+  COURT_DEITIES.length,
+)
+assert.equal(UNDERCITY_EVENTS.length, 6)
+for (const ev of [...UNDERCITY_EVENTS, ...EVENTS.filter((e) => e.id.startsWith('fairy-'))]) {
+  assert.ok(
+    ev.options.filter((option) => option.check).length >= 2,
+    `${ev.id} offers at least two nonviolent dice checks`,
+  )
+  assert.ok(
+    ev.options.some((option) => !option.check && !option.gamble),
+    `${ev.id} offers an alternative to rolling`,
+  )
+}
+for (const deity of COURT_DEITIES) {
+  assert.ok(deity.look.includes('human-looking'))
+  assert.deepEqual(Object.keys(deity.choices).sort(), [...COURT_CHOICE_KEYS].sort())
+  assert.ok(DEEPHEART.cast.some((member) => member.id === `fairy-${deity.id}`))
+  assert.ok(REVEAL_TEXT[`court-meet-${deity.id}`])
+  for (const choice of COURT_CHOICE_KEYS) {
+    assert.ok(
+      COURT_LINKS.some((link) => link.id === deity.choices[choice].revealLink),
+    )
+    assert.ok(REVEAL_TEXT[`court-ending-${deity.id}-${choice}-success`])
+    assert.ok(REVEAL_TEXT[`court-ending-${deity.id}-${choice}-failure`])
+  }
+}
+for (const link of COURT_LINKS) {
+  assert.ok(COURT_DEITIES.some((deity) => deity.id === link.from))
+  assert.ok(COURT_DEITIES.some((deity) => deity.id === link.to))
+  assert.ok(REVEAL_TEXT[link.id])
+}
+assert.match(
+  readFileSync('components/deepheart/deepheart-court-flowchart.vue', 'utf8'),
+  /data-testid="dh-court-flowchart"/,
+)
+assert.match(
+  readFileSync('components/playbook-kit/playbook-kit-scrapbook.vue', 'utf8'),
+  /DeepheartCourtFlowchart/,
+)
+
+for (const deity of COURT_DEITIES) {
+  const play = (seed: number) => {
+    const run = createRun(hero('idris'), ['brannoc', 'fen'], seed)
+    run.rooms[0] = [
+      { kind: 'choice', known: true, event: `fairy-${deity.id}` },
+    ]
+    chooseDoor(run, 0)
+    assert.equal(run.phase, 'choice')
+    assert.ok(run.reveals.includes(`court-meet-${deity.id}`))
+    chooseOption(run, 'expose')
+    assert.ok(run.log.some((line) => line.includes('d20 ')))
+    run.phase = 'finale'
+    chooseEnding(run, 'delver')
+    assert.equal(run.phase, 'court')
+    assert.ok(
+      courtOptions(run).some(
+        (choice) => choice.id === `audience:${deity.id}`,
+      ),
+    )
+    chooseCourtOption(run, `audience:${deity.id}`)
+    for (const choice of COURT_CHOICE_KEYS) {
+      assert.ok(courtOptions(run).some((option) => option.id === `resolve:${choice}`))
+    }
+    chooseCourtOption(run, 'resolve:defy')
+    assert.equal(run.phase, 'ended')
+    assert.equal(run.ending, 'delver')
+    assert.equal(run.courtOutcome?.deity, deity.id)
+    assert.equal(run.courtOutcome?.path, 'defy')
+    assert.ok(run.courtOutcome!.die >= 1 && run.courtOutcome!.die <= 20)
+    assert.ok(
+      run.reveals.includes(
+        `court-ending-${deity.id}-defy-${run.courtOutcome!.success ? 'success' : 'failure'}`,
+      ),
+    )
+    return { outcome: run.courtOutcome, reveals: run.reveals, choices: run.choices }
+  }
+  assert.deepEqual(play(743), play(743), `${deity.id} is seed-replayable`)
+}
+{
+  const run = createRun(hero('idris'), ['brannoc'], 159)
+  const check = rollAbilityCheck(run, 'wit', 14)
+  assert.ok(check.die >= 1 && check.die <= 20)
+  assert.equal(check.total, check.die + check.modifier)
+  run.phase = 'finale'
+  chooseEnding(run, 'delver')
+  assert.equal(run.phase, 'ended', 'an unmet court does not interrupt the finale')
+}
 
 console.log(
   `Deepheart: 50 presets, ${SUPPORTS.length} supports, 60 seeded delves (${finished} survived), all ${ALL_ENDINGS.length} endings reachable (${Object.entries(

@@ -7,7 +7,7 @@
       </span>
     </header-page-bar>
 
-    <div v-if="!allowed" class="kr-scroll grid flex-1 place-items-center p-4">
+    <div v-if="!allowed" class="grid min-h-0 flex-1 place-items-center overflow-hidden p-4">
       <div class="kr-panel max-w-lg p-6 text-center">
         <h2 class="text-xl font-bold">Private wildlife portfolio</h2>
         <p class="mt-2 text-sm opacity-75">

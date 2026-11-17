@@ -83,4 +83,4 @@ This is an **experimental corrective option**, not evidence that a rendered
 result is successful. The Shifting Desks source 273631 / targeted output 274183
 had a valid nonempty preview mask but no significant in-mask pixel changes.
 Before accepting a follow-up private candidate, verify a nontrivial masked-pixel
-delta **and** a scene-faithful visual edit independently. 
+delta **and** a scene-faithful visual edit independently.

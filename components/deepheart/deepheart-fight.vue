@@ -98,6 +98,17 @@
         </button>
         <button
           type="button"
+          class="btn btn-ghost btn-sm rounded-2xl border border-base-content/20"
+          :disabled="combat.boss || combat.parleyTried"
+          :title="combat.boss ? 'The layer guardian must be confronted' : 'Attempt a nonviolent d20 Wits check'"
+          data-testid="dh-parley"
+          @click="dh.attemptParley()"
+        >
+          <Icon name="kind-icon:message-circle" class="size-4" />
+          Parley (d20)
+        </button>
+        <button
+          type="button"
           class="btn btn-ghost btn-sm rounded-2xl"
           data-testid="dh-auto-turn"
           @click="dh.autoTurn()"

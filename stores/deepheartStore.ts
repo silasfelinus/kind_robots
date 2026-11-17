@@ -360,6 +360,8 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   const equip = (id: string | null) => step((r) => engine.equipLoot(r, id))
   const leaveCamp = () => step((r) => engine.leaveCamp(r))
   const chooseEnding = (e: EndingId) => step((r) => engine.chooseEnding(r, e))
+  const chooseCourtOption = (id: string) =>
+    step((r) => engine.chooseCourtOption(r, id))
 
   function campAction(option: engine.CampOption) {
     step((r) => {
@@ -455,6 +457,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     campAction,
     leaveCamp,
     chooseEnding,
+    chooseCourtOption,
     finishedTo,
     resetChronicle,
   }

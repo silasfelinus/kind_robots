@@ -108,7 +108,7 @@
           data-testid="dh-parley"
           @click="dh.attemptParley()"
         >
-          <Icon name="kind-icon:message-circle" class="size-4" />
+          <Icon name="kind-icon:handshake" class="size-4" />
           Parley (d20)
         </button>
         <button

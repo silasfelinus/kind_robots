@@ -31,6 +31,11 @@ import {
 } from '../deepheart/party'
 import { ANTHRO_BLURB, ANTHRO_LOOK } from '../deepheart/anthro'
 import { CHARACTERS, ROLES, SUPPORTS, character } from '../deepheart/roster'
+import {
+  DEEPHEART_STYLE_DESIGNER,
+  DEEPHEART_STYLE_LANES,
+  DEEPHEART_STYLE_SUBJECTS,
+} from '../deepheart/styleCheck'
 import type { EndingId, HeroSetup, Room, RunState } from '../deepheart/types'
 import { auditPlaybookKit } from '../playbookKit/budget'
 import { DEEPHEART } from '../playbookKit/games/deepheart'
@@ -425,6 +430,32 @@ assert.ok(
   ),
 )
 assert.ok(finaleOptions(hearth).length === 0 || hearth.phase === 'ended')
+
+// ── Private visual-direction trial ──────────────────────────────────────
+assert.equal(DEEPHEART_STYLE_SUBJECTS.length, 5, 'five fixed visual tests')
+assert.equal(DEEPHEART_STYLE_LANES.length, 8, 'seven Illustrious models plus Krea 2')
+assert.equal(new Set(DEEPHEART_STYLE_SUBJECTS.map((s) => s.seed)).size, 5)
+assert.equal(new Set(DEEPHEART_STYLE_LANES.map((lane) => lane.key)).size, 8)
+assert.equal(
+  DEEPHEART_STYLE_LANES.filter((lane) => lane.family === 'Illustrious').length,
+  7,
+)
+assert.ok(DEEPHEART_STYLE_DESIGNER.startsWith('Deepheart Anthro Style Trial'))
+assert.match(
+  readFileSync('components/deepheart/deepheart-title.vue', 'utf8'),
+  /user\\.isAdmin && user\\.showMature/,
+)
+const bibleSource = readFileSync('pages/admin/deepheart-bible.vue', 'utf8')
+assert.match(bibleSource, /user\\.isAdmin && user\\.showMature/)
+assert.match(bibleSource, /data-testid="deepheart-art-bible"/)
+assert.match(bibleSource, /loadJobImage/)
+const styleRoute = readFileSync(
+  'server/api/deepheart/style-check.get.ts',
+  'utf8',
+)
+assert.match(styleRoute, /requireAdminApiUser/)
+assert.match(styleRoute, /viewerShowsMature/)
+assert.match(styleRoute, /private, no-store/)
 
 // ── Front end contracts ──────────────────────────────────────────────────
 const componentDir = 'components/deepheart'

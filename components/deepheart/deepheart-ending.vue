@@ -24,6 +24,13 @@
       <p v-if="text.romance && dh.romanceOn" class="pk-prose text-secondary">
         {{ text.romance }}
       </p>
+      <p
+        v-if="text.court"
+        class="pk-prose text-accent"
+        data-testid="dh-court-epilogue"
+      >
+        {{ text.court }}
+      </p>
       <ul class="dh-ending-facts">
         <li>{{ run.fights }} fights</li>
         <li>{{ run.puzzlesSolved }} puzzles</li>

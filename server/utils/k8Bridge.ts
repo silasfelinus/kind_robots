@@ -1,6 +1,5 @@
 import { createError, setHeader, type H3Event } from 'h3'
 import { requireHumanApiUser } from '~/server/utils/authGuard'
-import { isSuperkateServicesViewer } from '~/stores/helpers/superkateNavigation'
 
 export async function requireK8Viewer(
   event: H3Event,
@@ -10,7 +9,7 @@ export async function requireK8Viewer(
   if (
     auth.isServerKey ||
     auth.user.isGuest ||
-    !isSuperkateServicesViewer(auth.user, auth.isAdmin)
+    (!auth.isAdmin && auth.user.id !== 1279)
   ) {
     throw createError({ statusCode: 403, message: 'K8 account required.' })
   }

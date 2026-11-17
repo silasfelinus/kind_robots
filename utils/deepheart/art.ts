@@ -7,13 +7,13 @@ import type { Character, RoomKind } from './types'
 // by setting `src` once its URL is verified (conductor deepheart art ledger).
 
 export const DH_PALETTE =
-  'Painted dark-fantasy storybook illustration in torch amber, slate blue and deep crimson.'
+  'Expressive hand-painted dark-fantasy adventure animation, Zuzu-like anthropomorphic animal people, bold distinct silhouettes, warm torch amber, slate blue and deep crimson. Any living adventurers are fully anthropomorphic, never humans or traditional fantasy humanoids. No lettering.'
 
 export function portraitArt(c: Character): KitArt {
   return {
-    brief: `Character portrait of ${c.name}, ${c.ancestry} ${ROLES[c.role].label.toLowerCase()}: ${c.blurb}`,
+    brief: `Character portrait of ${c.name}, ${ROLES[c.role].label.toLowerCase()}: ${c.blurb}`,
     prompt: `${c.look}. Waist-up portrait in a torchlit stone dungeon corridor, warm torchlight from the left and cool blue shadow on the right, camera at eye level. ${DH_PALETTE}`,
-    alt: `${c.name}, ${c.ancestry} ${ROLES[c.role].label}`,
+    alt: `${c.name}, ${ROLES[c.role].label}`,
     focus: 'center 25%',
   }
 }
@@ -21,7 +21,7 @@ export function portraitArt(c: Character): KitArt {
 export function romanceArt(c: Character): KitArt {
   return {
     brief: `Romance plate: ${c.name} at the campfire. ${c.heart}`,
-    prompt: `${c.look}. ${c.scene} A hooded delver in a travel-worn green cloak sits close beside them. A small campfire burns on the flagstones of a vaulted dungeon chamber. Medium shot at seated height. ${DH_PALETTE}`,
+    prompt: `${c.look} Story beat: ${c.heart} Share a tender, character-driven scene with another fully anthropomorphic adventurer seen mostly from behind, around a small campfire on the flagstones of a vaulted dungeon chamber. Keep the featured character visually consistent with their portrait. Medium shot at seated height. ${DH_PALETTE}`,
     alt: `${c.name} at the campfire`,
   }
 }

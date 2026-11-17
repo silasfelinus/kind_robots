@@ -1,6 +1,6 @@
 <template>
   <section
-    class="grid gap-3"
+    class="@container grid gap-3"
     aria-label="Fairy court relationships"
     data-testid="dh-court-flowchart"
   >
@@ -143,7 +143,7 @@
     </div>
 
     <div
-      class="grid gap-3 rounded-xl border border-base-content/15 bg-base-200 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"
+      class="grid gap-3 rounded-xl border border-base-content/15 bg-base-200 p-3 @md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"
     >
       <div class="grid content-start gap-1">
         <h3 class="text-sm font-bold">

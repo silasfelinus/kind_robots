@@ -60,7 +60,7 @@
             rel="noopener noreferrer"
           >
             Open my Wildlife portfolio
-            <Icon name="kind-icon:arrow-up-right" class="size-4" />
+            <Icon name="kind-icon:external-link" class="size-4" />
           </a>
           <span
             v-else

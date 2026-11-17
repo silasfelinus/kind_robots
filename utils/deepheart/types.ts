@@ -218,6 +218,7 @@ export type CombatState = {
   defending: string[]
   boss: boolean
   mimic: boolean
+  parleyTried?: boolean
 }
 
 export type PuzzleKind = 'riddle' | 'runes' | 'sequence' | 'scales'

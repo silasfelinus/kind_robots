@@ -80,7 +80,7 @@
             {{ focused.name }}
           </h2>
           <p class="text-sm opacity-80">
-            {{ focused.ancestry }} {{ role.label }} · {{ pronoun }}
+            {{ role.label }} · {{ pronoun }}
           </p>
           <p class="pk-prose mt-1 text-sm">{{ focused.blurb }}</p>
         </div>
@@ -366,7 +366,7 @@ import {
 import type { Gender, StatKey, Support } from '~/utils/deepheart/types'
 
 const dh = useDeepheartStore()
-const mode = ref<'hero' | 'party'>('party')
+const mode = ref<'hero' | 'party'>('hero')
 
 const statKeys: StatKey[] = ['hp', 'atk', 'def', 'mag', 'spd', 'wit']
 const genders: Gender[] = ['w', 'm', 'n']

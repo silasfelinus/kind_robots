@@ -1535,6 +1535,7 @@ export function chooseCourtOption(run: RunState, id: string) {
     epilogue,
   }
   addReveal(run, `court-ending-${deity.id}-${choice}-${check.success ? 'success' : 'failure'}`)
+  addReveal(run, `court-immortality-${deity.id}`)
   if (check.success) addReveal(run, option.revealLink)
   note(
     run,

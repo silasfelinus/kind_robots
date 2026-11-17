@@ -417,6 +417,16 @@ assert.ok(finaleOptions(hearth).length === 0 || hearth.phase === 'ended')
 
 // ── Front end contracts ──────────────────────────────────────────────────
 const componentDir = 'components/deepheart'
+const builderSource = readFileSync(
+  `${componentDir}/deepheart-builder.vue`,
+  'utf8',
+)
+assert.match(builderSource, /ref<'hero' \| 'party'>\('hero'\)/)
+assert.doesNotMatch(builderSource, /focused\.ancestry/)
+assert.doesNotMatch(
+  readFileSync(`${componentDir}/deepheart-portrait.vue`, 'utf8'),
+  /person\.ancestry/,
+)
 for (const file of readdirSync(componentDir)) {
   const source = readFileSync(`${componentDir}/${file}`, 'utf8')
   assert.doesNotMatch(

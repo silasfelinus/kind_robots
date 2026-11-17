@@ -612,14 +612,16 @@ const REVEAL_META: Record<
   ),
   ...Object.fromEntries(
     COURT_DEITIES.flatMap((deity) =>
-      COURT_CHOICE_KEYS.map((choice) => [
-        `court-ending-${deity.id}-${choice}`,
-        {
-          teaser: 'How did your last audience with the court end?',
-          act: 3,
-          about: [`fairy-${deity.id}`],
-        },
-      ]),
+      COURT_CHOICE_KEYS.flatMap((choice) =>
+        (['success', 'failure'] as const).map((result) => [
+          `court-ending-${deity.id}-${choice}-${result}`,
+          {
+            teaser: 'How did your last audience with the court end?',
+            act: 3,
+            about: [`fairy-${deity.id}`],
+          },
+        ]),
+      ),
     ),
   ),
 }

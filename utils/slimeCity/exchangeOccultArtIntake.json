@@ -580,6 +580,40 @@
           "reason": "heavy sign lettering and pointed white hoods again"
         }
       ]
+    },
+    {
+      "source": "conductor/projects/slime-city/art/EXCHANGE-OCCULT-REDO-2.yaml",
+      "note": "2026-11-17 PT (slime-city/t-053): all 4 re-renders fetched through the authenticated image endpoint (4/4 bytes OK) and reviewed at full size. All 4 kept and wired in artManifest.ts.",
+      "entries": [
+        {
+          "asset": "slime-city/evolutions/s2-exchange-invisible-lien@2",
+          "imageId": 274060,
+          "replacesImageId": 273426,
+          "verdict": "keep",
+          "reason": "lien hook rises from a bare stone cistern well; no signage in frame"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-exchange-wage-garnisher@3",
+          "imageId": 274061,
+          "replacesImageId": 273428,
+          "verdict": "keep",
+          "reason": "adult hooded garnisher in a bare stone tunnel; no lettering"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-exchange-payment-reminder@3",
+          "imageId": 274062,
+          "replacesImageId": 273429,
+          "verdict": "keep",
+          "reason": "bell vault with adult monks and skeletons; walls bare, no lettering"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-exchange-collection-badge@3",
+          "imageId": 274063,
+          "replacesImageId": 273430,
+          "verdict": "keep",
+          "reason": "crimson-robed adult acolytes in a drowned cistern; soft draped hoods, none pointed; no lettering"
+        }
+      ]
     }
   ]
 }

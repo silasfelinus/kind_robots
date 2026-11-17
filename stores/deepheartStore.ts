@@ -342,6 +342,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     step((r) => {
       if (engine.currentActor(r)) engine.act(r, engine.autoAction(r))
     })
+  const attemptParley = () => step((r) => engine.attemptParley(r))
   const autoFight = () =>
     step((r) => {
       for (let i = 0; i < 400 && r.phase === 'fight'; i++)
@@ -444,6 +445,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     act,
     autoTurn,
     autoFight,
+    attemptParley,
     answerRiddle,
     pressRune,
     pressGlyph,

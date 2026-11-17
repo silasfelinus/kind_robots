@@ -47,7 +47,7 @@
     >
       <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
 
-      <h1 class="text-base font-bold text-warning">Page not found</h1>
+      <p class="text-base font-bold text-warning">Page not found</p>
 
       <p class="kr-text-dim-sm max-w-xl">
         There is nothing at {{ contentPath }}. The link may be old or mistyped.
@@ -277,31 +277,6 @@ async function preloadAndSyncPageStore(): Promise<void> {
 }
 
 /*
- * Populate the store during SETUP, not only on mount.
- *
- * activePage comes from an awaited useAsyncData, so the content is already
- * resolved on the server — but syncPageStore only ran inside onMounted, which
- * never fires there. The store stayed empty through SSR, so anything driven by
- * it rendered nothing until hydration.
- *
- * The page backdrop made that visible: app.vue emits no backdrop element at all
- * when the store reports no art, so every page load painted a backdrop-less
- * first frame and then popped the art in. Title and description came from the
- * same store and had the same gap.
- *
- * Workspace card catalogs are preloaded before this setup-scope synchronization.
- * That keeps the card hand synchronous for SSR while allowing each deck to stay
- * a route-local chunk instead of pinning every catalog into app startup.
- */
-if (activePage.value) {
-  const initialCards = (activePage.value as CardContentPage).cards
-  if (typeof initialCards === 'string') {
-    await preloadModelCards(initialCards)
-  }
-}
-syncPageStore()
-
-/*
  * An unknown URL is a real 404, not a 200 "page".
  *
  * Before this, /play, /projects, /donate and any mistyped link answered 200
@@ -326,6 +301,31 @@ useSeoMeta({
   title: () => (isNotFound.value ? 'Page not found | Kind Robots' : undefined),
   robots: () => (isNotFound.value ? 'noindex' : undefined),
 })
+
+/*
+ * Populate the store during SETUP, not only on mount.
+ *
+ * activePage comes from an awaited useAsyncData, so the content is already
+ * resolved on the server — but syncPageStore only ran inside onMounted, which
+ * never fires there. The store stayed empty through SSR, so anything driven by
+ * it rendered nothing until hydration.
+ *
+ * The page backdrop made that visible: app.vue emits no backdrop element at all
+ * when the store reports no art, so every page load painted a backdrop-less
+ * first frame and then popped the art in. Title and description came from the
+ * same store and had the same gap.
+ *
+ * Workspace card catalogs are preloaded before this setup-scope synchronization.
+ * That keeps the card hand synchronous for SSR while allowing each deck to stay
+ * a route-local chunk instead of pinning every catalog into app startup.
+ */
+if (activePage.value) {
+  const initialCards = (activePage.value as CardContentPage).cards
+  if (typeof initialCards === 'string') {
+    await preloadModelCards(initialCards)
+  }
+}
+syncPageStore()
 
 onMounted(() => {
   pageStore.initialize()

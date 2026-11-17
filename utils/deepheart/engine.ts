@@ -750,12 +750,7 @@ function checkCombatEnd(run: RunState): boolean {
  */
 export function attemptParley(run: RunState) {
   const combat = run.combat
-  if (
-    run.phase !== 'fight' ||
-    !combat ||
-    combat.parleyTried ||
-    combat.boss
-  )
+  if (run.phase !== 'fight' || !combat || combat.parleyTried || combat.boss)
     return
   combat.parleyTried = true
   const dc = 12 + run.layer * 2 + Math.max(0, combat.enemies.length - 1) * 2
@@ -1477,13 +1472,13 @@ export function courtOptions(run: RunState): CourtOption[] {
   if (run.phase !== 'court') return []
   if (!run.courtSelected)
     return [
-      ...COURT_DEITIES.filter((deity) => run.flags[`court-met-${deity.id}`]).map(
-        (deity) => ({
-          id: `audience:${deity.id}`,
-          label: deity.name,
-          hint: deity.epithet,
-        }),
-      ),
+      ...COURT_DEITIES.filter(
+        (deity) => run.flags[`court-met-${deity.id}`],
+      ).map((deity) => ({
+        id: `audience:${deity.id}`,
+        label: deity.name,
+        hint: deity.epithet,
+      })),
       {
         id: 'skip',
         label: 'Leave the nobles to argue',
@@ -1498,8 +1493,16 @@ export function courtOptions(run: RunState): CourtOption[] {
       label: deity.choices[choice].label,
       hint: `d20 + ${deity.choices[choice].stat.toUpperCase()} vs ${deity.choices[choice].dc}`,
     })),
-    { id: 'back', label: 'Speak to another patron', hint: 'Choose another audience' },
-    { id: 'skip', label: 'Refuse every offer', hint: 'Finish without a court bargain' },
+    {
+      id: 'back',
+      label: 'Speak to another patron',
+      hint: 'Choose another audience',
+    },
+    {
+      id: 'skip',
+      label: 'Refuse every offer',
+      hint: 'Finish without a court bargain',
+    },
   ]
 }
 
@@ -1534,7 +1537,10 @@ export function chooseCourtOption(run: RunState, id: string) {
     target: option.dc,
     epilogue,
   }
-  addReveal(run, `court-ending-${deity.id}-${choice}-${check.success ? 'success' : 'failure'}`)
+  addReveal(
+    run,
+    `court-ending-${deity.id}-${choice}-${check.success ? 'success' : 'failure'}`,
+  )
   addReveal(run, `court-immortality-${deity.id}`)
   if (check.success) addReveal(run, option.revealLink)
   note(

@@ -14,7 +14,11 @@ import {
   recordProgress,
   recordStart,
 } from '../deepheart/chronicle'
-import { COURT_CHOICE_KEYS, COURT_DEITIES, COURT_LINKS } from '../deepheart/court'
+import {
+  COURT_CHOICE_KEYS,
+  COURT_DEITIES,
+  COURT_LINKS,
+} from '../deepheart/court'
 import { UNDERCITY_EVENTS } from '../deepheart/society'
 import { EVENTS, LAYERS, REVEAL_TEXT } from '../deepheart/dungeon'
 import {
@@ -536,7 +540,10 @@ assert.equal(
   COURT_DEITIES.length,
 )
 assert.equal(UNDERCITY_EVENTS.length, 6)
-for (const ev of [...UNDERCITY_EVENTS, ...EVENTS.filter((e) => e.id.startsWith('fairy-'))]) {
+for (const ev of [
+  ...UNDERCITY_EVENTS,
+  ...EVENTS.filter((e) => e.id.startsWith('fairy-')),
+]) {
   assert.ok(
     ev.options.filter((option) => option.check).length >= 2,
     `${ev.id} offers at least two nonviolent dice checks`,
@@ -554,7 +561,10 @@ for (const deity of COURT_DEITIES) {
   assert.ok(deity.obsession.length > 40)
   assert.ok(deity.immortalTruth.length > 45)
   assert.ok(REVEAL_TEXT[`court-immortality-${deity.id}`])
-  assert.deepEqual(Object.keys(deity.choices).sort(), [...COURT_CHOICE_KEYS].sort())
+  assert.deepEqual(
+    Object.keys(deity.choices).sort(),
+    [...COURT_CHOICE_KEYS].sort(),
+  )
   assert.ok(DEEPHEART.cast.some((member) => member.id === `fairy-${deity.id}`))
   assert.ok(REVEAL_TEXT[`court-meet-${deity.id}`])
   for (const choice of COURT_CHOICE_KEYS) {
@@ -589,9 +599,7 @@ assert.match(
 for (const deity of COURT_DEITIES) {
   const play = (seed: number) => {
     const run = createRun(hero('idris'), ['brannoc', 'fen'], seed)
-    run.rooms[0] = [
-      { kind: 'choice', known: true, event: `fairy-${deity.id}` },
-    ]
+    run.rooms[0] = [{ kind: 'choice', known: true, event: `fairy-${deity.id}` }]
     chooseDoor(run, 0)
     assert.equal(run.phase, 'choice')
     assert.ok(run.reveals.includes(`court-meet-${deity.id}`))
@@ -601,13 +609,13 @@ for (const deity of COURT_DEITIES) {
     chooseEnding(run, 'delver')
     assert.equal(run.phase, 'court')
     assert.ok(
-      courtOptions(run).some(
-        (choice) => choice.id === `audience:${deity.id}`,
-      ),
+      courtOptions(run).some((choice) => choice.id === `audience:${deity.id}`),
     )
     chooseCourtOption(run, `audience:${deity.id}`)
     for (const choice of COURT_CHOICE_KEYS) {
-      assert.ok(courtOptions(run).some((option) => option.id === `resolve:${choice}`))
+      assert.ok(
+        courtOptions(run).some((option) => option.id === `resolve:${choice}`),
+      )
     }
     chooseCourtOption(run, 'resolve:defy')
     assert.ok(
@@ -624,7 +632,11 @@ for (const deity of COURT_DEITIES) {
         `court-ending-${deity.id}-defy-${run.courtOutcome!.success ? 'success' : 'failure'}`,
       ),
     )
-    return { outcome: run.courtOutcome, reveals: run.reveals, choices: run.choices }
+    return {
+      outcome: run.courtOutcome,
+      reveals: run.reveals,
+      choices: run.choices,
+    }
   }
   assert.deepEqual(play(743), play(743), `${deity.id} is seed-replayable`)
 }
@@ -635,7 +647,11 @@ for (const deity of COURT_DEITIES) {
   assert.equal(check.total, check.die + check.modifier)
   run.phase = 'finale'
   chooseEnding(run, 'delver')
-  assert.equal(run.phase, 'ended', 'an unmet court does not interrupt the finale')
+  assert.equal(
+    run.phase,
+    'ended',
+    'an unmet court does not interrupt the finale',
+  )
 }
 
 // One peaceful attempt per ordinary fight; no free rerolls on save/resume.

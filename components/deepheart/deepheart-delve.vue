@@ -155,7 +155,9 @@
       <template v-else-if="run.phase === 'court'">
         <div class="dh-scene">
           <h2 class="pf-display text-xl text-secondary">
-            {{ run.courtSelected ? 'The last bargain' : 'The Court at the Bottom' }}
+            {{
+              run.courtSelected ? 'The last bargain' : 'The Court at the Bottom'
+            }}
           </h2>
           <p class="pk-prose">
             {{

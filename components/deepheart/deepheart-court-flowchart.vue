@@ -9,16 +9,21 @@
         <h2 class="pf-display text-xl text-primary">The Glass Family</h2>
         <p class="max-w-lg text-xs opacity-75">
           Twelve immortal, human-faced reality editors. Uncover their impossible
-          family ties, then bargain, expose, or defy them to complete the diagram.
+          family ties, then bargain, expose, or defy them to complete the
+          diagram.
         </p>
       </div>
       <span class="badge badge-outline text-xs">
-        {{ metCount }}/{{ COURT_DEITIES.length }} patrons ·
-        {{ linkCount }}/{{ COURT_LINKS.length }} ties
+        {{ metCount }}/{{ COURT_DEITIES.length }} patrons · {{ linkCount }}/{{
+          COURT_LINKS.length
+        }}
+        ties
       </span>
     </div>
 
-    <div class="kr-scroll overflow-x-auto rounded-2xl border border-base-content/20 bg-base-200/80">
+    <div
+      class="kr-scroll overflow-x-auto rounded-2xl border border-base-content/20 bg-base-200/80"
+    >
       <div class="relative mx-auto h-[570px] w-full min-w-[940px]">
         <svg
           class="absolute inset-0 size-full"
@@ -51,13 +56,16 @@
               :stroke-dasharray="discovered(link.id) ? '0' : '6 8'"
               :opacity="edgeOpacity(link)"
               :marker-end="
-                discovered(link.id) && ['plot', 'scheme', 'revenge'].includes(link.kind)
+                discovered(link.id) &&
+                ['plot', 'scheme', 'revenge'].includes(link.kind)
                   ? 'url(#dh-court-arrow)'
                   : undefined
               "
             >
               <title>
-                {{ discovered(link.id) ? link.label : 'Undiscovered court tie' }}
+                {{
+                  discovered(link.id) ? link.label : 'Undiscovered court tie'
+                }}
               </title>
             </line>
           </g>
@@ -112,7 +120,9 @@
           <span
             class="text-[0.6rem] font-bold uppercase tracking-widest opacity-70"
           >
-            {{ discovered('court-meet-' + deity.id) ? deity.pronouns : 'Unknown' }}
+            {{
+              discovered('court-meet-' + deity.id) ? deity.pronouns : 'Unknown'
+            }}
           </span>
           <strong class="truncate text-sm">
             {{
@@ -132,7 +142,9 @@
       </div>
     </div>
 
-    <div class="grid gap-3 rounded-xl border border-base-content/15 bg-base-200 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+    <div
+      class="grid gap-3 rounded-xl border border-base-content/15 bg-base-200 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"
+    >
       <div class="grid content-start gap-1">
         <h3 class="text-sm font-bold">
           {{
@@ -165,13 +177,13 @@
         <h3 class="text-xs font-bold uppercase tracking-wider">
           Grudges, kinship, affairs, plots and breakups
         </h3>
-        <div v-for="link in related" :key="link.id" class="rounded-lg bg-base-300/80 p-2 text-xs">
+        <div
+          v-for="link in related"
+          :key="link.id"
+          class="rounded-lg bg-base-300/80 p-2 text-xs"
+        >
           <p class="font-semibold">
-            {{
-              discovered(link.id)
-                ? link.label
-                : 'A sealed relationship'
-            }}
+            {{ discovered(link.id) ? link.label : 'A sealed relationship' }}
           </p>
           <p class="mt-1 leading-relaxed opacity-75">
             {{
@@ -212,8 +224,8 @@ const positions: Record<string, { x: number; y: number }> = {
 }
 const position = (id: string) => positions[id] ?? { x: 520, y: 335 }
 const discovered = (id: string) => kit.isUnlocked('reveals', id)
-const current = computed(
-  () => COURT_DEITIES.find((deity) => deity.id === selected.value)!,
+const current = computed(() =>
+  COURT_DEITIES.find((deity) => deity.id === selected.value)!,
 )
 const unlockedSelected = computed(() =>
   discovered('court-meet-' + selected.value),

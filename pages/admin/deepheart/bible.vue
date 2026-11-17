@@ -252,9 +252,9 @@
         <p class="mb-3 text-sm opacity-80">
           Twelve immortal gods with human faces, in a world of animal folk.
           Greek and Roman archetypes are starting points, not the characters'
-          identities. Each can alter reality itself, but never escape their
-          own boredom, obsessions or family politics. Private visual prompts
-          belong here, not in the mortal hero selector.
+          identities. Each can alter reality itself, but never escape their own
+          boredom, obsessions or family politics. Private visual prompts belong
+          here, not in the mortal hero selector.
         </p>
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <article
@@ -308,7 +308,8 @@
               Mammals, birds, reptiles, amphibians and insects share this world.
               Distinct snouts, muzzles, ears, scales, feathers, tails, wings and
               different body builds. The illustrated species belongs in prompts.
-              On screen: Oona the Guardian, Vex the Rogue. The twelve immortal fairy rulers alone have fully human faces.
+              On screen: Oona the Guardian, Vex the Rogue. The twelve immortal
+              fairy rulers alone have fully human faces.
             </p>
           </article>
           <article class="rounded-xl bg-base-200 p-4">

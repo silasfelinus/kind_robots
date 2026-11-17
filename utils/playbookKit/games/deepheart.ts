@@ -1,5 +1,9 @@
 import { DH_PALETTE, portraitArt, romanceArt } from '../../deepheart/art'
-import { COURT_CHOICE_KEYS, COURT_DEITIES, COURT_LINKS } from '../../deepheart/court'
+import {
+  COURT_CHOICE_KEYS,
+  COURT_DEITIES,
+  COURT_LINKS,
+} from '../../deepheart/court'
 import { ENDING_TEXT, REVEAL_TEXT } from '../../deepheart/dungeon'
 import { romanceMoment } from '../../deepheart/engine'
 import { CHARACTERS, ROLES, shortName } from '../../deepheart/roster'
@@ -114,18 +118,16 @@ const others: KitCastMember[] = [
       prompt: `A translucent anthropomorphic snow leopard spirit woman with soft grey rosettes and drifting head fur presses her pale paws against the inside of a door made of fitted grey bones, glowing tears lighting her cheeks. Close medium shot. ${P}`,
     },
   },
-  ...COURT_DEITIES.map(
-    (deity): KitCastMember => ({
-      id: `fairy-${deity.id}`,
-      name: deity.name,
-      role: 'figure',
-      tagline: `${deity.epithet}. ${deity.impact}`,
-      portrait: {
-        brief: `Portrait of ${deity.name}, an unnervingly human-faced fairy ruler`,
-        prompt: `${deity.look} The visibly human-faced fairy ruler poses alone in an ancient underground palace, amid stained-glass lift machinery and candlelit paperwork. Hand-inked mature Western fantasy animation, bold cartoon shapes, saturated jewel tones, flat cel shadows and a painted stone background.`,
-      },
-    }),
-  ),
+  ...COURT_DEITIES.map((deity): KitCastMember => ({
+    id: `fairy-${deity.id}`,
+    name: deity.name,
+    role: 'figure',
+    tagline: `${deity.epithet}. ${deity.impact}`,
+    portrait: {
+      brief: `Portrait of ${deity.name}, an unnervingly human-faced fairy ruler`,
+      prompt: `${deity.look} The visibly human-faced fairy ruler poses alone in an ancient underground palace, amid stained-glass lift machinery and candlelit paperwork. Hand-inked mature Western fantasy animation, bold cartoon shapes, saturated jewel tones, flat cel shadows and a painted stone background.`,
+    },
+  })),
 ]
 
 const m = (

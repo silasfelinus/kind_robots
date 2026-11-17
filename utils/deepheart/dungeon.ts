@@ -1,5 +1,10 @@
 import type { EndingId, EnemyDef, EventDef, ItemDef } from './types'
-import { COURT_CHOICE_KEYS, COURT_DEITIES, COURT_EVENTS, COURT_LINKS } from './court'
+import {
+  COURT_CHOICE_KEYS,
+  COURT_DEITIES,
+  COURT_EVENTS,
+  COURT_LINKS,
+} from './court'
 import { UNDERCITY_EVENTS } from './society'
 
 // The dungeon: three layers, each with its own monsters, boss, treasures and

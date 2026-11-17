@@ -152,6 +152,28 @@
         />
       </template>
 
+      <template v-else-if="run.phase === 'court'">
+        <div class="dh-scene">
+          <h2 class="pf-display text-xl text-secondary">
+            {{ run.courtSelected ? 'The last bargain' : 'The Court at the Bottom' }}
+          </h2>
+          <p class="pk-prose">
+            {{
+              run.courtSelected
+                ? 'Your patron makes one final offer. Negotiate, expose, or defy, and roll the dice.'
+                : 'The human-faced nobles arrive with gifts, threats, and family scandals. Whose audience will you accept?'
+            }}
+          </p>
+        </div>
+        <DeepheartHand
+          :choices="courtCards"
+          :deal-key="`court-${run.courtSelected ?? 'select'}`"
+          :animate="animate"
+          testid-prefix="dh-court"
+          @play="(id: string) => dh.chooseCourtOption(id)"
+        />
+      </template>
+
       <DeepheartEnding v-else-if="run.phase === 'ended'" />
     </div>
 
@@ -364,6 +386,17 @@ const lootCards = computed<DhCard[]>(() => {
   })
   return cards
 })
+
+const courtCards = computed<DhCard[]>(() =>
+  run.value
+    ? engine.courtOptions(run.value).map((option) => ({
+        id: option.id,
+        label: option.label,
+        hint: option.hint,
+        icon: '♜',
+      }))
+    : [],
+)
 
 const finaleCards = computed<DhCard[]>(() =>
   run.value

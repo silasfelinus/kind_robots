@@ -8,8 +8,8 @@
       <div>
         <h2 class="pf-display text-xl text-primary">The Glass Family</h2>
         <p class="max-w-lg text-xs opacity-75">
-          A court of strangely human-faced gods. Meet them below, uncover
-          grudges, then bargain, expose, or defy them to fill the diagram.
+          Twelve immortal, human-faced reality editors. Uncover their impossible
+          family ties, then bargain, expose, or defy them to complete the diagram.
         </p>
       </div>
       <span class="badge badge-outline text-xs">
@@ -19,13 +19,13 @@
     </div>
 
     <div class="kr-scroll overflow-x-auto rounded-2xl border border-base-content/20 bg-base-200/80">
-      <div class="relative mx-auto h-[390px] w-full min-w-[700px]">
+      <div class="relative mx-auto h-[570px] w-full min-w-[940px]">
         <svg
           class="absolute inset-0 size-full"
-          viewBox="0 0 900 460"
+          viewBox="0 0 1040 680"
           preserveAspectRatio="none"
           role="img"
-          aria-label="Connections between six fairy nobles. Select a noble for relationship details."
+          aria-label="Connections between twelve immortal fairy nobles. Select a patron to inspect their grievances and affairs."
         >
           <defs>
             <marker
@@ -97,8 +97,8 @@
                 : 'border-base-content/20 bg-base-300'
           "
           :style="{
-            left: (position(deity.id).x / 900) * 100 + '%',
-            top: (position(deity.id).y / 460) * 100 + '%',
+            left: (position(deity.id).x / 1040) * 100 + '%',
+            top: (position(deity.id).y / 680) * 100 + '%',
           }"
           :aria-pressed="selected === deity.id"
           :aria-label="
@@ -151,6 +151,15 @@
         <p v-if="unlockedSelected" class="text-xs opacity-70">
           {{ current.seat }}. {{ current.impact }}
         </p>
+        <p v-if="unlockedSelected" class="mt-1 text-xs italic opacity-80">
+          {{ current.obsession }}
+        </p>
+        <p
+          v-if="discovered('court-immortality-' + selected)"
+          class="mt-1 text-xs text-secondary"
+        >
+          {{ current.immortalTruth }}
+        </p>
       </div>
       <div class="grid content-start gap-2">
         <h3 class="text-xs font-bold uppercase tracking-wider">
@@ -185,15 +194,23 @@ import type { CourtRelation } from '~/utils/deepheart/court'
 
 const kit = usePlaybookKitStore()
 const selected = ref(COURT_DEITIES[0]!.id)
+// Four patrons across each of the three inhabited strata. Fixed placement
+// keeps the layout stable as relationships become visible across runs.
 const positions: Record<string, { x: number; y: number }> = {
-  aveline: { x: 145, y: 112 },
-  ilex: { x: 450, y: 88 },
-  vireo: { x: 755, y: 112 },
-  serein: { x: 145, y: 360 },
-  cauline: { x: 450, y: 380 },
-  ludo: { x: 755, y: 360 },
+  aveline: { x: 145, y: 105 },
+  astraea: { x: 395, y: 105 },
+  ilex: { x: 645, y: 105 },
+  marsyn: { x: 895, y: 105 },
+  serein: { x: 145, y: 335 },
+  nerion: { x: 395, y: 335 },
+  veloura: { x: 645, y: 335 },
+  vireo: { x: 895, y: 335 },
+  cauline: { x: 145, y: 565 },
+  caldera: { x: 395, y: 565 },
+  nysa: { x: 645, y: 565 },
+  ludo: { x: 895, y: 565 },
 }
-const position = (id: string) => positions[id] ?? { x: 450, y: 230 }
+const position = (id: string) => positions[id] ?? { x: 520, y: 335 }
 const discovered = (id: string) => kit.isUnlocked('reveals', id)
 const current = computed(
   () => COURT_DEITIES.find((deity) => deity.id === selected.value)!,

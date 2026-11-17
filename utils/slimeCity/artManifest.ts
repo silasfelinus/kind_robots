@@ -432,7 +432,8 @@ export const SLIME_CITY_ART = {
     'exchange/ending-triumph': 260088,
     'exchange/opening': 260640,
     // Ironjaw lizard story round 1 (2026-11-17 PT, slime-city/t-044): 19 of 23 ogre-era
-    // plates repainted with lizards; story redo 1 (2026-11-17 PT) adds 3 more. See
+    // plates repainted with lizards; story redo 1 (2026-11-17 PT) adds 3 more and story
+    // redo 2 the last one (ironjaw/2/cunning). See
     // ironjawLizardArtCoverage.json storyRounds.
     'ironjaw/1/defeat': 274146,
     'ironjaw/2/conviction': 274342,
@@ -520,7 +521,7 @@ export const SLIME_CITY_ART = {
     'ironjaw/1/conviction': 274341,
     'ironjaw/1/cunning': 274145,
     'ironjaw/1/scene': 274340,
-    'ironjaw/2/cunning': 262259,
+    'ironjaw/2/cunning': 274374,
     'ironjaw/3/cunning': 274153,
     'ironjaw/4/cunning': 274157,
     'ironjaw/5/conviction': 274160,

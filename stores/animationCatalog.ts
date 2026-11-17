@@ -1171,6 +1171,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'maple-creek-drift',
+    label: 'Maple Creek Drift',
+    reveal: 'Autumn leaves ride a winding woodland creek',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Maple leaves let go, tumble down and float away on the creek 🍁 hover to stir an eddy, click to shake loose a leaf shower',
+    color: '#e8572a',
+    releasedAt: '2026-11-17T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

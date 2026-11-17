@@ -465,7 +465,7 @@ assert.match(
   readFileSync('components/deepheart/deepheart-title.vue', 'utf8'),
   /user\.isAdmin && user\.showMature/,
 )
-const bibleSource = readFileSync('pages/admin/deepheart-bible.vue', 'utf8')
+const bibleSource = readFileSync('pages/admin/deepheart/bible.vue', 'utf8')
 assert.match(bibleSource, /user\.isAdmin && user\.showMature/)
 assert.match(bibleSource, /data-testid="deepheart-art-bible"/)
 assert.match(bibleSource, /loadJobImage/)

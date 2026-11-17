@@ -65,10 +65,7 @@
         class="absolute inset-x-4 top-4 z-10 sm:inset-x-6 sm:top-6"
         :class="animal.side === 'left' ? 'text-right' : 'text-left'"
       >
-        <div
-          class="max-w-md"
-          :class="animal.side === 'left' ? 'ml-auto' : ''"
-        >
+        <div class="max-w-md" :class="animal.side === 'left' ? 'ml-auto' : ''">
           <p class="text-xs font-black tracking-[0.2em] text-amber-200">
             K8 / YOUR FINANCIAL SPIRIT ANIMAL
           </p>
@@ -139,12 +136,16 @@
             <strong>{{ k8Money(k8.snapshot?.metrics.fundEquityQuote) }}</strong>
           </div>
           <div class="rounded-lg bg-white/10 p-2">
-            <div class="opacity-70">Held {{ k8.snapshot?.metrics.asset || 'asset' }}</div>
+            <div class="opacity-70">
+              Held {{ k8.snapshot?.metrics.asset || 'asset' }}
+            </div>
             <strong>{{ heldAsset }}</strong>
           </div>
           <div class="hidden rounded-lg bg-white/10 p-2 sm:block">
             <div class="opacity-70">Realized P&amp;L</div>
-            <strong>{{ k8Money(k8.snapshot?.metrics.realizedPnlQuote) }}</strong>
+            <strong>{{
+              k8Money(k8.snapshot?.metrics.realizedPnlQuote)
+            }}</strong>
           </div>
           <div class="hidden rounded-lg bg-white/10 p-2 sm:block">
             <div class="opacity-70">Authorized fund ceiling</div>
@@ -239,8 +240,8 @@
           </button>
         </div>
         <p class="mt-2 text-xs text-white/70">
-          Profile changes save to Critical Mass. They do not alter trading
-          until you separately apply this level.
+          Profile changes save to Critical Mass. They do not alter trading until
+          you separately apply this level.
         </p>
         <div v-if="!k8.snapshot" class="mt-3 text-sm text-warning">
           Connect the private K8 bridge to read or edit settings.
@@ -265,8 +266,8 @@
           </label>
           <p class="mt-1 text-xs text-white/65">
             {{ k8Money(projectedCap) }} of
-            {{ k8Money(k8.snapshot.config.maxUsdcDeployed) }}.
-            Neighboring animals constrain this to {{ minimumShare }}–{{ maximumShare }}%.
+            {{ k8Money(k8.snapshot.config.maxUsdcDeployed) }}. Neighboring
+            animals constrain this to {{ minimumShare }}–{{ maximumShare }}%.
           </p>
           <button
             class="btn btn-ghost btn-sm mt-3"
@@ -274,7 +275,9 @@
             :aria-expanded="deepSettings"
             @click="deepSettings = !deepSettings"
           >
-            {{ deepSettings ? 'Hide advanced parameters' : 'Advanced parameters' }}
+            {{
+              deepSettings ? 'Hide advanced parameters' : 'Advanced parameters'
+            }}
           </button>
           <div v-if="deepSettings" class="mt-2 grid grid-cols-1 gap-2">
             <label
@@ -317,8 +320,13 @@
           </p>
         </template>
         <div class="mt-4 border-t border-white/20 pt-3 text-xs text-white/70">
-          <p>Drawdown guard: {{ k8.snapshot?.config.maxDrawdownPercent ?? 'Unknown' }}%</p>
-          <p>Resting buy orders: {{ k8.snapshot?.pendingBuyOrders ?? 'Unknown' }}</p>
+          <p>
+            Drawdown guard:
+            {{ k8.snapshot?.config.maxDrawdownPercent ?? 'Unknown' }}%
+          </p>
+          <p>
+            Resting buy orders: {{ k8.snapshot?.pendingBuyOrders ?? 'Unknown' }}
+          </p>
           <p>{{ k8.snapshot?.metrics.valuationNote }}</p>
         </div>
       </aside>
@@ -347,8 +355,8 @@
                 ? 'This is LIVE-MONEY mode.'
                 : 'This fund reports dry-run mode.'
             }}
-            Existing holdings and orders can remain exposed.
-            Crypto can lose its full value.
+            Existing holdings and orders can remain exposed. Crypto can lose its
+            full value.
           </p>
           <p class="mt-2 text-xs text-white/70">
             Risk settings are checked again against the latest server snapshot
@@ -482,7 +490,9 @@ onBeforeUnmount(() => k8.clear())
 <style scoped>
 .k8-scene-enter-active,
 .k8-scene-leave-active {
-  transition: opacity 360ms ease, transform 360ms ease;
+  transition:
+    opacity 360ms ease,
+    transform 360ms ease;
 }
 .k8-scene-enter-from {
   opacity: 0;

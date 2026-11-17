@@ -1,85 +1,85 @@
 export const K8_ANIMALS = [
   {
-    "name": "Anemone",
-    "quote": "The market may continue without me.",
-    "side": "right",
-    "file": "00-anemone.webp"
+    name: 'Anemone',
+    quote: 'The market may continue without me.',
+    side: 'right',
+    file: '00-anemone.webp',
   },
   {
-    "name": "Snail",
-    "quote": "Please respect my personal liquidity.",
-    "side": "left",
-    "file": "01-snail.webp"
+    name: 'Snail',
+    quote: 'Please respect my personal liquidity.',
+    side: 'left',
+    file: '01-snail.webp',
   },
   {
-    "name": "Sloth",
-    "quote": "I have reviewed the charts. Eventually.",
-    "side": "right",
-    "file": "02-sloth.webp"
+    name: 'Sloth',
+    quote: 'I have reviewed the charts. Eventually.',
+    side: 'right',
+    file: '02-sloth.webp',
   },
   {
-    "name": "Tortoise",
-    "quote": "An empire built one tiny step at a time.",
-    "side": "left",
-    "file": "03-tortoise.webp"
+    name: 'Tortoise',
+    quote: 'An empire built one tiny step at a time.',
+    side: 'left',
+    file: '03-tortoise.webp',
   },
   {
-    "name": "Capybara",
-    "quote": "Unbothered, moisturized, moderately invested.",
-    "side": "right",
-    "file": "04-capybara.webp"
+    name: 'Capybara',
+    quote: 'Unbothered, moisturized, moderately invested.',
+    side: 'right',
+    file: '04-capybara.webp',
   },
   {
-    "name": "Otter",
-    "quote": "One paw on the wheel. One on a shiny rock.",
-    "side": "left",
-    "file": "05-otter.webp"
+    name: 'Otter',
+    quote: 'One paw on the wheel. One on a shiny rock.',
+    side: 'left',
+    file: '05-otter.webp',
   },
   {
-    "name": "Fox",
-    "quote": "I have a plan. I refuse to share it.",
-    "side": "right",
-    "file": "06-fox.webp"
+    name: 'Fox',
+    quote: 'I have a plan. I refuse to share it.',
+    side: 'right',
+    file: '06-fox.webp',
   },
   {
-    "name": "Cheetah",
-    "quote": "Faster decisions. Same limited treasury.",
-    "side": "left",
-    "file": "07-cheetah.webp"
+    name: 'Cheetah',
+    quote: 'Faster decisions. Same limited treasury.',
+    side: 'left',
+    file: '07-cheetah.webp',
   },
   {
-    "name": "Honey Badger",
-    "quote": "The spreadsheets have started to fear me.",
-    "side": "right",
-    "file": "08-honey-badger.webp"
+    name: 'Honey Badger',
+    quote: 'The spreadsheets have started to fear me.',
+    side: 'right',
+    file: '08-honey-badger.webp',
   },
   {
-    "name": "Phoenix",
-    "quote": "My risk tolerance has developed a soundtrack.",
-    "side": "left",
-    "file": "09-phoenix.webp"
+    name: 'Phoenix',
+    quote: 'My risk tolerance has developed a soundtrack.',
+    side: 'left',
+    file: '09-phoenix.webp',
   },
   {
-    "name": "Dragon",
-    "quote": "I AM THE FANCY BUTTONS.",
-    "side": "right",
-    "file": "10-dragon.webp"
-  }
+    name: 'Dragon',
+    quote: 'I AM THE FANCY BUTTONS.',
+    side: 'right',
+    file: '10-dragon.webp',
+  },
 ] as const
 
 export const K8_PROFILE_FIELDS = [
-  "kFactor",
-  "minIntervalMs",
-  "maxIntervalMs",
-  "entryOffsetBps",
-  "entryOffsetUpBps",
-  "entryOffsetDownBps",
-  "orderStaleMs",
-  "cautionScale",
-  "trendScale",
-  "maxCycleBuys",
-  "mergeProximityScale",
-  "maxDeploymentPercent"
+  'kFactor',
+  'minIntervalMs',
+  'maxIntervalMs',
+  'entryOffsetBps',
+  'entryOffsetUpBps',
+  'entryOffsetDownBps',
+  'orderStaleMs',
+  'cautionScale',
+  'trendScale',
+  'maxCycleBuys',
+  'mergeProximityScale',
+  'maxDeploymentPercent',
 ] as const
 
 export type K8ProfileField = (typeof K8_PROFILE_FIELDS)[number]
@@ -160,8 +160,13 @@ export function k8RiskParams(
     if (key === 'maxDeploymentPercent') continue
     const first = from[key]
     const last = to[key]
-    if (typeof first !== 'number' || typeof last !== 'number' ||
-      !Number.isFinite(first) || !Number.isFinite(last)) return null
+    if (
+      typeof first !== 'number' ||
+      typeof last !== 'number' ||
+      !Number.isFinite(first) ||
+      !Number.isFinite(last)
+    )
+      return null
     const value = first + (last - first) * fraction
     params[key] = INTEGER_FIELDS.has(key)
       ? Math.round(value)

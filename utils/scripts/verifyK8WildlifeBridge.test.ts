@@ -20,8 +20,9 @@ const fields = K8_PROFILE_FIELDS.filter(
   (field) => field !== 'maxDeploymentPercent',
 )
 const makePreset = (factor: number) =>
-  Object.fromEntries(fields.map((field) => [field, factor])) as
-    K8Snapshot['presets'][string]
+  Object.fromEntries(
+    fields.map((field) => [field, factor]),
+  ) as K8Snapshot['presets'][string]
 const presets = {
   conservative: makePreset(10),
   moderate: makePreset(20),

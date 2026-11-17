@@ -33,7 +33,11 @@ export default defineEventHandler(async (event) => {
       })
     }
     for (const [key, value] of Object.entries(overrides || {})) {
-      if (!allowed.has(key) || typeof value !== 'number' || !Number.isFinite(value)) {
+      if (
+        !allowed.has(key) ||
+        typeof value !== 'number' ||
+        !Number.isFinite(value)
+      ) {
         throw createError({
           statusCode: 400,
           message: 'Animal profile values must be supported finite numbers.',

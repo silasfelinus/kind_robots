@@ -8,7 +8,7 @@ import type { Character, RoomKind } from './types'
 // by setting `src` once its URL is verified (conductor deepheart art ledger).
 
 export const DH_PALETTE =
-  'Expressive hand-painted dark-fantasy animation with anthropomorphic animal adventurers, varied fur, feathers and scales, warm torch amber, slate blue and deep crimson.'
+  'Modern 2D Western fantasy action cartoon, bold hand-inked outlines, lively expressive adult faces and animal anatomy, clean cel-painted shadows, saturated jewel tones in torch amber, slate blue and crimson, an ominous violent dungeon world.'
 
 export function portraitArt(c: Character): KitArt {
   return {

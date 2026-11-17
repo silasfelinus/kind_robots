@@ -455,7 +455,10 @@ assert.equal(
   'arthemy',
 )
 assert.equal(
-  deepheartStyleLaneFromRequest('', 'Illustrious/furrytoonmix_xlV3.safetensors'),
+  deepheartStyleLaneFromRequest(
+    '',
+    'Illustrious/furrytoonmix_xlV3.safetensors',
+  ),
   'furrytoon',
 )
 assert.match(

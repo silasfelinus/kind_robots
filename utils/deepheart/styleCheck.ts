@@ -140,3 +140,14 @@ export function deepheartStyleLaneFromModel(model: string) {
     )?.key ?? null
   )
 }
+
+export function deepheartStyleLaneFromRequest(
+  requestKey: string,
+  checkpoint: string,
+) {
+  return (
+    DEEPHEART_STYLE_LANES.find((lane) =>
+      requestKey.includes('@' + lane.key + '='),
+    )?.key ?? deepheartStyleLaneFromModel(checkpoint)
+  )
+}

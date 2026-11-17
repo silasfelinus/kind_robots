@@ -654,6 +654,20 @@
           "reason": "foreground overalls worker reads as a toad again and the clock grew a third hand; frog divers and cobalt Rivet are fine"
         }
       ]
+    },
+    {
+      "source": "conductor/projects/slime-city/art/IRONJAW-LIZARDS-STORY-REDO-2.yaml",
+      "note": "2026-11-17 PT (slime-city/t-044): the single story redo 2 render fetched through the authenticated image endpoint and reviewed. The keeper replaces the last ogre-era Ironjaw story plate at its exact SLIME_CITY_ART.story slot.",
+      "entries": [
+        {
+          "slot": "ironjaw/2/cunning",
+          "imageId": 274374,
+          "replacesImageId": 262259,
+          "supersedesRejected": 274343,
+          "verdict": "keep",
+          "reason": "cobalt Rivet hauls the lever of a blank-faced brass shift-clock while teal, orange and magenta lizards cheer; frog divers small in the drain; no numerals or lettering (a thin centre hand reads as a sweep hand, cosmetic only)"
+        }
+      ]
     }
   ]
 }

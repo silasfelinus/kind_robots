@@ -21,7 +21,7 @@ export const LAYERS: Layer[] = [
     id: 0,
     name: 'The Ossuary Gate',
     blurb:
-      'Crypts stacked with the bones of every delver who came before, kept in order by something that still keeps watch.',
+      'Beneath the surface lies Bellmouth: freight lifts, family crypts, porters, night schools and a customs gate kept by the faithful dead.',
     moment: 'ossuary-gate',
     enemies: ['rats', 'skeleton', 'slime', 'cutthroat', 'shade'],
     boss: 'warden',
@@ -32,7 +32,7 @@ export const LAYERS: Layer[] = [
     id: 1,
     name: 'The Drowned Halls',
     blurb:
-      'A sunken palace where the tide comes in from nowhere and the choir under the water never stops singing.',
+      'Floodline markets and waterlogged tenements occupy a sunken palace; the choir sings while the people above the water fight over a dry stair.',
     moment: 'drowned-halls',
     enemies: ['knight', 'lamprey', 'cultist', 'golem', 'wisp'],
     boss: 'brine',
@@ -43,7 +43,7 @@ export const LAYERS: Layer[] = [
     id: 2,
     name: 'The Ember Deep',
     blurb:
-      'The hot heart of the mountain, where an empty king sits on a throne of cooling stone and waits for whoever comes next.',
+      'The heatworks and root commons surround the living mountain heart, where labourers, noble courts and an empty king compete for what comes next.',
     moment: 'ember-deep',
     enemies: ['imp', 'obsidian', 'hound', 'pyre', 'hollow'],
     boss: 'king',

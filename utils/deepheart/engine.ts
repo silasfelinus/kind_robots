@@ -9,6 +9,8 @@ import {
   event,
   item,
 } from './dungeon'
+import { COURT_CHOICE_KEYS, COURT_DEITIES, courtDeity } from './court'
+import type { CourtChoiceKey } from './court'
 import {
   activeSupports,
   activeSynergies,
@@ -1072,6 +1074,7 @@ export function openTreasure(run: RunState, choice: TreasureChoice) {
 
 function startChoice(run: RunState, id: string) {
   const ev = event(id)
+  if (id.startsWith('fairy-')) run.flags[`court-met-${id.slice(6)}`] = true
   run.phase = 'choice'
   if (!run.seenEvents.includes(id)) run.seenEvents.push(id)
   if (ev.moment) addMoment(run, ev.moment)
@@ -1117,6 +1120,23 @@ function changeAffinity(run: RunState, id: string, delta: number) {
   run.affinity[id] = Math.max(0, Math.min(10, (run.affinity[id] ?? 0) + delta))
 }
 
+export function rollAbilityCheck(
+  run: RunState,
+  skill: StatKey,
+  dc: number,
+): { die: number; modifier: number; total: number; success: boolean } {
+  const members = alive(run)
+  const best = members.length
+    ? Math.max(...members.map((member) => stat(run, member.id, skill)))
+    : 0
+  const modifier = Math.max(0, Math.floor(best / 4))
+  const die = 1 + Math.floor(nextRandom(run) * 20)
+  const total = die + modifier
+  return { die, modifier, total, success: total >= dc }
+}
+
+// A roll always uses the current run's RNG, including failed negotiations.
+// Saving and resuming preserves exactly the same outcome.
 export function chooseOption(run: RunState, optionId: string) {
   const ev = currentEvent(run)
   if (run.phase !== 'choice' || !ev) return
@@ -1124,7 +1144,23 @@ export function chooseOption(run: RunState, optionId: string) {
   if (!option || optionLock(run, option)) return
   run.notices = []
   run.choices.push(`${ev.id}:${option.id}`)
-  if (option.gamble) {
+  if (option.check) {
+    const check = rollAbilityCheck(run, option.check.stat, option.check.dc)
+    const code = `${ev.id}:${option.id}:${check.total >= option.check.dc ? 'passed' : 'failed'}`
+    run.flags[code] = true
+    applyEffects(run, check.success ? option.check.win : option.check.lose)
+    note(
+      run,
+      check.success ? 'good' : 'bad',
+      `d20 ${check.die} + ${check.modifier} ${option.check.stat.toUpperCase()} = ${check.total} vs ${option.check.dc}. ${check.success ? option.check.winText : option.check.loseText}`,
+    )
+    if (check.success && ev.id.startsWith('fairy-')) {
+      const deity = courtDeity(ev.id.slice(6))
+      const choice = option.id as CourtChoiceKey
+      const link = deity?.choices[choice]?.revealLink
+      if (link) addReveal(run, link)
+    }
+  } else if (option.gamble) {
     const win = nextRandom(run) < option.gamble.chance
     applyEffects(run, win ? option.gamble.win : option.gamble.lose)
     note(
@@ -1388,7 +1424,88 @@ export function chooseEnding(run: RunState, ending: EndingId) {
     ending === 'dawnbringer'
   )
     addReveal(run, 'heart-alive')
-  endRun(run, ending)
+  const knownDeities = COURT_DEITIES.filter(
+    (deity) => run.flags[`court-met-${deity.id}`],
+  )
+  if (knownDeities.length) {
+    run.pendingEnding = ending
+    run.courtSelected = null
+    run.phase = 'court'
+    note(run, 'info', 'A last invitation arrives: the courts wish to speak.')
+  } else endRun(run, ending)
+}
+
+export type CourtOption = { id: string; label: string; hint: string }
+
+export function courtOptions(run: RunState): CourtOption[] {
+  if (run.phase !== 'court') return []
+  if (!run.courtSelected)
+    return [
+      ...COURT_DEITIES.filter((deity) => run.flags[`court-met-${deity.id}`]).map(
+        (deity) => ({
+          id: `audience:${deity.id}`,
+          label: deity.name,
+          hint: deity.epithet,
+        }),
+      ),
+      {
+        id: 'skip',
+        label: 'Leave the nobles to argue',
+        hint: 'End the delve on your own terms',
+      },
+    ]
+  const deity = courtDeity(run.courtSelected)
+  if (!deity) return [{ id: 'skip', label: 'Leave the court', hint: '' }]
+  return [
+    ...COURT_CHOICE_KEYS.map((choice) => ({
+      id: `resolve:${choice}`,
+      label: deity.choices[choice].label,
+      hint: `d20 + ${deity.choices[choice].stat.toUpperCase()} vs ${deity.choices[choice].dc}`,
+    })),
+    { id: 'back', label: 'Speak to another patron', hint: 'Choose another audience' },
+    { id: 'skip', label: 'Refuse every offer', hint: 'Finish without a court bargain' },
+  ]
+}
+
+export function chooseCourtOption(run: RunState, id: string) {
+  if (run.phase !== 'court' || !run.pendingEnding) return
+  if (id === 'skip') {
+    endRun(run, run.pendingEnding)
+    return
+  }
+  if (id === 'back') {
+    run.courtSelected = null
+    return
+  }
+  if (id.startsWith('audience:')) {
+    const deityId = id.slice('audience:'.length)
+    if (!run.flags[`court-met-${deityId}`] || !courtDeity(deityId)) return
+    run.courtSelected = deityId
+    return
+  }
+  if (!id.startsWith('resolve:') || !run.courtSelected) return
+  const choice = id.slice('resolve:'.length) as CourtChoiceKey
+  if (!COURT_CHOICE_KEYS.includes(choice)) return
+  const deity = courtDeity(run.courtSelected)
+  if (!deity || !run.flags[`court-met-${deity.id}`]) return
+  const option = deity.choices[choice]
+  const check = rollAbilityCheck(run, option.stat, option.dc)
+  const epilogue = check.success ? option.epilogue : option.failure
+  run.courtOutcome = {
+    deity: deity.id,
+    path: choice,
+    ...check,
+    target: option.dc,
+    epilogue,
+  }
+  addReveal(run, `court-ending-${deity.id}-${choice}`)
+  if (check.success) addReveal(run, option.revealLink)
+  note(
+    run,
+    check.success ? 'good' : 'bad',
+    `${deity.name}: d20 ${check.die} + ${check.modifier} = ${check.total} vs ${option.dc}. ${epilogue}`,
+  )
+  endRun(run, run.pendingEnding)
 }
 
 function endRun(run: RunState, ending: EndingId) {
@@ -1400,7 +1517,7 @@ function endRun(run: RunState, ending: EndingId) {
 
 export function endingText(
   run: RunState,
-): { title: string; text: string; romance: string } | null {
+): { title: string; text: string; romance: string; court: string } | null {
   if (!run.ending) return null
   const e = ENDING_TEXT[run.ending]
   const partner = run.partners[0]
@@ -1409,6 +1526,9 @@ export function endingText(
     title: e.title,
     text: e.text,
     romance: partner ? e.romance.replace('{partner}', names) : '',
+    court: run.courtOutcome
+      ? `${courtDeity(run.courtOutcome.deity)?.name ?? 'The court'}: ${run.courtOutcome.epilogue}`
+      : '',
   }
 }
 
@@ -1496,6 +1616,9 @@ export function autoplay(
         )
         break
       }
+      case 'court':
+        chooseCourtOption(run, 'skip')
+        break
     }
   }
   return run

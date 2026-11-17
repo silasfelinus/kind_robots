@@ -62,3 +62,25 @@ A stable requestKey deduplicates PENDING/RUNNING/DONE submissions.
 
 Currently engine=sdxl is implemented; this stable request contract can host
 other generation engines without changing how callers describe target regions.
+
+## Opt-in masked-source VAE pilot
+
+By default `inpaintEncoding` is `source-preserving`, the original
+`VAEEncode` plus `SetLatentNoiseMask` behavior. For a **private** corrective
+art pilot where the ordinary source latents resist a requested change, set
+`"inpaintEncoding": "masked-vae"`. This replaces the initial VAE encoding
+node with ComfyUI's built-in `VAEEncodeForInpaint` (zero latent mask growth).
+It clears the source's masked pixels to a neutral gray before encoding, while
+the existing latent noise mask and final `ImageCompositeMasked` still run.
+
+The option changes only a caller that explicitly supplies it; legacy requests
+and any existing ArtJob payload retain their previous graph and dedup identity.
+`previewOnly` echoes the selected encoding. The ArtJob's `regionEdit`
+metadata records it for later reproducibility and audit. The endpoint remains
+private-only and does not publish or attach generated ArtImages automatically.
+
+This is an **experimental corrective option**, not evidence that a rendered
+result is successful. The Shifting Desks source 273631 / targeted output 274183
+had a valid nonempty preview mask but no significant in-mask pixel changes.
+Before accepting a follow-up private candidate, verify a nontrivial masked-pixel
+delta **and** a scene-faithful visual edit independently. 

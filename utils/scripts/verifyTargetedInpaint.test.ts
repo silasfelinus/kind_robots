@@ -83,6 +83,7 @@ const workflow = buildSdxlRegionWorkflow({
   crop: prepared.crop,
   seed: 4321,
 })
+assert.equal(workflow.workflow['5']?.class_type, 'VAEEncode')
 assert.equal(workflow.workflow['80']?.class_type, 'LoadImageMask')
 assert.equal(workflow.workflow['81']?.class_type, 'SetLatentNoiseMask')
 assert.deepEqual(workflow.workflow['6']?.inputs?.latent_image, ['81', 0])
@@ -134,6 +135,29 @@ assert.equal(cropWorkflow.workflow['6']?.inputs?.cfg, 2)
 assert.equal(cropWorkflow.workflow['6']?.inputs?.sampler_name, 'dpmpp_sde')
 assert.equal(cropWorkflow.workflow['6']?.inputs?.scheduler, 'karras')
 
+const maskedVae = buildSdxlRegionWorkflow({
+  prompt: 'one separately articulated third arm',
+  checkpoint: 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
+  sourceName: 'sample.png',
+  originalName: 'original.png',
+  noiseMaskName: 'hard.png',
+  compositeMaskName: 'soft.png',
+  inpaintEncoding: 'masked-vae',
+  originalWidth: prepared.originalWidth,
+  originalHeight: prepared.originalHeight,
+  crop: prepared.crop,
+  denoise: 0.72,
+  seed: 932821,
+})
+assert.equal(maskedVae.workflow['5']?.class_type, 'VAEEncodeForInpaint')
+assert.deepEqual(maskedVae.workflow['5']?.inputs?.pixels, ['4', 0])
+assert.deepEqual(maskedVae.workflow['5']?.inputs?.vae, ['1', 2])
+assert.deepEqual(maskedVae.workflow['5']?.inputs?.mask, ['80', 0])
+assert.equal(maskedVae.workflow['5']?.inputs?.grow_mask_by, 0)
+assert.deepEqual(maskedVae.workflow['6']?.inputs?.latent_image, ['81', 0])
+assert.deepEqual(maskedVae.workflow['8']?.inputs?.images, ['84', 0])
+assert.deepEqual(maskedVae.workflow['83']?.inputs?.mask, ['82', 0])
+
 const badRequests: Array<Partial<TargetedEditRequest>> = [
   { ...request, targets: [] },
   { ...request, targets: [{ type: 'box', box: [0.4, 0.3, 0.1, 0.7] }] },
@@ -164,6 +188,8 @@ assert.ok(api.includes("requireScopedApiUser(event, 'generation:art')"))
 assert.ok(api.includes('isPublic: false'))
 assert.ok(api.includes('serializeArtJobPayload(payload)'))
 assert.ok(api.includes('body.previewOnly === true'))
+assert.ok(api.includes("inpaintEncoding !== 'masked-vae'"))
+assert.ok(api.includes('inpaintEncoding,'))
 assert.ok(api.includes('attemptFingerprint: fingerprint'))
 assert.ok(api.includes('await gate.commit('))
 console.log(

@@ -56,7 +56,7 @@ assert.equal(Object.keys(ANTHRO_LOOK).length, 50, 'fifty painted anthro designs'
 assert.equal(Object.keys(ANTHRO_BLURB).length, 50, 'fifty species-free blurbs')
 assert.ok(CHARACTERS.every((c) => c.look.startsWith('Anthropomorphic ')))
 assert.ok(CHARACTERS.every((c) => c.blurb === ANTHRO_BLURB[c.id]))
-assert.ok(CHARACTERS.every((c) => !/\\b(orc|dwarf|elf|gnome|halfling|tiefling|human|faun|lizardfolk|mothkin|goblin)\\b/i.test(c.blurb)))
+assert.ok(CHARACTERS.every((c) => !/\b(orc|dwarf|elf|gnome|halfling|tiefling|human|faun|lizardfolk|mothkin|goblin)\b/i.test(c.blurb)))
 assert.equal(new Set(CHARACTERS.map((c) => c.id)).size, 50, 'unique ids')
 for (const c of CHARACTERS) {
   assert.ok(ROLES[c.role], `${c.id} has a real role`)

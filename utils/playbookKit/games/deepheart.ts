@@ -19,7 +19,7 @@ const followers: KitCastMember[] = CHARACTERS.map((c) => ({
   id: c.id,
   name: c.name,
   role: 'follower',
-  tagline: `${c.ancestry} ${ROLES[c.role].label}. ${c.blurb}`,
+  tagline: `${ROLES[c.role].label}. ${c.blurb}`,
   portrait: portraitArt(c),
   ...(c.romanceable
     ? { romance: { arc: c.arc, moments: [romanceMoment(c.id)] } }

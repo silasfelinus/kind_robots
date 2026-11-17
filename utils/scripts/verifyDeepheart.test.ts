@@ -20,6 +20,7 @@ import { EVENTS, LAYERS, REVEAL_TEXT } from '../deepheart/dungeon'
 import {
   SUPPORT_MOMENTS,
   autoplay,
+  attemptParley,
   createRun,
   chooseCourtOption,
   chooseDoor,
@@ -29,6 +30,7 @@ import {
   finaleOptions,
   rollAbilityCheck,
   romanceMoment,
+  startFight,
 } from '../deepheart/engine'
 import {
   activeSynergies,
@@ -610,6 +612,32 @@ for (const deity of COURT_DEITIES) {
   run.phase = 'finale'
   chooseEnding(run, 'delver')
   assert.equal(run.phase, 'ended', 'an unmet court does not interrupt the finale')
+}
+
+// One peaceful attempt per ordinary fight; no free rerolls on save/resume.
+{
+  const fight = (seed: number) => {
+    const run = createRun(hero('idris'), ['brannoc'], seed)
+    run.room = { kind: 'fight', known: true }
+    startFight(run, ['cutthroat'])
+    attemptParley(run)
+    const first = {
+      phase: run.phase,
+      log: [...run.log],
+      rng: run.rng,
+      mercy: run.mercy,
+      hp: run.party.map((member) => member.hp),
+    }
+    attemptParley(run)
+    assert.equal(run.rng, first.rng, 'a second parley cannot reroll')
+    assert.deepEqual(run.log, first.log, 'failed parley cannot be spammed')
+    return first
+  }
+  assert.deepEqual(fight(106), fight(106))
+  assert.match(
+    readFileSync('components/deepheart/deepheart-fight.vue', 'utf8'),
+    /data-testid="dh-parley"/,
+  )
 }
 
 console.log(

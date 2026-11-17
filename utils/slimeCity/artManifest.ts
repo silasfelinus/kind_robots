@@ -1088,6 +1088,9 @@ export const SLIME_CITY_ART = {
     // reallocation@2, forklift-chock@3, overtime-pistons@2 and the overtime-toll
     // card (273523) kept; merc-picket-troll@2 (lettered armband) and
     // bonus-plate@2 (lettered booth) still fall back to card art.
+    // IRONJAW-LIZARDS-REDO-3 (2026-11-16 PT contact sheet): merc-picket-troll@2
+    // (plain cloth band) and s3-ironjaw-bonus-plate@2 (tight counter framing)
+    // both kept; every Ironjaw redo slot is now lizard-painted.
     'union-millwright@2': 273010,
     'union-millwright@3': 273011,
     's1-bolt-clamp@2': 273016,
@@ -1095,6 +1098,8 @@ export const SLIME_CITY_ART = {
     's3-ironjaw-reallocation@2': 273520,
     's3-ironjaw-forklift-chock@3': 273521,
     's2-ironjaw-overtime-pistons@2': 273522,
+    'merc-picket-troll@2': 274064,
+    's3-ironjaw-bonus-plate@2': 274065,
     's1-walking-foundry@2': 269580,
     's1-walking-foundry@3': 269581,
     's1-scrap-welder@2': 269582,

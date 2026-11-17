@@ -35,7 +35,15 @@ assert.equal(
   questArtUrl('r-deserter', 'success'),
   '/emperor-of-dust/quests/r-deserter-success.webp',
 )
-// Both gallery quests were rejected outright; they keep the painted-map crop.
-assert.equal(questArtUrl('r-low-galleries'), undefined)
+// The 2026-11-17 PT redo curation shipped both burrow-gallery quests as tunnel
+// interiors; r-deserter's failure was rejected again and still falls back.
+assert.equal(
+  questArtUrl('r-low-galleries', 'failure'),
+  '/emperor-of-dust/quests/r-low-galleries-failure.webp',
+)
+assert.equal(
+  questArtUrl('q-d07-galleries'),
+  '/emperor-of-dust/quests/q-d07-galleries.webp',
+)
 
 console.log(`emperor quest art: ${QUEST_ART.length} entries verified`)

@@ -741,6 +741,12 @@ export const DEEPHEART: PlaybookKitSpec = {
   },
   allowances: [
     {
+      dimension: 'reveals',
+      max: 136,
+      reason:
+        'The twelve immortal rulers have encounter, deathless-secret and six finale-outcome reveals each, plus thirty-two unlockable family ties. These are persistent catalogue discoveries, not simultaneous active quests; an individual delve sees only a few.',
+    },
+    {
       dimension: 'followers',
       max: 50,
       reason:

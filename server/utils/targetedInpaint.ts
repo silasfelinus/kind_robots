@@ -257,6 +257,12 @@ export async function prepareTargetedEdit(
     }
   }
 
+  // A blank feather would discard every generated pixel at final composite.
+  // Fail before creating an ArtJob even when hard target geometry is valid.
+  if (!soft.some((pixel) => pixel >= 128)) {
+    throw new Error('Target edit composite mask has no usable pixels.')
+  }
+
   const minSide = 512
   const crop =
     mode === 'crop'

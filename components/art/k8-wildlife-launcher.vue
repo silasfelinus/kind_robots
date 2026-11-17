@@ -7,10 +7,7 @@
       </span>
     </header-page-bar>
 
-    <div
-      v-if="!allowed"
-      class="kr-scroll grid flex-1 place-items-center p-4"
-    >
+    <div v-if="!allowed" class="kr-scroll grid flex-1 place-items-center p-4">
       <div class="kr-panel max-w-lg p-6 text-center">
         <h2 class="text-xl font-bold">Private wildlife portfolio</h2>
         <p class="mt-2 text-sm opacity-75">
@@ -27,7 +24,9 @@
       <picture class="absolute inset-0">
         <source
           media="(max-width: 600px)"
-          srcset="https://raw.githubusercontent.com/silasfelinus/critical-mass/main/admin/public/k8-animals/mobile/02-sloth.webp"
+          srcset="
+            https://raw.githubusercontent.com/silasfelinus/critical-mass/main/admin/public/k8-animals/mobile/02-sloth.webp
+          "
         />
         <img
           class="h-full w-full object-cover"
@@ -39,20 +38,16 @@
         class="absolute inset-0 bg-gradient-to-t from-neutral via-neutral/65 to-transparent"
       />
 
-      <div
-        class="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-5 sm:p-8"
-      >
+      <div class="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-5 sm:p-8">
         <p class="text-xs font-bold uppercase tracking-[0.22em] text-warning">
           Your private project
         </p>
-        <h1
-          class="max-w-xl text-3xl font-black leading-none sm:text-5xl"
-        >
+        <h1 class="max-w-xl text-3xl font-black leading-none sm:text-5xl">
           K8 Wildlife
         </h1>
         <p class="max-w-xl text-sm text-base-100/90 sm:text-base">
-          Eleven spectacular animals, a 0–10 risk dial, and one unmistakable
-          K8. The selected creature and account figures live in Critical Mass.
+          Eleven spectacular animals, a 0–10 risk dial, and one unmistakable K8.
+          The selected creature and account figures live in Critical Mass.
         </p>
         <div class="flex flex-wrap items-center gap-2">
           <a

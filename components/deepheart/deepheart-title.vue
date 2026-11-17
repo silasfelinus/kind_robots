@@ -68,7 +68,7 @@
         </button>
         <NuxtLink
           v-if="user.isAdmin && user.showMature"
-          to="/admin/deepheart-bible"
+          to="/admin/deepheart/bible"
           class="btn btn-outline rounded-2xl"
           data-testid="dh-art-bible"
         >

@@ -7,10 +7,9 @@ import { decodeArtJobPayload } from '~/server/utils/artJobPayload'
 import { payloadScalar } from '~/utils/artJobFields'
 import {
   DEEPHEART_STYLE_DESIGNER,
-  DEEPHEART_STYLE_LANES,
   DEEPHEART_STYLE_PROJECT,
   DEEPHEART_STYLE_SUBJECTS,
-  deepheartStyleLaneFromModel,
+  deepheartStyleLaneFromRequest,
   type DeepheartStyleJob,
 } from '~/utils/deepheart/styleCheck'
 
@@ -47,10 +46,7 @@ export default defineEventHandler(async (event) => {
       // The Conductor requestKey carries the exact model lane even when
       // Comfy stores a generic ServerType and the checkpoint is absent.
       const requestKey = payloadScalar(job, ['requestKey'])
-      const lane =
-        DEEPHEART_STYLE_LANES.find((item) =>
-          requestKey.includes('@' + item.key + '='),
-        )?.key ?? deepheartStyleLaneFromModel(checkpoint)
+      const lane = deepheartStyleLaneFromRequest(requestKey, checkpoint)
       if (!lane) continue
       const key = subject.key + ':' + lane
       if (seen.has(key)) continue

@@ -601,6 +601,16 @@ const REVEAL_META: Record<
     ]),
   ),
   ...Object.fromEntries(
+    COURT_DEITIES.map((deity) => [
+      `court-immortality-${deity.id}`,
+      {
+        teaser: 'Why can this god never die?',
+        act: deity.layer + 1,
+        about: [`fairy-${deity.id}`],
+      },
+    ]),
+  ),
+  ...Object.fromEntries(
     COURT_LINKS.map((link) => [
       link.id,
       {

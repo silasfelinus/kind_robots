@@ -1,4 +1,5 @@
 import type { KitArt } from '../playbookKit/types'
+import { ANTHRO_ROMANCE_ACTION } from './anthro'
 import { CHARACTERS, ROLES, character } from './roster'
 import type { Character, RoomKind } from './types'
 
@@ -7,7 +8,7 @@ import type { Character, RoomKind } from './types'
 // by setting `src` once its URL is verified (conductor deepheart art ledger).
 
 export const DH_PALETTE =
-  'Expressive hand-painted dark-fantasy adventure animation, Zuzu-like anthropomorphic animal people, bold distinct silhouettes, warm torch amber, slate blue and deep crimson. Any living adventurers are fully anthropomorphic, never humans or traditional fantasy humanoids. No lettering.'
+  'Expressive hand-painted dark-fantasy animation with anthropomorphic animal adventurers, varied fur, feathers and scales, warm torch amber, slate blue and deep crimson.'
 
 export function portraitArt(c: Character): KitArt {
   return {
@@ -21,7 +22,7 @@ export function portraitArt(c: Character): KitArt {
 export function romanceArt(c: Character): KitArt {
   return {
     brief: `Romance plate: ${c.name} at the campfire. ${c.heart}`,
-    prompt: `${c.look} Story beat: ${c.heart} Share a tender, character-driven scene with another fully anthropomorphic adventurer seen mostly from behind, around a small campfire on the flagstones of a vaulted dungeon chamber. Keep the featured character visually consistent with their portrait. Medium shot at seated height. ${DH_PALETTE}`,
+    prompt: `${c.look} ${ANTHRO_ROMANCE_ACTION[c.id] ?? 'They exchange a keepsake with another adventurer.'} Another anthropomorphic delver in a travel-worn cloak shares the fire in a vaulted stone chamber. Medium shot at seated height. ${DH_PALETTE}`,
     alt: `${c.name} at the campfire`,
   }
 }

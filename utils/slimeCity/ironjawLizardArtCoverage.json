@@ -427,6 +427,26 @@
           "reason": "lizard toll keeper alone in a blank booth"
         }
       ]
+    },
+    {
+      "source": "conductor/projects/slime-city/art/IRONJAW-LIZARDS-REDO-3.yaml",
+      "note": "2026-11-16 PT (slime-city/t-044): both re-renders fetched through the authenticated image endpoint and reviewed. keep entries are wired at their exact artManifest.ts slot.",
+      "entries": [
+        {
+          "asset": "slime-city/evolutions/merc-picket-troll@2",
+          "imageId": 274064,
+          "replacesImageId": 273517,
+          "verdict": "keep",
+          "reason": "komodo in a plain unmarked gold cloth band; lizard picket crowd and watchtower lookouts; no lettering"
+        },
+        {
+          "asset": "slime-city/evolutions/s3-ironjaw-bonus-plate@2",
+          "imageId": 274065,
+          "replacesImageId": 273519,
+          "verdict": "keep",
+          "reason": "iguana paymaster at counter height against a plain black wall; blank steel plates and tags; no booth roof or lettering"
+        }
+      ]
     }
   ]
 }

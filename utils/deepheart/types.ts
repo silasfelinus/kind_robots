@@ -144,6 +144,14 @@ export type EventOption = {
   tag?: Value
   requires?: EventRequirement
   effects: Effects
+  check?: {
+    stat: StatKey
+    dc: number
+    win: Effects
+    lose: Effects
+    winText: string
+    loseText: string
+  }
   gamble?: {
     chance: number
     win: Effects
@@ -261,6 +269,7 @@ export type RunPhase =
   | 'camp'
   | 'loot'
   | 'finale'
+  | 'court'
   | 'ended'
 
 export type RunState = {
@@ -294,6 +303,17 @@ export type RunState = {
   moments: string[]
   reveals: string[]
   ending: EndingId | null
+  pendingEnding?: EndingId | null
+  courtSelected?: string | null
+  courtOutcome?: {
+    deity: string
+    path: 'bargain' | 'expose' | 'defy'
+    success: boolean
+    die: number
+    modifier: number
+    target: number
+    epilogue: string
+  } | null
   deepening: number
   mercy: number
   turns: number

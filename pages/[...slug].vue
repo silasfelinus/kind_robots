@@ -24,9 +24,7 @@
 
       <p class="text-base font-bold text-info">Loading page…</p>
 
-      <p class="kr-text-dim-sm max-w-xl">
-        Looking for {{ contentPath }}
-      </p>
+      <p class="kr-text-dim-sm max-w-xl">Looking for {{ contentPath }}</p>
     </div>
 
     <div
@@ -45,14 +43,29 @@
     <div
       v-else
       class="flex h-full min-h-64 flex-col items-center justify-center gap-3 kr-panel text-center"
+      data-testid="page-not-found"
     >
       <Icon name="kind-icon:alert" class="h-10 w-10 text-warning" />
 
       <p class="text-base font-bold text-warning">Page not found</p>
 
       <p class="kr-text-dim-sm max-w-xl">
-        No Nuxt Content page was found for {{ contentPath }}.
+        There is nothing at {{ contentPath }}. The link may be old or mistyped.
+        The games, stories and mission are all still here.
       </p>
+
+      <nav
+        class="flex flex-wrap justify-center gap-2"
+        aria-label="Ways back into Kind Robots"
+      >
+        <NuxtLink to="/play/arcade" class="btn btn-primary btn-sm">
+          Play free games
+        </NuxtLink>
+        <NuxtLink to="/" class="btn btn-ghost btn-sm">Home</NuxtLink>
+        <NuxtLink to="/giving" class="btn btn-ghost btn-sm">
+          Support the mission
+        </NuxtLink>
+      </nav>
     </div>
 
     <ClientOnly>
@@ -63,7 +76,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
-import { navigateTo, useRoute } from '#app'
+import { navigateTo, useRequestEvent, useRoute, useSeoMeta } from '#app'
+import { setResponseStatus } from 'h3'
 import type { ContentCollectionItem } from '@nuxt/content'
 import { preloadModelCards } from '@/stores/helpers/modelCards'
 import { usePageStore } from '@/stores/pageStore'
@@ -256,10 +270,37 @@ async function preloadAndSyncPageStore(): Promise<void> {
     await preloadModelCards(cards)
   }
 
-  if (contentPath.value !== resolvedPath || !hasResolvedCurrentPath.value) return
+  if (contentPath.value !== resolvedPath || !hasResolvedCurrentPath.value)
+    return
 
   syncPageStore()
 }
+
+/*
+ * An unknown URL is a real 404, not a 200 "page".
+ *
+ * Before this, /play, /projects, /donate and any mistyped link answered 200
+ * with the generic site title, so crawlers indexed empty "Kind Robots" pages
+ * and shared links unfurled as if they worked. The status is set during SSR
+ * only (the client cannot change it), and the page is kept out of search.
+ */
+const isNotFound = computed(
+  () =>
+    !isLoginPath.value &&
+    !isPageLoading.value &&
+    !error.value &&
+    !activePage.value,
+)
+
+if (import.meta.server && isNotFound.value) {
+  const event = useRequestEvent()
+  if (event) setResponseStatus(event, 404, 'Page not found')
+}
+
+useSeoMeta({
+  title: () => (isNotFound.value ? 'Page not found | Kind Robots' : undefined),
+  robots: () => (isNotFound.value ? 'noindex' : undefined),
+})
 
 /*
  * Populate the store during SETUP, not only on mount.

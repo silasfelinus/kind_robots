@@ -351,7 +351,7 @@ const lootCards = computed<DhCard[]>(() => {
       chip: m.item ? `Has ${item(m.item).name}` : 'Empty hands',
       hint:
         shortName(character(m.id)) === engine.nameOf(r, m.id)
-          ? character(m.id).ancestry
+          ? ROLES[character(m.id).role].label
           : character(m.id).name,
       portrait: m.id,
     }))

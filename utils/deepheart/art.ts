@@ -22,7 +22,7 @@ export function portraitArt(c: Character): KitArt {
 export function romanceArt(c: Character): KitArt {
   return {
     brief: `Romance plate: ${c.name} at the campfire. ${c.heart}`,
-    prompt: `${c.look} ${ANTHRO_ROMANCE_ACTION[c.id] ?? 'They exchange a keepsake with another adventurer.'} Another anthropomorphic delver in a travel-worn cloak shares the fire in a vaulted stone chamber. Medium shot at seated height. ${DH_PALETTE}`,
+    prompt: `${c.look} ${c.id === 'brannoc' ? character('thessaly').look : ''} ${ANTHRO_ROMANCE_ACTION[c.id === 'brannoc' ? 'hearth' : c.id] ?? 'They exchange a keepsake with another adventurer.'} Another anthropomorphic delver in a travel-worn cloak shares the fire in a vaulted stone chamber. Medium shot at seated height. ${DH_PALETTE}`,
     alt: `${c.name} at the campfire`,
   }
 }

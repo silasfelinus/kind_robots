@@ -19,7 +19,7 @@ const followers: KitCastMember[] = CHARACTERS.map((c) => ({
   id: c.id,
   name: c.name,
   role: 'follower',
-  tagline: `${c.ancestry} ${ROLES[c.role].label}. ${c.blurb}`,
+  tagline: `${ROLES[c.role].label}. ${c.blurb}`,
   portrait: portraitArt(c),
   ...(c.romanceable
     ? { romance: { arc: c.arc, moments: [romanceMoment(c.id)] } }
@@ -88,7 +88,7 @@ const others: KitCastMember[] = [
       'She buys anything from the deep, at any price, and always seems to be at the next fire over.',
     portrait: {
       brief: 'Portrait of a cheerful dungeon merchant with a pack of curios',
-      prompt: `A plump grey-haired woman in a patched velvet coat grins beside a campfire, an enormous pack of hanging lanterns, potions and trinkets on her back, gold rings on every finger. Waist-up portrait at eye level. ${P}`,
+      prompt: `An anthropomorphic opossum merchant woman with charcoal-and-cream fur, a tall grey head-fur bouffant and a generous build grins beside a campfire, her patched velvet coat and enormous pack hung with lanterns, potions and curios. Waist-up portrait at eye level. ${P}`,
     },
   },
   {
@@ -96,10 +96,10 @@ const others: KitCastMember[] = [
     name: 'Snag',
     role: 'figure',
     tagline:
-      'A young goblin who got caught in his own snare and pays his debts in directions.',
+      'A young trapper who got caught in his own snare and pays his debts in directions.',
     portrait: {
-      brief: 'Portrait of a young goblin hanging upside down from a snare',
-      prompt: `A skinny young green goblin with big ears hangs upside down by one ankle from a rope snare in a crypt corridor, arms crossed, scowling, coins falling from his pockets. Medium shot at eye level. ${P}`,
+      brief: 'Portrait of Snag hanging upside down from a snare',
+      prompt: `An anthropomorphic raccoon youth with mottled grey fur, a black eye mask and oversized ears hangs upside down by one ankle from a rope snare in a crypt corridor, arms crossed and scowling as coins tumble from his pockets. Medium shot at eye level. ${P}`,
     },
   },
   {
@@ -110,7 +110,7 @@ const others: KitCastMember[] = [
       'A spirit sealed behind a door of bone, who only wants to go where the dead go.',
     portrait: {
       brief: 'Portrait of a pale weeping spirit behind a door of bone',
-      prompt: `A pale translucent young woman with long drifting hair presses her hands against the inside of a door made of fitted grey bones, tears of light on her cheeks, cold blue glow around her. Close medium shot. ${P}`,
+      prompt: `A translucent anthropomorphic snow leopard spirit woman with soft grey rosettes and drifting head fur presses her pale paws against the inside of a door made of fitted grey bones, glowing tears lighting her cheeks. Close medium shot. ${P}`,
     },
   },
 ]
@@ -204,7 +204,7 @@ const sceneMoments: KitMoment[] = [
     'scene',
     2,
     ['ottoline'],
-    'An adventurer staggering under a bulging sack of gold coins in a torchlit vault while a plump merchant woman in a patched velvet coat rubs her ringed hands at the doorway. Medium shot.',
+    'An adventurer staggering under a bulging sack of gold coins in a torchlit vault while a broad opossum merchant in a patched velvet coat rubs her ringed paws at the doorway. Medium shot.',
   ),
   m(
     'weeping-door',
@@ -213,16 +213,16 @@ const sceneMoments: KitMoment[] = [
     'scene',
     1,
     ['maren', 'bone-warden'],
-    'A door built of fitted grey bones glows pale blue from behind, a translucent woman’s hands pressed against it from the inside, an adventurer reaching for the latch. Medium shot.',
+    'A door built of fitted grey bones glows pale blue from behind, a translucent snow leopard spirit’s paws pressed against it from the inside, an adventurer reaching for the latch. Medium shot.',
   ),
   m(
     'goblin-snare',
-    'Goblin in a Snare',
+    'Snag in a Snare',
     'Snag swears in three languages, then goes very quiet.',
     'scene',
     1,
     ['snag'],
-    'A skinny young goblin hangs upside down by one ankle from a rope snare in a crypt, coins dropping from his pockets, as an adventurer with a knife steps closer. Medium shot.',
+    'A small anthropomorphic raccoon with a black eye mask hangs upside down by one ankle from a rope snare in a crypt, coins dropping from his pockets, as an adventurer with a knife steps closer. Medium shot.',
   ),
   m(
     'drowned-crown',
@@ -267,7 +267,7 @@ const sceneMoments: KitMoment[] = [
     'scene',
     1,
     [],
-    'Four adventurers of different ancestries stand together at the top of a dungeon stairway holding lanterns high, a dwarf with a shield, an elf archer, a robed wizard and a hooded leader. Wide shot from below the steps.',
+    'Four adventurers of different ancestries stand together at the top of a dungeon stairway holding lanterns high, a broad wild-boar shieldbearer, a long-eared hare archer, a feathered owl mage and a hooded animal-person leader. Wide shot from below the steps.',
   ),
   m(
     'duo',
@@ -320,7 +320,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('rook', 'wren'),
-    'Two auburn-haired half-elf twins in green cloaks sit side by side at a campfire, the young man looking down guiltily and the young woman resting her head on his shoulder. Medium shot.',
+    'Two black-and-white anthropomorphic magpie twins with matching auburn crests and green cloaks sit side by side at a campfire, the young man looking down guiltily and the young woman resting her head on his shoulder. Medium shot.',
   ),
   m(
     'old-flame',
@@ -329,7 +329,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('idris', 'corso'),
-    'A man in a burgundy doublet holds a small lockpick up to the firelight beside a sleeping half-elf knight in silver armour, a boot in his other hand. Medium shot.',
+    'A man in a burgundy doublet holds a small lockpick up to the firelight beside a sleeping anthropomorphic cinnamon-hare knight in silver armour, a boot in his other hand. Medium shot.',
   ),
   m(
     'forty-years',
@@ -338,7 +338,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('quillon', 'ambrose'),
-    'An elderly gnome wizard in a starry hat and an elderly man in tweed and half-moon spectacles point at the same carved rune on a wall, both laughing. Medium shot.',
+    'An elderly white stoat wizard in a starry hat and an elderly grey mouse scholar in tweed and half-moon spectacles point at the same carved rune on a wall, both laughing. Medium shot.',
   ),
   m(
     'sworn-kin',
@@ -347,7 +347,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('grell', 'pip'),
-    'A massive grey-green orc in iron plate hands a steaming cup to a tiny blonde halfling wrapped in a blanket beside a low campfire at night. Medium shot.',
+    'A massive graphite-grey rhinoceros guardian in iron plate hands a steaming cup to a tiny sandy-furred ferret wrapped in a blanket beside a low campfire at night. Medium shot.',
   ),
   m(
     'stoneharrow',
@@ -356,7 +356,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('brannoc', 'torvald'),
-    'Two dwarf brothers sit by a fire, the elder with a braided chestnut beard threading a small iron ring into the younger brother’s huge black beard full of gold rings. Close medium shot.',
+    'Two anthropomorphic wild-boar brothers sit by a fire, the elder threading a small iron ring into the younger brother’s dark braided mane full of gold rings. Close medium shot.',
   ),
   m(
     'ironsong-fell',
@@ -365,7 +365,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('ragna', 'dagny'),
-    'A red-braided human woman with blue woad stripes singing by a fire while a calm orc swordswoman beside her hums with closed eyes, the two of them very close. Medium shot.',
+    'A muscular grey wolf woman with red braids and blue cheek stripes singing by a fire while a calm brown-bear swordswoman beside her hums with closed eyes, the two of them very close. Medium shot.',
   ),
   m(
     'moth-court',
@@ -383,7 +383,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('idris', 'hesk'),
-    'An elderly dwarf priestess with a white braided beard leans on her staff beside a kneeling half-elf knight reciting a prayer, her lips moving with his. Medium shot.',
+    'An elderly white-quilled porcupine priestess leans on her staff beside a kneeling cinnamon-hare knight reciting a prayer, her lips moving with his. Medium shot.',
   ),
   m(
     'hedge-kin',
@@ -392,7 +392,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('moss', 'badger'),
-    'A faun with mossy green hair and an old hermit in a badger-pelt cloak hold up two different mushrooms at each other by a campfire, both laughing hard. Medium shot.',
+    'An antlered forest-deer druid with moss-woven head fur and an old tortoise hermit in a striped cloak hold up two different mushrooms at each other by a campfire, both laughing hard. Medium shot.',
   ),
   m(
     'seven-winds',
@@ -410,7 +410,7 @@ const followerMoments: KitMoment[] = [
     'follower',
     1,
     pair('gizelle', 'nettle'),
-    'A green goblin in brass goggles and a gnome with a clockwork arm crouch over a contraption of springs and gears on a dungeon floor, both reaching for the same lever. Medium shot.',
+    'A green-tipped hedgehog in brass goggles and a grey chinchilla engineer with a clockwork arm crouch over a contraption of springs and gears on a dungeon floor, both reaching for the same lever. Medium shot.',
   ),
   m(
     'graveside',

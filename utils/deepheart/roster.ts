@@ -8,6 +8,7 @@ import type {
   Synergy,
   Value,
 } from './types'
+import { ANTHRO_BLURB, ANTHRO_LOOK } from './anthro'
 
 // The fifty presets. Any one of them can lead the delve; the rest are the
 // companions you can bring. Who can romance whom depends on the hero's own
@@ -1344,7 +1345,8 @@ export const CHARACTERS: Character[] = ROWS.map(
     likes: [like1, like2],
     dislikes: dislike,
     ...text,
-    look,
+    blurb: ANTHRO_BLURB[id] ?? text.blurb,
+    look: ANTHRO_LOOK[id] ?? look,
     scene,
     ...extra,
   }),

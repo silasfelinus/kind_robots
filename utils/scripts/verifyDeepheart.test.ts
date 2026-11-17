@@ -29,7 +29,14 @@ import {
   scoreParty,
   startingPartners,
 } from '../deepheart/party'
+import { ANTHRO_BLURB, ANTHRO_LOOK } from '../deepheart/anthro'
 import { CHARACTERS, ROLES, SUPPORTS, character } from '../deepheart/roster'
+import {
+  DEEPHEART_STYLE_DESIGNER,
+  DEEPHEART_STYLE_LANES,
+  DEEPHEART_STYLE_SUBJECTS,
+  deepheartStyleLaneFromRequest,
+} from '../deepheart/styleCheck'
 import type { EndingId, HeroSetup, Room, RunState } from '../deepheart/types'
 import { auditPlaybookKit } from '../playbookKit/budget'
 import { DEEPHEART } from '../playbookKit/games/deepheart'
@@ -51,6 +58,22 @@ const hero = (presetId: string, extra: Partial<HeroSetup> = {}): HeroSetup => {
 
 // ── Roster ───────────────────────────────────────────────────────────────
 assert.equal(CHARACTERS.length, 50, 'fifty presets')
+assert.equal(
+  Object.keys(ANTHRO_LOOK).length,
+  50,
+  'fifty painted anthro designs',
+)
+assert.equal(Object.keys(ANTHRO_BLURB).length, 50, 'fifty species-free blurbs')
+assert.ok(CHARACTERS.every((c) => c.look.startsWith('Anthropomorphic ')))
+assert.ok(CHARACTERS.every((c) => c.blurb === ANTHRO_BLURB[c.id]))
+assert.ok(
+  CHARACTERS.every(
+    (c) =>
+      !/\b(orc|dwarf|elf|gnome|halfling|tiefling|human|faun|lizardfolk|mothkin|goblin)\b/i.test(
+        c.blurb,
+      ),
+  ),
+)
 assert.equal(new Set(CHARACTERS.map((c) => c.id)).size, 50, 'unique ids')
 for (const c of CHARACTERS) {
   assert.ok(ROLES[c.role], `${c.id} has a real role`)
@@ -409,8 +432,63 @@ assert.ok(
 )
 assert.ok(finaleOptions(hearth).length === 0 || hearth.phase === 'ended')
 
+// ── Private visual-direction trial ──────────────────────────────────────
+assert.equal(DEEPHEART_STYLE_SUBJECTS.length, 5, 'five fixed visual tests')
+assert.equal(
+  DEEPHEART_STYLE_LANES.length,
+  8,
+  'seven Illustrious models plus Krea 2',
+)
+assert.equal(new Set(DEEPHEART_STYLE_SUBJECTS.map((s) => s.seed)).size, 5)
+assert.equal(new Set(DEEPHEART_STYLE_LANES.map((lane) => lane.key)).size, 8)
+assert.equal(
+  DEEPHEART_STYLE_LANES.filter((lane) => lane.family === 'Illustrious').length,
+  7,
+)
+assert.ok(DEEPHEART_STYLE_DESIGNER.startsWith('Deepheart Anthro Style Trial'))
+assert.equal(
+  deepheartStyleLaneFromRequest('conductor:ledger:deepheart@krea2=abc', ''),
+  'krea2',
+)
+assert.equal(
+  deepheartStyleLaneFromRequest('conductor:ledger:deepheart@arthemy=abc', ''),
+  'arthemy',
+)
+assert.equal(
+  deepheartStyleLaneFromRequest(
+    '',
+    'Illustrious/furrytoonmix_xlV3.safetensors',
+  ),
+  'furrytoon',
+)
+assert.match(
+  readFileSync('components/deepheart/deepheart-title.vue', 'utf8'),
+  /user\.isAdmin && user\.showMature/,
+)
+const bibleSource = readFileSync('pages/admin/deepheart/bible.vue', 'utf8')
+assert.match(bibleSource, /user\.isAdmin && user\.showMature/)
+assert.match(bibleSource, /data-testid="deepheart-art-bible"/)
+assert.match(bibleSource, /loadJobImage/)
+const styleRoute = readFileSync(
+  'server/api/deepheart/style-check.get.ts',
+  'utf8',
+)
+assert.match(styleRoute, /requireAdminApiUser/)
+assert.match(styleRoute, /viewerShowsMature/)
+assert.match(styleRoute, /private, no-store/)
+
 // ── Front end contracts ──────────────────────────────────────────────────
 const componentDir = 'components/deepheart'
+const builderSource = readFileSync(
+  `${componentDir}/deepheart-builder.vue`,
+  'utf8',
+)
+assert.match(builderSource, /ref<'hero' \| 'party'>\('hero'\)/)
+assert.doesNotMatch(builderSource, /focused\.ancestry/)
+assert.doesNotMatch(
+  readFileSync(`${componentDir}/deepheart-portrait.vue`, 'utf8'),
+  /person\.ancestry/,
+)
 for (const file of readdirSync(componentDir)) {
   const source = readFileSync(`${componentDir}/${file}`, 'utf8')
   assert.doesNotMatch(

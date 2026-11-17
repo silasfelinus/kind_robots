@@ -66,6 +66,15 @@
           <Icon name="kind-icon:trophy" class="size-5" />
           Achievements
         </button>
+        <NuxtLink
+          v-if="user.isAdmin && user.showMature"
+          to="/admin/deepheart/bible"
+          class="btn btn-outline rounded-2xl"
+          data-testid="dh-art-bible"
+        >
+          <Icon name="kind-icon:palette-color" class="size-5" />
+          Art bible
+        </NuxtLink>
         <button
           type="button"
           class="btn btn-ghost rounded-2xl border border-base-content/15"
@@ -90,10 +99,12 @@
 <script setup lang="ts">
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { useUserStore } from '~/stores/userStore'
 import { DEEPHEART as spec } from '~/utils/playbookKit/games/deepheart'
 
 const dh = useDeepheartStore()
 const kit = usePlaybookKitStore()
+const user = useUserStore()
 </script>
 
 <style scoped>

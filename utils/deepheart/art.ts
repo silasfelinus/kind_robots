@@ -1,4 +1,5 @@
 import type { KitArt } from '../playbookKit/types'
+import { ANTHRO_ROMANCE_ACTION } from './anthro'
 import { CHARACTERS, ROLES, character } from './roster'
 import type { Character, RoomKind } from './types'
 
@@ -7,13 +8,13 @@ import type { Character, RoomKind } from './types'
 // by setting `src` once its URL is verified (conductor deepheart art ledger).
 
 export const DH_PALETTE =
-  'Painted dark-fantasy storybook illustration in torch amber, slate blue and deep crimson.'
+  'Modern 2D Western fantasy action cartoon, bold hand-inked outlines, lively expressive adult faces and animal anatomy, clean cel-painted shadows, saturated jewel tones in torch amber, slate blue and crimson, an ominous violent dungeon world.'
 
 export function portraitArt(c: Character): KitArt {
   return {
-    brief: `Character portrait of ${c.name}, ${c.ancestry} ${ROLES[c.role].label.toLowerCase()}: ${c.blurb}`,
-    prompt: `${c.look}. Waist-up portrait in a torchlit stone dungeon corridor, warm torchlight from the left and cool blue shadow on the right, camera at eye level. ${DH_PALETTE}`,
-    alt: `${c.name}, ${c.ancestry} ${ROLES[c.role].label}`,
+    brief: `Character portrait of ${c.name}, ${ROLES[c.role].label.toLowerCase()}: ${c.blurb}`,
+    prompt: `${c.look} Waist-up portrait in a torchlit stone dungeon corridor, warm torchlight from the left and cool blue shadow on the right, camera at eye level. ${DH_PALETTE}`,
+    alt: `${c.name}, ${ROLES[c.role].label}`,
     focus: 'center 25%',
   }
 }
@@ -21,7 +22,7 @@ export function portraitArt(c: Character): KitArt {
 export function romanceArt(c: Character): KitArt {
   return {
     brief: `Romance plate: ${c.name} at the campfire. ${c.heart}`,
-    prompt: `${c.look}. ${c.scene} A hooded delver in a travel-worn green cloak sits close beside them. A small campfire burns on the flagstones of a vaulted dungeon chamber. Medium shot at seated height. ${DH_PALETTE}`,
+    prompt: `${c.look} ${c.id === 'brannoc' ? character('thessaly').look : ''} ${ANTHRO_ROMANCE_ACTION[c.id === 'brannoc' ? 'hearth' : c.id] ?? 'They exchange a keepsake with another adventurer.'} Another anthropomorphic delver in a travel-worn cloak shares the fire in a vaulted stone chamber. Medium shot at seated height. ${DH_PALETTE}`,
     alt: `${c.name} at the campfire`,
   }
 }

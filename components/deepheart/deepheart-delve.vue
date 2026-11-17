@@ -191,7 +191,7 @@ import { useDeepheartStore } from '~/stores/deepheartStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { ENEMIES, LAYERS, item } from '~/utils/deepheart/dungeon'
 import * as engine from '~/utils/deepheart/engine'
-import { character, shortName } from '~/utils/deepheart/roster'
+import { ROLES, character, shortName } from '~/utils/deepheart/roster'
 import type { EndingId, RoomKind } from '~/utils/deepheart/types'
 import type { DhCard } from './deepheart-hand.vue'
 
@@ -351,7 +351,7 @@ const lootCards = computed<DhCard[]>(() => {
       chip: m.item ? `Has ${item(m.item).name}` : 'Empty hands',
       hint:
         shortName(character(m.id)) === engine.nameOf(r, m.id)
-          ? character(m.id).ancestry
+          ? ROLES[character(m.id).role].label
           : character(m.id).name,
       portrait: m.id,
     }))

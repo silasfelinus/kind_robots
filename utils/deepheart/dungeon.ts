@@ -1131,6 +1131,15 @@ export const REVEAL_TEXT: Record<string, { title: string; text: string }> = {
     ]),
   ),
   ...Object.fromEntries(
+    COURT_DEITIES.map((deity) => [
+      `court-immortality-${deity.id}`,
+      {
+        title: `The Eternal ${deity.epithet}`,
+        text: deity.immortalTruth,
+      },
+    ]),
+  ),
+  ...Object.fromEntries(
     COURT_LINKS.map((link) => [
       link.id,
       { title: link.label, text: link.detail },

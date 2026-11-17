@@ -90,7 +90,7 @@
       </div>
 
       <div
-        class="absolute inset-x-2 bottom-2 z-20 rounded-2xl border border-white/20 bg-black/75 p-3 shadow-2xl backdrop-blur-md sm:inset-x-5 sm:bottom-4 sm:p-4"
+        class="@container absolute inset-x-2 bottom-2 z-20 rounded-2xl border border-white/20 bg-black/75 p-3 shadow-2xl backdrop-blur-md sm:inset-x-5 sm:bottom-4 sm:p-4"
       >
         <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div class="flex flex-wrap items-center gap-2 text-xs">
@@ -130,7 +130,7 @@
           </div>
         </div>
 
-        <div class="mb-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+        <div class="mb-3 grid grid-cols-2 gap-2 text-xs @sm:grid-cols-4">
           <div class="rounded-lg bg-white/10 p-2">
             <div class="opacity-70">Estimated fund equity</div>
             <strong>{{ k8Money(k8.snapshot?.metrics.fundEquityQuote) }}</strong>

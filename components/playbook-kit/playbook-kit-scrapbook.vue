@@ -1,5 +1,38 @@
 <template>
   <div class="flex flex-col gap-3">
+    <div
+      v-if="spec.id === 'deepheart'"
+      class="flex flex-wrap items-center gap-2"
+      role="tablist"
+      aria-label="Deepheart scrapbook sections"
+    >
+      <button
+        type="button"
+        role="tab"
+        class="btn btn-sm"
+        :class="view === 'court' ? 'btn-primary' : 'btn-ghost'"
+        :aria-selected="view === 'court'"
+        data-testid="dh-scrapbook-court"
+        @click="view = 'court'"
+      >
+        Court connections
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="btn btn-sm"
+        :class="view === 'moments' ? 'btn-primary' : 'btn-ghost'"
+        :aria-selected="view === 'moments'"
+        data-testid="dh-scrapbook-moments"
+        @click="view = 'moments'"
+      >
+        Lived moments
+      </button>
+    </div>
+    <DeepheartCourtFlowchart
+      v-if="spec.id === 'deepheart' && view === 'court'"
+    />
+    <template v-if="spec.id !== 'deepheart' || view === 'moments'">
     <p class="pk-dim text-xs opacity-75">
       {{ kept }} of {{ moments.length }} moments kept. Lived moments open full
       screen.
@@ -67,6 +100,7 @@
         </button>
       </li>
     </ul>
+    </template>
   </div>
 </template>
 
@@ -83,6 +117,7 @@ import type { KitMomentKind, PlaybookKitSpec } from '~/utils/playbookKit/types'
 const props = defineProps<{ spec: PlaybookKitSpec }>()
 const kit = usePlaybookKitStore()
 const filter = ref<'all' | 'kept' | KitMomentKind>('all')
+const view = ref<'court' | 'moments'>('court')
 
 const moments = computed(() => visibleMoments(props.spec, kit.settings))
 const kept = computed(

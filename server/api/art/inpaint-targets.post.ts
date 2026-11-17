@@ -22,6 +22,7 @@ import { buildSdxlRegionWorkflow } from '../comfy/sdxl/utils/targetedWorkflow'
 
 type InpaintRequest = TargetedEditRequest & {
   engine?: 'sdxl'
+  inpaintEncoding?: 'source-preserving' | 'masked-vae'
   prompt: string
   negativePrompt?: string
   checkpoint?: string
@@ -76,6 +77,16 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 403,
         message: 'Targeted edits remain private until separately published.',
+      })
+    }
+    const inpaintEncoding = body.inpaintEncoding ?? 'source-preserving'
+    if (
+      inpaintEncoding !== 'source-preserving' &&
+      inpaintEncoding !== 'masked-vae'
+    ) {
+      throw createError({
+        statusCode: 400,
+        message: 'inpaintEncoding must be source-preserving or masked-vae.',
       })
     }
     const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : ''
@@ -137,6 +148,7 @@ export default defineEventHandler(async (event) => {
         statusCode: 200,
         data: {
           previewOnly: true,
+          inpaintEncoding,
           mode: prepared.mode,
           crop: prepared.crop,
           width: prepared.originalWidth,
@@ -185,6 +197,7 @@ export default defineEventHandler(async (event) => {
       prompt,
       negativePrompt: body.negativePrompt,
       checkpoint,
+      inpaintEncoding,
       sourceName,
       originalName,
       noiseMaskName,
@@ -212,6 +225,7 @@ export default defineEventHandler(async (event) => {
       regionEdit: {
         version: 1,
         engine: 'sdxl',
+        inpaintEncoding,
         originalSourceSha256: prepared.sourceHash,
         mode: prepared.mode,
         originalSize: [prepared.originalWidth, prepared.originalHeight],

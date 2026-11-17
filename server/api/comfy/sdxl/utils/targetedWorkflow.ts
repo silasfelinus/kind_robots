@@ -12,6 +12,7 @@ export type SdxlRegionWorkflowInput = {
   noiseMaskName: string
   compositeMaskName: string
   checkpoint: string
+  inpaintEncoding?: 'source-preserving' | 'masked-vae'
   steps?: number
   cfg?: number
   denoise?: number
@@ -47,6 +48,20 @@ export function buildSdxlRegionWorkflow(input: SdxlRegionWorkflowInput): {
   workflow['80'] = {
     class_type: 'LoadImageMask',
     inputs: { image: input.noiseMaskName, channel: 'red' },
+  }
+  // Explicit opt-in: blank the masked source before VAE encoding so the
+  // sampler cannot recover the untouched anatomy simply from source latents.
+  // The final source-pixel composite still guards edits outside the mask.
+  if (input.inpaintEncoding === 'masked-vae') {
+    workflow['5'] = {
+      class_type: 'VAEEncodeForInpaint',
+      inputs: {
+        pixels: ['4', 0],
+        vae: ['1', 2],
+        mask: ['80', 0],
+        grow_mask_by: 0,
+      },
+    }
   }
   workflow['81'] = {
     class_type: 'SetLatentNoiseMask',

@@ -13,7 +13,7 @@ export const DH_PALETTE =
 export function portraitArt(c: Character): KitArt {
   return {
     brief: `Character portrait of ${c.name}, ${ROLES[c.role].label.toLowerCase()}: ${c.blurb}`,
-    prompt: `${c.look}. Waist-up portrait in a torchlit stone dungeon corridor, warm torchlight from the left and cool blue shadow on the right, camera at eye level. ${DH_PALETTE}`,
+    prompt: `${c.look} Waist-up portrait in a torchlit stone dungeon corridor, warm torchlight from the left and cool blue shadow on the right, camera at eye level. ${DH_PALETTE}`,
     alt: `${c.name}, ${ROLES[c.role].label}`,
     focus: 'center 25%',
   }

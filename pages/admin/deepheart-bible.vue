@@ -108,8 +108,12 @@
             >
               <div class="flex items-start justify-between gap-2 p-2">
                 <div class="min-w-0">
-                  <strong class="block truncate text-sm">{{ lane.title }}</strong>
-                  <small class="block text-xs opacity-70">{{ lane.tone }}</small>
+                  <strong class="block truncate text-sm">{{
+                    lane.title
+                  }}</strong>
+                  <small class="block text-xs opacity-70">{{
+                    lane.tone
+                  }}</small>
                 </div>
                 <span class="badge badge-sm">{{ statusFor(lane.key) }}</span>
               </div>
@@ -129,7 +133,11 @@
                   class="h-full w-full object-contain"
                 />
                 <span v-else class="px-3 text-center text-xs opacity-60">
-                  {{ jobFor(lane.key) ? 'Waiting for render' : 'No accepted ArtJob' }}
+                  {{
+                    jobFor(lane.key)
+                      ? 'Waiting for render'
+                      : 'No accepted ArtJob'
+                  }}
                 </span>
               </button>
               <div class="grid gap-2 p-2 text-xs">
@@ -205,12 +213,22 @@
             class="rounded-xl border border-base-content/15 bg-base-200 p-3"
           >
             <div class="flex items-start gap-3">
-              <DeepheartPortrait :id="person.id" size="sm" class="w-20 shrink-0" />
+              <DeepheartPortrait
+                :id="person.id"
+                size="sm"
+                class="w-20 shrink-0"
+              />
               <div class="min-w-0">
                 <h3 class="font-bold">{{ person.name }}</h3>
                 <p class="text-xs opacity-70">
                   {{ ROLES[person.role].label }} ·
-                  {{ person.gender === 'w' ? 'she/her' : person.gender === 'm' ? 'he/him' : 'they/them' }}
+                  {{
+                    person.gender === 'w'
+                      ? 'she/her'
+                      : person.gender === 'm'
+                        ? 'he/him'
+                        : 'they/them'
+                  }}
                 </p>
                 <p class="mt-1 text-xs">{{ person.blurb }}</p>
               </div>
@@ -241,21 +259,23 @@
             </p>
           </article>
           <article class="rounded-xl bg-base-200 p-4">
-            <h2 class="mb-2 text-lg font-bold">Every person is an animal person</h2>
+            <h2 class="mb-2 text-lg font-bold">
+              Every person is an animal person
+            </h2>
             <p>
-              Mammals, birds, reptiles, amphibians and insects share this
-              world. Distinct snouts, muzzles, ears, scales, feathers, tails,
-              wings and different body builds. The illustrated species belongs
-              in prompts. On screen: Oona the Guardian, Vex the Rogue.
+              Mammals, birds, reptiles, amphibians and insects share this world.
+              Distinct snouts, muzzles, ears, scales, feathers, tails, wings and
+              different body builds. The illustrated species belongs in prompts.
+              On screen: Oona the Guardian, Vex the Rogue.
             </p>
           </article>
           <article class="rounded-xl bg-base-200 p-4">
             <h2 class="mb-2 text-lg font-bold">Violence with consequences</h2>
             <p>
               These are fighters entering genuinely threatening crypts.
-              Injuries, scuffed armour, monstrous teeth and rich shadow
-              belong here. Avoid toy-like chibi proportions and frictionless
-              heroic poses.
+              Injuries, scuffed armour, monstrous teeth and rich shadow belong
+              here. Avoid toy-like chibi proportions and frictionless heroic
+              poses.
             </p>
           </article>
           <article class="rounded-xl bg-base-200 p-4">
@@ -263,8 +283,8 @@
             <p>
               The waterfall trial depicts two clearly adult, established
               partners. They share an affectionate bathing moment while
-              waterfall spray, mist, water and foreground stone obscure
-              private anatomy. This is romance, not explicit erotica.
+              waterfall spray, mist, water and foreground stone obscure private
+              anatomy. This is romance, not explicit erotica.
             </p>
           </article>
         </div>
@@ -286,7 +306,11 @@
       >
         Close
       </button>
-      <img :src="zoomSrc" alt="Selected Deepheart art comparison" class="max-h-[86vh] max-w-full object-contain" />
+      <img
+        :src="zoomSrc"
+        alt="Selected Deepheart art comparison"
+        class="max-h-[86vh] max-w-full object-contain"
+      />
     </div>
   </main>
 </template>
@@ -327,7 +351,8 @@ const zoomSrc = ref('')
 const total = DEEPHEART_STYLE_SUBJECTS.length * DEEPHEART_STYLE_LANES.length
 const submitted = computed(() => jobs.value.length)
 const completed = computed(
-  () => jobs.value.filter((job) => job.status === 'DONE' && job.artImageId).length,
+  () =>
+    jobs.value.filter((job) => job.status === 'DONE' && job.artImageId).length,
 )
 type Review = { score: number; note: string }
 const reviews = ref<Record<string, Review>>({})
@@ -340,8 +365,7 @@ function cellKey(lane: string) {
 function jobFor(lane: string) {
   return (
     jobs.value.find(
-      (job) =>
-        job.subjectKey === selectedSubject.value && job.laneKey === lane,
+      (job) => job.subjectKey === selectedSubject.value && job.laneKey === lane,
     ) ?? null
   )
 }
@@ -371,11 +395,7 @@ async function loadSelectedImages() {
           job.artImageId,
       )
       .map((job) =>
-        art.loadJobImage(
-          job.artImageId!,
-          job.updatedAt ?? '',
-          true,
-        ),
+        art.loadJobImage(job.artImageId!, job.updatedAt ?? '', true),
       ),
   )
 }
@@ -451,7 +471,11 @@ onMounted(() => {
     reviews.value = {}
   }
 })
-watch(canAccess, (allowed) => {
-  if (allowed) void refresh()
-}, { immediate: true })
+watch(
+  canAccess,
+  (allowed) => {
+    if (allowed) void refresh()
+  },
+  { immediate: true },
+)
 </script>

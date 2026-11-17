@@ -34,7 +34,9 @@ export default defineEventHandler(async (event) => {
     for (const raw of rows) {
       const job = decodeArtJobPayload(raw)
       const seed = Number(payloadScalar(job, ['seed', 'noise_seed']))
-      const subject = DEEPHEART_STYLE_SUBJECTS.find((item) => item.seed === seed)
+      const subject = DEEPHEART_STYLE_SUBJECTS.find(
+        (item) => item.seed === seed,
+      )
       if (!subject) continue
       const checkpoint = payloadScalar(job, [
         'ckpt_name',

@@ -1,6 +1,7 @@
 // A private controlled bake-off, not a source of playable character names.
 // Species are visual-art metadata only. The Conductor ledger owns ArtJob IDs.
-export const DEEPHEART_STYLE_DESIGNER = 'Deepheart Anthro Style Trial 2026-11-16'
+export const DEEPHEART_STYLE_DESIGNER =
+  'Deepheart Anthro Style Trial 2026-11-16'
 export const DEEPHEART_STYLE_PROJECT = 'deepheart'
 
 export const DEEPHEART_STYLE_SUBJECTS = [
@@ -54,14 +55,62 @@ export const DEEPHEART_STYLE_SUBJECTS = [
 // The six existing Monstrique bible Illustrious lanes, plus Nova Comic and
 // Krea 2. Keep these aligned with the approved installed checkpoint names.
 export const DEEPHEART_STYLE_LANES = [
-  { key: 'arthemy', title: 'Arthemy Western Art', model: 'arthemyWesternArt_v30', family: 'Illustrious', tone: 'Western animation house contender' },
-  { key: 'nova-comic', title: 'Nova Comic XL', model: 'novaComicXL_v20', family: 'Illustrious', tone: 'Bold graphic inks' },
-  { key: 'illustrij', title: 'Illustrij v2.1', model: 'illustrij_v21', family: 'Illustrious', tone: 'Expressive illustrated acting' },
-  { key: 'ntrmix', title: 'NTR Mix', model: 'ntrMIXIllustriousXL_xii', family: 'Illustrious', tone: 'Stylized character challenger' },
-  { key: 'furrytoon', title: 'Furrytoon Mix', model: 'furrytoonmix_xlV3', family: 'Illustrious', tone: 'Animal anatomy challenger' },
-  { key: 'ill-realism', title: 'Illustrious Realism', model: 'illustriousRealism_ilXL10V40', family: 'Illustrious', tone: 'Painterly dramatic challenger' },
-  { key: 'realism-by', title: 'Realism Illustrious By', model: 'realismIllustriousBy_v55FP16', family: 'Illustrious', tone: 'Private mature-only challenger' },
-  { key: 'krea2', title: 'Krea 2', model: 'Krea-2-Turbo', family: 'Krea 2', tone: 'Natural-language animation contender' },
+  {
+    key: 'arthemy',
+    title: 'Arthemy Western Art',
+    model: 'arthemyWesternArt_v30',
+    family: 'Illustrious',
+    tone: 'Western animation house contender',
+  },
+  {
+    key: 'nova-comic',
+    title: 'Nova Comic XL',
+    model: 'novaComicXL_v20',
+    family: 'Illustrious',
+    tone: 'Bold graphic inks',
+  },
+  {
+    key: 'illustrij',
+    title: 'Illustrij v2.1',
+    model: 'illustrij_v21',
+    family: 'Illustrious',
+    tone: 'Expressive illustrated acting',
+  },
+  {
+    key: 'ntrmix',
+    title: 'NTR Mix',
+    model: 'ntrMIXIllustriousXL_xii',
+    family: 'Illustrious',
+    tone: 'Stylized character challenger',
+  },
+  {
+    key: 'furrytoon',
+    title: 'Furrytoon Mix',
+    model: 'furrytoonmix_xlV3',
+    family: 'Illustrious',
+    tone: 'Animal anatomy challenger',
+  },
+  {
+    key: 'ill-realism',
+    title: 'Illustrious Realism',
+    model: 'illustriousRealism_ilXL10V40',
+    family: 'Illustrious',
+    tone: 'Painterly dramatic challenger',
+  },
+  {
+    key: 'realism-by',
+    title: 'Realism Illustrious By',
+    model: 'realismIllustriousBy_v55FP16',
+    family: 'Illustrious',
+    tone: 'Private mature-only challenger',
+  },
+  {
+    key: 'krea2',
+    title: 'Krea 2',
+    model: 'Krea-2-Turbo',
+    family: 'Krea 2',
+    tone: 'Natural-language animation contender',
+  },
 ] as const
 
 export const DEEPHEART_STYLE_CRITERIA = [
@@ -85,7 +134,9 @@ export type DeepheartStyleJob = {
 export function deepheartStyleLaneFromModel(model: string) {
   const check = model.toLowerCase()
   // Krea jobs may not report an explicit checkpoint in the payload.
-  return DEEPHEART_STYLE_LANES.find((lane) =>
-    check.includes(lane.model.toLowerCase()),
-  )?.key ?? null
+  return (
+    DEEPHEART_STYLE_LANES.find((lane) =>
+      check.includes(lane.model.toLowerCase()),
+    )?.key ?? null
+  )
 }

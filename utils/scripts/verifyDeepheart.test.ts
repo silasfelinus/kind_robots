@@ -433,7 +433,11 @@ assert.ok(finaleOptions(hearth).length === 0 || hearth.phase === 'ended')
 
 // ── Private visual-direction trial ──────────────────────────────────────
 assert.equal(DEEPHEART_STYLE_SUBJECTS.length, 5, 'five fixed visual tests')
-assert.equal(DEEPHEART_STYLE_LANES.length, 8, 'seven Illustrious models plus Krea 2')
+assert.equal(
+  DEEPHEART_STYLE_LANES.length,
+  8,
+  'seven Illustrious models plus Krea 2',
+)
 assert.equal(new Set(DEEPHEART_STYLE_SUBJECTS.map((s) => s.seed)).size, 5)
 assert.equal(new Set(DEEPHEART_STYLE_LANES.map((lane) => lane.key)).size, 8)
 assert.equal(

@@ -10,22 +10,70 @@
   }
   const ENDINGS = {
     sugar: [
-      ['mate', 'The Sugar Crown', 'The candy kingdom crowns its first grandmaster. Every unicorn gets a vote, and every vote is glitter.'],
-      ['sweep', 'The Rainbow Orchard', 'Not one safe sweet was left undiscovered. The lollipop wheels retire to a quiet bakery.'],
-      ['arena', 'The Glitter Rebellion', 'The spinning candy wheels overthrow the rival king. The kingdom is yours, although the floor is sticky.'],
-      ['fallen', 'The Melted Throne', 'A beautiful disaster. Somewhere beneath the sprinkles, the royal family plots another attempt.'],
+      [
+        'mate',
+        'The Sugar Crown',
+        'The candy kingdom crowns its first grandmaster. Every unicorn gets a vote, and every vote is glitter.',
+      ],
+      [
+        'sweep',
+        'The Rainbow Orchard',
+        'Not one safe sweet was left undiscovered. The lollipop wheels retire to a quiet bakery.',
+      ],
+      [
+        'arena',
+        'The Glitter Rebellion',
+        'The spinning candy wheels overthrow the rival king. The kingdom is yours, although the floor is sticky.',
+      ],
+      [
+        'fallen',
+        'The Melted Throne',
+        'A beautiful disaster. Somewhere beneath the sprinkles, the royal family plots another attempt.',
+      ],
     ],
     ashen: [
-      ['mate', 'Crown of Ash', 'The cathedral falls silent. Its executioner kneels before a king who learned to survive the impossible.'],
-      ['sweep', 'The Last Ember', 'Every sigil is broken and the cursed floor lies bare. Dawn enters the cathedral for the first time in centuries.'],
-      ['arena', 'Iron Judgment', 'The machines turn upon their master. You survive, though no one mistakes survival for innocence.'],
-      ['fallen', 'Names in the Stone', 'Another name is carved into the crypt. The last ember waits for a stranger with the courage to begin again.'],
+      [
+        'mate',
+        'Crown of Ash',
+        'The cathedral falls silent. Its executioner kneels before a king who learned to survive the impossible.',
+      ],
+      [
+        'sweep',
+        'The Last Ember',
+        'Every sigil is broken and the cursed floor lies bare. Dawn enters the cathedral for the first time in centuries.',
+      ],
+      [
+        'arena',
+        'Iron Judgment',
+        'The machines turn upon their master. You survive, though no one mistakes survival for innocence.',
+      ],
+      [
+        'fallen',
+        'Names in the Stone',
+        'Another name is carved into the crypt. The last ember waits for a stranger with the courage to begin again.',
+      ],
     ],
     jackpot: [
-      ['mate', 'House of Kings', 'A royal flush delivered on an eight-square table. The casino offers you a lifetime comp and a nervous smile.'],
-      ['sweep', 'The Perfect Sweep', 'Every safe square pays out. Neon showers descend as the scoreboard runs out of digits.'],
-      ['arena', 'Tilt! Tilt! Tilt!', 'The chrome pinballs overthrow the house dealer. The machine has finally paid the jackpot.'],
-      ['fallen', 'The House Collects', 'The reels stop, the lights flicker, and the house takes its cut. There is always another spin.'],
+      [
+        'mate',
+        'House of Kings',
+        'A royal flush delivered on an eight-square table. The casino offers you a lifetime comp and a nervous smile.',
+      ],
+      [
+        'sweep',
+        'The Perfect Sweep',
+        'Every safe square pays out. Neon showers descend as the scoreboard runs out of digits.',
+      ],
+      [
+        'arena',
+        'Tilt! Tilt! Tilt!',
+        'The chrome pinballs overthrow the house dealer. The machine has finally paid the jackpot.',
+      ],
+      [
+        'fallen',
+        'The House Collects',
+        'The reels stop, the lights flicker, and the house takes its cut. There is always another spin.',
+      ],
     ],
   }
   const ACHIEVEMENTS = [
@@ -37,17 +85,28 @@
     ['dash', 'Escape Artist', 'Recharge your dash shield.', '⚡'],
     ['sugar', 'Sugar Rush!', 'Freeze the lollipop sawblades.', '🌈'],
     ['ashen', 'Last Stand', 'Survive a mortal blow in Ashen Checkmate.', '🔥'],
-    ['jackpot', 'Double or Nothing', 'Risk fifty chips in Jackpot Apocalypse.', '🎰'],
+    [
+      'jackpot',
+      'Double or Nothing',
+      'Risk fifty chips in Jackpot Apocalypse.',
+      '🎰',
+    ],
     ['winner', 'Royal Victor', 'Win your first battle.', '♔'],
     ['explorer', 'Three Dangerous Worlds', 'Play in all three worlds.', '🗺'],
     ['collector', 'Ending Collector', 'Discover four different endings.', '📖'],
   ]
-  const DEFAULTS = { sound: true, motion: true, contrast: false, telegraph: true }
+  const DEFAULTS = {
+    sound: true,
+    motion: true,
+    contrast: false,
+    telegraph: true,
+  }
   function read() {
     try {
       const raw = JSON.parse(localStorage.getItem(KEY) || '{}')
       return {
-        records: raw.records && typeof raw.records === 'object' ? raw.records : {},
+        records:
+          raw.records && typeof raw.records === 'object' ? raw.records : {},
         endings: Array.isArray(raw.endings) ? raw.endings : [],
         achievements: Array.isArray(raw.achievements) ? raw.achievements : [],
         visited: Array.isArray(raw.visited) ? raw.visited : [],
@@ -55,17 +114,40 @@
         settings: { ...DEFAULTS, ...(raw.settings || {}) },
         saves: raw.saves && typeof raw.saves === 'object' ? raw.saves : {},
       }
-    } catch { return { records: {}, endings: [], achievements: [], visited: [], runs: 0, settings: { ...DEFAULTS }, saves: {} } }
+    } catch {
+      return {
+        records: {},
+        endings: [],
+        achievements: [],
+        visited: [],
+        runs: 0,
+        settings: { ...DEFAULTS },
+        saves: {},
+      }
+    }
   }
   const profile = read()
   const $$ = (id) => document.getElementById(id)
   const currentWorld = () => document.documentElement.dataset.realm || 'jackpot'
-  const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
+  const esc = (v) =>
+    String(v).replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        })[c],
+    )
   const seen = new WeakSet()
   let saveSignature = ''
   let audio = null
   const write = () => {
-    try { localStorage.setItem(KEY, JSON.stringify(profile)) } catch {}
+    try {
+      localStorage.setItem(KEY, JSON.stringify(profile))
+    } catch {}
   }
   function tone(frequency = 600) {
     if (!profile.settings.sound) return
@@ -104,8 +186,15 @@
   function endingFor(world, type, reason) {
     const text = (reason || '').toLowerCase()
     if (type === 'win') {
-      if (text.includes('minefield') || text.includes('safe square')) return 'sweep'
-      if (text.includes('blade') || text.includes('arena') || text.includes('destroyed') || text.includes('mine strike')) return 'arena'
+      if (text.includes('minefield') || text.includes('safe square'))
+        return 'sweep'
+      if (
+        text.includes('blade') ||
+        text.includes('arena') ||
+        text.includes('destroyed') ||
+        text.includes('mine strike')
+      )
+        return 'arena'
       return 'mate'
     }
     return 'fallen'
@@ -130,24 +219,44 @@
     if (profile.endings.length >= 4) award('collector')
     if (entry) {
       const box = $$('end-desc')
-      if (box) box.textContent = entry[1] + ': ' + entry[2] + ' Final score: ' + s.score + '.'
+      if (box)
+        box.textContent =
+          entry[1] + ': ' + entry[2] + ' Final score: ' + s.score + '.'
       notify('Scrapbook: ' + (entry ? entry[1] : 'New ending'))
     }
   }
   function encodeState(s) {
-    const json = JSON.stringify(s, (_, v) => v instanceof Set ? { $set: Array.from(v) } : v)
+    const json = JSON.stringify(s, (_, v) =>
+      v instanceof Set ? { $set: Array.from(v) } : v,
+    )
     return JSON.parse(json)
   }
   function decodeState(s) {
-    return JSON.parse(JSON.stringify(s), (_, v) => v && typeof v === 'object' && Array.isArray(v.$set) ? new Set(v.$set) : v)
+    return JSON.parse(JSON.stringify(s), (_, v) =>
+      v && typeof v === 'object' && Array.isArray(v.$set) ? new Set(v.$set) : v,
+    )
   }
   function saveCheckpoint(s) {
-    if (s.over || s.busy || s.promotion || s.chess.t !== 1 || s.turns < 2) return
+    if (s.over || s.busy || s.promotion || s.chess.t !== 1 || s.turns < 2)
+      return
     const world = currentWorld()
-    const signature = world + ':' + s.turns + ':' + s.score + ':' + s.shown.size + ':' + s.flags.size
+    const signature =
+      world +
+      ':' +
+      s.turns +
+      ':' +
+      s.score +
+      ':' +
+      s.shown.size +
+      ':' +
+      s.flags.size
     if (signature === saveSignature) return
     saveSignature = signature
-    profile.saves[world] = { version: 1, savedAt: Date.now(), state: encodeState(s) }
+    profile.saves[world] = {
+      version: 1,
+      savedAt: Date.now(),
+      state: encodeState(s),
+    }
     write()
   }
   function continueRun() {
@@ -157,12 +266,25 @@
     engine.setRealm(world)
     const live = engine.get()
     const restored = decodeState(save.state)
-    if (!restored || !restored.chess || !Array.isArray(restored.chess.b) || restored.chess.b.length !== 128 ||
-        !(restored.mines instanceof Set) || !(restored.shown instanceof Set) || !Array.isArray(restored.discs)) {
+    if (
+      !restored ||
+      !restored.chess ||
+      !Array.isArray(restored.chess.b) ||
+      restored.chess.b.length !== 128 ||
+      !(restored.mines instanceof Set) ||
+      !(restored.shown instanceof Set) ||
+      !Array.isArray(restored.discs)
+    ) {
       notify('Save is unavailable; start a new run.')
       return
     }
-    Object.assign(live, restored, { busy: false, selected: -1, promotion: null, last: null, protectedAt: -1 })
+    Object.assign(live, restored, {
+      busy: false,
+      selected: -1,
+      promotion: null,
+      last: null,
+      protectedAt: -1,
+    })
     engine.refresh()
     notify('Resumed your ' + NAMES[world] + ' run.')
     tone(500)
@@ -171,7 +293,10 @@
     const s = engine.get()
     if (!s) return
     const world = currentWorld()
-    if (!profile.visited.includes(world)) { profile.visited.push(world); write() }
+    if (!profile.visited.includes(world)) {
+      profile.visited.push(world)
+      write()
+    }
     if (s.turns > 0) award('first')
     if (s.turns >= 20) award('veteran')
     if (s.shown.size >= 44) award('sapper')
@@ -187,59 +312,164 @@
     if (resume) resume.hidden = !profile.saves[world] || s.turns > 0
   }
   function applySettings() {
-    document.documentElement.classList.toggle('meta-motion-off', !profile.settings.motion)
-    document.documentElement.classList.toggle('meta-contrast', profile.settings.contrast)
-    document.documentElement.classList.toggle('meta-hints-off', !profile.settings.telegraph)
+    document.documentElement.classList.toggle(
+      'meta-motion-off',
+      !profile.settings.motion,
+    )
+    document.documentElement.classList.toggle(
+      'meta-contrast',
+      profile.settings.contrast,
+    )
+    document.documentElement.classList.toggle(
+      'meta-hints-off',
+      !profile.settings.telegraph,
+    )
   }
   function card(icon, title, detail, unlocked) {
-    return '<article class="meta-card' + (unlocked ? '' : ' locked') + '"><div class="meta-icon">' +
-      icon + '</div><strong>' + esc(unlocked ? title : '??? · ' + title) +
-      '</strong><span>' + esc(unlocked ? detail : 'Keep playing to discover this.') + '</span></article>'
+    return (
+      '<article class="meta-card' +
+      (unlocked ? '' : ' locked') +
+      '"><div class="meta-icon">' +
+      icon +
+      '</div><strong>' +
+      esc(unlocked ? title : '??? · ' + title) +
+      '</strong><span>' +
+      esc(unlocked ? detail : 'Keep playing to discover this.') +
+      '</span></article>'
+    )
   }
   function renderArchive() {
-    let html = '<p class="meta-intro">The cabinet remembers your victories, defeats and strange discoveries on this device.</p>'
+    let html =
+      '<p class="meta-intro">The cabinet remembers your victories, defeats and strange discoveries on this device.</p>'
     for (const world of ['sugar', 'ashen', 'jackpot']) {
       const r = profile.records[world] || { best: 0, wins: 0, runs: 0 }
-      html += '<h3>' + NAMES[world] + ' · ' + r.wins + ' wins · best ' + r.best + '</h3><div class="meta-grid">'
-      for (const ending of ENDINGS[world]) html += card('✧', ending[1], ending[2], profile.endings.includes(world + ':' + ending[0]))
+      html +=
+        '<h3>' +
+        NAMES[world] +
+        ' · ' +
+        r.wins +
+        ' wins · best ' +
+        r.best +
+        '</h3><div class="meta-grid">'
+      for (const ending of ENDINGS[world])
+        html += card(
+          '✧',
+          ending[1],
+          ending[2],
+          profile.endings.includes(world + ':' + ending[0]),
+        )
       html += '</div>'
     }
     return html
   }
   function renderAchievements() {
-    let html = '<p class="meta-intro">' + profile.achievements.length + ' / ' + ACHIEVEMENTS.length + ' achievements earned. Unlocks persist across all three worlds on this browser.</p><div class="meta-grid">'
-    for (const a of ACHIEVEMENTS) html += card(a[3], a[1], a[2], profile.achievements.includes(a[0]))
+    let html =
+      '<p class="meta-intro">' +
+      profile.achievements.length +
+      ' / ' +
+      ACHIEVEMENTS.length +
+      ' achievements earned. Unlocks persist across all three worlds on this browser.</p><div class="meta-grid">'
+    for (const a of ACHIEVEMENTS)
+      html += card(a[3], a[1], a[2], profile.achievements.includes(a[0]))
     return html + '</div>'
   }
   function renderSettings() {
-    let html = '<p class="meta-intro">Accessibility and audio preferences are saved on this device.</p>'
-    const opts = [['sound', 'Sound effects'], ['motion', 'Animated sawblades and transitions'], ['contrast', 'High contrast'], ['telegraph', 'Show predicted blade paths']]
-    for (const [key, label] of opts) html += '<label class="meta-line"><span>' + esc(label) + '</span><input type="checkbox" data-setting="' + key + '"' + (profile.settings[key] ? ' checked' : '') + ' /></label>'
-    return html + '<p class="meta-warning">Progress is stored locally in this browser, not synchronized to your Kind Robots account. Clearing browser data deletes this archive.</p>'
+    let html =
+      '<p class="meta-intro">Accessibility and audio preferences are saved on this device.</p>'
+    const opts = [
+      ['sound', 'Sound effects'],
+      ['motion', 'Animated sawblades and transitions'],
+      ['contrast', 'High contrast'],
+      ['telegraph', 'Show predicted blade paths'],
+    ]
+    for (const [key, label] of opts)
+      html +=
+        '<label class="meta-line"><span>' +
+        esc(label) +
+        '</span><input type="checkbox" data-setting="' +
+        key +
+        '"' +
+        (profile.settings[key] ? ' checked' : '') +
+        ' /></label>'
+    return (
+      html +
+      '<p class="meta-warning">Progress is stored locally in this browser, not synchronized to your Kind Robots account. Clearing browser data deletes this archive.</p>'
+    )
   }
   function renderGuide() {
-    return '<h3>The cursed rules</h3><p class="meta-intro">Move any white chess piece legally, reveal numbered minesweeper clues using PROBE, and keep one eye on the blades. Each move or probe advances the arena and hands a response to Black.</p>' +
+    return (
+      '<h3>The cursed rules</h3><p class="meta-intro">Move any white chess piece legally, reveal numbered minesweeper clues using PROBE, and keep one eye on the blades. Each move or probe advances the arena and hands a response to Black.</p>' +
       '<div class="meta-grid">' +
-      card('♟', 'Chess', 'Move your army. Checkmate wins immediately. Castling, en passant and promotion are legal.', true) +
-      card('💣', 'Mines', 'Probe unknown squares. Clues count neighboring mines. Flags do not cost turns.', true) +
-      card('💿', 'Discs', 'Sawblades move after every turn. The dashed square forecasts the next sweep.', true) +
-      card('⚡', 'Dash', 'Arm the shield before moving. Your moved piece survives its next collision.', true) +
-      card('🌈', 'Sugar Rush', 'Build combos to freeze blades for two turns.', true) +
-      card('🔥', 'Last Stand', 'Ashen Checkmate allows one desperate resurrection.', true) +
-      card('🎰', 'Double or Nothing', 'Wager 50 chips to unleash multiball and chase the jackpot.', true) +
+      card(
+        '♟',
+        'Chess',
+        'Move your army. Checkmate wins immediately. Castling, en passant and promotion are legal.',
+        true,
+      ) +
+      card(
+        '💣',
+        'Mines',
+        'Probe unknown squares. Clues count neighboring mines. Flags do not cost turns.',
+        true,
+      ) +
+      card(
+        '💿',
+        'Discs',
+        'Sawblades move after every turn. The dashed square forecasts the next sweep.',
+        true,
+      ) +
+      card(
+        '⚡',
+        'Dash',
+        'Arm the shield before moving. Your moved piece survives its next collision.',
+        true,
+      ) +
+      card(
+        '🌈',
+        'Sugar Rush',
+        'Build combos to freeze blades for two turns.',
+        true,
+      ) +
+      card(
+        '🔥',
+        'Last Stand',
+        'Ashen Checkmate allows one desperate resurrection.',
+        true,
+      ) +
+      card(
+        '🎰',
+        'Double or Nothing',
+        'Wager 50 chips to unleash multiball and chase the jackpot.',
+        true,
+      ) +
       '</div>'
+    )
   }
   function openPanel(which) {
     const d = $$('meta-dialog')
-    $$('meta-title').textContent = ({ scrapbook: 'The Scrapbook', achievements: 'Achievements', settings: 'Settings', guide: 'How to Play' })[which] || 'Chessweeper'
-    $$('meta-body').innerHTML = which === 'scrapbook' ? renderArchive() : which === 'achievements' ? renderAchievements() : which === 'settings' ? renderSettings() : renderGuide()
+    $$('meta-title').textContent =
+      {
+        scrapbook: 'The Scrapbook',
+        achievements: 'Achievements',
+        settings: 'Settings',
+        guide: 'How to Play',
+      }[which] || 'Chessweeper'
+    $$('meta-body').innerHTML =
+      which === 'scrapbook'
+        ? renderArchive()
+        : which === 'achievements'
+          ? renderAchievements()
+          : which === 'settings'
+            ? renderSettings()
+            : renderGuide()
     if (typeof d.showModal === 'function') d.showModal()
     else d.setAttribute('open', '')
   }
   const actions = document.createElement('nav')
   actions.className = 'meta-actions'
   actions.setAttribute('aria-label', 'Chessweeper extras')
-  actions.innerHTML = '<button type="button" data-panel="scrapbook">📖 Scrapbook</button>' +
+  actions.innerHTML =
+    '<button type="button" data-panel="scrapbook">📖 Scrapbook</button>' +
     '<button type="button" data-panel="achievements">🏆 Achievements</button>' +
     '<button type="button" data-panel="settings">⚙ Settings</button>' +
     '<button type="button" data-panel="guide">? Guide</button>' +
@@ -249,7 +479,8 @@
   const dialog = document.createElement('dialog')
   dialog.className = 'meta-dialog'
   dialog.id = 'meta-dialog'
-  dialog.innerHTML = '<div class="meta-shell"><header><h2 id="meta-title"></h2><button type="button" class="meta-close" id="meta-close">✕ Close</button></header><div id="meta-body" class="meta-content"></div></div>'
+  dialog.innerHTML =
+    '<div class="meta-shell"><header><h2 id="meta-title"></h2><button type="button" class="meta-close" id="meta-close">✕ Close</button></header><div id="meta-body" class="meta-content"></div></div>'
   document.body.append(dialog)
   actions.addEventListener('click', (event) => {
     const button = event.target.closest('button')
@@ -258,7 +489,9 @@
     else if (button.dataset.panel) openPanel(button.dataset.panel)
   })
   $$('meta-close').addEventListener('click', () => dialog.close())
-  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close() })
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close()
+  })
   dialog.addEventListener('change', (e) => {
     if (e.target.matches('[data-setting]')) {
       profile.settings[e.target.dataset.setting] = e.target.checked
@@ -267,14 +500,34 @@
       tone(720)
     }
   })
-  document.querySelectorAll('[data-realm]').forEach((button) => button.addEventListener('click', () => { saveSignature = ''; sync() }))
+  document.querySelectorAll('[data-realm]').forEach((button) =>
+    button.addEventListener('click', () => {
+      saveSignature = ''
+      sync()
+    }),
+  )
   window.addEventListener('chessweeper:state', sync)
-  window.addEventListener('chessweeper:end', (event) => recordEnding(event.detail.type, event.detail.reason))
+  window.addEventListener('chessweeper:end', (event) =>
+    recordEnding(event.detail.type, event.detail.reason),
+  )
   window.addEventListener('message', (event) => {
-    if (event.origin !== location.origin || !event.data || event.data.type !== 'chessweeper:open') return
-    if (['guide', 'settings', 'scrapbook', 'achievements'].includes(event.data.panel)) openPanel(event.data.panel)
+    if (
+      event.origin !== location.origin ||
+      !event.data ||
+      event.data.type !== 'chessweeper:open'
+    )
+      return
+    if (
+      ['guide', 'settings', 'scrapbook', 'achievements'].includes(
+        event.data.panel,
+      )
+    )
+      openPanel(event.data.panel)
   })
-  if (window.parent !== window && new URLSearchParams(location.search).get('embedded') === '1')
+  if (
+    window.parent !== window &&
+    new URLSearchParams(location.search).get('embedded') === '1'
+  )
     document.documentElement.classList.add('meta-embedded')
   applySettings()
   sync()

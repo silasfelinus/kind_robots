@@ -1,8 +1,8 @@
 // /utils/scripts/verifyConductorProgressParity.ts
 //
 // Guards the one invariant that keeps the workspace's Projects surface honest:
-// the progress percentage this repo computes must equal the one conductor
-// computes for the same roadmap.
+// the progress percentage this repo computes must equal the one Conductor
+// computes for the same roadmap, including the finite-playtest 100% gate.
 //
 // Conductor's scripts/build_status.py::compute_progress falls back to the
 // task-completion ratio when milestones carry no signal. server/api/conductor/
@@ -41,10 +41,6 @@ function referenceProgress(
   milestones: ConductorMilestone[],
   tasks: ConductorTask[],
 ): number {
-  // Weights are used as parsed. The `weight: 10` default belongs to the parse
-  // step (build_status.py spells it `m.get("weight", 10)`, which fires only on
-  // an ABSENT key) — re-defaulting here with `|| 10` would resurrect the exact
-  // explicit-zero bug the fixture below exists to catch.
   const totalM = milestones.reduce((sum, m) => sum + m.weight, 0)
   const doneM = milestones.reduce(
     (sum, m) =>
@@ -53,12 +49,32 @@ function referenceProgress(
         (m.status === 'done' ? 1 : m.status === 'in-progress' ? 0.5 : 0),
     0,
   )
-  if (totalM && doneM > 0) return (doneM / totalM) * 100
-  if (tasks.length) {
-    const doneT = tasks.filter((t) => t.status === 'done').length
-    return (doneT / tasks.length) * 100
-  }
-  return 0
+  const counted = tasks.filter((task) => task.status !== 'cancelled')
+  const doneT = counted.filter((task) => task.status === 'done').length
+  const raw =
+    totalM && doneM > 0
+      ? (doneM / totalM) * 100
+      : counted.length
+        ? (doneT / counted.length) * 100
+        : 0
+
+  const finite = tasks.filter(
+    (task) => !task.recurring && !task.playtestIteration,
+  )
+  if (!finite.length) return raw
+  const pending = finite.some(
+    (task) =>
+      task.status !== 'done' &&
+      task.status !== 'cancelled' &&
+      !(
+        task.gateHuman &&
+        (task.gateReason === 'subjective-acceptance' ||
+          task.gateReason === 'publish' ||
+          (task.gateReason === 'creative-approval' &&
+            task.status === 'needs-human'))
+      ),
+  )
+  return pending ? Math.min(raw, 99) : 100
 }
 
 // Each fixture is a real shape observed in conductor's projects/ tree.
@@ -187,6 +203,81 @@ tasks:
     title: "Not started"
     status: ready
     passes: 0
+`,
+  },
+  {
+    name: '100% milestone cannot hide an unbuilt art task',
+    expected: 99,
+    yaml: `project: game
+milestones:
+  - id: m1
+    title: Complete
+    weight: 100
+    status: done
+tasks:
+  - id: t-001
+    title: Art delivery
+    status: ready
+`,
+  },
+  {
+    name: 'completed finite tasks mean 100% despite stale milestone',
+    expected: 100,
+    yaml: `project: game
+milestones:
+  - id: m1
+    title: Stale milestone
+    weight: 100
+    status: in-progress
+tasks:
+  - id: t-001
+    title: Verified save and art
+    status: done
+`,
+  },
+  {
+    name: 'subjective and publication verdicts do not block handoff',
+    expected: 100,
+    yaml: `project: game
+milestones:
+  - id: m1
+    title: Verified
+    weight: 100
+    status: done
+tasks:
+  - id: t-001
+    title: Complete game
+    status: done
+  - id: t-002
+    title: Post-handoff fun verdict
+    status: waiting
+    gate_human: true
+    gate_reason: subjective-acceptance
+  - id: t-003
+    title: Independent publication gate
+    status: needs-human
+    gate_human: true
+    gate_reason: publish
+`,
+  },
+  {
+    name: 'unresolved security gate cannot be counted as playtest ready',
+    expected: 99,
+    yaml: `project: game
+milestones:
+  - id: m1
+    title: Verified
+    weight: 100
+    status: done
+tasks:
+  - id: t-001
+    title: Complete game
+    status: done
+  - id: t-002
+    title: Security approval
+    status: needs-human
+    gate_human: true
+    gate_reason: security
 `,
   },
   {

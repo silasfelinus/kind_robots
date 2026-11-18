@@ -1183,6 +1183,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'hummingbird-trumpet-vine',
+    label: 'Hummingbird Trumpet Vine',
+    reveal: 'Hummingbirds work a sunny wall of trumpet flowers',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Hummingbirds hover, sip and dart between trumpet blooms 🐦 hover to draw one over, click to flush the flowers open with nectar',
+    color: '#ff6f3c',
+    releasedAt: '2026-11-18T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

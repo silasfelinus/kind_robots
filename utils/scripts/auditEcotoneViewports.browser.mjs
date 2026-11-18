@@ -13,7 +13,8 @@
  *
  * Needs a running app (nuxi dev or a deployed build):
  *   ECOTONE_BASE_URL=http://localhost:3000 node utils/scripts/auditEcotoneViewports.browser.mjs
- * Optional: ECOTONE_CHROMIUM=/path/to/chromium, ECOTONE_SHOTS=<dir> for screenshots.
+ * Optional: ECOTONE_CHROMIUM=/path/to/chromium, ECOTONE_SHOTS=<dir> for screenshots,
+ * ECOTONE_BLOCK_API=1 for a local build with no database behind it.
  */
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
@@ -66,6 +67,15 @@ const browser = await chromium.launch(
     ? { executablePath: process.env.ECOTONE_CHROMIUM }
     : {},
 )
+
+// Local builds without a database stall on API calls; fail them fast so the
+// audit measures layout, not timeouts. Off by default against a real deploy.
+async function newContext(options) {
+  const context = await browser.newContext(options)
+  if (process.env.ECOTONE_BLOCK_API === '1')
+    await context.route(/\/api\//, (route) => route.abort())
+  return context
+}
 
 const failures = []
 let checks = 0
@@ -122,7 +132,7 @@ const full = {
 }
 
 for (const [label, width, height] of VIEWPORTS) {
-  const context = await browser.newContext({ viewport: { width, height } })
+  const context = await newContext({ viewport: { width, height } })
   const page = await context.newPage()
   page.setDefaultNavigationTimeout(180000)
 
@@ -213,7 +223,7 @@ for (const [label, width, height] of VIEWPORTS) {
 
 // Keyboard: the tab bar is reachable and shows a visible focus ring.
 {
-  const context = await browser.newContext({
+  const context = await newContext({
     viewport: { width: 390, height: 844 },
   })
   const page = await context.newPage()
@@ -249,7 +259,7 @@ for (const [label, width, height] of VIEWPORTS) {
 
 // Reduced motion and missing art: still one screen, nothing broken on show.
 for (const [label, width, height] of [VIEWPORTS[2], VIEWPORTS[7]]) {
-  const context = await browser.newContext({
+  const context = await newContext({
     viewport: { width, height },
     reducedMotion: 'reduce',
   })

@@ -85,6 +85,10 @@ for (const event of EVENTS) {
     )
     assert.ok(page.highlights.length > 0, 'a finished weekend has highlights')
     assert.ok(page.highlights.length <= SCRAPBOOK_HIGHLIGHTS)
+    assert.ok(
+      page.highlights.every((moment) => moment.choice !== event.name),
+      'the event pick is the page heading, not a highlight',
+    )
     for (const moment of page.highlights)
       assert.ok(
         run.log.some(

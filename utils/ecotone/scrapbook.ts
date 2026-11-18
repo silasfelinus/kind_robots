@@ -66,8 +66,9 @@ function pickHighlights(run: RunState): ScrapbookHighlight[] {
     rolled.length >= SCRAPBOOK_HIGHLIGHTS
       ? rolled.slice(-SCRAPBOOK_HIGHLIGHTS)
       : [
+          // The weekend's event pick already heads the page.
           ...run.log
-            .filter((entry) => !entry.roll)
+            .filter((entry) => !entry.roll && entry.source !== 'EVENT')
             .slice(0, SCRAPBOOK_HIGHLIGHTS - rolled.length),
           ...rolled,
         ]

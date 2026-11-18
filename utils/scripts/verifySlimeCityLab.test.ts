@@ -363,10 +363,12 @@ assert.equal(
 )
 
 // Equipment is permanent, a boost spell lasts one round
-const kit = classicBlackout('bloodfairies', 'riot', 4817)
+// (Razor Spurs became a fighter in t-051; Cannonball Booster is the same
+// permanent +1 AP gear.)
+const kit = classicBlackout('riot', 'bloodfairies', 4817)
 kit.mana = 10
 const kitUnit = kit.units.find((u) => u.side === 'player')!
-const spurred = deploy(kit, 'spurs', kitUnit.x, kitUnit.y)
+const spurred = deploy(kit, 'fuse', kitUnit.x, kitUnit.y)
 const spurredUnit = spurred.units.find((u) => u.id === kitUnit.id)!
 assert.equal(spurredUnit.maxAp, kitUnit.maxAp + 1)
 assert.equal(

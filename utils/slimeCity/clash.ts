@@ -461,6 +461,12 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
     evolvedAttack = [1, 1, 2][tier]!
     evolvedHp = [2, 3, 4][tier]!
   }
+  // Razor Spurs (t-051, third conversion): a fragile stage-diver.
+  // Her value is the tempo she kicks into a neighbor, so her body stays small.
+  if (card.id === 'spurs') {
+    evolvedAttack = [1, 1, 2][tier]!
+    evolvedHp = [2, 3, 3][tier]!
+  }
   return {
     plays,
     level: lv,
@@ -819,27 +825,38 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
  * sweep, keeping each crew near an even win rate. 2026-11-18 (t-051): the
  * Spiked Choker became a SWARM fighter, so it takes Pollen Queen's starter
  * slot and Van Radio stays; Bloodfairies still field 13 of 20 (a fourteenth
- * body pushed them to 57.5% and the spread past 12 points).
+ * body pushed them to 57.5% and the spread past 12 points). Razor Spurs
+ * followed as a stage-diver fighter, so Riot Choir gives its slot
+ * back to Earworm Feedback (sweep: Bloodfairies 54.3%, spread 10.3).
  */
 export const CLASH_FIGHTERS_FIRST: Partial<
   Record<TeamId, { out: string[]; in: string[] }>
 > = {
   bloodfairies: {
-    // 2026-11-18 (t-051): Spiked Choker became a fighter, so Roadie Megaphone
-    // (the same SWARM grant) took her legacy special slot and the alley pool
-    // reshuffled. These pairs rebuild the swept starter: Choker in her old
-    // slot, Riot Choir and Van Radio where the pool now offers Earworm and
-    // Confetti Cannon.
+    // 2026-11-18 (t-051): Spiked Choker and then Razor Spurs became fighters,
+    // so Roadie Megaphone and Amp Tripwire took their legacy special slots
+    // and the alley pool reshuffled. These pairs rebuild the swept
+    // starter in its old order: Choker and Spurs in their old slots, then the
+    // pool cards the sweep picked (Riot Choir left so the crew holds 13
+    // fighters of 20).
     out: [
-      's3-bloodfairies-tripcord',
       's2-bloodfairies-roadie-megaphone',
-      's2-bloodfairies-earworm-feedback',
+      'amp-tripwire',
+      's1-riot-choir',
+      's3-bloodfairies-pollen-queen',
+      's3-bloodfairies-karaoke-oracle',
+      's3-bloodfairies-tripcord',
+      's3-bloodfairies-banana-bouncer',
       's1-confetti-cannon',
     ],
     in: [
-      's3-bloodfairies-mosh-firefly',
       'choker',
-      's1-riot-choir',
+      'spurs',
+      's3-bloodfairies-tour-bus',
+      's2-bloodfairies-bassquake-colossus',
+      's3-bloodfairies-headliner',
+      's3-bloodfairies-mosh-firefly',
+      's2-bloodfairies-earworm-feedback',
       's3-bloodfairies-van-radio',
     ],
   },
@@ -2015,6 +2032,27 @@ export function playClash(
             lane,
           )
       }
+      if (id === 'spurs') {
+        const neighbors = s.units
+          .filter(
+            (ally) =>
+              ally.side === side &&
+              ally.uid !== unit.uid &&
+              Math.abs(ally.lane - lane) === 1,
+          )
+          .sort((a, b) => a.lane - b.lane)
+        for (const ally of level === 1 ? neighbors.slice(0, 1) : neighbors) {
+          if (level === 3) ally.attack = Math.min(10, ally.attack + 1)
+          else ally.surge += 1
+        }
+        if (neighbors.length)
+          note(
+            s,
+            'Razor Spurs kicks the band next to her into high gear.',
+            'play',
+            lane,
+          )
+      }
       if (id === 'shredders') {
         const neighbors = s.units
           .filter(
@@ -2227,24 +2265,6 @@ export function playClash(
           if (card.kind === 'equipment')
             target.attack = clamp(target.attack + profile.bonus, 1, 10)
           else target.surge += power
-          if (id === 'spurs' && level >= 2) {
-            const neighbors = s.units
-              .filter(
-                (u) =>
-                  u.side === side &&
-                  u.uid !== target.uid &&
-                  Math.abs(u.lane - lane) === 1,
-              )
-              .sort((a, b) => a.lane - b.lane)
-            for (const friend of level === 3
-              ? neighbors
-              : neighbors.slice(0, 1))
-              friend.attack = clamp(
-                friend.attack + (level === 3 ? 2 : 1),
-                0,
-                10,
-              )
-          }
           if (id === 'fuse' && level >= 2) {
             const neighbors = s.units
               .filter(

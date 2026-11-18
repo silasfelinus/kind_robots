@@ -573,7 +573,7 @@ export const TEAMS: Team[] = [
     special: [
       'mosh',
       's2-bloodfairies-roadie-megaphone',
-      'spurs',
+      'amp-tripwire',
       'feedback',
       'pinprick',
       'bloodwire',
@@ -877,11 +877,11 @@ export const CARDS: Card[] = [
   {
     id: 'spurs',
     name: 'Razor Spurs',
-    kind: 'equipment',
+    kind: 'creature',
     team: 'bloodfairies',
     cost: 2,
-    effect: 'boost',
-    text: 'A fighter gains +1 AP every round for good.',
+    attack: 1,
+    text: 'A razor-heeled stage-diver who kicks the band next to her into high gear.',
     symbol: '✧',
   },
   {

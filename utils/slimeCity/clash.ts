@@ -825,8 +825,23 @@ export const CLASH_FIGHTERS_FIRST: Partial<
   Record<TeamId, { out: string[]; in: string[] }>
 > = {
   bloodfairies: {
-    out: ['s3-bloodfairies-tripcord', 's2-bloodfairies-roadie-megaphone'],
-    in: ['s3-bloodfairies-mosh-firefly', 's1-riot-choir'],
+    // 2026-11-18 (t-051): Spiked Choker became a fighter, so Roadie Megaphone
+    // (the same SWARM grant) took her legacy special slot and the alley pool
+    // reshuffled. These pairs rebuild the swept starter: Choker in her old
+    // slot, Riot Choir and Van Radio where the pool now offers Earworm and
+    // Confetti Cannon.
+    out: [
+      's3-bloodfairies-tripcord',
+      's2-bloodfairies-roadie-megaphone',
+      's2-bloodfairies-earworm-feedback',
+      's1-confetti-cannon',
+    ],
+    in: [
+      's3-bloodfairies-mosh-firefly',
+      'choker',
+      's1-riot-choir',
+      's3-bloodfairies-van-radio',
+    ],
   },
   ironjaw: {
     out: ['s1-forge-spark', 's3-ironjaw-bonus-plate'],

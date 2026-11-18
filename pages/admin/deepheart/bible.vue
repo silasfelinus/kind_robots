@@ -66,11 +66,15 @@
       >
         <span>
           Approved production style:
-          <strong class="text-primary">{{ DEEPHEART_APPROVED_ART_MODELS.standard.label }}</strong>
+          <strong class="text-primary">{{
+            DEEPHEART_APPROVED_ART_MODELS.standard.label
+          }}</strong>
         </span>
         <span>
           Mature romance unlocks:
-          <strong class="text-secondary">{{ DEEPHEART_APPROVED_ART_MODELS.afterHours.label }}</strong>
+          <strong class="text-secondary">{{
+            DEEPHEART_APPROVED_ART_MODELS.afterHours.label
+          }}</strong>
           · private, adult-only
         </span>
       </div>

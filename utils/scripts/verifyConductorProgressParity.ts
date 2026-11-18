@@ -62,6 +62,7 @@ function referenceProgress(
     (task) => !task.recurring && !task.playtestIteration,
   )
   if (!finite.length) return raw
+  const hasCompleted = finite.some((task) => task.status === 'done')
   const pending = finite.some(
     (task) =>
       task.status !== 'done' &&
@@ -74,7 +75,7 @@ function referenceProgress(
             task.status === 'needs-human'))
       ),
   )
-  return pending ? Math.min(raw, 99) : 100
+  return pending || !hasCompleted ? Math.min(raw, 99) : 100
 }
 
 // Each fixture is a real shape observed in conductor's projects/ tree.
@@ -278,6 +279,21 @@ tasks:
     status: needs-human
     gate_human: true
     gate_reason: security
+`,
+  },
+  {
+    name: 'cancelled-only roadmap cannot masquerade as playtest ready',
+    expected: 99,
+    yaml: `project: cancelled
+milestones:
+  - id: m1
+    title: Stale complete
+    weight: 100
+    status: done
+tasks:
+  - id: t-001
+    title: No delivered production
+    status: cancelled
 `,
   },
   {

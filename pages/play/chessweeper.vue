@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface min-h-0">
+  <main class="kr-surface kr-scroll min-h-0">
     <div class="flex h-full min-h-0 flex-col gap-2 p-2">
       <header-page-bar>
         <nav

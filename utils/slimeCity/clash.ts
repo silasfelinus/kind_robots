@@ -2503,6 +2503,14 @@ export function playClash(
               (u) => u.side === foe && Math.abs(u.lane - lane) === 1,
             ))
               damage(nearby, id === 'confetti' && level >= 2 ? 2 : 1)
+            // splash:'all' blasts ("including your own") also catch the
+            // caster's fighters beside the target. Confetti authors its own
+            // friendly-fire pattern below, so it is skipped here.
+            if (card.splash === 'all' && id !== 'confetti')
+              for (const friend of s.units.filter(
+                (u) => u.side === side && Math.abs(u.lane - lane) === 1,
+              ))
+                damage(friend, 1)
             if (id === 'mosh' && level >= 2) {
               for (const rival of s.units.filter(
                 (u) =>

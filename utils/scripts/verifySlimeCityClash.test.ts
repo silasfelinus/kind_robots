@@ -1306,6 +1306,31 @@ confettiStage.units = [
 const rainbowDamage = playClash(confettiStage, 'player', 'confetti', 2)
 assert.equal(rainbowDamage.units.find((u) => u.uid === 998)?.hp, 8)
 assert.equal(rainbowDamage.units.find((u) => u.uid === 999)?.hp, 7)
+// splash:'all' blasts say "including your own": the caster's fighters beside
+// the target take the 1 splash too, while splash:'enemies' blasts spare them.
+for (const [id, friendlyFire] of [
+  ['s1-no-witnesses', true],
+  ['s2-riot-friendly-fire-rehearsal', true],
+  ['merc-unsupervised-demo', true],
+  ['merc-supervised-demo', false],
+] as const) {
+  const splashStage = evolved('riot', id, 1)
+  splashStage.units = [
+    follower('enemy', 2, 1201, 12),
+    follower('enemy', 1, 1202, 10),
+    follower('player', 3, 1203, 8),
+    follower('player', 0, 1204, 8),
+  ]
+  const splashed = playClash(splashStage, 'player', id, 2)
+  const hp = (uid: number) => splashed.units.find((u) => u.uid === uid)?.hp
+  assert.equal(hp(1202), 9, id + ' splashes the adjacent enemy')
+  assert.equal(
+    hp(1203),
+    friendlyFire ? 7 : 8,
+    id + (friendlyFire ? ' hits' : ' spares') + ' the adjacent ally',
+  )
+  assert.equal(hp(1204), 8, id + ' leaves a distant ally alone')
+}
 const eelStage = evolved('undertow', 'eel')
 eelStage.phase = 'attack'
 eelStage.units = [

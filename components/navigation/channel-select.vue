@@ -502,7 +502,9 @@
                   </span>
 
                   <span class="flex min-w-0 flex-col gap-0.5 px-2.5 py-2">
-                    <span class="kr-text-black-sm line-clamp-2 leading-tight xl:text-base">
+                    <span
+                      class="kr-text-black-sm line-clamp-2 leading-tight xl:text-base"
+                    >
                       {{ tab.label }}
                     </span>
                     <span

@@ -66,20 +66,28 @@
         :class="animal.side === 'left' ? 'justify-end' : 'justify-start'"
       >
         <div class="w-[min(52%,23rem)] min-w-0 max-w-full text-left">
-          <p class="text-[10px] font-black leading-tight tracking-widest text-amber-200 sm:text-xs">
+          <p
+            class="text-[10px] font-black leading-tight tracking-widest text-amber-200 sm:text-xs"
+          >
             K8 / FINANCIAL SPIRIT ANIMAL
           </p>
           <p class="mt-1 text-3xl font-black leading-none sm:mt-2 sm:text-5xl">
             {{ String(k8.level).padStart(2, '0')
             }}<span class="text-sm opacity-70 sm:text-lg">/10</span>
           </p>
-          <h1 class="mt-1 break-words text-xl font-black uppercase leading-tight sm:text-3xl">
+          <h1
+            class="mt-1 break-words text-xl font-black uppercase leading-tight sm:text-3xl"
+          >
             {{ animal.name }}
           </h1>
-          <p class="mt-1 text-xs italic leading-snug text-white/90 sm:text-base">
+          <p
+            class="mt-1 text-xs italic leading-snug text-white/90 sm:text-base"
+          >
             “{{ animal.quote }}”
           </p>
-          <p class="mt-2 text-[11px] font-semibold leading-snug text-amber-100 sm:text-xs">
+          <p
+            class="mt-2 text-[11px] font-semibold leading-snug text-amber-100 sm:text-xs"
+          >
             {{
               k8.level === 0
                 ? 'Engine stop. Existing holdings and orders remain.'
@@ -94,10 +102,12 @@
         class="@container absolute inset-x-2 bottom-2 z-20 rounded-xl border border-white/20 bg-black/80 px-3 py-2 shadow-2xl backdrop-blur-md sm:inset-x-4 sm:bottom-3 sm:px-4"
         aria-label="K8 risk selector"
       >
-        <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] leading-tight sm:text-xs">
+        <div
+          class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] leading-tight sm:text-xs"
+        >
           <span v-if="k8.snapshot" class="min-w-0 font-semibold">
-            {{ k8.snapshot.scope.exchange }} / {{ k8.snapshot.scope.pair }}
-            · {{ k8.snapshot.status.isRunning ? 'RUNNING' : 'STOPPED' }}
+            {{ k8.snapshot.scope.exchange }} / {{ k8.snapshot.scope.pair }} ·
+            {{ k8.snapshot.status.isRunning ? 'RUNNING' : 'STOPPED' }}
           </span>
           <span v-if="k8.snapshot" class="text-amber-100">
             Applied:
@@ -136,7 +146,10 @@
         </div>
 
         <div class="mt-1.5 flex min-w-0 items-center gap-2">
-          <label for="k8-risk-slider" class="shrink-0 text-xs font-bold text-amber-100">
+          <label
+            for="k8-risk-slider"
+            class="shrink-0 text-xs font-bold text-amber-100"
+          >
             {{ String(k8.level).padStart(2, '0') }}/10
             <span class="hidden @md:inline">· {{ animal.name }}</span>
           </label>
@@ -166,7 +179,11 @@
             {{ k8.level === 0 ? 'Review stop' : 'Review' }}
           </button>
         </div>
-        <div class="mt-1 grid grid-cols-11 gap-0.5" role="group" aria-label="Choose an animal level">
+        <div
+          class="mt-1 grid grid-cols-11 gap-0.5"
+          role="group"
+          aria-label="Choose an animal level"
+        >
           <button
             v-for="(item, index) in K8_ANIMALS"
             :key="item.file"
@@ -190,7 +207,11 @@
         <p v-if="k8.error" class="mt-1 text-[11px] text-amber-200" role="alert">
           {{ k8.error }}
         </p>
-        <p v-if="k8.notice" class="mt-1 text-[11px] text-amber-200" role="status">
+        <p
+          v-if="k8.notice"
+          class="mt-1 text-[11px] text-amber-200"
+          role="status"
+        >
           {{ k8.notice }}
         </p>
       </div>
@@ -218,19 +239,27 @@
         <dl v-if="k8.snapshot" class="mt-3 grid grid-cols-2 gap-2 text-xs">
           <div class="rounded-lg bg-white/10 p-2">
             <dt class="text-white/65">Estimated fund equity</dt>
-            <dd class="font-bold">{{ k8Money(k8.snapshot.metrics.fundEquityQuote) }}</dd>
+            <dd class="font-bold">
+              {{ k8Money(k8.snapshot.metrics.fundEquityQuote) }}
+            </dd>
           </div>
           <div class="rounded-lg bg-white/10 p-2">
-            <dt class="text-white/65">Held {{ k8.snapshot.metrics.asset || 'asset' }}</dt>
+            <dt class="text-white/65">
+              Held {{ k8.snapshot.metrics.asset || 'asset' }}
+            </dt>
             <dd class="font-bold">{{ heldAsset }}</dd>
           </div>
           <div class="rounded-lg bg-white/10 p-2">
             <dt class="text-white/65">Realized P&amp;L</dt>
-            <dd class="font-bold">{{ k8Money(k8.snapshot.metrics.realizedPnlQuote) }}</dd>
+            <dd class="font-bold">
+              {{ k8Money(k8.snapshot.metrics.realizedPnlQuote) }}
+            </dd>
           </div>
           <div class="rounded-lg bg-white/10 p-2">
             <dt class="text-white/65">Authorized fund ceiling</dt>
-            <dd class="font-bold">{{ k8Money(k8.snapshot.config.maxUsdcDeployed) }}</dd>
+            <dd class="font-bold">
+              {{ k8Money(k8.snapshot.config.maxUsdcDeployed) }}
+            </dd>
           </div>
         </dl>
         <div v-if="!k8.snapshot" class="mt-3 text-sm text-warning">

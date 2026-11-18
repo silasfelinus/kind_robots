@@ -215,6 +215,26 @@ assert.equal(
   `${elevator.copy.title} ${elevator.copy.title2}`,
   'Downward Mobility',
 )
+assert.equal(
+  elevator.copy.ribbon,
+  'MANDATORY CAREER DEVELOPMENT',
+  'active-build posters must not claim playtesting is already open',
+)
+assert.equal(
+  elevator.hero?.defaultSrc,
+  '/api/art/images/272626/file',
+  'the rebrand poster leads with delivered Krea campus cutaway key art',
+)
+assert.deepEqual(
+  elevator.cards.slice(0, 2).map((card) => card.slot.defaultSrc),
+  ['/api/art/images/272630/file', '/api/art/images/272632/file'],
+  'the poster features reviewed Orientation and Board key-art compositions',
+)
+assert.equal(
+  elevator.copy.statValue,
+  '11',
+  'advert accurately reflects the currently authored endings',
+)
 assert.ok(
   !ADVERT_POSTERS.some((p) => /shifting desks/i.test(p.copy.title + p.name)),
   'no poster is still titled Shifting Desks',

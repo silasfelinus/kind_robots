@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#0a0d17"/>
+<title>CHESSWEEPER // Three Dangerous Worlds</title>
+<style>
+:root{color-scheme:dark;--bg:#070b14;--panel:#151c2e;--line:#35455f;--ink:#e9f4ff;--muted:#93a9c2;--aqua:#62efd5;--gold:#fbd075;--red:#fb6488;--purple:#b6a1ff;--cell:12.5%}
+*{box-sizing:border-box}html{min-height:100%}body{margin:0;min-height:100vh;color:var(--ink);font:14px/1.5 ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;background:radial-gradient(ellipse at 10% 0,#232f52,transparent 44%),radial-gradient(ellipse at 100% 75%,#143840,transparent 40%),var(--bg)}
+body:before{content:"";position:fixed;inset:0;z-index:-1;opacity:.16;background:repeating-linear-gradient(90deg,transparent 0 31px,#93b8ff11 32px),repeating-linear-gradient(0deg,transparent 0 31px,#93b8ff14 32px);pointer-events:none}
+button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #d5fff4;outline-offset:2px}button:disabled{opacity:.4;cursor:default}b{font-weight:900}
+.wrap{max-width:1220px;margin:0 auto;padding:24px clamp(12px,2.8vw,35px) 45px}.mast{display:flex;align-items:center;gap:16px;margin-bottom:21px}.logo{display:grid;place-items:center;width:62px;height:62px;flex:none;border-radius:17px;color:#0b1220;font-size:36px;font-weight:900;background:conic-gradient(from -40deg,var(--aqua),#819afe,var(--red),var(--gold),var(--aqua));box-shadow:0 8px 30px #70f7da3a;transform:rotate(-6deg)}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.24em;color:var(--aqua);font-weight:900}.mast h1{margin:0;font-size:clamp(25px,4vw,43px);line-height:1.12;letter-spacing:-.055em;font-weight:950}.mast h1 em{font-style:normal;color:var(--gold)}.tagline{color:var(--muted);margin:8px 0 0;font-size:13px}.layout{display:grid;grid-template-columns:minmax(0,710px) minmax(260px,1fr);gap:20px;align-items:start}
+.board-shell{background:linear-gradient(140deg,#1b283c,#101624);border:1px solid #485875;border-radius:25px;padding:15px;box-shadow:0 20px 55px #0008}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}.stat{border-radius:12px;background:#0b1322;border:1px solid #34425b;padding:9px 11px;white-space:nowrap;overflow:hidden}.stat small{display:block;text-transform:uppercase;font-size:9px;letter-spacing:.12em;color:var(--muted);font-weight:850}.stat strong{display:block;font-variant-numeric:tabular-nums;font-size:18px;line-height:1.65}.heart{color:#ff7196;letter-spacing:.02em}.board-wrap{width:min(100%,620px);margin:auto;position:relative;border:5px solid #29374e;border-radius:13px;box-shadow:0 12px 33px #0009;overflow:hidden;aspect-ratio:1;background:#202b3d;touch-action:manipulation}
+.board{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr))}.tile{position:relative;border:0;border-radius:0;padding:0;min-width:0;min-height:0;display:grid;place-items:center;background:#273e50;color:#fff;user-select:none;touch-action:manipulation}.tile.light{background:#b8c5cf}.tile.dark{background:#546d82}.tile.fog.light{background:#7a8da1}.tile.fog.dark{background:#4b6177}.tile:hover{filter:brightness(1.1)}.tile.selected{box-shadow:inset 0 0 0 100px #facd5a89}.tile.last{outline:3px solid #fbd07560;outline-offset:-4px}.tile.probe{box-shadow:inset 0 0 0 100px #65efd23d}.tile.warn:after{content:"";position:absolute;inset:5px;border:2px dashed #eb4578b8;border-radius:50%;animation:pulse .75s ease-in-out infinite alternate;pointer-events:none}.tile.mine{background:#8f2d48!important}.tile.exploded{background:#f64c6b!important}.tile.marked{box-shadow:inset 0 0 0 3px #ffdd82bb}.tile.goal{box-shadow:inset 0 0 0 4px #60e5ce80}.piece{position:relative;z-index:2;font-size:clamp(22px,4.6vw,55px);font-family:'Segoe UI Symbol','DejaVu Sans',serif;line-height:1;font-weight:400;text-shadow:0 3px 3px #0007}.piece.white{color:#fffdf4;-webkit-text-stroke:1.4px #253047}.piece.black{color:#111827;-webkit-text-stroke:.5px #f8f8fa}.clue{position:absolute;z-index:3;top:3px;right:5px;font-size:clamp(11px,2vw,18px);font-weight:1000;text-shadow:0 1px 2px #0006;pointer-events:none}.tile:has(.piece) .clue{font-size:12px}.n1{color:#315eed}.n2{color:#008b70}.n3{color:#e3444e}.n4{color:#7d41bd}.n5{color:#9d440c}.n6{color:#0784a0}.n7{color:#ab34ad}.n8{color:#263044}.flag{font-size:clamp(16px,3vw,30px);position:absolute;z-index:4;top:0;right:0;filter:drop-shadow(0 2px 2px #0007);pointer-events:none}.tile .target{position:absolute;z-index:2;inset:32%;border-radius:50%;background:#15a689b0;pointer-events:none}.tile .capture{position:absolute;inset:3px;border:5px solid #13b59a9e;border-radius:50%;z-index:1;pointer-events:none}.tile .coord{position:absolute;bottom:3px;left:5px;z-index:3;font-size:9px;font-weight:900;color:#13293c9c;pointer-events:none}.scan-glow{position:absolute;inset:0;border:1px solid #f1df8f60;pointer-events:none}.blades{position:absolute;inset:0;pointer-events:none;z-index:7;overflow:hidden}.blade{position:absolute;width:12.5%;height:12.5%;display:grid;place-items:center;transform:translate(-50%,-50%);transition:left .27s ease-out,top .27s ease-out}.blade .saw{position:relative;display:grid;place-items:center;width:75%;aspect-ratio:1;border-radius:50%;border:3px dashed #ffe5ec;box-shadow:0 0 0 3px #f45368bb,0 0 19px 7px #f4536880, inset 0 0 10px #000a;background:repeating-conic-gradient(from 0deg,#e4eff9 0 14deg,#647389 14deg 24deg);animation:spin 1s linear infinite}.blade .saw:after{content:"";width:26%;height:26%;border-radius:50%;background:#fa5272;box-shadow:0 0 0 2px #1b2336}.blade.s3 .saw,.blade.s4 .saw{border-color:#ffeac2;box-shadow:0 0 0 3px #ffce69be,0 0 19px 7px #ffb55d85}.arena-help{margin:11px auto 0;width:min(100%,620px);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:11px;font-weight:750}.arena-help span{display:flex;align-items:center;gap:5px}.legend-dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#e66379;box-shadow:0 0 7px #e66379}
+.panel{display:grid;gap:13px}.box{background:#121d2e;border:1px solid #364862;border-radius:21px;padding:19px}.box h2{margin:0 0 10px;font-size:12px;letter-spacing:.15em;color:#e8f5ff;text-transform:uppercase}.status{border-left:3px solid var(--aqua);background:#0b1322;padding:12px 13px;border-radius:7px;font-size:13px;line-height:1.5;font-weight:800;min-height:65px}.buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:13px 0}.btn{border-radius:11px;border:1px solid #4a5f7a;padding:11px 8px;background:#243550;color:#e8f4ff;font-size:12px;font-weight:900;min-height:45px;transition:filter .13s,transform .13s}.btn:hover:not(:disabled){filter:brightness(1.18);transform:translateY(-1px)}.btn.on{border-color:var(--aqua);background:#225b58;color:#d9fff7;box-shadow:inset 0 0 0 1px #9ffcef50}.btn.yellow{border-color:var(--gold);color:#1d2432;background:var(--gold)}.btn.red{border-color:#df8299;background:#a94a65}.btn.wide{width:100%;margin-top:10px}.btn.dash-on{background:#e7a2f3;color:#1e1230}.instructions{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.63}.instructions b{color:#e4f2ff}.bar{height:8px;overflow:hidden;border-radius:999px;background:#324357;margin:12px 0 4px}.bar span{height:100%;display:block;width:0;background:linear-gradient(90deg,#46e1bb,#ffd47a);transition:width .18s ease-out}.rowbetween{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:12px;font-weight:800}.small{font-size:11px;color:var(--muted)}.log{max-height:170px;overflow:auto;display:grid;gap:6px;margin-top:10px}.log p{margin:0;font-size:12px;padding:7px 10px;background:#0c1524;border:1px solid #2e3b53;border-radius:7px;color:#cfdae9}.log p:first-child{border-color:#526b7f;color:#fff}.divider{height:1px;background:#304157;margin:15px 0}.promo{display:none;margin-top:11px;background:#342844;border:1px solid #b6a1ff;border-radius:11px;padding:10px}.promo.show{display:block}.promo button{font-size:24px;min-width:48px}.overlay{position:absolute;inset:0;z-index:12;background:#08111be9;display:none;align-items:center;justify-content:center;text-align:center;padding:28px}.overlay.show{display:flex}.overlay-inner{max-width:370px}.overlay .end-mark{font-size:58px;line-height:1.2}.overlay h2{font-size:clamp(25px,5vw,39px);letter-spacing:-.04em;margin:8px 0;color:#fff}.overlay p{font-size:14px;color:#c3d8ea;line-height:1.55;margin:0 0 20px}.overlay .btn{padding:12px 32px;background:var(--aqua);color:#102529;border-color:#a3f5e8}.tip{border-radius:12px;background:#171c31;border:1px dashed #50647f;padding:11px 13px;font-size:11px;color:#aec2d6}.footer{text-align:center;color:#7891a9;font-size:10px;letter-spacing:.15em;margin-top:22px}.how{margin:0;padding-left:19px;color:#c4d4e7;font-size:12px;line-height:1.65}.how li{margin:3px 0}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{to{opacity:.35}}
+@media(max-width:920px){.layout{grid-template-columns:1fr;max-width:760px;margin:auto}.panel{grid-template-columns:repeat(2,minmax(0,1fr))}.box:last-child{grid-column:1/-1}.mast{max-width:760px;margin-left:auto;margin-right:auto}.board-wrap{width:min(100%,620px)}}
+@media(max-width:560px){.wrap{padding-top:15px}.mast{gap:11px}.logo{width:45px;height:45px;font-size:26px;border-radius:11px}.tagline{font-size:11px}.board-shell{padding:8px;border-radius:17px}.board-wrap{border-width:2px}.panel{grid-template-columns:1fr}.box:last-child{grid-column:auto}.box{padding:16px}.stat{padding:6px}.stat strong{font-size:16px}.stat small{font-size:7.5px;letter-spacing:0}.board-shell .stats{gap:4px}.piece{font-size:clamp(28px,8vw,45px)}.clue{font-size:13px;top:1px;right:2px}.tile:has(.piece) .clue{font-size:9px}.flag{font-size:17px}.tile .coord{font-size:7px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Original three-world presentation; chess and mine geometry remains the same. */
+.worlds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:-4px 0 15px}
+.world{display:flex;align-items:center;gap:9px;min-width:0;text-align:left;border:2px solid #64708a;padding:10px 12px;background:#162235;color:#dbe8f5;border-radius:16px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.world:hover{transform:translateY(-2px)}.world[aria-pressed=true]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold),0 6px 18px #0004}
+.world-icon{font-size:28px;line-height:1}.world strong{display:block;line-height:1.2;font-weight:1000;font-size:12px;letter-spacing:.035em}.world small{display:block;opacity:.75;font-size:10px;line-height:1.3;margin-top:3px}
+.power-status{margin-top:12px;border-radius:10px;padding:10px;font-size:12px;font-weight:900;border:1px solid var(--gold);background:#262838}
+#wager{border-color:#ffdc69;color:#ffedaa;background:#5d275c}
+:root[data-realm=sugar]{color-scheme:light;--bg:#ffb3de;--panel:#ffe3f8;--line:#f979cc;--ink:#49225a;--muted:#884b89;--aqua:#03bda7;--gold:#ffdc42;--red:#ff429b;--purple:#9563fa}
+:root[data-realm=sugar] body{background:radial-gradient(circle at 15% 8%,#fff6a3 0 8%,transparent 31%),radial-gradient(circle at 92% 75%,#88fbef 0 8%,transparent 37%),linear-gradient(135deg,#ffa4d5,#dca7ff 55%,#ffb5da);font-family:'Trebuchet MS',ui-sans-serif,system-ui}
+:root[data-realm=sugar] .mast h1{color:#632c91;text-shadow:2px 3px 0 #fff2a7}
+:root[data-realm=sugar] .board-shell{background:linear-gradient(140deg,#ffa5da,#f4d9ff 54%,#99f8ec);border:3px solid #fff1a7;box-shadow:0 12px 0 #f076b2,0 18px 30px #9d3a9660}
+:root[data-realm=sugar] .tile.light{background:#ffefae}:root[data-realm=sugar] .tile.dark{background:#ffc8e8}
+:root[data-realm=sugar] .tile.fog.light{background:#f6bfed}:root[data-realm=sugar] .tile.fog.dark{background:#e99cda}
+:root[data-realm=sugar] .board-wrap{border-color:#ffec68;box-shadow:0 0 0 4px #fa67bb}
+:root[data-realm=sugar] .box{background:#fff0fe;border:2px solid #ff8bd7;box-shadow:0 5px 0 #f17ac0}
+:root[data-realm=sugar] .box h2,:root[data-realm=sugar] .instructions b{color:#91369e}
+:root[data-realm=sugar] .status,:root[data-realm=sugar] .stat,:root[data-realm=sugar] .log p{color:#67347b;background:#fff8e1;border-color:#f3a7d4}
+:root[data-realm=sugar] .btn{color:#642a83;background:#f6cdf6;border-color:#a95cb9}
+:root[data-realm=sugar] .btn.on{color:#fff;background:#cb4dc3}
+:root[data-realm=sugar] .world{background:#fff4fe;color:#6b3588;border-color:#d48ad1}
+:root[data-realm=sugar] .world[aria-pressed=true]{background:#ffef7d;border-color:#fa57ae}
+:root[data-realm=sugar] .blade .saw{background:repeating-conic-gradient(#ff5fba 0 25deg,#fff47e 25deg 45deg,#b958f7 45deg 64deg);border:3px dashed #fff;box-shadow:0 0 0 4px #ff55ae,0 0 20px 7px #ffd5f9}
+:root[data-realm=sugar] .power-status{background:#fff5c6;border-color:#e484bb}
+:root[data-realm=ashen]{--bg:#0b0a0a;--panel:#201e1b;--line:#5c5147;--ink:#e3ddd2;--muted:#aa9c8b;--aqua:#c7a56d;--gold:#df7e3d;--red:#c84e3a;--purple:#918776}
+:root[data-realm=ashen] body{background:radial-gradient(ellipse at 50% 0,#483324 0,transparent 45%),linear-gradient(125deg,#0c0d0d,#211b18 60%,#090b0b)}
+:root[data-realm=ashen] .mast h1{font-family:Georgia,serif;letter-spacing:-.06em;text-transform:uppercase}
+:root[data-realm=ashen] .board-shell{background:linear-gradient(125deg,#423c35,#151413);border:2px solid #6e5945;box-shadow:0 22px 40px #000d}
+:root[data-realm=ashen] .tile.light{background:#a69b88}:root[data-realm=ashen] .tile.dark{background:#555048}
+:root[data-realm=ashen] .tile.fog.light{background:#817766}:root[data-realm=ashen] .tile.fog.dark{background:#3d3933}
+:root[data-realm=ashen] .board-wrap{border-color:#47372a}
+:root[data-realm=ashen] .box{background:linear-gradient(145deg,#2a2723,#171714);border-color:#75604b;border-radius:7px}
+:root[data-realm=ashen] .stat,:root[data-realm=ashen] .status,:root[data-realm=ashen] .log p{background:#121311;border-color:#695745}
+:root[data-realm=ashen] .world{border-radius:3px;background:#27231e;border-color:#6e5b47}
+:root[data-realm=ashen] .world[aria-pressed=true]{border-color:#df894b;box-shadow:inset 0 0 0 1px #df894b}
+:root[data-realm=ashen] .blade .saw{background:repeating-conic-gradient(#8c8375 0 12deg,#2d2c29 12deg 28deg);border:3px dashed #cc7746;box-shadow:0 0 0 3px #7b392c,0 0 24px 6px #7b392cb0}
+:root[data-realm=jackpot]{--bg:#10072a;--panel:#241148;--line:#673ae7;--ink:#f8eaff;--muted:#d6b1f6;--aqua:#2dfcda;--gold:#ffde59;--red:#ff4e96;--purple:#ad77ff}
+:root[data-realm=jackpot] body{background:radial-gradient(circle at 0 0,#741f80,transparent 43%),radial-gradient(circle at 99% 0,#1444bc,transparent 42%),linear-gradient(130deg,#10062f,#290d50)}
+:root[data-realm=jackpot] .board-shell{background:linear-gradient(135deg,#431a87,#140b39);border:2px solid #f9bb4b;box-shadow:0 0 35px #de44f455}
+:root[data-realm=jackpot] .tile.light{background:#867ce4}:root[data-realm=jackpot] .tile.dark{background:#39287f}
+:root[data-realm=jackpot] .tile.fog.light{background:#664dbe}:root[data-realm=jackpot] .tile.fog.dark{background:#281a6c}
+:root[data-realm=jackpot] .board-wrap{border-color:#fbd45e;box-shadow:0 0 20px #da53ff}
+:root[data-realm=jackpot] .box{background:linear-gradient(160deg,#321668,#180b3c);border-color:#a35cff}
+:root[data-realm=jackpot] .stat,:root[data-realm=jackpot] .status,:root[data-realm=jackpot] .log p{background:#130c32;border-color:#613fbb}
+:root[data-realm=jackpot] .world{background:#291550;border-color:#8d5acc}
+:root[data-realm=jackpot] .world[aria-pressed=true]{background:#573078;border-color:#ffdb57}
+:root[data-realm=jackpot] .blade .saw{background:repeating-conic-gradient(#fcda60 0 12deg,#fff 12deg 25deg,#ff50c6 25deg 38deg);border:3px dashed #fff;box-shadow:0 0 0 3px #ff46cc,0 0 18px 7px #ee54ffe0}
+@media(max-width:920px){.worlds{gap:5px}.world{padding:8px}.world strong{font-size:10px}.world small{font-size:9px}}
+@media(max-width:700px){.wrap{padding:7px 7px 16px}.mast{margin-bottom:8px}.mast h1{font-size:clamp(18px,5vw,27px)}.mast .tagline{display:none}.logo{width:36px;height:36px;font-size:23px}.worlds{margin:0 0 8px}.world{padding:6px;gap:4px;min-height:42px}.world-icon{font-size:17px}.world small{display:none}.layout{gap:8px}.board-shell{padding:6px}.stats{margin-bottom:5px}.stat strong{font-size:13px}.board-wrap{width:min(100%,53vh)}.arena-help{display:none}.panel{display:block}.box{padding:7px}.box:first-child .instructions,.panel .box:not(:first-child){display:none}.status{min-height:0;padding:7px;font-size:11px}.buttons{margin:5px 0}.btn{min-height:34px;padding:5px}.power-status{margin-top:5px;padding:5px}.box:first-child .divider{margin:5px}.footer{display:none}}
+@media(max-height:700px) and (min-width:701px){.wrap{padding-top:6px}.mast{margin-bottom:6px}.worlds{margin-bottom:7px}.board-wrap{width:min(100%,62vh)}.box{padding:11px}.instructions{margin-top:5px}.footer{display:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="mast"><div class="logo" aria-hidden="true">✹</div><div><div class="eyebrow">Chess × Minesweeper × Disc Room</div><h1>CHESSWEEPER <em>✕</em> <span id="realm-heading">JACKPOT APOCALYPSE</span></h1><p class="tagline" id="realm-tagline">Bet your kingdom against the house. The pinballs have teeth.</p></div></header>
+<nav class="worlds" aria-label="Choose a Chessweeper world">
+<button type="button" class="world" data-realm="sugar" aria-pressed="false"><span class="world-icon">🌈</span><span><strong>SUGARBOMB KINGDOM</strong><small>Kawaii candy combos · Sugar Rush</small></span></button>
+<button type="button" class="world" data-realm="ashen" aria-pressed="false"><span class="world-icon">⚔️</span><span><strong>ASHEN CHECKMATE</strong><small>Brutal curses · Last Stand</small></span></button>
+<button type="button" class="world" data-realm="jackpot" aria-pressed="true"><span class="world-icon">🎰</span><span><strong>JACKPOT APOCALYPSE</strong><small>Neon pinball · Double or Nothing</small></span></button>
+</nav>
+<div class="layout">
+<section class="board-shell" aria-label="Chessweeper arena">
+<div class="stats"><div class="stat"><small>Your king</small><strong id="hp-w" class="heart">♥ ♥ ♥</strong></div><div class="stat"><small>Enemy king</small><strong id="hp-b" class="heart">♥ ♥ ♥</strong></div><div class="stat"><small>Mines left</small><strong id="mine-left">10</strong></div><div class="stat"><small>Turns / score</small><strong id="turns">0 / 0</strong></div></div>
+<div class="board-wrap" id="board-wrap"><div id="board" class="board" role="group" aria-label="Chessboard with mines and discs"></div><div id="blades" class="blades" aria-hidden="true"></div><div id="overlay" class="overlay"><div class="overlay-inner"><div class="end-mark" id="end-mark">♛</div><h2 id="end-title">GAME OVER</h2><p id="end-desc"></p><button id="play-again" class="btn">↻ TRY AGAIN</button></div></div></div>
+<div class="arena-help"><span><i class="legend-dot"></i> Sawblade: moves after every action</span><span>✹ Clue · 🚩 Flag · ♟ Legal move</span></div>
+<div id="promotion" class="promo"><b>Promote your pawn:</b><div id="promotion-buttons" class="buttons"></div></div>
+</section>
+<aside class="panel">
+<section class="box"><h2>Operations console</h2><div class="status" id="status" aria-live="polite">White to move. Choose your move.</div><div class="buttons"><button id="move-mode" class="btn on" aria-pressed="true">♟ MOVE</button><button id="probe-mode" class="btn" aria-pressed="false">✦ PROBE</button><button id="flag-mode" class="btn" aria-pressed="false">🚩 FLAG</button></div><button id="dash" class="btn wide">⚡ DASH SHIELD: READY</button><p class="instructions">In <b>MOVE</b>, select one of your white chess pieces and a glowing legal square. <b>PROBE</b> a hidden tile for a Minesweeper clue. <b>FLAG</b> suspected bombs. Right-click a square to flag it anytime.</p><p class="instructions"><b>Dash shield</b> protects your next moved piece from one mine or blade strike. Recharges every 5 white turns.</p><div class="power-status" id="power-status" aria-live="polite">Jackpot multiplier ×1 · 0 chips wagered.</div>
+<button id="wager" class="btn wide" type="button">🎰 DOUBLE OR NOTHING · STAKE 50</button>
+<div class="divider"></div><button id="reset" class="btn yellow wide">↻ NEW BATTLE</button></section>
+<section class="box"><h2>Two ways to win</h2><div class="rowbetween"><span>Safe cells uncovered</span><span id="progress-label">0 / 22</span></div><div class="bar"><span id="progress"></span></div><p class="instructions">Win by <b>checkmating Black</b> or by <b>revealing every safe tile</b> in the mined middle four ranks. Minesweeper and chess share the same board.</p><ol class="how"><li><b>Chess:</b> all standard moves, including promotion and castling.</li><li><b>Mines:</b> hidden in rows 3–6, indicated by clues. Landing on one explodes your piece.</li><li><b>Discs:</b> bounce one square after every move or probe, shredding pieces and chipping king armor.</li><li><b>Probing:</b> costs your chess turn, so Black gets to move.</li></ol></section>
+<section class="box"><h2>Combat feed</h2><div id="feed" class="log" aria-live="polite"><p>Awaiting first move...</p></div><p class="small">Keyboard: M move · P probe · F flag · D dash · N new battle. Touch: mode buttons work for all actions.</p><p class="tip">This is a mashup, not orthodox chess. The floor and sawblades are equal-opportunity destroyers. Your computer opponent is playing the same cursed board.</p></section>
+</aside>
+</div>
+<footer class="footer">A SINGLE ORIGINAL HTML5 GAME &nbsp; · &nbsp; OFFLINE &nbsp; · &nbsp; ZERO DEPENDENCIES</footer>
+</main>
+<script>
+'use strict';
+(()=>{
+const $=id=>document.getElementById(id);
+const randomInt=max=>Math.floor(Math.random()*max);
+  const START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  const CHESS_GLYPH={K:'♚',Q:'♛',R:'♜',B:'♝',N:'♞',P:'♟',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟','.':''};
+  const DIR={n:[-33,-31,-18,-14,14,18,31,33],b:[-17,-15,15,17],r:[-16,-1,1,16],q:[-17,-16,-15,-1,1,15,16,17],k:[-17,-16,-15,-1,1,15,16,17]};
+  const onBoard=i=>i>=0&&i<128&&!(i&0x88);
+  const colorOf=p=>!p||p==='.'?0:p===p.toUpperCase()?1:-1;
+  const squareName=i=>'abcdefgh'[i&7]+(8-(i>>4));
+  const squareIdx=s=>(8-Number(s[1]))*16+'abcdefgh'.indexOf(s[0]);
+  const moveKey=m=>squareName(m[0])+squareName(m[1])+m[2];
+  const initialPosition=()=>{
+    const parts=START_FEN.split(' '), board=Array(128).fill('.');
+    parts[0].split('/').forEach((row,r)=>{let f=0;for(const p of row){if(p>='1'&&p<='8')f+=+p;else board[r*16+f++]=p;}});
+    return {b:board,t:1,c:15,ep:-1,half:0,full:1};
+  };
+  function underAttack(s,target,by){
+    for(let from=0;from<128;from++){
+      if(!onBoard(from)||colorOf(s.b[from])!==by)continue;
+      const p=s.b[from].toLowerCase();
+      if(p==='p'){if(target===from-16*by-1||target===from-16*by+1)return true;continue;}
+      for(const dir of DIR[p]){
+        for(let to=from+dir;onBoard(to);to+=dir){
+          if(to===target)return true;
+          if(s.b[to]!=='.'||p==='n'||p==='k')break;
+        }
+      }
+    }
+    return false;
+  }
+  const inCheck=(s,side=s.t)=>underAttack(s,s.b.indexOf(side===1?'K':'k'),-side);
+  function makePosition(s,m){
+    const [from,to,promo,flag]=m, b=s.b.slice(),p=b[from],target=b[to];let c=s.c;
+    b[from]='.';b[to]=promo?(s.t===1?promo.toUpperCase():promo):p;
+    if(flag==='ep')b[to+16*s.t]='.';
+    if(flag==='castle'){
+      const rookFrom=to>from?from+3:from-4,rookTo=to>from?from+1:from-1;
+      b[rookTo]=b[rookFrom];b[rookFrom]='.';
+    }
+    if(p==='K')c&=~3;
+    if(p==='k')c&=~12;
+    const rookBits={119:1,112:2,7:4,0:8};
+    if(p.toLowerCase()==='r')c&=~(rookBits[from]||0);
+    if(target.toLowerCase()==='r')c&=~(rookBits[to]||0);
+    return {b,t:-s.t,c,ep:p.toLowerCase()==='p'&&Math.abs(to-from)===32?(to+from)/2:-1,half:p.toLowerCase()==='p'||target!=='.'||flag==='ep'?0:s.half+1,full:s.full+(s.t===-1?1:0)};
+  }
+  function pseudoMoves(s){
+    const result=[];
+    for(let from=0;from<128;from++){
+      if(!onBoard(from)||colorOf(s.b[from])!==s.t)continue;
+      const p=s.b[from].toLowerCase();
+      const add=(to,flag='')=>{
+        if(s.b[to].toLowerCase()==='k')return; // Kings cannot be captured.
+        if(p==='p'&&((to>>4)===0||(to>>4)===7)){
+          for(const promote of ['q','r','b','n'])result.push([from,to,promote,flag]);
+        }else result.push([from,to,'',flag]);
+      };
+      if(p==='p'){
+        const to=from-16*s.t;
+        if(onBoard(to)&&s.b[to]==='.'){
+          add(to);
+          const double=to-16*s.t;
+          if((from>>4)===(s.t===1?6:1)&&s.b[double]==='.')add(double);
+        }
+        for(const delta of [-1,1]){
+          const target=to+delta;
+          if(!onBoard(target))continue;
+          if(colorOf(s.b[target])===-s.t)add(target);
+          else if(target===s.ep&&s.b[target]==='.'&&s.b[target+16*s.t]===(s.t===1?'p':'P'))add(target,'ep');
+        }
+      }else{
+        for(const dir of DIR[p])for(let to=from+dir;onBoard(to);to+=dir){
+          if(colorOf(s.b[to])===s.t)break;
+          add(to);
+          if(s.b[to]!=='.'||p==='n'||p==='k')break;
+        }
+        const home=s.t===1?116:4,rook=s.t===1?'R':'r',bits=s.t===1?[1,2]:[4,8];
+        if(p==='k'&&from===home&&!inCheck(s)){
+          if((s.c&bits[0])&&s.b[from+3]===rook&&s.b[from+1]==='.'&&s.b[from+2]==='.'&&!underAttack(s,from+1,-s.t)&&!underAttack(s,from+2,-s.t))add(from+2,'castle');
+          if((s.c&bits[1])&&s.b[from-4]===rook&&s.b[from-1]==='.'&&s.b[from-2]==='.'&&s.b[from-3]==='.'&&!underAttack(s,from-1,-s.t)&&!underAttack(s,from-2,-s.t))add(from-2,'castle');
+        }
+      }
+    }
+    return result;
+  }
+  const legalMoves=s=>pseudoMoves(s).filter(m=>!inCheck(makePosition(s,m),s.t));
+  function notation(s,m){
+    const [from,to,promote,flag]=m,p=s.b[from].toUpperCase(),capture=s.b[to]!=='.'||flag==='ep';let str='';
+    if(flag==='castle')str=to>from?'O-O':'O-O-O';
+    else{
+      if(p!=='P'){
+        str=p;
+        const others=legalMoves(s).filter(x=>x[0]!==from&&x[1]===to&&s.b[x[0]]===s.b[from]);
+        if(others.length)str+=!others.some(x=>(x[0]&7)===(from&7))?squareName(from)[0]:!others.some(x=>(x[0]>>4)===(from>>4))?squareName(from)[1]:squareName(from);
+      }else if(capture)str=squareName(from)[0];
+      str+=(capture?'x':'')+squareName(to)+(promote?'='+promote.toUpperCase():'');
+    }
+    const next=makePosition(s,m);
+    return str+(inCheck(next)?(legalMoves(next).length?'+':'#'):'');
+  }
+  function repetitionKey(s){
+    const epRelevant=s.ep>=0&&legalMoves(s).some(m=>m[3]==='ep');
+    return s.b.join('')+'/'+s.t+'/'+s.c+'/'+(epRelevant?s.ep:-1);
+  }
+  function drawByMaterial(s){
+    const remaining=[];
+    for(let i=0;i<128;i++)if(onBoard(i)&&s.b[i]!=='.'&&s.b[i].toLowerCase()!=='k')remaining.push([s.b[i].toLowerCase(),((i>>4)+(i&7))%2]);
+    return remaining.length===0||(remaining.length===1&&['b','n'].includes(remaining[0][0]))||(remaining.length>0&&remaining.every(p=>p[0]==='b')&&new Set(remaining.map(p=>p[1])).size===1);
+  }
+
+  const THEMES={
+    sugar:{mines:8,hp:4,name:'SUGARBOMB KINGDOM',tagline:'Cursed candy, glitter wheels and a dangerous rainbow sugar rush.',intro:'Sugarbomb Kingdom: sweet clues charge your Sugar Rush.'},
+    ashen:{mines:12,hp:2,name:'ASHEN CHECKMATE',tagline:'Every move is a sacrifice in the cathedral of execution.',intro:'Ashen Checkmate: you have one Last Stand. Spend it wisely.'},
+    jackpot:{mines:10,hp:3,name:'JACKPOT APOCALYPSE',tagline:'Bet your kingdom against the house. The pinballs have teeth.',intro:'Jackpot Apocalypse: pile up multipliers and tempt the house.'}
+  };
+  let realm='jackpot',config=THEMES[realm];
+  const glyph={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟︎','.':''};
+  let state, timer=null;
+  const pos=i=>[i&7,i>>4];
+  const iAt=(x,y)=>y*16+x;
+  const neighbors=i=>{const [x,y]=pos(i),out=[];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx,yy=y+dy;if((dx||dy)&&xx>=0&&xx<8&&yy>=0&&yy<8)out.push(iAt(xx,yy));}return out;};
+  const isMineZone=i=>(i>>4)>=2&&(i>>4)<=5;
+  const discAt=i=>state.discs.some(d=>d.active&&d.y*16+d.x===i);
+  const warnAt=i=>state.discs.some(d=>d.active&&stepDisc(d).y*16+stepDisc(d).x===i);
+  function stepDisc(d){let x=d.x+d.dx,y=d.y+d.dy,dx=d.dx,dy=d.dy;if(x<0||x>=8){dx=-dx;x=d.x+dx;}if(y<0||y>=8){dy=-dy;y=d.y+dy;}return {...d,x,y,dx,dy};}
+  const damage=(side,how)=>{
+    if(state.over)return;
+    state.hp[side]--;
+    if(side===1&&realm==='ashen'&&state.hp[side]<=0&&!state.lastStandUsed){
+      state.lastStandUsed=true;state.hp[side]=1;state.dashReady=true;state.dashArmed=true;
+      addFeed('LAST STAND! A dying ember grants one armored move.');return;
+    }
+    addFeed(`${side===1?'Your':'Enemy'} king takes damage (${how}).`);
+    if(state.hp[side]<=0)end(side===1?'loss':'win',side===1?'Your king ran out of armor.':'The enemy king was destroyed by the arena.');
+  };
+  function addFeed(text){state.feed.unshift(text);state.feed=state.feed.slice(0,7);}
+  function shuffle(a){for(let j=a.length-1;j>0;j--){let k=randomInt(j+1);[a[j],a[k]]=[a[k],a[j]];}return a;}
+  function init(){
+    clearTimeout(timer);timer=null;
+    config=THEMES[realm];
+    document.documentElement.dataset.realm=realm;
+    $('realm-heading').textContent=config.name;
+    $('realm-tagline').textContent=config.tagline;
+    document.querySelectorAll('[data-realm]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.realm===realm)));
+    const mines=new Set(shuffle(Array.from({length:32},(_,j)=>(2+(j>>3))*16+(j&7))).slice(0,config.mines));
+    const counts={};for(let i=0;i<128;i++)if(onBoard(i))counts[i]=neighbors(i).filter(j=>mines.has(j)).length;
+    state={chess:initialPosition(),mines,counts,shown:new Set(),flags:new Set(),exploded:new Set(),selected:-1,mode:'move',dashArmed:false,dashReady:true,dashCooldown:0,hp:{1:config.hp,'-1':config.hp},turns:0,score:0,protectedAt:-1,feed:[],busy:false,over:false,ended:'',promotion:null,last:null,discs:[{id:1,x:2,y:2,dx:1,dy:1,active:true},{id:2,x:5,y:5,dx:-1,dy:-1,active:true},{id:3,x:0,y:4,dx:1,dy:-1,active:false},{id:4,x:7,y:3,dx:-1,dy:1,active:false}],humanActions:0,sugar:0,freeze:0,lastStandUsed:false,multiplier:1,wager:0,wagerTicks:0,firstProbeUsed:false};
+    if(realm==='sugar')state.discs[1].active=false;
+    if(realm==='ashen')state.discs[2].active=true;
+    for(let i=0;i<128;i++)if(onBoard(i)&&!isMineZone(i))state.shown.add(i);
+    addFeed(config.intro);
+    render();
+  }
+  function reveal(i,side=1,protect=false,source='probe'){
+    if(state.shown.has(i)||(source==='probe'&&state.flags.has(i)))return {mine:false,changed:false};
+    if(source==='probe'&&side===1&&!state.firstProbeUsed){
+      state.firstProbeUsed=true;
+      if(state.mines.has(i)){
+        const candidates=[];for(let n=0;n<128;n++)if(onBoard(n)&&isMineZone(n)&&n!==i&&!state.mines.has(n)&&!state.shown.has(n))candidates.push(n);
+        if(candidates.length){
+          state.mines.delete(i);state.mines.add(candidates[randomInt(candidates.length)]);
+          for(let n=0;n<128;n++)if(onBoard(n))state.counts[n]=neighbors(n).filter(k=>state.mines.has(k)).length;
+          addFeed('The first clue is protected. The minefield shifts.');
+        }
+      }
+    }
+    if(state.mines.has(i)){
+      if(realm==='jackpot'&&side===1){state.multiplier=1;state.wager=0;state.wagerTicks=0;addFeed('BUST! Your multiplier and pending wager are lost.');}
+      state.shown.add(i);state.exploded.add(i);state.score=Math.max(0,state.score-40);
+      if(source==='probe'){damage(side,'mine probe');}
+      else {
+        if(protect){addFeed(`Dash shield defused the mine at ${squareName(i)}!`);state.score+=20;}
+        else {
+          const p=state.chess.b[i];
+          addFeed(`BOOM at ${squareName(i)}. ${p.toUpperCase()} hits a mine.`);
+          if(p.toLowerCase()==='k')damage(side,'mine strike');
+          else{state.chess.b[i]='.';removeCastling(i,p);}
+        }
+      }
+      state.mines.delete(i);
+      return {mine:true,changed:true};
+    }
+    let revealed=0,queue=[i];
+    while(queue.length){
+      const t=queue.pop();
+      if(state.shown.has(t)||state.flags.has(t)||state.mines.has(t))continue;
+      state.shown.add(t);revealed++;
+      if(!state.counts[t] && isMineZone(t)){
+        for(const n of neighbors(t))if(!state.shown.has(n)&&!state.flags.has(n)&&!state.mines.has(n))queue.push(n);
+      }
+    }
+    state.score+=revealed*(source==='probe'?12:8)*(realm==='jackpot'?state.multiplier:1);
+    if(side===1&&revealed>0)addSweetness(Math.min(3,revealed));
+    return {mine:false,changed:true,revealed};
+  }
+  function addSweetness(amount){
+    if(realm!=='sugar'||state.over)return;
+    state.sugar+=amount;
+    if(state.sugar>=5){
+      state.sugar=0;state.freeze=2;state.score+=150;
+      addFeed('🌈 SUGAR RUSH! The spinning lollipops freeze for two beats.');
+    }
+  }
+  function removeCastling(i,p){
+    if(p==='K')state.chess.c&=~3;if(p==='k')state.chess.c&=~12;
+    const bits={119:1,112:2,7:4,0:8};if(p.toLowerCase()==='r')state.chess.c&=~(bits[i]||0);
+  }
+  function progress(){let visible=0,total=0;for(let y=2;y<=5;y++)for(let x=0;x<8;x++){let i=iAt(x,y);if(!state.mines.has(i)&&!state.exploded.has(i)){total++;if(state.shown.has(i))visible++;}}return {visible,total};}
+  function sweepCheck(){if(state.over)return;const pr=progress();if(pr.visible===pr.total){state.score+=500;end('win','You cleared every safe square in the minefield. Minesweeper victory!');}}
+  function status(){
+    if(state.over)return state.ended;
+    if(state.busy)return 'The blades are moving. Watch their next squares.';
+    if(state.chess.t===-1)return 'Black is thinking...';
+    if(!legalMoves(state.chess).length)return inCheck(state.chess)?'Checkmate! Black wins.':'Stalemate.';
+    if(state.mode==='probe')return inCheck(state.chess)?'You are in check: move a chess piece to escape.':'Probe a covered square. A successful probe costs your turn.';
+    if(state.mode==='flag')return 'Flag suspicious tiles. Flags do not cost a turn.';
+    return inCheck(state.chess)?'CHECK! Move a white piece to escape.':'Your move. Select a white piece, then a green destination.';
+  }
+  function terminalChess(){
+    if(state.over)return true;
+    const legal=legalMoves(state.chess);
+    if(legal.length===0){if(inCheck(state.chess)){const winner=state.chess.t===1?'loss':'win';end(winner,`${state.chess.t===1?'Black':'White'} wins by checkmate.`);}else end('draw','Stalemate. Both kings get to keep their heads.');return true;}
+    if(drawByMaterial(state.chess)){end('draw','Draw by insufficient material.');return true;}
+    return false;
+  }
+  function end(type,reason){state.over=true;state.busy=false;state.ended=reason;clearTimeout(timer);$('end-mark').textContent=type==='win'?'♔':type==='draw'?'☯':'☠';$('end-title').textContent=type==='win'?'VICTORY!':type==='draw'?'DRAW':'KING DOWN';$('end-desc').textContent=`${reason} Final score: ${state.score}.`;addFeed(reason);}
+  function refreshDiscs(){
+    const overlay=$('blades');
+    for(const d of state.discs){let el=overlay.querySelector(`[data-disc="${d.id}"]`);if(!el){el=document.createElement('div');el.dataset.disc=String(d.id);el.className=`blade s${d.id}`;el.innerHTML='<span class="saw"></span>';overlay.append(el);}el.style.left=`${(d.x+.5)*12.5}%`;el.style.top=`${(d.y+.5)*12.5}%`;el.style.display=d.active?'grid':'none';}
+  }
+  function render(){
+    const s=state.chess,canSelect=!state.over&&!state.busy&&s.t===1,valid=canSelect?legalMoves(s):[];
+    const targets=valid.filter(m=>m[0]===state.selected).map(m=>m[1]);
+    const squares=[];
+    for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+      const i=iAt(x,y),p=s.b[i],shown=state.shown.has(i),mine=state.mines.has(i),flag=state.flags.has(i),num=state.counts[i];
+      const classes=['tile',(x+y)%2===0?'light':'dark',shown?'':'fog'];
+      if(i===state.selected)classes.push('selected');if(state.last&&state.last.includes(i))classes.push('last');if(state.exploded.has(i))classes.push('exploded');
+      if(flag)classes.push('marked');if(!state.over&&warnAt(i))classes.push('warn');
+      const dest=targets.includes(i),label=`${squareName(i)}, ${p==='.'?'empty':colorOf(p)===1?'white piece':'black piece'}, ${shown?(num?num+' adjacent mines':'safe'):'covered'}${flag?', flagged':''}`;
+      squares.push(`<button type="button" class="${classes.join(' ')}" data-square="${i}" aria-label="${label}" ${canSelect?'':'disabled'}>`+
+        (p!=='.'?`<span class="piece ${colorOf(p)===1?'white':'black'}">${glyph[p]}</span>`:'')+
+        (shown&&num>0&&!state.exploded.has(i)?`<span class="clue n${num}">${num}</span>`:'')+
+        (flag?'<span class="flag">🚩</span>':'')+
+        (state.exploded.has(i)?'<span class="flag">✹</span>':'')+
+        (dest?`<span class="${p==='.'?'target':'capture'}"></span>`:'')+
+        (x===0?`<span class="coord">${8-y}</span>`:'')+
+      '</button>');
+    }
+    $('board').innerHTML=squares.join('');refreshDiscs();
+    $('hp-w').textContent='♥ '.repeat(state.hp[1]).trim()||'DEAD';$('hp-b').textContent='♥ '.repeat(state.hp[-1]).trim()||'DEAD';
+    $('mine-left').textContent=String(Math.max(0,config.mines-state.flags.size-state.exploded.size)).padStart(2,'0');
+    $('turns').textContent=`${state.turns} / ${state.score}`;
+    $('status').textContent=status();
+    const ability=$('power-status'),wager=$('wager');
+    if(realm==='sugar')ability.textContent='🌈 Sugar Rush '+state.sugar+'/5 · '+(state.freeze?'Glitter freeze '+state.freeze+' beats':'Charge with clues and captures');
+    if(realm==='ashen')ability.textContent='⚔️ Last Stand '+(state.lastStandUsed?'SPENT':'READY')+' · '+config.hp+' king armor at start';
+    if(realm==='jackpot')ability.textContent='🎰 ×'+state.multiplier+' multiplier · '+state.score+' chips · '+(state.wager?'Wager live: '+state.wager:'No wager');
+    wager.style.display=realm==='jackpot'?'block':'none';
+    wager.disabled=realm!=='jackpot'||state.over||state.busy||state.chess.t!==1||state.wager>0||state.score<50;
+    for(const mode of ['move','probe','flag']){$(`${mode}-mode`).classList.toggle('on',state.mode===mode);$(`${mode}-mode`).setAttribute('aria-pressed',String(state.mode===mode));}
+    const d=$('dash');d.textContent=state.dashReady?(state.dashArmed?'⚡ DASH ARMED • NEXT MOVE':'⚡ DASH SHIELD: READY'):`⚡ DASH RECHARGING · ${state.dashCooldown} TURNS`;
+    d.classList.toggle('dash-on',state.dashArmed);d.disabled=state.over||!state.dashReady||state.chess.t===-1;
+    const pr=progress();$('progress-label').textContent=`${pr.visible} / ${pr.total}`;$('progress').style.width=`${Math.round(100*pr.visible/Math.max(1,pr.total))}%`;
+    $('feed').innerHTML=state.feed.map(t=>`<p>${escapeHtml(t)}</p>`).join('');
+    $('overlay').classList.toggle('show',state.over);
+    const promotion=$('promotion');promotion.classList.toggle('show',!!state.promotion);
+    $('promotion-buttons').innerHTML=state.promotion?state.promotion.map(m=>`<button class="btn" data-promo="${m[2]}" aria-label="Promote to ${m[2]}">${glyph[m[2].toUpperCase()]}</button>`).join(''):'';
+  }
+  const escapeHtml=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function tickDiscs(){
+    if(state.over)return;
+    if(realm==='sugar'&&state.freeze>0){
+      state.freeze--;addFeed('✨ Sugar Rush holds the candy blades still.');return;
+    }
+    if(state.turns>=8)state.discs[2].active=true;
+    if(state.turns>=18)state.discs[3].active=true;
+    for(const d of state.discs){if(state.over)break;if(!d.active)continue;Object.assign(d,stepDisc(d));const i=iAt(d.x,d.y),p=state.chess.b[i];
+      if(p!=='.'){
+        if(state.protectedAt===i){addFeed(`Dash blocked the sawblade at ${squareName(i)}!`);continue;}
+        if(p.toLowerCase()==='k'){damage(colorOf(p),'sawblade strike');}
+        else {state.chess.b[i]='.';removeCastling(i,p);addFeed(`SAW! ${squareName(i)} lost a ${({p:'pawn',n:'knight',b:'bishop',r:'rook',q:'queen'})[p.toLowerCase()]}.`);state.score+=colorOf(p)===-1?25:-10;}
+      }
+    }
+    state.protectedAt=-1;
+  }
+  function afterBeat(){
+    if(state.over){render();return;}
+    state.turns++;
+    tickDiscs();
+    if(!state.over&&realm==='jackpot'&&state.wagerTicks>0){
+      state.wagerTicks--;
+      if(state.wagerTicks===0){
+        const payout=state.wager*2*state.multiplier;
+        state.score+=payout;state.wager=0;
+        addFeed('JACKPOT! Survived the wager for '+payout+' chips!');
+      }
+    }
+    state.last=null;
+    if(state.over){render();return;}
+    if(sweepCheck(),state.over){render();return;}
+    if(terminalChess()){render();return;}
+    state.busy=true;render();
+    clearTimeout(timer);timer=setTimeout(()=>{state.busy=false;if(state.over)return;
+      if(state.chess.t===-1)botTurn();else render();
+    },370);
+  }
+  function doMove(m,bot=false){
+    if(state.over)return;
+    const s=state.chess,legal=legalMoves(s),chosen=legal.find(k=>moveKey(k)===moveKey(m));if(!chosen)return;
+    const who=s.t,piece=s.b[chosen[0]],dest=chosen[1],protectedMove=who===1&&state.dashArmed;
+    const captured=s.b[dest];
+    const label=notation(s,chosen);
+    state.chess=makePosition(s,chosen);state.selected=-1;state.promotion=null;state.last=[chosen[0],chosen[1]];
+    state.protectedAt=protectedMove?dest:-1;
+    addFeed(`${who===1?'White':'Black'}: ${label}`);
+    if(who===1&&captured!=='.'){
+      addSweetness(2);
+      if(realm==='jackpot'){state.multiplier=Math.min(8,state.multiplier+1);state.score+=20*state.multiplier;addFeed('CAPTURE COMBO! ×'+state.multiplier);}
+    }
+    // Moving onto a mine is dangerous. A dash grants one-beat protection.
+    const result=reveal(dest,who,protectedMove,'land');
+    if(protectedMove){state.dashArmed=false;state.dashReady=false;state.dashCooldown=5;addFeed('Dash shield spent.');}
+    if(who===1){state.humanActions++;if(!protectedMove&&!state.dashReady){state.dashCooldown=Math.max(0,state.dashCooldown-1);if(!state.dashCooldown){state.dashReady=true;addFeed('Dash shield recharged!');}}}
+    if(state.over){render();return;}
+    afterBeat();
+  }
+  // Probing consumes a white turn (unless in check); it is a genuine Minesweeper move.
+  function doProbe(i){
+    if(state.over||state.busy||state.chess.t!==1||inCheck(state.chess))return;
+    if(state.shown.has(i)||state.flags.has(i)){addFeed('That square is already known or flagged.');render();return;}
+    state.selected=-1;const r=reveal(i,1,false,'probe');
+    if(!r.changed)return;
+    addFeed(r.mine?`Probe at ${squareName(i)} exploded!`:`Probe at ${squareName(i)} revealed ${r.revealed} safe square${r.revealed===1?'':'s'}.`);
+    state.humanActions++;
+    if(!state.dashReady){state.dashCooldown=Math.max(0,state.dashCooldown-1);if(!state.dashCooldown){state.dashReady=true;addFeed('Dash shield recharged!');}}
+    // This is the only chess rule we intentionally bend: a probe passes your turn.
+    state.chess={...state.chess,t:-1,ep:-1,half:state.chess.half+1};state.protectedAt=-1;
+    if(state.over){render();return;}
+    afterBeat();
+  }
+  function toggleFlag(i){
+    if(state.over||state.busy||state.chess.t!==1||state.shown.has(i))return;
+    if(state.flags.has(i)){state.flags.delete(i);addFeed(`Flag removed at ${squareName(i)}.`);}
+    else {state.flags.add(i);addFeed(`🚩 Flagged ${squareName(i)}.`);}
+    state.selected=-1;render();
+  }
+  function clickSquare(i){
+    if(state.over||state.busy||state.chess.t!==1)return;
+    if(state.mode==='flag'){toggleFlag(i);return;}
+    if(state.mode==='probe'){doProbe(i);return;}
+    const s=state.chess;
+    if(colorOf(s.b[i])===1){state.selected=state.selected===i?-1:i;render();return;}
+    const found=legalMoves(s).filter(m=>m[0]===state.selected&&m[1]===i);
+    if(found.length>1){state.promotion=found;render();return;}
+    if(found.length===1)doMove(found[0]);
+    else {state.selected=-1;render();}
+  }
+  function botTurn(){
+    if(state.over||state.chess.t!==-1)return;
+    const s=state.chess,moves=legalMoves(s);
+    if(terminalChess())return;
+    const values={p:100,n:320,b:335,r:510,q:900,k:10000};
+    let best=-Infinity,chosen=null;
+    for(const m of shuffle(moves.slice())){
+      const next=makePosition(s,m),p=s.b[m[0]];
+      let score=0;
+      // The computer reacts to information it can see. Unrevealed mines remain fair game.
+      for(let j=0;j<128;j++)if(onBoard(j)&&next.b[j]!=='.'){const piece=next.b[j],base=values[piece.toLowerCase()];score+=colorOf(piece)===-1?base:-base;}
+      if(state.flags.has(m[1]))score-=values[p.toLowerCase()]*1.25;
+      if(discAt(m[1]))score-=values[p.toLowerCase()]*.75;
+      if(isMineZone(m[1])&&!state.shown.has(m[1]))score-=25;
+      const [x,y]=pos(m[1]);score+=((3.5-Math.abs(3.5-x))+(3.5-Math.abs(3.5-y)))*3;
+      if(inCheck(next))score+=18;
+      score+=(Math.random()-.5)*25;
+      if(score>best){best=score;chosen=m;}
+    }
+    if(chosen)doMove(chosen,true);
+  }
+  $('board').addEventListener('click',e=>{const btn=e.target.closest('[data-square]');if(btn)clickSquare(Number(btn.dataset.square));});
+  $('board').addEventListener('contextmenu',e=>{const btn=e.target.closest('[data-square]');if(btn){e.preventDefault();toggleFlag(Number(btn.dataset.square));}});
+  // Long press for flags on touch without stealing normal taps.
+  let touchHold=null,touchFlagged=false;
+  $('board').addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;const btn=e.target.closest('[data-square]');if(!btn)return;touchFlagged=false;clearTimeout(touchHold);touchHold=setTimeout(()=>{touchFlagged=true;toggleFlag(Number(btn.dataset.square));},650);});
+  $('board').addEventListener('pointerup',()=>clearTimeout(touchHold));$('board').addEventListener('pointercancel',()=>clearTimeout(touchHold));$('board').addEventListener('pointerleave',()=>clearTimeout(touchHold));
+  $('board').addEventListener('click',e=>{if(touchFlagged){e.stopImmediatePropagation();touchFlagged=false;}},true);
+  $('promotion-buttons').addEventListener('click',e=>{const btn=e.target.closest('[data-promo]');if(btn&&state.promotion){let m=state.promotion.find(x=>x[2]===btn.dataset.promo);if(m)doMove(m);}});
+  function modeSet(m){if(state.over)return;state.mode=m;state.selected=-1;render();}
+  for(const mode of ['move','probe','flag'])$(`${mode}-mode`).addEventListener('click',()=>modeSet(mode));
+  $('dash').addEventListener('click',()=>{if(!state.dashReady||state.over||state.chess.t!==1)return;state.dashArmed=!state.dashArmed;modeSet('move');render();});
+  document.querySelectorAll('[data-realm]').forEach(b=>b.addEventListener('click',()=>{
+    if(realm===b.dataset.realm)return;
+    realm=b.dataset.realm;init();
+  }));
+  $('wager').addEventListener('click',()=>{
+    if(realm!=='jackpot'||state.over||state.busy||state.chess.t!==1||state.wager>0||state.score<50)return;
+    state.score-=50;state.wager=50;state.wagerTicks=4;
+    state.discs[2].active=true;state.discs[3].active=true;
+    addFeed('DOUBLE OR NOTHING! 50 chips at risk. Multiball unleashed for four beats.');
+    render();
+  });
+  $('reset').addEventListener('click',init);$('play-again').addEventListener('click',init);
+  window.addEventListener('keydown',e=>{if(e.target&&['INPUT','TEXTAREA'].includes(e.target.tagName))return;
+    const k=e.key.toLowerCase();if(k==='m')modeSet('move');else if(k==='p')modeSet('probe');else if(k==='f')modeSet('flag');else if(k==='n')init();else if(k==='d')$('dash').click();
+  });
+  window.__fusionTest={get:()=>state, reset:init, setRealm:next=>{realm=next;init();}, play:uci=>{const s=state.chess,m=legalMoves(s).find(m=>moveKey(m)===uci);if(m&&!state.busy){doMove(m);return true;}return false;},probe:doProbe,stepDisc,progress};
+  init();
+})();
+</script>
+</body>
+</html>

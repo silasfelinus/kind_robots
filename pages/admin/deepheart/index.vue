@@ -1,7 +1,5 @@
 <template>
-  <NuxtPage v-if="route.path.startsWith('/admin/deepheart/')" />
   <main
-    v-else
     class="kr-surface h-full min-h-0 overflow-hidden gap-0"
     data-layout="console-fixed"
     data-testid="deepheart"
@@ -32,7 +30,6 @@ import { onMounted } from 'vue'
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import { DEEPHEART as deepheart } from '~/utils/playbookKit/games/deepheart'
 
-const route = useRoute()
 const dh = useDeepheartStore()
 
 onMounted(() => dh.load())

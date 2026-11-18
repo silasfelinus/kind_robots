@@ -515,16 +515,15 @@ assert.match(
   readFileSync(`${componentDir}/deepheart-hand.vue`, 'utf8'),
   /<KrChoiceHand/,
 )
-const deepheartPage = readFileSync('pages/admin/deepheart.vue', 'utf8')
+const deepheartPage = readFileSync('pages/admin/deepheart/index.vue', 'utf8')
 assert.match(
   deepheartPage,
   /<PlaybookKitShell :spec="deepheart" :meter-values="dh\.meterValues">/,
 )
-assert.ok(
-  deepheartPage.includes(
-    `<NuxtPage v-if="route.path.startsWith('/admin/deepheart/')" />`,
-  ),
-  'the Deepheart parent must expose its nested art bible route',
+assert.doesNotMatch(
+  deepheartPage,
+  /<NuxtPage\b/,
+  'the game and art bible should be sibling routes, not nested pages',
 )
 assert.match(
   readFileSync('stores/deepheartStore.ts', 'utf8'),

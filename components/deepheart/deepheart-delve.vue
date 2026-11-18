@@ -318,7 +318,11 @@ const eventCards = computed<DhCard[]>(() => {
       id: o.id,
       label: o.label,
       chip: o.tag ? o.tag[0]!.toUpperCase() + o.tag.slice(1) : '',
-      hint: lock ?? o.hint,
+      hint:
+        lock ??
+        (o.check
+          ? `${o.hint} · Crew modifier +${engine.abilityModifier(r, o.check.stat)}`
+          : o.hint),
       icon: '✧',
       disabled: !!lock,
     }

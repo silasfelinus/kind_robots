@@ -1177,20 +1177,21 @@ function changeAffinity(run: RunState, id: string, delta: number) {
   run.affinity[id] = Math.max(0, Math.min(10, (run.affinity[id] ?? 0) + delta))
 }
 
+export function abilityModifier(run: RunState, skill: StatKey): number {
+  const members = alive(run)
+  if (!members.length) return 0
+  const stats = members.map((member) => stat(run, member.id, skill))
+  const best = Math.max(...stats)
+  const support = Math.min(2, Math.max(0, stats.filter((n) => n >= 8).length - 1))
+  return Math.max(0, Math.floor(best / 4)) + support
+}
+
 export function rollAbilityCheck(
   run: RunState,
   skill: StatKey,
   dc: number,
 ): { die: number; modifier: number; total: number; success: boolean } {
-  const members = alive(run)
-  const best = members.length
-    ? Math.max(...members.map((member) => stat(run, member.id, skill)))
-    : 0
-  const trained = members.filter(
-    (member) => stat(run, member.id, skill) >= 8,
-  ).length
-  const support = Math.min(2, Math.max(0, trained - 1))
-  const modifier = Math.max(0, Math.floor(best / 4)) + support
+  const modifier = abilityModifier(run, skill)
   const die = 1 + Math.floor(nextRandom(run) * 20)
   const total = die + modifier
   return { die, modifier, total, success: total >= dc }

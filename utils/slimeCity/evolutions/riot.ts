@@ -273,9 +273,12 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: avoid trading fighters early; with no fallen, no wave.
   's3-riot-wrong-side-of-blast': {
     levelOneText: 'A late blast that cleans up a whole wounded corner.',
-    2: stage('Blast Shadow', [on('enter', damage(2, 'weakestFoe'))]),
+    // Level 1 (t-041 dead-card pass): the curtain blast spills into the
+    // front row and the rival boss takes the shrapnel at every level.
+    1: stage('House Lights Up', [on('enter', boss(2))]),
+    2: stage('Blast Shadow', [on('enter', boss(1), damage(2, 'weakestFoe'))]),
     3: stage('Already Bowed', [
-      on('enter', when('allyFell', damage(2, 'allFoes'))),
+      on('enter', boss(2), when('allyFell', damage(2, 'allFoes'))),
     ]),
   },
   // Arc: a reckless spark -> double or nothing -> it actually worked

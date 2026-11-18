@@ -336,6 +336,11 @@ export const CATGIRL_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: leave the alley across empty; armor only matters if worn.
   's3-catgirls-stolen-saw': {
     levelOneText: 'Give a fighter the tools to pierce plating.',
+    // Level 1 (t-041 dead-card pass): the first cut lands at once on the
+    // fighter across, not only on some future armored foe.
+    1: stage('First Cut', [
+      on('enter', damage(1, 'across'), sharpen(1, 'target')),
+    ]),
     2: stage('Cut the Bars', [
       on('enter', damage(2, 'across'), sharpen(1, 'target')),
     ]),

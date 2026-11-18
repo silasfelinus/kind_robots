@@ -323,11 +323,14 @@ assert.deepEqual(
 )
 // slime-city/t-041 (2026-11-18 PT): the CPU judges a two-slot special against
 // the best pair of one-slot plays instead of halving it, which revived seven
-// of the 13 dead two-slot specials (6 remain). Lock that in: a CPU or card
-// change that strands the specials again fails here.
+// of the 13 dead two-slot specials (6 remain). The follow-up card pass gave
+// the last six (Union Reallocation, Furnace Overdrive, Wrong Side of the
+// Curtain, Breeding Hunger, Mark of the Procession, Stolen Bone Saw) an
+// authored level-one payoff carried into L2/L3, and every one is now played.
+// Lock that in: a CPU or card change that strands a special again fails here.
 assert.ok(
-  dead.length <= 6,
-  dead.length + ' dead two-slot cards (ceiling 6): ' + dead.join(', '),
+  dead.length === 0,
+  dead.length + ' dead two-slot cards (ceiling 0): ' + dead.join(', '),
 )
 // Count distinct bouts in which a card was chosen, not raw play commands.
 // A repeatedly played card must not masquerade as a high selection rate.

@@ -46,6 +46,7 @@ import {
 import { ANTHRO_BLURB, ANTHRO_LOOK } from '../deepheart/anthro'
 import { CHARACTERS, ROLES, SUPPORTS, character } from '../deepheart/roster'
 import {
+  DEEPHEART_APPROVED_ART_MODELS,
   DEEPHEART_STYLE_DESIGNER,
   DEEPHEART_STYLE_LANES,
   DEEPHEART_STYLE_SUBJECTS,
@@ -447,6 +448,19 @@ assert.ok(
 assert.ok(finaleOptions(hearth).length === 0 || hearth.phase === 'ended')
 
 // ── Private visual-direction trial ──────────────────────────────────────
+assert.equal(DEEPHEART_APPROVED_ART_MODELS.standard.lane, 'krea2')
+assert.equal(DEEPHEART_APPROVED_ART_MODELS.standard.engine, 'krea2')
+assert.equal(DEEPHEART_APPROVED_ART_MODELS.afterHours.lane, 'furrytoon')
+assert.equal(DEEPHEART_APPROVED_ART_MODELS.afterHours.engine, 'comfy')
+assert.equal(
+  DEEPHEART_APPROVED_ART_MODELS.afterHours.checkpoint,
+  'Illustrious/furrytoonmix_xlV3.safetensors',
+)
+assert.equal(DEEPHEART_APPROVED_ART_MODELS.afterHours.requiresMatureOptIn, true)
+assert.equal(
+  DEEPHEART_APPROVED_ART_MODELS.afterHours.requiresUnlockedRomance,
+  true,
+)
 assert.equal(DEEPHEART_STYLE_SUBJECTS.length, 5, 'five fixed visual tests')
 assert.equal(
   DEEPHEART_STYLE_LANES.length,
@@ -483,6 +497,7 @@ const bibleSource = readFileSync('pages/admin/deepheart/bible.vue', 'utf8')
 assert.match(bibleSource, /user\.isAdmin && user\.showMature/)
 assert.match(bibleSource, /data-testid="deepheart-art-bible"/)
 assert.match(bibleSource, /loadJobImage/)
+assert.match(bibleSource, /dh-approved-models/)
 const styleRoute = readFileSync(
   'server/api/deepheart/style-check.get.ts',
   'utf8',

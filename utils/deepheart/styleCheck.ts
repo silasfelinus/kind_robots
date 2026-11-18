@@ -4,6 +4,22 @@ export const DEEPHEART_STYLE_DESIGNER =
   'Deepheart Anthro Style Trial 2026-11-16'
 export const DEEPHEART_STYLE_PROJECT = 'deepheart'
 
+export const DEEPHEART_APPROVED_ART_MODELS = {
+  standard: {
+    lane: 'krea2',
+    engine: 'krea2',
+    label: 'Krea 2',
+  },
+  afterHours: {
+    lane: 'furrytoon',
+    engine: 'comfy',
+    checkpoint: 'Illustrious/furrytoonmix_xlV3.safetensors',
+    label: 'Furrytoon Mix XL v3',
+    requiresMatureOptIn: true,
+    requiresUnlockedRomance: true,
+  },
+} as const
+
 export const DEEPHEART_STYLE_SUBJECTS = [
   {
     key: 'guardian-oona',

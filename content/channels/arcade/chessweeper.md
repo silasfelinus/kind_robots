@@ -7,7 +7,7 @@ title: Chessweeper · Three Dangerous Worlds
 subtitle: Chess, mines and spinning doom discs on a single board
 summary: Chess, mines, discs. Three worlds.
 description: Play chess against the computer on a mined board while bouncing discs destroy pieces. Try the candy-combo, dark survival, and neon casino-pinball versions, each with its own game rules.
-icon: kind-icon:arcade
+icon: kind-icon:chessweeper
 route: /play/chessweeper
 sort: 145
 tutorial:

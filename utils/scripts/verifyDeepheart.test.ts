@@ -268,7 +268,9 @@ assert.ok(school.choices.includes('ossuary-night-school:petition'))
 const depleted = createRun(hero('idris'), ['brannoc'], 45)
 depleted.phase = 'choice'
 depleted.room = { kind: 'choice', known: true, event: 'goblin-snare' }
-depleted.party.forEach((member) => { member.hp = 1 })
+depleted.party.forEach((member) => {
+  member.hp = 1
+})
 chooseOption(depleted, 'free')
 assert.equal(
   depleted.sacrifices,

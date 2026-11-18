@@ -14,7 +14,10 @@
             :class="mode === 'hero' ? 'btn-primary' : 'btn-ghost'"
             :aria-selected="mode === 'hero'"
             data-testid="dh-mode-hero"
-            @click="mode = 'hero'; dh.focus = dh.hero.presetId"
+            @click="
+              mode = 'hero'
+              dh.focus = dh.hero.presetId
+            "
           >
             Hero
           </button>

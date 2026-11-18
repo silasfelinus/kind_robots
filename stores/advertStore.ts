@@ -11,7 +11,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { handleError, performFetch } from '@/stores/utils'
-import { type ArtSlot, type ArtSlotCandidate } from '@/stores/artSlotStore'
+import type { ArtSlot, ArtSlotCandidate } from '@/stores/artSlotStore'
 import { useProjectStore } from '@/stores/projectStore'
 import { useTodoStore, type Todo, type TodoPriority } from '@/stores/todoStore'
 import {
@@ -276,7 +276,9 @@ export const useAdvertStore = defineStore('advertStore', () => {
       return true
     } catch (error) {
       errorMessage.value =
-        error instanceof Error ? error.message : 'Could not publish that render.'
+        error instanceof Error
+          ? error.message
+          : 'Could not publish that render.'
       handleError(error, 'publishing advert art')
       return false
     } finally {

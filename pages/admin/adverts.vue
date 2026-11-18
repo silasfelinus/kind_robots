@@ -331,10 +331,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '~/stores/userStore'
 import { useAdvertStore } from '~/stores/advertStore'
-import {
-  ADVERT_STUDIO_COVER_SLOT,
-  advertSlots,
-} from '~/utils/adverts/posters'
+import { ADVERT_STUDIO_COVER_SLOT, advertSlots } from '~/utils/adverts/posters'
 
 useHead({ title: 'Advert Studio' })
 

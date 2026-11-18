@@ -34,7 +34,10 @@ export default defineEventHandler(async (event) => {
         (slot.slotKey !== ADVERT_STUDIO_COVER_SLOT &&
           !advertSlotByKey(slot.slotKey))
       )
-        throw createError({ statusCode: 404, message: 'Advert slot not found.' })
+        throw createError({
+          statusCode: 404,
+          message: 'Advert slot not found.',
+        })
       if (!candidate || candidate.verdict === 'duplicate')
         throw createError({
           statusCode: 404,

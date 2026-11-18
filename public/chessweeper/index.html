@@ -1152,6 +1152,7 @@
         }
       }
     </style>
+    <link rel="stylesheet" href="/chessweeper/progression.css" />
   </head>
   <body>
     <main class="wrap">
@@ -1931,6 +1932,9 @@
             type === 'win' ? 'VICTORY!' : type === 'draw' ? 'DRAW' : 'KING DOWN'
           $('end-desc').textContent = `${reason} Final score: ${state.score}.`
           addFeed(reason)
+          window.dispatchEvent(
+            new CustomEvent('chessweeper:end', { detail: { type, reason } }),
+          )
         }
         function refreshDiscs() {
           const overlay = $('blades')
@@ -2068,6 +2072,7 @@
                 )
                 .join('')
             : ''
+          window.dispatchEvent(new Event('chessweeper:state'))
         }
         const escapeHtml = (t) =>
           String(t).replace(
@@ -2433,6 +2438,7 @@
         })
         window.__fusionTest = {
           get: () => state,
+          refresh: render,
           reset: init,
           setRealm: (next) => {
             realm = next
@@ -2454,5 +2460,6 @@
         init()
       })()
     </script>
+    <script src="/chessweeper/progression.js"></script>
   </body>
 </html>

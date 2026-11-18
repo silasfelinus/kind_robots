@@ -2,7 +2,7 @@ import { defineEventHandler, sendRedirect, setHeader } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { ADVERT_STUDIO_COVER_SLOT } from '~/utils/adverts/posters'
 
-const FALLBACK_ART = '/images/art/generate.webp'
+const FALLBACK_ART = '/comet-city-academy/front/splash.webp'
 
 export default defineEventHandler(async (event) => {
   setHeader(event, 'Cache-Control', 'public, max-age=120')

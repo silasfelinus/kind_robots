@@ -10,6 +10,9 @@ export type StatKey = 'hp' | 'atk' | 'def' | 'mag' | 'spd' | 'wit'
 
 export type Stats = Record<StatKey, number>
 
+export const CUSTOM_HERO_ID = 'custom-hero'
+export const CUSTOM_STAT_POINTS = 4
+
 export type Archetype = 'tank' | 'healer' | 'striker' | 'caster' | 'support'
 
 export type RoleId =
@@ -125,6 +128,7 @@ export type Effects = {
   reveal?: boolean
   affinityAll?: number
   mercy?: number
+  sacrifice?: number
   deepen?: number
   boon?: Partial<Stats>
 }
@@ -255,6 +259,11 @@ export type Notice = { tone: 'good' | 'bad' | 'info' | 'heart'; text: string }
 
 export type HeroSetup = {
   presetId: string
+  custom?: {
+    role: RoleId
+    appearance: string
+    points: Partial<Stats>
+  }
   name: string
   gender: Gender
   drawnTo: Gender[]
@@ -317,6 +326,7 @@ export type RunState = {
   } | null
   deepening: number
   mercy: number
+  sacrifices?: number
   turns: number
   fights: number
   puzzlesSolved: number

@@ -137,7 +137,8 @@
 import { computed, ref, watch } from 'vue'
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import * as engine from '~/utils/deepheart/engine'
-import { ROLES, character } from '~/utils/deepheart/roster'
+import { ROLES } from '~/utils/deepheart/roster'
+import { roleFor } from '~/utils/deepheart/party'
 
 const dh = useDeepheartStore()
 const run = computed(() => dh.run)
@@ -145,7 +146,9 @@ const combat = computed(() => run.value?.combat ?? null)
 const actor = computed(() =>
   run.value ? engine.currentActor(run.value) : null,
 )
-const role = computed(() => ROLES[character(actor.value?.id ?? 'idris').role])
+const role = computed(
+  () => ROLES[roleFor(actor.value?.id ?? 'idris', run.value?.hero)],
+)
 const who = computed(() =>
   run.value && actor.value ? engine.nameOf(run.value, actor.value.id) : '',
 )

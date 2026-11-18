@@ -540,9 +540,9 @@ export const EVENTS: EventDef[] = [
       {
         id: 'free',
         label: 'Cut him down',
-        hint: 'He looks terrified',
+        hint: 'Risk 7% health releasing the snare',
         tag: 'kind',
-        effects: { flag: 'goblinfriend', mercy: 1 },
+        effects: { flag: 'goblinfriend', mercy: 1, hurt: 0.07, sacrifice: 1 },
         result:
           'Snag thanks you, then tells you where the next layer’s doors lead. Goblins pay their debts.',
       },
@@ -691,9 +691,9 @@ export const EVENTS: EventDef[] = [
       {
         id: 'smash',
         label: 'Smash it',
-        hint: 'No more kings',
+        hint: 'Risk 8% health breaking the throne',
         tag: 'kind',
-        effects: { mercy: 1, boon: { def: 2 } },
+        effects: { mercy: 1, hurt: 0.08, sacrifice: 1, boon: { def: 2 } },
         result: 'Pearls scatter. The water warms by a degree.',
       },
       {
@@ -783,9 +783,9 @@ export const EVENTS: EventDef[] = [
       {
         id: 'free',
         label: 'Unchain him',
-        hint: 'Water is rising',
+        hint: 'Risk 9% health to unchain him',
         tag: 'kind',
-        effects: { mercy: 1, potion: 1 },
+        effects: { mercy: 1, potion: 1, hurt: 0.09, sacrifice: 1 },
         result:
           'He presses a potion into your hands and flees upward, weeping.',
       },
@@ -896,9 +896,9 @@ export const EVENTS: EventDef[] = [
       {
         id: 'brace',
         label: 'Brace it',
-        hint: 'Somebody should',
+        hint: 'Risk 10% health bracing the pillar',
         tag: 'kind',
-        effects: { mercy: 1, boon: { def: 2 } },
+        effects: { mercy: 1, hurt: 0.1, sacrifice: 1, boon: { def: 2 } },
         result: 'You wedge it firm. The dungeon creaks, almost gratefully.',
       },
       {
@@ -989,7 +989,7 @@ export const EVENTS: EventDef[] = [
         hint: 'Costs a potion',
         tag: 'kind',
         requires: { potion: 1 },
-        effects: { potion: -1, mercy: 1 },
+        effects: { potion: -1, mercy: 1, sacrifice: 1 },
         result:
           'The coal flares bright. They chirp at you all the way to the next door.',
       },

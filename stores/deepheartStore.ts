@@ -28,12 +28,14 @@ import {
   type PartyGoal,
   type PartyScore,
 } from '~/utils/deepheart/party'
-import { CHARACTERS, character } from '~/utils/deepheart/roster'
+import { CHARACTERS, ROLES, character } from '~/utils/deepheart/roster'
+import { CUSTOM_HERO_ID, CUSTOM_STAT_POINTS } from '~/utils/deepheart/types'
 import type {
   EndingId,
   Gender,
   HeroSetup,
   RunState,
+  RoleId,
   StatKey,
 } from '~/utils/deepheart/types'
 
@@ -207,6 +209,61 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     hero.value = presetHero(id)
     companions.value = companions.value.filter((c) => c !== id)
     focus.value = id
+    suggestions.value = []
+  }
+
+  function createCustomHero() {
+    hero.value = {
+      presetId: CUSTOM_HERO_ID,
+      name: hero.value.name.trim() || 'Wanderer',
+      gender: hero.value.gender,
+      drawnTo: [...hero.value.drawnTo],
+      boon: hero.value.boon,
+      custom: {
+        role: 'warrior',
+        appearance: 'An adult animal-person adventurer',
+        points: {},
+      },
+    }
+    focus.value = CUSTOM_HERO_ID
+    suggestions.value = []
+  }
+
+  function setCustomRole(role: RoleId) {
+    if (hero.value.custom && ROLES[role])
+      hero.value.custom = { ...hero.value.custom, role }
+    suggestions.value = []
+  }
+
+  function setCustomAppearance(appearance: string) {
+    if (hero.value.custom)
+      hero.value.custom = {
+        ...hero.value.custom,
+        appearance: appearance.slice(0, 120),
+      }
+  }
+
+  const unspentPoints = computed(() =>
+    Math.max(
+      0,
+      CUSTOM_STAT_POINTS -
+        Object.values(hero.value.custom?.points ?? {}).reduce(
+          (sum, value) => sum + Math.max(0, Number(value) || 0),
+          0,
+        ),
+    ),
+  )
+
+  function adjustCustomPoint(key: StatKey, change: -1 | 1) {
+    const custom = hero.value.custom
+    if (!custom || (change > 0 && unspentPoints.value === 0)) return
+    const current = custom.points[key] ?? 0
+    const next = Math.max(0, Math.min(CUSTOM_STAT_POINTS, current + change))
+    if (next === current) return
+    hero.value.custom = {
+      ...custom,
+      points: { ...custom.points, [key]: next },
+    }
     suggestions.value = []
   }
 
@@ -422,6 +479,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     builderSynergies,
     builderSupports,
     builderRomances,
+    unspentPoints,
     campOptions,
     meterValues,
     load,
@@ -431,6 +489,10 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     loadFrom,
     deleteSlot,
     chooseHero,
+    createCustomHero,
+    setCustomRole,
+    setCustomAppearance,
+    adjustCustomPoint,
     setHeroName,
     setHeroGender,
     toggleDrawnTo,

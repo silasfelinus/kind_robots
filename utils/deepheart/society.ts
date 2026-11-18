@@ -70,9 +70,9 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'reinforce',
         label: 'Brace the classroom ceiling',
-        hint: 'd20 + Defence vs 13',
+        hint: 'Risk 8% health, then d20 + Defence vs 13',
         tag: 'kind',
-        effects: {},
+        effects: { hurt: 0.08, sacrifice: 1 },
         check: {
           stat: 'def',
           dc: 13,
@@ -87,13 +87,14 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'petition',
         label: 'File the school with the Registry',
-        hint: 'd20 + Wits vs 13',
+        hint: 'Pay 10 gold, then d20 + Wits vs 13',
         tag: 'curious',
-        effects: {},
+        requires: { gold: 10 },
+        effects: { gold: -10, sacrifice: 1 },
         check: {
           stat: 'wit',
           dc: 13,
-          win: { gold: 20, mercy: 1 },
+          win: { mercy: 1 },
           lose: { gold: -8 },
           winText:
             'The school is finally granted a floor number. A parent cries with relief.',
@@ -128,13 +129,14 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'broker',
         label: 'Broker a cooperative water charter',
-        hint: 'd20 + Wits vs 14',
+        hint: 'Spend 12 gold, then d20 + Wits vs 14',
         tag: 'curious',
-        effects: {},
+        requires: { gold: 12 },
+        effects: { gold: -12, sacrifice: 1 },
         check: {
           stat: 'wit',
           dc: 14,
-          win: { mercy: 1, gold: 30 },
+          win: { mercy: 1 },
           lose: { gold: -12 },
           winText:
             'Three rival stallkeepers sign a joint charter. They pay you in clean water and coin.',
@@ -146,13 +148,13 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'repair',
         label: 'Repair the flood pump',
-        hint: 'd20 + Magic vs 14',
+        hint: 'Risk 8% health, then d20 + Magic vs 14',
         tag: 'kind',
-        effects: {},
+        effects: { hurt: 0.08, sacrifice: 1 },
         check: {
           stat: 'mag',
           dc: 14,
-          win: { heal: 0.2, boon: { wit: 1 } },
+          win: { mercy: 1, boon: { wit: 1 } },
           lose: { hurt: 0.06 },
           winText:
             'The pump coughs clean water into every barrel in the street.',
@@ -186,13 +188,14 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'argue',
         label: 'Challenge the landlord’s authority',
-        hint: 'd20 + Wits vs 15',
+        hint: 'Pay 15 gold for records; d20 + Wits vs 15',
         tag: 'bold',
-        effects: {},
+        requires: { gold: 15 },
+        effects: { gold: -15, sacrifice: 1 },
         check: {
           stat: 'wit',
           dc: 15,
-          win: { mercy: 2, gold: 25 },
+          win: { mercy: 2 },
           lose: { hurt: 0.09 },
           winText:
             'The guards read the eviction notice and turn on the landlord.',
@@ -203,13 +206,13 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'lift',
         label: 'Carry families through the water',
-        hint: 'd20 + Defence vs 13',
+        hint: 'Risk 10% health, then d20 + Defence vs 13',
         tag: 'kind',
-        effects: {},
+        effects: { hurt: 0.1, sacrifice: 1 },
         check: {
           stat: 'def',
           dc: 13,
-          win: { mercy: 2, heal: 0.1 },
+          win: { mercy: 2 },
           lose: { hurt: 0.12 },
           winText: 'The last child reaches dry ground on your shoulders.',
           loseText: 'The current knocks the party against the railing.',
@@ -244,9 +247,10 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'organize',
         label: 'Negotiate shift ownership',
-        hint: 'd20 + Wits vs 16',
+        hint: 'Fund workers with 25 gold; d20 + Wits vs 16',
         tag: 'curious',
-        effects: {},
+        requires: { gold: 25 },
+        effects: { gold: -25, sacrifice: 1 },
         check: {
           stat: 'wit',
           dc: 16,
@@ -262,13 +266,13 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'vent',
         label: 'Vent the runaway boiler',
-        hint: 'd20 + Magic vs 15',
+        hint: 'Risk 12% health, then d20 + Magic vs 15',
         tag: 'kind',
-        effects: {},
+        effects: { hurt: 0.12, sacrifice: 1 },
         check: {
           stat: 'mag',
           dc: 15,
-          win: { heal: 0.2, mercy: 1 },
+          win: { mercy: 1 },
           lose: { hurt: 0.16 },
           winText:
             'A column of steam roars upward and the workers cheer from the floor.',
@@ -303,9 +307,10 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'shield',
         label: 'Defend the commons charter',
-        hint: 'd20 + Wits vs 15',
+        hint: 'Pay 15 gold for counsel; d20 + Wits vs 15',
         tag: 'kind',
-        effects: {},
+        requires: { gold: 15 },
+        effects: { gold: -15, sacrifice: 1 },
         check: {
           stat: 'wit',
           dc: 15,
@@ -319,13 +324,13 @@ export const UNDERCITY_EVENTS: EventDef[] = [
       {
         id: 'reroute',
         label: 'Reroute heat to the gardens',
-        hint: 'd20 + Magic vs 15',
+        hint: 'Risk 8% health, then d20 + Magic vs 15',
         tag: 'curious',
-        effects: {},
+        effects: { hurt: 0.08, sacrifice: 1 },
         check: {
           stat: 'mag',
           dc: 15,
-          win: { heal: 0.25, potion: 1 },
+          win: { mercy: 1, potion: 1 },
           lose: { hurt: 0.08 },
           winText:
             'Warmth spreads through the growing beds, and the growers offer you their best harvest.',

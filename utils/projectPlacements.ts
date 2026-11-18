@@ -22,6 +22,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'hybridizer',
     route: '/play/hybridizer',
   },
+  chessweeper: {
+    channelKey: 'arcade',
+    tabKey: 'chessweeper',
+    route: '/play/chessweeper',
+  },
   'slime-city': {
     channelKey: 'arcade',
     tabKey: 'slime-city',

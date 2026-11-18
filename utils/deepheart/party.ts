@@ -83,7 +83,7 @@ const SYNERGY_TEST: Record<
   'grave-glass': (ids, hero) =>
     has(roles(ids, hero), 'necromancer') && has(roles(ids, hero), 'alchemist'),
   mixed: (ids, hero) => new Set(archetypes(ids, hero)).size >= 4,
-  duo: (ids, hero) => ids.length === 2,
+  duo: (ids) => ids.length === 2,
 }
 
 export function activeSynergies(

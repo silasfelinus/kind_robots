@@ -52,7 +52,15 @@ const props = withDefaults(
     down?: boolean
     dim?: boolean
   }>(),
-  { size: 'md', caption: false, name: '', badge: '', down: false, dim: false },
+  {
+    customRole: 'warrior',
+    size: 'md',
+    caption: false,
+    name: '',
+    badge: '',
+    down: false,
+    dim: false,
+  },
 )
 
 const failed = ref(false)

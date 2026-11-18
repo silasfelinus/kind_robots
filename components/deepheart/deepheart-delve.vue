@@ -15,6 +15,8 @@
       >
         <DeepheartPortrait
           :id="m.id"
+          :name="m.id === run.hero.presetId ? engine.heroName(run) : undefined"
+          :custom-role="run.hero.custom?.role"
           size="xs"
           :down="m.down"
           class="w-10 shrink-0"
@@ -42,7 +44,8 @@
         <p class="pf-display text-sm text-primary">{{ layer.name }}</p>
         <p class="text-xs opacity-75 tabular-nums">
           Room {{ Math.min(run.depth + 1, 7) }} of 7 · {{ run.gold }} gold ·
-          {{ run.potions }} potions
+          {{ run.potions }} potions · Mercy {{ run.mercy }} · Sacrifices
+          {{ run.sacrifices ?? 0 }}
         </p>
       </div>
     </header>
@@ -216,6 +219,7 @@ import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { ENEMIES, LAYERS, item } from '~/utils/deepheart/dungeon'
 import * as engine from '~/utils/deepheart/engine'
 import { ROLES, character, shortName } from '~/utils/deepheart/roster'
+import { roleFor } from '~/utils/deepheart/party'
 import type { EndingId, RoomKind } from '~/utils/deepheart/types'
 import type { DhCard } from './deepheart-hand.vue'
 
@@ -374,8 +378,8 @@ const lootCards = computed<DhCard[]>(() => {
       label: engine.nameOf(r, m.id),
       chip: m.item ? `Has ${item(m.item).name}` : 'Empty hands',
       hint:
-        shortName(character(m.id)) === engine.nameOf(r, m.id)
-          ? ROLES[character(m.id).role].label
+        m.id === r.hero.presetId
+          ? ROLES[roleFor(m.id, r.hero)].label
           : character(m.id).name,
       portrait: m.id,
     }))

@@ -2,7 +2,7 @@
   <figure
     class="dh-portrait"
     :class="[`dh-portrait-${size}`, { 'is-down': down, 'is-dim': dim }]"
-    :style="{ '--dh-role': roleColor(id) }"
+    :style="{ '--dh-role': id === CUSTOM_HERO_ID ? 'var(--color-primary)' : roleColor(id) }"
     :data-testid="`dh-portrait-${id}`"
   >
     <img
@@ -35,10 +35,13 @@ import {
   roleColor,
 } from '~/utils/deepheart/art'
 import { ROLES, character } from '~/utils/deepheart/roster'
+import { CUSTOM_HERO_ID } from '~/utils/deepheart/types'
+import type { RoleId } from '~/utils/deepheart/types'
 
 const props = withDefaults(
   defineProps<{
     id: string
+    customRole?: RoleId
     size?: 'xs' | 'sm' | 'md' | 'lg'
     caption?: boolean
     name?: string
@@ -50,9 +53,20 @@ const props = withDefaults(
 )
 
 const failed = ref(false)
-const person = computed(() => character(props.id))
+const person = computed(() =>
+  props.id === CUSTOM_HERO_ID
+    ? {
+        ...character('idris'),
+        id: CUSTOM_HERO_ID,
+        name: props.name || 'Custom delver',
+        role: props.customRole ?? 'warrior',
+      }
+    : character(props.id),
+)
 const role = computed(() => ROLES[person.value.role])
-const src = computed(() => portraitSrc(props.id, RENDERED_ART))
+const src = computed(() =>
+  props.id === CUSTOM_HERO_ID ? null : portraitSrc(props.id, RENDERED_ART),
+)
 const displayName = computed(() => props.name || person.value.name)
 </script>
 

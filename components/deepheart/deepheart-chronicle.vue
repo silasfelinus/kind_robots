@@ -57,6 +57,8 @@
                 ]"
                 :id="id"
                 :key="id"
+                :name="id === slot.entry.run.hero.presetId ? slot.entry.run.hero.name : undefined"
+                :custom-role="slot.entry.run.hero.custom?.role"
                 size="xs"
                 class="w-9"
               />
@@ -162,6 +164,8 @@
               v-for="id in [page.hero.presetId, ...page.companions]"
               :id="id"
               :key="id"
+              :name="id === page.hero.presetId ? page.hero.name : undefined"
+              :custom-role="page.hero.custom?.role"
               size="xs"
               class="w-9"
             />
@@ -169,7 +173,7 @@
           <div class="min-w-0">
             <p class="font-bold">{{ ENDING_TEXT[page.ending].title }}</p>
             <p class="text-xs opacity-75">
-              {{ page.hero.name || character(page.hero.presetId).name }} with
+              {{ page.hero.name || (page.hero.custom ? 'Custom delver' : character(page.hero.presetId).name) }} with
               {{
                 page.companions.map((id) => shortName(character(id))).join(', ')
               }}

@@ -25,7 +25,7 @@ tutorial:
     should be in the picture. Renders take a few minutes; Check for new renders
     adds finished ones to their slot. Request an edit files a task on the
     game's project for copy, colour or layout changes.
-  image: /comet-city-academy/front/splash.webp
+  image: /api/adverts/studio-cover
 ---
 
 See, download and revise the advert poster for every Play game.

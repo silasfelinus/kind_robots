@@ -22,6 +22,7 @@
 
 export const ADVERT_PROJECT_SLUG = 'adverts'
 export const ADVERT_SLOT_PREFIX = 'adverts/'
+export const ADVERT_STUDIO_COVER_SLOT = 'adverts/studio/hero'
 export const ADVERT_REQUEST_KEY_PREFIX = 'advert-studio:'
 export const ADVERT_POSTER_WIDTH = 1080
 export const ADVERT_POSTER_HEIGHT = 1350

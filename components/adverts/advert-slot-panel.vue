@@ -22,6 +22,10 @@
       </div>
     </div>
 
+    <p class="text-xs text-base-content/65">
+      Selecting a render publishes it to the public game poster and homepage.
+    </p>
+
     <div v-if="candidates.length" class="flex flex-col gap-1">
       <p class="text-xs font-bold uppercase tracking-wide text-base-content/60">
         Renders for this slot
@@ -50,10 +54,10 @@
           <button
             type="button"
             class="kr-btn-primary-xs-lg absolute bottom-1 left-1 right-1"
-            :disabled="isSaving || candidate.artImageId === chosenId"
+            :disabled="isChoosing || candidate.artImageId === chosenId"
             @click="advertStore.chooseCandidate(artSlot.key, candidate)"
           >
-            {{ candidate.artImageId === chosenId ? 'In use' : 'Use' }}
+            {{ candidate.artImageId === chosenId ? 'In use' : 'Use publicly' }}
           </button>
         </div>
       </div>
@@ -155,7 +159,6 @@
 import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAdvertStore } from '@/stores/advertStore'
-import { useArtSlotStore } from '@/stores/artSlotStore'
 import {
   ADVERT_DEFAULT_ENGINE,
   ADVERT_ENGINES,
@@ -172,8 +175,7 @@ const props = defineProps<{
 }>()
 
 const advertStore = useAdvertStore()
-const { isQueueing, selections } = storeToRefs(advertStore)
-const { isSaving } = storeToRefs(useArtSlotStore())
+const { isQueueing, isChoosing, selections } = storeToRefs(advertStore)
 
 const prompt = ref(props.artSlot.prompt)
 const engine = ref<AdvertEngine>(ADVERT_DEFAULT_ENGINE)

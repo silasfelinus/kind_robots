@@ -11,11 +11,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { handleError, performFetch } from '@/stores/utils'
-import {
-  useArtSlotStore,
-  type ArtSlot,
-  type ArtSlotCandidate,
-} from '@/stores/artSlotStore'
+import type { ArtSlot, ArtSlotCandidate } from '@/stores/artSlotStore'
 import { useProjectStore } from '@/stores/projectStore'
 import { useTodoStore, type Todo, type TodoPriority } from '@/stores/todoStore'
 import {
@@ -101,6 +97,7 @@ export const useAdvertStore = defineStore('advertStore', () => {
   const selectedSlug = ref<string | null>(null)
   const isLoading = ref(false)
   const isSyncing = ref(false)
+  const isChoosing = ref(false)
   const isQueueing = ref(false)
   const isFiling = ref(false)
   const exportingSlug = ref<string | null>(null)
@@ -258,19 +255,35 @@ export const useAdvertStore = defineStore('advertStore', () => {
   ): Promise<boolean> {
     const slot = slotFor(slotKey)
     if (!slot) return false
-    const artSlotStore = useArtSlotStore()
-    const ok = await artSlotStore.choose(slot, candidate)
-    if (!ok) {
+    isChoosing.value = true
+    errorMessage.value = ''
+    try {
+      const res = await performFetch('/api/adverts/art/select', {
+        method: 'POST',
+        body: JSON.stringify({
+          slotId: slot.id,
+          artImageId: candidate.artImageId,
+        }),
+      })
+      if (!res.success)
+        throw new Error(res.message || 'Could not publish that render.')
+      slot.selectedArtImageId = candidate.artImageId
+      selections.value = {
+        ...selections.value,
+        [slotKey]: candidate.artImageId,
+      }
+      notice.value = `Published render #${candidate.artImageId}.`
+      return true
+    } catch (error) {
       errorMessage.value =
-        artSlotStore.errorMessage || 'Could not choose that render.'
+        error instanceof Error
+          ? error.message
+          : 'Could not publish that render.'
+      handleError(error, 'publishing advert art')
       return false
+    } finally {
+      isChoosing.value = false
     }
-    selections.value = {
-      ...selections.value,
-      [slotKey]: candidate.artImageId,
-    }
-    notice.value = `Poster now uses render #${candidate.artImageId}.`
-    return true
   }
 
   async function queueRender(request: AdvertRenderRequest): Promise<boolean> {
@@ -532,6 +545,7 @@ export const useAdvertStore = defineStore('advertStore', () => {
     selectedSlug,
     isLoading,
     isSyncing,
+    isChoosing,
     isQueueing,
     isFiling,
     exportingSlug,

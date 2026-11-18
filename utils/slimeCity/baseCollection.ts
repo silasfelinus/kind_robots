@@ -46,6 +46,10 @@ const EVER_STARTER_IDS = [
   's3-riot-firework-bishop',
   's3-ironjaw-bridgebreaker',
   's3-bloodfairies-karaoke-oracle',
+  // t-051 (2026-11-18): Spiked Choker became a fighter; these left the
+  // Bloodfairies starter or its alley pool and must stay owned.
+  's2-bloodfairies-roadie-megaphone',
+  's3-bloodfairies-pollen-queen',
 ]
 const crewCards = [
   ...TEAMS.flatMap((team) => clashDeck(team.id)),

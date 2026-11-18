@@ -309,9 +309,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Sharpen wearer; both neighboring allies gain +2 lasting attack.',
   ],
   choker: [
-    'Give one fighter SWARM; it needs an ally next door.',
-    'Wearer and its two neighboring allies gain SWARM.',
-    'All other SWARM fighters gain +1 strike power while worn.',
+    'SWARM backup singer. Arrive beside an ally: it gains SWARM too.',
+    'Arrive: both neighboring allies gain SWARM.',
+    'Arrive: neighbors gain SWARM; while she stands, adjacent SWARM allies strike +1.',
   ],
   wreckingfist: [
     'Permanently sharpen a friendly fighter.',

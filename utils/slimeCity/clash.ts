@@ -455,6 +455,12 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
     evolvedAttack = [1, 1, 2][tier]!
     evolvedHp = [3, 4, 5][tier]!
   }
+  // Spiked Choker (t-051, second conversion): a one-cost hype-singer whose
+  // value is the SWARM she hands her neighbors, so her own body stays small.
+  if (card.id === 'choker') {
+    evolvedAttack = [1, 1, 2][tier]!
+    evolvedHp = [2, 3, 4][tier]!
+  }
   return {
     plays,
     level: lv,
@@ -629,7 +635,12 @@ export function clashPower(s: ClashState, u: ClashUnit): number {
       (ally.level === 3 || Math.abs(ally.lane - u.lane) === 1)
     )
       power++
-    if (has(u, 'swarm') && ally.gearLevels?.choker === 3 && ally.uid !== u.uid)
+    if (
+      has(u, 'swarm') &&
+      ally.cardId === 'choker' &&
+      ally.level === 3 &&
+      Math.abs(ally.lane - u.lane) === 1
+    )
       power++
     if (
       ally.cardId === 'mogul' &&
@@ -805,21 +816,31 @@ export const CLASH_CRAFTED_DECKS: Partial<Record<TeamId, string[]>> = {
  * (Volatile) and Rubber Drysuit go, and Exchange drops Executive Health
  * Coverage. Ironjaw keeps Spare Pistons: every Ironjaw fighter is already
  * armored, and every fold tried pushed the crew past 58%. Picks are by CPU
- * sweep, keeping each crew near an even win rate.
+ * sweep, keeping each crew near an even win rate. 2026-11-18 (t-051): the
+ * Spiked Choker became a SWARM fighter, so it takes Pollen Queen's starter
+ * slot and Van Radio stays; Bloodfairies still field 13 of 20 (a fourteenth
+ * body pushed them to 57.5% and the spread past 12 points).
  */
 export const CLASH_FIGHTERS_FIRST: Partial<
   Record<TeamId, { out: string[]; in: string[] }>
 > = {
   bloodfairies: {
+    // 2026-11-18 (t-051): Spiked Choker became a fighter, so Roadie Megaphone
+    // (the same SWARM grant) took her legacy special slot and the alley pool
+    // reshuffled. These pairs rebuild the swept starter: Choker in her old
+    // slot, Riot Choir and Van Radio where the pool now offers Earworm and
+    // Confetti Cannon.
     out: [
       's3-bloodfairies-tripcord',
-      's3-bloodfairies-van-radio',
       's2-bloodfairies-roadie-megaphone',
+      's2-bloodfairies-earworm-feedback',
+      's1-confetti-cannon',
     ],
     in: [
       's3-bloodfairies-mosh-firefly',
-      's3-bloodfairies-pollen-queen',
+      'choker',
       's1-riot-choir',
+      's3-bloodfairies-van-radio',
     ],
   },
   ironjaw: {
@@ -1971,6 +1992,29 @@ export function playClash(
           )
         }
       }
+      if (id === 'choker') {
+        const neighbors = s.units
+          .filter(
+            (ally) =>
+              ally.side === side &&
+              ally.uid !== unit.uid &&
+              Math.abs(ally.lane - lane) === 1,
+          )
+          .sort((a, b) => a.lane - b.lane)
+        let joined = 0
+        for (const ally of level === 1 ? neighbors.slice(0, 1) : neighbors)
+          if (!has(ally, 'swarm')) {
+            ally.keywords.push('swarm')
+            joined++
+          }
+        if (joined)
+          note(
+            s,
+            'The Spiked Choker drags her neighbors into the pit: SWARM.',
+            'play',
+            lane,
+          )
+      }
       if (id === 'shredders') {
         const neighbors = s.units
           .filter(
@@ -2273,16 +2317,6 @@ export function playClash(
             target.ninthLife = level === 3 ? 3 : 2
           if (id === 'fusevest' && level >= 2)
             (target.gearLevels ??= {})[id] = level
-          if (id === 'choker' && level >= 2) {
-            ;(target.gearLevels ??= {}).choker = level
-            for (const friend of s.units.filter(
-              (u) =>
-                u.side === side &&
-                u.uid !== target.uid &&
-                Math.abs(u.lane - lane) === 1,
-            ))
-              if (!has(friend, 'swarm')) friend.keywords.push('swarm')
-          }
           if (id === 'visor' && level >= 2) {
             target.attack = clamp(target.attack + 1, 0, 10)
             const neighbors = s.traps

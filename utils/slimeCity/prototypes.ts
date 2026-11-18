@@ -570,7 +570,14 @@ export const TEAMS: Team[] = [
     signature: 'queen',
     trapCap: 1,
     creatures: ['sprite', 'pogo', 'razor', 'queen'],
-    special: ['mosh', 'bloodwire', 'spurs', 'pinprick', 'choker', 'feedback'],
+    special: [
+      'mosh',
+      's2-bloodfairies-roadie-megaphone',
+      'spurs',
+      'feedback',
+      'pinprick',
+      'bloodwire',
+    ],
     army: ['pogo', 'pogo', 'razor', 'razor', 'queen'],
   },
   {
@@ -891,12 +898,12 @@ export const CARDS: Card[] = [
   {
     id: 'choker',
     name: 'Spiked Choker',
-    kind: 'equipment',
+    kind: 'creature',
     team: 'bloodfairies',
     cost: 1,
-    effect: 'grant',
-    grants: ['swarm'],
-    text: 'Matching jewelry for the whole gang. A fighter gains SWARM.',
+    attack: 1,
+    keywords: ['swarm'],
+    text: 'A spike-collared backup singer who drags whoever stands next to her into the pit.',
     symbol: '⊛',
   },
   {
@@ -4624,13 +4631,15 @@ function parityExtras(card: Card): number {
 export type ParityMode = Exclude<ModeId, 'gridiron'>
 export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
   // Re-tuned 2026-11-04 with dithered rounding, picked on 48 held-out seeds
-  // (1,440 games): Blackout spread 0.079, Bloodrush 0.037.
+  // (1,440 games): Blackout spread 0.079, Bloodrush 0.037. 2026-11-18 (t-051):
+  // Roadie Megaphone replaced the Spiked Choker in the Bloodfairies legacy
+  // list, so Blackout trims Bloodfairies and Undertow by 1/8 each.
   blackout: {
     catgirls: -0.625,
-    bloodfairies: 1.5,
+    bloodfairies: 1.375,
     ironjaw: -1.75,
     riot: 0.5,
-    undertow: 1.5,
+    undertow: 1.375,
     exchange: -0.625,
   },
   bloodrush: {

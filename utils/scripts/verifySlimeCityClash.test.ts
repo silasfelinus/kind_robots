@@ -434,7 +434,7 @@ for (const card of CARDS) {
         ['calico', 'watcher', 'merc-roof-dentist'].includes(card.id)
       const hatchling =
         level === 1 && ['chimera', 'juggernaut'].includes(card.id)
-      const clawSupport = card.id === 'shredders' && level < 3
+      const clawSupport = ['shredders', 'choker'].includes(card.id) && level < 3
       assert.ok(
         nonattacker
           ? b.attack === 0
@@ -1988,22 +1988,76 @@ const spurred = playClash(spursStage, 'player', 'spurs', 2)
 assert.equal(spurred.units.find((u) => u.uid === 3111)?.attack, 4)
 assert.equal(spurred.units.find((u) => u.uid === 3113)?.attack, 4)
 
+// Spiked Choker is a fighter too (t-051): a small SWARM singer whose arrival
+// spreads SWARM next door, and whose L3 presence powers other SWARM allies.
+for (const [level, expected] of [
+  [1, [1, 2]],
+  [2, [1, 3]],
+  [3, [2, 4]],
+] as const) {
+  const body = clashBalance(cardById('choker'), level)
+  assert.deepEqual(
+    [body.attack, body.hp],
+    expected,
+    'Spiked Choker pays for her SWARM handoff with a tiny body',
+  )
+}
 const chokerStage = third('bloodfairies', 'choker')
 chokerStage.units = [
   follower('player', 0, 3120, 8, 2),
-  follower('player', 2, 3122, 8, 2),
+  follower('player', 1, 3121, 8, 2),
   follower('player', 3, 3123, 8, 2),
 ]
 chokerStage.units[0]!.keywords.push('swarm')
 const chokers = playClash(chokerStage, 'player', 'choker', 2)
-assert.ok(chokers.units.find((u) => u.uid === 3123)?.keywords.includes('swarm'))
-assert.equal(
+const singer = chokers.units.find((u) => u.cardId === 'choker')
+assert.ok(singer && singer.lane === 2, 'Spiked Choker enters as a fighter')
+assert.ok(singer!.keywords.includes('swarm'), 'she is a SWARM fighter herself')
+for (const uid of [3121, 3123])
+  assert.ok(
+    chokers.units.find((u) => u.uid === uid)?.keywords.includes('swarm'),
+    'both neighbors join the swarm at L3',
+  )
+// The L3 anthem is local: compare against the same board with a level-two
+// singer, so only her anthem differs.
+const quietSinger = structuredClone(chokers)
+quietSinger.units.find((u) => u.cardId === 'choker')!.level = 2
+const anthemPower = (state: typeof chokers, uid: number) =>
   clashPower(
-    chokers,
-    chokers.units.find((u) => u.uid === 3120)!,
-  ),
-  3,
-  'the distant swarm ally receives its global concert anthem',
+    state,
+    state.units.find((u) => u.uid === uid)!,
+  )
+assert.equal(
+  anthemPower(chokers, 3121),
+  anthemPower(quietSinger, 3121) + 1,
+  'an adjacent SWARM ally hears the L3 anthem',
+)
+assert.equal(
+  anthemPower(chokers, 3120),
+  anthemPower(quietSinger, 3120),
+  'the anthem does not reach a distant lane',
+)
+const juniorChoker = third('bloodfairies', 'choker')
+juniorChoker.levels.player.choker = 1
+juniorChoker.units = [
+  follower('player', 1, 3124, 8, 2),
+  follower('player', 3, 3125, 8, 2),
+]
+const firstSet = playClash(juniorChoker, 'player', 'choker', 2)
+assert.ok(
+  firstSet.units.find((u) => u.uid === 3124)?.keywords.includes('swarm'),
+)
+assert.ok(
+  !firstSet.units.find((u) => u.uid === 3125)?.keywords.includes('swarm'),
+  'L1 recruits only one neighbor',
+)
+const soloChokerStage = third('bloodfairies', 'choker')
+soloChokerStage.units = []
+const soloChoker = playClash(soloChokerStage, 'player', 'choker', 2)
+assert.equal(
+  soloChoker.units.filter((u) => u.cardId === 'choker').length,
+  1,
+  'an empty board still gets a fighter, not a fizzled gear card',
 )
 
 const fistStage = third('ironjaw', 'wreckingfist')

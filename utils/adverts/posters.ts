@@ -901,7 +901,7 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
     path: '/shifting-desks',
     conductorSlug: 'shifting-desks',
     style:
-      'prestige hand-painted mid-century corporate safety-poster satire, screen-printed gouache, tactile halftone, cinematic retro-futurist office horror, manila gold, deep oxblood and fluorescent green',
+      'prestige hand-painted mid-century corporate training mural satire, screen-printed gouache, tactile halftone, cinematic retro-futurist office horror, manila gold, deep oxblood and fluorescent green',
     hero: {
       src: artImageFile(272626),
       pos: 'center 47%',

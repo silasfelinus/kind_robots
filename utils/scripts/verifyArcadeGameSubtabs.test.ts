@@ -60,7 +60,7 @@ assert.ok(arcade, 'the arcade channel resolves')
 
 assert.deepEqual(
   navigationTabs(arcade).map((tab) => tab.tabKey),
-  ['arcade', 'aquarium', 'experiments', 'shifting-desks'],
+  ['arcade', 'aquarium', 'shifting-desks', 'experiments'],
   'Play must expose the featured experiences but leave Zuzu Showdown discoverable inside the Arcade hall',
 )
 assert.equal(

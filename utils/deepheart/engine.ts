@@ -1161,6 +1161,9 @@ export function optionLock(run: RunState, option: EventOption): string | null {
 }
 
 function applyEffects(run: RunState, fx: Effects) {
+  const goldBefore = run.gold
+  const potionsBefore = run.potions
+  const healthBefore = run.party.reduce((sum, member) => sum + member.hp, 0)
   if (fx.gold) gainGold(run, fx.gold)
   if (fx.heal) healAll(run, fx.heal)
   if (fx.hurt) hurtAll(run, fx.hurt)
@@ -1168,7 +1171,13 @@ function applyEffects(run: RunState, fx: Effects) {
   if (fx.potion) run.potions = Math.max(0, run.potions + fx.potion)
   if (fx.reveal) run.flags.revealNext = true
   if (fx.mercy) run.mercy += fx.mercy
-  if (fx.sacrifice) run.sacrifices = (run.sacrifices ?? 0) + fx.sacrifice
+  if (
+    fx.sacrifice &&
+    (run.gold < goldBefore ||
+      run.potions < potionsBefore ||
+      run.party.reduce((sum, member) => sum + member.hp, 0) < healthBefore)
+  )
+    run.sacrifices = (run.sacrifices ?? 0) + fx.sacrifice
   if (fx.deepen) run.deepening += fx.deepen
   if (fx.affinityAll)
     for (const id of run.companions) changeAffinity(run, id, fx.affinityAll)

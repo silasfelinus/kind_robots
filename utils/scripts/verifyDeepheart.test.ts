@@ -265,6 +265,16 @@ assert.equal(
   'the attempted sacrifice counts on failure too',
 )
 assert.ok(school.choices.includes('ossuary-night-school:petition'))
+const depleted = createRun(hero('idris'), ['brannoc'], 45)
+depleted.phase = 'choice'
+depleted.room = { kind: 'choice', known: true, event: 'goblin-snare' }
+depleted.party.forEach((member) => { member.hp = 1 })
+chooseOption(depleted, 'free')
+assert.equal(
+  depleted.sacrifices,
+  0,
+  'a sacrifice must actually consume resources, not merely ask for them',
+)
 const endingGate = createRun(hero('thessaly'), ['brannoc', 'hesk'], 55)
 endingGate.phase = 'finale'
 endingGate.mercy = 5

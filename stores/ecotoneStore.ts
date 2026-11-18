@@ -45,6 +45,13 @@ import {
   type CaseRecord,
 } from '~/utils/ecotone/mysteries'
 import { ecotoneDeeds } from '~/utils/ecotone/achievements'
+import {
+  SCRAPBOOK_KEY,
+  addScrapbookPage,
+  sanitizeScrapbook,
+  scrapbookPage,
+  type ScrapbookPage,
+} from '~/utils/ecotone/scrapbook'
 import { performFetch } from '~/stores/utils'
 
 const RUN_KEY = 'kr.ecotone.run.v1'
@@ -61,6 +68,8 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   const caseFiles = ref<Record<string, CaseRecord>>({})
   const undoSnapshot = ref<RunState | null>(null)
   const manualSaves = ref<EcotoneSaveSlot[]>([])
+  /** Scrapbook: one page per finished weekend on this browser, newest first. */
+  const scrapbook = ref<ScrapbookPage[]>([])
   const canUndo = computed(() => Boolean(run.value && undoSnapshot.value))
   const loaded = ref(false)
   // Bumped when Playbook Manager live edits arrive, so card text re-reads them.
@@ -119,6 +128,10 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       else window.localStorage.removeItem(RUN_KEY)
       window.localStorage.setItem(ENDINGS_KEY, JSON.stringify(endings.value))
       window.localStorage.setItem(CASES_KEY, JSON.stringify(caseFiles.value))
+      window.localStorage.setItem(
+        SCRAPBOOK_KEY,
+        JSON.stringify(scrapbook.value),
+      )
       if (undoSnapshot.value)
         window.localStorage.setItem(
           UNDO_KEY,
@@ -191,6 +204,8 @@ export const useEcotoneStore = defineStore('ecotone', () => {
         }
         const cases = window.localStorage.getItem(CASES_KEY)
         if (cases) caseFiles.value = sanitizeCaseFiles(JSON.parse(cases))
+        const pages = window.localStorage.getItem(SCRAPBOOK_KEY)
+        if (pages) scrapbook.value = sanitizeScrapbook(JSON.parse(pages))
       } catch {
         run.value = null
         undoSnapshot.value = null
@@ -224,6 +239,12 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       !endings.value.includes(next.ending)
     )
       endings.value = [...endings.value, next.ending]
+    // A page is written only when a played step finishes the weekend, so
+    // loading a finished save or undoing back into one never adds a page.
+    if (before?.phase !== 'end') {
+      const page = scrapbookPage(next, new Date().toISOString())
+      if (page) scrapbook.value = addScrapbookPage(scrapbook.value, page)
+    }
     const record = caseRecord(next)
     if (record)
       caseFiles.value = {
@@ -385,13 +406,14 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   }
 
   /**
-   * Forget the unlocked-endings gallery and every Case File on this browser.
-   * The active run and manual save slots are untouched; earned site
-   * achievements live elsewhere and are not revoked.
+   * Forget the unlocked-endings gallery, every Case File and the Scrapbook on
+   * this browser. The active run and manual save slots are untouched; earned
+   * site achievements live elsewhere and are not revoked.
    */
   function resetCollection() {
     endings.value = []
     caseFiles.value = {}
+    scrapbook.value = []
     persist()
   }
 
@@ -422,6 +444,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     unlockedCount,
     endingTotal: ENDING_IDS.length,
     caseFiles,
+    scrapbook,
     casesOpened,
     caseTotal: MYSTERIES.length,
     mystery,

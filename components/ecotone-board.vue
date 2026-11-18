@@ -1366,9 +1366,9 @@
               <p class="mt-1 text-base text-[#f3e6c8]/80">
                 Clears the Endings gallery ({{ game.unlockedCount }}/{{
                   game.endingTotal
-                }}) and Case Files ({{ game.casesOpened }}/{{ game.caseTotal }})
-                on this browser. Your current journey, save slots and earned
-                achievements stay.
+                }}), Case Files ({{ game.casesOpened }}/{{ game.caseTotal }})
+                and Scrapbook ({{ game.scrapbook.length }}) on this browser.
+                Your current journey, save slots and earned achievements stay.
               </p>
               <div class="mt-3 flex flex-wrap items-center gap-2">
                 <button
@@ -1380,14 +1380,17 @@
                       : 'border-[#e08a5a]/70'
                   "
                   :disabled="
-                    !resetArmed && !game.unlockedCount && !game.casesOpened
+                    !resetArmed &&
+                    !game.unlockedCount &&
+                    !game.casesOpened &&
+                    !game.scrapbook.length
                   "
                   @click="resetCollection"
                 >
                   {{
                     resetArmed
-                      ? 'Tap again to clear endings & cases'
-                      : 'Reset endings & cases'
+                      ? 'Tap again to clear the collection'
+                      : 'Reset endings, cases & scrapbook'
                   }}
                 </button>
                 <button
@@ -1751,6 +1754,72 @@
             </div>
           </div>
         </template>
+        <section class="mt-4" data-testid="ecotone-scrapbook">
+          <h3 class="font-serif text-xl font-black">
+            Scrapbook · {{ game.scrapbook.length }}
+            {{ game.scrapbook.length === 1 ? 'weekend' : 'weekends' }}
+          </h3>
+          <p v-if="!game.scrapbook.length" class="text-sm text-white/60">
+            Every finished weekend gets a page here: who you met, who you
+            followed, the checks that turned it, and how the county ended up.
+          </p>
+          <ol v-else class="mt-2 grid gap-3 @3xl:grid-cols-2">
+            <li
+              v-for="page in game.scrapbook"
+              :key="page.id"
+              class="rounded-2xl border bg-black/25 p-3"
+              :class="
+                page.fate === 'hope'
+                  ? 'border-[#d9b877]/40'
+                  : 'border-[#e08a5a]/40'
+              "
+              :data-testid="`ecotone-scrapbook-page-${page.id}`"
+            >
+              <p
+                class="text-[11px] font-bold uppercase tracking-wider text-[#d9b877]"
+              >
+                {{ scrapbookDate(page) }}
+                {{ scrapbookDate(page) ? '·' : '' }}
+                {{ page.playerName }} · {{ endingFateLabel(page.fate) }}
+              </p>
+              <button
+                type="button"
+                class="text-left font-serif text-lg font-black underline decoration-white/20 underline-offset-4 hover:decoration-[#d9b877]"
+                @click="openDossier(page.endingId)"
+              >
+                {{ page.endingTitle }}
+              </button>
+              <p class="text-xs text-white/70">{{ scrapbookRoute(page) }}</p>
+              <p class="mt-1 text-sm text-white/85">
+                {{ scrapbookTrail(page) }}.
+              </p>
+              <ul class="mt-2 flex flex-col gap-1 text-sm text-white/85">
+                <li v-for="(moment, index) in page.highlights" :key="index">
+                  <span class="text-white/60">Day {{ moment.day }}:</span>
+                  {{ moment.choice }}
+                  <span
+                    v-if="moment.outcome"
+                    class="text-xs font-semibold"
+                    :class="
+                      moment.outcome === 'success'
+                        ? 'text-[#8fb8b0]'
+                        : 'text-[#e08a5a]'
+                    "
+                    >({{
+                      moment.outcome === 'success'
+                        ? 'it worked'
+                        : 'it cost you'
+                    }})</span
+                  >
+                </li>
+              </ul>
+              <p class="mt-2 text-xs text-white/60">
+                {{ page.decisions }} decisions · {{ page.checksPassed }} checks
+                passed · {{ page.checksFailed }} complications
+              </p>
+            </li>
+          </ol>
+        </section>
       </div>
 
       <div v-else-if="tab === 'cases'" class="kr-scroll h-full p-3 sm:p-5">
@@ -2427,6 +2496,7 @@ import { endingDossier, endingFateLabel } from '~/utils/ecotone/endingDossier'
 import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
 import { chosenFamilyEnding } from '~/utils/ecotone/chosenFamily'
 import { revealedGuides } from '~/utils/ecotone/guideReveal'
+import { scrapbookGuides, type ScrapbookPage } from '~/utils/ecotone/scrapbook'
 import {
   companionBondCounts,
   companionBondTier,
@@ -2669,7 +2739,7 @@ function resetCollection() {
   resetArmed.value = false
   game.resetCollection()
   resetNotice.value =
-    'Endings gallery and Case Files cleared. Your current journey and save slots were kept.'
+    'Endings gallery, Case Files and Scrapbook cleared. Your current journey and save slots were kept.'
 }
 
 function cancelReset() {
@@ -3020,8 +3090,16 @@ function bondLabel(id: CompanionId) {
   return `${companionBondTier(n)} · ${memories}`
 }
 
+/** Guides met on any finished weekend this browser remembers. */
+const earlierGuides = computed(
+  () => new Set<CompanionId>(scrapbookGuides(game.scrapbook)),
+)
+
 const revealedGuideIds = computed(() =>
-  revealedGuides(game.run?.meetingOrder, game.endings),
+  revealedGuides(
+    [...(game.run?.meetingOrder ?? []), ...earlierGuides.value],
+    game.endings,
+  ),
 )
 
 function guideRevealed(id: CompanionId) {
@@ -3029,12 +3107,43 @@ function guideRevealed(id: CompanionId) {
 }
 
 function guideStatus(id: CompanionId) {
-  if (!game.run) return 'Somewhere in the county'
+  if (!game.run)
+    return earlierGuides.value.has(id)
+      ? 'Met on an earlier weekend'
+      : 'Somewhere in the county'
   if (game.lead?.id === id) return 'Your lead guide'
   if (game.party.some((companion) => companion.id === id))
     return 'Traveling with you'
   if (game.companionMet(id)) return 'Met · on their own path'
+  if (earlierGuides.value.has(id)) return 'Met before · not yet this weekend'
   return 'Not met yet'
+}
+
+function scrapbookDate(page: ScrapbookPage) {
+  const date = new Date(page.finishedAt)
+  return Number.isNaN(date.getTime())
+    ? ''
+    : date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
+
+function scrapbookRoute(page: ScrapbookPage) {
+  const event = EVENTS.find((item) => item.id === page.event)?.name
+  const lens = page.openingState ? lensLabel(page.openingState as LensId) : ''
+  const archetype = ARCHETYPES.find((a) => a.id === page.archetype)?.name
+  return [event, lens, archetype].filter(Boolean).join(' · ')
+}
+
+function scrapbookTrail(page: ScrapbookPage) {
+  const met = page.meetingOrder.map(companionName).join(' → ')
+  const followed = page.followed
+    .map((to) => (to ? companionName(to) : 'alone'))
+    .join(', then ')
+  return [
+    met ? `Met ${met}` : 'Met no guides',
+    followed ? `followed ${followed}` : '',
+  ]
+    .filter(Boolean)
+    .join('; ')
 }
 
 function chapterState(n: number) {

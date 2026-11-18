@@ -13,6 +13,7 @@ import {
   ADVERT_MAX_CHIPS,
   ADVERT_POSTERS,
   ADVERT_PROJECT_SLUG,
+  ADVERT_STUDIO_COVER_SLOT,
   ADVERT_SLOT_KEYS,
   ADVERT_SLOT_KEY_PATTERN,
   advertEditDescription,
@@ -266,6 +267,7 @@ assert.match(
   'the Advert Studio tab is admin-only',
 )
 assert.doesNotMatch(tab, /\nnavigation: false\n/)
+assert.match(tab, /\\nimage: \\/api\\/adverts\\/studio-cover\\n/)
 const icon = tab.match(/\nicon: kind-icon:([a-z0-9-]+)\n/)?.[1]
 assert.ok(
   icon && existsSync(join(ROOT, 'assets/icons', `${icon}.svg`)),
@@ -314,12 +316,34 @@ assert.match(sync, /status: 'DONE'/)
 assert.match(sync, /errorHandler\(error\)/)
 assert.match(sync, /event\.node\.res\.statusCode =/)
 assert.equal(ADVERT_PROJECT_SLUG, 'adverts')
+assert.equal(ADVERT_STUDIO_COVER_SLOT, 'adverts/studio/hero')
+assert.match(sync, /STUDIO_COVER_LEDGER_KEY/)
+assert.match(sync, /ADVERT_STUDIO_COVER_SLOT/)
+assert.match(sync, /advert-studio-admin-workshop@zimage-studio=/)
+const publish = read('server/api/adverts/art/select.post.ts')
+assert.match(publish, /requireAdminApiUser\\(event\\)/)
+assert.match(publish, /prisma\\.\\$transaction/)
+assert.match(publish, /artCandidate\\.findUnique/)
+assert.match(publish, /candidate\\.verdict === 'duplicate'/)
+assert.match(publish, /image\\.isMature === true/)
+assert.match(publish, /isPublic: true/)
+assert.match(publish, /selectedArtImageId: artImageId/)
+const cover = read('server/api/adverts/studio-cover.get.ts')
+assert.match(cover, /selectedArtImageId/)
+assert.match(cover, /isPublic: true/)
+assert.match(cover, /isMature: false/)
+assert.match(cover, /isActive: true/)
+assert.match(cover, /FALLBACK_ART/)
+assert.match(advertPage, /data-testid="advert-studio-cover-chooser"/)
+assert.match(advertPage, /studioCoverCandidates/)
+assert.match(advertPage, /'Use publicly'/)
 
 assert.match(storeSource, /\/api\/art\/slots\/selected\?prefix=/)
 assert.match(storeSource, /'\/api\/art\/enqueue'/)
 assert.match(storeSource, /requestKey: advertRequestKey\(/)
 assert.match(storeSource, /projectSlug: ADVERT_PROJECT_SLUG/)
 assert.match(storeSource, /'\/api\/adverts\/art\/sync'/)
+assert.match(storeSource, /'\\/api\\/adverts\\/art\\/select'/)
 assert.match(storeSource, /category: 'AGENT'/)
 assert.match(storeSource, /scale: ADVERT_EXPORT_PIXEL_RATIO/)
 assert.match(storeSource, /import\('modern-screenshot'\)/)

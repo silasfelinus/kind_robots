@@ -17,8 +17,10 @@ import {
   canRomance,
   hasSynergyEffect,
   startingPartners,
+  roleFor,
 } from './party'
 import { ROLES, character, pairKey, shortName, supportFor } from './roster'
+import { CUSTOM_HERO_ID, CUSTOM_STAT_POINTS } from './types'
 import type {
   CombatState,
   Effects,
@@ -78,7 +80,12 @@ export function partyIds(run: RunState): string[] {
 }
 
 export function heroName(run: RunState): string {
-  return run.hero.name.trim() || shortName(character(run.hero.presetId))
+  return (
+    run.hero.name.trim() ||
+    (run.hero.presetId === CUSTOM_HERO_ID
+      ? 'Your delver'
+      : shortName(character(run.hero.presetId)))
+  )
 }
 
 export function nameOf(run: RunState, id: string): string {
@@ -123,8 +130,24 @@ export function romanceMoment(id: string): string {
 // ── Stats ────────────────────────────────────────────────────────────────
 
 export function baseStat(id: string, key: StatKey, hero?: HeroSetup): number {
-  const c = character(id)
   const step = key === 'hp' ? 10 : 3
+  if (id === CUSTOM_HERO_ID) {
+    const points = hero?.custom?.points ?? {}
+    const budget = STAT_KEYS.reduce(
+      (sum, stat) => sum + Math.max(0, Math.floor(points[stat] ?? 0)),
+      0,
+    )
+    const allocation =
+      budget <= CUSTOM_STAT_POINTS
+        ? Math.max(0, Math.floor(points[key] ?? 0))
+        : 0
+    return (
+      ROLES[roleFor(id, hero)].base[key] +
+      allocation * (key === 'hp' ? 6 : 2) +
+      (hero?.boon === key ? step : 0)
+    )
+  }
+  const c = character(id)
   let value = ROLES[c.role].base[key]
   if (c.edge === key) value += step
   if (hero && hero.presetId === id && hero.boon === key) value += step
@@ -139,7 +162,7 @@ export function stat(run: RunState, id: string, key: StatKey): number {
     (run.boons[key] ?? 0)
   const ids = partyIds(run)
   let mult = 1 + run.deepening * 0.12
-  for (const s of activeSynergies(ids)) mult += s.mult[key] ?? 0
+  for (const s of activeSynergies(ids, run.hero)) mult += s.mult[key] ?? 0
   for (const s of activeSupports(ids))
     if (s.a === id || s.b === id)
       mult += (s.bonus[key] ?? 0) * (1 + (run.bonds[pairKey(s.a, s.b)] ?? 0))
@@ -200,6 +223,7 @@ export function createRun(
     ending: null,
     deepening: 0,
     mercy: 0,
+    sacrifices: 0,
     turns: 0,
     fights: 0,
     puzzlesSolved: 0,
@@ -231,10 +255,10 @@ export function createRun(
 
 function scoutChance(run: RunState): number {
   const ids = partyIds(run)
-  if (hasSynergyEffect(ids, 'scoutAll') || run.flags.revealNext) return 1
+  if (hasSynergyEffect(ids, 'scoutAll', run.hero) || run.flags.revealNext) return 1
   let chance = 0.35
-  if (ids.some((id) => character(id).role === 'ranger')) chance += 0.35
-  if (hasSynergyEffect(ids, 'scoutHalf')) chance += 0.15
+  if (ids.some((id) => roleFor(id, run.hero) === 'ranger')) chance += 0.35
+  if (hasSynergyEffect(ids, 'scoutHalf', run.hero)) chance += 0.15
   return chance
 }
 
@@ -393,7 +417,7 @@ export function startFight(
     boss: !!opts.boss,
     mimic: !!opts.mimic,
   }
-  if (hasSynergyEffect(partyIds(run), 'venom'))
+  if (hasSynergyEffect(partyIds(run), 'venom', run.hero))
     for (const e of combat.enemies) e.poison = 3
   run.combat = combat
   run.phase = 'fight'
@@ -482,7 +506,7 @@ export function act(run: RunState, action: CombatAction) {
   if (!combat || !member) return
   run.notices = []
   const id = member.id
-  const role = character(id).role
+  const role = roleFor(id, run.hero)
   const atk = stat(run, id, 'atk')
   const mag = stat(run, id, 'mag')
   const living = livingEnemies(run)
@@ -498,7 +522,7 @@ export function act(run: RunState, action: CombatAction) {
     if (run.potions > 0 && who) {
       run.potions -= 1
       const alchemy = partyIds(run).some(
-        (p) => character(p).role === 'alchemist',
+        (p) => roleFor(p, run.hero) === 'alchemist',
       )
       const healed = heal(run, who, maxHp(run, who.id) * (alchemy ? 0.8 : 0.5))
       who.poison = 0
@@ -570,7 +594,7 @@ export function act(run: RunState, action: CombatAction) {
         break
       }
       case 'bard':
-        combat.anthem = hasSynergyEffect(partyIds(run), 'longAnthem') ? 3 : 2
+        combat.anthem = hasSynergyEffect(partyIds(run), 'longAnthem', run.hero) ? 3 : 2
         note(run, 'info', `${nameOf(run, id)} strikes up an Anthem.`)
         break
       case 'alchemist':
@@ -600,7 +624,7 @@ function enemyPhase(run: RunState) {
   const combat = run.combat!
   if (combat.turret > 0) {
     const artificer = run.party.find(
-      (m) => character(m.id).role === 'artificer',
+      (m) => roleFor(m.id, run.hero) === 'artificer',
     )
     const e = livingEnemies(run)
     if (artificer && e.length)
@@ -635,7 +659,7 @@ function enemyPhase(run: RunState) {
     } else {
       const taunted = targets.find((t) => t.id === combat.taunt)
       const weighted = targets.flatMap((t) =>
-        ROLES[character(t.id).role].archetype === 'tank' ? [t, t] : [t],
+        ROLES[roleFor(t.id, run.hero)].archetype === 'tank' ? [t, t] : [t],
       )
       const target =
         taunted && nextRandom(run) < 0.75 ? taunted : pick(run, weighted)
@@ -713,7 +737,7 @@ function checkCombatEnd(run: RunState): boolean {
   if (livingEnemies(run).length) return false
   run.fights += 1
   const layer = LAYERS[run.layer]!
-  const hunters = hasSynergyEffect(partyIds(run), 'gold')
+  const hunters = hasSynergyEffect(partyIds(run), 'gold', run.hero)
   const spoils = Math.round(
     (combat.enemies.reduce((s, e) => s + e.max, 0) / (combat.boss ? 5 : 12)) *
       (hunters ? 1.5 : 1) *
@@ -778,7 +802,7 @@ export function attemptParley(run: RunState) {
 /** A sensible move for the current actor: what Auto plays and what the tests use. */
 export function autoAction(run: RunState): CombatAction {
   const member = currentActor(run)!
-  const role = character(member.id).role
+  const role = roleFor(member.id, run.hero)
   const living = livingEnemies(run)
   const weakest = [...living].sort((a, b) => a.hp - b.hp)[0]!
   const hurt = alive(run).filter((m) => m.hp < maxHp(run, m.id) * 0.4)
@@ -903,8 +927,8 @@ export function runeSolution(lit: readonly boolean[]): number[] {
 
 export function puzzleHintAvailable(run: RunState): boolean {
   const ids = partyIds(run)
-  if (hasSynergyEffect(ids, 'puzzleHint')) return true
-  if (ids.some((id) => character(id).role === 'scholar')) return true
+  if (hasSynergyEffect(ids, 'puzzleHint', run.hero)) return true
+  if (ids.some((id) => roleFor(id, run.hero) === 'scholar')) return true
   const wits = alive(run).reduce((s, m) => s + stat(run, m.id, 'wit'), 0)
   return wits >= 24 + run.layer * 8
 }
@@ -1041,8 +1065,8 @@ function healAll(run: RunState, fraction: number) {
 function startTreasure(run: RunState) {
   const ids = partyIds(run)
   const sensed =
-    ids.some((id) => ['rogue', 'artificer'].includes(character(id).role)) ||
-    hasSynergyEffect(ids, 'trapSense')
+    ids.some((id) => ['rogue', 'artificer'].includes(roleFor(id, run.hero))) ||
+    hasSynergyEffect(ids, 'trapSense', run.hero)
   const roll = nextRandom(run)
   run.treasure = {
     mimic: roll < 0.18,
@@ -1087,7 +1111,7 @@ export function openTreasure(run: RunState, choice: TreasureChoice) {
     note(run, 'bad', 'A needle trap fires!')
     hurtAll(run, 0.12)
   } else if (t.trap) note(run, 'good', 'The trap clicks harmlessly.')
-  const hunters = hasSynergyEffect(partyIds(run), 'gold')
+  const hunters = hasSynergyEffect(partyIds(run), 'gold', run.hero)
   const gold = Math.round(
     20 * (run.layer + 1) * (hunters ? 1.5 : 1) * (0.8 + nextRandom(run) * 0.4),
   )
@@ -1120,9 +1144,9 @@ export function optionLock(run: RunState, option: EventOption): string | null {
   const r = option.requires
   if (!r) return null
   const ids = partyIds(run)
-  if (r.role && !ids.some((id) => r.role!.includes(character(id).role)))
+  if (r.role && !ids.some((id) => r.role!.includes(roleFor(id, run.hero))))
     return `Needs a ${r.role.map((x) => ROLES[x].label).join(' or ')}`
-  if (r.synergy && !activeSynergies(ids).some((s) => s.id === r.synergy))
+  if (r.synergy && !activeSynergies(ids, run.hero).some((s) => s.id === r.synergy))
     return 'Needs holy and dark together'
   if (r.flag && !run.flags[r.flag]) return 'Something you have not done yet'
   if (r.gold && run.gold < r.gold) return `Needs ${r.gold} gold`
@@ -1138,6 +1162,8 @@ function applyEffects(run: RunState, fx: Effects) {
   if (fx.potion) run.potions = Math.max(0, run.potions + fx.potion)
   if (fx.reveal) run.flags.revealNext = true
   if (fx.mercy) run.mercy += fx.mercy
+  if (fx.sacrifice)
+    run.sacrifices = (run.sacrifices ?? 0) + fx.sacrifice
   if (fx.deepen) run.deepening += fx.deepen
   if (fx.affinityAll)
     for (const id of run.companions) changeAffinity(run, id, fx.affinityAll)
@@ -1160,7 +1186,11 @@ export function rollAbilityCheck(
   const best = members.length
     ? Math.max(...members.map((member) => stat(run, member.id, skill)))
     : 0
-  const modifier = Math.max(0, Math.floor(best / 4))
+  const trained = members.filter(
+    (member) => stat(run, member.id, skill) >= 8,
+  ).length
+  const support = Math.min(2, Math.max(0, trained - 1))
+  const modifier = Math.max(0, Math.floor(best / 4)) + support
   const die = 1 + Math.floor(nextRandom(run) * 20)
   const total = die + modifier
   return { die, modifier, total, success: total >= dc }
@@ -1175,6 +1205,8 @@ export function chooseOption(run: RunState, optionId: string) {
   if (!option || optionLock(run, option)) return
   run.notices = []
   run.choices.push(`${ev.id}:${option.id}`)
+  // Costs and sacrifices apply before the roll, even when the attempt fails.
+  applyEffects(run, option.effects)
   if (option.check) {
     const check = rollAbilityCheck(run, option.check.stat, option.check.dc)
     const code = `${ev.id}:${option.id}:${check.total >= option.check.dc ? 'passed' : 'failed'}`
@@ -1200,7 +1232,6 @@ export function chooseOption(run: RunState, optionId: string) {
       win ? option.gamble.winText : option.gamble.loseText,
     )
   } else {
-    applyEffects(run, option.effects)
     note(run, 'info', option.result)
   }
   if (option.tag) {
@@ -1235,7 +1266,7 @@ export function chooseOption(run: RunState, optionId: string) {
 // ── Campfire ─────────────────────────────────────────────────────────────
 
 function startCamp(run: RunState) {
-  const full = hasSynergyEffect(partyIds(run), 'fullRest')
+  const full = hasSynergyEffect(partyIds(run), 'fullRest', run.hero)
   for (const m of run.party) {
     if (m.down) {
       m.down = false
@@ -1338,7 +1369,7 @@ export function campAction(run: RunState, option: CampOption): string {
   }
   if (run.camp.talks <= 0) return ''
   run.camp.talks -= 1
-  const warm = hasSynergyEffect(partyIds(run), 'warmth') ? 1 : 0
+  const warm = hasSynergyEffect(partyIds(run), 'warmth', run.hero) ? 1 : 0
   let line: string
   if (option.kind === 'talk') {
     line = talkLine(run, option.id)
@@ -1388,7 +1419,7 @@ export type FinaleOption = { ending: EndingId; label: string; hint: string }
 export function finaleOptions(run: RunState): FinaleOption[] {
   const ids = partyIds(run)
   const holy = ids.some((id) =>
-    ['cleric', 'paladin'].includes(character(id).role),
+    ['cleric', 'paladin'].includes(roleFor(id, run.hero)),
   )
   const options: FinaleOption[] = [
     {
@@ -1415,7 +1446,10 @@ export function finaleOptions(run: RunState): FinaleOption[] {
       label: 'Plant the dawn',
       hint: 'The seed and the spirit, together',
     })
-  if (run.mercy >= 3 || (run.mercy >= 2 && holy))
+  if (
+    (run.sacrifices ?? 0) >= 2 &&
+    (run.mercy >= 3 || (run.mercy >= 2 && holy))
+  )
     options.push({
       ending: 'redemption',
       label: 'Give the king his heart back',

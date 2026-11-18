@@ -1,5 +1,6 @@
 import { partyIds } from './engine'
 import { CHARACTERS } from './roster'
+import { CUSTOM_HERO_ID } from './types'
 import type { EndingId, HeroSetup, RunState } from './types'
 
 // The chronicle is everything that outlives a single delve: one page per
@@ -121,7 +122,10 @@ export function recordStart(chronicle: Chronicle, run: RunState): Chronicle {
   return {
     ...chronicle,
     delves: chronicle.delves + 1,
-    met: union(chronicle.met, partyIds(run)),
+    met: union(
+      chronicle.met,
+      partyIds(run).filter((id) => id !== CUSTOM_HERO_ID),
+    ),
     lastHero: { ...run.hero, drawnTo: [...run.hero.drawnTo] },
   }
 }

@@ -6,6 +6,7 @@ import {
   character,
   pairKey,
 } from './roster'
+import { CUSTOM_HERO_ID } from './types'
 import type {
   Archetype,
   Gender,
@@ -36,12 +37,18 @@ const CASTERS: RoleId[] = ['mage', 'warlock', 'necromancer']
 const HOLY: RoleId[] = ['cleric', 'paladin']
 const DARK: RoleId[] = ['warlock', 'necromancer']
 
-function roles(ids: readonly string[]): RoleId[] {
-  return ids.map((id) => character(id).role)
+export function roleFor(id: string, hero?: HeroSetup): RoleId {
+  return id === CUSTOM_HERO_ID
+    ? (hero?.custom?.role ?? 'warrior')
+    : character(id).role
 }
 
-function archetypes(ids: readonly string[]): Archetype[] {
-  return roles(ids).map((r) => ROLES[r].archetype)
+function roles(ids: readonly string[], hero?: HeroSetup): RoleId[] {
+  return ids.map((id) => roleFor(id, hero))
+}
+
+function archetypes(ids: readonly string[], hero?: HeroSetup): Archetype[] {
+  return roles(ids, hero).map((r) => ROLES[r].archetype)
 }
 
 const has = (list: RoleId[], ...wanted: RoleId[]) =>
@@ -49,36 +56,40 @@ const has = (list: RoleId[], ...wanted: RoleId[]) =>
 const count = (list: RoleId[], ...wanted: RoleId[]) =>
   list.filter((r) => wanted.includes(r)).length
 
-const SYNERGY_TEST: Record<string, (ids: readonly string[]) => boolean> = {
-  trinity: (ids) => {
-    const a = archetypes(ids)
+const SYNERGY_TEST: Record<string, (ids: readonly string[], hero?: HeroSetup) => boolean> = {
+  trinity: (ids, hero) => {
+    const a = archetypes(ids, hero)
     return a.includes('tank') && a.includes('healer') && a.includes('striker')
   },
-  arcane: (ids) => count(roles(ids), ...CASTERS) >= 2,
-  twilight: (ids) => has(roles(ids), ...HOLY) && has(roles(ids), ...DARK),
-  scouts: (ids) => has(roles(ids), 'ranger') && has(roles(ids), 'rogue'),
-  hunters: (ids) =>
-    has(roles(ids), 'rogue') && has(roles(ids), 'artificer', 'alchemist'),
-  bookworms: (ids) => has(roles(ids), 'scholar') && has(roles(ids), 'mage'),
-  warband: (ids) => count(roles(ids), 'warrior', 'monk') >= 2,
-  bulwark: (ids) => archetypes(ids).filter((a) => a === 'tank').length >= 2,
-  green: (ids) => has(roles(ids), 'druid') && has(roles(ids), 'ranger'),
-  encore: (ids) => has(roles(ids), 'bard') && ids.length >= 3,
-  'grave-glass': (ids) =>
-    has(roles(ids), 'necromancer') && has(roles(ids), 'alchemist'),
-  mixed: (ids) => new Set(archetypes(ids)).size >= 4,
-  duo: (ids) => ids.length === 2,
+  arcane: (ids, hero) => count(roles(ids, hero), ...CASTERS) >= 2,
+  twilight: (ids, hero) => has(roles(ids, hero), ...HOLY) && has(roles(ids, hero), ...DARK),
+  scouts: (ids, hero) => has(roles(ids, hero), 'ranger') && has(roles(ids, hero), 'rogue'),
+  hunters: (ids, hero) =>
+    has(roles(ids, hero), 'rogue') && has(roles(ids, hero), 'artificer', 'alchemist'),
+  bookworms: (ids, hero) => has(roles(ids, hero), 'scholar') && has(roles(ids, hero), 'mage'),
+  warband: (ids, hero) => count(roles(ids, hero), 'warrior', 'monk') >= 2,
+  bulwark: (ids, hero) => archetypes(ids, hero).filter((a) => a === 'tank').length >= 2,
+  green: (ids, hero) => has(roles(ids, hero), 'druid') && has(roles(ids, hero), 'ranger'),
+  encore: (ids, hero) => has(roles(ids, hero), 'bard') && ids.length >= 3,
+  'grave-glass': (ids, hero) =>
+    has(roles(ids, hero), 'necromancer') && has(roles(ids, hero), 'alchemist'),
+  mixed: (ids, hero) => new Set(archetypes(ids, hero)).size >= 4,
+  duo: (ids, hero) => ids.length === 2,
 }
 
-export function activeSynergies(ids: readonly string[]): Synergy[] {
-  return SYNERGIES.filter((s) => SYNERGY_TEST[s.id]?.(ids))
+export function activeSynergies(
+  ids: readonly string[],
+  hero?: HeroSetup,
+): Synergy[] {
+  return SYNERGIES.filter((s) => SYNERGY_TEST[s.id]?.(ids, hero))
 }
 
 export function hasSynergyEffect(
   ids: readonly string[],
   effect: Synergy['effects'][number],
+  hero?: HeroSetup,
 ): boolean {
-  return activeSynergies(ids).some((s) => s.effects.includes(effect))
+  return activeSynergies(ids, hero).some((s) => s.effects.includes(effect))
 }
 
 export function activeSupports(ids: readonly string[]): Support[] {
@@ -95,6 +106,7 @@ export function startingPartners(
   hero: HeroSetup,
   companions: readonly string[],
 ): string[] {
+  if (hero.presetId === CUSTOM_HERO_ID) return []
   const lead = character(hero.presetId)
   if (lead.partner && companions.includes(lead.partner)) return [lead.partner]
   return []
@@ -191,9 +203,8 @@ const GOAL_WEIGHTS: Record<
   },
 }
 
-function power(id: string): number {
-  const c = character(id)
-  const base = ROLES[c.role].base
+function power(id: string, hero: HeroSetup): number {
+  const base = ROLES[roleFor(id, hero)].base
   return base.hp / 5 + base.atk + base.def + base.mag + base.spd / 2
 }
 
@@ -209,7 +220,7 @@ export function scoreParty(
     if (points) lines.push({ label, points: Math.round(points * 10) / 10 })
   }
 
-  const a = new Set(archetypes(ids))
+  const a = new Set(archetypes(ids, hero))
   const cover =
     (a.has('tank') ? 5 : 0) +
     (a.has('healer') ? 5 : 0) +
@@ -218,7 +229,7 @@ export function scoreParty(
     (a.has('support') ? 2 : 0)
   add('Role coverage', cover * w.cover)
 
-  for (const s of activeSynergies(ids)) add(s.name, s.value * w.synergy)
+  for (const s of activeSynergies(ids, hero)) add(s.name, s.value * w.synergy)
   for (const s of activeSupports(ids))
     add(s.name, (s.kind === 'lovers' ? 5 : 3) * w.support)
 
@@ -232,12 +243,12 @@ export function scoreParty(
 
   add(
     'Combat power',
-    (ids.reduce((sum, id) => sum + power(id), 0) / ids.length - 40) *
+    (ids.reduce((sum, id) => sum + power(id, hero), 0) / ids.length - 40) *
       0.4 *
       w.power,
   )
 
-  const r = roles(ids)
+  const r = roles(ids, hero)
   const treasure =
     (has(r, 'rogue') ? 4 : 0) +
     (has(r, 'artificer') ? 2 : 0) +
@@ -245,7 +256,7 @@ export function scoreParty(
   add('Treasure sense', treasure * w.treasure)
 
   const wits = ids.reduce(
-    (sum, id) => sum + ROLES[character(id).role].base.wit,
+    (sum, id) => sum + ROLES[roleFor(id, hero)].base.wit,
     0,
   )
   add('Puzzle wits', (wits / ids.length - 6) * w.puzzle)
@@ -253,7 +264,12 @@ export function scoreParty(
   let friction = 0
   for (const x of ids)
     for (const y of ids)
-      if (x !== y && character(x).likes.includes(character(y).dislikes))
+      if (
+        x !== y &&
+        x !== CUSTOM_HERO_ID &&
+        y !== CUSTOM_HERO_ID &&
+        character(x).likes.includes(character(y).dislikes)
+      )
         friction += 0.5
   add('Clashing values', -friction)
 

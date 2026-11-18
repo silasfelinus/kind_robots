@@ -21,7 +21,11 @@ tutorial:
     mines without spending a turn. Dash shields your next move from one
     mine or spinning disc. Win by checkmating Black or clearing every safe
     square. Keyboard M/P/F chooses modes, D shields and N restarts. Right-click
-    or touch-and-hold to flag.
+    or touch-and-hold to flag. Use the docked ? button for the game guide.
+    The Scrapbook records discovered endings, world-best scores and runs;
+    Achievements unlock for chess, mine deductions and each world's special
+    powers. Settings store sound, animation, contrast and blade warnings.
+    Continue resumes a saved run on this device only, not on your account.
 ---
 
 Chess, mines and Disc Room-style sawblades share one dangerous 8×8 arena.

@@ -60,6 +60,21 @@
         </button>
       </div>
 
+      <div
+        class="flex shrink-0 flex-wrap gap-x-4 gap-y-1 rounded-xl border border-base-content/20 bg-base-200 px-3 py-2 text-xs"
+        data-testid="dh-approved-models"
+      >
+        <span>
+          Approved production style:
+          <strong class="text-primary">{{ DEEPHEART_APPROVED_ART_MODELS.standard.label }}</strong>
+        </span>
+        <span>
+          Mature romance unlocks:
+          <strong class="text-secondary">{{ DEEPHEART_APPROVED_ART_MODELS.afterHours.label }}</strong>
+          · private, adult-only
+        </span>
+      </div>
+
       <p v-if="error" class="alert alert-error text-xs" role="alert">
         {{ error }}
       </p>
@@ -367,6 +382,7 @@ import { ANTHRO_LOOK } from '~/utils/deepheart/anthro'
 import { COURT_DEITIES } from '~/utils/deepheart/court'
 import { CHARACTERS, ROLES } from '~/utils/deepheart/roster'
 import {
+  DEEPHEART_APPROVED_ART_MODELS,
   DEEPHEART_STYLE_LANES,
   DEEPHEART_STYLE_SUBJECTS,
   type DeepheartStyleJob,

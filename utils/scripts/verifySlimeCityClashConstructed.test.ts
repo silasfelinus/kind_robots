@@ -377,6 +377,102 @@ assert.ok(
     '): ' +
     nearDead.map((r) => r.id).join(', '),
 )
+// Held-out seed family (slime-city/t-071, 2026-11-18 PT): the suite seeds
+// above are what every card fix is tuned against, so a fix can pass by seed
+// luck. kind_robots#5316 found Twin Omens and Spare Nine Lives fully dead on
+// the +5000 and +9000 families while the suite seeds reported 0 dead. Replay
+// the cross-crew field once more on a disjoint family (no mirrors, no crew
+// balance asserts: those are pinned on the suite seeds) and ratchet its dead
+// and near-dead counts too. One family keeps CI cost to one extra field.
+// SLIME_CITY_CLASH_HELDOUT_OFFSET swaps the family for local probing; the
+// ceilings below are only enforced on the default.
+const DEFAULT_HELD_OUT_OFFSET = 5000
+const heldOutOffset = Number(
+  process.env.SLIME_CITY_CLASH_HELDOUT_OFFSET ?? DEFAULT_HELD_OUT_OFFSET,
+)
+assert.ok(
+  Number.isInteger(heldOutOffset) && heldOutOffset >= CROSS_BOUTS * 1000,
+  'held-out offset ' + heldOutOffset + ' is disjoint from the suite seeds',
+)
+function heldOutField(offset: number) {
+  const inDeck = new Map<string, number>()
+  const chosen = new Map<string, number>()
+  let bouts = 0
+  for (const [i, a] of decks.entries())
+    for (const [j, b] of decks.entries()) {
+      if (a.team === b.team) continue
+      for (let k = 0; k < CROSS_BOUTS; k++) {
+        const seed = offset + 1 + ((i * 31 + j * 17) % 97) + k * 1000
+        const s = play(a, b, seed)
+        assert.ok(s.victor, 'held-out bout ' + seed + ' settles')
+        bouts++
+        for (const [deck, side] of [
+          [a, 'player'],
+          [b, 'enemy'],
+        ] as Array<[Deck, Side]>) {
+          const picked = new Set(
+            s.commands.flatMap((c) =>
+              c.t === 'play' && c.side === side ? [c.card] : [],
+            ),
+          )
+          for (const id of deck.cards) {
+            inDeck.set(id, (inDeck.get(id) ?? 0) + 1)
+            if (picked.has(id)) chosen.set(id, (chosen.get(id) ?? 0) + 1)
+          }
+        }
+      }
+    }
+  const rows = [...inDeck.entries()].map(([id, appearances]) => ({
+    id,
+    rate: (chosen.get(id) ?? 0) / appearances,
+  }))
+  return {
+    bouts,
+    dead: rows.filter((r) => r.rate === 0).map((r) => r.id),
+    nearDead: rows.filter((r) => r.rate < NEAR_DEAD_RATE).map((r) => r.id),
+  }
+}
+const heldOut = heldOutField(heldOutOffset)
+assert.equal(heldOut.bouts, crossGames)
+// Same rules as the suite seeds: a near-dead one-slot card or a dead crew
+// fighter fails outright; only two-slot cards fall under the ceilings.
+assert.deepEqual(
+  heldOut.nearDead.filter((id) => clashPlayCost(cardById(id)) === 1),
+  [],
+  'held-out family: every one-slot card is chosen in at least 3% of its bouts',
+)
+assert.deepEqual(
+  heldOut.dead.filter(
+    (id) => isFighter(id) && cardById(id).team !== 'mercenary',
+  ),
+  [],
+  'held-out family: every crew fighter gets played',
+)
+// Measured on +5000 when this guard landed: 2 dead (Glitterglass Flood, the
+// s3 Compound Notice) and 16 near-dead. Ratchet: lower them when
+// a card or CPU change revives a card here; never raise them.
+const HELD_OUT_DEAD_CEILING = 2
+const HELD_OUT_NEAR_DEAD_CEILING = 16
+if (heldOutOffset === DEFAULT_HELD_OUT_OFFSET) {
+  assert.ok(
+    heldOut.dead.length <= HELD_OUT_DEAD_CEILING,
+    'held-out family: ' +
+      heldOut.dead.length +
+      ' dead two-slot cards (ceiling ' +
+      HELD_OUT_DEAD_CEILING +
+      '): ' +
+      heldOut.dead.join(', '),
+  )
+  assert.ok(
+    heldOut.nearDead.length <= HELD_OUT_NEAR_DEAD_CEILING,
+    'held-out family: ' +
+      heldOut.nearDead.length +
+      ' near-dead two-slot cards (ceiling ' +
+      HELD_OUT_NEAR_DEAD_CEILING +
+      '): ' +
+      heldOut.nearDead.join(', '),
+  )
+}
 const mercenarySelection = selectionRows.filter(
   (row) => cardById(row.id).team === 'mercenary',
 )
@@ -419,6 +515,12 @@ console.log(
       ),
       deadTwoSlotCards: dead,
       nearDeadTwoSlotCards: nearDead.map((r) => r.id),
+      heldOut: {
+        offset: heldOutOffset,
+        bouts: heldOut.bouts,
+        deadTwoSlotCards: heldOut.dead,
+        nearDeadTwoSlotCards: heldOut.nearDead,
+      },
       evolutionReach: {
         l2: reachedL2.size,
         l3: reachedL3.size,
@@ -439,5 +541,11 @@ console.log(
     dead.length +
     ' dead and ' +
     nearDead.length +
-    ' near-dead two-slot cards (t-041), no dead crew fighter or one-slot card PASS',
+    ' near-dead two-slot cards (t-041); held-out +' +
+    heldOutOffset +
+    ': ' +
+    heldOut.dead.length +
+    ' dead and ' +
+    heldOut.nearDead.length +
+    ' near-dead (t-071), no dead crew fighter or one-slot card PASS',
 )

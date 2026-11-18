@@ -152,8 +152,14 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: ROLE SHIFT (tank, then parade leader, then showstopper). L3
   // keeps the glow that draws allies close and punishes them for it.
   // Counterplay: kill him while his neighbors stand, or never kill him.
+  // slime-city/t-041 (2026-11-18 PT): Riot sat at the 42% constructed-field
+  // band edge. He is Riot's one off-starter two-slot fighter, a 4/12 wall
+  // that won 40% of the bouts he sat in unplayed. +1 strike at L1 (and L3,
+  // keeping the 1.6x ramp) lifts Riot 42.4% -> 44.6% on the suite seeds and
+  // +1.5 to +2.9 points on two held-out families, with the starter untouched.
   's3-riot-firework-bishop': {
     levelOneText: 'An armored strongman who anchors the Riot line.',
+    stats: { 1: { attack: 1 }, 3: { attack: 1 } },
     2: stage('Strongman Parade', [], { aura: { n: 1, to: 'adjacentAllies' } }),
     3: stage(
       'The Finale',

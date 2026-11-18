@@ -169,9 +169,13 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
     levelOneText: "A heavy stun that freezes the rival's best fighter.",
     // A paper trail promotes one still-unseen card, so the upgrade arrives
     // naturally on the next shuffle instead of generating an extra card.
+    // Level 1 (t-041, 2026-11-18 PT): the IOU pays out a lead at every
+    // level, so the two-slot freeze never costs Undertow its tempo. Without
+    // it the card went dead once Rubber Drysuit got its second plate.
+    1: stage('Fine Print', [on('enter', draw(1))]),
     2: stage('Paper Trail', [on('enter', promote('deck'), draw(1))]),
     3: stage('Witness Protection Racket', [
-      on('enter', stun('adjacentFoes'), promote('hand')),
+      on('enter', stun('adjacentFoes'), promote('hand'), draw(1)),
     ]),
   },
   // Arc: a checkpoint wire with literal fine print -> every toll feeds the
@@ -287,9 +291,15 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // stunned only once.
   's3-undertow-long-drain-sting': {
     levelOneText: 'A long-reach stun that halts one fighter from afar.',
-    2: stage('Long Reach', [on('enter', damage(1, 'weakestFoe', true))]),
+    // Level 1 (t-041, 2026-11-18 PT): the drain line runs all the way back
+    // to the rival boss at every level. Played in one bout of 208, it went
+    // dead once Rubber Drysuit got its second plate; boss 2 keeps it live.
+    1: stage('Drain Line', [on('enter', boss(2))]),
+    2: stage('Long Reach', [
+      on('enter', boss(2), damage(1, 'weakestFoe', true)),
+    ]),
     3: stage('Paralytic Line', [
-      on('enter', damage(1, 'weakestFoe', true)),
+      on('enter', boss(2), damage(1, 'weakestFoe', true)),
       on('enter', stun('strongestFoe')),
     ]),
   },

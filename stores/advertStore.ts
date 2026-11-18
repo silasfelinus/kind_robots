@@ -543,6 +543,7 @@ export const useAdvertStore = defineStore('advertStore', () => {
     selectedSlug,
     isLoading,
     isSyncing,
+    isChoosing,
     isQueueing,
     isFiling,
     exportingSlug,

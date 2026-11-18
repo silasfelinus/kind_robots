@@ -434,7 +434,8 @@ for (const card of CARDS) {
         ['calico', 'watcher', 'merc-roof-dentist'].includes(card.id)
       const hatchling =
         level === 1 && ['chimera', 'juggernaut'].includes(card.id)
-      const clawSupport = ['shredders', 'choker'].includes(card.id) && level < 3
+      const clawSupport =
+        ['shredders', 'choker', 'spurs'].includes(card.id) && level < 3
       assert.ok(
         nonattacker
           ? b.attack === 0
@@ -1977,16 +1978,75 @@ assert.equal(
 )
 assert.equal(shortBurst.units.find((u) => u.uid === 3104)?.surge, 1)
 
-// The remaining gear cards still equip, without accidentally spawning fighters.
+// Razor Spurs is a fighter too (t-051, third conversion): a fragile
+// stage-diver whose arrival kicks tempo into her neighbors.
+for (const [level, expected] of [
+  [1, [1, 2]],
+  [2, [1, 3]],
+  [3, [2, 3]],
+] as const) {
+  const body = clashBalance(cardById('spurs'), level)
+  assert.deepEqual(
+    [body.attack, body.hp],
+    expected,
+    'Razor Spurs pays for her neighbor kick with a tiny body',
+  )
+}
 const spursStage = third('bloodfairies', 'spurs')
 spursStage.units = [
   follower('player', 1, 3111, 10, 2),
-  follower('player', 2, 3112, 10, 2),
   follower('player', 3, 3113, 10, 2),
 ]
 const spurred = playClash(spursStage, 'player', 'spurs', 2)
-assert.equal(spurred.units.find((u) => u.uid === 3111)?.attack, 4)
-assert.equal(spurred.units.find((u) => u.uid === 3113)?.attack, 4)
+const diver = spurred.units.find((u) => u.cardId === 'spurs')
+assert.ok(diver && diver.lane === 2, 'Razor Spurs enters as a fighter')
+assert.equal(spurred.units.find((u) => u.uid === 3111)?.attack, 3)
+assert.equal(
+  spurred.units.find((u) => u.uid === 3113)?.attack,
+  3,
+  'L3 kicks both neighbors +1 lasting attack',
+)
+const juniorSpurs = third('bloodfairies', 'spurs')
+juniorSpurs.levels.player.spurs = 1
+juniorSpurs.units = [
+  follower('player', 1, 3114, 10, 2),
+  follower('player', 3, 3115, 10, 2),
+]
+const firstDive = playClash(juniorSpurs, 'player', 'spurs', 2)
+assert.equal(
+  firstDive.units.find((u) => u.uid === 3114)?.attack,
+  2,
+  'the first-stage kick is temporary, not permanent',
+)
+assert.equal(firstDive.units.find((u) => u.uid === 3114)?.surge, 1)
+assert.equal(
+  firstDive.units.find((u) => u.uid === 3115)?.surge,
+  0,
+  'L1 kicks only one neighbor',
+)
+const midSpurs = third('bloodfairies', 'spurs')
+midSpurs.levels.player.spurs = 2
+midSpurs.units = [
+  follower('player', 1, 3116, 10, 2),
+  follower('player', 3, 3117, 10, 2),
+]
+const secondDive = playClash(midSpurs, 'player', 'spurs', 2)
+for (const uid of [3116, 3117]) {
+  const ally = secondDive.units.find((u) => u.uid === uid)
+  assert.deepEqual(
+    [ally?.attack, ally?.surge],
+    [2, 1],
+    'L2 kicks both neighbors for one round only',
+  )
+}
+const soloSpursStage = third('bloodfairies', 'spurs')
+soloSpursStage.units = []
+const soloSpurs = playClash(soloSpursStage, 'player', 'spurs', 2)
+assert.equal(
+  soloSpurs.units.filter((u) => u.cardId === 'spurs').length,
+  1,
+  'an empty board still gets a fighter, not a fizzled gear card',
+)
 
 // Spiked Choker is a fighter too (t-051): a small SWARM singer whose arrival
 // spreads SWARM next door, and whose L3 presence powers other SWARM allies.

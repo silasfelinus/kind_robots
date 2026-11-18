@@ -236,7 +236,9 @@ const RARE_IDS = new Set([
   ...TEAMS.flatMap((t) => [
     t.signature,
     t.special[0]!,
-    t.special[2]!,
+    // t-051 (2026-11-18): Razor Spurs left the Bloodfairies legacy list as a
+    // fighter. She stays rare and Blood Mic, now in her old gear slot, stays common.
+    t.id === 'bloodfairies' ? 'spurs' : t.special[2]!,
     ...(t.id === 'catgirls' || t.id === 'undertow' ? [t.special[4]!] : []),
   ]),
   // Four rare reserves preserve one rare + two normal cards for all 24 packs.

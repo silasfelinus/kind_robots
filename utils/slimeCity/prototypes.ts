@@ -572,8 +572,8 @@ export const TEAMS: Team[] = [
     creatures: ['sprite', 'pogo', 'razor', 'queen'],
     special: [
       'mosh',
+      's1-blood-mic',
       's2-bloodfairies-roadie-megaphone',
-      'spurs',
       'feedback',
       'pinprick',
       'bloodwire',
@@ -877,11 +877,11 @@ export const CARDS: Card[] = [
   {
     id: 'spurs',
     name: 'Razor Spurs',
-    kind: 'equipment',
+    kind: 'creature',
     team: 'bloodfairies',
     cost: 2,
-    effect: 'boost',
-    text: 'A fighter gains +1 AP every round for good.',
+    attack: 1,
+    text: 'A razor-heeled stage-diver who kicks the band next to her into high gear.',
     symbol: '✧',
   },
   {
@@ -4633,7 +4633,9 @@ export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
   // Re-tuned 2026-11-04 with dithered rounding, picked on 48 held-out seeds
   // (1,440 games): Blackout spread 0.079, Bloodrush 0.037. 2026-11-18 (t-051):
   // Roadie Megaphone replaced the Spiked Choker in the Bloodfairies legacy
-  // list, so Blackout trims Bloodfairies and Undertow by 1/8 each.
+  // list, so Blackout trims Bloodfairies and Undertow by 1/8 each. Razor
+  // Spurs then left it for Blood Mic, so Bloodrush trims Bloodfairies by 1/8
+  // (guard seeds 0.123 -> 0.090, twelve held-out seeds 0.125 -> 0.110).
   blackout: {
     catgirls: -0.625,
     bloodfairies: 1.375,
@@ -4644,7 +4646,7 @@ export const PARITY_CREW_EDGE: Record<ParityMode, Record<TeamId, number>> = {
   },
   bloodrush: {
     catgirls: -0.5,
-    bloodfairies: 1.375,
+    bloodfairies: 1.25,
     ironjaw: -2,
     riot: 0.625,
     undertow: 1.5,

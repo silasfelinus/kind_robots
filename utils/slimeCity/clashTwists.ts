@@ -304,9 +304,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Arrive: both neighboring allies gain +1 lasting attack and PIERCE.',
   ],
   spurs: [
-    'Sharpen a dancer permanently with Razor Spurs.',
-    'Sharpen wearer; one neighboring ally gains +1 lasting attack.',
-    'Sharpen wearer; both neighboring allies gain +2 lasting attack.',
+    'Stage-diver fighter. Arrive beside an ally: it strikes +1 this round.',
+    'Arrive: both neighboring allies strike +1 this round.',
+    'Arrive: both neighboring allies gain +1 lasting attack.',
   ],
   choker: [
     'SWARM backup singer. Arrive beside an ally: it gains SWARM too.',

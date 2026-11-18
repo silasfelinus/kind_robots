@@ -16,11 +16,14 @@ import {
 } from '../../../utils/artSlots'
 import {
   ADVERT_PROJECT_SLUG,
+  ADVERT_STUDIO_COVER_SLOT,
   advertSlotByKey,
   slotKeyFromAdvertRequestKey,
 } from '../../../../utils/adverts/posters'
 
 const MAX_JOBS = 1000
+const STUDIO_COVER_LEDGER_KEY =
+  'conductor:ledger:projects/interface-vision/art/HOMEPAGE-IDENTITIES-2026-11-17.yaml#advert-studio-admin-workshop@zimage-studio='
 
 function payloadRequestKey(payload: string): unknown {
   try {
@@ -46,16 +49,20 @@ export default defineEventHandler(async (event) => {
     })
     const inputs: CandidateInput[] = []
     for (const job of jobs) {
-      const slotKey = slotKeyFromAdvertRequestKey(
-        payloadRequestKey(job.payload),
-      )
+      const requestKey = payloadRequestKey(job.payload)
+      const slotKey = slotKeyFromAdvertRequestKey(requestKey)
       const match = slotKey ? advertSlotByKey(slotKey) : null
-      if (!slotKey || !match || !job.artImageId) continue
+      const isStudioCover =
+        typeof requestKey === 'string' &&
+        requestKey.startsWith(STUDIO_COVER_LEDGER_KEY)
+      if (!match && !isStudioCover) continue
       inputs.push({
-        slotKey,
+        slotKey: isStudioCover ? ADVERT_STUDIO_COVER_SLOT : slotKey!,
         projectSlug: ADVERT_PROJECT_SLUG,
-        label: `${match.poster.name}: ${match.slot.label}`,
-        artImageId: job.artImageId,
+        label: isStudioCover
+          ? 'Advert Studio cover'
+          : `${match!.poster.name}: ${match!.slot.label}`,
+        artImageId: job.artImageId!,
         artJobId: job.id,
         source: 'manual',
         sourceRef: `advert-studio:artjob-${job.id}`,

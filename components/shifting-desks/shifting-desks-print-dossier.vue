@@ -2,7 +2,7 @@
   <Teleport to="body">
     <article
       class="shifting-desks-print-dossier"
-      aria-label="Printable personnel dossier from The Elevator Only Goes Down"
+      aria-label="Printable personnel dossier from Downward Mobility"
     >
       <header class="sd-print-heading">
         <div>

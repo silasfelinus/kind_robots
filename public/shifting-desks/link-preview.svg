@@ -22,9 +22,9 @@
   <circle cx="168" cy="188" r="9" fill="#c9973f" stroke="#3b2a10" stroke-width="2"/>
   <rect x="67" y="188" width="202" height="30" rx="5" fill="#0f1a12" stroke="#3b2a10" stroke-width="3"/>
   <text x="168" y="209" text-anchor="middle" class="d" font-size="13" letter-spacing="1.5" fill="#9bd88a" filter="url(#glow)">SUB-LEVEL ZERO</text>
-  <text x="60" y="318" class="d" font-size="56" fill="#e8d3a2">THE ELEVATOR</text>
-  <text x="60" y="384" class="d" font-size="56" fill="#e8d3a2">ONLY GOES</text>
-  <text x="60" y="450" class="d" font-size="56" fill="#e8692a">DOWN</text>
+  <text x="60" y="318" class="d" font-size="56" fill="#e8d3a2">DOWNWARD</text>
+  <text x="60" y="384" class="d" font-size="56" fill="#e8d3a2">MOBILITY</text>
+  <text x="60" y="450" class="d" font-size="36" fill="#e8692a">PROMOTED DOWN</text>
   <path d="M244 420 h30 l-15 24 z" fill="#e8692a"/>
   <text x="62" y="500" class="s" font-weight="700" font-size="25" fill="#ffffff">A darkly comic card adventure.</text>
   <text x="62" y="536" class="s" font-size="22" fill="#e8d3a2" opacity="0.92">Free in your browser. New Daily Memo every day.</text>

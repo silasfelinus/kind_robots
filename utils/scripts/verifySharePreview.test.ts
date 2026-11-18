@@ -12,6 +12,7 @@ import {
   findSharePreview,
   normalizeSharePath,
   sharePreviewImageUrl,
+  siteTabTitle,
 } from '../sharePreview'
 
 const repoPath = (path: string) =>
@@ -167,5 +168,35 @@ for (const key of [
   assert.match(app, new RegExp(`\\b${key}:`), `app.vue useSeoMeta ${key}`)
 }
 assert.match(app, /twitterCard: 'summary_large_image'/)
+
+// Tabs, bookmarks and search results name the site exactly once.
+assert.equal(siteTabTitle('Storybook'), 'Storybook | Kind Robots')
+assert.equal(siteTabTitle('  Support '), 'Support | Kind Robots')
+assert.equal(siteTabTitle(''), 'Kind Robots')
+assert.equal(siteTabTitle(undefined), 'Kind Robots')
+assert.equal(siteTabTitle('Kind Robots'), 'Kind Robots')
+assert.equal(
+  siteTabTitle('Mandarin Tutor | Kind Robots'),
+  'Mandarin Tutor | Kind Robots',
+)
+assert.equal(
+  siteTabTitle('Battery Maze · Kind Robots Arcade'),
+  'Battery Maze · Kind Robots Arcade',
+)
+assert.match(app, /titleTemplate: \(title\) => siteTabTitle\(title\)/)
+
+// The installed-app / home-screen description matches the front door.
+const nuxtConfig = read('nuxt.config.ts')
+assert.doesNotMatch(nuxtConfig, /friendly AI playground/)
+assert.match(nuxtConfig, /description:\s*'Free handmade browser games/)
+
+// kr-arcade/t-169 + t-171: the daily live check fails on unfurl problems and
+// cold-opens every showcase cabinet link.
+const shareCheckWorkflow = read('.github/workflows/arcade-share-live-check.yml')
+assert.match(
+  shareCheckWorkflow,
+  /github\.event_name == 'schedule' \|\| inputs\.strict_unfurl/,
+)
+assert.match(shareCheckWorkflow, /checkArcadeColdOpenLive\.mjs/)
 
 console.log('share preview contract OK')

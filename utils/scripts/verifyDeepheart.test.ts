@@ -23,9 +23,11 @@ import { UNDERCITY_EVENTS } from '../deepheart/society'
 import { EVENTS, LAYERS, REVEAL_TEXT } from '../deepheart/dungeon'
 import {
   SUPPORT_MOMENTS,
+  abilityModifier,
   autoplay,
   attemptParley,
   createRun,
+  baseStat,
   chooseCourtOption,
   chooseDoor,
   chooseEnding,
@@ -39,6 +41,7 @@ import {
 import {
   activeSynergies,
   canRomance,
+  roleFor,
   optimizeParty,
   scoreParty,
   startingPartners,
@@ -52,6 +55,10 @@ import {
   DEEPHEART_STYLE_SUBJECTS,
   deepheartStyleLaneFromRequest,
 } from '../deepheart/styleCheck'
+import {
+  CUSTOM_HERO_ID,
+  CUSTOM_STAT_POINTS,
+} from '../deepheart/types'
 import type { EndingId, HeroSetup, Room, RunState } from '../deepheart/types'
 import { auditPlaybookKit } from '../playbookKit/budget'
 import { DEEPHEART } from '../playbookKit/games/deepheart'
@@ -185,6 +192,76 @@ assert.ok(
   ),
   'the romance goal finds a possible romance',
 )
+
+
+// ── Original delvers and meaningful party ability checks ────────────────
+const customHero: HeroSetup = {
+  presetId: CUSTOM_HERO_ID,
+  name: 'Copper',
+  gender: 'n',
+  drawnTo: ['w', 'n'],
+  boon: 'wit',
+  custom: {
+    role: 'scholar',
+    appearance: 'Adult copper-furred otter with a scar and green cloak',
+    points: { wit: 2, def: 1, hp: 1 },
+  },
+}
+assert.equal(
+  Object.values(customHero.custom!.points).reduce((sum, n) => sum + n, 0),
+  CUSTOM_STAT_POINTS,
+)
+assert.equal(roleFor(CUSTOM_HERO_ID, customHero), 'scholar')
+assert.equal(
+  baseStat(CUSTOM_HERO_ID, 'wit', customHero),
+  ROLES.scholar.base.wit + 3 + 4,
+)
+assert.equal(
+  baseStat(CUSTOM_HERO_ID, 'hp', customHero),
+  ROLES.scholar.base.hp + 6,
+)
+const customBest = optimizeParty(customHero, 'balanced', 1)[0]!
+assert.equal(customBest.companions.length, 3)
+assert.ok(CHARACTERS.some((c) => c.id === customBest.companions[0]))
+const customStart = createRun(customHero, customBest.companions, 67890)
+assert.equal(customStart.party[0]?.id, CUSTOM_HERO_ID)
+assert.equal(customStart.hero.custom?.role, 'scholar')
+assert.equal(recordStart(emptyChronicle(), customStart).met.includes(CUSTOM_HERO_ID), false)
+assert.equal(
+  JSON.stringify(autoplay(createRun(customHero, ['idris', 'hesk'], 9981))),
+  JSON.stringify(autoplay(createRun(customHero, ['idris', 'hesk'], 9981))),
+)
+const customSaved = decodeSaves(
+  JSON.stringify({
+    version: 1,
+    slots: [{ slot: 'auto', savedAt: '2026-11-17', label: 'Copper', run: customStart }],
+  }),
+)
+assert.equal(customSaved?.slots[0]?.run.hero.custom?.role, 'scholar')
+assert.equal(customSaved?.slots[0]?.run.hero.custom?.points.wit, 2)
+const loneScholar = createRun(customHero, ['brannoc'], 101)
+const studyGroup = createRun(customHero, ['aurel', 'hesk', 'brannoc'], 101)
+assert.ok(
+  abilityModifier(studyGroup, 'wit') > abilityModifier(loneScholar, 'wit'),
+  'qualified companions contribute to checks beyond the best individual',
+)
+
+// ── Doing good should cost something even when checks fail ──────────────
+const school = createRun(hero('idris'), ['brannoc'], 44)
+school.phase = 'choice'
+school.room = { kind: 'choice', known: true, event: 'ossuary-night-school' }
+school.gold = 20
+chooseOption(school, 'petition')
+assert.equal(school.gold <= 10, true, 'the filing fee is paid before rolling')
+assert.equal(school.sacrifices, 1, 'the attempted sacrifice counts on failure too')
+assert.ok(school.choices.includes('ossuary-night-school:petition'))
+const endingGate = createRun(hero('thessaly'), ['brannoc', 'hesk'], 55)
+endingGate.phase = 'finale'
+endingGate.mercy = 5
+endingGate.sacrifices = 1
+assert.ok(!finaleOptions(endingGate).some((o) => o.ending === 'redemption'))
+endingGate.sacrifices = 2
+assert.ok(finaleOptions(endingGate).some((o) => o.ending === 'redemption'))
 
 // ── Seeded delves ────────────────────────────────────────────────────────
 const a = autoplay(createRun(hero('brannoc'), ['hesk', 'ragna', 'vex'], 1234))

@@ -1,17 +1,26 @@
 /** Reader-only preferences. These never change game state or saved endings. */
 export type EcotoneTextSpeed = 'instant' | 'normal' | 'slow'
+/** `system` follows the OS reduced-motion preference; `reduce` always stops motion. */
+export type EcotoneMotion = 'system' | 'reduce'
+export type EcotoneContrast = 'standard' | 'high'
 export type EcotoneDisplaySettings = {
   scale: number
   speed: EcotoneTextSpeed
+  motion: EcotoneMotion
+  contrast: EcotoneContrast
 }
 
 const KEY = 'kr.ecotone.display.v1'
 const SCALES = [1, 1.2, 1.4, 1.6] as const
 const SPEEDS: EcotoneTextSpeed[] = ['instant', 'normal', 'slow']
+const MOTIONS: EcotoneMotion[] = ['system', 'reduce']
+const CONTRASTS: EcotoneContrast[] = ['standard', 'high']
 
 export const DEFAULT_ECOTONE_DISPLAY: EcotoneDisplaySettings = {
   scale: 1.2,
   speed: 'instant',
+  motion: 'system',
+  contrast: 'standard',
 }
 
 export function normalizeEcotoneDisplay(
@@ -28,6 +37,12 @@ export function normalizeEcotoneDisplay(
     speed: SPEEDS.some((speed) => speed === value.speed)
       ? value.speed!
       : DEFAULT_ECOTONE_DISPLAY.speed,
+    motion: MOTIONS.some((motion) => motion === value.motion)
+      ? value.motion!
+      : DEFAULT_ECOTONE_DISPLAY.motion,
+    contrast: CONTRASTS.some((contrast) => contrast === value.contrast)
+      ? value.contrast!
+      : DEFAULT_ECOTONE_DISPLAY.contrast,
   }
 }
 

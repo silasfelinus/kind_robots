@@ -384,6 +384,17 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     persist()
   }
 
+  /**
+   * Forget the unlocked-endings gallery and every Case File on this browser.
+   * The active run and manual save slots are untouched; earned site
+   * achievements live elsewhere and are not revoked.
+   */
+  function resetCollection() {
+    endings.value = []
+    caseFiles.value = {}
+    persist()
+  }
+
   function companionMet(id: CompanionId) {
     return Boolean(run.value?.meetingOrder.includes(id))
   }
@@ -426,6 +437,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     crossroads,
     proceed,
     abandon,
+    resetCollection,
     companionMet,
   }
 })

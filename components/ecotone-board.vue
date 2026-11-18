@@ -1,6 +1,10 @@
 <template>
   <div
     class="ecotone-board @container flex min-h-0 w-full flex-1 flex-col bg-[#09141c] text-[#f3e6c8]"
+    :class="{
+      'ecotone-reduce-motion': motionSetting === 'reduce',
+      'ecotone-high-contrast': contrastSetting === 'high',
+    }"
     :style="{ '--eco-text-scale': displayScale }"
   >
     <header-page-bar>
@@ -1120,6 +1124,36 @@
                 animation. Text effects stop automatically when reduced motion
                 is preferred.
               </p>
+              <label
+                class="mt-5 block text-base font-semibold"
+                for="ecotone-motion"
+              >
+                Motion
+              </label>
+              <select
+                id="ecotone-motion"
+                v-model="motionSetting"
+                data-testid="ecotone-motion"
+                class="mt-2 w-full rounded-lg border border-[#c9a96e]/50 bg-[#09141c] p-3 text-base"
+              >
+                <option value="system">Follow my device (default)</option>
+                <option value="reduce">Reduce motion always</option>
+              </select>
+              <label
+                class="mt-5 block text-base font-semibold"
+                for="ecotone-contrast"
+              >
+                Contrast
+              </label>
+              <select
+                id="ecotone-contrast"
+                v-model="contrastSetting"
+                data-testid="ecotone-contrast"
+                class="mt-2 w-full rounded-lg border border-[#c9a96e]/50 bg-[#09141c] p-3 text-base"
+              >
+                <option value="standard">Standard fog (default)</option>
+                <option value="high">High contrast</option>
+              </select>
               <div
                 class="mt-4 rounded-xl border border-[#8fb8b0]/40 bg-black/25 p-3"
               >
@@ -1227,6 +1261,57 @@
                 role="status"
               >
                 {{ saveNotice }}
+              </p>
+            </section>
+            <section
+              class="rounded-2xl border border-[#e08a5a]/40 bg-[#0c1a24] p-4 @3xl:col-span-2"
+              data-testid="ecotone-reset-collection"
+            >
+              <h3 class="font-serif text-2xl font-bold">
+                Start the collection over
+              </h3>
+              <p class="mt-1 text-base text-[#f3e6c8]/80">
+                Clears the Endings gallery ({{ game.unlockedCount }}/{{
+                  game.endingTotal
+                }}) and Case Files ({{ game.casesOpened }}/{{ game.caseTotal }})
+                on this browser. Your current journey, save slots and earned
+                achievements stay.
+              </p>
+              <div class="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  class="rounded-lg border px-4 py-3 text-base font-bold"
+                  :class="
+                    resetArmed
+                      ? 'border-[#e08a5a] bg-[#e08a5a] text-[#09141c]'
+                      : 'border-[#e08a5a]/70'
+                  "
+                  :disabled="
+                    !resetArmed && !game.unlockedCount && !game.casesOpened
+                  "
+                  @click="resetCollection"
+                >
+                  {{
+                    resetArmed
+                      ? 'Tap again to clear endings & cases'
+                      : 'Reset endings & cases'
+                  }}
+                </button>
+                <button
+                  v-if="resetArmed"
+                  type="button"
+                  class="rounded-lg border border-[#8fb8b0]/70 px-4 py-3 text-base font-bold"
+                  @click="cancelReset"
+                >
+                  Keep them
+                </button>
+              </div>
+              <p
+                v-if="resetNotice"
+                class="mt-3 text-base text-[#8fb8b0]"
+                role="status"
+              >
+                {{ resetNotice }}
               </p>
             </section>
           </div>
@@ -2285,6 +2370,8 @@ import {
 import {
   loadEcotoneDisplay,
   saveEcotoneDisplay,
+  type EcotoneContrast,
+  type EcotoneMotion,
 } from '~/utils/ecotone/displaySettings'
 import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import { substanceEpilogue } from '~/utils/ecotone/substanceArc'
@@ -2332,6 +2419,11 @@ watch(activePlayerPortrait, () => {
 const pickedPersonality = ref<string>('curious')
 const displayScale = ref(1.2)
 const textSpeed = ref<'instant' | 'normal' | 'slow'>('instant')
+const motionSetting = ref<EcotoneMotion>('system')
+const contrastSetting = ref<EcotoneContrast>('standard')
+const resetArmed = ref(false)
+const resetNotice = ref('')
+let resetDisarmTimer: ReturnType<typeof setTimeout> | null = null
 const saveNotice = ref('')
 const saveImportInput = ref<HTMLInputElement | null>(null)
 const revealCount = ref(0)
@@ -2456,9 +2548,43 @@ function openStylePicker() {
   stylePicker.value?.showModal()
 }
 
-watch([displayScale, textSpeed], () =>
-  saveEcotoneDisplay({ scale: displayScale.value, speed: textSpeed.value }),
+watch([displayScale, textSpeed, motionSetting, contrastSetting], () =>
+  saveEcotoneDisplay({
+    scale: displayScale.value,
+    speed: textSpeed.value,
+    motion: motionSetting.value,
+    contrast: contrastSetting.value,
+  }),
 )
+
+/** Two-step reset: the first press arms it for 8 seconds, the second wipes. */
+function resetCollection() {
+  if (!resetArmed.value) {
+    resetArmed.value = true
+    resetNotice.value = ''
+    if (resetDisarmTimer) clearTimeout(resetDisarmTimer)
+    resetDisarmTimer = setTimeout(() => {
+      resetArmed.value = false
+    }, 8000)
+    return
+  }
+  if (resetDisarmTimer) clearTimeout(resetDisarmTimer)
+  resetDisarmTimer = null
+  resetArmed.value = false
+  game.resetCollection()
+  resetNotice.value =
+    'Endings gallery and Case Files cleared. Your current journey and save slots were kept.'
+}
+
+function cancelReset() {
+  if (resetDisarmTimer) clearTimeout(resetDisarmTimer)
+  resetDisarmTimer = null
+  resetArmed.value = false
+}
+
+onUnmounted(() => {
+  if (resetDisarmTimer) clearTimeout(resetDisarmTimer)
+})
 
 function stopReveal() {
   if (revealTimer) clearInterval(revealTimer)
@@ -2543,6 +2669,8 @@ onMounted(() => {
   const savedDisplay = loadEcotoneDisplay()
   displayScale.value = savedDisplay.scale
   textSpeed.value = savedDisplay.speed
+  motionSetting.value = savedDisplay.motion
+  contrastSetting.value = savedDisplay.contrast
   artStyle.value = loadEcotoneArtStyle()
   game.initialize()
 })
@@ -3075,6 +3203,7 @@ watch(
     if (
       textSpeed.value === 'instant' ||
       tab.value !== 'road' ||
+      motionSetting.value === 'reduce' ||
       (import.meta.client &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches)
     ) {
@@ -3564,5 +3693,38 @@ function openDossier(id: string) {
   .ecotone-pin {
     animation: none;
   }
+}
+/* Reader choice in Settings, independent of the OS preference. */
+.ecotone-reduce-motion :deep(*),
+.ecotone-reduce-motion :deep(*::before),
+.ecotone-reduce-motion :deep(*::after) {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+.ecotone-high-contrast {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+.ecotone-high-contrast :deep(p),
+.ecotone-high-contrast :deep(li),
+.ecotone-high-contrast :deep(span),
+.ecotone-high-contrast :deep(label),
+.ecotone-high-contrast :deep(h2),
+.ecotone-high-contrast :deep(h3) {
+  color: #fff !important;
+  text-shadow: none !important;
+}
+.ecotone-high-contrast :deep(button),
+.ecotone-high-contrast :deep(select),
+.ecotone-high-contrast :deep(input),
+.ecotone-high-contrast :deep(section) {
+  border-color: #ffd36b !important;
+}
+.ecotone-high-contrast :deep(button:focus-visible),
+.ecotone-high-contrast :deep(select:focus-visible) {
+  outline: 3px solid #ffd36b !important;
+  outline-offset: 2px;
 }
 </style>

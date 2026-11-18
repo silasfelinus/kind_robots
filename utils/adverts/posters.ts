@@ -16,9 +16,9 @@
 // store resolves them through its own import.meta.glob.
 //
 // Copy is the poster configs' copy verbatim, except: the Hybridizer chips say
-// browsing is free without an account; Shifting Desks is now "The Elevator
-// Only Goes Down" (route unchanged), so its hook no longer repeats the title;
-// Slime City, Crystal Street and the Elevator use their new hero renders.
+// browsing is free without an account; Downward Mobility keeps the original
+// Shifting Desks route, so its hook no longer repeats the former title.
+// Slime City, Crystal Street and Downward Mobility use new hero renders.
 
 export const ADVERT_PROJECT_SLUG = 'adverts'
 export const ADVERT_SLOT_PREFIX = 'adverts/'

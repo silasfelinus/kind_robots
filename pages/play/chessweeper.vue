@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface kr-scroll min-h-0">
+  <main class="kr-surface min-h-0">
     <div class="flex h-full min-h-0 flex-col gap-2 p-2">
       <header-page-bar>
         <nav
@@ -17,9 +17,14 @@
           </span>
         </nav>
       </header-page-bar>
+      <page-help
+        label="How to play Chessweeper"
+        @open="openGamePanel('guide')"
+      />
       <iframe
+        ref="gameFrame"
         class="chessweeper-frame min-h-0 w-full flex-1 rounded-2xl border border-base-content/20"
-        src="/chessweeper/index.html"
+        src="/chessweeper/index.html?embedded=1"
         title="Chessweeper: play Sugarbomb Kingdom, Ashen Checkmate or Jackpot Apocalypse"
         allow="fullscreen"
       />
@@ -28,6 +33,15 @@
 </template>
 
 <script setup lang="ts">
+const gameFrame = ref<HTMLIFrameElement | null>(null)
+
+function openGamePanel(panel: string) {
+  gameFrame.value?.contentWindow?.postMessage(
+    { type: 'chessweeper:open', panel },
+    window.location.origin,
+  )
+}
+
 useHead({ title: 'Chessweeper · Three Dangerous Worlds · Kind Robots' })
 useSeoMeta({
   description:

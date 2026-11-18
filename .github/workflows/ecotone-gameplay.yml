@@ -17,7 +17,7 @@ on:
       - 'pages/play/ecotone.vue'
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'
-      - 'utils/scripts/verifyEcotone*.test.ts'
+      - 'utils/scripts/**/verifyEcotone*.test.ts'
       - 'utils/scripts/ecotoneBrowserFixtures.ts'
       - 'utils/scripts/auditEcotoneViewports.browser.mjs'
       - 'utils/achievements/catalog/main/weird-humboldt.ts'

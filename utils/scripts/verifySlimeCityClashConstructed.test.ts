@@ -349,6 +349,34 @@ const selectionRows = [...inDeckGames.entries()]
   }))
   .sort((a, b) => a.selectionRate - b.selectionRate || a.id.localeCompare(b.id))
 const lowSelection = selectionRows.slice(0, 25)
+// Near-dead cards (slime-city/t-041, 2026-11-18 PT): "played at least once"
+// hides cards the CPU almost never chooses. On the suite seeds 18 two-slot
+// cards (crew specials plus Juggernaut, Chimera and Grease Oracle) are chosen in under 3% of the bouts they sit in (several 1-3 times
+// in 208-416 bouts). Two held-out seed families (+5000, +9000) read 17 and
+// 19, and there Twin Omens and Spare Nine Lives drop to zero plays, so the
+// dead-card ceiling of 0 above is seed luck for them. Ratchet the count: a
+// card or CPU change may lower it (then lower the ceiling), never raise it.
+// Every one-slot card clears the floor on all three families (lowest:
+// Floodlight Leak at 3.4-4.3%), so a near-dead one-slot card fails outright.
+const NEAR_DEAD_RATE = 0.03
+const nearDead = selectionRows.filter((r) => r.selectionRate < NEAR_DEAD_RATE)
+const nearDeadOneSlot = nearDead.filter(
+  (r) => clashPlayCost(cardById(r.id)) === 1,
+)
+assert.deepEqual(
+  nearDeadOneSlot.map((r) => r.id),
+  [],
+  'every one-slot card is chosen in at least 3% of its bouts',
+)
+const NEAR_DEAD_TWO_SLOT_CEILING = 18
+assert.ok(
+  nearDead.length <= NEAR_DEAD_TWO_SLOT_CEILING,
+  nearDead.length +
+    ' near-dead two-slot cards (ceiling ' +
+    NEAR_DEAD_TWO_SLOT_CEILING +
+    '): ' +
+    nearDead.map((r) => r.id).join(', '),
+)
 const mercenarySelection = selectionRows.filter(
   (row) => cardById(row.id).team === 'mercenary',
 )
@@ -390,6 +418,7 @@ console.log(
           .map((r) => [r.deck, Number(r.rate.toFixed(3))]),
       ),
       deadTwoSlotCards: dead,
+      nearDeadTwoSlotCards: nearDead.map((r) => r.id),
       evolutionReach: {
         l2: reachedL2.size,
         l3: reachedL3.size,
@@ -408,5 +437,7 @@ console.log(
     replayedArchetypes.size +
     ' exact archetype replays; ' +
     dead.length +
-    ' dead two-slot cards (t-051), no dead crew fighter or one-slot card PASS',
+    ' dead and ' +
+    nearDead.length +
+    ' near-dead two-slot cards (t-041), no dead crew fighter or one-slot card PASS',
 )

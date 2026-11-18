@@ -76,6 +76,7 @@ export function computeProgress(
     (task) => !task.recurring && !task.playtestIteration,
   )
   if (!finite.length) return progress
+  const hasCompleted = finite.some((task) => task.status === 'done')
 
   const pending = finite.some(
     (task) =>
@@ -89,7 +90,7 @@ export function computeProgress(
             task.status === 'needs-human'))
       ),
   )
-  return pending ? Math.min(progress, 99) : 100
+  return pending || !hasCompleted ? Math.min(progress, 99) : 100
 }
 
 // Conductor's roadmaps are written by hand, by `yq`, and by PyYAML dumps, so

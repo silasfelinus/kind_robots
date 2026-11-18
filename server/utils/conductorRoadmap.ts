@@ -59,19 +59,38 @@ export function computeProgress(
     if (milestone.status === 'done') done += milestone.weight
     else if (milestone.status === 'in-progress') done += milestone.weight * 0.5
   }
-  if (total > 0 && done > 0) return Math.round((done / total) * 100)
 
-  // Milestones are uninformative — either absent, or every one still
-  // `not-started`. Agents close tasks reliably but rarely flip milestone
-  // status, so a fully-delivered project (davinci, newsfeed, challenge-center:
-  // all 100% by task count) would otherwise render as 0%. Fall back to the
-  // task-completion ratio, exactly as build_status.py does.
   const counted = tasks.filter((task) => task.status !== 'cancelled')
-  if (counted.length) {
-    const doneTasks = counted.filter((task) => task.status === 'done').length
-    return Math.round((doneTasks / counted.length) * 100)
-  }
-  return 0
+  const doneTasks = counted.filter((task) => task.status === 'done').length
+  const progress =
+    total > 0 && done > 0
+      ? Math.round((done / total) * 100)
+      : counted.length
+        ? Math.round((doneTasks / counted.length) * 100)
+        : 0
+
+  // The Conductor finite-task gate decides when 100% is real. A separate
+  // subjective verdict or publish approval is not unfinished production.
+  // This must match scripts/build_status.py and playtest_readiness.py.
+  const finite = tasks.filter(
+    (task) => !task.recurring && !task.playtestIteration,
+  )
+  if (!finite.length) return progress
+  const hasCompleted = finite.some((task) => task.status === 'done')
+
+  const pending = finite.some(
+    (task) =>
+      task.status !== 'done' &&
+      task.status !== 'cancelled' &&
+      !(
+        task.gateHuman &&
+        (task.gateReason === 'subjective-acceptance' ||
+          task.gateReason === 'publish' ||
+          (task.gateReason === 'creative-approval' &&
+            task.status === 'needs-human'))
+      ),
+  )
+  return pending || !hasCompleted ? Math.min(progress, 99) : 100
 }
 
 // Conductor's roadmaps are written by hand, by `yq`, and by PyYAML dumps, so

@@ -444,6 +444,7 @@
                   v-for="(tab, index) in section.tabs"
                   :key="tab.tabKey"
                   type="button"
+                  :title="tab.label"
                   class="kr-launcher-card group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-base-100 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   :class="
                     isActiveTab(block.channel, tab)

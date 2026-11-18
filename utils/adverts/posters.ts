@@ -946,7 +946,12 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
       blurb:
         'Climb the corporate ladder in reverse. Survive secret societies, bizarre experiments and paperwork with teeth.',
       chips: ['FREE', '5 DEPARTMENTS', 'DAILY MEMO', 'DICE + CHOICES'],
-      strip: ['120 STORY CARDS', '6 SECRET SOCIETIES', '8 MUTATIONS', '11 ENDINGS'],
+      strip: [
+        '120 STORY CARDS',
+        '6 SECRET SOCIETIES',
+        '8 MUTATIONS',
+        '11 ENDINGS',
+      ],
     },
     palette: {
       bg: '#1d1016',

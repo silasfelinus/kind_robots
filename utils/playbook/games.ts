@@ -42,7 +42,7 @@ const AUTHORED_GAMES = [
   },
   {
     id: 'shifting-desks',
-    title: 'The Elevator Only Goes Down',
+    title: 'Downward Mobility',
     cover: '/shifting-desks/front-poster.svg',
     build: buildShiftingDesksPlaybook,
   },

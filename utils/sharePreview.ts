@@ -94,7 +94,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   {
     route: '/play/shifting-desks',
     image: '/images/shifting-desks/endings/the-kind-rewrite.webp',
-    title: 'The Elevator Only Goes Down',
+    title: 'Downward Mobility',
     description:
       'Survive office politics, impossible choices and your first 90-day review.',
   },

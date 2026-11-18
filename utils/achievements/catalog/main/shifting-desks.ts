@@ -84,8 +84,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Discreet Membership',
     message:
       'You carried out business for a secret society. Nobody saw the handshake.',
-    tooltip:
-      'In Downward Mobility, call in your secret society’s favor.',
+    tooltip: 'In Downward Mobility, call in your secret society’s favor.',
     subtleHint: 'Somebody slipped a calling card into your onboarding packet.',
     icon: 'kind-icon:key',
     rule: { kind: 'event' },
@@ -149,8 +148,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'Employee of the Month',
     message:
       'The Board made you an example. Your portrait goes up in every elevator.',
-    tooltip:
-      'In Downward Mobility, reach the ending Employee of the Month.',
+    tooltip: 'In Downward Mobility, reach the ending Employee of the Month.',
     subtleHint: 'Let the Board make you an example.',
     icon: 'kind-icon:star',
     rule: { kind: 'event' },
@@ -204,8 +202,7 @@ export const SHIFTING_DESKS_ACHIEVEMENTS: GameAchievementDef[] = [
     label: 'The Kind Rewrite',
     message:
       'Every speaker on campus says good morning by name now. Someone has started a garden.',
-    tooltip:
-      'In Downward Mobility, reach the ending The Kind Rewrite.',
+    tooltip: 'In Downward Mobility, reach the ending The Kind Rewrite.',
     subtleHint: 'PAL can learn to remember birthdays, if somebody teaches it.',
     icon: 'kind-icon:sprout',
     rule: { kind: 'event' },

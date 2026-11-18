@@ -1701,8 +1701,8 @@ assert.match(
 )
 assert.match(
   page,
-  /<shifting-desks-floor-indicator[\s\S]*?The Elevator[\s\S]*?Only Goes[\s\S]*?Down/,
-  'the title is elevator signage under a floor indicator',
+  /<shifting-desks-floor-indicator[\s\S]*?front-title-down">Downward<\/span>[\s\S]*?Mobility/,
+  'the Downward Mobility title is signage under a floor indicator',
 )
 assert.doesNotMatch(
   page,

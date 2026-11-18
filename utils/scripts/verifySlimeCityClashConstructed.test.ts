@@ -321,6 +321,14 @@ assert.deepEqual(
   [],
   'every crew fighter in the field gets played',
 )
+// slime-city/t-041 (2026-11-18 PT): the CPU judges a two-slot special against
+// the best pair of one-slot plays instead of halving it, which revived seven
+// of the 13 dead two-slot specials (6 remain). Lock that in: a CPU or card
+// change that strands the specials again fails here.
+assert.ok(
+  dead.length <= 6,
+  dead.length + ' dead two-slot cards (ceiling 6): ' + dead.join(', '),
+)
 // Count distinct bouts in which a card was chosen, not raw play commands.
 // A repeatedly played card must not masquerade as a high selection rate.
 // Keep repeat plays and evolution reachability for editorial diagnosis.

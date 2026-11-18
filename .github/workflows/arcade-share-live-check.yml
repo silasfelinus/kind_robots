@@ -3,8 +3,14 @@ name: Arcade share live check
 # kr-arcade/t-167 and t-171: a shared cabinet link needs its title art served
 # on kindrobots.org and og: tags a crawler can read. Runs daily and on demand
 # after a deploy; the job summary lists every cabinet that needs a fix.
-# Missing title art fails the run. Unfurl problems are reported, and fail
-# only when dispatched with strict_unfurl (t-171 turns that on after deploy).
+# Missing title art fails the run. Unfurl problems fail the scheduled run and
+# any dispatch with strict_unfurl (default on): t-171's live check on
+# 2026-11-18 PT found all 34 cabinets unfurling as themselves for
+# facebookexternalhit, Discordbot and Twitterbot.
+#
+# kr-arcade/t-169: the cold-open job opens every showcase cabinet link in a
+# fresh browser at phone and tablet size and fails on a login wall, page
+# error, missing canvas or missing way back to the hall.
 
 on:
   schedule:
@@ -17,7 +23,7 @@ on:
       strict_unfurl:
         description: Fail on unfurl problems too
         type: boolean
-        default: false
+        default: true
 
 permissions:
   contents: read
@@ -40,5 +46,22 @@ jobs:
       - name: Check title art and crawler unfurls
         env:
           ARCADE_BASE_URL: ${{ inputs.base_url || 'https://kindrobots.org' }}
-          STRICT: ${{ inputs.strict_unfurl && '--strict-unfurl' || '' }}
+          STRICT: ${{ (github.event_name == 'schedule' || inputs.strict_unfurl) && '--strict-unfurl' || '' }}
         run: npx tsx utils/scripts/checkArcadeShareLive.ts --unfurl $STRICT
+
+  cold-open:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Cold-open every showcase cabinet link on phone and tablet
+        env:
+          ARCADE_BASE_URL: ${{ inputs.base_url || 'https://kindrobots.org' }}
+        run: node utils/scripts/checkArcadeColdOpenLive.mjs --base="$ARCADE_BASE_URL"

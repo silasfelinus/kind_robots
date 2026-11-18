@@ -138,6 +138,19 @@ export const SITEMAP_PATHS: readonly string[] = [
   ...SHARE_PREVIEWS.map((preview) => preview.route),
 ]
 
+/**
+ * Browser-tab, bookmark and search-result title. Content pages ("Storybook",
+ * "Memory Dungeon", "Support") used to show no site name at all, while
+ * dedicated pages appended " | Kind Robots" by hand. Titles that already
+ * name the site are left alone.
+ */
+export function siteTabTitle(title?: string | null): string {
+  const trimmed = (title ?? '').trim()
+  if (!trimmed) return SITE_NAME
+  if (trimmed.toLowerCase().includes(SITE_NAME.toLowerCase())) return trimmed
+  return `${trimmed} | ${SITE_NAME}`
+}
+
 export function normalizeSharePath(path: string): string {
   const pathname = (path.split(/[?#]/)[0] ?? '')
     .replace(/\/{2,}/g, '/')

@@ -231,6 +231,7 @@ import { useIntroStore } from '@/stores/introStore'
 import { retireBootCover } from '@/utils/startupLaunch'
 import {
   SITE_NAME,
+  siteTabTitle,
   absoluteSiteUrl,
   findSharePreview,
   sharePreviewImageUrl,
@@ -449,6 +450,10 @@ const shareDescription = computed(
 )
 const shareUrl = computed(() => absoluteSiteUrl(route.path))
 const shareImage = computed(() => sharePreviewImageUrl(route.path))
+
+// Every tab, bookmark and search result names the site; siteTabTitle skips
+// titles that already include it, such as "Sign in to open ... | Kind Robots".
+useHead({ titleTemplate: (title) => siteTabTitle(title) })
 
 useSeoMeta({
   title: () => routePageTitle.value || SITE_NAME,

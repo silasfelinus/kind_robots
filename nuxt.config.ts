@@ -230,7 +230,8 @@ export default defineNuxtConfig({
     manifest: {
       name: 'Kind Robots',
       short_name: 'Kind Robots',
-      description: 'A friendly AI playground for humans and robots.',
+      description:
+        'Free handmade browser games, illustrated stories and a robot-made art gallery. No ads, no account needed.',
       theme_color: '#b4653a',
       background_color: '#f7f1e3',
       display: 'standalone',

@@ -897,7 +897,7 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
   }),
   poster({
     slug: 'the-elevator-only-goes-down',
-    name: 'The Elevator Only Goes Down',
+    name: 'Downward Mobility',
     path: '/shifting-desks',
     conductorSlug: 'shifting-desks',
     style:
@@ -934,8 +934,8 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
     ],
     copy: {
       kicker: 'CONSOLIDATED WELLNESS & DEFENSE',
-      title: 'The Elevator',
-      title2: 'Only Goes Down',
+      title: 'Downward',
+      title2: 'Mobility',
       statValue: '120',
       statUnit: 'ENCOUNTER CARDS',
       hook: 'Every choice costs something.',

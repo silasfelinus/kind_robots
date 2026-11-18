@@ -163,10 +163,10 @@
               <shifting-desks-floor-indicator class="front-indicator" />
               <div class="front-plate">
                 <p class="front-title">
-                  <span class="block">The Elevator</span>
-                  <span class="block"
-                    >Only Goes <span class="front-title-down">Down</span></span
-                  >
+                  <span class="block">
+                    <span class="front-title-down">Downward</span>
+                  </span>
+                  <span class="block">Mobility</span>
                 </p>
                 <p class="front-plaque">
                   Consolidated Wellness &amp; Defense · Personnel Car No. 4471
@@ -1690,7 +1690,7 @@ useSeoMeta(
   gameLinkPreviewMeta('shifting-desks', useRuntimeConfig().public.appBaseUrl) ??
     {},
 )
-useHead({ title: 'The Elevator Only Goes Down' })
+useHead({ title: 'Downward Mobility' })
 </script>
 
 <style scoped>

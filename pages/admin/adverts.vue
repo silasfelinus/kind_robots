@@ -69,6 +69,52 @@
         {{ errorMessage }}
       </p>
       <p v-else-if="notice" class="mb-2 text-sm text-success">{{ notice }}</p>
+      <section
+        v-if="studioCoverCandidates.length"
+        class="mb-3 rounded-2xl border border-base-300 bg-base-200/60 p-3"
+        aria-label="Advert Studio navigation cover"
+        data-testid="advert-studio-cover-chooser"
+      >
+        <h2 class="text-sm font-black">Advert Studio cover</h2>
+        <p class="mb-2 text-xs text-base-content/70">
+          Choose which generated illustration appears on the Admin navigation
+          card. Selecting one publishes that image publicly.
+        </p>
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] gap-2">
+          <div
+            v-for="candidate in studioCoverCandidates"
+            :key="candidate.id"
+            class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+          >
+            <img
+              :src="
+                candidate.thumbnailUrl ||
+                `/api/art/images/${candidate.artImageId}/file`
+              "
+              :alt="`Advert Studio cover candidate ${candidate.artImageId}`"
+              class="aspect-square w-full object-cover"
+              loading="lazy"
+            />
+            <button
+              type="button"
+              class="w-full px-2 py-1.5 text-xs font-bold text-primary hover:bg-base-200"
+              :disabled="
+                isChoosing ||
+                studioCoverSlot?.selectedArtImageId === candidate.artImageId
+              "
+              @click="
+                advertStore.chooseCandidate(ADVERT_STUDIO_COVER_SLOT, candidate)
+              "
+            >
+              {{
+                studioCoverSlot?.selectedArtImageId === candidate.artImageId
+                  ? 'In use'
+                  : 'Use publicly'
+              }}
+            </button>
+          </div>
+        </div>
+      </section>
       <div class="advert-gallery grid gap-3">
         <article
           v-for="view in posters"
@@ -285,7 +331,10 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '~/stores/userStore'
 import { useAdvertStore } from '~/stores/advertStore'
-import { advertSlots } from '~/utils/adverts/posters'
+import {
+  ADVERT_STUDIO_COVER_SLOT,
+  advertSlots,
+} from '~/utils/adverts/posters'
 
 useHead({ title: 'Advert Studio' })
 
@@ -297,6 +346,7 @@ const {
   posters,
   selected,
   isSyncing,
+  isChoosing,
   exportingSlug,
   previewUrl,
   errorMessage,
@@ -307,6 +357,13 @@ const ready = ref(false)
 const isIos = ref(false)
 const deckTab = ref<'art' | 'edit'>('art')
 const activeSlotKey = ref('')
+
+const studioCoverSlot = computed(() =>
+  advertStore.slotFor(ADVERT_STUDIO_COVER_SLOT),
+)
+const studioCoverCandidates = computed(() =>
+  advertStore.candidatesFor(ADVERT_STUDIO_COVER_SLOT),
+)
 
 const posterSlots = computed(() =>
   selected.value ? advertSlots(selected.value.poster) : [],

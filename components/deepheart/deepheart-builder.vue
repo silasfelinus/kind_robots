@@ -14,10 +14,7 @@
             :class="mode === 'hero' ? 'btn-primary' : 'btn-ghost'"
             :aria-selected="mode === 'hero'"
             data-testid="dh-mode-hero"
-            @click="
-              mode = 'hero'
-              dh.focus = dh.hero.presetId
-            "
+            @click="showHero"
           >
             Hero
           </button>
@@ -454,6 +451,13 @@ import type { Gender, RoleId, StatKey, Support } from '~/utils/deepheart/types'
 
 const dh = useDeepheartStore()
 const mode = ref<'hero' | 'party'>('hero')
+
+// One function, not a two-statement inline handler: the production
+// template compiler rejects newline-separated statements in @click.
+function showHero() {
+  mode.value = 'hero'
+  dh.focus = dh.hero.presetId
+}
 
 const statKeys: StatKey[] = ['hp', 'atk', 'def', 'mag', 'spd', 'wit']
 const genders: Gender[] = ['w', 'm', 'n']

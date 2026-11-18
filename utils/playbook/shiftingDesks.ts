@@ -219,7 +219,7 @@ export function buildShiftingDesksPlaybook(): Playbook {
   ]
   return {
     game: 'shifting-desks',
-    title: 'The Elevator Only Goes Down',
+    title: 'Downward Mobility',
     blurb: 'Five departments of dealt files, window shifts and bosses.',
     routes,
     nodes,

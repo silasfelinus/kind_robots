@@ -590,7 +590,7 @@ export const FACTOR_ROWS: FactorRow[] = [
     label: 'Share a run',
     kind: 'toggle',
     visible: (b) => b.seededRuns,
-    help: 'A link or daily seed lets friends play the same week (Crystal Street, The Elevator Only Goes Down Daily Memo).',
+    help: 'A link or daily seed lets friends play the same week (Crystal Street, Downward Mobility Daily Memo).',
   },
   {
     key: 'metaProgress',

@@ -41,7 +41,7 @@ const items: ChannelContentItem[] = [
     contentType: 'tab',
     channelKey: 'arcade',
     tabKey: 'shifting-desks',
-    label: 'The Elevator Only Goes Down',
+    label: 'Downward Mobility',
     route: '/play/shifting-desks',
   },
   {
@@ -60,7 +60,7 @@ assert.ok(arcade, 'the arcade channel resolves')
 
 assert.deepEqual(
   navigationTabs(arcade).map((tab) => tab.tabKey),
-  ['arcade', 'aquarium', 'experiments', 'shifting-desks'],
+  ['arcade', 'aquarium', 'shifting-desks', 'experiments'],
   'Play must expose the featured experiences but leave Zuzu Showdown discoverable inside the Arcade hall',
 )
 assert.equal(
@@ -90,6 +90,13 @@ assert.equal(
   false,
   'the separate Zuzu channel must no longer resolve',
 )
+
+const gamePage = readFileSync('pages/play/shifting-desks.vue', 'utf8')
+assert.ok(gamePage.includes('<span class="front-title-down">Downward</span>'))
+assert.ok(gamePage.includes('<span class="block">Mobility</span>'))
+assert.ok(gamePage.includes("useHead({ title: 'Downward Mobility' })"))
+const gameStore = readFileSync('stores/shiftingDesksStore.ts', 'utf8')
+assert.ok(gameStore.includes("const SAVE_KEY = 'shifting-desks-run-v1'"))
 
 const store = readFileSync('stores/channelContentStore.ts', 'utf8')
 assert.doesNotMatch(

@@ -16,9 +16,9 @@
 // store resolves them through its own import.meta.glob.
 //
 // Copy is the poster configs' copy verbatim, except: the Hybridizer chips say
-// browsing is free without an account; Shifting Desks is now "The Elevator
-// Only Goes Down" (route unchanged), so its hook no longer repeats the title;
-// Slime City, Crystal Street and the Elevator use their new hero renders.
+// browsing is free without an account; Downward Mobility keeps the original
+// Shifting Desks route, so its hook no longer repeats the former title.
+// Slime City, Crystal Street and Downward Mobility use new hero renders.
 
 export const ADVERT_PROJECT_SLUG = 'adverts'
 export const ADVERT_SLOT_PREFIX = 'adverts/'
@@ -897,74 +897,86 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
   }),
   poster({
     slug: 'the-elevator-only-goes-down',
-    name: 'The Elevator Only Goes Down',
+    name: 'Downward Mobility',
     path: '/shifting-desks',
     conductorSlug: 'shifting-desks',
     style:
-      'darkly comic corporate noir painting, warm sepia office light, teal shadows',
+      'prestige hand-painted mid-century corporate training mural satire, screen-printed gouache, tactile halftone, cinematic retro-futurist office horror, manila gold, deep oxblood and fluorescent green',
     hero: {
-      src: artImageFile(272631),
-      pos: 'center 55%',
+      src: artImageFile(272626),
+      pos: 'center 47%',
       subject:
-        'vertigo-inducing cutaway of an impossibly tall corporate tower, a tiny brass elevator plunging through hundreds of wildly different surreal office floors, two determined workers silhouetted against a glowing elevator window, enormous brutalist architecture, exaggerated dramatic perspective, deep teal shadows and burnt-amber highlights, darkly hilarious retro-futurist prestige film key art, richly painted atmospheric detail, compelling central focal point',
+        'an impossible cutaway of a sunny corporate campus and the secret floors beneath it, one glass elevator shaft sinking past a brass pneumatic-tube archive, a strange toy laboratory and a living underground boardroom, tiny new hire smiling bravely inside the elevator, vast storybook architectural scale, one clear central vertical focal point',
     },
     cards: [
       {
-        label: "Founder's Office",
-        src: '/images/shifting-desks/locations/founders-office.webp',
-        pos: 'center 30%',
+        label: 'Mandatory Orientation',
+        src: artImageFile(272630),
+        pos: 'center 45%',
+        size: 13,
         subject:
-          "a grand founder's office with a towering empty leather chair and a glowing city window",
+          'a giant scholarly cockroach wearing glasses and a cardigan politely raising a hand among new employees at a corporate orientation',
       },
       {
-        label: 'Gus Files a Grievance',
-        src: '/images/shifting-desks/cards/orientation/gus-files-a-grievance.webp',
-        pos: 'center 35%',
-        size: 14,
+        label: 'Meet the Board',
+        src: artImageFile(272632),
+        pos: 'center 48%',
+        size: 15,
         subject:
-          'a rumpled office clerk stamping a towering stack of grievance forms',
+          'eleven executives joined into a single long pinstripe suit, seated in a breathing upholstered boardroom under warm brass lamps',
       },
       {
-        label: 'The Kind Rewrite',
+        label: 'Rewrite the Rules',
         src: '/images/shifting-desks/endings/the-kind-rewrite.webp',
         pos: 'center 40%',
+        size: 15,
         subject:
-          'an office floor bathed in golden morning light as coworkers rewrite a giant policy scroll together',
+          'coworkers gather around a massive policy scroll in an office transformed by warm morning light',
       },
     ],
     copy: {
-      kicker: 'CONSOLIDATED WELLNESS & DEFENSE',
-      title: 'The Elevator',
-      title2: 'Only Goes Down',
-      statValue: '120',
-      statUnit: 'ENCOUNTER CARDS',
-      hook: 'Every choice costs something.',
-      hookHighlight: 'Mind the doors.',
+      ribbon: 'MANDATORY CAREER DEVELOPMENT',
+      kicker: 'THE COMPANY IS PLEASED TO INFORM YOU',
+      title: 'Downward',
+      title2: 'Mobility',
+      statValue: '11',
+      statUnit: 'OFFICIAL EXIT OUTCOMES',
+      hook: 'Promotion is a descent.',
+      hookHighlight: 'Every floor has a price.',
       blurb:
-        'A darkly comic card adventure: spend Composure, Clearance and Forms to survive your 90-Day Review.',
-      chips: ['FREE', 'IN YOUR BROWSER', 'DAILY CHALLENGE', 'DICE + CARDS'],
+        'Climb the corporate ladder in reverse. Survive secret societies, bizarre experiments and paperwork with teeth.',
+      chips: ['FREE', '5 DEPARTMENTS', 'DAILY MEMO', 'DICE + CHOICES'],
       strip: [
-        '11 ENDINGS',
+        '120 STORY CARDS',
         '6 SECRET SOCIETIES',
-        '5 DEPARTMENTS',
         '8 MUTATIONS',
+        '11 ENDINGS',
       ],
     },
     palette: {
-      bg: '#1b1310',
-      a1: '#e8742a',
-      a2: '#e8dcae',
-      a3: '#5aa9c9',
-      ink: '#fff3d6',
+      bg: '#1d1016',
+      a1: '#f6aa4b',
+      a2: '#f0e0b4',
+      a3: '#8fc7b5',
+      ink: '#fff4da',
     },
     type: {
-      fontQuery: 'Special+Elite',
-      titleFont: "'Special Elite',monospace",
-      titleSize: 120,
+      fontQuery: 'Bebas+Neue',
+      titleFont: "'Bebas Neue',sans-serif",
+      titleSize: 162,
+      titleSpacing: '3px',
       titleGradient: false,
-      statSize: 100,
+      statSize: 104,
+      hookSize: 43,
     },
-    layout: { contentGap: 16 },
+    layout: {
+      heroHeight: 790,
+      heroPosition: 'center 47%',
+      cardsTop: 393,
+      cardsScale: 0.96,
+      contentTop: 700,
+      contentGap: 16,
+    },
   }),
   poster({
     slug: 'ecotone',

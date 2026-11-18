@@ -569,7 +569,7 @@ const features: FeaturedExperience[] = [
       'A strange Humboldt festival weekend where your choices shape the county.',
   },
   {
-    title: 'The Elevator Only Goes Down',
+    title: 'Downward Mobility',
     tag: 'Interactive satire',
     category: 'play',
     route: '/play/shifting-desks',
@@ -700,9 +700,9 @@ const updates = [
     pr: 3669,
   },
   {
-    title: 'More illustrated choices in The Elevator Only Goes Down',
+    title: 'More illustrated choices in Downward Mobility',
     description: 'New selectable art styles and a more visual front desk.',
-    category: 'The Elevator Only Goes Down',
+    category: 'Downward Mobility',
     date: 'Oct 13',
     route: '/play/shifting-desks',
     pr: 3672,

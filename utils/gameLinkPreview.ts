@@ -61,7 +61,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     image: '/save-the-plumber/link-preview.webp',
   },
   'shifting-desks': {
-    title: 'The Elevator Only Goes Down | Kind Robots',
+    title: 'Downward Mobility | Kind Robots',
     description:
       'A darkly comic card adventure down five floors of a very strange company, where every choice costs something. Free in your browser, with a new Daily Memo every day.',
     image: '/shifting-desks/link-preview.webp',

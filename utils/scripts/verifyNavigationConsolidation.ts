@@ -482,6 +482,11 @@ assert.match(
 
 const channelStoreSource = source('stores/channelContentStore.ts')
 const pickerSource = source('components/navigation/channel-select.vue')
+assert.match(
+  pickerSource,
+  /kr-text-black-sm line-clamp-2 leading-tight xl:text-base/,
+  'visual navigation cards must wrap long game titles instead of truncating them',
+)
 const siteDirectorySource = source(
   'components/navigation/navigation-trimmed.vue',
 )

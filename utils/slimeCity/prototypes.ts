@@ -891,12 +891,12 @@ export const CARDS: Card[] = [
   {
     id: 'choker',
     name: 'Spiked Choker',
-    kind: 'equipment',
+    kind: 'creature',
     team: 'bloodfairies',
     cost: 1,
-    effect: 'grant',
-    grants: ['swarm'],
-    text: 'Matching jewelry for the whole gang. A fighter gains SWARM.',
+    attack: 1,
+    keywords: ['swarm'],
+    text: 'A spike-collared backup singer who drags whoever stands next to her into the pit.',
     symbol: '⊛',
   },
   {

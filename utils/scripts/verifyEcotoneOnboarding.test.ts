@@ -476,6 +476,32 @@ assert.match(
 assert.match(board, /Ending earned/)
 assert.match(board, /:art="endingArtKey\(game.ending.id\)"/)
 
+// Returning players land on a title screen over their saved run
+// (weird-humboldt/t-070, STANDARD-AUDIT-2026-11-12 "Title screen").
+assert.match(
+  board,
+  /v-else-if="tab === 'road' && game.run && welcomeBack"/,
+  'a saved run opens on the welcome-back title, not mid-beat',
+)
+assert.ok(
+  board.indexOf('&& welcomeBack"') <
+    board.indexOf(`v-else-if="tab === 'road' && game.run"`),
+  'welcome-back title is checked before the live road view',
+)
+for (const label of [
+  'Continue the weekend',
+  'Settings &amp; saves',
+  'Start a new weekend',
+]) {
+  assert.ok(board.includes(label), `welcome-back offers ${label}`)
+}
+assert.match(board, /@click="tab = 'endings'"/)
+assert.match(
+  board,
+  /welcomeBack\.value = Boolean\(game\.run && game\.run\.log\.length > 0\)/,
+  'only a run with recorded choices triggers the welcome-back title',
+)
+
 console.log(
   `Ecotone first impressions: 12 avatars, personal runs, fewer opening temptations, permanent choices and full card visibility passed; ${EVENTS.length} route previews, hope by random seed ${seedsToHope.join('/')}`,
 )

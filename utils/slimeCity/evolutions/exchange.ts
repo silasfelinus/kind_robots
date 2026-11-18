@@ -148,9 +148,12 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
   // fighters; a 1-play target only pays the base drain.
   's2-exchange-compound-interest-notice': {
     levelOneText: "A heavy freeze aimed at the rival's biggest debtor.",
-    2: stage('The Hunger Accrues', [on('enter', boss(1), mend(1))]),
+    // Level 1 (t-041 dead-card pass): the notice is also a receipt; the
+    // hunger pays out a fresh card each time it is served.
+    1: stage('Notice Served', [on('enter', draw(1))]),
+    2: stage('The Hunger Accrues', [on('enter', boss(1), mend(1), draw(1))]),
     3: stage('The Debt That Breeds', [
-      on('enter', boss(1), mend(1), when('targetHeavy', boss(3))),
+      on('enter', boss(1), mend(1), draw(1), when('targetHeavy', boss(3))),
     ]),
   },
   // Arc: a harmless clause -> the rival finds the bill on page 37 -> the
@@ -314,9 +317,14 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
   // empty or armored; bulldoze needs a knockout to carry over.
   's3-exchange-acquisition-clause': {
     levelOneText: 'A pricey clause that makes any fighter feed on kills.',
-    2: stage("The Butcher's Bid", [on('enter', damage(2, 'across'))]),
+    // Level 1 (t-041 dead-card pass): a signing bonus, so the clause arrives
+    // with teeth instead of waiting for a kill. L2/L3 keep the raise.
+    1: stage('Signing Bonus', [on('enter', sharpen(2, 'target'), mend(2))]),
+    2: stage("The Butcher's Bid", [
+      on('enter', sharpen(2, 'target'), damage(2, 'across')),
+    ]),
     3: stage('The Night Procession', [
-      on('enter', grant('bulldoze', 'target')),
+      on('enter', sharpen(2, 'target'), grant('bulldoze', 'target')),
     ]),
   },
   // Arc: a late-fee sticker -> the fee is collected on the spot -> fees on

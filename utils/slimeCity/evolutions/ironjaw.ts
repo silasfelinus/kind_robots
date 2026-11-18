@@ -293,15 +293,20 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
     ]),
   },
   // Arc: a shop-floor vote -> a show of hands from the crew -> every hand
-  // raised: the whole floor bulldozes.
-  // Trajectory: LATE BLOOMER (a 2-play that finally pays at L3).
+  // raised: the whole floor bulldozes. Every level raises the whole crew.
+  // Trajectory: CREW RAISE (every level lifts all allies; L3 bulldozes).
   // Counterplay: big-life blockers leave no overkill to spill.
   's3-ironjaw-reallocation': {
     levelOneText: 'Give one worker BULLDOZE to open a path.',
+    // Level 1 (t-041 dead-card pass): the vote reallocates muscle, so every
+    // worker's first shove has overkill behind it. L2/L3 keep that raise.
+    1: stage('Floor Vote', [on('enter', sharpen(1, 'allies'))]),
     2: stage('Show of Hands', [
-      on('enter', when('crowd', sharpen(2, 'target'))),
+      on('enter', sharpen(1, 'allies'), guard(1, 'allies')),
     ]),
-    3: stage('Every Hand Raised', [on('enter', grant('bulldoze', 'allies'))]),
+    3: stage('Every Hand Raised', [
+      on('enter', sharpen(1, 'allies'), grant('bulldoze', 'allies')),
+    ]),
   },
   // Arc: one numbered hammer -> signed out to a jammed worker -> the full
   // inventory goes to the fighters beside it.
@@ -330,7 +335,14 @@ export const IRONJAW_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: finish the scorched fighter before it swings.
   's3-ironjaw-furnace-overdrive': {
     levelOneText: 'Surge one worker into an immediate heavy attack.',
-    2: stage('Stoked Furnace', [on('enter', guard(2, 'target'))]),
+    // Level 1 (t-041 dead-card pass): the surge leaves the boiler hotter for
+    // good instead of only for this round. L2 keeps the heat and shields it.
+    1: stage('Open Firebox', [
+      on('enter', sharpen(2, 'target'), life(3, 'target')),
+    ]),
+    2: stage('Stoked Furnace', [
+      on('enter', sharpen(2, 'target'), guard(2, 'target')),
+    ]),
     3: stage('Meltdown Charge', [
       on(
         'enter',

@@ -3,7 +3,12 @@
 // Every pilot card is checked through the real engine: its level stages do
 // what the card says, and each level three changes what the card DOES.
 import assert from 'node:assert/strict'
-import { CARDS, cardById, type Side } from '../slimeCity/prototypes'
+import {
+  CARDS,
+  cardById,
+  type Side,
+  type TeamId,
+} from '../slimeCity/prototypes'
 import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import { EXCHANGE_EVOLUTIONS } from '../slimeCity/evolutions/exchange'
 import {
@@ -1480,4 +1485,73 @@ for (const [id, evolution] of Object.entries(CLASH_EVOLUTIONS)) {
   assert.ok(!tree.includes('"randomFoe"'), id + ' picks a random target')
   if (tree.includes('"do":"chance"'))
     assert.equal(cardById(id).team, 'riot', id + ' gambles outside ANARKISS')
+}
+
+// slime-city/t-041 dead two-slot pass (2026-11-18 PT): the six two-slot
+// specials that constructed QA never saw played each gained an authored
+// level-one stage, carried into L2/L3 so levelling never loses it. Real-board
+// fixture: cast each at level 1 and check its signature actually lands.
+{
+  const deadPass: [string, (before: ClashState, after: ClashState) => void][] =
+    [
+      [
+        's3-ironjaw-reallocation',
+        (b, a) =>
+          assert.equal(at(a, 2)!.attack, at(b, 2)!.attack + 1, 'ally raised'),
+      ],
+      [
+        's3-ironjaw-furnace-overdrive',
+        (b, a) => {
+          assert.equal(at(a, 1)!.attack, at(b, 1)!.attack + 2)
+          assert.equal(at(a, 1)!.maxHp, at(b, 1)!.maxHp + 3)
+        },
+      ],
+      [
+        's3-riot-wrong-side-of-blast',
+        (b, a) => assert.ok(a.boss.enemy <= b.boss.enemy - 2, 'boss shrapnel'),
+      ],
+      [
+        's2-exchange-compound-interest-notice',
+        (b, a) =>
+          assert.equal(
+            a.hands.player.length,
+            b.hands.player.length,
+            'the notice replaces itself in hand',
+          ),
+      ],
+      [
+        's3-exchange-acquisition-clause',
+        (b, a) => assert.equal(at(a, 1)!.attack, at(b, 1)!.attack + 2),
+      ],
+      [
+        's3-catgirls-stolen-saw',
+        (b, a) => {
+          assert.equal(at(a, 1)!.attack, at(b, 1)!.attack + 1)
+          assert.ok(at(a, 9)!.hp < at(b, 9)!.hp, 'first cut lands across')
+        },
+      ],
+    ]
+  for (const [id, check] of deadPass) {
+    const card = cardById(id)
+    const one = clashEvolutionStage(id, 1)
+    assert.ok(
+      one?.abilities.some((ab) => ab.when === 'enter'),
+      id + ' L1',
+    )
+    const s = createClash(card.team as TeamId, 'catgirls', 11)
+    s.units = [
+      fighter('player', 1, 1, { cardId: s.hands.player[0]! }),
+      fighter('player', 2, 2, { cardId: s.hands.player[0]! }),
+      fighter('enemy', 1, 9, { cardId: 'lynx', hp: 8, maxHp: 8 }),
+    ]
+    s.nextUid = 100
+    s.round = 3
+    s.plays.player = 0
+    s.hands.player = [id, ...s.hands.player.slice(0, 4)]
+    s.levels.player[id] = 1
+    const before = structuredClone(s)
+    const after = playClash(s, 'player', id, 1)
+    assert.notEqual(after, s, id + ' L1 is playable')
+    check(before, after)
+  }
 }

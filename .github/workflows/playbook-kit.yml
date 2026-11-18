@@ -37,7 +37,7 @@ on:
       - 'utils/deepheart/**'
       - 'stores/deepheartStore.ts'
       - 'components/deepheart/**'
-      - 'pages/admin/deepheart.vue'
+      - 'pages/admin/deepheart/**'
       - 'utils/achievements/catalog/main/deepheart.ts'
       - 'utils/scripts/verifyDeepheart.test.ts'
       - '.github/workflows/playbook-kit.yml'

@@ -476,16 +476,16 @@ kit.mana = 10
 const kid = kit.units.find((u) => u.side === 'player')!
 const vest = deploy(kit, 'fusevest', kid.x, kid.y)
 assert.equal(vest, kit, 'Glitter Rat is already volatile')
-const shredKit = createMatch('gridiron', 'catgirls', 'undertow', 4817)
-shredKit.mana = 10
-const cat = shredKit.units.find((u) => u.side === 'player')!
 assert.equal(
   cardById('shredders').kind,
   'creature',
   'Patent Shredder is now a fighter, not an equipment buff',
 )
-const collared = deploy(shredKit, 'ninthlife', cat.x, cat.y)
-assert.ok(at(collared, cat.id)!.keywords!.includes('regen'))
+assert.equal(
+  cardById('ninthlife').kind,
+  'creature',
+  'Ninth Life Collar is now a fighter, not a REGEN equipment buff',
+)
 // Trap riders: roots and debt
 const stepped = classicBlackout('catgirls', 'ironjaw', 99)
 stepped.traps = [{ x: 5, y: 3, side: 'enemy', damage: 1, roots: true, debt: 2 }]

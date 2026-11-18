@@ -463,6 +463,12 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
   }
   // Razor Spurs (t-051, third conversion): a fragile stage-diver.
   // Her value is the tempo she kicks into a neighbor, so her body stays small.
+  // Ninth Life Collar (t-051, fourth conversion): a belled stray. Her value
+  // is the spare life she lends a neighbor, so her body stays small.
+  if (card.id === 'ninthlife') {
+    evolvedAttack = [1, 1, 2][tier]!
+    evolvedHp = [2, 3, 3][tier]!
+  }
   if (card.id === 'spurs') {
     evolvedAttack = [1, 1, 2][tier]!
     evolvedHp = [2, 3, 3][tier]!
@@ -1681,7 +1687,9 @@ function casualties(s: ClashState): void {
         'ninthlife',
         endangered.side,
         endangered.lane,
-        'The Ninth Life Collar pulls its wearer back from a fatal hit!',
+        'The Ninth Life Collar rings and pulls ' +
+          nameOf(endangered) +
+          ' back from a fatal hit!',
         'heal',
       )
       continue
@@ -2031,6 +2039,27 @@ export function playClash(
             lane,
           )
       }
+      if (id === 'ninthlife') {
+        const neighbors = s.units
+          .filter(
+            (ally) =>
+              ally.side === side &&
+              ally.uid !== unit.uid &&
+              Math.abs(ally.lane - lane) === 1,
+          )
+          .sort((a, b) => a.lane - b.lane)
+        for (const ally of level === 3 ? neighbors : neighbors.slice(0, 1)) {
+          if (!ally.keywords.includes('regen')) ally.keywords.push('regen')
+          if (level >= 2 && !ally.ninthLife) ally.ninthLife = 2
+        }
+        if (neighbors.length)
+          note(
+            s,
+            'The Ninth Life Collar rings: the stray lends her neighbor a spare life.',
+            'play',
+            lane,
+          )
+      }
       if (id === 'spurs') {
         const neighbors = s.units
           .filter(
@@ -2332,8 +2361,6 @@ export function playClash(
             if (!target.keywords.includes(keyword))
               target.keywords.push(keyword)
           target.attack = clamp(target.attack + (level - 1), 1, 10)
-          if (id === 'ninthlife' && level >= 2)
-            target.ninthLife = level === 3 ? 3 : 2
           if (id === 'fusevest' && level >= 2)
             (target.gearLevels ??= {})[id] = level
           if (id === 'visor' && level >= 2) {

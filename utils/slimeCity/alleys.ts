@@ -570,8 +570,10 @@ export function canPlay(
  */
 export const ALLEY_CREW_HP: Record<TeamId, number> = {
   // Auto-tuned on 16 seeds, checked on 30 held-out seeds (1,800 games):
-  // spread 0.238 -> 0.038, every crew 47-57%.
-  catgirls: 0.25,
+  // spread 0.238 -> 0.038, every crew 47-57%. 2026-11-18 (t-051): Ninth Life
+  // Collar became a fighter, reshuffling the Catgirls pool, so Catgirls go
+  // 0.25 -> 1.25 (guard seeds 0.152 -> 0.087; 20 held-out seeds 0.101 -> 0.055).
+  catgirls: 1.25,
   bloodfairies: 1.25,
   ironjaw: -1.75,
   riot: 0.25,

@@ -486,6 +486,14 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
 export function clashLevel(s: ClashState, side: Side, id: string): number {
   return s.levels?.[side]?.[id] ?? 1
 }
+/** Armor an armor card adds at a level. Rubber Drysuit (slime-city/t-041,
+ * 2026-11-18 PT) is the Undertow's whole-river suit, so it adds one more
+ * plate than ordinary armor gear: +2, then +3 at level three. It sat in
+ * every non-starter Undertow build, was played in 598 of 600 bouts, and
+ * those decks won 33%. */
+export function clashArmorGain(id: string, level: number): number {
+  return (level >= 3 ? 2 : 1) + (id === 'drysuit' ? 1 : 0)
+}
 /** Hand-card badge: the effect in a few characters. */
 export function clashCardBadge(card: Card, level = 1): string {
   const b = clashBalance(card, level)
@@ -497,7 +505,7 @@ export function clashCardBadge(card: Card, level = 1): string {
     case 'armor':
       return (
         '+' +
-        (b.level >= 3 ? 2 : 1) +
+        clashArmorGain(card.id, b.level) +
         ' ARMOR' +
         (b.level > 1 ? ' +' + (b.level - 1) * 2 + ' ♥' : '')
       )
@@ -572,7 +580,7 @@ function clashBaseText(card: Card, level: number): string {
     case 'armor':
       return (
         'Your fighter gains +' +
-        (b.level >= 3 ? 2 : 1) +
+        clashArmorGain(card.id, b.level) +
         ' armor' +
         (b.level > 1 ? ' and heals ' + (b.level - 1) * 2 + '.' : '.')
       )
@@ -2258,7 +2266,7 @@ export function playClash(
           }
           break
         case 'armor':
-          target.armor = clamp(target.armor + (level >= 3 ? 2 : 1), 0, 3)
+          target.armor = clamp(target.armor + clashArmorGain(id, level), 0, 3)
           if (id === 'contract' && level >= 2)
             (target.gearLevels ??= {}).contract = level
           target.hp = Math.min(target.maxHp, target.hp + (level - 1) * 2)

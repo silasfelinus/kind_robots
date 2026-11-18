@@ -237,7 +237,7 @@ const RARE_IDS = new Set([
     t.signature,
     t.special[0]!,
     // t-051 (2026-11-18): Razor Spurs left the Bloodfairies legacy list as a
-    // fighter. She stays rare; the Amp Tripwire reserve, now in her slot, stays common.
+    // fighter. She stays rare and Blood Mic, now in her old gear slot, stays common.
     t.id === 'bloodfairies' ? 'spurs' : t.special[2]!,
     ...(t.id === 'catgirls' || t.id === 'undertow' ? [t.special[4]!] : []),
   ]),

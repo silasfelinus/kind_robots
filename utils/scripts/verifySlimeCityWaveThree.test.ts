@@ -77,10 +77,14 @@ for (const crew of TEAMS) {
       'Original signature remains required',
     )
     const deck = [...founder]
-    const substitute = deck.find((id) => {
-      const original = cardById(id)
-      return original.kind === card.kind && !original.signature
-    })
+    // A wave card already in the founder list (Roadie Megaphone, t-051)
+    // takes its own slot instead of duplicating itself.
+    const substitute =
+      deck.find((id) => id === card.id) ??
+      deck.find((id) => {
+        const original = cardById(id)
+        return original.kind === card.kind && !original.signature
+      })
     assert.ok(substitute, card.id + ' has a legal replacement slot')
     deck[deck.indexOf(substitute!)] = card.id
     assert.deepEqual(loadoutProblems(crew.id, deck), [])

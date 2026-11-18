@@ -834,14 +834,13 @@ export const CLASH_FIGHTERS_FIRST: Partial<
 > = {
   bloodfairies: {
     // 2026-11-18 (t-051): Spiked Choker and then Razor Spurs became fighters,
-    // so Roadie Megaphone and Amp Tripwire took their legacy special slots
-    // and the alley pool reshuffled. These pairs rebuild the swept
-    // starter in its old order: Choker and Spurs in their old slots, then the
-    // pool cards the sweep picked (Riot Choir left so the crew holds 13
-    // fighters of 20).
+    // so Blood Mic and Roadie Megaphone hold the legacy gear slots and the
+    // alley pool reshuffled. These pairs rebuild the swept starter in its old
+    // order: Choker and Spurs in the gear slots, then the pool cards the
+    // sweep picked (Riot Choir left so the crew holds 13 fighters of 20).
     out: [
+      's1-blood-mic',
       's2-bloodfairies-roadie-megaphone',
-      'amp-tripwire',
       's1-riot-choir',
       's3-bloodfairies-pollen-queen',
       's3-bloodfairies-karaoke-oracle',

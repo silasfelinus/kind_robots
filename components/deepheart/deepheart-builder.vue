@@ -30,6 +30,15 @@
             Companions {{ dh.companions.length }}/3
           </button>
         </div>
+        <button
+          v-if="mode === 'hero'"
+          type="button"
+          class="btn btn-sm btn-secondary rounded-2xl"
+          data-testid="dh-create-custom"
+          @click="dh.createCustomHero()"
+        >
+          Create original hero
+        </button>
         <select
           id="dh-role-filter"
           v-model="dh.roleFilter"
@@ -74,7 +83,13 @@
 
     <aside class="dh-builder-detail kr-pane-scroll" aria-label="Delver details">
       <div class="flex gap-3">
-        <DeepheartPortrait :id="focused.id" size="lg" class="w-28 shrink-0" />
+        <DeepheartPortrait
+          :id="focused.id"
+          :name="focused.id === CUSTOM_HERO_ID ? dh.hero.name : undefined"
+          :custom-role="dh.hero.custom?.role"
+          size="lg"
+          class="w-28 shrink-0"
+        />
         <div class="min-w-0">
           <h2 class="pf-display text-xl leading-tight text-primary">
             {{ focused.name }}
@@ -103,7 +118,7 @@
         <p class="opacity-80">{{ role.perk }}</p>
       </div>
 
-      <div class="flex flex-wrap gap-1">
+      <div v-if="focused.id !== CUSTOM_HERO_ID" class="flex flex-wrap gap-1">
         <span
           v-for="v in focused.likes"
           :key="v"
@@ -185,6 +200,66 @@
             </button>
           </div>
         </fieldset>
+        <label
+          v-if="dh.hero.custom"
+          class="form-control"
+          for="dh-custom-role"
+        >
+          <span class="label-text text-xs">Your class</span>
+          <select
+            id="dh-custom-role"
+            class="select select-sm rounded-2xl"
+            :value="dh.hero.custom.role"
+            @change="dh.setCustomRole(($event.target as HTMLSelectElement).value as RoleId)"
+          >
+            <option v-for="r in roles" :key="r.id" :value="r.id">
+              {{ r.label }}
+            </option>
+          </select>
+        </label>
+        <label
+          v-if="dh.hero.custom"
+          class="form-control"
+          for="dh-custom-appearance"
+        >
+          <span class="label-text text-xs">Visual species and appearance</span>
+          <input
+            id="dh-custom-appearance"
+            class="input input-sm rounded-2xl"
+            maxlength="120"
+            :value="dh.hero.custom.appearance"
+            placeholder="Adult silver fox with a scar and travel cloak"
+            @input="dh.setCustomAppearance(($event.target as HTMLInputElement).value)"
+          />
+        </label>
+        <fieldset v-if="dh.hero.custom" data-testid="dh-custom-points">
+          <legend class="text-xs">
+            Train your strengths · {{ dh.unspentPoints }} points remaining
+          </legend>
+          <div
+            v-for="key in statKeys"
+            :key="key"
+            class="flex items-center justify-between gap-2 py-0.5 text-xs"
+          >
+            <span>{{ STAT_LABEL[key] }} · {{ dh.hero.custom.points[key] ?? 0 }}</span>
+            <div class="join">
+              <button
+                type="button"
+                class="btn btn-xs join-item"
+                :disabled="!(dh.hero.custom.points[key] ?? 0)"
+                :aria-label="`Reduce ${STAT_LABEL[key]}`"
+                @click="dh.adjustCustomPoint(key, -1)"
+              >−</button>
+              <button
+                type="button"
+                class="btn btn-xs join-item"
+                :disabled="dh.unspentPoints === 0"
+                :aria-label="`Raise ${STAT_LABEL[key]}`"
+                @click="dh.adjustCustomPoint(key, 1)"
+              >+</button>
+            </div>
+          </div>
+        </fieldset>
         <label class="form-control" for="dh-hero-boon">
           <span class="label-text text-xs">Boon</span>
           <select
@@ -207,6 +282,7 @@
       <div class="dh-party-slots">
         <DeepheartPortrait
           :id="dh.hero.presetId"
+          :custom-role="dh.hero.custom?.role"
           size="sm"
           caption
           badge="Hero"
@@ -361,7 +437,8 @@ import {
   character,
   shortName,
 } from '~/utils/deepheart/roster'
-import type { Gender, StatKey, Support } from '~/utils/deepheart/types'
+import { CUSTOM_HERO_ID } from '~/utils/deepheart/types'
+import type { Gender, RoleId, StatKey, Support } from '~/utils/deepheart/types'
 
 const dh = useDeepheartStore()
 const mode = ref<'hero' | 'party'>('hero')
@@ -404,7 +481,21 @@ const shown = computed(() =>
   }),
 )
 
-const focused = computed(() => character(dh.focus))
+const focused = computed(() =>
+  dh.focus === CUSTOM_HERO_ID
+    ? {
+        ...character('idris'),
+        id: CUSTOM_HERO_ID,
+        name: dh.hero.name.trim() || 'Your original delver',
+        role: dh.hero.custom?.role ?? 'warrior',
+        gender: dh.hero.gender,
+        blurb:
+          dh.hero.custom?.appearance ||
+          'An original adventurer, defined by your choices, not a preset biography.',
+        likes: [],
+      }
+    : character(dh.focus),
+)
 const role = computed(() => ROLES[focused.value.role])
 const pronoun = computed(
   () => ({ w: 'she/her', m: 'he/him', n: 'they/them' })[focused.value.gender],
@@ -444,7 +535,9 @@ const romanceNote = computed(() => {
 })
 
 const focusSupports = computed(() =>
-  SUPPORTS.filter((s) => s.a === dh.focus || s.b === dh.focus),
+  dh.focus === CUSTOM_HERO_ID
+    ? []
+    : SUPPORTS.filter((s) => s.a === dh.focus || s.b === dh.focus),
 )
 
 function otherName(s: Support) {

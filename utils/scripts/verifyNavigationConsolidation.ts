@@ -751,9 +751,9 @@ assert.ok(
   'the gallery must reuse curated Advert Studio hero art when selected',
 )
 assert.ok(
-  visitorDirectorySource.indexOf("title: 'The Elevator Only Goes Down'") <
+  visitorDirectorySource.indexOf("title: 'Downward Mobility'") <
     visitorDirectorySource.indexOf("title: 'Storybook'"),
-  'The Elevator Only Goes Down must remain a flagship visitor attraction',
+  'Downward Mobility must remain a flagship visitor attraction',
 )
 
 for (const route of [

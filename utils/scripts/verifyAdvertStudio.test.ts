@@ -213,7 +213,7 @@ assert.equal(elevator.path, '/shifting-desks')
 assert.equal(elevator.conductorSlug, 'shifting-desks')
 assert.equal(
   `${elevator.copy.title} ${elevator.copy.title2}`,
-  'The Elevator Only Goes Down',
+  'Downward Mobility',
 )
 assert.ok(
   !ADVERT_POSTERS.some((p) => /shifting desks/i.test(p.copy.title + p.name)),

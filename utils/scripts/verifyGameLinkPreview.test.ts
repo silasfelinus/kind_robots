@@ -170,6 +170,10 @@ for (const [slug, tab] of [
     }
   }
 }
+assert.equal(
+  GAME_LINK_PREVIEWS['shifting-desks']!.title,
+  'Downward Mobility | Kind Robots',
+)
 assert.doesNotMatch(
   GAME_LINK_PREVIEWS['shifting-desks']!.description,
   /classroom/i,

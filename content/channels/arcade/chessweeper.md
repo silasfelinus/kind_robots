@@ -5,7 +5,7 @@ tabKey: chessweeper
 label: Chessweeper
 title: Chessweeper · Three Dangerous Worlds
 subtitle: Chess, mines and spinning doom discs on a single board
-summary: Three fully playable styles: Sugarbomb, Ashen and Jackpot.
+summary: Chess, mines, discs. Three worlds.
 description: Play chess against the computer on a mined board while bouncing discs destroy pieces. Try the candy-combo, dark survival, and neon casino-pinball versions, each with its own game rules.
 icon: kind-icon:arcade
 route: /play/chessweeper

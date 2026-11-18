@@ -3563,6 +3563,58 @@ export function chooseClashCpuPlay<
   return best
 }
 
+/**
+ * slime-city/t-041: the CPU's read of a blast's splash, mirroring the
+ * resolver. Every blast deals 1 to the rival fighters beside the target
+ * (Confetti L2+ deals 2); splash:'all' blasts also deal 1 to the caster's own
+ * fighters beside it, and Confetti hits its adjacent allies (every ally at
+ * L3; Mosh L2+ reaches rivals two alleys out and L3 hits every ally). Armor and guard soak splash exactly as in damage(). Before this the
+ * CPU scored a blast on its target alone, so it fired splash:'all' cards into
+ * its own wounded fighters and undervalued blasts into a crowded rival line.
+ */
+function cpuBlastSplashValue(
+  s: ClashState,
+  side: Side,
+  card: Card,
+  id: string,
+  level: number,
+  lane: number,
+): number {
+  const foeSide = opponent(side)
+  const soak = (u: ClashUnit, n: number) =>
+    Math.max(0, n - (u.armor + (u.guard ?? 0)))
+  const pop = (u: ClashUnit, n: number) => {
+    const dealt = soak(u, n)
+    if (dealt <= 0) return 0
+    return dealt >= u.hp ? 2 + u.attack * 0.5 : dealt * 0.6
+  }
+  let value = 0
+  const rivalSplash = id === 'confetti' && level >= 2 ? 2 : 1
+  for (const u of s.units)
+    if (u.side === foeSide && Math.abs(u.lane - lane) === 1)
+      value += pop(u, rivalSplash)
+  if (id === 'mosh' && level >= 2)
+    for (const u of s.units)
+      if (
+        u.side === foeSide &&
+        (level === 3
+          ? Math.abs(u.lane - lane) >= 2
+          : Math.abs(u.lane - lane) === 2)
+      )
+        value += pop(u, 1)
+  for (const u of s.units) {
+    if (u.side !== side) continue
+    const beside = Math.abs(u.lane - lane) === 1
+    let hits = 0
+    if (id === 'confetti') {
+      if (level === 3 || beside) hits++
+    } else if (card.splash === 'all' && beside) hits++
+    if (id === 'mosh' && level === 3) hits++
+    if (hits) value -= pop(u, hits) * 1.2
+  }
+  return value
+}
+
 /** Deterministic CPU using public fighters + only its own hand. */
 export function chooseClashCpu(
   s: ClashState,
@@ -3727,7 +3779,10 @@ export function chooseClashCpu(
           (foe && b.power >= foe.hp + foe.armor
             ? 5 + foe.attack
             : b.power * 0.8) +
-          (foe && !mine ? 1 : 0)
+          (foe && !mine ? 1 : 0) +
+          (card.effect === 'blast'
+            ? cpuBlastSplashValue(s, side, card, id, b.level, lane)
+            : 0)
       // A choose-one evolves toward the actual board, not a generic glow.
       const prefer = clashEvolutionChoice(id, b.level)
         ? clashEvolutionCpuPick(id)

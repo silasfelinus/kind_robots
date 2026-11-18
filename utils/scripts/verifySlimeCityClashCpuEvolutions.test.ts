@@ -633,6 +633,39 @@ for (const [left, right] of [
   assert.equal(chooseClashCpuPlay([]), undefined)
 }
 
+// slime-city/t-041: the CPU reads a blast's splash, not just its target.
+// A splash:'all' blast ("including your own") into lane 1 would also kill the
+// CPU's two 1-HP fighters beside it; the same blast into lane 4 kills an
+// equal rival with nobody of its own nearby. Before, both lanes scored the
+// same and the CPU took lane 1, wiping out its own line.
+{
+  const s = createClash('catgirls', 'riot', 511)
+  s.round = 5
+  s.units = [
+    fighter('player', 0, 1, { hp: 1, armor: 0, attack: 4, attacked: true }),
+    fighter('player', 2, 2, { hp: 1, armor: 0, attack: 4, attacked: true }),
+    fighter('enemy', 1, 3, { hp: 3, armor: 0 }),
+    fighter('enemy', 4, 4, { hp: 3, armor: 0 }),
+  ]
+  s.hands.player = ['merc-unsupervised-demo']
+  s.plays.player = 0
+  s.powersUsed = { player: ['catgirls'], enemy: ['riot'] }
+  assert.equal(cardById('merc-unsupervised-demo').splash, 'all')
+  assert.ok(canClashPlay(s, 'player', 'merc-unsupervised-demo', 1))
+  const cmd = chooseClashCpu(s, 'player')
+  assert.deepEqual(
+    cmd,
+    { t: 'play', side: 'player', card: 'merc-unsupervised-demo', lane: 4 },
+    'a splash:all blast avoids lanes where it would kill its own fighters',
+  )
+  const after = applyClashCommand(s, cmd)
+  assert.equal(
+    after.units.filter((u) => u.side === 'player').length,
+    2,
+    'both CPU fighters survive its own blast',
+  )
+}
+
 console.log(
   'Slime City CLASH CPU evolved decision-making, heavy gear, distinct faction payoff fixtures PASS',
 )

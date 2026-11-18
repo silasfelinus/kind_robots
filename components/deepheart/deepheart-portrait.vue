@@ -2,7 +2,10 @@
   <figure
     class="dh-portrait"
     :class="[`dh-portrait-${size}`, { 'is-down': down, 'is-dim': dim }]"
-    :style="{ '--dh-role': id === CUSTOM_HERO_ID ? 'var(--color-primary)' : roleColor(id) }"
+    :style="{
+      '--dh-role':
+        id === CUSTOM_HERO_ID ? 'var(--color-primary)' : roleColor(id),
+    }"
     :data-testid="`dh-portrait-${id}`"
   >
     <img

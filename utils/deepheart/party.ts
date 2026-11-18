@@ -56,20 +56,29 @@ const has = (list: RoleId[], ...wanted: RoleId[]) =>
 const count = (list: RoleId[], ...wanted: RoleId[]) =>
   list.filter((r) => wanted.includes(r)).length
 
-const SYNERGY_TEST: Record<string, (ids: readonly string[], hero?: HeroSetup) => boolean> = {
+const SYNERGY_TEST: Record<
+  string,
+  (ids: readonly string[], hero?: HeroSetup) => boolean
+> = {
   trinity: (ids, hero) => {
     const a = archetypes(ids, hero)
     return a.includes('tank') && a.includes('healer') && a.includes('striker')
   },
   arcane: (ids, hero) => count(roles(ids, hero), ...CASTERS) >= 2,
-  twilight: (ids, hero) => has(roles(ids, hero), ...HOLY) && has(roles(ids, hero), ...DARK),
-  scouts: (ids, hero) => has(roles(ids, hero), 'ranger') && has(roles(ids, hero), 'rogue'),
+  twilight: (ids, hero) =>
+    has(roles(ids, hero), ...HOLY) && has(roles(ids, hero), ...DARK),
+  scouts: (ids, hero) =>
+    has(roles(ids, hero), 'ranger') && has(roles(ids, hero), 'rogue'),
   hunters: (ids, hero) =>
-    has(roles(ids, hero), 'rogue') && has(roles(ids, hero), 'artificer', 'alchemist'),
-  bookworms: (ids, hero) => has(roles(ids, hero), 'scholar') && has(roles(ids, hero), 'mage'),
+    has(roles(ids, hero), 'rogue') &&
+    has(roles(ids, hero), 'artificer', 'alchemist'),
+  bookworms: (ids, hero) =>
+    has(roles(ids, hero), 'scholar') && has(roles(ids, hero), 'mage'),
   warband: (ids, hero) => count(roles(ids, hero), 'warrior', 'monk') >= 2,
-  bulwark: (ids, hero) => archetypes(ids, hero).filter((a) => a === 'tank').length >= 2,
-  green: (ids, hero) => has(roles(ids, hero), 'druid') && has(roles(ids, hero), 'ranger'),
+  bulwark: (ids, hero) =>
+    archetypes(ids, hero).filter((a) => a === 'tank').length >= 2,
+  green: (ids, hero) =>
+    has(roles(ids, hero), 'druid') && has(roles(ids, hero), 'ranger'),
   encore: (ids, hero) => has(roles(ids, hero), 'bard') && ids.length >= 3,
   'grave-glass': (ids, hero) =>
     has(roles(ids, hero), 'necromancer') && has(roles(ids, hero), 'alchemist'),

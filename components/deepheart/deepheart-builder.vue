@@ -200,17 +200,17 @@
             </button>
           </div>
         </fieldset>
-        <label
-          v-if="dh.hero.custom"
-          class="form-control"
-          for="dh-custom-role"
-        >
+        <label v-if="dh.hero.custom" class="form-control" for="dh-custom-role">
           <span class="label-text text-xs">Your class</span>
           <select
             id="dh-custom-role"
             class="select select-sm rounded-2xl"
             :value="dh.hero.custom.role"
-            @change="dh.setCustomRole(($event.target as HTMLSelectElement).value as RoleId)"
+            @change="
+              dh.setCustomRole(
+                ($event.target as HTMLSelectElement).value as RoleId,
+              )
+            "
           >
             <option v-for="r in roles" :key="r.id" :value="r.id">
               {{ r.label }}
@@ -229,7 +229,9 @@
             maxlength="120"
             :value="dh.hero.custom.appearance"
             placeholder="Adult silver fox with a scar and travel cloak"
-            @input="dh.setCustomAppearance(($event.target as HTMLInputElement).value)"
+            @input="
+              dh.setCustomAppearance(($event.target as HTMLInputElement).value)
+            "
           />
         </label>
         <fieldset v-if="dh.hero.custom" data-testid="dh-custom-points">
@@ -241,7 +243,10 @@
             :key="key"
             class="flex items-center justify-between gap-2 py-0.5 text-xs"
           >
-            <span>{{ STAT_LABEL[key] }} · {{ dh.hero.custom.points[key] ?? 0 }}</span>
+            <span
+              >{{ STAT_LABEL[key] }} ·
+              {{ dh.hero.custom.points[key] ?? 0 }}</span
+            >
             <div class="join">
               <button
                 type="button"
@@ -249,14 +254,18 @@
                 :disabled="!(dh.hero.custom.points[key] ?? 0)"
                 :aria-label="`Reduce ${STAT_LABEL[key]}`"
                 @click="dh.adjustCustomPoint(key, -1)"
-              >−</button>
+              >
+                −
+              </button>
               <button
                 type="button"
                 class="btn btn-xs join-item"
                 :disabled="dh.unspentPoints === 0"
                 :aria-label="`Raise ${STAT_LABEL[key]}`"
                 @click="dh.adjustCustomPoint(key, 1)"
-              >+</button>
+              >
+                +
+              </button>
             </div>
           </div>
         </fieldset>

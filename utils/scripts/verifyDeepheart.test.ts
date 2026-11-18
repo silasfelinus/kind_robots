@@ -55,10 +55,7 @@ import {
   DEEPHEART_STYLE_SUBJECTS,
   deepheartStyleLaneFromRequest,
 } from '../deepheart/styleCheck'
-import {
-  CUSTOM_HERO_ID,
-  CUSTOM_STAT_POINTS,
-} from '../deepheart/types'
+import { CUSTOM_HERO_ID, CUSTOM_STAT_POINTS } from '../deepheart/types'
 import type { EndingId, HeroSetup, Room, RunState } from '../deepheart/types'
 import { auditPlaybookKit } from '../playbookKit/budget'
 import { DEEPHEART } from '../playbookKit/games/deepheart'
@@ -193,7 +190,6 @@ assert.ok(
   'the romance goal finds a possible romance',
 )
 
-
 // ── Original delvers and meaningful party ability checks ────────────────
 const customHero: HeroSetup = {
   presetId: CUSTOM_HERO_ID,
@@ -226,7 +222,10 @@ assert.ok(CHARACTERS.some((c) => c.id === customBest.companions[0]))
 const customStart = createRun(customHero, customBest.companions, 67890)
 assert.equal(customStart.party[0]?.id, CUSTOM_HERO_ID)
 assert.equal(customStart.hero.custom?.role, 'scholar')
-assert.equal(recordStart(emptyChronicle(), customStart).met.includes(CUSTOM_HERO_ID), false)
+assert.equal(
+  recordStart(emptyChronicle(), customStart).met.includes(CUSTOM_HERO_ID),
+  false,
+)
 assert.equal(
   JSON.stringify(autoplay(createRun(customHero, ['idris', 'hesk'], 9981))),
   JSON.stringify(autoplay(createRun(customHero, ['idris', 'hesk'], 9981))),
@@ -234,7 +233,14 @@ assert.equal(
 const customSaved = decodeSaves(
   JSON.stringify({
     version: 1,
-    slots: [{ slot: 'auto', savedAt: '2026-11-17', label: 'Copper', run: customStart }],
+    slots: [
+      {
+        slot: 'auto',
+        savedAt: '2026-11-17',
+        label: 'Copper',
+        run: customStart,
+      },
+    ],
   }),
 )
 assert.equal(customSaved?.slots[0]?.run.hero.custom?.role, 'scholar')
@@ -253,7 +259,11 @@ school.room = { kind: 'choice', known: true, event: 'ossuary-night-school' }
 school.gold = 20
 chooseOption(school, 'petition')
 assert.equal(school.gold <= 10, true, 'the filing fee is paid before rolling')
-assert.equal(school.sacrifices, 1, 'the attempted sacrifice counts on failure too')
+assert.equal(
+  school.sacrifices,
+  1,
+  'the attempted sacrifice counts on failure too',
+)
 assert.ok(school.choices.includes('ossuary-night-school:petition'))
 const endingGate = createRun(hero('thessaly'), ['brannoc', 'hesk'], 55)
 endingGate.phase = 'finale'

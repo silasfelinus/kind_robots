@@ -255,7 +255,8 @@ export function createRun(
 
 function scoutChance(run: RunState): number {
   const ids = partyIds(run)
-  if (hasSynergyEffect(ids, 'scoutAll', run.hero) || run.flags.revealNext) return 1
+  if (hasSynergyEffect(ids, 'scoutAll', run.hero) || run.flags.revealNext)
+    return 1
   let chance = 0.35
   if (ids.some((id) => roleFor(id, run.hero) === 'ranger')) chance += 0.35
   if (hasSynergyEffect(ids, 'scoutHalf', run.hero)) chance += 0.15
@@ -594,7 +595,9 @@ export function act(run: RunState, action: CombatAction) {
         break
       }
       case 'bard':
-        combat.anthem = hasSynergyEffect(partyIds(run), 'longAnthem', run.hero) ? 3 : 2
+        combat.anthem = hasSynergyEffect(partyIds(run), 'longAnthem', run.hero)
+          ? 3
+          : 2
         note(run, 'info', `${nameOf(run, id)} strikes up an Anthem.`)
         break
       case 'alchemist':
@@ -1146,7 +1149,10 @@ export function optionLock(run: RunState, option: EventOption): string | null {
   const ids = partyIds(run)
   if (r.role && !ids.some((id) => r.role!.includes(roleFor(id, run.hero))))
     return `Needs a ${r.role.map((x) => ROLES[x].label).join(' or ')}`
-  if (r.synergy && !activeSynergies(ids, run.hero).some((s) => s.id === r.synergy))
+  if (
+    r.synergy &&
+    !activeSynergies(ids, run.hero).some((s) => s.id === r.synergy)
+  )
     return 'Needs holy and dark together'
   if (r.flag && !run.flags[r.flag]) return 'Something you have not done yet'
   if (r.gold && run.gold < r.gold) return `Needs ${r.gold} gold`
@@ -1162,8 +1168,7 @@ function applyEffects(run: RunState, fx: Effects) {
   if (fx.potion) run.potions = Math.max(0, run.potions + fx.potion)
   if (fx.reveal) run.flags.revealNext = true
   if (fx.mercy) run.mercy += fx.mercy
-  if (fx.sacrifice)
-    run.sacrifices = (run.sacrifices ?? 0) + fx.sacrifice
+  if (fx.sacrifice) run.sacrifices = (run.sacrifices ?? 0) + fx.sacrifice
   if (fx.deepen) run.deepening += fx.deepen
   if (fx.affinityAll)
     for (const id of run.companions) changeAffinity(run, id, fx.affinityAll)
@@ -1182,7 +1187,10 @@ export function abilityModifier(run: RunState, skill: StatKey): number {
   if (!members.length) return 0
   const stats = members.map((member) => stat(run, member.id, skill))
   const best = Math.max(...stats)
-  const support = Math.min(2, Math.max(0, stats.filter((n) => n >= 8).length - 1))
+  const support = Math.min(
+    2,
+    Math.max(0, stats.filter((n) => n >= 8).length - 1),
+  )
   return Math.max(0, Math.floor(best / 4)) + support
 }
 

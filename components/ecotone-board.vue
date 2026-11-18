@@ -340,6 +340,99 @@
       </div>
 
       <div
+        v-else-if="tab === 'road' && game.run && welcomeBack"
+        class="ecotone-title relative h-full"
+        data-testid="ecotone-welcome-back"
+      >
+        <EcotoneScene
+          kind="meadow"
+          art="title/key-art"
+          label="A forest-edge festival meadow at night, a giant moss-covered puppet, string lights and a green signal in the fog"
+          class="absolute inset-0"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-[#09141c] via-[#09141c]/60 to-[#09141c]/10 @4xl:bg-gradient-to-r @4xl:from-[#09141c] @4xl:via-[#09141c]/70 @4xl:to-transparent"
+        />
+        <div
+          class="relative flex h-full min-h-0 flex-col justify-end gap-4 p-4 @xl:p-6 @4xl:w-[min(680px,58%)] @4xl:justify-center @4xl:p-10"
+        >
+          <div class="shrink-0">
+            <p
+              class="text-xs font-bold uppercase tracking-[.3em] text-[#d9b877]"
+            >
+              Weird Humboldt · Welcome back
+            </p>
+            <h2
+              class="mt-2 font-serif text-5xl font-black uppercase leading-[.92] drop-shadow @xl:text-6xl @5xl:text-7xl"
+            >
+              Ecotone
+            </h2>
+            <p
+              class="mt-3 max-w-md border-t border-[#d9b877]/60 pt-3 font-serif text-base text-[#f3e6c8]/90 @xl:text-lg"
+            >
+              {{ ECOTONE_TAGLINE }}
+            </p>
+          </div>
+          <div
+            class="max-w-md shrink-0 rounded-xl border border-[#c9a96e]/35 bg-[#0c1a24]/85 p-3 text-sm"
+            data-testid="ecotone-welcome-summary"
+          >
+            <p class="eco-label">Your weekend so far</p>
+            <p class="mt-1 font-serif text-lg font-bold">
+              {{ game.run.playerName || 'Wanderer' }}
+            </p>
+            <p class="text-[#f3e6c8]/80">
+              {{
+                game.run.phase === 'end'
+                  ? 'The weekend is over. Your ending is waiting.'
+                  : chapterLine
+              }}
+            </p>
+            <p class="mt-1 text-xs text-[#f3e6c8]/65">
+              Endings {{ pad(game.unlockedCount) }}/{{ game.endingTotal }} ·
+              Cases {{ game.casesOpened }}/{{ game.caseTotal }}
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-col gap-2 @md:flex-row @md:flex-wrap">
+            <button
+              ref="welcomeContinue"
+              type="button"
+              class="eco-gold-button"
+              data-testid="ecotone-welcome-continue"
+              @click="welcomeBack = false"
+            >
+              {{
+                game.run.phase === 'end'
+                  ? 'Return to your ending'
+                  : 'Continue the weekend'
+              }}
+            </button>
+            <button
+              type="button"
+              class="rounded-lg border border-[#d9b877]/65 bg-[#0c1a24]/85 px-3 py-2 text-sm font-bold hover:border-[#d9b877]"
+              @click="tab = 'endings'"
+            >
+              Endings
+            </button>
+            <button
+              type="button"
+              class="rounded-lg border border-[#d9b877]/65 bg-[#0c1a24]/85 px-3 py-2 text-sm font-bold hover:border-[#d9b877]"
+              @click="tab = 'settings'"
+            >
+              Settings &amp; saves
+            </button>
+            <button
+              type="button"
+              class="rounded-lg border border-[#8fb8b0]/50 bg-[#0c1a24]/85 px-3 py-2 text-sm font-bold hover:border-[#8fb8b0]"
+              @click="restart"
+            >
+              Start a new weekend
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
         v-else-if="tab === 'road' && game.run"
         ref="playScroll"
         class="h-full overflow-y-auto overscroll-contain @4xl:overflow-clip"
@@ -2393,6 +2486,9 @@ type Tab =
 
 const game = useEcotoneStore()
 const tab = ref<Tab>('road')
+/** True while a returning player sees the title screen over a saved run. */
+const welcomeBack = ref(false)
+const welcomeContinue = ref<HTMLButtonElement | null>(null)
 const picked = ref<string>('reporter')
 const characterName = ref('')
 const pickedAvatar = ref<string>('glitter')
@@ -2673,6 +2769,10 @@ onMounted(() => {
   contrastSetting.value = savedDisplay.contrast
   artStyle.value = loadEcotoneArtStyle()
   game.initialize()
+  // Arriving with a saved journey opens on a title screen with Continue,
+  // Endings and Settings instead of dropping straight back mid-beat.
+  welcomeBack.value = Boolean(game.run && game.run.log.length > 0)
+  if (welcomeBack.value) nextTick(() => welcomeContinue.value?.focus())
 })
 
 const pending = computed(() => game.run?.pending?.entry ?? null)
@@ -2856,6 +2956,7 @@ function restart() {
   )
     return
   game.abandon()
+  welcomeBack.value = false
   tab.value = 'road'
 }
 

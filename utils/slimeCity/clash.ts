@@ -3502,6 +3502,59 @@ function cpuTapPayoff(s: ClashState, u: ClashUnit, action: EvoAction): number {
   }
 }
 
+/**
+ * slime-city/t-041: a two-slot spell or piece of gear spends the whole turn,
+ * so it is judged against what those two slots would otherwise buy: the best
+ * pair of one-slot plays (distinct cards, distinct alleys), at full matchup
+ * value. The old per-slot halving (score / 2) made it beat the best single
+ * one-slot play at half value, which left every crew's two-slot specials
+ * unplayed in constructed QA. Two-slot fighters keep the per-slot rule: the
+ * fighter score is linear in stat budget, so a doubled body already scores
+ * about double, and pairing them at full value overplayed starter heavies.
+ * A special must clear the pair by CLASH_CPU_TWO_SLOT_MARGIN: the pair spreads
+ * across two alleys, and constructed QA showed a zero margin let the Riot
+ * heavy deck spend whole turns on marginal blasts (crew 41.6%, under the 42%
+ * band). Margin 2 read 3,120 bouts: dead two-slot cards 13 -> 6, Riot 42.6%.
+ */
+export const CLASH_CPU_TWO_SLOT_MARGIN = 2
+export function chooseClashCpuPlay<
+  T extends {
+    score: number
+    card: string
+    lane: number
+    slots: number
+    fighter: boolean
+  },
+>(candidates: T[]): T | undefined {
+  let bestOne: T | undefined
+  for (const c of candidates)
+    if (c.slots < 2 && (!bestOne || c.score > bestOne.score)) bestOne = c
+  let partner = 0
+  if (bestOne)
+    for (const c of candidates)
+      if (
+        c.slots < 2 &&
+        c.card !== bestOne.card &&
+        c.lane !== bestOne.lane &&
+        c.score > partner
+      )
+        partner = c.score
+  const one = bestOne?.score ?? 0
+  let best = bestOne
+  let margin = bestOne ? 0 : -Infinity
+  for (const c of candidates) {
+    if (c.slots < 2) continue
+    const m = c.fighter
+      ? c.score / 2 - one
+      : c.score - one - partner - CLASH_CPU_TWO_SLOT_MARGIN
+    if (m > margin) {
+      best = c
+      margin = m
+    }
+  }
+  return best
+}
+
 /** Deterministic CPU using public fighters + only its own hand. */
 export function chooseClashCpu(
   s: ClashState,
@@ -3552,8 +3605,14 @@ export function chooseClashCpu(
       return { t: 'activate', side, uid: fighter.uid }
   }
   const foeSide = opponent(side)
-  let best:
-    { score: number; card: string; lane: number; choice?: 1 } | undefined
+  const candidates: {
+    score: number
+    card: string
+    lane: number
+    slots: number
+    fighter: boolean
+    choice?: 1
+  }[] = []
   for (const id of s.hands[side]) {
     const card = cardById(id)
     const b = clashBalance(card, clashLevel(s, side, id))
@@ -3699,11 +3758,17 @@ export function chooseClashCpu(
           score +=
             Math.max(0, cpuEvolutionPayoff(s, side, card, lane, 2, 0)) * 0.2
       }
-      score /= b.plays
-      if (!best || score > best.score)
-        best = { score, card: id, lane, ...(choice ? { choice } : {}) }
+      candidates.push({
+        score,
+        card: id,
+        lane,
+        slots: clashEffectivePlayCost(s, side, card),
+        fighter: card.kind === 'creature',
+        ...(choice ? { choice } : {}),
+      })
     }
   }
+  const best = chooseClashCpuPlay(candidates)
   return best
     ? best.choice
       ? { t: 'play', side, card: best.card, lane: best.lane, choice: 1 }

@@ -7,7 +7,9 @@ import {
   clashEffectivePlayCost,
   clashCardText,
   clashPower,
+  CLASH_CPU_TWO_SLOT_MARGIN,
   chooseClashCpu,
+  chooseClashCpuPlay,
   createClash,
   endClashTurn,
   nextClashStrike,
@@ -589,6 +591,46 @@ for (const [left, right] of [
     2,
     'the original Level 2 ambush remains intact',
   )
+}
+
+// slime-city/t-041: two-slot specials are weighed against the best pair of
+// one-slot plays (distinct card and alley) plus a margin, not halved; two-slot
+// fighters keep the per-slot rule.
+{
+  const one = (card: string, lane: number, score: number) => ({
+    card,
+    lane,
+    score,
+    slots: 1,
+    fighter: true,
+  })
+  const pair = [one('a', 0, 6), one('b', 1, 4), one('a', 1, 5)]
+  const special = (score: number) => ({
+    card: 'heavy-spell',
+    lane: 2,
+    score,
+    slots: 2,
+    fighter: false,
+  })
+  const bar = 6 + 4 + CLASH_CPU_TWO_SLOT_MARGIN
+  assert.equal(
+    chooseClashCpuPlay([...pair, special(bar + 0.5)])?.card,
+    'heavy-spell',
+  )
+  assert.equal(chooseClashCpuPlay([...pair, special(bar - 0.5)])?.card, 'a')
+  // With only a weak partner on offer, a special the old halving stranded
+  // (10 / 2 < 6) now beats the one strong play plus a filler.
+  const thin = [one('a', 0, 6), one('b', 1, 1)]
+  assert.equal(chooseClashCpuPlay([...thin, special(10)])?.card, 'heavy-spell')
+  const heavyFighter = { ...special(13), card: 'big', fighter: true }
+  assert.equal(chooseClashCpuPlay([...pair, heavyFighter])?.card, 'big')
+  assert.equal(
+    chooseClashCpuPlay([...pair, { ...heavyFighter, score: 11 }])?.card,
+    'a',
+  )
+  // With no one-slot option the best two-slot play is still taken.
+  assert.equal(chooseClashCpuPlay([special(1)])?.card, 'heavy-spell')
+  assert.equal(chooseClashCpuPlay([]), undefined)
 }
 
 console.log(

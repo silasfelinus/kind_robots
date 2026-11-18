@@ -62,54 +62,68 @@
       />
 
       <div
-        class="absolute inset-x-4 top-4 z-10 sm:inset-x-6 sm:top-6"
-        :class="animal.side === 'left' ? 'text-right' : 'text-left'"
+        class="absolute inset-x-3 top-3 z-10 flex min-w-0 sm:inset-x-6 sm:top-5"
+        :class="animal.side === 'left' ? 'justify-end' : 'justify-start'"
       >
-        <div class="max-w-md" :class="animal.side === 'left' ? 'ml-auto' : ''">
-          <p class="text-xs font-black tracking-[0.2em] text-amber-200">
-            K8 / YOUR FINANCIAL SPIRIT ANIMAL
+        <div class="w-[min(52%,23rem)] min-w-0 max-w-full text-left">
+          <p
+            class="text-[10px] font-black leading-tight tracking-widest text-amber-200 sm:text-xs"
+          >
+            K8 / FINANCIAL SPIRIT ANIMAL
           </p>
-          <p class="mt-2 text-5xl font-black leading-none sm:text-7xl">
+          <p class="mt-1 text-3xl font-black leading-none sm:mt-2 sm:text-5xl">
             {{ String(k8.level).padStart(2, '0')
-            }}<span class="text-xl opacity-70">/10</span>
+            }}<span class="text-sm opacity-70 sm:text-lg">/10</span>
           </p>
-          <h1 class="mt-1 text-2xl font-black uppercase sm:text-4xl">
+          <h1
+            class="mt-1 break-words text-xl font-black uppercase leading-tight sm:text-3xl"
+          >
             {{ animal.name }}
           </h1>
-          <p class="mt-1 text-sm italic text-white/90 sm:text-lg">
+          <p
+            class="mt-1 text-xs italic leading-snug text-white/90 sm:text-base"
+          >
             “{{ animal.quote }}”
           </p>
-          <p class="mt-3 text-xs font-semibold text-amber-100 sm:text-sm">
+          <p
+            class="mt-2 text-[11px] font-semibold leading-snug text-amber-100 sm:text-xs"
+          >
             {{
               k8.level === 0
                 ? 'Engine stop. Existing holdings and orders remain.'
-                : `${k8.preview?.maxDeploymentPercent ?? k8.level * 10}% of the independently authorized fund cap for new buys.`
+                : `${k8.preview?.maxDeploymentPercent ?? k8.level * 10}% of the authorized fund cap for new buys.`
             }}
           </p>
         </div>
       </div>
 
+      <!-- Keep the hero image dominant. The full fund breakdown lives in Settings. -->
       <div
-        class="@container absolute inset-x-2 bottom-2 z-20 rounded-2xl border border-white/20 bg-black/75 p-3 shadow-2xl backdrop-blur-md sm:inset-x-5 sm:bottom-4 sm:p-4"
+        class="@container absolute inset-x-2 bottom-2 z-20 rounded-xl border border-white/20 bg-black/80 px-3 py-2 shadow-2xl backdrop-blur-md sm:inset-x-4 sm:bottom-3 sm:px-4"
+        aria-label="K8 risk selector"
       >
-        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <div class="flex flex-wrap items-center gap-2 text-xs">
-            <span v-if="k8.snapshot" class="font-semibold">
-              {{ k8.snapshot.scope.exchange }} /
-              {{ k8.snapshot.scope.pair }}
-            </span>
-            <span v-if="k8.snapshot">
-              {{ k8.snapshot.status.isRunning ? 'RUNNING' : 'STOPPED' }}
-              · Applied:
-              {{
-                k8.activeLevel === null
-                  ? 'custom / unknown'
-                  : K8_ANIMALS[k8.activeLevel]?.name
-              }}
-            </span>
-            <span v-else>Preview only · gateway data unavailable</span>
-          </div>
-          <div class="flex items-center gap-1">
+        <div
+          class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] leading-tight sm:text-xs"
+        >
+          <span v-if="k8.snapshot" class="min-w-0 font-semibold">
+            {{ k8.snapshot.scope.exchange }} / {{ k8.snapshot.scope.pair }} ·
+            {{ k8.snapshot.status.isRunning ? 'RUNNING' : 'STOPPED' }}
+          </span>
+          <span v-if="k8.snapshot" class="text-amber-100">
+            Applied:
+            {{
+              k8.activeLevel === null
+                ? 'custom / unknown'
+                : K8_ANIMALS[k8.activeLevel]?.name
+            }}
+          </span>
+          <span v-if="k8.snapshot" class="hidden @lg:inline">
+            Est. fund equity: {{ k8Money(k8.snapshot.metrics.fundEquityQuote) }}
+          </span>
+          <span v-else class="text-amber-100">
+            Preview only · gateway data unavailable
+          </span>
+          <div class="ml-auto flex shrink-0 items-center gap-1">
             <button
               class="btn btn-ghost btn-xs text-white"
               type="button"
@@ -120,62 +134,60 @@
               Refresh
             </button>
             <button
-              class="btn btn-outline btn-xs border-white/40 text-white"
+              class="btn btn-ghost btn-xs text-white"
               type="button"
               :aria-expanded="settingsOpen"
               @click="settingsOpen = !settingsOpen"
             >
+              <Icon name="kind-icon:settings" class="size-3" />
               Settings
             </button>
           </div>
         </div>
 
-        <div class="mb-3 grid grid-cols-2 gap-2 text-xs @sm:grid-cols-4">
-          <div class="rounded-lg bg-white/10 p-2">
-            <div class="opacity-70">Estimated fund equity</div>
-            <strong>{{ k8Money(k8.snapshot?.metrics.fundEquityQuote) }}</strong>
-          </div>
-          <div class="rounded-lg bg-white/10 p-2">
-            <div class="opacity-70">
-              Held {{ k8.snapshot?.metrics.asset || 'asset' }}
-            </div>
-            <strong>{{ heldAsset }}</strong>
-          </div>
-          <div class="hidden rounded-lg bg-white/10 p-2 sm:block">
-            <div class="opacity-70">Realized P&amp;L</div>
-            <strong>{{
-              k8Money(k8.snapshot?.metrics.realizedPnlQuote)
-            }}</strong>
-          </div>
-          <div class="hidden rounded-lg bg-white/10 p-2 sm:block">
-            <div class="opacity-70">Authorized fund ceiling</div>
-            <strong>{{ k8Money(k8.snapshot?.config.maxUsdcDeployed) }}</strong>
-          </div>
+        <div class="mt-1.5 flex min-w-0 items-center gap-2">
+          <label
+            for="k8-risk-slider"
+            class="shrink-0 text-xs font-bold text-amber-100"
+          >
+            {{ String(k8.level).padStart(2, '0') }}/10
+            <span class="hidden @md:inline">· {{ animal.name }}</span>
+          </label>
+          <input
+            id="k8-risk-slider"
+            class="range range-warning range-xs min-w-0 flex-1"
+            type="range"
+            min="0"
+            max="10"
+            step="1"
+            :value="k8.level"
+            :aria-valuetext="`Level ${k8.level}: ${animal.name}`"
+            @input="selectFromRange"
+          />
+          <button
+            class="btn btn-warning btn-xs shrink-0"
+            type="button"
+            :disabled="
+              k8.readonly ||
+              !k8.snapshot ||
+              k8.level === k8.activeLevel ||
+              k8.saving ||
+              k8.loading
+            "
+            @click="confirmOpen = true"
+          >
+            {{ k8.level === 0 ? 'Review stop' : 'Review' }}
+          </button>
         </div>
-
-        <div class="flex items-center justify-between text-xs font-bold">
-          <label for="k8-risk-slider">THE K8-O-METER</label>
-          <span>
-            {{ k8.level === k8.activeLevel ? 'CURRENT' : 'PREVIEW' }}
-            · Level {{ k8.level }}
-          </span>
-        </div>
-        <input
-          id="k8-risk-slider"
-          class="range range-warning my-2 w-full"
-          type="range"
-          min="0"
-          max="10"
-          step="1"
-          :value="k8.level"
-          :aria-valuetext="`Level ${k8.level}: ${animal.name}`"
-          @input="selectFromRange"
-        />
-        <div class="grid grid-cols-11 gap-0.5">
+        <div
+          class="mt-1 grid grid-cols-11 gap-0.5"
+          role="group"
+          aria-label="Choose an animal level"
+        >
           <button
             v-for="(item, index) in K8_ANIMALS"
             :key="item.file"
-            class="rounded-md px-0 py-1 text-xs font-bold transition-colors"
+            class="min-h-6 rounded px-0.5 text-[10px] font-bold leading-none transition-colors @md:min-h-7"
             :class="
               index === k8.level
                 ? 'bg-warning text-warning-content'
@@ -189,43 +201,24 @@
             {{ index }}
           </button>
         </div>
-        <p v-if="k8.loading" class="mt-2 text-xs" role="status">
+        <p v-if="k8.loading" class="mt-1 text-[11px]" role="status">
           Reading Critical Mass...
         </p>
-        <p v-if="k8.error" class="mt-2 text-xs text-amber-200" role="alert">
+        <p v-if="k8.error" class="mt-1 text-[11px] text-amber-200" role="alert">
           {{ k8.error }}
         </p>
-        <p v-if="k8.notice" class="mt-2 text-xs text-amber-200" role="status">
+        <p
+          v-if="k8.notice"
+          class="mt-1 text-[11px] text-amber-200"
+          role="status"
+        >
           {{ k8.notice }}
         </p>
-        <div class="mt-2 flex items-center justify-between gap-2">
-          <span class="text-xs text-white/70">
-            {{
-              k8.readonly
-                ? 'Read-only preview. No trading settings changed.'
-                : 'Moving the slider never changes the engine.'
-            }}
-          </span>
-          <button
-            class="btn btn-warning btn-sm"
-            type="button"
-            :disabled="
-              k8.readonly ||
-              !k8.snapshot ||
-              k8.level === k8.activeLevel ||
-              k8.saving ||
-              k8.loading
-            "
-            @click="confirmOpen = true"
-          >
-            Review change
-          </button>
-        </div>
       </div>
 
       <aside
         v-if="settingsOpen"
-        class="kr-scroll absolute inset-x-2 top-2 bottom-64 z-30 max-h-[calc(100%-16.5rem)] overflow-y-auto rounded-2xl border border-white/25 bg-neutral/95 p-4 shadow-2xl backdrop-blur-xl sm:inset-x-auto sm:right-5 sm:top-4 sm:bottom-64 sm:w-[min(440px,90%)]"
+        class="kr-scroll absolute inset-x-2 top-2 bottom-40 z-30 max-h-[calc(100%-11rem)] overflow-y-auto rounded-2xl border border-white/25 bg-neutral/95 p-4 shadow-2xl backdrop-blur-xl sm:inset-x-auto sm:right-4 sm:top-4 sm:bottom-32 sm:w-[min(440px,90%)]"
         aria-label="Animal risk settings"
       >
         <div class="flex items-center justify-between">
@@ -243,6 +236,32 @@
           Profile changes save to Critical Mass. They do not alter trading until
           you separately apply this level.
         </p>
+        <dl v-if="k8.snapshot" class="mt-3 grid grid-cols-2 gap-2 text-xs">
+          <div class="rounded-lg bg-white/10 p-2">
+            <dt class="text-white/65">Estimated fund equity</dt>
+            <dd class="font-bold">
+              {{ k8Money(k8.snapshot.metrics.fundEquityQuote) }}
+            </dd>
+          </div>
+          <div class="rounded-lg bg-white/10 p-2">
+            <dt class="text-white/65">
+              Held {{ k8.snapshot.metrics.asset || 'asset' }}
+            </dt>
+            <dd class="font-bold">{{ heldAsset }}</dd>
+          </div>
+          <div class="rounded-lg bg-white/10 p-2">
+            <dt class="text-white/65">Realized P&amp;L</dt>
+            <dd class="font-bold">
+              {{ k8Money(k8.snapshot.metrics.realizedPnlQuote) }}
+            </dd>
+          </div>
+          <div class="rounded-lg bg-white/10 p-2">
+            <dt class="text-white/65">Authorized fund ceiling</dt>
+            <dd class="font-bold">
+              {{ k8Money(k8.snapshot.config.maxUsdcDeployed) }}
+            </dd>
+          </div>
+        </dl>
         <div v-if="!k8.snapshot" class="mt-3 text-sm text-warning">
           Connect the private K8 bridge to read or edit settings.
         </div>

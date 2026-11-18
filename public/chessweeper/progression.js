@@ -82,7 +82,7 @@
     ['sapper', 'Careful Hands', 'Reveal twelve safe minefield cells.', '✦'],
     ['flags', 'Flag Collector', 'Place four flags in one run.', '🚩'],
     ['points', 'High Roller', 'Score at least 500 points.', '★'],
-    ['dash', 'Escape Artist', 'Recharge your dash shield.', '⚡'],
+    ['dash', 'Escape Artist', 'Use your dash shield in a battle.', '⚡'],
     ['sugar', 'Sugar Rush!', 'Freeze the lollipop sawblades.', '🌈'],
     ['ashen', 'Last Stand', 'Survive a mortal blow in Ashen Checkmate.', '🔥'],
     [
@@ -302,7 +302,7 @@
     if (s.shown.size >= 44) award('sapper')
     if (s.flags.size >= 4) award('flags')
     if (s.score >= 500) award('points')
-    if (s.humanActions >= 6 && s.dashReady) award('dash')
+    if (s.dashCooldown > 0) award('dash')
     if (world === 'sugar' && s.freeze > 0) award('sugar')
     if (world === 'ashen' && s.lastStandUsed) award('ashen')
     if (world === 'jackpot' && s.wager > 0) award('jackpot')
@@ -472,7 +472,6 @@
     '<button type="button" data-panel="scrapbook">📖 Scrapbook</button>' +
     '<button type="button" data-panel="achievements">🏆 Achievements</button>' +
     '<button type="button" data-panel="settings">⚙ Settings</button>' +
-    '<button type="button" data-panel="guide">? Guide</button>' +
     '<button type="button" id="meta-continue" hidden>↩ Continue saved run</button>'
   const layout = document.querySelector('.layout')
   if (layout) layout.before(actions)

@@ -203,9 +203,9 @@ export const CLASH_TWISTS: Record<string, [string, string, string]> = {
     'Spring: damage and stun the intruder; stun both neighboring foes and deal 1 damage to each.',
   ],
   ninthlife: [
-    'Equip one fighter with REGEN; it has no last-chance rescue yet.',
-    'Equip REGEN; the wearer survives its next lethal hit at 1 life.',
-    'Equip REGEN; the wearer survives a lethal hit at half life and gains +2 attack.',
+    'Belled stray fighter. Arrive beside an ally: it gains REGEN.',
+    'Arrive: one neighboring ally gains REGEN and survives its next lethal hit at 1 life.',
+    'Arrive: both neighboring allies gain REGEN and survive their next lethal hit at 1 life.',
   ],
   bloodwire: [
     'Hidden razor floss punishes one intruder.',

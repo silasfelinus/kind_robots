@@ -435,7 +435,8 @@ for (const card of CARDS) {
       const hatchling =
         level === 1 && ['chimera', 'juggernaut'].includes(card.id)
       const clawSupport =
-        ['shredders', 'choker', 'spurs'].includes(card.id) && level < 3
+        ['shredders', 'choker', 'spurs', 'ninthlife'].includes(card.id) &&
+        level < 3
       assert.ok(
         nonattacker
           ? b.attack === 0
@@ -1534,16 +1535,39 @@ scentMine.traps = [{ side: 'enemy', lane: 2, cardId: 'scentmine', level: 3 }]
 const scentFired = playClash(scentMine, 'player', 'lynx', 2)
 assert.ok(scentFired.units.find((u) => u.uid === 2011)?.rooted)
 assert.equal(scentFired.units.find((u) => u.uid === 2013)?.hp, 11)
+// Ninth Life Collar is a fighter too (t-051, fourth conversion): a belled
+// stray who lends her neighbors a spare life instead of being worn.
+for (const [level, expected] of [
+  [1, [1, 2]],
+  [2, [1, 3]],
+  [3, [2, 3]],
+] as const) {
+  const body = clashBalance(cardById('ninthlife'), level)
+  assert.deepEqual(
+    [body.attack, body.hp],
+    expected,
+    'Ninth Life Collar pays for her spare life with a tiny body',
+  )
+}
 const collar = third('catgirls', 'ninthlife')
-collar.units = [follower('player', 2, 2020, 10, 2)]
+collar.units = [
+  follower('player', 1, 2020, 10, 2),
+  follower('player', 3, 2022, 10, 2),
+]
 const collarOn = playClash(collar, 'player', 'ninthlife', 2)
-assert.equal(collarOn.units[0]?.ninthLife, 3)
+const stray = collarOn.units.find((u) => u.cardId === 'ninthlife')
+assert.ok(stray && stray.lane === 2, 'Ninth Life Collar enters as a fighter')
+for (const uid of [2020, 2022]) {
+  const ally = collarOn.units.find((u) => u.uid === uid)
+  assert.ok(ally?.keywords.includes('regen'), 'L3 lends REGEN to both')
+  assert.equal(ally?.ninthLife, 2, 'L3 lends both neighbors a spare life')
+}
 collarOn.active = 'enemy'
 collarOn.phase = 'attack'
-collarOn.units.push(follower('enemy', 2, 2021, 20, 15))
+collarOn.units = collarOn.units.filter((u) => u.uid !== 2022)
+collarOn.units.push(follower('enemy', 1, 2021, 20, 15))
 const collarRescue = strikeClash(collarOn, 'enemy')
-assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.hp, 5)
-assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.attack, 6)
+assert.equal(collarRescue.units.find((u) => u.uid === 2020)?.hp, 1)
 assert.equal(
   collarRescue.units.find((u) => u.uid === 2020)?.ninthLife,
   undefined,
@@ -1555,7 +1579,42 @@ assert.equal(
 )
 assert.ok(
   clashSpectacle(collarOn, collarRescue)?.cardId === 'ninthlife',
-  'L3 rescue gets an art-led cut-in',
+  'the rescue gets an art-led cut-in',
+)
+const juniorCollar = third('catgirls', 'ninthlife')
+juniorCollar.levels.player.ninthlife = 1
+juniorCollar.units = [
+  follower('player', 1, 2023, 10, 2),
+  follower('player', 3, 2024, 10, 2),
+]
+const firstBell = playClash(juniorCollar, 'player', 'ninthlife', 2)
+const leftAlly = firstBell.units.find((u) => u.uid === 2023)
+assert.ok(leftAlly?.keywords.includes('regen'), 'L1 lends REGEN')
+assert.equal(leftAlly?.ninthLife, undefined, 'L1 has no spare life yet')
+assert.ok(
+  !firstBell.units.find((u) => u.uid === 2024)?.keywords.includes('regen'),
+  'L1 rings for only one neighbor',
+)
+const midCollar = third('catgirls', 'ninthlife')
+midCollar.levels.player.ninthlife = 2
+midCollar.units = [
+  follower('player', 1, 2025, 10, 2),
+  follower('player', 3, 2026, 10, 2),
+]
+const secondBell = playClash(midCollar, 'player', 'ninthlife', 2)
+assert.equal(secondBell.units.find((u) => u.uid === 2025)?.ninthLife, 2)
+assert.equal(
+  secondBell.units.find((u) => u.uid === 2026)?.ninthLife,
+  undefined,
+  'L2 lends one spare life',
+)
+const soloCollarStage = third('catgirls', 'ninthlife')
+soloCollarStage.units = []
+const soloCollar = playClash(soloCollarStage, 'player', 'ninthlife', 2)
+assert.equal(
+  soloCollar.units.filter((u) => u.cardId === 'ninthlife').length,
+  1,
+  'an empty board still gets a fighter, not a fizzled gear card',
 )
 // One-play snares are an answer to armor, not a dead draw into Ironjaw.
 // Check real fighter entry, armor stripping, deterministic replay and trap cleanup.

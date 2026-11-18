@@ -239,7 +239,13 @@ const RARE_IDS = new Set([
     // t-051 (2026-11-18): Razor Spurs left the Bloodfairies legacy list as a
     // fighter. She stays rare and Blood Mic, now in her old gear slot, stays common.
     t.id === 'bloodfairies' ? 'spurs' : t.special[2]!,
-    ...(t.id === 'catgirls' || t.id === 'undertow' ? [t.special[4]!] : []),
+    // Ninth Life Collar followed as a fighter; Lab-Escape Atlas took her
+    // Catgirls legacy slot and stays common while the Collar stays rare.
+    ...(t.id === 'catgirls'
+      ? ['ninthlife']
+      : t.id === 'undertow'
+        ? [t.special[4]!]
+        : []),
   ]),
   // Four rare reserves preserve one rare + two normal cards for all 24 packs.
   'splice-runner',

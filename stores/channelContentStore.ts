@@ -17,7 +17,8 @@ import {
 } from '@/stores/helpers/navigationAccess'
 import { useUserStore } from '@/stores/userStore'
 import { isSuperkateServicesViewer } from '@/stores/helpers/superkateNavigation'
-import { handleError } from '@/stores/utils'
+import { handleError, performFetch } from '@/stores/utils'
+import { curatedNavigationImage } from '@/utils/adverts/navigationHero'
 
 const channelTabsStorageKey = 'channelTabs'
 const isClient = typeof window !== 'undefined'
@@ -63,8 +64,44 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
   const loading = ref(false)
   const lastError = ref<string | null>(null)
   const initializePromise = ref<Promise<void> | null>(null)
+  const publicHeroSelections = ref<Record<string, number>>({})
+  let publicHeroesLoaded = false
+  let publicHeroesPromise: Promise<void> | null = null
 
   const userStore = useUserStore()
+
+  // Navigation uses the PUBLIC endpoint, not Advert Studio's admin selections.
+  // Newly rendered/private art is never exposed just because its job is DONE.
+  async function loadPublicNavigationArt(force = false): Promise<void> {
+    if (publicHeroesPromise) return publicHeroesPromise
+    if (publicHeroesLoaded && !force) return
+
+    publicHeroesPromise = (async () => {
+      try {
+        const response = await performFetch<{
+          slots: Array<{ slotKey: string; artImageId: number }>
+        }>('/api/adverts/public-art')
+        if (!response.success || !response.data) return
+
+        publicHeroSelections.value = Object.fromEntries(
+          response.data.slots
+            .filter(
+              (slot) =>
+                slot.slotKey.startsWith('adverts/') &&
+                Number.isSafeInteger(slot.artImageId) &&
+                slot.artImageId > 0,
+            )
+            .map((slot) => [slot.slotKey, slot.artImageId]),
+        )
+        publicHeroesLoaded = true
+      } catch (error) {
+        handleError(error, 'loading public navigation artwork')
+      } finally {
+        publicHeroesPromise = null
+      }
+    })()
+    return publicHeroesPromise
+  }
 
   const channels = computed(() => resolveChannels(items.value))
   const accessContext = computed<NavigationAccessContext>(() => {
@@ -117,7 +154,10 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
           }
 
           return true
-        }),
+        }).map((tab) => ({
+          ...tab,
+          image: curatedNavigationImage(tab, publicHeroSelections.value),
+        })),
       }))
       .filter((channel) => channel.tabs.length > 0)
   })
@@ -165,6 +205,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
 
   async function initialize(force = false): Promise<void> {
     hydrateActiveTabs(force)
+    if (import.meta.client) void loadPublicNavigationArt()
 
     if (initializePromise.value && !force) return initializePromise.value
     if (initialized.value && !force) {
@@ -323,6 +364,9 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
     loading.value = false
     lastError.value = null
     initializePromise.value = null
+    publicHeroSelections.value = {}
+    publicHeroesLoaded = false
+    publicHeroesPromise = null
   }
 
   return {
@@ -345,6 +389,7 @@ export const useChannelContentStore = defineStore('channelContentStore', () => {
      * Guarded by utils/scripts/verifyNoPromiseInStoreState.ts.
      */
     initialize,
+    loadPublicNavigationArt,
     hydrateActiveTabs,
     getChannel,
     getTab,

@@ -10,6 +10,7 @@ import {
   absoluteSiteUrl,
   buildRobotsTxt,
   buildSitemapXml,
+  buildWebsiteJsonLd,
   findSharePreview,
   normalizeSharePath,
   sharePreviewImageUrl,
@@ -182,6 +183,14 @@ for (const key of [
 assert.match(app, /twitterCard: 'summary_large_image'/)
 // Every page declares one canonical URL built from the query-free share URL.
 assert.match(app, /rel: 'canonical', href: \(\) => shareUrl\.value/)
+
+// Home page names the site for search results (schema.org WebSite).
+const website = JSON.parse(buildWebsiteJsonLd())
+assert.equal(website['@type'], 'WebSite')
+assert.equal(website.name, 'Kind Robots')
+assert.equal(website.url, 'https://kindrobots.org/')
+assert.match(app, /type: 'application\/ld\+json'/)
+assert.match(app, /route\.path === '\/'/)
 assert.equal(
   absoluteSiteUrl('/play/arcade/?game=zuzu-ghost-trail'),
   'https://kindrobots.org/play/arcade',

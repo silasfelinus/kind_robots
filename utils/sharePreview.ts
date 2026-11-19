@@ -162,6 +162,22 @@ export function siteTabTitle(title?: string | null): string {
   return `${trimmed} | ${SITE_NAME}`
 }
 
+/**
+ * schema.org WebSite data for the home page. Search engines use it to show
+ * "Kind Robots" as the result's site name instead of guessing from the URL.
+ */
+export function buildWebsiteJsonLd(): string {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    alternateName: 'kindrobots.org',
+    url: `${SITE_ORIGIN}/`,
+    description:
+      'Free handmade browser games, illustrated stories and a robot-made art gallery. No ads, no account needed.',
+  })
+}
+
 export function normalizeSharePath(path: string): string {
   const pathname = (path.split(/[?#]/)[0] ?? '')
     .replace(/\/{2,}/g, '/')

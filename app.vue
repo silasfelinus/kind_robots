@@ -233,6 +233,7 @@ import {
   SITE_NAME,
   siteTabTitle,
   absoluteSiteUrl,
+  buildWebsiteJsonLd,
   findSharePreview,
   sharePreviewImageUrl,
 } from '@/utils/sharePreview'
@@ -458,6 +459,17 @@ useHead({
   // One canonical address per page (no query strings, no trailing slash), so
   // aliases like /play and ?game= links don't split search results.
   link: [{ rel: 'canonical', href: () => shareUrl.value }],
+  script: computed(() =>
+    route.path === '/'
+      ? [
+          {
+            key: 'website-jsonld',
+            type: 'application/ld+json',
+            innerHTML: buildWebsiteJsonLd(),
+          },
+        ]
+      : [],
+  ),
 })
 
 useSeoMeta({

@@ -455,7 +455,10 @@ for (const faction of [...LOCAL_FACTIONS, ...KINGDOM_FACTIONS]) {
 }
 const kiyo = followerDef('F003')!
 assert.equal(kiyo.species, 'Koala', 'Zuzu’s mother is at court')
-assert.ok(kiyo.starter && !kiyo.romanceable, 'Kiyo remains the non-romanceable starter and Zuzu’s mother')
+assert.ok(
+  kiyo.starter && !kiyo.romanceable,
+  'Kiyo remains the non-romanceable starter and Zuzu’s mother',
+)
 assert.ok(kiyo.talk?.some((line) => line.includes('Zuzu')))
 assert.ok(FOLLOWERS.some((def) => def.species === 'Fennec fox'))
 assert.ok(

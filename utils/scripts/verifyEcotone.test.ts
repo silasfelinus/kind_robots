@@ -239,6 +239,24 @@ assert.ok(
   !isEcotoneReviewHeldArt('reviewed/endings/mara-sober-hope'),
   'a reviewed key is not itself held',
 )
+// The reviewed Mara renders have shipped (2026-11-19 PT): every allowlisted
+// picture now paints from its reviewed file in the default style, and the
+// original held render is never the one served.
+for (const key of ECOTONE_REVIEWED_ART)
+  assert.equal(
+    ecotoneArtSrc(key, DEFAULT_ECOTONE_ART_STYLE),
+    `/ecotone/styles/${DEFAULT_ECOTONE_ART_STYLE}/reviewed/${key}.webp`,
+    `${key} shows its reviewed render`,
+  )
+assert.equal(
+  ecotoneArtSrc('endings/mara-sober-hope', 'zimage'),
+  '/ecotone/styles/zimage/reviewed/endings/mara-sober-hope.webp',
+)
+// A withdrawn style render falls back to the default style's reviewed file.
+assert.equal(
+  ecotoneArtSrc('outcomes/kn-1/flash-success', 'novacomic'),
+  '/ecotone/styles/zimage/reviewed/outcomes/kn-1/flash-success.webp',
+)
 assert.ok(
   ART_REVIEW_ROUNDS.every((round) =>
     round.subjects.every((subject) => !isEcotoneReviewHeldArtSubject(subject)),
@@ -1985,7 +2003,10 @@ for (const [style, renders] of Object.entries(STYLE_RENDERS))
       allSlots.includes(asset) ||
         ECOTONE_ART.includes(asset) ||
         mysteryCardArt.includes(asset) ||
-        mysteryEndingArt.includes(asset),
+        mysteryEndingArt.includes(asset) ||
+        // An owner-approved reviewed replacement for a held picture.
+        (asset.startsWith('reviewed/') &&
+          ECOTONE_REVIEWED_ART.includes(asset.slice('reviewed/'.length))),
       `${style} ${asset} is a known picture`,
     )
 for (const entry of racer.log.filter((e) => e.source.startsWith('KN-')))

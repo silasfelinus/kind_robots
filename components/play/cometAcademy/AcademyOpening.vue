@@ -41,12 +41,14 @@
           YEARBOOK
           <small v-if="historyCount">{{ historyCount }}/48 FOUND</small>
         </button>
-        <NuxtLink
-          to="/admin/every-villain-tactics"
+        <button
+          type="button"
           class="prom-tactical-link"
           data-testid="academy-opening-tactical"
-          >⚔ TACTICAL MODE <small>SKIRMISH PREVIEW</small></NuxtLink
+          @click="beginTactics"
         >
+          ⚔ TACTICAL MODE <small>CHOOSE YOUR FIGHTER</small>
+        </button>
         <button
           type="button"
           data-testid="academy-opening-settings"
@@ -290,16 +292,131 @@
             class="prom-next"
             type="button"
             data-testid="academy-dossier-next"
-            @click="screen = 'vow'"
+            @click="screen = 'mode'"
           >
-            {{
-              screen === 'yearbook-detail'
-                ? 'REPLAY THIS IDENTITY'
-                : 'CHOOSE MY STORY'
-            }}
+            CHOOSE MY GAME MODE
             <span>➜</span>
           </button>
         </div>
+      </div>
+
+      <div
+        v-else-if="screen === 'mode'"
+        class="prom-route-room"
+        data-testid="academy-shared-mode"
+      >
+        <div class="prom-route-heading">
+          <p class="prom-eyebrow">04 / ONE FIGHTER. TWO GAMES.</p>
+          <h2>How will {{ selectedPersona.alias }} make history?</h2>
+          <p>
+            Your origin, affinity, face and name stay the same. The story and
+            tactical battles keep separate progress and saves.
+          </p>
+        </div>
+        <div class="prom-routes" role="radiogroup" aria-label="Game mode">
+          <button
+            type="button"
+            :class="{ active: selectedMode === 'story' }"
+            :aria-pressed="selectedMode === 'story'"
+            data-testid="academy-mode-story"
+            @click="selectedMode = 'story'"
+          >
+            <img
+              v-if="promArt('front/splash-v2')"
+              class="prom-route-art"
+              :src="promArt('front/splash-v2')!"
+              alt=""
+            />
+            <span class="prom-route-number">I</span>
+            <h3>Prom of Doom</h3>
+            <strong>Story Mode</strong>
+            <p>
+              Thirty days of school, friendships, night patrols and hard
+              decisions. Your foil is assigned; your choices determine
+              whether you become the hero or villain.
+            </p>
+            <small>30 days · choices define allegiance</small>
+          </button>
+          <button
+            type="button"
+            :class="{ active: selectedMode === 'tactics' }"
+            :aria-pressed="selectedMode === 'tactics'"
+            data-testid="academy-mode-tactics"
+            @click="selectedMode = 'tactics'"
+          >
+            <img
+              v-if="promArt('front/dashboard-highlight')"
+              class="prom-route-art"
+              :src="promArt('front/dashboard-highlight')!"
+              alt=""
+            />
+            <span class="prom-route-number">II</span>
+            <h3>Every Villain Tactics</h3>
+            <strong>Tactical Mode</strong>
+            <p>
+              Choose a side, then command a sidekick or henchman and assigned
+              allies through grid battles and authored missions.
+            </p>
+            <small>Hero or villain · tactical scenarios</small>
+          </button>
+        </div>
+        <button
+          class="prom-next"
+          type="button"
+          data-testid="academy-mode-continue"
+          @click="continueMode"
+        >
+          CONTINUE TO {{ selectedMode === 'story' ? 'STORY' : 'TACTICS' }}
+          <span>➜</span>
+        </button>
+      </div>
+
+      <div
+        v-else-if="screen === 'tactics-side'"
+        class="prom-route-room"
+        data-testid="academy-tactics-allegiance"
+      >
+        <div class="prom-route-heading">
+          <p class="prom-eyebrow">05 / PICK YOUR SIDE</p>
+          <h2>Every villain is somebody's hero.</h2>
+          <p>
+            {{ selectedPersona.alias }} is your fighter either way. The
+            mission assigns a sidekick or henchman, a foil and available
+            support. Your Prom of Doom campaign is not changed.
+          </p>
+        </div>
+        <div class="prom-routes" role="radiogroup" aria-label="Tactical allegiance">
+          <button
+            v-for="side in tacticalSides"
+            :key="side.id"
+            type="button"
+            :class="{ active: selectedAllegiance === side.id }"
+            :aria-pressed="selectedAllegiance === side.id"
+            :data-testid="'academy-tactics-' + side.id"
+            @click="selectedAllegiance = side.id"
+          >
+            <img
+              v-if="promArt(identityArtKey(currentSignature.id, side.id))"
+              class="prom-route-art"
+              :src="promArt(identityArtKey(currentSignature.id, side.id))!"
+              alt=""
+            />
+            <span class="prom-route-number">{{ side.number }}</span>
+            <h3>{{ side.name }}</h3>
+            <strong>{{ identity[side.id].alias }}</strong>
+            <p>{{ side.description }}</p>
+            <small>{{ side.companion }} assigned with the mission</small>
+          </button>
+        </div>
+        <button
+          class="prom-next"
+          type="button"
+          data-testid="academy-tactics-launch"
+          @click="launchTactics"
+        >
+          SELECT BATTLES AS {{ selectedPersona.alias.toUpperCase() }}
+          <span>➜</span>
+        </button>
       </div>
 
       <div v-else-if="screen === 'vow'" class="prom-route-room">
@@ -680,6 +797,8 @@ type Screen =
   | 'origin'
   | 'affinity'
   | 'dossier'
+  | 'mode'
+  | 'tactics-side'
   | 'vow'
   | 'tutorial'
   | 'yearbook'
@@ -691,6 +810,24 @@ const fromYearbook = ref(false)
 const selectedOrigin = ref<PowerOriginId>('accident')
 const selectedAffinity = ref<PowerAffinityId>('fire')
 const selectedForm = ref<PlayerForm>('student')
+const selectedMode = ref<'story' | 'tactics'>('story')
+const selectedAllegiance = ref<'hero' | 'villain'>('hero')
+const tacticalSides = [
+  {
+    id: 'hero' as const,
+    number: 'I',
+    name: 'Hero',
+    companion: 'Sidekick',
+    description: 'Protect Comet City. Your allies expect rescue, even at a cost.',
+  },
+  {
+    id: 'villain' as const,
+    number: 'II',
+    name: 'Villain',
+    companion: 'Henchman',
+    description: 'Claim the battlefield. Your crew has motives of its own.',
+  },
+]
 const selectedVow = ref<PowerVowId>('shelter')
 const launchOnTutorial = ref(false)
 const reducedMotion = ref(false)
@@ -810,7 +947,9 @@ const chapter = computed(
       origin: '01 / ORIGIN',
       affinity: '02 / AFFINITY',
       dossier: '03 / IDENTITY',
-      vow: '04 / THE CHOICE',
+      mode: '04 / GAME MODE',
+      'tactics-side': '05 / ALLEGIANCE',
+      vow: '05 / THE CHOICE',
       tutorial: '05 / TUTORIAL',
       yearbook: 'YEARBOOK',
       scrapbook: 'SCRAPBOOK',
@@ -847,7 +986,26 @@ const routes = [
 ]
 function beginNewGame() {
   fromYearbook.value = false
+  selectedMode.value = 'story'
   screen.value = 'origin'
+}
+function beginTactics() {
+  fromYearbook.value = false
+  selectedMode.value = 'tactics'
+  screen.value = 'origin'
+}
+function continueMode() {
+  screen.value = selectedMode.value === 'story' ? 'vow' : 'tactics-side'
+}
+function launchTactics() {
+  void navigateTo({
+    path: '/admin/every-villain-tactics',
+    query: {
+      from: 'prom',
+      lead: currentSignature.value.id,
+      view: selectedAllegiance.value,
+    },
+  })
 }
 function openYearbookCard(id: string) {
   const [origin, affinity] = id.split('-')
@@ -885,7 +1043,9 @@ function back() {
     origin: 'title',
     affinity: 'origin',
     dossier: 'affinity',
-    vow: fromYearbook.value ? 'yearbook-detail' : 'dossier',
+    mode: fromYearbook.value ? 'yearbook-detail' : 'dossier',
+    'tactics-side': 'mode',
+    vow: 'mode',
     tutorial: launchOnTutorial.value ? 'vow' : 'title',
     yearbook: 'title',
     scrapbook: 'title',

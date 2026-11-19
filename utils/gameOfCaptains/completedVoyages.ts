@@ -72,8 +72,6 @@ export function normalizeCompletedVoyages(raw: unknown): CompletedVoyage[] {
       ids.add(entry.id)
       return true
     })
-
-
 }
 
 export function archiveCompletedVoyage(

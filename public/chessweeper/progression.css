@@ -1,0 +1,204 @@
+/* Chessweeper progress panels: bounded, accessible, game-viewport friendly. */
+.meta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+.meta-actions button {
+  border: 1px solid var(--line);
+  background: #1a2940;
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 850;
+  font-size: 12px;
+  min-height: 38px;
+}
+.meta-actions button:hover {
+  border-color: var(--aqua);
+}
+.meta-actions .meta-notice {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.meta-dialog {
+  border: 1px solid #8196b3;
+  color: var(--ink);
+  background: linear-gradient(135deg, #172338, #0b1120);
+  border-radius: 22px;
+  padding: 0;
+  width: min(94vw, 820px);
+  max-height: min(90vh, 820px);
+  box-shadow: 0 30px 90px #000c;
+  overflow: hidden;
+}
+.meta-dialog::backdrop {
+  background: #020611d9;
+  backdrop-filter: blur(5px);
+}
+.meta-shell {
+  display: flex;
+  flex-direction: column;
+  max-height: min(90vh, 820px);
+}
+.meta-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 19px;
+  border-bottom: 1px solid var(--line);
+}
+.meta-dialog h2 {
+  font-size: 19px;
+  line-height: 1.2;
+  margin: 0;
+}
+.meta-dialog .meta-close {
+  border: 1px solid var(--line);
+  background: #25344a;
+  color: #f1f7ff;
+  border-radius: 9px;
+  padding: 7px 12px;
+  min-height: 38px;
+}
+.meta-content {
+  padding: 15px 19px 23px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.meta-content h3 {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 13px 0 8px;
+  color: var(--aqua);
+}
+.meta-intro {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+.meta-card {
+  border: 1px solid #445875;
+  border-radius: 13px;
+  padding: 12px;
+  background: #0d192a;
+  min-height: 106px;
+}
+.meta-card.locked {
+  filter: saturate(0.35);
+  opacity: 0.65;
+}
+.meta-card strong {
+  display: block;
+  font-size: 13px;
+}
+.meta-card span {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 5px;
+}
+.meta-card .meta-icon {
+  font-size: 23px;
+  margin-bottom: 5px;
+}
+.meta-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 11px 0;
+  padding: 10px 12px;
+  border: 1px solid #364a67;
+  border-radius: 10px;
+  background: #0b1729;
+  font-size: 13px;
+}
+.meta-line input {
+  accent-color: var(--aqua);
+  width: 18px;
+  height: 18px;
+}
+.meta-content button {
+  border: 1px solid #54738b;
+  background: #234b5c;
+  color: white;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 800;
+  font-size: 12px;
+  min-height: 37px;
+}
+.meta-warning {
+  color: #fbd075;
+  font-size: 12px;
+  margin-top: 12px;
+}
+.meta-toast {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 11px 18px;
+  background: #1b3c46;
+  border: 1px solid #74f0d8;
+  border-radius: 13px;
+  color: white;
+  box-shadow: 0 8px 30px #0009;
+  pointer-events: none;
+  font-size: 12px;
+  font-weight: 900;
+}
+html.meta-motion-off *,
+html.meta-motion-off *::before,
+html.meta-motion-off *::after {
+  animation: none !important;
+  transition: none !important;
+}
+html.meta-contrast {
+  filter: contrast(1.22);
+}
+html.meta-hints-off .tile.warn::after {
+  display: none;
+}
+html.meta-embedded .mast {
+  display: none;
+}
+html.meta-embedded .wrap {
+  padding-top: 6px;
+}
+@media (max-width: 540px) {
+  .meta-actions {
+    justify-content: center;
+  }
+  .meta-actions button {
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+  .meta-content {
+    padding: 11px;
+  }
+  .meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .meta-card {
+    min-height: 115px;
+  }
+  .meta-dialog header {
+    padding: 12px;
+  }
+  .meta-dialog h2 {
+    font-size: 17px;
+  }
+}

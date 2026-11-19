@@ -59,21 +59,22 @@ const EXPECTED_SLUGS = [
   'shifting-lands',
   'aquarium',
   'ruler-hooked',
+  'chessweeper',
 ]
 
-assert.equal(ADVERT_POSTERS.length, 16, 'sixteen advert posters')
+assert.equal(ADVERT_POSTERS.length, 17, 'seventeen advert posters')
 assert.deepEqual(
   ADVERT_POSTERS.map((p) => p.slug).sort(),
   [...EXPECTED_SLUGS].sort(),
-  'the poster set is the Arcade plus the fifteen Play games',
+  'the poster set is the Arcade plus the sixteen Play games',
 )
 assert.equal(
   new Set(ADVERT_POSTERS.map((p) => p.slug)).size,
-  16,
+  17,
   'poster slugs are unique',
 )
 
-assert.ok(ADVERT_SLOT_KEYS.length >= 16 * 3, 'every poster has card slots')
+assert.ok(ADVERT_SLOT_KEYS.length >= 17 * 3, 'every poster has card slots')
 assert.equal(
   new Set(ADVERT_SLOT_KEYS).size,
   ADVERT_SLOT_KEYS.length,

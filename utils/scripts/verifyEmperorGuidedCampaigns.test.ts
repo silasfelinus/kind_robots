@@ -5,7 +5,14 @@ import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import { questDef } from '../emperorOfDust/fortress/content'
 import { EPILOGUE } from '../emperorOfDust/fortress/epilogue'
 import { questOutcomeText } from '../emperorOfDust/fortress/engine'
-import { validateRun } from '../emperorOfDust/fortress/saves'
+import {
+  decodeBook,
+  encodeBook,
+  newBook,
+  recordDawn,
+  rewindTo,
+  validateRun,
+} from '../emperorOfDust/fortress/saves'
 import type { SceneLine } from '../emperorOfDust/fortress/types'
 
 type Plan = {
@@ -215,6 +222,8 @@ for (const plan of plans) {
       quests: 0,
     }))
     const snapshots: string[] = []
+    const saveRoundtrips: number[] = []
+    let book: ReturnType<typeof newBook> | undefined
     let lethalDispatches = 0
     let lethalPartialOrFailure = 0
     const questAid: string[] = []
@@ -226,6 +235,28 @@ for (const plan of plans) {
         dawns += 1
         assert.equal(run.day, dawns, plan.id + '/' + seed + ': sequential dawn')
         assert.ok(validateRun(run), plan.id + '/' + seed + ': valid save')
+        book = book ? recordDawn(book, run) : newBook(run)
+        if ([1, 11, 21, 31, 41, 51].includes(run.day)) {
+          const saved = decodeBook(encodeBook(book))
+          assert.ok(saved, plan.id + '/' + seed + ': reload at Day ' + run.day)
+          assert.deepEqual(
+            saved.current,
+            run,
+            plan.id + '/' + seed + ': current dawn survives reload',
+          )
+          assert.deepEqual(
+            saved.dawns,
+            book.dawns,
+            plan.id + '/' + seed + ': previous dawns survive reload',
+          )
+          saveRoundtrips.push(run.day)
+          if (run.day === 51) {
+            const rewound = rewindTo(saved, 31)
+            assert.equal(rewound.current.day, 31)
+            assert.equal(rewound.dawns.length, 31)
+            assert.ok(validateRun(rewound.current))
+          }
+        }
         if ([1, 5, 7, 8, 10, 11, 20, 30, 40, 41, 50, 51].includes(run.day))
           snapshots.push(
             'D' +
@@ -324,6 +355,14 @@ for (const plan of plans) {
     }
     if (dawns !== 51)
       failures.push(plan.id + '/' + seed + ': only ' + dawns + ' dawns')
+    assert.deepEqual(
+      saveRoundtrips,
+      [1, 11, 21, 31, 41, 51],
+      plan.id +
+        '/' +
+        seed +
+        ': all five acts must round-trip through save data',
+    )
     if (missingTargets.length)
       failures.push(
         plan.id + '/' + seed + ': missing ' + missingTargets.join(', '),
@@ -366,6 +405,7 @@ for (const plan of plans) {
       lethalPartialOrFailure,
       missingTargets,
       snapshots,
+      saveRoundtrips,
     })
   }
 }

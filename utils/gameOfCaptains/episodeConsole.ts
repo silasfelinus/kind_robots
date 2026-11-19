@@ -64,16 +64,17 @@ const hash = (s: string): number => {
 }
 const clamp = (v: number) => Math.max(8, Math.min(94, v))
 
-const PLANET_CARDS = [
+export const PLANET_CARDS = [
   {
     title: 'The Moon That Requested Custody',
     skill: 'diplomacy',
     setup:
       'A moon demands shared custody of its own tides. The colony has misplaced every copy of its birth certificate.',
-    ask: 'Local residents vote to lend the moon its tides on alternate Thursdays.',
-    document: 'The ancient ownership deed names the moon as its own guardian.',
+    ask: 'Local residents vote to lend the moon its tides on alternate Thursdays. The moon abstains after learning it counts as a resident and would have to attend every committee.',
+    document:
+      'The ancient ownership deed names the moon as its own guardian. The registrar requests the moon’s signature and accepts a crater as a thumbprint.',
     override:
-      'The couch relocates one tide; three coastal councils send invoices.',
+      'The couch relocates one tide; three coastal councils send invoices. The affected villages demand that the next meeting be held without the couch in the room.',
     crew: 'rue',
   },
   {
@@ -81,10 +82,11 @@ const PLANET_CARDS = [
     skill: 'rescue',
     setup:
       'A traveler has arrived six days before their own disappearance. The border guards want to arrest tomorrow.',
-    ask: 'The traveler chooses a safe place to wait for the paradox.',
-    document: 'A protected testimony makes the arrest order invalid.',
+    ask: 'The traveler chooses a safe place to wait for the paradox. The border agency bills Wednesday for six unspent days of lodging.',
+    document:
+      'A protected testimony makes the arrest order invalid. The arresting officer files tomorrow as a hostile witness.',
     override:
-      'The couch shelters the traveler, acquiring a warrant from next week.',
+      'The couch shelters the traveler, acquiring a warrant from next week. Wednesday is safe, but nobody asked the transit station now accused of harboring furniture.',
     crew: 'tess',
   },
   {
@@ -92,10 +94,11 @@ const PLANET_CARDS = [
     skill: 'diplomacy',
     setup:
       'Three junior stars have gone on strike. Their contract provides twelve hours of darkness and no sick leave.',
-    ask: 'The workers negotiate a rotating daylight schedule.',
+    ask: 'The workers negotiate a rotating daylight schedule. Planetary agriculture gets its first union calendar and a modestly militant dawn.',
     document:
-      'Payroll records reveal the star owners have been billing the planets twice.',
-    override: 'The couch restarts a star before its workers consent.',
+      'Payroll records reveal the star owners have been billing the planets twice. The accounting office demands a second sun to inspect the first.',
+    override:
+      'The couch restarts a star before its workers consent. Daylight returns, along with a picket line that extends forty million kilometers.',
     crew: 'pell',
   },
   {
@@ -103,10 +106,11 @@ const PLANET_CARDS = [
     skill: 'science',
     setup:
       'A sentient orchard requests retirement from producing breathable air. A nearby settlement claims this is treason.',
-    ask: 'A public forum funds an alternative oxygen supply.',
-    document: 'The grove establishes that its employment contract was forged.',
+    ask: 'A public forum funds an alternative oxygen supply. The grove votes to spend retirement painting clouds in colors nobody can breathe.',
+    document:
+      'The grove establishes that its employment contract was forged. The settlement’s legal department is reassigned to compost.',
     override:
-      'The orchard complies, and the settlement loses its only willing ally.',
+      'The orchard complies, and the settlement loses its only willing ally. Oxygen resumes on schedule; the trees post a no-visitors policy.',
     crew: 'brin',
   },
   {
@@ -114,10 +118,11 @@ const PLANET_CARDS = [
     skill: 'culture',
     setup:
       'An assembly votes in frost patterns. A visiting ambassador has been translating every warning as a compliment.',
-    ask: 'The delegates insist on an interpreter they actually trust.',
-    document: 'An archived thermal recording identifies the disputed vote.',
+    ask: 'The delegates insist on an interpreter they actually trust. A local snowbank is sworn in and immediately objects to the humidity.',
+    document:
+      'An archived thermal recording identifies the disputed vote. The ambassador appeals on the grounds that a cold shoulder cannot count as recorded dissent.',
     override:
-      'The bubble heats the room; the assembly declares an emergency recess.',
+      'The bubble heats the room; the assembly declares an emergency recess. The meeting survives, but the delegates refuse further talks until the thermostat is returned.',
     crew: 'taal',
   },
   {
@@ -125,10 +130,11 @@ const PLANET_CARDS = [
     skill: 'diplomacy',
     setup:
       'A quarry planet resigns from the mining company that claims to own its crust. The company has sent a lawyer and a drill.',
-    ask: 'The planet dictates terms to a neutral mediator.',
-    document: 'Mineral ledgers prove centuries of unpaid extraction.',
+    ask: 'The planet dictates terms to a neutral mediator. Its first demand is that drills stop being described as wellness equipment.',
+    document:
+      'Mineral ledgers prove centuries of unpaid extraction. The company files a reimbursement claim for the paper used to print the evidence.',
     override:
-      'The couch disables the drill; a rescue corridor becomes the next negotiation.',
+      'The couch disables the drill; a rescue corridor becomes the next negotiation. Workers escape, but the planet asks who authorized the couch to speak for it.',
     crew: 'fen',
   },
   {
@@ -136,11 +142,11 @@ const PLANET_CARDS = [
     skill: 'culture',
     setup:
       'A colony broadcasts an apology that resets each listener’s memories. The descendants of its victims remain unconvinced.',
-    ask: 'Survivors choose whether any apology will be heard.',
+    ask: 'Survivors choose whether any apology will be heard. The broadcaster receives twelve hundred separate refusals and finally listens.',
     document:
-      'Unaltered recordings preserve the evidence before the broadcast is stopped.',
+      'Unaltered recordings preserve the evidence before the broadcast is stopped. The ministry labels the archive a deeply inconvenient form of memory.',
     override:
-      'The couch cuts power, sparing new victims and erasing one witness account.',
+      'The couch cuts power, sparing new victims and erasing one witness account. The survivors welcome the silence but object to another decision made without them.',
     crew: 'mox',
   },
   {
@@ -148,11 +154,11 @@ const PLANET_CARDS = [
     skill: 'science',
     setup:
       'A public alarm chime was outlawed for upsetting a royal concert. The emergency it warned of is arriving again.',
-    ask: 'Residents decide when the alarm may be sounded.',
+    ask: 'Residents decide when the alarm may be sounded. They choose immediately and vote to fine the royal orchestra for excessive silence.',
     document:
-      'The missing waveform identifies who silenced the original warning.',
+      'The missing waveform identifies who silenced the original warning. The palace archivist requests anonymity and a hearing aid.',
     override:
-      'The couch sounds every bell and shatters the palace’s ceremonial windows.',
+      'The couch sounds every bell and shatters the palace’s ceremonial windows. The city evacuates; the king announces mandatory consultation for all future emergencies.',
     crew: 'omi',
   },
   {
@@ -160,11 +166,11 @@ const PLANET_CARDS = [
     skill: 'luck',
     setup:
       'An inspector has classified the red couch as a theatrical prop. Its passengers are now legally imaginary.',
-    ask: 'The inspector interviews the passengers and reinstates their personhood.',
+    ask: 'The inspector interviews the passengers and reinstates their personhood. Each crew member is offered a certificate of being mostly plausible.',
     document:
-      'An old registration stamp proves the couch has always been a vehicle.',
+      'An old registration stamp proves the couch has always been a vehicle. Customs backdates the paperwork to before upholstery was invented.',
     override:
-      'The crew flies through customs while the paperwork keeps chasing them.',
+      'The crew flies through customs while the paperwork keeps chasing them. Everyone arrives alive, but the imaginary passengers lose the right to complain about delay.',
     crew: 'jex',
   },
   {
@@ -172,10 +178,11 @@ const PLANET_CARDS = [
     skill: 'science',
     setup:
       'Residents who bought premium gravity have discovered the local company charges extra for walking downhill.',
-    ask: 'Tenants negotiate a public gravity guarantee.',
-    document: 'The hidden meter exposes the company’s fraudulent readings.',
+    ask: 'Tenants negotiate a public gravity guarantee. The board finally agrees that standing still should not be a luxury subscription.',
+    document:
+      'The hidden meter exposes the company’s fraudulent readings. The auditors find that the owners have invoiced falling objects for the privilege.',
     override:
-      'The couch redirects gravity; loose furniture occupies the council chamber.',
+      'The couch redirects gravity; loose furniture occupies the council chamber. The new orientation works, but residents demand a vote before the next rearrangement.',
     crew: 'sora',
   },
 ] as const

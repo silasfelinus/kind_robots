@@ -17,10 +17,9 @@ on:
       - 'pages/play/ecotone.vue'
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'
-      - 'utils/scripts/verifyEcotone.test.ts'
-      - 'utils/scripts/verifyEcotonePlaystyles.test.ts'
-      - 'utils/scripts/verifyEcotoneMysteries.test.ts'
-      - 'utils/scripts/verifyEcotoneAchievements.test.ts'
+      - 'utils/scripts/**/verifyEcotone*.test.ts'
+      - 'utils/scripts/ecotoneBrowserFixtures.ts'
+      - 'utils/scripts/auditEcotoneViewports.browser.mjs'
       - 'utils/achievements/catalog/main/weird-humboldt.ts'
       - 'utils/scripts/validateEcotoneMystery.ts'
       - 'utils/playbook/**'
@@ -58,13 +57,17 @@ jobs:
       - run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
-      - run: npm run test:ecotone
       - run: npx tsx utils/scripts/verifyKrChoiceHand.test.ts
-      - run: npx tsx utils/scripts/verifyEcotoneOnboarding.test.ts
-      - run: npx tsx utils/scripts/verifyEcotoneGuideReveal.test.ts
-      - run: npx tsx utils/scripts/verifyEcotoneAchievements.test.ts
-      - run: npx tsx utils/scripts/verifyEcotoneDisplaySettings.test.ts
-      - run: npm run test:ecotone-mysteries
-      - run: npm run test:ecotone-companion-continuity
-      - run: npm run test:ecotone-optimal-paths
+      # Every Ecotone contract, not a hand-picked subset: 19 of the 27 suites
+      # used to run only when someone remembered to (weird-humboldt/t-021).
+      - name: All Ecotone suites
+        run: |
+          set -e
+          for suite in utils/scripts/verifyEcotone*.test.ts; do
+            echo "::group::$suite"
+            npx tsx "$suite"
+            echo "::endgroup::"
+          done
+      # The mounted viewport audit's saves must stay engine-reachable (t-016).
+      - run: npx tsx utils/scripts/ecotoneBrowserFixtures.ts > /dev/null
       - run: npm run test:playbook

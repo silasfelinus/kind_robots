@@ -927,7 +927,8 @@ export const CHORES: readonly QuestDef[] = [
         'The party found him and let him go, minus the purse. The Watch has one less private and one more story.',
       failure:
         'He was gone. The purse turned up in a Pack game two nights later, its seal cut off but the thread still blue. Dunmark asks whether the party followed the wrong road. His mother asks whether the soldiers checked the old ferry before they checked the taverns. Neither receives an answer.',
-      expired: 'Dunmark sent his own men. They brought back the kit, buckled into an empty belt. He locked it in the Watch store instead of putting it on the roster. The deserter’s mother stood outside the gate until sunset, waiting for a body or a name. Nobody came to speak to her.',
+      expired:
+        'Dunmark sent his own men. They brought back the kit, buckled into an empty belt. He locked it in the Watch store instead of putting it on the roster. The deserter’s mother stood outside the gate until sunset, waiting for a body or a name. Nobody came to speak to her.',
     },
     outcomeAlts: {
       success: [

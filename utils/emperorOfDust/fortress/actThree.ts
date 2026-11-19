@@ -450,7 +450,8 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
         'The line bent at the fence posts and did not quite break. Three farms behind it burned while the riders held the road. Hester comes to count the families by lantern light. She thanks the court for the line and asks where the displaced people should sleep. There is no answer on Dunmark’s map.',
       failure:
         'The line broke at the fence posts. The Freeholds paid in barns. Hester brings the tally to the court, written on a feed sack because the records burned. She circles the one farm whose people had nowhere else to go. Dunmark keeps the sack when she leaves. He cannot put it back on the map.',
-      expired: 'Nobody stood on the line. The Freeholds stood alone. At dawn the Watch found broken fence posts and a trail of wagons heading away from the road. Hester sent a letter asking whether the crown still meant to call them friends. It was folded under the tax roll.',
+      expired:
+        'Nobody stood on the line. The Freeholds stood alone. At dawn the Watch found broken fence posts and a trail of wagons heading away from the road. Hester sent a letter asking whether the crown still meant to call them friends. It was folded under the tax roll.',
     },
     // Whoever the crown sheltered that night stood on the line beside it.
     outcomeVariants: {

@@ -208,6 +208,73 @@
         </article>
       </div>
     </section>
+    <section class="@container kr-panel space-y-3 p-4 @4xl:col-span-2">
+      <h2 class="font-serif text-2xl font-bold">Legacy of the Crown</h2>
+      <p class="text-xs opacity-75">
+        Each earned ending unlocks a small advantage for a future reign. Choose
+        one, or rule without a favor. Nothing changes this run.
+      </p>
+      <div class="grid gap-2 @md:grid-cols-2 @4xl:grid-cols-3">
+        <button
+          type="button"
+          class="rounded-xl border p-3 text-left text-sm"
+          :class="
+            !court.legacy.useWrit && !court.legacy.selectedFavor
+              ? 'border-warning bg-warning/15'
+              : 'border-base-content/15 bg-base-100'
+          "
+          :aria-pressed="!court.legacy.useWrit && !court.legacy.selectedFavor"
+          @click="act(() => court.setLegacyFavor(null), 'No legacy selected.')"
+        >
+          <strong class="block font-serif">No favors</strong>
+          <span class="text-xs opacity-75">Begin with only what you earn.</span>
+        </button>
+        <button
+          type="button"
+          class="rounded-xl border p-3 text-left text-sm disabled:opacity-45"
+          :class="
+            court.legacy.useWrit
+              ? 'border-warning bg-warning/15'
+              : 'border-base-content/15 bg-base-100'
+          "
+          :aria-pressed="court.legacy.useWrit"
+          :disabled="!court.legacy.endings.length"
+          @click="
+            act(() => court.setLegacyWrit(true), 'Veteran writ selected.')
+          "
+        >
+          <strong class="block font-serif">Veteran’s writ</strong>
+          <span class="block text-xs opacity-75">+5 starting brass.</span>
+          <span v-if="!court.legacy.endings.length" class="text-xs">
+            Complete any reign to unlock.
+          </span>
+        </button>
+        <button
+          v-for="favor in LEGACY_FAVORS"
+          :key="favor.id"
+          type="button"
+          class="rounded-xl border p-3 text-left text-sm disabled:opacity-45"
+          :class="
+            court.legacy.selectedFavor === favor.id
+              ? 'border-warning bg-warning/15'
+              : 'border-base-content/15 bg-base-100'
+          "
+          :aria-pressed="court.legacy.selectedFavor === favor.id"
+          :disabled="!court.legacy.endings.includes(favor.id)"
+          @click="chooseFavor(favor.id)"
+        >
+          <strong class="block font-serif">{{ favor.name }}</strong>
+          <span class="block text-xs opacity-75">{{ favor.description }}</span>
+          <span class="block text-xs font-semibold">
+            {{
+              court.legacy.endings.includes(favor.id)
+                ? 'Earned'
+                : `Locked · ${ENDINGS[favor.id].title}`
+            }}
+          </span>
+        </button>
+      </div>
+    </section>
     <p v-if="message" class="kr-note p-2 text-sm @4xl:col-span-2" role="status">
       {{ message }}
     </p>
@@ -219,6 +286,9 @@ import { computed, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { actOf } from '~/utils/emperorOfDust/fortress/engine'
 import { RELICS } from '~/utils/emperorOfDust/fortress/relics'
+import { ENDINGS } from '~/utils/emperorOfDust/fortress/endings'
+import type { EndingId } from '~/utils/emperorOfDust/fortress/endings'
+import { LEGACY_FAVORS } from '~/utils/emperorOfDust/fortress/legacy'
 import type { RelicId } from '~/utils/emperorOfDust/fortress/relics'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
@@ -264,6 +334,13 @@ function rewind() {
   if (!day) return
   act(() => court.rewind(day), `Rewound to dawn of Day ${day}.`)
   pendingDay.value = null
+}
+
+function chooseFavor(id: EndingId) {
+  act(
+    () => court.setLegacyFavor(id),
+    `${LEGACY_FAVORS[id].name} selected for your next reign.`,
+  )
 }
 
 function toggleRelic(id: RelicId) {

@@ -69,6 +69,7 @@ import {
   encodeLegacy,
 } from '~/utils/emperorOfDust/fortress/legacy'
 import type { LegacyRecord } from '~/utils/emperorOfDust/fortress/legacy'
+import type { EndingId } from '~/utils/emperorOfDust/fortress/endings'
 import {
   SCRAPBOOK_KEY,
   decodeScrapbook,
@@ -437,7 +438,18 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     if (legacyHeld) throw new Error('The legacy record is unreadable')
     if (enabled && !legacy.value.endings.length)
       throw new Error('Complete a reign before selecting the veteran writ')
-    const next = { ...legacy.value, useWrit: enabled }
+    const next = { ...legacy.value, useWrit: enabled, selectedFavor: null }
+    if (!write(LEGACY_KEY, encodeLegacy(next)))
+      throw new Error('The legacy preference could not be saved')
+    legacy.value = next
+  }
+
+  function setLegacyFavor(id: EndingId | null) {
+    if (!loaded.value) load()
+    if (legacyHeld) throw new Error('The legacy record is unreadable')
+    if (id && !legacy.value.endings.includes(id))
+      throw new Error('That legacy favor has not been earned')
+    const next = { ...legacy.value, useWrit: false, selectedFavor: id }
     if (!write(LEGACY_KEY, encodeLegacy(next)))
       throw new Error('The legacy preference could not be saved')
     legacy.value = next
@@ -445,7 +457,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
 
   function newRun() {
     if (!loaded.value) load()
-    book.value = newBook(createRun(newSeed(), equippedRelics()))
+    book.value = newBook(
+      applyLegacy(createRun(newSeed(), equippedRelics()), legacy.value),
+    )
     usePlaybookRunReviewStore().begin(
       'emperor-of-dust',
       playbookRunKey(book.value.current),
@@ -649,6 +663,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     legacy,
     scrapbook,
     setLegacyWrit,
+    setLegacyFavor,
     claimable,
     textSpeed,
     preferences,

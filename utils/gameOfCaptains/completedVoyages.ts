@@ -90,12 +90,20 @@ export function archiveCompletedVoyage(
     day: run.day ?? run.chapter,
     ending: run.ending,
     outcome: run.scene,
-    choices: (run.missionHistory ?? []).map((choice) => ({
-      chapter: choice.chapter,
-      missionId: choice.missionId,
-      policy: choice.policy,
-      result: choice.result,
-    })),
+    choices: [
+      ...(run.missionHistory ?? []).map((choice) => ({
+        chapter: choice.chapter,
+        missionId: choice.missionId,
+        policy: choice.policy,
+        result: choice.result,
+      })),
+      ...(run.consequenceHistory ?? []).map((choice) => ({
+        chapter: choice.chapter,
+        missionId: choice.missionId,
+        policy: choice.choiceId,
+        result: choice.succeeded ? 'success' : 'failure',
+      })),
+    ].sort((a, b) => a.chapter - b.chapter),
     losses: (run.redshirtFallen ?? []).map((loss) => ({
       id: loss.id,
       missionId: loss.missionId,

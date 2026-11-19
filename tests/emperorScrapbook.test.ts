@@ -55,3 +55,14 @@ assert.deepEqual(
   first[0]?.epilogues,
   rememberReign([], run, '2026-11-13T03:07:20Z')[0]?.epilogues,
 )
+
+const bellRun = {
+  ...createRun(789),
+  day: 51,
+  flags: ['horror-sealed', 'peace-bell', 'bell-rung'],
+}
+const second = rememberReign(first, bellRun, '2026-11-15T03:07:20Z')
+assert.equal(second.length, 2)
+assert.equal(second[0]?.ending, 'bell-restored')
+assert.equal(second[1]?.ending, 'long-night')
+assert.deepEqual(decodeScrapbook(JSON.stringify(second)), second)

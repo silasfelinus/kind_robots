@@ -1195,6 +1195,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'rice-terrace-monsoon',
+    label: 'Rice Terrace Monsoon',
+    reveal: 'Monsoon rain fills a hillside of rice paddies, step by step',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Rain brims each paddy until it spills down to the next 🌾 hover to part the rain, click to ripple the terraces',
+    color: '#6f9a3a',
+    releasedAt: '2026-11-19T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

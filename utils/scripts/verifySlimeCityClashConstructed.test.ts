@@ -382,7 +382,10 @@ assert.deepEqual(
   [],
   'every one-slot card is chosen in at least 3% of its bouts',
 )
-const NEAR_DEAD_TWO_SLOT_CEILING = 18
+// 2026-11-19 PT: CLASH_CPU_TWO_SLOT_MARGIN 2 -> 0 revived ten of them; 8 remain
+// (Juggernaut, Chimera, Grease Oracle, Spare Nine Lives, Glitterglass Flood,
+// Breeding Hunger, Compound Notice, Acquisition Clause).
+const NEAR_DEAD_TWO_SLOT_CEILING = 8
 assert.ok(
   nearDead.length <= NEAR_DEAD_TWO_SLOT_CEILING,
   nearDead.length +
@@ -465,8 +468,10 @@ assert.deepEqual(
 // Measured on +5000 when this guard landed: 2 dead (Glitterglass Flood, the
 // s3 Compound Notice) and 16 near-dead. Ratchet: lower them when
 // a card or CPU change revives a card here; never raise them.
-const HELD_OUT_DEAD_CEILING = 2
-const HELD_OUT_NEAR_DEAD_CEILING = 16
+// 2026-11-19 PT: margin 2 -> 0 read 0 dead and 7 near-dead here (+9000: 0
+// and 6).
+const HELD_OUT_DEAD_CEILING = 0
+const HELD_OUT_NEAR_DEAD_CEILING = 7
 if (heldOutOffset === DEFAULT_HELD_OUT_OFFSET) {
   assert.ok(
     heldOut.dead.length <= HELD_OUT_DEAD_CEILING,

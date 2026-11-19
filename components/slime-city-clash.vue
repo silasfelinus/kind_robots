@@ -1,6 +1,7 @@
 <!-- Canonical Clash: two card plays, then an animated automatic alley-by-alley strike sweep. -->
 <template>
   <section
+    ref="clashRoot"
     class="clash"
     :class="{ 'log-open': logOpen }"
     data-testid="slime-clash"
@@ -595,6 +596,8 @@ import {
   type ClashSpectacle,
 } from '~/utils/slimeCity/clashSpectacle'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
+import { newPadMemory, readPad } from '~/utils/consoleInput'
+import { runClashPadCommand } from '~/utils/slimeCity/clashGamepad'
 
 const STRIKE_WINDUP_MS = 320
 const STRIKE_SETTLE_MS = 560
@@ -937,6 +940,36 @@ onBeforeUnmount(() => {
   stopTimer()
   resetReactions()
   sound.setTense(false)
+})
+
+// Gamepad: D-pad/stick move focus across Clash's buttons, A presses, Start
+// fights, LB/RB step the hand, B closes the report (utils/slimeCity/clashGamepad).
+const clashRoot = ref<HTMLElement | null>(null)
+const padMemory = newPadMemory()
+let padFrame = 0
+function pollClashPads(timestamp: number): void {
+  padFrame = 0
+  const root = clashRoot.value
+  if (!root?.isConnected) return
+  const pads = navigator.getGamepads?.() ?? []
+  const pad = pads.find((p) => !!p)
+  if (!pad) return
+  for (const command of readPad(pad, padMemory, timestamp))
+    runClashPadCommand(root, command)
+  padFrame = window.requestAnimationFrame(pollClashPads)
+}
+function onClashGamepadConnected(): void {
+  if (!padFrame) padFrame = window.requestAnimationFrame(pollClashPads)
+}
+onMounted(() => {
+  window.addEventListener('gamepadconnected', onClashGamepadConnected)
+  if ((navigator.getGamepads?.() ?? []).some((p) => !!p))
+    onClashGamepadConnected()
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('gamepadconnected', onClashGamepadConnected)
+  if (padFrame) window.cancelAnimationFrame(padFrame)
+  padFrame = 0
 })
 watch(
   () => clashIsTense(game.value.boss, game.value.victor),

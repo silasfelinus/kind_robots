@@ -110,8 +110,9 @@ function visible(el: HTMLElement): boolean {
 export function moveFocus(
   root: HTMLElement,
   direction: 'up' | 'down' | 'left' | 'right',
+  selector: string = NAV_SELECTOR,
 ): boolean {
-  const items = [...root.querySelectorAll<HTMLElement>(NAV_SELECTOR)].filter(
+  const items = [...root.querySelectorAll<HTMLElement>(selector)].filter(
     visible,
   )
   if (!items.length) return false

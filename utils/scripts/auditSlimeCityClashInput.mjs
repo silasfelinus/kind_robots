@@ -8,7 +8,9 @@
  *   touch     a touch-only phone context (hasTouch, isMobile) that taps
  *             cards, alleys and FIGHT with touchscreen taps.
  * A match passes when the result screen (REMATCH or REWARDS) appears.
- * Gamepad is reported, not tested: Clash has no Gamepad API binding yet.
+ * Gamepad is covered by verifySlimeCityClashGamepad.test.ts (D-pad/stick focus,
+ * A press, Start FIGHT, LB/RB hand) rather than driven here: Playwright
+ * cannot synthesize Gamepad API input.
  *
  * /play/slime-city is account-gated: an anonymous visitor is redirected to
  * /login shortly after hydration, usually mid-match. Pass a Playwright
@@ -239,7 +241,7 @@ try {
 } finally {
   await browser.close()
 }
-console.log('gamepad: NOT COVERED (Clash has no Gamepad API binding)')
+console.log('gamepad: unit-tested (verifySlimeCityClashGamepad.test.ts); not browser-driven')
 if (failures) {
   console.error(`Clash input pass: ${failures} failed mode(s)`)
   process.exitCode = 1

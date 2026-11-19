@@ -127,6 +127,27 @@ export function drawFeverSky(
     g.stroke()
   }
 
+  // Distant bioluminescent ocean: a separate slow-moving atmospheric plane.
+  // Keep the middle of the playfield dark for hostile projectile contrast.
+  g.globalAlpha = 0.12
+  for (let layer = 0; layer < 2; layer++) {
+    const baseY = H - 12 + layer * 14
+    const offset = tick * drift * (0.035 + layer * 0.025)
+    g.fillStyle = layer === 0 ? sky[1] : sky[2]
+    g.beginPath()
+    g.moveTo(0, H)
+    for (let x = 0; x <= W; x += 8) {
+      const y =
+        baseY -
+        22 * Math.sin((x + offset) / (75 + layer * 30) + act * 0.7) -
+        7 * Math.sin((x - offset) / 29 + layer)
+      g.lineTo(x, y)
+    }
+    g.lineTo(W, H)
+    g.closePath()
+    g.fill()
+  }
+
   // Doodle planes: soft hearts, stars and twinkles drifting at three depths.
   for (let plane = 0; plane < 3; plane++) {
     const speed = [0.18, 0.4, 0.75][plane]!

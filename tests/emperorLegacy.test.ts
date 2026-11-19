@@ -75,6 +75,12 @@ import { createRun } from '../utils/emperorOfDust/fortress/engine'
   assert.equal(decodeLegacy('{bad'), null)
   assert.equal(decodeLegacy('{"endings":false}'), null)
   assert.deepEqual(decodeLegacy(null), emptyLegacy())
+  assert.deepEqual(
+    decodeLegacy(
+      '{"endings":["not-a-real-ending","long-night","long-night"],"useWrit":false,"selectedFavor":"not-a-real-ending"}',
+    ),
+    { endings: ['long-night'], useWrit: false, selectedFavor: null },
+  )
   assert.deepEqual(decodeLegacy('{"endings":["long-night"],"useWrit":true}'), {
     endings: ['long-night'],
     useWrit: true,

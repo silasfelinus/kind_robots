@@ -448,6 +448,16 @@ const features: FeaturedExperience[] = [
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
+    title: 'Chessweeper',
+    posterSlug: 'chessweeper',
+    tag: 'Three dangerous worlds · Chess, mines & sawblades',
+    category: 'play',
+    route: '/play/chessweeper',
+    image: '/images/chessweeper/highlight.webp',
+    description:
+      'Outmaneuver enemy kings, hidden mines and moving sawblades in three outrageous worlds.',
+  },
+  {
     title: 'Prom of Doom',
     posterSlug: 'prom-of-doom',
     tag: 'Capes & Tassels · Playable superhero school',

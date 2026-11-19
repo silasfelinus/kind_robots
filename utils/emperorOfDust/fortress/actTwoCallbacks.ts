@@ -42,7 +42,7 @@ export const ACT_TWO_CALLBACK_AUDIENCES: Readonly<
             schedule: ['d19-third-map'],
           },
           response:
-            'The Watch hangs the feather over the fire beside the ration card. Nobody sings that night. Nobody sleeps near the postern.',
+            'The Watch hangs the feather above the fire. Nobody sings that night. Nobody sleeps near the postern.',
         },
         {
           id: 'recall',

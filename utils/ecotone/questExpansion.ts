@@ -4,6 +4,7 @@ import { FORMER_GUIDE_QUESTS } from './formerGuideQuests'
 import { COMPANION_HANGOUTS } from './companionHangouts'
 import { COMPANION_TIME } from './companionTime'
 import { LOCATION_ATLAS_QUESTS } from './locationAtlasQuests'
+import { MIDDLE_ENCOUNTERS } from './middleEncounters'
 
 export type GatedEncounter = EncounterCard & {
   requiresLead?: CompanionId
@@ -22,6 +23,7 @@ export type GatedEncounter = EncounterCard & {
 export const QUEST_CARDS: GatedEncounter[] = [
   ...REGIONAL_QUESTS,
   ...LOCATION_ATLAS_QUESTS,
+  ...MIDDLE_ENCOUNTERS,
   ...FORMER_GUIDE_QUESTS,
   ...Object.values(COMPANION_HANGOUTS).map((card) => ({
     ...card,

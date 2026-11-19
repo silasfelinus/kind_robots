@@ -374,6 +374,79 @@ export const REGIONAL_CALLBACKS: RegionalCallback[] = [
     artMoment:
       'Ferndale meeting table with open minutes and a crowd making room for late-arriving residents',
   },
+  // The eight curated middle encounters (middleEncounters.ts, t-027).
+  {
+    id: 'MC-002',
+    choice: 'co-op-success',
+    flag: 'diner_coop_started',
+    priority: 3,
+    text: 'The placemat plan from the harbor diner became an actual co-op the second spring. The pie got worse for a year and then, to everyone’s surprise, better.',
+    artMoment:
+      'A framed diner placemat with a handwritten staffing plan hung beside the register, staff behind the counter, no readable text',
+  },
+  {
+    id: 'MC-007',
+    choice: 'new-panel-success',
+    flag: 'mural_new_panel',
+    priority: 3,
+    text: 'The new panel went up beside the old salmon under the trail bridge. The two walls still disagree about which way the fish swim, and the neighbors take sides for fun.',
+    artMoment:
+      'An underpass wall with a faded salmon mural beside a bright new painted panel of neighbors, cyclists passing, no readable text',
+  },
+  {
+    id: 'MC-001',
+    choice: 'both-success',
+    flag: 'hearing_phased_plan',
+    priority: 3,
+    text: 'The phased creek plan you asked for came in late and over budget, with a fish ladder first and a bridge two years after. Both experts still claim it as their idea.',
+    artMoment:
+      'A temporary fish ladder beside an old culvert on a forest creek with a rural road above, survey stakes, no readable text',
+  },
+  {
+    id: 'MC-004',
+    choice: 'lighter-way-success',
+    flag: 'foodshare_night_shift',
+    priority: 3,
+    text: 'The food share’s 5 a.m. bread run still exists. Four night-shift workers do it now, and the rule on the door has a second line nobody has erased.',
+    artMoment:
+      'A dawn bakery back door with a night-shift worker loading bread into crates, a church basement door down the street, no readable text',
+  },
+  {
+    id: 'MC-003',
+    choice: 'act-early-success',
+    flag: 'forecast_acted_early',
+    priority: 3,
+    text: 'The ridge repeater still carries forecasts from a Humboldt that has not happened. Since the morning the bus took the backup route, the voice says please less often.',
+    artMoment:
+      'A ridge-top radio shack at dawn with a school bus passing safely on the road below, fog lifting, no readable text',
+  },
+  {
+    id: 'MC-006',
+    choice: 'co-own-success',
+    flag: 'parcel_co_owned',
+    priority: 3,
+    text: 'The ridge families still hold the survey data together. The fire break held through two bad summers, and the flowers by the old chimney are planted by both sides now.',
+    artMoment:
+      'A cleared fire break across a ridge with a stone chimney ringed by flowers in the middle, two families at a distance, no readable text',
+  },
+  {
+    id: 'MC-005',
+    choice: 'check-later-success',
+    flag: 'festival_checked_later',
+    priority: 3,
+    text: 'The riverside music night added a quiet log by the gate, marked only by a lantern that stays dim on purpose. People sit there when they need to, and nobody checks on them twice.',
+    artMoment:
+      'A single dim lantern above a mossy log at the edge of a lantern-lit festival path, empty and welcoming, no readable text',
+  },
+  {
+    id: 'MC-008',
+    choice: 'partial-breach-success',
+    flag: 'dam_partial_breach',
+    priority: 3,
+    text: 'The notched dam is named for the mill cook now. Fish pass through the gap, kids swim in the half-deep pool, and every summer someone brings pie to the warm rocks.',
+    artMoment:
+      'A small notched concrete dam with water rushing through the gap, families on sunny rocks beside a half-deep pool, no readable text',
+  },
 ]
 
 export function chosenRegionalCallbacks(flags: string[]): RegionalCallback[] {

@@ -668,8 +668,8 @@ assert.ok(encounterArtPitches().length > 500)
 assert.equal(endingArtPitches().length, ENDING_IDS.length * 4)
 assert.equal(
   REGIONAL_CALLBACKS.length,
-  40,
-  'forty precise optional regional payoffs, including both creek-monitoring results',
+  48,
+  'forty regional payoffs (both creek-monitoring results included) plus one for each of the eight middle encounters',
 )
 for (const callback of REGIONAL_CALLBACKS) {
   assert.ok(

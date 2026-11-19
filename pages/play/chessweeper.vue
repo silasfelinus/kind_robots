@@ -9,6 +9,13 @@
           <NuxtLink to="/play/arcade" class="btn btn-ghost btn-sm shrink-0">
             ← Arcade
           </NuxtLink>
+          <img
+            src="/images/chessweeper/icon.webp"
+            alt=""
+            width="28"
+            height="28"
+            class="size-7 shrink-0 rounded-lg object-cover"
+          />
           <span class="min-w-0 flex-1 truncate font-bold">
             Chessweeper · Three Dangerous Worlds
           </span>

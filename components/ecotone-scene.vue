@@ -656,6 +656,7 @@
       </svg>
       <img
         v-if="src && !failed"
+        ref="artImg"
         :src="src"
         :alt="label"
         class="ecotone-art absolute inset-0 size-full object-cover"
@@ -671,7 +672,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref, useId, watch, type Ref } from 'vue'
+import {
+  computed,
+  inject,
+  nextTick,
+  onMounted,
+  ref,
+  useId,
+  watch,
+  type Ref,
+} from 'vue'
 import type { SceneKind } from '~/utils/ecotone/content'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
@@ -702,9 +712,29 @@ const src = computed(() =>
   ecotoneArtFirst(props.art, props.artStyle ?? chosenStyle.value),
 )
 
-watch(src, () => {
+const artImg = ref<HTMLImageElement | null>(null)
+
+/**
+ * A server-rendered <img> can finish loading before hydration attaches
+ * @load, and then the picture stays at opacity 0 forever while the drawn
+ * fallback shows (live on kindrobots.org until 2026-11-19). Read the
+ * element's own state after mount and after every source change instead
+ * of trusting the event alone.
+ */
+function syncArtState() {
+  const img = artImg.value
+  if (!img || !img.complete) return
+  if (img.naturalWidth > 0) loadedArt.value = true
+  else failed.value = true
+}
+
+onMounted(syncArtState)
+
+watch(src, async () => {
   failed.value = false
   loadedArt.value = false
+  await nextTick()
+  syncArtState()
 })
 
 const PALETTES: Record<

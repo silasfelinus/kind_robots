@@ -48,6 +48,7 @@ import {
 import {
   compareCatgirlsStarter,
   sweepClash,
+  worstClashPairings,
 } from './slimeCityClashBalanceReport'
 import { clashSpectacle } from '../slimeCity/clashSpectacle'
 
@@ -2397,6 +2398,24 @@ const crewWinSpread =
 assert.ok(
   crewWinSpread * 100 <= gamesPerCrew * 12,
   'CLASH crew spread stays within 12 points',
+)
+// slime-city/t-012 (2026-11-19 PT): PROGRESSION-AND-SETS.md asks for >30%
+// even for the worst crew pairing, which aggregate crew rates cannot show.
+// Measured head-to-head over both seats: worst is exchange>undertow 35.0% on
+// these 40 seeds (80 games), catgirls>riot 35.3% on the 150-seed report.
+const [worstPairing] = worstClashPairings(sweep)
+assert.equal(
+  Object.keys(sweep.pairings).length,
+  TEAMS.length * (TEAMS.length - 1),
+  'every ordered crew pairing is measured',
+)
+assert.ok(
+  worstPairing!.rate > 0.3,
+  'worst head-to-head ' +
+    worstPairing!.pairing +
+    ' stays above 30% (' +
+    (100 * worstPairing!.rate).toFixed(1) +
+    '%)',
 )
 
 // The art-first board must display the card's authored evolution painting, not

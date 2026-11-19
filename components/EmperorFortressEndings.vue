@@ -135,7 +135,7 @@ import { computed, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { ENDINGS } from '~/utils/emperorOfDust/fortress/endings'
 import type { EndingId } from '~/utils/emperorOfDust/fortress/endings'
-import { followerDef } from '~/utils/emperorOfDust/fortress/cast'
+import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
 
 const court = useEmperorFortressStore()
 const endings = Object.values(ENDINGS)

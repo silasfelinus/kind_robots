@@ -1,6 +1,6 @@
 import { ECOTONE_STYLE_ART } from './artManifest'
 import { ECOTONE_ART, ECOTONE_ART_ROOT } from './content'
-import { isEcotoneReviewHeldArt } from './reviewHold'
+import { ecotoneReviewedArtKey, isEcotoneReviewHeldArt } from './reviewHold'
 
 /**
  * Ecotone's art styles, the Shifting Desks way (conductor weird-humboldt
@@ -93,7 +93,14 @@ export function ecotoneArtSrc(
   asset: string | undefined,
   style: unknown,
 ): string | null {
-  if (!asset || isEcotoneReviewHeldArt(asset)) return null
+  if (!asset) return null
+  // A held picture shows only its owner-approved reviewed render, once one
+  // has shipped; the original held file is never served.
+  if (isEcotoneReviewHeldArt(asset)) {
+    const reviewed = ecotoneReviewedArtKey(asset)
+    if (!reviewed) return null
+    asset = reviewed
+  }
   const selected = normalizeEcotoneArtStyle(style)
   if (selected === 'storybook') return null
   for (const candidate of [selected, DEFAULT_ECOTONE_ART_STYLE])

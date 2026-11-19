@@ -57,6 +57,11 @@ import {
 } from '../arcade/games/rainbowPinkwake'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import {
+  RAINBOW_PARTY_TRACKS,
+  rainbowPartyMask,
+  rainbowPartyTrack,
+} from '../arcade/games/rainbowPartyComms'
+import {
   ROSEFIN,
   rosefinDialogue,
   rosefinScene,
@@ -132,6 +137,63 @@ function scene(
   }
   return lines
 }
+
+
+const authoredReveals = new Set<string>()
+const authoredEpilogues = new Set<string>()
+for (let mask = 1; mask <= 15; mask++) {
+  const selected = [0, 1, 2, 3].filter((index) => mask & (1 << index))
+  assert.equal(rainbowPartyMask(selected), mask)
+  assert.equal(rainbowPartyMask([...selected].reverse()), mask)
+  const track = rainbowPartyTrack(mask)
+  assert.equal(RAINBOW_PARTY_TRACKS[mask], track)
+  assert.ok(
+    selected.some((index) => PILOTS[index] === track.speaker),
+    `party mask ${mask}: only a flown pilot speaks`,
+  )
+  for (const text of [track.reveal, track.epilogue]) {
+    assert.ok(rows(text, COMMS_COLS).length <= COMMS_ROWS)
+  }
+  assert.ok(track.reveal.length <= CROWN_REEF.lineFrames)
+  assert.ok(track.epilogue.length <= FINALE.endingLineFrames)
+  authoredReveals.add(track.reveal)
+  authoredEpilogues.add(track.epilogue)
+
+  const reveal = reefDialogue(
+    'A06.REVEAL',
+    CROWN_REEF.lineFrames,
+    selected.length,
+    null,
+    false,
+    null,
+    mask,
+  )
+  assert.deepEqual(reveal, {
+    speaker: track.speaker,
+    text: track.reveal,
+    partyAuthored: true,
+  })
+  const epilogue = finaleDialogue(
+    'A09.AFTER',
+    3 * FINALE.endingLineFrames,
+    selected.length,
+    noFinale,
+    'evacuate',
+    null,
+    mask,
+  )
+  assert.deepEqual(epilogue, {
+    speaker: track.speaker,
+    text: track.epilogue,
+    partyAuthored: true,
+  })
+}
+assert.equal(authoredReveals.size, 15)
+assert.equal(authoredEpilogues.size, 15)
+assert.throws(() => rainbowPartyMask([]))
+assert.throws(() => rainbowPartyMask([0, 0]))
+assert.throws(() => rainbowPartyMask([4]))
+assert.throws(() => rainbowPartyTrack(0))
 
 const roads: Array<RainbowAllegiance | null> = [null, 'rebel', 'loyal']
 const noFinale: FinaleFlags = {

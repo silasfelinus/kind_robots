@@ -7,6 +7,10 @@ import {
   navigationTabs,
 } from '../channelTabGroups.js'
 import { channelTabsToCards } from '../../stores/helpers/channelCards.js'
+import {
+  curatedNavigationImage,
+  navigationHeroSlotKey,
+} from '../adverts/navigationHero.js'
 import type {
   ResolvedChannel,
   ResolvedTab,
@@ -779,6 +783,50 @@ assert.ok(
 )
 assert.ok(
   source('content/channels/home/account.md').includes('route: /account'),
+)
+
+// The Play launcher, phone tab list, and navigation directory consume this
+// shared channel graph. Only explicitly published selections may supersede art.
+const contentStoreSource = source('stores/channelContentStore.ts')
+assert.match(contentStoreSource, /'\/api\/adverts\/public-art'/)
+assert.match(contentStoreSource, /curatedNavigationImage\(tab, publicHeroSelections\.value\)/)
+assert.match(contentStoreSource, /import\.meta\.client/)
+const heroCases: Array<[string, string]> = [
+  ['arcade', 'adverts/arcade/hero'],
+  ['emperor-of-dust', 'adverts/emperor-of-dust/hero'],
+  ['zuzu-shifting-lands', 'adverts/shifting-lands/hero'],
+  ['ecotone', 'adverts/ecotone/hero'],
+  ['comet-city-academy', 'adverts/prom-of-doom/hero'],
+  ['ruler-hooked', 'adverts/ruler-hooked/hero'],
+  ['shifting-desks', 'adverts/the-elevator-only-goes-down/hero'],
+]
+for (const [tabKey, slotKey] of heroCases) {
+  assert.equal(navigationHeroSlotKey('arcade', tabKey), slotKey)
+  const tab = {
+    channelKey: 'arcade',
+    tabKey,
+    image: '/old-cover.webp',
+  }
+  assert.equal(curatedNavigationImage(tab, {}), tab.image)
+  assert.equal(
+    curatedNavigationImage(tab, { [slotKey]: 274990 }),
+    '/api/art/images/274990/file',
+  )
+  assert.equal(curatedNavigationImage(tab, { [slotKey]: -1 }), tab.image)
+  assert.equal(curatedNavigationImage(tab, { [slotKey]: 2.5 }), tab.image)
+  assert.equal(
+    curatedNavigationImage(
+      { ...tab, channelKey: 'admin' },
+      { [slotKey]: 274990 },
+    ),
+    tab.image,
+    'a Play hero must not replace an unrelated Admin illustration',
+  )
+}
+assert.equal(
+  navigationHeroSlotKey('arcade', 'zuzu-gamebook'),
+  null,
+  'unrelated game art must not change',
 )
 
 console.log(

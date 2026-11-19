@@ -41,3 +41,14 @@ assert.deepEqual(decodeScrapbook(JSON.stringify([first[0], first[0]])), [
   first[0],
   first[0],
 ])
+
+const oversized = {
+  ...first[0],
+  epilogues: Array.from({ length: 101 }, (_, index) => ({
+    subjectId: `subject-${index}`,
+    name: 'Somebody',
+    text: 'Their story survives.',
+  })),
+}
+assert.equal(decodeScrapbook(JSON.stringify([oversized])), null)
+assert.deepEqual(first[0]?.epilogues, rememberReign([], run, '2026-11-13T03:07:20Z')[0]?.epilogues)

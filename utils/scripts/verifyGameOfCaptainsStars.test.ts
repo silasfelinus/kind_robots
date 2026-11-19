@@ -1,4 +1,9 @@
 import assert from 'node:assert/strict'
+import {
+  archiveCompletedVoyage,
+  normalizeCompletedVoyages,
+  MAX_COMPLETED_VOYAGES,
+} from '../gameOfCaptains/completedVoyages'
 import { CAPTAIN_ORIGINS } from '../gameOfCaptains/captainOrigins'
 import {
   COUCH_ONBOARDING_ART_COUNT,
@@ -522,6 +527,12 @@ assert.ok(
   'the title menu displays live site achievements, not a second local ledger',
 )
 assert.ok(page.includes('data-testid="space-couch-main-log"'))
+assert.ok(page.includes('data-testid="space-couch-completed-voyages"'))
+assert.ok(page.includes('data-testid="space-couch-voyage-archive"'))
+assert.ok(page.includes('data-testid="space-couch-voyage-dossier"'))
+assert.ok(store.includes('archiveCompletedVoyage('))
+assert.ok(store.includes('normalizeCompletedVoyages('))
+assert.ok(store.includes('COMPLETED_VOYAGES_KEY'))
 assert.ok(page.includes('data-testid="space-couch-backgrounds"'))
 assert.ok(page.includes('data-testid="space-couch-background-next"'))
 
@@ -772,3 +783,81 @@ for (const mission of ['refugees', 'archive', 'bar'])
     'missions/' + mission in COUCH_VOYAGE_ART_IDS,
     mission + ' has a red-couch mission card',
   )
+
+const voyageBeforeEnding = startVoyage('vale', ['rue', 'vela', 'mox'], 20261119)
+assert.deepEqual(
+  archiveCompletedVoyage([], voyageBeforeEnding, 1000),
+  [],
+  'ongoing voyages must never enter the completed archive',
+)
+const finishedVoyage = {
+  ...voyageBeforeEnding,
+  phase: 'ending' as const,
+  ending: 'THE LAST SHIP HOME',
+  scene: 'A hard-earned return to the red couch.',
+  day: 12,
+  log: ['The distress call came from afar.', 'The crew arrived home.'],
+  missionHistory: [
+    {
+      chapter: 1,
+      missionId: 'refugees',
+      system: 'Distant orbit',
+      policy: 'aid' as const,
+      result: 'success' as const,
+    },
+  ],
+  redshirtFallen: [
+    {
+      id: 'rs-001',
+      chapter: 1,
+      encounterId: 'a-refugee-station',
+      missionId: 'refugees',
+    },
+  ],
+}
+const firstArchive = archiveCompletedVoyage([], finishedVoyage, 20261119)
+assert.equal(firstArchive.length, 1)
+assert.equal(firstArchive[0]?.ending, 'THE LAST SHIP HOME')
+assert.equal(firstArchive[0]?.captain, 'vale')
+assert.deepEqual(firstArchive[0]?.crew, ['rue', 'vela', 'mox'])
+assert.equal(firstArchive[0]?.choices[0]?.policy, 'aid')
+assert.equal(firstArchive[0]?.choices[0]?.result, 'success')
+assert.equal(firstArchive[0]?.losses[0]?.id, 'rs-001')
+assert.deepEqual(firstArchive[0]?.log, finishedVoyage.log)
+assert.equal(
+  archiveCompletedVoyage(firstArchive, finishedVoyage, 20261120),
+  firstArchive,
+  'replaying persistence must not produce duplicate voyage pages',
+)
+assert.deepEqual(
+  normalizeCompletedVoyages(JSON.parse(JSON.stringify(firstArchive))),
+  firstArchive,
+  'the versioned archive survives serialization and browser reloads',
+)
+assert.deepEqual(
+  normalizeCompletedVoyages([{}, null, firstArchive[0], firstArchive[0]]),
+  firstArchive,
+  'bad and duplicate records must not damage valid voyage history',
+)
+const fullArchive = Array.from(
+  { length: MAX_COMPLETED_VOYAGES + 2 },
+  (_, index) =>
+    archiveCompletedVoyage(
+      [],
+      { ...finishedVoyage, seed: index + 1 },
+      20261119 + index,
+    )[0]!,
+)
+assert.equal(normalizeCompletedVoyages(fullArchive).length, MAX_COMPLETED_VOYAGES)
+const capped = archiveCompletedVoyage(
+  fullArchive.slice(0, MAX_COMPLETED_VOYAGES),
+  { ...finishedVoyage, seed: 999 },
+  20261201,
+)
+assert.equal(capped.length, MAX_COMPLETED_VOYAGES)
+assert.equal(capped[0]?.id, '999:vale:THE LAST SHIP HOME')
+assert.ok(
+  !capped.some((voyage) => voyage.id === fullArchive[MAX_COMPLETED_VOYAGES - 1]?.id),
+  'the oldest voyage rolls off without deleting recent entries',
+)
+

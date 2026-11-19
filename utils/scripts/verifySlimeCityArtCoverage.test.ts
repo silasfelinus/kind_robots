@@ -41,11 +41,9 @@ for (const [group, ids] of Object.entries(SLIME_CITY_ART)) {
 // 3. Every evolution painting belongs to a real card stage.
 for (const key of Object.keys(SLIME_CITY_ART.evolutions)) {
   const match = /^(.+)@(2|3|3b)$/.exec(key)
-  if (!match) {
-    assert.fail(key + ' names a stage @2, @3 or @3b')
-    continue
-  }
-  assert.ok(cardIds.has(match[1]), key + ' names a catalog card')
+  const cardId = match?.[1]
+  if (!cardId) assert.fail(key + ' names a stage @2, @3 or @3b')
+  assert.ok(cardIds.has(cardId), key + ' names a catalog card')
 }
 
 // 4. Every card at every level and branch resolves to some painting; never

@@ -8422,11 +8422,7 @@ for (const def of DAYS)
     assert.doesNotMatch(sent.response, /map arrives|days later/i)
     assert.ok(sent.run.flags.includes('d16-informant-spy'))
     const day19 = onDay(1, 19, { flags: sent.run.flags, brass: 100 })
-    const waited = chooseAudienceOption(
-      day19,
-      'd19-knotted-bandage',
-      'wait',
-    )
+    const waited = chooseAudienceOption(day19, 'd19-knotted-bandage', 'wait')
     assert.match(waited.response, /feather above the fire/)
     assert.doesNotMatch(waited.response, /ration card/i)
     assert.ok(waited.run.flags.includes('d19-feather-pinned'))

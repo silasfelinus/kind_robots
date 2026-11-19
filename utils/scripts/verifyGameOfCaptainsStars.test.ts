@@ -515,6 +515,12 @@ assert.ok(page.includes('data-testid="space-couch-title-screen"'))
 assert.ok(page.includes('data-testid="space-couch-new-game"'))
 assert.ok(page.includes('data-testid="space-couch-continue"'))
 assert.ok(page.includes('data-testid="space-couch-main-settings"'))
+assert.ok(page.includes('data-testid="space-couch-main-achievements"'))
+assert.ok(page.includes("titlePanel === 'achievements'"))
+assert.ok(
+  page.includes('<GameAchievementStrip game="game-of-captains" />'),
+  'the title menu displays live site achievements, not a second local ledger',
+)
 assert.ok(page.includes('data-testid="space-couch-main-log"'))
 assert.ok(page.includes('data-testid="space-couch-backgrounds"'))
 assert.ok(page.includes('data-testid="space-couch-background-next"'))

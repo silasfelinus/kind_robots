@@ -45,3 +45,31 @@ export function isEcotoneReviewHeldArtSubject(subject: {
     )
   )
 }
+
+/**
+ * Owner-approved replacements (Silas, 2026-11-19 PT: the withheld plates
+ * "should be generated"). Each key below was re-rendered from a NEW Mara design:
+ * a fictional, independent tattoo artist with no tribal, reservation or
+ * culturally coded imagery (conductor projects/weird-humboldt/art/
+ * REVIEWED-MARA-2026-11-19.yaml). The new files live at `reviewed/<key>`; the
+ * original renders stay held above and are never served. WH-121 is excluded
+ * content and is deliberately absent.
+ */
+export const ECOTONE_REVIEWED_ART: readonly string[] = [
+  'companions/mara',
+  'cards/kn-1',
+  'outcomes/kn-1/pit-success',
+  'outcomes/kn-1/flash-success',
+  'endings/ecotopia-mdma-dark',
+  ...['sober', 'tipsy', 'stoned', 'tripping_balls', 'cocaine', 'meth', 'mdma']
+    .flatMap((lens) => [`${lens}-hope`, `${lens}-dark`])
+    .map((ending) => `endings/mara-${ending}`),
+]
+
+/** The reviewed replacement key for a held picture, or null if it has none. */
+export function ecotoneReviewedArtKey(asset: string): string | null {
+  const key = asset.toLowerCase()
+  return isEcotoneReviewHeldArt(key) && ECOTONE_REVIEWED_ART.includes(key)
+    ? `reviewed/${key}`
+    : null
+}

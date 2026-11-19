@@ -18,6 +18,8 @@ import './verifyEcotoneArtPrompts.test'
 import './verifyEcotoneEndingDossier.test'
 import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
 import {
+  ECOTONE_REVIEWED_ART,
+  ecotoneReviewedArtKey,
   isEcotoneReviewHeldArt,
   isEcotoneReviewHeldArtSubject,
 } from '../ecotone/reviewHold'
@@ -209,9 +211,34 @@ for (const key of [
   'outcomes/kn-1/flash-success',
 ]) {
   assert.ok(isEcotoneReviewHeldArt(key), `${key} is held`)
-  assert.equal(ecotoneArtSrc(key, 'krea2'), null)
+  // The original held file is never served. An owner-approved reviewed
+  // render (reviewHold.ts ECOTONE_REVIEWED_ART) may stand in once shipped.
+  const shown = ecotoneArtSrc(key, 'krea2')
+  assert.ok(
+    shown === null || shown.endsWith(`/reviewed/${key}.webp`),
+    `${key} shows nothing or its reviewed render, got ${shown}`,
+  )
   assert.equal(artUrl(key), null)
 }
+for (const excluded of [
+  'cards/wh-121',
+  'outcomes/wh-121/reading-success',
+  'encounters/wh-121-latitude-argument',
+]) {
+  assert.equal(ecotoneReviewedArtKey(excluded), null, `${excluded} stays out`)
+  assert.equal(ecotoneArtSrc(excluded, 'zimage'), null)
+}
+assert.equal(ECOTONE_REVIEWED_ART.length, 19)
+assert.ok(ECOTONE_REVIEWED_ART.every((key) => isEcotoneReviewHeldArt(key)))
+assert.equal(
+  ecotoneReviewedArtKey('endings/mara-sober-hope'),
+  'reviewed/endings/mara-sober-hope',
+)
+assert.equal(ecotoneReviewedArtKey('endings/kit-sober-hope'), null)
+assert.ok(
+  !isEcotoneReviewHeldArt('reviewed/endings/mara-sober-hope'),
+  'a reviewed key is not itself held',
+)
 assert.ok(
   ART_REVIEW_ROUNDS.every((round) =>
     round.subjects.every((subject) => !isEcotoneReviewHeldArtSubject(subject)),

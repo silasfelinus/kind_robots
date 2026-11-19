@@ -41,7 +41,10 @@ for (const [group, ids] of Object.entries(SLIME_CITY_ART)) {
 // 3. Every evolution painting belongs to a real card stage.
 for (const key of Object.keys(SLIME_CITY_ART.evolutions)) {
   const match = /^(.+)@(2|3|3b)$/.exec(key)
-  assert.ok(match, key + ' names a stage @2, @3 or @3b')
+  if (!match) {
+    assert.fail(key + ' names a stage @2, @3 or @3b')
+    continue
+  }
   assert.ok(cardIds.has(match[1]), key + ' names a catalog card')
 }
 

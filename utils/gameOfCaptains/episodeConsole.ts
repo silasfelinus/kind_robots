@@ -71,7 +71,8 @@ export const PLANET_CARDS = [
     setup:
       'A moon demands shared custody of its own tides. The colony has misplaced every copy of its birth certificate.',
     ask: 'Local residents vote to lend the moon its tides on alternate Thursdays. The moon abstains after learning it counts as a resident and would have to attend every committee.',
-    document: 'The ancient ownership deed names the moon as its own guardian. The registrar requests the moon’s signature and accepts a crater as a thumbprint.',
+    document:
+      'The ancient ownership deed names the moon as its own guardian. The registrar requests the moon’s signature and accepts a crater as a thumbprint.',
     override:
       'The couch relocates one tide; three coastal councils send invoices. The affected villages demand that the next meeting be held without the couch in the room.',
     crew: 'rue',
@@ -82,7 +83,8 @@ export const PLANET_CARDS = [
     setup:
       'A traveler has arrived six days before their own disappearance. The border guards want to arrest tomorrow.',
     ask: 'The traveler chooses a safe place to wait for the paradox. The border agency bills Wednesday for six unspent days of lodging.',
-    document: 'A protected testimony makes the arrest order invalid. The arresting officer files tomorrow as a hostile witness.',
+    document:
+      'A protected testimony makes the arrest order invalid. The arresting officer files tomorrow as a hostile witness.',
     override:
       'The couch shelters the traveler, acquiring a warrant from next week. Wednesday is safe, but nobody asked the transit station now accused of harboring furniture.',
     crew: 'tess',
@@ -95,7 +97,8 @@ export const PLANET_CARDS = [
     ask: 'The workers negotiate a rotating daylight schedule. Planetary agriculture gets its first union calendar and a modestly militant dawn.',
     document:
       'Payroll records reveal the star owners have been billing the planets twice. The accounting office demands a second sun to inspect the first.',
-    override: 'The couch restarts a star before its workers consent. Daylight returns, along with a picket line that extends forty million kilometers.',
+    override:
+      'The couch restarts a star before its workers consent. Daylight returns, along with a picket line that extends forty million kilometers.',
     crew: 'pell',
   },
   {
@@ -104,7 +107,8 @@ export const PLANET_CARDS = [
     setup:
       'A sentient orchard requests retirement from producing breathable air. A nearby settlement claims this is treason.',
     ask: 'A public forum funds an alternative oxygen supply. The grove votes to spend retirement painting clouds in colors nobody can breathe.',
-    document: 'The grove establishes that its employment contract was forged. The settlement’s legal department is reassigned to compost.',
+    document:
+      'The grove establishes that its employment contract was forged. The settlement’s legal department is reassigned to compost.',
     override:
       'The orchard complies, and the settlement loses its only willing ally. Oxygen resumes on schedule; the trees post a no-visitors policy.',
     crew: 'brin',
@@ -115,7 +119,8 @@ export const PLANET_CARDS = [
     setup:
       'An assembly votes in frost patterns. A visiting ambassador has been translating every warning as a compliment.',
     ask: 'The delegates insist on an interpreter they actually trust. A local snowbank is sworn in and immediately objects to the humidity.',
-    document: 'An archived thermal recording identifies the disputed vote. The ambassador appeals on the grounds that a cold shoulder cannot count as recorded dissent.',
+    document:
+      'An archived thermal recording identifies the disputed vote. The ambassador appeals on the grounds that a cold shoulder cannot count as recorded dissent.',
     override:
       'The bubble heats the room; the assembly declares an emergency recess. The meeting survives, but the delegates refuse further talks until the thermostat is returned.',
     crew: 'taal',
@@ -126,7 +131,8 @@ export const PLANET_CARDS = [
     setup:
       'A quarry planet resigns from the mining company that claims to own its crust. The company has sent a lawyer and a drill.',
     ask: 'The planet dictates terms to a neutral mediator. Its first demand is that drills stop being described as wellness equipment.',
-    document: 'Mineral ledgers prove centuries of unpaid extraction. The company files a reimbursement claim for the paper used to print the evidence.',
+    document:
+      'Mineral ledgers prove centuries of unpaid extraction. The company files a reimbursement claim for the paper used to print the evidence.',
     override:
       'The couch disables the drill; a rescue corridor becomes the next negotiation. Workers escape, but the planet asks who authorized the couch to speak for it.',
     crew: 'fen',
@@ -173,7 +179,8 @@ export const PLANET_CARDS = [
     setup:
       'Residents who bought premium gravity have discovered the local company charges extra for walking downhill.',
     ask: 'Tenants negotiate a public gravity guarantee. The board finally agrees that standing still should not be a luxury subscription.',
-    document: 'The hidden meter exposes the company’s fraudulent readings. The auditors find that the owners have invoiced falling objects for the privilege.',
+    document:
+      'The hidden meter exposes the company’s fraudulent readings. The auditors find that the owners have invoiced falling objects for the privilege.',
     override:
       'The couch redirects gravity; loose furniture occupies the council chamber. The new orientation works, but residents demand a vote before the next rearrangement.',
     crew: 'sora',

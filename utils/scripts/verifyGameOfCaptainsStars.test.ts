@@ -813,6 +813,18 @@ const finishedVoyage = {
       missionId: 'refugees',
     },
   ],
+  consequenceHistory: [
+    {
+      episodeId: 'warp-a1-weight-of-a-name',
+      missionId: 'bar',
+      chapter: 1,
+      choiceId: 'protect-sanctuary',
+      succeeded: true,
+      artKey: 'consequences/warp-a1-weight-of-a-name-protect-sanctuary-success',
+      callback: 'The bar remembers.',
+      flags: ['sanctuary_charter_preserved'],
+    },
+  ],
 }
 const firstArchive = archiveCompletedVoyage([], finishedVoyage, 20261119)
 assert.equal(firstArchive.length, 1)
@@ -821,6 +833,8 @@ assert.equal(firstArchive[0]?.captain, 'vale')
 assert.deepEqual(firstArchive[0]?.crew, ['rue', 'vela', 'mox'])
 assert.equal(firstArchive[0]?.choices[0]?.policy, 'aid')
 assert.equal(firstArchive[0]?.choices[0]?.result, 'success')
+assert.equal(firstArchive[0]?.choices[1]?.policy, 'protect-sanctuary')
+assert.equal(firstArchive[0]?.choices[1]?.result, 'success')
 assert.equal(firstArchive[0]?.losses[0]?.id, 'rs-001')
 assert.deepEqual(firstArchive[0]?.log, finishedVoyage.log)
 assert.equal(

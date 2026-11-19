@@ -1,8 +1,15 @@
 import { endingOf } from './endings'
+import { epilogueFor } from './epilogue'
 import type { EndingId } from './endings'
 import type { FortressRun } from './types'
 
 export const SCRAPBOOK_KEY = 'kr-emperor-of-dust-scrapbook-v1'
+export type ReignEpilogue = {
+  subjectId: string
+  name: string
+  text: string
+}
+
 export type ReignMemory = {
   key: string
   ending: EndingId
@@ -13,6 +20,7 @@ export type ReignMemory = {
   peace: string[]
   bellRung: boolean
   cryptSealed: boolean
+  epilogues: ReignEpilogue[]
 }
 export const emptyScrapbook = (): ReignMemory[] => []
 
@@ -65,11 +73,28 @@ export function decodeScrapbook(
             (f: unknown) => typeof f === 'string' && f.length <= 100,
           ) &&
           typeof entry.bellRung === 'boolean' &&
-          typeof entry.cryptSealed === 'boolean',
+          typeof entry.cryptSealed === 'boolean' &&
+          (entry.epilogues === undefined ||
+            (Array.isArray(entry.epilogues) &&
+              entry.epilogues.length <= 100 &&
+              entry.epilogues.every(
+                (epilogue: unknown) =>
+                  epilogue !== null &&
+                  typeof epilogue === 'object' &&
+                  typeof (epilogue as ReignEpilogue).subjectId === 'string' &&
+                  (epilogue as ReignEpilogue).subjectId.length <= 100 &&
+                  typeof (epilogue as ReignEpilogue).name === 'string' &&
+                  (epilogue as ReignEpilogue).name.length <= 160 &&
+                  typeof (epilogue as ReignEpilogue).text === 'string' &&
+                  (epilogue as ReignEpilogue).text.length <= 1600,
+              ))),
       )
     )
       return null
-    return value as ReignMemory[]
+    return (value as ReignMemory[]).map((entry) => ({
+      ...entry,
+      epilogues: entry.epilogues ?? [],
+    }))
   } catch {
     return null
   }
@@ -94,6 +119,13 @@ export function rememberReign(
       peace: run.flags.filter((flag) => flag.startsWith('peace-')),
       bellRung: run.flags.includes('bell-rung'),
       cryptSealed: run.flags.includes('horror-sealed'),
+      epilogues: epilogueFor(run, endingOf(run).id).map(
+        ({ subject, variant }) => ({
+          subjectId: subject.id,
+          name: subject.name,
+          text: variant.text,
+        }),
+      ),
     },
     ...previous,
   ].slice(0, 100)

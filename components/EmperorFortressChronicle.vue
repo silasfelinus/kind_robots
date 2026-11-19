@@ -161,6 +161,8 @@
       </div>
     </section>
 
+    <EmperorFortressEndings class="@4xl:col-span-2" />
+
     <EmperorFortressCodex class="@4xl:col-span-2" />
 
     <section class="@container kr-panel space-y-3 p-4 @4xl:col-span-2">

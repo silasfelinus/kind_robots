@@ -381,7 +381,10 @@ for (const id of [
 ])
   assert.match(menu, new RegExp('data-testid="' + id + '"'))
 assert.match(menu, /route\.query\.from === 'prom'/)
-assert.match(menu, /store\.roster\.some\(\(person\) => person\.signature === incomingLead\)/)
+assert.match(
+  menu,
+  /store\.roster\.some\(\(person\) => person\.signature === incomingLead\)/,
+)
 assert.match(menu, /store\.chooseLead\(incomingLead\)/)
 assert.match(menu, /store\.choosePerspective\(incomingView\)/)
 assert.match(menu, /store\.openScreen\('story'\)/)
@@ -404,7 +407,10 @@ for (const id of [
 assert.match(academyOpening, /path: '\/admin\/every-villain-tactics'/)
 assert.match(academyOpening, /lead: currentSignature\.value\.id/)
 assert.match(academyOpening, /view: selectedAllegiance\.value/)
-assert.match(academyOpening, /selectedMode\.value === 'story' \? 'vow' : 'tactics-side'/)
+assert.match(
+  academyOpening,
+  /selectedMode\.value === 'story' \? 'vow' : 'tactics-side'/,
+)
 assert.match(menu, /'front-origin-' \+ option\.id/)
 assert.match(menu, /'front-affinity-' \+ option\.id/)
 assert.match(menu, /data-testid="front-character-reveal"/)

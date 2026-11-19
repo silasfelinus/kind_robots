@@ -332,8 +332,8 @@
             <strong>Story Mode</strong>
             <p>
               Thirty days of school, friendships, night patrols and hard
-              decisions. Your foil is assigned; your choices determine
-              whether you become the hero or villain.
+              decisions. Your foil is assigned; your choices determine whether
+              you become the hero or villain.
             </p>
             <small>30 days · choices define allegiance</small>
           </button>
@@ -380,12 +380,16 @@
           <p class="prom-eyebrow">05 / PICK YOUR SIDE</p>
           <h2>Every villain is somebody's hero.</h2>
           <p>
-            {{ selectedPersona.alias }} is your fighter either way. The
-            mission assigns a sidekick or henchman, a foil and available
-            support. Your Prom of Doom campaign is not changed.
+            {{ selectedPersona.alias }} is your fighter either way. The mission
+            assigns a sidekick or henchman, a foil and available support. Your
+            Prom of Doom campaign is not changed.
           </p>
         </div>
-        <div class="prom-routes" role="radiogroup" aria-label="Tactical allegiance">
+        <div
+          class="prom-routes"
+          role="radiogroup"
+          aria-label="Tactical allegiance"
+        >
           <button
             v-for="side in tacticalSides"
             :key="side.id"
@@ -818,7 +822,8 @@ const tacticalSides = [
     number: 'I',
     name: 'Hero',
     companion: 'Sidekick',
-    description: 'Protect Comet City. Your allies expect rescue, even at a cost.',
+    description:
+      'Protect Comet City. Your allies expect rescue, even at a cost.',
   },
   {
     id: 'villain' as const,

@@ -27,9 +27,16 @@ assert.equal(
   slimeArtId('evolutions', splitThird + '@3'),
 )
 
-// The pending Ironjaw evolution art must not borrow another card's painting.
-const ironjaw = 'scrapper'
-assert.equal(slimeArtId('evolutions', ironjaw + '@3'), null)
-assert.equal(slimeCardArtId(ironjaw, 3, 1), slimeArtId('cards', ironjaw))
+// A stage whose painting was rejected must not borrow another card's
+// painting: Pocket Punk's L2 render was rejected (2026-11-19 PT), so L2 shows
+// its own card art while L3 shows its curated evolution.
+const pending = 's1-pocket-punk'
+assert.equal(slimeArtId('evolutions', pending + '@2'), null)
+assert.equal(slimeCardArtId(pending, 2, 0), slimeArtId('cards', pending))
+assert.ok(slimeArtId('cards', pending))
+assert.equal(
+  slimeCardArtId(pending, 3, 1),
+  slimeArtId('evolutions', pending + '@3'),
+)
 assert.equal(slimeCardArtId('nonexistent-slime-card', 3, 1), null)
 console.log('Slime City COG evolution art fallback verified')

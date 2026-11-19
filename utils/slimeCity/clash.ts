@@ -3531,8 +3531,15 @@ function cpuTapPayoff(s: ClashState, u: ClashUnit, action: EvoAction): number {
  * across two alleys, and constructed QA showed a zero margin let the Riot
  * heavy deck spend whole turns on marginal blasts (crew 41.6%, under the 42%
  * band). Margin 2 read 3,120 bouts: dead two-slot cards 13 -> 6, Riot 42.6%.
+ * 2026-11-19 PT: back to 0. Later Riot and Undertow fixes (kind_robots#5315)
+ * lifted Riot, and the margin had become the main reason 18 two-slot cards
+ * sat near-dead (under 3% of their bouts). Margin 0 on 3,120 bouts: near-dead
+ * 18 -> 8, held-out +5000 dead 2 -> 0 and near-dead 16 -> 7, +9000 dead 2 -> 0
+ * and near-dead 17 -> 6; crews 43.3-55.0% (Riot 43.3%, riot/heavy 32.2 ->
+ * 27.9%), first seat 52.3%; the 4,500-game starter balance report is
+ * unchanged.
  */
-export const CLASH_CPU_TWO_SLOT_MARGIN = 2
+export const CLASH_CPU_TWO_SLOT_MARGIN = 0
 export function chooseClashCpuPlay<
   T extends {
     score: number

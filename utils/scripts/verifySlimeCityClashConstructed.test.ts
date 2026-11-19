@@ -304,6 +304,20 @@ const archetypeRate = Object.fromEntries(
   }),
 )
 assert.ok(archetypeRate.starter! >= 0.5, 'starters hold their own')
+// slime-city/t-012 (2026-11-19 PT): the spell-heavy build (eight fighters,
+// twelve crew specials) is the weakest archetype at 26.0% (riot 17.3%,
+// ironjaw 20.7%) while fighters reads 69.2%. That is a deck-builder probe,
+// not a crew pairing (the >30% worst-pairing target is guarded on starter
+// decks in verifySlimeCityClash), and its cause is the near-dead two-slot
+// specials ratcheted below. Ratchet it so a card or CPU change can only lift
+// spell-heavy decks: raise this floor as the special pass lands.
+const SPECIALS_ARCHETYPE_FLOOR = 0.25
+assert.ok(
+  archetypeRate.specials! >= SPECIALS_ARCHETYPE_FLOOR,
+  'specials archetype ' +
+    (100 * archetypeRate.specials!).toFixed(1) +
+    '% stays at or above its ratchet floor',
+)
 
 // Dead cards: in a deck for its whole run, never played by either seat.
 const dead = [...inDeckGames.keys()].filter((id) => !played.get(id))

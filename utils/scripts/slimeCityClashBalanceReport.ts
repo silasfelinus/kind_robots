@@ -18,6 +18,13 @@ export interface ClashSweep {
   roundLimit: number
   averageRounds: number
   crews: Record<string, { games: number; wins: number }>
+  /**
+   * Head-to-head record per ordered crew pairing, keyed `crew>opponent`,
+   * from the first crew's side and summed over both seats. Lets the
+   * PROGRESSION-AND-SETS.md target (>30% even for the worst pairing) be
+   * measured directly instead of inferred from aggregate crew rates.
+   */
+  pairings: Record<string, { games: number; wins: number }>
   /** Average cards per crew per game that reached level 2 and level 3. */
   leveled: { two: number; three: number }
   cards: Record<string, { played: number; wins: number }>
@@ -42,6 +49,7 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
     roundLimit: 0,
     averageRounds: 0,
     crews: {},
+    pairings: {},
     cards: {},
     leveled: { two: 0, three: 0 },
   }
@@ -64,6 +72,13 @@ export function sweepClash(seeds: number, offset = 1): ClashSweep {
           const crew = (out.crews[s.teams[side]] ??= { games: 0, wins: 0 })
           crew.games++
           if (s.victor === side) crew.wins++
+          const opponent = s.teams[side === 'player' ? 'enemy' : 'player']
+          const pairing = (out.pairings[s.teams[side] + '>' + opponent] ??= {
+            games: 0,
+            wins: 0,
+          })
+          pairing.games++
+          if (s.victor === side) pairing.wins++
           const played = new Set(
             s.commands
               .filter((c) => c.t === 'play' && c.side === side)
@@ -154,6 +169,13 @@ export function compareCatgirlsStarter(seeds = 20, offset = 9000) {
   return results
 }
 
+/** Ordered pairings, lowest head-to-head win rate first. */
+export function worstClashPairings(sweep: ClashSweep) {
+  return Object.entries(sweep.pairings)
+    .map(([pairing, p]) => ({ pairing, ...p, rate: p.wins / p.games }))
+    .sort((a, b) => a.rate - b.rate || a.pairing.localeCompare(b.pairing))
+}
+
 const pct = (n: number, d: number): string =>
   d ? ((100 * n) / d).toFixed(1) + '%' : '-'
 
@@ -193,6 +215,12 @@ if (process.argv[1]?.includes('slimeCityClashBalanceReport')) {
   )
   for (const [id, c] of Object.entries(r.crews))
     console.log('  ' + id.padEnd(14) + pct(c.wins, c.games))
+  const pairings = worstClashPairings(r)
+  console.log('worst head-to-head pairings (both seats):')
+  for (const p of pairings.slice(0, 5))
+    console.log(
+      '  ' + p.pairing.padEnd(26) + pct(p.wins, p.games) + ' of ' + p.games,
+    )
   const rows = Object.entries(r.cards)
     .filter(([, c]) => c.played >= 20)
     .map(([id, c]) => ({ id, rate: c.wins / c.played, played: c.played }))

@@ -415,10 +415,15 @@ assert.deepEqual(
   FOLLOWERS.map((def) => def.id),
   Array.from({ length: 25 }, (_, i) => `F${String(i + 1).padStart(3, '0')}`),
 )
+assert.deepEqual(
+  FOLLOWERS.filter((def) => def.romanceable).map((def) => def.id),
+  ['F001', 'F002', 'F006', 'F007', 'F016', 'F018'],
+  'only the six canonical romance arcs are marked romanceable',
+)
 assert.equal(
-  FOLLOWERS.filter((def) => def.romanceable).length,
-  7,
-  'seven romanceable followers, including Kiyo',
+  followerDef('F003')?.romanceable,
+  false,
+  'Kiyo is Zuzu’s mother and has a friendship and clinic-ethics arc, not a romance',
 )
 assert.equal(
   new Set(FOLLOWERS.slice(0, 20).map((def) => def.ability.kind)).size,
@@ -450,7 +455,10 @@ for (const faction of [...LOCAL_FACTIONS, ...KINGDOM_FACTIONS]) {
 }
 const kiyo = followerDef('F003')!
 assert.equal(kiyo.species, 'Koala', 'Zuzu’s mother is at court')
-assert.ok(kiyo.starter && kiyo.romanceable)
+assert.ok(
+  kiyo.starter && !kiyo.romanceable,
+  'Kiyo remains the non-romanceable starter and Zuzu’s mother',
+)
 assert.ok(kiyo.talk?.some((line) => line.includes('Zuzu')))
 assert.ok(FOLLOWERS.some((def) => def.species === 'Fennec fox'))
 assert.ok(

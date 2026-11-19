@@ -208,9 +208,10 @@
           ref="stage"
           class="@container min-h-0 flex-1 p-2 sm:p-3"
           :class="
-            activeRoom === 'briefing' ||
-            activeRoom === 'throne' ||
-            activeRoom === 'quests'
+            !over &&
+            (activeRoom === 'briefing' ||
+              activeRoom === 'throne' ||
+              activeRoom === 'quests')
               ? 'overflow-hidden'
               : 'kr-scroll overscroll-contain'
           "
@@ -224,6 +225,11 @@
             >
               Fifty days · the ending
             </p>
+            <EmperorFortressEndingPlate
+              v-if="ending"
+              :ending-id="ending.id"
+              class="mx-auto w-full max-w-3xl"
+            />
             <h2 class="font-serif text-3xl font-bold">{{ ending?.title }}</h2>
             <p class="font-serif text-lg">{{ ending?.text }}</p>
             <div v-if="run.memorials.length" class="rounded-xl bg-base-200 p-3">

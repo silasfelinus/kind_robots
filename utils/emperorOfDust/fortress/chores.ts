@@ -881,13 +881,13 @@ export const CHORES: readonly QuestDef[] = [
       triumph:
         'The scouts ran. The party caught one horse and the count he had made. Every barn on the ridge was on it, with a number for the people inside.',
       success:
-        'The scouts went back over the ridge at a gallop. They will come back with more.',
+        'The scouts went back over the ridge at a gallop, leaving two broken saddle straps in the scrub. Dunmark took down the watch signal but kept the extra guard at the Ford. Hester says the riders will return with better maps. The farmers have started counting one another.',
       partial:
-        'One scout stayed down. The others left with the count. The party buried the one who stayed.',
+        'One scout stayed down. The others left with the count. The party buried the one who stayed beside the ridge road and put a stake at the head. In the barn below, a family folded their blankets before dark. Their home is already a number in a stranger’s book.',
       failure:
-        'The scouts were not scouts. The party came back over the ridge carrying what they could.',
+        'The scouts were not scouts. They came down the ridge in fighting order, and the party came back carrying what it could. Dunmark sets the abandoned watch standard against the gate. At dusk he takes it down before the families from the Ford arrive asking who is missing.',
       expired:
-        'They counted every barn. Two weeks later the count was correct to the head.',
+        'They counted every barn. The Watch saw the riders stop to draw the wells and the narrow wagon turn. Nobody challenged them. Two weeks later the number of cattle taken matched the tally to the head. The farmers have begun sleeping with their doors barred from the inside.',
     },
     outcomeAlts: {
       success: [
@@ -926,8 +926,8 @@ export const CHORES: readonly QuestDef[] = [
       partial:
         'The party found him and let him go, minus the purse. The Watch has one less private and one more story.',
       failure:
-        'He was gone. The purse turned up in a Pack game, two nights later.',
-      expired: 'Dunmark sent his own men. They brought back the kit.',
+        'He was gone. The purse turned up in a Pack game two nights later, its seal cut off but the thread still blue. Dunmark asks whether the party followed the wrong road. His mother asks whether the soldiers checked the old ferry before they checked the taverns. Neither receives an answer.',
+      expired: 'Dunmark sent his own men. They brought back the kit, buckled into an empty belt. He locked it in the Watch store instead of putting it on the roster. The deserter’s mother stood outside the gate until sunset, waiting for a body or a name. Nobody came to speak to her.',
     },
     outcomeAlts: {
       success: [
@@ -965,11 +965,11 @@ export const CHORES: readonly QuestDef[] = [
       success:
         'A Freehold widow with a grudge and a tinderbox. Her own barn burned first, last year, and nobody came. The party brought her in. The fires stopped.',
       partial:
-        'The fires stopped. Nobody was caught. Somebody still has the tinderbox.',
+        'The fires stopped. Nobody was caught. The party found a scorched tinderbox under the last barn door and left it on Hester’s table. She held it between two fingers and asked who would be watching when the Watch moved on. Nobody put a hand up.',
       failure:
         'Another barn went up the night the party stood watch. There was a family in it. The party got the father out.',
       expired:
-        'Three more barns. The Freeholds have started sleeping in shifts.',
+        'Three more barns burned before the Watch stopped keeping a count. The Freeholds began sleeping in shifts, boots beside the beds and buckets at every door. Hester sent the court three blackened hinges, one from each ruin. The messenger was told to leave them outside.',
     },
     outcomeAlts: {
       success: [
@@ -1045,11 +1045,11 @@ export const CHORES: readonly QuestDef[] = [
       success:
         'Forty-one names on forty-one boards. Six of them say only “a boy” or “a woman, tall”. The party wrote those too.',
       partial:
-        'Half the boards have names. The other half have numbers. The numbers are in a book.',
+        'Half the boards have names. The other half have numbers, copied into a book the gravedigger keeps wrapped in oilcloth. At dusk he asks the party to read the names back to him. They find two written twice. He goes out with a shovel to check which graves belong to whom.',
       failure:
-        'The rain washed the chalk off before the paint came. The gravedigger started over.',
+        'The rain washed the chalk off before the paint came. The gravedigger started over, using the hem of his coat to dry each board. When he reached the last row he had forgotten which plank belonged to the miller’s daughter. He left it blank and went to find her father.',
       expired:
-        'The gravedigger stopped marking them. He says the ground knows.',
+        'The gravedigger stopped marking them. He says the ground knows. By the next market day a woman arrives with a coat button and asks which row holds her husband. He walks her between the mounds and points to none of them. At dusk she leaves the button on the gate.',
     },
     outcomeAlts: {
       success: [

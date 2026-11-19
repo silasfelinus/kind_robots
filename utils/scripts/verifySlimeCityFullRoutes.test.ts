@@ -36,7 +36,6 @@ import { TEAMS, type TeamId } from '../slimeCity/prototypes'
 
 const SEEDS = [1187, 52021, 900913]
 const MAX_ATTEMPTS = 40
-const APPROACHES: CampaignApproach[] = ['conviction', 'cunning']
 const CHAPTERS = 5
 
 const matchCache = new Map<string, CampaignResult>()

@@ -138,6 +138,15 @@ function scene(
   return lines
 }
 
+const noFinale: FinaleFlags = {
+  rescuedNemi: false,
+  securedSalvage: false,
+  rescuedCourier: false,
+  freedDepot: false,
+  stoppedRelay: false,
+  rescuedNavigator: false,
+  captivesFreed: 0,
+}
 
 const authoredReveals = new Set<string>()
 const authoredEpilogues = new Set<string>()
@@ -196,15 +205,6 @@ assert.throws(() => rainbowPartyMask([4]))
 assert.throws(() => rainbowPartyTrack(0))
 
 const roads: Array<RainbowAllegiance | null> = [null, 'rebel', 'loyal']
-const noFinale: FinaleFlags = {
-  rescuedNemi: false,
-  securedSalvage: false,
-  rescuedCourier: false,
-  freedDepot: false,
-  stoppedRelay: false,
-  rescuedNavigator: false,
-  captivesFreed: 0,
-}
 const everyFinale: FinaleFlags = {
   rescuedNemi: true,
   securedSalvage: true,

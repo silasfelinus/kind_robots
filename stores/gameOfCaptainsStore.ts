@@ -163,6 +163,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   let queuedSignature = ''
   let desiredRevision = 0
   let completedRevision = 0
+  let completedArchiveDirty = false
   let legacyImportUserId: number | null = null
   // What the voyage had already earned at the last action, so the next action
   // awards only what it newly earned. load() restores a saved voyage with
@@ -560,11 +561,15 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function persist() {
     recordKitUnlocks()
-    completedVoyages.value = archiveCompletedVoyage(
+    const nextCompletedVoyages = archiveCompletedVoyage(
       completedVoyages.value,
       run.value,
       Date.now(),
     )
+    if (nextCompletedVoyages !== completedVoyages.value) {
+      completedVoyages.value = nextCompletedVoyages
+      completedArchiveDirty = true
+    }
     const namesBefore = Object.keys(redshirtKnowledge.value).length
     try {
       if (run.value) {
@@ -580,10 +585,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         KNOWLEDGE_KEY,
         JSON.stringify(redshirtKnowledge.value),
       )
-      localStorage.setItem(
-        COMPLETED_VOYAGES_KEY,
-        JSON.stringify(completedVoyages.value),
-      )
+      if (completedArchiveDirty) {
+        localStorage.setItem(
+          COMPLETED_VOYAGES_KEY,
+          JSON.stringify(completedVoyages.value),
+        )
+        completedArchiveDirty = false
+      }
       if (userStore.authenticatedUserId) {
         if (
           alienSyncStatus.value === 'synced' ||

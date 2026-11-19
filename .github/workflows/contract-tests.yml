@@ -553,6 +553,9 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      - name: Generated art survives hydration contract
+        run: npx tsx utils/scripts/verifyArtHydrationSettle.test.ts
+
       - name: Animated art offload contract
         run: npm run test:animated-art-offload
 

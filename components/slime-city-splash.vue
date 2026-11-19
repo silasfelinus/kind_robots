@@ -493,9 +493,12 @@ onBeforeUnmount(() => clearTimeout(timer))
   font-weight: 850;
   letter-spacing: 0.24em;
 }
+/* Cap at 7rem: .scs-content stops growing at 78rem, so past ~1250px of
+   container width a larger title overran its column and slid under the crew
+   poster (2560px capture, slime-city/t-012 layout QA, 2026-11-19 PT). */
 .scs-title {
   margin: 0;
-  font-size: clamp(2.4rem, min(9cqw, 15cqh), 8rem);
+  font-size: clamp(2.4rem, min(9cqw, 15cqh), 7rem);
   font-weight: 1000;
   font-style: italic;
   line-height: 0.9;

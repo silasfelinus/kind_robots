@@ -196,7 +196,10 @@
               type="button"
               data-testid="space-couch-completed-voyages"
               :aria-pressed="logView === 'completed'"
-              @click="logView = 'completed'; selectedFinishedVoyageId = null"
+              @click="
+                logView = 'completed'
+                selectedFinishedVoyageId = null
+              "
             >
               COMPLETED · {{ store.completedVoyages.length }}
             </button>
@@ -245,7 +248,9 @@
                 </div>
               </div>
             </template>
-            <p v-else>No voyage in progress. Previous voyages are in Completed.</p>
+            <p v-else>
+              No voyage in progress. Previous voyages are in Completed.
+            </p>
           </template>
           <div
             v-else-if="selectedFinishedVoyage"
@@ -263,7 +268,11 @@
                 )?.name
               }}
               · Day {{ selectedFinishedVoyage.day }} ·
-              {{ new Date(selectedFinishedVoyage.completedAt).toLocaleDateString() }}
+              {{
+                new Date(
+                  selectedFinishedVoyage.completedAt,
+                ).toLocaleDateString()
+              }}
             </p>
             <p>
               CREW:
@@ -296,7 +305,10 @@
               {{ loss.id }} · {{ loss.missionId }}
             </p>
             <h4>CAPTAIN'S NOTES</h4>
-            <p v-for="(entry, index) in selectedFinishedVoyage.log" :key="index">
+            <p
+              v-for="(entry, index) in selectedFinishedVoyage.log"
+              :key="index"
+            >
               {{ entry }}
             </p>
           </div>
@@ -316,7 +328,9 @@
               @click="selectedFinishedVoyageId = record.id"
             >
               {{ record.ending }} ·
-              {{ CAPTAINS.find((captain) => captain.id === record.captain)?.name }}
+              {{
+                CAPTAINS.find((captain) => captain.id === record.captain)?.name
+              }}
               <small>DAY {{ record.day }} · OPEN REPORT</small>
             </button>
           </div>

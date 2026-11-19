@@ -65,13 +65,11 @@ function validCompletedVoyage(value: unknown): value is CompletedVoyage {
 export function normalizeCompletedVoyages(raw: unknown): CompletedVoyage[] {
   if (!Array.isArray(raw)) return []
   const ids = new Set<string>()
-  return raw
-    .filter(validCompletedVoyage)
-    .filter((entry) => {
-      if (ids.has(entry.id)) return false
-      ids.add(entry.id)
-      return true
-    })
+  return raw.filter(validCompletedVoyage).filter((entry) => {
+    if (ids.has(entry.id)) return false
+    ids.add(entry.id)
+    return true
+  })
 }
 
 export function archiveCompletedVoyage(

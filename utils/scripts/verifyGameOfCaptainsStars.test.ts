@@ -838,12 +838,14 @@ assert.deepEqual(
   firstArchive,
   'bad and duplicate records must not damage valid voyage history',
 )
-const fullArchive = Array.from({ length: 42 }, (_, index) =>
-  archiveCompletedVoyage(
-    [],
-    { ...finishedVoyage, seed: index + 1 },
-    20261119 + index,
-  )[0]!,
+const fullArchive = Array.from(
+  { length: 42 },
+  (_, index) =>
+    archiveCompletedVoyage(
+      [],
+      { ...finishedVoyage, seed: index + 1 },
+      20261119 + index,
+    )[0]!,
 )
 assert.equal(
   normalizeCompletedVoyages(fullArchive).length,

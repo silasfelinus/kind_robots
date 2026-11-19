@@ -33,6 +33,8 @@ import {
   clashCardBadge,
   clashCardText,
   clashLevel,
+  clashSplashHitsAllies,
+  CLASH_L1_CLEAN_SPLASH,
   clashPlayCost,
   clashPlayLimit,
   createClash,
@@ -1309,13 +1311,21 @@ assert.equal(rainbowDamage.units.find((u) => u.uid === 998)?.hp, 8)
 assert.equal(rainbowDamage.units.find((u) => u.uid === 999)?.hp, 7)
 // splash:'all' blasts say "including your own": the caster's fighters beside
 // the target take the 1 splash too, while splash:'enemies' blasts spare them.
-for (const [id, friendlyFire] of [
-  ['s1-no-witnesses', true],
-  ['s2-riot-friendly-fire-rehearsal', true],
-  ['merc-unsupervised-demo', true],
-  ['merc-supervised-demo', false],
+// t-041 (2026-11-19 PT): the two near-dead four-energy blasts in
+// CLASH_L1_CLEAN_SPLASH spare allies on their first (level one) play only.
+for (const [id, friendlyFire, team] of [
+  ['s1-no-witnesses', true, 'riot'],
+  ['s2-riot-friendly-fire-rehearsal', false, 'riot'],
+  ['s2-bloodfairies-glitterglass-flood', false, 'bloodfairies'],
+  ['merc-unsupervised-demo', true, 'riot'],
+  ['merc-supervised-demo', false, 'riot'],
 ] as const) {
-  const splashStage = evolved('riot', id, 1)
+  assert.equal(
+    clashSplashHitsAllies(cardById(id), id, 1),
+    friendlyFire,
+    id + ' level-one friendly splash rule',
+  )
+  const splashStage = evolved(team, id, 1)
   splashStage.units = [
     follower('enemy', 2, 1201, 12),
     follower('enemy', 1, 1202, 10),
@@ -1331,6 +1341,14 @@ for (const [id, friendlyFire] of [
     id + (friendlyFire ? ' hits' : ' spares') + ' the adjacent ally',
   )
   assert.equal(hp(1204), 8, id + ' leaves a distant ally alone')
+}
+// The price returns once they level: native splash catches the band again.
+for (const id of CLASH_L1_CLEAN_SPLASH) {
+  assert.ok(
+    clashSplashHitsAllies(cardById(id), id, 2) &&
+      clashSplashHitsAllies(cardById(id), id, 3),
+    id + ' friendly splash returns at levels two and three',
+  )
 }
 const eelStage = evolved('undertow', 'eel')
 eelStage.phase = 'attack'

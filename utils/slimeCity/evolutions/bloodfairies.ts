@@ -275,7 +275,8 @@ export const BLOODFAIRY_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: PRICE (it always cuts your own). Counterplay: spread out;
   // hit back while the cut band is low.
   's2-bloodfairies-glitterglass-flood': {
-    levelOneText: 'Cut the rival and risk the pit.',
+    levelOneText:
+      'Cut the rival and the rows beside it; the band sits this first one out.',
     2: stage('Shard Frenzy', [
       on('enter', damage(1, 'adjacentAllies'), power(2, 'adjacentAllies')),
     ]),

@@ -385,7 +385,10 @@ assert.deepEqual(
 // 2026-11-19 PT: CLASH_CPU_TWO_SLOT_MARGIN 2 -> 0 revived ten of them; 8 remain
 // (Juggernaut, Chimera, Grease Oracle, Spare Nine Lives, Glitterglass Flood,
 // Breeding Hunger, Compound Notice, Acquisition Clause).
-const NEAR_DEAD_TWO_SLOT_CEILING = 8
+// 2026-11-19 PT: CLASH_L1_CLEAN_SPLASH (level-one Glitterglass Flood and
+// Dress Rehearsal Pyro spare the caster's adjacent fighters) revived
+// Glitterglass Flood; 7 remain.
+const NEAR_DEAD_TWO_SLOT_CEILING = 7
 assert.ok(
   nearDead.length <= NEAR_DEAD_TWO_SLOT_CEILING,
   nearDead.length +
@@ -469,9 +472,10 @@ assert.deepEqual(
 // s3 Compound Notice) and 16 near-dead. Ratchet: lower them when
 // a card or CPU change revives a card here; never raise them.
 // 2026-11-19 PT: margin 2 -> 0 read 0 dead and 7 near-dead here (+9000: 0
-// and 6).
+// and 6). CLASH_L1_CLEAN_SPLASH then took Glitterglass Flood and Dress
+// Rehearsal Pyro off the list: 0 dead and 5 near-dead (+9000: 0 and 5).
 const HELD_OUT_DEAD_CEILING = 0
-const HELD_OUT_NEAR_DEAD_CEILING = 7
+const HELD_OUT_NEAR_DEAD_CEILING = 5
 if (heldOutOffset === DEFAULT_HELD_OUT_OFFSET) {
   assert.ok(
     heldOut.dead.length <= HELD_OUT_DEAD_CEILING,

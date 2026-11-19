@@ -358,7 +358,10 @@ for (const plan of plans) {
     assert.deepEqual(
       saveRoundtrips,
       [1, 11, 21, 31, 41, 51],
-      plan.id + '/' + seed + ': all five acts must round-trip through save data',
+      plan.id +
+        '/' +
+        seed +
+        ': all five acts must round-trip through save data',
     )
     if (missingTargets.length)
       failures.push(

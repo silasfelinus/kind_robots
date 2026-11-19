@@ -22,6 +22,7 @@ import {
   TRAVEL_LINES,
   WAITING_LINES,
 } from '../gameOfCaptains/transitLines'
+import { PLANET_CARDS } from '../gameOfCaptains/episodeConsole'
 import { ACT_TWO_RESUPPLY } from '../gameOfCaptains/actTwo'
 import { ACT_THREE_RESUPPLY } from '../gameOfCaptains/actThree'
 import type { CrewId } from '../gameOfCaptains/rules'
@@ -114,6 +115,95 @@ for (const [name, pool] of Object.entries({
 }))
   assert.ok(pool.length >= 20, `${name} holds 20 lines`)
 assert.ok(WAITING_LINES.length >= 26, 'WAITING_LINES holds 26 lines')
+
+
+// Each planet/order has its own comic follow-through without changing the
+// first clause: existing traces and saved debriefs retain their original beat.
+const planetSuccessLeads = [
+  {
+    title: 'The Moon That Requested Custody',
+    ask: 'Local residents vote to lend the moon its tides on alternate Thursdays.',
+    document: 'The ancient ownership deed names the moon as its own guardian.',
+    override: 'The couch relocates one tide; three coastal councils send invoices.'
+  },
+  {
+    title: 'A Refugee Named Wednesday',
+    ask: 'The traveler chooses a safe place to wait for the paradox.',
+    document: 'A protected testimony makes the arrest order invalid.',
+    override: 'The couch shelters the traveler, acquiring a warrant from next week.'
+  },
+  {
+    title: 'The Union of Unpaid Suns',
+    ask: 'The workers negotiate a rotating daylight schedule.',
+    document: 'Payroll records reveal the star owners have been billing the planets twice.',
+    override: 'The couch restarts a star before its workers consent.'
+  },
+  {
+    title: 'The Garden That Refused Oxygen',
+    ask: 'A public forum funds an alternative oxygen supply.',
+    document: 'The grove establishes that its employment contract was forged.',
+    override: 'The orchard complies, and the settlement loses its only willing ally.'
+  },
+  {
+    title: 'The Diplomatic Temperature Incident',
+    ask: 'The delegates insist on an interpreter they actually trust.',
+    document: 'An archived thermal recording identifies the disputed vote.',
+    override: 'The bubble heats the room; the assembly declares an emergency recess.'
+  },
+  {
+    title: 'A Planet Requests an Exit Interview',
+    ask: 'The planet dictates terms to a neutral mediator.',
+    document: 'Mineral ledgers prove centuries of unpaid extraction.',
+    override: 'The couch disables the drill; a rescue corridor becomes the next negotiation.'
+  },
+  {
+    title: 'The Twelve-Hour Apology',
+    ask: 'Survivors choose whether any apology will be heard.',
+    document: 'Unaltered recordings preserve the evidence before the broadcast is stopped.',
+    override: 'The couch cuts power, sparing new victims and erasing one witness account.'
+  },
+  {
+    title: 'The Missing Note Committee',
+    ask: 'Residents decide when the alarm may be sounded.',
+    document: 'The missing waveform identifies who silenced the original warning.',
+    override: 'The couch sounds every bell and shatters the palace’s ceremonial windows.'
+  },
+  {
+    title: 'The Interstellar Costume Inspector',
+    ask: 'The inspector interviews the passengers and reinstates their personhood.',
+    document: 'An old registration stamp proves the couch has always been a vehicle.',
+    override: 'The crew flies through customs while the paperwork keeps chasing them.'
+  },
+  {
+    title: 'The Gravity Refund Office',
+    ask: 'Tenants negotiate a public gravity guarantee.',
+    document: 'The hidden meter exposes the company’s fraudulent readings.',
+    override: 'The couch redirects gravity; loose furniture occupies the council chamber.'
+  }
+]
+const planetSuccessScenes = new Set<string>()
+assert.equal(PLANET_CARDS.length, 10)
+for (const card of PLANET_CARDS) {
+  const expected = planetSuccessLeads.find((entry) => entry.title === card.title)
+  assert.ok(expected, `Unrecognized planet card: ${card.title}`)
+  for (const order of ['ask', 'document', 'override'] as const) {
+    const scene = card[order]
+    assert.ok(
+      scene.startsWith(`${expected[order]} `),
+      `Original ${card.title} ${order} result changed`,
+    )
+    assert.ok(
+      scene.slice(expected[order].length).trim().length >= 35,
+      `No specific second beat for ${card.title} ${order}`,
+    )
+    assert.ok(
+      !planetSuccessScenes.has(scene),
+      `Duplicate planet success: ${card.title} ${order}`,
+    )
+    planetSuccessScenes.add(scene)
+  }
+}
+assert.equal(planetSuccessScenes.size, 30)
 
 // 2. Selection is deterministic and walks a pool without repeats.
 for (const seed of [1, 42, 2026]) {

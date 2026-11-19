@@ -130,12 +130,23 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
 ]
 
+/**
+ * Public arcade games with their own page and link preview but no
+ * SHARE_PREVIEWS entry (their pages set their own share meta). Without this
+ * list, search engines were never told they exist.
+ */
+export const STANDALONE_GAME_PATHS: readonly string[] = [
+  '/play/zuzu-ghost-trail',
+  '/play/sliding-tile-gallery',
+]
+
 export const SITEMAP_PATHS: readonly string[] = [
   '/',
   '/about',
   '/giving',
   '/navigation',
   ...SHARE_PREVIEWS.map((preview) => preview.route),
+  ...STANDALONE_GAME_PATHS,
 ]
 
 /**

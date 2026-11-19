@@ -1,7 +1,6 @@
 import type { CaptainId, CrewId, VoyageRun } from './rules'
 
 export const COMPLETED_VOYAGES_KEY = 'game-of-captains-voyages-v1'
-export const MAX_COMPLETED_VOYAGES = 40
 
 export type CompletedVoyage = {
   version: 1
@@ -73,7 +72,8 @@ export function normalizeCompletedVoyages(raw: unknown): CompletedVoyage[] {
       ids.add(entry.id)
       return true
     })
-    .slice(0, MAX_COMPLETED_VOYAGES)
+
+
 }
 
 export function archiveCompletedVoyage(
@@ -104,7 +104,7 @@ export function archiveCompletedVoyage(
       id: loss.id,
       missionId: loss.missionId,
     })),
-    log: run.log.slice(-80),
+    log: [...run.log],
   }
-  return [entry, ...history].slice(0, MAX_COMPLETED_VOYAGES)
+  return [entry, ...history]
 }

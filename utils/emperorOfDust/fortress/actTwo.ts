@@ -2380,7 +2380,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   flags: ['d16-informant-spy'],
                 },
                 response:
-                  'She goes down the canyon road at dusk, brass sewn into her bandage. Four days later the new camp map arrives, drawn better. The next one is late. The Watch pins both above the fire and waits for the third.',
+                  'She takes the canyon road at dusk, ten brass sewn into her bandage. Dunmark waits until she is past the last cairn. Then he lays a blank report sheet on his desk.',
               },
             ],
           },

@@ -8405,6 +8405,33 @@ for (const def of DAYS)
     'd20-levy',
     'levy-ledger',
   )
+  // Day 16 cannot report a map that Day 19 explicitly says is not due yet.
+  // The Day 19 decision must also make sense if the Day 11 report burned the
+  // first ration-card map after the Day 4 denial.
+  for (const feastFlag of ['d04-informant-claimed', 'd04-informant-denied']) {
+    const day16 = onDay(1, 16, {
+      flags: ['pack-camp-mapped', feastFlag],
+      brass: 100,
+    })
+    const probed = chooseAudienceOption(
+      day16,
+      'd16-bandaged-paw',
+      'ask-pack',
+    ).run
+    const sent = chooseAudienceOption(probed, 'd16-bandaged-paw', 'spy')
+    assert.doesNotMatch(sent.response, /map arrives|days later/i)
+    assert.ok(sent.run.flags.includes('d16-informant-spy'))
+    const day19 = onDay(1, 19, { flags: sent.run.flags, brass: 100 })
+    const waited = chooseAudienceOption(
+      day19,
+      'd19-knotted-bandage',
+      'wait',
+    )
+    assert.match(waited.response, /feather above the fire/)
+    assert.doesNotMatch(waited.response, /ration card/i)
+    assert.ok(waited.run.flags.includes('d19-feather-pinned'))
+    assert.ok(waited.run.dues?.some((due) => due.id === 'd19-third-map'))
+  }
   const spyDay = onDay(1, 19, { flags: ['d16-informant-spy'], brass: 100 })
   for (const [path, due, marker] of [
     [['wait'], 'd19-third-map', /a bridge/],

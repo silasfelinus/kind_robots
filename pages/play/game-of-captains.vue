@@ -75,7 +75,7 @@
           <button
             type="button"
             data-testid="space-couch-main-log"
-            @click="titlePanel = 'log'"
+            @click="openCaptainLog"
           >
             CAPTAIN'S LOG <span>▤</span
             ><small>{{
@@ -181,52 +181,159 @@
         <section
           v-if="titlePanel === 'log'"
           class="cap-menu-detail"
-          aria-label="Saved captain's log"
+          aria-label="Captain's log and completed voyages"
         >
           <h2>CAPTAIN'S LOG</h2>
-          <template v-if="run">
+          <div class="cap-log-tabs" role="group" aria-label="Logbook sections">
+            <button
+              type="button"
+              :aria-pressed="logView === 'current'"
+              @click="logView = 'current'"
+            >
+              CURRENT VOYAGE
+            </button>
+            <button
+              type="button"
+              data-testid="space-couch-completed-voyages"
+              :aria-pressed="logView === 'completed'"
+              @click="
+                logView = 'completed'
+                selectedFinishedVoyageId = null
+              "
+            >
+              COMPLETED · {{ store.completedVoyages.length }}
+            </button>
+          </div>
+          <template v-if="logView === 'current'">
+            <template v-if="run">
+              <p>
+                {{
+                  CAPTAINS.find((captain) => captain.id === run?.captain)?.name
+                }}
+                · Chapter {{ run.chapter }} · Day {{ run.day ?? run.chapter }}
+              </p>
+              <p v-if="run.starAssessment">
+                Under {{ starSignFor(run.starAssessment.sign).name }}
+              </p>
+              <p v-else-if="run.wildBreak">
+                Unsigned · Wild break:
+                {{ wildBreakEnding(run.wildBreak.ending)?.title }}
+              </p>
+              <div class="cap-menu-journal">
+                <p v-if="!run.log.length">
+                  No incidents entered. An encouraging sign, statistically.
+                </p>
+                <p v-for="(entry, index) in logEntries" :key="index">
+                  {{ entry }}
+                </p>
+                <div v-if="run.log.length > 4" class="cap-menu-log-nav">
+                  <button
+                    type="button"
+                    :disabled="logPage >= Math.ceil(run.log.length / 4) - 1"
+                    @click="logPage++"
+                  >
+                    OLDER ENTRIES
+                  </button>
+                  <span
+                    >{{ logPage + 1 }} /
+                    {{ Math.ceil(run.log.length / 4) }}</span
+                  >
+                  <button
+                    type="button"
+                    :disabled="logPage === 0"
+                    @click="logPage--"
+                  >
+                    NEWER ENTRIES
+                  </button>
+                </div>
+              </div>
+            </template>
+            <p v-else>
+              No voyage in progress. Previous voyages are in Completed.
+            </p>
+          </template>
+          <div
+            v-else-if="selectedFinishedVoyage"
+            class="cap-menu-archive max-h-56 overflow-y-auto"
+            data-testid="space-couch-voyage-dossier"
+          >
+            <button type="button" @click="selectedFinishedVoyageId = null">
+              ← ALL COMPLETED VOYAGES
+            </button>
+            <h3>{{ selectedFinishedVoyage.ending }}</h3>
             <p>
               {{
-                CAPTAINS.find((captain) => captain.id === run?.captain)?.name
+                CAPTAINS.find(
+                  (captain) => captain.id === selectedFinishedVoyage?.captain,
+                )?.name
               }}
-              · Chapter {{ run.chapter }} · Day {{ run.day ?? run.chapter }}
+              · Day {{ selectedFinishedVoyage.day }} ·
+              {{
+                new Date(
+                  selectedFinishedVoyage.completedAt,
+                ).toLocaleDateString()
+              }}
             </p>
-            <p v-if="run.starAssessment">
-              Under {{ starSignFor(run.starAssessment.sign).name }}
+            <p>
+              CREW:
+              {{
+                selectedFinishedVoyage.crew
+                  .map(
+                    (id) => CREW.find((member) => member.id === id)?.name ?? id,
+                  )
+                  .join(', ')
+              }}
             </p>
-            <p v-else-if="run.wildBreak">
-              Unsigned · Wild break:
-              {{ wildBreakEnding(run.wildBreak.ending)?.title }}
+            <h4>ENDING REPORT</h4>
+            <p>{{ selectedFinishedVoyage.outcome }}</p>
+            <h4>DECISIONS · {{ selectedFinishedVoyage.choices.length }}</h4>
+            <p
+              v-for="(choice, index) in selectedFinishedVoyage.choices"
+              :key="index"
+            >
+              Chapter {{ choice.chapter }} · {{ choice.missionId }}:
+              {{ choice.policy }} / {{ choice.result }}
             </p>
-            <div class="cap-menu-journal">
-              <p v-if="!run.log.length">
-                No incidents entered. An encouraging sign, statistically.
-              </p>
-              <p v-for="(entry, index) in logEntries" :key="index">
-                {{ entry }}
-              </p>
-              <div v-if="run.log.length > 4" class="cap-menu-log-nav">
-                <button
-                  type="button"
-                  :disabled="logPage >= Math.ceil(run.log.length / 4) - 1"
-                  @click="logPage++"
-                >
-                  OLDER ENTRIES
-                </button>
-                <span
-                  >{{ logPage + 1 }} / {{ Math.ceil(run.log.length / 4) }}</span
-                >
-                <button
-                  type="button"
-                  :disabled="logPage === 0"
-                  @click="logPage--"
-                >
-                  NEWER ENTRIES
-                </button>
-              </div>
-            </div>
-          </template>
-          <p v-else>No saved voyage. The logbook is magnificently blank.</p>
+            <h4>LOSSES · {{ selectedFinishedVoyage.losses.length }}</h4>
+            <p v-if="!selectedFinishedVoyage.losses.length">
+              No crew losses recorded.
+            </p>
+            <p
+              v-for="(loss, index) in selectedFinishedVoyage.losses"
+              :key="index"
+            >
+              {{ loss.id }} · {{ loss.missionId }}
+            </p>
+            <h4>CAPTAIN'S NOTES</h4>
+            <p
+              v-for="(entry, index) in selectedFinishedVoyage.log"
+              :key="index"
+            >
+              {{ entry }}
+            </p>
+          </div>
+          <div
+            v-else
+            class="cap-menu-archive max-h-56 overflow-y-auto"
+            data-testid="space-couch-voyage-archive"
+          >
+            <p v-if="!store.completedVoyages.length">
+              No completed voyages yet. The archive has been optimistically
+              alphabetized.
+            </p>
+            <button
+              v-for="record in store.completedVoyages"
+              :key="record.id"
+              type="button"
+              @click="selectedFinishedVoyageId = record.id"
+            >
+              {{ record.ending }} ·
+              {{
+                CAPTAINS.find((captain) => captain.id === record.captain)?.name
+              }}
+              <small>DAY {{ record.day }} · OPEN REPORT</small>
+            </button>
+          </div>
           <button
             type="button"
             class="cap-menu-back"
@@ -2032,6 +2139,20 @@ function openNewVoyageConfirmation() {
   confirmNewVoyage.value = true
 }
 const logPage = ref(0)
+const logView = ref<'current' | 'completed'>('current')
+const selectedFinishedVoyageId = ref<string | null>(null)
+const selectedFinishedVoyage = computed(
+  () =>
+    store.completedVoyages.find(
+      (record) => record.id === selectedFinishedVoyageId.value,
+    ) ?? null,
+)
+function openCaptainLog() {
+  logPage.value = 0
+  logView.value = run.value ? 'current' : 'completed'
+  selectedFinishedVoyageId.value = null
+  titlePanel.value = 'log'
+}
 const logEntries = computed(() => {
   const entries = run.value?.log ?? []
   return entries.slice(
@@ -2718,6 +2839,51 @@ function toggleAway(id: CrewId) {
 .cap-menu-achievements {
   max-height: min(30vh, 16rem);
   padding: 0.25rem;
+}
+.cap-log-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.cap-log-tabs button {
+  flex: 1 1 7rem;
+  padding: 0.35rem;
+}
+.cap-log-tabs button[aria-pressed='true'] {
+  border-color: #9ee7e7;
+  background: #235061;
+}
+.cap-menu-archive {
+  flex: 1;
+  min-height: 0;
+  overscroll-behavior: contain;
+  padding: 0.5rem;
+  border-left: 2px solid #c0a17a;
+}
+.cap-menu-archive button {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.4rem;
+  padding: 0.5rem;
+}
+.cap-menu-archive button small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+.cap-menu-archive h3,
+.cap-menu-archive h4 {
+  color: #f8cc9c;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+.cap-menu-archive h4 {
+  margin-top: 0.85rem;
+}
+.cap-menu-archive p {
+  margin: 0.4rem 0;
+  white-space: pre-wrap;
 }
 .cap-menu-journal {
   flex: 1;

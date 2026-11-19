@@ -415,10 +415,15 @@ assert.deepEqual(
   FOLLOWERS.map((def) => def.id),
   Array.from({ length: 25 }, (_, i) => `F${String(i + 1).padStart(3, '0')}`),
 )
+assert.deepEqual(
+  FOLLOWERS.filter((def) => def.romanceable).map((def) => def.id),
+  ['F001', 'F002', 'F006', 'F007', 'F016', 'F018'],
+  'only the six canonical romance arcs are marked romanceable',
+)
 assert.equal(
-  FOLLOWERS.filter((def) => def.romanceable).length,
-  7,
-  'seven romanceable followers, including Kiyo',
+  followerDef('F003')?.romanceable,
+  false,
+  'Kiyo is Zuzu’s mother and has a friendship and clinic-ethics arc, not a romance',
 )
 assert.equal(
   new Set(FOLLOWERS.slice(0, 20).map((def) => def.ability.kind)).size,

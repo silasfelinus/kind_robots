@@ -8,6 +8,11 @@
     ashen: 'Ashen Checkmate',
     jackpot: 'Jackpot Apocalypse',
   }
+  const WORLD_ART = {
+    sugar: '/images/chessweeper/sugarbomb-kingdom.webp',
+    ashen: '/images/chessweeper/ashen-checkmate.webp',
+    jackpot: '/images/chessweeper/jackpot-apocalypse.webp',
+  }
   const ENDINGS = {
     sugar: [
       [
@@ -344,13 +349,8 @@
     for (const world of ['sugar', 'ashen', 'jackpot']) {
       const r = profile.records[world] || { best: 0, wins: 0, runs: 0 }
       html +=
-        '<h3>' +
-        NAMES[world] +
-        ' · ' +
-        r.wins +
-        ' wins · best ' +
-        r.best +
-        '</h3><div class="meta-grid">'
+        `<section class="meta-scrapbook-world"><img src="${WORLD_ART[world]}" alt="${NAMES[world]} illustrated chessboard" loading="lazy" /><h3>${NAMES[world]} · ${r.wins} wins · best ${r.best}</h3></section><div class="meta-grid">`
+
       for (const ending of ENDINGS[world])
         html += card(
           '✧',

@@ -9,34 +9,22 @@ import {
 const entries = Object.entries(COUCH_ALIEN_ART_JOB_IDS)
 assert.equal(ALIEN_SPECIES.length, 101)
 const reviewHolds = Object.entries(COUCH_ALIEN_REDO_CANDIDATE_JOB_IDS)
-assert.equal(entries.length, 85, 'curated 81 species and four milestone paintings')
-assert.equal(reviewHolds.length, 22, '20 species and two milestones need visual curation')
+assert.equal(
+  entries.length,
+  85,
+  'curated 81 species and four milestone paintings',
+)
+assert.equal(
+  reviewHolds.length,
+  22,
+  '20 species and two milestones need visual curation',
+)
 assert.equal(new Set(entries.map(([key]) => key)).size, 85)
 assert.equal(new Set(entries.map(([, id]) => id)).size, 85)
 assert.equal(new Set(reviewHolds.map(([, id]) => id)).size, 22)
 const originalRejects = new Set([
-  52975,
-  52976,
-  52978,
-  52983,
-  52984,
-  52985,
-  52990,
-  52999,
-  53001,
-  53002,
-  53004,
-  53011,
-  53013,
-  53020,
-  53034,
-  53042,
-  53043,
-  53051,
-  53052,
-  53057,
-  52956,
-  52957,
+  52975, 52976, 52978, 52983, 52984, 52985, 52990, 52999, 53001, 53002, 53004,
+  53011, 53013, 53020, 53034, 53042, 53043, 53051, 53052, 53057, 52956, 52957,
 ])
 assert.equal(originalRejects.size, 22)
 for (const [key, candidate] of reviewHolds) {
@@ -60,8 +48,7 @@ for (const threshold of [5, 12, 25, 50, 75, 100]) {
   const key = 'aliens/milestone-' + threshold
   assert.ok(
     Number.isInteger(
-      COUCH_ALIEN_ART_JOB_IDS[key] ??
-        COUCH_ALIEN_REDO_CANDIDATE_JOB_IDS[key],
+      COUCH_ALIEN_ART_JOB_IDS[key] ?? COUCH_ALIEN_REDO_CANDIDATE_JOB_IDS[key],
     ),
     key,
   )

@@ -85,15 +85,24 @@
             }}</small>
           </button>
         </nav>
-        <button
-          v-if="titlePanel === 'home'"
-          type="button"
-          class="cap-menu-back"
-          data-testid="space-couch-open-alien-scrapbook"
-          @click="titlePanel = 'aliens'"
-        >
-          SPECIES SCRAPBOOK · {{ store.alienGuide.discovered.length }}/101 ✳
-        </button>
+        <div v-if="titlePanel === 'home'" class="cap-menu-extras">
+          <button
+            type="button"
+            class="cap-menu-back"
+            data-testid="space-couch-open-alien-scrapbook"
+            @click="titlePanel = 'aliens'"
+          >
+            SPECIES SCRAPBOOK · {{ store.alienGuide.discovered.length }}/101 ✳
+          </button>
+          <button
+            type="button"
+            class="cap-menu-back"
+            data-testid="space-couch-main-achievements"
+            @click="titlePanel = 'achievements'"
+          >
+            ACHIEVEMENTS ★
+          </button>
+        </div>
         <div
           v-if="titlePanel === 'home' && confirmNewVoyage && run"
           class="cap-menu-confirm"
@@ -144,6 +153,23 @@
             REDUCE ANIMATION
             <b>{{ store.preferences.reducedMotion ? 'ON' : 'OFF' }}</b>
           </button>
+          <button
+            type="button"
+            class="cap-menu-back"
+            @click="titlePanel = 'home'"
+          >
+            ← MAIN MENU
+          </button>
+        </section>
+        <section
+          v-if="titlePanel === 'achievements'"
+          class="cap-menu-detail"
+          aria-label="Voyage achievements"
+        >
+          <h2>ACHIEVEMENTS</h2>
+          <div class="cap-menu-achievements kr-scroll min-h-0 overflow-y-auto">
+            <GameAchievementStrip game="game-of-captains" />
+          </div>
           <button
             type="button"
             class="cap-menu-back"
@@ -1993,9 +2019,9 @@ function onOriginArtError(event: Event, id: string) {
   }
 }
 const atTitle = ref(true)
-const titlePanel = ref<'home' | 'settings' | 'log' | 'opening' | 'aliens'>(
-  'home',
-)
+const titlePanel = ref<
+  'home' | 'settings' | 'achievements' | 'log' | 'opening' | 'aliens'
+>('home')
 const confirmNewVoyage = ref(false)
 function openCouchMenu() {
   atTitle.value = true
@@ -2615,6 +2641,26 @@ function toggleAway(id: CrewId) {
   gap: 0.65rem;
   margin-top: 0.4rem;
 }
+.cap-menu-extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+.cap-menu-extras button {
+  min-width: 0;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid #91bbc0;
+  border-radius: 0.4rem;
+  background: #14263adf;
+  color: #fff2dd;
+  font-size: clamp(0.63rem, 1cqi, 0.8rem);
+  font-weight: 800;
+}
+.cap-menu-extras button:hover,
+.cap-menu-extras button:focus-visible {
+  border-color: #ffdda7;
+  background: #2e5065;
+}
 .cap-menu-actions button,
 .cap-menu-detail button {
   border: 1px solid #91bbc0;
@@ -2668,6 +2714,10 @@ function toggleAway(id: CrewId) {
 .cap-menu-detail button[aria-pressed='true'] {
   border-color: #9ee7e7;
   background: #235061;
+}
+.cap-menu-achievements {
+  max-height: min(30vh, 16rem);
+  padding: 0.25rem;
 }
 .cap-menu-journal {
   flex: 1;

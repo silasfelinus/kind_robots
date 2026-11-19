@@ -491,6 +491,74 @@ export const ADVERT_POSTERS: AdvertPoster[] = [
     type: { titleSize: 168, titleSpacing: '4px', statSize: 118, urlSize: 42 },
   }),
   poster({
+    slug: 'chessweeper',
+    name: 'Chessweeper',
+    path: '/chessweeper',
+    conductorSlug: 'chessweeper',
+    style:
+      'original hand-painted arcade fantasy key art, vivid triptych of candy kingdom, gothic cathedral and neon casino, chess pieces, hidden mines and spinning sawblades, three distinct illustrated worlds',
+    hero: {
+      src: '/images/chessweeper/highlight.webp',
+      pos: 'center 48%',
+      subject:
+        'a gleaming ivory chess king framed by a spinning sawblade over a board of numbered mines, with candy unicorn kingdom, ruined cathedral and neon casino realms behind',
+    },
+    cards: [
+      {
+        label: 'Sugarbomb Kingdom',
+        src: '/images/chessweeper/sugarbomb-kingdom.webp',
+        pos: 'center 48%',
+        subject:
+          'a rainbow candy kingdom where unicorn chess knights battle glittering lollipop saws on a minefield',
+        tag: ['#ffe0f3', '#f472b6'],
+        glow: 'rgba(244,114,182,.55)',
+      },
+      {
+        label: 'Ashen Checkmate',
+        src: '/images/chessweeper/ashen-checkmate.webp',
+        pos: 'center 48%',
+        subject:
+          'an iron execution wheel sweeps a cursed chessboard inside a ruined gothic cathedral',
+        tag: ['#f5d0ae', '#ca653c'],
+        glow: 'rgba(202,101,60,.55)',
+      },
+      {
+        label: 'Jackpot Apocalypse',
+        src: '/images/chessweeper/jackpot-apocalypse.webp',
+        pos: 'center 49%',
+        subject:
+          'neon casino pinball discs ricochet among chess pieces, casino chips and glowing mine clues',
+        tag: ['#f5d0fe', '#a855f7'],
+        glow: 'rgba(168,85,247,.55)',
+      },
+    ],
+    copy: {
+      kicker: 'THREE GAMES COLLIDE',
+      title: 'Chessweeper',
+      statValue: '3',
+      statUnit: 'DANGEROUS WORLDS',
+      hook: 'Think three moves ahead.',
+      hookHighlight: 'Then dodge the sawblade.',
+      blurb:
+        'Play chess against a minefield and spinning discs across a candy kingdom, a cursed cathedral and a neon casino.',
+      chips: ['FREE', 'IN YOUR BROWSER', '3 PLAYABLE WORLDS', '12 ENDINGS'],
+      strip: ['CHESS', 'MINESWEEPER', 'DISC DODGE', 'SUGAR RUSH'],
+    },
+    palette: {
+      bg: '#170e31',
+      a1: '#f472b6',
+      a2: '#ffd166',
+      a3: '#5df7e0',
+    },
+    type: {
+      fontQuery: 'Bungee',
+      titleFont: "'Bungee',sans-serif",
+      titleSize: 130,
+      titleSpacing: '0px',
+      statSize: 112,
+    },
+  }),
+  poster({
     slug: 'slime-city',
     name: 'Slime City',
     path: '/slime-city',

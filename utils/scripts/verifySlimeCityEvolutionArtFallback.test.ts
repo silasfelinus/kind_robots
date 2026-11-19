@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
-import { slimeArtId, slimeCardArtId } from '../slimeCity/artManifest'
+import {
+  SLIME_CITY_ART,
+  slimeArtId,
+  slimeCardArtId,
+} from '../slimeCity/artManifest'
 
 // An alternate COG choice is still a level-three fighter, even when its
 // distinct painting has not arrived. Never show its base card as a downgrade.
@@ -27,16 +31,19 @@ assert.equal(
   slimeArtId('evolutions', splitThird + '@3'),
 )
 
-// A stage whose painting was rejected must not borrow another card's
-// painting: Pocket Punk's L2 render was rejected (2026-11-19 PT), so L2 shows
-// its own card art while L3 shows its curated evolution.
-const pending = 's1-pocket-punk'
-assert.equal(slimeArtId('evolutions', pending + '@2'), null)
-assert.equal(slimeCardArtId(pending, 2, 0), slimeArtId('cards', pending))
-assert.ok(slimeArtId('cards', pending))
-assert.equal(
-  slimeCardArtId(pending, 3, 1),
-  slimeArtId('evolutions', pending + '@3'),
-)
+// A stage without its own curated painting must not borrow another card's
+// painting: L2 falls back to the card's own art, never a sibling's. Since
+// 2026-11-19 PT every card has curated L2 art (fusevest@2 was the last), so
+// check the precedence rule across the whole catalog instead of one fixture.
+const evolutions = SLIME_CITY_ART.evolutions as Record<string, number>
+for (const id of Object.keys(SLIME_CITY_ART.cards)) {
+  assert.equal(slimeCardArtId(id, 1, 0), slimeArtId('cards', id))
+  assert.equal(
+    slimeCardArtId(id, 2, 0),
+    evolutions[id + '@2'] ?? slimeArtId('cards', id),
+    id + ' L2 uses its own stage or card art',
+  )
+}
+assert.equal(slimeArtId('evolutions', 'fusevest@2'), 276580)
 assert.equal(slimeCardArtId('nonexistent-slime-card', 3, 1), null)
 console.log('Slime City COG evolution art fallback verified')

@@ -241,7 +241,9 @@ try {
 } finally {
   await browser.close()
 }
-console.log('gamepad: unit-tested (verifySlimeCityClashGamepad.test.ts); not browser-driven')
+console.log(
+  'gamepad: unit-tested (verifySlimeCityClashGamepad.test.ts); not browser-driven',
+)
 if (failures) {
   console.error(`Clash input pass: ${failures} failed mode(s)`)
   process.exitCode = 1

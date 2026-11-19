@@ -388,7 +388,9 @@ assert.deepEqual(
 // 2026-11-19 PT: CLASH_L1_CLEAN_SPLASH (level-one Glitterglass Flood and
 // Dress Rehearsal Pyro spare the caster's adjacent fighters) revived
 // Glitterglass Flood; 7 remain.
-const NEAR_DEAD_TWO_SLOT_CEILING = 7
+// 2026-11-19 PT: a level-one Twin Omens stage (1 damage to the target's
+// adjacent foes) revived Compound Notice on suite seeds; 6 remain.
+const NEAR_DEAD_TWO_SLOT_CEILING = 6
 assert.ok(
   nearDead.length <= NEAR_DEAD_TWO_SLOT_CEILING,
   nearDead.length +

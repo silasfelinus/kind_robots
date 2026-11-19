@@ -74,10 +74,9 @@ for (const card of CARDS) {
 // The numbers may only go down: lower a baseline when art lands.
 const PENDING_EVOLUTION_ART_BASELINE: Record<string, number> = {
   catgirls: 0,
-  // s1-pocket-punk@2 rejected 2026-11-19 PT (real soft-drink logo).
-  bloodfairies: 1,
+  bloodfairies: 0,
   ironjaw: 0,
-  // fusevest@2 rejected 2026-11-19 PT (headless torso crop).
+  // fusevest@2 rejected twice 2026-11-19 PT (headless crop; then no sparklers).
   riot: 1,
   undertow: 0,
   exchange: 0,

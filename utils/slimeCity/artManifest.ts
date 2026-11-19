@@ -1185,6 +1185,7 @@ export const SLIME_CITY_ART = {
     'choker@3': 276353,
     'feedback@2': 276354,
     'feedback@3': 276355,
+    's1-pocket-punk@2': 276544,
     's1-pocket-punk@3': 276357,
     's2-bloodfairies-afterparty-first-aid@2': 276358,
     's2-bloodfairies-afterparty-first-aid@3': 276359,

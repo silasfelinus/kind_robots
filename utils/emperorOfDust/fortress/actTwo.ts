@@ -2313,7 +2313,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               flags: ['d16-informant-returned'],
             },
             response:
-              'She goes without arguing. That is the worst of it. A week later the Gate Watch takes the ration card down from over their fire. Nobody says why.',
+              'She does not argue. Captain Dunmark opens the postern himself and watches her take the canyon road. At supper he sets down his bowl untouched.',
           },
         ],
         beats: [

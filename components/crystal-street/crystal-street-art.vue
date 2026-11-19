@@ -11,6 +11,7 @@
     <img
       v-if="shown && !failed"
       :key="shown"
+      :ref="settleArt"
       :src="shown"
       :alt="alt"
       loading="lazy"
@@ -79,5 +80,14 @@ function onError(): void {
   if (props.fallback && shown.value !== props.fallback)
     shown.value = props.fallback
   else failed.value = true
+}
+
+// An image that settles before hydration (or straight from cache) never fires
+// @load/@error for Vue, which left generated art at opacity 0 behind its
+// fallback. The function ref runs on every mount, so read the element itself.
+function settleArt(el: unknown): void {
+  if (!(el instanceof HTMLImageElement) || !el.complete) return
+  if (el.naturalWidth > 0) loaded.value = true
+  else onError()
 }
 </script>

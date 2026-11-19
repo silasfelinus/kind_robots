@@ -20,6 +20,7 @@
       <img
         v-if="art.src && !broken"
         :key="art.src"
+        :ref="settleArt"
         :src="art.src"
         :alt="art.alt ?? ''"
         loading="lazy"
@@ -67,6 +68,15 @@ const TINT: Record<KitTone, string> = {
   warning: 'from-warning/55 via-warning/20 to-black/80',
   error: 'from-error/55 via-error/20 to-black/80',
   neutral: 'from-base-content/25 via-neutral to-black/80',
+}
+
+// An image that settles before hydration (or straight from cache) never fires
+// @load/@error for Vue, which left generated art at opacity 0 behind its
+// fallback. The function ref runs on every mount, so read the element itself.
+function settleArt(el: unknown): void {
+  if (!(el instanceof HTMLImageElement) || !el.complete) return
+  if (el.naturalWidth > 0) loaded.value = true
+  else broken.value = true
 }
 </script>
 

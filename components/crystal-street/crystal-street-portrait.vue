@@ -47,6 +47,7 @@
     <img
       v-if="!failed"
       :key="src"
+      :ref="settleArt"
       :src="src"
       :alt="`${companion.name}, ${emotion}`"
       class="absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-500"
@@ -143,4 +144,13 @@ const FACES: Record<
   },
 }
 const face = computed(() => FACES[props.emotion])
+
+// An image that settles before hydration (or straight from cache) never fires
+// @load/@error for Vue, which left generated art at opacity 0 behind its
+// fallback. The function ref runs on every mount, so read the element itself.
+function settleArt(el: unknown): void {
+  if (!(el instanceof HTMLImageElement) || !el.complete) return
+  if (el.naturalWidth > 0) loaded.value = true
+  else failed.value = true
+}
 </script>

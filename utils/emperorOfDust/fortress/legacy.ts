@@ -1,10 +1,6 @@
 import { ENDINGS, endingOf } from './endings'
 import type { EndingId } from './endings'
-import type {
-  FortressRun,
-  KingdomFactionId,
-  LocalFactionId,
-} from './types'
+import type { FortressRun, KingdomFactionId, LocalFactionId } from './types'
 
 export const LEGACY_KEY = 'kr-emperor-of-dust-legacy-v1'
 export const LEGACY_BRASS = 5

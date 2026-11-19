@@ -211,8 +211,8 @@
     <section class="@container kr-panel space-y-3 p-4 @4xl:col-span-2">
       <h2 class="font-serif text-2xl font-bold">Legacy of the Crown</h2>
       <p class="text-xs opacity-75">
-        Each earned ending unlocks a small advantage for a future reign.
-        Choose one, or rule without a favor. Nothing changes this run.
+        Each earned ending unlocks a small advantage for a future reign. Choose
+        one, or rule without a favor. Nothing changes this run.
       </p>
       <div class="grid gap-2 @md:grid-cols-2 @4xl:grid-cols-3">
         <button
@@ -239,7 +239,9 @@
           "
           :aria-pressed="court.legacy.useWrit"
           :disabled="!court.legacy.endings.length"
-          @click="act(() => court.setLegacyWrit(true), 'Veteran writ selected.')"
+          @click="
+            act(() => court.setLegacyWrit(true), 'Veteran writ selected.')
+          "
         >
           <strong class="block font-serif">Veteran’s writ</strong>
           <span class="block text-xs opacity-75">+5 starting brass.</span>
@@ -262,9 +264,7 @@
           @click="chooseFavor(favor.id)"
         >
           <strong class="block font-serif">{{ favor.name }}</strong>
-          <span class="block text-xs opacity-75">{{
-            favor.description
-          }}</span>
+          <span class="block text-xs opacity-75">{{ favor.description }}</span>
           <span class="block text-xs font-semibold">
             {{
               court.legacy.endings.includes(favor.id)

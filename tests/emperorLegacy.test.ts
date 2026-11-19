@@ -16,7 +16,8 @@ import { createRun } from '../utils/emperorOfDust/fortress/engine'
   const start = createRun(123)
   assert.deepEqual(earnLegacy(emptyLegacy(), start), emptyLegacy())
   assert.equal(
-    applyLegacy(start, { endings: [], useWrit: true, selectedFavor: null }).brass,
+    applyLegacy(start, { endings: [], useWrit: true, selectedFavor: null })
+      .brass,
     start.brass,
   )
 
@@ -74,10 +75,11 @@ import { createRun } from '../utils/emperorOfDust/fortress/engine'
   assert.equal(decodeLegacy('{bad'), null)
   assert.equal(decodeLegacy('{"endings":false}'), null)
   assert.deepEqual(decodeLegacy(null), emptyLegacy())
-  assert.deepEqual(
-    decodeLegacy('{"endings":["long-night"],"useWrit":true}'),
-    { endings: ['long-night'], useWrit: true, selectedFavor: null },
-  )
+  assert.deepEqual(decodeLegacy('{"endings":["long-night"],"useWrit":true}'), {
+    endings: ['long-night'],
+    useWrit: true,
+    selectedFavor: null,
+  })
   assert.deepEqual(
     decodeLegacy(
       '{"endings":["open-roads"],"useWrit":false,"selectedFavor":"long-night"}',

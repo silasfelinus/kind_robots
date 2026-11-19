@@ -237,7 +237,8 @@ export const RIOT_EVOLUTIONS: Record<string, CardEvolution> = {
   // Counterplay: punish the chipped crew with splash; low-life allies may
   // not survive their own drill.
   's2-riot-friendly-fire-rehearsal': {
-    levelOneText: 'Heavy removal that clears a big foe and its flank.',
+    levelOneText:
+      'Heavy removal that clears a big foe and its flank; the first show spares the crew.',
     2: stage('Live-Fire Drill', [
       on('enter', damage(1, 'adjacentAllies'), power(2, 'adjacentAllies')),
     ]),

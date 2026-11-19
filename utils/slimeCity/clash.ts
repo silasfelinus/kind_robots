@@ -483,6 +483,29 @@ export function clashBalance(card: Card, level = 1): ClashCardBalance {
     bonus,
   }
 }
+/**
+ * slime-city/t-041 (2026-11-19 PT): two-slot splash:'all' blasts whose first
+ * CLASH play spares the caster's own fighters. Glitterglass Flood and Dress
+ * Rehearsal Pyro were the near-dead two-slot blasts: at four energy the
+ * friendly 1-splash made the CPU (and players) hold them while any ally stood
+ * beside the target. Level one is now a clean blast; the friendly-fire price
+ * returns at levels two and three, where each card's crafted stage already
+ * cuts its adjacent allies on purpose.
+ */
+export const CLASH_L1_CLEAN_SPLASH: ReadonlySet<string> = new Set([
+  's2-bloodfairies-glitterglass-flood',
+  's2-riot-friendly-fire-rehearsal',
+])
+/** Whether a blast's native splash also hits the caster's fighters beside
+ * the target. Confetti authors its own friendly-fire pattern and is excluded. */
+export function clashSplashHitsAllies(
+  card: Pick<Card, 'splash'>,
+  id: string,
+  level: number,
+): boolean {
+  if (card.splash !== 'all' || id === 'confetti') return false
+  return !(level <= 1 && CLASH_L1_CLEAN_SPLASH.has(id))
+}
 export function clashLevel(s: ClashState, side: Side, id: string): number {
   return s.levels?.[side]?.[id] ?? 1
 }
@@ -2514,7 +2537,7 @@ export function playClash(
             // splash:'all' blasts ("including your own") also catch the
             // caster's fighters beside the target. Confetti authors its own
             // friendly-fire pattern below, so it is skipped here.
-            if (card.splash === 'all' && id !== 'confetti')
+            if (clashSplashHitsAllies(card, id, level))
               for (const friend of s.units.filter(
                 (u) => u.side === side && Math.abs(u.lane - lane) === 1,
               ))
@@ -3623,7 +3646,7 @@ function cpuBlastSplashValue(
     let hits = 0
     if (id === 'confetti') {
       if (level === 3 || beside) hits++
-    } else if (card.splash === 'all' && beside) hits++
+    } else if (clashSplashHitsAllies(card, id, level) && beside) hits++
     if (id === 'mosh' && level === 3) hits++
     if (hits) value -= pop(u, hits) * 1.2
   }

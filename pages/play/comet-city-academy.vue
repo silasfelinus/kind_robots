@@ -824,7 +824,7 @@
                         v-if="teamFor(incident.id).length"
                         class="cca-case-pick-status"
                       >
-                        ✦ {{ teamFor(incident.id).length }} HEROES COMMITTED
+                        ✦ {{ teamFor(incident.id).length }} ALLIES COMMITTED
                       </small>
                       <small v-else>AWAITING YOUR TEAM</small>
                     </span>

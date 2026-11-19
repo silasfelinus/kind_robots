@@ -23,6 +23,12 @@ import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { useAchievementStore } from '~/stores/achievementStore'
 import {
+  COMPLETED_VOYAGES_KEY,
+  archiveCompletedVoyage,
+  normalizeCompletedVoyages,
+  type CompletedVoyage,
+} from '~/utils/gameOfCaptains/completedVoyages'
+import {
   NO_VOYAGE_FACTS,
   alienAchievements,
   redshirtAchievements,
@@ -134,6 +140,7 @@ type CouchPreferences = { largeText: boolean; reducedMotion: boolean }
 export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const userStore = useUserStore()
   const run = ref<VoyageRun | null>(null)
+  const completedVoyages = ref<CompletedVoyage[]>([])
   const loaded = ref(false)
   const redshirtKnowledge = ref<RedshirtKnowledge>({})
   const wildBreakFound = ref<string[]>([])
@@ -553,6 +560,11 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   function persist() {
     recordKitUnlocks()
+    completedVoyages.value = archiveCompletedVoyage(
+      completedVoyages.value,
+      run.value,
+      Date.now(),
+    )
     const namesBefore = Object.keys(redshirtKnowledge.value).length
     try {
       if (run.value) {
@@ -567,6 +579,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       localStorage.setItem(
         KNOWLEDGE_KEY,
         JSON.stringify(redshirtKnowledge.value),
+      )
+      localStorage.setItem(
+        COMPLETED_VOYAGES_KEY,
+        JSON.stringify(completedVoyages.value),
       )
       if (userStore.authenticatedUserId) {
         if (
@@ -629,6 +645,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       alienGuide.value = userStore.authenticatedUserId
         ? emptyAlienGuide()
         : readCachedGuide(ALIEN_GUIDE_KEY)
+      try {
+        completedVoyages.value = normalizeCompletedVoyages(
+          JSON.parse(localStorage.getItem(COMPLETED_VOYAGES_KEY) ?? '[]'),
+        )
+      } catch {
+        completedVoyages.value = []
+      }
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreTrioAdventure(
         restoreVoyage(raw ? JSON.parse(raw) : null),
@@ -831,6 +854,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   return {
     run,
+    completedVoyages,
     loaded,
     redshirtKnowledge,
     wildBreakFound,

@@ -8849,6 +8849,19 @@ console.log('Emperor of Dust fortress contract: ok')
       marker,
       flag,
     )
+  // The Day 11 report may already have burned the ration card. The Day 16
+  // rejection must work after either Day 4 feast decision without burning
+  // the same card twice or changing the saved choice and consequence flags.
+  for (const feastFlag of ['d04-informant-claimed', 'd04-informant-denied']) {
+    const run = onDay(1, 16, {
+      flags: ['pack-camp-mapped', feastFlag],
+    })
+    const rejected = chooseAudienceOption(run, 'd16-bandaged-paw', 'turn-away')
+    assert.match(rejected.response, /Dunmark opens the postern/)
+    assert.doesNotMatch(rejected.response, /ration card|a week later/i)
+    assert.ok(rejected.run.flags.includes('d16-informant-returned'))
+    assert.equal(rejected.run.local['gate-watch'], run.local['gate-watch'] + 1)
+  }
   // Komodo reports what the Day 4 and Day 7 parties found.
   for (const [flag, marker] of [
     ['d07-galleries-door-barred', /barred from the inside/],

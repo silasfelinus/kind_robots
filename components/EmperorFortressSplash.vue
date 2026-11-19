@@ -110,6 +110,12 @@
           </button>
         </div>
       </div>
+      <p
+        v-if="court.legacy.endings.length"
+        class="max-w-md text-xs text-warning/90"
+      >
+        Next reign: {{ legacyChoice }}. Choose your legacy in the Chronicle.
+      </p>
       <p class="eod-splash-hint text-xs italic">
         {{
           ready ? 'The court remembers every reign.' : 'The dust is settling…'
@@ -120,7 +126,9 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
+import { LEGACY_FAVORS } from '~/utils/emperorOfDust/fortress/legacy'
 
 const props = defineProps<{ ready: boolean; hasSave: boolean; day: number }>()
 const emit = defineEmits<{
@@ -129,6 +137,13 @@ const emit = defineEmits<{
   settings: []
   newRun: []
 }>()
+
+const court = useEmperorFortressStore()
+const legacyChoice = computed(() => {
+  if (court.legacy.useWrit) return 'Veteran’s writ (+5 brass)'
+  const favor = court.legacy.selectedFavor
+  return favor ? LEGACY_FAVORS[favor].name : 'no favors'
+})
 
 const TITLE = 'Emperor of Dust'.split('')
 const MOTES = Array.from({ length: 26 }, (_, id) => {

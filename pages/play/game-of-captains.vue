@@ -167,7 +167,7 @@
           aria-label="Voyage achievements"
         >
           <h2>ACHIEVEMENTS</h2>
-          <div class="cap-menu-achievements kr-scroll min-h-0 overflow-y-auto">
+          <div class="cap-menu-achievements max-h-64 min-h-0 overflow-y-auto">
             <GameAchievementStrip game="game-of-captains" />
           </div>
           <button

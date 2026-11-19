@@ -2660,6 +2660,41 @@ assert.ok(
   'Juniper stays for the day even if the Yard cools',
 )
 
+// --- Act III dispatch aftermaths: concrete, different costs -------------------
+// These once-short results need distinct reports for limited victories,
+// failures and inaction. Changing their prose must not change quest mechanics.
+for (const [id, tiers] of [
+  ['q-d28-rot-cure', ['success']],
+  ['q-d30-hold-the-line', ['partial', 'failure', 'expired']],
+  ['r-verge-scouts', ['success', 'partial', 'failure', 'expired']],
+  ['r-deserter', ['failure', 'expired']],
+  ['r-thistle-smoke', ['partial', 'expired']],
+  ['r-graves', ['partial', 'failure', 'expired']],
+] as const) {
+  const quest = questDef(id)
+  assert.ok(quest, id + ': the dispatch remains playable')
+  for (const tier of tiers) {
+    const outcome = quest.outcomes[tier]
+    assert.ok(
+      outcome && outcome.length >= 140,
+      id + '/' + tier + ': aftermath must show a specific cost',
+    )
+  }
+}
+const actThreeBorderLine = questDef('q-d30-hold-the-line')!
+assert.match(actThreeBorderLine.outcomes.partial ?? '', /Hester/)
+assert.match(actThreeBorderLine.outcomes.failure ?? '', /Dunmark/)
+assert.match(actThreeBorderLine.outcomes.expired ?? '', /Freeholds/)
+assert.match(
+  questOutcomeText(
+    onDay(1, 31, { flags: ['d30-children-to-abbey'] }),
+    actThreeBorderLine,
+    'failure',
+  ),
+  /Abbey/,
+  'the existing Day 30 sheltered-children variant remains reachable',
+)
+
 // --- Act III -----------------------------------------------------------------
 // Keel comes only after genuine talks with the Moles.
 assert.ok(

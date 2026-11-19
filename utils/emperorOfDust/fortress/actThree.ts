@@ -404,7 +404,7 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     expired: { local: { yard: -2 } },
     outcomes: {
       success:
-        'The charm kills the rot. The grain stays cold to the touch. Always. The Yard eats it anyway.',
+        'The charm kills the rot. Dunmore breaks the first loaf at the table with the testers. Steam rises, then frost forms on the crust. He puts half beneath glass for a week and serves the rest. By supper the Yard has eaten every crumb. Nobody asks whether cold bread is a cure or a debt.',
       partial:
         'The charm arrests mold along the outer sacks, but the grain tastes of iron. Dunmore keeps one loaf beneath a glass bell. He wants the court to decide whether to serve the rest.',
       failure:
@@ -447,10 +447,11 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
       success:
         'The line held at the Freehold fence posts. Dunmark brought back every rider and one horse fewer. The Yard ate the horse.',
       partial:
-        'The line bent at the fence posts. It held, just. Three farms behind it burned anyway.',
+        'The line bent at the fence posts and did not quite break. Three farms behind it burned while the riders held the road. Hester comes to count the families by lantern light. She thanks the court for the line and asks where the displaced people should sleep. There is no answer on Dunmark’s map.',
       failure:
-        'The line broke at the fence posts. The Freeholds paid in barns.',
-      expired: 'Nobody stood on the line. The Freeholds stood alone.',
+        'The line broke at the fence posts. The Freeholds paid in barns. Hester brings the tally to the court, written on a feed sack because the records burned. She circles the one farm whose people had nowhere else to go. Dunmark keeps the sack when she leaves. He cannot put it back on the map.',
+      expired:
+        'Nobody stood on the line. The Freeholds stood alone. At dawn the Watch found broken fence posts and a trail of wagons heading away from the road. Hester sent a letter asking whether the crown still meant to call them friends. It was folded under the tax roll.',
     },
     // Whoever the crown sheltered that night stood on the line beside it.
     outcomeVariants: {

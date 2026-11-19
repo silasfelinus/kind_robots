@@ -1039,7 +1039,7 @@
                     :aria-label="'Hero cards for ' + incident.title"
                   >
                     <div class="cca-hand-heading">
-                      <strong>02 / YOUR HERO HAND</strong>
+                      <strong>02 / YOUR PATROL TEAM</strong>
                       <span>Tap to assign · tap again to recall · max 3</span>
                     </div>
                     <div
@@ -1267,9 +1267,11 @@
                 type="button"
                 data-testid="academy-dispatch"
                 :disabled="
-                  run.patrolOpening === 1
-                    ? !run.playerCaseId && !run.nightPatrol
-                    : !run.assignments.length
+                  run.flowVersion === 3
+                    ? !run.playerCaseId
+                    : run.patrolOpening === 1
+                      ? !run.playerCaseId && !run.nightPatrol
+                      : !run.assignments.length
                 "
                 @click="store.dispatch()"
               >

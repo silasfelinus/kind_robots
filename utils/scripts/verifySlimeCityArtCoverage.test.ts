@@ -76,8 +76,7 @@ const PENDING_EVOLUTION_ART_BASELINE: Record<string, number> = {
   catgirls: 0,
   bloodfairies: 0,
   ironjaw: 0,
-  // fusevest@2 rejected twice 2026-11-19 PT (headless crop; then no sparklers).
-  riot: 1,
+  riot: 0,
   undertow: 0,
   exchange: 0,
   mercenary: 0,

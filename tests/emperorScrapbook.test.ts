@@ -37,7 +37,7 @@ const invalid = {
   epilogues: [{ subjectId: 'mara', name: 'Mara', text: 12 }],
 }
 assert.equal(decodeScrapbook(JSON.stringify([invalid])), null)
-assert.deepEqual(
-  decodeScrapbook(JSON.stringify([first[0], first[0]])),
-  [first[0], first[0]],
-)
+assert.deepEqual(decodeScrapbook(JSON.stringify([first[0], first[0]])), [
+  first[0],
+  first[0],
+])

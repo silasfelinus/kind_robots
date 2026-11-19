@@ -1,5 +1,8 @@
 <template>
-  <section class="@container kr-panel space-y-3 p-4" aria-label="Ending archive">
+  <section
+    class="@container kr-panel space-y-3 p-4"
+    aria-label="Ending archive"
+  >
     <header class="flex flex-wrap items-end justify-between gap-2">
       <div>
         <p class="text-xs font-semibold uppercase tracking-widest text-warning">
@@ -92,9 +95,7 @@
             The last peace:
             {{
               memory.peace
-                .map((flag) =>
-                  flag.replace('peace-', '').replaceAll('-', ' '),
-                )
+                .map((flag) => flag.replace('peace-', '').replaceAll('-', ' '))
                 .join(', ')
             }}
           </p>

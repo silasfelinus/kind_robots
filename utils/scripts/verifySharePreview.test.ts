@@ -6,9 +6,11 @@ import {
   SHARE_PREVIEWS,
   SITEMAP_PATHS,
   SITE_ORIGIN,
+  STANDALONE_GAME_PATHS,
   absoluteSiteUrl,
   buildRobotsTxt,
   buildSitemapXml,
+  buildWebsiteJsonLd,
   findSharePreview,
   normalizeSharePath,
   sharePreviewImageUrl,
@@ -140,6 +142,17 @@ for (const loc of locs) {
 for (const route of publicRoutes) {
   assert.ok(locs.includes(`https://kindrobots.org${route}`), route)
 }
+// Standalone public games are listed and each has a real page and an arcade tab.
+for (const route of STANDALONE_GAME_PATHS) {
+  assert.ok(locs.includes(`https://kindrobots.org${route}`), route)
+  const slug = route.replace('/play/', '')
+  assert.ok(existsSync(repoPath(`pages/play/${slug}.vue`)), `${route} page`)
+  assert.ok(
+    existsSync(repoPath(`content/channels/arcade/${slug}.md`)),
+    `${route} arcade tab`,
+  )
+}
+assert.equal(new Set(locs).size, locs.length, 'sitemap has no duplicates')
 
 const robotsRoute = read('server/routes/robots.txt.ts')
 assert.match(robotsRoute, /buildRobotsTxt/)
@@ -168,6 +181,20 @@ for (const key of [
   assert.match(app, new RegExp(`\\b${key}:`), `app.vue useSeoMeta ${key}`)
 }
 assert.match(app, /twitterCard: 'summary_large_image'/)
+// Every page declares one canonical URL built from the query-free share URL.
+assert.match(app, /rel: 'canonical', href: \(\) => shareUrl\.value/)
+
+// Home page names the site for search results (schema.org WebSite).
+const website = JSON.parse(buildWebsiteJsonLd())
+assert.equal(website['@type'], 'WebSite')
+assert.equal(website.name, 'Kind Robots')
+assert.equal(website.url, 'https://kindrobots.org/')
+assert.match(app, /type: 'application\/ld\+json'/)
+assert.match(app, /route\.path === '\/'/)
+assert.equal(
+  absoluteSiteUrl('/play/arcade/?game=zuzu-ghost-trail'),
+  'https://kindrobots.org/play/arcade',
+)
 
 // Tabs, bookmarks and search results name the site exactly once.
 assert.equal(siteTabTitle('Storybook'), 'Storybook | Kind Robots')

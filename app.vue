@@ -233,6 +233,7 @@ import {
   SITE_NAME,
   siteTabTitle,
   absoluteSiteUrl,
+  buildWebsiteJsonLd,
   findSharePreview,
   sharePreviewImageUrl,
 } from '@/utils/sharePreview'
@@ -453,7 +454,23 @@ const shareImage = computed(() => sharePreviewImageUrl(route.path))
 
 // Every tab, bookmark and search result names the site; siteTabTitle skips
 // titles that already include it, such as "Sign in to open ... | Kind Robots".
-useHead({ titleTemplate: (title) => siteTabTitle(title) })
+useHead({
+  titleTemplate: (title) => siteTabTitle(title),
+  // One canonical address per page (no query strings, no trailing slash), so
+  // aliases like /play and ?game= links don't split search results.
+  link: [{ rel: 'canonical', href: () => shareUrl.value }],
+  script: computed(() =>
+    route.path === '/'
+      ? [
+          {
+            key: 'website-jsonld',
+            type: 'application/ld+json',
+            innerHTML: buildWebsiteJsonLd(),
+          },
+        ]
+      : [],
+  ),
+})
 
 useSeoMeta({
   title: () => routePageTitle.value || SITE_NAME,

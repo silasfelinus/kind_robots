@@ -130,12 +130,23 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
 ]
 
+/**
+ * Public arcade games with their own page and link preview but no
+ * SHARE_PREVIEWS entry (their pages set their own share meta). Without this
+ * list, search engines were never told they exist.
+ */
+export const STANDALONE_GAME_PATHS: readonly string[] = [
+  '/play/zuzu-ghost-trail',
+  '/play/sliding-tile-gallery',
+]
+
 export const SITEMAP_PATHS: readonly string[] = [
   '/',
   '/about',
   '/giving',
   '/navigation',
   ...SHARE_PREVIEWS.map((preview) => preview.route),
+  ...STANDALONE_GAME_PATHS,
 ]
 
 /**
@@ -149,6 +160,22 @@ export function siteTabTitle(title?: string | null): string {
   if (!trimmed) return SITE_NAME
   if (trimmed.toLowerCase().includes(SITE_NAME.toLowerCase())) return trimmed
   return `${trimmed} | ${SITE_NAME}`
+}
+
+/**
+ * schema.org WebSite data for the home page. Search engines use it to show
+ * "Kind Robots" as the result's site name instead of guessing from the URL.
+ */
+export function buildWebsiteJsonLd(): string {
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    alternateName: 'kindrobots.org',
+    url: `${SITE_ORIGIN}/`,
+    description:
+      'Free handmade browser games, illustrated stories and a robot-made art gallery. No ads, no account needed.',
+  })
 }
 
 export function normalizeSharePath(path: string): string {

@@ -25,16 +25,28 @@
   text-shadow: 0 2px 5px #000d;
 }
 .worlds .world[data-realm='sugar'] {
-  background-image: linear-gradient(90deg, #331c46ee 5%, #331c46c7 58%, #331c4670), var(--chessweeper-sugar-art);
-  background-position: center, 54% 52%;
+  background-image:
+    linear-gradient(90deg, #331c46ee 5%, #331c46c7 58%, #331c4670),
+    var(--chessweeper-sugar-art);
+  background-position:
+    center,
+    54% 52%;
 }
 .worlds .world[data-realm='ashen'] {
-  background-image: linear-gradient(90deg, #1e1718f4 5%, #1e1718c9 58%, #1e171866), var(--chessweeper-ashen-art);
-  background-position: center, 45% 54%;
+  background-image:
+    linear-gradient(90deg, #1e1718f4 5%, #1e1718c9 58%, #1e171866),
+    var(--chessweeper-ashen-art);
+  background-position:
+    center,
+    45% 54%;
 }
 .worlds .world[data-realm='jackpot'] {
-  background-image: linear-gradient(90deg, #1a1040ed 5%, #1a1040bf 58%, #1a104073), var(--chessweeper-jackpot-art);
-  background-position: center, 48% 53%;
+  background-image:
+    linear-gradient(90deg, #1a1040ed 5%, #1a1040bf 58%, #1a104073),
+    var(--chessweeper-jackpot-art);
+  background-position:
+    center,
+    48% 53%;
 }
 .worlds .world strong,
 .worlds .world small {
@@ -58,8 +70,12 @@
   height: 154px;
   pointer-events: none;
   opacity: 0.32;
-  background-image: linear-gradient(0deg, var(--panel), transparent 85%), var(--chessweeper-realm-art);
-  background-position: center, center 52%;
+  background-image:
+    linear-gradient(0deg, var(--panel), transparent 85%),
+    var(--chessweeper-realm-art);
+  background-position:
+    center,
+    center 52%;
   background-size: cover;
   border-radius: 23px 23px 0 0;
 }
@@ -67,7 +83,8 @@
   position: relative;
 }
 :root[data-realm] #overlay {
-  background-image: linear-gradient(0deg, #07111bef, #07111bc9), var(--chessweeper-realm-art);
+  background-image:
+    linear-gradient(0deg, #07111bef, #07111bc9), var(--chessweeper-realm-art);
   background-position: center;
   background-size: cover;
 }
@@ -102,14 +119,22 @@
   color: white;
   text-shadow: 0 2px 5px black;
 }
-@media(max-width:560px) {
+@media (max-width: 560px) {
   .worlds .world {
     min-height: 80px;
     padding: 8px 6px;
     background-position: center;
   }
-  .worlds .world strong { font-size: 10px; }
-  .worlds .world small { font-size: 9px; }
-  .worlds .world-icon { font-size: 18px; }
-  .meta-scrapbook-world img { height: 136px; }
+  .worlds .world strong {
+    font-size: 10px;
+  }
+  .worlds .world small {
+    font-size: 9px;
+  }
+  .worlds .world-icon {
+    font-size: 18px;
+  }
+  .meta-scrapbook-world img {
+    height: 136px;
+  }
 }

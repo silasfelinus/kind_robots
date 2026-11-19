@@ -32,7 +32,7 @@
     "audit:slime-city-parity": "tsx utils/scripts/reportSlimeCityParity.ts",
     "test:slime-city-clash": "tsx utils/scripts/verifySlimeCityClash.test.ts",
     "test:slime-city-clash-constructed": "tsx utils/scripts/verifySlimeCityClashConstructed.test.ts",
-    "test:slime-city-pvp": "tsx utils/scripts/verifySlimeCityPvp.test.ts",
+    "test:slime-city-pvp": "tsx utils/scripts/verifySlimeCityPvp.test.ts && tsx utils/scripts/verifySlimeCityPvpReconnect.test.ts",
     "test:slime-city-sound": "tsx utils/scripts/verifySlimeCitySound.test.ts",
     "audit:slime-city-decisions": "tsx utils/scripts/slimeCityDecisionTelemetry.ts",
     "audit:slime-city-starters": "tsx utils/scripts/slimeCityStarterComposition.ts",

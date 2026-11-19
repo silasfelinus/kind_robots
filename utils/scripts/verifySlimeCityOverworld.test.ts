@@ -144,8 +144,8 @@ assert.ok(slimeArtId('ui', 'title-splash'), 'Generated title key art')
 const evolutionKeys = Object.keys(SLIME_CITY_ART.evolutions)
 assert.equal(
   evolutionKeys.length,
-  425 + 56 + 3 + 4 + 2 + 130 + 1,
-  '425 curated L2/L3 evolution paintings plus 56 Ironjaw lizard stages, 3 redo-1, 4 redo-2 and 2 redo-3 keepers (t-044), 130 EVOLUTIONS-REMAINING keepers and 1 rerender keeper (t-012)',
+  425 + 56 + 3 + 4 + 2 + 130 + 2,
+  '425 curated L2/L3 evolution paintings plus 56 Ironjaw lizard stages, 3 redo-1, 4 redo-2 and 2 redo-3 keepers (t-044), 130 EVOLUTIONS-REMAINING keepers and 2 rerender keepers (t-012)',
 )
 // ANARKISS round 2 replaces art, rather than adding catalog or evolution keys.
 // A missing ledger ID leaves a card or stage painted in the retired Riot style.

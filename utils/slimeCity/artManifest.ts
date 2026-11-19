@@ -1164,7 +1164,8 @@ export const SLIME_CITY_ART = {
     's3-ironjaw-foreman-crowbar@3': 269642,
     // 2026-11-19 PT (t-012): EVOLUTIONS-REMAINING-*-KREA, the 66 cards the
     // t-041 rounds never queued. 130 of 132 kept; s1-pocket-punk@2 (real
-    // soft-drink logo) and fusevest@2 (headless torso crop) rejected.
+    // soft-drink logo) and fusevest@2 (headless torso crop) rejected, then
+    // replaced by curated rerenders 276544 and 276580 (2026-11-19 PT).
     'sprite@2': 276336,
     'sprite@3': 276337,
     'pogo@2': 276338,
@@ -1229,6 +1230,7 @@ export const SLIME_CITY_ART = {
     'fuse@3': 276437,
     'confetti@2': 276438,
     'confetti@3': 276439,
+    'fusevest@2': 276580,
     'fusevest@3': 276441,
     'drink@2': 276442,
     'drink@3': 276443,

@@ -1990,6 +1990,14 @@ assert.equal(new Set(allSlots).size, allSlots.length, 'slots are unique')
 // Mystery case cards (MY-NN-*) are drawn by cardArtKey(card.id) like any
 // other card, so their exported renders are known pictures too.
 const mysteryCardArt = MYSTERY_CARDS.map((card) => cardArtKey(card.id))
+// Mystery scenes resolve through the same engine, so their outcomes are
+// painted as outcomes/<case-card>/<choice>-<result> too (MYSTERIES-ROUND-1).
+const mysteryOutcomeArt = MYSTERY_CARDS.flatMap((card) =>
+  card.choices.flatMap((choice) => [
+    outcomeArtKey(card.id, choice.id, 'success'),
+    outcomeArtKey(card.id, choice.id, 'failure'),
+  ]),
+)
 // Each case's Real Endings are drawn by mysteryEndingArtKey (mysteries/<case>/<ending>).
 const mysteryEndingArt = MYSTERIES.flatMap((m) =>
   m.endings.map((ending) => mysteryEndingArtKey(m.id, ending.id)),
@@ -2004,6 +2012,7 @@ for (const [style, renders] of Object.entries(STYLE_RENDERS))
         ECOTONE_ART.includes(asset) ||
         mysteryCardArt.includes(asset) ||
         mysteryEndingArt.includes(asset) ||
+        mysteryOutcomeArt.includes(asset) ||
         // An owner-approved reviewed replacement for a held picture.
         (asset.startsWith('reviewed/') &&
           ECOTONE_REVIEWED_ART.includes(asset.slice('reviewed/'.length))),

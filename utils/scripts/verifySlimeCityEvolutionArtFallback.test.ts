@@ -28,9 +28,9 @@ assert.equal(
 )
 
 // A stage whose painting was rejected must not borrow another card's
-// painting: Pocket Punk's L2 render was rejected (2026-11-19 PT), so L2 shows
-// its own card art while L3 shows its curated evolution.
-const pending = 's1-pocket-punk'
+// painting: Sparkler Corset's L2 renders were rejected (2026-11-19 PT), so L2
+// shows its own card art while L3 shows its curated evolution.
+const pending = 'fusevest'
 assert.equal(slimeArtId('evolutions', pending + '@2'), null)
 assert.equal(slimeCardArtId(pending, 2, 0), slimeArtId('cards', pending))
 assert.ok(slimeArtId('cards', pending))

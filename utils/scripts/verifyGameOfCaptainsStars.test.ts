@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import {
   archiveCompletedVoyage,
   normalizeCompletedVoyages,
-  MAX_COMPLETED_VOYAGES,
 } from '../gameOfCaptains/completedVoyages'
 import { CAPTAIN_ORIGINS } from '../gameOfCaptains/captainOrigins'
 import {
@@ -839,25 +838,27 @@ assert.deepEqual(
   firstArchive,
   'bad and duplicate records must not damage valid voyage history',
 )
-const fullArchive = Array.from(
-  { length: MAX_COMPLETED_VOYAGES + 2 },
-  (_, index) =>
-    archiveCompletedVoyage(
-      [],
-      { ...finishedVoyage, seed: index + 1 },
-      20261119 + index,
-    )[0]!,
+const fullArchive = Array.from({ length: 42 }, (_, index) =>
+  archiveCompletedVoyage(
+    [],
+    { ...finishedVoyage, seed: index + 1 },
+    20261119 + index,
+  )[0]!,
 )
-assert.equal(normalizeCompletedVoyages(fullArchive).length, MAX_COMPLETED_VOYAGES)
-const capped = archiveCompletedVoyage(
-  fullArchive.slice(0, MAX_COMPLETED_VOYAGES),
+assert.equal(
+  normalizeCompletedVoyages(fullArchive).length,
+  42,
+  'completed run pages are not evicted when the player finishes more voyages',
+)
+const moreVoyages = archiveCompletedVoyage(
+  fullArchive,
   { ...finishedVoyage, seed: 999 },
   20261201,
 )
-assert.equal(capped.length, MAX_COMPLETED_VOYAGES)
-assert.equal(capped[0]?.id, '999:vale:THE LAST SHIP HOME')
-assert.ok(
-  !capped.some((voyage) => voyage.id === fullArchive[MAX_COMPLETED_VOYAGES - 1]?.id),
-  'the oldest voyage rolls off without deleting recent entries',
+assert.equal(moreVoyages.length, 43)
+assert.equal(moreVoyages[0]?.id, '999:vale:THE LAST SHIP HOME')
+assert.equal(
+  moreVoyages.at(-1)?.id,
+  fullArchive.at(-1)?.id,
+  'a new voyage never silently removes an earlier completed report',
 )
-

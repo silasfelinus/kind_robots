@@ -25,18 +25,32 @@ for (const file of readdirSync(dir).filter((name) => name.endsWith('.webp'))) {
   )
 }
 
-// The 2026-11-16 PT curation shipped a notice without one outcome: the dawn
-// report falls back to the notice instead of the painted-map crop.
+// The 2026-11-16 PT curation shipped r-deserter without its failure plate (the
+// dawn report fell back to the notice); the 2026-11-19 PT REDO-2 curation
+// shipped it, so instanced quest ids now resolve to the painted outcome.
 assert.equal(
   questArtUrl('r-deserter@12', 'failure'),
-  '/emperor-of-dust/quests/r-deserter.webp',
+  '/emperor-of-dust/quests/r-deserter-failure.webp',
+)
+assert.equal(
+  questArtUrl('r-runaway-runner', 'failure'),
+  '/emperor-of-dust/quests/r-runaway-runner-failure.webp',
+)
+// Still rejected after REDO-2 (human faces): these outcomes fall back to the notice.
+assert.equal(
+  questArtUrl('r-verge-scouts', 'failure'),
+  '/emperor-of-dust/quests/r-verge-scouts.webp',
+)
+assert.equal(
+  questArtUrl('r-fever-ward', 'success'),
+  '/emperor-of-dust/quests/r-fever-ward.webp',
 )
 assert.equal(
   questArtUrl('r-deserter', 'success'),
   '/emperor-of-dust/quests/r-deserter-success.webp',
 )
 // The 2026-11-17 PT redo curation shipped both burrow-gallery quests as tunnel
-// interiors; r-deserter's failure was rejected again and still falls back.
+// interiors.
 assert.equal(
   questArtUrl('r-low-galleries', 'failure'),
   '/emperor-of-dust/quests/r-low-galleries-failure.webp',

@@ -98,13 +98,15 @@ export function drawFeverSky(
   g.fillStyle = fill
   g.fillRect(0, 0, W, H)
 
+  const scenicTick = tick * drift
+
   g.save()
   // Far starfield: tiny white pinpricks, barely moving.
   g.fillStyle = '#ffffff'
   for (let i = 0; i < 42; i++) {
     const x = wrap(i * 53 - tick * drift * 0.06, W)
     const y = (i * 97) % (H - 40)
-    g.globalAlpha = 0.35 + 0.35 * Math.sin(tick / 23 + i * 1.7)
+    g.globalAlpha = 0.35 + 0.35 * Math.sin(scenicTick / 23 + i * 1.7)
     g.fillRect(x, y, 1, 1)
   }
 
@@ -155,13 +157,13 @@ export function drawFeverSky(
     for (let i = 0; i < 9; i++) {
       const x = wrap(i * (61 + plane * 17) - tick * drift * speed, W + 40) - 20
       const y = 24 + ((i * 71 + plane * 43) % (H - 70))
-      const pulse = 0.5 + 0.5 * Math.sin(tick / 18 + i * 2.1 + plane)
+      const pulse = 0.5 + 0.5 * Math.sin(scenicTick / 18 + i * 2.1 + plane)
       g.fillStyle = DOODLE_TINTS[(i + plane) % DOODLE_TINTS.length]!
       g.globalAlpha = 0.14 + 0.1 * plane + 0.12 * pulse
       const shape = (i + plane) % 3
       if (shape === 0) twinkle(g, x, y, size * (0.8 + 0.4 * pulse))
       else if (shape === 1) heart(g, x, y, size * 0.8)
-      else star(g, x, y, size, tick * 0.01 * (i % 2 ? 1 : -1))
+      else star(g, x, y, size, scenicTick * 0.01 * (i % 2 ? 1 : -1))
     }
   }
 

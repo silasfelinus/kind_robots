@@ -1986,6 +1986,18 @@ const slots = ecotoneArtSlots()
 assert.equal(slots.cards.length, BEATS.length + ENCOUNTERS.length)
 assert.equal(slots.endings.length, ENDING_IDS.length)
 const allSlots = [...slots.cards, ...slots.outcomes, ...slots.endings]
+// Pre-playtest art completeness (2026-11-19 PT): every card, outcome and
+// ending the game can show resolves to its own picture in the default style.
+// Only the excluded WH-121 is exempt. Event slots are briefs, not displayed.
+assert.deepEqual(
+  allSlots.filter(
+    (asset) =>
+      !/\bwh-121\b/.test(asset) &&
+      !ecotoneArtSrc(asset, DEFAULT_ECOTONE_ART_STYLE),
+  ),
+  [],
+  'every Ecotone card, outcome and ending is painted',
+)
 assert.equal(new Set(allSlots).size, allSlots.length, 'slots are unique')
 // Mystery case cards (MY-NN-*) are drawn by cardArtKey(card.id) like any
 // other card, so their exported renders are known pictures too.

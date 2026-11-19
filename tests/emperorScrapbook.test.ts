@@ -51,4 +51,7 @@ const oversized = {
   })),
 }
 assert.equal(decodeScrapbook(JSON.stringify([oversized])), null)
-assert.deepEqual(first[0]?.epilogues, rememberReign([], run, '2026-11-13T03:07:20Z')[0]?.epilogues)
+assert.deepEqual(
+  first[0]?.epilogues,
+  rememberReign([], run, '2026-11-13T03:07:20Z')[0]?.epilogues,
+)

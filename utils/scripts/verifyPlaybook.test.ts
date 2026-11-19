@@ -126,9 +126,12 @@ for (const node of cards)
     !node.artUrl,
     `${node.key} needsArt follows its art`,
   )
-assert.ok(
-  cards.some((n) => n.needsArt),
-  'beats without art still show they need it',
+// Since the 2026-11-19 pre-playtest art pass every story and encounter beat
+// has its own picture; only the excluded WH-121 may stay unpainted.
+assert.deepEqual(
+  cards.filter((n) => n.needsArt && n.key !== 'WH-121').map((n) => n.key),
+  [],
+  'every Ecotone beat has art',
 )
 assert.equal(
   playbook.nodes['KN-4']?.artUrl,

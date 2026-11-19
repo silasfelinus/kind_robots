@@ -1,0 +1,115 @@
+/* Artwork prepared by Chessweeper's art pack; URLs match public/images/chessweeper/. */
+:root {
+  --chessweeper-sugar-art: url('/images/chessweeper/sugarbomb-kingdom.webp');
+  --chessweeper-ashen-art: url('/images/chessweeper/ashen-checkmate.webp');
+  --chessweeper-jackpot-art: url('/images/chessweeper/jackpot-apocalypse.webp');
+  --chessweeper-realm-art: var(--chessweeper-jackpot-art);
+}
+:root[data-realm='sugar'] {
+  --chessweeper-realm-art: var(--chessweeper-sugar-art);
+}
+:root[data-realm='ashen'] {
+  --chessweeper-realm-art: var(--chessweeper-ashen-art);
+}
+:root[data-realm='jackpot'] {
+  --chessweeper-realm-art: var(--chessweeper-jackpot-art);
+}
+.worlds .world {
+  min-height: 108px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #fffaf2;
+  text-shadow: 0 2px 5px #000d;
+}
+.worlds .world[data-realm='sugar'] {
+  background-image: linear-gradient(90deg, #331c46ee 5%, #331c46c7 58%, #331c4670), var(--chessweeper-sugar-art);
+  background-position: center, 54% 52%;
+}
+.worlds .world[data-realm='ashen'] {
+  background-image: linear-gradient(90deg, #1e1718f4 5%, #1e1718c9 58%, #1e171866), var(--chessweeper-ashen-art);
+  background-position: center, 45% 54%;
+}
+.worlds .world[data-realm='jackpot'] {
+  background-image: linear-gradient(90deg, #1a1040ed 5%, #1a1040bf 58%, #1a104073), var(--chessweeper-jackpot-art);
+  background-position: center, 48% 53%;
+}
+.worlds .world strong,
+.worlds .world small {
+  position: relative;
+  z-index: 1;
+  color: #fffaf6;
+  opacity: 1;
+}
+.worlds .world[aria-pressed='true'] {
+  outline: 2px solid var(--gold);
+  outline-offset: -5px;
+}
+:root[data-realm] .board-shell {
+  position: relative;
+  isolation: isolate;
+}
+:root[data-realm] .board-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 154px;
+  pointer-events: none;
+  opacity: 0.32;
+  background-image: linear-gradient(0deg, var(--panel), transparent 85%), var(--chessweeper-realm-art);
+  background-position: center, center 52%;
+  background-size: cover;
+  border-radius: 23px 23px 0 0;
+}
+:root[data-realm] .board-shell > * {
+  position: relative;
+}
+:root[data-realm] #overlay {
+  background-image: linear-gradient(0deg, #07111bef, #07111bc9), var(--chessweeper-realm-art);
+  background-position: center;
+  background-size: cover;
+}
+:root[data-realm] #overlay .overlay-inner {
+  padding: 14px;
+  background: #091521a6;
+  border: 1px solid #ffffff4d;
+  border-radius: 16px;
+  backdrop-filter: blur(5px);
+}
+.meta-scrapbook-world {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+  border: 1px solid #627693;
+  background: #0b1728;
+  margin: 14px 0;
+}
+.meta-scrapbook-world img {
+  display: block;
+  width: 100%;
+  height: clamp(130px, 23vw, 220px);
+  object-fit: cover;
+  object-position: center 48%;
+}
+.meta-scrapbook-world h3 {
+  position: absolute;
+  inset: auto 0 0;
+  margin: 0;
+  padding: 24px 12px 10px;
+  background: linear-gradient(transparent, #07101fea 60%);
+  color: white;
+  text-shadow: 0 2px 5px black;
+}
+@media(max-width:560px) {
+  .worlds .world {
+    min-height: 80px;
+    padding: 8px 6px;
+    background-position: center;
+  }
+  .worlds .world strong { font-size: 10px; }
+  .worlds .world small { font-size: 9px; }
+  .worlds .world-icon { font-size: 18px; }
+  .meta-scrapbook-world img { height: 136px; }
+}

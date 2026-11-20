@@ -28,7 +28,7 @@
           Register 24 renders
         </button>
         <NuxtLink
-          to="/admin/art-slots"
+          to="/admin/art-slots?projectSlug=game-of-captains&prefix=game-of-captains%2Fredshirts%2F&multiple=0"
           data-testid="space-couch-curate-redshirt-art"
           class="btn btn-sm btn-outline pf-focusable"
         >

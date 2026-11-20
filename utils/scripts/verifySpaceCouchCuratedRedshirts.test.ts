@@ -134,3 +134,10 @@ assert.ok(
   forge.includes('data-testid="space-couch-register-redshirt-candidates"'),
 )
 assert.ok(forge.includes('data-testid="space-couch-curate-redshirt-art"'))
+
+const artSlotsPage = readFileSync('pages/admin/art-slots.vue', 'utf8')
+assert.ok(forge.includes('to="/admin/art-slots?projectSlug=game-of-captains&prefix=game-of-captains%2Fredshirts%2F&multiple=0"'))
+assert.ok(artSlotsPage.includes("const route = useRoute()"))
+assert.ok(artSlotsPage.includes("prefix.value = requestedPrefix.slice(0, 300)"))
+assert.ok(artSlotsPage.includes("if (requestedMultiple === '0') multipleOnly.value = false"))
+assert.ok(artSlotsPage.includes("await slotStore.search()"))

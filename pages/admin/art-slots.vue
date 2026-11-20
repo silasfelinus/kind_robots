@@ -302,6 +302,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '~/stores/userStore'
 import {
@@ -312,6 +313,7 @@ import {
 
 useHead({ title: 'Art slots' })
 
+const route = useRoute()
 const userStore = useUserStore()
 const slotStore = useArtSlotStore()
 const {
@@ -367,7 +369,17 @@ async function open(artImageId: number) {
 onMounted(async () => {
   await userStore.initialize()
   ready.value = true
-  if (userStore.isAdmin) await slotStore.load()
+  if (userStore.isAdmin) {
+    const requestedProject = route.query.projectSlug
+    const requestedPrefix = route.query.prefix
+    const requestedMultiple = route.query.multiple
+    if (typeof requestedProject === 'string')
+      projectSlug.value = requestedProject.slice(0, 100)
+    if (typeof requestedPrefix === 'string')
+      prefix.value = requestedPrefix.slice(0, 300)
+    if (requestedMultiple === '0') multipleOnly.value = false
+    await slotStore.search()
+  }
 })
 </script>
 

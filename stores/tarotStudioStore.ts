@@ -103,9 +103,13 @@ export const useTarotStudioStore = defineStore('tarotStudio', () => {
     error.value = ''
     notice.value = ''
     try {
+      const patch: Partial<TarotCardEdit> = { ...edit }
+      if (!['DRAFT', 'REVIEW', 'REJECTED'].includes(patch.status ?? '')) {
+        delete patch.status
+      }
       const result = await performFetch<TarotCardRecord>(
         `/api/tarot/cards/${id}`,
-        { method: 'PATCH', body: JSON.stringify(edit) },
+        { method: 'PATCH', body: JSON.stringify(patch) },
       )
       if (!result.success || !result.data) {
         throw new Error(result.message || 'Card save failed.')

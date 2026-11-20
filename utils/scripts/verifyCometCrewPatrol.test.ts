@@ -41,7 +41,7 @@ assert.equal(choices.size, 144)
 
 const run = {
   ...startFullAcademy('kinetic', 73),
-  day: 17,
+  day: 25,
   phase: 'dispatch' as const,
 }
 const zone = PATROL_ZONES.find((candidate) =>
@@ -69,7 +69,7 @@ assert.ok(debrief.reports.some((report) =>
 ))
 assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(debrief))), debrief)
 assert.equal(
-  patrolCrewFor({ ...run, day: 21, patrolHistory: debrief.patrolHistory }, zone),
+  patrolCrewFor({ ...run, day: 29, patrolHistory: debrief.patrolHistory }, zone),
   null,
   'meeting the crew persists: do not re-encounter them later',
 )

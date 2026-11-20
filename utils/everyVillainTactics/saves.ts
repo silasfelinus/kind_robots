@@ -460,7 +460,8 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   if (save.stage?.id === 'last-order' && save.leadSignature === 'accident-fire')
     flagsAllowed.add('diner-hood-vented')
   if (
-    state.flags?.includes('diner-hood-vented') &&
+    Array.isArray(state.flags) &&
+    state.flags.includes('diner-hood-vented') &&
     !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
   )
     return reject('The diner hood was not vented with a signature power.')

@@ -1446,6 +1446,31 @@ assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
       `${def.id} ${def.name} has barracks dialogue`,
     )
 
+  for (const [talkId, optionId, line, beat] of [
+    ['nera-2', 'bought', /dry fields beyond the ridge/, 'bought'],
+    ['nera-2', 'refused', /yellow Freehold dust/, 'refused'],
+    ['ash-1', 'hourglass', /off the post route/, 'hourglass'],
+    [
+      'flint-1',
+      'challenge',
+      /counting them as if they were in the room/,
+      'hundred',
+    ],
+    ['bram-1', 'ask', /I was counting bread then/, 'riot'],
+    ['pip-1', 'posted', /Every morning/, 'gate'],
+    ['saffron-3', 'ask-tansy', /whose wagon raised me/, 'tansy'],
+  ] as const) {
+    const talk = TALKS.find(({ id }) => id === talkId)!
+    const option = talk.options.find(({ id }) => id === optionId)!
+    assert.match(option.response, line, `${talkId}/${optionId}`)
+    assert.equal(option.next, beat, `${talkId}/${optionId} keeps its beat`)
+    assert.deepEqual(
+      option.effects,
+      {},
+      `${talkId}/${optionId} remains a free probe`,
+    )
+  }
+
   // Each answer is its own consequence: no two answers offered together
   // share the same effects and the same next beat, so no branch is only a
   // rewording of another.
@@ -2834,6 +2859,46 @@ assert.ok(
     'return',
   ).run.recruitable.includes('F016'),
 )
+// Act III public hospitality creates observable costs, not just hidden faction
+// deltas. All six routes must keep their historical flags and valid saves.
+for (const [choice, marker, flag] of [
+  ['sanctuary', /public sanctuary writ/, 'sable-sheltered'],
+  ['hide', /visitor roll/, 'sable-hidden'],
+  ['return', /respecting the Verge’s claim/, 'sable-returned'],
+] as const) {
+  const picked = chooseAudienceOption(
+    onDay(1, 28, { brass: 100 }),
+    'd28-defector',
+    choice,
+  )
+  assert.match(picked.response, marker, choice)
+  assert.ok(picked.run.flags.includes(flag), choice)
+  assert.ok(validateRun(picked.run), `Day 28 ${choice} is saveable`)
+}
+const neutralMoles = onDay(1, 30, {
+  affinity: { ...onDay(1, 30).affinity, moles: 0 },
+})
+for (const [choice, marker, flag] of [
+  ['freeholds', /medicine wagons turn their horses/, 'sheltered-freeholds'],
+  ['saltroad', /Hester Plowright stands outside/, 'sheltered-saltroad'],
+  ['moles', /Lady Vask’s steward leaves/, 'sheltered-moles'],
+] as const) {
+  const picked = chooseAudienceOption(neutralMoles, 'd30-terms', choice)
+  assert.match(picked.response, marker, choice)
+  assert.ok(picked.run.flags.includes(flag), choice)
+  assert.ok(validateRun(picked.run), `Day 30 ${choice} is saveable`)
+}
+const dayThirtyAudience = DAYS.find((d) => d.day === 30)!.audiences.find(
+  (a) => a.id === 'd30-terms',
+)!
+for (const [choice, marker] of [
+  ['freeholds', /road and burrows outside/],
+  ['saltroad', /medicine caravans/],
+  ['moles', /Old Houses’ support/],
+] as const) {
+  const option = dayThirtyAudience.options.find((o) => o.id === choice)!
+  assert.match(option.label, marker)
+}
 // Giving the Coldbrook children away on Day 8 comes back on Day 24.
 assert.ok(!audiencesToday(onDay(1, 24)).some((a) => a.id === 'd24-coldbrook'))
 assert.ok(

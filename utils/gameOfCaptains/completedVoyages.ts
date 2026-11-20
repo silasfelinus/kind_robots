@@ -79,7 +79,6 @@ export function archiveCompletedVoyage(
 ): CompletedVoyage[] {
   if (!run || run.phase !== 'ending' || !run.ending) return history
   const id = [run.seed, run.captain, run.ending].join(':')
-  if (history.some((entry) => entry.id === id)) return history
   const entry: CompletedVoyage = {
     version: 1,
     id,
@@ -109,6 +108,23 @@ export function archiveCompletedVoyage(
       missionId: loss.missionId,
     })),
     log: [...run.log],
+  }
+  const sameStory = (item: CompletedVoyage) =>
+    JSON.stringify(item.choices) === JSON.stringify(entry.choices) &&
+    JSON.stringify(item.losses) === JSON.stringify(entry.losses) &&
+    JSON.stringify(item.log) === JSON.stringify(entry.log)
+  const siblings = history.filter(
+    (item) => item.id === id || item.id.startsWith(id + ':replay-'),
+  )
+  if (siblings.some(sameStory)) return history
+
+  // Keep the original ID stable. Distinct choices on a replay of the same
+  // seed and ending deserve a separate dossier, without duplicating saves.
+  if (siblings.length) {
+    let suffix = 1
+    while (history.some((item) => item.id === id + ':replay-' + suffix))
+      suffix++
+    entry.id = id + ':replay-' + suffix
   }
   return [entry, ...history]
 }

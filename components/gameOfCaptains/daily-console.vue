@@ -553,6 +553,7 @@ import {
 import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
+  episodeArtworkCardId,
   episodeRevealArtKey,
   episodeResultArtKey,
 } from '~/utils/gameOfCaptains/episodeArtwork'
@@ -651,14 +652,21 @@ function onEpisodeArtworkError(event: Event) {
 }
 const revealPainting = computed(() => {
   if (!flipped.value) return null
-  const key = episodeRevealArtKey(episodeCard(props.run, flipped.value).id)
+  const cardId = episodeCard(props.run, flipped.value).id
+  const key = episodeRevealArtKey(
+    episodeArtworkCardId(props.run, flipped.value, cardId),
+  )
   const url = props.artwork?.[key]
   return url && !brokenArtwork.value.includes(url) ? url : null
 })
 const decisionCards = computed<KrHandChoice[]>(() => {
   const deck = flipped.value
   if (!deck) return []
-  const cardId = episodeCard(props.run, deck).id
+  const cardId = episodeArtworkCardId(
+    props.run,
+    deck,
+    episodeCard(props.run, deck).id,
+  )
   const ready = plotCast.value.length > 0
   return EPISODE_CHOICES.map((choice) => {
     const key = episodeResultArtKey({
@@ -681,7 +689,15 @@ const decisionCards = computed<KrHandChoice[]>(() => {
 })
 const resultPainting = computed(() => {
   if (!lastDraw.value) return null
-  const key = episodeResultArtKey(lastDraw.value)
+  const draw = lastDraw.value
+  const key = episodeResultArtKey({
+    ...draw,
+    cardId: episodeArtworkCardId(
+      { seed: props.run.seed, chapter: draw.chapter },
+      draw.deck,
+      draw.cardId,
+    ),
+  })
   const url = key ? props.artwork?.[key] : null
   return url && !brokenArtwork.value.includes(url) ? url : null
 })

@@ -865,7 +865,8 @@ export const TALKS: readonly TalkDef[] = [
         id: 'ask-tansy',
         label: 'Ask what Mother Tansy will want from her, at the end.',
         effects: {},
-        response: 'Saffron turns the letter over. And over.',
+        response:
+          'Saffron turns the letter to the unmarked side. “A pass can say I belong to the crown,” she says. “Mother Tansy knows whose wagon raised me.” She folds the paper once, just where the signature would go.',
         next: 'tansy',
       },
       {
@@ -1798,7 +1799,8 @@ export const TALKS: readonly TalkDef[] = [
         id: 'challenge',
         label: 'Ask what she would do if a threat could save a hundred lives.',
         effects: {},
-        response: 'Flint opens her eyes. She has been asked this before.',
+        response:
+          'Flint opens her eyes and takes one hand off the shawl. “A hundred lives,” she repeats, counting them as if they were in the room. She waits for you to finish making the case.',
         next: 'hundred',
       },
     ],
@@ -2258,7 +2260,8 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Ask whether Pip has been down to see the page on the gate.',
         requires: { flags: ['d04-page-posted'] },
         effects: {},
-        response: 'Pip’s antennae lift.',
+        response:
+          'Pip sets their pen across Tobin Lowe’s name. “Every morning,” they say, not looking at you. The ink has dried on the copy they carry folded in their pocket.',
         next: 'gate',
       },
       {
@@ -2787,7 +2790,8 @@ export const TALKS: readonly TalkDef[] = [
           'Ask whether this is the rain the crown bought from the Conclave.',
         requires: { flags: ['rain-covenant'] },
         effects: {},
-        response: 'Nera’s face goes still.',
+        response:
+          'Nera catches a raindrop on her thumb and looks toward the dry fields beyond the ridge. “I know what you paid,” she says. Then she takes her hand away from the wall, as if the stone belongs to somebody else.',
         next: 'bought',
       },
       {
@@ -2796,7 +2800,8 @@ export const TALKS: readonly TalkDef[] = [
           'Ask whether she minds that the crown refused the Conclave’s rain, and the Freeholds are dry for it.',
         requires: { flags: ['no-rain'] },
         effects: {},
-        response: 'Nera laughs. Then stops.',
+        response:
+          'Nera laughs once. Then a gust brings yellow Freehold dust over the wall, and she puts a hand over her mouth. “Ask me after I tell you what the fields looked like,” she says.',
         next: 'refused',
       },
       {
@@ -3104,7 +3109,8 @@ export const TALKS: readonly TalkDef[] = [
           'Ask instead about the brass hourglass in their satchel. The one addressed to Young Komodo.',
         requires: { flags: ['courier-saved'] },
         effects: {},
-        response: 'Ash’s ears go flat. Then, carefully, upright again.',
+        response:
+          'Ash closes the satchel before the brass can catch the light. “A sister paid extra to keep it off the post route,” they say. Their ears flatten; one turns toward the open barracks door.',
         next: 'hourglass',
       },
       {
@@ -3432,7 +3438,8 @@ export const TALKS: readonly TalkDef[] = [
         id: 'ask',
         label: 'Ask what he saw happen, the first time.',
         effects: {},
-        response: 'Bram sets the abacus down on a sack.',
+        response:
+          'Bram sets the abacus on a sack. “I was counting bread then, too,” he says. He moves one bead back, a mistake the emperor has never seen him make.',
         next: 'riot',
       },
       {

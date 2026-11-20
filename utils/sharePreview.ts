@@ -117,6 +117,20 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
     description: 'Discover how Chinese characters work, then practice.',
   },
   {
+    route: '/play/chessweeper',
+    image: '/images/chessweeper/highlight.webp',
+    title: 'Chessweeper',
+    description:
+      'Chess against the computer on a mined board, in three dangerous worlds.',
+  },
+  {
+    route: '/play/ruler-hooked',
+    image: '/ruler-hooked/hero.webp',
+    title: 'The Ruler Is Hooked',
+    description:
+      'Fish first, govern eventually: cast for fish and steer a seaside kingdom.',
+  },
+  {
     route: '/storybook',
     image: '/storybook-art/dashboard-highlight.webp',
     title: 'Storybook',

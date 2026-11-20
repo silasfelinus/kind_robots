@@ -356,6 +356,22 @@
                   {{ store.missionResult.medals.length }} MEDALS · ROUND
                   {{ store.state.turn }}
                 </p>
+                <div
+                  v-if="store.crossfireAftermath"
+                  class="evt-crossfire-epilogue"
+                  data-testid="tactics-crossfire-epilogue"
+                  aria-live="polite"
+                >
+                  <span class="evt-overline">THE CITY REMEMBERS</span>
+                  <h3>{{ store.crossfireAftermath.title }}</h3>
+                  <p>{{ store.crossfireAftermath.text }}</p>
+                  <template v-if="store.crossfireEnding">
+                    <strong data-testid="tactics-crossfire-earned-ending">
+                      {{ store.crossfireEnding.title }}
+                    </strong>
+                    <p>{{ store.crossfireEnding.text }}</p>
+                  </template>
+                </div>
                 <div class="evt-aftermath-actions">
                   <button
                     v-if="store.canAdvanceCrossfire"
@@ -433,6 +449,12 @@
                 data-testid="tactics-crossfire-memory"
               >
                 <summary>LAST CHAPTER</summary>
+                <template v-if="store.crossfirePreviousBeat">
+                  <p>
+                    <b>{{ store.crossfirePreviousBeat.title }}</b>
+                    {{ store.crossfirePreviousBeat.text }}
+                  </p>
+                </template>
                 <p>{{ store.crossfireMemory }}</p>
               </details>
             </div>
@@ -4367,6 +4389,33 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   font-size: clamp(0.68rem, 1.2cqw, 1rem);
   font-weight: 900;
   letter-spacing: 0.08em;
+}
+.evt-crossfire-epilogue {
+  display: grid;
+  gap: 6px;
+  max-height: clamp(100px, 20cqh, 230px);
+  overflow: auto;
+  padding: clamp(9px, 1.3cqw, 18px);
+  border: 1px solid #d6ad73;
+  border-radius: 10px;
+  background: #071c35db;
+  color: #fdf1dc;
+  text-align: left;
+  scrollbar-width: thin;
+}
+.evt-crossfire-epilogue h3 {
+  color: #ffd994;
+  font-size: clamp(0.92rem, 1.6cqw, 1.3rem);
+  font-weight: 900;
+}
+.evt-crossfire-epilogue strong {
+  margin-top: 4px;
+  color: #b8f3d5;
+  font-size: clamp(1rem, 1.8cqw, 1.5rem);
+}
+.evt-crossfire-epilogue p {
+  font-size: clamp(0.7rem, 1.15cqw, 0.92rem);
+  line-height: 1.45;
 }
 .evt-aftermath-actions {
   display: flex;

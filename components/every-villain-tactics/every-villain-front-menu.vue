@@ -34,7 +34,10 @@
           type="button"
           class="evf-item is-primary"
           data-testid="front-new-crossfire"
-          @click="crossfireSetup = true; store.openScreen('story')"
+          @click="
+            crossfireSetup = true
+            store.openScreen('story')
+          "
         >
           <span class="evf-item-label">New Crossfire Campaign</span>
           <small>Six connected tactical missions · Hero or Villain</small>
@@ -47,7 +50,11 @@
           @click="store.continueCrossfire()"
         >
           <span class="evf-item-label">
-            {{ store.crossfire.finished ? 'Review Crossfire Finale' : 'Resume Crossfire' }}
+            {{
+              store.crossfire.finished
+                ? 'Review Crossfire Finale'
+                : 'Resume Crossfire'
+            }}
           </span>
           <small>
             Chapter {{ store.crossfire.chapter + 1 }} / 6 ·
@@ -58,7 +65,10 @@
           type="button"
           class="evf-item"
           data-testid="front-new-story"
-          @click="crossfireSetup = false; store.openScreen('story')"
+          @click="
+            crossfireSetup = false
+            store.openScreen('story')
+          "
         >
           <span class="evf-item-label">New Story</span>
           <small>Mission 01 · First Bell · Hero or Villain</small>

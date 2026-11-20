@@ -1,10 +1,6 @@
 import type { SignaturePowerId } from '../cometAcademy/specialPowers'
 import { createStory } from './firstBellStory'
-import {
-  createSave,
-  loadSave,
-  type EvtSave,
-} from './saves'
+import { createSave, loadSave, type EvtSave } from './saves'
 import { clonePreset } from './studio'
 import { trainingState } from './training'
 
@@ -61,10 +57,7 @@ function validChapterSave(
 }
 
 function earnedVictory(save: EvtSave, index: number): boolean {
-  return (
-    save.state.phase === 'victory' &&
-    (index > 0 || save.story.completed)
-  )
+  return save.state.phase === 'victory' && (index > 0 || save.story.completed)
 }
 
 /** A Crossfire journal never upgrades or re-keys old story and one-shot saves. */
@@ -91,8 +84,7 @@ export function readCrossfireJournal(raw: unknown): CrossfireJournal | null {
   } catch {
     return null
   }
-  if (!value || typeof value !== 'object' || Array.isArray(value))
-    return null
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const journal = value as CrossfireJournal
   if (
     journal.version !== 1 ||
@@ -112,10 +104,7 @@ export function readCrossfireJournal(raw: unknown): CrossfireJournal | null {
     return null
   for (let index = 0; index < journal.completed.length; index++) {
     const save = journal.completed[index]!
-    if (
-      !validChapterSave(journal, save, index) ||
-      !earnedVictory(save, index)
-    )
+    if (!validChapterSave(journal, save, index) || !earnedVictory(save, index))
       return null
   }
   if (
@@ -132,10 +121,7 @@ export function snapshotCrossfire(
   journal: CrossfireJournal,
   save: EvtSave,
 ): CrossfireJournal | null {
-  if (
-    journal.finished ||
-    !validChapterSave(journal, save, journal.chapter)
-  )
+  if (journal.finished || !validChapterSave(journal, save, journal.chapter))
     return null
   return { ...journal, active: save }
 }

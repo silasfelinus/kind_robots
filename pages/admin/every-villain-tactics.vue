@@ -12,7 +12,9 @@
             class="evt-bar-pill"
             :title="
               (store.crossfireActive
-                ? 'Crossfire chapter ' + ((store.crossfire?.chapter ?? 0) + 1) + ' of 6'
+                ? 'Crossfire chapter ' +
+                  ((store.crossfire?.chapter ?? 0) + 1) +
+                  ' of 6'
                 : store.isPlaytest
                   ? 'Studio playtest'
                   : 'Stage 1 of 6') +

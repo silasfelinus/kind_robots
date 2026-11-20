@@ -10,11 +10,7 @@ import {
   snapshotCrossfire,
 } from '../everyVillainTactics/crossfireCampaign'
 import { createStory } from '../everyVillainTactics/firstBellStory'
-import {
-  createSave,
-  evtSaveKey,
-  loadSave,
-} from '../everyVillainTactics/saves'
+import { createSave, evtSaveKey, loadSave } from '../everyVillainTactics/saves'
 import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
 import { trainingState } from '../everyVillainTactics/training'
 

@@ -2022,7 +2022,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label:
               'Ask Sister Marrow how many children the Abbey keeps, and how many beds.',
             effects: {},
-            response: 'The smile widens. It has worked harder rooms than this.',
+            response:
+              'Sister Marrow smiles wider and unwinds a knot on her counting cord. She names every bed in the mission house but not the children who slept in them last winter. Wenna draws her youngest closer, waiting for the crown to ask the next question.',
             next: 'beds',
           },
           {

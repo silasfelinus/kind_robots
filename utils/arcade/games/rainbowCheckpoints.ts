@@ -27,6 +27,8 @@ export type RainbowCheckpoint = {
   rescuedCourier: boolean
   /** Act V's fork: the route, whether the crew has rejoined, and the survivors it reached. */
   wreckRoute: 'depot' | 'armory' | null
+  /** Optional for old checkpoints: independently cleared Armory Siren. */
+  armoryGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
   wreckSettled: boolean
   podsSaved: number
   /** Act VI's fork: the route, whether the crew has rejoined, and the relay pylons broken. */

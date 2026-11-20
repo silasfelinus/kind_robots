@@ -50,6 +50,9 @@ export function rainbowActReplaySave(
       : 'waiting',
     rescuedCourier: prior(4) && (c?.rescuedCourier ?? false),
     wreckRoute: prior(5) ? (c?.wreckRoute ?? null) : null,
+    armoryGuardianOutcome: prior(5)
+      ? (c?.armoryGuardianOutcome ?? 'escaped')
+      : 'waiting',
     wreckSettled: prior(5) && (c?.wreckSettled ?? false),
     podsSaved: prior(5) ? (c?.podsSaved ?? 0) : 0,
     reefRoute: prior(6) ? (c?.reefRoute ?? null) : null,

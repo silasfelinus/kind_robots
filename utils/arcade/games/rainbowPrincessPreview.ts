@@ -139,6 +139,7 @@ import {
   type WreckRoute,
   type WreckSceneId,
 } from './rainbowWreckyard'
+import { armorySirenAllowsWave, armorySirenWindow } from './rainbowArmorySiren'
 import {
   SAWTOOTH,
   SAWTOOTH_MAX_HP,
@@ -329,6 +330,10 @@ import {
 
 const W = 480
 const H = 270
+const ARMORY_SIREN_WINDOW = armorySirenWindow(
+  WRECK_FORK.decideAt,
+  WRECK_FORK.rejoinAt,
+)
 /** Silas's second playtest (2026-10-19): "ship should move faster" (2.6 before it). */
 export const RAINBOW_SHIP_SPEED = 3.4
 const SPEED = RAINBOW_SHIP_SPEED
@@ -967,6 +972,7 @@ export type RainbowCombatSnapshot = {
   /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
   guardians: Readonly<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, GuardianOutcome>>
   nurseryGuardianOutcome: GuardianOutcome
+  armoryGuardianOutcome: GuardianOutcome
   rescuedNemi: boolean
   /** Act III's route: null until the fork, then the vault gauntlet or the safe passage. */
   trenchRoute: TrenchRoute | null
@@ -1089,6 +1095,7 @@ export function createRainbowPrincessPreview(
   let bossCarryHp: number | null = null
   let guardian: RainbowGuardian | null = null
   let nurseryGuardianOutcome: GuardianOutcome = 'waiting'
+  let armoryGuardianOutcome: GuardianOutcome = 'waiting'
   const guardians: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, GuardianOutcome> = {
     1: 'waiting',
     2: 'waiting',
@@ -1173,6 +1180,7 @@ export function createRainbowPrincessPreview(
     trenchRoute: null,
     routeSettled: false,
     nurseryGuardianOutcome: 'waiting',
+    armoryGuardianOutcome: 'waiting',
     rescuedCourier: false,
     wreckRoute: null,
     wreckSettled: false,
@@ -2250,6 +2258,7 @@ export function createRainbowPrincessPreview(
       trenchRoute,
       routeSettled,
       nurseryGuardianOutcome,
+      armoryGuardianOutcome,
       rescuedCourier,
       wreckRoute,
       wreckSettled,
@@ -2414,6 +2423,8 @@ export function createRainbowPrincessPreview(
     routeSettled = c.routeSettled
     nurseryGuardianOutcome =
       c.nurseryGuardianOutcome ?? (c.act > 3 ? 'escaped' : 'waiting')
+    armoryGuardianOutcome =
+      c.armoryGuardianOutcome ?? (c.act > 5 ? 'escaped' : 'waiting')
     rescuedCourier = c.rescuedCourier
     escortDone = c.act > 4
     wreckRoute = c.wreckRoute
@@ -2566,6 +2577,7 @@ export function createRainbowPrincessPreview(
       // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
       guardian = null
       nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
+      armoryGuardianOutcome = checkpoint.armoryGuardianOutcome ?? 'waiting'
       // The finale has no guardian.
       if (
         checkpoint.act !== 9 &&
@@ -2601,6 +2613,7 @@ export function createRainbowPrincessPreview(
       trenchRoute = checkpoint.trenchRoute
       routeSettled = checkpoint.routeSettled
       nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
+      armoryGuardianOutcome = checkpoint.armoryGuardianOutcome ?? 'waiting'
       rescuedCourier = checkpoint.rescuedCourier
       // The escort replays when the checkpoint is before the pod set off.
       if (checkpoint.act === 4 && checkpoint.frame <= ROSEFIN_ESCORT.podAppears)
@@ -3495,6 +3508,21 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  function summonArmorySiren(frame: number) {
+    if (guardian || armoryGuardianOutcome !== 'waiting') return
+    if (
+      frame >= ARMORY_SIREN_WINDOW.from &&
+      frame < ARMORY_SIREN_WINDOW.to - RAINBOW_GUARDIAN.escapeLead
+    ) {
+      guardian = createRainbowGuardian('siren', activePlayers)
+      guardian.maxHp = guardian.hp = Math.max(
+        1,
+        Math.round(guardian.maxHp * level.bossHp),
+      )
+      popups.push({ x: W / 2, y: 92, text: 'ARMORY SIREN', age: 0 })
+    }
+  }
+
   function defeatGuardian(seat: number) {
     if (!guardian) return
     const { x, y, kind } = guardian
@@ -3509,6 +3537,9 @@ export function createRainbowPrincessPreview(
         TRENCH_FORK.rejoinAt,
       )
       advanceAct(3, window.to - GUARDIAN_SKIP_LEAD - trenchFrame())
+    } else if (act === 5 && kind === 'siren') {
+      armoryGuardianOutcome = 'defeated'
+      advanceAct(5, ARMORY_SIREN_WINDOW.to - GUARDIAN_SKIP_LEAD - wreckFrame())
     } else if (act !== 9) {
       guardians[act] = 'defeated'
       // Nothing flies in a guardian's section, so once it falls the Act moves on after a short breath.
@@ -3884,11 +3915,13 @@ export function createRainbowPrincessPreview(
           settleWreckRoute()
         passCheckpoint(5, frame)
         summonGuardian(5, frame, WRECK_GUARDIAN)
+        if (wreckRoute === 'armory') summonArmorySiren(frame)
       }
       if (stage === 'waves') {
-        for (const entry of wreckSpawns(frame, wreckRoute)) {
-          spawn(entry.kind, entry.y, entry.wave)
-        }
+        if (armorySirenAllowsWave(frame, wreckRoute, ARMORY_SIREN_WINDOW))
+          for (const entry of wreckSpawns(frame, wreckRoute)) {
+            spawn(entry.kind, entry.y, entry.wave)
+          }
         const pod = wreckPodFrames().indexOf(frame)
         if (wreckRoute === 'depot' && !wreckSettled && pod >= 0)
           survivors.push({ x: W + 14, y: 62 + ((pod * 37) % 90) })
@@ -4344,7 +4377,9 @@ export function createRainbowPrincessPreview(
       const section =
         guardian.kind === 'matriarch'
           ? nurseryGuardianWindow(TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt)
-          : guardianSections[act]
+          : guardian.kind === 'siren'
+            ? ARMORY_SIREN_WINDOW
+            : guardianSections[act]
       const frame = actFrame(act)
       shootAs(
         RAINBOW_GUARDIAN_LOOK,
@@ -4356,8 +4391,10 @@ export function createRainbowPrincessPreview(
       )
       if (rainbowGuardianGone(guardian)) {
         const wasNursery = guardian.kind === 'matriarch'
+        const guardianKind = guardian.kind
         guardian = null
         if (wasNursery) nurseryGuardianOutcome = 'escaped'
+        else if (guardianKind === 'siren') armoryGuardianOutcome = 'escaped'
         else guardians[act] = 'escaped'
       }
     }
@@ -5231,6 +5268,7 @@ export function createRainbowPrincessPreview(
         guardian: guardian ? { ...guardian } : null,
         guardians: { ...guardians },
         nurseryGuardianOutcome,
+        armoryGuardianOutcome,
         rescuedNemi,
         trenchRoute,
         securedSalvage: trenchRoute === 'vault' && routeSettled,
@@ -6256,7 +6294,9 @@ export function createRainbowPrincessPreview(
         if (
           !drawRainbowGuardianSprite(
             g,
-            guardian.kind === 'matriarch' ? 'lantern' : guardian.kind,
+            guardian.kind === 'matriarch' || guardian.kind === 'siren'
+              ? 'lantern'
+              : guardian.kind,
           )
         ) {
           g.save()
@@ -6267,7 +6307,7 @@ export function createRainbowPrincessPreview(
               g,
               guardian.kind === 'herald'
                 ? 'harbinger'
-                : guardian.kind === 'matriarch'
+                : guardian.kind === 'matriarch' || guardian.kind === 'siren'
                   ? 'lantern'
                   : guardian.kind,
             )

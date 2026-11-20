@@ -10,6 +10,7 @@ export type RainbowGuardianKind =
   | 'urchin'
   | 'lantern'
   | 'matriarch'
+  | 'siren'
   | 'clawstrike'
   | 'courier'
   | 'salvager'
@@ -98,6 +99,7 @@ export function rainbowGuardianWarning(guardian: RainbowGuardian): boolean {
 export function rainbowGuardianMarksLanes(guardian: RainbowGuardian): boolean {
   return (
     guardian.kind === 'clawstrike' ||
+    (guardian.kind === 'siren' && guardian.volleys % 2 === 1) ||
     (guardian.kind === 'herald' && guardian.volleys % 2 === 0)
   )
 }
@@ -180,6 +182,26 @@ export function stepRainbowGuardian(
       const offsets = enraged ? [0.18, 0.3, 0.42, 0.54] : [0.22, 0.37, 0.52]
       for (const side of [-1, 1])
         for (const offset of offsets) shot(aim + side * offset, 1.8)
+    }
+  } else if (guardian.kind === 'siren') {
+    // The Siren uses two different rhythms. Its first sung chord leaves the
+    // aimed central corridor empty; its second is a fast bolt through three
+    // lanes marked in the previous 36-frame charge.
+    if (guardian.volleys % 2 === 1) {
+      const aim = Math.atan2(nearest.y - guardian.y, nearest.x - guardian.x)
+      const offsets = enraged ? [0.18, 0.3, 0.42, 0.54] : [0.24, 0.38, 0.52]
+      for (const side of [-1, 1])
+        for (const offset of offsets)
+          shot(aim + side * offset, enraged ? 1.9 : 1.6)
+    } else {
+      for (const lane of guardian.lanes)
+        shots.push({
+          x: guardian.x - 18,
+          y: lane,
+          vx: enraged ? -4.4 : -3.8,
+          vy: 0,
+          grazed: 0,
+        })
     }
   } else if (guardian.kind === 'herald') {
     // The Crown Herald remixes two old lessons, one per volley: bolts down the lanes its warning marked,

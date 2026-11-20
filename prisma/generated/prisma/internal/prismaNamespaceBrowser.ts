@@ -188,6 +188,7 @@ export const ModelName = {
   ResourcePreview: 'ResourcePreview',
   HybridizerFusion: 'HybridizerFusion',
   SpaceCouchAlienGuide: 'SpaceCouchAlienGuide',
+  SpaceCouchVoyageSave: 'SpaceCouchVoyageSave',
   SlimeCityAccount: 'SlimeCityAccount',
   ZuzuGamebookSave: 'ZuzuGamebookSave',
   SlimeCityMatch: 'SlimeCityMatch',
@@ -2843,6 +2844,17 @@ export const SpaceCouchAlienGuideScalarFieldEnum = {
 export type SpaceCouchAlienGuideScalarFieldEnum = (typeof SpaceCouchAlienGuideScalarFieldEnum)[keyof typeof SpaceCouchAlienGuideScalarFieldEnum]
 
 
+export const SpaceCouchVoyageSaveScalarFieldEnum = {
+  userId: 'userId',
+  payload: 'payload',
+  revision: 'revision',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SpaceCouchVoyageSaveScalarFieldEnum = (typeof SpaceCouchVoyageSaveScalarFieldEnum)[keyof typeof SpaceCouchVoyageSaveScalarFieldEnum]
+
+
 export const SlimeCityAccountScalarFieldEnum = {
   userId: 'userId',
   data: 'data',
@@ -4440,6 +4452,13 @@ export const HybridizerFusionOrderByRelevanceFieldEnum = {
 } as const
 
 export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
+
+
+export const SpaceCouchVoyageSaveOrderByRelevanceFieldEnum = {
+  payload: 'payload'
+} as const
+
+export type SpaceCouchVoyageSaveOrderByRelevanceFieldEnum = (typeof SpaceCouchVoyageSaveOrderByRelevanceFieldEnum)[keyof typeof SpaceCouchVoyageSaveOrderByRelevanceFieldEnum]
 
 
 export const ZuzuGamebookSaveOrderByRelevanceFieldEnum = {

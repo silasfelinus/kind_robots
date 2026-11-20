@@ -1229,6 +1229,12 @@ export type HybridizerFusion = Prisma.HybridizerFusionModel
  */
 export type SpaceCouchAlienGuide = Prisma.SpaceCouchAlienGuideModel
 /**
+ * Model SpaceCouchVoyageSave
+ * * Private, versioned Space Couch voyage and finished-run backup per account.
+ *  * The legacy browser-local save and separate alien guide remain untouched.
+ */
+export type SpaceCouchVoyageSave = Prisma.SpaceCouchVoyageSaveModel
+/**
  * Model SlimeCityAccount
  * 
  */

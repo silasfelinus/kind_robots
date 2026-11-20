@@ -269,6 +269,9 @@
           Flight log · {{ exploredCount }}/8 seas explored ·
           {{ medalsCount }} medals · {{ endingCount }}/3 endings
         </p>
+        <p class="shrink-0 px-1 pb-1 text-xs text-base-content/80" aria-live="polite">
+          {{ selectedSeaDescription }}
+        </p>
         <ol
           class="grid min-h-0 flex-1 grid-cols-2 grid-rows-4 gap-2 @3xl:grid-cols-4 @3xl:grid-rows-2"
         >
@@ -277,6 +280,14 @@
             :key="stage.name"
             class="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-[#251345] text-white"
           >
+            <button
+              type="button"
+              class="absolute inset-0 z-10 rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-pink-300"
+              :class="{ 'ring-2 ring-inset ring-pink-300': selectedSea === index }"
+              :aria-pressed="selectedSea === index"
+              :aria-label="`Inspect Act ${index + 1}: ${stage.name}, ${seaProgress[index]?.label}`"
+              @click="selectedSea = index"
+            />
             <img
               :src="rainbowStageCard(stage.strip, look)"
               :alt="`${stage.name} title card: the four pilot ships over ${stage.scene}`"
@@ -524,6 +535,13 @@ const seaProgress = computed(() =>
   rainbowSeaLogbook(flightSave.value, mastery.value, hangar.value.medals),
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
+const selectedSea = ref(0)
+const selectedSeaDescription = computed(() => {
+  const stage = stages[selectedSea.value]!
+  const progress = seaProgress.value[selectedSea.value]
+  const route = routeIntel.value.find((entry) => entry.act === selectedSea.value + 1)
+  return `Act ${selectedSea.value + 1} · ${stage.name}: ${stage.setting} ${progress?.label ?? 'UNDISCOVERED'}${route ? ` · ${route.label}` : ''} · Select Fly to resume your saved checkpoint.`
+})
 const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))
 const endingArchive = computed(() => rainbowEndingArchive(mastery.value))
 const hangarPick = ref(0)

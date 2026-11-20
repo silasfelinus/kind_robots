@@ -346,15 +346,27 @@ export const itemDef = (id: string): ItemDef | undefined =>
  */
 export const ITEM_ART: ReadonlySet<string> = new Set<string>([
   'abbey-candle',
+  'bell-clapper',
   'brass-bell-charm',
   'caravan-salve',
   'carbide-lamp',
+  'freehold-spade',
+  'lamplight-folio',
+  'ledger-abacus',
+  'lost-human-gauntlet',
+  'magpie-scales',
   'night-draught',
+  'rain-feather',
+  'reed-poppet',
   'road-lantern',
+  'signal-coil',
   'silent-bell-rosary',
+  'snare-kit',
+  'storm-glass-vial',
   'surveyors-glass',
   'verge-signet',
   'watch-buckler',
+  'witchwater-phial',
 ])
 
 /**

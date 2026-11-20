@@ -341,6 +341,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     tag: 'Skyline origin · stabilize gondolas and rescue two passengers',
   },
   {
+    id: 'sunken-street',
+    art: 'incidents/skybridge',
+    tag: 'Cornerstone origin · stabilize a sinkhole and rescue bus passengers',
+  },
+  {
     id: 'college-quad',
     art: 'districts/student-commons',
     tag: 'Rival heroes · fountain cover',

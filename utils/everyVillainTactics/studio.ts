@@ -22,6 +22,7 @@ import { SCIENCE_WING_SCRIPT } from './scienceWingScript'
 import { CROSSWALK_CRISIS_SCRIPT } from './crosswalkCrisisScript'
 import { LAST_ORDER_SCRIPT } from './lastOrderScript'
 import { FERRIS_WHEEL_SCRIPT } from './ferrisWheelScript'
+import { SUNKEN_STREET_SCRIPT } from './sunkenStreetScript'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -204,6 +205,52 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'rescue', count: 2 },
     script: FERRIS_WHEEL_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'sunken-street',
+    title: 'The Street That Sank',
+    venue: 'Academy bus stop and sinking municipal water main',
+    objective:
+      'Brace the broken roadway with Cornerstone’s earth surge at column 5, row 3, then rescue both bus passengers before round nine.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [5, 0], [5, 5], [4, 5]),
+        '3,2': tile(0, false, { north: 'half' }),
+        '4,2': tile(1),
+        '5,3': tile(0, false, { south: 'half' }),
+        '6,1': tile(1),
+        '6,4': tile(0, false, { west: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 4 },
+      { id: 'priya', x: 1, y: 3 },
+      { id: 'hattie', x: 0, y: 1 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 2, y: 5 }],
+    hazards: [{ x: 5, y: 4 }],
+    turnLimit: 9,
+    civilians: [
+      { id: 'sinkhole-driver', name: 'Bus driver at the steering wheel', x: 7, y: 2 },
+      { id: 'sinkhole-student', name: 'Student trapped on the back seat', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'buckled-asphalt', x: 3, y: 3, cover: 'half', hp: 2 },
+      { id: 'bus-chassis', x: 6, y: 3, cover: 'full', hp: 4 },
+      { id: 'waterworks-pump', x: 2, y: 2, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'burst-water-main', kind: 'water', x: 5, y: 1 },
+      { id: 'sinking-curb', kind: 'collapse', x: 5, y: 4, round: 4 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: SUNKEN_STREET_SCRIPT,
   },
   {
     version: 1,

@@ -2146,7 +2146,12 @@ for (const [id, subjectId, flag, marker] of [
   const departed: FortressRun = {
     ...alive,
     roster: [
-      { id, joinedDay: 1, equipment: {}, departed: { day: 40, why: 'neglect' } },
+      {
+        id,
+        joinedDay: 1,
+        equipment: {},
+        departed: { day: 40, why: 'neglect' },
+      },
     ],
   }
   assert.equal(

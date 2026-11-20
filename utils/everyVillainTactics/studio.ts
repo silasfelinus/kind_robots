@@ -23,6 +23,7 @@ import { CROSSWALK_CRISIS_SCRIPT } from './crosswalkCrisisScript'
 import { LAST_ORDER_SCRIPT } from './lastOrderScript'
 import { FERRIS_WHEEL_SCRIPT } from './ferrisWheelScript'
 import { SUNKEN_STREET_SCRIPT } from './sunkenStreetScript'
+import { UNLICENSED_RESCUE_SCRIPT } from './unlicensedRescueScript'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -261,6 +262,53 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'rescue', count: 2 },
     script: SUNKEN_STREET_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'unlicensed-rescue',
+    title: 'The Unlicensed Rescue',
+    venue: 'Comet City public library benefit concert',
+    objective:
+      'Shield a volunteer with Captain Valcourt’s cape at the west security gate, then evacuate both families before round eight.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [5, 0], [4, 5], [5, 5]),
+        '3,2': tile(0, false, { east: 'half' }),
+        '4,2': tile(1),
+        '5,1': tile(0, false, { south: 'half' }),
+        '6,4': tile(0, false, { west: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 3 },
+      { id: 'priya', x: 2, y: 2 },
+      { id: 'hattie', x: 0, y: 1 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 3, y: 5 }],
+    hazards: [],
+    turnLimit: 8,
+    civilians: [
+      { id: 'library-family', name: 'Family beside the dark lift', x: 7, y: 2 },
+      {
+        id: 'concert-ushers',
+        name: 'Volunteer ushers behind the stage',
+        x: 7,
+        y: 4,
+      },
+    ],
+    props: [
+      { id: 'license-kiosk', x: 4, y: 3, cover: 'half', hp: 2 },
+      { id: 'public-archive', x: 6, y: 1, cover: 'full', hp: 3 },
+      { id: 'stage-speaker', x: 5, y: 4, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [{ id: 'sparking-generator', kind: 'fire', x: 5, y: 3 }],
+    victory: { kind: 'rescue', count: 2 },
+    script: UNLICENSED_RESCUE_SCRIPT,
   },
   {
     version: 1,

@@ -364,6 +364,40 @@
             </button>
           </div>
         </div>
+        <div
+          v-if="pickedLead === 'accident-birthright'"
+          class="evf-origin-battle"
+          data-testid="front-valcourt-origin-battle"
+        >
+          <h3 class="evf-label">YOUR POWER ORIGIN / THE UNLICENSED RESCUE</h3>
+          <div class="evf-stages">
+            <button
+              type="button"
+              class="evf-stage"
+              data-testid="front-origin-unlicensed-rescue"
+              @click="
+                store.startOneShot('unlicensed-rescue', pickedLead, pickedView)
+              "
+            >
+              <img
+                v-if="art('districts/student-commons')"
+                :src="art('districts/student-commons')!"
+                alt=""
+                loading="lazy"
+              />
+              <span class="evf-stage-text">
+                <small class="evf-kicker"
+                  >CAPTAIN VALCOURT / ORIGIN BATTLE</small
+                >
+                <strong>The Unlicensed Rescue</strong>
+                <span>
+                  Shield an ally on the west side of the private security gate,
+                  then evacuate both groups from the darkened library.
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
           <div class="evf-stages">

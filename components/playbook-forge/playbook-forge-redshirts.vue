@@ -44,6 +44,14 @@
         </button>
       </div>
     </header>
+    <p
+      class="mt-1 text-xs opacity-75"
+      data-testid="space-couch-redshirt-curation-policy"
+    >
+      Registering Krea2 renders only makes them available for review. Like and
+      select a suitable candidate in Art Slots; publishing its image is a
+      separate, explicit step.
+    </p>
 
     <div
       class="kr-scroll grid min-h-0 content-start items-start gap-3 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]"

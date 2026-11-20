@@ -19,7 +19,6 @@ const paintingRoute = readFileSync(
 for (const [name, flag] of [
   ['alien', 'alienArtLoaded'],
   ['redshirt', 'redshirtArtLoaded'],
-  ['onboarding', 'onboardingArtLoaded'],
 ]) {
   const start = store.indexOf('async function load' + ({
     alien: 'AlienArtwork',
@@ -35,6 +34,14 @@ for (const [name, flag] of [
     name + ' must not mark a failed fetch as loaded',
   )
 }
+// The onboarding UI uses "loaded" to show a fallback after any settled fetch.
+// A separate verified flag permits retries without leaving the page spinning.
+assert.ok(store.includes('const onboardingArtVerified = ref(false)'))
+assert.ok(store.includes('if (onboardingArtVerified.value) return'))
+assert.ok(store.includes('onboardingArtVerified.value = true'))
+assert.ok(
+  store.includes('if (epoch === accountEpoch) onboardingArtLoaded.value = true'),
+)
 assert.ok(store.includes('const epoch = accountEpoch'))
 assert.ok(store.includes('if (epoch === accountEpoch && response.success'))
 assert.ok(store.includes('async function refreshArtwork()'))

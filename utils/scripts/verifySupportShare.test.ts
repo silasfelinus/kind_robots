@@ -123,4 +123,17 @@ assert.doesNotMatch(
   'support solicitation must not be mounted globally',
 )
 
+const guestInvite = readFileSync(
+  new URL('../../components/support/guest-fundraiser-strip.vue', import.meta.url),
+  'utf8',
+)
+assert.match(guestInvite, /v-if="userStore\.isGuest"/)
+assert.match(guestInvite, /:href="FUNDRAISER_URL"/)
+assert.match(guestInvite, /support\.markGave\(\)/)
+const memePage = readFileSync(
+  new URL('../../pages/play/index.vue', import.meta.url),
+  'utf8',
+)
+assert.match(memePage, /<SupportGuestFundraiserStrip\s*\/>/)
+
 console.log('Support share contract verified')

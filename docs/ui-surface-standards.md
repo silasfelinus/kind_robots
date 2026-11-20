@@ -32,6 +32,16 @@ last gallery item, visible primary actions, and safe keyboard navigation.
 The Emperor of Dust court is the first concrete retrofit; apply this rule
 incrementally to existing games, galleries, and tools as they are touched.
 
+## Guest-only cause invitation on shareable one-shot pages
+
+For public, single-purpose experiences designed to spread through shared links,
+include `<SupportGuestFundraiserStrip />` once near the output or sharing controls.
+The shared component shows a small Against Malaria Foundation invitation only to
+guests, and uses the canonical fundraiser URL and support click tracking. It is
+not an ad, interstitial, gate, or prerequisite to using or sharing the tool.
+Donations go directly to AMF, not through Kind Robots. Leave the generated artifact
+unwatermarked and keep primary controls visible at phone and desktop widths.
+
 ## Art-first interface standard
 
 Kind Robots is an **art-focused website**. Outside settings, administration, diagnostics,

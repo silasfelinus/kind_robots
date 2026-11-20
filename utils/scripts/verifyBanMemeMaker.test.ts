@@ -34,6 +34,6 @@ assert.match(tab, /requiredRole: ADMIN/)
 assert.match(tab, /tutorial:/)
 assert.match(tab, /This ban is permanent and is not eligible for appeal\./)
 assert.doesNotMatch(featured, /title: 'Account Banned Meme Lab'/)
-assert.doesNotMatch(preview, /'ban-meme': \\{/)
+assert.ok(!preview.includes("'ban-meme': {"))
 
 console.log('Account Banned meme maker: archived under Admin Retired, images and export intact')

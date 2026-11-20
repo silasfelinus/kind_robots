@@ -71,8 +71,7 @@ export function rainbowFlightComms(
   } else if (selectedAct === 2 && c?.rescuedNemi) {
     tag = 'NEMI RESCUED'
     beat = 'rescue'
-    lilt =
-      'Nemi is aboard. The Moonjelly distress signal was a plea, not bait.'
+    lilt = 'Nemi is aboard. The Moonjelly distress signal was a plea, not bait.'
   } else if (selectedAct === 3 && c?.routeSettled) {
     tag = 'TRENCH ROUTE FOUND'
     beat = 'route'

@@ -729,7 +729,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 requires: { affinity: { jackalwire: 'wary' } },
                 effects: {},
                 response:
-                  '“Paid to do nothing to the carts. How restful. The pups will think I went respectable.”',
+                  'Vane grins. “Paid not to rob my own customers. A respectable profession.” His riders may escort the carts, but the posting stays on the board. Someone from the tower must still take the assignment. The Saltroad drivers wait with their harnesses on.',
                 postsQuests: ['q-d05-saltroad-escort'],
               },
               {
@@ -738,7 +738,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   'Hold the bridge. A thief in a good coat is still a thief.',
                 effects: { local: { 'gate-watch': 1 } },
                 response:
-                  '“Good.” Vane does not look sorry. He looks relieved to be the villain again.',
+                  '“Good,” Vane says, almost relieved. He returns the toll receipt in pieces and goes back to his riders. The bridge is not open because the crown has said so. Dunmark must find a party willing to stand there until the Pack yields.',
                 postsQuests: ['q-d05-toll-standoff'],
               },
             ],
@@ -887,7 +887,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   clearFlags: ['feast-armed'],
                 },
                 response:
-                  'Vane counts it twice. “Settled. For now.” He leaves the loaf on the step, knife and all. Nobody wants to move it.',
+                  'Vane counts the fifty brass twice. “Settled. For now.” The Yard clerk crosses out a week of flour on the purchase sheet. Vane leaves his carved loaf on the step with the knife inside. Nobody wants the reminder, but Ash takes it to the kitchens.',
               },
               {
                 id: 'hold',
@@ -1218,7 +1218,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             requires: { local: { lamplight: 13 } },
             effects: { local: { lamplight: 2, ledger: 1, yard: 1 } },
             response:
-              'The Archive’s rules go up on the gate by dusk. Four pages. Every stall loses something, and every stall can read what.',
+              'The Archive posts four pages of market rules where the egg-sellers and Ledger cousins must both read them. Each stall loses a privilege. The egg-seller traces her permitted hours with one finger, then moves her basket before the Watch can move it for her.',
           },
         ],
         beats: [
@@ -1265,7 +1265,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['market-charter'],
                 },
                 response:
-                  'Tallow’s seal is already inked. By week’s end three of the blankets are gone. Nobody at court can say where.',
+                  'Tallow’s seal is already inked when the charter is proclaimed. By week’s end three blanket sellers have lost their pitches to traders who knew the filing hour. The factor calls it orderly. The sellers call the Yard their last place to sleep.',
               },
               {
                 id: 'yard-first',
@@ -1282,7 +1282,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 requires: { local: { lamplight: 13 } },
                 effects: { local: { lamplight: 2, ledger: 1, yard: 1 } },
                 response:
-                  'The rules are long and fair. The Archive’s clerk reads every one aloud to the egg-sellers. Twice.',
+                  'The Archive clerk reads the market rules aloud twice to the egg-sellers, including the appeals process. One woman asks where she may sell eggs while her appeal is heard. The clerk turns to the next page. There is no rule for that.',
               },
             ],
           },
@@ -1358,7 +1358,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d06-postern-informant'],
                 },
                 response:
-                  'The boy agrees before you finish. He would have agreed to anything. Within a week the kitchen goes quiet when he walks in.',
+                  'The stableboy agrees to watch the postern before you finish asking. He would have agreed to anything to escape the stocks. Within a week the kitchens go quiet when he comes for bread, and the sergeant keeps his own tally of the boy’s reports.',
               },
               {
                 id: 'sister',
@@ -1381,7 +1381,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d06-stablehand-stocks'],
                 },
                 response:
-                  'He goes without arguing. That night nobody uses the postern. Outside the walls, somebody sleeps without bread.',
+                  'The stableboy goes to the stocks without arguing. At night the Watch nails a new warning to the postern gate, and no one uses it. Outside the walls a family waits for the flour cart that used to pass there, then sleeps without bread.',
               },
             ],
           },
@@ -1537,7 +1537,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               flags: ['crow-forecast-day10'],
             },
             response:
-              'He takes the brass with open distaste. Brass is for people with no imagination.',
+              'The envoy takes the twenty-five brass with open distaste and writes down the storm’s hour for the crown. No parcel has moved toward the fen. At the Ford, cutters can bring the last grain in ahead of the wind, if the message reaches them.',
           },
           {
             id: 'warn-freeholds',
@@ -1547,7 +1547,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 3, 'storm-crows': -5 },
             },
             response:
-              '“A third of a forecast is worse than none.” By dusk the Freeholds are cutting by lamplight, guessing at the hour.',
+              '“A third of a forecast is worse than none,” the envoy says. The crown sends that third anyway. By dusk the Freeholds are cutting by lamplight, deciding which sheaves to leave standing because nobody knows when the wind will turn.',
           },
         ],
         beats: [
@@ -1611,7 +1611,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['crow-forecast-day10'],
                 },
                 response:
-                  'He takes the brass like it is damp. “Forgotten, then.”',
+                  'The envoy takes the brass like it is damp. “Forgotten, then.” He gives up the storm’s hour without asking the crown to carry the sealed parcel. The Archive keeps its count; the Conclave keeps the contents and the reason for the errand.',
               },
             ],
           },
@@ -1639,7 +1639,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d07-count-returned'],
                 },
                 response:
-                  'The Archive gives up its only copy like a funeral. The envoy takes the rest of his forecast home.',
+                  'Vellum hands over the Archive’s only count as though he were signing a burial book. The envoy takes it and the remaining forecast home. By dusk the crown can still warn the Freeholds of a storm, but cannot tell them its hour.',
               },
               {
                 id: 'errand',
@@ -2044,7 +2044,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               flags: ['abbey-took-coldbrook-children'],
             },
             response:
-              'Sister Marrow gathers the children with practiced hands. Wenna does not cry until the gate closes.',
+              'Sister Marrow gathers the children with practiced hands. Wenna stays by the gate counting the heads as they pass through it, then counts again when the novice shuts the latch. No reply from the mission is due yet. She cries once no one can see.',
           },
           {
             id: 'yard',
@@ -2691,7 +2691,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label: 'Our own will go. They will know who is on the hill.',
                 effects: { affinity: { saltroad: 3 } },
                 response:
-                  'Oriel pushes her goggles up. “I’ll tell my drivers to sleep a little. Tell yours not to.”',
+                  'Oriel pushes up her goggles. “My drivers can sleep a little. Yours cannot.” She posts the crown’s pledge beside the iron-convoy job, but no soldier has accepted it yet. Her nine wagons remain at the gate until the board has names on it.',
               },
               {
                 id: 'hire-pack',
@@ -2944,7 +2944,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   schedule: ['d09-blank-tally'],
                 },
                 response:
-                  'The names blacken. The sergeant says nothing. He takes the night watch at the postern himself.',
+                  'The list burns down to its last name. The sergeant takes the postern watch himself and says nothing about the missing record. Tomorrow the gate can still be opened, but the crown will have no written proof of whose wagon passed.',
               },
             ],
           },
@@ -3368,7 +3368,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F013'],
                 },
                 response:
-                  'The cheer is real. Dunmark does not cheer. “Brass is at least honest about what it is.”',
+                  'The Watch’s cheer is real. Dunmark does not join it. He counts the bonus brass against the boots he had planned to repair, then sends the tired sentries back to their posts. “Brass is at least honest about what it is,” he says.',
               },
               {
                 id: 'name-houses',
@@ -3603,7 +3603,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               schedule: ['d10-promise'],
             },
             response:
-              'She nods. No thanks. Nobody has arrived yet. She goes down to wait by the board, where she can see who signs.',
+              'The Thistledown rider nods without thanks. The promise gives her a place beside the quest board, not an escort on the road. She waits there to count the names as they are signed, while smoke grows above the eastern rooftops.',
           },
           {
             id: 'bargain',
@@ -3806,7 +3806,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   schedule: ['d10-coldbrooks-warning'],
                 },
                 response:
-                  'A runner leaves with a map. No wagon. No spare horse. The rider watches the road until he is out of sight.',
+                  'A runner carries the Coldbrook road map through the gate, but no wagon or spare horse follows. The Thistledown rider watches until he is out of sight. One family may be warned; the others still need someone to travel the road.',
               },
               {
                 id: 'promise',

@@ -9544,6 +9544,54 @@ assert.deepEqual(crownOathAftermath.effects.local, {
   yard: -2,
 })
 
+
+const actOneLateCosts = [
+  ['d05-toll', 'hire', /Saltroad drivers/],
+  ['d05-toll', 'hold', /bridge/],
+  ['d06-market-charter', 'archive-rules', /egg-sellers/],
+  ['d07-crow-warning', 'pay', /forecast/],
+  ['d07-crow-warning', 'warn-freeholds', /lamplight/],
+  ['d08-family', 'abbey', /gate/],
+  ['d09-convoy', 'our-own', /quest board|convoy job/],
+  ['d10-thistledown', 'promise', /quest board/],
+] as const
+for (const [sceneId, choiceId, costWitness] of actOneLateCosts) {
+  const scene = DAYS.flatMap((day) => day.audiences).find(
+    (entry) => entry.id === sceneId,
+  )
+  assert.ok(scene, sceneId + ': Act I audience exists')
+  const choices = [
+    ...scene.options,
+    ...(scene.beats ?? []).flatMap((beat) => beat.options),
+  ].filter((entry) => entry.id === choiceId)
+  assert.ok(choices.length, sceneId + '/' + choiceId + ': choice exists')
+  assert.ok(
+    choices.some(
+      (choice) =>
+        choice.response.length >= 110 && costWitness.test(choice.response),
+    ),
+    sceneId + '/' + choiceId + ': choice shows the human cost',
+  )
+}
+const tollPact = chooseAudienceOption(
+  onDay(208, 5, { brass: 100 }),
+  'd05-toll',
+  'pay',
+)
+assert.ok(tollPact.run.flags.includes('paid-vane-twice'))
+const stormForecast = chooseAudienceOption(
+  onDay(208, 7, { brass: 100 }),
+  'd07-crow-warning',
+  'pay',
+)
+assert.ok(stormForecast.run.flags.includes('crow-forecast-day10'))
+const thistledownPromise = chooseAudienceOption(
+  onDay(208, 10),
+  'd10-thistledown',
+  'promise',
+)
+assert.ok(thistledownPromise.run.flags.includes('d10-thistledown-promised'))
+
 const actOneVoiceChecks = [
   ['d05-toll-grudge', 'ask-feast', /Your guards searched the ovens instead/],
   ['d06-market-charter', 'ask-stalls', /four of us on blankets/],

@@ -1211,7 +1211,11 @@ export function createRainbowPrincessPreview(
   /** A saved flight to offer before the game begins: continue from its Act, or start a new one. */
   const replaySave = options.demo
     ? null
-    : readRainbowSave(options.rainbowReplay, isRainbowCheckpoint)
+    : readRainbowSave(
+        options.rainbowReplay,
+        (act, frame) =>
+          (act === 1 && frame === 0) || isRainbowCheckpoint(act, frame),
+      )
   const offered =
     options.demo || replaySave
       ? null

@@ -35,9 +35,9 @@ export default defineEventHandler(async (event) => {
     // fields. Never trust a client to submit serialized Prisma state.
     let payload: string
     try {
-      payload = JSON.stringify(
-        parseVoyageBackup(JSON.stringify(input.save)),
-      )
+      const raw = JSON.stringify(input.save)
+      if (typeof raw !== 'string') throw new Error('Missing save envelope.')
+      payload = JSON.stringify(parseVoyageBackup(raw))
     } catch {
       throw createError({
         statusCode: 400,

@@ -94,6 +94,26 @@ export const FALL_OPENINGS: TextVariant[] = [
   },
 ]
 
+/** Day 40's private reckoning follows the emperor into the lost tower. */
+export const LAST_NIGHT_ECHOES: readonly TextVariant[] = [
+  {
+    flags: ['d40-komodo-offered-mercy'],
+    text: 'You offered to hear the truth from him. He let the bells speak instead.',
+  },
+  {
+    flags: ['d40-komodo-pressed'],
+    text: 'You asked him to name the cost before he left. He gave you another night of silence.',
+  },
+  {
+    flags: ['d40-komodo-asked-tomorrow'],
+    text: 'You agreed to ask him tomorrow. Tomorrow is here, and his chair is empty.',
+  },
+  {
+    flags: ['d40-komodo-confronted'],
+    text: 'You showed him what you knew. He still bowed, and the gate still opened.',
+  },
+]
+
 /** How the tower fell and why, as this run reads them. */
 export const fallText = (
   run: FortressRun,
@@ -103,9 +123,11 @@ export const fallText = (
   const fell = buyer.fell.startsWith(FALL_OPENING)
     ? opening + buyer.fell.slice(FALL_OPENING.length)
     : buyer.fell
+  const why = variantText(run.flags, buyer.why, buyer.whyVariants)
+  const lastNight = pickVariant(run.flags, LAST_NIGHT_ECHOES)
   return {
     fell: variantText(run.flags, fell, buyer.fellVariants),
-    why: variantText(run.flags, buyer.why, buyer.whyVariants),
+    why: lastNight ? `${why} ${lastNight.text}` : why,
   }
 }
 

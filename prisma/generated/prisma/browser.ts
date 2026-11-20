@@ -1228,6 +1228,17 @@ export type ZuzuGamebookSave = Prisma.ZuzuGamebookSaveModel
  */
 export type SlimeCityMatch = Prisma.SlimeCityMatchModel
 /**
+ * Model TarotDeck
+ * Private multi-deck tarot production. All reads and writes are ADMIN-gated;
+ * printable products are not published merely because a card has artwork.
+ */
+export type TarotDeck = Prisma.TarotDeckModel
+/**
+ * Model TarotCard
+ * 
+ */
+export type TarotCard = Prisma.TarotCardModel
+/**
  * Model SiteStatDaily
  * 
  */

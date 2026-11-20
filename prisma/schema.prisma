@@ -3889,3 +3889,51 @@ model SlimeCityMatch {
 
   @@index([userId, startedAt])
 }
+
+/// Private multi-deck tarot production. All reads and writes are ADMIN-gated;
+/// printable products are not published merely because a card has artwork.
+model TarotDeck {
+  id                Int         @id @default(autoincrement())
+  slug              String      @unique @db.VarChar(120)
+  title             String      @db.VarChar(200)
+  description       String      @db.Text
+  styleBible        String      @db.LongText
+  defaultEngine     String      @default("krea2") @db.VarChar(40)
+  defaultCheckpoint String?     @db.VarChar(255)
+  defaultLoras      String      @db.LongText
+  backPrompt        String      @db.LongText
+  printStatus       String      @default("DRAFT") @db.VarChar(24)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  Cards             TarotCard[]
+}
+
+model TarotCard {
+  id         Int       @id @default(autoincrement())
+  deckId     Int
+  key        String    @db.VarChar(80)
+  title      String    @db.VarChar(120)
+  arcana     String    @db.VarChar(8)
+  suit       String?   @db.VarChar(16)
+  rank       String    @db.VarChar(16)
+  ordinal    Int
+  oracleId   String    @db.VarChar(80)
+  prompt     String    @db.LongText
+  checkpoint String?   @db.VarChar(255)
+  loras      String    @db.LongText
+  status     String    @default("DRAFT") @db.VarChar(24)
+  upright    String    @db.Text
+  reversed   String    @db.Text
+  notes      String    @db.LongText
+  artJobId   Int?
+  artImageId Int?
+  imageUrl   String?   @db.VarChar(1024)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  Deck       TarotDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  @@unique([deckId, key])
+  @@index([deckId, arcana, rank])
+  @@index([deckId, status])
+  @@index([artJobId])
+}

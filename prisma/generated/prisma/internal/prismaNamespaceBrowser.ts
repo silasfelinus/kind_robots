@@ -192,6 +192,8 @@ export const ModelName = {
   SlimeCityAccount: 'SlimeCityAccount',
   ZuzuGamebookSave: 'ZuzuGamebookSave',
   SlimeCityMatch: 'SlimeCityMatch',
+  TarotDeck: 'TarotDeck',
+  TarotCard: 'TarotCard',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
@@ -2893,6 +2895,51 @@ export const SlimeCityMatchScalarFieldEnum = {
 export type SlimeCityMatchScalarFieldEnum = (typeof SlimeCityMatchScalarFieldEnum)[keyof typeof SlimeCityMatchScalarFieldEnum]
 
 
+export const TarotDeckScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  description: 'description',
+  styleBible: 'styleBible',
+  defaultEngine: 'defaultEngine',
+  defaultCheckpoint: 'defaultCheckpoint',
+  defaultLoras: 'defaultLoras',
+  backPrompt: 'backPrompt',
+  printStatus: 'printStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TarotDeckScalarFieldEnum = (typeof TarotDeckScalarFieldEnum)[keyof typeof TarotDeckScalarFieldEnum]
+
+
+export const TarotCardScalarFieldEnum = {
+  id: 'id',
+  deckId: 'deckId',
+  key: 'key',
+  title: 'title',
+  arcana: 'arcana',
+  suit: 'suit',
+  rank: 'rank',
+  ordinal: 'ordinal',
+  oracleId: 'oracleId',
+  prompt: 'prompt',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  status: 'status',
+  upright: 'upright',
+  reversed: 'reversed',
+  notes: 'notes',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  imageUrl: 'imageUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TarotCardScalarFieldEnum = (typeof TarotCardScalarFieldEnum)[keyof typeof TarotCardScalarFieldEnum]
+
+
 export const SiteStatDailyScalarFieldEnum = {
   id: 'id',
   day: 'day',
@@ -4477,6 +4524,41 @@ export const SlimeCityMatchOrderByRelevanceFieldEnum = {
 } as const
 
 export type SlimeCityMatchOrderByRelevanceFieldEnum = (typeof SlimeCityMatchOrderByRelevanceFieldEnum)[keyof typeof SlimeCityMatchOrderByRelevanceFieldEnum]
+
+
+export const TarotDeckOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  description: 'description',
+  styleBible: 'styleBible',
+  defaultEngine: 'defaultEngine',
+  defaultCheckpoint: 'defaultCheckpoint',
+  defaultLoras: 'defaultLoras',
+  backPrompt: 'backPrompt',
+  printStatus: 'printStatus'
+} as const
+
+export type TarotDeckOrderByRelevanceFieldEnum = (typeof TarotDeckOrderByRelevanceFieldEnum)[keyof typeof TarotDeckOrderByRelevanceFieldEnum]
+
+
+export const TarotCardOrderByRelevanceFieldEnum = {
+  key: 'key',
+  title: 'title',
+  arcana: 'arcana',
+  suit: 'suit',
+  rank: 'rank',
+  oracleId: 'oracleId',
+  prompt: 'prompt',
+  checkpoint: 'checkpoint',
+  loras: 'loras',
+  status: 'status',
+  upright: 'upright',
+  reversed: 'reversed',
+  notes: 'notes',
+  imageUrl: 'imageUrl'
+} as const
+
+export type TarotCardOrderByRelevanceFieldEnum = (typeof TarotCardOrderByRelevanceFieldEnum)[keyof typeof TarotCardOrderByRelevanceFieldEnum]
 
 
 export const SiteStatDailyOrderByRelevanceFieldEnum = {

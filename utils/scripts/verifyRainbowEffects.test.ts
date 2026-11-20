@@ -270,11 +270,14 @@ assert.deepEqual(
   'calm motion omits all boss bloom, not just the shockwave',
 )
 assert.deepEqual(
-  rainbowBossBloomFlares([
-    { x: 40, y: 40, age: 1, life: 16, ring: true },
-    { x: 40, y: 40, age: 23, life: 80, ring: true },
-    { x: -100, y: 40, age: 1, life: 80, ring: true },
-  ], false),
+  rainbowBossBloomFlares(
+    [
+      { x: 40, y: 40, age: 1, life: 16, ring: true },
+      { x: 40, y: 40, age: 23, life: 80, ring: true },
+      { x: -100, y: 40, age: 1, life: 80, ring: true },
+    ],
+    false,
+  ),
   [],
   'regular bursts, expired flares and offscreen events never allocate gradients',
 )

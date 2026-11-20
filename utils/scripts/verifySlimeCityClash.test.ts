@@ -350,6 +350,34 @@ assert.match(
   'a boss knocked below zero reads 0',
 )
 assert.match(browserLayoutAudit, /function measureResultControls\(\)/)
+// A held card must not stand on an alley it can be played to, and the rail
+// must fit a laptop: both were only reachable by measuring a real browser.
+assert.match(browserLayoutAudit, /function measureHeldCard\(\)/)
+assert.match(browserLayoutAudit, /function measureRail\(\)/)
+for (const size of [
+  '1440, height: 780',
+  '1366, height: 768',
+  '1280, height: 720',
+])
+  assert.ok(
+    browserLayoutAudit.includes('width: ' + size),
+    'the audit measures the rail at laptop height ' + size,
+  )
+assert.match(
+  view,
+  /\.clash-boss \{[^}]*min-height: auto;/s,
+  'a boss panel never shrinks under its life line and crew powers',
+)
+assert.match(
+  view,
+  /@container clash \(max-height: 32rem\)[^{]*\{\s*\.clash-portrait \{\s*min-height: 0;/s,
+  'on the shortest wide screens the portraits step aside',
+)
+assert.match(
+  hand,
+  /@container clash not \(\(max-width: 46rem\) or \(max-aspect-ratio: 1 \/ 1\)\) \{\s*\.cxh-card\.big \{\s*--y: calc\(var\(--W\) \* 1\.5 - 88cqh\);/s,
+  'on the wide layout a held card rises off your alleys',
+)
 assert.match(browserLayoutAudit, /playMatch\(page, clickActivate/)
 assert.match(browserLayoutAudit, /for \(const state of \['report', 'board'\]\)/)
 assert.match(

@@ -859,6 +859,22 @@ function tap(index: number): void {
   }
 }
 /*
+  Wide layout: the hand floats over your own alleys, and a held card used to
+  stand full size on the middle one, so a click could not place a card there
+  (only a drag could). It rises onto the rival's half instead, its top 12% of
+  the board down: the rival fighter's strike and life badges stay in view
+  above it, and the centre of every one of your alleys stays clickable. The
+  card is at most 60% of the board tall, so it never reaches past 72%.
+*/
+@container clash not ((max-width: 46rem) or (max-aspect-ratio: 1 / 1)) {
+  .cxh-card.big {
+    --y: calc(var(--W) * 1.5 - 88cqh);
+  }
+  .cxh-levels:not(.docked) {
+    bottom: calc(88cqh + 0.4rem);
+  }
+}
+/*
   Silas, 2026-11-11 PT, on an iPhone: "Those cards are tiny, this is
   unreadable ... the cards should start at the very screen bottom." On narrow
   or tall screens the hand spans the whole Clash layout and rests in its own

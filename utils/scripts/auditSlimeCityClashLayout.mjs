@@ -7,6 +7,11 @@
  * The TAP variant clones the rendered UNDO button so it inherits Vue scoped
  * styles; it tests the extra control's geometry, not its gameplay effect.
  *
+ * At each width it also holds a card and checks that the centre of every
+ * alley the card can go to still takes a click (the held card used to stand
+ * on the middle alley), and at three laptop heights it checks that the
+ * versus rail fits: crew powers inside their panel and under no other control.
+ *
  * It then plays one match to the end and measures the result controls
  * (BACK, REWARDS, REMATCH) at the same widths, with the reward report open
  * and with the board showing: every control inside the console and the
@@ -43,6 +48,12 @@ const viewports = [
   { name: 'phone', width: 390, height: 844 },
   { name: 'tablet', width: 768, height: 1024 },
   { name: 'desktop', width: 1440, height: 900 },
+]
+// What a laptop leaves the page once the browser's own chrome is taken out.
+const laptopViewports = [
+  { name: 'laptop-1440x780', width: 1440, height: 780 },
+  { name: 'laptop-1366x768', width: 1366, height: 768 },
+  { name: 'laptop-1280x720', width: 1280, height: 720 },
 ]
 mkdirSync(shots, { recursive: true })
 const session = await resolveAuditSession({
@@ -115,6 +126,80 @@ function measureClashControls(withTap) {
     fight: [Math.round(fightBox.left), Math.round(fightBox.right)],
     tap: tapBox ? [Math.round(tapBox.left), Math.round(tapBox.right)] : null,
   }
+}
+
+/** With a card held, the centre of each alley it can go to must take a click. */
+function measureHeldCard() {
+  const targets = [...document.querySelectorAll('.clash-slot.target')]
+  if (!targets.length)
+    return { ok: false, reason: 'No alley lights up for the held card' }
+  const covered = targets
+    .filter((el) => {
+      const box = el.getBoundingClientRect()
+      const hit = document.elementFromPoint(
+        box.left + box.width / 2,
+        box.top + box.height / 2,
+      )
+      return !(hit === el || el.contains(hit))
+    })
+    .map((el) => el.dataset.testid)
+  return { ok: covered.length === 0, targets: targets.length, covered }
+}
+
+/** The versus rail fits: nothing spills out of a boss panel or sits under another control. */
+function measureRail() {
+  const tolerance = 2
+  const spill = []
+  const blocked = []
+  for (const side of ['enemy', 'player']) {
+    const panel = document.querySelector('.clash-boss.is-' + side)
+    if (!panel) return { ok: false, reason: side + ' boss panel is missing' }
+    const panelBox = panel.getBoundingClientRect()
+    for (const el of panel.querySelectorAll(
+      '.clash-power, .clash-hp, strong',
+    )) {
+      if (!el.getClientRects().length) continue
+      const box = el.getBoundingClientRect()
+      const name = String(el.className || el.tagName).split(' ')[0]
+      if (
+        box.bottom > panelBox.bottom + tolerance ||
+        box.top < panelBox.top - tolerance
+      )
+        spill.push(side + ':' + name)
+      if (!el.matches('button.clash-power')) continue
+      const hit = document.elementFromPoint(
+        box.left + box.width / 2,
+        box.top + box.height / 2,
+      )
+      if (!(hit === el || el.contains(hit)))
+        blocked.push(side + ':' + el.textContent.trim())
+    }
+  }
+  const fight = document.querySelector('[data-testid="clash-pass"]')
+  const fightBox = fight?.getBoundingClientRect()
+  const fightVisible =
+    !!fightBox && fightBox.bottom <= window.innerHeight + tolerance
+  return {
+    ok: !spill.length && !blocked.length && fightVisible,
+    viewport: [window.innerWidth, window.innerHeight],
+    spill,
+    blocked,
+    fightVisible,
+  }
+}
+
+/** Open the hand and pick up the first playable card; false if there is none. */
+async function holdFirstCard(page) {
+  const toggle = page.getByTestId('clash-hand-toggle')
+  if ((await toggle.getAttribute('aria-expanded')) !== 'true')
+    await toggle.click()
+  const card = page.locator('[data-testid^="clash-hand-"]:not(.dim)').first()
+  if (!(await card.count())) return false
+  await card.click()
+  // Look up at the board: the pointer is off the hand, nothing is hovered.
+  await page.mouse.move(8, 8)
+  await page.waitForTimeout(400)
+  return true
 }
 
 /** Result controls after a match: BACK, REWARDS, REMATCH and sound. */
@@ -215,6 +300,16 @@ try {
         console.log(caseName + ': ' + JSON.stringify(result))
         if (!result.ok) failures += 1
       }
+
+      const held = (await holdFirstCard(page))
+        ? await page.evaluate(measureHeldCard)
+        : { ok: false, reason: 'No playable card in the opening hand' }
+      await page.screenshot({
+        path: join(shots, vp.name + '-held-card.png'),
+        animations: 'disabled',
+      })
+      console.log(vp.name + '-held-card: ' + JSON.stringify(held))
+      if (!held.ok) failures += 1
     } catch (error) {
       failures += 1
       console.error(vp.name + ': Clash flow failed: ' + String(error))
@@ -247,6 +342,30 @@ try {
     await page.getByTestId('slime-vs-tab').click({ timeout: 20000 })
     await page.getByTestId('slime-vs-fight-cpu').click({ timeout: 20000 })
     await page.getByTestId('clash-pass').waitFor({ timeout: 30000 })
+    for (const vp of laptopViewports) {
+      await page.setViewportSize({ width: vp.width, height: vp.height })
+      await page.waitForTimeout(400)
+      const rail = await page.evaluate(measureRail)
+      await page.screenshot({
+        path: join(shots, vp.name + '-rail.png'),
+        animations: 'disabled',
+      })
+      console.log(vp.name + '-rail: ' + JSON.stringify(rail))
+      if (!rail.ok) failures += 1
+      const held = (await holdFirstCard(page))
+        ? await page.evaluate(measureHeldCard)
+        : { ok: false, reason: 'No playable card in the opening hand' }
+      console.log(vp.name + '-held-card: ' + JSON.stringify(held))
+      if (!held.ok) failures += 1
+      // Put the card back so the next size starts from the same hand.
+      await page
+        .locator('[data-testid^="clash-hand-"][aria-pressed="true"]')
+        .first()
+        .click()
+        .catch(() => {})
+    }
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.waitForTimeout(300)
     await playMatch(page, clickActivate, 60)
     // The reward report rises a beat after the final blow.
     const seeBoard = page.getByTestId('slime-match-report-close')
@@ -287,6 +406,7 @@ if (failures) {
   process.exitCode = 1
 } else {
   console.log(
-    'Clash control layout: 390, 768, 1440, TAP and result controls passed',
+    'Clash control layout: 390, 768, 1440, TAP, held card, laptop rail and ' +
+      'result controls passed',
   )
 }

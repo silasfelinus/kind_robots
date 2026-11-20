@@ -1710,7 +1710,12 @@ function forecast(lane: number): string {
 .clash-boss {
   position: relative;
   flex: 1 1 0;
-  min-height: 0;
+  /*
+    Never shorter than its own life line and crew powers. With min-height: 0
+    a laptop-height rail squeezed the panel under its content, and your crew
+    power buttons slid beneath the control strip where no click reached them.
+  */
+  min-height: auto;
   display: flex;
   flex-direction: column;
   overflow: visible;
@@ -2131,6 +2136,27 @@ function forecast(lane: number): string {
 .clash-console-row .clash-reset,
 .clash-console-row .clash-pass {
   min-width: 0;
+}
+/*
+  Short wide screens (a laptop with browser chrome leaves 600 to 780px): the
+  boss panels keep their text and powers, so the portraits and the battle log
+  give up height first, and on the shortest ones step aside entirely.
+*/
+@container clash (max-height: 38rem) and (not ((max-width: 46rem) or (max-aspect-ratio: 1 / 1))) {
+  .clash-portrait {
+    min-height: 1.75rem;
+  }
+  .clash-log {
+    min-height: 3rem;
+  }
+}
+@container clash (max-height: 32rem) and (not ((max-width: 46rem) or (max-aspect-ratio: 1 / 1))) {
+  .clash-portrait {
+    min-height: 0;
+  }
+  .clash-log {
+    min-height: 0;
+  }
 }
 /*
   Match over: BACK, REWARDS and REMATCH replace UNDO and FIGHT. Three labels

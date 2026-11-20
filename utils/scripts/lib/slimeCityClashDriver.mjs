@@ -22,8 +22,15 @@ export function readBoard() {
       pressed: el.getAttribute('aria-pressed') === 'true',
       focusable: el.tabIndex >= 0,
     }))
+  // Open alleys first: the driver builds a line instead of replacing its one
+  // fighter every turn, so it can actually win a match now and then.
   const targets = [...document.querySelectorAll('.clash-slot.target')]
     .filter((el) => !el.disabled)
+    .sort(
+      (a, b) =>
+        Number(a.classList.contains('filled')) -
+        Number(b.classList.contains('filled')),
+    )
     .map((el) => el.dataset.testid)
   const toggle = q('clash-hand-toggle')
   return {

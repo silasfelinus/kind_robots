@@ -1,5 +1,4 @@
 import { patrolCrewFor } from './patrolCrews'
-import { patrolCrewFor } from './patrolCrews'
 import {
   ALL_PATROL_STORIES,
   fillStoryText,
@@ -985,8 +984,6 @@ export function patrolOptionsFor(
       danger: 0,
       standing: 0,
     }))
-  const crew = patrolCrewFor(run, zone)
-  if (crew) return [...crew.choices]
   const scene = patrolSceneFor(run.seed, run.day, zone)
   const options: PatrolChoice[] = [...scene.choices]
   const crew = patrolCrewFor(run, zone)

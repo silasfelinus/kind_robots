@@ -2834,6 +2834,47 @@ assert.ok(
     'return',
   ).run.recruitable.includes('F016'),
 )
+// Act III public hospitality creates observable costs, not just hidden faction
+// deltas. All six routes must keep their historical flags and valid saves.
+for (const [choice, marker, flag] of [
+  ['sanctuary', /public sanctuary writ/, 'sable-sheltered'],
+  ['hide', /visitor roll/, 'sable-hidden'],
+  ['return', /respecting the Verge’s claim/, 'sable-returned'],
+] as const) {
+  const picked = chooseAudienceOption(
+    onDay(1, 28, { brass: 100 }),
+    'd28-defector',
+    choice,
+  )
+  assert.match(picked.response, marker, choice)
+  assert.ok(picked.run.flags.includes(flag), choice)
+  assert.ok(validateRun(picked.run), `Day 28 ${choice} is saveable`)
+}
+const neutralMoles = onDay(1, 30, {
+  affinity: { ...onDay(1, 30).affinity, moles: 0 },
+})
+for (const [choice, marker, flag] of [
+  ['freeholds', /medicine wagons turn their horses/, 'sheltered-freeholds'],
+  ['saltroad', /Hester Plowright stands outside/, 'sheltered-saltroad'],
+  ['moles', /Lady Vask’s steward leaves/, 'sheltered-moles'],
+] as const) {
+  const picked = chooseAudienceOption(
+    neutralMoles,
+    'd30-terms',
+    choice,
+  )
+  assert.match(picked.response, marker, choice)
+  assert.ok(picked.run.flags.includes(flag), choice)
+  assert.ok(validateRun(picked.run), `Day 30 ${choice} is saveable`)
+}
+for (const [choice, marker] of [
+  ['freeholds', /road and burrows outside/],
+  ['saltroad', /medicine caravans/],
+  ['moles', /Old Houses’ support/],
+] as const) {
+  const option = act3('d30-terms').options.find((o) => o.id === choice)!
+  assert.match(option.label, marker)
+}
 // Giving the Coldbrook children away on Day 8 comes back on Day 24.
 assert.ok(!audiencesToday(onDay(1, 24)).some((a) => a.id === 'd24-coldbrook'))
 assert.ok(

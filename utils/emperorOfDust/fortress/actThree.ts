@@ -3526,35 +3526,36 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'sanctuary',
-            label: 'Grant sanctuary, openly.',
+            label: 'Grant sanctuary openly. Defy the Verge in front of its envoy.',
             effects: {
               affinity: { 'black-verge': -15 },
               recruitable: ['F016'],
               flags: ['sable-sheltered'],
             },
             response:
-              'Sable bows, perfectly. Across the yard the envoy watches. Does not blink.',
+              'Sable kneels for the public sanctuary writ, then rises with both gloves trembling. The gate clerk reads the crown’s seal aloud where the Verge envoy can hear it. The envoy takes down the name of every Watch officer who witnessed the promise before turning away.',
           },
           {
             id: 'hide',
-            label: 'Hide Sable in the barracks. Say nothing.',
+            label: 'Pay the Watch to hide Sable in the barracks.',
             requires: { cost: 20 },
             effects: {
               affinity: { 'black-verge': -5 },
               recruitable: ['F016'],
               flags: ['sable-hidden'],
             },
-            response: 'The Watch is paid to forget a plum coat. Most do.',
+            response:
+              'The Watch sergeant counts twenty brass behind a stable door. He removes Sable’s name from the visitor roll but leaves the ink scraped thin enough to read. Sable eats at the barracks table under a borrowed coat; two guards who were not paid ask who the new guest is.'
           },
           {
             id: 'return',
-            label: 'Return Sable to the envoy.',
+            label: 'Return Sable. Avoid a feud with the Black Verge.',
             effects: {
               affinity: { 'black-verge': 20 },
               flags: ['sable-returned'],
             },
             response:
-              'Sable does not argue. They walk to the envoy, head high. They do not look back.',
+              'Sable offers no struggle. The envoy fastens a white ribbon around their wrist and thanks the crown for respecting the Verge’s claim. The Watch opens the gate; nobody in the barracks has to risk a quarrel with the Court tonight. Sable leaves with the envoy, and the empty guest cot is made up for someone else.',
           },
           {
             id: 'ask-flight',
@@ -4155,18 +4156,18 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'freeholds',
-            label: 'Shelter the Freeholds.',
+            label: 'Shelter the Freeholds. Leave the road and burrows outside.',
             effects: {
               affinity: { freeholds: 10 },
               strength: { freeholds: 1 },
               flags: ['sheltered-freeholds'],
             },
             response:
-              'The Freehold envoy weeps openly. The other two leave without a word.',
+              'Hester Plowright brings the farm families through the gate, counting each by the wrist so no one is left in the dark. The Watch gives them the dry courtyard and the last spare blankets. Outside, the medicine wagons turn their horses toward the road; the burrow envoy disappears below the ford without asking twice.',
           },
           {
             id: 'saltroad',
-            label: 'Shelter the Saltroad.',
+            label: 'Shelter the medicine caravans. Turn the farms and burrows away.',
             effects: {
               affinity: { saltroad: 10 },
               strength: { saltroad: 1 },
@@ -4174,11 +4175,11 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['sheltered-saltroad'],
             },
             response:
-              'Oriel Saltmarsh’s envoy bows. The caravans roll in by midnight.',
+              'Oriel Saltmarsh’s medicine chests come through first, then the drovers and their teams. The Ledger clerk claims a place beside the unloading ramp and marks each crate for the road ahead. Hester Plowright stands outside with her farm families until the Watch closes the gate. The burrow envoy leaves before the last wagon is counted.',
           },
           {
             id: 'moles',
-            label: 'Shelter the Moles.',
+            label: 'Shelter the Moles. Risk the Old Houses’ support.',
             requires: { affinity: { moles: 'neutral' } },
             effects: {
               affinity: { moles: 15 },
@@ -4187,7 +4188,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['sheltered-moles'],
             },
             response:
-              'The burrow envoy blinks up at the gate. He never once expected it to open.',
+              'The burrow envoy touches the open gate to make sure it is real. Mole families are given the lower store rooms where the earth is cool; the Watch must shift its winter grain upstairs. Lady Vask’s steward leaves his chamber key on the table and walks out. Beyond the walls Hester Plowright takes her farmers back toward their fences.',
           },
           {
             id: 'ask-losses',

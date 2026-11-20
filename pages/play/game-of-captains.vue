@@ -358,6 +358,64 @@
               @change="selectVoyageBackup"
             />
           </div>
+          <div
+            class="cap-backup-actions flex flex-wrap gap-2"
+            aria-label="Signed-in voyage backup controls"
+          >
+            <button
+              v-if="store.accountBackupStatus !== 'guest'"
+              type="button"
+              data-testid="space-couch-check-account-backup"
+              :disabled="store.accountBackupBusy"
+              @click="store.checkAccountVoyageBackup()"
+            >
+              CHECK ACCOUNT COPY
+            </button>
+            <button
+              v-if="store.accountBackupStatus === 'ready'"
+              type="button"
+              data-testid="space-couch-save-account-backup"
+              :disabled="
+                store.accountBackupBusy ||
+                (!run && !store.completedVoyages.length)
+              "
+              @click="store.saveVoyageBackupToAccount()"
+            >
+              SAVE DEVICE TO ACCOUNT
+            </button>
+            <button
+              v-if="
+                store.accountBackupStatus === 'ready' &&
+                store.accountBackupPreview
+              "
+              type="button"
+              data-testid="space-couch-restore-account-backup"
+              :disabled="store.accountBackupBusy"
+              @click="store.stageAccountVoyageBackup()"
+            >
+              RESTORE ACCOUNT COPY
+            </button>
+          </div>
+          <p
+            v-if="store.accountBackupStatus === 'guest'"
+            class="text-sm opacity-75"
+          >
+            Sign in to back up this voyage across devices. Your device save is
+            available without an account.
+          </p>
+          <p v-if="store.accountBackupPreview" class="text-sm opacity-80">
+            Account copy: {{ store.accountBackupPreview.finished }} finished
+            voyage(s)
+            {{
+              store.accountBackupPreview.voyage
+                ? 'and an active voyage.'
+                : 'with no active voyage.'
+            }}
+            Restoring always requires confirmation.
+          </p>
+          <p v-if="store.accountBackupMessage" role="status">
+            {{ store.accountBackupMessage }}
+          </p>
           <p v-if="store.backupMessage" role="status">
             {{ store.backupMessage }}
           </p>

@@ -855,6 +855,7 @@ export type UserWhereInput = {
   SlimeCityAccount?: Prisma.XOR<Prisma.SlimeCityAccountNullableScalarRelationFilter, Prisma.SlimeCityAccountWhereInput> | null
   ZuzuGamebookSave?: Prisma.XOR<Prisma.ZuzuGamebookSaveNullableScalarRelationFilter, Prisma.ZuzuGamebookSaveWhereInput> | null
   SpaceCouchAlienGuide?: Prisma.XOR<Prisma.SpaceCouchAlienGuideNullableScalarRelationFilter, Prisma.SpaceCouchAlienGuideWhereInput> | null
+  SpaceCouchVoyageSave?: Prisma.XOR<Prisma.SpaceCouchVoyageSaveNullableScalarRelationFilter, Prisma.SpaceCouchVoyageSaveWhereInput> | null
   SlimeCityMatches?: Prisma.SlimeCityMatchListRelationFilter
 }
 
@@ -986,6 +987,7 @@ export type UserOrderByWithRelationInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountOrderByWithRelationInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveOrderByWithRelationInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideOrderByWithRelationInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveOrderByWithRelationInput
   SlimeCityMatches?: Prisma.SlimeCityMatchOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
@@ -1121,6 +1123,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   SlimeCityAccount?: Prisma.XOR<Prisma.SlimeCityAccountNullableScalarRelationFilter, Prisma.SlimeCityAccountWhereInput> | null
   ZuzuGamebookSave?: Prisma.XOR<Prisma.ZuzuGamebookSaveNullableScalarRelationFilter, Prisma.ZuzuGamebookSaveWhereInput> | null
   SpaceCouchAlienGuide?: Prisma.XOR<Prisma.SpaceCouchAlienGuideNullableScalarRelationFilter, Prisma.SpaceCouchAlienGuideWhereInput> | null
+  SpaceCouchVoyageSave?: Prisma.XOR<Prisma.SpaceCouchVoyageSaveNullableScalarRelationFilter, Prisma.SpaceCouchVoyageSaveWhereInput> | null
   SlimeCityMatches?: Prisma.SlimeCityMatchListRelationFilter
 }, "id" | "username" | "email" | "referralCode">
 
@@ -1408,6 +1411,7 @@ export type UserCreateInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -1538,6 +1542,7 @@ export type UserUncheckedCreateInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1667,6 +1672,7 @@ export type UserUpdateInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -1797,6 +1803,7 @@ export type UserUncheckedUpdateInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3134,6 +3141,20 @@ export type UserUpdateOneRequiredWithoutSpaceCouchAlienGuideNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSpaceCouchAlienGuideInput, Prisma.UserUpdateWithoutSpaceCouchAlienGuideInput>, Prisma.UserUncheckedUpdateWithoutSpaceCouchAlienGuideInput>
 }
 
+export type UserCreateNestedOneWithoutSpaceCouchVoyageSaveInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSpaceCouchVoyageSaveInput, Prisma.UserUncheckedCreateWithoutSpaceCouchVoyageSaveInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSpaceCouchVoyageSaveInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSpaceCouchVoyageSaveNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSpaceCouchVoyageSaveInput, Prisma.UserUncheckedCreateWithoutSpaceCouchVoyageSaveInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSpaceCouchVoyageSaveInput
+  upsert?: Prisma.UserUpsertWithoutSpaceCouchVoyageSaveInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSpaceCouchVoyageSaveInput, Prisma.UserUpdateWithoutSpaceCouchVoyageSaveInput>, Prisma.UserUncheckedUpdateWithoutSpaceCouchVoyageSaveInput>
+}
+
 export type UserCreateNestedOneWithoutSlimeCityAccountInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSlimeCityAccountInput, Prisma.UserUncheckedCreateWithoutSlimeCityAccountInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSlimeCityAccountInput
@@ -3301,6 +3322,7 @@ export type UserCreateWithoutArtImagesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -3430,6 +3452,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3563,6 +3586,7 @@ export type UserCreateWithoutArtImageInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -3692,6 +3716,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3841,6 +3866,7 @@ export type UserUpdateWithoutArtImagesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -3970,6 +3996,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4192,6 +4219,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -4321,6 +4349,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4465,6 +4494,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -4594,6 +4624,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -4722,6 +4753,7 @@ export type UserCreateWithoutBotsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -4851,6 +4883,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -4995,6 +5028,7 @@ export type UserUpdateWithoutBotsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -5124,6 +5158,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5252,6 +5287,7 @@ export type UserCreateWithoutCharactersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -5381,6 +5417,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -5525,6 +5562,7 @@ export type UserUpdateWithoutCharactersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -5654,6 +5692,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -5782,6 +5821,7 @@ export type UserCreateWithoutChatsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -5911,6 +5951,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6055,6 +6096,7 @@ export type UserUpdateWithoutChatsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -6184,6 +6226,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6312,6 +6355,7 @@ export type UserCreateWithoutDreamsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -6441,6 +6485,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -6585,6 +6630,7 @@ export type UserUpdateWithoutDreamsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -6714,6 +6760,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -6842,6 +6889,7 @@ export type UserCreateWithoutProjectsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -6971,6 +7019,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -7115,6 +7164,7 @@ export type UserUpdateWithoutProjectsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -7244,6 +7294,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7372,6 +7423,7 @@ export type UserCreateWithoutFacetsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -7501,6 +7553,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -7645,6 +7698,7 @@ export type UserUpdateWithoutFacetsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -7774,6 +7828,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -7902,6 +7957,7 @@ export type UserCreateWithoutLogsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -8031,6 +8087,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -8175,6 +8232,7 @@ export type UserUpdateWithoutLogsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -8304,6 +8362,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -8432,6 +8491,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -8561,6 +8621,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -8705,6 +8766,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -8834,6 +8896,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -8962,6 +9025,7 @@ export type UserCreateWithoutMissionRemittancesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -9091,6 +9155,7 @@ export type UserUncheckedCreateWithoutMissionRemittancesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -9235,6 +9300,7 @@ export type UserUpdateWithoutMissionRemittancesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -9364,6 +9430,7 @@ export type UserUncheckedUpdateWithoutMissionRemittancesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -9492,6 +9559,7 @@ export type UserCreateWithoutOrdersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -9621,6 +9689,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -9765,6 +9834,7 @@ export type UserUpdateWithoutOrdersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -9894,6 +9964,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -10022,6 +10093,7 @@ export type UserCreateWithoutEntitlementsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -10151,6 +10223,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -10295,6 +10368,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -10424,6 +10498,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -10552,6 +10627,7 @@ export type UserCreateWithoutGrantsGivenInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -10681,6 +10757,7 @@ export type UserUncheckedCreateWithoutGrantsGivenInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -10814,6 +10891,7 @@ export type UserCreateWithoutGrantsReceivedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -10943,6 +11021,7 @@ export type UserUncheckedCreateWithoutGrantsReceivedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -11087,6 +11166,7 @@ export type UserUpdateWithoutGrantsGivenInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -11216,6 +11296,7 @@ export type UserUncheckedUpdateWithoutGrantsGivenInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -11355,6 +11436,7 @@ export type UserUpdateWithoutGrantsReceivedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -11484,6 +11566,7 @@ export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -11612,6 +11695,7 @@ export type UserCreateWithoutPacksOwnedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -11741,6 +11825,7 @@ export type UserUncheckedCreateWithoutPacksOwnedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -11885,6 +11970,7 @@ export type UserUpdateWithoutPacksOwnedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -12014,6 +12100,7 @@ export type UserUncheckedUpdateWithoutPacksOwnedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -12142,6 +12229,7 @@ export type UserCreateWithoutAchievementsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -12271,6 +12359,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -12415,6 +12504,7 @@ export type UserUpdateWithoutAchievementsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -12544,6 +12634,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -12672,6 +12763,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -12801,6 +12893,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -12945,6 +13038,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -13074,6 +13168,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -13202,6 +13297,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -13331,6 +13427,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -13464,6 +13561,7 @@ export type UserCreateWithoutPromptsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -13593,6 +13691,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -13737,6 +13836,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -13866,6 +13966,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -14005,6 +14106,7 @@ export type UserUpdateWithoutPromptsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -14134,6 +14236,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -14262,6 +14365,7 @@ export type UserCreateWithoutPlumberLevelsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -14391,6 +14495,7 @@ export type UserUncheckedCreateWithoutPlumberLevelsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -14535,6 +14640,7 @@ export type UserUpdateWithoutPlumberLevelsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -14664,6 +14770,7 @@ export type UserUncheckedUpdateWithoutPlumberLevelsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -14792,6 +14899,7 @@ export type UserCreateWithoutReactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -14921,6 +15029,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -15065,6 +15174,7 @@ export type UserUpdateWithoutReactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -15194,6 +15304,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -15322,6 +15433,7 @@ export type UserCreateWithoutResourcesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -15451,6 +15563,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -15595,6 +15708,7 @@ export type UserUpdateWithoutResourcesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -15724,6 +15838,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -15852,6 +15967,7 @@ export type UserCreateWithoutRewardsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -15981,6 +16097,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -16125,6 +16242,7 @@ export type UserUpdateWithoutRewardsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -16254,6 +16372,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -16382,6 +16501,7 @@ export type UserCreateWithoutScenariosInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -16511,6 +16631,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -16655,6 +16776,7 @@ export type UserUpdateWithoutScenariosInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -16784,6 +16906,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -16912,6 +17035,7 @@ export type UserCreateWithoutServersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -17041,6 +17165,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -17185,6 +17310,7 @@ export type UserUpdateWithoutServersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -17314,6 +17440,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -17442,6 +17569,7 @@ export type UserCreateWithoutSmartIconsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -17571,6 +17699,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -17715,6 +17844,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -17844,6 +17974,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -17972,6 +18103,7 @@ export type UserCreateWithoutThemesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -18101,6 +18233,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -18245,6 +18378,7 @@ export type UserUpdateWithoutThemesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -18374,6 +18508,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -18502,6 +18637,7 @@ export type UserCreateWithoutStylistClientsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -18631,6 +18767,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -18775,6 +18912,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -18904,6 +19042,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -19032,6 +19171,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -19161,6 +19301,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -19305,6 +19446,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -19434,6 +19576,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -19562,6 +19705,7 @@ export type UserCreateWithoutArtJobsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -19691,6 +19835,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -19835,6 +19980,7 @@ export type UserUpdateWithoutArtJobsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -19964,6 +20110,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -20092,6 +20239,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -20221,6 +20369,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -20365,6 +20514,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -20494,6 +20644,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -20622,6 +20773,7 @@ export type UserCreateWithoutReferredByInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -20751,6 +20903,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -20884,6 +21037,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -21013,6 +21167,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -21157,6 +21312,7 @@ export type UserUpdateWithoutReferredByInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -21286,6 +21442,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -21425,6 +21582,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -21554,6 +21712,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -21682,6 +21841,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -21811,6 +21971,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -21944,6 +22105,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -22073,6 +22235,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -22217,6 +22380,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -22346,6 +22510,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -22485,6 +22650,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -22614,6 +22780,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -22742,6 +22909,7 @@ export type UserCreateWithoutUserRolesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -22871,6 +23039,7 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -23015,6 +23184,7 @@ export type UserUpdateWithoutUserRolesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -23144,6 +23314,7 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -23272,6 +23443,7 @@ export type UserCreateWithoutChallengesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -23401,6 +23573,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -23545,6 +23718,7 @@ export type UserUpdateWithoutChallengesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -23674,6 +23848,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -23802,6 +23977,7 @@ export type UserCreateWithoutLifeRunsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -23931,6 +24107,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -24075,6 +24252,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -24204,6 +24382,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -24332,6 +24511,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -24461,6 +24641,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -24605,6 +24786,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -24734,6 +24916,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -24862,6 +25045,7 @@ export type UserCreateWithoutAquariumsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -24991,6 +25175,7 @@ export type UserUncheckedCreateWithoutAquariumsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -25135,6 +25320,7 @@ export type UserUpdateWithoutAquariumsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -25264,6 +25450,7 @@ export type UserUncheckedUpdateWithoutAquariumsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -25392,6 +25579,7 @@ export type UserCreateWithoutAquariumCodexEntriesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -25521,6 +25709,7 @@ export type UserUncheckedCreateWithoutAquariumCodexEntriesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -25665,6 +25854,7 @@ export type UserUpdateWithoutAquariumCodexEntriesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -25794,6 +25984,7 @@ export type UserUncheckedUpdateWithoutAquariumCodexEntriesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -25922,6 +26113,7 @@ export type UserCreateWithoutMonstersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -26051,6 +26243,7 @@ export type UserUncheckedCreateWithoutMonstersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -26195,6 +26388,7 @@ export type UserUpdateWithoutMonstersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -26324,6 +26518,7 @@ export type UserUncheckedUpdateWithoutMonstersInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -26452,6 +26647,7 @@ export type UserCreateWithoutAuthTokensInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -26581,6 +26777,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -26725,6 +26922,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -26854,6 +27052,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -26982,6 +27181,7 @@ export type UserCreateWithoutAgentCredentialsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -27111,6 +27311,7 @@ export type UserUncheckedCreateWithoutAgentCredentialsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -27255,6 +27456,7 @@ export type UserUpdateWithoutAgentCredentialsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -27384,6 +27586,7 @@ export type UserUncheckedUpdateWithoutAgentCredentialsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -27512,6 +27715,7 @@ export type UserCreateWithoutConversationsInInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -27641,6 +27845,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -27785,6 +27990,7 @@ export type UserUpdateWithoutConversationsInInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -27914,6 +28120,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -28042,6 +28249,7 @@ export type UserCreateWithoutSentMessagesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -28171,6 +28379,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -28315,6 +28524,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -28444,6 +28654,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -28572,6 +28783,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -28701,6 +28913,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -28834,6 +29047,7 @@ export type UserCreateWithoutNotificationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -28963,6 +29177,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -29107,6 +29322,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -29236,6 +29452,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -29375,6 +29592,7 @@ export type UserUpdateWithoutNotificationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -29504,6 +29722,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -29632,6 +29851,7 @@ export type UserCreateWithoutGithubInstallationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -29761,6 +29981,7 @@ export type UserUncheckedCreateWithoutGithubInstallationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -29905,6 +30126,7 @@ export type UserUpdateWithoutGithubInstallationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -30034,6 +30256,7 @@ export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -30162,6 +30385,7 @@ export type UserCreateWithoutAppReposInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -30291,6 +30515,7 @@ export type UserUncheckedCreateWithoutAppReposInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -30435,6 +30660,7 @@ export type UserUpdateWithoutAppReposInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -30564,6 +30790,7 @@ export type UserUncheckedUpdateWithoutAppReposInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -30692,6 +30919,7 @@ export type UserCreateWithoutSpaceCouchAlienGuideInput = {
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -30821,6 +31049,7 @@ export type UserUncheckedCreateWithoutSpaceCouchAlienGuideInput = {
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -30965,6 +31194,7 @@ export type UserUpdateWithoutSpaceCouchAlienGuideInput = {
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -31094,6 +31324,541 @@ export type UserUncheckedUpdateWithoutSpaceCouchAlienGuideInput = {
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSpaceCouchVoyageSaveInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AgentCredentials?: Prisma.AgentCredentialCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Monsters?: Prisma.MonsterCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  PlumberLevels?: Prisma.PlumberLevelCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
+  ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
+  SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSpaceCouchVoyageSaveInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AgentCredentials?: Prisma.AgentCredentialUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Monsters?: Prisma.MonsterUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  PlumberLevels?: Prisma.PlumberLevelUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
+  ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSpaceCouchVoyageSaveInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSpaceCouchVoyageSaveInput, Prisma.UserUncheckedCreateWithoutSpaceCouchVoyageSaveInput>
+}
+
+export type UserUpsertWithoutSpaceCouchVoyageSaveInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSpaceCouchVoyageSaveInput, Prisma.UserUncheckedUpdateWithoutSpaceCouchVoyageSaveInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSpaceCouchVoyageSaveInput, Prisma.UserUncheckedCreateWithoutSpaceCouchVoyageSaveInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSpaceCouchVoyageSaveInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSpaceCouchVoyageSaveInput, Prisma.UserUncheckedUpdateWithoutSpaceCouchVoyageSaveInput>
+}
+
+export type UserUpdateWithoutSpaceCouchVoyageSaveInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AgentCredentials?: Prisma.AgentCredentialUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Monsters?: Prisma.MonsterUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  PlumberLevels?: Prisma.PlumberLevelUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
+  ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
+  SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSpaceCouchVoyageSaveInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AgentCredentials?: Prisma.AgentCredentialUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Monsters?: Prisma.MonsterUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  PlumberLevels?: Prisma.PlumberLevelUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+  SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
+  ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -31222,6 +31987,7 @@ export type UserCreateWithoutSlimeCityAccountInput = {
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -31351,6 +32117,7 @@ export type UserUncheckedCreateWithoutSlimeCityAccountInput = {
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -31495,6 +32262,7 @@ export type UserUpdateWithoutSlimeCityAccountInput = {
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -31624,6 +32392,7 @@ export type UserUncheckedUpdateWithoutSlimeCityAccountInput = {
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -31752,6 +32521,7 @@ export type UserCreateWithoutZuzuGamebookSaveInput = {
   PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchCreateNestedManyWithoutUserInput
 }
 
@@ -31881,6 +32651,7 @@ export type UserUncheckedCreateWithoutZuzuGamebookSaveInput = {
   PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -32025,6 +32796,7 @@ export type UserUpdateWithoutZuzuGamebookSaveInput = {
   PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -32154,6 +32926,7 @@ export type UserUncheckedUpdateWithoutZuzuGamebookSaveInput = {
   PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -32283,6 +33056,7 @@ export type UserCreateWithoutSlimeCityMatchesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSlimeCityMatchesInput = {
@@ -32412,6 +33186,7 @@ export type UserUncheckedCreateWithoutSlimeCityMatchesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedCreateNestedOneWithoutUserInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedCreateNestedOneWithoutUserInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedCreateNestedOneWithoutUserInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSlimeCityMatchesInput = {
@@ -32556,6 +33331,7 @@ export type UserUpdateWithoutSlimeCityMatchesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSlimeCityMatchesInput = {
@@ -32685,6 +33461,7 @@ export type UserUncheckedUpdateWithoutSlimeCityMatchesInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyArtImageInput = {
@@ -32886,6 +33663,7 @@ export type UserUpdateWithoutArtImageInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUpdateManyWithoutUserNestedInput
 }
 
@@ -33015,6 +33793,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   SlimeCityAccount?: Prisma.SlimeCityAccountUncheckedUpdateOneWithoutUserNestedInput
   ZuzuGamebookSave?: Prisma.ZuzuGamebookSaveUncheckedUpdateOneWithoutUserNestedInput
   SpaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideUncheckedUpdateOneWithoutUserNestedInput
+  SpaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveUncheckedUpdateOneWithoutUserNestedInput
   SlimeCityMatches?: Prisma.SlimeCityMatchUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -33701,6 +34480,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   SlimeCityAccount?: boolean | Prisma.User$SlimeCityAccountArgs<ExtArgs>
   ZuzuGamebookSave?: boolean | Prisma.User$ZuzuGamebookSaveArgs<ExtArgs>
   SpaceCouchAlienGuide?: boolean | Prisma.User$SpaceCouchAlienGuideArgs<ExtArgs>
+  SpaceCouchVoyageSave?: boolean | Prisma.User$SpaceCouchVoyageSaveArgs<ExtArgs>
   SlimeCityMatches?: boolean | Prisma.User$SlimeCityMatchesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -33839,6 +34619,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   SlimeCityAccount?: boolean | Prisma.User$SlimeCityAccountArgs<ExtArgs>
   ZuzuGamebookSave?: boolean | Prisma.User$ZuzuGamebookSaveArgs<ExtArgs>
   SpaceCouchAlienGuide?: boolean | Prisma.User$SpaceCouchAlienGuideArgs<ExtArgs>
+  SpaceCouchVoyageSave?: boolean | Prisma.User$SpaceCouchVoyageSaveArgs<ExtArgs>
   SlimeCityMatches?: boolean | Prisma.User$SlimeCityMatchesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -33901,6 +34682,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     SlimeCityAccount: Prisma.$SlimeCityAccountPayload<ExtArgs> | null
     ZuzuGamebookSave: Prisma.$ZuzuGamebookSavePayload<ExtArgs> | null
     SpaceCouchAlienGuide: Prisma.$SpaceCouchAlienGuidePayload<ExtArgs> | null
+    SpaceCouchVoyageSave: Prisma.$SpaceCouchVoyageSavePayload<ExtArgs> | null
     SlimeCityMatches: Prisma.$SlimeCityMatchPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -34371,6 +35153,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   SlimeCityAccount<T extends Prisma.User$SlimeCityAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SlimeCityAccountArgs<ExtArgs>>): Prisma.Prisma__SlimeCityAccountClient<runtime.Types.Result.GetResult<Prisma.$SlimeCityAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ZuzuGamebookSave<T extends Prisma.User$ZuzuGamebookSaveArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ZuzuGamebookSaveArgs<ExtArgs>>): Prisma.Prisma__ZuzuGamebookSaveClient<runtime.Types.Result.GetResult<Prisma.$ZuzuGamebookSavePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   SpaceCouchAlienGuide<T extends Prisma.User$SpaceCouchAlienGuideArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SpaceCouchAlienGuideArgs<ExtArgs>>): Prisma.Prisma__SpaceCouchAlienGuideClient<runtime.Types.Result.GetResult<Prisma.$SpaceCouchAlienGuidePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  SpaceCouchVoyageSave<T extends Prisma.User$SpaceCouchVoyageSaveArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SpaceCouchVoyageSaveArgs<ExtArgs>>): Prisma.Prisma__SpaceCouchVoyageSaveClient<runtime.Types.Result.GetResult<Prisma.$SpaceCouchVoyageSavePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   SlimeCityMatches<T extends Prisma.User$SlimeCityMatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SlimeCityMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SlimeCityMatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -36113,6 +36896,25 @@ export type User$SpaceCouchAlienGuideArgs<ExtArgs extends runtime.Types.Extensio
    */
   include?: Prisma.SpaceCouchAlienGuideInclude<ExtArgs> | null
   where?: Prisma.SpaceCouchAlienGuideWhereInput
+}
+
+/**
+ * User.SpaceCouchVoyageSave
+ */
+export type User$SpaceCouchVoyageSaveArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SpaceCouchVoyageSave
+   */
+  select?: Prisma.SpaceCouchVoyageSaveSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SpaceCouchVoyageSave
+   */
+  omit?: Prisma.SpaceCouchVoyageSaveOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SpaceCouchVoyageSaveInclude<ExtArgs> | null
+  where?: Prisma.SpaceCouchVoyageSaveWhereInput
 }
 
 /**

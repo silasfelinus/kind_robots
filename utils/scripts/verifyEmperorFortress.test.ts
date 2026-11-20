@@ -2867,12 +2867,15 @@ for (const [choice, marker, flag] of [
   assert.ok(picked.run.flags.includes(flag), choice)
   assert.ok(validateRun(picked.run), `Day 30 ${choice} is saveable`)
 }
+const dayThirtyAudience = DAYS.find((d) => d.day === 30)!.audiences.find(
+  (a) => a.id === 'd30-terms',
+)!
 for (const [choice, marker] of [
   ['freeholds', /road and burrows outside/],
   ['saltroad', /medicine caravans/],
   ['moles', /Old Houses’ support/],
 ] as const) {
-  const option = act3('d30-terms').options.find((o) => o.id === choice)!
+  const option = dayThirtyAudience.options.find((o) => o.id === choice)!
   assert.match(option.label, marker)
 }
 // Giving the Coldbrook children away on Day 8 comes back on Day 24.

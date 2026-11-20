@@ -22,6 +22,7 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import { rainbowPartyTrack } from './rainbowPartyComms'
 import {
   recutTimeline,
   reinforcements,
@@ -33,7 +34,11 @@ export type ReefEnemy =
 export type ReefStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
 export type ReefSceneId =
   'A06.OPEN' | 'A06.REVEAL' | 'A06.FORK' | 'A06.TURN' | 'A06.AFTER'
-export type ReefDialogue = { speaker: string; text: string }
+export type ReefDialogue = {
+  speaker: string
+  text: string
+  partyAuthored?: true
+}
 export type ReefWave = RainbowWave<ReefEnemy>
 export type ReefSpawn = RainbowSpawn<ReefEnemy>
 /** S06's route: high to break the Crown's damage relay, or low to the shield cache. */
@@ -376,7 +381,9 @@ export function reefDialogue(
   route: ReefRoute | null = null,
   stoppedRelay = false,
   allegiance: RainbowAllegiance | null = null,
+  partyMask: number | null = null,
 ): ReefDialogue | null {
+  const party = partyMask === null ? null : rainbowPartyTrack(partyMask)
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
   const wing = crew[crew.length - 1]!
@@ -402,7 +409,9 @@ export function reefDialogue(
         speaker: 'Lilt-7',
         text: 'I helped write the first rescue rule. The Crown kept the word protect and erased the word ask.',
       },
-      { speaker: wing, text: REPLIES[wing] },
+      party
+        ? { speaker: party.speaker, text: party.reveal, partyAuthored: true }
+        : { speaker: wing, text: REPLIES[wing] },
       {
         speaker: 'Lilt-7',
         text: 'I will not make that choice for you again.',

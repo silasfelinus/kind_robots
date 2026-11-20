@@ -53,6 +53,7 @@ import {
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
+import { rainbowPartyMask } from './rainbowPartyComms'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
 import {
@@ -1196,6 +1197,10 @@ export function createRainbowPrincessPreview(
   /** P1's pilot (the select screen): the seats fly the pilots in order from it. */
   let pick = 0
   const pilotOf = (seat: number) => (seat + pick) % RAINBOW_PILOTS.length
+  const partyMask = () =>
+    rainbowPartyMask(
+      Array.from({ length: activePlayers }, (_, seat) => pilotOf(seat)),
+    )
   /** The pilot and difficulty select a seated game opens with when the cabinet asks for it. */
   const newSelect = () => ({
     row: 0 as 0 | 1,
@@ -2300,6 +2305,7 @@ export function createRainbowPrincessPreview(
   function crewLine<Line extends { speaker: string; text: string }>(
     line: Line,
   ): Line {
+    if ('partyAuthored' in line && line.partyAuthored) return line
     if (!pick) return line
     const names = RAINBOW_PILOTS.map((pilot) => pilot.name.split(' ')[0]!)
     const pattern = new RegExp(`\\b(${names.join('|')})\\b`, 'g')
@@ -7465,6 +7471,7 @@ export function createRainbowPrincessPreview(
               finaleFlags(),
               finalChoice,
               allegiance,
+              partyMask(),
             )
           : act === 8
             ? palaceDialogue(
@@ -7490,6 +7497,7 @@ export function createRainbowPrincessPreview(
                     reefRoute,
                     reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS,
                     allegiance,
+                    partyMask(),
                   )
                 : act === 5
                   ? wreckDialogue(

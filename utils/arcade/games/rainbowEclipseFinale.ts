@@ -18,10 +18,15 @@ import {
   RAINBOW_ALLEGIANCE_LABEL,
   type RainbowAllegiance,
 } from './rainbowAllegiance'
+import { rainbowPartyTrack } from './rainbowPartyComms'
 
 export type FinaleChoice = 'restore' | 'evacuate' | 'sever'
 export type FinaleSceneId = 'A09.OPEN' | 'A09.TURN' | 'A09.ESCAPE' | 'A09.AFTER'
-export type FinaleDialogue = { speaker: string; text: string }
+export type FinaleDialogue = {
+  speaker: string
+  text: string
+  partyAuthored?: true
+}
 /** The six persistent rescue flags (world bible) and Act VIII's armada count, carried into the ending. */
 export type FinaleFlags = {
   rescuedNemi: boolean
@@ -295,7 +300,9 @@ export function finaleDialogue(
   flags: FinaleFlags = NONE,
   choice: FinaleChoice | null = null,
   allegiance: RainbowAllegiance | null = null,
+  partyMask: number | null = null,
 ): FinaleDialogue | null {
+  const party = partyMask === null ? null : rainbowPartyTrack(partyMask)
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
   const wing = crew[crew.length - 1]!
@@ -356,9 +363,15 @@ export function finaleDialogue(
       { speaker: 'Lilt-7', text: FINALE_ENDINGS[road][ending].world },
       { speaker: lead, text: rescueVerdict(rescues, flags.captivesFreed) },
       { speaker: 'Lilt-7', text: LILT_RESOLUTION[road] },
-      road === 'unsworn'
-        ? EPILOGUE[crew.length]!
-        : ROAD_EPILOGUE[road][crew.length]!,
+      party
+        ? {
+            speaker: party.speaker,
+            text: party.epilogue,
+            partyAuthored: true,
+          }
+        : road === 'unsworn'
+          ? EPILOGUE[crew.length]!
+          : ROAD_EPILOGUE[road][crew.length]!,
       { speaker: lead, text: sendOff(road, ending) },
     ],
   }

@@ -237,6 +237,9 @@
         aria-labelledby="princess-seas-tab"
         class="@container flex min-h-0 flex-1 flex-col"
       >
+        <p class="shrink-0 px-1 pb-1 text-xs font-semibold text-base-content/80" aria-live="polite">
+          Flight log · {{ exploredCount }}/8 seas explored · {{ medalsCount }} medals · {{ endingCount }}/3 endings
+        </p>
         <ol
           class="grid min-h-0 flex-1 grid-cols-2 grid-rows-4 gap-2 @3xl:grid-cols-4 @3xl:grid-rows-2"
         >
@@ -252,7 +255,14 @@
               height="366"
               loading="lazy"
               class="min-h-0 w-full flex-1 object-cover"
+              :class="{ 'grayscale opacity-50': !seaProgress[index]?.explored }"
             />
+            <div
+              class="absolute right-2 top-2 rounded-full bg-[#1a0d33]/90 px-2 py-1 text-xs font-black"
+              :aria-label="seaProgress[index]?.label"
+            >
+              {{ seaProgress[index]?.label }}
+            </div>
             <div class="flex shrink-0 items-center gap-2 px-3 py-2">
               <span
                 class="rounded-full bg-pink-200 px-2 py-0.5 font-mono text-xs font-bold text-[#37204e]"
@@ -276,6 +286,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useArcadeStore } from '~/stores/arcadeStore'
+import {
+  rainbowSeaLogbook,
+  readRainbowSave,
+} from '~/utils/arcade/games/rainbowLoadouts'
+import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
 import {
   RAINBOW_HERO_ART,
   RAINBOW_KITTY_POWER,
@@ -293,6 +309,28 @@ import {
   type RainbowLook,
 } from '~/utils/arcade/games/rainbowGameArt'
 import { RAINBOW_OPENING } from '~/utils/arcade/games/rainbowOpening'
+
+const arcadeStore = useArcadeStore()
+const rainbowSlug = 'rainbow-bullet-hell-space-princess'
+const flightSave = computed(() =>
+  readRainbowSave(arcadeStore.saveFor(rainbowSlug), isRainbowCheckpoint),
+)
+const mastery = computed(() => arcadeStore.masteryFor(rainbowSlug))
+const seaProgress = computed(() =>
+  rainbowSeaLogbook(flightSave.value, mastery.value),
+)
+const exploredCount = computed(
+  () => seaProgress.value.filter((sea) => sea.explored).length,
+)
+const medalsCount = computed(
+  () => seaProgress.value.filter((sea) => sea.medal).length,
+)
+const endingCount = computed(
+  () =>
+    ['restore', 'evacuate', 'sever'].filter((ending) =>
+      mastery.value.includes(`ending-${ending}`),
+    ).length,
+)
 
 const views = [
   { key: 'flight', label: 'Fly', icon: 'kind-icon:rocket' },

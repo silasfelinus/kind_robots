@@ -135,7 +135,9 @@ function validChapterSave(
   if (!result.ok) return false
   if (
     save.leadSignature !== journal.lead ||
-    save.perspective !== journal.perspective
+    save.perspective !== journal.perspective ||
+    (save.foilSignature !== undefined &&
+      save.foilSignature !== journal.foil)
   )
     return false
   if (index === 0)
@@ -251,6 +253,7 @@ export function advanceCrossfire(
     slot: 'auto',
     perspective: verified.perspective,
     leadSignature: verified.lead,
+    foilSignature: verified.foil,
     stage,
     state: nextState,
     story,

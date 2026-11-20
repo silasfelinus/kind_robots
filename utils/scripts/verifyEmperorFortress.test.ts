@@ -9505,3 +9505,26 @@ assert.deepEqual(crownOathAftermath.effects.local, {
   'old-houses': 3,
   yard: -2,
 })
+
+const actOneVoiceChecks = [
+  ['d05-toll-grudge', 'ask-feast', /Your guards searched the ovens instead/],
+  ['d06-market-charter', 'ask-stalls', /four of us on blankets/],
+  ['d07-old-houses', 'refuse', /carry the granary key away/],
+  ['d08-coldbrooks', 'recorded', /who keeps the book/],
+  ['d09-kitchens', 'ask-yard', /which came back without names/],
+  ['d09-kitchens', 'kitchens', /scrape the burned part/],
+  ['d10-thistledown', 'bargain', /sell a village twice/],
+] as const
+for (const [sceneId, optionId, phrase] of actOneVoiceChecks) {
+  const scene = DAYS.flatMap((day) => day.audiences).find(
+    (entry) => entry.id === sceneId,
+  )
+  assert.ok(scene, sceneId + ': Act I audience survives')
+  const option = scene.options.find((entry) => entry.id === optionId)
+  assert.ok(option, sceneId + '/' + optionId + ': choice survives')
+  assert.match(
+    option.response,
+    phrase,
+    sceneId + '/' + optionId + ': consequence remains distinct',
+  )
+}

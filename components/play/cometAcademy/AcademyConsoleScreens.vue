@@ -395,6 +395,37 @@
           </template>
         </article>
       </div>
+      <h3 class="acs-section" data-testid="academy-species-heading">
+        Rival species · {{ speciesCards.length }} of
+        {{ VILLAIN_HENCHMEN.length }} discovered
+      </h3>
+      <p class="acs-dim">
+        The Yearbook reveals a crew only after you confront its captain on
+        patrol. Each crew serves a particular rival, not a second powered
+        identity.
+      </p>
+      <div v-if="speciesCards.length" class="acs-cards small">
+        <article
+          v-for="species in speciesCards"
+          :key="species.key"
+          class="acs-card"
+          data-testid="academy-species-card"
+        >
+          <div class="acs-card-art">
+            <div class="acs-back" :class="backClass">
+              <span>{{ species.name }}</span>
+            </div>
+          </div>
+          <p class="acs-kicker">
+            {{ species.facetType }} · ONE-HIT TROOPS · DAY {{ species.day }}
+          </p>
+          <h3>{{ species.name }}</h3>
+          <p class="acs-dim">{{ species.look }}</p>
+          <p class="acs-quote">{{ species.captain }} · {{ species.outcome }}</p>
+          <p class="acs-dim">Telegraph: {{ species.move }}</p>
+          <p class="acs-dim">Counter: {{ species.counter }}</p>
+        </article>
+      </div>
       <h3 class="acs-section">Mastermind dossiers</h3>
       <div class="acs-cards small">
         <article
@@ -630,6 +661,7 @@ import { ALIGNMENT_LABELS } from '~/utils/cometAcademy/alignmentArcs'
 import {
   CARD_BACKS,
   TEXT_SPEEDS,
+  crewSpeciesCards,
   endingPlates,
   followerRoster,
   heroDossier,
@@ -642,6 +674,7 @@ import {
   type FollowerMood,
 } from '~/utils/cometAcademy/consoleScreens'
 import type { AcademyRun } from '~/utils/cometAcademy/rules'
+import { VILLAIN_HENCHMEN } from '~/utils/cometAcademy/villainHenchmen'
 
 const props = defineProps<{
   screen: ConsoleScreen
@@ -686,6 +719,7 @@ const plates = computed(() =>
 )
 const dossierCards = computed(() => villainDossiers(store.dossiers))
 const notables = computed(() => notableCards(props.run))
+const speciesCards = computed(() => crewSpeciesCards(props.run))
 const summary = computed(() => saveSummary(props.run))
 const cardBack = computed(
   () =>

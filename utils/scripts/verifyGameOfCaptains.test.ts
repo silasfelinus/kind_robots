@@ -925,7 +925,7 @@ assert.equal(
 const rejectedEpilogue = relationshipEpilogue({
   ...galacticEnding,
   romance: (pressure as RomanceVoyage).romance,
-})
+} as RomanceVoyage)
 const fourpleStory = ROMANCE_STORIES.find((story) => story.id === 'fourple')!
 assert.ok(rejectedEpilogue.scene.includes(fourpleStory.refusal))
 assert.ok(

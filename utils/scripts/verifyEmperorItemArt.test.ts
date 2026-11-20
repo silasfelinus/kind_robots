@@ -35,4 +35,11 @@ assert.ok(
   'rejected trousers-and-knife render must not ship',
 )
 
+// 2026-11-20 PT curation of ITEMS-ROUND-4 kept three; five reroll in ROUND-5.
+assert.ok(ITEM_ART.has('field-kit'))
+assert.ok(
+  !ITEM_ART.has('hyena-tooth'),
+  'rejected creature-bust render must not ship',
+)
+
 console.log(`Emperor item art: ${ITEM_ART.size} icons verified`)

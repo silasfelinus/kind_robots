@@ -22,6 +22,9 @@ on:
       - 'utils/scripts/verifyEmperorQuestBriefs.test.ts'
       - 'utils/scripts/verifyEmperorQuestArt.test.ts'
       - 'public/emperor-of-dust/quests/**'
+      - 'utils/scripts/verifyEmperorItemArt.test.ts'
+      - 'public/emperor-of-dust/items/**'
+      - 'utils/emperorOfDust/fortress/items.ts'
       - 'utils/scripts/verifyEmperorFortressSecretTalks.test.ts'
       - 'utils/scripts/verifyEmperorOfDustAchievements.test.ts'
       - 'utils/achievements/catalog/main/emperor-of-dust.ts'
@@ -77,6 +80,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortressChanceEvents.test.ts
       - run: npx tsx utils/scripts/verifyEmperorQuestBriefs.test.ts
       - run: npx tsx utils/scripts/verifyEmperorQuestArt.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorItemArt.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts
       - run: npx tsx utils/scripts/verifyEmperorOfDustAchievements.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressAdversarial.test.ts

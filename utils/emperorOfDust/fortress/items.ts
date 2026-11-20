@@ -341,9 +341,17 @@ export const itemDef = (id: string): ItemDef | undefined =>
 
 /**
  * Item ids with a delivered icon at public/emperor-of-dust/items/<id>.webp.
- * Empty until market art lands; the market shows its medallion placeholder.
+ * Items not listed keep the medallion placeholder glyph below. Keepers come from
+ * Conductor's emperor-of-dust ITEMS-ROUND-* ledgers (t-033).
  */
-export const ITEM_ART: ReadonlySet<string> = new Set<string>()
+export const ITEM_ART: ReadonlySet<string> = new Set<string>([
+  'abbey-candle',
+  'brass-bell-charm',
+  'carbide-lamp',
+  'night-draught',
+  'road-lantern',
+  'surveyors-glass',
+])
 
 /**
  * Placeholder glyphs (single-colour kind-icons, tinted by seller) shown in the

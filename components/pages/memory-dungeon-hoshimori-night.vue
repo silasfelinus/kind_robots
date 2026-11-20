@@ -123,6 +123,14 @@
           <p class="text-xs font-bold uppercase tracking-widest text-error">
             Vesper's account · {{ night.progress.current }}
           </p>
+          <img
+            v-if="night.sceneArt && !failedArt.has(night.sceneArt)"
+            :src="night.sceneArt"
+            :alt="night.currentSite?.title"
+            class="mt-2 aspect-video w-full rounded-xl object-cover"
+            data-testid="memory-hoshimori-night-scene-art"
+            @error="failedArt.add(night.sceneArt)"
+          />
           <h3 class="mt-1 text-xl font-black">
             {{ night.currentSite?.title }}
           </h3>
@@ -141,7 +149,7 @@
           <memory-dungeon-choice-hand
             v-else-if="night.currentSite"
             class="mt-3"
-            :choices="night.currentSite.choices"
+            :choices="night.hand"
             :deal-key="night.currentSite.key"
             icon="🌙"
             palette="theme"
@@ -261,11 +269,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useMemoryHoshimoriNightStore } from '~/stores/memoryHoshimoriNightStore'
 import { HOSHIMORI_NIGHT_SITES } from '~/utils/memoryDungeon/hoshimoriNight'
 
 const emit = defineEmits<{ leave: []; furnace: [] }>()
+const failedArt = reactive(new Set<string>())
 const night = useMemoryHoshimoriNightStore()
 const tiles = Array.from(
   { length: 64 },

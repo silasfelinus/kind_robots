@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { worldEvent } from '~/utils/memoryDungeon/overworldEventCatalog'
 import {
   HOSHIMORI_NIGHT_SITES,
   advanceHoshimoriNight,
@@ -26,6 +27,18 @@ export const useMemoryHoshimoriNightStore = defineStore(
     const notice = ref('')
     const currentSite = computed(() =>
       HOSHIMORI_NIGHT_SITES.find((site) => site.key === progress.value.current),
+    )
+    const currentEvent = computed(() =>
+      worldEvent('e08', progress.value.current),
+    )
+    const sceneArt = computed(() => currentEvent.value?.sceneArt.path ?? null)
+    const hand = computed(() =>
+      (currentSite.value?.choices ?? []).map((choice) => ({
+        ...choice,
+        image:
+          currentEvent.value?.choices.find((each) => each.id === choice.id)?.art
+            .path ?? null,
+      })),
     )
     const clues = computed(() => hoshimoriNightClues(progress.value))
     const expectedOrder = computed(() =>
@@ -113,6 +126,8 @@ export const useMemoryHoshimoriNightStore = defineStore(
       progress,
       notice,
       currentSite,
+      sceneArt,
+      hand,
       clues,
       expectedOrder,
       council,

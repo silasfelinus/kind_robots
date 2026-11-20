@@ -63,6 +63,15 @@ jobs:
       - name: Memory Dungeon all-overworld reveal and choice ledger contract
         run: npx tsx utils/scripts/verifyMemoryOverworldEvents.test.ts
 
+      - name: Memory Dungeon e11/e12 finale crossings, Last Door and 32 endings contract
+        run: npx tsx utils/scripts/verifyMemoryFinaleCollision.test.ts
+
+      - name: Memory Dungeon e09-e12 dungeons, entries, guardians, endings and restore
+        run: npx tsx utils/scripts/verifyMemoryLateDungeons.test.ts
+
+      - name: Memory Dungeon art requests, contract-safe prompts and art wiring
+        run: npx tsx utils/scripts/verifyMemoryArtRequests.test.ts
+
       - name: Memory Dungeon encounter inspector navigation and saved choice contract
         run: npx tsx utils/scripts/verifyMemoryEncounterInspector.test.ts
 

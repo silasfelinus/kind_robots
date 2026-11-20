@@ -60,4 +60,15 @@ assert.equal(
   '/emperor-of-dust/quests/q-d07-galleries.webp',
 )
 
+// 2026-11-20 PT (t-033): the q-d42 cave-forage -v3 notice and success shipped;
+// the failure was rejected (a warm fire and full baskets), so it falls back to the notice.
+assert.equal(
+  questArtUrl('q-d42-cave-forage', 'success'),
+  '/emperor-of-dust/quests/q-d42-cave-forage-success.webp',
+)
+assert.equal(
+  questArtUrl('q-d42-cave-forage', 'failure'),
+  '/emperor-of-dust/quests/q-d42-cave-forage.webp',
+)
+
 console.log(`emperor quest art: ${QUEST_ART.length} entries verified`)

@@ -1,0 +1,43 @@
+import type { WellOfRecordsRoomId } from './types'
+
+/** Same 6x6 passage shape as Sublevel B; backtracking is always allowed. */
+export const WELL_OF_RECORDS_GRAPH: Readonly<
+  Record<WellOfRecordsRoomId, readonly WellOfRecordsRoomId[]>
+> = {
+  'WR-01': ['WR-02', 'WR-07'],
+  'WR-02': ['WR-03', 'WR-08'],
+  'WR-03': ['WR-04', 'WR-09'],
+  'WR-04': ['WR-05', 'WR-10'],
+  'WR-05': ['WR-06', 'WR-11'],
+  'WR-06': ['WR-12'],
+  'WR-07': ['WR-08', 'WR-13'],
+  'WR-08': ['WR-09', 'WR-14'],
+  'WR-09': ['WR-10'],
+  'WR-10': ['WR-11', 'WR-16'],
+  'WR-11': ['WR-12', 'WR-17'],
+  'WR-12': ['WR-18'],
+  'WR-13': ['WR-14', 'WR-19'],
+  'WR-14': ['WR-15', 'WR-20'],
+  'WR-15': ['WR-16', 'WR-21'],
+  'WR-16': ['WR-17', 'WR-22'],
+  'WR-17': ['WR-18', 'WR-23'],
+  'WR-18': ['WR-24'],
+  'WR-19': ['WR-20', 'WR-25'],
+  'WR-20': ['WR-21', 'WR-26'],
+  'WR-21': ['WR-22', 'WR-27'],
+  'WR-22': ['WR-23', 'WR-28'],
+  'WR-23': ['WR-24', 'WR-29'],
+  'WR-24': ['WR-30'],
+  'WR-25': ['WR-26', 'WR-31'],
+  'WR-26': ['WR-27'],
+  'WR-27': ['WR-28'],
+  'WR-28': ['WR-29'],
+  'WR-29': ['WR-30'],
+  'WR-30': [],
+  'WR-31': ['WR-32'],
+  'WR-32': ['WR-33'],
+  'WR-33': ['WR-34'],
+  'WR-34': ['WR-35'],
+  'WR-35': ['WR-36'],
+  'WR-36': [],
+}

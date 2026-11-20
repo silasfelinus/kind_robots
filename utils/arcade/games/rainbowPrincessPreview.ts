@@ -69,6 +69,7 @@ import {
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES, laneY } from './rainbowFormations'
+import { NURSERY, NURSERY_WAVE_SIZES } from './rainbowLanternNursery'
 import {
   TRENCH,
   TRENCH_ALL_WAVES,
@@ -476,7 +477,7 @@ function checkpointName(c: Readonly<RainbowCheckpoint>): string {
       ? checkpointLabel(MOONJELLY_SECTIONS, MOONJELLY.bossStarts, c.frame)
       : c.act === 3
         ? checkpointLabel(
-            trenchSections(c.trenchRoute),
+            trenchSections(c.trenchRoute, c.rescuedNemi),
             TRENCH.bossStarts,
             c.frame,
           )
@@ -1292,7 +1293,7 @@ export function createRainbowPrincessPreview(
       act === 2
         ? MOONJELLY_SECTIONS
         : act === 3
-          ? trenchSections(trenchRoute)
+          ? trenchSections(trenchRoute, rescuedNemi)
           : act === 4
             ? ROSEFIN_SECTIONS
             : act === 5
@@ -1878,7 +1879,12 @@ export function createRainbowPrincessPreview(
     popups.push({
       x: W / 2,
       y: 92,
-      text: trenchRoute === 'vault' ? 'SALVAGE VAULT' : 'SAFE PASSAGE',
+      text:
+        trenchRoute === 'vault'
+          ? 'SALVAGE VAULT'
+          : rescuedNemi
+            ? 'NEMI SIGNAL · LANTERN NURSERY'
+            : 'SAFE PASSAGE',
       age: 0,
     })
   }
@@ -2168,21 +2174,23 @@ export function createRainbowPrincessPreview(
     const left = (waveLeft.get(reef.wave) ?? 1) - 1
     waveLeft.set(reef.wave, left)
     const size =
-      (reef.wave >= WRECK.waveBase
-        ? reef.wave >= PALACE.waveBase
-          ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
-          : reef.wave >= GLASS.waveBase
-            ? GLASS_WAVE_SIZES[reef.wave - GLASS.waveBase]
-            : reef.wave >= CROWN_REEF.waveBase
-              ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
-              : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
-        : reef.wave >= ROSEFIN.waveBase
-          ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
-          : reef.wave >= TRENCH.waveBase
-            ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
-            : reef.wave >= MOONJELLY.waveBase
-              ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
-              : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
+      (reef.wave >= NURSERY.waveBase
+        ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
+        : reef.wave >= WRECK.waveBase
+          ? reef.wave >= PALACE.waveBase
+            ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
+            : reef.wave >= GLASS.waveBase
+              ? GLASS_WAVE_SIZES[reef.wave - GLASS.waveBase]
+              : reef.wave >= CROWN_REEF.waveBase
+                ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
+                : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
+          : reef.wave >= ROSEFIN.waveBase
+            ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
+            : reef.wave >= TRENCH.waveBase
+              ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
+              : reef.wave >= MOONJELLY.waveBase
+                ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
+                : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
     if (
       left > 0 ||
       size < RAINBOW_LANES.schoolSize ||
@@ -3749,7 +3757,7 @@ export function createRainbowPrincessPreview(
         summonGuardian(3, frame, TRENCH_GUARDIAN)
       }
       if (stage === 'waves') {
-        for (const entry of trenchSpawns(frame, trenchRoute)) {
+        for (const entry of trenchSpawns(frame, trenchRoute, rescuedNemi)) {
           spawn(entry.kind, entry.y, entry.wave)
         }
       } else if (stage === 'turn' && frame === TRENCH.turnStarts) {

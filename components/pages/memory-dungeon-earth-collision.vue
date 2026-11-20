@@ -15,6 +15,17 @@
         <span class="md-bar-chip">{{ collision.fragments }}/2 memories</span>
         <div class="md-bar-end">
           <button
+            v-if="
+              collision.position === '6,2' && collision.progress.choices['6,2']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-accent"
+            data-testid="memory-enter-specimen-stacks"
+            @click="emit('dungeon')"
+          >
+            Enter the specimen stacks
+          </button>
+          <button
             type="button"
             class="btn btn-sm btn-outline"
             @click="emit('leave')"
@@ -121,10 +132,11 @@
           data-testid="memory-earth-crossroad-stage"
         >
           <img
-            v-if="collision.crossroadScene.art.status === 'delivered'"
+            v-if="!failedArt.has(collision.crossroadScene.art.path)"
             :src="collision.crossroadScene.art.path"
             :alt="collision.crossroadScene.title"
             class="absolute inset-0 h-full w-full object-cover"
+            @error="failedArt.add(collision.crossroadScene.art.path)"
           />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
@@ -140,7 +152,7 @@
             </p>
           </div>
           <span
-            v-if="collision.crossroadScene.art.status !== 'delivered'"
+            v-if="failedArt.has(collision.crossroadScene.art.path)"
             class="absolute right-2 top-2 rounded bg-[#141d25]/85 px-2 py-1 text-[10px]"
           >
             Finale illustration pending
@@ -151,10 +163,11 @@
           class="relative flex min-h-[6rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#b8a47e]/30 bg-[linear-gradient(130deg,#36545d,#6c584c,#263a47)] p-3"
         >
           <img
-            v-if="collision.current.sceneArt.status === 'delivered'"
+            v-if="!failedArt.has(collision.current.sceneArt.path)"
             :src="collision.current.sceneArt.path"
             :alt="collision.current.title"
             class="absolute inset-0 h-full w-full object-cover"
+            @error="failedArt.add(collision.current.sceneArt.path)"
           />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
@@ -165,9 +178,6 @@
             <h3 class="mt-1 text-lg font-black sm:text-2xl">
               {{ collision.current.title }}
             </h3>
-            <p class="mt-2 text-xs leading-relaxed sm:text-sm">
-              {{ collision.current.opening }}
-            </p>
             <p
               v-if="collision.history"
               class="mt-2 text-xs leading-relaxed text-[#f2d4a5]"
@@ -184,7 +194,7 @@
             </p>
           </div>
           <span
-            v-if="collision.current.sceneArt.status !== 'delivered'"
+            v-if="failedArt.has(collision.current.sceneArt.path)"
             class="absolute right-2 top-2 rounded bg-[#141d25]/85 px-2 py-1 text-[10px]"
           >
             Scene illustration pending
@@ -193,6 +203,17 @@
         <div
           class="kr-scroll min-h-0 flex-[0_1_auto] overflow-y-auto p-3 empty:hidden"
         >
+          <p
+            v-if="
+              collision.current &&
+              !collision.readyForCrossroad &&
+              !collision.completed
+            "
+            class="mb-3 text-sm leading-relaxed"
+            data-testid="memory-earth-collision-opening"
+          >
+            {{ collision.current.opening }}
+          </p>
           <p
             v-if="collision.notice"
             class="mb-2 text-xs text-[#f6d49a]"
@@ -213,13 +234,6 @@
             </p>
             <p class="mt-2 text-xs text-[#bde3cb]">
               The city remembers. Char's crossing is next.
-            </p>
-            <p
-              class="mt-2 text-xs font-semibold text-[#f6d49a]"
-              data-testid="memory-playtest-build-end"
-            >
-              You've reached the end of this playtest build. Char's and Vesper's
-              crossings are still being written. Thank you for playing this far.
             </p>
           </div>
           <p
@@ -283,10 +297,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useMemoryEarthCollisionStore } from '~/stores/memoryEarthCollisionStore'
 
-const emit = defineEmits<{ leave: [] }>()
+const emit = defineEmits<{ leave: []; dungeon: [] }>()
+const failedArt = reactive(new Set<string>())
 const collision = useMemoryEarthCollisionStore()
 
 onMounted(() => collision.hydrate())

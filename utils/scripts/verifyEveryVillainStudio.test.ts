@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 14)
+assert.equal(STAGE_PRESETS.length, 15)
 for (const preset of STAGE_PRESETS) {
   assert.deepEqual(
     stageProblems(preset),

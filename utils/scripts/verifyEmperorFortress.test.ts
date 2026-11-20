@@ -9350,3 +9350,51 @@ console.log('Emperor of Dust fortress contract: ok')
   )
   assert.deepEqual(thin, [], 'Days 4-10 quest results under 100 characters')
 }
+
+const actOneAftermaths = [
+  ['d04-painted-feast', 'attend-armed'],
+  ['d05-toll', 'hire'],
+  ['d05-toll', 'hold'],
+  ['d05-toll-grudge', 'pay'],
+  ['d05-toll-grudge', 'hold'],
+  ['d05-flour', 'ration'],
+  ['d07-old-houses', 'seat'],
+  ['d07-old-houses', 'seat-for-all'],
+  ['d08-ledger-loan', 'decline'],
+  ['d09-convoy', 'our-own'],
+  ['d09-convoy', 'not-ours'],
+  ['d09-kitchens', 'welcome'],
+  ['d09-kitchens', 'kitchens'],
+  ['d10-oath', 'crown'],
+  ['d10-oath', 'bonus'],
+] as const
+for (const [sceneId, optionId] of actOneAftermaths) {
+  const scene = DAYS.flatMap((day) => day.audiences).find(
+    (entry) => entry.id === sceneId,
+  )
+  assert.ok(scene, sceneId + ': Act I scene must remain authored')
+  const option = scene.options.find((entry) => entry.id === optionId)
+  assert.ok(option, sceneId + '/' + optionId + ': terminal choice survives')
+  assert.equal(option.next, undefined)
+  assert.ok(
+    option.response.length >= 110,
+    sceneId + '/' + optionId + ': decision needs a concrete aftermath',
+  )
+}
+const rationAftermath = DAYS.find((day) => day.day === 5)!
+  .audiences.find((scene) => scene.id === 'd05-flour')!
+  .options.find((option) => option.id === 'ration')!
+assert.deepEqual(rationAftermath.effects.local, {
+  yard: -3,
+  'old-houses': 1,
+})
+assert.deepEqual(rationAftermath.effects.flags, ['d05-bread-rationed'])
+const crownOathAftermath = DAYS.find((day) => day.day === 10)!
+  .audiences.find((scene) => scene.id === 'd10-oath')!
+  .options.find((option) => option.id === 'crown')!
+assert.deepEqual(crownOathAftermath.effects.flags, ['oath-of-crown'])
+assert.deepEqual(crownOathAftermath.effects.local, {
+  'gate-watch': 2,
+  'old-houses': 3,
+  yard: -2,
+})

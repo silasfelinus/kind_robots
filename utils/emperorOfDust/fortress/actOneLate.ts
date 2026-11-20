@@ -615,14 +615,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             requires: { affinity: { jackalwire: 'wary' } },
             effects: {},
             response:
-              'Vane’s ear-chain goes still. “Paid to do nothing to the carts. How restful.”',
+              'Vane’s ear-chain goes still. He names a price for leaving the Saltroad wagons alone and calls the arrangement honest work. Outside, the drivers wait beside their horses, watching who receives the crown’s brass.',
             postsQuests: ['q-d05-saltroad-escort'],
           },
           {
             id: 'hold',
             label: 'Send a party to hold the bridge open.',
             effects: { local: { 'gate-watch': 1 } },
-            response: 'Vane grins with every tooth. “I’ll bring the chair.”',
+            response:
+              'Vane grins with every tooth. “I’ll bring the chair.” He tears the toll receipt in half and leaves the pieces on the dais. The bridge is still closed. Now the Watch must decide how much blood an open road is worth.',
             postsQuests: ['q-d05-toll-standoff'],
           },
         ],
@@ -835,13 +836,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { ledger: -3 },
               clearFlags: ['feast-armed'],
             },
-            response: 'Vane counts it twice. “Settled. For now.”',
+            response:
+              'Vane counts all fifty brass into his hat. “Settled. For now.” He leaves the knife-baked loaf on the dais and carries the money past the kitchen door. The Pack gets its price; the Ledger gets to read the withdrawal.',
           },
           {
             id: 'hold',
             label: 'Send a party to hold the bridge open.',
             effects: { affinity: { jackalwire: -5 } },
-            response: '“Good,” says Vane. “I hoped you’d say that.”',
+            response:
+              '“Good,” says Vane. “I hoped you’d say that.” He leaves the loaf and its buried knife on the throne step. The bridge stays under Pack guard until a real party goes out to take it back.',
             postsQuests: ['q-d05-toll-standoff'],
           },
         ],
@@ -889,7 +892,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'hold',
                 label: 'No apology. No brass. Hold the bridge.',
                 effects: { affinity: { jackalwire: -5 } },
-                response: '“Good. I so rarely get to be the wronged party.”',
+                response:
+                  '“Good. I so rarely get to be the wronged party.” Vane puts the carved loaf on the step. When he leaves, the Watch captain lifts it with two hands, careful not to put his fingers near the hidden knife.',
                 postsQuests: ['q-d05-toll-standoff'],
               },
             ],
@@ -1008,7 +1012,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { yard: -3, 'old-houses': 1 },
               flags: ['d05-bread-rationed'],
             },
-            response: 'The foreman says nothing. That is worse.',
+            response:
+              'Dunmore folds the ration order into four squares and puts it in his apron. He goes back downstairs without another word. That evening the ovens stay hot, but the cooks cut each loaf thin enough to show the light through it.',
           },
           {
             id: 'old-houses',
@@ -1805,7 +1810,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               flags: ['old-houses-council-seat'],
             },
             response:
-              'Lady Vask inclines her head exactly as far as gratitude requires.',
+              'Lady Vask inclines her head exactly as far as gratitude requires. Her steward brings in the council chair before the court empties. Dunmore watches it pass the kitchen stairs. The Yard will have to ask permission to be heard.',
           },
           {
             id: 'seat-for-all',
@@ -1815,7 +1820,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               flags: ['open-council'],
             },
             response:
-              '“How democratic.” She holds the word away from her coat.',
+              '“How democratic.” Vask holds the word away from her coat. Dunmore drags a plain kitchen chair beside the velvet one. Neither councilor looks pleased. The Yard now has a voice, and both sides know who forced the arrangement.',
           },
           {
             id: 'refuse',
@@ -2175,7 +2180,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['abbey-took-coldbrook-children'],
                 },
                 response:
-                  'Wenna does not cry until the gate closes. Nobody ever tells her which sister house.',
+                  'Wenna holds the youngest child until Sister Marrow lifts him away. The Abbey cart turns toward the mission road. Nobody tells Wenna which sister house will take them; she waits at the shut gate long after the wheels disappear.',
               },
             ],
           },
@@ -2421,7 +2426,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label: 'Decline. The crown pays its own way.',
             effects: { local: { ledger: -1, lamplight: 1 } },
             response:
-              'The factor closes her green book with one finger holding her place. “Another time.” She leaves the Watch sergeant standing beside the throne, where everyone can see whose carts he was meant to stop searching.',
+              'Tallow closes the green book without asking for the throne’s seal. “Another time.” The sergeant carries the search order back to the gate; the crown keeps that power, and its empty purse. The factor keeps the names of everyone who heard the refusal.',
           },
         ],
         beats: [
@@ -2472,7 +2477,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label: 'Decline. The crown pays its own way, however slowly.',
                 effects: { local: { ledger: -1, lamplight: 1 } },
                 response:
-                  'She locks the book. “Another time.” She has already written down which.',
+                  'Tallow locks the book. “Another time.” She has already written down which. The sergeant takes his place at the gate with the right to search every cart intact. Dunmore still has to make tomorrow’s flour count.',
               },
             ],
           },
@@ -2572,7 +2577,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label: 'Our own will go. Check the board.',
             effects: { affinity: { saltroad: 3 } },
             response:
-              'Oriel nods. “Then I’ll tell my drivers to sleep a little.”',
+              'Oriel nods and marks the convoy posting with the crown’s seal. “I’ll tell my drivers to sleep a little.” The iron has not moved yet. Someone still has to take the assignment off the board and ride into the canyon.',
           },
           {
             id: 'hire-pack',
@@ -2602,7 +2607,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label: 'The crown cannot spare anyone tonight.',
             effects: { affinity: { saltroad: -3 } },
             response:
-              'Oriel shrugs. “Then pray for my drivers. Somebody should.”',
+              'Oriel takes off her goggles and rubs the bridge of her nose. “Then pray for my drivers. Somebody should.” She leaves the convoy posting on the board in case the crown changes its mind. The drivers are already loading.',
           },
         ],
         beats: [
@@ -2716,7 +2721,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   'Spare no one for a fight the crown would be ashamed to win.',
                 effects: { affinity: { saltroad: -3 } },
                 response:
-                  'The goggles come up. “Then pray for my drivers. And for the hill. Somebody should.”',
+                  'The goggles come up. “Then pray for my drivers. And for the hill. Somebody should.” Oriel folds the map without waiting for an answer. The iron will move at dusk, and the hungry families above the canyon will hear every wheel.',
               },
             ],
           },
@@ -2975,14 +2980,14 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             requires: { cost: 5 },
             effects: { recruit: ['F020'], local: { yard: 1 } },
             response:
-              'Juniper salutes with a wooden spoon and starts on the barracks pantry.',
+              'Juniper salutes with a wooden spoon, then unties the ladle from their belt and hangs it in the barracks. At supper the Yard misses its best cook. The recruits get someone who knows exactly how little food is left.',
           },
           {
             id: 'kitchens',
             label: 'The kitchens need you more than the road does.',
             effects: { local: { yard: 1 }, recruitable: ['F020'] },
             response:
-              'Juniper takes the ladle back downstairs. “Fair. Ask again when the soup’s better.” By supper the Yard knows the crown left its best cook at the ovens. The barracks will have to find its own ears.',
+              'Juniper looks toward the kitchens, where someone is already burning the onions. “Fair. Ask again when the soup’s better.” The barracks will manage without them for now. The Yard keeps the one person who can make a thin ration taste like supper.',
           },
         ],
         beats: [
@@ -3183,7 +3188,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { 'gate-watch': 2, 'old-houses': 3, yard: -2 },
               flags: ['oath-of-crown'],
             },
-            response: 'The Watch swears. Loud and correct. Nobody smiles.',
+            response:
+              'The Watch swears with sixty voices, loud and correct. Lady Vask nods from the gallery; the Yard cooks below stop bandaging a young sentry long enough to listen. They have heard an oath of obedience, not a promise to bring him home.',
           },
           {
             id: 'bonus',
@@ -3194,7 +3200,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F013'],
             },
             response:
-              'The cheer is real. Dunmark watches the purses go down the line and does not cheer.',
+              'The cheer is real. Thirty brass passes down the line in small purses. Dunmark watches the guards count it, then looks toward the wounded sentries still waiting for bandages. “They needed pay,” he says. “They also needed an answer.”',
           },
         ],
         beats: [
@@ -4049,7 +4055,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d10-thistledown-told-to-pay'],
                 },
                 response:
-                  '“Pay them. With what?” Rook stands, brushes off the soot, and walks out without asking leave.',
+                  '“Pay them. With what?” Rook stands and brushes the soot from her coat. The Freehold messenger grips the broken pitchfork tine until her knuckles pale. Nobody has found food or a safer road. The raiders still want their toll.',
               },
             ],
           },

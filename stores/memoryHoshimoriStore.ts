@@ -1,6 +1,11 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { worldEvent } from '~/utils/memoryDungeon/overworldEventCatalog'
+import {
+  dungeonChoiceArtPath,
+  dungeonRoomArtPath,
+} from '~/utils/memoryDungeon/authoredDungeon/art'
 import { earnedVesperRookeryOutcome } from '~/utils/memoryDungeon/firstTwoConsequences'
 import {
   HOSHIMORI_OVEN_ROOMS,
@@ -38,6 +43,21 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
   const currentOvenRoom = computed(() =>
     HOSHIMORI_OVEN_ROOMS.find((room) => room.id === progress.value.ovenRoom),
   )
+  const currentEvent = computed(() => worldEvent('e07', progress.value.current))
+  const sceneArt = computed(() => currentEvent.value?.sceneArt.path ?? null)
+  const ovenRoomArt = computed(() =>
+    currentOvenRoom.value
+      ? dungeonRoomArtPath('OV', currentOvenRoom.value.id)
+      : null,
+  )
+  function choiceArt(choiceId: string): string | null {
+    if (progress.value.ovenRoom && currentOvenRoom.value)
+      return dungeonChoiceArtPath('OV', currentOvenRoom.value.id, choiceId)
+    return (
+      currentEvent.value?.choices.find((choice) => choice.id === choiceId)?.art
+        .path ?? null
+    )
+  }
   const clues = computed(() => hoshimoriLanternClues(progress.value))
   const resolution = computed(() => hoshimoriOvenResolution(progress.value))
   const secondAccount = computed(() =>
@@ -211,6 +231,9 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     notice,
     currentSite,
     currentOvenRoom,
+    sceneArt,
+    ovenRoomArt,
+    choiceArt,
     clues,
     resolution,
     secondAccount,

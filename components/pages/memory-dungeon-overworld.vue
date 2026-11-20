@@ -98,14 +98,24 @@
           >
             Morrow's broken city
           </button>
-          <span
+          <button
             v-if="world.campaign.completed.includes('e10')"
-            class="badge badge-soft badge-accent"
-            data-testid="memory-playtest-build-complete"
-            title="Char's and Vesper's crossings are still being written."
+            type="button"
+            class="btn btn-sm btn-soft btn-info"
+            data-testid="memory-enter-sea-collision"
+            @click="emit('sea-collision')"
           >
-            Playtest build complete
-          </span>
+            Char's sea crossing
+          </button>
+          <button
+            v-if="world.campaign.completed.includes('e11')"
+            type="button"
+            class="btn btn-sm btn-soft btn-warning"
+            data-testid="memory-enter-last-road"
+            @click="emit('last-road')"
+          >
+            Vesper's last road
+          </button>
           <button
             ref="chronicleTrigger"
             type="button"
@@ -1037,6 +1047,8 @@ const emit = defineEmits<{
   'hoshimori-night': []
   collision: []
   'earth-collision': []
+  'sea-collision': []
+  'last-road': []
 }>()
 const world = useMemoryWorldStore()
 const chronicleOpen = ref(false)

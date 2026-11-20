@@ -14,6 +14,7 @@ on:
       - 'utils/scripts/verifyEmperorFortressAdversarial.test.ts'
       - 'utils/scripts/verifyEmperorEditorialAcceptance.test.ts'
       - 'utils/scripts/verifyEmperorGuidedCampaigns.test.ts'
+      - 'utils/scripts/verifyEmperorSecondPassTraces.test.ts'
       - 'utils/scripts/verifyEmperorFortressStore.test.ts'
       - 'tests/emperorScrapbook.test.ts'
       - 'utils/scripts/verifyEmperorFortressOnboardingLayout.test.ts'
@@ -86,6 +87,10 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortressAdversarial.test.ts
       - name: Eighteen real five-act campaigns through earned recent choices
         run: npx tsx utils/scripts/verifyEmperorGuidedCampaigns.test.ts
+      - name: Record sixteen replayable model-simulation transcripts
+        run: npx tsx utils/scripts/verifyEmperorSecondPassTraces.test.ts
+        env:
+          KIND_ROBOTS_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Complete authored narrative screening and independent 50-day campaigns
         run: npx tsx utils/scripts/verifyEmperorEditorialAcceptance.test.ts
       - name: Preserve per-scene, quest and follower score register
@@ -93,6 +98,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: emperor-editorial-screening
-          path: artifacts/emperor/editorial-*
+          path: |
+            artifacts/emperor/editorial-*
+            artifacts/emperor/second-pass-*
           retention-days: 30
           if-no-files-found: warn

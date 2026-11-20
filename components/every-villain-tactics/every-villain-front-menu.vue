@@ -270,6 +270,40 @@
             </button>
           </div>
         </div>
+        <div
+          v-if="pickedLead === 'accident-air'"
+          class="evf-origin-battle"
+          data-testid="front-skyline-origin-battle"
+        >
+          <h3 class="evf-label">
+            YOUR POWER ORIGIN / FERRIS WHEEL WITHOUT AIR
+          </h3>
+          <div class="evf-stages">
+            <button
+              type="button"
+              class="evf-stage"
+              data-testid="front-origin-ferris-wheel"
+              @click="
+                store.startOneShot('ferris-wheel', pickedLead, pickedView)
+              "
+            >
+              <img
+                v-if="art('districts/waterfront-market')"
+                :src="art('districts/waterfront-market')!"
+                alt=""
+                loading="lazy"
+              />
+              <span class="evf-stage-text">
+                <small class="evf-kicker">SKYLINE / ORIGIN BATTLE</small>
+                <strong>Ferris Wheel Without Air</strong>
+                <span>
+                  Anchor Updraft Catch to the wind gauge and evacuate both
+                  gondolas. Your rescue priority changes the ending.
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
           <div class="evf-stages">
@@ -594,7 +628,12 @@ const revealArtwork = computed(
     promArt('identities/' + pickedLead.value + '/student'),
 )
 const confirming = ref<'defaults' | 'erase' | null>(null)
-const oneShots = oneShotStages()
+const oneShots = computed(() =>
+  oneShotStages().filter(
+    (stage) =>
+      stage.id !== 'ferris-wheel' || pickedLead.value === 'accident-air',
+  ),
+)
 
 const art = (key: string) => promArt(key)
 const BACKDROPS: Record<string, string> = {

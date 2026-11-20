@@ -75,6 +75,12 @@ import {
 import { recoverEarthCollisionFromJournal } from '~/utils/memoryDungeon/earthCollisionProgress'
 import { concludeEarthCollisionFromJournal } from '~/utils/memoryDungeon/earthCollisionCrossroad'
 import {
+  concludeFinaleCollisionFromJournal,
+  recoverFinaleCollisionFromJournal,
+  type FinaleDecision,
+  type FinaleWorld,
+} from '~/utils/memoryDungeon/finaleCollision'
+import {
   DARK_BRIAR_WAVES,
   DARK_BRIAR_SCENES,
   DARK_BRIAR_SEALS,
@@ -753,6 +759,40 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       hoshimoriSave,
       briarJournal,
       verdict,
+    )
+    if (!next) return false
+    campaign.value = next
+    persistReality()
+    return true
+  }
+
+  function syncFinaleCollisionJournal(
+    finale: FinaleWorld,
+    journal: readonly EarthJournalAction[],
+  ): boolean {
+    const next = recoverFinaleCollisionFromJournal(
+      campaign.value,
+      finale,
+      journal,
+    )
+    if (!next) return false
+    if (next !== campaign.value) {
+      campaign.value = next
+      persistReality()
+    }
+    return true
+  }
+
+  function finishFinaleCollision(
+    finale: FinaleWorld,
+    journal: readonly EarthJournalAction[],
+    decision: FinaleDecision = {},
+  ): boolean {
+    const next = concludeFinaleCollisionFromJournal(
+      campaign.value,
+      finale,
+      journal,
+      decision,
     )
     if (!next) return false
     campaign.value = next
@@ -2653,6 +2693,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     finishBriarCollision,
     syncEarthCollisionJournal,
     finishEarthCollision,
+    syncFinaleCollisionJournal,
+    finishFinaleCollision,
     syncScyllaEarthPhoto,
     finishScyllaReality,
     syncHoshimoriNightAchievements,

@@ -40,13 +40,32 @@
       @sublevel="((sublevelMode = true), (earthMode = false))"
       @drowned="((drownedMode = true), (earthMode = false))"
     />
+    <memory-dungeon-sublevel
+      v-else-if="lateDungeon"
+      :dungeon="lateDungeon"
+      @leave="lateDungeon = null"
+    />
     <memory-dungeon-briar-collision
       v-else-if="collisionMode"
       @leave="collisionMode = false"
+      @dungeon="lateDungeon = 'briar-vault'"
     />
     <memory-dungeon-earth-collision
       v-else-if="earthCollisionMode"
       @leave="earthCollisionMode = false"
+      @dungeon="lateDungeon = 'specimen-stacks'"
+    />
+    <memory-dungeon-finale-collision
+      v-else-if="seaCollisionMode"
+      world="e11"
+      @leave="seaCollisionMode = false"
+      @dungeon="lateDungeon = 'well-of-records'"
+    />
+    <memory-dungeon-finale-collision
+      v-else-if="lastRoadMode"
+      world="e12"
+      @leave="lastRoadMode = false"
+      @dungeon="lateDungeon = 'brine-tunnel'"
     />
     <memory-dungeon-sublevel
       v-else-if="furnaceMode"
@@ -71,6 +90,8 @@
       @hoshimori-night="hoshimoriNightMode = true"
       @collision="collisionMode = true"
       @earth-collision="earthCollisionMode = true"
+      @sea-collision="seaCollisionMode = true"
+      @last-road="lastRoadMode = true"
     />
     <div v-else class="flex min-h-0 flex-1 flex-col">
       <header-page-bar v-if="gameStarted" console-theme="memory-dungeon">
@@ -517,6 +538,8 @@ import {
 import type { CSSProperties } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 
+import type { GalleryImage } from '@/stores/memoryStore'
+
 const world = useMemoryWorldStore()
 const worldMode = ref(false)
 const earthMode = ref(false)
@@ -530,6 +553,11 @@ const hoshimoriMode = ref(false)
 const hoshimoriNightMode = ref(false)
 const collisionMode = ref(false)
 const earthCollisionMode = ref(false)
+const seaCollisionMode = ref(false)
+const lastRoadMode = ref(false)
+const lateDungeon = ref<
+  'briar-vault' | 'specimen-stacks' | 'well-of-records' | 'brine-tunnel' | null
+>(null)
 const launchError = ref('')
 const classicDeckIncludesMature = ref(false)
 
@@ -564,8 +592,6 @@ function startOverworld(): void {
 }
 
 const artStore = useArtStore()
-
-import type { GalleryImage } from '@/stores/memoryStore'
 
 type DungeonCard = GalleryImage
 type PowerupType = 'lantern' | 'shield' | 'oracle'

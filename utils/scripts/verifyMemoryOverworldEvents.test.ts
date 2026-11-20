@@ -12,6 +12,10 @@ import {
   worldEvents,
 } from '../memoryDungeon/overworldEventCatalog'
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
+import {
+  DELIVERED_EVENT_ART_PATHS,
+  eventArtStatus,
+} from '../memoryDungeon/deliveredEventArt'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
 import { briarCollisionWitnessCallback } from '../memoryDungeon/briarCollisionWitness'
@@ -83,7 +87,7 @@ for (let n = 1; n <= 12; n++) {
       assert.ok(choice.outcome.length > 35)
       assert.notEqual(choice.flag, '')
       assert.ok(choice.art.path.includes(event.key.replace(',', '-')))
-      assert.equal(choice.art.status, 'placeholder')
+      assert.equal(choice.art.status, eventArtStatus(choice.art.path))
     }
   }
   if (!['e01', 'e02', 'e07'].includes(id)) {
@@ -208,7 +212,7 @@ for (const [key, scene] of routeSites) {
   assert.equal(event.opening, scene.opening)
   assert.equal(event.speaker, scene.speaker)
   assert.equal(event.kind, scene.kind)
-  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.equal(event.sceneArt.status, eventArtStatus(event.sceneArt.path))
   assert.equal(event.choices.length, 2)
   assert.equal(event.memoryFragment, undefined)
   assert.deepEqual(
@@ -725,7 +729,7 @@ for (const scene of earthScenes) {
   assert.equal(event.title, scene.title)
   assert.equal(event.opening, scene.opening)
   assert.equal(event.choices.length, 3)
-  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.equal(event.sceneArt.status, eventArtStatus(event.sceneArt.path))
   assert.ok(scene.puzzle.length > 200, 'The evidence puzzle needs fair clues')
   assert.equal(new Set(scene.choices.map((choice) => choice.flag)).size, 3)
   for (const choice of scene.choices) {
@@ -765,7 +769,7 @@ for (const [key, scene] of e10RouteSites) {
   assert.equal(event.choices.length, 2)
   assert.ok(scene.opening.length > 200, key + ' needs a developed opening')
   assert.ok(scene.artSubject.length > 70, key + ' needs visual direction')
-  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.equal(event.sceneArt.status, eventArtStatus(event.sceneArt.path))
   assert.ok(event.sceneArt.prompt.includes(scene.artSubject))
   for (const choice of event.choices) {
     assert.ok(choice.outcome.length > 180, key + ' needs a real aftermath')
@@ -778,7 +782,7 @@ for (const [key, scene] of e10RouteSites) {
     e10RouteFlags.add(choice.flag)
     e10RouteOutcomes.add(choice.outcome)
     assert.ok(choice.art.prompt.includes(choice.label))
-    assert.equal(choice.art.status, 'placeholder')
+    assert.equal(choice.art.status, eventArtStatus(choice.art.path))
     const [x, y] = key.split(',').map(Number) as [number, number]
     const journal: EarthJournalAction[] = []
     for (let step = 2; step <= x; step++)
@@ -1291,13 +1295,15 @@ assert.ok(e10Store.includes("position.value === '8,8'"))
 assert.ok(e10Console.includes('data-testid="memory-earth-crossroad-choices"'))
 assert.ok(e10Console.includes('collision.conclude(choice.id)'))
 assert.ok(campaignStore.includes('concludeEarthCollisionFromJournal('))
-// Playtest handoff (2026-11-20 PT): e11/e12 are not built, so the e10 verdict and
-// the overworld bar must tell testers they reached the end of this build.
-assert.ok(e10Console.includes('data-testid="memory-playtest-build-end"'))
-assert.ok(
-  overworldPage.includes('data-testid="memory-playtest-build-complete"'),
-)
+// e11/e12 (2026-11-20 PT): Char's sea crossing opens after e10 and Vesper's last
+// road after e11; both render through the shared finale console.
+assert.ok(!e10Console.includes('memory-playtest-build-end'))
+assert.ok(overworldPage.includes('data-testid="memory-enter-sea-collision"'))
 assert.ok(overworldPage.includes("world.campaign.completed.includes('e10')"))
+assert.ok(overworldPage.includes('data-testid="memory-enter-last-road"'))
+assert.ok(overworldPage.includes("world.campaign.completed.includes('e11')"))
+assert.ok(memoryPage.includes('v-else-if="seaCollisionMode"'))
+assert.ok(memoryPage.includes('v-else-if="lastRoadMode"'))
 
 for (const pilot of HOSHIMORI_NIGHT_SITES) {
   const adopted = worldEvent('e08', pilot.key)!
@@ -1312,3 +1318,77 @@ for (const site of worldEvents('e08')) {
 console.log(
   'Memory overworld reveal catalog: 768 cells, 12 graphs, fixed photos and no duplicate rewards passed',
 )
+
+// t-074 (2026-11-20 PT): delivered event art is displayed, not hidden behind a
+// hard-coded 'placeholder'. The committed manifest lists only catalog paths,
+// sorted and unique, and the catalog marks exactly those paths delivered.
+{
+  const catalogPaths = new Set<string>()
+  for (const event of OVERWORLD_EVENT_CATALOG) {
+    for (const image of [
+      event.sceneArt,
+      event.portrait,
+      ...event.choices.map((c) => c.art),
+    ]) {
+      catalogPaths.add(image.path)
+      assert.equal(
+        image.status,
+        DELIVERED_EVENT_ART_PATHS.includes(image.path)
+          ? 'delivered'
+          : 'placeholder',
+        image.path,
+      )
+    }
+  }
+  catalogPaths.add('/images/memory-dungeon/e10/evacuation-forecast.webp')
+  for (let i = 1; i <= 2; i++)
+    catalogPaths.add(
+      '/images/memory-dungeon/e10/evacuation-forecast-choice-' + i + '.webp',
+    )
+  const listed = [...DELIVERED_EVENT_ART_PATHS]
+  assert.deepEqual(
+    listed,
+    [...new Set(listed)].sort(),
+    'manifest sorted/unique',
+  )
+  for (const artPath of listed)
+    assert.ok(
+      catalogPaths.has(artPath),
+      'manifest path not in catalog: ' + artPath,
+    )
+  assert.ok(listed.length > 0, 'delivered manifest is empty')
+  assert.equal(validateOverworldEventCatalog().length, 0)
+}
+
+// 2026-11-20 PT: every playable overworld is authored. No world may fall back
+// to recipe boilerplate (template choice outcomes; for the
+// late worlds also "District / Device" titles, which e08 uses deliberately).
+for (const id of [
+  'e01',
+  'e02',
+  'e03',
+  'e04',
+  'e05',
+  'e06',
+  'e07',
+  'e08',
+  'e09',
+  'e10',
+  'e11',
+  'e12',
+]) {
+  const recipe = worldEvents(id).filter(
+    (event) =>
+      (['e09', 'e10', 'e11', 'e12'].includes(id) && / \/ /.test(event.title)) ||
+      event.choices.some((choice) =>
+        /The care and its cost belong to this coordinate|The choice opens information while leaving a real obligation/.test(
+          choice.outcome,
+        ),
+      ),
+  )
+  assert.deepEqual(
+    recipe.map((event) => event.key),
+    [],
+    id + ' still shows recipe boilerplate',
+  )
+}

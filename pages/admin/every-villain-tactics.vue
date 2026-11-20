@@ -1753,6 +1753,8 @@ const waveCrews: Array<{ value: WaveCrew; label: string }> = [
 function fieldGlyph(cell: Cell): string {
   if (store.state.stageId === 'last-order' && cell.x === 4 && cell.y === 2)
     return (store.state.flags ?? []).includes('diner-hood-vented') ? '✓' : '♨'
+  if (store.state.stageId === 'ferris-wheel' && cell.x === 4 && cell.y === 2)
+    return (store.state.flags ?? []).includes('wheel-air-bridge') ? '✓' : '↟'
   const mark = store.fieldAt(cell)
   if (!mark) return ''
   if (mark.floor === 'rubble') return '▓'

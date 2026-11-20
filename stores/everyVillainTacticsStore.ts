@@ -35,6 +35,7 @@ import {
 import { powerBlocker } from '~/utils/everyVillainTactics/powers'
 import {
   advanceCrossfire as advanceCrossfireJournal,
+  crossfireCarryover,
   crossfireChapterTitle,
   evtCrossfireKey,
   newCrossfireJournal,
@@ -478,6 +479,13 @@ export const useEveryVillainTacticsStore = defineStore(
       saveMessage.value = 'Crossfire resumed: ' + crossfireChapterTitle(journal)
       return true
     }
+    const crossfireMemory = computed(() => {
+      const journal = crossfire.value
+      if (!crossfireActive.value || !journal || journal.chapter === 0)
+        return null
+      const last = journal.completed[journal.chapter - 1]
+      return last ? crossfireCarryover(last, journal.chapter - 1).note : null
+    })
     const canAdvanceCrossfire = computed(
       () =>
         crossfireActive.value &&
@@ -1314,6 +1322,7 @@ export const useEveryVillainTacticsStore = defineStore(
       story,
       crossfire,
       crossfireActive,
+      crossfireMemory,
       canAdvanceCrossfire,
       startCrossfire,
       continueCrossfire,

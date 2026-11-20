@@ -61,10 +61,6 @@ assert.equal(
   'https://kindrobots.org/ecotone/scenes/prologue-meadow.webp',
 )
 assert.equal(meta?.twitterCard, 'summary_large_image')
-assert.equal(
-  gameLinkPreviewMeta('ban-meme', 'https://kindrobots.org/')?.ogUrl,
-  'https://kindrobots.org/play/ban-meme',
-)
 assert.equal(gameLinkPreviewMeta('nope', 'https://x.test'), null)
 assert.equal(
   gameLinkPreviewMeta('aquarium', 'https://kindrobots.org')?.ogUrl,

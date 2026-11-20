@@ -1,14 +1,16 @@
 ---
 contentType: tab
-channelKey: arcade
+channelKey: admin
 tabKey: ban-meme
+parentTabKey: retired
 label: Banned!
 title: Account Banned Meme Lab
 subtitle: Edit the crime, keep the life sentence
-summary: Rewrite your permanent account ban.
-description: Turn a Rockstar-style GTA VI ban notice into a ridiculous meme. Type the offense after “due to you”, then save or share the finished picture.
+summary: Archived meme maker for admins.
+description: Retired account-ban meme maker, available to administrators. Edit the offense and export the parody screenshot.
 icon: kind-icon:alert
 route: /play/ban-meme
+requiredRole: ADMIN
 sort: 139
 tutorial:
   title: Account Banned Meme Lab
@@ -18,8 +20,9 @@ tutorial:
     The Rockstar logo, red ACCOUNT BANNED heading, photographed TV, OK button,
     and “This ban is permanent and is not eligible for appeal.” remain intact.
     Save PNG exports the finished picture, and Share opens your device's share
-    sheet where supported. Everything happens in your browser, without an AI
-    generation request or account. This is an unofficial parody, not affiliated
+    sheet where supported. This archived tool is available only to administrators.
+    Everything happens in your browser, without an AI
+    generation request. This is an unofficial parody, not affiliated
     with Rockstar Games.
 ---
 

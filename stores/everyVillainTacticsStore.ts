@@ -429,7 +429,8 @@ export const useEveryVillainTacticsStore = defineStore(
       if (!STAGE_PRESETS.some((stage) => stage.id === presetId)) return false
       if (!roster.some((unit) => unit.signature === lead)) return false
       if (presetId === 'ferris-wheel' && lead !== 'accident-air') {
-        saveMessage.value = 'Ferris Wheel is Skyline’s origin: choose Accident + Air.'
+        saveMessage.value =
+          'Ferris Wheel is Skyline’s origin: choose Accident + Air.'
         return false
       }
       leadSignature.value = lead

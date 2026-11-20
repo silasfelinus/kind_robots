@@ -275,13 +275,17 @@
           class="evf-origin-battle"
           data-testid="front-skyline-origin-battle"
         >
-          <h3 class="evf-label">YOUR POWER ORIGIN / FERRIS WHEEL WITHOUT AIR</h3>
+          <h3 class="evf-label">
+            YOUR POWER ORIGIN / FERRIS WHEEL WITHOUT AIR
+          </h3>
           <div class="evf-stages">
             <button
               type="button"
               class="evf-stage"
               data-testid="front-origin-ferris-wheel"
-              @click="store.startOneShot('ferris-wheel', pickedLead, pickedView)"
+              @click="
+                store.startOneShot('ferris-wheel', pickedLead, pickedView)
+              "
             >
               <img
                 v-if="art('districts/waterfront-market')"

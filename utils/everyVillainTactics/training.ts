@@ -314,8 +314,7 @@ export function trainingState(
     }
   }
   const rival = state.units.find((u) => u.team === 'rival')
-  if (stage?.id === 'ferris-wheel' && rival)
-    rival.identity = 'accident-fire'
+  if (stage?.id === 'ferris-wheel' && rival) rival.identity = 'accident-fire'
   if (
     !stage &&
     rival &&

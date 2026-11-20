@@ -474,7 +474,9 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     state.flags?.includes('wheel-air-bridge') &&
     !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
   )
-    return reject('The gondolas were not stabilized with Skyline’s signature power.')
+    return reject(
+      'The gondolas were not stabilized with Skyline’s signature power.',
+    )
   if (
     state.flags !== undefined &&
     (!Array.isArray(state.flags) ||

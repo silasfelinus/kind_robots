@@ -152,6 +152,39 @@ assert.equal(
   assert.deepEqual(game.snapshot.pilots, [3, 0, 1])
 }
 
+// Independently choose non-adjacent C.A.T.S. crews. Every mask is reachable
+// without substituting a ship or rewriting dialogue by player count.
+{
+  const game = create({ players: 2, selectScreen: true })
+  game.update(press('down'))
+  game.update(press('right'))
+  for (let i = 0; i < 25; i++) game.update(emptyInput())
+  game.update(press('a'))
+  assert.deepEqual(game.snapshot.pilots, [0, 2])
+}
+{
+  const game = create({ players: 3, selectScreen: true })
+  game.update(press('down'))
+  game.update(press('right'))
+  game.update(press('down'))
+  game.update(press('left'))
+  for (let i = 0; i < 25; i++) game.update(emptyInput())
+  texts.length = 0
+  game.render(g)
+  assert.ok(texts.includes('P2') && texts.includes('P3'))
+  game.update(press('a'))
+  assert.deepEqual(game.snapshot.pilots, [0, 3, 1])
+  assert.equal(new Set(game.snapshot.pilots).size, 3)
+}
+{
+  const game = create({ players: 4, selectScreen: true })
+  game.update(press('down'))
+  game.update(press('right'))
+  for (let i = 0; i < 25; i++) game.update(emptyInput())
+  game.update(press('a'))
+  assert.deepEqual(game.snapshot.pilots, [0, 2, 1, 3])
+}
+
 // A save keeps the pilot: continuing skips the select, a new flight opens it.
 {
   const demo = create({ demo: true })
@@ -173,6 +206,23 @@ assert.equal(
   go.update(press('a'))
   assert.deepEqual(go.snapshot.pilots, [3], 'continuing flies the saved pilot')
   assert.equal(go.snapshot.selectMenu, null)
+  const duet = { ...kept, pilot: 0, pilots: [0, 2] }
+  assert.deepEqual(
+    readRainbowSave(duet, isRainbowCheckpoint)?.pilots,
+    [0, 2],
+  )
+  const continued = create({ players: 2, selectScreen: true, resume: duet })
+  for (let i = 0; i < 25; i++) continued.update(emptyInput())
+  continued.update(press('a'))
+  assert.deepEqual(continued.snapshot.pilots, [0, 2])
+  assert.equal(
+    readRainbowSave({ ...duet, pilots: [0, 0] }, isRainbowCheckpoint)?.pilots,
+    undefined,
+  )
+  assert.equal(
+    readRainbowSave({ ...duet, pilots: [1, 2] }, isRainbowCheckpoint)?.pilots,
+    undefined,
+  )
   const fresh = create({ selectScreen: true, resume: kept })
   for (let i = 0; i < 25; i++) fresh.update(emptyInput())
   fresh.update(press('down'))

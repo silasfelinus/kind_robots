@@ -908,7 +908,7 @@ export type RainbowCombatSnapshot = {
   /** The continue/new menu's highlighted line (0 continue, 1 new flight), or null when it is not shown. */
   resumeMenu: 0 | 1 | null
   /** The pilot and difficulty select, or null when it is not shown. */
-  selectMenu: { row: 0 | 1; pilot: number; difficulty: ArcadeDifficulty } | null
+  selectMenu: { row: number; pilot: number; difficulty: ArcadeDifficulty } | null
   /** The pilot each seat flies (RAINBOW_PILOTS index). */
   pilots: readonly number[]
   enemies: ReadonlyArray<Readonly<Reef>>
@@ -1194,17 +1194,24 @@ export function createRainbowPrincessPreview(
     : readRainbowSave(options.resume, isRainbowCheckpoint)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
     offered ? { save: offered, pick: 0, frame: 0 } : null
-  /** P1's pilot (the select screen): the seats fly the pilots in order from it. */
+  /** Older saves rotate a starting pilot; new flights preserve the complete chosen crew. */
   let pick = 0
-  const pilotOf = (seat: number) => (seat + pick) % RAINBOW_PILOTS.length
+  let roster: number[] | null = null
+  const pilotOf = (seat: number) =>
+    roster?.[seat] ?? (seat + pick) % RAINBOW_PILOTS.length
   const partyMask = () =>
     rainbowPartyMask(
       Array.from({ length: activePlayers }, (_, seat) => pilotOf(seat)),
     )
   /** The pilot and difficulty select a seated game opens with when the cabinet asks for it. */
   const newSelect = () => ({
-    row: 0 as 0 | 1,
+    row: 0,
     pilot: pick,
+    pilots: Array.from(
+      { length: activePlayers },
+      (_, seat) => (seat + pick) % RAINBOW_PILOTS.length,
+    ),
+    customized: false,
     difficulty: ARCADE_DIFFICULTIES.indexOf(difficulty),
     frame: 0,
   })
@@ -1926,6 +1933,24 @@ export function createRainbowPrincessPreview(
 
   function setPlayers(requested: number) {
     activePlayers = addCoopSeats(ships, requested, createShip)
+    if (roster) {
+      while (roster.length < activePlayers) {
+        const free = RAINBOW_PILOTS.findIndex(
+          (_, pilot) => !roster!.includes(pilot),
+        )
+        if (free >= 0) roster.push(free)
+      }
+    }
+    if (selectMenu) {
+      selectMenu.pilots = selectMenu.pilots.slice(0, activePlayers)
+      while (selectMenu.pilots.length < activePlayers) {
+        const free = RAINBOW_PILOTS.findIndex(
+          (_, pilot) => !selectMenu!.pilots.includes(pilot),
+        )
+        if (free >= 0) selectMenu.pilots.push(free)
+      }
+      selectMenu.row = Math.min(selectMenu.row, activePlayers)
+    }
     for (let i = shots.length - 1; i >= 0; i--) {
       if (shots[i]!.seat >= activePlayers) shots.splice(i, 1)
     }
@@ -2291,6 +2316,7 @@ export function createRainbowPrincessPreview(
       guardians: met,
       medals: { ...medals },
       pilot: pick,
+      pilots: Array.from({ length: activePlayers }, (_, seat) => pilotOf(seat)),
     }
   }
 
@@ -2306,7 +2332,8 @@ export function createRainbowPrincessPreview(
     line: Line,
   ): Line {
     if ('partyAuthored' in line && line.partyAuthored) return line
-    if (!pick) return line
+    if (!pick && (!roster || roster.every((pilot, seat) => pilot === seat)))
+      return line
     const names = RAINBOW_PILOTS.map((pilot) => pilot.name.split(' ')[0]!)
     const pattern = new RegExp(`\\b(${names.join('|')})\\b`, 'g')
     const swap = (text: string) =>
@@ -2320,7 +2347,8 @@ export function createRainbowPrincessPreview(
    */
   function continueFrom(save: RainbowSave) {
     setDifficulty(save.difficulty)
-    pick = save.pilot ?? 0
+    pick = save.pilot ?? save.pilots?.[0] ?? 0
+    roster = save.pilots ? [...save.pilots] : null
     const c = save.checkpoint
     score = c.score
     rescuedStation = c.rescuedStation
@@ -3464,21 +3492,20 @@ export function createRainbowPrincessPreview(
       return
     }
     if (selectMenu) {
-      // Left and right change the highlighted row, up and down switch rows, A launches (after a beat).
+      // Each pilot seat is independently selectable; the last row chooses difficulty.
       const keys = [input, ...seated]
       const pressed = (button: 'up' | 'down' | 'left' | 'right' | 'a') =>
         keys.some((frame) => frame?.pressed[button])
-      if (pressed('up') || pressed('down')) {
-        selectMenu.row = selectMenu.row ? 0 : 1
+      const direction = Number(pressed('down')) - Number(pressed('up'))
+      if (direction) {
+        selectMenu.row =
+          (selectMenu.row + direction + activePlayers + 1) %
+          (activePlayers + 1)
         options.sound.play('blip')
       }
       const step = Number(pressed('right')) - Number(pressed('left'))
       if (step) {
-        if (selectMenu.row === 0)
-          selectMenu.pilot =
-            (selectMenu.pilot + step + RAINBOW_PILOTS.length) %
-            RAINBOW_PILOTS.length
-        else
+        if (selectMenu.row === activePlayers) {
           selectMenu.difficulty = Math.max(
             0,
             Math.min(
@@ -3486,10 +3513,49 @@ export function createRainbowPrincessPreview(
               selectMenu.difficulty + step,
             ),
           )
+        } else if (selectMenu.row === 0 && !selectMenu.customized) {
+          // Preserve the old single-pilot rotation until another seat is edited.
+          selectMenu.pilot =
+            (selectMenu.pilot + step + RAINBOW_PILOTS.length) %
+            RAINBOW_PILOTS.length
+          selectMenu.pilots = Array.from(
+            { length: activePlayers },
+            (_, seat) => (seat + selectMenu!.pilot) % RAINBOW_PILOTS.length,
+          )
+        } else {
+          const seat = selectMenu.row
+          const previous = selectMenu.pilots[seat]!
+          let candidate =
+            (previous + step + RAINBOW_PILOTS.length) %
+            RAINBOW_PILOTS.length
+          for (let tried = 0; tried < RAINBOW_PILOTS.length; tried++) {
+            if (
+              !selectMenu.pilots.some(
+                (pilot, index) => index !== seat && pilot === candidate,
+              )
+            )
+              break
+            candidate =
+              (candidate + step + RAINBOW_PILOTS.length) %
+              RAINBOW_PILOTS.length
+          }
+          if (candidate === previous) {
+            // Four pilots fill every seat: swap roles without duplicating ships.
+            candidate =
+              (previous + step + RAINBOW_PILOTS.length) %
+              RAINBOW_PILOTS.length
+            const other = selectMenu.pilots.indexOf(candidate)
+            if (other >= 0) selectMenu.pilots[other] = previous
+          }
+          selectMenu.pilots[seat] = candidate
+          selectMenu.pilot = selectMenu.pilots[0]!
+          selectMenu.customized = true
+        }
         options.sound.play('blip')
       }
       if (++selectMenu.frame > RESUME_MENU_GRACE && pressed('a')) {
-        pick = selectMenu.pilot
+        roster = [...selectMenu.pilots]
+        pick = roster[0]!
         setDifficulty(ARCADE_DIFFICULTIES[selectMenu.difficulty]!)
         selectMenu = null
         options.sound.play('start')
@@ -8085,18 +8151,14 @@ export function createRainbowPrincessPreview(
         g.fillText('CHOOSE YOUR PILOT', W / 2, 30)
         RAINBOW_PILOTS.forEach((pilot, i) => {
           const x = 18 + i * 113
-          const chosen = menu.pilot === i
-          // The seat that flies this pilot, if any: P1 flies the chosen one, the others follow in order.
-          const seat =
-            (i - menu.pilot + RAINBOW_PILOTS.length) % RAINBOW_PILOTS.length
+          const chosen = menu.pilots.includes(i)
+          const focused =
+            menu.row < activePlayers && menu.pilots[menu.row] === i
+          const seat = menu.pilots.indexOf(i)
           g.fillStyle = chosen ? '#2a1450' : '#160b34'
           g.fillRect(x, 42, 105, 162)
           g.strokeStyle = PILOT_COLORS[i]!
-          g.lineWidth = chosen
-            ? menu.row === 0
-              ? 2 + Math.sin(tick / 6)
-              : 2
-            : 1
+          g.lineWidth = focused ? 3 : chosen ? 2 : 1
           g.globalAlpha = chosen ? 1 : 0.55
           g.strokeRect(x, 42, 105, 162)
           if (
@@ -8149,7 +8211,7 @@ export function createRainbowPrincessPreview(
             x + 52,
             197,
           )
-          if (seat < activePlayers) {
+          if (seat >= 0) {
             g.fillStyle = PILOT_COLORS[i]!
             g.font = 'bold 9px monospace'
             g.fillText(`P${seat + 1}`, x + 10, 54)
@@ -8176,9 +8238,9 @@ export function createRainbowPrincessPreview(
         g.fillText(levels[menu.difficulty]![1], W / 2, 234)
         g.fillStyle = '#9b8fc4'
         g.fillText(
-          menu.row === 0
-            ? 'LEFT / RIGHT: PILOT · UP / DOWN: DIFFICULTY · A: LAUNCH'
-            : 'LEFT / RIGHT: DIFFICULTY · UP / DOWN: PILOT · A: LAUNCH',
+          menu.row < activePlayers
+            ? `P${menu.row + 1} PILOT · LEFT/RIGHT: PICK · UP/DOWN: SEAT · A: LAUNCH`
+            : 'DIFFICULTY · LEFT/RIGHT: PICK · UP/DOWN: SEAT · A: LAUNCH',
           W / 2,
           246,
         )

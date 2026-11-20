@@ -28,7 +28,14 @@
           Register 24 renders
         </button>
         <NuxtLink
-          to="/admin/art-slots"
+          :to="{
+            path: '/admin/art-slots',
+            query: {
+              projectSlug: 'game-of-captains',
+              prefix: 'game-of-captains/redshirts/',
+              multiple: '0',
+            },
+          }"
           data-testid="space-couch-curate-redshirt-art"
           class="btn btn-sm btn-outline pf-focusable"
         >

@@ -314,6 +314,7 @@ useHead({ title: 'Art slots' })
 
 const userStore = useUserStore()
 const slotStore = useArtSlotStore()
+const route = useRoute()
 const {
   slots,
   page,
@@ -367,7 +368,15 @@ async function open(artImageId: number) {
 onMounted(async () => {
   await userStore.initialize()
   ready.value = true
-  if (userStore.isAdmin) await slotStore.load()
+  if (userStore.isAdmin) {
+    // A single freshly rendered candidate is still a meaningful art decision.
+    if (typeof route.query.projectSlug === 'string')
+      projectSlug.value = route.query.projectSlug
+    if (typeof route.query.prefix === 'string')
+      prefix.value = route.query.prefix
+    if (route.query.multiple === '0') multipleOnly.value = false
+    await slotStore.load()
+  }
 })
 </script>
 

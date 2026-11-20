@@ -134,3 +134,14 @@ assert.ok(
   forge.includes('data-testid="space-couch-register-redshirt-candidates"'),
 )
 assert.ok(forge.includes('data-testid="space-couch-curate-redshirt-art"'))
+assert.ok(forge.includes("prefix: 'game-of-captains/redshirts/'"))
+assert.ok(forge.includes("multiple: '0'"))
+const curator = readFileSync('pages/admin/art-slots.vue', 'utf8')
+assert.ok(curator.includes('const route = useRoute()'))
+assert.ok(curator.includes('route.query.projectSlug'))
+assert.ok(curator.includes('route.query.prefix'))
+assert.ok(curator.includes("route.query.multiple === '0'"))
+assert.ok(
+  curator.indexOf('route.query.prefix') < curator.indexOf('await slotStore.load()'),
+  'the targeted single-candidate view must load before the generic gallery',
+)

@@ -11,6 +11,7 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'crosswalk-crisis': 265022,
   'rooftop-broadcast': 265023,
   'under-comet-breach': 265024,
+  'prom-night-finale': 265025,
   'quarry-lieutenant': 265019,
   'picnic-plaza': 265016,
   'quad-portal-watch': 265015,

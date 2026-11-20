@@ -361,6 +361,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     tag: 'Containment tunnels · split squad, coolant, timed seal-keeper',
   },
   {
+    id: 'prom-night-finale',
+    art: 'districts/student-commons',
+    tag: 'Grand ballroom · three faction waves, collapsing dance floor, six-round siege',
+  },
+  {
     id: 'quad-portal-watch',
     art: 'encounters/a-visitor-from-the-stars',
     tag: 'Teleporting Wombat Ronin',

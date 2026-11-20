@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 13)
+assert.equal(STAGE_PRESETS.length, 14)
 for (const preset of STAGE_PRESETS) {
   assert.deepEqual(
     stageProblems(preset),
@@ -448,6 +448,108 @@ assert.equal(
   doomed.phase,
   'defeat',
   'the breach must time out if the seal-keeper is still standing',
+)
+
+// Prom Night: Everybody's Villain is the sixth authored Crossfire battle.
+// Surviving all six rounds is mandatory, even if the opening rivals fall:
+// later faction waves and the collapse are part of the actual finale.
+const gala = clonePreset('prom-night-finale')
+assert.deepEqual(stageProblems(gala), [])
+assert.equal(gala.turnLimit, null)
+assert.equal(gala.victory?.kind, 'survive')
+assert.equal(gala.victory?.kind === 'survive' && gala.victory.rounds, 6)
+assert.deepEqual(
+  gala.waves?.map((wave) => wave.round),
+  [3, 5],
+)
+assert.deepEqual(
+  gala.waves?.map((wave) => wave.crew),
+  ['warren-wreckers', 'licensed-legends'],
+)
+assert.equal(gala.props?.length, 4)
+assert.equal(gala.activeHazards?.length, 3)
+assert.equal(
+  gala.activeHazards?.find((h) => h.id === 'dance-floor-fracture')?.round,
+  4,
+)
+const galaScript = gala.script!
+assert.equal(galaScript.scenes.length, 11)
+const promRun = trainingState(0x67, gala, { lead: 'accident-fire' })
+assert.deepEqual(latchScenes(promRun, galaScript, gala), ['prom-final-opening'])
+const promOpening = pendingScriptScene(promRun, galaScript)!
+assert.ok(
+  walkScene(promOpening, [], {
+    state: promRun,
+    perspective: 'hero',
+  })!.nodes.some((node) => node.id === 'oh'),
+)
+assert.ok(
+  walkScene(promOpening, [], {
+    state: promRun,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'ov'),
+)
+assert.ok(finishScene(promRun, promOpening, [], 'hero'))
+promRun.turn = 2
+assert.ok(latchScenes(promRun, galaScript, gala).includes('prom-final-choice'))
+const promChoice = galaScript.scenes.find(
+  (scene) => scene.id === 'prom-final-choice',
+)!
+assert.equal(walkScene(promChoice, [], { state: promRun })?.done, false)
+const promLead = promRun.units[0]!
+promLead.hp = promLead.maxHp - 1
+assert.ok(finishScene(promRun, promChoice, [0], 'hero'))
+assert.ok(promRun.flags?.includes('prom-shelter'))
+assert.equal(promLead.hp, promLead.maxHp)
+assert.ok(latchScenes(promRun, galaScript, gala).includes('prom-final-shelter'))
+assert.equal(finishScene(promRun, promChoice, [1], 'hero'), false)
+const promVillain = trainingState(0x67, gala, { lead: 'alien-air' })
+promVillain.turn = 2
+latchScenes(promVillain, galaScript, gala)
+assert.ok(finishScene(promVillain, promChoice, [1], 'villain'))
+assert.ok(promVillain.flags?.includes('prom-command'))
+assert.ok(
+  promVillain.units.some(
+    (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+  ),
+)
+assert.ok(
+  latchScenes(promVillain, galaScript, gala).includes('prom-final-command'),
+)
+const promEnding = galaScript.scenes.find(
+  (scene) => scene.id === 'prom-final-victory',
+)!
+assert.ok(
+  walkScene(promEnding, [], {
+    state: promRun,
+    perspective: 'hero',
+  })!.nodes.some((node) => node.id === 'vs'),
+)
+assert.ok(
+  walkScene(promEnding, [], {
+    state: promVillain,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'vc'),
+)
+const earlyClear = trainingState(0x67, gala)
+for (const enemy of earlyClear.units.filter((unit) => unit.team === 'rival'))
+  enemy.hp = 0
+earlyClear.turn = 5
+endTurn(earlyClear)
+assert.equal(
+  earlyClear.phase,
+  'active',
+  'knocking out every rival before the sixth round must not skip the finale',
+)
+const lastDance = trainingState(0x67, gala)
+for (const enemy of lastDance.units.filter((unit) => unit.team === 'rival'))
+  enemy.hp = 0
+lastDance.turn = 6
+endTurn(lastDance)
+assert.equal(
+  lastDance.phase,
+  'victory',
+  'the actual sixth completed round should unlock the ballroom exits',
 )
 
 const picnic = clonePreset('picnic-plaza')

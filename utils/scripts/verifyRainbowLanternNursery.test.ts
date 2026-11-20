@@ -10,6 +10,7 @@ import {
 } from '../arcade/games/rainbowLanternNursery'
 import {
   TRENCH_FORK,
+  trenchSections,
   trenchSpawns,
 } from '../arcade/games/rainbowTrench'
 
@@ -26,6 +27,29 @@ assert.deepEqual(nurserySpawns(4680), [])
 assert.ok(nurserySpawns(300).length > 0)
 assert.ok(NURSERY_WAVES.every((wave) => wave.at < NURSERY_GUARDIAN.from))
 assert.ok(nurserySpawns(300).every((spawn) => spawn.wave >= NURSERY.waveBase))
+
+const originalSections = trenchSections('safe')
+const nurserySections = trenchSections('safe', true)
+assert.deepEqual(
+  nurserySections.map((section) => [section.from, section.to]),
+  originalSections.map((section) => [section.from, section.to]),
+  'earning the Nursery does not invalidate existing checkpoints',
+)
+assert.deepEqual(
+  nurserySections
+    .filter(
+      (section) =>
+        section.from >= TRENCH_FORK.decideAt &&
+        section.from < TRENCH_FORK.rejoinAt,
+    )
+    .map((section) => section.name),
+  ['Luminous eggs', 'Sleeping shoal', 'Broken lanterns', 'Nursery heart'],
+)
+assert.notDeepEqual(
+  originalSections.map((section) => section.name),
+  nurserySections.map((section) => section.name),
+  'the original safe-passage names remain intact for ordinary flights',
+)
 
 const seen = new Map<number, number>()
 let total = 0

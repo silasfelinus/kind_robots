@@ -22,7 +22,7 @@ export const FERRIS_WHEEL_SCRIPT: SceneScript = {
           speaker: 'backdraft',
           emotion: 'determined',
           camera: 'close',
-          text: 'I am Skyline. Priya holds the wind gauge at column five, row three. Aim Updraft Catch at her to open a corridor between the cars. Nobody can climb out until then.',
+          text: 'I am Skyline. Priya points to the vacant wind gauge at column five, row three. Leap onto it with Updraft Catch to open a corridor between the cars. Nobody can climb out until then.',
           next: null,
           branch: {
             when: { kind: 'perspective', perspective: 'villain' },

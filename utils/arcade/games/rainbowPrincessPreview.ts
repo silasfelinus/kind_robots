@@ -3471,12 +3471,12 @@ export function createRainbowPrincessPreview(
 
   function defeatGuardian(seat: number) {
     if (!guardian) return
-    const { x, y } = guardian
+    const { x, y, kind } = guardian
     explode(x, y, true)
     guardian = null
     const act = currentAct()
     // The Nursery guardian is a second earned encounter, not Act III's first guardian.
-    if (act === 3 && guardian.kind === 'matriarch') {
+    if (act === 3 && kind === 'matriarch') {
       nurseryGuardianOutcome = 'defeated'
       const window = nurseryGuardianWindow(
         TRENCH_FORK.decideAt,

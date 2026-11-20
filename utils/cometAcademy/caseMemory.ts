@@ -144,6 +144,51 @@ export const DISTRICT_WITNESSES: Record<
   },
 }
 
+/** A faction's response takes two nights to organize. It is narrative
+ * feedback, not a second hidden modifier to the mission roll. */
+export function delayedFactionResponse(
+  record: CaseMemory,
+  currentDay: number,
+): string | null {
+  if (currentDay - record.day < 2 || currentDay - record.day > 5) return null
+  const thread = caseThread(record.caseId)
+  if (!thread) return null
+  const responses: Record<CaseThread, Record<MorningGrade, string>> = {
+    academy: {
+      honors: 'The student council has opened a volunteer night-watch desk.',
+      pass: 'The dean has approved a supervised student rescue rota.',
+      partial: 'The faculty senate is demanding independent patrol oversight.',
+      failed: 'The dean has suspended student access to the incident archive.',
+      refused: 'The custodians have organized their own emergency phone tree.',
+    },
+    transit: {
+      honors: 'The rail union has offered the team access to its tunnel maps.',
+      pass: 'Dispatchers now relay warnings through the academy radio.',
+      partial: 'The transit union is demanding a public safety hearing.',
+      failed: 'The rail authority has withdrawn student platform access.',
+      refused:
+        'Night-shift drivers have begun running their own rescue drills.',
+    },
+    harbor: {
+      honors: 'Dockworkers have established a volunteer rescue launch.',
+      pass: 'The harbor patrol now shares its weather bulletins.',
+      partial: 'Pier families have petitioned for an independent inquiry.',
+      failed: 'The dock union has barred academy patrols from its piers.',
+      refused:
+        'Harbor residents have funded a rescue boat without the academy.',
+    },
+    civic: {
+      honors: 'Neighborhood medics have opened their records to the team.',
+      pass: 'The city council has scheduled a joint emergency briefing.',
+      partial:
+        'A citizens committee is gathering testimony about the response.',
+      failed: 'City hall has ordered a review of academy patrol authority.',
+      refused: 'Residents have formed a civilian emergency response network.',
+    },
+  }
+  return responses[thread][record.unanswered ? 'refused' : record.grade]
+}
+
 /** The most recent other call in the same district during the previous five
  * nights: the same window caseTrustModifier reads. */
 export function districtRecordFor(

@@ -123,6 +123,13 @@
           <p class="text-xs font-bold uppercase tracking-widest text-error">
             Vesper's account · {{ night.progress.current }}
           </p>
+          <img
+            v-if="night.sceneArt"
+            :src="night.sceneArt"
+            :alt="night.currentSite?.title"
+            class="mt-2 aspect-video w-full rounded-xl object-cover"
+            data-testid="memory-hoshimori-night-scene-art"
+          />
           <h3 class="mt-1 text-xl font-black">
             {{ night.currentSite?.title }}
           </h3>
@@ -141,7 +148,7 @@
           <memory-dungeon-choice-hand
             v-else-if="night.currentSite"
             class="mt-3"
-            :choices="night.currentSite.choices"
+            :choices="night.hand"
             :deal-key="night.currentSite.key"
             icon="🌙"
             palette="theme"

@@ -28,6 +28,7 @@ import {
   memoryEndingConsequences,
   type MemoryLastChoice,
 } from '~/utils/memoryDungeon/reimaginerCampaign'
+import { coreEndingArtPath } from '~/utils/memoryDungeon/authoredDungeon/art'
 
 /** Shared setup for the e11 sea and e12 Hoshimori collision stores. */
 export function finaleCollisionSetup(finale: FinaleWorld) {
@@ -88,6 +89,9 @@ export function finaleCollisionSetup(finale: FinaleWorld) {
   )
   const ending = computed(() =>
     finale === 'e12' ? memoryCoreEnding(world.campaign) : null,
+  )
+  const endingArt = computed(() =>
+    ending.value ? coreEndingArtPath(ending.value.id) : null,
   )
   const endingConsequences = computed(() =>
     finale === 'e12' ? memoryEndingConsequences(world.campaign) : [],
@@ -265,6 +269,7 @@ export function finaleCollisionSetup(finale: FinaleWorld) {
     lastChoices,
     ending,
     endingConsequences,
+    endingArt,
     epilogue,
     tiles,
     hydrate,

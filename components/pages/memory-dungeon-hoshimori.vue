@@ -142,6 +142,16 @@
           <p class="text-xs font-bold uppercase tracking-widest text-warning">
             The Red Oven
           </p>
+          <img
+            v-if="
+              hoshimori.ovenRoomArt && !failedArt.has(hoshimori.ovenRoomArt)
+            "
+            :src="hoshimori.ovenRoomArt"
+            :alt="hoshimori.currentOvenRoom.title"
+            class="aspect-video w-full rounded-xl object-cover"
+            data-testid="memory-oven-room-art"
+            @error="failedArt.add(hoshimori.ovenRoomArt)"
+          />
           <h3 class="text-xl font-black">
             {{ hoshimori.currentOvenRoom.title }}
           </h3>
@@ -186,6 +196,13 @@
           <p class="text-xs font-bold uppercase tracking-widest text-success">
             Vesper’s Hoshimori · Village encounter
           </p>
+          <img
+            v-if="hoshimori.sceneArt"
+            :src="hoshimori.sceneArt"
+            :alt="hoshimori.currentSite?.title"
+            class="aspect-video w-full rounded-xl object-cover"
+            data-testid="memory-hoshimori-scene-art"
+          />
           <h3 class="text-xl font-black">{{ hoshimori.currentSite?.title }}</h3>
           <p class="text-base leading-relaxed">
             {{ hoshimori.currentSite?.opening }}
@@ -447,13 +464,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { HOSHIMORI_WARM_SITES } from '~/utils/memoryDungeon/hoshimoriWarm'
 import { useMemoryHoshimoriStore } from '~/stores/memoryHoshimoriStore'
 import type { MemoryHandChoice } from '~/components/memory-dungeon/memory-dungeon-choice-hand.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const hoshimori = useMemoryHoshimoriStore()
+const failedArt = reactive(new Set<string>())
 const chronicleOpen = ref(false)
 const symbols = ['bell', 'leaf', 'flame'] as const
 const lanternSymbols = ref<string[]>(['bell', 'leaf', 'flame'])
@@ -480,6 +498,7 @@ function handOf(
       label: choice.label,
       chip: rations < 0 ? `Costs ${-rations} food` : undefined,
       disabled: hoshimori.progress.rations + rations < 0,
+      image: hoshimori.choiceArt(choice.id),
     }
   })
 }

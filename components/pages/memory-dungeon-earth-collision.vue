@@ -176,9 +176,6 @@
             <h3 class="mt-1 text-lg font-black sm:text-2xl">
               {{ collision.current.title }}
             </h3>
-            <p class="mt-2 text-xs leading-relaxed sm:text-sm">
-              {{ collision.current.opening }}
-            </p>
             <p
               v-if="collision.history"
               class="mt-2 text-xs leading-relaxed text-[#f2d4a5]"
@@ -204,6 +201,17 @@
         <div
           class="kr-scroll min-h-0 flex-[0_1_auto] overflow-y-auto p-3 empty:hidden"
         >
+          <p
+            v-if="
+              collision.current &&
+              !collision.readyForCrossroad &&
+              !collision.completed
+            "
+            class="mb-3 text-sm leading-relaxed"
+            data-testid="memory-earth-collision-opening"
+          >
+            {{ collision.current.opening }}
+          </p>
           <p
             v-if="collision.notice"
             class="mb-2 text-xs text-[#f6d49a]"

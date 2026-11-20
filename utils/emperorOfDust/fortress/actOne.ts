@@ -562,12 +562,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { freeholds: -5 } },
     outcomes: {
       success:
-        'The maps carry a seal nobody at court has seen: a bell with no clapper.',
+        'The party copied the maps by firelight before the surveyors woke. Each sheet carries a seal nobody at court has seen: a bell with no clapper.',
       partial:
-        'The surveyors lost the party in the hills. They dropped a pencil.',
+        'The surveyors lost the party in the hill fog above the ford. All the trackers brought back was a dropped carpenter’s pencil, sharpened with a good knife and never used.',
       failure:
-        'The surveyors noticed they were followed and burned their maps.',
-      expired: 'The flags stayed planted on the far bank.',
+        'The surveyors saw they were followed and burned their maps on the ford stones. The Freeholders watching from the reeds decided the crown had sent the fire.',
+      expired:
+        'Nobody followed the surveyors. Their flags stayed planted on the far bank, and the Freeholders started steering their goats wide of them.',
     },
   },
   {
@@ -597,9 +598,12 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'On the second night an elder spoke. The crows went silent because something to the east stopped singing first.',
-      partial: 'The elders nodded once. That was all.',
-      failure: 'The envoys fidgeted. The elders turned their backs.',
-      expired: 'The Heights stayed silent.',
+      partial:
+        'The envoys sat out two cold nights on the ledge. At the end the elders nodded once, to say the waiting had been noticed. Nobody said what the crows had heard.',
+      failure:
+        'The envoys fidgeted, then spoke first. One by one the elders turned their backs to the wind and to the crown, and the ledge was colder for it.',
+      expired:
+        'No envoy climbed to the ledge. The Heights stayed silent, and the crows went on not singing at whatever had gone quiet in the east.',
     },
   },
   {
@@ -628,11 +632,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'From the roost, every Conclave watcher faces the same way. East, toward the sunken rail yards.',
+        'From the high roost the climbers could count them all: every Conclave watcher faces the same way. East, toward the sunken rail yards.',
       partial:
-        'The climbers saw the Conclave watchers, and the watchers saw them.',
-      failure: 'The roost guards were not as silent as the rest.',
-      expired: 'Nobody climbed.',
+        'The climbers reached the lip of the roost and saw the Conclave watchers. The watchers saw them too. Both parties climbed down without a word.',
+      failure:
+        'The roost guards were not as silent as the rest. They shouted the climbers off the rock, and every elder on the Heights heard the crown had sent spies up it.',
+      expired:
+        'Nobody climbed. Whatever the Conclave watchkeepers are facing, they went on facing it without the crown knowing.',
     },
   },
   {
@@ -662,11 +668,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'The feast was an ambush. The hidden blades were ready. The party came home with a captured banner.',
+        'The feast was an ambush, and the hidden blades were ready for it. The party came home before dawn with a captured Pack banner and nobody missing.',
       partial:
-        'Both sides kept a hand near a knife all night. Nobody ate much.',
-      failure: 'The Pack found the hidden blades before dessert.',
-      expired: 'The feast went on without the court.',
+        'Both sides kept a hand near a knife all night under the painted wagons. Nobody ate much, nobody drew, and the Pack sent the party home with the bones.',
+      failure:
+        'The Pack found the hidden blades in the supply carts before the sweet course. They laid them on the feast table, one by one, and kept laughing.',
+      expired:
+        'Nobody went. The feast went on under the painted wagons without the court. The Pack ate the crown’s share and called it a fair trade.',
     },
   },
 ]

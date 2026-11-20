@@ -229,7 +229,8 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
         'The party found the old door at the end of a path worn smooth. It was barred from the inside. Somebody behind it was breathing.',
       failure:
         'The party went down with a lamp and came up without it. Something in the dark took it out of a hand, politely.',
-      expired: 'Nobody went down. The path stayed smooth.',
+      expired:
+        'Nobody went down. The path to the old door stayed smooth, and small feet kept wearing it whether the tower looked or not.',
     },
   },
   {
@@ -319,7 +320,7 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -10 }, strength: { saltroad: -1 } },
     outcomes: {
       triumph:
-        'Every wagon crossed by dawn. The caravan master pressed a salvaged crowbar on the escort to keep.',
+        'All nine wagons crossed the rail canyon by dawn, not one axle cracked. The caravan master pressed a salvaged crowbar on the escort and said the iron would remember who carried it.',
       success:
         'Every iron wagon reaches the Saltroad depot. The escort takes its pay standing up. They refuse to put their names on the depot’s casualty register.',
       partial:

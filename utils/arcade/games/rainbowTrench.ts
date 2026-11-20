@@ -441,10 +441,12 @@ export function trenchRouteFor(ys: readonly number[]): TrenchRoute {
 export function trenchSpawns(
   frame: number,
   route: TrenchRoute | null,
+  rescuedNemi = false,
 ): readonly TrenchSpawn[] {
   if (trenchStage(frame, null) !== 'waves') return []
   if (
     route === 'safe' &&
+    rescuedNemi &&
     frame >= TRENCH_FORK.decideAt &&
     frame < TRENCH_FORK.rejoinAt
   )
@@ -490,7 +492,7 @@ export function trenchDialogue(
     'A03.FORK': [
       {
         speaker: 'Lilt-7',
-        text: 'High: salvage vault. Low: the living Lantern Nursery, a sheltered but guarded passage.',
+        text: 'High: salvage vault. Low: sheltered passage. A rescued crew may reveal its hidden nursery.',
       },
       {
         speaker: scout,

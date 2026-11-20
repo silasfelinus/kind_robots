@@ -30,11 +30,7 @@
           <button type="button" class="kr-btn-primary-md-2xl" @click="goHome">
             Go home
           </button>
-          <button
-            type="button"
-            class="kr-btn-ghost-md-2xl"
-            @click="retry"
-          >
+          <button type="button" class="kr-btn-ghost-md-2xl" @click="retry">
             Try again
           </button>
         </div>

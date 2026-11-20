@@ -24,9 +24,23 @@ export const FRONT_DOOR_ALIASES: FrontDoorAliasRules = {
   '/support': alias('/giving'),
   '/donate': alias('/giving'),
   '/give': alias('/giving'),
+  '/donations': alias('/giving'),
+  '/charity': alias('/giving'),
+  '/fundraiser': alias('/giving'),
   // Gift shop tab (content/channels/home/giftshop.md).
   '/shop': alias('/sanctuary'),
   '/giftshop': alias('/sanctuary'),
+  '/store': alias('/sanctuary'),
+  '/merch': alias('/sanctuary'),
+  // About: the mission page, which carries the contact address
+  // (2026-11-20 PT live audit: /contact, /help and /faq were 404s).
+  '/about-us': alias('/about'),
+  '/mission': alias('/about'),
+  '/contact': alias('/about'),
+  '/help': alias('/about'),
+  '/faq': alias('/about'),
+  // Art gallery tab (content/channels/projects/art.md).
+  '/gallery': alias('/art'),
   // Account and home.
   '/home': alias('/'),
   '/signup': alias('/register'),

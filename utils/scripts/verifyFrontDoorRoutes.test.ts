@@ -52,7 +52,15 @@ for (const [from, rule] of Object.entries(FRONT_DOOR_ALIASES)) {
 }
 
 // The hubs a visitor most often types are covered.
-for (const hub of ['/play', '/projects', '/donate', '/shop']) {
+for (const hub of [
+  '/play',
+  '/projects',
+  '/donate',
+  '/shop',
+  '/contact',
+  '/help',
+  '/gallery',
+]) {
   assert.ok(hub in FRONT_DOOR_ALIASES, `${hub} has a front-door alias`)
 }
 assert.ok(rootPages.has('/play'), '/play is a folder with no index page')

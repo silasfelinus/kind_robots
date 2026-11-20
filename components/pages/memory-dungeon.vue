@@ -529,6 +529,8 @@ import {
 import type { CSSProperties } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 
+import type { GalleryImage } from '@/stores/memoryStore'
+
 const world = useMemoryWorldStore()
 const worldMode = ref(false)
 const earthMode = ref(false)
@@ -578,8 +580,6 @@ function startOverworld(): void {
 }
 
 const artStore = useArtStore()
-
-import type { GalleryImage } from '@/stores/memoryStore'
 
 type DungeonCard = GalleryImage
 type PowerupType = 'lantern' | 'shield' | 'oracle'

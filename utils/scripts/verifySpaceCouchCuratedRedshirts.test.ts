@@ -50,11 +50,11 @@ const route = readFileSync(
   'server/api/game-of-captains/redshirt-art.get.ts',
   'utf8',
 )
-assert.ok(route.includes("isPublic: true"))
-assert.ok(route.includes("isMature: false"))
-assert.ok(route.includes("isActive: true"))
+assert.ok(route.includes('isPublic: true'))
+assert.ok(route.includes('isMature: false'))
+assert.ok(route.includes('isActive: true'))
 assert.ok(route.includes('isApprovedRedshirtSelection('))
-assert.ok(route.includes("selectedArtImageId: { not: null }"))
+assert.ok(route.includes('selectedArtImageId: { not: null }'))
 assert.ok(!route.includes("status: 'DONE'"))
 assert.ok(!route.includes('artJob.findMany'))
 
@@ -72,14 +72,10 @@ assert.ok(consoleView.includes('const shipped = warpArt(key)'))
 assert.ok(consoleView.includes('!brokenArtwork.value.includes(reviewed)'))
 assert.ok(consoleView.includes('@error="onEpisodeArtworkError"'))
 
-const shipped = WARP_ART.filter((key) =>
-  key.startsWith('redshirts/portraits/'),
-)
+const shipped = WARP_ART.filter((key) => key.startsWith('redshirts/portraits/'))
 assert.ok(shipped.length > 0, 'existing approved art remains in the manifest')
 assert.equal(
-  WARP_ART.filter((key) =>
-    key.startsWith('redshirts/secret-powers/'),
-  ).length,
+  WARP_ART.filter((key) => key.startsWith('redshirts/secret-powers/')).length,
   99,
   'do not invent the remaining secret-power plate',
 )

@@ -156,11 +156,11 @@
               >
                 <span class="daily-actor-face">
                   <img
-                  v-if="actor.image"
-                  :src="actor.image"
-                  alt=""
-                  @error="onEpisodeArtworkError"
-                />
+                    v-if="actor.image"
+                    :src="actor.image"
+                    alt=""
+                    @error="onEpisodeArtworkError"
+                  />
                   <span v-else>{{ actor.initial }}</span>
                 </span>
                 <span class="daily-scout-actor-name">

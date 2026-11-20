@@ -3260,6 +3260,14 @@ export function restoreAcademy(raw: unknown): AcademyRun | null {
                     entry.zone,
                   ).choices.map((option) => option.id),
                   PATROL_SECRETS[entry.zone].choice.id,
+                  ...(patrolCrewFor(
+                    {
+                      day: entry.day,
+                      opponentSignature: data.opponentSignature,
+                      patrolHistory: data.patrolHistory!.slice(0, i),
+                    },
+                    entry.zone,
+                  )?.choices.map((choice) => choice.id) ?? []),
                 ].includes(entry.choiceId)),
         )))
   )

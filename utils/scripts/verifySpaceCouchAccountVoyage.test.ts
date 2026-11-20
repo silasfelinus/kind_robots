@@ -86,7 +86,8 @@ for (const id of [
   assert.ok(page.includes(id), id)
 }
 assert.match(page, /@click="store\.stageAccountVoyageBackup\(\)"/)
-assert.match(page, /@click="store\.applyVoyageBackup\(\)"/)
+assert.match(page, /@click="confirmVoyageBackup"/)
+assert.match(page, /if \(store\.applyVoyageBackup\(\)\)/)
 assert.ok(
   page.indexOf('data-testid="space-couch-restore-account-backup"') <
     page.indexOf('data-testid="space-couch-backup-confirm"'),

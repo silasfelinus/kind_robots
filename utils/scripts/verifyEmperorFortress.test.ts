@@ -2114,7 +2114,7 @@ const withCast = (seed: number, day: number, ids: string[]): FortressRun =>
 // not a peacetime resolution. Death and departure still win over ending prose.
 for (const [id, subjectId, flag, marker] of [
   ['F021', 'f021', 'nettle-crossed-border', /red thread/],
-  ['F022', 'f022', 'tiller-wire-answered', /three taps/],
+  ['F022', 'f022', 'tiller-wire-answered', /three taps/i],
   ['F023', 'f023', 'sera-buried-bell', /bronze clapper/],
   ['F024', 'f024', 'tarn-oil-funded', /fourth stone/],
   ['F025', 'f025', 'odo-broke-forecast', /two columns/],

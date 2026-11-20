@@ -131,6 +131,20 @@
         >
           <h2>SHIP SETTINGS</h2>
           <p>One set of preferences on the couch and beyond.</p>
+          <button
+            type="button"
+            class="cap-menu-back"
+            data-testid="space-couch-refresh-paintings"
+            :disabled="store.artRefreshing"
+            @click="store.refreshArtwork()"
+          >
+            {{
+              store.artRefreshing ? 'CHECKING PAINTINGS…' : 'REFRESH PAINTINGS'
+            }}
+          </button>
+          <p v-if="store.artRefreshStatus" role="status">
+            {{ store.artRefreshStatus }}
+          </p>
           <div class="cap-settings-list max-h-64 min-h-0 overflow-y-auto">
             <PlaybookKitSettings :spec="SPACE_COUCH_KIT" />
           </div>

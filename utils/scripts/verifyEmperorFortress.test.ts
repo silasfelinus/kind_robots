@@ -8319,6 +8319,62 @@ for (const def of DAYS)
     return audienceScene(run, audience).lines.map(lineText).join(' ')
   }
 
+  // Act II does not accuse the new ruler of signing a predecessor's
+  // charter. It does require them to answer for leaving the mill-race open.
+  const molePetition = onDay(1, 17)
+  assert.match(
+    lineTexts(molePetition, 'd17-manifesto'),
+    /You did not sign it\. Your seal still keeps it running/,
+  )
+  assert.doesNotMatch(
+    lineTexts(molePetition, 'd17-manifesto'),
+    /Your tax decree/,
+  )
+  assert.match(
+    lineTexts(
+      answer(molePetition, 'd17-manifesto', 'ask-tunnels'),
+      'd17-manifesto',
+    ),
+    /You inherited the charter/,
+  )
+  const moleScene = audiencesToday(molePetition).find(
+    (scene) => scene.id === 'd17-manifesto',
+  )!
+  for (const [choice, marker, flag] of [
+    ['meet', /write down where we sleep/i, 'mole-talks-opened'],
+    ['arrest', /forty names/i, 'mole-messenger-arrested'],
+  ] as const) {
+    const picked = chooseAudienceOption(molePetition, moleScene.id, choice)
+    assert.match(picked.response, marker, choice)
+    assert.ok(picked.run.flags.includes(flag), flag)
+  }
+  assert.match(
+    chooseAudienceOption(molePetition, moleScene.id, 'ignore').response,
+    /drowned tunnels/,
+  )
+
+  // Distinct public costs appear in Act II's court responses, not just
+  // hidden morale or affinity deltas in the ledger.
+  const archivePetition = onDay(1, 14, {
+    local: { ...createRun(1).local, lamplight: 12 },
+  })
+  assert.match(
+    chooseAudienceOption(archivePetition, 'd14-hollin', 'archive').response,
+    /find those roads without him/,
+  )
+  for (const [audience, choice, run, marker] of [
+    ['d16-hoarders', 'requisition', onDay(1, 16), /broken sale contracts/],
+    ['d16-hoarders', 'leave', onDay(1, 16), /carts roll out/],
+    ['d18-fair', 'host', { ...onDay(1, 18), brass: 100 }, /water barrels/],
+    ['d18-fair', 'tax-fair', onDay(1, 18), /fair leaves early/],
+    ['d20-levy', 'levy-houses', onDay(1, 20), /Old House levy/],
+  ] as const)
+    assert.match(
+      chooseAudienceOption(run, audience, choice).response,
+      marker,
+      audience + '/' + choice,
+    )
+
   // Day 12's cistern reaches the Yard's Day 16 audience.
   for (const [flag, marker] of [
     ['d12-tull-found', /Merrit Tull’s/],

@@ -413,7 +413,7 @@
           </p>
         </div>
         <ol
-          class="kr-scroll grid min-h-0 flex-1 auto-rows-min gap-2 @2xl:grid-cols-3"
+          class="grid min-h-0 flex-1 auto-cols-[minmax(240px,85%)] grid-flow-col gap-2 overflow-x-auto @2xl:auto-cols-auto @2xl:grid-flow-row @2xl:grid-cols-3"
           aria-label="Unlocked ending memories"
         >
           <li

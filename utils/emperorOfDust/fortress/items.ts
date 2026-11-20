@@ -347,10 +347,14 @@ export const itemDef = (id: string): ItemDef | undefined =>
 export const ITEM_ART: ReadonlySet<string> = new Set<string>([
   'abbey-candle',
   'brass-bell-charm',
+  'caravan-salve',
   'carbide-lamp',
   'night-draught',
   'road-lantern',
+  'silent-bell-rosary',
   'surveyors-glass',
+  'verge-signet',
+  'watch-buckler',
 ])
 
 /**

@@ -5,6 +5,7 @@ import {
   COUCH_ALIEN_ART_JOB_IDS,
   COUCH_ALIEN_REDO_CANDIDATE_JOB_IDS,
 } from '../gameOfCaptains/alienArtJobs'
+import { COUCH_ALIEN_REDO_CANDIDATES } from '../gameOfCaptains/alienRedoCandidates'
 
 const entries = Object.entries(COUCH_ALIEN_ART_JOB_IDS)
 assert.equal(ALIEN_SPECIES.length, 101)
@@ -22,6 +23,15 @@ assert.equal(
 assert.equal(new Set(entries.map(([key]) => key)).size, 85)
 assert.equal(new Set(entries.map(([, id]) => id)).size, 85)
 assert.equal(new Set(reviewHolds.map(([, id]) => id)).size, 22)
+assert.equal(COUCH_ALIEN_REDO_CANDIDATES.length, 22)
+for (const [index, candidate] of COUCH_ALIEN_REDO_CANDIDATES.entries()) {
+  assert.equal(candidate.jobId, 60625 + index)
+  assert.equal(candidate.artImageId, 262131 + index)
+  assert.equal(
+    COUCH_ALIEN_REDO_CANDIDATE_JOB_IDS[candidate.key],
+    candidate.jobId,
+  )
+}
 const originalRejects = new Set([
   52975, 52976, 52978, 52983, 52984, 52985, 52990, 52999, 53001, 53002, 53004,
   53011, 53013, 53020, 53034, 53042, 53043, 53051, 53052, 53057, 52956, 52957,
@@ -67,6 +77,34 @@ assert.match(route, /artImageId/)
 assert.match(route, /getArtImageAccessContext\(event\)/)
 assert.match(route, /buildArtImageWhere\(access\)/)
 assert.match(route, /prisma\.artImage\.findMany/)
+assert.match(route, /COUCH_ALIEN_REDO_CANDIDATES/)
+assert.match(route, /selectedArtImageId/)
+assert.match(route, /candidate\.verdict === 'liked'/)
+assert.match(route, /\.\.\.approvedRedo/)
+const registration = readFileSync(
+  new URL(
+    '../../server/api/game-of-captains/alien-art/sync.post.ts',
+    import.meta.url,
+  ),
+  'utf8',
+)
+assert.match(registration, /requireMachineUser\(event\)/)
+assert.match(registration, /assertCurator\(auth\)/)
+assert.match(registration, /registerCandidates/)
+assert.match(registration, /job\?\.status === 'DONE'/)
+assert.match(registration, /job\.artImageId === item\.artImageId/)
+assert.match(registration, /selectIfEmpty: false/)
+const curatorStore = readFileSync(
+  new URL('../../stores/artSlotStore.ts', import.meta.url),
+  'utf8',
+)
+assert.match(curatorStore, /registerSpaceCouchAliens/)
+assert.match(curatorStore, /multipleOnly\.value = false/)
+const curatorPage = readFileSync(
+  new URL('../../pages/admin/art-slots.vue', import.meta.url),
+  'utf8',
+)
+assert.match(curatorPage, /space-couch-register-alien-redos/)
 console.log(
-  'Space Couch: 85 approved art jobs, 22 review-held rerenders, viewer access OK',
+  'Space Couch: 85 active jobs, 22 guarded curator candidates, viewer access OK',
 )

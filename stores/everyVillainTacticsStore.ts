@@ -241,7 +241,11 @@ export const useEveryVillainTacticsStore = defineStore(
      * Only pages carried by validated saves are ever added to the book. A live
      * save (`award`) also awards what the grown book proves; loading never does.
      */
-    function recordMoments(saves: readonly EvtSave[], award = false) {
+    function recordMoments(
+      saves: readonly EvtSave[],
+      award = false,
+      campaign = false,
+    ) {
       const before = scrapbook.value
       const witnessed = mergeScrapbook(
         scrapbook.value,
@@ -250,6 +254,9 @@ export const useEveryVillainTacticsStore = defineStore(
       const results = saves
         .map(scoreFromSave)
         .filter((result): result is BattleResult => !!result)
+        .map((result) =>
+          campaign ? { ...result, mode: 'story' as const } : result,
+        )
       const next: Scrapbook = {
         ...witnessed,
         results: mergeBattleResults(witnessed.results, results),
@@ -541,7 +548,7 @@ export const useEveryVillainTacticsStore = defineStore(
           if (!storage) throw new Error('Storage unavailable')
           storage.setItem(evtCrossfireKey, JSON.stringify(next))
           crossfire.value = next
-          recordMoments([save], true)
+          recordMoments([save], true, true)
           saveMessage.value = 'Crossfire chapter saved.'
           return true
         } catch {

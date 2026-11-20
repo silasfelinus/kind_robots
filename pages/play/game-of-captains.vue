@@ -180,10 +180,7 @@
               type="button"
               data-testid="space-couch-completed-voyages"
               :aria-pressed="logView === 'completed'"
-              @click="
-                logView = 'completed'
-                selectedFinishedVoyageId = null
-              "
+              @click="showCompletedVoyages"
             >
               COMPLETED · {{ store.completedVoyages.length }}
             </button>
@@ -2131,6 +2128,12 @@ const selectedFinishedVoyage = computed(
       (record) => record.id === selectedFinishedVoyageId.value,
     ) ?? null,
 )
+// A named handler, not two inline statements: Prettier (semi: false) drops
+// the semicolon between inline statements, and Vue then cannot compile them.
+function showCompletedVoyages() {
+  logView.value = 'completed'
+  selectedFinishedVoyageId.value = null
+}
 function openCaptainLog() {
   logPage.value = 0
   logView.value = run.value ? 'current' : 'completed'

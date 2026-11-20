@@ -143,6 +143,7 @@
     "facet:catalog:apply": "prisma generate && tsx utils/scripts/runFacetCatalogSeed.ts --apply && tsx utils/scripts/mergeRewardFacetDuplicateLinks.ts --apply && tsx utils/scripts/mergeCanonicalFacetDuplicates.ts --apply",
     "trim:dry": "node utils/scripts/trim.mjs --dry-run",
     "trim": "node utils/scripts/trim.mjs",
+    "test:vue-templates": "node utils/scripts/verifyVueTemplatesCompile.test.mjs",
     "test": "nuxi prepare && node utils/scripts/fix-nuxt-tsconfig.mjs && node --max-old-space-size=8192 ./node_modules/vue-tsc/bin/vue-tsc.js --noEmit -p tsconfig.json",
     "test:db-writes": "node scripts/db-write-smoke.mjs",
     "test:comment-migration": "tsx utils/scripts/verifyCommentMigrationFoundation.ts",

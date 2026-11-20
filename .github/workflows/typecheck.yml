@@ -41,6 +41,11 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      # vue-tsc accepts a template the build cannot compile, and one of those
+      # stops every production image. Seconds to run, so it goes first.
+      - name: Vue templates compile
+        run: npm run test:vue-templates
+
       - name: Type check
         run: npm run test > /tmp/typecheck.log 2>&1
 

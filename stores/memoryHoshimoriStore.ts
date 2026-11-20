@@ -44,11 +44,7 @@ export const useMemoryHoshimoriStore = defineStore('memoryHoshimori', () => {
     HOSHIMORI_OVEN_ROOMS.find((room) => room.id === progress.value.ovenRoom),
   )
   const currentEvent = computed(() => worldEvent('e07', progress.value.current))
-  const sceneArt = computed(() =>
-    currentEvent.value?.sceneArt.status === 'delivered'
-      ? currentEvent.value.sceneArt.path
-      : null,
-  )
+  const sceneArt = computed(() => currentEvent.value?.sceneArt.path ?? null)
   const ovenRoomArt = computed(() =>
     currentOvenRoom.value
       ? dungeonRoomArtPath('OV', currentOvenRoom.value.id)

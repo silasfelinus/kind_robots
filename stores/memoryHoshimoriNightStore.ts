@@ -31,11 +31,7 @@ export const useMemoryHoshimoriNightStore = defineStore(
     const currentEvent = computed(() =>
       worldEvent('e08', progress.value.current),
     )
-    const sceneArt = computed(() =>
-      currentEvent.value?.sceneArt.status === 'delivered'
-        ? currentEvent.value.sceneArt.path
-        : null,
-    )
+    const sceneArt = computed(() => currentEvent.value?.sceneArt.path ?? null)
     const hand = computed(() =>
       (currentSite.value?.choices ?? []).map((choice) => ({
         ...choice,

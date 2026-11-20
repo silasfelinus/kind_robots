@@ -168,10 +168,11 @@
             "
           >
             <img
-              v-if="sea.current.sceneArt.status === 'delivered'"
+              v-if="!failedArt.has(sea.current.sceneArt.path)"
               :src="sea.current.sceneArt.path"
               :alt="sea.current.title"
               class="absolute inset-0 h-full w-full object-cover"
+              @error="failedArt.add(sea.current.sceneArt.path)"
             />
             <div
               class="relative max-w-[42rem] rounded-lg bg-[#111a26]/85 p-3 backdrop-blur-sm"
@@ -192,7 +193,7 @@
               </p>
             </div>
             <span
-              v-if="sea.current.sceneArt.status !== 'delivered'"
+              v-if="failedArt.has(sea.current.sceneArt.path)"
               class="absolute right-2 top-2 rounded bg-[#151d29]/90 px-2 py-1 text-[10px] text-[#e6cba6]"
             >
               Illustration pending
@@ -284,11 +285,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useMemorySeaStore } from '~/stores/memorySeaStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
 
 const emit = defineEmits<{ leave: []; works: []; choking: [] }>()
+const failedArt = reactive(new Set<string>())
 const sea = useMemorySeaStore()
 
 function symbolFor(kind: OverworldKind): string {

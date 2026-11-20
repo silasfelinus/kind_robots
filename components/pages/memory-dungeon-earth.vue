@@ -175,10 +175,11 @@
             :class="earth.active === 'e04' ? 'md-stage-night' : 'md-stage-day'"
           >
             <img
-              v-if="earth.current.sceneArt.status === 'delivered'"
+              v-if="!failedArt.has(earth.current.sceneArt.path)"
               :src="earth.current.sceneArt.path"
               :alt="earth.current.title"
               class="absolute inset-0 h-full w-full object-cover"
+              @error="failedArt.add(earth.current.sceneArt.path)"
             />
             <div
               class="relative max-w-[42rem] rounded-lg bg-[#111a26]/85 p-3 backdrop-blur-sm"
@@ -199,7 +200,7 @@
               </p>
             </div>
             <span
-              v-if="earth.current.sceneArt.status !== 'delivered'"
+              v-if="failedArt.has(earth.current.sceneArt.path)"
               class="absolute right-2 top-2 rounded bg-[#151d29]/90 px-2 py-1 text-[10px] text-[#e6cba6]"
             >
               Illustration pending
@@ -291,7 +292,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useMemoryEarthStore } from '~/stores/memoryEarthStore'
 import { useMemorySublevelStore } from '~/stores/memorySublevelStore'
 import type { OverworldKind } from '~/utils/memoryDungeon/overworldEventCatalog'
@@ -302,6 +303,7 @@ const emit = defineEmits<{
   sublevel: []
   drowned: []
 }>()
+const failedArt = reactive(new Set<string>())
 const earth = useMemoryEarthStore()
 const sublevel = useMemorySublevelStore()
 

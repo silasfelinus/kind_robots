@@ -133,10 +133,11 @@
           :class="theme.stage"
         >
           <img
-            v-if="collision.current.sceneArt.status === 'delivered'"
+            v-if="!failedArt.has(collision.current.sceneArt.path)"
             :src="collision.current.sceneArt.path"
             :alt="collision.current.title"
             class="absolute inset-0 h-full w-full object-cover"
+            @error="failedArt.add(collision.current.sceneArt.path)"
           />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
@@ -149,7 +150,7 @@
             </h3>
           </div>
           <span
-            v-if="collision.current.sceneArt.status !== 'delivered'"
+            v-if="failedArt.has(collision.current.sceneArt.path)"
             class="absolute right-2 top-2 rounded bg-[#141d25]/85 px-2 py-1 text-[10px]"
           >
             Scene illustration pending

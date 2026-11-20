@@ -85,7 +85,7 @@ export function crossfireCarryover(
   return { effect, note: `${chapter}: ${consequence}${injuries}`, wounded }
 }
 
-function applyCrossfireCarryover(
+export function applyCrossfireCarryover(
   state: ReturnType<typeof trainingState>,
   previous: EvtSave,
   previousChapter: number,

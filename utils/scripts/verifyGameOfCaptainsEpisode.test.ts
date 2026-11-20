@@ -222,7 +222,9 @@ for (let seed = 1; seed <= 64; seed++) {
     )
     assert.equal(
       episodeArtworkCardId(
-        restoreVoyage(JSON.parse(JSON.stringify(voyage)))!,
+        JSON.parse(
+          JSON.stringify({ seed: voyage.seed, chapter: voyage.chapter }),
+        ),
         'casino',
         card.id,
       ),
@@ -231,6 +233,20 @@ for (let seed = 1; seed <= 64; seed++) {
     )
   }
 }
+const restoredCasino = restoreVoyage(JSON.parse(JSON.stringify(landing)))!
+assert.equal(
+  episodeArtworkCardId(
+    restoredCasino,
+    'casino',
+    episodeCard(landing, 'casino').id,
+  ),
+  episodeArtworkCardId(
+    landing,
+    'casino',
+    episodeCard(landing, 'casino').id,
+  ),
+  'existing v1 saves keep their casino painting after reload',
+)
 assert.equal(seenCasinoPaintings.size, 16)
 assert.equal(Object.keys(COUCH_CASINO_EPISODE_ART_IDS).length, 87)
 assert.equal(

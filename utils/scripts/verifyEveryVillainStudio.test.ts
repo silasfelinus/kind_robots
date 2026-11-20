@@ -423,7 +423,20 @@ for (const enemy of seal.units.filter(
   (unit) => unit.team === 'rival' && unit.id !== 'pip',
 ))
   enemy.hp = 0
-assert.equal(seal.phase, 'active')
+endTurn(seal)
+assert.equal(
+  seal.phase,
+  'active',
+  'defeating minor rivals must not replace the seal-keeper objective',
+)
+const bossDown = trainingState(0x51, breach)
+bossDown.units.find((unit) => unit.id === 'pip')!.hp = 0
+endTurn(bossDown)
+assert.equal(
+  bossDown.phase,
+  'victory',
+  'defeating the seal-keeper must end the mission even with rivals standing',
+)
 const doomed = trainingState(0x51, breach)
 for (const enemy of doomed.units.filter(
   (unit) => unit.team === 'rival' && unit.id !== 'pip',

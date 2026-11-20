@@ -16,14 +16,13 @@ export function rainbowSwimPose(
   frame: number,
   calm = false,
 ): RainbowSwimPose {
-  const family =
-    ['lantern', 'squid', 'urchin', 'brood'].includes(kind)
-      ? 'jelly'
-      : ['eel', 'mirror', 'angler'].includes(kind)
-        ? 'eel'
-        : ['dolphin', 'hammerhead', 'skate', 'skimmer'].includes(kind)
-          ? 'fin'
-          : 'reef'
+  const family = ['lantern', 'squid', 'urchin', 'brood'].includes(kind)
+    ? 'jelly'
+    : ['eel', 'mirror', 'angler'].includes(kind)
+      ? 'eel'
+      : ['dolphin', 'hammerhead', 'skate', 'skimmer'].includes(kind)
+        ? 'fin'
+        : 'reef'
   const profile = SWIM_PROFILES[family]
   const phase = frame * profile.speed + kind.length * 1.37
   const motion = calm ? 0.2 : 1

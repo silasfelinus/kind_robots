@@ -222,8 +222,7 @@ for (const kind of ['lantern', 'eel', 'dolphin', 'picket', 'matriarch']) {
   assert.ok(Math.abs(calm.bob) <= Math.abs(early.bob) * 0.21 + 1e-10)
   assert.ok(Math.abs(calm.bank) <= Math.abs(early.bank) * 0.21 + 1e-10)
   assert.ok(
-    Math.abs(calm.stretch - 1) <=
-      Math.abs(early.stretch - 1) * 0.21 + 1e-10,
+    Math.abs(calm.stretch - 1) <= Math.abs(early.stretch - 1) * 0.21 + 1e-10,
   )
   const { g, calls } = recorder()
   applyRainbowSwimMotion(g, kind, 22, false)

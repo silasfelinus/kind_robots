@@ -135,8 +135,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
-import { shareableUrl } from '~/utils/supportShare'
 
 const originalWidth = 2048
 const initialReason = 'walking past the dog twenty times without petting him'
@@ -272,7 +270,6 @@ async function shareImage() {
       await navigator.share({
         files: [file],
         title: 'Account Banned Meme Lab',
-        text: `Make your own ban notice at ${shareableUrl('/play/ban-meme')}. Free, ad-free, and supporting malaria prevention.`,
       })
     } else {
       saveBlob(blob)
@@ -306,7 +303,8 @@ onMounted(() => {
 })
 
 useHead({ title: 'Account Banned Meme Lab · Kind Robots' })
-useSeoMeta(
-  gameLinkPreviewMeta('ban-meme', useRuntimeConfig().public.appBaseUrl) ?? {},
-)
+useSeoMeta({
+  description: 'Archived Account Banned Meme Lab for Kind Robots administrators.',
+  robots: 'noindex',
+})
 </script>

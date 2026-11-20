@@ -240,11 +240,7 @@ assert.equal(
     'casino',
     episodeCard(landing, 'casino').id,
   ),
-  episodeArtworkCardId(
-    landing,
-    'casino',
-    episodeCard(landing, 'casino').id,
-  ),
+  episodeArtworkCardId(landing, 'casino', episodeCard(landing, 'casino').id),
   'existing v1 saves keep their casino painting after reload',
 )
 assert.equal(seenCasinoPaintings.size, 16)
@@ -262,9 +258,7 @@ assert.equal(
   271104,
 )
 assert.equal(
-  COUCH_CASINO_EPISODE_ART_IDS[
-    'episode/casino-all-you-can-eat-ask-success'
-  ],
+  COUCH_CASINO_EPISODE_ART_IDS['episode/casino-all-you-can-eat-ask-success'],
   undefined,
   'pending renders are never exposed as completed art',
 )

@@ -436,11 +436,11 @@ const flightSave = computed(() =>
   readRainbowSave(arcadeStore.saveFor(rainbowSlug), isRainbowCheckpoint),
 )
 const mastery = computed(() => arcadeStore.masteryFor(rainbowSlug))
+const hangar = computed(() => arcadeStore.rainbowHangarForSlot())
 const seaProgress = computed(() =>
-  rainbowSeaLogbook(flightSave.value, mastery.value),
+  rainbowSeaLogbook(flightSave.value, mastery.value, hangar.value.medals),
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
-const hangar = computed(() => arcadeStore.rainbowHangarForSlot())
 const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))
 const exploredCount = computed(
   () => seaProgress.value.filter((sea) => sea.explored).length,

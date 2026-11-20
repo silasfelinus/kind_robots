@@ -181,16 +181,16 @@ assert.match(
   'a failed remote read must never be reported as synced',
 )
 const artworkLoader = store.slice(
-  store.indexOf('async function loadAlienArtwork()'),
+  store.indexOf('async function loadAlienArtwork('),
   store.indexOf(
     'const onboardingArt',
-    store.indexOf('async function loadAlienArtwork()'),
+    store.indexOf('async function loadAlienArtwork('),
   ),
 )
 assert.match(artworkLoader, /const epoch = accountEpoch/)
 assert.match(
   artworkLoader,
-  /epoch === accountEpoch && response\.success/,
+  /epoch !== accountEpoch/,
   'an older account response cannot repopulate a new player art cache',
 )
 

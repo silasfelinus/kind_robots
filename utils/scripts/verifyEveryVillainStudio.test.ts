@@ -25,7 +25,11 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 17)
+assert.equal(STAGE_PRESETS.length, 18)
+assert.ok(
+  STAGE_PRESETS.some((stage) => stage.id === 'song-that-stopped'),
+  "Chorus's broadcast origin is a distinct traversable battle",
+)
 assert.ok(
   STAGE_PRESETS.some((stage) => stage.id === 'sunken-street'),
   "Cornerstone's origin rescue is a distinct playable preset",

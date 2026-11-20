@@ -1898,6 +1898,7 @@ model User {
   SlimeCityAccount       SlimeCityAccount?
   ZuzuGamebookSave       ZuzuGamebookSave?
   SpaceCouchAlienGuide    SpaceCouchAlienGuide?
+  SpaceCouchVoyageSave    SpaceCouchVoyageSave?
   SlimeCityMatches       SlimeCityMatch[]
 
   @@index([artImageId], map: "User_artImageId_fkey")
@@ -3836,6 +3837,17 @@ model SpaceCouchAlienGuide {
   userId    Int      @id
   data      Json
   version   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/** Private, versioned Space Couch voyage and finished-run backup per account.
+ * The legacy browser-local save and separate alien guide remain untouched. */
+model SpaceCouchVoyageSave {
+  userId    Int      @id
+  payload   String   @db.LongText
+  revision  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -336,6 +336,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     tag: 'Civilian rescue · burrowing bunny men',
   },
   {
+    id: 'ferris-wheel',
+    art: 'districts/waterfront-market',
+    tag: 'Skyline origin · stabilize gondolas and rescue two passengers',
+  },
+  {
     id: 'college-quad',
     art: 'districts/student-commons',
     tag: 'Rival heroes · fountain cover',

@@ -21,6 +21,7 @@ import { scriptProblems, type SceneScript } from './sceneGraph'
 import { SCIENCE_WING_SCRIPT } from './scienceWingScript'
 import { CROSSWALK_CRISIS_SCRIPT } from './crosswalkCrisisScript'
 import { LAST_ORDER_SCRIPT } from './lastOrderScript'
+import { FERRIS_WHEEL_SCRIPT } from './ferrisWheelScript'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -160,6 +161,49 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'rescue', count: 1 },
     script: LAST_ORDER_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'ferris-wheel',
+    title: 'Ferris Wheel Without Air',
+    venue: 'Comet City pier carnival',
+    objective:
+      'Land Skyline’s Updraft Catch on the wind gauge at column 5, row 3 to stabilize both gondolas, then rescue both passengers before round eight.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [4, 5], [6, 0], [6, 5]),
+        '2,2': tile(0, false, { east: 'half' }),
+        '3,3': tile(0, false, { north: 'half' }),
+        '5,2': tile(1),
+        '5,4': tile(0, false, { west: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 4 },
+      { id: 'priya', x: 3, y: 2 },
+      { id: 'hattie', x: 0, y: 1 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 3, y: 5 }],
+    hazards: [{ x: 5, y: 3 }],
+    turnLimit: 8,
+    civilians: [
+      { id: 'wheel-upper', name: 'Child in the upper gondola', x: 7, y: 2 },
+      { id: 'wheel-lower', name: 'Rider in the lower gondola', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'ticket-booth', x: 3, y: 3, cover: 'half', hp: 2 },
+      { id: 'wheel-rail', x: 5, y: 1, cover: 'full', hp: 3 },
+    ],
+    activeHazards: [
+      { id: 'swaying-catwalk', kind: 'collapse', x: 5, y: 3, round: 4 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: FERRIS_WHEEL_SCRIPT,
   },
   {
     version: 1,

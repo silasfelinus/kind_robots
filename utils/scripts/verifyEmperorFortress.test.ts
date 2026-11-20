@@ -8817,7 +8817,7 @@ console.log('Emperor of Dust fortress contract: ok')
     ['d22-blame', 'evidence', /ferry tokens/],
     ['d23-smugglers', 'license', /tincture/],
     ['d23-smugglers', 'free', /cheaper tincture/],
-    ['d27-trial', 'investigate', /evidence quest/],
+    ['d27-trial', 'investigate', /Dunmore asks/],
     ['d28-verge-envoy', 'accept', /lost exile/],
     ['d28-verge-envoy', 'test', /Archive to test/],
     ['d28-verge-envoy', 'refuse', /cooks/],

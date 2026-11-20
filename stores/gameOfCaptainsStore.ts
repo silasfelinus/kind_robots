@@ -25,6 +25,13 @@ import { kitStorageKey } from '~/utils/playbookKit/settings'
 import { legacyCouchSettings } from '~/utils/gameOfCaptains/legacyPreferences'
 import { useAchievementStore } from '~/stores/achievementStore'
 import {
+  createVoyageBackup,
+  mergeVoyageHistory,
+  parseVoyageBackup,
+  VOYAGE_BACKUP_MAX_BYTES,
+  type VoyageBackup,
+} from '~/utils/gameOfCaptains/voyageBackup'
+import {
   COMPLETED_VOYAGES_KEY,
   archiveCompletedVoyage,
   normalizeCompletedVoyages,
@@ -156,6 +163,16 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     }
   }
   const storageWarning = ref('')
+  const backupMessage = ref('')
+  const pendingBackup = ref<VoyageBackup | null>(null)
+  const backupPreview = computed(() =>
+    pendingBackup.value
+      ? {
+          voyage: pendingBackup.value.voyage !== null,
+          finished: pendingBackup.value.completedVoyages.length,
+        }
+      : null,
+  )
   const alienSyncStatus = ref<'guest' | 'loading' | 'synced' | 'pending'>(
     'guest',
   )
@@ -859,6 +876,90 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = null
     persist()
   }
+  function downloadVoyageBackup() {
+    if (!loaded.value) load()
+    const file = createVoyageBackup(run.value, completedVoyages.value)
+    const url = URL.createObjectURL(
+      new Blob([file], { type: 'application/json' }),
+    )
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `space-couch-voyage-${new Date().toISOString().slice(0, 10)}.json`
+    anchor.click()
+    setTimeout(() => URL.revokeObjectURL(url), 0)
+    backupMessage.value = 'Voyage backup downloaded to this device.'
+  }
+  async function stageVoyageBackup(file: File) {
+    pendingBackup.value = null
+    backupMessage.value = ''
+    try {
+      if (file.size > VOYAGE_BACKUP_MAX_BYTES) {
+        throw new Error('Backup is too large (8 MB limit).')
+      }
+      pendingBackup.value = parseVoyageBackup(await file.text())
+    } catch (error) {
+      backupMessage.value =
+        error instanceof Error ? error.message : 'Backup could not be read.'
+    }
+  }
+  function cancelVoyageBackup() {
+    pendingBackup.value = null
+    backupMessage.value = ''
+  }
+  function applyVoyageBackup(): boolean {
+    const imported = pendingBackup.value
+    if (!imported) return false
+    if (!loaded.value) load()
+    const nextRun = imported.voyage
+      ? restoreTrioAdventure(imported.voyage)
+      : run.value
+    const nextHistory = mergeVoyageHistory(
+      completedVoyages.value,
+      imported.completedVoyages,
+    )
+    let originalHistory: string | null | undefined
+    try {
+      originalHistory = localStorage.getItem(COMPLETED_VOYAGES_KEY)
+      // Archive first, then active save. If the second write fails, roll
+      // back the archive so the existing live voyage is not partly replaced.
+      localStorage.setItem(COMPLETED_VOYAGES_KEY, JSON.stringify(nextHistory))
+      if (imported.voyage) {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(nextRun))
+      }
+    } catch {
+      if (originalHistory !== undefined) {
+        try {
+          if (originalHistory === null)
+            localStorage.removeItem(COMPLETED_VOYAGES_KEY)
+          else localStorage.setItem(COMPLETED_VOYAGES_KEY, originalHistory)
+        } catch {
+          // Storage is unavailable; do not change reactive voyage state.
+        }
+      }
+      backupMessage.value =
+        'Browser storage could not save this backup. Your current voyage remains open.'
+      return false
+    }
+    run.value = nextRun
+    completedVoyages.value = nextHistory
+    completedArchiveDirty = false
+    if (imported.voyage && nextRun) {
+      usePlaybookRunReviewStore().begin(
+        'game-of-captains',
+        playbookRunKey(nextRun),
+      )
+    }
+    restoring = true
+    try {
+      persist()
+    } finally {
+      restoring = false
+    }
+    pendingBackup.value = null
+    backupMessage.value =
+      'Backup imported. Finished voyages were merged with this device.'
+    return true
+  }
   return {
     run,
     completedVoyages,
@@ -887,6 +988,12 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     dismissAlienEncounter,
     saved,
     storageWarning,
+    backupMessage,
+    backupPreview,
+    downloadVoyageBackup,
+    stageVoyageBackup,
+    cancelVoyageBackup,
+    applyVoyageBackup,
     onboardingArt,
     onboardingArtLoaded,
     loadOnboardingArt,

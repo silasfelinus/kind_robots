@@ -154,8 +154,13 @@ assert.match(
 )
 assert.equal(
   (store.match(/restoring = true/g) ?? []).length,
-  1,
-  'only load() persists without awarding',
+  2,
+  'only load() and a confirmed backup import may persist without awarding',
+)
+assert.match(
+  store,
+  /function applyVoyageBackup\(\): boolean \{[\s\S]*?restoring = true\s+try \{\s+persist\(\)\s+\} finally \{\s+restoring = false\s+\}/,
+  'imported voyage progress is restored without earning unplayed badges',
 )
 assert.ok(store.includes("award('game-of-captains-launch')"))
 assert.match(

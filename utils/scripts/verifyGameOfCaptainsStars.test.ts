@@ -3,6 +3,12 @@ import {
   archiveCompletedVoyage,
   normalizeCompletedVoyages,
 } from '../gameOfCaptains/completedVoyages'
+import {
+  createVoyageBackup,
+  mergeVoyageHistory,
+  parseVoyageBackup,
+  VOYAGE_BACKUP_KIND,
+} from '../gameOfCaptains/voyageBackup'
 import { CAPTAIN_ORIGINS } from '../gameOfCaptains/captainOrigins'
 import { legacyCouchSettings } from '../gameOfCaptains/legacyPreferences'
 import {
@@ -554,6 +560,25 @@ assert.ok(
   'the title menu displays live site achievements, not a second local ledger',
 )
 assert.ok(page.includes('data-testid="space-couch-main-log"'))
+assert.ok(page.includes('data-testid="space-couch-export-backup"'))
+assert.ok(page.includes('data-testid="space-couch-import-backup"'))
+assert.ok(page.includes('data-testid="space-couch-backup-file"'))
+assert.ok(page.includes('data-testid="space-couch-backup-confirm"'))
+assert.ok(store.includes('parseVoyageBackup(await file.text())'))
+assert.ok(store.includes('mergeVoyageHistory('))
+assert.ok(
+  store.includes('if (originalHistory === null)'),
+  'a failed import rolls the archived history back before changing active saves',
+)
+assert.ok(
+  store.includes(': run.value'),
+  'history-only imports preserve the current active voyage',
+)
+assert.ok(store.includes('if (imported.voyage)'))
+assert.ok(
+  store.includes("const SAVE_KEY = 'game-of-captains-voyage-v1'"),
+  'portable backups cannot rename the existing live voyage save key',
+)
 assert.ok(page.includes('data-testid="space-couch-completed-voyages"'))
 assert.ok(page.includes('data-testid="space-couch-voyage-archive"'))
 assert.ok(page.includes('data-testid="space-couch-voyage-dossier"'))
@@ -925,3 +950,53 @@ assert.deepEqual(
   {},
   'malformed legacy settings never enable features unexpectedly',
 )
+const exportedBackup = createVoyageBackup(
+  voyageBeforeEnding,
+  firstArchive,
+  new Date('2026-11-19T20:00:00Z'),
+)
+const importedBackup = parseVoyageBackup(exportedBackup)
+assert.equal(importedBackup.kind, VOYAGE_BACKUP_KIND)
+assert.equal(importedBackup.exportedAt, '2026-11-19T20:00:00.000Z')
+assert.deepEqual(importedBackup.voyage, restoreVoyage(voyageBeforeEnding))
+assert.deepEqual(importedBackup.completedVoyages, firstArchive)
+assert.ok(!exportedBackup.includes('alienGuide'))
+assert.ok(!exportedBackup.includes('authenticatedUserId'))
+assert.ok(!exportedBackup.includes('achievements'))
+assert.deepEqual(
+  parseVoyageBackup(createVoyageBackup(null, firstArchive)).completedVoyages,
+  firstArchive,
+)
+assert.equal(parseVoyageBackup(createVoyageBackup(null, [])).voyage, null)
+assert.throws(() => parseVoyageBackup('not-json'), /valid JSON/)
+assert.throws(
+  () => parseVoyageBackup(JSON.stringify({ ...importedBackup, version: 2 })),
+  /Unsupported Space Couch backup format/,
+)
+assert.throws(
+  () => parseVoyageBackup(JSON.stringify({ ...importedBackup, voyage: {} })),
+  /invalid or incompatible/,
+)
+assert.throws(
+  () =>
+    parseVoyageBackup(
+      JSON.stringify({
+        ...importedBackup,
+        completedVoyages: [...firstArchive, firstArchive[0]],
+      }),
+    ),
+  /invalid or duplicated/,
+)
+assert.deepEqual(
+  mergeVoyageHistory(firstArchive, firstArchive),
+  firstArchive,
+  'an imported backup never duplicates existing finished voyages',
+)
+const mergedBackupHistory = mergeVoyageHistory(firstArchive, moreVoyages)
+assert.equal(
+  mergedBackupHistory.length,
+  moreVoyages.length + 1,
+  'restoring a second device keeps unique voyages from both devices',
+)
+assert.ok(mergedBackupHistory.some((entry) => entry.id === firstArchive[0]?.id))
+assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))

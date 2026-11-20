@@ -817,6 +817,7 @@ onMounted(() => {
   ) {
     store.chooseLead(incomingLead)
     store.choosePerspective(incomingView)
+    crossfireSetup.value = true
     store.openScreen('story')
   }
   window.addEventListener('keydown', onKey)

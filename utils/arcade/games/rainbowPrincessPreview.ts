@@ -1386,7 +1386,8 @@ export function createRainbowPrincessPreview(
     pickups.length = 0
     enemyShots.length = 0
     survivors.length = 0
-    for (const ship of livingShips()) ship.shield = Math.min(shieldCap, ship.shield + 1)
+    for (const ship of livingShips())
+      ship.shield = Math.min(shieldCap, ship.shield + 1)
   }
 
   /** Act VI's fork: where the living crew flies at the decision frame picks the route. */
@@ -1912,7 +1913,8 @@ export function createRainbowPrincessPreview(
       score += TRENCH_FORK.salvageScore
       for (const ship of living) ship.power = Math.min(3, ship.power + 1)
     } else {
-      for (const ship of living) ship.shield = Math.min(shieldCap, ship.shield + 1)
+      for (const ship of living)
+        ship.shield = Math.min(shieldCap, ship.shield + 1)
     }
     popups.push({
       x: W / 2,

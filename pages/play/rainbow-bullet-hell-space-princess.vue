@@ -324,8 +324,8 @@
         class="@container flex min-h-0 flex-1 flex-col gap-2 rounded-3xl border border-base-300 bg-[#251345] p-2 text-white sm:p-3"
       >
         <p class="shrink-0 text-sm font-bold" aria-live="polite">
-          Palace Hangar · Slot {{ rainbowSlot + 1 }} ·
-          {{ hangarBalance }} medal petals available
+          Palace Hangar · Slot {{ rainbowSlot + 1 }} · {{ hangarBalance }} medal
+          petals available
         </p>
         <div
           role="group"
@@ -357,7 +357,9 @@
             class="h-1/3 min-h-0 w-full shrink-0 object-cover @2xl:h-full @2xl:w-1/2"
             loading="lazy"
           />
-          <div class="flex min-h-0 flex-1 flex-col justify-between gap-2 p-2 sm:p-3">
+          <div
+            class="flex min-h-0 flex-1 flex-col justify-between gap-2 p-2 sm:p-3"
+          >
             <h3 class="text-base font-black">
               {{ selectedHangarUpgrade.name }}
             </h3>
@@ -392,8 +394,8 @@
           </div>
         </article>
         <p class="shrink-0 text-xs text-white/75">
-          Bronze, silver and gold medals earn 1, 2 and 3 petals per sea.
-          Only your best medal per sea counts. Upgrades stay in this slot.
+          Bronze, silver and gold medals earn 1, 2 and 3 petals per sea. Only
+          your best medal per sea counts. Upgrades stay in this slot.
         </p>
       </section>
     </div>

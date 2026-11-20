@@ -413,10 +413,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       (_, index) => {
         const key = rainbowSlotKey(index)
         const hangar = readRainbowHangar(prefs.rainbowHangars?.[index])
-        return awardRainbowHangarMedals(
-          hangar,
-          key ? saves.value[key] : null,
-        )
+        return awardRainbowHangarMedals(hangar, key ? saves.value[key] : null)
       },
     )
     writePrefs({ ...prefs, rainbowHangars: rainbowHangars.value })

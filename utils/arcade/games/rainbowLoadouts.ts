@@ -157,7 +157,9 @@ export type RainbowSave = {
 export function rainbowSeaLogbook(
   save: RainbowSave | null,
   mastery: readonly string[],
-  collectedMedals: Partial<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, RainbowMedal>> = {},
+  collectedMedals: Partial<
+    Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, RainbowMedal>
+  > = {},
 ): { explored: boolean; medal: RainbowMedal | null; label: string }[] {
   const reached =
     save?.checkpoint.act ?? (mastery.includes('first-light') ? 2 : 1)

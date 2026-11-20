@@ -397,7 +397,11 @@ cornerstone.x = 6
 cornerstone.y = 2
 cornerstone.ap = 2
 assert.equal(rescueSelected(streetRun), true)
-assert.equal(streetRun.phase, 'active', 'the second passenger still needs rescue')
+assert.equal(
+  streetRun.phase,
+  'active',
+  'the second passenger still needs rescue',
+)
 cornerstone.x = 6
 cornerstone.y = 4
 cornerstone.ap = 2

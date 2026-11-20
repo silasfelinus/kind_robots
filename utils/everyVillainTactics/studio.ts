@@ -237,8 +237,18 @@ export const STAGE_PRESETS: StageDraft[] = [
     hazards: [{ x: 5, y: 4 }],
     turnLimit: 9,
     civilians: [
-      { id: 'sinkhole-driver', name: 'Bus driver at the steering wheel', x: 7, y: 2 },
-      { id: 'sinkhole-student', name: 'Student trapped on the back seat', x: 7, y: 4 },
+      {
+        id: 'sinkhole-driver',
+        name: 'Bus driver at the steering wheel',
+        x: 7,
+        y: 2,
+      },
+      {
+        id: 'sinkhole-student',
+        name: 'Student trapped on the back seat',
+        x: 7,
+        y: 4,
+      },
     ],
     props: [
       { id: 'buckled-asphalt', x: 3, y: 3, cover: 'half', hp: 2 },

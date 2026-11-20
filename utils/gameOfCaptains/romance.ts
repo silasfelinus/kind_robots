@@ -272,7 +272,9 @@ export function relationshipEpilogue(run: VoyageRun): VoyageRun {
       ? `${story.ending} ${captainReflections[run.captain]}`
       : record.status === 'courting' || record.status === 'invited'
         ? `${story.negotiation} Their future remains unwritten, not promised.`
-        : `${story.separation} ${story.fault}`
+        : record.status === 'rejected'
+          ? story.refusal
+          : story.separation
     : 'No captain can demand an ending to somebody else’s heart.'
   return {
     ...run,

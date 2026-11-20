@@ -176,11 +176,11 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'The engine runs clean. In a month it won’t. Nobody in the canyon suspects.',
+        'The pump throws a clear ribbon of water into the Pack’s trough. Children put their faces in it. The crown’s mechanic has filed a pin that will shear in a month, when those children and their elders have come to depend on the pump. Nobody at the celebration sees the metal dust in the mechanic’s cuffs.',
       partial:
         'The sabotaged engine turns without complaint. The filed pin slides under the mechanic’s thumb but holds. The party leaves without learning which shift will be blamed when it breaks.',
       failure:
-        'Gristle Vane found the filed bolt himself. He kept it. He will show it to people.',
+        'Gristle Vane lays the filed bolt beside the working one and makes the mechanic name every tool used. By sundown the Pack has the crown’s mark drawn on its water barrels, crossed out in red. Vane keeps the bolt for the next time the court asks him to trust a promise.',
       expired:
         'The mechanic replaces the weakened pin before the party arrives. The old one sits on the workbench in a clean envelope. Gristle Vane asks who wanted the engine to fail.',
     },
@@ -392,11 +392,11 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'Hollow Bell let them in. Mara Reedbell wrote every name. Then she looked at the crown’s riders and wrote theirs.',
+        'Mara Reedbell opens Hollow Bell’s gate and counts the refugees against the winter well allotment. The crown’s escort stays to carry cots into the tannery; the people who sold those cots to the Freeholds will have to answer for the missing beds. Mara enters the riders’ names after the families. She wants the town to remember whose promise filled its rooms.',
       partial:
         'Mara opens the bell gate for families with trade papers first. The others make camp in the ditch beneath the walls. Their cookfire smoke reaches the mayor’s bedroom window.',
       failure:
-        'Mara keeps the gate barred. The escort sleeps among the refugees, passing one cooking pot between six fires. At dawn someone has painted the crown’s mark on the locked gate.',
+        'Mara keeps the gate barred. Her watchmen say the wells can water one more street or forty strangers, not both. The crown’s escort sleeps in the ditch with the refugees and passes one cooking pot between six fires. At dawn the crown’s mark is painted on the barred gate. The mark faces both the town and the people outside.',
       expired:
         'The abandoned escort notice remains on the throne board. An Abbey wagon reaches the refugees before the crown does. Its driver leaves a list of names for the tax office to cross out.',
     },
@@ -455,13 +455,13 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     ],
     outcomes: {
       success:
-        'Hollow Bell voted yes, by nine hands. The bell rang. Somebody was holding the rope.',
+        'Hollow Bell votes for the crown’s protection by nine hands. The town captains add their names to the watch roll, then demand to know which road the crown will defend first. Mara keeps the nine dissenting names in her own ledger. The bell rings for the agreement, and the rope leaves a red welt on the ringer’s palms.',
       partial:
         'Mara breaks the deadlock behind the old chapel door. When she comes out, she has put the voting tally in her ledger backward. She refuses to read the margin aloud.',
       failure:
         'The town votes against the crown. Mara Reedbell delivers the result in person and brings a loaf from the town bakery. It has been cut in half before she arrives.',
       expired:
-        'The speaker’s chair stays empty through the Bell’s assembly. Mara folds the unused invitation and files it beside the negative tally. The bell rings once, without ceremony.',
+        'The crown’s chair stays empty through Hollow Bell’s assembly. A cooper asks who will answer when the river road is raided; no one speaks for the tower. Mara folds the unused invitation beside the negative tally. The bell rings once to end the meeting. The gate captain takes the crown’s old patrol map down from the wall.',
     },
   },
   {
@@ -499,9 +499,9 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     },
     outcomes: {
       success:
-        'The dam held. The map room has a new blue line where the reservoir will be.',
+        'The dam holds through the test release. The Ford families walk the bank and mark the height they can safely build above; the Mole surveyor makes the same marks underground. Back at the tower, the new reservoir is a blue line across two maps, one drawn by the Freeholds and one by the burrows. Neither map shows who gets the water first.',
       partial:
-        'The dam keeps its crown and loses its southern spillway. The water finds the tenant fields first. A farmer brings the map room three bricks marked with flood depth.',
+        'The dam keeps its crown but loses the southern spillway. Water pours into the tenant fields before it reaches the river, saving the old stonework at the cost of this year’s seed. A farmer brings the map room three bricks scored with the flood depth. He sets them on the Freehold map and waits for someone to move them.',
       failure:
         'The dam tears open at the center. By morning the two riverside villages stand knee-deep in silt. The burrow roofs below them split under the weight of the water, and Granny Umber demands the names of whoever signed the design.',
       expired:

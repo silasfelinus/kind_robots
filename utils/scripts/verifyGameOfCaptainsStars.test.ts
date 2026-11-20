@@ -895,6 +895,36 @@ assert.equal(
   firstArchive,
   'replaying persistence must not produce duplicate voyage pages',
 )
+const alternateEndingPath = {
+  ...finishedVoyage,
+  missionHistory: [
+    { ...finishedVoyage.missionHistory[0]!, policy: 'observe' as const },
+  ],
+}
+const alternateArchive = archiveCompletedVoyage(
+  firstArchive,
+  alternateEndingPath,
+  20261121,
+)
+assert.equal(alternateArchive.length, 2)
+assert.equal(alternateArchive[1]?.id, firstArchive[0]?.id)
+assert.match(alternateArchive[0]!.id, /:replay-1$/)
+assert.equal(
+  archiveCompletedVoyage(alternateArchive, alternateEndingPath, 20261122),
+  alternateArchive,
+  'saving the same alternate ending never adds another dossier',
+)
+const thirdPath = {
+  ...finishedVoyage,
+  log: [...finishedVoyage.log, 'The crew chose another route.'],
+}
+const thirdArchive = archiveCompletedVoyage(
+  alternateArchive,
+  thirdPath,
+  20261123,
+)
+assert.equal(thirdArchive.length, 3)
+assert.match(thirdArchive[0]!.id, /:replay-2$/)
 assert.deepEqual(
   normalizeCompletedVoyages(JSON.parse(JSON.stringify(firstArchive))),
   firstArchive,

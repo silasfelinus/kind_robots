@@ -292,6 +292,12 @@
             >
               {{ seaProgress[index]?.label }}
             </div>
+            <p
+              v-if="routeIntel.some((route) => route.act === index + 1)"
+              class="absolute left-2 top-2 rounded-full bg-[#1a0d33]/90 px-2 py-1 text-xs font-bold"
+            >
+              {{ routeIntel.find((route) => route.act === index + 1)?.label }}
+            </p>
             <div class="flex shrink-0 items-center gap-2 px-3 py-2">
               <span
                 class="rounded-full bg-pink-200 px-2 py-0.5 font-mono text-xs font-bold text-[#37204e]"
@@ -318,6 +324,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useArcadeStore } from '~/stores/arcadeStore'
 import {
   rainbowSeaLogbook,
+  rainbowRouteIntel,
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
@@ -367,6 +374,7 @@ const mastery = computed(() => arcadeStore.masteryFor(rainbowSlug))
 const seaProgress = computed(() =>
   rainbowSeaLogbook(flightSave.value, mastery.value),
 )
+const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
 const exploredCount = computed(
   () => seaProgress.value.filter((sea) => sea.explored).length,
 )

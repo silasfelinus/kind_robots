@@ -1,4 +1,4 @@
-import { patrolCrewFor } from './patrolCrews'
+import { crewPatrolAftermath, patrolCrewFor } from './patrolCrews'
 import {
   ALL_PATROL_STORIES,
   fillStoryText,
@@ -960,9 +960,11 @@ export function nightPatrolBeat(
     }
   }
   const previous = run.patrolHistory?.at(-1)
-  const reminder = previous
-    ? `Last night in ${PATROL_ZONES.find((zone) => zone.id === previous.zone)!.title}, you made a choice the neighborhood hasn't forgotten.`
-    : 'The city is awake after the school day. Not every wrong can wait for a siren.'
+  const reminder =
+    crewPatrolAftermath(run) ??
+    (previous
+      ? `Last night in ${PATROL_ZONES.find((zone) => zone.id === previous.zone)!.title}, you made a choice the neighborhood hasn't forgotten.`
+      : 'The city is awake after the school day. Not every wrong can wait for a siren.')
   return {
     title: `NIGHT ${run.day} · THE STREETS REMEMBER`,
     text: `${reminder} Your radio lists urgent calls across Comet City, but ordinary people still need a hero on the blocks nobody puts on the dispatch board. Choose a named emergency or walk a district. You have only one night.`,

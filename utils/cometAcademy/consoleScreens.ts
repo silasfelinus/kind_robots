@@ -662,6 +662,41 @@ export function notableCards(run: AcademyRun) {
   })
 }
 
+/** The rival's actual species, only unlocked by a witnessed patrol choice.
+ * Canonical characters remain separate from their one-hit SPECIES crews. */
+export function crewSpeciesCards(run: AcademyRun) {
+  const witnessed = new Set<string>()
+  const cards = []
+  for (const memory of run.patrolHistory ?? []) {
+    const encounter = witnessedPatrolCrew(
+      { day: memory.day, opponentSignature: run.opponentSignature },
+      memory.zone,
+      memory.choiceId,
+    )
+    if (!encounter || witnessed.has(encounter.rival)) continue
+    witnessed.add(encounter.rival)
+    const { crew, choice } = encounter
+    cards.push({
+      key: encounter.rival,
+      day: memory.day,
+      name: crew.name,
+      captain: crew.captain,
+      look: crew.look,
+      move: crew.move,
+      counter: crew.counter,
+      story: crew.story,
+      facetType: crew.facetType,
+      hp: crew.hp,
+      outcome: choice.id.endsWith('-counter-investigate')
+        ? 'Counter exposed'
+        : choice.id.endsWith('-mercy-intervene')
+          ? 'Mercy offered'
+          : 'Crew coerced',
+    })
+  }
+  return cards
+}
+
 /** The twelve endings as yearbook plates: discovered ones show their art. */
 export function endingPlates(discovered: readonly string[]) {
   const found = new Set(discovered)

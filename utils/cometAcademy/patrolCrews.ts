@@ -87,3 +87,25 @@ export function witnessedPatrolCrew(
   const choice = encounter?.choices.find((entry) => entry.id === choiceId)
   return encounter && choice ? { ...encounter, choice } : null
 }
+
+/** One-night-later consequences of the player's crew choice, read from the
+ * existing patrol history so old save formats remain untouched. */
+export function crewPatrolAftermath(run: CrewPatrolRun): string | null {
+  const previous = run.patrolHistory?.at(-1)
+  if (!previous || run.day !== previous.day + 1) return null
+  const witnessed = witnessedPatrolCrew(
+    {
+      day: previous.day,
+      opponentSignature: run.opponentSignature,
+    },
+    previous.zone,
+    previous.choiceId,
+  )
+  if (!witnessed) return null
+  const { crew, choice } = witnessed
+  if (choice.id.endsWith('-counter-investigate'))
+    return `Last night's evidence reached the neighborhood before the sirens. ${crew.captain} is hiding the ${crew.name}'s warning signal, but residents are repeating your counter: ${crew.counter} The district knows how to protect itself now.`
+  if (choice.id.endsWith('-mercy-intervene'))
+    return `The ${crew.name} you spared are quietly clearing safe passages for families. ${crew.captain} has not joined you, but a civilian brings a message: the crew remembers who offered them a choice instead of a beating.`
+  return `Your threat worked too well. ${crew.captain}'s ${crew.name} stand down when you pass, but shopkeepers shutter their windows first. People are no longer sure whose patrol they should fear.`
+}

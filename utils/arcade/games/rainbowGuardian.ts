@@ -9,6 +9,7 @@ import { rainbowBossHp } from './rainbowPinkwakeBoss'
 export type RainbowGuardianKind =
   | 'urchin'
   | 'lantern'
+  | 'matriarch'
   | 'clawstrike'
   | 'courier'
   | 'salvager'
@@ -164,6 +165,21 @@ export function stepRainbowGuardian(
       const fromGap = (i - gap + count) % count
       if (fromGap < 3) continue
       shot((i / count) * Math.PI * 2, 1.45)
+    }
+  } else if (guardian.kind === 'matriarch') {
+    // Alternating bioluminescent rings and aimed split fans. The bright central
+    // gap is never filled by a solid projectile on the same volley.
+    if (guardian.volleys % 2 === 1) {
+      const count = enraged ? 18 : 14
+      const gap = (guardian.volleys * 3) % count
+      for (let i = 0; i < count; i++)
+        if ((i - gap + count) % count >= 4)
+          shot((i / count) * Math.PI * 2, enraged ? 1.65 : 1.35)
+    } else {
+      const aim = Math.atan2(nearest.y - guardian.y, nearest.x - guardian.x)
+      const offsets = enraged ? [0.18, 0.3, 0.42, 0.54] : [0.22, 0.37, 0.52]
+      for (const side of [-1, 1])
+        for (const offset of offsets) shot(aim + side * offset, 1.8)
     }
   } else if (guardian.kind === 'herald') {
     // The Crown Herald remixes two old lessons, one per volley: bolts down the lanes its warning marked,

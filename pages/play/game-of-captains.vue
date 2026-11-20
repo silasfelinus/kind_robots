@@ -140,6 +140,18 @@
           <button
             type="button"
             class="cap-menu-back"
+            data-testid="space-couch-refresh-paintings"
+            :disabled="store.artworkRefreshPending"
+            @click="store.refreshArtwork()"
+          >
+            {{ store.artworkRefreshPending ? 'CHECKING PAINTINGS…' : 'CHECK FOR NEW PAINTINGS' }}
+          </button>
+          <p v-if="store.artworkRefreshMessage" role="status">
+            {{ store.artworkRefreshMessage }}
+          </p>
+          <button
+            type="button"
+            class="cap-menu-back"
             @click="titlePanel = 'home'"
           >
             ← MAIN MENU

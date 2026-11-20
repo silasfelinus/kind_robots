@@ -297,6 +297,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     redshirtArtLoaded.value = false
     onboardingArt.value = {}
     onboardingArtLoaded.value = false
+    artworkRefreshPending.value = false
+    artworkRefreshMessage.value = ''
     trioArtwork.value = {}
     loadedTrioArtwork.value = {}
     pendingTrioArtwork.value = {}
@@ -484,36 +486,42 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
 
   const alienArtwork = ref<Record<string, string>>({})
   const alienArtLoaded = ref(false)
-  async function loadAlienArtwork() {
-    if (alienArtLoaded.value) return
+  async function loadAlienArtwork(force = false): Promise<boolean> {
+    if (alienArtLoaded.value && !force) return true
     const epoch = accountEpoch
     try {
       const response = await performFetch<Record<string, string>>(
         '/api/game-of-captains/alien-art',
       )
-      if (epoch === accountEpoch && response.success && response.data) {
-        alienArtwork.value = response.data
-      }
+      if (epoch !== accountEpoch) return false
+      if (!response.success || !response.data) return false
+      alienArtwork.value = response.data
+      return true
     } catch {
-      if (epoch === accountEpoch) alienArtwork.value = {}
+      // Keep previously delivered paintings through a transient failure.
+      // The player may explicitly refresh without reloading the voyage.
+      return false
     } finally {
       if (epoch === accountEpoch) alienArtLoaded.value = true
     }
   }
   const redshirtArtwork = ref<Record<string, string>>({})
   const redshirtArtLoaded = ref(false)
-  async function loadRedshirtArtwork() {
-    if (redshirtArtLoaded.value) return
+  async function loadRedshirtArtwork(force = false): Promise<boolean> {
+    if (redshirtArtLoaded.value && !force) return true
     const epoch = accountEpoch
     try {
       const response = await performFetch<Record<string, string>>(
         '/api/game-of-captains/redshirt-art',
       )
-      if (epoch === accountEpoch && response.success && response.data) {
-        redshirtArtwork.value = response.data
-      }
+      if (epoch !== accountEpoch) return false
+      if (!response.success || !response.data) return false
+      redshirtArtwork.value = response.data
+      return true
     } catch {
-      if (epoch === accountEpoch) redshirtArtwork.value = {}
+      // Keep previously delivered paintings through a transient failure.
+      // The player may explicitly refresh without reloading the voyage.
+      return false
     } finally {
       if (epoch === accountEpoch) redshirtArtLoaded.value = true
     }
@@ -546,20 +554,44 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       if (epoch === accountEpoch) pendingTrioArtwork.value[trio] = false
     }
   }
-  async function loadOnboardingArt() {
-    if (onboardingArtLoaded.value) return
+  async function loadOnboardingArt(force = false): Promise<boolean> {
+    if (onboardingArtLoaded.value && !force) return true
     const epoch = accountEpoch
     try {
       const response = await performFetch<Record<string, string>>(
         '/api/game-of-captains/onboarding-art',
       )
-      if (epoch === accountEpoch && response.success && response.data) {
-        onboardingArt.value = response.data
-      }
+      if (epoch !== accountEpoch) return false
+      if (!response.success || !response.data) return false
+      onboardingArt.value = response.data
+      return true
     } catch {
-      if (epoch === accountEpoch) onboardingArt.value = {}
+      // Keep previously delivered paintings through a transient failure.
+      // The player may explicitly refresh without reloading the voyage.
+      return false
     } finally {
       if (epoch === accountEpoch) onboardingArtLoaded.value = true
+    }
+  }
+  const artworkRefreshPending = ref(false)
+  const artworkRefreshMessage = ref('')
+  async function refreshArtwork() {
+    if (artworkRefreshPending.value) return
+    const epoch = accountEpoch
+    artworkRefreshPending.value = true
+    artworkRefreshMessage.value = ''
+    try {
+      const results = await Promise.all([
+        loadAlienArtwork(true),
+        loadRedshirtArtwork(true),
+        loadOnboardingArt(true),
+      ])
+      if (epoch !== accountEpoch) return
+      artworkRefreshMessage.value = results.every(Boolean)
+        ? 'Artwork checked. Newly approved paintings are now available.'
+        : 'Some art could not be reached. Existing paintings were kept; try again later.'
+    } finally {
+      if (epoch === accountEpoch) artworkRefreshPending.value = false
     }
   }
   // The title, opening reel and voyage UI all read the Playbook Kit settings.
@@ -1020,6 +1052,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     onboardingArt,
     onboardingArtLoaded,
     loadOnboardingArt,
+    artworkRefreshPending,
+    artworkRefreshMessage,
+    refreshArtwork,
     trioArtwork,
     loadTrioArtwork,
     preferences,

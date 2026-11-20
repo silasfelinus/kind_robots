@@ -628,6 +628,7 @@ import {
   ANIMATION_SPEEDS,
   PERSPECTIVE_ART,
   PLAYABLE_PERSPECTIVES,
+  canStartOneShot,
   oneShotStages,
 } from '~/utils/everyVillainTactics/frontMenu'
 import {
@@ -703,13 +704,10 @@ const revealArtwork = computed(
 )
 const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = computed(() =>
-  oneShotStages().filter(
-    (stage) =>
-      (stage.id !== 'ferris-wheel' || pickedLead.value === 'accident-air') &&
-      (stage.id !== 'sunken-street' || pickedLead.value === 'accident-earth'),
+  oneShotStages().filter((stage) =>
+    canStartOneShot(stage.id, pickedLead.value),
   ),
 )
-
 const art = (key: string) => promArt(key)
 const BACKDROPS: Record<string, string> = {
   title: 'front/splash-v2',

@@ -26,6 +26,8 @@ import {
   SCRAPBOOK_MOMENTS,
   SCRAPBOOK_TRIGGERS,
   animationScale,
+  canStartOneShot,
+  ORIGIN_STAGE_LEADS,
   emptyScrapbook,
   mergeScrapbook,
   momentsFromSave,
@@ -417,6 +419,22 @@ falseLead.y = 2
 falseLead.ap = 2
 assert.equal(useSelectedPower(falseCornerstone, { x: 4, y: 2 }), true)
 assert.ok(!falseCornerstone.flags?.includes('sinkhole-ramp-secured'))
+
+// Identity-locked rescue scenarios cannot strand someone without the needed
+// power, even if a saved menu or scripted call bypasses the visual filter.
+assert.deepEqual(ORIGIN_STAGE_LEADS, {
+  'last-order': 'accident-fire',
+  'ferris-wheel': 'accident-air',
+  'sunken-street': 'accident-earth',
+})
+for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
+  assert.equal(canStartOneShot(stage, signature), true)
+  for (const different of ['accident-fire', 'accident-air', 'accident-earth']) {
+    if (different !== signature)
+      assert.equal(canStartOneShot(stage, different), false)
+  }
+}
+assert.equal(canStartOneShot('science-lab', 'psychic-social'), true)
 
 // One-shot menu: Picnic Panic first, every stage valid with shipped art.
 const oneShots = oneShotStages()

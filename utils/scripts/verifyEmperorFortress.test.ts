@@ -9549,7 +9549,7 @@ const actOneLateCosts = [
   ['d05-toll', 'hire', /Saltroad drivers/],
   ['d05-toll', 'hold', /bridge/],
   ['d06-market-charter', 'archive-rules', /egg-sellers/],
-  ['d07-crow-warning', 'pay', /forecast/],
+  ['d07-crow-warning', 'pay', /storm’s hour/],
   ['d07-crow-warning', 'warn-freeholds', /lamplight/],
   ['d08-family', 'abbey', /gate/],
   ['d09-convoy', 'our-own', /quest board|convoy job/],

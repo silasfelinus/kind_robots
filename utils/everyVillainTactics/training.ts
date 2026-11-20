@@ -855,6 +855,21 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
       'Backdraft routes the grease fire into the extractor hood. Mara can now cross the kitchen safely.',
     )
   }
+  if (
+    state.stageId === 'ferris-wheel' &&
+    unit.identity === 'accident-air' &&
+    result.hit &&
+    result.preview.target.x === 4 &&
+    result.preview.target.y === 2 &&
+    !(state.flags ?? []).includes('wheel-air-bridge')
+  ) {
+    state.flags ??= []
+    state.flags.push('wheel-air-bridge')
+    note(
+      state,
+      'Skyline anchors the Updraft Catch to Priya’s wind gauge. The air corridor reaches both gondolas; both hatches can now open.',
+    )
+  }
   // A leap lands in view of rival overwatch like any other move.
   if (result.preview.power.targeting === 'leap') triggerReactions(state, unit)
   updateOutcome(state)
@@ -875,6 +890,12 @@ export function rescueTargets(state: TrainingState): Civilian[] {
         state.stageId !== 'last-order' ||
         c.id !== 'diner-cook' ||
         (state.flags ?? []).includes('diner-hood-vented'),
+    )
+    .filter(
+      (c) =>
+        state.stageId !== 'ferris-wheel' ||
+        !c.id.startsWith('wheel-') ||
+        (state.flags ?? []).includes('wheel-air-bridge'),
     )
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))

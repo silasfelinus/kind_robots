@@ -19,6 +19,7 @@
 // cards (crew specials plus the Grease Oracle and Juggernaut mercenaries): a
 // new dead one-slot card, or a dead crew fighter, fails here.
 import assert from 'node:assert/strict'
+import { CPU_REACH_VIA_CONSTRUCTED_ONLY } from './lib/slimeCityCpuReach'
 import { soloProblems } from '../slimeCity/alliance'
 import {
   CLASH_DECK_SIZE,
@@ -346,6 +347,13 @@ assert.ok(
   dead.length === 0,
   dead.length + ' dead two-slot cards (ceiling 0): ' + dead.join(', '),
 )
+// The 300-card matchup suite never plays these six; this field must, or the
+// claim that every card is CPU-played somewhere stops being true.
+for (const id of CPU_REACH_VIA_CONSTRUCTED_ONLY)
+  assert.ok(
+    inDeckGames.has(id) && (played.get(id) ?? 0) > 0,
+    id + ' is fielded and played here (lib/slimeCityCpuReach)',
+  )
 // Count distinct bouts in which a card was chosen, not raw play commands.
 // A repeatedly played card must not masquerade as a high selection rate.
 // Keep repeat plays and evolution reachability for editorial diagnosis.

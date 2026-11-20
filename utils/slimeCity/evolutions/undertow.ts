@@ -310,6 +310,10 @@ export const UNDERTOW_EVOLUTIONS: Record<string, CardEvolution> = {
   // fighters off the board; against the books, simply out-damage the heal.
   's3-undertow-reveal-the-ledger': {
     levelOneText: 'Clears one alley and keeps the convoy moving.',
+    // Level 1 (t-041 reach pass): with no trap to clear the card was a dead
+    // draw, and no CPU ever played it. The post now jots down one name, a
+    // one-point preview of the L3 hit list, so it always does something.
+    1: stage('First Name on the List', [on('enter', damage(1, 'weakestFoe'))]),
     2: stage('Convoy Cleared', [on('enter', cleanse('allies'))]),
     3: stage('Hit List', [on('enter', damage(3, 'weakestFoe', true))]),
     // Choose one: or cook the books and patch the boss. The CPU publishes

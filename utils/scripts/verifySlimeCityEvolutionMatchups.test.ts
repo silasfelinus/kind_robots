@@ -11,6 +11,7 @@ import {
 } from '../slimeCity/clash'
 import { CLASH_EVOLUTIONS } from '../slimeCity/clashEvolutions'
 import { sweepAlliance } from './slimeCityAllianceBalanceReport'
+import { CPU_REACH_VIA_CONSTRUCTED_ONLY } from './lib/slimeCityCpuReach'
 
 const crews = TEAMS.map((t) => t.id)
 const mercenaries = CARDS.filter((c) => c.team === 'mercenary').map((c) => c.id)
@@ -162,6 +163,19 @@ const duplicateJourneys = [...signatureGroups.values()].filter(
 )
 const notPlayed = CARDS.filter((card) => !observed.has(card.id)).map(
   (card) => card.name,
+)
+// slime-city/t-041 closeout: no card may sit unplayed here unless the
+// constructed suite fields it and proves it played (lib/slimeCityCpuReach).
+// Before 2026-11-19 PT, Reveal the Ledger and Secondhand Halo were played by
+// no CPU in any suite; each now has a level-one payoff.
+const unplayedWithoutProof = CARDS.filter(
+  (card) =>
+    !observed.has(card.id) && !CPU_REACH_VIA_CONSTRUCTED_ONLY.includes(card.id),
+).map((card) => card.id)
+assert.deepEqual(
+  unplayedWithoutProof,
+  [],
+  'every card is played by the CPU here or in the constructed suite',
 )
 const threeUsed = [...observed.values()].filter((card) => card.l3 > 0).length
 const pct = (n: number, total: number): string =>

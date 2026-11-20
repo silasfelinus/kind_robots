@@ -260,10 +260,22 @@ export function exposureAt(
     .filter((shot) => shot.hit > 0)
     .sort((a, b) => b.hit - a.hit || a.shooter.localeCompare(b.shooter))
 }
+/** The Crossfire backbone keeps its named opponent across chapters.
+ * Studio one-shots (including power-specific origins) retain their own cast. */
+export const isCrossfireFoilStage = (stage: StageDraft | null): boolean =>
+  !!stage &&
+  [
+    'science-lab',
+    'crosswalk-crisis',
+    'rooftop-broadcast',
+    'under-comet-breach',
+    'prom-night-finale',
+  ].includes(stage.id)
+
 export type TrainingOptions = {
   /** Replace the first squad slot with this canonical hero. */
   lead?: string
-  /** Story only: replace the rival lead with this canonical hero. */
+  /** First Bell or Crossfire's five preset chapters: canonical opponent. */
   foil?: string
   /** Apply hero roles and signature powers. Prom of Doom interludes opt out
    * so their saved battles and balance stay exactly as shipped. */
@@ -316,8 +328,10 @@ export function trainingState(
   const rival = state.units.find((u) => u.team === 'rival')
   if (stage?.id === 'ferris-wheel' && rival) rival.identity = 'accident-fire'
   if (
-    !stage &&
+    (!stage || isCrossfireFoilStage(stage)) &&
     rival &&
+    !rival.henchmanName &&
+    !rival.lieutenantName &&
     options.foil &&
     isValidFoil(options.foil, lead.identity)
   )

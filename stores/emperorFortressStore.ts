@@ -480,7 +480,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   function resetProgress() {
     if (!loaded.value) load()
     const store = storage()
-    if (!store) throw new Error('Browser storage is blocked; no progress was erased')
+    if (!store)
+      throw new Error('Browser storage is blocked; no progress was erased')
     const keys = [
       AUTO_KEY,
       ...Array.from({ length: SLOT_COUNT }, (_, slot) => slotKey(slot)),

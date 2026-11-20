@@ -209,11 +209,13 @@
         aria-label="Erase game progress"
       >
         <div>
-          <h3 class="font-serif text-lg font-bold">Erase this reign's history</h3>
+          <h3 class="font-serif text-lg font-bold">
+            Erase this reign's history
+          </h3>
           <p class="mt-1 text-sm opacity-80">
             Permanently removes this game's autosave, all three slots, Codex,
-            relics, legacy favors and completed-reign scrapbook. Reading settings
-            and other games are kept. Account achievements stay earned.
+            relics, legacy favors and completed-reign scrapbook. Reading
+            settings and other games are kept. Account achievements stay earned.
           </p>
         </div>
         <button
@@ -225,7 +227,12 @@
         >
           Erase Emperor of Dust progress…
         </button>
-        <div v-else class="space-y-3" role="group" aria-label="Confirm progress reset">
+        <div
+          v-else
+          class="space-y-3"
+          role="group"
+          aria-label="Confirm progress reset"
+        >
           <label class="block text-sm font-semibold" for="eod-erase-confirm">
             Type ERASE to permanently clear this game's progress.
           </label>

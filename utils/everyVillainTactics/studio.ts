@@ -23,6 +23,7 @@ import { CROSSWALK_CRISIS_SCRIPT } from './crosswalkCrisisScript'
 import { LAST_ORDER_SCRIPT } from './lastOrderScript'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
+import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
 
 export type StudioBrush =
   | 'erase'
@@ -368,6 +369,66 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'defeat-boss', unit: 'pip' },
     script: UNDER_COMET_BREACH_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'prom-night-finale',
+    title: "Prom Night: Everybody's Villain",
+    venue: 'Comet City Academy grand ballroom',
+    objective:
+      'Survive all six rounds of a three-faction siege. Clear the opening rivals, block the burrowers, then outlast the trademark-wielding final wave until the emergency gates open.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [4, 5]),
+        '3,1': tile(1, false, { south: 'half' }),
+        '4,1': tile(1),
+        '5,1': tile(1),
+        '3,2': tile(0, false, { east: 'half' }),
+        '5,2': tile(0, false, { west: 'half' }),
+        '6,4': tile(0, false, { west: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 4 },
+      { id: 'priya', x: 1, y: 5 },
+      { id: 'hattie', x: 0, y: 2 },
+      { id: 'pip', x: 7, y: 1 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 7, y: 4 },
+    ],
+    secrets: [{ x: 3, y: 5 }],
+    hazards: [],
+    turnLimit: null,
+    props: [
+      { id: 'bandstand', x: 4, y: 1, cover: 'full', hp: 3 },
+      { id: 'buffet', x: 2, y: 2, cover: 'half', hp: 2 },
+      { id: 'piano', x: 3, y: 4, cover: 'full', hp: 3 },
+      { id: 'banquette', x: 6, y: 3, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'sparking-curtain', kind: 'fire', x: 5, y: 1 },
+      { id: 'live-punch-bowl', kind: 'water', x: 4, y: 4 },
+      { id: 'dance-floor-fracture', kind: 'collapse', x: 4, y: 3, round: 4 },
+    ],
+    waves: [
+      {
+        round: 3,
+        crew: 'warren-wreckers',
+        spawns: [{ x: 8, y: 0 }],
+      },
+      {
+        round: 5,
+        crew: 'licensed-legends',
+        spawns: [
+          { x: 8, y: 5 },
+          { x: 6, y: 0 },
+        ],
+      },
+    ],
+    victory: { kind: 'survive', rounds: 6 },
+    script: PROM_NIGHT_FINALE_SCRIPT,
   },
   {
     version: 1,

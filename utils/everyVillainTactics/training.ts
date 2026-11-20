@@ -533,7 +533,9 @@ function ruleVictory(state: TrainingState, rules: StageRules): string | null {
       ? 'Evacuation complete: ' + rescued + ' civilian(s) are safe.'
       : null
   }
-  if (v.kind === 'hold-zone') return null
+  // Survive and hold-zone objectives are earned at round end, not by
+  // defeating the current enemies before later reinforcement phases arrive.
+  if (v.kind === 'hold-zone' || v.kind === 'survive') return null
   return rivalsDown && !pending
     ? 'The rival squad stands down. What you call victory depends on whom you ask.'
     : null

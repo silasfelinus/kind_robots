@@ -634,6 +634,8 @@ export const useEveryVillainTacticsStore = defineStore(
     function startPlaytest() {
       if (studioProblems.value.length) return false
       crossfireActive.value = false
+      // Studio and one-shot battles do not inherit an earlier story's rival.
+      foilSignature.value = null
       isPlaytest.value = true
       studioOpen.value = false
       reset()

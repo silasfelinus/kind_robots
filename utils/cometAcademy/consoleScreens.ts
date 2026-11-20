@@ -1,6 +1,7 @@
 import { CAMPAIGN_VILLAINS, campaignVillain } from './campaign'
 import { identityFor } from './identityArcs'
 import { henchmanForVillain } from './villainHenchmen'
+import { witnessedPatrolCrew } from './patrolCrews'
 import { PATROL_SECRETS, PATROL_ZONES, patrolSceneFor } from './nightPatrols'
 import { patrolStoryById } from './patrolStories'
 import { OCTOBER_CAST } from './octoberCast'

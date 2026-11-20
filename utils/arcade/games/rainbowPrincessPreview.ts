@@ -52,6 +52,7 @@ import {
   rainbowLook,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
+import { applyRainbowSwimMotion } from './rainbowSwimMotion'
 import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
@@ -5967,6 +5968,8 @@ export function createRainbowPrincessPreview(
                       : reef.kind === 'coral'
                         ? '#e4c0ff'
                         : '#d09ffd'
+        g.save()
+        applyRainbowSwimMotion(g, reef.kind, tick, calm)
         if (
           !drawRainbowEnemySprite(
             g,
@@ -5996,6 +5999,7 @@ export function createRainbowPrincessPreview(
           g.quadraticCurveTo(23, -15, 17, -22)
           g.stroke()
         }
+        g.restore()
         if (reef.kind === 'mirror') {
           // The solid eel is outlined; its reflection never is.
           g.strokeStyle = '#ffffff'
@@ -6216,6 +6220,8 @@ export function createRainbowPrincessPreview(
           }
           g.restore()
         }
+        g.save()
+        applyRainbowSwimMotion(g, guardian.kind, guardian.frame, calm)
         if (
           !drawRainbowGuardianSprite(
             g,
@@ -6251,6 +6257,7 @@ export function createRainbowPrincessPreview(
           }
           g.restore()
         }
+        g.restore()
         // Same charge cue as the bosses: a pulsing ring that never fades below three quarters.
         if (rainbowGuardianWarning(guardian)) {
           g.strokeStyle = '#fffbb6'

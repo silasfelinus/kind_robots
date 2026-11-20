@@ -1,9 +1,5 @@
 import type { SignaturePowerId } from './specialPowers'
-import type {
-  PatrolChoice,
-  PatrolMemory,
-  PatrolZoneId,
-} from './nightPatrols'
+import type { PatrolChoice, PatrolMemory, PatrolZoneId } from './nightPatrols'
 import { henchmanForVillain } from './villainHenchmen'
 
 type CrewPatrolRun = {
@@ -81,7 +77,11 @@ export function witnessedPatrolCrew(
 ) {
   if (!choiceId.startsWith('crew-')) return null
   const encounter = patrolCrewFor(
-    { day: run.day, opponentSignature: run.opponentSignature, patrolHistory: [] },
+    {
+      day: run.day,
+      opponentSignature: run.opponentSignature,
+      patrolHistory: [],
+    },
     zone,
   )
   const choice = encounter?.choices.find((entry) => entry.id === choiceId)

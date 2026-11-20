@@ -2287,9 +2287,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
     }
   })
   const patrol = run.nightPatrol
-  const patrolScene = patrol
-    ? patrolEncounterFor(run, patrol.zone)
-    : null
+  const patrolScene = patrol ? patrolEncounterFor(run, patrol.zone) : null
   const patrolChoice = patrol
     ? patrolOptionsFor(run, patrol.zone).find(
         (choice) => choice.id === patrol?.choiceId,

@@ -429,8 +429,10 @@ for (const henchman of VILLAIN_HENCHMEN) {
   assert.ok(encounter.scene.includes(henchman.move))
   assert.equal(encounter.choices.length, 3)
   for (const choice of encounter.choices) {
-    assert.ok(choice.result.includes(henchman.counter) ||
-      choice.result.includes(henchman.story))
+    assert.ok(
+      choice.result.includes(henchman.counter) ||
+        choice.result.includes(henchman.story),
+    )
     crewChoices.add(choice.id)
   }
 }
@@ -464,12 +466,16 @@ const mercyPatrol = chooseNightPatrol(crewBase, crewZone, mercyChoice.id)
 assert.equal(mercyPatrol.nightPatrol?.choiceId, mercyChoice.id)
 assert.ok(restoreAcademy(JSON.parse(JSON.stringify(mercyPatrol))))
 const mercyDebrief = resolveDispatch(mercyPatrol)
-assert.ok(mercyDebrief.patrolHistory?.some(
-  (memory) => memory.choiceId === mercyChoice.id,
-))
-assert.ok(mercyDebrief.reports.some((report) =>
-  report.text.includes('without a casualty'),
-))
+assert.ok(
+  mercyDebrief.patrolHistory?.some(
+    (memory) => memory.choiceId === mercyChoice.id,
+  ),
+)
+assert.ok(
+  mercyDebrief.reports.some((report) =>
+    report.text.includes('without a casualty'),
+  ),
+)
 const mercyMoment = scrapbookMoments(mercyDebrief).find((moment) =>
   moment.title.includes('on Patrol'),
 )!
@@ -490,7 +496,7 @@ const forgedCrew = {
 assert.equal(
   restoreAcademy(JSON.parse(JSON.stringify(forgedCrew))),
   null,
-  'a saved crew choice must match the run\'s actual opponent',
+  "a saved crew choice must match the run's actual opponent",
 )
 const exploitDebrief = resolveDispatch(
   chooseNightPatrol(crewBase, crewZone, coercedChoice.id),
@@ -507,8 +513,10 @@ const laterCrew = patrolCrewFor(
 )
 assert.equal(laterCrew, null, 'one signature crew encounter per term')
 assert.equal(
-  patrolOptionsFor({ ...mercyDebrief, day: 29, phase: 'dispatch' }, crewZone)
-    .some((option) => option.id.startsWith('crew-')),
+  patrolOptionsFor(
+    { ...mercyDebrief, day: 29, phase: 'dispatch' },
+    crewZone,
+  ).some((option) => option.id.startsWith('crew-')),
   false,
   'repeat patrols keep their original choice sets',
 )

@@ -44,8 +44,8 @@ const run = {
   day: 25,
   phase: 'dispatch' as const,
 }
-const zone = PATROL_ZONES.find((candidate) =>
-  !activePatrolStory(run, candidate.id),
+const zone = PATROL_ZONES.find(
+  (candidate) => !activePatrolStory(run, candidate.id),
 )!.id
 const encounter = patrolCrewFor(run, zone)!
 const scene = patrolEncounterFor(run, zone)
@@ -54,7 +54,8 @@ assert.ok(scene.scene.includes(encounter.crew.name))
 const options = patrolOptionsFor(run, zone)
 for (const choice of encounter.choices)
   assert.ok(options.some((entry) => entry.id === choice.id))
-assert.ok(options.some((option) => !option.id.startsWith('crew-')),
+assert.ok(
+  options.some((option) => !option.id.startsWith('crew-')),
   'the existing rotating patrol choices remain playable for old saves',
 )
 const mercy = encounter.choices[1]!
@@ -64,12 +65,15 @@ assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(chosen))), chosen)
 const debrief = resolveDispatch(chosen)
 assert.equal(debrief.phase, 'debrief')
 assert.equal(debrief.patrolHistory?.at(-1)?.encounterId, scene.id)
-assert.ok(debrief.reports.some((report) =>
-  report.text.includes(encounter.crew.name),
-))
+assert.ok(
+  debrief.reports.some((report) => report.text.includes(encounter.crew.name)),
+)
 assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(debrief))), debrief)
 assert.equal(
-  patrolCrewFor({ ...run, day: 29, patrolHistory: debrief.patrolHistory }, zone),
+  patrolCrewFor(
+    { ...run, day: 29, patrolHistory: debrief.patrolHistory },
+    zone,
+  ),
   null,
   'meeting the crew persists: do not re-encounter them later',
 )

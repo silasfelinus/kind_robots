@@ -162,11 +162,10 @@ for (const test of callbackCases) {
     test.chapter === 0
       ? null
       : clonePreset(CROSSFIRE_CHAPTERS[test.chapter]!.id)
-  const previousState = trainingState(
-    0x53a1b7,
-    sourceStage ?? undefined,
-    { lead: 'accident-fire', foil: 'accident-air' },
-  )
+  const previousState = trainingState(0x53a1b7, sourceStage ?? undefined, {
+    lead: 'accident-fire',
+    foil: 'accident-air',
+  })
   previousState.phase = 'victory'
   if (test.flag) previousState.flags = [test.flag]
   const previousStory = createStory()
@@ -252,9 +251,7 @@ const scarState = trainingState(0x53a1b7, scarStage, {
   lead: 'accident-fire',
 })
 applyCrossfireCarryover(scarState, priorWounded, 0)
-for (const unit of scarState.units.filter((u) =>
-  scars.wounded.includes(u.id),
-))
+for (const unit of scarState.units.filter((u) => scars.wounded.includes(u.id)))
   assert.equal(unit.hp, Math.max(1, unit.maxHp - 1))
 assert.equal(
   scarState.units.find((unit) => unit.id === 'backdraft')!.hp,

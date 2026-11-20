@@ -482,9 +482,7 @@ export const useEveryVillainTacticsStore = defineStore(
       if (!crossfireActive.value || !journal || journal.chapter === 0)
         return null
       const last = journal.completed[journal.chapter - 1]
-      return last
-        ? crossfireCarryover(last, journal.chapter - 1).note
-        : null
+      return last ? crossfireCarryover(last, journal.chapter - 1).note : null
     })
     const canAdvanceCrossfire = computed(
       () =>

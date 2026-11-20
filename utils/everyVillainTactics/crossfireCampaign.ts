@@ -95,8 +95,7 @@ export function applyCrossfireCarryover(
   // identical to the canonical 48-person roster. Rest between chapters heals
   // all but one wound, never leaving a dead squadmate unplayable.
   for (const unit of state.units.filter((unit) => unit.team === 'squad')) {
-    if (carry.wounded.includes(unit.id))
-      unit.hp = Math.max(1, unit.maxHp - 1)
+    if (carry.wounded.includes(unit.id)) unit.hp = Math.max(1, unit.maxHp - 1)
   }
   if (carry.effect === 'guard') {
     const lead = state.units.find(
@@ -114,7 +113,6 @@ export function applyCrossfireCarryover(
   state.log = carry.note
   state.events = [carry.note, ...state.events].slice(0, 6)
 }
-
 
 export type CrossfireJournal = {
   version: 1

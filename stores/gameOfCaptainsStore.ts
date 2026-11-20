@@ -917,7 +917,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       completedVoyages.value,
       imported.completedVoyages,
     )
-    let originalHistory: string | null
+    let originalHistory: string | null | undefined
     try {
       originalHistory = localStorage.getItem(COMPLETED_VOYAGES_KEY)
       // Archive first, then active save. If the second write fails, roll

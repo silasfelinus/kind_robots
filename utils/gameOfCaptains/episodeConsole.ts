@@ -583,6 +583,23 @@ function actualOdds(
   // conditional mission skill chance; adjust the displayed forecast below.
   return baseline
 }
+/**
+ * A completed redshirt mission requires both the field roll and surviving
+ * the separate fatality roll. Trained redshirts have 90% survival odds;
+ * everyone else has 80%. The published forecast must include that risk.
+ */
+function questForecast(
+  run: VoyageRun,
+  enc: ExpeditionEncounter,
+  lead: string,
+): number {
+  const chance = actualOdds(run, enc, lead)
+  const redshirt = REDSHIRT_BY_ID[lead]
+  if (!redshirt) return chance
+  const survivalTenths = redshirt.stats[enc.skill] >= 4 ? 9 : 8
+  return Math.floor((chance * survivalTenths) / 10)
+}
+
 export function questOdds(
   run: VoyageRun,
   enc: ExpeditionEncounter,
@@ -594,12 +611,8 @@ export function questOdds(
     !knownRedshirtSkills(run, knowledge, lead).includes(enc.skill)
   )
     return null
-  const odds = actualOdds(run, enc, lead)
-  return odds
-    ? REDSHIRT_BY_ID[lead]
-      ? Math.floor((odds * 2) / 3)
-      : odds
-    : null
+  const forecast = questForecast(run, enc, lead)
+  return forecast || null
 }
 export function dispatchEpisodeBatch(
   run: VoyageRun,
@@ -639,9 +652,7 @@ export function dispatchEpisodeBatch(
     if (candidate === next) return run
     const last = candidate.expeditionVisit!.results.at(-1)!
     const chance = actualOdds(run, encounter, lead)
-    const forecast = REDSHIRT_BY_ID[lead]
-      ? Math.floor((chance * 2) / 3)
-      : chance
+    const forecast = questForecast(run, encounter, lead)
     const roll =
       hash(`${run.seed}:${run.chapter}:${encounterId}:${lead}:success`) % 100
     const successful = !last.casualty && roll < chance

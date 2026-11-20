@@ -23,7 +23,7 @@ const CHOICES = [
   { rescue: 'crosswalk-medics', evidence: 'crosswalk-jammed' },
   { rescue: 'roof-warning', evidence: 'roof-jammed' },
   { rescue: 'breach-vented', evidence: 'breach-evidence' },
-  { rescue: 'prom-shelter', evidence: 'prom-command' },
+  { rescue: 'prom-shelter', evidence: null },
 ] as const
 
 const AFTERMATH: readonly {
@@ -90,6 +90,8 @@ function branchFor(
     if (battle.story.mercy || battle.story.civilians > 0) return 'rescue'
     return battle.story.evidence > 0 ? 'evidence' : 'command'
   }
+  if (index === 5)
+    return flags.includes('prom-shelter') ? 'rescue' : 'command'
   const choice = CHOICES[index]
   if (choice?.rescue && flags.includes(choice.rescue)) return 'rescue'
   if (choice?.evidence && flags.includes(choice.evidence))
@@ -157,13 +159,13 @@ export function crossfireFinale(
       title: 'The Doors Stayed Open',
       text: `${lead} wins something harder than a battle: the city keeps its evacuation routes open. The students, researchers and workers who were protected on earlier nights run the final rescue themselves. Even ${opponent} cannot claim those people were merely pieces on the board.`,
     }
-  if (last === 'evidence' && exposedOrders >= 2)
+  if (last === 'rescue' && exposedOrders >= 2)
     return {
       path: 'black-box',
       title: 'The Evidence They Could Not Burn',
       text: `${lead} leaves the ballroom with testimony from every district. The files from earlier missions make the final broadcast impossible to discredit. ${opponent} faces a public reckoning rather than a convenient final duel, and the city gets to read its own history.`,
     }
-  if (last === 'evidence' || last === 'rescue')
+  if (last === 'rescue')
     return {
       path: 'unfinished',
       title: 'No One Gets the Last Word',

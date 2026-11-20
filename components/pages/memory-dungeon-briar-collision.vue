@@ -176,9 +176,7 @@
             :alt="collision.current.title"
             class="absolute inset-0 h-full w-full object-cover"
           />
-          <div
-            class="kr-scroll relative max-h-full min-h-0 max-w-2xl overflow-y-auto overscroll-contain rounded-lg bg-[#121e26]/85 p-3"
-          >
+          <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
               class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]"
             >

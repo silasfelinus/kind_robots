@@ -138,9 +138,7 @@
             :alt="collision.current.title"
             class="absolute inset-0 h-full w-full object-cover"
           />
-          <div
-            class="kr-scroll relative max-h-full min-h-0 max-w-2xl overflow-y-auto overscroll-contain rounded-lg bg-[#121e26]/85 p-3"
-          >
+          <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
               class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]"
             >
@@ -149,9 +147,6 @@
             <h3 class="mt-1 text-lg font-black sm:text-2xl">
               {{ collision.current.title }}
             </h3>
-            <p class="mt-2 text-xs leading-relaxed sm:text-sm">
-              {{ collision.current.opening }}
-            </p>
           </div>
           <span
             v-if="collision.current.sceneArt.status !== 'delivered'"
@@ -174,9 +169,7 @@
             data-testid="memory-finale-ending-art"
             @error="failedArt.add(collision.endingArt)"
           />
-          <div
-            class="kr-scroll relative max-h-full min-h-0 max-w-2xl overflow-y-auto overscroll-contain rounded-lg bg-[#121e26]/85 p-3"
-          >
+          <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
               class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]"
             >
@@ -190,6 +183,13 @@
         <div
           class="kr-scroll min-h-0 flex-[0_1_auto] overflow-y-auto p-3 empty:hidden"
         >
+          <p
+            v-if="collision.current && !collision.ending"
+            class="mb-3 text-sm leading-relaxed"
+            data-testid="memory-finale-collision-opening"
+          >
+            {{ collision.current.opening }}
+          </p>
           <p
             v-if="collision.notice"
             class="mb-2 text-xs text-[#f6d49a]"

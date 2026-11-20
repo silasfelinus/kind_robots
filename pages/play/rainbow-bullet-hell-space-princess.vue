@@ -51,6 +51,8 @@
         class="princess-stage relative flex min-h-0 flex-1 flex-col"
       >
         <ArcadeCabinet
+          v-if="cabinetMounted"
+          :key="rainbowSlot"
           slug="rainbow-bullet-hell-space-princess"
           contained
           :suspended="view !== 'flight' || openingShowing"
@@ -237,6 +239,29 @@
         aria-labelledby="princess-seas-tab"
         class="@container flex min-h-0 flex-1 flex-col"
       >
+        <div
+          role="group"
+          aria-label="Campaign save slots"
+          class="grid shrink-0 grid-cols-3 gap-1 pb-2"
+        >
+          <button
+            v-for="(summary, index) in slotSummaries"
+            :key="index"
+            type="button"
+            class="flex min-w-0 flex-col rounded-xl border px-2 py-1.5 text-left text-xs"
+            :class="
+              rainbowSlot === index
+                ? 'border-pink-300 bg-pink-100 font-bold text-[#37204e]'
+                : 'border-base-300 bg-base-200 text-base-content'
+            "
+            :aria-pressed="rainbowSlot === index"
+            :aria-label="`Slot ${index + 1}: ${summary}`"
+            @click="chooseSlot(index)"
+          >
+            <span>Slot {{ index + 1 }}</span>
+            <span class="w-full truncate opacity-80">{{ summary }}</span>
+          </button>
+        </div>
         <p
           class="shrink-0 px-1 pb-1 text-xs font-semibold text-base-content/80"
           aria-live="polite"
@@ -289,13 +314,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useArcadeStore } from '~/stores/arcadeStore'
 import {
   rainbowSeaLogbook,
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
+import {
+  rainbowSlotSummary,
+} from '~/utils/arcade/games/rainbowSaveSlots'
 import {
   RAINBOW_HERO_ART,
   RAINBOW_KITTY_POWER,
@@ -316,6 +344,22 @@ import { RAINBOW_OPENING } from '~/utils/arcade/games/rainbowOpening'
 
 const arcadeStore = useArcadeStore()
 const rainbowSlug = 'rainbow-bullet-hell-space-princess'
+const cabinetMounted = ref(true)
+const rainbowSlot = computed(() => arcadeStore.rainbowSlot)
+const slotSummaries = computed(() =>
+  arcadeStore.rainbowSlotSaves().map((raw) =>
+    rainbowSlotSummary(readRainbowSave(raw, isRainbowCheckpoint)),
+  ),
+)
+
+async function chooseSlot(slot: number) {
+  if (slot === rainbowSlot.value) return
+  cabinetMounted.value = false
+  await nextTick()
+  arcadeStore.setRainbowSlot(slot)
+  view.value = 'flight'
+  cabinetMounted.value = true
+}
 const flightSave = computed(() =>
   readRainbowSave(arcadeStore.saveFor(rainbowSlug), isRainbowCheckpoint),
 )

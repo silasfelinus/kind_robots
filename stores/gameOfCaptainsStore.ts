@@ -165,6 +165,40 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const storageWarning = ref('')
   const backupMessage = ref('')
   const pendingBackup = ref<VoyageBackup | null>(null)
+  // Account copy is an explicit, revision-guarded backup. Never overwrite
+  // a device's existing v1 save simply because the user signed in.
+  const accountBackupStatus = ref<'guest' | 'idle' | 'loading' | 'ready' | 'pending'>(
+    userStore.authenticatedUserId ? 'idle' : 'guest',
+  )
+  const accountBackupMessage = ref('')
+  const accountBackupBusy = ref(false)
+  const accountBackupSnapshot = ref<VoyageBackup | null>(null)
+  const accountBackupRevision = ref<number | null>(null)
+  const accountBackupOwner = ref<number | null>(null)
+  const accountBackupPreview = computed(() =>
+    accountBackupSnapshot.value
+      ? {
+          voyage: !!accountBackupSnapshot.value.voyage,
+          finished: accountBackupSnapshot.value.completedVoyages.length,
+        }
+      : null,
+  )
+  let accountBackupEpoch = 0
+  let stagedAccountBackupOwner: number | null = null
+  function resetAccountVoyageBackup() {
+    accountBackupEpoch++
+    accountBackupStatus.value = userStore.authenticatedUserId ? 'idle' : 'guest'
+    accountBackupBusy.value = false
+    accountBackupMessage.value = ''
+    accountBackupSnapshot.value = null
+    accountBackupRevision.value = null
+    accountBackupOwner.value = null
+    // An account switch must never import another person's pending cloud copy.
+    if (stagedAccountBackupOwner !== null) {
+      stagedAccountBackupOwner = null
+      pendingBackup.value = null
+    }
+  }
   const backupPreview = computed(() =>
     pendingBackup.value
       ? {
@@ -362,6 +396,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   watch(
     () => userStore.authenticatedUserId,
     () => {
+      resetAccountVoyageBackup()
       if (!loaded.value) return
       void syncAlienGuideAccount()
       void loadAlienArtwork()
@@ -897,6 +932,130 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = null
     persist()
   }
+  async function checkAccountVoyageBackup(): Promise<boolean> {
+    const owner = userStore.authenticatedUserId
+    if (!owner) {
+      accountBackupMessage.value = 'Sign in to check your account copy.'
+      accountBackupStatus.value = 'guest'
+      return false
+    }
+    const epoch = ++accountBackupEpoch
+    accountBackupBusy.value = true
+    accountBackupStatus.value = 'loading'
+    accountBackupMessage.value = ''
+    try {
+      const response = await performFetch<{
+        save: VoyageBackup
+        revision: number
+        updatedAt: string
+      } | null>('/api/game-of-captains/voyage-save')
+      if (epoch !== accountBackupEpoch || userStore.authenticatedUserId !== owner)
+        return false
+      if (!response.success)
+        throw new Error(response.message || 'Could not read your account copy.')
+      const remote = response.data
+      accountBackupSnapshot.value = remote
+        ? parseVoyageBackup(JSON.stringify(remote.save))
+        : null
+      accountBackupRevision.value = remote?.revision ?? null
+      accountBackupOwner.value = owner
+      accountBackupStatus.value = 'ready'
+      accountBackupMessage.value = remote
+        ? 'Account backup loaded. Choose whether to restore it or replace it with this device.'
+        : 'No account backup exists yet. Your device voyage is unchanged.'
+      return true
+    } catch (error) {
+      if (epoch === accountBackupEpoch && userStore.authenticatedUserId === owner) {
+        accountBackupStatus.value = 'pending'
+        accountBackupMessage.value =
+          error instanceof Error ? error.message : 'Could not read the account backup.'
+      }
+      return false
+    } finally {
+      if (epoch === accountBackupEpoch) accountBackupBusy.value = false
+    }
+  }
+
+  async function saveVoyageBackupToAccount(): Promise<boolean> {
+    const owner = userStore.authenticatedUserId
+    if (
+      !owner ||
+      accountBackupOwner.value !== owner ||
+      accountBackupStatus.value !== 'ready' ||
+      accountBackupBusy.value
+    ) {
+      accountBackupMessage.value =
+        'Check your signed-in account copy before saving. Nothing was overwritten.'
+      return false
+    }
+    if (!loaded.value) load()
+    if (!run.value && !completedVoyages.value.length) {
+      accountBackupMessage.value = 'There is no voyage or finished history to save.'
+      return false
+    }
+    const epoch = ++accountBackupEpoch
+    accountBackupBusy.value = true
+    try {
+      const save = parseVoyageBackup(
+        createVoyageBackup(run.value, completedVoyages.value),
+      )
+      const response = await performFetch<{ revision: number }>(
+        '/api/game-of-captains/voyage-save',
+        {
+          method: 'PUT',
+          body: JSON.stringify({
+            save,
+            expectedRevision: accountBackupRevision.value,
+          }),
+        },
+      )
+      if (epoch !== accountBackupEpoch || userStore.authenticatedUserId !== owner)
+        return false
+      if (!response.success || !response.data)
+        throw new Error(
+          response.message ||
+            'Account backup changed or could not be saved. Check it again before retrying.',
+        )
+      accountBackupSnapshot.value = save
+      accountBackupRevision.value = response.data.revision
+      accountBackupStatus.value = 'ready'
+      accountBackupMessage.value =
+        'Device voyage and finished-run history saved to this account.'
+      return true
+    } catch (error) {
+      if (epoch === accountBackupEpoch && userStore.authenticatedUserId === owner) {
+        // A stale revision must trigger a fresh GET before another PUT.
+        accountBackupStatus.value = 'pending'
+        accountBackupMessage.value =
+          (error instanceof Error ? error.message : 'Account save failed.') +
+          ' Check account copy before trying again. Your device save is safe.'
+      }
+      return false
+    } finally {
+      if (epoch === accountBackupEpoch) accountBackupBusy.value = false
+    }
+  }
+
+  function stageAccountVoyageBackup(): boolean {
+    const owner = userStore.authenticatedUserId
+    if (
+      !owner ||
+      owner !== accountBackupOwner.value ||
+      accountBackupStatus.value !== 'ready' ||
+      !accountBackupSnapshot.value
+    ) {
+      accountBackupMessage.value = 'Check the account copy again before restoring it.'
+      return false
+    }
+    pendingBackup.value = parseVoyageBackup(
+      JSON.stringify(accountBackupSnapshot.value),
+    )
+    stagedAccountBackupOwner = owner
+    backupMessage.value =
+      'Account copy staged. Confirm below before replacing any active voyage.'
+    return true
+  }
+
   function downloadVoyageBackup() {
     if (!loaded.value) load()
     const file = createVoyageBackup(run.value, completedVoyages.value)
@@ -911,6 +1070,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     backupMessage.value = 'Voyage backup downloaded to this device.'
   }
   async function stageVoyageBackup(file: File) {
+    stagedAccountBackupOwner = null
     pendingBackup.value = null
     backupMessage.value = ''
     try {
@@ -924,12 +1084,22 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     }
   }
   function cancelVoyageBackup() {
+    stagedAccountBackupOwner = null
     pendingBackup.value = null
     backupMessage.value = ''
   }
   function applyVoyageBackup(): boolean {
     const imported = pendingBackup.value
     if (!imported) return false
+    if (
+      stagedAccountBackupOwner !== null &&
+      stagedAccountBackupOwner !== userStore.authenticatedUserId
+    ) {
+      cancelVoyageBackup()
+      backupMessage.value =
+        'The account changed. Check the new account before restoring a voyage.'
+      return false
+    }
     if (!loaded.value) load()
     const nextRun = imported.voyage
       ? restoreTrioAdventure(imported.voyage)
@@ -976,6 +1146,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     } finally {
       restoring = false
     }
+    stagedAccountBackupOwner = null
     pendingBackup.value = null
     backupMessage.value =
       'Backup imported. Finished voyages were merged with this device.'
@@ -1011,6 +1182,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     storageWarning,
     backupMessage,
     backupPreview,
+    accountBackupStatus,
+    accountBackupMessage,
+    accountBackupBusy,
+    accountBackupPreview,
+    checkAccountVoyageBackup,
+    saveVoyageBackupToAccount,
+    stageAccountVoyageBackup,
     downloadVoyageBackup,
     stageVoyageBackup,
     cancelVoyageBackup,

@@ -281,6 +281,9 @@ export const EXCHANGE_EVOLUTIONS: Record<string, CardEvolution> = {
   // Trajectory: LATE BLOOMER. Counterplay: spread out; armor eats a chunk.
   's3-exchange-compound-notice': {
     levelOneText: 'A two-part bill: chip a fighter, then freeze its swing.',
+    // Level 1 (t-041 near-dead pass): the second omen grazes the debtor's
+    // neighbors, a one-point preview of the L3 cross default.
+    1: stage('The Second Omen', [on('enter', damage(1, 'adjacentFoes'))]),
     2: stage('The Chapel Returns a Favor', [on('enter', draw(1))]),
     3: stage('The Plague of Debts', [on('enter', damage(2, 'adjacentFoes'))]),
   },

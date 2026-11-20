@@ -344,6 +344,11 @@ function resolveTabItem(
             undefined,
         }
 
+  const publicDirectLink =
+    item.allowDirectAccess === true &&
+    !text(item.requiredRole) &&
+    !text(item.requiredPermission)
+
   return {
     key: tabKey,
     channelKey: channel.channelKey,
@@ -372,9 +377,12 @@ function resolveTabItem(
       : [],
     navigation: item.navigation !== false,
     allowDirectAccess: item.allowDirectAccess === true,
-    requiredRole: text(item.requiredRole) || channel.requiredRole,
-    requiredPermission:
-      text(item.requiredPermission) || channel.requiredPermission,
+    requiredRole: publicDirectLink
+      ? ''
+      : text(item.requiredRole) || channel.requiredRole,
+    requiredPermission: publicDirectLink
+      ? ''
+      : text(item.requiredPermission) || channel.requiredPermission,
     loadingMessage: text(item.loadingMessage) || channel.loadingMessage,
     refreshLabel: text(item.refreshLabel) || channel.refreshLabel,
     dottiTip: dialogue(item.dottiTip, item.dottitip) || channel.dottiTip,

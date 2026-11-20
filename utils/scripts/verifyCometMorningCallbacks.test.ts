@@ -221,6 +221,28 @@ const ignored = remembered([
 const ignoredLine = districtMemory(ignored, 'cloud-zoo')!
 assert.ok(ignoredLine.includes('went unanswered'))
 assert.ok(ignoredLine.endsWith('costs 2 from district distrust.'))
+// A fresh witness account must not erase an older faction response that
+// has finally had two nights to organize.
+const overlapping = remembered([
+  { day: 9, caseId: 'flood', grade: 'honors', unanswered: false },
+  { day: 11, caseId: 'pearl-pact', grade: 'failed', unanswered: true },
+])
+const overlappingLine = districtMemory(overlapping, 'cloud-zoo')!
+assert.ok(overlappingLine.startsWith('Night 11: '), overlappingLine)
+assert.ok(overlappingLine.includes('went unanswered'), overlappingLine)
+assert.ok(
+  overlappingLine.includes('volunteer rescue launch'),
+  'the older harbor faction response survives the newer witness account',
+)
+assert.ok(
+  !districtMemory(
+    remembered([
+      { day: 11, caseId: 'pearl-pact', grade: 'failed', unanswered: true },
+    ]),
+    'cloud-zoo',
+  )!.includes('Since then:'),
+  'yesterday\'s faction has not organized yet',
+)
 const mixed = remembered([
   { day: 10, caseId: 'flood', grade: 'failed', unanswered: false },
   { day: 11, caseId: 'pearl-pact', grade: 'pass', unanswered: false },

@@ -28,6 +28,7 @@ import {
   createVoyageBackup,
   mergeVoyageHistory,
   parseVoyageBackup,
+  persistRestoredVoyage,
   VOYAGE_BACKUP_MAX_BYTES,
   type VoyageBackup,
 } from '~/utils/gameOfCaptains/voyageBackup'
@@ -1162,27 +1163,16 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       completedVoyages.value,
       imported.completedVoyages,
     )
-    let originalHistory: string | null | undefined
-    try {
-      originalHistory = localStorage.getItem(COMPLETED_VOYAGES_KEY)
-      // Archive first, then active save. If the second write fails, roll
-      // back the archive so the existing live voyage is not partly replaced.
-      localStorage.setItem(COMPLETED_VOYAGES_KEY, JSON.stringify(nextHistory))
-      if (imported.voyage) {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(nextRun))
-      }
-    } catch {
-      if (originalHistory !== undefined) {
-        try {
-          if (originalHistory === null)
-            localStorage.removeItem(COMPLETED_VOYAGES_KEY)
-          else localStorage.setItem(COMPLETED_VOYAGES_KEY, originalHistory)
-        } catch {
-          // Storage is unavailable; do not change reactive voyage state.
-        }
-      }
-      backupMessage.value =
-        'Browser storage could not save this backup. Your current voyage remains open.'
+    const written = persistRestoredVoyage(
+      localStorage,
+      { archive: COMPLETED_VOYAGES_KEY, active: SAVE_KEY },
+      nextHistory,
+      imported.voyage ? nextRun : null,
+    )
+    if (!written.ok) {
+      backupMessage.value = written.rollbackFailed
+        ? 'Storage failed and rollback could not be confirmed. Your current voyage remains open; download a backup before reloading.'
+        : 'Browser storage could not save this backup. Your current voyage remains open.'
       return false
     }
     run.value = nextRun

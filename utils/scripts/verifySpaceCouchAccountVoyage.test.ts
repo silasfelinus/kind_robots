@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import {
   createVoyageBackup,
   parseVoyageBackup,
+  persistRestoredVoyage,
   VOYAGE_BACKUP_KIND,
   VOYAGE_BACKUP_MAX_BYTES,
 } from '../gameOfCaptains/voyageBackup'
@@ -31,6 +32,63 @@ assert.throws(
   () => parseVoyageBackup(JSON.stringify({ ...remote, voyage: {} })),
   /invalid or incompatible/,
 )
+
+
+const archiveKey = 'finished'
+const activeKey = 'voyage'
+const originals = new Map([
+  [archiveKey, 'old archive'],
+  [activeKey, 'old active voyage'],
+])
+let failActiveOnce = true
+const storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> = {
+  getItem: (key) => originals.get(key) ?? null,
+  setItem: (key, value) => {
+    originals.set(key, value)
+    if (key === activeKey && failActiveOnce) {
+      failActiveOnce = false
+      throw new Error('Simulated write failure after active save changed')
+    }
+  },
+  removeItem: (key) => {
+    originals.delete(key)
+  },
+}
+assert.deepEqual(
+  persistRestoredVoyage(
+    storage,
+    { archive: archiveKey, active: activeKey },
+    [],
+    run,
+  ),
+  { ok: false, rollbackFailed: false },
+)
+assert.equal(originals.get(archiveKey), 'old archive')
+assert.equal(originals.get(activeKey), 'old active voyage')
+assert.deepEqual(
+  persistRestoredVoyage(
+    storage,
+    { archive: archiveKey, active: activeKey },
+    [],
+    run,
+  ),
+  { ok: true, rollbackFailed: false },
+)
+assert.equal(originals.get(archiveKey), '[]')
+assert.equal(JSON.parse(originals.get(activeKey)!).seed, run.seed)
+originals.clear()
+failActiveOnce = true
+assert.equal(
+  persistRestoredVoyage(
+    storage,
+    { archive: archiveKey, active: activeKey },
+    [],
+    run,
+  ).ok,
+  false,
+)
+assert.equal(originals.has(archiveKey), false)
+assert.equal(originals.has(activeKey), false)
 
 const read = (path: string): string =>
   readFileSync(new URL(path, import.meta.url), 'utf8')
@@ -77,6 +135,8 @@ for (const action of [
   assert.ok(store.includes(action), action)
 }
 assert.match(store, /accountBackupOwner\.value !== owner/)
+assert.match(store, /persistRestoredVoyage\(/)
+assert.match(store, /written\.rollbackFailed/)
 assert.match(store, /epoch !== accountBackupEpoch/)
 assert.match(store, /expectedRevision: accountBackupRevision\.value/)
 assert.match(

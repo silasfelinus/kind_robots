@@ -85,3 +85,47 @@ export function mergeVoyageHistory(
 ): CompletedVoyage[] {
   return normalizeCompletedVoyages([...local, ...imported])
 }
+
+/**
+ * A voyage import changes two browser keys. Snapshot both before writing,
+ * and undo every attempted write if storage fails, including a write that
+ * changed its key before throwing.
+ */
+export function persistRestoredVoyage(
+  storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>,
+  keys: { archive: string; active: string },
+  completed: CompletedVoyage[],
+  voyage: VoyageRun | null,
+): { ok: boolean; rollbackFailed: boolean } {
+  const writes: Array<[string, string]> = [
+    [keys.archive, JSON.stringify(completed)],
+  ]
+  if (voyage) writes.push([keys.active, JSON.stringify(voyage)])
+  let originals: Array<string | null>
+  try {
+    originals = writes.map(([key]) => storage.getItem(key))
+  } catch {
+    return { ok: false, rollbackFailed: false }
+  }
+  let attempted = 0
+  try {
+    for (const [key, value] of writes) {
+      attempted++
+      storage.setItem(key, value)
+    }
+    return { ok: true, rollbackFailed: false }
+  } catch {
+    let rollbackFailed = false
+    for (let index = attempted - 1; index >= 0; index--) {
+      const key = writes[index]![0]
+      const original = originals[index]
+      try {
+        if (original === null) storage.removeItem(key)
+        else storage.setItem(key, original!)
+      } catch {
+        rollbackFailed = true
+      }
+    }
+    return { ok: false, rollbackFailed }
+  }
+}

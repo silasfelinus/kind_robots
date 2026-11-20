@@ -1,7 +1,4 @@
-import {
-  drawRainbowStageStrip,
-  type RainbowStageStrip,
-} from './rainbowGameArt'
+import { drawRainbowStageStrip, type RainbowStageStrip } from './rainbowGameArt'
 
 // Reuse each Act's reviewed painted coral in quieter, more distant depths.
 // Distinct scroll speeds preserve real parallax without adding network assets or combat RNG.

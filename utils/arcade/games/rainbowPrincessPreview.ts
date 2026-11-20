@@ -5568,17 +5568,7 @@ export function createRainbowPrincessPreview(
       }
       // Distant painted silhouettes drift behind the brighter coral foreground.
       const stage = (
-        [
-          's01',
-          's02',
-          's03',
-          's04',
-          's05',
-          's06',
-          's07',
-          's08',
-          's08',
-        ] as const
+        ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's08'] as const
       )[currentAct() - 1]!
       drawRainbowDistantParallax(g, stage, actFrame(currentAct()), drift, H, W)
       // The bright near coral strip remains behind enemies, shots and ships.

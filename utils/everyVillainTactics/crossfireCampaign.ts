@@ -114,6 +114,73 @@ export function applyCrossfireCarryover(
   state.events = [carry.note, ...state.events].slice(0, 6)
 }
 
+/** Crossfire's first five completed chapters can win allies *in the battle*,
+ * not only a different epilogue. The only inputs are previously validated v2
+ * chapter saves; no mutable campaign reputation or new save schema is needed. */
+export type CrossfireFinaleNetwork = {
+  rescues: number
+  evidence: number
+  squadGuarded: boolean
+  enemiesExposed: boolean
+}
+
+export function crossfireFinaleNetwork(
+  completed: readonly EvtSave[],
+): CrossfireFinaleNetwork | null {
+  if (
+    completed.length !== CROSSFIRE_CHAPTERS.length - 1 ||
+    completed.some((save) => save.state.phase !== 'victory')
+  )
+    return null
+  const outcomes = completed.map((save, index) =>
+    crossfireCarryover(save, index).effect,
+  )
+  const rescues = outcomes.filter((effect) => effect === 'guard').length
+  const evidence = outcomes.filter((effect) => effect === 'intel').length
+  return {
+    rescues,
+    evidence,
+    squadGuarded: rescues >= 3,
+    enemiesExposed: evidence >= 2,
+  }
+}
+
+/** Allies rescued on multiple nights cover the *whole* squad at the finale;
+ * collected evidence exposes the whole opposing formation. These are actual
+ * guarded/marked combat statuses, not cosmetic morale points. */
+export function applyCrossfireFinaleNetwork(
+  state: ReturnType<typeof trainingState>,
+  completed: readonly EvtSave[],
+): CrossfireFinaleNetwork | null {
+  const network = crossfireFinaleNetwork(completed)
+  if (!network) return null
+  const messages: string[] = []
+  if (network.squadGuarded) {
+    for (const unit of state.units.filter(
+      (unit) => unit.team === 'squad' && unit.hp > 0,
+    ))
+      if (!unit.statuses.includes('guarded')) unit.statuses.push('guarded')
+    messages.push(
+      'Students, medics and workers rescued on earlier nights hold the ballroom exits. Every surviving squadmate starts in guarded cover.',
+    )
+  }
+  if (network.enemiesExposed) {
+    for (const unit of state.units.filter(
+      (unit) => unit.team === 'rival' && unit.hp > 0,
+    ))
+      if (!unit.statuses.includes('marked')) unit.statuses.push('marked')
+    messages.push(
+      'Evidence gathered across the city names the attack routes. Every opening rival is marked before the first shot.',
+    )
+  }
+  if (messages.length) {
+    const report = messages.join(' ')
+    state.log = report
+    state.events = [report, ...state.events].slice(0, 6)
+  }
+  return network
+}
+
 export type CrossfireJournal = {
   version: 1
   lead: SignaturePowerId
@@ -248,6 +315,8 @@ export function advanceCrossfire(
     foil: verified.foil ?? undefined,
   })
   applyCrossfireCarryover(nextState, verified.active, verified.chapter)
+  if (chapter === CROSSFIRE_CHAPTERS.length - 1)
+    applyCrossfireFinaleNetwork(nextState, completed)
   const active = createSave({
     slot: 'auto',
     perspective: verified.perspective,

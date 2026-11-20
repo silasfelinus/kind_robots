@@ -4,7 +4,9 @@ import {
   CROSSFIRE_CHAPTERS,
   advanceCrossfire,
   applyCrossfireCarryover,
+  applyCrossfireFinaleNetwork,
   crossfireCarryover,
+  crossfireFinaleNetwork,
   crossfireChapterTitle,
   evtCrossfireKey,
   newCrossfireJournal,
@@ -481,6 +483,96 @@ const choiceFlags = [
   ['breach-vented', 'breach-evidence'],
   ['prom-shelter', 'prom-command'],
 ] as const
+// A city that the squad protected in several chapters fights beside them
+// at Prom Night. Two independently earned evidence trails expose *all* rivals.
+// The conditional statuses survive the ordinary saved battle round-trip.
+const finaleBase = journal.completed.slice(0, 5)
+function chapterHistory(
+  rescues: readonly number[],
+  evidence: readonly number[],
+) {
+  return finaleBase.map((save, index) => {
+    const story = structuredClone(save.story)
+    const state = structuredClone(save.state)
+    if (index === 0) {
+      story.mercy = rescues.includes(index)
+      story.civilians = 0
+      story.evidence = evidence.includes(index) ? 1 : 0
+    } else {
+      const flag = rescues.includes(index)
+        ? choiceFlags[index]![0]
+        : evidence.includes(index)
+          ? choiceFlags[index]![1]
+          : null
+      state.flags = flag ? [flag] : []
+    }
+    const entry = createSave({ ...save, state, story })
+    assert.ok(loadSave(entry).ok, 'historical choices remain valid v2 saves')
+    return entry
+  })
+}
+const allHelp = chapterHistory([0, 1, 2], [])
+const allProof = chapterHistory([], [0, 1, 2, 3, 4])
+const mixedHistory = chapterHistory([0, 1, 2], [3, 4])
+assert.deepEqual(crossfireFinaleNetwork(mixedHistory), {
+  rescues: 3,
+  evidence: 2,
+  squadGuarded: true,
+  enemiesExposed: true,
+})
+assert.equal(crossfireFinaleNetwork(finaleBase.slice(0, 4)), null)
+assert.equal(
+  crossfireFinaleNetwork([
+    ...mixedHistory.slice(0, 4),
+    { ...mixedHistory[4]!, state: { ...mixedHistory[4]!.state, phase: 'defeat' } },
+  ]),
+  null,
+)
+assert.equal(crossfireFinaleNetwork(allHelp)?.enemiesExposed, false)
+assert.equal(crossfireFinaleNetwork(allProof)?.squadGuarded, false)
+for (const [saved, expectedGuard, expectedMark] of [
+  [mixedHistory, true, true],
+  [allHelp, true, false],
+  [allProof, false, true],
+  [finaleBase, false, false],
+] as const) {
+  const finale = clonePreset('prom-night-finale')
+  const battle = trainingState(67891, finale, {
+    lead: 'accident-fire',
+    foil: 'accident-air',
+  })
+  const bonuses = applyCrossfireFinaleNetwork(battle, saved)
+  assert.ok(bonuses)
+  assert.equal(bonuses.squadGuarded, expectedGuard)
+  assert.equal(bonuses.enemiesExposed, expectedMark)
+  assert.equal(
+    battle.units
+      .filter((unit) => unit.team === 'squad' && unit.hp > 0)
+      .every((unit) => unit.statuses.includes('guarded')),
+    expectedGuard,
+  )
+  assert.equal(
+    battle.units
+      .filter((unit) => unit.team === 'rival' && unit.hp > 0)
+      .every((unit) => unit.statuses.includes('marked')),
+    expectedMark,
+  )
+  const checkpoint = createSave({
+    slot: 'auto',
+    perspective: 'hero',
+    leadSignature: 'accident-fire',
+    foilSignature: 'accident-air',
+    stage: finale,
+    state: battle,
+    story: { ...createStory(), current: null },
+  })
+  assert.ok(loadSave(checkpoint).ok, 'earned support survives save/restore')
+}
+// Even with a full slate of flags, a loss never earns battlefield supporters.
+const forgedSupport = structuredClone(mixedHistory)
+forgedSupport[2]!.state.phase = 'defeat'
+assert.equal(crossfireFinaleNetwork(forgedSupport), null)
+
 for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
   const battle = journal.completed[chapter]!
   const rescue = structuredClone(battle)

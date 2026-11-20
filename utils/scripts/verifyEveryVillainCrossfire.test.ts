@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs'
 import {
   CROSSFIRE_CHAPTERS,
   advanceCrossfire,
+  applyCrossfireCarryover,
+  crossfireCarryover,
   crossfireChapterTitle,
   evtCrossfireKey,
   newCrossfireJournal,
@@ -133,6 +135,140 @@ assert.equal(readCrossfireJournal(forgedPrefix), null)
 const wrongOrder = structuredClone(journal)
 wrongOrder.completed.reverse()
 assert.equal(readCrossfireJournal(wrongOrder), null)
+
+// Consequences of *authored* choices are carried into the next real battle.
+// Every resulting checkpoint must still pass the existing strict v2 validator.
+const callbackCases: ReadonlyArray<{
+  chapter: number
+  flag?: string
+  mercy?: boolean
+  evidence?: number
+  effect: 'guard' | 'intel' | 'none'
+}> = [
+  { chapter: 0, mercy: true, effect: 'guard' },
+  { chapter: 0, evidence: 2, effect: 'intel' },
+  { chapter: 0, effect: 'none' },
+  { chapter: 1, flag: 'lab-rescued', effect: 'guard' },
+  { chapter: 1, flag: 'lab-evidence', effect: 'intel' },
+  { chapter: 2, flag: 'crosswalk-medics', effect: 'guard' },
+  { chapter: 2, flag: 'crosswalk-jammed', effect: 'intel' },
+  { chapter: 3, flag: 'roof-warning', effect: 'guard' },
+  { chapter: 3, flag: 'roof-jammed', effect: 'intel' },
+  { chapter: 4, flag: 'breach-vented', effect: 'guard' },
+  { chapter: 4, flag: 'breach-evidence', effect: 'intel' },
+]
+for (const test of callbackCases) {
+  const sourceStage =
+    test.chapter === 0
+      ? null
+      : clonePreset(CROSSFIRE_CHAPTERS[test.chapter]!.id)
+  const previousState = trainingState(
+    0x53a1b7,
+    sourceStage ?? undefined,
+    { lead: 'accident-fire', foil: 'accident-air' },
+  )
+  previousState.phase = 'victory'
+  if (test.flag) previousState.flags = [test.flag]
+  const previousStory = createStory()
+  previousStory.current = null
+  if (test.chapter === 0) {
+    previousStory.seen.push('victory')
+    previousStory.decisions.push('finish')
+    previousStory.completed = true
+    previousStory.mercy = !!test.mercy
+    previousStory.evidence = test.evidence ?? 0
+    previousState.fired ??= []
+    previousState.fired.push('story:victory')
+  }
+  const previous = createSave({
+    slot: 'auto',
+    perspective: 'hero',
+    leadSignature: 'accident-fire',
+    foilSignature: test.chapter === 0 ? 'accident-air' : undefined,
+    stage: sourceStage,
+    state: previousState,
+    story: previousStory,
+  })
+  assert.ok(
+    loadSave(previous).ok,
+    'the source decision must be a valid completed battle save',
+  )
+  const carry = crossfireCarryover(previous, test.chapter)
+  assert.equal(carry.effect, test.effect)
+  const nextStage = clonePreset(CROSSFIRE_CHAPTERS[test.chapter + 1]!.id)
+  const incoming = trainingState(0x53a1b7 + test.chapter, nextStage, {
+    lead: 'accident-fire',
+  })
+  applyCrossfireCarryover(incoming, previous, test.chapter)
+  const squadLead = incoming.units.find((unit) => unit.id === 'backdraft')!
+  const firstRival = incoming.units.find(
+    (unit) => unit.team === 'rival' && unit.hp > 0,
+  )!
+  assert.equal(
+    squadLead.statuses.includes('guarded'),
+    test.effect === 'guard',
+    'rescuing civilians gives a real opening defensive bonus',
+  )
+  assert.equal(
+    firstRival.statuses.includes('marked'),
+    test.effect === 'intel',
+    'evidence carries a real opening hit-chance bonus',
+  )
+  assert.ok(incoming.log.includes(carry.note))
+  assert.ok(incoming.events.includes(carry.note))
+  const checkpoint = createSave({
+    slot: 'auto',
+    perspective: 'hero',
+    leadSignature: 'accident-fire',
+    stage: nextStage,
+    state: incoming,
+    story: { ...createStory(), current: null },
+  })
+  assert.ok(
+    loadSave(checkpoint).ok,
+    'the cross-chapter status effects must survive save/load validation',
+  )
+}
+
+// Wounds carry as a single recoverable scar. Even a downed ally returns
+// playable rather than silently killing that character in the next chapter.
+const injured = structuredClone(started.active)
+injured.state.units.find((unit) => unit.id === 'priya')!.hp = 1
+injured.state.units.find((unit) => unit.id === 'hattie')!.hp = 0
+const priorWounded = createSave({
+  slot: 'auto',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  foilSignature: 'accident-air',
+  stage: null,
+  state: injured.state,
+  story: started.active.story,
+})
+assert.ok(loadSave(priorWounded).ok)
+const scars = crossfireCarryover(priorWounded, 0)
+assert.deepEqual(scars.wounded, ['priya', 'hattie'])
+const scarStage = clonePreset('science-lab')
+const scarState = trainingState(0x53a1b7, scarStage, {
+  lead: 'accident-fire',
+})
+applyCrossfireCarryover(scarState, priorWounded, 0)
+for (const unit of scarState.units.filter((u) =>
+  scars.wounded.includes(u.id),
+))
+  assert.equal(unit.hp, Math.max(1, unit.maxHp - 1))
+assert.equal(
+  scarState.units.find((unit) => unit.id === 'backdraft')!.hp,
+  scarState.units.find((unit) => unit.id === 'backdraft')!.maxHp,
+)
+const scarSave = createSave({
+  slot: 'auto',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  stage: scarStage,
+  state: scarState,
+  story: { ...createStory(), current: null },
+})
+assert.ok(loadSave(scarSave).ok, 'persistent wounds remain legal and playable')
 
 const store = readFileSync('stores/everyVillainTacticsStore.ts', 'utf8')
 const front = readFileSync(

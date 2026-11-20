@@ -79,11 +79,11 @@ for (let frame = TRENCH_FORK.decideAt; frame < TRENCH_FORK.rejoinAt; frame++) {
   for (const spawn of live) {
     assert.ok(spawn.wave >= NURSERY.waveBase)
     assert.ok(spawn.wave < NURSERY.waveBase + NURSERY_WAVES.length)
+    assert.ok(['angler', 'pistol', 'skate', 'clawstrike'].includes(spawn.kind))
     assert.ok(
-      ['angler', 'pistol', 'skate', 'clawstrike'].includes(spawn.kind),
-    )
-    assert.ok(
-      !trenchSpawns(frame, 'vault', true).some((other) => other.wave === spawn.wave),
+      !trenchSpawns(frame, 'vault', true).some(
+        (other) => other.wave === spawn.wave,
+      ),
       'a Nursery craft cannot leak into the high salvage route',
     )
     seen.set(spawn.wave, (seen.get(spawn.wave) ?? 0) + 1)
@@ -93,15 +93,25 @@ for (let frame = TRENCH_FORK.decideAt; frame < TRENCH_FORK.rejoinAt; frame++) {
 assert.equal(seen.size, NURSERY_WAVES.length, 'all 20 waves fly in-game')
 assert.ok(total > 20, 'formations spawn multiple visible craft')
 assert.deepEqual(
-  nurseryRouteSpawns(TRENCH_FORK.rejoinAt, TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt),
+  nurseryRouteSpawns(
+    TRENCH_FORK.rejoinAt,
+    TRENCH_FORK.decideAt,
+    TRENCH_FORK.rejoinAt,
+  ),
   [],
   'no alternate wave leaks past the route join',
 )
 assert.deepEqual(
-  nurseryRouteSpawns(TRENCH_FORK.decideAt - 1, TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt),
+  nurseryRouteSpawns(
+    TRENCH_FORK.decideAt - 1,
+    TRENCH_FORK.decideAt,
+    TRENCH_FORK.rejoinAt,
+  ),
   [],
 )
 assert.deepEqual(nurseryRouteSpawns(12, 10, 10), [])
-console.log(`Lantern Nursery runtime: ${total} craft in ${seen.size} live low-route waves`)
+console.log(
+  `Lantern Nursery runtime: ${total} craft in ${seen.size} live low-route waves`,
+)
 
 console.log('Rainbow Lantern Nursery alternate Act score contracts passed')

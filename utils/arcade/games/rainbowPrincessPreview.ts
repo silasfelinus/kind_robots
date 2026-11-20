@@ -2177,20 +2177,20 @@ export function createRainbowPrincessPreview(
       (reef.wave >= NURSERY.waveBase
         ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
         : reef.wave >= WRECK.waveBase
-        ? reef.wave >= PALACE.waveBase
-          ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
-          : reef.wave >= GLASS.waveBase
-            ? GLASS_WAVE_SIZES[reef.wave - GLASS.waveBase]
-            : reef.wave >= CROWN_REEF.waveBase
-              ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
-              : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
-        : reef.wave >= ROSEFIN.waveBase
-          ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
-          : reef.wave >= TRENCH.waveBase
-            ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
-            : reef.wave >= MOONJELLY.waveBase
-              ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
-              : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
+          ? reef.wave >= PALACE.waveBase
+            ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
+            : reef.wave >= GLASS.waveBase
+              ? GLASS_WAVE_SIZES[reef.wave - GLASS.waveBase]
+              : reef.wave >= CROWN_REEF.waveBase
+                ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
+                : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
+          : reef.wave >= ROSEFIN.waveBase
+            ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
+            : reef.wave >= TRENCH.waveBase
+              ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
+              : reef.wave >= MOONJELLY.waveBase
+                ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
+                : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
     if (
       left > 0 ||
       size < RAINBOW_LANES.schoolSize ||

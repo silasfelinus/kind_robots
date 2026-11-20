@@ -97,8 +97,7 @@ export function nurseryRouteSpawns(
   const progress = frame - routeStart
   const from =
     NURSERY.openingEnds + Math.floor(((progress - 1) * authored) / duration)
-  const to =
-    NURSERY.openingEnds + Math.floor((progress * authored) / duration)
+  const to = NURSERY.openingEnds + Math.floor((progress * authored) / duration)
   const spawns: NurserySpawn[] = []
   for (let sourceFrame = from + 1; sourceFrame <= to; sourceFrame++)
     spawns.push(...nurserySpawns(sourceFrame))

@@ -462,11 +462,7 @@ export function trenchSpawns(
     frame >= TRENCH_FORK.decideAt &&
     frame < TRENCH_FORK.rejoinAt
   )
-    return nurseryRouteSpawns(
-      frame,
-      TRENCH_FORK.decideAt,
-      TRENCH_FORK.rejoinAt,
-    )
+    return nurseryRouteSpawns(frame, TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt)
   return schedule.at(frame).filter((spawn) => {
     const only = trenchWaveRoute(spawn.wave - TRENCH.waveBase)
     return only === null || only === (route ?? 'vault')

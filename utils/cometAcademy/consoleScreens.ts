@@ -507,6 +507,24 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
       })
       continue
     }
+    const crew = witnessedPatrolCrew(
+      { day: memory.day, opponentSignature: run.opponentSignature },
+      memory.zone,
+      memory.choiceId,
+    )
+    if (crew) {
+      moments.push({
+        day: memory.day,
+        kind: 'patrol',
+        title: `${zone?.title ?? 'Patrol'} · ${crew.title}`,
+        text: `${crew.choice.label}. ${crew.choice.result}`,
+        artKeys: [
+          identityArtKey(crew.rival, 'villain'),
+          ...(zone ? [districtArtKey(zone.siteId)] : []),
+        ],
+      })
+      continue
+    }
     const scene = patrolSceneFor(run.seed, memory.day, memory.zone)
     const option =
       scene.choices.find((entry) => entry.id === memory.choiceId) ??

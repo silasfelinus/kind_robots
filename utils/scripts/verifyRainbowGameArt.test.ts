@@ -42,6 +42,10 @@ import {
   finaleEndingCaption,
   type FinaleChoice,
 } from '../arcade/games/rainbowEclipseFinale'
+import {
+  RAINBOW_DISTANT_PAINTED_PLANES,
+  rainbowDistantParallaxLayers,
+} from '../arcade/games/rainbowPaintedParallax'
 import { PINKWAKE } from '../arcade/games/rainbowPinkwake'
 import { MOONJELLY } from '../arcade/games/rainbowMoonjelly'
 
@@ -287,6 +291,30 @@ assert.ok(
       ) &&
     stripAt < engine.indexOf('drawRainbowShipSprite(g, pilotOf(seat))'),
   'the coral strip sits behind enemies, enemy shots and ships',
+)
+
+const distant = rainbowDistantParallaxLayers(120, 1)
+const calmDistant = rainbowDistantParallaxLayers(120, 0.3)
+assert.equal(distant.length, 2, 'two additional painted scenery depths')
+assert.ok(
+  distant.every((plane) => plane.alpha < 0.92),
+  'distant art stays subdued behind hostile shots',
+)
+assert.ok(
+  distant[0]!.scroll < distant[1]!.scroll &&
+    RAINBOW_DISTANT_PAINTED_PLANES[1]!.speed < 0.55,
+  'the far planes scroll slower than the foreground',
+)
+for (let i = 0; i < distant.length; i++) {
+  assert.equal(distant[i]!.y + distant[i]!.height, 270)
+  assert.ok(
+    Math.abs(calmDistant[i]!.scroll - distant[i]!.scroll * 0.3) < 1e-9,
+    'calm motion slows painted scenery without changing its placement',
+  )
+}
+assert.ok(
+  engine.indexOf('drawRainbowDistantParallax(') < stripAt,
+  'painted distant planes render before the bright foreground and combat',
 )
 
 // Act intro splash: each playable Act's painted title card fades in under the opening comms and is

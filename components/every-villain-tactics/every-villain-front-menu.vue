@@ -34,10 +34,7 @@
           type="button"
           class="evf-item is-primary"
           data-testid="front-new-crossfire"
-          @click="
-            crossfireSetup = true
-            store.openScreen('story')
-          "
+          @click="openNewCrossfire"
         >
           <span class="evf-item-label">New Crossfire Campaign</span>
           <small>Six connected tactical missions · Hero or Villain</small>
@@ -65,10 +62,7 @@
           type="button"
           class="evf-item"
           data-testid="front-new-story"
-          @click="
-            crossfireSetup = false
-            store.openScreen('story')
-          "
+          @click="openNewFirstBell"
         >
           <span class="evf-item-label">New Story</span>
           <small>Mission 01 · First Bell · Hero or Villain</small>
@@ -616,6 +610,14 @@ const viewer = useUserStore()
 const route = useRoute()
 const root = ref<HTMLElement | null>(null)
 const crossfireSetup = ref(false)
+function openNewCrossfire() {
+  crossfireSetup.value = true
+  store.openScreen('story')
+}
+function openNewFirstBell() {
+  crossfireSetup.value = false
+  store.openScreen('story')
+}
 const playableView = (view: TacticalPerspective): TacticalPerspective =>
   PLAYABLE_PERSPECTIVES.includes(view) ? view : 'hero'
 const pickedView = ref<TacticalPerspective>(playableView(store.perspective))

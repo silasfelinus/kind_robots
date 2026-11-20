@@ -2523,6 +2523,11 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: "Nettle's red threads are still knotted around the infirmary bedposts. The new healer can read the knots but not the handwriting on the medicine jars.",
       },
       {
+        when: { endings: ['long-night'] },
+        mood: 'sad',
+        text: 'Nettle keeps her infirmary in a wagon with red thread tied around its axle. At each camp she sets out the clean blankets before she counts the wounded. Some nights more blankets are laid out than people arrive. She folds every one again at dawn.',
+      },
+      {
         when: { flags: ['nettle-crossed-border'] },
         text: "Nettle's carts carried medicine through the old gate even after the tower fell. The soldiers let her pass when they saw the red thread. Nobody knows who gave that order.",
       },
@@ -2553,6 +2558,11 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         when: { dead: ['F022'] },
         mood: 'sad',
         text: "A railway spike marks Tiller's grave. When the wind crosses the dead line, the pipes in the signal tower answer with three knocks.",
+      },
+      {
+        when: { endings: ['long-night'] },
+        mood: 'sad',
+        text: 'Tiller strings a signal wire between two ridge posts above the fleeing court. Three taps mean the next road has fallen; two mean a caravan came through. By the third winter he has stopped teaching anyone what one tap means.',
       },
       {
         when: { flags: ['tiller-wire-answered'] },
@@ -2589,6 +2599,11 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         when: { dead: ['F023'] },
         mood: 'sad',
         text: 'They buried Sera beside the silent chapel. Someone put the bronze clapper in her hands. The bell on the tower tolled without it.',
+      },
+      {
+        when: { endings: ['long-night'] },
+        mood: 'sad',
+        text: 'Sera walks the shelter tunnels with a bronze clapper wrapped in cloth. At dusk she reads the missing names and strikes the clapper against the stone once for each voice that answers. There are fewer answers each week. She keeps the list in ink.',
       },
       {
         when: { flags: ['sera-buried-bell'] },
@@ -2631,6 +2646,11 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: "Tarn's map ends at the place they died. The Gate Watch draws a line through it and writes a warning to those who follow.",
       },
       {
+        when: { endings: ['long-night'] },
+        mood: 'sad',
+        text: 'Tarn marks each safe turn with three stones and points a fourth toward the singing beyond the hills. One dawn the fourth stone has been moved. Tarn puts it back before anyone wakes, then asks for two scouts and a day of food.',
+      },
+      {
         when: { flags: ['tarn-oil-funded'] },
         text: 'The lamps at the pass burn every night, and the crossing is never blind. Tarn draws a small flame beside each guard post and teaches the children what it means.',
       },
@@ -2665,6 +2685,11 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         when: { dead: ['F025'] },
         mood: 'sad',
         text: "Odo's glass gauge is empty at the graveside, although rain falls all day. It has never read the weather correctly since.",
+      },
+      {
+        when: { endings: ['long-night'] },
+        mood: 'sad',
+        text: 'Odo takes his glass rain gauge onto the last dry ridge. It predicts clear skies on nights the singing comes and storms on roads the court has already abandoned. He keeps two columns now: one for the weather and one for what the glass cannot explain.',
       },
       {
         when: { flags: ['odo-broke-forecast'] },

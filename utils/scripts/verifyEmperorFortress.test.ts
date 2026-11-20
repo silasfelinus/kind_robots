@@ -7270,6 +7270,48 @@ for (const def of DAYS)
   const scheduled = (effects: { schedule?: string[] } | undefined) =>
     effects?.schedule ?? []
   const sabotage = questDef('q-d13-engine-sabotage')!
+  assert.match(
+    questOutcomeText(onDay(1, 14), sabotage, 'success'),
+    /Children put their faces in it/,
+    'successful sabotage names the families who will lose the water',
+  )
+  assert.match(
+    questOutcomeText(onDay(1, 14), sabotage, 'failure'),
+    /crown’s mark drawn on its water barrels/,
+    'caught sabotage reveals a lasting price for the crown’s trust',
+  )
+  const refugeeRoad = questDef('q-d18-refugee-road')!
+  assert.match(
+    questOutcomeText(onDay(1, 20), refugeeRoad, 'success'),
+    /winter well allotment/,
+    'successful shelter commits Hollow Bell to a finite supply',
+  )
+  assert.match(
+    questOutcomeText(onDay(1, 20), refugeeRoad, 'failure'),
+    /wells can water one more street or forty strangers/,
+    'refused shelter makes the competing town need explicit',
+  )
+  const bellSpeech = questDef('q-d19-bell-speech')!
+  assert.match(
+    questOutcomeText(onDay(1, 20), bellSpeech, 'success'),
+    /which road the crown will defend first/,
+    'a favorable vote creates a specific protection obligation',
+  )
+  assert.match(
+    questOutcomeText(onDay(1, 20), bellSpeech, 'expired'),
+    /old patrol map down from the wall/,
+    'missing the vote has a distinct local aftermath',
+  )
+  assert.match(
+    questOutcomeText(onDay(1, 21), dam, 'success'),
+    /Neither map shows who gets the water first/,
+    'successful repairs preserve the disputed water rights',
+  )
+  assert.match(
+    questOutcomeText(onDay(1, 21), dam, 'partial'),
+    /cost of this year’s seed/,
+    'partial repairs name the people paying for a short-term fix',
+  )
   assert.ok(scheduled(sabotage.rewards.failure).includes('vane-bolt'))
   assert.ok(scheduled(sabotage.rewards.success).includes('engine-fails'))
   assert.ok(scheduled(dam.rewards.failure).includes('ford-burrows'))

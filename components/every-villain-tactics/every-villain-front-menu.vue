@@ -33,8 +33,36 @@
         <button
           type="button"
           class="evf-item is-primary"
+          data-testid="front-new-crossfire"
+          @click="openNewCrossfire"
+        >
+          <span class="evf-item-label">New Crossfire Campaign</span>
+          <small>Six connected tactical missions · Hero or Villain</small>
+        </button>
+        <button
+          v-if="store.crossfire"
+          type="button"
+          class="evf-item"
+          data-testid="front-continue-crossfire"
+          @click="store.continueCrossfire()"
+        >
+          <span class="evf-item-label">
+            {{
+              store.crossfire.finished
+                ? 'Review Crossfire Finale'
+                : 'Resume Crossfire'
+            }}
+          </span>
+          <small>
+            Chapter {{ store.crossfire.chapter + 1 }} / 6 ·
+            {{ store.crossfire.active.stage?.title ?? 'First Bell' }}
+          </small>
+        </button>
+        <button
+          type="button"
+          class="evf-item"
           data-testid="front-new-story"
-          @click="store.openScreen('story')"
+          @click="openNewFirstBell"
         >
           <span class="evf-item-label">New Story</span>
           <small>Mission 01 · First Bell · Hero or Villain</small>
@@ -535,9 +563,14 @@
           type="button"
           class="evf-go"
           data-testid="front-begin-story"
-          @click="store.startStory(pickedView, pickedLead)"
+          @click="
+            crossfireSetup
+              ? store.startCrossfire(pickedView, pickedLead)
+              : store.startStory(pickedView, pickedLead)
+          "
         >
-          Begin First Bell as {{ leadAlias }} ▸
+          {{ crossfireSetup ? 'Begin Crossfire' : 'Begin First Bell' }} as
+          {{ leadAlias }} ▸
         </button>
       </footer>
     </div>
@@ -576,6 +609,15 @@ const paintedArt = useEveryVillainTacticsArtStore()
 const viewer = useUserStore()
 const route = useRoute()
 const root = ref<HTMLElement | null>(null)
+const crossfireSetup = ref(false)
+function openNewCrossfire() {
+  crossfireSetup.value = true
+  store.openScreen('story')
+}
+function openNewFirstBell() {
+  crossfireSetup.value = false
+  store.openScreen('story')
+}
 const playableView = (view: TacticalPerspective): TacticalPerspective =>
   PLAYABLE_PERSPECTIVES.includes(view) ? view : 'hero'
 const pickedView = ref<TacticalPerspective>(playableView(store.perspective))
@@ -787,6 +829,7 @@ onMounted(() => {
   ) {
     store.chooseLead(incomingLead)
     store.choosePerspective(incomingView)
+    crossfireSetup.value = true
     store.openScreen('story')
   }
   window.addEventListener('keydown', onKey)

@@ -34,6 +34,15 @@ import {
 } from '~/utils/everyVillainTactics/achievements'
 import { powerBlocker } from '~/utils/everyVillainTactics/powers'
 import {
+  advanceCrossfire as advanceCrossfireJournal,
+  crossfireChapterTitle,
+  evtCrossfireKey,
+  newCrossfireJournal,
+  readCrossfireJournal,
+  snapshotCrossfire,
+  type CrossfireJournal,
+} from '~/utils/everyVillainTactics/crossfireCampaign'
+import {
   dismissPicnicScene,
   pendingPicnicScene,
   picnicCounts,
@@ -184,6 +193,8 @@ export const useEveryVillainTacticsStore = defineStore(
     /** Story rival lead; null keeps First Bell's default. */
     const foilSignature = ref<string | null>(null)
     const story = ref(createStory())
+    const crossfire = ref<CrossfireJournal | null>(null)
+    const crossfireActive = ref(false)
     const rosterOpen = ref(false)
     const rosterSearch = ref('')
     const studioOpen = ref(false)
@@ -230,7 +241,11 @@ export const useEveryVillainTacticsStore = defineStore(
      * Only pages carried by validated saves are ever added to the book. A live
      * save (`award`) also awards what the grown book proves; loading never does.
      */
-    function recordMoments(saves: readonly EvtSave[], award = false) {
+    function recordMoments(
+      saves: readonly EvtSave[],
+      award = false,
+      campaign = false,
+    ) {
       const before = scrapbook.value
       const witnessed = mergeScrapbook(
         scrapbook.value,
@@ -239,6 +254,9 @@ export const useEveryVillainTacticsStore = defineStore(
       const results = saves
         .map(scoreFromSave)
         .filter((result): result is BattleResult => !!result)
+        .map((result) =>
+          campaign ? { ...result, mode: 'story' as const } : result,
+        )
       const next: Scrapbook = {
         ...witnessed,
         results: mergeBattleResults(witnessed.results, results),
@@ -272,6 +290,7 @@ export const useEveryVillainTacticsStore = defineStore(
       settings.value = sanitizeSettings(readJson(evtSettingsKey))
       scrapbook.value = sanitizeScrapbook(readJson(evtScrapbookKey))
       draftLibrary.value = sanitizeLibrary(readJson(evtDraftsKey))
+      crossfire.value = readCrossfireJournal(readJson(evtCrossfireKey))
       readSaves()
     }
     /** Local stage drafts and portable share codes (no server publishing). */
@@ -362,6 +381,13 @@ export const useEveryVillainTacticsStore = defineStore(
       } catch {
         // Nothing stored to erase.
       }
+      try {
+        storage?.removeItem(evtCrossfireKey)
+      } catch {
+        // Crossfire will still be cleared from the active session.
+      }
+      crossfire.value = null
+      crossfireActive.value = false
       scrapbook.value = emptyScrapbook()
       readSaves()
       saveMessage.value = 'All saves and scrapbook pages were erased.'
@@ -412,12 +438,69 @@ export const useEveryVillainTacticsStore = defineStore(
       if (!roster.some((u) => u.signature === lead)) return false
       const assignedFoil = foil ?? scriptedFoilFor(lead)
       if (!isValidFoil(assignedFoil, lead)) return false
+      crossfireActive.value = false
       isPlaytest.value = false
       perspective.value = view
       leadSignature.value = lead
       foilSignature.value = assignedFoil
       reset()
       openScreen(null)
+      return true
+    }
+    function startCrossfire(view: TacticalPerspective, lead: string) {
+      if (!['hero', 'villain'].includes(view)) return false
+      if (!startStory(view, lead)) return false
+      const first = createSave({
+        slot: 'auto',
+        perspective: perspective.value,
+        leadSignature: leadSignature.value,
+        foilSignature: foilSignature.value,
+        stage: null,
+        state: state.value,
+        story: story.value,
+      })
+      const journal = newCrossfireJournal(first)
+      if (!journal) return false
+      crossfire.value = journal
+      crossfireActive.value = true
+      storeJson(evtCrossfireKey, journal)
+      saveMessage.value = 'Crossfire campaign started: First Bell.'
+      return true
+    }
+    function continueCrossfire() {
+      const journal = crossfire.value
+      if (!journal || !readCrossfireJournal(journal)) return false
+      applySave(journal.active)
+      crossfireActive.value = true
+      openScreen(null)
+      saveMessage.value = 'Crossfire resumed: ' + crossfireChapterTitle(journal)
+      return true
+    }
+    const canAdvanceCrossfire = computed(
+      () =>
+        crossfireActive.value &&
+        !!crossfire.value &&
+        !crossfire.value.finished &&
+        state.value.phase === 'victory' &&
+        (crossfire.value.chapter !== 0 || story.value.completed) &&
+        !sceneBlocking.value,
+    )
+    function advanceCrossfire() {
+      const journal = crossfire.value
+      if (!journal || !canAdvanceCrossfire.value) return false
+      if (!saveTo('auto')) return false
+      const next = advanceCrossfireJournal(crossfire.value!)
+      if (!next) return false
+      crossfire.value = next
+      storeJson(evtCrossfireKey, next)
+      if (next.finished) {
+        saveMessage.value = 'Crossfire cleared: all six chapters earned.'
+        return true
+      }
+      applySave(next.active)
+      openScreen(null)
+      saveMessage.value =
+        'Chapter ' + (next.chapter + 1) + ': ' + crossfireChapterTitle(next)
       return true
     }
     /** One-Shot: a replayable studio preset with its own scenes, if any. */
@@ -428,6 +511,7 @@ export const useEveryVillainTacticsStore = defineStore(
     ) {
       if (!STAGE_PRESETS.some((stage) => stage.id === presetId)) return false
       if (!roster.some((unit) => unit.signature === lead)) return false
+      crossfireActive.value = false
       if (presetId === 'ferris-wheel' && lead !== 'accident-air') {
         saveMessage.value =
           'Ferris Wheel is Skyline’s origin: choose Accident + Air.'
@@ -453,6 +537,25 @@ export const useEveryVillainTacticsStore = defineStore(
         state: state.value,
         story: story.value,
       })
+      if (crossfireActive.value && crossfire.value) {
+        const next = snapshotCrossfire(crossfire.value, save)
+        if (!next) {
+          saveMessage.value = 'Crossfire checkpoint did not match this battle.'
+          return false
+        }
+        try {
+          const storage = browserStorage()
+          if (!storage) throw new Error('Storage unavailable')
+          storage.setItem(evtCrossfireKey, JSON.stringify(next))
+          crossfire.value = next
+          recordMoments([save], true, true)
+          saveMessage.value = 'Crossfire chapter saved.'
+          return true
+        } catch {
+          saveMessage.value = 'This browser blocked Crossfire saving.'
+          return false
+        }
+      }
       const ok = writeSlot(browserStorage(), save)
       saveMessage.value = ok
         ? 'Saved to ' + slot + '.'
@@ -481,6 +584,7 @@ export const useEveryVillainTacticsStore = defineStore(
         saveMessage.value = result ? result.reason : 'That slot is empty.'
         return false
       }
+      crossfireActive.value = false
       applySave(result.save)
       recordMoments([result.save])
       screen.value = null
@@ -515,6 +619,7 @@ export const useEveryVillainTacticsStore = defineStore(
     }
     function startPlaytest() {
       if (studioProblems.value.length) return false
+      crossfireActive.value = false
       isPlaytest.value = true
       studioOpen.value = false
       reset()
@@ -605,6 +710,7 @@ export const useEveryVillainTacticsStore = defineStore(
         latch()
       }
       scenePath.value = []
+      if (crossfireActive.value) saveTo('auto')
     }
     function previewScene(id: string) {
       previewSceneId.value = id
@@ -986,12 +1092,14 @@ export const useEveryVillainTacticsStore = defineStore(
       latch()
     }
     function choosePerspective(value: TacticalPerspective) {
+      crossfireActive.value = false
       perspective.value = value
       reset()
     }
     function chooseLead(signature: string) {
       const valid = roster.some((u) => u.signature === signature)
       if (!valid) return
+      crossfireActive.value = false
       leadSignature.value = signature
       if (foilSignature.value && !isValidFoil(foilSignature.value, signature))
         foilSignature.value = null
@@ -1198,6 +1306,12 @@ export const useEveryVillainTacticsStore = defineStore(
       leadSignature,
       foilSignature,
       story,
+      crossfire,
+      crossfireActive,
+      canAdvanceCrossfire,
+      startCrossfire,
+      continueCrossfire,
+      advanceCrossfire,
       moment,
       chooseStory,
       scene,

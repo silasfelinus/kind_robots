@@ -11,10 +11,22 @@
           <span
             class="evt-bar-pill"
             :title="
-              (store.isPlaytest ? 'Studio playtest' : 'Stage 1 of 6') +
+              (store.crossfireActive
+                ? 'Crossfire chapter ' +
+                  ((store.crossfire?.chapter ?? 0) + 1) +
+                  ' of 6'
+                : store.isPlaytest
+                  ? 'Studio playtest'
+                  : 'Stage 1 of 6') +
               ' — Capes & Tassels Tactical Operations · Comet City · First Bell · Internal Training'
             "
-            >{{ store.isPlaytest ? 'STUDIO TEST' : 'FIRST BELL' }}</span
+            >{{
+              store.crossfireActive
+                ? 'CROSSFIRE ' + ((store.crossfire?.chapter ?? 0) + 1) + '/6'
+                : store.isPlaytest
+                  ? 'STUDIO TEST'
+                  : 'FIRST BELL'
+            }}</span
           >
           <div class="evt-bar-actions">
             <button
@@ -26,7 +38,7 @@
               ☰ MENU
             </button>
             <button
-              v-if="store.isPlaytest"
+              v-if="store.isPlaytest && !store.crossfireActive"
               class="evt-bar-button"
               type="button"
               data-testid="tactics-exit-playtest"
@@ -345,6 +357,20 @@
                   {{ store.state.turn }}
                 </p>
                 <div class="evt-aftermath-actions">
+                  <button
+                    v-if="store.canAdvanceCrossfire"
+                    type="button"
+                    class="evt-next-battle"
+                    data-testid="tactics-crossfire-advance"
+                    @click="store.advanceCrossfire()"
+                  >
+                    {{
+                      store.crossfire?.chapter === 5
+                        ? 'COMPLETE CROSSFIRE'
+                        : 'NEXT CROSSFIRE CHAPTER'
+                    }}
+                    <span aria-hidden="true">→</span>
+                  </button>
                   <button
                     type="button"
                     class="evt-next-battle"

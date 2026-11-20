@@ -21,6 +21,8 @@ import { useUserStore } from '~/stores/userStore'
 import { mergeAlienGuides } from '~/utils/gameOfCaptains/alienAccountMerge'
 import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
+import { kitStorageKey } from '~/utils/playbookKit/settings'
+import { legacyCouchSettings } from '~/utils/gameOfCaptains/legacyPreferences'
 import { useAchievementStore } from '~/stores/achievementStore'
 import {
   COMPLETED_VOYAGES_KEY,
@@ -522,10 +524,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       if (epoch === accountEpoch) onboardingArtLoaded.value = true
     }
   }
-  const preferences = ref<CouchPreferences>({
-    largeText: false,
-    reducedMotion: false,
-  })
+  // The title, opening reel and voyage UI all read the Playbook Kit settings.
+  // Keep this read-only compatibility shape for existing component props.
+  const kit = usePlaybookKitStore()
+  const preferences = computed<CouchPreferences>(() => ({
+    largeText: kit.settings.textSize !== 'comfortable',
+    reducedMotion: kit.settings.motion === 'reduced',
+  }))
   const saved = computed(() => !!run.value)
 
   /** Feeds the Playbook Kit scrapbook from the saved run (its own save key). */
@@ -618,18 +623,20 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     if (loaded.value) return
     loaded.value = true
     try {
+      // Kit is the single source of settings. Migrate the old flags only if
+      // no Kit save exists, so explicit newer choices always take precedence.
+      if (kit.game !== SPACE_COUCH_KIT_ID) kit.open(SPACE_COUCH_KIT_ID)
       try {
-        const savedPreferences = JSON.parse(
-          localStorage.getItem(PREFERENCES_KEY) ?? 'null',
-        )
-        if (savedPreferences && typeof savedPreferences === 'object') {
-          preferences.value = {
-            largeText: savedPreferences.largeText === true,
-            reducedMotion: savedPreferences.reducedMotion === true,
+        if (localStorage.getItem(kitStorageKey(SPACE_COUCH_KIT_ID)) === null) {
+          const legacyText = localStorage.getItem(PREFERENCES_KEY)
+          if (legacyText) {
+            const legacy = legacyCouchSettings(JSON.parse(legacyText))
+            if (legacy.textSize) kit.setSetting('textSize', legacy.textSize)
+            if (legacy.motion) kit.setSetting('motion', legacy.motion)
           }
         }
       } catch {
-        preferences.value = { largeText: false, reducedMotion: false }
+        // Unreadable legacy preferences must not damage a Kit or voyage save.
       }
       try {
         redshirtKnowledge.value = normalizeRedshirtKnowledge(
@@ -852,14 +859,6 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     run.value = null
     persist()
   }
-  function setPreference(key: keyof CouchPreferences, value: boolean) {
-    preferences.value = { ...preferences.value, [key]: value }
-    try {
-      localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences.value))
-    } catch {
-      storageWarning.value = 'Settings could not be stored on this device.'
-    }
-  }
   return {
     run,
     completedVoyages,
@@ -894,7 +893,6 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     trioArtwork,
     loadTrioArtwork,
     preferences,
-    setPreference,
     load,
     begin,
     assign,

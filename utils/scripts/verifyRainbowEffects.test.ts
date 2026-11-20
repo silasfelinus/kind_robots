@@ -10,6 +10,12 @@ import {
   drawRainbowShot,
   type RainbowShotLook,
 } from '../arcade/games/rainbowShotLooks'
+import { readFileSync } from 'node:fs'
+import {
+  RAINBOW_BOSS_BLOOM,
+  drawRainbowBossBloom,
+  rainbowBossBloomFlares,
+} from '../arcade/games/rainbowBossBloom'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
@@ -236,6 +242,70 @@ assert.notDeepEqual(
   rainbowSwimPose('lantern', 30),
   rainbowSwimPose('dolphin', 30),
   'jellyfish and finned enemies have distinct motion signatures',
+)
+
+
+const bossFlares = [
+  { x: 80, y: 105, age: 0, life: 80, ring: true },
+  { x: 180, y: 125, age: 11, life: 80, ring: true },
+  { x: 250, y: 130, age: 1, life: 80, ring: true },
+]
+const flares = rainbowBossBloomFlares(bossFlares, false)
+assert.equal(flares.length, RAINBOW_BOSS_BLOOM.maxFlares)
+assert.deepEqual(
+  flares.map((flare) => flare.x),
+  [250, 180],
+  'only the two newest boss flares use gradient work',
+)
+assert.ok(
+  flares.every(
+    (flare) =>
+      flare.alpha <= RAINBOW_BOSS_BLOOM.maxOpacity &&
+      flare.radius <= RAINBOW_BOSS_BLOOM.maxRadius,
+  ),
+  'a flare has a bounded radius and opacity',
+)
+assert.deepEqual(
+  rainbowBossBloomFlares(bossFlares, true),
+  [],
+  'calm motion omits all boss bloom, not just the shockwave',
+)
+assert.deepEqual(
+  rainbowBossBloomFlares([
+    { x: 40, y: 40, age: 1, life: 16, ring: true },
+    { x: 40, y: 40, age: 23, life: 80, ring: true },
+    { x: -100, y: 40, age: 1, life: 80, ring: true },
+  ], false),
+  [],
+  'regular bursts, expired flares and offscreen events never allocate gradients',
+)
+assert.ok(
+  rainbowBossBloomFlares(bossFlares, false)[0]!.alpha >
+    rainbowBossBloomFlares(bossFlares, false)[1]!.alpha,
+  'boss glow fades as the shockwave expands',
+)
+{
+  const { g, calls } = recorder()
+  drawRainbowBossBloom(g, bossFlares, false)
+  assert.equal(
+    calls.filter((call) => call.name === 'createRadialGradient').length,
+    2,
+    'two boss bloom gradients at most',
+  )
+  assert.equal(calls.filter((call) => call.name === 'save').length, 2)
+  assert.equal(calls.filter((call) => call.name === 'restore').length, 2)
+  const { calls: calmCalls, g: calmContext } = recorder()
+  drawRainbowBossBloom(calmContext, bossFlares, true)
+  assert.equal(calmCalls.length, 0, 'calm rendering performs no bloom work')
+}
+const previewSource = readFileSync(
+  new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
+  'utf8',
+)
+assert.ok(
+  previewSource.indexOf('drawRainbowBossBloom(g, sparks, calm)') <
+    previewSource.indexOf("g.fillStyle = '#05030f70'"),
+  'boss bloom is drawn under hostile shot halos instead of washing them out',
 )
 
 console.log(

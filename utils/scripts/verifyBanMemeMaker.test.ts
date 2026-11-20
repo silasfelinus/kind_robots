@@ -18,14 +18,8 @@ assert.ok(fallback.length > 20_000)
 assert.match(page, /data-testid="ban-meme-preview"/)
 assert.match(page, /data-testid="ban-meme-reason"/)
 assert.match(page, /Grand Theft Auto VI due to you/)
-assert.match(
-  page,
-  /walking past the dog twenty times without petting him/,
-)
-assert.match(
-  page,
-  /spending the last 36 hours in-game scrolling on your phone/,
-)
+assert.match(page, /walking past the dog twenty times without petting him/)
+assert.match(page, /spending the last 36 hours in-game scrolling on your phone/)
 assert.match(page, /not tipping the barista/)
 assert.match(page, /gameLinkPreviewMeta\('ban-meme'/)
 assert.match(page, /This ban is permanent and is not eligible for appeal\./)

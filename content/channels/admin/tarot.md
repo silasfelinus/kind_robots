@@ -6,7 +6,7 @@ label: Tarot Studio
 title: Tarot Studio
 subtitle: A private 78-card art bible for every deck.
 description: Curate SuperKate, Kind Robots and Zuzu tarot decks. Filter Major and Minor Arcana, suits, rank, checkpoint and production status. Edit card prompts, model settings, LoRAs, descriptions and meanings before print production.
-summary: Multi-deck tarot art and print production workbench.
+summary: Tarot art and print studio.
 icon: kind-icon:sparkles
 route: /admin/tarot
 sort: 79

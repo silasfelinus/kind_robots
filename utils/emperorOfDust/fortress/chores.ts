@@ -459,11 +459,11 @@ export const CHORES: readonly QuestDef[] = [
       success:
         'Honey-root, dumped upstream to kill rats. The children woke on the second day. One of them asked for more of the sweet water.',
       partial:
-        'Two of the children woke. The third is breathing. That is all anyone will say.',
+        'Two of the children woke asking for their mothers. The third is still breathing, and still sweet on the breath. That is all anyone at Thistle Row will say.',
       failure:
         'The party could not name it. The well was filled with stones. Thistle Row walks a mile for water now.',
       expired:
-        'The mothers sat by the beds all night. In the morning they filled the well themselves.',
+        'No one from the crown came. The mothers sat by the beds all night, and in the morning they filled the well with stones themselves.',
     },
     outcomeAlts: {
       success: [
@@ -501,11 +501,11 @@ export const CHORES: readonly QuestDef[] = [
       success:
         'The collector went home with half his list crossed out and a crown seal on the other half. The Ledger will remember the seal.',
       partial:
-        'He took the tools and left the beds. A smith in the Yard sharpens nails with a stone now.',
+        'He took the tools and left the beds. A smith in the Yard sharpens nails on a doorstep stone now, and tells everyone which half the crown saved.',
       failure:
-        'The collector read the crown’s letter aloud, folded it into his list and took the beds anyway.',
+        'The collector read the crown’s letter aloud to the whole Yard, folded it neatly into his list and took the beds anyway.',
       expired:
-        'The collector took a cradle. The family had nothing else on the list.',
+        'Nobody stood between. The collector took a cradle, because the family had nothing else left on his list.',
     },
     outcomeAlts: {
       success: [
@@ -548,11 +548,11 @@ export const CHORES: readonly QuestDef[] = [
       success:
         'She was hiding in a duck blind with a knife she did not know how to hold. The Crows paid. She did not look back at the party once.',
       partial:
-        'They found the boat. Not her. The Crows paid half and asked twice.',
+        'They found the boat pulled up in the reeds, still wet. Not her. The Crows paid half the bounty and asked twice where the other half had gone.',
       failure:
         'Her tracks went into the water and did not come out. The Crows say the crown let her go. The Crows may be right.',
       expired:
-        'The Mirefen gave her the boat. The Crows know it. They know who did not look.',
+        'Nobody went looking. The Mirefen gave her the boat. The Crows know it, and they know which crown did not look.',
     },
     outcomeAlts: {
       success: [
@@ -670,11 +670,11 @@ export const CHORES: readonly QuestDef[] = [
       success:
         'Lead in the pan, under the felt. The weigher was the factor’s nephew. The Saltroad paid the Yard back in salt and does not like the crown for it.',
       partial:
-        'The scales are honest now. The weigher is gone. So is the Yard’s money.',
+        'The scales are honest now. The weigher is gone up the Saltroad with his felt and his lead. So is a month of the Yard’s money.',
       failure:
-        'The party weighed every pan twice and found nothing. The cooks still swear the pound is short.',
+        'The party weighed every pan twice and found nothing under the felt. The Yard cooks still swear the pound is short, and now they swear at the crown too.',
       expired:
-        'The cooks bought short all month. They cut the soup with river water.',
+        'Nobody checked the scales. The Yard cooks bought short weight all month and cut the soup with river water to make it last.',
     },
     outcomeAlts: {
       success: [

@@ -9340,4 +9340,13 @@ console.log('Emperor of Dust fortress contract: ok')
       due,
     )
   }
+  // Days 4-10: every authored quest result reads as a scene, not a stub.
+  // The editorial screen flags results under 100 characters; keep this
+  // stretch of Act I clear of them so a thin aftermath cannot creep back.
+  const thin = [...questsOf(daysFourToTen, ACT_ONE_LATE_QUESTS)].flatMap((id) =>
+    Object.entries(questDef(id)?.outcomes ?? {})
+      .filter(([, text]) => !!text && text.trim().length < 100)
+      .map(([tier]) => `${id}:${tier}`),
+  )
+  assert.deepEqual(thin, [], 'Days 4-10 quest results under 100 characters')
 }

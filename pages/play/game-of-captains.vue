@@ -315,6 +315,62 @@
               <small>DAY {{ record.day }} · OPEN REPORT</small>
             </button>
           </div>
+          <div
+            class="cap-backup-actions flex flex-wrap gap-2"
+            aria-label="Voyage backup controls"
+          >
+            <button
+              type="button"
+              data-testid="space-couch-export-backup"
+              :disabled="!run && !store.completedVoyages.length"
+              @click="store.downloadVoyageBackup()"
+            >
+              DOWNLOAD BACKUP
+            </button>
+            <button
+              type="button"
+              data-testid="space-couch-import-backup"
+              @click="openVoyageBackupPicker"
+            >
+              IMPORT BACKUP
+            </button>
+            <input
+              ref="voyageBackupInput"
+              class="sr-only"
+              type="file"
+              accept=".json,application/json"
+              aria-label="Select a Space Couch backup JSON file"
+              data-testid="space-couch-backup-file"
+              @change="selectVoyageBackup"
+            />
+          </div>
+          <p v-if="store.backupMessage" role="status">
+            {{ store.backupMessage }}
+          </p>
+          <div
+            v-if="store.backupPreview"
+            class="cap-backup-confirm"
+            role="group"
+            aria-label="Confirm voyage backup import"
+            data-testid="space-couch-backup-confirm"
+          >
+            <p>
+              {{ store.backupPreview.finished }} finished voyages will be
+              merged.
+              {{
+                store.backupPreview.voyage
+                  ? 'The current voyage will be replaced.'
+                  : 'The current voyage will be kept.'
+              }}
+              Achievements and account-owned alien discoveries are unchanged.
+            </p>
+            <button type="button" @click="store.cancelVoyageBackup()">
+              CANCEL
+            </button>
+            <button type="button" @click="confirmVoyageBackup">
+              CONFIRM IMPORT
+            </button>
+          </div>
           <button
             type="button"
             class="cap-menu-back"
@@ -2120,6 +2176,23 @@ function openNewVoyageConfirmation() {
   confirmNewVoyage.value = true
 }
 const logPage = ref(0)
+const voyageBackupInput = ref<HTMLInputElement | null>(null)
+function openVoyageBackupPicker() {
+  voyageBackupInput.value?.click()
+}
+async function selectVoyageBackup(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (file) await store.stageVoyageBackup(file)
+}
+function confirmVoyageBackup() {
+  if (store.applyVoyageBackup()) {
+    logView.value = run.value ? 'current' : 'completed'
+    selectedFinishedVoyageId.value = null
+    logPage.value = 0
+  }
+}
 const logView = ref<'current' | 'completed'>('current')
 const selectedFinishedVoyageId = ref<string | null>(null)
 const selectedFinishedVoyage = computed(
@@ -2839,6 +2912,24 @@ function toggleAway(id: CrewId) {
 .cap-log-tabs button[aria-pressed='true'] {
   border-color: #9ee7e7;
   background: #235061;
+}
+.cap-backup-actions button {
+  flex: 1 1 7rem;
+  min-width: 0;
+  padding: 0.35rem;
+}
+.cap-backup-confirm {
+  border: 1px solid #96bfd0;
+  border-radius: 0.45rem;
+  padding: 0.4rem;
+  background: #0f293bef;
+}
+.cap-backup-confirm p {
+  font-size: 0.75rem;
+}
+.cap-backup-confirm button {
+  padding: 0.3rem 0.5rem;
+  margin-right: 0.4rem;
 }
 .cap-menu-archive {
   flex: 1;

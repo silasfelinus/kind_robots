@@ -562,13 +562,13 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const trioArtwork = ref<Record<string, string>>({})
   const loadedTrioArtwork = ref<Record<string, boolean>>({})
   const pendingTrioArtwork = ref<Record<string, boolean>>({})
-  async function loadTrioArtwork(trio: string) {
+  async function loadTrioArtwork(trio: string): Promise<boolean> {
     if (
       !/^[a-z]+-[a-z]+-[a-z]+$/.test(trio) ||
       loadedTrioArtwork.value[trio] ||
       pendingTrioArtwork.value[trio]
     )
-      return
+      return false
     const epoch = accountEpoch
     pendingTrioArtwork.value[trio] = true
     try {
@@ -578,12 +578,15 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       if (epoch === accountEpoch && response.success && response.data) {
         trioArtwork.value = { ...trioArtwork.value, ...response.data }
         loadedTrioArtwork.value[trio] = true
+        return true
       }
     } catch {
       // Portrait fallbacks remain available. A failed request may retry.
+      return false
     } finally {
       if (epoch === accountEpoch) pendingTrioArtwork.value[trio] = false
     }
+    return false
   }
   async function loadOnboardingArt() {
     if (onboardingArtVerified.value) return
@@ -614,7 +617,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     onboardingArtVerified.value = false
     loadedTrioArtwork.value = {}
     try {
-      await Promise.all([
+      const results = await Promise.all([
         loadAlienArtwork(),
         loadRedshirtArtwork(),
         loadOnboardingArt(),
@@ -622,6 +625,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       ])
       if (epoch !== accountEpoch) return
       artRefreshStatus.value =
+        results.every((result) => result !== false) &&
         alienArtLoaded.value &&
         redshirtArtLoaded.value &&
         onboardingArtVerified.value

@@ -205,7 +205,7 @@ export const ROOFTOP_BROADCAST_SCRIPT: SceneScript = {
           speaker: 'narrator',
           emotion: 'neutral',
           camera: 'wide',
-          text: 'The antenna belongs to your squad. Two uninterrupted rounds put the transmitter in your hands. The city will remember how you used it.',
+          text: 'The antenna belongs to your squad. Two controlled rounds put the transmitter in your hands. The city will remember how you used it.',
           next: null,
           branch: {
             when: { kind: 'flag', flag: 'roof-warning' },

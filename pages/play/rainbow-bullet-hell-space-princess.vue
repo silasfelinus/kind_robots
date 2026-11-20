@@ -54,6 +54,7 @@
           v-if="cabinetMounted"
           :key="rainbowSlot"
           slug="rainbow-bullet-hell-space-princess"
+          :rainbow-replay="replayRecord"
           contained
           :suspended="view !== 'flight' || openingShowing"
         />
@@ -275,6 +276,29 @@
         >
           {{ selectedSeaDescription }}
         </p>
+        <div class="flex shrink-0 flex-wrap items-center gap-2 pb-1">
+          <button
+            type="button"
+            class="btn btn-sm border-pink-300 bg-pink-200 font-black text-[#37204e]"
+            :disabled="!selectedSeaReplayable"
+            :aria-label="`Replay Act ${selectedSea + 1}: ${stages[selectedSea]!.name}`"
+            @click="launchActReplay"
+          >
+            <Icon name="kind-icon:rocket" class="kr-icon-4" />
+            Replay Act {{ selectedSea + 1 }}
+          </button>
+          <button
+            v-if="replayRecord"
+            type="button"
+            class="btn btn-sm btn-ghost"
+            @click="resumeCampaign"
+          >
+            Return to saved flight
+          </button>
+          <span class="text-xs text-base-content/70">
+            Replay earns medals, never overwrites your flight.
+          </span>
+        </div>
         <ol
           class="grid min-h-0 flex-1 grid-cols-2 grid-rows-4 gap-2 @3xl:grid-cols-4 @3xl:grid-rows-2"
         >
@@ -486,6 +510,11 @@ import {
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
+import {
+  canReplayRainbowAct,
+  rainbowActReplaySave,
+} from '~/utils/arcade/games/rainbowActReplay'
+import type { RainbowSave } from '~/utils/arcade/games/rainbowLoadouts'
 import { rainbowEndingArchive } from '~/utils/arcade/games/rainbowEndingArchive'
 import {
   RAINBOW_HANGAR_UPGRADES,
@@ -514,6 +543,7 @@ import { RAINBOW_OPENING } from '~/utils/arcade/games/rainbowOpening'
 const arcadeStore = useArcadeStore()
 const rainbowSlug = 'rainbow-bullet-hell-space-princess'
 const cabinetMounted = ref(true)
+const replayRecord = ref<RainbowSave | null>(null)
 const rainbowSlot = computed(() => arcadeStore.rainbowSlot)
 const slotSummaries = computed(() =>
   arcadeStore
@@ -528,6 +558,7 @@ async function chooseSlot(slot: number) {
   cabinetMounted.value = false
   await nextTick()
   arcadeStore.setRainbowSlot(slot)
+  replayRecord.value = null
   view.value = 'flight'
   cabinetMounted.value = true
 }
@@ -541,13 +572,36 @@ const seaProgress = computed(() =>
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
 const selectedSea = ref(0)
+const selectedSeaReplayable = computed(() =>
+  canReplayRainbowAct(selectedSea.value + 1, flightSave.value, hangar.value),
+)
+async function resumeCampaign() {
+  cabinetMounted.value = false
+  await nextTick()
+  replayRecord.value = null
+  view.value = 'flight'
+  cabinetMounted.value = true
+}
+async function launchActReplay() {
+  const snapshot = rainbowActReplaySave(
+    selectedSea.value + 1,
+    flightSave.value,
+    hangar.value,
+  )
+  if (!snapshot) return
+  cabinetMounted.value = false
+  await nextTick()
+  replayRecord.value = snapshot
+  view.value = 'flight'
+  cabinetMounted.value = true
+}
 const selectedSeaDescription = computed(() => {
   const stage = stages[selectedSea.value]!
   const progress = seaProgress.value[selectedSea.value]
   const route = routeIntel.value.find(
     (entry) => entry.act === selectedSea.value + 1,
   )
-  return `Act ${selectedSea.value + 1} · ${stage.name}: ${stage.setting} ${progress?.label ?? 'UNDISCOVERED'}${route ? ` · ${route.label}` : ''} · Select Fly to resume your saved checkpoint.`
+  return `Act ${selectedSea.value + 1} · ${stage.name}: ${stage.setting} ${progress?.label ?? 'UNDISCOVERED'}${route ? ` · ${route.label}` : ''} · Your current save stays protected.`
 })
 const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))
 const endingArchive = computed(() => rainbowEndingArchive(mastery.value))

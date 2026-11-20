@@ -107,7 +107,11 @@ assert.ok(
 const mercy = encounter.choices[1]!
 const chosen = chooseNightPatrol(run, zone, mercy.id)
 assert.equal(chosen.nightPatrol?.choiceId, mercy.id)
-assert.equal(crewSpeciesCards(chosen).length, 0, 'pending choices reveal nothing')
+assert.equal(
+  crewSpeciesCards(chosen).length,
+  0,
+  'pending choices reveal nothing',
+)
 assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(chosen))), chosen)
 const debrief = resolveDispatch(chosen)
 assert.equal(debrief.phase, 'debrief')
@@ -140,7 +144,10 @@ if (run.opponentSignature !== 'psychic-water')
     'the crew recorded in a save must match its canonical rival',
   )
 const screens = readFileSync('utils/cometAcademy/consoleScreens.ts', 'utf8')
-const ui = readFileSync('components/play/cometAcademy/AcademyConsoleScreens.vue', 'utf8')
+const ui = readFileSync(
+  'components/play/cometAcademy/AcademyConsoleScreens.vue',
+  'utf8',
+)
 assert.ok(ui.includes('data-testid="academy-species-card"'))
 assert.ok(screens.includes('witnessedPatrolCrew('))
 console.log(

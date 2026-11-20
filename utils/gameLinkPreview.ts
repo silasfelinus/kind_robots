@@ -17,7 +17,6 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     description:
       'Rewrite a fictional offense in a GTA-style permanent ban screenshot. Free browser meme maker with instant PNG download.',
     image: '/ban-meme/base.webp',
-    path: '/play',
   },
   'crystal-street': {
     title: 'Terrors on Crystal Street | Kind Robots',

@@ -272,7 +272,7 @@ async function shareImage() {
       await navigator.share({
         files: [file],
         title: 'Account Banned Meme Lab',
-        text: `Make your own ban notice at ${shareableUrl('/play')}. Free, ad-free, and supporting malaria prevention.`,
+        text: `Make your own ban notice at ${shareableUrl('/play/ban-meme')}. Free, ad-free, and supporting malaria prevention.`,
       })
     } else {
       saveBlob(blob)

@@ -451,7 +451,7 @@ const features: FeaturedExperience[] = [
     title: 'Account Banned Meme Lab',
     tag: 'Meme generator · Unappealable nonsense',
     category: 'create',
-    route: '/play',
+    route: '/play/ban-meme',
     image: '/ban-meme/base.webp',
     description:
       'Rewrite your fictional crime in a GTA-style permanent ban, then save or share the screenshot.',

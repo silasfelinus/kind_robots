@@ -8,7 +8,7 @@ subtitle: Edit the crime, keep the life sentence
 summary: Rewrite your permanent account ban.
 description: Turn a Rockstar-style GTA VI ban notice into a ridiculous meme. Type the offense after “due to you”, then save or share the finished picture.
 icon: kind-icon:alert
-route: /play
+route: /play/ban-meme
 sort: 139
 tutorial:
   title: Account Banned Meme Lab

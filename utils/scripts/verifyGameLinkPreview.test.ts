@@ -63,7 +63,7 @@ assert.equal(
 assert.equal(meta?.twitterCard, 'summary_large_image')
 assert.equal(
   gameLinkPreviewMeta('ban-meme', 'https://kindrobots.org/')?.ogUrl,
-  'https://kindrobots.org/play',
+  'https://kindrobots.org/play/ban-meme',
 )
 assert.equal(gameLinkPreviewMeta('nope', 'https://x.test'), null)
 assert.equal(
@@ -78,7 +78,6 @@ const pageFor: Record<string, string> = {
   'butterfly-gallery': 'pages/butterfly-gallery.vue',
   mandarin: 'pages/play/mandarin/index.vue',
   arcade: 'pages/play/arcade/index.vue',
-  'ban-meme': 'pages/play/index.vue',
   brainstorm: 'pages/brainstorm.vue',
   'music-mentor': 'pages/music-mentor.vue',
   'coloring-page': 'pages/coloring-page.vue',

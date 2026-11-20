@@ -134,7 +134,7 @@ assert.match(guestInvite, /v-if="userStore\.isGuest"/)
 assert.match(guestInvite, /:href="FUNDRAISER_URL"/)
 assert.match(guestInvite, /support\.markGave\(\)/)
 const memePage = readFileSync(
-  new URL('../../pages/play/index.vue', import.meta.url),
+  new URL('../../pages/play/ban-meme.vue', import.meta.url),
   'utf8',
 )
 assert.match(memePage, /<GuestFundraiserStrip\s*\/>/)

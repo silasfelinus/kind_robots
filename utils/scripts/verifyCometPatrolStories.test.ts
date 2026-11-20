@@ -442,7 +442,7 @@ assert.equal(
 )
 const crewBase = {
   ...startFullAcademy('kinetic', 91),
-  day: 17,
+  day: 25,
   phase: 'dispatch' as const,
 }
 const crewZone = PATROL_ZONES.map((zone) => zone.id).find(
@@ -495,7 +495,7 @@ assert.equal(exploitDebrief.influence, mercyDebrief.influence + 2)
 assert.equal(exploitDebrief.danger, mercyDebrief.danger + 3)
 const laterCrew = patrolCrewFor(
   {
-    day: 21,
+    day: 29,
     opponentSignature: mercyDebrief.opponentSignature,
     patrolHistory: mercyDebrief.patrolHistory,
   },
@@ -503,7 +503,7 @@ const laterCrew = patrolCrewFor(
 )
 assert.equal(laterCrew, null, 'one signature crew encounter per term')
 assert.equal(
-  patrolOptionsFor({ ...mercyDebrief, day: 21, phase: 'dispatch' }, crewZone)
+  patrolOptionsFor({ ...mercyDebrief, day: 29, phase: 'dispatch' }, crewZone)
     .some((option) => option.id.startsWith('crew-')),
   false,
   'repeat patrols keep their original choice sets',

@@ -97,7 +97,7 @@ const ALL_ROUTES = flag(
     '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers,' +
     '/auth/google,/build-bench,/coloring-page,/music-mentor,/play/challenges/leaderboard,/play/video-generator,' +
     '/users/1,/play/challenges/neon-ramen-bar-icon,' +
-    '/play/arcade,/play/arcade?game=zuzu-ghost-trail,/play/arcade?game=battery-maze,/play/zuzu-gamebook,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
+    '/play/arcade,/play/arcade?game=zuzu-ghost-trail,/play/arcade?game=battery-maze,/play/zuzu-gamebook,/play/emperor-of-dust,/play/zuzu-showdown,/play/zuzu-ghost-trail,' +
     '/play/zuzu-pinball,/play/zuzu-shifting-lands,/play/shifting-desks,' +
     '/play/mandarin,/play/aquarium/browse,/play/daily-pitches,/tzaddik-gallery',
 )
@@ -134,6 +134,16 @@ const VIEWPORTS = [
   { name: 'tablet', width: 820, height: 1180, mobile: true },
   { name: 'desktop', width: 1440, height: 900, mobile: false },
 ]
+
+// Emperor of Dust also needs a 768px tablet check, without adding a fourth
+// viewport to the entire public-site audit or distorting backdrop comparisons.
+const EMPEROR_ROUTE = '/play/emperor-of-dust'
+const EMPEROR_EXTRA_VIEWPORT = {
+  name: 'tablet-768',
+  width: 768,
+  height: 1024,
+  mobile: true,
+}
 
 let chromium
 try {
@@ -448,13 +458,18 @@ const routeTimings = []
 /** route -> { phone, tablet, desktop } resolved backdrop URLs. */
 const backdropsByRoute = {}
 
-for (const vp of VIEWPORTS) {
+for (const vp of [...VIEWPORTS, EMPEROR_EXTRA_VIEWPORT]) {
+  const viewportRoutes =
+    vp.name === EMPEROR_EXTRA_VIEWPORT.name
+      ? ROUTES.filter((route) => route === EMPEROR_ROUTE)
+      : ROUTES
+  if (!viewportRoutes.length) continue
   const ctx = await browser.newContext({
     viewport: { width: vp.width, height: vp.height },
     isMobile: vp.mobile,
     hasTouch: vp.mobile,
   })
-  for (const route of ROUTES) {
+  for (const route of viewportRoutes) {
     const page = await ctx.newPage()
     let loaded = true
     const started = Date.now()
@@ -604,7 +619,7 @@ for (const vp of VIEWPORTS) {
 
     // Record which backdrop each viewport resolved, so the cross-viewport
     // check below can run once every viewport has been visited.
-    if (m?.backdrop) {
+    if (m?.backdrop && vp.name !== EMPEROR_EXTRA_VIEWPORT.name) {
       ;(backdropsByRoute[route] ??= {})[vp.name] = m.backdrop
     }
 

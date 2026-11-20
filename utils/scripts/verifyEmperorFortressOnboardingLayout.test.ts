@@ -9,6 +9,7 @@ const chronicle = source('components/EmperorFortressChronicle.vue')
 const page = source('pages/play/emperor-of-dust.vue')
 const quests = source('components/EmperorFortressQuests.vue')
 const store = source('stores/emperorFortressStore.ts')
+const responsiveAudit = source('utils/scripts/auditResponsiveLayout.mjs')
 
 assert.match(intro, /The barracks are empty/)
 assert.match(intro, /two rival applicants/)
@@ -50,6 +51,26 @@ assert.match(plateRule, /var\(--color-base-200\)/)
 assert.doesNotMatch(plateRule, /transparent/)
 assert.match(chipRule, /background:\s*var\(--color-base-200\)/)
 
+// The scheduled real-browser screenshot sweep must cover Emperor's public
+// route at phone, 768px tablet, existing 820px tablet, and desktop widths.
+// Its extra viewport must not change the global 3-width backdrop audit.
+assert.match(
+  responsiveAudit,
+  /\/play\/zuzu-gamebook,\/play\/emperor-of-dust,\/play\/zuzu-showdown/,
+)
+assert.match(
+  responsiveAudit,
+  /name: 'tablet-768',\s*width: 768,\s*height: 1024/,
+)
+assert.match(
+  responsiveAudit,
+  /ROUTES\.filter\(\(route\) => route === EMPEROR_ROUTE\)/,
+)
+assert.match(
+  responsiveAudit,
+  /m\?\.backdrop && vp\.name !== EMPEROR_EXTRA_VIEWPORT\.name/,
+)
+
 console.log(
-  'Emperor new-reign, bounded quest room, and opaque panel contrast verified',
+  'Emperor new-reign, bounded quest room, opaque panels, and four-width live audit contract verified',
 )

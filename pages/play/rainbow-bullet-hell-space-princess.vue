@@ -330,47 +330,67 @@
         <div
           role="group"
           aria-label="Palace Hangar upgrades"
-          class="kr-scroll grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto @2xl:grid-cols-3"
+          class="grid shrink-0 grid-cols-3 gap-1"
         >
-          <article
+          <button
             v-for="(upgrade, index) in RAINBOW_HANGAR_UPGRADES"
             :key="upgrade.id"
-            class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-pink-300/40 bg-[#391f60]"
+            type="button"
+            class="min-w-0 truncate rounded-xl border px-1 py-2 text-xs font-bold"
+            :class="
+              hangarPick === index
+                ? 'border-pink-200 bg-pink-100 text-[#37204e]'
+                : 'border-white/30 bg-white/10 text-white'
+            "
+            :aria-pressed="hangarPick === index"
+            @click="hangarPick = index"
           >
-            <img
-              :src="rainbowStageCard(stages[index * 2]!.strip, look)"
-              :alt="upgrade.name + ' upgrade artwork'"
-              class="aspect-[16/7] w-full shrink-0 object-cover"
-              loading="lazy"
-            />
-            <div class="flex flex-1 flex-col gap-2 p-3">
-              <h3 class="text-base font-black">{{ upgrade.name }}</h3>
-              <p class="flex-1 text-sm text-white/85">
-                {{ upgrade.effect }}
-              </p>
-              <button
-                type="button"
-                class="btn btn-sm w-full border-pink-200 bg-pink-100 font-black text-[#37204e]"
-                :disabled="
-                  hangar.upgrades.includes(upgrade.id) ||
-                  hangarBalance < upgrade.cost
-                "
-                :aria-label="
-                  hangar.upgrades.includes(upgrade.id)
-                    ? upgrade.name + ' already installed'
-                    : 'Buy ' + upgrade.name + ' for ' + upgrade.cost + ' medal petals'
-                "
-                @click="arcadeStore.buyRainbowUpgrade(upgrade.id)"
-              >
-                {{
-                  hangar.upgrades.includes(upgrade.id)
-                    ? 'Installed'
-                    : upgrade.cost + ' petals · Equip for next flight'
-                }}
-              </button>
-            </div>
-          </article>
+            {{ upgrade.name }}
+          </button>
         </div>
+        <article
+          class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-pink-300/40 bg-[#391f60] @2xl:flex-row"
+        >
+          <img
+            :src="rainbowStageCard(stages[hangarPick * 2]!.strip, look)"
+            :alt="selectedHangarUpgrade.name + ' upgrade artwork'"
+            class="h-1/3 min-h-0 w-full shrink-0 object-cover @2xl:h-full @2xl:w-1/2"
+            loading="lazy"
+          />
+          <div class="flex min-h-0 flex-1 flex-col justify-between gap-2 p-2 sm:p-3">
+            <h3 class="text-base font-black">
+              {{ selectedHangarUpgrade.name }}
+            </h3>
+            <p class="min-h-0 flex-1 text-sm text-white/85">
+              {{ selectedHangarUpgrade.effect }}
+            </p>
+            <button
+              type="button"
+              class="btn btn-sm w-full shrink-0 border-pink-200 bg-pink-100 font-black text-[#37204e]"
+              :disabled="
+                hangar.upgrades.includes(selectedHangarUpgrade.id) ||
+                hangarBalance < selectedHangarUpgrade.cost
+              "
+              :aria-label="
+                hangar.upgrades.includes(selectedHangarUpgrade.id)
+                  ? selectedHangarUpgrade.name + ' already installed'
+                  : 'Buy ' +
+                    selectedHangarUpgrade.name +
+                    ' for ' +
+                    selectedHangarUpgrade.cost +
+                    ' medal petals'
+              "
+              @click="arcadeStore.buyRainbowUpgrade(selectedHangarUpgrade.id)"
+            >
+              {{
+                hangar.upgrades.includes(selectedHangarUpgrade.id)
+                  ? 'Installed'
+                  : selectedHangarUpgrade.cost +
+                    ' petals · Equip for next flight'
+              }}
+            </button>
+          </div>
+        </article>
         <p class="shrink-0 text-xs text-white/75">
           Bronze, silver and gold medals earn 1, 2 and 3 petals per sea.
           Only your best medal per sea counts. Upgrades stay in this slot.
@@ -442,6 +462,10 @@ const seaProgress = computed(() =>
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
 const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))
+const hangarPick = ref(0)
+const selectedHangarUpgrade = computed(
+  () => RAINBOW_HANGAR_UPGRADES[hangarPick.value]!,
+)
 const exploredCount = computed(
   () => seaProgress.value.filter((sea) => sea.explored).length,
 )

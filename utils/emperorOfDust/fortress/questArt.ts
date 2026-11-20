@@ -193,6 +193,8 @@ export const QUEST_ART: readonly string[] = [
   'q-d42-rail-salvage',
   'q-d42-rail-salvage-success',
   'q-d42-rail-salvage-failure',
+  'q-d42-cave-forage',
+  'q-d42-cave-forage-success',
   'q-d44-komodo-bargain',
   'q-d44-komodo-bargain-success',
   'q-d44-komodo-bargain-failure',

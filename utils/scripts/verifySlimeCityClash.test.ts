@@ -317,6 +317,46 @@ assert.match(browserLayoutAudit, /getBoundingClientRect\(\)/)
 assert.match(browserLayoutAudit, /row\.scrollWidth <= row\.clientWidth/)
 assert.match(browserLayoutAudit, /tapBox\.right <= fightBox\.left/)
 assert.match(browserLayoutAudit, /withTap of \[false, true\]/)
+// Match over: three result controls replace UNDO and FIGHT. They wrap on the
+// rail and take their own strip on phones; the audit measures both states.
+assert.match(
+  view,
+  /class="clash-layout" :class="\{ 'is-over': !!game\.victor \}"/,
+  'the layout knows when the match is over',
+)
+assert.match(
+  view,
+  /class="clash-console-row"\s+:class="\{ 'is-over': !!game\.victor \}"/,
+  'the control row knows when the match is over',
+)
+assert.match(
+  view,
+  /\.clash-console-row\.is-over \{[^}]*flex-wrap: wrap;/s,
+  'result controls wrap on the rail instead of clipping',
+)
+assert.match(
+  view,
+  /\.clash-console-row\.is-over \.clash-reset \{[^}]*white-space: normal;/s,
+  'a long result label takes a second line',
+)
+assert.match(
+  view,
+  /\.clash-layout\.is-over \{[^}]*'me me'\s+'console console'/s,
+  'on phones the result controls get their own full-width strip',
+)
+assert.match(
+  view,
+  /Math\.max\(0, game\.boss\[side\]\)/,
+  'a boss knocked below zero reads 0',
+)
+assert.match(browserLayoutAudit, /function measureResultControls\(\)/)
+assert.match(browserLayoutAudit, /playMatch\(page, clickActivate/)
+assert.match(browserLayoutAudit, /for \(const state of \['report', 'board'\]\)/)
+assert.match(
+  responsiveWorkflow,
+  /KR_AUDIT_USERNAME: \$\{\{ secrets\.KR_AUDIT_USERNAME \}\}/,
+  'the scheduled audit signs in with the non-admin audit account when set',
+)
 assert.match(
   responsiveWorkflow,
   /npm run audit:slime-city-clash-layout -- --base/,
@@ -1015,6 +1055,25 @@ bossBattle.units = [follower('player', 0, 103, 8, 5)]
 const finisher = strikeClash(bossBattle, 'player')
 assert.equal(clashSpectacle(bossBattle, finisher)?.kind, 'victory')
 assert.equal(clashSpectacle(bossBattle, finisher)?.grade, 'legend')
+assert.equal(clashSpectacle(bossBattle, finisher)?.title, 'VICTORY!')
+// The banner title is the player's result: a rival finishing blow is a
+// DEFEAT, and the boss it dropped below zero reads as 0, not a negative.
+const lastRound = createClash('catgirls', 'ironjaw', 815)
+lastRound.phase = 'attack'
+lastRound.active = 'enemy'
+lastRound.boss.player = 4
+lastRound.units = [follower('enemy', 0, 105, 8, 5)]
+const rivalFinisher = strikeClash(lastRound, 'enemy')
+assert.equal(rivalFinisher.victor, 'enemy')
+assert.ok(rivalFinisher.boss.player < 0, 'the fixture overkills the boss')
+const rivalMoment = clashSpectacle(lastRound, rivalFinisher)
+assert.equal(rivalMoment?.kind, 'victory')
+assert.equal(rivalMoment?.eyebrow, 'FINISHING BLOW')
+assert.equal(rivalMoment?.title, 'DEFEAT')
+assert.equal(
+  rivalMoment?.detail,
+  'Boss health: 0 to ' + rivalFinisher.boss.enemy,
+)
 const hazard = createClash('catgirls', 'ironjaw', 816)
 hazard.phase = 'attack'
 hazard.units = [follower('player', 3, 104, 9, 3)]

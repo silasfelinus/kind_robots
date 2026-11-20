@@ -7,7 +7,7 @@
     data-testid="slime-clash"
     aria-label="Slime City Clash"
   >
-    <div class="clash-layout">
+    <div class="clash-layout" :class="{ 'is-over': !!game.victor }">
       <div class="clash-stage">
         <div
           class="clash-board"
@@ -251,7 +251,7 @@
             /></span>
             <span class="clash-boss-line">
               <b class="clash-hp"
-                >{{ game.boss[side]
+                >{{ Math.max(0, game.boss[side])
                 }}<small>/ {{ clashBossCap(game, side) }}</small></b
               >
               <span
@@ -425,7 +425,10 @@
         <div class="clash-console">
           <div id="clash-hand-dock" class="clash-hand-dock"></div>
           <div class="clash-console-main">
-            <div class="clash-console-row">
+            <div
+              class="clash-console-row"
+              :class="{ 'is-over': !!game.victor }"
+            >
               <button
                 v-if="backTarget"
                 type="button"
@@ -2129,6 +2132,28 @@ function forecast(lane: number): string {
 .clash-console-row .clash-pass {
   min-width: 0;
 }
+/*
+  Match over: BACK, REWARDS and REMATCH replace UNDO and FIGHT. Three labels
+  never fit one line of the rail, so the row wraps (BACK beside the sound
+  toggle, then REWARDS and REMATCH) and a long label such as PLAY FOR REWARDS
+  takes a second line instead of spilling out of its button.
+*/
+.clash-console-row.is-over {
+  flex-wrap: wrap;
+}
+.clash-console-row.is-over .clash-reset {
+  flex: 1 1 4.6rem;
+  white-space: normal;
+  line-height: 1.15;
+  text-align: center;
+}
+.clash-console-row.is-over .clash-back {
+  order: -2;
+  flex-basis: calc(100% - 3rem);
+}
+.clash-console-row.is-over :deep(.sc-sound-toggle) {
+  order: -1;
+}
 .clash-log-meta {
   display: flex;
   flex-wrap: wrap;
@@ -2385,6 +2410,41 @@ function forecast(lane: number): string {
       'hand hand';
     gap: 0.25rem;
     padding: 0.25rem 0.25rem 0;
+  }
+  /*
+    Match over: the console column is sized to its content, so three result
+    buttons used to push the whole grid wider than a phone. Your boss and the
+    result controls each take a full-width strip instead, and the spent hand
+    gives its row back to the board.
+  */
+  .clash-layout.is-over {
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto 0;
+    grid-template-areas:
+      'rival rival'
+      'mid mid'
+      'stage stage'
+      'me me'
+      'console console'
+      'hand hand';
+  }
+  .clash-layout.is-over .clash-hand-dock {
+    display: none;
+  }
+  .clash-layout.is-over .clash-console-main {
+    flex: 1;
+  }
+  .clash-console-row.is-over {
+    flex-wrap: nowrap;
+  }
+  .clash-console-row.is-over .clash-reset,
+  .clash-console-row.is-over .clash-back {
+    order: 0;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.5rem 0.3rem;
+  }
+  .clash-console-row.is-over :deep(.sc-sound-toggle) {
+    order: 0;
   }
   .clash-stage {
     display: contents;

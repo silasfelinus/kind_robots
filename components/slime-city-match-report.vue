@@ -131,7 +131,9 @@ const status = computed(() => {
       lab.boutUnrewarded ||
       (lab.progressLoaded
         ? 'Practice match: no Meat on the line. This is what it would have paid.'
-        : 'Sign in to bank Meat from CPU matches. This is what it would have paid.')
+        : lab.accountPreviewOnly
+          ? 'Local play: Meat is not banked yet. This is what it would have paid.'
+          : 'Sign in to bank Meat from CPU matches. This is what it would have paid.')
     )
   if (lab.progressError) return 'Not paid: ' + lab.progressError
   if (!lab.lastPayout)

@@ -1446,6 +1446,22 @@ assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
       `${def.id} ${def.name} has barracks dialogue`,
     )
 
+  for (const [talkId, optionId, line, beat] of [
+    ['nera-2', 'bought', /dry fields beyond the ridge/, 'bought'],
+    ['nera-2', 'refused', /yellow Freehold dust/, 'refused'],
+    ['ash-1', 'hourglass', /off the post route/, 'hourglass'],
+    ['flint-1', 'challenge', /counting them as if they were in the room/, 'hundred'],
+    ['bram-1', 'ask', /I was counting bread then/, 'riot'],
+    ['pip-1', 'posted', /Every morning/, 'gate'],
+    ['saffron-3', 'ask-tansy', /whose wagon raised me/, 'tansy'],
+  ] as const) {
+    const talk = TALKS.find(({ id }) => id === talkId)!
+    const option = talk.options.find(({ id }) => id === optionId)!
+    assert.match(option.response, line, `${talkId}/${optionId}`)
+    assert.equal(option.next, beat, `${talkId}/${optionId} keeps its beat`)
+    assert.deepEqual(option.effects, {}, `${talkId}/${optionId} remains a free probe`)
+  }
+
   // Each answer is its own consequence: no two answers offered together
   // share the same effects and the same next beat, so no branch is only a
   // rewording of another.

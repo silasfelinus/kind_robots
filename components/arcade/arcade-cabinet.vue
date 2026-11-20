@@ -1279,6 +1279,10 @@ function startGame() {
       players: players.value,
       mastery: store.masteryFor(props.slug),
       resume: store.saveFor(props.slug),
+      rainbowHangar:
+        props.slug === 'rainbow-bullet-hell-space-princess'
+          ? store.rainbowHangarBonuses()
+          : undefined,
       selectScreen: true,
       stillCamera: store.stillCamera,
       difficulty: meta.value?.difficulty ? difficulty.value : undefined,

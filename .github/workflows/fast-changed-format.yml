@@ -48,6 +48,18 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      # Temporary, branch-scoped repair for t-041. The normal formatter bot
+      # can commit the exact Prisma-generated diff without manual file edits.
+      # This step is removed after the bot commit and before merge.
+      - name: Space Couch t-041 regenerate checked-in Prisma client
+        if: github.event_name == 'pull_request' && github.head_ref == 'worker/game-of-captains-t-041-account-backup-20261120-f9n4'
+        env:
+          DATABASE_URL: mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots
+        run: |
+          npx prisma generate
+          # Intent-to-add makes the new model visible to git diff --binary.
+          git add -N prisma/generated/prisma/models/SpaceCouchVoyageSave.ts
+
       - name: Verify changed-file selector
         run: npm run test:format-changed
 

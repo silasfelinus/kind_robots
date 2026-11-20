@@ -127,32 +127,16 @@
           v-if="titlePanel === 'settings'"
           class="cap-menu-detail"
           aria-label="Game settings"
+          data-testid="space-couch-shared-settings"
         >
           <h2>SHIP SETTINGS</h2>
-          <p>Local preferences. No intergalactic committee required.</p>
-          <button
-            type="button"
-            :aria-pressed="store.preferences.largeText"
-            @click="
-              store.setPreference('largeText', !store.preferences.largeText)
-            "
-          >
-            LARGER DIALOGUE TEXT
-            <b>{{ store.preferences.largeText ? 'ON' : 'OFF' }}</b>
-          </button>
-          <button
-            type="button"
-            :aria-pressed="store.preferences.reducedMotion"
-            @click="
-              store.setPreference(
-                'reducedMotion',
-                !store.preferences.reducedMotion,
-              )
-            "
-          >
-            REDUCE ANIMATION
-            <b>{{ store.preferences.reducedMotion ? 'ON' : 'OFF' }}</b>
-          </button>
+          <p>One set of preferences on the couch and beyond.</p>
+          <div class="cap-settings-list max-h-64 min-h-0 overflow-y-auto">
+            <PlaybookKitSettings :spec="SPACE_COUCH_KIT" />
+          </div>
+          <p v-if="kit.storageWarning" role="alert">
+            {{ kit.storageWarning }}
+          </p>
           <button
             type="button"
             class="cap-menu-back"

@@ -124,100 +124,172 @@ export const IDENTITY_VISUAL_SIGNATURES = {
     portraitDirection: 'Ezra studies a levitating puzzle with hands folded',
   },
   'accident-air': {
-    silhouette: 'Compact athletic pilot in a cropped flight jacket with a loose parachute harness',
-    anatomy: 'Wind-tossed short hair, lightning-scarred calves and a recognizable dimpled grin',
-    signatureProp: 'Two bright orange parachute steering toggles on a battered chest strap',
-    movement: 'Pip leaps into open air and arrests the fall with both boots inches above the floor',
-    transformation: 'Small spiral streams of clear air curl around her limbs without concealing her face',
-    portraitDirection: 'Pip catches a dropped helmet while hovering beside an airfield windsock',
+    silhouette:
+      'Compact athletic pilot in a cropped flight jacket with a loose parachute harness',
+    anatomy:
+      'Wind-tossed short hair, lightning-scarred calves and a recognizable dimpled grin',
+    signatureProp:
+      'Two bright orange parachute steering toggles on a battered chest strap',
+    movement:
+      'Pip leaps into open air and arrests the fall with both boots inches above the floor',
+    transformation:
+      'Small spiral streams of clear air curl around her limbs without concealing her face',
+    portraitDirection:
+      'Pip catches a dropped helmet while hovering beside an airfield windsock',
   },
   'accident-water': {
-    silhouette: 'Tall swimmer with a long waterproof jacket and looping coils of water around her wrists',
-    anatomy: 'Wet dark hair, subtle cooling-pond markings along the collarbone and strong swimmer shoulders',
-    signatureProp: 'A dented metal cooling-pond sample canister clipped to a diving belt',
-    movement: 'Marisol plants her feet and draws a rolling wave upward through the pavement',
-    transformation: 'Water rises in transparent ribbons across her sleeves while her features remain unchanged',
-    portraitDirection: 'Marisol lifts water from a cracked city hydrant into a clear suspended arch',
+    silhouette:
+      'Tall swimmer with a long waterproof jacket and looping coils of water around her wrists',
+    anatomy:
+      'Wet dark hair, subtle cooling-pond markings along the collarbone and strong swimmer shoulders',
+    signatureProp:
+      'A dented metal cooling-pond sample canister clipped to a diving belt',
+    movement:
+      'Marisol plants her feet and draws a rolling wave upward through the pavement',
+    transformation:
+      'Water rises in transparent ribbons across her sleeves while her features remain unchanged',
+    portraitDirection:
+      'Marisol lifts water from a cracked city hydrant into a clear suspended arch',
   },
   'mutant-air': {
-    silhouette: 'Willowy young man in a long split coat with feathered forearms spreading like narrow wings',
-    anatomy: 'Fine dark feathers along both arms, light hollow-boned posture and pointed shoulder blades',
-    signatureProp: 'An oversized coat with reinforced slits concealing the feathered arms',
-    movement: 'Corvin launches sideways in one quick stroke and lands almost without sound',
-    transformation: 'Individual forearm feathers fan outward while the same face and body remain visible',
-    portraitDirection: 'Corvin folds his feathered arms around a frightened rooftop pigeon in the wind',
+    silhouette:
+      'Willowy young man in a long split coat with feathered forearms spreading like narrow wings',
+    anatomy:
+      'Fine dark feathers along both arms, light hollow-boned posture and pointed shoulder blades',
+    signatureProp:
+      'An oversized coat with reinforced slits concealing the feathered arms',
+    movement:
+      'Corvin launches sideways in one quick stroke and lands almost without sound',
+    transformation:
+      'Individual forearm feathers fan outward while the same face and body remain visible',
+    portraitDirection:
+      'Corvin folds his feathered arms around a frightened rooftop pigeon in the wind',
   },
   'mutant-water': {
-    silhouette: 'Broad-shouldered dockworker with a wet canvas coat and a narrow breathing collar',
-    anatomy: 'Visible gill slits behind both ears, webbed hands and salt-crusted hair at the temples',
-    signatureProp: 'A small portable saltwater mister clipped beside a fishing-boat key ring',
-    movement: 'Ilya slips low across slick stone and surfaces from water in one fluid movement',
-    transformation: 'Gills open visibly and thin sheets of seawater travel across his forearms',
-    portraitDirection: 'Ilya rests one webbed hand on a harbor bollard while checking the waterline',
+    silhouette:
+      'Broad-shouldered dockworker with a wet canvas coat and a narrow breathing collar',
+    anatomy:
+      'Visible gill slits behind both ears, webbed hands and salt-crusted hair at the temples',
+    signatureProp:
+      'A small portable saltwater mister clipped beside a fishing-boat key ring',
+    movement:
+      'Ilya slips low across slick stone and surfaces from water in one fluid movement',
+    transformation:
+      'Gills open visibly and thin sheets of seawater travel across his forearms',
+    portraitDirection:
+      'Ilya rests one webbed hand on a harbor bollard while checking the waterline',
   },
   'tech-air': {
-    silhouette: 'Lean drone racer in a compact micro-turbine wingsuit with two angled fabric fins',
-    anatomy: 'Human face behind an open flight visor, cropped hair and scarred mechanic knuckles',
-    signatureProp: 'Paired turbine control grips and an orange battery pack mounted on the suit waist',
-    movement: 'Jun-ho leans into a precise short thruster burst with both wings held level',
-    transformation: 'Mechanical fins unfold and turbine vanes spin without changing his human anatomy',
-    portraitDirection: 'Jun-ho repairs a palm-sized racing drone while his wingsuit rests half unfolded',
+    silhouette:
+      'Lean drone racer in a compact micro-turbine wingsuit with two angled fabric fins',
+    anatomy:
+      'Human face behind an open flight visor, cropped hair and scarred mechanic knuckles',
+    signatureProp:
+      'Paired turbine control grips and an orange battery pack mounted on the suit waist',
+    movement:
+      'Jun-ho leans into a precise short thruster burst with both wings held level',
+    transformation:
+      'Mechanical fins unfold and turbine vanes spin without changing his human anatomy',
+    portraitDirection:
+      'Jun-ho repairs a palm-sized racing drone while his wingsuit rests half unfolded',
   },
   'tech-water': {
-    silhouette: 'Sturdy marine rescue diver with a streamlined blue diving rig and a clear pressure helmet',
-    anatomy: 'Visible human face through the glass, strong shoulders and weathered hands',
-    signatureProp: 'Brass rescue light and two flexible pressure hoses mounted to the diving harness',
-    movement: 'Nalani takes deliberate heavy steps then glides when the water jets engage',
-    transformation: 'Rescue thrusters unfold from the suit and release narrow controlled water streams',
-    portraitDirection: 'Nalani kneels by a pier ladder holding a rescue float beneath the suit lamp',
+    silhouette:
+      'Sturdy marine rescue diver with a streamlined blue diving rig and a clear pressure helmet',
+    anatomy:
+      'Visible human face through the glass, strong shoulders and weathered hands',
+    signatureProp:
+      'Brass rescue light and two flexible pressure hoses mounted to the diving harness',
+    movement:
+      'Nalani takes deliberate heavy steps then glides when the water jets engage',
+    transformation:
+      'Rescue thrusters unfold from the suit and release narrow controlled water streams',
+    portraitDirection:
+      'Nalani kneels by a pier ladder holding a rescue float beneath the suit lamp',
   },
   'magic-air': {
-    silhouette: 'Long-limbed singer in layered choir robes with a thin ring of storm cloud overhead',
-    anatomy: 'Angular human face, wind-loosened curls and ink-dark markings on both palms',
-    signatureProp: 'A tarnished silver tuning fork tucked into a weathered hymn book',
-    movement: 'Ambrose raises the tuning fork and turns in measured circles as air currents gather',
-    transformation: 'Cloud wisps spiral around his sleeves while the same facial features stay clear',
-    portraitDirection: 'Ambrose sings beside an open library window with rain curling upward outside',
+    silhouette:
+      'Long-limbed singer in layered choir robes with a thin ring of storm cloud overhead',
+    anatomy:
+      'Angular human face, wind-loosened curls and ink-dark markings on both palms',
+    signatureProp:
+      'A tarnished silver tuning fork tucked into a weathered hymn book',
+    movement:
+      'Ambrose raises the tuning fork and turns in measured circles as air currents gather',
+    transformation:
+      'Cloud wisps spiral around his sleeves while the same facial features stay clear',
+    portraitDirection:
+      'Ambrose sings beside an open library window with rain curling upward outside',
   },
   'magic-water': {
-    silhouette: 'Slender street magician in a fitted waistcoat with a shallow silver basin at one hip',
-    anatomy: 'Recognizable narrow face, steady eyes and water-darkened fingertips',
-    signatureProp: 'A hand-hammered silver scrying bowl with a chipped rim and folding stand',
-    movement: 'Caspian steps around reflections on the ground without breaking their surface',
-    transformation: 'Liquid mirror reflections rise beside him without masking his body',
-    portraitDirection: 'Caspian holds the silver bowl at chest height as two clear reflections gather',
+    silhouette:
+      'Slender street magician in a fitted waistcoat with a shallow silver basin at one hip',
+    anatomy:
+      'Recognizable narrow face, steady eyes and water-darkened fingertips',
+    signatureProp:
+      'A hand-hammered silver scrying bowl with a chipped rim and folding stand',
+    movement:
+      'Caspian steps around reflections on the ground without breaking their surface',
+    transformation:
+      'Liquid mirror reflections rise beside him without masking his body',
+    portraitDirection:
+      'Caspian holds the silver bowl at chest height as two clear reflections gather',
   },
   'alien-air': {
-    silhouette: 'Tall translucent vapor-bodied ambassador contained within an open atmospheric harness',
-    anatomy: 'Distinctive cloud-like facial arrangement and several long floating vapor tendrils',
-    signatureProp: 'A portable pressure-field collar with three amber atmospheric gauges',
-    movement: 'Quillon drifts above the floor while the vapor tendrils turn toward each speaker',
-    transformation: 'The cloud body spreads into a broad arc before condensing to the same outline',
-    portraitDirection: 'Quillon offers a small floating sphere of mist to a grounded city diplomat',
+    silhouette:
+      'Tall translucent vapor-bodied ambassador contained within an open atmospheric harness',
+    anatomy:
+      'Distinctive cloud-like facial arrangement and several long floating vapor tendrils',
+    signatureProp:
+      'A portable pressure-field collar with three amber atmospheric gauges',
+    movement:
+      'Quillon drifts above the floor while the vapor tendrils turn toward each speaker',
+    transformation:
+      'The cloud body spreads into a broad arc before condensing to the same outline',
+    portraitDirection:
+      'Quillon offers a small floating sphere of mist to a grounded city diplomat',
   },
   'alien-water': {
-    silhouette: 'Graceful ocean-world visitor with luminous fin fringes and a flowing translucent mantle',
-    anatomy: 'Nonhuman sea-bright eyes, delicate fin ridges and pearlescent patterned skin',
-    signatureProp: 'A spiral shell bracelet and sealed sea-glass vessel of water from home',
-    movement: 'Thessaly glides forward with slow undulating fin motions and a trailing water ribbon',
-    transformation: 'Bioluminescent fin edges brighten as nearby sea creatures gather around her',
-    portraitDirection: 'Thessaly kneels at the pier holding a tiny crab in cupped shimmering hands',
+    silhouette:
+      'Graceful ocean-world visitor with luminous fin fringes and a flowing translucent mantle',
+    anatomy:
+      'Nonhuman sea-bright eyes, delicate fin ridges and pearlescent patterned skin',
+    signatureProp:
+      'A spiral shell bracelet and sealed sea-glass vessel of water from home',
+    movement:
+      'Thessaly glides forward with slow undulating fin motions and a trailing water ribbon',
+    transformation:
+      'Bioluminescent fin edges brighten as nearby sea creatures gather around her',
+    portraitDirection:
+      'Thessaly kneels at the pier holding a tiny crab in cupped shimmering hands',
   },
   'psychic-air': {
-    silhouette: 'Androgynous levitating student in loose street clothes with hair hanging weightlessly',
-    anatomy: 'Recognizable soft facial features, floating hair strands and scuffed hands',
-    signatureProp: 'An old climbing cord looped neatly around a pair of worn high-top shoes',
-    movement: 'Avery rises vertically in careful small increments with shoes never touching the stair',
-    transformation: 'Loose clothing and nearby dust lift into a gentle gravityless halo',
-    portraitDirection: 'Avery hovers beside an apartment staircase holding groceries steady in midair',
+    silhouette:
+      'Androgynous levitating student in loose street clothes with hair hanging weightlessly',
+    anatomy:
+      'Recognizable soft facial features, floating hair strands and scuffed hands',
+    signatureProp:
+      'An old climbing cord looped neatly around a pair of worn high-top shoes',
+    movement:
+      'Avery rises vertically in careful small increments with shoes never touching the stair',
+    transformation:
+      'Loose clothing and nearby dust lift into a gentle gravityless halo',
+    portraitDirection:
+      'Avery hovers beside an apartment staircase holding groceries steady in midair',
   },
   'psychic-water': {
-    silhouette: 'Quiet lighthouse keeper in a wool coat with faint tide circles circling his shoulders',
-    anatomy: 'Soft expressive eyes, wind-chapped cheeks and distinctive wavy dark hair',
-    signatureProp: 'A small lighthouse pendant dangling beside a folded tide-chart notebook',
-    movement: 'Lior holds perfectly still while ripples expand across any nearby water',
-    transformation: 'Transparent rings of seawater echo his gestures without covering his face',
-    portraitDirection: 'Lior stands by a lighthouse window calming a stormy bowl of water with one hand',
+    silhouette:
+      'Quiet lighthouse keeper in a wool coat with faint tide circles circling his shoulders',
+    anatomy:
+      'Soft expressive eyes, wind-chapped cheeks and distinctive wavy dark hair',
+    signatureProp:
+      'A small lighthouse pendant dangling beside a folded tide-chart notebook',
+    movement:
+      'Lior holds perfectly still while ripples expand across any nearby water',
+    transformation:
+      'Transparent rings of seawater echo his gestures without covering his face',
+    portraitDirection:
+      'Lior stands by a lighthouse window calming a stormy bowl of water with one hand',
   },
 } satisfies Partial<Record<SignaturePowerId, IdentityVisualSignature>>
 

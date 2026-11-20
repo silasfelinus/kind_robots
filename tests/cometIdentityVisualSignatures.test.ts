@@ -26,7 +26,10 @@ describe('canonical visual signatures', () => {
     assert.equal(Object.keys(IDENTITY_VISUAL_SIGNATURES).length, 24)
     const visuals = Object.values(IDENTITY_VISUAL_SIGNATURES)
     assert.equal(new Set(visuals.map((visual) => visual.silhouette)).size, 24)
-    assert.equal(new Set(visuals.map((visual) => visual.portraitDirection)).size, 24)
+    assert.equal(
+      new Set(visuals.map((visual) => visual.portraitDirection)).size,
+      24,
+    )
   })
 
   it('does not pretend the remaining identities have delivered visual contracts', () => {

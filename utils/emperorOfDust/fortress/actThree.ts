@@ -4188,7 +4188,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['sheltered-moles'],
             },
             response:
-              'The burrow envoy touches the open gate to make sure it is real. Mole families are given the lower store rooms where the earth is cool; the Watch must shift its winter grain upstairs. Lady Vask’s steward leaves his chamber key on the table and walks out. Beyond the walls Hester Plowright takes her farmers back toward their fences.',
+              'The burrow envoy touches the open gate to make sure it is real. Burrow families are given the lower store rooms where the earth is cool; the Watch must shift its winter grain upstairs. Lady Vask’s steward leaves his chamber key on the table and walks out. Beyond the walls Hester Plowright takes her farmers back toward their fences.',
           },
           {
             id: 'ask-losses',

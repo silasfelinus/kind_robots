@@ -5,6 +5,7 @@ import {
   isApprovedRedshirtSelection,
 } from '../gameOfCaptains/curatedRedshirtArt'
 import { WARP_ART } from '../gameOfCaptains/artManifest'
+import { REDSHIRT_ROUND3_CANDIDATES } from '../gameOfCaptains/redshirtRound3Candidates'
 
 assert.equal(
   curatedRedshirtArtKey('game-of-captains/redshirts/portraits/rs-002'),
@@ -82,3 +83,64 @@ assert.equal(
 console.log(
   'Space Couch selected ArtSlot delivery, privacy gates and shipped fallback verified',
 )
+
+assert.equal(REDSHIRT_ROUND3_CANDIDATES.length, 24)
+assert.equal(
+  REDSHIRT_ROUND3_CANDIDATES.filter(([key]) =>
+    key.startsWith('redshirts/portraits/'),
+  ).length,
+  23,
+)
+assert.equal(
+  REDSHIRT_ROUND3_CANDIDATES.filter(([key]) =>
+    key.startsWith('redshirts/secret-powers/'),
+  ).length,
+  1,
+)
+assert.equal(
+  new Set(REDSHIRT_ROUND3_CANDIDATES.map(([key]) => key)).size,
+  24,
+)
+assert.equal(
+  new Set(REDSHIRT_ROUND3_CANDIDATES.map(([, id]) => id)).size,
+  24,
+)
+assert.equal(
+  new Set(REDSHIRT_ROUND3_CANDIDATES.map(([, , id]) => id)).size,
+  24,
+)
+assert.ok(
+  REDSHIRT_ROUND3_CANDIDATES.every(
+    ([key, jobId, imageId]) =>
+      curatedRedshirtArtKey(key) === key &&
+      jobId >= 68251 &&
+      jobId <= 68274 &&
+      imageId >= 270068 &&
+      imageId <= 270092 &&
+      !WARP_ART.includes(key),
+  ),
+  'review candidates remain unshipped and must not overwrite accepted art',
+)
+const sync = readFileSync(
+  'server/api/game-of-captains/redshirt-art/sync.post.ts',
+  'utf8',
+)
+const forgeStore = readFileSync(
+  'stores/playbookForgeRedshirtsStore.ts',
+  'utf8',
+)
+const forge = readFileSync(
+  'components/playbook-forge/playbook-forge-redshirts.vue',
+  'utf8',
+)
+assert.ok(sync.includes('requireMachineUser(event)'))
+assert.ok(sync.includes('assertCurator(auth)'))
+assert.ok(sync.includes("job?.status === 'DONE'"))
+assert.ok(sync.includes('job.artImageId === imageId'))
+assert.ok(sync.includes('activeIds.has(imageId)'))
+assert.ok(sync.includes('selectIfEmpty: false'))
+assert.ok(!sync.includes('selectCandidate('))
+assert.ok(!sync.includes('setCandidateVerdict('))
+assert.ok(forgeStore.includes("'/api/game-of-captains/redshirt-art/sync'"))
+assert.ok(forge.includes('data-testid="space-couch-register-redshirt-candidates"'))
+assert.ok(forge.includes('data-testid="space-couch-curate-redshirt-art"'))

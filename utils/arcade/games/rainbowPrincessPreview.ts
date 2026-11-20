@@ -69,6 +69,7 @@ import {
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES, laneY } from './rainbowFormations'
+import { NURSERY, NURSERY_WAVE_SIZES } from './rainbowLanternNursery'
 import {
   TRENCH,
   TRENCH_ALL_WAVES,
@@ -2168,7 +2169,9 @@ export function createRainbowPrincessPreview(
     const left = (waveLeft.get(reef.wave) ?? 1) - 1
     waveLeft.set(reef.wave, left)
     const size =
-      (reef.wave >= WRECK.waveBase
+      (reef.wave >= NURSERY.waveBase
+        ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
+        : reef.wave >= WRECK.waveBase
         ? reef.wave >= PALACE.waveBase
           ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
           : reef.wave >= GLASS.waveBase

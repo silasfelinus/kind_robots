@@ -21,6 +21,7 @@ import { scriptProblems, type SceneScript } from './sceneGraph'
 import { SCIENCE_WING_SCRIPT } from './scienceWingScript'
 import { CROSSWALK_CRISIS_SCRIPT } from './crosswalkCrisisScript'
 import { LAST_ORDER_SCRIPT } from './lastOrderScript'
+import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 
 export type StudioBrush =
   | 'erase'
@@ -253,6 +254,60 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     victory: { kind: 'rescue', count: 3 },
     script: CROSSWALK_CRISIS_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'rooftop-broadcast',
+    title: 'Rooftop Broadcast',
+    venue: 'Comet City harbor transmitter terrace',
+    objective:
+      'Hold the elevated antenna pad for two rounds before the eighth round. Avoid the collapsing catwalk and watch the rival reinforcement hatches.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [4, 5], [6, 0]),
+        '2,1': tile(1),
+        '3,1': tile(1),
+        '3,2': tile(1, false, { north: 'half' }),
+        '4,2': tile(2),
+        '4,3': tile(2),
+        '5,2': tile(1, false, { east: 'half' }),
+        '5,3': tile(1),
+        '6,2': tile(1),
+        '5,4': tile(1),
+        '2,4': tile(1),
+      },
+    },
+    spawns: DEFAULT_SPAWNS,
+    secrets: [{ x: 5, y: 4 }],
+    hazards: [],
+    turnLimit: 8,
+    props: [
+      { id: 'antenna-cabinet', x: 4, y: 1, cover: 'full', hp: 3 },
+      { id: 'roof-vent', x: 6, y: 3, cover: 'half', hp: 2 },
+      { id: 'relay-case', x: 2, y: 3, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'catwalk-collapse', kind: 'collapse', x: 3, y: 3, round: 4 },
+      { id: 'rainwater-cable', kind: 'water', x: 5, y: 1 },
+    ],
+    waves: [
+      {
+        round: 4,
+        crew: 'licensed-legends',
+        spawns: [{ x: 8, y: 0 }],
+      },
+    ],
+    victory: {
+      kind: 'hold-zone',
+      rounds: 2,
+      cells: [
+        { x: 4, y: 2 },
+        { x: 4, y: 3 },
+      ],
+    },
+    script: ROOFTOP_BROADCAST_SCRIPT,
   },
   {
     version: 1,

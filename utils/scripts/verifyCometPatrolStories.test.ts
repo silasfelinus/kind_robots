@@ -476,6 +476,18 @@ const mercyMoment = scrapbookMoments(mercyDebrief).find((moment) =>
 assert.ok(mercyMoment)
 assert.ok(mercyMoment.text.includes(mercyChoice.result))
 assert.ok(restoreAcademy(JSON.parse(JSON.stringify(mercyDebrief))))
+const forgedCrew = {
+  ...mercyDebrief,
+  patrolHistory: mercyDebrief.patrolHistory!.map((memory) => ({
+    ...memory,
+    choiceId: 'crew-psychic-water-mercy-intervene',
+  })),
+}
+assert.equal(
+  restoreAcademy(JSON.parse(JSON.stringify(forgedCrew))),
+  null,
+  'a saved crew choice must match the run\'s actual opponent',
+)
 const exploitDebrief = resolveDispatch(
   chooseNightPatrol(crewBase, crewZone, coercedChoice.id),
 )

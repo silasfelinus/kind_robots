@@ -472,6 +472,79 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     persist()
   }
 
+  /**
+   * The user explicitly requested a clean slate. Only Emperor-owned progress
+   * is removed; reading preferences, account achievements and other games
+   * remain untouched. A failed read cannot silently erase an unreadable save.
+   */
+  function resetProgress() {
+    if (!loaded.value) load()
+    const store = storage()
+    if (!store)
+      throw new Error('Browser storage is blocked; no progress was erased')
+    const keys = [
+      AUTO_KEY,
+      ...Array.from({ length: SLOT_COUNT }, (_, slot) => slotKey(slot)),
+      CODEX_KEY,
+      RELIC_KEY,
+      LEGACY_KEY,
+      SCRAPBOOK_KEY,
+      INTRO_KEY,
+    ]
+    let saved: { key: string; value: string | null }[]
+    try {
+      saved = keys.map((key) => ({ key, value: store.getItem(key) }))
+    } catch {
+      throw new Error('Saved progress could not be read; nothing was erased')
+    }
+    const removed: { key: string; value: string | null }[] = []
+    try {
+      for (const entry of saved) {
+        store.removeItem(entry.key)
+        removed.push(entry)
+      }
+    } catch {
+      let restored = true
+      for (const entry of removed) {
+        try {
+          if (entry.value !== null) store.setItem(entry.key, entry.value)
+        } catch {
+          restored = false
+        }
+      }
+      throw new Error(
+        restored
+          ? 'Browser storage refused the reset; previous progress was restored'
+          : 'Storage failed during reset; some previous progress could not be restored',
+      )
+    }
+
+    book.value = newBook(createRun(newSeed()))
+    codex.value = emptyCodex()
+    slots.value = Array(SLOT_COUNT).fill(null)
+    slotUnreadable.value = Array(SLOT_COUNT).fill(false)
+    relicVault.value = emptyRelicVault()
+    legacy.value = emptyLegacy()
+    scrapbook.value = emptyScrapbook()
+    lastReport.value = null
+    lastResponse.value = ''
+    lastLearned.value = []
+    introOpen.value = true
+    autosaveHeld = false
+    codexHeld = false
+    codexPending = false
+    relicVaultUnreadable = false
+    legacyHeld = false
+    scrapbookHeld = false
+    heldNotices.value = []
+    writeWarning.value = ''
+    persist()
+    usePlaybookRunReviewStore().begin(
+      'emperor-of-dust',
+      playbookRunKey(book.value.current),
+    )
+  }
+
   /** Answers a barracks talk; returns the beat it moves on to, if it goes on. */
   function talk(talkId: string, optionId: string): string | undefined {
     const known = codex.value
@@ -669,6 +742,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     preferences,
     setPreference,
     resetPreferences,
+    resetProgress,
     run,
     day,
     rewindableDays,

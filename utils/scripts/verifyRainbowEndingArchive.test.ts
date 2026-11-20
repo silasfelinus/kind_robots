@@ -22,4 +22,6 @@ assert.ok(
   earned.every((entry) => entry.summary.length > 20 && entry.title.length > 0),
 )
 assert.equal(rainbowEndingArchive(['ending-evacuate'])[1]?.unlocked, true)
-console.log('rainbow ending archive: ok (exact earned choices, three locked slots)')
+console.log(
+  'rainbow ending archive: ok (exact earned choices, three locked slots)',
+)

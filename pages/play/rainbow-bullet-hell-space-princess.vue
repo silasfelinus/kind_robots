@@ -438,7 +438,9 @@
               loading="lazy"
             />
             <div class="flex min-h-0 flex-1 flex-col gap-1 p-3">
-              <p class="text-xs font-bold uppercase tracking-widest text-pink-200">
+              <p
+                class="text-xs font-bold uppercase tracking-widest text-pink-200"
+              >
                 {{ entry.unlocked ? 'Memory recovered' : 'Memory locked' }}
               </p>
               <h3 class="text-base font-black">

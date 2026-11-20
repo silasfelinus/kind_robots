@@ -11,16 +11,20 @@ const SWIM_PROFILES = {
   reef: { speed: 0.075, bob: 0.5, bank: 0.016, stretch: 0.018 },
 } as const
 
+const JELLY_SWIMMERS = new Set(['lantern', 'squid', 'urchin', 'brood'])
+const EEL_SWIMMERS = new Set(['eel', 'mirror', 'angler'])
+const FIN_SWIMMERS = new Set(['dolphin', 'hammerhead', 'skate', 'skimmer'])
+
 export function rainbowSwimPose(
   kind: string,
   frame: number,
   calm = false,
 ): RainbowSwimPose {
-  const family = ['lantern', 'squid', 'urchin', 'brood'].includes(kind)
+  const family = JELLY_SWIMMERS.has(kind)
     ? 'jelly'
-    : ['eel', 'mirror', 'angler'].includes(kind)
+    : EEL_SWIMMERS.has(kind)
       ? 'eel'
-      : ['dolphin', 'hammerhead', 'skate', 'skimmer'].includes(kind)
+      : FIN_SWIMMERS.has(kind)
         ? 'fin'
         : 'reef'
   const profile = SWIM_PROFILES[family]

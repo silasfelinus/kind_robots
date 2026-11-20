@@ -93,6 +93,7 @@ for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
     story.seen.push('victory')
     story.decisions.push('finish')
     story.completed = true
+    state.fired ??= []
     state.fired.push('story:victory')
   }
   const victory = createSave({

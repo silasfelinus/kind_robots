@@ -18,6 +18,7 @@ export const FRONT_DOOR_ALIASES: FrontDoorAliasRules = {
   // Play channel index (content/channels/arcade/index.md routes here).
   '/play': alias('/play/arcade'),
   '/games': alias('/play/arcade'),
+  '/play/ban-meme': alias('/ban-meme'),
   // Projects channel index (content/channels/projects/index.md).
   '/projects': alias('/storybook'),
   // Support: the mission's giving tab (content/channels/home/giving.md).

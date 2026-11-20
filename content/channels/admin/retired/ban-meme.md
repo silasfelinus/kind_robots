@@ -6,11 +6,11 @@ parentTabKey: retired
 label: Banned!
 title: Account Banned Meme Lab
 subtitle: Edit the crime, keep the life sentence
-summary: Archived meme maker for admins.
-description: Retired account-ban meme maker, available to administrators. Edit the offense and export the parody screenshot.
+summary: Retired meme maker, public by link.
+description: The public Account Banned meme maker, filed under Admin Retired without appearing in Play navigation.
 icon: kind-icon:alert
-route: /play/ban-meme
-requiredRole: ADMIN
+route: /ban-meme
+allowDirectAccess: true
 sort: 139
 tutorial:
   title: Account Banned Meme Lab
@@ -20,10 +20,10 @@ tutorial:
     The Rockstar logo, red ACCOUNT BANNED heading, photographed TV, OK button,
     and “This ban is permanent and is not eligible for appeal.” remain intact.
     Save PNG exports the finished picture, and Share opens your device's share
-    sheet where supported. This archived tool is available only to administrators.
-    Everything happens in your browser, without an AI
-    generation request. This is an unofficial parody, not affiliated
-    with Rockstar Games.
+    sheet where supported. Anyone can open /ban-meme directly, even though
+    its navigation link is on the Admin Retired shelf. Everything happens in
+    your browser, without an AI generation request. This is an unofficial
+    parody, not affiliated with Rockstar Games.
 ---
 
 Rewrite the crime. The permanent ban never changes.

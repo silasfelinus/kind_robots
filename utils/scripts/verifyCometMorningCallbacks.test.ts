@@ -241,7 +241,7 @@ assert.ok(
     ]),
     'cloud-zoo',
   )!.includes('Since then:'),
-  'yesterday\'s faction has not organized yet',
+  "yesterday's faction has not organized yet",
 )
 const mixed = remembered([
   { day: 10, caseId: 'flood', grade: 'failed', unanswered: false },

@@ -564,7 +564,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       triumph:
         'Thirty-one feet down the crack runs along an old seam. Behind it is a dry gallery. In the gallery a lamp hook is driven into the wall, and under the hook a pair of work boots stand side by side. The party sealed the crack and brought the boots up. Ash took them without a word and went back to his ovens.',
       success:
-        'The crack was a hand wide and weeping. The party packed it with clay and held it till it set. On the third day the water came up clear. The Yard baked white bread and sent the first loaf to the tower.',
+        'The crack was a hand wide and weeping. The party packed it with clay and held it till it set. Before the next morning ovens the water ran clear. Ash watched the spigot until he trusted it, then baked white bread and sent the first loaf to the tower. The second went to the crew that came back up.',
       partial:
         'They found the crack and packed most of it. The water is better. It is not clear. Ash strains it through flour sacks and says nothing.',
       failure:
@@ -1666,7 +1666,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { cost: 20 },
             effects: { local: { lamplight: 4 }, flags: ['maps-copied'] },
             response:
-              'The scribes cheer, quietly, as scribes do. Keeper Vellum nods once and goes back to work.',
+              'Vellum lays the first clean copy beside the rotting Ford map. The old crossing is inked in black, where anyone can see it. An Old House clerk asks who may read it. Vellum pins the copy to the public board and does not answer.',
           },
           {
             id: 'decline',
@@ -1674,7 +1674,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               'Keep the twenty brass for food and repairs. Let the old maps crumble.',
             effects: { local: { lamplight: -2 } },
             response:
-              'The Archive bows and saves what it can alone. The corner of the Ford is swept up with the morning dust.',
+              'Vellum gathers the scraps that fell from his map and puts them in an envelope. A trader asks for the old ford crossing that afternoon. The Archive can show him the gap where the road used to be. He leaves without a route.',
           },
         ],
         beats: [
@@ -1698,7 +1698,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 requires: { cost: 20 },
                 effects: { local: { lamplight: 4 }, flags: ['maps-copied'] },
                 response:
-                  'The scribes cheer, quietly. Keeper Vellum nods once and goes back to work. Factor Tallow writes a small note in a small book.',
+                  'Vellum assigns two scribes to the Abbey road and two to the public Ford copies. Tallow watches her trade-route offer die on the desk. She writes down the names of the scribes who refused her. Vellum asks for more candles.',
               },
               {
                 id: 'decline',
@@ -1706,7 +1706,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   'The crown needs its brass for the living. The dead roads can wait.',
                 effects: { local: { lamplight: -2 } },
                 response:
-                  '“The dead roads have waited a long time,” says Keeper Vellum. He bows, and saves what he can alone.',
+                  '“The dead roads have waited a long time,” Vellum says. He rolls the Ford map around a cracked dowel. A Saltroad driver waiting in the hall asks for the old crossing. Vellum gives him the last copy, with the missing corner.',
               },
               {
                 id: 'abbey-first',
@@ -1843,7 +1843,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'Have the Archive study it before anyone sells it.',
             effects: { affinity: { rustline: -5 } },
             response:
-              'Jinx grins. “The studying kind.” The grin does not last to the door. The Yard was counting on a sale.',
+              'Jinx grins. “The studying kind.” The Archive clerk posts a study expedition instead of a purchase order. Pell puts the crate under guard. Rustline workers waiting outside ask whether a report will buy supper. Jinx has no answer.',
             postsQuests: ['q-d15-study-glass'],
           },
           {
@@ -1858,14 +1858,14 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               flags: ['rustline-crate-bought'],
             },
             response:
-              'Jinx counts the brass. Pell Quickmarrow throws in a surveyor’s lens. “For the next crate.” He lingers at the gate, looking at the barracks.',
+              'Jinx counts the thirty brass twice, then divides it into four purses for the Rustline crews. Pell adds a surveyor’s lens to the crate. “For the next one.” At the barracks gate he asks whether the crown hires mechanics.',
           },
           {
             id: 'send-away',
             label: 'Old-world relics bring trouble. Send them away.',
             effects: { affinity: { rustline: -10 }, local: { lamplight: -2 } },
             response:
-              'Jinx shrugs. Pell wheels the crate toward the Ledger’s stalls. In the gallery, a purse is already open.',
+              'Jinx wheels the crate to the Ledger stalls. Pell follows with the empty wrapping. Vellum sends a scribe after them, but the buyer shuts the lid before she can copy a single mark. The bell rings in the distance. The glass answers inside the box.',
           },
         ],
         beats: [
@@ -2714,7 +2714,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { yard: 2 },
               flags: ['wells-shared'],
             },
-            response: 'The reeve takes the brass. The wells open, grudgingly.',
+            response:
+              'Hester counts the brass into the Freehold well fund. The front gates open at sundown. Families with tokens argue with families without them at the pump, but both lines fill their pitchers. Dunmore Ash stays to carry the last bucket.',
           },
           {
             id: 'freehold-rights',
@@ -2725,13 +2726,14 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               flags: ['wells-closed'],
             },
             response:
-              'The reeve bows deep. Dunmore Ash walks out without being dismissed. The road will hear of this.',
+              'Hester bows and pockets the token ledger. Dunmore Ash leaves before court is dismissed. That night the back-gate sellers raise their price on water. The Freeholds call it property; the families outside call it thirst.',
           },
           {
             id: 'escort',
             label: 'Walk the refugees to Hollow Bell instead.',
             effects: { flags: ['d18-strangers-walked'] },
-            response: 'The reeve looks relieved. Someone else’s problem.',
+            response:
+              'Hester unfolds the road map and points to Hollow Bell. Dunmark posts the escort request on the quest board, but no one has left the gate yet. The refugees sleep by the Freehold well another night, with their empty pitchers beside them.',
             postsQuests: ['q-d18-refugee-road'],
           },
         ],
@@ -2930,7 +2932,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'Not this week.',
             effects: { affinity: { saltroad: -3 }, local: { yard: -1 } },
             response:
-              'The fair rolls on toward Hollow Bell. The Yard watches it go from the wall.',
+              'Vesper puts out her torches and bows anyway. The fair turns toward Hollow Bell, its water barrels rattling against the cart rails. Dunmore Ash watches from the wall. The night shift eats supper without music and returns to its posts.',
           },
         ],
         beats: [
@@ -3109,7 +3111,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               schedule: ['bell-garrison'],
             },
             response:
-              'Mara smiles and writes one word in her ledger. The Bell votes yes the next day.',
+              'Mara writes GARRISON beside the twelve empty places on the Bell watch roll. The town will vote yes tomorrow. Dunmark must find twelve guards for those places, and their former posts at the fortress will stand empty.',
           },
           {
             id: 'water',
@@ -3122,7 +3124,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               flags: ['bell-voted-yes'],
             },
             response:
-              '“Rain,” says Mara. “Now that’s a promise you can see.” In the Freeholds a reeve does the arithmetic and does not like it.',
+              '“Rain,” Mara says. “Show my people where it will fall.” She enters the crown pledge before the Bell vote, leaving less water for the Freehold farms upriver. Hester Plowright will measure that promise against every dry ditch.',
           },
           {
             id: 'speech',
@@ -3130,7 +3132,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               'Send someone to make the case in the square. The vote turns on how they do.',
             effects: {},
             response:
-              '“Make it a good one,” says Mara. “The sisters have been busy.”',
+              '“Make it a good one,” Mara says. She writes the square and the hour on the quest notice. The Abbey sisters already have an audience there. A crown speech still needs a speaker, and tomorrow the Bell will count the hands.',
             postsQuests: ['q-d19-bell-speech'],
           },
           {
@@ -3400,7 +3402,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               schedule: ['yard-double-loss'],
             },
             response:
-              'Dunmark nods. Lady Vask smiles. The Yard does not. Dunmore Ash leaves before the order is read.',
+              'Dunmark adds forty Yard names to the muster. Lady Vask calls it efficient. Dunmore Ash asks which ovens will go cold when those hands leave for the wall. Nobody crosses a name off the list. Ash goes back to work without his supper.',
           },
           {
             id: 'levy-houses',
@@ -3418,7 +3420,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'No levy. The Watch will make do.',
             effects: { local: { 'gate-watch': -3, yard: 1 } },
             response:
-              'Dunmark salutes, stiff. “We’ll make do. Until we can’t.”',
+              'Dunmark folds the levy list without filling its empty places. “We’ll make do. Until we can’t.” He takes two guards off the inner gate to cover the eastern road. The next night the Yard must check its own wagons.',
           },
           {
             id: 'levy-ledger',

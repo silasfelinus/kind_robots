@@ -214,6 +214,31 @@ export function districtRecordFor(
   )[0]!
 }
 
+/** The latest faction response that has had time to organize, even when a
+ * newer call supplies the district's immediate eyewitness account. */
+export function districtFactionRecordFor(
+  history: readonly CaseMemory[] | undefined,
+  day: number,
+  caseId: string,
+): CaseMemory | null {
+  const thread = caseThread(caseId)
+  if (!thread) return null
+  const matured = (history ?? []).filter(
+    (record) =>
+      day - record.day >= 2 &&
+      day - record.day <= 5 &&
+      record.caseId !== caseId &&
+      caseThread(record.caseId) === thread,
+  )
+  if (!matured.length) return null
+  return [...matured].sort(
+    (a, b) =>
+      b.day - a.day ||
+      Number(b.unanswered) - Number(a.unanswered) ||
+      a.caseId.localeCompare(b.caseId),
+  )[0]!
+}
+
 export function validCaseHistory(
   history: unknown,
   currentDay: number,

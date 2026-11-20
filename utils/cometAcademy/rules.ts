@@ -115,6 +115,7 @@ import {
   caseThread,
   caseTrustModifier,
   districtRecordFor,
+  districtFactionRecordFor,
   delayedFactionResponse,
   recordCaseNight,
   validCaseHistory,
@@ -1948,7 +1949,14 @@ export function districtMemory(
         ? ` Leading the investigation yourself costs ${-trust} from district distrust.`
         : ''
   // Faction news sits before the odds so the mechanical promise stays last.
-  const faction = delayedFactionResponse(record, run.day)
+  const factionRecord = districtFactionRecordFor(
+    run.caseHistory,
+    run.day,
+    incidentId,
+  )
+  const faction = factionRecord
+    ? delayedFactionResponse(factionRecord, run.day)
+    : null
   return `Night ${record.day}: ${witnesses}${faction ? ` Since then: ${faction}` : ''}${odds}`
 }
 

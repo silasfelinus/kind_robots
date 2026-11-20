@@ -113,6 +113,7 @@
     "test:art-archive-ingestion-controls": "node utils/scripts/verifyArtArchiveIngestionControls.mjs",
     "test:memory-briar-visual-lead": "tsx utils/scripts/verifyMemoryBriarCollisionVisualLead.test.ts",
     "test:memory-art-feed": "tsx utils/scripts/verifyMemoryArtFeed.test.ts",
+    "memory:delivered-art": "tsx utils/scripts/buildMemoryDeliveredEventArt.ts",
     "test:art-archive-scan-memory": "tsx utils/scripts/verifyArtArchiveScanMemory.test.ts",
     "test:art-archive-batch-scan": "tsx utils/scripts/verifyArtArchiveBatchScan.test.ts",
     "test:art-archive-scale": "tsx utils/scripts/verifyArtArchiveScaleContract.test.ts",

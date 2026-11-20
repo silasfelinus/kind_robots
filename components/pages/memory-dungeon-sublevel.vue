@@ -129,6 +129,14 @@
         <div
           class="md-room relative flex min-h-[6rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#7d8b8f]/40 p-3"
         >
+          <img
+            v-if="sub.roomArt && !failedArt.has(sub.roomArt)"
+            :src="sub.roomArt"
+            :alt="sub.room.title"
+            class="absolute inset-0 h-full w-full object-cover"
+            data-testid="memory-dungeon-room-art"
+            @error="failedArt.add(sub.roomArt)"
+          />
           <div
             class="relative flex max-h-full min-h-0 max-w-[42rem] flex-col rounded-lg bg-[#0e151b]/85 p-3 backdrop-blur-sm"
           >
@@ -194,7 +202,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useMemorySublevelStore } from '~/stores/memorySublevelStore'
 import { useMemoryDrownedArchiveStore } from '~/stores/memoryDrownedArchiveStore'
 import { useMemoryBreathingWorksStore } from '~/stores/memoryBreathingWorksStore'
@@ -222,6 +230,7 @@ const props = withDefaults(
   { dungeon: 'sublevel' },
 )
 const emit = defineEmits<{ leave: [] }>()
+const failedArt = reactive(new Set<string>())
 const sub =
   props.dungeon === 'drowned'
     ? useMemoryDrownedArchiveStore()

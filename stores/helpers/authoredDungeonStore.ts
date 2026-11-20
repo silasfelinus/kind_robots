@@ -1,6 +1,10 @@
 import { computed, ref } from 'vue'
 import type { AuthoredDungeon } from '~/utils/memoryDungeon/authoredDungeon/engine'
 import type { DungeonProgress } from '~/utils/memoryDungeon/authoredDungeon/types'
+import {
+  dungeonChoiceArtPath,
+  dungeonRoomArtPath,
+} from '~/utils/memoryDungeon/authoredDungeon/art'
 
 /** Player-facing labels for one hand-written dungeon's stage. */
 export interface AuthoredDungeonUi {
@@ -82,10 +86,16 @@ export function useAuthoredDungeonState<
         label: choice.label,
         disabled: Boolean(lock),
         hint: lock ?? undefined,
+        image: room.value
+          ? dungeonChoiceArtPath(dungeon.def.prefix, room.value.id, choice.id)
+          : null,
       }
     }),
   )
   const exits = computed(() => dungeon.exits(save.value))
+  const roomArt = computed(() =>
+    room.value ? dungeonRoomArtPath(dungeon.def.prefix, room.value.id) : null,
+  )
   const tiles = computed(() =>
     atlas.map((id) => {
       const data = dungeon.rooms[id]!
@@ -171,6 +181,7 @@ export function useAuthoredDungeonState<
 
   return {
     ui,
+    roomArt,
     unlocked,
     entry,
     progress,

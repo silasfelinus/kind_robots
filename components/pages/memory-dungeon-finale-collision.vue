@@ -164,6 +164,14 @@
           :class="theme.stage"
           data-testid="memory-finale-ending-stage"
         >
+          <img
+            v-if="collision.endingArt && !failedArt.has(collision.endingArt)"
+            :src="collision.endingArt"
+            :alt="collision.ending.title"
+            class="absolute inset-0 h-full w-full object-cover"
+            data-testid="memory-finale-ending-art"
+            @error="failedArt.add(collision.endingArt)"
+          />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
               class="text-[10px] font-black uppercase tracking-widest text-[#e9c48c]"
@@ -292,7 +300,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 import {
   useMemoryHoshimoriCollisionStore,
   useMemorySeaCollisionStore,
@@ -300,6 +308,7 @@ import {
 
 const props = defineProps<{ world: 'e11' | 'e12' }>()
 const emit = defineEmits<{ leave: []; dungeon: [] }>()
+const failedArt = reactive(new Set<string>())
 const sea = useMemorySeaCollisionStore()
 const village = useMemoryHoshimoriCollisionStore()
 const collision = computed(() => (props.world === 'e11' ? sea : village))

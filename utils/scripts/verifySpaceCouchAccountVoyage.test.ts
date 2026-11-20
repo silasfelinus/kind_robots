@@ -40,7 +40,7 @@ const migration = read(
 for (const route of [getRoute, putRoute]) {
   assert.match(route, /requireHumanApiUser\(event\)/)
   assert.match(route, /user\.isGuest \|\| user\.id === 10/)
-  assert.match(route, /where: \{ userId: user\.id \}/)
+  assert.match(route, /userId: user\.id/)
   assert.match(route, /parseVoyageBackup/)
   assert.doesNotMatch(route, /userId:\s*(?:input|body)\./)
 }

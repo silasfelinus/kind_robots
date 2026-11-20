@@ -30,7 +30,7 @@ assert.ok(nurserySpawns(300).every((spawn) => spawn.wave >= NURSERY.waveBase))
 const seen = new Map<number, number>()
 let total = 0
 for (let frame = TRENCH_FORK.decideAt; frame < TRENCH_FORK.rejoinAt; frame++) {
-  const live = trenchSpawns(frame, 'safe')
+  const live = trenchSpawns(frame, 'safe', true)
   const directed = nurseryRouteSpawns(
     frame,
     TRENCH_FORK.decideAt,
@@ -39,8 +39,18 @@ for (let frame = TRENCH_FORK.decideAt; frame < TRENCH_FORK.rejoinAt; frame++) {
   assert.deepEqual(live, directed, 'the low flight path uses the Nursery score')
   assert.deepEqual(
     live,
+    trenchSpawns(frame, 'safe', true),
+    'the earned fork replays deterministically',
+  )
+  const ordinary = trenchSpawns(frame, 'safe', false)
+  assert.deepEqual(
+    ordinary,
     trenchSpawns(frame, 'safe'),
-    'the fork replays deterministically',
+    'missing the rescue preserves the original safe passage',
+  )
+  assert.ok(
+    ordinary.every((spawn) => spawn.wave < NURSERY.waveBase),
+    'Nursery requires the in-flight Nemi rescue',
   )
   for (const spawn of live) {
     assert.ok(spawn.wave >= NURSERY.waveBase)
@@ -49,7 +59,7 @@ for (let frame = TRENCH_FORK.decideAt; frame < TRENCH_FORK.rejoinAt; frame++) {
       ['angler', 'pistol', 'skate', 'clawstrike'].includes(spawn.kind),
     )
     assert.ok(
-      !trenchSpawns(frame, 'vault').some((other) => other.wave === spawn.wave),
+      !trenchSpawns(frame, 'vault', true).some((other) => other.wave === spawn.wave),
       'a Nursery craft cannot leak into the high salvage route',
     )
     seen.set(spawn.wave, (seen.get(spawn.wave) ?? 0) + 1)

@@ -19,8 +19,7 @@ tutorial:
     and “This ban is permanent and is not eligible for appeal.” remain intact.
     Save PNG exports the finished picture, and Share opens your device's share
     sheet where supported. Everything happens in your browser, without an AI
-    generation request or account. Guests also see an optional, direct link to
-    the Against Malaria Foundation fundraiser. This is an unofficial parody, not affiliated
+    generation request or account. This is an unofficial parody, not affiliated
     with Rockstar Games.
 ---
 

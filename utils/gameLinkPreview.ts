@@ -12,6 +12,13 @@ export interface GameLinkPreview {
 export const FALLBACK_PREVIEW_IMAGE = '/icon-512x512.png'
 
 export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
+  'ban-meme': {
+    title: 'Account Banned Meme Lab | Kind Robots',
+    description:
+      'Rewrite a fictional offense in a GTA-style permanent ban screenshot. Free browser meme maker with instant PNG download.',
+    image: '/ban-meme/base.webp',
+    path: '/play',
+  },
   'crystal-street': {
     title: 'Terrors on Crystal Street | Kind Robots',
     description:

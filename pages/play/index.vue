@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface kr-scroll min-h-0">
+  <main class="kr-surface min-h-0">
     <div
       class="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col gap-2 p-2 sm:p-3"
     >
@@ -54,7 +54,7 @@
             <p class="text-xs font-bold uppercase tracking-[.2em] text-primary">
               You have been accused
             </p>
-            <h2 class="text-2xl font-black">Rewrite the crime.</h2>
+            <h1 class="text-2xl font-black">Rewrite the crime.</h1>
             <p class="mt-1 text-xs opacity-65">
               Same screenshot. New outrage. Absolutely no appeals.
             </p>
@@ -118,7 +118,6 @@
               Reset
             </button>
           </div>
-          <GuestFundraiserStrip />
           <p v-if="feedback" class="text-xs" role="status">
             {{ feedback }}
           </p>
@@ -133,7 +132,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { shareableUrl } from '~/utils/supportShare'
 
 const originalWidth = 2048
 const initialReason = 'bringing a reusable bag to a bank robbery'
@@ -214,7 +212,12 @@ function drawNotice() {
   context.shadowOffsetX = 2
   context.shadowOffsetY = 3
   for (const [index, line] of lines.entries()) {
-    context.fillText(line, originalWidth / 2, firstBaseline + index * lineHeight)
+    context.fillText(
+      line,
+      originalWidth / 2,
+      firstBaseline + index * lineHeight,
+      maxTextWidth,
+    )
   }
   context.restore()
 }
@@ -261,11 +264,7 @@ async function shareImage() {
     if (!blob) throw new Error('Image export failed')
     const file = new File([blob], 'account-banned.png', { type: 'image/png' })
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: 'Account Banned Meme Lab',
-        text: `Make your own ban notice at ${shareableUrl('/play')}. Free, ad-free, and supporting malaria prevention.`,
-      })
+      await navigator.share({ files: [file] })
     } else {
       saveBlob(blob)
       feedback.value = 'Image saved. You can share it from your downloads.'

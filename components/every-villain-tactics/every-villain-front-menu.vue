@@ -510,6 +510,7 @@ import {
 const store = useEveryVillainTacticsStore()
 const paintedArt = useEveryVillainTacticsArtStore()
 const viewer = useUserStore()
+const route = useRoute()
 const root = ref<HTMLElement | null>(null)
 const playableView = (view: TacticalPerspective): TacticalPerspective =>
   PLAYABLE_PERSPECTIVES.includes(view) ? view : 'hero'
@@ -705,6 +706,20 @@ watch(
   },
 )
 onMounted(() => {
+  // A transfer from Prom of Doom carries the chosen canonical fighter into
+  // this separate game's setup. Existing tactical saves remain untouched.
+  const incomingLead = route.query.lead
+  const incomingView = route.query.view
+  if (
+    route.query.from === 'prom' &&
+    typeof incomingLead === 'string' &&
+    store.roster.some((person) => person.signature === incomingLead) &&
+    (incomingView === 'hero' || incomingView === 'villain')
+  ) {
+    store.chooseLead(incomingLead)
+    store.choosePerspective(incomingView)
+    store.openScreen('story')
+  }
   window.addEventListener('keydown', onKey)
   focusScreen()
 })

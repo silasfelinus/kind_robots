@@ -9544,7 +9544,6 @@ assert.deepEqual(crownOathAftermath.effects.local, {
   yard: -2,
 })
 
-
 const actOneLateCosts = [
   ['d05-toll', 'hire', /Saltroad drivers/],
   ['d05-toll', 'hold', /bridge/],

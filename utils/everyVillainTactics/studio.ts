@@ -342,8 +342,18 @@ export const STAGE_PRESETS: StageDraft[] = [
     hazards: [],
     turnLimit: 9,
     civilians: [
-      { id: 'radio-listeners', name: 'Listeners trapped at the tower gate', x: 7, y: 2 },
-      { id: 'radio-volunteers', name: 'Emergency volunteers by the transmitter', x: 7, y: 4 },
+      {
+        id: 'radio-listeners',
+        name: 'Listeners trapped at the tower gate',
+        x: 7,
+        y: 2,
+      },
+      {
+        id: 'radio-volunteers',
+        name: 'Emergency volunteers by the transmitter',
+        x: 7,
+        y: 4,
+      },
     ],
     props: [
       { id: 'broadcast-mixer', x: 2, y: 3, cover: 'half', hp: 2 },

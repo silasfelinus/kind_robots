@@ -892,12 +892,7 @@ function chorusBroadcastTarget(
     (state.flags ?? []).includes('radio-counter-melody')
   )
     return true
-  return (
-    unit.x === 3 &&
-    unit.y === 2 &&
-    target.x === 3 &&
-    target.y === 2
-  )
+  return unit.x === 3 && unit.y === 2 && target.x === 3 && target.y === 2
 }
 
 function narratePower(

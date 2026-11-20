@@ -510,7 +510,11 @@ radioRun.selected = chorus.id
 chorus.x = 6
 chorus.y = 2
 chorus.ap = 2
-assert.equal(rescueSelected(radioRun), false, 'the broadcast crowd blocks evacuation')
+assert.equal(
+  rescueSelected(radioRun),
+  false,
+  'the broadcast crowd blocks evacuation',
+)
 chorus.x = 0
 chorus.y = 3
 assert.equal(selectedPowerTargets(radioRun).length, 0)

@@ -523,7 +523,9 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
         unit.powerSpent,
     )
   )
-    return reject('The broadcast was not interrupted by Chorus’s counter-melody.')
+    return reject(
+      'The broadcast was not interrupted by Chorus’s counter-melody.',
+    )
   if (
     state.flags !== undefined &&
     (!Array.isArray(state.flags) ||

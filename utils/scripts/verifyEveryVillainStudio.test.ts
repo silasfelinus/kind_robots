@@ -247,10 +247,7 @@ assert.equal(rooftop.turnLimit, 8)
 assert.equal(rooftop.map.tiles['4,2']?.elevation, 2)
 assert.equal(rooftop.map.tiles['4,3']?.elevation, 2)
 assert.equal(rooftop.victory?.kind, 'hold-zone')
-assert.equal(
-  rooftop.victory?.kind === 'hold-zone' && rooftop.victory.rounds,
-  2,
-)
+assert.equal(rooftop.victory?.kind === 'hold-zone' && rooftop.victory.rounds, 2)
 assert.equal(rooftop.waves?.[0]?.round, 4)
 assert.equal(rooftop.waves?.[0]?.crew, 'licensed-legends')
 assert.equal(
@@ -263,26 +260,32 @@ const roofHero = trainingState(0x17, rooftop, { lead: 'accident-fire' })
 assert.deepEqual(latchScenes(roofHero, roofScript, rooftop), ['roof-opening'])
 const roofStart = pendingScriptScene(roofHero, roofScript)!
 assert.ok(
-  walkScene(roofStart, [], { state: roofHero, perspective: 'hero' })!.nodes.some(
-    (node) => node.id === 'oh',
-  ),
+  walkScene(roofStart, [], {
+    state: roofHero,
+    perspective: 'hero',
+  })!.nodes.some((node) => node.id === 'oh'),
 )
 assert.ok(
-  walkScene(roofStart, [], { state: roofHero, perspective: 'villain' })!.nodes.some(
-    (node) => node.id === 'ov',
-  ),
+  walkScene(roofStart, [], {
+    state: roofHero,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'ov'),
 )
 assert.ok(finishScene(roofHero, roofStart, [], 'hero'))
 roofHero.turn = 2
 assert.ok(latchScenes(roofHero, roofScript, rooftop).includes('roof-choice'))
-const roofChoice = roofScript.scenes.find((scene) => scene.id === 'roof-choice')!
+const roofChoice = roofScript.scenes.find(
+  (scene) => scene.id === 'roof-choice',
+)!
 assert.equal(walkScene(roofChoice, [], { state: roofHero })?.done, false)
 const roofLead = roofHero.units[0]!
 roofLead.hp = roofLead.maxHp - 1
 assert.ok(finishScene(roofHero, roofChoice, [0], 'hero'))
 assert.ok(roofHero.flags?.includes('roof-warning'))
 assert.equal(roofLead.hp, roofLead.maxHp)
-assert.ok(latchScenes(roofHero, roofScript, rooftop).includes('roof-warning-on-air'))
+assert.ok(
+  latchScenes(roofHero, roofScript, rooftop).includes('roof-warning-on-air'),
+)
 assert.equal(finishScene(roofHero, roofChoice, [1], 'hero'), false)
 const roofVillain = trainingState(0x17, rooftop, { lead: 'accident-air' })
 roofVillain.turn = 2
@@ -301,16 +304,21 @@ assert.ok(
   ),
 )
 assert.ok(
-  walkScene(roofWin, [], { state: roofVillain, perspective: 'villain' })!.nodes.some(
-    (node) => node.id === 'vj',
-  ),
+  walkScene(roofWin, [], {
+    state: roofVillain,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'vj'),
 )
 const roofHold = trainingState(0x17, rooftop)
 for (const enemy of roofHold.units.filter((unit) => unit.team === 'rival'))
   enemy.hp = 0
 roofHold.units[0]!.x = 4
 roofHold.units[0]!.y = 2
-assert.equal(roofHold.phase, 'active', 'removing rivals alone cannot win the roof')
+assert.equal(
+  roofHold.phase,
+  'active',
+  'removing rivals alone cannot win the roof',
+)
 endTurn(roofHold)
 assert.equal(roofHold.field?.held, 1)
 assert.equal(roofHold.phase, 'active', 'one round is insufficient')

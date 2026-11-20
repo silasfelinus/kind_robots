@@ -149,6 +149,8 @@ export type RainbowSave = {
   medals: Partial<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>>
   /** P1's pilot (the select screen); older saves leave it out and fly Maribel. */
   pilot?: number
+  /** Ordered crew identities, independent of local seat numbers; absent in older saves. */
+  pilots?: number[]
 }
 
 const bool = (value: unknown) => typeof value === 'boolean'
@@ -213,6 +215,15 @@ export function readRainbowSave(
       if (n >= 1 && n <= 9 && oneOf(medal, ['gold', 'silver', 'bronze']))
         medals[n as 1] = medal as RainbowMedal
     }
+  const selectedPilots =
+    Array.isArray(save.pilots) &&
+    save.pilots.length >= 1 &&
+    save.pilots.length <= 4 &&
+    save.pilots.every((pilot) => count(pilot, 3)) &&
+    new Set(save.pilots).size === save.pilots.length &&
+    (!count(save.pilot, 3) || save.pilots[0] === save.pilot)
+      ? (save.pilots as number[])
+      : null
   const saved = c as RainbowCheckpoint
   return {
     v: 1,
@@ -241,5 +252,6 @@ export function readRainbowSave(
     guardians,
     medals,
     ...(count(save.pilot, 3) ? { pilot: save.pilot as number } : {}),
+    ...(selectedPilots ? { pilots: [...selectedPilots] } : {}),
   }
 }

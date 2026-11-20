@@ -1,6 +1,5 @@
-import type { EpisodeDraw, EpisodeChoice } from './episodeConsole'
+import type { EpisodeDraw, EpisodeChoice, EpisodeDeck } from './episodeConsole'
 import { casinoIncident, chapterSystem } from './solarCircuit'
-import type { EpisodeDeck } from './episodeConsole'
 
 // Painted casino incidents are shared across systems. Keep the saved cardId
 // (system + chapter) unchanged; translate only the art lookup to the authored
@@ -24,7 +23,6 @@ export function episodeArtworkCardId(
       .replace(/^-|-$/g, '')
   )
 }
-
 
 // Expected slots only. Rendered images must be resolved with viewer permission.
 export const episodeRevealArtKey = (cardId: string): string =>

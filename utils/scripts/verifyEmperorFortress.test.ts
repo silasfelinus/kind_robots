@@ -1959,6 +1959,59 @@ assert.equal(
   null,
   'double-booked saves are rejected',
 )
+const overstaffed = structuredClone(sent)
+overstaffed.active[0]!.party = ['F001', 'F002', 'F003', 'F004']
+assert.equal(
+  validateRun(overstaffed),
+  false,
+  'ordinary dispatches cannot save an extra fourth follower',
+)
+const invalidPartySave = JSON.parse(encodeBook(newBook(sent)))
+invalidPartySave.current.active[0].party = overstaffed.active[0]!.party
+assert.equal(
+  decodeBook(JSON.stringify(invalidPartySave)),
+  null,
+  'loading rejects a fabricated overstaffed dispatch',
+)
+const mandatoryParty = structuredClone(sent)
+mandatoryParty.active[0]!.questId = 'q-d13-water-engine'
+mandatoryParty.active[0]!.party = ['F001']
+assert.equal(
+  validateRun(mandatoryParty),
+  false,
+  'a saved water-engine dispatch cannot omit its required follower',
+)
+mandatoryParty.active[0]!.party = ['F002']
+assert.ok(
+  validateRun(mandatoryParty),
+  'the required follower is accepted by the same save validator',
+)
+const deadOnRoad = structuredClone(sent)
+deadOnRoad.roster.find((state) => state.id === 'F002')!.dead = true
+assert.equal(
+  validateRun(deadOnRoad),
+  false,
+  'a dead follower cannot remain dispatched in a save',
+)
+const manyHandsOnRoad = structuredClone(sent)
+manyHandsOnRoad.roster.push({ id: 'F010', joinedDay: 1, equipment: {} })
+manyHandsOnRoad.active[0]!.party = ['F001', 'F002', 'F003', 'F010']
+assert.equal(
+  partyLimit(
+    questDef('q-d01-aqueduct-repair')!,
+    manyHandsOnRoad.active[0]!.party,
+  ),
+  4,
+)
+assert.ok(
+  validateRun(manyHandsOnRoad),
+  'Lumen Shale permits a legitimate extra follower on dispatch',
+)
+assert.deepEqual(
+  decodeBook(encodeBook(newBook(manyHandsOnRoad)))?.current,
+  manyHandsOnRoad,
+  'Many Hands remains compatible with save and reload',
+)
 const horde = JSON.parse(encodeBook(newBook(start)))
 horde.current.local.ledger = 99
 assert.equal(decodeBook(JSON.stringify(horde)), null)

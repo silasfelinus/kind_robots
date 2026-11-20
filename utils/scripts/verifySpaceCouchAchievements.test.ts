@@ -128,14 +128,23 @@ assert.deepEqual(known(alienAchievements(0, 1)), [
   'game-of-captains-first-contact',
 ])
 assert.deepEqual(known(alienAchievements(24, XENOLOGIST_SPECIES)), [
-  'game-of-captains-first-contact',
   'game-of-captains-xenologist',
 ])
-assert.ok(
-  alienAchievements(ALIEN_SPECIES.length - 1, ALIEN_SPECIES.length).includes(
-    'game-of-captains-field-guide',
-  ),
+assert.deepEqual(
+  known(alienAchievements(ALIEN_SPECIES.length - 1, ALIEN_SPECIES.length)),
+  ['game-of-captains-field-guide'],
 )
+assert.deepEqual(alienAchievements(1, 2), [])
+assert.deepEqual(alienAchievements(25, 26), [])
+assert.deepEqual(
+  alienAchievements(ALIEN_SPECIES.length, ALIEN_SPECIES.length),
+  [],
+)
+assert.deepEqual(known(alienAchievements(0, ALIEN_SPECIES.length)), [
+  'game-of-captains-first-contact',
+  'game-of-captains-xenologist',
+  'game-of-captains-field-guide',
+])
 assert.deepEqual(known(redshirtAchievements(9, 10)), [
   'game-of-captains-names-known',
 ])

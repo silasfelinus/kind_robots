@@ -102,9 +102,12 @@ export const XENOLOGIST_SPECIES = 25
 /** Codes logging alien species earns, from the scrapbook count before and after. */
 export function alienAchievements(before: number, after: number): string[] {
   if (after <= before) return []
-  const codes = ['game-of-captains-first-contact']
-  if (after >= XENOLOGIST_SPECIES) codes.push('game-of-captains-xenologist')
-  if (after >= ALIEN_SPECIES.length) codes.push('game-of-captains-field-guide')
+  const codes: string[] = []
+  if (before < 1 && after >= 1) codes.push('game-of-captains-first-contact')
+  if (before < XENOLOGIST_SPECIES && after >= XENOLOGIST_SPECIES)
+    codes.push('game-of-captains-xenologist')
+  if (before < ALIEN_SPECIES.length && after >= ALIEN_SPECIES.length)
+    codes.push('game-of-captains-field-guide')
   return codes
 }
 

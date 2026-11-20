@@ -16,7 +16,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
     title: 'Account Banned Meme Lab | Kind Robots',
     description:
       'Rewrite a fictional offense in a GTA-style permanent ban screenshot. Free browser meme maker with instant PNG download.',
-    image: '/ban-meme/base.webp',
+    image: '/ban-meme/base.avif',
     path: '/play',
   },
   'crystal-street': {

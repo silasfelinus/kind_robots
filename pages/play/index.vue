@@ -291,7 +291,7 @@ onMounted(() => {
   image.onerror = () => {
     feedback.value = 'The screenshot template could not be loaded.'
   }
-  image.src = '/ban-meme/base.webp'
+  image.src = '/ban-meme/base.avif'
 })
 
 useHead({ title: 'Account Banned Meme Lab · Kind Robots' })

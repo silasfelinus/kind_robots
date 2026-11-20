@@ -452,7 +452,7 @@ const features: FeaturedExperience[] = [
     tag: 'Meme generator · Unappealable nonsense',
     category: 'create',
     route: '/play',
-    image: '/ban-meme/base.webp',
+    image: '/ban-meme/base.avif',
     description:
       'Rewrite your fictional crime in a GTA-style permanent ban, then save or share the screenshot.',
   },

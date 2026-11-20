@@ -11,10 +11,15 @@ import {
   readCrossfireJournal,
   snapshotCrossfire,
 } from '../everyVillainTactics/crossfireCampaign'
+import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { createStory } from '../everyVillainTactics/firstBellStory'
 import { createSave, evtSaveKey, loadSave } from '../everyVillainTactics/saves'
 import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
-import { trainingState } from '../everyVillainTactics/training'
+import {
+  isCrossfireFoilStage,
+  scriptedFoilFor,
+  trainingState,
+} from '../everyVillainTactics/training'
 
 assert.deepEqual(
   CROSSFIRE_CHAPTERS.map((chapter) => chapter.id),
@@ -122,6 +127,11 @@ for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
       CROSSFIRE_CHAPTERS[chapter + 1]!.id,
     )
     assert.equal(next.active.leadSignature, 'accident-fire')
+    assert.equal(next.active.foilSignature, 'accident-air')
+    assert.equal(
+      next.active.state.units.find((unit) => unit.id === 'pip')?.identity,
+      'accident-air',
+    )
     assert.equal(next.active.perspective, 'hero')
   }
   journal = next
@@ -135,6 +145,188 @@ assert.equal(readCrossfireJournal(forgedPrefix), null)
 const wrongOrder = structuredClone(journal)
 wrongOrder.completed.reverse()
 assert.equal(readCrossfireJournal(wrongOrder), null)
+
+// Previously the selected foil disappeared after First Bell, letting the
+// default enemy silently replace the campaign's named rival. Test a lead
+// whose first foil differs from that default and all 48 authored identities.
+const alternateLead = 'accident-air'
+const alternateFoil = scriptedFoilFor(alternateLead)
+assert.notEqual(alternateFoil, alternateLead)
+assert.notEqual(alternateFoil, 'accident-air')
+const alternateFirst = createSave({
+  slot: 'auto',
+  perspective: 'villain',
+  leadSignature: alternateLead,
+  foilSignature: alternateFoil,
+  stage: null,
+  state: trainingState(144, undefined, {
+    lead: alternateLead,
+    foil: alternateFoil,
+  }),
+  story: createStory(),
+})
+const alternateStarted = newCrossfireJournal(alternateFirst)!
+assert.ok(alternateStarted)
+const alternateVictoryState = structuredClone(alternateFirst.state)
+alternateVictoryState.phase = 'victory'
+alternateVictoryState.fired ??= []
+alternateVictoryState.fired.push('story:victory')
+const alternateVictory = createSave({
+  slot: 'auto',
+  perspective: 'villain',
+  leadSignature: alternateLead,
+  foilSignature: alternateFoil,
+  stage: null,
+  state: alternateVictoryState,
+  story: {
+    ...createStory(),
+    current: null,
+    seen: ['victory'],
+    decisions: ['finish'],
+    completed: true,
+  },
+})
+let alternate = advanceCrossfire(
+  snapshotCrossfire(alternateStarted, alternateVictory)!,
+)!
+assert.ok(alternate)
+assert.equal(alternate.chapter, 1)
+for (let chapter = 1; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
+  const save = alternate.active
+  assert.equal(save.foilSignature, alternateFoil)
+  assert.equal(
+    save.state.units.find((unit) => unit.id === 'pip')?.identity,
+    alternateFoil,
+    'the same canonical foe must command all six missions',
+  )
+  assert.equal(
+    new Set(save.state.units.map((unit) => unit.identity)).size,
+    save.state.units.length,
+    'the chosen foil must not also be a second rival or squadmate',
+  )
+  assert.ok(loadSave(JSON.stringify(save)).ok)
+  if (chapter === 5) break
+  const victory = createSave({
+    slot: 'auto',
+    perspective: 'villain',
+    leadSignature: alternateLead,
+    foilSignature: alternateFoil,
+    stage: save.stage,
+    state: { ...save.state, phase: 'victory' },
+    story: save.story,
+  })
+  alternate = advanceCrossfire(snapshotCrossfire(alternate, victory)!)!
+  assert.ok(alternate)
+}
+
+// Existing v1 Crossfire journals may hold pre-fix stage saves with no foil
+// field. They must remain readable; the *next* battle adopts the named foe.
+const oldStage = clonePreset('science-lab')
+const legacyStage = createSave({
+  slot: 'auto',
+  perspective: 'villain',
+  leadSignature: alternateLead,
+  stage: oldStage,
+  state: trainingState(0x53a1b7 + 997, oldStage, {
+    lead: alternateLead,
+  }),
+  story: { ...createStory(), current: null },
+})
+const legacyJournal = {
+  ...advanceCrossfire(
+    snapshotCrossfire(alternateStarted, alternateVictory)!,
+  )!,
+  active: legacyStage,
+}
+assert.ok(readCrossfireJournal(JSON.stringify(legacyJournal)))
+const legacyVictory = createSave({
+  slot: 'auto',
+  perspective: 'villain',
+  leadSignature: alternateLead,
+  stage: oldStage,
+  state: { ...legacyStage.state, phase: 'victory' },
+  story: legacyStage.story,
+})
+const afterLegacy = advanceCrossfire(
+  snapshotCrossfire(legacyJournal, legacyVictory)!,
+)!
+assert.ok(afterLegacy)
+assert.equal(afterLegacy.active.foilSignature, alternateFoil)
+assert.equal(
+  afterLegacy.active.state.units.find((unit) => unit.id === 'pip')?.identity,
+  alternateFoil,
+)
+
+const wrongFoil = 'psychic-water'
+const forgedFoilSave = createSave({
+  slot: 'auto',
+  perspective: 'villain',
+  leadSignature: alternateLead,
+  foilSignature: wrongFoil,
+  stage: alternate.active.stage,
+  state: alternate.active.state,
+  story: alternate.active.story,
+})
+assert.equal(
+  loadSave(forgedFoilSave).ok,
+  false,
+  'foil metadata cannot turn an enemy into a different canonical person',
+)
+assert.equal(
+  readCrossfireJournal({
+    ...alternate,
+    active: forgedFoilSave,
+  }),
+  null,
+  'campaign journal rejects an unrelated valid opponent identity',
+)
+
+const stages = CROSSFIRE_CHAPTERS.slice(1).map((chapter) =>
+  clonePreset(chapter.id),
+)
+assert.equal(IDENTITY_ARCS.length, 48)
+for (const person of IDENTITY_ARCS) {
+  const foil = scriptedFoilFor(person.signature)
+  for (const stage of stages) {
+    assert.ok(isCrossfireFoilStage(stage))
+    const state = trainingState(12345, stage, {
+      lead: person.signature,
+      foil,
+    })
+    const rival = state.units.find((unit) => unit.id === 'pip')!
+    assert.equal(rival.identity, foil)
+    const checkpoint = createSave({
+      slot: 'auto',
+      perspective: 'hero',
+      leadSignature: person.signature,
+      foilSignature: foil,
+      stage,
+      state,
+      story: { ...createStory(), current: null },
+    })
+    const restored = loadSave(checkpoint)
+    assert.ok(
+      restored.ok,
+      person.signature + ' / ' + stage.id + ': ' +
+        (restored.ok ? 'valid' : restored.reason),
+    )
+  }
+}
+// A standalone stage has no forced Crossfire rival and no new save metadata.
+const standalone = createSave({
+  slot: 'slot-2',
+  perspective: 'hero',
+  leadSignature: alternateLead,
+  stage: stages[0]!,
+  state: trainingState(321, stages[0], { lead: alternateLead }),
+  story: { ...createStory(), current: null },
+})
+assert.equal(standalone.foilSignature, undefined)
+assert.equal(
+  standalone.state.units.find((unit) => unit.id === 'pip')?.identity,
+  'accident-air',
+)
+assert.ok(loadSave(standalone).ok)
 
 // Consequences of *authored* choices are carried into the next real battle.
 // Every resulting checkpoint must still pass the existing strict v2 validator.

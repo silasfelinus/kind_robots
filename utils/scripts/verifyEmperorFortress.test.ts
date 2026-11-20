@@ -1973,6 +1973,19 @@ assert.equal(
   null,
   'loading rejects a fabricated overstaffed dispatch',
 )
+const mandatoryParty = structuredClone(sent)
+mandatoryParty.active[0]!.questId = 'q-d13-water-engine'
+mandatoryParty.active[0]!.party = ['F001']
+assert.equal(
+  validateRun(mandatoryParty),
+  false,
+  'a saved water-engine dispatch cannot omit its required follower',
+)
+mandatoryParty.active[0]!.party = ['F002']
+assert.ok(
+  validateRun(mandatoryParty),
+  'the required follower is accepted by the same save validator',
+)
 const deadOnRoad = structuredClone(sent)
 deadOnRoad.roster.find((state) => state.id === 'F002')!.dead = true
 assert.equal(

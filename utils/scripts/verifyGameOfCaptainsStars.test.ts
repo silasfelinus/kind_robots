@@ -4,6 +4,7 @@ import {
   normalizeCompletedVoyages,
 } from '../gameOfCaptains/completedVoyages'
 import { CAPTAIN_ORIGINS } from '../gameOfCaptains/captainOrigins'
+import { legacyCouchSettings } from '../gameOfCaptains/legacyPreferences'
 import {
   COUCH_ONBOARDING_ART_COUNT,
   COUCH_ONBOARDING_ART_IDS,
@@ -519,6 +520,21 @@ assert.ok(page.includes('data-testid="space-couch-title-screen"'))
 assert.ok(page.includes('data-testid="space-couch-new-game"'))
 assert.ok(page.includes('data-testid="space-couch-continue"'))
 assert.ok(page.includes('data-testid="space-couch-main-settings"'))
+assert.ok(page.includes('data-testid="space-couch-shared-settings"'))
+assert.ok(page.includes('<PlaybookKitSettings :spec="SPACE_COUCH_KIT" />'))
+assert.ok(
+  !page.includes('store.setPreference('),
+  'title settings must not update a second settings ledger',
+)
+assert.ok(
+  store.includes('localStorage.getItem(kitStorageKey(SPACE_COUCH_KIT_ID)) === null'),
+  'legacy migration only happens when no Kit save exists',
+)
+assert.ok(store.includes('legacyCouchSettings(JSON.parse(legacyText))'))
+assert.ok(
+  !store.includes('localStorage.setItem(PREFERENCES_KEY'),
+  'the legacy key is read-only and preserved',
+)
 assert.ok(page.includes('data-testid="space-couch-main-achievements"'))
 assert.ok(page.includes("titlePanel === 'achievements'"))
 assert.ok(
@@ -878,3 +894,23 @@ assert.equal(
   fullArchive.at(-1)?.id,
   'a new voyage never silently removes an earlier completed report',
 )
+assert.deepEqual(legacyCouchSettings(null), {})
+assert.deepEqual(legacyCouchSettings('invalid'), {})
+assert.deepEqual(legacyCouchSettings([]), {})
+assert.deepEqual(legacyCouchSettings({}), {})
+assert.deepEqual(legacyCouchSettings({ largeText: true }), {
+  textSize: 'large',
+})
+assert.deepEqual(legacyCouchSettings({ reducedMotion: true }), {
+  motion: 'reduced',
+})
+assert.deepEqual(
+  legacyCouchSettings({ largeText: true, reducedMotion: true }),
+  { textSize: 'large', motion: 'reduced' },
+)
+assert.deepEqual(
+  legacyCouchSettings({ largeText: 'true', reducedMotion: 1 }),
+  {},
+  'malformed legacy settings never enable features unexpectedly',
+)
+

@@ -31,6 +31,26 @@ assert.deepEqual(eighth?.medals, {})
 assert.ok(readRainbowSave(eighth, isRainbowCheckpoint))
 assert.equal(rainbowActReplaySave(7, null, awarded), null)
 
+const firstReplay = rainbowActReplaySave(1, null, {
+  ...fresh,
+  medals: { 1: 'bronze' },
+})
+assert.equal(firstReplay?.checkpoint.act, 1)
+assert.equal(firstReplay?.checkpoint.frame, 0)
+assert.equal(readRainbowSave(firstReplay, isRainbowCheckpoint), null)
+const firstFlight = createRainbowPrincessPreview({
+  rng: () => 0.5,
+  sound: { play: () => {} },
+  hiScore: 0,
+  demo: false,
+  rainbowReplay: firstReplay,
+  selectScreen: true,
+})
+assert.equal(firstFlight.level, 1)
+assert.equal(firstFlight.snapshot.resumeMenu, null)
+assert.equal(firstFlight.snapshot.selectMenu, null)
+assert.equal(firstFlight.save, undefined)
+
 const old = {
   ...eighth!,
   checkpoint: {

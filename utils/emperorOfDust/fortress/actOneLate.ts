@@ -622,7 +622,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'hold',
             label: 'Send a party to hold the bridge open.',
             effects: { local: { 'gate-watch': 1 } },
-            response: 'Vane grins with every tooth. “I’ll bring the chair.” He tears the toll receipt in half and leaves the pieces on the dais. The bridge is still closed. Now the Watch must decide how much blood an open road is worth.',
+            response:
+              'Vane grins with every tooth. “I’ll bring the chair.” He tears the toll receipt in half and leaves the pieces on the dais. The bridge is still closed. Now the Watch must decide how much blood an open road is worth.',
             postsQuests: ['q-d05-toll-standoff'],
           },
         ],
@@ -835,13 +836,15 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { ledger: -3 },
               clearFlags: ['feast-armed'],
             },
-            response: 'Vane counts all fifty brass into his hat. “Settled. For now.” He leaves the knife-baked loaf on the dais and carries the money past the kitchen door. The Pack gets its price; the Ledger gets to read the withdrawal.',
+            response:
+              'Vane counts all fifty brass into his hat. “Settled. For now.” He leaves the knife-baked loaf on the dais and carries the money past the kitchen door. The Pack gets its price; the Ledger gets to read the withdrawal.',
           },
           {
             id: 'hold',
             label: 'Send a party to hold the bridge open.',
             effects: { affinity: { jackalwire: -5 } },
-            response: '“Good,” says Vane. “I hoped you’d say that.” He leaves the loaf and its buried knife on the throne step. The bridge stays under Pack guard until a real party goes out to take it back.',
+            response:
+              '“Good,” says Vane. “I hoped you’d say that.” He leaves the loaf and its buried knife on the throne step. The bridge stays under Pack guard until a real party goes out to take it back.',
             postsQuests: ['q-d05-toll-standoff'],
           },
         ],
@@ -889,7 +892,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'hold',
                 label: 'No apology. No brass. Hold the bridge.',
                 effects: { affinity: { jackalwire: -5 } },
-                response: '“Good. I so rarely get to be the wronged party.” Vane puts the carved loaf on the step. When he leaves, the Watch captain lifts it with two hands, careful not to put his fingers near the hidden knife.',
+                response:
+                  '“Good. I so rarely get to be the wronged party.” Vane puts the carved loaf on the step. When he leaves, the Watch captain lifts it with two hands, careful not to put his fingers near the hidden knife.',
                 postsQuests: ['q-d05-toll-standoff'],
               },
             ],
@@ -1008,7 +1012,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { yard: -3, 'old-houses': 1 },
               flags: ['d05-bread-rationed'],
             },
-            response: 'Dunmore folds the ration order into four squares and puts it in his apron. He goes back downstairs without another word. That evening the ovens stay hot, but the cooks cut each loaf thin enough to show the light through it.',
+            response:
+              'Dunmore folds the ration order into four squares and puts it in his apron. He goes back downstairs without another word. That evening the ovens stay hot, but the cooks cut each loaf thin enough to show the light through it.',
           },
           {
             id: 'old-houses',
@@ -2419,7 +2424,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'decline',
             label: 'Decline. The crown pays its own way.',
             effects: { local: { ledger: -1, lamplight: 1 } },
-            response: 'Tallow closes the green book without asking for the throne’s seal. “Another time.” The sergeant carries the search order back to the gate; the crown keeps that power, and its empty purse. The factor keeps the names of everyone who heard the refusal.',
+            response:
+              'Tallow closes the green book without asking for the throne’s seal. “Another time.” The sergeant carries the search order back to the gate; the crown keeps that power, and its empty purse. The factor keeps the names of everyone who heard the refusal.',
           },
         ],
         beats: [
@@ -2979,7 +2985,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'kitchens',
             label: 'The kitchens need you more than the road does.',
             effects: { local: { yard: 1 }, recruitable: ['F020'] },
-            response: 'Juniper looks toward the kitchens, where someone is already burning the onions. “Fair. Ask again when the soup’s better.” The barracks will manage without them for now. The Yard keeps the one person who can make a thin ration taste like supper.',
+            response:
+              'Juniper looks toward the kitchens, where someone is already burning the onions. “Fair. Ask again when the soup’s better.” The barracks will manage without them for now. The Yard keeps the one person who can make a thin ration taste like supper.',
           },
         ],
         beats: [
@@ -3180,7 +3187,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { 'gate-watch': 2, 'old-houses': 3, yard: -2 },
               flags: ['oath-of-crown'],
             },
-            response: 'The Watch swears with sixty voices, loud and correct. Lady Vask nods from the gallery; the Yard cooks below stop bandaging a young sentry long enough to listen. They have heard an oath of obedience, not a promise to bring him home.',
+            response:
+              'The Watch swears with sixty voices, loud and correct. Lady Vask nods from the gallery; the Yard cooks below stop bandaging a young sentry long enough to listen. They have heard an oath of obedience, not a promise to bring him home.',
           },
           {
             id: 'bonus',

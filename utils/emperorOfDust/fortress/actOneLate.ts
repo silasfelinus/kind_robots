@@ -2017,7 +2017,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label:
               'Ask Sister Marrow how many children the Abbey keeps, and how many beds.',
             effects: {},
-            response: 'The smile widens. It has worked harder rooms than this.',
+            response:
+              'Sister Marrow smiles wider and unwinds a knot on her counting cord. She names every bed in the mission house but not the children who slept in them last winter. Wenna draws her youngest closer, waiting for the crown to ask the next question.',
             next: 'beds',
           },
           {
@@ -2419,7 +2420,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'decline',
             label: 'Decline. The crown pays its own way.',
             effects: { local: { ledger: -1, lamplight: 1 } },
-            response: 'The factor closes her book. “Another time.”',
+            response:
+              'The factor closes her green book with one finger holding her place. “Another time.” She leaves the Watch sergeant standing beside the throne, where everyone can see whose carts he was meant to stop searching.',
           },
         ],
         beats: [
@@ -2979,7 +2981,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'kitchens',
             label: 'The kitchens need you more than the road does.',
             effects: { local: { yard: 1 }, recruitable: ['F020'] },
-            response: '“Fair. Ask again when the soup’s better.”',
+            response:
+              'Juniper takes the ladle back downstairs. “Fair. Ask again when the soup’s better.” By supper the Yard knows the crown left its best cook at the ovens. The barracks will have to find its own ears.',
           },
         ],
         beats: [

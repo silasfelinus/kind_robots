@@ -5,6 +5,7 @@ import {
   rainbowActReplaySave,
 } from '../arcade/games/rainbowActReplay'
 import { emptyRainbowHangar } from '../arcade/games/rainbowHangar'
+import { rainbowFlightComms } from '../arcade/games/rainbowFlightComms'
 import {
   createRainbowPrincessPreview,
   isRainbowCheckpoint,
@@ -77,6 +78,37 @@ const old = {
   pilot: 2,
   pilots: [2, 0, 3],
 }
+const firstTransmission = rainbowFlightComms(null, fresh, 1)
+assert.equal(firstTransmission.tag, 'FIRST LAUNCH')
+assert.equal(firstTransmission.pilot, 'Maribel Rowan')
+assert.equal(rainbowFlightComms(null, awarded, 2).tag, 'RETURN FLIGHT')
+
+const recoveredStation = rainbowFlightComms(old, fresh, 1)
+assert.equal(recoveredStation.tag, 'BEACON RECOVERED')
+assert.equal(recoveredStation.pilot, 'Solenne Adisa')
+assert.ok(recoveredStation.lilt.includes('station beacon'))
+const chartedFork = rainbowFlightComms(old, fresh, 3)
+assert.equal(chartedFork.tag, 'TRENCH ROUTE FOUND')
+assert.ok(chartedFork.lilt.includes('vault passage'))
+assert.equal(rainbowFlightComms(old, fresh, 4).tag, 'COURIER RECOVERED')
+assert.equal(rainbowFlightComms(old, fresh, 5).tag, 'WRECKYARD ROUTE FOUND')
+assert.equal(rainbowFlightComms(old, fresh, 6).tag, 'CROWN REEF ROUTE FOUND')
+assert.equal(rainbowFlightComms(old, fresh, 7).tag, 'NAVIGATOR RECOVERED')
+assert.equal(rainbowFlightComms(old, fresh, 8).tag, 'MOTHERLAND CHOICE')
+const changedCrew = {
+  ...old,
+  pilot: 3,
+  pilots: [3, 1],
+}
+assert.equal(rainbowFlightComms(changedCrew, fresh, 3).pilot, 'Vivi Reyes')
+assert.notEqual(
+  rainbowFlightComms(changedCrew, fresh, 3).pilotLine,
+  chartedFork.pilotLine,
+)
+const otherSlotComms = rainbowFlightComms(null, fresh, 3)
+assert.equal(otherSlotComms.tag, 'FIRST LAUNCH')
+assert.ok(!otherSlotComms.lilt.includes('vault'))
+
 const serialized = JSON.stringify(old)
 assert.equal(canReplayRainbowAct(6, old, fresh), true)
 const replay = rainbowActReplaySave(6, old, fresh)!

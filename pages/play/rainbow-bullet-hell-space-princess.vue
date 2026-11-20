@@ -276,6 +276,34 @@
         >
           {{ selectedSeaDescription }}
         </p>
+        <aside
+          aria-live="polite"
+          aria-label="Squadron progress comms"
+          class="flex shrink-0 items-center gap-2 rounded-xl border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content"
+        >
+          <img
+            :src="
+              rainbowPortrait(
+                RAINBOW_PILOTS[flightComms.pilotSeat]!.portrait,
+                look,
+              )
+            "
+            :alt="flightComms.pilot + ' portrait'"
+            width="40"
+            height="40"
+            class="h-10 w-10 shrink-0 rounded-lg object-cover object-top"
+          />
+          <div class="min-w-0">
+            <p class="font-bold uppercase tracking-wide text-secondary">
+              {{ flightComms.tag }}
+            </p>
+            <p class="line-clamp-2">
+              <strong>Lilt-7:</strong> {{ flightComms.lilt }}
+              <strong>{{ flightComms.pilot }}:</strong>
+              {{ flightComms.pilotLine }}
+            </p>
+          </div>
+        </aside>
         <div class="flex shrink-0 flex-wrap items-center gap-2 pb-1">
           <button
             type="button"
@@ -516,6 +544,7 @@ import {
 } from '~/utils/arcade/games/rainbowActReplay'
 import type { RainbowSave } from '~/utils/arcade/games/rainbowLoadouts'
 import { rainbowEndingArchive } from '~/utils/arcade/games/rainbowEndingArchive'
+import { rainbowFlightComms } from '~/utils/arcade/games/rainbowFlightComms'
 import {
   RAINBOW_HANGAR_UPGRADES,
   rainbowHangarBalance,
@@ -572,6 +601,14 @@ const seaProgress = computed(() =>
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
 const selectedSea = ref(0)
+const flightComms = computed(() =>
+  rainbowFlightComms(
+    flightSave.value,
+    hangar.value,
+    selectedSea.value + 1,
+    chosen.value,
+  ),
+)
 const selectedSeaReplayable = computed(() =>
   canReplayRainbowAct(selectedSea.value + 1, flightSave.value, hangar.value),
 )

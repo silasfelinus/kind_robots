@@ -824,7 +824,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label:
               'Ask what the Pack would have done if the court came unarmed.',
             effects: {},
-            response: 'Vane laughs. He looks at the loaf while he does it.',
+            response: 'Vane puts a thumb through the crust. “We had two goats, three days of flour, and a bad wire crown waiting for you. Your guards searched the ovens instead.” He does not touch the knife.',
             next: 'unarmed',
           },
           {
@@ -1187,7 +1187,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label: 'Ask who keeps the twelve stalls now.',
             effects: {},
             response:
-              'Tallow’s pen stops. “Who keeps them,” she repeats, weighing the coin.',
+              'Tallow turns the page so the egg-seller cannot see it. “Eight registered pitches,” she says. The seller puts her basket on the scroll. “And four of us on blankets. That is twelve.”',
             next: 'stalls',
           },
           {
@@ -1827,7 +1827,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label: 'The council stays as it is.',
             effects: { local: { 'old-houses': -3 } },
             response:
-              'Lady Vask leaves without looking back. Along the gallery rail, six fans close one after another.',
+              'Vask folds her cushion under one arm. The six Houses at the rail shut their fans in turn. At the kitchen door, Dunmore watches her steward carry the granary key away.',
           },
         ],
         beats: [
@@ -2219,7 +2219,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   ],
                 },
                 response:
-                  'Three names. Three ages. A burn scar on a wrist, a missing tooth, a habit of humming. Sister Marrow watches the pen the whole time.',
+                  'Three names, three ages, a burn scar, a missing tooth, a habit of humming. Flint reads each mark back. Sister Marrow asks who keeps the book when the children leave. The clerk looks at you.',
               },
               {
                 id: 'yard',
@@ -2971,7 +2971,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label: 'Ask what the Yard says when the throne is not listening.',
             effects: {},
             response:
-              'Juniper pulls up a stool nobody offered. “How long have you got?”',
+              'Juniper pulls up a stool nobody offered. “The Yard knows which wagons left with bread and which came back without names. How long have you got?”',
             next: 'gossip',
           },
           {
@@ -3029,7 +3029,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label: 'The kitchens need you more than the road does.',
                 effects: { local: { yard: 1 }, recruitable: ['F020'] },
                 response:
-                  'Juniper carries the stool back down. “Ask again when the soup’s better.”',
+                  'Juniper carries the stool back to the kitchen. The onions have blackened in the pan. “Ask again when the soup’s better,” they say, and scrape the burned part into their own bowl.',
               },
             ],
           },
@@ -3990,7 +3990,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d10-thistledown-told-to-pay'],
                 },
                 response:
-                  'She looks from you to Young Komodo and back. Her face shuts. “My grandmother was right.” She goes.',
+                  'The rider lays a broken pitchfork tine on the carpet. “My grandmother said kings could sell a village twice: once to raiders, once to the people who survived.” She leaves the iron where the next petitioner must walk around it.',
               },
             ],
           },

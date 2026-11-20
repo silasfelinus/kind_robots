@@ -301,8 +301,8 @@ const rawChance = Math.max(
 )
 const firstReport = dispatched.expeditionVisit!.results.find(
   (entry) => entry.lead === firstRedshirt,
-) as (typeof dispatched.expeditionVisit.results)[number] &
-  EpisodeQuestResult
+) as EpisodeQuestResult | undefined
+assert.ok(firstReport)
 assert.equal(
   firstReport.chance,
   Math.floor((rawChance * (firstSkill >= 4 ? 9 : 8)) / 10),

@@ -115,6 +115,7 @@ import {
   caseThread,
   caseTrustModifier,
   districtRecordFor,
+  delayedFactionResponse,
   recordCaseNight,
   validCaseHistory,
   type CaseMemory,
@@ -1946,7 +1947,8 @@ export function districtMemory(
       : trust < 0
         ? ` Leading the investigation yourself costs ${-trust} from district distrust.`
         : ''
-  return `Night ${record.day}: ${witnesses}${odds}`
+  const faction = delayedFactionResponse(record, run.day)
+  return `Night ${record.day}: ${witnesses}${odds}${faction ? ` Two nights later: ${faction}` : ''}`
 }
 
 /** Name the mastermind from the first-week omens. One accusation per term:

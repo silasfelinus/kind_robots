@@ -24,8 +24,7 @@ export const useTarotStudioStore = defineStore('tarotStudio', () => {
   )
   const cards = computed(() => activeDeck.value?.Cards ?? [])
   const selectedCard = computed(
-    () =>
-      cards.value.find((card) => card.id === selectedCardId.value) ?? null,
+    () => cards.value.find((card) => card.id === selectedCardId.value) ?? null,
   )
   const approvedCount = computed(
     () => cards.value.filter((card) => card.status === 'APPROVED').length,
@@ -68,7 +67,9 @@ export const useTarotStudioStore = defineStore('tarotStudio', () => {
           method: 'POST',
         })
         if (!initial.success) {
-          throw new Error(initial.message || 'Could not initialize tarot decks.')
+          throw new Error(
+            initial.message || 'Could not initialize tarot decks.',
+          )
         }
         response = await performFetch<TarotDeckRecord[]>('/api/tarot', {
           cache: 'no-store',
@@ -94,10 +95,7 @@ export const useTarotStudioStore = defineStore('tarotStudio', () => {
     }
   }
 
-  async function saveCard(
-    id: number,
-    edit: TarotCardEdit,
-  ): Promise<boolean> {
+  async function saveCard(id: number, edit: TarotCardEdit): Promise<boolean> {
     if (!userStore.isAdmin) return false
     saving.value = true
     error.value = ''
@@ -164,10 +162,10 @@ export const useTarotStudioStore = defineStore('tarotStudio', () => {
     error.value = ''
     notice.value = ''
     try {
-      const result = await performFetch<TarotDeckRecord>(
-        '/api/tarot/decks',
-        { method: 'POST', body: JSON.stringify({ title }) },
-      )
+      const result = await performFetch<TarotDeckRecord>('/api/tarot/decks', {
+        method: 'POST',
+        body: JSON.stringify({ title }),
+      })
       if (!result.success || !result.data) {
         throw new Error(result.message || 'Deck creation failed.')
       }

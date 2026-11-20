@@ -1,9 +1,4 @@
-import {
-  createError,
-  defineEventHandler,
-  getRouterParam,
-  readBody,
-} from 'h3'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
 import { errorHandler } from '~/server/utils/error'
@@ -39,10 +34,7 @@ export default defineEventHandler(async (event) => {
     for (const [key, max] of Object.entries(LIMITS)) {
       if (!(key in body)) continue
       const value = body[key]
-      if (
-        key === 'defaultCheckpoint' &&
-        (value === null || value === '')
-      ) {
+      if (key === 'defaultCheckpoint' && (value === null || value === '')) {
         patch.defaultCheckpoint = null
         continue
       }

@@ -296,11 +296,7 @@ watch(
           class="select select-bordered select-sm"
           aria-label="Checkpoint"
         >
-          <option
-            v-for="item in store.checkpoints"
-            :key="item"
-            :value="item"
-          >
+          <option v-for="item in store.checkpoints" :key="item" :value="item">
             {{ item === 'default' ? 'Inherited checkpoint' : item }}
           </option>
         </select>
@@ -371,14 +367,18 @@ watch(
                   <div class="tarot-insignia">
                     {{ card.arcana === 'major' ? '✧' : '❖' }}
                   </div>
-                  <span class="absolute bottom-6 px-3 text-[10px] font-bold uppercase tracking-widest text-amber-100/80">
+                  <span
+                    class="absolute bottom-6 px-3 text-[10px] font-bold uppercase tracking-widest text-amber-100/80"
+                  >
                     Art recipe ready
                   </span>
                 </div>
                 <span
                   class="absolute left-2 top-2 rounded bg-neutral/80 px-1.5 py-0.5 text-[10px] font-bold text-neutral-content"
                 >
-                  {{ card.arcana === 'major' ? card.rank : card.rank.slice(0, 2) }}
+                  {{
+                    card.arcana === 'major' ? card.rank : card.rank.slice(0, 2)
+                  }}
                 </span>
                 <span
                   class="absolute right-2 top-2 rounded bg-neutral/80 px-1.5 py-0.5 text-[10px] font-bold text-neutral-content"
@@ -389,7 +389,11 @@ watch(
               <div class="p-2">
                 <strong class="block truncate text-xs">{{ card.title }}</strong>
                 <span class="block truncate text-[10px] opacity-55">
-                  {{ card.checkpoint || store.activeDeck?.defaultCheckpoint || 'Krea 2 default' }}
+                  {{
+                    card.checkpoint ||
+                    store.activeDeck?.defaultCheckpoint ||
+                    'Krea 2 default'
+                  }}
                 </span>
               </div>
             </button>
@@ -409,7 +413,10 @@ watch(
               type="button"
               class="btn btn-ghost btn-sm"
               aria-label="Close editor"
-              @click="editorOpen = false; editorTab = 'card'"
+              @click="
+                editorOpen = false
+                editorTab = 'card'
+              "
             >
               ✕
             </button>
@@ -422,82 +429,168 @@ watch(
           >
             <label class="form-control block text-xs">
               <span class="mb-1 block font-bold">Deck title</span>
-              <input v-model="deckDraft.title" class="input input-bordered input-sm w-full" maxlength="200" required />
+              <input
+                v-model="deckDraft.title"
+                class="input input-bordered input-sm w-full"
+                maxlength="200"
+                required
+              />
             </label>
             <label class="form-control block text-xs">
               <span class="mb-1 block font-bold">Description</span>
-              <textarea v-model="deckDraft.description" class="textarea textarea-bordered w-full" rows="2" maxlength="2000" />
+              <textarea
+                v-model="deckDraft.description"
+                class="textarea textarea-bordered w-full"
+                rows="2"
+                maxlength="2000"
+              />
             </label>
             <label class="form-control block text-xs">
               <span class="mb-1 block font-bold">Style bible</span>
-              <textarea v-model="deckDraft.styleBible" class="textarea textarea-bordered w-full" rows="7" maxlength="30000" />
+              <textarea
+                v-model="deckDraft.styleBible"
+                class="textarea textarea-bordered w-full"
+                rows="7"
+                maxlength="30000"
+              />
             </label>
             <div class="grid grid-cols-2 gap-2">
               <label class="form-control block text-xs">
                 <span class="mb-1 block font-bold">Engine</span>
-                <input v-model="deckDraft.defaultEngine" class="input input-bordered input-sm w-full" maxlength="40" />
+                <input
+                  v-model="deckDraft.defaultEngine"
+                  class="input input-bordered input-sm w-full"
+                  maxlength="40"
+                />
               </label>
               <label class="form-control block text-xs">
                 <span class="mb-1 block font-bold">Checkpoint</span>
-                <input v-model="deckDraft.defaultCheckpoint" class="input input-bordered input-sm w-full" maxlength="255" placeholder="Engine default" />
+                <input
+                  v-model="deckDraft.defaultCheckpoint"
+                  class="input input-bordered input-sm w-full"
+                  maxlength="255"
+                  placeholder="Engine default"
+                />
               </label>
             </div>
             <label class="form-control block text-xs">
-              <span class="mb-1 block font-bold">Default LoRAs (recipe only)</span>
-              <textarea v-model="deckDraft.defaultLoras" class="textarea textarea-bordered w-full" rows="2" maxlength="4000" />
+              <span class="mb-1 block font-bold"
+                >Default LoRAs (recipe only)</span
+              >
+              <textarea
+                v-model="deckDraft.defaultLoras"
+                class="textarea textarea-bordered w-full"
+                rows="2"
+                maxlength="4000"
+              />
             </label>
             <label class="form-control block text-xs">
               <span class="mb-1 block font-bold">Shared card-back prompt</span>
-              <textarea v-model="deckDraft.backPrompt" class="textarea textarea-bordered w-full" rows="4" maxlength="12000" />
+              <textarea
+                v-model="deckDraft.backPrompt"
+                class="textarea textarea-bordered w-full"
+                rows="4"
+                maxlength="12000"
+              />
             </label>
             <p class="text-[11px] opacity-65">
-              {{ store.activeDeck.printStatus }} · private · No store listing or print order
+              {{ store.activeDeck.printStatus }} · private · No store listing or
+              print order
             </p>
-            <button class="btn btn-primary w-full" :disabled="store.saving" type="submit">
+            <button
+              class="btn btn-primary w-full"
+              :disabled="store.saving"
+              type="submit"
+            >
               {{ store.saving ? 'Saving…' : 'Save deck bible' }}
             </button>
           </form>
 
-          <form
-            v-else-if="selected"
-            class="space-y-3"
-            @submit.prevent="save"
-          >
+          <form v-else-if="selected" class="space-y-3" @submit.prevent="save">
             <div class="flex flex-wrap gap-1 text-[11px] opacity-70">
-              <span class="badge badge-ghost badge-sm">{{ selected.arcana }}</span>
-              <span class="badge badge-ghost badge-sm">{{ selected.suit || 'Major' }}</span>
-              <span class="badge badge-ghost badge-sm">Rank {{ selected.rank }}</span>
-              <span class="badge badge-ghost badge-sm">Oracle: {{ selected.oracleId }}</span>
+              <span class="badge badge-ghost badge-sm">{{
+                selected.arcana
+              }}</span>
+              <span class="badge badge-ghost badge-sm">{{
+                selected.suit || 'Major'
+              }}</span>
+              <span class="badge badge-ghost badge-sm"
+                >Rank {{ selected.rank }}</span
+              >
+              <span class="badge badge-ghost badge-sm"
+                >Oracle: {{ selected.oracleId }}</span
+              >
             </div>
             <label class="form-control block text-xs">
               <span class="mb-1 block font-bold">Card name</span>
-              <input v-model="cardDraft.title" class="input input-bordered input-sm w-full" maxlength="120" required />
+              <input
+                v-model="cardDraft.title"
+                class="input input-bordered input-sm w-full"
+                maxlength="120"
+                required
+              />
             </label>
             <label class="form-control block text-xs">
               <span class="mb-1 block font-bold">Art prompt</span>
-              <textarea v-model="cardDraft.prompt" class="textarea textarea-bordered w-full font-mono text-xs" rows="7" maxlength="12000" />
+              <textarea
+                v-model="cardDraft.prompt"
+                class="textarea textarea-bordered w-full font-mono text-xs"
+                rows="7"
+                maxlength="12000"
+              />
             </label>
             <label class="form-control block text-xs">
               <span class="mb-1 block font-bold">Checkpoint override</span>
-              <input v-model="cardDraft.checkpoint" class="input input-bordered input-sm w-full" maxlength="255" :placeholder="store.activeDeck.defaultCheckpoint || 'Inherit deck default'" />
+              <input
+                v-model="cardDraft.checkpoint"
+                class="input input-bordered input-sm w-full"
+                maxlength="255"
+                :placeholder="
+                  store.activeDeck.defaultCheckpoint || 'Inherit deck default'
+                "
+              />
             </label>
             <label class="form-control block text-xs">
-              <span class="mb-1 block font-bold">LoRA overrides (one per line)</span>
-              <textarea v-model="cardDraft.loras" class="textarea textarea-bordered w-full font-mono text-xs" rows="2" maxlength="4000" />
+              <span class="mb-1 block font-bold"
+                >LoRA overrides (one per line)</span
+              >
+              <textarea
+                v-model="cardDraft.loras"
+                class="textarea textarea-bordered w-full font-mono text-xs"
+                rows="2"
+                maxlength="4000"
+              />
             </label>
             <div class="grid grid-cols-2 gap-2">
               <label class="form-control block text-xs">
                 <span class="mb-1 block font-bold">Upright reading</span>
-                <textarea v-model="cardDraft.upright" class="textarea textarea-bordered w-full" rows="3" maxlength="4000" />
+                <textarea
+                  v-model="cardDraft.upright"
+                  class="textarea textarea-bordered w-full"
+                  rows="3"
+                  maxlength="4000"
+                />
               </label>
               <label class="form-control block text-xs">
                 <span class="mb-1 block font-bold">Reversed reading</span>
-                <textarea v-model="cardDraft.reversed" class="textarea textarea-bordered w-full" rows="3" maxlength="4000" />
+                <textarea
+                  v-model="cardDraft.reversed"
+                  class="textarea textarea-bordered w-full"
+                  rows="3"
+                  maxlength="4000"
+                />
               </label>
             </div>
             <label class="form-control block text-xs">
-              <span class="mb-1 block font-bold">Art direction / review notes</span>
-              <textarea v-model="cardDraft.notes" class="textarea textarea-bordered w-full" rows="3" maxlength="16000" />
+              <span class="mb-1 block font-bold"
+                >Art direction / review notes</span
+              >
+              <textarea
+                v-model="cardDraft.notes"
+                class="textarea textarea-bordered w-full"
+                rows="3"
+                maxlength="16000"
+              />
             </label>
             <label class="form-control block text-xs">
               <span class="mb-1 block font-bold">Review stage</span>
@@ -515,10 +608,14 @@ watch(
               </select>
             </label>
             <p class="text-[11px] opacity-65">
-              Artwork is not submitted by saving a prompt. A later ArtJob step will
-              track queued, rendered and approved images separately.
+              Artwork is not submitted by saving a prompt. A later ArtJob step
+              will track queued, rendered and approved images separately.
             </p>
-            <button class="btn btn-primary w-full" :disabled="store.saving" type="submit">
+            <button
+              class="btn btn-primary w-full"
+              :disabled="store.saving"
+              type="submit"
+            >
               {{ store.saving ? 'Saving…' : 'Save card recipe' }}
             </button>
           </form>
@@ -530,7 +627,9 @@ watch(
         >
           <span class="text-4xl text-primary">✦</span>
           <p class="mt-3 text-sm font-bold">Choose a card to edit its recipe</p>
-          <p class="text-xs opacity-60">Or open the deck bible for global defaults.</p>
+          <p class="text-xs opacity-60">
+            Or open the deck bible for global defaults.
+          </p>
         </aside>
       </div>
     </div>
@@ -545,9 +644,15 @@ watch(
 .tarot-placeholder {
   background:
     radial-gradient(ellipse at 52% 37%, #ad6dbe65, transparent 40%),
-    repeating-conic-gradient(from 45deg at 50% 50%, #e6b76b0c 0 12deg, transparent 12deg 24deg),
+    repeating-conic-gradient(
+      from 45deg at 50% 50%,
+      #e6b76b0c 0 12deg,
+      transparent 12deg 24deg
+    ),
     linear-gradient(155deg, #34234e, #151027 65%, #112b3a);
-  box-shadow: inset 0 0 0 5px #aa8d4f55, inset 0 0 0 8px #141026;
+  box-shadow:
+    inset 0 0 0 5px #aa8d4f55,
+    inset 0 0 0 8px #141026;
 }
 
 .tarot-insignia {

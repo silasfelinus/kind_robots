@@ -233,6 +233,7 @@ assert.equal(
 
 const flight = createRainbowPrincessPreview({
   players: 4,
+  demo: false,
   rng: () => 0.5,
   sound: { play() {} },
   hiScore: 0,

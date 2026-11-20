@@ -38,6 +38,12 @@ const third = withSave(second, rainbowSlotKey(2)!, {
 const cleared = withSave(third, rainbowSlotKey(1)!, null)
 assert.deepEqual(cleared[RAINBOW_SAVE_GAME], flight)
 assert.equal(cleared[rainbowSlotKey(1)!], undefined)
+const oversized = { payload: 'x'.repeat(9_000) }
+assert.equal(
+  withSave(third, rainbowSlotKey(1)!, oversized),
+  third,
+  'a rejected oversized checkpoint cannot overwrite another slot',
+)
 assert.equal((cleared[rainbowSlotKey(2)!] as typeof flight).checkpoint.act, 2)
 assert.equal(rainbowSlotSummary(null), 'New flight')
 assert.equal(rainbowSlotSummary(flight), 'Act 4 · 2 medals')

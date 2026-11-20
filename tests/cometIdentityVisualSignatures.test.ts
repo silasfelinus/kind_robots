@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
 import { identityFor } from '../utils/cometAcademy/identityArcs'
 import {
   IDENTITY_VISUAL_SIGNATURES,
@@ -13,19 +14,19 @@ describe('canonical visual signatures', () => {
       for (const affinity of ['fire', 'genius']) {
         const signature = `${origin}-${affinity}` as SignaturePowerId
         const visual = visualSignatureFor(signature)
-        expect(visual).not.toBeNull()
-        expect(visual?.silhouette.length).toBeGreaterThan(15)
-        expect(visual?.anatomy.length).toBeGreaterThan(15)
-        expect(visual?.portraitDirection.length).toBeGreaterThan(15)
+        assert.ok(visual)
+        assert.ok(visual.silhouette.length > 15)
+        assert.ok(visual.anatomy.length > 15)
+        assert.ok(visual.portraitDirection.length > 15)
         const person = identityFor(signature)
-        expect(person.student.alias).toBe(person.hero.alias)
-        expect(person.hero.alias).toBe(person.villain.alias)
+        assert.equal(person.student.alias, person.hero.alias)
+        assert.equal(person.hero.alias, person.villain.alias)
       }
     }
-    expect(Object.keys(IDENTITY_VISUAL_SIGNATURES)).toHaveLength(12)
+    assert.equal(Object.keys(IDENTITY_VISUAL_SIGNATURES).length, 12)
   })
 
   it('does not pretend the remaining identities have delivered visual contracts', () => {
-    expect(visualSignatureFor('accident-air')).toBeNull()
+    assert.equal(visualSignatureFor('accident-air'), null)
   })
 })

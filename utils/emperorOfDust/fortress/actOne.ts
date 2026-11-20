@@ -2595,7 +2595,8 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             id: 'attend-armed',
             label: 'Attend, with blades hidden in the supply carts.',
             effects: {},
-            response: 'The painter grins with all his teeth. “Wonderful.”',
+            response:
+              'The painter grins, then counts the bread carts by lantern light. He has carried invitations to the Pack for years. He knows what a concealed blade will cost if a hungry raider reaches for supper first.',
             postsQuests: ['q-d04-feast-armed'],
           },
           {

@@ -20,14 +20,20 @@ for (const [name, flag] of [
   ['alien', 'alienArtLoaded'],
   ['redshirt', 'redshirtArtLoaded'],
 ] as const) {
-  const start = store.indexOf('async function load' + ({
-    alien: 'AlienArtwork',
-    redshirt: 'RedshirtArtwork',
-    onboarding: 'OnboardingArt',
-  } as Record<string, string>)[name] + '()')
+  const start = store.indexOf(
+    'async function load' +
+      (
+        {
+          alien: 'AlienArtwork',
+          redshirt: 'RedshirtArtwork',
+          onboarding: 'OnboardingArt',
+        } as Record<string, string>
+      )[name] +
+      '()',
+  )
   assert.ok(start >= 0, name + ' art loader exists')
   const loader = store.slice(start, store.indexOf('\n  }', start) + 4)
-  assert.ok(loader.includes("response.success && response.data"))
+  assert.ok(loader.includes('response.success && response.data'))
   assert.ok(loader.includes(flag + '.value = true'))
   assert.ok(
     !loader.includes('finally {'),
@@ -40,7 +46,9 @@ assert.ok(store.includes('const onboardingArtVerified = ref(false)'))
 assert.ok(store.includes('if (onboardingArtVerified.value) return'))
 assert.ok(store.includes('onboardingArtVerified.value = true'))
 assert.ok(
-  store.includes('if (epoch === accountEpoch) onboardingArtLoaded.value = true'),
+  store.includes(
+    'if (epoch === accountEpoch) onboardingArtLoaded.value = true',
+  ),
 )
 assert.ok(store.includes('const epoch = accountEpoch'))
 assert.ok(store.includes('if (epoch === accountEpoch && response.success'))

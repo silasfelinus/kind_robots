@@ -138,7 +138,9 @@
             :disabled="store.artRefreshing"
             @click="store.refreshArtwork()"
           >
-            {{ store.artRefreshing ? 'CHECKING PAINTINGS…' : 'REFRESH PAINTINGS' }}
+            {{
+              store.artRefreshing ? 'CHECKING PAINTINGS…' : 'REFRESH PAINTINGS'
+            }}
           </button>
           <p v-if="store.artRefreshStatus" role="status">
             {{ store.artRefreshStatus }}

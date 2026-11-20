@@ -24,6 +24,11 @@ import { SCYLLAS_SHORE_BY_KEY } from './scyllasShore'
 import { UNDERTIDE_CROWN_BY_KEY } from './undertideCrown'
 import { BRIAR_SITES } from '../memoryDungeonWorld'
 import { eventArtStatus } from './deliveredEventArt'
+import { BRIAR_COLLISION_FOREST_SITES } from './briarCollisionForest'
+import { EARTH_COLLISION_CITY_SITES } from './earthCollisionCity'
+import { SEA_COLLISION_SITES } from './seaCollision'
+import { HOSHIMORI_COLLISION_SITES } from './hoshimoriCollision'
+import { FINALE_FRAGMENT_SITES } from './finaleFragments'
 
 export type OverworldKind =
   | 'memory'
@@ -185,6 +190,32 @@ const AUTHORED_WORLDS: Readonly<
   e04: UNBELIEVING_CITY_BY_KEY,
   e05: SCYLLAS_SHORE_BY_KEY,
   e06: UNDERTIDE_CROWN_BY_KEY,
+}
+
+type LateAuthoredSite = {
+  readonly title: string
+  readonly speaker: string
+  readonly kind: string
+  readonly opening: string
+  readonly artSubject: string
+  readonly choices: readonly {
+    readonly id: string
+    readonly label: string
+    readonly outcome: string
+    readonly flag: string
+    readonly effects: Readonly<Record<string, number>>
+    readonly artSubject: string
+  }[]
+}
+
+/** Authored late-world sites (2026-11-20 PT) that replace the recipe text. */
+const LATE_AUTHORED: Readonly<
+  Record<string, Readonly<Record<string, LateAuthoredSite>>>
+> = {
+  e09: BRIAR_COLLISION_FOREST_SITES,
+  e10: EARTH_COLLISION_CITY_SITES,
+  e11: SEA_COLLISION_SITES,
+  e12: HOSHIMORI_COLLISION_SITES,
 }
 
 function generated(
@@ -396,7 +427,8 @@ function generated(
       : undefined) ??
     (world.id === 'e10'
       ? EARTH_COLLISION_ROUTE_SITES[key as EarthCollisionRouteSite]
-      : undefined)
+      : undefined) ??
+    LATE_AUTHORED[world.id]?.[key]
   if (authored) {
     choices = authored.choices.map((choice, index) => ({
       id: choice.id,
@@ -468,7 +500,13 @@ function generated(
     experience: world.id,
     key,
     title: authored?.title ?? title,
-    opening: authored?.opening ?? opening,
+    opening: authored
+      ? photo
+        ? authored.opening +
+          ' A dated Earth photograph surfaces: ' +
+          photo.caption
+        : authored.opening
+      : opening,
     speaker: authored?.speaker ?? district.character,
     kind: (authored?.kind as OverworldKind | undefined) ?? kind,
     sceneArt: art(
@@ -492,6 +530,7 @@ function generated(
           memoryFragment:
             fragmentScene?.fragment ??
             earthScene?.fragment ??
+            FINALE_FRAGMENT_SITES[world.id as 'e11' | 'e12']?.[key] ??
             world.id + ':' + key,
         }
       : {}),

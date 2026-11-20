@@ -1,0 +1,43 @@
+import type { BriarVaultRoomId } from './types'
+
+/** Same 6x6 passage shape as Sublevel B; backtracking is always allowed. */
+export const BRIAR_VAULT_GRAPH: Readonly<
+  Record<BriarVaultRoomId, readonly BriarVaultRoomId[]>
+> = {
+  'BV-01': ['BV-02', 'BV-07'],
+  'BV-02': ['BV-03', 'BV-08'],
+  'BV-03': ['BV-04', 'BV-09'],
+  'BV-04': ['BV-05', 'BV-10'],
+  'BV-05': ['BV-06', 'BV-11'],
+  'BV-06': ['BV-12'],
+  'BV-07': ['BV-08', 'BV-13'],
+  'BV-08': ['BV-09', 'BV-14'],
+  'BV-09': ['BV-10'],
+  'BV-10': ['BV-11', 'BV-16'],
+  'BV-11': ['BV-12', 'BV-17'],
+  'BV-12': ['BV-18'],
+  'BV-13': ['BV-14', 'BV-19'],
+  'BV-14': ['BV-15', 'BV-20'],
+  'BV-15': ['BV-16', 'BV-21'],
+  'BV-16': ['BV-17', 'BV-22'],
+  'BV-17': ['BV-18', 'BV-23'],
+  'BV-18': ['BV-24'],
+  'BV-19': ['BV-20', 'BV-25'],
+  'BV-20': ['BV-21', 'BV-26'],
+  'BV-21': ['BV-22', 'BV-27'],
+  'BV-22': ['BV-23', 'BV-28'],
+  'BV-23': ['BV-24', 'BV-29'],
+  'BV-24': ['BV-30'],
+  'BV-25': ['BV-26', 'BV-31'],
+  'BV-26': ['BV-27'],
+  'BV-27': ['BV-28'],
+  'BV-28': ['BV-29'],
+  'BV-29': ['BV-30'],
+  'BV-30': [],
+  'BV-31': ['BV-32'],
+  'BV-32': ['BV-33'],
+  'BV-33': ['BV-34'],
+  'BV-34': ['BV-35'],
+  'BV-35': ['BV-36'],
+  'BV-36': [],
+}

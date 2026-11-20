@@ -12,7 +12,76 @@
     ></div>
 
     <div
-      v-if="prologueOpen"
+      v-if="introStep !== null"
+      class="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden"
+      data-testid="memory-dungeon-intro"
+    >
+      <img
+        :key="introPanel.id"
+        :src="
+          introArtFailed
+            ? '/images/background/memorydungeon.webp'
+            : introPanel.artPath
+        "
+        :alt="introPanel.title"
+        class="absolute inset-0 h-full w-full object-cover"
+        @error="introArtFailed = true"
+      />
+      <div
+        class="absolute inset-0 bg-linear-to-t from-[#0d1416] via-[#101a1c]/40 to-transparent"
+      ></div>
+      <div class="relative mt-auto p-3 sm:p-6">
+        <div
+          class="mx-auto max-w-3xl rounded-2xl border border-[#f2d99c]/50 bg-[#102126]/90 p-4 shadow-2xl backdrop-blur-md sm:p-6"
+        >
+          <p
+            class="text-[11px] font-bold uppercase tracking-[.22em] text-[#eac88e]"
+          >
+            Prologue · {{ introStep + 1 }} of {{ INTRO_PANELS.length }}
+          </p>
+          <h2
+            class="mt-1 font-serif text-2xl font-black text-[#fff1d2] sm:text-3xl"
+            data-testid="memory-dungeon-intro-title"
+          >
+            {{ introPanel.title }}
+          </h2>
+          <p
+            class="mt-2 text-sm leading-relaxed text-[#f1dfbe] sm:text-base"
+            aria-live="polite"
+          >
+            {{ introPanel.text }}
+          </p>
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost text-[#e6c99a]"
+              :disabled="introStep === 0"
+              @click="stepIntro(-1)"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-warning"
+              data-testid="memory-dungeon-intro-next"
+              @click="stepIntro(1)"
+            >
+              {{ introStep === INTRO_PANELS.length - 1 ? 'Choose' : 'Next' }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost ml-auto text-[#e6c99a] underline underline-offset-4"
+              data-testid="memory-dungeon-intro-skip"
+              @click="openPrologue"
+            >
+              Skip the opening
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      v-else-if="prologueOpen"
       class="relative z-10 grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,1.2fr)] overflow-hidden lg:grid-cols-2 lg:grid-rows-1"
       data-testid="memory-dungeon-prologue"
     >
@@ -224,11 +293,15 @@ import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import type { BriarPrologueChoice } from '~/utils/memoryDungeonWorld'
 import { useMemoryStore } from '~/stores/memoryStore'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
+import { INTRO_PANELS } from '~/utils/memoryDungeon/introPanels'
 defineProps<{ error?: string }>()
 const emit = defineEmits<{ explore: []; classic: [] }>()
 const world = useMemoryWorldStore()
 const memoryStore = useMemoryStore()
 const prologueOpen = ref(false)
+const introStep = ref<number | null>(null)
+const introArtFailed = ref(false)
+const introPanel = computed(() => INTRO_PANELS[introStep.value ?? 0]!)
 const hasExistingSave = computed(
   () =>
     world.state.prologueChoice !== null ||
@@ -242,6 +315,23 @@ function beginAdventure(): void {
     emit('explore')
     return
   }
+  introArtFailed.value = false
+  introStep.value = 0
+}
+
+function stepIntro(delta: number): void {
+  if (introStep.value === null) return
+  const next = introStep.value + delta
+  if (next >= INTRO_PANELS.length) {
+    openPrologue()
+    return
+  }
+  introArtFailed.value = false
+  introStep.value = Math.max(0, next)
+}
+
+function openPrologue(): void {
+  introStep.value = null
   prologueOpen.value = true
 }
 

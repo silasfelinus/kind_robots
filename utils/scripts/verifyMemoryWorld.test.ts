@@ -97,6 +97,7 @@ import {
   validateBriarLinks,
 } from '../memoryDungeonWorld'
 import { briarLossContinuation } from '../memoryDungeon/lossContinuations'
+import { INTRO_PANELS } from '../memoryDungeon/introPanels'
 import {
   BRIAR_SCENES,
   briarSceneOpening,
@@ -2257,6 +2258,21 @@ assert.match(
   /data-testid="memory-dungeon-prologue"/,
   'The new full-screen opening is part of the existing memory game',
 )
+// t-079 (2026-11-20 PT): a new tale opens on the illustrated six-panel
+// opening, which can be skipped, before the prologue choice.
+assert.match(launcherScreen, /data-testid="memory-dungeon-intro"/)
+assert.match(launcherScreen, /data-testid="memory-dungeon-intro-skip"/)
+assert.match(launcherScreen, /introStep\.value = 0/)
+assert.equal(INTRO_PANELS.length, 6)
+assert.equal(new Set(INTRO_PANELS.map((panel) => panel.id)).size, 6)
+for (const panel of INTRO_PANELS) {
+  assert.match(
+    panel.artPath,
+    /^\/images\/memory-dungeon\/intro\/[a-z-]+\.webp$/,
+  )
+  assert.ok(panel.text.split(/\s+/).length >= 35, panel.id + ' text')
+  assert.doesNotMatch(panel.artPrompt, /\bno (text|lettering|typography)\b/i)
+}
 assert.match(
   launcherScreen,
   /world\.recordPrologueChoice\(choice\)/,

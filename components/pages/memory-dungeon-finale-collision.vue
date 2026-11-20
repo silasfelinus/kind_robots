@@ -13,6 +13,21 @@
         <span class="md-bar-chip">{{ collision.fragments }}/2 memories</span>
         <div class="md-bar-end">
           <button
+            v-if="
+              collision.position === '6,2' && collision.progress.choices['6,2']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-accent"
+            data-testid="memory-enter-late-dungeon"
+            @click="emit('dungeon')"
+          >
+            {{
+              world === 'e11'
+                ? 'Enter the Well of Records'
+                : 'Enter the Brine Tunnel'
+            }}
+          </button>
+          <button
             type="button"
             class="btn btn-sm btn-outline"
             @click="emit('leave')"
@@ -284,7 +299,7 @@ import {
 } from '~/stores/memoryFinaleCollisionStore'
 
 const props = defineProps<{ world: 'e11' | 'e12' }>()
-const emit = defineEmits<{ leave: [] }>()
+const emit = defineEmits<{ leave: []; dungeon: [] }>()
 const sea = useMemorySeaCollisionStore()
 const village = useMemoryHoshimoriCollisionStore()
 const collision = computed(() => (props.world === 'e11' ? sea : village))

@@ -13,7 +13,7 @@ assert.match(
   /epoch === accountEpoch && response\.success && response\.data/,
 )
 assert.match(trio, /pendingTrioArtwork\.value\[trio\] = false/)
-assert.match(trio, /return false\s+}$/)
+assert.match(trio, /return false\s+}\s*$/)
 
 const refreshStart = store.indexOf('  async function refreshArtwork()')
 const refreshEnd = store.indexOf('  // The title, opening reel', refreshStart)

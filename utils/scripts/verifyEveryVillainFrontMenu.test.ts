@@ -288,8 +288,13 @@ skyline.x = 6
 skyline.y = 2
 skyline.ap = 2
 assert.equal(rescueSelected(ferrisRun), false, 'airless gondola stays shut')
-skyline.x = 0
-skyline.y = 4
+skyline.x = 3
+skyline.y = 2
+assert.equal(
+  ferrisRun.units.find((unit) => unit.id === 'pip')?.identity,
+  'accident-fire',
+  'Skyline must not be duplicated as their own canonical rival',
+)
 assert.ok(
   selectedPowerTargets(ferrisRun).some(
     (point) => point.x === 4 && point.y === 2,

@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict'
 import {
+  episodeArtworkCardId,
   episodeChoiceArtKeys,
   episodeResultArtKey,
+  episodeRevealArtKey,
 } from '../gameOfCaptains/episodeArtwork'
+import { COUCH_CASINO_EPISODE_ART_IDS } from '../gameOfCaptains/casinoEpisodePaintings'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
 import { visitCasinoVenue } from '../gameOfCaptains/solarCircuit'
@@ -199,6 +202,66 @@ assert.equal(
   null,
   'legacy saves without outcomes cannot invent paintings',
 )
+// The same casino incident appears at many systems. Painted art uses the
+// incident's authored title, but the saved episode card ID must not change.
+const seenCasinoPaintings = new Set<string>()
+for (let seed = 1; seed <= 64; seed++) {
+  for (let chapter = 1; chapter <= 9; chapter++) {
+    const voyage = { ...landing, seed, chapter }
+    const card = episodeCard(voyage, 'casino')
+    const paintedId = episodeArtworkCardId(voyage, 'casino', card.id)
+    seenCasinoPaintings.add(paintedId)
+    assert.equal(
+      paintedId,
+      'casino-' + card.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    )
+    assert.equal(
+      episodeArtworkCardId(voyage, 'planet', card.id),
+      card.id,
+      'other deck identities remain unchanged',
+    )
+    assert.equal(
+      episodeArtworkCardId(
+        restoreVoyage(JSON.parse(JSON.stringify(voyage)))!,
+        'casino',
+        card.id,
+      ),
+      paintedId,
+      'reloaded voyages resolve the same artwork without saving a new ID',
+    )
+  }
+}
+assert.equal(seenCasinoPaintings.size, 16)
+assert.equal(Object.keys(COUCH_CASINO_EPISODE_ART_IDS).length, 87)
+assert.equal(
+  COUCH_CASINO_EPISODE_ART_IDS[
+    episodeRevealArtKey('casino-the-unauthorized-itch')
+  ],
+  277002,
+)
+assert.equal(
+  COUCH_CASINO_EPISODE_ART_IDS[
+    'episode/casino-the-unauthorized-itch-ask-success'
+  ],
+  271104,
+)
+assert.equal(
+  COUCH_CASINO_EPISODE_ART_IDS[
+    'episode/casino-all-you-can-eat-ask-success'
+  ],
+  undefined,
+  'pending renders are never exposed as completed art',
+)
+const authorizedEpisodeArt = readFileSync(
+  new URL(
+    '../../server/api/game-of-captains/onboarding-art.get.ts',
+    import.meta.url,
+  ),
+  'utf8',
+)
+assert.match(authorizedEpisodeArt, /COUCH_CASINO_EPISODE_ART_IDS/)
+assert.match(authorizedEpisodeArt, /buildArtImageWhere\(access\)/)
+
 const consoleUI = readFileSync(
   new URL('../../components/gameOfCaptains/daily-console.vue', import.meta.url),
   'utf8',

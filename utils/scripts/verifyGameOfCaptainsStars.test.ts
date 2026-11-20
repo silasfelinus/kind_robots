@@ -987,9 +987,12 @@ assert.deepEqual(
   firstArchive,
   'an imported backup never duplicates existing finished voyages',
 )
+const mergedBackupHistory = mergeVoyageHistory(firstArchive, moreVoyages)
 assert.equal(
-  mergeVoyageHistory(firstArchive, moreVoyages).length,
-  moreVoyages.length,
-  'restoring a second device merges unique completed runs',
+  mergedBackupHistory.length,
+  moreVoyages.length + 1,
+  'restoring a second device keeps unique voyages from both devices',
 )
+assert.ok(mergedBackupHistory.some((entry) => entry.id === firstArchive[0]?.id))
+assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))
 

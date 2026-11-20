@@ -356,6 +356,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     tag: 'Rooftop transmitter · elevation, catwalk collapse and reinforcements',
   },
   {
+    id: 'under-comet-breach',
+    art: 'districts/industrial-foundry',
+    tag: 'Containment tunnels · split squad, coolant, timed seal-keeper',
+  },
+  {
     id: 'quad-portal-watch',
     art: 'encounters/a-visitor-from-the-stars',
     tag: 'Teleporting Wombat Ronin',

@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 12)
+assert.equal(STAGE_PRESETS.length, 13)
 for (const preset of STAGE_PRESETS) {
   assert.deepEqual(
     stageProblems(preset),
@@ -325,6 +325,92 @@ assert.equal(roofHold.phase, 'active', 'one round is insufficient')
 endTurn(roofHold)
 assert.equal(roofHold.field?.held, 2)
 assert.equal(roofHold.phase, 'victory')
+
+// Under-Comet Breach: the fifth authored Crossfire battle has two squad
+// entry lanes, a timed seal-keeper objective, alternating electrified coolant,
+// a falling bridge and two different reinforcement waves. Rival knockouts
+// without the seal-keeper cannot accidentally satisfy the victory condition.
+const breach = clonePreset('under-comet-breach')
+assert.deepEqual(stageProblems(breach), [])
+assert.equal(breach.turnLimit, 7)
+assert.equal(breach.victory?.kind, 'defeat-boss')
+assert.equal(breach.victory?.kind === 'defeat-boss' && breach.victory.unit, 'pip')
+assert.equal(breach.spawns.find((spawn) => spawn.id === 'backdraft')?.y, 1)
+assert.equal(breach.spawns.find((spawn) => spawn.id === 'priya')?.y, 4)
+assert.equal(breach.map.tiles['4,2']?.elevation, 2)
+assert.equal(breach.props?.length, 3)
+assert.equal(breach.activeHazards?.length, 3)
+assert.equal(breach.activeHazards?.find((h) => h.id === 'bridge-collapse')?.round, 4)
+assert.deepEqual(breach.waves?.map((wave) => wave.round), [3, 5])
+assert.deepEqual(
+  breach.waves?.map((wave) => wave.crew),
+  ['wombat-ronin', 'licensed-legends'],
+)
+const breachScript = breach.script!
+assert.equal(breachScript.scenes.length, 9)
+const tunnel = trainingState(0x51, breach, { lead: 'accident-fire' })
+assert.deepEqual(latchScenes(tunnel, breachScript, breach), ['breach-opening'])
+const breachOpening = pendingScriptScene(tunnel, breachScript)!
+assert.ok(
+  walkScene(breachOpening, [], {
+    state: tunnel,
+    perspective: 'hero',
+  })!.nodes.some((node) => node.id === 'oh'),
+)
+assert.ok(
+  walkScene(breachOpening, [], {
+    state: tunnel,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'ov'),
+)
+assert.ok(finishScene(tunnel, breachOpening, [], 'hero'))
+tunnel.turn = 2
+assert.ok(latchScenes(tunnel, breachScript, breach).includes('breach-fork'))
+const fork = breachScript.scenes.find((scene) => scene.id === 'breach-fork')!
+assert.equal(walkScene(fork, [], { state: tunnel })?.done, false)
+const injured = tunnel.units[0]!
+injured.hp = injured.maxHp - 1
+assert.ok(finishScene(tunnel, fork, [0], 'hero'))
+assert.ok(tunnel.flags?.includes('breach-vented'))
+assert.equal(injured.hp, injured.maxHp)
+assert.ok(latchScenes(tunnel, breachScript, breach).includes('breach-vent-result'))
+assert.equal(finishScene(tunnel, fork, [1], 'hero'), false)
+const sabotage = trainingState(0x51, breach, { lead: 'alien-air' })
+sabotage.turn = 2
+latchScenes(sabotage, breachScript, breach)
+assert.ok(finishScene(sabotage, fork, [1], 'villain'))
+assert.ok(sabotage.flags?.includes('breach-evidence'))
+assert.ok(
+  sabotage.units.some((unit) => unit.team === 'rival' &&
+    unit.statuses.includes('suppressed')),
+)
+assert.ok(
+  latchScenes(sabotage, breachScript, breach).includes('breach-evidence-result'),
+)
+const breachEnding = breachScript.scenes.find(
+  (scene) => scene.id === 'breach-victory',
+)!
+assert.ok(
+  walkScene(breachEnding, [], { state: tunnel, perspective: 'hero' })!.nodes.some(
+    (node) => node.id === 'wv',
+  ),
+)
+assert.ok(
+  walkScene(breachEnding, [], {
+    state: sabotage,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'we'),
+)
+const seal = trainingState(0x51, breach)
+for (const enemy of seal.units.filter((unit) => unit.team === 'rival' && unit.id !== 'pip'))
+  enemy.hp = 0
+assert.equal(seal.phase, 'active')
+const doomed = trainingState(0x51, breach)
+for (const enemy of doomed.units.filter((unit) => unit.team === 'rival'))
+  enemy.hp = 0
+for (let round = 0; round < 8 && doomed.phase === 'active'; round++)
+  endTurn(doomed)
+assert.equal(doomed.phase, 'defeat', 'the breach must time out without a sealed objective')
 
 const picnic = clonePreset('picnic-plaza')
 assert.ok(picnic.title.includes('Picnic'))

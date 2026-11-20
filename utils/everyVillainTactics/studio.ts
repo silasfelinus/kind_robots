@@ -22,6 +22,7 @@ import { SCIENCE_WING_SCRIPT } from './scienceWingScript'
 import { CROSSWALK_CRISIS_SCRIPT } from './crosswalkCrisisScript'
 import { LAST_ORDER_SCRIPT } from './lastOrderScript'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
+import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 
 export type StudioBrush =
   | 'erase'
@@ -308,6 +309,65 @@ export const STAGE_PRESETS: StageDraft[] = [
       ],
     },
     script: ROOFTOP_BROADCAST_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'under-comet-breach',
+    title: 'Under-Comet Breach',
+    venue: 'Containment tunnels below Comet City Academy',
+    objective:
+      'Break the rival seal-keeper before the seventh round ends. Split your team across two tunnels, dodge live coolant and avoid the falling bridge.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([3, 0], [3, 5], [5, 0], [5, 5]),
+        '2,1': tile(1, false, { east: 'half' }),
+        '2,4': tile(1, false, { east: 'half' }),
+        '3,2': tile(1),
+        '3,3': tile(1),
+        '4,2': tile(2),
+        '4,3': tile(2),
+        '5,2': tile(1, false, { west: 'half' }),
+        '5,3': tile(1),
+        '6,3': tile(1, false, { west: 'half' }),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 1 },
+      { id: 'priya', x: 0, y: 4 },
+      { id: 'hattie', x: 1, y: 5 },
+      { id: 'pip', x: 7, y: 2 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 7, y: 4 },
+    ],
+    secrets: [{ x: 4, y: 4 }],
+    hazards: [],
+    turnLimit: 7,
+    props: [
+      { id: 'north-valve', x: 2, y: 2, cover: 'half', hp: 2 },
+      { id: 'south-pump', x: 2, y: 3, cover: 'full', hp: 3 },
+      { id: 'seal-console', x: 6, y: 2, cover: 'full', hp: 3 },
+    ],
+    activeHazards: [
+      { id: 'reactor-coolant', kind: 'water', x: 5, y: 4 },
+      { id: 'leaking-fuel', kind: 'fire', x: 4, y: 1 },
+      { id: 'bridge-collapse', kind: 'collapse', x: 3, y: 3, round: 4 },
+    ],
+    waves: [
+      {
+        round: 3,
+        crew: 'wombat-ronin',
+        spawns: [{ x: 8, y: 0 }],
+      },
+      {
+        round: 5,
+        crew: 'licensed-legends',
+        spawns: [{ x: 8, y: 5 }],
+      },
+    ],
+    victory: { kind: 'defeat-boss', unit: 'pip' },
+    script: UNDER_COMET_BREACH_SCRIPT,
   },
   {
     version: 1,

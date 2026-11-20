@@ -69,7 +69,12 @@ import {
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES, laneY } from './rainbowFormations'
-import { NURSERY, NURSERY_WAVE_SIZES } from './rainbowLanternNursery'
+import {
+  NURSERY,
+  NURSERY_GUARDIAN,
+  NURSERY_WAVE_SIZES,
+  nurseryGuardianWindow,
+} from './rainbowLanternNursery'
 import {
   TRENCH,
   TRENCH_ALL_WAVES,
@@ -958,6 +963,7 @@ export type RainbowCombatSnapshot = {
   guardian: Readonly<RainbowGuardian> | null
   /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
   guardians: Readonly<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, GuardianOutcome>>
+  nurseryGuardianOutcome: GuardianOutcome
   rescuedNemi: boolean
   /** Act III's route: null until the fork, then the vault gauntlet or the safe passage. */
   trenchRoute: TrenchRoute | null
@@ -1073,6 +1079,7 @@ export function createRainbowPrincessPreview(
   // A continue mid-fight brings the boss back as damaged as the crew left it, so every attempt counts.
   let bossCarryHp: number | null = null
   let guardian: RainbowGuardian | null = null
+  let nurseryGuardianOutcome: GuardianOutcome = 'waiting'
   const guardians: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, GuardianOutcome> = {
     1: 'waiting',
     2: 'waiting',
@@ -1156,6 +1163,7 @@ export function createRainbowPrincessPreview(
     rescuedNemi: false,
     trenchRoute: null,
     routeSettled: false,
+    nurseryGuardianOutcome: 'waiting',
     rescuedCourier: false,
     wreckRoute: null,
     wreckSettled: false,
@@ -2219,6 +2227,7 @@ export function createRainbowPrincessPreview(
       rescuedNemi,
       trenchRoute,
       routeSettled,
+      nurseryGuardianOutcome,
       rescuedCourier,
       wreckRoute,
       wreckSettled,
@@ -2375,6 +2384,8 @@ export function createRainbowPrincessPreview(
     rescuedNemi = c.rescuedNemi
     trenchRoute = c.trenchRoute
     routeSettled = c.routeSettled
+    nurseryGuardianOutcome =
+      c.nurseryGuardianOutcome ?? (c.act > 3 ? 'escaped' : 'waiting')
     rescuedCourier = c.rescuedCourier
     escortDone = c.act > 4
     wreckRoute = c.wreckRoute
@@ -2526,6 +2537,7 @@ export function createRainbowPrincessPreview(
       )
       // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
       guardian = null
+      nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
       // The finale has no guardian.
       if (
         checkpoint.act !== 9 &&
@@ -2560,6 +2572,7 @@ export function createRainbowPrincessPreview(
       rescuedNemi = checkpoint.rescuedNemi
       trenchRoute = checkpoint.trenchRoute
       routeSettled = checkpoint.routeSettled
+      nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
       rescuedCourier = checkpoint.rescuedCourier
       // The escort replays when the checkpoint is before the pod set off.
       if (checkpoint.act === 4 && checkpoint.frame <= ROSEFIN_ESCORT.podAppears)
@@ -3435,14 +3448,40 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  function summonNurseryGuardian(frame: number) {
+    if (guardian || nurseryGuardianOutcome !== 'waiting') return
+    const window = nurseryGuardianWindow(
+      TRENCH_FORK.decideAt,
+      TRENCH_FORK.rejoinAt,
+    )
+    if (
+      frame >= window.from &&
+      frame < window.to - RAINBOW_GUARDIAN.escapeLead
+    ) {
+      guardian = createRainbowGuardian(NURSERY_GUARDIAN.kind, activePlayers)
+      guardian.maxHp = guardian.hp = Math.max(
+        1,
+        Math.round(guardian.maxHp * level.bossHp),
+      )
+      popups.push({ x: W / 2, y: 92, text: 'LANTERN MATRIARCH', age: 0 })
+    }
+  }
+
   function defeatGuardian(seat: number) {
     if (!guardian) return
-    const { x, y } = guardian
+    const { x, y, kind } = guardian
     explode(x, y, true)
     guardian = null
     const act = currentAct()
-    // The finale has no guardian of its own.
-    if (act !== 9) {
+    // The Nursery guardian is a second earned encounter, not Act III's first guardian.
+    if (act === 3 && kind === 'matriarch') {
+      nurseryGuardianOutcome = 'defeated'
+      const window = nurseryGuardianWindow(
+        TRENCH_FORK.decideAt,
+        TRENCH_FORK.rejoinAt,
+      )
+      advanceAct(3, window.to - GUARDIAN_SKIP_LEAD - trenchFrame())
+    } else if (act !== 9) {
       guardians[act] = 'defeated'
       // Nothing flies in a guardian's section, so once it falls the Act moves on after a short breath.
       advanceAct(
@@ -3755,6 +3794,7 @@ export function createRainbowPrincessPreview(
           settleTrenchRoute()
         passCheckpoint(3, frame)
         summonGuardian(3, frame, TRENCH_GUARDIAN)
+        if (trenchRoute === 'safe' && rescuedNemi) summonNurseryGuardian(frame)
       }
       if (stage === 'waves') {
         for (const entry of trenchSpawns(frame, trenchRoute, rescuedNemi)) {
@@ -4273,7 +4313,10 @@ export function createRainbowPrincessPreview(
     const guardianAct = currentAct()
     if (guardian && guardianAct !== 9) {
       const act = guardianAct
-      const section = guardianSections[act]
+      const section =
+        guardian.kind === 'matriarch'
+          ? nurseryGuardianWindow(TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt)
+          : guardianSections[act]
       const frame = actFrame(act)
       shootAs(
         RAINBOW_GUARDIAN_LOOK,
@@ -4284,8 +4327,10 @@ export function createRainbowPrincessPreview(
         ),
       )
       if (rainbowGuardianGone(guardian)) {
+        const wasNursery = guardian.kind === 'matriarch'
         guardian = null
-        guardians[act] = 'escaped'
+        if (wasNursery) nurseryGuardianOutcome = 'escaped'
+        else guardians[act] = 'escaped'
       }
     }
     if (moonBoss) {
@@ -5152,6 +5197,7 @@ export function createRainbowPrincessPreview(
         crown: crown ? { ...crown } : null,
         guardian: guardian ? { ...guardian } : null,
         guardians: { ...guardians },
+        nurseryGuardianOutcome,
         rescuedNemi,
         trenchRoute,
         securedSalvage: trenchRoute === 'vault' && routeSettled,
@@ -6176,14 +6222,23 @@ export function createRainbowPrincessPreview(
           }
           g.restore()
         }
-        if (!drawRainbowGuardianSprite(g, guardian.kind)) {
+        if (
+          !drawRainbowGuardianSprite(
+            g,
+            guardian.kind === 'matriarch' ? 'lantern' : guardian.kind,
+          )
+        ) {
           g.save()
           g.scale(2.3, 2.3)
           // The Herald is a harbinger grown huge until its own picture lands.
           if (
             !drawRainbowEnemySprite(
               g,
-              guardian.kind === 'herald' ? 'harbinger' : guardian.kind,
+              guardian.kind === 'herald'
+                ? 'harbinger'
+                : guardian.kind === 'matriarch'
+                  ? 'lantern'
+                  : guardian.kind,
             )
           ) {
             g.fillStyle =

@@ -460,11 +460,21 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   if (save.stage?.id === 'last-order' && save.leadSignature === 'accident-fire')
     flagsAllowed.add('diner-hood-vented')
   if (
+    save.stage?.id === 'ferris-wheel' &&
+    save.leadSignature === 'accident-air'
+  )
+    flagsAllowed.add('wheel-air-bridge')
+  if (
     Array.isArray(state.flags) &&
     state.flags.includes('diner-hood-vented') &&
     !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
   )
     return reject('The diner hood was not vented with a signature power.')
+  if (
+    state.flags?.includes('wheel-air-bridge') &&
+    !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
+  )
+    return reject('The gondolas were not stabilized with Skyline’s signature power.')
   if (
     state.flags !== undefined &&
     (!Array.isArray(state.flags) ||

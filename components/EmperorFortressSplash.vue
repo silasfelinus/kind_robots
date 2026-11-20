@@ -61,7 +61,7 @@
           @click.stop="openChronicle"
         >
           <Icon name="kind-icon:book-open" class="size-5" />
-          Chronicle of Ash
+          Chronicle & Scrapbook
         </button>
       </nav>
       <div class="flex flex-wrap justify-center gap-2">
@@ -73,6 +73,13 @@
         >
           <Icon name="kind-icon:settings" class="size-4" /> Settings
         </button>
+        <NuxtLink
+          to="/achievements?section=emperor-of-dust"
+          class="btn btn-sm btn-outline border-warning/70 text-warning"
+          data-testid="emperor-achievements-menu"
+        >
+          <Icon name="kind-icon:star" class="size-4" /> Achievements
+        </NuxtLink>
         <button
           v-if="hasSave"
           type="button"

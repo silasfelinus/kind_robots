@@ -472,6 +472,11 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   )
     flagsAllowed.add('sinkhole-ramp-secured')
   if (
+    save.stage?.id === 'unlicensed-rescue' &&
+    save.leadSignature === 'accident-birthright'
+  )
+    flagsAllowed.add('valcourt-cape-pass')
+  if (
     Array.isArray(state.flags) &&
     state.flags.includes('diner-hood-vented') &&
     !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
@@ -494,6 +499,16 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     )
   )
     return reject('The sinkhole ramp was not secured with Cornerstone’s power.')
+  if (
+    state.flags?.includes('valcourt-cape-pass') &&
+    !state.units.some(
+      (unit) =>
+        unit.id === 'backdraft' &&
+        unit.identity === 'accident-birthright' &&
+        unit.powerSpent,
+    )
+  )
+    return reject('The library escort did not use Valcourt’s signature cape.')
   if (
     state.flags !== undefined &&
     (!Array.isArray(state.flags) ||

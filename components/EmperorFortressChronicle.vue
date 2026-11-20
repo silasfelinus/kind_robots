@@ -161,6 +161,13 @@
       </div>
     </section>
 
+    <section
+      class="kr-panel space-y-2 p-4 @4xl:col-span-2"
+      aria-label="Court achievements"
+    >
+      <game-achievement-strip game="emperor-of-dust" layout="icons" />
+    </section>
+
     <EmperorFortressEndings class="@4xl:col-span-2" />
 
     <EmperorFortressCodex class="@4xl:col-span-2" />

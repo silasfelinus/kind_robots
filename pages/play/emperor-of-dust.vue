@@ -302,6 +302,7 @@
     <EmperorFortressPreferences
       v-if="settingsOpen"
       @close="settingsOpen = false"
+      @progress-reset="afterProgressReset"
     />
     <EmperorFortressIntro
       v-if="court.loaded && court.introOpen"
@@ -448,6 +449,13 @@ function enter(room: RoomId) {
 function openSettingsFromSplash() {
   splashing.value = false
   settingsOpen.value = true
+}
+
+function afterProgressReset() {
+  settingsOpen.value = false
+  showDawn.value = false
+  enter('briefing')
+  splashing.value = true
 }
 
 function beginNewReign() {

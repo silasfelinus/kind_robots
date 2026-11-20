@@ -34,6 +34,11 @@ import {
 } from '~/utils/everyVillainTactics/achievements'
 import { powerBlocker } from '~/utils/everyVillainTactics/powers'
 import {
+  crossfireCurrentChapter,
+  crossfireFinale as earnedCrossfireFinale,
+  crossfirePreviousChapter,
+} from '~/utils/everyVillainTactics/crossfireNarrative'
+import {
   advanceCrossfire as advanceCrossfireJournal,
   crossfireCarryover,
   crossfireChapterTitle,
@@ -485,6 +490,30 @@ export const useEveryVillainTacticsStore = defineStore(
         return null
       const last = journal.completed[journal.chapter - 1]
       return last ? crossfireCarryover(last, journal.chapter - 1).note : null
+    })
+    const crossfirePreviousBeat = computed(() => {
+      if (!crossfireActive.value || !crossfire.value) return null
+      return crossfirePreviousChapter(crossfire.value)
+    })
+    const crossfireAftermath = computed(() => {
+      if (
+        !crossfireActive.value ||
+        !crossfire.value ||
+        sceneBlocking.value ||
+        (crossfire.value.chapter === 0 && !story.value.completed)
+      )
+        return null
+      return crossfireCurrentChapter(crossfire.value, {
+        state: state.value,
+        story: story.value,
+      })
+    })
+    const crossfireEnding = computed(() => {
+      if (!crossfireAftermath.value || !crossfire.value) return null
+      return earnedCrossfireFinale(crossfire.value, {
+        state: state.value,
+        story: story.value,
+      })
     })
     const canAdvanceCrossfire = computed(
       () =>
@@ -1325,6 +1354,9 @@ export const useEveryVillainTacticsStore = defineStore(
       crossfire,
       crossfireActive,
       crossfireMemory,
+      crossfirePreviousBeat,
+      crossfireAftermath,
+      crossfireEnding,
       canAdvanceCrossfire,
       startCrossfire,
       continueCrossfire,

@@ -420,12 +420,88 @@ falseLead.ap = 2
 assert.equal(useSelectedPower(falseCornerstone, { x: 4, y: 2 }), true)
 assert.ok(!falseCornerstone.flags?.includes('sinkhole-ramp-secured'))
 
+// Captain Valcourt must shield an allied volunteer at the west-side gate.
+// Casting the one-use cape on the player is blocked, rather than softlocking
+// the civilians after wasting the sole signature charge.
+const library = clonePreset('unlicensed-rescue')
+assert.deepEqual(stageProblems(library), [])
+assert.equal(library.victory?.kind, 'rescue')
+assert.equal(library.civilians?.length, 2)
+assert.ok(library.script?.scenes.some((scene) => scene.id === 'library-choice'))
+const libraryRun = trainingState(53, library, { lead: 'accident-birthright' })
+const valcourt = libraryRun.units.find((unit) => unit.id === 'backdraft')!
+libraryRun.selected = valcourt.id
+valcourt.x = 6
+valcourt.y = 2
+valcourt.ap = 2
+assert.equal(rescueSelected(libraryRun), false, 'field blocks evacuation')
+valcourt.x = 0
+valcourt.y = 3
+assert.equal(
+  selectedPowerTargets(libraryRun).some(
+    (point) => point.x === valcourt.x && point.y === valcourt.y,
+  ),
+  false,
+)
+assert.equal(useSelectedPower(libraryRun, { x: 0, y: 3 }), false)
+assert.equal(valcourt.powerSpent, false)
+assert.ok(
+  selectedPowerTargets(libraryRun).some(
+    (point) => point.x === 2 && point.y === 2,
+  ),
+)
+assert.equal(useSelectedPower(libraryRun, { x: 2, y: 2 }), true)
+assert.ok(libraryRun.flags?.includes('valcourt-cape-pass'))
+const librarySave = createSave({
+  slot: 'slot-1',
+  perspective: 'hero',
+  leadSignature: 'accident-birthright',
+  stage: library,
+  state: libraryRun,
+  story: { ...createStory(), current: null },
+})
+const restoredLibrary = loadSave(JSON.stringify(librarySave))
+assert.ok(restoredLibrary.ok, restoredLibrary.ok ? '' : restoredLibrary.reason)
+assert.ok(restoredLibrary.save.state.flags?.includes('valcourt-cape-pass'))
+const fakeCape = createSave({
+  ...librarySave,
+  state: {
+    ...libraryRun,
+    units: libraryRun.units.map((unit) =>
+      unit.id === 'backdraft' ? { ...unit, powerSpent: false } : unit,
+    ),
+  },
+})
+assert.equal(loadSave(JSON.stringify(fakeCape)).ok, false)
+valcourt.x = 6
+valcourt.y = 2
+valcourt.ap = 2
+assert.equal(rescueSelected(libraryRun), true)
+assert.equal(libraryRun.phase, 'active')
+valcourt.x = 6
+valcourt.y = 4
+valcourt.ap = 2
+assert.equal(rescueSelected(libraryRun), true)
+assert.equal(libraryRun.phase, 'victory')
+const wrongValcourt = trainingState(53, library, { lead: 'accident-fire' })
+wrongValcourt.flags = ['valcourt-cape-pass']
+const wrongSave = createSave({
+  slot: 'slot-1',
+  perspective: 'villain',
+  leadSignature: 'accident-fire',
+  stage: library,
+  state: wrongValcourt,
+  story: { ...createStory(), current: null },
+})
+assert.equal(loadSave(JSON.stringify(wrongSave)).ok, false)
+
 // Identity-locked rescue scenarios cannot strand someone without the needed
 // power, even if a saved menu or scripted call bypasses the visual filter.
 assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'last-order': 'accident-fire',
   'ferris-wheel': 'accident-air',
   'sunken-street': 'accident-earth',
+  'unlicensed-rescue': 'accident-birthright',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)
@@ -639,6 +715,7 @@ assert.match(menu, /evf-painted-art/)
 assert.match(menu, /store\.startOneShot\(stage\.id, pickedLead, pickedView\)/)
 assert.match(menu, /data-testid="front-origin-last-order"/)
 assert.match(menu, /data-testid="front-origin-sunken-street"/)
+assert.match(menu, /data-testid="front-origin-unlicensed-rescue"/)
 assert.match(menu, /pickedLead === 'accident-earth'/)
 assert.match(menu, /pickedLead === 'accident-fire'/)
 assert.match(menu, /scriptedFoilFor\(pickedLead\.value\)/)

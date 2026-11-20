@@ -451,6 +451,99 @@ const finishWithRecruitment = (
   )
 }
 
+// --- an explicit reset erases only Emperor's saves and unlocks ----------------
+{
+  const db = fresh()
+  db.data.set('unrelated-save', 'untouched')
+  const initial = reload()
+  initial.setPreference('readingSize', 'extra-large')
+  initial.setTextSpeed('fast')
+  initial.saveToSlot(0, 'saved reign')
+  initial.learn('talk-saffron-insignia')
+  db.data.set(slotKey(2), '{unreadable slot')
+  db.data.set(
+    RELICS,
+    encodeRelicVault({
+      version: 1,
+      owned: ['eye-of-elder-crow'],
+      nextLoadout: [],
+      slots: 1,
+    }),
+  )
+  db.data.set(
+    'kr-emperor-of-dust-legacy-v1',
+    JSON.stringify({
+      endings: ['open-roads'],
+      useWrit: true,
+      selectedFavor: null,
+    }),
+  )
+  db.data.set(
+    'kr-emperor-of-dust-scrapbook-v1',
+    JSON.stringify([
+      {
+        key: 'old-reign',
+        ending: 'open-roads',
+        completedAt: '2026-11-19T11:00:00Z',
+        brass: 16,
+        followers: 3,
+        memorials: [],
+        peace: ['peace-roads'],
+        bellRung: false,
+        cryptSealed: true,
+        epilogues: [],
+      },
+    ]),
+  )
+  db.data.set('kr-emperor-of-dust-intro-seen-v1', '1')
+  const court = reload()
+  assert.ok(court.slotUnreadable[2])
+  assert.equal(court.legacy.endings.length, 1)
+  assert.equal(court.scrapbook.length, 1)
+  assert.equal(court.relicVault.owned.length, 1)
+  court.resetProgress()
+  assert.equal(court.day, 1)
+  assert.deepEqual(court.slots, [null, null, null])
+  assert.deepEqual(court.slotUnreadable, [false, false, false])
+  assert.deepEqual(court.codex.revealed, [])
+  assert.deepEqual(court.relicVault.owned, [])
+  assert.deepEqual(court.legacy.endings, [])
+  assert.deepEqual(court.scrapbook, [])
+  assert.equal(court.introOpen, true)
+  for (const key of [
+    CODEX,
+    RELICS,
+    ...[0, 1, 2].map(slotKey),
+    'kr-emperor-of-dust-legacy-v1',
+    'kr-emperor-of-dust-scrapbook-v1',
+    'kr-emperor-of-dust-intro-seen-v1',
+  ])
+    assert.equal(db.getItem(key), null, key + ' erased')
+  assert.ok(decodeBook(db.getItem(AUTO)), 'a fresh autosave exists')
+  assert.equal(db.getItem('unrelated-save'), 'untouched')
+  const again = reload()
+  assert.equal(again.day, 1, 'reset survives page reload')
+  assert.deepEqual(again.slots, [null, null, null])
+  assert.deepEqual(again.scrapbook, [])
+  assert.deepEqual(again.legacy.endings, [])
+  assert.equal(again.preferences.readingSize, 'extra-large')
+  assert.equal(again.textSpeed, 'fast')
+}
+{
+  const db = fresh()
+  const court = reload()
+  court.saveToSlot(0, 'protected')
+  const snapshot = new Map(db.data)
+  db.failGet = true
+  assert.throws(() => court.resetProgress(), /nothing was erased/)
+  db.failGet = false
+  assert.deepEqual(db.data, snapshot, 'unreadable storage is not erased')
+  db.failSet = true
+  assert.throws(() => court.resetProgress(), /reset; previous progress/)
+  assert.deepEqual(db.data, snapshot, 'refused removal leaves storage alone')
+  assert.equal(court.slots[0]?.label, 'protected')
+}
+
 const { readFileSync } = await import('node:fs')
 const { join } = await import('node:path')
 const emperorTitle = readFileSync(
@@ -465,5 +558,20 @@ assert.match(emperorTitle, /data-testid="emperor-chronicle-menu"/)
 assert.match(emperorTitle, /@click\.stop="openChronicle"/)
 assert.match(emperorPage, /@chronicle="openChronicleFromSplash"/)
 assert.match(emperorPage, /enter\('chronicle'\)/)
+
+assert.match(emperorPage, /@progress-reset="afterProgressReset"/)
+assert.match(emperorTitle, /data-testid="emperor-achievements-menu"/)
+assert.match(emperorTitle, /\/achievements\?section=emperor-of-dust/)
+const emperorSettings = readFileSync(
+  join(process.cwd(), 'components/EmperorFortressPreferences.vue'),
+  'utf8',
+)
+assert.match(emperorSettings, /data-testid="emperor-reset-confirm"/)
+assert.match(emperorSettings, /:disabled="resetPhrase !== 'ERASE'"/)
+const emperorChronicle = readFileSync(
+  join(process.cwd(), 'components/EmperorFortressChronicle.vue'),
+  'utf8',
+)
+assert.match(emperorChronicle, /<game-achievement-strip game="emperor-of-dust"/)
 
 console.log('Emperor of Dust store persistence: ok')

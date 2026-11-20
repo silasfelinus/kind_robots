@@ -24,6 +24,8 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'ferris-wheel': 265022,
   // Temporary Crosswalk painting; a sunken street plate must be generated.
   'sunken-street': 265022,
+  // Existing Academy painting pending a dedicated library venue.
+  'unlicensed-rescue': 265014,
 }
 
 export function paintedMapArtId(stageId: string | null): number | null {

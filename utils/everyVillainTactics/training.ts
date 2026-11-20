@@ -356,7 +356,8 @@ export function trainingState(
         const replacement = IDENTITY_ARCS.find(
           (person) =>
             !state.units.some(
-              (unit) => unit.id !== other.id && unit.identity === person.signature,
+              (unit) =>
+                unit.id !== other.id && unit.identity === person.signature,
             ),
         )
         if (replacement) other.identity = replacement.signature

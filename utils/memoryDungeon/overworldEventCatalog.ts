@@ -137,15 +137,16 @@ function art(
   return {
     path,
     prompt:
-      'Original illustration, ' +
-      style +
-      '. Coordinate ' +
-      key +
-      ': ' +
       subject +
+      '. Original painted illustration, ' +
+      style +
       '. ' +
-      action +
-      '. Cinematic staging, legible human expressions and physical actions, no text, no lettering, no collage.',
+      (/^[a-z-]+-\d+: /.test(action)
+        ? 'The moment after the choice, ' +
+          action.replace(/^[a-z-]+-\d+: /, '') +
+          ', medium shot'
+        : 'Wide establishing shot of the whole place') +
+      ', cinematic staging, legible expressions and physical action, every surface bare and unmarked.',
     status: eventArtStatus(path),
   }
 }

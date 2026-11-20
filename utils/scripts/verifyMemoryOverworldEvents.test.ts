@@ -12,7 +12,7 @@ import {
   worldEvents,
 } from '../memoryDungeon/overworldEventCatalog'
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
-import deliveredManifest, {
+import {
   DELIVERED_EVENT_ART_PATHS,
   eventArtStatus,
 } from '../memoryDungeon/deliveredEventArt'
@@ -1295,13 +1295,15 @@ assert.ok(e10Store.includes("position.value === '8,8'"))
 assert.ok(e10Console.includes('data-testid="memory-earth-crossroad-choices"'))
 assert.ok(e10Console.includes('collision.conclude(choice.id)'))
 assert.ok(campaignStore.includes('concludeEarthCollisionFromJournal('))
-// Playtest handoff (2026-11-20 PT): e11/e12 are not built, so the e10 verdict and
-// the overworld bar must tell testers they reached the end of this build.
-assert.ok(e10Console.includes('data-testid="memory-playtest-build-end"'))
-assert.ok(
-  overworldPage.includes('data-testid="memory-playtest-build-complete"'),
-)
+// e11/e12 (2026-11-20 PT): Char's sea crossing opens after e10 and Vesper's last
+// road after e11; both render through the shared finale console.
+assert.ok(!e10Console.includes('memory-playtest-build-end'))
+assert.ok(overworldPage.includes('data-testid="memory-enter-sea-collision"'))
 assert.ok(overworldPage.includes("world.campaign.completed.includes('e10')"))
+assert.ok(overworldPage.includes('data-testid="memory-enter-last-road"'))
+assert.ok(overworldPage.includes("world.campaign.completed.includes('e11')"))
+assert.ok(memoryPage.includes('v-else-if="seaCollisionMode"'))
+assert.ok(memoryPage.includes('v-else-if="lastRoadMode"'))
 
 for (const pilot of HOSHIMORI_NIGHT_SITES) {
   const adopted = worldEvent('e08', pilot.key)!
@@ -1343,7 +1345,7 @@ console.log(
     catalogPaths.add(
       '/images/memory-dungeon/e10/evacuation-forecast-choice-' + i + '.webp',
     )
-  const listed = deliveredManifest.paths
+  const listed = [...DELIVERED_EVENT_ART_PATHS]
   assert.deepEqual(
     listed,
     [...new Set(listed)].sort(),

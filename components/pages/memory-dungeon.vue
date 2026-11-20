@@ -48,6 +48,16 @@
       v-else-if="earthCollisionMode"
       @leave="earthCollisionMode = false"
     />
+    <memory-dungeon-finale-collision
+      v-else-if="seaCollisionMode"
+      world="e11"
+      @leave="seaCollisionMode = false"
+    />
+    <memory-dungeon-finale-collision
+      v-else-if="lastRoadMode"
+      world="e12"
+      @leave="lastRoadMode = false"
+    />
     <memory-dungeon-sublevel
       v-else-if="furnaceMode"
       dungeon="furnace"
@@ -71,6 +81,8 @@
       @hoshimori-night="hoshimoriNightMode = true"
       @collision="collisionMode = true"
       @earth-collision="earthCollisionMode = true"
+      @sea-collision="seaCollisionMode = true"
+      @last-road="lastRoadMode = true"
     />
     <div v-else class="flex min-h-0 flex-1 flex-col">
       <header-page-bar v-if="gameStarted" console-theme="memory-dungeon">
@@ -530,6 +542,8 @@ const hoshimoriMode = ref(false)
 const hoshimoriNightMode = ref(false)
 const collisionMode = ref(false)
 const earthCollisionMode = ref(false)
+const seaCollisionMode = ref(false)
+const lastRoadMode = ref(false)
 const launchError = ref('')
 const classicDeckIncludesMature = ref(false)
 

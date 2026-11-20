@@ -214,13 +214,6 @@
             <p class="mt-2 text-xs text-[#bde3cb]">
               The city remembers. Char's crossing is next.
             </p>
-            <p
-              class="mt-2 text-xs font-semibold text-[#f6d49a]"
-              data-testid="memory-playtest-build-end"
-            >
-              You've reached the end of this playtest build. Char's and Vesper's
-              crossings are still being written. Thank you for playing this far.
-            </p>
           </div>
           <p
             v-else-if="collision.readyForCrossroad"

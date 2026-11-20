@@ -9,7 +9,7 @@ import {
 import type { EarthReality } from './earthAct'
 import type { SeaReality } from './seaAct'
 
-type JourneyReality = EarthReality | SeaReality | 'e09' | 'e10'
+type JourneyReality = EarthReality | SeaReality | 'e09' | 'e10' | 'e11' | 'e12'
 
 export type EarthJournalAction =
   | { type: 'travel'; key: string }

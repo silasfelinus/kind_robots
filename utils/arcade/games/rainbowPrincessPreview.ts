@@ -1212,9 +1212,10 @@ export function createRainbowPrincessPreview(
   const replaySave = options.demo
     ? null
     : readRainbowSave(options.rainbowReplay, isRainbowCheckpoint)
-  const offered = options.demo || replaySave
-    ? null
-    : readRainbowSave(options.resume, isRainbowCheckpoint)
+  const offered =
+    options.demo || replaySave
+      ? null
+      : readRainbowSave(options.resume, isRainbowCheckpoint)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
     offered ? { save: offered, pick: 0, frame: 0 } : null
   /** Older saves rotate a starting pilot; new flights preserve the complete chosen crew. */

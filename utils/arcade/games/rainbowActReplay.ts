@@ -17,8 +17,8 @@ export function canReplayRainbowAct(
   const cleared = act as Act
   return Boolean(
     hangar.medals[cleared] ||
-      save?.medals[cleared] ||
-      (save && save.checkpoint.act > act),
+    save?.medals[cleared] ||
+    (save && save.checkpoint.act > act),
   )
 }
 

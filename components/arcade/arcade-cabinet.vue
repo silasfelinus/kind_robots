@@ -1296,9 +1296,7 @@ function startGame() {
       hiScore: hiScore(),
       players: players.value,
       mastery: store.masteryFor(props.slug),
-      resume: isRainbowReplay.value
-        ? undefined
-        : store.saveFor(props.slug),
+      resume: isRainbowReplay.value ? undefined : store.saveFor(props.slug),
       rainbowReplay: isRainbowReplay.value ? props.rainbowReplay : undefined,
       rainbowHangar:
         props.slug === 'rainbow-bullet-hell-space-princess'
@@ -1501,7 +1499,10 @@ function tick() {
       if (isRainbowReplay.value) {
         const clear = (
           game as {
-            replayClear?: { act: number; medal: 'bronze' | 'silver' | 'gold' } | null
+            replayClear?: {
+              act: number
+              medal: 'bronze' | 'silver' | 'gold'
+            } | null
           }
         ).replayClear
         if (clear) store.recordRainbowReplayMedal(clear.act, clear.medal)
@@ -1920,7 +1921,10 @@ function render() {
     g.fillRect(0, 0, w, h)
     const cleared = (
       game as {
-        replayClear?: { act: number; medal: 'bronze' | 'silver' | 'gold' } | null
+        replayClear?: {
+          act: number
+          medal: 'bronze' | 'silver' | 'gold'
+        } | null
       } | null
     )?.replayClear
     drawText(

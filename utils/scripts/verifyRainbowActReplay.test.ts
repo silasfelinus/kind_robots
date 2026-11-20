@@ -112,7 +112,10 @@ for (const seats of [1, 4]) {
   assert.equal(instance.snapshot.resumeMenu, null)
   assert.equal(instance.snapshot.selectMenu, null)
   assert.equal(instance.save, undefined)
-  instance.update(idle, Array.from({ length: seats }, () => idle))
+  instance.update(
+    idle,
+    Array.from({ length: seats }, () => idle),
+  )
   assert.equal(instance.snapshot.checkpoint.act, 6)
   assert.equal(instance.snapshot.checkpoint.frame, 0)
   assert.equal(instance.snapshot.medals[5], undefined)

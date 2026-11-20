@@ -288,8 +288,8 @@ skyline.x = 6
 skyline.y = 2
 skyline.ap = 2
 assert.equal(rescueSelected(ferrisRun), false, 'airless gondola stays shut')
-skyline.x = 3
-skyline.y = 2
+skyline.x = 0
+skyline.y = 4
 assert.equal(
   ferrisRun.units.find((unit) => unit.id === 'pip')?.identity,
   'accident-fire',
@@ -299,7 +299,7 @@ assert.ok(
   selectedPowerTargets(ferrisRun).some(
     (point) => point.x === 4 && point.y === 2,
   ),
-  'Skyline can reach Priya at the wind gauge with Updraft Catch',
+  'Skyline can leap onto the unoccupied wind gauge with Updraft Catch',
 )
 assert.equal(useSelectedPower(ferrisRun, { x: 4, y: 2 }), true)
 assert.ok(ferrisRun.flags?.includes('wheel-air-bridge'))

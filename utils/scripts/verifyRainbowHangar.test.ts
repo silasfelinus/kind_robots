@@ -43,7 +43,7 @@ assert.equal(rainbowHangarBalance(hangar), 4)
 assert.equal(purchaseRainbowHangarUpgrade(hangar, 'shield'), hangar)
 assert.equal(purchaseRainbowHangarUpgrade(hangar, 'charge'), hangar)
 hangar = awardRainbowHangarMedals(hangar, {
-  medals: { 4: 'gold', 5: 'gold', 6: 'gold' },
+  medals: { 4: 'gold', 5: 'gold', 6: 'gold', 7: 'silver' },
 })
 hangar = purchaseRainbowHangarUpgrade(hangar, 'charge')
 hangar = purchaseRainbowHangarUpgrade(hangar, 'life')

@@ -960,10 +960,7 @@ assert.deepEqual(
   firstArchive,
 )
 assert.equal(parseVoyageBackup(createVoyageBackup(null, [])).voyage, null)
-assert.throws(
-  () => parseVoyageBackup('not-json'),
-  /valid JSON/,
-)
+assert.throws(() => parseVoyageBackup('not-json'), /valid JSON/)
 assert.throws(
   () => parseVoyageBackup(JSON.stringify({ ...importedBackup, version: 2 })),
   /Unsupported Space Couch backup format/,
@@ -995,4 +992,3 @@ assert.equal(
 )
 assert.ok(mergedBackupHistory.some((entry) => entry.id === firstArchive[0]?.id))
 assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))
-

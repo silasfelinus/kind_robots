@@ -31,6 +31,14 @@ assert.deepEqual(
 )
 assert.equal(rainbowSeaLogbook(null, ['first-light'])[1]?.explored, true)
 assert.equal(rainbowSeaLogbook(null, ['first-light'])[2]?.explored, false)
+const retiredFlight = rainbowSeaLogbook(null, [], {
+  1: 'gold',
+  4: 'silver',
+})
+assert.equal(retiredFlight[0]?.label, 'GOLD MEDAL')
+assert.equal(retiredFlight[3]?.label, 'SILVER MEDAL')
+assert.equal(retiredFlight[3]?.explored, true)
+assert.equal(retiredFlight[4]?.label, 'UNDISCOVERED')
 console.log(
   'rainbow seas logbook: ok (locked Acts, medals, and current flight)',
 )

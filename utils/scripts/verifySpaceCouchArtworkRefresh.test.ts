@@ -6,8 +6,18 @@ const page = readFileSync('pages/play/game-of-captains.vue', 'utf8')
 
 for (const [name, artwork, flag, route] of [
   ['loadAlienArtwork', 'alienArtwork', 'alienArtLoaded', 'alien-art'],
-  ['loadRedshirtArtwork', 'redshirtArtwork', 'redshirtArtLoaded', 'redshirt-art'],
-  ['loadOnboardingArt', 'onboardingArt', 'onboardingArtLoaded', 'onboarding-art'],
+  [
+    'loadRedshirtArtwork',
+    'redshirtArtwork',
+    'redshirtArtLoaded',
+    'redshirt-art',
+  ],
+  [
+    'loadOnboardingArt',
+    'onboardingArt',
+    'onboardingArtLoaded',
+    'onboarding-art',
+  ],
 ]) {
   const start = store.indexOf('  async function ' + name + '(')
   const end = store.indexOf('\n  }', start)
@@ -40,11 +50,17 @@ assert.ok(page.includes(':disabled="store.artworkRefreshPending"'))
 assert.ok(page.includes('@click="store.refreshArtwork()"'))
 assert.ok(page.includes('v-if="store.artworkRefreshMessage" role="status"'))
 assert.ok(
-  store.includes('    artworkRefreshPending.value = false\n    artworkRefreshMessage.value = \'\''),
+  store.includes(
+    "    artworkRefreshPending.value = false\n    artworkRefreshMessage.value = ''",
+  ),
   'account switches cancel stale refresh UI without sharing old artwork',
 )
 assert.ok(
-  page.includes("const COUCH_FALLBACK = '/game-of-captains/space-couch-stage.svg'"),
+  page.includes(
+    "const COUCH_FALLBACK = '/game-of-captains/space-couch-stage.svg'",
+  ),
   'failed renders retain the existing image fallback',
 )
-console.log('Space Couch art refresh preserves delivered assets, account isolation and v1 saves')
+console.log(
+  'Space Couch art refresh preserves delivered assets, account isolation and v1 saves',
+)

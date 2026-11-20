@@ -917,13 +917,25 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       completedVoyages.value,
       imported.completedVoyages,
     )
+    let originalHistory: string | null
     try {
-      // Write the new durable records before changing reactive game state.
+      originalHistory = localStorage.getItem(COMPLETED_VOYAGES_KEY)
+      // Archive first, then active save. If the second write fails, roll
+      // back the archive so the existing live voyage is not partly replaced.
+      localStorage.setItem(COMPLETED_VOYAGES_KEY, JSON.stringify(nextHistory))
       if (imported.voyage) {
         localStorage.setItem(SAVE_KEY, JSON.stringify(nextRun))
       }
-      localStorage.setItem(COMPLETED_VOYAGES_KEY, JSON.stringify(nextHistory))
     } catch {
+      if (originalHistory !== undefined) {
+        try {
+          if (originalHistory === null)
+            localStorage.removeItem(COMPLETED_VOYAGES_KEY)
+          else localStorage.setItem(COMPLETED_VOYAGES_KEY, originalHistory)
+        } catch {
+          // Storage is unavailable; do not change reactive voyage state.
+        }
+      }
       backupMessage.value =
         'Browser storage could not save this backup. Your current voyage remains open.'
       return false

@@ -79,7 +79,6 @@ assert.equal(
   '/emperor-of-dust/quests/q-d42-cave-forage.webp',
 )
 
-
 // t-052: audit *shipped image bytes*, never an ArtJob state or ArtImage row.
 // This evidence describes the public asset tree at this exact checkout.
 // A successful audit does NOT mean missing ending plates or remote art are delivered.
@@ -127,9 +126,7 @@ const endingPlates = expectedEndings.map((id) => {
 const deliveredEndingCount = endingPlates.filter(
   (entry) => entry.delivered_bytes > 0,
 ).length
-const questFiles = delivered.filter((asset) =>
-  asset.path.startsWith('quests/'),
-)
+const questFiles = delivered.filter((asset) => asset.path.startsWith('quests/'))
 assert.equal(
   questFiles.length,
   QUEST_ART.length,

@@ -19,7 +19,7 @@ const paintingRoute = readFileSync(
 for (const [name, flag] of [
   ['alien', 'alienArtLoaded'],
   ['redshirt', 'redshirtArtLoaded'],
-]) {
+] as const) {
   const start = store.indexOf('async function load' + ({
     alien: 'AlienArtwork',
     redshirt: 'RedshirtArtwork',

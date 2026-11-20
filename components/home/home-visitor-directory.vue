@@ -448,6 +448,15 @@ const features: FeaturedExperience[] = [
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
+    title: 'Account Banned Meme Lab',
+    tag: 'Meme generator · Unappealable nonsense',
+    category: 'create',
+    route: '/play/ban-meme',
+    image: '/ban-meme/base.webp',
+    description:
+      'Rewrite your fictional crime in a GTA-style permanent ban, then save or share the screenshot.',
+  },
+  {
     title: 'Chessweeper',
     posterSlug: 'chessweeper',
     tag: 'Three dangerous worlds · Chess, mines & sawblades',

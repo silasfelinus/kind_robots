@@ -398,6 +398,7 @@
     "test:artjob-lora-override": "tsx utils/scripts/verifyArtJobLoraOverride.ts",
     "test:art-failure-signature": "tsx utils/scripts/verifyArtFailureSignature.test.ts",
     "test:comfy-model-paths": "tsx utils/scripts/verifyComfyModelPaths.ts",
+    "test:ban-meme-maker": "tsx utils/scripts/verifyBanMemeMaker.test.ts",
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts && tsx utils/scripts/verifySlidingTileGallery.test.ts && tsx utils/scripts/verifyChannelLauncher.test.ts",
     "test:gallery-adoption": "tsx utils/scripts/verifyGalleryAdoption.ts",
     "test:gallery-consistency": "tsx utils/scripts/verifyGalleryConsistency.ts",

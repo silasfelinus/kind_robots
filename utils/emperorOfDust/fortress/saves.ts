@@ -281,7 +281,8 @@ export const validateRun = (value: unknown): value is FortressRun => {
     !Array.isArray(run.active) ||
     !run.active.every((entry: unknown) => {
       if (!object(entry) || !Array.isArray(entry.party)) return false
-      const quest = typeof entry.questId === 'string' ? questDef(entry.questId) : undefined
+      const quest =
+        typeof entry.questId === 'string' ? questDef(entry.questId) : undefined
       busy.push(...(entry.party as string[]))
       return (
         text(entry.questId, 120) &&

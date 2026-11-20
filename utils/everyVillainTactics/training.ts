@@ -844,8 +844,9 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
     unit.identity === 'accident-fire' &&
     result.hit &&
     result.preview.cells.some((cell) => cell.x === 4 && cell.y === 2) &&
-    !state.flags.includes('diner-hood-vented')
+    !(state.flags ?? []).includes('diner-hood-vented')
   ) {
+    state.flags ??= []
     state.flags.push('diner-hood-vented')
     note(
       state,
@@ -871,7 +872,7 @@ export function rescueTargets(state: TrainingState): Civilian[] {
       (c) =>
         state.stageId !== 'last-order' ||
         c.id !== 'diner-cook' ||
-        state.flags.includes('diner-hood-vented'),
+        (state.flags ?? []).includes('diner-hood-vented'),
     )
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))

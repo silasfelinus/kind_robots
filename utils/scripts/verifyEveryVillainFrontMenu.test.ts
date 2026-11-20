@@ -238,7 +238,7 @@ dinerLead.x = 6
 dinerLead.y = 2
 dinerLead.ap = 2
 assert.equal(rescueSelected(dinerRun), false, 'the hot kitchen blocks rescue')
-dinerLead.x = 0
+dinerLead.x = 1
 dinerLead.y = 2
 assert.ok(
   selectedPowerTargets(dinerRun).some(
@@ -247,7 +247,7 @@ assert.ok(
   'Backdraft can aim his power through the diner hood',
 )
 assert.equal(useSelectedPower(dinerRun, { x: 4, y: 2 }), true)
-assert.ok(dinerRun.flags.includes('diner-hood-vented'))
+assert.ok(dinerRun.flags?.includes('diner-hood-vented'))
 const dinerSave = createSave({
   slot: 'slot-1',
   perspective: 'hero',
@@ -272,7 +272,7 @@ wrongPower.selected = wrongLead.id
 wrongLead.x = 0
 wrongLead.y = 2
 assert.equal(useSelectedPower(wrongPower, { x: 4, y: 2 }), false)
-assert.ok(!wrongPower.flags.includes('diner-hood-vented'))
+assert.ok(!wrongPower.flags?.includes('diner-hood-vented'))
 
 // One-shot menu: Picnic Panic first, every stage valid with shipped art.
 const oneShots = oneShotStages()

@@ -398,6 +398,63 @@
           your best medal per sea counts. Upgrades stay in this slot.
         </p>
       </section>
+      <section
+        v-show="view === 'archive'"
+        id="princess-archive"
+        role="tabpanel"
+        aria-labelledby="princess-archive-tab"
+        class="@container flex min-h-0 flex-1 flex-col gap-2 rounded-3xl border border-base-300 bg-[#251345] p-2 text-white sm:p-3"
+      >
+        <div class="shrink-0">
+          <h2 class="text-lg font-black">Eclipse Scrapbook</h2>
+          <p class="text-xs text-white/75" aria-live="polite">
+            {{ endingCount }}/3 final choices remembered. The Motherland road
+            changes each ending.
+          </p>
+        </div>
+        <ol
+          class="kr-scroll grid min-h-0 flex-1 auto-rows-min gap-2 @2xl:grid-cols-3"
+          aria-label="Unlocked ending memories"
+        >
+          <li
+            v-for="entry in endingArchive"
+            :key="entry.choice"
+            class="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-white/20 bg-[#391f60]"
+          >
+            <img
+              :src="
+                entry.unlocked
+                  ? (rainbowEndingPlate(entry.choice) ??
+                    rainbowStageCard('s08', look))
+                  : rainbowStageCard('s08', look)
+              "
+              :alt="
+                entry.unlocked && rainbowEndingPlate(entry.choice)
+                  ? entry.title + ' ending illustration'
+                  : 'Eclipse Palace backdrop'
+              "
+              class="aspect-[16/9] w-full shrink-0 object-cover"
+              :class="{ 'grayscale opacity-40': !entry.unlocked }"
+              loading="lazy"
+            />
+            <div class="flex min-h-0 flex-1 flex-col gap-1 p-3">
+              <p class="text-xs font-bold uppercase tracking-widest text-pink-200">
+                {{ entry.unlocked ? 'Memory recovered' : 'Memory locked' }}
+              </p>
+              <h3 class="text-base font-black">
+                {{ entry.unlocked ? entry.title : 'Unknown fate' }}
+              </h3>
+              <p class="text-sm text-white/80">
+                {{
+                  entry.unlocked
+                    ? entry.summary
+                    : 'Finish the Eclipse Palace to discover this ending.'
+                }}
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
     </div>
   </main>
 </template>
@@ -411,6 +468,7 @@ import {
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
+import { rainbowEndingArchive } from '~/utils/arcade/games/rainbowEndingArchive'
 import {
   RAINBOW_HANGAR_UPGRADES,
   rainbowHangarBalance,
@@ -426,6 +484,7 @@ import {
   loadRainbowLook,
   RAINBOW_DEFAULT_LOOK,
   rainbowHeroArt,
+  rainbowEndingPlate,
   rainbowPortrait,
   rainbowStageCard,
   rainbowSuperCutin,
@@ -464,6 +523,7 @@ const seaProgress = computed(() =>
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
 const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))
+const endingArchive = computed(() => rainbowEndingArchive(mastery.value))
 const hangarPick = ref(0)
 const selectedHangarUpgrade = computed(
   () => RAINBOW_HANGAR_UPGRADES[hangarPick.value]!,
@@ -475,10 +535,7 @@ const medalsCount = computed(
   () => seaProgress.value.filter((sea) => sea.medal).length,
 )
 const endingCount = computed(
-  () =>
-    ['restore', 'evacuate', 'sever'].filter((ending) =>
-      mastery.value.includes(`ending-${ending}`),
-    ).length,
+  () => endingArchive.value.filter((entry) => entry.unlocked).length,
 )
 
 const views = [
@@ -486,6 +543,7 @@ const views = [
   { key: 'pilots', label: 'Pilots', icon: 'kind-icon:users' },
   { key: 'seas', label: 'Seas', icon: 'kind-icon:map' },
   { key: 'hangar', label: 'Hangar', icon: 'kind-icon:star' },
+  { key: 'archive', label: 'Scrapbook', icon: 'kind-icon:book' },
 ] as const
 const view = ref<string>('flight')
 const opening = ref<{ offer: () => void; play: () => void } | null>(null)

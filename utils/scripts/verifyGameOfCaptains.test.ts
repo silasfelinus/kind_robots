@@ -922,6 +922,21 @@ assert.equal(
   romanceMoment(arriveAtRelationshipDebrief(nextDestination(pressure))),
   null,
 )
+const rejectedEpilogue = relationshipEpilogue({
+  ...galacticEnding,
+  romance: (pressure as RomanceVoyage).romance,
+} as RomanceVoyage)
+const fourpleStory = ROMANCE_STORIES.find((story) => story.id === 'fourple')!
+assert.ok(rejectedEpilogue.scene.includes(fourpleStory.refusal))
+assert.ok(
+  !rejectedEpilogue.scene.includes(fourpleStory.fault),
+  'refusing romance must not turn into an accusatory finale',
+)
+assert.deepEqual(
+  relationshipEpilogue(rejectedEpilogue),
+  rejectedEpilogue,
+  'a declined relationship epilogue is not repeated',
+)
 
 let disengage = arriveAtRelationshipDebrief(
   startVoyage('vale', ['vela', 'taal', 'omi'], 117),
@@ -966,6 +981,13 @@ for (const [crew, invite] of [
   const epilogue = relationshipEpilogue(finishVoyage(toFinale(solo), 'protect'))
   assert.ok(
     epilogue.log.some((entry) => entry.startsWith('Relationship epilogue: ')),
+  )
+  const route = (solo as RomanceVoyage).romance?.route
+  const story = ROMANCE_STORIES.find((item) => item.id === route)!
+  assert.ok(epilogue.scene.includes(story.separation))
+  assert.ok(
+    !epilogue.scene.includes(story.fault),
+    'amicable separation is not a moral failure',
   )
 }
 

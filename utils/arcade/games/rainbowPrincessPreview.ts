@@ -1879,7 +1879,12 @@ export function createRainbowPrincessPreview(
     popups.push({
       x: W / 2,
       y: 92,
-      text: trenchRoute === 'vault' ? 'SALVAGE VAULT' : 'SAFE PASSAGE',
+      text:
+        trenchRoute === 'vault'
+          ? 'SALVAGE VAULT'
+          : rescuedNemi
+            ? 'NEMI SIGNAL · LANTERN NURSERY'
+            : 'SAFE PASSAGE',
       age: 0,
     })
   }
@@ -3752,7 +3757,7 @@ export function createRainbowPrincessPreview(
         summonGuardian(3, frame, TRENCH_GUARDIAN)
       }
       if (stage === 'waves') {
-        for (const entry of trenchSpawns(frame, trenchRoute)) {
+        for (const entry of trenchSpawns(frame, trenchRoute, rescuedNemi)) {
           spawn(entry.kind, entry.y, entry.wave)
         }
       } else if (stage === 'turn' && frame === TRENCH.turnStarts) {

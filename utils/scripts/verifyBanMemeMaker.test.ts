@@ -9,9 +9,12 @@ const featured = readFileSync(
 )
 const preview = readFileSync('utils/gameLinkPreview.ts', 'utf8')
 const image = readFileSync('public/ban-meme/base.avif')
+const fallback = readFileSync('public/ban-meme/base.webp')
 
 assert.equal(image.subarray(4, 12).toString('ascii'), 'ftypavif')
 assert.ok(image.length > 8_000)
+assert.equal(fallback.subarray(0, 4).toString('ascii'), 'RIFF')
+assert.ok(fallback.length > 20_000)
 assert.match(page, /data-testid="ban-meme-preview"/)
 assert.match(page, /data-testid="ban-meme-reason"/)
 assert.match(page, /Grand Theft Auto VI due to you/)

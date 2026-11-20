@@ -1,5 +1,5 @@
 <template>
-  <main class="kr-surface min-h-0">
+  <main class="kr-surface kr-scroll min-h-0">
     <div
       class="mx-auto flex h-full min-h-0 w-full max-w-[1500px] flex-col gap-2 p-2 sm:p-3"
     >
@@ -54,7 +54,7 @@
             <p class="text-xs font-bold uppercase tracking-[.2em] text-primary">
               You have been accused
             </p>
-            <h1 class="text-2xl font-black">Rewrite the crime.</h1>
+            <h2 class="text-2xl font-black">Rewrite the crime.</h2>
             <p class="mt-1 text-xs opacity-65">
               Same screenshot. New outrage. Absolutely no appeals.
             </p>
@@ -74,9 +74,7 @@
             />
           </label>
 
-          <div
-            class="flex items-center justify-between gap-2 text-xs opacity-65"
-          >
+          <div class="flex items-center justify-between gap-2 text-xs opacity-65">
             <span>The original permanent-ban line stays intact.</span>
             <span class="shrink-0 tabular-nums">{{ reason.length }}/220</span>
           </div>
@@ -120,6 +118,7 @@
               Reset
             </button>
           </div>
+          <GuestFundraiserStrip />
           <p v-if="feedback" class="text-xs" role="status">
             {{ feedback }}
           </p>
@@ -134,6 +133,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { shareableUrl } from '~/utils/supportShare'
 
 const originalWidth = 2048
 const initialReason = 'bringing a reusable bag to a bank robbery'
@@ -266,7 +266,11 @@ async function shareImage() {
     if (!blob) throw new Error('Image export failed')
     const file = new File([blob], 'account-banned.png', { type: 'image/png' })
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file] })
+      await navigator.share({
+        files: [file],
+        title: 'Account Banned Meme Lab',
+        text: `Make your own ban notice at ${shareableUrl('/play')}. Free, ad-free, and supporting malaria prevention.`,
+      })
     } else {
       saveBlob(blob)
       feedback.value = 'Image saved. You can share it from your downloads.'
@@ -289,6 +293,10 @@ onMounted(() => {
     drawNotice()
   }
   image.onerror = () => {
+    if (image.src.endsWith('/ban-meme/base.avif')) {
+      image.src = '/ban-meme/base.webp'
+      return
+    }
     feedback.value = 'The screenshot template could not be loaded.'
   }
   image.src = '/ban-meme/base.avif'

@@ -31,4 +31,6 @@ assert.deepEqual(
 )
 assert.equal(rainbowSeaLogbook(null, ['first-light'])[1]?.explored, true)
 assert.equal(rainbowSeaLogbook(null, ['first-light'])[2]?.explored, false)
-console.log('rainbow seas logbook: ok (locked Acts, medals, and current flight)')
+console.log(
+  'rainbow seas logbook: ok (locked Acts, medals, and current flight)',
+)

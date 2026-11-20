@@ -237,8 +237,12 @@
         aria-labelledby="princess-seas-tab"
         class="@container flex min-h-0 flex-1 flex-col"
       >
-        <p class="shrink-0 px-1 pb-1 text-xs font-semibold text-base-content/80" aria-live="polite">
-          Flight log · {{ exploredCount }}/8 seas explored · {{ medalsCount }} medals · {{ endingCount }}/3 endings
+        <p
+          class="shrink-0 px-1 pb-1 text-xs font-semibold text-base-content/80"
+          aria-live="polite"
+        >
+          Flight log · {{ exploredCount }}/8 seas explored ·
+          {{ medalsCount }} medals · {{ endingCount }}/3 endings
         </p>
         <ol
           class="grid min-h-0 flex-1 grid-cols-2 grid-rows-4 gap-2 @3xl:grid-cols-4 @3xl:grid-rows-2"

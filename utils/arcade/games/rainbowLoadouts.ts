@@ -156,7 +156,8 @@ export function rainbowSeaLogbook(
   save: RainbowSave | null,
   mastery: readonly string[],
 ): { explored: boolean; medal: RainbowMedal | null; label: string }[] {
-  const reached = save?.checkpoint.act ?? (mastery.includes('first-light') ? 2 : 1)
+  const reached =
+    save?.checkpoint.act ?? (mastery.includes('first-light') ? 2 : 1)
   return Array.from({ length: 8 }, (_, index) => {
     const act = index + 1
     const medal = save?.medals[act as 1] ?? null

@@ -16,7 +16,7 @@ assert.match(trio, /pendingTrioArtwork\.value\[trio\] = false/)
 assert.match(trio, /return false\s+}$/)
 
 const refreshStart = store.indexOf('  async function refreshArtwork()')
-const refreshEnd = store.indexOf('  \/\/ The title, opening reel', refreshStart)
+const refreshEnd = store.indexOf('  // The title, opening reel', refreshStart)
 const refresh = store.slice(refreshStart, refreshEnd)
 assert.ok(refreshStart >= 0 && refreshEnd > refreshStart)
 assert.match(refresh, /const results = await Promise\.all\(\[/)

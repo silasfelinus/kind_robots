@@ -136,7 +136,10 @@ assert.deepEqual(
 )
 assert.deepEqual(alienAchievements(1, 2), [])
 assert.deepEqual(alienAchievements(25, 26), [])
-assert.deepEqual(alienAchievements(ALIEN_SPECIES.length, ALIEN_SPECIES.length), [])
+assert.deepEqual(
+  alienAchievements(ALIEN_SPECIES.length, ALIEN_SPECIES.length),
+  [],
+)
 assert.deepEqual(known(alienAchievements(0, ALIEN_SPECIES.length)), [
   'game-of-captains-first-contact',
   'game-of-captains-xenologist',

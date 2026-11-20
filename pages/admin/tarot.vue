@@ -18,6 +18,11 @@ const editorTab = ref<'card' | 'deck'>('card')
 const newDeckOpen = ref(false)
 const newDeckTitle = ref('')
 
+function closeEditor() {
+  editorOpen.value = false
+  editorTab.value = 'card'
+}
+
 const emptyCard: TarotCardEdit = {
   title: '',
   prompt: '',
@@ -413,10 +418,7 @@ watch(
               type="button"
               class="btn btn-ghost btn-sm"
               aria-label="Close editor"
-              @click="
-                editorOpen = false
-                editorTab = 'card'
-              "
+              @click="closeEditor"
             >
               ✕
             </button>

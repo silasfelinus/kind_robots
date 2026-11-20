@@ -89,6 +89,11 @@ const page = readFileSync(
   'utf8',
 )
 const store = readFileSync(new URL('stores/arcadeStore.ts', root), 'utf8')
+const fixture = readFileSync(
+  new URL('utils/scripts/arcadeCabinetFixture.mjs', root),
+  'utf8',
+)
+assert.match(fixture, /rainbowHangarBonuses: \(\) =>/)
 assert.match(cabinet, /rainbowHangar:[\s\S]*store\.rainbowHangarBonuses\(\)/)
 assert.match(store, /awardRainbowHangarMedals\(previous, save\)/)
 assert.match(store, /rainbowHangars: rainbowHangars\.value/)

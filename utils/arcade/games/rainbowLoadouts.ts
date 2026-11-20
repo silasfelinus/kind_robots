@@ -271,6 +271,15 @@ export function readRainbowSave(
   )
     return null
   if (!oneOf(c.wreckRoute, ['depot', 'armory', null])) return null
+  if (
+    !oneOf(c.armoryGuardianOutcome, [
+      'waiting',
+      'defeated',
+      'escaped',
+      undefined,
+    ])
+  )
+    return null
   if (!oneOf(c.reefRoute, ['relay', 'cache', null])) return null
   if (!oneOf(c.allegiance, ['rebel', 'loyal', null, undefined])) return null
   for (const key of [
@@ -319,6 +328,8 @@ export function readRainbowSave(
       nurseryGuardianOutcome: saved.nurseryGuardianOutcome ?? 'waiting',
       rescuedCourier: saved.rescuedCourier,
       wreckRoute: saved.wreckRoute,
+      armoryGuardianOutcome:
+        saved.armoryGuardianOutcome ?? (saved.act > 5 ? 'escaped' : 'waiting'),
       wreckSettled: saved.wreckSettled,
       podsSaved: saved.podsSaved,
       reefRoute: saved.reefRoute,

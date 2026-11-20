@@ -1,3 +1,4 @@
+import { witnessedPatrolCrew } from './patrolCrews'
 import { CAMPAIGN_VILLAINS, campaignVillain } from './campaign'
 import { identityFor } from './identityArcs'
 import { henchmanForVillain } from './villainHenchmen'
@@ -522,6 +523,21 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
           identityArtKey(crew.rival, 'villain'),
           ...(zone ? [districtArtKey(zone.siteId)] : []),
         ],
+      })
+      continue
+    }
+    const crew = witnessedPatrolCrew(
+      { day: memory.day, opponentSignature: run.opponentSignature },
+      memory.zone,
+      memory.choiceId,
+    )
+    if (crew) {
+      moments.push({
+        day: memory.day,
+        kind: 'patrol',
+        title: `${zone?.title ?? 'Patrol'} · ${crew.title}`,
+        text: `${crew.choice.label}. ${crew.choice.result}`,
+        artKeys: [identityArtKey(crew.rival, 'villain')],
       })
       continue
     }

@@ -78,7 +78,7 @@ export function awardRainbowHangarMedals(
     return hangar
   const earned = { ...hangar.medals }
   let improved = false
-  for (const [key, value] of Object.entries(medals)) {
+  for (const [key, value] of Object.entries(medals as Record<string, unknown>)) {
     const act = Number(key)
     if (!Number.isInteger(act) || act < 1 || act > 8) continue
     if (value !== 'bronze' && value !== 'silver' && value !== 'gold') continue

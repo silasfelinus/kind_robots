@@ -79,7 +79,6 @@ export function archiveCompletedVoyage(
 ): CompletedVoyage[] {
   if (!run || run.phase !== 'ending' || !run.ending) return history
   const id = [run.seed, run.captain, run.ending].join(':')
-  if (history.some((entry) => entry.id === id)) return history
   const entry: CompletedVoyage = {
     version: 1,
     id,
@@ -109,6 +108,19 @@ export function archiveCompletedVoyage(
       missionId: loss.missionId,
     })),
     log: [...run.log],
+  }
+  const previous = history.find((item) => item.id === id)
+  if (previous) {
+    const sameStory =
+      JSON.stringify(previous.choices) === JSON.stringify(entry.choices) &&
+      JSON.stringify(previous.losses) === JSON.stringify(entry.losses) &&
+      JSON.stringify(previous.log) === JSON.stringify(entry.log)
+    if (sameStory) return history
+
+    // A replay with the same seed, captain and ending can tell a different
+    // story. Preserve the legacy ID and give the alternate run its own page.
+    const suffix = history.filter((item) => item.id.startsWith(id + ':')).length + 1
+    entry.id = id + ':replay-' + suffix
   }
   return [entry, ...history]
 }

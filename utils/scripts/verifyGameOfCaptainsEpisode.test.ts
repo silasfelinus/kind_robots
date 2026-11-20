@@ -297,7 +297,10 @@ const firstCard = mandatory[0]!
 const firstSkill = REDSHIRT_BY_ID[firstRedshirt]!.stats[firstCard.skill]
 const rawChance = Math.max(
   8,
-  Math.min(94, 22 + firstSkill * 13 - (firstCard.priority === 'major' ? 12 : 0)),
+  Math.min(
+    94,
+    22 + firstSkill * 13 - (firstCard.priority === 'major' ? 12 : 0),
+  ),
 )
 const firstReport = dispatched.expeditionVisit!.results.find(
   (entry) => entry.lead === firstRedshirt,

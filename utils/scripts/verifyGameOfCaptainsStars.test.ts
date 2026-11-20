@@ -566,6 +566,14 @@ assert.ok(page.includes('data-testid="space-couch-backup-file"'))
 assert.ok(page.includes('data-testid="space-couch-backup-confirm"'))
 assert.ok(store.includes('parseVoyageBackup(await file.text())'))
 assert.ok(store.includes('mergeVoyageHistory('))
+assert.ok(
+  store.includes('if (originalHistory === null)'),
+  'a failed import rolls the archived history back before changing active saves',
+)
+assert.ok(
+  store.includes(': run.value'),
+  'history-only imports preserve the current active voyage',
+)
 assert.ok(store.includes('if (imported.voyage)'))
 assert.ok(
   store.includes("const SAVE_KEY = 'game-of-captains-voyage-v1'"),

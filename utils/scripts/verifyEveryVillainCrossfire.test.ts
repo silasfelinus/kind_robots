@@ -233,9 +233,7 @@ const legacyStage = createSave({
   story: { ...createStory(), current: null },
 })
 const legacyJournal = {
-  ...advanceCrossfire(
-    snapshotCrossfire(alternateStarted, alternateVictory)!,
-  )!,
+  ...advanceCrossfire(snapshotCrossfire(alternateStarted, alternateVictory)!)!,
   active: legacyStage,
 }
 assert.ok(readCrossfireJournal(JSON.stringify(legacyJournal)))
@@ -312,7 +310,10 @@ for (const person of IDENTITY_ARCS) {
     const restored = loadSave(checkpoint)
     assert.ok(
       restored.ok,
-      person.signature + ' / ' + stage.id + ': ' +
+      person.signature +
+        ' / ' +
+        stage.id +
+        ': ' +
         (restored.ok ? 'valid' : restored.reason),
     )
   }

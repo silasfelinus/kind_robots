@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { ITEM_ART, itemDef } from '../emperorOfDust/fortress/items'
+import { ITEM_ART, ITEMS, itemDef } from '../emperorOfDust/fortress/items'
 
 const dir = join(process.cwd(), 'public/emperor-of-dust/items')
 
@@ -21,25 +21,25 @@ for (const file of readdirSync(dir).filter((name) => name.endsWith('.webp'))) {
   )
 }
 
-// 2026-11-19 PT curation of ITEMS-ROUND-1 kept six; the other 24 reroll in ROUND-2.
-assert.ok(ITEM_ART.has('road-lantern'))
-assert.ok(
-  !ITEM_ART.has('old-road-crowbar'),
-  'rejected candle-dish render must not ship',
-)
+// Curation history: ROUND-1 kept six (2026-11-19 PT), ROUND-3 twelve, ROUND-4 three
+// and ROUND-5 three. Rounds 5 and 6 missed the last five objects on the Arthemy tag
+// lane. ROUND-7 moved them to the Krea 2 prose lane and kept all five
+// (2026-11-20 PT), so the market is fully illustrated.
+for (const id of [
+  'road-lantern',
+  'ledger-abacus',
+  'field-kit',
+  'old-road-crowbar',
+  'lockpick-roll',
+  'courier-spurs',
+  'rustline-cutters',
+  'hyena-tooth',
+]) {
+  assert.ok(ITEM_ART.has(id), `${id} must ship its curated icon`)
+}
 
-// 2026-11-20 PT curation of ITEMS-ROUND-3 kept twelve; eight reroll in ROUND-4.
-assert.ok(ITEM_ART.has('ledger-abacus'))
-assert.ok(
-  !ITEM_ART.has('lockpick-roll'),
-  'rejected trousers-and-knife render must not ship',
-)
-
-// 2026-11-20 PT curation of ITEMS-ROUND-4 kept three; five reroll in ROUND-5.
-assert.ok(ITEM_ART.has('field-kit'))
-assert.ok(
-  !ITEM_ART.has('hyena-tooth'),
-  'rejected creature-bust render must not ship',
-)
+for (const item of ITEMS) {
+  assert.ok(ITEM_ART.has(item.id), `${item.id} has no delivered icon`)
+}
 
 console.log(`Emperor item art: ${ITEM_ART.size} icons verified`)

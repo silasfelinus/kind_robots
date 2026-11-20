@@ -24,6 +24,7 @@ import { LAST_ORDER_SCRIPT } from './lastOrderScript'
 import { FERRIS_WHEEL_SCRIPT } from './ferrisWheelScript'
 import { SUNKEN_STREET_SCRIPT } from './sunkenStreetScript'
 import { UNLICENSED_RESCUE_SCRIPT } from './unlicensedRescueScript'
+import { CHORUS_RADIO_SCRIPT } from './chorusRadioScript'
 import { ROOFTOP_BROADCAST_SCRIPT } from './rooftopBroadcastScript'
 import { UNDER_COMET_BREACH_SCRIPT } from './underCometBreachScript'
 import { PROM_NIGHT_FINALE_SCRIPT } from './promNightFinaleScript'
@@ -309,6 +310,52 @@ export const STAGE_PRESETS: StageDraft[] = [
     activeHazards: [{ id: 'sparking-generator', kind: 'fire', x: 5, y: 3 }],
     victory: { kind: 'rescue', count: 2 },
     script: UNLICENSED_RESCUE_SCRIPT,
+  },
+  {
+    version: 1,
+    id: 'song-that-stopped',
+    title: 'The Song That Stopped',
+    venue: 'Comet City community radio tower during the blackout',
+    objective:
+      'Reach the elevated studio booth at column 4, row 3; use Chorus’s counter-melody there, then guide two groups out of the broadcast crush before round nine.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([4, 0], [5, 0], [4, 5], [5, 5]),
+        '2,2': tile(0, false, { north: 'half' }),
+        '3,2': tile(1),
+        '4,2': tile(0, false, { east: 'half' }),
+        '5,3': tile(0, false, { north: 'half' }),
+        '6,4': tile(1),
+      },
+    },
+    spawns: [
+      { id: 'backdraft', x: 0, y: 3 },
+      { id: 'priya', x: 1, y: 1 },
+      { id: 'hattie', x: 1, y: 4 },
+      { id: 'pip', x: 8, y: 0 },
+      { id: 'vee', x: 8, y: 3 },
+      { id: 'remy', x: 8, y: 5 },
+    ],
+    secrets: [{ x: 2, y: 5 }],
+    hazards: [],
+    turnLimit: 9,
+    civilians: [
+      { id: 'radio-listeners', name: 'Listeners trapped at the tower gate', x: 7, y: 2 },
+      { id: 'radio-volunteers', name: 'Emergency volunteers by the transmitter', x: 7, y: 4 },
+    ],
+    props: [
+      { id: 'broadcast-mixer', x: 2, y: 3, cover: 'half', hp: 2 },
+      { id: 'sponsor-transmitter', x: 5, y: 3, cover: 'full', hp: 3 },
+      { id: 'antenna-service-box', x: 6, y: 1, cover: 'half', hp: 2 },
+    ],
+    activeHazards: [
+      { id: 'sparking-relay', kind: 'fire', x: 5, y: 4 },
+      { id: 'falling-antenna', kind: 'collapse', x: 6, y: 5, round: 5 },
+    ],
+    victory: { kind: 'rescue', count: 2 },
+    script: CHORUS_RADIO_SCRIPT,
   },
   {
     version: 1,

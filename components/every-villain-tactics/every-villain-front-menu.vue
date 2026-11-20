@@ -398,6 +398,38 @@
             </button>
           </div>
         </div>
+        <div
+          v-if="pickedLead === 'accident-social'"
+          class="evf-origin-battle"
+          data-testid="front-chorus-origin-battle"
+        >
+          <h3 class="evf-label">YOUR POWER ORIGIN / THE SONG THAT STOPPED</h3>
+          <div class="evf-stages">
+            <button
+              type="button"
+              class="evf-stage"
+              data-testid="front-origin-song-that-stopped"
+              @click="
+                store.startOneShot('song-that-stopped', pickedLead, pickedView)
+              "
+            >
+              <img
+                v-if="art('districts/media-spire')"
+                :src="art('districts/media-spire')!"
+                alt=""
+                loading="lazy"
+              />
+              <span class="evf-stage-text">
+                <small class="evf-kicker">CHORUS / ORIGIN BATTLE</small>
+                <strong>The Song That Stopped</strong>
+                <span>
+                  Reach the radio booth and sing a counter-melody before leading
+                  two trapped groups through the crowd.
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
           <div class="evf-stages">

@@ -495,6 +495,80 @@ const wrongSave = createSave({
 })
 assert.equal(loadSave(JSON.stringify(wrongSave)).ok, false)
 
+// Chorus must reach the elevated studio booth before using their only rally.
+// An early cast is rejected, and the crowd cannot be rescued until the
+// counter-melody has genuinely broken the sponsored broadcast.
+const radio = clonePreset('song-that-stopped')
+assert.deepEqual(stageProblems(radio), [])
+assert.equal(radio.title, 'The Song That Stopped')
+assert.equal(radio.victory?.kind, 'rescue')
+assert.equal(radio.civilians?.length, 2)
+assert.ok(radio.script?.scenes.some((scene) => scene.id === 'radio-choice'))
+const radioRun = trainingState(61, radio, { lead: 'accident-social' })
+const chorus = radioRun.units.find((unit) => unit.id === 'backdraft')!
+radioRun.selected = chorus.id
+chorus.x = 6
+chorus.y = 2
+chorus.ap = 2
+assert.equal(rescueSelected(radioRun), false, 'the broadcast crowd blocks evacuation')
+chorus.x = 0
+chorus.y = 3
+assert.equal(selectedPowerTargets(radioRun).length, 0)
+assert.equal(useSelectedPower(radioRun, { x: 0, y: 3 }), false)
+assert.equal(chorus.powerSpent, false)
+chorus.x = 3
+chorus.y = 2
+chorus.ap = 2
+assert.ok(
+  selectedPowerTargets(radioRun).some(
+    (point) => point.x === 3 && point.y === 2,
+  ),
+)
+assert.equal(useSelectedPower(radioRun, { x: 3, y: 2 }), true)
+assert.ok(radioRun.flags?.includes('radio-counter-melody'))
+const radioSave = createSave({
+  slot: 'slot-2',
+  perspective: 'villain',
+  leadSignature: 'accident-social',
+  stage: radio,
+  state: radioRun,
+  story: { ...createStory(), current: null },
+})
+const radioRestored = loadSave(JSON.stringify(radioSave))
+assert.ok(radioRestored.ok, radioRestored.ok ? '' : radioRestored.reason)
+assert.ok(radioRestored.save.state.flags?.includes('radio-counter-melody'))
+const fakeCounterSong = createSave({
+  ...radioSave,
+  state: {
+    ...radioRun,
+    units: radioRun.units.map((unit) =>
+      unit.id === 'backdraft' ? { ...unit, powerSpent: false } : unit,
+    ),
+  },
+})
+assert.equal(loadSave(JSON.stringify(fakeCounterSong)).ok, false)
+chorus.x = 6
+chorus.y = 2
+chorus.ap = 2
+assert.equal(rescueSelected(radioRun), true)
+assert.equal(radioRun.phase, 'active')
+chorus.x = 6
+chorus.y = 4
+chorus.ap = 2
+assert.equal(rescueSelected(radioRun), true)
+assert.equal(radioRun.phase, 'victory')
+const wrongChorus = trainingState(61, radio, { lead: 'accident-birthright' })
+wrongChorus.flags = ['radio-counter-melody']
+const wrongChorusSave = createSave({
+  slot: 'slot-2',
+  perspective: 'hero',
+  leadSignature: 'accident-birthright',
+  stage: radio,
+  state: wrongChorus,
+  story: { ...createStory(), current: null },
+})
+assert.equal(loadSave(JSON.stringify(wrongChorusSave)).ok, false)
+
 // Identity-locked rescue scenarios cannot strand someone without the needed
 // power, even if a saved menu or scripted call bypasses the visual filter.
 assert.deepEqual(ORIGIN_STAGE_LEADS, {
@@ -502,6 +576,7 @@ assert.deepEqual(ORIGIN_STAGE_LEADS, {
   'ferris-wheel': 'accident-air',
   'sunken-street': 'accident-earth',
   'unlicensed-rescue': 'accident-birthright',
+  'song-that-stopped': 'accident-social',
 })
 for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
   assert.equal(canStartOneShot(stage, signature), true)
@@ -513,6 +588,12 @@ for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
 assert.equal(canStartOneShot('science-lab', 'psychic-social'), true)
 
 // One-shot menu: Picnic Panic first, every stage valid with shipped art.
+assert.ok(
+  readFileSync(
+    'components/every-villain-tactics/every-villain-front-menu.vue',
+    'utf8',
+  ).includes('front-origin-song-that-stopped'),
+)
 const oneShots = oneShotStages()
 assert.equal(oneShots.length, ONE_SHOT_MENU.length)
 assert.equal(oneShots[0]!.id, 'picnic-plaza')

@@ -241,7 +241,9 @@ assert.equal(rescueSelected(dinerRun), false, 'the hot kitchen blocks rescue')
 dinerLead.x = 0
 dinerLead.y = 2
 assert.ok(
-  selectedPowerTargets(dinerRun).some((point) => point.x === 4 && point.y === 2),
+  selectedPowerTargets(dinerRun).some(
+    (point) => point.x === 4 && point.y === 2,
+  ),
   'Backdraft can aim his power through the diner hood',
 )
 assert.equal(useSelectedPower(dinerRun, { x: 4, y: 2 }), true)
@@ -255,10 +257,7 @@ const dinerSave = createSave({
   story: { ...createStory(), current: null },
 })
 const restoredDiner = loadSave(JSON.stringify(dinerSave))
-assert.ok(
-  restoredDiner.ok,
-  restoredDiner.ok ? '' : restoredDiner.reason,
-)
+assert.ok(restoredDiner.ok, restoredDiner.ok ? '' : restoredDiner.reason)
 assert.ok(restoredDiner.save.state.flags?.includes('diner-hood-vented'))
 dinerLead.x = 6
 dinerLead.y = 2

@@ -1751,11 +1751,7 @@ const waveCrews: Array<{ value: WaveCrew; label: string }> = [
 ]
 /** One glyph for the strongest live stage rule on a tile. */
 function fieldGlyph(cell: Cell): string {
-  if (
-    store.state.stageId === 'last-order' &&
-    cell.x === 4 &&
-    cell.y === 2
-  )
+  if (store.state.stageId === 'last-order' && cell.x === 4 && cell.y === 2)
     return store.state.flags.includes('diner-hood-vented') ? '✓' : '♨'
   const mark = store.fieldAt(cell)
   if (!mark) return ''

@@ -9,6 +9,7 @@ import { renderableArtPath } from '~/utils/artImageSrc'
 import { galleryThumbnailUrl } from '~/server/utils/artGalleryArchiveMedia'
 import { COUCH_ALIEN_ART_IDS } from '~/utils/gameOfCaptains/alienPaintings'
 import { COUCH_ALIEN_ART_JOB_IDS } from '~/utils/gameOfCaptains/alienArtJobs'
+import { COUCH_ALIEN_REDO_CANDIDATES } from '~/utils/gameOfCaptains/alienRedoCandidates'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -30,6 +31,43 @@ export default defineEventHandler(async (event) => {
         )
         .map((job) => [job.id, job.artImageId]),
     )
+    // Manual ArtSlot promotion is valid only for a liked, selected redo
+    // candidate from the verified ledger. Rejected originals remain excluded.
+    const slots = await prisma.artSlot.findMany({
+      where: {
+        projectSlug: 'game-of-captains',
+        slotKey: {
+          in: COUCH_ALIEN_REDO_CANDIDATES.map(
+            (item) => 'game-of-captains/' + item.key,
+          ),
+        },
+        selectedArtImageId: { not: null },
+      },
+      select: {
+        slotKey: true,
+        selectedArtImageId: true,
+        Candidates: {
+          select: { artImageId: true, verdict: true },
+        },
+      },
+    })
+    const approvedRedo = Object.fromEntries(
+      slots.flatMap((slot) => {
+        const item = COUCH_ALIEN_REDO_CANDIDATES.find(
+          (candidate) =>
+            'game-of-captains/' + candidate.key === slot.slotKey &&
+            candidate.artImageId === slot.selectedArtImageId,
+        )
+        return item &&
+          slot.Candidates.some(
+            (candidate) =>
+              candidate.artImageId === item.artImageId &&
+              candidate.verdict === 'liked',
+          )
+          ? [[item.key, item.artImageId]]
+          : []
+      }),
+    )
     const entries = Object.entries({
       ...Object.fromEntries(
         jobEntries
@@ -38,6 +76,7 @@ export default defineEventHandler(async (event) => {
       ),
       // A separately verified ArtImage may supersede an old ArtJob output.
       ...COUCH_ALIEN_ART_IDS,
+      ...approvedRedo,
     })
     if (!entries.length) return { success: true, data: {} }
     const images = await prisma.artImage.findMany({

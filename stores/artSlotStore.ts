@@ -195,6 +195,35 @@ export const useArtSlotStore = defineStore('artSlotStore', () => {
     }
   }
 
+  async function registerSpaceCouchAliens(): Promise<void> {
+    isSaving.value = true
+    errorMessage.value = ''
+    notice.value = ''
+    try {
+      const res = await performFetch<{
+        expected: number
+        registered: number
+        pending: number
+      }>('/api/game-of-captains/alien-art/sync', { method: 'POST' })
+      if (!res.success || !res.data)
+        throw new Error(res.message || 'Could not register the alien renders.')
+      projectSlug.value = 'game-of-captains'
+      prefix.value = 'game-of-captains/aliens/'
+      multipleOnly.value = false
+      page.value = 1
+      await load()
+      notice.value =
+        `${res.data.registered} of ${res.data.expected} alien redos available for visual review; ` +
+        `${res.data.pending} not yet verified. Nothing was approved or published.`
+    } catch (error) {
+      errorMessage.value =
+        error instanceof Error ? error.message : 'Could not register art.'
+      handleError(error, 'registering Space Couch alien redos')
+    } finally {
+      isSaving.value = false
+    }
+  }
+
   async function fullImageSrc(artImageId: number): Promise<string> {
     const res = await performFetch<Parameters<typeof resolveArtImageSource>[0]>(
       `/api/art/image/${artImageId}?includeImageData=true&showMature=true`,
@@ -222,6 +251,7 @@ export const useArtSlotStore = defineStore('artSlotStore', () => {
     choose,
     setVerdict,
     dedupe,
+    registerSpaceCouchAliens,
     fullImageSrc,
   }
 })

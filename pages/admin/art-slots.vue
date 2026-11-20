@@ -80,6 +80,15 @@
         <button type="submit" class="btn btn-primary btn-sm">Show</button>
         <button
           type="button"
+          class="btn btn-secondary btn-sm"
+          data-testid="space-couch-register-alien-redos"
+          :disabled="isSaving"
+          @click="slotStore.registerSpaceCouchAliens()"
+        >
+          Review 22 Space Couch alien redos
+        </button>
+        <button
+          type="button"
           class="btn btn-outline btn-sm"
           :disabled="!projectSlug || isDeduping"
           title="Find copies with the same prompt, seed and model"

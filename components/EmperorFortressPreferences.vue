@@ -204,6 +204,64 @@
           Ask the messenger which road they took.
         </p>
       </div>
+      <section
+        class="mt-5 space-y-3 rounded-lg border border-error/45 bg-base-200 p-4"
+        aria-label="Erase game progress"
+      >
+        <div>
+          <h3 class="font-serif text-lg font-bold">Erase this reign's history</h3>
+          <p class="mt-1 text-sm opacity-80">
+            Permanently removes this game's autosave, all three slots, Codex,
+            relics, legacy favors and completed-reign scrapbook. Reading settings
+            and other games are kept. Account achievements stay earned.
+          </p>
+        </div>
+        <button
+          v-if="!confirmReset"
+          type="button"
+          class="btn btn-sm btn-outline btn-error"
+          data-testid="emperor-reset-open"
+          @click="confirmReset = true"
+        >
+          Erase Emperor of Dust progress…
+        </button>
+        <div v-else class="space-y-3" role="group" aria-label="Confirm progress reset">
+          <label class="block text-sm font-semibold" for="eod-erase-confirm">
+            Type ERASE to permanently clear this game's progress.
+          </label>
+          <input
+            id="eod-erase-confirm"
+            v-model="resetPhrase"
+            type="text"
+            class="input input-bordered w-full max-w-xs"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="ERASE"
+          />
+          <p v-if="resetError" class="text-sm text-error" role="alert">
+            {{ resetError }}
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-error"
+              data-testid="emperor-reset-confirm"
+              :disabled="resetPhrase !== 'ERASE'"
+              @click="eraseProgress"
+            >
+              Erase all game progress
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost"
+              @click="cancelReset"
+            >
+              Keep my progress
+            </button>
+          </div>
+        </div>
+      </section>
       <footer class="mt-5 flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"
@@ -224,7 +282,7 @@
 import { onMounted, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import type { ReadingSize, TextSpeed } from '~/stores/emperorFortressStore'
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<{ close: []; progressReset: [] }>()
 const court = useEmperorFortressStore()
 const dialog = ref<HTMLElement | null>(null)
 const sizes: { value: ReadingSize; label: string }[] = [
@@ -240,5 +298,27 @@ const widths = [
   { value: 'balanced', label: 'Balanced art and story' },
   { value: 'wide', label: 'Wider reading panel' },
 ] as const
+const confirmReset = ref(false)
+const resetPhrase = ref('')
+const resetError = ref('')
+
+function cancelReset() {
+  confirmReset.value = false
+  resetPhrase.value = ''
+  resetError.value = ''
+}
+
+function eraseProgress() {
+  if (resetPhrase.value !== 'ERASE') return
+  try {
+    court.resetProgress()
+    cancelReset()
+    emit('progressReset')
+  } catch (cause) {
+    resetError.value =
+      cause instanceof Error ? cause.message : 'Could not erase progress'
+  }
+}
+
 onMounted(() => dialog.value?.focus())
 </script>

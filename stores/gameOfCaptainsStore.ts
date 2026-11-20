@@ -297,6 +297,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     redshirtArtLoaded.value = false
     onboardingArt.value = {}
     onboardingArtLoaded.value = false
+    artRefreshing.value = false
+    artRefreshStatus.value = ''
     trioArtwork.value = {}
     loadedTrioArtwork.value = {}
     pendingTrioArtwork.value = {}
@@ -484,6 +486,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
 
   const alienArtwork = ref<Record<string, string>>({})
   const alienArtLoaded = ref(false)
+  const artRefreshing = ref(false)
+  const artRefreshStatus = ref('')
   async function loadAlienArtwork() {
     if (alienArtLoaded.value) return
     const epoch = accountEpoch
@@ -493,11 +497,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       )
       if (epoch === accountEpoch && response.success && response.data) {
         alienArtwork.value = response.data
+        alienArtLoaded.value = true
       }
     } catch {
-      if (epoch === accountEpoch) alienArtwork.value = {}
-    } finally {
-      if (epoch === accountEpoch) alienArtLoaded.value = true
+      // A failed request is retryable, not a completed art inventory.
     }
   }
   const redshirtArtwork = ref<Record<string, string>>({})
@@ -511,11 +514,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       )
       if (epoch === accountEpoch && response.success && response.data) {
         redshirtArtwork.value = response.data
+        redshirtArtLoaded.value = true
       }
     } catch {
-      if (epoch === accountEpoch) redshirtArtwork.value = {}
-    } finally {
-      if (epoch === accountEpoch) redshirtArtLoaded.value = true
+      // Keep the last verified artwork and permit a manual retry.
     }
   }
   const onboardingArt = ref<Record<string, string>>({})
@@ -555,11 +557,37 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       )
       if (epoch === accountEpoch && response.success && response.data) {
         onboardingArt.value = response.data
+        onboardingArtLoaded.value = true
       }
     } catch {
-      if (epoch === accountEpoch) onboardingArt.value = {}
+      // An unavailable painting can arrive later without reloading the game.
+    }
+  }
+  async function refreshArtwork() {
+    if (artRefreshing.value) return
+    const epoch = accountEpoch
+    artRefreshing.value = true
+    artRefreshStatus.value = ''
+    alienArtLoaded.value = false
+    redshirtArtLoaded.value = false
+    onboardingArtLoaded.value = false
+    loadedTrioArtwork.value = {}
+    try {
+      await Promise.all([
+        loadAlienArtwork(),
+        loadRedshirtArtwork(),
+        loadOnboardingArt(),
+        ...(run.value ? [loadTrioArtwork(trioKey(run.value.crew))] : []),
+      ])
+      if (epoch !== accountEpoch) return
+      artRefreshStatus.value =
+        alienArtLoaded.value &&
+        redshirtArtLoaded.value &&
+        onboardingArtLoaded.value
+          ? 'Paintings refreshed. Unapproved and unavailable art still uses placeholders.'
+          : 'Some paintings could not be checked. Your saved voyage is safe; try again.'
     } finally {
-      if (epoch === accountEpoch) onboardingArtLoaded.value = true
+      if (epoch === accountEpoch) artRefreshing.value = false
     }
   }
   // The title, opening reel and voyage UI all read the Playbook Kit settings.
@@ -1020,6 +1048,9 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     onboardingArt,
     onboardingArtLoaded,
     loadOnboardingArt,
+    artRefreshing,
+    artRefreshStatus,
+    refreshArtwork,
     trioArtwork,
     loadTrioArtwork,
     preferences,

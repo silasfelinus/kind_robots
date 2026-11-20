@@ -200,11 +200,24 @@ import { useMemoryDrownedArchiveStore } from '~/stores/memoryDrownedArchiveStore
 import { useMemoryBreathingWorksStore } from '~/stores/memoryBreathingWorksStore'
 import { useMemoryChokingWorksStore } from '~/stores/memoryChokingWorksStore'
 import { useMemoryFurnaceOfNamesStore } from '~/stores/memoryFurnaceOfNamesStore'
+import { useMemoryBriarVaultStore } from '~/stores/memoryBriarVaultStore'
+import { useMemorySpecimenStacksStore } from '~/stores/memorySpecimenStacksStore'
+import { useMemoryWellOfRecordsStore } from '~/stores/memoryWellOfRecordsStore'
+import { useMemoryBrineTunnelStore } from '~/stores/memoryBrineTunnelStore'
 import type { DungeonKind } from '~/utils/memoryDungeon/authoredDungeon/types'
 
 const props = withDefaults(
   defineProps<{
-    dungeon?: 'sublevel' | 'drowned' | 'works' | 'choking' | 'furnace'
+    dungeon?:
+      | 'sublevel'
+      | 'drowned'
+      | 'works'
+      | 'choking'
+      | 'furnace'
+      | 'briar-vault'
+      | 'specimen-stacks'
+      | 'well-of-records'
+      | 'brine-tunnel'
   }>(),
   { dungeon: 'sublevel' },
 )
@@ -218,7 +231,15 @@ const sub =
         ? useMemoryChokingWorksStore()
         : props.dungeon === 'furnace'
           ? useMemoryFurnaceOfNamesStore()
-          : useMemorySublevelStore()
+          : props.dungeon === 'briar-vault'
+            ? useMemoryBriarVaultStore()
+            : props.dungeon === 'specimen-stacks'
+              ? useMemorySpecimenStacksStore()
+              : props.dungeon === 'well-of-records'
+                ? useMemoryWellOfRecordsStore()
+                : props.dungeon === 'brine-tunnel'
+                  ? useMemoryBrineTunnelStore()
+                  : useMemorySublevelStore()
 
 function symbolFor(kind: DungeonKind): string {
   return {

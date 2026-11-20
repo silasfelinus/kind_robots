@@ -1359,3 +1359,36 @@ console.log(
   assert.ok(listed.length > 0, 'delivered manifest is empty')
   assert.equal(validateOverworldEventCatalog().length, 0)
 }
+
+// 2026-11-20 PT: every playable overworld is authored. No world may fall back
+// to recipe boilerplate (template choice outcomes; for the
+// late worlds also "District / Device" titles, which e08 uses deliberately).
+for (const id of [
+  'e01',
+  'e02',
+  'e03',
+  'e04',
+  'e05',
+  'e06',
+  'e07',
+  'e08',
+  'e09',
+  'e10',
+  'e11',
+  'e12',
+]) {
+  const recipe = worldEvents(id).filter(
+    (event) =>
+      (['e09', 'e10', 'e11', 'e12'].includes(id) && / \/ /.test(event.title)) ||
+      event.choices.some((choice) =>
+        /The care and its cost belong to this coordinate|The choice opens information while leaving a real obligation/.test(
+          choice.outcome,
+        ),
+      ),
+  )
+  assert.deepEqual(
+    recipe.map((event) => event.key),
+    [],
+    id + ' still shows recipe boilerplate',
+  )
+}

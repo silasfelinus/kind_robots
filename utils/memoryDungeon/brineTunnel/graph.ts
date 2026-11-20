@@ -1,0 +1,43 @@
+import type { BrineTunnelRoomId } from './types'
+
+/** Same 6x6 passage shape as Sublevel B; backtracking is always allowed. */
+export const BRINE_TUNNEL_GRAPH: Readonly<
+  Record<BrineTunnelRoomId, readonly BrineTunnelRoomId[]>
+> = {
+  'BT-01': ['BT-02', 'BT-07'],
+  'BT-02': ['BT-03', 'BT-08'],
+  'BT-03': ['BT-04', 'BT-09'],
+  'BT-04': ['BT-05', 'BT-10'],
+  'BT-05': ['BT-06', 'BT-11'],
+  'BT-06': ['BT-12'],
+  'BT-07': ['BT-08', 'BT-13'],
+  'BT-08': ['BT-09', 'BT-14'],
+  'BT-09': ['BT-10'],
+  'BT-10': ['BT-11', 'BT-16'],
+  'BT-11': ['BT-12', 'BT-17'],
+  'BT-12': ['BT-18'],
+  'BT-13': ['BT-14', 'BT-19'],
+  'BT-14': ['BT-15', 'BT-20'],
+  'BT-15': ['BT-16', 'BT-21'],
+  'BT-16': ['BT-17', 'BT-22'],
+  'BT-17': ['BT-18', 'BT-23'],
+  'BT-18': ['BT-24'],
+  'BT-19': ['BT-20', 'BT-25'],
+  'BT-20': ['BT-21', 'BT-26'],
+  'BT-21': ['BT-22', 'BT-27'],
+  'BT-22': ['BT-23', 'BT-28'],
+  'BT-23': ['BT-24', 'BT-29'],
+  'BT-24': ['BT-30'],
+  'BT-25': ['BT-26', 'BT-31'],
+  'BT-26': ['BT-27'],
+  'BT-27': ['BT-28'],
+  'BT-28': ['BT-29'],
+  'BT-29': ['BT-30'],
+  'BT-30': [],
+  'BT-31': ['BT-32'],
+  'BT-32': ['BT-33'],
+  'BT-33': ['BT-34'],
+  'BT-34': ['BT-35'],
+  'BT-35': ['BT-36'],
+  'BT-36': [],
+}

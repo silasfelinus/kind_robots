@@ -40,23 +40,32 @@
       @sublevel="((sublevelMode = true), (earthMode = false))"
       @drowned="((drownedMode = true), (earthMode = false))"
     />
+    <memory-dungeon-sublevel
+      v-else-if="lateDungeon"
+      :dungeon="lateDungeon"
+      @leave="lateDungeon = null"
+    />
     <memory-dungeon-briar-collision
       v-else-if="collisionMode"
       @leave="collisionMode = false"
+      @dungeon="lateDungeon = 'briar-vault'"
     />
     <memory-dungeon-earth-collision
       v-else-if="earthCollisionMode"
       @leave="earthCollisionMode = false"
+      @dungeon="lateDungeon = 'specimen-stacks'"
     />
     <memory-dungeon-finale-collision
       v-else-if="seaCollisionMode"
       world="e11"
       @leave="seaCollisionMode = false"
+      @dungeon="lateDungeon = 'well-of-records'"
     />
     <memory-dungeon-finale-collision
       v-else-if="lastRoadMode"
       world="e12"
       @leave="lastRoadMode = false"
+      @dungeon="lateDungeon = 'brine-tunnel'"
     />
     <memory-dungeon-sublevel
       v-else-if="furnaceMode"
@@ -546,6 +555,9 @@ const collisionMode = ref(false)
 const earthCollisionMode = ref(false)
 const seaCollisionMode = ref(false)
 const lastRoadMode = ref(false)
+const lateDungeon = ref<
+  'briar-vault' | 'specimen-stacks' | 'well-of-records' | 'brine-tunnel' | null
+>(null)
 const launchError = ref('')
 const classicDeckIncludesMature = ref(false)
 

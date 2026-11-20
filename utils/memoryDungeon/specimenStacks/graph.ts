@@ -1,0 +1,43 @@
+import type { SpecimenStacksRoomId } from './types'
+
+/** Same 6x6 passage shape as Sublevel B; backtracking is always allowed. */
+export const SPECIMEN_STACKS_GRAPH: Readonly<
+  Record<SpecimenStacksRoomId, readonly SpecimenStacksRoomId[]>
+> = {
+  'SP-01': ['SP-02', 'SP-07'],
+  'SP-02': ['SP-03', 'SP-08'],
+  'SP-03': ['SP-04', 'SP-09'],
+  'SP-04': ['SP-05', 'SP-10'],
+  'SP-05': ['SP-06', 'SP-11'],
+  'SP-06': ['SP-12'],
+  'SP-07': ['SP-08', 'SP-13'],
+  'SP-08': ['SP-09', 'SP-14'],
+  'SP-09': ['SP-10'],
+  'SP-10': ['SP-11', 'SP-16'],
+  'SP-11': ['SP-12', 'SP-17'],
+  'SP-12': ['SP-18'],
+  'SP-13': ['SP-14', 'SP-19'],
+  'SP-14': ['SP-15', 'SP-20'],
+  'SP-15': ['SP-16', 'SP-21'],
+  'SP-16': ['SP-17', 'SP-22'],
+  'SP-17': ['SP-18', 'SP-23'],
+  'SP-18': ['SP-24'],
+  'SP-19': ['SP-20', 'SP-25'],
+  'SP-20': ['SP-21', 'SP-26'],
+  'SP-21': ['SP-22', 'SP-27'],
+  'SP-22': ['SP-23', 'SP-28'],
+  'SP-23': ['SP-24', 'SP-29'],
+  'SP-24': ['SP-30'],
+  'SP-25': ['SP-26', 'SP-31'],
+  'SP-26': ['SP-27'],
+  'SP-27': ['SP-28'],
+  'SP-28': ['SP-29'],
+  'SP-29': ['SP-30'],
+  'SP-30': [],
+  'SP-31': ['SP-32'],
+  'SP-32': ['SP-33'],
+  'SP-33': ['SP-34'],
+  'SP-34': ['SP-35'],
+  'SP-35': ['SP-36'],
+  'SP-36': [],
+}

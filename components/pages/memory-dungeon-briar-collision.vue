@@ -12,6 +12,17 @@
         <span class="md-bar-chip">{{ collision.fragments }}/2 fragments</span>
         <div class="md-bar-end">
           <button
+            v-if="
+              collision.position === '3,6' && collision.progress.choices['3,6']
+            "
+            type="button"
+            class="btn btn-sm btn-soft btn-accent"
+            data-testid="memory-enter-briar-vault"
+            @click="emit('dungeon')"
+          >
+            Enter the memory vault
+          </button>
+          <button
             type="button"
             class="btn btn-sm btn-outline"
             @click="emit('leave')"
@@ -263,7 +274,7 @@
 import { onMounted } from 'vue'
 import { useMemoryBriarCollisionStore } from '~/stores/memoryBriarCollisionStore'
 
-const emit = defineEmits<{ leave: [] }>()
+const emit = defineEmits<{ leave: []; dungeon: [] }>()
 const collision = useMemoryBriarCollisionStore()
 
 onMounted(() => collision.hydrate())

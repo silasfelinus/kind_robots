@@ -136,8 +136,7 @@ function validChapterSave(
   if (
     save.leadSignature !== journal.lead ||
     save.perspective !== journal.perspective ||
-    (save.foilSignature !== undefined &&
-      save.foilSignature !== journal.foil)
+    (save.foilSignature !== undefined && save.foilSignature !== journal.foil)
   )
     return false
   if (index === 0)

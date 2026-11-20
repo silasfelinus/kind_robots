@@ -10,7 +10,9 @@ import {
 } from '../cometAcademy/expandedNightCases'
 import { missionRoute, missionRouteRoster } from '../cometAcademy/missionTeams'
 import { PATROL_STORIES, patrolStoryById } from '../cometAcademy/patrolStories'
-import type { PatrolZoneId } from '../cometAcademy/nightPatrols'
+import { PATROL_ZONES, type PatrolZoneId } from '../cometAcademy/nightPatrols'
+import { patrolCrewFor } from '../cometAcademy/patrolCrews'
+import { VILLAIN_HENCHMEN } from '../cometAcademy/villainHenchmen'
 import {
   COMPLETE_NIGHT_DECK,
   activePatrolStory,
@@ -413,6 +415,111 @@ const storyThreads = PATROL_STORIES.filter((story) =>
   story.choices.some((c) => Object.values(c.outcomes).some((o) => o.later)),
 )
 assert.ok(clueThreads.size + storyThreads.length >= 6, 'six multi-day threads')
+
+// The known rival's one-hit SPECIES now takes the field on a real patrol,
+// with counter, mercy and coercion choices, without replacing authored stories.
+assert.equal(VILLAIN_HENCHMEN.length, 48)
+const crewChoices = new Set<string>()
+for (const henchman of VILLAIN_HENCHMEN) {
+  const encounter = patrolCrewFor(
+    { day: 17, opponentSignature: henchman.signature },
+    'harbor',
+  )!
+  assert.ok(encounter.scene.includes(henchman.name))
+  assert.ok(encounter.scene.includes(henchman.move))
+  assert.equal(encounter.choices.length, 3)
+  for (const choice of encounter.choices) {
+    assert.ok(
+      choice.result.includes(henchman.counter) ||
+        choice.result.includes(henchman.story),
+    )
+    crewChoices.add(choice.id)
+  }
+}
+assert.equal(crewChoices.size, 144)
+assert.equal(
+  patrolCrewFor({ day: 13, opponentSignature: 'accident-fire' }, 'harbor'),
+  null,
+  'secret rival crews do not appear before reveal',
+)
+const crewBase = {
+  ...startFullAcademy('kinetic', 91),
+  day: 25,
+  phase: 'dispatch' as const,
+}
+const crewZone = PATROL_ZONES.map((zone) => zone.id).find(
+  (zone) => !activePatrolStory(crewBase, zone),
+)!
+assert.ok(crewZone, 'an available district supports the crew intervention')
+const offeredCrew = patrolOptionsFor(crewBase, crewZone).filter((option) =>
+  option.id.startsWith('crew-'),
+)
+assert.equal(offeredCrew.length, 3)
+assert.ok(patrolEncounterFor(crewBase, crewZone).scene.includes('one-hit'))
+const mercyChoice = offeredCrew.find((option) =>
+  option.id.endsWith('-mercy-intervene'),
+)!
+const coercedChoice = offeredCrew.find((option) =>
+  option.id.endsWith('-command-exploit'),
+)!
+const mercyPatrol = chooseNightPatrol(crewBase, crewZone, mercyChoice.id)
+assert.equal(mercyPatrol.nightPatrol?.choiceId, mercyChoice.id)
+assert.ok(restoreAcademy(JSON.parse(JSON.stringify(mercyPatrol))))
+const mercyDebrief = resolveDispatch(mercyPatrol)
+assert.ok(
+  mercyDebrief.patrolHistory?.some(
+    (memory) => memory.choiceId === mercyChoice.id,
+  ),
+)
+assert.ok(
+  mercyDebrief.reports.some((report) =>
+    report.text.includes('without a casualty'),
+  ),
+)
+const mercyMoment = scrapbookMoments(mercyDebrief).find((moment) =>
+  moment.title.includes('on Patrol'),
+)!
+assert.ok(mercyMoment)
+assert.ok(mercyMoment.text.includes(mercyChoice.result))
+assert.ok(restoreAcademy(JSON.parse(JSON.stringify(mercyDebrief))))
+const falseRival =
+  mercyDebrief.opponentSignature === 'psychic-water'
+    ? 'accident-fire'
+    : 'psychic-water'
+const forgedCrew = {
+  ...mercyDebrief,
+  patrolHistory: mercyDebrief.patrolHistory!.map((memory) => ({
+    ...memory,
+    choiceId: `crew-${falseRival}-mercy-intervene`,
+  })),
+}
+assert.equal(
+  restoreAcademy(JSON.parse(JSON.stringify(forgedCrew))),
+  null,
+  "a saved crew choice must match the run's actual opponent",
+)
+const exploitDebrief = resolveDispatch(
+  chooseNightPatrol(crewBase, crewZone, coercedChoice.id),
+)
+assert.equal(exploitDebrief.influence, mercyDebrief.influence + 2)
+assert.equal(exploitDebrief.danger, mercyDebrief.danger + 3)
+const laterCrew = patrolCrewFor(
+  {
+    day: 29,
+    opponentSignature: mercyDebrief.opponentSignature,
+    patrolHistory: mercyDebrief.patrolHistory,
+  },
+  crewZone,
+)
+assert.equal(laterCrew, null, 'one signature crew encounter per term')
+assert.equal(
+  patrolOptionsFor(
+    { ...mercyDebrief, day: 29, phase: 'dispatch' },
+    crewZone,
+  ).some((option) => option.id.startsWith('crew-')),
+  false,
+  'repeat patrols keep their original choice sets',
+)
 
 // ------------------------------- twelve seeds, from New Game to the finale
 const SEEDS = [3, 8, 15, 22, 29, 36, 41, 50, 63, 77, 88, 99]

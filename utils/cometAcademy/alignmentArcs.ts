@@ -151,6 +151,8 @@ export function patrolChoiceLean(choiceId: string, stance?: Lean): Lean | null {
   if (choiceId.endsWith('-intervene') || choiceId.endsWith('-secret'))
     return 'hero'
   if (choiceId.endsWith('-investigate')) return 'rogue'
+  if (choiceId.startsWith('crew-') && choiceId.endsWith('-exploit'))
+    return 'villain'
   return null
 }
 

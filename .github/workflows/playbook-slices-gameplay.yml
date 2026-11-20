@@ -22,6 +22,7 @@ on:
       - 'utils/scripts/verifyCometMissionOffers.test.ts'
       - 'utils/scripts/verifyCometAlignmentArcs.test.ts'
       - 'utils/scripts/verifyCometPatrolStories.test.ts'
+      - 'utils/scripts/verifyCometCrewPatrol.test.ts'
       - 'utils/scripts/verifyCometOctoberCast.test.ts'
       - 'utils/scripts/verifyCometConsoleScreens.test.ts'
       - 'utils/scripts/verifyCometPlaytestReadiness.test.ts'
@@ -74,6 +75,8 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: End-of-run reviews across Playbook endings
         run: npm run test:playbook-run-review
+      - name: Canonical rival crews and persistent night patrol choices
+        run: npx tsx utils/scripts/verifyCometCrewPatrol.test.ts
       - name: Academy seeded term and saved outcome verification
         run: npm run test:comet-city-academy
       - name: Early patrol morning callbacks, choices and original full campaign

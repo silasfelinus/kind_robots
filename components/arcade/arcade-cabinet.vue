@@ -557,8 +557,14 @@ const props = defineProps<{
   slug: string
   contained?: boolean
   suspended?: boolean
+  rainbowReplay?: unknown
 }>()
 const contained = computed(() => props.contained === true)
+const isRainbowReplay = computed(
+  () =>
+    props.slug === 'rainbow-bullet-hell-space-princess' &&
+    props.rainbowReplay != null,
+)
 const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 
 const store = useArcadeStore()
@@ -1174,7 +1180,13 @@ let lastSave: unknown = undefined
 
 /** Keep a long game's progress (a real game's only; demos never save). */
 function keepSave(instance: ArcadePlayableInstance | null) {
-  if (!instance || instance === demoGame || !('save' in instance)) return
+  if (
+    isRainbowReplay.value ||
+    !instance ||
+    instance === demoGame ||
+    !('save' in instance)
+  )
+    return
   const save = (instance as { save?: unknown }).save
   if (save === undefined || save === lastSave) return
   lastSave = save
@@ -1194,9 +1206,15 @@ function adopt<T extends ArcadePlayableInstance>(instance: T): T {
 /** Free a WebGL game's GPU, physics and audio resources (2D games hold none). */
 function retire(instance: ArcadePlayableInstance | null) {
   // Goals earned in a game left unfinished still count.
-  if (instance?.mastered?.length)
+  if (!isRainbowReplay.value && instance?.mastered?.length)
     store.recordMastery(props.slug, instance.mastered)
-  if (instance && instance === game && !instance.over && instance.score > 0)
+  if (
+    !isRainbowReplay.value &&
+    instance &&
+    instance === game &&
+    !instance.over &&
+    instance.score > 0
+  )
     void store.awardRunAchievements(props.slug, {
       score: instance.score,
       level: instance.level,
@@ -1278,7 +1296,10 @@ function startGame() {
       hiScore: hiScore(),
       players: players.value,
       mastery: store.masteryFor(props.slug),
-      resume: store.saveFor(props.slug),
+      resume: isRainbowReplay.value
+        ? undefined
+        : store.saveFor(props.slug),
+      rainbowReplay: isRainbowReplay.value ? props.rainbowReplay : undefined,
       rainbowHangar:
         props.slug === 'rainbow-bullet-hell-space-princess'
           ? store.rainbowHangarBonuses()
@@ -1468,21 +1489,33 @@ function tick() {
     paddleActions.value =
       'touchActions' in game ? (game.touchActions ?? {}) : {}
     const feats = game.drainFeats?.()
-    if (feats?.length) void store.awardFeats(props.slug, feats)
+    if (!isRainbowReplay.value && feats?.length)
+      void store.awardFeats(props.slug, feats)
     keepSave(game)
     syncMusic(game)
     if (game.over) {
-      if (game.mastered?.length) store.recordMastery(props.slug, game.mastered)
+      if (!isRainbowReplay.value && game.mastered?.length)
+        store.recordMastery(props.slug, game.mastered)
       lastScore = game.score
       lastLevel = game.level
-      void store.awardRunAchievements(props.slug, {
-        score: lastScore,
-        level: lastLevel,
-      })
-      qualifies =
-        ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
-        qualifiesForBoard(lastScore, board.value)
-      emit('scored', lastScore)
+      if (isRainbowReplay.value) {
+        const clear = (
+          game as {
+            replayClear?: { act: number; medal: 'bronze' | 'silver' | 'gold' } | null
+          }
+        ).replayClear
+        if (clear) store.recordRainbowReplayMedal(clear.act, clear.medal)
+        qualifies = false
+      } else {
+        void store.awardRunAchievements(props.slug, {
+          score: lastScore,
+          level: lastLevel,
+        })
+        qualifies =
+          ARCADE_GAMES.some((entry) => entry.slug === props.slug) &&
+          qualifiesForBoard(lastScore, board.value)
+        emit('scored', lastScore)
+      }
       dispatch({ type: 'gameOver' })
     }
     return
@@ -1882,6 +1915,28 @@ function render() {
   // playing, paused, gameover
   if (game) drawGame(game, g, w, h)
   g.setTransform(scale, 0, 0, scale, 0, 0)
+  if (current === 'gameover' && isRainbowReplay.value) {
+    g.fillStyle = 'rgba(11, 6, 32, 0.75)'
+    g.fillRect(0, 0, w, h)
+    const cleared = (
+      game as {
+        replayClear?: { act: number; medal: 'bronze' | 'silver' | 'gold' } | null
+      } | null
+    )?.replayClear
+    drawText(
+      g,
+      cleared ? `ACT ${cleared.act} REPLAY CLEAR` : 'REPLAY ENDED',
+      w / 2,
+      h / 2 - 20,
+      { scale: 3, align: 'center', color: '#ffd2ef', shadow: accent },
+    )
+    drawText(g, 'CAMPAIGN SAVE UNCHANGED', w / 2, h / 2 + 18, {
+      scale: 2,
+      align: 'center',
+      color: '#ffffff',
+      shadow: SHADOW,
+    })
+  }
   if (current === 'paused') {
     g.fillStyle = 'rgba(11, 6, 32, 0.6)'
     g.fillRect(0, 0, w, h)

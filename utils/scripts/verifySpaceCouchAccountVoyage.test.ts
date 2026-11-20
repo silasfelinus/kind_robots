@@ -18,6 +18,12 @@ assert.throws(
   /too large/,
 )
 assert.throws(
+  () =>
+    parseVoyageBackup('🙂'.repeat(Math.floor(VOYAGE_BACKUP_MAX_BYTES / 4) + 1)),
+  /too large/,
+  'UTF-16 character length must not defeat the UTF-8 byte limit',
+)
+assert.throws(
   () => parseVoyageBackup(JSON.stringify({ ...remote, kind: 'other-game' })),
   /Unsupported Space Couch backup format/,
 )

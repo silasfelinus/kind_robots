@@ -2112,7 +2112,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { yard: 4, 'old-houses': -4 },
               flags: ['d16-granary-requisitioned'],
             },
-            response: 'Dunmore counts sacks for the Yard while Lady Vask counts the names on the broken sale contracts. He asks for bread by noon. She asks whose seal will answer for the ruined bargain by winter. The crown’s seal is already on both orders.',
+            response:
+              'Dunmore counts sacks for the Yard while Lady Vask counts the names on the broken sale contracts. He asks for bread by noon. She asks whose seal will answer for the ruined bargain by winter. The crown’s seal is already on both orders.',
           },
           {
             id: 'buy',
@@ -2921,7 +2922,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             id: 'tax-fair',
             label: 'Let them stay, for a cut of the takings.',
             effects: { brass: 25, affinity: { saltroad: -5 } },
-            response: 'The tax clerk takes a cut of the first night’s takings before anyone has played a tune. Vesper makes a show of counting the coins twice, then juggles anyway. The Yard gets its noise, the throne gets its brass, and the fair leaves early.',
+            response:
+              'The tax clerk takes a cut of the first night’s takings before anyone has played a tune. Vesper makes a show of counting the coins twice, then juggles anyway. The Yard gets its noise, the throne gets its brass, and the fair leaves early.',
           },
           {
             id: 'decline',
@@ -3408,7 +3410,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { 'old-houses': -5, yard: 2, 'gate-watch': 2 },
               flags: ['levy-houses'],
             },
-            response: 'Lady Vask’s smile leaves her face while her steward draws up the Old House levy. Dunmark reads the names slowly enough for the gallery to hear. At the back, Dunmore puts both hands over his mouth and smiles for the first time all morning.',
+            response:
+              'Lady Vask’s smile leaves her face while her steward draws up the Old House levy. Dunmark reads the names slowly enough for the gallery to hear. At the back, Dunmore puts both hands over his mouth and smiles for the first time all morning.',
           },
           {
             id: 'no-levy',

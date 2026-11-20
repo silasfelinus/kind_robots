@@ -245,7 +245,11 @@ assert.match(overworld, /data-testid="memory-enter-scylla-sea"/)
 assert.match(sea, /data-testid="memory-sea-act"/)
 assert.match(sea, /sea\.travel\(tile\.key\)/)
 assert.match(sea, /sea\.choose\(choice\.id\)/)
-assert.match(sea, /sceneArt\.status === 'delivered'/)
+// 2026-11-20 PT: the stage loads its scene plate directly and keeps the
+// pending badge only when the plate fails to load (no manifest step).
+assert.match(sea, /:src="sea\.current\.sceneArt\.path"/)
+assert.match(sea, /@error="failedArt\.add\(sea\.current\.sceneArt\.path\)"/)
+assert.match(sea, /v-if="failedArt\.has\(sea\.current\.sceneArt\.path\)"/)
 assert.match(
   sea,
   /<memory-dungeon-choice-hand[\s\S]*?:choices="sea\.current\.choices"/,

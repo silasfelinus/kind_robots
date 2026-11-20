@@ -562,7 +562,11 @@ const world = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 assert.match(stage, /data-testid="memory-earth-act"/)
 assert.match(stage, /earth\.travel\(tile\.key\)/)
 assert.match(stage, /earth\.choose\(choice\.id\)/)
-assert.match(stage, /sceneArt\.status === 'delivered'/)
+// 2026-11-20 PT: the stage loads its scene plate directly and keeps the
+// pending badge only when the plate fails to load (no manifest step).
+assert.match(stage, /:src="earth\.current\.sceneArt\.path"/)
+assert.match(stage, /@error="failedArt\.add\(earth\.current\.sceneArt\.path\)"/)
+assert.match(stage, /v-if="failedArt\.has\(earth\.current\.sceneArt\.path\)"/)
 const hand = readFileSync(
   'components/memory-dungeon/memory-dungeon-choice-hand.vue',
   'utf8',

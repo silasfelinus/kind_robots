@@ -197,11 +197,12 @@
             Vesper’s Hoshimori · Village encounter
           </p>
           <img
-            v-if="hoshimori.sceneArt"
+            v-if="hoshimori.sceneArt && !failedArt.has(hoshimori.sceneArt)"
             :src="hoshimori.sceneArt"
             :alt="hoshimori.currentSite?.title"
             class="aspect-video w-full rounded-xl object-cover"
             data-testid="memory-hoshimori-scene-art"
+            @error="failedArt.add(hoshimori.sceneArt)"
           />
           <h3 class="text-xl font-black">{{ hoshimori.currentSite?.title }}</h3>
           <p class="text-base leading-relaxed">

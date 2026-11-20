@@ -132,10 +132,11 @@
           data-testid="memory-earth-crossroad-stage"
         >
           <img
-            v-if="collision.crossroadScene.art.status === 'delivered'"
+            v-if="!failedArt.has(collision.crossroadScene.art.path)"
             :src="collision.crossroadScene.art.path"
             :alt="collision.crossroadScene.title"
             class="absolute inset-0 h-full w-full object-cover"
+            @error="failedArt.add(collision.crossroadScene.art.path)"
           />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
@@ -151,7 +152,7 @@
             </p>
           </div>
           <span
-            v-if="collision.crossroadScene.art.status !== 'delivered'"
+            v-if="failedArt.has(collision.crossroadScene.art.path)"
             class="absolute right-2 top-2 rounded bg-[#141d25]/85 px-2 py-1 text-[10px]"
           >
             Finale illustration pending
@@ -162,10 +163,11 @@
           class="relative flex min-h-[6rem] flex-[1_1_42%] flex-col justify-end overflow-hidden border-b border-[#b8a47e]/30 bg-[linear-gradient(130deg,#36545d,#6c584c,#263a47)] p-3"
         >
           <img
-            v-if="collision.current.sceneArt.status === 'delivered'"
+            v-if="!failedArt.has(collision.current.sceneArt.path)"
             :src="collision.current.sceneArt.path"
             :alt="collision.current.title"
             class="absolute inset-0 h-full w-full object-cover"
+            @error="failedArt.add(collision.current.sceneArt.path)"
           />
           <div class="relative max-w-2xl rounded-lg bg-[#121e26]/85 p-3">
             <p
@@ -192,7 +194,7 @@
             </p>
           </div>
           <span
-            v-if="collision.current.sceneArt.status !== 'delivered'"
+            v-if="failedArt.has(collision.current.sceneArt.path)"
             class="absolute right-2 top-2 rounded bg-[#141d25]/85 px-2 py-1 text-[10px]"
           >
             Scene illustration pending
@@ -295,10 +297,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useMemoryEarthCollisionStore } from '~/stores/memoryEarthCollisionStore'
 
 const emit = defineEmits<{ leave: []; dungeon: [] }>()
+const failedArt = reactive(new Set<string>())
 const collision = useMemoryEarthCollisionStore()
 
 onMounted(() => collision.hydrate())

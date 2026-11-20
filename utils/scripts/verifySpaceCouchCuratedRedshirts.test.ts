@@ -97,18 +97,9 @@ assert.equal(
   ).length,
   1,
 )
-assert.equal(
-  new Set(REDSHIRT_ROUND3_CANDIDATES.map(([key]) => key)).size,
-  24,
-)
-assert.equal(
-  new Set(REDSHIRT_ROUND3_CANDIDATES.map(([, id]) => id)).size,
-  24,
-)
-assert.equal(
-  new Set(REDSHIRT_ROUND3_CANDIDATES.map(([, , id]) => id)).size,
-  24,
-)
+assert.equal(new Set(REDSHIRT_ROUND3_CANDIDATES.map(([key]) => key)).size, 24)
+assert.equal(new Set(REDSHIRT_ROUND3_CANDIDATES.map(([, id]) => id)).size, 24)
+assert.equal(new Set(REDSHIRT_ROUND3_CANDIDATES.map(([, , id]) => id)).size, 24)
 assert.ok(
   REDSHIRT_ROUND3_CANDIDATES.every(
     ([key, jobId, imageId]) =>
@@ -125,10 +116,7 @@ const sync = readFileSync(
   'server/api/game-of-captains/redshirt-art/sync.post.ts',
   'utf8',
 )
-const forgeStore = readFileSync(
-  'stores/playbookForgeRedshirtsStore.ts',
-  'utf8',
-)
+const forgeStore = readFileSync('stores/playbookForgeRedshirtsStore.ts', 'utf8')
 const forge = readFileSync(
   'components/playbook-forge/playbook-forge-redshirts.vue',
   'utf8',
@@ -142,5 +130,7 @@ assert.ok(sync.includes('selectIfEmpty: false'))
 assert.ok(!sync.includes('selectCandidate('))
 assert.ok(!sync.includes('setCandidateVerdict('))
 assert.ok(forgeStore.includes("'/api/game-of-captains/redshirt-art/sync'"))
-assert.ok(forge.includes('data-testid="space-couch-register-redshirt-candidates"'))
+assert.ok(
+  forge.includes('data-testid="space-couch-register-redshirt-candidates"'),
+)
 assert.ok(forge.includes('data-testid="space-couch-curate-redshirt-art"'))

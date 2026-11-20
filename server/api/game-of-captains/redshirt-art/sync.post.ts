@@ -25,16 +25,14 @@ export default defineEventHandler(async (event) => {
       select: { id: true },
     })
     const activeIds = new Set(images.map((image) => image.id))
-    const verified = REDSHIRT_ROUND3_CANDIDATES.filter(
-      ([, jobId, imageId]) => {
-        const job = byJob.get(jobId)
-        return (
-          job?.status === 'DONE' &&
-          job.artImageId === imageId &&
-          activeIds.has(imageId)
-        )
-      },
-    )
+    const verified = REDSHIRT_ROUND3_CANDIDATES.filter(([, jobId, imageId]) => {
+      const job = byJob.get(jobId)
+      return (
+        job?.status === 'DONE' &&
+        job.artImageId === imageId &&
+        activeIds.has(imageId)
+      )
+    })
     const results = await registerCandidates(
       verified.map(([key, jobId, imageId]) => ({
         slotKey: 'game-of-captains/' + key,

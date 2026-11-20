@@ -61,7 +61,7 @@ export async function resolveAuditSession({
       body: JSON.stringify({ username, password }),
     },
   )
-  let body = null
+  let body
   try {
     body = await response.json()
   } catch {

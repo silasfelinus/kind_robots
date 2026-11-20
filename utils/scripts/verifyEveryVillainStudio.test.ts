@@ -358,7 +358,9 @@ assert.deepEqual(
 const breachScript = breach.script!
 assert.equal(breachScript.scenes.length, 9)
 const breachRun = trainingState(0x51, breach, { lead: 'accident-fire' })
-assert.deepEqual(latchScenes(breachRun, breachScript, breach), ['breach-opening'])
+assert.deepEqual(latchScenes(breachRun, breachScript, breach), [
+  'breach-opening',
+])
 const breachOpening = pendingScriptScene(breachRun, breachScript)!
 assert.ok(
   walkScene(breachOpening, [], {

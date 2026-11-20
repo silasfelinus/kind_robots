@@ -1,7 +1,7 @@
 import { chanceEvent } from './dailyEvents'
 import { followerDef, itemDef } from './followers'
 import { LAST_DAY, dueDef, questDef } from './content'
-import { rerollDawn, validMapState } from './engine'
+import { partyLimit, rerollDawn, validMapState } from './engine'
 import { BUYER_IDS } from './betrayal'
 import { isCodexId } from './codex'
 import { KINGDOM_FACTIONS, LOCAL_FACTIONS } from './types'
@@ -259,6 +259,11 @@ export const validateRun = (value: unknown): value is FortressRun => {
       .filter((state) => state.departed)
       .map((state) => state.id),
   )
+  const deadIds = new Set(
+    (run.roster as { id: string; dead?: boolean }[])
+      .filter((state) => state.dead)
+      .map((state) => state.id),
+  )
   if (
     !Array.isArray(run.board) ||
     !run.board.every(
@@ -276,15 +281,20 @@ export const validateRun = (value: unknown): value is FortressRun => {
     !Array.isArray(run.active) ||
     !run.active.every((entry: unknown) => {
       if (!object(entry) || !Array.isArray(entry.party)) return false
+      const quest = typeof entry.questId === 'string' ? questDef(entry.questId) : undefined
       busy.push(...(entry.party as string[]))
       return (
         text(entry.questId, 120) &&
-        !!questDef(entry.questId) &&
-        entry.party.length >= 1 &&
-        entry.party.length <= 5 &&
+        !!quest &&
+        entry.party.length >= quest.party.min &&
+        entry.party.length <= partyLimit(quest, entry.party) &&
+        (!quest.mustInclude || entry.party.includes(quest.mustInclude)) &&
         entry.party.every(
           (id: unknown) =>
-            text(id, 10) && rosterIds.has(id) && !goneIds.has(id),
+            text(id, 10) &&
+            rosterIds.has(id) &&
+            !goneIds.has(id) &&
+            !deadIds.has(id),
         ) &&
         int(entry.departedDay, 1, day) &&
         int(entry.returnsDay, day, LAST_DAY + 4) &&

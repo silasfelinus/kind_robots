@@ -297,6 +297,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     redshirtArtLoaded.value = false
     onboardingArt.value = {}
     onboardingArtLoaded.value = false
+    onboardingArtVerified.value = false
     artRefreshing.value = false
     artRefreshStatus.value = ''
     trioArtwork.value = {}
@@ -522,6 +523,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   }
   const onboardingArt = ref<Record<string, string>>({})
   const onboardingArtLoaded = ref(false)
+  const onboardingArtVerified = ref(false)
   const trioArtwork = ref<Record<string, string>>({})
   const loadedTrioArtwork = ref<Record<string, boolean>>({})
   const pendingTrioArtwork = ref<Record<string, boolean>>({})
@@ -549,7 +551,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     }
   }
   async function loadOnboardingArt() {
-    if (onboardingArtLoaded.value) return
+    if (onboardingArtVerified.value) return
     const epoch = accountEpoch
     try {
       const response = await performFetch<Record<string, string>>(
@@ -557,10 +559,14 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       )
       if (epoch === accountEpoch && response.success && response.data) {
         onboardingArt.value = response.data
-        onboardingArtLoaded.value = true
+        onboardingArtVerified.value = true
       }
     } catch {
-      // An unavailable painting can arrive later without reloading the game.
+      // Keep the image fallback while permitting a later retry.
+    } finally {
+      // Onboarding art readiness means the request settled, not that all
+      // rendered images exist. A failed request must not freeze the UI.
+      if (epoch === accountEpoch) onboardingArtLoaded.value = true
     }
   }
   async function refreshArtwork() {
@@ -570,7 +576,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     artRefreshStatus.value = ''
     alienArtLoaded.value = false
     redshirtArtLoaded.value = false
-    onboardingArtLoaded.value = false
+    onboardingArtVerified.value = false
     loadedTrioArtwork.value = {}
     try {
       await Promise.all([
@@ -583,7 +589,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       artRefreshStatus.value =
         alienArtLoaded.value &&
         redshirtArtLoaded.value &&
-        onboardingArtLoaded.value
+        onboardingArtVerified.value
           ? 'Paintings refreshed. Unapproved and unavailable art still uses placeholders.'
           : 'Some paintings could not be checked. Your saved voyage is safe; try again.'
     } finally {

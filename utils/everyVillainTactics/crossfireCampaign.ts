@@ -17,6 +17,105 @@ export const CROSSFIRE_CHAPTERS = [
 
 export const evtCrossfireKey = 'kr-every-villain-tactics:crossfire:v1'
 
+/**
+ * A battle's authored choice is the *only* source of the next chapter's
+ * tactical callback. No parallel, user-editable campaign reputation counter.
+ * The squad keeps one wound from the last mission, while a merciful rescue
+ * grants opening cover or documented evidence exposes the opening rival.
+ */
+const CALLBACKS = [
+  {
+    help: null,
+    intel: null,
+  },
+  {
+    help: 'lab-rescued',
+    intel: 'lab-evidence',
+  },
+  {
+    help: 'crosswalk-medics',
+    intel: 'crosswalk-jammed',
+  },
+  {
+    help: 'roof-warning',
+    intel: 'roof-jammed',
+  },
+  {
+    help: 'breach-vented',
+    intel: 'breach-evidence',
+  },
+] as const
+
+export type CrossfireCarryover = {
+  effect: 'guard' | 'intel' | 'none'
+  note: string
+  wounded: string[]
+}
+
+/** This reads existing validated chapter outcomes; it does not add save keys. */
+export function crossfireCarryover(
+  battle: EvtSave,
+  previousChapter: number,
+): CrossfireCarryover {
+  const squad = battle.state.units.filter(
+    (unit) => unit.team === 'squad' && unit.hp < unit.maxHp,
+  )
+  const wounded = squad.map((unit) => unit.id)
+  const flags = battle.state.flags ?? []
+  const source = CALLBACKS[previousChapter]
+  const help =
+    previousChapter === 0
+      ? battle.story.mercy || battle.story.civilians > 0
+      : !!source?.help && flags.includes(source.help)
+  const intel =
+    previousChapter === 0
+      ? battle.story.evidence > 0
+      : !!source?.intel && flags.includes(source.intel)
+  const effect = help ? 'guard' : intel ? 'intel' : 'none'
+  const chapter = CROSSFIRE_CHAPTERS[previousChapter]?.title ?? 'The last fight'
+  const consequence =
+    effect === 'guard'
+      ? 'The people you protected warn the squad in time to take cover (+15 enemy miss chance on the opening volley).'
+      : effect === 'intel'
+        ? 'Evidence from your previous mission exposes the enemy lead (+20 hit chance on the opening volley).'
+        : 'No rescue or evidence changed the next patrol.'
+  const injuries = wounded.length
+    ? ` ${wounded.length} squadmate(s) begin the next fight with one lingering wound.`
+    : ' The squad recovers between fights.'
+  return { effect, note: `${chapter}: ${consequence}${injuries}`, wounded }
+}
+
+function applyCrossfireCarryover(
+  state: ReturnType<typeof trainingState>,
+  previous: EvtSave,
+  previousChapter: number,
+) {
+  const carry = crossfireCarryover(previous, previousChapter)
+  // No permanent HP maximum mutation: save validation and role abilities stay
+  // identical to the canonical 48-person roster. Rest between chapters heals
+  // all but one wound, never leaving a dead squadmate unplayable.
+  for (const unit of state.units.filter((unit) => unit.team === 'squad')) {
+    if (carry.wounded.includes(unit.id))
+      unit.hp = Math.max(1, unit.maxHp - 1)
+  }
+  if (carry.effect === 'guard') {
+    const lead = state.units.find(
+      (unit) => unit.team === 'squad' && unit.id === 'backdraft',
+    )
+    if (lead && !lead.statuses.includes('guarded'))
+      lead.statuses.push('guarded')
+  } else if (carry.effect === 'intel') {
+    const rival = state.units.find(
+      (unit) => unit.team === 'rival' && unit.hp > 0,
+    )
+    if (rival && !rival.statuses.includes('marked'))
+      rival.statuses.push('marked')
+  }
+  state.log = carry.note
+  state.events = [carry.note, ...state.events].slice(0, 6)
+}
+
+
 export type CrossfireJournal = {
   version: 1
   lead: SignaturePowerId
@@ -145,15 +244,17 @@ export function advanceCrossfire(
   const stage = clonePreset(CROSSFIRE_CHAPTERS[chapter]!.id)
   const story = createStory()
   story.current = null
+  const nextState = trainingState(0x53a1b7 + chapter * 997, stage, {
+    lead: verified.lead,
+    foil: verified.foil ?? undefined,
+  })
+  applyCrossfireCarryover(nextState, verified.active, verified.chapter)
   const active = createSave({
     slot: 'auto',
     perspective: verified.perspective,
     leadSignature: verified.lead,
     stage,
-    state: trainingState(0x53a1b7 + chapter * 997, stage, {
-      lead: verified.lead,
-      foil: verified.foil ?? undefined,
-    }),
+    state: nextState,
     story,
   })
   const next = {

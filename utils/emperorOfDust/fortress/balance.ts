@@ -276,6 +276,12 @@ export type CampaignObserver = {
     option: AudienceOption,
     run: FortressRun,
   ) => void
+  onQuestAssigned?: (
+    day: number,
+    questId: string,
+    party: readonly string[],
+    run: FortressRun,
+  ) => void
   onQuestReport?: (day: number, report: QuestReport, run: FortressRun) => void
 }
 
@@ -429,6 +435,7 @@ export const playCampaign = (
       if (!party) continue
       try {
         run = assignQuest(run, entry.questId, party)
+        observer?.onQuestAssigned?.(run.day, entry.questId, party, run)
       } catch {
         // A party the engine refuses (a rule the bot does not model) stays home.
       }

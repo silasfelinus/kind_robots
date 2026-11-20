@@ -35,7 +35,7 @@ incrementally to existing games, galleries, and tools as they are touched.
 ## Guest-only cause invitation on shareable one-shot pages
 
 For public, single-purpose experiences designed to spread through shared links,
-include `<SupportGuestFundraiserStrip />` once near the output or sharing controls.
+include `<GuestFundraiserStrip />` once near the output or sharing controls.
 The shared component shows a small Against Malaria Foundation invitation only to
 guests, and uses the canonical fundraiser URL and support click tracking. It is
 not an ad, interstitial, gate, or prerequisite to using or sharing the tool.

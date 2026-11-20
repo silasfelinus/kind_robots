@@ -134,6 +134,6 @@ const memePage = readFileSync(
   new URL('../../pages/play/index.vue', import.meta.url),
   'utf8',
 )
-assert.match(memePage, /<SupportGuestFundraiserStrip\s*\/>/)
+assert.match(memePage, /<GuestFundraiserStrip\s*\/>/)
 
 console.log('Support share contract verified')

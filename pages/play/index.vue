@@ -118,7 +118,7 @@
               Reset
             </button>
           </div>
-          <SupportGuestFundraiserStrip />
+          <GuestFundraiserStrip />
           <p v-if="feedback" class="text-xs" role="status">
             {{ feedback }}
           </p>

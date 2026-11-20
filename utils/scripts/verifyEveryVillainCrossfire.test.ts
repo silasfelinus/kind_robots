@@ -510,10 +510,7 @@ for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
     ),
   )
   assert.equal(passages[0]!.choice, 'rescue')
-  assert.equal(
-    passages[1]!.choice,
-    chapter === 5 ? 'command' : 'evidence',
-  )
+  assert.equal(passages[1]!.choice, chapter === 5 ? 'command' : 'evidence')
   assert.equal(passages[2]!.choice, 'command')
   assert.ok(
     passages.every(
@@ -595,12 +592,7 @@ const signedOrder = finalNarrative(
   'command',
 )
 assert.deepEqual(
-  [
-    openedDoors.path,
-    blackBox.path,
-    unfinished.path,
-    signedOrder.path,
-  ],
+  [openedDoors.path, blackBox.path, unfinished.path, signedOrder.path],
   ['open-doors', 'black-box', 'unfinished', 'signed-order'],
 )
 assert.equal(

@@ -90,12 +90,10 @@ function branchFor(
     if (battle.story.mercy || battle.story.civilians > 0) return 'rescue'
     return battle.story.evidence > 0 ? 'evidence' : 'command'
   }
-  if (index === 5)
-    return flags.includes('prom-shelter') ? 'rescue' : 'command'
+  if (index === 5) return flags.includes('prom-shelter') ? 'rescue' : 'command'
   const choice = CHOICES[index]
   if (choice?.rescue && flags.includes(choice.rescue)) return 'rescue'
-  if (choice?.evidence && flags.includes(choice.evidence))
-    return 'evidence'
+  if (choice?.evidence && flags.includes(choice.evidence)) return 'evidence'
   return 'command'
 }
 
@@ -143,9 +141,7 @@ export function crossfireFinale(
     return null
   const previous = journal.completed.slice(0, 5)
   if (previous.length !== 5) return null
-  const choices = previous.map((save: EvtSave, index) =>
-    branchFor(index, save),
-  )
+  const choices = previous.map((save: EvtSave, index) => branchFor(index, save))
   const protectedPeople = choices.filter((choice) => choice === 'rescue').length
   const exposedOrders = choices.filter((choice) => choice === 'evidence').length
   const last = branchFor(5, current)

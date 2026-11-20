@@ -6,7 +6,10 @@ import {
   rainbowGuardianWarning,
   stepRainbowGuardian,
 } from '../arcade/games/rainbowGuardian'
-import { readRainbowSave, type RainbowSave } from '../arcade/games/rainbowLoadouts'
+import {
+  readRainbowSave,
+  type RainbowSave,
+} from '../arcade/games/rainbowLoadouts'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
 import {
@@ -125,10 +128,7 @@ console.log(
   `Lantern Nursery runtime: ${total} craft in ${seen.size} live low-route waves`,
 )
 
-const window = nurseryGuardianWindow(
-  TRENCH_FORK.decideAt,
-  TRENCH_FORK.rejoinAt,
-)
+const window = nurseryGuardianWindow(TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt)
 assert.ok(window.from > TRENCH_FORK.decideAt)
 assert.equal(window.to, TRENCH_FORK.rejoinAt)
 assert.ok(window.to - window.from > 240)
@@ -172,9 +172,9 @@ const checkpointFrames = actCheckpoints(
   trenchSections('safe', true),
   TRENCH_FORK.rejoinAt,
 )
-const beforeGuardian = checkpointFrames.filter(
-  (frame) => frame <= window.from,
-).at(-1)!
+const beforeGuardian = checkpointFrames
+  .filter((frame) => frame <= window.from)
+  .at(-1)!
 const savedFlight: RainbowSave = {
   v: 1,
   difficulty: 'easy',
@@ -201,8 +201,9 @@ const savedFlight: RainbowSave = {
   guardians: { 1: 'escaped', 2: 'escaped', 3: 'escaped' },
   medals: {},
 }
-const accepted = readRainbowSave(savedFlight, (act, frame) =>
-  act === 3 && checkpointFrames.includes(frame),
+const accepted = readRainbowSave(
+  savedFlight,
+  (act, frame) => act === 3 && checkpointFrames.includes(frame),
 )
 assert.equal(accepted?.checkpoint.nurseryGuardianOutcome, 'waiting')
 assert.equal(
@@ -260,6 +261,9 @@ for (let frame = 0; frame < 2000; frame++) {
   }
   if (state.act !== 'S03' || state.actThreeFrame >= window.to) break
 }
-assert.ok(reached, 'four-player saved flight encounters Matriarch in the actual engine')
+assert.ok(
+  reached,
+  'four-player saved flight encounters Matriarch in the actual engine',
+)
 
 console.log('Rainbow Lantern Nursery guardian integration contracts passed')

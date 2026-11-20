@@ -115,8 +115,7 @@ export function nurseryGuardianWindow(
     from:
       routeStart +
       Math.ceil(
-        ((NURSERY_GUARDIAN.from - NURSERY.openingEnds) * duration) /
-          authored,
+        ((NURSERY_GUARDIAN.from - NURSERY.openingEnds) * duration) / authored,
       ),
     to: routeEnd,
   }

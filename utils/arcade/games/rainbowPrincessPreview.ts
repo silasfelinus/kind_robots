@@ -2537,8 +2537,7 @@ export function createRainbowPrincessPreview(
       )
       // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
       guardian = null
-      nurseryGuardianOutcome =
-        checkpoint.nurseryGuardianOutcome ?? 'waiting'
+      nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
       // The finale has no guardian.
       if (
         checkpoint.act !== 9 &&
@@ -2573,8 +2572,7 @@ export function createRainbowPrincessPreview(
       rescuedNemi = checkpoint.rescuedNemi
       trenchRoute = checkpoint.trenchRoute
       routeSettled = checkpoint.routeSettled
-      nurseryGuardianOutcome =
-        checkpoint.nurseryGuardianOutcome ?? 'waiting'
+      nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
       rescuedCourier = checkpoint.rescuedCourier
       // The escort replays when the checkpoint is before the pod set off.
       if (checkpoint.act === 4 && checkpoint.frame <= ROSEFIN_ESCORT.podAppears)
@@ -3796,8 +3794,7 @@ export function createRainbowPrincessPreview(
           settleTrenchRoute()
         passCheckpoint(3, frame)
         summonGuardian(3, frame, TRENCH_GUARDIAN)
-        if (trenchRoute === 'safe' && rescuedNemi)
-          summonNurseryGuardian(frame)
+        if (trenchRoute === 'safe' && rescuedNemi) summonNurseryGuardian(frame)
       }
       if (stage === 'waves') {
         for (const entry of trenchSpawns(frame, trenchRoute, rescuedNemi)) {

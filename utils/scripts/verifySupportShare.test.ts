@@ -124,7 +124,10 @@ assert.doesNotMatch(
 )
 
 const guestInvite = readFileSync(
-  new URL('../../components/support/guest-fundraiser-strip.vue', import.meta.url),
+  new URL(
+    '../../components/support/guest-fundraiser-strip.vue',
+    import.meta.url,
+  ),
   'utf8',
 )
 assert.match(guestInvite, /v-if="userStore\.isGuest"/)

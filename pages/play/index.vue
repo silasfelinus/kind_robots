@@ -74,7 +74,9 @@
             />
           </label>
 
-          <div class="flex items-center justify-between gap-2 text-xs opacity-65">
+          <div
+            class="flex items-center justify-between gap-2 text-xs opacity-65"
+          >
             <span>The original permanent-ban line stays intact.</span>
             <span class="shrink-0 tabular-nums">{{ reason.length }}/220</span>
           </div>

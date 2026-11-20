@@ -17,9 +17,8 @@
         rel="noopener noreferrer"
         @click="support.markGave()"
       >
-        support our malaria fundraiser
-      </a>.
-      Donations go straight to the Against Malaria Foundation.
+        support our malaria fundraiser </a
+      >. Donations go straight to the Against Malaria Foundation.
     </p>
   </section>
 </template>

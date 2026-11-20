@@ -357,35 +357,35 @@ assert.deepEqual(
 )
 const breachScript = breach.script!
 assert.equal(breachScript.scenes.length, 9)
-const tunnel = trainingState(0x51, breach, { lead: 'accident-fire' })
-assert.deepEqual(latchScenes(tunnel, breachScript, breach), ['breach-opening'])
-const breachOpening = pendingScriptScene(tunnel, breachScript)!
+const breachRun = trainingState(0x51, breach, { lead: 'accident-fire' })
+assert.deepEqual(latchScenes(breachRun, breachScript, breach), ['breach-opening'])
+const breachOpening = pendingScriptScene(breachRun, breachScript)!
 assert.ok(
   walkScene(breachOpening, [], {
-    state: tunnel,
+    state: breachRun,
     perspective: 'hero',
   })!.nodes.some((node) => node.id === 'oh'),
 )
 assert.ok(
   walkScene(breachOpening, [], {
-    state: tunnel,
+    state: breachRun,
     perspective: 'villain',
   })!.nodes.some((node) => node.id === 'ov'),
 )
-assert.ok(finishScene(tunnel, breachOpening, [], 'hero'))
-tunnel.turn = 2
-assert.ok(latchScenes(tunnel, breachScript, breach).includes('breach-fork'))
+assert.ok(finishScene(breachRun, breachOpening, [], 'hero'))
+breachRun.turn = 2
+assert.ok(latchScenes(breachRun, breachScript, breach).includes('breach-fork'))
 const fork = breachScript.scenes.find((scene) => scene.id === 'breach-fork')!
-assert.equal(walkScene(fork, [], { state: tunnel })?.done, false)
-const injured = tunnel.units[0]!
+assert.equal(walkScene(fork, [], { state: breachRun })?.done, false)
+const injured = breachRun.units[0]!
 injured.hp = injured.maxHp - 1
-assert.ok(finishScene(tunnel, fork, [0], 'hero'))
-assert.ok(tunnel.flags?.includes('breach-vented'))
+assert.ok(finishScene(breachRun, fork, [0], 'hero'))
+assert.ok(breachRun.flags?.includes('breach-vented'))
 assert.equal(injured.hp, injured.maxHp)
 assert.ok(
-  latchScenes(tunnel, breachScript, breach).includes('breach-vent-result'),
+  latchScenes(breachRun, breachScript, breach).includes('breach-vent-result'),
 )
-assert.equal(finishScene(tunnel, fork, [1], 'hero'), false)
+assert.equal(finishScene(breachRun, fork, [1], 'hero'), false)
 const sabotage = trainingState(0x51, breach, { lead: 'alien-air' })
 sabotage.turn = 2
 latchScenes(sabotage, breachScript, breach)
@@ -406,7 +406,7 @@ const breachEnding = breachScript.scenes.find(
 )!
 assert.ok(
   walkScene(breachEnding, [], {
-    state: tunnel,
+    state: breachRun,
     perspective: 'hero',
   })!.nodes.some((node) => node.id === 'wv'),
 )

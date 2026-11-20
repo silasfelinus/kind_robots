@@ -28,4 +28,11 @@ assert.ok(
   'rejected candle-dish render must not ship',
 )
 
+// 2026-11-20 PT curation of ITEMS-ROUND-3 kept twelve; eight reroll in ROUND-4.
+assert.ok(ITEM_ART.has('ledger-abacus'))
+assert.ok(
+  !ITEM_ART.has('lockpick-roll'),
+  'rejected trousers-and-knife render must not ship',
+)
+
 console.log(`Emperor item art: ${ITEM_ART.size} icons verified`)

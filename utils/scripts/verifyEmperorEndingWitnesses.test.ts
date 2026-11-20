@@ -25,10 +25,7 @@ import type { SceneLine } from '../emperorOfDust/fortress/types'
  * This is model-simulation evidence, not independent editorial acceptance.
  */
 const endingIds = Object.keys(ENDINGS).sort() as EndingId[]
-const witnessSeeds = new Map<
-  EndingId,
-  { policy: Policy; seed: number }
->()
+const witnessSeeds = new Map<EndingId, { policy: Policy; seed: number }>()
 
 for (const policy of POLICIES) {
   for (let seed = 1; seed <= 10; seed += 1) {
@@ -170,9 +167,19 @@ for (const endingId of endingIds) {
       onAudienceScene: (day, audienceId, beatId, lines) => {
         courtScenes += 1
         const prose = linesOf(lines)
-        append(day, 'court-scene', { audience_id: audienceId, beat_id: beatId ?? null, prose })
+        append(day, 'court-scene', {
+          audience_id: audienceId,
+          beat_id: beatId ?? null,
+          prose,
+        })
         transcript.push(
-          '### ' + audienceId + ' / ' + (beatId ?? 'opening') + '\n\n' + prose + '\n',
+          '### ' +
+            audienceId +
+            ' / ' +
+            (beatId ?? 'opening') +
+            '\n\n' +
+            prose +
+            '\n',
         )
       },
       onAudienceChoice: (day, audienceId, option, run) => {

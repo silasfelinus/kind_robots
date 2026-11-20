@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
+import { dayBriefings, dayLines } from '../emperorOfDust/fortress/briefings'
+import { dayDef } from '../emperorOfDust/fortress/content'
 import {
   decodeBook,
   encodeBook,
@@ -108,6 +110,22 @@ for (const policyId of policyIds) {
         })
         transcript.push(
           `\n## Day ${run.day} | ${run.brass} brass | ${run.roster.length} followers | ${run.memorials.length} memorials\n`,
+        )
+        const briefings = dayBriefings(run) ?? []
+        const advisor = dayLines(run, dayDef(run.day))
+        append(run.day, 'intelligence', {
+          advisor,
+          reports: briefings,
+          played_rumour_challenge: false,
+        })
+        if (advisor.komodo) transcript.push(
+          `**Young Komodo:** ${advisor.komodo}\n`,
+        )
+        if (advisor.whisper) transcript.push(
+          `**${advisor.whisper.source}:** ${advisor.whisper.text}\n`,
+        )
+        for (const briefing of briefings) transcript.push(
+          `**Dispatch, ${briefing.source}:** ${briefing.text}\n`,
         )
         if (saveDays.includes(run.day)) {
           const restored = decodeBook(encodeBook(book))

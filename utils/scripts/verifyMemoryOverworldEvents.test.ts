@@ -12,6 +12,11 @@ import {
   worldEvents,
 } from '../memoryDungeon/overworldEventCatalog'
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
+import {
+  DELIVERED_EVENT_ART_PATHS,
+  eventArtStatus,
+} from '../memoryDungeon/deliveredEventArt'
+import deliveredManifest from '../memoryDungeon/deliveredEventArt.json'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
 import { briarCollisionWitnessCallback } from '../memoryDungeon/briarCollisionWitness'
@@ -83,7 +88,7 @@ for (let n = 1; n <= 12; n++) {
       assert.ok(choice.outcome.length > 35)
       assert.notEqual(choice.flag, '')
       assert.ok(choice.art.path.includes(event.key.replace(',', '-')))
-      assert.equal(choice.art.status, 'placeholder')
+      assert.equal(choice.art.status, eventArtStatus(choice.art.path))
     }
   }
   if (!['e01', 'e02', 'e07'].includes(id)) {
@@ -208,7 +213,7 @@ for (const [key, scene] of routeSites) {
   assert.equal(event.opening, scene.opening)
   assert.equal(event.speaker, scene.speaker)
   assert.equal(event.kind, scene.kind)
-  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.equal(event.sceneArt.status, eventArtStatus(event.sceneArt.path))
   assert.equal(event.choices.length, 2)
   assert.equal(event.memoryFragment, undefined)
   assert.deepEqual(
@@ -725,7 +730,7 @@ for (const scene of earthScenes) {
   assert.equal(event.title, scene.title)
   assert.equal(event.opening, scene.opening)
   assert.equal(event.choices.length, 3)
-  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.equal(event.sceneArt.status, eventArtStatus(event.sceneArt.path))
   assert.ok(scene.puzzle.length > 200, 'The evidence puzzle needs fair clues')
   assert.equal(new Set(scene.choices.map((choice) => choice.flag)).size, 3)
   for (const choice of scene.choices) {
@@ -765,7 +770,7 @@ for (const [key, scene] of e10RouteSites) {
   assert.equal(event.choices.length, 2)
   assert.ok(scene.opening.length > 200, key + ' needs a developed opening')
   assert.ok(scene.artSubject.length > 70, key + ' needs visual direction')
-  assert.equal(event.sceneArt.status, 'placeholder')
+  assert.equal(event.sceneArt.status, eventArtStatus(event.sceneArt.path))
   assert.ok(event.sceneArt.prompt.includes(scene.artSubject))
   for (const choice of event.choices) {
     assert.ok(choice.outcome.length > 180, key + ' needs a real aftermath')
@@ -778,7 +783,7 @@ for (const [key, scene] of e10RouteSites) {
     e10RouteFlags.add(choice.flag)
     e10RouteOutcomes.add(choice.outcome)
     assert.ok(choice.art.prompt.includes(choice.label))
-    assert.equal(choice.art.status, 'placeholder')
+    assert.equal(choice.art.status, eventArtStatus(choice.art.path))
     const [x, y] = key.split(',').map(Number) as [number, number]
     const journal: EarthJournalAction[] = []
     for (let step = 2; step <= x; step++)
@@ -1312,3 +1317,44 @@ for (const site of worldEvents('e08')) {
 console.log(
   'Memory overworld reveal catalog: 768 cells, 12 graphs, fixed photos and no duplicate rewards passed',
 )
+
+// t-074 (2026-11-20 PT): delivered event art is displayed, not hidden behind a
+// hard-coded 'placeholder'. The committed manifest lists only catalog paths,
+// sorted and unique, and the catalog marks exactly those paths delivered.
+{
+  const catalogPaths = new Set<string>()
+  for (const event of OVERWORLD_EVENT_CATALOG) {
+    for (const image of [
+      event.sceneArt,
+      event.portrait,
+      ...event.choices.map((c) => c.art),
+    ]) {
+      catalogPaths.add(image.path)
+      assert.equal(
+        image.status,
+        DELIVERED_EVENT_ART_PATHS.includes(image.path)
+          ? 'delivered'
+          : 'placeholder',
+        image.path,
+      )
+    }
+  }
+  catalogPaths.add('/images/memory-dungeon/e10/evacuation-forecast.webp')
+  for (let i = 1; i <= 2; i++)
+    catalogPaths.add(
+      '/images/memory-dungeon/e10/evacuation-forecast-choice-' + i + '.webp',
+    )
+  const listed = deliveredManifest.paths
+  assert.deepEqual(
+    listed,
+    [...new Set(listed)].sort(),
+    'manifest sorted/unique',
+  )
+  for (const artPath of listed)
+    assert.ok(
+      catalogPaths.has(artPath),
+      'manifest path not in catalog: ' + artPath,
+    )
+  assert.ok(listed.length > 0, 'delivered manifest is empty')
+  assert.equal(validateOverworldEventCatalog().length, 0)
+}

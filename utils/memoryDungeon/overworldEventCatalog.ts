@@ -23,6 +23,7 @@ import { UNBELIEVING_CITY_BY_KEY } from './unbelievingCity'
 import { SCYLLAS_SHORE_BY_KEY } from './scyllasShore'
 import { UNDERTIDE_CROWN_BY_KEY } from './undertideCrown'
 import { BRIAR_SITES } from '../memoryDungeonWorld'
+import { eventArtStatus } from './deliveredEventArt'
 
 export type OverworldKind =
   | 'memory'
@@ -125,15 +126,16 @@ function art(
   action: string,
   style: string,
 ): OverworldArt {
+  const path =
+    '/images/memory-dungeon/events/' +
+    experience +
+    '-' +
+    key.replace(',', '-') +
+    '-' +
+    slug(action) +
+    '.webp'
   return {
-    path:
-      '/images/memory-dungeon/events/' +
-      experience +
-      '-' +
-      key.replace(',', '-') +
-      '-' +
-      slug(action) +
-      '.webp',
+    path,
     prompt:
       'Original illustration, ' +
       style +
@@ -144,7 +146,7 @@ function art(
       '. ' +
       action +
       '. Cinematic staging, legible human expressions and physical actions, no text, no lettering, no collage.',
-    status: 'placeholder',
+    status: eventArtStatus(path),
   }
 }
 function category(x: number, y: number): OverworldKind {
@@ -800,7 +802,10 @@ export function validateOverworldEventCatalog(): string[] {
         if (artPaths.has(image.path))
           problems.push(image.path + ': duplicate art')
         artPaths.add(image.path)
-        if (image.prompt.length < 80 || image.status !== 'placeholder')
+        if (
+          image.prompt.length < 80 ||
+          image.status !== eventArtStatus(image.path)
+        )
           problems.push(image.path + ': incomplete art contract')
       }
     }

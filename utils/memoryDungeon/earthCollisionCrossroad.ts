@@ -1,5 +1,5 @@
 import { replayEarthJournal } from './earthJournal'
-import type { OverworldArt } from './overworldEventCatalog'
+import { eventArtStatus } from './deliveredEventArt'
 import earthCollision from './earthCollision.json'
 import {
   earthCollisionHistory,
@@ -18,7 +18,9 @@ export const EARTH_CROSSROAD_SCENE = {
   speaker: 'Morrow, Mara, Oren and the station clerk',
   art: {
     path: '/images/memory-dungeon/e10/evacuation-forecast.webp',
-    status: 'placeholder' as OverworldArt['status'],
+    status: eventArtStatus(
+      '/images/memory-dungeon/e10/evacuation-forecast.webp',
+    ),
     prompt:
       'Wide painted dark-fairytale illustration of a midnight city clock tower welded to a fluorescent research office, an evacuation board showing two diverging routes, Morrow and a diverse night shift confronting a glowing predictive machine, commuters waiting beneath forest roots, cinematic warm lanterns and cold blue monitors, no typography',
   },
@@ -32,7 +34,11 @@ export const EARTH_CROSSROAD_CHOICES = MEMORY_PAIR_ENDINGS.e10.map(
         '/images/memory-dungeon/e10/evacuation-forecast-choice-' +
         (index + 1) +
         '.webp',
-      status: 'placeholder' as OverworldArt['status'],
+      status: eventArtStatus(
+        '/images/memory-dungeon/e10/evacuation-forecast-choice-' +
+          (index + 1) +
+          '.webp',
+      ),
       prompt:
         index === 0
           ? 'Painterly cinematic illustration of Morrow smashing a glowing evacuation prediction ledger while Mara leads workers toward an open fire exit, Oren holds a lantern over a hand-drawn rescue map, lost route diagrams dissolving into autumn leaves, dark fairytale science fantasy, no typography'

@@ -1752,7 +1752,7 @@ const waveCrews: Array<{ value: WaveCrew; label: string }> = [
 /** One glyph for the strongest live stage rule on a tile. */
 function fieldGlyph(cell: Cell): string {
   if (store.state.stageId === 'last-order' && cell.x === 4 && cell.y === 2)
-    return store.state.flags.includes('diner-hood-vented') ? '✓' : '♨'
+    return (store.state.flags ?? []).includes('diner-hood-vented') ? '✓' : '♨'
   const mark = store.fieldAt(cell)
   if (!mark) return ''
   if (mark.floor === 'rubble') return '▓'
@@ -2007,7 +2007,7 @@ function cellDescription(cell: Cell) {
 }
 function baseCellDescription(cell: Cell) {
   if (store.state.stageId === 'last-order' && cell.x === 4 && cell.y === 2)
-    return store.state.flags.includes('diner-hood-vented')
+    return (store.state.flags ?? []).includes('diner-hood-vented')
       ? 'KITCHEN HOOD, column 5, row 3. Vented. The cook can now be evacuated.'
       : 'KITCHEN HOOD, column 5, row 3. Aim Backdraft Flare through this tile to vent the smoke before rescuing Mara.'
   const unit = actorAt(store.state, cell)

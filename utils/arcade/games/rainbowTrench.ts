@@ -92,13 +92,25 @@ const AUTHORED_TRENCH_SAFE_SECTIONS = [
 /** The Act's sections as the crew flies them: the safe passage swaps in its own four. */
 export function trenchSections(
   route: TrenchRoute | null,
+  rescuedNemi = false,
 ): ReadonlyArray<{ name: string; from: number; to: number }> {
   if (route !== 'safe') return TRENCH_SECTIONS
-  return TRENCH_SECTIONS.map(
-    (section) =>
-      TRENCH_SAFE_SECTIONS.find((safe) => safe.from === section.from) ??
-      section,
-  )
+  const nurseryNames = [
+    'Luminous eggs',
+    'Sleeping shoal',
+    'Broken lanterns',
+    'Nursery heart',
+  ] as const
+  return TRENCH_SECTIONS.map((section) => {
+    const safeIndex = TRENCH_SAFE_SECTIONS.findIndex(
+      (safe) => safe.from === section.from,
+    )
+    if (safeIndex < 0) return section
+    const safe = TRENCH_SAFE_SECTIONS[safeIndex]!
+    return rescuedNemi
+      ? { ...safe, name: nurseryNames[safeIndex] ?? safe.name }
+      : safe
+  })
 }
 
 /** The Clawstrike guardian holds the Act after the vault-approach remix; no waves fly in its section. */

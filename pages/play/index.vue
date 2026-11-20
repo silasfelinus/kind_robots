@@ -26,10 +26,10 @@
       </header-page-bar>
 
       <div
-        class="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_auto] gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,21rem)] lg:grid-rows-1"
+        class="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] sm:grid-rows-1 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,21rem)]"
       >
         <section
-          class="flex min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-2xl border border-base-content/20 bg-[#0f0e1d] p-1 shadow-xl sm:p-3"
+          class="relative flex min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-2xl border border-base-content/20 bg-[#0f0e1d] p-1 shadow-xl sm:p-3"
           aria-label="Live meme preview"
         >
           <canvas

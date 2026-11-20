@@ -207,10 +207,7 @@ assert.equal(
   assert.deepEqual(go.snapshot.pilots, [3], 'continuing flies the saved pilot')
   assert.equal(go.snapshot.selectMenu, null)
   const duet = { ...kept, pilot: 0, pilots: [0, 2] }
-  assert.deepEqual(
-    readRainbowSave(duet, isRainbowCheckpoint)?.pilots,
-    [0, 2],
-  )
+  assert.deepEqual(readRainbowSave(duet, isRainbowCheckpoint)?.pilots, [0, 2])
   const continued = create({ players: 2, selectScreen: true, resume: duet })
   for (let i = 0; i < 25; i++) continued.update(emptyInput())
   continued.update(press('a'))

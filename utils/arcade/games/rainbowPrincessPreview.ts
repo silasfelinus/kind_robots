@@ -908,7 +908,11 @@ export type RainbowCombatSnapshot = {
   /** The continue/new menu's highlighted line (0 continue, 1 new flight), or null when it is not shown. */
   resumeMenu: 0 | 1 | null
   /** The pilot and difficulty select, or null when it is not shown. */
-  selectMenu: { row: number; pilot: number; difficulty: ArcadeDifficulty } | null
+  selectMenu: {
+    row: number
+    pilot: number
+    difficulty: ArcadeDifficulty
+  } | null
   /** The pilot each seat flies (RAINBOW_PILOTS index). */
   pilots: readonly number[]
   enemies: ReadonlyArray<Readonly<Reef>>
@@ -3507,8 +3511,7 @@ export function createRainbowPrincessPreview(
       const direction = Number(pressed('down')) - Number(pressed('up'))
       if (direction) {
         selectMenu.row =
-          (selectMenu.row + direction + activePlayers + 1) %
-          (activePlayers + 1)
+          (selectMenu.row + direction + activePlayers + 1) % (activePlayers + 1)
         options.sound.play('blip')
       }
       const step = Number(pressed('right')) - Number(pressed('left'))
@@ -3534,8 +3537,7 @@ export function createRainbowPrincessPreview(
           const seat = selectMenu.row
           const previous = selectMenu.pilots[seat]!
           let candidate =
-            (previous + step + RAINBOW_PILOTS.length) %
-            RAINBOW_PILOTS.length
+            (previous + step + RAINBOW_PILOTS.length) % RAINBOW_PILOTS.length
           for (let tried = 0; tried < RAINBOW_PILOTS.length; tried++) {
             if (
               !selectMenu.pilots.some(
@@ -3544,14 +3546,12 @@ export function createRainbowPrincessPreview(
             )
               break
             candidate =
-              (candidate + step + RAINBOW_PILOTS.length) %
-              RAINBOW_PILOTS.length
+              (candidate + step + RAINBOW_PILOTS.length) % RAINBOW_PILOTS.length
           }
           if (candidate === previous) {
             // Four pilots fill every seat: swap roles without duplicating ships.
             candidate =
-              (previous + step + RAINBOW_PILOTS.length) %
-              RAINBOW_PILOTS.length
+              (previous + step + RAINBOW_PILOTS.length) % RAINBOW_PILOTS.length
             const other = selectMenu.pilots.indexOf(candidate)
             if (other >= 0) selectMenu.pilots[other] = previous
           }

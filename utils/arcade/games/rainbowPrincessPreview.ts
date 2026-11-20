@@ -52,6 +52,7 @@ import {
   rainbowLook,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
+import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
@@ -5565,24 +5566,27 @@ export function createRainbowPrincessPreview(
           }
         }
       }
-      // Near coral plane: keyed painted strip along the floor, behind every enemy, shot and ship.
+      // Distant painted silhouettes drift behind the brighter coral foreground.
+      const stage = (
+        [
+          's01',
+          's02',
+          's03',
+          's04',
+          's05',
+          's06',
+          's07',
+          's08',
+          's08',
+        ] as const
+      )[currentAct() - 1]!
+      drawRainbowDistantParallax(g, stage, actFrame(currentAct()), drift, H, W)
+      // The bright near coral strip remains behind enemies, shots and ships.
       g.save()
       g.globalAlpha = 0.92
       drawRainbowStageStrip(
         g,
-        (
-          [
-            's01',
-            's02',
-            's03',
-            's04',
-            's05',
-            's06',
-            's07',
-            's08',
-            's08',
-          ] as const
-        )[currentAct() - 1]!,
+        stage,
         actFrame(currentAct()) * STRIP_SPEED * drift,
         H - STRIP_HEIGHT,
         STRIP_HEIGHT,

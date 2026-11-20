@@ -337,15 +337,24 @@ export function trainingState(
   ) {
     rival.identity = options.foil
     if (isCrossfireFoilStage(stage ?? null)) {
-      // A named foil cannot simultaneously be another enemy unit. Replace
-      // only the duplicate supporting rival; First Bell and standalone
-      // saves keep their historical roster exactly as authored.
+      // Neither the lead nor their named foil can also be a supporting
+      // enemy. Fix duplicates in the generic rival slots only; authored
+      // bosses/henchmen, First Bell and standalone casts stay untouched.
       for (const other of state.units.filter(
         (unit) =>
           unit.id !== rival.id &&
           unit.team === 'rival' &&
-          unit.identity === rival.identity,
+          !unit.henchmanName &&
+          !unit.lieutenantName,
       )) {
+        if (
+          !state.units.some(
+            (unit) =>
+              unit.id !== other.id &&
+              unit.identity === other.identity,
+          )
+        )
+          continue
         const replacement = IDENTITY_ARCS.find(
           (person) =>
             !state.units.some(

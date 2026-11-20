@@ -98,6 +98,14 @@
           >
             Morrow's broken city
           </button>
+          <span
+            v-if="world.campaign.completed.includes('e10')"
+            class="badge badge-soft badge-accent"
+            data-testid="memory-playtest-build-complete"
+            title="Char's and Vesper's crossings are still being written."
+          >
+            Playtest build complete
+          </span>
           <button
             ref="chronicleTrigger"
             type="button"

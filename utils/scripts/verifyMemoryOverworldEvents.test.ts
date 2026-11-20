@@ -1291,6 +1291,13 @@ assert.ok(e10Store.includes("position.value === '8,8'"))
 assert.ok(e10Console.includes('data-testid="memory-earth-crossroad-choices"'))
 assert.ok(e10Console.includes('collision.conclude(choice.id)'))
 assert.ok(campaignStore.includes('concludeEarthCollisionFromJournal('))
+// Playtest handoff (2026-11-20 PT): e11/e12 are not built, so the e10 verdict and
+// the overworld bar must tell testers they reached the end of this build.
+assert.ok(e10Console.includes('data-testid="memory-playtest-build-end"'))
+assert.ok(
+  overworldPage.includes('data-testid="memory-playtest-build-complete"'),
+)
+assert.ok(overworldPage.includes("world.campaign.completed.includes('e10')"))
 
 for (const pilot of HOSHIMORI_NIGHT_SITES) {
   const adopted = worldEvent('e08', pilot.key)!

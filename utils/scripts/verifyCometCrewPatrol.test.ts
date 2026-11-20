@@ -49,7 +49,7 @@ assert.equal(choices.size, 144)
 for (const seed of [1, 73, 404, 777, 2314, 99007]) {
   const start = {
     ...startFullAcademy('kinetic', seed),
-    day: 17,
+    day: 25,
     phase: 'dispatch' as const,
   }
   const patrolZone = PATROL_ZONES.find(
@@ -75,13 +75,13 @@ for (const seed of [1, 73, 404, 777, 2314, 99007]) {
     assert.equal(cards[0]!.hp, 1)
     const nextNight = {
       ...debrief,
-      day: 18,
+      day: 26,
       phase: 'dispatch' as const,
     }
     const callback = crewPatrolAftermath(nextNight)
     assert.ok(callback?.includes(crew.crew.captain))
     assert.ok(nightPatrolBeat(nextNight)?.text.includes(callback!))
-    assert.equal(crewPatrolAftermath({ ...nextNight, day: 19 }), null)
+    assert.equal(crewPatrolAftermath({ ...nextNight, day: 27 }), null)
   }
 }
 

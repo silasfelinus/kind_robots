@@ -258,6 +258,15 @@ export function readRainbowSave(
   ])
     if (!bool(c[key])) return null
   if (!oneOf(c.trenchRoute, ['vault', 'safe', null])) return null
+  if (
+    !oneOf(c.nurseryGuardianOutcome, [
+      'waiting',
+      'defeated',
+      'escaped',
+      undefined,
+    ])
+  )
+    return null
   if (!oneOf(c.wreckRoute, ['depot', 'armory', null])) return null
   if (!oneOf(c.reefRoute, ['relay', 'cache', null])) return null
   if (!oneOf(c.allegiance, ['rebel', 'loyal', null, undefined])) return null
@@ -304,6 +313,7 @@ export function readRainbowSave(
       rescuedNemi: saved.rescuedNemi,
       trenchRoute: saved.trenchRoute,
       routeSettled: saved.routeSettled,
+      nurseryGuardianOutcome: saved.nurseryGuardianOutcome ?? 'waiting',
       rescuedCourier: saved.rescuedCourier,
       wreckRoute: saved.wreckRoute,
       wreckSettled: saved.wreckSettled,

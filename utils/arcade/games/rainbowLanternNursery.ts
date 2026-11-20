@@ -69,7 +69,5 @@ export function nurseryStage(frame: number) {
 }
 
 export function nurserySpawns(frame: number): readonly NurserySpawn[] {
-  return nurseryStage(frame) === 'waves'
-    ? schedule.at(frame)
-    : []
+  return nurseryStage(frame) === 'waves' ? schedule.at(frame) : []
 }

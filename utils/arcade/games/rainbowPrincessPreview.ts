@@ -53,6 +53,7 @@ import {
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import { applyRainbowSwimMotion } from './rainbowSwimMotion'
+import { drawRainbowBossBloom } from './rainbowBossBloom'
 import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
@@ -7071,6 +7072,8 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
+      // A tightly capped boss flare sits behind shots and their dark halos.
+      drawRainbowBossBloom(g, sparks, calm)
       // Every solid hostile pellet sits on a dark halo inside its light rim, so it reads against any scenery.
       // Since t-032 each pellet carries its own dark outline too, so the halo is a softer shadow that lets
       // the family's shape read first.

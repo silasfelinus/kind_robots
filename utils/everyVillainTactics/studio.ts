@@ -20,6 +20,7 @@ import {
 import { scriptProblems, type SceneScript } from './sceneGraph'
 import { SCIENCE_WING_SCRIPT } from './scienceWingScript'
 import { CROSSWALK_CRISIS_SCRIPT } from './crosswalkCrisisScript'
+import { LAST_ORDER_SCRIPT } from './lastOrderScript'
 
 export type StudioBrush =
   | 'erase'
@@ -122,6 +123,40 @@ export const STAGE_PRESETS: StageDraft[] = [
     secrets: [{ x: 4, y: 5 }],
     hazards: [],
     turnLimit: null,
+  },
+  {
+    version: 1,
+    id: 'last-order',
+    title: 'The Last Order',
+    venue: 'Neon Row all-night diner',
+    objective:
+      'Vent the kitchen hood with Backdraft Flare at column 5, row 3, then rescue Mara before the eighth round.',
+    map: {
+      width: 9,
+      height: 6,
+      tiles: {
+        ...walls([3, 0], [4, 0], [5, 0], [5, 5]),
+        '2,2': tile(0, false, { east: 'half' }),
+        '3,3': tile(0, false, { north: 'half' }),
+        '6,4': tile(1),
+      },
+    },
+    spawns: DEFAULT_SPAWNS,
+    secrets: [{ x: 3, y: 4 }],
+    hazards: [],
+    turnLimit: 8,
+    civilians: [{ id: 'diner-cook', name: 'Mara, the night cook', x: 7, y: 2 }],
+    props: [
+      { id: 'diner-counter', x: 3, y: 3, cover: 'full', hp: 3 },
+      { id: 'diner-booth', x: 6, y: 1, cover: 'half', hp: 2 },
+      { id: 'service-cart', x: 2, y: 4, cover: 'half', hp: 1 },
+    ],
+    activeHazards: [
+      { id: 'grease-fire', kind: 'fire', x: 5, y: 3 },
+      { id: 'pan-fire', kind: 'fire', x: 6, y: 2 },
+    ],
+    victory: { kind: 'rescue', count: 1 },
+    script: LAST_ORDER_SCRIPT,
   },
   {
     version: 1,

@@ -65,6 +65,9 @@ import {
   previewShot,
   moveSelected,
   rescueSelected,
+  rescueTargets,
+  selectedPowerTargets,
+  useSelectedPower,
   trainingState,
 } from '../everyVillainTactics/training'
 
@@ -219,6 +222,57 @@ const stored = sanitizeScrapbook(
   }),
 )
 assert.deepEqual(stored, book)
+
+// The Last Order is a real Backdraft-only origin battle with its own arena,
+// signature-power rescue gate and persisted choice consequences.
+const diner = clonePreset('last-order')
+assert.deepEqual(stageProblems(diner), [])
+assert.equal(diner.title, 'The Last Order')
+assert.equal(diner.victory?.kind, 'rescue')
+assert.equal(diner.script?.scenes[0]?.trigger.kind, 'opening')
+assert.ok(diner.script?.scenes.some((scene) => scene.id === 'diner-choice'))
+const dinerRun = trainingState(19, diner, { lead: 'accident-fire' })
+const dinerLead = dinerRun.units.find((u) => u.id === 'backdraft')!
+dinerRun.selected = dinerLead.id
+dinerLead.x = 6
+dinerLead.y = 2
+dinerLead.ap = 2
+assert.equal(rescueSelected(dinerRun), false, 'the hot kitchen blocks rescue')
+dinerLead.x = 1
+dinerLead.y = 2
+assert.ok(
+  selectedPowerTargets(dinerRun).some(
+    (point) => point.x === 4 && point.y === 2,
+  ),
+  'Backdraft can aim his power through the diner hood',
+)
+assert.equal(useSelectedPower(dinerRun, { x: 4, y: 2 }), true)
+assert.ok(dinerRun.flags?.includes('diner-hood-vented'))
+const dinerSave = createSave({
+  slot: 'slot-1',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  stage: diner,
+  state: dinerRun,
+  story: { ...createStory(), current: null },
+})
+const restoredDiner = loadSave(JSON.stringify(dinerSave))
+assert.ok(restoredDiner.ok, restoredDiner.ok ? '' : restoredDiner.reason)
+assert.ok(restoredDiner.save.state.flags?.includes('diner-hood-vented'))
+dinerLead.x = 6
+dinerLead.y = 2
+dinerLead.ap = 2
+assert.equal(rescueTargets(dinerRun).length, 1)
+assert.equal(rescueSelected(dinerRun), true)
+assert.equal(dinerRun.civilians?.[0]?.status, 'rescued')
+assert.equal(dinerRun.phase, 'victory')
+const wrongPower = trainingState(19, diner, { lead: 'mutant-earth' })
+const wrongLead = wrongPower.units.find((u) => u.id === 'backdraft')!
+wrongPower.selected = wrongLead.id
+wrongLead.x = 0
+wrongLead.y = 2
+assert.equal(useSelectedPower(wrongPower, { x: 4, y: 2 }), false)
+assert.ok(!wrongPower.flags?.includes('diner-hood-vented'))
 
 // One-shot menu: Picnic Panic first, every stage valid with shipped art.
 const oneShots = oneShotStages()
@@ -421,6 +475,8 @@ assert.match(menu, /paintedArt.ensure\(villainId\)/)
 assert.match(menu, /selectedPaintedArtwork.value/)
 assert.match(menu, /evf-painted-art/)
 assert.match(menu, /store\.startOneShot\(stage\.id, pickedLead, pickedView\)/)
+assert.match(menu, /data-testid="front-origin-last-order"/)
+assert.match(menu, /pickedLead === 'accident-fire'/)
 assert.match(menu, /scriptedFoilFor\(pickedLead\.value\)/)
 assert.doesNotMatch(menu, /'front-foil-' \+ person\.signature/)
 assert.match(menu, /PLAYABLE_PERSPECTIVES\.map/)

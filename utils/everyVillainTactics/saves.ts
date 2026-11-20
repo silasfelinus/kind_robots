@@ -457,6 +457,14 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   const flagsAllowed = save.stage?.script
     ? settableFlags(save.stage.script)
     : new Set<string>()
+  if (save.stage?.id === 'last-order' && save.leadSignature === 'accident-fire')
+    flagsAllowed.add('diner-hood-vented')
+  if (
+    Array.isArray(state.flags) &&
+    state.flags.includes('diner-hood-vented') &&
+    !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
+  )
+    return reject('The diner hood was not vented with a signature power.')
   if (
     state.flags !== undefined &&
     (!Array.isArray(state.flags) ||

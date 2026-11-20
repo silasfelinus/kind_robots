@@ -353,6 +353,16 @@ assert.match(browserLayoutAudit, /function measureResultControls\(\)/)
 // A held card must not stand on an alley it can be played to, and the rail
 // must fit a laptop: both were only reachable by measuring a real browser.
 assert.match(browserLayoutAudit, /function measureHeldCard\(\)/)
+assert.match(
+  browserLayoutAudit,
+  /el\.scrollWidth > el\.clientWidth \+ tolerance/,
+  'the audit fails when any in-play control clips its label',
+)
+assert.match(
+  view,
+  /\.clash-console-row:has\(\.clash-tap\) \.clash-undo-word \{\s*display: none;/,
+  'with TAP on the rail UNDO keeps only its arrow',
+)
 assert.match(browserLayoutAudit, /function measureRail\(\)/)
 for (const size of [
   '1440, height: 780',

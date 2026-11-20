@@ -100,7 +100,16 @@ function measureClashControls(withTap) {
   const tapBox = withTap ? tap?.getBoundingClientRect() : null
   const viewport = window.innerWidth
   const tolerance = 1
+  // No control may be squeezed narrower than its own label.
+  const clipped = [...row.children]
+    .filter(
+      (el) =>
+        el.getClientRects().length > 0 &&
+        el.scrollWidth > el.clientWidth + tolerance,
+    )
+    .map((el) => el.dataset.testid || String(el.className).split(' ').pop())
   const ok =
+    clipped.length === 0 &&
     fightBox.width >= 32 &&
     fightBox.height >= 20 &&
     fightBox.left >= railBox.left - tolerance &&
@@ -125,6 +134,7 @@ function measureClashControls(withTap) {
     rowClientWidth: row.clientWidth,
     fight: [Math.round(fightBox.left), Math.round(fightBox.right)],
     tap: tapBox ? [Math.round(tapBox.left), Math.round(tapBox.right)] : null,
+    clipped,
   }
 }
 

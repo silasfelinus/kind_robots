@@ -2138,6 +2138,26 @@ function forecast(lane: number): string {
   min-width: 0;
 }
 /*
+  A selected fighter's TAP makes three controls on the rail. UNDO keeps its
+  arrow, the sound toggle (also in the header) steps aside and the padding
+  tightens, so no label clips, even on the narrowest rail.
+*/
+@container clash not ((max-width: 46rem) or (max-aspect-ratio: 1 / 1)) {
+  .clash-console-row:has(.clash-tap) .clash-undo-word {
+    display: none;
+  }
+  .clash-console-row:has(.clash-tap) :deep(.sc-sound-toggle) {
+    display: none;
+  }
+  .clash-console-row:has(.clash-tap) .clash-reset,
+  .clash-console-row:has(.clash-tap) .clash-pass {
+    padding-inline: 0.3rem;
+  }
+  .clash-console-row:has(.clash-tap) .clash-undo {
+    flex: 0 0 2.25rem;
+  }
+}
+/*
   Short wide screens (a laptop with browser chrome leaves 600 to 780px): the
   boss panels keep their text and powers, so the portraits and the battle log
   give up height first, and on the shortest ones step aside entirely.

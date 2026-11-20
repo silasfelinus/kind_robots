@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import { dayBriefings, dayLines } from '../emperorOfDust/fortress/briefings'
 import { dayDef } from '../emperorOfDust/fortress/content'
+import { ENDINGS } from '../emperorOfDust/fortress/endings'
 import {
   decodeBook,
   encodeBook,
@@ -52,12 +53,18 @@ const manifest: {
     events: number
     scenes: number
   }[]
+  ending_coverage: {
+    observed: string[]
+    unobserved: string[]
+    counts: Record<string, number>
+  } | null
 } = {
   method:
     'Deterministic engine-driven model simulations, not human playtests or ' +
     'independent editorial reviews. No rubric scores are inferred.',
   kind_robots_sha: process.env.KIND_ROBOTS_SHA ?? null,
   campaigns: [],
+  ending_coverage: null,
 }
 
 for (const policyId of policyIds) {
@@ -169,10 +176,14 @@ for (const policyId of policyIds) {
             label: option.label,
             response: option.response,
             effects: option.effects,
+            requires: option.requires ?? null,
+            cost: option.requires?.cost ?? 0,
+            posts_quests: option.postsQuests ?? [],
+            next_beat: option.next ?? null,
             brass_after: run.brass,
           })
           transcript.push(
-            `**Choice:** ${option.label} (${option.id})\n\n${option.response}\n`,
+            `**Choice:** ${option.label} (${option.id})\n\n**Eligibility:** ${JSON.stringify(option.requires ?? {})}; cost ${option.requires?.cost ?? 0} brass; posts quests: ${(option.postsQuests ?? []).join(', ') || 'none'}\n\n${option.response}\n`,
           )
         },
         onTalkScene: (day, id, beatId, lines) => {
@@ -190,9 +201,12 @@ for (const policyId of policyIds) {
             label: option.label,
             response: option.response,
             effects: option.effects,
+            requires: option.requires ?? null,
+            cost: option.requires?.cost ?? 0,
+            next_beat: option.next ?? null,
           })
           transcript.push(
-            `**Reply:** ${option.label} (${option.id})\n\n${option.response}\n`,
+            `**Reply:** ${option.label} (${option.id})\n\n**Eligibility:** ${JSON.stringify(option.requires ?? {})}; cost ${option.requires?.cost ?? 0} brass\n\n${option.response}\n`,
           )
         },
         onChanceChoice: (day, id, choiceId) => {
@@ -267,6 +281,24 @@ for (const policyId of policyIds) {
   }
 }
 assert.equal(manifest.campaigns.length, policyIds.length * seeds.length)
+const counts: Record<string, number> = {}
+for (const campaign of manifest.campaigns)
+  counts[campaign.ending_id] = (counts[campaign.ending_id] ?? 0) + 1
+const allEndings = Object.keys(ENDINGS).sort()
+manifest.ending_coverage = {
+  observed: allEndings.filter((id) => (counts[id] ?? 0) > 0),
+  unobserved: allEndings.filter((id) => (counts[id] ?? 0) === 0),
+  counts,
+}
+assert.equal(
+  manifest.ending_coverage.observed.length +
+    manifest.ending_coverage.unobserved.length,
+  allEndings.length,
+)
+console.log(
+  'EMPEROR_SECOND_PASS_ENDING_COVERAGE ' +
+    JSON.stringify(manifest.ending_coverage),
+)
 writeFileSync(
   'artifacts/emperor/second-pass-manifest.json',
   JSON.stringify(manifest, null, 2) + '\n',

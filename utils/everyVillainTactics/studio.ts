@@ -168,7 +168,7 @@ export const STAGE_PRESETS: StageDraft[] = [
     title: 'Ferris Wheel Without Air',
     venue: 'Comet City pier carnival',
     objective:
-      'Use Skyline’s Updraft Catch on Priya at column 5, row 3 to stabilize both gondolas, then rescue both passengers before round eight.',
+      'Land Skyline’s Updraft Catch on the wind gauge at column 5, row 3 to stabilize both gondolas, then rescue both passengers before round eight.',
     map: {
       width: 9,
       height: 6,
@@ -182,7 +182,7 @@ export const STAGE_PRESETS: StageDraft[] = [
     },
     spawns: [
       { id: 'backdraft', x: 0, y: 4 },
-      { id: 'priya', x: 4, y: 2 },
+      { id: 'priya', x: 3, y: 2 },
       { id: 'hattie', x: 0, y: 1 },
       { id: 'pip', x: 8, y: 0 },
       { id: 'vee', x: 8, y: 3 },

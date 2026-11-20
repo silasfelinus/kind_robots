@@ -5474,6 +5474,19 @@ for (const def of DAYS)
     /offered to hear the truth/,
     'the personal answer outranks the generic confrontation',
   )
+  for (const [choice, flag, echo] of [
+    ['mercy', 'd40-komodo-offered-mercy', /offered to hear the truth/],
+    ['now', 'd40-komodo-pressed', /another night of silence/],
+    ['tomorrow', 'd40-komodo-asked-tomorrow', /Tomorrow is here/],
+  ] as const) {
+    let run = onDay(401, 40, { flags: ['ledger-page-to-komodo'] })
+    for (const option of ['accounts', 'oil', choice, 'ask-me', 'leave'])
+      run = chooseAudienceOption(run, 'd40-quiet-word', option).run
+    assert.ok(run.flags.includes(flag), `Day 40 earns ${flag}`)
+    const dawn = finishDay(run)
+    assert.match(dawn.report.betrayal!.why!, echo, `Day 41 keeps ${flag}`)
+    assert.ok(validateRun(dawn.run), `${flag} route saves after betrayal`)
+  }
   const d34 = DAYS.find((def) => def.day === 34)!
   assert.notEqual(dayLines({ flags: [] }, d34).komodo, d34.komodo)
   assert.equal(

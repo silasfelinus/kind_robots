@@ -8807,6 +8807,53 @@ console.log('Emperor of Dust fortress contract: ok')
       .flatMap((def) => def.quests)
       .concat(ACT_THREE_QUESTS.map((q) => q.id)),
   )
+  // Days 21-30 court decisions must show who pays, not only affinity deltas.
+  const materialAftermaths = [
+    ['d21-captains-promise', 'alliance', /Freehold reeve/],
+    ['d21-captains-promise', 'truce', /one season/],
+    ['d21-captains-promise', 'refuse', /Pack scouts/],
+    ['d22-blame', 'blame', /families/],
+    ['d22-blame', 'evidence', /ferry tokens/],
+    ['d23-smugglers', 'license', /tincture/],
+    ['d23-smugglers', 'free', /cheaper tincture/],
+    ['d27-trial', 'investigate', /Dunmore asks/],
+    ['d28-verge-envoy', 'accept', /lost exile/],
+    ['d28-verge-envoy', 'test', /Archive to test/],
+    ['d28-verge-envoy', 'refuse', /cooks/],
+  ] as const
+  for (const [sceneId, optionId, phrase] of materialAftermaths) {
+    const scene = actThree
+      .flatMap((day) => day.audiences)
+      .find((entry) => entry.id === sceneId)
+    assert.ok(scene, sceneId + ': Act III audience exists')
+    const option = scene.options.find((entry) => entry.id === optionId)
+    assert.ok(option, sceneId + '/' + optionId + ': choice exists')
+    assert.match(option.response, phrase, sceneId + '/' + optionId)
+    assert.ok(
+      option.response.length >= 110,
+      sceneId + '/' + optionId + ': decision names a concrete aftermath',
+    )
+  }
+  // Do not erase the distinction between evidence, an unlicensed route, and
+  // a cure already promised in advance of learning its human cost.
+  const actThreeChoice = (day: number, scene: string, choice: string) =>
+    chooseAudienceOption(onDay(208, day), scene, choice)
+  assert.ok(
+    actThreeChoice(21, 'd21-captains-promise', 'alliance').run.flags.includes(
+      'pack-alliance',
+    ),
+  )
+  assert.ok(
+    actThreeChoice(23, 'd23-smugglers', 'license').run.flags.includes(
+      'rail-route-licensed',
+    ),
+  )
+  assert.ok(
+    actThreeChoice(28, 'd28-verge-envoy', 'accept').run.flags.includes(
+      'promised-sable',
+    ),
+  )
+
   const sources = readdirSync(
     new URL('../emperorOfDust/fortress/', import.meta.url),
   )
@@ -9543,6 +9590,41 @@ assert.deepEqual(crownOathAftermath.effects.local, {
   'old-houses': 3,
   yard: -2,
 })
+
+const actTwoChoiceAftermaths = [
+  ['d14-archive-funds', 'fund'],
+  ['d14-archive-funds', 'decline'],
+  ['d15-glass-feathers', 'study'],
+  ['d15-glass-feathers', 'buy'],
+  ['d15-glass-feathers', 'send-away'],
+  ['d18-strangers', 'open-wells'],
+  ['d18-strangers', 'freehold-rights'],
+  ['d18-strangers', 'escort'],
+  ['d18-fair', 'decline'],
+  ['d19-bell-vote', 'garrison'],
+  ['d19-bell-vote', 'water'],
+  ['d19-bell-vote', 'speech'],
+  ['d20-levy', 'levy-yard'],
+  ['d20-levy', 'no-levy'],
+] as const
+for (const [sceneId, optionId] of actTwoChoiceAftermaths) {
+  const scene = DAYS.flatMap((day) => day.audiences).find(
+    (entry) => entry.id === sceneId,
+  )
+  assert.ok(scene, sceneId + ': Act II audience must exist')
+  const option = scene.options.find((entry) => entry.id === optionId)
+  assert.ok(option, sceneId + '/' + optionId + ': choice must remain reachable')
+  assert.ok(
+    option.response.length >= 110,
+    sceneId + '/' + optionId + ': show a specific material aftermath',
+  )
+}
+const cisternRepair = ACT_TWO_QUESTS.find(
+  (quest) => quest.id === 'q-d12-cistern-crack',
+)!
+assert.equal(cisternRepair.durationDays, 1)
+assert.match(cisternRepair.outcomes.success!, /next morning ovens/)
+assert.doesNotMatch(cisternRepair.outcomes.success!, /third day/)
 
 const actOneLateCosts = [
   ['d05-toll', 'hire', /Saltroad drivers/],

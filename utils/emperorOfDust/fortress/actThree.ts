@@ -724,7 +724,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['pack-alliance'],
             },
             response:
-              'Vane spits in his palm and holds it out. In the canyon, that is a great honor.',
+              'Vane spits in his palm and offers it. By dusk Pack wagons fly the crown’s colours beside their own. The first Freehold reeve to see them refuses the bridge toll and calls the alliance what her family has always called a raid.',
           },
           {
             id: 'truce',
@@ -735,7 +735,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['pack-truce'],
             },
             response:
-              'Vane winces like you asked for his coat. “For a season. Then we talk again.”',
+              'Vane promises the Freehold road one season without Pack raids. At the ford he orders his riders to turn back, loudly enough for the reeves to hear. One season is a reprieve, not forgiveness. He sends the court his own date for when it ends.',
           },
           {
             id: 'refuse',
@@ -745,7 +745,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               local: { 'old-houses': 2 },
             },
             response:
-              'Vane bows. “Then I hope the plum riders feel the same about crowns.”',
+              'Vane bows and leaves the empty plum bridle on the dais. The Old Houses approve of turning a raider away. Dunmark looks at the southern road map. The Watch will meet the plum riders there without Pack scouts to warn them.',
           },
           {
             id: 'ask-price',
@@ -1138,14 +1138,14 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['moles-blamed'],
             },
             response:
-              'Vask hands over a list of burrow addresses. She brought it with her.',
+              'Vask hands over a list of burrow addresses. She brought it with her. By evening the Watch has broken three cellar doors and taken people who have not heard the names of the dead. Their families come to the fortress asking where they were sent.',
           },
           {
             id: 'evidence',
             label: 'Identify the dead before naming their killer.',
             effects: { local: { 'old-houses': -2, lamplight: 1 } },
             response:
-              'The Watch stays at the Ford to identify the dead. Vask folds the unsigned warrant into her sleeve.',
+              'The Watch stays at the Ford long enough to write down the dead, their wooden ferry tokens, and the hands that carried the knife. Vask folds her unsigned warrant into her sleeve. The families get names before the court gets suspects.',
           },
           {
             id: 'ask-knife',
@@ -1197,7 +1197,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d22-knife-returned'],
                 },
                 response:
-                  'Vask takes back the knife. No arrests follow. Her steward now knows what you chose not to say.',
+                  'Vask takes back the knife. No arrests follow, but her steward knows the filed mark was seen and hidden. The Lamplight clerk waiting by the door must enter the death record without the one piece of evidence she came to copy.',
               },
               {
                 id: 'blame',
@@ -1208,14 +1208,14 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['moles-blamed'],
                 },
                 response:
-                  'The Watch takes the cell by morning. Every prisoner has heard about the knife.',
+                  'The Watch takes the burrow cell by morning. Every prisoner has heard about the polished knife and its missing maker’s mark. Their neighbours bring blankets and demand names at the postern, where no one has been ordered to answer.',
               },
               {
                 id: 'evidence',
                 label: 'Keep the knife. Find the victims’ names first.',
                 effects: { local: { 'old-houses': -2, lamplight: 1 } },
                 response:
-                  'Vask leaves without the knife. The steward waits for her to come back. She does not.',
+                  'Vask leaves without the knife. The steward waits on the court steps with the empty velvet cushion, but she does not return. Dunmark sends the knife to the Archive with the ferry tokens. The grieving families still have no verdict.',
               },
               {
                 id: 'ask-tokens',
@@ -1398,7 +1398,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               schedule: ['d23-rail-statement'],
             },
             response:
-              'Factor Tallow produces a license. She had already drafted it.',
+              'Tallow produces a license she drafted before the hearing. Twenty brass enters the treasury; by morning the Ledger has posted its new fifth-part toll on every crate of tincture. Dunmore counts how many Yard families can still pay for it.',
           },
           {
             id: 'free',
@@ -1407,7 +1407,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               local: { ledger: -3, yard: 1 },
               affinity: { freeholds: 5 },
             },
-            response: 'Factor Tallow writes something down in a different ink.',
+            response:
+              'Tallow crosses out the prepared license in a different ink, so the Ledger will remember who refused it. The blue lantern still runs after dark. Dunmore’s cooks can buy the cheaper tincture, but a Ledger clerk now counts every bottle at the gate.',
           },
           {
             id: 'crown-seal',
@@ -1488,7 +1489,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   schedule: ['d23-rail-statement'],
                 },
                 response:
-                  'Factor Tallow produces a license, already drafted. The Mission’s twelve jars are on it, taxed at a fifth. All legal.',
+                  'Tallow produces the license already drafted. The Mission’s twelve jars are on it, each taxed at a fifth. The Abbey can pay, says the factor; the families buying their own medicine must find the extra brass. Legal is not the same as affordable.',
               },
               {
                 id: 'free',
@@ -3107,7 +3108,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 label: 'Read the ledgers. Finish what Flint started.',
                 effects: {},
                 response:
-                  '“Good,” says Flint. Lady Vask’s rings stop tapping. In the gallery an Old House cousin leaves early, in a hurry.',
+                  'Flint opens the first ledger herself. Vask’s rings stop tapping; an Old House cousin slips out before the second page. Dunmore asks who will feed the Yard while the books are examined. The evidence quest goes on the board without a verdict.',
                 postsQuests: ['q-d27-flint-evidence'],
               },
               {
@@ -3362,13 +3363,14 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['verge-cures-accepted', 'promised-sable'],
             },
             response:
-              'The envoy bows. “The Court never forgets a neighbour.” The gloves stay on.',
+              'The envoy leaves the charms beside the grain and asks for no brass. Dunmore carries them toward the ovens with both hands. The receipt names the Court’s lost exile instead. By accepting, the crown has promised a person whose story it has not heard.',
           },
           {
             id: 'test',
             label: 'Take the charms to test first. Promise nothing.',
             effects: { affinity: { 'black-verge': 5 } },
-            response: 'The envoy smiles. “Prudent.” The gloves stay on.',
+            response:
+              'The envoy offers a single charm for the Archive to test, not enough for the Yard’s winter stores. A quest notice goes up for a party to learn what the frost leaves in the grain. No exile has been promised, and the ovens remain closed.',
             postsQuests: ['q-d28-rot-cure'],
           },
           {
@@ -3376,7 +3378,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             label: 'Refuse. The crown will deal with its own rot.',
             effects: { affinity: { 'black-verge': -10 }, local: { yard: -2 } },
             response:
-              'The envoy removes one glove, finger by finger, and leaves.',
+              'The envoy removes one glove, finger by finger, then puts it away beside the charms. Dunmore returns the rotten sack to the Yard. The cooks cut away the grey grain and save what they can; no one calls that a cure.',
           },
           {
             id: 'ask-charm',
@@ -3441,7 +3443,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   local: { yard: -2 },
                 },
                 response:
-                  'The envoy removes one glove, finger by finger, and leaves. Dunmore Ash watches the lacquered box go like a starving man watching a door close.',
+                  'The envoy removes one glove, finger by finger, then puts it away beside the charms. Dunmore returns the rotten sack to the Yard. The cooks cut away the grey grain and save what they can; no one calls that a cure. Dunmore Ash watches the lacquered box go like a starving man watching a door close.',
               },
               {
                 id: 'accept',
@@ -3489,7 +3491,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 label: 'Test the charms. Sable is not yours to promise.',
                 effects: { affinity: { 'black-verge': 5 } },
                 response:
-                  'The envoy smiles. “Prudent.” The gloves stay on. At the gate they stop and watch the road a long time. Like they expect someone.',
+                  'The envoy offers a single charm for the Archive to test, not enough for the Yard’s winter stores. A quest notice goes up for a party to learn what the frost leaves in the grain. No exile has been promised, and the ovens remain closed. At the gate they stop and watch the road a long time. Like they expect someone.',
                 postsQuests: ['q-d28-rot-cure'],
               },
               {

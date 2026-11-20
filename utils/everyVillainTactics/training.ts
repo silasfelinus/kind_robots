@@ -792,7 +792,9 @@ export function useAlliedSignature(state: TrainingState): boolean {
 export function selectedPowerTargets(state: TrainingState): Cell[] {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return []
-  return powerTargets(state, unit)
+  return powerTargets(state, unit).filter((target) =>
+    valcourtRescueTarget(state, unit, target),
+  )
 }
 export function previewSelectedPower(
   state: TrainingState,
@@ -800,7 +802,33 @@ export function previewSelectedPower(
 ): PowerPreview | null {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return null
+  if (!valcourtRescueTarget(state, unit, target)) return null
   return previewPower(state, unit, target)
+}
+function valcourtRescueTarget(
+  state: TrainingState,
+  unit: Unit,
+  target: Cell,
+): boolean {
+  if (
+    state.stageId !== 'unlicensed-rescue' ||
+    unit.id !== 'backdraft' ||
+    unit.identity !== 'accident-birthright' ||
+    (state.flags ?? []).includes('valcourt-cape-pass')
+  )
+    return true
+  return state.units.some(
+    (ally) =>
+      ally.team === 'squad' &&
+      ally.id !== unit.id &&
+      ally.hp > 0 &&
+      ally.x === target.x &&
+      ally.y === target.y &&
+      ally.x >= 1 &&
+      ally.x <= 3 &&
+      ally.y >= 1 &&
+      ally.y <= 4,
+  )
 }
 function narratePower(
   state: TrainingState,
@@ -839,6 +867,7 @@ function narratePower(
 export function useSelectedPower(state: TrainingState, target: Cell): boolean {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return false
+  if (!valcourtRescueTarget(state, unit, target)) return false
   const result = usePower(state, unit, target)
   if (!result) return false
   narratePower(state, unit, result.preview, result.hit, result.roll)
@@ -887,6 +916,20 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
       'Cornerstone braces the cracked roadway with an earth surge. A safe ramp reaches the school bus without rupturing the water main.',
     )
   }
+  if (
+    state.stageId === 'unlicensed-rescue' &&
+    unit.id === 'backdraft' &&
+    unit.identity === 'accident-birthright' &&
+    result.hit &&
+    !(state.flags ?? []).includes('valcourt-cape-pass')
+  ) {
+    state.flags ??= []
+    state.flags.push('valcourt-cape-pass')
+    note(
+      state,
+      'Captain Valcourt spreads the ancestral cape around an ally. The shield crosses the private security field; both library evacuations are now possible.',
+    )
+  }
   // A leap lands in view of rival overwatch like any other move.
   if (result.preview.power.targeting === 'leap') triggerReactions(state, unit)
   updateOutcome(state)
@@ -919,6 +962,12 @@ export function rescueTargets(state: TrainingState): Civilian[] {
         state.stageId !== 'sunken-street' ||
         !c.id.startsWith('sinkhole-') ||
         (state.flags ?? []).includes('sinkhole-ramp-secured'),
+    )
+    .filter(
+      (c) =>
+        state.stageId !== 'unlicensed-rescue' ||
+        !['library-family', 'concert-ushers'].includes(c.id) ||
+        (state.flags ?? []).includes('valcourt-cape-pass'),
     )
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))

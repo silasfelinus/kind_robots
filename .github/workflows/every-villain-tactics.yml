@@ -14,6 +14,8 @@ on:
       - 'utils/scripts/verifyEveryVillainStudio.test.ts'
       - 'utils/scripts/verifyEveryVillainPowers.test.ts'
       - 'utils/scripts/verifyEveryVillainSaves.test.ts'
+      - 'utils/scripts/verifyEveryVillainCrossfire.test.ts'
+      - 'utils/everyVillainTactics/crossfireCampaign.ts'
       - 'utils/scripts/verifyEveryVillainLackeys.test.ts'
       - 'utils/scripts/verifyEveryVillainPicnic.test.ts'
       - 'utils/scripts/verifyEveryVillainHenchmen.test.ts'
@@ -57,6 +59,8 @@ jobs:
         run: npx tsx utils/scripts/verifyEveryVillainPowers.test.ts
       - name: Versioned save slots, migration and forgery rejection
         run: npx tsx utils/scripts/verifyEveryVillainSaves.test.ts
+      - name: Crossfire six-chapter saves and earned campaign progression
+        run: npx tsx utils/scripts/verifyEveryVillainCrossfire.test.ts
       - name: Teleporting and wind-up one-hit lackey crews
         run: npx tsx utils/scripts/verifyEveryVillainLackeys.test.ts
       - name: Picnic Panic civilians and one-shot scenes

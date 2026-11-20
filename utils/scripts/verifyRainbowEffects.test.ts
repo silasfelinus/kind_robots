@@ -11,6 +11,10 @@ import {
   type RainbowShotLook,
 } from '../arcade/games/rainbowShotLooks'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
+import {
+  applyRainbowSwimMotion,
+  rainbowSwimPose,
+} from '../arcade/games/rainbowSwimMotion'
 import { emptyInput } from '../arcade/types'
 
 // Conductor rainbow t-011: explosions as sparks within a budget (a boss's larger, with a shockwave), calm
@@ -203,6 +207,36 @@ for (const stillCamera of [false, true]) {
   assert.equal(flashes(true), 0, 'calm motion never flashes the screen')
   assert.equal(flashes(false, true), 0, 'switched to calm mid-game')
 }
+
+// Enemy body animation is purely visual; hitboxes and warning rings stay in the
+// original world coordinates, even when the rendered sea-life sprite sways.
+for (const kind of ['lantern', 'eel', 'dolphin', 'picket', 'matriarch']) {
+  const early = rainbowSwimPose(kind, 22)
+  const later = rainbowSwimPose(kind, 36)
+  const calm = rainbowSwimPose(kind, 22, true)
+  assert.deepEqual(early, rainbowSwimPose(kind, 22), 'swim is deterministic')
+  assert.notDeepEqual(early, later, `${kind} animates between frames`)
+  assert.ok(Math.abs(early.bob) <= 1.5)
+  assert.ok(Math.abs(early.bank) <= 0.045)
+  assert.ok(early.stretch >= 0.965 && early.stretch <= 1.035)
+  assert.ok(Math.abs(calm.bob) <= Math.abs(early.bob) * 0.21 + 1e-10)
+  assert.ok(Math.abs(calm.bank) <= Math.abs(early.bank) * 0.21 + 1e-10)
+  assert.ok(
+    Math.abs(calm.stretch - 1) <= Math.abs(early.stretch - 1) * 0.21 + 1e-10,
+  )
+  const { g, calls } = recorder()
+  applyRainbowSwimMotion(g, kind, 22, false)
+  assert.deepEqual(
+    calls.map((call) => call.name),
+    ['translate', 'rotate', 'scale'],
+    `${kind} animates its sprite only`,
+  )
+}
+assert.notDeepEqual(
+  rainbowSwimPose('lantern', 30),
+  rainbowSwimPose('dolphin', 30),
+  'jellyfish and finned enemies have distinct motion signatures',
+)
 
 console.log(
   `rainbow effects: ok (craft ${firstCraft.full}/${firstCraft.still} sparks, boss burst ${bossBurst}, peak ${maxFull}/${maxStill} of ${RAINBOW_EFFECTS.maxSparks}, halos, calm drift and no flash)`,

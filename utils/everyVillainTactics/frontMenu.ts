@@ -351,6 +351,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     tag: 'Evacuate three civilians · timed crossing and reinforcements',
   },
   {
+    id: 'rooftop-broadcast',
+    art: 'incidents/broadcast',
+    tag: 'Rooftop transmitter · elevation, catwalk collapse and reinforcements',
+  },
+  {
     id: 'quad-portal-watch',
     art: 'encounters/a-visitor-from-the-stars',
     tag: 'Teleporting Wombat Ronin',

@@ -25,7 +25,7 @@ import {
   walkScene,
 } from '../everyVillainTactics/sceneGraph'
 
-assert.equal(STAGE_PRESETS.length, 11)
+assert.equal(STAGE_PRESETS.length, 12)
 for (const preset of STAGE_PRESETS) {
   assert.deepEqual(
     stageProblems(preset),
@@ -235,6 +235,96 @@ assert.equal(
 assert.ok(crossing.fired?.includes(sceneTriggerId('crosswalk-first-rescue')))
 assert.ok(crossing.fired?.includes(sceneTriggerId('crosswalk-win')))
 assert.ok(stageProblems(crosswalk).length === 0)
+
+// Rooftop Broadcast chapter: real 2-elevation transmitter hold, cover,
+// delayed catwalk collapse and licensed-legends reinforcement round four.
+// The hero/villain openings, combat decision and earned outcome have distinct
+// authored scripts. This slice is a selectable one-shot, not yet a chained
+// six-mission campaign with persisted chapter transitions.
+const rooftop = clonePreset('rooftop-broadcast')
+assert.deepEqual(stageProblems(rooftop), [])
+assert.equal(rooftop.turnLimit, 8)
+assert.equal(rooftop.map.tiles['4,2']?.elevation, 2)
+assert.equal(rooftop.map.tiles['4,3']?.elevation, 2)
+assert.equal(rooftop.victory?.kind, 'hold-zone')
+assert.equal(rooftop.victory?.kind === 'hold-zone' && rooftop.victory.rounds, 2)
+assert.equal(rooftop.waves?.[0]?.round, 4)
+assert.equal(rooftop.waves?.[0]?.crew, 'licensed-legends')
+assert.equal(
+  rooftop.activeHazards?.find((item) => item.id === 'catwalk-collapse')?.round,
+  4,
+)
+const roofScript = rooftop.script!
+assert.equal(roofScript.scenes.length, 9)
+const roofHero = trainingState(0x17, rooftop, { lead: 'accident-fire' })
+assert.deepEqual(latchScenes(roofHero, roofScript, rooftop), ['roof-opening'])
+const roofStart = pendingScriptScene(roofHero, roofScript)!
+assert.ok(
+  walkScene(roofStart, [], {
+    state: roofHero,
+    perspective: 'hero',
+  })!.nodes.some((node) => node.id === 'oh'),
+)
+assert.ok(
+  walkScene(roofStart, [], {
+    state: roofHero,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'ov'),
+)
+assert.ok(finishScene(roofHero, roofStart, [], 'hero'))
+roofHero.turn = 2
+assert.ok(latchScenes(roofHero, roofScript, rooftop).includes('roof-choice'))
+const roofChoice = roofScript.scenes.find(
+  (scene) => scene.id === 'roof-choice',
+)!
+assert.equal(walkScene(roofChoice, [], { state: roofHero })?.done, false)
+const roofLead = roofHero.units[0]!
+roofLead.hp = roofLead.maxHp - 1
+assert.ok(finishScene(roofHero, roofChoice, [0], 'hero'))
+assert.ok(roofHero.flags?.includes('roof-warning'))
+assert.equal(roofLead.hp, roofLead.maxHp)
+assert.ok(
+  latchScenes(roofHero, roofScript, rooftop).includes('roof-warning-on-air'),
+)
+assert.equal(finishScene(roofHero, roofChoice, [1], 'hero'), false)
+const roofVillain = trainingState(0x17, rooftop, { lead: 'accident-air' })
+roofVillain.turn = 2
+latchScenes(roofVillain, roofScript, rooftop)
+assert.ok(finishScene(roofVillain, roofChoice, [1], 'villain'))
+assert.ok(roofVillain.flags?.includes('roof-jammed'))
+assert.ok(
+  roofVillain.units.some(
+    (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+  ),
+)
+const roofWin = roofScript.scenes.find((scene) => scene.id === 'roof-victory')!
+assert.ok(
+  walkScene(roofWin, [], { state: roofHero, perspective: 'hero' })!.nodes.some(
+    (node) => node.id === 'vw',
+  ),
+)
+assert.ok(
+  walkScene(roofWin, [], {
+    state: roofVillain,
+    perspective: 'villain',
+  })!.nodes.some((node) => node.id === 'vj'),
+)
+const roofHold = trainingState(0x17, rooftop)
+for (const enemy of roofHold.units.filter((unit) => unit.team === 'rival'))
+  enemy.hp = 0
+roofHold.units[0]!.x = 4
+roofHold.units[0]!.y = 2
+assert.equal(
+  roofHold.phase,
+  'active',
+  'removing rivals alone cannot win the roof',
+)
+endTurn(roofHold)
+assert.equal(roofHold.field?.held, 1)
+assert.equal(roofHold.phase, 'active', 'one round is insufficient')
+endTurn(roofHold)
+assert.equal(roofHold.field?.held, 2)
+assert.equal(roofHold.phase, 'victory')
 
 const picnic = clonePreset('picnic-plaza')
 assert.ok(picnic.title.includes('Picnic'))

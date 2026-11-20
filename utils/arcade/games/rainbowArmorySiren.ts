@@ -26,9 +26,7 @@ export function armorySirenWindow(
     name: ARMORY_SIREN.name,
     from:
       routeStart +
-      Math.floor(
-        (routeEnd - routeStart) * ARMORY_SIREN.guardianFraction,
-      ),
+      Math.floor((routeEnd - routeStart) * ARMORY_SIREN.guardianFraction),
     to: routeEnd,
     kind: 'siren',
   }

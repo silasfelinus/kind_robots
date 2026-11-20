@@ -139,10 +139,7 @@ import {
   type WreckRoute,
   type WreckSceneId,
 } from './rainbowWreckyard'
-import {
-  armorySirenAllowsWave,
-  armorySirenWindow,
-} from './rainbowArmorySiren'
+import { armorySirenAllowsWave, armorySirenWindow } from './rainbowArmorySiren'
 import {
   SAWTOOTH,
   SAWTOOTH_MAX_HP,

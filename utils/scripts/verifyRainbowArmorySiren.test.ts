@@ -13,17 +13,17 @@ import {
   stepRainbowGuardian,
   RAINBOW_GUARDIAN,
 } from '../arcade/games/rainbowGuardian'
-import { readRainbowSave, type RainbowSave } from '../arcade/games/rainbowLoadouts'
+import {
+  readRainbowSave,
+  type RainbowSave,
+} from '../arcade/games/rainbowLoadouts'
 import {
   createRainbowPrincessPreview,
   isRainbowCheckpoint,
 } from '../arcade/games/rainbowPrincessPreview'
 import { WRECK_FORK, wreckSpawns } from '../arcade/games/rainbowWreckyard'
 
-const siren = armorySirenWindow(
-  WRECK_FORK.decideAt,
-  WRECK_FORK.rejoinAt,
-)
+const siren = armorySirenWindow(WRECK_FORK.decideAt, WRECK_FORK.rejoinAt)
 assert.equal(siren.name, ARMORY_SIREN.name)
 assert.equal(siren.kind, 'siren')
 assert.ok(siren.from > WRECK_FORK.decideAt)
@@ -95,7 +95,13 @@ const saved: RainbowSave = {
     captivesFreed: 0,
     schoolBonuses: 0,
   },
-  guardians: { 1: 'escaped', 2: 'defeated', 3: 'escaped', 4: 'defeated', 5: 'defeated' },
+  guardians: {
+    1: 'escaped',
+    2: 'defeated',
+    3: 'escaped',
+    4: 'defeated',
+    5: 'defeated',
+  },
   medals: { 1: 'bronze', 2: 'silver', 3: 'gold', 4: 'silver' },
 }
 assert.equal(
@@ -119,7 +125,8 @@ assert.equal(
 const legacy = structuredClone(saved) as RainbowSave
 delete legacy.checkpoint.armoryGuardianOutcome
 assert.equal(
-  readRainbowSave(legacy, isRainbowCheckpoint)?.checkpoint.armoryGuardianOutcome,
+  readRainbowSave(legacy, isRainbowCheckpoint)?.checkpoint
+    .armoryGuardianOutcome,
   'waiting',
   'pre-Siren saves are not discarded',
 )
@@ -167,4 +174,6 @@ for (const seats of [1, 4]) {
     `the actual ${seats}-player armory route must spawn its guardian`,
   )
 }
-console.log('rainbow Armory Siren: warned waves, saves and real 1/4-seat route passed')
+console.log(
+  'rainbow Armory Siren: warned waves, saves and real 1/4-seat route passed',
+)

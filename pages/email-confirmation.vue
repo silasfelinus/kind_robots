@@ -1,7 +1,9 @@
 <template>
   <main class="kr-surface">
     <div class="kr-scroll">
-      <div class="flex min-h-full w-full items-center justify-center p-4 sm:p-8">
+      <div
+        class="flex min-h-full w-full items-center justify-center p-4 sm:p-8"
+      >
         <section
           class="kr-panel flex w-full max-w-2xl flex-col items-center gap-5 p-6 text-center sm:p-10"
         >
@@ -20,9 +22,7 @@
           </div>
 
           <div class="flex flex-col gap-2">
-            <p
-              class="kr-text-eyebrow kr-text-dim-xs tracking-[0.2em]"
-            >
+            <p class="kr-text-eyebrow kr-text-dim-xs tracking-[0.2em]">
               Email confirmation
             </p>
             <p class="text-3xl font-black sm:text-4xl">{{ result.title }}</p>
@@ -42,9 +42,7 @@
             <NuxtLink to="/account" class="kr-btn-primary-md">
               Open account settings
             </NuxtLink>
-            <NuxtLink to="/" class="kr-btn-outline-md">
-              Return home
-            </NuxtLink>
+            <NuxtLink to="/" class="kr-btn-outline-md"> Return home </NuxtLink>
           </div>
         </section>
       </div>

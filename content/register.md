@@ -1,8 +1,8 @@
 ---
-title: 'Registration'
+title: 'Create a free account'
 room: 'Registration Room'
 subtitle: Welcome to the community
-description: Register to unlock leaderboards, user navigation, jellybean tracking, art collection, prompt retention, and more!
+description: Create a free Kind Robots account to save game progress, keep the art you make and join the leaderboards. Games and stories stay free without one.
 image: splash/register.png
 tooltip: Step through the gateway to a world of creativity and camaraderie!
 amiTip: And keep track of who tries to beat me on the leaderboards!

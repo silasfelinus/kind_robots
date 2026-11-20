@@ -439,6 +439,12 @@ const routePageTitle = computed(() =>
 const routePageDescription = computed(() =>
   pageStore.describesPath(route.path) ? pageStore.description : '',
 )
+// The store's subtitle falls back to "Welcome to Kind Robots" (or a previous
+// page's subtitle) on dedicated pages that never call setPage, which made
+// /play/chessweeper share as "Welcome to Kind Robots" (2026-11-20 PT).
+const routePageSubtitle = computed(() =>
+  pageStore.describesPath(route.path) ? pageStore.subtitle : '',
+)
 const shareTitle = computed(
   () => sharePreview.value?.title || routePageTitle.value || SITE_NAME,
 )
@@ -446,7 +452,7 @@ const shareDescription = computed(
   () =>
     routePageDescription.value ||
     sharePreview.value?.description ||
-    pageStore.subtitle ||
+    routePageSubtitle.value ||
     'Free handmade games and stories. No ads, no account needed.',
 )
 const shareUrl = computed(() => absoluteSiteUrl(route.path))

@@ -40,6 +40,8 @@ const publicRoutes = [
   '/play/aquarium',
   '/play/memory',
   '/play/mandarin',
+  '/play/chessweeper',
+  '/play/ruler-hooked',
   '/storybook',
   '/art',
 ]
@@ -95,6 +97,13 @@ assert.equal(findSharePreview('/play/aquarium/browse')?.route, '/play/aquarium')
 assert.equal(findSharePreview('/art/gallery')?.route, '/art')
 assert.equal(findSharePreview('/art-archive'), null)
 assert.equal(findSharePreview('/play/memory-dungeon'), null)
+// 2026-11-20 PT: both public games shared as "Kind Robots" / "Welcome to Kind
+// Robots" or "Ruler Hooked" with the generic arcade splash.
+assert.equal(findSharePreview('/play/chessweeper')?.title, 'Chessweeper')
+assert.equal(
+  findSharePreview('/play/ruler-hooked')?.title,
+  'The Ruler Is Hooked',
+)
 assert.equal(findSharePreview('/'), null)
 
 assert.equal(
@@ -181,6 +190,13 @@ for (const key of [
   assert.match(app, new RegExp(`\\b${key}:`), `app.vue useSeoMeta ${key}`)
 }
 assert.match(app, /twitterCard: 'summary_large_image'/)
+// Share descriptions never fall back to a stale store subtitle ("Welcome to
+// Kind Robots") on dedicated pages that don't describe this route.
+assert.doesNotMatch(app, /^\s*pageStore\.subtitle \|\|/m)
+assert.match(
+  app,
+  /pageStore\.describesPath\(route\.path\) \? pageStore\.subtitle : ''/,
+)
 // Every page declares one canonical URL built from the query-free share URL.
 assert.match(app, /rel: 'canonical', href: \(\) => shareUrl\.value/)
 

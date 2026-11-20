@@ -110,4 +110,18 @@ assert.doesNotMatch(
 )
 assert.match(directory, /Helping fund mosquito nets\./)
 
+// 4. /register explains what an account is for in plain words and that the
+//    games stay free without one (2026-11-20 PT: the link preview read
+//    "Register to unlock ... user navigation, jellybean tracking, prompt
+//    retention" under the bare title "Registration").
+const register = read('content/register.md')
+assert.match(register, /^title: 'Create a free account'$/m)
+const registerDescription = register.match(/^description: (.+)$/m)?.[1] ?? ''
+assert.match(registerDescription, /free/i)
+assert.match(registerDescription, /without one/)
+assert.doesNotMatch(
+  registerDescription,
+  /jellybean|prompt retention|navigation/i,
+)
+
 console.log(`front door polish checks passed (${gatedCards} gated share cards)`)

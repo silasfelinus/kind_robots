@@ -215,6 +215,10 @@ assert.equal(
   for (let i = 0; i < 25; i++) continued.update(emptyInput())
   continued.update(press('a'))
   assert.deepEqual(continued.snapshot.pilots, [0, 2])
+  const joined = create({ players: 3, selectScreen: true, resume: duet })
+  for (let i = 0; i < 25; i++) joined.update(emptyInput())
+  joined.update(press('a'))
+  assert.deepEqual(joined.snapshot.pilots, [0, 2, 1])
   assert.equal(
     readRainbowSave({ ...duet, pilots: [0, 0] }, isRainbowCheckpoint)?.pilots,
     undefined,

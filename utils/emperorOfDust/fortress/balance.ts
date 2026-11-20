@@ -433,12 +433,15 @@ export const playCampaign = (
       if (!ready(run).length) break
       const party = partyFor(run, questDef(entry.questId)!, policy)
       if (!party) continue
+      let assigned = false
       try {
         run = assignQuest(run, entry.questId, party)
-        observer?.onQuestAssigned?.(run.day, entry.questId, party, run)
+        assigned = true
       } catch {
         // A party the engine refuses (a rule the bot does not model) stays home.
       }
+      if (assigned)
+        observer?.onQuestAssigned?.(run.day, entry.questId, party, run)
     }
     const completedDay = run.day
     const ended = finishDay(run)

@@ -476,11 +476,15 @@ const mercyMoment = scrapbookMoments(mercyDebrief).find((moment) =>
 assert.ok(mercyMoment)
 assert.ok(mercyMoment.text.includes(mercyChoice.result))
 assert.ok(restoreAcademy(JSON.parse(JSON.stringify(mercyDebrief))))
+const falseRival =
+  mercyDebrief.opponentSignature === 'psychic-water'
+    ? 'accident-fire'
+    : 'psychic-water'
 const forgedCrew = {
   ...mercyDebrief,
   patrolHistory: mercyDebrief.patrolHistory!.map((memory) => ({
     ...memory,
-    choiceId: 'crew-psychic-water-mercy-intervene',
+    choiceId: `crew-${falseRival}-mercy-intervene`,
   })),
 }
 assert.equal(

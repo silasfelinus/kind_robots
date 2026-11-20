@@ -295,6 +295,11 @@ for (const person of IDENTITY_ARCS) {
     })
     const rival = state.units.find((unit) => unit.id === 'pip')!
     assert.equal(rival.identity, foil)
+    assert.equal(
+      new Set(state.units.map((unit) => unit.identity)).size,
+      state.units.length,
+      'Crossfire must not put the same canonical person on both sides',
+    )
     const checkpoint = createSave({
       slot: 'auto',
       perspective: 'hero',

@@ -153,6 +153,31 @@ export type RainbowSave = {
   pilots?: number[]
 }
 
+/** Progress-only gallery state. Unvisited seas remain visible as silhouettes, not fake clears. */
+export function rainbowSeaLogbook(
+  save: RainbowSave | null,
+  mastery: readonly string[],
+): { explored: boolean; medal: RainbowMedal | null; label: string }[] {
+  const reached =
+    save?.checkpoint.act ?? (mastery.includes('first-light') ? 2 : 1)
+  return Array.from({ length: 8 }, (_, index) => {
+    const act = index + 1
+    const medal = save?.medals[act as 1] ?? null
+    const explored = act <= reached || medal !== null
+    return {
+      explored,
+      medal,
+      label: medal
+        ? `${medal.toUpperCase()} MEDAL`
+        : act === reached && save
+          ? 'IN FLIGHT'
+          : explored
+            ? 'DISCOVERED'
+            : 'UNDISCOVERED',
+    }
+  })
+}
+
 const bool = (value: unknown) => typeof value === 'boolean'
 const count = (value: unknown, max: number) =>
   typeof value === 'number' &&

@@ -315,6 +315,67 @@
           </li>
         </ol>
       </section>
+
+      <section
+        v-show="view === 'hangar'"
+        id="princess-hangar"
+        role="tabpanel"
+        aria-labelledby="princess-hangar-tab"
+        class="@container flex min-h-0 flex-1 flex-col gap-2 rounded-3xl border border-base-300 bg-[#251345] p-2 text-white sm:p-3"
+      >
+        <p class="shrink-0 text-sm font-bold" aria-live="polite">
+          Palace Hangar · Slot {{ rainbowSlot + 1 }} ·
+          {{ hangarBalance }} medal petals available
+        </p>
+        <div
+          role="group"
+          aria-label="Palace Hangar upgrades"
+          class="kr-scroll grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto @2xl:grid-cols-3"
+        >
+          <article
+            v-for="(upgrade, index) in RAINBOW_HANGAR_UPGRADES"
+            :key="upgrade.id"
+            class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-pink-300/40 bg-[#391f60]"
+          >
+            <img
+              :src="rainbowStageCard(stages[index * 2]!.strip, look)"
+              :alt="upgrade.name + ' upgrade artwork'"
+              class="aspect-[16/7] w-full shrink-0 object-cover"
+              loading="lazy"
+            />
+            <div class="flex flex-1 flex-col gap-2 p-3">
+              <h3 class="text-base font-black">{{ upgrade.name }}</h3>
+              <p class="flex-1 text-sm text-white/85">
+                {{ upgrade.effect }}
+              </p>
+              <button
+                type="button"
+                class="btn btn-sm w-full border-pink-200 bg-pink-100 font-black text-[#37204e]"
+                :disabled="
+                  hangar.upgrades.includes(upgrade.id) ||
+                  hangarBalance < upgrade.cost
+                "
+                :aria-label="
+                  hangar.upgrades.includes(upgrade.id)
+                    ? upgrade.name + ' already installed'
+                    : 'Buy ' + upgrade.name + ' for ' + upgrade.cost + ' medal petals'
+                "
+                @click="arcadeStore.buyRainbowUpgrade(upgrade.id)"
+              >
+                {{
+                  hangar.upgrades.includes(upgrade.id)
+                    ? 'Installed'
+                    : upgrade.cost + ' petals · Equip for next flight'
+                }}
+              </button>
+            </div>
+          </article>
+        </div>
+        <p class="shrink-0 text-xs text-white/75">
+          Bronze, silver and gold medals earn 1, 2 and 3 petals per sea.
+          Only your best medal per sea counts. Upgrades stay in this slot.
+        </p>
+      </section>
     </div>
   </main>
 </template>
@@ -328,6 +389,10 @@ import {
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
+import {
+  RAINBOW_HANGAR_UPGRADES,
+  rainbowHangarBalance,
+} from '~/utils/arcade/games/rainbowHangar'
 import { rainbowSlotSummary } from '~/utils/arcade/games/rainbowSaveSlots'
 import {
   RAINBOW_HERO_ART,
@@ -375,6 +440,8 @@ const seaProgress = computed(() =>
   rainbowSeaLogbook(flightSave.value, mastery.value),
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
+const hangar = computed(() => arcadeStore.rainbowHangarForSlot())
+const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))
 const exploredCount = computed(
   () => seaProgress.value.filter((sea) => sea.explored).length,
 )
@@ -392,6 +459,7 @@ const views = [
   { key: 'flight', label: 'Fly', icon: 'kind-icon:rocket' },
   { key: 'pilots', label: 'Pilots', icon: 'kind-icon:users' },
   { key: 'seas', label: 'Seas', icon: 'kind-icon:map' },
+  { key: 'hangar', label: 'Hangar', icon: 'kind-icon:star' },
 ] as const
 const view = ref<string>('flight')
 const opening = ref<{ offer: () => void; play: () => void } | null>(null)

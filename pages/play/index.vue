@@ -68,7 +68,7 @@
               maxlength="220"
               rows="3"
               class="textarea textarea-bordered w-full resize-none text-base leading-snug"
-              placeholder="putting pineapple on pizza"
+              placeholder="walking past the dog twenty times without petting him"
               spellcheck="true"
               data-testid="ban-meme-reason"
             />
@@ -135,21 +135,22 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
 import { shareableUrl } from '~/utils/supportShare'
 
 const originalWidth = 2048
-const initialReason = 'bringing a reusable bag to a bank robbery'
+const initialReason = 'walking past the dog twenty times without petting him'
 const reason = ref(initialReason)
 const normalizedReason = computed(
   () => reason.value.trim().replace(/\s+/g, ' ') || 'doing absolutely nothing',
 )
 const examples = [
-  { label: 'Social crimes', text: 'replying all to a company-wide email' },
-  { label: 'Kitchen crimes', text: 'putting pineapple on pizza' },
+  { label: 'Petting violation', text: initialReason },
   {
-    label: 'Fashion crimes',
-    text: 'wearing socks with sandals at a formal event',
+    label: 'In-game scrolling',
+    text: 'spending the last 36 hours in-game scrolling on your phone',
   },
+  { label: 'Unpaid gratitude', text: 'not tipping the barista' },
 ] as const
 
 const previewCanvas = ref<HTMLCanvasElement | null>(null)
@@ -305,8 +306,7 @@ onMounted(() => {
 })
 
 useHead({ title: 'Account Banned Meme Lab · Kind Robots' })
-useSeoMeta({
-  description:
-    'Rewrite the ridiculous offense in a GTA VI account-banned parody screenshot. Preview, save and share a custom meme, free in your browser.',
-})
+useSeoMeta(
+  gameLinkPreviewMeta('ban-meme', useRuntimeConfig().public.appBaseUrl) ?? {},
+)
 </script>

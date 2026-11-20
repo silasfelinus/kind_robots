@@ -1034,16 +1034,19 @@ export function createRainbowPrincessPreview(
   /** A boss's hull for this crew at this difficulty. */
   const bossHp = (base: number) =>
     Math.max(1, Math.round(rainbowBossHp(base, activePlayers) * level.bossHp))
+  const shieldCap = 3 + (options.rainbowHangar?.shield ? 1 : 0)
+  const extraLife = options.rainbowHangar?.life ? 1 : 0
+  const startingCharge = options.rainbowHangar?.charge ? 20 : 0
   const createShip = (seat: number): Ship => ({
     x: 65,
     y: 80 + seat * 32,
-    shield: 3,
+    shield: shieldCap,
     cooldown: 0,
     invulnerable: 120,
     power: 1,
-    charge: 0,
+    charge: startingCharge,
     graze: 0,
-    lives: level.lives,
+    lives: level.lives + extraLife,
     focus: false,
     bank: 0,
     special: 0,
@@ -1383,7 +1386,7 @@ export function createRainbowPrincessPreview(
     pickups.length = 0
     enemyShots.length = 0
     survivors.length = 0
-    for (const ship of livingShips()) ship.shield = Math.min(3, ship.shield + 1)
+    for (const ship of livingShips()) ship.shield = Math.min(shieldCap, ship.shield + 1)
   }
 
   /** Act VI's fork: where the living crew flies at the decision frame picks the route. */
@@ -1406,7 +1409,7 @@ export function createRainbowPrincessPreview(
       for (const ship of livingShips()) ship.power = Math.min(3, ship.power + 1)
     } else {
       for (const ship of livingShips()) {
-        ship.shield = 3
+        ship.shield = shieldCap
         ship.charge = Math.min(100, ship.charge + 50)
       }
     }
@@ -1488,7 +1491,7 @@ export function createRainbowPrincessPreview(
     const allies = palaceAllies(palaceFlags()).length
     if (!allies) return
     for (const ship of livingShips()) {
-      ship.shield = Math.min(3, ship.shield + 1)
+      ship.shield = Math.min(shieldCap, ship.shield + 1)
       ship.charge = Math.min(100, ship.charge + 15 * allies)
     }
     popups.push({
@@ -1657,7 +1660,7 @@ export function createRainbowPrincessPreview(
     if (wreckRoute === 'depot') {
       score += podsSaved * WRECK_FORK.podScore
       for (const ship of livingShips())
-        ship.shield = Math.min(3, ship.shield + 1)
+        ship.shield = Math.min(shieldCap, ship.shield + 1)
     } else {
       score += WRECK_FORK.armoryScore
       for (const ship of livingShips()) {
@@ -1785,7 +1788,7 @@ export function createRainbowPrincessPreview(
     pickups.length = 0
     enemyShots.length = 0
     for (const ship of ships.slice(0, activePlayers))
-      if (ship.lives > 0) ship.shield = Math.min(3, ship.shield + 1)
+      if (ship.lives > 0) ship.shield = Math.min(shieldCap, ship.shield + 1)
   }
 
   function defeatDelphion() {
@@ -1909,7 +1912,7 @@ export function createRainbowPrincessPreview(
       score += TRENCH_FORK.salvageScore
       for (const ship of living) ship.power = Math.min(3, ship.power + 1)
     } else {
-      for (const ship of living) ship.shield = Math.min(3, ship.shield + 1)
+      for (const ship of living) ship.shield = Math.min(shieldCap, ship.shield + 1)
     }
     popups.push({
       x: W / 2,
@@ -2347,7 +2350,7 @@ export function createRainbowPrincessPreview(
   function setDifficulty(chosen: ArcadeDifficulty) {
     difficulty = chosen
     level = RAINBOW_DIFFICULTY[difficulty]
-    for (const ship of ships) ship.lives = level.lives
+    for (const ship of ships) ship.lives = level.lives + extraLife
   }
 
   /** A line of dialogue with the crew's names swapped for the pilots actually flying each seat. */
@@ -2950,7 +2953,7 @@ export function createRainbowPrincessPreview(
     if (kind === 2) {
       haloRevive(ships, activePlayers, seat)
       for (const ally of ships.slice(0, activePlayers)) {
-        ally.shield = Math.min(3, ally.shield + 1)
+        ally.shield = Math.min(shieldCap, ally.shield + 1)
         ally.invulnerable = Math.max(ally.invulnerable, 60)
       }
     }
@@ -3514,7 +3517,7 @@ export function createRainbowPrincessPreview(
     ship.shield--
     if (ship.shield <= 0) {
       ship.lives--
-      ship.shield = 3
+      ship.shield = shieldCap
       // The power level lost with the life falls just ahead as a Recovery Cache (U12) for four seconds.
       if (ship.power > 1 && ship.lives > 0)
         caches.push({
@@ -4423,7 +4426,7 @@ export function createRainbowPrincessPreview(
         rescuedNavigator = true
         score += GLASS_NAVIGATOR.rescueScore
         for (const ship of livingShips())
-          ship.shield = Math.min(3, ship.shield + 1)
+          ship.shield = Math.min(shieldCap, ship.shield + 1)
         options.sound.play('pickup')
       }
     }
@@ -4525,7 +4528,7 @@ export function createRainbowPrincessPreview(
         rescuedStation = true
         score += 500
         for (const ship of ships.slice(0, activePlayers))
-          ship.shield = Math.min(3, ship.shield + 1)
+          ship.shield = Math.min(shieldCap, ship.shield + 1)
         options.sound.play('pickup')
       }
     }
@@ -5029,7 +5032,7 @@ export function createRainbowPrincessPreview(
       collected(pickup)
       if (pickup.kind === 'power') ship.power = Math.min(3, ship.power + 1)
       else if (pickup.kind === 'shield')
-        ship.shield = Math.min(3, ship.shield + 1)
+        ship.shield = Math.min(shieldCap, ship.shield + 1)
       else ship.charge = Math.min(100, ship.charge + 35)
       score += 25
       options.sound.play('pickup')

@@ -132,8 +132,8 @@ export function crossfireFinaleNetwork(
     completed.some((save) => save.state.phase !== 'victory')
   )
     return null
-  const outcomes = completed.map((save, index) =>
-    crossfireCarryover(save, index).effect,
+  const outcomes = completed.map(
+    (save, index) => crossfireCarryover(save, index).effect,
   )
   const rescues = outcomes.filter((effect) => effect === 'guard').length
   const evidence = outcomes.filter((effect) => effect === 'intel').length

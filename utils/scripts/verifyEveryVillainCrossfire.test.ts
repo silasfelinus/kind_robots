@@ -524,7 +524,10 @@ assert.equal(crossfireFinaleNetwork(finaleBase.slice(0, 4)), null)
 assert.equal(
   crossfireFinaleNetwork([
     ...mixedHistory.slice(0, 4),
-    { ...mixedHistory[4]!, state: { ...mixedHistory[4]!.state, phase: 'defeat' } },
+    {
+      ...mixedHistory[4]!,
+      state: { ...mixedHistory[4]!.state, phase: 'defeat' },
+    },
   ]),
   null,
 )

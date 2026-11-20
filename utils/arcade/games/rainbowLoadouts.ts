@@ -178,6 +178,48 @@ export function rainbowSeaLogbook(
   })
 }
 
+/** Route intel earned by actually flying each fork. Never infer a branch from Act reach alone. */
+export function rainbowRouteIntel(
+  save: RainbowSave | null,
+): { act: number; label: string; discovered: boolean }[] {
+  const checkpoint = save?.checkpoint
+  return [
+    {
+      act: 3,
+      label:
+        checkpoint?.trenchRoute === 'vault'
+          ? 'Vault passage'
+          : checkpoint?.trenchRoute === 'safe'
+            ? 'Safe passage'
+            : 'Route undiscovered',
+      discovered: checkpoint?.routeSettled === true,
+    },
+    {
+      act: 5,
+      label:
+        checkpoint?.wreckRoute === 'depot'
+          ? 'Depot passage'
+          : checkpoint?.wreckRoute === 'armory'
+            ? 'Armory passage'
+            : 'Route undiscovered',
+      discovered: checkpoint?.wreckSettled === true,
+    },
+    {
+      act: 6,
+      label:
+        checkpoint?.reefRoute === 'relay'
+          ? 'Relay passage'
+          : checkpoint?.reefRoute === 'cache'
+            ? 'Cache passage'
+            : 'Route undiscovered',
+      discovered: checkpoint?.reefSettled === true,
+    },
+  ].map((route) => ({
+    ...route,
+    label: route.discovered ? route.label : 'Route undiscovered',
+  }))
+}
+
 const bool = (value: unknown) => typeof value === 'boolean'
 const count = (value: unknown, max: number) =>
   typeof value === 'number' &&

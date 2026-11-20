@@ -269,7 +269,10 @@
           Flight log · {{ exploredCount }}/8 seas explored ·
           {{ medalsCount }} medals · {{ endingCount }}/3 endings
         </p>
-        <p class="shrink-0 px-1 pb-1 text-xs text-base-content/80" aria-live="polite">
+        <p
+          class="shrink-0 px-1 pb-1 text-xs text-base-content/80"
+          aria-live="polite"
+        >
           {{ selectedSeaDescription }}
         </p>
         <ol
@@ -283,7 +286,9 @@
             <button
               type="button"
               class="absolute inset-0 z-10 rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-pink-300"
-              :class="{ 'ring-2 ring-inset ring-pink-300': selectedSea === index }"
+              :class="{
+                'ring-2 ring-inset ring-pink-300': selectedSea === index,
+              }"
               :aria-pressed="selectedSea === index"
               :aria-label="`Inspect Act ${index + 1}: ${stage.name}, ${seaProgress[index]?.label}`"
               @click="selectedSea = index"
@@ -539,7 +544,9 @@ const selectedSea = ref(0)
 const selectedSeaDescription = computed(() => {
   const stage = stages[selectedSea.value]!
   const progress = seaProgress.value[selectedSea.value]
-  const route = routeIntel.value.find((entry) => entry.act === selectedSea.value + 1)
+  const route = routeIntel.value.find(
+    (entry) => entry.act === selectedSea.value + 1,
+  )
   return `Act ${selectedSea.value + 1} · ${stage.name}: ${stage.setting} ${progress?.label ?? 'UNDISCOVERED'}${route ? ` · ${route.label}` : ''} · Select Fly to resume your saved checkpoint.`
 })
 const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))

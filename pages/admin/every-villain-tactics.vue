@@ -410,7 +410,10 @@
                     </li>
                   </ul>
                 </details>
-                <small v-if="!store.isPlaytest" class="evt-next-chapter-note">
+                <small
+                  v-if="!store.isPlaytest && !store.crossfireActive"
+                  class="evt-next-chapter-note"
+                >
                   First Bell is the current story chapter. Other playable
                   battles are in One-Shot.
                 </small>
@@ -424,6 +427,14 @@
             >
               <strong>LIVE TRAINING</strong>
               <span>{{ store.state.log }}</span>
+              <details
+                v-if="store.crossfireMemory"
+                class="evt-memory"
+                data-testid="tactics-crossfire-memory"
+              >
+                <summary>LAST CHAPTER</summary>
+                <p>{{ store.crossfireMemory }}</p>
+              </details>
             </div>
           </section>
 
@@ -2986,6 +2997,31 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-top: 1px solid #e3faff39;
   font-size: clamp(0.64rem, 0.7cqw, 0.78rem);
   min-height: 30px;
+}
+.evt-memory {
+  flex: none;
+  position: relative;
+  color: #fce4a3;
+}
+.evt-memory summary {
+  cursor: pointer;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+.evt-memory p {
+  position: absolute;
+  z-index: 12;
+  right: 0;
+  bottom: calc(100% + 6px);
+  width: min(320px, 75vw);
+  padding: 10px;
+  border: 1px solid #e4ce82;
+  border-radius: 6px;
+  background: #111b36;
+  color: #fff2d1;
+  box-shadow: 0 7px 18px #0009;
+  line-height: 1.4;
 }
 .evt-statusbar strong {
   color: #a7eecb;

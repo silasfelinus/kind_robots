@@ -260,10 +260,22 @@ export function exposureAt(
     .filter((shot) => shot.hit > 0)
     .sort((a, b) => b.hit - a.hit || a.shooter.localeCompare(b.shooter))
 }
+/** The Crossfire backbone keeps its named opponent across chapters.
+ * Studio one-shots (including power-specific origins) retain their own cast. */
+export const isCrossfireFoilStage = (stage: StageDraft | null): boolean =>
+  !!stage &&
+  [
+    'science-lab',
+    'crosswalk-crisis',
+    'rooftop-broadcast',
+    'under-comet-breach',
+    'prom-night-finale',
+  ].includes(stage.id)
+
 export type TrainingOptions = {
   /** Replace the first squad slot with this canonical hero. */
   lead?: string
-  /** Story only: replace the rival lead with this canonical hero. */
+  /** First Bell or Crossfire's five preset chapters: canonical opponent. */
   foil?: string
   /** Apply hero roles and signature powers. Prom of Doom interludes opt out
    * so their saved battles and balance stay exactly as shipped. */
@@ -316,12 +328,42 @@ export function trainingState(
   const rival = state.units.find((u) => u.team === 'rival')
   if (stage?.id === 'ferris-wheel' && rival) rival.identity = 'accident-fire'
   if (
-    !stage &&
+    (!stage || isCrossfireFoilStage(stage)) &&
     rival &&
+    !rival.henchmanName &&
+    !rival.lieutenantName &&
     options.foil &&
     isValidFoil(options.foil, lead.identity)
-  )
+  ) {
     rival.identity = options.foil
+    if (isCrossfireFoilStage(stage ?? null)) {
+      // Neither the lead nor their named foil can also be a supporting
+      // enemy. Fix duplicates in the generic rival slots only; authored
+      // bosses/henchmen, First Bell and standalone casts stay untouched.
+      for (const other of state.units.filter(
+        (unit) =>
+          unit.id !== rival.id &&
+          unit.team === 'rival' &&
+          !unit.henchmanName &&
+          !unit.lieutenantName,
+      )) {
+        if (
+          !state.units.some(
+            (unit) => unit.id !== other.id && unit.identity === other.identity,
+          )
+        )
+          continue
+        const replacement = IDENTITY_ARCS.find(
+          (person) =>
+            !state.units.some(
+              (unit) =>
+                unit.id !== other.id && unit.identity === person.signature,
+            ),
+        )
+        if (replacement) other.identity = replacement.signature
+      }
+    }
+  }
   if (options.roles !== false)
     for (const unit of state.units)
       if (!unit.henchmanName && !unit.lieutenantName) applyTacticalProfile(unit)
@@ -871,6 +913,22 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
       'Skyline lands on the wind gauge with Updraft Catch. The air corridor reaches both gondolas; both hatches can now open.',
     )
   }
+  if (
+    state.stageId === 'sunken-street' &&
+    unit.id === 'backdraft' &&
+    unit.identity === 'accident-earth' &&
+    result.hit &&
+    unit.x === 4 &&
+    unit.y === 2 &&
+    !(state.flags ?? []).includes('sinkhole-ramp-secured')
+  ) {
+    state.flags ??= []
+    state.flags.push('sinkhole-ramp-secured')
+    note(
+      state,
+      'Cornerstone braces the cracked roadway with an earth surge. A safe ramp reaches the school bus without rupturing the water main.',
+    )
+  }
   // A leap lands in view of rival overwatch like any other move.
   if (result.preview.power.targeting === 'leap') triggerReactions(state, unit)
   updateOutcome(state)
@@ -897,6 +955,12 @@ export function rescueTargets(state: TrainingState): Civilian[] {
         state.stageId !== 'ferris-wheel' ||
         !c.id.startsWith('wheel-') ||
         (state.flags ?? []).includes('wheel-air-bridge'),
+    )
+    .filter(
+      (c) =>
+        state.stageId !== 'sunken-street' ||
+        !c.id.startsWith('sinkhole-') ||
+        (state.flags ?? []).includes('sinkhole-ramp-secured'),
     )
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))

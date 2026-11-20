@@ -22,6 +22,8 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'last-order': 265018,
   // Temporary Harborline location plate, not Ferris Wheel production art.
   'ferris-wheel': 265022,
+  // Temporary Crosswalk painting; a sunken street plate must be generated.
+  'sunken-street': 265022,
 }
 
 export function paintedMapArtId(stageId: string | null): number | null {

@@ -5449,6 +5449,44 @@ for (const def of DAYS)
     BUYERS.abbey.fell,
     'no precaution, the fall as written',
   )
+  for (const [flag, echo] of [
+    ['d40-komodo-offered-mercy', /offered to hear the truth/],
+    ['d40-komodo-pressed', /another night of silence/],
+    ['d40-komodo-asked-tomorrow', /Tomorrow is here/],
+    ['d40-komodo-confronted', /showed him what you knew/],
+  ] as const) {
+    for (const buyer of BUYER_IDS) {
+      const read = fallText(onDay(1, 41, { flags: [flag] }), BUYERS[buyer])
+      assert.match(read.why, echo, `${buyer}: last night remembers ${flag}`)
+      assert.equal(read.fell, BUYERS[buyer].fell)
+    }
+    const fall = finishDay(onDay(1, 40, { flags: [flag] }))
+    assert.match(fall.report.betrayal!.why!, echo, `Day 41 reads ${flag}`)
+    assert.ok(validateRun(fall.run), `${flag} survives Day 41 saving`)
+  }
+  assert.match(
+    fallText(
+      onDay(1, 41, {
+        flags: ['d40-komodo-confronted', 'd40-komodo-offered-mercy'],
+      }),
+      BUYERS.abbey,
+    ).why,
+    /offered to hear the truth/,
+    'the personal answer outranks the generic confrontation',
+  )
+  for (const [choice, flag, echo] of [
+    ['mercy', 'd40-komodo-offered-mercy', /offered to hear the truth/],
+    ['now', 'd40-komodo-pressed', /another night of silence/],
+    ['tomorrow', 'd40-komodo-asked-tomorrow', /Tomorrow is here/],
+  ] as const) {
+    let run = onDay(401, 40, { flags: ['ledger-page-to-komodo'] })
+    for (const option of ['accounts', 'oil', choice, 'ask-me', 'leave'])
+      run = chooseAudienceOption(run, 'd40-quiet-word', option).run
+    assert.ok(run.flags.includes(flag), `Day 40 earns ${flag}`)
+    const dawn = finishDay(run)
+    assert.match(dawn.report.betrayal!.why!, echo, `Day 41 keeps ${flag}`)
+    assert.ok(validateRun(dawn.run), `${flag} route saves after betrayal`)
+  }
   const d34 = DAYS.find((def) => def.day === 34)!
   assert.notEqual(dayLines({ flags: [] }, d34).komodo, d34.komodo)
   assert.equal(

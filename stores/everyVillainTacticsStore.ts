@@ -35,6 +35,7 @@ import {
 import { powerBlocker } from '~/utils/everyVillainTactics/powers'
 import {
   advanceCrossfire as advanceCrossfireJournal,
+  crossfireCarryover,
   crossfireChapterTitle,
   evtCrossfireKey,
   newCrossfireJournal,
@@ -50,6 +51,8 @@ import {
 import {
   DEFAULT_SETTINGS,
   animationScale,
+  canStartOneShot,
+  ORIGIN_STAGE_LEADS,
   emptyScrapbook,
   evtScrapbookKey,
   evtSettingsKey,
@@ -476,6 +479,13 @@ export const useEveryVillainTacticsStore = defineStore(
       saveMessage.value = 'Crossfire resumed: ' + crossfireChapterTitle(journal)
       return true
     }
+    const crossfireMemory = computed(() => {
+      const journal = crossfire.value
+      if (!crossfireActive.value || !journal || journal.chapter === 0)
+        return null
+      const last = journal.completed[journal.chapter - 1]
+      return last ? crossfireCarryover(last, journal.chapter - 1).note : null
+    })
     const canAdvanceCrossfire = computed(
       () =>
         crossfireActive.value &&
@@ -512,9 +522,13 @@ export const useEveryVillainTacticsStore = defineStore(
       if (!STAGE_PRESETS.some((stage) => stage.id === presetId)) return false
       if (!roster.some((unit) => unit.signature === lead)) return false
       crossfireActive.value = false
-      if (presetId === 'ferris-wheel' && lead !== 'accident-air') {
+      if (!canStartOneShot(presetId, lead)) {
+        const owner = roster.find(
+          (person) => person.signature === ORIGIN_STAGE_LEADS[presetId],
+        )
         saveMessage.value =
-          'Ferris Wheel is Skyline’s origin: choose Accident + Air.'
+          (owner?.hero.alias ?? 'Another hero') +
+          ' owns this origin battle. Choose the matching origin and affinity.'
         return false
       }
       leadSignature.value = lead
@@ -620,6 +634,8 @@ export const useEveryVillainTacticsStore = defineStore(
     function startPlaytest() {
       if (studioProblems.value.length) return false
       crossfireActive.value = false
+      // Studio and one-shot battles do not inherit an earlier story's rival.
+      foilSignature.value = null
       isPlaytest.value = true
       studioOpen.value = false
       reset()
@@ -1308,6 +1324,7 @@ export const useEveryVillainTacticsStore = defineStore(
       story,
       crossfire,
       crossfireActive,
+      crossfireMemory,
       canAdvanceCrossfire,
       startCrossfire,
       continueCrossfire,

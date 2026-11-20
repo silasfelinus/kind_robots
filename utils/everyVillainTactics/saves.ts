@@ -30,6 +30,7 @@ import {
 } from './stageRules'
 import {
   KNOWN_TRIGGERS,
+  isCrossfireFoilStage,
   isValidFoil,
   trainingState,
   waveUnit,
@@ -55,8 +56,8 @@ export type EvtSave = {
   savedAt: string
   perspective: Perspective
   leadSignature: SignaturePowerId
-  /** Story rival lead when the player chose one; absent means First Bell's
-   * default, so saves made before foils keep their checksums. */
+  /** Canonical rival in First Bell or a linked Crossfire chapter.
+   * Optional to preserve the checksum and opponent of older saves. */
   foilSignature?: SignaturePowerId
   /** The one-shot's stage draft; null for story saves. */
   stage: StageDraft | null
@@ -156,7 +157,8 @@ export function createSave(input: {
     savedAt: input.savedAt ?? new Date().toISOString(),
     perspective: input.perspective,
     leadSignature: input.leadSignature as SignaturePowerId,
-    ...(input.foilSignature && !input.stage
+    ...(input.foilSignature &&
+    (!input.stage || isCrossfireFoilStage(input.stage))
       ? { foilSignature: input.foilSignature as SignaturePowerId }
       : {}),
     stage: input.stage ? plainCopy(input.stage) : null,
@@ -465,6 +467,11 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   )
     flagsAllowed.add('wheel-air-bridge')
   if (
+    save.stage?.id === 'sunken-street' &&
+    save.leadSignature === 'accident-earth'
+  )
+    flagsAllowed.add('sinkhole-ramp-secured')
+  if (
     Array.isArray(state.flags) &&
     state.flags.includes('diner-hood-vented') &&
     !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
@@ -477,6 +484,16 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     return reject(
       'The gondolas were not stabilized with Skyline’s signature power.',
     )
+  if (
+    state.flags?.includes('sinkhole-ramp-secured') &&
+    !state.units.some(
+      (unit) =>
+        unit.id === 'backdraft' &&
+        unit.identity === 'accident-earth' &&
+        unit.powerSpent,
+    )
+  )
+    return reject('The sinkhole ramp was not secured with Cornerstone’s power.')
   if (
     state.flags !== undefined &&
     (!Array.isArray(state.flags) ||
@@ -521,7 +538,8 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   const legacy = state.units.every((unit) => unit.role === undefined)
   if (
     save.foilSignature !== undefined &&
-    (save.stage || !isValidFoil(save.foilSignature, save.leadSignature))
+    ((save.stage && !isCrossfireFoilStage(save.stage)) ||
+      !isValidFoil(save.foilSignature, save.leadSignature))
   )
     return reject('Rival foil is not a valid canonical opponent.')
   const reference = trainingState(1, save.stage ?? undefined, {

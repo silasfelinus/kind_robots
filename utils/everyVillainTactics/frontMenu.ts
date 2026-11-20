@@ -324,6 +324,16 @@ export function scrapbookPages(book: Scrapbook): ScrapbookPage[] {
   })
 }
 
+/** Every signature-locked origin battle must stay inaccessible to other leads.
+ * The tactical store also enforces this guard, not only the visual menu. */
+export const ORIGIN_STAGE_LEADS: Readonly<Record<string, string>> = {
+  'last-order': 'accident-fire',
+  'ferris-wheel': 'accident-air',
+  'sunken-street': 'accident-earth',
+}
+export const canStartOneShot = (stageId: string, lead: string): boolean =>
+  !ORIGIN_STAGE_LEADS[stageId] || ORIGIN_STAGE_LEADS[stageId] === lead
+
 /** Replayable one-shot battles offered from the front menu, in menu order. */
 export const ONE_SHOT_MENU: ReadonlyArray<{
   id: string
@@ -339,6 +349,11 @@ export const ONE_SHOT_MENU: ReadonlyArray<{
     id: 'ferris-wheel',
     art: 'districts/waterfront-market',
     tag: 'Skyline origin · stabilize gondolas and rescue two passengers',
+  },
+  {
+    id: 'sunken-street',
+    art: 'incidents/skybridge',
+    tag: 'Cornerstone origin · stabilize a sinkhole and rescue bus passengers',
   },
   {
     id: 'college-quad',

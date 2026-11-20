@@ -32,7 +32,12 @@ export function createVoyageBackup(
 }
 
 export function parseVoyageBackup(source: string): VoyageBackup {
-  if (source.length > VOYAGE_BACKUP_MAX_BYTES) {
+  // The bound is bytes, not UTF-16 code units. Otherwise emoji-rich
+  // voyages could exceed the server's declared size limit.
+  if (
+    source.length > VOYAGE_BACKUP_MAX_BYTES ||
+    new TextEncoder().encode(source).byteLength > VOYAGE_BACKUP_MAX_BYTES
+  ) {
     throw new Error('Backup is too large (8 MB limit).')
   }
   let raw: unknown

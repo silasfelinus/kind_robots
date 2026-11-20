@@ -410,7 +410,14 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     const prefs = readPrefs()
     rainbowHangars.value = Array.from(
       { length: RAINBOW_SLOT_COUNT },
-      (_, index) => readRainbowHangar(prefs.rainbowHangars?.[index]),
+      (_, index) => {
+        const key = rainbowSlotKey(index)
+        const hangar = readRainbowHangar(prefs.rainbowHangars?.[index])
+        return awardRainbowHangarMedals(
+          hangar,
+          key ? saves.value[key] : null,
+        )
+      },
     )
     rainbowSlot.value =
       Number.isInteger(prefs.rainbowSlot) &&

@@ -59,7 +59,6 @@ export const NURSERY_WAVES: readonly NurseryWave[] = [
 ]
 
 const schedule = buildFormationSchedule(NURSERY_WAVES, NURSERY.waveBase)
-export const NURSERY_SPAWNS: readonly NurserySpawn[] = schedule.spawns
 export const NURSERY_WAVE_SIZES: readonly number[] = schedule.sizes
 
 export function nurseryStage(frame: number) {
@@ -71,6 +70,6 @@ export function nurseryStage(frame: number) {
 
 export function nurserySpawns(frame: number): readonly NurserySpawn[] {
   return nurseryStage(frame) === 'waves'
-    ? NURSERY_SPAWNS.filter((spawn) => spawn.at === frame)
+    ? schedule.at(frame)
     : []
 }

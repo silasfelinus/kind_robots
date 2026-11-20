@@ -39,6 +39,15 @@ import {
   rainbowSlotKey,
 } from '~/utils/arcade/games/rainbowSaveSlots'
 import {
+  awardRainbowHangarMedals,
+  emptyRainbowHangar,
+  purchaseRainbowHangarUpgrade,
+  rainbowHangarBonuses as hangarBonuses,
+  readRainbowHangar,
+  type RainbowHangar,
+  type RainbowHangarUpgrade,
+} from '~/utils/arcade/games/rainbowHangar'
+import {
   achievementCode,
   arcadeAchievementsEarned,
   gameAchievementByCode,
@@ -86,6 +95,7 @@ type ArcadePrefs = {
   difficulties?: Record<string, ArcadeDifficulty>
   /** Selected Rainbow campaign slot; slot one keeps the original save key. */
   rainbowSlot?: number
+  rainbowHangars?: RainbowHangar[]
   /** Games whose opening this device has watched or skipped, by slug. */
   openings?: Record<string, boolean>
 }
@@ -209,6 +219,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   /** Each long cabinet's saved progress on this device, by game slug. */
   const saves = ref<SaveRecord>({})
   const rainbowSlot = ref(0)
+  const rainbowHangars = ref<RainbowHangar[]>(
+    Array.from({ length: RAINBOW_SLOT_COUNT }, emptyRainbowHangar),
+  )
   /** Scores waiting in this browser to reach the global board. */
   const pendingCount = ref(0)
   const hallOfFame = ref<HallOfFameEntry[]>([])
@@ -355,8 +368,33 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     savePreferences()
   }
 
+  function rainbowHangarForSlot(): RainbowHangar {
+    return rainbowHangars.value[rainbowSlot.value]!
+  }
+
+  function rainbowHangarBonuses() {
+    return hangarBonuses(rainbowHangarForSlot())
+  }
+
+  function buyRainbowUpgrade(upgrade: RainbowHangarUpgrade): boolean {
+    const previous = rainbowHangarForSlot()
+    const next = purchaseRainbowHangarUpgrade(previous, upgrade)
+    if (next === previous) return false
+    rainbowHangars.value[rainbowSlot.value] = next
+    savePreferences()
+    return true
+  }
+
   /** Keep (or, with null, clear) a game's saved progress. */
   function recordSave(game: string, save: unknown) {
+    if (game === RAINBOW_SAVE_GAME) {
+      const previous = rainbowHangarForSlot()
+      const next = awardRainbowHangarMedals(previous, save)
+      if (next !== previous) {
+        rainbowHangars.value[rainbowSlot.value] = next
+        savePreferences()
+      }
+    }
     const key =
       game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
     if (!key) return
@@ -370,6 +408,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     mastery.value = readMastery()
     saves.value = readSaves()
     const prefs = readPrefs()
+    rainbowHangars.value = Array.from(
+      { length: RAINBOW_SLOT_COUNT },
+      (_, index) => readRainbowHangar(prefs.rainbowHangars?.[index]),
+    )
     rainbowSlot.value =
       Number.isInteger(prefs.rainbowSlot) &&
       prefs.rainbowSlot! >= 0 &&
@@ -416,6 +458,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       difficulties: difficulties.value,
       openings: readPrefs().openings,
       rainbowSlot: rainbowSlot.value,
+      rainbowHangars: rainbowHangars.value,
     })
   }
 
@@ -599,6 +642,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     rainbowSlot,
     rainbowSlotSaves,
     setRainbowSlot,
+    rainbowHangarForSlot,
+    rainbowHangarBonuses,
+    buyRainbowUpgrade,
     playersFor,
     setPlayers,
     board,

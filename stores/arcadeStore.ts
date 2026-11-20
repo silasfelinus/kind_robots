@@ -34,6 +34,11 @@ import {
   type SaveRecord,
 } from '~/utils/arcade/saves'
 import {
+  RAINBOW_SAVE_GAME,
+  RAINBOW_SLOT_COUNT,
+  rainbowSlotKey,
+} from '~/utils/arcade/games/rainbowSaveSlots'
+import {
   achievementCode,
   arcadeAchievementsEarned,
   gameAchievementByCode,
@@ -79,6 +84,8 @@ type ArcadePrefs = {
   players?: Record<string, number>
   /** The difficulty last chosen at each cabinet that offers one, by game slug. */
   difficulties?: Record<string, ArcadeDifficulty>
+  /** Selected Rainbow campaign slot; slot one keeps the original save key. */
+  rainbowSlot?: number
   /** Games whose opening this device has watched or skipped, by slug. */
   openings?: Record<string, boolean>
 }
@@ -201,6 +208,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const mastery = ref<MasteryRecord>({})
   /** Each long cabinet's saved progress on this device, by game slug. */
   const saves = ref<SaveRecord>({})
+  const rainbowSlot = ref(0)
   /** Scores waiting in this browser to reach the global board. */
   const pendingCount = ref(0)
   const hallOfFame = ref<HallOfFameEntry[]>([])
@@ -327,12 +335,30 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   /** A game's saved progress on this device, if any. */
   function saveFor(game: string): unknown {
-    return saves.value[game]
+    const key = game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
+    return key ? saves.value[key] : undefined
+  }
+
+  function rainbowSlotSaves(): unknown[] {
+    return Array.from({ length: RAINBOW_SLOT_COUNT }, (_, index) => {
+      const key = rainbowSlotKey(index)
+      return key ? saves.value[key] : undefined
+    })
+  }
+
+  function setRainbowSlot(slot: number) {
+    if (!Number.isInteger(slot) || slot < 0 || slot >= RAINBOW_SLOT_COUNT)
+      return
+    if (slot === rainbowSlot.value) return
+    rainbowSlot.value = slot
+    savePreferences()
   }
 
   /** Keep (or, with null, clear) a game's saved progress. */
   function recordSave(game: string, save: unknown) {
-    const next = withSave(saves.value, game, save)
+    const key = game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
+    if (!key) return
+    const next = withSave(saves.value, key, save)
     if (next === saves.value) return
     saves.value = next
     writeSaves(next)
@@ -342,6 +368,12 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     mastery.value = readMastery()
     saves.value = readSaves()
     const prefs = readPrefs()
+    rainbowSlot.value =
+      Number.isInteger(prefs.rainbowSlot) &&
+      prefs.rainbowSlot! >= 0 &&
+      prefs.rainbowSlot! < RAINBOW_SLOT_COUNT
+        ? prefs.rainbowSlot!
+        : 0
     muted.value = prefs.muted === true
     volume.value = clampVolume(prefs.volume, 1)
     crt.value = prefs.crt ?? !prefersReducedMotion
@@ -381,6 +413,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       players: seatedPlayers.value,
       difficulties: difficulties.value,
       openings: readPrefs().openings,
+      rainbowSlot: rainbowSlot.value,
     })
   }
 
@@ -561,6 +594,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     awardMasteryAchievements,
     saveFor,
     recordSave,
+    rainbowSlot,
+    rainbowSlotSaves,
+    setRainbowSlot,
     playersFor,
     setPlayers,
     board,

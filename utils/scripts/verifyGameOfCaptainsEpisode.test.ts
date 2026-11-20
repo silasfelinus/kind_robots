@@ -43,6 +43,7 @@ import {
   type EpisodeQuestResult,
   type EpisodeRun,
 } from '../gameOfCaptains/episodeConsole'
+import { REDSHIRT_BY_ID } from '../gameOfCaptains/redshirts'
 
 const base = startVoyage('vale', ['pell', 'mox', 'rue'], 12045)
 const landing = arriveAtWorld(startWorldTravel(base))
@@ -290,6 +291,31 @@ assert.ok(episodeMajorComplete(dispatched))
 assert.equal(dispatched.expeditionVisit?.results.length, mandatory.length)
 assert.ok(observedRedshirt(dispatched, firstRedshirt))
 assert.ok(questOdds(dispatched, mandatory[0]!, firstRedshirt)! > 0)
+// The published chance is for returning alive AND completing the mission.
+// An untrained recruit survives four times in five; a trained one, nine in ten.
+const firstCard = mandatory[0]!
+const firstSkill = REDSHIRT_BY_ID[firstRedshirt]!.stats[firstCard.skill]
+const rawChance = Math.max(
+  8,
+  Math.min(
+    94,
+    22 + firstSkill * 13 - (firstCard.priority === 'major' ? 12 : 0),
+  ),
+)
+const firstReport = dispatched.expeditionVisit!.results.find(
+  (entry) => entry.lead === firstRedshirt,
+) as EpisodeQuestResult | undefined
+assert.ok(firstReport)
+assert.equal(
+  firstReport.chance,
+  Math.floor((rawChance * (firstSkill >= 4 ? 9 : 8)) / 10),
+  'forecast reflects the real one-in-ten or one-in-five fatality risk',
+)
+assert.equal(
+  questOdds(dispatched, firstCard, firstRedshirt),
+  firstReport.chance,
+  'the learned preview and the resolved field report agree',
+)
 assert.deepEqual(
   dispatchEpisodeBatch(landing, assignment),
   dispatched,

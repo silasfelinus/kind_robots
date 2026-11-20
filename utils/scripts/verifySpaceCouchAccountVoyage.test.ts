@@ -33,7 +33,6 @@ assert.throws(
   /invalid or incompatible/,
 )
 
-
 const archiveKey = 'finished'
 const activeKey = 'voyage'
 const originals = new Map([

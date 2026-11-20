@@ -71,3 +71,36 @@ export function nurseryStage(frame: number) {
 export function nurserySpawns(frame: number): readonly NurserySpawn[] {
   return nurseryStage(frame) === 'waves' ? schedule.at(frame) : []
 }
+
+/**
+ * Map the authored Nursery clock into an earned in-flight route window.
+ * Translate every crossed source frame, not only the landing frame: recut
+ * timelines can advance by multiple Nursery frames per cabinet tick.
+ */
+export function nurseryRouteSpawns(
+  frame: number,
+  routeStart: number,
+  routeEnd: number,
+): readonly NurserySpawn[] {
+  if (
+    !Number.isInteger(frame) ||
+    !Number.isInteger(routeStart) ||
+    !Number.isInteger(routeEnd) ||
+    routeEnd <= routeStart ||
+    frame < routeStart ||
+    frame >= routeEnd
+  )
+    return []
+
+  const duration = routeEnd - routeStart
+  const authored = NURSERY.turnStarts - NURSERY.openingEnds
+  const progress = frame - routeStart
+  const from =
+    NURSERY.openingEnds + Math.floor(((progress - 1) * authored) / duration)
+  const to =
+    NURSERY.openingEnds + Math.floor((progress * authored) / duration)
+  const spawns: NurserySpawn[] = []
+  for (let sourceFrame = from + 1; sourceFrame <= to; sourceFrame++)
+    spawns.push(...nurserySpawns(sourceFrame))
+  return spawns
+}

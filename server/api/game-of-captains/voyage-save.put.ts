@@ -54,7 +54,8 @@ export default defineEventHandler(async (event) => {
         if ((error as { code?: string })?.code === 'P2002') {
           throw createError({
             statusCode: 409,
-            message: 'Another device saved to this account. Reload its copy first.',
+            message:
+              'Another device saved to this account. Reload its copy first.',
           })
         }
         throw error
@@ -70,7 +71,8 @@ export default defineEventHandler(async (event) => {
       if (updated.count !== 1) {
         throw createError({
           statusCode: 409,
-          message: 'Another device saved to this account. Reload its copy first.',
+          message:
+            'Another device saved to this account. Reload its copy first.',
         })
       }
     }

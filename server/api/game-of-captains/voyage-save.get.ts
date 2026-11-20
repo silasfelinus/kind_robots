@@ -25,7 +25,8 @@ export default defineEventHandler(async (event) => {
     } catch {
       throw createError({
         statusCode: 500,
-        message: 'Your account backup is invalid. Your device save is unaffected.',
+        message:
+          'Your account backup is invalid. Your device save is unaffected.',
       })
     }
     return {

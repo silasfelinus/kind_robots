@@ -79,10 +79,16 @@ for (const action of [
 assert.match(store, /accountBackupOwner\.value !== owner/)
 assert.match(store, /epoch !== accountBackupEpoch/)
 assert.match(store, /expectedRevision: accountBackupRevision\.value/)
-assert.match(store, /stagedAccountBackupOwner !== userStore\.authenticatedUserId/)
+assert.match(
+  store,
+  /stagedAccountBackupOwner !== userStore\.authenticatedUserId/,
+)
 assert.match(store, /mergeVoyageHistory\(/)
 assert.match(store, /const SAVE_KEY = 'game-of-captains-voyage-v1'/)
-assert.match(store, /if \(restoring\) deedFacts = voyageDeedFacts\(run\.value\)/)
+assert.match(
+  store,
+  /if \(restoring\) deedFacts = voyageDeedFacts\(run\.value\)/,
+)
 for (const id of [
   'space-couch-check-account-backup',
   'space-couch-save-account-backup',

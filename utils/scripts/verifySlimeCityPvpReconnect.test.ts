@@ -200,6 +200,7 @@ const hiddenHand = (view: PvpSnapshot, rivalHand: string[]) =>
 let moves = 0
 let staleRejections = 0
 let races = 0
+let hostTurns = 0
 const host: [Browser, Browser] = [laptop, phone]
 while (moves < 400) {
   const live = await getSlimeCityDuel(id, 1)
@@ -217,7 +218,10 @@ while (moves < 400) {
       staleRejections += 1
       await mover.reconnect(id)
     }
-    if (moves % 7 === 3) {
+    // Schedule collisions by HOST turns, not all turns. The relative number
+    // of guest actions depends on the seeded game; total-move scheduling
+    // can leave a valid 40-turn run with only one race exercised.
+    if (hostTurns % 5 === 0) {
       // Both host tabs fire at the same revision: exactly one lands.
       await idle.reconnect(id)
       const command = mover.nextMove()
@@ -240,6 +244,7 @@ while (moves < 400) {
       const { rivalName: _name, ...shown } = again
       assert.deepEqual(shown, after, 'reconnect shows the mover’s exact board')
     }
+    hostTurns += 1
   } else {
     // The guest was "offline" for the host's turn; it reconnects, then moves.
     const back = await guest.reconnect(id)
@@ -271,6 +276,7 @@ while (moves < 400) {
 }
 assert.ok(moves >= 40, `played ${moves} reconnecting turns`)
 assert.ok(staleRejections >= 10, `stale-tab rejections ${staleRejections}`)
+assert.ok(hostTurns >= 6, `host turns available for collisions ${hostTurns}`)
 assert.ok(races >= 2, `same-revision races ${races}`)
 
 // Forfeit while the host is offline; the host's reconnect shows the result.

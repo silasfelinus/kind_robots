@@ -475,9 +475,7 @@ assert.equal(
 const galaScript = gala.script!
 assert.equal(galaScript.scenes.length, 11)
 const promRun = trainingState(0x67, gala, { lead: 'accident-fire' })
-assert.deepEqual(latchScenes(promRun, galaScript, gala), [
-  'prom-final-opening',
-])
+assert.deepEqual(latchScenes(promRun, galaScript, gala), ['prom-final-opening'])
 const promOpening = pendingScriptScene(promRun, galaScript)!
 assert.ok(
   walkScene(promOpening, [], {

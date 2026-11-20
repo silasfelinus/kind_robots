@@ -266,6 +266,9 @@ jobs:
       - name: Channel content contract
         run: npm run test:channel-content
 
+      - name: Account Banned Meme Lab image and navigation contract
+        run: npm run test:ban-meme-maker
+
       - name: Arcade reviews and private Lair contract
         run: npm run test:arcade-reviews
 

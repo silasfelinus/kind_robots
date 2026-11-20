@@ -11,7 +11,13 @@ import {
   readCrossfireJournal,
   snapshotCrossfire,
 } from '../everyVillainTactics/crossfireCampaign'
-import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
+import { IDENTITY_ARCS, identityFor } from '../cometAcademy/identityArcs'
+import {
+  crossfireChapterBeat,
+  crossfireCurrentChapter,
+  crossfireFinale,
+  crossfirePreviousChapter,
+} from '../everyVillainTactics/crossfireNarrative'
 import { createStory } from '../everyVillainTactics/firstBellStory'
 import { createSave, evtSaveKey, loadSave } from '../everyVillainTactics/saves'
 import { clonePreset, stageProblems } from '../everyVillainTactics/studio'
@@ -465,6 +471,165 @@ const scarSave = createSave({
 })
 assert.ok(loadSave(scarSave).ok, 'persistent wounds remain legal and playable')
 
+// Every chapter now leaves a unique report that responds to the actual
+// decisions. The final prom outcome is earned from the whole six-act history.
+const choiceFlags = [
+  ['', ''],
+  ['lab-rescued', 'lab-evidence'],
+  ['crosswalk-medics', 'crosswalk-jammed'],
+  ['roof-warning', 'roof-jammed'],
+  ['breach-vented', 'breach-evidence'],
+  ['prom-shelter', 'prom-command'],
+] as const
+for (let chapter = 0; chapter < CROSSFIRE_CHAPTERS.length; chapter++) {
+  const battle = journal.completed[chapter]!
+  const rescue = structuredClone(battle)
+  const evidence = structuredClone(battle)
+  const command = structuredClone(battle)
+  if (chapter === 0) {
+    rescue.story.mercy = true
+    rescue.story.evidence = 0
+    evidence.story.mercy = false
+    evidence.story.civilians = 0
+    evidence.story.evidence = 2
+    command.story.mercy = false
+    command.story.civilians = 0
+    command.story.evidence = 0
+  } else {
+    rescue.state.flags = [choiceFlags[chapter]![0]]
+    evidence.state.flags = [choiceFlags[chapter]![1]]
+    command.state.flags = []
+  }
+  const passages = [rescue, evidence, command].map((result) =>
+    crossfireChapterBeat(
+      chapter,
+      result,
+      'accident-fire',
+      'accident-air',
+      'hero',
+    ),
+  )
+  assert.equal(passages[0]!.choice, 'rescue')
+  assert.equal(
+    passages[1]!.choice,
+    chapter === 5 ? 'command' : 'evidence',
+  )
+  assert.equal(passages[2]!.choice, 'command')
+  assert.ok(
+    passages.every(
+      (beat) =>
+        beat.text.includes(identityFor('accident-fire').hero.alias) &&
+        beat.text.includes(identityFor('accident-air').hero.alias),
+    ),
+  )
+  assert.notEqual(passages[0]!.text, passages[2]!.text)
+  assert.notEqual(passages[0]!.title, passages[2]!.title)
+  const villain = crossfireChapterBeat(
+    chapter,
+    rescue,
+    'accident-fire',
+    'accident-air',
+    'villain',
+  )
+  assert.notEqual(villain.text, passages[0]!.text)
+}
+assert.equal(
+  crossfirePreviousChapter({
+    ...journal,
+    chapter: 0,
+  }),
+  null,
+)
+assert.ok(crossfirePreviousChapter(journal))
+assert.equal(
+  crossfireCurrentChapter(journal, {
+    ...journal.active,
+    state: { ...journal.active.state, phase: 'active' },
+  }),
+  null,
+  'chapter endings cannot appear before victory',
+)
+
+function finalNarrative(
+  decisions: Array<'rescue' | 'evidence' | 'command'>,
+  promDecision: 'shelter' | 'command',
+) {
+  const result = structuredClone(journal)
+  for (let index = 0; index < 5; index++) {
+    const save = result.completed[index]!
+    const decision = decisions[index]
+    if (index === 0) {
+      save.story.mercy = decision === 'rescue'
+      save.story.civilians = 0
+      save.story.evidence = decision === 'evidence' ? 1 : 0
+    } else {
+      const flag =
+        decision === 'rescue'
+          ? choiceFlags[index]![0]
+          : decision === 'evidence'
+            ? choiceFlags[index]![1]
+            : null
+      save.state.flags = flag ? [flag] : []
+    }
+  }
+  const final = structuredClone(result.active)
+  final.state.flags = [
+    promDecision === 'shelter' ? 'prom-shelter' : 'prom-command',
+  ]
+  return crossfireFinale(result, final)!
+}
+const openedDoors = finalNarrative(
+  ['rescue', 'rescue', 'rescue', 'evidence', 'command'],
+  'shelter',
+)
+const blackBox = finalNarrative(
+  ['evidence', 'evidence', 'evidence', 'rescue', 'command'],
+  'shelter',
+)
+const unfinished = finalNarrative(
+  ['command', 'command', 'rescue', 'command', 'command'],
+  'shelter',
+)
+const signedOrder = finalNarrative(
+  ['rescue', 'rescue', 'rescue', 'rescue', 'rescue'],
+  'command',
+)
+assert.deepEqual(
+  [
+    openedDoors.path,
+    blackBox.path,
+    unfinished.path,
+    signedOrder.path,
+  ],
+  ['open-doors', 'black-box', 'unfinished', 'signed-order'],
+)
+assert.equal(
+  crossfireFinale(journal, {
+    ...journal.active,
+    state: { ...journal.active.state, phase: 'defeat' },
+  }),
+  null,
+  'a lost final battle never earns a closing outcome',
+)
+assert.equal(
+  crossfireFinale({
+    ...journal,
+    completed: journal.completed.slice(0, 2),
+  }),
+  null,
+  'skipped chapters cannot earn a final ending',
+)
+for (const person of IDENTITY_ARCS) {
+  const passage = crossfireChapterBeat(
+    3,
+    journal.completed[3]!,
+    person.signature,
+    'accident-air',
+    'hero',
+  )
+  assert.ok(passage.text.includes(person.hero.alias))
+}
+
 const store = readFileSync('stores/everyVillainTacticsStore.ts', 'utf8')
 const front = readFileSync(
   'components/every-villain-tactics/every-villain-front-menu.vue',
@@ -482,6 +647,10 @@ assert.ok(front.includes('data-testid="front-new-crossfire"'))
 assert.ok(front.includes('data-testid="front-continue-crossfire"'))
 assert.ok(front.includes('data-testid="front-new-story"'))
 assert.ok(page.includes('data-testid="tactics-crossfire-advance"'))
+assert.ok(page.includes('data-testid="tactics-crossfire-epilogue"'))
+assert.ok(page.includes('data-testid="tactics-crossfire-earned-ending"'))
+assert.ok(store.includes('const crossfireAftermath = computed('))
+assert.ok(store.includes('const crossfireEnding = computed('))
 console.log(
   'Crossfire: six ordered chapters, independent save key, First Bell story bridge, verified victory/defeat transitions, checkpoint restoration, anti-forgery and UI wiring checked.',
 )

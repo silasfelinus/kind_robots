@@ -29,7 +29,7 @@ export const NURSERY_GUARDIAN: RainbowGuardianSection = {
   name: 'Lantern matriarch',
   from: 3600,
   to: 4380,
-  kind: 'lantern',
+  kind: 'matriarch',
 }
 
 /** Teach false pickup halos, remix with bubble rings, subvert with skates,
@@ -102,4 +102,22 @@ export function nurseryRouteSpawns(
   for (let sourceFrame = from + 1; sourceFrame <= to; sourceFrame++)
     spawns.push(...nurserySpawns(sourceFrame))
   return spawns
+}
+
+/** The living Nursery's guardian occupies the final portion of the earned Act III fork. */
+export function nurseryGuardianWindow(
+  routeStart: number,
+  routeEnd: number,
+): { from: number; to: number } {
+  const duration = routeEnd - routeStart
+  const authored = NURSERY.turnStarts - NURSERY.openingEnds
+  return {
+    from:
+      routeStart +
+      Math.ceil(
+        ((NURSERY_GUARDIAN.from - NURSERY.openingEnds) * duration) /
+          authored,
+      ),
+    to: routeEnd,
+  }
 }

@@ -78,7 +78,7 @@
           class="btn btn-sm btn-outline border-warning/70 text-warning"
           data-testid="emperor-achievements-menu"
         >
-          <Icon name="kind-icon:award" class="size-4" /> Achievements
+          <Icon name="kind-icon:star" class="size-4" /> Achievements
         </NuxtLink>
         <button
           v-if="hasSave"

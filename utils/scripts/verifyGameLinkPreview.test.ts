@@ -61,6 +61,10 @@ assert.equal(
   'https://kindrobots.org/ecotone/scenes/prologue-meadow.webp',
 )
 assert.equal(meta?.twitterCard, 'summary_large_image')
+assert.equal(
+  gameLinkPreviewMeta('ban-meme', 'https://kindrobots.org/')?.ogUrl,
+  'https://kindrobots.org/ban-meme',
+)
 assert.equal(gameLinkPreviewMeta('nope', 'https://x.test'), null)
 assert.equal(
   gameLinkPreviewMeta('aquarium', 'https://kindrobots.org')?.ogUrl,
@@ -74,6 +78,7 @@ const pageFor: Record<string, string> = {
   'butterfly-gallery': 'pages/butterfly-gallery.vue',
   mandarin: 'pages/play/mandarin/index.vue',
   arcade: 'pages/play/arcade/index.vue',
+  'ban-meme': 'pages/ban-meme.vue',
   brainstorm: 'pages/brainstorm.vue',
   'music-mentor': 'pages/music-mentor.vue',
   'coloring-page': 'pages/coloring-page.vue',

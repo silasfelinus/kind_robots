@@ -1207,6 +1207,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'pottery-wheel-throw',
+    label: 'Pottery Wheel Throw',
+    reveal: 'Wet clay spins on a wheel and is thrown from form to form',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A lump of clay becomes a vase, a bowl, a bottle, a jar 🏺 hover to press a groove, click to kick the wheel',
+    color: '#b86f45',
+    releasedAt: '2026-11-20T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

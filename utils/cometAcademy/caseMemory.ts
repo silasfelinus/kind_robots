@@ -150,8 +150,7 @@ export function delayedFactionResponse(
   record: CaseMemory,
   currentDay: number,
 ): string | null {
-  if (currentDay - record.day < 2 || currentDay - record.day > 5)
-    return null
+  if (currentDay - record.day < 2 || currentDay - record.day > 5) return null
   const thread = caseThread(record.caseId)
   if (!thread) return null
   const responses: Record<CaseThread, Record<MorningGrade, string>> = {
@@ -167,19 +166,22 @@ export function delayedFactionResponse(
       pass: 'Dispatchers now relay warnings through the academy radio.',
       partial: 'The transit union is demanding a public safety hearing.',
       failed: 'The rail authority has withdrawn student platform access.',
-      refused: 'Night-shift drivers have begun running their own rescue drills.',
+      refused:
+        'Night-shift drivers have begun running their own rescue drills.',
     },
     harbor: {
       honors: 'Dockworkers have established a volunteer rescue launch.',
       pass: 'The harbor patrol now shares its weather bulletins.',
       partial: 'Pier families have petitioned for an independent inquiry.',
       failed: 'The dock union has barred academy patrols from its piers.',
-      refused: 'Harbor residents have funded a rescue boat without the academy.',
+      refused:
+        'Harbor residents have funded a rescue boat without the academy.',
     },
     civic: {
       honors: 'Neighborhood medics have opened their records to the team.',
       pass: 'The city council has scheduled a joint emergency briefing.',
-      partial: 'A citizens committee is gathering testimony about the response.',
+      partial:
+        'A citizens committee is gathering testimony about the response.',
       failed: 'City hall has ordered a review of academy patrol authority.',
       refused: 'Residents have formed a civilian emergency response network.',
     },

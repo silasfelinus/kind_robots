@@ -869,7 +869,7 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
     state.flags.push('wheel-air-bridge')
     note(
       state,
-      'Skyline anchors the Updraft Catch to Priya’s wind gauge. The air corridor reaches both gondolas; both hatches can now open.',
+      'Skyline lands on the wind gauge with Updraft Catch. The air corridor reaches both gondolas; both hatches can now open.',
     )
   }
   // A leap lands in view of rival overwatch like any other move.

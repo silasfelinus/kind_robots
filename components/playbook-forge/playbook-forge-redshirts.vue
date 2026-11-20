@@ -16,14 +16,33 @@
           {{ EXPEDITION_ENCOUNTERS.length }} expedition encounters
         </p>
       </div>
-      <button
-        type="button"
-        data-nav
-        class="btn btn-sm btn-ghost pf-focusable"
-        @click="forge.back()"
-      >
-        Back to the Forge
-      </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          data-nav
+          data-testid="space-couch-register-redshirt-candidates"
+          class="btn btn-sm btn-secondary pf-focusable"
+          :disabled="atlas.posting"
+          @click="atlas.reconcileRoundThree()"
+        >
+          Register 24 renders
+        </button>
+        <NuxtLink
+          to="/admin/art-slots"
+          data-testid="space-couch-curate-redshirt-art"
+          class="btn btn-sm btn-outline pf-focusable"
+        >
+          Curate in Art Slots
+        </NuxtLink>
+        <button
+          type="button"
+          data-nav
+          class="btn btn-sm btn-ghost pf-focusable"
+          @click="forge.back()"
+        >
+          Back to the Forge
+        </button>
+      </div>
     </header>
 
     <div

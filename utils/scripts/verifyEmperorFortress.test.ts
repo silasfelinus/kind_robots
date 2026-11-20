@@ -9510,7 +9510,7 @@ const actOneVoiceChecks = [
   ['d05-toll-grudge', 'ask-feast', /Your guards searched the ovens instead/],
   ['d06-market-charter', 'ask-stalls', /four of us on blankets/],
   ['d07-old-houses', 'refuse', /carry the granary key away/],
-  ['d08-coldbrooks', 'recorded', /who keeps the book/],
+  ['d08-family', 'recorded', /who keeps the book/],
   ['d09-kitchens', 'ask-yard', /which came back without names/],
   ['d09-kitchens', 'kitchens', /scrape the burned part/],
   ['d10-thistledown', 'bargain', /sell a village twice/],
@@ -9520,11 +9520,14 @@ for (const [sceneId, optionId, phrase] of actOneVoiceChecks) {
     (entry) => entry.id === sceneId,
   )
   assert.ok(scene, sceneId + ': Act I audience survives')
-  const option = scene.options.find((entry) => entry.id === optionId)
-  assert.ok(option, sceneId + '/' + optionId + ': choice survives')
-  assert.match(
-    option.response,
-    phrase,
+  const choices = [
+    ...scene.options,
+    ...(scene.beats ?? []).flatMap((beat) => beat.options),
+  ]
+  assert.ok(
+    choices.some(
+      (option) => option.id === optionId && phrase.test(option.response),
+    ),
     sceneId + '/' + optionId + ': consequence remains distinct',
   )
 }

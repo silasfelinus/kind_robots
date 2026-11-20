@@ -12,11 +12,10 @@ import {
   worldEvents,
 } from '../memoryDungeon/overworldEventCatalog'
 import { EARTH_PHOTOS } from '../memoryDungeon/chronicle'
-import {
+import deliveredManifest, {
   DELIVERED_EVENT_ART_PATHS,
   eventArtStatus,
 } from '../memoryDungeon/deliveredEventArt'
-import deliveredManifest from '../memoryDungeon/deliveredEventArt.json'
 import { HOSHIMORI_NIGHT_SITES } from '../memoryDungeon/hoshimoriNight'
 import { BRIAR_COLLISION_SCENES } from '../memoryDungeon/briarCollision'
 import { briarCollisionWitnessCallback } from '../memoryDungeon/briarCollisionWitness'

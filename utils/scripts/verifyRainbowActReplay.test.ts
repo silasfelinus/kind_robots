@@ -5,7 +5,10 @@ import {
   rainbowActReplaySave,
 } from '../arcade/games/rainbowActReplay'
 import { emptyRainbowHangar } from '../arcade/games/rainbowHangar'
-import { isRainbowCheckpoint } from '../arcade/games/rainbowPrincessPreview'
+import {
+  createRainbowPrincessPreview,
+  isRainbowCheckpoint,
+} from '../arcade/games/rainbowPrincessPreview'
 
 const fresh = emptyRainbowHangar()
 assert.equal(canReplayRainbowAct(1, null, fresh), false)
@@ -74,4 +77,46 @@ assert.deepEqual(replay.pilots, [2, 0, 3])
 assert.equal(JSON.stringify(old), serialized)
 assert.ok(readRainbowSave(replay, isRainbowCheckpoint))
 assert.equal(rainbowActReplaySave(8, old, fresh), null)
-console.log('rainbow Act replay: ok (locks, sandbox snapshot, slot integrity)')
+const idle = {
+  held: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+  pressed: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+}
+for (const seats of [1, 4]) {
+  const instance = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    demo: false,
+    players: seats,
+    selectScreen: true,
+    rainbowReplay: replay,
+  })
+  assert.equal(instance.level, 6)
+  assert.equal(instance.snapshot.activePlayers, seats)
+  assert.equal(instance.snapshot.resumeMenu, null)
+  assert.equal(instance.snapshot.selectMenu, null)
+  assert.equal(instance.save, undefined)
+  instance.update(idle, Array.from({ length: seats }, () => idle))
+  assert.equal(instance.snapshot.checkpoint.act, 6)
+  assert.equal(instance.snapshot.checkpoint.frame, 0)
+  assert.equal(instance.snapshot.medals[5], undefined)
+  assert.equal(instance.save, undefined)
+  assert.deepEqual(instance.mastered, [])
+}
+console.log('rainbow Act replay: ok (locks, sandbox and 1/4 seat flight)')

@@ -21,8 +21,10 @@ export const IDENTITY_VISUAL_SIGNATURES = {
     anatomy: 'Dark skin, heat-cracked fingertips and ember-lit hairline',
     signatureProp: 'Oversized kitchen mitts clipped to a scorched apron belt',
     movement: 'Plants his feet before each deliberate, heat-shielded rescue',
-    transformation: 'Heat bends the air around his hands without changing his face',
-    portraitDirection: 'Dez holds an unburnt paper lunch bag in both padded hands',
+    transformation:
+      'Heat bends the air around his hands without changing his face',
+    portraitDirection:
+      'Dez holds an unburnt paper lunch bag in both padded hands',
   },
   'accident-genius': {
     silhouette: 'Towering beehive hair above a narrow laboratory coat',
@@ -30,14 +32,16 @@ export const IDENTITY_VISUAL_SIGNATURES = {
     signatureProp: 'A pocket carousel of impossible prototype tools',
     movement: 'Stops mid-stride to scribble calculations on any surface',
     transformation: 'Her inventions unfold around her, not over her face',
-    portraitDirection: 'Otto balances three sparking prototypes while taking notes',
+    portraitDirection:
+      'Otto balances three sparking prototypes while taking notes',
   },
   'mutant-fire': {
     silhouette: 'Compact fighter with an uneven corona of living cinders',
     anatomy: 'Ash-patterned skin with bright seams along the forearms',
     signatureProp: 'A dented metal thermos used to cool her palms',
     movement: 'Darts sideways before flaring into a defensive stance',
-    transformation: 'Cinders rise from her skin while her recognizable face remains',
+    transformation:
+      'Cinders rise from her skin while her recognizable face remains',
     portraitDirection: 'Ruby shields a small seedling from her own heat',
   },
   'mutant-genius': {
@@ -46,7 +50,8 @@ export const IDENTITY_VISUAL_SIGNATURES = {
     signatureProp: 'A battered notebook full of contingency diagrams',
     movement: 'Anticipates danger and moves a heartbeat before it arrives',
     transformation: 'Vein patterns brighten as predictions multiply',
-    portraitDirection: 'Theo watches several domino chains with visible concern',
+    portraitDirection:
+      'Theo watches several domino chains with visible concern',
   },
   'tech-fire': {
     silhouette: 'Angular armored shoulders with twin compact furnace vents',
@@ -60,16 +65,19 @@ export const IDENTITY_VISUAL_SIGNATURES = {
     silhouette: 'Short, broad amphibian scientist with enormous webbed hands',
     anatomy: 'Genuine frog muzzle, bulging eyes, mottled skin and throat sac',
     signatureProp: 'A glass reagent bandolier and tiny waterproof spectacles',
-    movement: 'Explosive crouched leaps followed by exacting laboratory gestures',
+    movement:
+      'Explosive crouched leaps followed by exacting laboratory gestures',
     transformation: 'Throat sac inflates as chemical reactions change color',
     portraitDirection: 'Dr. Frog examines a bubbling flask with one eye',
   },
   'magic-fire': {
     silhouette: 'Tall layered robes with a hovering ring of lantern flames',
     anatomy: 'Recognizable face and ink-stained fingers beneath the sleeves',
-    signatureProp: 'A crooked hand lantern with several separate flame chambers',
+    signatureProp:
+      'A crooked hand lantern with several separate flame chambers',
     movement: 'Slow circular gestures that pull flames into protective paths',
-    transformation: 'Runes illuminate the robe hems without replacing the wearer',
+    transformation:
+      'Runes illuminate the robe hems without replacing the wearer',
     portraitDirection: 'Hollis lights a dark stairwell with a lantern held low',
   },
   'magic-genius': {
@@ -85,13 +93,15 @@ export const IDENTITY_VISUAL_SIGNATURES = {
     anatomy: 'Translucent luminous skin and unfamiliar joint proportions',
     signatureProp: 'A small insulated case containing a fragment of home',
     movement: 'Floats in short arcs with light trailing from the limbs',
-    transformation: 'Solar markings brighten while facial features remain stable',
+    transformation:
+      'Solar markings brighten while facial features remain stable',
     portraitDirection: 'Ixi cups a tiny artificial sun above an open palm',
   },
   'alien-genius': {
     silhouette: 'Tall asymmetric alien with multiple articulated sensory fins',
     anatomy: 'Distinctive alien eyes and patterned nonhuman skin',
-    signatureProp: 'A floating translation instrument built from salvaged parts',
+    signatureProp:
+      'A floating translation instrument built from salvaged parts',
     movement: 'Sensory fins turn toward problems before the body does',
     transformation: 'Fins spread into a geometric antenna array',
     portraitDirection: 'Oorin repairs a translator beside a curious student',
@@ -105,7 +115,8 @@ export const IDENTITY_VISUAL_SIGNATURES = {
     portraitDirection: 'Cassidy holds a glowing remembered photograph',
   },
   'psychic-genius': {
-    silhouette: 'Still upright posture with a halo of suspended thought fragments',
+    silhouette:
+      'Still upright posture with a halo of suspended thought fragments',
     anatomy: 'Expressive eyes and an unmistakable asymmetric haircut',
     signatureProp: 'A deck of handwritten question cards',
     movement: 'Barely moves while surrounding objects reveal hidden patterns',
@@ -116,7 +127,9 @@ export const IDENTITY_VISUAL_SIGNATURES = {
 
 export function visualSignatureFor(signature: SignaturePowerId) {
   identityFor(signature)
-  return IDENTITY_VISUAL_SIGNATURES[
-    signature as keyof typeof IDENTITY_VISUAL_SIGNATURES
-  ] ?? null
+  return (
+    IDENTITY_VISUAL_SIGNATURES[
+      signature as keyof typeof IDENTITY_VISUAL_SIGNATURES
+    ] ?? null
+  )
 }

@@ -224,6 +224,34 @@ export const usePlaybookForgeRedshirtsStore = defineStore(
       persist()
     }
 
+    async function reconcileRoundThree() {
+      if (posting.value) return
+      posting.value = true
+      status.value = 'Checking 24 rendered redshirt candidates…'
+      try {
+        const response = await performFetch<{
+          expected: number
+          registered: number
+          pending: number
+        }>('/api/game-of-captains/redshirt-art/sync', {
+          method: 'POST',
+        })
+        if (!response.success || !response.data) {
+          status.value =
+            'Art-slot registration failed: ' +
+            (response.message || 'Could not reconcile candidates.')
+          return
+        }
+        const result = response.data
+        status.value =
+          `${result.registered}/${result.expected} private candidates registered. ` +
+          `${result.pending} missing or mismatched renders. ` +
+          'Nothing has been liked, selected or published.'
+      } finally {
+        posting.value = false
+      }
+    }
+
     return {
       drafts,
       portraits,
@@ -236,6 +264,7 @@ export const usePlaybookForgeRedshirtsStore = defineStore(
       submitRosterDirection,
       render,
       refresh,
+      reconcileRoundThree,
     }
   },
 )

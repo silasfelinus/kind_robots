@@ -294,16 +294,19 @@ export const STAGE_PRESETS: StageDraft[] = [
     turnLimit: 8,
     civilians: [
       { id: 'library-family', name: 'Family beside the dark lift', x: 7, y: 2 },
-      { id: 'concert-ushers', name: 'Volunteer ushers behind the stage', x: 7, y: 4 },
+      {
+        id: 'concert-ushers',
+        name: 'Volunteer ushers behind the stage',
+        x: 7,
+        y: 4,
+      },
     ],
     props: [
       { id: 'license-kiosk', x: 4, y: 3, cover: 'half', hp: 2 },
       { id: 'public-archive', x: 6, y: 1, cover: 'full', hp: 3 },
       { id: 'stage-speaker', x: 5, y: 4, cover: 'half', hp: 2 },
     ],
-    activeHazards: [
-      { id: 'sparking-generator', kind: 'fire', x: 5, y: 3 },
-    ],
+    activeHazards: [{ id: 'sparking-generator', kind: 'fire', x: 5, y: 3 }],
     victory: { kind: 'rescue', count: 2 },
     script: UNLICENSED_RESCUE_SCRIPT,
   },

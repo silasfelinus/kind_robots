@@ -386,11 +386,13 @@
                 loading="lazy"
               />
               <span class="evf-stage-text">
-                <small class="evf-kicker">CAPTAIN VALCOURT / ORIGIN BATTLE</small>
+                <small class="evf-kicker"
+                  >CAPTAIN VALCOURT / ORIGIN BATTLE</small
+                >
                 <strong>The Unlicensed Rescue</strong>
                 <span>
-                  Shield an ally on the west side of the private security
-                  gate, then evacuate both groups from the darkened library.
+                  Shield an ally on the west side of the private security gate,
+                  then evacuate both groups from the darkened library.
                 </span>
               </span>
             </button>

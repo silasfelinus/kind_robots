@@ -477,7 +477,7 @@ function checkpointName(c: Readonly<RainbowCheckpoint>): string {
       ? checkpointLabel(MOONJELLY_SECTIONS, MOONJELLY.bossStarts, c.frame)
       : c.act === 3
         ? checkpointLabel(
-            trenchSections(c.trenchRoute),
+            trenchSections(c.trenchRoute, c.rescuedNemi),
             TRENCH.bossStarts,
             c.frame,
           )
@@ -1293,7 +1293,7 @@ export function createRainbowPrincessPreview(
       act === 2
         ? MOONJELLY_SECTIONS
         : act === 3
-          ? trenchSections(trenchRoute)
+          ? trenchSections(trenchRoute, rescuedNemi)
           : act === 4
             ? ROSEFIN_SECTIONS
             : act === 5

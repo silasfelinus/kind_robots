@@ -839,6 +839,19 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
   const result = usePower(state, unit, target)
   if (!result) return false
   narratePower(state, unit, result.preview, result.hit, result.roll)
+  if (
+    state.stageId === 'last-order' &&
+    unit.identity === 'accident-fire' &&
+    result.hit &&
+    result.preview.cells.some((cell) => cell.x === 4 && cell.y === 2) &&
+    !state.flags.includes('diner-hood-vented')
+  ) {
+    state.flags.push('diner-hood-vented')
+    note(
+      state,
+      'Backdraft routes the grease fire into the extractor hood. Mara can now cross the kitchen safely.',
+    )
+  }
   // A leap lands in view of rival overwatch like any other move.
   if (result.preview.power.targeting === 'leap') triggerReactions(state, unit)
   updateOutcome(state)
@@ -854,6 +867,12 @@ export function rescueTargets(state: TrainingState): Civilian[] {
   const unit = selectedUnit(state)
   if (!unit || unit.ap < 1 || state.phase !== 'active') return []
   return waitingCivilians(state)
+    .filter(
+      (c) =>
+        state.stageId !== 'last-order' ||
+        c.id !== 'diner-cook' ||
+        state.flags.includes('diner-hood-vented'),
+    )
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))
 }

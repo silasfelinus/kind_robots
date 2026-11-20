@@ -240,6 +240,36 @@
           First Bell foil: {{ foilAlias }} · supporting cast joins
           automatically.
         </p>
+        <div
+          v-if="pickedLead === 'accident-fire'"
+          class="evf-origin-battle"
+          data-testid="front-origin-battle"
+        >
+          <h3 class="evf-label">YOUR POWER ORIGIN / THE LAST ORDER</h3>
+          <div class="evf-stages">
+            <button
+              type="button"
+              class="evf-stage"
+              data-testid="front-origin-last-order"
+              @click="store.startOneShot('last-order', pickedLead, pickedView)"
+            >
+              <img
+                v-if="art('districts/neon-arcade')"
+                :src="art('districts/neon-arcade')!"
+                alt=""
+                loading="lazy"
+              />
+              <span class="evf-stage-text">
+                <small class="evf-kicker">BACKDRAFT / ORIGIN BATTLE</small>
+                <strong>The Last Order</strong>
+                <span>
+                  Vent a burning kitchen with your signature power, then rescue
+                  the cook. Your evidence or rescue choice follows you home.
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
           <div class="evf-stages">

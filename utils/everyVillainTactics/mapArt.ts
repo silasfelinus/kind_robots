@@ -15,6 +15,8 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'fountain-hold': 265015,
   'lab-mascot-recall': 265017,
   'boiler-room': 265018,
+  // Temporary industrial interior painting; a diner-specific plate is still needed.
+  'last-order': 265018,
 }
 
 export function paintedMapArtId(stageId: string | null): number | null {

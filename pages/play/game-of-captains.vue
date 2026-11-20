@@ -1437,6 +1437,7 @@
                 :backdrop="stagePainting"
                 :franchise-image="franchiseImage"
                 :artwork="store.onboardingArt"
+                :redshirt-artwork="store.redshirtArtwork"
                 :knowledge="store.redshirtKnowledge"
                 @hire="store.hire()"
                 @dispatch="store.deployBatch"
@@ -2710,6 +2711,7 @@ onMounted(() => {
   store.load()
   void store.loadOnboardingArt()
   void store.loadAlienArtwork()
+  void store.loadRedshirtArtwork()
 })
 useSeoMeta(
   gameLinkPreviewMeta(

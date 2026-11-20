@@ -16,15 +16,42 @@
           {{ EXPEDITION_ENCOUNTERS.length }} expedition encounters
         </p>
       </div>
-      <button
-        type="button"
-        data-nav
-        class="btn btn-sm btn-ghost pf-focusable"
-        @click="forge.back()"
-      >
-        Back to the Forge
-      </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          data-nav
+          data-testid="space-couch-register-redshirt-candidates"
+          class="btn btn-sm btn-secondary pf-focusable"
+          :disabled="atlas.posting"
+          @click="atlas.reconcileRoundThree()"
+        >
+          Register 24 renders
+        </button>
+        <NuxtLink
+          to="/admin/art-slots"
+          data-testid="space-couch-curate-redshirt-art"
+          class="btn btn-sm btn-outline pf-focusable"
+        >
+          Curate in Art Slots
+        </NuxtLink>
+        <button
+          type="button"
+          data-nav
+          class="btn btn-sm btn-ghost pf-focusable"
+          @click="forge.back()"
+        >
+          Back to the Forge
+        </button>
+      </div>
     </header>
+    <p
+      class="mt-1 text-xs opacity-75"
+      data-testid="space-couch-redshirt-curation-policy"
+    >
+      Registering Krea2 renders only makes them available for review. Like and
+      select a suitable candidate in Art Slots; publishing its image is a
+      separate, explicit step.
+    </p>
 
     <div
       class="kr-scroll grid min-h-0 content-start items-start gap-3 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]"

@@ -293,6 +293,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     collectorReport.value = null
     alienArtwork.value = {}
     alienArtLoaded.value = false
+    redshirtArtwork.value = {}
+    redshirtArtLoaded.value = false
     onboardingArt.value = {}
     onboardingArtLoaded.value = false
     trioArtwork.value = {}
@@ -363,6 +365,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       if (!loaded.value) return
       void syncAlienGuideAccount()
       void loadAlienArtwork()
+      void loadRedshirtArtwork()
       void loadOnboardingArt()
       if (run.value) void loadTrioArtwork(trioKey(run.value.crew))
     },
@@ -495,6 +498,24 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
       if (epoch === accountEpoch) alienArtwork.value = {}
     } finally {
       if (epoch === accountEpoch) alienArtLoaded.value = true
+    }
+  }
+  const redshirtArtwork = ref<Record<string, string>>({})
+  const redshirtArtLoaded = ref(false)
+  async function loadRedshirtArtwork() {
+    if (redshirtArtLoaded.value) return
+    const epoch = accountEpoch
+    try {
+      const response = await performFetch<Record<string, string>>(
+        '/api/game-of-captains/redshirt-art',
+      )
+      if (epoch === accountEpoch && response.success && response.data) {
+        redshirtArtwork.value = response.data
+      }
+    } catch {
+      if (epoch === accountEpoch) redshirtArtwork.value = {}
+    } finally {
+      if (epoch === accountEpoch) redshirtArtLoaded.value = true
     }
   }
   const onboardingArt = ref<Record<string, string>>({})
@@ -994,6 +1015,8 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     stageVoyageBackup,
     cancelVoyageBackup,
     applyVoyageBackup,
+    redshirtArtwork,
+    loadRedshirtArtwork,
     onboardingArt,
     onboardingArtLoaded,
     loadOnboardingArt,

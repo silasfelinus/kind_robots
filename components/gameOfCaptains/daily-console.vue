@@ -69,7 +69,12 @@
               @click="selectedLead = actor.id"
             >
               <span class="daily-actor-face">
-                <img v-if="actor.image" :src="actor.image" alt="" />
+                <img
+                  v-if="actor.image"
+                  :src="actor.image"
+                  alt=""
+                  @error="onEpisodeArtworkError"
+                />
                 <span v-else>{{ actor.initial }}</span>
               </span>
               <span class="daily-actor-text">
@@ -150,7 +155,12 @@
                 @click="chooseScoutActor(scoutedEncounter.id, actor.id)"
               >
                 <span class="daily-actor-face">
-                  <img v-if="actor.image" :src="actor.image" alt="" />
+                  <img
+                    v-if="actor.image"
+                    :src="actor.image"
+                    alt=""
+                    @error="onEpisodeArtworkError"
+                  />
                   <span v-else>{{ actor.initial }}</span>
                 </span>
                 <span class="daily-scout-actor-name">
@@ -579,6 +589,7 @@ const props = defineProps<{
   backdrop: string
   franchiseImage: string | null
   artwork?: Record<string, string>
+  redshirtArtwork?: Record<string, string>
   knowledge: RedshirtKnowledge
 }>()
 const emit = defineEmits<{
@@ -674,6 +685,13 @@ const resultPainting = computed(() => {
   const url = key ? props.artwork?.[key] : null
   return url && !brokenArtwork.value.includes(url) ? url : null
 })
+function redshirtPortrait(id: string): string | null {
+  const key = 'redshirts/portraits/' + id
+  const reviewed = props.redshirtArtwork?.[key]
+  if (reviewed && !brokenArtwork.value.includes(reviewed)) return reviewed
+  const shipped = warpArt(key)
+  return shipped && !brokenArtwork.value.includes(shipped) ? shipped : null
+}
 const actors = computed(() => [
   {
     id: 'captain',
@@ -715,8 +733,8 @@ const actors = computed(() => [
               .join(' · ')
           : 'APTITUDE SEALED') +
         (signature ? ' · ' + signature.name.toUpperCase() : ''),
-      // Curated recruitment portrait when one has shipped; the glyph otherwise.
-      image: warpArt('redshirts/portraits/' + id),
+      // Only liked, public ArtSlot replacements override shipped files.
+      image: redshirtPortrait(id),
       revealed,
       rank: revealed ? known.length + '/6' : '??',
       initial: '✦',

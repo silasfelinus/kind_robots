@@ -21,6 +21,8 @@ export type RainbowCheckpoint = {
   /** Act III's fork: the route chosen (null before the fork) and whether the crew has rejoined. */
   trenchRoute: 'vault' | 'safe' | null
   routeSettled: boolean
+  /** The optional Lantern Nursery guardian is separate from the Act III guardian. */
+  nurseryGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
   /** Act IV's escort: the courier pod reached the end of the rails. */
   rescuedCourier: boolean
   /** Act V's fork: the route, whether the crew has rejoined, and the survivors it reached. */

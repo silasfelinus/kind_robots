@@ -200,7 +200,7 @@ export const STAGE_PRESETS: StageDraft[] = [
       { id: 'wheel-rail', x: 5, y: 1, cover: 'full', hp: 3 },
     ],
     activeHazards: [
-      { id: 'swaying-catwalk', kind: 'collapse', x: 5, y: 3 },
+      { id: 'swaying-catwalk', kind: 'collapse', x: 5, y: 3, round: 4 },
     ],
     victory: { kind: 'rescue', count: 2 },
     script: FERRIS_WHEEL_SCRIPT,

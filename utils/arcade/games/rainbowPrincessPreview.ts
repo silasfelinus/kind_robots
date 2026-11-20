@@ -1207,8 +1207,12 @@ export function createRainbowPrincessPreview(
   const featsSeen = new Set<string>()
   /** The progress the cabinet keeps: written at each Act start, cleared at THE END. */
   let saveRecord: RainbowSave | null | undefined = undefined
+  let replayClear: { act: number; medal: RainbowMedal } | null = null
   /** A saved flight to offer before the game begins: continue from its Act, or start a new one. */
-  const offered = options.demo
+  const replaySave = options.demo
+    ? null
+    : readRainbowSave(options.rainbowReplay, isRainbowCheckpoint)
+  const offered = options.demo || replaySave
     ? null
     : readRainbowSave(options.resume, isRainbowCheckpoint)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
@@ -1235,7 +1239,9 @@ export function createRainbowPrincessPreview(
     frame: 0,
   })
   let selectMenu: ReturnType<typeof newSelect> | null =
-    options.selectScreen && !options.demo && !offered ? newSelect() : null
+    options.selectScreen && !options.demo && !offered && !replaySave
+      ? newSelect()
+      : null
   function moonFrame() {
     return moonStart === null ? 0 : tick - moonStart
   }
@@ -2254,7 +2260,13 @@ export function createRainbowPrincessPreview(
       writeSave()
     }
     if (frame === 0 && act >= 2) {
-      awardMedal((act - 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
+      const cleared = (act - 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+      if (replaySave?.checkpoint.act !== act) awardMedal(cleared)
+      if (replaySave?.checkpoint.act === cleared) {
+        replayClear = { act: cleared, medal: medals[cleared]! }
+        over = true
+        return
+      }
       if (act === 9) {
         const flags = palaceFlags()
         if (
@@ -5042,7 +5054,12 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  if (replaySave) continueFrom(replaySave)
+
   return {
+    get replayClear() {
+      return replayClear
+    },
     /** The score the cabinet records: scaled by difficulty, so every level shares one board. */
     get score() {
       return Math.round(score * level.score)
@@ -5060,7 +5077,7 @@ export function createRainbowPrincessPreview(
     },
     /** Mastery goals earned this game (t-010). */
     get mastered() {
-      return options.demo ? [] : earned
+      return options.demo || replaySave ? [] : earned
     },
     /** Achievement keys earned since the cabinet last asked (main-game standard). */
     drainFeats() {
@@ -5093,7 +5110,7 @@ export function createRainbowPrincessPreview(
     },
     /** The last Act start, for the cabinet to keep; null once the campaign is over. */
     get save() {
-      return saveRecord
+      return replaySave ? undefined : saveRecord
     },
     setPlayers,
     /** The cabinet's motion switch, mid-game (t-011). */

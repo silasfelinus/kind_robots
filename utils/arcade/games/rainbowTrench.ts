@@ -21,6 +21,7 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import { nurseryRouteSpawns } from './rainbowLanternNursery'
 import {
   recutTimeline,
   reinforcements,
@@ -442,6 +443,16 @@ export function trenchSpawns(
   route: TrenchRoute | null,
 ): readonly TrenchSpawn[] {
   if (trenchStage(frame, null) !== 'waves') return []
+  if (
+    route === 'safe' &&
+    frame >= TRENCH_FORK.decideAt &&
+    frame < TRENCH_FORK.rejoinAt
+  )
+    return nurseryRouteSpawns(
+      frame,
+      TRENCH_FORK.decideAt,
+      TRENCH_FORK.rejoinAt,
+    )
   return schedule.at(frame).filter((spawn) => {
     const only = trenchWaveRoute(spawn.wave - TRENCH.waveBase)
     return only === null || only === (route ?? 'vault')
@@ -479,7 +490,7 @@ export function trenchDialogue(
     'A03.FORK': [
       {
         speaker: 'Lilt-7',
-        text: 'The trench forks: high through the salvage vault, low along a safe passage.',
+        text: 'High: salvage vault. Low: the living Lantern Nursery, a sheltered but guarded passage.',
       },
       {
         speaker: scout,

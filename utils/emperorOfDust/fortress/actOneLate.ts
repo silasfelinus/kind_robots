@@ -824,7 +824,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label:
               'Ask what the Pack would have done if the court came unarmed.',
             effects: {},
-            response: 'Vane puts a thumb through the crust. “We had two goats, three days of flour, and a bad wire crown waiting for you. Your guards searched the ovens instead.” He does not touch the knife.',
+            response:
+              'Vane puts a thumb through the crust. “We had two goats, three days of flour, and a bad wire crown waiting for you. Your guards searched the ovens instead.” He does not touch the knife.',
             next: 'unarmed',
           },
           {

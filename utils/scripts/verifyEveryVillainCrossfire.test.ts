@@ -144,6 +144,10 @@ const front = readFileSync(
 )
 const page = readFileSync('pages/admin/every-villain-tactics.vue', 'utf8')
 assert.ok(store.includes('storage.setItem(evtCrossfireKey'))
+assert.ok(
+  store.includes("campaign ? { ...result, mode: 'story' as const } : result"),
+  'Crossfire battles must not count toward the One-Shot sweep',
+)
 assert.ok(store.includes('crossfireActive.value = false'))
 assert.ok(store.includes('function continueCrossfire()'))
 assert.ok(front.includes('data-testid="front-new-crossfire"'))

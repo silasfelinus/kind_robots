@@ -534,6 +534,16 @@ assert.ok(
 )
 assert.ok(store.includes('legacyCouchSettings(JSON.parse(legacyText))'))
 assert.ok(
+  store.includes("largeText: kit.settings.textSize !== 'comfortable'"),
+  'larger text must follow live Kit settings in the title and voyage',
+)
+assert.ok(
+  store.includes("reducedMotion: kit.settings.motion === 'reduced'"),
+  'the opening reel and UI must honor the same Kit motion choice',
+)
+assert.ok(page.includes(':reduced-motion="store.preferences.reducedMotion"'))
+assert.ok(page.includes(':large-text="store.preferences.largeText"'))
+assert.ok(
   !store.includes('localStorage.setItem(PREFERENCES_KEY'),
   'the legacy key is read-only and preserved',
 )

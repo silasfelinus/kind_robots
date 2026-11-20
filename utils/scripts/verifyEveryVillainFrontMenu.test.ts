@@ -274,6 +274,70 @@ wrongLead.y = 2
 assert.equal(useSelectedPower(wrongPower, { x: 4, y: 2 }), false)
 assert.ok(!wrongPower.flags?.includes('diner-hood-vented'))
 
+// Skyline's second playable power-origin battle uses a different tactical
+// objective: protect the wind gauge, then evacuate two separate gondolas.
+const ferris = clonePreset('ferris-wheel')
+assert.deepEqual(stageProblems(ferris), [])
+assert.equal(ferris.victory?.kind, 'rescue')
+assert.equal(ferris.civilians?.length, 2)
+assert.ok(ferris.script?.scenes.some((scene) => scene.id === 'wheel-choice'))
+const ferrisRun = trainingState(37, ferris, { lead: 'accident-air' })
+const skyline = ferrisRun.units.find((unit) => unit.id === 'backdraft')!
+ferrisRun.selected = skyline.id
+skyline.x = 6
+skyline.y = 2
+skyline.ap = 2
+assert.equal(rescueSelected(ferrisRun), false, 'airless gondola stays shut')
+skyline.x = 0
+skyline.y = 4
+assert.ok(
+  selectedPowerTargets(ferrisRun).some(
+    (point) => point.x === 4 && point.y === 2,
+  ),
+  'Skyline can reach Priya at the wind gauge with Updraft Catch',
+)
+assert.equal(useSelectedPower(ferrisRun, { x: 4, y: 2 }), true)
+assert.ok(ferrisRun.flags?.includes('wheel-air-bridge'))
+const ferrisSave = createSave({
+  slot: 'slot-2',
+  perspective: 'hero',
+  leadSignature: 'accident-air',
+  stage: ferris,
+  state: ferrisRun,
+  story: { ...createStory(), current: null },
+})
+const restoredFerris = loadSave(JSON.stringify(ferrisSave))
+assert.ok(restoredFerris.ok, restoredFerris.ok ? '' : restoredFerris.reason)
+assert.ok(restoredFerris.save.state.flags?.includes('wheel-air-bridge'))
+const forgedBridge = createSave({
+  slot: 'slot-2',
+  perspective: 'hero',
+  leadSignature: 'accident-air',
+  stage: ferris,
+  state: {
+    ...ferrisRun,
+    units: ferrisRun.units.map((unit) =>
+      unit.id === 'backdraft' ? { ...unit, powerSpent: false } : unit,
+    ),
+  },
+  story: { ...createStory(), current: null },
+})
+assert.equal(
+  loadSave(JSON.stringify(forgedBridge)).ok,
+  false,
+  'a copied bridge flag cannot substitute for the signature power',
+)
+skyline.x = 6
+skyline.y = 2
+skyline.ap = 2
+assert.equal(rescueSelected(ferrisRun), true)
+assert.equal(ferrisRun.phase, 'active', 'first rescue is not victory')
+skyline.x = 6
+skyline.y = 4
+skyline.ap = 2
+assert.equal(rescueSelected(ferrisRun), true)
+assert.equal(ferrisRun.phase, 'victory', 'both passengers are required')
+
 // One-shot menu: Picnic Panic first, every stage valid with shipped art.
 const oneShots = oneShotStages()
 assert.equal(oneShots.length, ONE_SHOT_MENU.length)

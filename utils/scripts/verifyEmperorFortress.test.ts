@@ -2110,6 +2110,53 @@ const withCast = (seed: number, day: number, ids: string[]): FortressRun =>
   onDay(seed, day, {
     roster: ids.map((id) => ({ id, joinedDay: 1, equipment: {} })),
   })
+// Secret followers who survive the failed crypt sealing need the Long Night,
+// not a peacetime resolution. Death and departure still win over ending prose.
+for (const [id, subjectId, flag, marker] of [
+  ['F021', 'f021', 'nettle-crossed-border', /red thread/],
+  ['F022', 'f022', 'tiller-wire-answered', /three taps/],
+  ['F023', 'f023', 'sera-buried-bell', /bronze clapper/],
+  ['F024', 'f024', 'tarn-oil-funded', /fourth stone/],
+  ['F025', 'f025', 'odo-broke-forecast', /two columns/],
+] as const) {
+  const alive = {
+    ...withCast(1, 50, [id]),
+    flags: [flag],
+  }
+  const subject = EPILOGUE.find((entry) => entry.id === subjectId)!
+  const epilogueText = (run: FortressRun, ending: EndingId) =>
+    epilogueFor(run, ending).find((entry) => entry.subject.id === subjectId)
+      ?.variant.text
+  const nightText = epilogueText(alive, 'long-night')
+  assert.match(nightText ?? '', marker, subjectId)
+  assert.notEqual(
+    nightText,
+    epilogueText(alive, 'open-roads'),
+    subjectId + ': the crypt outcome changes the survivor story',
+  )
+  const dead = {
+    ...alive,
+    roster: [{ id, joinedDay: 1, equipment: {}, dead: true, deathDay: 40 }],
+  }
+  assert.equal(
+    epilogueText(dead, 'long-night'),
+    subject.variants.find((variant) => variant.when?.dead?.includes(id))!.text,
+    subjectId + ': death must take priority over the Long Night',
+  )
+  const departed: FortressRun = {
+    ...alive,
+    roster: [
+      { id, joinedDay: 1, equipment: {}, departed: { day: 40, why: 'neglect' } },
+    ],
+  }
+  assert.equal(
+    epilogueText(departed, 'long-night'),
+    subject.variants.find((variant) => variant.when?.departed?.includes(id))!
+      .text,
+    subjectId + ': departure must take priority over the Long Night',
+  )
+}
+
 // Last Wall: the Day 9 lethal convoy never kills while Mags is along.
 let wardedDeaths = 0
 for (let seed = 1; seed <= 300; seed += 1) {

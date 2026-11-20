@@ -176,6 +176,8 @@ export type ArcadeGameOptions = {
    * camera sweeps, and a cut instead of a pan when the view must change.
    */
   stillCamera?: boolean
+  /** Isolated Rainbow Act replay snapshot, never promoted to the campaign save. */
+  rainbowReplay?: unknown
   /** Earned, per-save-slot Palace Hangar upgrades for Rainbow Space Princess. */
   rainbowHangar?: { shield: boolean; charge: boolean; life: boolean }
   /**

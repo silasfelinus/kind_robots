@@ -8823,9 +8823,9 @@ console.log('Emperor of Dust fortress contract: ok')
     ['d28-verge-envoy', 'refuse', /cooks/],
   ] as const
   for (const [sceneId, optionId, phrase] of materialAftermaths) {
-    const scene = actThree.flatMap((day) => day.audiences).find(
-      (entry) => entry.id === sceneId,
-    )
+    const scene = actThree
+      .flatMap((day) => day.audiences)
+      .find((entry) => entry.id === sceneId)
     assert.ok(scene, sceneId + ': Act III audience exists')
     const option = scene.options.find((entry) => entry.id === optionId)
     assert.ok(option, sceneId + '/' + optionId + ': choice exists')

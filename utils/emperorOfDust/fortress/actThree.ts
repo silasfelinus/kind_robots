@@ -1407,7 +1407,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               local: { ledger: -3, yard: 1 },
               affinity: { freeholds: 5 },
             },
-            response: 'Tallow crosses out the prepared license in a different ink, so the Ledger will remember who refused it. The blue lantern still runs after dark. Dunmore’s cooks can buy the cheaper tincture, but a Ledger clerk now counts every bottle at the gate.',
+            response:
+              'Tallow crosses out the prepared license in a different ink, so the Ledger will remember who refused it. The blue lantern still runs after dark. Dunmore’s cooks can buy the cheaper tincture, but a Ledger clerk now counts every bottle at the gate.',
           },
           {
             id: 'crown-seal',
@@ -3368,7 +3369,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             id: 'test',
             label: 'Take the charms to test first. Promise nothing.',
             effects: { affinity: { 'black-verge': 5 } },
-            response: 'The envoy offers a single charm for the Archive to test, not enough for the Yard’s winter stores. A quest notice goes up for a party to learn what the frost leaves in the grain. No exile has been promised, and the ovens remain closed.',
+            response:
+              'The envoy offers a single charm for the Archive to test, not enough for the Yard’s winter stores. A quest notice goes up for a party to learn what the frost leaves in the grain. No exile has been promised, and the ovens remain closed.',
             postsQuests: ['q-d28-rot-cure'],
           },
           {

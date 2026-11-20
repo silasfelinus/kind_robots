@@ -30,4 +30,6 @@ assert.match(featured, /title: 'Account Banned Meme Lab'/)
 assert.match(featured, /route: '\/play'/)
 assert.match(preview, /'ban-meme': \{/)
 
-console.log('Account Banned meme maker: route, image, export, tab, guide and highlights OK')
+console.log(
+  'Account Banned meme maker: route, image, export, tab, guide and highlights OK',
+)

@@ -1766,7 +1766,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'The Archive needs you more.',
             effects: { local: { lamplight: 2 } },
             response:
-              '“Wisely said,” says Hollin. He flies home by the window. It takes him two tries.',
+              '“Wisely said,” Hollin tells the throne. In the gallery Vellum puts away a clean stack of travel paper. Hollin flies home by the window; it takes him two tries. The Archive has kept its maps, but the court will have to find those roads without him.',
           },
           {
             id: 'dictate',
@@ -2112,7 +2112,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { yard: 4, 'old-houses': -4 },
               flags: ['d16-granary-requisitioned'],
             },
-            response: 'Dunmore nods once. Lady Vask writes something down.',
+            response:
+              'Dunmore counts sacks for the Yard while Lady Vask counts the names on the broken sale contracts. He asks for bread by noon. She asks whose seal will answer for the ruined bargain by winter. The crown’s seal is already on both orders.',
           },
           {
             id: 'buy',
@@ -2133,7 +2134,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               flags: ['d16-grain-sold-east'],
             },
             response:
-              'Dunmore leaves without a word. The Yard is quiet at supper.',
+              'Dunmore carries his empty sack back to the Yard. At supper the flour line is silent; nobody has enough to quarrel over. Lady Vask orders a fresh seal for the eastern buyer, and the carts roll out before dawn.',
           },
           {
             id: 'council-vote',
@@ -2426,7 +2427,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         faction: 'moles',
         lines: [
           'The singing below the walls has gone on since midnight. Low, patient, many voices, up through the flagstones. Granny Umber climbs the carpet on a cane of old pipe, mud to the knees. Young Komodo already holds the manifesto. Its wax seal is broken.',
-          'We didn’t come to burn your tower, young ruler. The burrows are drowning. Your tax decree diverted the Ford.',
+          'We didn’t come to burn your tower, young ruler. The burrows are drowning. The tower’s standing tax decree paid for the mill-race that turned the Ford. You did not sign it. Your seal still keeps it running.',
           'Your runner said the Ford tunnels were empty. Forty families live there. The water is at their beds.',
           'Give the burrows their water rights, or we take them. We’d rather you gave them.',
           {
@@ -2466,7 +2467,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               flags: ['mole-talks-opened'],
             },
             response:
-              'Granny Umber squints at you. “Talks,” she says. “We’ll see if they’re worth the walk.”',
+              '“Talks,” Granny Umber says. “Write down where we sleep, and who gets bread while the mills stop. If those pages come back blank, I will bring the singers.” She puts her cane against the dais, leaving a wet mark.',
           },
           {
             id: 'arrest',
@@ -2477,14 +2478,14 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               flags: ['mole-messenger-arrested'],
             },
             response:
-              'The Watch takes Granny Umber away. She goes slowly. She is smiling.',
+              'The Watch takes Granny Umber through the side door. She counts each step aloud so the singers below the floor can follow. Komodo closes his ledger on the list of forty names the crown has still not seen.',
           },
           {
             id: 'ignore',
             label: 'Take Komodo’s advice. Ignore it.',
             effects: { affinity: { moles: -5 } },
             response:
-              'Granny Umber is shown out. Komodo looks relieved. Then he looks like he wishes he hadn’t.',
+              'Granny Umber goes out on her cane. At the door she asks whether the tower will send its taxes down the drowned tunnels too. Komodo nods at the guard to close the door. The choir below the stones keeps singing.',
           },
           {
             id: 'honest-count',
@@ -2568,7 +2569,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             id: 'tunnels',
             lines: [
               '“Your runner went to the Ford and knocked on no doors. He looked down the old shaft at the river end, flooded twenty years, and went home to say the tunnels were empty.”',
-              '“Your decree paid for a mill-race to turn the Old Houses’ wheels. The race turned the Ford, and the Ford came through our ceilings. We sleep in shifts on the high shelves. Children on top.”',
+              '“The mill-race was paid for by the old tax charter. It turns the Old Houses’ wheels. It also turns the Ford through our ceilings. You inherited the charter, young ruler, and the choice to leave it standing. We sleep in shifts on the high shelves. Children on top.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -2915,13 +2916,14 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               recruitable: ['F018'],
             },
             response:
-              'The best night the fortress has had. At the end Vesper asks if the court ever needs someone who can talk to a crowd.',
+              'The Yard dances under lanterns bought with crown brass. The guards stay on their posts and hear the fiddle through the wall. By dawn the water barrels are nearly empty, and Vesper Fanfare asks whether the court has room for someone who can hold a crowd without a sword.',
           },
           {
             id: 'tax-fair',
             label: 'Let them stay, for a cut of the takings.',
             effects: { brass: 25, affinity: { saltroad: -5 } },
-            response: 'The fair is smaller and quieter. Vesper juggles anyway.',
+            response:
+              'The tax clerk takes a cut of the first night’s takings before anyone has played a tune. Vesper makes a show of counting the coins twice, then juggles anyway. The Yard gets its noise, the throne gets its brass, and the fair leaves early.',
           },
           {
             id: 'decline',
@@ -3408,7 +3410,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { 'old-houses': -5, yard: 2, 'gate-watch': 2 },
               flags: ['levy-houses'],
             },
-            response: 'Lady Vask’s smile is gone. Dunmark looks amused.',
+            response:
+              'Lady Vask’s smile leaves her face while her steward draws up the Old House levy. Dunmark reads the names slowly enough for the gallery to hear. At the back, Dunmore puts both hands over his mouth and smiles for the first time all morning.',
           },
           {
             id: 'no-levy',

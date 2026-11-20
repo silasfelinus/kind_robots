@@ -568,5 +568,10 @@ const emperorSettings = readFileSync(
 )
 assert.match(emperorSettings, /data-testid="emperor-reset-confirm"/)
 assert.match(emperorSettings, /:disabled="resetPhrase !== 'ERASE'"/)
+const emperorChronicle = readFileSync(
+  join(process.cwd(), 'components/EmperorFortressChronicle.vue'),
+  'utf8',
+)
+assert.match(emperorChronicle, /<game-achievement-strip game="emperor-of-dust"/)
 
 console.log('Emperor of Dust store persistence: ok')

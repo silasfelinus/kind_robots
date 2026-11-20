@@ -210,10 +210,21 @@ jobs:
           echo "::error::Database was not healthy for three consecutive checks; an audit now would measure empty states rather than real galleries."
           exit 1
 
+      # /play/slime-city needs an account, so this audit signs in as an
+      # ordinary non-admin audit account. Until those two secrets exist the
+      # step reports that it skipped instead of failing every day.
       - name: Audit Slime City Clash controls
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
-        run: npm run audit:slime-city-clash-layout -- --base "$BASE_URL" --shots audit-shots
+          KR_AUDIT_USERNAME: ${{ secrets.KR_AUDIT_USERNAME }}
+          KR_AUDIT_PASSWORD: ${{ secrets.KR_AUDIT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "$KR_AUDIT_USERNAME" ] || [ -z "$KR_AUDIT_PASSWORD" ]; then
+            echo "::notice::Slime City Clash controls audit skipped: no audit account. Add a non-admin account as the KR_AUDIT_USERNAME and KR_AUDIT_PASSWORD repository secrets to turn it on."
+            exit 0
+          fi
+          npm run audit:slime-city-clash-layout -- --base "$BASE_URL" --shots audit-shots
 
       - name: Audit gallery chrome budget
         if: always()

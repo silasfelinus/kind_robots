@@ -224,17 +224,18 @@ export function clashSpectacle(
             : hit.target === 'boss'
               ? 'DIRECT BOSS HIT'
               : 'ALLEY IMPACT',
+    // The title is the player's result. The eyebrow says whose blow ended it.
     title: lethal
       ? after.victor === 'draw'
         ? 'TOTAL MAYHEM'
-        : after.victor === hit.side
+        : after.victor === 'player'
           ? 'VICTORY!'
-          : 'RIVAL VICTORY'
+          : 'DEFEAT'
       : hit.trap
         ? card.name
         : cardById(hit.attacker).name,
     detail: lethal
-      ? `Boss health: ${after.boss.player} to ${after.boss.enemy}`
+      ? `Boss health: ${Math.max(0, after.boss.player)} to ${Math.max(0, after.boss.enemy)}`
       : hit.trap
         ? `The trap catches ${cardById(hit.attacker).name}!`
         : miss

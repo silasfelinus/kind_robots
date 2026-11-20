@@ -5449,6 +5449,31 @@ for (const def of DAYS)
     BUYERS.abbey.fell,
     'no precaution, the fall as written',
   )
+  for (const [flag, echo] of [
+    ['d40-komodo-offered-mercy', /offered to hear the truth/],
+    ['d40-komodo-pressed', /another night of silence/],
+    ['d40-komodo-asked-tomorrow', /Tomorrow is here/],
+    ['d40-komodo-confronted', /showed him what you knew/],
+  ] as const) {
+    for (const buyer of BUYER_IDS) {
+      const read = fallText(onDay(1, 41, { flags: [flag] }), BUYERS[buyer])
+      assert.match(read.why, echo, `${buyer}: last night remembers ${flag}`)
+      assert.equal(read.fell, BUYERS[buyer].fell)
+    }
+    const fall = finishDay(onDay(1, 40, { flags: [flag] }))
+    assert.match(fall.report.betrayal!.why!, echo, `Day 41 reads ${flag}`)
+    assert.ok(validateRun(fall.run), `${flag} survives Day 41 saving`)
+  }
+  assert.match(
+    fallText(
+      onDay(1, 41, {
+        flags: ['d40-komodo-confronted', 'd40-komodo-offered-mercy'],
+      }),
+      BUYERS.abbey,
+    ).why,
+    /offered to hear the truth/,
+    'the personal answer outranks the generic confrontation',
+  )
   const d34 = DAYS.find((def) => def.day === 34)!
   assert.notEqual(dayLines({ flags: [] }, d34).komodo, d34.komodo)
   assert.equal(

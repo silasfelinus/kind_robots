@@ -1022,7 +1022,10 @@ export type RainbowCombatSnapshot = {
 /** The preview's deterministic 60 Hz combat layer; stages and bosses are separate work. */
 export function createRainbowPrincessPreview(
   options: ArcadeGameOptions,
-): ArcadeGameInstance & { readonly snapshot: RainbowCombatSnapshot } {
+): ArcadeGameInstance & {
+  readonly snapshot: RainbowCombatSnapshot
+  readonly replayClear: { act: number; medal: RainbowMedal } | null
+} {
   // The look this browser last chose (Classic or Fever Dream), wherever the cabinet is hosted.
   loadRainbowLook()
   const count = Math.max(1, Math.min(4, options.players ?? 1))

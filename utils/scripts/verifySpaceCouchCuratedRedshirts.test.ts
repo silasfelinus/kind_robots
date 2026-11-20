@@ -142,6 +142,7 @@ assert.ok(curator.includes('route.query.projectSlug'))
 assert.ok(curator.includes('route.query.prefix'))
 assert.ok(curator.includes("route.query.multiple === '0'"))
 assert.ok(
-  curator.indexOf('route.query.prefix') < curator.indexOf('await slotStore.load()'),
+  curator.indexOf('route.query.prefix') <
+    curator.indexOf('await slotStore.load()'),
   'the targeted single-candidate view must load before the generic gallery',
 )

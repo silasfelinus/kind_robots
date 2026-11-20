@@ -1,3 +1,4 @@
+import { patrolCrewFor } from './patrolCrews'
 import {
   ALL_PATROL_STORIES,
   fillStoryText,
@@ -985,6 +986,8 @@ export function patrolOptionsFor(
     }))
   const scene = patrolSceneFor(run.seed, run.day, zone)
   const options: PatrolChoice[] = [...scene.choices]
+  const crew = patrolCrewFor(run, zone)
+  if (crew) options.push(...crew.choices)
   const secret = PATROL_SECRETS[zone]
   if (
     knownContacts(run).includes(secret.ally as StudentId) &&
@@ -1056,10 +1059,11 @@ export function patrolEncounterFor(run: AcademyRun, zone: PatrolZoneId) {
       hint: storySecretUnlocked(run, story) ? null : story.secretHint,
     }
   const scene = patrolSceneFor(run.seed, run.day, zone)
+  const crew = patrolCrewFor(run, zone)
   return {
     id: scene.id,
-    title: scene.title,
-    scene: scene.scene,
+    title: crew ? `${scene.title} · ${crew.title}` : scene.title,
+    scene: crew ? `${scene.scene} ${crew.scene}` : scene.scene,
     story: null,
     hint: null,
   }
@@ -2284,7 +2288,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
   })
   const patrol = run.nightPatrol
   const patrolScene = patrol
-    ? patrolSceneFor(run.seed, run.day, patrol.zone)
+    ? patrolEncounterFor(run, patrol.zone)
     : null
   const patrolChoice = patrol
     ? patrolOptionsFor(run, patrol.zone).find(

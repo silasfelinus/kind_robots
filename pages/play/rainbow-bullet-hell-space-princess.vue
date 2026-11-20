@@ -321,9 +321,7 @@ import {
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
-import {
-  rainbowSlotSummary,
-} from '~/utils/arcade/games/rainbowSaveSlots'
+import { rainbowSlotSummary } from '~/utils/arcade/games/rainbowSaveSlots'
 import {
   RAINBOW_HERO_ART,
   RAINBOW_KITTY_POWER,
@@ -347,9 +345,11 @@ const rainbowSlug = 'rainbow-bullet-hell-space-princess'
 const cabinetMounted = ref(true)
 const rainbowSlot = computed(() => arcadeStore.rainbowSlot)
 const slotSummaries = computed(() =>
-  arcadeStore.rainbowSlotSaves().map((raw) =>
-    rainbowSlotSummary(readRainbowSave(raw, isRainbowCheckpoint)),
-  ),
+  arcadeStore
+    .rainbowSlotSaves()
+    .map((raw) =>
+      rainbowSlotSummary(readRainbowSave(raw, isRainbowCheckpoint)),
+    ),
 )
 
 async function chooseSlot(slot: number) {

@@ -335,7 +335,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   /** A game's saved progress on this device, if any. */
   function saveFor(game: string): unknown {
-    const key = game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
+    const key =
+      game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
     return key ? saves.value[key] : undefined
   }
 
@@ -356,7 +357,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   /** Keep (or, with null, clear) a game's saved progress. */
   function recordSave(game: string, save: unknown) {
-    const key = game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
+    const key =
+      game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
     if (!key) return
     const next = withSave(saves.value, key, save)
     if (next === saves.value) return

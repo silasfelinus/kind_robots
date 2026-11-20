@@ -38,15 +38,19 @@ const third = withSave(second, rainbowSlotKey(2)!, {
 const cleared = withSave(third, rainbowSlotKey(1)!, null)
 assert.deepEqual(cleared[RAINBOW_SAVE_GAME], flight)
 assert.equal(cleared[rainbowSlotKey(1)!], undefined)
-assert.equal(
-  (cleared[rainbowSlotKey(2)!] as typeof flight).checkpoint.act,
-  2,
-)
+assert.equal((cleared[rainbowSlotKey(2)!] as typeof flight).checkpoint.act, 2)
 assert.equal(rainbowSlotSummary(null), 'New flight')
 assert.equal(rainbowSlotSummary(flight), 'Act 4 · 2 medals')
 assert.equal(rainbowSlotSaveFits(flight), true)
 assert.equal(rainbowSlotSaveFits({ payload: 'x'.repeat(9_000) }), false)
-assert.equal(rainbowSlotSaveFits({ toJSON: () => { throw Error() } }), false)
+assert.equal(
+  rainbowSlotSaveFits({
+    toJSON: () => {
+      throw Error()
+    },
+  }),
+  false,
+)
 
 const root = new URL('../../', import.meta.url)
 const store = readFileSync(new URL('stores/arcadeStore.ts', root), 'utf8')
@@ -54,9 +58,17 @@ const page = readFileSync(
   new URL('pages/play/rainbow-bullet-hell-space-princess.vue', root),
   'utf8',
 )
-assert.match(store, /game === RAINBOW_SAVE_GAME \? rainbowSlotKey\(rainbowSlot\.value\)/)
+assert.match(
+  store,
+  /game === RAINBOW_SAVE_GAME \? rainbowSlotKey\(rainbowSlot\.value\)/,
+)
 assert.match(store, /rainbowSlot: rainbowSlot\.value/)
 assert.match(page, /aria-label="Campaign save slots"/)
-assert.match(page, /cabinetMounted\.value = false\s+await nextTick\(\)\s+arcadeStore\.setRainbowSlot/)
+assert.match(
+  page,
+  /cabinetMounted\.value = false\s+await nextTick\(\)\s+arcadeStore\.setRainbowSlot/,
+)
 assert.match(page, /:key="rainbowSlot"/)
-console.log('rainbow save slots: legacy slot kept, three isolated records, safe cabinet switch')
+console.log(
+  'rainbow save slots: legacy slot kept, three isolated records, safe cabinet switch',
+)

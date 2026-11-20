@@ -419,6 +419,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
         )
       },
     )
+    writePrefs({ ...prefs, rainbowHangars: rainbowHangars.value })
     rainbowSlot.value =
       Number.isInteger(prefs.rainbowSlot) &&
       prefs.rainbowSlot! >= 0 &&

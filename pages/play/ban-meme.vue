@@ -304,7 +304,8 @@ onMounted(() => {
 
 useHead({ title: 'Account Banned Meme Lab · Kind Robots' })
 useSeoMeta({
-  description: 'Archived Account Banned Meme Lab for Kind Robots administrators.',
+  description:
+    'Archived Account Banned Meme Lab for Kind Robots administrators.',
   robots: 'noindex',
 })
 </script>

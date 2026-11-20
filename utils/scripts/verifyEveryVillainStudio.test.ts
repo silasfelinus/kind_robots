@@ -406,11 +406,17 @@ for (const enemy of seal.units.filter((unit) => unit.team === 'rival' && unit.id
   enemy.hp = 0
 assert.equal(seal.phase, 'active')
 const doomed = trainingState(0x51, breach)
-for (const enemy of doomed.units.filter((unit) => unit.team === 'rival'))
+for (const enemy of doomed.units.filter(
+  (unit) => unit.team === 'rival' && unit.id !== 'pip',
+))
   enemy.hp = 0
-for (let round = 0; round < 8 && doomed.phase === 'active'; round++)
-  endTurn(doomed)
-assert.equal(doomed.phase, 'defeat', 'the breach must time out without a sealed objective')
+doomed.turn = 7
+endTurn(doomed)
+assert.equal(
+  doomed.phase,
+  'defeat',
+  'the breach must time out if the seal-keeper is still standing',
+)
 
 const picnic = clonePreset('picnic-plaza')
 assert.ok(picnic.title.includes('Picnic'))

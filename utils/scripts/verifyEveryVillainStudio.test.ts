@@ -334,14 +334,23 @@ const breach = clonePreset('under-comet-breach')
 assert.deepEqual(stageProblems(breach), [])
 assert.equal(breach.turnLimit, 7)
 assert.equal(breach.victory?.kind, 'defeat-boss')
-assert.equal(breach.victory?.kind === 'defeat-boss' && breach.victory.unit, 'pip')
+assert.equal(
+  breach.victory?.kind === 'defeat-boss' && breach.victory.unit,
+  'pip',
+)
 assert.equal(breach.spawns.find((spawn) => spawn.id === 'backdraft')?.y, 1)
 assert.equal(breach.spawns.find((spawn) => spawn.id === 'priya')?.y, 4)
 assert.equal(breach.map.tiles['4,2']?.elevation, 2)
 assert.equal(breach.props?.length, 3)
 assert.equal(breach.activeHazards?.length, 3)
-assert.equal(breach.activeHazards?.find((h) => h.id === 'bridge-collapse')?.round, 4)
-assert.deepEqual(breach.waves?.map((wave) => wave.round), [3, 5])
+assert.equal(
+  breach.activeHazards?.find((h) => h.id === 'bridge-collapse')?.round,
+  4,
+)
+assert.deepEqual(
+  breach.waves?.map((wave) => wave.round),
+  [3, 5],
+)
 assert.deepEqual(
   breach.waves?.map((wave) => wave.crew),
   ['wombat-ronin', 'licensed-legends'],
@@ -373,7 +382,9 @@ injured.hp = injured.maxHp - 1
 assert.ok(finishScene(tunnel, fork, [0], 'hero'))
 assert.ok(tunnel.flags?.includes('breach-vented'))
 assert.equal(injured.hp, injured.maxHp)
-assert.ok(latchScenes(tunnel, breachScript, breach).includes('breach-vent-result'))
+assert.ok(
+  latchScenes(tunnel, breachScript, breach).includes('breach-vent-result'),
+)
 assert.equal(finishScene(tunnel, fork, [1], 'hero'), false)
 const sabotage = trainingState(0x51, breach, { lead: 'alien-air' })
 sabotage.turn = 2
@@ -381,19 +392,23 @@ latchScenes(sabotage, breachScript, breach)
 assert.ok(finishScene(sabotage, fork, [1], 'villain'))
 assert.ok(sabotage.flags?.includes('breach-evidence'))
 assert.ok(
-  sabotage.units.some((unit) => unit.team === 'rival' &&
-    unit.statuses.includes('suppressed')),
+  sabotage.units.some(
+    (unit) => unit.team === 'rival' && unit.statuses.includes('suppressed'),
+  ),
 )
 assert.ok(
-  latchScenes(sabotage, breachScript, breach).includes('breach-evidence-result'),
+  latchScenes(sabotage, breachScript, breach).includes(
+    'breach-evidence-result',
+  ),
 )
 const breachEnding = breachScript.scenes.find(
   (scene) => scene.id === 'breach-victory',
 )!
 assert.ok(
-  walkScene(breachEnding, [], { state: tunnel, perspective: 'hero' })!.nodes.some(
-    (node) => node.id === 'wv',
-  ),
+  walkScene(breachEnding, [], {
+    state: tunnel,
+    perspective: 'hero',
+  })!.nodes.some((node) => node.id === 'wv'),
 )
 assert.ok(
   walkScene(breachEnding, [], {
@@ -402,7 +417,9 @@ assert.ok(
   })!.nodes.some((node) => node.id === 'we'),
 )
 const seal = trainingState(0x51, breach)
-for (const enemy of seal.units.filter((unit) => unit.team === 'rival' && unit.id !== 'pip'))
+for (const enemy of seal.units.filter(
+  (unit) => unit.team === 'rival' && unit.id !== 'pip',
+))
   enemy.hp = 0
 assert.equal(seal.phase, 'active')
 const doomed = trainingState(0x51, breach)

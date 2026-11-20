@@ -315,6 +315,89 @@
           </li>
         </ol>
       </section>
+
+      <section
+        v-show="view === 'hangar'"
+        id="princess-hangar"
+        role="tabpanel"
+        aria-labelledby="princess-hangar-tab"
+        class="@container flex min-h-0 flex-1 flex-col gap-2 rounded-3xl border border-base-300 bg-[#251345] p-2 text-white sm:p-3"
+      >
+        <p class="shrink-0 text-sm font-bold" aria-live="polite">
+          Palace Hangar · Slot {{ rainbowSlot + 1 }} · {{ hangarBalance }} medal
+          petals available
+        </p>
+        <div
+          role="group"
+          aria-label="Palace Hangar upgrades"
+          class="grid shrink-0 grid-cols-3 gap-1"
+        >
+          <button
+            v-for="(upgrade, index) in RAINBOW_HANGAR_UPGRADES"
+            :key="upgrade.id"
+            type="button"
+            class="min-w-0 truncate rounded-xl border px-1 py-2 text-xs font-bold"
+            :class="
+              hangarPick === index
+                ? 'border-pink-200 bg-pink-100 text-[#37204e]'
+                : 'border-white/30 bg-white/10 text-white'
+            "
+            :aria-pressed="hangarPick === index"
+            @click="hangarPick = index"
+          >
+            {{ upgrade.name }}
+          </button>
+        </div>
+        <article
+          class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-pink-300/40 bg-[#391f60] @2xl:flex-row"
+        >
+          <img
+            :src="rainbowStageCard(stages[hangarPick * 2]!.strip, look)"
+            :alt="selectedHangarUpgrade.name + ' upgrade artwork'"
+            class="h-1/3 min-h-0 w-full shrink-0 object-cover @2xl:h-full @2xl:w-1/2"
+            loading="lazy"
+          />
+          <div
+            class="flex min-h-0 flex-1 flex-col justify-between gap-2 p-2 sm:p-3"
+          >
+            <h3 class="text-base font-black">
+              {{ selectedHangarUpgrade.name }}
+            </h3>
+            <p class="min-h-0 flex-1 text-sm text-white/85">
+              {{ selectedHangarUpgrade.effect }}
+            </p>
+            <button
+              type="button"
+              class="btn btn-sm w-full shrink-0 border-pink-200 bg-pink-100 font-black text-[#37204e]"
+              :disabled="
+                hangar.upgrades.includes(selectedHangarUpgrade.id) ||
+                hangarBalance < selectedHangarUpgrade.cost
+              "
+              :aria-label="
+                hangar.upgrades.includes(selectedHangarUpgrade.id)
+                  ? selectedHangarUpgrade.name + ' already installed'
+                  : 'Buy ' +
+                    selectedHangarUpgrade.name +
+                    ' for ' +
+                    selectedHangarUpgrade.cost +
+                    ' medal petals'
+              "
+              @click="arcadeStore.buyRainbowUpgrade(selectedHangarUpgrade.id)"
+            >
+              {{
+                hangar.upgrades.includes(selectedHangarUpgrade.id)
+                  ? 'Installed'
+                  : selectedHangarUpgrade.cost +
+                    ' petals · Equip for next flight'
+              }}
+            </button>
+          </div>
+        </article>
+        <p class="shrink-0 text-xs text-white/75">
+          Bronze, silver and gold medals earn 1, 2 and 3 petals per sea. Only
+          your best medal per sea counts. Upgrades stay in this slot.
+        </p>
+      </section>
     </div>
   </main>
 </template>
@@ -328,6 +411,10 @@ import {
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
+import {
+  RAINBOW_HANGAR_UPGRADES,
+  rainbowHangarBalance,
+} from '~/utils/arcade/games/rainbowHangar'
 import { rainbowSlotSummary } from '~/utils/arcade/games/rainbowSaveSlots'
 import {
   RAINBOW_HERO_ART,
@@ -371,10 +458,16 @@ const flightSave = computed(() =>
   readRainbowSave(arcadeStore.saveFor(rainbowSlug), isRainbowCheckpoint),
 )
 const mastery = computed(() => arcadeStore.masteryFor(rainbowSlug))
+const hangar = computed(() => arcadeStore.rainbowHangarForSlot())
 const seaProgress = computed(() =>
-  rainbowSeaLogbook(flightSave.value, mastery.value),
+  rainbowSeaLogbook(flightSave.value, mastery.value, hangar.value.medals),
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
+const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))
+const hangarPick = ref(0)
+const selectedHangarUpgrade = computed(
+  () => RAINBOW_HANGAR_UPGRADES[hangarPick.value]!,
+)
 const exploredCount = computed(
   () => seaProgress.value.filter((sea) => sea.explored).length,
 )
@@ -392,6 +485,7 @@ const views = [
   { key: 'flight', label: 'Fly', icon: 'kind-icon:rocket' },
   { key: 'pilots', label: 'Pilots', icon: 'kind-icon:users' },
   { key: 'seas', label: 'Seas', icon: 'kind-icon:map' },
+  { key: 'hangar', label: 'Hangar', icon: 'kind-icon:star' },
 ] as const
 const view = ref<string>('flight')
 const opening = ref<{ offer: () => void; play: () => void } | null>(null)

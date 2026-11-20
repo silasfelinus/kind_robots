@@ -176,6 +176,8 @@ export type ArcadeGameOptions = {
    * camera sweeps, and a cut instead of a pan when the view must change.
    */
   stillCamera?: boolean
+  /** Earned, per-save-slot Palace Hangar upgrades for Rainbow Space Princess. */
+  rainbowHangar?: { shield: boolean; charge: boolean; life: boolean }
   /**
    * The player's difficulty, for a game whose meta lists `difficulty` names (default 'normal'). A game
    * that scales its score by difficulty keeps one leaderboard fair across levels.

@@ -1,5 +1,6 @@
 import { CAMPAIGN_VILLAINS, campaignVillain } from './campaign'
 import { identityFor } from './identityArcs'
+import { henchmanForVillain } from './villainHenchmen'
 import { PATROL_SECRETS, PATROL_ZONES, patrolSceneFor } from './nightPatrols'
 import { patrolStoryById } from './patrolStories'
 import { OCTOBER_CAST } from './octoberCast'
@@ -521,11 +522,12 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
   }
   for (const fight of run.tacticalHistory ?? []) {
     const rival = identityFor(fight.opponent)
+    const crew = henchmanForVillain(fight.opponent)
     moments.push({
       day: fight.day,
       kind: 'fight',
       title: `Rival fight · ${rival.hero.alias}`,
-      text: `${fight.grade === 'failed' ? 'Lost the ground' : fight.grade === 'honors' ? 'A clean, honors-grade win' : 'Held the line'} in ${fight.turns} turns${fight.discovered ? ', and found their secret' : ''}.`,
+      text: `${fight.grade === 'failed' ? 'Lost the ground' : fight.grade === 'honors' ? 'A clean, honors-grade win' : 'Held the line'} in ${fight.turns} turns${fight.discovered ? ', and found their secret' : ''}. ${rival.hero.alias}'s ${crew.name} answer to ${crew.captain}; their signature move is ${crew.move} Counter: ${crew.counter}`,
       artKeys: [
         identityArtKey(
           fight.opponent,

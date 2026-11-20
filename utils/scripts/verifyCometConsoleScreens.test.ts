@@ -58,6 +58,24 @@ const store = fromRoot('stores/cometAcademyStore.ts')
 const SIGNATURE = 'accident-fire' as const
 const fresh = (seed: number) =>
   startFullAcademy(fieldFor(SIGNATURE), seed, SIGNATURE, 'shelter')
+const signatureFight = {
+  day: 4,
+  caseId: 'case',
+  opponent: 'accident-earth' as const,
+  role: 'hero' as const,
+  turns: 5,
+  fallen: 0,
+  grade: 'honors' as const,
+}
+const henchmanMemory = scrapbookMoments({
+  ...fresh(17),
+  tacticalHistory: [signatureFight],
+}).find((moment) => moment.kind === 'fight')
+assert.ok(henchmanMemory)
+assert.match(henchmanMemory.text, /Warren Wreckers/)
+assert.match(henchmanMemory.text, /Foreman Thumpkin/)
+assert.match(henchmanMemory.text, /Counter:/)
+
 const roundTrip = (run: AcademyRun) => {
   const saved = JSON.parse(JSON.stringify(run))
   assert.deepEqual(restoreAcademy(saved), saved, `save on day ${run.day}`)

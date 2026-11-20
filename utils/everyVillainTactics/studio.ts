@@ -252,7 +252,7 @@ export const STAGE_PRESETS: StageDraft[] = [
     ],
     props: [
       { id: 'buckled-asphalt', x: 3, y: 3, cover: 'half', hp: 2 },
-      { id: 'bus-chassis', x: 6, y: 3, cover: 'full', hp: 4 },
+      { id: 'bus-chassis', x: 6, y: 3, cover: 'full', hp: 3 },
       { id: 'waterworks-pump', x: 2, y: 2, cover: 'half', hp: 2 },
     ],
     activeHazards: [

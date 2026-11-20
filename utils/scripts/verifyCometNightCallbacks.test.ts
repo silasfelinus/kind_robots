@@ -9,6 +9,12 @@ import {
 } from '../cometAcademy/expandedNightCases'
 import { EXPANDED_POWER_CALLBACKS } from '../cometAcademy/expandedPowerCallbacks'
 import {
+  delayedFactionResponse,
+  type CaseThread,
+  type CaseMemory,
+  caseThread,
+} from '../cometAcademy/caseMemory'
+import {
   POWERS,
   assignPlayerCase,
   assignTeam,
@@ -302,3 +308,43 @@ assert.ok(page.includes('RECOVERING · NEEDS A PARTNER'))
 console.log(
   'Prom of Doom night calls: infirmary returns need a healthy partner (seeded -1 when alone, covered by you or a teammate), 48 power callbacks across 24 cases with truthful odds.',
 )
+
+// Delayed faction feedback is specific to district, grade and refusal.
+{
+  const threads: CaseThread[] = ['academy', 'transit', 'harbor', 'civic']
+  const cases = ['garden', 'monorail', 'flood', 'museum']
+  const grades: Grade[] = ['honors', 'pass', 'partial', 'failed']
+  const messages = new Set<string>()
+  for (let i = 0; i < cases.length; i++) {
+    const caseId = cases[i]!
+    assert.equal(caseThread(caseId), threads[i])
+    for (const grade of grades) {
+      const record: CaseMemory = {
+        day: 10,
+        caseId,
+        grade,
+        unanswered: false,
+      }
+      assert.equal(delayedFactionResponse(record, 11), null)
+      const message = delayedFactionResponse(record, 12)
+      assert.ok(message)
+      messages.add(message!)
+      assert.equal(delayedFactionResponse(record, 16), null)
+    }
+    const refused: CaseMemory = {
+      day: 10,
+      caseId,
+      grade: 'failed',
+      unanswered: true,
+    }
+    const refusal = delayedFactionResponse(refused, 12)
+    assert.ok(refusal)
+    messages.add(refusal!)
+    assert.notEqual(
+      refusal,
+      delayedFactionResponse({ ...refused, unanswered: false }, 12),
+    )
+  }
+  assert.equal(messages.size, 20, 'four factions have five distinct responses')
+  assert.ok(page.includes('delayedFactionResponse') === false)
+}

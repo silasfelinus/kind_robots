@@ -527,7 +527,9 @@ assert.ok(
   'title settings must not update a second settings ledger',
 )
 assert.ok(
-  store.includes('localStorage.getItem(kitStorageKey(SPACE_COUCH_KIT_ID)) === null'),
+  store.includes(
+    'localStorage.getItem(kitStorageKey(SPACE_COUCH_KIT_ID)) === null',
+  ),
   'legacy migration only happens when no Kit save exists',
 )
 assert.ok(store.includes('legacyCouchSettings(JSON.parse(legacyText))'))
@@ -913,4 +915,3 @@ assert.deepEqual(
   {},
   'malformed legacy settings never enable features unexpectedly',
 )
-

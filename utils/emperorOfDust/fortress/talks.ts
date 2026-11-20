@@ -866,7 +866,7 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Ask what Mother Tansy will want from her, at the end.',
         effects: {},
         response:
-          'Saffron turns the letter to the unmarked side. “A pass can say I belong to the crown,” she says. “Mother Tansy knows whose wagon raised me.” She folds the paper once, just where the signature would go.'
+          'Saffron turns the letter to the unmarked side. “A pass can say I belong to the crown,” she says. “Mother Tansy knows whose wagon raised me.” She folds the paper once, just where the signature would go.',
         next: 'tansy',
       },
       {
@@ -1800,7 +1800,7 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Ask what she would do if a threat could save a hundred lives.',
         effects: {},
         response:
-          'Flint opens her eyes and takes one hand off the shawl. “A hundred lives,” she repeats, counting them as if they were in the room. She waits for you to finish making the case.'
+          'Flint opens her eyes and takes one hand off the shawl. “A hundred lives,” she repeats, counting them as if they were in the room. She waits for you to finish making the case.',
         next: 'hundred',
       },
     ],
@@ -2261,7 +2261,7 @@ export const TALKS: readonly TalkDef[] = [
         requires: { flags: ['d04-page-posted'] },
         effects: {},
         response:
-          'Pip sets their pen across Tobin Lowe’s name. “Every morning,” they say, not looking at you. The ink has dried on the copy they carry folded in their pocket.'
+          'Pip sets their pen across Tobin Lowe’s name. “Every morning,” they say, not looking at you. The ink has dried on the copy they carry folded in their pocket.',
         next: 'gate',
       },
       {
@@ -2791,7 +2791,7 @@ export const TALKS: readonly TalkDef[] = [
         requires: { flags: ['rain-covenant'] },
         effects: {},
         response:
-          'Nera catches a raindrop on her thumb and looks toward the dry fields beyond the ridge. “I know what you paid,” she says. Then she takes her hand away from the wall, as if the stone belongs to somebody else.'
+          'Nera catches a raindrop on her thumb and looks toward the dry fields beyond the ridge. “I know what you paid,” she says. Then she takes her hand away from the wall, as if the stone belongs to somebody else.',
         next: 'bought',
       },
       {
@@ -2801,7 +2801,7 @@ export const TALKS: readonly TalkDef[] = [
         requires: { flags: ['no-rain'] },
         effects: {},
         response:
-          'Nera laughs once. Then a gust brings yellow Freehold dust over the wall, and she puts a hand over her mouth. “Ask me after I tell you what the fields looked like,” she says.'
+          'Nera laughs once. Then a gust brings yellow Freehold dust over the wall, and she puts a hand over her mouth. “Ask me after I tell you what the fields looked like,” she says.',
         next: 'refused',
       },
       {
@@ -3110,7 +3110,7 @@ export const TALKS: readonly TalkDef[] = [
         requires: { flags: ['courier-saved'] },
         effects: {},
         response:
-          'Ash closes the satchel before the brass can catch the light. “A sister paid extra to keep it off the post route,” they say. Their ears flatten; one turns toward the open barracks door.'
+          'Ash closes the satchel before the brass can catch the light. “A sister paid extra to keep it off the post route,” they say. Their ears flatten; one turns toward the open barracks door.',
         next: 'hourglass',
       },
       {
@@ -3439,7 +3439,7 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Ask what he saw happen, the first time.',
         effects: {},
         response:
-          'Bram sets the abacus on a sack. “I was counting bread then, too,” he says. He moves one bead back, a mistake the emperor has never seen him make.'
+          'Bram sets the abacus on a sack. “I was counting bread then, too,” he says. He moves one bead back, a mistake the emperor has never seen him make.',
         next: 'riot',
       },
       {

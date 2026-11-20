@@ -2714,7 +2714,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { yard: 2 },
               flags: ['wells-shared'],
             },
-            response: 'Hester counts the brass into the Freehold well fund. The front gates open at sundown. Families with tokens argue with families without them at the pump, but both lines fill their pitchers. Dunmore Ash stays to carry the last bucket.',
+            response:
+              'Hester counts the brass into the Freehold well fund. The front gates open at sundown. Families with tokens argue with families without them at the pump, but both lines fill their pitchers. Dunmore Ash stays to carry the last bucket.',
           },
           {
             id: 'freehold-rights',
@@ -2731,7 +2732,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             id: 'escort',
             label: 'Walk the refugees to Hollow Bell instead.',
             effects: { flags: ['d18-strangers-walked'] },
-            response: 'Hester unfolds the road map and points to Hollow Bell. Dunmark posts the escort request on the quest board, but no one has left the gate yet. The refugees sleep by the Freehold well another night, with their empty pitchers beside them.',
+            response:
+              'Hester unfolds the road map and points to Hollow Bell. Dunmark posts the escort request on the quest board, but no one has left the gate yet. The refugees sleep by the Freehold well another night, with their empty pitchers beside them.',
             postsQuests: ['q-d18-refugee-road'],
           },
         ],

@@ -9544,7 +9544,6 @@ assert.deepEqual(crownOathAftermath.effects.local, {
   yard: -2,
 })
 
-
 const actTwoChoiceAftermaths = [
   ['d14-archive-funds', 'fund'],
   ['d14-archive-funds', 'decline'],

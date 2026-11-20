@@ -52,7 +52,7 @@
       >
         <ArcadeCabinet
           v-if="cabinetMounted"
-          :key="`${rainbowSlot}-${replayRevision}`"
+          :key="rainbowSlot"
           slug="rainbow-bullet-hell-space-princess"
           :rainbow-replay="replayRecord"
           contained
@@ -544,7 +544,6 @@ const arcadeStore = useArcadeStore()
 const rainbowSlug = 'rainbow-bullet-hell-space-princess'
 const cabinetMounted = ref(true)
 const replayRecord = ref<RainbowSave | null>(null)
-const replayRevision = ref(0)
 const rainbowSlot = computed(() => arcadeStore.rainbowSlot)
 const slotSummaries = computed(() =>
   arcadeStore
@@ -560,7 +559,6 @@ async function chooseSlot(slot: number) {
   await nextTick()
   arcadeStore.setRainbowSlot(slot)
   replayRecord.value = null
-  replayRevision.value++
   view.value = 'flight'
   cabinetMounted.value = true
 }
@@ -581,7 +579,6 @@ async function resumeCampaign() {
   cabinetMounted.value = false
   await nextTick()
   replayRecord.value = null
-  replayRevision.value++
   view.value = 'flight'
   cabinetMounted.value = true
 }
@@ -595,7 +592,6 @@ async function launchActReplay() {
   cabinetMounted.value = false
   await nextTick()
   replayRecord.value = snapshot
-  replayRevision.value++
   view.value = 'flight'
   cabinetMounted.value = true
 }

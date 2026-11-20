@@ -38,6 +38,7 @@ import {
   RAINBOW_SLOT_COUNT,
   rainbowSlotKey,
 } from '~/utils/arcade/games/rainbowSaveSlots'
+import type { RainbowMedal } from '~/utils/arcade/games/rainbowLoadouts'
 import {
   awardRainbowHangarMedals,
   emptyRainbowHangar,
@@ -385,6 +386,25 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     return true
   }
 
+  /** A replay may improve an Act medal, but must never rewrite the saved flight. */
+  function recordRainbowReplayMedal(act: number, medal: RainbowMedal): boolean {
+    if (
+      !Number.isInteger(act) ||
+      act < 1 ||
+      act > 8 ||
+      !['bronze', 'silver', 'gold'].includes(medal)
+    )
+      return false
+    const previous = rainbowHangarForSlot()
+    const next = awardRainbowHangarMedals(previous, {
+      medals: { [act]: medal },
+    })
+    if (next === previous) return false
+    rainbowHangars.value[rainbowSlot.value] = next
+    savePreferences()
+    return true
+  }
+
   /** Keep (or, with null, clear) a game's saved progress. */
   function recordSave(game: string, save: unknown) {
     if (game === RAINBOW_SAVE_GAME) {
@@ -650,6 +670,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     rainbowHangarForSlot,
     rainbowHangarBonuses,
     buyRainbowUpgrade,
+    recordRainbowReplayMedal,
     playersFor,
     setPlayers,
     board,

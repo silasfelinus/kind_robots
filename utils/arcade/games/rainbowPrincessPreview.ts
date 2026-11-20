@@ -2349,6 +2349,14 @@ export function createRainbowPrincessPreview(
     setDifficulty(save.difficulty)
     pick = save.pilot ?? save.pilots?.[0] ?? 0
     roster = save.pilots ? [...save.pilots] : null
+    if (roster) {
+      while (roster.length < activePlayers) {
+        const free = RAINBOW_PILOTS.findIndex(
+          (_, pilot) => !roster!.includes(pilot),
+        )
+        if (free >= 0) roster.push(free)
+      }
+    }
     const c = save.checkpoint
     score = c.score
     rescuedStation = c.rescuedStation

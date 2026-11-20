@@ -3526,7 +3526,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'sanctuary',
-            label: 'Grant sanctuary openly. Defy the Verge in front of its envoy.',
+            label:
+              'Grant sanctuary openly. Defy the Verge in front of its envoy.',
             effects: {
               affinity: { 'black-verge': -15 },
               recruitable: ['F016'],
@@ -3545,7 +3546,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['sable-hidden'],
             },
             response:
-              'The Watch sergeant counts twenty brass behind a stable door. He removes Sable’s name from the visitor roll but leaves the ink scraped thin enough to read. Sable eats at the barracks table under a borrowed coat; two guards who were not paid ask who the new guest is.'
+              'The Watch sergeant counts twenty brass behind a stable door. He removes Sable’s name from the visitor roll but leaves the ink scraped thin enough to read. Sable eats at the barracks table under a borrowed coat; two guards who were not paid ask who the new guest is.',
           },
           {
             id: 'return',
@@ -4167,7 +4168,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'saltroad',
-            label: 'Shelter the medicine caravans. Turn the farms and burrows away.',
+            label:
+              'Shelter the medicine caravans. Turn the farms and burrows away.',
             effects: {
               affinity: { saltroad: 10 },
               strength: { saltroad: 1 },

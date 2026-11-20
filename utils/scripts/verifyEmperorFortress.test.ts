@@ -2858,11 +2858,7 @@ for (const [choice, marker, flag] of [
   ['saltroad', /Hester Plowright stands outside/, 'sheltered-saltroad'],
   ['moles', /Lady Vask’s steward leaves/, 'sheltered-moles'],
 ] as const) {
-  const picked = chooseAudienceOption(
-    neutralMoles,
-    'd30-terms',
-    choice,
-  )
+  const picked = chooseAudienceOption(neutralMoles, 'd30-terms', choice)
   assert.match(picked.response, marker, choice)
   assert.ok(picked.run.flags.includes(flag), choice)
   assert.ok(validateRun(picked.run), `Day 30 ${choice} is saveable`)

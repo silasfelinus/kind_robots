@@ -118,15 +118,16 @@ for (const policyId of policyIds) {
           reports: briefings,
           played_rumour_challenge: false,
         })
-        if (advisor.komodo) transcript.push(
-          `**Young Komodo:** ${advisor.komodo}\n`,
-        )
-        if (advisor.whisper) transcript.push(
-          `**${advisor.whisper.source}:** ${advisor.whisper.text}\n`,
-        )
-        for (const briefing of briefings) transcript.push(
-          `**Dispatch, ${briefing.source}:** ${briefing.text}\n`,
-        )
+        if (advisor.komodo)
+          transcript.push(`**Young Komodo:** ${advisor.komodo}\n`)
+        if (advisor.whisper)
+          transcript.push(
+            `**${advisor.whisper.source}:** ${advisor.whisper.text}\n`,
+          )
+        for (const briefing of briefings)
+          transcript.push(
+            `**Dispatch, ${briefing.source}:** ${briefing.text}\n`,
+          )
         if (saveDays.includes(run.day)) {
           const restored = decodeBook(encodeBook(book))
           assert.ok(restored, `Day ${run.day}: save must decode`)
@@ -157,7 +158,9 @@ for (const policyId of policyIds) {
           const prose = linesOf(lines)
           scenes += 1
           append(day, 'audience-scene', { id, beatId, prose })
-          transcript.push(`### Court: ${id} / ${beatId ?? 'opening'}\n\n${prose}\n`)
+          transcript.push(
+            `### Court: ${id} / ${beatId ?? 'opening'}\n\n${prose}\n`,
+          )
         },
         onAudienceChoice: (day, id, option, run) => {
           append(day, 'audience-choice', {
@@ -176,7 +179,9 @@ for (const policyId of policyIds) {
           const prose = linesOf(lines)
           scenes += 1
           append(day, 'barracks-scene', { id, beatId, prose })
-          transcript.push(`### Barracks: ${id} / ${beatId ?? 'opening'}\n\n${prose}\n`)
+          transcript.push(
+            `### Barracks: ${id} / ${beatId ?? 'opening'}\n\n${prose}\n`,
+          )
         },
         onTalkChoice: (day, id, option) => {
           append(day, 'barracks-choice', {

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { findArcadeGame } from '../arcade/games'
 import {
   RAINBOW_EFFECTS,
@@ -10,7 +11,6 @@ import {
   drawRainbowShot,
   type RainbowShotLook,
 } from '../arcade/games/rainbowShotLooks'
-import { readFileSync } from 'node:fs'
 import {
   RAINBOW_BOSS_BLOOM,
   drawRainbowBossBloom,
@@ -243,7 +243,6 @@ assert.notDeepEqual(
   rainbowSwimPose('dolphin', 30),
   'jellyfish and finned enemies have distinct motion signatures',
 )
-
 
 const bossFlares = [
   { x: 80, y: 105, age: 0, life: 80, ring: true },

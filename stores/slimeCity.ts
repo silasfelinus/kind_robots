@@ -152,6 +152,11 @@ import {
   writeGuestSlimeStory,
 } from '../utils/slimeCity/guestStorySave'
 import {
+  guestImportOffer,
+  importGuestStory,
+  type GuestImportOffer,
+} from '../utils/slimeCity/guestStoryImport'
+import {
   isSlimeCityPreviewGate,
   SLIME_CITY_LOCAL_PLAY_NOTICE,
 } from '../utils/slimeCity/previewGate'
@@ -640,6 +645,10 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
   const storyError = ref('')
   let storyDirty = false
   let storyWrite: Promise<void> | null = null
+  // The journey saved on this device, read when an account story loads, so
+  // a player whose account saves have just been switched on can bring it in.
+  const deviceStory = shallowRef<SlimeCityStory | null>(null)
+  const deviceImportDismissed = ref<number | null>(null)
 
   function storyEditable(): boolean {
     return (
@@ -658,6 +667,7 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     storyRevision.value = 0
     storyDirty = false
     storyError.value = ''
+    deviceStory.value = null
     city.value = createCity()
     campaignSave.value = createCampaignSave()
     towerSave.value = freshTower()
@@ -728,55 +738,96 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
       if (!response.success || !response.data)
         throw new Error(response.message || 'Could not load your city story.')
       if (userId !== authId()) return
-      city.value = response.data.city
-      districtId.value = response.data.city.location
-      campaignSave.value = response.data.campaigns
-      activeTeam.value = response.data.journeyTeam ?? activeTeam.value
-      journeyFormat.value = response.data.journeyFormat ?? 'solo'
-      journeyDeckId.value = response.data.journeyDeckId ?? null
-      campaignScreen.value = response.data.journeyScreen ?? 'chapter'
-      towerSave.value = response.data.tower ?? freshTower()
-      savedDecks.value = response.data.decks ?? {}
-      savedAlliances.value = response.data.alliances ?? {}
-      allianceDrafts.value = {}
-      savedSolo.value = response.data.soloDecks ?? {}
-      soloDrafts.value = {}
-      library.value = response.data.library ?? []
-      libraryId.value = null
-      storyMode.value = response.data.storyMode ?? 'written'
-      storyParity.value = response.data.storyParity ?? false
-      endingsFound.value = response.data.endings ?? []
-      scrapbook.value = response.data.scrapbook ?? []
-      equippedBack.value = response.data.cardBack ?? null
-      wornTitle.value = response.data.title ?? null
+      applyAccountStory(response.data)
       storyRevision.value = response.data.revision
       storyAccount.value = userId
       storyLoaded.value = true
-      // A partially played Clash cannot be replayed for free after refresh:
-      // the fight resumes move for move from this device's record, and with
-      // no record (another device, cleared storage) the floor is forfeit.
-      if (towerRun.value?.phase === 'battle' && !towerBoutSaved())
-        forfeitTower()
-      enforceCollection()
-      seedLibrary()
-      const selectedJourney = library.value.find(
-        (item) => item.id === journeyDeckId.value,
-      )
-      if (
-        selectedJourney &&
-        selectedJourney.general === activeTeam.value &&
-        libraryDeckReady(selectedJourney.id)
-      )
-        selectLibraryDeck(selectedJourney.id)
-      else journeyDeckId.value = null
-      if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
-      // Runs finished before the gallery existed still earn their pages.
-      syncEndings()
+      settleAccountStory()
+      deviceStory.value = readGuestSlimeStory()
     } catch (error) {
       if (userId !== authId()) return
       storyError.value =
         error instanceof Error ? error.message : 'Story load failed.'
     }
+  }
+
+  /** Put an account story on the board: everything but its revision. */
+  function applyAccountStory(data: SlimeCityStory): void {
+    city.value = data.city
+    districtId.value = data.city.location
+    campaignSave.value = data.campaigns
+    activeTeam.value = data.journeyTeam ?? activeTeam.value
+    journeyFormat.value = data.journeyFormat ?? 'solo'
+    journeyDeckId.value = data.journeyDeckId ?? null
+    campaignScreen.value = data.journeyScreen ?? 'chapter'
+    towerSave.value = data.tower ?? freshTower()
+    savedDecks.value = data.decks ?? {}
+    savedAlliances.value = data.alliances ?? {}
+    allianceDrafts.value = {}
+    savedSolo.value = data.soloDecks ?? {}
+    soloDrafts.value = {}
+    library.value = data.library ?? []
+    libraryId.value = null
+    storyMode.value = data.storyMode ?? 'written'
+    storyParity.value = data.storyParity ?? false
+    endingsFound.value = data.endings ?? []
+    scrapbook.value = data.scrapbook ?? []
+    equippedBack.value = data.cardBack ?? null
+    wornTitle.value = data.title ?? null
+  }
+
+  /** What every freshly applied account story needs before it is played. */
+  function settleAccountStory(): void {
+    // A partially played Clash cannot be replayed for free after refresh:
+    // the fight resumes move for move from this device's record, and with
+    // no record (another device, cleared storage) the floor is forfeit.
+    if (towerRun.value?.phase === 'battle' && !towerBoutSaved()) forfeitTower()
+    enforceCollection()
+    seedLibrary()
+    const selectedJourney = library.value.find(
+      (item) => item.id === journeyDeckId.value,
+    )
+    if (
+      selectedJourney &&
+      selectedJourney.general === activeTeam.value &&
+      libraryDeckReady(selectedJourney.id)
+    )
+      selectLibraryDeck(selectedJourney.id)
+    else journeyDeckId.value = null
+    if (campaignRewardChoices.value) campaignScreen.value = 'aftermath'
+    // Runs finished before the gallery existed still earn their pages.
+    syncEndings()
+  }
+
+  /**
+   * A journey on this device that the signed-in account could take over:
+   * only while the account's own story is fresh, and never the Tower legacy
+   * (slime-city/t-063; utils/slimeCity/guestStoryImport.ts).
+   */
+  const deviceImport = computed<GuestImportOffer | null>(() => {
+    const id = authId()
+    if (
+      !id ||
+      isGuest() ||
+      accountPreviewOnly.value ||
+      !storyLoaded.value ||
+      storyAccount.value !== id ||
+      deviceImportDismissed.value === id
+    )
+      return null
+    return guestImportOffer(storySnapshot(), deviceStory.value)
+  })
+  function importDeviceJourney(): boolean {
+    const device = deviceStory.value
+    if (!deviceImport.value || !device) return false
+    applyAccountStory(importGuestStory(storySnapshot(), device))
+    settleAccountStory()
+    persistStory()
+    return true
+  }
+  /** Not now: the offer rests for this visit and returns while still fresh. */
+  function dismissDeviceImport(): void {
+    deviceImportDismissed.value = authId()
   }
 
   function storySnapshot(): SlimeCityStory {
@@ -3079,6 +3130,9 @@ export const useSlimeCityStore = defineStore('slimeCityLab', () => {
     canResetJourney,
     resetMessage,
     resetGuestJourney,
+    deviceImport,
+    importDeviceJourney,
+    dismissDeviceImport,
     journeyFormat,
     journeyDeckId,
     journeyDeckName,

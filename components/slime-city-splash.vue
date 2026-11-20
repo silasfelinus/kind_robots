@@ -57,6 +57,40 @@
             {{ lab.campaignState.wins + 1 }}</small
           >
         </button>
+        <div
+          v-if="lab.deviceImport"
+          class="scs-import"
+          role="region"
+          aria-label="Journey saved on this device"
+          data-testid="slime-splash-import"
+        >
+          <p>
+            <b>A journey is saved on this device.</b>
+            {{ importSummary }}
+          </p>
+          <div class="scs-import-actions">
+            <button
+              type="button"
+              class="scs-import-go"
+              data-testid="slime-splash-import-go"
+              @click="lab.importDeviceJourney()"
+            >
+              Bring it into my account
+            </button>
+            <button
+              type="button"
+              class="scs-import-skip"
+              data-testid="slime-splash-import-skip"
+              @click="lab.dismissDeviceImport()"
+            >
+              Not now
+            </button>
+          </div>
+          <small
+            >Tower cinders and records stay behind. The copy on this device is
+            not changed.</small
+          >
+        </div>
         <div class="scs-corner" data-testid="slime-splash-console">
           <button
             type="button"
@@ -288,6 +322,23 @@ const homeDistrict = computed(() => CAMPAIGN_DISTRICTS[picked.value.id])
 const canContinue = computed(
   () => lab.storyLoaded && lab.campaignState.wins > 0,
 )
+
+/** "Gene Riot Catgirls: 3 chapters won, 1 ending." for the import offer. */
+const importSummary = computed(() => {
+  const offer = lab.deviceImport
+  if (!offer) return ''
+  const count = (n: number, one: string, many: string) =>
+    n + ' ' + (n === 1 ? one : many)
+  const parts = [
+    offer.chapters ? count(offer.chapters, 'chapter won', 'chapters won') : '',
+    offer.districts
+      ? count(offer.districts, 'district cleared', 'districts cleared')
+      : '',
+    offer.endings ? count(offer.endings, 'ending', 'endings') : '',
+  ].filter(Boolean)
+  const crew = lab.teams.find((team) => team.id === offer.team)?.name
+  return (crew ? crew + ': ' : '') + parts.join(', ') + '.'
+})
 
 /**
  * Silas, 2026-11-10 PT: "It's confusing to have no parity between top of the
@@ -711,6 +762,60 @@ onBeforeUnmount(() => clearTimeout(timer))
 .scs-continue:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+.scs-import {
+  align-self: flex-start;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #6fc8ff88;
+  border-radius: 0.75rem;
+  background: #0c1823e8;
+  color: #f7f2e8;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+.scs-import p {
+  margin: 0;
+}
+.scs-import b {
+  display: block;
+  color: #6fc8ff;
+}
+.scs-import small {
+  color: #a9b8c6;
+  font-size: 0.68rem;
+}
+.scs-import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.scs-import-go,
+.scs-import-skip {
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.6rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+.scs-import-go {
+  border: 2px solid #6fc8ff;
+  background: #6fc8ff;
+  color: #06121c;
+}
+.scs-import-skip {
+  border: 1px solid #f7f2e855;
+  background: none;
+  color: #f7f2e8;
+}
+.scs-import-go:focus-visible,
+.scs-import-skip:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .scs-corner {

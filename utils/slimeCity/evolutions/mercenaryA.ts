@@ -308,6 +308,10 @@ export const MERCENARY_A_EVOLUTIONS: Record<string, CardEvolution> = {
   // blesses and mends the target (L3 keeps the L2 mend, never weaker).
   'merc-secondhand-halo': {
     levelOneText: 'A used halo that lets a frontliner patch up each round.',
+    // Level 1 (t-041 reach pass): regeneration alone never earned both of a
+    // turn's plays, and no CPU ever cast it. The halo arrives with a little
+    // warmth left in it: the L2 mend at half strength.
+    1: stage('A Little Warmth Left', [on('enter', heal(1, 'target'))]),
     2: stage('Still Warm', [on('enter', heal(2, 'target'))]),
     3: stage('Previous Owner', [
       on('enter', heal(2, 'target')),

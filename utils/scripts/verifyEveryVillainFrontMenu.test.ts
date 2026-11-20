@@ -26,6 +26,8 @@ import {
   SCRAPBOOK_MOMENTS,
   SCRAPBOOK_TRIGGERS,
   animationScale,
+  canStartOneShot,
+  ORIGIN_STAGE_LEADS,
   emptyScrapbook,
   mergeScrapbook,
   momentsFromSave,
@@ -343,6 +345,97 @@ skyline.ap = 2
 assert.equal(rescueSelected(ferrisRun), true)
 assert.equal(ferrisRun.phase, 'victory', 'both passengers are required')
 
+// Cornerstone must actually brace the bus crossing before either passenger
+// can be evacuated. A different earth hero cannot fake this origin power.
+const street = clonePreset('sunken-street')
+assert.deepEqual(stageProblems(street), [])
+assert.equal(street.title, 'The Street That Sank')
+assert.equal(street.victory?.kind, 'rescue')
+assert.equal(street.civilians?.length, 2)
+assert.ok(street.script?.scenes.some((scene) => scene.id === 'street-choice'))
+const streetRun = trainingState(43, street, { lead: 'accident-earth' })
+const cornerstone = streetRun.units.find((unit) => unit.id === 'backdraft')!
+streetRun.selected = cornerstone.id
+cornerstone.x = 6
+cornerstone.y = 2
+cornerstone.ap = 2
+assert.equal(rescueSelected(streetRun), false, 'the sinkhole blocks the bus')
+cornerstone.x = 4
+cornerstone.y = 2
+assert.ok(
+  selectedPowerTargets(streetRun).some(
+    (point) => point.x === 4 && point.y === 2,
+  ),
+  'Cornerstone can anchor the ramp only while standing on the fractured street',
+)
+assert.equal(useSelectedPower(streetRun, { x: 4, y: 2 }), true)
+assert.ok(streetRun.flags?.includes('sinkhole-ramp-secured'))
+const streetSave = createSave({
+  slot: 'slot-2',
+  perspective: 'villain',
+  leadSignature: 'accident-earth',
+  stage: street,
+  state: streetRun,
+  story: { ...createStory(), current: null },
+})
+const restoredStreet = loadSave(JSON.stringify(streetSave))
+assert.ok(restoredStreet.ok, restoredStreet.ok ? '' : restoredStreet.reason)
+assert.ok(restoredStreet.save.state.flags?.includes('sinkhole-ramp-secured'))
+const forgedRamp = createSave({
+  ...streetSave,
+  state: {
+    ...streetRun,
+    units: streetRun.units.map((unit) =>
+      unit.id === 'backdraft' ? { ...unit, powerSpent: false } : unit,
+    ),
+  },
+})
+assert.equal(
+  loadSave(JSON.stringify(forgedRamp)).ok,
+  false,
+  'a copied ramp flag cannot replace Cornerstone’s signature power',
+)
+cornerstone.x = 6
+cornerstone.y = 2
+cornerstone.ap = 2
+assert.equal(rescueSelected(streetRun), true)
+assert.equal(
+  streetRun.phase,
+  'active',
+  'the second passenger still needs rescue',
+)
+cornerstone.x = 6
+cornerstone.y = 4
+cornerstone.ap = 2
+assert.equal(rescueSelected(streetRun), true)
+assert.equal(streetRun.phase, 'victory')
+const falseCornerstone = trainingState(43, street, { lead: 'mutant-earth' })
+const falseLead = falseCornerstone.units.find(
+  (unit) => unit.id === 'backdraft',
+)!
+falseCornerstone.selected = falseLead.id
+falseLead.x = 4
+falseLead.y = 2
+falseLead.ap = 2
+assert.equal(useSelectedPower(falseCornerstone, { x: 4, y: 2 }), true)
+assert.ok(!falseCornerstone.flags?.includes('sinkhole-ramp-secured'))
+
+// Identity-locked rescue scenarios cannot strand someone without the needed
+// power, even if a saved menu or scripted call bypasses the visual filter.
+assert.deepEqual(ORIGIN_STAGE_LEADS, {
+  'last-order': 'accident-fire',
+  'ferris-wheel': 'accident-air',
+  'sunken-street': 'accident-earth',
+})
+for (const [stage, signature] of Object.entries(ORIGIN_STAGE_LEADS)) {
+  assert.equal(canStartOneShot(stage, signature), true)
+  for (const different of ['accident-fire', 'accident-air', 'accident-earth']) {
+    if (different !== signature)
+      assert.equal(canStartOneShot(stage, different), false)
+  }
+}
+assert.equal(canStartOneShot('science-lab', 'psychic-social'), true)
+
 // One-shot menu: Picnic Panic first, every stage valid with shipped art.
 const oneShots = oneShotStages()
 assert.equal(oneShots.length, ONE_SHOT_MENU.length)
@@ -545,6 +638,8 @@ assert.match(menu, /selectedPaintedArtwork.value/)
 assert.match(menu, /evf-painted-art/)
 assert.match(menu, /store\.startOneShot\(stage\.id, pickedLead, pickedView\)/)
 assert.match(menu, /data-testid="front-origin-last-order"/)
+assert.match(menu, /data-testid="front-origin-sunken-street"/)
+assert.match(menu, /pickedLead === 'accident-earth'/)
 assert.match(menu, /pickedLead === 'accident-fire'/)
 assert.match(menu, /scriptedFoilFor\(pickedLead\.value\)/)
 assert.doesNotMatch(menu, /'front-foil-' \+ person\.signature/)

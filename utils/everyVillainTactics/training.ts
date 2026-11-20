@@ -871,6 +871,22 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
       'Skyline lands on the wind gauge with Updraft Catch. The air corridor reaches both gondolas; both hatches can now open.',
     )
   }
+  if (
+    state.stageId === 'sunken-street' &&
+    unit.id === 'backdraft' &&
+    unit.identity === 'accident-earth' &&
+    result.hit &&
+    unit.x === 4 &&
+    unit.y === 2 &&
+    !(state.flags ?? []).includes('sinkhole-ramp-secured')
+  ) {
+    state.flags ??= []
+    state.flags.push('sinkhole-ramp-secured')
+    note(
+      state,
+      'Cornerstone braces the cracked roadway with an earth surge. A safe ramp reaches the school bus without rupturing the water main.',
+    )
+  }
   // A leap lands in view of rival overwatch like any other move.
   if (result.preview.power.targeting === 'leap') triggerReactions(state, unit)
   updateOutcome(state)
@@ -897,6 +913,12 @@ export function rescueTargets(state: TrainingState): Civilian[] {
         state.stageId !== 'ferris-wheel' ||
         !c.id.startsWith('wheel-') ||
         (state.flags ?? []).includes('wheel-air-bridge'),
+    )
+    .filter(
+      (c) =>
+        state.stageId !== 'sunken-street' ||
+        !c.id.startsWith('sinkhole-') ||
+        (state.flags ?? []).includes('sinkhole-ramp-secured'),
     )
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))

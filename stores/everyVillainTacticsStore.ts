@@ -50,6 +50,8 @@ import {
 import {
   DEFAULT_SETTINGS,
   animationScale,
+  canStartOneShot,
+  ORIGIN_STAGE_LEADS,
   emptyScrapbook,
   evtScrapbookKey,
   evtSettingsKey,
@@ -512,9 +514,13 @@ export const useEveryVillainTacticsStore = defineStore(
       if (!STAGE_PRESETS.some((stage) => stage.id === presetId)) return false
       if (!roster.some((unit) => unit.signature === lead)) return false
       crossfireActive.value = false
-      if (presetId === 'ferris-wheel' && lead !== 'accident-air') {
+      if (!canStartOneShot(presetId, lead)) {
+        const owner = roster.find(
+          (person) => person.signature === ORIGIN_STAGE_LEADS[presetId],
+        )
         saveMessage.value =
-          'Ferris Wheel is Skyline’s origin: choose Accident + Air.'
+          (owner?.hero.alias ?? 'Another hero') +
+          ' owns this origin battle. Choose the matching origin and affinity.'
         return false
       }
       leadSignature.value = lead

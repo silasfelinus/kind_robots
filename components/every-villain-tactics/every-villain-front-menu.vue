@@ -332,6 +332,38 @@
             </button>
           </div>
         </div>
+        <div
+          v-if="pickedLead === 'accident-earth'"
+          class="evf-origin-battle"
+          data-testid="front-cornerstone-origin-battle"
+        >
+          <h3 class="evf-label">YOUR POWER ORIGIN / THE STREET THAT SANK</h3>
+          <div class="evf-stages">
+            <button
+              type="button"
+              class="evf-stage"
+              data-testid="front-origin-sunken-street"
+              @click="
+                store.startOneShot('sunken-street', pickedLead, pickedView)
+              "
+            >
+              <img
+                v-if="art('incidents/skybridge')"
+                :src="art('incidents/skybridge')!"
+                alt=""
+                loading="lazy"
+              />
+              <span class="evf-stage-text">
+                <small class="evf-kicker">CORNERSTONE / ORIGIN BATTLE</small>
+                <strong>The Street That Sank</strong>
+                <span>
+                  Brace the fractured street with your signature earth surge,
+                  then save two passengers from a sinking school bus.
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
         <template v-if="store.screen === 'oneshot'">
           <h3 class="evf-label">04 / Pick a battlefield</h3>
           <div class="evf-stages">
@@ -596,6 +628,7 @@ import {
   ANIMATION_SPEEDS,
   PERSPECTIVE_ART,
   PLAYABLE_PERSPECTIVES,
+  canStartOneShot,
   oneShotStages,
 } from '~/utils/everyVillainTactics/frontMenu'
 import {
@@ -671,12 +704,10 @@ const revealArtwork = computed(
 )
 const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = computed(() =>
-  oneShotStages().filter(
-    (stage) =>
-      stage.id !== 'ferris-wheel' || pickedLead.value === 'accident-air',
+  oneShotStages().filter((stage) =>
+    canStartOneShot(stage.id, pickedLead.value),
   ),
 )
-
 const art = (key: string) => promArt(key)
 const BACKDROPS: Record<string, string> = {
   title: 'front/splash-v2',

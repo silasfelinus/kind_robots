@@ -465,6 +465,11 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   )
     flagsAllowed.add('wheel-air-bridge')
   if (
+    save.stage?.id === 'sunken-street' &&
+    save.leadSignature === 'accident-earth'
+  )
+    flagsAllowed.add('sinkhole-ramp-secured')
+  if (
     Array.isArray(state.flags) &&
     state.flags.includes('diner-hood-vented') &&
     !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
@@ -477,6 +482,16 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     return reject(
       'The gondolas were not stabilized with Skyline’s signature power.',
     )
+  if (
+    state.flags?.includes('sinkhole-ramp-secured') &&
+    !state.units.some(
+      (unit) =>
+        unit.id === 'backdraft' &&
+        unit.identity === 'accident-earth' &&
+        unit.powerSpent,
+    )
+  )
+    return reject('The sinkhole ramp was not secured with Cornerstone’s power.')
   if (
     state.flags !== undefined &&
     (!Array.isArray(state.flags) ||

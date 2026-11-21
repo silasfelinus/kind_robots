@@ -66,7 +66,8 @@ export function mirrorShoalCheckpointValid(
     Number.isInteger(c.shoalStartedAt) &&
     c.shoalStartedAt! > 0 &&
     Number.isInteger(c.shoalFrame) &&
-    SHOAL_SECTIONS.some((section) => section.from === c.shoalFrame) &&
+    (c.shoalFrame === 0 ||
+      SHOAL_SECTIONS.some((section) => section.from === c.shoalFrame)) &&
     frame === c.shoalStartedAt! + c.shoalFrame!
   )
 }

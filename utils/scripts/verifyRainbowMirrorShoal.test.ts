@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readRainbowSave } from '../arcade/games/rainbowLoadouts'
 import {
   MIRROR_SHOAL,
   SHOAL_GUARDIAN,
@@ -23,6 +24,13 @@ import {
 assert.equal(MIRROR_SHOAL.id, 'X4')
 assert.equal(mirrorShoalRouteUnlocked(false, 0), true)
 assert.equal(mirrorShoalDetourFor([70], true), true)
+assert.equal(
+  mirrorShoalCheckpointValid(7, 18100, {
+    shoalStartedAt: 18100,
+    shoalFrame: 0,
+  }),
+  true,
+)
 assert.equal(mirrorShoalDetourFor([190], true), false)
 assert.equal(mirrorShoalDetourFor([70, 90, 185, 190], true), true)
 assert.equal(mirrorShoalDetourFor([190, 70, 90, 185], true), false)
@@ -49,6 +57,42 @@ assert.equal(
   }),
   false,
 )
+const checkpoint = {
+  act: 7,
+  frame: 18400,
+  score: 500,
+  rescuedStation: false,
+  rescuedNemi: false,
+  trenchRoute: null,
+  routeSettled: false,
+  nurseryGuardianOutcome: 'waiting',
+  rescuedCourier: false,
+  wreckRoute: null,
+  armoryGuardianOutcome: 'waiting',
+  pearlWardenOutcome: 'waiting',
+  wreckSettled: false,
+  podsSaved: 0,
+  reefRoute: null,
+  reefSettled: false,
+  pylonsDown: 0,
+  rescuedNavigator: true,
+  shoalStartedAt: 18100,
+  shoalFrame: 300,
+  shoalGuardianOutcome: 'waiting',
+  shoalHits: 0,
+  captivesFreed: 0,
+  schoolBonuses: 0,
+}
+const resume = (c: typeof checkpoint) =>
+  readRainbowSave(
+    { v: 1, difficulty: 'normal', checkpoint: c, guardians: {}, medals: {} },
+    (act, frame, saved) =>
+      mirrorShoalCheckpointValid(act, frame, saved ?? {}),
+  )
+assert.equal(resume(checkpoint)?.checkpoint.shoalFrame, 300)
+assert.equal(resume({ ...checkpoint, shoalFrame: 600 }), null)
+assert.equal(resume({ ...checkpoint, shoalHits: -1 }), null)
+assert.equal(resume({ ...checkpoint, shoalGuardianOutcome: 'unknown' }), null)
 assert.equal(mirrorShoalRouteUnlocked(false, 1), false)
 assert.equal(mirrorShoalRouteUnlocked(true, 5), true)
 assert.equal(mirrorShoalRouteUnlocked(true, -1), false)

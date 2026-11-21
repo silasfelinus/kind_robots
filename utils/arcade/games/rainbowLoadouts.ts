@@ -271,7 +271,7 @@ export function readRainbowSave(
   if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
   if (
     c.shoalFrame !== undefined &&
-    (!mirrorShoalCheckpointValid(c.act as number, c.frame as number, c) ||
+    (!mirrorShoalCheckpointValid(c.act as number, c.frame as number, c as RainbowCheckpoint) ||
       !count(c.shoalHits, 999) ||
       !oneOf(c.shoalGuardianOutcome, ['waiting', 'defeated', 'escaped']))
   )

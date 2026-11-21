@@ -8,11 +8,7 @@ import {
   optionVisible,
 } from '../emperorOfDust/fortress/engine'
 import { epilogueFor } from '../emperorOfDust/fortress/epilogue'
-import {
-  decodeBook,
-  encodeBook,
-  newBook,
-} from '../emperorOfDust/fortress/saves'
+import { decodeBook, encodeBook } from '../emperorOfDust/fortress/saves'
 import type { FortressRun } from '../emperorOfDust/fortress/types'
 
 const onDay = (day: number, flags: readonly string[] = []): FortressRun => {
@@ -100,10 +96,19 @@ for (const route of routes) {
   )
   assert.ok(actual, route.final + ': the epilogue must remember the choice')
   assert.match(actual.variant.text, route.epilogue)
+  const seededDawn = createRun(1839)
+  const codecFixture = {
+    version: 3 as const,
+    current: recorded,
+    dawns: Array.from({ length: recorded.day }, (_, index) => ({
+      ...seededDawn,
+      day: index + 1,
+    })),
+  }
   assert.deepEqual(
-    decodeBook(encodeBook(newBook(recorded)))?.current,
+    decodeBook(encodeBook(codecFixture))?.current,
     recorded,
-    route.final + ': authored records survive save/reload',
+    route.final + ': authored records survive the validated save codec',
   )
 
   const recordedWithoutCopy = epilogueFor(accounted, 'open-roads').find(

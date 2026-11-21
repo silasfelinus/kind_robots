@@ -106,12 +106,12 @@
             type="button"
             class="flex min-h-28 flex-col justify-between rounded-xl border p-2 text-left transition"
             :class="[
-              selectedId === entry.species.id
+              selected?.id === entry.species.id
                 ? 'border-primary bg-primary/15'
                 : 'border-base-content/15 bg-base-100/60',
               !known(entry.species.id) ? 'opacity-75' : '',
             ]"
-            :aria-pressed="selectedId === entry.species.id"
+            :aria-pressed="selected?.id === entry.species.id"
             :data-testid="'space-couch-species-' + entry.number"
             @click="selectedId = entry.species.id"
           >
@@ -168,10 +168,21 @@
               known(selected.id) ? '✳' : '◌'
             }}</span>
             <small class="uppercase tracking-widest">{{
-              known(selected.id)
-                ? 'Illustration in the art queue'
-                : 'Species unrecorded'
+              known(selected.id) && selectedArt
+                ? 'Illustration temporarily unavailable'
+                : known(selected.id)
+                  ? 'Illustration awaiting curation'
+                  : 'Species unrecorded'
             }}</small>
+            <button
+              v-if="known(selected.id) && selectedArt && brokenImages.includes(selectedArt)"
+              type="button"
+              class="btn btn-outline btn-sm mt-3"
+              data-testid="space-couch-alien-retry-art"
+              @click="retryArt(selectedArt)"
+            >
+              RETRY ILLUSTRATION
+            </button>
           </div>
         </div>
         <p class="text-xs uppercase tracking-widest opacity-70">
@@ -293,4 +304,7 @@ const selectedArt = computed(
   () => props.artwork?.[selected.value?.artKey ?? ''] ?? null,
 )
 const brokenImages = ref<string[]>([])
+const retryArt = (url: string) => {
+  brokenImages.value = brokenImages.value.filter((image) => image !== url)
+}
 </script>

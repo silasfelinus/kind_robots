@@ -63,7 +63,7 @@ export const CTHULHUQUARIUM_FLOORS: readonly CthulhuquariumFloor[] = [
   {
     floor: 4,
     numeral: 'IV',
-    name: 'The Glasshouse',
+    name: 'The Conservatory',
     opensAt: 50,
     milestoneId: 'bestiary_50',
     background: 'flooded-conservatory',

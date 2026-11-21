@@ -145,7 +145,21 @@ export const DAYS: readonly DayDef[] = [
   ...ACT_FIVE_DAYS,
 ].map((day) => {
   const extra = MARKET_ACCOUNT_AUDIENCES[day.day]
-  return extra ? { ...day, audiences: [...day.audiences, ...extra] } : day
+  if (!extra) return day
+  const finalLettersIndex = day.audiences.findIndex(
+    (audience) => audience.id === 'd28-returned-letters',
+  )
+  if (finalLettersIndex < 0) {
+    return { ...day, audiences: [...day.audiences, ...extra] }
+  }
+  return {
+    ...day,
+    audiences: [
+      ...day.audiences.slice(0, finalLettersIndex),
+      ...extra,
+      ...day.audiences.slice(finalLettersIndex),
+    ],
+  }
 })
 
 export const dayDef = (day: number): DayDef | undefined => {

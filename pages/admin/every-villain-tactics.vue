@@ -152,6 +152,26 @@
                       store.civilianAt(cell)!.status === 'lost' ? '✕' : '☺'
                     }}</span
                   >
+                  <img
+                    v-if="
+                      store.isPhaseWarning(cell) && crewWarningImage('phase')
+                    "
+                    class="evt-creature-warning-art"
+                    :src="crewWarningImage('phase')"
+                    alt=""
+                    aria-hidden="true"
+                    data-testid="tactics-painted-phase-warning"
+                  />
+                  <img
+                    v-if="
+                      store.isBurrowWarning(cell) && crewWarningImage('burrow')
+                    "
+                    class="evt-creature-warning-art"
+                    :src="crewWarningImage('burrow')"
+                    alt=""
+                    aria-hidden="true"
+                    data-testid="tactics-painted-burrow-warning"
+                  />
                   <span
                     v-if="store.isPhaseWarning(cell)"
                     class="evt-phase-ring"
@@ -301,6 +321,64 @@
                       : 'No painted battlefield assigned to this stage yet.'
                 }}
               </p>
+              <details
+                v-if="activeCrewKinds.length"
+                class="evt-crew-art-gallery"
+                data-testid="tactics-crew-art-gallery"
+              >
+                <summary>ONE-HIT CREWS · PAINTED COUNTERPLAY</summary>
+                <div
+                  class="evt-crew-art-controls"
+                  aria-label="Choose enemy crew"
+                >
+                  <button
+                    v-for="kind in activeCrewKinds"
+                    :key="kind"
+                    type="button"
+                    :aria-pressed="galleryCrew === kind"
+                    @click="selectedCrewKind = kind"
+                  >
+                    {{ CREW_TELL_ART[kind].name }}
+                  </button>
+                </div>
+                <div
+                  class="evt-crew-art-controls"
+                  aria-label="Choose painted tactic"
+                >
+                  <button
+                    v-for="beat in CREW_TELL_BEATS"
+                    :key="beat"
+                    type="button"
+                    :aria-pressed="selectedCrewBeat === beat"
+                    @click="selectedCrewBeat = beat"
+                  >
+                    {{ beat.toUpperCase() }}
+                  </button>
+                </div>
+                <div v-if="selectedCrewReceipt" class="evt-crew-art-preview">
+                  <img
+                    v-if="selectedCrewImage"
+                    :src="selectedCrewImage"
+                    :alt="selectedCrewReceipt.title"
+                    :data-art-image-id="selectedCrewReceipt.imageId"
+                    data-testid="tactics-crew-art-loaded"
+                  />
+                  <p v-else data-testid="tactics-crew-art-unavailable">
+                    {{
+                      selectedCrewStatus === 'loading'
+                        ? 'Loading private painted tactic…'
+                        : 'Private artwork not accessible. Tactical warnings still work.'
+                    }}
+                  </p>
+                  <div>
+                    <strong>{{ selectedCrewReceipt.title }}</strong>
+                    <p>
+                      One-hit crew counterplay ·
+                      {{ selectedCrewReceipt.artKey }}
+                    </p>
+                  </div>
+                </div>
+              </details>
               <details
                 class="evt-map-edge"
                 data-testid="tactics-map-legend"
@@ -1693,6 +1771,13 @@ import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTac
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
 import { paintedMapArtId } from '~/utils/everyVillainTactics/mapArt'
 import { paintedRevealArtId } from '~/utils/everyVillainTactics/revealArt'
+import {
+  CREW_TELL_ART,
+  CREW_TELL_BEATS,
+  crewTellReceipt,
+  type CrewTellBeat,
+  type CrewTellKind,
+} from '~/utils/everyVillainTactics/crewTelegraphArt'
 import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
 import {
@@ -1741,6 +1826,53 @@ const paintedMapStatus = computed(
       ? paintedArt.images[paintedArtId.value]?.status
       : null) ?? (paintedArtId.value ? 'loading' : 'unmapped'),
 )
+const selectedCrewKind = ref<CrewTellKind>('burrow')
+const selectedCrewBeat = ref<CrewTellBeat>('warning')
+const activeCrewKinds = computed<CrewTellKind[]>(() => {
+  const kinds = new Set<CrewTellKind>()
+  for (const unit of store.state.units) {
+    if (unit.team === 'rival' && unit.hp > 0 && unit.henchmanType) {
+      kinds.add(unit.henchmanType)
+    }
+  }
+  return [...kinds]
+})
+watch(
+  [activeCrewKinds, () => viewer.token],
+  ([kinds]) => {
+    for (const kind of kinds) {
+      void paintedArt.ensure(CREW_TELL_ART[kind].beats.warning.imageId)
+    }
+  },
+  { immediate: true },
+)
+function crewWarningImage(kind: CrewTellKind): string {
+  const id = CREW_TELL_ART[kind].beats.warning.imageId
+  return paintedArt.images[id]?.src ?? ''
+}
+const galleryCrew = computed<CrewTellKind | null>(() =>
+  activeCrewKinds.value.includes(selectedCrewKind.value)
+    ? selectedCrewKind.value
+    : (activeCrewKinds.value[0] ?? null),
+)
+const selectedCrewReceipt = computed(() =>
+  crewTellReceipt(galleryCrew.value, selectedCrewBeat.value),
+)
+watch(
+  [() => selectedCrewReceipt.value?.imageId, () => viewer.token],
+  ([id]) => {
+    void paintedArt.ensure(id ?? null)
+  },
+  { immediate: true },
+)
+const selectedCrewImage = computed(() => {
+  const id = selectedCrewReceipt.value?.imageId
+  return id ? (paintedArt.images[id]?.src ?? '') : ''
+})
+const selectedCrewStatus = computed(() => {
+  const id = selectedCrewReceipt.value?.imageId
+  return id ? (paintedArt.images[id]?.status ?? 'loading') : 'unmapped'
+})
 const comicPreviewRoles: ComicIntroRole[] = [
   'hero',
   'villain',
@@ -4989,5 +5121,75 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 .evt-fire-target:focus-visible {
   outline: 3px solid #9ef5f4;
   outline-offset: 2px;
+}
+.evt-crew-art-gallery {
+  margin: 5px 0;
+  padding: 7px;
+  border: 1px solid #eeb45d99;
+  border-radius: 7px;
+  background: #101c3bf0;
+  color: #fcebc8;
+}
+.evt-crew-art-gallery summary {
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+}
+.evt-crew-art-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+.evt-crew-art-controls button {
+  min-height: 30px;
+  border: 1px solid #9bcde280;
+  border-radius: 5px;
+  padding: 4px 8px;
+  background: #1e3457;
+  color: #fff7eb;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+.evt-crew-art-controls button[aria-pressed='true'] {
+  border-color: #fcd48d;
+  background: #71486a;
+}
+.evt-crew-art-preview {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 10px;
+  margin-top: 9px;
+  font-size: 0.77rem;
+}
+.evt-crew-art-preview img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+}
+.evt-crew-art-preview p {
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+}
+@media (max-width: 520px) {
+  .evt-crew-art-preview {
+    grid-template-columns: 1fr;
+  }
+}
+.evt-creature-warning-art {
+  position: absolute;
+  inset: 8%;
+  width: 84%;
+  height: 84%;
+  object-fit: cover;
+  opacity: 0.62;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.evt-burrow-ring,
+.evt-phase-ring {
+  z-index: 2;
 }
 </style>

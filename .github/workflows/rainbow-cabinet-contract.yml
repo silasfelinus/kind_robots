@@ -39,6 +39,8 @@ jobs:
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
+      - name: Verify Pearl Warden patterns, checkpoint compatibility and 1-4 seats
+        run: npx tsx utils/scripts/verifyRainbowPearlWarden.test.ts
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Verify the actual cabinet and tutorial flyer

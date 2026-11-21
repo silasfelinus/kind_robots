@@ -11,6 +11,7 @@ export type RainbowGuardianKind =
   | 'lantern'
   | 'matriarch'
   | 'siren'
+  | 'warden'
   | 'clawstrike'
   | 'courier'
   | 'salvager'
@@ -202,6 +203,22 @@ export function stepRainbowGuardian(
           vy: 0,
           grazed: 0,
         })
+    }
+  } else if (guardian.kind === 'warden') {
+    // The shield-cache keeper alternates a rotating pearl hoop with a
+    // double crescent. Both leave a pilot-sized safe passage, even enraged.
+    if (guardian.volleys % 2 === 1) {
+      const count = enraged ? 18 : 12
+      const gap = (guardian.volleys * 5) % count
+      for (let i = 0; i < count; i++)
+        if ((i - gap + count) % count >= (enraged ? 5 : 4))
+          shot((i / count) * Math.PI * 2, enraged ? 1.65 : 1.35)
+    } else {
+      const aim = Math.atan2(nearest.y - guardian.y, nearest.x - guardian.x)
+      const offsets = enraged ? [0.24, 0.36, 0.48, 0.62] : [0.28, 0.42, 0.58]
+      for (const side of [-1, 1])
+        for (const offset of offsets)
+          shot(aim + side * offset, enraged ? 1.8 : 1.55)
     }
   } else if (guardian.kind === 'herald') {
     // The Crown Herald remixes two old lessons, one per volley: bolts down the lanes its warning marked,

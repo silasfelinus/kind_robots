@@ -301,6 +301,10 @@ export function readRainbowSave(
   )
     return null
   if (!oneOf(c.reefRoute, ['relay', 'cache', null])) return null
+  if (
+    !oneOf(c.pearlWardenOutcome, ['waiting', 'defeated', 'escaped', undefined])
+  )
+    return null
   if (!oneOf(c.allegiance, ['rebel', 'loyal', null, undefined])) return null
   for (const key of [
     'podsSaved',
@@ -350,6 +354,8 @@ export function readRainbowSave(
       wreckRoute: saved.wreckRoute,
       armoryGuardianOutcome:
         saved.armoryGuardianOutcome ?? (saved.act > 5 ? 'escaped' : 'waiting'),
+      pearlWardenOutcome:
+        saved.pearlWardenOutcome ?? (saved.act > 6 ? 'escaped' : 'waiting'),
       wreckSettled: saved.wreckSettled,
       podsSaved: saved.podsSaved,
       reefRoute: saved.reefRoute,

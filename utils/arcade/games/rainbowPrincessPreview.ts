@@ -140,6 +140,7 @@ import {
   type WreckSceneId,
 } from './rainbowWreckyard'
 import { armorySirenAllowsWave, armorySirenWindow } from './rainbowArmorySiren'
+import { pearlWardenAllowsWave, pearlWardenWindow } from './rainbowPearlWarden'
 import {
   SAWTOOTH,
   SAWTOOTH_MAX_HP,
@@ -333,6 +334,10 @@ const H = 270
 const ARMORY_SIREN_WINDOW = armorySirenWindow(
   WRECK_FORK.decideAt,
   WRECK_FORK.rejoinAt,
+)
+const PEARL_WARDEN_WINDOW = pearlWardenWindow(
+  CROWN_REEF_FORK.decideAt,
+  CROWN_REEF_FORK.rejoinAt,
 )
 /** Silas's second playtest (2026-10-19): "ship should move faster" (2.6 before it). */
 export const RAINBOW_SHIP_SPEED = 3.4
@@ -973,6 +978,7 @@ export type RainbowCombatSnapshot = {
   guardians: Readonly<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, GuardianOutcome>>
   nurseryGuardianOutcome: GuardianOutcome
   armoryGuardianOutcome: GuardianOutcome
+  pearlWardenOutcome: GuardianOutcome
   rescuedNemi: boolean
   /** Act III's route: null until the fork, then the vault gauntlet or the safe passage. */
   trenchRoute: TrenchRoute | null
@@ -1096,6 +1102,7 @@ export function createRainbowPrincessPreview(
   let guardian: RainbowGuardian | null = null
   let nurseryGuardianOutcome: GuardianOutcome = 'waiting'
   let armoryGuardianOutcome: GuardianOutcome = 'waiting'
+  let pearlWardenOutcome: GuardianOutcome = 'waiting'
   const guardians: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, GuardianOutcome> = {
     1: 'waiting',
     2: 'waiting',
@@ -1181,6 +1188,7 @@ export function createRainbowPrincessPreview(
     routeSettled: false,
     nurseryGuardianOutcome: 'waiting',
     armoryGuardianOutcome: 'waiting',
+    pearlWardenOutcome: 'waiting',
     rescuedCourier: false,
     wreckRoute: null,
     wreckSettled: false,
@@ -2259,6 +2267,7 @@ export function createRainbowPrincessPreview(
       routeSettled,
       nurseryGuardianOutcome,
       armoryGuardianOutcome,
+      pearlWardenOutcome,
       rescuedCourier,
       wreckRoute,
       wreckSettled,
@@ -2425,6 +2434,8 @@ export function createRainbowPrincessPreview(
       c.nurseryGuardianOutcome ?? (c.act > 3 ? 'escaped' : 'waiting')
     armoryGuardianOutcome =
       c.armoryGuardianOutcome ?? (c.act > 5 ? 'escaped' : 'waiting')
+    pearlWardenOutcome =
+      c.pearlWardenOutcome ?? (c.act > 6 ? 'escaped' : 'waiting')
     rescuedCourier = c.rescuedCourier
     escortDone = c.act > 4
     wreckRoute = c.wreckRoute
@@ -2578,6 +2589,7 @@ export function createRainbowPrincessPreview(
       guardian = null
       nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
       armoryGuardianOutcome = checkpoint.armoryGuardianOutcome ?? 'waiting'
+      pearlWardenOutcome = checkpoint.pearlWardenOutcome ?? 'waiting'
       // The finale has no guardian.
       if (
         checkpoint.act !== 9 &&
@@ -2614,6 +2626,7 @@ export function createRainbowPrincessPreview(
       routeSettled = checkpoint.routeSettled
       nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
       armoryGuardianOutcome = checkpoint.armoryGuardianOutcome ?? 'waiting'
+      pearlWardenOutcome = checkpoint.pearlWardenOutcome ?? 'waiting'
       rescuedCourier = checkpoint.rescuedCourier
       // The escort replays when the checkpoint is before the pod set off.
       if (checkpoint.act === 4 && checkpoint.frame <= ROSEFIN_ESCORT.podAppears)
@@ -3523,6 +3536,21 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  function summonPearlWarden(frame: number) {
+    if (guardian || pearlWardenOutcome !== 'waiting') return
+    if (
+      frame >= PEARL_WARDEN_WINDOW.from &&
+      frame < PEARL_WARDEN_WINDOW.to - RAINBOW_GUARDIAN.escapeLead
+    ) {
+      guardian = createRainbowGuardian('warden', activePlayers)
+      guardian.maxHp = guardian.hp = Math.max(
+        1,
+        Math.round(guardian.maxHp * level.bossHp),
+      )
+      popups.push({ x: W / 2, y: 92, text: 'PEARL WARDEN', age: 0 })
+    }
+  }
+
   function defeatGuardian(seat: number) {
     if (!guardian) return
     const { x, y, kind } = guardian
@@ -3540,6 +3568,9 @@ export function createRainbowPrincessPreview(
     } else if (act === 5 && kind === 'siren') {
       armoryGuardianOutcome = 'defeated'
       advanceAct(5, ARMORY_SIREN_WINDOW.to - GUARDIAN_SKIP_LEAD - wreckFrame())
+    } else if (act === 6 && kind === 'warden') {
+      pearlWardenOutcome = 'defeated'
+      advanceAct(6, PEARL_WARDEN_WINDOW.to - GUARDIAN_SKIP_LEAD - reefFrame())
     } else if (act !== 9) {
       guardians[act] = 'defeated'
       // Nothing flies in a guardian's section, so once it falls the Act moves on after a short breath.
@@ -3948,11 +3979,13 @@ export function createRainbowPrincessPreview(
           settleReefRoute()
         passCheckpoint(6, frame)
         summonGuardian(6, frame, CROWN_REEF_GUARDIAN)
+        if (reefRoute === 'cache') summonPearlWarden(frame)
       }
       if (stage === 'waves') {
-        for (const entry of reefSpawns(frame, reefRoute)) {
-          spawn(entry.kind, entry.y, entry.wave)
-        }
+        if (pearlWardenAllowsWave(frame, reefRoute, PEARL_WARDEN_WINDOW))
+          for (const entry of reefSpawns(frame, reefRoute)) {
+            spawn(entry.kind, entry.y, entry.wave)
+          }
       } else if (stage === 'turn' && frame === CROWN_REEF.turnStarts) {
         reefs.length = 0
         enemyShots.length = 0
@@ -4379,7 +4412,9 @@ export function createRainbowPrincessPreview(
           ? nurseryGuardianWindow(TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt)
           : guardian.kind === 'siren'
             ? ARMORY_SIREN_WINDOW
-            : guardianSections[act]
+            : guardian.kind === 'warden'
+              ? PEARL_WARDEN_WINDOW
+              : guardianSections[act]
       const frame = actFrame(act)
       shootAs(
         RAINBOW_GUARDIAN_LOOK,
@@ -4395,6 +4430,7 @@ export function createRainbowPrincessPreview(
         guardian = null
         if (wasNursery) nurseryGuardianOutcome = 'escaped'
         else if (guardianKind === 'siren') armoryGuardianOutcome = 'escaped'
+        else if (guardianKind === 'warden') pearlWardenOutcome = 'escaped'
         else guardians[act] = 'escaped'
       }
     }
@@ -5269,6 +5305,7 @@ export function createRainbowPrincessPreview(
         guardians: { ...guardians },
         nurseryGuardianOutcome,
         armoryGuardianOutcome,
+        pearlWardenOutcome,
         rescuedNemi,
         trenchRoute,
         securedSalvage: trenchRoute === 'vault' && routeSettled,
@@ -6296,7 +6333,9 @@ export function createRainbowPrincessPreview(
             g,
             guardian.kind === 'matriarch' || guardian.kind === 'siren'
               ? 'lantern'
-              : guardian.kind,
+              : guardian.kind === 'warden'
+                ? 'bulwark'
+                : guardian.kind,
           )
         ) {
           g.save()
@@ -6309,7 +6348,9 @@ export function createRainbowPrincessPreview(
                 ? 'harbinger'
                 : guardian.kind === 'matriarch' || guardian.kind === 'siren'
                   ? 'lantern'
-                  : guardian.kind,
+                  : guardian.kind === 'warden'
+                    ? 'bulwark'
+                    : guardian.kind,
             )
           ) {
             g.fillStyle =

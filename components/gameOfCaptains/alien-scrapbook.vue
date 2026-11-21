@@ -154,8 +154,8 @@
           class="rounded-xl border border-base-content/15 p-4 text-sm opacity-75"
           data-testid="space-couch-alien-shelf-empty"
         >
-          No matching field notes. Try another catalogue number or a name
-          you've encountered.
+          No matching field notes. Try another catalogue number or a name you've
+          encountered.
         </p>
       </section>
       <section

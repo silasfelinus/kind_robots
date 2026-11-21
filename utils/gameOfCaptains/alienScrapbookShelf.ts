@@ -61,7 +61,6 @@ export function alienScrapbookShelf(
     })
     .sort(
       (a, b) =>
-        STATUS_ORDER[a.status] - STATUS_ORDER[b.status] ||
-        a.number - b.number,
+        STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.number - b.number,
     )
 }

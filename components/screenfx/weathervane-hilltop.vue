@@ -131,7 +131,7 @@ function layout(): Layout {
   const postX = width * (narrow ? 0.5 : 0.58)
   const scale = Math.min(width, height) * (narrow ? 0.0021 : 0.0018)
   const postBase = hillY(postX) + 4
-  const postTop = postBase - Math.min(height * 0.42, 260 * scale * 2.2)
+  const postTop = postBase - Math.min(height * 0.36, 200 * scale)
   return { horizon, postX, postTop, postBase, scale }
 }
 
@@ -203,7 +203,7 @@ function drawHills(l: Layout): void {
   context.fillStyle = '#7a6a7a'
   context.beginPath()
   context.moveTo(0, height)
-  for (let x = 0; x <= width; x += 12) {
+  for (let x = 0; x <= width + 12; x += 12) {
     const y =
       l.horizon -
       30 -
@@ -222,7 +222,7 @@ function drawHills(l: Layout): void {
   context.fillStyle = grass
   context.beginPath()
   context.moveTo(0, height)
-  for (let x = 0; x <= width; x += 8) context.lineTo(x, hillY(x))
+  for (let x = 0; x <= width + 8; x += 8) context.lineTo(x, hillY(x))
   context.lineTo(width, height)
   context.closePath()
   context.fill()

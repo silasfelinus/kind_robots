@@ -129,9 +129,16 @@ export const CREW_TELL_ART: Readonly<
   },
 }
 
+export function isCrewTellKind(kind: unknown): kind is CrewTellKind {
+  return (
+    typeof kind === 'string' &&
+    Object.prototype.hasOwnProperty.call(CREW_TELL_ART, kind)
+  )
+}
+
 export function crewTellReceipt(
-  kind: CrewTellKind | null,
+  kind: string | null | undefined,
   beat: CrewTellBeat,
 ): CrewTellReceipt | null {
-  return kind ? CREW_TELL_ART[kind].beats[beat] : null
+  return isCrewTellKind(kind) ? CREW_TELL_ART[kind].beats[beat] : null
 }

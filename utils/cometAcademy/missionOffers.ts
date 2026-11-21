@@ -620,6 +620,7 @@ export function districtFinaleAid(
       return {
         thread,
         title: DISTRICT_SECRETS[thread].title,
+        order: plan.order,
         matched,
         support: matched ? 2 : 1,
         line: plan.action + (matched ? ' ' + plan.strengthened : ''),

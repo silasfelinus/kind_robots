@@ -25,9 +25,11 @@ export interface ScriptCursor {
   reply: number
 }
 
-export const START: ScriptCursor = { beat: 0, choice: null, reply: 0 }
+export const SCRIPT_START: ScriptCursor = { beat: 0, choice: null, reply: 0 }
 
-export function choicesOf(beat: CanonBeat | null | undefined): CanonChoice[] {
+export function scriptChoicesOf(
+  beat: CanonBeat | null | undefined,
+): CanonChoice[] {
   return beat?.choices ?? []
 }
 
@@ -37,14 +39,14 @@ function pickedChoice(
 ): CanonChoice | null {
   if (!cursor.choice) return null
   return (
-    choicesOf(scene.beats[cursor.beat]).find(
+    scriptChoicesOf(scene.beats[cursor.beat]).find(
       (choice) => choice.id === cursor.choice,
     ) ?? null
   )
 }
 
 /** The beat on screen: a main beat, or a beat of the picked reply. */
-export function currentBeat(
+export function scriptCurrentBeat(
   scene: CanonScene | null,
   cursor: ScriptCursor,
 ): CanonBeat | null {
@@ -55,21 +57,21 @@ export function currentBeat(
 }
 
 /** True while the player owes the scene a reply before it can go on. */
-export function awaitingChoice(
+export function scriptAwaitingChoice(
   scene: CanonScene | null,
   cursor: ScriptCursor,
 ): boolean {
   if (!scene || cursor.choice) return false
-  return choicesOf(scene.beats[cursor.beat]).length > 0
+  return scriptChoicesOf(scene.beats[cursor.beat]).length > 0
 }
 
 /** True when advancing from here ends the scene. */
-export function isFinalBeat(
+export function scriptIsFinalBeat(
   scene: CanonScene | null,
   cursor: ScriptCursor,
 ): boolean {
   if (!scene) return true
-  if (awaitingChoice(scene, cursor)) return false
+  if (scriptAwaitingChoice(scene, cursor)) return false
   const choice = pickedChoice(scene, cursor)
   if (choice && cursor.reply < choice.reply.length - 1) return false
   return cursor.beat >= scene.beats.length - 1
@@ -79,11 +81,11 @@ export function isFinalBeat(
  * The next cursor, or 'done' when the scene is over. A beat that is waiting for
  * a reply does not move: the player has to choose first.
  */
-export function step(
+export function scriptStep(
   scene: CanonScene,
   cursor: ScriptCursor,
 ): ScriptCursor | 'done' {
-  if (awaitingChoice(scene, cursor)) return cursor
+  if (scriptAwaitingChoice(scene, cursor)) return cursor
   const choice = pickedChoice(scene, cursor)
   if (choice && cursor.reply < choice.reply.length - 1) {
     return { ...cursor, reply: cursor.reply + 1 }
@@ -93,22 +95,22 @@ export function step(
 }
 
 /** Pick a reply on the beat that offers one; anything else is ignored. */
-export function choose(
+export function scriptChoose(
   scene: CanonScene,
   cursor: ScriptCursor,
   choiceId: string,
 ): ScriptCursor {
-  if (!awaitingChoice(scene, cursor)) return cursor
-  const exists = choicesOf(scene.beats[cursor.beat]).some(
+  if (!scriptAwaitingChoice(scene, cursor)) return cursor
+  const exists = scriptChoicesOf(scene.beats[cursor.beat]).some(
     (choice) => choice.id === choiceId,
   )
   return exists ? { ...cursor, choice: choiceId, reply: 0 } : cursor
 }
 
 /** Every beat a scene can show, replies included (for checks and lints). */
-export function everyBeat(scene: CanonScene): CanonBeat[] {
+export function scriptEveryBeat(scene: CanonScene): CanonBeat[] {
   return scene.beats.flatMap((beat) => [
     beat,
-    ...choicesOf(beat).flatMap((choice) => choice.reply),
+    ...scriptChoicesOf(beat).flatMap((choice) => choice.reply),
   ])
 }

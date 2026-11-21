@@ -20,6 +20,7 @@
           data-nav
           class="cq-memory-card"
           :aria-label="`Watch again: ${memory.title}`"
+          :title="memory.floorName || undefined"
           @click="replay(memory.id)"
         >
           <img
@@ -36,7 +37,7 @@
         <div
           v-else
           class="cq-memory-card cq-memory-locked"
-          :aria-label="`Not yet remembered. ${memory.eyebrow}`"
+          :aria-label="`Not yet remembered. ${memory.eyebrow} ${memory.floorName}`"
         >
           <span class="cq-memory-eyebrow">{{ memory.eyebrow }}</span>
           <span class="cq-memory-title">Not yet</span>
@@ -79,7 +80,8 @@ const memories = computed(() => {
       id: scene.id,
       title: scene.title,
       seen: tankStore.hasSeen(scene.id),
-      eyebrow: floor ? `Floor ${floor.numeral} · ${floor.name}` : 'The shop',
+      eyebrow: floor ? `Floor ${floor.numeral}` : 'The shop',
+      floorName: floor?.name ?? '',
       art:
         plateArt(scene.plate) ??
         backgroundArt(scene.background) ??

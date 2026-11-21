@@ -25,7 +25,7 @@ import {
 } from '../cthulhuquariumCanon.generated'
 import { CTHULHUQUARIUM_SCENE_CHOICES } from '../../server/utils/cthulhuquariumBackgrounds.generated'
 import { CTHULHUQUARIUM_FLOORS } from '../cthulhuquariumFloors'
-import { everyBeat } from '../cthulhuquariumScript'
+import { scriptEveryBeat } from '../cthulhuquariumScript'
 import { CTHULHUQUARIUM_ART_PROMPTS } from '../cthulhuquariumArtPrompts.generated'
 import { isMassSprite, spawnSwimState } from '../cthulhuquariumMotion'
 import { buildCthulhuquariumPlaybook } from '../playbook/cthulhuquarium'
@@ -287,7 +287,7 @@ const INJURY =
   /\b(injur\w*|bandag\w*|plaster(s|ed)?|sling|wound\w*|stitch\w*|bitten|bruis\w*|cast)\b/i
 const spoken = [
   ...Object.values(CTHULHUQUARIUM_SCENES).flatMap((scene) =>
-    everyBeat(scene).map((beat) => `${scene.id}: ${beat.text}`),
+    scriptEveryBeat(scene).map((beat) => `${scene.id}: ${beat.text}`),
   ),
   ...Object.values(CTHULHUQUARIUM_SCENES).flatMap((scene) =>
     scene.beats.flatMap((beat) =>

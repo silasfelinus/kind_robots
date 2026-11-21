@@ -6,206 +6,213 @@
      player's reply as a hand of cards. Tutorial beats that ask for Feed or
      Buy stay in a reachable sheet so those controls remain usable. -->
 <template>
-  <Transition name="cq-dialogue">
-    <div
-      v-if="beat && scene && tankStore.storyShowing"
-      class="pointer-events-none fixed z-50"
-      :class="
-        cinematic
-          ? 'inset-0 bg-black'
-          : 'inset-x-0 bottom-0 flex justify-center px-2 pb-2 sm:px-4 sm:pb-4'
-      "
-      role="dialog"
-      :aria-modal="cinematic ? true : undefined"
-      :aria-label="cinematic ? scene.title : `${speakerName} speaks`"
-    >
+  <!-- Teleported: the site's header bar has its own stacking context above
+       the game, and a scene is a modal moment that sits over everything. -->
+  <Teleport to="body">
+    <Transition name="cq-dialogue">
       <div
-        v-if="cinematic"
-        class="cq-vn-stage pointer-events-auto"
-        @click="onStageClick"
-      >
-        <Transition name="cq-fade">
-          <img
-            v-if="backdropUrl"
-            :key="backdropUrl"
-            :src="backdropUrl"
-            alt=""
-            class="cq-vn-background"
-          />
-        </Transition>
-        <div class="cq-vn-atmosphere" aria-hidden="true" />
-
-        <!-- A character's full-length hero plate, on the intro's two beats. -->
-        <img
-          v-if="heroUrl"
-          :key="heroUrl"
-          :src="heroUrl"
-          :alt="heroAlt"
-          class="cq-vn-character cq-vn-lit"
-          :class="isCharlotte ? 'cq-vn-left' : 'cq-vn-right'"
-        />
-        <template v-else>
-          <Transition
-            v-for="side in stageSides"
-            :key="side.speaker"
-            name="cq-pose"
-          >
-            <img
-              v-if="side.url"
-              :key="side.url"
-              :src="side.url"
-              :alt="side.lit ? `${speakerName}, ${beat.pose}` : ''"
-              :aria-hidden="side.lit ? undefined : 'true'"
-              class="cq-vn-character"
-              :class="[
-                side.speaker === 'charlotte' ? 'cq-vn-left' : 'cq-vn-right',
-                side.lit ? 'cq-vn-lit' : 'cq-vn-dim',
-              ]"
-            />
-          </Transition>
-        </template>
-
-        <header class="cq-vn-masthead">
-          <span class="cq-vn-eyebrow">{{ eyebrow }}</span>
-          <h1 class="cq-vn-title">{{ scene.title }}</h1>
-        </header>
-        <button
-          type="button"
-          class="cq-vn-skip btn btn-ghost btn-sm min-h-11"
-          @click.stop="tankStore.skipScene()"
-        >
-          {{ tankStore.isReplaying ? 'Close memory' : 'Skip scene' }}
-          <kbd class="cq-vn-kbd" aria-hidden="true">Esc</kbd>
-        </button>
-
-        <section
-          class="cq-vn-dialogue"
-          :aria-label="`${speakerName}'s dialogue`"
-        >
-          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h2
-              class="cq-vn-name"
-              :class="{ 'cq-vn-name-wilbur': !isCharlotte }"
-            >
-              {{ speakerName }}
-            </h2>
-            <span class="text-xs italic text-white/65">{{ speakerRole }}</span>
-          </div>
-          <!-- The whole line for screen readers at once; the typed copy is
-               what sighted players watch arrive. -->
-          <p class="sr-only" aria-live="polite">{{ beat.text }}</p>
-          <p class="cq-vn-line" aria-hidden="true">
-            {{ typedText }}<span v-if="!lineDone" class="cq-vn-caret">▍</span>
-          </p>
-
-          <div
-            v-if="showHandover && handover"
-            class="cq-vn-handover"
-            @click.stop
-          >
-            <img
-              v-if="handoverUrl"
-              :src="handoverUrl"
-              alt=""
-              class="aspect-[16/9] w-24 shrink-0 rounded-lg object-cover sm:w-32"
-            />
-            <div class="min-w-0 flex-1">
-              <p class="text-xs uppercase tracking-wider text-teal-200/80">
-                A new background
-              </p>
-              <p class="truncate font-serif text-base font-bold text-white">
-                {{ handover.name }}
-              </p>
-              <p class="line-clamp-2 font-serif text-xs italic text-white/70">
-                {{ handover.fieldNote }}
-              </p>
-            </div>
-            <button
-              type="button"
-              class="btn btn-primary btn-sm min-h-11"
-              :disabled="tankStore.backgroundSaving"
-              @click="hangHandover"
-            >
-              Hang it
-            </button>
-          </div>
-
-          <div v-if="showChoices" class="cq-vn-choices" @click.stop>
-            <kr-choice-hand
-              :choices="handChoices"
-              question="Your reply"
-              :deal-key="`${scene.id}-reply`"
-              :animate="!reducedMotion"
-              testid-prefix="cq-reply"
-              @play="onReply"
-            />
-          </div>
-          <div v-else class="flex items-center justify-between gap-3">
-            <p class="text-xs italic text-white/55">
-              {{ progressLabel }}
-            </p>
-            <button
-              type="button"
-              class="btn btn-primary min-h-12 min-w-32"
-              @click.stop="onContinue"
-            >
-              {{ continueLabel }}
-              <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
-            </button>
-          </div>
-        </section>
-      </div>
-
-      <div
-        v-else
-        class="pointer-events-auto relative w-full max-w-3xl rounded-2xl border border-base-content/20 bg-base-100/95 p-3 shadow-2xl backdrop-blur"
-        aria-live="polite"
+        v-if="beat && scene && tankStore.storyShowing"
+        class="pointer-events-none fixed z-[80]"
+        :class="
+          cinematic
+            ? 'inset-0 bg-black'
+            : 'inset-x-0 bottom-0 flex justify-center px-2 pb-2 sm:px-4 sm:pb-4'
+        "
+        role="dialog"
+        :aria-modal="cinematic ? true : undefined"
+        :aria-label="cinematic ? scene.title : `${speakerName} speaks`"
       >
         <div
-          class="flex items-end gap-3"
-          :class="isCharlotte ? 'flex-row' : 'flex-row-reverse'"
+          v-if="cinematic"
+          class="cq-vn-stage pointer-events-auto"
+          @click="onStageClick"
         >
+          <Transition name="cq-fade">
+            <img
+              v-if="backdropUrl"
+              :key="backdropUrl"
+              :src="backdropUrl"
+              alt=""
+              class="cq-vn-background"
+            />
+          </Transition>
+          <div class="cq-vn-atmosphere" aria-hidden="true" />
+
+          <!-- A character's full-length hero plate, on the intro's two beats. -->
           <img
-            v-if="portraitUrl"
-            :key="portraitUrl ?? beat.pose"
-            :src="portraitUrl"
-            :alt="`${speakerName}, ${beat.pose}`"
-            class="cq-portrait -mt-12 h-32 w-24 shrink-0 object-contain object-bottom sm:-mt-20 sm:h-52 sm:w-36"
+            v-if="heroUrl"
+            :key="heroUrl"
+            :src="heroUrl"
+            :alt="heroAlt"
+            class="cq-vn-character cq-vn-lit"
+            :class="isCharlotte ? 'cq-vn-left' : 'cq-vn-right'"
           />
-          <div class="flex min-w-0 flex-1 flex-col gap-2">
-            <div class="flex flex-wrap items-baseline gap-2">
-              <h2 class="font-serif text-lg font-black">{{ speakerName }}</h2>
-              <span class="text-xs italic opacity-60">{{ speakerRole }}</span>
+          <template v-else>
+            <Transition
+              v-for="side in stageSides"
+              :key="side.speaker"
+              name="cq-pose"
+            >
+              <img
+                v-if="side.url"
+                :key="side.url"
+                :src="side.url"
+                :alt="side.lit ? `${speakerName}, ${beat.pose}` : ''"
+                :aria-hidden="side.lit ? undefined : 'true'"
+                class="cq-vn-character"
+                :class="[
+                  side.speaker === 'charlotte' ? 'cq-vn-left' : 'cq-vn-right',
+                  side.lit ? 'cq-vn-lit' : 'cq-vn-dim',
+                ]"
+              />
+            </Transition>
+          </template>
+
+          <header class="cq-vn-masthead">
+            <span class="cq-vn-eyebrow">{{ eyebrow }}</span>
+            <h1 class="cq-vn-title">{{ scene.title }}</h1>
+          </header>
+          <button
+            type="button"
+            class="cq-vn-skip btn btn-ghost btn-sm min-h-11"
+            @click.stop="tankStore.skipScene()"
+          >
+            {{ tankStore.isReplaying ? 'Close memory' : 'Skip scene' }}
+            <kbd class="cq-vn-kbd" aria-hidden="true">Esc</kbd>
+          </button>
+
+          <section
+            class="cq-vn-dialogue"
+            :class="{ 'cq-vn-dialogue-choosing': showChoices }"
+            :aria-label="`${speakerName}'s dialogue`"
+          >
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h2
+                class="cq-vn-name"
+                :class="{ 'cq-vn-name-wilbur': !isCharlotte }"
+              >
+                {{ speakerName }}
+              </h2>
+              <span class="text-xs italic text-white/65">{{
+                speakerRole
+              }}</span>
             </div>
-            <p class="font-serif text-sm leading-relaxed sm:text-base">
-              {{ beat.text }}
+            <!-- The whole line for screen readers at once; the typed copy is
+               what sighted players watch arrive. -->
+            <p class="sr-only" aria-live="polite">{{ beat.text }}</p>
+            <p class="cq-vn-line" aria-hidden="true">
+              {{ typedText }}<span v-if="!lineDone" class="cq-vn-caret">▍</span>
             </p>
-            <div class="flex flex-wrap items-center justify-end gap-2">
-              <p v-if="awaitHint" class="mr-auto text-xs italic opacity-70">
-                {{ awaitHint }}
+
+            <div
+              v-if="showHandover && handover"
+              class="cq-vn-handover"
+              @click.stop
+            >
+              <img
+                v-if="handoverUrl"
+                :src="handoverUrl"
+                alt=""
+                class="aspect-[16/9] w-24 shrink-0 rounded-lg object-cover sm:w-32"
+              />
+              <div class="min-w-0 flex-1">
+                <p class="text-xs uppercase tracking-wider text-teal-200/80">
+                  A new background
+                </p>
+                <p class="truncate font-serif text-base font-bold text-white">
+                  {{ handover.name }}
+                </p>
+                <p class="line-clamp-2 font-serif text-xs italic text-white/70">
+                  {{ handover.fieldNote }}
+                </p>
+              </div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm min-h-11"
+                :disabled="tankStore.backgroundSaving"
+                @click="hangHandover"
+              >
+                Hang it
+              </button>
+            </div>
+
+            <div v-if="showChoices" class="cq-vn-choices" @click.stop>
+              <kr-choice-hand
+                :choices="handChoices"
+                question="Your reply"
+                :deal-key="`${scene.id}-reply`"
+                :animate="!reducedMotion"
+                testid-prefix="cq-reply"
+                @play="onReply"
+              />
+            </div>
+            <div v-else class="flex items-center justify-between gap-3">
+              <p class="text-xs italic text-white/55">
+                {{ progressLabel }}
               </p>
               <button
-                v-if="beat.await"
                 type="button"
-                class="btn btn-ghost btn-sm min-h-11"
-                @click="tankStore.advanceBeat()"
+                class="btn btn-primary min-h-12 min-w-32"
+                @click.stop="onContinue"
               >
-                Skip
+                {{ continueLabel }}
+                <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
               </button>
-              <button
-                v-else
-                type="button"
-                class="btn btn-primary btn-sm min-h-11 min-w-24"
-                @click="tankStore.advanceBeat()"
-              >
-                {{ isLastBeat ? 'Return to the tank' : 'Continue' }}
-              </button>
+            </div>
+          </section>
+        </div>
+
+        <div
+          v-else
+          class="pointer-events-auto relative w-full max-w-3xl rounded-2xl border border-base-content/20 bg-base-100/95 p-3 shadow-2xl backdrop-blur"
+          aria-live="polite"
+        >
+          <div
+            class="flex items-end gap-3"
+            :class="isCharlotte ? 'flex-row' : 'flex-row-reverse'"
+          >
+            <img
+              v-if="portraitUrl"
+              :key="portraitUrl ?? beat.pose"
+              :src="portraitUrl"
+              :alt="`${speakerName}, ${beat.pose}`"
+              class="cq-portrait -mt-12 h-32 w-24 shrink-0 object-contain object-bottom sm:-mt-20 sm:h-52 sm:w-36"
+            />
+            <div class="flex min-w-0 flex-1 flex-col gap-2">
+              <div class="flex flex-wrap items-baseline gap-2">
+                <h2 class="font-serif text-lg font-black">{{ speakerName }}</h2>
+                <span class="text-xs italic opacity-60">{{ speakerRole }}</span>
+              </div>
+              <p class="font-serif text-sm leading-relaxed sm:text-base">
+                {{ beat.text }}
+              </p>
+              <div class="flex flex-wrap items-center justify-end gap-2">
+                <p v-if="awaitHint" class="mr-auto text-xs italic opacity-70">
+                  {{ awaitHint }}
+                </p>
+                <button
+                  v-if="beat.await"
+                  type="button"
+                  class="btn btn-ghost btn-sm min-h-11"
+                  @click="tankStore.advanceBeat()"
+                >
+                  Skip
+                </button>
+                <button
+                  v-else
+                  type="button"
+                  class="btn btn-primary btn-sm min-h-11 min-w-24"
+                  @click="tankStore.advanceBeat()"
+                >
+                  {{ isLastBeat ? 'Return to the tank' : 'Continue' }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -296,25 +303,17 @@ const heroAlt = computed(() => {
 // Both shopkeepers stay on stage once they have spoken in this scene: the
 // speaker lit on their own side, the other dimmed on theirs, holding the
 // last pose they spoke in.
-const lastPose = ref<Partial<Record<CanonSpeaker, string>>>({})
-watch(
-  () => scene.value?.id,
-  () => {
-    lastPose.value = {}
-  },
-)
-watch(
-  beat,
-  (current) => {
-    if (!current) return
-    lastPose.value = { ...lastPose.value, [current.speaker]: current.pose }
-  },
-  { immediate: true },
-)
+function lastPoseOf(speaker: CanonSpeaker): string | undefined {
+  const spoken = tankStore.spokenBeats
+  for (let index = spoken.length - 1; index >= 0; index--) {
+    if (spoken[index]?.speaker === speaker) return spoken[index]?.pose
+  }
+  return undefined
+}
 const stageSides = computed(() =>
   (['charlotte', 'wilbur'] as const).map((speaker) => {
     const lit = beat.value?.speaker === speaker
-    const pose = lit ? beat.value?.pose : lastPose.value[speaker]
+    const pose = lit ? beat.value?.pose : lastPoseOf(speaker)
     return {
       speaker,
       lit,
@@ -549,6 +548,7 @@ onBeforeUnmount(() => {
 }
 .cq-vn-masthead {
   position: absolute;
+  z-index: 3;
   top: max(1.25rem, env(safe-area-inset-top));
   left: clamp(1rem, 5vw, 5rem);
   right: 9rem;
@@ -633,10 +633,14 @@ onBeforeUnmount(() => {
   background: rgb(10 30 40 / 0.8);
   padding: 0.5rem;
 }
+.cq-vn-dialogue-choosing {
+  max-height: min(78%, 44rem);
+}
 .cq-vn-choices {
-  --hand-card-max: 11rem;
-  --hand-card-vh: 26;
-  min-height: 0;
+  --hand-card-max: 10rem;
+  --hand-card-vh: 22vh;
+  --hand-card-cqw: 30cqw;
+  flex-shrink: 0;
 }
 .cq-dialogue-enter-active,
 .cq-dialogue-leave-active {

@@ -7,13 +7,13 @@ import assert from 'node:assert/strict'
 import type { CanonScene } from '../cthulhuquariumCanon.generated.js'
 import { CTHULHUQUARIUM_SCENES } from '../cthulhuquariumCanon.generated.js'
 import {
-  awaitingChoice,
-  choose,
-  currentBeat,
-  everyBeat,
-  isFinalBeat,
-  START,
-  step,
+  scriptAwaitingChoice,
+  scriptChoose,
+  scriptCurrentBeat,
+  scriptEveryBeat,
+  scriptIsFinalBeat,
+  SCRIPT_START,
+  scriptStep,
   type ScriptCursor,
 } from '../cthulhuquariumScript.js'
 
@@ -53,21 +53,21 @@ const scene: CanonScene = {
 
 function walk(choiceId: string): string[] {
   const seen: string[] = []
-  let cursor: ScriptCursor = { ...START }
+  let cursor: ScriptCursor = { ...SCRIPT_START }
   for (let guard = 0; guard < 20; guard++) {
-    seen.push(currentBeat(scene, cursor)!.text)
-    if (awaitingChoice(scene, cursor)) {
-      const stuck = step(scene, cursor)
+    seen.push(scriptCurrentBeat(scene, cursor)!.text)
+    if (scriptAwaitingChoice(scene, cursor)) {
+      const stuck = scriptStep(scene, cursor)
       assert.deepEqual(stuck, cursor, 'a reply beat waits for the player')
-      cursor = choose(scene, cursor, choiceId)
+      cursor = scriptChoose(scene, cursor, choiceId)
       continue
     }
-    const next = step(scene, cursor)
+    const next = scriptStep(scene, cursor)
     if (next === 'done') {
-      assert.equal(isFinalBeat(scene, cursor), true)
+      assert.equal(scriptIsFinalBeat(scene, cursor), true)
       return seen
     }
-    assert.equal(isFinalBeat(scene, cursor), false)
+    assert.equal(scriptIsFinalBeat(scene, cursor), false)
     cursor = next
   }
   throw new Error('scene never ended')
@@ -79,22 +79,30 @@ assert.deepEqual(walk('b'), ['one', 'two', 'b1', 'three'])
 console.log('✅ a reply plays its beats, then the scene carries on')
 
 const onChoice: ScriptCursor = { beat: 1, choice: null, reply: 0 }
-assert.equal(awaitingChoice(scene, onChoice), true)
+assert.equal(scriptAwaitingChoice(scene, onChoice), true)
 assert.deepEqual(
-  choose(scene, onChoice, 'nope'),
+  scriptChoose(scene, onChoice, 'nope'),
   onChoice,
   'an unknown reply is ignored',
 )
 assert.deepEqual(
-  choose(scene, START, 'a'),
-  START,
+  scriptChoose(scene, SCRIPT_START, 'a'),
+  SCRIPT_START,
   'a beat without choices ignores a pick',
 )
-assert.equal(isFinalBeat(scene, onChoice), false, 'never final while waiting')
+assert.equal(
+  scriptIsFinalBeat(scene, onChoice),
+  false,
+  'never final while waiting',
+)
 console.log('✅ choose ignores unknown replies and beats without a choice')
 
-assert.equal(currentBeat(null, START), null)
-assert.equal(everyBeat(scene).length, 6, 'main beats plus every reply beat')
+assert.equal(scriptCurrentBeat(null, SCRIPT_START), null)
+assert.equal(
+  scriptEveryBeat(scene).length,
+  6,
+  'main beats plus every reply beat',
+)
 console.log('✅ currentBeat / everyBeat')
 
 // Every real floor scene can be walked to its end with each of its replies.
@@ -104,12 +112,16 @@ for (const real of Object.values(CTHULHUQUARIUM_SCENES)) {
   assert.ok(choiceBeats.length <= 1, `${real.id}: at most one reply per scene`)
   const ids = choiceBeats[0]?.choices?.map((choice) => choice.id) ?? [null]
   for (const id of ids) {
-    let cursor: ScriptCursor = { ...START }
+    let cursor: ScriptCursor = { ...SCRIPT_START }
     let steps = 0
     for (;;) {
-      if (awaitingChoice(real, cursor)) cursor = choose(real, cursor, id!)
-      assert.ok(currentBeat(real, cursor), `${real.id}: a beat is on screen`)
-      const next = step(real, cursor)
+      if (scriptAwaitingChoice(real, cursor))
+        cursor = scriptChoose(real, cursor, id!)
+      assert.ok(
+        scriptCurrentBeat(real, cursor),
+        `${real.id}: a beat is on screen`,
+      )
+      const next = scriptStep(real, cursor)
       if (next === 'done') break
       cursor = next
       assert.ok(++steps < 50, `${real.id} ends`)

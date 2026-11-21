@@ -79,6 +79,20 @@
       <label class="text-xs font-bold" for="space-couch-alien-shelf-search">
         SEARCH THE FIELD GUIDE
       </label>
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-xs opacity-75" role="status" aria-live="polite">
+          {{ visibleSpecies.length }} catalogue pages shown
+        </p>
+        <button
+          v-if="shelfFilter !== 'all' || shelfSearch"
+          type="button"
+          class="btn btn-ghost btn-xs"
+          data-testid="space-couch-alien-shelf-reset"
+          @click="resetShelf"
+        >
+          SHOW ALL
+        </button>
+      </div>
       <input
         id="space-couch-alien-shelf-search"
         v-model="shelfSearch"
@@ -269,6 +283,10 @@ defineEmits<{ close: []; incident: []; retrySync: [] }>()
 const selectedId = ref(ALIEN_SPECIES[0]!.id)
 const shelfFilter = ref<AlienShelfFilter>('all')
 const shelfSearch = ref('')
+const resetShelf = () => {
+  shelfFilter.value = 'all'
+  shelfSearch.value = ''
+}
 const visibleSpecies = computed(() =>
   alienScrapbookShelf(props.guide, shelfFilter.value, shelfSearch.value),
 )

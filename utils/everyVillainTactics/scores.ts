@@ -62,7 +62,7 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
   const secretScene = won && save.stage?.script?.scenes.some(
     (scene) =>
       scene.trigger.kind === 'secret' &&
-      state.fired.includes(sceneTriggerId(scene.id)),
+      state.fired?.includes(sceneTriggerId(scene.id)),
   )
   const evidence = save.mode === 'story' ? save.story.evidence : 0
   const lines: ScoreLine[] = [

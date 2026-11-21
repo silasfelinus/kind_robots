@@ -98,9 +98,7 @@ export function mergeVoyageHistory(
       (existing) =>
         existing.id === baseId || existing.id.startsWith(baseId + ':replay-'),
     )
-    if (
-      siblings.some((existing) => sameCompletedVoyageStory(existing, entry))
-    )
+    if (siblings.some((existing) => sameCompletedVoyageStory(existing, entry)))
       continue
 
     if (!ids.has(entry.id)) {

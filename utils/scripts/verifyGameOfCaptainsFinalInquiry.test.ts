@@ -15,10 +15,11 @@ import { VOYAGE_BOARDS } from '../gameOfCaptains/voyageMap'
 const episode = ACT_THREE_FINAL_CASES.inquiry
 assert.ok(VOYAGE_BOARDS[8]?.includes('inquiry'))
 assert.equal(episode.choices.length, 3)
-assert.deepEqual(
-  episode.choices.map((choice) => choice.policy).sort(),
-  ['aid', 'intervene', 'observe'],
-)
+assert.deepEqual(episode.choices.map((choice) => choice.policy).sort(), [
+  'aid',
+  'intervene',
+  'observe',
+])
 assert.equal(new Set(episode.choices.map((choice) => choice.id)).size, 3)
 
 const narratives = new Set<string>()
@@ -46,9 +47,11 @@ for (const seed of [7, 19, 31, 43]) {
     const second = resolveConsequence(before, choice.id)
     assert.deepEqual(first, second, 'same seed and choice must replay')
     assert.equal(first.consequenceHistory?.length, 1)
-    assert.ok(first.consequenceHistory?.[0]?.artKey.startsWith(
-      `consequences/${episode.id}-${choice.id}-`,
-    ))
+    assert.ok(
+      first.consequenceHistory?.[0]?.artKey.startsWith(
+        `consequences/${episode.id}-${choice.id}-`,
+      ),
+    )
     keys.add(first.consequenceHistory![0]!.artKey)
     assert.ok(validConsequenceHistory(first.consequenceHistory))
     assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(first))), first)
@@ -74,4 +77,6 @@ assert.equal(consequenceForRun(legacy)?.opening, episode.opening)
 
 assert.equal(narratives.size, 6)
 assert.ok(keys.size >= 3)
-console.log('Space Couch final inquiry: three policies, six distinct outcomes, four seeded deterministic save/restore passes')
+console.log(
+  'Space Couch final inquiry: three policies, six distinct outcomes, four seeded deterministic save/restore passes',
+)

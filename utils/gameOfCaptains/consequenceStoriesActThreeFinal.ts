@@ -13,11 +13,11 @@ export const ACT_THREE_FINAL_CASES = {
     choices: [
       {
         id: 'publish-unedited-testimony',
-        label: 'Publish the full testimony with witnesses controlling their names',
+        label:
+          'Publish the full testimony with witnesses controlling their names',
         approach:
           'Invite each community to correct the transcript and choose whether their identity becomes public',
-        cost:
-          'Verification takes fuel and time; anonymous testimony may make powerful delegates dispute the entire record.',
+        cost: 'Verification takes fuel and time; anonymous testimony may make powerful delegates dispute the entire record.',
         policy: 'aid',
         check: { ability_any: ['diplomacy', 'culture'], difficulty: 8 },
         success: {
@@ -42,8 +42,7 @@ export const ACT_THREE_FINAL_CASES = {
         label: 'Commission an independent audit of the captain’s own log',
         approach:
           'Give investigators original voyage telemetry and let them compare the official narrative with local accounts',
-        cost:
-          'The log contains private crew arguments, mistakes and coordinates that could put former passengers at risk.',
+        cost: 'The log contains private crew arguments, mistakes and coordinates that could put former passengers at risk.',
         policy: 'observe',
         check: { ability_any: ['science', 'culture'], difficulty: 8 },
         success: {
@@ -68,8 +67,7 @@ export const ACT_THREE_FINAL_CASES = {
         label: 'Demand a verdict now and offer the couch as collateral',
         approach:
           'Force a decision before hostile delegates can delay the inquiry beyond the ship’s oxygen reserves',
-        cost:
-          'A rushed vote silences absent communities and risks making the ship itself payment for the captain’s mistakes.',
+        cost: 'A rushed vote silences absent communities and risks making the ship itself payment for the captain’s mistakes.',
         policy: 'intervene',
         check: { ability_any: ['tactics', 'luck'], difficulty: 7 },
         success: {

@@ -57,3 +57,5 @@ jobs:
         run: npx tsx utils/scripts/verifyAquariumSpendLocks.test.ts
       - name: Swappable art styles
         run: npx tsx utils/scripts/verifyCthulhuquariumArtStyles.test.ts
+      - name: Sound effects and the floor themes
+        run: npx tsx utils/scripts/verifyCthulhuquariumSound.test.ts

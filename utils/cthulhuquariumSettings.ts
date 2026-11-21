@@ -22,6 +22,8 @@ export interface CthulhuquariumSettings {
   motion: CthulhuquariumMotionSetting
   /** cthulhuquarium/t-107: the art style the game is drawn in. */
   artStyle: CthulhuquariumArtStyleId
+  /** cthulhuquarium/t-110: the floor's theme plays while sound is on. */
+  music: boolean
 }
 
 export const CTHULHUQUARIUM_DEFAULT_SETTINGS: CthulhuquariumSettings = {
@@ -31,6 +33,7 @@ export const CTHULHUQUARIUM_DEFAULT_SETTINGS: CthulhuquariumSettings = {
   highContrast: false,
   motion: 'system',
   artStyle: CTHULHUQUARIUM_DEFAULT_ART_STYLE,
+  music: true,
 }
 
 /** A stored value, read defensively: anything unknown falls back to default. */
@@ -62,5 +65,6 @@ export function readCthulhuquariumSettings(
       : CTHULHUQUARIUM_DEFAULT_SETTINGS.motion,
     // Unknown, or a style not yet offered, is Classic.
     artStyle: normalizeCthulhuquariumArtStyle(parsed.artStyle),
+    music: parsed.music !== false,
   }
 }

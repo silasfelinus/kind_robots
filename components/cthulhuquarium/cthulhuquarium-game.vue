@@ -774,7 +774,13 @@
         <div
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
-          <Icon name="kind-icon:trophy" class="size-10 text-warning" />
+          <img
+            v-if="plateArt('screen-bestiary-complete')"
+            :src="plateArt('screen-bestiary-complete') ?? undefined"
+            alt=""
+            class="aspect-[16/9] w-full rounded-2xl object-cover"
+          />
+          <Icon v-else name="kind-icon:trophy" class="size-10 text-warning" />
           <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             The bestiary is complete
           </p>
@@ -873,7 +879,7 @@
         <div
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
-          <Icon name="kind-icon:coin" class="kr-icon-8 text-warning" />
+          <cthulhuquarium-ui-art name="coin" class="size-12" />
           <p class="kr-text-eyebrow text-xs tracking-wide text-primary">
             While you were away
           </p>
@@ -959,6 +965,7 @@ import {
   artForSpecies,
   backgroundArt,
   movingArt,
+  plateArt,
   withCthulhuquariumArt,
 } from '~/utils/cthulhuquariumArt'
 import { activeCthulhuquariumArtStyle } from '~/utils/cthulhuquariumArtStyles'
@@ -981,6 +988,7 @@ import {
 } from '~/utils/cthulhuquariumMotion'
 import { CTHULHUQUARIUM_VOICES } from '~/utils/cthulhuquariumCanon.generated'
 import { TankSound } from '~/utils/cthulhuquariumSound'
+import type { CthulhuquariumSfxName } from '~/utils/cthulhuquariumSfx'
 import {
   createAmbience,
   drawAmbienceBack,
@@ -988,7 +996,11 @@ import {
   drawDebris,
   stepAmbience,
 } from '~/utils/cthulhuquariumAmbience'
-import { decorIcon, LEGACY_PARLOUR_CROP } from '~/utils/cthulhuquariumStage'
+import { LEGACY_PARLOUR_CROP } from '~/utils/cthulhuquariumStage'
+import {
+  drawCthulhuquariumCollector,
+  drawCthulhuquariumDecor,
+} from '~/utils/cthulhuquariumDecorArt'
 import {
   makeFeedParticles,
   nearestFood,
@@ -1338,6 +1350,7 @@ function closePanel() {
   activePanel.value = null
 }
 function selectTab(tab: ConsoleTab) {
+  sfx('tab')
   if (tab === 'tank' || tab === 'feed') {
     closePanel()
     feedMode.value = tab === 'feed'
@@ -1715,6 +1728,7 @@ watch(
   () => tankStore.error,
   (message) => {
     clearTimeout(errorToastTimer)
+    if (message) sfx('refuse')
     if (message)
       errorToastTimer = setTimeout(
         () => tankStore.dismissError(),
@@ -1856,18 +1870,71 @@ function stageHunt() {
 }
 const tankSound = new TankSound()
 
+// cthulhuquarium/t-110: every game event's effect, and the floor's theme.
+function sfx(name: CthulhuquariumSfxName) {
+  if (tankStore.soundOn) tankSound.play(name)
+}
+watch(
+  () => tankStore.sfx,
+  (event) => {
+    if (event) sfx(event.name)
+  },
+)
+watch(
+  () => tankStore.revealedUnlock,
+  (reveal) => {
+    if (reveal) sfx('reveal')
+  },
+)
+watch(
+  () => tankStore.lastRareEvent,
+  (event) => {
+    if (event) sfx('rareEvent')
+  },
+)
+watch(
+  () => tankStore.offlineEarnings,
+  (coins, before) => {
+    if (coins > 0 && !before) sfx('welcomeBack')
+  },
+)
+watch(
+  () => tankStore.backgroundKey,
+  (key, before) => {
+    if (before && key !== before) sfx('scenery')
+  },
+)
+function syncMusic() {
+  // The context may still be resuming: the theme waits for it, then starts.
+  if (tankStore.soundOn && tankStore.settings.music)
+    tankSound.playMusic(tankStore.storyFloor)
+  else tankSound.stopMusic()
+}
+watch(
+  () =>
+    [
+      tankStore.soundOn,
+      tankStore.settings.music,
+      tankStore.storyFloor,
+    ] as const,
+  syncMusic,
+)
+
 function onToggleSound() {
   const on = !tankStore.soundOn
   tankStore.setSound(on)
   if (on) tankSound.start(tankStore.settings.volume)
   else tankSound.stop()
+  syncMusic()
 }
 
 // Browsers only allow audio after a gesture: the first tap on the page
 // starts the room tone for a player who left it switched on last visit.
 function resumeSoundOnGesture() {
-  if (tankStore.soundOn && !tankSound.running)
+  if (tankStore.soundOn && !tankSound.running) {
     tankSound.start(tankStore.settings.volume)
+    syncMusic()
+  }
 }
 let pointerOnStage: { x: number; y: number } | null = null
 
@@ -2089,11 +2156,8 @@ let waterGradientContext: CanvasRenderingContext2D | null = null
 function drawCollector(context: CanvasRenderingContext2D, bot: Collector) {
   context.save()
   context.translate(bot.x, bot.y)
-  context.globalAlpha = 0.65 + Math.sin(bot.phase * 3) * 0.1
-  context.font = '22px sans-serif'
-  context.textAlign = 'center'
-  context.textBaseline = 'middle'
-  context.fillText('🤖', 0, 0)
+  context.globalAlpha = 0.85 + Math.sin(bot.phase * 3) * 0.1
+  drawCthulhuquariumCollector(context, bot.vx < 0 ? -1 : 1)
   if (bot.collectFlash > 0) {
     context.globalAlpha = bot.collectFlash * 0.6
     context.strokeStyle = 'rgba(255, 236, 160, 0.9)'
@@ -2245,15 +2309,12 @@ function render(context: CanvasRenderingContext2D) {
   // Decor (cthulhuquarium/t-017): drawn behind the fish/food layer, in
   // front of the background -- purely cosmetic, no physics, so this is the
   // only place per-frame work happens for it.
-  context.font = '28px sans-serif'
-  context.textAlign = 'center'
-  context.textBaseline = 'middle'
   for (const decor of tankStore.placedDecor) {
     const dragging = decor.id === draggingDecorId.value
     const pos =
       dragging && dragPreview.value ? dragPreview.value : decorStagePos(decor)
     context.globalAlpha = dragging ? 0.7 : 1
-    context.fillText(decorIcon(decor.kind), pos.x, pos.y)
+    drawCthulhuquariumDecor(context, decor.kind, pos.x, pos.y)
   }
   context.globalAlpha = 1
 

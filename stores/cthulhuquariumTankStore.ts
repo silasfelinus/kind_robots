@@ -12,6 +12,7 @@
 
 import type { FloorNumber, FloorStatus } from '~/utils/cthulhuquariumFloors'
 import { computed, ref } from 'vue'
+import type { CthulhuquariumSfxName } from '~/utils/cthulhuquariumSfx'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
 import { useIntroStore } from './introStore'
@@ -502,7 +503,17 @@ export const useCthulhuquariumTankStore = defineStore(
       for (const code of codes) void achievements.rewardAchievementByCode(code)
     }
 
+    // cthulhuquarium/t-110: the sound of each game event. The console watches
+    // this and plays the effect (utils/cthulhuquariumSfx.ts) when sound is on.
+    const sfx = ref<{ name: CthulhuquariumSfxName; n: number } | null>(null)
+    let sfxCount = 0
+    function emitSfx(name: CthulhuquariumSfxName): void {
+      sfxCount += 1
+      sfx.value = { name, n: sfxCount }
+    }
+
     function announceMilestones(...milestones: FiredMilestone[]): void {
+      emitSfx('milestone')
       milestoneToastSignal.push(...milestones)
       story.announceMilestones(milestones.map((milestone) => milestone.id))
       award(
@@ -513,6 +524,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     function announceBestiaryComplete(): void {
+      emitSfx('bestiaryComplete')
       bestiaryCompletionSignal.trigger()
       story.queueScene('bestiary_complete')
       award('cthulhuquarium-bestiary-complete')
@@ -714,6 +726,7 @@ export const useCthulhuquariumTankStore = defineStore(
           body: JSON.stringify({ floor }),
         })
         if (res.success && res.data) {
+          emitSfx('floorKey')
           tank.value = res.data.aquarium
           floorStatus.value = res.data.status
           story.announceFloorKey(floor)
@@ -778,6 +791,7 @@ export const useCthulhuquariumTankStore = defineStore(
         },
       )
       if (res.success && res.data) {
+        emitSfx('purchase')
         tank.value = res.data.aquarium
         catalog.value = catalog.value.filter((entry) => entry.id !== monsterId)
         if (!isCopy) {
@@ -822,6 +836,7 @@ export const useCthulhuquariumTankStore = defineStore(
         body: JSON.stringify({ aquariumStockId }),
       })
       if (res.success && res.data) {
+        emitSfx('release')
         tank.value = res.data.aquarium
         story.sayBark('sell', 0.6)
         award('cthulhuquarium-release')
@@ -852,6 +867,7 @@ export const useCthulhuquariumTankStore = defineStore(
         body: JSON.stringify({ clicks }),
       })
       if (res.success && res.data) {
+        emitSfx('clean')
         tank.value = res.data.aquarium
         if (res.data.firstSpotlessTank) {
           announceMilestones({
@@ -937,6 +953,7 @@ export const useCthulhuquariumTankStore = defineStore(
           },
         )
         if (res.success && res.data) {
+          emitSfx('upgrade')
           tank.value = res.data.aquarium
           if (anyUpgradeMaxed(res.data.aquarium.upgrades ?? []))
             award('cthulhuquarium-fully-appointed')
@@ -1009,6 +1026,7 @@ export const useCthulhuquariumTankStore = defineStore(
         },
       )
       if (res.success && res.data) {
+        emitSfx('setEquip')
         tank.value = res.data.aquarium
         award('cthulhuquarium-first-set')
         if (setCatalog.value.length) await loadSets()
@@ -1028,6 +1046,7 @@ export const useCthulhuquariumTankStore = defineStore(
         },
       )
       if (res.success && res.data) {
+        emitSfx('setUnequip')
         tank.value = res.data.aquarium
         if (setCatalog.value.length) await loadSets()
         return true
@@ -1073,6 +1092,7 @@ export const useCthulhuquariumTankStore = defineStore(
         },
       )
       if (res.success && res.data) {
+        emitSfx('decorPlace')
         tank.value = res.data.aquarium
         pendingDecorKind.value = null
         if ((res.data.aquarium.Decor?.length ?? 0) >= CTHULHUQUARIUM_DECORATOR)
@@ -1097,6 +1117,7 @@ export const useCthulhuquariumTankStore = defineStore(
         },
       )
       if (res.success && res.data) {
+        emitSfx('decorMove')
         tank.value = res.data.aquarium
         return true
       }
@@ -1114,6 +1135,7 @@ export const useCthulhuquariumTankStore = defineStore(
         },
       )
       if (res.success && res.data) {
+        emitSfx('decorRemove')
         tank.value = res.data.aquarium
         return true
       }
@@ -1141,6 +1163,7 @@ export const useCthulhuquariumTankStore = defineStore(
         },
       )
       if (res.success && res.data) {
+        emitSfx('visibility')
         tank.value = res.data.aquarium
         if (isPublic && res.data.aquarium.isPublic)
           award('cthulhuquarium-visiting-hours')
@@ -1176,6 +1199,7 @@ export const useCthulhuquariumTankStore = defineStore(
         { method: 'POST' },
       )
       if (res.success && res.data) {
+        emitSfx('finale')
         tank.value = res.data.aquarium
         finaleTriggered.value = true
         if (res.data.finaleJustTriggered) {
@@ -1216,6 +1240,8 @@ export const useCthulhuquariumTankStore = defineStore(
     )
 
     return {
+      sfx,
+      emitSfx,
       ...story,
       chooseBackground,
       storyShowing,

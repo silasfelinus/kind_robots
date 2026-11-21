@@ -12,6 +12,7 @@ import {
   rainbowGuardianGone,
   rainbowGuardianWarning,
   stepRainbowGuardian,
+  type RainbowGuardianShot,
 } from '../arcade/games/rainbowGuardian'
 
 const crew = [{ x: 82, y: 130, lives: 3 }]
@@ -64,7 +65,7 @@ for (const pilots of [1, 4]) {
   )
 
   guardian.hp = guardian.maxHp / 2
-  let secondVolley = []
+  let secondVolley: RainbowGuardianShot[] = []
   while (guardian.volleys < 2) {
     secondVolley = stepRainbowGuardian(guardian, targetCrew, false)
     assert.ok(guardian.frame < 500, 'the second bell must fire on schedule')

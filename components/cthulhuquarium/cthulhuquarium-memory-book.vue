@@ -12,6 +12,48 @@
         {{ seenCount }} of {{ memories.length }} remembered
       </span>
     </header>
+    <!-- cthulhuquarium/t-100: the three soft endings, each with its plate. The
+         tank goes on after every one of them. -->
+    <div class="cq-memory-head">
+      <h5 class="cq-memory-subtitle">Endings</h5>
+      <span class="cq-memory-count tabular-nums">
+        {{ endingsSeen }} of {{ endings.length }} reached
+      </span>
+    </div>
+    <ul class="cq-memory-grid cq-endings" role="list">
+      <li v-for="ending in endings" :key="ending.id">
+        <button
+          v-if="ending.seen"
+          type="button"
+          data-nav
+          class="cq-memory-card cq-ending-card"
+          :aria-label="`Watch again: ${ending.title}, an ending`"
+          @click="replay(ending.id)"
+        >
+          <img
+            v-if="ending.art"
+            :src="ending.art"
+            alt=""
+            loading="lazy"
+            class="cq-memory-art"
+          />
+          <span class="cq-memory-eyebrow">An ending</span>
+          <span class="cq-memory-title">{{ ending.title }}</span>
+          <Icon name="kind-icon:play" class="cq-memory-play" />
+        </button>
+        <div
+          v-else
+          class="cq-memory-card cq-memory-locked"
+          :aria-label="`An ending not yet reached. ${ending.hint}`"
+        >
+          <span class="cq-memory-eyebrow">An ending</span>
+          <span class="cq-memory-title">{{ ending.hint }}</span>
+        </div>
+      </li>
+    </ul>
+    <div class="cq-memory-head">
+      <h5 class="cq-memory-subtitle">Scenes</h5>
+    </div>
     <ul class="cq-memory-grid kr-scroll" role="list">
       <li v-for="memory in memories" :key="memory.id">
         <button
@@ -89,6 +131,35 @@ const memories = computed(() => {
     }
   })
 })
+// The three soft endings (Silas, 2026-11-21): the book complete, the last
+// floor reached, and the Last Aquarium bought.
+const ENDINGS: ReadonlyArray<{ id: string; hint: string }> = [
+  { id: 'bestiary_complete', hint: 'Know every species' },
+  { id: 'milestone_bestiary_95', hint: 'Keep going down' },
+  {
+    id: 'after_the_last_aquarium',
+    hint: 'The most expensive thing in the shop',
+  },
+]
+const endings = computed(() =>
+  ENDINGS.map(({ id, hint }) => {
+    const scene = CTHULHUQUARIUM_SCENES[id]
+    return {
+      id,
+      hint,
+      title: scene?.title ?? id,
+      seen: tankStore.hasSeen(id),
+      art:
+        plateArt(scene?.plate) ??
+        backgroundArt(scene?.background) ??
+        backgroundArt('the-reading-room'),
+    }
+  }),
+)
+const endingsSeen = computed(
+  () => endings.value.filter((ending) => ending.seen).length,
+)
+
 const seenCount = computed(
   () => memories.value.filter((memory) => memory.seen).length,
 )
@@ -110,6 +181,16 @@ function replay(id: string) {
   justify-content: space-between;
   gap: 0.75rem;
 }
+.cq-memory-subtitle {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(216 181 106);
+}
+.cq-ending-card {
+  border-color: rgb(216 181 106 / 0.8);
+}
 .cq-memory-count {
   font-size: 0.75rem;
   color: rgb(255 255 255 / 0.65);
@@ -121,6 +202,13 @@ function replay(id: string) {
   gap: 0.6rem;
   overflow-x: auto;
   padding-bottom: 0.4rem;
+}
+.cq-endings {
+  /* Three cards: they share the width instead of scrolling, so the book
+     keeps one scroll region (the scenes shelf). */
+  grid-auto-flow: row;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow-x: visible;
 }
 .cq-memory-card {
   position: relative;

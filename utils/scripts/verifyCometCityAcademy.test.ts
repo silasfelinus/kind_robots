@@ -685,7 +685,7 @@ assert.throws(() =>
   ),
 )
 assert.equal(POWERS.length, 6)
-assert.equal(STUDENTS.length, 12)
+assert.equal(STUDENTS.length, 16)
 assert.equal(INCIDENTS.length, 6)
 
 for (const power of POWERS) {
@@ -934,17 +934,17 @@ assert.equal(
   }),
   null,
 )
-// Six adult classmates and five adult city recruits have their own conflicts,
+// Nine adult classmates and six adult city recruits have their own conflicts,
 // boundaries and consent. Eight are romanceable; faculty never are.
 // A social scene uses one daytime action; it is never a free map overlay.
-assert.equal(SOCIAL_CAST.length, 11)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.id)).size, 11)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.dilemma)).size, 11)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.help)).size, 11)
+assert.equal(SOCIAL_CAST.length, 15)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.id)).size, 15)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.dilemma)).size, 15)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.help)).size, 15)
 assert.equal(SOCIAL_CAST.filter((person) => person.romanceable).length, 8)
 assert.equal(
   SOCIAL_CAST.filter((person) => person.kind === 'classmate').length,
-  6,
+  9,
 )
 assert.equal(SOCIAL_DAYS.length, 18)
 assert.ok(!SOCIAL_DAYS.includes(20 as never))
@@ -1636,7 +1636,7 @@ for (const seed of [1, 2, 5, 42, 88, 101]) {
     dispatch,
   )
   const oldRun = startAcademy('kinetic', seed)
-  assert.equal(knownContacts(oldRun).length, STUDENTS.length)
+  assert.equal(knownContacts(oldRun).length, 12)
 }
 for (const person of STUDENTS) {
   const run = { ...startFullAcademy('kinetic', 77), day: 4 }
@@ -1654,6 +1654,43 @@ for (const person of STUDENTS) {
   assert.ok(restoreAcademy(gained))
   assert.equal(recruitableContact(gained), null)
 }
+const newRecruits = [
+  ['vesna', 'ethics-hall', 'original record', 'promise-stairs', 'imani'],
+  ['bram', 'theater-wing', 'ballroom safety', 'skybridge', 'veda'],
+  ['femi', 'student-dormitory', 'recruitment poster', 'ferris', 'nix'],
+  ['cyrus', 'waterfront-market', 'market shift', 'flood', 'mara'],
+] as const
+for (const [id, site, evidence, caseId, ally] of newRecruits) {
+  const base = startFullAcademy('kinetic', 177)
+  const visited = visitCitySite({ ...base, day: 10 }, site)
+  assert.equal(recruitableContact(visited)?.id, id)
+  const recruited = recruitContact(visited, id)
+  assert.deepEqual(knownContacts(recruited), [id])
+  assert.equal(recruited.phase, 'dispatch')
+  assert.ok(recruited.scene.includes(evidence), id)
+  assert.ok(recruited.scene.includes('right to refuse any job'), id)
+  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(recruited))), recruited)
+  assert.equal(missionRoute(caseId, [id, ally] as StudentId[])?.boost, 2)
+  assert.equal(missionReaction(id, caseId).mood, 'positive')
+  assert.ok(TEAM_LOOKS[id].length >= 80)
+  const person = socialProfile(id)
+  assert.ok(person?.voice && person.bedside && person.help, id)
+  assert.equal(person.romanceable, false)
+  const talked = socialize(
+    { ...recruited, day: 11, phase: 'map' },
+    id,
+    'listen',
+  )
+  assert.equal(talked.relationships?.connections[id]?.trust, 1)
+}
+for (let seed = 0; seed < 72; seed++) {
+  assert.equal(openingNightFriend(seed).id, STUDENTS[seed % 6]!.id)
+  assert.deepEqual(
+    knownContacts(startAcademy('kinetic', seed)),
+    STUDENTS.slice(0, 12).map((person) => person.id),
+  )
+}
+
 const badContacts = startFullAcademy('kinetic', 99)
 assert.equal(
   restoreAcademy({ ...badContacts, contacts: ['mina', 'mina'] }),

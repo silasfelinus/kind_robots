@@ -325,6 +325,93 @@ export const BETRAYER_CANDIDATES = [
   'kit',
 ] as const
 
+/** One permanent classmate identity per run, with a distinct coercion,
+ * betrayal method and reparative obligation. The seeded day-20 turn stays
+ * mandatory even when the player responds with empathy on earlier nights. */
+export const BETRAYER_VIGNETTES: Record<
+  (typeof BETRAYER_CANDIDATES)[number],
+  {
+    pressure: string
+    evidence: string
+    diversion: string
+    repair: string
+    separate: string
+  }
+> = {
+  mina: {
+    pressure:
+      'The sender threatens to blacklist her rescue-engineer crew unless she hands over the emergency stairwell plans.',
+    evidence:
+      'The second key controls the only stairwell bypass Mina designed for injured students.',
+    diversion:
+      'Mina seals her own bypass and misroutes the evacuees while a contractor retrieves its blueprints.',
+    repair:
+      'Mina rebuilds the bypass with the families she endangered, and signs every safety inspection in public.',
+    separate:
+      'Mina continues as an independent municipal safety inspector, barred from handling academy evacuation keys.',
+  },
+  sol: {
+    pressure:
+      'The sender has the unedited surveillance footage of a transit arrest Sol hid to protect a witness.',
+    evidence:
+      'The duplicate key belongs to the archive camera loop Sol quietly replaced with an empty recording.',
+    diversion:
+      'Sol plays a false camera feed that sends rescuers down the wrong hallway while the real recording is stolen.',
+    repair:
+      'Sol releases the original footage to the witnesses and gives an independent audit team control of every camera loop.',
+    separate:
+      'Sol hands the footage to a public defender and works outside the school network without privileged access.',
+  },
+  imani: {
+    pressure:
+      'The sender threatens to publish private counseling disclosures unless Imani betrays the trust of the people she protects.',
+    evidence:
+      'The duplicate key opens the confidential witness room where Imani stored an encrypted rescue roster.',
+    diversion:
+      'Imani convinces the night team to follow a fabricated distress call while a witness roster is copied.',
+    repair:
+      'Imani tells the affected students exactly what was disclosed, and lets them decide whether she may mediate again.',
+    separate:
+      'Imani helps fund an independent, confidential counseling cooperative without asking her former teammates for forgiveness.',
+  },
+  ash: {
+    pressure:
+      'The sender will cut off the maintenance crews who raised Ash unless she redirects a storm-control relay.',
+    evidence:
+      'The duplicate key routes weather warnings away from the night maintenance crew Ash always checks on.',
+    diversion:
+      'Ash turns the emergency headwind against the rescuers, giving private guards time to seize the relay.',
+    repair:
+      "Ash restores the workers' warning beacons and accepts their elected safety committee as her supervisor.",
+    separate:
+      'Ash repairs the night shift shelters from outside the academy, where the workers can reject her help.',
+  },
+  nix: {
+    pressure:
+      'The sender claims the sealed transit portal can reunite Nix with their estranged father, but only if Nix surrenders the rescue coordinates.',
+    evidence:
+      'The duplicate key is a portal anchor that Nix quietly planted beside the student evacuation route.',
+    diversion:
+      'Nix folds the evacuees into a dead-end platform while the villain receives the real transit coordinates.',
+    repair:
+      'Nix maps a public portal route with the stranded passengers and returns control of the anchors to transit crews.',
+    separate:
+      'Nix keeps the civilian portals open under union oversight and refuses to make forgiveness another trade.',
+  },
+  kit: {
+    pressure:
+      'The sender threatens to destroy the community seed clinic unless Kit steals the antidote shipment.',
+    evidence:
+      'The duplicate key opens the refrigerated medicine locker Kit was supposed to guard during the night shift.',
+    diversion:
+      'Kit leads the emergency medics away from a sealed triage bay while a private lab takes its only antidote.',
+    repair:
+      'Kit distributes the antidote through a free neighborhood clinic and invites patients to oversee every dose.',
+    separate:
+      'Kit keeps treating the abandoned civilians at an independent field clinic but does not return to the squad.',
+  },
+}
+
 export function campaignBetrayer(seed: number) {
   return BETRAYER_CANDIDATES[
     Math.abs(Math.trunc(seed * 7 + 3)) % BETRAYER_CANDIDATES.length
@@ -344,6 +431,7 @@ export function campaignPlotEvent(
   betrayerName: string,
 ) {
   const villain = campaignVillain(seed, savedId)
+  const vignette = BETRAYER_VIGNETTES[campaignBetrayer(seed)]
   const index = day === 11 ? 0 : day === 17 ? 1 : day === 26 ? 2 : -1
   const accomplice = index < 0 ? undefined : campaignAccomplice(villain, index)
   if (accomplice)
@@ -372,7 +460,7 @@ export function campaignPlotEvent(
     return {
       title: 'The Unscheduled Message',
       location: 'Academy / Student Lockers',
-      scene: `${betrayerName} receives an anonymous message that promises to settle an old grievance. When asked, they close the screen too quickly. Elsewhere the shield grid repeats a clue: ${villain.clue}`,
+      scene: `${betrayerName} receives an anonymous message that promises to settle an old grievance. ${vignette.pressure} When asked, they close the screen too quickly. Elsewhere the shield grid repeats a clue: ${villain.clue}`,
       options: [
         {
           id: 'plot-warning-question',
@@ -394,7 +482,7 @@ export function campaignPlotEvent(
     return {
       title: 'The Missing Relay Keys',
       location: 'Engineering Workshop',
-      scene: `A duplicate emergency key appears in ${betrayerName}'s equipment case. The key was used to mute a neighborhood distress call. The evidence points toward ${villain.name}, but nobody has proved why ${betrayerName} kept it.`,
+      scene: `A duplicate emergency key appears in ${betrayerName}'s equipment case. ${vignette.evidence} The key was used to mute a neighborhood distress call. The evidence points toward ${villain.name}, but nobody has proved why ${betrayerName} kept it.`,
       options: [
         {
           id: 'plot-suspicion-open',
@@ -416,7 +504,7 @@ export function campaignPlotEvent(
     return {
       title: 'The Hero Turns at the Gate',
       location: 'Academy / Shield Relay',
-      scene: `${betrayerName} diverts the academy rescue team into a dead-end corridor and transfers its emergency access keys to ${villain.name}. Their betrayal is real. They say the villain threatened someone they love, but the abandoned civilians still had to wait for rescue. You cannot undo this night by choosing a softer accusation.`,
+      scene: `${betrayerName} diverts the academy rescue team into a dead-end corridor and transfers its emergency access keys to ${villain.name}. ${vignette.diversion} Their betrayal is real. They say the villain threatened someone they love, but the abandoned civilians still had to wait for rescue. You cannot undo this night by choosing a softer accusation.`,
       options: [
         {
           id: 'plot-betrayal-expose',
@@ -438,19 +526,19 @@ export function campaignPlotEvent(
     return {
       title: 'The Price of Coming Back',
       location: 'Academy / Student Council',
-      scene: `${betrayerName} offers to return with a signed confession and the villain's relay codes. The people they abandoned deserve a hearing, not a convenient reset. Any reconciliation requires public accountability and cannot erase the day-20 betrayal.`,
+      scene: `${betrayerName} offers to return with a signed confession and the villain's relay codes. The people they abandoned deserve a hearing, not a convenient reset. ${vignette.repair} Any reconciliation requires public accountability and cannot erase the day-20 betrayal.`,
       options: [
         {
           id: 'plot-return-accountable',
           label: 'Offer a supervised return and restitution',
-          text: `${betrayerName} gives the neighborhood rescuers the relay codes, accepts community oversight, and rejoins the roster under clear conditions. Their betrayal remains in the chronicle.`,
+          text: `${betrayerName} gives the neighborhood rescuers the relay codes, accepts community oversight, and rejoins the roster under clear conditions. ${vignette.repair} Their betrayal remains in the chronicle.`,
           influence: 2,
           danger: -1,
         },
         {
           id: 'plot-return-separate',
           label: 'Protect the city without reinstating them',
-          text: `The team retains independent control of its rescue keys. ${betrayerName} testifies about the plot and must build trust elsewhere; your roster remains one person smaller.`,
+          text: `The team retains independent control of its rescue keys. ${betrayerName} testifies about the plot and must build trust elsewhere; your roster remains one person smaller. ${vignette.separate}`,
           influence: 1,
           danger: -1,
         },

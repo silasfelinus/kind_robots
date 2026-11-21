@@ -79,6 +79,8 @@ import {
 import {
   CAMPAIGN_ANCHORS,
   CAMPAIGN_VILLAINS,
+  BETRAYER_CANDIDATES,
+  BETRAYER_VIGNETTES,
   PROM_FINALE,
   campaignVillain,
   campaignBetrayer,
@@ -1220,6 +1222,58 @@ assert.ok(
   allAccomplices.every((a) => a.motive.length > 24 && a.sabotage.length > 24),
 )
 assert.equal(new Set(CAMPAIGN_VILLAINS.map((v) => v.method)).size, 8)
+// Six permanent cast members can be the guaranteed seeded betrayer.
+// Their coercion, physical sabotage and accountability route must be fully
+// different while the existing choice IDs and save schema stay stable.
+assert.equal(BETRAYER_CANDIDATES.length, 6)
+const witnessedBetrayers = new Set<string>()
+for (let seed = 1; seed <= 12; seed++) {
+  const id = campaignBetrayer(seed)
+  const motive = BETRAYER_VIGNETTES[id]
+  const person = STUDENTS.find((student) => student.id === id)!
+  witnessedBetrayers.add(id)
+  const warning = campaignPlotEvent(seed, undefined, 8, person.name)!
+  const suspicion = campaignPlotEvent(seed, undefined, 15, person.name)!
+  const turn = campaignPlotEvent(seed, undefined, 20, person.name)!
+  const returnDay = campaignPlotEvent(seed, undefined, 24, person.name)!
+  assert.ok(warning.scene.includes(motive.pressure), id)
+  assert.ok(suspicion.scene.includes(motive.evidence), id)
+  assert.ok(turn.scene.includes(motive.diversion), id)
+  assert.ok(turn.scene.includes('betrayal is real'), id)
+  assert.ok(returnDay.scene.includes(motive.repair), id)
+  assert.ok(
+    returnDay.options
+      .find((choice) => choice.id === 'plot-return-accountable')
+      ?.text.includes(motive.repair),
+    `${id} owns a materially specific supervised restitution`,
+  )
+  assert.ok(
+    returnDay.options
+      .find((choice) => choice.id === 'plot-return-separate')
+      ?.text.includes(motive.separate),
+    `${id} has an independent, non-reinstatement consequence`,
+  )
+  assert.deepEqual(
+    turn.options.map((choice) => choice.id),
+    ['plot-betrayal-expose', 'plot-betrayal-hear'],
+    'legacy choice IDs are never remapped',
+  )
+}
+assert.equal(witnessedBetrayers.size, 6)
+for (const field of [
+  'pressure',
+  'evidence',
+  'diversion',
+  'repair',
+  'separate',
+] as const)
+  assert.equal(
+    new Set(BETRAYER_CANDIDATES.map((id) => BETRAYER_VIGNETTES[id][field]))
+      .size,
+    6,
+    `every betrayer has a distinct ${field} thread`,
+  )
+
 for (let seed = 1; seed <= 8; seed++) {
   const villain = campaignVillain(seed)
   assert.equal(villain.id, CAMPAIGN_VILLAINS[seed % 8]!.id)

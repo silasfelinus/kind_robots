@@ -43,7 +43,11 @@ const conclusions = [
   ['burn', 'd46-sellers-warrants-burned'],
 ] as const
 
-const onDay = (day: number, flags: readonly string[], brass = 100): FortressRun => {
+const onDay = (
+  day: number,
+  flags: readonly string[],
+  brass = 100,
+): FortressRun => {
   const fresh = createRun(20261121)
   return {
     ...fresh,
@@ -83,8 +87,8 @@ for (const opening of starts) {
     assert.ok(day28.flags.includes(branch.flag28))
     for (const [index, wartimeChoice] of branch.day37.entries()) {
       const day37 = onDay(37, day28.flags)
-      const available = hearing(day37, 'd37-market-bill').options
-        .filter((candidate) => optionVisible(day37, candidate))
+      const available = hearing(day37, 'd37-market-bill')
+        .options.filter((candidate) => optionVisible(day37, candidate))
         .map((candidate) => candidate.id)
       assert.deepEqual(
         [...available].sort(),
@@ -97,8 +101,9 @@ for (const opening of starts) {
         const day46 = onDay(46, wartime.flags)
         const finished = settle(day46, 'd46-market-bill', finalChoice)
         assert.ok(finished.flags.includes(finalFlag))
-        const text = epilogueFor(finished, 'open-roads')
-          .find((entry) => entry.subject.id === 'market-account')?.variant.text
+        const text = epilogueFor(finished, 'open-roads').find(
+          (entry) => entry.subject.id === 'market-account',
+        )?.variant.text
         assert.ok(text && text.length > 50, 'missing earned market epilogue')
         const book = {
           version: 3 as const,
@@ -106,13 +111,19 @@ for (const opening of starts) {
           dawns: [onDay(28, [opening]), day37, day46],
         }
         assert.deepEqual(decodeBook(encodeBook(book))?.current, finished)
-        outcomes.add([opening, branch.day28, wartimeChoice, finalChoice].join('/'))
+        outcomes.add(
+          [opening, branch.day28, wartimeChoice, finalChoice].join('/'),
+        )
         paths++
       }
     }
   }
 }
-assert.equal(paths, 54, '3 origins x 3 wartime policies x 2 exile routes x 3 resolutions')
+assert.equal(
+  paths,
+  54,
+  '3 origins x 3 wartime policies x 2 exile routes x 3 resolutions',
+)
 assert.equal(outcomes.size, paths)
 
 for (const branch of branches) {
@@ -120,7 +131,10 @@ for (const branch of branches) {
   for (const other of branches) {
     if (other.day28 === branch.day28) continue
     for (const id of other.day37) {
-      assert.equal(optionVisible(run, option(run, 'd37-market-bill', id)), false)
+      assert.equal(
+        optionVisible(run, option(run, 'd37-market-bill', id)),
+        false,
+      )
     }
   }
 }
@@ -128,15 +142,18 @@ for (const branch of branches) {
 for (const day of [28, 37, 46] as const) {
   const audience = MARKET_ACCOUNT_AUDIENCES[day]?.[0]
   assert.ok(audience)
-  assert.ok(!audiencesToday(onDay(day, [])).some((entry) => entry.id === audience.id))
+  assert.ok(
+    !audiencesToday(onDay(day, [])).some((entry) => entry.id === audience.id),
+  )
   for (const candidate of audience.options) {
     const cost = candidate.requires?.cost ?? 0
     if (cost <= 0) continue
-    const earned = day === 28
-      ? [starts[0]]
-      : day === 37
-        ? [branches[0].flag28]
-        : [branches[0].flags37[0]]
+    const earned =
+      day === 28
+        ? [starts[0]]
+        : day === 37
+          ? [branches[0].flag28]
+          : [branches[0].flags37[0]]
     const broke = onDay(day, earned, cost - 1)
     const selected = option(broke, audience.id, candidate.id)
     if (!optionVisible(broke, selected)) continue
@@ -146,4 +163,6 @@ for (const day of [28, 37, 46] as const) {
     )
   }
 }
-console.log('Emperor market-account adversarial matrix: 54 unique earned paths, save roundtrips, branch exclusivity, low-brass gates and epilogues verified.')
+console.log(
+  'Emperor market-account adversarial matrix: 54 unique earned paths, save roundtrips, branch exclusivity, low-brass gates and epilogues verified.',
+)

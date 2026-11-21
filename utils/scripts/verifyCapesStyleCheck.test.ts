@@ -95,24 +95,21 @@ assert.equal(
 for (const identity of CAPES_PRODUCTION_IDENTITIES) {
   const group = capesProductionFor(identity.signature)
   assert.ok(group.length >= 4)
-  assert.ok(
-    group.some((item) => item.asset.includes('/model-hero-2x1')),
-  )
-  assert.ok(
-    group.some((item) => item.asset.includes('/model-villain-2x1')),
-  )
+  assert.ok(group.some((item) => item.asset.includes('/model-hero-2x1')))
+  assert.ok(group.some((item) => item.asset.includes('/model-villain-2x1')))
   for (const image of group) {
     assert.ok(image.artJobId > 50000)
     assert.ok(image.artImageId > 250000)
-    assert.ok(image.asset.startsWith(
-      `comet-city-academy/identities/${identity.signature}/`,
-    ))
+    assert.ok(
+      image.asset.startsWith(
+        `comet-city-academy/identities/${identity.signature}/`,
+      ),
+    )
   }
 }
 assert.equal(
-  CAPES_UNSTABLE_PRODUCTION.find(
-    (item) => item.key === 'frog-villain-poster',
-  )?.artImageId,
+  CAPES_UNSTABLE_PRODUCTION.find((item) => item.key === 'frog-villain-poster')
+    ?.artImageId,
   258012,
 )
 assert.equal(
@@ -122,7 +119,10 @@ assert.equal(
   50549,
 )
 const gallery = readFileSync(
-  new URL('../../components/admin/capes-production-gallery.vue', import.meta.url),
+  new URL(
+    '../../components/admin/capes-production-gallery.vue',
+    import.meta.url,
+  ),
   'utf8',
 )
 assert.match(gallery, /data-testid="capes-production-gallery"/)

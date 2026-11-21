@@ -5,8 +5,16 @@
  * Preserve the three separate permanent identities and original image IDs.
  */
 export const CAPES_PRODUCTION_IDENTITIES = [
-  { signature: 'accident-earth', label: 'Cornerstone', subtitle: 'Tobias Brannigan' },
-  { signature: 'accident-fire', label: 'Backdraft', subtitle: 'Fire and accountability' },
+  {
+    signature: 'accident-earth',
+    label: 'Cornerstone',
+    subtitle: 'Tobias Brannigan',
+  },
+  {
+    signature: 'accident-fire',
+    label: 'Backdraft',
+    subtitle: 'Fire and accountability',
+  },
   { signature: 'tech-genius', label: 'Dr. Frog', subtitle: 'Dr. Lionel Marsh' },
 ] as const
 

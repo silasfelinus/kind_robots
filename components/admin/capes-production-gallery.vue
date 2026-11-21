@@ -6,21 +6,32 @@
   >
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <p class="text-[11px] font-black uppercase tracking-widest text-amber-300">
+        <p
+          class="text-[11px] font-black uppercase tracking-widest text-amber-300"
+        >
           Delivered ArtImage receipts / private review
         </p>
-        <h3 class="mt-1 text-xl font-black">Three heroes, fourteen production plates</h3>
+        <h3 class="mt-1 text-xl font-black">
+          Three heroes, fourteen production plates
+        </h3>
         <p class="mt-1 max-w-2xl text-xs leading-5 text-slate-300">
-          These records have DONE ArtImage IDs in Conductor's Unstable Diffusers ledger.
-          Thumbnails only appear after authenticated media retrieval succeeds.
-          A source receipt alone never proves an image is attached in the game.
+          These records have DONE ArtImage IDs in Conductor's Unstable Diffusers
+          ledger. Thumbnails only appear after authenticated media retrieval
+          succeeds. A source receipt alone never proves an image is attached in
+          the game.
         </p>
       </div>
-      <span class="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-300">
+      <span
+        class="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-300"
+      >
         Private · {{ artForSelected.length }} plates
       </span>
     </div>
-    <div class="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Production cast">
+    <div
+      class="mt-4 flex flex-wrap gap-2"
+      role="tablist"
+      aria-label="Production cast"
+    >
       <button
         v-for="person in CAPES_PRODUCTION_IDENTITIES"
         :key="person.signature"
@@ -37,7 +48,9 @@
         @click="selected = person.signature"
       >
         {{ person.label }}
-        <small class="block text-[10px] font-normal">{{ person.subtitle }}</small>
+        <small class="block text-[10px] font-normal">{{
+          person.subtitle
+        }}</small>
       </button>
     </div>
     <div class="mt-4 grid grid-cols-1 gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
@@ -59,8 +72,14 @@
             class="h-full w-full object-contain"
             loading="lazy"
           />
-          <div v-else class="p-4 text-center text-xs text-slate-300" role="status">
-            <span class="block text-2xl text-amber-300" aria-hidden="true">✦</span>
+          <div
+            v-else
+            class="p-4 text-center text-xs text-slate-300"
+            role="status"
+          >
+            <span class="block text-2xl text-amber-300" aria-hidden="true"
+              >✦</span
+            >
             Private preview unavailable or loading
             <span class="mt-1 block text-[10px] text-slate-400">
               ArtImage #{{ item.artImageId }} · delivery unverified
@@ -70,7 +89,9 @@
         <figcaption class="space-y-1 p-3">
           <strong class="block text-sm">{{ item.title }}</strong>
           <span class="block text-[11px] text-slate-300">
-            {{ item.size }} · Job #{{ item.artJobId }} · ArtImage #{{ item.artImageId }}
+            {{ item.size }} · Job #{{ item.artJobId }} · ArtImage #{{
+              item.artImageId
+            }}
           </span>
           <code class="block break-all text-[10px] text-amber-100/80">
             {{ item.asset }}
@@ -90,9 +111,10 @@ import {
 } from '~/utils/capesProductionArt'
 
 const store = useCapesStyleCheckStore()
-const selected = ref<(typeof CAPES_PRODUCTION_IDENTITIES)[number]['signature']>(
-  'accident-earth',
-)
+const selected =
+  ref<(typeof CAPES_PRODUCTION_IDENTITIES)[number]['signature']>(
+    'accident-earth',
+  )
 const artForSelected = computed(() => capesProductionFor(selected.value))
 watch(
   selected,

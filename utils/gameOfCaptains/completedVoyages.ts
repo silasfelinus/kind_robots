@@ -72,6 +72,24 @@ export function normalizeCompletedVoyages(raw: unknown): CompletedVoyage[] {
   })
 }
 
+/** Compare the actual playthrough, not its archive ID or export timestamp. */
+export function sameCompletedVoyageStory(
+  left: CompletedVoyage,
+  right: CompletedVoyage,
+): boolean {
+  return (
+    left.captain === right.captain &&
+    left.chapter === right.chapter &&
+    left.day === right.day &&
+    left.ending === right.ending &&
+    left.outcome === right.outcome &&
+    JSON.stringify(left.crew) === JSON.stringify(right.crew) &&
+    JSON.stringify(left.choices) === JSON.stringify(right.choices) &&
+    JSON.stringify(left.losses) === JSON.stringify(right.losses) &&
+    JSON.stringify(left.log) === JSON.stringify(right.log)
+  )
+}
+
 export function archiveCompletedVoyage(
   history: CompletedVoyage[],
   run: VoyageRun | null,
@@ -109,14 +127,11 @@ export function archiveCompletedVoyage(
     })),
     log: [...run.log],
   }
-  const sameStory = (item: CompletedVoyage) =>
-    JSON.stringify(item.choices) === JSON.stringify(entry.choices) &&
-    JSON.stringify(item.losses) === JSON.stringify(entry.losses) &&
-    JSON.stringify(item.log) === JSON.stringify(entry.log)
   const siblings = history.filter(
     (item) => item.id === id || item.id.startsWith(id + ':replay-'),
   )
-  if (siblings.some(sameStory)) return history
+  if (siblings.some((item) => sameCompletedVoyageStory(item, entry)))
+    return history
 
   // Keep the original ID stable. Distinct choices on a replay of the same
   // seed and ending deserve a separate dossier, without duplicating saves.

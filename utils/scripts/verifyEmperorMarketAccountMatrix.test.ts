@@ -108,7 +108,9 @@ for (const opening of starts) {
         const book = {
           version: 3 as const,
           current: finished,
-          dawns: [onDay(28, [opening]), day37, day46],
+          dawns: Array.from({ length: finished.day }, (_, i) =>
+            onDay(i + 1, i + 1 < 28 ? [] : i + 1 < 37 ? [opening] : i + 1 < 46 ? day28.flags : wartime.flags),
+          ),
         }
         assert.deepEqual(decodeBook(encodeBook(book))?.current, finished)
         outcomes.add(

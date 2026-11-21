@@ -8,6 +8,7 @@ import {
   optionVisible,
 } from '../emperorOfDust/fortress/engine'
 import { epilogueFor } from '../emperorOfDust/fortress/epilogue'
+import { MARKET_ACCOUNT_AUDIENCES } from '../emperorOfDust/fortress/marketAccount'
 import { decodeBook, encodeBook } from '../emperorOfDust/fortress/saves'
 import type { FortressRun } from '../emperorOfDust/fortress/types'
 
@@ -32,6 +33,22 @@ const choice = (run: FortressRun, audienceId: string, optionId: string) => {
   )
   assert.ok(option, audienceId + '/' + optionId)
   return option
+}
+
+for (const day of [28, 37, 46] as const) {
+  const audiences = MARKET_ACCOUNT_AUDIENCES[day] ?? []
+  assert.equal(audiences.length, 1, 'one earned market hearing per day')
+  const audience = audiences[0]!
+  const expectedVariants = day === 46 ? 6 : 3
+  assert.equal(audience.variants?.length, expectedVariants)
+  for (const variant of audience.variants ?? []) {
+    assert.equal(
+      variant.lines.length,
+      audience.lines.length,
+      'every variant must retain the scene beat count',
+    )
+    assert.ok(variant.flags?.length, 'each market variant is earned')
+  }
 }
 
 const routes = [

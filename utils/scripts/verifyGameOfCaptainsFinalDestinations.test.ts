@@ -107,6 +107,19 @@ for (let seed = 231; seed <= 242; seed++) {
     finale: 'protect',
   })
   assert.equal(run.phase, 'ending')
+  const finalRecord = run.consequenceHistory?.find(
+    (record) => record.chapter === 9 && record.missionId === target,
+  )
+  assert.ok(finalRecord, 'the final chapter must record the player’s decision')
+  assert.ok(run.scene.includes(finalRecord.callback))
+  assert.ok(
+    run.endingSections?.some(
+      (section) =>
+        section.label === 'Your final command' &&
+        section.lines.includes(finalRecord.callback),
+    ),
+    'the ending dossier must preserve the player’s chapter-nine consequence',
+  )
   assert.ok(
     run.consequenceHistory?.some((record) => record.missionId === target),
     'the selected finale must resolve as a real authored decision',

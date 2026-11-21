@@ -24,7 +24,7 @@
       <span
         class="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-300"
       >
-        Private · {{ artForSelected.length }} plates
+        Private · {{ artForSelected.length }} plates · {{ reviewCount }} locally reviewed
       </span>
     </div>
     <div
@@ -51,6 +51,21 @@
         <small class="block text-[10px] font-normal">{{
           person.subtitle
         }}</small>
+      </button>
+    </div>
+    <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <p class="text-xs text-slate-300">
+        QA decisions are saved only in this browser and are not production approvals.
+        Review composition, anatomy, canon, style, and lookalikes after the image loads.
+      </p>
+      <button
+        type="button"
+        class="rounded-lg border border-amber-300 px-3 py-2 text-xs font-bold text-amber-100"
+        data-testid="capes-export-production-qa"
+        :disabled="reviewCount === 0"
+        @click="exportReviews"
+      >
+        EXPORT IMAGE QA RECEIPTS
       </button>
     </div>
     <div class="mt-4 grid grid-cols-1 gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
@@ -96,6 +111,45 @@
           <code class="block break-all text-[10px] text-amber-100/80">
             {{ item.asset }}
           </code>
+          <div class="space-y-2 border-t border-slate-600/70 pt-2">
+            <p class="text-[11px] text-slate-300">
+              {{ localReview[item.artImageId]?.decision ?? 'Not reviewed' }}
+              <span v-if="localReview[item.artImageId]">
+                · locally saved {{ localReview[item.artImageId]?.reviewedAt.slice(0, 10) }}
+              </span>
+            </p>
+            <label class="block text-[11px] text-slate-200">
+              Composition / anatomy / canon / style / originality notes
+              <textarea
+                v-model="reviewNotes[item.artImageId]"
+                :aria-label="'Review notes for ' + item.title"
+                maxlength="500"
+                rows="2"
+                class="mt-1 w-full rounded border border-slate-500 bg-slate-950 p-2 text-xs text-white"
+                placeholder="Describe visual strengths or problems, including duplicate or copyright lookalikes."
+              ></textarea>
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="rounded border border-emerald-500 px-2 py-1 text-[11px]"
+                :disabled="!store.productionImageFor(item.artImageId)"
+                :data-testid="'capes-approve-' + item.key"
+                @click="setReview(item.artImageId, 'approved')"
+              >
+                MARK ACCEPTABLE
+              </button>
+              <button
+                type="button"
+                class="rounded border border-rose-400 px-2 py-1 text-[11px]"
+                :disabled="!store.productionImageFor(item.artImageId) || !(reviewNotes[item.artImageId] ?? '').trim()"
+                :data-testid="'capes-reject-' + item.key"
+                @click="setReview(item.artImageId, 'rejected')"
+              >
+                FLAG REPLACEMENT
+              </button>
+            </div>
+          </div>
         </figcaption>
       </figure>
     </div>
@@ -103,10 +157,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useCapesStyleCheckStore } from '~/stores/capesStyleCheckStore'
 import {
   CAPES_PRODUCTION_IDENTITIES,
+  CAPES_UNSTABLE_PRODUCTION,
   capesProductionFor,
 } from '~/utils/capesProductionArt'
 
@@ -123,4 +178,85 @@ watch(
   },
   { immediate: true },
 )
+
+
+const REVIEW_STORAGE_KEY = 'capes-unstable-production-image-qa-v1'
+type Decision = 'approved' | 'rejected'
+type LocalReview = {
+  decision: Decision
+  note: string
+  reviewedAt: string
+  artImageId: number
+}
+const localReview = ref<Record<number, LocalReview>>({})
+const reviewNotes = ref<Record<number, string>>({})
+const reviewCount = computed(() =>
+  CAPES_UNSTABLE_PRODUCTION.filter((entry) => localReview.value[entry.artImageId])
+    .length,
+)
+
+onMounted(() => {
+  try {
+    const saved = localStorage.getItem(REVIEW_STORAGE_KEY)
+    if (!saved) return
+    const parsed: unknown = JSON.parse(saved)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
+    const records = parsed as Record<string, unknown>
+    for (const entry of CAPES_UNSTABLE_PRODUCTION) {
+      const raw = records[String(entry.artImageId)] as Partial<LocalReview> | null
+      if (!raw || !['approved', 'rejected'].includes(raw.decision ?? '')) continue
+      if (raw.artImageId !== entry.artImageId || typeof raw.note !== 'string') continue
+      if (raw.decision === 'rejected' && !raw.note.trim()) continue
+      if (typeof raw.reviewedAt !== 'string') continue
+      localReview.value[entry.artImageId] = raw as LocalReview
+      reviewNotes.value[entry.artImageId] = raw.note.slice(0, 500)
+    }
+  } catch {
+    // Browser cache is optional; an invalid cache never certifies a review.
+  }
+})
+
+function setReview(artImageId: number, decision: Decision): void {
+  if (!store.productionImageFor(artImageId)) return
+  const allowed = CAPES_UNSTABLE_PRODUCTION.some(
+    (entry) => entry.artImageId === artImageId,
+  )
+  if (!allowed) return
+  const note = (reviewNotes.value[artImageId] ?? '').trim().slice(0, 500)
+  if (decision === 'rejected' && !note) return
+  localReview.value = {
+    ...localReview.value,
+    [artImageId]: {
+      artImageId,
+      decision,
+      note,
+      reviewedAt: new Date().toISOString(),
+    },
+  }
+  try {
+    localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(localReview.value))
+  } catch {
+    // Session-only review remains visible if local storage is unavailable.
+  }
+}
+
+function exportReviews(): void {
+  if (!import.meta.client || !reviewCount.value) return
+  const reviewed = CAPES_UNSTABLE_PRODUCTION.flatMap((entry) => {
+    const review = localReview.value[entry.artImageId]
+    return review
+      ? [{ ...entry, ...review, source: 'browser-local-art-qa', productionApproved: false }]
+      : []
+  })
+  const url = URL.createObjectURL(
+    new Blob([JSON.stringify({ version: 1, reviewed }, null, 2)], {
+      type: 'application/json',
+    }),
+  )
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'capes-production-image-qa.json'
+  link.click()
+  URL.revokeObjectURL(url)
+}
 </script>

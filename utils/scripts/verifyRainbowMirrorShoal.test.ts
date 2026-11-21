@@ -121,10 +121,13 @@ for (const seats of [1, 2, 3, 4]) {
     rainbowReplay: resume(checkpoint),
   })
   assert.equal(game.snapshot.act, 'X4')
+  assert.equal(game.snapshot.stage, 'opening')
+  assert.equal(game.snapshot.shoalFrame, 299)
+  assert.equal(game.snapshot.activePlayers, seats)
+  game.update(input, Array.from({ length: seats }, () => input))
   assert.equal(game.snapshot.stage, 'waves')
   assert.equal(game.snapshot.shoalFrame, 300)
-  assert.equal(game.snapshot.activePlayers, seats)
-  for (let tick = 0; tick <= 61; tick++)
+  for (let tick = 0; tick <= 60; tick++)
     game.update(input, Array.from({ length: seats }, () => input))
   assert.equal(game.snapshot.act, 'X4')
   assert.ok(

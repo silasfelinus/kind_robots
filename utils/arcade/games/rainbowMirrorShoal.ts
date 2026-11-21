@@ -19,7 +19,8 @@ export const MIRROR_SHOAL = {
   guardianFrom: 15000,
   guardianTo: 17400,
   turnStarts: 17400,
-  end: 17700,
+  aftermathStarts: 17700,
+  end: 18000,
   guardianName: 'Shoal Koi',
 } as const
 
@@ -196,13 +197,20 @@ export const SHOAL_TALKS = {
 const schedule = buildFormationSchedule(SHOAL_WAVES, MIRROR_SHOAL.waveBase)
 export const SHOAL_WAVE_SIZES = schedule.sizes
 
-export type ShoalPhase = 'opening' | 'waves' | 'guardian' | 'turn' | 'complete'
+export type ShoalPhase =
+  | 'opening'
+  | 'waves'
+  | 'guardian'
+  | 'turn'
+  | 'aftermath'
+  | 'complete'
 
 export function mirrorShoalStage(frame: number): ShoalPhase {
   if (frame < MIRROR_SHOAL.openingEnds) return 'opening'
   if (frame < MIRROR_SHOAL.guardianFrom) return 'waves'
   if (frame < MIRROR_SHOAL.guardianTo) return 'guardian'
-  if (frame < MIRROR_SHOAL.end) return 'turn'
+  if (frame < MIRROR_SHOAL.aftermathStarts) return 'turn'
+  if (frame < MIRROR_SHOAL.end) return 'aftermath'
   return 'complete'
 }
 

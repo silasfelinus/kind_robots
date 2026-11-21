@@ -190,7 +190,8 @@ assert.equal(mirrorShoalStage(0), 'opening')
 assert.equal(mirrorShoalStage(300), 'waves')
 assert.equal(mirrorShoalStage(15000), 'guardian')
 assert.equal(mirrorShoalStage(17400), 'turn')
-assert.equal(mirrorShoalStage(17700), 'complete')
+assert.equal(mirrorShoalStage(17700), 'aftermath')
+assert.equal(mirrorShoalStage(18000), 'complete')
 assert.deepEqual(SHOAL_GUARDIAN, {
   name: 'Shoal Koi',
   from: 15000,

@@ -503,6 +503,8 @@ function actCheckpointFrames(act: RainbowCheckpoint['act']): readonly number[] {
 }
 /** What the CONTINUE? screen and the flight log call a checkpoint: its section, the boss or the Act start. */
 function checkpointName(c: Readonly<RainbowCheckpoint>): string {
+  if (c.shoalFrame !== undefined)
+    return checkpointLabel(SHOAL_SECTIONS, MIRROR_SHOAL.guardianFrom, c.shoalFrame)
   return c.act === 1
     ? checkpointLabel(PINKWAKE_SECTIONS, PINKWAKE.bossStarts, c.frame)
     : c.act === 2
@@ -979,6 +981,7 @@ export type RainbowCombatSnapshot = {
     | GlassSceneId
     | 'X4.OPEN'
     | 'X4.TURN'
+    | 'X4.AFTER'
     | PalaceSceneId
     | FinaleSceneId
     | null
@@ -2630,7 +2633,7 @@ export function createRainbowPrincessPreview(
                       : PALACE.waveBase
       waves.forEach((entry, index) => {
         const id = base + index
-        if (entry.at >= checkpoint.frame) {
+        if (entry.at >= (checkpoint.shoalFrame ?? checkpoint.frame)) {
           waveSpawned.delete(id)
           waveLeft.delete(id)
           brokenWaves.delete(id)
@@ -2705,7 +2708,7 @@ export function createRainbowPrincessPreview(
       reefSettled = checkpoint.reefSettled
       pylonsDown = checkpoint.pylonsDown
       rescuedNavigator = checkpoint.rescuedNavigator
-      actContinues = checkpoint.actContinues ?? 0
+      actContinues = (checkpoint.actContinues ?? 0) + 1
       // The navigator drifts out again when the checkpoint is before the pod appeared.
       if (
         checkpoint.act === 7 &&
@@ -3672,8 +3675,8 @@ export function createRainbowPrincessPreview(
     // The attract-mode flythrough must be able to reach its authored boss and
     // second Act rather than silently losing every autonomous pilot.
     if (options.demo || ship.invulnerable > 0 || ship.evade > 0) return
-    actHits++
     if (shoalActive()) shoalHits++
+    else actHits++
     ship.invulnerable = 90
     ship.shield--
     if (ship.shield <= 0) {
@@ -3905,6 +3908,8 @@ export function createRainbowPrincessPreview(
         })
       }
       palaceStart = tick
+      actHits = 0
+      actContinues = 0
       reefs.length = 0
       enemyShots.length = 0
       shots.length = 0
@@ -5410,9 +5415,11 @@ export function createRainbowPrincessPreview(
           shoalActive()
             ? shoalFrame() < MIRROR_SHOAL.openingEnds
               ? 'X4.OPEN'
-              : shoalFrame() >= MIRROR_SHOAL.turnStarts
-                ? 'X4.TURN'
-                : null
+              : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
+                ? 'X4.AFTER'
+                : shoalFrame() >= MIRROR_SHOAL.turnStarts
+                  ? 'X4.TURN'
+                  : null
             : currentAct() === 1
             ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
             : currentAct() === 2
@@ -7867,12 +7874,17 @@ export function createRainbowPrincessPreview(
         shoalActive()
           ? shoalFrame() < MIRROR_SHOAL.openingEnds
             ? { id: 'X4.OPEN' as const, elapsed: shoalFrame() }
-            : shoalFrame() >= MIRROR_SHOAL.turnStarts
+            : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
               ? {
-                  id: 'X4.TURN' as const,
-                  elapsed: shoalFrame() - MIRROR_SHOAL.turnStarts,
+                  id: 'X4.AFTER' as const,
+                  elapsed: shoalFrame() - MIRROR_SHOAL.aftermathStarts,
                 }
-              : null
+              : shoalFrame() >= MIRROR_SHOAL.turnStarts
+                ? {
+                    id: 'X4.TURN' as const,
+                    elapsed: shoalFrame() - MIRROR_SHOAL.turnStarts,
+                  }
+                : null
           : act === 1
           ? pinkwakeScene(tick, defeatedAt)
           : act === 2
@@ -7900,7 +7912,9 @@ export function createRainbowPrincessPreview(
           ? (
               scene.id === 'X4.OPEN'
                 ? SHOAL_TALKS.opening
-                : SHOAL_TALKS.turn
+                : scene.id === 'X4.TURN'
+                  ? SHOAL_TALKS.turn
+                  : SHOAL_TALKS.aftermath
             )[Math.floor(scene.elapsed / 96)] ?? null
           : act === 9
           ? finaleDialogue(

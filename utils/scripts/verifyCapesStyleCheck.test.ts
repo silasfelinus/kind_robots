@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import {
   CAPES_PRODUCTION_IDENTITIES,
   CAPES_UNSTABLE_PRODUCTION,
+  CAPES_RUNTIME_REFILL_REVIEW,
+  CAPES_REVIEWABLE_PRODUCTION,
   capesProductionFor,
 } from '../capesProductionArt'
 import { readFileSync } from 'node:fs'
@@ -75,7 +77,21 @@ assert.equal(capesStyleLaneFromModel('ponyFaetality_v11.safetensors'), null)
 // Source-ledger-linked private production receipts remain distinct from
 // artist-approved delivery and the original 48 permanent identities.
 assert.equal(CAPES_UNSTABLE_PRODUCTION.length, 14)
-assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 3)
+assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 5)
+assert.equal(CAPES_RUNTIME_REFILL_REVIEW.length, 6)
+assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 20)
+assert.equal(new Set(CAPES_REVIEWABLE_PRODUCTION.map((item) => item.artImageId)).size, 20)
+assert.deepEqual(
+  CAPES_RUNTIME_REFILL_REVIEW.map((item) => [item.artJobId, item.artImageId]),
+  [
+    [50734, 258141],
+    [50735, 258142],
+    [50754, 258161],
+    [50755, 258162],
+    [50784, 258191],
+    [50785, 258192],
+  ],
+)
 assert.equal(
   new Set(CAPES_UNSTABLE_PRODUCTION.map((item) => item.key)).size,
   14,
@@ -94,9 +110,15 @@ assert.equal(
 )
 for (const identity of CAPES_PRODUCTION_IDENTITIES) {
   const group = capesProductionFor(identity.signature)
-  assert.ok(group.length >= 4)
-  assert.ok(group.some((item) => item.asset.includes('/model-hero-2x1')))
-  assert.ok(group.some((item) => item.asset.includes('/model-villain-2x1')))
+  assert.ok(group.length >= 2)
+  if (identity.signature === 'accident-earth' || identity.signature === 'accident-fire' ||
+      identity.signature === 'tech-genius') {
+    assert.ok(group.some((item) => item.asset.includes('/model-hero-2x1')))
+    assert.ok(group.some((item) => item.asset.includes('/model-villain-2x1')))
+  } else {
+    assert.ok(group.some((item) => item.asset.endsWith('/hero')))
+    assert.ok(group.some((item) => item.asset.endsWith('/villain')))
+  }
   for (const image of group) {
     assert.ok(image.artJobId > 50000)
     assert.ok(image.artImageId > 250000)
@@ -192,6 +214,7 @@ assert.match(page, /<CapesCastAtlas/)
 assert.match(page, /<CapesProductionGallery/)
 assert.match(store, /loadProductionImages/)
 assert.match(store, /artJobs\.loadJobImage\(entry\.artImageId\)/)
+assert.match(store, /CAPES_REVIEWABLE_PRODUCTION/)
 assert.match(page, /data-testid="capes-model-proposals"/)
 assert.match(page, /data-testid="capes-asset-plan"/)
 

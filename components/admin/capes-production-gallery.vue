@@ -75,12 +75,12 @@
         v-for="item in artForSelected"
         :key="item.key"
         class="min-w-0 overflow-hidden rounded-xl border border-slate-600/70 bg-slate-900"
-        :class="{ '@sm:col-span-2': item.size === '1536x768' }"
+        :class="{ '@sm:col-span-2': isLandscape(item.size) }"
         :data-testid="'capes-production-plate-' + item.key"
       >
         <div
           class="relative grid place-items-center overflow-hidden bg-slate-800/60"
-          :class="item.size === '1536x768' ? 'aspect-[2/1]' : 'aspect-[3/4]'"
+          :class="isLandscape(item.size) ? 'aspect-[2/1]' : 'aspect-[3/4]'"
         >
           <img
             v-if="store.productionImageFor(item.artImageId)"
@@ -177,6 +177,7 @@ const selected =
     'accident-earth',
   )
 const artForSelected = computed(() => capesProductionFor(selected.value))
+const isLandscape = (size: string) => size === '1536x768' || size === '1344x768'
 watch(
   selected,
   (signature) => {

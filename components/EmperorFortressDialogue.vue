@@ -65,6 +65,13 @@
       :alt="speaker"
       class="mx-auto block max-h-80 w-auto bg-base-200 object-contain"
     />
+    <img
+      v-if="sceneArt && !sceneFailed"
+      :src="sceneArt"
+      alt=""
+      class="mt-3 block aspect-[7/4] w-full bg-base-200 object-cover"
+      @error="sceneFailed = true"
+    />
     <div
       v-if="showLog"
       class="kr-scroll max-h-48 space-y-2 overflow-y-auto p-3 text-base"
@@ -145,6 +152,8 @@ const props = defineProps<{
   subtitle?: string
   /** Illustrated image of the speaker, when one has been rendered. */
   art?: string
+  /** A wide scene plate shown above the lines, when one has shipped. */
+  sceneArt?: string
   lines: SceneLine[]
   choices: {
     id: string
@@ -182,6 +191,13 @@ watch(
   () => props.art,
   () => {
     portraitFailed.value = false
+  },
+)
+const sceneFailed = ref(false)
+watch(
+  () => props.sceneArt,
+  () => {
+    sceneFailed.value = false
   },
 )
 const index = ref(0)

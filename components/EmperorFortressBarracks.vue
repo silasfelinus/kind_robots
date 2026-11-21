@@ -183,6 +183,7 @@
         :speaker="scene.speaker"
         :subtitle="originName(def.origin)"
         :art="art"
+        :scene-art="talkSceneArt"
         :lines="sceneLines"
         :choices="talkChoices"
         @choose="choose"
@@ -357,6 +358,10 @@ import {
 } from '~/utils/emperorOfDust/fortress/factions'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import { talkChoiceImages } from '~/utils/emperorOfDust/fortress/talkChoiceArt'
+import {
+  talkChoicePlateUrl,
+  talkPlateUrl,
+} from '~/utils/emperorOfDust/fortress/talkPlates'
 import { barracksLine } from '~/utils/emperorOfDust/fortress/talkEchoes'
 import { departedFollowers } from '~/utils/emperorOfDust/fortress/betrayal'
 import { followerDef, itemDef } from '~/utils/emperorOfDust/fortress/followers'
@@ -454,13 +459,27 @@ const sceneLines = computed<SceneLine[]>(() => {
     ? [talkReply.value, ...lines]
     : lines
 })
+// Curated secret-talk plates illustrate the opening scene and its two
+// authored answers; follow-up beats keep the portrait and barracks fallbacks.
+const talkSceneArt = computed(() =>
+  talk.value && !scene.value?.beatId
+    ? talkPlateUrl(talk.value.id, 'notice')
+    : undefined,
+)
+const plate = (option: { id: string }): string | undefined => {
+  if (!talk.value || scene.value?.beatId) return undefined
+  const authored = talk.value.options.findIndex(
+    (entry) => entry.id === option.id,
+  )
+  return talkChoicePlateUrl(talk.value.id, authored)
+}
 const talkChoices = computed(() =>
   (scene.value?.options ?? [])
     .filter((option) => optionVisible(props.run, option))
     .map((option, index) => ({
       id: option.id,
       label: option.label,
-      image: talkChoiceImages(talk.value?.follower ?? '', index),
+      image: talkChoiceImages(talk.value?.follower ?? '', index, plate(option)),
       note: option.requires?.cost ? `Costs ${option.requires.cost} brass` : '',
       blockers: optionBlockers(props.run, option),
     })),

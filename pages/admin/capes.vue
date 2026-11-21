@@ -371,6 +371,7 @@
           typography and comic-panel names are rendered by the UI, never burned
           into AI images.
         </p>
+        <CapesProductionGallery />
         <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <article
             v-for="family in artFamilies"
@@ -456,6 +457,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import CapesCastAtlas from '~/components/admin/capes-cast-atlas.vue'
+import CapesProductionGallery from '~/components/admin/capes-production-gallery.vue'
 import { useUserStore } from '~/stores/userStore'
 import { useCapesStyleCheckStore } from '~/stores/capesStyleCheckStore'
 import {
@@ -469,7 +471,7 @@ const view = ref<'checkpoints' | 'cast' | 'production'>('checkpoints')
 const sections = [
   { key: 'checkpoints', number: '01', label: 'Style Check' },
   { key: 'cast', number: '02', label: 'Cast & Crews' },
-  { key: 'production', number: '03', label: 'Asset Plans' },
+  { key: 'production', number: '03', label: 'Painted Art' },
 ] as const
 const totalCells = CAPES_STYLE_SUBJECTS.length * CAPES_STYLE_LANES.length
 const artFamilies = [

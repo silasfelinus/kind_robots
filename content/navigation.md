@@ -2,7 +2,7 @@
 title: 'Navigation'
 room: 'Navigation Overview'
 subtitle: 'Your personal roadmap'
-description: All roads lead to here — your central hub for exploring Kind Robots. Switch tabs, access dashboards, and get where you need to go.
+description: Every Kind Robots game, story and studio on one map. Pick one and start playing, free and with no account needed.
 image: splash/navigation.png
 icon: kind-icon:map
 tooltip: You can’t get lost if you enjoy the journey.

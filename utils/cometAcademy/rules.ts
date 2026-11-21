@@ -357,6 +357,46 @@ export const STUDENTS = [
     introSite: 'civic-hospital',
     note: 'Treats people ignored by famous heroes, including those labeled villains.',
   },
+  {
+    id: 'vesna',
+    name: 'Vesna Duarte',
+    title: 'Student-council fixer',
+    skill: 'empathy',
+    portrait: 'VD',
+    origin: 'academy',
+    introSite: 'ethics-hall',
+    note: 'Knows which student council favors the dean sold, and will not help hide the original minutes.',
+  },
+  {
+    id: 'bram',
+    name: 'Bram Kowalczyk',
+    title: 'Prom committee organizer',
+    skill: 'kinetic',
+    portrait: 'BK',
+    origin: 'academy',
+    introSite: 'theater-wing',
+    note: 'Can brace the ballroom rig; distrusts a prom committee that uses volunteers as scapegoats.',
+  },
+  {
+    id: 'femi',
+    name: 'Femi Ilunga',
+    title: 'Reluctant publicity sidekick',
+    skill: 'elemental',
+    portrait: 'FI',
+    origin: 'academy',
+    introSite: 'student-dormitory',
+    note: 'Wants to help on patrol but refuses to become a mascot without consent.',
+  },
+  {
+    id: 'cyrus',
+    name: 'Cyrus Adeyemi',
+    title: 'Retired hero and night cook',
+    skill: 'kinetic',
+    portrait: 'CA',
+    origin: 'city',
+    introSite: 'waterfront-market',
+    note: 'The former hero Short Order asks who delivers dinner after the sirens stop.',
+  },
 ] as const
 
 export type StudentId = (typeof STUDENTS)[number]['id']
@@ -935,7 +975,8 @@ export function startingContacts(_seed: number): StudentId[] {
 
 /** The friend who calls during night three knows the protagonist from daytime school. */
 export function openingNightFriend(seed: number): (typeof STUDENTS)[number] {
-  const academy = STUDENTS.filter((member) => member.origin === 'academy')
+  // Preserve the original six night-three candidates for legacy seeds.
+  const academy = STUDENTS.slice(0, 6)
   return academy[Math.abs(seed) % academy.length]!
 }
 
@@ -1258,7 +1299,8 @@ export function planThirdNight(
 
 export function knownContacts(run: AcademyRun): StudentId[] {
   if (run.flowVersion !== 3 || !run.contacts)
-    return STUDENTS.map((person) => person.id)
+    // Old runs implicitly knew only the original twelve companions.
+    return STUDENTS.slice(0, 12).map((person) => person.id)
   return run.contacts
 }
 
@@ -1283,6 +1325,15 @@ export function recruitableContact(run: AcademyRun) {
   )
 }
 
+export const LATE_RECRUIT_INTROS: Partial<Record<StudentId, string>> = {
+  vesna:
+    'Vesna shows you two different emergency-council minutes. You help her release the original record; she joins only if you protect witnesses instead of trading their names for favors.',
+  bram: 'Bram takes you above the theater rigging. You discover a transmitter invoice inside the prom decorations budget and make the volunteer riggers responsible for the ballroom safety plan.',
+  femi: 'Femi refuses an academy recruitment poster bearing their face. You agree to keep their image private; they accept a sidekick role only when they choose when to be seen.',
+  cyrus:
+    'Cyrus asks you to work a quiet market shift instead of posing for another heroic photograph. You serve meals to the night crews; only then does Short Order agree to patrol with you.',
+}
+
 export function recruitContact(run: AcademyRun, id: StudentId): AcademyRun {
   const person = recruitableContact(run)
   if (!person || person.id !== id) return run
@@ -1290,7 +1341,7 @@ export function recruitContact(run: AcademyRun, id: StudentId): AcademyRun {
     ...run,
     contacts: [...knownContacts(run), id],
     phase: 'dispatch',
-    scene: `You meet ${person.name} at ${CITY_SITES.find((site) => site.id === run.selectedSite)?.name}. ${person.note} You explain the danger honestly and they choose to join your calls, keeping the right to refuse any job. The conversation costs your daylight investigation.`,
+    scene: `You meet ${person.name} at ${CITY_SITES.find((site) => site.id === run.selectedSite)?.name}. ${LATE_RECRUIT_INTROS[id] ?? person.note} You explain the danger honestly and they choose to join your calls, keeping the right to refuse any job. The conversation costs your daylight investigation.`,
     log: [...run.log, `Day ${run.day}: ${person.name} joins the call roster`],
   }
 }

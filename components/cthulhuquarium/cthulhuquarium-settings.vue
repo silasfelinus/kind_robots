@@ -85,6 +85,15 @@
         </fieldset>
 
         <label class="flex items-center justify-between gap-3">
+          <span class="text-sm font-bold">Music</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-primary"
+            :checked="settings.music"
+            @change="tankStore.updateSettings({ music: checked($event) })"
+          />
+        </label>
+        <label class="flex items-center justify-between gap-3">
           <span class="text-sm font-bold">Larger story text</span>
           <input
             type="checkbox"

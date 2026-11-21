@@ -124,7 +124,13 @@
           :class="{ 'cq-relic-on': tankStore.pendingDecorKind === entry.kind }"
         >
           <span class="cq-relic-art cq-relic-glyph" aria-hidden="true">
-            <span>{{ entry.icon }}</span>
+            <img
+              v-if="decorArt(entry.kind)"
+              :src="decorArt(entry.kind) ?? undefined"
+              alt=""
+              class="cq-relic-decor"
+            />
+            <span v-else>{{ entry.icon }}</span>
             <cthulhuquarium-ui-art name="plinth" class="cq-relic-plinth" />
           </span>
           <div class="cq-relic-body">
@@ -162,6 +168,7 @@ import {
   type SetCatalogEntry,
 } from '~/stores/cthulhuquariumTankStore'
 import { artForSetKind } from '~/utils/cthulhuquariumArt'
+import { decorArt } from '~/utils/cthulhuquariumDecorArt'
 
 const view = defineModel<'sets' | 'decor'>('view', { default: 'sets' })
 const emit = defineEmits<{ placing: [] }>()

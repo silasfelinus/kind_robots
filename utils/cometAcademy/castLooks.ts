@@ -312,6 +312,12 @@ export const TEAM_LOOKS: Record<StudentId, string> = {
     'a tall willowy alien traveler with dusky blue skin and small luminous freckles in a cropped black jacket over a silvery layered cloak',
   jo: 'a young adult with warm ochre skin and short neon-magenta hair in a navy leather jacket covered in homemade radio patches',
   lark: 'a young adult with light brown skin and short messy dark hair in a teal medical flight suit with a rust-orange scarf',
+  vesna:
+    'a tall angular young woman with deep olive skin and a silver-streaked undercut in an immaculate student council blazer',
+  bram: 'a big soft-bodied young man with ruddy pale skin and a red beard in a sequinned prom-committee sash',
+  femi: 'a short wiry young adult with dark brown skin and shaved hair with copper beads under an oversized borrowed cape',
+  cyrus:
+    'a broad heavyset man in his thirties with brown skin and a shaved head wearing a flour-dusted apron over an old hero vest',
 }
 
 export const DEAN_LOOK =

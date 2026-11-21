@@ -697,7 +697,7 @@ assert.throws(() =>
   ),
 )
 assert.equal(POWERS.length, 6)
-assert.equal(STUDENTS.length, 12)
+assert.equal(STUDENTS.length, 16)
 assert.equal(INCIDENTS.length, 6)
 
 for (const power of POWERS) {
@@ -946,17 +946,17 @@ assert.equal(
   }),
   null,
 )
-// Six adult classmates and five adult city recruits have their own conflicts,
+// Nine adult classmates and six adult city recruits have their own conflicts,
 // boundaries and consent. Eight are romanceable; faculty never are.
 // A social scene uses one daytime action; it is never a free map overlay.
-assert.equal(SOCIAL_CAST.length, 11)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.id)).size, 11)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.dilemma)).size, 11)
-assert.equal(new Set(SOCIAL_CAST.map((person) => person.help)).size, 11)
+assert.equal(SOCIAL_CAST.length, 15)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.id)).size, 15)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.dilemma)).size, 15)
+assert.equal(new Set(SOCIAL_CAST.map((person) => person.help)).size, 15)
 assert.equal(SOCIAL_CAST.filter((person) => person.romanceable).length, 8)
 assert.equal(
   SOCIAL_CAST.filter((person) => person.kind === 'classmate').length,
-  6,
+  9,
 )
 assert.equal(SOCIAL_DAYS.length, 18)
 assert.ok(!SOCIAL_DAYS.includes(20 as never))
@@ -1648,7 +1648,7 @@ for (const seed of [1, 2, 5, 42, 88, 101]) {
     dispatch,
   )
   const oldRun = startAcademy('kinetic', seed)
-  assert.equal(knownContacts(oldRun).length, STUDENTS.length)
+  assert.equal(knownContacts(oldRun).length, 12)
 }
 for (const person of STUDENTS) {
   const run = { ...startFullAcademy('kinetic', 77), day: 4 }
@@ -1666,6 +1666,46 @@ for (const person of STUDENTS) {
   assert.ok(restoreAcademy(gained))
   assert.equal(recruitableContact(gained), null)
 }
+const newRecruits = [
+  ['vesna', 'ethics-hall', 'original record', 'promise-stairs', 'imani'],
+  ['bram', 'theater-wing', 'ballroom safety', 'skybridge', 'veda'],
+  ['femi', 'student-dormitory', 'recruitment poster', 'ferris', 'nix'],
+  ['cyrus', 'waterfront-market', 'market shift', 'flood', 'mara'],
+] as const
+for (const [id, site, evidence, caseId, ally] of newRecruits) {
+  const base = startFullAcademy('kinetic', 177)
+  const visited = visitCitySite({ ...base, day: 10 }, site)
+  assert.equal(recruitableContact(visited)?.id, id)
+  const recruited = recruitContact(visited, id)
+  assert.deepEqual(knownContacts(recruited), [id])
+  assert.equal(recruited.phase, 'dispatch')
+  assert.ok(recruited.scene.includes(evidence), id)
+  assert.ok(recruited.scene.includes('right to refuse any job'), id)
+  assert.deepEqual(
+    restoreAcademy(JSON.parse(JSON.stringify(recruited))),
+    recruited,
+  )
+  assert.equal(missionRoute(caseId, [id, ally] as StudentId[])?.boost, 2)
+  assert.equal(missionReaction(id, caseId).mood, 'positive')
+  assert.ok(TEAM_LOOKS[id].length >= 80)
+  const person = socialProfile(id)
+  assert.ok(person?.voice && person.bedside && person.help, id)
+  assert.equal(person.romanceable, false)
+  const talked = socialize(
+    { ...recruited, day: 12, phase: 'map' },
+    id,
+    'listen',
+  )
+  assert.equal(talked.relationships?.connections[id]?.trust, 1)
+}
+for (let seed = 0; seed < 72; seed++) {
+  assert.equal(openingNightFriend(seed).id, STUDENTS[seed % 6]!.id)
+  assert.deepEqual(
+    knownContacts(startAcademy('kinetic', seed)),
+    STUDENTS.slice(0, 12).map((person) => person.id),
+  )
+}
+
 const badContacts = startFullAcademy('kinetic', 99)
 assert.equal(
   restoreAcademy({ ...badContacts, contacts: ['mina', 'mina'] }),
@@ -2687,15 +2727,22 @@ for (const ending of PROM_ENDINGS) {
   const key = endingArtKey(ending)
   assert.ok(promArt(key) || PROM_ART_PROMPTS[key], `${ending} art or prompt`)
 }
-// Shipped renders (conductor scripts/export_round_art.py): every student's three
-// mission-reaction faces, every mastermind, and a student splash for each
-// identity except the two held back for a re-render (franchise look-alikes).
-for (const student of STUDENTS)
-  for (const mood of ['positive', 'neutral', 'negative'])
-    assert.ok(
-      promArt(studentArtKey(student.id) + '-' + mood),
-      student.id + mood,
-    )
+// The original twelve companions have all three mission-reaction renders.
+// The four newly playable companions have prompts, but are not shipped until
+// their Krea 2 results are exported and the final URLs verified.
+for (const student of STUDENTS) {
+  for (const mood of ['positive', 'neutral', 'negative']) {
+    const key = studentArtKey(student.id) + '-' + mood
+    if (STUDENTS.indexOf(student) < 12) {
+      assert.ok(promArt(key), student.id + mood)
+    } else {
+      assert.ok(
+        promArt(key) || (PROM_ART_PROMPTS[key]?.length ?? 0) > 120,
+        `${student.id} ${mood} must have a painted asset or a literal art request`,
+      )
+    }
+  }
+}
 for (const villain of CAMPAIGN_VILLAINS)
   assert.ok(promArt(villainArtKey(villain.name)), villain.name)
 assert.equal(
@@ -3272,7 +3319,7 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
   // City adults can be befriended and dated from day two; field roles need
   // them on the night roster first.
   const city = SOCIAL_CAST.filter((person) => person.kind === 'city')
-  assert.equal(city.length, 5)
+  assert.equal(city.length, 6)
   const bonded = {
     connections: { jo: { trust: 3, helped: true, romance: false } },
     days: [],
@@ -3291,23 +3338,32 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
   ) as Record<StudentId, string>
   for (const person of city) {
     let run = startFullAcademy('kinetic', 300 + person.id.length)
-    for (const [day, action] of [
-      [2, 'listen'],
-      [3, 'help'],
-      [4, 'invite'],
-      [5, 'date'],
-    ] as const) {
-      run = socialize(toMap(run, day), person.id, action)
+    const actions = person.romanceable
+      ? (['listen', 'help', 'invite', 'date'] as const)
+      : (['listen', 'help', 'listen', 'listen'] as const)
+    for (const [i, action] of actions.entries()) {
+      run = socialize(toMap(run, i + 2), person.id, action)
       assert.equal(run.phase, 'dispatch', `${person.id} ${action}`)
     }
-    assert.equal(run.relationships?.romance, person.id)
+    if (person.romanceable) {
+      assert.equal(run.relationships?.romance, person.id)
+      assert.ok(
+        finishAcademy(
+          { ...run, day: 30, phase: 'finale' },
+          'protect',
+        ).scene.includes(`${names[person.id]} meets you after the alarms`),
+      )
+    } else {
+      assert.equal(run.relationships?.romance, undefined)
+      assert.equal(run.relationships?.connections[person.id]?.trust, 5)
+      assert.ok(
+        !socialChoices(run.relationships!, person.id, 6).some(
+          (choice) => choice.id === 'invite' || choice.id === 'date',
+        ),
+        `${person.id} retains their platonic boundary`,
+      )
+    }
     roundTrip(run)
-    assert.ok(
-      finishAcademy(
-        { ...run, day: 30, phase: 'finale' },
-        'protect',
-      ).scene.includes(`${names[person.id]} meets you after the alarms`),
-    )
     const hurt = { ...toMap(run, 6), injuries: { [person.id]: 8 } }
     const visit = socialize(hurt, person.id, 'visit')
     assert.ok(visit.scene.includes(person.bedside))

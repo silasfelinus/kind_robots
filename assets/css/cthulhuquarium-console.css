@@ -967,6 +967,15 @@
   z-index: 1;
   transform: translateY(-0.5rem);
 }
+/* cthulhuquarium/t-110: a painted decoration stands on the plinth like the glyph did. */
+.cq-game .cq-relic-glyph > img.cq-relic-decor {
+  position: relative;
+  z-index: 1;
+  height: 4.2rem;
+  width: 4.2rem;
+  object-fit: contain;
+  transform: translateY(-0.6rem);
+}
 .cq-game .cq-relic-art > .cq-relic-plinth {
   position: absolute;
   right: 0;

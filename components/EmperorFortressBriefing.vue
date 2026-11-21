@@ -327,8 +327,11 @@ const chanceCards = computed<KrHandChoice[]>(() =>
       hint: costLine(choice),
       disabled: acting.value || cost > props.run.brass,
       image: recruit
-        ? illustration('followers', recruit)
-        : chanceArtCandidates(chance.value?.id ?? '', index)[0],
+        ? [
+            illustration('followers', recruit),
+            ...chanceArtCandidates(chance.value?.id ?? '', index, choice.id),
+          ]
+        : chanceArtCandidates(chance.value?.id ?? '', index, choice.id),
       icon: recruit ? '☗' : net > 0 ? '◎' : net < 0 ? '⚖' : '✦',
     }
   }),

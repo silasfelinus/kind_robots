@@ -9591,6 +9591,94 @@ assert.deepEqual(crownOathAftermath.effects.local, {
   yard: -2,
 })
 
+const refugeeRoad = onDay(927, 18, { brass: 100 })
+const unassistedRefugees = chooseAudienceOption(
+  refugeeRoad,
+  'd18-strangers',
+  'escort',
+).run
+const wagonRelief = chooseAudienceOption(
+  refugeeRoad,
+  'd18-strangers',
+  'wagon-escort',
+).run
+const watchRelief = chooseAudienceOption(
+  refugeeRoad,
+  'd18-strangers',
+  'watch-escort',
+).run
+for (const [run, flag, dueId, stat] of [
+  [wagonRelief, 'd18-refugee-wagons', 'd18-wagon-receipt', 'heart'],
+  [watchRelief, 'd18-refugee-watch', 'd18-empty-wall', 'might'],
+] as const) {
+  assert.ok(run.flags.includes(flag), flag + ': choice is persistent')
+  assert.ok(run.flags.includes('d18-strangers-walked'))
+  assert.ok(
+    run.board.some((item) => item.questId === 'q-d18-refugee-road'),
+    flag + ': a real quest must be posted',
+  )
+  assert.ok(
+    run.aid?.['q-d18-refugee-road']?.some(
+      (aid) => aid.stat === stat && aid.bonus === 3,
+    ),
+    flag + ': supplies or riders must improve the actual quest roll',
+  )
+  assert.ok(run.dues?.some((due) => due.id === dueId && due.day > 18))
+  assert.ok(dueDef(dueId), dueId + ': future bill has a real definition')
+}
+assert.equal(wagonRelief.brass, unassistedRefugees.brass - 18)
+assert.equal(watchRelief.brass, unassistedRefugees.brass)
+assert.equal(
+  watchRelief.local['gate-watch'],
+  unassistedRefugees.local['gate-watch'] - 3,
+)
+const roadProbe = chooseAudienceOption(
+  refugeeRoad,
+  'd18-strangers',
+  'ask-road',
+).run
+assert.ok(
+  chooseAudienceOption(
+    roadProbe,
+    'd18-strangers',
+    'wagon-escort',
+  ).run.flags.includes('d18-refugee-wagons'),
+)
+const tokensProbe = onDay(927, 18, {
+  brass: 100,
+  flags: ['thistledown-burned'],
+})
+const tokenReply = chooseAudienceOption(
+  tokensProbe,
+  'd18-strangers',
+  'ask-thistledown',
+).run
+assert.ok(
+  chooseAudienceOption(
+    tokenReply,
+    'd18-strangers',
+    'watch-escort',
+  ).run.flags.includes('d18-refugee-watch'),
+)
+const bellSpeech = questDef('q-d19-bell-speech')!
+assert.ok(
+  bellSpeech.aid?.some((aid) => aid.flags?.includes('d18-refugee-wagons')),
+)
+assert.ok(
+  bellSpeech.aid?.some((aid) => aid.flags?.includes('d18-refugee-watch')),
+)
+assert.match(
+  sceneLines(
+    onDay(927, 19, { flags: wagonRelief.flags }),
+    DAYS.find((day) => day.day === 19)!.audiences.find(
+      (audience) => audience.id === 'd19-bell-vote',
+    )!,
+  )
+    .map(lineText)
+    .join(' '),
+  /water carts down the refugee road/,
+)
+
 const actTwoChoiceAftermaths = [
   ['d14-archive-funds', 'fund'],
   ['d14-archive-funds', 'decline'],

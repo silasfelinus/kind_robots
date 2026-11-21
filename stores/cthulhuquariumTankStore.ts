@@ -30,6 +30,7 @@ import {
   bestiaryAchievementCodes,
   milestoneAchievementCodes,
   unlockAchievementCodes,
+  floorKeyAchievementCodes,
 } from '~/utils/cthulhuquariumAchievements'
 
 export interface TankMonster {
@@ -672,6 +673,7 @@ export const useCthulhuquariumTankStore = defineStore(
         if (refreshed.success && refreshed.data) tank.value = refreshed.data
       }
       story.queueMissedMilestoneScene()
+      story.queueMissedFloorScene()
       if (finaleTriggered.value) story.queueFinaleScene()
     }
 
@@ -689,6 +691,39 @@ export const useCthulhuquariumTankStore = defineStore(
         if (res.meta) lockedTeasers.value = res.meta.locked ?? []
       } finally {
         catalogLoading.value = false
+      }
+    }
+
+    // cthulhuquarium/t-105: buy the next floor's key from Charlotte. The
+    // floor's scene plays, its creatures stock the Market, and the descent
+    // moves on.
+    const floorKeyPending = ref<number | null>(null)
+    async function buyFloorKey(floor: number): Promise<boolean> {
+      error.value = ''
+      floorKeyPending.value = floor
+      try {
+        await settlePendingCollect()
+        const res = await performFetch<{
+          aquarium: Tank
+          floor: number
+          cost: number
+          status: FloorStatus
+        }>('/api/aquarium/floor-key', {
+          method: 'POST',
+          body: JSON.stringify({ floor }),
+        })
+        if (res.success && res.data) {
+          tank.value = res.data.aquarium
+          floorStatus.value = res.data.status
+          story.announceFloorKey(floor)
+          award(...floorKeyAchievementCodes(floor))
+          await loadCatalog()
+          return true
+        }
+        error.value = res.message || 'Could not buy that key.'
+        return false
+      } finally {
+        floorKeyPending.value = null
       }
     }
 
@@ -1229,6 +1264,8 @@ export const useCthulhuquariumTankStore = defineStore(
       loadCatalog,
       floorStatus,
       lockedTeasers,
+      buyFloorKey,
+      floorKeyPending,
       feed,
       unlock,
       sell,

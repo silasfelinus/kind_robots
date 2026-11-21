@@ -2482,7 +2482,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'The First Purchase',
     trigger: 'first_unlock',
     floor: 1,
-    plate: null,
+    plate: 'screen-first-unlock',
     background: null,
     covers: [],
     beats: [
@@ -2511,7 +2511,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'Every One',
     trigger: 'bestiary_complete',
     floor: null,
-    plate: null,
+    plate: 'screen-bestiary-complete',
     background: null,
     covers: [],
     beats: [
@@ -2540,7 +2540,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'After the Last Aquarium',
     trigger: 'finale',
     floor: null,
-    plate: null,
+    plate: 'screen-after-the-last-aquarium',
     background: null,
     covers: [],
     beats: [
@@ -2578,7 +2578,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'The Kelp Stair',
     trigger: 'milestone:bestiary_5',
     floor: 1,
-    plate: null,
+    plate: 'screen-milestone-kelp-stair',
     background: 'kelp-stair',
     covers: [],
     beats: [
@@ -2605,7 +2605,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
   milestone_bestiary_10: {
     id: 'milestone_bestiary_10',
     title: 'Below Stairs',
-    trigger: 'milestone:bestiary_10',
+    trigger: 'floor_open:2',
     floor: 2,
     plate: null,
     background: 'sunken-pantry',
@@ -2729,7 +2729,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'The Wreck of the Portsmouth',
     trigger: 'milestone:bestiary_20',
     floor: 2,
-    plate: null,
+    plate: 'screen-milestone-portsmouth',
     background: 'wreck-of-the-portsmouth',
     covers: [],
     beats: [
@@ -2747,7 +2747,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
   milestone_bestiary_25: {
     id: 'milestone_bestiary_25',
     title: 'The Flooded Wing',
-    trigger: 'milestone:bestiary_25',
+    trigger: 'floor_open:3',
     floor: 3,
     plate: null,
     background: 'sorting-office',
@@ -2869,7 +2869,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
   milestone_bestiary_50: {
     id: 'milestone_bestiary_50',
     title: 'The Conservatory',
-    trigger: 'milestone:bestiary_50',
+    trigger: 'floor_open:4',
     floor: 4,
     plate: null,
     background: 'flooded-conservatory',
@@ -3000,7 +3000,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
   milestone_bestiary_95: {
     id: 'milestone_bestiary_95',
     title: 'The Bottom of Things',
-    trigger: 'milestone:bestiary_95',
+    trigger: 'floor_open:5',
     floor: 5,
     plate: null,
     background: 'abyssal-plain',
@@ -3182,7 +3182,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'The Hatchery',
     trigger: 'milestone:first_evolution',
     floor: null,
-    plate: null,
+    plate: 'screen-milestone-hatchery',
     background: 'hatchery',
     covers: [],
     beats: [
@@ -3269,7 +3269,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'Up from Below Stairs',
     trigger: 'floor_first:2',
     floor: 2,
-    plate: null,
+    plate: 'screen-floor-first-2',
     background: null,
     covers: [],
     beats: [
@@ -3298,7 +3298,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'A Delivery from the Wing',
     trigger: 'floor_first:3',
     floor: 3,
-    plate: null,
+    plate: 'screen-floor-first-3',
     background: null,
     covers: [],
     beats: [
@@ -3327,7 +3327,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'Something from the Conservatory',
     trigger: 'floor_first:4',
     floor: 4,
-    plate: null,
+    plate: 'screen-floor-first-4',
     background: null,
     covers: [],
     beats: [
@@ -3356,7 +3356,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'Up from the Bottom',
     trigger: 'floor_first:5',
     floor: 5,
-    plate: null,
+    plate: 'screen-floor-first-5',
     background: null,
     covers: [],
     beats: [
@@ -3414,6 +3414,17 @@ export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = {
       'Everyone lingers at that shelf, darling. Nobody has ever been able to tell me why.',
       'Everything is for sale, darling, everything. I have never once been sentimental about stock.',
       "A new face on the top shelf, or a new arrangement of faces. It's settling in beautifully.",
+    ],
+  },
+  floor_key: {
+    speaker: 'charlotte',
+    pose: 'lorgnette',
+    lines: [
+      'I keep the keys behind the counter, darling. One does not simply wander downstairs; one is shown.',
+      'The key is yours for a small consideration. The floor below has been expecting you for some time.',
+      'Every floor has its price, and every price is a bargain. Ask anyone who has been down.',
+      'A key is a promise, darling. I only make promises I am paid to keep.',
+      'Mind how you go with it. Keys in this building have a way of turning on their own.',
     ],
   },
   sets: {

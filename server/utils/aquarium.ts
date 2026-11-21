@@ -12,14 +12,16 @@
 // (prices, caps, and elapsed-tick income all come from here, never from the
 // request body).
 
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import type { Prisma, Rarity } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
 import {
+  canBuyFloorKey,
   canBuySpecies,
   CTHULHUQUARIUM_FLOORS,
   floorForDepth,
   floorInfo,
+  floorOpenedBy,
   floorStatus,
   LOCKED_TEASER_COUNT,
   openDepthsFor,
@@ -37,7 +39,6 @@ import {
   conflictsWithEquippedIdleSet,
   DEBRIS_SPOTLESS_MILESTONE_THRESHOLD,
   DECOR_CATALOG,
-  deriveFishRarityTier,
   fishSlotsCap,
   feedCoinRebate,
   feedCost,
@@ -105,6 +106,8 @@ type TransactionClient = Parameters<
 // aquariumEconomy.ts's deriveFishRarityTier for why this stands in for a
 // canonical per-species rarity/tier column that does not exist yet.
 const monsterRaritySelect = {
+  // cthulhuquarium/t-105: the canon rarity, which prices and pays a fish.
+  tier: true,
   charm: true,
   empathy: true,
   grace: true,
@@ -127,6 +130,14 @@ const monsterEconomyOverridesSelect = {
   // "free" (aquariumEconomy.ts effectiveUnlockOverride).
   _count: { select: { EvolvesFrom: true } },
 } satisfies Prisma.MonsterSelect
+
+// cthulhuquarium/t-105 (Silas 2026-11-21: "canon rarity + slower floors"): a
+// fish is priced and paid by its canon rarity (Monster.tier, the value the book
+// shows), not the highest of its six stat rarities -- a leftover of the hidden
+// stats t-082 removed, which made 31 of the 32 commons pay like rarer fish.
+function fishRarity(monster: { tier: Rarity }): Rarity {
+  return monster.tier
+}
 
 function speciesUnlockOverride(monster: {
   unlockCost: number | null
@@ -159,7 +170,6 @@ const stockMonsterSelect = {
   // vocabulary), hue as the reserved palette-shift column schema.prisma
   // already carries for exactly this renderer, falling back to a
   // slug-derived hue client-side when null.
-  tier: true,
   // cthulhuquarium/t-102: which floor of the building the species lives on.
   depth: true,
   behavior: true,
@@ -338,7 +348,7 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
     coinVisibleSeconds: COIN_VISIBLE_SECONDS,
     upgrades: clientUpgrades(aquarium),
     Stock: aquarium.Stock.map((stock) => {
-      const rarity = deriveFishRarityTier(stock.Monster)
+      const rarity = fishRarity(stock.Monster)
       const buyCost = unlockCost(rarity, speciesUnlockOverride(stock.Monster))
       return {
         ...stock,
@@ -442,7 +452,7 @@ export async function settleTickForUser(
     debrisLevel: tank.debrisLevel,
     fish: tank.Stock.map((stock) => ({
       id: stock.id,
-      rarity: deriveFishRarityTier(stock.Monster),
+      rarity: fishRarity(stock.Monster),
       hunger: stock.hunger,
       yieldPerTick: stock.Monster.yieldPerTick,
       tickIntervalSeconds: stock.Monster.tickIntervalSeconds,
@@ -601,7 +611,7 @@ export async function feedFishForUser(
     )
   }
 
-  const rarity = deriveFishRarityTier(stock.Monster)
+  const rarity = fishRarity(stock.Monster)
   // cthulhuquarium/t-071: the food upgrade discounts the sticker price;
   // feeding_bonus's rebate below then applies to the discounted price.
   const cost = discountedFeedCost(
@@ -677,7 +687,7 @@ export async function collectForUser(
     now: new Date(),
     ratePerSecond: coinRatePerSecond(
       tank.Stock.map((stock) => ({
-        rarity: deriveFishRarityTier(stock.Monster),
+        rarity: fishRarity(stock.Monster),
         hunger: stock.hunger,
       })),
       tank.dropSpeedLevel,
@@ -991,7 +1001,6 @@ const bestiaryMonsterSelect = {
   icon: true,
   iconPath: true,
   cardPath: true,
-  tier: true,
   behavior: true,
   hue: true,
   ...monsterRaritySelect,
@@ -1070,10 +1079,7 @@ function toBestiaryEntry(
     collected,
     firstAcquiredAt: firstAcquiredAt ? firstAcquiredAt.toISOString() : null,
     fieldNote: collected ? monster.fieldNote : null,
-    cost: unlockCost(
-      deriveFishRarityTier(monster),
-      speciesUnlockOverride(monster),
-    ),
+    cost: unlockCost(fishRarity(monster), speciesUnlockOverride(monster)),
     // Never owned means never bought a live fish either -- collected can
     // still be true here in the future via a non-purchase route (e.g. a
     // hatched offspring), so this doesn't just mirror `collected`.
@@ -1224,28 +1230,30 @@ export async function purchaseSpeciesForUser(
   // never known is only for sale once its floor is open; a known one (a copy,
   // or a re-order from the book) always is. Known-species counts only grow,
   // so checking outside the transaction can never wrongly refuse.
-  const [knownEntry, knownCount] = await Promise.all([
+  const [knownEntry, knownCount, floorKeys] = await Promise.all([
     prisma.aquariumCodexEntry.findUnique({
       where: { userId_monsterId: { userId, monsterId: monster.id } },
       select: { id: true },
     }),
     prisma.aquariumCodexEntry.count({ where: { userId } }),
+    readFloorKeys(tank.id),
   ])
   if (
     !canBuySpecies({
       depth: monster.depth,
       everCollected: knownEntry !== null,
       collectedCount: knownCount,
+      keys: floorKeys,
     })
   ) {
     const floor = floorInfo(floorForDepth(monster.depth))
     throw apiError(
       403,
-      `${monster.name} lives on Floor ${floor.numeral}, ${floor.name}. Charlotte opens it once you know ${floor.opensAt} species.`,
+      `${monster.name} lives on Floor ${floor.numeral}, ${floor.name}. Charlotte sells its key once you know ${floor.opensAt} species.`,
     )
   }
 
-  const rarity = deriveFishRarityTier(monster)
+  const rarity = fishRarity(monster)
   const cost = unlockCost(rarity, speciesUnlockOverride(monster))
 
   if (tank.coins < cost) {
@@ -1473,7 +1481,7 @@ export async function sellFishForUser(
     throw apiError(404, `Fish ${aquariumStockId} is not in your tank.`)
   }
 
-  const rarity = deriveFishRarityTier(stock.Monster)
+  const rarity = fishRarity(stock.Monster)
   const baseCost = unlockCost(rarity, speciesUnlockOverride(stock.Monster))
   const salePrice = releasePrice(baseCost)
 
@@ -1769,7 +1777,6 @@ const catalogMonsterSelect = {
   icon: true,
   iconPath: true,
   cardPath: true,
-  tier: true,
   behavior: true,
   hue: true,
   ...monsterRaritySelect,
@@ -1824,8 +1831,9 @@ export async function listCatalogForUser(
   ).map((row) => row.monsterId)
   // cthulhuquarium/t-102: only open floors stock new species; anything the
   // player has ever known stays on sale whatever its floor.
-  const status = floorStatus(knownIds.length)
-  const openDepths = openDepthsFor(knownIds.length)
+  const floorKeys = await readFloorKeys(tank.id)
+  const status = floorStatus(knownIds.length, floorKeys)
+  const openDepths = openDepthsFor(knownIds.length, floorKeys)
 
   // Monster is a shared bestiary table (cthulhuquarium/t-035's `games`
   // column) -- a ruler-hooked-only row should not show up here as
@@ -1907,10 +1915,7 @@ export async function listCatalogForUser(
 
   const data: CatalogEntry[] = rows.map((monster) => ({
     ...monster,
-    cost: unlockCost(
-      deriveFishRarityTier(monster),
-      speciesUnlockOverride(monster),
-    ),
+    cost: unlockCost(fishRarity(monster), speciesUnlockOverride(monster)),
   }))
 
   // The next floor's teasers: a few of its unknown species, chosen per player
@@ -2371,6 +2376,26 @@ export async function setTankVisibilityForUser(
 
 export const DEFAULT_BACKGROUND_KEY = 'parlour'
 const STORY_SEEN_PREFIX = 'story-seen-'
+// cthulhuquarium/t-105: a floor's key, bought from Charlotte (`floor-key-<n>`).
+const FLOOR_KEY_PREFIX = 'floor-key-'
+// Tanks that reached a floor's threshold before keys existed keep the floor:
+// reconciliation grants their keys free, but only for milestones logged before
+// this moment.
+export const FLOOR_KEYS_INTRODUCED_AT = new Date('2026-11-22T00:00:00Z')
+
+async function readFloorKeys(aquariumId: number): Promise<number[]> {
+  const rows = await prisma.aquariumEvent.findMany({
+    where: { aquariumId, kind: { startsWith: FLOOR_KEY_PREFIX } },
+    select: { kind: true },
+  })
+  return [
+    ...new Set(
+      rows
+        .map((row) => Number(row.kind.slice(FLOOR_KEY_PREFIX.length)))
+        .filter((floor) => Number.isInteger(floor)),
+    ),
+  ]
+}
 // cthulhuquarium/t-103: `story-choice-<scene>:<reply>`, one per floor scene.
 const STORY_CHOICE_PREFIX = 'story-choice-'
 const MILESTONE_PREFIX = 'milestone-'
@@ -2385,6 +2410,8 @@ export interface StoryState {
   floorsReached: FloorNumber[]
   // cthulhuquarium/t-103: the reply picked in each floor scene, by scene id.
   choices: Record<string, string>
+  // cthulhuquarium/t-105: the floor keys held.
+  floorKeys: number[]
 }
 
 async function readStoryState(
@@ -2395,7 +2422,8 @@ async function readStoryState(
   const knownCount = await prisma.aquariumCodexEntry.count({
     where: { userId },
   })
-  const floor = openFloorFor(knownCount)
+  const floorKeys = await readFloorKeys(aquariumId)
+  const floor = openFloorFor(knownCount, floorKeys)
   const events = await prisma.aquariumEvent.findMany({
     where: {
       aquariumId,
@@ -2432,6 +2460,7 @@ async function readStoryState(
         : DEFAULT_BACKGROUND_KEY,
     floor,
     choices,
+    floorKeys,
     floorsReached: CTHULHUQUARIUM_FLOORS.filter(
       (entry) => entry.floor <= floor,
     ).map((entry) => entry.floor),
@@ -2531,11 +2560,115 @@ export async function setTankBackgroundForUser(
 // collection has already earned but never logged -- same event, same slot
 // increment, same idempotency guard as the purchase path. Safe to call on
 // every load: it does nothing once the tank is caught up.
+// cthulhuquarium/t-105: a tank that reached a floor's threshold before keys
+// existed keeps the floor -- its key is granted free, once. A milestone logged
+// after FLOOR_KEYS_INTRODUCED_AT earns nothing here: that key is bought.
+async function grandfatherFloorKeys(aquariumId: number): Promise<number[]> {
+  const held = new Set(await readFloorKeys(aquariumId))
+  const earlyMilestones = await prisma.aquariumEvent.findMany({
+    where: {
+      aquariumId,
+      kind: { startsWith: MILESTONE_PREFIX },
+      occurredAt: { lt: FLOOR_KEYS_INTRODUCED_AT },
+    },
+    select: { kind: true },
+  })
+  const granted: number[] = []
+  for (const { kind } of earlyMilestones) {
+    const floor = floorOpenedBy(kind.slice(MILESTONE_PREFIX.length))
+    if (floor && !held.has(floor)) {
+      held.add(floor)
+      granted.push(floor)
+      await prisma.aquariumEvent.create({
+        data: {
+          aquariumId,
+          kind: `${FLOOR_KEY_PREFIX}${floor}`,
+          payload: JSON.stringify({ grandfathered: true }),
+        },
+      })
+    }
+  }
+  return granted
+}
+
+export interface PurchaseFloorKeyResult {
+  aquarium: ClientAquarium
+  floor: FloorNumber
+  cost: number
+  status: FloorStatus
+}
+
+// cthulhuquarium/t-105: Charlotte sells the key to the next floor down once
+// the player knows enough species. Compare-and-set on coins, like upgrades, so
+// a double tap can never buy it twice or overdraw.
+export async function purchaseFloorKeyForUser(
+  userId: number,
+  username: string,
+  floor: number,
+): Promise<PurchaseFloorKeyResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const [knownCount, keys] = await Promise.all([
+    prisma.aquariumCodexEntry.count({ where: { userId } }),
+    readFloorKeys(tank.id),
+  ])
+  const entry = CTHULHUQUARIUM_FLOORS.find((item) => item.floor === floor)
+  if (!entry || entry.floor === 1) {
+    throw apiError(400, 'There is no key for that floor.')
+  }
+  if (keys.includes(floor)) {
+    throw apiError(409, `You already hold the key to ${entry.name}.`)
+  }
+  if (!canBuyFloorKey(floor, knownCount, keys)) {
+    throw apiError(
+      403,
+      `Charlotte keeps the key to ${entry.name} until you know ${entry.opensAt} species and the floor above it is open.`,
+    )
+  }
+  const cost = entry.keyCost
+  if (tank.coins < cost) {
+    throw apiError(
+      402,
+      `The key to ${entry.name} costs ${cost} coins; your tank only has ${tank.coins}.`,
+    )
+  }
+  const aquarium = await prisma.$transaction(async (tx) => {
+    // Lock the tank row first: two taps at once must not both see "no key yet"
+    // and both pay (verified: without this, a double tap bought it twice).
+    await tx.$queryRaw`SELECT id FROM Aquarium WHERE id = ${tank.id} FOR UPDATE`
+    const already = await tx.aquariumEvent.findFirst({
+      where: { aquariumId: tank.id, kind: `${FLOOR_KEY_PREFIX}${floor}` },
+      select: { id: true },
+    })
+    if (already) {
+      throw apiError(409, `You already hold the key to ${entry.name}.`)
+    }
+    const claimed = await tx.aquarium.updateMany({
+      where: { id: tank.id, coins: { gte: cost } },
+      data: { coins: { decrement: cost } },
+    })
+    if (claimed.count === 0) {
+      throw apiError(409, 'Your tank changed while buying that; try again.')
+    }
+    await logEvent(tx, tank.id, `${FLOOR_KEY_PREFIX}${floor}`, { cost })
+    return tx.aquarium.findUniqueOrThrow({
+      where: { id: tank.id },
+      select: ownedAquariumSelect,
+    })
+  })
+  return {
+    aquarium: toClientAquarium(aquarium),
+    floor: entry.floor,
+    cost,
+    status: floorStatus(knownCount, [...keys, floor]),
+  }
+}
+
 export async function reconcileBestiaryMilestonesForUser(
   userId: number,
   username: string,
 ): Promise<Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig>> {
   const tank = await getOrCreateTankForUser(userId, username)
+  await grandfatherFloorKeys(tank.id)
   return prisma.$transaction(async (tx) => {
     const { collectedCount } = await countBestiaryTotals(tx, userId)
     const earned: Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig> =

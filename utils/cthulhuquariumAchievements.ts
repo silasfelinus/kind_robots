@@ -50,6 +50,14 @@ export function unlockAchievementCodes(
   return codes
 }
 
+/**
+ * cthulhuquarium/t-100/t-105: buying the key to the last floor is the third
+ * soft ending, The Bottom of Things.
+ */
+export function floorKeyAchievementCodes(floor: number): string[] {
+  return floor === 5 ? ['cthulhuquarium-bottom-of-things'] : []
+}
+
 /** Whether any upgrade track has just been bought to its last level. */
 export function anyUpgradeMaxed(
   upgrades: ReadonlyArray<{ level: number; maxLevel: number }>,

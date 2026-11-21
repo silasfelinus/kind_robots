@@ -20,6 +20,7 @@ import {
   type CanonScene,
   type CanonSpeaker,
 } from '~/utils/cthulhuquariumCanon.generated'
+import { floorInfo, floorOpenedBy } from '~/utils/cthulhuquariumFloors'
 import {
   SCRIPT_START,
   scriptAwaitingChoice,
@@ -40,6 +41,8 @@ export interface StoryState {
   floorsReached?: number[]
   // cthulhuquarium/t-103: the reply picked in each floor scene, by scene id.
   choices?: Record<string, string>
+  // cthulhuquarium/t-105: the floor keys held.
+  floorKeys?: number[]
 }
 
 export type StoryAction = 'unlock' | 'feed' | 'clean' | 'shop' | 'bestiary'
@@ -303,8 +306,35 @@ export function useCthulhuquariumStory() {
   }
 
   function announceMilestones(ids: string[]): void {
-    for (const id of ids) queueScene(`milestone_${id}`)
+    // cthulhuquarium/t-105: a floor's milestone only puts its key on sale; the
+    // floor's scene plays when the key is bought (announceFloorKey).
+    for (const id of ids) {
+      if (floorOpenedBy(id) === null) queueScene(`milestone_${id}`)
+    }
     if (ids.length) void refreshStory()
+  }
+
+  /** cthulhuquarium/t-105: the key to `floor` was just bought. */
+  function announceFloorKey(floor: number): void {
+    const milestoneId = floorInfo(floor).milestoneId
+    if (milestoneId) queueScene(`milestone_${milestoneId}`)
+    void refreshStory()
+  }
+
+  /**
+   * One floor scene per visit for a key held without its scene seen: a tank
+   * whose keys were granted when keys were introduced still gets the moment.
+   */
+  function queueMissedFloorScene(): void {
+    const keys = state.value?.floorKeys ?? []
+    for (const floor of [...keys].sort()) {
+      const milestoneId = floorInfo(floor).milestoneId
+      const id = milestoneId ? `milestone_${milestoneId}` : null
+      if (id && !hasSeen(id) && !queue.value.includes(id)) {
+        queueScene(id)
+        return
+      }
+    }
   }
 
   /** cthulhuquarium/t-102: the first species ever known from floor II-V. */
@@ -443,6 +473,8 @@ export function useCthulhuquariumStory() {
     storyFloor,
     hasSeen,
     announceFirstOfFloor,
+    announceFloorKey,
+    queueMissedFloorScene,
     queueFinaleScene,
     finishScene,
     notifyAction,

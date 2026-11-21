@@ -240,4 +240,17 @@ export const CTHULHUQUARIUM_ACHIEVEMENTS: GameAchievementDef[] = [
     rule: { kind: 'event' },
     artPrompt: `A parlour aquarium seen from inside an even larger aquarium, the keeper and their tank floating in vast dark water while an enormous gentle eye peers in through the outer glass with the same fond curiosity the keeper once had. ${STYLE}`,
   },
+  {
+    game: 'cthulhuquarium',
+    key: 'bottom-of-things',
+    tier: 3,
+    label: 'The Bottom of Things',
+    message:
+      'You bought the last key. There was never a door, only stairs that stopped.',
+    tooltip: 'In Cthulhuquarium, buy the key to the fifth floor.',
+    subtleHint: 'Keep going down until the stairs stop.',
+    icon: 'kind-icon:key',
+    rule: { kind: 'event' },
+    artPrompt: `The last step of a long stone stairwell ending in pale silt at the edge of a vast dark underwater plain, strange pale creatures glowing softly far out in the water, a brass lamp set down unlit on the step. ${STYLE}`,
+  },
 ]

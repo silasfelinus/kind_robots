@@ -121,6 +121,48 @@
               </button>
             </div>
           </article>
+          <!-- cthulhuquarium/t-105: the key to the next floor, once Charlotte
+               will sell it. Buying it opens the floor and plays its scene. -->
+          <article
+            v-if="keyForSale"
+            role="listitem"
+            class="cq-pedestal cq-pedestal-key"
+            data-rarity="legendary"
+          >
+            <div class="cq-pedestal-stage">
+              <Icon
+                name="kind-icon:key"
+                class="cq-pedestal-object cq-key-icon"
+              />
+              <cthulhuquarium-ui-art name="plinth" class="cq-pedestal-plinth" />
+              <span class="cq-rarity-seal">Floor {{ nextNumeral }}</span>
+            </div>
+            <div class="cq-plaque">
+              <h4 class="cq-plaque-title">
+                The key to {{ floor?.next?.name }}
+              </h4>
+              <p class="cq-plaque-text">{{ keyBark }}</p>
+              <button
+                type="button"
+                data-nav
+                class="cq-price"
+                :disabled="
+                  tankStore.coins < keyCost ||
+                  tankStore.floorKeyPending !== null
+                "
+                :aria-label="`Buy the key to ${floor?.next?.name} for ${keyCost} coins`"
+                :title="
+                  tankStore.coins < keyCost
+                    ? `${keyCost - tankStore.coins} more coins needed`
+                    : undefined
+                "
+                @click="tankStore.buyFloorKey(floor?.next?.floor ?? 0)"
+              >
+                <cthulhuquarium-ui-art name="coin" class="cq-price-coin" />
+                <span class="tabular-nums">{{ formatCoins(keyCost) }}</span>
+              </button>
+            </div>
+          </article>
           <!-- cthulhuquarium/t-102: the next floor down, as silhouettes. -->
           <article
             v-for="teaser in tankStore.lockedTeasers"
@@ -270,8 +312,19 @@ const nextNumeral = computed(() => floor.value?.next?.numeral ?? '')
 const lockedHint = computed(() => {
   const next = floor.value?.next
   if (!next) return ''
-  return `${next.name} opens when you know ${next.threshold} species. ${next.remaining} more to go.`
+  if (next.keyForSale) {
+    return `${next.name} opens with Charlotte's key: ${formatCoins(next.keyCost)} coins.`
+  }
+  return `${next.name}: know ${next.threshold} species (${next.remaining} more to go), then buy the key.`
 })
+// cthulhuquarium/t-105: the next floor's key, once Charlotte will sell it.
+const keyForSale = computed(() => !!floor.value?.next?.keyForSale)
+const keyCost = computed(() => floor.value?.next?.keyCost ?? 0)
+const keyBark = computed(
+  () =>
+    tankStore.screenBark('floor_key')?.text ??
+    'Charlotte keeps it behind the counter.',
+)
 const lockedLabel = computed(() => {
   const next = floor.value?.next
   return next

@@ -18,7 +18,7 @@
     <section v-else class="kr-scroll flex-1 space-y-4 overflow-y-auto p-4">
       <div class="flex flex-wrap items-center gap-3">
         <div class="min-w-0 flex-1">
-          <h1 class="text-xl font-black">Eight original ending plates</h1>
+          <h2 class="text-xl font-black">Eight original ending plates</h2>
           <p class="text-sm text-base-content/70">
             Private ArtImage previews are never published by this review. The
             delivery audit below also makes no writes.

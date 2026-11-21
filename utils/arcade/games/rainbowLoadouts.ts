@@ -223,8 +223,7 @@ export function rainbowRouteIntel(
             : 'Route undiscovered',
       discovered:
         checkpoint?.reefSettled === true &&
-        (checkpoint.reefRoute === 'relay' ||
-          checkpoint.reefRoute === 'cache'),
+        (checkpoint.reefRoute === 'relay' || checkpoint.reefRoute === 'cache'),
     },
   ].map((route) => {
     if (!route.discovered) return { ...route, label: 'Route undiscovered' }

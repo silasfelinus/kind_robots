@@ -37,6 +37,8 @@ export type RainbowCheckpoint = {
   reefRoute: 'relay' | 'cache' | null
   reefSettled: boolean
   pylonsDown: number
+  /** Continues spent in the active Act; avoids false clean-flight X4 unlocks on reload. */
+  actContinues?: number
   /** Alternate X4 flight clock and last section, kept independent of Act VII's score. */
   shoalStartedAt?: number
   shoalFrame?: number

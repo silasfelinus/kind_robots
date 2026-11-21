@@ -277,6 +277,7 @@ export function readRainbowSave(
   )
     return null
   if (c.shoalFrame === undefined && c.shoalStartedAt !== undefined) return null
+  if (c.actContinues !== undefined && !count(c.actContinues, 999)) return null
   if (!isCheckpoint(c.act as number, c.frame as number, c as RainbowCheckpoint))
     return null
   if (!count(c.score, 1e9)) return null
@@ -372,6 +373,9 @@ export function readRainbowSave(
       reefSettled: saved.reefSettled,
       pylonsDown: saved.pylonsDown,
       rescuedNavigator: saved.rescuedNavigator,
+      ...(saved.actContinues !== undefined
+        ? { actContinues: saved.actContinues }
+        : {}),
       ...(saved.shoalFrame !== undefined
         ? {
             shoalStartedAt: saved.shoalStartedAt,

@@ -2313,6 +2313,7 @@ export function createRainbowPrincessPreview(
       reefSettled,
       pylonsDown,
       rescuedNavigator,
+      actContinues,
       ...(shoalCheckpoint
         ? {
             shoalStartedAt: shoalStart! - glassStart!,
@@ -2491,6 +2492,8 @@ export function createRainbowPrincessPreview(
     reefSettled = c.reefSettled
     pylonsDown = c.pylonsDown
     rescuedNavigator = c.rescuedNavigator
+    actContinues =
+      c.actContinues ?? (c.act === 7 && !c.rescuedNavigator ? 1 : 0)
     navigatorDone = c.act > 7
     captivesFreed = c.captivesFreed
     allegiance = c.allegiance ?? null
@@ -2702,6 +2705,7 @@ export function createRainbowPrincessPreview(
       reefSettled = checkpoint.reefSettled
       pylonsDown = checkpoint.pylonsDown
       rescuedNavigator = checkpoint.rescuedNavigator
+      actContinues = checkpoint.actContinues ?? 0
       // The navigator drifts out again when the checkpoint is before the pod appeared.
       if (
         checkpoint.act === 7 &&
@@ -8245,6 +8249,44 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'right'
         g.fillStyle = '#ffd1ec'
         g.fillText(`CAPTIVES FREED ${captivesFreed}`, W - 8, H - 8)
+        g.restore()
+      }
+      if (
+        act === 7 &&
+        shoalStart === null &&
+        glassDefeatedFrame !== null &&
+        mirrorShoalRouteUnlocked(rescuedNavigator, actContinues) &&
+        glassFrame() - glassDefeatedFrame >= GLASS.aftermathFrames - 180
+      ) {
+        g.save()
+        g.globalAlpha = 0.8
+        g.setLineDash([8, 5])
+        g.strokeStyle = '#f1deff'
+        g.beginPath()
+        g.moveTo(W - 180, 135)
+        g.lineTo(W, 135)
+        g.stroke()
+        g.setLineDash([])
+        g.textAlign = 'right'
+        g.font = 'bold 9px monospace'
+        g.fillStyle = '#ffc5f0'
+        g.fillText('▲ X4 MIRROR SHOAL', W - 8, 123)
+        g.fillStyle = '#bdeaff'
+        g.fillText('▼ ACT VIII PALACE', W - 8, 153)
+        g.restore()
+      }
+      if (shoalActive()) {
+        g.save()
+        g.fillStyle = '#ffd5f5'
+        g.font = 'bold 8px monospace'
+        g.textAlign = 'right'
+        g.fillText(
+          'X4 · ' + (SHOAL_SECTIONS.find((section) =>
+            shoalFrame() >= section.from && shoalFrame() < section.to
+          )?.name.toUpperCase() ?? 'MIRROR SHOAL'),
+          W - 8,
+          H - 8,
+        )
         g.restore()
       }
       if (act === 6 && reefDefeatedFrame === null) {

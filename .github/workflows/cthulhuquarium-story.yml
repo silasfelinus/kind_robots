@@ -55,3 +55,5 @@ jobs:
         run: npm run test:aquarium-milestone-toast
       - name: Spends and settles are serialized on the tank row
         run: npx tsx utils/scripts/verifyAquariumSpendLocks.test.ts
+      - name: Swappable art styles
+        run: npx tsx utils/scripts/verifyCthulhuquariumArtStyles.test.ts

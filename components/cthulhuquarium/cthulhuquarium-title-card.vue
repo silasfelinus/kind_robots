@@ -51,6 +51,7 @@
             </NuxtLink>
           </div>
         </nav>
+        <cthulhuquarium-style-picker class="cq-title-styles" />
       </div>
     </div>
   </Teleport>
@@ -146,6 +147,9 @@ function choose(what: 'memories' | 'settings') {
   font-variant: small-caps;
   letter-spacing: 0.06em;
   color: rgb(216 181 106);
+}
+.cq-title-styles {
+  width: min(22rem, 100%);
 }
 .cq-title-actions {
   display: grid;

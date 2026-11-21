@@ -31,6 +31,9 @@
           </button>
         </header>
 
+        <!-- cthulhuquarium/t-107: shown only once a second style is on offer. -->
+        <cthulhuquarium-style-picker />
+
         <label class="flex flex-col gap-1">
           <span class="text-sm font-bold">Sound volume</span>
           <input

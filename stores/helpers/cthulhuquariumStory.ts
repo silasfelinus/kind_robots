@@ -22,6 +22,7 @@ import {
 } from '~/utils/cthulhuquariumCanon.generated'
 import { floorInfo, floorOpenedBy } from '~/utils/cthulhuquariumFloors'
 import { setReducedMotionOverride } from '~/utils/cthulhuquariumSprites'
+import { setCthulhuquariumArtStyle } from '~/utils/cthulhuquariumArtStyles'
 import {
   CTHULHUQUARIUM_DEFAULT_SETTINGS,
   readCthulhuquariumSettings,
@@ -418,6 +419,8 @@ export function useCthulhuquariumStory() {
   function applyMotionSetting(): void {
     const motion = settings.value.motion
     setReducedMotionOverride(motion === 'system' ? null : motion === 'reduced')
+    // cthulhuquarium/t-107: the art resolvers read the active style.
+    setCthulhuquariumArtStyle(settings.value.artStyle)
   }
 
   function updateSettings(patch: Partial<CthulhuquariumSettings>): void {

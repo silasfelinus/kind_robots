@@ -85,7 +85,8 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
       options: [
         {
           id: 'reserve-yard',
-          label: 'Spend twenty brass on shared Yard pitches. Displace the army stores.',
+          label:
+            'Spend twenty brass on shared Yard pitches. Displace the army stores.',
           requires: { cost: 20 },
           effects: {
             affinity: { freeholds: 6 },
@@ -97,7 +98,8 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
         },
         {
           id: 'open-warrants',
-          label: 'Publish every stall warrant. Leave the sellers to fight the Ledger.',
+          label:
+            'Publish every stall warrant. Leave the sellers to fight the Ledger.',
           effects: {
             affinity: { freeholds: 2 },
             local: { lamplight: 2, ledger: -3, yard: -1 },
@@ -108,7 +110,8 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
         },
         {
           id: 'muster-sellers',
-          label: 'Take sixteen brass from the army. Put the sellers on ration duty.',
+          label:
+            'Take sixteen brass from the army. Put the sellers on ration duty.',
           effects: {
             brass: 16,
             affinity: { freeholds: -7 },
@@ -160,7 +163,8 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
       options: [
         {
           id: 'escort',
-          label: 'Pay fifteen brass for a Watch escort. Let the grain go unguarded.',
+          label:
+            'Pay fifteen brass for a Watch escort. Let the grain go unguarded.',
           requires: { flags: ['d28-sellers-yard'], cost: 15 },
           effects: {
             affinity: { freeholds: 5 },
@@ -305,7 +309,8 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
         },
         {
           id: 'record',
-          label: 'Carry the four accounts into the postwar record, names included.',
+          label:
+            'Carry the four accounts into the postwar record, names included.',
           effects: {
             local: { lamplight: 2, ledger: -2 },
             affinity: { freeholds: -1 },
@@ -316,7 +321,8 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
         },
         {
           id: 'burn',
-          label: 'Burn the warrants. Free the sellers; erase the honest claims too.',
+          label:
+            'Burn the warrants. Free the sellers; erase the honest claims too.',
           effects: {
             local: { ledger: -4, lamplight: -2 },
             affinity: { freeholds: 2 },

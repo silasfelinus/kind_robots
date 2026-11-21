@@ -2834,7 +2834,9 @@ const MARKET_ACCOUNT: EpilogueSubject = {
       text: 'Four market receipts went into the postwar record. The egg-seller checked the spelling herself. No verdict was entered beside the names. People can read the costs without being told what to think.',
     },
     {
-      when: { flags: ['d46-sellers-warrants-burned', 'd37-sellers-bonds-redeemed'] },
+      when: {
+        flags: ['d46-sellers-warrants-burned', 'd37-sellers-bonds-redeemed'],
+      },
       text: 'The sellers kept their paid wages and lost the paper that said who had paid. The egg-seller could live with that. The kitchen widow still asked for a receipt.',
     },
     {
@@ -2883,11 +2885,13 @@ const MARKET_ACCOUNT: EpilogueSubject = {
       text: 'Four sellers went into the army kitchens. The treasury took sixteen brass. Their baskets waited outside the barracks, empty.',
     },
     {
-      when: { anyFlags: [
-        'd08-blankets-restored',
-        'd08-blankets-leased',
-        'd08-blankets-evicted',
-      ] },
+      when: {
+        anyFlags: [
+          'd08-blankets-restored',
+          'd08-blankets-leased',
+          'd08-blankets-evicted',
+        ],
+      },
       text: 'The egg-seller kept the first market charter in a flour sack. It had the crown’s seal on it. She could not recall a day when it had fed anyone.',
     },
   ],

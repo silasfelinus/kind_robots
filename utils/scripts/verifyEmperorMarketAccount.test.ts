@@ -79,11 +79,7 @@ const routes = [
 for (const route of routes) {
   let day8 = onDay(8, ['market-charter'])
   if (route.first === 'lease-week') {
-    day8 = chooseAudienceOption(
-      day8,
-      'd08-blanket-evictions',
-      'ask-rent',
-    ).run
+    day8 = chooseAudienceOption(day8, 'd08-blanket-evictions', 'ask-rent').run
   }
   const opening = chooseAudienceOption(
     day8,
@@ -104,9 +100,7 @@ for (const route of routes) {
   assert.ok(answered.flags.includes(route.day28Flag))
   assert.equal(answered.brass, day28.brass - route.day28Cost)
   const wrongDay28 = onDay(28)
-  assert.ok(
-    !audiencesToday(wrongDay28).some((a) => a.id === 'd28-market-bill'),
-  )
+  assert.ok(!audiencesToday(wrongDay28).some((a) => a.id === 'd28-market-bill'))
 
   const day37 = onDay(37, answered.flags)
   const secondBill = choice(day37, 'd37-market-bill', route.day37)
@@ -146,10 +140,7 @@ for (const route of routes) {
   assert.notEqual(page(opening, 'open-roads'), page(settled, 'open-roads'))
   assert.notEqual(page(wartime, 'open-roads'), page(settled, 'open-roads'))
   if (route.lastFlag === 'd46-sellers-fed') {
-    assert.notEqual(
-      page(settled, 'open-roads'),
-      page(settled, 'long-night'),
-    )
+    assert.notEqual(page(settled, 'open-roads'), page(settled, 'long-night'))
   }
   const book = {
     version: 3 as const,

@@ -47,6 +47,9 @@ export default defineEventHandler(async (event) => {
         skip: result.skip,
         total: result.total,
         dateKey: result.dateKey,
+        // cthulhuquarium/t-102: the open floor and the next floor's teasers.
+        floor: result.floor,
+        locked: result.locked,
       },
       statusCode: 200,
     }

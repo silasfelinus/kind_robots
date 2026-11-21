@@ -15,6 +15,18 @@
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
+import {
+  canBuySpecies,
+  CTHULHUQUARIUM_FLOORS,
+  floorForDepth,
+  floorInfo,
+  floorStatus,
+  LOCKED_TEASER_COUNT,
+  openDepthsFor,
+  openFloorFor,
+  type FloorNumber,
+  type FloorStatus,
+} from '../../utils/cthulhuquariumFloors'
 import { CTHULHUQUARIUM_SCENE_IDS } from './cthulhuquariumBackgrounds.generated'
 import {
   cleanDebris,
@@ -41,6 +53,7 @@ import {
   MAX_CLEAN_CLICKS_PER_REQUEST,
   rollRareEvent,
   releasePrice,
+  effectiveUnlockOverride,
   rotateShopStock,
   SET_PIECE_CATALOG,
   settleTick,
@@ -105,7 +118,21 @@ const monsterEconomyOverridesSelect = {
   yieldPerTick: true,
   tickIntervalSeconds: true,
   unlockCost: true,
+  // cthulhuquarium/t-102: whether the species is reached by evolution, which
+  // turns a canon unlock_cost of 0 into "use the rarity default" rather than
+  // "free" (aquariumEconomy.ts effectiveUnlockOverride).
+  _count: { select: { EvolvesFrom: true } },
 } satisfies Prisma.MonsterSelect
+
+function speciesUnlockOverride(monster: {
+  unlockCost: number | null
+  _count: { EvolvesFrom: number }
+}): number | null {
+  return effectiveUnlockOverride(
+    monster.unlockCost,
+    monster._count.EvolvesFrom > 0,
+  )
+}
 
 const stockMonsterSelect = {
   id: true,
@@ -129,6 +156,8 @@ const stockMonsterSelect = {
   // already carries for exactly this renderer, falling back to a
   // slug-derived hue client-side when null.
   tier: true,
+  // cthulhuquarium/t-102: which floor of the building the species lives on.
+  depth: true,
   behavior: true,
   hue: true,
   // cthulhuquarium/t-077: rivalry-evaluation traits (aquariumRivalry.ts's
@@ -306,7 +335,7 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
     upgrades: clientUpgrades(aquarium),
     Stock: aquarium.Stock.map((stock) => {
       const rarity = deriveFishRarityTier(stock.Monster)
-      const buyCost = unlockCost(rarity, stock.Monster.unlockCost)
+      const buyCost = unlockCost(rarity, speciesUnlockOverride(stock.Monster))
       return {
         ...stock,
         sellPrice: releasePrice(buyCost),
@@ -572,7 +601,7 @@ export async function feedFishForUser(
   // cthulhuquarium/t-071: the food upgrade discounts the sticker price;
   // feeding_bonus's rebate below then applies to the discounted price.
   const cost = discountedFeedCost(
-    feedCost(rarity, stock.Monster.unlockCost),
+    feedCost(rarity, speciesUnlockOverride(stock.Monster)),
     tank.foodLevel,
   )
 
@@ -1014,7 +1043,10 @@ function toBestiaryEntry(
     collected,
     firstAcquiredAt: firstAcquiredAt ? firstAcquiredAt.toISOString() : null,
     fieldNote: collected ? monster.fieldNote : null,
-    cost: unlockCost(deriveFishRarityTier(monster), monster.unlockCost),
+    cost: unlockCost(
+      deriveFishRarityTier(monster),
+      speciesUnlockOverride(monster),
+    ),
     // Never owned means never bought a live fish either -- collected can
     // still be true here in the future via a non-purchase route (e.g. a
     // hatched offspring), so this doesn't just mirror `collected`.
@@ -1123,6 +1155,9 @@ export interface PurchaseSpeciesResult {
   // itself, not the ceremony around it. cthulhuquarium/t-074: also carries
   // the (at most one) first_full_tank landmark this purchase crossed.
   firedMilestones: Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig>
+  // cthulhuquarium/t-102: set when this is the first species the player has
+  // ever known from that floor (II-V), so the client can play its scene.
+  firstOfFloor: FloorNumber | null
 }
 
 export async function purchaseSpeciesForUser(
@@ -1158,8 +1193,33 @@ export async function purchaseSpeciesForUser(
     )
   }
 
+  // cthulhuquarium/t-102: the building's floors. A species the player has
+  // never known is only for sale once its floor is open; a known one (a copy,
+  // or a re-order from the book) always is. Known-species counts only grow,
+  // so checking outside the transaction can never wrongly refuse.
+  const [knownEntry, knownCount] = await Promise.all([
+    prisma.aquariumCodexEntry.findUnique({
+      where: { userId_monsterId: { userId, monsterId: monster.id } },
+      select: { id: true },
+    }),
+    prisma.aquariumCodexEntry.count({ where: { userId } }),
+  ])
+  if (
+    !canBuySpecies({
+      depth: monster.depth,
+      everCollected: knownEntry !== null,
+      collectedCount: knownCount,
+    })
+  ) {
+    const floor = floorInfo(floorForDepth(monster.depth))
+    throw apiError(
+      403,
+      `${monster.name} lives on Floor ${floor.numeral}, ${floor.name}. Charlotte opens it once you know ${floor.opensAt} species.`,
+    )
+  }
+
   const rarity = deriveFishRarityTier(monster)
-  const cost = unlockCost(rarity, monster.unlockCost)
+  const cost = unlockCost(rarity, speciesUnlockOverride(monster))
 
   if (tank.coins < cost) {
     throw apiError(
@@ -1168,142 +1228,161 @@ export async function purchaseSpeciesForUser(
     )
   }
 
-  const { aquarium, stock, justCompletedBestiary, firedMilestones } =
-    await prisma.$transaction(async (tx) => {
-      const { totalCount, collectedCount: collectedCountBefore } =
-        await countBestiaryTotals(tx, userId)
+  const {
+    aquarium,
+    stock,
+    justCompletedBestiary,
+    firedMilestones,
+    firstOfFloor,
+  } = await prisma.$transaction(async (tx) => {
+    const { totalCount, collectedCount: collectedCountBefore } =
+      await countBestiaryTotals(tx, userId)
 
-      const createdStock = await tx.aquariumStock.create({
-        data: {
-          aquariumId: tank.id,
-          monsterId: monster.id,
-          hunger: HUNGER_STARTING_VALUE,
+    const createdStock = await tx.aquariumStock.create({
+      data: {
+        aquariumId: tank.id,
+        monsterId: monster.id,
+        hunger: HUNGER_STARTING_VALUE,
+      },
+      select: ownedStockSelect,
+    })
+
+    // The permanent codex record -- upsert rather than create, so that if
+    // a future feature ever lets a species leave the tank and be rebought,
+    // firstAcquiredAt keeps the ORIGINAL discovery date (t-024's "cannot
+    // be un-collected" applies to the record, not just the count) instead
+    // of a unique-constraint error. Since t-081 allows copies, buying
+    // another of an owned species takes the `update` branch, and
+    // collectedCountAfter below does not move -- the bestiary counts
+    // distinct species, not fish.
+    const existingEntry = await tx.aquariumCodexEntry.findUnique({
+      where: { userId_monsterId: { userId, monsterId: monster.id } },
+      select: { id: true },
+    })
+    // cthulhuquarium/t-102: the first species ever known from a floor
+    // below the Shop Floor gets its own short scene.
+    let firstOfFloor: FloorNumber | null = null
+    const speciesFloor = floorForDepth(monster.depth)
+    if (!existingEntry && speciesFloor > 1) {
+      const knownOnFloor = await tx.aquariumCodexEntry.count({
+        where: {
+          userId,
+          Monster: { depth: { in: [...floorInfo(speciesFloor).depths] } },
         },
-        select: ownedStockSelect,
       })
+      if (knownOnFloor === 0) firstOfFloor = speciesFloor
+    }
+    if (!existingEntry) {
+      await tx.aquariumCodexEntry.create({
+        data: { userId, monsterId: monster.id },
+      })
+    }
+    const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
 
-      // The permanent codex record -- upsert rather than create, so that if
-      // a future feature ever lets a species leave the tank and be rebought,
-      // firstAcquiredAt keeps the ORIGINAL discovery date (t-024's "cannot
-      // be un-collected" applies to the record, not just the count) instead
-      // of a unique-constraint error. Since t-081 allows copies, buying
-      // another of an owned species takes the `update` branch, and
-      // collectedCountAfter below does not move -- the bestiary counts
-      // distinct species, not fish.
-      const existingEntry = await tx.aquariumCodexEntry.findUnique({
-        where: { userId_monsterId: { userId, monsterId: monster.id } },
-        select: { id: true },
-      })
-      if (!existingEntry) {
-        await tx.aquariumCodexEntry.create({
-          data: { userId, monsterId: monster.id },
-        })
+    // cthulhuquarium/t-028: bestiary-breakpoint milestones (economy.yaml
+    // `milestones`). Guarded against re-logging the same landmark the same
+    // way BESTIARY_COMPLETE_EVENT_KIND is below -- collectedCount can only
+    // ever increase (justCompletedBestiary's own note), so in the normal
+    // case each landmark is crossed at most once, but the guard makes that
+    // an enforced invariant of the data rather than an assumption about
+    // caller behavior.
+    const candidateMilestones = firedBestiaryMilestones(
+      collectedCountBefore,
+      collectedCountAfter,
+    )
+    const firedMilestones: Array<
+      BestiaryMilestoneConfig | LandmarkMilestoneConfig
+    > = []
+    if (candidateMilestones.length > 0) {
+      const alreadyLoggedKinds = new Set(
+        (
+          await tx.aquariumEvent.findMany({
+            where: {
+              aquariumId: tank.id,
+              kind: { in: candidateMilestones.map(milestoneEventKind) },
+            },
+            select: { kind: true },
+          })
+        ).map((row) => row.kind),
+      )
+      for (const milestone of candidateMilestones) {
+        if (!alreadyLoggedKinds.has(milestoneEventKind(milestone))) {
+          firedMilestones.push(milestone)
+        }
       }
-      const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
+    }
 
-      // cthulhuquarium/t-028: bestiary-breakpoint milestones (economy.yaml
-      // `milestones`). Guarded against re-logging the same landmark the same
-      // way BESTIARY_COMPLETE_EVENT_KIND is below -- collectedCount can only
-      // ever increase (justCompletedBestiary's own note), so in the normal
-      // case each landmark is crossed at most once, but the guard makes that
-      // an enforced invariant of the data rather than an assumption about
-      // caller behavior.
-      const candidateMilestones = firedBestiaryMilestones(
+    // cthulhuquarium/t-074: this purchase is exactly the growth event
+    // currentSize/newSize above already priced against tank.effectiveSizeCap.
+    const fullTankMilestone = await checkFirstFullTank(
+      tx,
+      tank.id,
+      currentSize,
+      currentSize + newSize,
+      tank.effectiveSizeCap,
+    )
+    if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
+
+    const slotsCapDelta = firedMilestones.reduce(
+      (sum, milestone) => sum + milestone.slotsCapDelta,
+      0,
+    )
+
+    const updatedAquarium = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: {
+        coins: { decrement: cost },
+        ...(slotsCapDelta > 0
+          ? { setSlotsCap: { increment: slotsCapDelta } }
+          : {}),
+      },
+      select: ownedAquariumSelect,
+    })
+
+    let justCompletedBestiary = false
+    if (
+      computeJustCompletedBestiary(
+        totalCount,
         collectedCountBefore,
         collectedCountAfter,
       )
-      const firedMilestones: Array<
-        BestiaryMilestoneConfig | LandmarkMilestoneConfig
-      > = []
-      if (candidateMilestones.length > 0) {
-        const alreadyLoggedKinds = new Set(
-          (
-            await tx.aquariumEvent.findMany({
-              where: {
-                aquariumId: tank.id,
-                kind: { in: candidateMilestones.map(milestoneEventKind) },
-              },
-              select: { kind: true },
-            })
-          ).map((row) => row.kind),
-        )
-        for (const milestone of candidateMilestones) {
-          if (!alreadyLoggedKinds.has(milestoneEventKind(milestone))) {
-            firedMilestones.push(milestone)
-          }
-        }
-      }
-
-      // cthulhuquarium/t-074: this purchase is exactly the growth event
-      // currentSize/newSize above already priced against tank.effectiveSizeCap.
-      const fullTankMilestone = await checkFirstFullTank(
-        tx,
-        tank.id,
-        currentSize,
-        currentSize + newSize,
-        tank.effectiveSizeCap,
-      )
-      if (fullTankMilestone) firedMilestones.push(fullTankMilestone)
-
-      const slotsCapDelta = firedMilestones.reduce(
-        (sum, milestone) => sum + milestone.slotsCapDelta,
-        0,
-      )
-
-      const updatedAquarium = await tx.aquarium.update({
-        where: { id: tank.id },
-        data: {
-          coins: { decrement: cost },
-          ...(slotsCapDelta > 0
-            ? { setSlotsCap: { increment: slotsCapDelta } }
-            : {}),
-        },
-        select: ownedAquariumSelect,
+    ) {
+      const alreadyCelebrated = await tx.aquariumEvent.findFirst({
+        where: { aquariumId: tank.id, kind: BESTIARY_COMPLETE_EVENT_KIND },
+        select: { id: true },
       })
-
-      let justCompletedBestiary = false
-      if (
-        computeJustCompletedBestiary(
-          totalCount,
-          collectedCountBefore,
-          collectedCountAfter,
-        )
-      ) {
-        const alreadyCelebrated = await tx.aquariumEvent.findFirst({
-          where: { aquariumId: tank.id, kind: BESTIARY_COMPLETE_EVENT_KIND },
-          select: { id: true },
-        })
-        if (!alreadyCelebrated) {
-          justCompletedBestiary = true
-          await logEvent(tx, tank.id, BESTIARY_COMPLETE_EVENT_KIND, {
-            collectedCount: collectedCountAfter,
-            totalCount,
-          })
-        }
-      }
-
-      for (const milestone of firedMilestones) {
-        await logEvent(tx, tank.id, milestoneEventKind(milestone), {
-          landmark: milestone.id,
-          slotsCapDelta: milestone.slotsCapDelta,
+      if (!alreadyCelebrated) {
+        justCompletedBestiary = true
+        await logEvent(tx, tank.id, BESTIARY_COMPLETE_EVENT_KIND, {
           collectedCount: collectedCountAfter,
+          totalCount,
         })
       }
+    }
 
-      await logEvent(tx, tank.id, 'purchase', {
-        type: 'species',
-        monsterId: monster.id,
-        aquariumStockId: createdStock.id,
-        cost,
+    for (const milestone of firedMilestones) {
+      await logEvent(tx, tank.id, milestoneEventKind(milestone), {
+        landmark: milestone.id,
+        slotsCapDelta: milestone.slotsCapDelta,
+        collectedCount: collectedCountAfter,
       })
+    }
 
-      return {
-        aquarium: updatedAquarium,
-        stock: createdStock,
-        justCompletedBestiary,
-        firedMilestones,
-      }
+    await logEvent(tx, tank.id, 'purchase', {
+      type: 'species',
+      monsterId: monster.id,
+      aquariumStockId: createdStock.id,
+      cost,
     })
+
+    return {
+      aquarium: updatedAquarium,
+      stock: createdStock,
+      justCompletedBestiary,
+      firedMilestones,
+      firstOfFloor,
+    }
+  })
 
   return {
     aquarium: toClientAquarium(aquarium),
@@ -1311,6 +1390,7 @@ export async function purchaseSpeciesForUser(
     cost,
     justCompletedBestiary,
     firedMilestones,
+    firstOfFloor,
   }
 }
 
@@ -1367,7 +1447,7 @@ export async function sellFishForUser(
   }
 
   const rarity = deriveFishRarityTier(stock.Monster)
-  const baseCost = unlockCost(rarity, stock.Monster.unlockCost)
+  const baseCost = unlockCost(rarity, speciesUnlockOverride(stock.Monster))
   const salePrice = releasePrice(baseCost)
 
   const aquarium = await prisma.$transaction(async (tx) => {
@@ -1677,11 +1757,24 @@ export interface CatalogEntry extends CatalogMonster {
   cost: number
 }
 
+// cthulhuquarium/t-102: one of the next floor's species, shown in the Market
+// as a silhouette. No name, price or note: just enough to draw its shape.
+export interface LockedCatalogTeaser {
+  id: number
+  slug: string
+  size: number
+  behavior: string | null
+  hue: number | null
+  floor: FloorNumber
+}
+
 export interface CatalogResult {
   data: CatalogEntry[]
   take: number
   skip: number
   total: number
+  floor: FloorStatus
+  locked: LockedCatalogTeaser[]
   // cthulhuquarium/t-030: today's UTC rotation key (aquariumEconomy.ts's
   // todaysShopDateKey), so the client can tell "still today's slate" from
   // "the shop rotated" without re-deriving the date itself.
@@ -1696,20 +1789,38 @@ export async function listCatalogForUser(
 ): Promise<CatalogResult> {
   const tank = await getOrCreateTankForUser(userId, username)
   const ownedIds = tank.Stock.map((row) => row.monsterId)
+  const knownIds = (
+    await prisma.aquariumCodexEntry.findMany({
+      where: { userId },
+      select: { monsterId: true },
+    })
+  ).map((row) => row.monsterId)
+  // cthulhuquarium/t-102: only open floors stock new species; anything the
+  // player has ever known stays on sale whatever its floor.
+  const status = floorStatus(knownIds.length)
+  const openDepths = openDepthsFor(knownIds.length)
 
   // Monster is a shared bestiary table (cthulhuquarium/t-035's `games`
   // column) -- a ruler-hooked-only row should not show up here as
   // unlockable. cthulhuquarium/t-022 (shared bestiary handshake) owns
   // deciding cross-game unlock rules beyond this simple membership filter.
-  // fish/SCHEMA.md: "A species reached only by evolution is not purchasable"
-  // -- it carries unlock_cost 0 and declares evolves_from, so without this
-  // it listed as free. It is still re-orderable from the Ichthyonomicon once
-  // bred, which never consults this list.
-  const eligibleWhere: Prisma.MonsterWhereInput = {
+  // cthulhuquarium/t-102: species reached only by evolution (canon
+  // unlock_cost 0 plus evolves_from) used to be excluded here because they
+  // were bred, not bought. Breeding is gone (t-082), so they are stocked like
+  // any other species, at their rarity's default price
+  // (effectiveUnlockOverride).
+  const gameWhere: Prisma.MonsterWhereInput = {
     isActive: true,
     isPublic: true,
     games: { contains: 'cthulhuquarium' },
-    NOT: { unlockCost: 0, EvolvesFrom: { some: {} } },
+  }
+  const eligibleWhere: Prisma.MonsterWhereInput = {
+    ...gameWhere,
+    OR: [
+      { depth: { in: openDepths } },
+      { depth: null },
+      ...(knownIds.length > 0 ? [{ id: { in: knownIds } }] : []),
+    ],
     ...(ownedIds.length > 0 ? { id: { notIn: ownedIds } } : {}),
   }
 
@@ -1769,10 +1880,40 @@ export async function listCatalogForUser(
 
   const data: CatalogEntry[] = rows.map((monster) => ({
     ...monster,
-    cost: unlockCost(deriveFishRarityTier(monster), monster.unlockCost),
+    cost: unlockCost(
+      deriveFishRarityTier(monster),
+      speciesUnlockOverride(monster),
+    ),
   }))
 
-  return { data, take, skip, total, dateKey }
+  // The next floor's teasers: a few of its unknown species, chosen per player
+  // per day like the main rotation.
+  let locked: LockedCatalogTeaser[] = []
+  if (status.next) {
+    const nextFloor = status.next.floor
+    const pool = await prisma.monster.findMany({
+      where: {
+        ...gameWhere,
+        depth: { in: [...floorInfo(nextFloor).depths] },
+        ...(knownIds.length > 0 ? { id: { notIn: knownIds } } : {}),
+      },
+      select: { id: true, slug: true, size: true, behavior: true, hue: true },
+      orderBy: [{ id: 'asc' }],
+    })
+    const picked = new Set(
+      rotateShopStock(
+        pool.map((row) => row.id),
+        userId,
+        dateKey,
+        { size: LOCKED_TEASER_COUNT, salt: 'floor' },
+      ),
+    )
+    locked = pool
+      .filter((row) => picked.has(row.id))
+      .map((row) => ({ ...row, floor: nextFloor }))
+  }
+
+  return { data, take, skip, total, dateKey, floor: status, locked }
 }
 
 // ---------------------------------------------------------------------------
@@ -2209,12 +2350,21 @@ export interface StoryState {
   seenScenes: string[]
   unlockedBackgrounds: string[]
   backgroundKey: string
+  // cthulhuquarium/t-102: the deepest open floor of the building, and every
+  // floor reached so far (always starting at 1).
+  floor: FloorNumber
+  floorsReached: FloorNumber[]
 }
 
 async function readStoryState(
   aquariumId: number,
   backgroundKey: string | null,
+  userId: number,
 ): Promise<StoryState> {
+  const knownCount = await prisma.aquariumCodexEntry.count({
+    where: { userId },
+  })
+  const floor = openFloorFor(knownCount)
   const events = await prisma.aquariumEvent.findMany({
     where: {
       aquariumId,
@@ -2242,6 +2392,10 @@ async function readStoryState(
       backgroundKey && unlockedBackgrounds.includes(backgroundKey)
         ? backgroundKey
         : DEFAULT_BACKGROUND_KEY,
+    floor,
+    floorsReached: CTHULHUQUARIUM_FLOORS.filter(
+      (entry) => entry.floor <= floor,
+    ).map((entry) => entry.floor),
   }
 }
 
@@ -2250,7 +2404,7 @@ export async function getStoryStateForUser(
   username: string,
 ): Promise<StoryState> {
   const tank = await getOrCreateTankForUser(userId, username)
-  return readStoryState(tank.id, tank.backgroundKey)
+  return readStoryState(tank.id, tank.backgroundKey, userId)
 }
 
 export async function markStoryScenesSeenForUser(
@@ -2279,7 +2433,7 @@ export async function markStoryScenesSeenForUser(
       if (!existing.has(kind)) await logEvent(tx, tank.id, kind, null)
     }
   })
-  return readStoryState(tank.id, tank.backgroundKey)
+  return readStoryState(tank.id, tank.backgroundKey, userId)
 }
 
 export async function setTankBackgroundForUser(
@@ -2288,7 +2442,7 @@ export async function setTankBackgroundForUser(
   backgroundKey: string,
 ): Promise<StoryState> {
   const tank = await getOrCreateTankForUser(userId, username)
-  const state = await readStoryState(tank.id, tank.backgroundKey)
+  const state = await readStoryState(tank.id, tank.backgroundKey, userId)
   if (!state.unlockedBackgrounds.includes(backgroundKey)) {
     throw apiError(403, 'That background has not been handed over yet.')
   }

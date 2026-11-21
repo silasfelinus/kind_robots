@@ -146,6 +146,27 @@
   padding: 0 1rem;
   color: var(--cq-verdigris);
 }
+/* cthulhuquarium/t-102: the next floor's creatures, shown only as shapes. */
+.cq-game .cq-silhouette {
+  filter: brightness(0) drop-shadow(0 0 6px rgb(120 200 190 / 0.35));
+  opacity: 0.85;
+}
+.cq-game .cq-pedestal-locked .cq-plaque-title {
+  font-style: italic;
+}
+.cq-game .cq-price-locked {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--cq-bone, #e8dfc8);
+  opacity: 0.75;
+}
+.cq-game .cq-market-floor {
+  margin-right: 0.5rem;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--cq-verdigris);
+}
 .cq-game .cq-price-coin {
   height: 1.75rem;
   width: 1.75rem;

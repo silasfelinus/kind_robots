@@ -10,6 +10,7 @@
 // server-side (server/utils/aquariumEconomy.ts); nothing here invents an
 // economy number of its own.
 
+import type { FloorNumber, FloorStatus } from '~/utils/cthulhuquariumFloors'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
@@ -180,6 +181,20 @@ export interface CatalogMeta {
   skip: number
   total: number
   dateKey: string
+  // cthulhuquarium/t-102: the open floor of the building and the next
+  // floor's silhouettes (utils/cthulhuquariumFloors.ts).
+  floor?: FloorStatus
+  locked?: LockedTeaser[]
+}
+
+// One of the next floor's species, shown in the Market as a silhouette.
+export interface LockedTeaser {
+  id: number
+  slug: string
+  size: number
+  behavior: string | null
+  hue: number | null
+  floor: FloorNumber
 }
 
 // cthulhuquarium/t-016: one rare random event, as returned alongside a tick
@@ -334,6 +349,8 @@ interface PurchaseResponse {
   cost: number
   justCompletedBestiary: boolean
   firedMilestones: FiredMilestone[]
+  // cthulhuquarium/t-102: the first species ever known from floor II-V.
+  firstOfFloor?: FloorNumber | null
 }
 
 // cthulhuquarium/t-030: sell.post.ts's response shape. `monsterId` (rather
@@ -396,6 +413,10 @@ export const useCthulhuquariumTankStore = defineStore(
     // loadCatalog() has completed at least once. The unlock panel's refresh
     // countdown (utils/aquariumShopCountdown.ts) reads this.
     const catalogDateKey = ref<string | null>(null)
+    // cthulhuquarium/t-102: the building's open floor and the next floor's
+    // silhouettes, both from the catalog response.
+    const floorStatus = ref<FloorStatus | null>(null)
+    const lockedTeasers = ref<LockedTeaser[]>([])
     const offlineEarnings = ref(0)
     // Ticks settled by the SAME offline-catch-up call that produced
     // offlineEarnings above (load()'s initial settle only, never the live
@@ -661,6 +682,8 @@ export const useCthulhuquariumTankStore = defineStore(
         // cthulhuquarium/t-057: the unlock panel's live refresh countdown
         // reads this -- see utils/aquariumShopCountdown.ts.
         if (res.meta?.dateKey) catalogDateKey.value = res.meta.dateKey
+        if (res.meta?.floor) floorStatus.value = res.meta.floor
+        if (res.meta) lockedTeasers.value = res.meta.locked ?? []
       } finally {
         catalogLoading.value = false
       }
@@ -1192,6 +1215,8 @@ export const useCthulhuquariumTankStore = defineStore(
       load,
       settleTick,
       loadCatalog,
+      floorStatus,
+      lockedTeasers,
       feed,
       unlock,
       sell,

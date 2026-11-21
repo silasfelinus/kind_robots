@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   crewPatrolAftermath,
+  crewPatrolNetwork,
   patrolCrewFor,
   witnessedPatrolCrew,
 } from '../cometAcademy/patrolCrews'
@@ -11,6 +12,8 @@ import { PATROL_ZONES } from '../cometAcademy/nightPatrols'
 import {
   activePatrolStory,
   chooseNightPatrol,
+  dispatchChance,
+  incidentsFor,
   nightPatrolBeat,
   patrolEncounterFor,
   patrolOptionsFor,
@@ -32,6 +35,39 @@ for (const henchman of VILLAIN_HENCHMEN) {
   assert.ok(encounter.choices[0]!.result.includes(henchman.counter))
   assert.ok(encounter.choices.every((choice) => choice.result.length > 120))
   for (const choice of encounter.choices) {
+    const memory = {
+      day: 17,
+      zone: 'harbor' as const,
+      encounterId: 'harbor-crew',
+      choiceId: choice.id,
+    }
+    const nextNight = {
+      day: 18,
+      opponentSignature: henchman.signature,
+      patrolHistory: [memory],
+    }
+    const hero = crewPatrolNetwork(nextNight, 'hero')
+    const villain = crewPatrolNetwork(nextNight, 'villain')
+    const rogue = crewPatrolNetwork(nextNight, 'rogue')
+    const isCounter = choice.id.endsWith('-counter-investigate')
+    const isMercy = choice.id.endsWith('-mercy-intervene')
+    assert.equal(hero?.modifier, isCounter ? 1 : isMercy ? 2 : -1)
+    assert.equal(villain?.modifier ?? 0, isCounter || isMercy ? 0 : 2)
+    assert.equal(rogue?.modifier, isCounter || isMercy ? 1 : -1)
+    assert.ok(hero?.report.includes(henchman.captain))
+    assert.equal(
+      crewPatrolNetwork({ ...nextNight, day: 17 }, 'hero'),
+      null,
+      'captain choices never benefit the same night',
+    )
+    assert.deepEqual(
+      crewPatrolNetwork(
+        { ...nextNight, opponentSignature: 'psychic-water' },
+        'hero',
+      ),
+      henchman.signature === 'psychic-water' ? hero : null,
+      'a forged crew signature cannot grant aid',
+    )
     assert.ok(!choices.has(choice.id), 'unique choices for all 48 crews')
     choices.add(choice.id)
     assert.ok(
@@ -46,7 +82,7 @@ for (const henchman of VILLAIN_HENCHMEN) {
 assert.equal(choices.size, 144)
 
 // Adversarial, seeded end-to-end routes through all three captain choices.
-for (const seed of [1, 73, 404, 777, 2314, 99007]) {
+for (const seed of [1, 73, 404, 777, 2314, 11011, 65537, 99007]) {
   const start = {
     ...startFullAcademy('kinetic', seed),
     day: 25,
@@ -81,6 +117,42 @@ for (const seed of [1, 73, 404, 777, 2314, 99007]) {
     const callback = crewPatrolAftermath(nextNight)
     assert.ok(callback?.includes(crew.crew.captain))
     assert.ok(nightPatrolBeat(nextNight)?.text.includes(callback!))
+    const network = crewPatrolNetwork(nextNight, 'hero')
+    assert.equal(
+      crewPatrolNetwork({ ...nextNight, patrolHistory: [] }, 'hero'),
+      null,
+      'a different save with no witnessed captain earns no aid',
+    )
+    const expected = choice.id.endsWith('-counter-investigate')
+      ? 1
+      : choice.id.endsWith('-mercy-intervene')
+        ? 2
+        : -1
+    assert.equal(network?.modifier, expected)
+    assert.ok(network?.report.includes(crew.crew.name))
+    const eligible = incidentsFor(nextNight).find((incident) =>
+      crewPatrolNetwork(nextNight, incident.allegiance),
+    )
+    if (eligible) {
+      const attempt = { ...nextNight, playerCaseId: eligible.id }
+      const withoutNetwork = { ...attempt, patrolHistory: [] }
+      const withNetworkChance = dispatchChance(attempt, eligible.id, [])
+      const baselineChance = dispatchChance(withoutNetwork, eligible.id, [])
+      const applied = crewPatrolNetwork(attempt, eligible.allegiance)!
+      assert.ok(
+        applied.modifier > 0
+          ? withNetworkChance >= baselineChance
+          : withNetworkChance <= baselineChance,
+        'displayed dispatch odds include earned or lost crew support',
+      )
+      const played = resolveDispatch(attempt)
+      assert.ok(
+        played.reports
+          .find((report) => report.caseId === eligible.id)
+          ?.text.includes(applied.report),
+        'later dispatch debrief records the actual captain consequence',
+      )
+    }
     assert.equal(crewPatrolAftermath({ ...nextNight, day: 27 }), null)
   }
 }

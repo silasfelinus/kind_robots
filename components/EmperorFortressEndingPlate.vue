@@ -70,3 +70,4 @@ watch(
     position.value = 0
   },
 )
+</script>

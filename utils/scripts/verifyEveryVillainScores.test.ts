@@ -12,8 +12,10 @@ import {
 } from '../everyVillainTactics/saves'
 import { recordSquadDamage } from '../everyVillainTactics/combat'
 import { dueWaveIds } from '../everyVillainTactics/stageRules'
+import { sceneTriggerId } from '../everyVillainTactics/sceneGraph'
 import {
   MAX_SCORE_HISTORY,
+  identityBattleLedger,
   mergeBattleResults,
   scoreFromSave,
 } from '../everyVillainTactics/scores'
@@ -88,6 +90,99 @@ assert.equal(
   score.lines.find((line) => line.id === 'evacuation')!.points,
   civilians.length * 75,
 )
+
+
+const secretStage = clonePreset('crosswalk-crisis')
+const hiddenScene = secretStage.script?.scenes.find(
+  (scene) => scene.trigger.kind === 'secret',
+)
+assert.ok(hiddenScene, 'Crosswalk has an authored hidden evidence scene')
+const hiddenState = trainingState(0x8e77, secretStage, {
+  lead: 'accident-fire',
+})
+hiddenState.phase = 'victory'
+hiddenState.turn = 3
+const undiscovered = createSave({
+  slot: 'auto',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  stage: secretStage,
+  state: hiddenState,
+  story,
+})
+assert.ok(
+  !scoreFromSave(undiscovered)!.medals.includes('secret-route'),
+  'a secret marker alone does not grant a medal',
+)
+hiddenState.fired.push(sceneTriggerId(hiddenScene.id))
+const witnessed = createSave({
+  slot: 'auto',
+  perspective: 'hero',
+  leadSignature: 'accident-fire',
+  stage: secretStage,
+  state: hiddenState,
+  story,
+})
+const secretResult = scoreFromSave(witnessed)!
+assert.ok(secretResult.medals.includes('secret-route'))
+assert.equal(secretResult.lines.find((line) => line.id === 'secret')?.points, 125)
+assert.equal(
+  mergeBattleResults([], [secretResult]).length,
+  1,
+  'the new authored-secret medal persists in the valid scrapbook format',
+)
+const failedSecret = structuredClone(hiddenState)
+failedSecret.phase = 'defeat'
+assert.ok(
+  !scoreFromSave(
+    createSave({
+      slot: 'auto',
+      perspective: 'hero',
+      leadSignature: 'accident-fire',
+      stage: secretStage,
+      state: failedSecret,
+      story,
+    }),
+  )!.medals.includes('secret-route'),
+  'losing after finding a hidden scene does not award a victory route',
+)
+const villainWin = scoreFromSave(
+  createSave({
+    slot: 'auto',
+    perspective: 'villain',
+    leadSignature: 'accident-fire',
+    foilSignature: 'accident-air',
+    stage: secretStage,
+    state: hiddenState,
+    story,
+  }),
+)!
+const career = identityBattleLedger([
+  score,
+  score,
+  secretResult,
+  villainWin,
+])
+assert.equal(career.length, 1)
+assert.equal(career[0]!.lead, 'accident-fire')
+assert.equal(career[0]!.heroWins, 2)
+assert.equal(career[0]!.villainWins, 1)
+assert.equal(career[0]!.storyWins, 0)
+assert.equal(career[0]!.oneShotWins, 3)
+assert.equal(career[0]!.stages, 2)
+assert.equal(career[0]!.foils.length, 1)
+assert.deepEqual(career[0]!.secrets, ['Crosswalk Crisis'])
+assert.equal(
+  identityBattleLedger([{ ...score, total: -1 }]).length,
+  0,
+  'invalid local score records never become a career badge',
+)
+const frontMenu = readFileSync(
+  'components/every-villain-tactics/every-villain-front-menu.vue',
+  'utf8',
+)
+assert.ok(frontMenu.includes('data-testid="front-identity-ledger"'))
+assert.ok(frontMenu.includes('identityBattleLedger(store.battleResults)'))
 
 const sameOutcome = createSave({
   slot: 'slot-1',

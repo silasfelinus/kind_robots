@@ -596,7 +596,7 @@ export const FINALE_DISTRICT_PLANS: Record<
     action:
       'The Emergency-Sale Signature proves the emergency contractor never owned the shield override. City clerks revoke its keys.',
     strengthened:
-      'Taking command now reaches a lawful control channel instead of the contractor\'s hijacked console.',
+      "Taking command now reaches a lawful control channel instead of the contractor's hijacked console.",
   },
 }
 

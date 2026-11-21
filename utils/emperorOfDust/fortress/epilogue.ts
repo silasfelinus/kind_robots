@@ -2800,12 +2800,110 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
   },
 ]
 
+const MARKET_ACCOUNT: EpilogueSubject = {
+  id: 'market-account',
+  name: 'The Four Market Pitches',
+  npc: 'marisol-tallow',
+  variants: [
+    {
+      when: { flags: ['d46-sellers-fed'], endings: ['long-night'] },
+      mood: 'sad',
+      text: 'The four food carts reached the river before the dark. By morning the wheels stood empty. The egg-seller kept their receipts and fed a stranger the last egg she had.',
+    },
+    {
+      when: { flags: ['d46-sellers-fed', 'd37-sellers-escorted'] },
+      mood: 'happy',
+      text: 'Four sellers opened their baskets by the river, and one Watch family ate from them without paying. The guard who died on their road is named on a slate at the stall.',
+    },
+    {
+      when: { flags: ['d46-sellers-fed'] },
+      text: 'Four food carts left the hideout without a bill attached. The egg-seller ran one of them. The first spring she found a place to sell eggs again; no clerk came to ask for the receipt.',
+    },
+    {
+      when: { flags: ['d46-sellers-recorded', 'd37-sellers-names-exposed'] },
+      mood: 'sad',
+      text: 'The four names stayed in the public register. So did the names of the men who threatened their families. The egg-seller would not let anyone remove either list. She kept a guard on the door.',
+    },
+    {
+      when: { flags: ['d46-sellers-recorded', 'd37-sellers-claims-sold'] },
+      mood: 'angry',
+      text: 'The Ledger kept the kitchen wages it bought. The egg-seller kept the contract proving the sale. Every new council heard her read it, slowly, until somebody agreed to pay the hands.',
+    },
+    {
+      when: { flags: ['d46-sellers-recorded'] },
+      text: 'Four market receipts went into the postwar record. The egg-seller checked the spelling herself. No verdict was entered beside the names. People can read the costs without being told what to think.',
+    },
+    {
+      when: {
+        flags: ['d46-sellers-warrants-burned', 'd37-sellers-bonds-redeemed'],
+      },
+      text: 'The sellers kept their paid wages and lost the paper that said who had paid. The egg-seller could live with that. The kitchen widow still asked for a receipt.',
+    },
+    {
+      when: { flags: ['d46-sellers-warrants-burned'] },
+      mood: 'sad',
+      text: 'The debt warrants burned. So did the sellers’ claims for unpaid work. The egg-seller started another book on plain paper. In it, she put the people first and the numbers second.',
+    },
+    {
+      when: { flags: ['d37-sellers-escorted'] },
+      text: 'The four carts reached the river under Watch escort. The seller sent a basket of eggs to the guard’s family every winter. When the road reopened she asked whose carts were still missing.',
+    },
+    {
+      when: { flags: ['d37-sellers-left'] },
+      mood: 'sad',
+      text: 'Three carts vanished on the war road. The fourth returned with a broken axle. The crown kept the grain, and the egg-seller kept three names on the back of her rent slip.',
+    },
+    {
+      when: { flags: ['d37-sellers-records-saved'] },
+      text: 'The market warrants came out from under the Archive floor after the war. Their owners walked back to the empty pitches. One opened a shop. The others asked what the paperwork was worth.',
+    },
+    {
+      when: { flags: ['d37-sellers-names-exposed'] },
+      mood: 'sad',
+      text: 'Four names had been read from the gate while it burned. The egg-seller kept a copy with the corner torn off. The people who had heard the names were harder to find.',
+    },
+    {
+      when: { flags: ['d37-sellers-bonds-redeemed'] },
+      text: 'The kitchen hands left the army with twenty brass in paid wages. They built new stalls by the river. Nobody called it a gift. They had earned the money at the ovens.',
+    },
+    {
+      when: { flags: ['d37-sellers-claims-sold'] },
+      mood: 'angry',
+      text: 'The Ledger kept the claims to four kitchen wages. The egg-seller worked for another summer, and sent every wage slip to the council. None of them was stamped paid.',
+    },
+    {
+      when: { flags: ['d28-sellers-yard'] },
+      text: 'The four Yard pitches stood until the army came for the grain sheds. The egg-seller remembered who had paid for them. She also remembered whose grain had to move.',
+    },
+    {
+      when: { flags: ['d28-sellers-warrants'] },
+      text: 'The market warrants stayed on the public gate. Everyone could read the price of a pitch, but the sellers could not eat the ink.',
+    },
+    {
+      when: { flags: ['d28-sellers-mustered'] },
+      mood: 'sad',
+      text: 'Four sellers went into the army kitchens. The treasury took sixteen brass. Their baskets waited outside the barracks, empty.',
+    },
+    {
+      when: {
+        anyFlags: [
+          'd08-blankets-restored',
+          'd08-blankets-leased',
+          'd08-blankets-evicted',
+        ],
+      },
+      text: 'The egg-seller kept the first market charter in a flour sack. It had the crown’s seal on it. She could not recall a day when it had fed anyone.',
+    },
+  ],
+}
+
 export const EPILOGUE: readonly EpilogueSubject[] = [
   ...KINGDOM,
   ...afterTheWar([...ACT_THREE_AFTERWARDS]),
   ...BARRACKS,
   ...SECRET_BARRACKS,
   ...ENDGAME,
+  MARKET_ACCOUNT,
 ]
 
 /** The epilogue for a finished run, in authored order. */

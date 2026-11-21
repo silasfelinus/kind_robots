@@ -64,6 +64,7 @@ export default defineEventHandler(async (event) => {
         ): slot is {
           slotKey: string
           key: string
+          scoped: true
           artImageId: number
           liked: true
         } =>

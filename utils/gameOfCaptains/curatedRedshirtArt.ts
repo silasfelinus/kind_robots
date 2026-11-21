@@ -45,3 +45,20 @@ export function preferCanonicalRedshirtSlots<T extends { slotKey: string }>(
     )
   })
 }
+
+/**
+ * Prevent another project's selected ArtSlot from altering the Space Couch
+ * roster, even when its slot key happens to contain our familiar prefix.
+ * Null project slugs are accepted only for legacy fully qualified keys.
+ */
+export function isSpaceCouchRedshirtSlot(
+  projectSlug: string | null,
+  slotKey: string,
+): boolean {
+  return (
+    curatedRedshirtArtKey(slotKey) !== null &&
+    (projectSlug === 'game-of-captains' ||
+      (projectSlug === null &&
+        slotKey.startsWith('game-of-captains/')))
+  )
+}

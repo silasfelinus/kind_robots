@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { readRainbowSave } from '../arcade/games/rainbowLoadouts'
+import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import {
   MIRROR_SHOAL,
   SHOAL_GUARDIAN,
@@ -90,6 +91,47 @@ const resume = (c: typeof checkpoint) =>
       mirrorShoalCheckpointValid(act, frame, saved ?? {}),
   )
 assert.equal(resume(checkpoint)?.checkpoint.shoalFrame, 300)
+const input = {
+  held: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+  pressed: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+}
+for (const seats of [1, 2, 3, 4]) {
+  const game = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    demo: false,
+    players: seats,
+    rainbowReplay: resume(checkpoint),
+  })
+  assert.equal(game.snapshot.act, 'X4')
+  assert.equal(game.snapshot.stage, 'waves')
+  assert.equal(game.snapshot.shoalFrame, 300)
+  assert.equal(game.snapshot.activePlayers, seats)
+  for (let tick = 0; tick <= 61; tick++)
+    game.update(input, Array.from({ length: seats }, () => input))
+  assert.equal(game.snapshot.act, 'X4')
+  assert.ok(
+    game.snapshot.enemies.some((enemy) => enemy.kind === 'mirror'),
+    'actual X4 wave must reach the live flight director',
+  )
+}
 assert.equal(resume({ ...checkpoint, shoalFrame: 600 }), null)
 assert.equal(resume({ ...checkpoint, shoalHits: -1 }), null)
 assert.equal(resume({ ...checkpoint, shoalGuardianOutcome: 'unknown' }), null)

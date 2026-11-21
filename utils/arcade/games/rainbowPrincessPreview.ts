@@ -1256,8 +1256,9 @@ export function createRainbowPrincessPreview(
     ? null
     : readRainbowSave(
         options.rainbowReplay,
-        (act, frame) =>
-          (act === 1 && frame === 0) || isRainbowCheckpoint(act, frame),
+        (act, frame, c) =>
+          (act === 1 && frame === 0) ||
+          isRainbowCheckpoint(act, frame, c),
       )
   const offered =
     options.demo || replaySave

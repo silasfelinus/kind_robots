@@ -57,6 +57,38 @@
         ← MAIN MENU
       </button>
     </header>
+    <div class="flex shrink-0 flex-col gap-2">
+      <div
+        class="flex flex-wrap gap-1"
+        role="group"
+        aria-label="Filter alien catalogue"
+      >
+        <button
+          v-for="filter in ALIEN_SHELF_FILTERS"
+          :key="filter.id"
+          type="button"
+          class="btn btn-xs"
+          :class="shelfFilter === filter.id ? 'btn-primary' : 'btn-ghost'"
+          :aria-pressed="shelfFilter === filter.id"
+          :data-testid="'space-couch-alien-shelf-filter-' + filter.id"
+          @click="shelfFilter = filter.id"
+        >
+          {{ filter.label }} · {{ shelfCounts[filter.id] }}
+        </button>
+      </div>
+      <label class="text-xs font-bold" for="space-couch-alien-shelf-search">
+        SEARCH THE FIELD GUIDE
+      </label>
+      <input
+        id="space-couch-alien-shelf-search"
+        v-model="shelfSearch"
+        type="search"
+        class="input input-bordered input-sm w-full"
+        data-testid="space-couch-alien-shelf-search"
+        placeholder="Known name or catalogue number"
+        autocomplete="off"
+      />
+    </div>
     <div
       class="kr-scroll grid min-h-0 flex-1 gap-3 overflow-y-auto @md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
     >
@@ -64,42 +96,56 @@
         class="order-last flex min-h-0 flex-col gap-2 @md:order-first"
         aria-label="Alien catalogue"
       >
-        <div class="grid grid-cols-2 gap-2 pr-1 @sm:grid-cols-3">
+        <div
+          v-if="visibleSpecies.length"
+          class="grid grid-cols-2 gap-2 pr-1 @sm:grid-cols-3"
+        >
           <button
-            v-for="(alien, index) in ALIEN_SPECIES"
-            :key="alien.id"
+            v-for="entry in visibleSpecies"
+            :key="entry.species.id"
             type="button"
             class="flex min-h-28 flex-col justify-between rounded-xl border p-2 text-left transition"
             :class="[
-              selectedId === alien.id
+              selectedId === entry.species.id
                 ? 'border-primary bg-primary/15'
                 : 'border-base-content/15 bg-base-100/60',
-              !known(alien.id) ? 'opacity-75' : '',
+              !known(entry.species.id) ? 'opacity-75' : '',
             ]"
-            :aria-pressed="selectedId === alien.id"
-            :data-testid="'space-couch-species-' + (index + 1)"
-            @click="selectedId = alien.id"
+            :aria-pressed="selectedId === entry.species.id"
+            :data-testid="'space-couch-species-' + entry.number"
+            @click="selectedId = entry.species.id"
           >
             <div class="flex items-center justify-between text-xs opacity-70">
-              <span>#{{ String(index + 1).padStart(3, '0') }}</span>
+              <span>#{{ String(entry.number).padStart(3, '0') }}</span>
               <span>{{
-                known(alien.id)
+                known(entry.species.id)
                   ? '✦ FOUND'
-                  : escaped(alien.id)
+                  : escaped(entry.species.id)
                     ? '↺ ESCAPED'
                     : '◇ ???'
               }}</span>
             </div>
             <span class="my-2 self-center text-4xl" aria-hidden="true">{{
-              known(alien.id) ? '✳' : '◌'
+              known(entry.species.id) ? '✳' : '◌'
             }}</span>
             <strong class="line-clamp-2 text-sm">{{
-              known(alien.id) || escaped(alien.id) ? alien.name : 'UNIDENTIFIED'
+              known(entry.species.id) || escaped(entry.species.id)
+                ? entry.species.name
+                : 'UNIDENTIFIED'
             }}</strong>
           </button>
         </div>
+        <p
+          v-else
+          class="rounded-xl border border-base-content/15 p-4 text-sm opacity-75"
+          data-testid="space-couch-alien-shelf-empty"
+        >
+          No matching field notes. Try another catalogue number or a name
+          you've encountered.
+        </p>
       </section>
       <section
+        v-if="selected"
         class="order-first self-start rounded-xl border border-base-content/15 bg-base-100/50 p-3 @md:sticky @md:top-0 @md:order-last"
         aria-live="polite"
       >
@@ -129,7 +175,11 @@
           </div>
         </div>
         <p class="text-xs uppercase tracking-widest opacity-70">
-          {{ selected.category }} · {{ selected.rarity }}
+          {{
+            known(selected.id) || escaped(selected.id)
+              ? selected.category + ' · ' + selected.rarity
+              : 'Classification pending'
+          }}
         </p>
         <h3 class="my-2 text-2xl font-black">
           {{
@@ -172,6 +222,12 @@
           </p>
         </template>
       </section>
+      <section
+        v-else
+        class="order-first self-start rounded-xl border border-base-content/15 p-4 text-sm opacity-75"
+      >
+        Choose a different filter or search to view a field note.
+      </section>
     </div>
   </div>
 </template>
@@ -179,6 +235,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { ALIEN_SPECIES } from '~/utils/gameOfCaptains/alienSpecies'
+import {
+  ALIEN_SHELF_FILTERS,
+  alienScrapbookShelf,
+  type AlienShelfFilter,
+} from '~/utils/gameOfCaptains/alienScrapbookShelf'
 import {
   alienHint,
   alienObservation,
@@ -195,21 +256,41 @@ const props = defineProps<{
 }>()
 defineEmits<{ close: []; incident: []; retrySync: [] }>()
 const selectedId = ref(ALIEN_SPECIES[0]!.id)
+const shelfFilter = ref<AlienShelfFilter>('all')
+const shelfSearch = ref('')
+const visibleSpecies = computed(() =>
+  alienScrapbookShelf(props.guide, shelfFilter.value, shelfSearch.value),
+)
 const selected = computed(
   () =>
-    ALIEN_SPECIES.find((species) => species.id === selectedId.value) ??
-    ALIEN_SPECIES[0]!,
+    visibleSpecies.value.find((entry) => entry.species.id === selectedId.value)
+      ?.species ??
+    visibleSpecies.value[0]?.species ??
+    null,
 )
 const known = (id: string): boolean => props.guide.discovered.includes(id)
 const escaped = (id: string): boolean => isAlienRunaway(props.guide, id)
+const shelfCounts = computed(() => {
+  const recorded = props.guide.discovered.length
+  const escapedCount = ALIEN_SPECIES.filter((species) =>
+    escaped(species.id),
+  ).length
+  return {
+    all: ALIEN_SPECIES.length,
+    recorded,
+    escaped: escapedCount,
+    unseen: ALIEN_SPECIES.length - recorded - escapedCount,
+  }
+})
 const selectedFieldReport = computed(() => {
+  if (!selected.value) return null
   const report = props.guide.fieldReports?.findLast(
-    (entry) => entry.speciesId === selected.value.id,
+    (entry) => entry.speciesId === selected.value?.id,
   )
   return report ? alienObservation(report) : null
 })
 const selectedArt = computed(
-  () => props.artwork?.[selected.value.artKey] ?? null,
+  () => props.artwork?.[selected.value?.artKey ?? ''] ?? null,
 )
 const brokenImages = ref<string[]>([])
 </script>

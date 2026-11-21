@@ -226,10 +226,22 @@ export function rainbowRouteIntel(
         (checkpoint.reefRoute === 'relay' ||
           checkpoint.reefRoute === 'cache'),
     },
-  ].map((route) => ({
-    ...route,
-    label: route.discovered ? route.label : 'Route undiscovered',
-  }))
+  ].map((route) => {
+    if (!route.discovered) return { ...route, label: 'Route undiscovered' }
+    const outcome =
+      route.act === 3 && checkpoint?.trenchRoute === 'safe'
+        ? checkpoint.nurseryGuardianOutcome
+        : route.act === 5 && checkpoint?.wreckRoute === 'armory'
+          ? checkpoint.armoryGuardianOutcome
+          : null
+    const guardian =
+      outcome === 'defeated'
+        ? ' · Guardian defeated'
+        : outcome === 'escaped'
+          ? ' · Guardian escaped'
+          : ''
+    return { ...route, label: `${route.label}${guardian}` }
+  })
 }
 
 const bool = (value: unknown) => typeof value === 'boolean'

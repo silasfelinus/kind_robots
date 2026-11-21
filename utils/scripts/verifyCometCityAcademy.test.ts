@@ -13,6 +13,14 @@ import { PROM_ART_PROMPTS } from '../cometAcademy/artPrompts'
 import { CAST_LOOKS, TEAM_LOOKS } from '../cometAcademy/castLooks'
 import { promArt } from '../cometAcademy/artManifest'
 import {
+  REJECTED_IDENTITY_ART,
+  isRejectedIdentityArt,
+} from '../cometAcademy/artQuality'
+import {
+  comicIntroArt,
+  comicIntroFor,
+} from '../cometAcademy/comicIntroductions'
+import {
   PROM_ENDINGS,
   PROM_ENDING_ROUTES,
   SIMULATION_ENDINGS,
@@ -23,6 +31,7 @@ import {
   identityArtCandidateKeys,
   identityArtwork,
   identityDisplayArtKey,
+  reviewedIdentityArtwork,
   studentArtKey,
   villainArtKey,
 } from '../cometAcademy/artSlots'
@@ -2753,21 +2762,73 @@ for (const identity of SIGNATURE_POWERS) {
   if (villain) shippedVillainFaces++
   for (const form of ['hero', 'villain'] as const) {
     const original = identityArtKey(identity.id, form)
-    const fallback = `identities/${identity.id}/outcomes/${form}`
     assert.equal(identityArtCandidateKeys(identity.id, form)[0], original)
+    const candidate = identityArtCandidateKeys(identity.id, form).find((key) =>
+      reviewedIdentityArtwork(key),
+    )
     assert.equal(
       identityArtwork(identity.id, form),
-      promArt(original) ?? promArt(fallback),
+      candidate ? promArt(candidate) : null,
     )
     assert.equal(
       identityDisplayArtKey(identity.id, form),
-      promArt(original) ? original : promArt(fallback) ? fallback : original,
+      candidate ?? (isRejectedIdentityArt(original) ? '' : original),
     )
   }
 }
-assert.equal(shippedHeroFaces, 48, 'all 48 painted hero choices show')
-assert.equal(shippedVillainFaces, 47, '47 available villain pictures show')
+// Shipped media is not automatically canon-safe: quarantine the nine WebPs
+// personally inspected against the permanently authored identity catalog.
+assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 9)
+assert.equal(
+  new Set(Object.values(REJECTED_IDENTITY_ART).map((entry) => entry.blobSha))
+    .size,
+  9,
+)
+for (const [key, rejection] of Object.entries(REJECTED_IDENTITY_ART)) {
+  assert.ok(promArt(key), key + ' is physically exported despite rejection')
+  assert.equal(rejection.blobSha.length, 40)
+  assert.ok(rejection.reason.length > 40)
+  assert.equal(reviewedIdentityArtwork(key), null)
+}
+assert.equal(
+  shippedHeroFaces,
+  47,
+  '47 canon-safe hero pictures, one quarantined',
+)
+assert.equal(shippedVillainFaces, 46, '46 canon-safe villain pictures')
 assert.equal(identityArtwork('psychic-discipline', 'villain'), null)
+assert.equal(
+  identityArtwork('tech-genius', 'hero'),
+  promArt('identities/tech-genius/student'),
+)
+assert.equal(
+  identityArtwork('tech-genius', 'villain'),
+  promArt('identities/tech-genius/student'),
+)
+assert.equal(
+  identityArtwork('alien-discipline', 'hero'),
+  promArt('identities/alien-discipline/student'),
+)
+assert.equal(
+  identityArtwork('alien-discipline', 'villain'),
+  promArt('identities/alien-discipline/student'),
+)
+for (const form of ['student', 'hero', 'villain'] as const) {
+  assert.equal(identityArtwork('mutant-earth', form), null)
+}
+// Comic reveals and authored stage art must not bypass the identity review.
+for (const form of ['hero', 'villain'] as const) {
+  assert.equal(
+    comicIntroArt(comicIntroFor('tech-genius', form)),
+    promArt('identities/tech-genius/student'),
+  )
+  assert.equal(
+    comicIntroArt(comicIntroFor('alien-discipline', form)),
+    promArt('identities/alien-discipline/student'),
+  )
+  assert.equal(comicIntroArt(comicIntroFor('mutant-earth', form)), null)
+}
+
 assert.equal(
   identityArtKey('accident-earth', 'hero'),
   'identities/accident-earth/hero',

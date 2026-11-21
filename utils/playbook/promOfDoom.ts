@@ -1,4 +1,5 @@
 import { promArt } from '../cometAcademy/artManifest'
+import { isRejectedIdentityArt } from '../cometAcademy/artQuality'
 import { promArtPrompt } from '../cometAcademy/artPrompts'
 import {
   FINALE_ART_KEY,
@@ -56,7 +57,7 @@ const titleCase = (text: string) =>
 
 function withArt(node: PlaybookNode, key: string): PlaybookNode {
   node.art = key
-  node.artUrl = promArt(key)
+  node.artUrl = isRejectedIdentityArt(key) ? null : promArt(key)
   node.needsArt = !node.artUrl
   if (node.needsArt) node.artPrompt = promArtPrompt(key)
   node.provenance = `Art slot public/comet-city-academy/${key}.webp (conductor projects/comet-city-academy/art).`

@@ -31,6 +31,7 @@ import {
   studentArtKey,
   villainArtKey,
 } from './artSlots'
+import { isRejectedIdentityArt } from './artQuality'
 import { CITY_SITES } from './cityMap'
 import {
   ACCUSATION_WINDOW,
@@ -192,7 +193,7 @@ export function heroDossier(
       ? [
           ...identityArtCandidateKeys(run.signature, form),
           identityArtKey(run.signature, 'student'),
-        ]
+        ].filter((key) => !isRejectedIdentityArt(key))
       : [],
     forms: (['student', 'hero', 'villain'] as const).map((id) => ({
       id,
@@ -628,7 +629,11 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
       kind: 'chapter',
       title: `Personal chapter · day ${chapter.day}`,
       text: `You chose to ${chapter.choice}.`,
-      artKeys: run.signature ? [identityArtKey(run.signature, 'student')] : [],
+      artKeys:
+        run.signature &&
+        !isRejectedIdentityArt(identityArtKey(run.signature, 'student'))
+          ? [identityArtKey(run.signature, 'student')]
+          : [],
     })
   return moments.sort((a, b) => a.day - b.day)
 }

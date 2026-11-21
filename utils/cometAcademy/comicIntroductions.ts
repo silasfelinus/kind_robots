@@ -1,8 +1,7 @@
 import { identityFor } from './identityArcs'
-import { promArt } from './artManifest'
 import { henchmanForVillain } from './villainHenchmen'
 import { campaignStagesFor } from './identityCampaignStages'
-import { identityArtKey } from './artSlots'
+import { identityArtKey, identityArtwork } from './artSlots'
 import type { SignaturePowerId } from './specialPowers'
 
 export type ComicIntroRole = 'hero' | 'villain' | 'henchman' | 'lieutenant'
@@ -95,12 +94,11 @@ export const COMIC_INTRO_PROMPT = {
  * has not been delivered yet. Minions without original art keep a distinct
  * silhouette instead of borrowing their villain's face. */
 export function comicIntroArt(intro: ComicIntro): string | null {
-  const dedicated = intro.artKey ? promArt(intro.artKey) : null
-  if (dedicated) return dedicated
   if (intro.role !== 'hero' && intro.role !== 'villain') return null
-  const signature = intro.key.split(':')[0]
+  // Do not use rendered outcomes rejected by the visual canon audit.
+  const [signature = ''] = intro.key.split(':')
   return (
-    promArt('identities/' + signature + '/outcomes/' + intro.role) ??
-    promArt('identities/' + signature + '/student')
+    identityArtwork(signature, intro.role) ??
+    identityArtwork(signature, 'student')
   )
 }

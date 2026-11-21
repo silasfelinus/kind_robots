@@ -1,6 +1,7 @@
 import { personalOutcomeArt } from './identitySerial'
 import { personalOutcomeArtKey } from './personalQuests'
 import { promArt } from './artManifest'
+import { CANON_STUDENT_FALLBACK, isRejectedIdentityArt } from './artQuality'
 import { campaignVillain } from './campaign'
 import { districtEncounterFor } from './districtEncounters'
 import { CITY_SITES, type SiteId } from './cityMap'
@@ -39,7 +40,14 @@ export const identityArtCandidateKeys = (
     : [
         identityArtKey(signature, form),
         `identities/${signature}/outcomes/${form}`,
+        ...(CANON_STUDENT_FALLBACK.has(signature)
+          ? [identityArtKey(signature, 'student')]
+          : []),
       ]
+
+/** Never present a rejected, visually noncanonical image as a character. */
+export const reviewedIdentityArtwork = (key: string): string | null =>
+  isRejectedIdentityArt(key) ? null : promArt(key)
 
 /** Reuse existing shipped art instead of showing an empty hero/villain card. */
 export const identityArtwork = (
@@ -47,7 +55,7 @@ export const identityArtwork = (
   form: 'student' | 'hero' | 'villain',
 ): string | null =>
   identityArtCandidateKeys(signature, form)
-    .map((key) => promArt(key))
+    .map(reviewedIdentityArtwork)
     .find(Boolean) ?? null
 
 /** Display-only art key; never write this into a character ID or save. */
@@ -55,8 +63,12 @@ export const identityDisplayArtKey = (
   signature: string,
   form: 'student' | 'hero' | 'villain',
 ): string =>
-  identityArtCandidateKeys(signature, form).find((key) => promArt(key)) ??
-  identityArtKey(signature, form)
+  identityArtCandidateKeys(signature, form).find((key) =>
+    reviewedIdentityArtwork(key),
+  ) ??
+  (isRejectedIdentityArt(identityArtKey(signature, form))
+    ? ''
+    : identityArtKey(signature, form))
 export const incidentArtKey = (id: string) => `incidents/${id}`
 export const encounterArtKey = (title: string) => `encounters/${slugify(title)}`
 export const districtArtKey = (siteId: string) => `districts/${siteId}`
@@ -177,7 +189,8 @@ export function academyStageArt(run: AcademyRun | null): string | null {
     [4, 12, 21, 27].includes(run.day)
   ) {
     const outcome = personalOutcomeArt(run)
-    if (outcome && promArt(outcome)) return promArt(outcome)
+    if (outcome && reviewedIdentityArtwork(outcome))
+      return reviewedIdentityArtwork(outcome)
   }
   if (
     run.flowVersion === 3 &&
@@ -190,7 +203,7 @@ export function academyStageArt(run: AcademyRun | null): string | null {
       run.personalHistory,
       run.day,
     )
-    const delivered = key ? promArt(key) : null
+    const delivered = key ? reviewedIdentityArtwork(key) : null
     if (delivered) return delivered
   }
   if (run.phase === 'debrief' && run.reports[0])

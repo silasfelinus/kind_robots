@@ -1,3 +1,4 @@
+import { emperorMediaArtUrl } from './artDelivery'
 import { roomArtUrl } from './rooms'
 
 /**
@@ -14,13 +15,27 @@ const exported = new Set(EXPORTED_CHANCE_PLATES)
 export function chanceArtCandidates(
   eventId: string,
   choiceIndex: number,
+  choiceId?: string,
 ): string[] {
   const commission = exported.has(eventId)
     ? `/emperor-of-dust/chance/${eventId}.webp`
     : undefined
   const rooms = ['throne', 'market', 'barracks', 'map', 'quests'] as const
   const fallback = roomArtUrl(rooms[choiceIndex % rooms.length]!)
-  return [commission, fallback, '/emperor-of-dust/map/wasteland.webp'].filter(
-    (url): url is string => Boolean(url),
+  // Every approved plate is served directly from the durable media share.
+  // The choice hand retries later candidates after a 404, so an undelivered
+  // request cannot erase the pre-existing painted room fallback.
+  const choiceMedia = choiceId
+    ? emperorMediaArtUrl(`chance-events/${eventId}/${choiceId}`)
+    : undefined
+  const noticeMedia = emperorMediaArtUrl(
+    `chance-events/${eventId}/notice`,
   )
+  return [
+    commission,
+    choiceMedia,
+    noticeMedia,
+    fallback,
+    '/emperor-of-dust/map/wasteland.webp',
+  ].filter((url): url is string => Boolean(url))
 }

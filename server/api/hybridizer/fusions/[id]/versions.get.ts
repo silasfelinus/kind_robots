@@ -3,6 +3,8 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import {
+  canRerollFusion,
+  isFusionEditor,
   requireVisibleFusion,
   versionProjectSlug,
   versionSummaries,
@@ -20,7 +22,10 @@ export default defineEventHandler(async (event) => {
       data: {
         versions: await versionSummaries(fusion, auth?.user.id),
         canEdit: Boolean(
-          auth && (auth.isAdmin || fusion.creatorUserId === auth.user.id),
+          auth && isFusionEditor(fusion, auth.user.id, auth.isAdmin),
+        ),
+        canReroll: Boolean(
+          auth && canRerollFusion(fusion, auth.user.id, auth.isAdmin),
         ),
       },
     }

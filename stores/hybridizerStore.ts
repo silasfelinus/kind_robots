@@ -103,6 +103,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const versions = ref<HybridizerVersion[]>([])
   const versionsFor = ref<string | null>(null)
   const canEditResult = ref(false)
+  // Signed-in players who did not create a public discovery may ask for a
+  // fresh attempt when it does not read as a hybrid (server fixes the prompt).
+  const canRerollResult = ref(false)
   const versionBusy = ref(false)
   const enqueuing = new Set<string>()
   let pollTimer: ReturnType<typeof setInterval> | null = null
@@ -457,6 +460,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       reusedArtwork.value = false
       versions.value = []
       canEditResult.value = false
+      canRerollResult.value = false
       status.value = 'Two illustrated ingredients selected. Ready to fuse!'
       void showKnownPair()
     } finally {
@@ -518,11 +522,13 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       versions.value = []
       versionsFor.value = null
       canEditResult.value = false
+      canRerollResult.value = false
       return
     }
     const response = await performFetch<{
       versions: HybridizerVersion[]
       canEdit: boolean
+      canReroll?: boolean
     }>('/api/hybridizer/fusions/' + key.slice(7) + '/versions')
     if (resultKey.value !== key || viewerId !== userStore.authenticatedUserId)
       return
@@ -530,6 +536,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       versions.value = response.data.versions
       versionsFor.value = key
       canEditResult.value = response.data.canEdit
+      canRerollResult.value = response.data.canReroll === true
     }
   }
 
@@ -567,9 +574,10 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   ): Promise<void> {
     const viewerId = userStore.authenticatedUserId
     const key = resultKey.value
+    const community = !canEditResult.value
     if (
       !key?.startsWith('fusion:') ||
-      !canEditResult.value ||
+      (community && !canRerollResult.value) ||
       versionBusy.value
     )
       return
@@ -577,7 +585,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     try {
       const response = await performFetch<{ jobId: number; status: string }>(
         '/api/hybridizer/fusions/' + key.slice(7) + '/resubmit',
-        { method: 'POST', body: JSON.stringify(options) },
+        { method: 'POST', body: JSON.stringify(community ? {} : options) },
       )
       if (viewerId !== userStore.authenticatedUserId) return
       if (!response.success || !response.data) {
@@ -590,8 +598,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       })
       if (!pendingKeys.value.includes(key))
         pendingKeys.value = [...pendingKeys.value, key]
-      status.value =
-        'New version queued. Previous artwork is saved in the revision gallery.'
+      status.value = community
+        ? 'Re-roll queued. Everyone will see the new attempt once it renders; the old artwork stays in the revision gallery.'
+        : 'New version queued. Previous artwork is saved in the revision gallery.'
       await loadVersions(key)
       void loadSharedStudies()
       void achievementStore.rewardAchievementByCode('hybridizer-art-critic')
@@ -809,6 +818,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     reusedArtwork.value = false
     versions.value = []
     canEditResult.value = false
+    canRerollResult.value = false
     status.value = 'Ready to combine two specimens.'
     if (key.startsWith('fusion:')) void refreshArtwork(key)
     void showKnownPair()
@@ -835,6 +845,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     resultKey.value = null
     versions.value = []
     canEditResult.value = false
+    canRerollResult.value = false
     needsSignIn.value = false
     status.value = 'Checking the shared discovery archive…'
     if (!userStore.isLoggedIn) {
@@ -938,6 +949,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     reusedArtwork.value = entry.status === 'READY'
     versions.value = []
     canEditResult.value = false
+    canRerollResult.value = false
     status.value =
       entry.status === 'READY'
         ? 'Existing artwork retrieved from the discovery atlas.'
@@ -974,6 +986,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       versions.value = []
       versionsFor.value = null
       canEditResult.value = false
+      canRerollResult.value = false
       availableArt.value = {}
       hydrate()
       void loadSharedStudies()
@@ -1019,6 +1032,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     versions,
     versionsFor,
     canEditResult,
+    canRerollResult,
     versionBusy,
     loadVersions,
     openSharedFusion,

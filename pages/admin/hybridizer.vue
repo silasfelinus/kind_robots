@@ -244,6 +244,21 @@
               >
                 ✦ {{ remixEditorOpen ? 'Close remix' : 'Remix artwork' }}
               </button>
+              <button
+                v-else-if="lab.canRerollResult"
+                type="button"
+                :disabled="
+                  lab.versionBusy ||
+                  !['READY', 'FAILED', 'CANCELLED'].includes(
+                    lab.result.status || '',
+                  )
+                "
+                data-testid="hybridizer-reroll"
+                title="Ask for a fresh illustration when this does not look like one fused creature. The current art stays in the revision gallery."
+                @click="lab.resubmit()"
+              >
+                ↻ Not a hybrid? Re-roll
+              </button>
               <NuxtLink
                 v-if="
                   lab.result.isPublic === true &&

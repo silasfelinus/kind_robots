@@ -14,12 +14,15 @@ import {
   HYBRIDIZER_ART_PRIORITY,
   HYBRIDIZER_ART_SIZE,
   HYBRIDIZER_ART_STEPS,
+  HYBRIDIZER_BATCH_PENDING_CAP,
+  HYBRIDIZER_BATCH_PRIORITY,
+  hybridizerRevisionRequest,
 } from '~/server/utils/hybridizerArt'
 import { buildHybridizerArtJob } from '~/server/utils/hybridizerQueue'
 import {
   HYBRIDIZER_MAX_VERSIONS,
+  isFusionEditor,
   requireVisibleFusion,
-  requireFusionEditor,
   versionJobs,
   versionProjectSlug,
   visibleVersionArt,
@@ -32,28 +35,28 @@ export default defineEventHandler(async (event) => {
     const slug = versionProjectSlug(id)
     const fusion = await prisma.hybridizerFusion.findUnique({ where: { id } })
     requireVisibleFusion(fusion, auth.user.id)
-    requireFusionEditor(fusion, auth.user.id, auth.isAdmin)
     const body = (await readBody<Record<string, unknown>>(event)) ?? {}
-    const direction = body.direction ?? ''
-    const focusWeight = body.focusWeight ?? 50
-    const focusKey = body.focusKey ?? clientIngredientKey(fusion.leftKey)
     const firstKey = clientIngredientKey(fusion.leftKey)
     const secondKey = clientIngredientKey(fusion.rightKey)
-    if (
-      typeof direction !== 'string' ||
-      direction.length > 500 ||
-      typeof focusWeight !== 'number' ||
-      !Number.isInteger(focusWeight) ||
-      focusWeight < 10 ||
-      focusWeight > 90 ||
-      (focusKey !== firstKey && focusKey !== secondKey)
-    )
+    // Editors remix freely; any signed-in player may re-roll a public
+    // discovery that does not read as a hybrid (fixed guidance, new seed).
+    const request = hybridizerRevisionRequest(body, {
+      isEditor: isFusionEditor(fusion, auth.user.id, auth.isAdmin),
+      isAdmin: auth.isAdmin,
+      isPublic: fusion.isPublic,
+      firstKey,
+      secondKey,
+    })
+    if (!request)
       throw createError({
-        statusCode: 400,
-        message:
-          'Use a valid ingredient balance (10–90) and art direction under 500 characters.',
+        statusCode: fusion.isPublic ? 400 : 403,
+        message: fusion.isPublic
+          ? 'Use a valid ingredient balance (10–90) and art direction under 500 characters.'
+          : 'Only the discovery creator can replace its artwork.',
       })
+    const { focusKey, focusWeight, direction } = request
     const leftWeight = focusKey === firstKey ? focusWeight : 100 - focusWeight
+    const curation = request.mode === 'curation'
     if (['QUEUED', 'RENDERING', 'DELIVERING'].includes(fusion.status))
       throw createError({
         statusCode: 409,
@@ -92,17 +95,30 @@ export default defineEventHandler(async (event) => {
         message: 'This fusion has reached its twelve-version limit.',
       })
 
+    // Admin curation resubmits are bulk, low-priority work like the launch
+    // batch: bounded by the batch window rather than the per-player limit.
     const active = await prisma.artJob.count({
-      where: {
-        userId: auth.user.id,
-        projectSlug: { startsWith: 'hybridizer' },
-        status: { in: ['PENDING', 'RUNNING'] },
-      },
+      where: curation
+        ? {
+            projectSlug: { startsWith: 'hybridizer:' },
+            priority: HYBRIDIZER_BATCH_PRIORITY,
+            status: { in: ['PENDING', 'RUNNING'] },
+          }
+        : {
+            userId: auth.user.id,
+            projectSlug: { startsWith: 'hybridizer' },
+            status: { in: ['PENDING', 'RUNNING'] },
+          },
     })
-    if (active >= HYBRIDIZER_ACTIVE_USER_LIMIT)
+    if (
+      active >=
+      (curation ? HYBRIDIZER_BATCH_PENDING_CAP : HYBRIDIZER_ACTIVE_USER_LIMIT)
+    )
       throw createError({
         statusCode: 429,
-        message: 'Three Hybridizer renders are already active. Try later.',
+        message: curation
+          ? 'The curation resubmit window is full. Try later.'
+          : 'Three Hybridizer renders are already active. Try later.',
       })
 
     async function ingredientTitle(key: string) {
@@ -134,7 +150,7 @@ export default defineEventHandler(async (event) => {
       right,
       'revision',
       revision,
-      { leftWeight, direction: direction.trim() },
+      { leftWeight, direction },
     )
     const initial = jobs.find((job) => job.projectSlug === 'hybridizer')
     const originalJobId = initial?.id ?? jobs[0]!.id
@@ -162,13 +178,17 @@ export default defineEventHandler(async (event) => {
           engine: 'COMFY',
           userId: auth.user.id,
           projectSlug: slug,
-          priority: HYBRIDIZER_ART_PRIORITY,
+          priority: curation
+            ? HYBRIDIZER_BATCH_PRIORITY
+            : HYBRIDIZER_ART_PRIORITY,
           attemptFingerprint: built.provenance.attemptFingerprint,
           payload: serializeArtJobPayload({
             ...built.payload,
             hybridizer: {
               ...(built.payload.hybridizer as Record<string, unknown>),
               originalJobId,
+              revisionMode: request.mode,
+              requestedByUserId: auth.user.id,
             },
           }),
         },
@@ -185,7 +205,12 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201
     return {
       success: true,
-      data: { jobId: created.id, revision, status: 'QUEUED' },
+      data: {
+        jobId: created.id,
+        revision,
+        status: 'QUEUED',
+        mode: request.mode,
+      },
     }
   } catch (error) {
     const handled = errorHandler(error)

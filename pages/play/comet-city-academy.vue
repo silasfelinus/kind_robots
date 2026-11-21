@@ -764,7 +764,8 @@
                       <figcaption>
                         {{ plate.slot.toUpperCase() }} · ArtImage #{{
                           plate.artImageId
-                        }} · Private review
+                        }}
+                        · Private review
                       </figcaption>
                     </figure>
                   </div>

@@ -298,10 +298,7 @@ assert.ok(
 
 // Private ArtJob receipts and stable runtime keys (no public-leak fallback).
 assert.equal(OCTOBER_ART_RECEIPTS.length, 24)
-assert.equal(
-  OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'DONE').length,
-  11,
-)
+assert.equal(OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'DONE').length, 11)
 assert.equal(
   OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'RUNNING').length,
   1,
@@ -312,8 +309,7 @@ assert.equal(
 )
 assert.equal(new Set(OCTOBER_ART_RECEIPTS.map((r) => r.artJobId)).size, 24)
 assert.equal(
-  new Set(OCTOBER_ART_RECEIPTS.map((r) => r.artImageId).filter(Boolean))
-    .size,
+  new Set(OCTOBER_ART_RECEIPTS.map((r) => r.artImageId).filter(Boolean)).size,
   11,
 )
 for (const member of OCTOBER_CAST) {

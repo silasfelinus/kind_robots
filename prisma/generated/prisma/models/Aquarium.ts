@@ -375,7 +375,6 @@ export type AquariumWhereInput = {
   Events?: Prisma.AquariumEventListRelationFilter
   Sets?: Prisma.AquariumSetListRelationFilter
   Decor?: Prisma.AquariumDecorListRelationFilter
-  Eggs?: Prisma.AquariumEggListRelationFilter
 }
 
 export type AquariumOrderByWithRelationInput = {
@@ -404,7 +403,6 @@ export type AquariumOrderByWithRelationInput = {
   Events?: Prisma.AquariumEventOrderByRelationAggregateInput
   Sets?: Prisma.AquariumSetOrderByRelationAggregateInput
   Decor?: Prisma.AquariumDecorOrderByRelationAggregateInput
-  Eggs?: Prisma.AquariumEggOrderByRelationAggregateInput
   _relevance?: Prisma.AquariumOrderByRelevanceInput
 }
 
@@ -438,7 +436,6 @@ export type AquariumWhereUniqueInput = Prisma.AtLeast<{
   Events?: Prisma.AquariumEventListRelationFilter
   Sets?: Prisma.AquariumSetListRelationFilter
   Decor?: Prisma.AquariumDecorListRelationFilter
-  Eggs?: Prisma.AquariumEggListRelationFilter
 }, "id" | "userId_slug">
 
 export type AquariumOrderByWithAggregationInput = {
@@ -519,7 +516,6 @@ export type AquariumCreateInput = {
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateInput = {
@@ -547,7 +543,6 @@ export type AquariumUncheckedCreateInput = {
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUpdateInput = {
@@ -574,7 +569,6 @@ export type AquariumUpdateInput = {
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateInput = {
@@ -602,7 +596,6 @@ export type AquariumUncheckedUpdateInput = {
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumCreateManyInput = {
@@ -875,20 +868,6 @@ export type AquariumUpdateOneRequiredWithoutDecorNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AquariumUpdateToOneWithWhereWithoutDecorInput, Prisma.AquariumUpdateWithoutDecorInput>, Prisma.AquariumUncheckedUpdateWithoutDecorInput>
 }
 
-export type AquariumCreateNestedOneWithoutEggsInput = {
-  create?: Prisma.XOR<Prisma.AquariumCreateWithoutEggsInput, Prisma.AquariumUncheckedCreateWithoutEggsInput>
-  connectOrCreate?: Prisma.AquariumCreateOrConnectWithoutEggsInput
-  connect?: Prisma.AquariumWhereUniqueInput
-}
-
-export type AquariumUpdateOneRequiredWithoutEggsNestedInput = {
-  create?: Prisma.XOR<Prisma.AquariumCreateWithoutEggsInput, Prisma.AquariumUncheckedCreateWithoutEggsInput>
-  connectOrCreate?: Prisma.AquariumCreateOrConnectWithoutEggsInput
-  upsert?: Prisma.AquariumUpsertWithoutEggsInput
-  connect?: Prisma.AquariumWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AquariumUpdateToOneWithWhereWithoutEggsInput, Prisma.AquariumUpdateWithoutEggsInput>, Prisma.AquariumUncheckedUpdateWithoutEggsInput>
-}
-
 export type AquariumCreateNestedOneWithoutEventsInput = {
   create?: Prisma.XOR<Prisma.AquariumCreateWithoutEventsInput, Prisma.AquariumUncheckedCreateWithoutEventsInput>
   connectOrCreate?: Prisma.AquariumCreateOrConnectWithoutEventsInput
@@ -926,7 +905,6 @@ export type AquariumCreateWithoutUserInput = {
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateWithoutUserInput = {
@@ -953,7 +931,6 @@ export type AquariumUncheckedCreateWithoutUserInput = {
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumCreateOrConnectWithoutUserInput = {
@@ -1031,7 +1008,6 @@ export type AquariumCreateWithoutStockInput = {
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateWithoutStockInput = {
@@ -1058,7 +1034,6 @@ export type AquariumUncheckedCreateWithoutStockInput = {
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumCreateOrConnectWithoutStockInput = {
@@ -1100,7 +1075,6 @@ export type AquariumUpdateWithoutStockInput = {
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateWithoutStockInput = {
@@ -1127,7 +1101,6 @@ export type AquariumUncheckedUpdateWithoutStockInput = {
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumCreateWithoutSetsInput = {
@@ -1153,7 +1126,6 @@ export type AquariumCreateWithoutSetsInput = {
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateWithoutSetsInput = {
@@ -1180,7 +1152,6 @@ export type AquariumUncheckedCreateWithoutSetsInput = {
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumCreateOrConnectWithoutSetsInput = {
@@ -1222,7 +1193,6 @@ export type AquariumUpdateWithoutSetsInput = {
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateWithoutSetsInput = {
@@ -1249,7 +1219,6 @@ export type AquariumUncheckedUpdateWithoutSetsInput = {
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumCreateWithoutDecorInput = {
@@ -1275,7 +1244,6 @@ export type AquariumCreateWithoutDecorInput = {
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateWithoutDecorInput = {
@@ -1302,7 +1270,6 @@ export type AquariumUncheckedCreateWithoutDecorInput = {
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumCreateOrConnectWithoutDecorInput = {
@@ -1344,7 +1311,6 @@ export type AquariumUpdateWithoutDecorInput = {
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateWithoutDecorInput = {
@@ -1371,129 +1337,6 @@ export type AquariumUncheckedUpdateWithoutDecorInput = {
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUncheckedUpdateManyWithoutAquariumNestedInput
-}
-
-export type AquariumCreateWithoutEggsInput = {
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  slug: string
-  title: string
-  coins?: number
-  backgroundKey?: string | null
-  isPublic?: boolean
-  lastTickAt?: Date | string | null
-  setSlotsCap?: number
-  sizeCap?: number
-  debrisLevel?: number
-  lastCleanedAt?: Date | string | null
-  debrisEverHigh?: boolean
-  rivalryObserved?: boolean
-  collectAnchorAt?: Date | string | null
-  foodLevel?: number
-  dropSpeedLevel?: number
-  tankExpansions?: number
-  User: Prisma.UserCreateNestedOneWithoutAquariumsInput
-  Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
-  Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
-  Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
-  Decor?: Prisma.AquariumDecorCreateNestedManyWithoutAquariumInput
-}
-
-export type AquariumUncheckedCreateWithoutEggsInput = {
-  id?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string | null
-  userId: number
-  slug: string
-  title: string
-  coins?: number
-  backgroundKey?: string | null
-  isPublic?: boolean
-  lastTickAt?: Date | string | null
-  setSlotsCap?: number
-  sizeCap?: number
-  debrisLevel?: number
-  lastCleanedAt?: Date | string | null
-  debrisEverHigh?: boolean
-  rivalryObserved?: boolean
-  collectAnchorAt?: Date | string | null
-  foodLevel?: number
-  dropSpeedLevel?: number
-  tankExpansions?: number
-  Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
-  Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
-  Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
-  Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
-}
-
-export type AquariumCreateOrConnectWithoutEggsInput = {
-  where: Prisma.AquariumWhereUniqueInput
-  create: Prisma.XOR<Prisma.AquariumCreateWithoutEggsInput, Prisma.AquariumUncheckedCreateWithoutEggsInput>
-}
-
-export type AquariumUpsertWithoutEggsInput = {
-  update: Prisma.XOR<Prisma.AquariumUpdateWithoutEggsInput, Prisma.AquariumUncheckedUpdateWithoutEggsInput>
-  create: Prisma.XOR<Prisma.AquariumCreateWithoutEggsInput, Prisma.AquariumUncheckedCreateWithoutEggsInput>
-  where?: Prisma.AquariumWhereInput
-}
-
-export type AquariumUpdateToOneWithWhereWithoutEggsInput = {
-  where?: Prisma.AquariumWhereInput
-  data: Prisma.XOR<Prisma.AquariumUpdateWithoutEggsInput, Prisma.AquariumUncheckedUpdateWithoutEggsInput>
-}
-
-export type AquariumUpdateWithoutEggsInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  coins?: Prisma.IntFieldUpdateOperationsInput | number
-  backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
-  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
-  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
-  dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
-  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
-  User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
-  Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
-  Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
-  Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
-  Decor?: Prisma.AquariumDecorUpdateManyWithoutAquariumNestedInput
-}
-
-export type AquariumUncheckedUpdateWithoutEggsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  coins?: Prisma.IntFieldUpdateOperationsInput | number
-  backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
-  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
-  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
-  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  debrisEverHigh?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  rivalryObserved?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  collectAnchorAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  foodLevel?: Prisma.IntFieldUpdateOperationsInput | number
-  dropSpeedLevel?: Prisma.IntFieldUpdateOperationsInput | number
-  tankExpansions?: Prisma.IntFieldUpdateOperationsInput | number
-  Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
-  Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
-  Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
-  Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumCreateWithoutEventsInput = {
@@ -1519,7 +1362,6 @@ export type AquariumCreateWithoutEventsInput = {
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateWithoutEventsInput = {
@@ -1546,7 +1388,6 @@ export type AquariumUncheckedCreateWithoutEventsInput = {
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
   Decor?: Prisma.AquariumDecorUncheckedCreateNestedManyWithoutAquariumInput
-  Eggs?: Prisma.AquariumEggUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumCreateOrConnectWithoutEventsInput = {
@@ -1588,7 +1429,6 @@ export type AquariumUpdateWithoutEventsInput = {
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateWithoutEventsInput = {
@@ -1615,7 +1455,6 @@ export type AquariumUncheckedUpdateWithoutEventsInput = {
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumCreateManyUserInput = {
@@ -1663,7 +1502,6 @@ export type AquariumUpdateWithoutUserInput = {
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateWithoutUserInput = {
@@ -1690,7 +1528,6 @@ export type AquariumUncheckedUpdateWithoutUserInput = {
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
   Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
   Decor?: Prisma.AquariumDecorUncheckedUpdateManyWithoutAquariumNestedInput
-  Eggs?: Prisma.AquariumEggUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateManyWithoutUserInput = {
@@ -1725,7 +1562,6 @@ export type AquariumCountOutputType = {
   Events: number
   Sets: number
   Decor: number
-  Eggs: number
 }
 
 export type AquariumCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1733,7 +1569,6 @@ export type AquariumCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   Events?: boolean | AquariumCountOutputTypeCountEventsArgs
   Sets?: boolean | AquariumCountOutputTypeCountSetsArgs
   Decor?: boolean | AquariumCountOutputTypeCountDecorArgs
-  Eggs?: boolean | AquariumCountOutputTypeCountEggsArgs
 }
 
 /**
@@ -1774,13 +1609,6 @@ export type AquariumCountOutputTypeCountDecorArgs<ExtArgs extends runtime.Types.
   where?: Prisma.AquariumDecorWhereInput
 }
 
-/**
- * AquariumCountOutputType without action
- */
-export type AquariumCountOutputTypeCountEggsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AquariumEggWhereInput
-}
-
 
 export type AquariumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1808,7 +1636,6 @@ export type AquariumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Events?: boolean | Prisma.Aquarium$EventsArgs<ExtArgs>
   Sets?: boolean | Prisma.Aquarium$SetsArgs<ExtArgs>
   Decor?: boolean | Prisma.Aquarium$DecorArgs<ExtArgs>
-  Eggs?: boolean | Prisma.Aquarium$EggsArgs<ExtArgs>
   _count?: boolean | Prisma.AquariumCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aquarium"]>
 
@@ -1844,7 +1671,6 @@ export type AquariumInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   Events?: boolean | Prisma.Aquarium$EventsArgs<ExtArgs>
   Sets?: boolean | Prisma.Aquarium$SetsArgs<ExtArgs>
   Decor?: boolean | Prisma.Aquarium$DecorArgs<ExtArgs>
-  Eggs?: boolean | Prisma.Aquarium$EggsArgs<ExtArgs>
   _count?: boolean | Prisma.AquariumCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1856,7 +1682,6 @@ export type $AquariumPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Events: Prisma.$AquariumEventPayload<ExtArgs>[]
     Sets: Prisma.$AquariumSetPayload<ExtArgs>[]
     Decor: Prisma.$AquariumDecorPayload<ExtArgs>[]
-    Eggs: Prisma.$AquariumEggPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2282,7 +2107,6 @@ export interface Prisma__AquariumClient<T, Null = never, ExtArgs extends runtime
   Events<T extends Prisma.Aquarium$EventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aquarium$EventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Sets<T extends Prisma.Aquarium$SetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aquarium$SetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumSetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Decor<T extends Prisma.Aquarium$DecorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aquarium$DecorArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumDecorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Eggs<T extends Prisma.Aquarium$EggsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aquarium$EggsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumEggPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2773,30 +2597,6 @@ export type Aquarium$DecorArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.AquariumDecorScalarFieldEnum | Prisma.AquariumDecorScalarFieldEnum[]
-}
-
-/**
- * Aquarium.Eggs
- */
-export type Aquarium$EggsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the AquariumEgg
-   */
-  select?: Prisma.AquariumEggSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the AquariumEgg
-   */
-  omit?: Prisma.AquariumEggOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AquariumEggInclude<ExtArgs> | null
-  where?: Prisma.AquariumEggWhereInput
-  orderBy?: Prisma.AquariumEggOrderByWithRelationInput | Prisma.AquariumEggOrderByWithRelationInput[]
-  cursor?: Prisma.AquariumEggWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AquariumEggScalarFieldEnum | Prisma.AquariumEggScalarFieldEnum[]
 }
 
 /**

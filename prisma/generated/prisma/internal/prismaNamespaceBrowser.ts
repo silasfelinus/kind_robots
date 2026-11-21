@@ -171,7 +171,6 @@ export const ModelName = {
   AquariumStock: 'AquariumStock',
   AquariumSet: 'AquariumSet',
   AquariumDecor: 'AquariumDecor',
-  AquariumEgg: 'AquariumEgg',
   AquariumCodexEntry: 'AquariumCodexEntry',
   Monster: 'Monster',
   AquariumEvent: 'AquariumEvent',
@@ -2501,15 +2500,7 @@ export const AquariumStockScalarFieldEnum = {
   nickname: 'nickname',
   hunger: 'hunger',
   mood: 'mood',
-  placedAt: 'placedAt',
-  statCharm: 'statCharm',
-  statEmpathy: 'statEmpathy',
-  statGrace: 'statGrace',
-  statLuck: 'statLuck',
-  statMight: 'statMight',
-  statWits: 'statWits',
-  parentAId: 'parentAId',
-  parentBId: 'parentBId'
+  placedAt: 'placedAt'
 } as const
 
 export type AquariumStockScalarFieldEnum = (typeof AquariumStockScalarFieldEnum)[keyof typeof AquariumStockScalarFieldEnum]
@@ -2540,33 +2531,13 @@ export const AquariumDecorScalarFieldEnum = {
 export type AquariumDecorScalarFieldEnum = (typeof AquariumDecorScalarFieldEnum)[keyof typeof AquariumDecorScalarFieldEnum]
 
 
-export const AquariumEggScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  aquariumId: 'aquariumId',
-  rarity: 'rarity',
-  size: 'size',
-  purchasedAt: 'purchasedAt',
-  hatchedAt: 'hatchedAt',
-  hatchedMonsterId: 'hatchedMonsterId'
-} as const
-
-export type AquariumEggScalarFieldEnum = (typeof AquariumEggScalarFieldEnum)[keyof typeof AquariumEggScalarFieldEnum]
-
-
 export const AquariumCodexEntryScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
   monsterId: 'monsterId',
-  firstAcquiredAt: 'firstAcquiredAt',
-  bestStatCharm: 'bestStatCharm',
-  bestStatEmpathy: 'bestStatEmpathy',
-  bestStatGrace: 'bestStatGrace',
-  bestStatLuck: 'bestStatLuck',
-  bestStatMight: 'bestStatMight',
-  bestStatWits: 'bestStatWits'
+  firstAcquiredAt: 'firstAcquiredAt'
 } as const
 
 export type AquariumCodexEntryScalarFieldEnum = (typeof AquariumCodexEntryScalarFieldEnum)[keyof typeof AquariumCodexEntryScalarFieldEnum]

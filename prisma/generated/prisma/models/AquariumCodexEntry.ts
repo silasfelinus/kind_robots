@@ -18,9 +18,8 @@ import type * as Prisma from "../internal/prismaNamespace"
  * species ever bought or raised, whether or not currently owned -- survives
  * a sell. This is the record that makes t-030's rotating shop and sell-back
  * safe (rotation governs discovery, not access; anything in this table is
- * re-orderable). Append/update-only in spirit: t-030/t-031 create a row on
- * first acquisition and update bestStat* when a better individual is seen,
- * never delete one. See SYSTEMS.md "The shop rotates; the book is forever"
+ * re-orderable). Append-only in spirit: a row is created on first
+ * acquisition and never deleted. See SYSTEMS.md "The shop rotates; the book is forever"
  * and "The Ichthyonomicon".
  */
 export type AquariumCodexEntryModel = runtime.Types.Result.DefaultSelection<Prisma.$AquariumCodexEntryPayload>
@@ -37,24 +36,12 @@ export type AquariumCodexEntryAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   monsterId: number | null
-  bestStatCharm: number | null
-  bestStatEmpathy: number | null
-  bestStatGrace: number | null
-  bestStatLuck: number | null
-  bestStatMight: number | null
-  bestStatWits: number | null
 }
 
 export type AquariumCodexEntrySumAggregateOutputType = {
   id: number | null
   userId: number | null
   monsterId: number | null
-  bestStatCharm: number | null
-  bestStatEmpathy: number | null
-  bestStatGrace: number | null
-  bestStatLuck: number | null
-  bestStatMight: number | null
-  bestStatWits: number | null
 }
 
 export type AquariumCodexEntryMinAggregateOutputType = {
@@ -64,12 +51,6 @@ export type AquariumCodexEntryMinAggregateOutputType = {
   userId: number | null
   monsterId: number | null
   firstAcquiredAt: Date | null
-  bestStatCharm: number | null
-  bestStatEmpathy: number | null
-  bestStatGrace: number | null
-  bestStatLuck: number | null
-  bestStatMight: number | null
-  bestStatWits: number | null
 }
 
 export type AquariumCodexEntryMaxAggregateOutputType = {
@@ -79,12 +60,6 @@ export type AquariumCodexEntryMaxAggregateOutputType = {
   userId: number | null
   monsterId: number | null
   firstAcquiredAt: Date | null
-  bestStatCharm: number | null
-  bestStatEmpathy: number | null
-  bestStatGrace: number | null
-  bestStatLuck: number | null
-  bestStatMight: number | null
-  bestStatWits: number | null
 }
 
 export type AquariumCodexEntryCountAggregateOutputType = {
@@ -94,12 +69,6 @@ export type AquariumCodexEntryCountAggregateOutputType = {
   userId: number
   monsterId: number
   firstAcquiredAt: number
-  bestStatCharm: number
-  bestStatEmpathy: number
-  bestStatGrace: number
-  bestStatLuck: number
-  bestStatMight: number
-  bestStatWits: number
   _all: number
 }
 
@@ -108,24 +77,12 @@ export type AquariumCodexEntryAvgAggregateInputType = {
   id?: true
   userId?: true
   monsterId?: true
-  bestStatCharm?: true
-  bestStatEmpathy?: true
-  bestStatGrace?: true
-  bestStatLuck?: true
-  bestStatMight?: true
-  bestStatWits?: true
 }
 
 export type AquariumCodexEntrySumAggregateInputType = {
   id?: true
   userId?: true
   monsterId?: true
-  bestStatCharm?: true
-  bestStatEmpathy?: true
-  bestStatGrace?: true
-  bestStatLuck?: true
-  bestStatMight?: true
-  bestStatWits?: true
 }
 
 export type AquariumCodexEntryMinAggregateInputType = {
@@ -135,12 +92,6 @@ export type AquariumCodexEntryMinAggregateInputType = {
   userId?: true
   monsterId?: true
   firstAcquiredAt?: true
-  bestStatCharm?: true
-  bestStatEmpathy?: true
-  bestStatGrace?: true
-  bestStatLuck?: true
-  bestStatMight?: true
-  bestStatWits?: true
 }
 
 export type AquariumCodexEntryMaxAggregateInputType = {
@@ -150,12 +101,6 @@ export type AquariumCodexEntryMaxAggregateInputType = {
   userId?: true
   monsterId?: true
   firstAcquiredAt?: true
-  bestStatCharm?: true
-  bestStatEmpathy?: true
-  bestStatGrace?: true
-  bestStatLuck?: true
-  bestStatMight?: true
-  bestStatWits?: true
 }
 
 export type AquariumCodexEntryCountAggregateInputType = {
@@ -165,12 +110,6 @@ export type AquariumCodexEntryCountAggregateInputType = {
   userId?: true
   monsterId?: true
   firstAcquiredAt?: true
-  bestStatCharm?: true
-  bestStatEmpathy?: true
-  bestStatGrace?: true
-  bestStatLuck?: true
-  bestStatMight?: true
-  bestStatWits?: true
   _all?: true
 }
 
@@ -267,12 +206,6 @@ export type AquariumCodexEntryGroupByOutputType = {
   userId: number
   monsterId: number
   firstAcquiredAt: Date
-  bestStatCharm: number | null
-  bestStatEmpathy: number | null
-  bestStatGrace: number | null
-  bestStatLuck: number | null
-  bestStatMight: number | null
-  bestStatWits: number | null
   _count: AquariumCodexEntryCountAggregateOutputType | null
   _avg: AquariumCodexEntryAvgAggregateOutputType | null
   _sum: AquariumCodexEntrySumAggregateOutputType | null
@@ -305,12 +238,6 @@ export type AquariumCodexEntryWhereInput = {
   userId?: Prisma.IntFilter<"AquariumCodexEntry"> | number
   monsterId?: Prisma.IntFilter<"AquariumCodexEntry"> | number
   firstAcquiredAt?: Prisma.DateTimeFilter<"AquariumCodexEntry"> | Date | string
-  bestStatCharm?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatEmpathy?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatGrace?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatLuck?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatMight?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatWits?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Monster?: Prisma.XOR<Prisma.MonsterScalarRelationFilter, Prisma.MonsterWhereInput>
 }
@@ -322,12 +249,6 @@ export type AquariumCodexEntryOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   monsterId?: Prisma.SortOrder
   firstAcquiredAt?: Prisma.SortOrder
-  bestStatCharm?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatEmpathy?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatGrace?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatLuck?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatMight?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatWits?: Prisma.SortOrderInput | Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   Monster?: Prisma.MonsterOrderByWithRelationInput
 }
@@ -343,12 +264,6 @@ export type AquariumCodexEntryWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.IntFilter<"AquariumCodexEntry"> | number
   monsterId?: Prisma.IntFilter<"AquariumCodexEntry"> | number
   firstAcquiredAt?: Prisma.DateTimeFilter<"AquariumCodexEntry"> | Date | string
-  bestStatCharm?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatEmpathy?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatGrace?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatLuck?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatMight?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatWits?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Monster?: Prisma.XOR<Prisma.MonsterScalarRelationFilter, Prisma.MonsterWhereInput>
 }, "id" | "userId_monsterId">
@@ -360,12 +275,6 @@ export type AquariumCodexEntryOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   monsterId?: Prisma.SortOrder
   firstAcquiredAt?: Prisma.SortOrder
-  bestStatCharm?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatEmpathy?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatGrace?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatLuck?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatMight?: Prisma.SortOrderInput | Prisma.SortOrder
-  bestStatWits?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AquariumCodexEntryCountOrderByAggregateInput
   _avg?: Prisma.AquariumCodexEntryAvgOrderByAggregateInput
   _max?: Prisma.AquariumCodexEntryMaxOrderByAggregateInput
@@ -383,24 +292,12 @@ export type AquariumCodexEntryScalarWhereWithAggregatesInput = {
   userId?: Prisma.IntWithAggregatesFilter<"AquariumCodexEntry"> | number
   monsterId?: Prisma.IntWithAggregatesFilter<"AquariumCodexEntry"> | number
   firstAcquiredAt?: Prisma.DateTimeWithAggregatesFilter<"AquariumCodexEntry"> | Date | string
-  bestStatCharm?: Prisma.IntNullableWithAggregatesFilter<"AquariumCodexEntry"> | number | null
-  bestStatEmpathy?: Prisma.IntNullableWithAggregatesFilter<"AquariumCodexEntry"> | number | null
-  bestStatGrace?: Prisma.IntNullableWithAggregatesFilter<"AquariumCodexEntry"> | number | null
-  bestStatLuck?: Prisma.IntNullableWithAggregatesFilter<"AquariumCodexEntry"> | number | null
-  bestStatMight?: Prisma.IntNullableWithAggregatesFilter<"AquariumCodexEntry"> | number | null
-  bestStatWits?: Prisma.IntNullableWithAggregatesFilter<"AquariumCodexEntry"> | number | null
 }
 
 export type AquariumCodexEntryCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
   User: Prisma.UserCreateNestedOneWithoutAquariumCodexEntriesInput
   Monster: Prisma.MonsterCreateNestedOneWithoutAquariumCodexEntryInput
 }
@@ -412,24 +309,12 @@ export type AquariumCodexEntryUncheckedCreateInput = {
   userId: number
   monsterId: number
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
 }
 
 export type AquariumCodexEntryUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumCodexEntriesNestedInput
   Monster?: Prisma.MonsterUpdateOneRequiredWithoutAquariumCodexEntryNestedInput
 }
@@ -441,12 +326,6 @@ export type AquariumCodexEntryUncheckedUpdateInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   monsterId?: Prisma.IntFieldUpdateOperationsInput | number
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumCodexEntryCreateManyInput = {
@@ -456,24 +335,12 @@ export type AquariumCodexEntryCreateManyInput = {
   userId: number
   monsterId: number
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
 }
 
 export type AquariumCodexEntryUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumCodexEntryUncheckedUpdateManyInput = {
@@ -483,12 +350,6 @@ export type AquariumCodexEntryUncheckedUpdateManyInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   monsterId?: Prisma.IntFieldUpdateOperationsInput | number
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumCodexEntryListRelationFilter = {
@@ -513,24 +374,12 @@ export type AquariumCodexEntryCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   monsterId?: Prisma.SortOrder
   firstAcquiredAt?: Prisma.SortOrder
-  bestStatCharm?: Prisma.SortOrder
-  bestStatEmpathy?: Prisma.SortOrder
-  bestStatGrace?: Prisma.SortOrder
-  bestStatLuck?: Prisma.SortOrder
-  bestStatMight?: Prisma.SortOrder
-  bestStatWits?: Prisma.SortOrder
 }
 
 export type AquariumCodexEntryAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   monsterId?: Prisma.SortOrder
-  bestStatCharm?: Prisma.SortOrder
-  bestStatEmpathy?: Prisma.SortOrder
-  bestStatGrace?: Prisma.SortOrder
-  bestStatLuck?: Prisma.SortOrder
-  bestStatMight?: Prisma.SortOrder
-  bestStatWits?: Prisma.SortOrder
 }
 
 export type AquariumCodexEntryMaxOrderByAggregateInput = {
@@ -540,12 +389,6 @@ export type AquariumCodexEntryMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   monsterId?: Prisma.SortOrder
   firstAcquiredAt?: Prisma.SortOrder
-  bestStatCharm?: Prisma.SortOrder
-  bestStatEmpathy?: Prisma.SortOrder
-  bestStatGrace?: Prisma.SortOrder
-  bestStatLuck?: Prisma.SortOrder
-  bestStatMight?: Prisma.SortOrder
-  bestStatWits?: Prisma.SortOrder
 }
 
 export type AquariumCodexEntryMinOrderByAggregateInput = {
@@ -555,24 +398,12 @@ export type AquariumCodexEntryMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   monsterId?: Prisma.SortOrder
   firstAcquiredAt?: Prisma.SortOrder
-  bestStatCharm?: Prisma.SortOrder
-  bestStatEmpathy?: Prisma.SortOrder
-  bestStatGrace?: Prisma.SortOrder
-  bestStatLuck?: Prisma.SortOrder
-  bestStatMight?: Prisma.SortOrder
-  bestStatWits?: Prisma.SortOrder
 }
 
 export type AquariumCodexEntrySumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   monsterId?: Prisma.SortOrder
-  bestStatCharm?: Prisma.SortOrder
-  bestStatEmpathy?: Prisma.SortOrder
-  bestStatGrace?: Prisma.SortOrder
-  bestStatLuck?: Prisma.SortOrder
-  bestStatMight?: Prisma.SortOrder
-  bestStatWits?: Prisma.SortOrder
 }
 
 export type AquariumCodexEntryCreateNestedManyWithoutUserInput = {
@@ -663,12 +494,6 @@ export type AquariumCodexEntryCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
   Monster: Prisma.MonsterCreateNestedOneWithoutAquariumCodexEntryInput
 }
 
@@ -678,12 +503,6 @@ export type AquariumCodexEntryUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string | null
   monsterId: number
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
 }
 
 export type AquariumCodexEntryCreateOrConnectWithoutUserInput = {
@@ -722,24 +541,12 @@ export type AquariumCodexEntryScalarWhereInput = {
   userId?: Prisma.IntFilter<"AquariumCodexEntry"> | number
   monsterId?: Prisma.IntFilter<"AquariumCodexEntry"> | number
   firstAcquiredAt?: Prisma.DateTimeFilter<"AquariumCodexEntry"> | Date | string
-  bestStatCharm?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatEmpathy?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatGrace?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatLuck?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatMight?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
-  bestStatWits?: Prisma.IntNullableFilter<"AquariumCodexEntry"> | number | null
 }
 
 export type AquariumCodexEntryCreateWithoutMonsterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
   User: Prisma.UserCreateNestedOneWithoutAquariumCodexEntriesInput
 }
 
@@ -749,12 +556,6 @@ export type AquariumCodexEntryUncheckedCreateWithoutMonsterInput = {
   updatedAt?: Date | string | null
   userId: number
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
 }
 
 export type AquariumCodexEntryCreateOrConnectWithoutMonsterInput = {
@@ -789,24 +590,12 @@ export type AquariumCodexEntryCreateManyUserInput = {
   updatedAt?: Date | string | null
   monsterId: number
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
 }
 
 export type AquariumCodexEntryUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Monster?: Prisma.MonsterUpdateOneRequiredWithoutAquariumCodexEntryNestedInput
 }
 
@@ -816,12 +605,6 @@ export type AquariumCodexEntryUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monsterId?: Prisma.IntFieldUpdateOperationsInput | number
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumCodexEntryUncheckedUpdateManyWithoutUserInput = {
@@ -830,12 +613,6 @@ export type AquariumCodexEntryUncheckedUpdateManyWithoutUserInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monsterId?: Prisma.IntFieldUpdateOperationsInput | number
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumCodexEntryCreateManyMonsterInput = {
@@ -844,24 +621,12 @@ export type AquariumCodexEntryCreateManyMonsterInput = {
   updatedAt?: Date | string | null
   userId: number
   firstAcquiredAt?: Date | string
-  bestStatCharm?: number | null
-  bestStatEmpathy?: number | null
-  bestStatGrace?: number | null
-  bestStatLuck?: number | null
-  bestStatMight?: number | null
-  bestStatWits?: number | null
 }
 
 export type AquariumCodexEntryUpdateWithoutMonsterInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumCodexEntriesNestedInput
 }
 
@@ -871,12 +636,6 @@ export type AquariumCodexEntryUncheckedUpdateWithoutMonsterInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumCodexEntryUncheckedUpdateManyWithoutMonsterInput = {
@@ -885,12 +644,6 @@ export type AquariumCodexEntryUncheckedUpdateManyWithoutMonsterInput = {
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   firstAcquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  bestStatCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  bestStatWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -902,12 +655,6 @@ export type AquariumCodexEntrySelect<ExtArgs extends runtime.Types.Extensions.In
   userId?: boolean
   monsterId?: boolean
   firstAcquiredAt?: boolean
-  bestStatCharm?: boolean
-  bestStatEmpathy?: boolean
-  bestStatGrace?: boolean
-  bestStatLuck?: boolean
-  bestStatMight?: boolean
-  bestStatWits?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Monster?: boolean | Prisma.MonsterDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aquariumCodexEntry"]>
@@ -921,15 +668,9 @@ export type AquariumCodexEntrySelectScalar = {
   userId?: boolean
   monsterId?: boolean
   firstAcquiredAt?: boolean
-  bestStatCharm?: boolean
-  bestStatEmpathy?: boolean
-  bestStatGrace?: boolean
-  bestStatLuck?: boolean
-  bestStatMight?: boolean
-  bestStatWits?: boolean
 }
 
-export type AquariumCodexEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "monsterId" | "firstAcquiredAt" | "bestStatCharm" | "bestStatEmpathy" | "bestStatGrace" | "bestStatLuck" | "bestStatMight" | "bestStatWits", ExtArgs["result"]["aquariumCodexEntry"]>
+export type AquariumCodexEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "monsterId" | "firstAcquiredAt", ExtArgs["result"]["aquariumCodexEntry"]>
 export type AquariumCodexEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Monster?: boolean | Prisma.MonsterDefaultArgs<ExtArgs>
@@ -948,16 +689,6 @@ export type $AquariumCodexEntryPayload<ExtArgs extends runtime.Types.Extensions.
     userId: number
     monsterId: number
     firstAcquiredAt: Date
-    /**
-     * Best individual stats ever seen of this species, owned or not -- the
-     * book's own record, independent of any single AquariumStock row.
-     */
-    bestStatCharm: number | null
-    bestStatEmpathy: number | null
-    bestStatGrace: number | null
-    bestStatLuck: number | null
-    bestStatMight: number | null
-    bestStatWits: number | null
   }, ExtArgs["result"]["aquariumCodexEntry"]>
   composites: {}
 }
@@ -1335,12 +1066,6 @@ export interface AquariumCodexEntryFieldRefs {
   readonly userId: Prisma.FieldRef<"AquariumCodexEntry", 'Int'>
   readonly monsterId: Prisma.FieldRef<"AquariumCodexEntry", 'Int'>
   readonly firstAcquiredAt: Prisma.FieldRef<"AquariumCodexEntry", 'DateTime'>
-  readonly bestStatCharm: Prisma.FieldRef<"AquariumCodexEntry", 'Int'>
-  readonly bestStatEmpathy: Prisma.FieldRef<"AquariumCodexEntry", 'Int'>
-  readonly bestStatGrace: Prisma.FieldRef<"AquariumCodexEntry", 'Int'>
-  readonly bestStatLuck: Prisma.FieldRef<"AquariumCodexEntry", 'Int'>
-  readonly bestStatMight: Prisma.FieldRef<"AquariumCodexEntry", 'Int'>
-  readonly bestStatWits: Prisma.FieldRef<"AquariumCodexEntry", 'Int'>
 }
     
 

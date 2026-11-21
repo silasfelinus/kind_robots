@@ -32,25 +32,25 @@ export const CREW_TELL_ART: Readonly<
     name: 'Warren Wreckers',
     beats: {
       warning: {
-        artKey: 'henchmen/accident-earth/tells/burrow-warning',
+        artKey: 'every-villain-tactics/henchmen/accident-earth/tells/burrow-warning',
         jobId: 74393,
         imageId: 277786,
         title: 'Dust ring: emergence next turn',
       },
       action: {
-        artKey: 'henchmen/accident-earth/tells/burrow-emergence',
+        artKey: 'every-villain-tactics/henchmen/accident-earth/tells/burrow-emergence',
         jobId: 74394,
         imageId: 277787,
         title: 'Warren Wreckers tunnel upward',
       },
       counter: {
-        artKey: 'henchmen/accident-earth/tells/burrow-blocked',
+        artKey: 'every-villain-tactics/henchmen/accident-earth/tells/burrow-blocked',
         jobId: 74395,
         imageId: 277788,
         title: 'Stand on the ring to block emergence',
       },
       captain: {
-        artKey: 'henchmen/accident-earth/tells/foreman-closeup',
+        artKey: 'every-villain-tactics/henchmen/accident-earth/tells/foreman-closeup',
         jobId: 74396,
         imageId: 277789,
         title: 'Foreman Thumpkin',
@@ -61,25 +61,25 @@ export const CREW_TELL_ART: Readonly<
     name: 'Clockwork Wombat Ronin',
     beats: {
       warning: {
-        artKey: 'henchmen/alien-discipline/tells/phase-warning',
+        artKey: 'every-villain-tactics/henchmen/alien-discipline/tells/phase-warning',
         jobId: 74397,
         imageId: 277790,
         title: 'Clock-face exit: teleport next turn',
       },
       action: {
-        artKey: 'henchmen/alien-discipline/tells/phase-arrival',
+        artKey: 'every-villain-tactics/henchmen/alien-discipline/tells/phase-arrival',
         jobId: 74398,
         imageId: 277791,
         title: 'Ronin emerge from a clock portal',
       },
       counter: {
-        artKey: 'henchmen/alien-discipline/tells/phase-interrupted',
+        artKey: 'every-villain-tactics/henchmen/alien-discipline/tells/phase-interrupted',
         jobId: 74399,
         imageId: 277792,
         title: 'Occupy the exit to jam the portal',
       },
       captain: {
-        artKey: 'henchmen/alien-discipline/tells/teakettle-closeup',
+        artKey: 'every-villain-tactics/henchmen/alien-discipline/tells/teakettle-closeup',
         jobId: 74400,
         imageId: 277793,
         title: 'Lieutenant Teakettle',
@@ -90,25 +90,25 @@ export const CREW_TELL_ART: Readonly<
     name: 'Licensed Legends',
     beats: {
       warning: {
-        artKey: 'henchmen/accident-birthright/tells/seal-warning',
+        artKey: 'every-villain-tactics/henchmen/accident-birthright/tells/seal-warning',
         jobId: 74401,
         imageId: 277794,
         title: 'Power seal: step clear of the toys',
       },
       action: {
-        artKey: 'henchmen/accident-birthright/tells/windup-swarm',
+        artKey: 'every-villain-tactics/henchmen/accident-birthright/tells/windup-swarm',
         jobId: 74402,
         imageId: 277795,
         title: 'Wind-up mascots swarm the aisle',
       },
       counter: {
-        artKey: 'henchmen/accident-birthright/tells/seal-broken',
+        artKey: 'every-villain-tactics/henchmen/accident-birthright/tells/seal-broken',
         jobId: 74403,
         imageId: 277796,
         title: 'Break the seal to restore powers',
       },
       captain: {
-        artKey: 'henchmen/accident-birthright/tells/sir-cap-closeup',
+        artKey: 'every-villain-tactics/henchmen/accident-birthright/tells/sir-cap-closeup',
         jobId: 74404,
         imageId: 277797,
         title: 'Sir Cap-Permission',

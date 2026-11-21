@@ -1,4 +1,0 @@
-# cthulhuquarium/t-084 contract-then-migration removal (step 1 of 2).
-# The client stops declaring these columns here; the drop migration follows
-# once production runs this build, and removes this marker.
-prisma/migrations/20261121080406_drop_aquarium_breeding_eggs_hidden_stats/migration.sql

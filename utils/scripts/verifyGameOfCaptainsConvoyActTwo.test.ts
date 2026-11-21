@@ -216,7 +216,7 @@ for (let seed = 1; seed <= 12; seed++) {
     finale: 'protect',
   })
   assert.equal(run.phase, 'ending')
-  assert.equal(run.consequenceHistory?.length, 6)
+  assert.equal(run.consequenceHistory?.length, 7)
   assert.equal(run.consequenceHistory?.[0]?.missionId, 'refugees')
   assert.equal(run.consequenceHistory?.[3]?.missionId, targetActTwo)
   assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(run))), run)
@@ -224,8 +224,8 @@ for (let seed = 1; seed <= 12; seed++) {
 }
 assert.equal(
   storyChoices,
-  72,
-  'three Act I cases, one Act II case and two Act III cases',
+  84,
+  'three Act I cases, one Act II case and three Act III cases per voyage',
 )
 console.log(
   'Space Couch convoy/Act II: 3 cases, 9 choices, 18 outcomes, ' +

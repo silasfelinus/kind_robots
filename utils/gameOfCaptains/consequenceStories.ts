@@ -5,6 +5,7 @@ import { ACT_ONE_UNPAINTED_CASES } from './consequenceStoriesActOneRemainder'
 import { CONVOY_AND_ACT_TWO_CASES } from './consequenceStoriesConvoyAndActTwo'
 import { ACT_THREE_OPENING_CASES } from './consequenceStoriesActThreeOpening'
 import { ACT_THREE_MIDDLE_CASES } from './consequenceStoriesActThreeMiddle'
+import { ACT_THREE_FINAL_CASES } from './consequenceStoriesActThreeFinal'
 
 type Meter =
   | 'sanctuary_trust'
@@ -492,6 +493,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
   ...CONVOY_AND_ACT_TWO_CASES,
   ...ACT_THREE_OPENING_CASES,
   ...ACT_THREE_MIDDLE_CASES,
+  ...ACT_THREE_FINAL_CASES,
 }
 export const CONSEQUENCE_ENDINGS: readonly ConsequenceEnding[] = [
   {
@@ -619,6 +621,20 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
       opening:
         episode.opening +
         ' Mara brings the limited passage permit from the earlier gate hearing. She warns that a captain who consulted one world cannot now claim to speak for twelve without asking.',
+    }
+  if (missionId === 'inquiry' && flags.has('gate-hearing-consented'))
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' The Concord delegates arrive with the earlier consent-based hearing transcript. They insist that witnesses at Hollow Lantern receive the same right to correct their statements.',
+    }
+  if (missionId === 'inquiry' && flags.has('gameworld-public-rescue-footage'))
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' The Showrunner has sold footage of the couch rescue as an official statement. Former contestants demand the inquiry distinguish a filmed emergency from consent to publicity.',
     }
   if (
     missionId === 'foundry-strike' &&

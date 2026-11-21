@@ -150,7 +150,7 @@ for (let seed = 1; seed <= 12; seed++) {
     finale: 'protect',
   })
   assert.equal(run.phase, 'ending')
-  assert.equal(run.consequenceHistory?.length, 6)
+  assert.equal(run.consequenceHistory?.length, 7)
   assert.deepEqual(
     run.consequenceHistory
       ?.filter((record) => record.chapter <= 3)
@@ -163,8 +163,8 @@ for (let seed = 1; seed <= 12; seed++) {
 }
 assert.equal(
   visits,
-  72,
-  'three Act I cases, one Act II case and two Act III cases',
+  84,
+  'three Act I cases, one Act II case and three Act III cases per voyage',
 )
 
 const page = readFileSync(

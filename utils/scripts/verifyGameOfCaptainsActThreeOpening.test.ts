@@ -243,6 +243,26 @@ for (const [missionIndex, missionId] of middleIds.entries()) {
 assert.equal(middleNarratives.size, 18)
 assert.equal(middleDecisions, 9)
 
+const middleCallbacks = [
+  ['cushion-recall', 'gameworld-union-clause-upheld', 'Gameworld union observer'],
+  ['twins-summit', 'gate-hearing-consented', 'Mara brings'],
+  ['foundry-strike', 'concord-resident-personhood', 'Concord’s newly recognized'],
+] as const
+for (const [missionId, flag, mention] of middleCallbacks) {
+  const before: VoyageRun = {
+    ...startVoyage('vale', ['pell', 'rue', 'vela'], 4400),
+    chapter: 8,
+    phase: 'decision',
+    missionId,
+    worldFlags: [flag],
+  }
+  assert.ok(consequenceForRun(before)?.opening.includes(mention))
+  const story = ACT_THREE_MIDDLE_CASES[missionId]
+  assert.equal(consequenceForRun(before)?.choices.length, 3)
+  const after = resolveConsequence(before, story.choices[0]!.id)
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(after))), after)
+}
+
 console.log(
   'Space Couch Act III: three authored returns, nine choices, 18 distinct outcomes, ' +
     'earlier-world callbacks, save parity and 12 complete seeded voyages verified',

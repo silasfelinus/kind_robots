@@ -37,6 +37,11 @@ export type RainbowCheckpoint = {
   reefRoute: 'relay' | 'cache' | null
   reefSettled: boolean
   pylonsDown: number
+  /** Alternate X4 flight clock and last section, kept independent of Act VII's score. */
+  shoalStartedAt?: number
+  shoalFrame?: number
+  shoalGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
+  shoalHits?: number
   /** Act VII's optional rescue: the Lost Navigator reached before the boss. */
   rescuedNavigator: boolean
   /** Act VIII's captives whose collars the crew has broken. */

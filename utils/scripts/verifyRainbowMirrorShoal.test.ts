@@ -8,6 +8,8 @@ import {
   SHOAL_TALKS,
   mirrorShoalMedalEarned,
   mirrorShoalRouteUnlocked,
+  mirrorShoalDetourFor,
+  mirrorShoalCheckpointValid,
   mirrorShoalSpawns,
   mirrorShoalStage,
 } from '../arcade/games/rainbowMirrorShoal'
@@ -20,6 +22,33 @@ import {
 
 assert.equal(MIRROR_SHOAL.id, 'X4')
 assert.equal(mirrorShoalRouteUnlocked(false, 0), true)
+assert.equal(mirrorShoalDetourFor([70], true), true)
+assert.equal(mirrorShoalDetourFor([190], true), false)
+assert.equal(mirrorShoalDetourFor([70, 90, 185, 190], true), true)
+assert.equal(mirrorShoalDetourFor([190, 70, 90, 185], true), false)
+assert.equal(mirrorShoalDetourFor([70, 90, 185], false), false)
+assert.equal(mirrorShoalDetourFor([], true), false)
+assert.equal(
+  mirrorShoalCheckpointValid(7, 18400, {
+    shoalStartedAt: 18100,
+    shoalFrame: 300,
+  }),
+  true,
+)
+assert.equal(
+  mirrorShoalCheckpointValid(7, 18401, {
+    shoalStartedAt: 18100,
+    shoalFrame: 300,
+  }),
+  false,
+)
+assert.equal(
+  mirrorShoalCheckpointValid(6, 18400, {
+    shoalStartedAt: 18100,
+    shoalFrame: 300,
+  }),
+  false,
+)
 assert.equal(mirrorShoalRouteUnlocked(false, 1), false)
 assert.equal(mirrorShoalRouteUnlocked(true, 5), true)
 assert.equal(mirrorShoalRouteUnlocked(true, -1), false)

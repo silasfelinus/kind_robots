@@ -196,6 +196,20 @@ import {
   type GlassSceneId,
 } from './rainbowGlassCurrent'
 import {
+  MIRROR_SHOAL,
+  SHOAL_GUARDIAN,
+  SHOAL_SECTIONS,
+  SHOAL_TALKS,
+  SHOAL_WAVES,
+  SHOAL_WAVE_SIZES,
+  mirrorShoalCheckpointValid,
+  mirrorShoalDetourFor,
+  mirrorShoalMedalEarned,
+  mirrorShoalRouteUnlocked,
+  mirrorShoalSpawns,
+  mirrorShoalStage,
+} from './rainbowMirrorShoal'
+import {
   GLASS_EEL,
   GLASS_EEL_MAX_HP,
   createGlassEelBoss,
@@ -516,13 +530,14 @@ function checkpointName(c: Readonly<RainbowCheckpoint>): string {
                   : checkpointLabel(FINALE_SECTIONS, FINALE.bossStarts, c.frame)
 }
 /** A checkpoint a saved flight may continue from: any of an Act's checkpoints but the very start of Act I. */
-export function isRainbowCheckpoint(act: number, frame: number): boolean {
+export function isRainbowCheckpoint(act: number, frame: number, c?: RainbowCheckpoint): boolean {
   return (
     Number.isInteger(act) &&
     act >= 1 &&
     act <= 9 &&
     (act > 1 || frame > 0) &&
-    actCheckpointFrames(act as RainbowCheckpoint['act']).includes(frame)
+    (actCheckpointFrames(act as RainbowCheckpoint['act']).includes(frame) ||
+      (c !== undefined && mirrorShoalCheckpointValid(act, frame, c)))
   )
 }
 /** E23 crystal squids glint for this long, then fire a pellet that splits in three after its fuse. */
@@ -937,7 +952,7 @@ export type RainbowCombatSnapshot = {
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
-  act: 'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06' | 'S07' | 'S08' | 'S09'
+  act: 'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06' | 'S07' | 'S08' | 'S09' | 'X4'
   stage:
     | ReturnType<typeof pinkwakeStage>
     | ReturnType<typeof moonjellyStage>
@@ -946,6 +961,7 @@ export type RainbowCombatSnapshot = {
     | ReturnType<typeof wreckStage>
     | ReturnType<typeof reefStage>
     | ReturnType<typeof glassStage>
+    | ReturnType<typeof mirrorShoalStage>
     | ReturnType<typeof palaceStage>
     | ReturnType<typeof finaleStage>
   sceneId:
@@ -961,6 +977,8 @@ export type RainbowCombatSnapshot = {
     | WreckSceneId
     | ReefSceneId
     | GlassSceneId
+    | 'X4.OPEN'
+    | 'X4.TURN'
     | PalaceSceneId
     | FinaleSceneId
     | null
@@ -979,6 +997,9 @@ export type RainbowCombatSnapshot = {
   nurseryGuardianOutcome: GuardianOutcome
   armoryGuardianOutcome: GuardianOutcome
   pearlWardenOutcome: GuardianOutcome
+  shoalGuardianOutcome: GuardianOutcome
+  shoalFrame: number | null
+  shoalHits: number
   rescuedNemi: boolean
   /** Act III's route: null until the fork, then the vault gauntlet or the safe passage. */
   trenchRoute: TrenchRoute | null
@@ -1155,6 +1176,9 @@ export function createRainbowPrincessPreview(
   let glassEel: GlassEelBoss | null = null
   let glassEelCarryHp: number | null = null
   let glassDefeatedFrame: number | null = null
+  let shoalStart: number | null = null
+  let shoalGuardianOutcome: GuardianOutcome = 'waiting'
+  let shoalHits = 0
   let rescuedNavigator = false
   let navigator: { x: number; y: number } | null = null
   let navigatorDone = false
@@ -1283,6 +1307,12 @@ export function createRainbowPrincessPreview(
   }
   function glassFrame() {
     return glassStart === null ? 0 : tick - glassStart
+  }
+  function shoalFrame() {
+    return shoalStart === null ? 0 : tick - shoalStart
+  }
+  function shoalActive() {
+    return shoalStart !== null && palaceStart === null
   }
   function palaceFrame() {
     return palaceStart === null ? 0 : tick - palaceStart
@@ -2220,7 +2250,9 @@ export function createRainbowPrincessPreview(
     const left = (waveLeft.get(reef.wave) ?? 1) - 1
     waveLeft.set(reef.wave, left)
     const size =
-      (reef.wave >= NURSERY.waveBase
+      (reef.wave >= MIRROR_SHOAL.waveBase
+        ? SHOAL_WAVE_SIZES[reef.wave - MIRROR_SHOAL.waveBase]
+        : reef.wave >= NURSERY.waveBase
         ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
         : reef.wave >= WRECK.waveBase
           ? reef.wave >= PALACE.waveBase
@@ -2255,7 +2287,11 @@ export function createRainbowPrincessPreview(
     act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
     frame: number,
   ) {
-    if (!actCheckpointFrames(act).includes(frame)) return
+    const shoalCheckpoint =
+      act === 7 &&
+      shoalActive() &&
+      SHOAL_SECTIONS.some((section) => section.from === shoalFrame())
+    if (!actCheckpointFrames(act).includes(frame) && !shoalCheckpoint) return
     if (checkpoint.act === act && frame <= checkpoint.frame) return
     checkpoint = {
       act,
@@ -2276,6 +2312,14 @@ export function createRainbowPrincessPreview(
       reefSettled,
       pylonsDown,
       rescuedNavigator,
+      ...(shoalCheckpoint
+        ? {
+            shoalStartedAt: shoalStart! - glassStart!,
+            shoalFrame: shoalFrame(),
+            shoalGuardianOutcome,
+            shoalHits,
+          }
+        : {}),
       captivesFreed,
       schoolBonuses,
       allegiance,
@@ -2287,7 +2331,8 @@ export function createRainbowPrincessPreview(
     }
     if (frame === 0 && act >= 2) {
       const cleared = (act - 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
-      if (replaySave?.checkpoint.act !== act) awardMedal(cleared)
+      if (replaySave?.checkpoint.act !== act && !medals[cleared])
+        awardMedal(cleared)
       if (replaySave?.checkpoint.act === cleared) {
         replayClear = { act: cleared, medal: medals[cleared]! }
         over = true
@@ -2462,7 +2507,10 @@ export function createRainbowPrincessPreview(
     rosefinDefeatedFrame = beaten(4)
     wreckDefeatedFrame = beaten(5)
     reefDefeatedFrame = beaten(6)
-    glassDefeatedFrame = beaten(7)
+    glassDefeatedFrame =
+      c.shoalFrame !== undefined
+        ? c.shoalStartedAt! - GLASS.aftermathFrames
+        : beaten(7)
     palaceDefeatedFrame = beaten(8)
     moonStart = start(2)
     trenchStart = start(3)
@@ -2470,6 +2518,10 @@ export function createRainbowPrincessPreview(
     wreckStart = start(5)
     reefStart = start(6)
     glassStart = start(7)
+    shoalStart =
+      c.shoalFrame !== undefined ? glassStart! + c.shoalStartedAt! : null
+    shoalGuardianOutcome = c.shoalGuardianOutcome ?? 'waiting'
+    shoalHits = c.shoalHits ?? 0
     palaceStart = start(8)
     finaleStart = start(9)
     checkpoint = { ...c }
@@ -2514,7 +2566,9 @@ export function createRainbowPrincessPreview(
       return
     }
     const cleared =
-      checkpoint.act === 1
+      checkpoint.shoalFrame !== undefined
+        ? false
+        : checkpoint.act === 1
         ? defeatedAt !== null
         : checkpoint.act === 2
           ? moonDefeatedFrame !== null
@@ -2533,7 +2587,9 @@ export function createRainbowPrincessPreview(
                       : choiceFrame !== null || finalChoice !== null
     if (!cleared) {
       const waves: ReadonlyArray<{ at: number }> =
-        checkpoint.act === 1
+        checkpoint.shoalFrame !== undefined
+          ? SHOAL_WAVES
+          : checkpoint.act === 1
           ? PINKWAKE_WAVES
           : checkpoint.act === 2
             ? MOONJELLY_WAVES
@@ -2551,7 +2607,9 @@ export function createRainbowPrincessPreview(
                         ? PALACE_WAVES
                         : []
       const base =
-        checkpoint.act === 1
+        checkpoint.shoalFrame !== undefined
+          ? MIRROR_SHOAL.waveBase
+          : checkpoint.act === 1
           ? 0
           : checkpoint.act === 2
             ? MOONJELLY.waveBase
@@ -2585,8 +2643,13 @@ export function createRainbowPrincessPreview(
         palaceStart,
         finaleStart,
       )
-      // A guardian whose section lies after the checkpoint flies again; one already behind it does not.
+      // A guardian whose section lies after the checkpoint flies again.
       guardian = null
+      if (checkpoint.shoalFrame !== undefined) {
+        shoalStart = glassStart! + checkpoint.shoalStartedAt!
+        shoalGuardianOutcome = checkpoint.shoalGuardianOutcome ?? 'waiting'
+        shoalHits = checkpoint.shoalHits ?? 0
+      }
       nurseryGuardianOutcome = checkpoint.nurseryGuardianOutcome ?? 'waiting'
       armoryGuardianOutcome = checkpoint.armoryGuardianOutcome ?? 'waiting'
       pearlWardenOutcome = checkpoint.pearlWardenOutcome ?? 'waiting'
@@ -3558,7 +3621,14 @@ export function createRainbowPrincessPreview(
     guardian = null
     const act = currentAct()
     // The Nursery guardian is a second earned encounter, not Act III's first guardian.
-    if (act === 3 && kind === 'matriarch') {
+    if (act === 7 && kind === 'shoalkoi') {
+      shoalGuardianOutcome = 'defeated'
+      if (shoalStart !== null)
+        shoalStart -= Math.max(
+          0,
+          SHOAL_GUARDIAN.to - GUARDIAN_SKIP_LEAD - shoalFrame(),
+        )
+    } else if (act === 3 && kind === 'matriarch') {
       nurseryGuardianOutcome = 'defeated'
       const window = nurseryGuardianWindow(
         TRENCH_FORK.decideAt,
@@ -3598,6 +3668,7 @@ export function createRainbowPrincessPreview(
     // second Act rather than silently losing every autonomous pilot.
     if (options.demo || ship.invulnerable > 0 || ship.evade > 0) return
     actHits++
+    if (shoalActive()) shoalHits++
     ship.invulnerable = 90
     ship.shield--
     if (ship.shield <= 0) {
@@ -3787,11 +3858,50 @@ export function createRainbowPrincessPreview(
     }
     if (
       palaceStart === null &&
+      shoalStart === null &&
       glassDefeatedFrame !== null &&
       glassFrame() - glassDefeatedFrame >= GLASS.aftermathFrames
     ) {
-      // ACT-STRUCTURE: the mirror corridor turns straight into the palace approach.
+      const unlocked = mirrorShoalRouteUnlocked(
+        rescuedNavigator,
+        actContinues,
+      )
+      if (
+        mirrorShoalDetourFor(
+          livingShips().map((ship) => ship.y),
+          unlocked,
+        )
+      ) {
+        awardMedal(7)
+        shoalStart = tick
+        reefs.length = 0
+        enemyShots.length = 0
+        popups.push({
+          x: W / 2,
+          y: 92,
+          text: 'X4 · MIRROR SHOAL',
+          age: 0,
+        })
+        passCheckpoint(7, glassFrame())
+      } else {
+        palaceStart = tick
+      }
+      shots.length = 0
+      pickups.length = 0
+    }
+    if (shoalActive() && shoalFrame() >= MIRROR_SHOAL.end) {
+      if (mirrorShoalMedalEarned(shoalHits)) {
+        score += 3000
+        popups.push({
+          x: W / 2,
+          y: 92,
+          text: 'STILL WATER · +3000',
+          age: 0,
+        })
+      }
       palaceStart = tick
+      reefs.length = 0
+      enemyShots.length = 0
       shots.length = 0
       pickups.length = 0
     }
@@ -3997,6 +4107,29 @@ export function createRainbowPrincessPreview(
         lanternRay = createLanternRayBoss(bossHp(LANTERN_RAY_MAX_HP))
         if (lanternRayCarryHp !== null)
           lanternRay.hp = Math.min(lanternRay.hp, lanternRayCarryHp)
+      }
+    } else if (shoalActive()) {
+      const frame = shoalFrame()
+      const stage = mirrorShoalStage(frame)
+      passCheckpoint(7, glassFrame())
+      if (
+        stage === 'guardian' &&
+        guardian === null &&
+        shoalGuardianOutcome === 'waiting' &&
+        frame < SHOAL_GUARDIAN.to - RAINBOW_GUARDIAN.escapeLead
+      ) {
+        guardian = createRainbowGuardian('shoalkoi', activePlayers)
+        guardian.maxHp = guardian.hp = Math.max(
+          1,
+          Math.round(guardian.maxHp * level.bossHp),
+        )
+      }
+      if (stage === 'waves')
+        for (const entry of mirrorShoalSpawns(frame))
+          spawn(entry.kind, entry.y, entry.wave)
+      if (stage === 'turn' && frame === MIRROR_SHOAL.turnStarts) {
+        reefs.length = 0
+        enemyShots.length = 0
       }
     } else if (palaceStart === null) {
       const frame = glassFrame()
@@ -4410,12 +4543,14 @@ export function createRainbowPrincessPreview(
       const section =
         guardian.kind === 'matriarch'
           ? nurseryGuardianWindow(TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt)
-          : guardian.kind === 'siren'
-            ? ARMORY_SIREN_WINDOW
+          : guardian.kind === 'shoalkoi'
+            ? SHOAL_GUARDIAN
+            : guardian.kind === 'siren'
+              ? ARMORY_SIREN_WINDOW
             : guardian.kind === 'warden'
               ? PEARL_WARDEN_WINDOW
               : guardianSections[act]
-      const frame = actFrame(act)
+      const frame = guardian.kind === 'shoalkoi' ? shoalFrame() : actFrame(act)
       shootAs(
         RAINBOW_GUARDIAN_LOOK,
         stepRainbowGuardian(
@@ -4429,6 +4564,8 @@ export function createRainbowPrincessPreview(
         const guardianKind = guardian.kind
         guardian = null
         if (wasNursery) nurseryGuardianOutcome = 'escaped'
+        else if (guardianKind === 'shoalkoi')
+          shoalGuardianOutcome = 'escaped'
         else if (guardianKind === 'siren') armoryGuardianOutcome = 'escaped'
         else if (guardianKind === 'warden') pearlWardenOutcome = 'escaped'
         else guardians[act] = 'escaped'
@@ -5224,7 +5361,9 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
-        act: (
+        act: shoalActive()
+          ? 'X4'
+          : (
           [
             'S01',
             'S02',
@@ -5238,7 +5377,9 @@ export function createRainbowPrincessPreview(
           ] as const
         )[currentAct() - 1]!,
         stage:
-          currentAct() === 1
+          shoalActive()
+            ? mirrorShoalStage(shoalFrame())
+            : currentAct() === 1
             ? pinkwakeStage(tick, defeatedAt)
             : currentAct() === 2
               ? moonjellyStage(moonFrame(), moonDefeatedFrame)
@@ -5261,7 +5402,13 @@ export function createRainbowPrincessPreview(
                               endingFrame,
                             ),
         sceneId:
-          currentAct() === 1
+          shoalActive()
+            ? shoalFrame() < MIRROR_SHOAL.openingEnds
+              ? 'X4.OPEN'
+              : shoalFrame() >= MIRROR_SHOAL.turnStarts
+                ? 'X4.TURN'
+                : null
+            : currentAct() === 1
             ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
             : currentAct() === 2
               ? (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null)
@@ -5306,6 +5453,9 @@ export function createRainbowPrincessPreview(
         nurseryGuardianOutcome,
         armoryGuardianOutcome,
         pearlWardenOutcome,
+        shoalGuardianOutcome,
+        shoalFrame: shoalActive() ? shoalFrame() : null,
+        shoalHits,
         rescuedNemi,
         trenchRoute,
         securedSalvage: trenchRoute === 'vault' && routeSettled,
@@ -7647,6 +7797,19 @@ export function createRainbowPrincessPreview(
         }
         g.restore()
       }
+      if (shoalActive()) {
+        const frame = shoalFrame()
+        const shimmer = calm ? 0.2 : 0.35 + Math.sin(frame / 36) * 0.1
+        g.save()
+        g.strokeStyle = '#bdeaff'
+        g.globalAlpha = shimmer
+        g.lineWidth = 2
+        g.beginPath()
+        g.moveTo(0, H / 2)
+        g.lineTo(W, H / 2)
+        g.stroke()
+        g.restore()
+      }
       // Act intro splash: the painted title card fades in under the opening comms while no craft spawn.
       const act = currentAct()
       const introFrame = actFrame(act)
@@ -7696,7 +7859,16 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       const scene =
-        act === 1
+        shoalActive()
+          ? shoalFrame() < MIRROR_SHOAL.openingEnds
+            ? { id: 'X4.OPEN' as const, elapsed: shoalFrame() }
+            : shoalFrame() >= MIRROR_SHOAL.turnStarts
+              ? {
+                  id: 'X4.TURN' as const,
+                  elapsed: shoalFrame() - MIRROR_SHOAL.turnStarts,
+                }
+              : null
+          : act === 1
           ? pinkwakeScene(tick, defeatedAt)
           : act === 2
             ? moonjellyScene(moonFrame(), moonDefeatedFrame)
@@ -7719,7 +7891,13 @@ export function createRainbowPrincessPreview(
                             endingFrame,
                           )
       const said = scene
-        ? act === 9
+        ? shoalActive()
+          ? (
+              scene.id === 'X4.OPEN'
+                ? SHOAL_TALKS.opening
+                : SHOAL_TALKS.turn
+            )[Math.floor(scene.elapsed / 96)] ?? null
+          : act === 9
           ? finaleDialogue(
               scene.id as FinaleSceneId,
               scene.elapsed,
@@ -7808,7 +7986,9 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe7f5'
         g.font = 'bold 10px monospace'
         g.fillText(
-          [
+          shoalActive()
+            ? 'X4 / MIRROR SHOAL'
+            : [
             'ACT I / PINKWAKE',
             'ACT II / MOONJELLY',
             'ACT III / TRENCH',

@@ -37,6 +37,40 @@ export const SHOAL_SECTIONS = [
   { name: 'Shoal Koi', from: 15000, to: 17400 },
 ] as const
 
+/** Fly the high current to enter X4, low to return directly to Act VIII.
+ * Co-op majority decides; a tied vote follows the lead pilot.
+ */
+export function mirrorShoalDetourFor(
+  positions: readonly number[],
+  unlocked: boolean,
+): boolean {
+  if (!unlocked || !positions.length) return false
+  const high = positions.filter((y) => y < 135).length
+  const low = positions.length - high
+  return high > low || (high === low && positions[0]! < 135)
+}
+
+/** An X4 checkpoint uses Act VII's clock but never masquerades as an Act VII
+ * section. The event and both clocks must agree, including on replay.
+ */
+export function mirrorShoalCheckpointValid(
+  act: number,
+  frame: number,
+  c: {
+    shoalStartedAt?: number
+    shoalFrame?: number
+  },
+): boolean {
+  return (
+    act === 7 &&
+    Number.isInteger(c.shoalStartedAt) &&
+    c.shoalStartedAt! > 0 &&
+    Number.isInteger(c.shoalFrame) &&
+    SHOAL_SECTIONS.some((section) => section.from === c.shoalFrame) &&
+    frame === c.shoalStartedAt! + c.shoalFrame!
+  )
+}
+
 export const SHOAL_GUARDIAN: RainbowGuardianSection = {
   name: MIRROR_SHOAL.guardianName,
   from: MIRROR_SHOAL.guardianFrom,

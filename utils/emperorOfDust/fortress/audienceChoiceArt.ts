@@ -1,4 +1,5 @@
 import { illustration, type Mood } from './castArt'
+import { emperorMediaArtUrl } from './artDelivery'
 import { questArtUrl } from './questArt'
 import { roomArtUrl } from './rooms'
 
@@ -59,6 +60,8 @@ export function audienceChoiceImages(
     : []
   const candidates = [
     commission,
+    emperorMediaArtUrl(`audiences/${audienceId}-${choiceId}`),
+    emperorMediaArtUrl(`audiences/${audienceId}-enter`),
     ...(FORD_CHOICE_SCENES[`${audienceId}:${choiceId}`] ?? []),
     ...portraits,
     illustration('npcs', 'young-komodo', MOODS[cardIndex % MOODS.length]),

@@ -1,4 +1,4 @@
-import { MAX_SAVE_BYTES } from '../saves'
+import { MAX_SAVE_BYTES, serializedSaveBytes } from '../saves'
 
 export const RAINBOW_SAVE_GAME = 'rainbow-bullet-hell-space-princess'
 export const RAINBOW_SLOT_COUNT = 3
@@ -22,9 +22,6 @@ export function rainbowSlotSummary(
 }
 
 export function rainbowSlotSaveFits(save: unknown): boolean {
-  try {
-    return JSON.stringify(save).length <= MAX_SAVE_BYTES
-  } catch {
-    return false
-  }
+  const bytes = serializedSaveBytes(save)
+  return bytes !== null && bytes <= MAX_SAVE_BYTES
 }

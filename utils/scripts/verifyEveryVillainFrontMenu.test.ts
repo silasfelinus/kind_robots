@@ -6,6 +6,8 @@ import {
   comicIntroFor,
 } from '../cometAcademy/comicIntroductions'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
+import { identityArtCandidateKeys } from '../cometAcademy/artSlots'
+import { isRejectedIdentityArt } from '../cometAcademy/artQuality'
 import {
   POWER_ORIGINS,
   POWER_AFFINITIES,
@@ -727,14 +729,37 @@ assert.equal(
 // sidekick/henchman save content is still readable by the underlying engine.
 assert.deepEqual(PLAYABLE_PERSPECTIVES, ['hero', 'villain'])
 for (const identity of IDENTITY_ARCS) {
-  assert.ok(
-    comicIntroArt(comicIntroFor(identity.signature, 'hero')),
-    identity.signature + ' hero intro must reuse existing painted art',
-  )
-  assert.ok(
-    comicIntroArt(comicIntroFor(identity.signature, 'villain')),
-    identity.signature + ' villain intro must reuse existing painted art',
-  )
+  for (const role of ['hero', 'villain'] as const) {
+    // Mirror comicIntroArt's own fallback order: the role art, then student art.
+    const candidates = [
+      ...identityArtCandidateKeys(identity.signature, role),
+      ...identityArtCandidateKeys(identity.signature, 'student'),
+    ].filter((key) => promArt(key))
+    const art = comicIntroArt(comicIntroFor(identity.signature, role))
+    if (candidates.some((key) => !isRejectedIdentityArt(key))) {
+      assert.ok(
+        art,
+        identity.signature +
+          ' ' +
+          role +
+          ' intro must reuse existing painted art',
+      )
+    } else {
+      // Only the visual canon quarantine may leave a shipped identity bare.
+      assert.ok(
+        candidates.some(isRejectedIdentityArt),
+        identity.signature + ' ' + role + ' intro has no painted art at all',
+      )
+      assert.equal(
+        art,
+        null,
+        identity.signature +
+          ' ' +
+          role +
+          ' intro must not show quarantined art',
+      )
+    }
+  }
   assert.equal(
     comicIntroArt(comicIntroFor(identity.signature, 'henchman')),
     null,

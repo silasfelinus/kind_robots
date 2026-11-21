@@ -175,11 +175,11 @@
                   : 'Species unrecorded'
             }}</small>
             <button
-              v-if="known(selected.id) && selectedArt && brokenImages.includes(selectedArt)"
+              v-if="\n                known(selected.id) &&\n                selectedArt &&\n                brokenImages.includes(selectedArt)\n              "
               type="button"
               class="btn btn-outline btn-sm mt-3"
               data-testid="space-couch-alien-retry-art"
-              @click="retryArt(selectedArt)"
+              @click="retryArt"
             >
               RETRY ILLUSTRATION
             </button>
@@ -304,7 +304,10 @@ const selectedArt = computed(
   () => props.artwork?.[selected.value?.artKey ?? ''] ?? null,
 )
 const brokenImages = ref<string[]>([])
-const retryArt = (url: string) => {
-  brokenImages.value = brokenImages.value.filter((image) => image !== url)
+const retryArt = () => {
+  if (!selectedArt.value) return
+  brokenImages.value = brokenImages.value.filter(
+    (image) => image !== selectedArt.value,
+  )
 }
 </script>

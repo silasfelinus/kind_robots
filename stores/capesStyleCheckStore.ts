@@ -7,6 +7,7 @@ import {
   CAPES_STYLE_SUBJECTS,
   capesStyleCellKey,
 } from '~/utils/capesStyleCheck'
+import { CAPES_REVIEWABLE_PRODUCTION } from '~/utils/capesProductionArt'
 import type {
   CAPES_STYLE_CRITERIA,
   CapesStyleJob,
@@ -83,6 +84,18 @@ export const useCapesStyleCheckStore = defineStore(
     function imageFor(subject: string, lane: string): string {
       const id = jobFor(subject, lane)?.artImageId
       return typeof id === 'number' ? (artJobs.imageSrcById[id] ?? '') : ''
+    }
+
+    function productionImageFor(artImageId: number): string {
+      return artJobs.imageSrcById[artImageId] ?? ''
+    }
+
+    async function loadProductionImages(signature: string): Promise<void> {
+      await Promise.all(
+        CAPES_REVIEWABLE_PRODUCTION.filter(
+          (entry) => entry.signature === signature,
+        ).map((entry) => artJobs.loadJobImage(entry.artImageId)),
+      )
     }
 
     async function loadImagesForSubject(
@@ -208,6 +221,8 @@ export const useCapesStyleCheckStore = defineStore(
       leaderboard,
       jobFor,
       imageFor,
+      productionImageFor,
+      loadProductionImages,
       refresh,
       selectSubject,
       restoreReviews,

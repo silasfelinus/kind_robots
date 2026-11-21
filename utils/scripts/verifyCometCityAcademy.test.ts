@@ -3242,23 +3242,32 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
   ) as Record<StudentId, string>
   for (const person of city) {
     let run = startFullAcademy('kinetic', 300 + person.id.length)
-    for (const [day, action] of [
-      [2, 'listen'],
-      [3, 'help'],
-      [4, 'invite'],
-      [5, 'date'],
-    ] as const) {
-      run = socialize(toMap(run, day), person.id, action)
+    const actions = person.romanceable
+      ? (['listen', 'help', 'invite', 'date'] as const)
+      : (['listen', 'help', 'listen', 'listen'] as const)
+    for (const [i, action] of actions.entries()) {
+      run = socialize(toMap(run, i + 2), person.id, action)
       assert.equal(run.phase, 'dispatch', `${person.id} ${action}`)
     }
-    assert.equal(run.relationships?.romance, person.id)
+    if (person.romanceable) {
+      assert.equal(run.relationships?.romance, person.id)
+      assert.ok(
+        finishAcademy(
+          { ...run, day: 30, phase: 'finale' },
+          'protect',
+        ).scene.includes(`${names[person.id]} meets you after the alarms`),
+      )
+    } else {
+      assert.equal(run.relationships?.romance, undefined)
+      assert.equal(run.relationships?.connections[person.id]?.trust, 5)
+      assert.ok(
+        !socialChoices(run.relationships!, person.id, 6).some(
+          (choice) => choice.id === 'invite' || choice.id === 'date',
+        ),
+        `${person.id} retains their platonic boundary`,
+      )
+    }
     roundTrip(run)
-    assert.ok(
-      finishAcademy(
-        { ...run, day: 30, phase: 'finale' },
-        'protect',
-      ).scene.includes(`${names[person.id]} meets you after the alarms`),
-    )
     const hurt = { ...toMap(run, 6), injuries: { [person.id]: 8 } }
     const visit = socialize(hurt, person.id, 'visit')
     assert.ok(visit.scene.includes(person.bedside))

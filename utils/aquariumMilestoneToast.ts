@@ -17,6 +17,8 @@
 // stores/cthulhuquariumTankStore.ts and a plain `tsx` guard can use it, same
 // discipline as utils/artJobRetryNotice.ts.
 
+import { CTHULHUQUARIUM_FLOORS } from './cthulhuquariumFloors'
+
 export type AquariumMilestoneToastInput = {
   id: string
   threshold?: number
@@ -47,5 +49,10 @@ export function formatMilestoneToastMessage(
   const slots =
     Math.abs(milestone.slotsCapDelta) === 1 ? 'tank slot' : 'tank slots'
   const sign = milestone.slotsCapDelta >= 0 ? '+' : ''
-  return `${milestone.threshold} species collected -- ${sign}${milestone.slotsCapDelta} ${slots}`
+  const base = `${milestone.threshold} species collected -- ${sign}${milestone.slotsCapDelta} ${slots}`
+  // cthulhuquarium/t-105: a floor's threshold puts its key on sale.
+  const floor = CTHULHUQUARIUM_FLOORS.find(
+    (entry) => entry.milestoneId === milestone.id,
+  )
+  return floor ? `${base}. Charlotte has the key to ${floor.name}.` : base
 }

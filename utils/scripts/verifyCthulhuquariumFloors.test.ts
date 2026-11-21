@@ -14,8 +14,10 @@ import {
   unlockCost,
 } from '../../server/utils/aquariumEconomy.js'
 import {
+  canBuyFloorKey,
   canBuySpecies,
   CTHULHUQUARIUM_FLOORS,
+  FLOOR_KEY_COSTS,
   floorForDepth,
   floorOpenedBy,
   floorStatus,
@@ -68,6 +70,9 @@ CTHULHUQUARIUM_FLOORS.forEach((entry, index) => {
 })
 console.log('✅ five floors, one per tier, each opened by a bestiary milestone')
 
+// cthulhuquarium/t-105: a floor opens when its threshold is met AND its key is
+// held; keys go in order.
+const ALL_KEYS = [2, 3, 4, 5]
 const expectedOpen: Array<[number, number]> = [
   [0, 1],
   [9, 1],
@@ -81,12 +86,41 @@ const expectedOpen: Array<[number, number]> = [
   [151, 5],
 ]
 for (const [count, floor] of expectedOpen) {
-  assert.equal(openFloorFor(count), floor, `${count} species -> floor ${floor}`)
+  assert.equal(
+    openFloorFor(count, ALL_KEYS),
+    floor,
+    `${count} species with every key -> floor ${floor}`,
+  )
 }
+assert.equal(openFloorFor(151), 1, 'no keys, no floors below the shop')
+assert.equal(openFloorFor(30, [2]), 2, 'the threshold for III without its key')
+assert.equal(openFloorFor(151, [2, 4, 5]), 2, 'keys open floors in order only')
 assert.deepEqual(openDepthsFor(0), [1])
-assert.deepEqual(openDepthsFor(25), [1, 2, 3])
-assert.deepEqual(openDepthsFor(151), [1, 2, 3, 4, 5])
-console.log('✅ openFloorFor / openDepthsFor thresholds')
+assert.deepEqual(openDepthsFor(25, ALL_KEYS), [1, 2, 3])
+assert.deepEqual(openDepthsFor(151, ALL_KEYS), [1, 2, 3, 4, 5])
+console.log('✅ openFloorFor / openDepthsFor: thresholds and keys')
+
+assert.equal(canBuyFloorKey(2, 9, []), false, 'not yet: nine species')
+assert.equal(canBuyFloorKey(2, 10, []), true)
+assert.equal(canBuyFloorKey(2, 10, [2]), false, 'already held')
+assert.equal(canBuyFloorKey(3, 30, []), false, 'the floor above is shut')
+assert.equal(canBuyFloorKey(3, 30, [2]), true)
+assert.equal(canBuyFloorKey(1, 99, []), false, 'the shop needs no key')
+assert.equal(canBuyFloorKey(6, 151, ALL_KEYS), false)
+const keyed = floorStatus(10, [])
+assert.equal(keyed.next?.keyForSale, true)
+assert.equal(keyed.next?.keyCost, FLOOR_KEY_COSTS[2])
+assert.equal(floorStatus(9, []).next?.keyForSale, false)
+for (const floor of [2, 3, 4, 5] as const) {
+  assert.ok(FLOOR_KEY_COSTS[floor] > 0, `floor ${floor} key has a price`)
+  if (floor > 2) {
+    assert.ok(
+      FLOOR_KEY_COSTS[floor] > FLOOR_KEY_COSTS[(floor - 1) as 2 | 3 | 4],
+      'each key costs more than the one above',
+    )
+  }
+}
+console.log('✅ floor keys: on sale at the threshold, in order, once')
 
 assert.equal(floorForDepth(null), 1, 'a species with no depth is upstairs')
 assert.equal(floorForDepth(undefined), 1)
@@ -106,7 +140,12 @@ assert.equal(
   'Below Stairs is shut at nine species',
 )
 assert.equal(
-  canBuySpecies({ depth: 2, everCollected: false, collectedCount: 10 }),
+  canBuySpecies({
+    depth: 2,
+    everCollected: false,
+    collectedCount: 10,
+    keys: [2],
+  }),
   true,
 )
 assert.equal(
@@ -133,9 +172,15 @@ assert.deepEqual(start.next, {
   name: 'Below Stairs',
   threshold: 10,
   remaining: 10,
+  keyCost: FLOOR_KEY_COSTS[2],
+  keyForSale: false,
 })
-assert.equal(floorStatus(30).next?.remaining, 20)
-assert.equal(floorStatus(151).next, null, 'nothing below the bottom')
+assert.equal(floorStatus(30, [2, 3]).next?.remaining, 20)
+assert.equal(
+  floorStatus(151, [2, 3, 4, 5]).next,
+  null,
+  'nothing below the bottom',
+)
 assert.equal(floorOpenedBy('bestiary_10'), 2)
 assert.equal(floorOpenedBy('bestiary_95'), 5)
 assert.equal(floorOpenedBy('bestiary_15'), null)

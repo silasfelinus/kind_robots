@@ -30,6 +30,23 @@ export interface CthulhuquariumFloor {
   background: string
   // Monster.depth values that live on this floor.
   depths: readonly number[]
+  // cthulhuquarium/t-105: coins for the key, sold by Charlotte once the floor's
+  // threshold is met (conductor economy.yaml `floor_keys`, tuned with
+  // simulate_descent.py). The Shop Floor needs no key.
+  keyCost: number
+}
+
+// cthulhuquarium/t-105 (Silas 2026-11-21: "canon rarity + slower floors"): the
+// price of each floor's key, chosen with conductor
+// projects/cthulhuquarium/data/simulate_descent.py so a casual player (two
+// 10-minute sessions a day) opens Below Stairs in the first session, the
+// Flooded Wing within a day or two, the Conservatory within the week, and the
+// Bottom of Things in the second week. Mirrors economy.yaml `floor_keys`.
+export const FLOOR_KEY_COSTS: Readonly<Record<2 | 3 | 4 | 5, number>> = {
+  2: 150,
+  3: 3_000,
+  4: 30_000,
+  5: 400_000,
 }
 
 export const CTHULHUQUARIUM_FLOORS: readonly CthulhuquariumFloor[] = [
@@ -41,6 +58,7 @@ export const CTHULHUQUARIUM_FLOORS: readonly CthulhuquariumFloor[] = [
     milestoneId: null,
     background: 'parlour',
     depths: [1],
+    keyCost: 0,
   },
   {
     floor: 2,
@@ -50,6 +68,7 @@ export const CTHULHUQUARIUM_FLOORS: readonly CthulhuquariumFloor[] = [
     milestoneId: 'bestiary_10',
     background: 'sunken-pantry',
     depths: [2],
+    keyCost: FLOOR_KEY_COSTS[2],
   },
   {
     floor: 3,
@@ -59,6 +78,7 @@ export const CTHULHUQUARIUM_FLOORS: readonly CthulhuquariumFloor[] = [
     milestoneId: 'bestiary_25',
     background: 'sorting-office',
     depths: [3],
+    keyCost: FLOOR_KEY_COSTS[3],
   },
   {
     floor: 4,
@@ -68,6 +88,7 @@ export const CTHULHUQUARIUM_FLOORS: readonly CthulhuquariumFloor[] = [
     milestoneId: 'bestiary_50',
     background: 'flooded-conservatory',
     depths: [4],
+    keyCost: FLOOR_KEY_COSTS[4],
   },
   {
     floor: 5,
@@ -77,6 +98,7 @@ export const CTHULHUQUARIUM_FLOORS: readonly CthulhuquariumFloor[] = [
     milestoneId: 'bestiary_95',
     background: 'abyssal-plain',
     depths: [5],
+    keyCost: FLOOR_KEY_COSTS[5],
   },
 ]
 
@@ -90,11 +112,18 @@ export function floorInfo(floor: number): CthulhuquariumFloor {
   )
 }
 
-// The deepest open floor for a player who knows `collectedCount` species.
-export function openFloorFor(collectedCount: number): FloorNumber {
+// The deepest open floor: every floor down to it has its threshold met and
+// its key held (cthulhuquarium/t-105). Keys are bought in order, so the first
+// floor missing either stops the descent. The Shop Floor is always open.
+export function openFloorFor(
+  collectedCount: number,
+  keys: readonly number[] = [],
+): FloorNumber {
   let open: FloorNumber = 1
   for (const entry of CTHULHUQUARIUM_FLOORS) {
-    if (collectedCount >= entry.opensAt) open = entry.floor
+    if (entry.floor === 1) continue
+    if (collectedCount < entry.opensAt || !keys.includes(entry.floor)) break
+    open = entry.floor
   }
   return open
 }
@@ -112,8 +141,11 @@ export function floorForDepth(depth: number | null | undefined): FloorNumber {
 }
 
 // Every Monster.depth value on an open floor.
-export function openDepthsFor(collectedCount: number): number[] {
-  const open = openFloorFor(collectedCount)
+export function openDepthsFor(
+  collectedCount: number,
+  keys: readonly number[] = [],
+): number[] {
+  const open = openFloorFor(collectedCount, keys)
   return CTHULHUQUARIUM_FLOORS.filter((entry) => entry.floor <= open).flatMap(
     (entry) => [...entry.depths],
   )
@@ -123,9 +155,12 @@ export function canBuySpecies(args: {
   depth: number | null | undefined
   everCollected: boolean
   collectedCount: number
+  keys?: readonly number[]
 }): boolean {
   if (args.everCollected) return true
-  return floorForDepth(args.depth) <= openFloorFor(args.collectedCount)
+  return (
+    floorForDepth(args.depth) <= openFloorFor(args.collectedCount, args.keys)
+  )
 }
 
 export interface FloorStatus {
@@ -139,11 +174,18 @@ export interface FloorStatus {
     name: string
     threshold: number
     remaining: number
+    // The key's price, and whether Charlotte will sell it yet (the threshold
+    // is met). Once bought, this floor is open and `next` moves down.
+    keyCost: number
+    keyForSale: boolean
   } | null
 }
 
-export function floorStatus(collectedCount: number): FloorStatus {
-  const open = floorInfo(openFloorFor(collectedCount))
+export function floorStatus(
+  collectedCount: number,
+  keys: readonly number[] = [],
+): FloorStatus {
+  const open = floorInfo(openFloorFor(collectedCount, keys))
   const nextEntry = CTHULHUQUARIUM_FLOORS.find(
     (entry) => entry.floor === open.floor + 1,
   )
@@ -159,9 +201,26 @@ export function floorStatus(collectedCount: number): FloorStatus {
           name: nextEntry.name,
           threshold: nextEntry.opensAt,
           remaining: Math.max(0, nextEntry.opensAt - collectedCount),
+          keyCost: nextEntry.keyCost,
+          keyForSale: collectedCount >= nextEntry.opensAt,
         }
       : null,
   }
+}
+
+// Whether the key to `floor` may be bought now: the floor above it is open, the
+// threshold is met, and it is not already held.
+export function canBuyFloorKey(
+  floor: number,
+  collectedCount: number,
+  keys: readonly number[],
+): boolean {
+  const entry = CTHULHUQUARIUM_FLOORS.find((item) => item.floor === floor)
+  if (!entry || entry.floor === 1 || keys.includes(floor)) return false
+  return (
+    openFloorFor(collectedCount, keys) === floor - 1 &&
+    collectedCount >= entry.opensAt
+  )
 }
 
 // Which floor (if any) a bestiary milestone opens.

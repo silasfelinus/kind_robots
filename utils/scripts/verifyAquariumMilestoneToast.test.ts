@@ -11,26 +11,46 @@ import { formatMilestoneToastMessage } from '../aquariumMilestoneToast.js'
 // The four real BESTIARY_MILESTONES entries (server/utils/aquariumEconomy.ts)
 // -- each crosses at a different threshold but grants the same +2 slots.
 assert.equal(
-  formatMilestoneToastMessage({ id: 'bestiary_5', threshold: 5, slotsCapDelta: 2 }),
+  formatMilestoneToastMessage({
+    id: 'bestiary_5',
+    threshold: 5,
+    slotsCapDelta: 2,
+  }),
   '5 species collected -- +2 tank slots',
 )
 assert.equal(
-  formatMilestoneToastMessage({ id: 'bestiary_10', threshold: 10, slotsCapDelta: 2 }),
-  '10 species collected -- +2 tank slots',
+  formatMilestoneToastMessage({
+    id: 'bestiary_10',
+    threshold: 10,
+    slotsCapDelta: 2,
+  }),
+  '10 species collected -- +2 tank slots. Charlotte has the key to Below Stairs.',
 )
 assert.equal(
-  formatMilestoneToastMessage({ id: 'bestiary_15', threshold: 15, slotsCapDelta: 2 }),
+  formatMilestoneToastMessage({
+    id: 'bestiary_15',
+    threshold: 15,
+    slotsCapDelta: 2,
+  }),
   '15 species collected -- +2 tank slots',
 )
 assert.equal(
-  formatMilestoneToastMessage({ id: 'bestiary_20', threshold: 20, slotsCapDelta: 2 }),
+  formatMilestoneToastMessage({
+    id: 'bestiary_20',
+    threshold: 20,
+    slotsCapDelta: 2,
+  }),
   '20 species collected -- +2 tank slots',
 )
 
 // Singular slot wording, in case a future milestone config ever grants
 // exactly one slot -- proves the plural isn't hardcoded.
 assert.equal(
-  formatMilestoneToastMessage({ id: 'bestiary_8', threshold: 8, slotsCapDelta: 1 }),
+  formatMilestoneToastMessage({
+    id: 'bestiary_8',
+    threshold: 8,
+    slotsCapDelta: 1,
+  }),
   '8 species collected -- +1 tank slot',
 )
 

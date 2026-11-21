@@ -162,6 +162,13 @@
   color: var(--cq-bone, #e8dfc8);
   opacity: 0.75;
 }
+.cq-game .cq-key-icon {
+  color: var(--cq-gilt, #d8b56a);
+  filter: drop-shadow(0 0 10px rgb(216 181 106 / 0.45));
+}
+.cq-game .cq-pedestal-key .cq-plaque-title {
+  font-style: italic;
+}
 .cq-game .cq-market-floor {
   margin-right: 0.5rem;
   font-variant: small-caps;

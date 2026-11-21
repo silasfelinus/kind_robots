@@ -26,6 +26,8 @@ on:
       - 'utils/scripts/verifyEmperorQuestArt.test.ts'
       - 'utils/scripts/verifyEmperorArtRouteCoverage.test.ts'
       - 'utils/scripts/verifyEmperorIllustratedAftermaths.test.ts'
+      - 'utils/scripts/verifyEmperorArtDelivery.test.ts'
+      - 'server/api/admin/emperor-of-dust/**'
       - 'public/emperor-of-dust/**'
       - 'utils/scripts/verifyEmperorItemArt.test.ts'
       - 'utils/emperorOfDust/fortress/items.ts'
@@ -90,6 +92,7 @@ jobs:
           KIND_ROBOTS_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Verify illustrated answers and barracks dialogue after save and rewind
         run: npx tsx utils/scripts/verifyEmperorIllustratedAftermaths.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorArtDelivery.test.ts
       - run: npx tsx utils/scripts/verifyEmperorItemArt.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts
       - run: npx tsx utils/scripts/verifyEmperorOfDustAchievements.test.ts

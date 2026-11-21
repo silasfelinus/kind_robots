@@ -14,7 +14,7 @@
       "
       class="h-full w-full object-cover"
       :class="locked ? 'brightness-[0.15] grayscale' : ''"
-      @error="failed = true"
+      @error="tryNext"
     />
     <div
       v-if="locked"
@@ -38,22 +38,36 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { ENDINGS } from '~/utils/emperorOfDust/fortress/endings'
+import { endingMediaArtUrl } from '~/utils/emperorOfDust/fortress/artDelivery'
 import type { EndingId } from '~/utils/emperorOfDust/fortress/endings'
 
 const props = withDefaults(
   defineProps<{ endingId: EndingId; locked?: boolean }>(),
   { locked: false },
 )
-const failed = ref(false)
-const image = computed(() =>
-  props.locked || failed.value
-    ? '/emperor-of-dust/map/wasteland.webp'
-    : `/emperor-of-dust/endings/${props.endingId}.webp`,
+const position = ref(0)
+const candidates = computed(() =>
+  props.locked
+    ? ['/emperor-of-dust/map/wasteland.webp']
+    : [
+        `/emperor-of-dust/endings/${props.endingId}.webp`,
+        endingMediaArtUrl(props.endingId),
+        '/emperor-of-dust/map/wasteland.webp',
+      ],
 )
+const image = computed(
+  () => candidates.value[Math.min(position.value, candidates.value.length - 1)],
+)
+const failed = computed(() => !props.locked && position.value >= 2)
+
+function tryNext() {
+  if (position.value < candidates.value.length - 1) position.value += 1
+}
+
 watch(
-  () => props.endingId,
+  () => [props.endingId, props.locked],
   () => {
-    failed.value = false
+    position.value = 0
   },
 )
 </script>

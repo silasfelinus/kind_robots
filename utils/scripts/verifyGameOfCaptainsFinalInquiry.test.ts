@@ -54,6 +54,24 @@ for (const seed of [7, 19, 31, 43]) {
     assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(first))), first)
   }
 }
+const legacy = {
+  ...startVoyage('fluke', ['pell', 'mox', 'rue'], 99),
+  chapter: 9,
+  phase: 'decision' as const,
+  missionId: 'inquiry',
+}
+const consent = consequenceForRun({
+  ...legacy,
+  worldFlags: ['gate-hearing-consented'],
+})
+assert.match(consent!.opening, /right to correct their statements/)
+const broadcast = consequenceForRun({
+  ...legacy,
+  worldFlags: ['gameworld-public-rescue-footage'],
+})
+assert.match(broadcast!.opening, /consent to publicity/)
+assert.equal(consequenceForRun(legacy)?.opening, episode.opening)
+
 assert.equal(narratives.size, 6)
 assert.ok(keys.size >= 3)
 console.log('Space Couch final inquiry: three policies, six distinct outcomes, four seeded deterministic save/restore passes')

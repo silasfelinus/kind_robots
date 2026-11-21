@@ -9624,7 +9624,7 @@ for (const [run, flag, dueId, stat] of [
     ),
     flag + ': supplies or riders must improve the actual quest roll',
   )
-  assert.ok(run.dues.some((due) => due.id === dueId && due.day > 18))
+  assert.ok(run.dues?.some((due) => due.id === dueId && due.day > 18))
   assert.ok(dueDef(dueId), dueId + ': future bill has a real definition')
 }
 assert.equal(wagonRelief.brass, unassistedRefugees.brass - 18)

@@ -9,6 +9,7 @@ subtitle: Admin-only light-map editor and test cabinet
 description: Test the Last Bell table and edit its insert light positions.
 summary: Tune the Last Bell table.
 icon: kind-icon:target
+image: /zuzu-pinball/last-bell-cover.webp
 route: /admin/zuzu-pinball-workshop
 sort: 132
 requiredRole: ADMIN

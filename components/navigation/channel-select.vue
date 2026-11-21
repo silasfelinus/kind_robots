@@ -171,13 +171,13 @@
               "
             >
               <img
-                v-if="imageOk(channel.image)"
-                :src="channel.image"
+                v-if="imageFor(channel.image, channel)"
+                :src="imageFor(channel.image, channel)"
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
                 class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                @error="markBroken(channel.image)"
+                @error="markBroken(imageFor(channel.image, channel))"
               />
               <span
                 class="absolute inset-0 bg-gradient-to-r from-base-100 via-base-100/85 to-base-100/30"
@@ -384,13 +384,13 @@
                   class="relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/25 via-base-200 to-secondary/25"
                 >
                   <img
-                    v-if="imageOk(section.parent.image)"
-                    :src="section.parent.image"
+                    v-if="imageFor(section.parent.image, block.channel)"
+                    :src="imageFor(section.parent.image, block.channel)"
                     alt=""
                     aria-hidden="true"
                     loading="lazy"
                     class="absolute inset-0 h-full w-full object-cover"
-                    @error="markBroken(section.parent.image)"
+                    @error="markBroken(imageFor(section.parent.image, block.channel))"
                   />
                   <Icon
                     v-else
@@ -467,12 +467,12 @@
                       class="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 text-base-content/30"
                     />
                     <img
-                      v-if="imageOk(tab.image)"
-                      :src="tab.image"
+                      v-if="imageFor(tab.image, block.channel)"
+                      :src="imageFor(tab.image, block.channel)"
                       :alt="tab.title || tab.label"
                       loading="lazy"
                       class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      @error="markBroken(tab.image)"
+                      @error="markBroken(imageFor(tab.image, block.channel))"
                     />
                     <span
                       class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-base-content/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
@@ -537,6 +537,7 @@ import { useUserStore } from '@/stores/userStore'
 import { usePageStore } from '@/stores/pageStore'
 import { isAdminOnlyTab } from '@/utils/channelTabGroups'
 import { tabSharesRoute } from '@/utils/tabNavigation'
+import { resolveNavigationArtwork } from '@/utils/navigationArtworkFallback'
 import {
   channelAtScroll,
   initiallyExpandedSections,
@@ -744,7 +745,7 @@ const spotlight = computed<Spotlight>(() => {
       eyebrow: `${channel.room || channel.label} · ${channel.label}`,
       label: tab.title || tab.label,
       blurb: tab.summary || tab.description || tab.subtitle || '',
-      image: imageOk(tab.image) ? tab.image : channel.image,
+      image: imageFor(tab.image, channel),
       icon: tab.icon || channel.icon,
       tab,
     }
@@ -754,7 +755,7 @@ const spotlight = computed<Spotlight>(() => {
     eyebrow: channel.room || 'Kind Robots',
     label: channel.title || channel.label,
     blurb: channel.summary || channel.description || channel.subtitle || '',
-    image: channel.image,
+    image: imageFor(channel.image, channel),
     icon: channel.icon,
     tab: null,
   }
@@ -780,6 +781,15 @@ function isActiveTab(channel: ResolvedChannel, tab: ResolvedTab): boolean {
 
 function imageOk(src: string | undefined): src is string {
   return !!src && !brokenImages.value.has(src)
+}
+
+function imageFor(src: string | undefined, channel: ResolvedChannel): string {
+  return resolveNavigationArtwork(
+    src,
+    channel.image,
+    channel.channelKey,
+    brokenImages.value,
+  )
 }
 
 function markBroken(src: string | undefined): void {

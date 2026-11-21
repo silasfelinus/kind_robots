@@ -9,6 +9,7 @@ subtitle: Edit the crime, keep the life sentence
 summary: Retired meme maker, public by link.
 description: The public Account Banned meme maker, filed under Admin Retired without appearing in Play navigation.
 icon: kind-icon:alert
+image: /ban-meme/base.webp
 route: /ban-meme
 allowDirectAccess: true
 sort: 139

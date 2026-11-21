@@ -10,6 +10,7 @@ subtitle: Generate images and browse the gallery
 description: Generate images from a prompt and a recipe, then browse public images and collections in the gallery.
 summary: Generate images and browse the gallery.
 icon: kind-icon:image
+image: /art-archive/link-preview.webp
 route: /art
 sort: 10
 tutorial:

@@ -8,6 +8,7 @@ subtitle: Work in progress · Rule the wasteland from a fortress of salvage
 description: A public work-in-progress fortress game for the Zuzu-world prequel, with throne-room petitions, day-long quests and rewindable saves.
 summary: Govern the wasteland before Zuzu.
 icon: kind-icon:crown
+image: /emperor-of-dust/link-preview.webp
 route: /play/emperor-of-dust
 sort: 150
 tutorial:

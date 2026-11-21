@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   crewPatrolAftermath,
+  crewPatrolNetwork,
   patrolCrewFor,
   witnessedPatrolCrew,
 } from '../cometAcademy/patrolCrews'
@@ -32,6 +33,39 @@ for (const henchman of VILLAIN_HENCHMEN) {
   assert.ok(encounter.choices[0]!.result.includes(henchman.counter))
   assert.ok(encounter.choices.every((choice) => choice.result.length > 120))
   for (const choice of encounter.choices) {
+    const memory = {
+      day: 17,
+      zone: 'harbor' as const,
+      encounterId: 'harbor-crew',
+      choiceId: choice.id,
+    }
+    const nextNight = {
+      day: 18,
+      opponentSignature: henchman.signature,
+      patrolHistory: [memory],
+    }
+    const hero = crewPatrolNetwork(nextNight, 'hero')
+    const villain = crewPatrolNetwork(nextNight, 'villain')
+    const rogue = crewPatrolNetwork(nextNight, 'rogue')
+    const isCounter = choice.id.endsWith('-counter-investigate')
+    const isMercy = choice.id.endsWith('-mercy-intervene')
+    assert.equal(hero?.modifier, isCounter ? 1 : isMercy ? 2 : -1)
+    assert.equal(villain?.modifier ?? 0, isCounter || isMercy ? 0 : 2)
+    assert.equal(rogue?.modifier, isCounter || isMercy ? 1 : -1)
+    assert.ok(hero?.report.includes(henchman.captain))
+    assert.equal(
+      crewPatrolNetwork({ ...nextNight, day: 17 }, 'hero'),
+      null,
+      'captain choices never benefit the same night',
+    )
+    assert.equal(
+      crewPatrolNetwork(
+        { ...nextNight, opponentSignature: 'psychic-water' },
+        'hero',
+      ),
+      henchman.signature === 'psychic-water' ? hero : null,
+      'a forged crew signature cannot grant aid',
+    )
     assert.ok(!choices.has(choice.id), 'unique choices for all 48 crews')
     choices.add(choice.id)
     assert.ok(
@@ -81,6 +115,14 @@ for (const seed of [1, 73, 404, 777, 2314, 99007]) {
     const callback = crewPatrolAftermath(nextNight)
     assert.ok(callback?.includes(crew.crew.captain))
     assert.ok(nightPatrolBeat(nextNight)?.text.includes(callback!))
+    const network = crewPatrolNetwork(nextNight, 'hero')
+    const expected = choice.id.endsWith('-counter-investigate')
+      ? 1
+      : choice.id.endsWith('-mercy-intervene')
+        ? 2
+        : -1
+    assert.equal(network?.modifier, expected)
+    assert.ok(network?.report.includes(crew.crew.name))
     assert.equal(crewPatrolAftermath({ ...nextNight, day: 27 }), null)
   }
 }

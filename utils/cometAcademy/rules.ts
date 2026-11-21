@@ -1,4 +1,8 @@
-import { crewPatrolAftermath, patrolCrewFor } from './patrolCrews'
+import {
+  crewPatrolAftermath,
+  crewPatrolNetwork,
+  patrolCrewFor,
+} from './patrolCrews'
 import {
   ALL_PATROL_STORIES,
   fillStoryText,
@@ -2067,7 +2071,14 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         run.seed,
         `${run.day}:${incident.id}:${assignment.students.join(',')}`,
       ) % 6
-    const score = roll + dispatchModifier(run, incident, assignment.students)
+    const crewNetwork =
+      run.flowVersion === 3
+        ? crewPatrolNetwork(run, incident.allegiance)
+        : null
+    const score =
+      roll +
+      dispatchModifier(run, incident, assignment.students) +
+      (crewNetwork?.modifier ?? 0)
     const villain =
       run.flowVersion === 3
         ? campaignVillain(run.seed, run.mastermind)
@@ -2241,6 +2252,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
           ]
         : []),
       tacticalText,
+      crewNetwork && !playedBattle ? crewNetwork.report : '',
       secret ? `POWER SECRET: ${secret}` : '',
       hiddenDistrictSecret
         ? `DISTRICT SECRET · ${hiddenDistrictSecret.title.toUpperCase()}: ${hiddenDistrictSecret.reveal} Later calls in this district where the same people interfere now start with +1.`

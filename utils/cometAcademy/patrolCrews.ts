@@ -109,3 +109,56 @@ export function crewPatrolAftermath(run: CrewPatrolRun): string | null {
     return `The ${crew.name} you spared are quietly clearing safe passages for families. ${crew.captain} has not joined you, but a civilian brings a message: the crew remembers who offered them a choice instead of a beating.`
   return `Your threat worked too well. ${crew.captain}'s ${crew.name} stand down when you pass, but shopkeepers shutter their windows first. People are no longer sure whose patrol they should fear.`
 }
+
+/** The captain a player actually confronted can change later mission odds.
+ * Mercy creates rescue routes, an exposed signal aids investigations, and
+ * coercion helps villainous orders but frightens would-be rescuers.
+ * Everything is derived from witnessed patrol history: no new save key. */
+export function crewPatrolNetwork(
+  run: CrewPatrolRun,
+  allegiance: string,
+): { modifier: number; report: string } | null {
+  for (const memory of run.patrolHistory ?? []) {
+    if (memory.day >= run.day) continue
+    const witnessed = witnessedPatrolCrew(
+      { day: memory.day, opponentSignature: run.opponentSignature },
+      memory.zone,
+      memory.choiceId,
+    )
+    if (!witnessed) continue
+    const { crew, choice } = witnessed
+    if (choice.id.endsWith('-counter-investigate')) {
+      if (allegiance === 'villain') return null
+      return {
+        modifier: 1,
+        report:
+          `CREW COUNTER (+1): ${crew.captain}'s warning was decoded. ` +
+          `${crew.counter} The ${crew.name} cannot surprise this dispatch.`,
+      }
+    }
+    if (choice.id.endsWith('-mercy-intervene')) {
+      if (allegiance === 'villain') return null
+      const modifier = allegiance === 'rogue' ? 1 : 2
+      return {
+        modifier,
+        report:
+          `CREW MERCY (+${modifier}): ${crew.captain} and the ${crew.name} ` +
+          'honor your offer of safe passage and help civilians reach cover.',
+      }
+    }
+    if (choice.id.endsWith('-command-exploit')) {
+      const modifier = allegiance === 'villain' ? 2 : -1
+      return {
+        modifier,
+        report:
+          `CREW COERCION (${modifier > 0 ? '+' : ''}${modifier}): ` +
+          `${crew.captain}'s ${crew.name} obey the threat you made. ` +
+          (modifier > 0
+            ? 'Their forced support clears the way for tonight\'s order.'
+            : 'Residents hide from the patrol instead of helping the rescue.'),
+      }
+    }
+  }
+  return null
+}
+

@@ -160,3 +160,29 @@ export function persistRestoredVoyage(
     return { ok: false, rollbackFailed }
   }
 }
+
+/**
+ * Reading a selected backup is asynchronous. A later selection, cancellation
+ * or account restore must win even if the earlier file finishes reading last.
+ */
+export function createVoyageBackupStager() {
+  let generation = 0
+  return {
+    invalidate() {
+      generation++
+    },
+    async read(file: Pick<File, 'size' | 'text'>): Promise<VoyageBackup | null> {
+      const request = ++generation
+      try {
+        if (file.size > VOYAGE_BACKUP_MAX_BYTES)
+          throw new Error('Backup is too large (8 MB limit).')
+        const source = await file.text()
+        if (request !== generation) return null
+        return parseVoyageBackup(source)
+      } catch (error) {
+        if (request !== generation) return null
+        throw error
+      }
+    },
+  }
+}

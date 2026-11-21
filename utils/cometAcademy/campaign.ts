@@ -382,7 +382,7 @@ export const BETRAYER_VIGNETTES: Record<
     diversion:
       'Ash turns the emergency headwind against the rescuers, giving private guards time to seize the relay.',
     repair:
-      'Ash restores the workers\' warning beacons and accepts their elected safety committee as her supervisor.',
+      "Ash restores the workers' warning beacons and accepts their elected safety committee as her supervisor.",
     separate:
       'Ash repairs the night shift shelters from outside the academy, where the workers can reject her help.',
   },

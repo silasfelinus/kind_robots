@@ -2725,7 +2725,7 @@ for (const student of STUDENTS) {
       assert.ok(promArt(key), student.id + mood)
     } else {
       assert.ok(
-        promArt(key) || PROM_ART_PROMPTS[key]?.length > 120,
+        promArt(key) || (PROM_ART_PROMPTS[key]?.length ?? 0) > 120,
         `${student.id} ${mood} must have a painted asset or a literal art request`,
       )
     }

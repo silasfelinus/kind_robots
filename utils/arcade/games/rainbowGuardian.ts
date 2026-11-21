@@ -14,6 +14,7 @@ export type RainbowGuardianKind =
   | 'siren'
   | 'warden'
   | 'lampkeeper'
+  | 'shoalkoi'
   | 'clawstrike'
   | 'courier'
   | 'salvager'
@@ -230,6 +231,24 @@ export function stepRainbowGuardian(
       enraged,
     ))
       shot(angle, speed)
+  } else if (guardian.kind === 'shoalkoi') {
+    // Twin koi cross the waterline. The second, mirrored school is only
+    // reflected light; solid wings leave a navigable centre even enraged.
+    const aim = Math.atan2(nearest.y - guardian.y, nearest.x - guardian.x)
+    const offsets = enraged ? [0.24, 0.39, 0.54] : [0.3, 0.48]
+    for (const side of [-1, 1])
+      for (const offset of offsets) {
+        const angle = aim + side * offset
+        shot(angle, enraged ? 1.9 : 1.6)
+        shots.push({
+          x: guardian.x - 18,
+          y: 270 - guardian.y,
+          vx: Math.cos(angle) * 1.5,
+          vy: -Math.sin(angle) * 1.5,
+          grazed: 0,
+          ghost: true,
+        })
+      }
   } else if (guardian.kind === 'herald') {
     // The Crown Herald remixes two old lessons, one per volley: bolts down the lanes its warning marked,
     // then a ring of pearls with a gap that walks round.

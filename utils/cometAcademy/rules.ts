@@ -2025,9 +2025,7 @@ export function dispatchChance(
   )
     return 0
   const network =
-    run.flowVersion === 3
-      ? crewPatrolNetwork(run, incident.allegiance)
-      : null
+    run.flowVersion === 3 ? crewPatrolNetwork(run, incident.allegiance) : null
   const baseline =
     dispatchModifier(run, incident, students) + (network?.modifier ?? 0)
   return Math.round(
@@ -2077,9 +2075,7 @@ export function resolveDispatch(run: AcademyRun): AcademyRun {
         `${run.day}:${incident.id}:${assignment.students.join(',')}`,
       ) % 6
     const crewNetwork =
-      run.flowVersion === 3
-        ? crewPatrolNetwork(run, incident.allegiance)
-        : null
+      run.flowVersion === 3 ? crewPatrolNetwork(run, incident.allegiance) : null
     const score =
       roll +
       dispatchModifier(run, incident, assignment.students) +

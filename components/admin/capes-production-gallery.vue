@@ -209,7 +209,7 @@ onMounted(() => {
     const parsed: unknown = JSON.parse(saved)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
     const records = parsed as Record<string, unknown>
-    for (const entry of CAPES_UNSTABLE_PRODUCTION) {
+    for (const entry of CAPES_REVIEWABLE_PRODUCTION) {
       const raw = records[
         String(entry.artImageId)
       ] as Partial<LocalReview> | null

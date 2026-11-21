@@ -17,5 +17,7 @@ export function resolveNavigationArtwork(
     '/arcade/link-preview.webp',
   ]
 
-  return candidates.find((candidate) => candidate && !failed.has(candidate)) || ''
+  return (
+    candidates.find((candidate) => candidate && !failed.has(candidate)) || ''
+  )
 }

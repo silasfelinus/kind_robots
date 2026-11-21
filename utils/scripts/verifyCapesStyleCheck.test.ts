@@ -1,4 +1,9 @@
 import assert from 'node:assert/strict'
+import {
+  CAPES_PRODUCTION_IDENTITIES,
+  CAPES_UNSTABLE_PRODUCTION,
+  capesProductionFor,
+} from '../capesProductionArt'
 import { readFileSync } from 'node:fs'
 import {
   CAPES_STYLE_CRITERIA,
@@ -67,6 +72,65 @@ assert.equal(capesStyleLaneFromModel('Flux2-Klein.gguf'), null)
 assert.equal(capesStyleLaneFromModel('furrytoonmix_xlV3.safetensors'), null)
 assert.equal(capesStyleLaneFromModel('ponyFaetality_v11.safetensors'), null)
 
+// Source-ledger-linked private production receipts remain distinct from
+// artist-approved delivery and the original 48 permanent identities.
+assert.equal(CAPES_UNSTABLE_PRODUCTION.length, 14)
+assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 3)
+assert.equal(
+  new Set(CAPES_UNSTABLE_PRODUCTION.map((item) => item.key)).size,
+  14,
+)
+assert.equal(
+  new Set(CAPES_UNSTABLE_PRODUCTION.map((item) => item.asset)).size,
+  14,
+)
+assert.equal(
+  new Set(CAPES_UNSTABLE_PRODUCTION.map((item) => item.artJobId)).size,
+  14,
+)
+assert.equal(
+  new Set(CAPES_UNSTABLE_PRODUCTION.map((item) => item.artImageId)).size,
+  14,
+)
+for (const identity of CAPES_PRODUCTION_IDENTITIES) {
+  const group = capesProductionFor(identity.signature)
+  assert.ok(group.length >= 4)
+  assert.ok(
+    group.some((item) => item.asset.includes('/model-hero-2x1')),
+  )
+  assert.ok(
+    group.some((item) => item.asset.includes('/model-villain-2x1')),
+  )
+  for (const image of group) {
+    assert.ok(image.artJobId > 50000)
+    assert.ok(image.artImageId > 250000)
+    assert.ok(image.asset.startsWith(
+      `comet-city-academy/identities/${identity.signature}/`,
+    ))
+  }
+}
+assert.equal(
+  CAPES_UNSTABLE_PRODUCTION.find(
+    (item) => item.key === 'frog-villain-poster',
+  )?.artImageId,
+  258012,
+)
+assert.equal(
+  CAPES_UNSTABLE_PRODUCTION.find(
+    (item) => item.key === 'cornerstone-hero-standee',
+  )?.artJobId,
+  50549,
+)
+const gallery = readFileSync(
+  new URL('../../components/admin/capes-production-gallery.vue', import.meta.url),
+  'utf8',
+)
+assert.match(gallery, /data-testid="capes-production-gallery"/)
+assert.match(gallery, /capesProductionFor\(selected\.value\)/)
+assert.match(gallery, /loadProductionImages\(signature\)/)
+assert.match(gallery, /productionImageFor\(item\.artImageId\)/)
+assert.match(gallery, /delivery unverified/)
+
 const atlas = readFileSync(
   new URL('../../components/admin/capes-cast-atlas.vue', import.meta.url),
   'utf8',
@@ -116,6 +180,9 @@ assert.match(channel, /tabKey: capes/)
 assert.match(page, /'capes-section-' \+ section.key/)
 assert.match(page, /key: 'cast'/)
 assert.match(page, /<CapesCastAtlas/)
+assert.match(page, /<CapesProductionGallery/)
+assert.match(store, /loadProductionImages/)
+assert.match(store, /artJobs\.loadJobImage\(entry\.artImageId\)/)
 assert.match(page, /data-testid="capes-model-proposals"/)
 assert.match(page, /data-testid="capes-asset-plan"/)
 

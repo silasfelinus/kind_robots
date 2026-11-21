@@ -6,6 +6,7 @@ import { galleryThumbnailUrl } from '~/server/utils/artGalleryArchiveMedia'
 import {
   curatedRedshirtArtKey,
   isApprovedRedshirtSelection,
+  isSpaceCouchRedshirtSlot,
   preferCanonicalRedshirtSlots,
 } from '~/utils/gameOfCaptains/curatedRedshirtArt'
 
@@ -39,6 +40,7 @@ export default defineEventHandler(async (event) => {
       },
       select: {
         slotKey: true,
+        projectSlug: true,
         selectedArtImageId: true,
         Candidates: {
           select: { artImageId: true, verdict: true },
@@ -49,6 +51,7 @@ export default defineEventHandler(async (event) => {
       .map((slot) => ({
         slotKey: slot.slotKey,
         key: curatedRedshirtArtKey(slot.slotKey),
+        scoped: isSpaceCouchRedshirtSlot(slot.projectSlug, slot.slotKey),
         artImageId: slot.selectedArtImageId,
         liked: isApprovedRedshirtSelection(
           slot.selectedArtImageId,
@@ -62,7 +65,10 @@ export default defineEventHandler(async (event) => {
           artImageId: number
           liked: true
         } =>
-          slot.key !== null && slot.artImageId !== null && slot.liked,
+          slot.scoped &&
+          slot.key !== null &&
+          slot.artImageId !== null &&
+          slot.liked,
       )
 
     if (!selected.length) return { success: true, data: {} }

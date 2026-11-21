@@ -6,6 +6,7 @@ import { CONVOY_AND_ACT_TWO_CASES } from './consequenceStoriesConvoyAndActTwo'
 import { ACT_THREE_OPENING_CASES } from './consequenceStoriesActThreeOpening'
 import { ACT_THREE_MIDDLE_CASES } from './consequenceStoriesActThreeMiddle'
 import { ACT_THREE_FINAL_CASES } from './consequenceStoriesActThreeFinal'
+import { ACT_THREE_CLOSURE_CASES } from './consequenceStoriesActThreeClosure'
 
 type Meter =
   | 'sanctuary_trust'
@@ -494,6 +495,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
   ...ACT_THREE_OPENING_CASES,
   ...ACT_THREE_MIDDLE_CASES,
   ...ACT_THREE_FINAL_CASES,
+  ...ACT_THREE_CLOSURE_CASES,
 }
 export const CONSEQUENCE_ENDINGS: readonly ConsequenceEnding[] = [
   {
@@ -621,6 +623,34 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
       opening:
         episode.opening +
         ' Mara brings the limited passage permit from the earlier gate hearing. She warns that a captain who consulted one world cannot now claim to speak for twelve without asking.',
+    }
+  if (missionId === 'windglass-exodus' && flags.has('windglass-hidden'))
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' The sanctuary pilot recognizes the couch from the earlier covert escort and offers the captain a sealed route under the same conditions of trust.',
+    }
+  if (missionId === 'windglass-exodus' && flags.has('windglass-broadcast'))
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' The sanctuary remembers the earlier broadcast that let pursuers find it. Families demand a voyage without passenger names or public footage.',
+    }
+  if (missionId === 'deposit-copy' && flags.has('archive-consented'))
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' The librarians remember that the captain once asked before handling their memories and offer the crew a private editorial room.',
+    }
+  if (missionId === 'deposit-copy' && flags.has('archive-appropriated'))
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' The Archive has not forgotten the couch taking a copy without permission. Its staff demand an independent witness to every deposit decision.',
     }
   if (missionId === 'inquiry' && flags.has('gate-hearing-consented'))
     return {

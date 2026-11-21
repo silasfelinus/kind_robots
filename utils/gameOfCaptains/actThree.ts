@@ -780,5 +780,5 @@ export const ACT_THREE_MOVES: Record<
 export const ACT_THREE_OPENING =
   'ACT III: THE LAST COMMAND. The chart has run out of systems that have not heard of the couch. Every route now leads, eventually, to the jump gate, where something is waiting. Two crates of supplies arrive with a card that says, in full, “Good luck.”'
 
-/** Supplies delivered when Act III opens. */
-export const ACT_THREE_RESUPPLY = 2
+/** Three crates fund the longer, fully authored final act without removing scarcity. */
+export const ACT_THREE_RESUPPLY = 3

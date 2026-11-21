@@ -30,6 +30,7 @@ on:
       - 'utils/scripts/verifyEmperorArtRouteCoverage.test.ts'
       - 'utils/scripts/verifyEmperorIllustratedAftermaths.test.ts'
       - 'utils/scripts/verifyEmperorArtDelivery.test.ts'
+      - 'utils/scripts/verifyEmperorArtReview.test.ts'
       - 'server/api/admin/emperor-of-dust/**'
       - 'public/emperor-of-dust/**'
       - 'utils/scripts/verifyEmperorItemArt.test.ts'
@@ -40,6 +41,8 @@ on:
       - 'utils/achievements/catalog/main/emperor-of-dust.ts'
       - 'utils/scripts/emperorFortressBalanceReport.ts'
       - 'stores/emperorFortressStore.ts'
+      - 'stores/emperorArtReviewStore.ts'
+      - 'pages/admin/emperor-art-review.vue'
       - 'components/EmperorFortressThrone.vue'
       - 'components/EmperorFortressBarracks.vue'
       - 'components/EmperorFortressDawn.vue'
@@ -97,6 +100,7 @@ jobs:
       - name: Verify illustrated answers and barracks dialogue after save and rewind
         run: npx tsx utils/scripts/verifyEmperorIllustratedAftermaths.test.ts
       - run: npx tsx utils/scripts/verifyEmperorArtDelivery.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorArtReview.test.ts
       - run: npx tsx utils/scripts/verifyEmperorItemArt.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts
       - run: npx tsx utils/scripts/verifyEmperorTalkPlates.test.ts

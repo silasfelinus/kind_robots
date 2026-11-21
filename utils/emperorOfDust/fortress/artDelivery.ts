@@ -108,3 +108,18 @@ export const emperorMediaArtUrl = (asset: string): string =>
 
 export const endingMediaArtUrl = (ending: EndingId): string =>
   emperorMediaArtUrl(`endings/${ending}`)
+
+/** Limit private thumbnails to one screen; this never authorizes publication. */
+export const MAX_EMPEROR_ART_REVIEW_BATCH = 8
+
+export function parseEmperorArtReviewTargets(
+  input: unknown,
+): EmperorArtDeliveryTarget[] {
+  const targets = parseEmperorArtDeliveryTargets(input)
+  if (targets.length > MAX_EMPEROR_ART_REVIEW_BATCH) {
+    throw new Error(
+      `Review batches are limited to ${MAX_EMPEROR_ART_REVIEW_BATCH} images.`,
+    )
+  }
+  return targets
+}

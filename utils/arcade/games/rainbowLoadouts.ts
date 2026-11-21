@@ -195,7 +195,10 @@ export function rainbowRouteIntel(
           : checkpoint?.trenchRoute === 'safe'
             ? 'Safe passage'
             : 'Route undiscovered',
-      discovered: checkpoint?.routeSettled === true,
+      discovered:
+        checkpoint?.routeSettled === true &&
+        (checkpoint.trenchRoute === 'vault' ||
+          checkpoint.trenchRoute === 'safe'),
     },
     {
       act: 5,
@@ -205,7 +208,10 @@ export function rainbowRouteIntel(
           : checkpoint?.wreckRoute === 'armory'
             ? 'Armory passage'
             : 'Route undiscovered',
-      discovered: checkpoint?.wreckSettled === true,
+      discovered:
+        checkpoint?.wreckSettled === true &&
+        (checkpoint.wreckRoute === 'depot' ||
+          checkpoint.wreckRoute === 'armory'),
     },
     {
       act: 6,
@@ -215,12 +221,26 @@ export function rainbowRouteIntel(
           : checkpoint?.reefRoute === 'cache'
             ? 'Cache passage'
             : 'Route undiscovered',
-      discovered: checkpoint?.reefSettled === true,
+      discovered:
+        checkpoint?.reefSettled === true &&
+        (checkpoint.reefRoute === 'relay' || checkpoint.reefRoute === 'cache'),
     },
-  ].map((route) => ({
-    ...route,
-    label: route.discovered ? route.label : 'Route undiscovered',
-  }))
+  ].map((route) => {
+    if (!route.discovered) return { ...route, label: 'Route undiscovered' }
+    const outcome =
+      route.act === 3 && checkpoint?.trenchRoute === 'safe'
+        ? checkpoint.nurseryGuardianOutcome
+        : route.act === 5 && checkpoint?.wreckRoute === 'armory'
+          ? checkpoint.armoryGuardianOutcome
+          : null
+    const guardian =
+      outcome === 'defeated'
+        ? ' · Guardian defeated'
+        : outcome === 'escaped'
+          ? ' · Guardian escaped'
+          : ''
+    return { ...route, label: `${route.label}${guardian}` }
+  })
 }
 
 const bool = (value: unknown) => typeof value === 'boolean'

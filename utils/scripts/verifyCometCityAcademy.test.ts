@@ -12,8 +12,14 @@ import assert from 'node:assert/strict'
 import { PROM_ART_PROMPTS } from '../cometAcademy/artPrompts'
 import { CAST_LOOKS, TEAM_LOOKS } from '../cometAcademy/castLooks'
 import { promArt } from '../cometAcademy/artManifest'
-import { REJECTED_IDENTITY_ART, isRejectedIdentityArt } from '../cometAcademy/artQuality'
-import { comicIntroArt, comicIntroFor } from '../cometAcademy/comicIntroductions'
+import {
+  REJECTED_IDENTITY_ART,
+  isRejectedIdentityArt,
+} from '../cometAcademy/artQuality'
+import {
+  comicIntroArt,
+  comicIntroFor,
+} from '../cometAcademy/comicIntroductions'
 import {
   PROM_ENDINGS,
   PROM_ENDING_ROUTES,
@@ -2727,7 +2733,8 @@ for (const identity of SIGNATURE_POWERS) {
 // personally inspected against the permanently authored identity catalog.
 assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 9)
 assert.equal(
-  new Set(Object.values(REJECTED_IDENTITY_ART).map((entry) => entry.blobSha)).size,
+  new Set(Object.values(REJECTED_IDENTITY_ART).map((entry) => entry.blobSha))
+    .size,
   9,
 )
 for (const [key, rejection] of Object.entries(REJECTED_IDENTITY_ART)) {
@@ -2736,7 +2743,11 @@ for (const [key, rejection] of Object.entries(REJECTED_IDENTITY_ART)) {
   assert.ok(rejection.reason.length > 40)
   assert.equal(reviewedIdentityArtwork(key), null)
 }
-assert.equal(shippedHeroFaces, 47, '47 canon-safe hero pictures, one quarantined')
+assert.equal(
+  shippedHeroFaces,
+  47,
+  '47 canon-safe hero pictures, one quarantined',
+)
 assert.equal(shippedVillainFaces, 46, '46 canon-safe villain pictures')
 assert.equal(identityArtwork('psychic-discipline', 'villain'), null)
 assert.equal(

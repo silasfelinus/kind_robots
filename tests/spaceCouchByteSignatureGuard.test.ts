@@ -88,7 +88,7 @@ test('signature byte literals contain no double-escaped hex bytes', () => {
 
 test('signature guard distinguishes escaped bytes from harmless text', () => {
   const bad = String.raw`const magic = Buffer.from('\\x1a')`
-  const good = String.raw`const magic = Buffer.from('\\x1a')`
+  const good = String.raw`const magic = Buffer.from('\x1a')`
   const ordinary = String.raw`const description = '\\x1a'`
   assert.deepEqual(findDoubleEscapedSignatures(bad, 'fixture.ts'), [
     'fixture.ts:1',

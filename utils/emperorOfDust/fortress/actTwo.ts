@@ -448,7 +448,19 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       },
       {
         flags: ['d18-strangers-walked'],
-        label: 'The strangers the crown walked to the Bell',
+        label: 'The crown’s public promise of a refugee road',
+        bonus: 1,
+        stat: 'heart',
+      },
+      {
+        flags: ['d18-refugee-wagons'],
+        label: 'The Yard’s water carts are visible on the road',
+        bonus: 1,
+        stat: 'heart',
+      },
+      {
+        flags: ['d18-refugee-watch'],
+        label: 'The Watch lent riders to the refugee road',
         bonus: 1,
         stat: 'heart',
       },
@@ -2736,6 +2748,51 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               'Hester unfolds the road map and points to Hollow Bell. Dunmark posts the escort request on the quest board, but no one has left the gate yet. The refugees sleep by the Freehold well another night, with their empty pitchers beside them.',
             postsQuests: ['q-d18-refugee-road'],
           },
+          {
+            id: 'wagon-escort',
+            label:
+              'Spend eighteen brass on water carts and a road guide for the refugee escort.',
+            requires: { cost: 18 },
+            effects: {
+              affinity: { freeholds: -5, 'hollow-bell': 5 },
+              local: { yard: -1 },
+              flags: ['d18-strangers-walked', 'd18-refugee-wagons'],
+              questAid: [
+                {
+                  questId: 'q-d18-refugee-road',
+                  label: 'Yard water carts and a paid road guide',
+                  bonus: 3,
+                  stat: 'heart',
+                },
+              ],
+              schedule: ['d18-wagon-receipt'],
+            },
+            response:
+              'Dunmore sends two water carts and a guide who knows where the ditch is deepest. The Yard keeps the bill. Hester leaves with a list of people she can no longer call strangers.',
+            postsQuests: ['q-d18-refugee-road'],
+          },
+          {
+            id: 'watch-escort',
+            label:
+              'Pull Watch riders from the fortress wall to guard the refugee road.',
+            effects: {
+              affinity: { freeholds: -3, 'hollow-bell': 5 },
+              local: { 'gate-watch': -3, yard: 1 },
+              flags: ['d18-strangers-walked', 'd18-refugee-watch'],
+              questAid: [
+                {
+                  questId: 'q-d18-refugee-road',
+                  label: 'Dunmark’s sentries hold the refugee road',
+                  bonus: 3,
+                  stat: 'might',
+                },
+              ],
+              schedule: ['d18-empty-wall'],
+            },
+            response:
+              'Dunmark strikes six names from the night wall roster. Their horses leave before dark, with no water cart behind them. The fortress gate has six fewer people guarding it.',
+            postsQuests: ['q-d18-refugee-road'],
+          },
         ],
         beats: [
           {
@@ -2795,6 +2852,51 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   'Walk the strangers to Hollow Bell instead. Let the Bell decide.',
                 effects: { flags: ['d18-strangers-walked'] },
                 response: 'Hester looks relieved. Then ashamed of it.',
+                postsQuests: ['q-d18-refugee-road'],
+              },
+              {
+                id: 'wagon-escort',
+                label:
+                  'Spend eighteen brass on water carts and a road guide for the refugee escort.',
+                requires: { cost: 18 },
+                effects: {
+                  affinity: { freeholds: -5, 'hollow-bell': 5 },
+                  local: { yard: -1 },
+                  flags: ['d18-strangers-walked', 'd18-refugee-wagons'],
+                  questAid: [
+                    {
+                      questId: 'q-d18-refugee-road',
+                      label: 'Yard water carts and a paid road guide',
+                      bonus: 3,
+                      stat: 'heart',
+                    },
+                  ],
+                  schedule: ['d18-wagon-receipt'],
+                },
+                response:
+                  'Dunmore sends two water carts and a guide who knows where the ditch is deepest. The Yard keeps the bill. Hester leaves with a list of people she can no longer call strangers.',
+                postsQuests: ['q-d18-refugee-road'],
+              },
+              {
+                id: 'watch-escort',
+                label:
+                  'Pull Watch riders from the fortress wall to guard the refugee road.',
+                effects: {
+                  affinity: { freeholds: -3, 'hollow-bell': 5 },
+                  local: { 'gate-watch': -3, yard: 1 },
+                  flags: ['d18-strangers-walked', 'd18-refugee-watch'],
+                  questAid: [
+                    {
+                      questId: 'q-d18-refugee-road',
+                      label: 'Dunmark’s sentries hold the refugee road',
+                      bonus: 3,
+                      stat: 'might',
+                    },
+                  ],
+                  schedule: ['d18-empty-wall'],
+                },
+                response:
+                  'Dunmark strikes six names from the night wall roster. Their horses leave before dark, with no water cart behind them. The fortress gate has six fewer people guarding it.',
                 postsQuests: ['q-d18-refugee-road'],
               },
               {
@@ -2866,6 +2968,51 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 effects: { flags: ['d18-strangers-walked'] },
                 response:
                   '“Mara will write every one of them down,” says Hester. “At least somebody will.”',
+                postsQuests: ['q-d18-refugee-road'],
+              },
+              {
+                id: 'wagon-escort',
+                label:
+                  'Spend eighteen brass on water carts and a road guide for the refugee escort.',
+                requires: { cost: 18 },
+                effects: {
+                  affinity: { freeholds: -5, 'hollow-bell': 5 },
+                  local: { yard: -1 },
+                  flags: ['d18-strangers-walked', 'd18-refugee-wagons'],
+                  questAid: [
+                    {
+                      questId: 'q-d18-refugee-road',
+                      label: 'Yard water carts and a paid road guide',
+                      bonus: 3,
+                      stat: 'heart',
+                    },
+                  ],
+                  schedule: ['d18-wagon-receipt'],
+                },
+                response:
+                  'Dunmore sends two water carts and a guide who knows where the ditch is deepest. The Yard keeps the bill. Hester leaves with a list of people she can no longer call strangers.',
+                postsQuests: ['q-d18-refugee-road'],
+              },
+              {
+                id: 'watch-escort',
+                label:
+                  'Pull Watch riders from the fortress wall to guard the refugee road.',
+                effects: {
+                  affinity: { freeholds: -3, 'hollow-bell': 5 },
+                  local: { 'gate-watch': -3, yard: 1 },
+                  flags: ['d18-strangers-walked', 'd18-refugee-watch'],
+                  questAid: [
+                    {
+                      questId: 'q-d18-refugee-road',
+                      label: 'Dunmark’s sentries hold the refugee road',
+                      bonus: 3,
+                      stat: 'might',
+                    },
+                  ],
+                  schedule: ['d18-empty-wall'],
+                },
+                response:
+                  'Dunmark strikes six names from the night wall roster. Their horses leave before dark, with no water cart behind them. The fortress gate has six fewer people guarding it.',
                 postsQuests: ['q-d18-refugee-road'],
               },
               {
@@ -3047,10 +3194,28 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             ],
           },
           {
+            flags: ['d18-refugee-wagons'],
+            lines: [
+              'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. The ledger stays chained at her belt.',
+              'Hollow Bell votes tomorrow, Your Majesty. The Yard sent water carts down the refugee road. My watch has seen the tracks, but the families have not reached us yet. A promise with wheels is still a promise.',
+              'Give my people a reason to keep those carts moving. A garrison, water, or a speech.',
+              '“The Abbey sisters brought soup last night. They asked for no receipt.”',
+            ],
+          },
+          {
+            flags: ['d18-refugee-watch'],
+            lines: [
+              'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. The ledger stays chained at her belt.',
+              'Hollow Bell votes tomorrow, Your Majesty. Dunmark sent riders toward the strangers. I know because the fortress wall has six empty places. We will see whether the road has enough.',
+              'Give my people a reason. A garrison, water, or a speech.',
+              '“The Abbey sisters are walking the road with soup. I have seen them.”',
+            ],
+          },
+          {
             flags: ['d18-strangers-walked'],
             lines: [
               'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. Her ledger is chained to her belt, and stays shut. The hand-bell at her hip rings with every step until she puts a hoof over it.',
-              'Hollow Bell votes tomorrow, Your Majesty. Your strangers are on my road tonight, forty of them. Half can’t vote. The other half are watching who walks them in.',
+              'Hollow Bell votes tomorrow, Your Majesty. The crown promised a road for forty strangers. I have their names, not their arrival. Half cannot vote. All of them will remember who actually rode.',
               'Give my people a reason. A garrison, water, or a good speech. Promises they can see.',
               '“The Abbey sisters have knocked on every door in the Bell this week. They bring soup. They are good at soup.”',
             ],
@@ -4214,6 +4379,22 @@ export const ACT_TWO_DUES: readonly DueDef[] = [
     inDays: 3,
     hidden: true,
     line: 'A stranger died at a Freehold back gate with brass in his fist. The gate was shut by the crown’s order. There was nothing left to buy.',
+  },
+  {
+    id: 'd18-wagon-receipt',
+    title: 'The carts return',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d18-refugee-wagons'] },
+    line: 'The Yard driver returned from the Bell road with two empty water barrels and a receipt signed by a Hollow Bell clerk. The paper names the water given, not who made it through the gate.',
+  },
+  {
+    id: 'd18-empty-wall',
+    title: 'Six empty places',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d18-refugee-watch'] },
+    line: 'Dunmark posted the night roster by the gate. Six blanks stood where the refugee escort had drawn its riders. The sentries on duty read the blanks before they read the threat reports.',
   },
   {
     id: 'thistledown-tokens',

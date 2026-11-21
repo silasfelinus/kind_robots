@@ -260,8 +260,11 @@ const oneOf = (value: unknown, choices: readonly unknown[]) =>
  */
 export function readRainbowSave(
   raw: unknown,
-  isCheckpoint: (act: number, frame: number, c?: RainbowCheckpoint) => boolean = (act, frame) =>
-    act >= 2 && frame === 0,
+  isCheckpoint: (
+    act: number,
+    frame: number,
+    c?: RainbowCheckpoint,
+  ) => boolean = (act, frame) => act >= 2 && frame === 0,
 ): RainbowSave | null {
   if (!raw || typeof raw !== 'object') return null
   const save = raw as Record<string, unknown>
@@ -271,7 +274,11 @@ export function readRainbowSave(
   if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
   if (
     c.shoalFrame !== undefined &&
-    (!mirrorShoalCheckpointValid(c.act as number, c.frame as number, c as RainbowCheckpoint) ||
+    (!mirrorShoalCheckpointValid(
+      c.act as number,
+      c.frame as number,
+      c as RainbowCheckpoint,
+    ) ||
       !count(c.shoalHits, 999) ||
       !oneOf(c.shoalGuardianOutcome, ['waiting', 'defeated', 'escaped']))
   )

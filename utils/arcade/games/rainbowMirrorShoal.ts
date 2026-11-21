@@ -198,12 +198,7 @@ const schedule = buildFormationSchedule(SHOAL_WAVES, MIRROR_SHOAL.waveBase)
 export const SHOAL_WAVE_SIZES = schedule.sizes
 
 export type ShoalPhase =
-  | 'opening'
-  | 'waves'
-  | 'guardian'
-  | 'turn'
-  | 'aftermath'
-  | 'complete'
+  'opening' | 'waves' | 'guardian' | 'turn' | 'aftermath' | 'complete'
 
 export function mirrorShoalStage(frame: number): ShoalPhase {
   if (frame < MIRROR_SHOAL.openingEnds) return 'opening'

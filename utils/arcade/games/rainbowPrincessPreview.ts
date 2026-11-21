@@ -504,7 +504,11 @@ function actCheckpointFrames(act: RainbowCheckpoint['act']): readonly number[] {
 /** What the CONTINUE? screen and the flight log call a checkpoint: its section, the boss or the Act start. */
 function checkpointName(c: Readonly<RainbowCheckpoint>): string {
   if (c.shoalFrame !== undefined)
-    return checkpointLabel(SHOAL_SECTIONS, MIRROR_SHOAL.guardianFrom, c.shoalFrame)
+    return checkpointLabel(
+      SHOAL_SECTIONS,
+      MIRROR_SHOAL.guardianFrom,
+      c.shoalFrame,
+    )
   return c.act === 1
     ? checkpointLabel(PINKWAKE_SECTIONS, PINKWAKE.bossStarts, c.frame)
     : c.act === 2
@@ -532,7 +536,11 @@ function checkpointName(c: Readonly<RainbowCheckpoint>): string {
                   : checkpointLabel(FINALE_SECTIONS, FINALE.bossStarts, c.frame)
 }
 /** A checkpoint a saved flight may continue from: any of an Act's checkpoints but the very start of Act I. */
-export function isRainbowCheckpoint(act: number, frame: number, c?: RainbowCheckpoint): boolean {
+export function isRainbowCheckpoint(
+  act: number,
+  frame: number,
+  c?: RainbowCheckpoint,
+): boolean {
   return (
     Number.isInteger(act) &&
     act >= 1 &&
@@ -954,7 +962,8 @@ export type RainbowCombatSnapshot = {
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
-  act: 'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06' | 'S07' | 'S08' | 'S09' | 'X4'
+  act:
+    'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06' | 'S07' | 'S08' | 'S09' | 'X4'
   stage:
     | ReturnType<typeof pinkwakeStage>
     | ReturnType<typeof moonjellyStage>
@@ -1260,8 +1269,7 @@ export function createRainbowPrincessPreview(
     : readRainbowSave(
         options.rainbowReplay,
         (act, frame, c) =>
-          (act === 1 && frame === 0) ||
-          isRainbowCheckpoint(act, frame, c),
+          (act === 1 && frame === 0) || isRainbowCheckpoint(act, frame, c),
       )
   const offered =
     options.demo || replaySave
@@ -2257,22 +2265,22 @@ export function createRainbowPrincessPreview(
       (reef.wave >= MIRROR_SHOAL.waveBase
         ? SHOAL_WAVE_SIZES[reef.wave - MIRROR_SHOAL.waveBase]
         : reef.wave >= NURSERY.waveBase
-        ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
-        : reef.wave >= WRECK.waveBase
-          ? reef.wave >= PALACE.waveBase
-            ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
-            : reef.wave >= GLASS.waveBase
-              ? GLASS_WAVE_SIZES[reef.wave - GLASS.waveBase]
-              : reef.wave >= CROWN_REEF.waveBase
-                ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
-                : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
-          : reef.wave >= ROSEFIN.waveBase
-            ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
-            : reef.wave >= TRENCH.waveBase
-              ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
-              : reef.wave >= MOONJELLY.waveBase
-                ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
-                : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
+          ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
+          : reef.wave >= WRECK.waveBase
+            ? reef.wave >= PALACE.waveBase
+              ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
+              : reef.wave >= GLASS.waveBase
+                ? GLASS_WAVE_SIZES[reef.wave - GLASS.waveBase]
+                : reef.wave >= CROWN_REEF.waveBase
+                  ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
+                  : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
+            : reef.wave >= ROSEFIN.waveBase
+              ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
+              : reef.wave >= TRENCH.waveBase
+                ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
+                : reef.wave >= MOONJELLY.waveBase
+                  ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
+                  : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
     if (
       left > 0 ||
       size < RAINBOW_LANES.schoolSize ||
@@ -2576,61 +2584,61 @@ export function createRainbowPrincessPreview(
       checkpoint.shoalFrame !== undefined
         ? false
         : checkpoint.act === 1
-        ? defeatedAt !== null
-        : checkpoint.act === 2
-          ? moonDefeatedFrame !== null
-          : checkpoint.act === 3
-            ? trenchDefeatedFrame !== null
-            : checkpoint.act === 4
-              ? rosefinDefeatedFrame !== null
-              : checkpoint.act === 5
-                ? wreckDefeatedFrame !== null
-                : checkpoint.act === 6
-                  ? reefDefeatedFrame !== null
-                  : checkpoint.act === 7
-                    ? glassDefeatedFrame !== null
-                    : checkpoint.act === 8
-                      ? palaceDefeatedFrame !== null
-                      : choiceFrame !== null || finalChoice !== null
+          ? defeatedAt !== null
+          : checkpoint.act === 2
+            ? moonDefeatedFrame !== null
+            : checkpoint.act === 3
+              ? trenchDefeatedFrame !== null
+              : checkpoint.act === 4
+                ? rosefinDefeatedFrame !== null
+                : checkpoint.act === 5
+                  ? wreckDefeatedFrame !== null
+                  : checkpoint.act === 6
+                    ? reefDefeatedFrame !== null
+                    : checkpoint.act === 7
+                      ? glassDefeatedFrame !== null
+                      : checkpoint.act === 8
+                        ? palaceDefeatedFrame !== null
+                        : choiceFrame !== null || finalChoice !== null
     if (!cleared) {
       const waves: ReadonlyArray<{ at: number }> =
         checkpoint.shoalFrame !== undefined
           ? SHOAL_WAVES
           : checkpoint.act === 1
-          ? PINKWAKE_WAVES
-          : checkpoint.act === 2
-            ? MOONJELLY_WAVES
-            : checkpoint.act === 3
-              ? TRENCH_ALL_WAVES
-              : checkpoint.act === 4
-                ? ROSEFIN_WAVES
-                : checkpoint.act === 5
-                  ? WRECK_ALL_WAVES
-                  : checkpoint.act === 6
-                    ? CROWN_REEF_ALL_WAVES
-                    : checkpoint.act === 7
-                      ? GLASS_WAVES
-                      : checkpoint.act === 8
-                        ? PALACE_WAVES
-                        : []
+            ? PINKWAKE_WAVES
+            : checkpoint.act === 2
+              ? MOONJELLY_WAVES
+              : checkpoint.act === 3
+                ? TRENCH_ALL_WAVES
+                : checkpoint.act === 4
+                  ? ROSEFIN_WAVES
+                  : checkpoint.act === 5
+                    ? WRECK_ALL_WAVES
+                    : checkpoint.act === 6
+                      ? CROWN_REEF_ALL_WAVES
+                      : checkpoint.act === 7
+                        ? GLASS_WAVES
+                        : checkpoint.act === 8
+                          ? PALACE_WAVES
+                          : []
       const base =
         checkpoint.shoalFrame !== undefined
           ? MIRROR_SHOAL.waveBase
           : checkpoint.act === 1
-          ? 0
-          : checkpoint.act === 2
-            ? MOONJELLY.waveBase
-            : checkpoint.act === 3
-              ? TRENCH.waveBase
-              : checkpoint.act === 4
-                ? ROSEFIN.waveBase
-                : checkpoint.act === 5
-                  ? WRECK.waveBase
-                  : checkpoint.act === 6
-                    ? CROWN_REEF.waveBase
-                    : checkpoint.act === 7
-                      ? GLASS.waveBase
-                      : PALACE.waveBase
+            ? 0
+            : checkpoint.act === 2
+              ? MOONJELLY.waveBase
+              : checkpoint.act === 3
+                ? TRENCH.waveBase
+                : checkpoint.act === 4
+                  ? ROSEFIN.waveBase
+                  : checkpoint.act === 5
+                    ? WRECK.waveBase
+                    : checkpoint.act === 6
+                      ? CROWN_REEF.waveBase
+                      : checkpoint.act === 7
+                        ? GLASS.waveBase
+                        : PALACE.waveBase
       waves.forEach((entry, index) => {
         const id = base + index
         if (entry.at >= (checkpoint.shoalFrame ?? checkpoint.frame)) {
@@ -3870,10 +3878,7 @@ export function createRainbowPrincessPreview(
       glassDefeatedFrame !== null &&
       glassFrame() - glassDefeatedFrame >= GLASS.aftermathFrames
     ) {
-      const unlocked = mirrorShoalRouteUnlocked(
-        rescuedNavigator,
-        actContinues,
-      )
+      const unlocked = mirrorShoalRouteUnlocked(rescuedNavigator, actContinues)
       if (
         mirrorShoalDetourFor(
           livingShips().map((ship) => ship.y),
@@ -4557,9 +4562,9 @@ export function createRainbowPrincessPreview(
             ? SHOAL_GUARDIAN
             : guardian.kind === 'siren'
               ? ARMORY_SIREN_WINDOW
-            : guardian.kind === 'warden'
-              ? PEARL_WARDEN_WINDOW
-              : guardianSections[act]
+              : guardian.kind === 'warden'
+                ? PEARL_WARDEN_WINDOW
+                : guardianSections[act]
       const frame = guardian.kind === 'shoalkoi' ? shoalFrame() : actFrame(act)
       shootAs(
         RAINBOW_GUARDIAN_LOOK,
@@ -4574,8 +4579,7 @@ export function createRainbowPrincessPreview(
         const guardianKind = guardian.kind
         guardian = null
         if (wasNursery) nurseryGuardianOutcome = 'escaped'
-        else if (guardianKind === 'shoalkoi')
-          shoalGuardianOutcome = 'escaped'
+        else if (guardianKind === 'shoalkoi') shoalGuardianOutcome = 'escaped'
         else if (guardianKind === 'siren') armoryGuardianOutcome = 'escaped'
         else if (guardianKind === 'warden') pearlWardenOutcome = 'escaped'
         else guardians[act] = 'escaped'
@@ -5374,22 +5378,21 @@ export function createRainbowPrincessPreview(
         act: shoalActive()
           ? 'X4'
           : (
-          [
-            'S01',
-            'S02',
-            'S03',
-            'S04',
-            'S05',
-            'S06',
-            'S07',
-            'S08',
-            'S09',
-          ] as const
-        )[currentAct() - 1]!,
-        stage:
-          shoalActive()
-            ? mirrorShoalStage(shoalFrame())
-            : currentAct() === 1
+              [
+                'S01',
+                'S02',
+                'S03',
+                'S04',
+                'S05',
+                'S06',
+                'S07',
+                'S08',
+                'S09',
+              ] as const
+            )[currentAct() - 1]!,
+        stage: shoalActive()
+          ? mirrorShoalStage(shoalFrame())
+          : currentAct() === 1
             ? pinkwakeStage(tick, defeatedAt)
             : currentAct() === 2
               ? moonjellyStage(moonFrame(), moonDefeatedFrame)
@@ -5411,16 +5414,15 @@ export function createRainbowPrincessPreview(
                               escapeFrame,
                               endingFrame,
                             ),
-        sceneId:
-          shoalActive()
-            ? shoalFrame() < MIRROR_SHOAL.openingEnds
-              ? 'X4.OPEN'
-              : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
-                ? 'X4.AFTER'
-                : shoalFrame() >= MIRROR_SHOAL.turnStarts
-                  ? 'X4.TURN'
-                  : null
-            : currentAct() === 1
+        sceneId: shoalActive()
+          ? shoalFrame() < MIRROR_SHOAL.openingEnds
+            ? 'X4.OPEN'
+            : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
+              ? 'X4.AFTER'
+              : shoalFrame() >= MIRROR_SHOAL.turnStarts
+                ? 'X4.TURN'
+                : null
+          : currentAct() === 1
             ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
             : currentAct() === 2
               ? (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null)
@@ -7870,22 +7872,21 @@ export function createRainbowPrincessPreview(
         )
         g.restore()
       }
-      const scene =
-        shoalActive()
-          ? shoalFrame() < MIRROR_SHOAL.openingEnds
-            ? { id: 'X4.OPEN' as const, elapsed: shoalFrame() }
-            : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
+      const scene = shoalActive()
+        ? shoalFrame() < MIRROR_SHOAL.openingEnds
+          ? { id: 'X4.OPEN' as const, elapsed: shoalFrame() }
+          : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
+            ? {
+                id: 'X4.AFTER' as const,
+                elapsed: shoalFrame() - MIRROR_SHOAL.aftermathStarts,
+              }
+            : shoalFrame() >= MIRROR_SHOAL.turnStarts
               ? {
-                  id: 'X4.AFTER' as const,
-                  elapsed: shoalFrame() - MIRROR_SHOAL.aftermathStarts,
+                  id: 'X4.TURN' as const,
+                  elapsed: shoalFrame() - MIRROR_SHOAL.turnStarts,
                 }
-              : shoalFrame() >= MIRROR_SHOAL.turnStarts
-                ? {
-                    id: 'X4.TURN' as const,
-                    elapsed: shoalFrame() - MIRROR_SHOAL.turnStarts,
-                  }
-                : null
-          : act === 1
+              : null
+        : act === 1
           ? pinkwakeScene(tick, defeatedAt)
           : act === 2
             ? moonjellyScene(moonFrame(), moonDefeatedFrame)
@@ -7909,85 +7910,84 @@ export function createRainbowPrincessPreview(
                           )
       const said = scene
         ? shoalActive()
-          ? (
-              scene.id === 'X4.OPEN'
-                ? SHOAL_TALKS.opening
-                : scene.id === 'X4.TURN'
-                  ? SHOAL_TALKS.turn
-                  : SHOAL_TALKS.aftermath
-            )[Math.floor(scene.elapsed / 96)] ?? null
+          ? ((scene.id === 'X4.OPEN'
+              ? SHOAL_TALKS.opening
+              : scene.id === 'X4.TURN'
+                ? SHOAL_TALKS.turn
+                : SHOAL_TALKS.aftermath)[Math.floor(scene.elapsed / 96)] ??
+            null)
           : act === 9
-          ? finaleDialogue(
-              scene.id as FinaleSceneId,
-              scene.elapsed,
-              activePlayers,
-              finaleFlags(),
-              finalChoice,
-              allegiance,
-              partyMask(),
-            )
-          : act === 8
-            ? palaceDialogue(
-                scene.id as PalaceSceneId,
+            ? finaleDialogue(
+                scene.id as FinaleSceneId,
                 scene.elapsed,
                 activePlayers,
-                palaceFlags(),
+                finaleFlags(),
+                finalChoice,
                 allegiance,
+                partyMask(),
               )
-            : act === 7
-              ? glassDialogue(
-                  scene.id as GlassSceneId,
+            : act === 8
+              ? palaceDialogue(
+                  scene.id as PalaceSceneId,
                   scene.elapsed,
                   activePlayers,
-                  rescuedNavigator,
+                  palaceFlags(),
                   allegiance,
                 )
-              : act === 6
-                ? reefDialogue(
-                    scene.id as ReefSceneId,
+              : act === 7
+                ? glassDialogue(
+                    scene.id as GlassSceneId,
                     scene.elapsed,
                     activePlayers,
-                    reefRoute,
-                    reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS,
+                    rescuedNavigator,
                     allegiance,
-                    partyMask(),
                   )
-                : act === 5
-                  ? wreckDialogue(
-                      scene.id as WreckSceneId,
+                : act === 6
+                  ? reefDialogue(
+                      scene.id as ReefSceneId,
                       scene.elapsed,
                       activePlayers,
-                      wreckRoute,
-                      wreckRoute === 'depot' &&
-                        podsSaved >= WRECK_FORK.podsToFree,
+                      reefRoute,
+                      reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS,
+                      allegiance,
+                      partyMask(),
                     )
-                  : act === 4
-                    ? rosefinDialogue(
-                        scene.id as RosefinSceneId,
+                  : act === 5
+                    ? wreckDialogue(
+                        scene.id as WreckSceneId,
                         scene.elapsed,
                         activePlayers,
-                        rescuedCourier,
+                        wreckRoute,
+                        wreckRoute === 'depot' &&
+                          podsSaved >= WRECK_FORK.podsToFree,
                       )
-                    : act === 3
-                      ? trenchDialogue(
-                          scene.id as TrenchSceneId,
+                    : act === 4
+                      ? rosefinDialogue(
+                          scene.id as RosefinSceneId,
                           scene.elapsed,
                           activePlayers,
-                          trenchRoute,
+                          rescuedCourier,
                         )
-                      : act === 1
-                        ? pinkwakeDialogue(
-                            scene.id as PinkwakeSceneId,
+                      : act === 3
+                        ? trenchDialogue(
+                            scene.id as TrenchSceneId,
                             scene.elapsed,
                             activePlayers,
-                            rescuedStation,
+                            trenchRoute,
                           )
-                        : moonjellyDialogue(
-                            scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
-                            scene.elapsed,
-                            activePlayers,
-                            rescuedNemi,
-                          )
+                        : act === 1
+                          ? pinkwakeDialogue(
+                              scene.id as PinkwakeSceneId,
+                              scene.elapsed,
+                              activePlayers,
+                              rescuedStation,
+                            )
+                          : moonjellyDialogue(
+                              scene.id as 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
+                              scene.elapsed,
+                              activePlayers,
+                              rescuedNemi,
+                            )
         : null
       // Acts II-VIII: between scripted scenes, Lilt calls each section as it begins (t-023).
       const flying = scene ? null : flyingAct()
@@ -8008,16 +8008,16 @@ export function createRainbowPrincessPreview(
           shoalActive()
             ? 'X4 / MIRROR SHOAL'
             : [
-            'ACT I / PINKWAKE',
-            'ACT II / MOONJELLY',
-            'ACT III / TRENCH',
-            'ACT IV / EXPRESS',
-            'ACT V / WRECKYARD',
-            'ACT VI / CROWN REEF',
-            'ACT VII / GLASS CURRENT',
-            'ACT VIII / ECLIPSE PALACE',
-            'FINALE / ECLIPSE CROWN',
-          ][act - 1]!,
+                'ACT I / PINKWAKE',
+                'ACT II / MOONJELLY',
+                'ACT III / TRENCH',
+                'ACT IV / EXPRESS',
+                'ACT V / WRECKYARD',
+                'ACT VI / CROWN REEF',
+                'ACT VII / GLASS CURRENT',
+                'ACT VIII / ECLIPSE PALACE',
+                'FINALE / ECLIPSE CROWN',
+              ][act - 1]!,
           HUD_LEFT,
           12,
         )
@@ -8295,9 +8295,11 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
         g.fillText(
-          'X4 · ' + (SHOAL_SECTIONS.find((section) =>
-            shoalFrame() >= section.from && shoalFrame() < section.to
-          )?.name.toUpperCase() ?? 'MIRROR SHOAL'),
+          'X4 · ' +
+            (SHOAL_SECTIONS.find(
+              (section) =>
+                shoalFrame() >= section.from && shoalFrame() < section.to,
+            )?.name.toUpperCase() ?? 'MIRROR SHOAL'),
           W - 8,
           H - 8,
         )

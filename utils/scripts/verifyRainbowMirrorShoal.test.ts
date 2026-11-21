@@ -87,8 +87,7 @@ const checkpoint = {
 const resume = (c: typeof checkpoint) =>
   readRainbowSave(
     { v: 1, difficulty: 'normal', checkpoint: c, guardians: {}, medals: {} },
-    (act, frame, saved) =>
-      mirrorShoalCheckpointValid(act, frame, saved ?? {}),
+    (act, frame, saved) => mirrorShoalCheckpointValid(act, frame, saved ?? {}),
   )
 assert.equal(resume(checkpoint)?.checkpoint.shoalFrame, 300)
 const input = {
@@ -124,11 +123,17 @@ for (const seats of [1, 2, 3, 4]) {
   assert.equal(game.snapshot.stage, 'opening')
   assert.equal(game.snapshot.shoalFrame, 299)
   assert.equal(game.snapshot.activePlayers, seats)
-  game.update(input, Array.from({ length: seats }, () => input))
+  game.update(
+    input,
+    Array.from({ length: seats }, () => input),
+  )
   assert.equal(game.snapshot.stage, 'waves')
   assert.equal(game.snapshot.shoalFrame, 300)
   for (let tick = 0; tick <= 60; tick++)
-    game.update(input, Array.from({ length: seats }, () => input))
+    game.update(
+      input,
+      Array.from({ length: seats }, () => input),
+    )
   assert.equal(game.snapshot.act, 'X4')
   assert.ok(
     game.snapshot.enemies.some((enemy) => enemy.kind === 'mirror'),

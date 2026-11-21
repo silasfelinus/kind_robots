@@ -442,8 +442,8 @@
               @click="store.startOneShot(stage.id, pickedLead, pickedView)"
             >
               <img
-                v-if="art(stage.art)"
-                :src="art(stage.art)!"
+                v-if="oneShotArtwork(stage)"
+                :src="oneShotArtwork(stage)!"
                 alt=""
                 loading="lazy"
               />
@@ -721,6 +721,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { paintedRevealArtId } from '~/utils/everyVillainTactics/revealArt'
+import { paintedMapArtId } from '~/utils/everyVillainTactics/mapArt'
 import { identityBattleLedger } from '~/utils/everyVillainTactics/scores'
 import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
@@ -817,6 +818,21 @@ const oneShots = computed(() =>
   ),
 )
 const art = (key: string) => promArt(key)
+const picnicPaintedMapId = paintedMapArtId('picnic-plaza')
+watch(
+  [() => store.screen, () => viewer.token],
+  ([screen]) => {
+    if (screen === 'oneshot') void paintedArt.ensure(picnicPaintedMapId)
+  },
+  { immediate: true },
+)
+function oneShotArtwork(stage: { id: string; art: string }): string | null {
+  if (stage.id !== 'picnic-plaza' || !picnicPaintedMapId)
+    return art(stage.art)
+  // Show the real painted lawn when authenticated delivery completes. Keep
+  // the existing public district plate until then, including a 401 fallback.
+  return paintedArt.images[picnicPaintedMapId]?.src || art(stage.art)
+}
 const BACKDROPS: Record<string, string> = {
   title: 'front/splash-v2',
   story: 'encounters/the-fire-drill-that-wasnt',

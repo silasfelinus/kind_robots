@@ -601,6 +601,11 @@ assert.ok(
 const oneShots = oneShotStages()
 assert.equal(oneShots.length, ONE_SHOT_MENU.length)
 assert.equal(oneShots[0]!.id, 'picnic-plaza')
+assert.equal(
+  paintedMapArtId('picnic-plaza'),
+  265016,
+  'the existing painted Picnic Plaza map is the preview source',
+)
 assert.ok(!oneShots.some((s) => s.id === 'first-bell'))
 for (const stage of oneShots) {
   assert.deepEqual(stageProblems(stage), [], stage.id)
@@ -809,6 +814,14 @@ assert.match(menu, /PLAYABLE_PERSPECTIVES\.map/)
 assert.doesNotMatch(menu, /four viewpoints/)
 assert.match(menu, /aria-modal="true"/)
 assert.match(menu, /data-roving="vertical"/)
+assert.ok(menu.includes("paintedMapArtId('picnic-plaza')"))
+assert.ok(menu.includes('paintedArt.ensure(picnicPaintedMapId)'))
+assert.ok(menu.includes(':src="oneShotArtwork(stage)!"'))
+assert.ok(menu.includes('paintedArt.images[picnicPaintedMapId]?.src'))
+assert.ok(
+  menu.includes('paintedArt.images[picnicPaintedMapId]?.src || art(stage.art)'),
+  'failed private image delivery must preserve the existing public fallback',
+)
 assert.match(menu, /event\.key === 'Escape'/)
 assert.match(menu, /@media \(prefers-reduced-motion: reduce\)/)
 assert.doesNotMatch(menu, /localStorage/, 'the store owns storage')

@@ -1,0 +1,33 @@
+name: Rainbow Sunken Lighthouse Score
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/arcade/games/rainbowSunkenLighthouse.ts'
+      - 'utils/scripts/verifyRainbowSunkenLighthouse.test.ts'
+      - '.github/workflows/rainbow-sunken-lighthouse.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  authored-score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Validate earned detour, six lamps and bellkeeper
+        run: npx tsx utils/scripts/verifyRainbowSunkenLighthouse.test.ts

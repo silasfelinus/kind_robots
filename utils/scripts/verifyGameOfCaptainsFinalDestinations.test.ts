@@ -11,6 +11,7 @@ import {
   type VoyageRun,
 } from '../gameOfCaptains/rules'
 import { VOYAGE_BOARDS } from '../gameOfCaptains/voyageMap'
+import { playVoyage } from './spaceCouchTraceHarness'
 
 const routes = ['windglass-exodus', 'deposit-copy'] as const
 const narratives = new Set<string>()
@@ -92,9 +93,43 @@ for (const [missionId, flag, expected] of previousFlags) {
   )
 }
 
+let fullVoyages = 0
+for (let seed = 231; seed <= 242; seed++) {
+  const target = routes[(seed - 231) % routes.length]!
+  const { run, steps } = playVoyage(
+    'fluke',
+    ['mox', 'tess', 'rue'],
+    seed,
+    {
+      name: 'chapter-nine-final-destinations',
+      order: () => (seed % 2 ? 'aid' : 'observe'),
+      chart: (voyage) =>
+        voyage.chapter === 9
+          ? target
+          : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
+      authoredChoices: true,
+      sideQuests: false,
+      errand: () => null,
+      finale: 'protect',
+    },
+  )
+  assert.equal(run.phase, 'ending')
+  assert.ok(
+    run.consequenceHistory?.some((record) => record.missionId === target),
+    'the selected finale must resolve as a real authored decision',
+  )
+  assert.ok(
+    steps.some((step) => step.startsWith('consequence:')),
+    'the harness must play authored decisions through the real engine',
+  )
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(run))), run)
+  fullVoyages++
+}
+assert.equal(fullVoyages, 12)
+
 assert.equal(narratives.size, 12, 'every result needs original writing')
 assert.ok(artKeys.size >= 6, 'all decisions need distinct art keys')
 assert.equal(outcomeFlags.size, 24, 'success and failure must persist separately')
 console.log(
-  'Space Couch final destinations: 2 missions, 6 ethical choices, 12 distinct outcomes, 4 seeded replay/restore passes per route',
+  'Space Couch final destinations: 2 missions, 6 ethical choices, 12 distinct outcomes, 12 whole voyages and 4 seeded decision replay/restore passes per route',
 )

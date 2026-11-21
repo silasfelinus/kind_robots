@@ -130,15 +130,15 @@ const planetSuccessLeads = [
     title: 'A Refugee Named Wednesday',
     ask: 'The traveler chooses a safe place to wait for the paradox.',
     document: 'A protected testimony makes the arrest order invalid.',
-    override:
-      'The cushions shelter Wednesday until the warrant expires.',
+    override: 'The cushions shelter Wednesday until the warrant expires.',
   },
   {
     title: 'The Union of Unpaid Suns',
     ask: 'The workers negotiate a rotating daylight schedule.',
     document:
       'Payroll records reveal the star owners have been billing the planets twice.',
-    override: 'The couch restarts a striking sun long enough to thaw the nursery’s emergency heaters, then hands the switch back to the union.',
+    override:
+      'The couch restarts a striking sun long enough to thaw the nursery’s emergency heaters, then hands the switch back to the union.',
   },
   {
     title: 'The Garden That Refused Oxygen',

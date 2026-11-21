@@ -1575,7 +1575,11 @@ export function finishVoyage(
         : `In chapter ${item.chapter}, the captain heard the crew before acting.`,
     )
     .join(' ')
-  const scene = `${verdict}${captainLine} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic} ${expeditionSecrets} ${redshirts} ${captainChoices}`
+  const finalConsequences = (run.consequenceHistory ?? [])
+    .filter((record) => record.chapter === VOYAGE_CHAPTERS)
+    .map((record) => record.callback)
+    .filter(Boolean)
+  const scene = `${verdict}${captainLine} ${nemesisEnding.title}: ${nemesisEnding.text} ${remembrance} ${journeys.join(' ')} ${civic} ${finalConsequences.join(' ')} ${expeditionSecrets} ${redshirts} ${captainChoices}`
   const civicLines = (run.missionHistory ?? []).flatMap((event) => {
     const detail =
       event.policy === 'missed'
@@ -1596,6 +1600,7 @@ export function finishVoyage(
     { label: 'The captain', lines: [remembrance, captainChoices] },
     { label: 'The crew', lines: journeys },
     { label: 'The worlds you answered', lines: civicLines },
+    { label: 'Your final command', lines: finalConsequences },
     {
       label: 'Found off the map',
       lines: expeditionSecrets ? [expeditionSecrets] : [],

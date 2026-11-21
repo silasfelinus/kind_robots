@@ -111,7 +111,8 @@ export const ACT_THREE_CLOSURE_CASES = {
     choices: [
       {
         id: 'publish-crew-corrections',
-        label: 'Deposit a corrected crew log with local witnesses as co-authors',
+        label:
+          'Deposit a corrected crew log with local witnesses as co-authors',
         approach:
           'Credit the communities who changed the voyage and give vulnerable contributors control of their identifying details',
         cost: 'The cross-system consultation costs fuel and delays the repairs to the Archive’s leaking roof.',
@@ -169,7 +170,8 @@ export const ACT_THREE_CLOSURE_CASES = {
       },
       {
         id: 'repair-roof-for-deposit',
-        label: 'Repair the Archive roof immediately in exchange for a deposit vote',
+        label:
+          'Repair the Archive roof immediately in exchange for a deposit vote',
         approach:
           'Use the couch’s spare shield projector to save the library before officials decide which history deserves its shelf',
         cost: 'A material rescue wins time but may pressure librarians to favor the captain’s manuscript over competing testimony.',

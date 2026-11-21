@@ -624,20 +624,14 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
         episode.opening +
         ' Mara brings the limited passage permit from the earlier gate hearing. She warns that a captain who consulted one world cannot now claim to speak for twelve without asking.',
     }
-  if (
-    missionId === 'windglass-exodus' &&
-    flags.has('windglass-hidden')
-  )
+  if (missionId === 'windglass-exodus' && flags.has('windglass-hidden'))
     return {
       ...episode,
       opening:
         episode.opening +
         ' The sanctuary pilot recognizes the couch from the earlier covert escort and offers the captain a sealed route under the same conditions of trust.',
     }
-  if (
-    missionId === 'windglass-exodus' &&
-    flags.has('windglass-broadcast')
-  )
+  if (missionId === 'windglass-exodus' && flags.has('windglass-broadcast'))
     return {
       ...episode,
       opening:

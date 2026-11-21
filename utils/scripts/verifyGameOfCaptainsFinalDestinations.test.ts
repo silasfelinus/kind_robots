@@ -53,9 +53,9 @@ for (const missionId of routes) {
       assert.deepEqual(first, second, 'same choice and seed must replay')
       const record = first.consequenceHistory?.[0]
       assert.equal(first.consequenceHistory?.length, 1)
-      assert.ok(record?.artKey.startsWith(
-        `consequences/${episode.id}-${choice.id}-`,
-      ))
+      assert.ok(
+        record?.artKey.startsWith(`consequences/${episode.id}-${choice.id}-`),
+      )
       artKeys.add(record!.artKey)
       assert.ok(validConsequenceHistory(first.consequenceHistory))
       assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(first))), first)
@@ -96,23 +96,16 @@ for (const [missionId, flag, expected] of previousFlags) {
 let fullVoyages = 0
 for (let seed = 231; seed <= 242; seed++) {
   const target = routes[(seed - 231) % routes.length]!
-  const { run, steps } = playVoyage(
-    'fluke',
-    ['mox', 'tess', 'rue'],
-    seed,
-    {
-      name: 'chapter-nine-final-destinations',
-      order: () => (seed % 2 ? 'aid' : 'observe'),
-      chart: (voyage) =>
-        voyage.chapter === 9
-          ? target
-          : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
-      authoredChoices: true,
-      sideQuests: false,
-      errand: () => null,
-      finale: 'protect',
-    },
-  )
+  const { run, steps } = playVoyage('fluke', ['mox', 'tess', 'rue'], seed, {
+    name: 'chapter-nine-final-destinations',
+    order: () => (seed % 2 ? 'aid' : 'observe'),
+    chart: (voyage) =>
+      voyage.chapter === 9 ? target : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
+    authoredChoices: true,
+    sideQuests: false,
+    errand: () => null,
+    finale: 'protect',
+  })
   assert.equal(run.phase, 'ending')
   assert.ok(
     run.consequenceHistory?.some((record) => record.missionId === target),
@@ -129,7 +122,11 @@ assert.equal(fullVoyages, 12)
 
 assert.equal(narratives.size, 12, 'every result needs original writing')
 assert.ok(artKeys.size >= 6, 'all decisions need distinct art keys')
-assert.equal(outcomeFlags.size, 24, 'success and failure must persist separately')
+assert.equal(
+  outcomeFlags.size,
+  24,
+  'success and failure must persist separately',
+)
 console.log(
   'Space Couch final destinations: 2 missions, 6 ethical choices, 12 distinct outcomes, 12 whole voyages and 4 seeded decision replay/restore passes per route',
 )

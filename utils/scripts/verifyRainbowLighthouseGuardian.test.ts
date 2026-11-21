@@ -3,6 +3,7 @@ import {
   LIGHTHOUSE,
   LIGHTHOUSE_GUARDIAN,
   lighthouseBellkeeperVolley,
+  lighthouseGuardianActive,
   lighthouseRouteUnlocked,
 } from '../arcade/games/rainbowSunkenLighthouse'
 import { CROWN_REEF_PYLONS } from '../arcade/games/rainbowCrownReef'
@@ -35,6 +36,30 @@ assert.ok(
 assert.equal(lighthouseRouteUnlocked('relay', true, CROWN_REEF_PYLONS), true)
 assert.equal(lighthouseRouteUnlocked('relay', false, CROWN_REEF_PYLONS), false)
 assert.equal(lighthouseRouteUnlocked('cache', true, CROWN_REEF_PYLONS), false)
+
+for (const [frame, expected] of [
+  [LIGHTHOUSE.guardianFrom - 1, false],
+  [LIGHTHOUSE.guardianFrom, true],
+  [LIGHTHOUSE.guardianTo - 1, true],
+  [LIGHTHOUSE.guardianTo, false],
+] as const) {
+  assert.equal(
+    lighthouseGuardianActive(frame, 'relay', true, CROWN_REEF_PYLONS),
+    expected,
+  )
+  assert.equal(
+    lighthouseGuardianActive(frame, 'cache', true, CROWN_REEF_PYLONS),
+    false,
+  )
+  assert.equal(
+    lighthouseGuardianActive(frame, 'relay', false, CROWN_REEF_PYLONS),
+    false,
+  )
+  assert.equal(
+    lighthouseGuardianActive(frame, 'relay', true, CROWN_REEF_PYLONS - 1),
+    false,
+  )
+}
 
 for (const pilots of [1, 4]) {
   const guardian = createRainbowGuardian('lampkeeper', pilots)

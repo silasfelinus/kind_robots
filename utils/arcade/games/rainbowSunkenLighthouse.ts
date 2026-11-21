@@ -35,6 +35,20 @@ export const LIGHTHOUSE_GUARDIAN: RainbowGuardianSection = {
   kind: 'lampkeeper',
 }
 
+/** The X3 guardian exists only in its own window on an earned Act VI relay. */
+export function lighthouseGuardianActive(
+  frame: number,
+  route: 'relay' | 'cache' | null,
+  settled: boolean,
+  pylonsDown: number,
+): boolean {
+  return (
+    lighthouseRouteUnlocked(route, settled, pylonsDown) &&
+    frame >= LIGHTHOUSE_GUARDIAN.from &&
+    frame < LIGHTHOUSE_GUARDIAN.to
+  )
+}
+
 export const LIGHTHOUSE_SECTIONS = [
   { name: 'Bell one: the drowned approach', from: 240, to: 1530 },
   { name: 'Bell two: a false reflection', from: 1530, to: 2820 },

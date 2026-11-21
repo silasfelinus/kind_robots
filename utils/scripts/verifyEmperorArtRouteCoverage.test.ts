@@ -19,10 +19,17 @@ import {
 import { CHANCE_EVENTS } from '../emperorOfDust/fortress/dailyEvents'
 import { DAYS, QUEST_TEMPLATES } from '../emperorOfDust/fortress/content'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
+import { endingMediaArtUrl } from '../emperorOfDust/fortress/artDelivery'
+import type { EndingId } from '../emperorOfDust/fortress/endings'
 import { FOLLOWERS } from '../emperorOfDust/fortress/followers'
-import { QUEST_ART, questArtUrl } from '../emperorOfDust/fortress/questArt'
+import {
+  QUEST_ART,
+  questArtCandidates,
+  questArtUrl,
+} from '../emperorOfDust/fortress/questArt'
 import { ROOM_ART, roomArtUrl } from '../emperorOfDust/fortress/rooms'
 import { TALKS } from '../emperorOfDust/fortress/talks'
+import { talkPlateUrl } from '../emperorOfDust/fortress/talkPlates'
 
 type Slot = {
   kind: 'audience' | 'chance' | 'quest' | 'follower' | 'ending'
@@ -279,6 +286,97 @@ writeFileSync(
   'artifacts/emperor/editorial-art-route-coverage.json',
   JSON.stringify(report, null, 2) + '\n',
 )
+// Exact paths produced by real fortress art builders, rather than inferred
+// from filenames or static text search. This is reachability evidence only:
+// the physical-media check above remains the authority for shipped bytes.
+const runtimeAssets = new Set<string>()
+const staticAssets = new Set<string>()
+const addCandidate = (url: string | undefined): void => {
+  if (!url?.endsWith('.webp')) return
+  const mediaPrefix = '/images/emperor-of-dust/'
+  const staticPrefix = '/emperor-of-dust/'
+  const collection = url.startsWith(mediaPrefix)
+    ? runtimeAssets
+    : url.startsWith(staticPrefix)
+      ? staticAssets
+      : null
+  if (!collection) return
+  const prefix = collection === runtimeAssets ? mediaPrefix : staticPrefix
+  const asset = url.slice(prefix.length, -'.webp'.length)
+  collection.add(
+    asset.startsWith('cast/followers/') || asset.startsWith('cast/npcs/')
+      ? asset.slice('cast/'.length)
+      : asset,
+  )
+}
+
+for (const day of DAYS) {
+  for (const audience of day.audiences) {
+    const options = [
+      ...audience.options,
+      ...(audience.beats ?? []).flatMap((beat) => beat.options),
+    ]
+    options.forEach((option, index) => {
+      audienceChoiceImages(audience.id, option.id, undefined, index).forEach(
+        addCandidate,
+      )
+    })
+  }
+}
+for (const event of CHANCE_EVENTS) {
+  event.choices.forEach((option, index) => {
+    chanceArtCandidates(event.id, index, option.id).forEach(addCandidate)
+  })
+}
+for (const quest of quests) {
+  for (const variant of ['notice', 'success', 'failure'] as const) {
+    questArtCandidates(quest.id, variant).forEach(addCandidate)
+  }
+}
+for (const talk of TALKS) {
+  for (const plate of ['notice', 'choice-a', 'choice-b'] as const) {
+    addCandidate(talkPlateUrl(talk.id, plate))
+  }
+}
+for (const ending of Object.keys(ENDINGS) as EndingId[]) {
+  addCandidate(endingMediaArtUrl(ending))
+  addCandidate('/emperor-of-dust/endings/' + ending + '.webp')
+}
+for (const asset of CAST_ART) {
+  addCandidate('/emperor-of-dust/cast/' + asset + '.webp')
+}
+for (const room of ROOM_ART) addCandidate(roomArtUrl(room))
+
+const runtimeManifest = {
+  version: 1,
+  source: 'authored fortress builders and game data',
+  kind_robots_sha:
+    process.env.KIND_ROBOTS_SHA ?? process.env.GITHUB_SHA ?? null,
+  runtime_asset_paths: [...runtimeAssets].sort(),
+  static_asset_paths: [...staticAssets].sort(),
+}
+assert.ok(
+  runtimeAssets.has('endings/bell-restored') &&
+    runtimeAssets.has('endings/hundred-candles'),
+)
+assert.ok(runtimeAssets.has('chance-events/dust-weather-1/collect'))
+assert.ok(runtimeAssets.has('chance-events/dust-weather-1/notice'))
+assert.ok(
+  staticAssets.has('talks/nettle-2/notice'),
+  'shipped secret-story artwork must be enumerated from its real builder',
+)
+writeFileSync(
+  'artifacts/emperor/editorial-art-runtime-paths.json',
+  JSON.stringify(runtimeManifest, null, 2) + '\n',
+)
+console.log(
+  'EMPEROR_RUNTIME_ART_PATHS ' +
+    JSON.stringify({
+      runtime: runtimeAssets.size,
+      static: staticAssets.size,
+    }),
+)
+
 console.log('EMPEROR_ART_ROUTE_COVERAGE ' + JSON.stringify(totals))
 console.log(
   'Dedicated versus fallback slots are evidence only: delivered art, ' +

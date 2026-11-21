@@ -22,6 +22,9 @@ export type HybridizerIngredient = {
   imagePath?: string | null
   canRetry?: boolean
   isPublic?: boolean
+  // Player uploads (taxonomy UPLOAD): owner-only, never shared.
+  description?: string
+  kind?: 'creature' | 'object'
 }
 
 export type HybridizerDiscovery = HybridizerIngredient & {
@@ -109,12 +112,20 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   // Signed-in players who did not create a public discovery may ask for a
   // fresh attempt when it does not read as a hybrid (server fixes the prompt).
   const canRerollResult = ref(false)
+  // The signed-in player's own uploaded ingredients. Their images are private
+  // ArtImages, fetched with the player's token into blob URLs; nothing about
+  // them is cached in localStorage or shown to anyone else.
+  const uploads = ref<HybridizerIngredient[]>([])
+  const uploadBusy = ref(false)
+  const uploadMessage = ref('')
+  const uploadUrls = new Map<string, string>()
   const versionBusy = ref(false)
   const enqueuing = new Set<string>()
   let pollTimer: ReturnType<typeof setInterval> | null = null
   let pollTicks = 0
 
   const inputs = computed<HybridizerIngredient[]>(() => [
+    ...uploads.value,
     ...STARTERS,
     ...discoveries.value,
   ])
@@ -495,6 +506,120 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     } catch {
       status.value =
         'The Facet artwork library is unavailable; lab studies still work.'
+    }
+  }
+
+  function clearUploads() {
+    if (import.meta.client)
+      for (const url of uploadUrls.values()) URL.revokeObjectURL(url)
+    uploadUrls.clear()
+    uploads.value = []
+    uploadMessage.value = ''
+  }
+
+  async function loadUploadArt(entry: HybridizerIngredient): Promise<void> {
+    if (!import.meta.client || !entry.artImageId || uploadUrls.has(entry.key))
+      return
+    const viewerId = userStore.authenticatedUserId
+    const token = userStore.token || ''
+    if (!token) return
+    try {
+      const response = await fetch(
+        '/api/art/images/' + entry.artImageId + '/file',
+        { headers: { Authorization: 'Bearer ' + token } },
+      )
+      const type = response.headers.get('content-type') ?? ''
+      if (!response.ok || !type.startsWith('image/')) return
+      const blob = await response.blob()
+      if (viewerId !== userStore.authenticatedUserId) return
+      const url = URL.createObjectURL(blob)
+      uploadUrls.set(entry.key, url)
+      availableArt.value = { ...availableArt.value, [entry.key]: url }
+    } catch {
+      // The tile keeps its glyph; the ingredient still works for fusing.
+    }
+  }
+
+  async function loadUploads(): Promise<void> {
+    const viewerId = userStore.authenticatedUserId
+    if (!userStore.isLoggedIn || !viewerId) {
+      clearUploads()
+      return
+    }
+    const response = await performFetch<HybridizerIngredient[]>(
+      '/api/hybridizer/uploads',
+    )
+    if (viewerId !== userStore.authenticatedUserId) return
+    if (!response.success || !response.data) return
+    uploads.value = response.data
+    for (const entry of response.data) void loadUploadArt(entry)
+  }
+
+  async function addUpload(input: {
+    file: File
+    title: string
+    description: string
+    kind: 'creature' | 'object'
+    consent: boolean
+  }): Promise<HybridizerIngredient | null> {
+    if (uploadBusy.value || !userStore.isLoggedIn) return null
+    const viewerId = userStore.authenticatedUserId
+    uploadBusy.value = true
+    uploadMessage.value = 'Adding your ingredient…'
+    try {
+      const form = new FormData()
+      form.append('file', input.file)
+      form.append('title', input.title)
+      form.append('description', input.description)
+      form.append('kind', input.kind)
+      form.append('consent', input.consent ? 'true' : 'false')
+      const response = await performFetch<HybridizerIngredient>(
+        '/api/hybridizer/uploads',
+        { method: 'POST', body: form },
+        1,
+        60000,
+      )
+      if (viewerId !== userStore.authenticatedUserId) return null
+      if (!response.success || !response.data) {
+        uploadMessage.value = response.message || 'Upload failed.'
+        return null
+      }
+      uploads.value = [
+        response.data,
+        ...uploads.value.filter((entry) => entry.key !== response.data!.key),
+      ]
+      void loadUploadArt(response.data)
+      uploadMessage.value =
+        response.data.title + ' added. It is private to your account.'
+      return response.data
+    } finally {
+      uploadBusy.value = false
+    }
+  }
+
+  async function removeUpload(key: string): Promise<void> {
+    const id = /^upload:([a-f0-9]{24})$/.exec(key)?.[1]
+    if (!id || uploadBusy.value) return
+    uploadBusy.value = true
+    try {
+      const response = await performFetch('/api/hybridizer/uploads/' + id, {
+        method: 'DELETE',
+      })
+      if (!response.success) {
+        uploadMessage.value = response.message || 'Could not remove it.'
+        return
+      }
+      const url = uploadUrls.get(key)
+      if (url && import.meta.client) URL.revokeObjectURL(url)
+      uploadUrls.delete(key)
+      uploads.value = uploads.value.filter((entry) => entry.key !== key)
+      const { [key]: _removed, ...rest } = availableArt.value
+      availableArt.value = rest
+      if (leftKey.value === key) leftKey.value = 'cat'
+      if (rightKey.value === key) rightKey.value = 'banana'
+      uploadMessage.value = 'Removed. It can no longer start new fusions.'
+    } finally {
+      uploadBusy.value = false
     }
   }
 
@@ -998,9 +1123,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       canEditResult.value = false
       canRerollResult.value = false
       availableArt.value = {}
+      clearUploads()
       hydrate()
       void loadSharedStudies()
       void loadArtwork()
+      void loadUploads()
     },
   )
 
@@ -1043,6 +1170,12 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
     versionsFor,
     canEditResult,
     canRerollResult,
+    uploads,
+    uploadBusy,
+    uploadMessage,
+    loadUploads,
+    addUpload,
+    removeUpload,
     versionBusy,
     loadVersions,
     openSharedFusion,

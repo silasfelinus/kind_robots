@@ -33,10 +33,15 @@ export function buildHybridizerArtJob(
   origin: 'interactive' | 'launch-batch' | 'revision' = 'interactive',
   revision = 0,
   direction: HybridizerRevisionDirection = {},
+  // Resolved taxonomies for non-starter inputs (an uploaded object is OTHER).
+  taxonomies: [string | null | undefined, string | null | undefined] = [
+    undefined,
+    undefined,
+  ],
 ) {
   const kind = hybridizerSubjectKind(
-    starterForIdentity(fusion.leftKey)?.taxonomy,
-    starterForIdentity(fusion.rightKey)?.taxonomy,
+    taxonomies[0] ?? starterForIdentity(fusion.leftKey)?.taxonomy,
+    taxonomies[1] ?? starterForIdentity(fusion.rightKey)?.taxonomy,
   )
   const promptString = hybridizerArtPrompt(
     leftTitle,

@@ -4,11 +4,8 @@ import { errorHandler } from '~/server/utils/error'
 import { requireScopedApiUser } from '~/server/utils/authGuard'
 import { authAndGate } from '~/server/utils/comfyGate'
 import { serializeArtJobPayload } from '~/server/utils/artJobPayload'
-import {
-  starterForIdentity,
-  fusionIdForIdentity,
-  clientIngredientKey,
-} from '~/server/utils/hybridizerFusion'
+import { clientIngredientKey } from '~/server/utils/hybridizerFusion'
+import { resolveHybridizerIngredient } from '~/server/utils/hybridizerIngredients'
 import {
   HYBRIDIZER_ACTIVE_USER_LIMIT,
   HYBRIDIZER_ART_PRIORITY,
@@ -121,36 +118,18 @@ export default defineEventHandler(async (event) => {
           : 'Three Hybridizer renders are already active. Try later.',
       })
 
-    async function ingredientTitle(key: string) {
-      const starter = starterForIdentity(key)
-      if (starter) return starter.title
-      const ancestorId = fusionIdForIdentity(key)
-      const ancestor = ancestorId
-        ? await prisma.hybridizerFusion.findUnique({
-            where: { id: ancestorId },
-          })
-        : null
-      if (
-        !ancestor ||
-        (!ancestor.isPublic && ancestor.creatorUserId !== auth.user.id)
-      )
-        throw createError({
-          statusCode: 404,
-          message: 'Fusion ingredient unavailable.',
-        })
-      return ancestor.title
-    }
     const [left, right] = await Promise.all([
-      ingredientTitle(fusion.leftKey),
-      ingredientTitle(fusion.rightKey),
+      resolveHybridizerIngredient(fusion.leftKey, auth.user.id),
+      resolveHybridizerIngredient(fusion.rightKey, auth.user.id),
     ])
     const built = buildHybridizerArtJob(
       fusion,
-      left,
-      right,
+      left.promptLabel,
+      right.promptLabel,
       'revision',
       revision,
       { leftWeight, direction },
+      [left.taxonomy, right.taxonomy],
     )
     const initial = jobs.find((job) => job.projectSlug === 'hybridizer')
     const originalJobId = initial?.id ?? jobs[0]!.id

@@ -533,6 +533,7 @@ export const ModelName = {
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
   HybridizerFusion: 'HybridizerFusion',
+  HybridizerUpload: 'HybridizerUpload',
   SpaceCouchAlienGuide: 'SpaceCouchAlienGuide',
   SpaceCouchVoyageSave: 'SpaceCouchVoyageSave',
   SlimeCityAccount: 'SlimeCityAccount',
@@ -559,7 +560,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "spaceCouchAlienGuide" | "spaceCouchVoyageSave" | "slimeCityAccount" | "zuzuGamebookSave" | "slimeCityMatch" | "tarotDeck" | "tarotCard" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "arcadeScore" | "arcadeReview" | "arcadeGuestRating" | "archiveEntry" | "archiveActionPreset" | "artSlot" | "artCandidate" | "brainstormSession" | "brainstormCandidate" | "brainstormRiff" | "brainstormLine" | "comicSeries" | "comicEntity" | "comicSlot" | "comicAttempt" | "comicIssue" | "comicCritique" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinLessonProgress" | "mandarinPointEvent" | "mandarinLearnerProfile" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "musicVideo" | "playbookEdit" | "playbookNote" | "playbookRunReview" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "plumberLevel" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "sceneAnimatorPrompt" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "endingDeck" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "monstriqueBibleEntry" | "githubInstallation" | "appRepo" | "mediaEntry" | "resourcePreview" | "hybridizerFusion" | "hybridizerUpload" | "spaceCouchAlienGuide" | "spaceCouchVoyageSave" | "slimeCityAccount" | "zuzuGamebookSave" | "slimeCityMatch" | "tarotDeck" | "tarotCard" | "siteStatDaily" | "tzaddikCandidate" | "tzaddikCandidateTag" | "tzaddikRecheckRequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -9539,6 +9540,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    HybridizerUpload: {
+      payload: Prisma.$HybridizerUploadPayload<ExtArgs>
+      fields: Prisma.HybridizerUploadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HybridizerUploadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HybridizerUploadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload>
+        }
+        findFirst: {
+          args: Prisma.HybridizerUploadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HybridizerUploadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload>
+        }
+        findMany: {
+          args: Prisma.HybridizerUploadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload>[]
+        }
+        create: {
+          args: Prisma.HybridizerUploadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload>
+        }
+        createMany: {
+          args: Prisma.HybridizerUploadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.HybridizerUploadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload>
+        }
+        update: {
+          args: Prisma.HybridizerUploadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload>
+        }
+        deleteMany: {
+          args: Prisma.HybridizerUploadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HybridizerUploadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.HybridizerUploadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HybridizerUploadPayload>
+        }
+        aggregate: {
+          args: Prisma.HybridizerUploadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHybridizerUpload>
+        }
+        groupBy: {
+          args: Prisma.HybridizerUploadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HybridizerUploadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HybridizerUploadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HybridizerUploadCountAggregateOutputType> | number
+        }
+      }
+    }
     SpaceCouchAlienGuide: {
       payload: Prisma.$SpaceCouchAlienGuidePayload<ExtArgs>
       fields: Prisma.SpaceCouchAlienGuideFieldRefs
@@ -12923,6 +12990,22 @@ export const HybridizerFusionScalarFieldEnum = {
 export type HybridizerFusionScalarFieldEnum = (typeof HybridizerFusionScalarFieldEnum)[keyof typeof HybridizerFusionScalarFieldEnum]
 
 
+export const HybridizerUploadScalarFieldEnum = {
+  id: 'id',
+  ownerUserId: 'ownerUserId',
+  title: 'title',
+  description: 'description',
+  kind: 'kind',
+  artImageId: 'artImageId',
+  consentAt: 'consentAt',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HybridizerUploadScalarFieldEnum = (typeof HybridizerUploadScalarFieldEnum)[keyof typeof HybridizerUploadScalarFieldEnum]
+
+
 export const SpaceCouchAlienGuideScalarFieldEnum = {
   userId: 'userId',
   data: 'data',
@@ -14589,6 +14672,16 @@ export const HybridizerFusionOrderByRelevanceFieldEnum = {
 export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
 
 
+export const HybridizerUploadOrderByRelevanceFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  kind: 'kind'
+} as const
+
+export type HybridizerUploadOrderByRelevanceFieldEnum = (typeof HybridizerUploadOrderByRelevanceFieldEnum)[keyof typeof HybridizerUploadOrderByRelevanceFieldEnum]
+
+
 export const SpaceCouchVoyageSaveOrderByRelevanceFieldEnum = {
   payload: 'payload'
 } as const
@@ -15570,6 +15663,7 @@ export type GlobalOmitConfig = {
   mediaEntry?: Prisma.MediaEntryOmit
   resourcePreview?: Prisma.ResourcePreviewOmit
   hybridizerFusion?: Prisma.HybridizerFusionOmit
+  hybridizerUpload?: Prisma.HybridizerUploadOmit
   spaceCouchAlienGuide?: Prisma.SpaceCouchAlienGuideOmit
   spaceCouchVoyageSave?: Prisma.SpaceCouchVoyageSaveOmit
   slimeCityAccount?: Prisma.SlimeCityAccountOmit

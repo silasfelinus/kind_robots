@@ -7,10 +7,7 @@ import {
   parseArtJobPayload,
   serializeArtJobPayload,
 } from '~/server/utils/artJobPayload'
-import {
-  starterForIdentity,
-  fusionIdForIdentity,
-} from '~/server/utils/hybridizerFusion'
+import { resolveHybridizerIngredient } from '~/server/utils/hybridizerIngredients'
 import {
   HYBRIDIZER_ACTIVE_USER_LIMIT,
   HYBRIDIZER_ART_PRIORITY,
@@ -141,30 +138,19 @@ export default defineEventHandler(async (event) => {
           'You have three active Hybridizer renders. Keep fusing while they finish.',
       })
 
-    async function titleFor(key: string): Promise<string> {
-      const starter = starterForIdentity(key)
-      if (starter) return starter.title
-      const ancestorId = fusionIdForIdentity(key)
-      const ancestor = ancestorId
-        ? await prisma.hybridizerFusion.findUnique({
-            where: { id: ancestorId },
-          })
-        : null
-      if (
-        !ancestor ||
-        (!ancestor.isPublic && ancestor.creatorUserId !== auth.user.id)
-      )
-        throw createError({
-          statusCode: 404,
-          message: 'Fusion ancestor not available.',
-        })
-      return ancestor.title
-    }
     const [left, right] = await Promise.all([
-      titleFor(fusion.leftKey),
-      titleFor(fusion.rightKey),
+      resolveHybridizerIngredient(fusion.leftKey, auth.user.id),
+      resolveHybridizerIngredient(fusion.rightKey, auth.user.id),
     ])
-    const built = buildHybridizerArtJob(fusion, left, right)
+    const built = buildHybridizerArtJob(
+      fusion,
+      left.promptLabel,
+      right.promptLabel,
+      'interactive',
+      0,
+      {},
+      [left.taxonomy, right.taxonomy],
+    )
 
     const gate = await authAndGate(event, {
       engine: 'comfy',

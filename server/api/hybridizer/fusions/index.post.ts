@@ -6,10 +6,9 @@ import {
   canonicalFusionPair,
   clientIngredientKey,
   fusionDisplayTitle,
-  fusionIdForIdentity,
   HYBRIDIZER_MAX_DEPTH,
-  starterForIdentity,
 } from '~/server/utils/hybridizerFusion'
+import { resolveHybridizerIngredient } from '~/server/utils/hybridizerIngredients'
 
 type InputInfo = { title: string; depth: number; isPublic: boolean }
 
@@ -35,28 +34,11 @@ export default defineEventHandler(async (event) => {
       )
     }
 
+    // Visibility is inherited: a fusion is public only when both inputs are,
+    // so anything made from a private upload stays private to its owner.
     async function resolveInput(key: string): Promise<InputInfo> {
-      const starter = starterForIdentity(key)
-      if (starter) return { title: starter.title, depth: 0, isPublic: true }
-
-      const id = fusionIdForIdentity(key)
-      if (!id) return invalid('Unknown Hybridizer ingredient.')
-      const ancestor = await prisma.hybridizerFusion.findUnique({
-        where: { id },
-      })
-      if (
-        !ancestor ||
-        (!ancestor.isPublic && ancestor.creatorUserId !== auth.user.id)
-      )
-        throw createError({
-          statusCode: 404,
-          message: 'Hybrid ingredient not available.',
-        })
-      return {
-        title: ancestor.title,
-        depth: ancestor.depth,
-        isPublic: ancestor.isPublic,
-      }
+      const info = await resolveHybridizerIngredient(key, auth.user.id)
+      return { title: info.title, depth: info.depth, isPublic: info.isPublic }
     }
 
     const [first, second] = await Promise.all([

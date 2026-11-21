@@ -5,6 +5,7 @@ import { ACT_ONE_UNPAINTED_CASES } from './consequenceStoriesActOneRemainder'
 import { CONVOY_AND_ACT_TWO_CASES } from './consequenceStoriesConvoyAndActTwo'
 import { ACT_THREE_OPENING_CASES } from './consequenceStoriesActThreeOpening'
 import { ACT_THREE_MIDDLE_CASES } from './consequenceStoriesActThreeMiddle'
+import { ACT_THREE_FINAL_CASES } from './consequenceStoriesActThreeFinal'
 
 type Meter =
   | 'sanctuary_trust'
@@ -492,6 +493,7 @@ export const CONSEQUENCE_STORIES: Record<string, ConsequenceEpisode> = {
   ...CONVOY_AND_ACT_TWO_CASES,
   ...ACT_THREE_OPENING_CASES,
   ...ACT_THREE_MIDDLE_CASES,
+  ...ACT_THREE_FINAL_CASES,
 }
 export const CONSEQUENCE_ENDINGS: readonly ConsequenceEnding[] = [
   {

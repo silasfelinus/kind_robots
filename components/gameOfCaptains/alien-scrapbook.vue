@@ -189,7 +189,11 @@
                   : 'Species unrecorded'
             }}</small>
             <button
-              v-if="\n                known(selected.id) &&\n                selectedArt &&\n                brokenImages.includes(selectedArt)\n              "
+              v-if="
+                known(selected.id) &&
+                selectedArt &&
+                brokenImages.includes(selectedArt)
+              "
               type="button"
               class="btn btn-outline btn-sm mt-3"
               data-testid="space-couch-alien-retry-art"

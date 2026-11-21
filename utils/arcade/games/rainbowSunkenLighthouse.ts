@@ -1,6 +1,7 @@
 import { buildFormationSchedule, wave } from './rainbowFormations'
 import type { RainbowSpawn, RainbowWave } from './rainbowFormations'
 import { CROWN_REEF_PYLONS } from './rainbowCrownReef'
+import type { RainbowGuardianSection } from './rainbowGuardian'
 
 /**
  * X3, Sunken Lighthouse Ring: an earned detour between Acts VI and VII.
@@ -26,6 +27,27 @@ export const LIGHTHOUSE = {
   guardianName: 'Drowned Bellkeeper',
   lampsToLight: 6,
 } as const
+
+export const LIGHTHOUSE_GUARDIAN: RainbowGuardianSection = {
+  name: LIGHTHOUSE.guardianName,
+  from: LIGHTHOUSE.guardianFrom,
+  to: LIGHTHOUSE.guardianTo,
+  kind: 'lampkeeper',
+}
+
+/** The X3 guardian exists only in its own window on an earned Act VI relay. */
+export function lighthouseGuardianActive(
+  frame: number,
+  route: 'relay' | 'cache' | null,
+  settled: boolean,
+  pylonsDown: number,
+): boolean {
+  return (
+    lighthouseRouteUnlocked(route, settled, pylonsDown) &&
+    frame >= LIGHTHOUSE_GUARDIAN.from &&
+    frame < LIGHTHOUSE_GUARDIAN.to
+  )
+}
 
 export const LIGHTHOUSE_SECTIONS = [
   { name: 'Bell one: the drowned approach', from: 240, to: 1530 },

@@ -6335,7 +6335,9 @@ export function createRainbowPrincessPreview(
               ? 'lantern'
               : guardian.kind === 'warden'
                 ? 'bulwark'
-                : guardian.kind,
+                : guardian.kind === 'lampkeeper'
+                  ? 'mirror'
+                  : guardian.kind,
           )
         ) {
           g.save()
@@ -6350,7 +6352,9 @@ export function createRainbowPrincessPreview(
                   ? 'lantern'
                   : guardian.kind === 'warden'
                     ? 'bulwark'
-                    : guardian.kind,
+                    : guardian.kind === 'lampkeeper'
+                      ? 'mirror'
+                      : guardian.kind,
             )
           ) {
             g.fillStyle =

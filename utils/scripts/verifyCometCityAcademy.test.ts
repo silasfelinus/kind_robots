@@ -1677,7 +1677,7 @@ for (const [id, site, evidence, caseId, ally] of newRecruits) {
   assert.ok(person?.voice && person.bedside && person.help, id)
   assert.equal(person.romanceable, false)
   const talked = socialize(
-    { ...recruited, day: 11, phase: 'map' },
+    { ...recruited, day: 12, phase: 'map' },
     id,
     'listen',
   )

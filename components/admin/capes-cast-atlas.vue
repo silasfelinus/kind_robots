@@ -268,10 +268,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
-import {
-  identityArtKey,
-  identityArtwork,
-} from '~/utils/cometAcademy/artSlots'
+import { identityArtKey, identityArtwork } from '~/utils/cometAcademy/artSlots'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import { campaignStagesFor } from '~/utils/cometAcademy/identityCampaignStages'
 import { henchmanForVillain } from '~/utils/cometAcademy/villainHenchmen'

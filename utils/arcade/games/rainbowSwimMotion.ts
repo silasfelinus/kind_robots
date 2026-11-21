@@ -11,7 +11,13 @@ const SWIM_PROFILES = {
   reef: { speed: 0.075, bob: 0.5, bank: 0.016, stretch: 0.018 },
 } as const
 
-const JELLY_SWIMMERS = new Set(['lantern', 'squid', 'urchin', 'brood', 'lampkeeper'])
+const JELLY_SWIMMERS = new Set([
+  'lantern',
+  'squid',
+  'urchin',
+  'brood',
+  'lampkeeper',
+])
 const EEL_SWIMMERS = new Set(['eel', 'mirror', 'angler'])
 const FIN_SWIMMERS = new Set(['dolphin', 'hammerhead', 'skate', 'skimmer'])
 

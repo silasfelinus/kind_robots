@@ -28,8 +28,7 @@ assert.deepEqual(LIGHTHOUSE_GUARDIAN, {
   kind: 'lampkeeper',
 })
 assert.ok(
-  LIGHTHOUSE_GUARDIAN.to -
-    LIGHTHOUSE_GUARDIAN.from >
+  LIGHTHOUSE_GUARDIAN.to - LIGHTHOUSE_GUARDIAN.from >
     RAINBOW_GUARDIAN.firstVolley + RAINBOW_GUARDIAN.escapeLead,
 )
 assert.equal(lighthouseRouteUnlocked('relay', true, CROWN_REEF_PYLONS), true)

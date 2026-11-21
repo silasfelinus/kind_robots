@@ -1,5 +1,4 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { constants } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { createError, defineEventHandler, readBody } from 'h3'
@@ -141,7 +140,7 @@ export default defineEventHandler(async (event) => {
           !metadata.height ||
           metadata.width < minWidth ||
           metadata.height < minHeight ||
-          metadata.pages && metadata.pages > 1
+          (metadata.pages ?? 1) > 1
         ) {
           result.reason = 'Image dimensions or page count failed validation.'
           continue

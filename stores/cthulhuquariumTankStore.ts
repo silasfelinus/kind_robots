@@ -674,6 +674,7 @@ export const useCthulhuquariumTankStore = defineStore(
       }
       story.queueMissedMilestoneScene()
       story.queueMissedFloorScene()
+      story.maybeOpenTitle()
       if (finaleTriggered.value) story.queueFinaleScene()
     }
 
@@ -1205,6 +1206,8 @@ export const useCthulhuquariumTankStore = defineStore(
       () =>
         !!story.activeBeat.value &&
         !story.guideOpen.value &&
+        !story.titleOpen.value &&
+        !story.settingsOpen.value &&
         !useIntroStore().isOpen &&
         !revealedUnlock.value &&
         !bestiaryJustCompleted.value &&

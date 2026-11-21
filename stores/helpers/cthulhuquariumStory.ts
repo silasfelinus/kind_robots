@@ -21,6 +21,12 @@ import {
   type CanonSpeaker,
 } from '~/utils/cthulhuquariumCanon.generated'
 import { floorInfo, floorOpenedBy } from '~/utils/cthulhuquariumFloors'
+import { setReducedMotionOverride } from '~/utils/cthulhuquariumSprites'
+import {
+  CTHULHUQUARIUM_DEFAULT_SETTINGS,
+  readCthulhuquariumSettings,
+  type CthulhuquariumSettings,
+} from '~/utils/cthulhuquariumSettings'
 import {
   SCRIPT_START,
   scriptAwaitingChoice,
@@ -60,6 +66,10 @@ export interface SpokenBark {
 const BARK_COOLDOWN_MS = 45_000
 const BARK_SHOW_MS = 7_000
 const SOUND_KEY = 'cthulhuquarium:sound'
+// cthulhuquarium/t-100: the settings panel, kept per browser.
+const SETTINGS_KEY = 'cthulhuquarium:settings'
+const TITLE_KEY = 'cthulhuquarium:title-seen'
+
 const GUIDE_KEY = 'cthulhuquarium:guide-seen'
 
 function hashString(text: string): number {
@@ -84,6 +94,12 @@ export function useCthulhuquariumStory() {
   const storyError = ref('')
   const spokenBark = ref<SpokenBark | null>(null)
   const soundOn = ref(false)
+  const settings = ref<CthulhuquariumSettings>({
+    ...CTHULHUQUARIUM_DEFAULT_SETTINGS,
+  })
+  const settingsOpen = ref(false)
+  // The title card: once per browser session, not before the first intro.
+  const titleOpen = ref(false)
   const guideOpen = ref(false)
   const guideSeen = ref(true)
   let lastBarkAt = 0
@@ -161,6 +177,7 @@ export function useCthulhuquariumStory() {
     if (!res.success || !res.data) return
     state.value = res.data
     loadSoundPreference()
+    loadSettings()
     loadGuidePreference()
     queueScene('intro')
     if (queue.value[0] === 'intro' && cursor.value.beat === 0) {
@@ -385,6 +402,61 @@ export function useCthulhuquariumStory() {
   }
 
   /** Per-browser preference: the tank's room tone is off until asked for. */
+  /** cthulhuquarium/t-100: read the settings panel's choices for this browser. */
+  function loadSettings(): void {
+    if (!import.meta.client) return
+    try {
+      settings.value = readCthulhuquariumSettings(
+        localStorage.getItem(SETTINGS_KEY),
+      )
+    } catch {
+      settings.value = { ...CTHULHUQUARIUM_DEFAULT_SETTINGS }
+    }
+    applyMotionSetting()
+  }
+
+  function applyMotionSetting(): void {
+    const motion = settings.value.motion
+    setReducedMotionOverride(motion === 'system' ? null : motion === 'reduced')
+  }
+
+  function updateSettings(patch: Partial<CthulhuquariumSettings>): void {
+    settings.value = readCthulhuquariumSettings(
+      JSON.stringify({ ...settings.value, ...patch }),
+    )
+    applyMotionSetting()
+    if (!import.meta.client) return
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings.value))
+    } catch {
+      // Without storage the settings still hold for this visit.
+    }
+  }
+
+  /** The title card shows once per browser session, after the first intro. */
+  function maybeOpenTitle(): void {
+    if (!import.meta.client || !hasSeen('intro')) return
+    try {
+      if (sessionStorage.getItem(TITLE_KEY) === 'seen') return
+      sessionStorage.setItem(TITLE_KEY, 'seen')
+    } catch {
+      return
+    }
+    titleOpen.value = true
+  }
+
+  function closeTitle(): void {
+    titleOpen.value = false
+  }
+
+  function openSettings(): void {
+    settingsOpen.value = true
+  }
+
+  function closeSettings(): void {
+    settingsOpen.value = false
+  }
+
   function loadSoundPreference(): void {
     if (!import.meta.client) return
     try {
@@ -485,6 +557,15 @@ export function useCthulhuquariumStory() {
     sayBark,
     dismissBark,
     soundOn,
+    settings,
+    settingsOpen,
+    loadSettings,
+    updateSettings,
+    titleOpen,
+    maybeOpenTitle,
+    closeTitle,
+    openSettings,
+    closeSettings,
     loadSoundPreference,
     setSound,
     guideOpen,

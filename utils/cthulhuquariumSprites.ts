@@ -156,6 +156,14 @@ function weightAt(profile: MotionSpec['weight'], t: number): number {
 const STRIPS = 28
 
 let reducedMotionQuery: MediaQueryList | null | undefined
+// cthulhuquarium/t-100: the game's own setting, when the player chose one;
+// null follows the OS.
+let reducedMotionOverride: boolean | null = null
+
+/** Set by the settings panel: true / false forces it, null follows the OS. */
+export function setReducedMotionOverride(value: boolean | null): void {
+  reducedMotionOverride = value
+}
 
 /**
  * The player's OS asked for less motion: bodies hold still (the fish still
@@ -163,6 +171,7 @@ let reducedMotionQuery: MediaQueryList | null | undefined
  * the setting mid-visit takes effect.
  */
 export function prefersReducedMotion(): boolean {
+  if (reducedMotionOverride !== null) return reducedMotionOverride
   if (reducedMotionQuery === undefined) {
     reducedMotionQuery =
       typeof window !== 'undefined' && window.matchMedia

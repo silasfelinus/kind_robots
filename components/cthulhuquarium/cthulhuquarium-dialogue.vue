@@ -25,6 +25,10 @@
         <div
           v-if="cinematic"
           class="cq-vn-stage pointer-events-auto"
+          :class="{
+            'cq-vn-large': tankStore.settings.largeText,
+            'cq-vn-contrast': tankStore.settings.highContrast,
+          }"
           @click="onStageClick"
         >
           <Transition name="cq-fade">
@@ -333,7 +337,11 @@ const eyebrow = computed(() => {
 // --- typewriter ------------------------------------------------------------
 // About 45 characters a second; the first tap or key finishes the line, the
 // next one moves on. Reduced motion shows the line whole.
-const CHARS_PER_TICK = 2
+// cthulhuquarium/t-100: the settings panel's text speed.
+const CHARS_PER_TICK_BY_SPEED = { slow: 1, normal: 2, fast: 4, instant: 0 }
+const charsPerTick = computed(
+  () => CHARS_PER_TICK_BY_SPEED[tankStore.settings.textSpeed] ?? 2,
+)
 const TICK_MS = 40
 const revealed = ref(0)
 let typeTimer: ReturnType<typeof setInterval> | null = null
@@ -351,7 +359,7 @@ function finishLine() {
 }
 function startTyping() {
   stopTyping()
-  if (reducedMotion.value || !cinematic.value) {
+  if (reducedMotion.value || !cinematic.value || charsPerTick.value === 0) {
     revealed.value = fullText.value.length
     return
   }
@@ -359,7 +367,7 @@ function startTyping() {
   typeTimer = setInterval(() => {
     revealed.value = Math.min(
       fullText.value.length,
-      revealed.value + CHARS_PER_TICK,
+      revealed.value + charsPerTick.value,
     )
     if (lineDone.value) stopTyping()
   }, TICK_MS)
@@ -618,6 +626,25 @@ onBeforeUnmount(() => {
   font-size: clamp(1.05rem, 2.3vw, 1.5rem);
   line-height: 1.55;
   color: white;
+}
+.cq-vn-large .cq-vn-line {
+  font-size: clamp(1.25rem, 2.9vw, 1.85rem);
+}
+.cq-vn-large .cq-vn-name {
+  font-size: clamp(1.35rem, 2.8vw, 1.8rem);
+}
+.cq-vn-contrast .cq-vn-dialogue {
+  border-color: rgb(255 255 255 / 0.9);
+  background: rgb(0 0 0);
+  backdrop-filter: none;
+}
+.cq-vn-contrast .cq-vn-atmosphere {
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 0.75) 0%,
+    rgb(0 0 0 / 0.2) 30%,
+    rgb(0 0 0 / 0.95) 100%
+  );
 }
 .cq-vn-caret {
   margin-left: 0.1em;

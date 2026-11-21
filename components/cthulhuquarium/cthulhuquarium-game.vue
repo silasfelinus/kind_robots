@@ -38,12 +38,22 @@
       <div
         ref="gameRoot"
         class="cq-game flex min-h-0 w-full flex-1 flex-col gap-0 overflow-hidden"
-        :class="{ 'cq-fullscreen': fullscreen, 'cq-feeding': feedMode }"
+        :class="{
+          'cq-fullscreen': fullscreen,
+          'cq-feeding': feedMode,
+          'cq-high-contrast': tankStore.settings.highContrast,
+        }"
         :data-theme="fullscreen ? 'cthulhuquarium' : undefined"
         :data-input="inputDevice"
       >
         <cthulhuquarium-dialogue />
         <cthulhuquarium-guide />
+        <!-- cthulhuquarium/t-100: the title card and the settings panel. -->
+        <cthulhuquarium-title-card @open="onTitleChoice" />
+        <cthulhuquarium-settings
+          v-if="tankStore.settingsOpen"
+          @volume="onVolume"
+        />
         <page-help label="How to tend the tank" @open="tankStore.openGuide()" />
         <div
           v-if="tankStore.error"
@@ -192,6 +202,15 @@
                   "
                   class="size-4"
                 />
+              </button>
+              <button
+                type="button"
+                class="cq-hud-button"
+                aria-label="Settings"
+                title="Settings"
+                @click="tankStore.openSettings()"
+              >
+                <Icon name="kind-icon:settings" class="size-4" />
               </button>
               <button
                 type="button"
@@ -1295,6 +1314,16 @@ function openPanel(panel: AquariumPanel) {
       void tankStore.loadDecor()
   }
 }
+// cthulhuquarium/t-100: the title card's Memory Book and Settings buttons.
+function onTitleChoice(what: 'memories' | 'settings') {
+  if (what === 'settings') tankStore.openSettings()
+  else selectPanel('scenery')
+}
+
+function onVolume(value: number) {
+  if (tankSound.running) tankSound.setVolume(value)
+}
+
 function closePanel() {
   activePanel.value = null
 }
@@ -1820,14 +1849,15 @@ const tankSound = new TankSound()
 function onToggleSound() {
   const on = !tankStore.soundOn
   tankStore.setSound(on)
-  if (on) tankSound.start()
+  if (on) tankSound.start(tankStore.settings.volume)
   else tankSound.stop()
 }
 
 // Browsers only allow audio after a gesture: the first tap on the page
 // starts the room tone for a player who left it switched on last visit.
 function resumeSoundOnGesture() {
-  if (tankStore.soundOn && !tankSound.running) tankSound.start()
+  if (tankStore.soundOn && !tankSound.running)
+    tankSound.start(tankStore.settings.volume)
 }
 let pointerOnStage: { x: number; y: number } | null = null
 
@@ -2876,6 +2906,15 @@ onBeforeUnmount(() => {
   transition:
     border-color 0.2s ease,
     color 0.2s ease;
+}
+.cq-high-contrast .cq-capsule,
+.cq-high-contrast .cq-hud-button {
+  background: rgb(0 0 0);
+  border-color: rgb(255 255 255 / 0.9);
+  color: white;
+}
+.cq-high-contrast .cq-support-panel {
+  background: rgb(0 0 0 / 0.96);
 }
 .cq-hud-button:hover,
 .cq-hud-button[aria-pressed='true'] {

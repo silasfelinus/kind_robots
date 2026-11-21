@@ -37,6 +37,17 @@ export class TankSound {
     this.master?.gain.linearRampToValueAtTime(0.35 * volume, now + 1.5)
   }
 
+  /** cthulhuquarium/t-100: the settings panel's volume (0-1), applied live. */
+  setVolume(volume: number): void {
+    if (!this.context || !this.master) return
+    const now = this.context.currentTime
+    this.master.gain.cancelScheduledValues(now)
+    this.master.gain.linearRampToValueAtTime(
+      0.35 * Math.min(1, Math.max(0, volume)),
+      now + 0.2,
+    )
+  }
+
   stop(): void {
     if (!this.context || !this.master) return
     const now = this.context.currentTime

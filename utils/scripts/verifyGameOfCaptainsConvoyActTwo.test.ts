@@ -225,7 +225,7 @@ for (let seed = 1; seed <= 12; seed++) {
 assert.equal(
   storyChoices,
   84,
-  'three Act I cases, two Act II cases and two Act III cases per voyage',
+  'three Act I cases, one Act II case and three Act III cases per voyage',
 )
 console.log(
   'Space Couch convoy/Act II: 3 cases, 9 choices, 18 outcomes, ' +

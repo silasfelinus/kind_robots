@@ -12,6 +12,8 @@ import { PATROL_ZONES } from '../cometAcademy/nightPatrols'
 import {
   activePatrolStory,
   chooseNightPatrol,
+  dispatchChance,
+  incidentsFor,
   nightPatrolBeat,
   patrolEncounterFor,
   patrolOptionsFor,
@@ -58,7 +60,7 @@ for (const henchman of VILLAIN_HENCHMEN) {
       null,
       'captain choices never benefit the same night',
     )
-    assert.equal(
+    assert.deepEqual(
       crewPatrolNetwork(
         { ...nextNight, opponentSignature: 'psychic-water' },
         'hero',
@@ -123,6 +125,29 @@ for (const seed of [1, 73, 404, 777, 2314, 99007]) {
         : -1
     assert.equal(network?.modifier, expected)
     assert.ok(network?.report.includes(crew.crew.name))
+    const eligible = incidentsFor(nextNight).find((incident) =>
+      crewPatrolNetwork(nextNight, incident.allegiance),
+    )
+    if (eligible) {
+      const attempt = { ...nextNight, playerCaseId: eligible.id }
+      const withoutNetwork = { ...attempt, patrolHistory: [] }
+      const withNetworkChance = dispatchChance(attempt, eligible.id, [])
+      const baselineChance = dispatchChance(withoutNetwork, eligible.id, [])
+      const applied = crewPatrolNetwork(attempt, eligible.allegiance)!
+      assert.ok(
+        applied.modifier > 0
+          ? withNetworkChance >= baselineChance
+          : withNetworkChance <= baselineChance,
+        'displayed dispatch odds include earned or lost crew support',
+      )
+      const played = resolveDispatch(attempt)
+      assert.ok(
+        played.reports
+          .find((report) => report.caseId === eligible.id)
+          ?.text.includes(applied.report),
+        'later dispatch debrief records the actual captain consequence',
+      )
+    }
     assert.equal(crewPatrolAftermath({ ...nextNight, day: 27 }), null)
   }
 }

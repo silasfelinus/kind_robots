@@ -8,6 +8,7 @@ import {
   parseEmperorArtDeliveryTargets,
 } from '../emperorOfDust/fortress/artDelivery'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
+import { chanceArtCandidates } from '../emperorOfDust/fortress/chanceArt'
 import type { EndingId } from '../emperorOfDust/fortress/endings'
 
 const endings = Object.keys(ENDINGS) as EndingId[]
@@ -78,6 +79,28 @@ assert.throws(
   )),
 )
 assert.throws(() => parseEmperorArtDeliveryTargets([targets[0], targets[0]]))
+const chance = chanceArtCandidates('dust-weather-1', 0, 'collect')
+assert.deepEqual(chance.slice(0, 2), [
+  '/images/emperor-of-dust/chance-events/dust-weather-1/collect.webp',
+  '/images/emperor-of-dust/chance-events/dust-weather-1/notice.webp',
+])
+assert.ok(
+  chance.includes('/emperor-of-dust/map/wasteland.webp'),
+  'unshipped media must still have a real painted fallback',
+)
+const briefing = readFileSync(
+  new URL('../../components/EmperorFortressBriefing.vue', import.meta.url),
+  'utf8',
+)
+assert.match(
+  briefing,
+  /chanceArtCandidates\(chance\.value\?\.id \?\? '', index, choice\.id\)/,
+)
+assert.doesNotMatch(
+  briefing,
+  /chanceArtCandidates\(chance\.value\?\.id \?\? '', index\)\[0\]/,
+)
+
 assert.deepEqual(
   parseEmperorArtDeliveryTargets([
     { asset: 'quests/r-fever-ward-success', artImageId: 276530 },

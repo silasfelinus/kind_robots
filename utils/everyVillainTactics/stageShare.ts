@@ -2,7 +2,8 @@
 // code is plain JSON text. Importing rebuilds the stage field by field from
 // a strict allow-list (unknown keys are dropped, strings are length-capped,
 // nothing is ever evaluated) and then requires full studio validation.
-// Server-side publishing, versions and permissions belong to t-011.
+// Server-side publishing and permissions remain separate human-gated work.
+// Private browser drafts now retain bounded, immutable local version history.
 import type { Point, Side, TacticalMap, Tile } from './combat'
 import type {
   StageHazard,
@@ -33,12 +34,24 @@ export const STAGE_CODE_KIND = 'every-villain-tactics-stage'
 export const STAGE_CODE_VERSION = 1
 export const MAX_STAGE_CODE = 60_000
 export const MAX_DRAFTS = 12
+export const MAX_DRAFT_HISTORY = 6
 export const evtDraftsKey = 'kr-every-villain-tactics:drafts'
 
+export type StageDraftRevision = {
+  version: number
+  savedAt: string
+  stage: StageDraft
+}
 export type StageDraftEntry = {
   name: string
   savedAt: string
   stage: StageDraft
+  /** Older unversioned browser entries are treated as version one. */
+  version?: number
+  /** Previous playable snapshots, newest first. Never edited in place. */
+  history?: StageDraftRevision[]
+  /** Local-only provenance, not a trusted attribution or public creator ID. */
+  forkedFrom?: { name: string; version: number }
 }
 export type DraftLibrary = { version: 1; drafts: StageDraftEntry[] }
 export type ImportResult =
@@ -412,7 +425,54 @@ export function importStage(code: string): ImportResult {
 
 export const emptyLibrary = (): DraftLibrary => ({ version: 1, drafts: [] })
 
-/** Keeps only drafts that still import cleanly; drops the rest. */
+const validDate = (value: unknown): value is string =>
+  typeof value === 'string' &&
+  value.length <= 40 &&
+  !Number.isNaN(Date.parse(value))
+
+const validVersion = (value: unknown): value is number =>
+  Number.isInteger(value) &&
+  (value as number) >= 1 &&
+  (value as number) <= 10000
+
+/** Imported revisions are treated as untrusted stage codes, never executed.
+ * Invalid snapshots cannot poison otherwise playable legacy drafts. */
+function cleanHistory(
+  raw: unknown,
+  currentVersion: number,
+): StageDraftRevision[] {
+  if (!Array.isArray(raw)) return []
+  const seen = new Set<number>()
+  const history: StageDraftRevision[] = []
+  for (const candidate of raw.slice(0, MAX_DRAFT_HISTORY)) {
+    if (!candidate || typeof candidate !== 'object') continue
+    const entry = candidate as Partial<StageDraftRevision>
+    if (
+      !validVersion(entry.version) ||
+      entry.version >= currentVersion ||
+      !validDate(entry.savedAt) ||
+      seen.has(entry.version)
+    )
+      continue
+    const saved = importStage(
+      JSON.stringify({
+        kind: STAGE_CODE_KIND,
+        version: STAGE_CODE_VERSION,
+        stage: entry.stage,
+      }),
+    )
+    if (!saved.ok) continue
+    seen.add(entry.version)
+    history.push({
+      version: entry.version,
+      savedAt: entry.savedAt,
+      stage: saved.stage,
+    })
+  }
+  return history.sort((a, b) => b.version - a.version)
+}
+
+/** Keeps only drafts and previous revisions that still pass import checks. */
 export function sanitizeLibrary(raw: unknown): DraftLibrary {
   let data: unknown = raw
   if (typeof raw === 'string') {
@@ -425,15 +485,14 @@ export function sanitizeLibrary(raw: unknown): DraftLibrary {
   const drafts = (data as DraftLibrary | null)?.drafts
   if (!Array.isArray(drafts)) return emptyLibrary()
   const kept: StageDraftEntry[] = []
-  for (const entry of drafts.slice(0, MAX_DRAFTS)) {
-    const e = entry as StageDraftEntry
+  for (const candidate of drafts.slice(0, MAX_DRAFTS)) {
+    const e = candidate as StageDraftEntry
     if (
       !e ||
       typeof e.name !== 'string' ||
       !e.name.trim() ||
       e.name.length > 60 ||
-      typeof e.savedAt !== 'string' ||
-      Number.isNaN(Date.parse(e.savedAt)) ||
+      !validDate(e.savedAt) ||
       kept.some((k) => k.name === e.name)
     )
       continue
@@ -444,40 +503,139 @@ export function sanitizeLibrary(raw: unknown): DraftLibrary {
         stage: e.stage,
       }),
     )
-    if (result.ok)
-      kept.push({ name: e.name, savedAt: e.savedAt, stage: result.stage })
+    if (!result.ok) continue
+    const version = validVersion(e.version) ? e.version : 1
+    const history = cleanHistory(e.history, version)
+    const fork =
+      e.forkedFrom &&
+      typeof e.forkedFrom.name === 'string' &&
+      e.forkedFrom.name.length > 0 &&
+      e.forkedFrom.name.length <= 60 &&
+      validVersion(e.forkedFrom.version)
+        ? { name: e.forkedFrom.name, version: e.forkedFrom.version }
+        : null
+    kept.push({
+      name: e.name,
+      savedAt: e.savedAt,
+      stage: result.stage,
+      ...(e.version !== undefined ? { version } : {}),
+      ...(history.length ? { history } : {}),
+      ...(fork ? { forkedFrom: fork } : {}),
+    })
   }
   return { version: 1, drafts: kept }
 }
 
+type DraftEdit =
+  { ok: true; library: DraftLibrary } | { ok: false; reason: string }
+
+/** Saving changed geometry, rules or dialogue creates a new local snapshot.
+ * Saving unchanged content is idempotent and never bloats the history. */
 export function upsertDraft(
   library: DraftLibrary,
   name: string,
   stage: StageDraft,
   savedAt: string,
-): { ok: true; library: DraftLibrary } | { ok: false; reason: string } {
+): DraftEdit {
   const label = name.trim().slice(0, 60)
   if (!label) return { ok: false, reason: 'Name the draft first.' }
+  if (!validDate(savedAt))
+    return { ok: false, reason: 'Draft save time is invalid.' }
   const problems = stageProblems(stage)
   if (problems.length)
     return { ok: false, reason: 'Fix the stage first: ' + problems[0] }
+  const existing = library.drafts.find((d) => d.name === label)
   const others = library.drafts.filter((d) => d.name !== label)
   if (others.length >= MAX_DRAFTS)
     return {
       ok: false,
       reason: 'The draft shelf holds ' + MAX_DRAFTS + ' stages.',
     }
+  const currentVersion = existing?.version ?? 1
+  const changed =
+    !!existing && JSON.stringify(existing.stage) !== JSON.stringify(stage)
+  if (changed && currentVersion >= 10000)
+    return { ok: false, reason: 'This draft has too many revisions.' }
+  const history =
+    existing && changed
+      ? [
+          {
+            version: currentVersion,
+            savedAt: existing.savedAt,
+            stage: structuredClone(existing.stage),
+          },
+          ...(existing.history ?? []),
+        ].slice(0, MAX_DRAFT_HISTORY)
+      : (existing?.history ?? [])
+  const version = changed ? currentVersion + 1 : currentVersion
   return {
     ok: true,
     library: {
       version: 1,
       drafts: [
-        { name: label, savedAt, stage: JSON.parse(JSON.stringify(stage)) },
+        {
+          name: label,
+          savedAt,
+          stage: structuredClone(stage),
+          version,
+          ...(history.length ? { history } : {}),
+          ...(existing?.forkedFrom
+            ? { forkedFrom: { ...existing.forkedFrom } }
+            : {}),
+        },
         ...others,
       ],
     },
   }
 }
+
+/** Creates an independent edit branch without overwriting another draft. */
+export function forkDraft(
+  library: DraftLibrary,
+  sourceName: string,
+  newName: string,
+  savedAt: string,
+): DraftEdit {
+  const source = library.drafts.find((d) => d.name === sourceName)
+  if (!source) return { ok: false, reason: 'Source draft not found.' }
+  const label = newName.trim().slice(0, 60)
+  if (!label || library.drafts.some((d) => d.name === label))
+    return { ok: false, reason: 'Choose a new, unused fork name.' }
+  const created = upsertDraft(library, label, source.stage, savedAt)
+  if (!created.ok) return created
+  return {
+    ok: true,
+    library: {
+      ...created.library,
+      drafts: [
+        {
+          ...created.library.drafts[0]!,
+          forkedFrom: {
+            name: source.name,
+            version: source.version ?? 1,
+          },
+        },
+        ...created.library.drafts.slice(1),
+      ],
+    },
+  }
+}
+
+/** Restoring an earlier saved revision makes a NEW version, preserving the
+ * original and the newer revision for undo/redo through the history picker. */
+export function restoreDraftVersion(
+  library: DraftLibrary,
+  name: string,
+  revision: number,
+  savedAt: string,
+): DraftEdit {
+  const existing = library.drafts.find((d) => d.name === name)
+  const snapshot = existing?.history?.find((r) => r.version === revision)
+  if (!snapshot)
+    return { ok: false, reason: 'That saved revision is unavailable.' }
+  return upsertDraft(library, name, snapshot.stage, savedAt)
+}
+
 export const removeDraft = (library: DraftLibrary, name: string) => ({
   version: 1 as const,
   drafts: library.drafts.filter((d) => d.name !== name),

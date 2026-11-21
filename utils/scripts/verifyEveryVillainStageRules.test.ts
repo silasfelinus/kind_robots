@@ -17,10 +17,13 @@ import {
 } from '../everyVillainTactics/stageRules'
 import {
   MAX_DRAFTS,
+  MAX_DRAFT_HISTORY,
   emptyLibrary,
+  forkDraft,
   exportStage,
   importStage,
   removeDraft,
+  restoreDraftVersion,
   sanitizeLibrary,
   upsertDraft,
 } from '../everyVillainTactics/stageShare'
@@ -563,6 +566,107 @@ assert.equal(
   replaced.ok && replaced.library.drafts[0]!.stage.id,
   'fountain-hold',
 )
+assert.ok(replaced.ok)
+assert.equal(replaced.library.drafts[0]!.version, 2)
+assert.deepEqual(
+  replaced.library.drafts[0]!.history?.map((rev) => rev.version),
+  [1],
+)
+assert.equal(replaced.library.drafts[0]!.history?.[0]?.stage.id, boiler.id)
+const originalCode = exportStage(replaced.library.drafts[0]!.history![0]!.stage)
+const unchanged = upsertDraft(
+  replaced.library,
+  'Boiler v1',
+  fountain,
+  '2026-10-30T16:06:00Z',
+)
+assert.ok(unchanged.ok)
+assert.equal(unchanged.library.drafts[0]!.version, 2)
+assert.equal(unchanged.library.drafts[0]!.history?.length, 1)
+const forked = forkDraft(
+  replaced.library,
+  'Boiler v1',
+  'Boiler rescue route',
+  '2026-10-30T16:07:00Z',
+)
+assert.ok(forked.ok)
+assert.equal(forked.library.drafts.length, 2)
+assert.deepEqual(forked.library.drafts[0]!.forkedFrom, {
+  name: 'Boiler v1',
+  version: 2,
+})
+assert.equal(forked.library.drafts[0]!.version, 1)
+assert.equal(forked.library.drafts[0]!.stage.id, fountain.id)
+assert.equal(forked.library.drafts[1]!.stage.id, fountain.id)
+assert.equal(
+  forkDraft(replaced.library, 'Boiler v1', 'Boiler v1', '2026-10-30T16:08:00Z')
+    .ok,
+  false,
+  'fork never overwrites the original',
+)
+const restored = restoreDraftVersion(
+  replaced.library,
+  'Boiler v1',
+  1,
+  '2026-10-30T16:09:00Z',
+)
+assert.ok(restored.ok)
+assert.equal(restored.library.drafts[0]!.stage.id, boiler.id)
+assert.equal(restored.library.drafts[0]!.version, 3)
+assert.deepEqual(
+  restored.library.drafts[0]!.history?.map((rev) => rev.version),
+  [2, 1],
+)
+assert.equal(
+  exportStage(restored.library.drafts[0]!.history![1]!.stage),
+  originalCode,
+  'the first saved revision remains byte-for-byte playable',
+)
+assert.equal(
+  restoreDraftVersion(replaced.library, 'Boiler v1', 19, '2026-10-30T16:10:00Z')
+    .ok,
+  false,
+)
+let rolling = replaced.library
+for (let n = 0; n < MAX_DRAFT_HISTORY + 3; n++) {
+  const update = upsertDraft(
+    rolling,
+    'Boiler v1',
+    n % 2 ? fountain : boiler,
+    `2026-10-30T17:${String(n).padStart(2, '0')}:00Z`,
+  )
+  assert.ok(update.ok)
+  rolling = update.library
+}
+assert.equal(rolling.drafts[0]!.history?.length, MAX_DRAFT_HISTORY)
+assert.ok(
+  rolling.drafts[0]!.history!.every(
+    (revision) => importStage(exportStage(revision.stage)).ok,
+  ),
+)
+const sanitizedHistory = sanitizeLibrary(
+  JSON.stringify({
+    version: 1,
+    drafts: [
+      {
+        ...restored.library.drafts[0],
+        history: [
+          ...restored.library.drafts[0]!.history!,
+          { version: -1, savedAt: 'tomorrow', stage: boiler },
+          { version: 2, savedAt: 'soon', stage: boiler },
+          { version: 2, savedAt: '2026-10-30T16:09:00Z', stage: boiler },
+          { version: 9, savedAt: '2026-10-30T16:09:00Z', stage: boiler },
+          { version: 0, savedAt: '2026-10-30T16:09:00Z', stage: boiler },
+        ],
+      },
+    ],
+  }),
+)
+assert.deepEqual(
+  sanitizedHistory.drafts[0]!.history?.map((rev) => rev.version),
+  [2, 1],
+  'restores only authentic format-bounded, validated history items',
+)
 assert.equal(upsertDraft(shelf, '', boiler, '2026-10-30T16:00:00Z').ok, false)
 assert.equal(
   upsertDraft(shelf, 'Broken', bad, '2026-10-30T16:00:00Z').ok,
@@ -610,6 +714,8 @@ for (const id of [
   'studio-drafts',
   'studio-export',
   'studio-import',
+  'studio-fork-draft',
+  'studio-revision-history',
   'studio-rule-mark',
 ])
   assert.match(page, new RegExp('data-testid="' + id + '"'))

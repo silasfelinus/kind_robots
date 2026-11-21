@@ -288,7 +288,7 @@ assert.equal(heroDossier(plain).name, 'Unregistered student')
 
 // -------------------------------------------------------- followers screen
 const roster = followerRoster(runA)
-assert.equal(roster.length, 12)
+assert.equal(roster.length, 16)
 const freshRoster = followerRoster(fresh(seedA!))
 assert.equal(freshRoster.filter((person) => person.met).length, 0, 'rookie')
 const injured = followerRoster({

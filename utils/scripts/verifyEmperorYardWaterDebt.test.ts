@@ -74,7 +74,10 @@ const waterRoutes = [
 ] as const
 
 for (const route of waterRoutes) {
-  const starting = onDay(12, 'prerequisites' in route ? route.prerequisites : [])
+  const starting = onDay(
+    12,
+    'prerequisites' in route ? route.prerequisites : [],
+  )
   const firstOption = optionFor(starting, 'd12-cistern', route.first)
   assert.deepEqual(optionBlockers(starting, firstOption), [])
   const firstStep = chooseAudienceOption(
@@ -82,9 +85,10 @@ for (const route of waterRoutes) {
     'd12-cistern',
     route.first,
   ).run
-  const water = 'beat' in route
-    ? chooseAudienceOption(firstStep, 'd12-cistern', route.beat).run
-    : firstStep
+  const water =
+    'beat' in route
+      ? chooseAudienceOption(firstStep, 'd12-cistern', route.beat).run
+      : firstStep
   assert.ok(water.flags.includes(route.firstFlag))
   if ('costAtDawn' in route) {
     assert.equal(water.brass, starting.brass - route.costAtDawn)

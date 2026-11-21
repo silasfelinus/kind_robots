@@ -117,49 +117,49 @@ for (const [name, pool] of Object.entries({
 assert.ok(WAITING_LINES.length >= 26, 'WAITING_LINES holds 26 lines')
 
 // Each planet/order has its own comic follow-through without changing the
-// first clause: existing traces and saved debriefs retain their original beat.
+// first clause: new successes keep a stable rescue beat and meaningful follow-through.
 const planetSuccessLeads = [
   {
     title: 'The Moon That Requested Custody',
     ask: 'Local residents vote to lend the moon its tides on alternate Thursdays.',
     document: 'The ancient ownership deed names the moon as its own guardian.',
     override:
-      'The couch relocates one tide; three coastal councils send invoices.',
+      'The couch redirects a lethal tide before it reaches the fishing village.',
   },
   {
     title: 'A Refugee Named Wednesday',
     ask: 'The traveler chooses a safe place to wait for the paradox.',
     document: 'A protected testimony makes the arrest order invalid.',
     override:
-      'The couch shelters the traveler, acquiring a warrant from next week.',
+      'The cushions shelter Wednesday until the warrant expires.',
   },
   {
     title: 'The Union of Unpaid Suns',
     ask: 'The workers negotiate a rotating daylight schedule.',
     document:
       'Payroll records reveal the star owners have been billing the planets twice.',
-    override: 'The couch restarts a star before its workers consent.',
+    override: 'The couch restarts a striking sun long enough to thaw the nursery’s emergency heaters, then hands the switch back to the union.',
   },
   {
     title: 'The Garden That Refused Oxygen',
     ask: 'A public forum funds an alternative oxygen supply.',
     document: 'The grove establishes that its employment contract was forged.',
     override:
-      'The orchard complies, and the settlement loses its only willing ally.',
+      'The couch forces one last breath from the orchard to keep the clinic alive until backup arrives.',
   },
   {
     title: 'The Diplomatic Temperature Incident',
     ask: 'The delegates insist on an interpreter they actually trust.',
     document: 'An archived thermal recording identifies the disputed vote.',
     override:
-      'The bubble heats the room; the assembly declares an emergency recess.',
+      'The bubble warms a freezing delegate before the frost vote becomes a medical emergency.',
   },
   {
     title: 'A Planet Requests an Exit Interview',
     ask: 'The planet dictates terms to a neutral mediator.',
     document: 'Mineral ledgers prove centuries of unpaid extraction.',
     override:
-      'The couch disables the drill; a rescue corridor becomes the next negotiation.',
+      'The couch stops the drill and opens a corridor wide enough for trapped miners to reach daylight.',
   },
   {
     title: 'The Twelve-Hour Apology',
@@ -167,7 +167,7 @@ const planetSuccessLeads = [
     document:
       'Unaltered recordings preserve the evidence before the broadcast is stopped.',
     override:
-      'The couch cuts power, sparing new victims and erasing one witness account.',
+      'The couch cuts the broadcast before another child loses their memories.',
   },
   {
     title: 'The Missing Note Committee',
@@ -175,7 +175,7 @@ const planetSuccessLeads = [
     document:
       'The missing waveform identifies who silenced the original warning.',
     override:
-      'The couch sounds every bell and shatters the palace’s ceremonial windows.',
+      'The couch sounds every bell before the surge reaches the schools, shattering the palace’s ceremonial windows.',
   },
   {
     title: 'The Interstellar Costume Inspector',
@@ -183,14 +183,14 @@ const planetSuccessLeads = [
     document:
       'An old registration stamp proves the couch has always been a vehicle.',
     override:
-      'The crew flies through customs while the paperwork keeps chasing them.',
+      'The couch crosses the checkpoint before its imaginary passengers can be stranded in vacuum.',
   },
   {
     title: 'The Gravity Refund Office',
     ask: 'Tenants negotiate a public gravity guarantee.',
     document: 'The hidden meter exposes the company’s fraudulent readings.',
     override:
-      'The couch redirects gravity; loose furniture occupies the council chamber.',
+      'The couch steadies an apartment tower while it reroutes the gravity meter; nobody falls through the stairwell.',
   },
 ]
 const planetSuccessScenes = new Set<string>()

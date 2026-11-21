@@ -1,4 +1,5 @@
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
+import { sceneTriggerId } from './sceneGraph'
 import { checksumV1, type EvtSave } from './saves'
 
 export type ScoreLine = {
@@ -56,6 +57,15 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
     ...(state.rules?.waves ?? []).map((wave) => wave.round + 1),
   )
   const quick = won && state.turn <= tempoRound
+  // A secret is earned by triggering an *authored* scene on a verified stage,
+  // not by simply noticing a painted secret tile or editing a scrapbook.
+  const secretScene =
+    won &&
+    save.stage?.script?.scenes.some(
+      (scene) =>
+        scene.trigger.kind === 'secret' &&
+        state.fired?.includes(sceneTriggerId(scene.id)),
+    )
   const evidence = save.mode === 'story' ? save.story.evidence : 0
   const lines: ScoreLine[] = [
     {
@@ -95,6 +105,12 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
     })
   if (won && allRescued)
     lines.push({ id: 'evacuated', label: 'Every civilian safe', points: 200 })
+  if (secretScene)
+    lines.push({
+      id: 'secret',
+      label: 'Authored hidden route uncovered',
+      points: 125,
+    })
   if (quick)
     lines.push({
       id: 'tempo',
@@ -111,6 +127,7 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
     ...(neverDamaged ? ['untouched'] : []),
     ...(won && allRescued ? ['every-civilian'] : []),
     ...(quick ? ['quick-clear'] : []),
+    ...(secretScene ? ['secret-route'] : []),
     ...(won && evidence > 0 ? ['evidence-recovered'] : []),
   ]
   // The digest excludes save slot and timestamp. Loading, manually saving or
@@ -191,6 +208,7 @@ function validResult(value: unknown): value is BattleResult {
           'every-civilian',
           'quick-clear',
           'evidence-recovered',
+          'secret-route',
         ].includes(m),
     )
   )
@@ -213,4 +231,78 @@ export function mergeBattleResults(
       (a, b) => Date.parse(b.at) - Date.parse(a.at) || a.id.localeCompare(b.id),
     )
     .slice(0, MAX_SCORE_HISTORY)
+}
+
+/** Earned, cross-save tactical career record for each permanent identity.
+ * Derived only from verified, de-duplicated battle results; no new storage
+ * schema, retroactive achievements or promises of unauthored routes. */
+export function identityBattleLedger(results: readonly BattleResult[]) {
+  const byLead = new Map<
+    string,
+    {
+      lead: string
+      name: string
+      heroWins: number
+      villainWins: number
+      otherWins: number
+      defeats: number
+      storyWins: number
+      oneShotWins: number
+      uniqueStages: Set<string>
+      defeatedFoils: Set<string>
+      secrets: Set<string>
+    }
+  >()
+  for (const result of mergeBattleResults([], results)) {
+    let entry = byLead.get(result.lead)
+    if (!entry) {
+      const identity = IDENTITY_ARCS.find(
+        (candidate) => candidate.signature === result.lead,
+      )!
+      entry = {
+        lead: result.lead,
+        name: identity.hero.alias,
+        heroWins: 0,
+        villainWins: 0,
+        otherWins: 0,
+        defeats: 0,
+        storyWins: 0,
+        oneShotWins: 0,
+        uniqueStages: new Set<string>(),
+        defeatedFoils: new Set<string>(),
+        secrets: new Set<string>(),
+      }
+      byLead.set(result.lead, entry)
+    }
+    if (result.outcome !== 'victory') {
+      entry.defeats++
+      continue
+    }
+    if (result.perspective === 'hero') entry.heroWins++
+    else if (result.perspective === 'villain') entry.villainWins++
+    else entry.otherWins++
+    if (result.mode === 'story') entry.storyWins++
+    else entry.oneShotWins++
+    entry.uniqueStages.add(result.stage)
+    if (result.foil) entry.defeatedFoils.add(result.foil)
+    if (result.medals.includes('secret-route')) entry.secrets.add(result.stage)
+  }
+  return [...byLead.values()]
+    .map((entry) => ({
+      lead: entry.lead,
+      name: entry.name,
+      heroWins: entry.heroWins,
+      villainWins: entry.villainWins,
+      otherWins: entry.otherWins,
+      defeats: entry.defeats,
+      storyWins: entry.storyWins,
+      oneShotWins: entry.oneShotWins,
+      stages: entry.uniqueStages.size,
+      foils: [...entry.defeatedFoils].map(
+        (signature) =>
+          IDENTITY_ARCS.find((arc) => arc.signature === signature)!.hero.alias,
+      ),
+      secrets: [...entry.secrets],
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
 }

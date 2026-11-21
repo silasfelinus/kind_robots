@@ -18,6 +18,7 @@ export const EVT_ACHIEVEMENT_CODES = {
   everyCivilian: 'every-villain-tactics-every-civilian',
   quickClear: 'every-villain-tactics-quick-clear',
   evidence: 'every-villain-tactics-evidence',
+  secretRoute: 'every-villain-tactics-secret-route',
   picnicRescued: 'every-villain-tactics-picnic-rescued',
   overtime: 'every-villain-tactics-overtime',
   picnicWon: 'every-villain-tactics-picnic-won',
@@ -45,6 +46,7 @@ const MEDAL_CODES: ReadonlyArray<[string, EvtAchievementCode]> = [
   ['every-civilian', C.everyCivilian],
   ['quick-clear', C.quickClear],
   ['evidence-recovered', C.evidence],
+  ['secret-route', C.secretRoute],
 ]
 
 const STORY_SIDES = ['hero', 'villain', 'henchman', 'sidekick'] as const

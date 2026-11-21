@@ -100,6 +100,7 @@ assert.deepEqual(
             'every-civilian',
             'quick-clear',
             'evidence-recovered',
+            'secret-route',
             'healthy-extraction',
           ],
         }),
@@ -107,7 +108,28 @@ assert.deepEqual(
     ),
     [],
   ),
-  [C.untouched, C.noKnockouts, C.everyCivilian, C.quickClear, C.evidence],
+  [
+    C.untouched,
+    C.noKnockouts,
+    C.everyCivilian,
+    C.quickClear,
+    C.evidence,
+    C.secretRoute,
+  ],
+)
+
+// The hidden route is not retroactively earned from unvisited stage art.
+assert.ok(
+  !achievementsProven(
+    book([], [result({ medals: ['evidence-recovered'] })]),
+    [],
+  ).includes(C.secretRoute),
+)
+assert.ok(
+  achievementsProven(
+    book([], [result({ medals: ['secret-route'] })]),
+    [],
+  ).includes(C.secretRoute),
 )
 
 // A foil only counts when beaten.
@@ -227,5 +249,5 @@ assert.ok(store.includes('recordMoments([result.save])'))
 assert.ok(store.includes('EVT_ACHIEVEMENT_CODES.stageArchitect'))
 
 console.log(
-  'Every Villain Tactics achievements: 17 codes, diff awards verified.',
+  'Every Villain Tactics achievements: 18 codes, diff awards verified.',
 )

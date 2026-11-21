@@ -617,6 +617,47 @@
             </div>
           </article>
         </div>
+        <h3 class="evf-kicker" data-testid="front-identity-ledger-heading">
+          Earned routes · {{ earnedIdentities.length }} of 48 identities played
+        </h3>
+        <p class="evf-lede">
+          Only completed and recorded battles count. Each permanent identity
+          keeps its own hero and villain record; a discovered secret belongs to
+          the actual stage where it was found.
+        </p>
+        <div
+          v-if="earnedIdentities.length"
+          class="evf-pages"
+          data-testid="front-identity-ledger"
+        >
+          <article
+            v-for="identity in earnedIdentities"
+            :key="identity.lead"
+            class="evf-page"
+            :data-testid="'identity-ledger-' + identity.lead"
+          >
+            <div class="evf-page-text">
+              <small class="evf-kicker">PERMANENT IDENTITY</small>
+              <strong>{{ identity.name }}</strong>
+              <span>
+                HERO {{ identity.heroWins }} · VILLAIN
+                {{ identity.villainWins }} · SUPPORT {{ identity.otherWins }} ·
+                LOSSES {{ identity.defeats }}
+              </span>
+              <small>
+                {{ identity.storyWins }} story victories ·
+                {{ identity.oneShotWins }} one-shot victories ·
+                {{ identity.stages }} distinct winning stages
+              </small>
+              <small v-if="identity.foils.length">
+                Defeated rivals: {{ identity.foils.join(', ') }}
+              </small>
+              <small v-if="identity.secrets.length">
+                Secrets witnessed: {{ identity.secrets.join(', ') }}
+              </small>
+            </div>
+          </article>
+        </div>
         <div class="evf-pages" data-testid="front-scrapbook-pages">
           <article
             v-for="page in store.scrapbookView"
@@ -680,6 +721,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { paintedRevealArtId } from '~/utils/everyVillainTactics/revealArt'
+import { identityBattleLedger } from '~/utils/everyVillainTactics/scores'
 import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
 import { scriptedFoilFor } from '~/utils/everyVillainTactics/training'
@@ -830,6 +872,9 @@ const settingsLine = computed(
 )
 const unlockedCount = computed(
   () => store.scrapbookView.filter((page) => page.record).length,
+)
+const earnedIdentities = computed(() =>
+  identityBattleLedger(store.battleResults),
 )
 const panelKicker = computed(
   () =>

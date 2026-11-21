@@ -69,7 +69,11 @@ export function parseEmperorArtDeliveryTargets(
     const category = asset.split('/')[0]!
     if (!CATEGORY.some((allowed) => allowed === category))
       throw new Error(`Unknown Emperor art category: ${category}.`)
-    if (!Number.isSafeInteger(artImageId) || Number(artImageId) <= 0)
+    if (
+      typeof artImageId !== 'number' ||
+      !Number.isSafeInteger(artImageId) ||
+      artImageId <= 0
+    )
       throw new Error('ArtImage ID must be a positive integer.')
     if (seen.has(asset))
       throw new Error(`Duplicate Emperor art target: ${asset}.`)

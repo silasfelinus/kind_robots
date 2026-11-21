@@ -93,7 +93,7 @@ export function mergeVoyageHistory(
   const ids = new Set(merged.map((entry) => entry.id))
 
   for (const entry of normalizeCompletedVoyages(imported)) {
-    const baseId = entry.id.replace(/:replay-\\d+$/, '')
+    const baseId = entry.id.replace(/:replay-\d+$/, '')
     const siblings = merged.filter(
       (existing) =>
         existing.id === baseId || existing.id.startsWith(baseId + ':replay-'),

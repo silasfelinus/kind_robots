@@ -167,8 +167,7 @@ export default defineEventHandler(async (event) => {
         // self-hosted application replacement.
         const destination = path.join(
           root,
-          'emperor-of-dust',
-          `${target.asset}.webp`,
+          emperorMediaArtUrl(target.asset).slice('/images/'.length),
         )
         const previous = await existingDigest(destination)
         if (previous) {

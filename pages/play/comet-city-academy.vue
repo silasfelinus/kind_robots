@@ -737,8 +737,8 @@
                     data-testid="academy-patrol-cast"
                   >
                     <img
-                      v-if="promArt(patrolCast.artKeys.portrait)"
-                      :src="promArt(patrolCast.artKeys.portrait)!"
+                      v-if="patrolPortraitSrc"
+                      :src="patrolPortraitSrc"
                       :alt="patrolCast.name"
                     />
                     <span
@@ -748,6 +748,25 @@
                       ></span
                     >
                     <em>“{{ patrolCast.lines[1] }}”</em>
+                  </div>
+                  <div
+                    v-if="privatePatrolArt.length"
+                    class="cca-private-cast-gallery"
+                    data-testid="academy-private-october-art"
+                    aria-label="Private October cast production image previews"
+                  >
+                    <figure v-for="plate in privatePatrolArt" :key="plate.slot">
+                      <img
+                        :src="plate.src"
+                        :alt="patrolCast?.name + ' ' + plate.slot + ' painting'"
+                        loading="lazy"
+                      />
+                      <figcaption>
+                        {{ plate.slot.toUpperCase() }} · ArtImage #{{
+                          plate.artImageId
+                        }} · Private review
+                      </figcaption>
+                    </figure>
                   </div>
                   <p>{{ patrolScene.scene }}</p>
                   <small v-if="patrolScene.hint" class="cca-story-hint"
@@ -1620,6 +1639,8 @@ import { fieldFor, identityFor } from '~/utils/cometAcademy/identityArcs'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
+import { useOctoberCastArtStore } from '~/stores/octoberCastArtStore'
+import { useUserStore } from '~/stores/userStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import { expandedMissionFor } from '~/utils/cometAcademy/expandedNightCases'
 import {
@@ -1638,6 +1659,7 @@ import {
 } from '~/utils/cometAcademy/openingRoutes'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import { castMember } from '~/utils/cometAcademy/octoberCast'
+import { octoberArtReceipt } from '~/utils/cometAcademy/octoberArtReceipts'
 import {
   personalCounterpart,
   PERSONAL_CHAPTER_DAYS,
@@ -1693,6 +1715,8 @@ import {
 } from '~/utils/cometAcademy/specialPowers'
 
 const store = useCometAcademyStore()
+const userStore = useUserStore()
+const octoberArt = useOctoberCastArtStore()
 const showRelationships = ref(false)
 const selectedSocialId = ref<StudentId>('mina')
 const mapView = ref<CityView>('campus')
@@ -2074,6 +2098,32 @@ const patrolCast = computed(() =>
   patrolScene.value?.story?.cast
     ? (castMember(patrolScene.value.story.cast) ?? null)
     : null,
+)
+const patrolPortraitSrc = computed(() => {
+  const member = patrolCast.value
+  if (!member) return null
+  return (
+    octoberArt.imageFor(member.key, 'portrait') ??
+    promArt(member.artKeys.portrait)
+  )
+})
+const privatePatrolArt = computed(() => {
+  const member = patrolCast.value
+  if (!userStore.isAdmin || !member) return []
+  return (['splash', 'encounter'] as const).flatMap((slot) => {
+    const src = octoberArt.imageFor(member.key, slot)
+    const receipt = octoberArtReceipt(member.key, slot)
+    return src && receipt?.artImageId
+      ? [{ slot, src, artImageId: receipt.artImageId }]
+      : []
+  })
+})
+watch(
+  [() => userStore.isAdmin, () => patrolCast.value?.key],
+  ([isAdmin, key]) => {
+    if (isAdmin && key) void octoberArt.loadFor(key)
+  },
+  { immediate: true },
 )
 const patrolChoices = computed(() =>
   run.value && patrolScene.value
@@ -3002,6 +3052,29 @@ function toggleStudent(caseId: string, id: StudentId): void {
   margin-top: 0.55rem;
   display: grid;
   gap: 0.35rem;
+}
+.cca-private-cast-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0.4rem 0;
+}
+.cca-private-cast-gallery figure {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #7da2b1a6;
+  border-radius: 0.4rem;
+  background: #14253ccc;
+}
+.cca-private-cast-gallery img {
+  width: 100%;
+  max-height: 6.5rem;
+  object-fit: contain;
+}
+.cca-private-cast-gallery figcaption {
+  padding: 0.2rem 0.35rem;
+  font-size: 0.55rem;
+  color: #f6c89e;
 }
 .cca-cast-tag {
   display: grid;

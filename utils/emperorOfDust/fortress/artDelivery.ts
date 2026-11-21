@@ -26,13 +26,17 @@ const CATEGORY = [
   'barracks',
   'cast',
   'chance',
+  'chance-events',
   'consequences',
   'endings',
   'forge',
+  'followers',
   'items',
+  'npcs',
   'quests',
   'rooms',
   'secret-story-scenes',
+  'talks',
 ] as const
 
 const ASSET_PATTERN = /^[a-zA-Z0-9-]+(?:\/[a-zA-Z0-9-]+)*$/
@@ -94,8 +98,13 @@ export function parseEmperorArtDeliveryTargets(
  * committed /emperor-of-dust/ static assets. Only approved, delivered files
  * should be referenced through this path.
  */
+export const emperorMediaAssetPath = (asset: string): string =>
+  asset.startsWith('followers/') || asset.startsWith('npcs/')
+    ? `cast/${asset}`
+    : asset
+
 export const emperorMediaArtUrl = (asset: string): string =>
-  `/images/emperor-of-dust/${asset}.webp`
+  `/images/emperor-of-dust/${emperorMediaAssetPath(asset)}.webp`
 
 export const endingMediaArtUrl = (ending: EndingId): string =>
   emperorMediaArtUrl(`endings/${ending}`)

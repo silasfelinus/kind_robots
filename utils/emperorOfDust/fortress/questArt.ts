@@ -4,6 +4,7 @@
 // public/emperor-of-dust/quests/<asset>.webp; until a quest's art is exported
 // the game shows Silas's painted map, cropped around the quest's region.
 
+import { emperorMediaArtUrl } from './artDelivery'
 import { REGIONS } from './factions'
 import type { QuestResultTier } from './types'
 
@@ -319,6 +320,29 @@ export const questArtUrl = (
   return AVAILABLE.has(base)
     ? `/emperor-of-dust/quests/${base}.webp`
     : undefined
+}
+
+/**
+ * Painted choices for the quest viewport. Already-shipped static art loads
+ * immediately. A missing outcome first probes the curated durable share
+ * and falls back to the original shipped notice, never a blank panel.
+ */
+export function questArtCandidates(
+  questId: string,
+  variant: QuestArtVariant = 'notice',
+): string[] {
+  const base = templateOf(questId)
+  const asset = variant === 'notice' ? base : `${base}-${variant}`
+  const staticExact = AVAILABLE.has(asset)
+    ? `/emperor-of-dust/quests/${asset}.webp`
+    : undefined
+  if (staticExact) return [staticExact]
+
+  const staticFallback = questArtUrl(questId, variant)
+  return [
+    emperorMediaArtUrl(`quests/${asset}`),
+    staticFallback,
+  ].filter((candidate): candidate is string => Boolean(candidate))
 }
 
 /** Which outcome scene a dawn result shows. */

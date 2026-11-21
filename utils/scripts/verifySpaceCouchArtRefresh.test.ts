@@ -3,6 +3,10 @@ import { readFileSync } from 'node:fs'
 
 const store = readFileSync('stores/gameOfCaptainsStore.ts', 'utf8')
 const page = readFileSync('pages/play/game-of-captains.vue', 'utf8')
+const daily = readFileSync(
+  'components/gameOfCaptains/daily-console.vue',
+  'utf8',
+)
 const alienRoute = readFileSync(
   'server/api/game-of-captains/alien-art.get.ts',
   'utf8',
@@ -78,6 +82,26 @@ assert.ok(redshirtRoute.includes('isMature: false'))
 assert.ok(
   store.includes('game-of-captains-voyage-v1'),
   'legacy saved-game identity remains compatible',
+)
+assert.ok(
+  daily.includes('index === 0 ? revealPainting.value : null'),
+  'decision cards must show neutral scene art, not a guaranteed-success painting',
+)
+assert.ok(
+  !daily.includes('image: key ? props.artwork?.[key] : null'),
+  'choice art must never spoil the success branch before the crew rolls',
+)
+assert.ok(
+  daily.includes('brokenArtwork.includes(franchiseImage)'),
+  'casino venue media failure must reveal the episode fallback',
+)
+assert.ok(
+  daily.includes('v-else-if="!plotCast.length"'),
+  'assigned officers must not be told to choose an officer again',
+)
+assert.ok(
+  daily.includes('() => [props.artwork, props.franchiseImage, props.backdrop]'),
+  'failed art URLs must retry after refreshed image sources arrive',
 )
 console.log(
   'Space Couch artwork refresh retries failed responses without bypassing image selection or saved-game IDs',

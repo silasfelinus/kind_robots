@@ -29,11 +29,7 @@ type DeliveryResult = {
   width?: number
   height?: number
   status:
-    | 'would-write'
-    | 'written'
-    | 'already-delivered'
-    | 'conflict'
-    | 'unavailable'
+    'would-write' | 'written' | 'already-delivered' | 'conflict' | 'unavailable'
   reason?: string
 }
 
@@ -62,7 +58,8 @@ export default defineEventHandler(async (event) => {
     } catch (error) {
       throw createError({
         statusCode: 400,
-        message: error instanceof Error ? error.message : 'Invalid art targets.',
+        message:
+          error instanceof Error ? error.message : 'Invalid art targets.',
       })
     }
     if (typeof body.write !== 'undefined' && typeof body.write !== 'boolean') {
@@ -118,7 +115,9 @@ export default defineEventHandler(async (event) => {
       }
     }
     const activeImageIds = new Set(
-      artImages.filter((image) => image.isMature === false).map((image) => image.id),
+      artImages
+        .filter((image) => image.isMature === false)
+        .map((image) => image.id),
     )
 
     const results: DeliveryResult[] = []

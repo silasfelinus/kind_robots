@@ -28,9 +28,7 @@ export function chanceArtCandidates(
   const choiceMedia = choiceId
     ? emperorMediaArtUrl(`chance-events/${eventId}/${choiceId}`)
     : undefined
-  const noticeMedia = emperorMediaArtUrl(
-    `chance-events/${eventId}/notice`,
-  )
+  const noticeMedia = emperorMediaArtUrl(`chance-events/${eventId}/notice`)
   return [
     commission,
     choiceMedia,

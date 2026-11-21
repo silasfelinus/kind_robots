@@ -339,10 +339,9 @@ export function questArtCandidates(
   if (staticExact) return [staticExact]
 
   const staticFallback = questArtUrl(questId, variant)
-  return [
-    emperorMediaArtUrl(`quests/${asset}`),
-    staticFallback,
-  ].filter((candidate): candidate is string => Boolean(candidate))
+  return [emperorMediaArtUrl(`quests/${asset}`), staticFallback].filter(
+    (candidate): candidate is string => Boolean(candidate),
+  )
 }
 
 /** Which outcome scene a dawn result shows. */

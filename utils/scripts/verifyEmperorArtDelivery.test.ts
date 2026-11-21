@@ -75,11 +75,13 @@ for (const item of [
   )
 }
 assert.throws(() => parseEmperorArtDeliveryTargets([]))
-assert.throws(
-  () => parseEmperorArtDeliveryTargets(Array.from(
-    { length: MAX_EMPEROR_ART_DELIVERY_BATCH + 1 },
-    (_, index) => ({ asset: `quests/test-${index}`, artImageId: 10 + index }),
-  )),
+assert.throws(() =>
+  parseEmperorArtDeliveryTargets(
+    Array.from({ length: MAX_EMPEROR_ART_DELIVERY_BATCH + 1 }, (_, index) => ({
+      asset: `quests/test-${index}`,
+      artImageId: 10 + index,
+    })),
+  ),
 )
 assert.throws(() => parseEmperorArtDeliveryTargets([targets[0], targets[0]]))
 assert.deepEqual(questArtCandidates('r-fever-ward', 'success'), [

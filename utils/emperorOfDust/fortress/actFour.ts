@@ -3432,6 +3432,43 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               'Dunmark copies the six names from his night roster while Mara reads the refugees’ names aloud. The records do not prove who arrived. The Watch must admit which gates went unguarded while its riders were away. Vellum dates both lists.',
           },
           {
+            id: 'buy-back-cistern-key',
+            label:
+              'Pay twenty-five brass to buy back the Yard cistern key from the Old Houses. Put it in Ash’s hands.',
+            requires: { flags: ['d12-cistern-locked'], cost: 25 },
+            effects: {
+              local: { 'old-houses': -3, yard: 3 },
+              flags: ['d39-cistern-public-key'],
+            },
+            response:
+              'Vask names twenty-five brass before Ash can stand. The treasury pays. Ash takes the key off its velvet cushion. The Yard still owes for every bucket drawn while the well was locked. He keeps the receipts.',
+          },
+          {
+            id: 'pay-tunnel-keepers',
+            label:
+              'Pay fifteen brass for the Mole tunnel keepers to maintain the Yard cistern, under their own names.',
+            requires: { flags: ['d12-cistern-moles'], cost: 15 },
+            effects: {
+              affinity: { moles: 5 },
+              local: { yard: 1, ledger: -1 },
+              flags: ['d39-cistern-keeper-wages'],
+            },
+            response:
+              'Granny Umber asks for fifteen brass and a name on each wage slip. Ash signs the first. The water runs clear, but the keepers will not tell the Old Houses which tunnels they use. Vask calls that a threat.',
+          },
+          {
+            id: 'commission-hill-cistern',
+            label:
+              'Spend fifteen brass to keep the new hill cistern in public hands after the first good rain.',
+            requires: { flags: ['d12-new-cistern'], cost: 15 },
+            effects: {
+              local: { yard: 2, ledger: -1 },
+              flags: ['d39-hill-cistern-commission'],
+            },
+            response:
+              'Ash brings the hill cistern’s stone tally. The first thirty-five brass dug the pit; fifteen more will pay the keepers through winter. Vask offers to supply the buckets for a fee. The congress refuses to put that fee in the charter.',
+          },
+          {
             id: 'ask-seating',
             label: 'Ask Komodo to explain his seating.',
             effects: {},

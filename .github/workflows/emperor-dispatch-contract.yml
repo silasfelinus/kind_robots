@@ -14,6 +14,7 @@ on:
       - 'utils/scripts/verifyEmperorFortressAdversarial.test.ts'
       - 'utils/scripts/verifyEmperorRefugeeLegacy.test.ts'
       - 'utils/scripts/verifyEmperorYardWaterDebt.test.ts'
+      - 'utils/scripts/verifyEmperorMarketAccount.test.ts'
       - 'utils/scripts/verifyEmperorEditorialAcceptance.test.ts'
       - 'utils/scripts/verifyEmperorGuidedCampaigns.test.ts'
       - 'utils/scripts/verifyEmperorSecondPassTraces.test.ts'
@@ -102,6 +103,8 @@ jobs:
         run: npx tsx utils/scripts/verifyEmperorRefugeeLegacy.test.ts
       - name: Verify Yard water debt across three acts and public record endings
         run: npx tsx utils/scripts/verifyEmperorYardWaterDebt.test.ts
+      - name: Verify the market account across four acts and ending records
+        run: npx tsx utils/scripts/verifyEmperorMarketAccount.test.ts
       - name: Eighteen real five-act campaigns through earned recent choices
         run: npx tsx utils/scripts/verifyEmperorGuidedCampaigns.test.ts
       - name: Record sixteen replayable model-simulation transcripts

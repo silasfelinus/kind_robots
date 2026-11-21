@@ -9,6 +9,7 @@ import {
 } from '../emperorOfDust/fortress/artDelivery'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
 import { chanceArtCandidates } from '../emperorOfDust/fortress/chanceArt'
+import { CHANCE_EVENTS } from '../emperorOfDust/fortress/dailyEvents'
 import { questArtCandidates } from '../emperorOfDust/fortress/questArt'
 import { audienceChoiceImages } from '../emperorOfDust/fortress/audienceChoiceArt'
 import type { EndingId } from '../emperorOfDust/fortress/endings'
@@ -109,6 +110,31 @@ assert.ok(
   audience.includes('/emperor-of-dust/map/wasteland.webp'),
   'unshipped audience art must retain physical painted fallback',
 )
+
+let coverage = 0
+for (const event of CHANCE_EVENTS) {
+  for (const [index, choice] of event.choices.entries()) {
+    const candidates = chanceArtCandidates(event.id, index, choice.id)
+    assert.ok(
+      candidates.includes(
+        `/images/emperor-of-dust/chance-events/${event.id}/${choice.id}.webp`,
+      ),
+      `missing durable chance-choice URL: ${event.id}/${choice.id}`,
+    )
+    assert.ok(
+      candidates.includes(
+        `/images/emperor-of-dust/chance-events/${event.id}/notice.webp`,
+      ),
+      `missing notice URL: ${event.id}`,
+    )
+    assert.ok(
+      candidates.some((url) => url.startsWith('/emperor-of-dust/')),
+      `missing physical chance fallback: ${event.id}/${choice.id}`,
+    )
+    coverage++
+  }
+}
+assert.equal(coverage, 270, 'all 135 chances have two illustrated choices')
 
 const chance = chanceArtCandidates('dust-weather-1', 0, 'collect')
 assert.deepEqual(chance.slice(0, 2), [

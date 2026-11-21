@@ -140,10 +140,7 @@ import {
   type WreckSceneId,
 } from './rainbowWreckyard'
 import { armorySirenAllowsWave, armorySirenWindow } from './rainbowArmorySiren'
-import {
-  pearlWardenAllowsWave,
-  pearlWardenWindow,
-} from './rainbowPearlWarden'
+import { pearlWardenAllowsWave, pearlWardenWindow } from './rainbowPearlWarden'
 import {
   SAWTOOTH,
   SAWTOOTH_MAX_HP,

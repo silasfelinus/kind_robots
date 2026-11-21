@@ -4,10 +4,7 @@ import {
   pearlWardenAllowsWave,
   pearlWardenWindow,
 } from '../arcade/games/rainbowPearlWarden'
-import {
-  CROWN_REEF_FORK,
-  reefSpawns,
-} from '../arcade/games/rainbowCrownReef'
+import { CROWN_REEF_FORK, reefSpawns } from '../arcade/games/rainbowCrownReef'
 import {
   createRainbowGuardian,
   rainbowGuardianGone,
@@ -169,7 +166,10 @@ for (const seats of [1, 4]) {
     }
     if (state.act !== 'S06' || state.actSixFrame >= warden.to) break
   }
-  assert.ok(found, `the actual ${seats}-player cache route must spawn its keeper`)
+  assert.ok(
+    found,
+    `the actual ${seats}-player cache route must spawn its keeper`,
+  )
 }
 console.log(
   'rainbow Pearl Warden: dual patterns, legacy saves and real 1/4-seat route passed',

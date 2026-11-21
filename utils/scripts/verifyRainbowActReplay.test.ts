@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
-import { readRainbowSave } from '../arcade/games/rainbowLoadouts'
+import {
+  rainbowRouteIntel,
+  readRainbowSave,
+} from '../arcade/games/rainbowLoadouts'
 import {
   canReplayRainbowAct,
   rainbowActReplaySave,
@@ -108,6 +111,45 @@ assert.notEqual(
 const otherSlotComms = rainbowFlightComms(null, fresh, 3)
 assert.equal(otherSlotComms.tag, 'FIRST LAUNCH')
 assert.ok(!otherSlotComms.lilt.includes('vault'))
+
+const routeIntel = rainbowRouteIntel(old)
+assert.deepEqual(
+  routeIntel.map((route) => route.label),
+  ['Vault passage', 'Depot passage', 'Relay passage'],
+)
+const nurseryClear = {
+  ...old,
+  checkpoint: {
+    ...old.checkpoint,
+    trenchRoute: 'safe' as const,
+    nurseryGuardianOutcome: 'defeated' as const,
+    wreckRoute: 'armory' as const,
+    armoryGuardianOutcome: 'escaped' as const,
+  },
+}
+assert.deepEqual(
+  rainbowRouteIntel(nurseryClear).map((route) => route.label),
+  [
+    'Safe passage · Guardian defeated',
+    'Armory passage · Guardian escaped',
+    'Relay passage',
+  ],
+)
+const unsettled = {
+  ...nurseryClear,
+  checkpoint: {
+    ...nurseryClear.checkpoint,
+    routeSettled: false,
+    wreckSettled: false,
+    reefSettled: false,
+  },
+}
+assert.ok(rainbowRouteIntel(unsettled).every((route) => !route.discovered))
+assert.ok(
+  rainbowRouteIntel(unsettled).every(
+    (route) => route.label === 'Route undiscovered',
+  ),
+)
 
 const serialized = JSON.stringify(old)
 assert.equal(canReplayRainbowAct(6, old, fresh), true)

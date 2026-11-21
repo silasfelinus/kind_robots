@@ -47,6 +47,20 @@ test('per-route waits are bounded instead of a 90s networkidle navigation', () =
   assert.match(audit, /Slowest:/)
 })
 
+test('Space Couch gets rendered 390/768/1440 responsive coverage', () => {
+  assert.match(audit, /\/play\/game-of-captains,\/play\/zuzu-showdown/)
+  assert.match(audit, /name: 'phone', width: 390/)
+  assert.match(audit, /name: 'desktop', width: 1440/)
+  assert.match(audit, /name: 'tablet-768'/)
+  assert.match(audit, /const EXTRA_TABLET_ROUTES = new Set\(\[/)
+  assert.match(audit, /'\/play\/game-of-captains'/)
+  assert.match(
+    audit,
+    /ROUTES\.filter\(\(route\) => EXTRA_TABLET_ROUTES\.has\(route\)\)/,
+  )
+  assert.match(audit, /await page\.screenshot\(/)
+})
+
 test('workflow shards the sweep and isolates the follow-on audits', () => {
   assert.match(workflow, /shard: \[1, 2, 3, 4, 5, 6\]/)
   assert.match(workflow, /max-parallel: 3/)

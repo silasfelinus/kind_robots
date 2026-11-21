@@ -256,12 +256,12 @@ export const ACT_TWO_OPENINGS: Pool = [
 ]
 
 export const ACT_THREE_OPENINGS: Pool = [
-  'ACT III: THE LAST COMMAND. The chart has run out of systems that have not heard of the couch. Every route now leads, eventually, to the jump gate, where something is waiting. Two crates of supplies arrive with a card that says, in full, “Good luck.”',
-  'ACT III: THE LAST COMMAND. The couch’s fan map and the official chart finally agree, and both of them end at the jump gate. Two crates of supplies arrive with no sender, only the word “Sorry” written on the side of each.',
-  'ACT III: THE LAST COMMAND. Every system left on the chart has an opinion about the couch, and every route bends toward the jump gate. Two crates of supplies arrive. One of them is mostly a farewell card, signed by a whole planet.',
-  'ACT III: THE LAST COMMAND. The galaxy has stopped asking what the couch is and started asking what it will do. Two crates of supplies come with a printed itinerary, and the itinerary ends at the jump gate in very large letters.',
-  'ACT III: THE LAST COMMAND. The cushions have taken the shape of the people sitting on them, which the crew decides to take as a compliment. Two crates of supplies arrive. The jump gate is now on every route, like a toll booth with a grudge.',
-  'ACT III: THE LAST COMMAND. The chart closes in around the jump gate the way a story closes in around its ending. Two crates of supplies arrive with a receipt marked FINAL. The crew decide not to read too much into it, and do.',
+  'ACT III: THE LAST COMMAND. The chart has run out of systems that have not heard of the couch. Every route now leads, eventually, to the jump gate, where something is waiting. Three crates of supplies arrive with a card that says, in full, “Good luck.”',
+  'ACT III: THE LAST COMMAND. The couch’s fan map and the official chart finally agree, and both of them end at the jump gate. Three crates of supplies arrive with no sender, only the word “Sorry” written on the side of each.',
+  'ACT III: THE LAST COMMAND. Every system left on the chart has an opinion about the couch, and every route bends toward the jump gate. Three crates of supplies arrive. One of them is mostly a farewell card, signed by a whole planet.',
+  'ACT III: THE LAST COMMAND. The galaxy has stopped asking what the couch is and started asking what it will do. Three crates of supplies come with a printed itinerary, and the itinerary ends at the jump gate in very large letters.',
+  'ACT III: THE LAST COMMAND. The cushions have taken the shape of the people sitting on them, which the crew decides to take as a compliment. Three crates of supplies arrive. The jump gate is now on every route, like a toll booth with a grudge.',
+  'ACT III: THE LAST COMMAND. The chart closes in around the jump gate the way a story closes in around its ending. Three crates of supplies arrive with a receipt marked FINAL. The crew decide not to read too much into it, and do.',
 ]
 
 /** The last line before the finale orders. */

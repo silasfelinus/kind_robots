@@ -6,7 +6,7 @@ label: Emperor Art Review
 title: Emperor of Dust Art Review
 subtitle: Original private ending images and durable delivery status
 description: View the eight original ArtImage renders privately, trace their ArtJob IDs, and dry-run the durable media export without publishing anything.
-summary: Privately inspect the eight ending plates.
+summary: Review eight original ending plates.
 icon: kind-icon:image
 route: /admin/emperor-art-review
 sort: 78

@@ -134,7 +134,10 @@
 import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { optionStakes } from '~/utils/emperorOfDust/fortress/board'
-import { audienceChoiceImages } from '~/utils/emperorOfDust/fortress/audienceChoiceArt'
+import {
+  answeredAudienceArt,
+  audienceChoiceImages,
+} from '~/utils/emperorOfDust/fortress/audienceChoiceArt'
 import { audienceAftermath } from '~/utils/emperorOfDust/fortress/answeredAudienceArt'
 import {
   audienceScene,
@@ -167,6 +170,25 @@ const responses = ref<Record<string, string>>({})
 /** Each answered NPC's reaction, from their faction's change in support. */
 const reactions = ref<Record<string, Mood>>({})
 const error = ref('')
+const aftermathFailed = ref(false)
+const answeredArt = computed(() => {
+  if (!selected.value || !heard(selected.value.id) || aftermathFailed.value)
+    return undefined
+  return answeredAudienceArt(
+    props.run.flags,
+    selected.value.id,
+    selected.value.npc,
+  )
+})
+const answeredResponse = computed(() => {
+  if (!selected.value || !answeredArt.value) return undefined
+  const options = [
+    ...selected.value.options,
+    ...(selected.value.beats ?? []).flatMap((beat) => beat.options),
+  ]
+  return options.find((option) => option.id === answeredArt.value?.optionId)
+    ?.response
+})
 
 const heard = (id: string) => props.run.audiencesHeard.includes(id)
 const nextUnheard = computed(() =>
@@ -240,10 +262,18 @@ const sceneFigures = computed(() => {
 })
 
 watch(
+  selectedId,
+  () => {
+    aftermathFailed.value = false
+  },
+)
+
+watch(
   () => props.run.day,
   () => {
     responses.value = {}
     reactions.value = {}
+    aftermathFailed.value = false
     selectedId.value =
       audiences.value.find((entry) => !heard(entry.id))?.id ?? null
   },

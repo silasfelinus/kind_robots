@@ -33,7 +33,7 @@ export function findDoubleEscapedSignatures(
   function visit(node: ts.Node): void {
     if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
       const raw = node.getText(file)
-      if (/\\\\\\\\x[0-9a-fA-F]{2}/.test(raw)) {
+      if (/\\\\x[0-9a-fA-F]{2}/.test(raw)) {
         let parent: ts.Node | undefined = node.parent
         let signatureContext = false
         while (parent && parent !== file) {

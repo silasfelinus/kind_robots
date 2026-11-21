@@ -122,7 +122,6 @@ for (const episode of Object.values(CONSEQUENCE_STORIES))
     assert.ok(gains(choice.success.delta), `${where}: success has a gain`)
   }
 
-
 /**
  * Planetary override successes should earn a concrete rescue without erasing
  * residents' or workers' agency. These are visible successful-deck outcomes,
@@ -131,13 +130,28 @@ for (const episode of Object.values(CONSEQUENCE_STORIES))
  */
 const INTERVENTION_BALANCE: Record<string, [string, string]> = {
   'The Moon That Requested Custody': ['boats make harbor', 'custody grievance'],
-  'A Refugee Named Wednesday': ['shelter Wednesday', 'chooses the next stop herself'],
+  'A Refugee Named Wednesday': [
+    'shelter Wednesday',
+    'chooses the next stop herself',
+  ],
   'The Union of Unpaid Suns': ['nursery', 'unfair-labor complaint'],
   'The Garden That Refused Oxygen': ['clinic alive', 'stolen shift'],
-  'The Diplomatic Temperature Incident': ['delegate survives', 'thermostat again'],
-  'A Planet Requests an Exit Interview': ['miners to reach daylight', 'own negotiators'],
-  'The Twelve-Hour Apology': ['before another child loses', 'custody of the next power switch'],
-  'The Missing Note Committee': ['city evacuates intact', 'residents take charge'],
+  'The Diplomatic Temperature Incident': [
+    'delegate survives',
+    'thermostat again',
+  ],
+  'A Planet Requests an Exit Interview': [
+    'miners to reach daylight',
+    'own negotiators',
+  ],
+  'The Twelve-Hour Apology': [
+    'before another child loses',
+    'custody of the next power switch',
+  ],
+  'The Missing Note Committee': [
+    'city evacuates intact',
+    'residents take charge',
+  ],
   'The Interstellar Costume Inspector': ['safe harbor', 'right to complain'],
   'The Gravity Refund Office': ['nobody falls through', 'demand a vote'],
 }

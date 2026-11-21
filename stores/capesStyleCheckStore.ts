@@ -7,7 +7,7 @@ import {
   CAPES_STYLE_SUBJECTS,
   capesStyleCellKey,
 } from '~/utils/capesStyleCheck'
-import { CAPES_UNSTABLE_PRODUCTION } from '~/utils/capesProductionArt'
+import { CAPES_REVIEWABLE_PRODUCTION } from '~/utils/capesProductionArt'
 import type {
   CAPES_STYLE_CRITERIA,
   CapesStyleJob,
@@ -92,7 +92,7 @@ export const useCapesStyleCheckStore = defineStore(
 
     async function loadProductionImages(signature: string): Promise<void> {
       await Promise.all(
-        CAPES_UNSTABLE_PRODUCTION.filter(
+        CAPES_REVIEWABLE_PRODUCTION.filter(
           (entry) => entry.signature === signature,
         ).map((entry) => artJobs.loadJobImage(entry.artImageId)),
       )

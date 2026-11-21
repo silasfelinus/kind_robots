@@ -23,6 +23,7 @@ on:
       - 'utils/scripts/verifyEmperorFortressChanceEvents.test.ts'
       - 'utils/scripts/verifyEmperorQuestBriefs.test.ts'
       - 'utils/scripts/verifyEmperorQuestArt.test.ts'
+      - 'utils/scripts/verifyEmperorArtRouteCoverage.test.ts'
       - 'public/emperor-of-dust/quests/**'
       - 'utils/scripts/verifyEmperorItemArt.test.ts'
       - 'public/emperor-of-dust/items/**'
@@ -82,6 +83,10 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortressChanceEvents.test.ts
       - run: npx tsx utils/scripts/verifyEmperorQuestBriefs.test.ts
       - run: npx tsx utils/scripts/verifyEmperorQuestArt.test.ts
+      - name: Verify every authored scene has physical illustration coverage
+        run: npx tsx utils/scripts/verifyEmperorArtRouteCoverage.test.ts
+        env:
+          KIND_ROBOTS_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       - run: npx tsx utils/scripts/verifyEmperorItemArt.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts
       - run: npx tsx utils/scripts/verifyEmperorOfDustAchievements.test.ts

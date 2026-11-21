@@ -56,7 +56,15 @@ export default defineEventHandler(async (event) => {
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
       throw createError({ statusCode: 400, message: 'JSON object required.' })
     }
-    const targets = parseEmperorArtDeliveryTargets(body.targets)
+    let targets: ReturnType<typeof parseEmperorArtDeliveryTargets>
+    try {
+      targets = parseEmperorArtDeliveryTargets(body.targets)
+    } catch (error) {
+      throw createError({
+        statusCode: 400,
+        message: error instanceof Error ? error.message : 'Invalid art targets.',
+      })
+    }
     if (typeof body.write !== 'undefined' && typeof body.write !== 'boolean') {
       throw createError({ statusCode: 400, message: 'write must be boolean.' })
     }

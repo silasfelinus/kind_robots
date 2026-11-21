@@ -154,6 +154,20 @@ export const EVERY_VILLAIN_TACTICS_ACHIEVEMENTS: GameAchievementDef[] = [
   },
   {
     game: 'every-villain-tactics',
+    key: 'secret-route',
+    tier: 2,
+    label: 'The Other Exit',
+    message:
+      'You uncovered a hidden authored route and still won the battle.',
+    tooltip:
+      'In Every Villain Tactics, trigger a hidden conversation scene during a tactical mission and secure victory.',
+    subtleHint: 'The marked objective is rarely the only story on the map.',
+    icon: 'kind-icon:eye',
+    rule: { kind: 'event' },
+    artPrompt: `An adult masked tactician crouches at a concealed maintenance hatch under a crowded superhero school auditorium, lifting a rusted floor tile to reveal an illuminated record folder while two costumed squadmates stand guard in the corridor; dramatic saturated comic-book color, expressive inked silhouettes, cinematic light from below.`,
+  },
+  {
+    game: 'every-villain-tactics',
     key: 'picnic-rescued',
     tier: 2,
     label: 'Behind the Bandstand',

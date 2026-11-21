@@ -12,7 +12,7 @@
           Delivered ArtImage receipts / private review
         </p>
         <h3 class="mt-1 text-xl font-black">
-          Three heroes, fourteen production plates
+          Five identities, twenty production candidates
         </h3>
         <p class="mt-1 max-w-2xl text-xs leading-5 text-slate-300">
           These records have DONE ArtImage IDs in Conductor's Unstable Diffusers
@@ -167,7 +167,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useCapesStyleCheckStore } from '~/stores/capesStyleCheckStore'
 import {
   CAPES_PRODUCTION_IDENTITIES,
-  CAPES_UNSTABLE_PRODUCTION,
+  CAPES_REVIEWABLE_PRODUCTION,
   capesProductionFor,
 } from '~/utils/capesProductionArt'
 
@@ -197,7 +197,7 @@ const localReview = ref<Record<number, LocalReview>>({})
 const reviewNotes = ref<Record<number, string>>({})
 const reviewCount = computed(
   () =>
-    CAPES_UNSTABLE_PRODUCTION.filter(
+    CAPES_REVIEWABLE_PRODUCTION.filter(
       (entry) => localReview.value[entry.artImageId],
     ).length,
 )
@@ -229,7 +229,7 @@ onMounted(() => {
 
 function setReview(artImageId: number, decision: Decision): void {
   if (!store.productionImageFor(artImageId)) return
-  const allowed = CAPES_UNSTABLE_PRODUCTION.some(
+  const allowed = CAPES_REVIEWABLE_PRODUCTION.some(
     (entry) => entry.artImageId === artImageId,
   )
   if (!allowed) return
@@ -253,7 +253,7 @@ function setReview(artImageId: number, decision: Decision): void {
 
 function exportReviews(): void {
   if (!import.meta.client || !reviewCount.value) return
-  const reviewed = CAPES_UNSTABLE_PRODUCTION.flatMap((entry) => {
+  const reviewed = CAPES_REVIEWABLE_PRODUCTION.flatMap((entry) => {
     const review = localReview.value[entry.artImageId]
     return review
       ? [

@@ -86,9 +86,22 @@
           <p class="text-xs font-semibold uppercase tracking-widest opacity-60">
             {{ selected.speaker }}
           </p>
-          <p class="eod-reading italic">
-            {{ responses[selected.id] ?? 'The petition has been answered.' }}
-          </p>
+          <div class="flex min-w-0 items-start gap-3">
+            <EmperorFortressAnswerArt
+              v-if="answered?.images.length"
+              :key="selected.id"
+              :candidates="answered.images"
+              :label="`Artwork accompanying the answer to ${selected.title}`"
+              class="h-24 w-24 shrink-0 @2xl:h-32 @2xl:w-32"
+            />
+            <p class="eod-reading min-w-0 flex-1 italic">
+              {{
+                responses[selected.id] ??
+                answered?.option.response ??
+                'The petition has been answered.'
+              }}
+            </p>
+          </div>
           <EmperorFortressCodexNote />
           <button
             type="button"
@@ -122,6 +135,7 @@ import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { optionStakes } from '~/utils/emperorOfDust/fortress/board'
 import { audienceChoiceImages } from '~/utils/emperorOfDust/fortress/audienceChoiceArt'
+import { audienceAftermath } from '~/utils/emperorOfDust/fortress/answeredAudienceArt'
 import {
   audienceScene,
   audiencesToday,
@@ -160,6 +174,12 @@ const nextUnheard = computed(() =>
 )
 const selected = computed(
   () => audiences.value.find((entry) => entry.id === selectedId.value) ?? null,
+)
+/** Reconstruct the last answer and its shipped art after save/load or rewind. */
+const answered = computed(() =>
+  selected.value && heard(selected.value.id)
+    ? audienceAftermath(props.run, selected.value)
+    : null,
 )
 /** Where the selected audience stands: its opening, or a later beat. */
 const scene = computed(() =>

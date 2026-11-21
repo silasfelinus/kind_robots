@@ -191,6 +191,19 @@ for (const follower of FOLLOWERS) {
   })
 }
 
+const talkCoverage = TALKS.map((talk) => ({
+  id: talk.id,
+  follower: talk.follower,
+  from_day: talk.fromDay,
+  has_shipped_portrait: shipped(followerPortrait(talk.follower)),
+}))
+for (const talk of talkCoverage) {
+  assert.ok(
+    talk.has_shipped_portrait,
+    'No shipped art for follower conversation ' + talk.id,
+  )
+}
+
 for (const id of Object.keys(ENDINGS)) {
   const wanted = '/emperor-of-dust/endings/' + id + '.webp'
   slots.push({
@@ -232,6 +245,7 @@ const totals = {
     (slot) => slot.kind === 'quest' && slot.dedicated,
   ).length,
   follower_portraits: FOLLOWERS.length,
+  voiced_follower_talks: talkCoverage.length,
   follower_missing_portraits: missing('follower').length,
   ending_plates: Object.keys(ENDINGS).length,
   ending_missing_plates: missing('ending').length,
@@ -244,6 +258,7 @@ const report = {
   status: 'partial_delivery_audit_not_playtest_acceptance',
   totals,
   by_act: byAct,
+  follower_talk_portrait_coverage: talkCoverage,
   missing_dedicated: {
     audience: missing('audience').map((slot) => slot.id),
     chance: [...new Set(missing('chance').map((slot) => slot.id.split('/')[0]))],

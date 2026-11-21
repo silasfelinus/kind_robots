@@ -539,6 +539,10 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
     },
   },
   vesna: {
+    'promise-stairs': {
+      mood: 'positive',
+      line: 'Show me the unsigned council version of those contracts before the witnesses are forced to comply.',
+    },
     rally: { mood: 'positive', line: 'Whose permit was changed, and did anybody tell the residents?' },
     broadcast: { mood: 'positive', line: 'I have the original council record. Put the whole thing on air.' },
     vault: { mood: 'negative', line: 'Council favors are not a license to steal evidence.' },

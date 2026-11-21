@@ -41,7 +41,7 @@ assert.equal(pearlWardenAllowsWave(warden.to - 1, 'cache', warden), false)
 assert.equal(pearlWardenAllowsWave(warden.from, 'relay', warden), true)
 assert.equal(pearlWardenAllowsWave(warden.from, null, warden), true)
 assert.ok(
-  reefSpawns(CROWN_REEF_FORK.decideAt + 60, 'cache').length > 0,
+  reefSpawns(CROWN_REEF_FORK.decideAt + 240, 'cache').length > 0,
   'the cache patrol is genuinely flown before the keeper arrives',
 )
 

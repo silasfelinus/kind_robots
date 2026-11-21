@@ -1219,6 +1219,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'weathervane-hilltop',
+    label: 'Weathervane Hilltop',
+    reveal: 'A rooster weathervane swings with the golden-hour wind',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Grass, clouds, seeds and a windsock all follow one wandering breeze 🐓 hover to stir the grass, click to send a gust',
+    color: '#d59a7c',
+    releasedAt: '2026-11-21T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

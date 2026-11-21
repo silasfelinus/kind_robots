@@ -79,6 +79,15 @@
       <label class="text-xs font-bold" for="space-couch-alien-shelf-search">
         SEARCH THE FIELD GUIDE
       </label>
+      <input
+        id="space-couch-alien-shelf-search"
+        v-model="shelfSearch"
+        type="search"
+        class="input input-bordered input-sm w-full"
+        data-testid="space-couch-alien-shelf-search"
+        placeholder="Known name or catalogue number"
+        autocomplete="off"
+      />
       <div class="flex items-center justify-between gap-2">
         <p class="text-xs opacity-75" role="status" aria-live="polite">
           {{ visibleSpecies.length }} catalogue pages shown
@@ -93,15 +102,6 @@
           SHOW ALL
         </button>
       </div>
-      <input
-        id="space-couch-alien-shelf-search"
-        v-model="shelfSearch"
-        type="search"
-        class="input input-bordered input-sm w-full"
-        data-testid="space-couch-alien-shelf-search"
-        placeholder="Known name or catalogue number"
-        autocomplete="off"
-      />
     </div>
     <div
       class="kr-scroll grid min-h-0 flex-1 gap-3 overflow-y-auto @md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"

@@ -389,7 +389,11 @@
             data-testid="space-couch-blue-giant-casino"
           >
             <img
-              v-if="flipped !== 'casino' || !franchiseImage"
+              v-if="
+                flipped !== 'casino' ||
+                !franchiseImage ||
+                brokenArtwork.includes(franchiseImage)
+              "
               :src="revealPainting || backdrop"
               alt="Space Couch episode backdrop"
               @error="onEpisodeArtworkError"
@@ -398,6 +402,7 @@
               v-else
               :src="franchiseImage"
               alt="A Serendipity venue built inside a casino on a living blue giant"
+              @error="onEpisodeArtworkError"
             />
           </div>
           <div class="daily-reveal-content">
@@ -462,7 +467,7 @@
                 ✦ FAMILIAR PARTNERS ·
                 {{ episodeDuoExperience(run, plotCast) }} previous success(es)
               </small>
-              <small v-else
+              <small v-else-if="!plotCast.length"
                 >Choose at least one command card to unlock a decision.</small
               >
             </div>
@@ -645,6 +650,12 @@ const nextDeck = computed(() =>
 )
 const lastDraw = computed(() => episodeDraws(props.run).at(-1))
 const brokenArtwork = ref<string[]>([])
+watch(
+  () => [props.artwork, props.franchiseImage, props.backdrop],
+  () => {
+    brokenArtwork.value = []
+  },
+)
 function onEpisodeArtworkError(event: Event) {
   const url = (event.target as HTMLImageElement).getAttribute('src')
   if (url && !brokenArtwork.value.includes(url))
@@ -662,18 +673,8 @@ const revealPainting = computed(() => {
 const decisionCards = computed<KrHandChoice[]>(() => {
   const deck = flipped.value
   if (!deck) return []
-  const cardId = episodeArtworkCardId(
-    props.run,
-    deck,
-    episodeCard(props.run, deck).id,
-  )
   const ready = plotCast.value.length > 0
-  return EPISODE_CHOICES.map((choice) => {
-    const key = episodeResultArtKey({
-      cardId,
-      choice: choice.id,
-      successful: true,
-    })
+  return EPISODE_CHOICES.map((choice, index) => {
     return {
       id: choice.id,
       label: episodeChoiceLabel(props.run, deck, choice.id),
@@ -682,7 +683,7 @@ const decisionCards = computed<KrHandChoice[]>(() => {
         : 'Choose a command card first',
       details: ready ? [] : [episodeChoiceStakes(props.run, deck, choice.id)],
       disabled: !ready,
-      image: key ? props.artwork?.[key] : null,
+      image: index === 0 ? revealPainting.value : null,
       icon: deckSymbol(deck),
     }
   })

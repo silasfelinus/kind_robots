@@ -1,5 +1,6 @@
 import {
   normalizeCompletedVoyages,
+  sameCompletedVoyageStory,
   type CompletedVoyage,
 } from './completedVoyages'
 import { restoreVoyage, type VoyageRun } from './rules'
@@ -79,11 +80,43 @@ export function parseVoyageBackup(source: string): VoyageBackup {
   }
 }
 
+/**
+ * Two devices can finish different stories with the same seed, captain and
+ * ending. Their first archive ID collides, but neither story may be discarded.
+ * Keep existing local IDs stable; give the incoming distinct run a replay ID.
+ */
 export function mergeVoyageHistory(
   local: CompletedVoyage[],
   imported: CompletedVoyage[],
 ): CompletedVoyage[] {
-  return normalizeCompletedVoyages([...local, ...imported])
+  const merged = [...normalizeCompletedVoyages(local)]
+  const ids = new Set(merged.map((entry) => entry.id))
+
+  for (const entry of normalizeCompletedVoyages(imported)) {
+    const baseId = entry.id.replace(/:replay-\\d+$/, '')
+    const siblings = merged.filter(
+      (existing) =>
+        existing.id === baseId || existing.id.startsWith(baseId + ':replay-'),
+    )
+    if (
+      siblings.some((existing) => sameCompletedVoyageStory(existing, entry))
+    )
+      continue
+
+    if (!ids.has(entry.id)) {
+      merged.push(entry)
+      ids.add(entry.id)
+      continue
+    }
+
+    let suffix = 1
+    while (ids.has(baseId + ':replay-' + suffix)) suffix++
+    const rekeyed = { ...entry, id: baseId + ':replay-' + suffix }
+    merged.push(rekeyed)
+    ids.add(rekeyed.id)
+  }
+
+  return merged
 }
 
 /**

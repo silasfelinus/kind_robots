@@ -23,32 +23,50 @@ export function audienceAftermath(
   audience: AudienceDef,
 ): AudienceAftermath | null {
   const prefix = `chose:${audience.id}:`
-  const history = [...run.flags].reverse().find((flag) =>
-    flag.startsWith(prefix),
-  )
-  if (!history) return null
-  const chosenId = history.slice(prefix.length)
-  const answers: AuthoredAnswer[] = [
-    ...audience.options.map((option, cardIndex) => ({
+  const chosenIds = run.flags
+    .filter((flag) => flag.startsWith(prefix))
+    .map((flag) => flag.slice(prefix.length))
+  if (!chosenIds.length) return null
+
+  const opening = audience.options.map((option, cardIndex) => ({
+    option,
+    npc: audience.npc,
+    cardIndex,
+  }))
+  const beats = (audience.beats ?? []).flatMap((beat) =>
+    beat.options.map((option, cardIndex) => ({
       option,
-      npc: audience.npc,
+      npc: beat.npc ?? audience.npc,
       cardIndex,
     })),
-    ...(audience.beats ?? []).flatMap((beat) =>
-      beat.options.map((option, cardIndex) => ({
-        option,
-        npc: beat.npc ?? audience.npc,
-        cardIndex,
-      })),
-    ),
-  ]
-  const answer = answers.find((entry) => entry.option.id === chosenId)
+  )
+  let available: AuthoredAnswer[] = opening
+  let answer: AuthoredAnswer | undefined
+
+  for (const id of chosenIds) {
+    // `repair` can occur in both an opening and a later beat with genuinely
+    // different responses. Replay the saved choice sequence through the scene
+    // graph to recover the exact option the player saw, not the first id match.
+    answer =
+      available.find((entry) => entry.option.id === id) ??
+      [...opening, ...beats].find((entry) => entry.option.id === id)
+    if (!answer) return null
+    const next = audience.beats?.find((beat) => beat.id === answer?.option.next)
+    available = next
+      ? next.options.map((option, cardIndex) => ({
+          option,
+          npc: next.npc ?? audience.npc,
+          cardIndex,
+        }))
+      : opening
+  }
+
   if (!answer) return null
   return {
     option: answer.option,
     images: audienceChoiceImages(
       audience.id,
-      chosenId,
+      answer.option.id,
       answer.npc,
       answer.cardIndex,
     ),

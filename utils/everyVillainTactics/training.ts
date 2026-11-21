@@ -834,8 +834,10 @@ export function useAlliedSignature(state: TrainingState): boolean {
 export function selectedPowerTargets(state: TrainingState): Cell[] {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return []
-  return powerTargets(state, unit).filter((target) =>
-    valcourtRescueTarget(state, unit, target),
+  return powerTargets(state, unit).filter(
+    (target) =>
+      valcourtRescueTarget(state, unit, target) &&
+      chorusBroadcastTarget(state, unit, target),
   )
 }
 export function previewSelectedPower(
@@ -844,7 +846,11 @@ export function previewSelectedPower(
 ): PowerPreview | null {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return null
-  if (!valcourtRescueTarget(state, unit, target)) return null
+  if (
+    !valcourtRescueTarget(state, unit, target) ||
+    !chorusBroadcastTarget(state, unit, target)
+  )
+    return null
   return previewPower(state, unit, target)
 }
 function valcourtRescueTarget(
@@ -872,6 +878,23 @@ function valcourtRescueTarget(
       ally.y <= 4,
   )
 }
+/** Chorus's one-use rally must reach the studio booth before its counter-song
+ * can break the sponsor's loop. Disallow early casting, which softlocks rescue. */
+function chorusBroadcastTarget(
+  state: TrainingState,
+  unit: Unit,
+  target: Cell,
+): boolean {
+  if (
+    state.stageId !== 'song-that-stopped' ||
+    unit.id !== 'backdraft' ||
+    unit.identity !== 'accident-social' ||
+    (state.flags ?? []).includes('radio-counter-melody')
+  )
+    return true
+  return unit.x === 3 && unit.y === 2 && target.x === 3 && target.y === 2
+}
+
 function narratePower(
   state: TrainingState,
   user: Unit,
@@ -909,7 +932,11 @@ function narratePower(
 export function useSelectedPower(state: TrainingState, target: Cell): boolean {
   const unit = selectedUnit(state)
   if (!unit || state.phase !== 'active') return false
-  if (!valcourtRescueTarget(state, unit, target)) return false
+  if (
+    !valcourtRescueTarget(state, unit, target) ||
+    !chorusBroadcastTarget(state, unit, target)
+  )
+    return false
   const result = usePower(state, unit, target)
   if (!result) return false
   narratePower(state, unit, result.preview, result.hit, result.roll)
@@ -972,6 +999,22 @@ export function useSelectedPower(state: TrainingState, target: Cell): boolean {
       'Captain Valcourt spreads the ancestral cape around an ally. The shield crosses the private security field; both library evacuations are now possible.',
     )
   }
+  if (
+    state.stageId === 'song-that-stopped' &&
+    unit.id === 'backdraft' &&
+    unit.identity === 'accident-social' &&
+    result.hit &&
+    unit.x === 3 &&
+    unit.y === 2 &&
+    !(state.flags ?? []).includes('radio-counter-melody')
+  ) {
+    state.flags ??= []
+    state.flags.push('radio-counter-melody')
+    note(
+      state,
+      'Chorus sings a counter-melody from the studio booth. The sponsored loop falls out of rhythm and both crowds regain control of their feet.',
+    )
+  }
   // A leap lands in view of rival overwatch like any other move.
   if (result.preview.power.targeting === 'leap') triggerReactions(state, unit)
   updateOutcome(state)
@@ -1010,6 +1053,12 @@ export function rescueTargets(state: TrainingState): Civilian[] {
         state.stageId !== 'unlicensed-rescue' ||
         !['library-family', 'concert-ushers'].includes(c.id) ||
         (state.flags ?? []).includes('valcourt-cape-pass'),
+    )
+    .filter(
+      (c) =>
+        state.stageId !== 'song-that-stopped' ||
+        !['radio-listeners', 'radio-volunteers'].includes(c.id) ||
+        (state.flags ?? []).includes('radio-counter-melody'),
     )
     .filter((c) => gridDistance(unit, c) <= 1)
     .sort((a, b) => a.id.localeCompare(b.id))

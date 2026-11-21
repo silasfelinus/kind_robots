@@ -477,6 +477,11 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
   )
     flagsAllowed.add('valcourt-cape-pass')
   if (
+    save.stage?.id === 'song-that-stopped' &&
+    save.leadSignature === 'accident-social'
+  )
+    flagsAllowed.add('radio-counter-melody')
+  if (
     Array.isArray(state.flags) &&
     state.flags.includes('diner-hood-vented') &&
     !state.units.some((unit) => unit.id === 'backdraft' && unit.powerSpent)
@@ -509,6 +514,18 @@ function validateSave(save: EvtSave, migrated: boolean): LoadResult {
     )
   )
     return reject('The library escort did not use Valcourt’s signature cape.')
+  if (
+    state.flags?.includes('radio-counter-melody') &&
+    !state.units.some(
+      (unit) =>
+        unit.id === 'backdraft' &&
+        unit.identity === 'accident-social' &&
+        unit.powerSpent,
+    )
+  )
+    return reject(
+      'The broadcast was not interrupted by Chorus’s counter-melody.',
+    )
   if (
     state.flags !== undefined &&
     (!Array.isArray(state.flags) ||

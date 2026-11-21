@@ -26,6 +26,8 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'sunken-street': 265022,
   // Existing Academy painting pending a dedicated library venue.
   'unlicensed-rescue': 265014,
+  // Existing media-tower painting; unique studio arena art is still outstanding.
+  'song-that-stopped': 265023,
 }
 
 export function paintedMapArtId(stageId: string | null): number | null {

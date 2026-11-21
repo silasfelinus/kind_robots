@@ -148,8 +148,7 @@ export function artJobIdsInGroup(
 }
 
 export type ArtJobGroupNameParse =
-  | { ok: true; name: string }
-  | { ok: false; message: string }
+  { ok: true; name: string } | { ok: false; message: string }
 
 export function parseArtJobGroupName(value: unknown): ArtJobGroupNameParse {
   const name = typeof value === 'string' ? value.trim() : ''

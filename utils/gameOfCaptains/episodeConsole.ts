@@ -98,7 +98,7 @@ export const PLANET_CARDS = [
     document:
       'Payroll records reveal the star owners have been billing the planets twice. The accounting office demands a second sun to inspect the first.',
     override:
-      'The couch restarts a striking sun long enough to thaw the nursery's emergency heaters, then hands the switch back to the union. The children are warm; the stars file a forty-million-kilometer unfair-labor complaint.',
+      'The couch restarts a striking sun long enough to thaw the nursery’s emergency heaters, then hands the switch back to the union. The children are warm; the stars file a forty-million-kilometer unfair-labor complaint.',
     crew: 'pell',
   },
   {
@@ -158,7 +158,7 @@ export const PLANET_CARDS = [
     document:
       'The missing waveform identifies who silenced the original warning. The palace archivist requests anonymity and a hearing aid.',
     override:
-      'The couch sounds every bell before the surge reaches the schools, shattering the palace's ceremonial windows. The city evacuates intact; residents take charge of the alarm keys while the king calls it vandalism.',
+      'The couch sounds every bell before the surge reaches the schools, shattering the palace’s ceremonial windows. The city evacuates intact; residents take charge of the alarm keys while the king calls it vandalism.',
     crew: 'omi',
   },
   {

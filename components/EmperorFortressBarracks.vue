@@ -356,6 +356,7 @@ import {
   LOCAL_FACTION_DEFS,
 } from '~/utils/emperorOfDust/fortress/factions'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
+import { talkChoiceImages } from '~/utils/emperorOfDust/fortress/talkChoiceArt'
 import { barracksLine } from '~/utils/emperorOfDust/fortress/talkEchoes'
 import { departedFollowers } from '~/utils/emperorOfDust/fortress/betrayal'
 import { followerDef, itemDef } from '~/utils/emperorOfDust/fortress/followers'
@@ -456,9 +457,10 @@ const sceneLines = computed<SceneLine[]>(() => {
 const talkChoices = computed(() =>
   (scene.value?.options ?? [])
     .filter((option) => optionVisible(props.run, option))
-    .map((option) => ({
+    .map((option, index) => ({
       id: option.id,
       label: option.label,
+      image: talkChoiceImages(talk.value?.follower ?? '', index),
       note: option.requires?.cost ? `Costs ${option.requires.cost} brass` : '',
       blockers: optionBlockers(props.run, option),
     })),

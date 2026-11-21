@@ -147,6 +147,7 @@
   color: var(--cq-verdigris);
 }
 /* cthulhuquarium/t-102: the next floor's creatures, shown only as shapes. */
+.cq-game .cq-pedestal-creature.cq-silhouette,
 .cq-game .cq-silhouette {
   filter: brightness(0) drop-shadow(0 0 6px rgb(120 200 190 / 0.35));
   opacity: 0.85;

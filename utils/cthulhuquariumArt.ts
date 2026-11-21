@@ -30,6 +30,8 @@
 // them automatically -- see `withCthulhuquariumArt`, which only ever FILLS
 // nulls and never overwrites a path the database already supplies.
 
+import { portraitCandidates } from './cthulhuquariumFloors'
+
 const modules = import.meta.glob<string>(
   '../assets/images/cthulhuquarium/*.webp',
   { eager: true, query: '?url', import: 'default' },
@@ -144,18 +146,28 @@ const SPEAKER_SLUGS: Record<string, string> = {
   wilbur: 'wilbur-stint',
 }
 
-/** A cut-out dialogue portrait (canon characters/<who>.yaml `art.portraits`). */
-function portraitFor(speaker: string, pose: string): string | null {
+/**
+ * A cut-out dialogue portrait (canon characters/<who>.yaml `art.portraits`).
+ * `floor` is the deepest open floor of the building (t-103): a character with
+ * per-floor variants (`wilbur-stint-wince-f3`) shows the deepest one at or
+ * above it, and the base pose until that variant is rendered.
+ */
+function portraitFor(speaker: string, pose: string, floor = 1): string | null {
   const slug = SPEAKER_SLUGS[speaker]
   if (!slug) return null
+  for (const stem of portraitCandidates(slug, pose, floor)) {
+    const url = storyArt[`portraits/${stem}`]
+    if (url) return url
+  }
   // Poses render one at a time. A pose still in the queue borrows another
   // cut-out of the same speaker before the full-length hero, whose painted
   // backdrop would sit oddly beside the cut-outs in the dialogue.
   const anyPose = Object.keys(storyArt)
-    .filter((key) => key.startsWith(`portraits/${slug}-`))
+    .filter(
+      (key) => key.startsWith(`portraits/${slug}-`) && !/-f\d+$/.test(key),
+    )
     .sort()[0]
   return (
-    storyArt[`portraits/${slug}-${pose}`] ??
     (anyPose ? storyArt[anyPose] : undefined) ??
     byStem[`cthulhuquarium-char-${slug}`] ??
     null

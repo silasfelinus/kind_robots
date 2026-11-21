@@ -39,6 +39,8 @@ jobs:
       - run: npm ci
       - name: Floors of the building (gating, thresholds, portraits)
         run: npx tsx utils/scripts/verifyCthulhuquariumFloors.test.ts
+      - name: Scene walker (beats, replies, every real scene path)
+        run: npx tsx utils/scripts/verifyCthulhuquariumScript.test.ts
       - name: Canon story mirror (scenes, poses, backgrounds, plates)
         run: npx tsx utils/scripts/verifyCthulhuquariumCanon.test.ts
       - name: Shop rotation and release price

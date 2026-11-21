@@ -460,20 +460,8 @@
               class="cq-support-panel cq-scenery"
             >
               <h3 class="cq-rail-title">World &amp; story</h3>
-              <button
-                type="button"
-                data-nav
-                class="cq-plate-button cq-scenery-replay"
-                @click="
-                  () => {
-                    closePanel()
-                    tankStore.replayIntro()
-                  }
-                "
-              >
-                <Icon name="kind-icon:play" class="kr-icon-4" />
-                Meet Charlotte and Wilbur · Replay the opening
-              </button>
+              <!-- cthulhuquarium/t-104: every scene seen, to watch again. -->
+              <cthulhuquarium-memory-book @replay="closePanel" />
               <section class="cq-scenery-section">
                 <h4 class="cq-section-title">Behind the glass</h4>
                 <cthulhuquarium-bark context="backgrounds" />
@@ -1215,6 +1203,8 @@ const LANDMARK_HINTS: Record<string, string> = {
   first_full_tank: 'Fill every slot',
   first_spotless_tank: 'Keep it spotless',
   first_rivalry_resolved: 'Settle a rivalry',
+  // cthulhuquarium/t-085: the Hatchery now comes with the first expansion.
+  first_evolution: 'Widen the tank once',
 }
 function backgroundUnlockHint(unlock: string): string {
   const bestiary = /^bestiary_(\d+)$/.exec(unlock)
@@ -3231,10 +3221,6 @@ onBeforeUnmount(() => {
   padding-top: 0.8rem;
   padding-right: 3.6rem;
 }
-.cq-scenery-replay {
-  align-self: flex-start;
-}
-
 /* The command deck: five lacquered plaques with their icons standing proud,
    shoulder hints at each end, and the button prompts beneath. */
 .cq-controller {

@@ -20,6 +20,16 @@ import {
   type CanonScene,
   type CanonSpeaker,
 } from '~/utils/cthulhuquariumCanon.generated'
+import {
+  SCRIPT_START,
+  scriptAwaitingChoice,
+  scriptChoicesOf,
+  scriptChoose,
+  scriptCurrentBeat,
+  scriptIsFinalBeat,
+  scriptStep,
+  type ScriptCursor,
+} from '~/utils/cthulhuquariumScript'
 
 export interface StoryState {
   seenScenes: string[]
@@ -28,6 +38,8 @@ export interface StoryState {
   // cthulhuquarium/t-102: the deepest open floor, and every floor reached.
   floor?: number
   floorsReached?: number[]
+  // cthulhuquarium/t-103: the reply picked in each floor scene, by scene id.
+  choices?: Record<string, string>
 }
 
 export type StoryAction = 'unlock' | 'feed' | 'clean' | 'shop' | 'bestiary'
@@ -56,8 +68,15 @@ function hashString(text: string): number {
 export function useCthulhuquariumStory() {
   const state = ref<StoryState | null>(null)
   const queue = ref<string[]>([])
-  const beatIndex = ref(0)
-  const replayingIntro = ref(false)
+  // cthulhuquarium/t-103: where we are in the scene (utils/cthulhuquariumScript.ts):
+  // a main beat, or a beat of the reply the player picked.
+  const cursor = ref<ScriptCursor>({ ...SCRIPT_START })
+  const beatIndex = computed(() => cursor.value.beat)
+  // A replay from the Memory Book (or the intro from the guide): it never
+  // records anything and leaves the moment the player is done.
+  const replaying = ref(false)
+  // Replies picked in scenes still playing, sent when each scene finishes.
+  const pendingChoices = ref<Record<string, string>>({})
   const backgroundSaving = ref(false)
   const storyError = ref('')
   const spokenBark = ref<SpokenBark | null>(null)
@@ -71,14 +90,38 @@ export function useCthulhuquariumStory() {
     const id = queue.value[0]
     return id ? (CTHULHUQUARIUM_SCENES[id] ?? null) : null
   })
-  const activeBeat = computed<CanonBeat | null>(
-    () => activeScene.value?.beats[beatIndex.value] ?? null,
+  const activeBeat = computed<CanonBeat | null>(() =>
+    scriptCurrentBeat(activeScene.value, cursor.value),
   )
   const isLastBeat = computed(
     () =>
-      !!activeScene.value &&
-      beatIndex.value >= activeScene.value.beats.length - 1,
+      !!activeScene.value && scriptIsFinalBeat(activeScene.value, cursor.value),
   )
+  /** The replies on offer, while the scene waits for the player to pick one. */
+  const activeChoices = computed(() =>
+    scriptAwaitingChoice(activeScene.value, cursor.value)
+      ? scriptChoicesOf(activeScene.value?.beats[cursor.value.beat])
+      : [],
+  )
+  const isReplaying = computed(() => replaying.value)
+  /**
+   * Every beat shown so far in this scene, oldest first (main beats, plus the
+   * picked reply's beats up to the current one). The stage uses it to keep the
+   * speaker who is not talking in the last pose they spoke in.
+   */
+  const spokenBeats = computed<CanonBeat[]>(() => {
+    const scene = activeScene.value
+    if (!scene) return []
+    const at = cursor.value
+    const main = scene.beats.slice(0, at.beat + 1)
+    const reply =
+      scriptChoicesOf(scene.beats[at.beat]).find(
+        (choice) => choice.id === at.choice,
+      )?.reply ?? []
+    return [...main, ...reply.slice(0, at.choice ? at.reply + 1 : 0)]
+  })
+  /** The deepest open floor of the building (1 until the story has loaded). */
+  const storyFloor = computed(() => state.value?.floor ?? 1)
   const backgroundKey = computed(() => state.value?.backgroundKey ?? 'parlour')
   const backgrounds = computed<Array<CanonBackground & { unlocked: boolean }>>(
     () =>
@@ -117,7 +160,7 @@ export function useCthulhuquariumStory() {
     loadSoundPreference()
     loadGuidePreference()
     queueScene('intro')
-    if (queue.value[0] === 'intro' && beatIndex.value === 0) {
+    if (queue.value[0] === 'intro' && cursor.value.beat === 0) {
       const beats = CTHULHUQUARIUM_SCENES.intro?.beats ?? []
       let resume = 0
       beats.forEach((beat, index) => {
@@ -126,7 +169,7 @@ export function useCthulhuquariumStory() {
         }
       })
       if (resume >= beats.length) await finishScene()
-      else beatIndex.value = resume
+      else cursor.value = { ...SCRIPT_START, beat: resume }
     }
     if (!queue.value.length && !guideSeen.value) guideOpen.value = true
   }
@@ -159,54 +202,100 @@ export function useCthulhuquariumStory() {
     if (!scene) return
     const ids = [scene.id, ...scene.covers]
     queue.value.shift()
-    beatIndex.value = 0
+    cursor.value = { ...SCRIPT_START }
+    if (replaying.value) {
+      replaying.value = false
+      return
+    }
+    const choice = pendingChoices.value[scene.id]
+    const choices = choice ? { [scene.id]: choice } : {}
+    pendingChoices.value = Object.fromEntries(
+      Object.entries(pendingChoices.value).filter(([id]) => id !== scene.id),
+    )
     if (state.value) {
       state.value = {
         ...state.value,
         seenScenes: [...new Set([...state.value.seenScenes, ...ids])],
+        choices: { ...choices, ...(state.value.choices ?? {}) },
       }
     }
     const res = await performFetch<StoryState>('/api/aquarium/story/seen', {
       method: 'POST',
-      body: JSON.stringify({ scenes: ids }),
+      body: JSON.stringify({ scenes: ids, choices }),
     })
     if (res.success && res.data) state.value = res.data
     if (scene.id === 'intro' && !guideSeen.value) guideOpen.value = true
   }
 
-  // Existing players can revisit the cinematic opening without resetting
-  // their tank, forcing them to adopt/feed again, or rewriting seen scenes.
+  /**
+   * Rewatch a seen scene (the Memory Book; the intro from the guide) without
+   * resetting the tank, asking for actions again or recording anything. A
+   * replayed scene shows only its cinematic beats: the intro stops before
+   * its first interactive tutorial beat, as it always has.
+   */
+  function replayScene(id: string): void {
+    if (!state.value || queue.value.length || !CTHULHUQUARIUM_SCENES[id]) return
+    queue.value = [id]
+    cursor.value = { ...SCRIPT_START }
+    replaying.value = true
+  }
+
   function replayIntro(): void {
-    if (!state.value || queue.value.length) return
-    queue.value = ['intro']
-    beatIndex.value = 0
-    replayingIntro.value = true
+    replayScene('intro')
+  }
+
+  function endReplay(): void {
+    queue.value.shift()
+    cursor.value = { ...SCRIPT_START }
+    replaying.value = false
   }
 
   async function advanceBeat(): Promise<void> {
-    if (replayingIntro.value && activeScene.value?.id === 'intro') {
-      const firstInteractive = activeScene.value.beats.findIndex(
-        (item) => item.focus !== null || item.await !== null,
-      )
-      const lastCinematicBeat =
-        firstInteractive >= 0
-          ? firstInteractive - 1
-          : activeScene.value.beats.length - 1
-      if (beatIndex.value >= lastCinematicBeat) {
-        queue.value.shift()
-        beatIndex.value = 0
-        replayingIntro.value = false
+    const scene = activeScene.value
+    if (!scene) return
+    if (replaying.value) {
+      const next = scriptStep(scene, cursor.value)
+      const nextBeat = next === 'done' ? null : scriptCurrentBeat(scene, next)
+      // A replay never asks the player to Feed or Buy again.
+      if (next === 'done' || !nextBeat || nextBeat.focus || nextBeat.await) {
+        endReplay()
         return
       }
-      beatIndex.value += 1
+      cursor.value = next
       return
     }
-    if (!activeScene.value) return
-    if (isLastBeat.value) {
+    const next = scriptStep(scene, cursor.value)
+    if (next === 'done') {
       await finishScene()
       return
     }
-    beatIndex.value += 1
+    cursor.value = next
+  }
+
+  /** The player's reply on a floor scene's choice beat. */
+  function chooseReply(choiceId: string): void {
+    const scene = activeScene.value
+    if (!scene) return
+    const next = scriptChoose(scene, cursor.value, choiceId)
+    if (next === cursor.value) return
+    cursor.value = next
+    if (!replaying.value) {
+      pendingChoices.value = { ...pendingChoices.value, [scene.id]: choiceId }
+    }
+  }
+
+  /**
+   * Leave the scene now. A first viewing still counts as seen (it is in the
+   * Memory Book to rewatch); a tutorial beat waiting on an action is skipped
+   * with its own button instead, so this is for cinematic scenes.
+   */
+  async function skipScene(): Promise<void> {
+    if (!activeScene.value) return
+    if (replaying.value) {
+      endReplay()
+      return
+    }
+    await finishScene()
   }
 
   function notifyAction(action: StoryAction): void {
@@ -216,6 +305,22 @@ export function useCthulhuquariumStory() {
   function announceMilestones(ids: string[]): void {
     for (const id of ids) queueScene(`milestone_${id}`)
     if (ids.length) void refreshStory()
+  }
+
+  /** cthulhuquarium/t-102: the first species ever known from floor II-V. */
+  function announceFirstOfFloor(floor: number | null | undefined): void {
+    if (floor && floor > 1) queueScene(`floor_first_${floor}`)
+  }
+
+  /**
+   * The scene after The Last Aquarium: queued when it is bought, and on any
+   * later visit by a tank that bought it before the scene existed.
+   */
+  function queueFinaleScene(): void {
+    const finale = Object.values(CTHULHUQUARIUM_SCENES).find(
+      (scene) => scene.trigger === 'finale',
+    )
+    if (finale) queueScene(finale.id)
   }
 
   /** The line a screen shows today: stable for the day, different tomorrow. */
@@ -329,6 +434,16 @@ export function useCthulhuquariumStory() {
     queueMissedMilestoneScene,
     advanceBeat,
     replayIntro,
+    replayScene,
+    chooseReply,
+    skipScene,
+    activeChoices,
+    isReplaying,
+    spokenBeats,
+    storyFloor,
+    hasSeen,
+    announceFirstOfFloor,
+    queueFinaleScene,
     finishScene,
     notifyAction,
     announceMilestones,

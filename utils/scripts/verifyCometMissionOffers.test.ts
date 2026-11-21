@@ -470,10 +470,7 @@ const fourDistricts = THREADS.map((thread, index) => ({
 }))
 assert.equal(districtFinaleAid([], 'share').support, 0)
 assert.equal(
-  districtFinaleAid(
-    [{ ...fourDistricts[0]!, day: 30 }],
-    'protect',
-  ).support,
+  districtFinaleAid([{ ...fourDistricts[0]!, day: 30 }], 'protect').support,
   0,
   'graduation-night clues do not retroactively aid the finale',
 )

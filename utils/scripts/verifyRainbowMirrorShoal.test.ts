@@ -32,10 +32,12 @@ assert.equal(SHOAL_SECTIONS.length, 11)
 assert.equal(SHOAL_WAVES.length, 48)
 assert.equal(SHOAL_WAVE_SIZES.length, SHOAL_WAVES.length)
 assert.ok(SHOAL_WAVE_SIZES.every((size) => size >= 1 && size <= 4))
-assert.deepEqual(
-  [...new Set(SHOAL_WAVES.map((entry) => entry.kind))].sort(),
-  ['harbinger', 'mirror', 'skate', 'squid'],
-)
+assert.deepEqual([...new Set(SHOAL_WAVES.map((entry) => entry.kind))].sort(), [
+  'harbinger',
+  'mirror',
+  'skate',
+  'squid',
+])
 assert.ok(
   SHOAL_WAVES.every(
     (entry, index) =>
@@ -81,11 +83,7 @@ assert.ok(
   SHOAL_GUARDIAN.to - SHOAL_GUARDIAN.from >
     RAINBOW_GUARDIAN.firstVolley + RAINBOW_GUARDIAN.escapeLead,
 )
-assert.deepEqual(Object.keys(SHOAL_TALKS), [
-  'opening',
-  'turn',
-  'aftermath',
-])
+assert.deepEqual(Object.keys(SHOAL_TALKS), ['opening', 'turn', 'aftermath'])
 for (const lines of Object.values(SHOAL_TALKS)) {
   assert.equal(lines.length, 3)
   assert.ok(lines.some((line) => line.speaker === 'Lilt-7'))
@@ -105,8 +103,7 @@ for (const pilots of [1, 4]) {
   for (let frame = 1; frame <= RAINBOW_GUARDIAN.firstVolley; frame++) {
     first = stepRainbowGuardian(guardian, targets, false)
     if (rainbowGuardianWarning(guardian)) warnings++
-    if (frame < RAINBOW_GUARDIAN.firstVolley)
-      assert.equal(first.length, 0)
+    if (frame < RAINBOW_GUARDIAN.firstVolley) assert.equal(first.length, 0)
   }
   assert.equal(warnings, RAINBOW_GUARDIAN.warningFrames)
   assert.equal(first.length, 8)

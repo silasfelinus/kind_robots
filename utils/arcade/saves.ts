@@ -14,13 +14,25 @@ const SLUG = /^[a-z0-9-]{1,40}$/
 /** A save is a small resume point, never a replay log. */
 export const MAX_SAVE_BYTES = 8_192
 
+/** Storage limits are UTF-8 bytes, not JavaScript UTF-16 code units. */
+export function serializedSaveBytes(save: unknown): number | null {
+  try {
+    const json = JSON.stringify(save)
+    if (typeof json !== 'string') return null
+    return new TextEncoder().encode(json).byteLength
+  } catch {
+    return null
+  }
+}
+
 /** Whatever was stored, reduced to slugs mapped to small JSON values. */
 export function sanitizeSaves(raw: unknown): SaveRecord {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
   const record: SaveRecord = {}
   for (const [game, save] of Object.entries(raw)) {
     if (!SLUG.test(game) || save === null || save === undefined) continue
-    if (JSON.stringify(save).length > MAX_SAVE_BYTES) continue
+    const bytes = serializedSaveBytes(save)
+    if (bytes === null || bytes > MAX_SAVE_BYTES) continue
     record[game] = save
   }
   return record
@@ -37,6 +49,7 @@ export function withSave(
     Object.entries(record).filter(([slug]) => slug !== game),
   )
   if (save === null || save === undefined) return others
-  if (JSON.stringify(save).length > MAX_SAVE_BYTES) return record
+  const bytes = serializedSaveBytes(save)
+  if (bytes === null || bytes > MAX_SAVE_BYTES) return record
   return { ...others, [game]: save }
 }

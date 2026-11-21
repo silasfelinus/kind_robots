@@ -70,3 +70,24 @@ export function audienceChoiceImages(
     ...new Set(candidates.filter((image): image is string => Boolean(image))),
   ]
 }
+
+/**
+ * Resolve the last decision in a petition from the run's durable choice flags.
+ * Multi-beat audiences can set several flags; the final choice is the one
+ * illustrated in the resolved court panel. No new save fields are required.
+ */
+export function answeredAudienceArt(
+  flags: readonly string[],
+  audienceId: string,
+  speakerNpc?: string,
+): { optionId: string; images: string[] } | undefined {
+  const prefix = `chose:${audienceId}:`
+  const flag = [...flags].reverse().find((entry) => entry.startsWith(prefix))
+  if (!flag) return undefined
+  const optionId = flag.slice(prefix.length)
+  if (!optionId) return undefined
+  return {
+    optionId,
+    images: audienceChoiceImages(audienceId, optionId, speakerNpc, 0),
+  }
+}

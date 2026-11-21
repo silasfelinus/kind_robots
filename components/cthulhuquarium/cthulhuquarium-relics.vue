@@ -128,7 +128,7 @@
               v-if="decorArt(entry.kind)"
               :src="decorArt(entry.kind) ?? undefined"
               alt=""
-              class="relative z-[1] max-h-[78%] max-w-[78%] object-contain"
+              class="cq-relic-decor"
             />
             <span v-else>{{ entry.icon }}</span>
             <cthulhuquarium-ui-art name="plinth" class="cq-relic-plinth" />

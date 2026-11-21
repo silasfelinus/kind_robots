@@ -106,10 +106,18 @@ for (const day of DAYS) {
     for (const [index, option] of options.entries()) {
       const id = audience.id + '/' + option.id
       const sceneKey = day.day + '/' + id
-      assert.ok(!uniqueAudienceOptions.has(sceneKey), 'Duplicate day/choice: ' + sceneKey)
+      assert.ok(
+        !uniqueAudienceOptions.has(sceneKey),
+        'Duplicate day/choice: ' + sceneKey,
+      )
       uniqueAudienceOptions.add(sceneKey)
       const wanted = '/emperor-of-dust/audiences/' + id + '.webp'
-      const images = audienceChoiceImages(audience.id, option.id, undefined, index)
+      const images = audienceChoiceImages(
+        audience.id,
+        option.id,
+        undefined,
+        index,
+      )
       const selected = images.find((url) => shipped(url))
       assert.ok(selected, 'No physical image for audience choice ' + id)
       slots.push({
@@ -156,8 +164,7 @@ assert.equal(new Set(quests.map((quest) => quest.id)).size, quests.length)
 const exportedQuests = new Set(QUEST_ART)
 for (const quest of quests) {
   for (const variant of ['notice', 'success', 'failure'] as const) {
-    const key =
-      variant === 'notice' ? quest.id : quest.id + '-' + variant
+    const key = variant === 'notice' ? quest.id : quest.id + '-' + variant
     const wanted = '/emperor-of-dust/quests/' + key + '.webp'
     const candidate = questArtUrl(quest.id, variant)
     const selected = candidate && shipped(candidate) ? candidate : fallback
@@ -175,8 +182,7 @@ for (const quest of quests) {
 
 for (const follower of FOLLOWERS) {
   const wanted =
-    '/emperor-of-dust/cast/followers/' + follower.id +
-    '/portrait/neutral.webp'
+    '/emperor-of-dust/cast/followers/' + follower.id + '/portrait/neutral.webp'
   const portrait = followerPortrait(follower.id)
   assert.ok(
     shipped(portrait),
@@ -255,14 +261,17 @@ const report = {
   method:
     'Authored 50-day scene registry joined to physically inspected local WebP ' +
     'paths; no remote ArtImage or visual approval inferred',
-  kind_robots_sha: process.env.KIND_ROBOTS_SHA ?? process.env.GITHUB_SHA ?? null,
+  kind_robots_sha:
+    process.env.KIND_ROBOTS_SHA ?? process.env.GITHUB_SHA ?? null,
   status: 'partial_delivery_audit_not_playtest_acceptance',
   totals,
   by_act: byAct,
   follower_talk_portrait_coverage: talkCoverage,
   missing_dedicated: {
     audience: missing('audience').map((slot) => slot.id),
-    chance: [...new Set(missing('chance').map((slot) => slot.id.split('/')[0]))],
+    chance: [
+      ...new Set(missing('chance').map((slot) => slot.id.split('/')[0])),
+    ],
     quest: missing('quest').map((slot) => slot.id),
     endings: missing('ending').map((slot) => slot.id),
   },

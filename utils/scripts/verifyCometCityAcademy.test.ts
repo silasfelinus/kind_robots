@@ -3223,7 +3223,7 @@ assert.equal(Object.keys(RETURN_VISITS).length, CITY_SITES.length)
   // City adults can be befriended and dated from day two; field roles need
   // them on the night roster first.
   const city = SOCIAL_CAST.filter((person) => person.kind === 'city')
-  assert.equal(city.length, 5)
+  assert.equal(city.length, 6)
   const bonded = {
     connections: { jo: { trust: 3, helped: true, romance: false } },
     days: [],

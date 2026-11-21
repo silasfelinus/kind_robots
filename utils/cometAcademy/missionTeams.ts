@@ -543,24 +543,60 @@ const PERSONAL_RESPONSES: Record<StudentId, Record<string, HeroReaction>> = {
       mood: 'positive',
       line: 'Show me the unsigned council version of those contracts before the witnesses are forced to comply.',
     },
-    rally: { mood: 'positive', line: 'Whose permit was changed, and did anybody tell the residents?' },
-    broadcast: { mood: 'positive', line: 'I have the original council record. Put the whole thing on air.' },
-    vault: { mood: 'negative', line: 'Council favors are not a license to steal evidence.' },
+    rally: {
+      mood: 'positive',
+      line: 'Whose permit was changed, and did anybody tell the residents?',
+    },
+    broadcast: {
+      mood: 'positive',
+      line: 'I have the original council record. Put the whole thing on air.',
+    },
+    vault: {
+      mood: 'negative',
+      line: 'Council favors are not a license to steal evidence.',
+    },
   },
   bram: {
-    skybridge: { mood: 'positive', line: 'Those riggers know how to hold a crossing. Give them harnesses.' },
-    ferris: { mood: 'positive', line: 'We can lower the cars by hand. I know that pulley system.' },
-    museum: { mood: 'negative', line: 'The volunteer decorators cannot be blamed for another donor crime.' },
+    skybridge: {
+      mood: 'positive',
+      line: 'Those riggers know how to hold a crossing. Give them harnesses.',
+    },
+    ferris: {
+      mood: 'positive',
+      line: 'We can lower the cars by hand. I know that pulley system.',
+    },
+    museum: {
+      mood: 'negative',
+      line: 'The volunteer decorators cannot be blamed for another donor crime.',
+    },
   },
   femi: {
-    ferris: { mood: 'positive', line: 'I can block the crosswind. Keep the cameras away from the riders.' },
-    rally: { mood: 'negative', line: 'I never gave permission for that giant poster of me.' },
-    garden: { mood: 'positive', line: 'The vine did not consent to becoming the experiment either.' },
+    ferris: {
+      mood: 'positive',
+      line: 'I can block the crosswind. Keep the cameras away from the riders.',
+    },
+    rally: {
+      mood: 'negative',
+      line: 'I never gave permission for that giant poster of me.',
+    },
+    garden: {
+      mood: 'positive',
+      line: 'The vine did not consent to becoming the experiment either.',
+    },
   },
   cyrus: {
-    flood: { mood: 'positive', line: 'My kitchen staff know every stall. We move the people, not the photos.' },
-    blackout: { mood: 'positive', line: 'Bring meals to the nurses before the press arrives.' },
-    refinery: { mood: 'positive', line: 'I can hold that valve. Get the cooks their breathing masks.' },
+    flood: {
+      mood: 'positive',
+      line: 'My kitchen staff know every stall. We move the people, not the photos.',
+    },
+    blackout: {
+      mood: 'positive',
+      line: 'Bring meals to the nurses before the press arrives.',
+    },
+    refinery: {
+      mood: 'positive',
+      line: 'I can hold that valve. Get the cooks their breathing masks.',
+    },
   },
 }
 
@@ -759,7 +795,8 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
       people: ['vesna', 'imani'],
       route: {
         label: 'The Unedited Minutes',
-        result: 'Vesna publishes the original emergency rules while Imani gathers the people forced to sign them. Together they make the staircase contracts unenforceable.',
+        result:
+          'Vesna publishes the original emergency rules while Imani gathers the people forced to sign them. Together they make the staircase contracts unenforceable.',
         boost: 2,
       },
     },
@@ -917,7 +954,8 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
       people: ['cyrus', 'mara'],
       route: {
         label: 'The Night Market Kitchen',
-        result: "Cyrus turns the diner into a relief kitchen while Mara coordinates the union evacuation. The market's workers become the seawall's first rescuers.",
+        result:
+          "Cyrus turns the diner into a relief kitchen while Mara coordinates the union evacuation. The market's workers become the seawall's first rescuers.",
         boost: 2,
       },
     },
@@ -985,7 +1023,8 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
       people: ['bram', 'veda'],
       route: {
         label: 'Riggers Run the Rescue',
-        result: 'Bram braces the collapsing stage beam while Veda hands control to the cleaning crew. The workers own the crossing and decide who goes first.',
+        result:
+          'Bram braces the collapsing stage beam while Veda hands control to the cleaning crew. The workers own the crossing and decide who goes first.',
         boost: 2,
       },
     },
@@ -1013,7 +1052,8 @@ const ROUTES: Record<string, { people: StudentId[]; route: RouteUnlock }[]> = {
       people: ['femi', 'nix'],
       route: {
         label: 'The Off-Camera Rescue',
-        result: "Femi steadies the wind while Nix opens a private exit. Every rider reaches ground without becoming a sponsor's unpaid spectacle.",
+        result:
+          "Femi steadies the wind while Nix opens a private exit. Every rider reaches ground without becoming a sponsor's unpaid spectacle.",
         boost: 2,
       },
     },

@@ -427,12 +427,16 @@ export const SOCIAL_CAST: SocialProfile[] = [
     kind: 'classmate',
     pronouns: 'she/her',
     voice: 'Council-desk precision with a disarming, expensive smile.',
-    dilemma: 'Vesna discovers two versions of the emergency council minutes, each accusing a different group.',
+    dilemma:
+      'Vesna discovers two versions of the emergency council minutes, each accusing a different group.',
     help: 'You help Vesna publish the unaltered minutes to the affected families instead of laundering a deal for the dean.',
     duty: 'Witness protection comes before influence or favors.',
-    privateMoment: 'Vesna admits that knowing every secret is not the same as being trusted.',
-    boundary: 'Vesna wants friendship and accountability, never a date owed in exchange for favors.',
-    bedside: 'Vesna sends the real council minutes from her infirmary bed and finally allows herself to rest.',
+    privateMoment:
+      'Vesna admits that knowing every secret is not the same as being trusted.',
+    boundary:
+      'Vesna wants friendship and accountability, never a date owed in exchange for favors.',
+    bedside:
+      'Vesna sends the real council minutes from her infirmary bed and finally allows herself to rest.',
     romanceable: false,
     sidekickEligible: false,
     compatibility: [],
@@ -441,13 +445,18 @@ export const SOCIAL_CAST: SocialProfile[] = [
     id: 'bram',
     kind: 'classmate',
     pronouns: 'he/him',
-    voice: 'A booming stage-manager voice that goes soft around injured volunteers.',
-    dilemma: 'Bram\'s prom decoration invoice secretly purchased one component of the villain\'s transmitter.',
+    voice:
+      'A booming stage-manager voice that goes soft around injured volunteers.',
+    dilemma:
+      "Bram's prom decoration invoice secretly purchased one component of the villain's transmitter.",
     help: 'You and Bram invite the riggers to audit the whole ballroom so the workers cannot be scapegoated.',
     duty: 'The people putting up the decorations get a veto over the safety plan.',
-    privateMoment: 'Bram shows you the decorations he made himself, then admits the party stopped feeling like a party.',
-    boundary: 'Bram wants a trusted field partner, not a romantic commitment negotiated in an emergency.',
-    bedside: 'Bram asks about the chandelier delivery from the infirmary, then agrees to let somebody else manage it.',
+    privateMoment:
+      'Bram shows you the decorations he made himself, then admits the party stopped feeling like a party.',
+    boundary:
+      'Bram wants a trusted field partner, not a romantic commitment negotiated in an emergency.',
+    bedside:
+      'Bram asks about the chandelier delivery from the infirmary, then agrees to let somebody else manage it.',
     romanceable: false,
     sidekickEligible: true,
     compatibility: [],
@@ -456,13 +465,18 @@ export const SOCIAL_CAST: SocialProfile[] = [
     id: 'femi',
     kind: 'classmate',
     pronouns: 'they/them',
-    voice: 'Quick jokes, nervy honesty and a sharp ear for anyone speaking over them.',
-    dilemma: 'A sponsor wants Femi on a recruitment poster without asking for permission.',
-    help: 'You help Femi withdraw permission and make the sponsor fund equipment without using anybody\'s likeness.',
+    voice:
+      'Quick jokes, nervy honesty and a sharp ear for anyone speaking over them.',
+    dilemma:
+      'A sponsor wants Femi on a recruitment poster without asking for permission.',
+    help: "You help Femi withdraw permission and make the sponsor fund equipment without using anybody's likeness.",
     duty: 'Femi gets to decide whether their name or face is public.',
-    privateMoment: 'Femi shows you the handed-down cape they have finally learned to wear as their own.',
-    boundary: 'Femi wants a self-chosen sidekick partnership, never an academy-branded relationship.',
-    bedside: 'Femi wants the bruises hidden from spectators but invites you back to hear the gossip.',
+    privateMoment:
+      'Femi shows you the handed-down cape they have finally learned to wear as their own.',
+    boundary:
+      'Femi wants a self-chosen sidekick partnership, never an academy-branded relationship.',
+    bedside:
+      'Femi wants the bruises hidden from spectators but invites you back to hear the gossip.',
     romanceable: false,
     sidekickEligible: true,
     compatibility: [],
@@ -471,18 +485,22 @@ export const SOCIAL_CAST: SocialProfile[] = [
     id: 'cyrus',
     kind: 'city',
     pronouns: 'he/him',
-    voice: 'Diner-shift humor and a calm authority that never asks to be applauded.',
-    dilemma: 'Relief meals are delivered to wealthy shelters while Cyrus\'s night-market workers go hungry.',
+    voice:
+      'Diner-shift humor and a calm authority that never asks to be applauded.',
+    dilemma:
+      "Relief meals are delivered to wealthy shelters while Cyrus's night-market workers go hungry.",
     help: 'You work the whole closing shift with Cyrus and reroute the unused meals to the forgotten blocks.',
     duty: 'Show up for ordinary people when there is no siren and no camera crew.',
-    privateMoment: 'Cyrus folds his old Short Order vest behind the freezer and says he no longer needs the name on a billboard.',
-    boundary: 'Cyrus values a non-romantic alliance with people who respect his life outside the heroic trade.',
-    bedside: 'Cyrus brings soup to the whole ward while insisting that the bandage on his own arm is nothing.',
+    privateMoment:
+      'Cyrus folds his old Short Order vest behind the freezer and says he no longer needs the name on a billboard.',
+    boundary:
+      'Cyrus values a non-romantic alliance with people who respect his life outside the heroic trade.',
+    bedside:
+      'Cyrus brings soup to the whole ward while insisting that the bandage on his own arm is nothing.',
     romanceable: false,
     sidekickEligible: false,
     compatibility: [],
   },
-
 ]
 
 export const SOCIAL_DAYS = [

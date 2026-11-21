@@ -1328,10 +1328,8 @@ export function recruitableContact(run: AcademyRun) {
 export const LATE_RECRUIT_INTROS: Partial<Record<StudentId, string>> = {
   vesna:
     'Vesna shows you two different emergency-council minutes. You help her release the original record; she joins only if you protect witnesses instead of trading their names for favors.',
-  bram:
-    'Bram takes you above the theater rigging. You discover a transmitter invoice inside the prom decorations budget and make the volunteer riggers responsible for the ballroom safety plan.',
-  femi:
-    'Femi refuses an academy recruitment poster bearing their face. You agree to keep their image private; they accept a sidekick role only when they choose when to be seen.',
+  bram: 'Bram takes you above the theater rigging. You discover a transmitter invoice inside the prom decorations budget and make the volunteer riggers responsible for the ballroom safety plan.',
+  femi: 'Femi refuses an academy recruitment poster bearing their face. You agree to keep their image private; they accept a sidekick role only when they choose when to be seen.',
   cyrus:
     'Cyrus asks you to work a quiet market shift instead of posing for another heroic photograph. You serve meals to the night crews; only then does Short Order agree to patrol with you.',
 }

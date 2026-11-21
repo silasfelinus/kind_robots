@@ -1669,7 +1669,10 @@ for (const [id, site, evidence, caseId, ally] of newRecruits) {
   assert.equal(recruited.phase, 'dispatch')
   assert.ok(recruited.scene.includes(evidence), id)
   assert.ok(recruited.scene.includes('right to refuse any job'), id)
-  assert.deepEqual(restoreAcademy(JSON.parse(JSON.stringify(recruited))), recruited)
+  assert.deepEqual(
+    restoreAcademy(JSON.parse(JSON.stringify(recruited))),
+    recruited,
+  )
   assert.equal(missionRoute(caseId, [id, ally] as StudentId[])?.boost, 2)
   assert.equal(missionReaction(id, caseId).mood, 'positive')
   assert.ok(TEAM_LOOKS[id].length >= 80)

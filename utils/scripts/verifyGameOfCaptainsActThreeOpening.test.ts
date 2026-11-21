@@ -6,6 +6,7 @@ import {
   type ConsequenceRecord,
 } from '../gameOfCaptains/consequenceStories'
 import { ACT_THREE_OPENING_CASES } from '../gameOfCaptains/consequenceStoriesActThreeOpening'
+import { ACT_THREE_MIDDLE_CASES } from '../gameOfCaptains/consequenceStoriesActThreeMiddle'
 import { COUCH_CONSEQUENCE_ART_IDS } from '../gameOfCaptains/consequencePaintings'
 import {
   nextDestination,
@@ -182,6 +183,131 @@ for (let seed = 1; seed <= 12; seed++) {
   choicesSeen += steps.filter((step) => step.startsWith('consequence:')).length
 }
 assert.ok(choicesSeen >= 12)
+
+const middleIds = ['cushion-recall', 'twins-summit', 'foundry-strike'] as const
+assert.deepEqual(
+  Object.keys(ACT_THREE_MIDDLE_CASES).sort(),
+  [...middleIds].sort(),
+)
+const middleNarratives = new Set<string>()
+let middleDecisions = 0
+for (const [missionIndex, missionId] of middleIds.entries()) {
+  const chapter = 8
+  const story = ACT_THREE_MIDDLE_CASES[missionId]
+  assert.ok(VOYAGE_BOARDS[chapter - 1]!.includes(missionId))
+  assert.ok(story.opening.length > 330 && story.conflict.length > 110)
+  assert.equal(story.choices.length, 3)
+  assert.deepEqual(
+    story.choices.map((choice) => choice.policy).sort(),
+    [...policies].sort(),
+  )
+  for (const [choiceIndex, choice] of story.choices.entries()) {
+    const before: VoyageRun = {
+      ...startVoyage(
+        'vale',
+        ['pell', 'rue', 'vela'],
+        3800 + missionIndex * 3 + choiceIndex,
+      ),
+      chapter,
+      missionId,
+      phase: 'decision',
+    }
+    const episode = consequenceForRun(before)
+    assert.equal(episode?.id, story.id)
+    assert.deepEqual(
+      controls(before).map((action) => action.label),
+      story.choices.map((action) => 'consequence:' + action.id),
+    )
+    assert.equal(resolveConsequence(before, 'made-up-action'), before)
+    assert.ok(choice.label.length >= 35)
+    assert.ok(choice.approach.length >= 50)
+    assert.ok(choice.cost.length >= 60)
+    assert.ok(choice.check.difficulty >= 5 && choice.check.difficulty <= 10)
+    for (const variant of ['success', 'failure'] as const) {
+      const outcome = choice[variant]
+      assert.ok(outcome.narrative.length > 240)
+      assert.ok(outcome.callback.length > 100)
+      assert.ok(outcome.flags.length >= 2)
+      assert.ok(Object.keys(outcome.delta).length >= 2)
+      assert.ok(!middleNarratives.has(outcome.narrative))
+      middleNarratives.add(outcome.narrative)
+      const key = 'consequences/' + story.id + '-' + choice.id + '-' + variant
+      assert.ok(!(key in COUCH_CONSEQUENCE_ART_IDS))
+    }
+    const after = resolveConsequence(before, choice.id)
+    assert.equal(after.phase, 'debrief')
+    assert.equal(after.missionHistory?.at(-1)?.policy, choice.policy)
+    assert.equal(after.consequenceHistory?.at(-1)?.choiceId, choice.id)
+    assert.equal(after.consequenceHistory?.at(-1)?.missionId, missionId)
+    assert.ok(after.scene.includes(choice.label))
+    assert.ok(validConsequenceHistory(after.consequenceHistory))
+    assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(after))), after)
+    assert.deepEqual(resolveConsequence(before, choice.id), after)
+    assert.equal(resolveConsequence(after, choice.id), after)
+    middleDecisions++
+  }
+}
+assert.equal(middleNarratives.size, 18)
+assert.equal(middleDecisions, 9)
+
+// Twelve full player-path voyages reach the new choices, not just a mocked
+// decision phase. Rue opens the summit; Pell opens the foundry; the recall
+// is available to every captain. Keep the entire route and save data stable.
+let middleFullVoyages = 0
+for (let seed = 31; seed <= 42; seed++) {
+  const target = middleIds[(seed - 31) % middleIds.length]!
+  const { run, steps } = playVoyage('vale', ['pell', 'rue', 'vela'], seed, {
+    name: 'chapter-eight-authored-full-voyage',
+    order: () => policies[(seed - 31) % policies.length]!,
+    chart: (voyage) =>
+      voyage.chapter === 8 ? target : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
+    authoredChoices: true,
+    sideQuests: false,
+    errand: () => null,
+    finale: 'protect',
+  })
+  assert.equal(run.phase, 'ending')
+  assert.ok(
+    run.consequenceHistory?.some((record) => record.missionId === target),
+    'chapter-eight target must resolve as an authored consequence',
+  )
+  assert.ok(
+    steps.some((step) => step.startsWith('consequence:')),
+    'the UI-equivalent driver must actually click authored choices',
+  )
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(run))), run)
+  middleFullVoyages++
+}
+assert.equal(middleFullVoyages, 12)
+
+const middleCallbacks = [
+  [
+    'cushion-recall',
+    'gameworld-union-clause-upheld',
+    'Gameworld union observer',
+  ],
+  ['twins-summit', 'gate-hearing-consented', 'Mara brings'],
+  [
+    'foundry-strike',
+    'concord-resident-personhood',
+    'Concord’s newly recognized',
+  ],
+] as const
+for (const [missionId, flag, mention] of middleCallbacks) {
+  const before: VoyageRun = {
+    ...startVoyage('vale', ['pell', 'rue', 'vela'], 4400),
+    chapter: 8,
+    phase: 'decision',
+    missionId,
+    worldFlags: [flag],
+  }
+  assert.ok(consequenceForRun(before)?.opening.includes(mention))
+  const story = ACT_THREE_MIDDLE_CASES[missionId]
+  assert.equal(consequenceForRun(before)?.choices.length, 3)
+  const after = resolveConsequence(before, story.choices[0]!.id)
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(after))), after)
+}
+
 console.log(
   'Space Couch Act III: three authored returns, nine choices, 18 distinct outcomes, ' +
     'earlier-world callbacks, save parity and 12 complete seeded voyages verified',

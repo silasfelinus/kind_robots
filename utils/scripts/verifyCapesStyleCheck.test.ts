@@ -152,7 +152,7 @@ assert.match(atlas, /data-testid="capes-henchman-poster"/)
 assert.match(atlas, /data-testid="capes-lieutenant-poster"/)
 assert.match(atlas, /promArt\(group \+/)
 assert.match(atlas, /campaignStagesFor/)
-// Keep consistent with the merged outcome-art fallback #5505.
+// Atlas cards resolve canonical identity art first, then shipped outcome paintings.
 assert.match(atlas, /identityArtwork\(signature, role\)/)
 assert.match(atlas, /Not attached/)
 assert.match(atlas, /48 PERMANENT CHARACTERS/)

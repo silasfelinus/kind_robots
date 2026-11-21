@@ -31,7 +31,6 @@ import {
   mergeVoyageHistory,
   parseVoyageBackup,
   persistRestoredVoyage,
-  VOYAGE_BACKUP_MAX_BYTES,
   type VoyageBackup,
 } from '~/utils/gameOfCaptains/voyageBackup'
 import {

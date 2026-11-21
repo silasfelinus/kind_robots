@@ -181,7 +181,6 @@ assert.equal(
 assert.equal(originals.has(archiveKey), false)
 assert.equal(originals.has(activeKey), false)
 
-
 const stager = createVoyageBackupStager()
 let releaseFirst!: (value: string) => void
 const older = stager.read({

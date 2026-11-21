@@ -181,7 +181,9 @@ export function createVoyageBackupStager() {
     invalidate() {
       generation++
     },
-    async read(file: Pick<File, 'size' | 'text'>): Promise<VoyageBackup | null> {
+    async read(
+      file: Pick<File, 'size' | 'text'>,
+    ): Promise<VoyageBackup | null> {
       const request = ++generation
       try {
         if (file.size > VOYAGE_BACKUP_MAX_BYTES)

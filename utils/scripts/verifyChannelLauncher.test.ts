@@ -6,6 +6,7 @@
 // rules; this checks them and that channel-select.vue renders through them.
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { resolveNavigationArtwork } from '../navigationArtworkFallback.js'
 
 import {
   channelAtScroll,
@@ -120,11 +121,61 @@ assert.equal(
 assert.equal(channelAtScroll([], 400), null)
 assert.equal(channelAtScroll([], 400, true), null)
 
+const missingTabImage = '/images/channels/admin/watchlist.webp'
+const adminChannelImage = '/images/channels/admin/channel.webp'
+assert.equal(
+  resolveNavigationArtwork(
+    missingTabImage,
+    adminChannelImage,
+    'admin',
+    new Set(),
+  ),
+  missingTabImage,
+  'a working authored image is always preferred',
+)
+assert.equal(
+  resolveNavigationArtwork(
+    missingTabImage,
+    adminChannelImage,
+    'admin',
+    new Set([missingTabImage]),
+  ),
+  adminChannelImage,
+  'a broken card image falls back to its channel illustration',
+)
+assert.equal(
+  resolveNavigationArtwork(
+    missingTabImage,
+    adminChannelImage,
+    'admin',
+    new Set([missingTabImage, adminChannelImage]),
+  ),
+  '/art-archive/link-preview.webp',
+  'a broken channel image falls back to a shipped, repo-owned illustration',
+)
+assert.equal(
+  resolveNavigationArtwork(
+    missingTabImage,
+    adminChannelImage,
+    'admin',
+    new Set([
+      missingTabImage,
+      adminChannelImage,
+      '/art-archive/link-preview.webp',
+      '/arcade/link-preview.webp',
+    ]),
+  ),
+  '',
+  'exhausted fallbacks stop requesting images instead of looping',
+)
+
 const launcher = readFileSync(
   'components/navigation/channel-select.vue',
   'utf8',
 )
 assert.match(launcher, /v-for="block in channelBlocks"/)
+assert.match(launcher, /imageFor\(tab\.image, block\.channel\)/)
+assert.match(launcher, /imageFor\(section\.parent\.image, block\.channel\)/)
 assert.match(launcher, /:data-channel-key="block\.channel\.channelKey"/)
 assert.match(launcher, /@scroll\.passive="scheduleScrollSync"/)
 assert.match(

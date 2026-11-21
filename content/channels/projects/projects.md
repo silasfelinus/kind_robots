@@ -10,6 +10,7 @@ subtitle: Explore our work, or manage it as an administrator
 description: Browse public projects and their destinations, or manage Conductor projects as an administrator.
 summary: Explore projects and their development.
 icon: kind-icon:map
+image: /daily-pitches/link-preview.webp
 route: /conductor
 sort: 5
 tutorial:

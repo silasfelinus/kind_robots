@@ -8,7 +8,7 @@ subtitle: Learn how the characters are built
 description: A Mandarin course that shows which part of each character carries the meaning and which carries the sound, then asks you to recall it.
 summary: Learn Mandarin characters and words.
 icon: kind-icon:book-open
-image: /images/mandarin-tutor/cards/v2/f24c02b7272a3d3004079114.webp
+image: /mandarin/link-preview.webp
 route: /play/mandarin
 sort: 50
 tutorial:

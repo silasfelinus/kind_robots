@@ -143,6 +143,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'The Yard stalls are still standing. The roads into them are not. Four sellers wait with their carts beside the Watch.',
             'Factor Tallow has their keys. “You paid for the pitches, Majesty. The army wants the wagons. The sellers want their families carried first.”',
+            'The quartermaster has already marked the grain shed for the same carts. Neither side has enough drivers.',
           ],
         },
         {
@@ -150,6 +151,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'Copies of the stall warrants have been nailed to the market gate. Someone has blackened the sellers’ names with pitch.',
             'Factor Tallow holds one clean copy. “A public record is an excellent target. The sellers have asked whether you meant to protect them or merely prove a point.”',
+            'Outside, a clerk scrapes one name from the notice with a blunt knife. It is still easy to read.',
           ],
         },
         {
@@ -157,6 +159,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'The army has left the market with four kitchens and four unpaid sellers. Their baskets hang from the wagons like empty helmets.',
             'Factor Tallow slides a payroll page across the table. “The army paid the crown. It did not pay the hands. Shall I call the difference a levy?”',
+            'Two cooks wait at the gate with their arms folded. The third is sick. The fourth is still at the ovens.',
           ],
         },
       ],
@@ -256,6 +259,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'The egg-seller walks into the hideout on a Watch crutch. All four sellers reached the river. One guard did not.',
             'She has kept his name beside the receipts. “We are safe. His family is not. What does the new crown owe them?”',
+            'The guard’s wife wrote once. The seller kept the letter beside the bill for the convoy.',
           ],
         },
         {
@@ -263,6 +267,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'The egg-seller walks into the hideout alone. The other three carts never found the same road.',
             'She has their old rent slips. “You kept the grain. I have no quarrel with the grain. But I want their names kept somewhere.”',
+            'She turns each slip face up. There is no death date beside any of the names.',
           ],
         },
         {
@@ -270,6 +275,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'The egg-seller has brought the tin of hidden warrants. Its bottom is dark with cellar water.',
             '“The papers survived. The people who held them are still hiding. Someone must put names to what the Ledger did.”',
+            'The tin smells of river mud. She holds the papers away from the fire.',
           ],
         },
         {
@@ -277,6 +283,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'The egg-seller carries a gate notice ripped at the nail holes. Her name is the only one still legible.',
             '“We told the truth. A man followed my daughter for two nights after that. The paper was braver than we could afford.”',
+            'She folds the notice with the names inside. The edge has cut her thumb.',
           ],
         },
         {
@@ -284,6 +291,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'The egg-seller comes into the hideout with four paid wage slips. She lays them on the table, each in a different hand.',
             '“We were paid. It cost the army its cooks. A woman on that road starved anyway. I remember her too.”',
+            'The fourth slip is blank on the back. She has written the woman’s name there.',
           ],
         },
         {
@@ -291,6 +299,7 @@ export const MARKET_ACCOUNT_AUDIENCES: Readonly<
           lines: [
             'The egg-seller arrives with the kitchen wage warrants. The Ledger bought her work without buying her consent.',
             '“They say you can forgive a debt after you sell it. I would like to see that law written before someone asks me to sign.”',
+            'The ledger seal has cracked across her wages. She presses it flat with one finger.',
           ],
         },
       ],

@@ -173,6 +173,26 @@ for (const card of PLANET_CARDS) {
 // 4. The nemesis file is real: pressure from overrides, bold detours and
 // slow audits makes the nemesis card harder (and only that card).
 const base = { ...startVoyage('fluke', ['pell', 'mox', 'rue'], 4242) }
+const reachablePlanetCards = new Set<string>()
+for (let seed = 1; seed <= 512; seed++) {
+  const card = episodeCard({ ...base, seed }, 'planet')
+  const phrases = INTERVENTION_BALANCE[card.title]
+  assert.ok(phrases, card.title + ': unexpected live planet')
+  assert.ok(
+    card.outcomes?.override.includes(phrases[0]),
+    card.title + ': the promised rescue must appear in the live deck',
+  )
+  assert.ok(
+    card.outcomes?.override.includes(phrases[1]),
+    card.title + ': local agency must survive the actual deck delivery',
+  )
+  reachablePlanetCards.add(card.title)
+}
+assert.deepEqual(
+  [...reachablePlanetCards].sort(),
+  PLANET_CARDS.map((card) => card.title).sort(),
+  'all ten ethical interventions must be reachable in seeded voyages',
+)
 const even = { ...base, chapter: 2, phase: 'expedition' as const }
 assert.equal(nemesisFilePenalty(even), 0)
 assert.equal(nemesisFilePenalty({ ...even, nemesisPressure: -3 }), 0)

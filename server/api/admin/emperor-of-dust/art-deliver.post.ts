@@ -111,9 +111,12 @@ export default defineEventHandler(async (event) => {
         select: { id: true, isMature: true },
       }),
     ])
-    const jobByImage = new Map(
-      jobs.filter((job) => job.artImageId).map((job) => [job.artImageId, job.id]),
-    )
+    const jobByImage = new Map<number, number>()
+    for (const job of jobs) {
+      if (job.artImageId !== null) {
+        jobByImage.set(job.artImageId, job.id)
+      }
+    }
     const activeImageIds = new Set(
       artImages.filter((image) => image.isMature === false).map((image) => image.id),
     )

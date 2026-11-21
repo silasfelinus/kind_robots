@@ -528,6 +528,10 @@ for (const kind of kinds) {
 assert.match(page, /data-testid="tactics-crew-art-gallery"/)
 assert.match(page, /data-testid="tactics-crew-art-loaded"/)
 assert.match(page, /data-testid="tactics-crew-art-unavailable"/)
+assert.match(page, /data-testid="tactics-painted-burrow-warning"/)
+assert.match(page, /data-testid="tactics-painted-phase-warning"/)
+assert.match(page, /crewWarningImage\('burrow'\)/)
+assert.match(page, /crewWarningImage\('phase'\)/)
 assert.match(page, /paintedArt\.ensure\(id \?\? null\)/)
 assert.match(page, /unit\.team === 'rival' && unit\.hp > 0/)
 

@@ -2024,7 +2024,12 @@ export function dispatchChance(
     )
   )
     return 0
-  const baseline = dispatchModifier(run, incident, students)
+  const network =
+    run.flowVersion === 3
+      ? crewPatrolNetwork(run, incident.allegiance)
+      : null
+  const baseline =
+    dispatchModifier(run, incident, students) + (network?.modifier ?? 0)
   return Math.round(
     (100 *
       [0, 1, 2, 3, 4, 5].filter((roll) => roll + baseline >= incident.risk)

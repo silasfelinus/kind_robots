@@ -603,6 +603,36 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
         episode.opening +
         ' The contestants recognize the couch from the earlier public broadcast of their escape. Several refuse to be photographed while discussing the exit.',
     }
+  if (
+    missionId === 'cushion-recall' &&
+    flags.has('gameworld-union-clause-upheld')
+  )
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' A Gameworld union observer arrives with the clause the couch once helped the performers defend. She asks the dockworkers what decision they want before offering legal support.',
+    }
+  if (
+    missionId === 'twins-summit' &&
+    flags.has('gate-hearing-consented')
+  )
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' Mara brings the limited passage permit from the earlier gate hearing. She warns that a captain who consulted one world cannot now claim to speak for twelve without asking.',
+    }
+  if (
+    missionId === 'foundry-strike' &&
+    flags.has('concord-resident-personhood')
+  )
+    return {
+      ...episode,
+      opening:
+        episode.opening +
+        ' Concord’s newly recognized citizens send their personhood ruling to the foundry union. The corporate buyer argues that citizenship on one world has no bearing on a shield at work.',
+    }
   return episode
 }
 

@@ -409,6 +409,7 @@ const handChoices = computed<KrHandChoice[]>(() =>
   }),
 )
 function onReply(choice: KrHandChoice) {
+  tankStore.emitSfx('choice')
   tankStore.chooseReply(choice.id)
 }
 
@@ -446,6 +447,7 @@ function onContinue() {
     return
   }
   if (tankStore.activeChoices.length) return
+  tankStore.emitSfx('sceneTurn')
   void tankStore.advanceBeat()
 }
 
@@ -505,6 +507,7 @@ watch(
   (open, wasOpen) => {
     if (!import.meta.client) return
     if (open && !wasOpen) {
+      tankStore.emitSfx('sceneOpen')
       const active = document.activeElement
       returnFocus = active instanceof HTMLElement ? active : null
       void nextTick(() => continueRef.value?.focus({ preventScroll: true }))

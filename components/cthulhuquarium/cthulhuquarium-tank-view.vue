@@ -47,8 +47,8 @@ import {
   drawAmbienceFront,
   stepAmbience,
 } from '~/utils/cthulhuquariumAmbience'
+import { drawCthulhuquariumDecor } from '~/utils/cthulhuquariumDecorArt'
 import {
-  decorIcon,
   fallbackHue,
   tankBackground,
   type StageCrop,
@@ -294,12 +294,10 @@ function render(context: CanvasRenderingContext2D) {
 
   drawAmbienceBack(context, ambience, STAGE_WIDTH, STAGE_HEIGHT)
 
-  context.font = '28px sans-serif'
-  context.textAlign = 'center'
-  context.textBaseline = 'middle'
   for (const item of props.decor) {
-    context.fillText(
-      decorIcon(item.kind),
+    drawCthulhuquariumDecor(
+      context,
+      item.kind,
       (item.x / 100) * STAGE_WIDTH,
       (item.y / 100) * STAGE_HEIGHT,
     )

@@ -15,6 +15,7 @@ import {
   incidentArtKey,
   slugify,
   identityArtKey,
+  identityArtwork,
   identityKey,
   studentArtKey,
   villainArtKey,
@@ -127,7 +128,7 @@ export function buildPromOfDoomPlaybook(): Playbook {
       (form) => ({
         id: form,
         label: `${form.charAt(0).toUpperCase() + form.slice(1)} · ${person[form].alias}`,
-        imageUrl: promArt(identityArtKey(person.signature, form)),
+        imageUrl: identityArtwork(person.signature, form),
         ...('stats' in person[form] ? { stats: person[form].stats } : {}),
       }),
     )

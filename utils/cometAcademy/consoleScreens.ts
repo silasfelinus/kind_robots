@@ -25,6 +25,8 @@ import {
   districtArtKey,
   endingArtKey,
   identityArtKey,
+  identityArtCandidateKeys,
+  identityDisplayArtKey,
   incidentArtKey,
   studentArtKey,
   villainArtKey,
@@ -188,7 +190,7 @@ export function heroDossier(
     backstory: identity?.backstory ?? '',
     portraitKeys: run.signature
       ? [
-          identityArtKey(run.signature, form),
+          ...identityArtCandidateKeys(run.signature, form),
           identityArtKey(run.signature, 'student'),
         ]
       : [],
@@ -434,7 +436,7 @@ export function villainCaseFile(run: AcademyRun) {
           name: opponent.realName,
           alias: opponent.villain.alias,
           method: opponent.villain.method,
-          portraitKey: identityArtKey(run.opponentSignature!, 'villain'),
+          portraitKey: identityDisplayArtKey(run.opponentSignature!, 'villain'),
         }
       : null,
     suspect: run.suspect
@@ -519,7 +521,7 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
         title: `${zone?.title ?? 'Patrol'} · ${crew.title}`,
         text: `${crew.choice.label}. ${crew.choice.result}`,
         artKeys: [
-          identityArtKey(crew.rival, 'villain'),
+          identityDisplayArtKey(crew.rival, 'villain'),
           ...(zone ? [districtArtKey(zone.siteId)] : []),
         ],
       })
@@ -548,7 +550,7 @@ export function scrapbookMoments(run: AcademyRun): ScrapbookMoment[] {
       title: `Rival fight · ${rival.hero.alias}`,
       text: `${fight.grade === 'failed' ? 'Lost the ground' : fight.grade === 'honors' ? 'A clean, honors-grade win' : 'Held the line'} in ${fight.turns} turns${fight.discovered ? ', and found their secret' : ''}. ${rival.hero.alias}'s ${crew.name} answer to ${crew.captain}; their signature move is ${crew.move} Counter: ${crew.counter}`,
       artKeys: [
-        identityArtKey(
+        identityDisplayArtKey(
           fight.opponent,
           fight.role === 'hero' ? 'villain' : 'hero',
         ),

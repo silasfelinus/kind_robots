@@ -728,12 +728,14 @@ assert.equal(
 assert.deepEqual(PLAYABLE_PERSPECTIVES, ['hero', 'villain'])
 for (const identity of IDENTITY_ARCS) {
   assert.ok(
-    comicIntroArt(comicIntroFor(identity.signature, 'hero')),
-    identity.signature + ' hero intro must reuse existing painted art',
+    paintedRevealArtId(comicIntroFor(identity.signature, 'hero')) ||
+      comicIntroArt(comicIntroFor(identity.signature, 'hero')),
+    identity.signature + ' hero intro must resolve private or approved public art',
   )
   assert.ok(
-    comicIntroArt(comicIntroFor(identity.signature, 'villain')),
-    identity.signature + ' villain intro must reuse existing painted art',
+    paintedRevealArtId(comicIntroFor(identity.signature, 'villain')) ||
+      comicIntroArt(comicIntroFor(identity.signature, 'villain')),
+    identity.signature + ' villain intro must resolve private or approved public art',
   )
   assert.equal(
     comicIntroArt(comicIntroFor(identity.signature, 'henchman')),

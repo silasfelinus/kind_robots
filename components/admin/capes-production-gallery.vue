@@ -1,6 +1,6 @@
 <template>
   <section
-    class="mt-6 rounded-2xl border border-amber-300/30 bg-slate-950/60 p-3 sm:p-5"
+    class="@container mt-6 rounded-2xl border border-amber-300/30 bg-slate-950/60 p-3 sm:p-5"
     aria-label="Private production art review"
     data-testid="capes-production-gallery"
   >
@@ -40,12 +40,12 @@
         <small class="block text-[10px] font-normal">{{ person.subtitle }}</small>
       </button>
     </div>
-    <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div class="mt-4 grid grid-cols-1 gap-3 @sm:grid-cols-2 @xl:grid-cols-3">
       <figure
         v-for="item in artForSelected"
         :key="item.key"
         class="min-w-0 overflow-hidden rounded-xl border border-slate-600/70 bg-slate-900"
-        :class="{ 'sm:col-span-2': item.size === '1536x768' }"
+        :class="{ '@sm:col-span-2': item.size === '1536x768' }"
         :data-testid="'capes-production-plate-' + item.key"
       >
         <div

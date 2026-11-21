@@ -350,7 +350,8 @@ for (const room of ROOM_ART) addCandidate(roomArtUrl(room))
 const runtimeManifest = {
   version: 1,
   source: 'authored fortress builders and game data',
-  kind_robots_sha: process.env.KIND_ROBOTS_SHA ?? process.env.GITHUB_SHA ?? null,
+  kind_robots_sha:
+    process.env.KIND_ROBOTS_SHA ?? process.env.GITHUB_SHA ?? null,
   runtime_asset_paths: [...runtimeAssets].sort(),
   static_asset_paths: [...staticAssets].sort(),
 }

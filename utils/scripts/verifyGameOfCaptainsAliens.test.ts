@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { ALIEN_SPECIES } from '../gameOfCaptains/alienSpecies'
+import { alienScrapbookShelf } from '../gameOfCaptains/alienScrapbookShelf'
 import { ALIEN_SPECIES_STORIES } from '../gameOfCaptains/alienSpeciesStories'
 import { ALIEN_CHOICE_STORIES } from '../gameOfCaptains/alienChoiceStories'
 import {
@@ -50,6 +51,62 @@ assert.deepEqual(
 const base = startVoyage('vale', ['pell', 'mox', 'rue'], 414414)
 const run = { ...base, chapter: 2, phase: 'expedition' as const }
 const empty = emptyAlienGuide()
+
+// The scrapbook behaves like a real collector's index without leaking
+// undiscovered species names or renumbering entries after filtering.
+assert.equal(alienScrapbookShelf(empty).length, 101)
+assert.equal(alienScrapbookShelf(empty, 'recorded').length, 0)
+assert.equal(alienScrapbookShelf(empty, 'escaped').length, 0)
+assert.equal(alienScrapbookShelf(empty, 'unseen').length, 101)
+const recordedAlien = ALIEN_SPECIES[14]!
+const runawayAlien = ALIEN_SPECIES[3]!
+const hiddenAlien = ALIEN_SPECIES[6]!
+const shelfGuide = normalizeAlienGuide({
+  discovered: [recordedAlien.id],
+  contacts: { [runawayAlien.id]: 'retreat' },
+})
+const shelf = alienScrapbookShelf(shelfGuide)
+assert.equal(shelf.length, 101)
+assert.deepEqual(
+  shelf.slice(0, 2).map((entry) => [entry.species.id, entry.status]),
+  [
+    [recordedAlien.id, 'recorded'],
+    [runawayAlien.id, 'escaped'],
+  ],
+)
+assert.equal(shelf[0]?.number, 15)
+assert.equal(shelf[1]?.number, 4)
+assert.deepEqual(
+  alienScrapbookShelf(shelfGuide, 'recorded').map((entry) => entry.species.id),
+  [recordedAlien.id],
+)
+assert.deepEqual(
+  alienScrapbookShelf(shelfGuide, 'escaped').map((entry) => entry.species.id),
+  [runawayAlien.id],
+)
+assert.equal(alienScrapbookShelf(shelfGuide, 'unseen').length, 99)
+assert.equal(
+  alienScrapbookShelf(shelfGuide, 'all', recordedAlien.name).length,
+  1,
+)
+assert.equal(
+  alienScrapbookShelf(shelfGuide, 'all', runawayAlien.name).length,
+  1,
+)
+assert.equal(
+  alienScrapbookShelf(shelfGuide, 'all', hiddenAlien.name).length,
+  0,
+  'unrecorded species must not be discoverable by typing their secret names',
+)
+assert.deepEqual(
+  alienScrapbookShelf(shelfGuide, 'unseen', '007').map((entry) => entry.number),
+  [7],
+)
+assert.deepEqual(
+  alienScrapbookShelf(shelfGuide, 'recorded', 'not a species'),
+  [],
+)
+
 assert.equal(maySeeAlien({ ...run, chapter: 1 }, empty), false)
 assert.equal(maySeeAlien(run, empty), true)
 const first = nextAlienSighting(run, empty)!
@@ -530,7 +587,14 @@ assert.match(encounter, /space-couch-alien-prior-field-note/)
 assert.match(scrapbook, /space-couch-alien-scrapbook-field-note/)
 assert.match(scrapbook, /alienHint\(selected, guide\)/)
 assert.match(scrapbook, /isAlienRunaway\(props\.guide, id\)/)
-assert.match(scrapbook, /v-for="\(alien, index\) in ALIEN_SPECIES"/)
+assert.match(scrapbook, /v-for="entry in visibleSpecies"/)
+assert.match(scrapbook, /alienScrapbookShelf\(props\.guide/)
+assert.match(scrapbook, /space-couch-alien-shelf-filter/)
+assert.match(scrapbook, /space-couch-alien-shelf-search/)
+assert.match(scrapbook, /space-couch-alien-shelf-empty/)
+assert.match(scrapbook, /space-couch-alien-shelf-reset/)
+assert.match(scrapbook, /space-couch-alien-retry-art/)
+assert.match(scrapbook, /selected\?\.id === entry\.species\.id/)
 assert.match(store, /game-of-captains-alien-scrapbook-v1/)
 assert.match(store, /normalizeAlienGuide/)
 assert.match(collector, /testid-prefix="space-couch-collector-option"/)

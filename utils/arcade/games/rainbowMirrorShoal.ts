@@ -60,10 +60,13 @@ export function mirrorShoalCheckpointValid(
   c: {
     shoalStartedAt?: number
     shoalFrame?: number
+    rescuedNavigator?: boolean
+    actContinues?: number
   },
 ): boolean {
   return (
     act === 7 &&
+    (c.rescuedNavigator === true || c.actContinues === 0) &&
     Number.isInteger(c.shoalStartedAt) &&
     c.shoalStartedAt! > 0 &&
     Number.isInteger(c.shoalFrame) &&

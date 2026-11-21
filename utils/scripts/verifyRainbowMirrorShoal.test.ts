@@ -29,6 +29,7 @@ assert.equal(
   mirrorShoalCheckpointValid(7, 18100, {
     shoalStartedAt: 18100,
     shoalFrame: 0,
+    actContinues: 0,
   }),
   true,
 )
@@ -41,6 +42,7 @@ assert.equal(
   mirrorShoalCheckpointValid(7, 18400, {
     shoalStartedAt: 18100,
     shoalFrame: 300,
+    rescuedNavigator: true,
   }),
   true,
 )
@@ -84,12 +86,23 @@ const checkpoint = {
   captivesFreed: 0,
   schoolBonuses: 0,
 }
-const resume = (c: typeof checkpoint) =>
+const resume = (c: typeof checkpoint & { actContinues?: number }) =>
   readRainbowSave(
     { v: 1, difficulty: 'normal', checkpoint: c, guardians: {}, medals: {} },
     (act, frame, saved) => mirrorShoalCheckpointValid(act, frame, saved ?? {}),
   )
 assert.equal(resume(checkpoint)?.checkpoint.shoalFrame, 300)
+assert.equal(
+  resume({ ...checkpoint, rescuedNavigator: false, actContinues: 2 }),
+  null,
+  'an unrescued Navigator and continued Act VII cannot unlock X4 on reload',
+)
+assert.equal(
+  resume({ ...checkpoint, rescuedNavigator: false, actContinues: 0 })
+    ?.checkpoint.shoalFrame,
+  300,
+  'a genuine clean-flight X4 checkpoint remains replayable',
+)
 const input = {
   held: {
     up: false,

@@ -1191,7 +1191,9 @@
                 >
               </template>
               <div class="evt-drafts" data-testid="studio-drafts">
-                <span class="evt-studio-label">DRAFTS &amp; SHARE CODES</span>
+                <span class="evt-studio-label">
+                  PRIVATE DRAFT VERSIONS &amp; SHARE CODES
+                </span>
                 <div class="evt-draft-row">
                   <input
                     v-model="store.draftName"
@@ -1212,9 +1214,23 @@
                     v-for="entry in store.draftLibrary.drafts"
                     :key="entry.name"
                   >
-                    <span>{{ entry.name }}</span>
+                    <span>
+                      {{ entry.name }} · v{{ entry.version ?? 1 }}
+                      <small v-if="entry.forkedFrom">
+                        Forked from {{ entry.forkedFrom.name }}
+                        v{{ entry.forkedFrom.version }}
+                      </small>
+                    </span>
                     <button type="button" @click="store.loadDraft(entry.name)">
                       LOAD
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="studio-fork-draft"
+                      :aria-label="'Fork draft ' + entry.name"
+                      @click="store.forkDraftFrom(entry.name)"
+                    >
+                      FORK
                     </button>
                     <button
                       type="button"
@@ -1223,6 +1239,33 @@
                     >
                       ✕
                     </button>
+                    <details
+                      v-if="entry.history?.length"
+                      class="evt-draft-history"
+                      data-testid="studio-revision-history"
+                    >
+                      <summary>
+                        {{ entry.history.length }} earlier versions
+                      </summary>
+                      <div
+                        v-for="revision in entry.history"
+                        :key="revision.version"
+                        class="evt-draft-row"
+                      >
+                        <span>v{{ revision.version }} · {{ revision.savedAt }}</span>
+                        <button
+                          type="button"
+                          :aria-label="
+                            'Restore ' + entry.name + ' v' + revision.version
+                          "
+                          @click="
+                            store.restoreSavedDraft(entry.name, revision.version)
+                          "
+                        >
+                          RESTORE AS NEW VERSION
+                        </button>
+                      </div>
+                    </details>
                   </li>
                 </ul>
                 <button
@@ -1261,8 +1304,10 @@
               </div>
               <small
                 >Uses existing seeded combat AI, pathfinding, cover, hit
-                percentages and movement costs. Drafts stay in this browser;
-                share codes are plain text. No server publishing.</small
+                percentages and movement costs. Draft versions stay in this
+                browser; enter a new draft name before FORK. Restore creates a
+                new revision without deleting later work. Share codes are
+                plain text. No server publishing.</small
               >
             </div>
           </div>
@@ -2372,6 +2417,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.evt-draft-history {
+  flex-basis: 100%;
+  min-width: 0;
+  font-size: 0.7rem;
+}
+.evt-draft-history summary {
+  cursor: pointer;
+  padding: 4px 0;
+}
+.evt-draft-history .evt-draft-row {
+  padding: 2px 0;
+}
+.evt-drafts li {
+  flex-wrap: wrap;
 }
 .evt-drafts li span {
   flex: 1;

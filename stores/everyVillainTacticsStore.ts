@@ -141,8 +141,10 @@ import {
   emptyLibrary,
   evtDraftsKey,
   exportStage,
+  forkDraft,
   importStage,
   removeDraft,
+  restoreDraftVersion,
   sanitizeLibrary,
   upsertDraft,
   type DraftLibrary,
@@ -339,6 +341,46 @@ export const useEveryVillainTacticsStore = defineStore(
       draftLibrary.value = removeDraft(draftLibrary.value, name)
       storeJson(evtDraftsKey, draftLibrary.value)
       shareMessage.value = 'Deleted draft “' + name + '”.'
+    }
+    function forkDraftFrom(name: string) {
+      const result = forkDraft(
+        draftLibrary.value,
+        name,
+        draftName.value,
+        new Date().toISOString(),
+      )
+      if (!result.ok) {
+        shareMessage.value = result.reason
+        return false
+      }
+      draftLibrary.value = result.library
+      storeJson(evtDraftsKey, result.library)
+      draft.value = structuredClone(result.library.drafts[0]!.stage)
+      draftName.value = result.library.drafts[0]!.name
+      shareMessage.value =
+        'Fork saved as “' + draftName.value + '”. The source stays unchanged.'
+      return true
+    }
+    function restoreSavedDraft(name: string, version: number) {
+      const result = restoreDraftVersion(
+        draftLibrary.value,
+        name,
+        version,
+        new Date().toISOString(),
+      )
+      if (!result.ok) {
+        shareMessage.value = result.reason
+        return false
+      }
+      draftLibrary.value = result.library
+      storeJson(evtDraftsKey, result.library)
+      draft.value = structuredClone(result.library.drafts[0]!.stage)
+      draftName.value = name
+      shareMessage.value =
+        'Restored “' + name + '” as v' +
+        result.library.drafts[0]!.version +
+        '. Earlier versions are still available.'
+      return true
     }
     function exportDraft() {
       shareCode.value = exportStage(draft.value)
@@ -1418,6 +1460,8 @@ export const useEveryVillainTacticsStore = defineStore(
       saveDraft,
       loadDraft,
       deleteDraft,
+      forkDraftFrom,
+      restoreSavedDraft,
       exportDraft,
       importDraft,
       chooseVictory,

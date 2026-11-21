@@ -555,7 +555,7 @@ export function upsertDraft(
     !!existing && JSON.stringify(existing.stage) !== JSON.stringify(stage)
   if (changed && currentVersion >= 10000)
     return { ok: false, reason: 'This draft has too many revisions.' }
-  const history = changed
+  const history = existing && changed
     ? [
         {
           version: currentVersion,

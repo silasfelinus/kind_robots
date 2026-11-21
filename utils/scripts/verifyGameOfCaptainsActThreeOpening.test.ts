@@ -243,6 +243,38 @@ for (const [missionIndex, missionId] of middleIds.entries()) {
 assert.equal(middleNarratives.size, 18)
 assert.equal(middleDecisions, 9)
 
+// Twelve full player-path voyages reach the new choices, not just a mocked
+// decision phase. Rue opens the summit; Pell opens the foundry; the recall
+// is available to every captain. Keep the entire route and save data stable.
+let middleFullVoyages = 0
+for (let seed = 31; seed <= 42; seed++) {
+  const target = middleIds[(seed - 31) % middleIds.length]!
+  const { run, steps } = playVoyage('vale', ['pell', 'rue', 'vela'], seed, {
+    name: 'chapter-eight-authored-full-voyage',
+    order: () => policies[(seed - 31) % policies.length]!,
+    chart: (voyage) =>
+      voyage.chapter === 8
+        ? target
+        : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
+    authoredChoices: true,
+    sideQuests: false,
+    errand: () => null,
+    finale: 'protect',
+  })
+  assert.equal(run.phase, 'ending')
+  assert.ok(
+    run.consequenceHistory?.some((record) => record.missionId === target),
+    'chapter-eight target must resolve as an authored consequence',
+  )
+  assert.ok(
+    steps.some((step) => step.startsWith('consequence:')),
+    'the UI-equivalent driver must actually click authored choices',
+  )
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(run))), run)
+  middleFullVoyages++
+}
+assert.equal(middleFullVoyages, 12)
+
 const middleCallbacks = [
   ['cushion-recall', 'gameworld-union-clause-upheld', 'Gameworld union observer'],
   ['twins-summit', 'gate-hearing-consented', 'Mara brings'],

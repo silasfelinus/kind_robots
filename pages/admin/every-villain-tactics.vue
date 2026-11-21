@@ -152,6 +152,22 @@
                       store.civilianAt(cell)!.status === 'lost' ? '✕' : '☺'
                     }}</span
                   >
+                  <img
+                    v-if="store.isPhaseWarning(cell) && crewWarningImage('phase')"
+                    class="evt-creature-warning-art"
+                    :src="crewWarningImage('phase')"
+                    alt=""
+                    aria-hidden="true"
+                    data-testid="tactics-painted-phase-warning"
+                  />
+                  <img
+                    v-if="store.isBurrowWarning(cell) && crewWarningImage('burrow')"
+                    class="evt-creature-warning-art"
+                    :src="crewWarningImage('burrow')"
+                    alt=""
+                    aria-hidden="true"
+                    data-testid="tactics-painted-burrow-warning"
+                  />
                   <span
                     v-if="store.isPhaseWarning(cell)"
                     class="evt-phase-ring"
@@ -1806,6 +1822,19 @@ const activeCrewKinds = computed<CrewTellKind[]>(() => {
   }
   return [...kinds]
 })
+watch(
+  [activeCrewKinds, () => viewer.token],
+  ([kinds]) => {
+    for (const kind of kinds) {
+      void paintedArt.ensure(CREW_TELL_ART[kind].beats.warning.imageId)
+    }
+  },
+  { immediate: true },
+)
+function crewWarningImage(kind: CrewTellKind): string {
+  const id = CREW_TELL_ART[kind].beats.warning.imageId
+  return paintedArt.images[id]?.src ?? ''
+}
 const galleryCrew = computed<CrewTellKind | null>(() =>
   activeCrewKinds.value.includes(selectedCrewKind.value)
     ? selectedCrewKind.value
@@ -5133,5 +5162,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   .evt-crew-art-preview {
     grid-template-columns: 1fr;
   }
+}
+.evt-creature-warning-art {
+  position: absolute;
+  inset: 8%;
+  width: 84%;
+  height: 84%;
+  object-fit: cover;
+  opacity: 0.62;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.evt-burrow-ring,
+.evt-phase-ring {
+  z-index: 2;
 }
 </style>

@@ -177,7 +177,6 @@ assert.equal(
   'iron-peace',
 )
 
-
 const reliefDawn = (flags: string[] = []) => {
   const run = createRun(812)
   run.day = 30
@@ -233,9 +232,7 @@ assert.ok(
 const unearnedRelief = throughLosses()
 const unearnedOptions = audienceScene(
   unearnedRelief,
-  audiencesToday(unearnedRelief).find(
-    (entry) => entry.id === 'd30-terms',
-  )!,
+  audiencesToday(unearnedRelief).find((entry) => entry.id === 'd30-terms')!,
 ).options
 for (const optionId of ['shared-yard', 'bell-sheds']) {
   const option = unearnedOptions.find((entry) => entry.id === optionId)!

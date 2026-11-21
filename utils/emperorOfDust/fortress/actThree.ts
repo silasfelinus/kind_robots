@@ -4351,10 +4351,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: 10, moles: 5, saltroad: -5 },
                   strength: { freeholds: 1 },
                   local: { yard: -3, 'old-houses': -2 },
-                  flags: [
-                    'sheltered-freeholds',
-                    'd30-mole-relief-corner',
-                  ],
+                  flags: ['sheltered-freeholds', 'd30-mole-relief-corner'],
                   questAid: [
                     {
                       questId: 'q-d30-hold-the-line',

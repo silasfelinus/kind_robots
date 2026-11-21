@@ -306,9 +306,32 @@ const SCENE_PROMPTS: Record<string, string> = {
     'Wide interior view of a faculty holographic training hall in chaos during a prom-night disaster simulation. Ceiling projectors spark and strobe, and the cyan grid lines on the floor and walls glitch into jagged loops. A student in a formal suit and cape is tangled in ribbons of looping hologram light rising from a central control console, and a rival classmate in a crimson cape grabs the student’s wrist and pulls them free, both unharmed. Around them the projected ballroom, chandelier and comet stutter and break into fragments of light.',
 }
 
+const NEW_RECRUIT_REACTION_PROMPTS = Object.fromEntries(
+  (['vesna', 'bram', 'femi', 'cyrus'] as const).flatMap((id) =>
+    (['positive', 'neutral', 'negative'] as const).map((mood) => {
+      const expression = {
+        positive:
+          'Warm relief and decisive confidence, shoulders open and an encouraging smile.',
+        neutral:
+          'Thoughtful appraisal, attentive eyes and one hand resting on field equipment.',
+        negative:
+          'Visible ethical disagreement, tense brow and a protective refusal gesture.',
+      }[mood]
+      return [
+        `students/${id}-${mood}`,
+        paint(
+          `Chest-up rescue briefing portrait of ${TEAM_LOOKS[id]}. ${expression} The person stands in the Comet City patrol room under blue and amber emergency lights. One expressive adult with clear facial features and an unbroken silhouette.`,
+        ),
+      ] as const
+    }),
+  ),
+)
+
 /** Every authored Krea 2 prompt, by art key; MEDIUM is appended once here. */
 export const PROM_ART_PROMPTS: Record<string, string> = {
   ...identityPrompts,
+  // New companions have prose-ready requests, not delivered mood renders.
+  ...NEW_RECRUIT_REACTION_PROMPTS,
   // Prompts are registered for jobs; this is NOT evidence of painted delivery.
   ...Object.fromEntries(
     EXPANDED_MISSIONS.map((mission) => [

@@ -130,6 +130,15 @@ assert.match(gallery, /capesProductionFor\(selected\.value\)/)
 assert.match(gallery, /loadProductionImages\(signature\)/)
 assert.match(gallery, /productionImageFor\(item\.artImageId\)/)
 assert.match(gallery, /delivery unverified/)
+assert.match(gallery, /data-testid="capes-export-production-qa"/)
+assert.match(gallery, /data-testid="'capes-approve-' \+ item.key"/)
+assert.match(gallery, /data-testid="'capes-reject-' \+ item.key"/)
+assert.match(gallery, /if \(!store.productionImageFor\(artImageId\)\) return/)
+assert.match(gallery, /decision === 'rejected' && !note/)
+assert.match(gallery, /source: 'browser-local-art-qa'/)
+assert.match(gallery, /productionApproved: false/)
+assert.match(gallery, /localStorage.setItem\(REVIEW_STORAGE_KEY/)
+
 
 const atlas = readFileSync(
   new URL('../../components/admin/capes-cast-atlas.vue', import.meta.url),
@@ -143,7 +152,8 @@ assert.match(atlas, /data-testid="capes-henchman-poster"/)
 assert.match(atlas, /data-testid="capes-lieutenant-poster"/)
 assert.match(atlas, /promArt\(group \+/)
 assert.match(atlas, /campaignStagesFor/)
-assert.match(atlas, /promArt\(identityArtKey/)
+// Keep consistent with the merged outcome-art fallback #5505.
+assert.match(atlas, /identityArtwork\(signature, role\)/)
 assert.match(atlas, /Not attached/)
 assert.match(atlas, /48 PERMANENT CHARACTERS/)
 

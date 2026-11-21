@@ -185,7 +185,10 @@ for (let seed = 1; seed <= 12; seed++) {
 assert.ok(choicesSeen >= 12)
 
 const middleIds = ['cushion-recall', 'twins-summit', 'foundry-strike'] as const
-assert.deepEqual(Object.keys(ACT_THREE_MIDDLE_CASES).sort(), [...middleIds].sort())
+assert.deepEqual(
+  Object.keys(ACT_THREE_MIDDLE_CASES).sort(),
+  [...middleIds].sort(),
+)
 const middleNarratives = new Set<string>()
 let middleDecisions = 0
 for (const [missionIndex, missionId] of middleIds.entries()) {
@@ -200,7 +203,11 @@ for (const [missionIndex, missionId] of middleIds.entries()) {
   )
   for (const [choiceIndex, choice] of story.choices.entries()) {
     const before: VoyageRun = {
-      ...startVoyage('vale', ['pell', 'rue', 'vela'], 3800 + missionIndex * 3 + choiceIndex),
+      ...startVoyage(
+        'vale',
+        ['pell', 'rue', 'vela'],
+        3800 + missionIndex * 3 + choiceIndex,
+      ),
       chapter,
       missionId,
       phase: 'decision',
@@ -253,9 +260,7 @@ for (let seed = 31; seed <= 42; seed++) {
     name: 'chapter-eight-authored-full-voyage',
     order: () => policies[(seed - 31) % policies.length]!,
     chart: (voyage) =>
-      voyage.chapter === 8
-        ? target
-        : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
+      voyage.chapter === 8 ? target : VOYAGE_BOARDS[voyage.chapter - 1]?.[0],
     authoredChoices: true,
     sideQuests: false,
     errand: () => null,
@@ -276,9 +281,17 @@ for (let seed = 31; seed <= 42; seed++) {
 assert.equal(middleFullVoyages, 12)
 
 const middleCallbacks = [
-  ['cushion-recall', 'gameworld-union-clause-upheld', 'Gameworld union observer'],
+  [
+    'cushion-recall',
+    'gameworld-union-clause-upheld',
+    'Gameworld union observer',
+  ],
   ['twins-summit', 'gate-hearing-consented', 'Mara brings'],
-  ['foundry-strike', 'concord-resident-personhood', 'Concord’s newly recognized'],
+  [
+    'foundry-strike',
+    'concord-resident-personhood',
+    'Concord’s newly recognized',
+  ],
 ] as const
 for (const [missionId, flag, mention] of middleCallbacks) {
   const before: VoyageRun = {

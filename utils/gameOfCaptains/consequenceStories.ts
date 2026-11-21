@@ -613,10 +613,7 @@ export function consequenceForRun(run: VoyageRun): ConsequenceEpisode | null {
         episode.opening +
         ' A Gameworld union observer arrives with the clause the couch once helped the performers defend. She asks the dockworkers what decision they want before offering legal support.',
     }
-  if (
-    missionId === 'twins-summit' &&
-    flags.has('gate-hearing-consented')
-  )
+  if (missionId === 'twins-summit' && flags.has('gate-hearing-consented'))
     return {
       ...episode,
       opening:

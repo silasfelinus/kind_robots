@@ -70,10 +70,7 @@ for (const day of DAYS) {
     }
     if (ids.length > 1) {
       const orderedFlags = ids.map((id) => `chose:${audience.id}:${id}`)
-      const resolved = audienceAftermath(
-        { flags: orderedFlags },
-        audience,
-      )
+      const resolved = audienceAftermath({ flags: orderedFlags }, audience)
       assert.equal(
         resolved?.option.id,
         ids[ids.length - 1],
@@ -100,10 +97,7 @@ const directRepair = audienceAftermath(
 )
 const investigatedRepair = audienceAftermath(
   {
-    flags: [
-      'chose:d01-aqueduct:ask-why',
-      'chose:d01-aqueduct:repair',
-    ],
+    flags: ['chose:d01-aqueduct:ask-why', 'chose:d01-aqueduct:repair'],
   },
   aqueduct,
 )
@@ -146,11 +140,7 @@ const day18: FortressRun = {
 const source = DAYS.find((entry) => entry.day === 18)!.audiences.find(
   (audience) => audience.id === 'd18-strangers',
 )!
-const first = chooseAudienceOption(
-  day18,
-  'd18-strangers',
-  'ask-road',
-).run
+const first = chooseAudienceOption(day18, 'd18-strangers', 'ask-road').run
 assert.equal(audienceAftermath(first, source)?.option.id, 'ask-road')
 const completed = chooseAudienceOption(
   first,
@@ -158,10 +148,7 @@ const completed = chooseAudienceOption(
   'wagon-escort',
 ).run
 assert.ok(completed.audiencesHeard.includes('d18-strangers'))
-assert.equal(
-  audienceAftermath(completed, source)?.option.id,
-  'wagon-escort',
-)
+assert.equal(audienceAftermath(completed, source)?.option.id, 'wagon-escort')
 
 const book = {
   version: 3 as const,

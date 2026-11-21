@@ -111,8 +111,8 @@ for (let seed = 1; seed <= 12; seed++) {
 }
 assert.equal(
   authoredDecisions,
-  60,
-  'three first-act scenes, Concord Act II and one Act III scene per voyage',
+  72,
+  'three first-act scenes, Concord Act II and two Act III scenes per voyage',
 )
 
 const ui = readFileSync(

@@ -79,7 +79,7 @@ assert.match(atlas, /data-testid="capes-henchman-poster"/)
 assert.match(atlas, /data-testid="capes-lieutenant-poster"/)
 assert.match(atlas, /promArt\(group \+/)
 assert.match(atlas, /campaignStagesFor/)
-assert.match(atlas, /promArt\(identityArtKey/)
+assert.match(atlas, /identityArtwork\(active\.signature, role\)/)
 assert.match(atlas, /Not attached/)
 assert.match(atlas, /48 PERMANENT CHARACTERS/)
 

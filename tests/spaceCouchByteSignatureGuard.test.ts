@@ -14,7 +14,7 @@ function sourceFiles(dir: string): string[] {
     if (entry.isDirectory()) {
       return sourceFiles(path)
     }
-    return /\\.[cm]?[jt]sx?$/.test(entry.name) ? [path] : []
+    return /\.[cm]?[jt]sx?$/.test(entry.name) ? [path] : []
   })
 }
 
@@ -79,7 +79,7 @@ test('signature byte literals contain no double-escaped hex bytes', () => {
     sourceFiles(join(ROOT, dir)).flatMap((path) =>
       findDoubleEscapedSignatures(
         readFileSync(path, 'utf8'),
-        relative(ROOT, path).replaceAll('\\\\', '/'),
+        relative(ROOT, path).replaceAll('\\', '/'),
       ),
     ),
   )
@@ -87,9 +87,9 @@ test('signature byte literals contain no double-escaped hex bytes', () => {
 })
 
 test('signature guard distinguishes escaped bytes from harmless text', () => {
-  const bad = String.raw`const magic = Buffer.from('\\\\x1a')`
+  const bad = String.raw`const magic = Buffer.from('\\x1a')`
   const good = String.raw`const magic = Buffer.from('\\x1a')`
-  const ordinary = String.raw`const description = '\\\\x1a'`
+  const ordinary = String.raw`const description = '\\x1a'`
   assert.deepEqual(findDoubleEscapedSignatures(bad, 'fixture.ts'), [
     'fixture.ts:1',
   ])

@@ -2604,6 +2604,28 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               'A long look. “Raiders beside the people they once robbed. Bold.” The posting stays on the board. The Pack rides with whoever you send, not instead.',
           },
           {
+            id: 'forecast-guides',
+            label:
+              'Spend twenty brass on Freehold pathfinders using the Storm Crow forecast.',
+            requires: { flags: ['crow-forecast-day10'], cost: 20 },
+            effects: {
+              affinity: { saltroad: 5, freeholds: -3 },
+              local: { yard: -1 },
+              flags: ['d09-forecast-guides'],
+              questAid: [
+                {
+                  questId: 'q-d09-iron-convoy',
+                  label: 'Paid hill pathfinders following the crow forecast',
+                  bonus: 2,
+                  stat: 'guile',
+                },
+              ],
+              schedule: ['d09-guide-ledger'],
+            },
+            response:
+              'Oriel folds the crow forecast into her canyon map. Two Freehold pathfinders take the twenty brass and ride ahead of the iron. Their farms lose two harvest watchers tonight. The convoy still needs someone to take the job off the board.',
+          },
+          {
             id: 'not-ours',
             label: 'The crown cannot spare anyone tonight.',
             effects: { affinity: { saltroad: -3 } },
@@ -2715,6 +2737,29 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 },
                 response:
                   '“Raiders to protect the Ford from other raiders. Bold.” The posting stays on the board. Somebody of yours still has to ride.',
+              },
+              {
+                id: 'forecast-guides',
+                label:
+                  'Spend twenty brass on Freehold pathfinders using the Storm Crow forecast.',
+                requires: { flags: ['crow-forecast-day10'], cost: 20 },
+                effects: {
+                  affinity: { saltroad: 5, freeholds: -3 },
+                  local: { yard: -1 },
+                  flags: ['d09-forecast-guides'],
+                  questAid: [
+                    {
+                      questId: 'q-d09-iron-convoy',
+                      label:
+                        'Paid hill pathfinders following the crow forecast',
+                      bonus: 2,
+                      stat: 'guile',
+                    },
+                  ],
+                  schedule: ['d09-guide-ledger'],
+                },
+                response:
+                  'Oriel folds the crow forecast into her canyon map. Two Freehold pathfinders take the twenty brass and ride ahead of the iron. Their farms lose two harvest watchers tonight. The convoy still needs someone to take the job off the board.',
               },
               {
                 id: 'not-ours',
@@ -3552,6 +3597,19 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         // t-035: the Day 7 storm landed this morning.
         variants: [
           {
+            flags: ['d09-forecast-guides'],
+            lines: [
+              'The rider from Thistledown is standing only because nobody has told her she can stop. Soot stripes her face. A broken pitchfork tine hangs from her belt. Her pony stands foundered in the courtyard.',
+              '“The crows told us when the storm would turn. We brought the harvest in. Two hill pathfinders went with your iron convoy last night, leaving our granary watch short. The painted wagons came anyway. They will come back at dusk.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'The crown paid those two to protect the iron. It cannot put them back at the granary tonight. The posting is already on the board, Your Majesty.',
+              },
+              '“We never paid your tax. My grandmother spat when the crown was named. I am asking anyway.”',
+            ],
+          },
+          {
             flags: ['crow-forecast-day10'],
             lines: [
               'The rider from Thistledown is standing only because nobody has told her she can stop. Soot stripes her face. A broken pitchfork tine hangs from her belt for a knife. Her pony stands foundered in the courtyard.',
@@ -4072,6 +4130,14 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
  * back once more, for sixty.
  */
 export const ACT_ONE_LATE_DUES: readonly DueDef[] = [
+  {
+    id: 'd09-guide-ledger',
+    title: 'The pathfinders’ account',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d09-forecast-guides'] },
+    line: 'The two hill pathfinders sent a receipt for their night in the canyon. Twenty brass was paid before the iron moved. The Freeholds sent another letter asking who would stand watch over their grain while the guides were away.',
+  },
   // t-035: riding out for Thistledown leaves the gate to the old guard and
   // the kitchen boys. What gets in reads Day 6 (the postern) and Day 8 (the
   // carts the Watch may not search). None of it is on the ledger: the court

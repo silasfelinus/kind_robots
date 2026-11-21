@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+
+import {
+  audienceScene,
+  audiencesToday,
+  chooseAudienceOption,
+  createRun,
+  optionBlockers,
+} from '../emperorOfDust/fortress/engine'
 import { ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
@@ -88,6 +96,59 @@ assert.ok(
   view.includes('kr-pane-scroll'),
   'board and dispatch details have independent scrolling',
 )
+
+const convoyForecast = createRun(441)
+convoyForecast.day = 9
+convoyForecast.brass = 100
+convoyForecast.flags = [...convoyForecast.flags, 'crow-forecast-day10']
+convoyForecast.dayAudiences = ['d09-convoy']
+const preparedConvoy = chooseAudienceOption(
+  convoyForecast,
+  'd09-convoy',
+  'forecast-guides',
+).run
+assert.equal(preparedConvoy.brass, 80)
+assert.ok(preparedConvoy.flags.includes('d09-forecast-guides'))
+assert.equal(preparedConvoy.local.yard, convoyForecast.local.yard - 1)
+assert.equal(
+  preparedConvoy.affinity.freeholds,
+  convoyForecast.affinity.freeholds - 3,
+)
+assert.ok(
+  preparedConvoy.aid?.['q-d09-iron-convoy']?.some(
+    (aid) => aid.stat === 'guile' && aid.bonus === 2,
+  ),
+)
+assert.ok(
+  preparedConvoy.dues?.some(
+    (due) => due.id === 'd09-guide-ledger' && due.day === 11,
+  ),
+)
+const knownBands = chooseAudienceOption(
+  convoyForecast,
+  'd09-convoy',
+  'ask-bands',
+).run
+const guidedAfterBands = chooseAudienceOption(
+  knownBands,
+  'd09-convoy',
+  'forecast-guides',
+).run
+assert.ok(guidedAfterBands.flags.includes('d09-forecast-guides'))
+assert.equal(guidedAfterBands.brass, 80)
+const noForecast = createRun(441)
+noForecast.day = 9
+noForecast.brass = 100
+noForecast.dayAudiences = ['d09-convoy']
+const blockedGuide = audienceScene(
+  noForecast,
+  audiencesToday(noForecast).find((audience) => audience.id === 'd09-convoy')!,
+).options.find((option) => option.id === 'forecast-guides')!
+assert.ok(
+  optionBlockers(noForecast, blockedGuide).length > 0,
+  'cannot purchase weather-based guides without earning the forecast',
+)
+
 console.log(
   `Emperor of Dust: ${quests.length} unique, spoiler-safe, full-length quest briefs and compact notice grid verified.`,
 )

@@ -32,6 +32,16 @@ export function createVoyageBackup(
   return JSON.stringify(backup, null, 2)
 }
 
+export function createBoundedVoyageBackup(
+  voyage: VoyageRun | null,
+  completedVoyages: CompletedVoyage[],
+): string {
+  const file = createVoyageBackup(voyage, completedVoyages)
+  if (new TextEncoder().encode(file).byteLength > VOYAGE_BACKUP_MAX_BYTES)
+    throw new Error('Voyage history exceeds the 8 MB portable-backup limit.')
+  return file
+}
+
 export function parseVoyageBackup(source: string): VoyageBackup {
   // The bound is bytes, not UTF-16 code units. Otherwise emoji-rich
   // voyages could exceed the server's declared size limit.

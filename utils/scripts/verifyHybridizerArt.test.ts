@@ -274,4 +274,12 @@ assert.match(labStore, /canRerollResult\.value = response\.data\.canReroll/)
 assert.match(labStore, /community \? \{\} : options/)
 assert.match(labPage, /data-testid="hybridizer-reroll"/)
 assert.match(labPage, /v-else-if="lab\.canRerollResult"/)
+// Shared atlas entries finishing in the background must not toast strangers.
+assert.match(labStore, /notifyKeys\.delete\(key\)/)
+assert.equal((labStore.match(/notifyKeys\.add\(key\)/g) ?? []).length, 2)
+// Phones keep the reveal large and its actions reachable.
+assert.match(
+  labPage,
+  /\.hybridizer-result \.fusion-study \{\s*flex: none;\s*height: clamp\(/,
+)
 console.log('Hybridizer community re-roll and curation contracts passed.')

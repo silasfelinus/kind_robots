@@ -84,6 +84,9 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
   const availableArt = ref<Record<string, string>>({})
   const pendingKeys = ref<string[]>([])
   const readyNotice = ref<HybridizerDiscovery | null>(null)
+  // Only renders this player asked for (fusion, retry, remix, re-roll) earn a
+  // "ready" toast; shared atlas entries finishing in the background do not.
+  const notifyKeys = new Set<string>()
   const discoveryTotal = ref<number | null>(null)
   const readyTotal = ref(0)
   const renderingTotal = ref(0)
@@ -596,6 +599,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
         artJobId: response.data.jobId,
         status: 'QUEUED',
       })
+      notifyKeys.add(key)
       if (!pendingKeys.value.includes(key))
         pendingKeys.value = [...pendingKeys.value, key]
       status.value = community
@@ -681,7 +685,11 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       imagePath: data.imagePath,
       canRetry: data.canRetry,
     })
-    if (data.status === 'READY' && prior?.status !== 'READY') {
+    if (
+      data.status === 'READY' &&
+      prior?.status !== 'READY' &&
+      notifyKeys.delete(key)
+    ) {
       readyNotice.value =
         discoveries.value.find((entry) => entry.key === key) ?? null
     }
@@ -721,6 +729,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
           artJobId: response.data.artJobId,
           status: response.data.status,
         })
+        notifyKeys.add(key)
         if (!pendingKeys.value.includes(key))
           pendingKeys.value = [...pendingKeys.value, key]
         status.value =
@@ -980,6 +989,7 @@ export const useHybridizerStore = defineStore('hybridizer', () => {
       readyTotal.value = 0
       renderingTotal.value = 0
       pendingKeys.value = []
+      notifyKeys.clear()
       readyNotice.value = null
       resultKey.value = null
       reusedArtwork.value = false

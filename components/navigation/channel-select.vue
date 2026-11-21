@@ -390,7 +390,9 @@
                     aria-hidden="true"
                     loading="lazy"
                     class="absolute inset-0 h-full w-full object-cover"
-                    @error="markBroken(imageFor(section.parent.image, block.channel))"
+                    @error="
+                      markBroken(imageFor(section.parent.image, block.channel))
+                    "
                   />
                   <Icon
                     v-else

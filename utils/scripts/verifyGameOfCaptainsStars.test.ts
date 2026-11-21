@@ -566,15 +566,25 @@ assert.ok(page.includes('data-testid="space-couch-backup-file"'))
 assert.ok(page.includes('data-testid="space-couch-backup-confirm"'))
 assert.ok(store.includes('parseVoyageBackup(await file.text())'))
 assert.ok(store.includes('mergeVoyageHistory('))
+const backupHelper = readFileSync(
+  new URL('../gameOfCaptains/voyageBackup.ts', import.meta.url),
+  'utf8',
+)
 assert.ok(
-  store.includes('if (originalHistory === null)'),
-  'a failed import rolls the archived history back before changing active saves',
+  store.includes('persistRestoredVoyage(') &&
+    backupHelper.includes('if (original === null) storage.removeItem(key)') &&
+    backupHelper.includes('else storage.setItem(key, original!)'),
+  'a failed import restores both saved keys using their original values',
 )
 assert.ok(
   store.includes(': run.value'),
   'history-only imports preserve the current active voyage',
 )
-assert.ok(store.includes('if (imported.voyage)'))
+assert.ok(
+  store.includes('imported.voyage ? nextRun : null') &&
+    backupHelper.includes('if (voyage) writes.push('),
+  'a history-only import cannot overwrite the active voyage key',
+)
 assert.ok(
   store.includes("const SAVE_KEY = 'game-of-captains-voyage-v1'"),
   'portable backups cannot rename the existing live voyage save key',

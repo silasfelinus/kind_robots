@@ -115,7 +115,7 @@ export default defineEventHandler(async (event) => {
       jobs.filter((job) => job.artImageId).map((job) => [job.artImageId, job.id]),
     )
     const activeImageIds = new Set(
-      artImages.filter((image) => !image.isMature).map((image) => image.id),
+      artImages.filter((image) => image.isMature === false).map((image) => image.id),
     )
 
     const results: DeliveryResult[] = []

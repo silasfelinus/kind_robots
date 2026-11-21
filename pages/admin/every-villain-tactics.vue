@@ -1775,6 +1775,7 @@ import {
   CREW_TELL_ART,
   CREW_TELL_BEATS,
   crewTellReceipt,
+  isCrewTellKind,
   type CrewTellBeat,
   type CrewTellKind,
 } from '~/utils/everyVillainTactics/crewTelegraphArt'
@@ -1831,7 +1832,11 @@ const selectedCrewBeat = ref<CrewTellBeat>('warning')
 const activeCrewKinds = computed<CrewTellKind[]>(() => {
   const kinds = new Set<CrewTellKind>()
   for (const unit of store.state.units) {
-    if (unit.team === 'rival' && unit.hp > 0 && unit.henchmanType) {
+    if (
+      unit.team === 'rival' &&
+      unit.hp > 0 &&
+      isCrewTellKind(unit.henchmanType)
+    ) {
       kinds.add(unit.henchmanType)
     }
   }

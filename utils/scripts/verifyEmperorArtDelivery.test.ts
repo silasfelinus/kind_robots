@@ -9,6 +9,7 @@ import {
 } from '../emperorOfDust/fortress/artDelivery'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
 import { chanceArtCandidates } from '../emperorOfDust/fortress/chanceArt'
+import { audienceChoiceImages } from '../emperorOfDust/fortress/audienceChoiceArt'
 import type { EndingId } from '../emperorOfDust/fortress/endings'
 
 const endings = Object.keys(ENDINGS) as EndingId[]
@@ -79,6 +80,16 @@ assert.throws(
   )),
 )
 assert.throws(() => parseEmperorArtDeliveryTargets([targets[0], targets[0]]))
+const audience = audienceChoiceImages('d01-aqueduct', 'repair', undefined, 0)
+assert.deepEqual(audience.slice(0, 2), [
+  '/images/emperor-of-dust/audiences/d01-aqueduct-repair.webp',
+  '/images/emperor-of-dust/audiences/d01-aqueduct-enter.webp',
+])
+assert.ok(
+  audience.includes('/emperor-of-dust/map/wasteland.webp'),
+  'unshipped audience art must retain physical painted fallback',
+)
+
 const chance = chanceArtCandidates('dust-weather-1', 0, 'collect')
 assert.deepEqual(chance.slice(0, 2), [
   '/images/emperor-of-dust/chance-events/dust-weather-1/collect.webp',

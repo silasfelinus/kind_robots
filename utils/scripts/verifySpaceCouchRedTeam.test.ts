@@ -10,6 +10,7 @@ import {
   episodeCard,
   episodePlotOdds,
   nemesisFilePenalty,
+  PLANET_CARDS,
 } from '../gameOfCaptains/episodeConsole'
 import { WAITING_LINES } from '../gameOfCaptains/transitLines'
 import {
@@ -121,9 +122,77 @@ for (const episode of Object.values(CONSEQUENCE_STORIES))
     assert.ok(gains(choice.success.delta), `${where}: success has a gain`)
   }
 
+/**
+ * Planetary override successes should earn a concrete rescue without erasing
+ * residents' or workers' agency. These are visible successful-deck outcomes,
+ * not automatic approval of coercion. Keep each benefit and cost in the same
+ * authored card even when all other game mechanics stay save-compatible.
+ */
+const INTERVENTION_BALANCE: Record<string, [string, string]> = {
+  'The Moon That Requested Custody': ['boats make harbor', 'custody grievance'],
+  'A Refugee Named Wednesday': [
+    'shelter Wednesday',
+    'chooses the next stop herself',
+  ],
+  'The Union of Unpaid Suns': ['nursery', 'unfair-labor complaint'],
+  'The Garden That Refused Oxygen': ['clinic alive', 'stolen shift'],
+  'The Diplomatic Temperature Incident': [
+    'delegate survives',
+    'thermostat again',
+  ],
+  'A Planet Requests an Exit Interview': [
+    'miners to reach daylight',
+    'own negotiators',
+  ],
+  'The Twelve-Hour Apology': [
+    'before another child loses',
+    'custody of the next power switch',
+  ],
+  'The Missing Note Committee': [
+    'city evacuates intact',
+    'residents take charge',
+  ],
+  'The Interstellar Costume Inspector': ['safe harbor', 'right to complain'],
+  'The Gravity Refund Office': ['nobody falls through', 'demand a vote'],
+}
+assert.equal(PLANET_CARDS.length, 10)
+assert.equal(Object.keys(INTERVENTION_BALANCE).length, PLANET_CARDS.length)
+for (const card of PLANET_CARDS) {
+  const phrases = INTERVENTION_BALANCE[card.title]
+  assert.ok(phrases, card.title + ': unreviewed emergency-intervention result')
+  assert.ok(
+    card.override.includes(phrases[0]),
+    card.title + ': successful intervention must help someone in particular',
+  )
+  assert.ok(
+    card.override.includes(phrases[1]),
+    card.title + ': a rescue does not erase local consent or consequences',
+  )
+}
+
 // 4. The nemesis file is real: pressure from overrides, bold detours and
 // slow audits makes the nemesis card harder (and only that card).
 const base = { ...startVoyage('fluke', ['pell', 'mox', 'rue'], 4242) }
+const reachablePlanetCards = new Set<string>()
+for (let seed = 1; seed <= 512; seed++) {
+  const card = episodeCard({ ...base, seed }, 'planet')
+  const phrases = INTERVENTION_BALANCE[card.title]
+  assert.ok(phrases, card.title + ': unexpected live planet')
+  assert.ok(
+    card.outcomes?.override.includes(phrases[0]),
+    card.title + ': the promised rescue must appear in the live deck',
+  )
+  assert.ok(
+    card.outcomes?.override.includes(phrases[1]),
+    card.title + ': local agency must survive the actual deck delivery',
+  )
+  reachablePlanetCards.add(card.title)
+}
+assert.deepEqual(
+  [...reachablePlanetCards].sort(),
+  PLANET_CARDS.map((card) => card.title).sort(),
+  'all ten ethical interventions must be reachable in seeded voyages',
+)
 const even = { ...base, chapter: 2, phase: 'expedition' as const }
 assert.equal(nemesisFilePenalty(even), 0)
 assert.equal(nemesisFilePenalty({ ...even, nemesisPressure: -3 }), 0)

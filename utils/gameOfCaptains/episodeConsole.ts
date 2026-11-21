@@ -74,7 +74,7 @@ export const PLANET_CARDS = [
     document:
       'The ancient ownership deed names the moon as its own guardian. The registrar requests the moon’s signature and accepts a crater as a thumbprint.',
     override:
-      'The couch relocates one tide; three coastal councils send invoices. The affected villages demand that the next meeting be held without the couch in the room.',
+      'The couch redirects a lethal tide before it reaches the fishing village. The boats make harbor; the moon files a custody grievance in its own name, and three coastal councils invoice the upholstery.',
     crew: 'rue',
   },
   {
@@ -86,7 +86,7 @@ export const PLANET_CARDS = [
     document:
       'A protected testimony makes the arrest order invalid. The arresting officer files tomorrow as a hostile witness.',
     override:
-      'The couch shelters the traveler, acquiring a warrant from next week. Wednesday is safe, but nobody asked the transit station now accused of harboring furniture.',
+      'The cushions shelter Wednesday until the warrant expires. Wednesday chooses the next stop herself; the transit station is cited for harboring furniture without a timetable.',
     crew: 'tess',
   },
   {
@@ -98,7 +98,7 @@ export const PLANET_CARDS = [
     document:
       'Payroll records reveal the star owners have been billing the planets twice. The accounting office demands a second sun to inspect the first.',
     override:
-      'The couch restarts a star before its workers consent. Daylight returns, along with a picket line that extends forty million kilometers.',
+      'The couch restarts a striking sun long enough to thaw the nursery’s emergency heaters, then hands the switch back to the union. The children are warm; the stars file a forty-million-kilometer unfair-labor complaint.',
     crew: 'pell',
   },
   {
@@ -110,7 +110,7 @@ export const PLANET_CARDS = [
     document:
       'The grove establishes that its employment contract was forged. The settlement’s legal department is reassigned to compost.',
     override:
-      'The orchard complies, and the settlement loses its only willing ally. Oxygen resumes on schedule; the trees post a no-visitors policy.',
+      'The couch forces one last breath from the orchard to keep the clinic alive until backup arrives. Patients recover; the grove retires anyway and sends the captain an invoice for its stolen shift.',
     crew: 'brin',
   },
   {
@@ -122,7 +122,7 @@ export const PLANET_CARDS = [
     document:
       'An archived thermal recording identifies the disputed vote. The ambassador appeals on the grounds that a cold shoulder cannot count as recorded dissent.',
     override:
-      'The bubble heats the room; the assembly declares an emergency recess. The meeting survives, but the delegates refuse further talks until the thermostat is returned.',
+      'The bubble warms a freezing delegate before the frost vote becomes a medical emergency. The delegate survives; the assembly recesses and insists that no visitor touch its thermostat again.',
     crew: 'taal',
   },
   {
@@ -134,7 +134,7 @@ export const PLANET_CARDS = [
     document:
       'Mineral ledgers prove centuries of unpaid extraction. The company files a reimbursement claim for the paper used to print the evidence.',
     override:
-      'The couch disables the drill; a rescue corridor becomes the next negotiation. Workers escape, but the planet asks who authorized the couch to speak for it.',
+      'The couch stops the drill and opens a corridor wide enough for trapped miners to reach daylight. They elect their own negotiators, while the planet files a complaint against anyone claiming to speak for its crust.',
     crew: 'fen',
   },
   {
@@ -146,7 +146,7 @@ export const PLANET_CARDS = [
     document:
       'Unaltered recordings preserve the evidence before the broadcast is stopped. The ministry labels the archive a deeply inconvenient form of memory.',
     override:
-      'The couch cuts power, sparing new victims and erasing one witness account. The survivors welcome the silence but object to another decision made without them.',
+      'The couch cuts the broadcast before another child loses their memories. The survivors welcome the silence, but one witness recording is erased; they demand custody of the next power switch.',
     crew: 'mox',
   },
   {
@@ -158,7 +158,7 @@ export const PLANET_CARDS = [
     document:
       'The missing waveform identifies who silenced the original warning. The palace archivist requests anonymity and a hearing aid.',
     override:
-      'The couch sounds every bell and shatters the palace’s ceremonial windows. The city evacuates; the king announces mandatory consultation for all future emergencies.',
+      'The couch sounds every bell before the surge reaches the schools, shattering the palace’s ceremonial windows. The city evacuates intact; residents take charge of the alarm keys while the king calls it vandalism.',
     crew: 'omi',
   },
   {
@@ -170,7 +170,7 @@ export const PLANET_CARDS = [
     document:
       'An old registration stamp proves the couch has always been a vehicle. Customs backdates the paperwork to before upholstery was invented.',
     override:
-      'The crew flies through customs while the paperwork keeps chasing them. Everyone arrives alive, but the imaginary passengers lose the right to complain about delay.',
+      'The couch crosses the checkpoint before its imaginary passengers can be stranded in vacuum. Everyone reaches safe harbor; customs suspends their right to complain, so the passengers submit a theatrical review.',
     crew: 'jex',
   },
   {
@@ -182,7 +182,7 @@ export const PLANET_CARDS = [
     document:
       'The hidden meter exposes the company’s fraudulent readings. The auditors find that the owners have invoiced falling objects for the privilege.',
     override:
-      'The couch redirects gravity; loose furniture occupies the council chamber. The new orientation works, but residents demand a vote before the next rearrangement.',
+      'The couch steadies an apartment tower while it reroutes the gravity meter; nobody falls through the stairwell. Residents demand a vote before the next rearrangement, and the monopoly requests reimbursement for the missing down.',
     crew: 'sora',
   },
 ] as const

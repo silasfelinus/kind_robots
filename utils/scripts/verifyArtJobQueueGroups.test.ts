@@ -8,6 +8,7 @@ import {
   UNTITLED_ART_JOB_GROUP,
   artJobGroupName,
   artJobIdsInGroup,
+  artJobSlugGroupName,
   decodeJsonFragment,
   formatArtJobPriorityRange,
   parseArtJobGroupName,
@@ -50,6 +51,35 @@ check('group name matches the card title for titled and slug-only jobs', () => {
       }),
     )
   }
+})
+
+const fusionId = 'a'.repeat(32) + '0123456789abcdef'.repeat(2)
+
+check('per-entity hybridizer slugs collapse into the hybridizer group', () => {
+  assert.equal(artJobSlugGroupName('hybridizer:' + fusionId), 'hybridizer')
+  assert.equal(
+    artJobSlugGroupName(' hybridizer:' + fusionId + ' '),
+    'hybridizer',
+  )
+  assert.equal(artJobSlugGroupName('hybridizer'), 'hybridizer')
+  // Short or non-hex suffixes are real names, not entity ids.
+  assert.equal(artJobSlugGroupName('tarot:major'), 'tarot:major')
+  assert.equal(artJobSlugGroupName('dead-air:2026'), 'dead-air:2026')
+  assert.equal(artJobSlugGroupName(':' + fusionId), ':' + fusionId)
+  assert.equal(artJobSlugGroupName(null), '')
+
+  const revisions: ArtJobGroupSourceRow[] = [
+    ...rows,
+    { id: 50, priority: 1, projectSlug: 'hybridizer:' + fusionId },
+    { id: 51, priority: 1, projectSlug: 'hybridizer:' + 'b'.repeat(64) },
+  ]
+  const summary = summarizeArtJobQueueGroups(revisions)
+  assert.equal(summary.groups.length, 4)
+  assert.equal(summary.groups.find((g) => g.name === 'hybridizer')?.count, 5)
+  assert.deepEqual(
+    artJobIdsInGroup(revisions, 'hybridizer'),
+    [10, 11, 12, 50, 51],
+  )
 })
 
 check('payload title beats projectSlug, label is a fallback key', () => {

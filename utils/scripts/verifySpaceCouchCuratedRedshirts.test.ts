@@ -52,17 +52,11 @@ assert.equal(
 // A foreign project may not supply art just by copying our slot key. Older
 // canonical keys without projectSlug remain readable for compatibility.
 assert.equal(
-  isSpaceCouchRedshirtSlot(
-    'game-of-captains',
-    'redshirts/portraits/rs-001',
-  ),
+  isSpaceCouchRedshirtSlot('game-of-captains', 'redshirts/portraits/rs-001'),
   true,
 )
 assert.equal(
-  isSpaceCouchRedshirtSlot(
-    null,
-    'game-of-captains/redshirts/portraits/rs-001',
-  ),
+  isSpaceCouchRedshirtSlot(null, 'game-of-captains/redshirts/portraits/rs-001'),
   true,
 )
 assert.equal(

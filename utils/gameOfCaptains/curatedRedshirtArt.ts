@@ -58,7 +58,6 @@ export function isSpaceCouchRedshirtSlot(
   return (
     curatedRedshirtArtKey(slotKey) !== null &&
     (projectSlug === 'game-of-captains' ||
-      (projectSlug === null &&
-        slotKey.startsWith('game-of-captains/')))
+      (projectSlug === null && slotKey.startsWith('game-of-captains/')))
   )
 }

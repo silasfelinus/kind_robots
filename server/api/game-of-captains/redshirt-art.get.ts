@@ -59,7 +59,9 @@ export default defineEventHandler(async (event) => {
         ),
       }))
       .filter(
-        (slot): slot is {
+        (
+          slot,
+        ): slot is {
           slotKey: string
           key: string
           artImageId: number

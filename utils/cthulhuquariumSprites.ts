@@ -20,6 +20,11 @@
 // MOTIONS below in step with MOTIONS there: same keys, same numbers.
 
 import { CTHULHUQUARIUM_SPRITE_MOTIONS } from './cthulhuquariumCanon.generated'
+// cthulhuquarium/t-107: the active art style's sprite first, Classic after.
+import {
+  cthulhuquariumStyledArt,
+  cthulhuquariumStyleIsClassic,
+} from './cthulhuquariumStyledArt'
 
 export type SpriteMotion =
   'tailbeat' | 'undulate' | 'ripple' | 'pulse' | 'sway' | 'breathe' | 'rigid'
@@ -111,7 +116,11 @@ export function spriteForSpecies(
   slug: string | null | undefined,
 ): string | null {
   if (!slug) return null
-  return bySlug[slug.trim().toLowerCase()] ?? null
+  return (
+    cthulhuquariumStyledArt('sprites', slug) ??
+    bySlug[slug.trim().toLowerCase()] ??
+    null
+  )
 }
 
 const clipModules = import.meta.glob<string>(
@@ -135,6 +144,8 @@ for (const [path, url] of Object.entries(clipModules)) {
  */
 export function clipForSpecies(slug: string | null | undefined): string | null {
   if (!slug) return null
+  // The swimming clips are Classic footage: another style shows its sprite.
+  if (!cthulhuquariumStyleIsClassic()) return null
   return clipBySlug[slug.trim().toLowerCase()] ?? null
 }
 

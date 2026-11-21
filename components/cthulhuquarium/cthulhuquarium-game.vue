@@ -525,7 +525,10 @@
               </section>
               <section v-if="tankStore.finaleConfig" class="cq-relic">
                 <span class="cq-relic-art">
-                  <img :src="setLastAquariumArt" alt="" />
+                  <img
+                    :src="artByName('set-last-aquarium') ?? setLastAquariumArt"
+                    alt=""
+                  />
                 </span>
                 <div class="cq-relic-body">
                   <h4 class="cq-plaque-title">
@@ -817,7 +820,10 @@
         >
           <kr-art-plate
             :source="{
-              imagePath: movingArt('screen-finale') ?? screenFinaleArt,
+              imagePath:
+                movingArt('screen-finale') ??
+                artByName('screen-finale') ??
+                screenFinaleArt,
             }"
             shape="wide"
             frame="thin"
@@ -955,6 +961,7 @@ import {
   movingArt,
   withCthulhuquariumArt,
 } from '~/utils/cthulhuquariumArt'
+import { activeCthulhuquariumArtStyle } from '~/utils/cthulhuquariumArtStyles'
 import {
   drawAnimatedSprite,
   motionForSpecies,
@@ -1170,9 +1177,12 @@ type Collector = {
 type FeedCreature = FeedParticle
 
 const tankStore = useCthulhuquariumTankStore()
-const shopHeaderArt =
-  (prefersReducedMotion() ? null : movingArt('screen-shop')) ??
-  artByName('screen-shop')
+// cthulhuquarium/t-107: computed, so it follows an art-style swap.
+const shopHeaderArt = computed(
+  () =>
+    (prefersReducedMotion() ? null : movingArt('screen-shop')) ??
+    artByName('screen-shop'),
+)
 // The illustrated surroundings cover letterbox space on tall mobile displays.
 const tankBackdrop = computed(
   () => backgroundArt(tankStore.backgroundKey) ?? backgroundArt('parlour'),
@@ -1250,8 +1260,8 @@ function loadBackground(key: string) {
 }
 loadBackground(tankStore.backgroundKey)
 watch(
-  () => tankStore.backgroundKey,
-  (key) => loadBackground(key),
+  () => [tankStore.backgroundKey, activeCthulhuquariumArtStyle.value] as const,
+  ([key]) => loadBackground(key),
 )
 const visibilitySaving = ref(false)
 const curationOpen = ref(false)
@@ -1360,7 +1370,7 @@ const relicsView = computed({
 const activePanelArt = computed(() => {
   switch (activePanel.value) {
     case 'shop':
-      return shopHeaderArt
+      return shopHeaderArt.value
     case 'roster':
       return backgroundArt('kelp-stair') ?? backgroundArt('parlour')
     case 'bestiary':
@@ -1893,31 +1903,36 @@ const spriteImageCache = new Map<string, HTMLImageElement | null>()
 // The cut-out sprite (utils/cthulhuquariumSprites.ts) is what swims; the card
 // plate below is only the fallback for a species whose sprite has not been
 // rendered yet. Same reserve-then-load caching as getFishImage.
+// cthulhuquarium/t-107: both caches are keyed by art style as well, so a swap
+// draws the new style's images and a load still in flight for the old one can
+// never land in the new style's slot.
 function getSpriteImage(slug: string): HTMLImageElement | null {
-  if (spriteImageCache.has(slug)) return spriteImageCache.get(slug) ?? null
+  const key = `${activeCthulhuquariumArtStyle.value}:${slug}`
+  if (spriteImageCache.has(key)) return spriteImageCache.get(key) ?? null
   const url = spriteForSpecies(slug)
-  spriteImageCache.set(slug, null)
+  spriteImageCache.set(key, null)
   if (!url) return null
   const image = new Image()
-  image.onload = () => spriteImageCache.set(slug, image)
+  image.onload = () => spriteImageCache.set(key, image)
   image.src = url
   return null
 }
 
 function getFishImage(slug: string): HTMLImageElement | null {
-  if (fishImageCache.has(slug)) return fishImageCache.get(slug) ?? null
+  const key = `${activeCthulhuquariumArtStyle.value}:${slug}`
+  if (fishImageCache.has(key)) return fishImageCache.get(key) ?? null
   const url = artForSpecies(slug)
   if (!url) {
-    fishImageCache.set(slug, null)
+    fishImageCache.set(key, null)
     return null
   }
   // Reserve the slot immediately so a swimmer drawn on the next few frames
   // (before onload fires) doesn't kick off a duplicate Image() for the same
   // slug -- the primitive fallback below covers those frames instead.
-  fishImageCache.set(slug, null)
+  fishImageCache.set(key, null)
   const image = new Image()
-  image.onload = () => fishImageCache.set(slug, image)
-  image.onerror = () => fishImageCache.set(slug, null)
+  image.onload = () => fishImageCache.set(key, image)
+  image.onerror = () => fishImageCache.set(key, null)
   image.src = url
   return null
 }

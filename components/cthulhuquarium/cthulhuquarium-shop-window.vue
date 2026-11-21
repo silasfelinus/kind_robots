@@ -97,7 +97,8 @@ const SHOWCASE = [
   'glass-shrimp',
 ]
 
-const steps = [
+// cthulhuquarium/t-107: computed, so the plates follow an art-style swap.
+const steps = computed(() => [
   {
     title: 'Tap the coins',
     body: 'Every fed creature drops coins. Catch them before they fade.',
@@ -116,7 +117,7 @@ const steps = [
     icon: 'kind-icon:book',
     art: artByName('ichthyonomicon'),
   },
-]
+])
 
 const occupants = computed(() =>
   SHOWCASE.flatMap((slug, index) => {

@@ -275,6 +275,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { activeCthulhuquariumArtStyle } from '~/utils/cthulhuquariumArtStyles'
+import { cthulhuquariumStyledArt } from '~/utils/cthulhuquariumStyledArt'
 import type { CthulhuquariumUiArtName } from '~/utils/cthulhuquariumConsole'
 
 const props = defineProps<{ name: CthulhuquariumUiArtName }>()
@@ -296,8 +298,14 @@ const oxblood = '#7a2429'
 const paintedUrl = ref<string | null>(null)
 
 watch(
-  () => props.name,
-  async (name) => {
+  () => [props.name, activeCthulhuquariumArtStyle.value] as const,
+  async ([name]) => {
+    // cthulhuquarium/t-107: the active art style's painting, when it has one.
+    const styledUrl = cthulhuquariumStyledArt('ui', name)
+    if (styledUrl) {
+      paintedUrl.value = styledUrl
+      return
+    }
     paintedUrl.value = null
     const load = painted[`../../assets/images/cthulhuquarium/ui/${name}.webp`]
     if (!load) return

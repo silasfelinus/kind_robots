@@ -25,6 +25,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { artForSpecies } from '~/utils/cthulhuquariumArt'
+import { activeCthulhuquariumArtStyle } from '~/utils/cthulhuquariumArtStyles'
 import {
   drawAnimatedSprite,
   motionForSpecies,
@@ -184,14 +185,16 @@ function drawOccupant(
   const size = (10 + (occupant.size ?? 1) * 4) * scale
   const life = 0.3 + (hunger / 100) * 0.7
   const facing = swimmer.facing
+  // cthulhuquarium/t-107: cached per art style, so a swap redraws.
+  const styleKey = `${activeCthulhuquariumArtStyle.value}:${occupant.slug}`
   const sprite = cachedImage(
     spriteCache,
-    occupant.slug,
+    styleKey,
     spriteForSpecies(occupant.slug),
   )
   const card = sprite
     ? null
-    : cachedImage(cardCache, occupant.slug, artForSpecies(occupant.slug))
+    : cachedImage(cardCache, styleKey, artForSpecies(occupant.slug))
 
   context.globalAlpha = life
   context.filter = hunger < 100 ? `saturate(${40 + hunger * 0.6}%)` : 'none'
@@ -395,8 +398,8 @@ function onPointerLeave() {
 let observer: IntersectionObserver | null = null
 
 watch(
-  () => props.backgroundKey,
-  (key) => loadBackground(key),
+  () => [props.backgroundKey, activeCthulhuquariumArtStyle.value] as const,
+  ([key]) => loadBackground(key),
 )
 
 onMounted(() => {

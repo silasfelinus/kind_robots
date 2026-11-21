@@ -5,6 +5,12 @@
 // localStorage entry can never set an impossible value. Pure; names are
 // namespaced because Nuxt auto-imports utils/.
 
+import {
+  CTHULHUQUARIUM_DEFAULT_ART_STYLE,
+  normalizeCthulhuquariumArtStyle,
+  type CthulhuquariumArtStyleId,
+} from './cthulhuquariumArtStyles'
+
 export type CthulhuquariumTextSpeed = 'slow' | 'normal' | 'fast' | 'instant'
 export type CthulhuquariumMotionSetting = 'system' | 'reduced' | 'full'
 
@@ -14,6 +20,8 @@ export interface CthulhuquariumSettings {
   largeText: boolean
   highContrast: boolean
   motion: CthulhuquariumMotionSetting
+  /** cthulhuquarium/t-107: the art style the game is drawn in. */
+  artStyle: CthulhuquariumArtStyleId
 }
 
 export const CTHULHUQUARIUM_DEFAULT_SETTINGS: CthulhuquariumSettings = {
@@ -22,6 +30,7 @@ export const CTHULHUQUARIUM_DEFAULT_SETTINGS: CthulhuquariumSettings = {
   largeText: false,
   highContrast: false,
   motion: 'system',
+  artStyle: CTHULHUQUARIUM_DEFAULT_ART_STYLE,
 }
 
 /** A stored value, read defensively: anything unknown falls back to default. */
@@ -51,5 +60,7 @@ export function readCthulhuquariumSettings(
     )
       ? (parsed.motion as CthulhuquariumMotionSetting)
       : CTHULHUQUARIUM_DEFAULT_SETTINGS.motion,
+    // Unknown, or a style not yet offered, is Classic.
+    artStyle: normalizeCthulhuquariumArtStyle(parsed.artStyle),
   }
 }

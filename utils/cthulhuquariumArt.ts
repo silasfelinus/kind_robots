@@ -31,6 +31,12 @@
 // nulls and never overwrites a path the database already supplies.
 
 import { portraitCandidates } from './cthulhuquariumFloors'
+// cthulhuquarium/t-107: every resolver below asks the active art style first
+// and falls back to the Classic file, one file at a time.
+import {
+  cthulhuquariumStyledArt as styled,
+  cthulhuquariumStyleIsClassic,
+} from './cthulhuquariumStyledArt'
 
 const modules = import.meta.glob<string>(
   '../assets/images/cthulhuquarium/*.webp',
@@ -60,12 +66,14 @@ function lookup(prefix: string, key: string | null | undefined): string | null {
  * A slug with no file still returns null and keeps the placeholder icon.
  */
 export function artForSpecies(slug: string | null | undefined): string | null {
-  return lookup('fish', slug)
+  // In another style the species' card is its styled sprite, so the Market
+  // and the book match the tank (the Classic card plates are not redrawn).
+  return styled('sprites', slug) ?? lookup('fish', slug)
 }
 
 /** A collection-set plate, keyed by set slug. */
 export function artForSet(slug: string | null | undefined): string | null {
-  return lookup('set', slug)
+  return (slug ? styled('plates', `set-${slug}`) : null) ?? lookup('set', slug)
 }
 
 // Set pieces are catalogued by kind (aquariumEconomy.ts SET_PIECE_CATALOG);
@@ -87,7 +95,8 @@ export function artForSetKind(kind: string | null | undefined): string | null {
   const stem = kind ? SET_KIND_PLATES[kind] : undefined
   if (!stem) return null
   return (
-    storyArt[`videos/${stem}`] ??
+    styled('plates', stem) ??
+    (cthulhuquariumStyleIsClassic() ? storyArt[`videos/${stem}`] : undefined) ??
     storyArt[`plates/${stem}`] ??
     byStem[`cthulhuquarium-${stem}`] ??
     null
@@ -97,7 +106,14 @@ export function artForSetKind(kind: string | null | undefined): string | null {
 /** A named shopkeeper or scene plate (`char-charlotte-fishmonger`, `bg-parlour`, ...). */
 export function artByName(stem: string | null | undefined): string | null {
   if (!stem) return null
-  return byStem[`cthulhuquarium-${stem}`] ?? null
+  return styledByName(stem) ?? byStem[`cthulhuquarium-${stem}`] ?? null
+}
+
+/** A root still's counterpart in the active style (`char-x`, `bg-x`, plates). */
+function styledByName(stem: string): string | null {
+  if (stem.startsWith('char-')) return styled('heroes', stem.slice(5))
+  if (stem.startsWith('bg-')) return styled('backgrounds', stem.slice(3))
+  return styled('plates', stem)
 }
 
 /**
@@ -155,7 +171,14 @@ const SPEAKER_SLUGS: Record<string, string> = {
 function portraitFor(speaker: string, pose: string, floor = 1): string | null {
   const slug = SPEAKER_SLUGS[speaker]
   if (!slug) return null
-  for (const stem of portraitCandidates(slug, pose, floor)) {
+  const candidates = portraitCandidates(slug, pose, floor)
+  // The style stays whole before the injuries do: a styled base pose beats a
+  // Classic floor variant, so the speaker never flips style mid-scene.
+  for (const stem of candidates) {
+    const url = styled('portraits', stem)
+    if (url) return url
+  }
+  for (const stem of candidates) {
     const url = storyArt[`portraits/${stem}`]
     if (url) return url
   }
@@ -178,6 +201,7 @@ function portraitFor(speaker: string, pose: string, floor = 1): string | null {
 function backgroundArt(key: string | null | undefined): string | null {
   if (!key) return null
   return (
+    styled('backgrounds', key) ??
     storyArt[`backgrounds/${key}`] ??
     (key === 'parlour' ? (byStem['cthulhuquarium-bg-parlour'] ?? null) : null)
   )
@@ -195,6 +219,8 @@ function isHeroPlate(key: string | null | undefined): boolean {
 function plateArt(key: string | null | undefined): string | null {
   if (!key) return null
   return (
+    styled('plates', key) ??
+    (isHeroPlate(key) ? styled('heroes', key.replace(/-hero$/, '')) : null) ??
     storyArt[`plates/${key}`] ??
     byStem[`cthulhuquarium-${key}`] ??
     // A hero plate's still is the character's full-length portrait.
@@ -211,6 +237,8 @@ function plateArt(key: string | null | undefined): string | null {
  */
 function movingArt(key: string | null | undefined): string | null {
   if (!key) return null
+  // The moving plates are Classic footage: another style shows its still.
+  if (!cthulhuquariumStyleIsClassic()) return null
   return storyArt[`videos/${key}`] ?? null
 }
 

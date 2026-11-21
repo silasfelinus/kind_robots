@@ -455,6 +455,26 @@ const copied = {
   clips: copyBuilt('clips', 'clips', undefined, { mirror: true }),
   ui: copyBuilt('ui/built', 'ui'),
 }
+// cthulhuquarium/t-107: every other art style, mirrored whole. The canon builds
+// a style's stills into styles/<id>/built/<folder>/ (sprites, portraits,
+// heroes, backgrounds, plates, ui); a file the canon withdrew drops out here
+// too, and the game falls back to Classic for it (utils/cthulhuquariumStyledArt.ts).
+const stylesRoot = join(canon, 'styles')
+if (existsSync(stylesRoot)) {
+  for (const style of readdirSync(stylesRoot)) {
+    const built = join('styles', style, 'built')
+    if (!existsSync(join(canon, built))) continue
+    for (const folder of readdirSync(join(canon, built))) {
+      copied[`${style} ${folder}`] = copyBuilt(
+        join(built, folder),
+        join('styles', style, folder),
+        undefined,
+        { mirror: true },
+      )
+    }
+  }
+}
+
 for (const who of ['charlotte-fishmonger', 'wilbur-stint']) {
   const hero = join(canon, 'characters', 'portraits', 'hero', `${who}.webp`)
   if (existsSync(hero)) {

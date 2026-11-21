@@ -6,6 +6,7 @@ import {
   type ConsequenceRecord,
 } from '../gameOfCaptains/consequenceStories'
 import { ACT_THREE_OPENING_CASES } from '../gameOfCaptains/consequenceStoriesActThreeOpening'
+import { ACT_THREE_MIDDLE_CASES } from '../gameOfCaptains/consequenceStoriesActThreeMiddle'
 import { COUCH_CONSEQUENCE_ART_IDS } from '../gameOfCaptains/consequencePaintings'
 import {
   nextDestination,
@@ -182,6 +183,59 @@ for (let seed = 1; seed <= 12; seed++) {
   choicesSeen += steps.filter((step) => step.startsWith('consequence:')).length
 }
 assert.ok(choicesSeen >= 12)
+
+const ashDock = ACT_THREE_MIDDLE_CASES['cushion-recall']
+assert.equal(ashDock.id, 'warp-e4-sofa-recall')
+assert.ok(VOYAGE_BOARDS[7]!.includes('cushion-recall'))
+assert.ok(ashDock.opening.length > 330 && ashDock.conflict.length > 110)
+assert.equal(ashDock.choices.length, 3)
+assert.deepEqual(
+  ashDock.choices.map((choice) => choice.policy).sort(),
+  [...policies].sort(),
+)
+const ashDockStories = new Set<string>()
+for (const [index, choice] of ashDock.choices.entries()) {
+  const before: VoyageRun = {
+    ...startVoyage('vale', ['pell', 'rue', 'vela'], 3800 + index),
+    chapter: 8,
+    missionId: 'cushion-recall',
+    phase: 'decision',
+  }
+  const episode = consequenceForRun(before)
+  assert.equal(episode?.id, ashDock.id)
+  assert.deepEqual(
+    controls(before).map((action) => action.label),
+    ashDock.choices.map((action) => 'consequence:' + action.id),
+  )
+  assert.equal(resolveConsequence(before, 'made-up-action'), before)
+  assert.ok(choice.label.length >= 35)
+  assert.ok(choice.approach.length >= 50)
+  assert.ok(choice.cost.length >= 60)
+  assert.ok(choice.check.difficulty >= 5 && choice.check.difficulty <= 10)
+  for (const result of ['success', 'failure'] as const) {
+    const outcome = choice[result]
+    assert.ok(outcome.narrative.length > 240)
+    assert.ok(outcome.callback.length > 100)
+    assert.ok(outcome.flags.length >= 2)
+    assert.ok(Object.keys(outcome.delta).length >= 2)
+    assert.ok(!ashDockStories.has(outcome.narrative))
+    ashDockStories.add(outcome.narrative)
+    const artKey = 'consequences/' + ashDock.id + '-' + choice.id + '-' + result
+    assert.ok(!(artKey in COUCH_CONSEQUENCE_ART_IDS))
+  }
+  const after = resolveConsequence(before, choice.id)
+  assert.equal(after.phase, 'debrief')
+  assert.equal(after.missionHistory?.at(-1)?.policy, choice.policy)
+  assert.equal(after.consequenceHistory?.at(-1)?.choiceId, choice.id)
+  assert.equal(after.consequenceHistory?.at(-1)?.missionId, 'cushion-recall')
+  assert.ok(after.scene.includes(choice.label))
+  assert.ok(validConsequenceHistory(after.consequenceHistory))
+  assert.deepEqual(restoreVoyage(JSON.parse(JSON.stringify(after))), after)
+  assert.deepEqual(resolveConsequence(before, choice.id), after)
+  assert.equal(resolveConsequence(after, choice.id), after)
+}
+assert.equal(ashDockStories.size, 6)
+
 console.log(
   'Space Couch Act III: three authored returns, nine choices, 18 distinct outcomes, ' +
     'earlier-world callbacks, save parity and 12 complete seeded voyages verified',

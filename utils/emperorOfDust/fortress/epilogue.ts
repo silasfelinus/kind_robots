@@ -131,6 +131,73 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     ],
   },
   {
+    id: 'yard-water-debt',
+    name: 'The Yard’s Water Ledger',
+    npc: 'dunmore-ash',
+    variants: [
+      {
+        when: {
+          endings: ['long-night'],
+          flags: ['d12-cistern-locked'],
+        },
+        mood: 'sad',
+        text: 'Ash carried the House well key into exile. It opened no lock there. The bakers melted snow in blackened pans; beside the fire he kept the old receipts, one paid bucket after another.',
+      },
+      {
+        when: {
+          endings: ['long-night'],
+          flags: ['d12-cistern-moles'],
+        },
+        mood: 'sad',
+        text: 'The Mole keepers led families through the dry galleries while the Abbey sang above them. Ash carried bread to the last tunnel. Nobody asked whether the water was still clear.',
+      },
+      {
+        when: {
+          endings: ['long-night'],
+          flags: ['d12-new-cistern'],
+        },
+        mood: 'sad',
+        text: 'The new cistern on the hill filled once before the Long Night. Ash wrote down its first bucket and its last. The ledger survived in a baker’s flour sack.',
+      },
+      {
+        when: { flags: ['d49-cistern-public-deed'] },
+        text: 'The Yard owns the cistern key. Ash keeps the receipt for twenty-five brass nailed above the oven, beside the months of buckets bought from the Houses. Every new foreman reads both before unlocking the pump.',
+      },
+      {
+        when: { flags: ['d49-cistern-keepers-record'] },
+        text: 'The tunnel keepers draw wages under their own names. Vellum’s ledger records the fifteen brass but no routes. Each spring Ash walks bread to a hatch the House surveyors cannot find.',
+      },
+      {
+        when: { flags: ['d49-hill-cistern-record'] },
+        text: 'The hill cistern deed belongs to the bakers. Its first page counts thirty-five brass for digging and fifteen for winter repairs. Every year Ash leaves a blank line for the next bill.',
+      },
+      {
+        when: { flags: ['d39-cistern-public-key'] },
+        text: 'Ash took the cistern key back, but the public deed was never copied. A House steward arrives each winter to dispute the sale. Ash produces the congress receipt and keeps baking.',
+      },
+      {
+        when: { flags: ['d39-cistern-keeper-wages'] },
+        text: 'The Mole keepers were paid for the first winter. Their names never reached a lasting public record. Each thaw Ash finds a fresh wage demand under the oven door.',
+      },
+      {
+        when: { flags: ['d39-hill-cistern-commission'] },
+        text: 'The hill pumps ran after the congress paid their first winter wages. The deed went unrecorded. A House factor still offers to take over the buckets whenever the Yard runs short.',
+      },
+      {
+        when: { flags: ['d12-cistern-locked'] },
+        text: 'The Yard still buys water from the Old Houses by the bucket. Ash keeps the well key receipt nailed above the ovens. The bread is smaller each winter.',
+      },
+      {
+        when: { flags: ['d12-cistern-moles'] },
+        text: 'The cistern runs clear where Mole hands patched it. There is no wage line for the keepers in the Archive. Ash slips bread down the service hatch, and says it is not payment.',
+      },
+      {
+        when: { flags: ['d12-new-cistern'] },
+        text: 'The Yard’s hill cistern holds rain, but nobody paid for the next winter of repairs. Ash walks its rim each morning with his old flour tally and a pencil sharpened down to the wood.',
+      },
+    ],
+  },
+  {
     id: 'mara',
     name: 'Mara Reedbell',
     npc: 'mara-reedbell',

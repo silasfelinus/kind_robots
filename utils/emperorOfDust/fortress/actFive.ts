@@ -5242,6 +5242,43 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               'Vellum copies Dunmark’s six vacancies beside Mara’s ledger. The Watch gave up a wall to guard the road, but a name on a roster is not proof of safe arrival. The Bell will be able to ask who paid when the war is over.',
           },
           {
+            id: 'record-cistern-key',
+            label:
+              'Enter the bought-back cistern key and its twenty-five-brass price in the public Yard ledger.',
+            requires: { flags: ['d39-cistern-public-key'] },
+            effects: {
+              local: { lamplight: 2, 'old-houses': -2 },
+              flags: ['d49-cistern-public-deed'],
+            },
+            response:
+              'Vellum writes the price beside the date. Ash asks him to add the months of paid buckets. Vask says it was a fair contract. The last page gives the Yard the key without a House seal.',
+          },
+          {
+            id: 'record-cistern-keepers',
+            label:
+              'Record the Mole keepers’ wages, but leave their tunnel routes out of the public book.',
+            requires: { flags: ['d39-cistern-keeper-wages'] },
+            effects: {
+              affinity: { moles: 3 },
+              local: { lamplight: 1 },
+              flags: ['d49-cistern-keepers-record'],
+            },
+            response:
+              'Vellum enters the fifteen brass and every keeper’s name. He leaves the map page blank. Ash signs for the water; Granny Umber signs for the lives under it. Neither signs away the passages.',
+          },
+          {
+            id: 'record-hill-cistern',
+            label:
+              'Publish the hill cistern’s forty-year public deed and the winter maintenance cost.',
+            requires: { flags: ['d39-hill-cistern-commission'] },
+            effects: {
+              local: { lamplight: 1, yard: 1 },
+              flags: ['d49-hill-cistern-record'],
+            },
+            response:
+              'Vellum enters the first thirty-five brass, then the fifteen spent to keep the hill pumps running. The deed names the bakers, not the crown. Ash leaves a space for whoever must repair them next.',
+          },
+          {
             id: 'order',
             label: '“Kept the kingdom standing, whatever it cost.”',
             effects: {

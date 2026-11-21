@@ -24,7 +24,8 @@
       <span
         class="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-300"
       >
-        Private · {{ artForSelected.length }} plates · {{ reviewCount }} locally reviewed
+        Private · {{ artForSelected.length }} plates · {{ reviewCount }} locally
+        reviewed
       </span>
     </div>
     <div
@@ -55,8 +56,9 @@
     </div>
     <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
       <p class="text-xs text-slate-300">
-        QA decisions are saved only in this browser and are not production approvals.
-        Review composition, anatomy, canon, style, and lookalikes after the image loads.
+        QA decisions are saved only in this browser and are not production
+        approvals. Review composition, anatomy, canon, style, and lookalikes
+        after the image loads.
       </p>
       <button
         type="button"
@@ -115,7 +117,8 @@
             <p class="text-[11px] text-slate-300">
               {{ localReview[item.artImageId]?.decision ?? 'Not reviewed' }}
               <span v-if="localReview[item.artImageId]">
-                · locally saved {{ localReview[item.artImageId]?.reviewedAt.slice(0, 10) }}
+                · locally saved
+                {{ localReview[item.artImageId]?.reviewedAt.slice(0, 10) }}
               </span>
             </p>
             <label class="block text-[11px] text-slate-200">
@@ -142,7 +145,10 @@
               <button
                 type="button"
                 class="rounded border border-rose-400 px-2 py-1 text-[11px]"
-                :disabled="!store.productionImageFor(item.artImageId) || !(reviewNotes[item.artImageId] ?? '').trim()"
+                :disabled="
+                  !store.productionImageFor(item.artImageId) ||
+                  !(reviewNotes[item.artImageId] ?? '').trim()
+                "
                 :data-testid="'capes-reject-' + item.key"
                 @click="setReview(item.artImageId, 'rejected')"
               >
@@ -179,7 +185,6 @@ watch(
   { immediate: true },
 )
 
-
 const REVIEW_STORAGE_KEY = 'capes-unstable-production-image-qa-v1'
 type Decision = 'approved' | 'rejected'
 type LocalReview = {
@@ -190,9 +195,11 @@ type LocalReview = {
 }
 const localReview = ref<Record<number, LocalReview>>({})
 const reviewNotes = ref<Record<number, string>>({})
-const reviewCount = computed(() =>
-  CAPES_UNSTABLE_PRODUCTION.filter((entry) => localReview.value[entry.artImageId])
-    .length,
+const reviewCount = computed(
+  () =>
+    CAPES_UNSTABLE_PRODUCTION.filter(
+      (entry) => localReview.value[entry.artImageId],
+    ).length,
 )
 
 onMounted(() => {
@@ -203,9 +210,13 @@ onMounted(() => {
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return
     const records = parsed as Record<string, unknown>
     for (const entry of CAPES_UNSTABLE_PRODUCTION) {
-      const raw = records[String(entry.artImageId)] as Partial<LocalReview> | null
-      if (!raw || !['approved', 'rejected'].includes(raw.decision ?? '')) continue
-      if (raw.artImageId !== entry.artImageId || typeof raw.note !== 'string') continue
+      const raw = records[
+        String(entry.artImageId)
+      ] as Partial<LocalReview> | null
+      if (!raw || !['approved', 'rejected'].includes(raw.decision ?? ''))
+        continue
+      if (raw.artImageId !== entry.artImageId || typeof raw.note !== 'string')
+        continue
       if (raw.decision === 'rejected' && !raw.note.trim()) continue
       if (typeof raw.reviewedAt !== 'string') continue
       localReview.value[entry.artImageId] = raw as LocalReview
@@ -245,7 +256,14 @@ function exportReviews(): void {
   const reviewed = CAPES_UNSTABLE_PRODUCTION.flatMap((entry) => {
     const review = localReview.value[entry.artImageId]
     return review
-      ? [{ ...entry, ...review, source: 'browser-local-art-qa', productionApproved: false }]
+      ? [
+          {
+            ...entry,
+            ...review,
+            source: 'browser-local-art-qa',
+            productionApproved: false,
+          },
+        ]
       : []
   })
   const url = URL.createObjectURL(

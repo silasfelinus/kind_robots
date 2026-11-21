@@ -139,7 +139,6 @@ assert.match(gallery, /source: 'browser-local-art-qa'/)
 assert.match(gallery, /productionApproved: false/)
 assert.match(gallery, /localStorage.setItem\(REVIEW_STORAGE_KEY/)
 
-
 const atlas = readFileSync(
   new URL('../../components/admin/capes-cast-atlas.vue', import.meta.url),
   'utf8',

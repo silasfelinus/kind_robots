@@ -7,6 +7,11 @@ import ts from 'typescript'
 const ROOT = process.cwd()
 const SCAN_DIRS = ['server', 'utils']
 const ALLOWED = new Set<string>([])
+const BYTE_CONSTRUCTORS = new Set([
+  'Buffer.from',
+  'Uint8Array.from',
+  'TextEncoder.encode',
+])
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -39,20 +44,15 @@ export function findDoubleEscapedSignatures(
         while (parent && parent !== file) {
           if (ts.isCallExpression(parent)) {
             const callee = parent.expression.getText(file)
-            if (
-              callee === 'Buffer.from' ||
-              callee === 'Uint8Array.from' ||
-              callee === 'TextEncoder.encode'
-            ) {
+            if (BYTE_CONSTRUCTORS.has(callee)) {
               signatureContext = true
               break
             }
           }
           if (ts.isVariableDeclaration(parent)) {
-            signatureContext = /signature|magic|header|bytes/i.test(
+            signatureContext ||= /signature|magic|header|bytes/i.test(
               parent.name.getText(file),
             )
-            break
           }
           parent = parent.parent
         }
@@ -94,4 +94,12 @@ test('signature guard distinguishes escaped bytes from harmless text', () => {
   ])
   assert.deepEqual(findDoubleEscapedSignatures(good, 'fixture.ts'), [])
   assert.deepEqual(findDoubleEscapedSignatures(ordinary, 'fixture.ts'), [])
+  const nested = String.raw`const payload = wrap(Buffer.from('\\\\x89'))`
+  assert.deepEqual(findDoubleEscapedSignatures(nested, 'nested.ts'), [
+    'nested.ts:1',
+  ])
+  const named = String.raw`const signature = wrap('\\\\x50')`
+  assert.deepEqual(findDoubleEscapedSignatures(named, 'named.ts'), [
+    'named.ts:1',
+  ])
 })

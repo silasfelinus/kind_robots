@@ -62,11 +62,12 @@ export default defineEventHandler(async (event) => {
       }),
     ])
     const eligible = new Set(images.map((image) => image.id))
-    const jobByImage = new Map(
-      jobs
-        .filter((job) => job.artImageId !== null)
-        .map((job) => [job.artImageId!, job.id]),
-    )
+    const jobByImage = new Map<number, number>()
+    for (const job of jobs) {
+      if (job.artImageId !== null) {
+        jobByImage.set(job.artImageId, job.id)
+      }
+    }
 
     const results: ReviewResult[] = []
     for (const target of targets) {

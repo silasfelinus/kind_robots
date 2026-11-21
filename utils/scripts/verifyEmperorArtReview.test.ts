@@ -50,13 +50,13 @@ assert.match(route, /toBuffer\(\)/)
 assert.doesNotMatch(route, /fs\.writeFile|prisma\.artImage\.update/)
 assert.doesNotMatch(route, /mediaShareRootIsMounted|IMAGES_PATH/)
 const store = readFileSync(
-  new URL('../stores/emperorArtReviewStore.ts', import.meta.url),
+  new URL('../../stores/emperorArtReviewStore.ts', import.meta.url),
   'utf8',
 )
 assert.match(store, /write: false/)
 assert.doesNotMatch(store, /write: true|curated: true/)
 const page = readFileSync(
-  new URL('../pages/admin/emperor-art-review.vue', import.meta.url),
+  new URL('../../pages/admin/emperor-art-review.vue', import.meta.url),
   'utf8',
 )
 assert.match(page, /userStore.isAdmin/)

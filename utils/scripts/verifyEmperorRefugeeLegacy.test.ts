@@ -8,7 +8,11 @@ import {
   optionVisible,
 } from '../emperorOfDust/fortress/engine'
 import { epilogueFor } from '../emperorOfDust/fortress/epilogue'
-import { decodeBook, encodeBook, newBook } from '../emperorOfDust/fortress/saves'
+import {
+  decodeBook,
+  encodeBook,
+  newBook,
+} from '../emperorOfDust/fortress/saves'
 import type { FortressRun } from '../emperorOfDust/fortress/types'
 
 const onDay = (day: number, flags: readonly string[] = []): FortressRun => {
@@ -59,11 +63,7 @@ const routes = [
 
 for (const route of routes) {
   const starting = onDay(18)
-  const first = chooseAudienceOption(
-    starting,
-    'd18-strangers',
-    route.day18,
-  ).run
+  const first = chooseAudienceOption(starting, 'd18-strangers', route.day18).run
   assert.ok(first.flags.includes(route.earlyFlag))
   assert.ok(first.board.some((entry) => entry.questId === 'q-d18-refugee-road'))
 
@@ -83,10 +83,7 @@ for (const route of routes) {
   ).run
   assert.equal(accounted.brass, congress.brass - 12)
   assert.ok(accounted.flags.includes(route.congressFlag))
-  assert.equal(
-    accounted.local.lamplight,
-    congress.local.lamplight + 2,
-  )
+  assert.equal(accounted.local.lamplight, congress.local.lamplight + 2)
 
   const lastFire = onDay(49, accounted.flags)
   const finalOption = optionFor(lastFire, 'd49-the-record', route.final)

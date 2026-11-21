@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import catalog from '../../utils/hybridizer/starterCatalog.json'
+import { HYBRIDIZER_UPLOAD_KEY_PATTERN } from '../../utils/hybridizer/uploadRules'
 
 export const HYBRIDIZER_RECIPE_VERSION = 'v1'
 export const HYBRIDIZER_MAX_DEPTH = 4
@@ -13,6 +14,8 @@ export function normalizedIngredientKey(value: unknown): string {
   if (key.startsWith('starter:') && starterByKey.has(key.slice(8))) return key
   if (starterByKey.has(key)) return 'starter:' + key
   if (FUSION_ID_PATTERN.test(key)) return key
+  // Player uploads are owner-private; callers resolve ownership before use.
+  if (HYBRIDIZER_UPLOAD_KEY_PATTERN.test(key)) return key
   throw new Error('Unknown Hybridizer ingredient.')
 }
 

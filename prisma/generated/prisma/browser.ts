@@ -1197,6 +1197,13 @@ export type ResourcePreview = Prisma.ResourcePreviewModel
  */
 export type HybridizerFusion = Prisma.HybridizerFusionModel
 /**
+ * Model HybridizerUpload
+ * Player-uploaded Hybridizer ingredient (t-008). Always private to its owner:
+ * never listed, shared or reusable by anyone else, and every fusion that uses
+ * one is private. The image is a private ArtImage re-encoded without metadata.
+ */
+export type HybridizerUpload = Prisma.HybridizerUploadModel
+/**
  * Model SpaceCouchAlienGuide
  * Slime City is an account-owned virtual game economy, separate from paid
  * Kind Robots mana/tokens. Authoritative state is NEVER browser-local.

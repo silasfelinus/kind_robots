@@ -693,6 +693,112 @@
           </div>
         </template>
         <template v-else-if="drawer !== 'favorites' && drawer !== 'settings'">
+          <section
+            class="upload-panel"
+            aria-label="Add your own ingredient"
+            data-testid="hybridizer-upload-panel"
+          >
+            <NuxtLink
+              v-if="!userStore.isLoggedIn"
+              :to="signInHref"
+              class="upload-toggle"
+              >＋ Sign in to add your own picture as an ingredient</NuxtLink
+            >
+            <button
+              v-else
+              type="button"
+              class="upload-toggle"
+              :aria-expanded="uploadOpen"
+              data-testid="hybridizer-upload-toggle"
+              @click="uploadOpen = !uploadOpen"
+            >
+              {{ uploadOpen ? '✕ Close' : '＋ Add your own ingredient' }}
+            </button>
+            <form
+              v-if="uploadOpen && userStore.isLoggedIn"
+              class="upload-form"
+              data-testid="hybridizer-upload-form"
+              @submit.prevent="submitUpload"
+            >
+              <p class="upload-privacy">
+                🔒 Private to your account. Only you can see it, and every
+                hybrid you make with it stays private too.
+              </p>
+              <label>
+                <span>Picture (PNG, JPEG or WebP, up to 5 MB)</span>
+                <input
+                  ref="uploadFileInput"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  required
+                  @change="onUploadFile"
+                />
+              </label>
+              <label>
+                <span>Name</span>
+                <input
+                  v-model="uploadTitle"
+                  type="text"
+                  :maxlength="HYBRIDIZER_UPLOAD_TITLE_MAX"
+                  required
+                  placeholder="e.g. Grandma's teapot"
+                />
+              </label>
+              <label>
+                <span>Describe it for the illustrator (optional)</span>
+                <input
+                  v-model="uploadDescription"
+                  type="text"
+                  :maxlength="HYBRIDIZER_UPLOAD_DESCRIPTION_MAX"
+                  placeholder="e.g. round blue teapot with gold flowers"
+                />
+              </label>
+              <fieldset class="upload-kind">
+                <legend>It is a…</legend>
+                <label
+                  ><input v-model="uploadKind" type="radio" value="creature" />
+                  creature</label
+                >
+                <label
+                  ><input v-model="uploadKind" type="radio" value="object" />
+                  thing or object</label
+                >
+              </fieldset>
+              <label class="upload-consent">
+                <input
+                  v-model="uploadConsent"
+                  type="checkbox"
+                  required
+                  data-testid="hybridizer-upload-consent"
+                />
+                <span>{{ HYBRIDIZER_UPLOAD_CONSENT }}</span>
+              </label>
+              <p class="upload-note">
+                The illustrator works from the name and description. Your
+                picture is the ingredient's portrait in the lab.
+              </p>
+              <button
+                type="submit"
+                class="upload-submit"
+                :disabled="
+                  lab.uploadBusy ||
+                  !uploadFile ||
+                  !uploadConsent ||
+                  uploadTitle.trim().length < 2
+                "
+              >
+                {{ lab.uploadBusy ? 'Adding…' : 'Add ingredient' }}
+              </button>
+            </form>
+            <p
+              v-if="lab.uploadMessage"
+              class="upload-message"
+              role="status"
+              aria-live="polite"
+            >
+              {{ lab.uploadMessage }}
+            </p>
+          </section>
           <label class="search-wrap">
             <span class="sr-only">Search ingredients</span>
             <input
@@ -752,11 +858,25 @@
                     : entry.status || 'STUDY'
                 }}
               </small>
+              <small v-else-if="entry.taxonomy === 'UPLOAD'"
+                >🔒 YOURS · PRIVATE</small
+              >
               <small v-else>{{
                 entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
                   ? 'FRUIT'
                   : entry.taxonomy
               }}</small>
+            </button>
+            <button
+              v-if="entry.taxonomy === 'UPLOAD' && drawer !== 'atlas'"
+              type="button"
+              class="upload-remove"
+              :aria-label="'Remove uploaded ingredient ' + entry.title"
+              :disabled="lab.uploadBusy"
+              data-testid="hybridizer-upload-remove"
+              @click.stop="removeUploadEntry(entry.key, entry.title)"
+            >
+              ✕
             </button>
             <button
               v-if="lab.imageFor(entry)"
@@ -801,6 +921,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import ReactionCard from '@/components/wonderlab/reaction-card.vue'
+import {
+  HYBRIDIZER_UPLOAD_CONSENT,
+  HYBRIDIZER_UPLOAD_DESCRIPTION_MAX,
+  HYBRIDIZER_UPLOAD_TITLE_MAX,
+} from '@/utils/hybridizer/uploadRules'
 import { achievementsForGame } from '@/utils/achievements/gameAchievements'
 import { useAchievementStore } from '@/stores/achievementStore'
 import {
@@ -977,6 +1102,7 @@ const search = ref('')
 const filter = ref('ALL')
 const filters = [
   'ALL',
+  'MINE',
   'ANIMAL',
   'SPECIES',
   'FRUIT',
@@ -991,9 +1117,11 @@ const visibleEntries = computed(() => {
   const word = search.value.toLowerCase().trim()
   return lab.inputs.filter((entry) => {
     const type =
-      entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
-        ? 'FRUIT'
-        : entry.taxonomy
+      entry.taxonomy === 'UPLOAD'
+        ? 'MINE'
+        : entry.taxonomy === 'OTHER' && entry.facetGroup === 'fruit'
+          ? 'FRUIT'
+          : entry.taxonomy
     return (
       (filter.value === 'ALL' || filter.value === type) &&
       (!word || entry.title.toLowerCase().includes(word))
@@ -1035,6 +1163,57 @@ function pick(key: string) {
   drawer.value = null
 }
 
+const uploadOpen = ref(false)
+const uploadFile = ref<File | null>(null)
+const uploadFileInput = ref<HTMLInputElement | null>(null)
+const uploadTitle = ref('')
+const uploadDescription = ref('')
+const uploadKind = ref<'creature' | 'object'>('creature')
+const uploadConsent = ref(false)
+
+function onUploadFile(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0] ?? null
+  uploadFile.value = file
+  if (file && !uploadTitle.value)
+    uploadTitle.value = file.name
+      .replace(/\.[^.]+$/, '')
+      .replace(/[^\p{L}\p{N} ]+/gu, ' ')
+      .trim()
+      .slice(0, HYBRIDIZER_UPLOAD_TITLE_MAX)
+}
+
+async function submitUpload() {
+  if (!uploadFile.value || !uploadConsent.value) return
+  const added = await lab.addUpload({
+    file: uploadFile.value,
+    title: uploadTitle.value,
+    description: uploadDescription.value,
+    kind: uploadKind.value,
+    consent: uploadConsent.value,
+  })
+  if (!added) return
+  uploadFile.value = null
+  if (uploadFileInput.value) uploadFileInput.value.value = ''
+  uploadTitle.value = ''
+  uploadDescription.value = ''
+  uploadConsent.value = false
+  uploadOpen.value = false
+  filter.value = 'MINE'
+  if (drawer.value === 'left' || drawer.value === 'right') {
+    lab.choose(drawer.value, added.key)
+    drawer.value = null
+  }
+}
+
+function removeUploadEntry(key: string, title: string) {
+  if (!import.meta.client) return
+  if (
+    !window.confirm('Remove ' + title + '? It can no longer start new fusions.')
+  )
+    return
+  void lab.removeUpload(key)
+}
+
 async function submitRemix() {
   if (!lab.left) return
   await lab.resubmit({
@@ -1063,6 +1242,7 @@ function glyphFor(title?: string, taxonomy?: string): string {
 onMounted(() => {
   lab.hydrate()
   void lab.loadArtwork()
+  void lab.loadUploads()
   void lab.loadSharedStudies().then(() => {
     const id = route.query.fusion
     if (typeof id === 'string') void lab.openSharedFusion(id)
@@ -1979,6 +2159,91 @@ onUnmounted(() => {
   }
 }
 
+.upload-panel {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.upload-toggle {
+  justify-self: start;
+  padding: 8px 12px;
+  border: 1px dashed #d9f5a7;
+  border-radius: 999px;
+  color: #eaffc8;
+  background: #2b2147;
+  font-weight: 800;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+.upload-form {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #9a78a4;
+  border-radius: 14px;
+  background: #221a3a;
+}
+.upload-form label,
+.upload-kind {
+  display: grid;
+  gap: 4px;
+  font-size: 0.78rem;
+}
+.upload-form input[type='text'],
+.upload-form input[type='file'] {
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid #6f5a86;
+  border-radius: 9px;
+  color: #fff1e8;
+  background: #15102a;
+}
+.upload-kind {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  border: 0;
+  padding: 0;
+}
+.upload-kind label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.upload-consent {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  line-height: 1.35;
+}
+.upload-privacy,
+.upload-note,
+.upload-message {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #d3b9db;
+}
+.upload-submit {
+  justify-self: start;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: #1b1430;
+  background: #d9f5a7;
+  font-weight: 900;
+}
+.upload-submit:disabled {
+  opacity: 0.55;
+}
+.upload-remove {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #fff1e8;
+  background: #3b1f3fcc;
+  font-size: 0.8rem;
+}
 .fusion-generated {
   width: 100%;
   height: 100%;

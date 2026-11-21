@@ -3828,6 +3828,24 @@ model HybridizerFusion {
   @@index([isPublic, createdAt])
 }
 
+/// Player-uploaded Hybridizer ingredient (t-008). Always private to its owner:
+/// never listed, shared or reusable by anyone else, and every fusion that uses
+/// one is private. The image is a private ArtImage re-encoded without metadata.
+model HybridizerUpload {
+  id          String   @id @db.VarChar(24)
+  ownerUserId Int
+  title       String   @db.VarChar(60)
+  description String   @default("") @db.VarChar(240)
+  kind        String   @default("creature") @db.VarChar(12)
+  artImageId  Int
+  consentAt   DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerUserId, isActive, createdAt])
+}
+
  
 /// Slime City is an account-owned virtual game economy, separate from paid
 /// Kind Robots mana/tokens. Authoritative state is NEVER browser-local.

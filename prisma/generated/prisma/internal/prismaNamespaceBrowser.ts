@@ -187,6 +187,7 @@ export const ModelName = {
   MediaEntry: 'MediaEntry',
   ResourcePreview: 'ResourcePreview',
   HybridizerFusion: 'HybridizerFusion',
+  HybridizerUpload: 'HybridizerUpload',
   SpaceCouchAlienGuide: 'SpaceCouchAlienGuide',
   SpaceCouchVoyageSave: 'SpaceCouchVoyageSave',
   SlimeCityAccount: 'SlimeCityAccount',
@@ -2835,6 +2836,22 @@ export const HybridizerFusionScalarFieldEnum = {
 export type HybridizerFusionScalarFieldEnum = (typeof HybridizerFusionScalarFieldEnum)[keyof typeof HybridizerFusionScalarFieldEnum]
 
 
+export const HybridizerUploadScalarFieldEnum = {
+  id: 'id',
+  ownerUserId: 'ownerUserId',
+  title: 'title',
+  description: 'description',
+  kind: 'kind',
+  artImageId: 'artImageId',
+  consentAt: 'consentAt',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HybridizerUploadScalarFieldEnum = (typeof HybridizerUploadScalarFieldEnum)[keyof typeof HybridizerUploadScalarFieldEnum]
+
+
 export const SpaceCouchAlienGuideScalarFieldEnum = {
   userId: 'userId',
   data: 'data',
@@ -4499,6 +4516,16 @@ export const HybridizerFusionOrderByRelevanceFieldEnum = {
 } as const
 
 export type HybridizerFusionOrderByRelevanceFieldEnum = (typeof HybridizerFusionOrderByRelevanceFieldEnum)[keyof typeof HybridizerFusionOrderByRelevanceFieldEnum]
+
+
+export const HybridizerUploadOrderByRelevanceFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  kind: 'kind'
+} as const
+
+export type HybridizerUploadOrderByRelevanceFieldEnum = (typeof HybridizerUploadOrderByRelevanceFieldEnum)[keyof typeof HybridizerUploadOrderByRelevanceFieldEnum]
 
 
 export const SpaceCouchVoyageSaveOrderByRelevanceFieldEnum = {

@@ -9,6 +9,7 @@ import {
 } from '../emperorOfDust/fortress/artDelivery'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
 import { chanceArtCandidates } from '../emperorOfDust/fortress/chanceArt'
+import { questArtCandidates } from '../emperorOfDust/fortress/questArt'
 import { audienceChoiceImages } from '../emperorOfDust/fortress/audienceChoiceArt'
 import type { EndingId } from '../emperorOfDust/fortress/endings'
 
@@ -80,6 +81,25 @@ assert.throws(
   )),
 )
 assert.throws(() => parseEmperorArtDeliveryTargets([targets[0], targets[0]]))
+assert.deepEqual(questArtCandidates('r-fever-ward', 'success'), [
+  '/images/emperor-of-dust/quests/r-fever-ward-success.webp',
+  '/emperor-of-dust/quests/r-fever-ward.webp',
+])
+assert.deepEqual(questArtCandidates('r-verge-scouts', 'failure'), [
+  '/images/emperor-of-dust/quests/r-verge-scouts-failure.webp',
+  '/emperor-of-dust/quests/r-verge-scouts.webp',
+])
+assert.deepEqual(questArtCandidates('r-deserter', 'failure'), [
+  '/emperor-of-dust/quests/r-deserter-failure.webp',
+])
+const questView = readFileSync(
+  new URL('../../components/EmperorFortressQuestImage.vue', import.meta.url),
+  'utf8',
+)
+assert.match(questView, /questArtCandidates\(props.questId, props.variant\)/)
+assert.match(questView, /@error="tryNext"/)
+assert.match(questView, /index.value < candidates.value.length/)
+
 const audience = audienceChoiceImages('d01-aqueduct', 'repair', undefined, 0)
 assert.deepEqual(audience.slice(0, 2), [
   '/images/emperor-of-dust/audiences/d01-aqueduct-repair.webp',

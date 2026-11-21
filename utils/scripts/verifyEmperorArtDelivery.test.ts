@@ -70,7 +70,7 @@ for (const item of [
 ]) {
   assert.throws(
     () => parseEmperorArtDeliveryTargets([item]),
-    undefined,
+    /./,
     `unsafe or untrusted target should fail: ${JSON.stringify(item)}`,
   )
 }

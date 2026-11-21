@@ -731,7 +731,7 @@ export const CTHULHUQUARIUM_VOICES: Record<
     charlotte:
       'A whole garden under glass, blooming away in its own little summer. It is the warmest spot in the shop, and quite the loveliest place to stand.',
     wilbur:
-      'Leave the heater off; it brings its own weather and disagrees with ours. Wipe condensation from the outside only. Nothing growing in there is ours to prune.',
+      "Leave the heater off; it brings its own weather and disagrees with ours. Let the condensation be; it's how it breathes. Nothing growing in there is ours to prune.",
   },
   'the-guest-list': {
     charlotte:
@@ -839,7 +839,7 @@ export const CTHULHUQUARIUM_VOICES: Record<
     charlotte:
       'All eye and all devotion. It takes in the whole room at once, so you need never feel unappreciated again.',
     wilbur:
-      "Clean that pane from the outside only; the inside face is spoken for. Don't move the furniture without saying so aloud. It looks for things where they were.",
+      "Clean that pane gently; it fogs if you hurry it. Don't move the furniture without saying so aloud. It looks for things where they were.",
   },
   'the-parcel': {
     charlotte:
@@ -2674,7 +2674,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
               {
                 speaker: 'charlotte',
                 pose: 'delighted',
-                text: 'Perfectly, darling. Wilbur has been up and down those stairs for years, and he always comes back up.',
+                text: 'Perfectly, darling. Wilbur has been up and down those stairs for years. He knows every one of them by name.',
                 focus: null,
                 await: null,
                 plate: null,
@@ -2765,7 +2765,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'presenting',
-        text: 'Which means you are ready for the Flooded Wing. Another key, darling, the green one. It has always been green.',
+        text: 'Paid in full, darling, and worth every coin. The Flooded Wing is yours: the green key. It has always been green.',
         focus: null,
         await: null,
         plate: null,
@@ -2887,7 +2887,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'confiding',
-        text: 'Nobody has been through to the far end since my mother. This was her key. I have worn it ever since, for luck, and it has been tremendously lucky for me.',
+        text: 'Nobody has been through to the far end since my mother. That key was hers; I had a copy cut for you and kept the original, for luck. It has been tremendously lucky.',
         focus: null,
         await: null,
         plate: null,
@@ -3018,7 +3018,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'confiding',
-        text: 'That was the last key, darling, and it opens nothing; there never was a door. You simply keep going down until the stairs stop, and then you are there.',
+        text: 'That is the last key, darling, and the last you will need. Past it there is no door: you simply keep going down until the stairs stop, and then you are there.',
         focus: null,
         await: null,
         plate: null,
@@ -3539,7 +3539,7 @@ export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = {
       "That one's circling the surface, which means hungry. Press Feed and it'll be seen to first.",
       "Someone's peckish. If you've got a moment, they'll be glad of it.",
       "It's hungry, not cross. It'll be cross in a while, and now is nicer.",
-      "See the one nosing at the lid? It isn't trying to get out; it's asking.",
+      "See the one nosing at the surface? It's asking, very politely.",
       "A-a hungry one's started following the food tin around. Best not keep it waiting too long.",
     ],
   },
@@ -3559,13 +3559,13 @@ export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = {
   },
   startle: {
     speaker: 'wilbur',
-    pose: 'wince',
+    pose: 'explaining',
     lines: [
       "They've scattered, but they'll come back. It's best to let them decide when.",
       'Tapping makes them jumpy, and the jumpy ones remember. A slow wave works better.',
       "They're only startled. That one's pretending to be a rock, and it's quite good at it.",
       "Give them a minute; the small ones come back first. The big one comes back when it's ready.",
-      "I know it's tempting. I tapped once, my first week, and it tapped back.",
+      "I know it's tempting. They'd much rather you waved.",
       "Th-they're fine. They just want a bit of quiet for a moment.",
     ],
   },
@@ -3573,7 +3573,7 @@ export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = {
     speaker: 'charlotte',
     pose: 'welcome',
     lines: [
-      'There you are, come in. The tank kept perfectly well without you, and it kept count.',
+      'There you are, come in. The tank kept perfectly well without you, though it did ask after you.',
       'Welcome back, darling. The coins have been piling up out of sheer good manners.',
       'You came back; I knew you would. I had your tank dusted.',
       "Out of all that and in where it's warm. Your earnings are just where you left them, and then some.",

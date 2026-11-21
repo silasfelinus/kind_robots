@@ -21,7 +21,6 @@ import {
   CTHULHUQUARIUM_FLOORS,
   floorForDepth,
   floorInfo,
-  floorOpenedBy,
   floorStatus,
   LOCKED_TEASER_COUNT,
   openDepthsFor,
@@ -369,6 +368,34 @@ function currentReservedSize(tank: { Stock: OwnedAquarium['Stock'] }): number {
   return tank.Stock.length * FISH_SLOT_SIZE
 }
 
+// Cthulhuquarium release-candidate review (2026-11-21): every write that spends
+// coins, adds a fish or settles elapsed time takes this row lock first, so two
+// tabs, a double tap or a script can never both act on the same stale read.
+// It must be the transaction's first statement: InnoDB then takes the snapshot
+// for the reads that follow only after the lock is held, so they see whatever
+// the previous holder committed. Returns the tank's coins and tick anchor as
+// they are now.
+async function lockTank(
+  tx: TransactionClient,
+  aquariumId: number,
+): Promise<{ coins: number; lastTickAt: Date | null }> {
+  const rows = await tx.$queryRaw<
+    Array<{ coins: number | bigint; lastTickAt: Date | null }>
+  >`SELECT coins, lastTickAt FROM Aquarium WHERE id = ${aquariumId} FOR UPDATE`
+  const row = rows[0]
+  if (!row) throw apiError(404, 'Your tank was not found.')
+  return { coins: Number(row.coins), lastTickAt: row.lastTickAt }
+}
+
+function requireCoins(have: number, cost: number, what: string): void {
+  if (have < cost) {
+    throw apiError(
+      402,
+      `${what} costs ${cost} coins; your tank only has ${have}.`,
+    )
+  }
+}
+
 async function logEvent(
   tx: TransactionClient,
   aquariumId: number,
@@ -412,6 +439,9 @@ export async function getOrCreateTankForUser(
       // setTankVisibilityForUser below; this only decides the starting
       // state for a brand-new tank.
       isPublic: true,
+      // cthulhuquarium/t-105: a new tank has no floors to keep, so it starts
+      // past the key system's one-time grant (grandfatherFloorKeys).
+      Events: { create: { kind: FLOOR_KEYS_MARKER } },
     },
     select: ownedAquariumSelect,
   })
@@ -481,94 +511,129 @@ export async function settleTickForUser(
   const rareEvent = rollRareEvent(Math.random(), Math.random())
   const totalCoinsEarned = settlement.coinsEarned + (rareEvent?.bonusCoins ?? 0)
 
-  const { aquarium, firstRivalryResolved } = await prisma.$transaction(
-    async (tx) => {
-      for (const stock of tank.Stock) {
-        const newHunger = settlement.fishHunger.get(stock.id)
-        if (newHunger !== undefined && newHunger !== stock.hunger) {
-          await tx.aquariumStock.update({
-            where: { id: stock.id },
-            data: { hunger: newHunger },
-          })
-        }
-      }
+  const settled = await prisma.$transaction(async (tx) => {
+    // Another tick, a feed or a clean committed since this one read the tank:
+    // its settlement is stale, so it settles nothing (the next heartbeat
+    // will). Without this, two tabs paid the same absence twice.
+    const locked = await lockTank(tx, tank.id)
+    if (locked.lastTickAt?.getTime() !== tank.lastTickAt?.getTime()) {
+      return null
+    }
+    const fresh = await tx.aquarium.findUnique({
+      where: { id: tank.id },
+      select: {
+        debrisLevel: true,
+        Stock: { select: { id: true, hunger: true } },
+      },
+    })
+    const hungerNow = new Map(
+      (fresh?.Stock ?? []).map((row) => [row.id, row.hunger]),
+    )
+    if (
+      fresh?.debrisLevel !== tank.debrisLevel ||
+      hungerNow.size !== tank.Stock.length ||
+      tank.Stock.some((stock) => hungerNow.get(stock.id) !== stock.hunger)
+    ) {
+      return null
+    }
 
-      // cthulhuquarium/t-074: sticky, never cleared once true -- same
-      // "nothing here may ever decrease" discipline as collectedCount.
-      // settleTick only ever raises debris within its own loop (offset only by
-      // debris_skimmer, still net non-negative there -- see its own comment),
-      // so the highest debris this call reaches is always newDebrisLevel.
-      const debrisEverHighAfter =
-        tank.debrisEverHigh ||
-        settlement.newDebrisLevel >= DEBRIS_SPOTLESS_MILESTONE_THRESHOLD
-
-      // cthulhuquarium/t-077: rivalryMilestoneState reads `tank.rivalryObserved`
-      // as the BEFORE value (mirrors debrisEverHighAfter's own before/after
-      // pattern above) -- "resolved already" is checked via the existing
-      // AquariumEvent log, same convention as every other one-off landmark
-      // (checkFirstFullTank, first_spotless_tank in cleanTankForUser), so a
-      // rivalry that resolves once can never re-fire on a later inactive tick
-      // even though rivalryObserved itself is never cleared afterward.
-      const rivalryResolvedAlreadyLogged = await tx.aquariumEvent.findFirst({
-        where: {
-          aquariumId: tank.id,
-          kind: milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
-        },
-        select: { id: true },
-      })
-      const rivalryMilestone = rivalryMilestoneState(
-        settlement.rivalry.active,
-        tank.rivalryObserved,
-        Boolean(rivalryResolvedAlreadyLogged),
-      )
-      const rivalryObservedAfter =
-        tank.rivalryObserved || rivalryMilestone.shouldRecordObserved
-
-      const updated = await tx.aquarium.update({
-        where: { id: tank.id },
-        data: {
-          coins: { increment: totalCoinsEarned },
-          debrisLevel: settlement.newDebrisLevel,
-          lastTickAt: settlement.newLastTickAt,
-          ...(debrisEverHighAfter !== tank.debrisEverHigh
-            ? { debrisEverHigh: debrisEverHighAfter }
-            : {}),
-          ...(rivalryObservedAfter !== tank.rivalryObserved
-            ? { rivalryObserved: rivalryObservedAfter }
-            : {}),
-        },
-        select: ownedAquariumSelect,
-      })
-
-      await logEvent(tx, tank.id, 'tick', {
-        elapsedTicks: settlement.elapsedTicks,
-        ticksProcessed: settlement.ticksProcessed,
-        coinsEarned: settlement.coinsEarned,
-        newDebrisLevel: settlement.newDebrisLevel,
-      })
-
-      if (rareEvent) {
-        await logEvent(tx, tank.id, 'rare-event', {
-          kind: rareEvent.kind,
-          bonusCoins: rareEvent.bonusCoins,
+    for (const stock of tank.Stock) {
+      const newHunger = settlement.fishHunger.get(stock.id)
+      if (newHunger !== undefined && newHunger !== stock.hunger) {
+        await tx.aquariumStock.update({
+          where: { id: stock.id },
+          data: { hunger: newHunger },
         })
       }
+    }
 
-      if (rivalryMilestone.shouldFireResolved) {
-        await logEvent(
-          tx,
-          tank.id,
-          milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
-          { landmark: FIRST_RIVALRY_RESOLVED_MILESTONE_ID },
-        )
-      }
+    // cthulhuquarium/t-074: sticky, never cleared once true -- same
+    // "nothing here may ever decrease" discipline as collectedCount.
+    // settleTick only ever raises debris within its own loop (offset only by
+    // debris_skimmer, still net non-negative there -- see its own comment),
+    // so the highest debris this call reaches is always newDebrisLevel.
+    const debrisEverHighAfter =
+      tank.debrisEverHigh ||
+      settlement.newDebrisLevel >= DEBRIS_SPOTLESS_MILESTONE_THRESHOLD
 
-      return {
-        aquarium: updated,
-        firstRivalryResolved: rivalryMilestone.shouldFireResolved,
-      }
-    },
-  )
+    // cthulhuquarium/t-077: rivalryMilestoneState reads `tank.rivalryObserved`
+    // as the BEFORE value (mirrors debrisEverHighAfter's own before/after
+    // pattern above) -- "resolved already" is checked via the existing
+    // AquariumEvent log, same convention as every other one-off landmark
+    // (checkFirstFullTank, first_spotless_tank in cleanTankForUser), so a
+    // rivalry that resolves once can never re-fire on a later inactive tick
+    // even though rivalryObserved itself is never cleared afterward.
+    const rivalryResolvedAlreadyLogged = await tx.aquariumEvent.findFirst({
+      where: {
+        aquariumId: tank.id,
+        kind: milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
+      },
+      select: { id: true },
+    })
+    const rivalryMilestone = rivalryMilestoneState(
+      settlement.rivalry.active,
+      tank.rivalryObserved,
+      Boolean(rivalryResolvedAlreadyLogged),
+    )
+    const rivalryObservedAfter =
+      tank.rivalryObserved || rivalryMilestone.shouldRecordObserved
+
+    const updated = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: {
+        coins: { increment: totalCoinsEarned },
+        debrisLevel: settlement.newDebrisLevel,
+        lastTickAt: settlement.newLastTickAt,
+        ...(debrisEverHighAfter !== tank.debrisEverHigh
+          ? { debrisEverHigh: debrisEverHighAfter }
+          : {}),
+        ...(rivalryObservedAfter !== tank.rivalryObserved
+          ? { rivalryObserved: rivalryObservedAfter }
+          : {}),
+      },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, 'tick', {
+      elapsedTicks: settlement.elapsedTicks,
+      ticksProcessed: settlement.ticksProcessed,
+      coinsEarned: settlement.coinsEarned,
+      newDebrisLevel: settlement.newDebrisLevel,
+    })
+
+    if (rareEvent) {
+      await logEvent(tx, tank.id, 'rare-event', {
+        kind: rareEvent.kind,
+        bonusCoins: rareEvent.bonusCoins,
+      })
+    }
+
+    if (rivalryMilestone.shouldFireResolved) {
+      await logEvent(
+        tx,
+        tank.id,
+        milestoneEventKind({ id: FIRST_RIVALRY_RESOLVED_MILESTONE_ID }),
+        { landmark: FIRST_RIVALRY_RESOLVED_MILESTONE_ID },
+      )
+    }
+
+    return {
+      aquarium: updated,
+      firstRivalryResolved: rivalryMilestone.shouldFireResolved,
+    }
+  })
+  if (!settled) {
+    const current = await getOrCreateTankForUser(userId, username)
+    return {
+      aquarium: current,
+      elapsedTicks: settlement.elapsedTicks,
+      ticksProcessed: 0,
+      coinsEarned: 0,
+      rareEvent: null,
+      firstRivalryResolved: false,
+    }
+  }
+  const { aquarium, firstRivalryResolved } = settled
 
   return {
     aquarium: toClientAquarium(aquarium),
@@ -631,6 +696,8 @@ export async function feedFishForUser(
   const netCharged = cost - rebate
 
   const aquarium = await prisma.$transaction(async (tx) => {
+    const locked = await lockTank(tx, tank.id)
+    requireCoins(locked.coins, netCharged, `Feeding ${stock.Monster.name}`)
     await tx.aquariumStock.update({
       where: { id: stock.id },
       data: { hunger: FEED_RESTORES_HUNGER_TO },
@@ -1270,6 +1337,19 @@ export async function purchaseSpeciesForUser(
     firedMilestones,
     firstOfFloor,
   } = await prisma.$transaction(async (tx) => {
+    // Re-checked under the lock: parallel purchases used to overdraw the
+    // coins, overfill the tank and log the same milestone twice.
+    const locked = await lockTank(tx, tank.id)
+    requireCoins(locked.coins, cost, `Unlocking ${monster.name}`)
+    const stockNow = await tx.aquariumStock.count({
+      where: { aquariumId: tank.id },
+    })
+    if (stockNow * FISH_SLOT_SIZE + newSize > tank.effectiveSizeCap) {
+      throw apiError(
+        409,
+        `Your tank is full (${stockNow * FISH_SLOT_SIZE}/${tank.effectiveSizeCap} fish) -- expand it or release a fish to make room for ${monster.name}.`,
+      )
+    }
     const { totalCount, collectedCount: collectedCountBefore } =
       await countBestiaryTotals(tx, userId)
 
@@ -2030,6 +2110,21 @@ export async function equipSetForUser(
   }
 
   const { aquarium, createdSet } = await prisma.$transaction(async (tx) => {
+    const locked = await lockTank(tx, tank.id)
+    requireCoins(locked.coins, config.cost, `Equipping ${config.title}`)
+    const setsNow = await tx.aquariumSet.findMany({
+      where: { aquariumId: tank.id },
+      select: { kind: true },
+    })
+    if (
+      setsNow.some((set) => set.kind === kind) ||
+      setsNow.length >= tank.setSlotsCap
+    ) {
+      throw apiError(
+        409,
+        `${config.title} can't be equipped right now -- your sets changed; try again.`,
+      )
+    }
     const createdSet = await tx.aquariumSet.create({
       data: { aquariumId: tank.id, kind },
       select: ownedSetSelect,
@@ -2150,6 +2245,20 @@ export async function purchaseLastAquariumForUser(
   }
 
   const aquarium = await prisma.$transaction(async (tx) => {
+    // A double tap used to charge 250,000 twice.
+    const locked = await lockTank(tx, tank.id)
+    const boughtMeanwhile = await tx.aquariumEvent.findFirst({
+      where: { aquariumId: tank.id, kind: FINALE_EVENT_KIND },
+      select: { id: true },
+    })
+    if (boughtMeanwhile) {
+      throw apiError(409, `${LAST_AQUARIUM_CONFIG.title} is already yours.`)
+    }
+    requireCoins(
+      locked.coins,
+      LAST_AQUARIUM_CONFIG.cost,
+      LAST_AQUARIUM_CONFIG.title,
+    )
     const updated = await tx.aquarium.update({
       where: { id: tank.id },
       data: { coins: { decrement: LAST_AQUARIUM_CONFIG.cost } },
@@ -2225,6 +2334,8 @@ export async function purchaseDecorForUser(
   const placeY = clampDecorCoordinate(y ?? 50)
 
   const { aquarium, createdDecor } = await prisma.$transaction(async (tx) => {
+    const locked = await lockTank(tx, tank.id)
+    requireCoins(locked.coins, config.cost, `Placing ${config.title}`)
     const createdDecor = await tx.aquariumDecor.create({
       data: { aquariumId: tank.id, kind, x: placeX, y: placeY },
       select: ownedDecorSelect,
@@ -2378,10 +2489,14 @@ export const DEFAULT_BACKGROUND_KEY = 'parlour'
 const STORY_SEEN_PREFIX = 'story-seen-'
 // cthulhuquarium/t-105: a floor's key, bought from Charlotte (`floor-key-<n>`).
 const FLOOR_KEY_PREFIX = 'floor-key-'
-// Tanks that reached a floor's threshold before keys existed keep the floor:
-// reconciliation grants their keys free, but only for milestones logged before
-// this moment.
-export const FLOOR_KEYS_INTRODUCED_AT = new Date('2026-11-22T00:00:00Z')
+// Tanks that reached a floor's threshold before keys existed keep the floor.
+// The first time the key system sees a tank it records this marker and grants,
+// free, the key to every floor the tank's known-species count had already
+// opened (before keys, a floor opened on the count alone). A tank created since
+// gets the marker at creation, with nothing known, so every key is bought.
+// (This replaced a wall-clock cutoff, which handed free keys to anyone who
+// reached a threshold before it -- playtesters included.)
+const FLOOR_KEYS_MARKER = 'floor-keys-introduced'
 
 async function readFloorKeys(aquariumId: number): Promise<number[]> {
   const rows = await prisma.aquariumEvent.findMany({
@@ -2561,34 +2676,44 @@ export async function setTankBackgroundForUser(
 // increment, same idempotency guard as the purchase path. Safe to call on
 // every load: it does nothing once the tank is caught up.
 // cthulhuquarium/t-105: a tank that reached a floor's threshold before keys
-// existed keeps the floor -- its key is granted free, once. A milestone logged
-// after FLOOR_KEYS_INTRODUCED_AT earns nothing here: that key is bought.
-async function grandfatherFloorKeys(aquariumId: number): Promise<number[]> {
-  const held = new Set(await readFloorKeys(aquariumId))
-  const earlyMilestones = await prisma.aquariumEvent.findMany({
-    where: {
-      aquariumId,
-      kind: { startsWith: MILESTONE_PREFIX },
-      occurredAt: { lt: FLOOR_KEYS_INTRODUCED_AT },
-    },
-    select: { kind: true },
-  })
-  const granted: number[] = []
-  for (const { kind } of earlyMilestones) {
-    const floor = floorOpenedBy(kind.slice(MILESTONE_PREFIX.length))
-    if (floor && !held.has(floor)) {
-      held.add(floor)
-      granted.push(floor)
-      await prisma.aquariumEvent.create({
-        data: {
-          aquariumId,
-          kind: `${FLOOR_KEY_PREFIX}${floor}`,
-          payload: JSON.stringify({ grandfathered: true }),
-        },
-      })
+// existed keeps the floor -- its key is granted free, once, the first time the
+// key system sees the tank (FLOOR_KEYS_MARKER). After that, every key is bought.
+async function grandfatherFloorKeys(
+  aquariumId: number,
+  userId: number,
+): Promise<number[]> {
+  return prisma.$transaction(async (tx) => {
+    await lockTank(tx, aquariumId)
+    const marker = await tx.aquariumEvent.findFirst({
+      where: { aquariumId, kind: FLOOR_KEYS_MARKER },
+      select: { id: true },
+    })
+    if (marker) return []
+    const knownCount = await tx.aquariumCodexEntry.count({ where: { userId } })
+    const held = new Set(
+      (
+        await tx.aquariumEvent.findMany({
+          where: { aquariumId, kind: { startsWith: FLOOR_KEY_PREFIX } },
+          select: { kind: true },
+        })
+      ).map((row) => Number(row.kind.slice(FLOOR_KEY_PREFIX.length))),
+    )
+    const granted: number[] = []
+    for (const entry of CTHULHUQUARIUM_FLOORS) {
+      if (
+        entry.floor > 1 &&
+        entry.opensAt <= knownCount &&
+        !held.has(entry.floor)
+      ) {
+        granted.push(entry.floor)
+        await logEvent(tx, aquariumId, `${FLOOR_KEY_PREFIX}${entry.floor}`, {
+          grandfathered: true,
+        })
+      }
     }
-  }
-  return granted
+    await logEvent(tx, aquariumId, FLOOR_KEYS_MARKER, { knownCount, granted })
+    return granted
+  })
 }
 
 export interface PurchaseFloorKeyResult {
@@ -2668,7 +2793,7 @@ export async function reconcileBestiaryMilestonesForUser(
   username: string,
 ): Promise<Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig>> {
   const tank = await getOrCreateTankForUser(userId, username)
-  await grandfatherFloorKeys(tank.id)
+  await grandfatherFloorKeys(tank.id, userId)
   return prisma.$transaction(async (tx) => {
     const { collectedCount } = await countBestiaryTotals(tx, userId)
     const earned: Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig> =

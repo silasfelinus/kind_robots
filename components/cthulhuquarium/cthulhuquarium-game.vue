@@ -2670,6 +2670,10 @@ function handleVisibilityChange() {
 }
 
 onMounted(async () => {
+  // Saved settings apply at once, whatever the network does: they used to
+  // load only after the story API answered (RC review, 2026-11-21).
+  tankStore.loadSettings()
+  tankStore.loadSoundPreference()
   await tankStore.load()
   await tankStore.loadCatalog()
   // cthulhuquarium/t-039: loaded eagerly, not lazily behind a panel toggle

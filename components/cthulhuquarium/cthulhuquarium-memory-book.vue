@@ -138,7 +138,7 @@ const ENDINGS: ReadonlyArray<{ id: string; hint: string }> = [
   { id: 'milestone_bestiary_95', hint: 'Keep going down' },
   {
     id: 'after_the_last_aquarium',
-    hint: 'The most expensive thing in the shop',
+    hint: 'Something on the top shelf',
   },
 ]
 const endings = computed(() =>
@@ -207,7 +207,8 @@ function replay(id: string) {
   /* Three cards: they share the width instead of scrolling, so the book
      keeps one scroll region (the scenes shelf). */
   grid-auto-flow: row;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Three across where they fit, fewer on a phone (titles spilled at 390px). */
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
   overflow-x: visible;
 }
 .cq-memory-card {

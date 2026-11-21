@@ -96,5 +96,9 @@ export const COMIC_INTRO_PROMPT = {
 export function comicIntroArt(intro: ComicIntro): string | null {
   if (intro.role !== 'hero' && intro.role !== 'villain') return null
   // Do not use rendered outcomes rejected by the visual canon audit.
-  return identityArtwork(intro.key.split(':')[0], intro.role)
+  const [signature = ''] = intro.key.split(':')
+  return (
+    identityArtwork(signature, intro.role) ??
+    identityArtwork(signature, 'student')
+  )
 }

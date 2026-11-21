@@ -431,7 +431,9 @@ const validDate = (value: unknown): value is string =>
   !Number.isNaN(Date.parse(value))
 
 const validVersion = (value: unknown): value is number =>
-  Number.isInteger(value) && (value as number) >= 1 && (value as number) <= 10000
+  Number.isInteger(value) &&
+  (value as number) >= 1 &&
+  (value as number) <= 10000
 
 /** Imported revisions are treated as untrusted stage codes, never executed.
  * Invalid snapshots cannot poison otherwise playable legacy drafts. */
@@ -525,8 +527,7 @@ export function sanitizeLibrary(raw: unknown): DraftLibrary {
 }
 
 type DraftEdit =
-  | { ok: true; library: DraftLibrary }
-  | { ok: false; reason: string }
+  { ok: true; library: DraftLibrary } | { ok: false; reason: string }
 
 /** Saving changed geometry, rules or dialogue creates a new local snapshot.
  * Saving unchanged content is idempotent and never bloats the history. */
@@ -555,16 +556,17 @@ export function upsertDraft(
     !!existing && JSON.stringify(existing.stage) !== JSON.stringify(stage)
   if (changed && currentVersion >= 10000)
     return { ok: false, reason: 'This draft has too many revisions.' }
-  const history = existing && changed
-    ? [
-        {
-          version: currentVersion,
-          savedAt: existing.savedAt,
-          stage: structuredClone(existing.stage),
-        },
-        ...(existing.history ?? []),
-      ].slice(0, MAX_DRAFT_HISTORY)
-    : (existing?.history ?? [])
+  const history =
+    existing && changed
+      ? [
+          {
+            version: currentVersion,
+            savedAt: existing.savedAt,
+            stage: structuredClone(existing.stage),
+          },
+          ...(existing.history ?? []),
+        ].slice(0, MAX_DRAFT_HISTORY)
+      : (existing?.history ?? [])
   const version = changed ? currentVersion + 1 : currentVersion
   return {
     ok: true,

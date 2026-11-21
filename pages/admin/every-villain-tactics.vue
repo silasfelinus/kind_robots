@@ -1217,8 +1217,9 @@
                     <span>
                       {{ entry.name }} · v{{ entry.version ?? 1 }}
                       <small v-if="entry.forkedFrom">
-                        Forked from {{ entry.forkedFrom.name }}
-                        v{{ entry.forkedFrom.version }}
+                        Forked from {{ entry.forkedFrom.name }} v{{
+                          entry.forkedFrom.version
+                        }}
                       </small>
                     </span>
                     <button type="button" @click="store.loadDraft(entry.name)">
@@ -1252,14 +1253,20 @@
                         :key="revision.version"
                         class="evt-draft-row"
                       >
-                        <span>v{{ revision.version }} · {{ revision.savedAt }}</span>
+                        <span
+                          >v{{ revision.version }} ·
+                          {{ revision.savedAt }}</span
+                        >
                         <button
                           type="button"
                           :aria-label="
                             'Restore ' + entry.name + ' v' + revision.version
                           "
                           @click="
-                            store.restoreSavedDraft(entry.name, revision.version)
+                            store.restoreSavedDraft(
+                              entry.name,
+                              revision.version,
+                            )
                           "
                         >
                           RESTORE AS NEW VERSION
@@ -1306,8 +1313,8 @@
                 >Uses existing seeded combat AI, pathfinding, cover, hit
                 percentages and movement costs. Draft versions stay in this
                 browser; enter a new draft name before FORK. Restore creates a
-                new revision without deleting later work. Share codes are
-                plain text. No server publishing.</small
+                new revision without deleting later work. Share codes are plain
+                text. No server publishing.</small
               >
             </div>
           </div>

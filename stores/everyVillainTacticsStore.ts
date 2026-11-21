@@ -377,7 +377,9 @@ export const useEveryVillainTacticsStore = defineStore(
       draft.value = structuredClone(result.library.drafts[0]!.stage)
       draftName.value = name
       shareMessage.value =
-        'Restored “' + name + '” as v' +
+        'Restored “' +
+        name +
+        '” as v' +
         result.library.drafts[0]!.version +
         '. Earlier versions are still available.'
       return true

@@ -52,7 +52,7 @@ for (let frame = 0; frame <= LIGHTHOUSE.bossStarts; frame++) {
     assert.ok(entry.y >= 52 && entry.y <= 218)
     assert.ok(
       entry.wave >= LIGHTHOUSE.waveBase &&
-      entry.wave < LIGHTHOUSE.waveBase + LIGHTHOUSE_WAVES.length,
+        entry.wave < LIGHTHOUSE.waveBase + LIGHTHOUSE_WAVES.length,
     )
     visited.add(entry.wave)
   }
@@ -115,9 +115,7 @@ for (const enraged of [false, true]) {
   assert.ok(hoop.every((shot) => Number.isFinite(shot.angle)))
   assert.ok(wings.every((shot) => Number.isFinite(shot.angle)))
   assert.ok(
-    wings.every(
-      (shot) => Math.abs(shot.angle - Math.PI) >= 0.2,
-    ),
+    wings.every((shot) => Math.abs(shot.angle - Math.PI) >= 0.2),
     'both crescent wings preserve the aimed safe central lane',
   )
   assert.notDeepEqual(hoop, wings)

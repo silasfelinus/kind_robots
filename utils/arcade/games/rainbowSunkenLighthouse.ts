@@ -9,11 +9,7 @@ import { CROWN_REEF_PYLONS } from './rainbowCrownReef'
  * work still outstanding. Nothing in this module silently launches a detour.
  */
 export type LighthouseEnemy =
-  | 'mirror'
-  | 'squid'
-  | 'harbinger'
-  | 'prism'
-  | 'mortar'
+  'mirror' | 'squid' | 'harbinger' | 'prism' | 'mortar'
 export type LighthouseWave = RainbowWave<LighthouseEnemy>
 export type LighthouseSpawn = RainbowSpawn<LighthouseEnemy>
 export type LighthousePhase = 'opening' | 'waves' | 'turn' | 'boss'
@@ -144,10 +140,7 @@ export const LIGHTHOUSE_TALKS = {
   ],
 } as const
 
-const schedule = buildFormationSchedule(
-  LIGHTHOUSE_WAVES,
-  LIGHTHOUSE.waveBase,
-)
+const schedule = buildFormationSchedule(LIGHTHOUSE_WAVES, LIGHTHOUSE.waveBase)
 export const LIGHTHOUSE_WAVE_SIZES = schedule.sizes
 
 export function lighthouseStage(frame: number): LighthousePhase {
@@ -196,9 +189,7 @@ export function lighthouseBellkeeperVolley(
     throw new Error('A bellkeeper volley needs a positive count')
   const speed = enraged ? 1.85 : 1.55
   if (volley % 2 === 0) {
-    const angles = enraged
-      ? [0.2, 0.32, 0.44, 0.58]
-      : [0.25, 0.4, 0.55]
+    const angles = enraged ? [0.2, 0.32, 0.44, 0.58] : [0.25, 0.4, 0.55]
     return angles.flatMap((offset) => [
       { angle: Math.PI - offset, speed },
       { angle: Math.PI + offset, speed },

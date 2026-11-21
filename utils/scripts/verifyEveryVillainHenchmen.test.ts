@@ -543,7 +543,7 @@ assert.match(page, /data-testid="tactics-painted-phase-warning"/)
 assert.match(page, /crewWarningImage\('burrow'\)/)
 assert.match(page, /crewWarningImage\('phase'\)/)
 assert.match(page, /paintedArt\.ensure\(id \?\? null\)/)
-assert.match(page, /unit\.team === 'rival' && unit\.hp > 0/)
+assert.match(page, /unit\.team === 'rival' &&\s*unit\.hp > 0/)
 
 assert.match(page, /data-testid="tactics-one-hit"/)
 assert.match(page, /henchmanTell\(/)

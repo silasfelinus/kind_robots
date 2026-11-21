@@ -2750,7 +2750,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   questAid: [
                     {
                       questId: 'q-d09-iron-convoy',
-                      label: 'Paid hill pathfinders following the crow forecast',
+                      label:
+                        'Paid hill pathfinders following the crow forecast',
                       bonus: 2,
                       stat: 'guile',
                     },

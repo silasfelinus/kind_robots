@@ -109,10 +109,7 @@ const preparedConvoy = chooseAudienceOption(
 ).run
 assert.equal(preparedConvoy.brass, 80)
 assert.ok(preparedConvoy.flags.includes('d09-forecast-guides'))
-assert.equal(
-  preparedConvoy.local.yard,
-  convoyForecast.local.yard - 1,
-)
+assert.equal(preparedConvoy.local.yard, convoyForecast.local.yard - 1)
 assert.equal(
   preparedConvoy.affinity.freeholds,
   convoyForecast.affinity.freeholds - 3,

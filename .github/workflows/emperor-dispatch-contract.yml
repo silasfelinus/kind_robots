@@ -13,6 +13,7 @@ on:
       - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
       - 'utils/scripts/verifyEmperorFortressAdversarial.test.ts'
       - 'utils/scripts/verifyEmperorRefugeeLegacy.test.ts'
+      - 'utils/scripts/verifyEmperorYardWaterDebt.test.ts'
       - 'utils/scripts/verifyEmperorEditorialAcceptance.test.ts'
       - 'utils/scripts/verifyEmperorGuidedCampaigns.test.ts'
       - 'utils/scripts/verifyEmperorSecondPassTraces.test.ts'
@@ -99,6 +100,8 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortressAdversarial.test.ts
       - name: Verify refugee-ledger choices endure to the final epilogue
         run: npx tsx utils/scripts/verifyEmperorRefugeeLegacy.test.ts
+      - name: Verify Yard water debt across three acts and public record endings
+        run: npx tsx utils/scripts/verifyEmperorYardWaterDebt.test.ts
       - name: Eighteen real five-act campaigns through earned recent choices
         run: npx tsx utils/scripts/verifyEmperorGuidedCampaigns.test.ts
       - name: Record sixteen replayable model-simulation transcripts

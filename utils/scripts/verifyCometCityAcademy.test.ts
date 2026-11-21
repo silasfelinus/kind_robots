@@ -13,6 +13,7 @@ import { PROM_ART_PROMPTS } from '../cometAcademy/artPrompts'
 import { CAST_LOOKS, TEAM_LOOKS } from '../cometAcademy/castLooks'
 import { promArt } from '../cometAcademy/artManifest'
 import { REJECTED_IDENTITY_ART, isRejectedIdentityArt } from '../cometAcademy/artQuality'
+import { comicIntroArt, comicIntroFor } from '../cometAcademy/comicIntroductions'
 import {
   PROM_ENDINGS,
   PROM_ENDING_ROUTES,
@@ -2756,6 +2757,18 @@ assert.equal(
 )
 for (const form of ['student', 'hero', 'villain'] as const) {
   assert.equal(identityArtwork('mutant-earth', form), null)
+}
+// Comic reveals and authored stage art must not bypass the identity review.
+for (const form of ['hero', 'villain'] as const) {
+  assert.equal(
+    comicIntroArt(comicIntroFor('tech-genius', form)),
+    promArt('identities/tech-genius/student'),
+  )
+  assert.equal(
+    comicIntroArt(comicIntroFor('alien-discipline', form)),
+    promArt('identities/alien-discipline/student'),
+  )
+  assert.equal(comicIntroArt(comicIntroFor('mutant-earth', form)), null)
 }
 
 assert.equal(

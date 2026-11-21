@@ -177,6 +177,74 @@ assert.equal(
   'iron-peace',
 )
 
+
+const reliefDawn = (flags: string[] = []) => {
+  const run = createRun(812)
+  run.day = 30
+  run.brass = 100
+  run.flags = [...run.flags, ...flags]
+  run.dayAudiences = ['d30-terms']
+  return run
+}
+const throughLosses = (flags: string[] = []) =>
+  chooseAudienceOption(reliefDawn(flags), 'd30-terms', 'ask-losses').run
+const moleRelief = chooseAudienceOption(
+  throughLosses(['mole-truce']),
+  'd30-terms',
+  'shared-yard',
+).run
+assert.ok(moleRelief.flags.includes('sheltered-freeholds'))
+assert.ok(moleRelief.flags.includes('d30-mole-relief-corner'))
+assert.ok(!moleRelief.flags.includes('sheltered-moles'))
+assert.equal(moleRelief.brass, 65)
+assert.ok(
+  moleRelief.aid?.['q-d30-hold-the-line']?.some(
+    (entry) => entry.stat === 'might' && entry.bonus === 2,
+  ),
+)
+assert.ok(
+  moleRelief.dues?.some(
+    (entry) => entry.id === 'd30-shared-yard-rations' && entry.day === 32,
+  ),
+)
+const bellSheds = chooseAudienceOption(
+  throughLosses(['refugees-sheltered']),
+  'd30-terms',
+  'bell-sheds',
+).run
+assert.ok(bellSheds.flags.includes('sheltered-saltroad'))
+assert.ok(bellSheds.flags.includes('d30-bell-shed-relief'))
+assert.ok(!bellSheds.flags.includes('sheltered-freeholds'))
+assert.equal(bellSheds.brass, 70)
+assert.equal(
+  bellSheds.local['gate-watch'],
+  reliefDawn().local['gate-watch'] - 2,
+)
+assert.ok(
+  bellSheds.aid?.['q-d30-hold-the-line']?.some(
+    (entry) => entry.stat === 'heart' && entry.bonus === 2,
+  ),
+)
+assert.ok(
+  bellSheds.dues?.some(
+    (entry) => entry.id === 'd30-shed-roster' && entry.day === 32,
+  ),
+)
+const unearnedRelief = throughLosses()
+const unearnedOptions = audienceScene(
+  unearnedRelief,
+  audiencesToday(unearnedRelief).find(
+    (entry) => entry.id === 'd30-terms',
+  )!,
+).options
+for (const optionId of ['shared-yard', 'bell-sheds']) {
+  const option = unearnedOptions.find((entry) => entry.id === optionId)!
+  assert.ok(
+    optionBlockers(unearnedRelief, option).length > 0,
+    optionId + ': requires an earned earlier rescue or treaty',
+  )
+}
+
 // Fifty-day campaign bots: 14 policies x 40 seeds. These traverse the real
 // assignment, faction, injury, death, bankruptcy and ending rules.
 const report = balanceReport(POLICY_SEEDS)

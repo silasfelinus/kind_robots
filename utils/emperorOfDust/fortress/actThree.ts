@@ -457,6 +457,14 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomeVariants: {
       success: [
         {
+          flags: ['d30-mole-relief-corner'],
+          text: 'The line held where Keel’s crew braced the Freehold fence posts. Hester brought the families inside by dusk. The burrow volunteers returned to their borrowed workroom and counted the beds they had paid for.',
+        },
+        {
+          flags: ['d30-bell-shed-relief'],
+          text: 'The line held long enough for Mara’s volunteers to carry medicine out from the caravan yard. The farm children were dry behind the Bell sheds. Their parents held the road until the Watch relieved them.',
+        },
+        {
           flags: ['sheltered-freeholds'],
           text: 'The line held at the Freehold fence posts. Hester’s people stood behind the Watch with pitchforks and did not run. Dunmark brought every rider home.',
         },
@@ -474,6 +482,14 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
         },
       ],
       failure: [
+        {
+          flags: ['d30-mole-relief-corner'],
+          text: 'The line failed. Keel’s barricade held until the riders passed it, then broke. Hester’s families made the courtyard, but their grain stayed burning on the road. Dunmore counted the extra mouths against the missing stores.',
+        },
+        {
+          flags: ['d30-bell-shed-relief'],
+          text: 'The line failed while the Bell carpenters were still raising the last shed. Farm children hid behind the medicine carts. Hester stood outside with the parents and read Dunmark the names of the ones who did not return.',
+        },
         {
           flags: ['d30-children-to-abbey'],
           text: 'The line broke at the fence posts. The Freeholds paid in barns. Their children were on the Abbey’s wagons by then. Hester says that is the only reason she can stand.',
@@ -4326,6 +4342,55 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 response:
                   'Factor Tallow sells the copies back at cost and writes a small note in a small book. The drover burns them in the courtyard, one by one, while the caravans roll in. Hester Plowright watches the smoke go up. Then she leaves.',
               },
+              {
+                id: 'shared-yard',
+                label:
+                  'Use the Mole truce to shelter the farms and lend the burrows a crowded workroom.',
+                requires: { flags: ['mole-truce'], cost: 35 },
+                effects: {
+                  affinity: { freeholds: 10, moles: 5, saltroad: -5 },
+                  strength: { freeholds: 1 },
+                  local: { yard: -3, 'old-houses': -2 },
+                  flags: [
+                    'sheltered-freeholds',
+                    'd30-mole-relief-corner',
+                  ],
+                  questAid: [
+                    {
+                      questId: 'q-d30-hold-the-line',
+                      label: 'Mole crews reinforce the Freehold fence posts',
+                      bonus: 2,
+                      stat: 'might',
+                    },
+                  ],
+                  schedule: ['d30-shared-yard-rations'],
+                },
+                response:
+                  'Hester gets the courtyard. Keel takes a narrow workroom for the burrow families and lends a crew to shore up the fence posts. Dunmore pays for the extra bedding. The medicine wagons turn back toward the Saltroad.',
+              },
+              {
+                id: 'bell-sheds',
+                label:
+                  'Use the Hollow Bell refugee pact to shelter the caravans and give farm children dry sheds.',
+                requires: { flags: ['refugees-sheltered'], cost: 30 },
+                effects: {
+                  affinity: { saltroad: 10, freeholds: 5, moles: -5 },
+                  strength: { saltroad: 1 },
+                  local: { yard: -2, 'gate-watch': -2 },
+                  flags: ['sheltered-saltroad', 'd30-bell-shed-relief'],
+                  questAid: [
+                    {
+                      questId: 'q-d30-hold-the-line',
+                      label: 'Bell volunteers carry medicine to the line',
+                      bonus: 2,
+                      stat: 'heart',
+                    },
+                  ],
+                  schedule: ['d30-shed-roster'],
+                },
+                response:
+                  'Oriel brings the medicine wagons inside. Mara sends two Bell carpenters to raise dry sheds for the farm children. Hester stays outside with their parents. The Watch gives up two gate posts to keep the shed path open.',
+              },
             ],
           },
           {
@@ -4446,6 +4511,24 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
  * (the Watch's report and the war orphans) sit in the ledger.
  */
 export const ACT_THREE_DUES: readonly DueDef[] = [
+  {
+    id: 'd30-shared-yard-rations',
+    title: 'The shared Yard',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d30-mole-relief-corner'] },
+    line: 'Dunmore counted two more days of bread for Hester’s families and Keel’s work crew. He put the total on the kitchen door. The room was too small for both groups to read it at once.',
+    effects: { local: { yard: -1 } },
+  },
+  {
+    id: 'd30-shed-roster',
+    title: 'The Bell sheds',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['d30-bell-shed-relief'] },
+    line: 'Mara sent the shed roster back to the crown. The farm children had beds. Their parents were still outside the wall. Oriel brought medicine across the gate at dawn, and Dunmark kept two sentries on that route.',
+    effects: { local: { 'gate-watch': -1 } },
+  },
   {
     id: 'midnight-visit',
     title: 'A visit at midnight',

@@ -3,7 +3,10 @@ import { readFileSync } from 'node:fs'
 
 const store = readFileSync('stores/gameOfCaptainsStore.ts', 'utf8')
 const page = readFileSync('pages/play/game-of-captains.vue', 'utf8')
-const daily = readFileSync('components/gameOfCaptains/daily-console.vue', 'utf8')
+const daily = readFileSync(
+  'components/gameOfCaptains/daily-console.vue',
+  'utf8',
+)
 const alienRoute = readFileSync(
   'server/api/game-of-captains/alien-art.get.ts',
   'utf8',

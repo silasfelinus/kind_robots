@@ -25,7 +25,7 @@ import { kitStorageKey } from '~/utils/playbookKit/settings'
 import { legacyCouchSettings } from '~/utils/gameOfCaptains/legacyPreferences'
 import { useAchievementStore } from '~/stores/achievementStore'
 import {
-  createVoyageBackup,
+  createBoundedVoyageBackup,
   createVoyageBackupStager,
   mergeVoyageHistory,
   parseVoyageBackup,
@@ -1117,8 +1117,10 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
 
   function downloadVoyageBackup() {
     if (!loaded.value) load()
-    const file = createVoyageBackup(run.value, completedVoyages.value)
-    if (new TextEncoder().encode(file).byteLength > VOYAGE_BACKUP_MAX_BYTES) {
+    let file: string
+    try {
+      file = createBoundedVoyageBackup(run.value, completedVoyages.value)
+    } catch {
       backupMessage.value =
         'Voyage history exceeds the 8 MB portable-backup limit. Nothing was downloaded.'
       return

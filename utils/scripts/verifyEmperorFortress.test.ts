@@ -9591,7 +9591,6 @@ assert.deepEqual(crownOathAftermath.effects.local, {
   yard: -2,
 })
 
-
 const refugeeRoad = onDay(927, 18, { brass: 100 })
 const unassistedRefugees = chooseAudienceOption(
   refugeeRoad,
@@ -9639,9 +9638,11 @@ const roadProbe = chooseAudienceOption(
   'ask-road',
 ).run
 assert.ok(
-  chooseAudienceOption(roadProbe, 'd18-strangers', 'wagon-escort').run.flags.includes(
-    'd18-refugee-wagons',
-  ),
+  chooseAudienceOption(
+    roadProbe,
+    'd18-strangers',
+    'wagon-escort',
+  ).run.flags.includes('d18-refugee-wagons'),
 )
 const tokensProbe = onDay(927, 18, {
   brass: 100,
@@ -9653,9 +9654,11 @@ const tokenReply = chooseAudienceOption(
   'ask-thistledown',
 ).run
 assert.ok(
-  chooseAudienceOption(tokenReply, 'd18-strangers', 'watch-escort').run.flags.includes(
-    'd18-refugee-watch',
-  ),
+  chooseAudienceOption(
+    tokenReply,
+    'd18-strangers',
+    'watch-escort',
+  ).run.flags.includes('d18-refugee-watch'),
 )
 const bellSpeech = questDef('q-d19-bell-speech')!
 assert.ok(

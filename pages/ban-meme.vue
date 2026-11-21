@@ -36,12 +36,35 @@
             ref="previewCanvas"
             width="2048"
             height="2048"
-            role="img"
-            :aria-label="`Account Banned meme: due to you ${normalizedReason}. This ban is permanent and is not eligible for appeal.`"
-            class="block aspect-square max-h-full max-w-full object-contain"
-            data-testid="ban-meme-preview"
+            aria-hidden="true"
+            class="hidden"
           />
-          <p v-if="!ready" class="absolute text-sm text-white">
+          <a
+            v-if="previewImageUrl"
+            :href="previewImageUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="block aspect-square max-h-full max-w-full cursor-zoom-in focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            aria-label="Open the finished meme as an image to save it"
+            title="Tap to open the finished image, or long-press to save it"
+            data-testid="ban-meme-image-link"
+          >
+            <img
+              :src="previewImageUrl"
+              :alt="`Account Banned meme: due to you ${normalizedReason}. This ban is permanent and is not eligible for appeal.`"
+              width="2048"
+              height="2048"
+              class="block aspect-square max-h-full max-w-full object-contain"
+              data-testid="ban-meme-preview"
+            />
+          </a>
+          <p
+            v-if="previewImageUrl"
+            class="pointer-events-none absolute bottom-2 right-2 rounded-lg bg-black/70 px-2 py-1 text-[0.7rem] text-white"
+          >
+            Tap to open · Hold to save
+          </p>
+          <p v-else class="absolute text-sm text-white">
             Preparing the crime scene…
           </p>
         </section>
@@ -134,9 +157,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { gameLinkPreviewMeta } from '~/utils/gameLinkPreview'
-import { shareableUrl } from '~/utils/supportShare'
 
 const originalWidth = 2048
 const initialReason = 'walking past the dog twenty times without petting him'
@@ -154,10 +176,27 @@ const examples = [
 ] as const
 
 const previewCanvas = ref<HTMLCanvasElement | null>(null)
+const previewImageUrl = ref('')
 const ready = ref(false)
 const exporting = ref(false)
 const feedback = ref('')
 let baseImage: HTMLImageElement | null = null
+let previewVersion = 0
+let previewTimer: ReturnType<typeof setTimeout> | undefined
+
+function queuePreviewImage(canvas: HTMLCanvasElement) {
+  const version = ++previewVersion
+  if (previewTimer) clearTimeout(previewTimer)
+  previewTimer = setTimeout(() => {
+    canvas.toBlob((blob) => {
+      if (!blob || version !== previewVersion) return
+      const url = URL.createObjectURL(blob)
+      const previous = previewImageUrl.value
+      previewImageUrl.value = url
+      if (previous) URL.revokeObjectURL(previous)
+    }, 'image/png')
+  }, 100)
+}
 
 function wrapLines(
   context: CanvasRenderingContext2D,
@@ -225,6 +264,7 @@ function drawNotice() {
     )
   }
   context.restore()
+  queuePreviewImage(canvas)
 }
 
 function getPng() {
@@ -269,14 +309,11 @@ async function shareImage() {
     if (!blob) throw new Error('Image export failed')
     const file = new File([blob], 'account-banned.png', { type: 'image/png' })
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: 'Account Banned Meme Lab',
-        text: `Make your own ban notice at ${shareableUrl('/ban-meme')}.`,
-      })
+      await navigator.share({ files: [file] })
     } else {
       saveBlob(blob)
-      feedback.value = 'Image saved. You can share it from your downloads.'
+      feedback.value =
+        'Image downloaded. For Facebook, upload this PNG from Photos or Files.'
     }
   } catch (error) {
     if (!(error instanceof DOMException && error.name === 'AbortError')) {
@@ -288,6 +325,11 @@ async function shareImage() {
 }
 
 watch(reason, drawNotice)
+onBeforeUnmount(() => {
+  previewVersion += 1
+  if (previewTimer) clearTimeout(previewTimer)
+  if (previewImageUrl.value) URL.revokeObjectURL(previewImageUrl.value)
+})
 onMounted(() => {
   const image = new Image()
   image.onload = () => {

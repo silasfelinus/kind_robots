@@ -19,8 +19,11 @@ tutorial:
     updates as you type and automatically resizes the message to fit the alert.
     The Rockstar logo, red ACCOUNT BANNED heading, photographed TV, OK button,
     and “This ban is permanent and is not eligible for appeal.” remain intact.
-    Save PNG exports the finished picture, and Share opens your device's share
-    sheet where supported. Anyone can open /ban-meme directly, even though
+    Save PNG exports the finished picture. Tap the picture to open the actual
+    image, or long-press it to save to Photos on supported devices. Share sends
+    the finished PNG file, not a website preview. If Facebook does not accept
+    image files from the share sheet, save the PNG and upload it in Facebook.
+    Anyone can open /ban-meme directly, even though
     its navigation link is on the Admin Retired shelf. Everything happens in
     your browser, without an AI generation request. This is an unofficial
     parody, not affiliated with Rockstar Games.

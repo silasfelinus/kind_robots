@@ -827,8 +827,7 @@ watch(
   { immediate: true },
 )
 function oneShotArtwork(stage: { id: string; art: string }): string | null {
-  if (stage.id !== 'picnic-plaza' || !picnicPaintedMapId)
-    return art(stage.art)
+  if (stage.id !== 'picnic-plaza' || !picnicPaintedMapId) return art(stage.art)
   // Show the real painted lawn when authenticated delivery completes. Keep
   // the existing public district plate until then, including a 401 fallback.
   return paintedArt.images[picnicPaintedMapId]?.src || art(stage.art)

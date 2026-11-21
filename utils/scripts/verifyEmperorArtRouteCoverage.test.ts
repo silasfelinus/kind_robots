@@ -105,8 +105,9 @@ for (const day of DAYS) {
     ]
     for (const [index, option] of options.entries()) {
       const id = audience.id + '/' + option.id
-      if (uniqueAudienceOptions.has(id)) continue
-      uniqueAudienceOptions.add(id)
+      const sceneKey = day.day + '/' + id
+      assert.ok(!uniqueAudienceOptions.has(sceneKey), 'Duplicate day/choice: ' + sceneKey)
+      uniqueAudienceOptions.add(sceneKey)
       const wanted = '/emperor-of-dust/audiences/' + id + '.webp'
       const images = audienceChoiceImages(audience.id, option.id, undefined, index)
       const selected = images.find((url) => shipped(url))

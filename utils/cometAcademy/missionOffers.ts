@@ -562,6 +562,76 @@ export type DistrictSecretMemory = {
   caseId: string
 }
 
+/** A district's hidden casefile changes the *actual* final shield calculation.
+ * The player has to earn the clue on an earlier night, and a final order
+ * aligned with that district's evidence gets a second point of support. */
+export type FinaleOrder = 'protect' | 'evacuate' | 'share' | 'command'
+export const FINALE_DISTRICT_PLANS: Record<
+  CaseThread,
+  { order: FinaleOrder; action: string; strengthened: string }
+> = {
+  academy: {
+    order: 'protect',
+    action:
+      'The Enrollment Waivers expose the sponsor switches hidden behind academy emergency doors. Student monitors disable them.',
+    strengthened:
+      'Because you put people first, those monitors hold the exits for the entire evacuation.',
+  },
+  transit: {
+    order: 'evacuate',
+    action:
+      'The Night-Closure Ledger identifies the unsold subway service tunnel. Transit workers reopen it for refugees.',
+    strengthened:
+      'Your evacuation order sends the crowd down the safe tunnel before the shield grid collapses.',
+  },
+  harbor: {
+    order: 'share',
+    action:
+      'The Seawall Diversion names the stolen flood gates. Dockworkers reopen local defenses with their own tools.',
+    strengthened:
+      'Sharing shield control lets harbor crews protect the docks without waiting for the ballroom console.',
+  },
+  civic: {
+    order: 'command',
+    action:
+      'The Emergency-Sale Signature proves the emergency contractor never owned the shield override. City clerks revoke its keys.',
+    strengthened:
+      "Taking command now reaches a lawful control channel instead of the contractor's hijacked console.",
+  },
+}
+
+/** No save field is added: the finale consumes four existing, validated
+ * district-secret memories. Unfound secrets confer nothing, and secrets
+ * found on graduation night cannot be retroactively used. */
+export function districtFinaleAid(
+  memories: readonly DistrictSecretMemory[] | undefined,
+  order: FinaleOrder,
+) {
+  const discovered = new Set(
+    (memories ?? [])
+      .filter((memory) => memory.day < 30)
+      .map((memory) => memory.thread),
+  )
+  const leads = (Object.keys(FINALE_DISTRICT_PLANS) as CaseThread[])
+    .filter((thread) => discovered.has(thread))
+    .map((thread) => {
+      const plan = FINALE_DISTRICT_PLANS[thread]
+      const matched = plan.order === order
+      return {
+        thread,
+        title: DISTRICT_SECRETS[thread].title,
+        order: plan.order,
+        matched,
+        support: matched ? 2 : 1,
+        line: plan.action + (matched ? ' ' + plan.strengthened : ''),
+      }
+    })
+  return {
+    support: leads.reduce((total, lead) => total + lead.support, 0),
+    leads,
+  }
+}
+
 /** The secret this offer's interference falls under, when the player
  * uncovered it on an earlier night. */
 export function exposedSecretFor(

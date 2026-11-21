@@ -132,6 +132,7 @@ import {
   UNANSWERED_NAMES,
   URGENCY_LABELS,
   exposedSecretFor,
+  districtFinaleAid,
   missionOfferFor,
   missionResult,
   validDistrictSecrets,
@@ -2846,7 +2847,9 @@ export function finishAcademy(
         ? `${campaignStagesFor(lieutenantSettlement.opponent).lieutenant.name} returns with sworn testimony and a rescued crew, turning the rival's own command network against the prom-night catastrophe.`
         : `${campaignStagesFor(lieutenantSettlement.opponent).lieutenant.name} honors the ceasefire: no lieutenant squad joins the assault on civilians, leaving emergency routes open as the ballroom falls.`
       : ''
+    const districtAid = districtFinaleAid(run.districtSecrets, choice)
     const support =
+      districtAid.support +
       lieutenantBonus +
       (run.cityStanding ?? 0) +
       (run.academyStanding ?? 0) +
@@ -2919,11 +2922,12 @@ export function finishAcademy(
       ...run,
       phase: 'ending',
       ending,
-      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${lieutenantFinale} ${betrayalOutcome} ${arcs.lines.join(' ')} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
+      scene: `Midway through the fourth dance the twelve-sided chandelier turns over, the glass roof fractures, and a beam joins the ballroom to the city shield towers. ${villain.name} ${villain.method}. You choose to ${choice === 'protect' ? 'save guests before hardware' : choice === 'evacuate' ? 'destroy the transmitter and evacuate' : shared ? 'distribute shield keys to the neighborhoods' : 'seize the control console'}. ${keys} ${earned ? 'Your accumulated allies answer the call.' : 'Your scattered allies cannot coordinate in time.'} ${cost} ${endingTurn} ${conspiracyOutcome ?? ''} ${roleEpilogue} ${opponentEpilogue} ${lieutenantFinale} ${districtAid.leads.map((lead) => lead.line).join(' ')} ${betrayalOutcome} ${arcs.lines.join(' ')} ${relationshipEpilogue} ${personalEnding(run)} ${routeEpilogue(run.vow, run.vowHistory)} ${personalFinale(run.signature, run.personalHistory)} ${evidenceCount} of three accomplice operations were exposed. At dawn the survivors decide what graduation and rebuilding mean.`,
       log: [
         ...run.log,
         `Day 30: ${choice} against ${villain.name}`,
         `Finale: ${ending}`,
+        `Finale dossier: ${districtAid.leads.length} district secrets, ${districtAid.support} additional support`,
       ],
     }
   }

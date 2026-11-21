@@ -7,15 +7,20 @@ import { readFileSync } from 'node:fs'
 import { caseThread, type CaseThread } from '../cometAcademy/caseMemory'
 import { CITY_SITES } from '../cometAcademy/cityMap'
 import { nightCaseMorning } from '../cometAcademy/earlyNightMornings'
-import { expandedMissionFor } from '../cometAcademy/expandedNightCases'
+import {
+  EXPANDED_MISSIONS,
+  expandedMissionFor,
+} from '../cometAcademy/expandedNightCases'
 import {
   DISTRICT_SECRETS,
+  FINALE_DISTRICT_PLANS,
   FACTION_LABELS,
   MISSION_OFFERS,
   MISSION_RESULTS,
   UNANSWERED_NAMES,
   URGENCY_LABELS,
   exposedSecretFor,
+  districtFinaleAid,
   missionOfferFor,
   missionResult,
   offerCallback,
@@ -36,6 +41,7 @@ import {
   districtSecretWithin,
   emergencyContact,
   encounterFor,
+  finishAcademy,
   incidentsFor,
   knownContacts,
   missionOfferCard,
@@ -453,6 +459,70 @@ assert.ok(secretKnownReports > 0, 'known secrets pay off in night reports')
   assert.ok(paidOff > 0, 'and a later call in that district is exposed')
 }
 
+// Every earned district dossier now changes the actual finale odds, and
+// one matching order doubles its specific preparation. No secret is awarded
+// for merely reaching graduation; it must come from an earlier patrol.
+const fourDistricts = THREADS.map((thread, index) => ({
+  thread,
+  day: 17 + index,
+  caseId: EXPANDED_MISSIONS.find((mission) => mission.thread === thread)!
+    .incident.id,
+}))
+assert.equal(districtFinaleAid([], 'share').support, 0)
+assert.equal(
+  districtFinaleAid([{ ...fourDistricts[0]!, day: 30 }], 'protect').support,
+  0,
+  'graduation-night clues do not retroactively aid the finale',
+)
+for (const order of ['protect', 'evacuate', 'share', 'command'] as const) {
+  const aid = districtFinaleAid(fourDistricts, order)
+  assert.equal(aid.support, 5, `four casefiles with matched ${order} order`)
+  assert.equal(aid.leads.length, 4)
+  assert.equal(aid.leads.filter((lead) => lead.matched).length, 1)
+  for (const lead of aid.leads) {
+    assert.equal(lead.title, DISTRICT_SECRETS[lead.thread].title)
+    assert.equal(lead.order, FINALE_DISTRICT_PLANS[lead.thread].order)
+    assert.ok(lead.line.length > 80, `authored ${lead.thread} payoff`)
+    assert.equal(lead.support, lead.matched ? 2 : 1)
+  }
+}
+const finalist = {
+  ...startFullAcademy('kinetic', 3),
+  day: 30,
+  phase: 'finale' as const,
+  danger: 0,
+}
+const finalOrder = 'share'
+const aided = districtFinaleAid(fourDistricts, finalOrder)
+let changedEnding = false
+for (let standing = -30; standing <= 30; standing++) {
+  const eligible = { ...finalist, cityStanding: standing }
+  const without = finishAcademy(
+    { ...eligible, districtSecrets: [] },
+    finalOrder,
+  )
+  const withDossiers = finishAcademy(
+    { ...eligible, districtSecrets: fourDistricts },
+    finalOrder,
+  )
+  if (without.ending === withDossiers.ending) continue
+  assert.equal(without.ending, 'THE BROKEN GRID')
+  assert.equal(withDossiers.ending, 'A CITY WITH A THOUSAND KEYS')
+  assert.ok(
+    aided.leads.every((lead) => withDossiers.scene.includes(lead.line)),
+    'each discovered district contributes an individual finale outcome',
+  )
+  assert.ok(
+    withDossiers.log.some((line) =>
+      line.includes('4 district secrets, 5 additional support'),
+    ),
+    'finale log records earned support for the scrapbook',
+  )
+  changedEnding = true
+  break
+}
+assert.ok(changedEnding, 'district evidence can change the earned ending')
+
 // --------------------------------------------------------------- UI hooks
 for (const hook of [
   'data-testid="academy-mission-offer"',
@@ -462,6 +532,7 @@ for (const hook of [
   'data-testid="academy-offer-secret-hint"',
   'data-testid="academy-novel-offer"',
   'data-testid="academy-report-result"',
+  'data-testid="academy-finale-intelligence"',
   'missionResult(report)',
   'missionOfferCard(run.value, caseId)',
 ])

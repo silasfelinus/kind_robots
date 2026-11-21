@@ -1498,6 +1498,29 @@
                 behind the whole spectacle.</template
               >
             </p>
+            <div
+              v-if="run.flowVersion === 3"
+              class="cca-report-mini"
+              data-testid="academy-finale-intelligence"
+            >
+              <strong>
+                EARNED DISTRICT INTELLIGENCE · {{ finaleIntel.length }} / 4
+              </strong>
+              <span v-if="!finaleIntel.length">
+                No district conspiracy was uncovered. Your final order has no
+                additional casebook support.
+              </span>
+              <template v-else>
+                <span>
+                  Each discovered casefile adds one support. The matching final
+                  order earns an extra point.
+                </span>
+                <span v-for="lead in finaleIntel" :key="lead.thread">
+                  {{ lead.title }} · strongest with
+                  {{ lead.order.toUpperCase() }}
+                </span>
+              </template>
+            </div>
             <div class="cca-final-stats">
               <span
                 >INFLUENCE <b>{{ run.influence }}</b></span
@@ -1599,7 +1622,10 @@ import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import { expandedMissionFor } from '~/utils/cometAcademy/expandedNightCases'
-import { missionResult } from '~/utils/cometAcademy/missionOffers'
+import {
+  districtFinaleAid,
+  missionResult,
+} from '~/utils/cometAcademy/missionOffers'
 import { ALIGNMENT_LABELS } from '~/utils/cometAcademy/alignmentArcs'
 import {
   PATROL_ZONES,
@@ -1674,6 +1700,11 @@ const patrolZone = ref<PatrolZoneId>('academy')
 const mapNodes = computed(() => projectCitySites(mapView.value))
 const mapRoads = computed(() => projectedCityRoads(mapView.value))
 const run = computed(() => store.run)
+const finaleIntel = computed(() =>
+  run.value?.flowVersion === 3
+    ? districtFinaleAid(run.value.districtSecrets, 'protect').leads
+    : [],
+)
 const arcBeat = computed(() => (run.value ? pendingArcBeat(run.value) : null))
 const nightAlignment = computed(() =>
   run.value ? tonightsAlignment(run.value) : [],

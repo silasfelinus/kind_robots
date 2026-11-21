@@ -153,7 +153,9 @@
                     }}</span
                   >
                   <img
-                    v-if="store.isPhaseWarning(cell) && crewWarningImage('phase')"
+                    v-if="
+                      store.isPhaseWarning(cell) && crewWarningImage('phase')
+                    "
                     class="evt-creature-warning-art"
                     :src="crewWarningImage('phase')"
                     alt=""
@@ -161,7 +163,9 @@
                     data-testid="tactics-painted-phase-warning"
                   />
                   <img
-                    v-if="store.isBurrowWarning(cell) && crewWarningImage('burrow')"
+                    v-if="
+                      store.isBurrowWarning(cell) && crewWarningImage('burrow')
+                    "
                     class="evt-creature-warning-art"
                     :src="crewWarningImage('burrow')"
                     alt=""
@@ -323,7 +327,10 @@
                 data-testid="tactics-crew-art-gallery"
               >
                 <summary>ONE-HIT CREWS · PAINTED COUNTERPLAY</summary>
-                <div class="evt-crew-art-controls" aria-label="Choose enemy crew">
+                <div
+                  class="evt-crew-art-controls"
+                  aria-label="Choose enemy crew"
+                >
                   <button
                     v-for="kind in activeCrewKinds"
                     :key="kind"
@@ -334,7 +341,10 @@
                     {{ CREW_TELL_ART[kind].name }}
                   </button>
                 </div>
-                <div class="evt-crew-art-controls" aria-label="Choose painted tactic">
+                <div
+                  class="evt-crew-art-controls"
+                  aria-label="Choose painted tactic"
+                >
                   <button
                     v-for="beat in CREW_TELL_BEATS"
                     :key="beat"
@@ -354,13 +364,18 @@
                     data-testid="tactics-crew-art-loaded"
                   />
                   <p v-else data-testid="tactics-crew-art-unavailable">
-                    {{ selectedCrewStatus === 'loading'
-                      ? 'Loading private painted tactic…'
-                      : 'Private artwork not accessible. Tactical warnings still work.' }}
+                    {{
+                      selectedCrewStatus === 'loading'
+                        ? 'Loading private painted tactic…'
+                        : 'Private artwork not accessible. Tactical warnings still work.'
+                    }}
                   </p>
                   <div>
                     <strong>{{ selectedCrewReceipt.title }}</strong>
-                    <p>One-hit crew counterplay · {{ selectedCrewReceipt.artKey }}</p>
+                    <p>
+                      One-hit crew counterplay ·
+                      {{ selectedCrewReceipt.artKey }}
+                    </p>
                   </div>
                 </div>
               </details>

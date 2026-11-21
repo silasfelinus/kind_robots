@@ -286,7 +286,10 @@ const rowRef = ref<HTMLElement | null>(null)
 const now = ref(Date.now())
 let clock: ReturnType<typeof setInterval> | undefined
 
-const bark = computed(() => tankStore.screenBark('shop'))
+// The upgrades shelf has its own pool of Charlotte's lines (canon barks.yaml).
+const bark = computed(() =>
+  tankStore.screenBark(view.value === 'upgrades' ? 'upgrades' : 'shop'),
+)
 const keeperName = computed(() =>
   bark.value
     ? CTHULHUQUARIUM_CHARACTERS[bark.value.speaker].name

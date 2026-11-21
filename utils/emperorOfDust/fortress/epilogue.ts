@@ -108,6 +108,29 @@ const afterTheWar = (subjects: EpilogueSubject[]): EpilogueSubject[] =>
 
 const KINGDOM: EpilogueSubject[] = afterTheWar([
   {
+    id: 'refugee-road-record',
+    name: 'The Refugee Road Ledger',
+    npc: 'mara-reedbell',
+    variants: [
+      {
+        when: { flags: ['d49-refugee-water-record'] },
+        text: 'Mara keeps the crown’s water receipts in Hollow Bell’s council chest. The barrels and the guide have signatures. The list of refugees has blanks. Each winter someone asks about one of the missing names. She opens the chest and shows them what is known.',
+      },
+      {
+        when: { flags: ['d49-refugee-watch-record'] },
+        text: 'Dunmark’s six empty sentry posts are written beside the refugee names in Hollow Bell’s book. Watch recruits read both lists before they take the gate oath. Some of the names never acquired an arrival date. Mara will not let anyone fill one in without a witness.',
+      },
+      {
+        when: { flags: ['d39-refugee-carts-audited'] },
+        text: 'The crown paid for a water-cart audit at the last congress. The ledger remained with the Archive when the tower fell. Mara keeps asking for the copy that was promised to her town, and the Archive keeps answering with the seal.',
+      },
+      {
+        when: { flags: ['d39-refugee-watch-accounted'] },
+        text: 'The six vacant Watch posts were counted at congress. The record remained in the Archive instead of reaching Hollow Bell. Every spring Mara sends a clerk to ask for it. Every spring the clerk comes home with another appointment.',
+      },
+    ],
+  },
+  {
     id: 'mara',
     name: 'Mara Reedbell',
     npc: 'mara-reedbell',

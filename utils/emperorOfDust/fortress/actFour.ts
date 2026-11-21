@@ -3406,6 +3406,32 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               'The runner reads the terms herself. Vellum copies them. Corvane dislikes being made a witness to his own bargain. The runner keeps the second copy in her coat.',
           },
           {
+            id: 'account-water-carts',
+            label:
+              'Spend twelve brass auditing the water carts promised to the refugee road, including those never accounted for.',
+            requires: { flags: ['d18-refugee-wagons'], cost: 12 },
+            effects: {
+              affinity: { 'hollow-bell': 4, freeholds: -2 },
+              local: { lamplight: 2, yard: -1 },
+              flags: ['d39-refugee-carts-audited'],
+            },
+            response:
+              'Vellum lays the Yard receipts beside Mara’s list. They can count water barrels and the guide’s wages. They cannot yet count every family who reached the Bell. The audit costs the crown twelve brass and keeps the blank spaces visible.',
+          },
+          {
+            id: 'account-watch-escort',
+            label:
+              'Spend twelve brass publishing the six Watch posts left empty for the refugee escort.',
+            requires: { flags: ['d18-refugee-watch'], cost: 12 },
+            effects: {
+              affinity: { 'hollow-bell': 4, freeholds: -2 },
+              local: { 'gate-watch': -2, lamplight: 2 },
+              flags: ['d39-refugee-watch-accounted'],
+            },
+            response:
+              'Dunmark copies the six names from his night roster while Mara reads the refugees’ names aloud. The records do not prove who arrived. The Watch must admit which gates went unguarded while its riders were away. Vellum dates both lists.',
+          },
+          {
             id: 'ask-seating',
             label: 'Ask Komodo to explain his seating.',
             effects: {},

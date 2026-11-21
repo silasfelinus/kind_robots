@@ -5216,6 +5216,32 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               'Vellum copies the oath as the runner reads it. The elder’s seal goes beneath her signature, not above it. She checks both copies.',
           },
           {
+            id: 'record-refugee-water',
+            label:
+              'Give Hollow Bell a permanent copy of the refugee water-cart audit, without claiming that every family arrived.',
+            requires: { flags: ['d39-refugee-carts-audited'] },
+            effects: {
+              affinity: { 'hollow-bell': 4 },
+              local: { lamplight: 2, 'old-houses': -1 },
+              flags: ['d49-refugee-water-record'],
+            },
+            response:
+              'Vellum copies the receipts, the date of the escort and the empty spaces on Mara’s list. The water was delivered to a road, not to a guarantee. Hollow Bell receives the first copy, and the crown cannot revise it after the fire.',
+          },
+          {
+            id: 'record-refugee-watch',
+            label:
+              'Give Hollow Bell the six empty Watch posts and the refugee names, leaving their fate honestly unresolved.',
+            requires: { flags: ['d39-refugee-watch-accounted'] },
+            effects: {
+              affinity: { 'hollow-bell': 4 },
+              local: { lamplight: 2, 'gate-watch': -1 },
+              flags: ['d49-refugee-watch-record'],
+            },
+            response:
+              'Vellum copies Dunmark’s six vacancies beside Mara’s ledger. The Watch gave up a wall to guard the road, but a name on a roster is not proof of safe arrival. The Bell will be able to ask who paid when the war is over.',
+          },
+          {
             id: 'order',
             label: '“Kept the kingdom standing, whatever it cost.”',
             effects: {

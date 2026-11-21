@@ -116,7 +116,8 @@ export default defineEventHandler(async (event) => {
         result.width = metadata.width
         result.height = metadata.height
         result.sha256 = createHash('sha256').update(original).digest('hex')
-        result.preview = 'data:image/webp;base64,' + thumbnail.toString('base64')
+        result.preview =
+          'data:image/webp;base64,' + thumbnail.toString('base64')
       } catch {
         result.reason = 'Original ArtImage bytes could not be decoded.'
       }

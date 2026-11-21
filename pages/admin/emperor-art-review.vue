@@ -20,8 +20,8 @@
         <div class="min-w-0 flex-1">
           <h1 class="text-xl font-black">Eight original ending plates</h1>
           <p class="text-sm text-base-content/70">
-            Private ArtImage previews are never published by this review.
-            The delivery audit below also makes no writes.
+            Private ArtImage previews are never published by this review. The
+            delivery audit below also makes no writes.
           </p>
         </div>
         <button

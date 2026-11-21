@@ -29,83 +29,80 @@ export const ENDING_REVIEW_TARGETS: EmperorArtDeliveryTarget[] = (
   Object.entries(ENDING_ART_IMAGE_IDS) as [EndingId, number][]
 ).map(([id, artImageId]) => ({ asset: 'endings/' + id, artImageId }))
 
-export const useEmperorArtReviewStore = defineStore(
-  'emperorArtReview',
-  () => {
-    const images = ref<EmperorReviewImage[]>([])
-    const delivery = ref<EmperorDeliveryReceipt[]>([])
-    const loading = ref(false)
-    const auditing = ref(false)
-    const loaded = ref(false)
-    const errorMessage = ref('')
+export const useEmperorArtReviewStore = defineStore('emperorArtReview', () => {
+  const images = ref<EmperorReviewImage[]>([])
+  const delivery = ref<EmperorDeliveryReceipt[]>([])
+  const loading = ref(false)
+  const auditing = ref(false)
+  const loaded = ref(false)
+  const errorMessage = ref('')
 
-    async function load(): Promise<void> {
-      loading.value = true
-      errorMessage.value = ''
-      try {
-        const result = await performFetch<{
-          results: EmperorReviewImage[]
-        }>(
-          '/api/admin/emperor-of-dust/art-review',
-          {
-            method: 'POST',
-            body: JSON.stringify({ targets: ENDING_REVIEW_TARGETS }),
-          },
-          1,
-          60000,
-        )
-        if (!result.success || !result.data?.results) {
-          throw new Error(result.message || 'Private art review failed.')
-        }
-        images.value = result.data.results
-        loaded.value = true
-      } catch (error) {
-        errorMessage.value =
-          error instanceof Error ? error.message : 'Private art review failed.'
-      } finally {
-        loading.value = false
+  async function load(): Promise<void> {
+    loading.value = true
+    errorMessage.value = ''
+    try {
+      const result = await performFetch<{
+        results: EmperorReviewImage[]
+      }>(
+        '/api/admin/emperor-of-dust/art-review',
+        {
+          method: 'POST',
+          body: JSON.stringify({ targets: ENDING_REVIEW_TARGETS }),
+        },
+        1,
+        60000,
+      )
+      if (!result.success || !result.data?.results) {
+        throw new Error(result.message || 'Private art review failed.')
       }
+      images.value = result.data.results
+      loaded.value = true
+    } catch (error) {
+      errorMessage.value =
+        error instanceof Error ? error.message : 'Private art review failed.'
+    } finally {
+      loading.value = false
     }
+  }
 
-    async function audit(): Promise<void> {
-      auditing.value = true
-      errorMessage.value = ''
-      try {
-        const result = await performFetch<{
-          results: EmperorDeliveryReceipt[]
-        }>(
-          '/api/admin/emperor-of-dust/art-deliver',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              targets: ENDING_REVIEW_TARGETS,
-              write: false,
-            }),
-          },
-          1,
-          120000,
-        )
-        if (!result.success || !result.data?.results) {
-          throw new Error(result.message || 'Media-share dry-run failed.')
-        }
-        delivery.value = result.data.results
-      } catch (error) {
-        errorMessage.value =
-          error instanceof Error ? error.message : 'Media-share dry-run failed.'
-      } finally {
-        auditing.value = false
+  async function audit(): Promise<void> {
+    auditing.value = true
+    errorMessage.value = ''
+    try {
+      const result = await performFetch<{
+        results: EmperorDeliveryReceipt[]
+      }>(
+        '/api/admin/emperor-of-dust/art-deliver',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            targets: ENDING_REVIEW_TARGETS,
+            write: false,
+          }),
+        },
+        1,
+        120000,
+      )
+      if (!result.success || !result.data?.results) {
+        throw new Error(result.message || 'Media-share dry-run failed.')
       }
+      delivery.value = result.data.results
+    } catch (error) {
+      errorMessage.value =
+        error instanceof Error ? error.message : 'Media-share dry-run failed.'
+    } finally {
+      auditing.value = false
     }
+  }
 
-    return {
-      images,
-      delivery,
-      loading,
-      auditing,
-      loaded,
-      errorMessage,
-      load,
-      audit,
-    }
-  },
-)
+  return {
+    images,
+    delivery,
+    loading,
+    auditing,
+    loaded,
+    errorMessage,
+    load,
+    audit,
+  }
+})

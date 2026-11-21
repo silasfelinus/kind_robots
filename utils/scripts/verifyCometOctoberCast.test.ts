@@ -7,6 +7,10 @@ import { CITY_SITES } from '../cometAcademy/cityMap'
 import { notableCards } from '../cometAcademy/consoleScreens'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import {
+  OCTOBER_ART_RECEIPTS,
+  octoberArtReceipt,
+} from '../cometAcademy/octoberArtReceipts'
+import {
   CAST_STORIES,
   OCTOBER_CAST,
   castMember,
@@ -291,6 +295,46 @@ assert.ok(
     (card) => !card.met && card.name === 'Unmet notable',
   ),
 )
+
+// Private ArtJob receipts and stable runtime keys (no public-leak fallback).
+assert.equal(OCTOBER_ART_RECEIPTS.length, 24)
+assert.equal(OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'DONE').length, 11)
+assert.equal(
+  OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'RUNNING').length,
+  1,
+)
+assert.equal(
+  OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'PENDING').length,
+  12,
+)
+assert.equal(new Set(OCTOBER_ART_RECEIPTS.map((r) => r.artJobId)).size, 24)
+assert.equal(
+  new Set(OCTOBER_ART_RECEIPTS.map((r) => r.artImageId).filter(Boolean)).size,
+  11,
+)
+for (const member of OCTOBER_CAST) {
+  const receipts = OCTOBER_ART_RECEIPTS.filter(
+    (receipt) => receipt.memberKey === member.key,
+  )
+  assert.equal(receipts.length, 3, member.name + ' private plates')
+  for (const slot of ['portrait', 'splash', 'encounter'] as const) {
+    const receipt = octoberArtReceipt(member.key, slot)!
+    assert.ok(receipt, member.name + ' ' + slot + ' receipt')
+    assert.equal(receipt.asset, member.artKeys[slot])
+    assert.equal(
+      receipt.artImageId !== null,
+      receipt.status === 'DONE',
+      receipt.key + ' render gate',
+    )
+  }
+}
+const privateStore = fromRoot('stores/octoberCastArtStore.ts')
+assert.ok(privateStore.includes('if (!user.isAdmin) return'))
+assert.ok(privateStore.includes('if (!user.isAdmin) return null'))
+assert.ok(privateStore.includes('artJobs.loadJobImage(receipt.artImageId)'))
+assert.ok(page.includes('data-testid="academy-private-october-art"'))
+assert.ok(page.includes('v-if="patrolPortraitSrc"'))
+assert.ok(page.includes('if (isAdmin && key) void octoberArt.loadFor(key)'))
 
 // Page and Scrapbook wiring.
 assert.ok(page.includes('data-testid="academy-patrol-cast"'))

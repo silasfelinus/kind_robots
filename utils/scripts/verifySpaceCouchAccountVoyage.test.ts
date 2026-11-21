@@ -70,8 +70,7 @@ assert.deepEqual(
   're-importing the same story cannot create more replay records',
 )
 assert.equal(
-  mergeVoyageHistory([finishedA], [{ ...finishedA, completedAt: 5000 }])
-    .length,
+  mergeVoyageHistory([finishedA], [{ ...finishedA, completedAt: 5000 }]).length,
   1,
   'a second timestamp alone does not make a different voyage',
 )
@@ -84,11 +83,7 @@ const finishedC: CompletedVoyage = {
 const three = mergeVoyageHistory(combined, [finishedC])
 assert.deepEqual(
   three.map((entry) => entry.id),
-  [
-    finishedA.id,
-    finishedA.id + ':replay-1',
-    finishedA.id + ':replay-2',
-  ],
+  [finishedA.id, finishedA.id + ':replay-1', finishedA.id + ':replay-2'],
   'colliding replay suffixes must also be rekeyed without data loss',
 )
 assert.deepEqual(

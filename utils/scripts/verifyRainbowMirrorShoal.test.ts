@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { readRainbowSave } from '../arcade/games/rainbowLoadouts'
+import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import {
   MIRROR_SHOAL,
   SHOAL_GUARDIAN,
@@ -8,6 +10,8 @@ import {
   SHOAL_TALKS,
   mirrorShoalMedalEarned,
   mirrorShoalRouteUnlocked,
+  mirrorShoalDetourFor,
+  mirrorShoalCheckpointValid,
   mirrorShoalSpawns,
   mirrorShoalStage,
 } from '../arcade/games/rainbowMirrorShoal'
@@ -20,6 +24,138 @@ import {
 
 assert.equal(MIRROR_SHOAL.id, 'X4')
 assert.equal(mirrorShoalRouteUnlocked(false, 0), true)
+assert.equal(mirrorShoalDetourFor([70], true), true)
+assert.equal(
+  mirrorShoalCheckpointValid(7, 18100, {
+    shoalStartedAt: 18100,
+    shoalFrame: 0,
+    actContinues: 0,
+  }),
+  true,
+)
+assert.equal(mirrorShoalDetourFor([190], true), false)
+assert.equal(mirrorShoalDetourFor([70, 90, 185, 190], true), true)
+assert.equal(mirrorShoalDetourFor([190, 70, 90, 185], true), false)
+assert.equal(mirrorShoalDetourFor([70, 90, 185], false), false)
+assert.equal(mirrorShoalDetourFor([], true), false)
+assert.equal(
+  mirrorShoalCheckpointValid(7, 18400, {
+    shoalStartedAt: 18100,
+    shoalFrame: 300,
+    rescuedNavigator: true,
+  }),
+  true,
+)
+assert.equal(
+  mirrorShoalCheckpointValid(7, 18401, {
+    shoalStartedAt: 18100,
+    shoalFrame: 300,
+  }),
+  false,
+)
+assert.equal(
+  mirrorShoalCheckpointValid(6, 18400, {
+    shoalStartedAt: 18100,
+    shoalFrame: 300,
+  }),
+  false,
+)
+const checkpoint = {
+  act: 7,
+  frame: 18400,
+  score: 500,
+  rescuedStation: false,
+  rescuedNemi: false,
+  trenchRoute: null,
+  routeSettled: false,
+  nurseryGuardianOutcome: 'waiting',
+  rescuedCourier: false,
+  wreckRoute: null,
+  armoryGuardianOutcome: 'waiting',
+  pearlWardenOutcome: 'waiting',
+  wreckSettled: false,
+  podsSaved: 0,
+  reefRoute: null,
+  reefSettled: false,
+  pylonsDown: 0,
+  rescuedNavigator: true,
+  shoalStartedAt: 18100,
+  shoalFrame: 300,
+  shoalGuardianOutcome: 'waiting',
+  shoalHits: 0,
+  captivesFreed: 0,
+  schoolBonuses: 0,
+}
+const resume = (c: typeof checkpoint & { actContinues?: number }) =>
+  readRainbowSave(
+    { v: 1, difficulty: 'normal', checkpoint: c, guardians: {}, medals: {} },
+    (act, frame, saved) => mirrorShoalCheckpointValid(act, frame, saved ?? {}),
+  )
+assert.equal(resume(checkpoint)?.checkpoint.shoalFrame, 300)
+assert.equal(
+  resume({ ...checkpoint, rescuedNavigator: false, actContinues: 2 }),
+  null,
+  'an unrescued Navigator and continued Act VII cannot unlock X4 on reload',
+)
+assert.equal(
+  resume({ ...checkpoint, rescuedNavigator: false, actContinues: 0 })
+    ?.checkpoint.shoalFrame,
+  300,
+  'a genuine clean-flight X4 checkpoint remains replayable',
+)
+const input = {
+  held: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+  pressed: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+}
+for (const seats of [1, 2, 3, 4]) {
+  const game = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    demo: false,
+    players: seats,
+    rainbowReplay: resume(checkpoint),
+  })
+  assert.equal(game.snapshot.act, 'X4')
+  assert.equal(game.snapshot.stage, 'opening')
+  assert.equal(game.snapshot.shoalFrame, 299)
+  assert.equal(game.snapshot.activePlayers, seats)
+  game.update(
+    input,
+    Array.from({ length: seats }, () => input),
+  )
+  assert.equal(game.snapshot.stage, 'waves')
+  assert.equal(game.snapshot.shoalFrame, 300)
+  for (let tick = 0; tick <= 60; tick++)
+    game.update(
+      input,
+      Array.from({ length: seats }, () => input),
+    )
+  assert.equal(game.snapshot.act, 'X4')
+  assert.ok(
+    game.snapshot.enemies.some((enemy) => enemy.kind === 'mirror'),
+    'actual X4 wave must reach the live flight director',
+  )
+}
+assert.equal(resume({ ...checkpoint, shoalFrame: 600 }), null)
+assert.equal(resume({ ...checkpoint, shoalHits: -1 }), null)
+assert.equal(resume({ ...checkpoint, shoalGuardianOutcome: 'unknown' }), null)
 assert.equal(mirrorShoalRouteUnlocked(false, 1), false)
 assert.equal(mirrorShoalRouteUnlocked(true, 5), true)
 assert.equal(mirrorShoalRouteUnlocked(true, -1), false)
@@ -72,7 +208,8 @@ assert.equal(mirrorShoalStage(0), 'opening')
 assert.equal(mirrorShoalStage(300), 'waves')
 assert.equal(mirrorShoalStage(15000), 'guardian')
 assert.equal(mirrorShoalStage(17400), 'turn')
-assert.equal(mirrorShoalStage(17700), 'complete')
+assert.equal(mirrorShoalStage(17700), 'aftermath')
+assert.equal(mirrorShoalStage(18000), 'complete')
 assert.deepEqual(SHOAL_GUARDIAN, {
   name: 'Shoal Koi',
   from: 15000,

@@ -19,7 +19,8 @@ export const MIRROR_SHOAL = {
   guardianFrom: 15000,
   guardianTo: 17400,
   turnStarts: 17400,
-  end: 17700,
+  aftermathStarts: 17700,
+  end: 18000,
   guardianName: 'Shoal Koi',
 } as const
 
@@ -36,6 +37,44 @@ export const SHOAL_SECTIONS = [
   { name: 'True horizon', from: 13800, to: 15000 },
   { name: 'Shoal Koi', from: 15000, to: 17400 },
 ] as const
+
+/** Fly the high current to enter X4, low to return directly to Act VIII.
+ * Co-op majority decides; a tied vote follows the lead pilot.
+ */
+export function mirrorShoalDetourFor(
+  positions: readonly number[],
+  unlocked: boolean,
+): boolean {
+  if (!unlocked || !positions.length) return false
+  const high = positions.filter((y) => y < 135).length
+  const low = positions.length - high
+  return high > low || (high === low && positions[0]! < 135)
+}
+
+/** An X4 checkpoint uses Act VII's clock but never masquerades as an Act VII
+ * section. The event and both clocks must agree, including on replay.
+ */
+export function mirrorShoalCheckpointValid(
+  act: number,
+  frame: number,
+  c: {
+    shoalStartedAt?: number
+    shoalFrame?: number
+    rescuedNavigator?: boolean
+    actContinues?: number
+  },
+): boolean {
+  return (
+    act === 7 &&
+    (c.rescuedNavigator === true || c.actContinues === 0) &&
+    Number.isInteger(c.shoalStartedAt) &&
+    c.shoalStartedAt! > 0 &&
+    Number.isInteger(c.shoalFrame) &&
+    (c.shoalFrame === 0 ||
+      SHOAL_SECTIONS.some((section) => section.from === c.shoalFrame)) &&
+    frame === c.shoalStartedAt! + c.shoalFrame!
+  )
+}
 
 export const SHOAL_GUARDIAN: RainbowGuardianSection = {
   name: MIRROR_SHOAL.guardianName,
@@ -161,13 +200,15 @@ export const SHOAL_TALKS = {
 const schedule = buildFormationSchedule(SHOAL_WAVES, MIRROR_SHOAL.waveBase)
 export const SHOAL_WAVE_SIZES = schedule.sizes
 
-export type ShoalPhase = 'opening' | 'waves' | 'guardian' | 'turn' | 'complete'
+export type ShoalPhase =
+  'opening' | 'waves' | 'guardian' | 'turn' | 'aftermath' | 'complete'
 
 export function mirrorShoalStage(frame: number): ShoalPhase {
   if (frame < MIRROR_SHOAL.openingEnds) return 'opening'
   if (frame < MIRROR_SHOAL.guardianFrom) return 'waves'
   if (frame < MIRROR_SHOAL.guardianTo) return 'guardian'
-  if (frame < MIRROR_SHOAL.end) return 'turn'
+  if (frame < MIRROR_SHOAL.aftermathStarts) return 'turn'
+  if (frame < MIRROR_SHOAL.end) return 'aftermath'
   return 'complete'
 }
 

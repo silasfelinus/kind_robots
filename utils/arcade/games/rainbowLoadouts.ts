@@ -7,6 +7,7 @@
 import { ARCADE_DIFFICULTIES } from '../types'
 import type { ArcadeDifficulty, ArcadeMasteryGoal } from '../types'
 import type { RainbowCheckpoint } from './rainbowCheckpoints'
+import { mirrorShoalCheckpointValid } from './rainbowMirrorShoal'
 
 /**
  * What each ship fires while its pilot holds B (WORLD-BIBLE ships). Unfocused fire stays each ship's wide
@@ -259,8 +260,11 @@ const oneOf = (value: unknown, choices: readonly unknown[]) =>
  */
 export function readRainbowSave(
   raw: unknown,
-  isCheckpoint: (act: number, frame: number) => boolean = (act, frame) =>
-    act >= 2 && frame === 0,
+  isCheckpoint: (
+    act: number,
+    frame: number,
+    c?: RainbowCheckpoint,
+  ) => boolean = (act, frame) => act >= 2 && frame === 0,
 ): RainbowSave | null {
   if (!raw || typeof raw !== 'object') return null
   const save = raw as Record<string, unknown>
@@ -268,7 +272,21 @@ export function readRainbowSave(
   const c = save.checkpoint as Record<string, unknown> | null
   if (!c || typeof c !== 'object') return null
   if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
-  if (!isCheckpoint(c.act as number, c.frame as number)) return null
+  if (
+    c.shoalFrame !== undefined &&
+    (!mirrorShoalCheckpointValid(
+      c.act as number,
+      c.frame as number,
+      c as RainbowCheckpoint,
+    ) ||
+      !count(c.shoalHits, 999) ||
+      !oneOf(c.shoalGuardianOutcome, ['waiting', 'defeated', 'escaped']))
+  )
+    return null
+  if (c.shoalFrame === undefined && c.shoalStartedAt !== undefined) return null
+  if (c.actContinues !== undefined && !count(c.actContinues, 999)) return null
+  if (!isCheckpoint(c.act as number, c.frame as number, c as RainbowCheckpoint))
+    return null
   if (!count(c.score, 1e9)) return null
   for (const key of [
     'rescuedStation',
@@ -362,6 +380,17 @@ export function readRainbowSave(
       reefSettled: saved.reefSettled,
       pylonsDown: saved.pylonsDown,
       rescuedNavigator: saved.rescuedNavigator,
+      ...(saved.actContinues !== undefined
+        ? { actContinues: saved.actContinues }
+        : {}),
+      ...(saved.shoalFrame !== undefined
+        ? {
+            shoalStartedAt: saved.shoalStartedAt,
+            shoalFrame: saved.shoalFrame,
+            shoalGuardianOutcome: saved.shoalGuardianOutcome,
+            shoalHits: saved.shoalHits,
+          }
+        : {}),
       captivesFreed: saved.captivesFreed,
       allegiance: saved.allegiance ?? null,
       schoolBonuses: saved.schoolBonuses,

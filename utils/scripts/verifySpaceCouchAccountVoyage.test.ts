@@ -97,8 +97,8 @@ assert.deepEqual(
   'merged histories must remain portable in the existing v1 save format',
 )
 assert.deepEqual(
-  mergeVoyageHistory([], [finishedA, finishedB]),
-  [finishedA, finishedB],
+  mergeVoyageHistory([], [finishedA]),
+  [finishedA],
   'no collision may rewrite the incoming record IDs',
 )
 

@@ -17,7 +17,11 @@ export const CAPES_PRODUCTION_IDENTITIES = [
   },
   { signature: 'tech-genius', label: 'Dr. Frog', subtitle: 'Dr. Lionel Marsh' },
   { signature: 'alien-discipline', label: 'Zuzu', subtitle: 'Koala Assassin' },
-  { signature: 'mutant-earth', label: 'Groundswell', subtitle: 'Hattie Nkemelu' },
+  {
+    signature: 'mutant-earth',
+    label: 'Groundswell',
+    subtitle: 'Hattie Nkemelu',
+  },
 ] as const
 
 export const CAPES_UNSTABLE_PRODUCTION = [

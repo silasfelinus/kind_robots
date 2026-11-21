@@ -80,7 +80,10 @@ assert.equal(CAPES_UNSTABLE_PRODUCTION.length, 14)
 assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 5)
 assert.equal(CAPES_RUNTIME_REFILL_REVIEW.length, 6)
 assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 20)
-assert.equal(new Set(CAPES_REVIEWABLE_PRODUCTION.map((item) => item.artImageId)).size, 20)
+assert.equal(
+  new Set(CAPES_REVIEWABLE_PRODUCTION.map((item) => item.artImageId)).size,
+  20,
+)
 assert.deepEqual(
   CAPES_RUNTIME_REFILL_REVIEW.map((item) => [item.artJobId, item.artImageId]),
   [
@@ -111,8 +114,11 @@ assert.equal(
 for (const identity of CAPES_PRODUCTION_IDENTITIES) {
   const group = capesProductionFor(identity.signature)
   assert.ok(group.length >= 2)
-  if (identity.signature === 'accident-earth' || identity.signature === 'accident-fire' ||
-      identity.signature === 'tech-genius') {
+  if (
+    identity.signature === 'accident-earth' ||
+    identity.signature === 'accident-fire' ||
+    identity.signature === 'tech-genius'
+  ) {
     assert.ok(group.some((item) => item.asset.includes('/model-hero-2x1')))
     assert.ok(group.some((item) => item.asset.includes('/model-villain-2x1')))
   } else {

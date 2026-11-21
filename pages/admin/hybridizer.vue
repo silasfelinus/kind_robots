@@ -244,6 +244,21 @@
               >
                 ✦ {{ remixEditorOpen ? 'Close remix' : 'Remix artwork' }}
               </button>
+              <button
+                v-else-if="lab.canRerollResult"
+                type="button"
+                :disabled="
+                  lab.versionBusy ||
+                  !['READY', 'FAILED', 'CANCELLED'].includes(
+                    lab.result.status || '',
+                  )
+                "
+                data-testid="hybridizer-reroll"
+                title="Ask for a fresh illustration when this does not look like one fused creature. The current art stays in the revision gallery."
+                @click="lab.resubmit()"
+              >
+                ↻ Not a hybrid? Re-roll
+              </button>
               <NuxtLink
                 v-if="
                   lab.result.isPublic === true &&
@@ -1795,9 +1810,24 @@ onUnmounted(() => {
 }
 
 @container (max-width: 820px) {
+  /* Stacked layout: a fixed-height console squeezed the reveal to a thumbnail
+     on phones. Let the console scroll so the hybrid art stays large and its
+     actions (re-roll, share, history) stay reachable. */
+  .hybridizer-console {
+    overflow-y: auto;
+    grid-template-rows: max-content max-content max-content;
+  }
   .hybridizer-stage {
+    height: auto;
     grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 0.46fr) minmax(0, 0.54fr);
+    grid-template-rows: clamp(190px, 52cqi, 380px) max-content;
+  }
+  .hybridizer-result {
+    overflow: visible;
+  }
+  .hybridizer-result .fusion-study {
+    flex: none;
+    height: clamp(220px, 70cqi, 460px);
   }
   .left-chamber {
     grid-column: 1;

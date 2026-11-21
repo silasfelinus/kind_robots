@@ -67,6 +67,80 @@ export function hybridizerArtPrompt(
     .join(' ')
 }
 
+// Players who did not create a public discovery can still fix one that does
+// not read as a hybrid: a "community re-roll" renders a new seed with fixed
+// guidance. They cannot write prompt text or change the ingredient balance,
+// so a re-roll can only make another honest attempt at the same pair. Old
+// versions stay in the revision gallery and editors can promote them back.
+export const HYBRIDIZER_REROLL_DIRECTION =
+  'Both ingredients must be unmistakable in one fused body: for example the ' +
+  'head and face of one on the body, legs and tail of the other, with fur, ' +
+  'feathers, scales or colors from both; a fruit or object becomes part of ' +
+  'the body itself. Never show only one of them, and never show two ' +
+  'separate creatures or objects side by side.'
+
+export type HybridizerRevisionMode = 'editor' | 'community' | 'curation'
+
+export type HybridizerRevisionRequest = {
+  mode: HybridizerRevisionMode
+  focusKey: string
+  focusWeight: number
+  direction: string
+}
+
+// Validates a resubmit body. Returns null when the request is malformed.
+// Editors (the discovery creator or an admin) may set balance and direction;
+// an admin may also ask for a low-priority curation resubmit. Everyone else
+// on a public discovery gets the fixed community re-roll, whatever they send.
+export function hybridizerRevisionRequest(
+  body: Record<string, unknown>,
+  context: {
+    isEditor: boolean
+    isAdmin: boolean
+    isPublic: boolean
+    firstKey: string
+    secondKey: string
+  },
+): HybridizerRevisionRequest | null {
+  if (!context.isEditor) {
+    if (!context.isPublic) return null
+    return {
+      mode: 'community',
+      focusKey: context.firstKey,
+      focusWeight: 50,
+      direction: HYBRIDIZER_REROLL_DIRECTION,
+    }
+  }
+  if (body.curation === true) {
+    if (!context.isAdmin) return null
+    return {
+      mode: 'curation',
+      focusKey: context.firstKey,
+      focusWeight: 50,
+      direction: HYBRIDIZER_REROLL_DIRECTION,
+    }
+  }
+  const direction = body.direction ?? ''
+  const focusWeight = body.focusWeight ?? 50
+  const focusKey = body.focusKey ?? context.firstKey
+  if (
+    typeof direction !== 'string' ||
+    direction.length > 500 ||
+    typeof focusWeight !== 'number' ||
+    !Number.isInteger(focusWeight) ||
+    focusWeight < 10 ||
+    focusWeight > 90 ||
+    (focusKey !== context.firstKey && focusKey !== context.secondKey)
+  )
+    return null
+  return {
+    mode: 'editor',
+    focusKey: focusKey as string,
+    focusWeight,
+    direction: direction.trim(),
+  }
+}
+
 export function hybridizerSubjectKind(
   leftTaxonomy: string | null | undefined,
   rightTaxonomy: string | null | undefined,

@@ -23,12 +23,34 @@ export function requireVisibleFusion(
     throw createError({ statusCode: 404, message: 'Fusion not available.' })
 }
 
+export function isFusionEditor(
+  fusion: Fusion,
+  userId: number,
+  isAdmin: boolean,
+): boolean {
+  return isAdmin || fusion.creatorUserId === userId
+}
+
+// Anyone signed in may ask for a fresh attempt at a public discovery; only
+// editors choose balance, direction or which version is primary.
+export function canRerollFusion(
+  fusion: Fusion,
+  userId: number | null | undefined,
+  isAdmin: boolean,
+): boolean {
+  return (
+    typeof userId === 'number' &&
+    fusion.isPublic &&
+    !isFusionEditor(fusion, userId, isAdmin)
+  )
+}
+
 export function requireFusionEditor(
   fusion: Fusion,
   userId: number,
   isAdmin: boolean,
 ) {
-  if (fusion.creatorUserId !== userId && !isAdmin)
+  if (!isFusionEditor(fusion, userId, isAdmin))
     throw createError({
       statusCode: 403,
       message: 'Only the discovery creator can replace its artwork.',

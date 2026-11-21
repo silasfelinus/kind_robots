@@ -55,16 +55,27 @@ export function sniffUploadImageType(
   return null
 }
 
+// Control characters (C0, DEL, C1), zero-width marks and bidi overrides never
+// belong in a label or a render prompt. Checked by code point so no invisible
+// character has to appear in source.
+function isHiddenCodePoint(code: number): boolean {
+  return (
+    code <= 0x1f ||
+    (code >= 0x7f && code <= 0x9f) ||
+    (code >= 0x200b && code <= 0x200f) ||
+    (code >= 0x202a && code <= 0x202e) ||
+    (code >= 0x2066 && code <= 0x2069)
+  )
+}
+
 function cleanLine(value: unknown): string {
-  return typeof value === 'string'
-    ? value
-        .normalize('NFKC')
-        // Control and bidi-override characters never belong in a label or a
-        // render prompt.
-        .replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-    : ''
+  if (typeof value !== 'string') return ''
+  return Array.from(value.normalize('NFKC'), (char) =>
+    isHiddenCodePoint(char.codePointAt(0) ?? 0) ? ' ' : char,
+  )
+    .join('')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 const LINK_PATTERN = /(https?:|www\.|[a-z0-9-]+\.(com|net|org|io|ly|gg)\b)/i

@@ -166,7 +166,7 @@ console.log('Hybridizer canonical pair identity contracts passed.')
   ])
     assert.equal(uploadRules.validateUploadText(bad).ok, false, bad.title)
   assert.equal(
-    uploadRules.validateUploadText({ title: 'Mug‮gnp.exe' }).ok,
+    uploadRules.validateUploadText({ title: 'Mug\u202Egnp.exe' }).ok,
     true,
     'bidi overrides are stripped, not rendered',
   )

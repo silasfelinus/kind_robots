@@ -29,6 +29,8 @@ export type RainbowCheckpoint = {
   wreckRoute: 'depot' | 'armory' | null
   /** Optional for old checkpoints: independently cleared Armory Siren. */
   armoryGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
+  /** Act VI's low shield cache has its own keeper, not the Crown Reef guardian. */
+  pearlWardenOutcome?: 'waiting' | 'defeated' | 'escaped'
   wreckSettled: boolean
   podsSaved: number
   /** Act VI's fork: the route, whether the crew has rejoined, and the relay pylons broken. */

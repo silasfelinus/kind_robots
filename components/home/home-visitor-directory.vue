@@ -453,7 +453,7 @@ const features: FeaturedExperience[] = [
     tag: 'Three dangerous worlds · Chess, mines & sawblades',
     category: 'play',
     route: '/play/chessweeper',
-    image: '/images/chessweeper/highlight.webp',
+    image: '/chessweeper/link-preview.webp',
     description:
       'Outmaneuver enemy kings, hidden mines and moving sawblades in three outrageous worlds.',
   },
@@ -601,7 +601,7 @@ const features: FeaturedExperience[] = [
     tag: 'Explore and create',
     category: 'create',
     route: '/art',
-    image: '/images/art/generate.webp',
+    image: '/art-gallery/link-preview.webp',
     description: 'Browse finished work, or sign in to generate your own.',
   },
   {
@@ -619,7 +619,7 @@ const features: FeaturedExperience[] = [
     tag: 'Card adventure',
     category: 'play',
     route: '/play/memory',
-    image: '/images/background/memorydungeon.webp',
+    image: '/memory-dungeon/link-preview.webp',
     description: 'Match cards, survive the dungeon and collect rewards.',
   },
   {

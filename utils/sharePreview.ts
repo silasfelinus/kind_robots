@@ -38,7 +38,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
   {
     route: '/play/emperor-of-dust',
-    image: '/emperor-of-dust/intro/fortress.webp',
+    image: '/emperor-of-dust/link-preview.webp',
     title: 'Emperor of Dust',
     description: 'Rule the wasteland, command followers and make hard choices.',
   },
@@ -79,7 +79,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
   {
     route: '/play/zuzu-showdown',
-    image: '/zuzu-showdown-map/wasteland-hd.webp',
+    image: '/zuzu-showdown-art/hall-card.webp',
     title: 'Zuzu Showdown',
     description:
       'Cross the wasteland, face the bosses and chase one of many endings.',
@@ -106,7 +106,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
   {
     route: '/play/memory',
-    image: '/images/background/memorydungeon.webp',
+    image: '/memory-dungeon/link-preview.webp',
     title: 'Memory Dungeon',
     description: 'Match cards, survive the dungeon and collect rewards.',
   },
@@ -118,7 +118,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
   {
     route: '/play/chessweeper',
-    image: '/images/chessweeper/highlight.webp',
+    image: '/chessweeper/link-preview.webp',
     title: 'Chessweeper',
     description:
       'Chess against the computer on a mined board, in three dangerous worlds.',
@@ -138,7 +138,7 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
   },
   {
     route: '/art',
-    image: '/images/art/generate.webp',
+    image: '/art-gallery/link-preview.webp',
     title: 'Art Gallery & Studio',
     description: 'Browse finished work, or sign in to generate your own.',
   },
@@ -152,6 +152,11 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
 export const STANDALONE_GAME_PATHS: readonly string[] = [
   '/play/zuzu-ghost-trail',
   '/play/sliding-tile-gallery',
+  // 2026-11-21 PT: three public arcade games had a page, an arcade tab and a
+  // link preview but were missing from the sitemap.
+  '/play/slime-city',
+  '/play/monstrique',
+  '/play/hybridizer',
 ]
 
 export const SITEMAP_PATHS: readonly string[] = [

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   DEFAULT_SHARE_IMAGE,
@@ -64,6 +64,38 @@ for (const preview of [...SHARE_PREVIEWS, { image: DEFAULT_SHARE_IMAGE }]) {
   }
 }
 
+// 2026-11-21 PT: Memory Dungeon (643 KB), Chessweeper (582 KB) and the Art
+// gallery (310 KB) shared full-size backdrops from the media volume. Chat apps
+// skip or truncate previews that heavy (WhatsApp stops near 300 KB), so each
+// now points at a committed link-preview card, and committed cards stay light.
+const SHARE_IMAGE_BUDGET_BYTES = 250_000
+for (const preview of [...SHARE_PREVIEWS, { image: DEFAULT_SHARE_IMAGE }]) {
+  if (preview.image.startsWith('/images/')) continue
+  const bytes = statSync(repoPath(`public${preview.image}`)).size
+  assert.ok(
+    bytes <= SHARE_IMAGE_BUDGET_BYTES,
+    `${preview.image} is ${bytes} bytes; share images must stay under ${SHARE_IMAGE_BUDGET_BYTES}`,
+  )
+}
+for (const route of ['/play/memory', '/play/chessweeper', '/art']) {
+  const image = findSharePreview(route)?.image ?? ''
+  assert.ok(
+    !image.startsWith('/images/'),
+    `${route} must share a committed, size-checked card, not ${image}`,
+  )
+}
+const homeDirectory = read('components/home/home-visitor-directory.vue')
+for (const heavy of [
+  '/images/background/memorydungeon.webp',
+  '/images/chessweeper/highlight.webp',
+  '/images/art/generate.webp',
+]) {
+  assert.ok(
+    !homeDirectory.includes(`image: '${heavy}'`),
+    `front-door directory card must not load the full-size ${heavy}`,
+  )
+}
+
 for (const preview of SHARE_PREVIEWS) {
   assert.ok(preview.title, `${preview.route} needs a share title`)
   assert.ok(preview.description, `${preview.route} needs a share description`)
@@ -108,7 +140,7 @@ assert.equal(findSharePreview('/'), null)
 
 assert.equal(
   sharePreviewImageUrl('/play/emperor-of-dust'),
-  'https://kindrobots.org/emperor-of-dust/intro/fortress.webp',
+  'https://kindrobots.org/emperor-of-dust/link-preview.webp',
 )
 assert.equal(
   sharePreviewImageUrl('/about'),
@@ -161,6 +193,24 @@ for (const route of STANDALONE_GAME_PATHS) {
     `${route} arcade tab`,
   )
 }
+// Every arcade tab backed by its own play page is in the sitemap, so a new
+// public game can't ship invisible to search (Slime City, Monstrique and
+// Hybridizer were missing until 2026-11-21 PT).
+for (const file of readdirSync(repoPath('content/channels/arcade'))) {
+  const slug = file.replace(/\.md$/, '')
+  if (!existsSync(repoPath(`pages/play/${slug}.vue`))) continue
+  assert.ok(
+    locs.includes(`https://kindrobots.org/play/${slug}`),
+    `arcade game /play/${slug} must be listed in the sitemap`,
+  )
+}
+// The navigation map is in the sitemap; its share copy says what it is.
+const navigation = read('content/navigation.md')
+assert.doesNotMatch(navigation, /All roads lead to here/)
+assert.match(
+  navigation,
+  /\ndescription: Every Kind Robots game, story and studio/,
+)
 assert.equal(new Set(locs).size, locs.length, 'sitemap has no duplicates')
 
 const robotsRoute = read('server/routes/robots.txt.ts')

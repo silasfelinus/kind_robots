@@ -2,12 +2,14 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   createVoyageBackup,
+  mergeVoyageHistory,
   parseVoyageBackup,
   persistRestoredVoyage,
   VOYAGE_BACKUP_KIND,
   VOYAGE_BACKUP_MAX_BYTES,
 } from '../gameOfCaptains/voyageBackup'
 import { startVoyage } from '../gameOfCaptains/rules'
+import type { CompletedVoyage } from '../gameOfCaptains/completedVoyages'
 
 const run = startVoyage('vale', ['rue', 'vela', 'mox'], 20261120)
 const remote = parseVoyageBackup(createVoyageBackup(run, []))
@@ -31,6 +33,73 @@ assert.throws(
 assert.throws(
   () => parseVoyageBackup(JSON.stringify({ ...remote, voyage: {} })),
   /invalid or incompatible/,
+)
+
+// A cross-device merge must not mistake matching IDs for matching stories.
+const finishedA: CompletedVoyage = {
+  version: 1,
+  id: '42:vale:THE LAST SHIP HOME',
+  completedAt: 1000,
+  captain: 'vale',
+  crew: ['rue', 'vela', 'mox'],
+  chapter: 9,
+  day: 9,
+  ending: 'THE LAST SHIP HOME',
+  outcome: 'Rescued the refugees',
+  choices: [],
+  losses: [],
+  log: ['The passengers elected their own keeper.'],
+}
+const finishedB: CompletedVoyage = {
+  ...finishedA,
+  completedAt: 2000,
+  crew: ['rue', 'tess', 'mox'],
+  outcome: 'Found a different harbor',
+  log: ['The crew took a different route home.'],
+}
+const combined = mergeVoyageHistory([finishedA], [finishedB])
+assert.deepEqual(
+  combined.map((entry) => entry.id),
+  [finishedA.id, finishedA.id + ':replay-1'],
+  'a colliding ID from another device must not erase distinct choices or crew',
+)
+assert.deepEqual(combined[0], finishedA, 'the original ID remains stable')
+assert.deepEqual(
+  mergeVoyageHistory(combined, [finishedB]),
+  combined,
+  're-importing the same story cannot create more replay records',
+)
+assert.equal(
+  mergeVoyageHistory([finishedA], [{ ...finishedA, completedAt: 5000 }])
+    .length,
+  1,
+  'a second timestamp alone does not make a different voyage',
+)
+const finishedC: CompletedVoyage = {
+  ...finishedB,
+  id: finishedA.id + ':replay-1',
+  outcome: 'Made a third bargain',
+  log: ['The third crew recorded a different outcome.'],
+}
+const three = mergeVoyageHistory(combined, [finishedC])
+assert.deepEqual(
+  three.map((entry) => entry.id),
+  [
+    finishedA.id,
+    finishedA.id + ':replay-1',
+    finishedA.id + ':replay-2',
+  ],
+  'colliding replay suffixes must also be rekeyed without data loss',
+)
+assert.deepEqual(
+  parseVoyageBackup(createVoyageBackup(null, three)).completedVoyages,
+  three,
+  'merged histories must remain portable in the existing v1 save format',
+)
+assert.deepEqual(
+  mergeVoyageHistory([], [finishedA, finishedB]),
+  [finishedA, finishedB],
+  'no collision may rewrite the incoming record IDs',
 )
 
 const archiveKey = 'finished'

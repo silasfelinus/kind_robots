@@ -56,7 +56,13 @@ assert.match(chipRule, /background:\s*var\(--color-base-200\)/)
 // Its extra viewport must not change the global 3-width backdrop audit.
 assert.match(
   responsiveAudit,
-  /\/play\/zuzu-gamebook,\/play\/emperor-of-dust,\/play\/zuzu-showdown/,
+  /\/play\/zuzu-gamebook,\/play\/emperor-of-dust,/,
+  'Emperor must remain in the default public-route audit',
+)
+assert.match(
+  responsiveAudit,
+  /const EXTRA_TABLET_ROUTES = new Set\(\[\s*'\/play\/emperor-of-dust'/,
+  'Emperor must receive the additional 768px viewport',
 )
 assert.match(
   responsiveAudit,
@@ -64,11 +70,16 @@ assert.match(
 )
 assert.match(
   responsiveAudit,
-  /ROUTES\.filter\(\(route\) => route === EMPEROR_ROUTE\)/,
+  /for \(const vp of \[\.\.\.VIEWPORTS, EXTRA_TABLET_VIEWPORT\]\)/,
 )
 assert.match(
   responsiveAudit,
-  /m\?\.backdrop && vp\.name !== EMPEROR_EXTRA_VIEWPORT\.name/,
+  /ROUTES\.filter\(\(route\) => EXTRA_TABLET_ROUTES\.has\(route\)\)/,
+)
+assert.match(
+  responsiveAudit,
+  /m\?\.backdrop && vp\.name !== EXTRA_TABLET_VIEWPORT\.name/,
+  'Extra tablet must not change the three-viewport backdrop comparison',
 )
 
 console.log(

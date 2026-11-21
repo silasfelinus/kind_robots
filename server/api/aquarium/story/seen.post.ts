@@ -1,7 +1,8 @@
 // /server/api/aquarium/story/seen.post.ts
 //
-// Marks scenes as seen so they never replay. Body: `{ scenes: string[] }`,
-// each a scene id from the canon's story/scenes.yaml.
+// Marks scenes as seen so they never replay. Body: `{ scenes: string[],
+// choices?: Record<sceneId, replyId> }`, each a scene id from the canon's
+// story/scenes.yaml and, for floor scenes, the reply the player picked.
 
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../../utils/error'
@@ -28,10 +29,32 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // cthulhuquarium/t-103: optional `{ choices: { [sceneId]: replyId } }`.
+    const rawChoices = body && typeof body === 'object' ? body.choices : null
+    const choices: Record<string, string> = {}
+    if (rawChoices !== undefined && rawChoices !== null) {
+      if (typeof rawChoices !== 'object' || Array.isArray(rawChoices)) {
+        throw createError({
+          statusCode: 400,
+          message: 'choices must map scene ids to reply ids.',
+        })
+      }
+      for (const [sceneId, choiceId] of Object.entries(rawChoices)) {
+        if (typeof choiceId !== 'string' || choiceId.length > 40) {
+          throw createError({
+            statusCode: 400,
+            message: 'choices must map scene ids to reply ids.',
+          })
+        }
+        choices[sceneId] = choiceId
+      }
+    }
+
     const data = await markStoryScenesSeenForUser(
       user.id,
       user.username,
       scenes,
+      choices,
     )
     response = { success: true, data, statusCode: 200 }
     event.node.res.statusCode = 200

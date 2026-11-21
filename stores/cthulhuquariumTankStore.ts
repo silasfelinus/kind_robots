@@ -319,6 +319,8 @@ interface PurchaseUpgradeResponse {
   track: string
   level: number
   cost: number
+  // cthulhuquarium/t-085: first_evolution on the first tank expansion.
+  firedMilestones?: FiredMilestone[]
 }
 
 interface CleanResponse {
@@ -670,6 +672,7 @@ export const useCthulhuquariumTankStore = defineStore(
         if (refreshed.success && refreshed.data) tank.value = refreshed.data
       }
       story.queueMissedMilestoneScene()
+      if (finaleTriggered.value) story.queueFinaleScene()
     }
 
     async function loadCatalog(): Promise<void> {
@@ -751,6 +754,8 @@ export const useCthulhuquariumTankStore = defineStore(
         if (res.data.firedMilestones?.length) {
           announceMilestones(...res.data.firedMilestones)
         }
+        // cthulhuquarium/t-102: the first creature up from a new floor.
+        story.announceFirstOfFloor(res.data.firstOfFloor)
         // A stale bestiary panel (or one never loaded yet) would otherwise
         // still show this species as uncollected after unlocking it.
         if (bestiary.value.length > 0) {
@@ -899,6 +904,10 @@ export const useCthulhuquariumTankStore = defineStore(
           tank.value = res.data.aquarium
           if (anyUpgradeMaxed(res.data.aquarium.upgrades ?? []))
             award('cthulhuquarium-fully-appointed')
+          // cthulhuquarium/t-085: the first expansion hands over the Hatchery.
+          if (res.data.firedMilestones?.length) {
+            announceMilestones(...res.data.firedMilestones)
+          }
           return true
         }
         error.value = res.message || 'Could not buy that upgrade.'
@@ -1116,6 +1125,8 @@ export const useCthulhuquariumTankStore = defineStore(
         if (res.success && res.data) {
           finaleConfig.value = res.data.config
           finaleTriggered.value = res.data.triggered
+          // Queued after the reveal is dismissed (storyShowing waits for it).
+          if (res.data.triggered) story.queueFinaleScene()
         }
       } finally {
         finaleLoading.value = false
@@ -1135,6 +1146,7 @@ export const useCthulhuquariumTankStore = defineStore(
           finaleRevealSignal.trigger()
           award('cthulhuquarium-last-aquarium')
         }
+        story.queueFinaleScene()
         return true
       }
       error.value = res.message || 'Could not buy the last aquarium.'

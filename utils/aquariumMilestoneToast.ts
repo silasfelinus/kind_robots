@@ -31,7 +31,8 @@ const LANDMARK_TOAST_TEXT: Record<string, string> = {
   // resolved -- see aquariumRivalryMilestone.ts's rivalryMilestoneState.
   first_rivalry_resolved:
     'A rivalry in your tank has settled for the first time',
-  first_evolution: 'Something in your tank has become something else',
+  // cthulhuquarium/t-085: breeding is gone; it now fires on the first expansion.
+  first_evolution: 'Your tank has been widened for the first time',
 }
 
 export function formatMilestoneToastMessage(

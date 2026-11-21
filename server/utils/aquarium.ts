@@ -27,7 +27,10 @@ import {
   type FloorNumber,
   type FloorStatus,
 } from '../../utils/cthulhuquariumFloors'
-import { CTHULHUQUARIUM_SCENE_IDS } from './cthulhuquariumBackgrounds.generated'
+import {
+  CTHULHUQUARIUM_SCENE_CHOICES,
+  CTHULHUQUARIUM_SCENE_IDS,
+} from './cthulhuquariumBackgrounds.generated'
 import {
   cleanDebris,
   clampDecorCoordinate,
@@ -41,6 +44,7 @@ import {
   FEED_RESTORES_HUNGER_TO,
   firedBestiaryMilestones,
   unlockedBackgroundKeys,
+  FIRST_EVOLUTION_MILESTONE,
   FIRST_FULL_TANK_MILESTONE,
   FIRST_SPOTLESS_TANK_MILESTONE,
   HUNGER_STARTING_VALUE,
@@ -732,6 +736,10 @@ export interface PurchaseUpgradeResult {
   track: UpgradeTrack
   level: number
   cost: number
+  // cthulhuquarium/t-085: the first tank expansion is the landmark breeding
+  // used to fire (first_evolution, id kept so tanks that earned it keep the
+  // Hatchery). Empty on every other upgrade.
+  firedMilestones: LandmarkMilestoneConfig[]
 }
 
 export async function purchaseUpgradeForUser(
@@ -775,17 +783,36 @@ export async function purchaseUpgradeForUser(
       cost,
     })
 
-    return tx.aquarium.findUniqueOrThrow({
+    const fired: LandmarkMilestoneConfig[] = []
+    if (track === 'room' && currentLevel === 0) {
+      const kind = milestoneEventKind(FIRST_EVOLUTION_MILESTONE)
+      const already = await tx.aquariumEvent.findFirst({
+        where: { aquariumId: tank.id, kind },
+        select: { id: true },
+      })
+      if (!already) {
+        await logEvent(tx, tank.id, kind, {
+          landmark: FIRST_EVOLUTION_MILESTONE.id,
+          slotsCapDelta: 0,
+          trigger: 'first_tank_expansion',
+        })
+        fired.push(FIRST_EVOLUTION_MILESTONE)
+      }
+    }
+
+    const updated = await tx.aquarium.findUniqueOrThrow({
       where: { id: tank.id },
       select: ownedAquariumSelect,
     })
+    return { updated, fired }
   })
 
   return {
-    aquarium: toClientAquarium(aquarium),
+    aquarium: toClientAquarium(aquarium.updated),
     track,
     level: currentLevel + 1,
     cost,
+    firedMilestones: aquarium.fired,
   }
 }
 
@@ -2344,6 +2371,8 @@ export async function setTankVisibilityForUser(
 
 export const DEFAULT_BACKGROUND_KEY = 'parlour'
 const STORY_SEEN_PREFIX = 'story-seen-'
+// cthulhuquarium/t-103: `story-choice-<scene>:<reply>`, one per floor scene.
+const STORY_CHOICE_PREFIX = 'story-choice-'
 const MILESTONE_PREFIX = 'milestone-'
 
 export interface StoryState {
@@ -2354,6 +2383,8 @@ export interface StoryState {
   // floor reached so far (always starting at 1).
   floor: FloorNumber
   floorsReached: FloorNumber[]
+  // cthulhuquarium/t-103: the reply picked in each floor scene, by scene id.
+  choices: Record<string, string>
 }
 
 async function readStoryState(
@@ -2370,6 +2401,7 @@ async function readStoryState(
       aquariumId,
       OR: [
         { kind: { startsWith: STORY_SEEN_PREFIX } },
+        { kind: { startsWith: STORY_CHOICE_PREFIX } },
         { kind: { startsWith: MILESTONE_PREFIX } },
       ],
     },
@@ -2377,9 +2409,15 @@ async function readStoryState(
   })
   const seenScenes = new Set<string>()
   const landmarks = new Set<string>()
+  const choices: Record<string, string> = {}
   for (const { kind } of events) {
     if (kind.startsWith(STORY_SEEN_PREFIX)) {
       seenScenes.add(kind.slice(STORY_SEEN_PREFIX.length))
+    } else if (kind.startsWith(STORY_CHOICE_PREFIX)) {
+      const [sceneId, choiceId] = kind
+        .slice(STORY_CHOICE_PREFIX.length)
+        .split(':')
+      if (sceneId && choiceId && !choices[sceneId]) choices[sceneId] = choiceId
     } else {
       landmarks.add(kind.slice(MILESTONE_PREFIX.length))
     }
@@ -2393,6 +2431,7 @@ async function readStoryState(
         ? backgroundKey
         : DEFAULT_BACKGROUND_KEY,
     floor,
+    choices,
     floorsReached: CTHULHUQUARIUM_FLOORS.filter(
       (entry) => entry.floor <= floor,
     ).map((entry) => entry.floor),
@@ -2411,12 +2450,24 @@ export async function markStoryScenesSeenForUser(
   userId: number,
   username: string,
   sceneIds: string[],
+  // cthulhuquarium/t-103: the reply the player picked in a floor scene, by
+  // scene id. Only a real reply to a scene being marked seen is kept, and
+  // only the first one ever (a replay never rewrites it).
+  choices: Record<string, string> = {},
 ): Promise<StoryState> {
   const unknown = sceneIds.filter(
     (id) => !CTHULHUQUARIUM_SCENE_IDS.includes(id),
   )
   if (unknown.length) {
     throw apiError(400, `Unknown scene: ${unknown.join(', ')}`)
+  }
+  for (const [sceneId, choiceId] of Object.entries(choices)) {
+    if (
+      !sceneIds.includes(sceneId) ||
+      !CTHULHUQUARIUM_SCENE_CHOICES[sceneId]?.includes(choiceId)
+    ) {
+      throw apiError(400, `Unknown reply ${choiceId} for scene ${sceneId}`)
+    }
   }
   const tank = await getOrCreateTankForUser(userId, username)
   const kinds = [...new Set(sceneIds)].map((id) => STORY_SEEN_PREFIX + id)
@@ -2431,6 +2482,23 @@ export async function markStoryScenesSeenForUser(
     )
     for (const kind of kinds) {
       if (!existing.has(kind)) await logEvent(tx, tank.id, kind, null)
+    }
+    for (const [sceneId, choiceId] of Object.entries(choices)) {
+      const prior = await tx.aquariumEvent.findFirst({
+        where: {
+          aquariumId: tank.id,
+          kind: { startsWith: `${STORY_CHOICE_PREFIX}${sceneId}:` },
+        },
+        select: { id: true },
+      })
+      if (!prior) {
+        await logEvent(
+          tx,
+          tank.id,
+          `${STORY_CHOICE_PREFIX}${sceneId}:${choiceId}`,
+          null,
+        )
+      }
     }
   })
   return readStoryState(tank.id, tank.backgroundKey, userId)
@@ -2466,13 +2534,17 @@ export async function setTankBackgroundForUser(
 export async function reconcileBestiaryMilestonesForUser(
   userId: number,
   username: string,
-): Promise<BestiaryMilestoneConfig[]> {
+): Promise<Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig>> {
   const tank = await getOrCreateTankForUser(userId, username)
   return prisma.$transaction(async (tx) => {
     const { collectedCount } = await countBestiaryTotals(tx, userId)
-    const earned = BESTIARY_MILESTONES.filter(
-      (milestone) => milestone.threshold <= collectedCount,
-    )
+    const earned: Array<BestiaryMilestoneConfig | LandmarkMilestoneConfig> =
+      BESTIARY_MILESTONES.filter(
+        (milestone) => milestone.threshold <= collectedCount,
+      )
+    // cthulhuquarium/t-085: a tank expanded before the Hatchery moved to the
+    // first expansion still gets it.
+    if (tank.tankExpansions > 0) earned.push(FIRST_EVOLUTION_MILESTONE)
     if (!earned.length) return []
     const logged = new Set(
       (

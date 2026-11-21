@@ -58,6 +58,8 @@ for (const file of readdirSync(join(canon, 'fish'))
     name: fish.name,
     behavior: fish.behavior ?? 'drift',
     size: fish.size ?? 1,
+    // cthulhuquarium/t-102: the floor of the building it lives on (1-5).
+    tier: Number.isInteger(fish.tier) ? fish.tier : 1,
     hue: fish.hue ?? null,
   }
   if (fish?.voices) {
@@ -117,33 +119,105 @@ const builtPlate = (key) =>
   !!key &&
   (existsSync(join(canon, 'story', 'built', `${key}.webp`)) ||
     existsSync(join(canon, 'videos', 'built', `${key}.webp`)))
+const CHOICE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const outScenes = {}
+const sceneChoices = {}
 for (const [id, scene] of Object.entries(scenes)) {
+  const title = flat(scene.title)
+  if (!title) throw new Error(`scene ${id} has no title`)
+  const floor = scene.floor ?? null
+  if (floor !== null && (!Number.isInteger(floor) || floor < 1 || floor > 5)) {
+    throw new Error(`scene ${id}: floor must be 1-5, not ${floor}`)
+  }
+  if (scene.plate && !plateKeys.has(scene.plate)) {
+    throw new Error(`scene ${id}: unknown plate ${scene.plate}`)
+  }
+  const readBeat = (beat, where, { reply = false } = {}) => {
+    const slug = speakerSlug[beat.speaker]
+    if (!slug || !characters[slug]?.poses.includes(beat.pose)) {
+      throw new Error(
+        `${where}: unknown speaker/pose ${beat.speaker}/${beat.pose}`,
+      )
+    }
+    if (beat.plate && !plateKeys.has(beat.plate)) {
+      throw new Error(`${where}: unknown beat plate ${beat.plate}`)
+    }
+    const text = flat(beat.text)
+    if (!text) throw new Error(`${where}: a beat has no text`)
+    if (reply && (beat.focus || beat.await || beat.choices || beat.plate)) {
+      throw new Error(
+        `${where}: a reply beat carries only speaker, pose and text`,
+      )
+    }
+    return {
+      speaker: beat.speaker,
+      pose: beat.pose,
+      text,
+      focus: beat.focus ?? null,
+      await: beat.await ?? null,
+      plate: builtPlate(beat.plate) ? beat.plate : null,
+      choices: null,
+    }
+  }
+  const ids = []
+  const beats = scene.beats.map((beat, index) => {
+    const where = `scene ${id} beat ${index + 1}`
+    const out = readBeat(beat, where)
+    if (beat.choices) {
+      // cthulhuquarium/t-103: the player's one reply, floor scenes only.
+      if (floor === null) {
+        throw new Error(`${where}: choices belong to a floor scene only`)
+      }
+      if (beat.focus || beat.await) {
+        throw new Error(`${where}: a choice beat has no focus or await`)
+      }
+      if (
+        !Array.isArray(beat.choices) ||
+        beat.choices.length < 2 ||
+        beat.choices.length > 3
+      ) {
+        throw new Error(`${where}: offer 2 or 3 choices`)
+      }
+      out.choices = beat.choices.map((choice) => {
+        if (!CHOICE_ID.test(String(choice.id ?? ''))) {
+          throw new Error(`${where}: choice id ${choice.id} is not kebab-case`)
+        }
+        if (ids.includes(choice.id)) {
+          throw new Error(`${where}: duplicate choice id ${choice.id}`)
+        }
+        ids.push(choice.id)
+        const label = flat(choice.label)
+        if (!label)
+          throw new Error(`${where}: choice ${choice.id} has no label`)
+        const replies = choice.reply ?? []
+        if (
+          !Array.isArray(replies) ||
+          replies.length < 1 ||
+          replies.length > 2
+        ) {
+          throw new Error(`${where}: choice ${choice.id} needs 1-2 reply beats`)
+        }
+        return {
+          id: choice.id,
+          label,
+          reply: replies.map((reply) =>
+            readBeat(reply, `${where} reply ${choice.id}`, { reply: true }),
+          ),
+        }
+      })
+    }
+    return out
+  })
+  if (ids.length) sceneChoices[id] = ids
   outScenes[id] = {
     id,
+    title,
     trigger: scene.trigger,
+    floor,
     plate: builtPlate(scene.plate) ? scene.plate : null,
     background: scene.background ?? null,
     covers: scene.covers ?? [],
-    beats: scene.beats.map((beat) => {
-      const slug = speakerSlug[beat.speaker]
-      if (!slug || !characters[slug]?.poses.includes(beat.pose)) {
-        throw new Error(
-          `scene ${id}: unknown speaker/pose ${beat.speaker}/${beat.pose}`,
-        )
-      }
-      if (beat.plate && !plateKeys.has(beat.plate)) {
-        throw new Error(`scene ${id}: unknown beat plate ${beat.plate}`)
-      }
-      return {
-        speaker: beat.speaker,
-        pose: beat.pose,
-        text: String(beat.text).replace(/\s+/g, ' ').trim(),
-        focus: beat.focus ?? null,
-        await: beat.await ?? null,
-        plate: builtPlate(beat.plate) ? beat.plate : null,
-      }
-    }),
+    beats,
   }
 }
 
@@ -194,11 +268,25 @@ export interface CanonBeat {
   await: string | null
   /** This beat's own plate, replacing the scene's (a \`*-hero\` key is a character's full-length portrait). */
   plate: string | null
+  /** The player's reply, on one beat of a floor-opening scene (t-103). */
+  choices: CanonChoice[] | null
+}
+
+export interface CanonChoice {
+  id: string
+  /** The player's line. */
+  label: string
+  /** What is said back: 1-2 beats, then the scene carries on. */
+  reply: CanonBeat[]
 }
 
 export interface CanonScene {
   id: string
+  /** Its name in the Memory Book. */
+  title: string
   trigger: string
+  /** The floor of the building it belongs to (1-5), or null. */
+  floor: number | null
   plate: string | null
   background: string | null
   covers: string[]
@@ -225,7 +313,13 @@ export const CTHULHUQUARIUM_VOICES: Record<
 
 export const CTHULHUQUARIUM_SPECIES: Record<
   string,
-  { name: string; behavior: string; size: number; hue: number | null }
+  {
+    name: string
+    behavior: string
+    size: number
+    hue: number | null
+    tier: number
+  }
 > = ${JSON.stringify(traits, null, 2)}
 
 export const CTHULHUQUARIUM_PLATES: Record<string, string> = ${JSON.stringify(plates, null, 2)}
@@ -316,6 +410,9 @@ export const CTHULHUQUARIUM_BACKGROUND_UNLOCKS: Record<string, string> = ${JSON.
   )}
 
 export const CTHULHUQUARIUM_SCENE_IDS: string[] = ${JSON.stringify(Object.keys(outScenes), null, 2)}
+
+/** Each floor scene's reply ids, so the server stores only real choices. */
+export const CTHULHUQUARIUM_SCENE_CHOICES: Record<string, string[]> = ${JSON.stringify(sceneChoices, null, 2)}
 `,
 )
 

@@ -23,9 +23,8 @@ export const CTHULHUQUARIUM_BACKGROUND_UNLOCKS: Record<string, string> = {
 export const CTHULHUQUARIUM_SCENE_IDS: string[] = [
   'intro',
   'first_unlock',
-  'first_hatch',
-  'first_breed',
   'bestiary_complete',
+  'after_the_last_aquarium',
   'milestone_bestiary_5',
   'milestone_bestiary_10',
   'milestone_bestiary_15',
@@ -41,4 +40,20 @@ export const CTHULHUQUARIUM_SCENE_IDS: string[] = [
   'milestone_first_evolution',
   'milestone_first_spotless_tank',
   'milestone_first_rivalry_resolved',
+  'floor_first_2',
+  'floor_first_3',
+  'floor_first_4',
+  'floor_first_5',
 ]
+
+/** Each floor scene's reply ids, so the server stores only real choices. */
+export const CTHULHUQUARIUM_SCENE_CHOICES: Record<string, string[]> = {
+  milestone_bestiary_10: ['lead-the-way', 'less-like-fish', 'is-it-safe'],
+  milestone_bestiary_25: ['who-posted-them', 'the-stamps', 'wade-in'],
+  milestone_bestiary_50: ['your-favourite', 'walk-slowly', 'your-mother'],
+  milestone_bestiary_95: [
+    'thank-you-wilbur',
+    'together',
+    'charlotte-been-down',
+  ],
+}

@@ -8,6 +8,12 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import {
+  CREW_TELL_ART,
+  CREW_TELL_BEATS,
+  crewTellReceipt,
+  type CrewTellKind,
+} from '../everyVillainTactics/crewTelegraphArt'
+import {
   gridDistance,
   reachableCells,
   resolveAttack,
@@ -494,6 +500,37 @@ const page = readFileSync(
   new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
   'utf8',
 )
+// All twelve unique real Krea 2 job and image receipts must be exposed through
+// the existing authenticated art store, not treated as public URLs.
+const kinds: CrewTellKind[] = ['burrow', 'phase', 'windup']
+const tellImages = kinds.flatMap((kind) =>
+  CREW_TELL_BEATS.map((beat) => crewTellReceipt(kind, beat)!),
+)
+assert.equal(tellImages.length, 12)
+assert.equal(new Set(tellImages.map((r) => r.imageId)).size, 12)
+assert.deepEqual(
+  tellImages.map((r) => r.jobId),
+  Array.from({ length: 12 }, (_, i) => 74393 + i),
+)
+assert.deepEqual(
+  tellImages.map((r) => r.imageId),
+  Array.from({ length: 12 }, (_, i) => 277786 + i),
+)
+assert.equal(crewTellReceipt(null, 'warning'), null)
+for (const kind of kinds) {
+  assert.ok(CREW_TELL_ART[kind].name.length)
+  for (const beat of CREW_TELL_BEATS) {
+    const receipt = crewTellReceipt(kind, beat)!
+    assert.match(receipt.artKey, /^henchmen\//)
+    assert.ok(receipt.title.length > 8)
+  }
+}
+assert.match(page, /data-testid="tactics-crew-art-gallery"/)
+assert.match(page, /data-testid="tactics-crew-art-loaded"/)
+assert.match(page, /data-testid="tactics-crew-art-unavailable"/)
+assert.match(page, /paintedArt\.ensure\(id \?\? null\)/)
+assert.match(page, /unit\.team === 'rival' && unit\.hp > 0/)
+
 assert.match(page, /data-testid="tactics-one-hit"/)
 assert.match(page, /henchmanTell\(/)
 assert.match(page, /One-hit ' \+ tell\.label/)

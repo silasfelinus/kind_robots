@@ -7,17 +7,17 @@ name: Cthulhuquarium Story
 on:
   pull_request:
     paths:
-      - 'utils/cthulhuquarium*.ts'
+      - 'utils/**/cthulhuquarium*.ts'
       - 'utils/aquariumMilestoneToast.ts'
-      - 'server/utils/aquarium*.ts'
-      - 'server/utils/cthulhuquarium*.ts'
+      - 'server/utils/**/aquarium*.ts'
+      - 'server/utils/**/cthulhuquarium*.ts'
       - 'server/api/aquarium/**'
       - 'stores/cthulhuquariumTankStore.ts'
       - 'stores/helpers/cthulhuquariumStory.ts'
       - 'components/cthulhuquarium/**'
       - 'scripts/sync_cthulhuquarium_canon.mjs'
-      - 'utils/scripts/verifyCthulhuquarium*.ts'
-      - 'utils/scripts/verifyAquarium*.ts'
+      - 'utils/scripts/**/verifyCthulhuquarium*.ts'
+      - 'utils/scripts/**/verifyAquarium*.ts'
       - '.github/workflows/cthulhuquarium-story.yml'
 
 concurrency:

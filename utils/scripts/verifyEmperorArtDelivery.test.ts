@@ -33,6 +33,23 @@ assert.equal(
   emperorMediaArtUrl('quests/r-fever-ward-success'),
   '/images/emperor-of-dust/quests/r-fever-ward-success.webp',
 )
+assert.equal(
+  emperorMediaArtUrl('followers/F001/illustrated/happy'),
+  '/images/emperor-of-dust/cast/followers/F001/illustrated/happy.webp',
+)
+assert.equal(
+  emperorMediaArtUrl('npcs/young-komodo/neutral'),
+  '/images/emperor-of-dust/cast/npcs/young-komodo/neutral.webp',
+)
+assert.deepEqual(
+  parseEmperorArtDeliveryTargets([
+    { asset: 'chance-events/dust-weather-1/notice', artImageId: 17 },
+    { asset: 'talks/kiyo/kiyo-close-friendship', artImageId: 18 },
+    { asset: 'followers/F001/illustrated/happy', artImageId: 19 },
+    { asset: 'npcs/young-komodo/neutral', artImageId: 20 },
+  ]).map((entry) => entry.artImageId),
+  [17, 18, 19, 20],
+)
 
 for (const item of [
   { asset: 'endings/iron-peace', artImageId: 270430 },

@@ -16,6 +16,8 @@ export const CAPES_PRODUCTION_IDENTITIES = [
     subtitle: 'Fire and accountability',
   },
   { signature: 'tech-genius', label: 'Dr. Frog', subtitle: 'Dr. Lionel Marsh' },
+  { signature: 'alien-discipline', label: 'Zuzu', subtitle: 'Koala Assassin' },
+  { signature: 'mutant-earth', label: 'Groundswell', subtitle: 'Hattie Nkemelu' },
 ] as const
 
 export const CAPES_UNSTABLE_PRODUCTION = [
@@ -147,8 +149,76 @@ export const CAPES_UNSTABLE_PRODUCTION = [
   },
 ] as const
 
+/**
+ * Canon-specific Krea 2 refills: their prompts describe the correct actors,
+ * unlike nine visually rejected already-exported outcome paintings. These are
+ * DONE ledger ArtImage receipts, NOT visually approved replacement media.
+ * Review their actual private bytes before exporting to the canonical slots.
+ */
+export const CAPES_RUNTIME_REFILL_REVIEW = [
+  {
+    key: 'hattie-hero-canonical',
+    signature: 'mutant-earth',
+    title: 'Hattie Nkemelu / Groundswell hero',
+    asset: 'comet-city-academy/identities/mutant-earth/hero',
+    size: '832x1216',
+    artJobId: 50734,
+    artImageId: 258141,
+  },
+  {
+    key: 'hattie-villain-canonical',
+    signature: 'mutant-earth',
+    title: 'Hattie Nkemelu / Groundswell villain',
+    asset: 'comet-city-academy/identities/mutant-earth/villain',
+    size: '832x1216',
+    artJobId: 50735,
+    artImageId: 258142,
+  },
+  {
+    key: 'lionel-hero-canonical',
+    signature: 'tech-genius',
+    title: 'Dr. Lionel Marsh / Dr. Frog human hero',
+    asset: 'comet-city-academy/identities/tech-genius/hero',
+    size: '832x1216',
+    artJobId: 50754,
+    artImageId: 258161,
+  },
+  {
+    key: 'lionel-villain-canonical',
+    signature: 'tech-genius',
+    title: 'Dr. Lionel Marsh / Dr. Frog transformed villain',
+    asset: 'comet-city-academy/identities/tech-genius/villain',
+    size: '832x1216',
+    artJobId: 50755,
+    artImageId: 258162,
+  },
+  {
+    key: 'zuzu-hero-canonical',
+    signature: 'alien-discipline',
+    title: 'Zuzu Koala Assassin hero',
+    asset: 'comet-city-academy/identities/alien-discipline/hero',
+    size: '832x1216',
+    artJobId: 50784,
+    artImageId: 258191,
+  },
+  {
+    key: 'zuzu-villain-canonical',
+    signature: 'alien-discipline',
+    title: 'Zuzu Koala Assassin villain',
+    asset: 'comet-city-academy/identities/alien-discipline/villain',
+    size: '832x1216',
+    artJobId: 50785,
+    artImageId: 258192,
+  },
+] as const
+
+export const CAPES_REVIEWABLE_PRODUCTION = [
+  ...CAPES_UNSTABLE_PRODUCTION,
+  ...CAPES_RUNTIME_REFILL_REVIEW,
+] as const
+
 export function capesProductionFor(signature: string) {
-  return CAPES_UNSTABLE_PRODUCTION.filter(
+  return CAPES_REVIEWABLE_PRODUCTION.filter(
     (entry) => entry.signature === signature,
   )
 }

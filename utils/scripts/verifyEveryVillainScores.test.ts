@@ -115,7 +115,7 @@ assert.ok(
   !scoreFromSave(undiscovered)!.medals.includes('secret-route'),
   'a secret marker alone does not grant a medal',
 )
-hiddenState.fired.push(sceneTriggerId(hiddenScene.id))
+(hiddenState.fired ??= []).push(sceneTriggerId(hiddenScene.id))
 const witnessed = createSave({
   slot: 'auto',
   perspective: 'hero',

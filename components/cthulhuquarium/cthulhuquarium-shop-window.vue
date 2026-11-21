@@ -13,7 +13,7 @@
         :decor="[]"
       />
       <div class="cq-window-title pointer-events-none" aria-hidden="true">
-        <span class="cq-window-overline">Portsmouth · After closing</span>
+        <span class="cq-window-overline">The Cthulhuquarium</span>
         <span class="font-serif text-3xl font-black leading-none sm:text-5xl">
           Cthulhuquarium
         </span>

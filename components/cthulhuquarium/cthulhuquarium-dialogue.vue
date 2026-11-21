@@ -28,6 +28,7 @@
           :class="{
             'cq-vn-large': tankStore.settings.largeText,
             'cq-vn-contrast': tankStore.settings.highContrast,
+            'cq-vn-reduced': reducedMotion,
           }"
           @click="onStageClick"
         >
@@ -157,6 +158,7 @@
                 {{ progressLabel }}
               </p>
               <button
+                ref="continueRef"
                 type="button"
                 class="btn btn-primary min-h-12 min-w-32"
                 @click.stop="onContinue"
@@ -223,7 +225,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useCthulhuquariumTankStore } from '@/stores/cthulhuquariumTankStore'
 import type { KrHandChoice } from '~/components/narrative/kr-choice-hand.vue'
 import {
@@ -253,7 +255,12 @@ const speakerName = computed(() =>
 const speakerRole = computed(() =>
   beat.value ? CTHULHUQUARIUM_CHARACTERS[beat.value.speaker].role : '',
 )
-const reducedMotion = ref(false)
+// Follows the in-game Motion setting live (and the OS when it says "My
+// device"): reading the setting makes this recompute when it changes.
+const reducedMotion = computed(() => {
+  void tankStore.settings.motion
+  return prefersReducedMotion()
+})
 
 // The floor the scene belongs to sets its room; Wilbur's portraits follow the
 // deepest floor the player has opened (canon art.floor_variants), so a replay
@@ -334,7 +341,7 @@ const eyebrow = computed(() => {
   const floor = scene.value?.floor
   return floor
     ? `Floor ${floorInfo(floor).numeral} · ${floorInfo(floor).name}`
-    : 'Portsmouth · After closing'
+    : 'The Cthulhuquarium'
 })
 
 // --- typewriter ------------------------------------------------------------
@@ -465,7 +472,9 @@ function onKey(event: KeyboardEvent) {
   }
   if (event.key === ' ' || event.key === 'Enter') {
     // A focused button (a reply card, Hang it) handles its own key.
-    if (target?.closest('button') && lineDone.value) return
+    // Only a button on the stage itself; one behind the overlay (or the
+    // site header) must not swallow the key and skip the scene.
+    if (target?.closest('.cq-vn-stage button') && lineDone.value) return
     event.preventDefault()
     onContinue()
   }
@@ -481,9 +490,30 @@ const awaitHint = computed(() =>
 )
 
 onMounted(() => {
-  reducedMotion.value = prefersReducedMotion()
   window.addEventListener('keydown', onKey)
 })
+
+// Keyboard and screen-reader players: a cinematic scene takes focus when it
+// opens (on Continue, so Space/Enter advance it) and gives it back on close.
+const continueRef = ref<HTMLButtonElement | null>(null)
+let returnFocus: HTMLElement | null = null
+watch(
+  () =>
+    cinematic.value && tankStore.storyShowing
+      ? (scene.value?.id ?? null)
+      : null,
+  (open, wasOpen) => {
+    if (!import.meta.client) return
+    if (open && !wasOpen) {
+      const active = document.activeElement
+      returnFocus = active instanceof HTMLElement ? active : null
+      void nextTick(() => continueRef.value?.focus({ preventScroll: true }))
+    } else if (!open && wasOpen) {
+      if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true })
+      returnFocus = null
+    }
+  },
+)
 onBeforeUnmount(() => {
   stopTyping()
   window.removeEventListener('keydown', onKey)
@@ -741,6 +771,14 @@ function hideMissingArt(event: Event) {
   .cq-vn-masthead {
     right: 7.5rem;
   }
+}
+/* The in-game Motion: Less setting, on the stage. */
+.cq-vn-reduced .cq-pose-enter-active,
+.cq-vn-reduced .cq-pose-leave-active,
+.cq-vn-reduced .cq-vn-character,
+.cq-vn-reduced .cq-vn-caret {
+  animation: none;
+  transition: none;
 }
 @media (prefers-reduced-motion: reduce) {
   .cq-dialogue-enter-active,

@@ -53,3 +53,5 @@ jobs:
         run: npx tsx utils/scripts/verifyAquariumEconomy.test.ts
       - name: Milestone toasts
         run: npm run test:aquarium-milestone-toast
+      - name: Spends and settles are serialized on the tank row
+        run: npx tsx utils/scripts/verifyAquariumSpendLocks.test.ts

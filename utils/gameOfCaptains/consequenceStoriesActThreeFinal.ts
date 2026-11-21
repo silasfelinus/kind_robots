@@ -49,7 +49,12 @@ export const ACT_THREE_FINAL_CASES = {
           narrative:
             'Investigators discover that the captain’s log consistently describes a successful rescue as a single heroic moment while omitting months of local repair work. The crew votes to correct it. The observatory prints a second edition crediting the people who rebuilt their own homes. The red couch receives a citation for unauthorized footnotes, which the clerk insists is a compliment. The captain signs the corrections without asking for a more flattering cover.',
           flags: ['lantern-log-audited', 'lantern-local-credit'],
-          delta: { medical_knowledge: 2, treaty_trust: 2, crew_trust: 1, ship_fuel: -2 },
+          delta: {
+            medical_knowledge: 2,
+            treaty_trust: 2,
+            crew_trust: 1,
+            ship_fuel: -2,
+          },
           callback:
             'The corrected voyage log credits local communities rather than treating them as supporting characters.',
         },

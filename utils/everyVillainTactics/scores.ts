@@ -59,11 +59,13 @@ export function scoreFromSave(save: EvtSave): BattleResult | null {
   const quick = won && state.turn <= tempoRound
   // A secret is earned by triggering an *authored* scene on a verified stage,
   // not by simply noticing a painted secret tile or editing a scrapbook.
-  const secretScene = won && save.stage?.script?.scenes.some(
-    (scene) =>
-      scene.trigger.kind === 'secret' &&
-      state.fired?.includes(sceneTriggerId(scene.id)),
-  )
+  const secretScene =
+    won &&
+    save.stage?.script?.scenes.some(
+      (scene) =>
+        scene.trigger.kind === 'secret' &&
+        state.fired?.includes(sceneTriggerId(scene.id)),
+    )
   const evidence = save.mode === 'story' ? save.story.evidence : 0
   const lines: ScoreLine[] = [
     {
@@ -283,8 +285,7 @@ export function identityBattleLedger(results: readonly BattleResult[]) {
     else entry.oneShotWins++
     entry.uniqueStages.add(result.stage)
     if (result.foil) entry.defeatedFoils.add(result.foil)
-    if (result.medals.includes('secret-route'))
-      entry.secrets.add(result.stage)
+    if (result.medals.includes('secret-route')) entry.secrets.add(result.stage)
   }
   return [...byLead.values()]
     .map((entry) => ({

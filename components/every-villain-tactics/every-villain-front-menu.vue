@@ -641,8 +641,8 @@
               <strong>{{ identity.name }}</strong>
               <span>
                 HERO {{ identity.heroWins }} · VILLAIN
-                {{ identity.villainWins }} · SUPPORT {{ identity.otherWins }}
-                · LOSSES {{ identity.defeats }}
+                {{ identity.villainWins }} · SUPPORT {{ identity.otherWins }} ·
+                LOSSES {{ identity.defeats }}
               </span>
               <small>
                 {{ identity.storyWins }} story victories ·
@@ -873,7 +873,9 @@ const settingsLine = computed(
 const unlockedCount = computed(
   () => store.scrapbookView.filter((page) => page.record).length,
 )
-const earnedIdentities = computed(() => identityBattleLedger(store.battleResults))
+const earnedIdentities = computed(() =>
+  identityBattleLedger(store.battleResults),
+)
 const panelKicker = computed(
   () =>
     ({

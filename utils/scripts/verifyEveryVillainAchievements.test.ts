@@ -108,7 +108,14 @@ assert.deepEqual(
     ),
     [],
   ),
-  [C.untouched, C.noKnockouts, C.everyCivilian, C.quickClear, C.evidence, C.secretRoute],
+  [
+    C.untouched,
+    C.noKnockouts,
+    C.everyCivilian,
+    C.quickClear,
+    C.evidence,
+    C.secretRoute,
+  ],
 )
 
 // The hidden route is not retroactively earned from unvisited stage art.

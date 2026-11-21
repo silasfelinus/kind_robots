@@ -157,8 +157,7 @@ export const EVERY_VILLAIN_TACTICS_ACHIEVEMENTS: GameAchievementDef[] = [
     key: 'secret-route',
     tier: 2,
     label: 'The Other Exit',
-    message:
-      'You uncovered a hidden authored route and still won the battle.',
+    message: 'You uncovered a hidden authored route and still won the battle.',
     tooltip:
       'In Every Villain Tactics, trigger a hidden conversation scene during a tactical mission and secure victory.',
     subtleHint: 'The marked objective is rarely the only story on the map.',

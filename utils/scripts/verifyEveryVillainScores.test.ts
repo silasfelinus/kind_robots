@@ -92,7 +92,6 @@ assert.equal(
   civilians.length * 75,
 )
 
-
 const secretStage = clonePreset('crosswalk-crisis')
 const hiddenScene = secretStage.script?.scenes.find(
   (scene) => scene.trigger.kind === 'secret',
@@ -129,7 +128,10 @@ const witnessed = createSave({
 })
 const secretResult = scoreFromSave(witnessed)!
 assert.ok(secretResult.medals.includes('secret-route'))
-assert.equal(secretResult.lines.find((line) => line.id === 'secret')?.points, 125)
+assert.equal(
+  secretResult.lines.find((line) => line.id === 'secret')?.points,
+  125,
+)
 assert.equal(
   mergeBattleResults([], [secretResult]).length,
   1,
@@ -161,12 +163,7 @@ const villainWin = scoreFromSave(
     story,
   }),
 )!
-const career = identityBattleLedger([
-  score,
-  score,
-  secretResult,
-  villainWin,
-])
+const career = identityBattleLedger([score, score, secretResult, villainWin])
 assert.equal(career.length, 1)
 assert.equal(career[0]!.lead, 'accident-fire')
 assert.equal(career[0]!.heroWins, 2)

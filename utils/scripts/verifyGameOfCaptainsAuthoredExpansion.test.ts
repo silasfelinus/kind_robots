@@ -166,7 +166,7 @@ for (let seed = 1; seed <= 12; seed++) {
 assert.equal(
   visits,
   84,
-  'three Act I cases, two Act II cases and two Act III cases per voyage',
+  'three Act I cases, one Act II case and three Act III cases per voyage',
 )
 const page = readFileSync(
   new URL('../../pages/play/game-of-captains.vue', import.meta.url),

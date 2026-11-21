@@ -564,11 +564,15 @@ assert.ok(page.includes('data-testid="space-couch-export-backup"'))
 assert.ok(page.includes('data-testid="space-couch-import-backup"'))
 assert.ok(page.includes('data-testid="space-couch-backup-file"'))
 assert.ok(page.includes('data-testid="space-couch-backup-confirm"'))
-assert.ok(store.includes('parseVoyageBackup(await file.text())'))
+assert.ok(store.includes('await backupStager.read(file)'))
 assert.ok(store.includes('mergeVoyageHistory('))
 const backupHelper = readFileSync(
   new URL('../gameOfCaptains/voyageBackup.ts', import.meta.url),
   'utf8',
+)
+assert.ok(
+  backupHelper.includes('return parseVoyageBackup(source)'),
+  'validated backup parsing remains after the race-safe asynchronous file read',
 )
 assert.ok(
   store.includes('persistRestoredVoyage(') &&

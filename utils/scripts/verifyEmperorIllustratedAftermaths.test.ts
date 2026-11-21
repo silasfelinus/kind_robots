@@ -91,6 +91,33 @@ for (const day of DAYS) {
   }
 }
 
+const aqueduct = DAYS.find((day) => day.day === 1)!.audiences.find(
+  (audience) => audience.id === 'd01-aqueduct',
+)!
+const directRepair = audienceAftermath(
+  { flags: ['chose:d01-aqueduct:repair'] },
+  aqueduct,
+)
+const investigatedRepair = audienceAftermath(
+  {
+    flags: [
+      'chose:d01-aqueduct:ask-why',
+      'chose:d01-aqueduct:repair',
+    ],
+  },
+  aqueduct,
+)
+assert.ok(directRepair)
+assert.ok(investigatedRepair)
+assert.match(directRepair.option.response, /far wards/)
+assert.match(investigatedRepair.option.response, /kept peace with the millers/)
+assert.notEqual(
+  directRepair.option.response,
+  investigatedRepair.option.response,
+  'The same id in a later beat has a different, recoverable authored answer',
+)
+assert.ok(investigatedRepair.images.some(physicallyShipped))
+
 for (const talk of TALKS) {
   const options = [
     ...talk.options,

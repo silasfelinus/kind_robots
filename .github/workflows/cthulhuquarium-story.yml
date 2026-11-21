@@ -1,0 +1,49 @@
+name: Cthulhuquarium Story
+
+# cthulhuquarium/t-102..t-104: the building's floors, the canon story mirror,
+# the shop rotation and economy that the floors gate. The canon test never ran
+# in CI before this workflow.
+
+on:
+  pull_request:
+    paths:
+      - 'utils/cthulhuquarium*.ts'
+      - 'utils/aquariumMilestoneToast.ts'
+      - 'server/utils/aquarium*.ts'
+      - 'server/utils/cthulhuquarium*.ts'
+      - 'server/api/aquarium/**'
+      - 'stores/cthulhuquariumTankStore.ts'
+      - 'stores/helpers/cthulhuquariumStory.ts'
+      - 'components/cthulhuquarium/**'
+      - 'scripts/sync_cthulhuquarium_canon.mjs'
+      - 'utils/scripts/verifyCthulhuquarium*.ts'
+      - 'utils/scripts/verifyAquarium*.ts'
+      - '.github/workflows/cthulhuquarium-story.yml'
+
+concurrency:
+  # Cancel superseded runs on the same PR; push/dispatch runs never cancel.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  story-and-floors:
+    runs-on: ubuntu-24.04
+    env:
+      CYPRESS_INSTALL_BINARY: 0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Floors of the building (gating, thresholds, portraits)
+        run: npx tsx utils/scripts/verifyCthulhuquariumFloors.test.ts
+      - name: Canon story mirror (scenes, poses, backgrounds, plates)
+        run: npx tsx utils/scripts/verifyCthulhuquariumCanon.test.ts
+      - name: Shop rotation and release price
+        run: npx tsx utils/scripts/verifyAquariumShop.test.ts
+      - name: Economy core
+        run: npx tsx utils/scripts/verifyAquariumEconomy.test.ts
+      - name: Milestone toasts
+        run: npm run test:aquarium-milestone-toast

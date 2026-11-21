@@ -43,6 +43,9 @@
         </button>
       </div>
       <p class="cq-market-note">
+        <span v-if="floor" class="cq-market-floor">
+          Floor {{ floor.numeral }} · {{ floor.name }}
+        </span>
         <Icon name="kind-icon:clock" class="size-3.5 shrink-0" />
         <span>{{ refreshLabel }}</span>
         <span v-if="tankStore.lastCollectCoins > 0" class="cq-market-earned">
@@ -116,6 +119,34 @@
                   entry.cost === 0 ? 'Free' : formatCoins(entry.cost)
                 }}</span>
               </button>
+            </div>
+          </article>
+          <!-- cthulhuquarium/t-102: the next floor down, as silhouettes. -->
+          <article
+            v-for="teaser in tankStore.lockedTeasers"
+            :key="`locked-${teaser.id}`"
+            role="listitem"
+            class="cq-pedestal cq-pedestal-locked"
+            :aria-label="lockedLabel"
+          >
+            <div class="cq-pedestal-stage">
+              <cthulhuquarium-sprite
+                :slug="teaser.slug"
+                label=""
+                :size="150"
+                still
+                class="cq-pedestal-creature cq-silhouette"
+              />
+              <cthulhuquarium-ui-art name="plinth" class="cq-pedestal-plinth" />
+              <span class="cq-rarity-seal">Floor {{ nextNumeral }}</span>
+            </div>
+            <div class="cq-plaque">
+              <h4 class="cq-plaque-title">Something further down</h4>
+              <p class="cq-plaque-text">{{ lockedHint }}</p>
+              <span class="cq-price cq-price-done cq-price-locked">
+                <Icon name="kind-icon:lock" class="size-4" />
+                Not yet
+              </span>
             </div>
           </article>
         </template>
@@ -232,6 +263,21 @@ const refreshLabel = computed(() => {
   )
 })
 const fitsRoom = computed(() => tankStore.occupantSize + 1 <= tankStore.sizeCap)
+
+// cthulhuquarium/t-102: the building's open floor, and the next one down.
+const floor = computed(() => tankStore.floorStatus)
+const nextNumeral = computed(() => floor.value?.next?.numeral ?? '')
+const lockedHint = computed(() => {
+  const next = floor.value?.next
+  if (!next) return ''
+  return `${next.name} opens when you know ${next.threshold} species. ${next.remaining} more to go.`
+})
+const lockedLabel = computed(() => {
+  const next = floor.value?.next
+  return next
+    ? `An unknown creature from Floor ${next.numeral}, ${next.name}. ${lockedHint.value}`
+    : 'An unknown creature'
+})
 
 const UPGRADE_ART: Record<string, { plate: string; standIn: string }> = {
   food: { plate: 'upgrade-food', standIn: 'set-heavier-feed' },

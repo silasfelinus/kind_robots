@@ -88,6 +88,19 @@ export function unlockCost(rarity: Rarity, override?: number | null): number {
   return override ?? RARITY_TIERS[rarity].unlockCost
 }
 
+// cthulhuquarium/t-102: the canon prices a species reached only by evolution
+// at 0 (fish/SCHEMA.md), because it used to be bred rather than bought.
+// Breeding is gone (t-082), so those 92 species are now bought like any
+// other, at their rarity's default price. A free starter (0, reached by
+// nothing) keeps its 0.
+export function effectiveUnlockOverride(
+  override: number | null | undefined,
+  hasEvolvesFrom: boolean,
+): number | null {
+  if (override === 0 && hasEvolvesFrom) return null
+  return override ?? null
+}
+
 // `override` is Monster.tickIntervalSeconds: how often, in seconds, THIS
 // species produces income, distinct from the tank-wide TICK_SECONDS the
 // settlement loop advances by. null/undefined means "use the tank cadence."
@@ -1218,8 +1231,14 @@ export function rotateShopStock(
   eligibleIds: readonly number[],
   userId: number,
   dateKey: string,
+  // cthulhuquarium/t-102: the Market's locked-floor teasers reuse this with
+  // their own size and salt. The defaults keep every existing rotation
+  // byte-for-byte identical.
+  options: { size?: number; salt?: string } = {},
 ): number[] {
-  const random = mulberry32(hashSeed(`${userId}:${dateKey}:shop`))
+  const size = options.size ?? SHOP_ROTATION_SIZE
+  const salt = options.salt ?? 'shop'
+  const random = mulberry32(hashSeed(`${userId}:${dateKey}:${salt}`))
   const shuffled = [...eligibleIds]
   for (let index = shuffled.length - 1; index > 0; index--) {
     const swapIndex = Math.floor(random() * (index + 1))
@@ -1227,5 +1246,5 @@ export function rotateShopStock(
     shuffled[index] = shuffled[swapIndex]!
     shuffled[swapIndex] = current
   }
-  return shuffled.slice(0, SHOP_ROTATION_SIZE)
+  return shuffled.slice(0, size)
 }

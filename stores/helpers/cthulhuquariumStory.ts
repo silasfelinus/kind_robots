@@ -25,6 +25,9 @@ export interface StoryState {
   seenScenes: string[]
   unlockedBackgrounds: string[]
   backgroundKey: string
+  // cthulhuquarium/t-102: the deepest open floor, and every floor reached.
+  floor?: number
+  floorsReached?: number[]
 }
 
 export type StoryAction = 'unlock' | 'feed' | 'clean' | 'shop' | 'bestiary'

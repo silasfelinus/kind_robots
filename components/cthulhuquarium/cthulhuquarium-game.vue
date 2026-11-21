@@ -141,6 +141,17 @@
                 >
               </span>
               <span
+                v-if="tankStore.floorStatus"
+                class="cq-capsule cq-capsule-floor"
+                :title="floorCapsuleTitle"
+                :aria-label="floorCapsuleTitle"
+              >
+                <span class="cq-capsule-numeral">{{
+                  tankStore.floorStatus.numeral
+                }}</span>
+                <span>{{ tankStore.floorStatus.name }}</span>
+              </span>
+              <span
                 v-if="tankDay"
                 class="cq-capsule cq-capsule-day"
                 :aria-label="`Day ${tankDay} of this tank, ${clockLabel}`"
@@ -1390,6 +1401,15 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 // cthulhuquarium/t-057: bumped alongside pollTick's own 20s cadence (see
 // startLoops()) so the day/time capsule recomputes without a second timer.
 const now = ref(Date.now())
+// cthulhuquarium/t-102: the building's open floor, for the HUD capsule.
+const floorCapsuleTitle = computed(() => {
+  const status = tankStore.floorStatus
+  if (!status) return ''
+  const next = status.next
+  return next
+    ? `Floor ${status.numeral}, ${status.name}. ${next.name} opens at ${next.threshold} species known (${next.remaining} to go).`
+    : `Floor ${status.numeral}, ${status.name}. Every floor is open.`
+})
 const tankDay = computed(() =>
   tankDayNumber(tankStore.tank?.createdAt, now.value),
 )
@@ -2837,6 +2857,21 @@ onBeforeUnmount(() => {
 .cq-capsule-coins {
   color: #f3d58e;
   font-size: 1.05rem;
+}
+.cq-capsule-floor {
+  gap: 0.4rem;
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+}
+.cq-capsule-numeral {
+  font-family: var(--cq-display, serif);
+  font-weight: 700;
+  color: var(--cq-gilt, #d8b56a);
+}
+@container cq-game (max-width: 640px) {
+  .cq-capsule-floor > span:last-child {
+    display: none;
+  }
 }
 .cq-capsule-time {
   margin-left: 0.1rem;

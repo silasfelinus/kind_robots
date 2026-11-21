@@ -154,7 +154,7 @@ export function crewPatrolNetwork(
           `CREW COERCION (${modifier > 0 ? '+' : ''}${modifier}): ` +
           `${crew.captain}'s ${crew.name} obey the threat you made. ` +
           (modifier > 0
-            ? 'Their forced support clears the way for tonight\'s order.'
+            ? "Their forced support clears the way for tonight's order."
             : 'Residents hide from the patrol instead of helping the rescue.'),
       }
     }

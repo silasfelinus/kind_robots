@@ -167,7 +167,11 @@ function portraitFor(speaker: string, pose: string, floor = 1): string | null {
       (key) => key.startsWith(`portraits/${slug}-`) && !/-f\d+$/.test(key),
     )
     .sort()[0]
-  return byStem[`cthulhuquarium-char-${slug}`] ?? null
+  return (
+    (anyPose ? storyArt[anyPose] : undefined) ??
+    byStem[`cthulhuquarium-char-${slug}`] ??
+    null
+  )
 }
 
 /** A tank background (canon backgrounds/backgrounds.yaml). */

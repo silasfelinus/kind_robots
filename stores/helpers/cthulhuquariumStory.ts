@@ -209,9 +209,9 @@ export function useCthulhuquariumStory() {
     }
     const choice = pendingChoices.value[scene.id]
     const choices = choice ? { [scene.id]: choice } : {}
-    const rest = { ...pendingChoices.value }
-    delete rest[scene.id]
-    pendingChoices.value = rest
+    pendingChoices.value = Object.fromEntries(
+      Object.entries(pendingChoices.value).filter(([id]) => id !== scene.id),
+    )
     if (state.value) {
       state.value = {
         ...state.value,

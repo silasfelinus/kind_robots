@@ -53,7 +53,7 @@ const milestoneIds = new Set<string>([
   FIRST_EVOLUTION_MILESTONE.id,
   FIRST_RIVALRY_RESOLVED_MILESTONE_ID,
 ])
-const keyFloors = new Set(
+const keyFloors = new Set<number>(
   CTHULHUQUARIUM_FLOORS.filter((f) => f.floor > 1).map((f) => f.floor),
 )
 

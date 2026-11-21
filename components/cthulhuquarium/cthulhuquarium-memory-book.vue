@@ -20,7 +20,7 @@
         {{ endingsSeen }} of {{ endings.length }} reached
       </span>
     </div>
-    <ul class="cq-memory-grid cq-endings kr-scroll" role="list">
+    <ul class="cq-memory-grid cq-endings" role="list">
       <li v-for="ending in endings" :key="ending.id">
         <button
           v-if="ending.seen"
@@ -202,6 +202,13 @@ function replay(id: string) {
   gap: 0.6rem;
   overflow-x: auto;
   padding-bottom: 0.4rem;
+}
+.cq-endings {
+  /* Three cards: they share the width instead of scrolling, so the book
+     keeps one scroll region (the scenes shelf). */
+  grid-auto-flow: row;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow-x: visible;
 }
 .cq-memory-card {
   position: relative;

@@ -28,7 +28,7 @@ export const CTHULHUQUARIUM_DEFAULT_SETTINGS: CthulhuquariumSettings = {
 export function readCthulhuquariumSettings(
   raw: string | null,
 ): CthulhuquariumSettings {
-  let parsed: Partial<CthulhuquariumSettings> = {}
+  let parsed: Partial<CthulhuquariumSettings>
   try {
     parsed = raw ? (JSON.parse(raw) as Partial<CthulhuquariumSettings>) : {}
   } catch {

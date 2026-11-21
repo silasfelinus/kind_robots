@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs'
 import {
   curatedRedshirtArtKey,
   isApprovedRedshirtSelection,
+  isSpaceCouchRedshirtSlot,
+  preferCanonicalRedshirtSlots,
 } from '../gameOfCaptains/curatedRedshirtArt'
 import { WARP_ART } from '../gameOfCaptains/artManifest'
 import { REDSHIRT_ROUND3_CANDIDATES } from '../gameOfCaptains/redshirtRound3Candidates'
@@ -47,6 +49,53 @@ assert.equal(
   'approval for another render cannot promote this one',
 )
 
+// A foreign project may not supply art just by copying our slot key. Older
+// canonical keys without projectSlug remain readable for compatibility.
+assert.equal(
+  isSpaceCouchRedshirtSlot('game-of-captains', 'redshirts/portraits/rs-001'),
+  true,
+)
+assert.equal(
+  isSpaceCouchRedshirtSlot(null, 'game-of-captains/redshirts/portraits/rs-001'),
+  true,
+)
+assert.equal(
+  isSpaceCouchRedshirtSlot(
+    'other-project',
+    'game-of-captains/redshirts/portraits/rs-001',
+  ),
+  false,
+)
+assert.equal(
+  isSpaceCouchRedshirtSlot(null, 'redshirts/portraits/rs-001'),
+  false,
+)
+assert.equal(
+  isSpaceCouchRedshirtSlot(
+    'game-of-captains',
+    'redshirts/portraits/rs-001/other',
+  ),
+  false,
+)
+
+// Prefer the curator's fully qualified slot over a legacy short alias.
+// Sorting must not mutate data returned by Prisma.
+const legacySlot = { slotKey: 'redshirts/portraits/rs-001', id: 7 }
+const canonicalSlot = {
+  slotKey: 'game-of-captains/redshirts/portraits/rs-001',
+  id: 8,
+}
+const unorderedSlots = [legacySlot, canonicalSlot]
+assert.deepEqual(
+  preferCanonicalRedshirtSlots(unorderedSlots).map((slot) => slot.id),
+  [8, 7],
+)
+assert.deepEqual(
+  unorderedSlots.map((slot) => slot.id),
+  [7, 8],
+)
+assert.deepEqual(preferCanonicalRedshirtSlots([]), [])
+
 const route = readFileSync(
   'server/api/game-of-captains/redshirt-art.get.ts',
   'utf8',
@@ -55,6 +104,11 @@ assert.ok(route.includes('isPublic: true'))
 assert.ok(route.includes('isMature: false'))
 assert.ok(route.includes('isActive: true'))
 assert.ok(route.includes('isApprovedRedshirtSelection('))
+assert.ok(route.includes('isSpaceCouchRedshirtSlot('))
+assert.ok(route.includes('preferCanonicalRedshirtSlots(selected)'))
+assert.ok(route.includes('if (sources[slot.key]) continue'))
+assert.ok(route.includes('projectSlug: null'))
+assert.ok(route.includes("projectSlug: 'game-of-captains'"))
 assert.ok(route.includes('selectedArtImageId: { not: null }'))
 assert.ok(!route.includes("status: 'DONE'"))
 assert.ok(!route.includes('artJob.findMany'))

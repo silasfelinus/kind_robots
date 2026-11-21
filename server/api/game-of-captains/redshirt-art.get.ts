@@ -6,6 +6,8 @@ import { galleryThumbnailUrl } from '~/server/utils/artGalleryArchiveMedia'
 import {
   curatedRedshirtArtKey,
   isApprovedRedshirtSelection,
+  isSpaceCouchRedshirtSlot,
+  preferCanonicalRedshirtSlots,
 } from '~/utils/gameOfCaptains/curatedRedshirtArt'
 
 /**
@@ -20,15 +22,25 @@ export default defineEventHandler(async (event) => {
       where: {
         selectedArtImageId: { not: null },
         OR: [
-          { slotKey: { startsWith: 'game-of-captains/redshirts/' } },
+          {
+            projectSlug: 'game-of-captains',
+            slotKey: { startsWith: 'game-of-captains/redshirts/' },
+          },
           {
             projectSlug: 'game-of-captains',
             slotKey: { startsWith: 'redshirts/' },
+          },
+          {
+            // Preserve older fully qualified slots without a projectSlug,
+            // never allow a different project's selections to override ours.
+            projectSlug: null,
+            slotKey: { startsWith: 'game-of-captains/redshirts/' },
           },
         ],
       },
       select: {
         slotKey: true,
+        projectSlug: true,
         selectedArtImageId: true,
         Candidates: {
           select: { artImageId: true, verdict: true },
@@ -37,7 +49,9 @@ export default defineEventHandler(async (event) => {
     })
     const selected = slots
       .map((slot) => ({
+        slotKey: slot.slotKey,
         key: curatedRedshirtArtKey(slot.slotKey),
+        scoped: isSpaceCouchRedshirtSlot(slot.projectSlug, slot.slotKey),
         artImageId: slot.selectedArtImageId,
         liked: isApprovedRedshirtSelection(
           slot.selectedArtImageId,
@@ -45,8 +59,19 @@ export default defineEventHandler(async (event) => {
         ),
       }))
       .filter(
-        (slot): slot is { key: string; artImageId: number; liked: true } =>
-          slot.key !== null && slot.artImageId !== null && slot.liked,
+        (
+          slot,
+        ): slot is {
+          slotKey: string
+          key: string
+          scoped: true
+          artImageId: number
+          liked: true
+        } =>
+          slot.scoped &&
+          slot.key !== null &&
+          slot.artImageId !== null &&
+          slot.liked,
       )
 
     if (!selected.length) return { success: true, data: {} }
@@ -62,7 +87,8 @@ export default defineEventHandler(async (event) => {
     })
     const byId = new Map(images.map((image) => [image.id, image]))
     const sources: Record<string, string> = {}
-    for (const slot of selected) {
+    for (const slot of preferCanonicalRedshirtSlots(selected)) {
+      if (sources[slot.key]) continue
       const image = byId.get(slot.artImageId)
       if (!image) continue
       sources[slot.key] =

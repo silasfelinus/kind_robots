@@ -82,7 +82,7 @@ for (const henchman of VILLAIN_HENCHMEN) {
 assert.equal(choices.size, 144)
 
 // Adversarial, seeded end-to-end routes through all three captain choices.
-for (const seed of [1, 73, 404, 777, 2314, 99007]) {
+for (const seed of [1, 73, 404, 777, 2314, 11011, 65537, 99007]) {
   const start = {
     ...startFullAcademy('kinetic', seed),
     day: 25,
@@ -118,6 +118,11 @@ for (const seed of [1, 73, 404, 777, 2314, 99007]) {
     assert.ok(callback?.includes(crew.crew.captain))
     assert.ok(nightPatrolBeat(nextNight)?.text.includes(callback!))
     const network = crewPatrolNetwork(nextNight, 'hero')
+    assert.equal(
+      crewPatrolNetwork({ ...nextNight, patrolHistory: [] }, 'hero'),
+      null,
+      'a different save with no witnessed captain earns no aid',
+    )
     const expected = choice.id.endsWith('-counter-investigate')
       ? 1
       : choice.id.endsWith('-mercy-intervene')

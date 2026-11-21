@@ -335,7 +335,7 @@ export const CTHULHUQUARIUM_VOICES: Record<
     charlotte:
       'An artist in residence. Every morning a fresh composition in glass thread, and never the same one twice. Collectors travel miles for this.',
     wilbur:
-      "Don't clean the web away; it's rebuilt by morning regardless. I copy each one into the notebook before it goes. I don't read them. I just copy them.",
+      "Don't clean the web away; it's rebuilt by morning regardless. I draw each one into the notebook before it goes.",
   },
   'gravel-tetra': {
     charlotte:
@@ -431,7 +431,7 @@ export const CTHULHUQUARIUM_VOICES: Record<
     charlotte:
       'Our very own Portsmouth fish, in rose and violet. So wonderfully sociable; it makes friends with everyone who has a shell.',
     wilbur:
-      "Check your snails at breeding time. If one is moving slower than usual, it's carrying lodgers.",
+      "Check your snails now and then. If one is moving slower than usual, it's carrying lodgers.",
   },
   'postmark-snail': {
     charlotte:
@@ -555,9 +555,9 @@ export const CTHULHUQUARIUM_VOICES: Record<
   },
   'the-catchment': {
     charlotte:
-      'The whole weather of the town, gathered into one tank for you. Like having a view, only wetter, and so much more your own.',
+      'All the weather in the building, gathered into one tank for you. Like having a view, only wetter, and so much more your own.',
     wilbur:
-      "Leave headroom on rainy days, whatever it's doing indoors. Check the street before you top up, and keep a bucket by the stand.",
+      "Leave headroom on rainy days, whatever it's doing indoors. Check the gutters before you top up, and keep a bucket by the stand.",
   },
   'the-census': {
     charlotte:
@@ -2361,7 +2361,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'welcome',
-        text: 'Come in, come in, out of all that. Whatever it is out there, it will keep. Everything out is in, as we say.',
+        text: 'Come in, come in, out of all that. Whatever it is out there, it will keep. Do wipe your feet, darling; the floor has only just settled.',
         focus: null,
         await: null,
         plate: null,
@@ -2433,7 +2433,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'wilbur',
         pose: 'explaining',
-        text: 'Things settle on the bottom. Some of it is gravel. When the meter fills up, Clean brings it back down, and they work better for it.',
+        text: 'Things settle on the bottom. Some of it is gravel. When the meter fills up, Press Clean and it comes back down, and they work better for it.',
         focus: 'clean',
         await: null,
         plate: null,
@@ -2468,8 +2468,8 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       },
       {
         speaker: 'wilbur',
-        pose: 'wince',
-        text: "I'll be in the back. Do call if anything gets out.",
+        pose: 'explaining',
+        text: "I'll be in the back. Shout if anything gets out.",
         focus: null,
         await: null,
         plate: null,
@@ -2497,7 +2497,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       },
       {
         speaker: 'wilbur',
-        pose: 'wince',
+        pose: 'explaining',
         text: "It's in. It's settling. Maybe give the glass a minute before you tap it.",
         focus: null,
         await: null,
@@ -2527,7 +2527,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'wilbur',
         pose: 'hopeful',
-        text: "The book's full. I didn't think anyone would. Thank you for looking after them.",
+        text: "The book's full. I didn't think anyone would fill it. Thank you for looking after them.",
         focus: null,
         await: null,
         plate: null,
@@ -2556,7 +2556,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'wilbur',
         pose: 'alarmed',
-        text: "Did something just go past the window? Something large? I'll write it down exactly as it happened.",
+        text: "Did something just go past the window? Something large? I'll start a new page.",
         focus: null,
         await: null,
         plate: null,
@@ -2614,7 +2614,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'delighted',
-        text: 'Ten. Now you are a regular, and regulars are shown downstairs. The key to Below Stairs, darling. Mind the third step; it is not always there.',
+        text: 'Now you are a regular, and regulars are shown downstairs. The key to Below Stairs, darling. Mind the third step; it is not always there.',
         focus: null,
         await: null,
         plate: null,
@@ -2756,7 +2756,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'delighted',
-        text: 'Twenty-five. The Sorting Office. Everything that was ever posted here arrived eventually. Some of it is still arriving.',
+        text: 'The Sorting Office. Everything that was ever posted here arrived eventually. Some of it is still arriving.',
         focus: null,
         await: null,
         plate: null,
@@ -2783,7 +2783,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'wilbur',
         pose: 'explaining',
-        text: 'Everything in the Wing was posted to us. Some of them still have the stamps on.',
+        text: "Some of them still have their stamps on. I've never found a postmark I recognised.",
         focus: null,
         await: null,
         plate: null,
@@ -2858,7 +2858,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'lorgnette',
-        text: 'Thirty-five. The Counting House. Every account in it balances. I had it audited, and then I had the auditor put in a tank.',
+        text: 'Thirty-five. The Counting House. Every account in it balances to the farthing, darling, including several accounts nobody ever opened.',
         focus: null,
         await: null,
         plate: null,
@@ -2878,7 +2878,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'presenting',
-        text: 'Fifty, darling. Fifty. The Conservatory is yours. It was built to keep the weather out and it has been keeping the water in ever since.',
+        text: 'There, darling. The Conservatory is yours. It was built to keep the weather out and it has been keeping the water in ever since.',
         focus: null,
         await: null,
         plate: null,
@@ -2932,7 +2932,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
               {
                 speaker: 'wilbur',
                 pose: 'hopeful',
-                text: "Thank you. Most people run the last bit. You don't need to. Nothing in there is in a hurry.",
+                text: "Thank you. You don't need to hurry. Nothing in there is in a hurry.",
                 focus: null,
                 await: null,
                 plate: null,
@@ -3002,14 +3002,14 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
     title: 'The Bottom of Things',
     trigger: 'floor_open:5',
     floor: 5,
-    plate: null,
+    plate: 'screen-bottom-of-things',
     background: 'abyssal-plain',
     covers: [],
     beats: [
       {
         speaker: 'charlotte',
         pose: 'presenting',
-        text: 'Ninety-five. The Plain, from the very bottom of things. We had it brought up in one piece. It was the only way it would come.',
+        text: 'The Plain, from the very bottom of things. We had it brought up in one piece. It was the only way it would come.',
         focus: null,
         await: null,
         plate: null,
@@ -3018,7 +3018,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'confiding',
-        text: 'There is no key for the last floor, darling. There never was a door. You simply keep going down until the stairs stop, and then you are there.',
+        text: 'That was the last key, darling, and it opens nothing; there never was a door. You simply keep going down until the stairs stop, and then you are there.',
         focus: null,
         await: null,
         plate: null,
@@ -3078,7 +3078,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
               {
                 speaker: 'charlotte',
                 pose: 'delighted',
-                text: 'Darling, I grew up down there. It is where the Fishmongers keep the very best stock, and I was always the very best stock.',
+                text: 'Darling, I was never let past the last landing. Mother said some places are better as stories, and she told the best ones.',
                 focus: null,
                 await: null,
                 plate: null,
@@ -3131,7 +3131,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'presenting',
-        text: 'All of them. The Reading Room, where the book is kept. You belong in it now.',
+        text: 'The Reading Room, darling, where the book is kept. Every page in it is yours.',
         focus: null,
         await: null,
         plate: null,
@@ -3198,7 +3198,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'lorgnette',
-        text: 'Expansion. How marvellous. Have the Hatchery, darling; it is where we keep the ones that have not decided yet.',
+        text: 'Expansion. How marvellous. Have the Hatchery, darling; it is where the shy ones go until they feel like being looked at.',
         focus: null,
         await: null,
         plate: null,
@@ -3218,7 +3218,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'charlotte',
         pose: 'delighted',
-        text: 'Spotless. I could eat off it. Have the Scullery, you clearly know what to do with one.',
+        text: 'Spotless. I could eat off it. Have the Scullery; you clearly know what to do with one.',
         focus: null,
         await: null,
         plate: null,
@@ -3227,7 +3227,7 @@ export const CTHULHUQUARIUM_SCENES: Record<string, CanonScene> = {
       {
         speaker: 'wilbur',
         pose: 'hopeful',
-        text: 'It looked really good. I noticed.',
+        text: 'It looked properly clean. The fish noticed too.',
         focus: null,
         await: null,
         plate: null,
@@ -3467,7 +3467,7 @@ export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = {
     speaker: 'charlotte',
     pose: 'delighted',
     lines: [
-      "Sold back to the house, lovely. It will be in somebody else's tank by teatime, and ever so happy.",
+      "Sold back to the house, darling. It will be in somebody else's tank by teatime, and ever so happy.",
       'Back it comes. The shelf had been missing it terribly, and the shelf is so rarely wrong.',
       'A wonderful price. I would have paid double, frankly, but it would be rude to say so.',
       'No fretting, darling; nothing that comes through this shop is ever really gone. It only changes tanks.',
@@ -3526,7 +3526,7 @@ export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = {
       "Clean glass, clean gravel. The coins come up quicker now; I don't know why, but they always do.",
       'Nice work. Everything on the bottom is back where it belongs, or at least somewhere I can find it.',
       "There were teeth in that lot, not from anyone we've got. I'll keep them in a jar.",
-      "Leave the bit of scum on the far side. Something's laid in it, and I'd rather it hatched first.",
+      "Leave the bit of scum on the far side. Something's living in it, and I'd rather not evict it.",
       "That's the bottom back to gravel. It won't last, it never does, and that's all right.",
       "The water's so clear you can see the shy ones now. They're doing fine.",
     ],
@@ -3566,7 +3566,7 @@ export const CTHULHUQUARIUM_BARKS: Record<string, CanonBark> = {
       "They're only startled. That one's pretending to be a rock, and it's quite good at it.",
       "Give them a minute; the small ones come back first. The big one comes back when it's ready.",
       "I know it's tempting. I tapped once, my first week, and it tapped back.",
-      "Th-they're fine. Just keep your face a little way back from the front for a moment.",
+      "Th-they're fine. They just want a bit of quiet for a moment.",
     ],
   },
   welcome_back: {

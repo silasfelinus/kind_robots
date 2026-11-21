@@ -50,6 +50,7 @@
             :alt="heroAlt"
             class="cq-vn-character cq-vn-lit"
             :class="isCharlotte ? 'cq-vn-left' : 'cq-vn-right'"
+            @error="hideMissingArt"
           />
           <template v-else>
             <Transition
@@ -68,6 +69,7 @@
                   side.speaker === 'charlotte' ? 'cq-vn-left' : 'cq-vn-right',
                   side.lit ? 'cq-vn-lit' : 'cq-vn-dim',
                 ]"
+                @error="hideMissingArt"
               />
             </Transition>
           </template>
@@ -181,6 +183,7 @@
               :src="portraitUrl"
               :alt="`${speakerName}, ${beat.pose}`"
               class="cq-portrait -mt-12 h-32 w-24 shrink-0 object-contain object-bottom sm:-mt-20 sm:h-52 sm:w-36"
+              @error="hideMissingArt"
             />
             <div class="flex min-w-0 flex-1 flex-col gap-2">
               <div class="flex flex-wrap items-baseline gap-2">
@@ -485,6 +488,12 @@ onBeforeUnmount(() => {
   stopTyping()
   window.removeEventListener('keydown', onKey)
 })
+
+// A portrait that fails to load leaves the stage empty rather than showing
+// its alt text or a broken-image icon; the dialogue box still names the speaker.
+function hideMissingArt(event: Event) {
+  ;(event.target as HTMLImageElement).style.visibility = 'hidden'
+}
 </script>
 
 <style scoped>

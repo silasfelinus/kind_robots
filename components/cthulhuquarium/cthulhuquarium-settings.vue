@@ -13,12 +13,15 @@
       aria-labelledby="cq-settings-title"
       @cancel.prevent="close"
     >
-      <div class="modal-box cq-settings flex max-w-md flex-col gap-4">
+      <div
+        class="modal-box cq-settings flex max-w-md flex-col gap-4 bg-base-100 text-base-content"
+      >
         <header class="flex items-center justify-between gap-3">
           <h3 id="cq-settings-title" class="font-serif text-2xl font-black">
             Settings
           </h3>
           <button
+            ref="closeRef"
             type="button"
             class="btn btn-ghost btn-sm btn-circle"
             aria-label="Close settings"
@@ -115,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useCthulhuquariumTankStore } from '~/stores/cthulhuquariumTankStore'
 import type {
   CthulhuquariumMotionSetting as MotionSetting,
@@ -133,7 +136,7 @@ const SPEEDS: ReadonlyArray<{ value: TextSpeed; label: string }> = [
   { value: 'instant', label: 'At once' },
 ]
 const MOTIONS: ReadonlyArray<{ value: MotionSetting; label: string }> = [
-  { value: 'system', label: 'Like my device' },
+  { value: 'system', label: 'My device' },
   { value: 'reduced', label: 'Less' },
   { value: 'full', label: 'Full' },
 ]
@@ -152,6 +155,21 @@ function close() {
   tankStore.closeSettings()
   emit('close')
 }
+
+// The dialog is not opened with showModal(), so the browser never sends it
+// `cancel`: Esc is caught here, ahead of the console's own Esc (back).
+const closeRef = ref<HTMLButtonElement | null>(null)
+function onKey(event: KeyboardEvent) {
+  if (event.key !== 'Escape') return
+  event.preventDefault()
+  event.stopImmediatePropagation()
+  close()
+}
+onMounted(() => {
+  window.addEventListener('keydown', onKey, true)
+  closeRef.value?.focus()
+})
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey, true))
 </script>
 
 <style scoped>

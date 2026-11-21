@@ -3428,6 +3428,20 @@ onBeforeUnmount(() => {
     display: none;
   }
 }
+/* Below this the wordmark cartouche and the full capsule row (with the
+   settings button) no longer fit side by side; the capsules win. */
+@container cq-game (max-width: 820px) {
+  .cq-cartouche {
+    display: none;
+  }
+}
+/* A phone-width HUD has room for coins, places, floor and three buttons, not
+   the day as well (it pushed the last button off the edge at 390px). */
+@container cq-game (max-width: 460px) {
+  .cq-capsule-day {
+    display: none;
+  }
+}
 @container cq-game (max-width: 640px) {
   .cq-layout {
     gap: 0.35rem;

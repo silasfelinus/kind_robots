@@ -38,7 +38,7 @@ assert.throws(
         log: [],
       },
     ]),
-  /too large/,
+  /exceeds the 8 MB portable-backup limit/,
   'overlarge export cannot produce a file that the importer rejects',
 )
 assert.equal(remote.kind, VOYAGE_BACKUP_KIND)

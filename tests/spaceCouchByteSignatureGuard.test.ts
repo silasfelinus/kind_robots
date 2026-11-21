@@ -57,9 +57,8 @@ export function findDoubleEscapedSignatures(
           parent = parent.parent
         }
         if (signatureContext) {
-          const line = file.getLineAndCharacterOfPosition(
-            node.getStart(file),
-          ).line + 1
+          const line =
+            file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1
           const location = `${filename}:${line}`
           if (!ALLOWED.has(location)) {
             errors.push(location)

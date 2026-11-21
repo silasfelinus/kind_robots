@@ -41,12 +41,14 @@ export interface CthulhuquariumFloor {
 // projects/cthulhuquarium/data/simulate_descent.py so a casual player (two
 // 10-minute sessions a day) opens Below Stairs in the first session, the
 // Flooded Wing within a day or two, the Conservatory within the week, and the
-// Bottom of Things in the second week. Mirrors economy.yaml `floor_keys`.
+// Bottom of Things about day 10. Mirrors economy.yaml `floor_keys`.
+// Silas 2026-11-21 halved the wait for the last key: at 400,000 a casual player
+// waited ~8.5 days with nothing new to buy; at 200,000 it is ~4.
 export const FLOOR_KEY_COSTS: Readonly<Record<2 | 3 | 4 | 5, number>> = {
   2: 150,
   3: 3_000,
   4: 30_000,
-  5: 400_000,
+  5: 200_000,
 }
 
 export const CTHULHUQUARIUM_FLOORS: readonly CthulhuquariumFloor[] = [

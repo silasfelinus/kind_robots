@@ -26,6 +26,7 @@ import { legacyCouchSettings } from '~/utils/gameOfCaptains/legacyPreferences'
 import { useAchievementStore } from '~/stores/achievementStore'
 import {
   createBoundedVoyageBackup,
+  createVoyageBackup,
   createVoyageBackupStager,
   mergeVoyageHistory,
   parseVoyageBackup,

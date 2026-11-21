@@ -28,6 +28,35 @@ export const identityArtKey = (
   signature: string,
   form: 'student' | 'hero' | 'villain',
 ) => `identities/${signature}/${form}`
+
+/** The original art key remains stable; shipped outcome paintings are fallback. */
+export const identityArtCandidateKeys = (
+  signature: string,
+  form: 'student' | 'hero' | 'villain',
+): string[] =>
+  form === 'student'
+    ? [identityArtKey(signature, form)]
+    : [
+        identityArtKey(signature, form),
+        `identities/${signature}/outcomes/${form}`,
+      ]
+
+/** Reuse existing shipped art instead of showing an empty hero/villain card. */
+export const identityArtwork = (
+  signature: string,
+  form: 'student' | 'hero' | 'villain',
+): string | null =>
+  identityArtCandidateKeys(signature, form)
+    .map((key) => promArt(key))
+    .find(Boolean) ?? null
+
+/** Display-only art key; never write this into a character ID or save. */
+export const identityDisplayArtKey = (
+  signature: string,
+  form: 'student' | 'hero' | 'villain',
+): string =>
+  identityArtCandidateKeys(signature, form).find((key) => promArt(key)) ??
+  identityArtKey(signature, form)
 export const incidentArtKey = (id: string) => `incidents/${id}`
 export const encounterArtKey = (title: string) => `encounters/${slugify(title)}`
 export const districtArtKey = (siteId: string) => `districts/${siteId}`

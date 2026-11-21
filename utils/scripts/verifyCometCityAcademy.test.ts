@@ -20,6 +20,9 @@ import {
   endingArtKey,
   slugify,
   identityArtKey,
+  identityArtCandidateKeys,
+  identityArtwork,
+  identityDisplayArtKey,
   studentArtKey,
   villainArtKey,
 } from '../cometAcademy/artSlots'
@@ -2692,6 +2695,38 @@ assert.equal(
     .join(),
   'mutant-air',
 )
+// The existing 48 identity outcome paintings are reused in art-led surfaces.
+// The stable original art key and old save signature never change.
+let shippedHeroFaces = 0
+let shippedVillainFaces = 0
+for (const identity of SIGNATURE_POWERS) {
+  const hero = identityArtwork(identity.id, 'hero')
+  const villain = identityArtwork(identity.id, 'villain')
+  if (hero) shippedHeroFaces++
+  if (villain) shippedVillainFaces++
+  for (const form of ['hero', 'villain'] as const) {
+    const original = identityArtKey(identity.id, form)
+    const fallback = `identities/${identity.id}/outcomes/${form}`
+    assert.equal(identityArtCandidateKeys(identity.id, form)[0], original)
+    assert.equal(
+      identityArtwork(identity.id, form),
+      promArt(original) ?? promArt(fallback),
+    )
+    assert.equal(
+      identityDisplayArtKey(identity.id, form),
+      promArt(original) ? original : promArt(fallback) ? fallback : original,
+    )
+  }
+}
+assert.equal(shippedHeroFaces, 48, 'all 48 painted hero choices show')
+assert.equal(shippedVillainFaces, 47, '47 available villain pictures show')
+assert.equal(identityArtwork('psychic-discipline', 'villain'), null)
+assert.equal(
+  identityArtKey('accident-earth', 'hero'),
+  'identities/accident-earth/hero',
+  'stable original art key preserved',
+)
+
 for (const vow of ['shelter', 'unmask', 'claim'])
   assert.ok(promArt('vows/' + vow), vow)
 // Every identity's outcome scenes (personalOutcomeArt, personalOutcomeArtKey)

@@ -400,9 +400,9 @@
             @click="selectedAllegiance = side.id"
           >
             <img
-              v-if="promArt(identityArtKey(currentSignature.id, side.id))"
+              v-if="identityArtwork(currentSignature.id, side.id)"
               class="prom-route-art"
-              :src="promArt(identityArtKey(currentSignature.id, side.id))!"
+              :src="identityArtwork(currentSignature.id, side.id)!"
               alt=""
             />
             <span class="prom-route-number">{{ side.number }}</span>
@@ -764,7 +764,7 @@
 import { computed, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { identityFor } from '~/utils/cometAcademy/identityArcs'
-import { identityArtKey } from '~/utils/cometAcademy/artSlots'
+import { identityArtwork } from '~/utils/cometAcademy/artSlots'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import {
   POWER_AFFINITIES,
@@ -906,7 +906,7 @@ const personaDescription = computed(() =>
       : identity.value.villain.method,
 )
 const personaArtwork = computed(() =>
-  promArt(identityArtKey(currentSignature.value.id, selectedForm.value)),
+  identityArtwork(currentSignature.value.id, selectedForm.value),
 )
 const choiceArtwork = computed(
   () =>

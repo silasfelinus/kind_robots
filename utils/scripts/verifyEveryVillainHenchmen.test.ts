@@ -521,7 +521,7 @@ for (const kind of kinds) {
   assert.ok(CREW_TELL_ART[kind].name.length)
   for (const beat of CREW_TELL_BEATS) {
     const receipt = crewTellReceipt(kind, beat)!
-    assert.match(receipt.artKey, /^henchmen\//)
+    assert.match(receipt.artKey, /^every-villain-tactics\/henchmen\//)
     assert.ok(receipt.title.length > 8)
   }
 }

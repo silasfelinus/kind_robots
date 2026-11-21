@@ -1,6 +1,7 @@
 import { buildFormationSchedule, wave } from './rainbowFormations'
 import type { RainbowSpawn, RainbowWave } from './rainbowFormations'
 import { CROWN_REEF_PYLONS } from './rainbowCrownReef'
+import type { RainbowGuardianSection } from './rainbowGuardian'
 
 /**
  * X3, Sunken Lighthouse Ring: an earned detour between Acts VI and VII.
@@ -26,6 +27,13 @@ export const LIGHTHOUSE = {
   guardianName: 'Drowned Bellkeeper',
   lampsToLight: 6,
 } as const
+
+export const LIGHTHOUSE_GUARDIAN: RainbowGuardianSection = {
+  name: LIGHTHOUSE.guardianName,
+  from: LIGHTHOUSE.guardianFrom,
+  to: LIGHTHOUSE.guardianTo,
+  kind: 'lampkeeper',
+}
 
 export const LIGHTHOUSE_SECTIONS = [
   { name: 'Bell one: the drowned approach', from: 240, to: 1530 },

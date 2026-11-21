@@ -5,6 +5,7 @@
  * Act clock never waits on it. Destroying it pays a bonus and drops a full set of pickups.
  */
 import { rainbowBossHp } from './rainbowPinkwakeBoss'
+import { lighthouseBellkeeperVolley } from './rainbowSunkenLighthouse'
 
 export type RainbowGuardianKind =
   | 'urchin'
@@ -12,6 +13,7 @@ export type RainbowGuardianKind =
   | 'matriarch'
   | 'siren'
   | 'warden'
+  | 'lampkeeper'
   | 'clawstrike'
   | 'courier'
   | 'salvager'
@@ -220,6 +222,14 @@ export function stepRainbowGuardian(
         for (const offset of offsets)
           shot(aim + side * offset, enraged ? 1.8 : 1.55)
     }
+  } else if (guardian.kind === 'lampkeeper') {
+    // The lighthouse bell alternates a travelling broken hoop and a
+    // double crescent with an open aimed corridor, including at half health.
+    for (const { angle, speed } of lighthouseBellkeeperVolley(
+      guardian.volleys,
+      enraged,
+    ))
+      shot(angle, speed)
   } else if (guardian.kind === 'herald') {
     // The Crown Herald remixes two old lessons, one per volley: bolts down the lanes its warning marked,
     // then a ring of pearls with a gap that walks round.

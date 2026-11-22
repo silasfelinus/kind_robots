@@ -93,11 +93,12 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'scene-animator',
     route: '/admin/scene-animator',
   },
-  // Music Videos now has a dedicated admin-only surface.
+  // The Music Videos workbench lives in Projects → Video Studio.
+  // Watching is public; production controls still require administrator access.
   'music-video': {
-    channelKey: 'admin',
-    tabKey: 'music-video',
-    route: '/admin/music-video',
+    channelKey: 'projects',
+    tabKey: 'video-generator',
+    route: '/play/video-generator?studio=music',
   },
   storybook: {
     channelKey: 'admin',

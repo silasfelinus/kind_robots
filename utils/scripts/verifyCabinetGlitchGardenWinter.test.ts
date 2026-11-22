@@ -74,6 +74,7 @@ const make = (seed = 17) =>
   }) as unknown as Probe
 const countFrost = (g: Probe) => g.grid.filter((ob) => ob?.frosted).length
 const at = (g: Probe, col: number, row: number) => g.grid[row * COLS + col]!
+const moleOf = (g: Probe): Mole | null => g.mole
 
 assert.equal(GARDENS.length, 8)
 assert.equal(PLAYS_PER_LAP, 43)
@@ -174,30 +175,29 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   assert.equal(run(29), run(29), 'winter frost is seeded and repeatable')
 }
 
-
 {
   const g = make(71)
   g.beginStep(gardenStart(7) + 1, 0, 41)
   assert.equal(SNOWBALL_HILL.waves[1]!.mole, true)
-  assert.equal(g.mole, null)
+  assert.equal(moleOf(g), null)
   g.moleTimer = 1
   g.updateMole()
-  assert.equal(g.mole?.phase, 'tell', 'mole warns before an ambush')
-  const warning = g.mole!
+  assert.equal(moleOf(g)?.phase, 'tell', 'mole warns before an ambush')
+  const warning = moleOf(g)!
   assert.equal(warning.ticks, MOLE_TELL_TICKS)
   const x = warning.x
   const y = warning.y
   g.px += 32
-  g.mole!.ticks = 1
+  moleOf(g)!.ticks = 1
   g.updateMole()
-  assert.equal(g.mole?.phase, 'up', 'mole emerges after warning')
+  assert.equal(moleOf(g)?.phase, 'up', 'mole emerges after warning')
   const lives = g.lives
   g.worms = []
   g.snowballs = []
   g.checkHits()
   assert.equal(g.lives, lives, 'moving off the mound avoids the ambush')
   assert.ok(g.hitMole(x, y), 'emerged mole can be fixed with a spray')
-  assert.equal(g.mole, null)
+  assert.equal(moleOf(g), null)
   assert.equal(g.moleTimer, MOLE_WAIT_TICKS)
   assert.equal(g.hitMole(x, y), false, 'fixed mole pays only once')
 }
@@ -207,7 +207,7 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   g.beginStep(gardenStart(7) + 1, 0, 41)
   g.moleTimer = 1
   g.updateMole()
-  g.mole!.ticks = 1
+  moleOf(g)!.ticks = 1
   g.updateMole()
   g.worms = []
   g.snowballs = []

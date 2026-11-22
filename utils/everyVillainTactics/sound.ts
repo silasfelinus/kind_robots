@@ -146,7 +146,10 @@ export function tacticsCuesFor(
   if (next.squadHp < previous.squadHp) cues.push('damage')
   if (next.rescued > previous.rescued) cues.push('rescue')
   if (next.flags > previous.flags) cues.push('objective')
-  if (next.log !== previous.log && / uses | channels | unleashes /i.test(next.log))
+  if (
+    next.log !== previous.log &&
+    / uses | channels | unleashes /i.test(next.log)
+  )
     cues.push('power')
   if (next.scene && next.scene !== previous.scene) cues.push('scene')
   if (next.turn > previous.turn) cues.push('turn')
@@ -169,44 +172,198 @@ const REST = -1
 export const TACTICS_THEMES: Record<TacticsMood, TacticsTheme> = {
   title: {
     bpm: 104,
-    chords: [[55, 58, 62], [51, 55, 58], [48, 51, 55], [53, 57, 60]],
-    lead: [74, REST, 77, REST, 79, 77, REST, 74, 70, REST, 72, REST, 74, REST, 67, REST],
+    chords: [
+      [55, 58, 62],
+      [51, 55, 58],
+      [48, 51, 55],
+      [53, 57, 60],
+    ],
+    lead: [
+      74,
+      REST,
+      77,
+      REST,
+      79,
+      77,
+      REST,
+      74,
+      70,
+      REST,
+      72,
+      REST,
+      74,
+      REST,
+      67,
+      REST,
+    ],
     energy: 0.65,
   },
   planning: {
     bpm: 88,
-    chords: [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 55, 59]],
-    lead: [69, REST, REST, 72, REST, 76, REST, 72, 71, REST, 69, REST, 67, REST, 64, REST],
+    chords: [
+      [57, 60, 64],
+      [53, 57, 60],
+      [55, 59, 62],
+      [52, 55, 59],
+    ],
+    lead: [
+      69,
+      REST,
+      REST,
+      72,
+      REST,
+      76,
+      REST,
+      72,
+      71,
+      REST,
+      69,
+      REST,
+      67,
+      REST,
+      64,
+      REST,
+    ],
     energy: 0.42,
   },
   battle: {
     bpm: 132,
-    chords: [[52, 55, 59], [48, 52, 55], [50, 53, 57], [55, 59, 62]],
-    lead: [76, REST, 79, 76, 71, REST, 74, REST, 83, REST, 79, 76, 74, 71, REST, 74],
+    chords: [
+      [52, 55, 59],
+      [48, 52, 55],
+      [50, 53, 57],
+      [55, 59, 62],
+    ],
+    lead: [
+      76,
+      REST,
+      79,
+      76,
+      71,
+      REST,
+      74,
+      REST,
+      83,
+      REST,
+      79,
+      76,
+      74,
+      71,
+      REST,
+      74,
+    ],
     energy: 0.84,
   },
   danger: {
     bpm: 146,
-    chords: [[48, 51, 55], [47, 50, 54], [46, 49, 53], [43, 47, 50]],
-    lead: [72, REST, 71, REST, 75, 74, REST, 71, 70, REST, 68, REST, 67, 63, REST, 62],
+    chords: [
+      [48, 51, 55],
+      [47, 50, 54],
+      [46, 49, 53],
+      [43, 47, 50],
+    ],
+    lead: [
+      72,
+      REST,
+      71,
+      REST,
+      75,
+      74,
+      REST,
+      71,
+      70,
+      REST,
+      68,
+      REST,
+      67,
+      63,
+      REST,
+      62,
+    ],
     energy: 0.91,
   },
   cinematic: {
     bpm: 72,
-    chords: [[50, 53, 57], [46, 50, 53], [43, 46, 50], [48, 52, 55]],
-    lead: [74, REST, REST, REST, 77, REST, 79, REST, 81, REST, REST, 77, 74, REST, 69, REST],
+    chords: [
+      [50, 53, 57],
+      [46, 50, 53],
+      [43, 46, 50],
+      [48, 52, 55],
+    ],
+    lead: [
+      74,
+      REST,
+      REST,
+      REST,
+      77,
+      REST,
+      79,
+      REST,
+      81,
+      REST,
+      REST,
+      77,
+      74,
+      REST,
+      69,
+      REST,
+    ],
     energy: 0.37,
   },
   victory: {
     bpm: 116,
-    chords: [[62, 66, 69], [57, 61, 64], [59, 62, 66], [62, 66, 69]],
-    lead: [74, REST, 78, 81, 86, REST, 81, 78, 79, 81, 86, REST, 88, REST, 86, REST],
+    chords: [
+      [62, 66, 69],
+      [57, 61, 64],
+      [59, 62, 66],
+      [62, 66, 69],
+    ],
+    lead: [
+      74,
+      REST,
+      78,
+      81,
+      86,
+      REST,
+      81,
+      78,
+      79,
+      81,
+      86,
+      REST,
+      88,
+      REST,
+      86,
+      REST,
+    ],
     energy: 0.72,
   },
   defeat: {
     bpm: 66,
-    chords: [[47, 50, 54], [43, 47, 50], [45, 48, 52], [42, 47, 50]],
-    lead: [71, REST, REST, 69, REST, REST, 66, REST, 64, REST, 62, REST, 59, REST, REST, REST],
+    chords: [
+      [47, 50, 54],
+      [43, 47, 50],
+      [45, 48, 52],
+      [42, 47, 50],
+    ],
+    lead: [
+      71,
+      REST,
+      REST,
+      69,
+      REST,
+      REST,
+      66,
+      REST,
+      64,
+      REST,
+      62,
+      REST,
+      59,
+      REST,
+      REST,
+      REST,
+    ],
     energy: 0.28,
   },
 }
@@ -227,8 +384,7 @@ export const TACTICS_CUE_NOTES: Record<TacticsCue, readonly number[]> = {
   defeat: [62, 59, 54, 47],
 }
 
-export const tacticsNoteHz = (midi: number) =>
-  440 * 2 ** ((midi - 69) / 12)
+export const tacticsNoteHz = (midi: number) => 440 * 2 ** ((midi - 69) / 12)
 
 /** WebAudio is optional: the game, SSR and every test work silently without it. */
 export class TacticsSound {
@@ -287,8 +443,7 @@ export class TacticsSound {
   }
 
   play(cues: readonly TacticsCue[]): void {
-    if (!this.context || !this.effects || this.hidden || this.mix.muted)
-      return
+    if (!this.context || !this.effects || this.hidden || this.mix.muted) return
     for (const [index, cue] of cues.slice(0, 3).entries()) {
       const notes = TACTICS_CUE_NOTES[cue]
       if (!notes) continue
@@ -328,10 +483,13 @@ export class TacticsSound {
   }
 
   private applyMix(): void {
-    if (!this.context || !this.master || !this.music || !this.effects)
-      return
+    if (!this.context || !this.master || !this.music || !this.effects) return
     const at = this.context.currentTime
-    this.master.gain.setTargetAtTime(this.mix.muted ? 0 : this.mix.master, at, 0.03)
+    this.master.gain.setTargetAtTime(
+      this.mix.muted ? 0 : this.mix.master,
+      at,
+      0.03,
+    )
     this.music.gain.setTargetAtTime(this.mix.music, at, 0.03)
     this.effects.gain.setTargetAtTime(this.mix.effects, at, 0.03)
   }

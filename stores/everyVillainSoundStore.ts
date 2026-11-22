@@ -29,67 +29,70 @@ function persistMix(mix: TacticsMix): void {
 }
 
 /** One gesture-unlocked, route-scoped WebAudio player for game and settings. */
-export const useEveryVillainSoundStore = defineStore('everyVillainSound', () => {
-  const mix = ref<TacticsMix>(readMix())
-  const unlocked = ref(false)
-  let player: TacticsSound | null = null
+export const useEveryVillainSoundStore = defineStore(
+  'everyVillainSound',
+  () => {
+    const mix = ref<TacticsMix>(readMix())
+    const unlocked = ref(false)
+    let player: TacticsSound | null = null
 
-  function engine(): TacticsSound {
-    if (!player) {
-      player = new TacticsSound()
-      player.setMix(mix.value)
+    function engine(): TacticsSound {
+      if (!player) {
+        player = new TacticsSound()
+        player.setMix(mix.value)
+      }
+      return player
     }
-    return player
-  }
 
-  function loadMix(): void {
-    mix.value = readMix()
-    player?.setMix(mix.value)
-  }
+    function loadMix(): void {
+      mix.value = readMix()
+      player?.setMix(mix.value)
+    }
 
-  function setMix(patch: Partial<TacticsMix>): void {
-    mix.value = parseTacticsMix({ ...mix.value, ...patch })
-    persistMix(mix.value)
-    player?.setMix(mix.value)
-  }
+    function setMix(patch: Partial<TacticsMix>): void {
+      mix.value = parseTacticsMix({ ...mix.value, ...patch })
+      persistMix(mix.value)
+      player?.setMix(mix.value)
+    }
 
-  function resetMix(): void {
-    setMix({ ...DEFAULT_TACTICS_MIX })
-  }
+    function resetMix(): void {
+      setMix({ ...DEFAULT_TACTICS_MIX })
+    }
 
-  function unlock(): void {
-    if (typeof window === 'undefined') return
-    unlocked.value = engine().unlock()
-  }
+    function unlock(): void {
+      if (typeof window === 'undefined') return
+      unlocked.value = engine().unlock()
+    }
 
-  function setMood(mood: TacticsMood): void {
-    engine().setMood(mood)
-  }
+    function setMood(mood: TacticsMood): void {
+      engine().setMood(mood)
+    }
 
-  function play(cues: readonly TacticsCue[]): void {
-    if (cues.length) player?.play(cues)
-  }
+    function play(cues: readonly TacticsCue[]): void {
+      if (cues.length) player?.play(cues)
+    }
 
-  function setHidden(hidden: boolean): void {
-    player?.setHidden(hidden)
-  }
+    function setHidden(hidden: boolean): void {
+      player?.setHidden(hidden)
+    }
 
-  function stop(): void {
-    player?.dispose()
-    player = null
-    unlocked.value = false
-  }
+    function stop(): void {
+      player?.dispose()
+      player = null
+      unlocked.value = false
+    }
 
-  return {
-    mix,
-    unlocked,
-    loadMix,
-    setMix,
-    resetMix,
-    unlock,
-    setMood,
-    play,
-    setHidden,
-    stop,
-  }
-})
+    return {
+      mix,
+      unlocked,
+      loadMix,
+      setMix,
+      resetMix,
+      unlock,
+      setMood,
+      play,
+      setHidden,
+      stop,
+    }
+  },
+)

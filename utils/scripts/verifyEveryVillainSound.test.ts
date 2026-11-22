@@ -27,8 +27,7 @@ const moods: TacticsMood[] = [
 ]
 assert.deepEqual(Object.keys(TACTICS_THEMES).sort(), [...moods].sort())
 assert.equal(
-  new Set(moods.map((mood) => JSON.stringify(TACTICS_THEMES[mood].lead)))
-    .size,
+  new Set(moods.map((mood) => JSON.stringify(TACTICS_THEMES[mood].lead))).size,
   moods.length,
   'each moment needs its own original melody',
 )
@@ -49,12 +48,15 @@ assert.ok(Object.values(TACTICS_CUE_NOTES).every((notes) => notes.length > 0))
 
 assert.deepEqual(parseTacticsMix(null), DEFAULT_TACTICS_MIX)
 assert.deepEqual(parseTacticsMix('{invalid'), DEFAULT_TACTICS_MIX)
-assert.deepEqual(parseTacticsMix('{ "master": 2, "music": -3, "muted": true }'), {
-  master: 1,
-  music: 0,
-  effects: DEFAULT_TACTICS_MIX.effects,
-  muted: true,
-})
+assert.deepEqual(
+  parseTacticsMix('{ "master": 2, "music": -3, "muted": true }'),
+  {
+    master: 1,
+    music: 0,
+    effects: DEFAULT_TACTICS_MIX.effects,
+    muted: true,
+  },
+)
 assert.deepEqual(parseTacticsMix({ effects: Number.NaN, muted: 'yes' }), {
   ...DEFAULT_TACTICS_MIX,
 })
@@ -98,17 +100,14 @@ assert.deepEqual(
   tacticsCuesFor(initial, frame({ log: 'Backdraft uses Heat Shield.' })),
   ['power'],
 )
-assert.deepEqual(tacticsCuesFor(initial, frame({ scene: 'reveal' })), [
-  'scene',
-])
+assert.deepEqual(tacticsCuesFor(initial, frame({ scene: 'reveal' })), ['scene'])
 assert.deepEqual(
   tacticsCuesFor(initial, frame({ phase: 'victory', turn: 2 })),
   ['victory'],
 )
-assert.deepEqual(
-  tacticsCuesFor(initial, frame({ stage: 'science-wing' })),
-  ['stage'],
-)
+assert.deepEqual(tacticsCuesFor(initial, frame({ stage: 'science-wing' })), [
+  'stage',
+])
 assert.deepEqual(
   tacticsCuesFor(initial, frame({ screen: 'settings', turn: 2 })),
   [],

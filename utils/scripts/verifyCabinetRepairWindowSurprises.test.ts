@@ -15,12 +15,12 @@ for (let city = 1; city <= 25; city++) {
       kinds.add(surprise)
       rewards++
       const reward = WINDOW_SURPRISE_REWARDS[surprise]
-      assert.ok(reward.charge > 0)
+      assert.ok(surprise === 'sparky-wire' ? reward.charge < 0 : reward.charge > 0)
       assert.ok(reward.points > 0)
       assert.ok(reward.label.length > 0)
     }
   }
   assert.ok(rewards > 0, `Town ${city} has no window surprises`)
 }
-assert.deepEqual([...kinds].sort(), ['cake', 'snack', 'toolbox'])
+assert.deepEqual([...kinds].sort(), ['cake', 'snack', 'sparky-wire', 'toolbox'])
 console.log('Repair Rampage: deterministic window surprises across 25 towns')

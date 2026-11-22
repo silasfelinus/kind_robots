@@ -109,7 +109,6 @@ assert.ok(
   'Ashen Last Stand has a distinct cinematic pulse',
 )
 
-
 fire({ detail: { kind: 'move', from: 128, square: 0 } })
 assert.ok(
   !children.some((node) => node.className.includes('chess-fx-traveler-move')),

@@ -8,6 +8,7 @@ import { ARCADE_DIFFICULTIES } from '../types'
 import type { ArcadeDifficulty, ArcadeMasteryGoal } from '../types'
 import type { RainbowCheckpoint } from './rainbowCheckpoints'
 import { lighthouseCheckpointValid } from './rainbowSunkenLighthouse'
+import { nurseryFlightCheckpointValid } from './rainbowLanternNursery'
 import { mirrorShoalCheckpointValid } from './rainbowMirrorShoal'
 
 /**
@@ -274,6 +275,26 @@ export function readRainbowSave(
   if (!c || typeof c !== 'object') return null
   if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
   if (
+    c.nurseryFrame !== undefined &&
+    (!nurseryFlightCheckpointValid(
+      c.act as number,
+      c.frame as number,
+      c as RainbowCheckpoint,
+    ) ||
+      !count(c.nurseryHits, 999))
+  )
+    return null
+  if (
+    c.nurseryFrame === undefined &&
+    (c.nurseryStartedAt !== undefined || c.nurseryHits !== undefined)
+  )
+    return null
+  if (
+    c.nurseryFrame !== undefined &&
+    (c.lighthouseFrame !== undefined || c.shoalFrame !== undefined)
+  )
+    return null
+  if (
     c.lighthouseFrame !== undefined &&
     (!lighthouseCheckpointValid(
       c.act as number,
@@ -390,6 +411,13 @@ export function readRainbowSave(
       trenchRoute: saved.trenchRoute,
       routeSettled: saved.routeSettled,
       nurseryGuardianOutcome: saved.nurseryGuardianOutcome ?? 'waiting',
+      ...(saved.nurseryFrame !== undefined
+        ? {
+            nurseryStartedAt: saved.nurseryStartedAt,
+            nurseryFrame: saved.nurseryFrame,
+            nurseryHits: saved.nurseryHits,
+          }
+        : {}),
       rescuedCourier: saved.rescuedCourier,
       wreckRoute: saved.wreckRoute,
       armoryGuardianOutcome:

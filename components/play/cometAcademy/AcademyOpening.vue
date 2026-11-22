@@ -666,7 +666,10 @@
         </template>
         <template v-else>
           <div data-testid="academy-opening-scrapbook-screen">
-            <AcademyTermArchive :pages="store.termArchive" />
+            <AcademyTermArchive
+              :pages="store.termArchive"
+              :art-enabled="store.settings.art"
+            />
             <p v-if="!historyCount">
               No character records yet. Start a term to uncover identities and
               endings.

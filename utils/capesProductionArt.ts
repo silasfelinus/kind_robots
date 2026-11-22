@@ -235,7 +235,8 @@ export const CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW = [
     key: 'asha-four-arm-hero-rescue-river',
     signature: 'mutant-discipline',
     title: 'Asha Lotus Guard rescuing four people',
-    asset: 'comet-city-academy/identities/mutant-discipline/repaint/hero-river-2026-11',
+    asset:
+      'comet-city-academy/identities/mutant-discipline/repaint/hero-river-2026-11',
     size: '1344x768',
     artJobId: 76529,
     artImageId: 278466,
@@ -244,7 +245,8 @@ export const CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW = [
     key: 'asha-four-arm-hero-dance-shelter',
     signature: 'mutant-discipline',
     title: 'Asha Lotus Guard teaching a four-handed rescue dance',
-    asset: 'comet-city-academy/identities/mutant-discipline/repaint/hero-shelter-2026-11',
+    asset:
+      'comet-city-academy/identities/mutant-discipline/repaint/hero-shelter-2026-11',
     size: '1344x768',
     artJobId: 76530,
     artImageId: 278467,
@@ -253,7 +255,8 @@ export const CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW = [
     key: 'asha-four-arm-villain-quartermaster',
     signature: 'mutant-discipline',
     title: 'Asha Lotus Guard in the weapons quartermaster warehouse',
-    asset: 'comet-city-academy/identities/mutant-discipline/repaint/villain-quartermaster-2026-11',
+    asset:
+      'comet-city-academy/identities/mutant-discipline/repaint/villain-quartermaster-2026-11',
     size: '1344x768',
     artJobId: 76531,
     artImageId: 278468,
@@ -262,7 +265,8 @@ export const CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW = [
     key: 'asha-four-arm-villain-confiscation',
     signature: 'mutant-discipline',
     title: 'Asha Lotus Guard taking command of a contraband exchange',
-    asset: 'comet-city-academy/identities/mutant-discipline/repaint/villain-exchange-2026-11',
+    asset:
+      'comet-city-academy/identities/mutant-discipline/repaint/villain-exchange-2026-11',
     size: '1344x768',
     artJobId: 76532,
     artImageId: 278469,

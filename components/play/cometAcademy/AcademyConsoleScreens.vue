@@ -333,8 +333,13 @@
     >
       <header class="acs-head">
         <h2>Scrapbook</h2>
-        <p>Moments you earned this term, and every ending you have reached.</p>
+        <p>Permanent finished terms, this term's memories and discovered endings.</p>
       </header>
+      <AcademyTermArchive
+        :pages="store.termArchive"
+        :art-enabled="store.settings.art"
+      />
+      <h3 class="acs-section">This term's moments</h3>
       <div v-if="moments.length" class="acs-cards">
         <article
           v-for="(moment, i) in moments"

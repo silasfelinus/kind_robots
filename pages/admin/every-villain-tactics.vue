@@ -1780,6 +1780,11 @@ import {
   type CrewTellBeat,
   type CrewTellKind,
 } from '~/utils/everyVillainTactics/crewTelegraphArt'
+import {
+  CREW_COMBAT_ART,
+  CREW_COMBAT_POSES,
+  crewCombatReceipt,
+} from '~/utils/everyVillainTactics/crewCombatArt'
 import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
 import {
@@ -1845,6 +1850,8 @@ watch(
     for (const kind of kinds) {
       void paintedArt.ensure(CREW_TELL_ART[kind].beats.warning.imageId)
       void paintedArt.ensure(CREW_TELL_ART[kind].beats.action.imageId)
+      for (const pose of CREW_COMBAT_POSES)
+        void paintedArt.ensure(CREW_COMBAT_ART[kind][pose].imageId)
     }
   },
   { immediate: true },
@@ -2109,6 +2116,13 @@ const aftermathArt = computed(() =>
 )
 function unitPortrait(unit: Unit): string | null {
   const crew = crewUnitArtReceipt(unit)
+  const combat = crewCombatReceipt(unit, store.state.impact)
+  if (combat)
+    return (
+      paintedArt.images[combat.imageId]?.src ||
+      (crew ? paintedArt.images[crew.imageId]?.src : null) ||
+      null
+    )
   if (crew) return paintedArt.images[crew.imageId]?.src || null
   const role =
     (unit.team === 'rival') !== (store.perspective === 'villain')

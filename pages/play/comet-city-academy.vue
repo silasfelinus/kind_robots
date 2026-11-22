@@ -1856,7 +1856,20 @@ function studentFace(id: StudentId, mood: string): KrHandChoice {
   return {
     id,
     label: student?.name ?? id,
-    image: promArt(studentArtKey(id) + '-' + mood) ?? studentPortrait(id),
+    image:
+      (run.value && recoveringFollower(run.value, id)
+        ? recruitArt.imageFor(id, 'injured')
+        : null) ??
+      recruitArt.imageFor(
+        id,
+        mood === 'positive'
+          ? 'joyous'
+          : mood === 'negative'
+            ? 'angry'
+            : 'neutral',
+      ) ??
+      promArt(studentArtKey(id) + '-' + mood) ??
+      studentPortrait(id),
     icon: student?.portrait,
   }
 }
@@ -2275,7 +2288,23 @@ function reactionEmoji(id: StudentId, caseId: string): string {
 }
 function reactionPortrait(id: StudentId, caseId: string): string | null {
   const mood = missionReaction(id, caseId).mood
-  return promArt(studentArtKey(id) + '-' + mood) ?? studentPortrait(id)
+  const injury =
+    run.value && recoveringFollower(run.value, id)
+      ? recruitArt.imageFor(id, 'injured')
+      : null
+  return (
+    injury ??
+    recruitArt.imageFor(
+      id,
+      mood === 'positive'
+        ? 'joyous'
+        : mood === 'negative'
+          ? 'afraid'
+          : 'neutral',
+    ) ??
+    promArt(studentArtKey(id) + '-' + mood) ??
+    studentPortrait(id)
+  )
 }
 
 function toggleStudent(caseId: string, id: StudentId): void {

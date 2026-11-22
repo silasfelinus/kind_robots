@@ -14,10 +14,11 @@ export const useRecruitArtStore = defineStore('recruitArt', () => {
 
   async function loadAll(): Promise<void> {
     if (!user.isAdmin) return
-    const imageIds = Object.values(RECRUIT_ART_RECEIPTS).flatMap((slots) => [
-      slots.neutral.artImageId,
-      slots.injured.artImageId,
-    ])
+    const imageIds = Object.values(RECRUIT_ART_RECEIPTS).flatMap((slots) =>
+      Object.values(slots).flatMap((receipt) =>
+        receipt ? [receipt.artImageId] : [],
+      ),
+    )
     await Promise.all(imageIds.map((id) => artJobs.loadJobImage(id)))
   }
 

@@ -8,6 +8,8 @@ import {
   FROST_SPREAD_TICKS,
   HEATER_RADIUS,
   SNOWBALL_HP,
+  MOLE_TELL_TICKS,
+  MOLE_WAIT_TICKS,
   create,
 } from '../arcade/games/glitchGarden'
 import {
@@ -29,6 +31,7 @@ type Obstacle = {
 } | null
 
 type Snowball = { x: number; y: number; hp: number; vy: number }
+type Mole = { x: number; y: number; phase: 'tell' | 'up'; ticks: number }
 
 type Probe = {
   garden: { id: string; icyBed?: boolean }
@@ -38,6 +41,10 @@ type Probe = {
   snowballs: Snowball[]
   snowballsFixed: number
   objectiveDone: boolean
+  lives: number
+  worms: unknown[]
+  mole: Mole | null
+  moleTimer: number
   px: number
   py: number
   glideX: number
@@ -47,6 +54,10 @@ type Probe = {
   stepBeam(beam: unknown): boolean
   thawHeater(col: number, row: number): void
   updateFrost(): void
+  updateMole(): void
+  hitMole(x: number, y: number): boolean
+  checkHits(): void
+  afterDeath(): void
   hitSnowball(x: number, y: number): boolean
   moveSprayer(input: InputFrame): void
 }
@@ -161,6 +172,65 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
     return g.grid.map((ob) => (ob?.frosted ? 1 : 0)).join('')
   }
   assert.equal(run(29), run(29), 'winter frost is seeded and repeatable')
+}
+
+
+{
+  const g = make(71)
+  g.beginStep(gardenStart(7) + 1, 0, 41)
+  assert.equal(SNOWBALL_HILL.waves[1]!.mole, true)
+  assert.equal(g.mole, null)
+  g.moleTimer = 1
+  g.updateMole()
+  assert.equal(g.mole?.phase, 'tell', 'mole warns before an ambush')
+  const warning = g.mole!
+  assert.equal(warning.ticks, MOLE_TELL_TICKS)
+  const x = warning.x
+  const y = warning.y
+  g.px += 32
+  g.mole!.ticks = 1
+  g.updateMole()
+  assert.equal(g.mole?.phase, 'up', 'mole emerges after warning')
+  const lives = g.lives
+  g.worms = []
+  g.snowballs = []
+  g.checkHits()
+  assert.equal(g.lives, lives, 'moving off the mound avoids the ambush')
+  assert.ok(g.hitMole(x, y), 'emerged mole can be fixed with a spray')
+  assert.equal(g.mole, null)
+  assert.equal(g.moleTimer, MOLE_WAIT_TICKS)
+  assert.equal(g.hitMole(x, y), false, 'fixed mole pays only once')
+}
+
+{
+  const g = make(72)
+  g.beginStep(gardenStart(7) + 1, 0, 41)
+  g.moleTimer = 1
+  g.updateMole()
+  g.mole!.ticks = 1
+  g.updateMole()
+  g.worms = []
+  g.snowballs = []
+  const lives = g.lives
+  g.checkHits()
+  assert.equal(g.lives, lives - 1, 'standing on a popping mole costs one life')
+}
+
+{
+  const g = make(73)
+  g.beginStep(gardenStart(7) + 2, 0, 42)
+  assert.equal(g.snowballs.length, 3)
+  const first = g.snowballs[0]!
+  for (let i = 0; i < SNOWBALL_HP; i++)
+    assert.ok(g.hitSnowball(first.x, first.y))
+  assert.equal(g.snowballsFixed, 1)
+  g.afterDeath()
+  assert.equal(g.snowballsFixed, 1, 'snow day progress survives respawn')
+  assert.equal(g.snowballs.length, 2, 'unfixed snowballs respawn')
+  for (const ball of [...g.snowballs])
+    for (let i = 0; i < SNOWBALL_HP; i++)
+      assert.ok(g.hitSnowball(ball.x, ball.y))
+  assert.equal(g.objectiveDone, true, 'respawn cannot strand Snow Day reward')
 }
 
 console.log('glitch garden winter mechanics: ok')

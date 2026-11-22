@@ -10,11 +10,10 @@
       ref="video"
       class="h-full w-full object-contain"
       :poster="opening.poster"
-      autoplay
       playsinline
       :muted="arcade.muted"
       @ended="close"
-      @error="close"
+      @error="onPlaybackError"
     >
       <source :src="opening.webm" type="video/webm" />
       <source :src="opening.mp4" type="video/mp4" />
@@ -35,8 +34,13 @@
       >
         <p
           class="text-xs font-bold uppercase tracking-[0.3em] text-pink-200/80"
+          aria-live="polite"
         >
-          Opening · {{ Math.round(opening.seconds) }} seconds · sound on
+          {{
+            state === 'failed'
+              ? 'Opening video unavailable'
+              : `Opening · ${Math.round(opening.seconds)} seconds · sound on`
+          }}
         </p>
         <h2 class="text-3xl font-black leading-none sm:text-5xl">
           Rainbow Bullet Hell
@@ -53,7 +57,7 @@
             @click="play"
           >
             <Icon name="kind-icon:play" class="kr-icon-5" />
-            Play the opening
+            {{ state === 'failed' ? 'Try opening again' : 'Play the opening' }}
           </button>
           <button
             type="button"
@@ -86,33 +90,61 @@ const emit = defineEmits<{ showing: [boolean] }>()
 
 const SLUG = 'rainbow-bullet-hell-space-princess'
 const arcade = useArcadeStore()
-const state = ref<'hidden' | 'offer' | 'playing'>('hidden')
+const state = ref<'hidden' | 'offer' | 'playing' | 'failed'>('hidden')
 const video = ref<HTMLVideoElement | null>(null)
 const playButton = ref<HTMLButtonElement | null>(null)
 let frame = 0
+let playbackAttempt = 0
 
 watch(state, (now) => emit('showing', now !== 'hidden'))
 
 async function play() {
+  const attempt = ++playbackAttempt
+  cancelAnimationFrame(frame)
   state.value = 'playing'
   await nextTick()
-  if (!video.value) return
-  video.value.volume = arcade.volume
-  video.value.play().catch(() => {
-    if (video.value) video.value.muted = true
-    void video.value?.play().catch(close)
-  })
+  const player = video.value
+  if (!player || attempt !== playbackAttempt || state.value !== 'playing') {
+    return
+  }
+  player.volume = arcade.volume
   pollPads()
+  try {
+    await player.play()
+  } catch {
+    if (attempt !== playbackAttempt || state.value !== 'playing') return
+    player.muted = true
+    try {
+      await player.play()
+    } catch {
+      if (attempt === playbackAttempt) onPlaybackError()
+    }
+  }
+}
+
+function onPlaybackError() {
+  if (state.value !== 'playing') return
+  ++playbackAttempt
+  cancelAnimationFrame(frame)
+  state.value = 'failed'
+  pollPads()
+  void nextTick(() => {
+    if (state.value === 'failed') playButton.value?.focus()
+  })
 }
 
 function close() {
+  ++playbackAttempt
   cancelAnimationFrame(frame)
   state.value = 'hidden'
   arcade.markOpeningSeen(SLUG)
 }
 
 function offer() {
+  ++playbackAttempt
+  cancelAnimationFrame(frame)
   state.value = 'offer'
+  pollPads()
   void nextTick(() => playButton.value?.focus())
 }
 
@@ -127,15 +159,22 @@ function onKey(event: KeyboardEvent) {
 }
 
 function pollPads() {
+  cancelAnimationFrame(frame)
   const pressed = () =>
     Array.from(navigator.getGamepads?.() ?? []).some((pad) =>
       pad?.buttons.some((button) => button.pressed),
     )
-  let armed = !pressed()
+  let armed = false
   const tick = () => {
-    if (state.value !== 'playing') return
-    if (!pressed()) armed = true
-    else if (armed) return close()
+    if (state.value === 'hidden') return
+    if (!pressed()) {
+      armed = true
+    } else if (armed) {
+      armed = false
+      if (state.value === 'playing') close()
+      else void play()
+      return
+    }
     frame = requestAnimationFrame(tick)
   }
   frame = requestAnimationFrame(tick)
@@ -146,6 +185,7 @@ onMounted(() => {
   if (!arcade.openingSeen(SLUG)) offer()
 })
 onBeforeUnmount(() => {
+  ++playbackAttempt
   window.removeEventListener('keydown', onKey)
   cancelAnimationFrame(frame)
 })

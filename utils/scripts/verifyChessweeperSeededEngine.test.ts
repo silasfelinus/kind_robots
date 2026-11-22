@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { runInNewContext } from 'node:vm'
 
 const source = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/seeded-engine.js', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/seeded-engine.js', import.meta.url),
+  ),
   'utf8',
 )
 const sandbox: Record<string, unknown> = {}
@@ -13,7 +15,10 @@ type Roll = { state: number; value: number }
 type Engine = {
   nextRandom: (state: number) => Roll
   nextInt: (state: number, max: number) => Roll
-  minefield: (count: number, seed: number) => { mines: Set<number>; state: number }
+  minefield: (
+    count: number,
+    seed: number,
+  ) => { mines: Set<number>; state: number }
   firstProbeSafe: (
     probe: number,
     mines: Set<number>,
@@ -54,7 +59,12 @@ for (const seed of [0, 1, 42, 123456789, 0xffffffff]) {
   assert.equal(relocated.mines.size, 10)
   assert.ok(!relocated.mines.has(sourceMine))
   assert.ok(original.has(sourceMine), 'the pure engine cannot mutate inputs')
-  const replay = engine.firstProbeSafe(sourceMine, original, new Set(), first.state)
+  const replay = engine.firstProbeSafe(
+    sourceMine,
+    original,
+    new Set(),
+    first.state,
+  )
   assert.deepEqual([...relocated.mines], [...replay.mines])
   assert.equal(relocated.state, replay.state)
 }
@@ -73,12 +83,15 @@ assert.notEqual(resumedRoll.state, firstRoll.state)
 
 const disc = { id: 1, x: 7, y: 7, dx: 1, dy: 1, active: true }
 const reflected = engine.stepDisc(disc)
-assert.deepEqual([reflected.x, reflected.y, reflected.dx, reflected.dy], [
-  6, 6, -1, -1,
-])
+assert.deepEqual(
+  [reflected.x, reflected.y, reflected.dx, reflected.dy],
+  [6, 6, -1, -1],
+)
 assert.equal(disc.x, 7, 'original disc is not mutated')
 const page = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/index.html', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/index.html', import.meta.url),
+  ),
   'utf8',
 )
 assert.ok(page.includes('src="/chessweeper/seeded-engine.js"'))

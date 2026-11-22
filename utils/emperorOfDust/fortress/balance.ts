@@ -26,12 +26,14 @@ import {
   chooseTalkOption,
   upgradeBeds,
 } from './engine'
+import { applyRuler } from './ruler'
 import type {
   AudienceOption,
   FortressRun,
   KingdomFactionId,
   QuestDef,
   QuestReport,
+  RulerIdentity,
   SceneLine,
   TalkDef,
 } from './types'
@@ -209,6 +211,8 @@ export type CampaignResult = {
  * deliberately keep the original no-barracks policy unless playTalks is set.
  */
 export type CampaignObserver = {
+  /** The ruler crowned at New Reign (t-075); omitted, today's default. */
+  ruler?: RulerIdentity
   playTalks?: boolean
   shouldRecruit?: (day: number, followerId: string, run: FortressRun) => boolean
   /** Opt-in: answer the actual dawn encounter instead of ignoring it. */
@@ -295,7 +299,9 @@ export const playCampaign = (
   onDawn?: (run: FortressRun) => void,
   observer?: CampaignObserver,
 ): CampaignResult => {
-  let run = createRun(seed)
+  let run = observer?.ruler
+    ? applyRuler(createRun(seed), observer.ruler)
+    : createRun(seed)
   onDawn?.(run)
   while (!isOver(run)) {
     // Everyone who offers is taken on, with another bed bought if needed.

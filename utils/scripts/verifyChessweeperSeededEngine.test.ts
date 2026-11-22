@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { runInNewContext } from 'node:vm'
+import * as sourceEngine from '../chessweeper/seededEngine'
 
 const source = readFileSync(
   fileURLToPath(
@@ -37,7 +38,18 @@ type Engine = {
 const engine = sandbox.ChessweeperSeeded as Engine
 assert.ok(engine, 'the compiled TypeScript engine exposes a browser namespace')
 for (const seed of [0, 1, 42, 123456789, 0xffffffff]) {
+  const sourceField = sourceEngine.minefield(10, seed)
   const first = engine.minefield(10, seed)
+  assert.deepEqual(
+    [...first.mines],
+    [...sourceField.mines],
+    'browser runtime must match canonical typed implementation',
+  )
+  assert.equal(first.state, sourceField.state)
+  assert.deepEqual(
+    engine.nextRandom(seed).value,
+    sourceEngine.nextRandom(seed).value,
+  )
   const again = engine.minefield(10, seed)
   assert.deepEqual([...first.mines], [...again.mines])
   assert.equal(first.state, again.state)

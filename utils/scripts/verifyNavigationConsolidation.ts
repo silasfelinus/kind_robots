@@ -772,6 +772,11 @@ assert.doesNotMatch(visitorDirectorySource, /title: 'Storybook'/)
 assert.doesNotMatch(visitorDirectorySource, /title: 'Music Videos'/)
 assert.doesNotMatch(visitorDirectorySource, /title: 'Art Gallery & Studio'/)
 assert.doesNotMatch(visitorDirectorySource, /title: 'Daily Dreams'/)
+assert.doesNotMatch(
+  visitorDirectorySource,
+  /\{ key: 'create', label: 'Create' \}/,
+  'The homepage must not show a Create filter when no creation highlights remain',
+)
 
 for (const route of [
   '/',

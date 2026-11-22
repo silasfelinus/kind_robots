@@ -416,7 +416,6 @@ const activeSection = ref<(typeof sections)[number]['key']>('featured')
 const categories = [
   { key: 'all', label: 'All' },
   { key: 'play', label: 'Play' },
-  { key: 'create', label: 'Create' },
   { key: 'learn', label: 'Learn' },
 ] as const
 const selectedCategory = ref<(typeof categories)[number]['key']>('all')

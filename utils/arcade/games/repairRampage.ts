@@ -921,8 +921,13 @@ class RepairRampage implements ArcadeGameInstance {
       return
     }
     if (this.mode !== 'climb') return
+    this.repairWindow(this.row, this.col)
+  }
+
+  private repairWindow(row: number, col: number) {
     const t = this.towers[this.tower]!
-    const index = this.row * TOWER_COLS + this.col
+    const index = row * TOWER_COLS + col
+    if (!t.standing || row < 0 || row >= t.rows || col < 0 || col >= TOWER_COLS) return
     if (t.windows[index]) return
     t.windows[index] = true
     const surprise = t.surprises[index]
@@ -931,12 +936,27 @@ class RepairRampage implements ArcadeGameInstance {
       this.tick - this.lastFixTick <= CHAIN_WINDOW ? this.fixChain + 1 : 1
     this.lastFixTick = this.tick
     t.stability = Math.min(t.maxStability, t.stability + FIX_STEADY)
-    const wx = t.x + 4 + this.col * CELL + CELL / 2
-    const wy = windowY(this.row) + CELL / 2
+    const wx = t.x + 4 + col * CELL + CELL / 2
+    const wy = windowY(row) + CELL / 2
     this.addScore(FIX_POINTS * Math.min(this.fixChain, 5), wx, wy - 8)
     if (surprise) {
       const reward = WINDOW_SURPRISE_REWARDS[surprise]
-      this.charge = Math.min(MAX_CHARGE, this.charge + reward.charge)
+      const blocked = surprise === 'sparky-wire' &&
+        this.absorbHit('rubber-gloves')
+      const delta = blocked ? 0 : reward.charge
+      this.charge = Math.min(MAX_CHARGE, this.charge + delta)
+      if (surprise === 'toolbox') {
+        const tool = toolboxTool(this.level, this.tower, index)
+        if (this.tools.length < 3) {
+          this.tools.push(tool)
+          this.floaters.push({
+            x: wx,
+            y: wy - 38,
+            text: REPAIR_TOOL_LABELS[tool],
+            life: 65,
+          })
+        }
+      }
       this.addScore(reward.points, wx, wy - 16)
       this.floaters.push({
         x: wx,
@@ -954,10 +974,19 @@ class RepairRampage implements ArcadeGameInstance {
         life: 45,
       })
     }
-    const rowStart = this.row * TOWER_COLS
+    const rowStart = row * TOWER_COLS
     if (t.windows.slice(rowStart, rowStart + TOWER_COLS).every(Boolean)) {
       this.addScore(ROW_BONUS, wx, wy - 24)
       this.charge = Math.min(MAX_CHARGE, this.charge + 3)
+    }
+    if (t.windows.every((fixed, i) => i % TOWER_COLS !== col || fixed)) {
+      this.addScore(COLUMN_BONUS, wx, wy - 30)
+      this.floaters.push({
+        x: wx,
+        y: wy - 42,
+        text: 'ELEVATOR RUN!',
+        life: 55,
+      })
     }
     if (t.windows.every(Boolean)) {
       t.powered = true
@@ -993,6 +1022,77 @@ class RepairRampage implements ArcadeGameInstance {
         colours: [RAMPS.leaf[3], RAMPS.leaf[4], RAMPS.gold[4]],
       })
     }
+  }
+
+  private absorbHit(tool: RepairTool): boolean {
+    if (this.protection !== tool) return false
+    this.protection = null
+    if (tool === 'hard-hat') this.reserveGrace = 45
+    this.floaters.push({
+      x: this.x,
+      y: this.y - 36,
+      text: 'PROTECTED!',
+      life: 60,
+    })
+    this.sound.play('pop')
+    return true
+  }
+
+  private activateTool() {
+    const tool = this.tools[0]
+    if (!tool) return
+    if (
+      (tool === 'super-wrench' || tool === 'rocket-boots') &&
+      this.mode !== 'climb'
+    ) {
+      return
+    }
+    this.tools.shift()
+    if (tool === 'super-wrench') {
+      const tower = this.towers[this.tower]!
+      const lastRow = Math.min(tower.rows - 1, this.row + 1)
+      const lastCol = Math.min(TOWER_COLS - 1, this.col + 1)
+      for (let row = this.row; row <= lastRow; row++) {
+        for (let col = this.col; col <= lastCol; col++) {
+          this.repairWindow(row, col)
+        }
+      }
+    } else if (tool === 'paint-roller') {
+      this.rollerTicks = 300
+    } else if (tool === 'rocket-boots') {
+      const tower = this.towers[this.tower]!
+      this.row = Math.min(tower.rows - 1, this.row + 3)
+      this.placeOnTower()
+      this.climbWait = CLIMB_TICKS
+    } else {
+      this.protection = tool
+    }
+    this.sound.play('extra')
+  }
+
+  private chargeOut() {
+    this.lives--
+    if (this.lives <= 0) {
+      this.over = true
+      this.banner = { text: 'OUT OF CHARGE', sub: 'GAME OVER', ticks: 9999 }
+      this.sound.play('die')
+      return
+    }
+    this.charge = MAX_CHARGE
+    this.mode = 'ground'
+    this.x = 12
+    this.y = GROUND
+    this.vy = 0
+    this.tower = -1
+    this.reserveGrace = 120
+    this.drones = []
+    this.hazard = null
+    this.banner = {
+      text: 'OIL BREAK!',
+      sub: this.lives + ' ROBOTS LEFT',
+      ticks: 120,
+    }
+    this.sound.play('start')
   }
 
   // --- towers -------------------------------------------------------------------

@@ -146,6 +146,12 @@ const consolePage = readFileSync(
   'utf8',
 )
 assert.match(consolePage, /<AcademySoundMixer \/>/)
+const opening = readFileSync(
+  'components/play/cometAcademy/AcademyOpening.vue',
+  'utf8',
+)
+assert.match(opening, /academy-opening-settings/)
+assert.match(opening, /<AcademySoundMixer \/>/)
 const mixer = readFileSync(
   'components/play/cometAcademy/AcademySoundMixer.vue',
   'utf8',

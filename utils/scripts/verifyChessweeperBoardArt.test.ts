@@ -78,4 +78,28 @@ for (const realm of ['sugar', 'ashen', 'jackpot']) {
   assert.ok(styles.includes(`data-realm='${realm}'`))
 }
 assert.ok(styles.includes("data-board-art='ready'"))
-console.log('chessweeper board-art fallback: ok')
+const manifest = JSON.parse(
+  readFileSync(
+    fileURLToPath(new URL('../../public/chessweeper/art-pack.json', import.meta.url)),
+    'utf8',
+  ),
+) as {
+  deliveryStatus: string
+  pendingRequests: Array<{ id: string; path: string; status: string }>
+}
+assert.ok(
+  ['pending', 'partial', 'delivered'].includes(manifest.deliveryStatus),
+  'manifest must distinguish requested art from deployed art',
+)
+assert.equal(new Set(manifest.pendingRequests.map((r) => r.id)).size, 8)
+assert.equal(new Set(manifest.pendingRequests.map((r) => r.path)).size, 8)
+for (const request of manifest.pendingRequests) {
+  assert.match(request.id, /^chessweeper-t003-[a-z-]+-20261121$/)
+  assert.ok(request.path.startsWith('public/images/chessweeper/'))
+  assert.ok(request.status, 'each image needs explicit delivery status')
+}
+assert.ok(
+  styles.includes("meta-scrapbook-world.art-pending"),
+  'missing scrapbook imagery keeps a designed world card',
+)
+console.log('chessweeper board-art fallback and manifest: ok')

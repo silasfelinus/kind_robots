@@ -10,6 +10,7 @@ import {
   NURSERY_WAVES,
   NURSERY_TALKS,
   choirFreed,
+  choirMaskFitsFrame,
   choirPodAvailable,
   choirPodX,
   nurseryDetourFor,
@@ -75,6 +76,11 @@ for (const pod of KELP_CHOIR_PODS) {
 assert.equal(mask, 31)
 assert.equal(choirFreed(mask), true)
 assert.equal(choirFreed(mask - 1), false)
+assert.equal(choirMaskFitsFrame(0, 0), true)
+assert.equal(choirMaskFitsFrame(520, 1), true)
+assert.equal(choirMaskFitsFrame(520, 2), false)
+assert.equal(choirMaskFitsFrame(1960, 7), true)
+assert.equal(choirMaskFitsFrame(1960, 31), false)
 assert.equal(rescueChoirPod(mask, 5), mask)
 assert.equal(rescueChoirPod(mask, 6), mask)
 for (const entry of NURSERY_WAVES) assert.ok(nurserySpawns(entry.at).length > 0)
@@ -114,7 +120,7 @@ const checkpoint3 = {
   nurseryStartedAt: 20000,
   nurseryFrame: 240,
   nurseryHits: 0,
-  nurseryChoirMask: 3,
+  nurseryChoirMask: 0,
   freedChoir: false,
   rescuedCourier: false,
   wreckRoute: null,
@@ -135,7 +141,7 @@ const read = (c: typeof checkpoint3) =>
   )
 const saved = read(checkpoint3)
 assert.equal(saved?.checkpoint.nurseryFrame, 240)
-assert.equal(saved?.checkpoint.nurseryChoirMask, 3)
+assert.equal(saved?.checkpoint.nurseryChoirMask, 0)
 assert.equal(saved?.checkpoint.freedChoir, false)
 const idle = {
   held: {
@@ -168,7 +174,7 @@ for (const seats of [1, 2, 3, 4]) {
   })
   assert.equal(game.snapshot.act, 'X1')
   assert.equal(game.snapshot.nurseryFrame, 239)
-  assert.equal(game.snapshot.nurseryChoirMask, 3)
+  assert.equal(game.snapshot.nurseryChoirMask, 0)
   assert.equal(game.snapshot.activePlayers, seats)
   const inputs = Array.from({ length: seats }, () => idle)
   game.update(idle, inputs)
@@ -227,6 +233,8 @@ assert.equal(read({ ...checkpoint3, nurseryFrame: 250 }), null)
 assert.equal(read({ ...checkpoint3, rescuedNemi: false }), null)
 assert.equal(read({ ...checkpoint3, nurseryHits: -1 }), null)
 assert.equal(read({ ...checkpoint3, nurseryChoirMask: 32 }), null)
+assert.equal(read({ ...checkpoint3, nurseryChoirMask: 1 }), null)
+assert.equal(read({ ...checkpoint3, freedChoir: true }), null)
 assert.equal(read({ ...checkpoint3, freedChoir: 'yes' as never }), null)
 assert.equal(read({ ...checkpoint3, nurseryChoirMask: -1 }), null)
 assert.equal(

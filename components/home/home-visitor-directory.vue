@@ -416,7 +416,6 @@ const activeSection = ref<(typeof sections)[number]['key']>('featured')
 const categories = [
   { key: 'all', label: 'All' },
   { key: 'play', label: 'Play' },
-  { key: 'create', label: 'Create' },
   { key: 'learn', label: 'Learn' },
 ] as const
 const selectedCategory = ref<(typeof categories)[number]['key']>('all')
@@ -589,14 +588,6 @@ const features: FeaturedExperience[] = [
       'Survive office politics, impossible choices and your first 90-day review.',
   },
   {
-    title: 'Art Gallery & Studio',
-    tag: 'Explore and create',
-    category: 'create',
-    route: '/art',
-    image: '/art-gallery/link-preview.webp',
-    description: 'Browse finished work, or sign in to generate your own.',
-  },
-  {
     title: 'Cthulhuquarium',
     posterSlug: 'aquarium',
     tag: 'Creature collecting',
@@ -613,14 +604,6 @@ const features: FeaturedExperience[] = [
     route: '/play/memory',
     image: '/memory-dungeon/link-preview.webp',
     description: 'Match cards, survive the dungeon and collect rewards.',
-  },
-  {
-    title: 'Daily Dreams',
-    tag: 'Featured today',
-    category: 'create',
-    route: '/?view=dashboard',
-    image: '/images/splash/dreams.webp',
-    description: 'See the daily Dream and the original dashboard of creations.',
   },
   {
     title: 'Mandarin Tutor',

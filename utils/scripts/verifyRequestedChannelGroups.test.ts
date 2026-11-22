@@ -204,9 +204,17 @@ for (const key of [
 assert.equal(existsSync('content/channels/projects/music-video.md'), false)
 const videoStudio = nav('projects/video-generator')
 assert.ok(videoStudio.includes('route: /play/video-generator'))
-assert.doesNotMatch(videoStudio, /Music Videos tab/)
-assert.match(nav('admin/music-video'), /\nrequiredRole: ADMIN\n/)
-assert.match(nav('admin/music-video'), /\nroute: \/admin\/music-video\n/)
+assert.match(videoStudio, /Music Videos tab/)
+assert.equal(existsSync('content/channels/admin/music-video.md'), false)
+assert.match(
+  read('utils/projectPlacements.ts'),
+  /route: '\/play\/video-generator\?studio=music'/,
+)
+assert.doesNotMatch(featuredHome, /title: 'Art Gallery & Studio'/)
+assert.doesNotMatch(featuredHome, /title: 'Daily Dreams'/)
+assert.doesNotMatch(featuredHome, /title: 'Music Videos'/)
+assert.match(nav('projects/art'), /\nroute: \/art\n/)
+assert.match(nav('home/dashboard'), /\nroute: \/\n/)
 assert.equal(existsSync('components/music-video/music-video-studio.vue'), true)
 
 console.log('Requested navigation grouping contract passed')

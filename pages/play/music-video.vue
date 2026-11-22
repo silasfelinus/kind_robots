@@ -9,8 +9,8 @@ const route = useRoute()
 
 await navigateTo(
   {
-    path: '/admin/music-video',
-    query: route.query,
+    path: '/play/video-generator',
+    query: { ...route.query, studio: 'music' },
     hash: route.hash,
   },
   { replace: true, redirectCode: 301 },

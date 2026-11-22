@@ -13,11 +13,13 @@ Admin** (Admin only to administrators):
   Desks, Cthulhuquarium, Ecotone, Emperor of Dust and Zuzu adventures, including
   the admin-only Zuzu's Lair preview.
 - **Projects** (`/conductor`) — public projects and creative tools,
-  including Art, Video Studio, Mandarin, Daily Dream Projects and Rebel Button.
+  including Art, Video Studio (with Music Videos), Mandarin, Daily Dream Projects
+  and Rebel Button. Music Videos are accessible from the Video Studio panel
+  without a homepage highlight.
 - **Admin** (`/artjob`, `requiredRole: ADMIN`) — operations, production
-  studios (including Music Videos), accounts, and the Retired shelf. Storybook
-  and its seven ingredient galleries now live under Admin → Retired, preserving
-  their direct page URLs without placing them in the public navigation.
+  studios, accounts, and the Retired shelf. Storybook and its seven ingredient
+  galleries now live under Admin → Retired, preserving their direct page URLs
+  without placing them in the public navigation.
 
 **Home** is still a content channel, but it is not in the selector: the former
 Home dashboard and the personal destinations (account, friends, messages,

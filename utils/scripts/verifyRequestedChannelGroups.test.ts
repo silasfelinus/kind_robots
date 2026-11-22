@@ -204,7 +204,9 @@ for (const key of [
 assert.equal(existsSync('content/channels/projects/music-video.md'), false)
 const videoStudio = nav('projects/video-generator')
 assert.ok(videoStudio.includes('route: /play/video-generator'))
-assert.match(videoStudio, /Music Videos tab/)
+assert.doesNotMatch(videoStudio, /Music Videos tab/)
+assert.match(nav('admin/music-video'), /\nrequiredRole: ADMIN\n/)
+assert.match(nav('admin/music-video'), /\nroute: \/admin\/music-video\n/)
 assert.equal(existsSync('components/music-video/music-video-studio.vue'), true)
 
 console.log('Requested navigation grouping contract passed')

@@ -493,6 +493,8 @@ class RibbonRiders implements ArcadeGameInstance {
   private traced = new Uint8Array(GRID * GRID)
   private tracedCount = 0
   private arches: number[][] = []
+  private escortHits = 0
+  private escortLastX = 4
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -579,6 +581,8 @@ class RibbonRiders implements ArcadeGameInstance {
     this.setupArena(a, a.tier, [...a.crew])
     if (this.kit.snip) this.player.snips = Math.max(1, this.player.snips)
     this.timeLeft = a.limit ?? 0
+    this.escortHits = 0
+    this.escortLastX = 4
     if (a.glowbugs) {
       for (let k = 0; k < a.glowbugs.lit; k++) this.spawnBug()
     }
@@ -1636,6 +1640,11 @@ class RibbonRiders implements ArcadeGameInstance {
     if (this.player.alive) this.addScore(250 * this.level, px, py - 6)
   }
 
+  private escortColumn(): number {
+    const duration = Math.max(1, this.node?.limit ?? 1)
+    return Math.min(42, 5 + Math.floor(((duration - this.timeLeft) * 37) / duration))
+  }
+
   /** Has this round's objective been met, or lost? */
   private checkRoundOver() {
     if (!this.player.alive || this.dead > 0) return
@@ -1671,6 +1680,30 @@ class RibbonRiders implements ArcadeGameInstance {
         const winner = this.rivals.find((b) => b.arch >= this.arches.length)
         if (winner)
           this.fail(`${RIVALS[winner.kind!].name} TAGS FIRST!`, 'RIDE FASTER')
+        return
+      }
+      case 'escort': {
+        const x = this.escortColumn()
+        if (x > this.escortLastX) {
+          this.escortLastX = x
+          const row = a.escort!.row
+          const danger = [row - 1, row, row + 1].some((y) => {
+            const i = idx(x, y)
+            return this.cells[i]! >= FIRST_RIVAL_ID && !this.fill[i]
+          })
+          if (danger) {
+            this.escortHits++
+            this.sound.play('warn')
+            this.banner = {
+              text: 'MOON FLOAT HIT!',
+              sub: `${a.escort!.health - this.escortHits} LANTERNS LEFT`,
+              ticks: 65,
+            }
+          }
+        }
+        if (this.escortHits >= a.escort!.health)
+          return this.fail('THE FLOAT IS TANGLED!', 'WRAP THE CREW FIRST')
+        if (this.timeLeft === 0) return this.clearRound()
         return
       }
       case 'marshal':
@@ -2745,8 +2778,15 @@ class RibbonRiders implements ArcadeGameInstance {
     })
   }
 
-  /** Ribbon Art's glowing outline and the Tag Lap arches, under the ribbons. */
+  /** Ribbon Art, Tag Lap arches, and the moon float, under the ribbons. */
   private renderObjective(g: CanvasRenderingContext2D) {
+    if (this.node?.escort) {
+      const x = this.escortColumn() * CELL + CELL / 2
+      const y = ARENA_Y + this.node.escort.row * CELL + CELL / 2
+      glow(g, x, y, 20, RAMPS.sky[4], 0.8)
+      shadedOrb(g, x, y, 8, RAMPS.sky)
+      drawSprite(g, STAR, x, y - 6)
+    }
     if (this.outline.length) {
       const pulse = 0.35 + 0.2 * Math.sin(this.tick / 9)
       for (const i of this.outline) {
@@ -3104,6 +3144,8 @@ class RibbonRiders implements ArcadeGameInstance {
         const best = Math.max(0, ...this.rivals.map((b) => b.arch))
         return `ARCH ${Math.min(p.arch + 1, this.arches.length)}/${this.arches.length}   CREW ${best}`
       }
+      case 'escort':
+        return `MOON ${this.escortColumn() - 5}/37  SAFE ${Math.max(0, a.escort!.health - this.escortHits)}/${a.escort!.health}`
       case 'marshal': {
         const m = this.marshal
         if (!m) return ''

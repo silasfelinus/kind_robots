@@ -203,6 +203,7 @@ import {
   LIGHTHOUSE_TALKS,
   LIGHTHOUSE_WAVES,
   lighthouseCheckpointValid,
+  lighthouseCollectibleLamp,
   LIGHTHOUSE_WAVE_SIZES,
   lighthouseDetourFor,
   lighthouseMedalEarned,
@@ -4243,7 +4244,7 @@ export function createRainbowPrincessPreview(
       if (stage === 'waves') {
         for (const entry of lighthouseSpawns(frame))
           spawn(entry.kind, entry.y, entry.wave)
-        const lamp = LIGHTHOUSE_LAMPS.find((candidate) => candidate.at === frame)
+        const lamp = lighthouseCollectibleLamp(frame, lighthouseLamps)
         if (lamp) {
           const lit = livingShips().some(
             (ship) => Math.abs(ship.y - laneY(lamp.lane)) <= 28,
@@ -8029,11 +8030,17 @@ export function createRainbowPrincessPreview(
       if (lighthouseActive()) {
         const frame = lighthouseFrame()
         const nextLamp = LIGHTHOUSE_LAMPS.find(
-          (lamp) => frame <= lamp.at && lamp.at - frame < 150,
+          (lamp, index) =>
+            frame > lamp.at - 150 &&
+            frame < lamp.at + LIGHTHOUSE.lampWindowFrames &&
+            (lighthouseLamps & (1 << index)) === 0,
         )
         if (nextLamp) {
           const y = laneY(nextLamp.lane)
-          const fade = Math.min(1, (150 - (nextLamp.at - frame)) / 45)
+          const fade = Math.min(
+            1,
+            (150 - Math.max(0, nextLamp.at - frame)) / 45,
+          )
           g.save()
           g.globalAlpha = fade * (0.65 + Math.sin(frame / 8) * 0.12)
           g.strokeStyle = '#fff0b0'

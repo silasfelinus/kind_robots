@@ -26,6 +26,8 @@ type Pumpkin = {
   maxHp: number
   rolling: boolean
   giant: boolean
+  hydra?: boolean
+  lit?: boolean
   vx: number
   vy: number
 }
@@ -48,6 +50,7 @@ type Probe = {
   py: number
   objectiveDone: boolean
   trowels: Set<string>
+  boss: { id: string; phase: number; defeated: boolean } | null
   startWave(n: number): void
   hitPumpkin(x: number, y: number): boolean
   hitInchworm(x: number, y: number): boolean
@@ -73,9 +76,9 @@ assert.equal(GARDENS[5], PUMPKIN_PATCH)
 assert.equal(PUMPKIN_PATCH.layout.length, 36)
 assert.ok(PUMPKIN_PATCH.layout.every((row) => row.length === 30))
 assert.ok(layoutCells(PUMPKIN_PATCH, LAYOUT_PUMPKIN).length >= 8)
-assert.equal(PLAYS_PER_LAP, 32)
+assert.equal(PLAYS_PER_LAP, 33)
 assert.equal(gardenStart(5), campaignPlay(28).index)
-assert.deepEqual(campaignPlay(33), { index: 0, lap: 1 })
+assert.deepEqual(campaignPlay(34), { index: 0, lap: 1 })
 assert.equal(CAMPAIGN.filter((step) => step.kind === 'wave').length, 30)
 assert.equal(PUMPKIN_PATCH.waves[2]!.objective?.kind, 'great-pumpkin')
 
@@ -176,4 +179,33 @@ assert.equal(PUMPKIN_PATCH.waves[2]!.objective?.kind, 'great-pumpkin')
   assert.equal(demo.score, 0, 'attract-mode never saves a score')
 }
 
-console.log('Glitch Garden pumpkins: breakable cover, rollers and giant OK')
+{
+  const g = make(97)
+  g.startWave(33)
+  assert.equal(g.boss?.id, 'gourd-hydra')
+  assert.equal(g.pumpkins.filter((p) => p.hydra).length, 3)
+  const dark = g.pumpkins.find((p) => p.hydra && !p.lit)!
+  const darkHp = dark.hp
+  assert.ok(g.hitPumpkin(dark.x, dark.y), 'dark heads absorb a shot')
+  assert.equal(dark.hp, darkHp, 'an unlit hydra head is invulnerable')
+  for (let phase = 0; phase < 3; phase++) {
+    const head = g.pumpkins.find((p) => p.hydra)!
+    head.lit = true
+    const hits = head.hp
+    for (let n = 0; n < hits; n++)
+      assert.ok(g.hitPumpkin(head.x, head.y))
+    assert.equal(g.boss!.phase, phase + 2, 'each head advances the boss')
+    const left = g.pumpkins.filter((p) => p.hydra)
+    if (left.length === 1) {
+      assert.ok(left[0]!.rolling, 'the last head becomes a roller')
+      assert.ok(left[0]!.lit, 'the rolling head stays vulnerable')
+    }
+  }
+  assert.ok(g.boss!.defeated, 'all three heads fixed')
+  g.worms = []
+  g.update(emptyInput())
+  assert.ok(g.clear > 0, 'defeating the boss advances the campaign')
+  assert.ok(g.score >= 15000, 'the hydra pays its season boss bonus')
+}
+
+console.log('Glitch Garden pumpkins: breakable cover, rollers and hydra OK')

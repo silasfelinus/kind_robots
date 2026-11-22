@@ -84,22 +84,58 @@
   }
   const TRIALS = {
     sugar: [
-      ['Royal Guard', 'Win with three or more king hearts.', (s) => s.hp?.[1] >= 3],
-      ['Sugar Survey', 'Reveal five covered squares.', (s) => s.shown?.size >= 37],
-      ['Sugar Rush', 'Activate Sugar Rush during this fight.', (_s, e) => e.rush > 0],
-      ['Royal Encore', 'Survive eight complete beats before winning.', (s) => s.turns >= 8],
+      [
+        'Royal Guard',
+        'Win with three or more king hearts.',
+        (s) => s.hp?.[1] >= 3,
+      ],
+      [
+        'Sugar Survey',
+        'Reveal five covered squares.',
+        (s) => s.shown?.size >= 37,
+      ],
+      [
+        'Sugar Rush',
+        'Activate Sugar Rush during this fight.',
+        (_s, e) => e.rush > 0,
+      ],
+      [
+        'Royal Encore',
+        'Survive eight complete beats before winning.',
+        (s) => s.turns >= 8,
+      ],
     ],
     ashen: [
       ['The Watch', 'Win with two or more king hearts.', (s) => s.hp?.[1] >= 2],
-      ['Blade Gauntlet', 'Survive six turns before winning.', (s) => s.turns >= 6],
-      ['Last Ember', 'Trigger Last Stand and still emerge victorious.', (_s, e) => e.laststand > 0],
+      [
+        'Blade Gauntlet',
+        'Survive six turns before winning.',
+        (s) => s.turns >= 6,
+      ],
+      [
+        'Last Ember',
+        'Trigger Last Stand and still emerge victorious.',
+        (_s, e) => e.laststand > 0,
+      ],
       ['The Long Night', 'Win after at least ten turns.', (s) => s.turns >= 10],
     ],
     jackpot: [
-      ['House Money', 'Win with a hundred or more chips.', (s) => s.score >= 100],
-      ['Place Your Bet', 'Place a Double or Nothing wager before winning.', (_s, e) => e.wager > 0],
+      [
+        'House Money',
+        'Win with a hundred or more chips.',
+        (s) => s.score >= 100,
+      ],
+      [
+        'Place Your Bet',
+        'Place a Double or Nothing wager before winning.',
+        (_s, e) => e.wager > 0,
+      ],
       ['Cash Out', 'Collect an actual wager payout.', (_s, e) => e.jackpot > 0],
-      ['Triple Crown', 'Win with a multiplier of three or more.', (s) => s.multiplier >= 3],
+      [
+        'Triple Crown',
+        'Win with a multiplier of three or more.',
+        (s) => s.multiplier >= 3,
+      ],
     ],
   }
   let archive = {}
@@ -120,9 +156,10 @@
       mastery: Number.isInteger(raw?.mastery)
         ? Math.max(0, Math.min(15, raw.mastery))
         : 0,
-      best: Number.isSafeInteger(raw?.best) && raw.best >= 0
-        ? Math.min(99999999, raw.best)
-        : 0,
+      best:
+        Number.isSafeInteger(raw?.best) && raw.best >= 0
+          ? Math.min(99999999, raw.best)
+          : 0,
     }
   }
   const save = () => {
@@ -199,8 +236,7 @@
       const trial = TRIALS[w]?.[progress.chapter]
       const events = eventsByState.get(state) || {}
       const mastered = !!trial?.[2](state, events)
-      const mastery =
-        progress.mastery | (mastered ? 1 << progress.chapter : 0)
+      const mastery = progress.mastery | (mastered ? 1 << progress.chapter : 0)
       const score = Number.isFinite(Number(state.score))
         ? Math.max(0, Math.min(99999999, Math.floor(state.score)))
         : 0

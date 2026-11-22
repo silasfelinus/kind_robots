@@ -63,8 +63,13 @@ const engine = {
 }
 const events: Array<{ type: string; detail?: unknown }> = []
 class MockCustomEvent {
-  constructor(public type: string, public options?: { detail?: unknown }) {}
-  get detail() { return this.options?.detail }
+  constructor(
+    public type: string,
+    public options?: { detail?: unknown },
+  ) {}
+  get detail() {
+    return this.options?.detail
+  }
 }
 const windowObject: Record<string, unknown> = {
   __fusionTest: engine,
@@ -93,7 +98,7 @@ type Campaign = {
     mastery: number
   }
   worldCount: number
-  chapters: (world: string) => number,
+  chapters: (world: string) => number
   trial: (world: string, chapter: number) => string[] | null
 }
 const campaign = windowObject.__chessweeperCampaign as Campaign
@@ -165,8 +170,16 @@ assert.ok(html.includes('href="/chessweeper/campaign.css"'))
     }
   }
   const stored = JSON.parse(values.get('kindrobots:chessweeper:campaign:v1')!)
-  assert.equal(stored.worlds.sugar.mastery & 1, 1, 'guard mastery earned by three hearts')
-  assert.equal(stored.worlds.ashen.mastery || 0, 0, 'losing never awards mastery')
+  assert.equal(
+    stored.worlds.sugar.mastery & 1,
+    1,
+    'guard mastery earned by three hearts',
+  )
+  assert.equal(
+    stored.worlds.ashen.mastery || 0,
+    0,
+    'losing never awards mastery',
+  )
   assert.ok(
     Array.isArray(events),
     'mastery events are captured without unlocking fictitious chapters',

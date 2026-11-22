@@ -8,6 +8,10 @@ on:
       - 'utils/scripts/verifyRainbowNurseryFlight.test.ts'
       - '.github/workflows/rainbow-nursery-flight.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

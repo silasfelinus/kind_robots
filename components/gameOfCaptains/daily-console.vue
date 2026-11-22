@@ -706,7 +706,9 @@ function castPortrait(portraitKey: string): string | null {
     warpArt('portraits/v2/' + portraitKey),
     warpArt('portraits/' + portraitKey),
   ]
-  return candidates.find((url) => url && !brokenArtwork.value.includes(url)) ?? null
+  return (
+    candidates.find((url) => url && !brokenArtwork.value.includes(url)) ?? null
+  )
 }
 function redshirtPortrait(id: string): string | null {
   const key = 'redshirts/portraits/' + id

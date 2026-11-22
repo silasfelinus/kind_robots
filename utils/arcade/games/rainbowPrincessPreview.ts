@@ -201,6 +201,8 @@ import {
   LIGHTHOUSE_LAMPS,
   LIGHTHOUSE_SECTIONS,
   LIGHTHOUSE_TALKS,
+  LIGHTHOUSE_WAVES,
+  lighthouseCheckpointValid,
   LIGHTHOUSE_WAVE_SIZES,
   lighthouseDetourFor,
   lighthouseMedalEarned,
@@ -517,6 +519,12 @@ function actCheckpointFrames(act: RainbowCheckpoint['act']): readonly number[] {
 }
 /** What the CONTINUE? screen and the flight log call a checkpoint: its section, the boss or the Act start. */
 function checkpointName(c: Readonly<RainbowCheckpoint>): string {
+  if (c.lighthouseFrame !== undefined)
+    return checkpointLabel(
+      LIGHTHOUSE_SECTIONS,
+      LIGHTHOUSE.guardianFrom,
+      c.lighthouseFrame,
+    )
   if (c.shoalFrame !== undefined)
     return checkpointLabel(
       SHOAL_SECTIONS,
@@ -561,7 +569,9 @@ export function isRainbowCheckpoint(
     act <= 9 &&
     (act > 1 || frame > 0) &&
     (actCheckpointFrames(act as RainbowCheckpoint['act']).includes(frame) ||
-      (c !== undefined && mirrorShoalCheckpointValid(act, frame, c)))
+      (c !== undefined &&
+        (lighthouseCheckpointValid(act, frame, c) ||
+          mirrorShoalCheckpointValid(act, frame, c))))
   )
 }
 /** E23 crystal squids glint for this long, then fire a pellet that splits in three after its fuse. */
@@ -2332,11 +2342,23 @@ export function createRainbowPrincessPreview(
     act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
     frame: number,
   ) {
+    const lighthouseCheckpoint =
+      act === 6 &&
+      lighthouseActive() &&
+      (lighthouseFrame() === 0 ||
+        LIGHTHOUSE_SECTIONS.some(
+          (section) => section.from === lighthouseFrame(),
+        ))
     const shoalCheckpoint =
       act === 7 &&
       shoalActive() &&
       SHOAL_SECTIONS.some((section) => section.from === shoalFrame())
-    if (!actCheckpointFrames(act).includes(frame) && !shoalCheckpoint) return
+    if (
+      !actCheckpointFrames(act).includes(frame) &&
+      !lighthouseCheckpoint &&
+      !shoalCheckpoint
+    )
+      return
     if (checkpoint.act === act && frame <= checkpoint.frame) return
     checkpoint = {
       act,
@@ -2358,6 +2380,15 @@ export function createRainbowPrincessPreview(
       pylonsDown,
       rescuedNavigator,
       actContinues,
+      ...(lighthouseCheckpoint
+        ? {
+            lighthouseStartedAt: lighthouseStart! - reefStart!,
+            lighthouseFrame: lighthouseFrame(),
+            lighthouseLamps,
+            lighthouseGuardianOutcome,
+            lighthouseHits,
+          }
+        : {}),
       ...(shoalCheckpoint
         ? {
             shoalStartedAt: shoalStart! - glassStart!,
@@ -2554,7 +2585,10 @@ export function createRainbowPrincessPreview(
     trenchDefeatedFrame = beaten(3)
     rosefinDefeatedFrame = beaten(4)
     wreckDefeatedFrame = beaten(5)
-    reefDefeatedFrame = beaten(6)
+    reefDefeatedFrame =
+      c.lighthouseFrame !== undefined
+        ? c.lighthouseStartedAt! - CROWN_REEF.aftermathFrames
+        : beaten(6)
     glassDefeatedFrame =
       c.shoalFrame !== undefined
         ? c.shoalStartedAt! - GLASS.aftermathFrames
@@ -2565,6 +2599,13 @@ export function createRainbowPrincessPreview(
     rosefinStart = start(4)
     wreckStart = start(5)
     reefStart = start(6)
+    lighthouseStart =
+      c.lighthouseFrame !== undefined
+        ? reefStart! + c.lighthouseStartedAt!
+        : null
+    lighthouseLamps = c.lighthouseLamps ?? 0
+    lighthouseGuardianOutcome = c.lighthouseGuardianOutcome ?? 'waiting'
+    lighthouseHits = c.lighthouseHits ?? 0
     glassStart = start(7)
     shoalStart =
       c.shoalFrame !== undefined ? glassStart! + c.shoalStartedAt! : null
@@ -2614,6 +2655,7 @@ export function createRainbowPrincessPreview(
       return
     }
     const cleared =
+      checkpoint.lighthouseFrame !== undefined ||
       checkpoint.shoalFrame !== undefined
         ? false
         : checkpoint.act === 1
@@ -2635,8 +2677,10 @@ export function createRainbowPrincessPreview(
                         : choiceFrame !== null || finalChoice !== null
     if (!cleared) {
       const waves: ReadonlyArray<{ at: number }> =
-        checkpoint.shoalFrame !== undefined
-          ? SHOAL_WAVES
+        checkpoint.lighthouseFrame !== undefined
+          ? LIGHTHOUSE_WAVES
+          : checkpoint.shoalFrame !== undefined
+            ? SHOAL_WAVES
           : checkpoint.act === 1
             ? PINKWAKE_WAVES
             : checkpoint.act === 2
@@ -2655,8 +2699,10 @@ export function createRainbowPrincessPreview(
                           ? PALACE_WAVES
                           : []
       const base =
-        checkpoint.shoalFrame !== undefined
-          ? MIRROR_SHOAL.waveBase
+        checkpoint.lighthouseFrame !== undefined
+          ? LIGHTHOUSE.waveBase
+          : checkpoint.shoalFrame !== undefined
+            ? MIRROR_SHOAL.waveBase
           : checkpoint.act === 1
             ? 0
             : checkpoint.act === 2
@@ -2674,7 +2720,10 @@ export function createRainbowPrincessPreview(
                         : PALACE.waveBase
       waves.forEach((entry, index) => {
         const id = base + index
-        if (entry.at >= (checkpoint.shoalFrame ?? checkpoint.frame)) {
+        if (
+          entry.at >=
+          (checkpoint.lighthouseFrame ?? checkpoint.shoalFrame ?? checkpoint.frame)
+        ) {
           waveSpawned.delete(id)
           waveLeft.delete(id)
           brokenWaves.delete(id)
@@ -2693,6 +2742,13 @@ export function createRainbowPrincessPreview(
       )
       // A guardian whose section lies after the checkpoint flies again.
       guardian = null
+      if (checkpoint.lighthouseFrame !== undefined) {
+        lighthouseStart = reefStart! + checkpoint.lighthouseStartedAt!
+        lighthouseLamps = checkpoint.lighthouseLamps ?? 0
+        lighthouseGuardianOutcome =
+          checkpoint.lighthouseGuardianOutcome ?? 'waiting'
+        lighthouseHits = checkpoint.lighthouseHits ?? 0
+      }
       if (checkpoint.shoalFrame !== undefined) {
         shoalStart = glassStart! + checkpoint.shoalStartedAt!
         shoalGuardianOutcome = checkpoint.shoalGuardianOutcome ?? 'waiting'
@@ -2748,6 +2804,10 @@ export function createRainbowPrincessPreview(
       reefRoute = checkpoint.reefRoute
       reefSettled = checkpoint.reefSettled
       pylonsDown = checkpoint.pylonsDown
+      lighthouseLamps = checkpoint.lighthouseLamps ?? lighthouseLamps
+      lighthouseGuardianOutcome =
+        checkpoint.lighthouseGuardianOutcome ?? lighthouseGuardianOutcome
+      lighthouseHits = checkpoint.lighthouseHits ?? lighthouseHits
       rescuedNavigator = checkpoint.rescuedNavigator
       actContinues = (checkpoint.actContinues ?? 0) + 1
       // The navigator drifts out again when the checkpoint is before the pod appeared.
@@ -4166,6 +4226,7 @@ export function createRainbowPrincessPreview(
       }
     } else if (lighthouseActive()) {
       const frame = lighthouseFrame()
+      passCheckpoint(6, reefFrame())
       const stage = lighthouseStage(frame)
       if (
         frame >= LIGHTHOUSE_GUARDIAN.from &&

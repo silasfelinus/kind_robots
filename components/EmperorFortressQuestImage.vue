@@ -37,7 +37,7 @@ const props = withDefaults(
     tier?: QuestResultTier | 'expired'
     faded?: boolean
   }>(),
-  { variant: 'notice', faded: false },
+  { variant: 'notice', tier: undefined, faded: false },
 )
 
 const index = ref(0)

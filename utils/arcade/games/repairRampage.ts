@@ -68,6 +68,9 @@ const DRAIN_TICKS = 120
 const CLEAR_TICKS = 150
 
 const FIX_POINTS = 100
+const ROW_BONUS = 300
+const TOWER_BONUS = 1000
+const CHAIN_WINDOW = 180
 const SHOO_POINTS = 150
 const KITTEN_POINTS = 500
 
@@ -643,6 +646,8 @@ class RepairRampage implements ArcadeGameInstance {
   private fx = new Sparkles()
   private fxRng = backdropRng(47)
   private prevX = this.x
+  private fixChain = 0
+  private lastFixTick = -CHAIN_WINDOW
   private glints: Array<{ x: number; y: number; life: number }> = []
   private flashes: Array<{ x: number; y: number; life: number }> = []
 
@@ -658,6 +663,8 @@ class RepairRampage implements ArcadeGameInstance {
 
   private startCity(city: number) {
     this.level = city
+    this.fixChain = 0
+    this.lastFixTick = -CHAIN_WINDOW
     const town = repairTownForCity(city)
     const count = town.towerCount
     const tallest = town.maxRows
@@ -866,10 +873,32 @@ class RepairRampage implements ArcadeGameInstance {
     const index = this.row * TOWER_COLS + this.col
     if (t.windows[index]) return
     t.windows[index] = true
+    this.fixChain =
+      this.tick - this.lastFixTick <= CHAIN_WINDOW ? this.fixChain + 1 : 1
+    this.lastFixTick = this.tick
     t.stability = Math.min(t.maxStability, t.stability + FIX_STEADY)
     const wx = t.x + 4 + this.col * CELL + CELL / 2
     const wy = windowY(this.row) + CELL / 2
-    this.addScore(FIX_POINTS, wx, wy - 8)
+    this.addScore(FIX_POINTS * Math.min(this.fixChain, 5), wx, wy - 8)
+    if (this.fixChain >= 3) {
+      this.floaters.push({
+        x: wx,
+        y: wy - 24,
+        text: `${this.fixChain} FIX CHAIN!`,
+        life: 45,
+      })
+    }
+    const rowStart = this.row * TOWER_COLS
+    if (t.windows.slice(rowStart, rowStart + TOWER_COLS).every(Boolean)) {
+      this.addScore(ROW_BONUS, wx, wy - 24)
+      this.charge = Math.min(MAX_CHARGE, this.charge + 3)
+    }
+    if (t.windows.every(Boolean)) {
+      this.addScore(TOWER_BONUS, wx, wy - 36)
+      this.charge = Math.min(MAX_CHARGE, this.charge + 10)
+      this.banner = { text: 'TOWER RESTORED!', ticks: 75 }
+      this.sound.play('extra')
+    }
     this.burst(wx, wy, 6, '#fde68a')
     this.fx.burst(wx, wy, this.fxRng, { count: 8 })
     this.glints.push({ x: wx, y: wy, life: 16 })

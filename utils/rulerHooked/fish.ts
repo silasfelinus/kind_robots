@@ -15,6 +15,7 @@ import type {
 import type { RngStream } from './seed'
 import { clauseHolds } from './triggers'
 import { rollTreasure } from './economy'
+import { fishWeightForProclamation } from './dailyEvents'
 
 /**
  * Species art key convention from docs/fish-ecology.md: creature slug plus
@@ -501,7 +502,13 @@ function pickFish(save: RunSave, rng: RngStream): FishDefinition {
   // Parlour Rustfish is intentionally unconditional, so this is defensive only.
   if (!pool.length)
     return RULER_HOOKED_FISH.find((f) => f.slug === 'parlour-rustfish')!
-  const weights = pool.map((f) => f.baseWeight ?? rarityWeight[f.rarity])
+  const weights = pool.map((f) =>
+    fishWeightForProclamation(
+      save,
+      f.slug,
+      f.baseWeight ?? rarityWeight[f.rarity],
+    ),
+  )
   const total = weights.reduce((sum, w) => sum + Math.max(0, w), 0)
   let roll = rng.next() * Math.max(total, 1)
   for (let i = 0; i < pool.length; i++) {

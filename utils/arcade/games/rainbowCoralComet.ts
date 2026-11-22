@@ -47,7 +47,7 @@ export const COMET_GUARDIAN: RainbowGuardianSection = {
   name: 'Comet Herder',
   from: COMET.guardianFrom,
   to: COMET.guardianTo,
-  kind: 'courier',
+  kind: 'herder',
 }
 
 /** Four trainer signals; each appears exactly once at a different lane. */

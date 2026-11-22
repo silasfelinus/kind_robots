@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
 import { formationMembers } from '../arcade/games/rainbowFormations'
 import {
+  RAINBOW_GUARDIAN,
+  createRainbowGuardian,
+  rainbowGuardianWarning,
+  stepRainbowGuardian,
+} from '../arcade/games/rainbowGuardian'
+import {
   COMET,
   COMET_CADETS,
   COMET_GUARDIAN,
@@ -32,7 +38,7 @@ assert.deepEqual(COMET_GUARDIAN, {
   name: 'Comet Herder',
   from: 16800,
   to: 18000,
-  kind: 'courier',
+  kind: 'herder',
 })
 assert.deepEqual(Object.keys(COMET_TALKS), ['opening', 'turn', 'aftermath'])
 for (const lines of Object.values(COMET_TALKS)) {
@@ -160,6 +166,40 @@ assert.ok(fragments.every((shot) => shot.x === 390 && shot.y === 125))
 assert.ok(fragments.every((shot) => shot.vx < 0))
 assert.ok(fragments.some((shot) => shot.vy < 0))
 assert.ok(fragments.some((shot) => shot.vy > 0))
+
+for (const players of [1, 4]) {
+  const guardian = createRainbowGuardian('herder', players)
+  const targets = Array.from({ length: players }, (_, i) => ({
+    x: 80,
+    y: 70 + 50 * i,
+    lives: 3,
+  }))
+  let first = [] as ReturnType<typeof stepRainbowGuardian>
+  let warningFrames = 0
+  for (let frame = 1; frame <= RAINBOW_GUARDIAN.firstVolley; frame++) {
+    first = stepRainbowGuardian(guardian, targets, false)
+    if (rainbowGuardianWarning(guardian)) warningFrames++
+    if (frame < RAINBOW_GUARDIAN.firstVolley)
+      assert.equal(first.length, 0)
+  }
+  assert.equal(warningFrames, RAINBOW_GUARDIAN.warningFrames)
+  assert.equal(first.length, 4)
+  assert.ok(first.every((shot) => shot.vx < 0))
+  let second = [] as ReturnType<typeof stepRainbowGuardian>
+  while (guardian.volleys < 2) {
+    second = stepRainbowGuardian(guardian, targets, false)
+    assert.ok(guardian.frame < 500)
+  }
+  assert.equal(second.length, 8)
+  assert.ok(second.some((shot) => shot.vy > 0))
+  assert.ok(second.some((shot) => shot.vy < 0))
+  assert.deepEqual(stepRainbowGuardian(guardian, targets, true), [])
+  assert.equal(guardian.leaving, true)
+}
+assert.ok(
+  createRainbowGuardian('herder', 4).maxHp >
+    createRainbowGuardian('herder', 1).maxHp,
+)
 
 console.log(
   'X2 Coral Comet: 52 waves, ten sections, four trainers, safe co-op fork, 310-second flight model and checkpoint proof passed',

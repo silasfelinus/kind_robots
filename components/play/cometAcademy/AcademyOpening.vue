@@ -765,6 +765,7 @@
 </template>
 
 <script setup lang="ts">
+import AcademyTermArchive from '~/components/play/cometAcademy/AcademyTermArchive.vue'
 import { computed, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { identityFor } from '~/utils/cometAcademy/identityArcs'

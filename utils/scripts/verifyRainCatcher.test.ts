@@ -2,6 +2,10 @@ import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { create } from '../arcade/games/rainCatcher'
 import { emptyInput } from '../arcade/types'
+import {
+  rainWaveForLevel,
+  weatherForVolley,
+} from '../arcade/rainCatcher/waves'
 import type { RainWeather } from '../arcade/rainCatcher/waves'
 
 type Falling = {
@@ -34,6 +38,10 @@ type TestGame = {
   land(hail: Falling): void
   catchHail(hail: Falling, bloom: Bloom): void
   updateBlooms(): void
+  updateHail(): void
+  release(): void
+  volleyTimer: number
+  toRelease: number
   startWave(wave: number): void
   update(input: ReturnType<typeof emptyInput>): void
 }
@@ -110,6 +118,36 @@ function gameFor(seed: number, demo = false): TestGame {
   const secondBloom = { x: 125, y: 80, t: 18 }
   game.catchHail(snowball, secondBloom)
   assert.equal(snowball.vy, 0, 'a second bloom destroys the snowball')
+}
+
+{
+  const game = gameFor(16)
+  game.startWave(2)
+  const sleet = game.makeHail(54, 210, false, 'sleet')
+  sleet.x = 54
+  sleet.y = 210
+  game.hail.push(sleet)
+  game.updateHail()
+  assert.ok(sleet.vy === 0 && sleet.vx !== 0, 'sleet skids on landing')
+  for (let tick = 0; tick < 25; tick++) game.updateHail()
+  assert.ok(game.beds.some((stage) => stage < 2), 'skidding sleet hits a bed')
+}
+
+{
+  const game = gameFor(17)
+  game.startWave(3)
+  const forecast = rainWaveForLevel(3)
+  const index = Array.from({ length: forecast.hailCount }, (_, i) => i).find(
+    (i) => weatherForVolley(forecast, i) === 'moth',
+  )
+  assert.notEqual(index, undefined, 'wave three includes a moth cluster')
+  game.toRelease = forecast.hailCount - index!
+  game.volleyTimer = 1
+  game.release()
+  assert.ok(
+    game.hail.filter((hail) => hail.kind === 'moth').length >= 8,
+    'one moth volley creates a clustered flock',
+  )
 }
 
 function pilot(seed: number) {

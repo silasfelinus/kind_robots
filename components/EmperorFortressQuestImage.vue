@@ -25,6 +25,7 @@ import {
   regionCropStyle,
 } from '~/utils/emperorOfDust/fortress/questArt'
 import type { QuestArtVariant } from '~/utils/emperorOfDust/fortress/questArt'
+import type { QuestResultTier } from '~/utils/emperorOfDust/fortress/types'
 
 const props = withDefaults(
   defineProps<{
@@ -32,14 +33,16 @@ const props = withDefaults(
     region: string
     label: string
     variant?: QuestArtVariant
+    /** A dawn result's tier selects a curated consequence plate first. */
+    tier?: QuestResultTier | 'expired'
     faded?: boolean
   }>(),
-  { variant: 'notice', faded: false },
+  { variant: 'notice', tier: undefined, faded: false },
 )
 
 const index = ref(0)
 const candidates = computed(() =>
-  questArtCandidates(props.questId, props.variant),
+  questArtCandidates(props.questId, props.variant, props.tier),
 )
 const src = computed(() => candidates.value[index.value])
 
@@ -48,7 +51,7 @@ function tryNext() {
 }
 
 watch(
-  () => [props.questId, props.variant],
+  () => [props.questId, props.variant, props.tier],
   () => {
     index.value = 0
   },

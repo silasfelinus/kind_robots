@@ -2,10 +2,13 @@
 // public/emperor-of-dust/talks/<entry>.webp. Re-run the export; do not edit by hand.
 
 export const TALK_ART: readonly string[] = [
+  'kiyo-romance-2/choice-b',
   'nettle-2/choice-a',
   'nettle-2/notice',
   'odo-1/notice',
   'odo-2/notice',
+  'rook-1/choice-b',
+  'rook-1/notice',
   'sera-1/choice-a',
   'sera-2/notice',
   'tarn-1/notice',

@@ -9,13 +9,21 @@ import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
 import {
   audienceChoiceImages,
+  audiencePlateUrl,
   EXPORTED_AUDIENCE_CHOICES,
 } from '../emperorOfDust/fortress/audienceChoiceArt'
 import { CAST_ART, followerPortrait } from '../emperorOfDust/fortress/castArt'
 import {
   chanceArtCandidates,
+  chancePlateUrl,
   EXPORTED_CHANCE_PLATES,
 } from '../emperorOfDust/fortress/chanceArt'
+import {
+  AUDIENCE_PLATES,
+  CHANCE_PLATES,
+  ENDING_PLATES,
+  QUEST_OUTCOME_PLATES,
+} from '../emperorOfDust/fortress/deliveredPlates'
 import { CHANCE_EVENTS } from '../emperorOfDust/fortress/dailyEvents'
 import { DAYS, QUEST_TEMPLATES } from '../emperorOfDust/fortress/content'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
@@ -99,6 +107,29 @@ for (const id of EXPORTED_AUDIENCE_CHOICES) {
   )
 }
 
+// Every generated curated-plate binding must name a physically shipped WebP.
+for (const entry of CHANCE_PLATES) {
+  assert.ok(
+    shipped('/emperor-of-dust/chance-events/' + entry + '.webp'),
+    'chance plate binding without a shipped file: ' + entry,
+  )
+}
+for (const file of [
+  ...Object.values(AUDIENCE_PLATES),
+  ...Object.values(QUEST_OUTCOME_PLATES),
+]) {
+  assert.ok(
+    shipped('/emperor-of-dust/audiences/' + file + '.webp'),
+    'audience/consequence plate binding without a shipped file: ' + file,
+  )
+}
+for (const ending of ENDING_PLATES) {
+  assert.ok(
+    shipped('/emperor-of-dust/endings/' + ending + '.webp'),
+    'ending plate binding without a shipped file: ' + ending,
+  )
+}
+
 const slots: Slot[] = []
 const missing = (kind: Slot['kind']) =>
   slots.filter((slot) => slot.kind === kind && !slot.dedicated)
@@ -115,7 +146,8 @@ for (const day of DAYS) {
       const sceneKey = day.day + '/' + id
       if (uniqueAudienceOptions.has(sceneKey)) continue
       uniqueAudienceOptions.add(sceneKey)
-      const wanted = '/emperor-of-dust/audiences/' + id + '.webp'
+      const curated = audiencePlateUrl(audience.id, option.id)
+      const wanted = curated ?? '/emperor-of-dust/audiences/' + id + '.webp'
       const images = audienceChoiceImages(
         audience.id,
         option.id,
@@ -128,7 +160,9 @@ for (const day of DAYS) {
         kind: 'audience',
         id,
         day: day.day,
-        dedicated: EXPORTED_AUDIENCE_CHOICES.includes(id) && shipped(wanted),
+        dedicated:
+          (EXPORTED_AUDIENCE_CHOICES.includes(id) || Boolean(curated)) &&
+          shipped(wanted),
         shipped_url: selected,
         missing_dedicated_url: shipped(wanted) ? null : wanted,
       })
@@ -137,18 +171,22 @@ for (const day of DAYS) {
 }
 
 for (const event of CHANCE_EVENTS) {
-  const wanted = '/emperor-of-dust/chance/' + event.id + '.webp'
   for (const [index, option] of event.choices.entries()) {
     const id = event.id + '/' + option.id
-    const selected = chanceArtCandidates(event.id, index).find((url) =>
-      shipped(url),
+    const curated =
+      chancePlateUrl(event.id, option.id) ?? chancePlateUrl(event.id, 'notice')
+    const wanted = curated ?? '/emperor-of-dust/chance/' + event.id + '.webp'
+    const selected = chanceArtCandidates(event.id, index, option.id).find(
+      (url) => shipped(url),
     )
     assert.ok(selected, 'No physical image for chance choice ' + id)
     slots.push({
       kind: 'chance',
       id,
       day: null,
-      dedicated: EXPORTED_CHANCE_PLATES.includes(event.id) && shipped(wanted),
+      dedicated:
+        (EXPORTED_CHANCE_PLATES.includes(event.id) || Boolean(curated)) &&
+        shipped(wanted),
       shipped_url: selected,
       missing_dedicated_url: shipped(wanted) ? null : wanted,
     })

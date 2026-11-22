@@ -84,13 +84,17 @@ assert.throws(() =>
   ),
 )
 assert.throws(() => parseEmperorArtDeliveryTargets([targets[0], targets[0]]))
+// 2026-11-21 PT: the curated REDO-4 keepers now ship as static files.
 assert.deepEqual(questArtCandidates('r-fever-ward', 'success'), [
-  '/images/emperor-of-dust/quests/r-fever-ward-success.webp',
-  '/emperor-of-dust/quests/r-fever-ward.webp',
+  '/emperor-of-dust/quests/r-fever-ward-success.webp',
 ])
 assert.deepEqual(questArtCandidates('r-verge-scouts', 'failure'), [
-  '/images/emperor-of-dust/quests/r-verge-scouts-failure.webp',
-  '/emperor-of-dust/quests/r-verge-scouts.webp',
+  '/emperor-of-dust/quests/r-verge-scouts-failure.webp',
+])
+// An outcome with no shipped plate still probes the durable share first.
+assert.deepEqual(questArtCandidates('q-d42-cave-forage', 'failure'), [
+  '/images/emperor-of-dust/quests/q-d42-cave-forage-failure.webp',
+  '/emperor-of-dust/quests/q-d42-cave-forage.webp',
 ])
 assert.deepEqual(questArtCandidates('r-deserter', 'failure'), [
   '/emperor-of-dust/quests/r-deserter-failure.webp',
@@ -99,13 +103,20 @@ const questView = readFileSync(
   new URL('../../components/EmperorFortressQuestImage.vue', import.meta.url),
   'utf8',
 )
-assert.match(questView, /questArtCandidates\(props.questId, props.variant\)/)
+assert.match(
+  questView,
+  /questArtCandidates\(props.questId, props.variant, props.tier\)/,
+)
 assert.match(questView, /@error="tryNext"/)
 assert.match(questView, /index.value < candidates.value.length/)
 
 const audience = audienceChoiceImages('d01-aqueduct', 'repair', undefined, 0)
-assert.deepEqual(audience.slice(0, 2), [
+// The curated, shipped plate leads; the durable share and the audience's
+// opening scene plate follow before portraits and rooms.
+assert.deepEqual(audience.slice(0, 4), [
+  '/emperor-of-dust/audiences/d01-aqueduct-repair.webp',
   '/images/emperor-of-dust/audiences/d01-aqueduct-repair.webp',
+  '/emperor-of-dust/audiences/d01-aqueduct-enter.webp',
   '/images/emperor-of-dust/audiences/d01-aqueduct-enter.webp',
 ])
 assert.ok(
@@ -139,7 +150,10 @@ for (const event of CHANCE_EVENTS) {
 assert.equal(coverage, 270, 'all 135 chances have two illustrated choices')
 
 const chance = chanceArtCandidates('dust-weather-1', 0, 'collect')
-assert.deepEqual(chance.slice(0, 2), [
+// Shipped curated plates lead, then the durable share, then room fallbacks.
+assert.deepEqual(chance.slice(0, 4), [
+  '/emperor-of-dust/chance-events/dust-weather-1/collect.webp',
+  '/emperor-of-dust/chance-events/dust-weather-1/notice.webp',
   '/images/emperor-of-dust/chance-events/dust-weather-1/collect.webp',
   '/images/emperor-of-dust/chance-events/dust-weather-1/notice.webp',
 ])

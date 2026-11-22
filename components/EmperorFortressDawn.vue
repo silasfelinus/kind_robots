@@ -196,6 +196,7 @@
               :region="questDef(current.questId)?.region ?? ''"
               :label="`${title(current.questId)}: ${tierLabel(current.tier)}`"
               :variant="outcomeVariant(current.tier)"
+              :tier="current.tier"
               :faded="current.tier === 'expired'"
               class="aspect-[16/10] w-full rounded-lg"
             />
@@ -315,6 +316,7 @@
                   :region="questDef(quest.questId)?.region ?? ''"
                   :label="title(quest.questId)"
                   :variant="outcomeVariant(quest.tier)"
+                  :tier="quest.tier"
                   :faded="quest.tier === 'expired'"
                   class="aspect-[16/9]"
                 />

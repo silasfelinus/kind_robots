@@ -2,10 +2,7 @@ import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { create } from '../arcade/games/rainCatcher'
 import { emptyInput } from '../arcade/types'
-import {
-  rainWaveForLevel,
-  weatherForVolley,
-} from '../arcade/rainCatcher/waves'
+import { rainWaveForLevel, weatherForVolley } from '../arcade/rainCatcher/waves'
 import type { RainWeather } from '../arcade/rainCatcher/waves'
 
 type Falling = {
@@ -34,12 +31,7 @@ type TestGame = {
   readonly level: number
   readonly score: number
   readonly over: boolean
-  makeHail(
-    x: number,
-    y: number,
-    sprite?: boolean,
-    kind?: RainWeather,
-  ): Falling
+  makeHail(x: number, y: number, sprite?: boolean, kind?: RainWeather): Falling
   land(hail: Falling): void
   catchHail(hail: Falling, bloom: Bloom): void
   updateBlooms(): void
@@ -135,7 +127,10 @@ function gameFor(seed: number, demo = false): TestGame {
   game.updateHail()
   assert.ok(sleet.vy === 0 && sleet.vx !== 0, 'sleet skids on landing')
   for (let tick = 0; tick < 25; tick++) game.updateHail()
-  assert.ok(game.beds.some((stage) => stage < 2), 'skidding sleet hits a bed')
+  assert.ok(
+    game.beds.some((stage) => stage < 2),
+    'skidding sleet hits a bed',
+  )
 }
 
 {
@@ -186,4 +181,6 @@ function pilot(seed: number) {
 }
 assert.deepEqual(pilot(15), pilot(15), 'seeded rain pilot is repeatable')
 assert.equal(pilot(15).score, 0, 'attract mode cannot post a score')
-console.log('Rain Catcher: bed growth, barrels, petal chains, snowballs and pilot')
+console.log(
+  'Rain Catcher: bed growth, barrels, petal chains, snowballs and pilot',
+)

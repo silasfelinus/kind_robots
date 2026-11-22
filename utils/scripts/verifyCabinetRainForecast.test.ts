@@ -17,7 +17,7 @@ for (let wave = 1; wave <= 30; wave++) {
   assert.ok(profile.hailCount >= 10 && profile.hailCount <= 40)
   assert.ok(profile.skyBand >= 0 && profile.skyBand < 6)
   assert.ok(profile.par > 0)
-  assert.equal(profile.localWave, (wave - 1) % 5 + 1)
+  assert.equal(profile.localWave, ((wave - 1) % 5) + 1)
   for (let shot = 0; shot < 45; shot++) {
     const kind = weatherForVolley(profile, shot)
     weather.add(kind)

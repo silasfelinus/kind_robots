@@ -18,10 +18,7 @@
 
 import { levelCurve } from '../curve'
 import { RAIN_CATCHER_MUSIC } from '../rainCatcher/music'
-import {
-  rainWaveForLevel,
-  weatherForVolley,
-} from '../rainCatcher/waves'
+import { rainWaveForLevel, weatherForVolley } from '../rainCatcher/waves'
 import type { RainWave, RainWeather } from '../rainCatcher/waves'
 import type { MusicLoop } from '../sound'
 import { drawText, measureText } from '../font'
@@ -241,11 +238,26 @@ const RAIN_DROP = pixelSprite(
   { '3': RAMPS.water[3] },
 )
 const MOTH_SPRITE = pixelSprite(
-  ['4...4...4', '44.444.44', '.4444444.', '..44444..', '...333...', '..3...3..'],
+  [
+    '4...4...4',
+    '44.444.44',
+    '.4444444.',
+    '..44444..',
+    '...333...',
+    '..3...3..',
+  ],
   { '4': RAMPS.purple[4], '3': RAMPS.gold[3] },
 )
 const SLEET_SPRITE = pixelSprite(
-  ['..444....', '.43334...', '4333334..', '.43334...', '..444....', '....44...', '.....44..'],
+  [
+    '..444....',
+    '.43334...',
+    '4333334..',
+    '.43334...',
+    '..444....',
+    '....44...',
+    '.....44..',
+  ],
   { '4': RAMPS.sky[4], '3': RAMPS.steel[3] },
 )
 
@@ -686,7 +698,7 @@ class RainCatcher implements ArcadeGameInstance {
       if (kind === 'moth') {
         for (let i = 0; i < 7; i++) {
           const child = this.makeHail(
-            Math.max(8, Math.min(W - 8, x + (i % 4 - 1.5) * 7)),
+            Math.max(8, Math.min(W - 8, x + ((i % 4) - 1.5) * 7)),
             SKY_TOP + 2 + Math.floor(i / 4) * 6,
             false,
             'moth',
@@ -831,9 +843,7 @@ class RainCatcher implements ArcadeGameInstance {
     const size = b.petal ? BLOOM_RADIUS * 0.7 : BLOOM_RADIUS
     if (b.t < BLOOM_GROW) return (size * b.t) / BLOOM_GROW
     if (b.t < BLOOM_GROW + BLOOM_HOLD) return size
-    return (
-      (size * (BLOOM_GROW + BLOOM_HOLD + BLOOM_FADE - b.t)) / BLOOM_FADE
-    )
+    return (size * (BLOOM_GROW + BLOOM_HOLD + BLOOM_FADE - b.t)) / BLOOM_FADE
   }
 
   private updateBlooms() {
@@ -868,9 +878,7 @@ class RainCatcher implements ArcadeGameInstance {
       h.vx = 0
       h.vy = 0
       const barrel = BARRELS.findIndex(
-        (x) =>
-          Math.abs(x - bloom.x) < 18 &&
-          bloom.y > GROUND - 55,
+        (x) => Math.abs(x - bloom.x) < 18 && bloom.y > GROUND - 55,
       )
       if (barrel >= 0) {
         this.barrels[barrel]!++
@@ -1241,7 +1249,7 @@ class RainCatcher implements ArcadeGameInstance {
       for (let i = 0; i < 12; i++) {
         const offset = this.tick * this.forecast.wind * 14 + i * 43
         const x = ((offset % W) + W) % W
-        g.fillRect(Math.round(x), 40 + (i * 17) % 120, 8, 1)
+        g.fillRect(Math.round(x), 40 + ((i * 17) % 120), 8, 1)
       }
     }
     // Hills behind the garden, the far ones drifting slower.
@@ -1324,11 +1332,7 @@ class RainCatcher implements ArcadeGameInstance {
     LAUNCHERS.forEach((x, i) => this.renderLauncher(g, x, i))
   }
 
-  private renderBarrel(
-    g: CanvasRenderingContext2D,
-    x: number,
-    i: number,
-  ) {
+  private renderBarrel(g: CanvasRenderingContext2D, x: number, i: number) {
     bevel(g, x - 6, GROUND - 7, 12, 9, RAMPS.earth, {
       depth: 1,
     })

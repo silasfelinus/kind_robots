@@ -19,7 +19,10 @@ const GARDENS = [
   { name: 'Desert Oasis', mix: ['hail', 'rain', 'moth', 'sleet'] },
   { name: 'Mountain Tea Garden', mix: ['hail', 'rain', 'snowball'] },
   { name: 'Seaside Cliffs', mix: ['hail', 'rain', 'sleet', 'moth'] },
-  { name: 'Aurora Greenhouse', mix: ['hail', 'rain', 'snowball', 'sleet', 'moth'] },
+  {
+    name: 'Aurora Greenhouse',
+    mix: ['hail', 'rain', 'snowball', 'sleet', 'moth'],
+  },
 ] as const
 
 export const RAIN_GARDENS = GARDENS.map((garden) => garden.name)

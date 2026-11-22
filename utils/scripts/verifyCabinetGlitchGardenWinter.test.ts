@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
+import { GARDEN_LOOKS } from '../arcade/games/glitchGardenArt'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
 import {
@@ -74,6 +75,8 @@ assert.equal(layoutCells(FROST_FRAME_GREENHOUSE, LAYOUT_HEATER).length, 4)
 assert.equal(FROST_FRAME_GREENHOUSE.waves[2]!.objective?.kind, 'warm-heaters')
 assert.equal(SNOWBALL_HILL.waves[2]!.objective?.kind, 'snow-day')
 assert.equal(SNOWBALL_HILL.icyBed, true)
+assert.ok(GARDEN_LOOKS['frost-frame-greenhouse'])
+assert.ok(GARDEN_LOOKS['snowball-hill'])
 assert.ok(FROST_FRAME_GREENHOUSE.waves.every((w) => w.frost > 0))
 assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
 

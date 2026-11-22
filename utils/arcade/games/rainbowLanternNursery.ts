@@ -58,6 +58,87 @@ export const NURSERY_WAVES: readonly NurseryWave[] = [
   wave(3540, 'pistol', 'pair', 2, 0.25),
 ]
 
+/**
+ * X1 is a separate, earned flight, not the short safe-corridor remix inside
+ * Act III. The rescued navigator opens the nursery after the trench is cleared.
+ * The low-lane majority opts in; ties follow the lead seat.
+ */
+export function nurseryDetourFor(
+  positions: readonly number[],
+  rescuedNemi: boolean,
+  trenchCleared: boolean,
+): boolean {
+  if (!rescuedNemi || !trenchCleared || positions.length === 0) return false
+  const low = positions.filter((y) => Number.isFinite(y) && y >= 135).length
+  return (
+    low > positions.length / 2 ||
+    (low === positions.length / 2 &&
+      Number.isFinite(positions[0]) &&
+      positions[0]! >= 135)
+  )
+}
+
+export const NURSERY_FLIGHT = {
+  id: 'X1',
+  name: 'Lantern Nursery',
+  end: 5100,
+  guardianFrom: NURSERY_GUARDIAN.from,
+  guardianTo: NURSERY_GUARDIAN.to,
+} as const
+
+/** Standalone sections include a deliberate post-guardian exit for Act IV. */
+export const NURSERY_FLIGHT_SECTIONS = [
+  { name: 'Luminous eggs', from: 240, to: 1080 },
+  { name: 'Sleeping shoal', from: 1080, to: 1920 },
+  { name: 'Broken lanterns', from: 1920, to: 2760 },
+  { name: 'Nursery heart', from: 2760, to: 3600 },
+  { name: 'Lantern matriarch', from: 3600, to: 4380 },
+  { name: 'Safe passage home', from: 4380, to: 5100 },
+] as const
+
+export type NurseryFlightPhase =
+  'opening' | 'waves' | 'guardian' | 'exit' | 'done'
+
+export function nurseryFlightPhase(frame: number): NurseryFlightPhase {
+  if (frame < NURSERY.openingEnds) return 'opening'
+  if (frame < NURSERY_GUARDIAN.from) return 'waves'
+  if (frame < NURSERY_GUARDIAN.to) return 'guardian'
+  if (frame < NURSERY_FLIGHT.end) return 'exit'
+  return 'done'
+}
+
+/**
+ * Standalone checkpoint proof. A legacy Act III fork must not masquerade as
+ * an X1 flight; the starting tick and section boundary must both be exact.
+ */
+export function nurseryFlightCheckpointValid(
+  act: number,
+  frame: number,
+  c: {
+    nurseryStartedAt?: number
+    nurseryFrame?: number
+    rescuedNemi?: boolean
+    trenchRoute?: 'vault' | 'safe' | null
+    routeSettled?: boolean
+  },
+): boolean {
+  return (
+    act === 3 &&
+    c.rescuedNemi === true &&
+    c.routeSettled === true &&
+    c.trenchRoute !== null &&
+    c.trenchRoute !== undefined &&
+    Number.isInteger(c.nurseryStartedAt) &&
+    c.nurseryStartedAt! > 0 &&
+    Number.isInteger(c.nurseryFrame) &&
+    (c.nurseryFrame === 0 ||
+      NURSERY_FLIGHT_SECTIONS.some(
+        (section) => section.from === c.nurseryFrame,
+      )) &&
+    frame === c.nurseryStartedAt! + c.nurseryFrame!
+  )
+}
+
 const schedule = buildFormationSchedule(NURSERY_WAVES, NURSERY.waveBase)
 export const NURSERY_WAVE_SIZES: readonly number[] = schedule.sizes
 

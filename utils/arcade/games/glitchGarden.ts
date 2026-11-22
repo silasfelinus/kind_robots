@@ -1009,14 +1009,18 @@ class GlitchGarden implements ArcadeGameInstance {
     const targets: Array<[number, number]> = []
     for (let row = 0; row < BED_TOP; row++)
       for (let col = 0; col < COLS; col++) {
-        if (!this.at(col, row)?.frosted) continue
-        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-          const x = col + dx
-          const y = row + dy
-          const lamp = this.at(x, y)
-          if (lamp?.kind === 'lamp' && !lamp.frosted && !this.inHeat(x, y))
-            targets.push([x, y])
-        }
+        const lamp = this.at(col, row)
+        if (lamp?.kind !== 'lamp' || lamp.frosted || this.inHeat(col, row))
+          continue
+        let nearby = false
+        for (let dy = -6; dy <= 6 && !nearby; dy++)
+          for (let dx = -6; dx <= 6 && !nearby; dx++)
+            if (
+              Math.abs(dx) + Math.abs(dy) <= 6 &&
+              this.at(col + dx, row + dy)?.frosted
+            )
+              nearby = true
+        if (nearby) targets.push([col, row])
       }
     if (!targets.length) return
     const [col, row] = targets[Math.floor(this.rng() * targets.length)]!

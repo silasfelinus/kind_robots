@@ -15,6 +15,7 @@ import gloomInvaders, {
   LANCE_CHARGE,
   SWOOP_TICKS,
   swoopPoint,
+  type GloomMode,
 } from '../arcade/games/gloomInvaders'
 import {
   BERRY_AT,
@@ -60,6 +61,11 @@ import type {
   Drop,
   FormationSpec,
 } from '../arcade/gloomInvaders/weather'
+import {
+  SPRING_SUMMER_FRONTS,
+  calendarFront,
+} from '../arcade/gloomInvaders/calendar'
+import { readGloomCalendarSave } from '../arcade/gloomInvaders/calendarSave'
 import { parseLoop } from '../arcade/sound'
 import type { MusicLoop } from '../arcade/sound'
 import { emptyInput } from '../arcade/types'
@@ -88,7 +94,7 @@ type Game = {
   lives: number
   level: number
   over: boolean
-  mode: 'weather' | 'classic'
+  mode: GloomMode
   menu: { cursor: number } | null
   front: { id: string; formation: FormationSpec }
   clouds: Cloud[]
@@ -105,7 +111,7 @@ type Game = {
   update(input: InputFrame): void
   render(g: CanvasRenderingContext2D): void
   startWave(wave: number): void
-  chooseMode(mode: 'weather' | 'classic'): void
+  chooseMode(mode: GloomMode): void
   cheer(cloud: Cloud): void
   damage(cloud: Cloud): void
   demoInput(): InputFrame
@@ -826,4 +832,114 @@ const alive = (game: Game) => game.clouds.filter((c) => c.alive)
   }
 }
 
-console.log('gloom invaders weather and garden: ok')
+// The authored year begins with six months, three separate playable fronts apiece.
+{
+  assert.equal(SPRING_SUMMER_FRONTS.length, 18)
+  assert.equal(new Set(SPRING_SUMMER_FRONTS.map((f) => f.id)).size, 18)
+  assert.deepEqual(
+    [...new Set(SPRING_SUMMER_FRONTS.map((f) => f.month))],
+    ['MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST'],
+  )
+  for (const [i, front] of SPRING_SUMMER_FRONTS.entries()) {
+    assert.equal(front.season, i < 9 ? 0 : 1)
+    assert.equal(front.frontNumber, (i % 3) + 1)
+    assert.equal(front.special, i % 3 === 1)
+    assert.ok(formationSlots(front.formation).length >= 28)
+    assert.equal(calendarFront(i + 1), front)
+  }
+  assert.equal(calendarFront(19), calendarFront(1))
+
+  const game = gloomInvaders.create({
+    rng: mulberry32(23),
+    sound: quiet,
+    demo: false,
+    hiScore: 0,
+    selectScreen: true,
+  }) as unknown as Game & { save: unknown; mode: string }
+  game.update(frame({ pressed: ['down'] }))
+  game.update(frame({ pressed: ['down'] }))
+  game.update(frame({ pressed: ['a'] }))
+  assert.equal(game.mode, 'calendar')
+  assert.equal(game.front.id, 'march-front-1')
+  assert.deepEqual(game.save, {
+    v: 1,
+    run: { wave: 1, score: 0, lives: 3 },
+  })
+  game.score = 4200
+  game.lives = 2
+  game.startWave(10)
+  assert.equal(game.front.id, 'june-front-1')
+  assert.equal(
+    game.plots.every((plot) => plot.water === 0),
+    true,
+  )
+  assert.deepEqual(game.save, {
+    v: 1,
+    run: { wave: 10, score: 4200, lives: 2 },
+  })
+  const resumed = gloomInvaders.create({
+    rng: mulberry32(23),
+    sound: quiet,
+    demo: false,
+    hiScore: 0,
+    resume: game.save,
+  }) as unknown as Game & { save: unknown; mode: string }
+  assert.equal(resumed.mode, 'calendar')
+  assert.equal(resumed.level, 10)
+  assert.equal(resumed.score, 4200)
+  assert.equal(resumed.lives, 2)
+  assert.equal(resumed.front.id, 'june-front-1')
+  assert.equal(
+    readGloomCalendarSave({ v: 1, run: { wave: 11, score: 2, lives: 3 } }),
+    null,
+  )
+  assert.equal(
+    readGloomCalendarSave({ v: 1, run: { wave: 10, score: -1, lives: 3 } }),
+    null,
+  )
+  assert.equal(
+    readGloomCalendarSave({ v: 1, run: { wave: 1, score: 1, lives: 0 } }),
+    null,
+  )
+  const spectator = gloomInvaders.create({
+    rng: mulberry32(23),
+    sound: quiet,
+    demo: true,
+    hiScore: 0,
+  }) as unknown as Game & { save: unknown }
+  assert.equal(spectator.save, null, 'attract mode cannot write a save')
+
+  const challenge = gloomInvaders.create({
+    rng: mulberry32(24),
+    sound: quiet,
+    demo: false,
+    hiScore: 0,
+  }) as unknown as Game & {
+    water(x: number): void
+    clearWave(): void
+    umbrellaCell(x: number, y: number): unknown
+  }
+  challenge.chooseMode('calendar')
+  challenge.startWave(2)
+  for (let i = 0; i < 5; i++) challenge.water(plotCenter(i))
+  const before = challenge.score
+  challenge.clearWave()
+  assert.equal(
+    challenge.score - before,
+    700,
+    'March First Shoots grants 500 for five uniquely watered plots',
+  )
+  challenge.startWave(10)
+  const shieldX = Array.from({ length: W }, (_, i) => i).find((x) =>
+    challenge.umbrellaCell(x, 304),
+  )
+  assert.notEqual(shieldX, undefined, 'umbrellas are intact in June front 1')
+  challenge.startWave(11)
+  assert.equal(
+    challenge.umbrellaCell(shieldX!, 304),
+    null,
+    'June Brownout removes ordinary umbrella protection',
+  )
+}
+
+console.log('gloom invaders weather and garden + spring/summer calendar: ok')

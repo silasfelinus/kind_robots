@@ -134,6 +134,7 @@ import {
   cometFullWing,
   cometPhase,
   cometSpawns,
+  cometSpeed,
   rescueCometCadet,
 } from './rainbowCoralComet'
 import {
@@ -2033,7 +2034,11 @@ export function createRainbowPrincessPreview(
 
   /** Act IV's craft move by their own rules, and the express current's surges speed them up. */
   function stepRosefinCraft(reef: Reef) {
-    const surge = 1 + (rosefinSpeed(rosefinFrame()) - 1) * 0.6
+    const surge =
+      1 +
+      ((cometActive() ? cometSpeed(cometFrame()) : rosefinSpeed(rosefinFrame())) -
+        1) *
+        0.6
     if (reef.kind === 'dolphin') {
       reef.homeY ??= reef.y
       if (reef.dive === undefined) {
@@ -4926,6 +4931,7 @@ export function createRainbowPrincessPreview(
         reef.kind === 'scrap'
       ) {
         stepWreckCraft(reef)
+        if (cometActive()) reef.x -= (cometSpeed(cometFrame()) - 1) * 0.8
         continue
       }
       if (
@@ -6269,6 +6275,30 @@ export function createRainbowPrincessPreview(
           g.lineTo(x + 70, 92)
           g.stroke()
         }
+      } else if (cometActive()) {
+        // The comet tail streaks past in speed-surges without tinting hostile bullets.
+        const frame = cometFrame()
+        const speed = cometSpeed(frame)
+        g.save()
+        for (let band = 0; band < 4; band++) {
+          g.strokeStyle = ['#ff91d544', '#c7aeff44', '#9ef9f244', '#ffd36e44'][
+            band
+          ]!
+          g.lineWidth = 1.5 + band
+          for (let i = 0; i < 8; i++) {
+            const x =
+              (((i * 91 - frame * drift * speed * (1 + band * 0.3)) % 620) +
+                620) %
+                620 -
+              60
+            const y = 48 + band * 51 + ((i * 23) % 36)
+            g.beginPath()
+            g.moveTo(x, y)
+            g.lineTo(x + 28 + band * 9, y)
+            g.stroke()
+          }
+        }
+        g.restore()
       } else if (rosefinStart !== null) {
         // Rosefin Express: aurora ribbons overhead and light rails whose markers race past faster in a surge.
         const frame = rosefinFrame()
@@ -8098,6 +8128,37 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
+      if (cometActive()) {
+        const cadet = cometCadetAvailable(cometFrame(), cometCadetsMask)
+        if (cadet) {
+          const x = cometCadetX(cometFrame(), cadet.at)
+          const y = laneY(cadet.lane)
+          g.save()
+          g.translate(x, y)
+          g.fillStyle = '#ffe8f8'
+          g.strokeStyle = '#35104c'
+          g.lineWidth = 2
+          g.beginPath()
+          g.ellipse(0, 0, 14, 10, 0, 0, Math.PI * 2)
+          g.fill()
+          g.stroke()
+          g.fillStyle = '#8fefff'
+          g.beginPath()
+          g.ellipse(0, -1, 9, 6, 0, 0, Math.PI * 2)
+          g.fill()
+          g.fillStyle = '#5a1c76'
+          for (const dx of [-6, -2, 2, 6]) {
+            g.beginPath()
+            g.arc(dx, -1, 1.5, 0, Math.PI * 2)
+            g.fill()
+          }
+          g.strokeStyle = '#ffd16e'
+          g.beginPath()
+          g.arc(0, 0, 17, -0.8, 0.8)
+          g.stroke()
+          g.restore()
+        }
+      }
       // A craft a shot just hurt flashes white.
       g.save()
       g.globalCompositeOperation = 'lighter'
@@ -9043,6 +9104,32 @@ export function createRainbowPrincessPreview(
           W - 8,
           H - 8,
         )
+        g.restore()
+      }
+      if (
+        act === 4 &&
+        rescuedCourier &&
+        rosefinDefeatedFrame !== null &&
+        cometStart === null &&
+        wreckStart === null &&
+        rosefinFrame() - rosefinDefeatedFrame >=
+          ROSEFIN.aftermathFrames - 180
+      ) {
+        g.save()
+        g.globalAlpha = 0.9
+        g.setLineDash([8, 5])
+        g.strokeStyle = '#ffe9a0'
+        g.beginPath()
+        g.moveTo(W - 176, 135)
+        g.lineTo(W, 135)
+        g.stroke()
+        g.setLineDash([])
+        g.textAlign = 'right'
+        g.font = 'bold 9px monospace'
+        g.fillStyle = '#ffe9a0'
+        g.fillText('▲ X2 CORAL COMET', W - 8, 123)
+        g.fillStyle = '#bdeaff'
+        g.fillText('▼ ACT V WRECKYARD', W - 8, 153)
         g.restore()
       }
       if (act === 6 && reefDefeatedFrame === null) {

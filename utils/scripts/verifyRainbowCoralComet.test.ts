@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { readRainbowSave } from '../arcade/games/rainbowLoadouts'
+import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { formationMembers } from '../arcade/games/rainbowFormations'
 import {
   RAINBOW_GUARDIAN,
@@ -16,6 +18,7 @@ import {
   COMET_WAVES,
   COMET_WAVE_SIZES,
   cometCadetAvailable,
+  cometCadetX,
   cometCheckpointValid,
   cometCoralFragments,
   cometDetourFor,
@@ -199,6 +202,147 @@ for (const players of [1, 4]) {
 assert.ok(
   createRainbowGuardian('herder', 4).maxHp >
     createRainbowGuardian('herder', 1).maxHp,
+)
+
+
+const checkpoint4 = {
+  act: 4 as const,
+  frame: 34240,
+  score: 1500,
+  rescuedStation: false,
+  rescuedNemi: true,
+  trenchRoute: 'safe' as const,
+  routeSettled: true,
+  nurseryGuardianOutcome: 'escaped' as const,
+  rescuedCourier: true,
+  cadetsHome: false,
+  cometStartedAt: 34000,
+  cometFrame: 240,
+  cometCadetsMask: 0,
+  cometGuardianOutcome: 'waiting' as const,
+  cometHits: 0,
+  wreckRoute: null,
+  wreckSettled: false,
+  podsSaved: 0,
+  reefRoute: null,
+  reefSettled: false,
+  pylonsDown: 0,
+  rescuedNavigator: false,
+  captivesFreed: 0,
+  schoolBonuses: 0,
+}
+const readComet = (checkpoint: typeof checkpoint4) =>
+  readRainbowSave(
+    {
+      v: 1,
+      difficulty: 'normal',
+      checkpoint,
+      guardians: {},
+      medals: {},
+    },
+    (act, frame, saved) =>
+      cometCheckpointValid(act, frame, saved ?? {}),
+  )
+const savedComet = readComet(checkpoint4)
+assert.equal(savedComet?.checkpoint.cometFrame, 240)
+const idleInput = {
+  held: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+  pressed: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+}
+for (const seats of [1, 2, 3, 4]) {
+  const game = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    players: seats,
+    demo: false,
+    rainbowReplay: savedComet!,
+  })
+  assert.equal(game.snapshot.act, 'X2')
+  assert.equal(game.snapshot.cometFrame, 239)
+  assert.equal(game.snapshot.activePlayers, seats)
+  const crew = Array.from({ length: seats }, () => idleInput)
+  for (let frame = 0; frame <= 130; frame++) game.update(idleInput, crew)
+  assert.equal(game.snapshot.act, 'X2')
+  assert.ok(
+    game.snapshot.enemies.some((enemy) => enemy.kind === 'courier'),
+    'the X2 score must spawn a real courier through the 60 Hz cabinet',
+  )
+}
+for (const cadet of COMET_CADETS) {
+  assert.equal(cometCadetX(cadet.at, cadet.at), 135)
+  assert.ok(cometCadetX(cadet.at + 150, cadet.at) < 65)
+}
+const guardianCheckpoint = readComet({
+  ...checkpoint4,
+  frame: 50800,
+  cometFrame: 16800,
+})
+assert.ok(guardianCheckpoint)
+const guardianGame = createRainbowPrincessPreview({
+  rng: () => 0.5,
+  sound: { play: () => {} },
+  hiScore: 0,
+  players: 1,
+  rainbowReplay: guardianCheckpoint!,
+})
+guardianGame.update(idleInput, [idleInput])
+assert.equal(guardianGame.snapshot.act, 'X2')
+assert.equal(guardianGame.snapshot.stage, 'guardian')
+assert.equal(guardianGame.snapshot.guardian?.kind, 'herder')
+
+const exitCheckpoint = readComet({
+  ...checkpoint4,
+  frame: 52000,
+  cometFrame: 18000,
+  cometCadetsMask: 15,
+  cometGuardianOutcome: 'defeated',
+})
+assert.ok(exitCheckpoint)
+const exitGame = createRainbowPrincessPreview({
+  rng: () => 0.5,
+  sound: { play: () => {} },
+  hiScore: 0,
+  players: 1,
+  rainbowReplay: exitCheckpoint!,
+})
+for (let frame = 0; frame <= COMET.end - COMET.guardianTo + 1; frame++)
+  exitGame.update(idleInput, [idleInput])
+assert.equal(exitGame.snapshot.act, 'S05')
+assert.equal(exitGame.snapshot.cadetsHome, true)
+assert.ok(exitGame.snapshot.score >= 3000)
+
+assert.equal(readComet({ ...checkpoint4, frame: 34241 }), null)
+assert.equal(readComet({ ...checkpoint4, cometFrame: 300 }), null)
+assert.equal(readComet({ ...checkpoint4, cometCadetsMask: 16 }), null)
+assert.equal(readComet({ ...checkpoint4, cometHits: -1 }), null)
+assert.equal(readComet({ ...checkpoint4, rescuedCourier: false }), null)
+assert.equal(
+  readComet({ ...checkpoint4, cometGuardianOutcome: 'unknown' as never }),
+  null,
+)
+assert.equal(
+  readComet({ ...checkpoint4, cadetsHome: 'yes' as never }),
+  null,
+)
+console.log(
+  'X2 cabinet replay: one-to-four seats, real wave spawns, independent Herder, persistent Full Wing return and corrupt-save rejection passed',
 )
 
 console.log(

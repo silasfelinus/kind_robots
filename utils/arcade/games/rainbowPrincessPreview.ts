@@ -8764,7 +8764,7 @@ export function createRainbowPrincessPreview(
       const cut = bursts[bursts.length - 1]
       if (cut) {
         const pilot = RAINBOW_PILOTS[cut.pilot % RAINBOW_PILOTS.length]!
-        const slide = Math.min(1, cut.age / 6)
+        const slide = calm ? 1 : Math.min(1, cut.age / 6)
         const x = 15 - (1 - slide) * 200
         // A ship flying under the banner stays visible through it.
         const covers = ships
@@ -8791,6 +8791,8 @@ export function createRainbowPrincessPreview(
           x + 2,
           commsTop + 2,
           48,
+          cut.age,
+          calm,
         )
         g.strokeStyle = PILOT_COLORS[cut.pilot]!
         g.lineWidth = 2
@@ -8813,7 +8815,7 @@ export function createRainbowPrincessPreview(
         drawKittyFace(
           g,
           x + 246,
-          commsTop + 26 + Math.sin(cut.age / 3) * 2,
+          commsTop + 26 + (calm ? 0 : Math.sin(cut.age / 3) * 2),
           PILOT_COLORS[cut.pilot]!,
         )
         g.restore()

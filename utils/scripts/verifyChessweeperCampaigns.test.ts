@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { runInNewContext } from 'node:vm'
 
 const js = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/campaign.js', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/campaign.js', import.meta.url),
+  ),
   'utf8',
 )
 type State = {
@@ -22,7 +24,10 @@ const fresh = (): State => ({
   discs: Array.from({ length: 4 }, (_, i) => ({ active: i < 2 })),
 })
 let state = fresh()
-const callbacks = new Map<string, (event: { detail?: { type: string } }) => void>()
+const callbacks = new Map<
+  string,
+  (event: { detail?: { type: string } }) => void
+>()
 const nodes = new Map<string, { textContent: string; hidden: boolean }>()
 const button = {
   textContent: '',
@@ -94,7 +99,11 @@ for (let i = 0; i < 3; i++) {
   callbacks.get('chessweeper:end')?.({ detail: { type: 'win' } })
   if (i < 2) callbacks.get('next')?.({})
 }
-assert.equal(campaign.current('sugar').cleared, true, 'four earned stages clear world')
+assert.equal(
+  campaign.current('sugar').cleared,
+  true,
+  'four earned stages clear world',
+)
 assert.equal(campaign.current('sugar').chapter, 3)
 world.dataset.realm = 'ashen'
 state = fresh()
@@ -110,7 +119,9 @@ callbacks.get('chessweeper:state')?.({})
 assert.equal(state.score, 50, 'casino opens with real wager chips')
 assert.ok(values.has('kindrobots:chessweeper:campaign:v1'))
 const html = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/index.html', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/index.html', import.meta.url),
+  ),
   'utf8',
 )
 assert.ok(html.includes('src="/chessweeper/campaign.js"'))

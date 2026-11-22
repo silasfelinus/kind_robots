@@ -4,22 +4,82 @@
   const KEY = 'kindrobots:chessweeper:campaign:v1'
   const WORLDS = {
     sugar: [
-      ['The First Sprinkle', 'Protect the candy coronation from its first wheel.', 1, 0, 0],
-      ['Taffy Trap', 'A second blade spins through the royal orchards.', 0, 0, 1],
-      ['Glitter Rebellion', 'The candy marshals turn on the rainbow court.', 0, 75, 2],
-      ['The Sugar Crown', 'Defeat the wheels before the lollipop throne melts.', 0, 0, 2],
+      [
+        'The First Sprinkle',
+        'Protect the candy coronation from its first wheel.',
+        1,
+        0,
+        0,
+      ],
+      [
+        'Taffy Trap',
+        'A second blade spins through the royal orchards.',
+        0,
+        0,
+        1,
+      ],
+      [
+        'Glitter Rebellion',
+        'The candy marshals turn on the rainbow court.',
+        0,
+        75,
+        2,
+      ],
+      [
+        'The Sugar Crown',
+        'Defeat the wheels before the lollipop throne melts.',
+        0,
+        0,
+        2,
+      ],
     ],
     ashen: [
-      ['The Ash Gate', 'Enter the cursed cathedral under its iron sentinel.', 0, 0, 1],
-      ['The Bell Toll', 'Two more execution wheels wake in the ruined nave.', 0, 0, 2],
-      ['The Furnace Choir', 'Save the last ember with just one king heart.', -1, 0, 1],
-      ['Iron Judgment', 'Face the executioner with all the wheels awake.', -1, 0, 2],
+      [
+        'The Ash Gate',
+        'Enter the cursed cathedral under its iron sentinel.',
+        0,
+        0,
+        1,
+      ],
+      [
+        'The Bell Toll',
+        'Two more execution wheels wake in the ruined nave.',
+        0,
+        0,
+        2,
+      ],
+      [
+        'The Furnace Choir',
+        'Save the last ember with just one king heart.',
+        -1,
+        0,
+        1,
+      ],
+      [
+        'Iron Judgment',
+        'Face the executioner with all the wheels awake.',
+        -1,
+        0,
+        2,
+      ],
     ],
     jackpot: [
       ['Opening Odds', 'Take fifty chips and face the house.', 0, 50, 0],
-      ['The Tilt Pit', 'A second steel pinball prowls beneath the flippers.', 0, 60, 1],
+      [
+        'The Tilt Pit',
+        'A second steel pinball prowls beneath the flippers.',
+        0,
+        60,
+        1,
+      ],
       ['High-Roller Alley', 'Bet against two more chrome blades.', 0, 80, 2],
-      ['The Final Spin', 'Break the house and take the hundred-chip crown.', 0, 100, 2],
+      [
+        'The Final Spin',
+        'Break the house and take the hundred-chip crown.',
+        0,
+        100,
+        2,
+      ],
     ],
   }
   let archive = {}
@@ -64,12 +124,17 @@
     const stage = WORLDS[w]?.[progress.chapter]
     if (!stage) return
     el('chapter').textContent =
-      (progress.cleared ? 'CAMPAIGN COMPLETE' : 'CHAPTER ' + (progress.chapter + 1) + '/4') +
-      ' · ' + w.toUpperCase()
+      (progress.cleared
+        ? 'CAMPAIGN COMPLETE'
+        : 'CHAPTER ' + (progress.chapter + 1) + '/4') +
+      ' · ' +
+      w.toUpperCase()
     el('title').textContent = stage[0]
     el('story').textContent = stage[1]
     next.hidden = !engine.get()?.over
-    next.textContent = progress.cleared ? 'Replay final battle ↻' : 'Next / retry ↻'
+    next.textContent = progress.cleared
+      ? 'Replay final battle ↻'
+      : 'Next / retry ↻'
   }
   function sync() {
     const state = engine.get()

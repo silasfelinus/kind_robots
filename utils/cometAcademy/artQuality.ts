@@ -35,6 +35,16 @@ export const REJECTED_IDENTITY_ART = {
     blobSha: 'e6eb9815caf8e9b117d9acd84c06a5907330aa7b',
     reason: 'Tall green reptilian commander, not the koala assassin Zuzu.',
   },
+  'identities/magic-earth/outcomes/hero': {
+    blobSha: '9e0b1de1d8a1faae9ecc837cdc69b66c5412511d',
+    reason:
+      'Shows a child with a leafy mantle, not the canonical elderly Mavis Mayhew / Granny Mayhem; the verified student painting depicts her correct age and magic bus.',
+  },
+  'identities/magic-earth/outcomes/villain': {
+    blobSha: '51de02cf69ae90da0bbc6f61524a61c1bd33de03',
+    reason:
+      'Shows the same child leading walking trees, not the elderly Mavis Mayhew who knits entire city blocks into a monstrous quilt.',
+  },
   'identities/mutant-earth/student': {
     blobSha: 'ddc43298b2f6b2a515bcd13815034558b3493f2e',
     reason:
@@ -60,10 +70,11 @@ export const usableIdentityArtKey = (key: string): string | null =>
 
 /**
  * The correct, existing student illustrations for Lionel Marsh and Zuzu
- * are preferable to their wrong-person hero/villain outcome paintings.
+ * and Mavis Mayhew are preferable to wrong-person hero/villain outcome paintings.
  * Never create a fabricated new canonical identity or alter save keys.
  */
 export const CANON_STUDENT_FALLBACK = new Set<string>([
   'tech-genius',
   'alien-discipline',
+  'magic-earth',
 ])

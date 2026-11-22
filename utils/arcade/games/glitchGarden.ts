@@ -102,6 +102,7 @@ import {
   LAYOUT_EXIT,
   LAYOUT_LAMP,
   LAYOUT_LEAF,
+  LAYOUT_PUMPKIN,
   LAYOUT_SUNFLOWER,
   LAYOUT_TREE,
   campaignPlay,
@@ -180,6 +181,10 @@ export const KIND_BONUS = 1000
 export const PAD_EVERY = 45
 /** Autumn leaves can be blown one cell sideways every three seconds. */
 export const LEAF_GUST_TICKS = 180
+export const PUMPKIN_HP = 8
+export const GIANT_PUMPKIN_HP = 24
+export const ROLLER_HP = 4
+export const INCHWORM_SLOW_TICKS = 300
 /** A worm turned back by a wall this many times in a row squeezes past it. */
 export const SQUEEZE_AFTER = 3
 /** Queen Wiggle: segments, joints every so often, helmet hits, and her detached head's hits. */
@@ -350,6 +355,17 @@ type Beam = {
   lastMoth: Moth | null
   lastCell: number
 }
+type Pumpkin = {
+  x: number
+  y: number
+  hp: number
+  maxHp: number
+  rolling: boolean
+  giant: boolean
+  vx: number
+  vy: number
+}
+type Inchworm = { x: number; y: number; vx: number }
 type Snail = { x: number; y: number; vx: number }
 type Beetle = { x: number; y: number; vx: number; vy: number; turn: number }
 type Moth = { x: number; y: number; hp: number }
@@ -786,6 +802,9 @@ class GlitchGarden implements ArcadeGameInstance {
   private leafGust = LEAF_GUST_TICKS
   private leafWind: 1 | -1 = 1
   private rakedLeaves = 0
+  private pumpkins: Pumpkin[] = []
+  private inchworms: Inchworm[] = []
+  private slowTicks = 0
   private dragonflies: Dragonfly[] = []
   private dragonflyTimer = 0
   private bees: Bee[] = []
@@ -902,6 +921,8 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     this.apples = []
     this.leafPiles = []
+    this.pumpkins = []
+    this.inchworms = []
     this.mown = false
     this.padShift = 0
   }
@@ -946,6 +967,147 @@ class GlitchGarden implements ArcadeGameInstance {
     if (goal?.kind === 'clear-leaves' && this.rakedLeaves >= goal.count) {
       this.meetObjective()
     }
+    return true
+  }
+
+  /** Pumpkins use two-by-two or four-by-four collision sprites, not map walls. */
+  private plantPumpkins(plan: GardenWave) {
+    const spots = layoutCells(this.garden, LAYOUT_PUMPKIN)
+    this.pumpkins = spots.slice(0, plan.pumpkins).map(([col, row]) => ({
+      x: (col + 1) * CELL,
+      y: HUD + (row + 1) * CELL,
+      hp: PUMPKIN_HP,
+      maxHp: PUMPKIN_HP,
+      rolling: false,
+      giant: false,
+      vx: 0,
+      vy: 0,
+    }))
+    for (let i = 0; i < plan.rollers; i++) {
+      this.pumpkins.push({
+        x: (5 + ((i * 13) % 20)) * CELL,
+        y: HUD + (i + 3) * CELL,
+        hp: ROLLER_HP,
+        maxHp: ROLLER_HP,
+        rolling: true,
+        giant: false,
+        vx: i % 2 === 0 ? 0.7 : -0.7,
+        vy: 0.55 + i * 0.1,
+      })
+    }
+    if (plan.objective?.kind === 'great-pumpkin') {
+      this.pumpkins.push({
+        x: W / 2,
+        y: HUD + 4 * CELL,
+        hp: GIANT_PUMPKIN_HP,
+        maxHp: GIANT_PUMPKIN_HP,
+        rolling: true,
+        giant: true,
+        vx: 0.8,
+        vy: 0.32,
+      })
+    }
+    this.inchworms = Array.from({ length: plan.inchworms }, (_, i) => ({
+      x: i % 2 === 0 ? -10 : W + 10,
+      y: HUD + (9 + i * 6) * CELL,
+      vx: i % 2 === 0 ? 0.65 : -0.65,
+    }))
+  }
+
+  private updatePumpkins() {
+    const bed = HUD + (BED_TOP + 1) * CELL
+    for (const pumpkin of this.pumpkins) {
+      if (!pumpkin.rolling) continue
+      const radius = pumpkin.giant ? 16 : 8
+      if (pumpkin.y < bed) {
+        pumpkin.y = Math.min(bed, pumpkin.y + pumpkin.vy)
+      } else {
+        pumpkin.x += pumpkin.vx
+        if (pumpkin.x < radius || pumpkin.x > W - radius) {
+          pumpkin.vx *= -1
+          pumpkin.x = Math.max(radius, Math.min(W - radius, pumpkin.x))
+        }
+      }
+    }
+  }
+
+  private breakPumpkin(pumpkin: Pumpkin) {
+    this.pumpkins = this.pumpkins.filter((p) => p !== pumpkin)
+    this.addScore(
+      (pumpkin.giant ? 2000 : 250) * this.multiplier,
+      pumpkin.x,
+      pumpkin.y,
+    )
+    this.burst(pumpkin.x, pumpkin.y, pumpkin.giant ? 22 : 10, RAMPS.gold[3])
+    this.sound.play('pop')
+    const col = Math.floor(pumpkin.x / CELL)
+    const row = Math.floor((pumpkin.y - HUD) / CELL)
+    for (const [dx, dy] of [
+      [-1, -1],
+      [0, -1],
+      [-1, 0],
+      [0, 0],
+    ] as const) {
+      const c = col + dx
+      const r = row + dy
+      if (
+        c >= 0 &&
+        c < COLS &&
+        r >= 0 &&
+        r < ROWS &&
+        !this.at(c, r)
+      ) {
+        this.grid[this.idx(c, r)] = { hp: SPROUT_HP, kind: 'sprout' }
+      }
+    }
+    if (pumpkin.giant) this.meetObjective()
+  }
+
+  private hitPumpkin(x: number, y: number): boolean {
+    const pumpkin = this.pumpkins.find((p) => {
+      const radius = p.giant ? 16 : 8
+      return Math.abs(x - p.x) <= radius && Math.abs(y - p.y) <= radius
+    })
+    if (!pumpkin) return false
+    pumpkin.hp--
+    this.registerHit()
+    this.sound.play('blip')
+    if (pumpkin.hp <= 0) this.breakPumpkin(pumpkin)
+    else if (pumpkin.giant && pumpkin.hp % 6 === 0) {
+      this.banner = {
+        text: 'THE GREAT PUMPKIN CRACKS',
+        sub: `${pumpkin.hp} SPRAYS TO GO`,
+        ticks: 60,
+      }
+    }
+    return true
+  }
+
+  private updateInchworms() {
+    for (const worm of this.inchworms) {
+      if (this.tick % 20 < 12) continue
+      worm.x += worm.vx
+    }
+    this.inchworms = this.inchworms.filter(
+      (worm) => worm.x > -14 && worm.x < W + 14,
+    )
+  }
+
+  private hitInchworm(x: number, y: number): boolean {
+    const worm = this.inchworms.find(
+      (i) => Math.abs(i.x - x) < 9 && Math.abs(i.y - y) < 7,
+    )
+    if (!worm) return false
+    this.inchworms = this.inchworms.filter((i) => i !== worm)
+    this.slowTicks = INCHWORM_SLOW_TICKS
+    this.addScore(400 * this.multiplier, worm.x, worm.y)
+    this.banner = {
+      text: 'INCHWORM FIXED!',
+      sub: 'THE GLITCH SLOWS FOR FIVE SECONDS',
+      ticks: 90,
+    }
+    this.burst(worm.x, worm.y, 14, RAMPS.teal[3])
+    this.sound.play('extra')
     return true
   }
 
@@ -1019,6 +1181,10 @@ class GlitchGarden implements ArcadeGameInstance {
             dragonflies: 0,
             bees: 0,
             wasp: false,
+            leaves: 0,
+            pumpkins: 0,
+            rollers: 0,
+            inchworms: 0,
             objective: undefined,
             sub: BOSSES[step.boss].sub,
           }
@@ -1041,6 +1207,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.leafGust = LEAF_GUST_TICKS
     this.leafWind = plan.leaves > 0 ? (this.rng() < 0.5 ? 1 : -1) : 1
     this.plantLeaves(plan.leaves, plan.objective?.kind === 'clear-leaves')
+    this.plantPumpkins(plan)
+    this.slowTicks = 0
     this.dragonflies = []
     this.bees = []
     this.boss = null
@@ -1277,21 +1445,28 @@ class GlitchGarden implements ArcadeGameInstance {
     this.updateBeams()
     this.updateLeaves()
     this.moveWorms()
-    this.updateBeetle()
-    this.updateMoth()
-    this.updateSnail()
-    this.updateCrawlers()
-    this.updateApples()
-    this.updatePads()
-    this.updateDragonflies()
-    this.updateBees()
+    if (this.slowTicks > 0) this.slowTicks--
+    const slowFrame = this.slowTicks > 0 && this.tick % 2 !== 0
+    if (!slowFrame) {
+      this.updateBeetle()
+      this.updateMoth()
+      this.updateSnail()
+      this.updateCrawlers()
+      this.updateApples()
+      this.updatePads()
+      this.updateDragonflies()
+      this.updateBees()
+      this.updatePumpkins()
+      this.updateInchworms()
+    }
     this.updateBoss()
     this.updateSplashes()
     this.checkHits()
     if (
       !this.worms.length &&
       this.dead === 0 &&
-      (!this.boss || this.boss.defeated)
+      (!this.boss || this.boss.defeated) &&
+      !this.pumpkins.some((p) => p.giant)
     )
       this.waveFixed()
   }
@@ -1466,6 +1641,8 @@ class GlitchGarden implements ArcadeGameInstance {
       const col = Math.floor(beam.x / CELL)
       const row = Math.floor((beam.y - HUD) / CELL)
       this.pickUpPower(beam, col, row)
+      if (this.hitPumpkin(beam.x, beam.y)) return false
+      if (this.hitInchworm(beam.x, beam.y)) return false
       if (this.hitLeaf(col, row)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
       if (this.sprayBee(beam.x, beam.y)) return false
@@ -1756,7 +1933,7 @@ class GlitchGarden implements ArcadeGameInstance {
 
   private moveWorms() {
     // Fractional speeds carry over, so 1.5 really is half again as fast as 1.
-    this.moveOwed += this.speed
+    this.moveOwed += this.speed * (this.slowTicks > 0 ? 0.5 : 1)
     const steps = Math.floor(this.moveOwed)
     this.moveOwed -= steps
     const marching = this.boss?.id === 'queen-wiggle' && this.boss.phase === 2
@@ -2544,6 +2721,14 @@ class GlitchGarden implements ArcadeGameInstance {
       return this.lose()
     const touch = (x: number, y: number, rx: number, ry: number) =>
       Math.abs(x - this.px) < rx && Math.abs(y - this.py) < ry
+    if (
+      this.pumpkins.some(
+        (p) =>
+          p.rolling &&
+          touch(p.x, p.y, p.giant ? 20 : 12, p.giant ? 18 : 10),
+      )
+    )
+      return this.lose()
     if (this.dragonflies.some((d) => touch(d.x, d.y, 7, 5))) return this.lose()
     if (this.bees.some((b) => b.wasp && b.diving && touch(b.x, b.y, 6, 6)))
       return this.lose()
@@ -2822,6 +3007,8 @@ class GlitchGarden implements ArcadeGameInstance {
       }
     for (const a of this.apples) drawHd(g, APPLE_SPRITE, a.x, a.y)
     this.renderLeaves(g)
+    this.renderPumpkins(g)
+    this.renderInchworms(g)
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
     if (this.snail) this.renderSnail(g, this.snail)
@@ -2969,6 +3156,62 @@ class GlitchGarden implements ArcadeGameInstance {
         g.fillStyle = color
         g.fillRect(x + dx, y + dy, 3, 2)
       }
+    }
+  }
+
+  private renderPumpkins(g: CanvasRenderingContext2D) {
+    for (const pumpkin of this.pumpkins) {
+      const radius = pumpkin.giant ? 16 : 8
+      const x = Math.round(pumpkin.x)
+      const y = Math.round(pumpkin.y)
+      const cracked = 1 - pumpkin.hp / pumpkin.maxHp
+      dropShadow(g, x, y + radius - 1, radius, 2, 0.4)
+      glow(g, x, y, radius + 4, RAMPS.ember[2], 0.3)
+      g.fillStyle = INK
+      g.fillRect(x - radius, y - radius + 3, radius * 2, radius * 2 - 4)
+      g.fillStyle = RAMPS.ember[2]
+      g.fillRect(x - radius + 1, y - radius + 4, radius * 2 - 2, radius * 2 - 6)
+      for (const offset of [-0.55, 0, 0.55]) {
+        const width = Math.max(2, Math.round(radius * 0.55))
+        g.fillStyle = offset === 0 ? RAMPS.ember[3] : RAMPS.rust[2]
+        g.fillRect(
+          x + Math.round(offset * radius) - width / 2,
+          y - radius + 4,
+          width,
+          radius * 2 - 6,
+        )
+      }
+      g.fillStyle = RAMPS.leaf[3]
+      g.fillRect(x - 2, y - radius, 4, 5)
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x - radius / 2, y - 2, 3, 2)
+      g.fillRect(x + radius / 2 - 3, y - 2, 3, 2)
+      if (cracked > 0) {
+        g.strokeStyle = INK
+        g.lineWidth = 1 + cracked * 2
+        g.beginPath()
+        g.moveTo(x - radius / 3, y + 1)
+        g.lineTo(x, y + radius / 3)
+        g.lineTo(x + radius / 3, y + 1)
+        g.stroke()
+      }
+    }
+  }
+
+  private renderInchworms(g: CanvasRenderingContext2D) {
+    for (const inchworm of this.inchworms) {
+      const x = Math.round(inchworm.x)
+      const y = Math.round(inchworm.y)
+      const raised = this.tick % 20 < 12 ? 0 : 2
+      glow(g, x, y, 10, RAMPS.leaf[3], 0.25)
+      g.fillStyle = INK
+      g.fillRect(x - 8, y - raised + 1, 15, 7)
+      g.fillStyle = RAMPS.leaf[3]
+      g.fillRect(x - 7, y - raised + 2, 13, 5)
+      g.fillStyle = RAMPS.teal[3]
+      g.fillRect(x + 3, y - raised + 1, 3, 3)
+      g.fillStyle = INK
+      g.fillRect(x + 5, y - raised + 2, 1, 1)
     }
   }
 
@@ -3454,7 +3697,9 @@ class GlitchGarden implements ArcadeGameInstance {
               ? 'GUARD THE MAZE EXIT'
               : goal.kind === 'clear-leaves'
                 ? `LEAVES ${Math.min(this.rakedLeaves, goal.count)}/${goal.count}`
-                : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
+                : goal.kind === 'great-pumpkin'
+                  ? `GIANT ${this.pumpkins.find((p) => p.giant)?.hp ?? 0} HP`
+                  : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
       const state = this.objectiveDone
         ? 'DONE!'
         : this.objectiveFailed

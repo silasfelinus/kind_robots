@@ -389,9 +389,6 @@ export default defineNuxtConfig({
     '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },
     '/play/davinci': { redirect: { to: '/storybook', statusCode: 301 } },
     '/taskmaster': { redirect: { to: '/storybook', statusCode: 301 } },
-    '/admin/music-video': {
-      redirect: { to: '/play/video-generator?studio=music', statusCode: 301 },
-    },
     // Silas, 2026-10-24: The Ruler Is Hooked is now a Play game.
     // Retain old deep links without maintaining an Admin-only duplicate.
     '/admin/ruler-hooked': {

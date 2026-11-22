@@ -1,5 +1,5 @@
-/** Alternate Act A: Lantern Nursery. An authored score for a hidden sea-creature sanctuary.
- * Campaign integration, checkpoints and production art remain outstanding in t-028.
+/** X1 Kelp Nebula Bypass: five Coral Choir rescues and an authored Kelp Warden encounter.
+ * Internal nursery* keys remain for existing saves; finished painted art is separate.
  */
 import { buildFormationSchedule, wave } from './rainbowFormations'
 import type { RainbowSpawn, RainbowWave } from './rainbowFormations'
@@ -10,7 +10,7 @@ export type NurseryWave = RainbowWave<NurseryEnemy>
 export type NurserySpawn = RainbowSpawn<NurseryEnemy>
 
 export const NURSERY = {
-  name: 'Lantern Nursery',
+  name: 'Kelp Nebula Bypass',
   waveBase: 9200,
   openingEnds: 240,
   turnStarts: 4380,
@@ -18,18 +18,18 @@ export const NURSERY = {
 } as const
 
 export const NURSERY_SECTIONS = [
-  { name: 'Luminous eggs', from: 240, to: 1080 },
-  { name: 'Sleeping shoal', from: 1080, to: 1920 },
-  { name: 'Broken lanterns', from: 1920, to: 2760 },
-  { name: 'Nursery heart', from: 2760, to: 3600 },
-  { name: 'Lantern matriarch', from: 3600, to: 4380 },
+  { name: 'Rootward current', from: 240, to: 1080 },
+  { name: 'Choir rescue', from: 1080, to: 1920 },
+  { name: 'Frond maze', from: 1920, to: 2760 },
+  { name: 'Harvester reach', from: 2760, to: 3600 },
+  { name: 'Kelp Warden', from: 3600, to: 4380 },
 ] as const
 
 export const NURSERY_GUARDIAN: RainbowGuardianSection = {
-  name: 'Lantern matriarch',
+  name: 'Kelp Warden',
   from: 3600,
   to: 4380,
-  kind: 'matriarch',
+  kind: 'kelpwarden',
 }
 
 /** Teach false pickup halos, remix with bubble rings, subvert with skates,
@@ -80,7 +80,7 @@ export function nurseryDetourFor(
 
 export const NURSERY_FLIGHT = {
   id: 'X1',
-  name: 'Lantern Nursery',
+  name: 'Kelp Nebula Bypass',
   end: 5100,
   guardianFrom: NURSERY_GUARDIAN.from,
   guardianTo: NURSERY_GUARDIAN.to,
@@ -88,12 +88,12 @@ export const NURSERY_FLIGHT = {
 
 /** Standalone sections include a deliberate post-guardian exit for Act IV. */
 export const NURSERY_FLIGHT_SECTIONS = [
-  { name: 'Luminous eggs', from: 240, to: 1080 },
-  { name: 'Sleeping shoal', from: 1080, to: 1920 },
-  { name: 'Broken lanterns', from: 1920, to: 2760 },
-  { name: 'Nursery heart', from: 2760, to: 3600 },
-  { name: 'Lantern matriarch', from: 3600, to: 4380 },
-  { name: 'Safe passage home', from: 4380, to: 5100 },
+  { name: 'Rootward current', from: 240, to: 1080 },
+  { name: 'Choir rescue', from: 1080, to: 1920 },
+  { name: 'Frond maze', from: 1920, to: 2760 },
+  { name: 'Harvester reach', from: 2760, to: 3600 },
+  { name: 'Kelp Warden', from: 3600, to: 4380 },
+  { name: 'Choir passage', from: 4380, to: 5100 },
 ] as const
 
 export type NurseryFlightPhase =
@@ -142,48 +142,63 @@ export function nurseryFlightCheckpointValid(
 /** Three authored communication scenes frame a rescue, never a hunt. */
 export const NURSERY_TALKS = {
   opening: [
-    {
-      speaker: 'Lilt-7',
-      text: "Nemi's signal comes from a nursery someone erased from our charts.",
-    },
-    {
-      speaker: 'Vivi',
-      text: "Those aren't enemy beacons. They're hatchlings learning to glow.",
-    },
-    {
-      speaker: 'Solenne',
-      text: 'Weapons clear of the nests. We protect their crossing.',
-    },
+    { speaker: 'Lilt-7', text: 'Nemi found a forbidden current. The Coral Choir are trapped inside the kelp.' },
+    { speaker: 'Vivi', text: 'Five pods. Five families. The harvester is taking their forest.' },
+    { speaker: 'Solenne', text: 'Protect the pods. Bring every voice home.' },
   ],
   turn: [
-    {
-      speaker: 'Maribel',
-      text: 'The matriarch guards her young. See the safe seam in her warning?',
-    },
-    {
-      speaker: 'Azure',
-      text: "I'll thread that seam. No shots near the eggs.",
-    },
-    {
-      speaker: 'Lilt-7',
-      text: 'She is warning the strangers to leave, not asking for a war.',
-    },
+    { speaker: 'Maribel', text: 'Kelp Warden is sweeping the lanes. Watch its comb before it strikes.' },
+    { speaker: 'Azure', text: 'The gap between marked teeth is real. Follow me through.' },
+    { speaker: 'Lilt-7', text: 'It protects the captured Choir. Stop the harvester, spare the forest.' },
   ],
   aftermath: [
-    {
-      speaker: 'Lilt-7',
-      text: 'One safe route home. I can carry it past the Motherland censors.',
-    },
-    {
-      speaker: 'Vivi',
-      text: 'Tell Nemi the lanterns are free to keep their own sky.',
-    },
-    {
-      speaker: 'Maribel',
-      text: 'A living nursery is worth more than any medal.',
-    },
+    { speaker: 'Vivi', text: 'The Choir gets its own sky. Not a Motherland possession.' },
+    { speaker: 'Lilt-7', text: 'I will keep their coordinates out of the imperial charts.' },
+    { speaker: 'Maribel', text: 'A rescue route, not a conquest. This is the way home.' },
   ],
 } as const
+
+/** Physical X1 rescue pickups: each timed pod can be taken once per flight. */
+export const KELP_CHOIR = {
+  count: 5,
+  window: 210,
+  reach: 25,
+  speed: 2.2,
+  startingX: 480,
+  rescueScore: 500,
+  fullRescueBonus: 3000,
+} as const
+
+export const KELP_CHOIR_PODS = [
+  { id: 1, at: 520, lane: 0.25 },
+  { id: 2, at: 1240, lane: 0.76 },
+  { id: 3, at: 1960, lane: 0.43 },
+  { id: 4, at: 2680, lane: 0.68 },
+  { id: 5, at: 3360, lane: 0.31 },
+] as const
+
+export function choirPodAvailable(frame: number, mask: number) {
+  return KELP_CHOIR_PODS.find(
+    (pod) =>
+      frame >= pod.at &&
+      frame < pod.at + KELP_CHOIR.window &&
+      (mask & (1 << (pod.id - 1))) === 0,
+  ) ?? null
+}
+
+export function choirPodX(frame: number, at: number): number {
+  return KELP_CHOIR.startingX - (frame - at) * KELP_CHOIR.speed
+}
+
+export function rescueChoirPod(mask: number, id: number): number {
+  return Number.isInteger(id) && id >= 1 && id <= KELP_CHOIR.count
+    ? mask | (1 << (id - 1))
+    : mask
+}
+
+export function choirFreed(mask: number): boolean {
+  return mask === (1 << KELP_CHOIR.count) - 1
+}
 
 const schedule = buildFormationSchedule(NURSERY_WAVES, NURSERY.waveBase)
 export const NURSERY_WAVE_SIZES: readonly number[] = schedule.sizes

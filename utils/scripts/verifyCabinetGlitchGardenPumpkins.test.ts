@@ -148,6 +148,22 @@ assert.equal(PUMPKIN_PATCH.waves[2]!.objective?.kind, 'great-pumpkin')
 }
 
 {
+  const g = make(98)
+  g.startWave(33)
+  const head = g.pumpkins.find((p) => p.hydra)!
+  const x = head.x
+  g.slowTicks = INCHWORM_SLOW_TICKS
+  g.update(emptyInput())
+  assert.equal(
+    head.x,
+    x,
+    'inchworm slow also pauses hydra movement on alternate frames',
+  )
+  g.update(emptyInput())
+  assert.notEqual(head.x, x, 'hydra advances on the next active frame')
+}
+
+{
   const a = make(93)
   const b = make(93)
   a.startWave(28)

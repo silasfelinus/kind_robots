@@ -1341,11 +1341,37 @@
         ZERO DEPENDENCIES
       </footer>
     </main>
+    <script src="/chessweeper/seeded-engine.js"></script>
     <script>
       'use strict'
       ;(() => {
         const $ = (id) => document.getElementById(id)
-        const randomInt = (max) => Math.floor(Math.random() * max)
+        const seeded = window.ChessweeperSeeded
+        const seedText = new URLSearchParams(location.search).get('seed')
+        const fixedSeed =
+          seedText !== null && /^[0-9]+$/.test(seedText)
+            ? Number(seedText) >>> 0
+            : null
+        let seedBeforeGame = 0
+        function newSeed() {
+          if (fixedSeed !== null) return fixedSeed
+          if (globalThis.crypto?.getRandomValues) {
+            const bytes = new Uint32Array(1)
+            globalThis.crypto.getRandomValues(bytes)
+            return bytes[0]
+          }
+          return Date.now() >>> 0
+        }
+        const randomInt = (max) => {
+          const source =
+            state && Number.isInteger(state.rngState)
+              ? state.rngState
+              : seedBeforeGame
+          const roll = seeded.nextInt(source, max)
+          if (state) state.rngState = roll.state
+          else seedBeforeGame = roll.state
+          return roll.value
+        }
         const START_FEN =
           'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
         const CHESS_GLYPH = {
@@ -1637,21 +1663,7 @@
           state.discs.some(
             (d) => d.active && stepDisc(d).y * 16 + stepDisc(d).x === i,
           )
-        function stepDisc(d) {
-          let x = d.x + d.dx,
-            y = d.y + d.dy,
-            dx = d.dx,
-            dy = d.dy
-          if (x < 0 || x >= 8) {
-            dx = -dx
-            x = d.x + dx
-          }
-          if (y < 0 || y >= 8) {
-            dy = -dy
-            y = d.y + dy
-          }
-          return { ...d, x, y, dx, dy }
-        }
+        const stepDisc = seeded.stepDisc
         const damage = (side, how) => {
           if (state.over) return
           state.hp[side]--
@@ -1693,6 +1705,8 @@
         function init() {
           clearTimeout(timer)
           timer = null
+          state = null
+          const runSeed = newSeed()
           config = THEMES[realm]
           document.documentElement.dataset.realm = realm
           $('realm-heading').textContent = config.name
@@ -1702,19 +1716,16 @@
             .forEach((b) =>
               b.setAttribute('aria-pressed', String(b.dataset.realm === realm)),
             )
-          const mines = new Set(
-            shuffle(
-              Array.from(
-                { length: 32 },
-                (_, j) => (2 + (j >> 3)) * 16 + (j & 7),
-              ),
-            ).slice(0, config.mines),
-          )
+          const field = seeded.minefield(config.mines, runSeed)
+          const mines = field.mines
+          seedBeforeGame = field.state
           const counts = {}
           for (let i = 0; i < 128; i++)
             if (onBoard(i))
               counts[i] = neighbors(i).filter((j) => mines.has(j)).length
           state = {
+            seed: runSeed,
+            rngState: seedBeforeGame,
             chess: initialPosition(),
             mines,
             counts,
@@ -1764,19 +1775,15 @@
           if (source === 'probe' && side === 1 && !state.firstProbeUsed) {
             state.firstProbeUsed = true
             if (state.mines.has(i)) {
-              const candidates = []
-              for (let n = 0; n < 128; n++)
-                if (
-                  onBoard(n) &&
-                  isMineZone(n) &&
-                  n !== i &&
-                  !state.mines.has(n) &&
-                  !state.shown.has(n)
-                )
-                  candidates.push(n)
-              if (candidates.length) {
-                state.mines.delete(i)
-                state.mines.add(candidates[randomInt(candidates.length)])
+              const shifted = seeded.firstProbeSafe(
+                i,
+                state.mines,
+                state.shown,
+                state.rngState,
+              )
+              if (shifted.moved) {
+                state.mines = shifted.mines
+                state.rngState = shifted.state
                 for (let n = 0; n < 128; n++)
                   if (onBoard(n))
                     state.counts[n] = neighbors(n).filter((k) =>
@@ -2327,7 +2334,7 @@
             const [x, y] = pos(m[1])
             score += (3.5 - Math.abs(3.5 - x) + (3.5 - Math.abs(3.5 - y))) * 3
             if (inCheck(next)) score += 18
-            score += (Math.random() - 0.5) * 25
+            score += (randomInt(1000000) / 1000000 - 0.5) * 25
             if (score > best) {
               best = score
               chosen = m

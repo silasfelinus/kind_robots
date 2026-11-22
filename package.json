@@ -24,6 +24,7 @@
     "test:mandarin-srs-selftest": "tsx utils/scripts/verifyMandarinSrs.test.ts",
     "test:mandarin-lesson": "tsx utils/scripts/verifyMandarinLesson.test.ts",
     "test:mandarin-points": "tsx utils/scripts/verifyMandarinPoints.test.ts",
+    "test:chessweeper-seeded": "tsx utils/scripts/verifyChessweeperSeededEngine.test.ts",
     "test:chessweeper-board-art": "tsx utils/scripts/verifyChessweeperBoardArt.test.ts",
     "test:hybridizer-art": "tsx utils/scripts/verifyHybridizerArt.test.ts",
     "test:rebel-button-stage": "tsx utils/scripts/verifyRebelButtonStage.test.ts",

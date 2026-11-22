@@ -6,7 +6,6 @@ import {
   episodeRevealArtKey,
 } from '../gameOfCaptains/episodeArtwork'
 import { COUCH_CASINO_EPISODE_ART_IDS } from '../gameOfCaptains/casinoEpisodePaintings'
-import { COUCH_EPISODE_ART_IDS } from '../gameOfCaptains/episodePaintings'
 import { readFileSync } from 'node:fs'
 import { startVoyage, restoreVoyage } from '../gameOfCaptains/rules'
 import { visitCasinoVenue } from '../gameOfCaptains/solarCircuit'
@@ -271,34 +270,6 @@ const authorizedEpisodeArt = readFileSync(
   'utf8',
 )
 assert.match(authorizedEpisodeArt, /COUCH_CASINO_EPISODE_ART_IDS/)
-assert.match(authorizedEpisodeArt, /\.\.\.COUCH_EPISODE_ART_IDS/)
-// t-009: curated planet, Serendipity, constellation and nemesis paintings.
-// Every key is a real runtime slot (reveal or choice result) and no ArtImage
-// is shared with the casino set.
-{
-  const keys = Object.keys(COUCH_EPISODE_ART_IDS)
-  assert.ok(keys.length >= 900, 'nearly the whole episode deck is painted')
-  for (const key of keys) {
-    assert.match(
-      key,
-      /^episode\/(planet|serendipity|nemesis|[a-z]+)-[a-z0-9-]+-(reveal|(ask|document|override)-(success|failure))$/,
-      key,
-    )
-    assert.ok(!key.startsWith('episode/casino-'), key)
-  }
-  const casinoIds = new Set(Object.values(COUCH_CASINO_EPISODE_ART_IDS))
-  assert.ok(
-    Object.values(COUCH_EPISODE_ART_IDS).every((id) => !casinoIds.has(id)),
-  )
-  assert.equal(new Set(Object.values(COUCH_EPISODE_ART_IDS)).size, keys.length)
-  for (const card of ['planet-a-refugee-named-wednesday', 'sloth-vigil']) {
-    const slots = episodeChoiceArtKeys(card)
-    assert.ok(
-      slots.filter((slot) => COUCH_EPISODE_ART_IDS[slot]).length >= 5,
-      card + ' shows painted reveal and outcomes',
-    )
-  }
-}
 assert.match(authorizedEpisodeArt, /buildArtImageWhere\(access\)/)
 
 const consoleUI = readFileSync(

@@ -139,6 +139,52 @@ export function nurseryFlightCheckpointValid(
   )
 }
 
+/** Three authored communication scenes frame a rescue, never a hunt. */
+export const NURSERY_TALKS = {
+  opening: [
+    {
+      speaker: 'Lilt-7',
+      text: "Nemi's signal comes from a nursery someone erased from our charts.",
+    },
+    {
+      speaker: 'Vivi',
+      text: "Those aren't enemy beacons. They're hatchlings learning to glow.",
+    },
+    {
+      speaker: 'Solenne',
+      text: 'Weapons clear of the nests. We protect their crossing.',
+    },
+  ],
+  turn: [
+    {
+      speaker: 'Maribel',
+      text: 'The matriarch guards her young. See the safe seam in her warning?',
+    },
+    {
+      speaker: 'Azure',
+      text: "I'll thread that seam. No shots near the eggs.",
+    },
+    {
+      speaker: 'Lilt-7',
+      text: 'She is warning the strangers to leave, not asking for a war.',
+    },
+  ],
+  aftermath: [
+    {
+      speaker: 'Lilt-7',
+      text: 'One safe route home. I can carry it past the Motherland censors.',
+    },
+    {
+      speaker: 'Vivi',
+      text: 'Tell Nemi the lanterns are free to keep their own sky.',
+    },
+    {
+      speaker: 'Maribel',
+      text: 'A living nursery is worth more than any medal.',
+    },
+  ],
+} as const
+
 const schedule = buildFormationSchedule(NURSERY_WAVES, NURSERY.waveBase)
 export const NURSERY_WAVE_SIZES: readonly number[] = schedule.sizes
 

@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'utils/arcade/games/rainbowLanternNursery.ts'
+      - 'utils/arcade/games/rainbowPrincessPreview.ts'
+      - 'utils/arcade/games/rainbowCheckpoints.ts'
+      - 'utils/arcade/games/rainbowLoadouts.ts'
       - 'utils/scripts/verifyRainbowNurseryFlight.test.ts'
       - '.github/workflows/rainbow-nursery-flight.yml'
 

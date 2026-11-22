@@ -1,0 +1,30 @@
+name: Rainbow X2 Coral Comet Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/arcade/games/rainbowCoralComet.ts'
+      - 'utils/scripts/verifyRainbowCoralComet.test.ts'
+      - '.github/workflows/rainbow-coral-comet.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  x2-contract:
+    name: X2 authored waves, rescued cadets and checkpoint proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Verify deterministic X2 flight model
+        run: npx tsx utils/scripts/verifyRainbowCoralComet.test.ts

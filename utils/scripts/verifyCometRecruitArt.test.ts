@@ -61,8 +61,8 @@ assert.ok(page.includes('const recruitArt = useRecruitArtStore()'))
 assert.ok(page.includes('if (isAdmin) void recruitArt.loadAll()'))
 assert.ok(page.includes("recruitArt.imageFor(id, 'neutral')"))
 assert.ok(page.includes('recruitArt.imageFor('))
-assert.ok(page.includes("mood === 'positive' ? 'joyous'"))
-assert.ok(page.includes("mood === 'negative' ? 'afraid'"))
+assert.match(page, /mood === 'positive'\s*\?\s*'joyous'/)
+assert.match(page, /mood === 'negative'\s*\?\s*'afraid'/)
 assert.ok(page.includes('recoveringFollower(run.value, id as StudentId)'))
 
 console.log(

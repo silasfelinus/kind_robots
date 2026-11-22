@@ -99,13 +99,20 @@ assert.ok(layoutCells(LEAF_PILE_LANE, LAYOUT_LEAF).length >= 9)
   const first = game.leafPiles[0]!
   const x = first.col * CELL + CELL / 2
   const y = HUD + first.row * CELL + CELL
-  const covered = game.grid[first.row * COLS + first.col]
+  const index = first.row * COLS + first.col
+  game.grid[index] = { hp: 4, kind: 'lamp' }
   assert.equal(game.stepBeam(game.newBeam(x, y, false)), false)
   assert.equal(game.leafPiles.length, 4, 'a shot rakes one pile away')
-  assert.equal(
-    game.grid[first.row * COLS + first.col],
-    covered,
-    'the first shot cannot harm whatever was under the leaves',
+  assert.deepEqual(
+    game.grid[index],
+    { hp: 4, kind: 'lamp' },
+    'the first shot cannot harm the lamp under the leaves',
+  )
+  assert.equal(game.stepBeam(game.newBeam(x, y, false)), false)
+  assert.deepEqual(
+    game.grid[index],
+    { hp: 3, kind: 'lamp' },
+    'the next shot reaches the uncovered lamp',
   )
   for (const { col, row } of [...game.leafPiles]) {
     assert.equal(game.hitLeaf(col, row), true)

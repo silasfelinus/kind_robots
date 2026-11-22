@@ -3,7 +3,7 @@
   "project": "chessweeper",
   "source": "ChatGPT generated artwork, user copied the WebP art pack into Kind Robots image directory on 2026-11-18 PT",
   "artJobs": [],
-  "note": "Historical source-pack checksums record the original user-supplied artwork, not deployed files. Eight durable Conductor requests (PR #7792) are queued for actual intake; do not mark art delivered until ArtJob receipts, committed WebPs and final image URLs have been verified. Generated renders may differ from the original source checksums.",
+  "note": "Historical source-pack checksums record the original user-supplied artwork. Every image below was verified live at https://kindrobots.org/images/chessweeper/ on 2026-11-22 PT (HTTP 200, image/webp). The twelve ending plates are queued (conductor PR #7848) and the ending scenes fall back to the world art until they land.",
   "assetRoot": "public/images/chessweeper",
   "assets": [
     {
@@ -47,47 +47,162 @@
       "usage": ["Play page icon"]
     }
   ],
-  "deliveryStatus": "pending",
+  "deliveryStatus": "partial",
   "pendingRequests": [
     {
       "id": "chessweeper-t003-highlight-20261121",
       "path": "public/images/chessweeper/highlight.webp",
-      "status": "requested-not-delivered"
+      "status": "delivered-verified-2026-11-22"
     },
     {
       "id": "chessweeper-t003-sugarbomb-20261121",
       "path": "public/images/chessweeper/sugarbomb-kingdom.webp",
-      "status": "requested-not-delivered"
+      "status": "delivered-verified-2026-11-22"
     },
     {
       "id": "chessweeper-t003-ashen-20261121",
       "path": "public/images/chessweeper/ashen-checkmate.webp",
-      "status": "requested-not-delivered"
+      "status": "delivered-verified-2026-11-22"
     },
     {
       "id": "chessweeper-t003-jackpot-20261121",
       "path": "public/images/chessweeper/jackpot-apocalypse.webp",
-      "status": "requested-not-delivered"
+      "status": "delivered-verified-2026-11-22"
     },
     {
       "id": "chessweeper-t003-icon-20261121",
       "path": "public/images/chessweeper/icon.webp",
-      "status": "requested-not-delivered"
+      "status": "delivered-verified-2026-11-22"
     },
     {
       "id": "chessweeper-t003-sugar-board-20261121",
       "path": "public/images/chessweeper/sugarbomb-board.webp",
-      "status": "requested-not-delivered"
+      "status": "delivered-verified-2026-11-22",
+      "artJobId": 76472
     },
     {
       "id": "chessweeper-t003-ashen-board-20261121",
       "path": "public/images/chessweeper/ashen-board.webp",
-      "status": "requested-not-delivered"
+      "status": "delivered-verified-2026-11-22",
+      "artJobId": 76473
     },
     {
       "id": "chessweeper-t003-jackpot-board-20261121",
       "path": "public/images/chessweeper/jackpot-board.webp",
-      "status": "requested-not-delivered"
+      "status": "delivered-verified-2026-11-22",
+      "artJobId": 76474
+    }
+  ],
+  "delivered": [
+    {
+      "id": "chessweeper-t003-sugarbomb-20261122",
+      "artJobId": 76602,
+      "path": "public/images/chessweeper/sugarbomb-piece-atlas.webp",
+      "usage": ["board pieces", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t003-ashen-20261122",
+      "artJobId": 76603,
+      "path": "public/images/chessweeper/ashen-piece-atlas.webp",
+      "usage": ["board pieces", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t003-jackpot-20261122",
+      "artJobId": 76604,
+      "path": "public/images/chessweeper/jackpot-piece-atlas.webp",
+      "usage": ["board pieces", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t003-sugar-rush-20261122",
+      "artJobId": 76605,
+      "path": "public/images/chessweeper/sugar-rush-action-scene.webp",
+      "usage": ["Sugar Rush cinematic", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t003-ashen-laststand-20261122",
+      "artJobId": 76606,
+      "path": "public/images/chessweeper/ashen-laststand-action-scene.webp",
+      "usage": ["Last Stand cinematic", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t003-jackpot-double-or-nothing-20261122",
+      "artJobId": 76607,
+      "path": "public/images/chessweeper/jackpot-double-or-nothing-action-scene.webp",
+      "usage": ["Double or Nothing cinematic", "scrapbook"]
+    }
+  ],
+  "requested": [
+    {
+      "id": "chessweeper-t009-ending-sugar-mate-20261122",
+      "path": "public/images/chessweeper/ending-sugar-mate.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-sugar-sweep-20261122",
+      "path": "public/images/chessweeper/ending-sugar-sweep.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-sugar-arena-20261122",
+      "path": "public/images/chessweeper/ending-sugar-arena.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-sugar-fallen-20261122",
+      "path": "public/images/chessweeper/ending-sugar-fallen.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-ashen-mate-20261122",
+      "path": "public/images/chessweeper/ending-ashen-mate.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-ashen-sweep-20261122",
+      "path": "public/images/chessweeper/ending-ashen-sweep.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-ashen-arena-20261122",
+      "path": "public/images/chessweeper/ending-ashen-arena.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-ashen-fallen-20261122",
+      "path": "public/images/chessweeper/ending-ashen-fallen.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-jackpot-mate-20261122",
+      "path": "public/images/chessweeper/ending-jackpot-mate.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-jackpot-sweep-20261122",
+      "path": "public/images/chessweeper/ending-jackpot-sweep.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-jackpot-arena-20261122",
+      "path": "public/images/chessweeper/ending-jackpot-arena.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
+    },
+    {
+      "id": "chessweeper-t009-ending-jackpot-fallen-20261122",
+      "path": "public/images/chessweeper/ending-jackpot-fallen.webp",
+      "status": "queued",
+      "usage": ["ending scene", "scrapbook"]
     }
   ]
 }

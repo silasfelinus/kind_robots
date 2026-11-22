@@ -1,0 +1,290 @@
+/* Chessweeper illustrated ending scenes. Phone-first; the plate sits above the
+   prose on narrow screens and beside it from tablet width up. */
+.cw-ending {
+  border: 1px solid #8196b3;
+  color: var(--ink);
+  background: linear-gradient(150deg, #172338, #0b1120 70%);
+  border-radius: 22px;
+  padding: 0;
+  width: min(94vw, 980px);
+  max-height: min(92vh, 900px);
+  box-shadow: 0 30px 90px #000d;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.cw-ending[open] {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.cw-ending::backdrop {
+  background: #020611e6;
+  backdrop-filter: blur(6px);
+}
+.cw-ending[data-world='sugar'] {
+  background: linear-gradient(150deg, #4a1d4f, #1d1238 70%);
+  border-color: #ff9ad8;
+}
+.cw-ending[data-world='ashen'] {
+  background: linear-gradient(150deg, #241a17, #0d0b0c 70%);
+  border-color: #c58a5a;
+}
+.cw-ending[data-world='jackpot'] {
+  background: linear-gradient(150deg, #24145a, #0b0a24 70%);
+  border-color: #5ff0ff;
+}
+.cw-ending-plate {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  max-height: 46vh;
+  min-height: min(40vh, 68vw);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 30%, #ffffff40, transparent 55%),
+    linear-gradient(135deg, #6c4bd8, #1a1336);
+}
+.cw-ending[data-world='sugar'] .cw-ending-plate {
+  background:
+    radial-gradient(circle at 30% 30%, #fff6, transparent 55%),
+    repeating-conic-gradient(#f76ec7 0 24deg, #71e6f0 24deg 48deg);
+}
+.cw-ending[data-world='ashen'] .cw-ending-plate {
+  background: radial-gradient(circle at 50% 100%, #e35a36, #160d19 75%);
+}
+.cw-ending-plate img {
+  display: block;
+  color: transparent;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: cw-ending-pan 14s ease-out both;
+}
+.cw-ending-mark {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #080a18cc;
+  border: 2px solid #ffffffaa;
+  font-size: 24px;
+}
+.cw-ending-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.cw-ending-eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cw-ending h2 {
+  margin: 0;
+  font-size: clamp(22px, 5vw, 34px);
+  line-height: 1.1;
+}
+.cw-ending-new {
+  align-self: flex-start;
+  margin: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1a1206;
+  font-weight: 900;
+  font-size: 12px;
+}
+.cw-ending-prose {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 15px;
+}
+.cw-ending-run {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #ffffff12;
+  border: 1px solid #ffffff22;
+}
+.cw-ending-run h3 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.cw-ending-run p {
+  margin: 0 0 4px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.cw-ending-count {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.cw-ending-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.cw-ending-actions button {
+  flex: 1 1 140px;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #25344a;
+  color: var(--ink);
+  font-weight: 850;
+  font-size: 14px;
+  cursor: pointer;
+}
+.cw-ending-actions .cw-ending-primary {
+  background: var(--gold);
+  color: #1a1206;
+  border-color: var(--gold);
+}
+.cw-ending-actions button:focus-visible {
+  outline: 3px solid var(--aqua);
+  outline-offset: 2px;
+}
+@media (min-width: 760px) {
+  .cw-ending[open] {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+  .cw-ending-plate {
+    aspect-ratio: auto;
+    max-height: none;
+    min-height: 100%;
+  }
+}
+@keyframes cw-ending-pan {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.meta-motion-off .cw-ending-plate img {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cw-ending-plate img {
+    animation: none;
+  }
+}
+
+/* Scrapbook additions: ending plates, action plates, history and transfer. */
+.meta-ending-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #0e1626;
+  color: var(--ink);
+  font: inherit;
+}
+.meta-ending-card img,
+.meta-ending-card .meta-ending-thumb {
+  display: block;
+  color: transparent;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: linear-gradient(135deg, #3a2f6d, #111a2e);
+}
+.meta-ending-card.locked img,
+.meta-ending-card.locked .meta-ending-thumb {
+  filter: grayscale(1) blur(6px) brightness(0.45);
+}
+.meta-ending-card strong,
+.meta-ending-card span {
+  padding: 0 10px;
+}
+.meta-ending-card strong {
+  padding-top: 6px;
+  font-size: 14px;
+}
+.meta-ending-card span {
+  padding-bottom: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+button.meta-ending-card {
+  cursor: pointer;
+  min-height: 0;
+}
+button.meta-ending-card:hover,
+button.meta-ending-card:focus-visible {
+  border-color: var(--aqua);
+}
+.meta-milestones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.meta-milestones span {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 800;
+}
+.meta-milestones span.done {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.meta-history {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.meta-history th,
+.meta-history td {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+.meta-history td:last-child,
+.meta-history th:last-child {
+  text-align: right;
+}
+.meta-transfer textarea {
+  width: 100%;
+  min-height: 84px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #0b1120;
+  color: var(--ink);
+  font:
+    12px/1.4 ui-monospace,
+    monospace;
+  padding: 8px;
+}
+.meta-transfer .meta-transfer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.meta-transfer-status {
+  min-height: 1.4em;
+  font-size: 12px;
+  color: var(--gold);
+}

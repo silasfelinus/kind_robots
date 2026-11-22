@@ -2952,6 +2952,13 @@ class GlitchGarden implements ArcadeGameInstance {
         }
       }
     }
+    if (
+      this.snowballs.some(
+        (ball) =>
+          Math.abs(ball.x - this.px) < 8 && Math.abs(ball.y - this.py) < 8,
+      )
+    )
+      return this.lose()
     const b = this.beetle
     if (b && Math.abs(b.x - this.px) < 7 && Math.abs(b.y - this.py) < 6)
       this.lose()
@@ -3407,6 +3414,24 @@ class GlitchGarden implements ArcadeGameInstance {
         g.fillStyle = color
         g.fillRect(x + dx, y + dy, 3, 2)
       }
+    }
+  }
+
+  private renderSnowballs(g: CanvasRenderingContext2D) {
+    for (const ball of this.snowballs) {
+      const x = Math.round(ball.x)
+      const y = Math.round(ball.y)
+      const radius = 3 + ball.hp * 2
+      dropShadow(g, x, y + radius, radius, 2, 0.4)
+      glow(g, x, y, radius + 6, RAMPS.sky[3], 0.5)
+      g.fillStyle = INK
+      g.fillRect(x - radius, y - radius, radius * 2, radius * 2)
+      g.fillStyle = RAMPS.sky[4]
+      g.fillRect(x - radius + 1, y - radius + 1, radius * 2 - 2, radius * 2 - 2)
+      g.fillStyle = RAMPS.sky[2]
+      g.fillRect(x - radius + 2, y, radius * 2 - 4, 2)
+      g.fillStyle = '#ffffff'
+      g.fillRect(x - 2, y - radius + 2, 4, 2)
     }
   }
 

@@ -130,10 +130,7 @@ const fresh = (seed = 'console-seed'): RunSave =>
     "yesterday's fishing bonus expires by in-game casts only",
   )
   fishingDay.turnCount = 0
-  Reflect.deleteProperty(
-    fishingDay.counters,
-    PROCLAMATION_EVENT_INDEX_COUNTER,
-  )
+  Reflect.deleteProperty(fishingDay.counters, PROCLAMATION_EVENT_INDEX_COUNTER)
   assert.equal(
     fishWeightForProclamation(fishingDay, 'orchardjaw-perch', 60),
     60,

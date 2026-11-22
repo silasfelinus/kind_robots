@@ -729,7 +729,11 @@ expired = advanceVoyageDay(expired)
 assert.equal(expired.phase, 'debrief')
 assert.ok(expired.log.some((x) => x.includes('expired')))
 assert.equal(nextDestination(expired).phase, 'briefing')
-const page = fromRoot('pages/play/game-of-captains.vue')
+// Captain selection lives in its own art-first component (t-045); read it
+// with the page so selection markers stay checked wherever they render.
+const page =
+  fromRoot('pages/play/game-of-captains.vue') +
+  fromRoot('components/gameOfCaptains/captain-gallery.vue')
 const tab = fromRoot('content/channels/arcade/game-of-captains.md')
 const home = fromRoot('components/home/home-visitor-directory.vue')
 assert.ok(page.includes('data-layout="console-fixed"'))

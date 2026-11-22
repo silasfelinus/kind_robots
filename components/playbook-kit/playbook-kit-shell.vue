@@ -190,7 +190,10 @@
               v-else-if="active.id === 'achievements'"
               :game="spec.conductorSlug"
             />
-            <PlaybookKitSettings v-else :spec="spec" />
+            <template v-else>
+              <PlaybookKitSettings :spec="spec" />
+              <slot name="settings-extra" />
+            </template>
           </div>
         </aside>
 
@@ -264,7 +267,10 @@ function meterValue(meter: KitMeter): number {
 
 function meterPercent(meter: KitMeter): string {
   const span = meter.max - meter.min
-  return `${Math.round(((meterValue(meter) - meter.min) / span) * 100)}%`
+  // A game may push a value past its meter (Space Couch trust can pass 20);
+  // the fill stops at the bar's ends instead of running over the number.
+  const share = span > 0 ? (meterValue(meter) - meter.min) / span : 0
+  return `${Math.round(Math.min(1, Math.max(0, share)) * 100)}%`
 }
 
 const panes = computed(() => {

@@ -106,10 +106,19 @@ assert.ok(
 assert.ok(CREW_DOSSIERS.mox.storyPromise.includes('body'))
 assert.ok(CAPTAIN_DOSSIERS.solace.history.includes('Four weeks ago'))
 assert.ok(CAPTAIN_DOSSIERS.fluke.history.includes('stutters'))
-const page = readFileSync(
-  new URL('../../pages/play/game-of-captains.vue', import.meta.url),
-  'utf8',
-)
+// Captain selection moved into captain-gallery.vue (t-045); read both.
+const page =
+  readFileSync(
+    new URL('../../pages/play/game-of-captains.vue', import.meta.url),
+    'utf8',
+  ) +
+  readFileSync(
+    new URL(
+      '../../components/gameOfCaptains/captain-gallery.vue',
+      import.meta.url,
+    ),
+    'utf8',
+  )
 for (const key of [
   'couch-captain-promise',
   'couch-crew-promise',

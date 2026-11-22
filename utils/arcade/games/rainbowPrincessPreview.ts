@@ -120,6 +120,23 @@ import {
   type RosefinSceneId,
 } from './rainbowRosefin'
 import {
+  COMET,
+  COMET_GUARDIAN,
+  COMET_SECTIONS,
+  COMET_TALKS,
+  COMET_WAVES,
+  COMET_WAVE_SIZES,
+  cometCadetAvailable,
+  cometCadetX,
+  cometCheckpointValid,
+  cometDetourFor,
+  cometFullWing,
+  cometPhase,
+  cometSpawns,
+  cometSpeed,
+  rescueCometCadet,
+} from './rainbowCoralComet'
+import {
   DELPHION,
   DELPHION_MAX_HP,
   createDelphionBoss,
@@ -529,6 +546,8 @@ function actCheckpointFrames(act: RainbowCheckpoint['act']): readonly number[] {
 }
 /** What the CONTINUE? screen and the flight log call a checkpoint: its section, the boss or the Act start. */
 function checkpointName(c: Readonly<RainbowCheckpoint>): string {
+  if (c.cometFrame !== undefined)
+    return checkpointLabel(COMET_SECTIONS, COMET_GUARDIAN.from, c.cometFrame)
   if (c.nurseryFrame !== undefined)
     return checkpointLabel(
       NURSERY_FLIGHT_SECTIONS,
@@ -586,7 +605,8 @@ export function isRainbowCheckpoint(
     (act > 1 || frame > 0) &&
     (actCheckpointFrames(act as RainbowCheckpoint['act']).includes(frame) ||
       (c !== undefined &&
-        (nurseryFlightCheckpointValid(act, frame, c) ||
+        (cometCheckpointValid(act, frame, c) ||
+          nurseryFlightCheckpointValid(act, frame, c) ||
           lighthouseCheckpointValid(act, frame, c) ||
           mirrorShoalCheckpointValid(act, frame, c))))
   )
@@ -1014,6 +1034,7 @@ export type RainbowCombatSnapshot = {
     | 'S08'
     | 'S09'
     | 'X1'
+    | 'X2'
     | 'X3'
     | 'X4'
   stage:
@@ -1027,6 +1048,7 @@ export type RainbowCombatSnapshot = {
     | ReturnType<typeof lighthouseStage>
     | ReturnType<typeof mirrorShoalStage>
     | ReturnType<typeof nurseryFlightPhase>
+    | ReturnType<typeof cometPhase>
     | ReturnType<typeof palaceStage>
     | ReturnType<typeof finaleStage>
   sceneId:
@@ -1045,6 +1067,9 @@ export type RainbowCombatSnapshot = {
     | 'X1.OPEN'
     | 'X1.TURN'
     | 'X1.AFTER'
+    | 'X2.OPEN'
+    | 'X2.TURN'
+    | 'X2.AFTER'
     | 'X3.OPEN'
     | 'X3.TURN'
     | 'X3.AFTER'
@@ -1069,6 +1094,11 @@ export type RainbowCombatSnapshot = {
   nurseryGuardianOutcome: GuardianOutcome
   nurseryFrame: number | null
   nurseryHits: number
+  cometFrame: number | null
+  cometCadetsMask: number
+  cometGuardianOutcome: GuardianOutcome
+  cometHits: number
+  cadetsHome: boolean
   armoryGuardianOutcome: GuardianOutcome
   pearlWardenOutcome: GuardianOutcome
   shoalGuardianOutcome: GuardianOutcome
@@ -1236,6 +1266,11 @@ export function createRainbowPrincessPreview(
   let rescuedCourier = false
   let escort: { x: number; y: number; hull: number } | null = null
   let escortDone = false
+  let cometStart: number | null = null
+  let cometCadetsMask = 0
+  let cometGuardianOutcome: GuardianOutcome = 'waiting'
+  let cometHits = 0
+  let cadetsHome = false
   let wreckStart: number | null = null
   let sawtooth: SawtoothBoss | null = null
   let sawtoothCarryHp: number | null = null
@@ -1297,6 +1332,7 @@ export function createRainbowPrincessPreview(
     armoryGuardianOutcome: 'waiting',
     pearlWardenOutcome: 'waiting',
     rescuedCourier: false,
+    cadetsHome: false,
     wreckRoute: null,
     wreckSettled: false,
     podsSaved: 0,
@@ -1387,6 +1423,12 @@ export function createRainbowPrincessPreview(
   }
   function rosefinFrame() {
     return rosefinStart === null ? 0 : tick - rosefinStart
+  }
+  function cometFrame() {
+    return cometStart === null ? 0 : tick - cometStart
+  }
+  function cometActive() {
+    return cometStart !== null && wreckStart === null
   }
   function wreckFrame() {
     return wreckStart === null ? 0 : tick - wreckStart
@@ -1991,7 +2033,13 @@ export function createRainbowPrincessPreview(
 
   /** Act IV's craft move by their own rules, and the express current's surges speed them up. */
   function stepRosefinCraft(reef: Reef) {
-    const surge = 1 + (rosefinSpeed(rosefinFrame()) - 1) * 0.6
+    const surge =
+      1 +
+      ((cometActive()
+        ? cometSpeed(cometFrame())
+        : rosefinSpeed(rosefinFrame())) -
+        1) *
+        0.6
     if (reef.kind === 'dolphin') {
       reef.homeY ??= reef.y
       if (reef.dive === undefined) {
@@ -2366,23 +2414,25 @@ export function createRainbowPrincessPreview(
         ? SHOAL_WAVE_SIZES[reef.wave - MIRROR_SHOAL.waveBase]
         : reef.wave >= LIGHTHOUSE.waveBase
           ? LIGHTHOUSE_WAVE_SIZES[reef.wave - LIGHTHOUSE.waveBase]
-          : reef.wave >= NURSERY.waveBase
-            ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
-            : reef.wave >= WRECK.waveBase
-              ? reef.wave >= PALACE.waveBase
-                ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
-                : reef.wave >= GLASS.waveBase
-                  ? GLASS_WAVE_SIZES[reef.wave - GLASS.waveBase]
-                  : reef.wave >= CROWN_REEF.waveBase
-                    ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
-                    : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
-              : reef.wave >= ROSEFIN.waveBase
-                ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
-                : reef.wave >= TRENCH.waveBase
-                  ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
-                  : reef.wave >= MOONJELLY.waveBase
-                    ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
-                    : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
+          : reef.wave >= COMET.waveBase
+            ? COMET_WAVE_SIZES[reef.wave - COMET.waveBase]
+            : reef.wave >= NURSERY.waveBase
+              ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
+              : reef.wave >= WRECK.waveBase
+                ? reef.wave >= PALACE.waveBase
+                  ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
+                  : reef.wave >= GLASS.waveBase
+                    ? GLASS_WAVE_SIZES[reef.wave - GLASS.waveBase]
+                    : reef.wave >= CROWN_REEF.waveBase
+                      ? CROWN_REEF_WAVE_SIZES[reef.wave - CROWN_REEF.waveBase]
+                      : WRECK_WAVE_SIZES[reef.wave - WRECK.waveBase]
+                : reef.wave >= ROSEFIN.waveBase
+                  ? ROSEFIN_WAVE_SIZES[reef.wave - ROSEFIN.waveBase]
+                  : reef.wave >= TRENCH.waveBase
+                    ? TRENCH_WAVE_SIZES[reef.wave - TRENCH.waveBase]
+                    : reef.wave >= MOONJELLY.waveBase
+                      ? MOONJELLY_WAVE_SIZES[reef.wave - MOONJELLY.waveBase]
+                      : PINKWAKE_WAVE_SIZES[reef.wave]) ?? 0
     if (
       left > 0 ||
       size < RAINBOW_LANES.schoolSize ||
@@ -2408,6 +2458,11 @@ export function createRainbowPrincessPreview(
         NURSERY_FLIGHT_SECTIONS.some(
           (section) => section.from === nurseryFrame(),
         ))
+    const cometCheckpoint =
+      act === 4 &&
+      cometActive() &&
+      (cometFrame() === 0 ||
+        COMET_SECTIONS.some((section) => section.from === cometFrame()))
     const lighthouseCheckpoint =
       act === 6 &&
       lighthouseActive() &&
@@ -2422,6 +2477,7 @@ export function createRainbowPrincessPreview(
     if (
       !actCheckpointFrames(act).includes(frame) &&
       !nurseryCheckpoint &&
+      !cometCheckpoint &&
       !lighthouseCheckpoint &&
       !shoalCheckpoint
     )
@@ -2446,6 +2502,16 @@ export function createRainbowPrincessPreview(
       armoryGuardianOutcome,
       pearlWardenOutcome,
       rescuedCourier,
+      cadetsHome,
+      ...(cometCheckpoint
+        ? {
+            cometStartedAt: cometStart! - rosefinStart!,
+            cometFrame: cometFrame(),
+            cometCadetsMask,
+            cometGuardianOutcome,
+            cometHits,
+          }
+        : {}),
       wreckRoute,
       wreckSettled,
       podsSaved,
@@ -2633,6 +2699,7 @@ export function createRainbowPrincessPreview(
     pearlWardenOutcome =
       c.pearlWardenOutcome ?? (c.act > 6 ? 'escaped' : 'waiting')
     rescuedCourier = c.rescuedCourier
+    cadetsHome = c.cadetsHome ?? false
     escortDone = c.act > 4
     wreckRoute = c.wreckRoute
     wreckSettled = c.wreckSettled
@@ -2660,7 +2727,10 @@ export function createRainbowPrincessPreview(
       c.nurseryFrame !== undefined
         ? c.nurseryStartedAt! - TRENCH.aftermathFrames
         : beaten(3)
-    rosefinDefeatedFrame = beaten(4)
+    rosefinDefeatedFrame =
+      c.cometFrame !== undefined
+        ? c.cometStartedAt! - ROSEFIN.aftermathFrames
+        : beaten(4)
     wreckDefeatedFrame = beaten(5)
     reefDefeatedFrame =
       c.lighthouseFrame !== undefined
@@ -2677,6 +2747,11 @@ export function createRainbowPrincessPreview(
       c.nurseryFrame !== undefined ? trenchStart! + c.nurseryStartedAt! : null
     nurseryHits = c.nurseryHits ?? 0
     rosefinStart = start(4)
+    cometStart =
+      c.cometFrame !== undefined ? rosefinStart! + c.cometStartedAt! : null
+    cometCadetsMask = c.cometCadetsMask ?? 0
+    cometGuardianOutcome = c.cometGuardianOutcome ?? 'waiting'
+    cometHits = c.cometHits ?? 0
     wreckStart = start(5)
     reefStart = start(6)
     lighthouseStart =
@@ -2736,6 +2811,7 @@ export function createRainbowPrincessPreview(
     }
     const cleared =
       checkpoint.nurseryFrame !== undefined ||
+      checkpoint.cometFrame !== undefined ||
       checkpoint.lighthouseFrame !== undefined ||
       checkpoint.shoalFrame !== undefined
         ? false
@@ -2758,56 +2834,61 @@ export function createRainbowPrincessPreview(
                         : choiceFrame !== null || finalChoice !== null
     if (!cleared) {
       const waves: ReadonlyArray<{ at: number }> =
-        checkpoint.nurseryFrame !== undefined
-          ? NURSERY_WAVES
-          : checkpoint.lighthouseFrame !== undefined
-            ? LIGHTHOUSE_WAVES
-            : checkpoint.shoalFrame !== undefined
-              ? SHOAL_WAVES
-              : checkpoint.act === 1
-                ? PINKWAKE_WAVES
-                : checkpoint.act === 2
-                  ? MOONJELLY_WAVES
-                  : checkpoint.act === 3
-                    ? TRENCH_ALL_WAVES
-                    : checkpoint.act === 4
-                      ? ROSEFIN_WAVES
-                      : checkpoint.act === 5
-                        ? WRECK_ALL_WAVES
-                        : checkpoint.act === 6
-                          ? CROWN_REEF_ALL_WAVES
-                          : checkpoint.act === 7
-                            ? GLASS_WAVES
-                            : checkpoint.act === 8
-                              ? PALACE_WAVES
-                              : []
+        checkpoint.cometFrame !== undefined
+          ? COMET_WAVES
+          : checkpoint.nurseryFrame !== undefined
+            ? NURSERY_WAVES
+            : checkpoint.lighthouseFrame !== undefined
+              ? LIGHTHOUSE_WAVES
+              : checkpoint.shoalFrame !== undefined
+                ? SHOAL_WAVES
+                : checkpoint.act === 1
+                  ? PINKWAKE_WAVES
+                  : checkpoint.act === 2
+                    ? MOONJELLY_WAVES
+                    : checkpoint.act === 3
+                      ? TRENCH_ALL_WAVES
+                      : checkpoint.act === 4
+                        ? ROSEFIN_WAVES
+                        : checkpoint.act === 5
+                          ? WRECK_ALL_WAVES
+                          : checkpoint.act === 6
+                            ? CROWN_REEF_ALL_WAVES
+                            : checkpoint.act === 7
+                              ? GLASS_WAVES
+                              : checkpoint.act === 8
+                                ? PALACE_WAVES
+                                : []
       const base =
-        checkpoint.nurseryFrame !== undefined
-          ? NURSERY.waveBase
-          : checkpoint.lighthouseFrame !== undefined
-            ? LIGHTHOUSE.waveBase
-            : checkpoint.shoalFrame !== undefined
-              ? MIRROR_SHOAL.waveBase
-              : checkpoint.act === 1
-                ? 0
-                : checkpoint.act === 2
-                  ? MOONJELLY.waveBase
-                  : checkpoint.act === 3
-                    ? TRENCH.waveBase
-                    : checkpoint.act === 4
-                      ? ROSEFIN.waveBase
-                      : checkpoint.act === 5
-                        ? WRECK.waveBase
-                        : checkpoint.act === 6
-                          ? CROWN_REEF.waveBase
-                          : checkpoint.act === 7
-                            ? GLASS.waveBase
-                            : PALACE.waveBase
+        checkpoint.cometFrame !== undefined
+          ? COMET.waveBase
+          : checkpoint.nurseryFrame !== undefined
+            ? NURSERY.waveBase
+            : checkpoint.lighthouseFrame !== undefined
+              ? LIGHTHOUSE.waveBase
+              : checkpoint.shoalFrame !== undefined
+                ? MIRROR_SHOAL.waveBase
+                : checkpoint.act === 1
+                  ? 0
+                  : checkpoint.act === 2
+                    ? MOONJELLY.waveBase
+                    : checkpoint.act === 3
+                      ? TRENCH.waveBase
+                      : checkpoint.act === 4
+                        ? ROSEFIN.waveBase
+                        : checkpoint.act === 5
+                          ? WRECK.waveBase
+                          : checkpoint.act === 6
+                            ? CROWN_REEF.waveBase
+                            : checkpoint.act === 7
+                              ? GLASS.waveBase
+                              : PALACE.waveBase
       waves.forEach((entry, index) => {
         const id = base + index
         if (
           entry.at >=
-          (checkpoint.nurseryFrame ??
+          (checkpoint.cometFrame ??
+            checkpoint.nurseryFrame ??
             checkpoint.lighthouseFrame ??
             checkpoint.shoalFrame ??
             checkpoint.frame)
@@ -2830,6 +2911,12 @@ export function createRainbowPrincessPreview(
       )
       // A guardian whose section lies after the checkpoint flies again.
       guardian = null
+      if (checkpoint.cometFrame !== undefined) {
+        cometStart = rosefinStart! + checkpoint.cometStartedAt!
+        cometCadetsMask = checkpoint.cometCadetsMask ?? 0
+        cometGuardianOutcome = checkpoint.cometGuardianOutcome ?? 'waiting'
+        cometHits = checkpoint.cometHits ?? 0
+      }
       if (checkpoint.nurseryFrame !== undefined) {
         nurseryStart = trenchStart! + checkpoint.nurseryStartedAt!
         nurseryHits = checkpoint.nurseryHits ?? 0
@@ -2887,6 +2974,7 @@ export function createRainbowPrincessPreview(
       armoryGuardianOutcome = checkpoint.armoryGuardianOutcome ?? 'waiting'
       pearlWardenOutcome = checkpoint.pearlWardenOutcome ?? 'waiting'
       rescuedCourier = checkpoint.rescuedCourier
+      cadetsHome = checkpoint.cadetsHome ?? false
       // The escort replays when the checkpoint is before the pod set off.
       if (checkpoint.act === 4 && checkpoint.frame <= ROSEFIN_ESCORT.podAppears)
         escortDone = rescuedCourier
@@ -3803,7 +3891,13 @@ export function createRainbowPrincessPreview(
     guardian = null
     const act = currentAct()
     // The Nursery guardian is a second earned encounter, not Act III's first guardian.
-    if (act === 6 && kind === 'lampkeeper') {
+    if (act === 4 && kind === 'herder' && cometActive()) {
+      cometGuardianOutcome = 'defeated'
+      cometStart! -= Math.max(
+        0,
+        COMET_GUARDIAN.to - GUARDIAN_SKIP_LEAD - cometFrame(),
+      )
+    } else if (act === 6 && kind === 'lampkeeper') {
       lighthouseGuardianOutcome = 'defeated'
       lighthouseStart! -= Math.max(
         0,
@@ -3862,7 +3956,8 @@ export function createRainbowPrincessPreview(
     // The attract-mode flythrough must be able to reach its authored boss and
     // second Act rather than silently losing every autonomous pilot.
     if (options.demo || ship.invulnerable > 0 || ship.evade > 0) return
-    if (nurseryActive()) nurseryHits++
+    if (cometActive()) cometHits++
+    else if (nurseryActive()) nurseryHits++
     else if (lighthouseActive()) lighthouseHits++
     else if (shoalActive()) shoalHits++
     else actHits++
@@ -4034,14 +4129,42 @@ export function createRainbowPrincessPreview(
     }
     if (
       wreckStart === null &&
+      cometStart === null &&
       rosefinDefeatedFrame !== null &&
       rosefinFrame() - rosefinDefeatedFrame >= ROSEFIN.aftermathFrames
     ) {
-      // ACT-STRUCTURE: the convoy leads directly into the wreckage.
-      wreckStart = tick
+      if (
+        cometDetourFor(
+          livingShips().map((ship) => ship.y),
+          rescuedCourier,
+          rosefinDefeatedFrame !== null,
+        )
+      ) {
+        cometStart = tick
+        cometCadetsMask = 0
+        cometGuardianOutcome = 'waiting'
+        cometHits = 0
+        reefs.length = 0
+        enemyShots.length = 0
+        popups.push({ x: W / 2, y: 92, text: 'X2 · CORAL COMET', age: 0 })
+      } else wreckStart = tick
       shots.length = 0
       pickups.length = 0
       escort = null
+    }
+    if (cometActive() && cometFrame() >= COMET.end) {
+      cadetsHome = cometFullWing(cometCadetsMask)
+      if (cadetsHome) {
+        score += 3000
+        popups.push({ x: W / 2, y: 92, text: 'FULL WING · +3000', age: 0 })
+      }
+      wreckStart = tick
+      actHits = 0
+      actContinues = 0
+      reefs.length = 0
+      enemyShots.length = 0
+      shots.length = 0
+      pickups.length = 0
     }
     if (
       finaleStart === null &&
@@ -4284,6 +4407,48 @@ export function createRainbowPrincessPreview(
         clawBoss = createClawburstBoss(bossHp(CLAWBURST_MAX_HP))
         if (clawBossCarryHp !== null)
           clawBoss.hp = Math.min(clawBoss.hp, clawBossCarryHp)
+      }
+    } else if (cometActive()) {
+      const frame = cometFrame()
+      passCheckpoint(4, rosefinFrame())
+      const stage = cometPhase(frame)
+      if (stage === 'waves')
+        for (const entry of cometSpawns(frame))
+          spawn(entry.kind, entry.y, entry.wave)
+      const cadet = cometCadetAvailable(frame, cometCadetsMask)
+      if (cadet) {
+        const x = cometCadetX(frame, cadet.at)
+        if (
+          livingShips().some(
+            (ship) =>
+              Math.hypot(ship.x - x, ship.y - laneY(cadet.lane)) <
+              COMET.trainerReach,
+          )
+        ) {
+          cometCadetsMask = rescueCometCadet(
+            cometCadetsMask,
+            Number(cadet.id.slice(-1)),
+          )
+          score += 400
+          popups.push({ x, y: laneY(cadet.lane), text: 'CADET HOME', age: 0 })
+          options.sound.play('extra')
+        }
+      }
+      if (
+        stage === 'guardian' &&
+        guardian === null &&
+        cometGuardianOutcome === 'waiting' &&
+        frame < COMET_GUARDIAN.to - RAINBOW_GUARDIAN.escapeLead
+      ) {
+        guardian = createRainbowGuardian('herder', activePlayers)
+        guardian.maxHp = guardian.hp = Math.max(
+          1,
+          Math.round(guardian.maxHp * level.bossHp),
+        )
+      }
+      if (stage === 'exit' && frame === COMET_GUARDIAN.to) {
+        reefs.length = 0
+        enemyShots.length = 0
       }
     } else if (wreckStart === null) {
       const frame = rosefinFrame()
@@ -4767,6 +4932,7 @@ export function createRainbowPrincessPreview(
         reef.kind === 'scrap'
       ) {
         stepWreckCraft(reef)
+        if (cometActive()) reef.x -= (cometSpeed(cometFrame()) - 1) * 0.8
         continue
       }
       if (
@@ -4863,30 +5029,34 @@ export function createRainbowPrincessPreview(
     if (guardian && guardianAct !== 9) {
       const act = guardianAct
       const section =
-        guardian.kind === 'lampkeeper'
-          ? LIGHTHOUSE_GUARDIAN
-          : guardian.kind === 'matriarch'
-            ? nurseryActive()
-              ? NURSERY_GUARDIAN
-              : nurseryGuardianWindow(
-                  TRENCH_FORK.decideAt,
-                  TRENCH_FORK.rejoinAt,
-                )
-            : guardian.kind === 'shoalkoi'
-              ? SHOAL_GUARDIAN
-              : guardian.kind === 'siren'
-                ? ARMORY_SIREN_WINDOW
-                : guardian.kind === 'warden'
-                  ? PEARL_WARDEN_WINDOW
-                  : guardianSections[act]
+        guardian.kind === 'herder'
+          ? COMET_GUARDIAN
+          : guardian.kind === 'lampkeeper'
+            ? LIGHTHOUSE_GUARDIAN
+            : guardian.kind === 'matriarch'
+              ? nurseryActive()
+                ? NURSERY_GUARDIAN
+                : nurseryGuardianWindow(
+                    TRENCH_FORK.decideAt,
+                    TRENCH_FORK.rejoinAt,
+                  )
+              : guardian.kind === 'shoalkoi'
+                ? SHOAL_GUARDIAN
+                : guardian.kind === 'siren'
+                  ? ARMORY_SIREN_WINDOW
+                  : guardian.kind === 'warden'
+                    ? PEARL_WARDEN_WINDOW
+                    : guardianSections[act]
       const frame =
-        guardian.kind === 'lampkeeper'
-          ? lighthouseFrame()
-          : guardian.kind === 'matriarch' && nurseryActive()
-            ? nurseryFrame()
-            : guardian.kind === 'shoalkoi'
-              ? shoalFrame()
-              : actFrame(act)
+        guardian.kind === 'herder'
+          ? cometFrame()
+          : guardian.kind === 'lampkeeper'
+            ? lighthouseFrame()
+            : guardian.kind === 'matriarch' && nurseryActive()
+              ? nurseryFrame()
+              : guardian.kind === 'shoalkoi'
+                ? shoalFrame()
+                : actFrame(act)
       shootAs(
         RAINBOW_GUARDIAN_LOOK,
         stepRainbowGuardian(
@@ -4900,6 +5070,7 @@ export function createRainbowPrincessPreview(
         const guardianKind = guardian.kind
         guardian = null
         if (wasNursery) nurseryGuardianOutcome = 'escaped'
+        else if (guardianKind === 'herder') cometGuardianOutcome = 'escaped'
         else if (guardianKind === 'lampkeeper')
           lighthouseGuardianOutcome = 'escaped'
         else if (guardianKind === 'shoalkoi') shoalGuardianOutcome = 'escaped'
@@ -5698,105 +5869,124 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
-        act: nurseryActive()
-          ? 'X1'
-          : lighthouseActive()
-            ? 'X3'
-            : shoalActive()
-              ? 'X4'
-              : (
-                  [
-                    'S01',
-                    'S02',
-                    'S03',
-                    'S04',
-                    'S05',
-                    'S06',
-                    'S07',
-                    'S08',
-                    'S09',
-                  ] as const
-                )[currentAct() - 1]!,
-        stage: nurseryActive()
-          ? nurseryFlightPhase(nurseryFrame())
-          : lighthouseActive()
-            ? lighthouseStage(lighthouseFrame())
-            : shoalActive()
-              ? mirrorShoalStage(shoalFrame())
-              : currentAct() === 1
-                ? pinkwakeStage(tick, defeatedAt)
-                : currentAct() === 2
-                  ? moonjellyStage(moonFrame(), moonDefeatedFrame)
-                  : currentAct() === 3
-                    ? trenchStage(trenchFrame(), trenchDefeatedFrame)
-                    : currentAct() === 4
-                      ? rosefinStage(rosefinFrame(), rosefinDefeatedFrame)
-                      : currentAct() === 5
-                        ? wreckStage(wreckFrame(), wreckDefeatedFrame)
-                        : currentAct() === 6
-                          ? reefStage(reefFrame(), reefDefeatedFrame)
-                          : currentAct() === 7
-                            ? glassStage(glassFrame(), glassDefeatedFrame)
-                            : currentAct() === 8
-                              ? palaceStage(palaceFrame(), palaceDefeatedFrame)
-                              : finaleStage(
-                                  finaleFrame(),
-                                  choiceFrame,
-                                  escapeFrame,
-                                  endingFrame,
-                                ),
-        sceneId: nurseryActive()
-          ? nurseryFrame() < NURSERY.openingEnds
-            ? 'X1.OPEN'
-            : nurseryFrame() >= NURSERY_GUARDIAN.to
-              ? 'X1.AFTER'
-              : nurseryFrame() >= NURSERY_GUARDIAN.from
-                ? 'X1.TURN'
+        act: cometActive()
+          ? 'X2'
+          : nurseryActive()
+            ? 'X1'
+            : lighthouseActive()
+              ? 'X3'
+              : shoalActive()
+                ? 'X4'
+                : (
+                    [
+                      'S01',
+                      'S02',
+                      'S03',
+                      'S04',
+                      'S05',
+                      'S06',
+                      'S07',
+                      'S08',
+                      'S09',
+                    ] as const
+                  )[currentAct() - 1]!,
+        stage: cometActive()
+          ? cometPhase(cometFrame())
+          : nurseryActive()
+            ? nurseryFlightPhase(nurseryFrame())
+            : lighthouseActive()
+              ? lighthouseStage(lighthouseFrame())
+              : shoalActive()
+                ? mirrorShoalStage(shoalFrame())
+                : currentAct() === 1
+                  ? pinkwakeStage(tick, defeatedAt)
+                  : currentAct() === 2
+                    ? moonjellyStage(moonFrame(), moonDefeatedFrame)
+                    : currentAct() === 3
+                      ? trenchStage(trenchFrame(), trenchDefeatedFrame)
+                      : currentAct() === 4
+                        ? rosefinStage(rosefinFrame(), rosefinDefeatedFrame)
+                        : currentAct() === 5
+                          ? wreckStage(wreckFrame(), wreckDefeatedFrame)
+                          : currentAct() === 6
+                            ? reefStage(reefFrame(), reefDefeatedFrame)
+                            : currentAct() === 7
+                              ? glassStage(glassFrame(), glassDefeatedFrame)
+                              : currentAct() === 8
+                                ? palaceStage(
+                                    palaceFrame(),
+                                    palaceDefeatedFrame,
+                                  )
+                                : finaleStage(
+                                    finaleFrame(),
+                                    choiceFrame,
+                                    escapeFrame,
+                                    endingFrame,
+                                  ),
+        sceneId: cometActive()
+          ? cometFrame() < COMET.openingEnds
+            ? 'X2.OPEN'
+            : cometFrame() >= COMET_GUARDIAN.to
+              ? 'X2.AFTER'
+              : cometFrame() >= COMET_GUARDIAN.from - 288 &&
+                  cometFrame() < COMET_GUARDIAN.from
+                ? 'X2.TURN'
                 : null
-          : lighthouseActive()
-            ? lighthouseFrame() < LIGHTHOUSE.openingEnds
-              ? 'X3.OPEN'
-              : lighthouseFrame() >= LIGHTHOUSE.bossStarts
-                ? 'X3.AFTER'
-                : lighthouseFrame() >= LIGHTHOUSE.turnStarts
-                  ? 'X3.TURN'
+          : nurseryActive()
+            ? nurseryFrame() < NURSERY.openingEnds
+              ? 'X1.OPEN'
+              : nurseryFrame() >= NURSERY_GUARDIAN.to
+                ? 'X1.AFTER'
+                : nurseryFrame() >= NURSERY_GUARDIAN.from
+                  ? 'X1.TURN'
                   : null
-            : shoalActive()
-              ? shoalFrame() < MIRROR_SHOAL.openingEnds
-                ? 'X4.OPEN'
-                : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
-                  ? 'X4.AFTER'
-                  : shoalFrame() >= MIRROR_SHOAL.turnStarts
-                    ? 'X4.TURN'
+            : lighthouseActive()
+              ? lighthouseFrame() < LIGHTHOUSE.openingEnds
+                ? 'X3.OPEN'
+                : lighthouseFrame() >= LIGHTHOUSE.bossStarts
+                  ? 'X3.AFTER'
+                  : lighthouseFrame() >= LIGHTHOUSE.turnStarts
+                    ? 'X3.TURN'
                     : null
-              : currentAct() === 1
-                ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
-                : currentAct() === 2
-                  ? (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ?? null)
-                  : currentAct() === 3
-                    ? (trenchScene(trenchFrame(), trenchDefeatedFrame)?.id ??
+              : shoalActive()
+                ? shoalFrame() < MIRROR_SHOAL.openingEnds
+                  ? 'X4.OPEN'
+                  : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
+                    ? 'X4.AFTER'
+                    : shoalFrame() >= MIRROR_SHOAL.turnStarts
+                      ? 'X4.TURN'
+                      : null
+                : currentAct() === 1
+                  ? (pinkwakeScene(tick, defeatedAt)?.id ?? null)
+                  : currentAct() === 2
+                    ? (moonjellyScene(moonFrame(), moonDefeatedFrame)?.id ??
                       null)
-                    : currentAct() === 4
-                      ? (rosefinScene(rosefinFrame(), rosefinDefeatedFrame)
-                          ?.id ?? null)
-                      : currentAct() === 5
-                        ? (wreckScene(wreckFrame(), wreckDefeatedFrame)?.id ??
-                          null)
-                        : currentAct() === 6
-                          ? (reefScene(reefFrame(), reefDefeatedFrame)?.id ??
+                    : currentAct() === 3
+                      ? (trenchScene(trenchFrame(), trenchDefeatedFrame)?.id ??
+                        null)
+                      : currentAct() === 4
+                        ? (rosefinScene(rosefinFrame(), rosefinDefeatedFrame)
+                            ?.id ?? null)
+                        : currentAct() === 5
+                          ? (wreckScene(wreckFrame(), wreckDefeatedFrame)?.id ??
                             null)
-                          : currentAct() === 7
-                            ? (glassScene(glassFrame(), glassDefeatedFrame)
-                                ?.id ?? null)
-                            : currentAct() === 8
-                              ? (palaceScene(palaceFrame(), palaceDefeatedFrame)
+                          : currentAct() === 6
+                            ? (reefScene(reefFrame(), reefDefeatedFrame)?.id ??
+                              null)
+                            : currentAct() === 7
+                              ? (glassScene(glassFrame(), glassDefeatedFrame)
                                   ?.id ?? null)
-                              : (finaleScene(
-                                  finaleFrame(),
-                                  choiceFrame,
-                                  escapeFrame,
-                                  endingFrame,
-                                )?.id ?? null),
+                              : currentAct() === 8
+                                ? (palaceScene(
+                                    palaceFrame(),
+                                    palaceDefeatedFrame,
+                                  )?.id ?? null)
+                                : (finaleScene(
+                                    finaleFrame(),
+                                    choiceFrame,
+                                    escapeFrame,
+                                    endingFrame,
+                                  )?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
         clawBoss: clawBoss ? { ...clawBoss } : null,
@@ -5817,6 +6007,11 @@ export function createRainbowPrincessPreview(
         nurseryGuardianOutcome,
         nurseryFrame: nurseryActive() ? nurseryFrame() : null,
         nurseryHits,
+        cometFrame: cometActive() ? cometFrame() : null,
+        cometCadetsMask,
+        cometGuardianOutcome,
+        cometHits,
+        cadetsHome,
         armoryGuardianOutcome,
         pearlWardenOutcome,
         shoalGuardianOutcome,
@@ -6087,6 +6282,30 @@ export function createRainbowPrincessPreview(
           g.lineTo(x + 70, 92)
           g.stroke()
         }
+      } else if (cometActive()) {
+        // The comet tail streaks past in speed-surges without tinting hostile bullets.
+        const frame = cometFrame()
+        const speed = cometSpeed(frame)
+        g.save()
+        for (let band = 0; band < 4; band++) {
+          g.strokeStyle = ['#ff91d544', '#c7aeff44', '#9ef9f244', '#ffd36e44'][
+            band
+          ]!
+          g.lineWidth = 1.5 + band
+          for (let i = 0; i < 8; i++) {
+            const x =
+              ((((i * 91 - frame * drift * speed * (1 + band * 0.3)) % 620) +
+                620) %
+                620) -
+              60
+            const y = 48 + band * 51 + ((i * 23) % 36)
+            g.beginPath()
+            g.moveTo(x, y)
+            g.lineTo(x + 28 + band * 9, y)
+            g.stroke()
+          }
+        }
+        g.restore()
       } else if (rosefinStart !== null) {
         // Rosefin Express: aurora ribbons overhead and light rails whose markers race past faster in a surge.
         const frame = rosefinFrame()
@@ -6869,11 +7088,13 @@ export function createRainbowPrincessPreview(
                 ? 'harbinger'
                 : guardian.kind === 'matriarch' || guardian.kind === 'siren'
                   ? 'lantern'
-                  : guardian.kind === 'warden'
-                    ? 'bulwark'
-                    : guardian.kind === 'lampkeeper'
-                      ? 'mirror'
-                      : guardian.kind,
+                  : guardian.kind === 'herder'
+                    ? 'cutter'
+                    : guardian.kind === 'warden'
+                      ? 'bulwark'
+                      : guardian.kind === 'lampkeeper'
+                        ? 'mirror'
+                        : guardian.kind,
             )
           ) {
             g.fillStyle =
@@ -7914,6 +8135,37 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
+      if (cometActive()) {
+        const cadet = cometCadetAvailable(cometFrame(), cometCadetsMask)
+        if (cadet) {
+          const x = cometCadetX(cometFrame(), cadet.at)
+          const y = laneY(cadet.lane)
+          g.save()
+          g.translate(x, y)
+          g.fillStyle = '#ffe8f8'
+          g.strokeStyle = '#35104c'
+          g.lineWidth = 2
+          g.beginPath()
+          g.ellipse(0, 0, 14, 10, 0, 0, Math.PI * 2)
+          g.fill()
+          g.stroke()
+          g.fillStyle = '#8fefff'
+          g.beginPath()
+          g.ellipse(0, -1, 9, 6, 0, 0, Math.PI * 2)
+          g.fill()
+          g.fillStyle = '#5a1c76'
+          for (const dx of [-6, -2, 2, 6]) {
+            g.beginPath()
+            g.arc(dx, -1, 1.5, 0, Math.PI * 2)
+            g.fill()
+          }
+          g.strokeStyle = '#ffd16e'
+          g.beginPath()
+          g.arc(0, 0, 17, -0.8, 0.8)
+          g.stroke()
+          g.restore()
+        }
+      }
       // A craft a shot just hurt flashes white.
       g.save()
       g.globalCompositeOperation = 'lighter'
@@ -8262,168 +8514,192 @@ export function createRainbowPrincessPreview(
         )
         g.restore()
       }
-      const scene = nurseryActive()
-        ? nurseryFrame() < NURSERY.openingEnds
-          ? { id: 'X1.OPEN' as const, elapsed: nurseryFrame() }
-          : nurseryFrame() >= NURSERY_GUARDIAN.to
+      const scene = cometActive()
+        ? cometFrame() < COMET.openingEnds
+          ? { id: 'X2.OPEN' as const, elapsed: cometFrame() }
+          : cometFrame() >= COMET_GUARDIAN.to
             ? {
-                id: 'X1.AFTER' as const,
-                elapsed: nurseryFrame() - NURSERY_GUARDIAN.to,
+                id: 'X2.AFTER' as const,
+                elapsed: cometFrame() - COMET_GUARDIAN.to,
               }
-            : nurseryFrame() >= NURSERY_GUARDIAN.from
+            : cometFrame() >= COMET_GUARDIAN.from - 288 &&
+                cometFrame() < COMET_GUARDIAN.from
               ? {
-                  id: 'X1.TURN' as const,
-                  elapsed: nurseryFrame() - NURSERY_GUARDIAN.from,
+                  id: 'X2.TURN' as const,
+                  elapsed: cometFrame() - (COMET_GUARDIAN.from - 288),
                 }
               : null
-        : lighthouseActive()
-          ? lighthouseFrame() < LIGHTHOUSE.openingEnds
-            ? { id: 'X3.OPEN' as const, elapsed: lighthouseFrame() }
-            : lighthouseFrame() >= LIGHTHOUSE.bossStarts
+        : nurseryActive()
+          ? nurseryFrame() < NURSERY.openingEnds
+            ? { id: 'X1.OPEN' as const, elapsed: nurseryFrame() }
+            : nurseryFrame() >= NURSERY_GUARDIAN.to
               ? {
-                  id: 'X3.AFTER' as const,
-                  elapsed: lighthouseFrame() - LIGHTHOUSE.bossStarts,
+                  id: 'X1.AFTER' as const,
+                  elapsed: nurseryFrame() - NURSERY_GUARDIAN.to,
                 }
-              : lighthouseFrame() >= LIGHTHOUSE.turnStarts
+              : nurseryFrame() >= NURSERY_GUARDIAN.from
                 ? {
-                    id: 'X3.TURN' as const,
-                    elapsed: lighthouseFrame() - LIGHTHOUSE.turnStarts,
+                    id: 'X1.TURN' as const,
+                    elapsed: nurseryFrame() - NURSERY_GUARDIAN.from,
                   }
                 : null
-          : shoalActive()
-            ? shoalFrame() < MIRROR_SHOAL.openingEnds
-              ? { id: 'X4.OPEN' as const, elapsed: shoalFrame() }
-              : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
+          : lighthouseActive()
+            ? lighthouseFrame() < LIGHTHOUSE.openingEnds
+              ? { id: 'X3.OPEN' as const, elapsed: lighthouseFrame() }
+              : lighthouseFrame() >= LIGHTHOUSE.bossStarts
                 ? {
-                    id: 'X4.AFTER' as const,
-                    elapsed: shoalFrame() - MIRROR_SHOAL.aftermathStarts,
+                    id: 'X3.AFTER' as const,
+                    elapsed: lighthouseFrame() - LIGHTHOUSE.bossStarts,
                   }
-                : shoalFrame() >= MIRROR_SHOAL.turnStarts
+                : lighthouseFrame() >= LIGHTHOUSE.turnStarts
                   ? {
-                      id: 'X4.TURN' as const,
-                      elapsed: shoalFrame() - MIRROR_SHOAL.turnStarts,
+                      id: 'X3.TURN' as const,
+                      elapsed: lighthouseFrame() - LIGHTHOUSE.turnStarts,
                     }
                   : null
-            : act === 1
-              ? pinkwakeScene(tick, defeatedAt)
-              : act === 2
-                ? moonjellyScene(moonFrame(), moonDefeatedFrame)
-                : act === 3
-                  ? trenchScene(trenchFrame(), trenchDefeatedFrame)
-                  : act === 4
-                    ? rosefinScene(rosefinFrame(), rosefinDefeatedFrame)
-                    : act === 5
-                      ? wreckScene(wreckFrame(), wreckDefeatedFrame)
-                      : act === 6
-                        ? reefScene(reefFrame(), reefDefeatedFrame)
-                        : act === 7
-                          ? glassScene(glassFrame(), glassDefeatedFrame)
-                          : act === 8
-                            ? palaceScene(palaceFrame(), palaceDefeatedFrame)
-                            : finaleScene(
-                                finaleFrame(),
-                                choiceFrame,
-                                escapeFrame,
-                                endingFrame,
-                              )
-      const said = scene
-        ? nurseryActive()
-          ? ((scene.id === 'X1.OPEN'
-              ? NURSERY_TALKS.opening
-              : scene.id === 'X1.TURN'
-                ? NURSERY_TALKS.turn
-                : NURSERY_TALKS.aftermath)[
-              Math.floor(scene.elapsed / (scene.id === 'X1.OPEN' ? 80 : 96))
-            ] ?? null)
-          : lighthouseActive()
-            ? ((scene.id === 'X3.OPEN'
-                ? LIGHTHOUSE_TALKS.opening
-                : scene.id === 'X3.TURN'
-                  ? LIGHTHOUSE_TALKS.turn
-                  : LIGHTHOUSE_TALKS.aftermath)[
-                Math.floor(scene.elapsed / 96)
-              ] ?? null)
             : shoalActive()
-              ? ((scene.id === 'X4.OPEN'
-                  ? SHOAL_TALKS.opening
-                  : scene.id === 'X4.TURN'
-                    ? SHOAL_TALKS.turn
-                    : SHOAL_TALKS.aftermath)[Math.floor(scene.elapsed / 96)] ??
-                null)
-              : act === 9
-                ? finaleDialogue(
-                    scene.id as FinaleSceneId,
-                    scene.elapsed,
-                    activePlayers,
-                    finaleFlags(),
-                    finalChoice,
-                    allegiance,
-                    partyMask(),
-                  )
-                : act === 8
-                  ? palaceDialogue(
-                      scene.id as PalaceSceneId,
+              ? shoalFrame() < MIRROR_SHOAL.openingEnds
+                ? { id: 'X4.OPEN' as const, elapsed: shoalFrame() }
+                : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
+                  ? {
+                      id: 'X4.AFTER' as const,
+                      elapsed: shoalFrame() - MIRROR_SHOAL.aftermathStarts,
+                    }
+                  : shoalFrame() >= MIRROR_SHOAL.turnStarts
+                    ? {
+                        id: 'X4.TURN' as const,
+                        elapsed: shoalFrame() - MIRROR_SHOAL.turnStarts,
+                      }
+                    : null
+              : act === 1
+                ? pinkwakeScene(tick, defeatedAt)
+                : act === 2
+                  ? moonjellyScene(moonFrame(), moonDefeatedFrame)
+                  : act === 3
+                    ? trenchScene(trenchFrame(), trenchDefeatedFrame)
+                    : act === 4
+                      ? rosefinScene(rosefinFrame(), rosefinDefeatedFrame)
+                      : act === 5
+                        ? wreckScene(wreckFrame(), wreckDefeatedFrame)
+                        : act === 6
+                          ? reefScene(reefFrame(), reefDefeatedFrame)
+                          : act === 7
+                            ? glassScene(glassFrame(), glassDefeatedFrame)
+                            : act === 8
+                              ? palaceScene(palaceFrame(), palaceDefeatedFrame)
+                              : finaleScene(
+                                  finaleFrame(),
+                                  choiceFrame,
+                                  escapeFrame,
+                                  endingFrame,
+                                )
+      const said = scene
+        ? cometActive()
+          ? ((scene.id === 'X2.OPEN'
+              ? COMET_TALKS.opening
+              : scene.id === 'X2.TURN'
+                ? COMET_TALKS.turn
+                : COMET_TALKS.aftermath)[
+              Math.floor(scene.elapsed / (scene.id === 'X2.OPEN' ? 80 : 96))
+            ] ?? null)
+          : nurseryActive()
+            ? ((scene.id === 'X1.OPEN'
+                ? NURSERY_TALKS.opening
+                : scene.id === 'X1.TURN'
+                  ? NURSERY_TALKS.turn
+                  : NURSERY_TALKS.aftermath)[
+                Math.floor(scene.elapsed / (scene.id === 'X1.OPEN' ? 80 : 96))
+              ] ?? null)
+            : lighthouseActive()
+              ? ((scene.id === 'X3.OPEN'
+                  ? LIGHTHOUSE_TALKS.opening
+                  : scene.id === 'X3.TURN'
+                    ? LIGHTHOUSE_TALKS.turn
+                    : LIGHTHOUSE_TALKS.aftermath)[
+                  Math.floor(scene.elapsed / 96)
+                ] ?? null)
+              : shoalActive()
+                ? ((scene.id === 'X4.OPEN'
+                    ? SHOAL_TALKS.opening
+                    : scene.id === 'X4.TURN'
+                      ? SHOAL_TALKS.turn
+                      : SHOAL_TALKS.aftermath)[
+                    Math.floor(scene.elapsed / 96)
+                  ] ?? null)
+                : act === 9
+                  ? finaleDialogue(
+                      scene.id as FinaleSceneId,
                       scene.elapsed,
                       activePlayers,
-                      palaceFlags(),
+                      finaleFlags(),
+                      finalChoice,
                       allegiance,
+                      partyMask(),
                     )
-                  : act === 7
-                    ? glassDialogue(
-                        scene.id as GlassSceneId,
+                  : act === 8
+                    ? palaceDialogue(
+                        scene.id as PalaceSceneId,
                         scene.elapsed,
                         activePlayers,
-                        rescuedNavigator,
+                        palaceFlags(),
                         allegiance,
                       )
-                    : act === 6
-                      ? reefDialogue(
-                          scene.id as ReefSceneId,
+                    : act === 7
+                      ? glassDialogue(
+                          scene.id as GlassSceneId,
                           scene.elapsed,
                           activePlayers,
-                          reefRoute,
-                          reefRoute === 'relay' &&
-                            pylonsDown >= CROWN_REEF_PYLONS,
+                          rescuedNavigator,
                           allegiance,
-                          partyMask(),
                         )
-                      : act === 5
-                        ? wreckDialogue(
-                            scene.id as WreckSceneId,
+                      : act === 6
+                        ? reefDialogue(
+                            scene.id as ReefSceneId,
                             scene.elapsed,
                             activePlayers,
-                            wreckRoute,
-                            wreckRoute === 'depot' &&
-                              podsSaved >= WRECK_FORK.podsToFree,
+                            reefRoute,
+                            reefRoute === 'relay' &&
+                              pylonsDown >= CROWN_REEF_PYLONS,
+                            allegiance,
+                            partyMask(),
                           )
-                        : act === 4
-                          ? rosefinDialogue(
-                              scene.id as RosefinSceneId,
+                        : act === 5
+                          ? wreckDialogue(
+                              scene.id as WreckSceneId,
                               scene.elapsed,
                               activePlayers,
-                              rescuedCourier,
+                              wreckRoute,
+                              wreckRoute === 'depot' &&
+                                podsSaved >= WRECK_FORK.podsToFree,
                             )
-                          : act === 3
-                            ? trenchDialogue(
-                                scene.id as TrenchSceneId,
+                          : act === 4
+                            ? rosefinDialogue(
+                                scene.id as RosefinSceneId,
                                 scene.elapsed,
                                 activePlayers,
-                                trenchRoute,
+                                rescuedCourier,
                               )
-                            : act === 1
-                              ? pinkwakeDialogue(
-                                  scene.id as PinkwakeSceneId,
+                            : act === 3
+                              ? trenchDialogue(
+                                  scene.id as TrenchSceneId,
                                   scene.elapsed,
                                   activePlayers,
-                                  rescuedStation,
+                                  trenchRoute,
                                 )
-                              : moonjellyDialogue(
-                                  scene.id as
-                                    'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
-                                  scene.elapsed,
-                                  activePlayers,
-                                  rescuedNemi,
-                                )
+                              : act === 1
+                                ? pinkwakeDialogue(
+                                    scene.id as PinkwakeSceneId,
+                                    scene.elapsed,
+                                    activePlayers,
+                                    rescuedStation,
+                                  )
+                                : moonjellyDialogue(
+                                    scene.id as
+                                      'A02.OPEN' | 'A02.TURN' | 'A02.AFTER',
+                                    scene.elapsed,
+                                    activePlayers,
+                                    rescuedNemi,
+                                  )
         : null
       // Acts II-VIII: between scripted scenes, Lilt calls each section as it begins (t-023).
       const flying = scene ? null : flyingAct()
@@ -8771,6 +9047,24 @@ export function createRainbowPrincessPreview(
         g.fillText('▼ ACT VIII PALACE', W - 8, 153)
         g.restore()
       }
+      if (cometActive()) {
+        g.save()
+        g.fillStyle = '#ffe9b3'
+        g.font = 'bold 8px monospace'
+        g.textAlign = 'right'
+        g.fillText(
+          'X2 · CADETS ' +
+            cometCadetsMask.toString(2).replace(/0/g, '').length +
+            '/4 · ' +
+            (COMET_SECTIONS.find(
+              (section) =>
+                cometFrame() >= section.from && cometFrame() < section.to,
+            )?.name.toUpperCase() ?? 'CORAL COMET'),
+          W - 8,
+          H - 8,
+        )
+        g.restore()
+      }
       if (nurseryActive()) {
         g.save()
         g.fillStyle = '#ffe9b3'
@@ -8818,6 +9112,31 @@ export function createRainbowPrincessPreview(
           W - 8,
           H - 8,
         )
+        g.restore()
+      }
+      if (
+        act === 4 &&
+        rescuedCourier &&
+        rosefinDefeatedFrame !== null &&
+        cometStart === null &&
+        wreckStart === null &&
+        rosefinFrame() - rosefinDefeatedFrame >= ROSEFIN.aftermathFrames - 180
+      ) {
+        g.save()
+        g.globalAlpha = 0.9
+        g.setLineDash([8, 5])
+        g.strokeStyle = '#ffe9a0'
+        g.beginPath()
+        g.moveTo(W - 176, 135)
+        g.lineTo(W, 135)
+        g.stroke()
+        g.setLineDash([])
+        g.textAlign = 'right'
+        g.font = 'bold 9px monospace'
+        g.fillStyle = '#ffe9a0'
+        g.fillText('▲ X2 CORAL COMET', W - 8, 123)
+        g.fillStyle = '#bdeaff'
+        g.fillText('▼ ACT V WRECKYARD', W - 8, 153)
         g.restore()
       }
       if (act === 6 && reefDefeatedFrame === null) {

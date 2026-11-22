@@ -6,6 +6,7 @@
  */
 import { rainbowBossHp } from './rainbowPinkwakeBoss'
 import { lighthouseBellkeeperVolley } from './rainbowSunkenLighthouse'
+import { cometCoralFragments, cometHerderVolley } from './rainbowCoralComet'
 
 export type RainbowGuardianKind =
   | 'urchin'
@@ -15,6 +16,7 @@ export type RainbowGuardianKind =
   | 'warden'
   | 'lampkeeper'
   | 'shoalkoi'
+  | 'herder'
   | 'clawstrike'
   | 'courier'
   | 'salvager'
@@ -231,6 +233,13 @@ export function stepRainbowGuardian(
       enraged,
     ))
       shot(angle, speed)
+  } else if (guardian.kind === 'herder') {
+    // A comet-tug marks its launch before alternately pushing high and low
+    // fan volleys. Every second shove scatters four slow coral fragments.
+    for (const pellet of cometHerderVolley(guardian.volleys, enraged))
+      shots.push({ ...pellet, x: guardian.x - 18, y: guardian.y })
+    if (guardian.volleys % 2 === 0)
+      shots.push(...cometCoralFragments(guardian.x - 18, guardian.y))
   } else if (guardian.kind === 'shoalkoi') {
     // Twin koi cross the waterline. The second, mirrored school is only
     // reflected light; solid wings leave a navigable centre even enraged.

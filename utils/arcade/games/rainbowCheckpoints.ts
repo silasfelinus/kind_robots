@@ -29,6 +29,14 @@ export type RainbowCheckpoint = {
   nurseryGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
   /** Act IV's escort: the courier pod reached the end of the rails. */
   rescuedCourier: boolean
+  /** X2 Coral Comet is a post-Act-IV independent flight. */
+  cometStartedAt?: number
+  cometFrame?: number
+  cometCadetsMask?: number
+  cometGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
+  cometHits?: number
+  /** All four cadet trainers returned from the comet, retained for endings. */
+  cadetsHome?: boolean
   /** Act V's fork: the route, whether the crew has rejoined, and the survivors it reached. */
   wreckRoute: 'depot' | 'armory' | null
   /** Optional for old checkpoints: independently cleared Armory Siren. */

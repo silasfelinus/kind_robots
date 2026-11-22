@@ -117,6 +117,9 @@ assert.deepEqual(
 const sound = new TacticsSound()
 assert.equal(sound.unlocked, false)
 sound.setMood('battle')
+sound.setEnabled(false)
+sound.play(['shot-hit'])
+sound.setEnabled(true)
 sound.setMix({ master: 0.5, music: 0.2, effects: 0.8, muted: true })
 sound.play(['shot-hit', 'power', 'turn'])
 assert.equal(sound.unlock(), false, 'Node and SSR remain silent')
@@ -134,6 +137,8 @@ assert.match(page, /tacticsMoodFor\(next\)/)
 assert.match(page, /visibilitychange/)
 assert.match(page, /sound\.stop\(\)/)
 assert.match(page, /sound\.loadMix\(\)/)
+assert.match(page, /kit\.settings\.sound/)
+assert.match(page, /sound\.setEnabled\(choice !== 'off'\)/)
 
 const menu = readFileSync(
   'components/every-villain-tactics/every-villain-front-menu.vue',
@@ -152,5 +157,6 @@ const store = readFileSync('stores/everyVillainSoundStore.ts', 'utf8')
 assert.match(store, /localStorage\.setItem\(TACTICS_MIX_KEY/)
 assert.match(store, /window\.localStorage\.getItem\(TACTICS_MIX_KEY/)
 assert.match(store, /player\?\.dispose\(\)/)
+assert.match(store, /player\?\.setEnabled\(on\)/)
 
 console.log('Every Villain Tactics original score, SFX and settings passed')

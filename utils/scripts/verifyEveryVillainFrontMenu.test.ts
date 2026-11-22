@@ -870,6 +870,21 @@ for (const stage of STAGE_PRESETS) {
 }
 assert.equal(paintedMapArtId(null), 265014)
 assert.equal(paintedMapArtId('unknown-custom-stage'), null)
+assert.deepEqual(
+  [
+    paintedMapArtId('last-order'),
+    paintedMapArtId('sunken-street'),
+    paintedMapArtId('unlicensed-rescue'),
+  ],
+  [276806, 277221, 277330],
+  'three distinct DONE production arenas replace temporary paintings',
+)
+assert.equal(new Set([
+  paintedMapArtId('last-order'),
+  paintedMapArtId('sunken-street'),
+  paintedMapArtId('unlicensed-rescue'),
+]).size, 3)
+
 assert.ok(Object.values(PAINTED_EVT_MAP_ART).every((id) => id > 265000))
 assert.match(page, /useEveryVillainTacticsArtStore/)
 assert.match(page, /paintedArt\.ensure\(id\)/)

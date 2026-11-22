@@ -140,8 +140,10 @@ export const DAILY_EVENTS: DailyEvent[] = [
     weight: 2,
     favoursLow: 'nature',
     fishBoostSlugs: ['sunspoke-koi'],
-    dourCry: 'The reed-keepers are planting again. They ask the court to stop pulling the last reeds out.',
-    dourBody: 'The lake is wounded. The surviving nursery still lends the brightest koi a little shelter.',
+    dourCry:
+      'The reed-keepers are planting again. They ask the court to stop pulling the last reeds out.',
+    dourBody:
+      'The lake is wounded. The surviving nursery still lends the brightest koi a little shelter.',
   },
   {
     key: 'orchard-basket',
@@ -151,7 +153,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { joy: 2, nature: 1 } },
     weight: 2,
     fishBoostSlugs: ['orchardjaw-perch'],
-    dourCry: 'Robin and Ash have brought bruised fruit to the shore. They had no harvest worth selling.',
+    dourCry:
+      'Robin and Ash have brought bruised fruit to the shore. They had no harvest worth selling.',
   },
   {
     key: 'bridge-watch',
@@ -169,7 +172,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     body: "Quill's correction puts an anxious village at ease.",
     effect: { sliders: { joy: 2, order: 1 } },
     weight: 2,
-    dourCry: "Quill has corrected the decree from 'ration' to 'reason.' Neither seems plentiful.",
+    dourCry:
+      "Quill has corrected the decree from 'ration' to 'reason.' Neither seems plentiful.",
   },
   {
     key: 'fen-seventeen-encores',
@@ -179,7 +183,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { joy: 3, treasury: -1 } },
     weight: 2,
     favoursLow: 'joy',
-    dourCry: 'Fen is singing to the empty chairs. The chairs have asked for another song.',
+    dourCry:
+      'Fen is singing to the empty chairs. The chairs have asked for another song.',
   },
   {
     key: 'mossy-moon',
@@ -189,7 +194,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { nature: 3 } },
     weight: 2,
     favoursLow: 'nature',
-    dourCry: 'Mossy asks that the wells be left alone tonight. Something in them has started answering.',
+    dourCry:
+      'Mossy asks that the wells be left alone tonight. Something in them has started answering.',
   },
   {
     key: 'cordelia-lanterns',
@@ -199,7 +205,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { order: 2, joy: 1 } },
     weight: 2,
     favoursLow: 'order',
-    dourCry: 'Cordelia has doubled the lantern watch. A dark street should not be a sentence.',
+    dourCry:
+      'Cordelia has doubled the lantern watch. A dark street should not be a sentence.',
   },
   {
     key: 'gristle-abacus',
@@ -209,7 +216,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { treasury: 3, joy: 1 } },
     weight: 2,
     favoursLow: 'treasury',
-    dourCry: 'Gristle has counted the empty vault twice. The sums remain disagreeable.',
+    dourCry:
+      'Gristle has counted the empty vault twice. The sums remain disagreeable.',
   },
   {
     key: 'vex-millwheel',
@@ -219,7 +227,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { prosperity: 3, nature: -1 } },
     weight: 2,
     favoursLow: 'prosperity',
-    dourCry: "Vex's millwheel has stopped. She calls the stillness a bold demonstration.",
+    dourCry:
+      "Vex's millwheel has stopped. She calls the stillness a bold demonstration.",
   },
   {
     key: 'bakers-truce',
@@ -229,7 +238,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { prosperity: 2, joy: 2 } },
     weight: 2,
     favoursLow: 'joy',
-    dourCry: 'The bakers have divided their last sack of flour. Nobody took the larger half.',
+    dourCry:
+      'The bakers have divided their last sack of flour. Nobody took the larger half.',
   },
   {
     key: 'ink-delivery',
@@ -238,7 +248,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     body: 'The court can answer petitions with something more legible than mud.',
     effect: { sliders: { order: 1, joy: 1 } },
     weight: 1,
-    dourCry: 'Quill is watering down the ink. The petitions are multiplying faster than the words.',
+    dourCry:
+      'Quill is watering down the ink. The petitions are multiplying faster than the words.',
   },
   {
     key: 'crown-gone-missing',
@@ -247,7 +258,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     body: 'The court laughs, but a fresh lock has been bought for the treasury.',
     effect: { sliders: { joy: 2, treasury: -1 } },
     weight: 1,
-    dourCry: 'The crown was found in the biscuit tin. Nobody had the heart to ask why.',
+    dourCry:
+      'The crown was found in the biscuit tin. Nobody had the heart to ask why.',
   },
   {
     key: 'mooring-rations',
@@ -257,7 +269,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { prosperity: 1 } },
     weight: 2,
     fishBoostSlugs: ['mooring-mullet'],
-    dourCry: 'The boats are tied up. Even the Mooring Mullet are waiting for scraps.',
+    dourCry:
+      'The boats are tied up. Even the Mooring Mullet are waiting for scraps.',
   },
   {
     key: 'border-bells',
@@ -276,7 +289,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { order: 1 } },
     weight: 2,
     fishBoostSlugs: ['lamplight-angler'],
-    dourCry: 'The lamplighter counts two lights below the surface. He has only one lantern.',
+    dourCry:
+      'The lamplighter counts two lights below the surface. He has only one lantern.',
   },
   {
     key: 'rainbow-bunting',
@@ -286,7 +300,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { joy: 3 } },
     weight: 2,
     favoursLow: 'joy',
-    dourCry: 'The bunting is patched from old curtains. The village puts it up anyway.',
+    dourCry:
+      'The bunting is patched from old curtains. The village puts it up anyway.',
   },
   {
     key: 'dry-bank',
@@ -296,7 +311,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     effect: { sliders: { nature: 2, treasury: -1 } },
     weight: 2,
     favoursLow: 'nature',
-    dourCry: 'The dry bank has exposed old anchors and older bones. The ducks have stopped complaining.',
+    dourCry:
+      'The dry bank has exposed old anchors and older bones. The ducks have stopped complaining.',
   },
   {
     key: 'ferry-rest',
@@ -305,7 +321,8 @@ export const DAILY_EVENTS: DailyEvent[] = [
     body: 'A rested crew brings the bank back into good temper.',
     effect: { sliders: { joy: 2, order: 1 } },
     weight: 2,
-    dourCry: 'The ferry is quiet today. Half the crew is sleeping; the other half is mending it.',
+    dourCry:
+      'The ferry is quiet today. Half the crew is sleeping; the other half is mending it.',
   },
 ]
 
@@ -324,7 +341,8 @@ function spokenInReign(event: DailyEvent, save: RunSave): DailyEvent {
   const tier = reignTier(save.kingdomHealth)
   if (tier === 'pristine') return event
   const announcement = event.cry.replace(/^Hear ye!\s*/, '')
-  if (tier === 'strained') return { ...event, cry: `Hear this, if you please! ${announcement}` }
+  if (tier === 'strained')
+    return { ...event, cry: `Hear this, if you please! ${announcement}` }
   return {
     ...event,
     cry: event.dourCry ?? `By order of the crumbling crown: ${announcement}`,

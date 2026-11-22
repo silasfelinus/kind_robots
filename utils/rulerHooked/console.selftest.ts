@@ -114,7 +114,10 @@ const fresh = (seed = 'console-seed'): RunSave =>
     fishWeightForProclamation(fishingDay, 'orchardjaw-perch', 60),
     60 * PROCLAMATION_FISH_BOOST,
   )
-  assert.equal(fishWeightForProclamation(fishingDay, 'parlour-rustfish', 60), 60)
+  assert.equal(
+    fishWeightForProclamation(fishingDay, 'parlour-rustfish', 60),
+    60,
+  )
   assert.deepEqual(
     availableFish(fishingDay).map((fish) => fish.slug),
     eligibleBefore,
@@ -124,7 +127,7 @@ const fresh = (seed = 'console-seed'): RunSave =>
   assert.equal(
     fishWeightForProclamation(fishingDay, 'orchardjaw-perch', 60),
     60,
-    'yesterday\'s fishing bonus expires by in-game casts only',
+    "yesterday's fishing bonus expires by in-game casts only",
   )
   fishingDay.turnCount = 0
   delete fishingDay.counters[PROCLAMATION_EVENT_INDEX_COUNTER]

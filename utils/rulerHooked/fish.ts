@@ -503,7 +503,11 @@ function pickFish(save: RunSave, rng: RngStream): FishDefinition {
   if (!pool.length)
     return RULER_HOOKED_FISH.find((f) => f.slug === 'parlour-rustfish')!
   const weights = pool.map((f) =>
-    fishWeightForProclamation(save, f.slug, f.baseWeight ?? rarityWeight[f.rarity]),
+    fishWeightForProclamation(
+      save,
+      f.slug,
+      f.baseWeight ?? rarityWeight[f.rarity],
+    ),
   )
   const total = weights.reduce((sum, w) => sum + Math.max(0, w), 0)
   let roll = rng.next() * Math.max(total, 1)

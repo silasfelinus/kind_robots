@@ -96,7 +96,8 @@ export const NURSERY_FLIGHT_SECTIONS = [
   { name: 'Safe passage home', from: 4380, to: 5100 },
 ] as const
 
-export type NurseryFlightPhase = 'opening' | 'waves' | 'guardian' | 'exit' | 'done'
+export type NurseryFlightPhase =
+  'opening' | 'waves' | 'guardian' | 'exit' | 'done'
 
 export function nurseryFlightPhase(frame: number): NurseryFlightPhase {
   if (frame < NURSERY.openingEnds) return 'opening'

@@ -14,10 +14,7 @@ assert.equal(NURSERY_FLIGHT.id, 'X1')
 assert.equal(NURSERY_WAVES.length, 20)
 assert.equal(NURSERY_FLIGHT_SECTIONS.length, 6)
 assert.equal(NURSERY_FLIGHT_SECTIONS[0]!.from, NURSERY.openingEnds)
-assert.equal(
-  NURSERY_FLIGHT_SECTIONS.at(-1)!.to,
-  NURSERY_FLIGHT.end,
-)
+assert.equal(NURSERY_FLIGHT_SECTIONS.at(-1)!.to, NURSERY_FLIGHT.end)
 for (let i = 1; i < NURSERY_FLIGHT_SECTIONS.length; i++)
   assert.equal(
     NURSERY_FLIGHT_SECTIONS[i]!.from,
@@ -29,7 +26,11 @@ for (const seats of [1, 2, 3, 4]) {
   assert.equal(nurseryDetourFor(low, false, true), false)
   assert.equal(nurseryDetourFor(low, true, false), false)
   assert.equal(
-    nurseryDetourFor(Array.from({ length: seats }, () => 80), true, true),
+    nurseryDetourFor(
+      Array.from({ length: seats }, () => 80),
+      true,
+      true,
+    ),
     false,
   )
 }
@@ -45,8 +46,7 @@ assert.equal(nurseryFlightPhase(240), 'waves')
 assert.equal(nurseryFlightPhase(3600), 'guardian')
 assert.equal(nurseryFlightPhase(4380), 'exit')
 assert.equal(nurseryFlightPhase(5100), 'done')
-for (const entry of NURSERY_WAVES)
-  assert.ok(nurserySpawns(entry.at).length > 0)
+for (const entry of NURSERY_WAVES) assert.ok(nurserySpawns(entry.at).length > 0)
 
 const checkpoint = {
   nurseryStartedAt: 200,
@@ -63,11 +63,14 @@ for (const invalid of [
   { ...checkpoint, nurseryFrame: 1900 },
   { ...checkpoint, nurseryFrame: -1 },
   { ...checkpoint, nurseryStartedAt: 0 },
-]) assert.equal(nurseryFlightCheckpointValid(3, 2120, invalid), false)
+])
+  assert.equal(nurseryFlightCheckpointValid(3, 2120, invalid), false)
 assert.equal(nurseryFlightCheckpointValid(2, 2120, checkpoint), false)
 assert.equal(nurseryFlightCheckpointValid(3, 2121, checkpoint), false)
 assert.equal(
   nurseryFlightCheckpointValid(3, 200, { ...checkpoint, nurseryFrame: 0 }),
   true,
 )
-console.log('X1 Nursery: 20 waves, six contiguous sections, co-op vote, exact checkpoint proof passed')
+console.log(
+  'X1 Nursery: 20 waves, six contiguous sections, co-op vote, exact checkpoint proof passed',
+)

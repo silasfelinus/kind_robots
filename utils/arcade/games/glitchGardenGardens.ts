@@ -43,6 +43,8 @@ export type GardenObjective =
   | (ObjectiveText & { kind: 'great-pumpkin' })
   /** Bring every heater online before the winter wave ends. */
   | (ObjectiveText & { kind: 'warm-heaters'; count: number })
+  /** Shrink and fix this many rolling snowballs before the worm is finished. */
+  | (ObjectiveText & { kind: 'snow-day'; count: number })
 
 export type GardenWave = {
   /** Segments in the main glitch-worm, head included. */
@@ -72,6 +74,7 @@ export type GardenWave = {
   inchworms: number
   /** Number of lamps that begin this wave under ice. */
   frost: number
+  snowballs: number
   sub: string
   objective?: GardenObjective
 }
@@ -154,6 +157,7 @@ function wave(
     rollers: 0,
     inchworms: 0,
     frost: 0,
+    snowballs: 0,
     ...parts,
   }
 }
@@ -1043,6 +1047,7 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 0,
       bees: 0,
       wasp: false,
+      snowballs: 1,
       sub: 'THE COLD FRONT',
     }),
     wave({
@@ -1057,6 +1062,7 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 0,
       bees: 0,
       wasp: false,
+      snowballs: 2,
       sub: 'FROST ON THE PATH',
     }),
     wave({
@@ -1071,6 +1077,20 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 0,
       bees: 2,
       wasp: false,
+      snowballs: 3,
+      objective: {
+
+        kind: 'snow-day',
+
+        title: 'SNOW DAY',
+
+        hint: 'SPRAY THREE ROLLING SNOWBALLS',
+
+        count: 3,
+
+        bonus: 2800,
+
+      },
       sub: 'THE WINTER WATCH',
     }),
     wave({
@@ -1085,6 +1105,7 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 1,
       bees: 2,
       wasp: true,
+      snowballs: 3,
       sub: 'THE LONG FREEZE',
     }),
     wave({
@@ -1099,6 +1120,7 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 1,
       bees: 2,
       wasp: true,
+      snowballs: 4,
       sub: 'THE LAST THAW',
     }),
   ],

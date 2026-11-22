@@ -27,7 +27,7 @@ assert.equal(recruitArtReceipt('unknown', 'neutral'), null)
 const emotions = [
   ['vesna', [76670, 278835], [76671, 278836], [76672, 278837]],
   ['bram', [76673, 278838], [76674, 278839], [76675, 278840]],
-  ['femi', [76676, 278841], null, [76677, 278842]],
+  ['femi', [76676, 278841], [76686, 279005], [76677, 278842]],
   ['cyrus', [76678, 278843], [76679, 278844], [76680, 278845]],
 ] as const
 
@@ -66,5 +66,5 @@ assert.match(page, /mood === 'negative'\s*\?\s*'afraid'/)
 assert.ok(page.includes('recoveringFollower(run.value, id as StudentId)'))
 
 console.log(
-  'Prom: nineteen DONE private recruit portraits and expression images mapped safely.',
+  'Prom: twenty DONE private recruit portraits and expression images mapped safely.',
 )

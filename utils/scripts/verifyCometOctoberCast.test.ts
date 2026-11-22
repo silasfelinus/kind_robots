@@ -299,6 +299,11 @@ assert.ok(
 // Private ArtJob receipts and stable runtime keys (no public-leak fallback).
 assert.equal(OCTOBER_ART_RECEIPTS.length, 24)
 assert.equal(OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'DONE').length, 24)
+assert.ok(
+  OCTOBER_ART_RECEIPTS.every(
+    (receipt) => receipt.status === 'DONE' && receipt.artImageId !== null,
+  ),
+)
 assert.deepEqual(
   OCTOBER_ART_RECEIPTS.map((receipt) => [receipt.artJobId, receipt.artImageId]),
   Array.from({ length: 24 }, (_, index) => [74423 + index, 277798 + index]),

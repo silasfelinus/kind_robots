@@ -475,6 +475,96 @@ export function drawRainbowStageStrip(
   return true
 }
 
+
+/**
+ * The source-backed far/mid planes remain optional until their Kontext outputs
+ * pass visual review and the doodle art export registers their paths. In the
+ * meantime each depth crops a different band of the already reviewed coral art.
+ */
+export type RainbowStageDepth = 'far' | 'mid'
+
+export function rainbowStageTileLayout(
+  scroll: number,
+  tileWidth: number,
+  viewportWidth: number,
+): { x: number; mirrored: boolean }[] {
+  if (
+    !Number.isFinite(scroll) ||
+    !Number.isFinite(tileWidth) ||
+    !Number.isFinite(viewportWidth) ||
+    tileWidth < 8 ||
+    viewportWidth <= 0
+  ) {
+    return []
+  }
+  const first = Math.floor(scroll / tileWidth)
+  const offset = scroll - first * tileWidth
+  const count = Math.ceil((viewportWidth + offset) / tileWidth)
+  return Array.from({ length: count }, (_, index) => ({
+    x: index * tileWidth - offset,
+    mirrored: (first + index) % 2 !== 0,
+  }))
+}
+
+export function drawRainbowStagePlane(
+  g: CanvasRenderingContext2D,
+  stage: RainbowStageStrip,
+  depth: RainbowStageDepth,
+  scroll: number,
+  y: number,
+  height: number,
+  width = 480,
+): boolean {
+  const path = `stages/${stage}-${depth}`
+  const approved = currentLook === 'fever' && doodleArt.has(path)
+  const painted = approved
+    ? loadedImage(`${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`)
+    : null
+  const img = painted ?? loadedArt(rainbowStageStrip(stage))
+  if (!img || img.naturalHeight <= 0 || height <= 0) return false
+
+  const cropStart = painted ? 0 : depth === 'far' ? 0 : 0.3
+  const cropEnd = painted ? 1 : depth === 'far' ? 0.7 : 1
+  const sourceY = Math.floor(img.naturalHeight * cropStart)
+  const sourceHeight = Math.max(
+    1,
+    Math.floor(img.naturalHeight * cropEnd) - sourceY,
+  )
+  const tileWidth = (height * img.naturalWidth) / sourceHeight
+  for (const tile of rainbowStageTileLayout(scroll, tileWidth, width)) {
+    if (tile.mirrored) {
+      g.save()
+      g.translate(tile.x + tileWidth, 0)
+      g.scale(-1, 1)
+      g.drawImage(
+        img,
+        0,
+        sourceY,
+        img.naturalWidth,
+        sourceHeight,
+        0,
+        y,
+        tileWidth,
+        height,
+      )
+      g.restore()
+    } else {
+      g.drawImage(
+        img,
+        0,
+        sourceY,
+        img.naturalWidth,
+        sourceHeight,
+        tile.x,
+        y,
+        tileWidth,
+        height,
+      )
+    }
+  }
+  return true
+}
+
 /** Painted Act title cards (round-15/16 Kontext), shown as the Act intro splash. */
 export function rainbowStageCard(
   stage: RainbowStageStrip,

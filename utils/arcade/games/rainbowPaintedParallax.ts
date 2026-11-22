@@ -1,10 +1,13 @@
-import { drawRainbowStageStrip, type RainbowStageStrip } from './rainbowGameArt'
+import {
+  drawRainbowStagePlane,
+  type RainbowStageStrip,
+} from './rainbowGameArt'
 
-// Reuse each Act's reviewed painted coral in quieter, more distant depths.
-// Distinct scroll speeds preserve real parallax without adding network assets or combat RNG.
+// Distinct silhouette bands from reviewed stage artwork provide proper depth
+// until the matching source-backed far/mid Kontext renders pass visual review.
 export const RAINBOW_DISTANT_PAINTED_PLANES = [
-  { height: 98, speed: 0.12, alpha: 0.13 },
-  { height: 72, speed: 0.29, alpha: 0.26 },
+  { depth: 'far', height: 104, speed: 0.1, alpha: 0.16 },
+  { depth: 'mid', height: 80, speed: 0.27, alpha: 0.3 },
 ] as const
 
 export function rainbowDistantParallaxLayers(
@@ -13,6 +16,7 @@ export function rainbowDistantParallaxLayers(
   viewportHeight = 270,
 ) {
   return RAINBOW_DISTANT_PAINTED_PLANES.map((plane) => ({
+    depth: plane.depth,
     height: plane.height,
     alpha: plane.alpha,
     y: viewportHeight - plane.height,
@@ -35,9 +39,10 @@ export function drawRainbowDistantParallax(
   )) {
     g.save()
     g.globalAlpha = plane.alpha
-    drawRainbowStageStrip(
+    drawRainbowStagePlane(
       g,
       stage,
+      plane.depth,
       plane.scroll,
       plane.y,
       plane.height,

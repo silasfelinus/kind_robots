@@ -36,7 +36,11 @@
         <p
           class="text-xs font-bold uppercase tracking-[0.3em] text-pink-200/80"
         >
-          {{ state === 'failed' ? 'Opening video unavailable' : `Opening · ${Math.round(opening.seconds)} seconds · sound on` }}
+          {{
+            state === 'failed'
+              ? 'Opening video unavailable'
+              : `Opening · ${Math.round(opening.seconds)} seconds · sound on`
+          }}
         </p>
         <h2 class="text-3xl font-black leading-none sm:text-5xl">
           Rainbow Bullet Hell
@@ -86,9 +90,7 @@ const emit = defineEmits<{ showing: [boolean] }>()
 
 const SLUG = 'rainbow-bullet-hell-space-princess'
 const arcade = useArcadeStore()
-const state = ref<'hidden' | 'offer' | 'playing' | 'failed'>(
-  'hidden',
-)
+const state = ref<'hidden' | 'offer' | 'playing' | 'failed'>('hidden')
 const video = ref<HTMLVideoElement | null>(null)
 const playButton = ref<HTMLButtonElement | null>(null)
 let frame = 0

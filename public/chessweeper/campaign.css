@@ -52,7 +52,7 @@
   background: #172544;
 }
 
-.chess-campaign-bonus {
+.chess-campaign p.chess-campaign-bonus {
   color: var(--gold);
   font-size: 10px;
   line-height: 1.35;

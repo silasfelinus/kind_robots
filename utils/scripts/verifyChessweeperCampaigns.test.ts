@@ -26,7 +26,7 @@ const fresh = (): State => ({
 let state = fresh()
 const callbacks = new Map<
   string,
-  (event: { detail?: { type: string } }) => void
+  (event: { detail?: { type?: string; kind?: string } }) => void
 >()
 const nodes = new Map<string, { textContent: string; hidden: boolean }>()
 const button = {
@@ -74,7 +74,7 @@ const windowObject: Record<string, unknown> = {
   },
   addEventListener: (
     name: string,
-    fn: (event: { detail?: { type: string } }) => void,
+    fn: (event: { detail?: { type?: string; kind?: string } }) => void,
   ) => callbacks.set(name, fn),
 }
 runInNewContext(js, {
@@ -87,7 +87,11 @@ runInNewContext(js, {
   },
 })
 type Campaign = {
-  current: (world: string) => { chapter: number; cleared: boolean }
+  current: (world: string) => {
+    chapter: number
+    cleared: boolean
+    mastery: number
+  }
   worldCount: number
   chapters: (world: string) => number,
   trial: (world: string, chapter: number) => string[] | null
@@ -128,6 +132,20 @@ world.dataset.realm = 'jackpot'
 state = fresh()
 callbacks.get('chessweeper:state')?.({})
 assert.equal(state.score, 50, 'casino opens with real wager chips')
+state.score = 120
+state.over = true
+callbacks.get('chessweeper:end')?.({ detail: { type: 'win' } })
+assert.equal(campaign.current('jackpot').chapter, 1)
+assert.equal(campaign.current('jackpot').mastery & 1, 1)
+callbacks.get('next')?.({})
+callbacks.get('chessweeper:fx')?.({ detail: { kind: 'wager' } })
+state.over = true
+callbacks.get('chessweeper:end')?.({ detail: { type: 'win' } })
+assert.equal(campaign.current('jackpot').mastery & 2, 2)
+assert.ok(
+  events.some((event) => event.type === 'chessweeper:campaign-mastery'),
+  'genuine special-action mastery emits a single unlock event',
+)
 assert.ok(values.has('kindrobots:chessweeper:campaign:v1'))
 const html = readFileSync(
   fileURLToPath(

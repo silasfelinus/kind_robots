@@ -18,6 +18,7 @@ import {
   COMET_WAVES,
   COMET_WAVE_SIZES,
   cometCadetAvailable,
+  type CometGuardianOutcome,
   cometCadetX,
   cometCheckpointValid,
   cometCoralFragments,
@@ -126,7 +127,7 @@ const valid = {
   cometStartedAt: 34000,
   cometFrame: 9840,
   cometCadetsMask: 3,
-  cometGuardianOutcome: 'waiting' as const,
+  cometGuardianOutcome: 'waiting' as CometGuardianOutcome,
   cometHits: 0,
 }
 assert.equal(cometCheckpointValid(4, 43840, valid), true)
@@ -138,7 +139,7 @@ for (const bad of [
   { ...valid, cometFrame: 18600 },
   { ...valid, cometCadetsMask: 16 },
   { ...valid, cometHits: -1 },
-  { ...valid, cometGuardianOutcome: 'unknown' },
+  { ...valid, cometGuardianOutcome: 'unknown' as never },
 ])
   assert.equal(cometCheckpointValid(4, 43840, bad), false)
 assert.equal(cometCheckpointValid(3, 43840, valid), false)
@@ -213,7 +214,7 @@ const checkpoint4 = {
   cometStartedAt: 34000,
   cometFrame: 240,
   cometCadetsMask: 0,
-  cometGuardianOutcome: 'waiting' as const,
+  cometGuardianOutcome: 'waiting' as CometGuardianOutcome,
   cometHits: 0,
   wreckRoute: null,
   wreckSettled: false,
@@ -299,6 +300,7 @@ const guardianGame = createRainbowPrincessPreview({
   sound: { play: () => {} },
   hiScore: 0,
   players: 1,
+  demo: false,
   rainbowReplay: guardianCheckpoint!,
 })
 guardianGame.update(idleInput, [idleInput])
@@ -319,6 +321,7 @@ const exitGame = createRainbowPrincessPreview({
   sound: { play: () => {} },
   hiScore: 0,
   players: 1,
+  demo: false,
   rainbowReplay: exitCheckpoint!,
 })
 for (let frame = 0; frame <= COMET.end - COMET.guardianTo + 1; frame++)

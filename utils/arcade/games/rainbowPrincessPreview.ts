@@ -4408,35 +4408,6 @@ export function createRainbowPrincessPreview(
         if (clawBossCarryHp !== null)
           clawBoss.hp = Math.min(clawBoss.hp, clawBossCarryHp)
       }
-    } else if (wreckStart === null) {
-      const frame = rosefinFrame()
-      const stage = rosefinStage(frame, rosefinDefeatedFrame)
-      if (rosefinDefeatedFrame === null) {
-        passCheckpoint(4, frame)
-        summonGuardian(4, frame, ROSEFIN_GUARDIAN)
-      }
-      if (stage === 'waves') {
-        for (const entry of rosefinSpawns(frame)) {
-          spawn(entry.kind, entry.y, entry.wave)
-        }
-        if (frame === ROSEFIN_ESCORT.podAppears && !escortDone && !escort)
-          escort = {
-            x: W + 16,
-            y: ROSEFIN_ESCORT.podY,
-            hull: ROSEFIN_ESCORT.podHull,
-          }
-      } else if (stage === 'turn' && frame === ROSEFIN.turnStarts) {
-        reefs.length = 0
-        enemyShots.length = 0
-      } else if (
-        stage === 'boss' &&
-        !delphion &&
-        rosefinDefeatedFrame === null
-      ) {
-        delphion = createDelphionBoss(bossHp(DELPHION_MAX_HP))
-        if (delphionCarryHp !== null)
-          delphion.hp = Math.min(delphion.hp, delphionCarryHp)
-      }
     } else if (cometActive()) {
       const frame = cometFrame()
       passCheckpoint(4, rosefinFrame())
@@ -4478,6 +4449,35 @@ export function createRainbowPrincessPreview(
       if (stage === 'exit' && frame === COMET_GUARDIAN.to) {
         reefs.length = 0
         enemyShots.length = 0
+      }
+    } else if (wreckStart === null) {
+      const frame = rosefinFrame()
+      const stage = rosefinStage(frame, rosefinDefeatedFrame)
+      if (rosefinDefeatedFrame === null) {
+        passCheckpoint(4, frame)
+        summonGuardian(4, frame, ROSEFIN_GUARDIAN)
+      }
+      if (stage === 'waves') {
+        for (const entry of rosefinSpawns(frame)) {
+          spawn(entry.kind, entry.y, entry.wave)
+        }
+        if (frame === ROSEFIN_ESCORT.podAppears && !escortDone && !escort)
+          escort = {
+            x: W + 16,
+            y: ROSEFIN_ESCORT.podY,
+            hull: ROSEFIN_ESCORT.podHull,
+          }
+      } else if (stage === 'turn' && frame === ROSEFIN.turnStarts) {
+        reefs.length = 0
+        enemyShots.length = 0
+      } else if (
+        stage === 'boss' &&
+        !delphion &&
+        rosefinDefeatedFrame === null
+      ) {
+        delphion = createDelphionBoss(bossHp(DELPHION_MAX_HP))
+        if (delphionCarryHp !== null)
+          delphion.hp = Math.min(delphion.hp, delphionCarryHp)
       }
     } else if (reefStart === null) {
       const frame = wreckFrame()

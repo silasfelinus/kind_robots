@@ -11,6 +11,7 @@ import {
   CREW_TELL_ART,
   CREW_TELL_BEATS,
   crewTellReceipt,
+  crewUnitArtReceipt,
   isCrewTellKind,
   type CrewTellKind,
 } from '../everyVillainTactics/crewTelegraphArt'
@@ -517,6 +518,36 @@ assert.deepEqual(
   tellImages.map((r) => r.imageId),
   Array.from({ length: 12 }, (_, i) => 277786 + i),
 )
+for (const [kind, imageId] of [
+  ['burrow', 277787],
+  ['phase', 277791],
+  ['windup', 277795],
+] as const) {
+  const receipt = crewUnitArtReceipt({ henchmanType: kind, maxHp: 1 })
+  assert.equal(receipt?.imageId, imageId)
+  assert.equal(receipt?.imageId, crewTellReceipt(kind, 'action')?.imageId)
+  assert.ok(receipt?.artKey.startsWith('every-villain-tactics/henchmen/'))
+}
+assert.equal(
+  crewUnitArtReceipt({ henchmanType: 'burrow', maxHp: 4 }),
+  null,
+)
+assert.equal(
+  crewUnitArtReceipt({
+    henchmanType: 'phase',
+    maxHp: 1,
+    lieutenantName: 'Lieutenant Teakettle',
+  }),
+  null,
+)
+for (const unknown of ['__proto__', 'constructor', 'other']) {
+  assert.equal(
+    crewUnitArtReceipt({ henchmanType: unknown, maxHp: 1 }),
+    null,
+  )
+}
+assert.equal(crewUnitArtReceipt({ maxHp: 1 }), null)
+
 assert.equal(crewTellReceipt(null, 'warning'), null)
 for (const unknown of ['other', 'prototype', '__proto__', 'constructor', '']) {
   assert.equal(isCrewTellKind(unknown), false)
@@ -542,6 +573,13 @@ assert.match(page, /data-testid="tactics-painted-burrow-warning"/)
 assert.match(page, /data-testid="tactics-painted-phase-warning"/)
 assert.match(page, /crewWarningImage\('burrow'\)/)
 assert.match(page, /crewWarningImage\('phase'\)/)
+assert.match(page, /crewUnitArtReceipt\(unit\)/)
+assert.match(page, /paintedArt\.images\[crew\.imageId\]\?\.src/)
+assert.match(
+  page,
+  /paintedArt\.ensure\(CREW_TELL_ART\[kind\]\.beats\.action\.imageId\)/,
+)
+
 assert.match(page, /paintedArt\.ensure\(id \?\? null\)/)
 assert.match(page, /unit\.team === 'rival' &&\s*unit\.hp > 0/)
 

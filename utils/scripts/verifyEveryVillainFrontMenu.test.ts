@@ -879,11 +879,14 @@ assert.deepEqual(
   [276806, 277221, 277330],
   'three distinct DONE production arenas replace temporary paintings',
 )
-assert.equal(new Set([
-  paintedMapArtId('last-order'),
-  paintedMapArtId('sunken-street'),
-  paintedMapArtId('unlicensed-rescue'),
-]).size, 3)
+assert.equal(
+  new Set([
+    paintedMapArtId('last-order'),
+    paintedMapArtId('sunken-street'),
+    paintedMapArtId('unlicensed-rescue'),
+  ]).size,
+  3,
+)
 
 assert.ok(Object.values(PAINTED_EVT_MAP_ART).every((id) => id > 265000))
 assert.match(page, /useEveryVillainTacticsArtStore/)

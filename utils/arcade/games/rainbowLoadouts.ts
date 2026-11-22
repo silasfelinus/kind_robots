@@ -495,6 +495,9 @@ export function readRainbowSave(
       score: saved.score,
       rescuedStation: saved.rescuedStation,
       rescuedNemi: saved.rescuedNemi,
+      ...(saved.alternateRoutesSeen !== undefined
+        ? { alternateRoutesSeen: saved.alternateRoutesSeen }
+        : {}),
       trenchRoute: saved.trenchRoute,
       routeSettled: saved.routeSettled,
       freedChoir: saved.freedChoir ?? false,

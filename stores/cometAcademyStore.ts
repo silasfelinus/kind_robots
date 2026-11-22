@@ -163,7 +163,11 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
 
   function recordTerm() {
     if (!run.value) return
-    termArchive.value = addCompletedTerm(termArchive.value, run.value, Date.now())
+    termArchive.value = addCompletedTerm(
+      termArchive.value,
+      run.value,
+      Date.now(),
+    )
   }
 
   const incidents = computed(() => (run.value ? incidentsFor(run.value) : []))
@@ -264,7 +268,10 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       recordTerm()
       if (termArchive.value.length !== count) {
         try {
-          localStorage.setItem(TERM_ARCHIVE_KEY, JSON.stringify(termArchive.value))
+          localStorage.setItem(
+            TERM_ARCHIVE_KEY,
+            JSON.stringify(termArchive.value),
+          )
         } catch {
           storageWarning.value = 'This browser cannot save your finished term.'
         }

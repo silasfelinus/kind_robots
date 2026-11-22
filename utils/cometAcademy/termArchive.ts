@@ -1,5 +1,10 @@
 import { PROM_ENDINGS } from './artSlots'
-import { STUDENTS, type AcademyRun, type PowerId, type StudentId } from './rules'
+import {
+  STUDENTS,
+  type AcademyRun,
+  type PowerId,
+  type StudentId,
+} from './rules'
 import { signatureById, type SignaturePowerId } from './specialPowers'
 import type { PlayerForm } from './protagonistEvolution'
 
@@ -38,8 +43,7 @@ const powers = new Set<PowerId>([
 const students = new Set<string>(STUDENTS.map((student) => student.id))
 
 function isTermPage(value: unknown): value is AcademyTermPage {
-  if (!value || typeof value !== 'object' || Array.isArray(value))
-    return false
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const item = value as Partial<AcademyTermPage>
   return (
     typeof item.id === 'string' &&
@@ -51,7 +55,8 @@ function isTermPage(value: unknown): value is AcademyTermPage {
     Number.isSafeInteger(item.seed) &&
     powers.has(item.power as PowerId) &&
     (item.signature === null ||
-      (typeof item.signature === 'string' && !!signatureById(item.signature))) &&
+      (typeof item.signature === 'string' &&
+        !!signatureById(item.signature))) &&
     forms.has(item.form ?? '') &&
     (item.flowVersion === 1 ||
       item.flowVersion === 2 ||
@@ -67,7 +72,13 @@ function isTermPage(value: unknown): value is AcademyTermPage {
       (typeof item.mastermind === 'string' && item.mastermind.length <= 80)) &&
     (item.romance === null ||
       (typeof item.romance === 'string' && students.has(item.romance))) &&
-    [item.contacts, item.patrols, item.battles, item.losses, item.secrets].every(
+    [
+      item.contacts,
+      item.patrols,
+      item.battles,
+      item.losses,
+      item.secrets,
+    ].every(
       (count) =>
         typeof count === 'number' &&
         Number.isInteger(count) &&
@@ -104,7 +115,9 @@ export function completedTermPage(
   const choice =
     [...run.log]
       .reverse()
-      .map((line) => /Day 30: (protect|command|share|evacuate)\b/.exec(line)?.[1])
+      .map(
+        (line) => /Day 30: (protect|command|share|evacuate)\b/.exec(line)?.[1],
+      )
       .find(Boolean) ?? 'simulation'
   const fingerprint = JSON.stringify([
     run.seed,
@@ -144,8 +157,8 @@ export function completedTermPage(
     patrols: run.patrolHistory?.length ?? 0,
     battles: run.tacticalHistory?.length ?? 0,
     losses,
-    secrets: (run.missionClues?.length ?? 0) +
-      (run.districtSecrets?.length ?? 0),
+    secrets:
+      (run.missionClues?.length ?? 0) + (run.districtSecrets?.length ?? 0),
   }
 }
 

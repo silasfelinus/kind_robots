@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { startFullAcademy, finishAcademy, restoreAcademy } from '../cometAcademy/rules'
+import {
+  startFullAcademy,
+  finishAcademy,
+  restoreAcademy,
+} from '../cometAcademy/rules'
 import {
   TERM_ARCHIVE_KEY,
   addCompletedTerm,
@@ -9,12 +13,7 @@ import {
 } from '../cometAcademy/termArchive'
 
 const time = 1_799_000_000_000
-const starter = startFullAcademy(
-  'kinetic',
-  76_243,
-  'accident-fire',
-  'shelter',
-)
+const starter = startFullAcademy('kinetic', 76_243, 'accident-fire', 'shelter')
 const protectedRun = finishAcademy(
   { ...starter, day: 30, phase: 'finale' },
   'protect',
@@ -38,14 +37,22 @@ assert.deepEqual(archive, [first], 'repeated autosave is idempotent')
 const resumed = restoreAcademy(JSON.parse(JSON.stringify(protectedRun)))
 assert.ok(resumed)
 archive = addCompletedTerm(archive, resumed, time + 10_000)
-assert.equal(archive.length, 1, 'importing the same save cannot duplicate pages')
+assert.equal(
+  archive.length,
+  1,
+  'importing the same save cannot duplicate pages',
+)
 
 const otherRun = finishAcademy(
   { ...starter, day: 30, phase: 'finale' },
   'command',
 )
 archive = addCompletedTerm(archive, otherRun, time + 12_000)
-assert.equal(archive.length, 2, 'different conclusions on one seed are distinct')
+assert.equal(
+  archive.length,
+  2,
+  'different conclusions on one seed are distinct',
+)
 assert.notEqual(archive[0]!.id, archive[1]!.id)
 assert.equal(archive[0]!.ending, otherRun.ending)
 assert.equal(archive[0]!.completedAt, time + 12_000)
@@ -62,14 +69,26 @@ assert.deepEqual(readTermArchive(null), [])
 assert.deepEqual(readTermArchive('not an archive'), [])
 assert.deepEqual(readTermArchive([{ ...first, ending: 'FAKE ENDING' }]), [])
 assert.deepEqual(readTermArchive([{ ...first, losses: -2 }]), [])
-assert.deepEqual(readTermArchive([{ ...first, signature: 'invented-canon' }]), [])
-assert.deepEqual(readTermArchive([{ ...first, romance: 'invented-student' }]), [])
+assert.deepEqual(
+  readTermArchive([{ ...first, signature: 'invented-canon' }]),
+  [],
+)
+assert.deepEqual(
+  readTermArchive([{ ...first, romance: 'invented-student' }]),
+  [],
+)
 assert.deepEqual(readTermArchive([{ ...first, completedAt: Infinity }]), [])
 
 const battleLoss = {
   ...protectedRun,
   reports: [
-    { caseId: 'a', title: 'First night', grade: 'failed' as const, text: '', names: '' },
+    {
+      caseId: 'a',
+      title: 'First night',
+      grade: 'failed' as const,
+      text: '',
+      names: '',
+    },
   ],
   patrolHistory: [],
   missionClues: ['one', 'two'],
@@ -96,7 +115,9 @@ const gallery = readFileSync(
 )
 assert.ok(store.includes('TERM_ARCHIVE_KEY'))
 assert.ok(store.includes('readTermArchive'))
-assert.ok(store.includes('addCompletedTerm(termArchive.value, run.value, Date.now())'))
+assert.ok(
+  store.includes('addCompletedTerm(termArchive.value, run.value, Date.now())'),
+)
 assert.ok(store.includes('localStorage.setItem(TERM_ARCHIVE_KEY'))
 assert.ok(store.includes('termArchive,'))
 assert.ok(store.includes('function importSave('))

@@ -333,7 +333,9 @@
     >
       <header class="acs-head">
         <h2>Scrapbook</h2>
-        <p>Permanent finished terms, this term's memories and discovered endings.</p>
+        <p>
+          Permanent finished terms, this term's memories and discovered endings.
+        </p>
       </header>
       <AcademyTermArchive
         :pages="store.termArchive"

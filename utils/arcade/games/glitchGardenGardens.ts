@@ -75,6 +75,8 @@ export type GardenWave = {
   /** Number of lamps that begin this wave under ice. */
   frost: number
   snowballs: number
+  /** A timed underground ambusher that erupts beneath the sprayer. */
+  mole: boolean
   sub: string
   objective?: GardenObjective
 }
@@ -158,6 +160,7 @@ function wave(
     inchworms: 0,
     frost: 0,
     snowballs: 0,
+    mole: false,
     ...parts,
   }
 }
@@ -1061,6 +1064,7 @@ export const SNOWBALL_HILL: Garden = {
       bees: 0,
       wasp: false,
       snowballs: 2,
+      mole: true,
       sub: 'FROST ON THE PATH',
     }),
     wave({
@@ -1076,6 +1080,7 @@ export const SNOWBALL_HILL: Garden = {
       bees: 2,
       wasp: false,
       snowballs: 3,
+      mole: true,
       objective: {
         kind: 'snow-day',
 
@@ -1102,6 +1107,7 @@ export const SNOWBALL_HILL: Garden = {
       bees: 2,
       wasp: true,
       snowballs: 3,
+      mole: true,
       sub: 'THE LONG FREEZE',
     }),
     wave({
@@ -1117,6 +1123,7 @@ export const SNOWBALL_HILL: Garden = {
       bees: 2,
       wasp: true,
       snowballs: 4,
+      mole: true,
       sub: 'THE LAST THAW',
     }),
   ],

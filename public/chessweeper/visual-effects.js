@@ -45,7 +45,8 @@
     const title = cinematicTitles[detail.realm]?.[detail.kind]
     if (!title) return
     cinematic = document.createElement('div')
-    cinematic.className = 'chess-fx-cinematic chess-fx-cinematic-' + detail.realm
+    cinematic.className =
+      'chess-fx-cinematic chess-fx-cinematic-' + detail.realm
     cinematic.setAttribute('role', 'status')
     cinematic.setAttribute('aria-label', title)
     const lettering = document.createElement('strong')

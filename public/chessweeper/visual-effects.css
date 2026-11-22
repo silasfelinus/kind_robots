@@ -226,7 +226,10 @@ html.meta-motion-off .chess-fx {
 
 .chess-fx-cinematic-sugar {
   color: #fff0a4;
-  background: repeating-conic-gradient(#f76ec777 0deg 24deg, #71e6f077 24deg 48deg);
+  background: repeating-conic-gradient(
+    #f76ec777 0deg 24deg,
+    #71e6f077 24deg 48deg
+  );
 }
 
 .chess-fx-cinematic-ashen {
@@ -236,14 +239,26 @@ html.meta-motion-off .chess-fx {
 
 .chess-fx-cinematic-jackpot {
   color: #9dffed;
-  background: repeating-linear-gradient(110deg, #321c64dd 0 24px, #b5277fbb 24px 28px);
+  background: repeating-linear-gradient(
+    110deg,
+    #321c64dd 0 24px,
+    #b5277fbb 24px 28px
+  );
 }
 
 @keyframes chess-fx-scene {
-  0%, 100% { opacity: 0; }
-  16%, 78% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0;
+  }
+  16%,
+  78% {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chess-fx-cinematic { display: none; }
+  .chess-fx-cinematic {
+    display: none;
+  }
 }

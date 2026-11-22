@@ -14,7 +14,7 @@
       playsinline
       :muted="arcade.muted"
       @ended="close"
-      @error="close"
+      @error="onPlaybackError"
     >
       <source :src="opening.webm" type="video/webm" />
       <source :src="opening.mp4" type="video/mp4" />
@@ -36,7 +36,7 @@
         <p
           class="text-xs font-bold uppercase tracking-[0.3em] text-pink-200/80"
         >
-          Opening · {{ Math.round(opening.seconds) }} seconds · sound on
+          {{ state === 'failed' ? 'Opening video unavailable' : `Opening · ${Math.round(opening.seconds)} seconds · sound on` }}
         </p>
         <h2 class="text-3xl font-black leading-none sm:text-5xl">
           Rainbow Bullet Hell
@@ -53,7 +53,7 @@
             @click="play"
           >
             <Icon name="kind-icon:play" class="kr-icon-5" />
-            Play the opening
+            {{ state === 'failed' ? 'Try opening again' : 'Play the opening' }}
           </button>
           <button
             type="button"
@@ -86,7 +86,9 @@ const emit = defineEmits<{ showing: [boolean] }>()
 
 const SLUG = 'rainbow-bullet-hell-space-princess'
 const arcade = useArcadeStore()
-const state = ref<'hidden' | 'offer' | 'playing'>('hidden')
+const state = ref<'hidden' | 'offer' | 'playing' | 'failed'>(
+  'hidden',
+)
 const video = ref<HTMLVideoElement | null>(null)
 const playButton = ref<HTMLButtonElement | null>(null)
 let frame = 0
@@ -100,9 +102,15 @@ async function play() {
   video.value.volume = arcade.volume
   video.value.play().catch(() => {
     if (video.value) video.value.muted = true
-    void video.value?.play().catch(close)
+    void video.value?.play().catch(onPlaybackError)
   })
   pollPads()
+}
+
+function onPlaybackError() {
+  cancelAnimationFrame(frame)
+  state.value = 'failed'
+  void nextTick(() => playButton.value?.focus())
 }
 
 function close() {

@@ -14,6 +14,11 @@
 
 import { levelCurve } from '../curve'
 import { repairTownForCity } from '../repairRampage/towns'
+import {
+  WINDOW_SURPRISE_REWARDS,
+  windowSurprise,
+} from '../repairRampage/windowSurprises'
+import type { WindowSurprise } from '../repairRampage/windowSurprises'
 import { drawText } from '../font'
 import {
   INK,
@@ -90,6 +95,7 @@ type Tower = {
   rows: number
   /** windows[row * TOWER_COLS + col]: true when fixed. Row 0 is the bottom. */
   windows: boolean[]
+  surprises: WindowSurprise[]
   stability: number
   maxStability: number
   standing: boolean
@@ -687,6 +693,9 @@ class RepairRampage implements ArcadeGameInstance {
         x: Math.round(gap + i * (TOWER_W + gap)),
         rows,
         windows,
+        surprises: windows.map((fixed, index) =>
+          fixed ? null : windowSurprise(city, i, index),
+        ),
         stability,
         maxStability: stability,
         standing: true,
@@ -873,6 +882,8 @@ class RepairRampage implements ArcadeGameInstance {
     const index = this.row * TOWER_COLS + this.col
     if (t.windows[index]) return
     t.windows[index] = true
+    const surprise = t.surprises[index]
+    t.surprises[index] = null
     this.fixChain =
       this.tick - this.lastFixTick <= CHAIN_WINDOW ? this.fixChain + 1 : 1
     this.lastFixTick = this.tick
@@ -880,6 +891,18 @@ class RepairRampage implements ArcadeGameInstance {
     const wx = t.x + 4 + this.col * CELL + CELL / 2
     const wy = windowY(this.row) + CELL / 2
     this.addScore(FIX_POINTS * Math.min(this.fixChain, 5), wx, wy - 8)
+    if (surprise) {
+      const reward = WINDOW_SURPRISE_REWARDS[surprise]
+      this.charge = Math.min(MAX_CHARGE, this.charge + reward.charge)
+      this.addScore(reward.points, wx, wy - 16)
+      this.floaters.push({
+        x: wx,
+        y: wy - 30,
+        text: reward.label,
+        life: 55,
+      })
+      this.sound.play('extra')
+    }
     if (this.fixChain >= 3) {
       this.floaters.push({
         x: wx,
@@ -1444,6 +1467,15 @@ class RepairRampage implements ArcadeGameInstance {
           wy,
           { anchor: 'topleft' },
         )
+        const surprise = t.surprises[index]
+        if (surprise && !t.windows[index]) {
+          const symbol =
+            surprise === 'snack' ? '+' : surprise === 'toolbox' ? 'T' : 'C'
+          drawText(g, symbol, wx + 3, wy + 3, {
+            color: RAMPS.gold[4],
+            outline: INK,
+          })
+        }
         if (this.kitten?.tower === i && this.kitten.index === index) {
           this.renderKitten(g, wx + GLASS / 2, wy + GLASS + 1)
         }

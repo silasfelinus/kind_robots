@@ -108,7 +108,7 @@ assert.equal(
     ...Object.values(COUCH_EXPRESSION_ART_IDS),
     ...Object.values(COUCH_CONSEQUENCE_ART_IDS),
   ]).size,
-  261,
+  263,
   'no two registered art keys collide across the four delivered batches',
 )
 for (const [missionId, episode] of Object.entries(CONSEQUENCE_STORIES)) {
@@ -203,7 +203,7 @@ assert.equal(
     ...Object.values(COUCH_VOYAGE_ART_IDS),
     ...Object.values(COUCH_EXPRESSION_ART_IDS),
   ]).size,
-  240,
+  242,
   'previously mapped painting IDs stay distinct from character expressions',
 )
 assert.equal(
@@ -231,12 +231,12 @@ assert.equal(
     ...Object.values(COUCH_ONBOARDING_ART_IDS),
     ...Object.values(COUCH_VOYAGE_ART_IDS),
   ]).size,
-  196,
+  198,
   'no two paintings overwrite the same ArtImage slot',
 )
 assert.equal(
   COUCH_ONBOARDING_ART_COUNT,
-  87,
+  89,
   'all painted onboarding images are linked',
 )
 assert.equal(
@@ -1145,15 +1145,13 @@ assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))
   assert.ok(consoleVue.includes('.daily-cast .daily-section-head {'))
 }
 
-// t-008: the six kept couch/bubble continuity plates are linked and shown on
-// the ship-prep step; council and asteroid wait for CURATION-REDO-2.
+// t-008: all eight couch/bubble continuity plates are curated keepers, linked
+// and the ship-prep step shows three of them.
 {
   const shipKeys = Object.keys(COUCH_ONBOARDING_ART_IDS).filter((key) =>
     key.startsWith('ship/'),
   )
-  assert.equal(shipKeys.length, 6)
-  assert.ok(!shipKeys.includes('ship/shield-council'))
-  assert.ok(!shipKeys.includes('ship/shield-asteroid'))
+  assert.equal(shipKeys.length, 8)
   assert.ok(page.includes("paintedVoyageImage('ship/shield-observation')"))
   assert.ok(page.includes("paintedVoyageImage('ship/shield-storm')"))
   assert.ok(page.includes("infirmary: 'ship/shield-medical'"))

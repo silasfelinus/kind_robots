@@ -188,6 +188,36 @@ export function rainbowSeaLogbook(
   })
 }
 
+export const RAINBOW_ALTERNATE_ROUTES = [
+  { id: 'X1', name: 'Kelp Nebula Bypass', fromAct: 3, bit: 1 },
+  { id: 'X2', name: 'Coral Comet Trail', fromAct: 4, bit: 2 },
+  { id: 'X3', name: 'Sunken Lighthouse Ring', fromAct: 6, bit: 4 },
+  { id: 'X4', name: 'Mirror Shoal', fromAct: 7, bit: 8 },
+] as const
+
+/** A branch is discovered only after entering its actual flight, not by
+ * reaching its neighboring main Act or inspecting a route card. */
+export function rainbowAlternateRouteLogbook(save: RainbowSave | null) {
+  const c = save?.checkpoint
+  const seen = c?.alternateRoutesSeen ?? 0
+  return RAINBOW_ALTERNATE_ROUTES.map((route) => {
+    const inFlight =
+      (route.id === 'X1' && c?.nurseryFrame !== undefined) ||
+      (route.id === 'X2' && c?.cometFrame !== undefined) ||
+      (route.id === 'X3' && c?.lighthouseFrame !== undefined) ||
+      (route.id === 'X4' && c?.shoalFrame !== undefined)
+    const legacyProof =
+      (route.id === 'X1' && c?.freedChoir === true) ||
+      (route.id === 'X2' && c?.cadetsHome === true)
+    const discovered = Boolean(seen & route.bit || inFlight || legacyProof)
+    return {
+      ...route,
+      discovered,
+      label: discovered ? 'ROUTE FLOWN' : 'ROUTE UNDISCOVERED',
+    }
+  })
+}
+
 /** Route intel earned by actually flying each fork. Never infer a branch from Act reach alone. */
 export function rainbowRouteIntel(
   save: RainbowSave | null,
@@ -278,6 +308,24 @@ export function readRainbowSave(
   const c = save.checkpoint as Record<string, unknown> | null
   if (!c || typeof c !== 'object') return null
   if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
+  if (
+    c.alternateRoutesSeen !== undefined &&
+    (!count(c.alternateRoutesSeen, 15) ||
+      RAINBOW_ALTERNATE_ROUTES.some(
+        (route) =>
+          ((c.alternateRoutesSeen as number) & route.bit) !== 0 &&
+          (c.act as number) < route.fromAct,
+      ) ||
+      (c.nurseryFrame !== undefined &&
+        ((c.alternateRoutesSeen as number) & 1) === 0) ||
+      (c.cometFrame !== undefined &&
+        ((c.alternateRoutesSeen as number) & 2) === 0) ||
+      (c.lighthouseFrame !== undefined &&
+        ((c.alternateRoutesSeen as number) & 4) === 0) ||
+      (c.shoalFrame !== undefined &&
+        ((c.alternateRoutesSeen as number) & 8) === 0))
+  )
+    return null
   if (
     c.cometFrame !== undefined &&
     !cometCheckpointValid(

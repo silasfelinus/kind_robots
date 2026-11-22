@@ -241,7 +241,10 @@ const settle = async () => {
 await settle()
 assert.equal(fetched[0], '/chessweeper/music/sugar-stage.wav')
 assert.equal(sampleStarts, 1, 'loaded score begins after gesture')
-assert.ok(played.every((entry) => entry.loop), 'recorded scores loop')
+assert.ok(
+  played.every((entry) => entry.loop),
+  'recorded scores loop',
+)
 
 chapter = 3
 sampleEvents.get('chessweeper:state')?.()

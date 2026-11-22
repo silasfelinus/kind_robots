@@ -13,7 +13,24 @@ export const ORIGINAL_SCORES = {
   },
   ashen: {
     bpm: 76,
-    melody: [50, null, null, 57, null, 55, null, 53, 48, null, 50, null, 55, null, 53, null],
+    melody: [
+      50,
+      null,
+      null,
+      57,
+      null,
+      55,
+      null,
+      53,
+      48,
+      null,
+      50,
+      null,
+      55,
+      null,
+      53,
+      null,
+    ],
     chords: [
       [38, 50, 53, 57],
       [41, 53, 57, 60],
@@ -25,7 +42,24 @@ export const ORIGINAL_SCORES = {
   },
   jackpot: {
     bpm: 134,
-    melody: [64, null, 67, 70, 74, null, 70, 67, 64, 67, 71, null, 76, 71, 67, null],
+    melody: [
+      64,
+      null,
+      67,
+      70,
+      74,
+      null,
+      70,
+      67,
+      64,
+      67,
+      71,
+      null,
+      76,
+      71,
+      67,
+      null,
+    ],
     chords: [
       [52, 55, 58, 62],
       [55, 58, 62, 67],
@@ -128,7 +162,13 @@ export function renderChessweeperScore(world, variant = 'stage') {
       }
     }
     if (step % 4 === 0) {
-      note(position, eighth * 3.7, score.bass[Math.floor(step / 8)], 'bass', 0.2)
+      note(
+        position,
+        eighth * 3.7,
+        score.bass[Math.floor(step / 8)],
+        'bass',
+        0.2,
+      )
     }
     if (world === 'sugar') {
       if (step % 4 === 0) drum(position, 'kick', 0.23)

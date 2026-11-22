@@ -190,7 +190,6 @@ export class LoomSpinner implements Marshal {
   hits = 0
   defeated = false
   private lastBeat = -1
-  private ticks = 0
   private constCenter = hub(24, 24)
 
   constructor(private host: MarshalHost) {}
@@ -214,7 +213,6 @@ export class LoomSpinner implements Marshal {
 
   update() {
     if (this.defeated) return
-    this.ticks++
     const beat = this.host.beat()
     if (beat === this.lastBeat) return
     this.lastBeat = beat

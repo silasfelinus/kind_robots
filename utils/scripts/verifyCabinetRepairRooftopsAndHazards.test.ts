@@ -16,11 +16,7 @@ for (let city = 1; city <= 25; city++) {
     roofs.add(kind)
   }
   for (let sequence = 0; sequence < 12; sequence++) {
-    const hazard = repairHazardForCity(
-      city,
-      sequence,
-      town.towerCount,
-    )
+    const hazard = repairHazardForCity(city, sequence, town.towerCount)
     assert.deepEqual(
       hazard,
       repairHazardForCity(city, sequence, town.towerCount),

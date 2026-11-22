@@ -1,10 +1,7 @@
 import { repairTownForCity } from './towns'
 
 export type RepairHazardKind =
-  | 'gust'
-  | 'gull-flock'
-  | 'pigeon'
-  | 'paparazzi-blimp'
+  'gust' | 'gull-flock' | 'pigeon' | 'paparazzi-blimp'
 
 export type RepairHazard = {
   kind: RepairHazardKind
@@ -28,9 +25,7 @@ export function repairHazardForCity(
   towerCount: number,
 ): RepairHazard | null {
   const town = repairTownForCity(city)
-  const available = HAZARD_KINDS.filter((kind) =>
-    town.threats.includes(kind),
-  )
+  const available = HAZARD_KINDS.filter((kind) => town.threats.includes(kind))
   if (!available.length || towerCount <= 0) return null
   const turn = Math.max(0, Math.floor(sequence))
   const kind = available[turn % available.length]!

@@ -206,7 +206,10 @@ const videoStudio = nav('projects/video-generator')
 assert.ok(videoStudio.includes('route: /play/video-generator'))
 assert.match(videoStudio, /Music Videos tab/)
 assert.equal(existsSync('content/channels/admin/music-video.md'), false)
-assert.match(read('utils/projectPlacements.ts'), /route: '\/play\/video-generator\?studio=music'/)
+assert.match(
+  read('utils/projectPlacements.ts'),
+  /route: '\/play\/video-generator\?studio=music'/,
+)
 assert.doesNotMatch(featuredHome, /title: 'Art Gallery & Studio'/)
 assert.doesNotMatch(featuredHome, /title: 'Daily Dreams'/)
 assert.doesNotMatch(featuredHome, /title: 'Music Videos'/)

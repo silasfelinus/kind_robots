@@ -192,6 +192,8 @@ export const HEATER_RADIUS = 3
 export const ICE_ACCEL = 0.45
 export const ICE_DRAG = 0.92
 export const ICE_MAX_SPEED = 2.8
+export const SNOWBALL_HP = 3
+export const SNOWBALL_POINTS = 450
 export const HYDRA_HEAD_HP = 6
 export const HYDRA_TELL_TICKS = 90
 /** A worm turned back by a wall this many times in a row squeezes past it. */
@@ -378,6 +380,7 @@ type Pumpkin = {
   vy: number
 }
 type Inchworm = { x: number; y: number; vx: number }
+type Snowball = { x: number; y: number; hp: number; vy: number }
 type Snail = { x: number; y: number; vx: number }
 type Beetle = { x: number; y: number; vx: number; vy: number; turn: number }
 type Moth = { x: number; y: number; hp: number }
@@ -820,6 +823,8 @@ class GlitchGarden implements ArcadeGameInstance {
   private frostTimer = FROST_SPREAD_TICKS
   private glideX = 0
   private glideY = 0
+  private snowballs: Snowball[] = []
+  private snowballsFixed = 0
   private dragonflies: Dragonfly[] = []
   private dragonflyTimer = 0
   private bees: Bee[] = []
@@ -939,12 +944,59 @@ class GlitchGarden implements ArcadeGameInstance {
     this.leafPiles = []
     this.pumpkins = []
     this.inchworms = []
+    this.snowballs = []
     this.glideX = 0
     this.glideY = 0
     this.mown = false
     this.padShift = 0
   }
 
+
+
+  private plantSnowballs(count: number) {
+    this.snowballsFixed = 0
+    this.snowballs = Array.from({ length: count }, (_, i) => ({
+      x: (4 + (i * 7) % 23) * CELL + 4,
+      y: HUD + (2 + i % 3) * CELL,
+      hp: SNOWBALL_HP,
+      vy: 0.65 + 0.12 * i,
+    }))
+  }
+
+  private updateSnowballs() {
+    for (const snowball of this.snowballs) {
+      snowball.y += snowball.vy
+      const col = Math.floor(snowball.x / CELL)
+      const row = Math.floor((snowball.y - HUD) / CELL)
+      const lamp = this.at(col, row)
+      if (lamp && lamp.kind === 'lamp') {
+        this.grid[this.idx(col, row)] = null
+        this.burst(snowball.x, snowball.y, 3, RAMPS.sky[4])
+      }
+    }
+    this.snowballs = this.snowballs.filter((ball) => ball.y < H + CELL)
+  }
+
+  private hitSnowball(x: number, y: number): boolean {
+    const snowball = this.snowballs.find(
+      (ball) => Math.abs(ball.x - x) < 7 && Math.abs(ball.y - y) < 7,
+    )
+    if (!snowball) return false
+    snowball.hp--
+    this.sound.play('blip')
+    if (snowball.hp > 0) return true
+    this.snowballs = this.snowballs.filter((ball) => ball !== snowball)
+    this.snowballsFixed++
+    this.registerHit()
+    this.addScore(SNOWBALL_POINTS * this.multiplier, x, y)
+    this.burst(x, y, 12, RAMPS.sky[4])
+    if (
+      this.wave.objective?.kind === 'snow-day' &&
+      this.snowballsFixed >= this.wave.objective.count
+    )
+      this.meetObjective()
+    return true
+  }
 
   private inHeat(col: number, row: number): boolean {
     for (const [hc, hr] of layoutCells(this.garden, LAYOUT_HEATER)) {
@@ -1311,6 +1363,7 @@ class GlitchGarden implements ArcadeGameInstance {
             rollers: 0,
             inchworms: 0,
             frost: 0,
+            snowballs: 0,
             objective: undefined,
             sub: BOSSES[step.boss].sub,
           }
@@ -1335,6 +1388,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.plantLeaves(plan.leaves, plan.objective?.kind === 'clear-leaves')
     this.plantPumpkins(plan)
     this.plantFrost(plan.frost)
+    this.plantSnowballs(plan.snowballs)
     this.glideX = 0
     this.glideY = 0
     this.slowTicks = 0
@@ -1574,6 +1628,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.updateBeams()
     this.updateLeaves()
     this.updateFrost()
+    this.updateSnowballs()
     this.moveWorms()
     if (this.slowTicks > 0) this.slowTicks--
     const slowFrame = this.slowTicks > 0 && this.tick % 2 !== 0
@@ -1787,6 +1842,7 @@ class GlitchGarden implements ArcadeGameInstance {
       this.pickUpPower(beam, col, row)
       if (this.hitPumpkin(beam.x, beam.y)) return false
       if (this.hitInchworm(beam.x, beam.y)) return false
+      if (this.hitSnowball(beam.x, beam.y)) return false
       if (this.hitLeaf(col, row)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
       if (this.sprayBee(beam.x, beam.y)) return false
@@ -2976,6 +3032,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.snail = null
     this.dragonflies = []
     this.bees = []
+    this.snowballs = []
     this.beeTimer = BEE_EVERY / 2
     if (this.queenHead)
       this.queenHead = {
@@ -3077,6 +3134,7 @@ class GlitchGarden implements ArcadeGameInstance {
     // Danger close: get away from it first.
     const threats: Array<{ x: number; y: number }> = []
     if (this.beetle) threats.push(this.beetle)
+    for (const snowball of this.snowballs) threats.push(snowball)
     for (const d of this.dragonflies) threats.push(d)
     for (const b of this.bees) if (b.wasp && b.diving) threats.push(b)
     if (this.queenHead) threats.push(this.queenHead)
@@ -3117,6 +3175,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (giant) target = giant
     const hydraHead = this.pumpkins.find((p) => p.hydra && p.lit)
     if (hydraHead) target = hydraHead
+    if (this.snowballs.length) target = this.snowballs[0]!
     if (target) {
       if (target.x < this.px - 2) held.left = true
       if (target.x > this.px + 2) held.right = true
@@ -3200,6 +3259,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.renderLeaves(g)
     this.renderPumpkins(g)
     this.renderInchworms(g)
+    this.renderSnowballs(g)
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
     if (this.snail) this.renderSnail(g, this.snail)

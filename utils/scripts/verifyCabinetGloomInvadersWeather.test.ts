@@ -60,7 +60,10 @@ import type {
   Drop,
   FormationSpec,
 } from '../arcade/gloomInvaders/weather'
-import { SPRING_SUMMER_FRONTS, calendarFront } from '../arcade/gloomInvaders/calendar'
+import {
+  SPRING_SUMMER_FRONTS,
+  calendarFront,
+} from '../arcade/gloomInvaders/calendar'
 import { readGloomCalendarSave } from '../arcade/gloomInvaders/calendarSave'
 import { parseLoop } from '../arcade/sound'
 import type { MusicLoop } from '../arcade/sound'
@@ -865,7 +868,10 @@ const alive = (game: Game) => game.clouds.filter((c) => c.alive)
   game.lives = 2
   game.startWave(10)
   assert.equal(game.front.id, 'june-front-1')
-  assert.equal(game.plots.every((plot) => plot.water === 0), true)
+  assert.equal(
+    game.plots.every((plot) => plot.water === 0),
+    true,
+  )
   assert.deepEqual(game.save, {
     v: 1,
     run: { wave: 10, score: 4200, lives: 2 },
@@ -882,9 +888,18 @@ const alive = (game: Game) => game.clouds.filter((c) => c.alive)
   assert.equal(resumed.score, 4200)
   assert.equal(resumed.lives, 2)
   assert.equal(resumed.front.id, 'june-front-1')
-  assert.equal(readGloomCalendarSave({ v: 1, run: { wave: 11, score: 2, lives: 3 } }), null)
-  assert.equal(readGloomCalendarSave({ v: 1, run: { wave: 10, score: -1, lives: 3 } }), null)
-  assert.equal(readGloomCalendarSave({ v: 1, run: { wave: 1, score: 1, lives: 0 } }), null)
+  assert.equal(
+    readGloomCalendarSave({ v: 1, run: { wave: 11, score: 2, lives: 3 } }),
+    null,
+  )
+  assert.equal(
+    readGloomCalendarSave({ v: 1, run: { wave: 10, score: -1, lives: 3 } }),
+    null,
+  )
+  assert.equal(
+    readGloomCalendarSave({ v: 1, run: { wave: 1, score: 1, lives: 0 } }),
+    null,
+  )
   const spectator = gloomInvaders.create({
     rng: mulberry32(23),
     sound: quiet,

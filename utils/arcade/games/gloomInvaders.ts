@@ -67,9 +67,7 @@ import {
 } from '../gloomInvaders/garden'
 import type { HelperKind, Plot } from '../gloomInvaders/garden'
 import { calendarFront } from '../gloomInvaders/calendar'
-import {
-  readGloomCalendarSave,
-} from '../gloomInvaders/calendarSave'
+import { readGloomCalendarSave } from '../gloomInvaders/calendarSave'
 import type { GloomCalendarSave } from '../gloomInvaders/calendarSave'
 import {
   CLASSIC_FRONT,
@@ -2704,7 +2702,8 @@ class GloomInvaders implements ArcadeGameInstance {
         })
       }
     }
-    const wave = this.mode === 'calendar' ? this.front.name : `WAVE ${this.level}`
+    const wave =
+      this.mode === 'calendar' ? this.front.name : `WAVE ${this.level}`
     const waveW = measureText(wave) + 12
     hudPanel(g, W - 4 - waveW, GROUND_Y + 4, waveW, 12, RAMPS.leaf)
     drawText(g, wave, W - 10, GROUND_Y + 7, {

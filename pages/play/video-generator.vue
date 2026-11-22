@@ -58,11 +58,7 @@
         </div>
       </header-page-bar>
 
-      <div
-        v-if="!isLoggedIn"
-        class="alert alert-warning text-sm"
-        role="alert"
-      >
+      <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
         You need to be signed in to queue a clip — generation is billed to your
         account's mana.
       </div>

@@ -12,7 +12,11 @@
       <div v-if="!ready" class="kr-panel p-4 text-sm">
         Loading Music Videos...
       </div>
-      <div v-else-if="!userStore.isAdmin" class="kr-note kr-note-error p-4" role="alert">
+      <div
+        v-else-if="!userStore.isAdmin"
+        class="kr-note kr-note-error p-4"
+        role="alert"
+      >
         Administrator access required
       </div>
       <MusicVideoStudio v-else />

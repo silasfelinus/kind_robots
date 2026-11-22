@@ -68,3 +68,132 @@ html.meta-motion-off .chess-fx {
     display: none;
   }
 }
+
+.chess-fx-traveler {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 12.5%;
+  height: 12.5%;
+  pointer-events: none;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+  animation: chess-fx-travel 420ms cubic-bezier(0.2, 0.82, 0.25, 1) forwards;
+}
+
+.chess-fx-traveler .piece {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: clamp(24px, 4vw, 56px);
+  filter: drop-shadow(0 2px 5px var(--fx-flare));
+}
+
+.chess-fx-traveler-capture {
+  animation-duration: 330ms;
+}
+
+:root[data-realm='sugar'] .chess-fx-traveler .piece {
+  filter: drop-shadow(0 0 9px #ff8bea);
+}
+
+:root[data-realm='ashen'] .chess-fx-traveler .piece {
+  filter: drop-shadow(0 4px 7px #db6c3b);
+}
+
+:root[data-realm='jackpot'] .chess-fx-traveler .piece {
+  filter: drop-shadow(0 0 10px #63eeff);
+}
+
+.chess-fx-impact {
+  position: absolute;
+  width: 15%;
+  aspect-ratio: 1;
+  border: 3px solid var(--fx-flare);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--fx-bright), transparent 65%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: chess-fx-impact 720ms ease-out forwards;
+}
+
+.chess-fx-impact-rush,
+.chess-fx-impact-laststand,
+.chess-fx-impact-jackpot,
+.chess-fx-impact-victory,
+.chess-fx-impact-defeat {
+  width: 48%;
+  border-width: 7px;
+  animation-duration: 1000ms;
+}
+
+.chess-fx-impact-rush {
+  border-style: dotted;
+  background: conic-gradient(
+    from 45deg,
+    #fc8fe8,
+    transparent,
+    #a6ff90,
+    transparent,
+    #93edff,
+    transparent,
+    #fc8fe8
+  );
+}
+
+.chess-fx-impact-laststand {
+  border-style: double;
+  background: radial-gradient(circle, #fff1ad, #ba5827 25%, transparent 68%);
+  box-shadow: 0 0 22px #a14727;
+}
+
+.chess-fx-impact-jackpot,
+.chess-fx-impact-wager {
+  border-radius: 12%;
+  border-style: double;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: repeating-conic-gradient(
+    from 0deg,
+    #51f9fe 0deg 10deg,
+    transparent 10deg 40deg,
+    #fb6ad2 40deg 50deg,
+    transparent 50deg 80deg
+  );
+}
+
+@keyframes chess-fx-travel {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.95;
+  }
+  55% {
+    transform: translate(
+        calc(-50% + var(--fx-mid-x)),
+        calc(-50% + var(--fx-mid-y))
+      )
+      scale(1.14);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+        calc(-50% + var(--fx-travel-x)),
+        calc(-50% + var(--fx-travel-y))
+      )
+      scale(0.94);
+    opacity: 0;
+  }
+}
+
+@keyframes chess-fx-impact {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+}

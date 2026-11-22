@@ -217,7 +217,7 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   const kinds = CAMPAIGN.map((s) => s.kind)
   assert.equal(kinds.filter((k) => k === 'wave').length, 30)
   assert.equal(kinds.filter((k) => k === 'shed').length, 6)
-  assert.equal(PLAYS_PER_LAP, 32)
+  assert.equal(PLAYS_PER_LAP, 33)
   const at11 = CAMPAIGN[campaignPlay(11).index]!
   assert.ok(at11.kind === 'boss' && at11.boss === 'queen-wiggle')
   const at22 = CAMPAIGN[campaignPlay(22).index]!
@@ -225,7 +225,9 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   assert.ok(CAMPAIGN[campaignPlay(11).index + 1]!.kind === 'shed')
   assert.deepEqual(campaignPlay(23), { index: gardenStart(4), lap: 0 })
   assert.deepEqual(campaignPlay(28), { index: gardenStart(5), lap: 0 })
-  assert.deepEqual(campaignPlay(33), { index: 0, lap: 1 })
+  const at33 = CAMPAIGN[campaignPlay(33).index]!
+  assert.ok(at33.kind === 'boss' && at33.boss === 'gourd-hydra')
+  assert.deepEqual(campaignPlay(34), { index: 0, lap: 1 })
   assert.equal(
     gardenStart(2),
     CAMPAIGN.findIndex((s) => s.kind === 'wave' && s.garden === 2),
@@ -714,18 +716,18 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   const g = make(28)
   const seen = new Set<number>()
   let ticks = 0
-  while (g.level <= 32 && ticks < 1_600_000) {
+  while (g.level <= 33 && ticks < 2_000_000) {
     seen.add(g.level)
     g.lives = 3
     g.update(g.demoInput())
     ticks++
   }
-  for (let n = 1; n <= 32; n++)
+  for (let n = 1; n <= 33; n++)
     assert.ok(seen.has(n), `the pilot reached wave ${n}`)
-  assert.ok(g.level >= 33 && g.lap === 1, 'and cleared Autumn')
+  assert.ok(g.level >= 34 && g.lap === 1, 'and fixed the Gourd Hydra')
   assert.ok(g.score > 0 && g.score < registry.maxPlausibleScore)
   console.log(
-    `  pilot: waves 1-32, both bosses and Autumn in ${ticks} ticks, ${g.score} points`,
+    `  pilot: waves 1-33 and three season bosses in ${ticks} ticks, ${g.score} points`,
   )
 }
 for (const seed of [29, 30]) {

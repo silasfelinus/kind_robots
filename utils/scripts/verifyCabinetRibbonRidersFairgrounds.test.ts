@@ -224,7 +224,7 @@ function settle(g: Inner) {
   assert.equal(arenas.length, 20, 'twenty authored arenas')
   assert.deepEqual(
     [...new Set(arenas.map((a) => a.objective))].sort(),
-    ['art', 'giftwrap', 'glowbug', 'last', 'taglap'],
+    ['art', 'escort', 'giftwrap', 'glowbug', 'last', 'taglap'],
     'five objectives',
   )
   assert.deepEqual(

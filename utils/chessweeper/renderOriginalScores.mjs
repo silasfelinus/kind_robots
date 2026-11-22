@@ -148,15 +148,6 @@ export function renderChessweeperScore(world, variant = 'stage') {
       note(position, eighth * 1.5, score.melody[0] + 12, 'bell', 0.105)
     }
   }
-  // Circular fade the final 30 ms into the opening samples to prevent clicks.
-  // The tail and head are identical at the join without shortening the phrase.
-  const fadeFrames = Math.round(RATE * 0.03)
-  for (let i = 0; i < fadeFrames; i++) {
-    const fade = (i + 1) / fadeFrames
-    const tail = frames - fadeFrames + i
-    mix[tail] = mix[tail] * (1 - fade) + mix[i] * fade
-  }
-  mix[frames - 1] = mix[0]
   let peak = 0
   for (const sample of mix) peak = Math.max(peak, Math.abs(sample))
   const gain = peak > 0 ? 0.79 / peak : 0

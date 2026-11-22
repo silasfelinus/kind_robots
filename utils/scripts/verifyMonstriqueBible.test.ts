@@ -133,6 +133,8 @@ assert.equal(portrait[0]!.body.checkpoint, BIBLE_LANES[0]!.checkpoint)
 // grotesque eyes. Tag-trained lanes get tags; portraits use the signature face.
 assert.match(iris.identity.join(' '), /jet-black hair/)
 assert.ok(iris.never.includes('brown hair'))
+assert.match(iris.identity.join(' '), /zaftig/)
+assert.ok(iris.never.includes('skinny'))
 assert.match(norb.identity.join(' '), /little person/)
 assert.match(norb.identity.join(' '), /left eye much larger/)
 assert.match(norb.caricature!, /1990s TV cartoon/)

@@ -1131,9 +1131,16 @@ assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))
   )
   assert.ok(
     consoleVue.includes(
-      'grid-template-rows: minmax(8rem, 28%) minmax(0, 1fr);',
+      'grid-template-rows: minmax(11rem, 35%) minmax(0, 1fr);',
     ),
   )
+  // Console art pass: full-bleed episode painting, glass panels, painted
+  // officer cards, and the placed officer's portrait inside each quest slot.
+  assert.ok(consoleVue.includes('class="daily-stage-art" aria-hidden="true"'))
+  assert.ok(consoleVue.includes('class="daily-slot-face"'))
+  assert.ok(consoleVue.includes('function actorImage(id: string)'))
+  assert.ok(consoleVue.includes('backdrop-filter: blur(14px) saturate(1.25);'))
+  assert.ok(consoleVue.includes('height: clamp(8rem, 14cqi, 11.5rem);'))
   assert.ok(consoleVue.includes('flex: 1 0 auto;'))
   assert.ok(consoleVue.includes('.daily-cast .daily-section-head {'))
 }

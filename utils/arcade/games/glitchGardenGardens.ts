@@ -70,7 +70,7 @@ export type GardenWave = {
   objective?: GardenObjective
 }
 
-export type BossId = 'queen-wiggle' | 'mow-bot'
+export type BossId = 'queen-wiggle' | 'mow-bot' | 'gourd-hydra'
 
 export type Boss = {
   id: BossId
@@ -95,6 +95,13 @@ export const BOSSES: Record<BossId, Boss> = {
     sub: 'FIX ITS THREE FUEL CAPS',
     thanks: 'MOW-BOT PARKS AND TIDIES UP',
     bonus: 12_000,
+  },
+  'gourd-hydra': {
+    id: 'gourd-hydra',
+    name: 'THE GOURD HYDRA',
+    sub: 'SHINE ON THE LIT PUMPKIN HEAD',
+    thanks: 'THREE FRIENDLY VINES TAKE ROOT',
+    bonus: 15_000,
   },
 }
 
@@ -713,6 +720,7 @@ export const PUMPKIN_PATCH: Garden = {
   id: 'pumpkin-patch',
   name: 'PUMPKIN PATCH',
   season: 'autumn',
+  boss: 'gourd-hydra',
   intro: ['CRACK THE PUMPKINS TO PLANT SPROUTS', 'FIX AN INCHWORM TO SLOW THE GLITCH'],
   layout: [
     '..............................',

@@ -476,8 +476,8 @@
         <div class="shrink-0">
           <h2 class="text-lg font-black">Eclipse Scrapbook</h2>
           <p class="text-xs text-white/75" aria-live="polite">
-            {{ endingCount }}/{{ endingArchive.length }} ending memories: three final
-            choices and six Motherland-road outcomes.
+            {{ endingCount }}/{{ endingArchive.length }} ending memories: three
+            final choices and six Motherland-road outcomes.
           </p>
         </div>
         <ol

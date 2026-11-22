@@ -28,10 +28,7 @@ assert.deepEqual(rainbowEndingMemoryIds('restore', null), ['ending-restore'])
 for (const road of ['rebel', 'loyal'] as const) {
   for (const choice of ['restore', 'evacuate', 'sever'] as const) {
     const earned = rainbowEndingMemoryIds(choice, road)
-    assert.deepEqual(earned, [
-      `ending-${choice}`,
-      `ending-${road}-${choice}`,
-    ])
+    assert.deepEqual(earned, [`ending-${choice}`, `ending-${road}-${choice}`])
     const collected = rainbowEndingArchive(earned)
     assert.deepEqual(
       collected.filter((entry) => entry.unlocked).map((entry) => entry.id),
@@ -64,4 +61,6 @@ assert.deepEqual(
   ['ending-restore', 'ending-rebel-restore', 'ending-loyal-evacuate'],
 )
 assert.ok(fresh.every((entry) => entry.summary.length > 20))
-console.log('rainbow ending archive: 9 exact memories, 6 route titles and safe legacy choices passed')
+console.log(
+  'rainbow ending archive: 9 exact memories, 6 route titles and safe legacy choices passed',
+)

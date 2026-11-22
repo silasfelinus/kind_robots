@@ -28,7 +28,27 @@ const callbacks = new Map<
   string,
   (event: { detail?: { type?: string; kind?: string } }) => void
 >()
-const nodes = new Map<string, { textContent: string; hidden: boolean }>()
+type MockNode = {
+  textContent: string
+  hidden: boolean
+  disabled?: boolean
+  setAttribute?: (key: string, value: string) => void
+  addEventListener?: (type: string, action: () => void) => void
+}
+const nodes = new Map<string, MockNode>()
+const pactButtons = [0, 1].map((index) => {
+  const item: MockNode = {
+    textContent: '',
+    hidden: false,
+    disabled: false,
+    setAttribute: (key, value) => {
+      if (key === 'aria-pressed') pressed[index] = value
+    },
+    addEventListener: (_type, action) => callbacks.set('pact' + index, action),
+  }
+  return item
+})
+const pressed: string[] = []
 const button = {
   textContent: '',
   hidden: true,
@@ -45,6 +65,8 @@ const fakeDocument = {
     className: '',
     innerHTML: '',
     setAttribute: () => {},
+    querySelectorAll: (selector: string) =>
+      selector === '[data-campaign-pact]' ? pactButtons : [],
     querySelector: (selector: string) => {
       const key = selector.match(/data-campaign-([^\]]+)/)?.[1] || ''
       if (!nodes.has(key)) nodes.set(key, { textContent: '', hidden: true })
@@ -96,17 +118,40 @@ type Campaign = {
     chapter: number
     cleared: boolean
     mastery: number
+    pact: number
   }
   worldCount: number
   chapters: (world: string) => number
   trial: (world: string, chapter: number) => string[] | null
+  pact: (world: string, index: number) => string[] | null
 }
 const campaign = windowObject.__chessweeperCampaign as Campaign
 assert.equal(campaign.worldCount, 3)
 for (const w of ['sugar', 'ashen', 'jackpot']) {
   assert.equal(campaign.chapters(w), 4)
 }
-assert.equal(state.hp[1], 5, 'first candy chapter grants armor')
+
+assert.equal(campaign.pact('sugar', 0)?.[0], 'Royal Shelter')
+assert.equal(campaign.pact('ashen', 1)?.[0], 'Iron Oath')
+assert.equal(campaign.pact('jackpot', 1)?.[0], 'High Roller')
+assert.equal(campaign.current('sugar').pact, 0)
+assert.equal(pressed[0], 'true')
+assert.equal(pressed[1], 'false')
+callbacks.get('pact1')?.({})
+assert.equal(campaign.current('sugar').pact, 1, 'risk contract persists')
+assert.equal(state.score, 125, 'Glitter Dare awards real points')
+assert.equal(state.discs[2]!.active, true, 'Glitter Dare activates blade')
+assert.equal(state.hp[1], 5, 'chapter base armor remains')
+state.turns = 1
+callbacks.get('pact0')?.({})
+assert.equal(campaign.current('sugar').pact, 1, 'pact locked after play')
+state.turns = 0
+callbacks.get('pact0')?.({})
+assert.equal(campaign.current('sugar').pact, 0)
+assert.equal(state.score, 0, 'switching pact resets run without bonus leak')
+assert.equal(state.hp[1], 6, 'shelter grants a real extra heart')
+
+assert.equal(state.hp[1], 6, 'first candy chapter and shelter grant armor')
 state.over = true
 callbacks.get('chessweeper:end')?.({ detail: { type: 'win' } })
 assert.equal(campaign.current('sugar').chapter, 1)
@@ -129,6 +174,7 @@ world.dataset.realm = 'ashen'
 state = fresh()
 callbacks.get('chessweeper:state')?.({})
 assert.equal(campaign.current('ashen').chapter, 0, 'world progress isolated')
+assert.equal(campaign.current('ashen').pact, 0, 'world risk contract isolated')
 assert.equal(state.discs[2]!.active, true, 'ashen starts dangerous')
 state.over = true
 callbacks.get('chessweeper:end')?.({ detail: { type: 'loss' } })
@@ -136,7 +182,10 @@ assert.equal(campaign.current('ashen').chapter, 0, 'loss does not advance')
 world.dataset.realm = 'jackpot'
 state = fresh()
 callbacks.get('chessweeper:state')?.({})
-assert.equal(state.score, 50, 'casino opens with real wager chips')
+assert.equal(state.score, 20, 'casino insurance spends thirty chips')
+callbacks.get('pact1')?.({})
+assert.equal(state.score, 225, 'casino high roller gets a real chip bonus')
+assert.equal(state.discs[2]!.active, true, 'high roller adds a blade')
 state.score = 120
 state.over = true
 callbacks.get('chessweeper:end')?.({ detail: { type: 'win' } })
@@ -152,6 +201,7 @@ assert.ok(
   'genuine special-action mastery emits a single unlock event',
 )
 assert.ok(values.has('kindrobots:chessweeper:campaign:v1'))
+assert.equal(campaign.current('jackpot').pact, 1, 'pact survives chapter victory')
 const html = readFileSync(
   fileURLToPath(
     new URL('../../public/chessweeper/index.html', import.meta.url),

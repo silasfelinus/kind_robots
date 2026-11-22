@@ -82,6 +82,21 @@
       ],
     ],
   }
+  const PACTS = {
+    sugar: [
+      ['Royal Shelter', 'A candy shield grants one king heart.', 1, 0, 0],
+      ['Glitter Dare', 'Gain 125 points, but awaken an extra blade.', 0, 125, 1],
+    ],
+    ashen: [
+      ['Ember Vigil', 'Guard the last ember with one extra heart.', 1, 0, 0],
+      ['Iron Oath', 'Gain 200 points, but awaken another execution wheel.', 0, 200, 1],
+    ],
+    jackpot: [
+      ['House Insurance', 'Buy one extra heart at a cost of 30 chips.', 1, -30, 0],
+      ['High Roller', 'Take 175 bonus chips and awaken another steel ball.', 0, 175, 1],
+    ],
+  }
+  const pactFor = (w) => PACTS[w] || PACTS.jackpot
   const TRIALS = {
     sugar: [
       [
@@ -156,6 +171,7 @@
       mastery: Number.isInteger(raw?.mastery)
         ? Math.max(0, Math.min(15, raw.mastery))
         : 0,
+      pact: raw?.pact === 1 ? 1 : 0,
       best:
         Number.isSafeInteger(raw?.best) && raw.best >= 0
           ? Math.min(99999999, raw.best)
@@ -173,12 +189,17 @@
   panel.innerHTML =
     '<div class="chess-campaign-head"><span data-campaign-chapter></span>' +
     '<strong data-campaign-title></strong></div>' +
-    '<p data-campaign-story></p><p class="chess-campaign-bonus" data-campaign-bonus></p>' +
+    '<p data-campaign-story></p><div class="chess-campaign-pacts" ' +
+    'role="group" aria-label="Campaign risk contract">' +
+    '<button type="button" data-campaign-pact="0"></button>' +
+    '<button type="button" data-campaign-pact="1"></button></div>' +
+    '<p class="chess-campaign-bonus" data-campaign-bonus></p>' +
     '<button data-campaign-next hidden>' +
     'Next battle ↻</button>'
   document.querySelector('.panel')?.prepend(panel)
   const el = (key) => panel.querySelector('[data-campaign-' + key + ']')
   const next = el('next')
+  const pacts = Array.from(panel.querySelectorAll('[data-campaign-pact]'))
   let lastState = null
   let recordedState = null
   const eventsByState = new WeakMap()
@@ -196,6 +217,16 @@
       w.toUpperCase()
     el('title').textContent = stage[0]
     el('story').textContent = stage[1]
+    const choices = pactFor(w)
+    for (let i = 0; i < pacts.length; i++) {
+      const button = pacts[i]
+      const option = choices[i]
+      button.textContent = option[0] + ' · ' + option[1]
+      button.setAttribute('aria-pressed', String(progress.pact === i))
+      button.disabled = !!engine.get() && (
+        engine.get().turns > 0 || engine.get().over
+      )
+    }
     const trial = TRIALS[w]?.[progress.chapter]
     const mastered = !!(progress.mastery & (1 << progress.chapter))
     el('bonus').textContent = trial
@@ -215,12 +246,17 @@
       lastState = state
       recordedState = null
       eventsByState.set(state, { rush: 0, laststand: 0, wager: 0, jackpot: 0 })
-      const stage = WORLDS[world()]?.[current().chapter]
+      const w = world()
+      const progress = current(w)
+      const stage = WORLDS[w]?.[progress.chapter]
       if (stage && state.turns === 0 && !state.over) {
         state.hp[1] = Math.max(1, state.hp[1] + stage[2])
-        state.score += stage[3]
-        if (stage[4] >= 1) state.discs[2].active = true
-        if (stage[4] >= 2) state.discs[3].active = true
+        const pact = pactFor(w)[progress.pact]
+        state.hp[1] = Math.max(1, state.hp[1] + pact[2])
+        state.score = Math.max(0, state.score + stage[3] + pact[3])
+        const blades = Math.min(2, stage[4] + pact[4])
+        if (blades >= 1) state.discs[2].active = true
+        if (blades >= 2) state.discs[3].active = true
         engine.refresh()
       }
     }
@@ -245,6 +281,7 @@
         cleared: progress.cleared || progress.chapter === 3,
         mastery,
         best: Math.max(progress.best, score),
+        pact: progress.pact,
       }
       save()
       if (mastered && !(progress.mastery & (1 << progress.chapter))) {
@@ -256,6 +293,18 @@
       }
     }
     render()
+  }
+  for (let i = 0; i < pacts.length; i++) {
+    pacts[i].addEventListener('click', () => {
+      const state = engine.get()
+      if (!state || state.over || state.turns > 0) return
+      const w = world()
+      const progress = current(w)
+      if (progress.pact === i) return
+      archive[w] = { ...progress, pact: i }
+      save()
+      engine.reset()
+    })
   }
   next.addEventListener('click', () => {
     if (engine.get()?.over) engine.reset()
@@ -273,6 +322,7 @@
     worldCount: Object.keys(WORLDS).length,
     chapters: (w) => WORLDS[w]?.length || 0,
     trial: (w, chapter) => TRIALS[w]?.[chapter]?.slice(0, 2) || null,
+    pact: (w, index) => pactFor(w)[index]?.slice(0, 2) || null,
   }
   sync()
 })()

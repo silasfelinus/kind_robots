@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "source": "utils/chessweeper/renderOriginalScores.mjs",
+  "provenance": "Original deterministic compositions generated for Chessweeper from hand-authored melody, chord, bass and percussion arrangements",
+  "format": {
+    "codec": "PCM",
+    "sampleRate": 22050,
+    "channels": 1,
+    "bitsPerSample": 16,
+    "loop": true
+  },
+  "tracks": [
+    {
+      "world": "sugar",
+      "variant": "stage",
+      "bpm": 126,
+      "path": "/chessweeper/music/sugar-stage.wav",
+      "gitBlob": "d9622b590317933d9cb91b43e842d7d650a330e0"
+    },
+    {
+      "world": "sugar",
+      "variant": "finale",
+      "bpm": 126,
+      "path": "/chessweeper/music/sugar-finale.wav",
+      "gitBlob": "d3001a720860f04b3a58341e5d7615663c753afb"
+    },
+    {
+      "world": "ashen",
+      "variant": "stage",
+      "bpm": 76,
+      "path": "/chessweeper/music/ashen-stage.wav",
+      "gitBlob": "ff88e348ebd8e82b9f81a588e99fb325952059ef"
+    },
+    {
+      "world": "ashen",
+      "variant": "finale",
+      "bpm": 76,
+      "path": "/chessweeper/music/ashen-finale.wav",
+      "gitBlob": "c7ced293f7b9fd90a2b61f3b2fef9c717bc0d4d6"
+    },
+    {
+      "world": "jackpot",
+      "variant": "stage",
+      "bpm": 134,
+      "path": "/chessweeper/music/jackpot-stage.wav",
+      "gitBlob": "e8292042f234c7d158dc3c9aabe0b6212298a980"
+    },
+    {
+      "world": "jackpot",
+      "variant": "finale",
+      "bpm": 134,
+      "path": "/chessweeper/music/jackpot-finale.wav",
+      "gitBlob": "93ae899b4c6aea3f3216d2b8709e88dbab7251fd"
+    }
+  ]
+}

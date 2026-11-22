@@ -544,6 +544,68 @@ const finishWithRecruitment = (
   assert.equal(court.slots[0]?.label, 'protected')
 }
 
+// --- sound settings (t-073) ride in the reading preferences -----------------
+{
+  const PREFS = 'kr-emperor-of-dust-reading-v1'
+  const db = fresh()
+  // Stored before t-073: no sound keys. They read as the defaults and the
+  // reading choices survive untouched.
+  db.data.set(
+    PREFS,
+    JSON.stringify({
+      readingSize: 'large',
+      readingFont: 'sans',
+      readingWidth: 'wide',
+      contrast: 'high',
+      motion: 'reduced',
+    }),
+  )
+  const old = reload()
+  assert.equal(old.preferences.readingSize, 'large')
+  assert.equal(old.preferences.motion, 'reduced')
+  assert.equal(old.preferences.muted, false, 'sound is on by default')
+  assert.equal(old.preferences.masterVolume, 0.7)
+  assert.equal(old.preferences.musicVolume, 0.6)
+  assert.equal(old.preferences.sfxVolume, 0.8)
+  old.setPreference('musicVolume', 0.25)
+  old.setPreference('sfxVolume', 4)
+  old.setPreference('masterVolume', Number.NaN)
+  old.setPreference('muted', true)
+  old.setPreference('muted', 'yes' as unknown as boolean)
+  old.setPreference('readingFont', 'comic' as unknown as 'serif')
+  assert.equal(old.preferences.musicVolume, 0.25)
+  assert.equal(old.preferences.sfxVolume, 1, 'clamped')
+  assert.equal(old.preferences.masterVolume, 0.7, 'NaN rejected')
+  assert.equal(old.preferences.muted, true)
+  assert.equal(old.preferences.readingFont, 'sans', 'bad choice rejected')
+  const back = reload()
+  assert.equal(back.preferences.musicVolume, 0.25, 'sound settings persist')
+  assert.equal(back.preferences.sfxVolume, 1)
+  assert.equal(back.preferences.muted, true)
+  assert.equal(back.preferences.readingSize, 'large')
+  // Damaged stored values fall back one by one.
+  db.data.set(
+    PREFS,
+    JSON.stringify({
+      readingSize: 'huge',
+      masterVolume: '1',
+      musicVolume: -3,
+      sfxVolume: 0.45,
+      muted: 0,
+    }),
+  )
+  const damaged = reload()
+  assert.equal(damaged.preferences.readingSize, 'comfortable')
+  assert.equal(damaged.preferences.masterVolume, 0.7)
+  assert.equal(damaged.preferences.musicVolume, 0)
+  assert.equal(damaged.preferences.sfxVolume, 0.45)
+  assert.equal(damaged.preferences.muted, false)
+  db.data.set(PREFS, '[1,2,3]')
+  assert.equal(reload().preferences.muted, false)
+  damaged.resetPreferences()
+  assert.equal(damaged.preferences.musicVolume, 0.6, 'defaults restored')
+}
+
 const { readFileSync } = await import('node:fs')
 const { join } = await import('node:path')
 const emperorTitle = readFileSync(

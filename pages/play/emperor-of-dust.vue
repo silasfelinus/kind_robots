@@ -119,7 +119,7 @@
             type="button"
             class="eod-chip relative z-10 flex shrink-0 items-center gap-1 px-2 py-1.5 text-sm text-warning"
             aria-label="Game settings"
-            title="Reading and display settings"
+            title="Reading, display and sound settings"
             @click="settingsOpen = true"
           >
             <Icon name="kind-icon:settings" class="h-5 w-5" />
@@ -352,6 +352,7 @@ import {
 } from '~/utils/emperorOfDust/fortress/rooms'
 import type { RoomId } from '~/utils/emperorOfDust/fortress/rooms'
 import { tipShift } from '~/utils/emperorOfDust/fortress/tipFit'
+import { useEmperorAudio } from '~/utils/emperorOfDust/audio/useEmperorAudio'
 
 const court = useEmperorFortressStore()
 const run = computed(() => court.run)
@@ -477,6 +478,25 @@ function finishIntroduction() {
   court.closeIntro()
   if (firstAudience) enter('throne')
 }
+
+// Music, wind and effects (t-073), synthesised in the browser. They follow
+// what the page shows and the store's state; nothing sounds before the
+// player's first press, or ever while the settings say mute.
+const dawnOpen = computed(() => showDawn.value && !!court.lastReport)
+useEmperorAudio({
+  court,
+  music: () => ({
+    title: splashing.value || court.introOpen,
+    room: activeRoom.value,
+    dawn: dawnOpen.value,
+    day: run.value?.day ?? 1,
+    hideout: !!run.value?.hideout,
+    over: over.value,
+    ending: ending.value?.id ?? null,
+  }),
+  room: () => activeRoom.value,
+  night: () => dawnOpen.value || over.value,
+})
 
 watch(
   () => court.lastReport,

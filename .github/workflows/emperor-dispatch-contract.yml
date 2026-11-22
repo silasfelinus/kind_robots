@@ -21,6 +21,9 @@ on:
       - 'utils/scripts/verifyEmperorSecondPassTraces.test.ts'
       - 'utils/scripts/verifyEmperorEndingWitnesses.test.ts'
       - 'utils/scripts/verifyEmperorFortressStore.test.ts'
+      - 'utils/emperorOfDust/audio/**'
+      - 'utils/scripts/verifyEmperorAudio.test.ts'
+      - 'components/EmperorFortressPreferences.vue'
       - 'tests/emperorScrapbook.test.ts'
       - 'utils/scripts/verifyEmperorFortressOnboardingLayout.test.ts'
       - 'utils/scripts/verifyEmperorRoleFirstProse.test.ts'
@@ -87,6 +90,8 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortress.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressBalance.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressStore.test.ts
+      - name: Verify synthesized music, ambience and sound effects
+        run: npx tsx utils/scripts/verifyEmperorAudio.test.ts
       - run: npx tsx tests/emperorScrapbook.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressOnboardingLayout.test.ts
       - run: npx tsx utils/scripts/verifyEmperorRoleFirstProse.test.ts

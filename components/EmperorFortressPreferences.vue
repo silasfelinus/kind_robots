@@ -21,8 +21,8 @@
             Settings
           </h2>
           <p class="mt-1 text-sm opacity-75">
-            Reading and motion preferences stay on this device, across your
-            reigns.
+            Reading, motion and sound preferences stay on this device, across
+            your reigns.
           </p>
         </div>
         <button
@@ -190,6 +190,63 @@
           </label>
         </div>
       </div>
+      <fieldset
+        class="mt-5 space-y-3 rounded-lg border border-base-content/15 p-3"
+        data-testid="emperor-sound-settings"
+      >
+        <legend class="px-1 font-semibold text-warning">Sound</legend>
+        <p class="text-sm opacity-75">
+          Music, wind and effects are made in your browser. They begin after
+          your first tap or key press.
+        </p>
+        <label class="flex items-center gap-3 text-sm">
+          <input
+            type="checkbox"
+            class="checkbox checkbox-warning"
+            data-testid="emperor-sound-mute"
+            :checked="court.preferences.muted"
+            @change="
+              court.setPreference(
+                'muted',
+                ($event.target as HTMLInputElement).checked,
+              )
+            "
+          />
+          Mute all sound
+        </label>
+        <div class="grid gap-3 @sm:grid-cols-3">
+          <label
+            v-for="volume in volumes"
+            :key="volume.key"
+            class="block text-sm"
+            :class="court.preferences.muted ? 'opacity-50' : ''"
+          >
+            <span class="flex justify-between gap-2">
+              <span class="font-semibold">{{ volume.label }}</span>
+              <span class="tabular-nums opacity-75"
+                >{{ Math.round(court.preferences[volume.key] * 100) }}%</span
+              >
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              class="range range-warning range-xs mt-1"
+              :data-testid="`emperor-sound-${volume.key}`"
+              :aria-label="`${volume.label} volume`"
+              :disabled="court.preferences.muted"
+              :value="Math.round(court.preferences[volume.key] * 100)"
+              @input="
+                court.setPreference(
+                  volume.key,
+                  Number(($event.target as HTMLInputElement).value) / 100,
+                )
+              "
+            />
+          </label>
+        </div>
+      </fieldset>
       <div class="mt-5 rounded-lg border border-warning/30 bg-base-200 p-4">
         <p
           class="mb-2 text-xs font-bold uppercase tracking-widest text-warning"
@@ -289,6 +346,7 @@
 import { onMounted, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import type { ReadingSize, TextSpeed } from '~/stores/emperorFortressStore'
+import type { EmperorVolumeKey } from '~/utils/emperorOfDust/audio/prefs'
 const emit = defineEmits<{ close: []; progressReset: [] }>()
 const court = useEmperorFortressStore()
 const dialog = ref<HTMLElement | null>(null)
@@ -305,6 +363,11 @@ const widths = [
   { value: 'balanced', label: 'Balanced art and story' },
   { value: 'wide', label: 'Wider reading panel' },
 ] as const
+const volumes: { key: EmperorVolumeKey; label: string }[] = [
+  { key: 'masterVolume', label: 'Master' },
+  { key: 'musicVolume', label: 'Music' },
+  { key: 'sfxVolume', label: 'Effects and wind' },
+]
 const confirmReset = ref(false)
 const resetPhrase = ref('')
 const resetError = ref('')

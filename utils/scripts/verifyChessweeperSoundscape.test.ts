@@ -122,6 +122,8 @@ documentEvents.get('visibilitychange')?.()
 assert.equal(suspended, 1, 'hidden tabs suspend audio')
 windowEvents.get('pagehide')?.({})
 assert.equal(closed, 1, 'leaving the route closes audio resources')
+documentEvents.get('pointerdown')?.()
+assert.equal(contexts, 1, 'late gestures cannot resurrect disposed route audio')
 
 const page = readFileSync(
   fileURLToPath(
@@ -259,12 +261,21 @@ sampleEvents.get('chessweeper:state')?.()
 await settle()
 assert.equal(fetched[2], '/chessweeper/music/ashen-stage.wav')
 assert.equal(sampleStarts, 3, 'world switching loads a distinct score')
+sampleEvents.get('chessweeper:settings')?.({
+  detail: { sound: true, music: false },
+})
+assert.ok(sampleStops >= 3, 'muting music retires the active recorded loop')
+sampleEvents.get('chessweeper:settings')?.({
+  detail: { sound: true, music: true },
+})
+await settle()
+assert.equal(sampleStarts, 4, 'unmuting resumes the decoded world score')
 
 sampleDoc.documentElement.dataset.realm = 'jackpot'
 sampleEvents.get('chessweeper:state')?.()
 await settle()
 assert.equal(fetched[3], '/chessweeper/music/jackpot-stage.wav')
-assert.equal(sampleStarts, 3, 'missing music keeps the synthesized fallback')
+assert.equal(sampleStarts, 4, 'missing music keeps the synthesized fallback')
 sampleEvents.get('pagehide')?.()
 assert.ok(sampleStops >= 3, 'route exit stops playing buffers')
 

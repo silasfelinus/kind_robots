@@ -69,7 +69,7 @@ assert.ok(
   'stale autoplay or muted retry failures cannot reopen a skipped cinematic',
 )
 assert.ok(
-  overlay.includes('if (state.value !== \'playing\') return') &&
+  overlay.includes("if (state.value !== 'playing') return") &&
     overlay.includes('++playbackAttempt'),
   'a playback failure only changes an active opening and invalidates old promises',
 )

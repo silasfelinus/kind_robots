@@ -1,7 +1,8 @@
 /**
  * The art modeler's finished private paintings, recorded with ArtJob
  * provenance in conductor/projects/every-villain-tactics/art/
- * TACTICAL-ARENAS-ROUND-1.yaml. All IDs below are DONE ArtImages.
+ * TACTICAL-ARENAS-ROUND-1.yaml plus dedicated diner, sunken-street and
+ * Valcourt-library ledgers. All IDs below are DONE ArtImages.
  * Do not replace these with SVG or CSS illustrations in the playable map.
  */
 export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
@@ -18,14 +19,14 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'fountain-hold': 265015,
   'lab-mascot-recall': 265017,
   'boiler-room': 265018,
-  // Temporary industrial interior painting; a diner-specific plate is still needed.
-  'last-order': 265018,
+  // LAST-ORDER-DINER-ROUND-1.yaml: ArtJob 71163.
+  'last-order': 276806,
   // Temporary Harborline location plate, not Ferris Wheel production art.
   'ferris-wheel': 265022,
-  // Temporary Crosswalk painting; a sunken street plate must be generated.
-  'sunken-street': 265022,
-  // Existing Academy painting pending a dedicated library venue.
-  'unlicensed-rescue': 265014,
+  // SUNKEN-STREET-ROUND-1.yaml: ArtJob 74323.
+  'sunken-street': 277221,
+  // VALCOURT-LIBRARY-ROUND-1.yaml: ArtJob 74324.
+  'unlicensed-rescue': 277330,
   // Existing media-tower painting; unique studio arena art is still outstanding.
   'song-that-stopped': 265023,
 }

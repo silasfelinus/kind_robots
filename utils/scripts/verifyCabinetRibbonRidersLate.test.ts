@@ -1,0 +1,143 @@
+import assert from 'node:assert/strict'
+import { mulberry32 } from '../arcade/curve'
+import { create } from '../arcade/games/ribbonRiders'
+import { emptyInput } from '../arcade/types'
+import { GRID, T } from '../arcade/ribbonRiders/grid'
+import { FAIRGROUNDS, arenaById, openEvents } from '../arcade/ribbonRiders/fairgrounds'
+import { ClockworkConductor, LoomSpinner } from '../arcade/ribbonRiders/lateMarshals'
+import { makeMarshal, type MarshalHost } from '../arcade/ribbonRiders/marshals'
+import { RIVALS } from '../arcade/ribbonRiders/rivals'
+
+function host() {
+  const clock = { beat: 0, clears: 0, bumps: 0, sayings: [] as string[] }
+  const hooks: MarshalHost = {
+    beat: () => clock.beat,
+    terrainAt: () => T.FLOOR,
+    ribbonAt: () => false,
+    bikeAt: () => false,
+    clearCell: () => { clock.clears++ },
+    bumpAt: () => { clock.bumps++ },
+    freezeIce: () => {},
+    meltBankAt: () => false,
+    spawnPonies: () => {},
+    player: () => ({ x: 24, y: 41 }),
+    say: (message) => { clock.sayings.push(message) },
+    sfx: () => {},
+    burst: () => {},
+  }
+  return { clock, hooks }
+}
+
+{
+  const clockwork = FAIRGROUNDS[2]!
+  const starlight = FAIRGROUNDS[3]!
+  for (const fair of [clockwork, starlight]) {
+    assert.equal(fair.arenas.length, 6)
+    const walked = new Set<string>()
+    const walk = (id: string) => {
+      if (walked.has(id)) return
+      walked.add(id)
+      for (const n of arenaById(fair, id).next) walk(n)
+    }
+    walk(fair.arenas[0]!.id)
+    assert.equal(walked.size, 6, `${fair.id}: all events reachable`)
+    assert.deepEqual(openEvents(fair, new Set()), [fair.arenas[0]!.id])
+    for (const arena of fair.arenas) {
+      assert.ok(arena.tickets > 0)
+      assert.ok(arena.par > 0)
+      for (const kind of arena.crew) {
+        assert.ok(RIVALS[kind].tell && RIVALS[kind].answer)
+      }
+    }
+  }
+  assert.ok(clockwork.arenas.some((a) => a.features.some((f) => f.kind === 'gate')))
+  assert.ok(starlight.arenas.some((a) => a.wrap?.x))
+  assert.equal(arenaById(clockwork, 'marshal').marshal, 'conductor')
+  assert.equal(arenaById(starlight, 'marshal').marshal, 'loom')
+  assert.equal(arenaById(clockwork, 'cb-stalls').limit, 60 * 80)
+  assert.equal(arenaById(starlight, 'sl-stars').limit, 60 * 85)
+}
+
+{
+  const { clock, hooks } = host()
+  const marshal = makeMarshal('conductor', hooks) as ClockworkConductor
+  assert.equal(marshal.phase, 1)
+  assert.equal(marshal.targets().length, 9)
+  for (let car = 0; car < 5; car++) {
+    const old = marshal.targets()
+    assert.ok(marshal.wrapped(new Set(old)), `coach ${car + 1} wraps`)
+    assert.equal(marshal.coaches, car + 1)
+  }
+  assert.equal(marshal.phase, 2)
+  assert.equal(marshal.hits, 1)
+  const track0 = new Uint8Array(GRID * GRID)
+  marshal.paint(track0)
+  assert.ok(track0.includes(1) && track0.includes(2), 'tracks and hub are solid')
+  clock.beat++
+  marshal.update()
+  const track1 = new Uint8Array(GRID * GRID)
+  marshal.paint(track1)
+  assert.notDeepEqual(track0, track1, 'the track switches on the clock beat')
+  assert.ok(clock.clears > 0 && clock.bumps > 0)
+  assert.ok(marshal.wrapped(new Set(marshal.targets())))
+  assert.equal(marshal.phase, 3)
+  assert.equal(marshal.hits, 2)
+  const from = marshal.engineX
+  for (let tick = 0; tick < 15; tick++) marshal.update()
+  assert.notEqual(marshal.engineX, from, 'the loose engine moves')
+  assert.ok(marshal.wrapped(new Set(marshal.targets())))
+  assert.equal(marshal.hits, 3)
+  assert.ok(marshal.defeated)
+  assert.equal(marshal.targets().length, 0)
+  assert.ok(!marshal.wrapped(new Set([0])), 'no double reward after defeat')
+  assert.equal(clock.sayings.length, 7)
+}
+
+{
+  const { clock, hooks } = host()
+  const marshal = makeMarshal('loom', hooks) as LoomSpinner
+  assert.equal(marshal.phase, 1)
+  const shuttles = marshal.threads()
+  assert.ok(shuttles.length > 0, 'shuttles have real collision cells')
+  const field = new Uint8Array(GRID * GRID)
+  marshal.paint(field)
+  assert.ok(field.includes(1) && field.includes(2), 'shuttles and hub painted')
+  clock.beat = 1
+  marshal.update()
+  assert.notDeepEqual(shuttles, marshal.threads(), 'gaps move on a beat')
+  assert.ok(clock.bumps > 0 && clock.clears > 0)
+  assert.ok(marshal.wrapped(new Set(marshal.targets())))
+  assert.equal(marshal.phase, 2)
+  assert.ok(marshal.threads().length > shuttles.length, 'grid is denser')
+  assert.ok(marshal.wrapped(new Set(marshal.targets())))
+  assert.equal(marshal.phase, 3)
+  assert.deepEqual(marshal.threads(), [], 'third phase unravels its threads')
+  assert.ok(marshal.wrapped(new Set(marshal.targets())))
+  assert.equal(marshal.hits, 3)
+  assert.ok(marshal.defeated)
+}
+
+{
+  const game = create({
+    rng: mulberry32(21),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+  }) as unknown as {
+    playArena: (arena: (typeof FAIRGROUNDS)[number]['arenas'][number]) => void
+    marshal: { kind: string; phase: number } | null
+    ready: number
+    over: boolean
+    update: (frame: ReturnType<typeof emptyInput>) => void
+  }
+  for (const index of [2, 3]) {
+    const fair = FAIRGROUNDS[index]!
+    game.playArena(arenaById(fair, 'marshal'))
+    assert.equal(game.marshal?.kind, index === 2 ? 'conductor' : 'loom')
+    game.ready = 0
+    for (let tick = 0; tick < 120 && !game.over; tick++)
+      game.update(emptyInput())
+    assert.ok(game.marshal?.phase, 'the Marshal remains wired to the game loop')
+  }
+}
+console.log('ribbon riders late circuit and Grand Marshals: ok')

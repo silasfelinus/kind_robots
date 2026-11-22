@@ -57,6 +57,7 @@ import { drawRainbowBossBloom } from './rainbowBossBloom'
 import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
+import { rainbowEndingMemoryIds } from './rainbowEndingArchive'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
 import {
@@ -4240,7 +4241,13 @@ export function createRainbowPrincessPreview(
           score += FINALE.completeScore
           awardMedal(9)
           earn('the-end')
-          earn(`ending-${finalChoice ?? 'evacuate'}`)
+          // Record the choice and, for new runs, the exact Motherland road.
+          // Historical choice-only mastery cannot be attributed to a road.
+          for (const memory of rainbowEndingMemoryIds(
+            finalChoice ?? 'evacuate',
+            allegiance,
+          ))
+            earn(memory)
           if (difficulty === 'hard') earn('ace-of-eclipse')
           // The campaign is over: there is no Act left to continue from.
           saveRecord = null

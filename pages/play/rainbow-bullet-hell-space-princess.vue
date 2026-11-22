@@ -476,8 +476,8 @@
         <div class="shrink-0">
           <h2 class="text-lg font-black">Eclipse Scrapbook</h2>
           <p class="text-xs text-white/75" aria-live="polite">
-            {{ endingCount }}/3 final choices remembered. The Motherland road
-            changes each ending.
+            {{ endingCount }}/{{ endingArchive.length }} ending memories: three final
+            choices and six Motherland-road outcomes.
           </p>
         </div>
         <ol
@@ -486,7 +486,7 @@
         >
           <li
             v-for="entry in endingArchive"
-            :key="entry.choice"
+            :key="entry.id"
             class="relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-white/20 bg-[#391f60]"
           >
             <img
@@ -509,6 +509,7 @@
               <p
                 class="text-xs font-bold uppercase tracking-widest text-pink-200"
               >
+                {{ entry.roadLabel }} ·
                 {{ entry.unlocked ? 'Memory recovered' : 'Memory locked' }}
               </p>
               <h3 class="text-base font-black">

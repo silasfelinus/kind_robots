@@ -1,0 +1,32 @@
+name: Rainbow Ending Roads Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/arcade/games/rainbowEndingArchive.ts'
+      - 'utils/arcade/games/rainbowPrincessPreview.ts'
+      - 'pages/play/rainbow-bullet-hell-space-princess.vue'
+      - 'utils/scripts/verifyRainbowEndingArchive.test.ts'
+      - '.github/workflows/rainbow-ending-roads.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  rainbow-ending-roads:
+    name: Nine exact ending memories and safe legacy saves
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Verify exact Motherland-road unlocks and historical saves
+        run: npx tsx utils/scripts/verifyRainbowEndingArchive.test.ts

@@ -54,6 +54,7 @@ import {
   PAINTED_EVT_MAP_ART,
   paintedMapArtId,
 } from '../everyVillainTactics/mapArt'
+import { VERIFIED_EVT_ARENA_RECEIPTS } from '../everyVillainTactics/verifiedArenaReceipts.generated'
 import {
   PAINTED_EVT_REVEAL_ART,
   PAINTED_EVT_SUPPORT_ART,
@@ -876,7 +877,11 @@ assert.deepEqual(
     paintedMapArtId('sunken-street'),
     paintedMapArtId('unlicensed-rescue'),
   ],
-  [276806, 277221, 277330],
+  [
+    VERIFIED_EVT_ARENA_RECEIPTS['last-order'].imageId,
+    VERIFIED_EVT_ARENA_RECEIPTS['sunken-street'].imageId,
+    VERIFIED_EVT_ARENA_RECEIPTS['unlicensed-rescue'].imageId,
+  ],
   'three distinct DONE production arenas replace temporary paintings',
 )
 assert.equal(
@@ -888,6 +893,12 @@ assert.equal(
   3,
 )
 
+for (const [stage, receipt] of Object.entries(VERIFIED_EVT_ARENA_RECEIPTS)) {
+  assert.equal(paintedMapArtId(stage), receipt.imageId)
+  assert.ok(receipt.jobId > 0)
+  assert.match(receipt.artKey, /^every-villain-tactics\/maps\//)
+  assert.match(receipt.sourceLedger, /-ROUND-1\.yaml$/)
+}
 assert.ok(Object.values(PAINTED_EVT_MAP_ART).every((id) => id > 265000))
 assert.match(page, /useEveryVillainTacticsArtStore/)
 assert.match(page, /paintedArt\.ensure\(id\)/)

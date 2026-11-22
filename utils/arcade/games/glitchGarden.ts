@@ -185,6 +185,8 @@ export const PUMPKIN_HP = 8
 export const GIANT_PUMPKIN_HP = 24
 export const ROLLER_HP = 4
 export const INCHWORM_SLOW_TICKS = 300
+export const HYDRA_HEAD_HP = 6
+export const HYDRA_TELL_TICKS = 90
 /** A worm turned back by a wall this many times in a row squeezes past it. */
 export const SQUEEZE_AFTER = 3
 /** Queen Wiggle: segments, joints every so often, helmet hits, and her detached head's hits. */
@@ -362,6 +364,8 @@ type Pumpkin = {
   maxHp: number
   rolling: boolean
   giant: boolean
+  hydra?: boolean
+  lit?: boolean
   vx: number
   vy: number
 }
@@ -1061,6 +1065,31 @@ class GlitchGarden implements ArcadeGameInstance {
       }
     }
     if (pumpkin.giant) this.meetObjective()
+    if (pumpkin.hydra && this.boss?.id === 'gourd-hydra') {
+      const alive = this.pumpkins.filter((p) => p.hydra)
+      this.boss.phase = 4 - alive.length
+      if (alive.length === 1) {
+        const last = alive[0]!
+        last.rolling = true
+        last.lit = true
+        last.vy = 0.75
+        last.vx = last.x < W / 2 ? 1.4 : -1.4
+        this.banner = {
+          text: 'ONE HEAD LEFT!',
+          sub: 'IT ROLLS INTO THE BED',
+          ticks: 90,
+        }
+        this.sound.play('warn')
+      } else if (!alive.length) {
+        this.defeatBoss(pumpkin.x, pumpkin.y)
+      } else {
+        this.banner = {
+          text: 'ONE HYDRA HEAD FIXED!',
+          sub: 'THE OTHERS GET FASTER',
+          ticks: 90,
+        }
+      }
+    }
   }
 
   private hitPumpkin(x: number, y: number): boolean {
@@ -1069,6 +1098,10 @@ class GlitchGarden implements ArcadeGameInstance {
       return Math.abs(x - p.x) <= radius && Math.abs(y - p.y) <= radius
     })
     if (!pumpkin) return false
+    if (pumpkin.hydra && !pumpkin.lit) {
+      this.sound.play('blip')
+      return true
+    }
     pumpkin.hp--
     this.registerHit()
     this.sound.play('blip')
@@ -2418,7 +2451,22 @@ class GlitchGarden implements ArcadeGameInstance {
         armour: QUEEN_ARMOUR,
         offset: 0,
       })
-    else this.mower = this.newMower([MOWER_CAP_HP, MOWER_CAP_HP, MOWER_CAP_HP])
+    else if (id === 'mow-bot') {
+      this.mower = this.newMower([MOWER_CAP_HP, MOWER_CAP_HP, MOWER_CAP_HP])
+    } else {
+      this.pumpkins = [5, 15, 25].map((col, i) => ({
+        x: col * CELL,
+        y: HUD + (12 + i * 2) * CELL,
+        hp: HYDRA_HEAD_HP,
+        maxHp: HYDRA_HEAD_HP,
+        rolling: false,
+        giant: false,
+        hydra: true,
+        lit: i === 0,
+        vx: i % 2 === 0 ? 0.45 : -0.45,
+        vy: 0,
+      }))
+    }
     this.sound.play('warn')
   }
 
@@ -2448,6 +2496,10 @@ class GlitchGarden implements ArcadeGameInstance {
       this.updateMower()
       return
     }
+    if (boss.id === 'gourd-hydra') {
+      this.updateHydra()
+      return
+    }
     if (boss.phase < 3 && !this.worms.some((w) => w.queen)) {
       boss.phase = 3
       this.queenHead = {
@@ -2473,6 +2525,22 @@ class GlitchGarden implements ArcadeGameInstance {
     if (h.y < top || h.y > H - 6) h.vy = -h.vy
     if (this.tick % 37 === 0)
       h.vy = (this.rng() < 0.5 ? -1 : 1) * (0.7 + this.rng() * 0.9)
+  }
+
+  private updateHydra() {
+    const heads = this.pumpkins.filter((p) => p.hydra)
+    if (!heads.length) return
+    const lit = Math.floor(this.tick / HYDRA_TELL_TICKS) % heads.length
+    for (let i = 0; i < heads.length; i++) {
+      const head = heads[i]!
+      head.lit = heads.length === 1 || i === lit
+      if (head.rolling) continue
+      head.x += head.vx * (4 - heads.length)
+      if (head.x < 18 || head.x > W - 18) {
+        head.vx *= -1
+        head.x = Math.max(18, Math.min(W - 18, head.x))
+      }
+    }
   }
 
   private hitQueenHead(x: number, y: number): boolean {
@@ -2931,6 +2999,8 @@ class GlitchGarden implements ArcadeGameInstance {
     if (can) target = can
     const giant = this.pumpkins.find((p) => p.giant)
     if (giant) target = giant
+    const hydraHead = this.pumpkins.find((p) => p.hydra && p.lit)
+    if (hydraHead) target = hydraHead
     if (target) {
       if (target.x < this.px - 2) held.left = true
       if (target.x > this.px + 2) held.right = true
@@ -3165,13 +3235,29 @@ class GlitchGarden implements ArcadeGameInstance {
   }
 
   private renderPumpkins(g: CanvasRenderingContext2D) {
+    const heads = this.pumpkins.filter((p) => p.hydra)
+    if (heads.length) {
+      g.strokeStyle = RAMPS.leaf[3]
+      g.lineWidth = 3
+      g.beginPath()
+      g.moveTo(heads[0]!.x, heads[0]!.y)
+      for (const head of heads.slice(1)) g.lineTo(head.x, head.y)
+      g.stroke()
+    }
     for (const pumpkin of this.pumpkins) {
       const radius = pumpkin.giant ? 16 : 8
       const x = Math.round(pumpkin.x)
       const y = Math.round(pumpkin.y)
       const cracked = 1 - pumpkin.hp / pumpkin.maxHp
       dropShadow(g, x, y + radius - 1, radius, 2, 0.4)
-      glow(g, x, y, radius + 4, RAMPS.ember[2], 0.3)
+      glow(
+        g,
+        x,
+        y,
+        radius + 4,
+        pumpkin.hydra && pumpkin.lit ? RAMPS.gold[4] : RAMPS.ember[2],
+        pumpkin.hydra && pumpkin.lit ? 0.85 : 0.3,
+      )
       g.fillStyle = INK
       g.fillRect(x - radius, y - radius + 3, radius * 2, radius * 2 - 4)
       g.fillStyle = RAMPS.ember[2]
@@ -3191,6 +3277,10 @@ class GlitchGarden implements ArcadeGameInstance {
       g.fillStyle = RAMPS.gold[4]
       g.fillRect(x - radius / 2, y - 2, 3, 2)
       g.fillRect(x + radius / 2 - 3, y - 2, 3, 2)
+      if (pumpkin.hydra) {
+        g.fillStyle = pumpkin.lit ? RAMPS.gold[4] : RAMPS.steel[3]
+        g.fillRect(x - 3, y - radius - 3, 6, 2)
+      }
       if (cracked > 0) {
         g.strokeStyle = INK
         g.lineWidth = 1 + cracked * 2

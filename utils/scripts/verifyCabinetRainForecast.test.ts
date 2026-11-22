@@ -12,7 +12,7 @@ const weather = new Set<string>()
 for (let wave = 1; wave <= 30; wave++) {
   const profile = rainWaveForLevel(wave)
   assert.equal(profile.number, wave)
-  assert.ok(RAIN_GARDENS.includes(profile.garden))
+  assert.ok(RAIN_GARDENS.some((garden) => garden === profile.garden))
   assert.ok(profile.rainShare > 0 && profile.rainShare < 0.5)
   assert.ok(profile.hailCount >= 10 && profile.hailCount <= 40)
   assert.ok(profile.skyBand >= 0 && profile.skyBand < 6)

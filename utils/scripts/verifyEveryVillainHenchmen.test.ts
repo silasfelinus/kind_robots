@@ -528,10 +528,7 @@ for (const [kind, imageId] of [
   assert.equal(receipt?.imageId, crewTellReceipt(kind, 'action')?.imageId)
   assert.ok(receipt?.artKey.startsWith('every-villain-tactics/henchmen/'))
 }
-assert.equal(
-  crewUnitArtReceipt({ henchmanType: 'burrow', maxHp: 4 }),
-  null,
-)
+assert.equal(crewUnitArtReceipt({ henchmanType: 'burrow', maxHp: 4 }), null)
 assert.equal(
   crewUnitArtReceipt({
     henchmanType: 'phase',
@@ -541,10 +538,7 @@ assert.equal(
   null,
 )
 for (const unknown of ['__proto__', 'constructor', 'other']) {
-  assert.equal(
-    crewUnitArtReceipt({ henchmanType: unknown, maxHp: 1 }),
-    null,
-  )
+  assert.equal(crewUnitArtReceipt({ henchmanType: unknown, maxHp: 1 }), null)
 }
 assert.equal(crewUnitArtReceipt({ maxHp: 1 }), null)
 

@@ -298,20 +298,18 @@ assert.ok(
 
 // Private ArtJob receipts and stable runtime keys (no public-leak fallback).
 assert.equal(OCTOBER_ART_RECEIPTS.length, 24)
-assert.equal(OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'DONE').length, 11)
-assert.equal(
-  OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'RUNNING').length,
-  1,
+assert.equal(OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'DONE').length, 24)
+assert.ok(
+  OCTOBER_ART_RECEIPTS.every(
+    (receipt) => receipt.status === 'DONE' && receipt.artImageId !== null,
+  ),
 )
-assert.equal(
-  OCTOBER_ART_RECEIPTS.filter((r) => r.status === 'PENDING').length,
-  12,
+assert.deepEqual(
+  OCTOBER_ART_RECEIPTS.map((receipt) => [receipt.artJobId, receipt.artImageId]),
+  Array.from({ length: 24 }, (_, index) => [74423 + index, 277798 + index]),
 )
 assert.equal(new Set(OCTOBER_ART_RECEIPTS.map((r) => r.artJobId)).size, 24)
-assert.equal(
-  new Set(OCTOBER_ART_RECEIPTS.map((r) => r.artImageId).filter(Boolean)).size,
-  11,
-)
+assert.equal(new Set(OCTOBER_ART_RECEIPTS.map((r) => r.artImageId)).size, 24)
 for (const member of OCTOBER_CAST) {
   const receipts = OCTOBER_ART_RECEIPTS.filter(
     (receipt) => receipt.memberKey === member.key,

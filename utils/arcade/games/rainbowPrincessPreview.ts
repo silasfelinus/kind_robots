@@ -2709,10 +2709,10 @@ export function createRainbowPrincessPreview(
     rescuedNemi = c.rescuedNemi
     alternateRoutesSeen =
       c.alternateRoutesSeen ??
-      (Number(c.nurseryFrame !== undefined) |
+      Number(c.nurseryFrame !== undefined) |
         (Number(c.cometFrame !== undefined) << 1) |
         (Number(c.lighthouseFrame !== undefined) << 2) |
-        (Number(c.shoalFrame !== undefined) << 3))
+        (Number(c.shoalFrame !== undefined) << 3)
     trenchRoute = c.trenchRoute
     routeSettled = c.routeSettled
     freedChoir = c.freedChoir ?? false
@@ -2937,10 +2937,10 @@ export function createRainbowPrincessPreview(
       // Retry restores only branch discoveries earned at the last checkpoint.
       alternateRoutesSeen =
         checkpoint.alternateRoutesSeen ??
-        (Number(checkpoint.nurseryFrame !== undefined) |
+        Number(checkpoint.nurseryFrame !== undefined) |
           (Number(checkpoint.cometFrame !== undefined) << 1) |
           (Number(checkpoint.lighthouseFrame !== undefined) << 2) |
-          (Number(checkpoint.shoalFrame !== undefined) << 3))
+          (Number(checkpoint.shoalFrame !== undefined) << 3)
       // A guardian whose section lies after the checkpoint flies again.
       guardian = null
       if (checkpoint.cometFrame !== undefined) {

@@ -5,7 +5,10 @@ import {
   readRainbowSave,
   type RainbowSave,
 } from '../arcade/games/rainbowLoadouts'
-import { createRainbowPrincessPreview, isRainbowCheckpoint } from '../arcade/games/rainbowPrincessPreview'
+import {
+  createRainbowPrincessPreview,
+  isRainbowCheckpoint,
+} from '../arcade/games/rainbowPrincessPreview'
 import { NURSERY } from '../arcade/games/rainbowLanternNursery'
 
 // Route discovery is earned from the saved in-flight decisions, not the
@@ -52,9 +55,7 @@ assert.deepEqual(
   ['X1', 'X2', 'X3', 'X4'],
 )
 assert.ok(alternateFresh.every((route) => !route.discovered))
-assert.ok(
-  alternateFresh.every((route) => route.label === 'ROUTE UNDISCOVERED'),
-)
+assert.ok(alternateFresh.every((route) => route.label === 'ROUTE UNDISCOVERED'))
 const detourSave = {
   checkpoint: { act: 8, alternateRoutesSeen: 0b0101 },
 } as RainbowSave
@@ -63,9 +64,13 @@ assert.deepEqual(
   [true, false, true, false],
 )
 detourSave.checkpoint.alternateRoutesSeen = 0b1111
-assert.ok(rainbowAlternateRouteLogbook(detourSave).every((route) => route.discovered))
+assert.ok(
+  rainbowAlternateRouteLogbook(detourSave).every((route) => route.discovered),
+)
 detourSave.checkpoint.alternateRoutesSeen = 0
-assert.ok(rainbowAlternateRouteLogbook(detourSave).every((route) => !route.discovered))
+assert.ok(
+  rainbowAlternateRouteLogbook(detourSave).every((route) => !route.discovered),
+)
 
 // The route map must not falsely attribute old saved Act reach to a detour.
 // An older save IN an alternate flight still supplies direct, earned proof.
@@ -78,12 +83,16 @@ const legacy = {
     shoalFrame: 240,
   },
 } as RainbowSave
-assert.ok(rainbowAlternateRouteLogbook(legacy).every((route) => route.discovered))
+assert.ok(
+  rainbowAlternateRouteLogbook(legacy).every((route) => route.discovered),
+)
 legacy.checkpoint.nurseryFrame = undefined
 legacy.checkpoint.cometFrame = undefined
 legacy.checkpoint.lighthouseFrame = undefined
 legacy.checkpoint.shoalFrame = undefined
-assert.ok(rainbowAlternateRouteLogbook(legacy).every((route) => !route.discovered))
+assert.ok(
+  rainbowAlternateRouteLogbook(legacy).every((route) => !route.discovered),
+)
 legacy.checkpoint.freedChoir = true
 legacy.checkpoint.cadetsHome = true
 assert.deepEqual(
@@ -118,7 +127,10 @@ const current = {
   guardians: {},
   medals: {},
 }
-assert.ok(readRainbowSave(current), 'four genuine past detours can be remembered')
+assert.ok(
+  readRainbowSave(current),
+  'four genuine past detours can be remembered',
+)
 assert.equal(readRainbowSave(current)?.checkpoint.alternateRoutesSeen, 15)
 assert.deepEqual(
   rainbowAlternateRouteLogbook(readRainbowSave(current)).map(
@@ -188,8 +200,24 @@ const x1Entry = readRainbowSave(
 )
 assert.ok(x1Entry, 'an earned X1 entrance is a valid campaign checkpoint')
 const idle = {
-  held: { up: false, down: false, left: false, right: false, a: false, b: false, start: false },
-  pressed: { up: false, down: false, left: false, right: false, a: false, b: false, start: false },
+  held: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
+  pressed: {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    a: false,
+    b: false,
+    start: false,
+  },
 }
 for (const seats of [1, 2, 3, 4]) {
   const game = createRainbowPrincessPreview({

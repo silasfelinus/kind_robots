@@ -330,9 +330,9 @@
         </aside>
         <div class="flex shrink-0 flex-wrap items-center gap-2 pb-1">
           <button
+            v-if="selectedAlternate === null"
             type="button"
             class="btn btn-sm border-pink-300 bg-pink-200 font-black text-[#37204e]"
-            v-if="selectedAlternate === null"
             :disabled="!selectedSeaReplayable"
             :aria-label="`Replay Act ${selectedSea + 1}: ${stages[selectedSea]!.name}`"
             @click="launchActReplay"

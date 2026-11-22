@@ -24,6 +24,7 @@ import {
   type PixelSprite,
 } from '../snes'
 import { ringCells, type Spawn } from './arenas'
+import { ClockworkConductor, LoomSpinner } from './lateMarshals'
 import type { MarshalKind } from './fairgrounds'
 import { ARENA_Y, CELL, DX, DY, GRID, T, idx, reverse, type Dir } from './grid'
 
@@ -603,5 +604,14 @@ export class ZamboniSwan implements Marshal {
 }
 
 export function makeMarshal(kind: MarshalKind, host: MarshalHost): Marshal {
-  return kind === 'keeper' ? new CarouselKeeper(host) : new ZamboniSwan(host)
+  switch (kind) {
+    case 'keeper':
+      return new CarouselKeeper(host)
+    case 'swan':
+      return new ZamboniSwan(host)
+    case 'conductor':
+      return new ClockworkConductor(host)
+    case 'loom':
+      return new LoomSpinner(host)
+  }
 }

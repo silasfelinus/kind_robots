@@ -215,23 +215,28 @@ function settle(g: Inner) {
 
 // --- the fairgrounds as data ---------------------------------------------------------------------
 {
-  assert.equal(FAIRGROUNDS.length, 2)
+  assert.equal(FAIRGROUNDS.length, 4)
   assert.deepEqual(
     FAIRGROUNDS.map((f) => f.name),
-    ['BOARDWALK AT DUSK', 'FROSTLIGHT RINK'],
+    [
+      'BOARDWALK AT DUSK',
+      'FROSTLIGHT RINK',
+      'CLOCKWORK BAZAAR',
+      'STARLIGHT LOOM',
+    ],
   )
   const arenas = FAIRGROUNDS.flatMap((f) => f.arenas.filter((a) => !a.marshal))
-  assert.equal(arenas.length, 10, 'ten authored arenas')
+  assert.equal(arenas.length, 20, 'twenty authored arenas')
   assert.deepEqual(
     [...new Set(arenas.map((a) => a.objective))].sort(),
-    ['art', 'giftwrap', 'glowbug', 'last', 'taglap'],
+    ['art', 'escort', 'giftwrap', 'glowbug', 'last', 'taglap'],
     'five objectives',
   )
   assert.deepEqual(
     FAIRGROUNDS.map((f) => f.arenas.find((a) => a.marshal)!.marshal),
-    ['keeper', 'swan'],
+    ['keeper', 'swan', 'conductor', 'loom'],
   )
-  assert.equal(new Set(arenas.map((a) => a.id)).size, 10)
+  assert.equal(new Set(arenas.map((a) => `${a.id}:${a.floor}`)).size, 20)
   for (const f of FAIRGROUNDS) {
     assert.equal(f.arenas.filter((a) => a.special).length, 1, f.id)
     // Every arena is on a route from the first event, and every route reaches the Marshal.

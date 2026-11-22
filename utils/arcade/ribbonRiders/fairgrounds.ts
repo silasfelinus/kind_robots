@@ -11,7 +11,8 @@ import type { ArenaSpec, Spawn } from './arenas'
 import { GRID, idx } from './grid'
 import { BOARDWALK_MUSIC, FROSTLIGHT_MUSIC } from './music'
 
-export type ObjectiveId = 'last' | 'giftwrap' | 'glowbug' | 'art' | 'taglap'
+export type ObjectiveId =
+  'last' | 'giftwrap' | 'glowbug' | 'art' | 'taglap' | 'escort'
 
 export type ObjectiveSpec = { name: string; about: string }
 
@@ -27,10 +28,14 @@ export const OBJECTIVES: Record<ObjectiveId | 'marshal', ObjectiveSpec> = {
   },
   art: { name: 'RIBBON ART', about: 'TRACE THE GLOWING OUTLINE' },
   taglap: { name: 'TAG LAP', about: 'RIDE THE ARCHES IN ORDER. BEAT THE CREW' },
+  escort: {
+    name: 'MOON PARADE',
+    about: 'KEEP ENEMY RIBBONS OFF THE MOON FLOAT',
+  },
   marshal: { name: 'GRAND MARSHAL', about: 'WRAP THE GLOWING HUB' },
 }
 
-export type MarshalKind = 'keeper' | 'swan'
+export type MarshalKind = 'keeper' | 'swan' | 'conductor' | 'loom'
 
 export type Rect = { x: number; y: number; w: number; h: number }
 
@@ -57,6 +62,8 @@ export type FairArena = ArenaSpec & {
   art?: { corners: readonly (readonly [number, number])[]; share: number }
   /** Tag Lap: the arches, in order. */
   arches?: readonly Rect[]
+  /** Parade Escort: the float crosses this row, surviving this many ribbon hits. */
+  escort?: { row: number; health: number }
   marshal?: MarshalKind
 }
 
@@ -357,7 +364,265 @@ const FROSTLIGHT: Fairground = {
   ],
 }
 
-export const FAIRGROUNDS: readonly Fairground[] = [BOARDWALK, FROSTLIGHT]
+const CLOCKWORK: Fairground = {
+  id: 'clockwork',
+  name: 'CLOCKWORK BAZAAR',
+  tagline: 'THE GATES CHIME AS THE MARKET TURNS',
+  music: FROSTLIGHT_MUSIC,
+  sky: ['#21122f', '#63345c', '#c17a42'],
+  string: '#fbbf24',
+  arenas: [
+    {
+      id: 'cb-entrance',
+      name: 'TICKTOCK ENTRANCE',
+      floor: 'gold',
+      features: [{ kind: 'gate', x: 23, y: 18, w: 2, h: 8, every: 4, open: 2 }],
+      shrink: { every: 480, max: 10 },
+      crew: ['gatekeeper', 'cutter'],
+      objective: 'last',
+      par: S * 40,
+      tickets: 3,
+      tier: 7,
+      at: [144, 222],
+      next: ['cb-stalls', 'cb-clock'],
+      intro: 'THE GATE OPENS ON THE BEAT',
+    },
+    {
+      id: 'cb-stalls',
+      name: 'MARKET STALLS',
+      floor: 'boardwalk',
+      features: [
+        { kind: 'pillar', x: 13, y: 13, w: 3, h: 3 },
+        { kind: 'gate', x: 33, y: 23, every: 6, open: 3 },
+      ],
+      shrink: { every: 480, max: 10 },
+      crew: ['hugger', 'dasher'],
+      objective: 'giftwrap',
+      limit: S * 80,
+      par: S * 45,
+      tickets: 3,
+      tier: 8,
+      at: [72, 178],
+      next: ['cb-alleys', 'cb-arches'],
+      intro: 'WRAP THEM BETWEEN THE STALLS',
+    },
+    {
+      id: 'cb-clock',
+      name: 'CLOCK SQUARE',
+      floor: 'gold',
+      features: [
+        { kind: 'gate', x: 18, y: 18, w: 2, h: 10, every: 4, open: 2 },
+        {
+          kind: 'gate',
+          x: 29,
+          y: 18,
+          w: 2,
+          h: 10,
+          every: 4,
+          open: 2,
+          offset: 2,
+        },
+      ],
+      shrink: { every: 480, max: 10 },
+      crew: ['gatekeeper', 'pacer'],
+      objective: 'last',
+      par: S * 50,
+      tickets: 3,
+      tier: 9,
+      at: [216, 178],
+      next: ['cb-alleys', 'cb-arches'],
+      intro: 'TWO GATES, TWO RHYTHMS',
+    },
+    {
+      id: 'cb-alleys',
+      name: 'BELL ALLEY',
+      floor: 'violet',
+      features: [
+        { kind: 'pillar', x: 12, y: 12, w: 2, h: 12 },
+        { kind: 'pillar', x: 34, y: 12, w: 2, h: 12 },
+      ],
+      shrink: { every: 480, max: 10 },
+      crew: ['sprinter', 'cutter'],
+      objective: 'last',
+      par: S * 55,
+      tickets: 3,
+      tier: 10,
+      at: [72, 130],
+      next: ['marshal'],
+      intro: 'RACE BETWEEN THE ALLEYS',
+    },
+    {
+      id: 'cb-arches',
+      name: 'ARCHES OF TIME',
+      floor: 'gold',
+      features: [
+        { kind: 'gate', x: 12, y: 20, every: 5, open: 3 },
+        { kind: 'gate', x: 35, y: 20, every: 5, open: 3 },
+      ],
+      shrink: null,
+      crew: ['gatekeeper', 'sprinter'],
+      rivalSpawns: START_LINE,
+      objective: 'taglap',
+      par: S * 60,
+      tickets: 5,
+      tier: 11,
+      at: [216, 130],
+      next: ['marshal'],
+      intro: 'THREE ARCHES BEFORE THE CHIME',
+      arches: [
+        { x: 21, y: 33, w: 7, h: 1 },
+        { x: 21, y: 12, w: 7, h: 1 },
+        { x: 6, y: 18, w: 1, h: 8 },
+      ],
+      special: true,
+    },
+    {
+      id: 'marshal',
+      name: 'THE CLOCKWORK CONDUCTOR',
+      floor: 'violet',
+      features: [
+        { kind: 'gate', x: 16, y: 20, every: 4, open: 2 },
+        { kind: 'gate', x: 32, y: 20, every: 4, open: 2, offset: 2 },
+      ],
+      shrink: null,
+      crew: [],
+      objective: 'marshal',
+      marshal: 'conductor',
+      par: S * 100,
+      tickets: 6,
+      tier: 12,
+      at: [144, 82],
+      next: [],
+      intro: 'THE GRAND MARSHAL AWAITS',
+    },
+  ],
+}
+const STARLIGHT: Fairground = {
+  id: 'starlight',
+  name: 'STARLIGHT LOOM',
+  tagline: 'THE SKY IS A RIBBON OF STARS',
+  music: FROSTLIGHT_MUSIC,
+  sky: ['#080e30', '#25205c', '#694aaf'],
+  string: '#a5b4fc',
+  arenas: [
+    {
+      id: 'sl-sky',
+      name: 'SKY BRIDGE',
+      floor: 'violet',
+      wrap: { x: true },
+      features: [],
+      shrink: { every: 420, max: 12 },
+      crew: ['glimmer', 'sprinter'],
+      objective: 'last',
+      par: S * 40,
+      tickets: 3,
+      tier: 7,
+      at: [144, 222],
+      next: ['sl-stars', 'sl-mirror'],
+      intro: 'RIDE ABOVE THE CLOUDS',
+    },
+    {
+      id: 'sl-stars',
+      name: 'FALLING STARS',
+      floor: 'teal',
+      features: [
+        { kind: 'pillar', x: 12, y: 12, w: 2, h: 2 },
+        { kind: 'pillar', x: 35, y: 35, w: 2, h: 2 },
+      ],
+      shrink: { every: 480, max: 10 },
+      crew: ['glimmer', 'copycat'],
+      objective: 'giftwrap',
+      limit: S * 85,
+      par: S * 45,
+      tickets: 3,
+      tier: 8,
+      at: [72, 178],
+      next: ['sl-comets', 'sl-parade'],
+      intro: 'WRAP THE STARS',
+    },
+    {
+      id: 'sl-mirror',
+      name: 'MIRROR SKY',
+      floor: 'violet',
+      features: [
+        { kind: 'gate', x: 24, y: 18, w: 1, h: 12, every: 6, open: 4 },
+      ],
+      wrap: { x: true },
+      shrink: null,
+      crew: ['shieldRider', 'glimmer'],
+      objective: 'last',
+      par: S * 50,
+      tickets: 3,
+      tier: 9,
+      at: [216, 178],
+      next: ['sl-comets', 'sl-parade'],
+      intro: 'THE HORIZON WRAPS AROUND',
+    },
+    {
+      id: 'sl-comets',
+      name: 'COMET CROSSING',
+      floor: 'teal',
+      features: [
+        { kind: 'pad', x: 12, y: 24, dir: 1 },
+        { kind: 'pad', x: 36, y: 24, dir: 3 },
+      ],
+      shrink: { every: 480, max: 10 },
+      crew: ['sprinter', 'shieldRider'],
+      objective: 'last',
+      par: S * 55,
+      tickets: 3,
+      tier: 10,
+      at: [72, 130],
+      next: ['marshal'],
+      intro: 'FOLLOW THE COMET',
+    },
+    {
+      id: 'sl-parade',
+      name: 'MOONLIGHT PARADE',
+      floor: 'violet',
+      features: [{ kind: 'pillar', x: 22, y: 22, w: 4, h: 4 }],
+      shrink: null,
+      crew: ['glimmer', 'sprinter'],
+      objective: 'escort',
+      limit: S * 75,
+      escort: { row: 32, health: 3 },
+      par: S * 80,
+      tickets: 5,
+      tier: 11,
+      at: [216, 130],
+      next: ['marshal'],
+      intro: 'PROTECT THE MOON FLOAT TO THE LAST LANTERN',
+      special: true,
+    },
+    {
+      id: 'marshal',
+      name: 'THE LOOM SPINNER',
+      floor: 'violet',
+      wrap: { x: true },
+      features: [
+        { kind: 'pad', x: 12, y: 24, dir: 1 },
+        { kind: 'pad', x: 36, y: 24, dir: 3 },
+      ],
+      shrink: null,
+      crew: [],
+      objective: 'marshal',
+      marshal: 'loom',
+      par: S * 100,
+      tickets: 6,
+      tier: 12,
+      at: [144, 82],
+      next: [],
+      intro: 'THE GRAND MARSHAL AWAITS',
+    },
+  ],
+}
+
+export const FAIRGROUNDS: readonly Fairground[] = [
+  BOARDWALK,
+  FROSTLIGHT,
+  CLOCKWORK,
+  STARLIGHT,
+]
 
 export const FIRST_EVENT = 0
 

@@ -198,7 +198,7 @@ const PHASE_BONUS = 3000
 const TAG_LAP_PACE = 0.88
 
 type Mode = 'midway' | 'festival'
-type MenuKind = 'title' | 'board' | 'shop'
+type MenuKind = 'title' | 'board' | 'shop' | 'credits'
 type TitleChoice = 'continue' | 'new' | 'midway'
 type Menu = { kind: MenuKind; cursor: number; ticks: number; note: string }
 type Glowbug = { x: number; y: number; vx: number; vy: number }
@@ -493,6 +493,8 @@ class RibbonRiders implements ArcadeGameInstance {
   private traced = new Uint8Array(GRID * GRID)
   private tracedCount = 0
   private arches: number[][] = []
+  private escortHits = 0
+  private escortLastX = 4
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -579,6 +581,8 @@ class RibbonRiders implements ArcadeGameInstance {
     this.setupArena(a, a.tier, [...a.crew])
     if (this.kit.snip) this.player.snips = Math.max(1, this.player.snips)
     this.timeLeft = a.limit ?? 0
+    this.escortHits = 0
+    this.escortLastX = 4
     if (a.glowbugs) {
       for (let k = 0; k < a.glowbugs.lit; k++) this.spawnBug()
     }
@@ -1259,7 +1263,8 @@ class RibbonRiders implements ArcadeGameInstance {
   private rebootable(b: Bike): boolean {
     if (this.harmless(b)) return true
     const o = this.node?.objective
-    if (o === 'giftwrap' || o === 'glowbug' || o === 'taglap') return true
+    if (o === 'giftwrap' || o === 'glowbug' || o === 'taglap' || o === 'escort')
+      return true
     return o === 'marshal' && b.kind === 'pony'
   }
 
@@ -1636,6 +1641,14 @@ class RibbonRiders implements ArcadeGameInstance {
     if (this.player.alive) this.addScore(250 * this.level, px, py - 6)
   }
 
+  private escortColumn(): number {
+    const duration = Math.max(1, this.node?.limit ?? 1)
+    return Math.min(
+      42,
+      5 + Math.floor(((duration - this.timeLeft) * 37) / duration),
+    )
+  }
+
   /** Has this round's objective been met, or lost? */
   private checkRoundOver() {
     if (!this.player.alive || this.dead > 0) return
@@ -1671,6 +1684,30 @@ class RibbonRiders implements ArcadeGameInstance {
         const winner = this.rivals.find((b) => b.arch >= this.arches.length)
         if (winner)
           this.fail(`${RIVALS[winner.kind!].name} TAGS FIRST!`, 'RIDE FASTER')
+        return
+      }
+      case 'escort': {
+        const x = this.escortColumn()
+        if (x > this.escortLastX) {
+          this.escortLastX = x
+          const row = a.escort!.row
+          const danger = [row - 1, row, row + 1].some((y) => {
+            const i = idx(x, y)
+            return this.cells[i]! >= FIRST_RIVAL_ID && !this.fill[i]
+          })
+          if (danger) {
+            this.escortHits++
+            this.sound.play('warn')
+            this.banner = {
+              text: 'MOON FLOAT HIT!',
+              sub: `${a.escort!.health - this.escortHits} LANTERNS LEFT`,
+              ticks: 65,
+            }
+          }
+        }
+        if (this.escortHits >= a.escort!.health)
+          return this.fail('THE FLOAT IS TANGLED!', 'WRAP THE CREW FIRST')
+        if (this.timeLeft === 0) return this.clearRound()
         return
       }
       case 'marshal':
@@ -1783,20 +1820,17 @@ class RibbonRiders implements ArcadeGameInstance {
     }
   }
 
-  /** Both Marshals wrapped: the festival's champion, and the Midway stays open for more. */
+  /** Four Grand Marshals beaten: keep the trophy and roll the festival credits. */
   private finishFestival() {
     this.champion = true
     this.fair = 0
     this.tickets = Math.min(MAX_TICKETS, this.tickets)
     this.writeSave()
-    if (this.savePoint) this.savePoint = { ...this.savePoint, score: 0 }
-    this.startRound(MIDWAY.length + 1)
-    this.banner = {
-      text: 'FESTIVAL CHAMPION!',
-      sub: 'THE MIDWAY STAYS OPEN ALL NIGHT',
-      lines: ['THE NEXT FAIRGROUNDS ARE STILL SETTING UP'],
-      ticks: this.ready + 60,
+    if (this.savePoint) {
+      this.savePoint = { ...this.savePoint, score: 0 }
+      this.offer = this.savePoint
     }
+    this.openMenu('credits')
     this.sound.play('extra')
   }
 
@@ -1827,6 +1861,10 @@ class RibbonRiders implements ArcadeGameInstance {
       m.cursor = (m.cursor + n + size) % size
       m.note = ''
       this.sound.play('blip')
+    }
+    if (m.kind === 'credits') {
+      if (go) this.openTitle()
+      return
     }
     if (m.kind === 'title') {
       const size = this.titleChoices.length
@@ -2745,8 +2783,15 @@ class RibbonRiders implements ArcadeGameInstance {
     })
   }
 
-  /** Ribbon Art's glowing outline and the Tag Lap arches, under the ribbons. */
+  /** Ribbon Art, Tag Lap arches, and the moon float, under the ribbons. */
   private renderObjective(g: CanvasRenderingContext2D) {
+    if (this.node?.escort) {
+      const x = this.escortColumn() * CELL + CELL / 2
+      const y = ARENA_Y + this.node.escort.row * CELL + CELL / 2
+      glow(g, x, y, 20, RAMPS.sky[4], 0.8)
+      shadedOrb(g, x, y, 8, RAMPS.sky)
+      drawSprite(g, STAR, x, y - 6)
+    }
     if (this.outline.length) {
       const pulse = 0.35 + 0.2 * Math.sin(this.tick / 9)
       for (const i of this.outline) {
@@ -2826,6 +2871,7 @@ class RibbonRiders implements ArcadeGameInstance {
     const m = this.menu!
     if (m.kind === 'title') return this.renderTitle(g, m)
     if (m.kind === 'board') return this.renderBoard(g, m)
+    if (m.kind === 'credits') return this.renderCredits(g)
     this.renderShop(g, m)
   }
 
@@ -2841,6 +2887,49 @@ class RibbonRiders implements ArcadeGameInstance {
       g.fillStyle = on ? c : RAMPS.night[3]
       g.fillRect(x - 1, 7 + sag, 3, 3)
     }
+  }
+
+  private renderCredits(g: CanvasRenderingContext2D) {
+    this.backdrop(g, FAIRGROUNDS[3]!.sky)
+    drawText(g, 'FESTIVAL CHAMPION!', W / 2, 40, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    drawText(g, 'FOUR FAIRS. FOUR MARSHALS.', W / 2, 75, {
+      align: 'center',
+      color: RAMPS.cream[4],
+      outline: INK,
+    })
+    drawText(g, 'THE RIBBONS LIGHT THE NIGHT', W / 2, 96, {
+      align: 'center',
+      color: RAMPS.pink[3],
+      outline: INK,
+    })
+    for (let k = 0; k < 4; k++) {
+      const y = 120 + k * 22
+      drawSprite(g, bowSprite(RAMPS.gold[3]), 35, y)
+      drawText(g, FAIRGROUNDS[k]!.name, 50, y - 4, {
+        color: RAMPS.sky[4],
+        outline: INK,
+      })
+    }
+    drawText(g, 'THE LANTERN FESTIVAL CIRCUIT', W / 2, 226, {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    drawText(g, 'A KIND ROBOTS ARCADE GAME', W / 2, 244, {
+      align: 'center',
+      color: RAMPS.cream[3],
+      outline: INK,
+    })
+    drawText(g, 'A TO RETURN TO THE FESTIVAL', W / 2, H - 18, {
+      align: 'center',
+      color: RAMPS.teal[3],
+      outline: INK,
+    })
   }
 
   private renderTitle(g: CanvasRenderingContext2D, m: Menu) {
@@ -3104,6 +3193,8 @@ class RibbonRiders implements ArcadeGameInstance {
         const best = Math.max(0, ...this.rivals.map((b) => b.arch))
         return `ARCH ${Math.min(p.arch + 1, this.arches.length)}/${this.arches.length}   CREW ${best}`
       }
+      case 'escort':
+        return `MOON ${this.escortColumn() - 5}/37  SAFE ${Math.max(0, a.escort!.health - this.escortHits)}/${a.escort!.health}`
       case 'marshal': {
         const m = this.marshal
         if (!m) return ''

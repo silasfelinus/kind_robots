@@ -19,6 +19,10 @@ export type RivalKind =
   | 'tandem'
   | 'lanternKid'
   | 'pony'
+  | 'gatekeeper'
+  | 'glimmer'
+  | 'shieldRider'
+  | 'sprinter'
 
 /** What a rival's brain can see. */
 export type SteerCtx = {
@@ -98,6 +102,47 @@ export function besideSolid(
 }
 
 export const RIVALS: Record<RivalKind, RivalSpec> = {
+  gatekeeper: {
+    name: 'GATEKEEPER',
+    colour: '#f59e0b',
+    speed: 0.9,
+    wander: 0,
+    tell: 'ITS HEADLIGHT DIMS AT THE GATE',
+    answer: 'APPROACH FROM THE SIDE',
+    lean(ctx, _b, _d, nx, ny, space) {
+      const t = ctx.target
+      if (!t || space < 12) return 0
+      return Math.abs(nx - t.x) + Math.abs(ny - t.y) < 7 ? 12 : 0
+    },
+  },
+  glimmer: {
+    name: 'GLIMMER',
+    colour: '#c4b5fd',
+    speed: 1.08,
+    wander: 0.025,
+    tell: 'A SHIMMER ON EACH BEAT',
+    answer: 'TRACK ITS LAST VISIBLE TURN',
+  },
+  shieldRider: {
+    name: 'SHIELD RIDER',
+    colour: '#67e8f9',
+    speed: 0.95,
+    wander: 0.015,
+    tell: 'A BUBBLE ROUND THE BIKE',
+    answer: 'MAKE IT SPEND THE SHIELD',
+  },
+  sprinter: {
+    name: 'SPRINTER',
+    colour: '#fb7185',
+    speed: 1.35,
+    wander: 0.012,
+    tell: 'AFTERBURNERS WHEN IT LINES UP',
+    answer: 'NEVER STAY IN ITS LANE',
+    lean(ctx, _b, d, _nx, _ny, space) {
+      const t = ctx.target
+      return t && space > 15 && d === t.dir ? 15 : 0
+    },
+  },
   roamer: {
     name: 'ROAMER',
     colour: '#22d3ee',

@@ -1418,6 +1418,12 @@ jobs:
       - name: Chessweeper seeded mines, first-probe and discs contract
         run: npm run test:chessweeper-seeded
 
+      - name: Chessweeper authored world campaigns and chapter progress
+        run: npm run test:chessweeper-campaigns
+
+      - name: Chessweeper gameplay effects and reduced-motion contract
+        run: npm run test:chessweeper-effects
+
       - name: Save the Plumber permanent collection and ending ledger
         run: npx tsx utils/scripts/verifySavePlumberCollection.test.ts
 

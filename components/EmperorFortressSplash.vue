@@ -40,6 +40,13 @@
         Rule a fractured kingdom. Send them into the wasteland. Remember what
         matters.
       </p>
+      <p
+        v-if="hasSave && rulerLine"
+        class="eod-splash-line text-sm italic text-warning/90"
+        data-testid="emperor-splash-ruler"
+      >
+        The court awaits {{ rulerLine }}.
+      </p>
       <nav
         class="mt-6 flex flex-wrap items-center justify-center gap-3"
         aria-label="Main menu"
@@ -136,6 +143,7 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { LEGACY_FAVORS } from '~/utils/emperorOfDust/fortress/legacy'
+import { customRulerStyle } from '~/utils/emperorOfDust/fortress/ruler'
 
 const props = defineProps<{ ready: boolean; hasSave: boolean; day: number }>()
 const emit = defineEmits<{
@@ -151,6 +159,8 @@ const legacyChoice = computed(() => {
   const favor = court.legacy.selectedFavor
   return favor ? LEGACY_FAVORS[favor].name : 'no favors'
 })
+
+const rulerLine = computed(() => (court.run ? customRulerStyle(court.run) : ''))
 
 const TITLE = 'Emperor of Dust'.split('')
 const MOTES = Array.from({ length: 26 }, (_, id) => {

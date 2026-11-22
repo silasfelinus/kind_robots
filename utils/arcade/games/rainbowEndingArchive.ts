@@ -1,30 +1,34 @@
-import type { FinaleChoice } from './rainbowEclipseFinale'
+import type { RainbowAllegiance } from './rainbowAllegiance'
+import { FINALE_ENDINGS, type FinaleChoice } from './rainbowEclipseFinale'
 
 export type RainbowEndingArchiveEntry = {
+  id: string
   choice: FinaleChoice
+  road: RainbowAllegiance | 'choice'
+  roadLabel: string
   title: string
   summary: string
   unlocked: boolean
 }
 
-const ENDING_CHOICES = [
+const CHOICES = [
   {
     choice: 'restore',
     title: 'Restore the Crown',
     summary:
-      'The Crown remembers its first promise. What it remembers about the Motherland depends on your allegiance.',
+      'Your choice to restore the Crown is remembered. The original record does not prove which Motherland road you flew.',
   },
   {
     choice: 'evacuate',
     title: 'Free the Fleet',
     summary:
-      'The captive fleet escapes. Who claims the empty sea depends on the road your squadron flew.',
+      'Your choice to evacuate is remembered. The original record does not prove which Motherland road you flew.',
   },
   {
     choice: 'sever',
     title: 'Cut the Leash',
     summary:
-      'The Crown loses its hold. Your choices decide what freedom costs.',
+      'Your choice to sever the Crown is remembered. The original record does not prove which Motherland road you flew.',
   },
 ] as const satisfies ReadonlyArray<{
   choice: FinaleChoice
@@ -32,15 +36,48 @@ const ENDING_CHOICES = [
   summary: string
 }>
 
+const ROADS = ['rebel', 'loyal'] as const
+
 /**
- * The current cabinet saves three final-choice mastery feats, not all nine
- * allegiance-specific variants. Never label an unrecorded variant as collected.
+ * Record both a broadly earned final choice and its exact allegiance.
+ * Historical saves only held the broad choice; never retroactively guess
+ * whether those flights rebelled or stayed loyal.
+ */
+export function rainbowEndingMemoryIds(
+  choice: FinaleChoice,
+  road: RainbowAllegiance | null,
+): string[] {
+  const choiceId = `ending-${choice}`
+  return road === null ? [choiceId] : [choiceId, `ending-${road}-${choice}`]
+}
+
+/**
+ * Three old-style choice memories and six named, allegiance-specific outcomes.
+ * The variant ids are private scrapbook mastery, not extra site achievements.
+ * Only an exact earned id unlocks a road outcome.
  */
 export function rainbowEndingArchive(
   mastery: readonly string[],
 ): RainbowEndingArchiveEntry[] {
-  return ENDING_CHOICES.map((ending) => ({
-    ...ending,
-    unlocked: mastery.includes(`ending-${ending.choice}`),
+  const earned = new Set(mastery)
+  const choices = CHOICES.map((entry) => ({
+    ...entry,
+    id: `ending-${entry.choice}`,
+    road: 'choice' as const,
+    roadLabel: 'Final choice',
+  }))
+  const roads = ROADS.flatMap((road) =>
+    CHOICES.map(({ choice }) => ({
+      id: `ending-${road}-${choice}`,
+      choice,
+      road,
+      roadLabel: road === 'rebel' ? 'Rebel road' : 'Loyal road',
+      title: FINALE_ENDINGS[road][choice].title,
+      summary: FINALE_ENDINGS[road][choice].world,
+    })),
+  )
+  return [...choices, ...roads].map((entry) => ({
+    ...entry,
+    unlocked: earned.has(entry.id),
   }))
 }

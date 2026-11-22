@@ -156,6 +156,17 @@ const DEATH_TICKS = 100
 const WAVE_CLEAR_TICKS = 130
 
 const KITE_Y = 32
+const PLANE_Y = 42
+const PLANE_SPEED = 1.3
+export const COURIER_DURATION = 360
+export const COURIER_POWERS = [
+  'prism',
+  'double',
+  'umbrella-patch',
+  'sunglasses',
+  'solar-flare',
+] as const
+export type CourierPower = (typeof COURIER_POWERS)[number]
 /** The rainbow kite's mystery values, picked by how many beams you've shone. */
 const KITE_VALUES = [
   100, 50, 50, 100, 150, 100, 100, 50, 300, 100, 100, 100, 50, 150, 100,
@@ -223,6 +234,7 @@ type Bee = { x: number; y: number; tx: number; ty: number; t: number }
 type Happy = { x: number; y: number; life: number }
 type Umbrella = { x: number; cells: boolean[] }
 type Kite = { x: number; dir: 1 | -1 }
+type PaperPlane = { x: number; dir: 1 | -1; power: CourierPower }
 type Particle = {
   x: number
   y: number
@@ -1068,6 +1080,13 @@ class GloomInvaders implements ArcadeGameInstance {
   private umbrellas: Umbrella[] = []
   private kite: Kite | null = null
   private kiteTimer = 0
+  private plane: PaperPlane | null = null
+  private planeTimer = 0
+  private couriersCollected = 0
+  private prismShots = 0
+  private doubleTicks = 0
+  private sunglassesTicks = 0
+  private extraBeam: Beam | null = null
   private happies: Happy[] = []
   private particles: Particle[] = []
   private floaters: Floater[] = []
@@ -1146,6 +1165,11 @@ class GloomInvaders implements ArcadeGameInstance {
     this.menu = null
     this.mode = mode
     this.plots = newGarden()
+    this.prismShots = 0
+    this.doubleTicks = 0
+    this.sunglassesTicks = 0
+    this.extraBeam = null
+    this.couriersCollected = 0
     this.score = checkpoint?.score ?? 0
     this.lives = checkpoint?.lives ?? START_LIVES
     this.over = false
@@ -1209,6 +1233,9 @@ class GloomInvaders implements ArcadeGameInstance {
     this.regroup()
     this.kite = null
     this.kiteTimer = Math.round(levelCurve(wave, GLOOM_CURVES.kiteEvery))
+    this.plane = null
+    this.planeTimer = this.mode === 'calendar' && wave === 8 ? 6 : 250
+    this.extraBeam = null
     this.banner = this.weather
       ? { text: this.front.name, sub: this.front.sub, ticks: 110 }
       : { text: `WAVE ${wave}`, sub: 'SHINE ON THE GLOOM', ticks: 90 }
@@ -1261,6 +1288,8 @@ class GloomInvaders implements ArcadeGameInstance {
 
   update(input: InputFrame) {
     this.tick++
+    if (this.doubleTicks > 0) this.doubleTicks--
+    if (this.sunglassesTicks > 0) this.sunglassesTicks--
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.menu) {
@@ -1306,6 +1335,7 @@ class GloomInvaders implements ArcadeGameInstance {
       this.updateGarden()
     }
     this.updateKite()
+    if (this.mode === 'calendar') this.updateCourier()
     if (this.clouds.every((c) => !c.alive)) this.clearWave()
   }
 
@@ -1331,7 +1361,9 @@ class GloomInvaders implements ArcadeGameInstance {
     // fires on release. Still one beam at a time, so a charge is a choice.
     if (pressed) {
       this.charge = 0
-      if (!this.beam) this.shine(false)
+      if (!this.beam || (this.doubleTicks > 0 && !this.extraBeam)) {
+        this.shine(false)
+      }
       return
     }
     if (held) {
@@ -1344,13 +1376,27 @@ class GloomInvaders implements ArcadeGameInstance {
   }
 
   private shine(lance: boolean) {
-    this.beam = {
+    const shot: Beam = {
       x: this.px,
       y: PLAYER_Y - 10,
       half: lance ? LANCE_HALF : 0,
       pierce: lance,
       helper: false,
       hit: lance ? new Set() : undefined,
+    }
+    if (this.beam && this.doubleTicks > 0) this.extraBeam = shot
+    else this.beam = shot
+    if (this.prismShots > 0) {
+      this.prismShots--
+      for (const offset of [-11, 11]) {
+        this.helperBeams.push({
+          x: Math.max(4, Math.min(W - 4, this.px + offset)),
+          y: PLAYER_Y - 10,
+          half: 0,
+          pierce: false,
+          helper: true,
+        })
+      }
     }
     this.beamsShone++
     if (lance) {
@@ -1369,6 +1415,9 @@ class GloomInvaders implements ArcadeGameInstance {
 
   private updateBeams() {
     if (this.beam && !this.advanceBeam(this.beam)) this.beam = null
+    if (this.extraBeam && !this.advanceBeam(this.extraBeam)) {
+      this.extraBeam = null
+    }
     this.helperBeams = this.helperBeams.filter((b) => this.advanceBeam(b))
   }
 
@@ -1386,6 +1435,16 @@ class GloomInvaders implements ArcadeGameInstance {
           this.erode(hit[0], hit[1], 1.6)
           return false
         }
+      }
+      if (
+        !beam.helper &&
+        this.plane &&
+        Math.abs(beam.x - this.plane.x) < 10 &&
+        Math.abs(beam.y - PLANE_Y) < 7
+      ) {
+        this.collectCourier(this.plane.power)
+        this.plane = null
+        if (!beam.pierce) return false
       }
       if (!beam.helper && this.kite && Math.abs(beam.x - this.kite.x) < 10) {
         if (Math.abs(beam.y - KITE_Y) < 7) {
@@ -1531,6 +1590,57 @@ class GloomInvaders implements ArcadeGameInstance {
     this.sound.play('pickup')
   }
 
+  private updateCourier() {
+    if (this.plane) {
+      this.plane.x += this.plane.dir * PLANE_SPEED
+      if (this.plane.x < -16 || this.plane.x > W + 16) this.plane = null
+      return
+    }
+    if (--this.planeTimer > 0 || this.aliveClouds().length < 8) return
+    this.planeTimer = this.level === 8 ? 220 : 650
+    const dir = this.rng() < 0.5 ? 1 : -1
+    this.plane = {
+      x: dir === 1 ? -14 : W + 14,
+      dir,
+      power: COURIER_POWERS[this.couriersCollected % COURIER_POWERS.length]!,
+    }
+    this.sound.play('warn')
+  }
+
+  private collectCourier(power: CourierPower) {
+    this.couriersCollected++
+    switch (power) {
+      case 'prism':
+        this.prismShots += 3
+        break
+      case 'double':
+        this.doubleTicks = COURIER_DURATION
+        break
+      case 'umbrella-patch':
+        for (const umbrella of this.umbrellas) umbrella.cells = umbrellaShape()
+        break
+      case 'sunglasses':
+        this.sunglassesTicks = COURIER_DURATION
+        break
+      case 'solar-flare': {
+        const clouds = this.aliveClouds()
+        if (clouds.length) {
+          const bottom = Math.max(...clouds.map((c) => c.y + c.h))
+          for (const cloud of clouds) {
+            if (cloud.y + cloud.h >= bottom - 4) this.cheer(cloud)
+          }
+        }
+        break
+      }
+    }
+    this.floatText(power.toUpperCase().replace('-', ' '), W / 2, 62)
+    this.sparkles.burst(W / 2, PLANE_Y, this.sparkRng, {
+      count: 18,
+      colours: RAINBOW,
+    })
+    this.sound.play('pickup')
+  }
+
   private aliveClouds(): Cloud[] {
     return this.clouds.filter((c) => c.alive)
   }
@@ -1653,7 +1763,9 @@ class GloomInvaders implements ArcadeGameInstance {
   }
 
   private updateDrops() {
-    for (const drop of this.drops) stepDrop(drop, this.px)
+    if (this.sunglassesTicks === 0 || this.tick % 2 === 0) {
+      for (const drop of this.drops) stepDrop(drop, this.px)
+    }
     this.drops = this.drops.filter((drop) => this.dropAlive(drop))
     if (this.dead > 0) return
     if (--this.dropTimer > 0) return
@@ -1835,6 +1947,7 @@ class GloomInvaders implements ArcadeGameInstance {
     this.lives--
     this.dead = DEATH_TICKS
     this.beam = null
+    this.extraBeam = null
     this.charge = 0
     this.burst(this.px, PLAYER_Y, 18, '#facc15')
     this.burst(this.px, PLAYER_Y, 10, '#7c3aed')
@@ -1964,8 +2077,10 @@ class GloomInvaders implements ArcadeGameInstance {
     this.strikes = []
     this.helperBeams = []
     this.beam = null
+    this.extraBeam = null
     this.charge = 0
     this.kite = null
+    this.plane = null
     this.addScore(100 * this.level, W / 2, 150)
     if (this.mode === 'calendar' && this.level === 2) {
       if (this.wateredThisFront.size >= 5) {
@@ -2187,6 +2302,7 @@ class GloomInvaders implements ArcadeGameInstance {
     }
     for (const h of this.happies) this.renderHappy(g, h)
     if (this.kite) this.renderKite(g, this.kite)
+    if (this.plane) this.renderCourier(g, this.plane)
     for (const d of this.drops) this.renderDrop(g, d)
     for (const strike of this.strikes) this.renderBolt(g, strike)
     for (const b of this.helperBeams) {
@@ -2194,6 +2310,9 @@ class GloomInvaders implements ArcadeGameInstance {
       else this.renderBeam(g, b.x, b.y, 0, true)
     }
     if (this.beam) this.renderBeam(g, this.beam.x, this.beam.y, this.beam.half)
+    if (this.extraBeam) {
+      this.renderBeam(g, this.extraBeam.x, this.extraBeam.y, this.extraBeam.half)
+    }
     if (this.dead === 0 && !this.over) this.renderSunny(g, this.px, PLAYER_Y)
     for (const p of this.particles) {
       g.globalAlpha = Math.max(0, Math.min(1, p.life / 30))
@@ -2585,6 +2704,31 @@ class GloomInvaders implements ArcadeGameInstance {
     drawSprite(g, PUMPKIN, b.x, b.y)
   }
 
+  private renderCourier(g: CanvasRenderingContext2D, plane: PaperPlane) {
+    const x = Math.round(plane.x)
+    glow(g, x, PLANE_Y, 19, RAMPS.sky[3], 0.5)
+    g.save()
+    g.translate(x, PLANE_Y)
+    g.scale(plane.dir, 1)
+    g.fillStyle = RAMPS.cream[4]
+    g.strokeStyle = INK
+    g.lineWidth = 1
+    g.beginPath()
+    g.moveTo(-13, 0)
+    g.lineTo(12, -5)
+    g.lineTo(-2, 6)
+    g.lineTo(-5, 1)
+    g.closePath()
+    g.fill()
+    g.stroke()
+    g.strokeStyle = RAMPS.pink[3]
+    g.beginPath()
+    g.moveTo(-5, 1)
+    g.lineTo(7, -3)
+    g.stroke()
+    g.restore()
+  }
+
   private renderKite(g: CanvasRenderingContext2D, kite: Kite) {
     const x = Math.round(kite.x)
     const y = KITE_Y
@@ -2692,6 +2836,22 @@ class GloomInvaders implements ArcadeGameInstance {
       color: RAMPS.pink[3],
       outline: INK,
     })
+    if (this.mode === 'calendar') {
+      const boost = [
+        this.prismShots ? `PRISM ${this.prismShots}` : '',
+        this.doubleTicks ? 'DOUBLE' : '',
+        this.sunglassesTicks ? 'SHADES' : '',
+      ]
+        .filter(Boolean)
+        .join(' + ')
+      if (boost) {
+        drawText(g, boost, W / 2, 23, {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        })
+      }
+    }
     // Spare Sunnies wait in a box in the soil.
     const spares = Math.min(this.lives - 1, 5)
     if (spares > 0) {

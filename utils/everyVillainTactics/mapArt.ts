@@ -1,10 +1,20 @@
+import { VERIFIED_EVT_ARENA_RECEIPTS } from './verifiedArenaReceipts.generated'
+
 /**
  * The art modeler's finished private paintings, recorded with ArtJob
  * provenance in conductor/projects/every-villain-tactics/art/
  * TACTICAL-ARENAS-ROUND-1.yaml plus dedicated diner, sunken-street and
- * Valcourt-library ledgers. All IDs below are DONE ArtImages.
+ * Valcourt-library ledgers. Verified private media receipts override fallback
+ * mappings; a DONE ledger without byte proof cannot displace an original.
  * Do not replace these with SVG or CSS illustrations in the playable map.
  */
+const verifiedArenaImageIds = Object.fromEntries(
+  Object.entries(VERIFIED_EVT_ARENA_RECEIPTS).map(([stage, receipt]) => [
+    stage,
+    receipt.imageId,
+  ]),
+)
+
 export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'first-bell': 265014,
   'college-quad': 265015,
@@ -19,16 +29,11 @@ export const PAINTED_EVT_MAP_ART: Readonly<Record<string, number>> = {
   'fountain-hold': 265015,
   'lab-mascot-recall': 265017,
   'boiler-room': 265018,
-  // LAST-ORDER-DINER-ROUND-1.yaml: ArtJob 71163.
-  'last-order': 276806,
   // Temporary Harborline location plate, not Ferris Wheel production art.
   'ferris-wheel': 265022,
-  // SUNKEN-STREET-ROUND-1.yaml: ArtJob 74323.
-  'sunken-street': 277221,
-  // VALCOURT-LIBRARY-ROUND-1.yaml: ArtJob 74324.
-  'unlicensed-rescue': 277330,
   // Existing media-tower painting; unique studio arena art is still outstanding.
   'song-that-stopped': 265023,
+  ...verifiedArenaImageIds,
 }
 
 export function paintedMapArtId(stageId: string | null): number | null {

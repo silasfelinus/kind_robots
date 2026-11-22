@@ -194,6 +194,10 @@ export const ICE_DRAG = 0.92
 export const ICE_MAX_SPEED = 2.8
 export const SNOWBALL_HP = 3
 export const SNOWBALL_POINTS = 450
+export const MOLE_WAIT_TICKS = 300
+export const MOLE_TELL_TICKS = 54
+export const MOLE_UP_TICKS = 72
+export const MOLE_POINTS = 650
 export const HYDRA_HEAD_HP = 6
 export const HYDRA_TELL_TICKS = 90
 /** A worm turned back by a wall this many times in a row squeezes past it. */
@@ -381,6 +385,7 @@ type Pumpkin = {
 }
 type Inchworm = { x: number; y: number; vx: number }
 type Snowball = { x: number; y: number; hp: number; vy: number }
+type MoleBot = { x: number; y: number; phase: 'tell' | 'up'; ticks: number }
 type Snail = { x: number; y: number; vx: number }
 type Beetle = { x: number; y: number; vx: number; vy: number; turn: number }
 type Moth = { x: number; y: number; hp: number }
@@ -825,6 +830,8 @@ class GlitchGarden implements ArcadeGameInstance {
   private glideY = 0
   private snowballs: Snowball[] = []
   private snowballsFixed = 0
+  private mole: MoleBot | null = null
+  private moleTimer = MOLE_WAIT_TICKS
   private dragonflies: Dragonfly[] = []
   private dragonflyTimer = 0
   private bees: Bee[] = []
@@ -945,14 +952,15 @@ class GlitchGarden implements ArcadeGameInstance {
     this.pumpkins = []
     this.inchworms = []
     this.snowballs = []
+    this.mole = null
     this.glideX = 0
     this.glideY = 0
     this.mown = false
     this.padShift = 0
   }
 
-  private plantSnowballs(count: number) {
-    this.snowballsFixed = 0
+  private plantSnowballs(count: number, preserveFixed = false) {
+    if (!preserveFixed) this.snowballsFixed = 0
     this.snowballs = Array.from({ length: count }, (_, i) => ({
       x: (4 + ((i * 7) % 23)) * CELL + 4,
       y: HUD + (2 + (i % 3)) * CELL,
@@ -993,6 +1001,49 @@ class GlitchGarden implements ArcadeGameInstance {
       this.snowballsFixed >= this.wave.objective.count
     )
       this.meetObjective()
+    return true
+  }
+
+  private updateMole() {
+    if (!this.wave.mole) return
+    const mole = this.mole
+    if (!mole) {
+      if (--this.moleTimer > 0) return
+      this.mole = {
+        x: this.px,
+        y: Math.max(BED_Y + 7, Math.min(H - 12, this.py - 6)),
+        phase: 'tell',
+        ticks: MOLE_TELL_TICKS,
+      }
+      this.sound.play('warn')
+      return
+    }
+    if (--mole.ticks > 0) return
+    if (mole.phase === 'tell') {
+      mole.phase = 'up'
+      mole.ticks = MOLE_UP_TICKS
+      this.sound.play('pop')
+    } else {
+      this.mole = null
+      this.moleTimer = MOLE_WAIT_TICKS
+    }
+  }
+
+  private hitMole(x: number, y: number): boolean {
+    const mole = this.mole
+    if (
+      !mole ||
+      mole.phase !== 'up' ||
+      Math.abs(mole.x - x) >= 9 ||
+      Math.abs(mole.y - y) >= 10
+    )
+      return false
+    this.mole = null
+    this.moleTimer = MOLE_WAIT_TICKS
+    this.registerHit()
+    this.addScore(MOLE_POINTS * this.multiplier, x, y)
+    this.burst(x, y, 14, RAMPS.gold[4])
+    this.sound.play('extra')
     return true
   }
 
@@ -1362,6 +1413,7 @@ class GlitchGarden implements ArcadeGameInstance {
             inchworms: 0,
             frost: 0,
             snowballs: 0,
+            mole: false,
             objective: undefined,
             sub: BOSSES[step.boss].sub,
           }
@@ -1387,6 +1439,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.plantPumpkins(plan)
     this.plantFrost(plan.frost)
     this.plantSnowballs(plan.snowballs)
+    this.mole = null
+    this.moleTimer = MOLE_WAIT_TICKS
     this.glideX = 0
     this.glideY = 0
     this.slowTicks = 0
@@ -1627,6 +1681,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.updateLeaves()
     this.updateFrost()
     this.updateSnowballs()
+    this.updateMole()
     this.moveWorms()
     if (this.slowTicks > 0) this.slowTicks--
     const slowFrame = this.slowTicks > 0 && this.tick % 2 !== 0
@@ -1847,6 +1902,7 @@ class GlitchGarden implements ArcadeGameInstance {
       if (this.hitPumpkin(beam.x, beam.y)) return false
       if (this.hitInchworm(beam.x, beam.y)) return false
       if (this.hitSnowball(beam.x, beam.y)) return false
+      if (this.hitMole(beam.x, beam.y)) return false
       if (this.hitLeaf(col, row)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
       if (this.sprayBee(beam.x, beam.y)) return false
@@ -2963,6 +3019,12 @@ class GlitchGarden implements ArcadeGameInstance {
       )
     )
       return this.lose()
+    if (
+      this.mole?.phase === 'up' &&
+      Math.abs(this.mole.x - this.px) < 9 &&
+      Math.abs(this.mole.y - this.py) < 12
+    )
+      return this.lose()
     const b = this.beetle
     if (b && Math.abs(b.x - this.px) < 7 && Math.abs(b.y - this.py) < 6)
       this.lose()
@@ -3043,7 +3105,12 @@ class GlitchGarden implements ArcadeGameInstance {
     this.snail = null
     this.dragonflies = []
     this.bees = []
-    this.snowballs = []
+    this.plantSnowballs(
+      Math.max(0, this.wave.snowballs - this.snowballsFixed),
+      true,
+    )
+    this.mole = null
+    this.moleTimer = MOLE_WAIT_TICKS
     this.beeTimer = BEE_EVERY / 2
     if (this.queenHead)
       this.queenHead = {
@@ -3146,6 +3213,7 @@ class GlitchGarden implements ArcadeGameInstance {
     const threats: Array<{ x: number; y: number }> = []
     if (this.beetle) threats.push(this.beetle)
     for (const snowball of this.snowballs) threats.push(snowball)
+    if (this.mole) threats.push(this.mole)
     for (const d of this.dragonflies) threats.push(d)
     for (const b of this.bees) if (b.wasp && b.diving) threats.push(b)
     if (this.queenHead) threats.push(this.queenHead)
@@ -3271,6 +3339,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.renderPumpkins(g)
     this.renderInchworms(g)
     this.renderSnowballs(g)
+    this.renderMole(g)
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
     if (this.snail) this.renderSnail(g, this.snail)
@@ -3418,6 +3487,34 @@ class GlitchGarden implements ArcadeGameInstance {
         g.fillStyle = color
         g.fillRect(x + dx, y + dy, 3, 2)
       }
+    }
+  }
+
+  private renderMole(g: CanvasRenderingContext2D) {
+    const mole = this.mole
+    if (!mole) return
+    const x = Math.round(mole.x)
+    const y = Math.round(mole.y)
+    const rising = mole.phase === 'up'
+    const pulse = 0.45 + 0.25 * Math.sin(this.tick / 5)
+    glow(g, x, y, rising ? 14 : 11, RAMPS.gold[3], pulse)
+    g.fillStyle = RAMPS.earth[1]
+    g.fillRect(x - 9, y + 3, 18, 4)
+    g.fillStyle = RAMPS.earth[3]
+    g.fillRect(x - 6, y + 1, 12, 3)
+    if (rising) {
+      bevel(g, x - 5, y - 8, 10, 11, RAMPS.steel, {
+        outline: INK,
+        depth: 2,
+      })
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x - 3, y - 5, 2, 2)
+      g.fillRect(x + 2, y - 5, 2, 2)
+    } else {
+      g.strokeStyle = RAMPS.gold[3]
+      g.strokeRect(x - 8.5, y - 7.5, 17, 13)
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x - 1, y - 2, 3, 3)
     }
   }
 

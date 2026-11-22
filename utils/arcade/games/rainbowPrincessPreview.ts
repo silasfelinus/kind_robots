@@ -2935,7 +2935,12 @@ export function createRainbowPrincessPreview(
         finaleStart,
       )
       // Retry restores only branch discoveries earned at the last checkpoint.
-      alternateRoutesSeen = checkpoint.alternateRoutesSeen ?? 0
+      alternateRoutesSeen =
+        checkpoint.alternateRoutesSeen ??
+        (Number(checkpoint.nurseryFrame !== undefined) |
+          (Number(checkpoint.cometFrame !== undefined) << 1) |
+          (Number(checkpoint.lighthouseFrame !== undefined) << 2) |
+          (Number(checkpoint.shoalFrame !== undefined) << 3))
       // A guardian whose section lies after the checkpoint flies again.
       guardian = null
       if (checkpoint.cometFrame !== undefined) {

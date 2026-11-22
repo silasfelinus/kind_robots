@@ -100,6 +100,7 @@ import {
   KITCHEN_PLOT,
   LAYOUT_CAN,
   LAYOUT_EXIT,
+  LAYOUT_HEATER,
   LAYOUT_LAMP,
   LAYOUT_LEAF,
   LAYOUT_PUMPKIN,
@@ -185,6 +186,18 @@ export const PUMPKIN_HP = 8
 export const GIANT_PUMPKIN_HP = 24
 export const ROLLER_HP = 4
 export const INCHWORM_SLOW_TICKS = 300
+export const FROST_HP = 8
+export const FROST_SPREAD_TICKS = 180
+export const HEATER_RADIUS = 3
+export const ICE_ACCEL = 0.45
+export const ICE_DRAG = 0.92
+export const ICE_MAX_SPEED = 2.8
+export const SNOWBALL_HP = 3
+export const SNOWBALL_POINTS = 450
+export const MOLE_WAIT_TICKS = 300
+export const MOLE_TELL_TICKS = 54
+export const MOLE_UP_TICKS = 72
+export const MOLE_POINTS = 650
 export const HYDRA_HEAD_HP = 6
 export const HYDRA_TELL_TICKS = 90
 /** A worm turned back by a wall this many times in a row squeezes past it. */
@@ -270,9 +283,10 @@ export function streakAfterMiss(streak: number): number {
 type Obstacle = {
   hp: number
   /** Trees and sunflowers are walls: never sprayed away, never creeping. */
-  kind: 'lamp' | 'sprout' | 'can' | 'apple' | 'tree' | 'sunflower'
+  kind: 'lamp' | 'sprout' | 'can' | 'apple' | 'tree' | 'sunflower' | 'heater'
   /** Glitched by the snail: grey static that sends a worm plunging. */
   glitched?: boolean
+  frosted?: boolean
   /** A can already set off by a neighbour's splash, waiting its turn. */
   lit?: boolean
 }
@@ -370,6 +384,8 @@ type Pumpkin = {
   vy: number
 }
 type Inchworm = { x: number; y: number; vx: number }
+type Snowball = { x: number; y: number; hp: number; vy: number }
+type MoleBot = { x: number; y: number; phase: 'tell' | 'up'; ticks: number }
 type Snail = { x: number; y: number; vx: number }
 type Beetle = { x: number; y: number; vx: number; vy: number; turn: number }
 type Moth = { x: number; y: number; hp: number }
@@ -809,6 +825,13 @@ class GlitchGarden implements ArcadeGameInstance {
   private pumpkins: Pumpkin[] = []
   private inchworms: Inchworm[] = []
   private slowTicks = 0
+  private frostTimer = FROST_SPREAD_TICKS
+  private glideX = 0
+  private glideY = 0
+  private snowballs: Snowball[] = []
+  private snowballsFixed = 0
+  private mole: MoleBot | null = null
+  private moleTimer = MOLE_WAIT_TICKS
   private dragonflies: Dragonfly[] = []
   private dragonflyTimer = 0
   private bees: Bee[] = []
@@ -908,6 +931,7 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     put(LAYOUT_LAMP, () => ({ hp: LAMP_HP, kind: 'lamp' }))
     put(LAYOUT_CAN, () => ({ hp: 1, kind: 'can' }))
+    put(LAYOUT_HEATER, () => ({ hp: 1, kind: 'heater', lit: false }))
     put(LAYOUT_TREE, () => ({ hp: 1, kind: 'tree' }))
     put(LAYOUT_SUNFLOWER, () => ({ hp: 1, kind: 'sunflower' }))
     for (const [col, row] of layoutCells(garden, LAYOUT_EXIT))
@@ -927,8 +951,183 @@ class GlitchGarden implements ArcadeGameInstance {
     this.leafPiles = []
     this.pumpkins = []
     this.inchworms = []
+    this.snowballs = []
+    this.mole = null
+    this.glideX = 0
+    this.glideY = 0
     this.mown = false
     this.padShift = 0
+  }
+
+  private plantSnowballs(count: number, preserveFixed = false) {
+    if (!preserveFixed) this.snowballsFixed = 0
+    this.snowballs = Array.from({ length: count }, (_, i) => ({
+      x: (4 + ((i * 7) % 23)) * CELL + 4,
+      y: HUD + (2 + (i % 3)) * CELL,
+      hp: SNOWBALL_HP,
+      vy: 0.65 + 0.12 * i,
+    }))
+  }
+
+  private updateSnowballs() {
+    for (const snowball of this.snowballs) {
+      snowball.y += snowball.vy
+      const col = Math.floor(snowball.x / CELL)
+      const row = Math.floor((snowball.y - HUD) / CELL)
+      const lamp = this.at(col, row)
+      if (lamp && lamp.kind === 'lamp') {
+        this.grid[this.idx(col, row)] = null
+        this.burst(snowball.x, snowball.y, 3, RAMPS.sky[4])
+      }
+    }
+    this.snowballs = this.snowballs.filter((ball) => ball.y < H + CELL)
+  }
+
+  private hitSnowball(x: number, y: number): boolean {
+    const snowball = this.snowballs.find(
+      (ball) => Math.abs(ball.x - x) < 7 && Math.abs(ball.y - y) < 7,
+    )
+    if (!snowball) return false
+    snowball.hp--
+    this.sound.play('blip')
+    if (snowball.hp > 0) return true
+    this.snowballs = this.snowballs.filter((ball) => ball !== snowball)
+    this.snowballsFixed++
+    this.registerHit()
+    this.addScore(SNOWBALL_POINTS * this.multiplier, x, y)
+    this.burst(x, y, 12, RAMPS.sky[4])
+    if (
+      this.wave.objective?.kind === 'snow-day' &&
+      this.snowballsFixed >= this.wave.objective.count
+    )
+      this.meetObjective()
+    return true
+  }
+
+  private updateMole() {
+    if (!this.wave.mole) return
+    const mole = this.mole
+    if (!mole) {
+      if (--this.moleTimer > 0) return
+      this.mole = {
+        x: this.px,
+        y: Math.max(BED_Y + 7, Math.min(H - 12, this.py - 6)),
+        phase: 'tell',
+        ticks: MOLE_TELL_TICKS,
+      }
+      this.sound.play('warn')
+      return
+    }
+    if (--mole.ticks > 0) return
+    if (mole.phase === 'tell') {
+      mole.phase = 'up'
+      mole.ticks = MOLE_UP_TICKS
+      this.sound.play('pop')
+    } else {
+      this.mole = null
+      this.moleTimer = MOLE_WAIT_TICKS
+    }
+  }
+
+  private hitMole(x: number, y: number): boolean {
+    const mole = this.mole
+    if (
+      !mole ||
+      mole.phase !== 'up' ||
+      Math.abs(mole.x - x) >= 9 ||
+      Math.abs(mole.y - y) >= 10
+    )
+      return false
+    this.mole = null
+    this.moleTimer = MOLE_WAIT_TICKS
+    this.registerHit()
+    this.addScore(MOLE_POINTS * this.multiplier, x, y)
+    this.burst(x, y, 14, RAMPS.gold[4])
+    this.sound.play('extra')
+    return true
+  }
+
+  private inHeat(col: number, row: number): boolean {
+    for (const [hc, hr] of layoutCells(this.garden, LAYOUT_HEATER)) {
+      if (!this.at(hc, hr)?.lit) continue
+      if (Math.hypot(hc - col, hr - row) <= HEATER_RADIUS) return true
+    }
+    return false
+  }
+
+  private thawHeater(col: number, row: number) {
+    const heater = this.at(col, row)
+    if (!heater || heater.kind !== 'heater' || heater.lit) return
+    heater.lit = true
+    for (let dy = -HEATER_RADIUS; dy <= HEATER_RADIUS; dy++)
+      for (let dx = -HEATER_RADIUS; dx <= HEATER_RADIUS; dx++) {
+        if (Math.hypot(dx, dy) > HEATER_RADIUS) continue
+        const lamp = this.at(col + dx, row + dy)
+        if (!lamp?.frosted) continue
+        lamp.frosted = false
+        lamp.hp = Math.min(LAMP_HP, lamp.hp)
+      }
+    this.sound.play('level')
+    this.burst(col * CELL + 4, HUD + row * CELL + 4, 14, RAMPS.gold[4])
+    const lit = layoutCells(this.garden, LAYOUT_HEATER).filter(
+      ([x, y]) => this.at(x, y)?.lit,
+    ).length
+    this.banner = {
+      text: `HEATER ${lit} ONLINE!`,
+      sub: 'FROST MELTS NEAR THE LIGHT',
+      ticks: 75,
+    }
+    if (
+      this.wave.objective?.kind === 'warm-heaters' &&
+      lit >= this.wave.objective.count
+    )
+      this.meetObjective()
+  }
+
+  private plantFrost(count: number) {
+    for (const lamp of this.grid) {
+      if (lamp?.frosted) {
+        lamp.frosted = false
+        lamp.hp = Math.min(LAMP_HP, lamp.hp)
+      }
+      if (lamp?.kind === 'heater') lamp.lit = false
+    }
+    let frosted = 0
+    for (let row = 0; row < BED_TOP && frosted < count; row++)
+      for (let col = 0; col < COLS && frosted < count; col++) {
+        const lamp = this.at(col, row)
+        if (lamp?.kind !== 'lamp' || this.inHeat(col, row)) continue
+        lamp.frosted = true
+        lamp.hp = FROST_HP
+        frosted++
+      }
+    this.frostTimer = FROST_SPREAD_TICKS
+  }
+
+  private updateFrost() {
+    if (this.wave.frost === 0 || --this.frostTimer > 0) return
+    this.frostTimer = FROST_SPREAD_TICKS
+    const targets: Array<[number, number]> = []
+    for (let row = 0; row < BED_TOP; row++)
+      for (let col = 0; col < COLS; col++) {
+        const lamp = this.at(col, row)
+        if (lamp?.kind !== 'lamp' || lamp.frosted || this.inHeat(col, row))
+          continue
+        let nearby = false
+        for (let dy = -6; dy <= 6 && !nearby; dy++)
+          for (let dx = -6; dx <= 6 && !nearby; dx++)
+            if (
+              Math.abs(dx) + Math.abs(dy) <= 6 &&
+              this.at(col + dx, row + dy)?.frosted
+            )
+              nearby = true
+        if (nearby) targets.push([col, row])
+      }
+    if (!targets.length) return
+    const [col, row] = targets[Math.floor(this.rng() * targets.length)]!
+    const lamp = this.at(col, row)!
+    lamp.frosted = true
+    lamp.hp = Math.max(lamp.hp, FROST_HP)
   }
 
   /** Each wave plants its own cover from the garden's authored leaf anchors. */
@@ -1212,6 +1411,9 @@ class GlitchGarden implements ArcadeGameInstance {
             pumpkins: 0,
             rollers: 0,
             inchworms: 0,
+            frost: 0,
+            snowballs: 0,
+            mole: false,
             objective: undefined,
             sub: BOSSES[step.boss].sub,
           }
@@ -1235,6 +1437,12 @@ class GlitchGarden implements ArcadeGameInstance {
     this.leafWind = plan.leaves > 0 ? (this.rng() < 0.5 ? 1 : -1) : 1
     this.plantLeaves(plan.leaves, plan.objective?.kind === 'clear-leaves')
     this.plantPumpkins(plan)
+    this.plantFrost(plan.frost)
+    this.plantSnowballs(plan.snowballs)
+    this.mole = null
+    this.moleTimer = MOLE_WAIT_TICKS
+    this.glideX = 0
+    this.glideY = 0
     this.slowTicks = 0
     this.dragonflies = []
     this.bees = []
@@ -1471,6 +1679,9 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     this.updateBeams()
     this.updateLeaves()
+    this.updateFrost()
+    this.updateSnowballs()
+    this.updateMole()
     this.moveWorms()
     if (this.slowTicks > 0) this.slowTicks--
     const slowFrame = this.slowTicks > 0 && this.tick % 2 !== 0
@@ -1559,12 +1770,32 @@ class GlitchGarden implements ArcadeGameInstance {
     if (input.held.right) dx += SPRAYER_SPEED
     if (input.held.up) dy -= SPRAYER_SPEED
     if (input.held.down) dy += SPRAYER_SPEED
+    if (this.garden.icyBed) {
+      this.glideX = Math.max(
+        -ICE_MAX_SPEED,
+        Math.min(
+          ICE_MAX_SPEED,
+          this.glideX * ICE_DRAG + Math.sign(dx) * ICE_ACCEL,
+        ),
+      )
+      this.glideY = Math.max(
+        -ICE_MAX_SPEED,
+        Math.min(
+          ICE_MAX_SPEED,
+          this.glideY * ICE_DRAG + Math.sign(dy) * ICE_ACCEL,
+        ),
+      )
+      dx = this.glideX
+      dy = this.glideY
+    }
     const minY = HUD + BED_TOP * CELL + 4
     const maxY = H - 5
     const nx = Math.max(4, Math.min(W - 4, this.px + dx))
     if (!this.blocked(nx, this.py)) this.px = nx
+    else this.glideX = 0
     const ny = Math.max(minY, Math.min(maxY, this.py + dy))
     if (!this.blocked(this.px, ny)) this.py = ny
+    else this.glideY = 0
   }
 
   private blocked(x: number, y: number): boolean {
@@ -1670,6 +1901,8 @@ class GlitchGarden implements ArcadeGameInstance {
       this.pickUpPower(beam, col, row)
       if (this.hitPumpkin(beam.x, beam.y)) return false
       if (this.hitInchworm(beam.x, beam.y)) return false
+      if (this.hitSnowball(beam.x, beam.y)) return false
+      if (this.hitMole(beam.x, beam.y)) return false
       if (this.hitLeaf(col, row)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
       if (this.sprayBee(beam.x, beam.y)) return false
@@ -1716,6 +1949,10 @@ class GlitchGarden implements ArcadeGameInstance {
 
   /** A lamp or sprout sprayed: once it's had enough, it blooms into a flower. */
   private water(col: number, row: number, ob: Obstacle) {
+    if (ob.kind === 'heater') {
+      this.thawHeater(col, row)
+      return
+    }
     if (ob.kind === 'can') {
       if (!ob.lit) this.splash(col, row, 1)
       return
@@ -2775,6 +3012,19 @@ class GlitchGarden implements ArcadeGameInstance {
         }
       }
     }
+    if (
+      this.snowballs.some(
+        (ball) =>
+          Math.abs(ball.x - this.px) < 8 && Math.abs(ball.y - this.py) < 8,
+      )
+    )
+      return this.lose()
+    if (
+      this.mole?.phase === 'up' &&
+      Math.abs(this.mole.x - this.px) < 9 &&
+      Math.abs(this.mole.y - this.py) < 12
+    )
+      return this.lose()
     const b = this.beetle
     if (b && Math.abs(b.x - this.px) < 7 && Math.abs(b.y - this.py) < 6)
       this.lose()
@@ -2855,6 +3105,12 @@ class GlitchGarden implements ArcadeGameInstance {
     this.snail = null
     this.dragonflies = []
     this.bees = []
+    this.plantSnowballs(
+      Math.max(0, this.wave.snowballs - this.snowballsFixed),
+      true,
+    )
+    this.mole = null
+    this.moleTimer = MOLE_WAIT_TICKS
     this.beeTimer = BEE_EVERY / 2
     if (this.queenHead)
       this.queenHead = {
@@ -2867,6 +3123,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.bedTicks = 0
     this.px = W / 2
     this.py = HUD + (ROWS - 2) * CELL
+    this.glideX = 0
+    this.glideY = 0
     // Clear a spot to stand in.
     for (let c = 13; c <= 16; c++)
       for (let r = ROWS - 3; r < ROWS; r++) this.grid[this.idx(c, r)] = null
@@ -2954,6 +3212,8 @@ class GlitchGarden implements ArcadeGameInstance {
     // Danger close: get away from it first.
     const threats: Array<{ x: number; y: number }> = []
     if (this.beetle) threats.push(this.beetle)
+    for (const snowball of this.snowballs) threats.push(snowball)
+    if (this.mole) threats.push(this.mole)
     for (const d of this.dragonflies) threats.push(d)
     for (const b of this.bees) if (b.wasp && b.diving) threats.push(b)
     if (this.queenHead) threats.push(this.queenHead)
@@ -2994,6 +3254,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (giant) target = giant
     const hydraHead = this.pumpkins.find((p) => p.hydra && p.lit)
     if (hydraHead) target = hydraHead
+    if (this.snowballs.length) target = this.snowballs[0]!
     if (target) {
       if (target.x < this.px - 2) held.left = true
       if (target.x > this.px + 2) held.right = true
@@ -3077,6 +3338,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.renderLeaves(g)
     this.renderPumpkins(g)
     this.renderInchworms(g)
+    this.renderSnowballs(g)
+    this.renderMole(g)
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
     if (this.snail) this.renderSnail(g, this.snail)
@@ -3224,6 +3487,52 @@ class GlitchGarden implements ArcadeGameInstance {
         g.fillStyle = color
         g.fillRect(x + dx, y + dy, 3, 2)
       }
+    }
+  }
+
+  private renderMole(g: CanvasRenderingContext2D) {
+    const mole = this.mole
+    if (!mole) return
+    const x = Math.round(mole.x)
+    const y = Math.round(mole.y)
+    const rising = mole.phase === 'up'
+    const pulse = 0.45 + 0.25 * Math.sin(this.tick / 5)
+    glow(g, x, y, rising ? 14 : 11, RAMPS.gold[3], pulse)
+    g.fillStyle = RAMPS.earth[1]
+    g.fillRect(x - 9, y + 3, 18, 4)
+    g.fillStyle = RAMPS.earth[3]
+    g.fillRect(x - 6, y + 1, 12, 3)
+    if (rising) {
+      bevel(g, x - 5, y - 8, 10, 11, RAMPS.steel, {
+        outline: INK,
+        depth: 2,
+      })
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x - 3, y - 5, 2, 2)
+      g.fillRect(x + 2, y - 5, 2, 2)
+    } else {
+      g.strokeStyle = RAMPS.gold[3]
+      g.strokeRect(x - 8.5, y - 7.5, 17, 13)
+      g.fillStyle = RAMPS.gold[4]
+      g.fillRect(x - 1, y - 2, 3, 3)
+    }
+  }
+
+  private renderSnowballs(g: CanvasRenderingContext2D) {
+    for (const ball of this.snowballs) {
+      const x = Math.round(ball.x)
+      const y = Math.round(ball.y)
+      const radius = 3 + ball.hp * 2
+      dropShadow(g, x, y + radius, radius, 2, 0.4)
+      glow(g, x, y, radius + 6, RAMPS.sky[3], 0.5)
+      g.fillStyle = INK
+      g.fillRect(x - radius, y - radius, radius * 2, radius * 2)
+      g.fillStyle = RAMPS.sky[4]
+      g.fillRect(x - radius + 1, y - radius + 1, radius * 2 - 2, radius * 2 - 2)
+      g.fillStyle = RAMPS.sky[2]
+      g.fillRect(x - radius + 2, y, radius * 2 - 4, 2)
+      g.fillStyle = '#ffffff'
+      g.fillRect(x - 2, y - radius + 2, 4, 2)
     }
   }
 
@@ -3592,6 +3901,18 @@ class GlitchGarden implements ArcadeGameInstance {
       })
       return
     }
+    if (ob.kind === 'heater') {
+      const lit = Boolean(ob.lit)
+      const color = lit ? RAMPS.gold[4] : RAMPS.sky[4]
+      glow(g, x + 4, y + 4, lit ? 18 : 8, color, lit ? 0.8 : 0.45)
+      bevel(g, x + 1, y + 1, 6, 6, lit ? RAMPS.gold : RAMPS.sky, {
+        depth: 1,
+        outline: INK,
+      })
+      g.fillStyle = color
+      g.fillRect(x + 3, y - 2, 2, 4)
+      return
+    }
     if (ob.kind === 'can') {
       // The can's tell: its glint and drip blink, faster once it's lit.
       const frame = Math.floor(this.tick / (ob.lit ? 3 : 18)) % 2
@@ -3622,6 +3943,13 @@ class GlitchGarden implements ArcadeGameInstance {
     const sprite = (flicker ? set.flicker : set.lit)[hp]
     if (flicker) glow(g, x + 4, y + 3, 9, pal.lamp[3], 0.5)
     if (sprite) drawHd(g, sprite, x + 0.5, y, top)
+    if (ob.frosted) {
+      g.fillStyle = rgba(RAMPS.sky[4], 0.65)
+      g.fillRect(x, y, 8, 2)
+      g.fillRect(x, y + 2, 2, 5)
+      g.fillRect(x + 6, y + 2, 2, 5)
+      glow(g, x + 4, y + 3, 9, RAMPS.sky[3], 0.35)
+    }
     bloomDot()
   }
 
@@ -3814,7 +4142,11 @@ class GlitchGarden implements ArcadeGameInstance {
                 ? `LEAVES ${Math.min(this.rakedLeaves, goal.count)}/${goal.count}`
                 : goal.kind === 'great-pumpkin'
                   ? `GIANT ${this.pumpkins.find((p) => p.giant)?.hp ?? 0} HP`
-                  : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
+                  : goal.kind === 'warm-heaters'
+                    ? `HEATERS ${layoutCells(this.garden, LAYOUT_HEATER).filter(([x, y]) => this.at(x, y)?.lit).length}/${goal.count}`
+                    : goal.kind === 'snow-day'
+                      ? `SNOWBALLS ${Math.min(this.snowballsFixed, goal.count)}/${goal.count}`
+                      : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
       const state = this.objectiveDone
         ? 'DONE!'
         : this.objectiveFailed

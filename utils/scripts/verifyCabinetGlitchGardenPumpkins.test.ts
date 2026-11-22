@@ -71,15 +71,15 @@ const make = (seed = 91, demo = false) =>
     hiScore: 0,
   }) as unknown as Probe
 
-assert.equal(GARDENS.length, 6)
+assert.equal(GARDENS.length, 8)
 assert.equal(GARDENS[5], PUMPKIN_PATCH)
 assert.equal(PUMPKIN_PATCH.layout.length, 36)
 assert.ok(PUMPKIN_PATCH.layout.every((row) => row.length === 30))
 assert.ok(layoutCells(PUMPKIN_PATCH, LAYOUT_PUMPKIN).length >= 8)
-assert.equal(PLAYS_PER_LAP, 33)
+assert.equal(PLAYS_PER_LAP, 43)
 assert.equal(gardenStart(5), campaignPlay(28).index)
-assert.deepEqual(campaignPlay(34), { index: 0, lap: 1 })
-assert.equal(CAMPAIGN.filter((step) => step.kind === 'wave').length, 30)
+assert.deepEqual(campaignPlay(44), { index: 0, lap: 1 })
+assert.equal(CAMPAIGN.filter((step) => step.kind === 'wave').length, 40)
 assert.equal(PUMPKIN_PATCH.waves[2]!.objective?.kind, 'great-pumpkin')
 
 {

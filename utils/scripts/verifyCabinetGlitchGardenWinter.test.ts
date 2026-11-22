@@ -1,0 +1,236 @@
+import assert from 'node:assert/strict'
+import { mulberry32 } from '../arcade/curve'
+import { GARDEN_LOOKS } from '../arcade/games/glitchGardenArt'
+import { emptyInput } from '../arcade/types'
+import type { InputFrame } from '../arcade/types'
+import {
+  FROST_HP,
+  FROST_SPREAD_TICKS,
+  HEATER_RADIUS,
+  SNOWBALL_HP,
+  MOLE_TELL_TICKS,
+  MOLE_WAIT_TICKS,
+  create,
+} from '../arcade/games/glitchGarden'
+import {
+  CAMPAIGN,
+  FROST_FRAME_GREENHOUSE,
+  GARDENS,
+  LAYOUT_HEATER,
+  PLAYS_PER_LAP,
+  SNOWBALL_HILL,
+  gardenStart,
+  layoutCells,
+} from '../arcade/games/glitchGardenGardens'
+
+type Obstacle = {
+  hp: number
+  kind: string
+  frosted?: boolean
+  lit?: boolean
+} | null
+
+type Snowball = { x: number; y: number; hp: number; vy: number }
+type Mole = { x: number; y: number; phase: 'tell' | 'up'; ticks: number }
+
+type Probe = {
+  garden: { id: string; icyBed?: boolean }
+  grid: Obstacle[]
+  wave: { objective?: { kind: string } }
+  frostTimer: number
+  snowballs: Snowball[]
+  snowballsFixed: number
+  objectiveDone: boolean
+  lives: number
+  worms: unknown[]
+  mole: Mole | null
+  moleTimer: number
+  px: number
+  py: number
+  glideX: number
+  beginStep(index: number, lap: number, level: number): void
+  update(input: InputFrame): void
+  newBeam(x: number, y: number, child: boolean): unknown
+  stepBeam(beam: unknown): boolean
+  thawHeater(col: number, row: number): void
+  updateFrost(): void
+  updateMole(): void
+  hitMole(x: number, y: number): boolean
+  checkHits(): void
+  afterDeath(): void
+  hitSnowball(x: number, y: number): boolean
+  moveSprayer(input: InputFrame): void
+}
+
+const COLS = 30
+const HUD = 16
+const CELL = 8
+const make = (seed = 17) =>
+  create({
+    rng: mulberry32(seed),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+  }) as unknown as Probe
+const countFrost = (g: Probe) => g.grid.filter((ob) => ob?.frosted).length
+const at = (g: Probe, col: number, row: number) => g.grid[row * COLS + col]!
+const moleOf = (g: Probe): Mole | null => g.mole
+
+assert.equal(GARDENS.length, 8)
+assert.equal(PLAYS_PER_LAP, 43)
+assert.equal(CAMPAIGN.filter((s) => s.kind === 'wave').length, 40)
+assert.equal(GARDENS[6], FROST_FRAME_GREENHOUSE)
+assert.equal(GARDENS[7], SNOWBALL_HILL)
+assert.equal(layoutCells(FROST_FRAME_GREENHOUSE, LAYOUT_HEATER).length, 4)
+assert.equal(FROST_FRAME_GREENHOUSE.waves[2]!.objective?.kind, 'warm-heaters')
+assert.equal(SNOWBALL_HILL.waves[2]!.objective?.kind, 'snow-day')
+assert.equal(SNOWBALL_HILL.icyBed, true)
+assert.ok(GARDEN_LOOKS['frost-frame-greenhouse'])
+assert.ok(GARDEN_LOOKS['snowball-hill'])
+assert.ok(FROST_FRAME_GREENHOUSE.waves.every((w) => w.frost > 0))
+assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
+
+{
+  const g = make()
+  g.beginStep(gardenStart(6), 0, 34)
+  assert.equal(g.garden.id, 'frost-frame-greenhouse')
+  assert.equal(countFrost(g), 8)
+  assert.ok(g.grid.some((lamp) => lamp?.frosted && lamp.hp === FROST_HP))
+  g.frostTimer = 1
+  g.updateFrost()
+  assert.equal(g.frostTimer, FROST_SPREAD_TICKS)
+  assert.equal(countFrost(g), 9, 'frost spreads across spaced lamps')
+
+  const heaters = layoutCells(FROST_FRAME_GREENHOUSE, LAYOUT_HEATER)
+  const [col, row] = heaters[1]!
+  const nearby = g.grid.filter((lamp) => lamp?.frosted).length
+  g.thawHeater(col, row)
+  assert.ok(at(g, col, row)?.lit, 'heater lights on spray')
+  assert.ok(countFrost(g) < nearby, 'heated radius melts frozen lamps')
+  assert.ok(
+    g.grid.every((lamp) => !lamp?.frosted || lamp.hp >= 1),
+    'thawed lamps stay usable',
+  )
+  assert.equal(HEATER_RADIUS, 3)
+  g.thawHeater(col, row)
+  assert.equal(at(g, col, row)?.lit, true, 'a lit heater stays lit')
+}
+
+{
+  const g = make(5)
+  g.beginStep(gardenStart(6) + 2, 0, 36)
+  assert.equal(g.wave.objective?.kind, 'warm-heaters')
+  const heaters = layoutCells(FROST_FRAME_GREENHOUSE, LAYOUT_HEATER)
+  for (const [col, row] of heaters) {
+    const x = col * CELL + CELL / 2
+    const y = HUD + (row + 1) * CELL + CELL / 2
+    const beam = g.newBeam(x, y, false)
+    for (let i = 0; i < 4 && !at(g, col, row)?.lit; i++) g.stepBeam(beam)
+    assert.ok(at(g, col, row)?.lit, 'real beam lights a heater')
+  }
+  assert.ok(g.objectiveDone, 'four live heaters award Warm Up')
+}
+
+{
+  const g = make(8)
+  g.beginStep(gardenStart(7), 0, 40)
+  assert.equal(g.garden.id, 'snowball-hill')
+  assert.equal(g.snowballs.length, 1)
+  const x = g.px
+  const right = emptyInput()
+  right.held.right = true
+  for (let i = 0; i < 8; i++) g.moveSprayer(right)
+  const pushed = g.px
+  assert.ok(pushed > x)
+  g.moveSprayer(emptyInput())
+  assert.ok(g.px > pushed, 'icy bed keeps gliding after release')
+  assert.ok(g.glideX > 0)
+  const ball = g.snowballs[0]!
+  assert.equal(ball.hp, SNOWBALL_HP)
+  for (let i = 0; i < SNOWBALL_HP; i++) assert.ok(g.hitSnowball(ball.x, ball.y))
+  assert.equal(g.snowballsFixed, 1)
+  assert.equal(g.snowballs.length, 0, 'sprayed snowball is fixed')
+}
+
+{
+  const g = make(21)
+  g.beginStep(gardenStart(7) + 2, 0, 42)
+  assert.equal(g.wave.objective?.kind, 'snow-day')
+  assert.equal(g.snowballs.length, 3)
+  for (const ball of [...g.snowballs])
+    for (let i = 0; i < SNOWBALL_HP; i++)
+      assert.ok(g.hitSnowball(ball.x, ball.y))
+  assert.equal(g.snowballsFixed, 3)
+  assert.equal(g.objectiveDone, true, 'Snow Day awards the special objective')
+}
+
+{
+  const run = (seed: number) => {
+    const g = make(seed)
+    g.beginStep(gardenStart(6), 0, 34)
+    g.frostTimer = 1
+    g.updateFrost()
+    return g.grid.map((ob) => (ob?.frosted ? 1 : 0)).join('')
+  }
+  assert.equal(run(29), run(29), 'winter frost is seeded and repeatable')
+}
+
+{
+  const g = make(71)
+  g.beginStep(gardenStart(7) + 1, 0, 41)
+  assert.equal(SNOWBALL_HILL.waves[1]!.mole, true)
+  assert.equal(moleOf(g), null)
+  g.moleTimer = 1
+  g.updateMole()
+  assert.equal(moleOf(g)?.phase, 'tell', 'mole warns before an ambush')
+  const warning = moleOf(g)!
+  assert.equal(warning.ticks, MOLE_TELL_TICKS)
+  const x = warning.x
+  const y = warning.y
+  g.px += 32
+  moleOf(g)!.ticks = 1
+  g.updateMole()
+  assert.equal(moleOf(g)?.phase, 'up', 'mole emerges after warning')
+  const lives = g.lives
+  g.worms = []
+  g.snowballs = []
+  g.checkHits()
+  assert.equal(g.lives, lives, 'moving off the mound avoids the ambush')
+  assert.ok(g.hitMole(x, y), 'emerged mole can be fixed with a spray')
+  assert.equal(moleOf(g), null)
+  assert.equal(g.moleTimer, MOLE_WAIT_TICKS)
+  assert.equal(g.hitMole(x, y), false, 'fixed mole pays only once')
+}
+
+{
+  const g = make(72)
+  g.beginStep(gardenStart(7) + 1, 0, 41)
+  g.moleTimer = 1
+  g.updateMole()
+  moleOf(g)!.ticks = 1
+  g.updateMole()
+  g.worms = []
+  g.snowballs = []
+  const lives = g.lives
+  g.checkHits()
+  assert.equal(g.lives, lives - 1, 'standing on a popping mole costs one life')
+}
+
+{
+  const g = make(73)
+  g.beginStep(gardenStart(7) + 2, 0, 42)
+  assert.equal(g.snowballs.length, 3)
+  const first = g.snowballs[0]!
+  for (let i = 0; i < SNOWBALL_HP; i++)
+    assert.ok(g.hitSnowball(first.x, first.y))
+  assert.equal(g.snowballsFixed, 1)
+  g.afterDeath()
+  assert.equal(g.snowballsFixed, 1, 'snow day progress survives respawn')
+  assert.equal(g.snowballs.length, 2, 'unfixed snowballs respawn')
+  for (const ball of [...g.snowballs])
+    for (let i = 0; i < SNOWBALL_HP; i++)
+      assert.ok(g.hitSnowball(ball.x, ball.y))
+  assert.equal(g.objectiveDone, true, 'respawn cannot strand Snow Day reward')
+}
+
+console.log('glitch garden winter mechanics: ok')

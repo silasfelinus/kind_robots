@@ -24,6 +24,8 @@ export const LAYOUT_EXIT = 'E'
 export const LAYOUT_LEAF = 'L'
 /** A pumpkin patch grows two-cell obstacles from these authored seed positions. */
 export const LAYOUT_PUMPKIN = 'P'
+/** A winter heater: spray to thaw frozen lamps within three cells. */
+export const LAYOUT_HEATER = 'H'
 
 type ObjectiveText = { title: string; hint: string; bonus: number }
 export type GardenObjective =
@@ -39,6 +41,10 @@ export type GardenObjective =
   | (ObjectiveText & { kind: 'clear-leaves'; count: number })
   /** Crack the oversized rolling pumpkin before fixing the wave. */
   | (ObjectiveText & { kind: 'great-pumpkin' })
+  /** Bring every heater online before the winter wave ends. */
+  | (ObjectiveText & { kind: 'warm-heaters'; count: number })
+  /** Shrink and fix this many rolling snowballs before the worm is finished. */
+  | (ObjectiveText & { kind: 'snow-day'; count: number })
 
 export type GardenWave = {
   /** Segments in the main glitch-worm, head included. */
@@ -66,6 +72,11 @@ export type GardenWave = {
   pumpkins: number
   rollers: number
   inchworms: number
+  /** Number of lamps that begin this wave under ice. */
+  frost: number
+  snowballs: number
+  /** A timed underground ambusher that erupts beneath the sprayer. */
+  mole: boolean
   sub: string
   objective?: GardenObjective
 }
@@ -114,6 +125,8 @@ export type Garden = {
   /** One string per row, one letter per cell (30 x 36). */
   layout: readonly string[]
   /** Rows of drifting lily pads: odd entries drift right, even ones left. */
+  /** The sprayer coasts after releasing a direction on frozen soil. */
+  icyBed?: boolean
   pondRows?: readonly number[]
   /** Ticks between apples falling from the garden's trees. */
   appleEvery?: number
@@ -145,6 +158,9 @@ function wave(
     pumpkins: 0,
     rollers: 0,
     inchworms: 0,
+    frost: 0,
+    snowballs: 0,
+    mole: false,
     ...parts,
   }
 }
@@ -851,27 +867,27 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
     '..............................',
     '..............................',
     '.........o....................',
-    '..............o...............',
+    '....H.........o...............',
     '...................o..........',
     '........................o.....',
     '......o.......................',
     '...........o..C...............',
     '................o.............',
     '.....................o........',
-    '...o......................o...',
+    '...o...........H..........o...',
     '........o.....................',
     '.............o................',
     '..................o...........',
     '.......................o......',
     '.....o........C...............',
     '..........o...................',
-    '...............o..............',
+    '........H......o..............',
     '....................o.........',
     '..o......................o....',
     '.......o......................',
     '............o.................',
     '.................o............',
-    '..............C.......o.......',
+    '..............C.......o..H....',
     '....o......................o..',
     '.........o....................',
     '..............o...............',
@@ -898,6 +914,7 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
       dragonflies: 0,
       bees: 0,
       wasp: false,
+      frost: 8,
       sub: 'THE COLD FRONT',
     }),
     wave({
@@ -912,6 +929,7 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
       dragonflies: 0,
       bees: 0,
       wasp: false,
+      frost: 11,
       sub: 'FROST ON THE PATH',
     }),
     wave({
@@ -926,6 +944,18 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
       dragonflies: 0,
       bees: 2,
       wasp: false,
+      frost: 14,
+      objective: {
+        kind: 'warm-heaters',
+
+        title: 'WARM UP',
+
+        hint: 'LIGHT ALL FOUR HEATERS',
+
+        count: 4,
+
+        bonus: 2400,
+      },
       sub: 'THE WINTER WATCH',
     }),
     wave({
@@ -940,6 +970,7 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
       dragonflies: 1,
       bees: 2,
       wasp: true,
+      frost: 17,
       sub: 'THE LONG FREEZE',
     }),
     wave({
@@ -954,6 +985,7 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
       dragonflies: 1,
       bees: 2,
       wasp: true,
+      frost: 20,
       sub: 'THE LAST THAW',
     }),
   ],
@@ -963,6 +995,7 @@ export const SNOWBALL_HILL: Garden = {
   id: 'snowball-hill',
   name: 'SNOWBALL HILL',
   season: 'winter',
+  icyBed: true,
   intro: ['WINTER IS HERE', 'KEEP THE PRISM LANES OPEN'],
   layout: [
     '..............................',
@@ -1015,6 +1048,7 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 0,
       bees: 0,
       wasp: false,
+      snowballs: 1,
       sub: 'THE COLD FRONT',
     }),
     wave({
@@ -1029,6 +1063,8 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 0,
       bees: 0,
       wasp: false,
+      snowballs: 2,
+      mole: true,
       sub: 'FROST ON THE PATH',
     }),
     wave({
@@ -1043,6 +1079,19 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 0,
       bees: 2,
       wasp: false,
+      snowballs: 3,
+      mole: true,
+      objective: {
+        kind: 'snow-day',
+
+        title: 'SNOW DAY',
+
+        hint: 'SPRAY THREE ROLLING SNOWBALLS',
+
+        count: 3,
+
+        bonus: 2800,
+      },
       sub: 'THE WINTER WATCH',
     }),
     wave({
@@ -1057,6 +1106,8 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 1,
       bees: 2,
       wasp: true,
+      snowballs: 3,
+      mole: true,
       sub: 'THE LONG FREEZE',
     }),
     wave({
@@ -1071,6 +1122,8 @@ export const SNOWBALL_HILL: Garden = {
       dragonflies: 1,
       bees: 2,
       wasp: true,
+      snowballs: 4,
+      mole: true,
       sub: 'THE LAST THAW',
     }),
   ],

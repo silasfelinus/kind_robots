@@ -170,10 +170,19 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
 
 // --- the year as data ------------------------------------------------------------------
 {
-  assert.equal(GARDENS.length, 6, 'Spring, Summer and both Autumn gardens')
+  assert.equal(GARDENS.length, 8, 'two gardens per season')
   assert.deepEqual(
     GARDENS.map((g) => g.season),
-    ['spring', 'spring', 'summer', 'summer', 'autumn', 'autumn'],
+    [
+      'spring',
+      'spring',
+      'summer',
+      'summer',
+      'autumn',
+      'autumn',
+      'winter',
+      'winter',
+    ],
   )
   for (const garden of GARDENS) {
     assert.equal(garden.waves.length, 5, `${garden.id}: five waves`)
@@ -195,6 +204,8 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
       'escort-bees',
       'clear-leaves',
       'great-pumpkin',
+      'warm-heaters',
+      'snow-day',
     ],
   )
   assert.ok(layoutCells(ORCHARD_ROWS, LAYOUT_TREE).length >= 8)
@@ -215,9 +226,9 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
 
   // Waves, Queen Wiggle after Spring, the shed between gardens, Mow-Bot after Summer.
   const kinds = CAMPAIGN.map((s) => s.kind)
-  assert.equal(kinds.filter((k) => k === 'wave').length, 30)
-  assert.equal(kinds.filter((k) => k === 'shed').length, 6)
-  assert.equal(PLAYS_PER_LAP, 33)
+  assert.equal(kinds.filter((k) => k === 'wave').length, 40)
+  assert.equal(kinds.filter((k) => k === 'shed').length, 8)
+  assert.equal(PLAYS_PER_LAP, 43)
   const at11 = CAMPAIGN[campaignPlay(11).index]!
   assert.ok(at11.kind === 'boss' && at11.boss === 'queen-wiggle')
   const at22 = CAMPAIGN[campaignPlay(22).index]!
@@ -227,7 +238,7 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   assert.deepEqual(campaignPlay(28), { index: gardenStart(5), lap: 0 })
   const at33 = CAMPAIGN[campaignPlay(33).index]!
   assert.ok(at33.kind === 'boss' && at33.boss === 'gourd-hydra')
-  assert.deepEqual(campaignPlay(34), { index: 0, lap: 1 })
+  assert.deepEqual(campaignPlay(44), { index: 0, lap: 1 })
   assert.equal(
     gardenStart(2),
     CAMPAIGN.findIndex((s) => s.kind === 'wave' && s.garden === 2),
@@ -724,7 +735,10 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   }
   for (let n = 1; n <= 33; n++)
     assert.ok(seen.has(n), `the pilot reached wave ${n}`)
-  assert.ok(g.level >= 34 && g.lap === 1, 'and fixed the Gourd Hydra')
+  assert.ok(
+    g.level >= 34 && g.lap === 0,
+    'and reached Winter after the Gourd Hydra',
+  )
   assert.ok(g.score > 0 && g.score < registry.maxPlausibleScore)
   console.log(
     `  pilot: waves 1-33 and three season bosses in ${ticks} ticks, ${g.score} points`,

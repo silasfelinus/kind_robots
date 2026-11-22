@@ -140,4 +140,47 @@ function host() {
     assert.ok(game.marshal?.phase, 'the Marshal remains wired to the game loop')
   }
 }
+
+{
+  const parade = arenaById(FAIRGROUNDS[3]!, 'sl-parade')
+  assert.equal(parade.objective, 'escort')
+  assert.equal(parade.escort?.health, 3)
+  assert.ok(parade.limit && parade.limit > 0)
+  const run = () => create({
+    rng: mulberry32(4),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+  }) as unknown as {
+    playArena: (arena: typeof parade) => void
+    cells: Uint8Array
+    timeLeft: number
+    escortLastX: number
+    escortHits: number
+    roundClear: number
+    lives: number
+    checkRoundOver: () => void
+  }
+  const safe = run()
+  safe.playArena(parade)
+  safe.cells[32 * GRID + 5] = 1
+  safe.checkRoundOver()
+  assert.equal(safe.escortHits, 0, 'own ribbons cannot harm the float')
+  safe.timeLeft = 0
+  safe.checkRoundOver()
+  assert.ok(safe.roundClear > 0, 'the protected moon reaches its destination')
+
+  const tangled = run()
+  tangled.playArena(parade)
+  for (const x of [5, 6, 7]) {
+    tangled.timeLeft =
+      parade.limit! - Math.ceil(((x - 5) * parade.limit!) / 37)
+    tangled.escortLastX = x - 1
+    tangled.cells[32 * GRID + x] = 5
+    tangled.checkRoundOver()
+    assert.equal(tangled.escortHits, x - 4, 'enemy ribbon tangles the float')
+  }
+  assert.equal(tangled.lives, 2, 'three tangles cost one rider')
+}
+
 console.log('ribbon riders late circuit and Grand Marshals: ok')

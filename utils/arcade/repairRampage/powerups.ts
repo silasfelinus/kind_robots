@@ -23,7 +23,8 @@ export function toolboxTool(
   tower: number,
   index: number,
 ): RepairTool {
-  const seed = Math.max(0, Math.floor(city)) +
+  const seed =
+    Math.max(0, Math.floor(city)) +
     Math.max(0, Math.floor(tower)) * 3 +
     Math.max(0, Math.floor(index))
   return REPAIR_TOOLS[seed % REPAIR_TOOLS.length]!

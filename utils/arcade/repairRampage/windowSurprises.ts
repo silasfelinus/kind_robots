@@ -1,9 +1,4 @@
-export type WindowSurprise =
-  | 'snack'
-  | 'toolbox'
-  | 'cake'
-  | 'sparky-wire'
-  | null
+export type WindowSurprise = 'snack' | 'toolbox' | 'cake' | 'sparky-wire' | null
 
 export function windowSurprise(
   city: number,

@@ -15,7 +15,9 @@ for (let city = 1; city <= 25; city++) {
       kinds.add(surprise)
       rewards++
       const reward = WINDOW_SURPRISE_REWARDS[surprise]
-      assert.ok(surprise === 'sparky-wire' ? reward.charge < 0 : reward.charge > 0)
+      assert.ok(
+        surprise === 'sparky-wire' ? reward.charge < 0 : reward.charge > 0,
+      )
       assert.ok(reward.points > 0)
       assert.ok(reward.label.length > 0)
     }

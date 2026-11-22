@@ -14,10 +14,7 @@
 
 import { levelCurve } from '../curve'
 import { REPAIR_RAMPAGE_MUSIC } from '../repairRampage/music'
-import {
-  REPAIR_TOOL_LABELS,
-  toolboxTool,
-} from '../repairRampage/powerups'
+import { REPAIR_TOOL_LABELS, toolboxTool } from '../repairRampage/powerups'
 import type { RepairTool } from '../repairRampage/powerups'
 import type { MusicLoop } from '../sound'
 import { repairTownForCity } from '../repairRampage/towns'
@@ -927,7 +924,8 @@ class RepairRampage implements ArcadeGameInstance {
   private repairWindow(row: number, col: number) {
     const t = this.towers[this.tower]!
     const index = row * TOWER_COLS + col
-    if (!t.standing || row < 0 || row >= t.rows || col < 0 || col >= TOWER_COLS) return
+    if (!t.standing || row < 0 || row >= t.rows || col < 0 || col >= TOWER_COLS)
+      return
     if (t.windows[index]) return
     t.windows[index] = true
     const surprise = t.surprises[index]
@@ -941,8 +939,8 @@ class RepairRampage implements ArcadeGameInstance {
     this.addScore(FIX_POINTS * Math.min(this.fixChain, 5), wx, wy - 8)
     if (surprise) {
       const reward = WINDOW_SURPRISE_REWARDS[surprise]
-      const blocked = surprise === 'sparky-wire' &&
-        this.absorbHit('rubber-gloves')
+      const blocked =
+        surprise === 'sparky-wire' && this.absorbHit('rubber-gloves')
       const delta = blocked ? 0 : reward.charge
       this.charge = Math.min(MAX_CHARGE, this.charge + delta)
       if (surprise === 'toolbox') {
@@ -1118,10 +1116,7 @@ class RepairRampage implements ArcadeGameInstance {
       this.charge -= TOWER_DOWN_COST
       if (this.kitten?.tower === i) this.kitten = null
       if (this.mode === 'climb' && this.tower === i) {
-        if (
-          this.reserveGrace === 0 &&
-          !this.absorbHit('hard-hat')
-        ) {
+        if (this.reserveGrace === 0 && !this.absorbHit('hard-hat')) {
           this.charge -= COLLAPSE_COST
         }
         this.letGo()

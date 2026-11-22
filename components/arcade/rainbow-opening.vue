@@ -127,6 +127,7 @@ function onPlaybackError() {
   ++playbackAttempt
   cancelAnimationFrame(frame)
   state.value = 'failed'
+  pollPads()
   void nextTick(() => {
     if (state.value === 'failed') playButton.value?.focus()
   })
@@ -143,6 +144,7 @@ function offer() {
   ++playbackAttempt
   cancelAnimationFrame(frame)
   state.value = 'offer'
+  pollPads()
   void nextTick(() => playButton.value?.focus())
 }
 
@@ -157,15 +159,22 @@ function onKey(event: KeyboardEvent) {
 }
 
 function pollPads() {
+  cancelAnimationFrame(frame)
   const pressed = () =>
     Array.from(navigator.getGamepads?.() ?? []).some((pad) =>
       pad?.buttons.some((button) => button.pressed),
     )
-  let armed = !pressed()
+  let armed = false
   const tick = () => {
-    if (state.value !== 'playing') return
-    if (!pressed()) armed = true
-    else if (armed) return close()
+    if (state.value === 'hidden') return
+    if (!pressed()) {
+      armed = true
+    } else if (armed) {
+      armed = false
+      if (state.value === 'playing') close()
+      else void play()
+      return
+    }
     frame = requestAnimationFrame(tick)
   }
   frame = requestAnimationFrame(tick)

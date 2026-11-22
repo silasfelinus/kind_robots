@@ -13,6 +13,13 @@
 // beside you). Dazzles and long falls cost charge; run out and it's game over.
 
 import { levelCurve } from '../curve'
+import { REPAIR_RAMPAGE_MUSIC } from '../repairRampage/music'
+import {
+  REPAIR_TOOL_LABELS,
+  toolboxTool,
+} from '../repairRampage/powerups'
+import type { RepairTool } from '../repairRampage/powerups'
+import type { MusicLoop } from '../sound'
 import { repairTownForCity } from '../repairRampage/towns'
 import { repairHazardForCity } from '../repairRampage/hazards'
 import type { RepairHazard } from '../repairRampage/hazards'
@@ -78,6 +85,7 @@ const CLEAR_TICKS = 150
 
 const FIX_POINTS = 100
 const ROW_BONUS = 300
+const COLUMN_BONUS = 400
 const TOWER_BONUS = 1000
 const CHAIN_WINDOW = 180
 const SHOO_POINTS = 150
@@ -621,8 +629,12 @@ const CRACKS = (() => {
 class RepairRampage implements ArcadeGameInstance {
   score = 0
   level = 1
-  lives = 1
+  lives = 3
   over = false
+
+  get music(): MusicLoop | null {
+    return this.over ? null : REPAIR_RAMPAGE_MUSIC
+  }
 
   private rng: () => number
   private sound: ArcadeGameOptions['sound']
@@ -632,6 +644,10 @@ class RepairRampage implements ArcadeGameInstance {
   private tick = 0
   private towers: Tower[] = []
   private charge = MAX_CHARGE
+  private tools: RepairTool[] = []
+  private protection: RepairTool | null = null
+  private rollerTicks = 0
+  private reserveGrace = 0
   /** Bolt on the street, on a tower's face, or falling. */
   private mode: 'ground' | 'climb' | 'fall' = 'ground'
   private x = 24
@@ -680,6 +696,8 @@ class RepairRampage implements ArcadeGameInstance {
     this.level = city
     this.fixChain = 0
     this.lastFixTick = -CHAIN_WINDOW
+    this.rollerTicks = 0
+    this.reserveGrace = 0
     const town = repairTownForCity(city)
     const count = town.towerCount
     const tallest = town.maxRows
@@ -746,6 +764,9 @@ class RepairRampage implements ArcadeGameInstance {
     }
     if (this.fixCooldown > 0) this.fixCooldown--
     if (this.punch > 0) this.punch--
+    if (this.reserveGrace > 0) this.reserveGrace--
+    if (this.rollerTicks > 0) this.rollerTicks--
+    if (controls.pressed.b) this.activateTool()
     const drainInterval = this.hasRooftop('lighthouse')
       ? DRAIN_TICKS + 60
       : DRAIN_TICKS
@@ -755,17 +776,16 @@ class RepairRampage implements ArcadeGameInstance {
     else if (this.mode === 'climb') this.climb(controls)
     else this.fall()
 
+    if (this.mode === 'climb' && this.rollerTicks > 0) {
+      this.repairWindow(this.row, this.col)
+    }
     this.updateTowers()
     this.updateDrones()
     this.updateRooftops()
     this.updateHazards(controls)
     this.updateKitten()
     this.checkClear()
-    if (this.charge <= 0 && !this.over) {
-      this.over = true
-      this.banner = { text: 'OUT OF CHARGE', sub: 'GAME OVER', ticks: 9999 }
-      this.sound.play('die')
-    }
+    if (this.charge <= 0 && !this.over) this.chargeOut()
   }
 
   private walk(input: InputFrame) {
@@ -866,7 +886,11 @@ class RepairRampage implements ArcadeGameInstance {
     this.y = GROUND
     this.mode = 'ground'
     // A long drop rattles Bolt's circuits.
-    if (GROUND - this.fallFrom > CELL * 3) {
+    if (
+      GROUND - this.fallFrom > CELL * 3 &&
+      this.reserveGrace === 0 &&
+      !this.absorbHit('hard-hat')
+    ) {
       this.charge -= FALL_COST
       this.burst(this.x, GROUND, 8, '#94a3b8')
       this.sound.play('boom')

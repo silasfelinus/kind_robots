@@ -21,7 +21,11 @@ export const CAPES_PRODUCTION_IDENTITIES = [
     label: 'Lotus Guard',
     subtitle: 'Asha Venkataraman',
   },
-  { signature: 'magic-earth', label: 'Granny Mayhem', subtitle: 'Mavis Mayhew' },
+  {
+    signature: 'magic-earth',
+    label: 'Granny Mayhem',
+    subtitle: 'Mavis Mayhew',
+  },
   { signature: 'alien-discipline', label: 'Zuzu', subtitle: 'Koala Assassin' },
   {
     signature: 'mutant-earth',

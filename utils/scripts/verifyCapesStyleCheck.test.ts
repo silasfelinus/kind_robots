@@ -90,7 +90,10 @@ assert.equal(CAPES_RUNTIME_REFILL_REVIEW.length, 6)
 assert.equal(CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW.length, 4)
 assert.equal(CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW.length, 6)
 assert.deepEqual(
-  CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW.map((entry) => [entry.artJobId, entry.artImageId]),
+  CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW.map((entry) => [
+    entry.artJobId,
+    entry.artImageId,
+  ]),
   [
     [76529, 278466],
     [76530, 278467],
@@ -99,7 +102,10 @@ assert.deepEqual(
   ],
 )
 assert.deepEqual(
-  CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW.map((entry) => [entry.artJobId, entry.artImageId]),
+  CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW.map((entry) => [
+    entry.artJobId,
+    entry.artImageId,
+  ]),
   [
     [76593, 278587],
     [76594, 278588],
@@ -109,7 +115,10 @@ assert.deepEqual(
     [76598, 278592],
   ],
 )
-assert.equal(new Set(CAPES_REVIEWABLE_PRODUCTION.map((entry) => entry.key)).size, 30)
+assert.equal(
+  new Set(CAPES_REVIEWABLE_PRODUCTION.map((entry) => entry.key)).size,
+  30,
+)
 assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 30)
 assert.equal(
   new Set(CAPES_REVIEWABLE_PRODUCTION.map((item) => item.artImageId)).size,

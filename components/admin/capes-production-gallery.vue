@@ -12,7 +12,8 @@
           Delivered ArtImage receipts / private review
         </p>
         <h3 class="mt-1 text-xl font-black">
-          {{ CAPES_PRODUCTION_IDENTITIES.length }} identities, {{ CAPES_REVIEWABLE_PRODUCTION.length }} production candidates
+          {{ CAPES_PRODUCTION_IDENTITIES.length }} identities,
+          {{ CAPES_REVIEWABLE_PRODUCTION.length }} production candidates
         </h3>
         <p class="mt-1 max-w-2xl text-xs leading-5 text-slate-300">
           These records have DONE ArtImage IDs in Conductor's private production

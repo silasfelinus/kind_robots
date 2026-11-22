@@ -629,7 +629,7 @@ const CRACKS = (() => {
 class RepairRampage implements ArcadeGameInstance {
   score = 0
   level = 1
-  lives = 3
+  lives = 4
   over = false
 
   get music(): MusicLoop | null {

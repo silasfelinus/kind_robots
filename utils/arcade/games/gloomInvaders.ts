@@ -1120,7 +1120,7 @@ class GloomInvaders implements ArcadeGameInstance {
   }
 
   get weather(): boolean {
-    return this.mode === 'weather'
+    return this.mode !== 'classic'
   }
 
   /** The heartbeat, quickening with the march (Weather only; Classic Sky keeps its blips). */

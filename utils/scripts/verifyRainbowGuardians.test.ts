@@ -86,6 +86,49 @@ for (const kind of ['urchin', 'lantern', 'clawstrike'] as const) {
   }
 }
 
+// X1 Kelp Warden is not a Lantern Matriarch reskin: it announces four comb
+// lanes, keeps a whole ship-wide central gap and fires only marked solid bolts.
+{
+  const guardian = createRainbowGuardian('kelpwarden', 4)
+  const ships = [
+    { x: 80, y: 40, lives: 3 },
+    { x: 80, y: 110, lives: 3 },
+    { x: 80, y: 175, lives: 3 },
+    { x: 80, y: 230, lives: 3 },
+  ]
+  let warned = false
+  let volleys = 0
+  let marked: number[] = []
+  for (let frame = 0; frame < 800; frame++) {
+    if (frame === 410) guardian.hp = guardian.maxHp / 2
+    const shots = stepRainbowGuardian(guardian, ships, false)
+    if (rainbowGuardianWarning(guardian) && !warned) {
+      warned = true
+      marked = [...guardian.lanes]
+      assert.equal(marked.length, 4)
+      assert.ok(marked[2]! - marked[1]! >= 60)
+    }
+    if (shots.length) {
+      volleys++
+      assert.equal(shots.length, 4)
+      assert.deepEqual(
+        shots.map((shot) => shot.y),
+        marked,
+      )
+      for (const shot of shots) {
+        assert.equal(shot.vy, 0)
+        assert.ok(shot.vx < 0)
+        assert.ok(shot.ghost !== true)
+      }
+    }
+    if (!rainbowGuardianWarning(guardian)) warned = false
+  }
+  assert.ok(
+    volleys >= 5,
+    'the guardian performs a prolonged, readable encounter',
+  )
+}
+
 function seeded(seed: number) {
   let state = seed
   return () => {

@@ -74,6 +74,7 @@ import {
 } from './rainbowMoonjelly'
 import { RAINBOW_LANES, laneY } from './rainbowFormations'
 import {
+  KELP_CHOIR,
   NURSERY,
   NURSERY_GUARDIAN,
   NURSERY_FLIGHT,
@@ -81,11 +82,15 @@ import {
   NURSERY_TALKS,
   NURSERY_WAVES,
   NURSERY_WAVE_SIZES,
+  choirFreed,
+  choirPodAvailable,
+  choirPodX,
   nurseryDetourFor,
   nurseryFlightCheckpointValid,
   nurseryFlightPhase,
   nurseryGuardianWindow,
   nurserySpawns,
+  rescueChoirPod,
 } from './rainbowLanternNursery'
 import {
   TRENCH,
@@ -1094,6 +1099,8 @@ export type RainbowCombatSnapshot = {
   nurseryGuardianOutcome: GuardianOutcome
   nurseryFrame: number | null
   nurseryHits: number
+  nurseryChoirMask: number
+  freedChoir: boolean
   cometFrame: number | null
   cometCadetsMask: number
   cometGuardianOutcome: GuardianOutcome
@@ -1259,6 +1266,8 @@ export function createRainbowPrincessPreview(
   let trenchDefeatedFrame: number | null = null
   let nurseryStart: number | null = null
   let nurseryHits = 0
+  let nurseryChoirMask = 0
+  let freedChoir = false
   let rosefinStart: number | null = null
   let delphion: DelphionBoss | null = null
   let delphionCarryHp: number | null = null
@@ -1328,6 +1337,7 @@ export function createRainbowPrincessPreview(
     rescuedNemi: false,
     trenchRoute: null,
     routeSettled: false,
+    freedChoir: false,
     nurseryGuardianOutcome: 'waiting',
     armoryGuardianOutcome: 'waiting',
     pearlWardenOutcome: 'waiting',
@@ -1989,13 +1999,14 @@ export function createRainbowPrincessPreview(
   function launchNursery() {
     nurseryStart = tick
     nurseryHits = 0
+    nurseryChoirMask = 0
     nurseryGuardianOutcome = 'waiting'
     guardian = null
     reefs.length = 0
     shots.length = 0
     pickups.length = 0
     enemyShots.length = 0
-    popups.push({ x: W / 2, y: 92, text: 'X1 · LANTERN NURSERY', age: 0 })
+    popups.push({ x: W / 2, y: 92, text: 'X1 · KELP NEBULA', age: 0 })
   }
 
   function launchRosefin() {
@@ -2491,12 +2502,14 @@ export function createRainbowPrincessPreview(
       rescuedNemi,
       trenchRoute,
       routeSettled,
+      freedChoir,
       nurseryGuardianOutcome,
       ...(nurseryCheckpoint
         ? {
             nurseryStartedAt: nurseryStart! - trenchStart!,
             nurseryFrame: nurseryFrame(),
             nurseryHits,
+            nurseryChoirMask,
           }
         : {}),
       armoryGuardianOutcome,
@@ -2692,6 +2705,8 @@ export function createRainbowPrincessPreview(
     rescuedNemi = c.rescuedNemi
     trenchRoute = c.trenchRoute
     routeSettled = c.routeSettled
+    freedChoir = c.freedChoir ?? false
+    nurseryChoirMask = c.nurseryChoirMask ?? 0
     nurseryGuardianOutcome =
       c.nurseryGuardianOutcome ?? (c.act > 3 ? 'escaped' : 'waiting')
     armoryGuardianOutcome =
@@ -2920,6 +2935,7 @@ export function createRainbowPrincessPreview(
       if (checkpoint.nurseryFrame !== undefined) {
         nurseryStart = trenchStart! + checkpoint.nurseryStartedAt!
         nurseryHits = checkpoint.nurseryHits ?? 0
+        nurseryChoirMask = checkpoint.nurseryChoirMask ?? 0
       }
       if (checkpoint.lighthouseFrame !== undefined) {
         lighthouseStart = reefStart! + checkpoint.lighthouseStartedAt!
@@ -3910,7 +3926,7 @@ export function createRainbowPrincessPreview(
           0,
           SHOAL_GUARDIAN.to - GUARDIAN_SKIP_LEAD - shoalFrame(),
         )
-    } else if (act === 3 && kind === 'matriarch') {
+    } else if (act === 3 && (kind === 'matriarch' || kind === 'kelpwarden')) {
       nurseryGuardianOutcome = 'defeated'
       if (nurseryActive())
         nurseryStart! -= Math.max(
@@ -4278,9 +4294,19 @@ export function createRainbowPrincessPreview(
     )
       launchCrownReef()
     if (nurseryActive() && nurseryFrame() >= NURSERY_FLIGHT.end) {
+      freedChoir = choirFreed(nurseryChoirMask)
+      if (freedChoir) {
+        score += KELP_CHOIR.fullRescueBonus
+        popups.push({ x: W / 2, y: 92, text: 'CHOIR FREED · +3000', age: 0 })
+      }
       if (nurseryGuardianOutcome === 'defeated') {
-        score += 3000
-        popups.push({ x: W / 2, y: 92, text: 'NURSERY SAVED · +3000', age: 0 })
+        score += 1500
+        popups.push({
+          x: W / 2,
+          y: 76,
+          text: 'KELP WARDEN CLEAR · +1500',
+          age: 0,
+        })
       }
       launchRosefin()
       actHits = 0
@@ -4357,16 +4383,32 @@ export function createRainbowPrincessPreview(
       const frame = nurseryFrame()
       passCheckpoint(3, trenchFrame())
       const stage = nurseryFlightPhase(frame)
-      if (stage === 'waves')
+      if (stage === 'waves') {
         for (const entry of nurserySpawns(frame))
           spawn(entry.kind, entry.y, entry.wave)
+        const pod = choirPodAvailable(frame, nurseryChoirMask)
+        if (pod) {
+          const x = choirPodX(frame, pod.at)
+          const y = laneY(pod.lane)
+          if (
+            livingShips().some(
+              (ship) => Math.hypot(ship.x - x, ship.y - y) < KELP_CHOIR.reach,
+            )
+          ) {
+            nurseryChoirMask = rescueChoirPod(nurseryChoirMask, pod.id)
+            score += KELP_CHOIR.rescueScore
+            popups.push({ x, y, text: 'CHOIR SAVED +500', age: 0 })
+            options.sound.play('pickup')
+          }
+        }
+      }
       if (
         stage === 'guardian' &&
         guardian === null &&
         nurseryGuardianOutcome === 'waiting' &&
         frame < NURSERY_GUARDIAN.to - RAINBOW_GUARDIAN.escapeLead
       ) {
-        guardian = createRainbowGuardian('matriarch', activePlayers)
+        guardian = createRainbowGuardian('kelpwarden', activePlayers)
         guardian.maxHp = guardian.hp = Math.max(
           1,
           Math.round(guardian.maxHp * level.bossHp),
@@ -5033,26 +5075,28 @@ export function createRainbowPrincessPreview(
           ? COMET_GUARDIAN
           : guardian.kind === 'lampkeeper'
             ? LIGHTHOUSE_GUARDIAN
-            : guardian.kind === 'matriarch'
-              ? nurseryActive()
-                ? NURSERY_GUARDIAN
-                : nurseryGuardianWindow(
+            : guardian.kind === 'kelpwarden'
+              ? NURSERY_GUARDIAN
+              : guardian.kind === 'matriarch'
+                ? nurseryGuardianWindow(
                     TRENCH_FORK.decideAt,
                     TRENCH_FORK.rejoinAt,
                   )
-              : guardian.kind === 'shoalkoi'
-                ? SHOAL_GUARDIAN
-                : guardian.kind === 'siren'
-                  ? ARMORY_SIREN_WINDOW
-                  : guardian.kind === 'warden'
-                    ? PEARL_WARDEN_WINDOW
-                    : guardianSections[act]
+                : guardian.kind === 'shoalkoi'
+                  ? SHOAL_GUARDIAN
+                  : guardian.kind === 'siren'
+                    ? ARMORY_SIREN_WINDOW
+                    : guardian.kind === 'warden'
+                      ? PEARL_WARDEN_WINDOW
+                      : guardianSections[act]
       const frame =
         guardian.kind === 'herder'
           ? cometFrame()
           : guardian.kind === 'lampkeeper'
             ? lighthouseFrame()
-            : guardian.kind === 'matriarch' && nurseryActive()
+            : (guardian.kind === 'matriarch' ||
+                  guardian.kind === 'kelpwarden') &&
+                nurseryActive()
               ? nurseryFrame()
               : guardian.kind === 'shoalkoi'
                 ? shoalFrame()
@@ -5066,7 +5110,8 @@ export function createRainbowPrincessPreview(
         ),
       )
       if (rainbowGuardianGone(guardian)) {
-        const wasNursery = guardian.kind === 'matriarch'
+        const wasNursery =
+          guardian.kind === 'matriarch' || guardian.kind === 'kelpwarden'
         const guardianKind = guardian.kind
         guardian = null
         if (wasNursery) nurseryGuardianOutcome = 'escaped'
@@ -6007,6 +6052,8 @@ export function createRainbowPrincessPreview(
         nurseryGuardianOutcome,
         nurseryFrame: nurseryActive() ? nurseryFrame() : null,
         nurseryHits,
+        nurseryChoirMask,
+        freedChoir,
         cometFrame: cometActive() ? cometFrame() : null,
         cometCadetsMask,
         cometGuardianOutcome,
@@ -7043,6 +7090,29 @@ export function createRainbowPrincessPreview(
         g.fillText('NEMI', 0, 3)
         g.restore()
       }
+      if (nurseryActive()) {
+        const pod = choirPodAvailable(nurseryFrame(), nurseryChoirMask)
+        if (pod) {
+          const x = choirPodX(nurseryFrame(), pod.at)
+          const y = laneY(pod.lane)
+          g.save()
+          g.translate(x, y)
+          g.shadowColor = '#8effef'
+          g.shadowBlur = 12
+          g.fillStyle = '#462767'
+          g.strokeStyle = '#f8bbef'
+          g.lineWidth = 2.5
+          g.beginPath()
+          g.ellipse(0, 0, 12, 10, 0, 0, Math.PI * 2)
+          g.fill()
+          g.stroke()
+          g.fillStyle = '#a9fff5'
+          g.beginPath()
+          g.arc(0, 0, 5, 0, Math.PI * 2)
+          g.fill()
+          g.restore()
+        }
+      }
       if (guardian) {
         g.save()
         g.translate(guardian.x, guardian.y)
@@ -7069,7 +7139,9 @@ export function createRainbowPrincessPreview(
         if (
           !drawRainbowGuardianSprite(
             g,
-            guardian.kind === 'matriarch' || guardian.kind === 'siren'
+            guardian.kind === 'matriarch' ||
+              guardian.kind === 'kelpwarden' ||
+              guardian.kind === 'siren'
               ? 'lantern'
               : guardian.kind === 'warden'
                 ? 'bulwark'
@@ -7086,7 +7158,9 @@ export function createRainbowPrincessPreview(
               g,
               guardian.kind === 'herald'
                 ? 'harbinger'
-                : guardian.kind === 'matriarch' || guardian.kind === 'siren'
+                : guardian.kind === 'matriarch' ||
+                    guardian.kind === 'kelpwarden' ||
+                    guardian.kind === 'siren'
                   ? 'lantern'
                   : guardian.kind === 'herder'
                     ? 'cutter'
@@ -8927,7 +9001,7 @@ export function createRainbowPrincessPreview(
           g.fillStyle = '#ffd0ee'
           g.fillText('▲ ACT IV ROSEFIN', W - 8, 123)
           g.fillStyle = '#ffe9a0'
-          g.fillText('▼ X1 LANTERN NURSERY', W - 8, 153)
+          g.fillText('▼ X1 KELP NEBULA', W - 8, 153)
           g.restore()
         }
       } else if (moonStart === null && defeatedAt !== null) {
@@ -9071,7 +9145,9 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
         g.fillText(
-          'X1 · ' +
+          'X1 · CHOIR ' +
+            nurseryChoirMask.toString(2).replace(/0/g, '').length +
+            '/5 · ' +
             (NURSERY_FLIGHT_SECTIONS.find(
               (section) =>
                 nurseryFrame() >= section.from && nurseryFrame() < section.to,

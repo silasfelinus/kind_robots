@@ -12,6 +12,7 @@ export type RainbowGuardianKind =
   | 'urchin'
   | 'lantern'
   | 'matriarch'
+  | 'kelpwarden'
   | 'siren'
   | 'warden'
   | 'lampkeeper'
@@ -105,6 +106,7 @@ export function rainbowGuardianWarning(guardian: RainbowGuardian): boolean {
 export function rainbowGuardianMarksLanes(guardian: RainbowGuardian): boolean {
   return (
     guardian.kind === 'clawstrike' ||
+    guardian.kind === 'kelpwarden' ||
     (guardian.kind === 'siren' && guardian.volleys % 2 === 1) ||
     (guardian.kind === 'herald' && guardian.volleys % 2 === 0)
   )
@@ -148,9 +150,20 @@ export function stepRainbowGuardian(
     const enraged = guardian.hp <= guardian.maxHp / 2
     const spacing = enraged ? 40 : 52
     const count = enraged ? 5 : 3
-    guardian.lanes = Array.from({ length: count }, (_, i) =>
-      Math.max(40, Math.min(240, nearest.y + (i - (count - 1) / 2) * spacing)),
-    )
+    if (guardian.kind === 'kelpwarden') {
+      // The Kelp Warden marks four comb teeth with a ship-width middle gap.
+      const center = Math.max(104, Math.min(166, nearest.y))
+      guardian.lanes = [-2, -1, 1, 2].map(
+        (offset) => center + offset * (enraged ? 34 : 31),
+      )
+    } else {
+      guardian.lanes = Array.from({ length: count }, (_, i) =>
+        Math.max(
+          40,
+          Math.min(240, nearest.y + (i - (count - 1) / 2) * spacing),
+        ),
+      )
+    }
   }
   if (guardian.frame < guardian.nextVolley) return []
   guardian.volleys++
@@ -174,6 +187,16 @@ export function stepRainbowGuardian(
       if (fromGap < 3) continue
       shot((i / count) * Math.PI * 2, 1.45)
     }
+  } else if (guardian.kind === 'kelpwarden') {
+    // Distinct pre-marked horizontal comb sweep; the centre is never blocked.
+    for (const lane of guardian.lanes)
+      shots.push({
+        x: guardian.x - 18,
+        y: lane,
+        vx: enraged ? -4.25 : -3.65,
+        vy: 0,
+        grazed: 0,
+      })
   } else if (guardian.kind === 'matriarch') {
     // Alternating bioluminescent rings and aimed split fans. The bright central
     // gap is never filled by a solid projectile on the same volley.

@@ -29,7 +29,7 @@ import {
 } from '../arcade/games/rainbowTrench'
 
 assert.equal(NURSERY_SECTIONS.length, 5)
-assert.equal(NURSERY_GUARDIAN.kind, 'matriarch')
+assert.equal(NURSERY_GUARDIAN.kind, 'kelpwarden')
 assert.equal(NURSERY_GUARDIAN.from, 3600)
 assert.equal(NURSERY_WAVES.length, 20)
 assert.equal(nurseryStage(0), 'opening')

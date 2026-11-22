@@ -945,6 +945,86 @@ class GlitchGarden implements ArcadeGameInstance {
     this.padShift = 0
   }
 
+
+  private inHeat(col: number, row: number): boolean {
+    for (const [hc, hr] of layoutCells(this.garden, LAYOUT_HEATER)) {
+      if (!this.at(hc, hr)?.lit) continue
+      if (Math.hypot(hc - col, hr - row) <= HEATER_RADIUS) return true
+    }
+    return false
+  }
+
+  private thawHeater(col: number, row: number) {
+    const heater = this.at(col, row)
+    if (!heater || heater.kind !== 'heater' || heater.lit) return
+    heater.lit = true
+    for (let dy = -HEATER_RADIUS; dy <= HEATER_RADIUS; dy++)
+      for (let dx = -HEATER_RADIUS; dx <= HEATER_RADIUS; dx++) {
+        if (Math.hypot(dx, dy) > HEATER_RADIUS) continue
+        const lamp = this.at(col + dx, row + dy)
+        if (!lamp?.frosted) continue
+        lamp.frosted = false
+        lamp.hp = Math.min(LAMP_HP, lamp.hp)
+      }
+    this.sound.play('level')
+    this.burst(col * CELL + 4, HUD + row * CELL + 4, 14, RAMPS.gold[4])
+    const lit = layoutCells(this.garden, LAYOUT_HEATER).filter(
+      ([x, y]) => this.at(x, y)?.lit,
+    ).length
+    this.banner = {
+      text: `HEATER ${lit} ONLINE!`,
+      sub: 'FROST MELTS NEAR THE LIGHT',
+      ticks: 75,
+    }
+    if (
+      this.wave.objective?.kind === 'warm-heaters' &&
+      lit >= this.wave.objective.count
+    )
+      this.meetObjective()
+  }
+
+  private plantFrost(count: number) {
+    for (const lamp of this.grid) {
+      if (lamp?.frosted) {
+        lamp.frosted = false
+        lamp.hp = Math.min(LAMP_HP, lamp.hp)
+      }
+      if (lamp?.kind === 'heater') lamp.lit = false
+    }
+    let frosted = 0
+    for (let row = 0; row < BED_TOP && frosted < count; row++)
+      for (let col = 0; col < COLS && frosted < count; col++) {
+        const lamp = this.at(col, row)
+        if (lamp?.kind !== 'lamp' || this.inHeat(col, row)) continue
+        lamp.frosted = true
+        lamp.hp = FROST_HP
+        frosted++
+      }
+    this.frostTimer = FROST_SPREAD_TICKS
+  }
+
+  private updateFrost() {
+    if (this.wave.frost === 0 || --this.frostTimer > 0) return
+    this.frostTimer = FROST_SPREAD_TICKS
+    const targets: Array<[number, number]> = []
+    for (let row = 0; row < BED_TOP; row++)
+      for (let col = 0; col < COLS; col++) {
+        if (!this.at(col, row)?.frosted) continue
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const x = col + dx
+          const y = row + dy
+          const lamp = this.at(x, y)
+          if (lamp?.kind === 'lamp' && !lamp.frosted && !this.inHeat(x, y))
+            targets.push([x, y])
+        }
+      }
+    if (!targets.length) return
+    const [col, row] = targets[Math.floor(this.rng() * targets.length)]!
+    const lamp = this.at(col, row)!
+    lamp.frosted = true
+    lamp.hp = Math.max(lamp.hp, FROST_HP)
+  }
+
   /** Each wave plants its own cover from the garden's authored leaf anchors. */
   private plantLeaves(count: number, bedOnly: boolean) {
     const anchors = layoutCells(this.garden, LAYOUT_LEAF)

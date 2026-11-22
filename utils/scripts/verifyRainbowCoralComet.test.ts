@@ -70,8 +70,7 @@ const formed = COMET_WAVES.flatMap((entry) => formationMembers(entry))
 const emitted = []
 for (let frame = 0; frame < COMET.end; frame++) {
   emitted.push(...cometSpawns(frame))
-  if (frame >= COMET.guardianFrom)
-    assert.equal(cometSpawns(frame).length, 0)
+  if (frame >= COMET.guardianFrom) assert.equal(cometSpawns(frame).length, 0)
 }
 assert.equal(emitted.length, formed.length)
 assert.equal(COMET_WAVE_SIZES.length, COMET_WAVES.length)
@@ -111,10 +110,7 @@ for (let i = 0; i < COMET_CADETS.length; i++) {
   const cadet = COMET_CADETS[i]!
   assert.equal(cometCadetAvailable(cadet.at - 1, mask), null)
   assert.equal(cometCadetAvailable(cadet.at, mask)?.id, cadet.id)
-  assert.equal(
-    cometCadetAvailable(cadet.at + COMET.trainerWindow, mask),
-    null,
-  )
+  assert.equal(cometCadetAvailable(cadet.at + COMET.trainerWindow, mask), null)
   mask = rescueCometCadet(mask, i + 1)
   assert.equal(cometCadetAvailable(cadet.at + 1, mask), null)
   assert.equal(rescueCometCadet(mask, i + 1), mask)
@@ -182,8 +178,7 @@ for (const players of [1, 4]) {
   for (let frame = 1; frame <= RAINBOW_GUARDIAN.firstVolley; frame++) {
     first = stepRainbowGuardian(guardian, targets, false)
     if (rainbowGuardianWarning(guardian)) warningFrames++
-    if (frame < RAINBOW_GUARDIAN.firstVolley)
-      assert.equal(first.length, 0)
+    if (frame < RAINBOW_GUARDIAN.firstVolley) assert.equal(first.length, 0)
   }
   assert.equal(warningFrames, RAINBOW_GUARDIAN.warningFrames)
   assert.equal(first.length, 4)
@@ -203,7 +198,6 @@ assert.ok(
   createRainbowGuardian('herder', 4).maxHp >
     createRainbowGuardian('herder', 1).maxHp,
 )
-
 
 const checkpoint4 = {
   act: 4 as const,
@@ -240,8 +234,7 @@ const readComet = (checkpoint: typeof checkpoint4) =>
       guardians: {},
       medals: {},
     },
-    (act, frame, saved) =>
-      cometCheckpointValid(act, frame, saved ?? {}),
+    (act, frame, saved) => cometCheckpointValid(act, frame, saved ?? {}),
   )
 const savedComet = readComet(checkpoint4)
 assert.equal(savedComet?.checkpoint.cometFrame, 240)
@@ -337,10 +330,7 @@ assert.equal(
   readComet({ ...checkpoint4, cometGuardianOutcome: 'unknown' as never }),
   null,
 )
-assert.equal(
-  readComet({ ...checkpoint4, cadetsHome: 'yes' as never }),
-  null,
-)
+assert.equal(readComet({ ...checkpoint4, cadetsHome: 'yes' as never }), null)
 console.log(
   'X2 cabinet replay: one-to-four seats, real wave spawns, independent Herder, persistent Full Wing return and corrupt-save rejection passed',
 )

@@ -277,7 +277,11 @@ export function readRainbowSave(
   if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
   if (
     c.cometFrame !== undefined &&
-    !cometCheckpointValid(c.act as number, c.frame as number, c as RainbowCheckpoint)
+    !cometCheckpointValid(
+      c.act as number,
+      c.frame as number,
+      c as RainbowCheckpoint,
+    )
   )
     return null
   if (

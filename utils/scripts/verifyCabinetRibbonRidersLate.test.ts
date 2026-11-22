@@ -183,4 +183,27 @@ function host() {
   assert.equal(tangled.lives, 2, 'three tangles cost one rider')
 }
 
+{
+  const champion = create({
+    rng: mulberry32(8),
+    sound: { play: () => {} },
+    demo: false,
+    hiScore: 0,
+  }) as unknown as {
+    finishFestival: () => void
+    menu: { kind: string } | null
+    save: { champion: boolean; fair: number } | null
+    update: (frame: ReturnType<typeof emptyInput>) => void
+  }
+  champion.finishFestival()
+  assert.equal(champion.menu?.kind, 'credits')
+  assert.equal(champion.save?.champion, true)
+  assert.equal(champion.save?.fair, 0, 'the trophy resumes a fresh festival')
+  for (let i = 0; i < 10; i++) champion.update(emptyInput())
+  const next = emptyInput()
+  next.pressed.a = true
+  champion.update(next)
+  assert.equal(champion.menu?.kind, 'title', 'credits return to the title')
+}
+
 console.log('ribbon riders late circuit and Grand Marshals: ok')

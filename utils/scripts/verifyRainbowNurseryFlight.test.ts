@@ -164,6 +164,7 @@ const guardianGame = createRainbowPrincessPreview({
   sound: { play: () => {} },
   hiScore: 0,
   players: 1,
+  demo: false,
   rainbowReplay: guardianSave!,
 })
 guardianGame.update(idle, [idle])
@@ -181,6 +182,7 @@ const exitGame = createRainbowPrincessPreview({
   sound: { play: () => {} },
   hiScore: 0,
   players: 1,
+  demo: false,
   rainbowReplay: exitSave!,
 })
 for (let frame = 0; frame < NURSERY_FLIGHT.end - 4380 + 2; frame++)

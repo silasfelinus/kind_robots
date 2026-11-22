@@ -198,10 +198,15 @@ for (const seats of [1, 2, 3, 4]) {
     hiScore: 0,
     players: seats,
     demo: false,
-    rainbowReplay: x1Entry!,
+    resume: x1Entry!,
   })
-  assert.equal(game.snapshot.act, 'X1')
   const crew = Array.from({ length: seats }, () => idle)
+  assert.equal(game.snapshot.resumeMenu, 0)
+  for (let frame = 0; frame < 21; frame++) game.update(idle, crew)
+  const confirm = { ...idle, pressed: { ...idle.pressed, a: true } }
+  game.update(confirm, [confirm, ...crew.slice(1)])
+  assert.equal(game.snapshot.resumeMenu, null)
+  assert.equal(game.snapshot.act, 'X1')
   for (let frame = 0; frame < NURSERY.openingEnds + 3; frame++)
     game.update(idle, crew)
   const afterSection = readRainbowSave(game.save, isRainbowCheckpoint)

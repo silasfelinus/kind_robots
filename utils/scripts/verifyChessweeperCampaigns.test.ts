@@ -201,7 +201,11 @@ assert.ok(
   'genuine special-action mastery emits a single unlock event',
 )
 assert.ok(values.has('kindrobots:chessweeper:campaign:v1'))
-assert.equal(campaign.current('jackpot').pact, 1, 'pact survives chapter victory')
+assert.equal(
+  campaign.current('jackpot').pact,
+  1,
+  'pact survives chapter victory',
+)
 const html = readFileSync(
   fileURLToPath(
     new URL('../../public/chessweeper/index.html', import.meta.url),

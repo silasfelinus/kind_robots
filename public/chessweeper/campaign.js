@@ -85,15 +85,39 @@
   const PACTS = {
     sugar: [
       ['Royal Shelter', 'A candy shield grants one king heart.', 1, 0, 0],
-      ['Glitter Dare', 'Gain 125 points, but awaken an extra blade.', 0, 125, 1],
+      [
+        'Glitter Dare',
+        'Gain 125 points, but awaken an extra blade.',
+        0,
+        125,
+        1,
+      ],
     ],
     ashen: [
       ['Ember Vigil', 'Guard the last ember with one extra heart.', 1, 0, 0],
-      ['Iron Oath', 'Gain 200 points, but awaken another execution wheel.', 0, 200, 1],
+      [
+        'Iron Oath',
+        'Gain 200 points, but awaken another execution wheel.',
+        0,
+        200,
+        1,
+      ],
     ],
     jackpot: [
-      ['House Insurance', 'Buy one extra heart at a cost of 30 chips.', 1, -30, 0],
-      ['High Roller', 'Take 175 bonus chips and awaken another steel ball.', 0, 175, 1],
+      [
+        'House Insurance',
+        'Buy one extra heart at a cost of 30 chips.',
+        1,
+        -30,
+        0,
+      ],
+      [
+        'High Roller',
+        'Take 175 bonus chips and awaken another steel ball.',
+        0,
+        175,
+        1,
+      ],
     ],
   }
   const pactFor = (w) => PACTS[w] || PACTS.jackpot
@@ -223,9 +247,8 @@
       const option = choices[i]
       button.textContent = option[0] + ' · ' + option[1]
       button.setAttribute('aria-pressed', String(progress.pact === i))
-      button.disabled = !!engine.get() && (
-        engine.get().turns > 0 || engine.get().over
-      )
+      button.disabled =
+        !!engine.get() && (engine.get().turns > 0 || engine.get().over)
     }
     const trial = TRIALS[w]?.[progress.chapter]
     const mastered = !!(progress.mastery & (1 << progress.chapter))

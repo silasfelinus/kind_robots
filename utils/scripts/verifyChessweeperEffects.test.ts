@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { runInNewContext } from 'node:vm'
 
 const script = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/visual-effects.js', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/visual-effects.js', import.meta.url),
+  ),
   'utf8',
 )
 const children: Array<{
@@ -27,7 +29,9 @@ const layer = {
   },
 }
 const fakeDocument = {
-  documentElement: { classList: { contains: (name: string) => flags.has(name) } },
+  documentElement: {
+    classList: { contains: (name: string) => flags.has(name) },
+  },
   getElementById: (id: string) => (id === 'chess-fx' ? layer : null),
   createElement: (_name: string) => {
     const node = {
@@ -49,7 +53,10 @@ const fakeDocument = {
 runInNewContext(script, {
   document: fakeDocument,
   window: {
-    addEventListener: (name: string, callback: (event: { detail?: unknown }) => void) => {
+    addEventListener: (
+      name: string,
+      callback: (event: { detail?: unknown }) => void,
+    ) => {
       listeners.set(name, callback)
     },
     matchMedia: () => ({ matches: reduced }),
@@ -79,11 +86,15 @@ for (let i = 0; i < 20; i++) fire({ detail: { kind: 'mine', square: 34 } })
 assert.ok(children.length <= 80, 'particle cap prevents runaway DOM memory')
 
 const html = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/index.html', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/index.html', import.meta.url),
+  ),
   'utf8',
 )
 const css = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/visual-effects.css', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/visual-effects.css', import.meta.url),
+  ),
   'utf8',
 )
 assert.ok(html.includes('id="chess-fx"'))
@@ -100,9 +111,12 @@ for (const kind of [
   'victory',
   'defeat',
 ]) {
-  assert.ok(html.includes("effect('" + kind + "'") || html.includes(
-    kind === 'victory' ? "'victory' : 'defeat'" : "'"+kind+"'",
-  ))
+  assert.ok(
+    html.includes("effect('" + kind + "'") ||
+      html.includes(
+        kind === 'victory' ? "'victory' : 'defeat'" : "'" + kind + "'",
+      ),
+  )
 }
 assert.ok(css.includes('prefers-reduced-motion'))
 assert.ok(css.includes('meta-motion-off'))

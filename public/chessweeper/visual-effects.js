@@ -44,9 +44,15 @@
       spark.style.left = x + '%'
       spark.style.top = y + '%'
       const angle = ((i + 0.5) / count) * Math.PI * 2
-      spark.style.setProperty('--fx-dx', Math.round(Math.cos(angle) * radius) + 'px')
-      spark.style.setProperty('--fx-dy', Math.round(Math.sin(angle) * radius) + 'px')
-      spark.style.setProperty('--fx-delay', i % 4 * 24 + 'ms')
+      spark.style.setProperty(
+        '--fx-dx',
+        Math.round(Math.cos(angle) * radius) + 'px',
+      )
+      spark.style.setProperty(
+        '--fx-dy',
+        Math.round(Math.sin(angle) * radius) + 'px',
+      )
+      spark.style.setProperty('--fx-delay', (i % 4) * 24 + 'ms')
       layer.append(spark)
       spark.addEventListener('animationend', () => spark.remove(), {
         once: true,

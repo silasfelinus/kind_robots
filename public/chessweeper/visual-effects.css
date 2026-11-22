@@ -55,10 +55,8 @@
     opacity: 1;
   }
   100% {
-    transform: translate(
-      calc(-50% + var(--fx-dx)),
-      calc(-50% + var(--fx-dy))
-    ) scale(0.3);
+    transform: translate(calc(-50% + var(--fx-dx)), calc(-50% + var(--fx-dy)))
+      scale(0.3);
     opacity: 0;
   }
 }

@@ -17,6 +17,13 @@
 // nearest launcher that still has umbrellas.
 
 import { levelCurve } from '../curve'
+import { RAIN_CATCHER_MUSIC } from '../rainCatcher/music'
+import {
+  rainWaveForLevel,
+  weatherForVolley,
+} from '../rainCatcher/waves'
+import type { RainWave, RainWeather } from '../rainCatcher/waves'
+import type { MusicLoop } from '../sound'
 import { drawText, measureText } from '../font'
 import {
   INK,
@@ -66,6 +73,9 @@ const END_TICKS = 200
 const BONUS_BED_EVERY = 10_000
 /** Hits a bed takes: the first makes it droop, the second wilts it. */
 const BED_HEALTH = 2
+const MAX_BED_STAGE = 5
+const BARRELS = [138, 182] as const
+const BARREL_CAPACITY = 3
 
 const HAIL_POINTS = 25
 const GOOSE_POINTS = 100
@@ -103,6 +113,9 @@ type Hail = {
   /** A lightning sprite: swerves around blooms. */
   sprite: boolean
   split: boolean
+  kind: RainWeather
+  hits: number
+  skidTicks: number
 }
 type Shot = {
   x: number
@@ -113,7 +126,7 @@ type Shot = {
   vy: number
   from: number
 }
-type Bloom = { x: number; y: number; t: number }
+type Bloom = { x: number; y: number; t: number; petal?: boolean }
 type Goose = { x: number; y: number; vx: number; dropTimer: number }
 type Particle = {
   x: number
@@ -493,6 +506,9 @@ class RainCatcher implements ArcadeGameInstance {
   private held = 0
   /** Each bed's health: BED_HEALTH growing, 1 drooping, 0 wilted. */
   private beds: number[] = BEDS.map(() => BED_HEALTH)
+  private barrels = BARRELS.map(() => 0)
+  private chain = 0
+  private forecast: RainWave = rainWaveForLevel(1)
   private ammo: number[] = LAUNCHERS.map(() => AMMO)
   private soaked: boolean[] = LAUNCHERS.map(() => false)
   private hail: Hail[] = []
@@ -515,6 +531,10 @@ class RainCatcher implements ArcadeGameInstance {
   private fx = new Sparkles()
   private fxRng = backdropRng(37)
 
+  get music(): MusicLoop | null {
+    return this.over ? null : RAIN_CATCHER_MUSIC
+  }
+
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
@@ -536,13 +556,22 @@ class RainCatcher implements ArcadeGameInstance {
 
   private startWave(wave: number) {
     this.level = wave
-    this.ammo = LAUNCHERS.map(() => AMMO)
+    this.forecast = rainWaveForLevel(wave)
+    this.chain = 0
+    this.barrels = BARRELS.map(() => 0)
+    this.ammo = LAUNCHERS.map((x) => {
+      const fruit = BEDS.some(
+        (bed, index) =>
+          Math.abs(x - bed) < 75 && this.beds[index] === MAX_BED_STAGE,
+      )
+      return AMMO + (fruit ? 1 : 0)
+    })
     this.soaked = LAUNCHERS.map(() => false)
     this.hail = []
     this.shots = []
     this.blooms = []
     this.geese = []
-    this.toRelease = Math.round(levelCurve(wave, RAIN_CURVES.hail))
+    this.toRelease = this.forecast.hailCount
     this.geeseLeft = Math.round(levelCurve(wave, RAIN_CURVES.geese))
     this.spritesLeft = Math.max(
       0,
@@ -553,7 +582,9 @@ class RainCatcher implements ArcadeGameInstance {
     this.banner = {
       text: `WAVE ${wave}`,
       sub:
-        this.multiplier > 1 ? `${this.multiplier}X POINTS` : 'CATCH THE HAIL',
+        this.multiplier > 1
+          ? `${this.multiplier}X POINTS • LET RAIN FALL`
+          : 'CATCH HAIL • LET RAIN FALL',
       ticks: WAVE_READY_TICKS,
     }
   }
@@ -573,8 +604,16 @@ class RainCatcher implements ArcadeGameInstance {
   }
 
   /** A hailstone (or lightning sprite) falling from (x0, y0) at something on the ground. */
-  private makeHail(x0: number, y0: number, sprite = false): Hail {
-    const t = this.pickTarget()
+  private makeHail(
+    x0: number,
+    y0: number,
+    sprite = false,
+    kind: RainWeather = 'hail',
+  ): Hail {
+    const t =
+      kind === 'rain'
+        ? { x: BEDS[Math.floor(this.rng() * BEDS.length)]!, y: GROUND - 4 }
+        : this.pickTarget()
     const speed =
       levelCurve(this.level, RAIN_CURVES.speed) * (sprite ? 1.25 : 1)
     const dx = t.x - x0
@@ -591,11 +630,19 @@ class RainCatcher implements ArcadeGameInstance {
       vy: (dy / d) * speed,
       sprite,
       split: false,
+      kind,
+      hits: kind === 'snowball' ? 2 : 1,
+      skidTicks: 0,
     }
   }
 
-  private launchHail(x0: number, y0: number, sprite = false) {
-    this.hail.push(this.makeHail(x0, y0, sprite))
+  private launchHail(
+    x0: number,
+    y0: number,
+    sprite = false,
+    kind: RainWeather = 'hail',
+  ) {
+    this.hail.push(this.makeHail(x0, y0, sprite, kind))
   }
 
   private release() {
@@ -606,8 +653,22 @@ class RainCatcher implements ArcadeGameInstance {
     )
     let volley = 1 + Math.floor(this.rng() * 3)
     while (volley-- > 0 && this.toRelease > 0 && this.hail.length < cap) {
+      const sequence = this.forecast.hailCount - this.toRelease
+      const kind = weatherForVolley(this.forecast, sequence)
       this.toRelease--
-      this.launchHail(8 + this.rng() * (W - 16), SKY_TOP + 2)
+      const x = 8 + this.rng() * (W - 16)
+      this.launchHail(x, SKY_TOP + 2, false, kind)
+      if (kind === 'moth') {
+        for (let i = 0; i < 7; i++) {
+          const child = this.makeHail(
+            Math.max(8, Math.min(W - 8, x + (i % 4 - 1.5) * 7)),
+            SKY_TOP + 2 + Math.floor(i / 4) * 6,
+            false,
+            'moth',
+          )
+          this.hail.push(child)
+        }
+      }
     }
     if (this.spritesLeft > 0 && this.rng() < 0.35) {
       this.spritesLeft--
@@ -729,7 +790,7 @@ class RainCatcher implements ArcadeGameInstance {
 
   private updateShots() {
     for (const s of this.shots) {
-      s.x += s.vx
+      s.x += s.vx + this.forecast.wind
       s.y += s.vy
       if ((s.tx - s.x) * s.vx + (s.ty - s.y) * s.vy <= 0) {
         this.blooms.push({ x: s.tx, y: s.ty, t: 0 })

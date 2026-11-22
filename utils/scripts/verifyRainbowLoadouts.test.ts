@@ -368,7 +368,13 @@ for (const [index, act] of [
       'the resumed checkpoint is not saved again',
     )
     for (let i = 0; i < 600; i++) game.update(emptyInput())
-    assert.equal(game.snapshot.act, `S0${act}`, 'the resumed Act keeps flying')
+    const expectedRoute =
+      'lighthouseFrame' in save.checkpoint ? 'X3' : `S0${act}`
+    assert.equal(
+      game.snapshot.act,
+      expectedRoute,
+      'the resumed Act or earned X3 detour keeps flying',
+    )
     assert.ok(actFrame(game) > frame, 'its clock runs on from the checkpoint')
   }
   // The flight log names where the save will fly from.

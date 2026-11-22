@@ -8516,6 +8516,30 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       if (
+        act === 6 &&
+        lighthouseStart === null &&
+        reefDefeatedFrame !== null &&
+        lighthouseRouteUnlocked(reefRoute, reefSettled, pylonsDown) &&
+        reefFrame() - reefDefeatedFrame >= CROWN_REEF.aftermathFrames - 180
+      ) {
+        g.save()
+        g.globalAlpha = 0.85
+        g.setLineDash([8, 5])
+        g.strokeStyle = '#ffeaa0'
+        g.beginPath()
+        g.moveTo(W - 180, 135)
+        g.lineTo(W, 135)
+        g.stroke()
+        g.setLineDash([])
+        g.textAlign = 'right'
+        g.font = 'bold 9px monospace'
+        g.fillStyle = '#ffeab0'
+        g.fillText('▲ X3 LIGHTHOUSE RING', W - 8, 123)
+        g.fillStyle = '#bdeaff'
+        g.fillText('▼ ACT VII GLASS', W - 8, 153)
+        g.restore()
+      }
+      if (
         act === 7 &&
         shoalStart === null &&
         glassDefeatedFrame !== null &&

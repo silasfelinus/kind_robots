@@ -140,7 +140,7 @@ for (const [frame, mask] of [
   [240, -1],
   [240, 16],
   [240, Number.NaN],
-])
+] as const)
   assert.equal(cometMaskFitsFrame(frame, mask), false)
 assert.equal(cometCadetAvailable(0, -1), null)
 assert.throws(() => rescueCometCadet(16, 1))

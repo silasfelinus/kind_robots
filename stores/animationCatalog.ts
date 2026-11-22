@@ -1231,6 +1231,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'cloud-chamber-tracks',
+    label: 'Cloud Chamber Tracks',
+    reveal: 'Invisible particles leave trails of mist in a dark chamber',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Alpha stubs, muon streaks and curling electron spirals condense and fade ⚛️ hover to shine a torch, click to drop a source',
+    color: '#a0bce6',
+    releasedAt: '2026-11-22T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

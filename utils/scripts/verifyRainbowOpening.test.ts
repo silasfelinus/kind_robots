@@ -85,7 +85,6 @@ assert.ok(
   'recovery is announced and delayed focus cannot move after the overlay closes',
 )
 
-
 assert.ok(
   overlay.includes("if (state.value === 'playing') close()") &&
     overlay.includes('else void play()') &&
@@ -94,8 +93,8 @@ assert.ok(
   'gamepad requires a released-button edge to start, retry, or skip',
 )
 assert.ok(
-  overlay.includes("state.value = 'offer'\\n  pollPads()".replace('\\n', '\n')) &&
-    overlay.includes("state.value = 'failed'\\n  pollPads()".replace('\\n', '\n')),
+  /state\\.value = 'offer'\\s+pollPads\\(\\)/.test(overlay) &&
+    /state\\.value = 'failed'\\s+pollPads\\(\\)/.test(overlay),
   'gamepad polling continues on the offer and failed states',
 )
 

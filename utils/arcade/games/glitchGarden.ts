@@ -911,8 +911,12 @@ class GlitchGarden implements ArcadeGameInstance {
     const anchors = layoutCells(this.garden, LAYOUT_LEAF)
     const eligible = bedOnly
       ? anchors.filter(([, row]) => row >= BED_TOP)
-      : anchors.filter(([, row]) => row < BED_TOP).concat(anchors.filter(([, row]) => row >= BED_TOP))
-    this.leafPiles = eligible.slice(0, count).map(([col, row]) => ({ col, row }))
+      : anchors
+          .filter(([, row]) => row < BED_TOP)
+          .concat(anchors.filter(([, row]) => row >= BED_TOP))
+    this.leafPiles = eligible
+      .slice(0, count)
+      .map(([col, row]) => ({ col, row }))
   }
 
   private updateLeaves() {

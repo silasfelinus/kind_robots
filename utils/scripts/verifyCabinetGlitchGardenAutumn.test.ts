@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
-import {
-  LEAF_GUST_TICKS,
-  create,
-} from '../arcade/games/glitchGarden'
+import { LEAF_GUST_TICKS, create } from '../arcade/games/glitchGarden'
 import {
   CAMPAIGN,
   GARDENS,

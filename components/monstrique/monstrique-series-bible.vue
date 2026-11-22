@@ -296,7 +296,7 @@ const requestKinds = computed(() =>
   BIBLE_ART_KINDS.filter(
     (kind) =>
       kind.id !== 'lora-dataset' &&
-      (!kind.monsterStarsOnly || model.value.monsterStar),
+      (!kind.monsterStarsOnly || model.value.monsterStar || model.value.pinups),
   ),
 )
 const visibleLanes = computed(() =>

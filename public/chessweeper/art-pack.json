@@ -12,10 +12,7 @@
       "height": 941,
       "bytes": 582348,
       "sha256": "3d77380775f4b80d6b998ac5246c3d77bd966374d7975f94361000e40d280914",
-      "usage": [
-        "home highlight",
-        "Advert Studio hero"
-      ]
+      "usage": ["home highlight", "Advert Studio hero"]
     },
     {
       "path": "public/images/chessweeper/sugarbomb-kingdom.webp",
@@ -23,11 +20,7 @@
       "height": 1086,
       "bytes": 493312,
       "sha256": "faf8ae6cef02b102a1ee0cef756930cdd1263a66174e18f2e69a9e72e678e202",
-      "usage": [
-        "mode selector",
-        "scrapbook",
-        "Advert card"
-      ]
+      "usage": ["mode selector", "scrapbook", "Advert card"]
     },
     {
       "path": "public/images/chessweeper/ashen-checkmate.webp",
@@ -35,11 +28,7 @@
       "height": 1086,
       "bytes": 546464,
       "sha256": "63fa44736cebec74ef73fe8ba95e9f61c5b45984260c7cc44c52c2a3f99d27d6",
-      "usage": [
-        "mode selector",
-        "scrapbook",
-        "Advert card"
-      ]
+      "usage": ["mode selector", "scrapbook", "Advert card"]
     },
     {
       "path": "public/images/chessweeper/jackpot-apocalypse.webp",
@@ -47,11 +36,7 @@
       "height": 1086,
       "bytes": 600096,
       "sha256": "10e36f817310dc31975c808ca8bc19bf193ade779a0c4ea230caa450a8f7b7be",
-      "usage": [
-        "mode selector",
-        "scrapbook",
-        "Advert card"
-      ]
+      "usage": ["mode selector", "scrapbook", "Advert card"]
     },
     {
       "path": "public/images/chessweeper/icon.webp",
@@ -59,9 +44,7 @@
       "height": 1254,
       "bytes": 387482,
       "sha256": "b4853a546352ed459d5b911ef91d3798b3738ef82c4a72d25defa22f123533bf",
-      "usage": [
-        "Play page icon"
-      ]
+      "usage": ["Play page icon"]
     }
   ],
   "deliveryStatus": "pending",

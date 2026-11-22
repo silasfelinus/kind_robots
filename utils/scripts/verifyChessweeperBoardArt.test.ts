@@ -5,7 +5,9 @@ import { fileURLToPath } from 'node:url'
 import { runInNewContext } from 'node:vm'
 
 const source = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/board-art.js', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/board-art.js', import.meta.url),
+  ),
   'utf8',
 )
 const root: { dataset: Record<string, string> } = {
@@ -66,7 +68,9 @@ assert.equal(root.dataset.boardArt, undefined)
 assert.equal(images.length, 3, 'unknown worlds do not request resources')
 
 const page = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/index.html', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/index.html', import.meta.url),
+  ),
   'utf8',
 )
 const styles = readFileSync(
@@ -80,7 +84,9 @@ for (const realm of ['sugar', 'ashen', 'jackpot']) {
 assert.ok(styles.includes("data-board-art='ready'"))
 const manifest = JSON.parse(
   readFileSync(
-    fileURLToPath(new URL('../../public/chessweeper/art-pack.json', import.meta.url)),
+    fileURLToPath(
+      new URL('../../public/chessweeper/art-pack.json', import.meta.url),
+    ),
     'utf8',
   ),
 ) as {
@@ -99,7 +105,7 @@ for (const request of manifest.pendingRequests) {
   assert.ok(request.status, 'each image needs explicit delivery status')
 }
 assert.ok(
-  styles.includes("meta-scrapbook-world.art-pending"),
+  styles.includes('meta-scrapbook-world.art-pending'),
   'missing scrapbook imagery keeps a designed world card',
 )
 console.log('chessweeper board-art fallback and manifest: ok')

@@ -1799,7 +1799,7 @@
               squares.push(
                 `<button type="button" class="${classes.join(' ')}" data-square="${i}" aria-label="${label}" ${canSelect ? '' : 'disabled'}>` +
                   (p !== '.'
-                    ? `<span class="piece ${colorOf(p) === 1 ? 'white' : 'black'}">${glyph[p]}</span>`
+                    ? `<span class="piece ${colorOf(p) === 1 ? 'white' : 'black'}" data-piece="${p}">${glyph[p]}</span>`
                     : '') +
                   (shown && num > 0 && !state.exploded.has(i)
                     ? `<span class="clue n${num}">${num}</span>`

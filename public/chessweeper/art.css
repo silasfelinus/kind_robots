@@ -173,3 +173,58 @@
 .meta-scrapbook-world img[hidden] {
   display: none;
 }
+
+/* Two rows of six painted chess ranks: king, queen, rook, bishop, knight,
+   pawn. The original glyph remains visible until the exact atlas loads. */
+:root[data-realm='sugar'][data-piece-art='ready'] {
+  --chessweeper-piece-atlas: url('/images/chessweeper/sugarbomb-piece-atlas.webp');
+}
+:root[data-realm='ashen'][data-piece-art='ready'] {
+  --chessweeper-piece-atlas: url('/images/chessweeper/ashen-piece-atlas.webp');
+}
+:root[data-realm='jackpot'][data-piece-art='ready'] {
+  --chessweeper-piece-atlas: url('/images/chessweeper/jackpot-piece-atlas.webp');
+}
+:root[data-piece-art='ready'] #board .piece[data-piece] {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background-image: var(--chessweeper-piece-atlas);
+  background-repeat: no-repeat;
+  background-size: 600% 200%;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+:root[data-piece-art='ready'] #board .piece[data-piece='K'],
+:root[data-piece-art='ready'] #board .piece[data-piece='k'] {
+  background-position-x: 0%;
+}
+:root[data-piece-art='ready'] #board .piece[data-piece='Q'],
+:root[data-piece-art='ready'] #board .piece[data-piece='q'] {
+  background-position-x: 20%;
+}
+:root[data-piece-art='ready'] #board .piece[data-piece='R'],
+:root[data-piece-art='ready'] #board .piece[data-piece='r'] {
+  background-position-x: 40%;
+}
+:root[data-piece-art='ready'] #board .piece[data-piece='B'],
+:root[data-piece-art='ready'] #board .piece[data-piece='b'] {
+  background-position-x: 60%;
+}
+:root[data-piece-art='ready'] #board .piece[data-piece='N'],
+:root[data-piece-art='ready'] #board .piece[data-piece='n'] {
+  background-position-x: 80%;
+}
+:root[data-piece-art='ready'] #board .piece[data-piece='P'],
+:root[data-piece-art='ready'] #board .piece[data-piece='p'] {
+  background-position-x: 100%;
+}
+:root[data-piece-art='ready'] #board .piece.white {
+  background-position-y: 0%;
+}
+:root[data-piece-art='ready'] #board .piece.black {
+  background-position-y: 100%;
+}

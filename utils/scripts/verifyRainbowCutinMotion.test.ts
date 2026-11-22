@@ -23,13 +23,9 @@ for (let seat = 0; seat < 4; seat++) {
       offsetY: 0,
     })
   }
-  assert.deepEqual(
-    rainbowCutinPose(seat, -10),
-    rainbowCutinPose(seat, 0),
-  )
-  assert.deepEqual(
-    rainbowCutinPose(seat, 999),
-    rainbowCutinPose(seat, 42),
-  )
+  assert.deepEqual(rainbowCutinPose(seat, -10), rainbowCutinPose(seat, 0))
+  assert.deepEqual(rainbowCutinPose(seat, 999), rainbowCutinPose(seat, 42))
 }
-console.log('four painted princess cut-ins: bounded 42-frame motion and calm fallback passed')
+console.log(
+  'four painted princess cut-ins: bounded 42-frame motion and calm fallback passed',
+)

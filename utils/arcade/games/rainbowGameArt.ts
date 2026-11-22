@@ -402,8 +402,7 @@ export function rainbowCutinPose(
   const direction = seat % 2 === 0 ? 1 : -1
   return {
     scale: 1.08 - 0.08 * settle + Math.sin(time * 0.25) * 0.006 * settle,
-    offsetX:
-      direction * (-8 * (1 - settle) + Math.sin(time / 11) * settle),
+    offsetX: direction * (-8 * (1 - settle) + Math.sin(time / 11) * settle),
     offsetY: 3 * (1 - settle) + Math.sin(time / 8) * 0.4 * settle,
   }
 }

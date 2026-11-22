@@ -38,8 +38,10 @@ export function lighthouseDetourFor(
 ): boolean {
   if (!unlocked || positions.length === 0) return false
   const high = positions.filter((y) => y < 135).length
-  return high > positions.length / 2 ||
+  return (
+    high > positions.length / 2 ||
     (high === positions.length / 2 && positions[0]! < 135)
+  )
 }
 
 /** A resumed X3 detour must prove it belonged to a genuinely silenced relay.
@@ -229,14 +231,21 @@ export function lighthouseLampAt(frame: number) {
 /** A real lamp stays collectible for 90 frames after its appearance. The beam
  * is telegraphed in advance; bitmask ownership prevents double rewards. */
 export function lighthouseCollectibleLamp(frame: number, mask: number) {
-  if (!Number.isInteger(frame) || !Number.isInteger(mask) || mask < 0 ||
-    mask >= 1 << LIGHTHOUSE.lampsToLight)
+  if (
+    !Number.isInteger(frame) ||
+    !Number.isInteger(mask) ||
+    mask < 0 ||
+    mask >= 1 << LIGHTHOUSE.lampsToLight
+  )
     return null
-  return LIGHTHOUSE_LAMPS.find((lamp, index) =>
-    frame >= lamp.at &&
-    frame < lamp.at + LIGHTHOUSE.lampWindowFrames &&
-    (mask & (1 << index)) === 0,
-  ) ?? null
+  return (
+    LIGHTHOUSE_LAMPS.find(
+      (lamp, index) =>
+        frame >= lamp.at &&
+        frame < lamp.at + LIGHTHOUSE.lampWindowFrames &&
+        (mask & (1 << index)) === 0,
+    ) ?? null
+  )
 }
 
 /** A six-bit mask survives retries; collecting the same lamp twice is inert. */

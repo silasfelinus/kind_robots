@@ -293,8 +293,7 @@ export function readRainbowSave(
       c.lighthouseHits !== undefined)
   )
     return null
-  if (c.lighthouseFrame !== undefined && c.shoalFrame !== undefined)
-    return null
+  if (c.lighthouseFrame !== undefined && c.shoalFrame !== undefined) return null
   if (
     c.shoalFrame !== undefined &&
     (!mirrorShoalCheckpointValid(

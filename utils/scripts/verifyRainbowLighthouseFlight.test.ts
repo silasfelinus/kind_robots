@@ -36,7 +36,10 @@ assert.ok(LIGHTHOUSE_WAVE_SIZES.every((size) => size >= 1 && size <= 4))
 assert.equal(lighthouseRouteUnlocked('relay', true, CROWN_REEF_PYLONS), true)
 assert.equal(lighthouseRouteUnlocked('cache', true, CROWN_REEF_PYLONS), false)
 assert.equal(lighthouseRouteUnlocked('relay', false, CROWN_REEF_PYLONS), false)
-assert.equal(lighthouseRouteUnlocked('relay', true, CROWN_REEF_PYLONS - 1), false)
+assert.equal(
+  lighthouseRouteUnlocked('relay', true, CROWN_REEF_PYLONS - 1),
+  false,
+)
 assert.equal(lighthouseDetourFor([80], true), true)
 assert.equal(lighthouseDetourFor([185], true), false)
 assert.equal(lighthouseDetourFor([80, 85, 180, 200], true), true)
@@ -47,9 +50,18 @@ assert.equal(lighthouseStage(0), 'opening')
 assert.equal(lighthouseStage(240), 'waves')
 assert.equal(lighthouseStage(7320), 'turn')
 assert.equal(lighthouseStage(7680), 'boss')
-assert.equal(lighthouseGuardianActive(6690, 'relay', true, CROWN_REEF_PYLONS), true)
-assert.equal(lighthouseGuardianActive(7320, 'relay', true, CROWN_REEF_PYLONS), false)
-assert.equal(lighthouseGuardianActive(6700, 'cache', true, CROWN_REEF_PYLONS), false)
+assert.equal(
+  lighthouseGuardianActive(6690, 'relay', true, CROWN_REEF_PYLONS),
+  true,
+)
+assert.equal(
+  lighthouseGuardianActive(7320, 'relay', true, CROWN_REEF_PYLONS),
+  false,
+)
+assert.equal(
+  lighthouseGuardianActive(6700, 'cache', true, CROWN_REEF_PYLONS),
+  false,
+)
 assert.equal(lighthouseCollectibleLamp(719, 0), null)
 assert.equal(lighthouseCollectibleLamp(720, 0)?.id, 'lamp-1')
 assert.equal(lighthouseCollectibleLamp(809, 0)?.id, 'lamp-1')
@@ -65,7 +77,11 @@ assert.equal(lightLighthouseLamp(0, 1), 1)
 assert.equal(lightLighthouseLamp(1, 1), 1)
 assert.equal(lightLighthouseLamp(1, 6), 33)
 assert.throws(() => lightLighthouseLamp(64, 2))
-assert.deepEqual(Object.keys(LIGHTHOUSE_TALKS), ['opening', 'turn', 'aftermath'])
+assert.deepEqual(Object.keys(LIGHTHOUSE_TALKS), [
+  'opening',
+  'turn',
+  'aftermath',
+])
 assert.ok(Object.values(LIGHTHOUSE_TALKS).every((lines) => lines.length === 3))
 
 const waveIds = new Set<number>()
@@ -113,11 +129,13 @@ const load = (
 ) =>
   readRainbowSave(
     { v: 1, difficulty: 'normal', checkpoint: c, guardians: {}, medals: {} },
-    (act, frame, saved) =>
-      lighthouseCheckpointValid(act, frame, saved ?? {}),
+    (act, frame, saved) => lighthouseCheckpointValid(act, frame, saved ?? {}),
   )
 assert.equal(load(checkpoint)?.checkpoint.lighthouseFrame, 240)
-assert.equal(load({ ...checkpoint, lighthouseLamps: 63 })?.checkpoint.lighthouseLamps, 63)
+assert.equal(
+  load({ ...checkpoint, lighthouseLamps: 63 })?.checkpoint.lighthouseLamps,
+  63,
+)
 assert.equal(load({ ...checkpoint, lighthouseLamps: 64 }), null)
 assert.equal(load({ ...checkpoint, lighthouseHits: -1 }), null)
 assert.equal(load({ ...checkpoint, reefRoute: 'cache' }), null)
@@ -158,11 +176,17 @@ for (const seats of [1, 2, 3, 4]) {
   assert.equal(game.snapshot.activePlayers, seats)
   assert.equal(game.snapshot.act, 'X3')
   assert.equal(game.snapshot.lighthouseFrame, 239)
-  game.update(input, Array.from({ length: seats }, () => input))
+  game.update(
+    input,
+    Array.from({ length: seats }, () => input),
+  )
   assert.equal(game.snapshot.lighthouseFrame, 240)
   assert.equal(game.snapshot.stage, 'waves')
   for (let frame = 0; frame < 100; frame++)
-    game.update(input, Array.from({ length: seats }, () => input))
+    game.update(
+      input,
+      Array.from({ length: seats }, () => input),
+    )
   assert.equal(game.snapshot.act, 'X3')
   assert.ok(
     game.snapshot.enemies.some((enemy) => enemy.kind === 'mirror'),
@@ -217,4 +241,6 @@ assert.ok(
     createRainbowGuardian('lampkeeper', 1).maxHp,
 )
 assert.equal(LIGHTHOUSE_GUARDIAN.name, 'Drowned Bellkeeper')
-console.log('X3 lighthouse flight, route votes, save validation and 1-4 seats passed')
+console.log(
+  'X3 lighthouse flight, route votes, save validation and 1-4 seats passed',
+)

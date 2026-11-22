@@ -7,13 +7,7 @@
 import type { AcademyRun } from './rules'
 
 export type PromMood =
-  | 'title'
-  | 'campus'
-  | 'discovery'
-  | 'patrol'
-  | 'crisis'
-  | 'finale'
-  | 'ending'
+  'title' | 'campus' | 'discovery' | 'patrol' | 'crisis' | 'finale' | 'ending'
 
 export type PromCue =
   | 'choice'
@@ -104,8 +98,7 @@ export function promAudioFrame(run: AcademyRun | null): PromAudioFrame {
     failedReports:
       run?.reports.filter((report) => report.grade === 'failed').length ?? 0,
     clues:
-      (run?.missionClues?.length ?? 0) +
-      (run?.districtSecrets?.length ?? 0),
+      (run?.missionClues?.length ?? 0) + (run?.districtSecrets?.length ?? 0),
     revelations: run?.plotEvidence?.length ?? 0,
     villain: run?.mastermind ?? null,
     ending: run?.ending ?? null,
@@ -146,16 +139,12 @@ export function promCuesFor(
     cues.push(
       current.failedReports > previous.failedReports ? 'setback' : 'success',
     )
-  } else if (
-    current.phase === 'dispatch' &&
-    previous.phase !== 'dispatch'
-  ) {
+  } else if (current.phase === 'dispatch' && previous.phase !== 'dispatch') {
     cues.push('dispatch')
   }
   if (
     !cues.length &&
-    (current.lastLog !== previous.lastLog ||
-      current.scene !== previous.scene)
+    (current.lastLog !== previous.lastLog || current.scene !== previous.scene)
   )
     cues.push('choice')
   return cues.slice(0, 3)
@@ -175,44 +164,198 @@ const REST = -1
 export const PROM_THEMES: Record<PromMood, PromTheme> = {
   title: {
     bpm: 98,
-    chords: [[60, 64, 67], [57, 60, 64], [53, 57, 60], [55, 59, 62]],
-    melody: [79, REST, 76, 72, REST, 74, 76, REST, 81, REST, 79, 76, 74, REST, 72, REST],
+    chords: [
+      [60, 64, 67],
+      [57, 60, 64],
+      [53, 57, 60],
+      [55, 59, 62],
+    ],
+    melody: [
+      79,
+      REST,
+      76,
+      72,
+      REST,
+      74,
+      76,
+      REST,
+      81,
+      REST,
+      79,
+      76,
+      74,
+      REST,
+      72,
+      REST,
+    ],
     pulse: 0.66,
   },
   campus: {
     bpm: 110,
-    chords: [[65, 69, 72], [60, 64, 67], [62, 65, 69], [67, 71, 74]],
-    melody: [77, REST, 81, REST, 79, 77, REST, 74, 76, REST, 72, 74, REST, 76, 79, REST],
+    chords: [
+      [65, 69, 72],
+      [60, 64, 67],
+      [62, 65, 69],
+      [67, 71, 74],
+    ],
+    melody: [
+      77,
+      REST,
+      81,
+      REST,
+      79,
+      77,
+      REST,
+      74,
+      76,
+      REST,
+      72,
+      74,
+      REST,
+      76,
+      79,
+      REST,
+    ],
     pulse: 0.56,
   },
   discovery: {
     bpm: 84,
-    chords: [[57, 60, 64], [53, 56, 60], [50, 53, 57], [52, 55, 59]],
-    melody: [72, REST, REST, 76, REST, 75, REST, 72, 69, REST, 72, REST, 74, REST, 68, REST],
+    chords: [
+      [57, 60, 64],
+      [53, 56, 60],
+      [50, 53, 57],
+      [52, 55, 59],
+    ],
+    melody: [
+      72,
+      REST,
+      REST,
+      76,
+      REST,
+      75,
+      REST,
+      72,
+      69,
+      REST,
+      72,
+      REST,
+      74,
+      REST,
+      68,
+      REST,
+    ],
     pulse: 0.43,
   },
   patrol: {
     bpm: 134,
-    chords: [[50, 53, 57], [55, 58, 62], [53, 57, 60], [48, 52, 55]],
-    melody: [74, REST, 77, 81, REST, 77, 74, REST, 72, 74, 77, REST, 79, 77, REST, 74],
+    chords: [
+      [50, 53, 57],
+      [55, 58, 62],
+      [53, 57, 60],
+      [48, 52, 55],
+    ],
+    melody: [
+      74,
+      REST,
+      77,
+      81,
+      REST,
+      77,
+      74,
+      REST,
+      72,
+      74,
+      77,
+      REST,
+      79,
+      77,
+      REST,
+      74,
+    ],
     pulse: 0.86,
   },
   crisis: {
     bpm: 150,
-    chords: [[48, 51, 55], [47, 50, 54], [45, 48, 52], [43, 47, 50]],
-    melody: [84, 83, REST, 79, 78, REST, 75, 72, REST, 73, 75, 78, 79, REST, 83, REST],
+    chords: [
+      [48, 51, 55],
+      [47, 50, 54],
+      [45, 48, 52],
+      [43, 47, 50],
+    ],
+    melody: [
+      84,
+      83,
+      REST,
+      79,
+      78,
+      REST,
+      75,
+      72,
+      REST,
+      73,
+      75,
+      78,
+      79,
+      REST,
+      83,
+      REST,
+    ],
     pulse: 0.98,
   },
   finale: {
     bpm: 120,
-    chords: [[53, 57, 60], [58, 62, 65], [55, 59, 62], [60, 64, 67]],
-    melody: [77, REST, 81, REST, 84, 81, 79, REST, 86, REST, 84, 81, 79, 77, 74, REST],
+    chords: [
+      [53, 57, 60],
+      [58, 62, 65],
+      [55, 59, 62],
+      [60, 64, 67],
+    ],
+    melody: [
+      77,
+      REST,
+      81,
+      REST,
+      84,
+      81,
+      79,
+      REST,
+      86,
+      REST,
+      84,
+      81,
+      79,
+      77,
+      74,
+      REST,
+    ],
     pulse: 0.91,
   },
   ending: {
     bpm: 70,
-    chords: [[60, 64, 67], [56, 60, 63], [53, 57, 60], [60, 65, 69]],
-    melody: [72, REST, REST, 76, REST, 79, REST, REST, 77, REST, 76, REST, 72, REST, 69, REST],
+    chords: [
+      [60, 64, 67],
+      [56, 60, 63],
+      [53, 57, 60],
+      [60, 65, 69],
+    ],
+    melody: [
+      72,
+      REST,
+      REST,
+      76,
+      REST,
+      79,
+      REST,
+      REST,
+      77,
+      REST,
+      76,
+      REST,
+      72,
+      REST,
+      69,
+      REST,
+    ],
     pulse: 0.33,
   },
 }
@@ -232,8 +375,7 @@ export const PROM_CUE_NOTES: Record<PromCue, readonly number[]> = {
   ending: [72, 76, 79, 84],
 }
 
-export const promNoteHz = (pitch: number) =>
-  440 * 2 ** ((pitch - 69) / 12)
+export const promNoteHz = (pitch: number) => 440 * 2 ** ((pitch - 69) / 12)
 
 export class PromSound {
   private context: AudioContext | null = null
@@ -333,7 +475,11 @@ export class PromSound {
     if (!this.context || !this.master || !this.scoreBus || !this.effectsBus)
       return
     const at = this.context.currentTime
-    this.master.gain.setTargetAtTime(this.mix.muted ? 0 : this.mix.master, at, 0.04)
+    this.master.gain.setTargetAtTime(
+      this.mix.muted ? 0 : this.mix.master,
+      at,
+      0.04,
+    )
     this.scoreBus.gain.setTargetAtTime(this.mix.music, at, 0.04)
     this.effectsBus.gain.setTargetAtTime(this.mix.effects, at, 0.04)
   }
@@ -353,7 +499,10 @@ export class PromSound {
     oscillator.type = wave
     oscillator.frequency.setValueAtTime(promNoteHz(midi), start)
     envelope.gain.setValueAtTime(0.0001, start)
-    envelope.gain.exponentialRampToValueAtTime(Math.max(loudness, 0.001), start + 0.02)
+    envelope.gain.exponentialRampToValueAtTime(
+      Math.max(loudness, 0.001),
+      start + 0.02,
+    )
     envelope.gain.exponentialRampToValueAtTime(0.0001, start + length)
     oscillator.connect(envelope)
     envelope.connect(destination)
@@ -363,8 +512,7 @@ export class PromSound {
 
   private pump(): void {
     const ctx = this.context
-    if (!ctx || !this.scoreBus || this.hidden || ctx.state !== 'running')
-      return
+    if (!ctx || !this.scoreBus || this.hidden || ctx.state !== 'running') return
     const theme = PROM_THEMES[this.mood]
     const unit = 60 / theme.bpm / 4
     if (this.nextAt < ctx.currentTime - 0.3)

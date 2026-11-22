@@ -3711,6 +3711,18 @@ class GlitchGarden implements ArcadeGameInstance {
       })
       return
     }
+    if (ob.kind === 'heater') {
+      const lit = Boolean(ob.lit)
+      const color = lit ? RAMPS.gold[4] : RAMPS.sky[4]
+      glow(g, x + 4, y + 4, lit ? 18 : 8, color, lit ? 0.8 : 0.45)
+      bevel(g, x + 1, y + 1, 6, 6, lit ? RAMPS.gold : RAMPS.sky, {
+        depth: 1,
+        outline: INK,
+      })
+      g.fillStyle = color
+      g.fillRect(x + 3, y - 2, 2, 4)
+      return
+    }
     if (ob.kind === 'can') {
       // The can's tell: its glint and drip blink, faster once it's lit.
       const frame = Math.floor(this.tick / (ob.lit ? 3 : 18)) % 2
@@ -3741,6 +3753,13 @@ class GlitchGarden implements ArcadeGameInstance {
     const sprite = (flicker ? set.flicker : set.lit)[hp]
     if (flicker) glow(g, x + 4, y + 3, 9, pal.lamp[3], 0.5)
     if (sprite) drawHd(g, sprite, x + 0.5, y, top)
+    if (ob.frosted) {
+      g.fillStyle = rgba(RAMPS.sky[4], 0.65)
+      g.fillRect(x, y, 8, 2)
+      g.fillRect(x, y + 2, 2, 5)
+      g.fillRect(x + 6, y + 2, 2, 5)
+      glow(g, x + 4, y + 3, 9, RAMPS.sky[3], 0.35)
+    }
     bloomDot()
   }
 

@@ -27,12 +27,18 @@ const layer = {
   append(child: (typeof children)[number]) {
     children.push(child)
   },
+  getBoundingClientRect: () => ({ width: 640, height: 640 }),
 }
 const fakeDocument = {
   documentElement: {
     classList: { contains: (name: string) => flags.has(name) },
   },
-  getElementById: (id: string) => (id === 'chess-fx' ? layer : null),
+  getElementById: (id: string) =>
+    id === 'chess-fx'
+      ? layer
+      : id === 'board'
+        ? { querySelector: () => ({ cloneNode: () => ({}) }) }
+        : null,
   createElement: (_name: string) => {
     const node = {
       className: '',
@@ -42,6 +48,7 @@ const fakeDocument = {
         setProperty: (_key: string, _value: string) => {},
       },
       addEventListener: () => {},
+      append: () => {},
       remove() {
         const at = children.indexOf(node)
         if (at >= 0) children.splice(at, 1)
@@ -84,6 +91,23 @@ assert.equal(children.length, 12, 'reduced motion suppresses particles')
 reduced = false
 for (let i = 0; i < 20; i++) fire({ detail: { kind: 'mine', square: 34 } })
 assert.ok(children.length <= 80, 'particle cap prevents runaway DOM memory')
+fire({ detail: { kind: 'capture', from: 0, square: 119 } })
+const traveler = children.find((node) =>
+  node.className.includes('chess-fx-traveler-capture'),
+)
+assert.ok(traveler, 'capturing chess pieces travel from source to destination')
+assert.equal(traveler.style.left, '6.25%')
+assert.equal(traveler.style.top, '6.25%')
+assert.ok(
+  children.some((node) => node.className.includes('chess-fx-impact-capture')),
+  'captures trigger an additional impact choreography',
+)
+assert.ok(children.length <= 80, 'animated pieces also respect the DOM cap')
+fire({ detail: { kind: 'laststand' } })
+assert.ok(
+  children.some((node) => node.className.includes('chess-fx-impact-laststand')),
+  'Ashen Last Stand has a distinct cinematic pulse',
+)
 
 const html = readFileSync(
   fileURLToPath(
@@ -120,4 +144,8 @@ for (const kind of [
 }
 assert.ok(css.includes('prefers-reduced-motion'))
 assert.ok(css.includes('meta-motion-off'))
+assert.ok(css.includes('chess-fx-travel'))
+assert.ok(css.includes('chess-fx-impact-rush'))
+assert.ok(css.includes('chess-fx-impact-jackpot'))
+assert.ok(html.includes('from: chosen[0]'))
 console.log('chessweeper gameplay visual-effects: ok')

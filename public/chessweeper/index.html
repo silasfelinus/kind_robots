@@ -1696,10 +1696,10 @@
                 : 'The enemy king was destroyed by the arena.',
             )
         }
-        function effect(kind, square = -1) {
+        function effect(kind, square = -1, data = {}) {
           window.dispatchEvent(
             new CustomEvent('chessweeper:fx', {
-              detail: { kind, square, realm },
+              detail: { kind, square, realm, ...data },
             }),
           )
         }
@@ -2197,7 +2197,9 @@
           const captured = s.b[dest]
           const label = notation(s, chosen)
           state.chess = makePosition(s, chosen)
-          effect(captured === '.' ? 'move' : 'capture', dest)
+          effect(captured === '.' ? 'move' : 'capture', dest, {
+            from: chosen[0],
+          })
           state.selected = -1
           state.promotion = null
           state.last = [chosen[0], chosen[1]]

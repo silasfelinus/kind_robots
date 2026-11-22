@@ -555,7 +555,6 @@ import {
   recruitedOriginals,
   REDSHIRT_QUARTERS,
 } from '~/utils/gameOfCaptains/expedition'
-import { portraitArt } from '~/utils/gameOfCaptains/artSlots'
 import { warpArt } from '~/utils/gameOfCaptains/artManifest'
 import {
   episodeArtworkCardId,
@@ -702,6 +701,15 @@ const resultPainting = computed(() => {
   const url = key ? props.artwork?.[key] : null
   return url && !brokenArtwork.value.includes(url) ? url : null
 })
+function castPortrait(portraitKey: string): string | null {
+  const candidates = [
+    warpArt('portraits/v2/' + portraitKey),
+    warpArt('portraits/' + portraitKey),
+  ]
+  return (
+    candidates.find((url) => url && !brokenArtwork.value.includes(url)) ?? null
+  )
+}
 function redshirtPortrait(id: string): string | null {
   const key = 'redshirts/portraits/' + id
   const reviewed = props.redshirtArtwork?.[key]
@@ -714,7 +722,7 @@ const actors = computed(() => [
     id: 'captain',
     name: CAPTAINS.find((c) => c.id === props.run.captain)?.name ?? 'Captain',
     subtitle: 'COMMAND · FULL DOSSIER',
-    image: portraitArt('captain-' + props.run.captain),
+    image: castPortrait('captain-' + props.run.captain),
     revealed: true,
     rank: String(Math.max(...Object.values(CAPTAIN_STATS[props.run.captain]))),
     initial: '★',
@@ -723,7 +731,7 @@ const actors = computed(() => [
     id: crew.id,
     name: crew.name,
     subtitle: crew.role.toUpperCase() + ' · ' + crew.talent,
-    image: portraitArt(crew.portraitKey),
+    image: castPortrait(crew.portraitKey),
     revealed: true,
     rank: String(
       Math.max(

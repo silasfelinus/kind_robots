@@ -112,6 +112,20 @@ assert.ok(
   daily.includes('() => [props.artwork, props.franchiseImage, props.backdrop]'),
   'failed art URLs must retry after refreshed image sources arrive',
 )
+assert.ok(
+  daily.includes("warpArt('portraits/v2/' + portraitKey)") &&
+    daily.includes("warpArt('portraits/' + portraitKey)"),
+  'failed redesigned captain and crew portraits must retry the legacy shipped image',
+)
+assert.ok(
+  daily.includes('image: castPortrait(crew.portraitKey)') &&
+    daily.includes("image: castPortrait('captain-' + props.run.captain)"),
+  'both captain and crew must use the same failure-aware fallback chain',
+)
+assert.ok(
+  daily.includes('!brokenArtwork.value.includes(url)'),
+  'a failed portrait URL must be skipped before trying the next image',
+)
 console.log(
   'Space Couch artwork refresh retries failed responses without bypassing image selection or saved-game IDs',
 )

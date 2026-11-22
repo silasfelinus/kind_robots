@@ -40,6 +40,12 @@ export type RainbowCheckpoint = {
   /** Continues spent in the active Act; avoids false clean-flight X4 unlocks on reload. */
   actContinues?: number
   /** Alternate X4 flight clock and last section, kept independent of Act VII's score. */
+  /** An independently flown X3 detour entered from the silenced Act VI relay. */
+  lighthouseStartedAt?: number
+  lighthouseFrame?: number
+  lighthouseLamps?: number
+  lighthouseGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
+  lighthouseHits?: number
   shoalStartedAt?: number
   shoalFrame?: number
   shoalGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'

@@ -1064,6 +1064,7 @@ class GloomInvaders implements ArcadeGameInstance {
   private pairs = new Map<number, number>()
   /** The garden's eleven plots (Weather only), kept across fronts. */
   plots: Plot[] = newGarden()
+  private wateredThisFront = new Set<number>()
   helperBeams: Beam[] = []
   private bees: Bee[] = []
   private umbrellas: Umbrella[] = []
@@ -1162,6 +1163,7 @@ class GloomInvaders implements ArcadeGameInstance {
 
   private startWave(wave: number) {
     this.level = wave
+    this.wateredThisFront.clear()
     this.front =
       this.mode === 'calendar'
         ? calendarFront(wave)
@@ -1498,6 +1500,7 @@ class GloomInvaders implements ArcadeGameInstance {
   /** The rain of a cheered cloud waters the plot under `x`. */
   private water(x: number) {
     const result = waterPlot(this.plots, x, this.front.season)
+    if (this.mode === 'calendar') this.wateredThisFront.add(result.plot)
     const cx = plotCenter(result.plot)
     if (result.bloomed) {
       this.floatText(HELPER_NAMES[result.bloomed], cx, GROUND_Y - 28)
@@ -1966,6 +1969,12 @@ class GloomInvaders implements ArcadeGameInstance {
     this.charge = 0
     this.kite = null
     this.addScore(100 * this.level, W / 2, 150)
+    if (this.mode === 'calendar' && this.level === 2) {
+      if (this.wateredThisFront.size >= 5) {
+        this.addScore(500, W / 2, 162)
+        this.floatText('FIRST SHOOTS!', W / 2, 144)
+      }
+    }
     if (!this.weather && this.cleared <= 11) {
       // The new flower pops up in the garden.
       this.sparkles.burst(
@@ -1986,6 +1995,7 @@ class GloomInvaders implements ArcadeGameInstance {
   // --- umbrellas ----------------------------------------------------------------
 
   private umbrellaCell(x: number, y: number): [Umbrella, number] | null {
+    if (this.mode === 'calendar' && this.level === 11) return null
     if (y < UMBRELLA_Y || y >= UMBRELLA_Y + UMB_ROWS * UMB_CELL) return null
     const r = Math.floor((y - UMBRELLA_Y) / UMB_CELL)
     for (const u of this.umbrellas) {
@@ -2405,6 +2415,7 @@ class GloomInvaders implements ArcadeGameInstance {
   }
 
   private renderUmbrellas(g: CanvasRenderingContext2D) {
+    if (this.mode === 'calendar' && this.level === 11) return
     const w = UMB_COLS * UMB_CELL + 2
     const h = UMB_ROWS * UMB_CELL + 2
     for (const u of this.umbrellas) {

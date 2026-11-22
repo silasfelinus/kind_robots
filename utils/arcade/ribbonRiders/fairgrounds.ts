@@ -583,7 +583,7 @@ const STARLIGHT: Fairground = {
       objective: 'escort',
       limit: S * 75,
       escort: { row: 32, health: 3 },
-      par: S * 60,
+      par: S * 80,
       tickets: 5,
       tier: 11,
       at: [216, 130],

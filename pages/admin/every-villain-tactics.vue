@@ -1771,6 +1771,7 @@ import { promArt } from '~/utils/cometAcademy/artManifest'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
+import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { useEveryVillainSoundStore } from '~/stores/everyVillainSoundStore'
 import {
   tacticsAudioFrame,
@@ -1821,6 +1822,12 @@ import {
 
 const store = useEveryVillainTacticsStore()
 const sound = useEveryVillainSoundStore()
+const kit = usePlaybookKitStore()
+watch(
+  () => kit.settings.sound,
+  (choice) => sound.setEnabled(choice !== 'off'),
+  { immediate: true },
+)
 const audioFrame = computed(() =>
   tacticsAudioFrame(store.state, store.screen, store.moment?.id ?? null),
 )

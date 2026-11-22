@@ -12,7 +12,11 @@ import {
 } from './redshirtKnowledge'
 import { antagonistFor } from './rules'
 import { CAPTAIN_STATS, CREW_PROFILES } from './crewAssignments'
-import { currentExpedition, deployExpedition } from './expedition'
+import {
+  currentExpedition,
+  deployExpedition,
+  secretResultFor,
+} from './expedition'
 import type { ExpeditionEncounter } from './expeditionLocal'
 import { REDSHIRT_BY_ID } from './redshirts'
 import { availableStarQuest, starSignFor } from './starSigns'
@@ -667,7 +671,7 @@ export function dispatchEpisodeBatch(
     // command seat can read as triumphant on a failed card or out of its
     // depth on a passed one. The roll decides which story is told.
     const secretTail = last.secret
-      ? ' SECRET DETOUR: ' + encounter.secretResult
+      ? ' SECRET DETOUR: ' + secretResultFor(encounter, lead)
       : ''
     const coherentOutcome =
       last.casualty || REDSHIRT_BY_ID[lead]

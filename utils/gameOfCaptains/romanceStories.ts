@@ -251,7 +251,7 @@ const raw: StoryDefinition[] = [
     chapter2: {
       title: 'An Unauthorised Memory',
       setting:
-        'The couch’s holodeck unfolds as an empty room. Mox declines to simulate an ideal companion.',
+        'The couch’s pocket theater unfolds as an empty room. Mox declines to simulate an ideal companion.',
       speakers: [
         {
           name: 'Mox-9',
@@ -835,7 +835,7 @@ const raw: StoryDefinition[] = [
     chapter2: {
       title: 'A Trace Without Permission',
       setting:
-        'The temporary holodeck shows a message from Kivo’s sibling. Sora refuses to open it by force.',
+        'The temporary pocket theater shows a message from Kivo’s sibling. Sora refuses to open it by force.',
       speakers: [
         {
           name: 'Sora',

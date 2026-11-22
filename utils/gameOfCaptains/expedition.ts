@@ -58,6 +58,38 @@ const dictionary = Object.fromEntries(
 ) as Record<string, ExpeditionEncounter>
 export const EXPEDITION_ENCOUNTERS: readonly ExpeditionEncounter[] = all
 
+const SECRET_SHORT_NAMES: Record<CrewId, string> = {
+  pell: 'Pell',
+  vela: 'Vela',
+  tess: 'Tess',
+  rue: 'Rue',
+  mox: 'Mox',
+  jex: 'Jex',
+  sora: 'Sora',
+  kivo: 'Kivo',
+  taal: 'Taal',
+  brin: 'Brin',
+  omi: 'Omi',
+  fen: 'Fen',
+}
+/**
+ * A secret detour is shared by its listed officers, but each line was written
+ * for one of them. Name the officer who actually went (t-011 red-team: a
+ * voyage without Fen still read "Fen discovers why the pod was locked").
+ */
+export function secretResultFor(
+  enc: Pick<ExpeditionEncounter, 'secretCrew' | 'secretResult'>,
+  lead: string,
+): string {
+  const name = SECRET_SHORT_NAMES[lead as CrewId]
+  if (!name) return enc.secretResult
+  for (const id of enc.secretCrew) {
+    const written = SECRET_SHORT_NAMES[id]
+    if (written && enc.secretResult.startsWith(written + ' '))
+      return name + enc.secretResult.slice(written.length)
+  }
+  return enc.secretResult
+}
 export function expeditionEncounter(id: string): ExpeditionEncounter | null {
   return dictionary[id] ?? null
 }
@@ -262,7 +294,7 @@ export function deployExpedition(
     luck: 'The incident report calls it an improbable loss. Personnel is instructed to strike the word lucky.',
   }
   const outcome = casualty
-    ? `${profile!.name} does not return from ${enc.title}. ${casualtyContext[enc.skill] ?? 'The ship registers the loss and files an unanswered question with command.'} The captain must decide how to inform the next of kin.`
+    ? `${profile!.name} does not return from ${enc.title}. ${casualtyContext[enc.skill] ?? 'The couch registers the loss and files an unanswered question with command.'} The captain writes to their family by hand.`
     : dangerouslyUnqualified
       ? `${profile!.name} is entrusted with interstellar diplomacy despite a complete absence of training. ${enc.redshirtResult} The resulting diplomatic incident is not covered by the uniform warranty.`
       : isRedshirt
@@ -271,7 +303,7 @@ export function deployExpedition(
           ? `${isCaptain ? 'The captain' : CREW_PROFILES.find((c) => c.id === lead)!.name} handles ${enc.title}. ${enc.commandResult}`
           : `The assigned command officer is out of their depth in ${enc.title}. ${enc.redshirtResult}`
   const message = secret
-    ? outcome + ' SECRET DETOUR: ' + enc.secretResult
+    ? outcome + ' SECRET DETOUR: ' + secretResultFor(enc, lead)
     : outcome
   const record: ExpeditionResult = {
     encounterId,

@@ -13,6 +13,7 @@ import {
   PLANET_CARDS,
 } from '../gameOfCaptains/episodeConsole'
 import { WAITING_LINES } from '../gameOfCaptains/transitLines'
+import { secretResultFor } from '../gameOfCaptains/expedition'
 import {
   casinoIncident,
   casinoIncidentSetup,
@@ -350,3 +351,57 @@ assert.ok(consequences >= 20 && quests >= 100)
 console.log(
   `Space Couch red-team: couch canon, ${outcomes.length} cast-checked outcomes x ${parties.length} parties, costed ethics, live nemesis file, ${voyages} persona voyages (${consequences} consequences, ${quests} quest logs) OK`,
 )
+
+// t-011 independent red-team, 2026-11-22 PT (14 seeded voyages, all captains).
+{
+  // A shared secret detour names the officer who actually went.
+  const pod = {
+    secretCrew: ['vela', 'fen'] as CrewId[],
+    secretResult: 'Fen discovers why the pod was locked during the evacuation.',
+  }
+  assert.equal(
+    secretResultFor(pod, 'vela'),
+    'Vela discovers why the pod was locked during the evacuation.',
+  )
+  assert.equal(secretResultFor(pod, 'fen'), pod.secretResult)
+  assert.equal(secretResultFor(pod, 'captain'), pod.secretResult)
+  const rulesText = readFileSync('utils/gameOfCaptains/rules.ts', 'utf8')
+  // Memorials name the mission, never its internal id.
+  assert.ok(
+    rulesText.includes('MISSIONS.find((m) => m.id === loss.missionId)?.title'),
+  )
+  assert.ok(!rulesText.includes('recruitment number, after ${loss.missionId}'))
+  // Found-off-the-map lists each discovery once, without the field verdict.
+  assert.ok(rulesText.includes('lines.indexOf(line) === index'))
+  assert.ok(rulesText.includes('Field objective (achieved|compromised)'))
+  // No famous-franchise names in the cast or the pocket rooms.
+  const names = [
+    readFileSync('utils/gameOfCaptains/redshirtsA.ts', 'utf8'),
+    readFileSync('utils/gameOfCaptains/redshirtsB.ts', 'utf8'),
+    rulesText,
+    readFileSync('utils/gameOfCaptains/openingReel.ts', 'utf8'),
+    readFileSync('utils/gameOfCaptains/romanceStories.ts', 'utf8'),
+  ].join('\n')
+  for (const lifted of [
+    'Odo Button',
+    'Dobby Glitch',
+    'Jango Wisp',
+    "name: 'Holodeck'",
+    'a holodeck',
+    'pocket holodeck',
+  ])
+    assert.ok(!names.includes(lifted), lifted)
+  // The observe ending honours principled restraint instead of idleness.
+  const endings = readFileSync(
+    'utils/gameOfCaptains/galacticEndings.ts',
+    'utf8',
+  )
+  assert.ok(!endings.includes('Vale built nothing all voyage'))
+  assert.ok(endings.includes('The couch held back on purpose.'))
+  // No promised next-of-kin decision that never arrives.
+  assert.ok(
+    !readFileSync('utils/gameOfCaptains/expedition.ts', 'utf8').includes(
+      'must decide how to inform the next of kin',
+    ),
+  )
+}

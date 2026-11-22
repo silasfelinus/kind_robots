@@ -19,7 +19,8 @@ export const CAPTAIN_DOSSIERS: Record<CaptainId, CaptainDossier> = {
       "Fluke's future self has already signed a rescue invoice in the captain's handwriting. The creditor is arriving yesterday.",
     opening:
       "A distress call is addressed to the captain's next incarnation, who apparently owes the caller an apology.",
-    voice: 'I-I-I know what happens next. Unfortunately, so does next.',
+    voice:
+      'I know what happens next. So do the other two of me, and they keep finishing my sentences.',
     hook: 'A bored time traveler who keeps accidentally meeting the consequences before the choices.',
     oddity:
       'Keeps a pocket watch with thirteen hands, none of which agrees to work weekends.',

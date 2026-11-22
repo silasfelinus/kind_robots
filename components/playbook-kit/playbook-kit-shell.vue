@@ -1,7 +1,7 @@
 <template>
   <section
     class="pf-console pk-shell @container relative flex h-full min-h-0 w-full flex-col overflow-clip bg-base-200 text-base-content"
-    :class="settingClasses"
+    :class="[settingClasses, { 'pk-gamepad': device === 'gamepad' }]"
     :data-theme="spec.theme ?? 'forge'"
     :aria-label="spec.title"
     @pointerdown="onPointer"
@@ -136,7 +136,7 @@
         "
       >
         <div class="kr-pane min-w-0">
-          <div class="kr-pane-scroll">
+          <div ref="stageEl" class="kr-pane-scroll" data-pk-stage>
             <slot />
           </div>
         </div>
@@ -249,6 +249,32 @@ const props = defineProps<{
 
 const kit = usePlaybookKitStore()
 const paneEl = ref<HTMLElement | null>(null)
+const stageEl = ref<HTMLElement | null>(null)
+// With no pane open, a gamepad plays the game itself: the D-pad or stick
+// moves focus between the stage's visible controls and A presses one.
+const STAGE_NAV =
+  'button:not([disabled]), a[href], [role="radio"], [role="button"], input[type="range"]'
+function runStage(command: ConsoleCommand): boolean {
+  const stage = stageEl.value
+  if (!stage || kit.pane) return false
+  const focused = document.activeElement
+  const inStage = focused instanceof HTMLElement && stage.contains(focused)
+  if (command === 'confirm') {
+    if (inStage) focused.click()
+    else moveFocus(stage, 'down', STAGE_NAV)
+    return true
+  }
+  if (
+    command === 'up' ||
+    command === 'down' ||
+    command === 'left' ||
+    command === 'right'
+  ) {
+    moveFocus(stage, command, STAGE_NAV)
+    return true
+  }
+  return false
+}
 const device = ref<InputDevice>('keyboard')
 const fullscreen = ref(false)
 const pad = newPadMemory()
@@ -449,6 +475,7 @@ function pollPads(now: number) {
         command === 'back'
       )
         run(command)
+      else runStage(command)
     break
   }
   frame = requestAnimationFrame(pollPads)
@@ -495,6 +522,12 @@ watch(
 </script>
 
 <style>
+/* A gamepad's programmatic focus does not always draw :focus-visible. */
+.pk-gamepad [data-pk-stage] :focus {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
 .pk-shell {
   --pk-text-scale: 1;
   --pk-font: ui-serif, Georgia, 'Times New Roman', serif;

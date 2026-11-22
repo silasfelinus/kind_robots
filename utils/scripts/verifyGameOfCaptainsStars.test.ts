@@ -1156,3 +1156,21 @@ assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))
   assert.ok(page.includes("paintedVoyageImage('ship/shield-storm')"))
   assert.ok(page.includes("infirmary: 'ship/shield-medical'"))
 }
+
+// t-011: with no Kit pane open, a gamepad plays the game itself: the D-pad
+// or stick moves focus between stage controls, A presses the focused one,
+// and gamepad focus always draws a visible ring.
+{
+  const shell = readFileSync(
+    new URL(
+      '../../components/playbook-kit/playbook-kit-shell.vue',
+      import.meta.url,
+    ),
+    'utf8',
+  )
+  assert.ok(shell.includes('ref="stageEl"'))
+  assert.ok(shell.includes('function runStage(command: ConsoleCommand)'))
+  assert.ok(shell.includes('else runStage(command)'))
+  assert.ok(shell.includes("'pk-gamepad': device === 'gamepad'"))
+  assert.ok(shell.includes('.pk-gamepad [data-pk-stage] :focus'))
+}

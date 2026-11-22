@@ -69,11 +69,11 @@ export const GALACTIC_ENDINGS: readonly GalacticEnding[] = [
     orders: BOTH,
     gate: 'Observed and recorded at six or more calls',
     earned: (run) => policies(run, 'observe') >= 6,
-    text: 'The couch observed. It observed nine systems in difficulty and kept a meticulous record of each, which is now the most complete account of a galactic crisis ever compiled by a sofa. The record is admitted as evidence in forty-one proceedings. None of them concern the couch, which was, every witness agrees, present. At the jump gate the nemesis asks for a copy. Under the treaty the captain upheld throughout, it is entitled to one.',
+    text: 'The couch held back on purpose. At every call it challenged the claims, audited who was speaking for whom, and kept a meticulous record, which is now the most complete account of a galactic crisis ever compiled by a sofa. The record is admitted as evidence in forty-one proceedings. None of them concern the couch, which, every witness agrees, never once decided for them. At the jump gate the nemesis asks for a copy. Under the treaty the captain upheld throughout, it is entitled to one.',
     captains: {
       fluke:
         'Fluke compares the record with the version he remembers and finds them identical. This has never happened before, and it unsettles him more than any paradox.',
-      vale: 'Vale built nothing all voyage, and the treaty is in perfect condition. She keeps it in a drawer next to the inventions she did not make.',
+      vale: 'Vale built no rescues and no weapons all voyage; she built audits, and the treaty is in perfect condition. She keeps it in a drawer next to the inventions she chose not to make.',
       solace:
         'Solace kept the couch out of every danger it was invited into, and everyone aboard survived. She keeps the other list as well, and reads it every morning.',
       rex: 'Rex is filmed observing nine crises in a cape. The footage is now used in training, for observers.',

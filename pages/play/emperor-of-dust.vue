@@ -45,7 +45,7 @@
             :data-tip="
               ledgerOpen
                 ? 'Hide the court ledger'
-                : 'The court ledger: day, brass and the five fortress factions'
+                : `The court ledger${rulerLine ? ` of ${rulerLine}` : ''}: day, brass and the five fortress factions`
             "
             :aria-expanded="ledgerOpen"
             aria-controls="eod-ledger"
@@ -61,6 +61,13 @@
               >
               <span
                 class="block text-[10px] font-semibold uppercase tracking-[0.18em] opacity-75"
+                ><template v-if="rulerLine"
+                  ><span
+                    class="inline-block max-w-36 truncate align-bottom"
+                    data-testid="emperor-ruler-style"
+                    >{{ rulerLine }}</span
+                  >
+                  · </template
                 >{{ dayLine }}</span
               >
             </span>
@@ -223,7 +230,8 @@
             <p
               class="text-xs font-semibold uppercase tracking-widest text-warning"
             >
-              Fifty days · the ending
+              Fifty days ·
+              {{ rulerLine ? `the end of ${rulerLine}’s reign` : 'the ending' }}
             </p>
             <EmperorFortressEndingPlate
               v-if="ending"
@@ -339,6 +347,7 @@ import {
   isOver,
 } from '~/utils/emperorOfDust/fortress/engine'
 import { endingOf } from '~/utils/emperorOfDust/fortress/endings'
+import { customRulerStyle } from '~/utils/emperorOfDust/fortress/ruler'
 import {
   LOCAL_FACTION_DEFS,
   LOCAL_MAX,
@@ -361,6 +370,7 @@ const ending = computed(() =>
   run.value && over.value ? endingOf(run.value) : undefined,
 )
 const followerName = (id: string) => followerDef(id)?.name ?? id
+const rulerLine = computed(() => (run.value ? customRulerStyle(run.value) : ''))
 const activeRoom = ref<RoomId>('briefing')
 const showDawn = ref(false)
 const splashing = ref(true)

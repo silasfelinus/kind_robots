@@ -384,6 +384,29 @@ export function rainbowSuperCutin(
   return rainbowArt(`cutins/${key}`, look)
 }
 
+export interface RainbowCutinPose {
+  scale: number
+  offsetX: number
+  offsetY: number
+}
+
+/** A painted close-up settles into the super banner without moving its HUD or collision space. */
+export function rainbowCutinPose(
+  seat: number,
+  age: number,
+  calm = false,
+): RainbowCutinPose {
+  if (calm) return { scale: 1, offsetX: 0, offsetY: 0 }
+  const time = Math.max(0, Math.min(42, age))
+  const settle = 1 - Math.pow(1 - Math.min(1, time / 18), 3)
+  const direction = seat % 2 === 0 ? 1 : -1
+  return {
+    scale: 1.08 - 0.08 * settle + Math.sin(time * 0.25) * 0.006 * settle,
+    offsetX: direction * (-8 * (1 - settle) + Math.sin(time / 11) * settle),
+    offsetY: 3 * (1 - settle) + Math.sin(time / 8) * 0.4 * settle,
+  }
+}
+
 /** Draw the seat's cut-in banner at (x, y) with the given height; returns its width, or 0 while loading. */
 export function drawRainbowSuperCutin(
   g: CanvasRenderingContext2D,
@@ -391,11 +414,25 @@ export function drawRainbowSuperCutin(
   x: number,
   y: number,
   height: number,
+  age = 0,
+  calm = false,
 ): number {
   const img = loadedArt(rainbowSuperCutin(seat))
   if (!img) return 0
   const width = (height * img.naturalWidth) / img.naturalHeight
-  g.drawImage(img, x, y, width, height)
+  const pose = rainbowCutinPose(seat, age, calm)
+  g.save()
+  g.beginPath()
+  g.rect(x, y, width, height)
+  g.clip()
+  g.drawImage(
+    img,
+    x + (width * (1 - pose.scale)) / 2 + pose.offsetX,
+    y + (height * (1 - pose.scale)) / 2 + pose.offsetY,
+    width * pose.scale,
+    height * pose.scale,
+  )
+  g.restore()
   return width
 }
 

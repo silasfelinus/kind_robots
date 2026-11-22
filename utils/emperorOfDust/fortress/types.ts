@@ -597,6 +597,31 @@ export type DawnReport = {
   }
 }
 
+/** How the court addresses the ruler (t-075); prose keeps "Your Majesty". */
+export const RULER_ADDRESSES = ['emperor', 'empress', 'sovereign'] as const
+export type RulerAddress = (typeof RULER_ADDRESSES)[number]
+
+/** A temperament's one-time Day 1 nudge (t-075); 'none' is today's start. */
+export const RULER_TEMPERAMENTS = [
+  'none',
+  'merciful',
+  'iron',
+  'cunning',
+] as const
+export type RulerTemperament = (typeof RULER_TEMPERAMENTS)[number]
+
+/**
+ * The ruler chosen at New Reign (t-075). Optional on the run: a run without
+ * one, including every save from before the creator, is the nameless
+ * Emperor of no particular temperament.
+ */
+export type RulerIdentity = {
+  /** Letters, spaces and '-. only; 1-24 characters when present. */
+  name?: string
+  address: RulerAddress
+  temperament: RulerTemperament
+}
+
 export type FortressRun = {
   version: 3
   seed: number
@@ -657,6 +682,8 @@ export type FortressRun = {
   aid?: Record<string, QuestAid[]>
   /** Debts, fees and threats waiting for a later dawn (t-040). */
   dues?: PendingDue[]
+  /** The ruler chosen at New Reign (t-075); absent means the default. */
+  ruler?: RulerIdentity
 }
 
 /** Persistent across runs: revealed traits and allegiances. */

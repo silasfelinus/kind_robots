@@ -7,6 +7,8 @@ on:
       - 'utils/arcade/**'
       - 'utils/scripts/arcadeCabinetFixture.mjs'
       - 'utils/scripts/verifyArcadeViewport.browser.test.mjs'
+      - 'utils/scripts/verifyArcadeColdOpen.browser.test.mjs'
+      - 'utils/scripts/checkArcadeColdOpenLive.mjs'
       - '.github/workflows/arcade-viewport.yml'
   workflow_dispatch:
 
@@ -40,11 +42,18 @@ jobs:
         env:
           ARCADE_VIEWPORT_SHOTS: test-results/arcade-viewport
 
+      - name: Guest cold-open START and touch interaction matrix
+        run: node utils/scripts/verifyArcadeColdOpen.browser.test.mjs
+        env:
+          ARCADE_COLD_OPEN_SHOTS: test-results/arcade-cold-open
+
       - name: Preserve screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: arcade-viewport-screenshots
-          path: test-results/arcade-viewport/
+          path: |
+            test-results/arcade-viewport/
+            test-results/arcade-cold-open/
           if-no-files-found: ignore
           retention-days: 7

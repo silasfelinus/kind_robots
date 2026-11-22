@@ -21,6 +21,7 @@ on:
       - 'utils/scripts/verifyEmperorSecondPassTraces.test.ts'
       - 'utils/scripts/verifyEmperorEndingWitnesses.test.ts'
       - 'utils/scripts/verifyEmperorFortressStore.test.ts'
+      - 'utils/scripts/verifyEmperorRulerCreator.test.ts'
       - 'utils/emperorOfDust/audio/**'
       - 'utils/scripts/verifyEmperorAudio.test.ts'
       - 'components/EmperorFortressPreferences.vue'
@@ -53,6 +54,8 @@ on:
       - 'components/EmperorFortressEndings.vue'
       - 'components/EmperorFortressEndingPlate.vue'
       - 'components/EmperorFortressIntro.vue'
+      - 'components/EmperorFortressRulerCreator.vue'
+      - 'components/EmperorFortressSplash.vue'
       - 'components/EmperorFortressQuests.vue'
       - 'components/EmperorFortressMapRoom.vue'
       - 'components/EmperorFortressCodex.vue'
@@ -90,6 +93,8 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortress.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressBalance.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressStore.test.ts
+      - name: Verify the ruler creator keeps defaults, nudges once and survives saves
+        run: npm run test:emperor-ruler
       - name: Verify synthesized music, ambience and sound effects
         run: npx tsx utils/scripts/verifyEmperorAudio.test.ts
       - run: npx tsx tests/emperorScrapbook.test.ts

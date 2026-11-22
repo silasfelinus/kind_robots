@@ -28,7 +28,7 @@ assert.equal(
 )
 
 assert.equal(LIGHTHOUSE_SECTIONS.length, 6)
-assert.equal(LIGHTHOUSE_WAVES.length, 29)
+assert.equal(LIGHTHOUSE_WAVES.length, 30)
 assert.equal(LIGHTHOUSE_WAVE_SIZES.length, LIGHTHOUSE_WAVES.length)
 assert.ok(LIGHTHOUSE_WAVE_SIZES.every((size) => size >= 1 && size <= 4))
 assert.deepEqual(
@@ -123,6 +123,6 @@ for (const enraged of [false, true]) {
 assert.throws(() => lighthouseBellkeeperVolley(0))
 
 console.log(
-  'rainbow lighthouse X3 score: 29 wave formations, six lamps, guardian' +
+  'rainbow lighthouse X3 score: 30 wave formations, six lamps, guardian' +
     ' patterns, route gate and three authored scenes passed',
 )

@@ -131,8 +131,10 @@ const shipped = WARP_ART.filter((key) => key.startsWith('redshirts/portraits/'))
 assert.ok(shipped.length > 0, 'existing approved art remains in the manifest')
 assert.equal(
   WARP_ART.filter((key) => key.startsWith('redshirts/secret-powers/')).length,
-  99,
-  'do not invent the remaining secret-power plate',
+  // The 100th plate (rs-007) shipped only after the 2026-11-22 PT
+  // REDSHIRTS-ROUND-3 keep verdict; never add plates without one.
+  100,
+  'every secret-power plate is a curated keeper',
 )
 console.log(
   'Space Couch selected ArtSlot delivery, privacy gates and shipped fallback verified',

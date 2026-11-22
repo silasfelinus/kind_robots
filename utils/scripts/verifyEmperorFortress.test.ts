@@ -192,7 +192,11 @@ import { TALKS } from '../emperorOfDust/fortress/talks'
 import { TALK_ECHOES, barracksLine } from '../emperorOfDust/fortress/talkEchoes'
 import { TIP_INSET, tipShift } from '../emperorOfDust/fortress/tipFit'
 import { NPCS, npcDef, reactionMood } from '../emperorOfDust/fortress/npcs'
-import { CAST_ART, castArtUrl } from '../emperorOfDust/fortress/castArt'
+import {
+  CAST_ART,
+  castArtUrl,
+  npcPortrait,
+} from '../emperorOfDust/fortress/castArt'
 import {
   decodeBook,
   decodeCodex,
@@ -3714,7 +3718,9 @@ for (const asset of CAST_ART) {
       : ['neutral', 'happy', 'excited', 'sad', 'angry', 'betrayal']
   assert.ok(
     (kind === 'illustrated' ||
-      (kind === 'portrait' && group === 'followers')) &&
+      (kind === 'portrait' && group === 'followers') ||
+      // Petitioner NPCs may ship a neutral bust (castArt npcPortrait).
+      (kind === 'portrait' && state === 'neutral')) &&
       slots.includes(state ?? ''),
     `${asset} is a known image slot`,
   )
@@ -3726,26 +3732,21 @@ for (const def of FOLLOWERS.slice(0, 25)) {
   assert.ok(castArtUrl(`followers/${def.id}/illustrated/neutral`), def.id)
   assert.ok(castArtUrl(`followers/${def.id}/portrait/neutral`), def.id)
 }
-// These newly identified audience faces have private Arthemy requests in Conductor.
-// Never claim their art shipped before the actual export has been registered.
-const queuedAudienceArt = new Set([
-  'conclave-messenger',
-  'jackalwire-toll-captain',
-  'aldous-hopper',
-  'mirefen-reed-cutter',
-  'saltroad-tincture-factor',
-  'jackalwire-wagon-painter',
-  'storm-crow-envoy',
-])
+// The seven Act I petitioners (conductor ACT-1-MISSING-PETITIONERS-ROUND-1 and
+// ACT-1-CROW-ENVOY-ROUND-1) shipped after 2026-11-21 PT curation: every NPC now
+// has a neutral illustration.
 for (const def of NPCS) {
-  const art = castArtUrl(`npcs/${def.slug}/illustrated/neutral`)
-  if (queuedAudienceArt.has(def.slug)) continue
-  assert.ok(art, def.slug)
+  assert.ok(castArtUrl(`npcs/${def.slug}/illustrated/neutral`), def.slug)
 }
-assert.equal(queuedAudienceArt.size, 7)
 assert.ok(castArtUrl('npcs/young-komodo/illustrated/betrayal'))
-// The full t-012 set: 25 followers x 8 images, 17 NPCs x 5 moods, the betrayal.
-assert.equal(CAST_ART.length, 25 * 8 + 17 * 5 + 1)
+// The full t-012 set: 25 followers x 8 images, 17 NPCs x 5 moods, the betrayal;
+// plus the petitioners' 9 illustrations and 5 neutral busts (two busts were
+// rejected as feral quadrupeds and fall back to the illustration).
+assert.equal(CAST_ART.length, 25 * 8 + 17 * 5 + 1 + 9 + 5)
+assert.equal(
+  npcPortrait('jackalwire-toll-captain'),
+  castArtUrl('npcs/jackalwire-toll-captain/illustrated/neutral'),
+)
 // An NPC's reaction follows their faction's change in support.
 assert.equal(reactionMood({ affinity: { moles: 10 } }, 'moles'), 'excited')
 assert.equal(reactionMood({ local: { lamplight: 2 } }, 'lamplight'), 'happy')

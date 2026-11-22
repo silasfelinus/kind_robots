@@ -1,5 +1,6 @@
 import { illustration, type Mood } from './castArt'
 import { emperorMediaArtUrl } from './artDelivery'
+import { AUDIENCE_PLATES } from './deliveredPlates'
 import { questArtUrl } from './questArt'
 import { roomArtUrl } from './rooms'
 
@@ -11,6 +12,19 @@ import { roomArtUrl } from './rooms'
  */
 export const EXPORTED_AUDIENCE_CHOICES: readonly string[] = []
 const exported = new Set(EXPORTED_AUDIENCE_CHOICES)
+
+/**
+ * A curated, physically shipped audience plate (deliveredPlates.ts, generated
+ * from the conductor ledgers' keep verdicts) for one answer, or for the
+ * audience's opening `scene`. Undefined when no keeper ships for it.
+ */
+export const audiencePlateUrl = (
+  audienceId: string,
+  choice: string,
+): string | undefined => {
+  const file = AUDIENCE_PLATES[`${audienceId}:${choice}`]
+  return file ? `/emperor-of-dust/audiences/${file}.webp` : undefined
+}
 
 const FORD_CHOICE_SCENES: Readonly<
   Record<string, readonly (string | undefined)[]>
@@ -50,7 +64,7 @@ export function audienceChoiceImages(
   const asset = `${audienceId}/${choiceId}`
   const commission = exported.has(asset)
     ? `/emperor-of-dust/audiences/${asset}.webp`
-    : undefined
+    : audiencePlateUrl(audienceId, choiceId)
   const group = speakerNpc?.startsWith('F0') ? 'followers' : 'npcs'
   const moods = MOODS.map(
     (_, index) => MOODS[(index + cardIndex) % MOODS.length]!,
@@ -61,6 +75,7 @@ export function audienceChoiceImages(
   const candidates = [
     commission,
     emperorMediaArtUrl(`audiences/${audienceId}-${choiceId}`),
+    audiencePlateUrl(audienceId, 'scene'),
     emperorMediaArtUrl(`audiences/${audienceId}-enter`),
     ...(FORD_CHOICE_SCENES[`${audienceId}:${choiceId}`] ?? []),
     ...portraits,

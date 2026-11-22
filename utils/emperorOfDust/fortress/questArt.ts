@@ -5,6 +5,7 @@
 // the game shows Silas's painted map, cropped around the quest's region.
 
 import { emperorMediaArtUrl } from './artDelivery'
+import { QUEST_OUTCOME_PLATES } from './deliveredPlates'
 import { REGIONS } from './factions'
 import type { QuestResultTier } from './types'
 
@@ -270,6 +271,7 @@ export const QUEST_ART: readonly string[] = [
   'r-ferry-stalled-failure',
   'r-fever-ward',
   'r-fever-ward-failure',
+  'r-fever-ward-success',
   'r-graves',
   'r-graves-success',
   'r-graves-failure',
@@ -299,6 +301,7 @@ export const QUEST_ART: readonly string[] = [
   'r-trestle-sags-failure',
   'r-verge-scouts',
   'r-verge-scouts-success',
+  'r-verge-scouts-failure',
   'r-well-poison',
   'r-well-poison-success',
   'r-well-poison-failure',
@@ -323,6 +326,20 @@ export const questArtUrl = (
 }
 
 /**
+ * A curated consequence plate for one quest outcome (deliveredPlates.ts,
+ * generated from the conductor ledgers' keep verdicts). Partial and expired
+ * results get their own scenes here; a triumph shares the success plate.
+ */
+export const questOutcomePlateUrl = (
+  questId: string,
+  tier: QuestResultTier | 'expired',
+): string | undefined => {
+  const outcome = tier === 'triumph' ? 'success' : tier
+  const file = QUEST_OUTCOME_PLATES[`${templateOf(questId)}:${outcome}`]
+  return file ? `/emperor-of-dust/audiences/${file}.webp` : undefined
+}
+
+/**
  * Painted choices for the quest viewport. Already-shipped static art loads
  * immediately. A missing outcome first probes the curated durable share
  * and falls back to the original shipped notice, never a blank panel.
@@ -330,7 +347,13 @@ export const questArtUrl = (
 export function questArtCandidates(
   questId: string,
   variant: QuestArtVariant = 'notice',
+  tier?: QuestResultTier | 'expired',
 ): string[] {
+  const plate = tier ? questOutcomePlateUrl(questId, tier) : undefined
+  if (plate) {
+    const rest = questArtCandidates(questId, variant)
+    return [plate, ...rest.filter((url) => url !== plate)]
+  }
   const base = templateOf(questId)
   const asset = variant === 'notice' ? base : `${base}-${variant}`
   const staticExact = AVAILABLE.has(asset)

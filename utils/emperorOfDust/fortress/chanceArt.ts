@@ -1,4 +1,5 @@
 import { emperorMediaArtUrl } from './artDelivery'
+import { CHANCE_PLATES } from './deliveredPlates'
 import { roomArtUrl } from './rooms'
 
 /**
@@ -7,6 +8,20 @@ import { roomArtUrl } from './rooms'
  */
 export const EXPORTED_CHANCE_PLATES: readonly string[] = []
 const exported = new Set(EXPORTED_CHANCE_PLATES)
+const plates = new Set(CHANCE_PLATES)
+
+/**
+ * A curated, physically shipped chance plate (deliveredPlates.ts, generated
+ * from the conductor ledgers' keep verdicts): the event's `notice` scene or
+ * one of its choices. Undefined when no keeper ships for that slot.
+ */
+export const chancePlateUrl = (
+  eventId: string,
+  slot: string,
+): string | undefined =>
+  plates.has(`${eventId}/${slot}`)
+    ? `/emperor-of-dust/chance-events/${eventId}/${slot}.webp`
+    : undefined
 
 /**
  * Stable painted scene candidates for the shared choice hand.
@@ -31,6 +46,8 @@ export function chanceArtCandidates(
   const noticeMedia = emperorMediaArtUrl(`chance-events/${eventId}/notice`)
   return [
     commission,
+    choiceId ? chancePlateUrl(eventId, choiceId) : undefined,
+    chancePlateUrl(eventId, 'notice'),
     choiceMedia,
     noticeMedia,
     fallback,

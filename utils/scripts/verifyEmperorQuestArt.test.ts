@@ -44,14 +44,19 @@ assert.equal(
   questArtUrl('r-runaway-runner', 'failure'),
   '/emperor-of-dust/quests/r-runaway-runner-failure.webp',
 )
-// Still rejected after REDO-2 (human faces): these outcomes fall back to the notice.
+// Rejected through REDO-3 (human faces), kept from REDO-4 (2026-11-21 PT).
 assert.equal(
   questArtUrl('r-verge-scouts', 'failure'),
-  '/emperor-of-dust/quests/r-verge-scouts.webp',
+  '/emperor-of-dust/quests/r-verge-scouts-failure.webp',
 )
 assert.equal(
   questArtUrl('r-fever-ward', 'success'),
-  '/emperor-of-dust/quests/r-fever-ward.webp',
+  '/emperor-of-dust/quests/r-fever-ward-success.webp',
+)
+// The cave-forage failure plate is still unshipped: it falls back to the notice.
+assert.equal(
+  questArtUrl('q-d42-cave-forage', 'failure'),
+  '/emperor-of-dust/quests/q-d42-cave-forage.webp',
 )
 assert.equal(
   questArtUrl('r-deserter', 'success'),

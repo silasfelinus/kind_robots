@@ -171,9 +171,20 @@ export function renderChessweeperScore(world, variant = 'stage') {
   view.setUint16(34, 16, true)
   ascii(36, 'data')
   view.setUint32(40, frames * 2, true)
+  const mastered = new Float64Array(frames)
   for (let i = 0; i < frames; i++) {
-    const sample = Math.tanh(mix[i] * gain * 1.35) * 0.92
-    view.setInt16(44 + i * 2, Math.round(sample * 32767), true)
+    mastered[i] = Math.tanh(mix[i] * gain * 1.35) * 0.92
+  }
+  const seam = (mastered[0] + mastered[frames - 1]) / 2
+  const fadeFrames = Math.round(RATE * 0.012)
+  for (let i = 0; i < fadeFrames; i++) {
+    const blend = (fadeFrames - i) / fadeFrames
+    mastered[i] = mastered[i] * (1 - blend) + seam * blend
+    const tail = frames - i - 1
+    mastered[tail] = mastered[tail] * (1 - blend) + seam * blend
+  }
+  for (let i = 0; i < frames; i++) {
+    view.setInt16(44 + i * 2, Math.round(mastered[i] * 32767), true)
   }
   return bytes
 }

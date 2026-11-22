@@ -70,8 +70,7 @@ for (const garden of GARDENS) {
     assert.ok(laterLap.speed <= MAX_SPEED, `${label}: lap speed cap`)
     assert.ok(laterLap.heads <= MAX_HEADS, `${label}: lap head cap`)
     assert.ok(
-      laterLap.beetleEvery !== null &&
-        laterLap.beetleEvery >= MIN_BEETLE_EVERY,
+      laterLap.beetleEvery !== null && laterLap.beetleEvery >= MIN_BEETLE_EVERY,
       `${label}: lap beetle cap`,
     )
   }

@@ -10,7 +10,6 @@
       ref="video"
       class="h-full w-full object-contain"
       :poster="opening.poster"
-      autoplay
       playsinline
       :muted="arcade.muted"
       @ended="close"
@@ -35,6 +34,7 @@
       >
         <p
           class="text-xs font-bold uppercase tracking-[0.3em] text-pink-200/80"
+          aria-live="polite"
         >
           {{
             state === 'failed'
@@ -94,34 +94,54 @@ const state = ref<'hidden' | 'offer' | 'playing' | 'failed'>('hidden')
 const video = ref<HTMLVideoElement | null>(null)
 const playButton = ref<HTMLButtonElement | null>(null)
 let frame = 0
+let playbackAttempt = 0
 
 watch(state, (now) => emit('showing', now !== 'hidden'))
 
 async function play() {
+  const attempt = ++playbackAttempt
+  cancelAnimationFrame(frame)
   state.value = 'playing'
   await nextTick()
-  if (!video.value) return
-  video.value.volume = arcade.volume
-  video.value.play().catch(() => {
-    if (video.value) video.value.muted = true
-    void video.value?.play().catch(onPlaybackError)
-  })
+  const player = video.value
+  if (!player || attempt !== playbackAttempt || state.value !== 'playing') {
+    return
+  }
+  player.volume = arcade.volume
   pollPads()
+  try {
+    await player.play()
+  } catch {
+    if (attempt !== playbackAttempt || state.value !== 'playing') return
+    player.muted = true
+    try {
+      await player.play()
+    } catch {
+      if (attempt === playbackAttempt) onPlaybackError()
+    }
+  }
 }
 
 function onPlaybackError() {
+  if (state.value !== 'playing') return
+  ++playbackAttempt
   cancelAnimationFrame(frame)
   state.value = 'failed'
-  void nextTick(() => playButton.value?.focus())
+  void nextTick(() => {
+    if (state.value === 'failed') playButton.value?.focus()
+  })
 }
 
 function close() {
+  ++playbackAttempt
   cancelAnimationFrame(frame)
   state.value = 'hidden'
   arcade.markOpeningSeen(SLUG)
 }
 
 function offer() {
+  ++playbackAttempt
+  cancelAnimationFrame(frame)
   state.value = 'offer'
   void nextTick(() => playButton.value?.focus())
 }
@@ -156,6 +176,7 @@ onMounted(() => {
   if (!arcade.openingSeen(SLUG)) offer()
 })
 onBeforeUnmount(() => {
+  ++playbackAttempt
   window.removeEventListener('keydown', onKey)
   cancelAnimationFrame(frame)
 })

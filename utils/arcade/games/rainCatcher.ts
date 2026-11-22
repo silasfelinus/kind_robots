@@ -1135,6 +1135,7 @@ class RainCatcher implements ArcadeGameInstance {
           b.t < BLOOM_GROW + BLOOM_HOLD && Math.hypot(b.x - x, b.y - y) < 14,
       ) || this.shots.some((s) => Math.hypot(s.tx - x, s.ty - y) < 14)
     const threats = this.hail
+      .filter((h) => h.kind !== 'rain')
       .map((h) => ({ h, eta: (h.ty - h.y) / Math.max(0.01, h.vy) }))
       .sort((a, b) => a.eta - b.eta)
     for (const { h } of threats) {

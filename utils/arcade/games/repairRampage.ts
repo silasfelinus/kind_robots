@@ -1118,7 +1118,12 @@ class RepairRampage implements ArcadeGameInstance {
       this.charge -= TOWER_DOWN_COST
       if (this.kitten?.tower === i) this.kitten = null
       if (this.mode === 'climb' && this.tower === i) {
-        this.charge -= COLLAPSE_COST
+        if (
+          this.reserveGrace === 0 &&
+          !this.absorbHit('hard-hat')
+        ) {
+          this.charge -= COLLAPSE_COST
+        }
         this.letGo()
       }
     }
@@ -1217,7 +1222,7 @@ class RepairRampage implements ArcadeGameInstance {
     if (--hazard.ticks > 0) return
     this.hazard = null
     const target = this.towers[hazard.tower]
-    if (!target || !target.standing) return
+    if (!target || !target.standing || this.reserveGrace > 0) return
     if (hazard.kind === 'gust') {
       if (input.held.down) return
       if (this.mode === 'climb' && this.tower === hazard.tower) {
@@ -1238,10 +1243,12 @@ class RepairRampage implements ArcadeGameInstance {
       this.tower === hazard.tower &&
       this.col === hazard.col
     ) {
-      this.row = Math.max(0, this.row - 2)
-      this.placeOnTower()
-      this.charge -= 6
-      this.sound.play('boom')
+      if (!this.absorbHit('hard-hat')) {
+        this.row = Math.max(0, this.row - 2)
+        this.placeOnTower()
+        this.charge -= 6
+        this.sound.play('boom')
+      }
     } else if (
       hazard.kind === 'pigeon' &&
       this.mode === 'climb' &&
@@ -1259,9 +1266,11 @@ class RepairRampage implements ArcadeGameInstance {
       this.mode === 'climb' &&
       this.row === hazard.row
     ) {
-      this.charge -= 12
-      this.letGo()
-      this.sound.play('shoot')
+      if (!this.absorbHit('umbrella')) {
+        this.charge -= 12
+        this.letGo()
+        this.sound.play('shoot')
+      }
     }
   }
 
@@ -1319,6 +1328,7 @@ class RepairRampage implements ArcadeGameInstance {
     const sameHeight = Math.abs(d.y - (this.y - 14)) < 16
     const ahead = (this.x - d.x) * d.dir
     if (sameHeight && ahead > 0 && ahead < 110) {
+      if (this.reserveGrace > 0 || this.absorbHit('umbrella')) return
       this.charge -= DAZZLE_COST
       this.floaters.push({
         x: this.x,
@@ -1407,6 +1417,9 @@ class RepairRampage implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    if (this.tools.length && this.fixCooldown === 0) {
+      frame.pressed.b = true
+    }
     // Shoo a drone that's lining up a shot nearby.
     const threat = this.drones.find(
       (d) =>
@@ -1749,7 +1762,13 @@ class RepairRampage implements ArcadeGameInstance {
         }
         if (surprise && !t.windows[index]) {
           const symbol =
-            surprise === 'snack' ? '+' : surprise === 'toolbox' ? 'T' : 'C'
+            surprise === 'snack'
+              ? '+'
+              : surprise === 'toolbox'
+                ? 'T'
+                : surprise === 'sparky-wire'
+                  ? '!'
+                  : 'C'
           drawText(g, symbol, wx + 3, wy + 3, {
             color: RAMPS.gold[4],
             outline: INK,
@@ -1993,6 +2012,25 @@ class RepairRampage implements ArcadeGameInstance {
       color: RAMPS.teal[3],
       outline: INK,
     })
+    drawText(g, 'BOTS ' + this.lives, W - 7, 27, {
+      align: 'right',
+      color: RAMPS.leaf[3],
+      outline: INK,
+    })
+    const toolLabel = this.tools.length
+      ? 'B ' + REPAIR_TOOL_LABELS[this.tools[0]!]
+      : this.protection
+        ? REPAIR_TOOL_LABELS[this.protection] + ' ON'
+        : this.rollerTicks > 0
+          ? 'ROLLER ' + Math.ceil(this.rollerTicks / 60) + 'S'
+          : ''
+    if (toolLabel) {
+      hudPanel(g, 3, 25, 144, 14, RAMPS.purple)
+      drawText(g, toolLabel, 7, 29, {
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 48, {
         scale: 2,

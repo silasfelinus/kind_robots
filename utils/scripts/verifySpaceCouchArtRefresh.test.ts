@@ -96,8 +96,7 @@ assert.ok(
   'casino venue media failure must reveal the episode fallback',
 )
 assert.equal(
-  daily.match(/actor.image && !brokenArtwork.includes\(actor.image\)/g)
-    ?.length,
+  daily.match(/actor.image && !brokenArtwork.includes\(actor.image\)/g)?.length,
   2,
   'failed captain, crew and redshirt portraits must reveal their monogram in both cast views',
 )

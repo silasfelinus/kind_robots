@@ -95,6 +95,16 @@ assert.ok(
   daily.includes('brokenArtwork.includes(franchiseImage)'),
   'casino venue media failure must reveal the episode fallback',
 )
+assert.equal(
+  daily.match(/actor.image && !brokenArtwork.includes\(actor.image\)/g)
+    ?.length,
+  2,
+  'failed captain, crew and redshirt portraits must reveal their monogram in both cast views',
+)
+assert.ok(
+  daily.includes('() => [props.artwork, props.franchiseImage, props.backdrop]'),
+  'refreshing art sources must allow failed portraits to retry',
+)
 assert.ok(
   daily.includes('v-else-if="!plotCast.length"'),
   'assigned officers must not be told to choose an officer again',

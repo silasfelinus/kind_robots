@@ -176,7 +176,9 @@ function identityPhrase(model: CharacterModel): string {
     model.lora.status === 'trained'
       ? model.identity.slice(0, 2)
       : model.identity
-  return [model.lora.trigger, model.name, ...traits].join(', ')
+  return [model.lora.trigger, model.name, ...traits, model.caricature]
+    .filter(Boolean)
+    .join(', ')
 }
 
 function castPhrase(slot: CastSlot): string {

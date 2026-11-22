@@ -69,7 +69,7 @@ export type SpriteProp =
 
 /** Parameters for the vector stand-in drawn until generated art is delivered. */
 export interface SpriteRig {
-  /** Height relative to Iris (1). Norb is 4'11", Albina is over six feet of gator. */
+  /** Height relative to Iris (1). Norb is a little person about four feet tall, Albina is over six feet of gator. */
   height: number
   /** Body height in heads. Caricature cast: 3.2 is cartoon, 5.5 is glamour. */
   heads: number
@@ -127,6 +127,15 @@ export interface CharacterModel {
   /** Larry-style comic acting notes for animators and sprite poses. */
   acting: string
   expressions: CharacterExpression[]
+  /** The expression a portrait uses when none is asked for: the face that sells who they are. */
+  signatureExpression?: string
+  /** How this character is drawn when the house style is not enough (Norb's cartoon grotesque). */
+  caricature?: string
+  /**
+   * Danbooru-style identity tags for the tag-trained Illustrious lanes, which
+   * read tags far better than prose. Identity and wardrobe only; no style.
+   */
+  tags?: string
   /** Never drawn this way, in any style. Merged into negative prompts. */
   never: string[]
   sprite: SpriteRig
@@ -172,31 +181,61 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     species: 'human woman',
     apparentAge: 'adult woman, about 30',
     silhouette:
-      'a tall leggy baddie in a belted rose trench coat, dark hair with one white streak, a plaster on her neck and a chunky press camera on a strap',
+      'a leggy, curvy streetwise broad in a belted rose trench, a big messy mane of jet-black hair with one white streak, a plaster on her neck and a press camera swinging on its strap',
     identity: [
-      'adult human woman about 30, a confident baddie',
-      'shoulder-length tousled dark brown hair with a single bold white streak at the front',
+      'adult human woman about 30, sassy streetwise broad with a warm open face',
+      'big messy shoulder-length jet-black hair with swept bangs and a single thick bold white streak from the front hairline',
+      'bright wide curious eyes with smudged black winged eyeliner, arched expressive eyebrows, a wide crooked grin',
       'a flesh-coloured plaster on the side of her neck',
-      'warm complexion, bold berry lipstick, mischievous half-lidded eyes',
+      'bold berry lipstick, big gold hoop earrings, chipped nail polish',
       'chunky vintage press camera with a flash bulb on a strap',
       'belted rose-and-plum trench coat over a black crop top and high-waisted pencil skirt',
     ],
     wardrobe:
-      'rose-and-plum trench coat, black crop top, high-waisted pencil skirt, scuffed ankle boots, press pass clipped to the belt; a small retro logo tattoo on her lower back shows when she bends',
+      'rose-and-plum trench coat, black crop top, high-waisted pencil skirt, laddered fishnets, scuffed ankle boots, press pass clipped to the belt; a small retro logo tattoo on her lower back shows when she bends',
     acting:
-      'A baddie and knows it: leads with her hips and her camera, leans on things Norb would never touch, winks at the audience after every bad idea, then commits to it anyway.',
+      'Sassy, fearless and never sour: talks with her hands and her eyebrows, leans in close to anything strange, cracks wise with a grin, laughs at her own bad ideas and is first through the door anyway. Sharp tongue, open heart: she teases everyone and roots for all of them.',
     expressions: expressions(
-      { id: 'flirt', prompt: 'playful half-lidded wink, one eyebrow raised' },
+      {
+        id: 'sass',
+        prompt:
+          'one eyebrow cocked, wide crooked grin, mid-wisecrack, hand on hip',
+      },
+      {
+        id: 'curious',
+        prompt:
+          'leaning in, eyes wide and bright, eyebrows up, lips parted in a delighted grin',
+      },
+      {
+        id: 'brave',
+        prompt: 'chin up, jaw set, eyes blazing, camera raised like a weapon',
+      },
+      {
+        id: 'flirt',
+        prompt: 'playful wink, one eyebrow raised, tongue in cheek',
+      },
       { id: 'disgust', prompt: 'grimacing, elbow-deep in something wet' },
       { id: 'focus', prompt: 'squinting through the camera viewfinder' },
     ),
-    never: ['schoolgirl', 'damsel', 'helpless pose', 'teen', 'mousy'],
+    signatureExpression: 'sass',
+    never: [
+      'schoolgirl',
+      'damsel',
+      'helpless pose',
+      'teen',
+      'mousy',
+      'brown hair',
+      'sleek bob',
+      'cold aloof stare',
+      'bored expression',
+    ],
+    tags: '1girl, solo, mature female, black hair, streaked hair, white streak, medium hair, messy hair, swept bangs, wide eyes, eyeliner, raised eyebrow, grin, lipstick, hoop earrings, bandaid on neck, curvy, trench coat, pink coat, belt, crop top, midriff, pencil skirt, fishnets, ankle boots, camera, holding camera, hand on hip, confident',
     sprite: {
       height: 1,
       heads: 5.2,
       build: 'curvy',
       skin: '#d9a48c',
-      hair: '#2c2234',
+      hair: '#121016',
       hairStyle: 'bob',
       outfit: '#a8466f',
       accent: '#141414',
@@ -206,9 +245,10 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     },
     lora: lora('mnstq_iris'),
     general: true,
-    bio: 'Assistant, photographer and fixer at The Unwashed Truth, and the player. Broke, bisexual, shameless, a baddie and extremely good at her job. She touches everything so Norb never has to.',
+    bio: 'Assistant, photographer and fixer at The Unwashed Truth, and the player. A sassy streetwise broad with a sharp tongue and an open heart: broke, bisexual, shameless, curious about everything, brave to a fault and extremely good at her job. She touches everything so Norb never has to.',
     canonNotes: [
-      'White streak in her hair since forever; she says it is natural, nobody believes her.',
+      'Jet-black hair with a white streak since forever; she says it is natural, nobody believes her. Never brown, never a sleek bob (that is Draculina).',
+      'Sassy, never mean: her insults come with a grin, and she is the first to stand up for anyone the franchise wronged.',
       'Running joke: the plaster on her neck. Her new boyfriend is a real necker and cannot get enough; every character has an opinion about it.',
       'A MONSTRIQUE logo tramp stamp from her high-school days: everybody at Midnight High got one. She rocked it, and still does.',
       'Flirts with Norb constantly; he stays 100% professional, files a half-hearted harassment complaint, and it turns into an argument about who holds power over whom in a class-based society.',
@@ -223,29 +263,41 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     species: 'human man',
     apparentAge: 'adult man, about 45',
     silhouette:
-      'four foot eleven of Quasimodo hump and Igor shuffle, a lopsided oversized head, mismatched bulging eyes behind huge round glasses, a MONSTRIQUE T-shirt and two raised gloved hands',
+      'a little person barely waist-high to Iris: a Quasimodo hump and Igor stoop under a huge lumpy lopsided head, two mismatched bulging eyes, a MONSTRIQUE T-shirt and two raised yellow-gloved hands',
     identity: [
-      'very short hunchbacked adult man, four foot eleven, a large hump on one shoulder, Igor stoop',
-      'lopsided oversized head, one bulging eye larger than the other, heavy-lidded Peter-Lorre-style eyes and a nervous wheedling grin',
-      'enormous bulbous doorknob nose, crooked buck teeth',
-      'thick round coke-bottle glasses',
-      'a thin greasy comb-over plastered flat',
+      'adult man with dwarfism, a little person about four feet tall, huge head, short bowed legs, stubby arms with oversized hands',
+      'a big Quasimodo hump on one shoulder, Igor stoop, head thrust forward on no neck',
+      'lumpy misshapen lopsided skull, sallow skin, stubble, almost no chin',
+      'huge wide-open bulging eyes, the left eye much larger and set higher than the right, heavy drooping half-lowered eyelids over both, dark bags underneath: Peter-Lorre-style eyes',
+      'enormous bulbous doorknob nose, wide froggy mouth with crooked buck teeth, nervous wheedling grin',
+      'small round wire spectacles, the left lens thick and magnifying the big eye even bigger',
+      'a few greasy strands combed over a bald lumpy scalp',
       'yellow latex gloves held up like a surgeon',
     ],
+    caricature:
+      'drawn as a rubbery 1990s TV cartoon caricature: squash-and-stretch, grotesque comic distortion, exaggerated takes, the ugliest face in the room',
     wardrobe:
       'an oversized hot-pink MONSTRIQUE convention T-shirt tucked into high-waisted rumpled grey trousers, a grey suit jacket too small for the hump, crooked bow tie over the T-shirt, galoshes: zero fashion sense',
     acting:
-      'Shuffles like a lab assistant, wrings his gloved hands, recoils from every surface and gestures with his elbows. Stands at least two metres from anyone. 100% professional with Iris; his rebuffs are about germs, the case and workplace conduct, never about Iris being undesirable.',
+      'Shuffles like a lab assistant, wrings his gloved hands, recoils from every surface and gestures with his elbows. Stands at least two metres from anyone. His eyes do the acting: the big one bulges and swivels, the heavy lids droop when he is smug and fly open when he is horrified. 100% professional with Iris; his rebuffs are about germs, the case and workplace conduct, never about Iris being undesirable.',
     expressions: expressions(
       {
+        id: 'unblinking',
+        prompt:
+          'staring unblinking, mismatched eyes bulging under heavy lids, a nervous wheedling grin',
+      },
+      {
         id: 'recoil',
-        prompt: 'recoiling in horror, gloved hands raised defensively',
+        prompt:
+          'recoiling in horror, eyes popping wide, gloved hands raised defensively',
       },
       {
         id: 'deduce',
-        prompt: 'one gloved finger raised, glasses glinting, smug',
+        prompt:
+          'one gloved finger raised, the big eye glinting through its thick lens, heavy-lidded and smug',
       },
     ),
+    signatureExpression: 'unblinking',
     never: [
       'handsome',
       'tall',
@@ -255,12 +307,20 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
       'romantic lead',
       'cute',
       'straight posture',
+      'symmetrical face',
+      'matching eyes',
+      'opaque glasses',
+      'average height',
+      'young',
+      'beard',
+      'fantasy dwarf',
     ],
+    tags: '1boy, solo, mature male, very short, hunchback, big head, ugly, lopsided face, bulging eyes, uneven eyes, droopy eyes, half-closed eyes, eye bags, big nose, buck teeth, stubble, bald, comb over, round eyewear, rubber gloves, yellow gloves, hands up, bow tie, pink shirt, t-shirt, suit jacket, grey pants, galoshes, caricature, cartoon, comedy',
     sprite: {
-      height: 0.66,
-      heads: 3,
+      height: 0.58,
+      heads: 2.6,
       build: 'scrawny',
-      skin: '#e3bf9a',
+      skin: '#d9c09a',
       hair: '#4a3b2a',
       hairStyle: 'comb-over',
       outfit: '#e2468b',
@@ -273,9 +333,10 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     },
     lora: lora('mnstq_norb'),
     general: true,
-    bio: 'Midnight City’s premiere blogger and amateur sleuth, publisher of The Unwashed Truth. Quasimodo meets Peter Lorre, with an Igor shuffle. Brilliant, touch-averse and all about the case.',
+    bio: 'Midnight City’s premiere blogger and amateur sleuth, publisher of The Unwashed Truth. A little person, Quasimodo meets Igor with Peter Lorre’s eyes, drawn like a 1990s TV cartoon. Brilliant, touch-averse and all about the case.',
     canonNotes: [
       'Wears a MONSTRIQUE T-shirt: somebody handed it to him at the convention and wearing it was the easiest way to carry it. He has zero fashion sense.',
+      'The comedy is his neuroses, his priorities and his eyes, never his height alone. He is the smartest person in every room and the boss.',
       '100% professional with Iris. After enough advances he half-heartedly accuses her of sexual harassment, which becomes a debate about whether an employee can hold power over her boss in a class-based society.',
       'Never a romance route. The finale pays off with an elbow bump.',
     ],

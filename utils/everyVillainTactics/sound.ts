@@ -398,6 +398,7 @@ export class TacticsSound {
   private step = 0
   private nextStep = 0
   private hidden = false
+  private enabled = true
 
   get unlocked(): boolean {
     return this.context !== null
@@ -430,6 +431,13 @@ export class TacticsSound {
     return true
   }
 
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled
+    if (enabled && this.context)
+      this.nextStep = this.context.currentTime + 0.05
+    this.applyMix()
+  }
+
   setMix(mix: TacticsMix): void {
     this.mix = parseTacticsMix(mix)
     this.applyMix()
@@ -443,7 +451,7 @@ export class TacticsSound {
   }
 
   play(cues: readonly TacticsCue[]): void {
-    if (!this.context || !this.effects || this.hidden || this.mix.muted) return
+    if (!this.context || !this.effects || this.hidden || this.mix.muted || !this.enabled) return
     for (const [index, cue] of cues.slice(0, 3).entries()) {
       const notes = TACTICS_CUE_NOTES[cue]
       if (!notes) continue
@@ -486,7 +494,7 @@ export class TacticsSound {
     if (!this.context || !this.master || !this.music || !this.effects) return
     const at = this.context.currentTime
     this.master.gain.setTargetAtTime(
-      this.mix.muted ? 0 : this.mix.master,
+      this.mix.muted || !this.enabled ? 0 : this.mix.master,
       at,
       0.03,
     )
@@ -519,7 +527,7 @@ export class TacticsSound {
 
   private pump(): void {
     const context = this.context
-    if (!context || !this.music || this.hidden || context.state !== 'running')
+    if (!context || !this.music || this.hidden || !this.enabled || context.state !== 'running')
       return
     const score = TACTICS_THEMES[this.mood]
     const stepSeconds = 60 / score.bpm / 4

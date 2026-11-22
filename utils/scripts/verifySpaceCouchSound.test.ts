@@ -178,10 +178,9 @@ check('the run diff earns the right cues', () => {
     ['result-disaster'],
   )
   assert.deepEqual(couchCuesFor(reported, reported), [])
-  assert.deepEqual(
-    couchCuesFor(base, run({ crew: ['brin', 'fen', 'gleam'] })),
-    ['crew-joined'],
-  )
+  assert.deepEqual(couchCuesFor(base, run({ crew: ['brin', 'fen', 'omi'] })), [
+    'crew-joined',
+  ])
   assert.deepEqual(couchCuesFor(base, run({ redshirtRoster: ['r9'] })), [
     'redshirt-hired',
   ])
@@ -202,7 +201,7 @@ check('every cue is a short, valid tone sketch', () => {
       assert.ok(tone.note >= 24 && tone.note <= 100, cue)
     }
   }
-  for (const result of ['flawless', 'success', 'costly', 'disaster']) {
+  for (const result of ['flawless', 'success', 'costly', 'disaster'] as const) {
     assert.ok(COUCH_CUE_TONES[`result-${result}` as const], result)
   }
 })

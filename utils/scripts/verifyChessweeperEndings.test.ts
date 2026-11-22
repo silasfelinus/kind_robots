@@ -72,7 +72,7 @@ for (const world of worlds) {
 const reason = (pattern: RegExp) => {
   const match = page.match(pattern)
   assert.ok(match, `index.html still emits ${pattern}`)
-  return match[1]
+  return match?.[1] ?? ''
 }
 const sweepReason = reason(/'(You cleared every safe square[^']*)'/)
 const arenaReason = reason(/'(The enemy king was destroyed by the arena\.)'/)

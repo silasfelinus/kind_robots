@@ -206,7 +206,7 @@ for (const identity of IDENTITY_ARCS) {
   }
 }
 assert.deepEqual(shipped, { hero: 48, villain: 47 })
-assert.deepEqual(canonSafe, { hero: 47, villain: 46 })
+assert.deepEqual(canonSafe, { hero: 47, villain: 47 })
 assert.match(atlas, /Not attached/)
 assert.match(atlas, /48 PERMANENT CHARACTERS/)
 

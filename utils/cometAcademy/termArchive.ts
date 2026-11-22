@@ -47,6 +47,7 @@ function isTermPage(value: unknown): value is AcademyTermPage {
     typeof item.completedAt === 'number' &&
     Number.isSafeInteger(item.completedAt) &&
     item.completedAt > 0 &&
+    typeof item.seed === 'number' &&
     Number.isSafeInteger(item.seed) &&
     powers.has(item.power as PowerId) &&
     (item.signature === null ||
@@ -56,6 +57,7 @@ function isTermPage(value: unknown): value is AcademyTermPage {
       item.flowVersion === 2 ||
       item.flowVersion === 3) &&
     endings.has(item.ending ?? '') &&
+    typeof item.day === 'number' &&
     Number.isInteger(item.day) &&
     (item.day ?? 0) >= 1 &&
     (item.day ?? 0) <= 30 &&
@@ -66,7 +68,11 @@ function isTermPage(value: unknown): value is AcademyTermPage {
     (item.romance === null ||
       (typeof item.romance === 'string' && students.has(item.romance))) &&
     [item.contacts, item.patrols, item.battles, item.losses, item.secrets].every(
-      (count) => Number.isInteger(count) && count! >= 0 && count <= 1000,
+      (count) =>
+        typeof count === 'number' &&
+        Number.isInteger(count) &&
+        count >= 0 &&
+        count <= 1000,
     )
   )
 }

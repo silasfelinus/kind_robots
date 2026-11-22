@@ -12,9 +12,15 @@ for (const [index, town] of REPAIR_TOWNS.entries()) {
   assert.ok(town.maxRows >= 4 && town.maxRows <= 11)
   assert.ok(town.damage > 0 && town.damage < 1)
   assert.ok(town.threats.includes('news-drone'))
-  assert.ok(town.objective === 'repair' || town.objective === 'rescue' || town.objective === 'relight')
+  assert.ok(
+    town.objective === 'repair' ||
+      town.objective === 'rescue' ||
+      town.objective === 'relight',
+  )
 }
 
 assert.equal(repairTownForCity(26), REPAIR_TOWNS[0])
 assert.equal(repairTownForCity(0), REPAIR_TOWNS[0])
-console.log('Repair Rampage authored town catalog: 25 towns across five regions')
+console.log(
+  'Repair Rampage authored town catalog: 25 towns across five regions',
+)

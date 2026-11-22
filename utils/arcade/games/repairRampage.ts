@@ -694,7 +694,11 @@ class RepairRampage implements ArcadeGameInstance {
     this.droneTimer = 240
     this.kitten = null
     this.kittenTimer = 360
-    this.banner = { text: town.name.toUpperCase(), sub: town.region.toUpperCase(), ticks: 100 }
+    this.banner = {
+      text: town.name.toUpperCase(),
+      sub: town.region.toUpperCase(),
+      ticks: 100,
+    }
   }
 
   // --- update ------------------------------------------------------------------

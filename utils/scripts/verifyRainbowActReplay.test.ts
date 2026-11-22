@@ -9,6 +9,7 @@ import {
 } from '../arcade/games/rainbowActReplay'
 import { emptyRainbowHangar } from '../arcade/games/rainbowHangar'
 import { rainbowFlightComms } from '../arcade/games/rainbowFlightComms'
+import { mirrorShoalRouteUnlocked } from '../arcade/games/rainbowMirrorShoal'
 import {
   createRainbowPrincessPreview,
   isRainbowCheckpoint,
@@ -200,6 +201,22 @@ assert.equal(
   'Act VII must keep clean-flight X4 eligibility after replay',
 )
 assert.equal(
+  mirrorShoalRouteUnlocked(
+    seventhReplay.checkpoint.rescuedNavigator,
+    seventhReplay.checkpoint.actContinues ?? -1,
+  ),
+  true,
+  'an honest clean replay can earn Mirror Shoal without a prior rescue',
+)
+assert.equal(
+  mirrorShoalRouteUnlocked(
+    seventhReplay.checkpoint.rescuedNavigator,
+    old.checkpoint.actContinues ?? 0,
+  ),
+  false,
+  'the source slot had spent continues and cannot earn clean-flight credit',
+)
+assert.equal(
   seventhReplay.checkpoint.rescuedNavigator,
   false,
   'Act VII must earn its own navigator rescue again',
@@ -273,4 +290,28 @@ for (const seats of [1, 4]) {
   assert.equal(instance.save, undefined)
   assert.deepEqual(instance.mastered, [])
 }
+for (const seats of [1, 4]) {
+  const replayFlight = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    demo: false,
+    players: seats,
+    selectScreen: true,
+    rainbowReplay: seventhReplay,
+  })
+  assert.equal(replayFlight.level, 7)
+  assert.equal(replayFlight.snapshot.activePlayers, seats)
+  assert.equal(replayFlight.snapshot.checkpoint.act, 7)
+  assert.equal(replayFlight.snapshot.checkpoint.actContinues, 0)
+  assert.equal(replayFlight.snapshot.freedChoir, true)
+  assert.equal(replayFlight.snapshot.cadetsHome, true)
+  replayFlight.update(
+    idle,
+    Array.from({ length: seats }, () => idle),
+  )
+  assert.equal(replayFlight.snapshot.checkpoint.act, 7)
+  assert.equal(replayFlight.save, undefined)
+}
+
 console.log('rainbow Act replay: ok (locks, sandbox and 1/4 seat flight)')

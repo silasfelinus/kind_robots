@@ -36,6 +36,8 @@ export type MonstriqueCharacterId =
   | 'francesca'
   | 'vespa'
   | 'blobzo'
+  | 'delta'
+  | 'cherie'
 
 export type SpriteHair =
   | 'bob'
@@ -144,6 +146,16 @@ export interface CharacterModel {
   general: boolean
   /** One of the franchise's monster stars (series-bible grouping, pin-up art). */
   monsterStar?: boolean
+  /**
+   * An adult outside the monster-star roster who still gets mature, opt-in
+   * pin-up art (the Brine daughters). Never set on a minor or a lead.
+   */
+  pinups?: boolean
+  /**
+   * Identity for pin-ups when the gameplay look differs (Laguna's 1974 glamour
+   * versus her pregnant bayou present). Falls back to `identity`.
+   */
+  pinupIdentity?: string[]
   /** Short series-bible biography: who they are in the story. */
   bio?: string
   /** Running jokes and canon details a writer needs at hand. */
@@ -794,36 +806,59 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     name: 'Laguna Brine',
     hotspots: [],
     speakerNames: ['Laguna'],
-    role: 'Lagoon creature star, pushed out in 1974 and rebranded in 2017',
+    role: 'Lagoon creature star pushed out in 1974; since 2017 a licensed look-alike wears her name on stage while she raises a brood on the bayou',
     species: 'amphibian (frog and salamander)',
-    apparentAge: 'adult woman',
+    apparentAge: 'mature adult woman in her fifties',
     silhouette:
-      'slick green-and-gold skin, feathery external gills and wide golden eyes',
+      'a big heavyset, heavily pregnant green-and-gold amphibian in a cut-down gold sequin robe, feathery pink gills, a garden hose in one webbed hand',
     identity: [
-      'adult lagoon creature woman with true frog and salamander anatomy',
+      'mature adult lagoon creature woman with true frog and salamander anatomy, big and heavyset, heavily pregnant',
+      'slick green-and-gold skin, feathery pink external gills, head frills',
+      'wide golden amphibian eyes, a wry tired smile, webbed hands and feet',
+      'her faded 1974 gold-sequin fishtail gown cut down into a house robe over a tank top, flip-flops',
+    ],
+    pinupIdentity: [
+      'adult lagoon creature woman in her 1974 prime, true frog and salamander anatomy',
       'slick green-and-gold skin, feathery pink external gills, head frills',
       'wide golden amphibian eyes and webbed hands',
+      'a sequinned gold fishtail gown and pearls',
     ],
-    wardrobe: 'a sequinned fishtail gown, pearls',
+    wardrobe:
+      'the 1974 gold-sequin gown cut down into a house robe, a tank top, flip-flops on webbed feet, a beat-up porch guitar',
     acting:
-      'Languid and wry, always slightly damp, and the best songwriter in the franchise.',
-    expressions: expressions(),
-    never: ['human woman in green paint', 'mermaid tail'],
+      'Languid, wry and warm, with a slow Southern drawl. Sprays herself with the garden hose mid-sentence, rests a guitar on the bump, and remembers every clause of every contract she ever signed.',
+    expressions: expressions({
+      id: 'wry',
+      prompt: 'heavy-lidded wry smile, one webbed hand on her belly',
+    }),
+    signatureExpression: 'wry',
+    never: [
+      'human woman in green paint',
+      'mermaid tail',
+      'thin',
+      'mocking body',
+    ],
     sprite: {
       height: 0.98,
-      heads: 5.2,
-      build: 'slim',
+      heads: 4.8,
+      build: 'stout',
       skin: '#5f9e6e',
       hair: '#e48aa8',
       hairStyle: 'frill',
-      outfit: '#2f6f7a',
-      accent: '#e8d27a',
+      outfit: '#c9a227',
+      accent: '#2f6f7a',
       prop: 'none',
     },
     lora: lora('mnstq_laguna'),
     general: false,
     monsterStar: true,
-    bio: 'Wanted to write songs; the studio wanted her in swimsuit publicity. Scores films upstairs at the Velvet Crypt and fights her likeness contracts. Her skin dries out in the studio.',
+    bio: 'The best songwriter Monstrique ever had. Pushed out in 1974 for wanting to write instead of pose; Odette sold her face to Lagoon Lass Fish Sticks and, from 2017, to a licensed look-alike who tours as "Laguna". The real one lives in a stilted single-wide at Brine Bottoms with a kiddie pool of tadpoles and every stage of kid up to a sullen teen. Her skin dries out away from water.',
+    canonNotes: [
+      'Her face is on every box of Lagoon Lass Fish Sticks. She never saw a royalty. The kids eat them because they are cheap and call the box "Mama".',
+      'The baby daddy, Earl, is always "out on the boat".',
+      'Her weight and pregnancy are her design, never the joke. The joke is the agent who got rich off her face.',
+      'Her children and teen are never in flirt, gratitude, pin-up or mature content. Her adult daughters Delta and Cherie have their own sheets.',
+    ],
   },
   francesca: {
     id: 'francesca',
@@ -934,6 +969,98 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     general: false,
     monsterStar: true,
     bio: 'Idol executives called her unmarketable in 2017; her fans disagree loudly. Wants one night solid (motel ice).',
+  },
+  delta: {
+    id: 'delta',
+    name: 'Delta Brine',
+    hotspots: [],
+    speakerNames: ['Delta'],
+    role: 'Laguna’s eldest daughter: airboat captain, bait-shop owner and Iris’s guide on the bayou',
+    species: 'half-amphibian woman',
+    apparentAge: 'adult woman, about 27',
+    silhouette:
+      'a strong, curvy half-amphibian woman in grease-stained coveralls tied at the waist, gill frills behind her ears, an airboat pole over one shoulder',
+    identity: [
+      'adult half-amphibian woman about 27, strong and curvy',
+      'green-tinged freckled skin, short pink gill frills behind her ears, wide golden eyes, webbed fingers',
+      'messy auburn-green hair tied up in a bandana',
+      'grease-stained coveralls tied at the waist over a white tank top, rubber boots',
+    ],
+    wardrobe:
+      'grease-stained coveralls tied at the waist, white tank top, rubber boots, bandana, a pocketknife and a bait bucket',
+    acting:
+      'Deadpan, competent and protective of her family. Fixes the airboat while she talks, never wastes a word, and warms up to Iris one solved problem at a time.',
+    expressions: expressions({
+      id: 'deadpan',
+      prompt: 'flat deadpan stare, one eyebrow barely raised',
+    }),
+    signatureExpression: 'deadpan',
+    never: ['child', 'teen', 'petite', 'human woman with no amphibian traits'],
+    tags: '1girl, solo, mature female, monster girl, amphibian girl, green skin, freckles, gills, yellow eyes, webbed hands, auburn hair, bandana, tank top, coveralls, clothes around waist, rubber boots, curvy, muscular female, swamp, airboat',
+    sprite: {
+      height: 1.02,
+      heads: 5.2,
+      build: 'curvy',
+      skin: '#9cc08a',
+      hair: '#7a4a2a',
+      hairStyle: 'scarf',
+      outfit: '#5a6b7a',
+      accent: '#f1f1ec',
+      prop: 'wrench',
+    },
+    lora: lora('mnstq_delta'),
+    general: false,
+    pinups: true,
+    bio: 'Runs Brine Bottoms Airboat Tours and Bait out of a shed by the dock. The family’s fixer: she knows every channel, every gator and every debt Odette left them.',
+    canonNotes: [
+      'Helps Iris with the boat and swamp puzzles; her gratitude opens a shortcut through the bayou, never a required clue.',
+    ],
+  },
+  cherie: {
+    id: 'cherie',
+    name: 'Cherie Brine',
+    hotspots: [],
+    speakerNames: ['Cherie'],
+    role: 'Laguna’s second daughter: waitress at the Gator Bait Bar & Grill and the bayou’s biggest flirt',
+    species: 'half-amphibian woman',
+    apparentAge: 'adult woman, about 23',
+    silhouette:
+      'a bombshell half-amphibian woman with big teased hair and frills, a knotted plaid shirt, denim cutoffs and cowboy boots',
+    identity: [
+      'adult half-amphibian woman about 23, a curvy bombshell',
+      'green-tinged skin with gold speckles, pink frills fanning from big teased honey-blonde hair, wide golden eyes, webbed fingers',
+      'bright glossy pink lips, a big flirty grin',
+      'knotted red plaid shirt, denim cutoff shorts, cowboy boots',
+    ],
+    wardrobe:
+      'knotted red plaid shirt, denim cutoffs, cowboy boots, a name tag from the Gator Bait Bar & Grill, an order pad',
+    acting:
+      'Flirts with everybody, Iris and Norb included, and means about half of it. Loud, sweet and quicker than she lets on; she hears every bit of gossip that crosses the bar.',
+    expressions: expressions({
+      id: 'flirt',
+      prompt: 'big flirty grin, a wink, hip cocked',
+    }),
+    signatureExpression: 'flirt',
+    never: ['child', 'teen', 'petite', 'human woman with no amphibian traits'],
+    tags: '1girl, solo, mature female, monster girl, amphibian girl, green skin, gills, head fins, yellow eyes, webbed hands, blonde hair, big hair, pink lips, grin, wink, plaid shirt, tied shirt, midriff, denim shorts, cutoffs, cowboy boots, curvy, large breasts, wide hips',
+    sprite: {
+      height: 1,
+      heads: 5.2,
+      build: 'curvy',
+      skin: '#a7c98f',
+      hair: '#e3b85a',
+      hairStyle: 'curls',
+      outfit: '#b8322f',
+      accent: '#3b5b8a',
+      prop: 'pen',
+    },
+    lora: lora('mnstq_cherie'),
+    general: false,
+    pinups: true,
+    bio: 'Waits tables at the Gator Bait Bar & Grill and hears everything. Wants out of the bayou and onto a stage, like Mama before the agent.',
+    canonNotes: [
+      'Flirt and gratitude routes in the mature edition; adults only, opt-in. Her gossip is a second route to the 2017 look-alike contract.',
+    ],
   },
 }
 

@@ -183,13 +183,13 @@ export function bibleEnqueueBodies(
         },
       }
     })
-  if (!model.monsterStar)
+  if (!model.monsterStar && !model.pinups)
     throw createError({
       statusCode: 400,
       statusMessage: 'Pin-ups are for the monster stars.',
     })
   const shot = BIBLE_PINUP_SHOTS[kind]
-  const traits = model.identity.join(', ')
+  const traits = (model.pinupIdentity ?? model.identity).join(', ')
   return lanes.map((lane) => ({
     lane: lane.key,
     body: {

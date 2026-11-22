@@ -54,6 +54,34 @@ assert.doesNotMatch(
   /kill|murder|villain|culprit/i,
 )
 
+// The bayou (Silas, 2026-11-22 PT): Laguna's pregnant present, her 1974 pin-ups,
+// and two adult daughters with opt-in pin-ups. Her kids never get sheets.
+const laguna = CHARACTER_MODELS.laguna
+assert.match(laguna.identity.join(' '), /heavily pregnant/)
+assert.doesNotMatch(laguna.pinupIdentity!.join(' '), /pregnant/)
+for (const kind of ['swimsuit', 'shower'] as const)
+  assert.doesNotMatch(
+    String(
+      bibleEnqueueBodies('laguna', kind, ['arthemy'])[0]!.body.promptString,
+    ),
+    /pregnant/,
+  )
+for (const id of ['delta', 'cherie'] as const) {
+  const daughter = CHARACTER_MODELS[id]
+  assert.match(daughter.apparentAge, /adult woman, about 2\d/)
+  assert.ok(daughter.pinups && !daughter.monsterStar)
+  assert.ok(daughter.never.includes('child') && daughter.never.includes('teen'))
+  const [body] = bibleEnqueueBodies(id, 'swimsuit', ['arthemy'])
+  assert.equal(body!.body.isMature, true)
+  assert.equal(body!.body.isPublic, false)
+  assert.match(String(body!.body.negativePrompt), /\bchild\b/)
+}
+assert.ok(
+  CHARACTER_IDS.every(
+    (id) => !/tadpole|youngling|froglet/i.test(CHARACTER_MODELS[id].name),
+  ),
+  'the Brine kids are scenery, never a model sheet',
+)
 // Running jokes in the engine.
 function act(
   state: CaseState,

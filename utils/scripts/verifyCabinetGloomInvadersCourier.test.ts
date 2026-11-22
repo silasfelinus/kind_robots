@@ -4,6 +4,7 @@ import gloomInvaders, {
   COURIER_DURATION,
   COURIER_POWERS,
   type CourierPower,
+  type GloomMode,
 } from '../arcade/games/gloomInvaders'
 import { newDrop } from '../arcade/gloomInvaders/weather'
 import { emptyInput } from '../arcade/types'
@@ -17,7 +18,7 @@ type Cloud = {
 type Plane = { x: number; dir: 1 | -1; power: CourierPower }
 type Beam = { x: number; y: number; half: number; pierce: boolean; helper: boolean }
 type Probe = {
-  mode: string
+  mode: GloomMode
   level: number
   px: number
   tick: number
@@ -33,7 +34,7 @@ type Probe = {
   doubleTicks: number
   sunglassesTicks: number
   umbrellas: Array<{ cells: boolean[] }>
-  chooseMode(mode: 'weather' | 'classic' | 'calendar'): void
+  chooseMode(mode: GloomMode): void
   startWave(wave: number): void
   collectCourier(power: CourierPower): void
   update(input: ReturnType<typeof emptyInput>): void

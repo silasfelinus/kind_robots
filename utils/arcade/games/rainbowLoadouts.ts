@@ -300,6 +300,7 @@ export function readRainbowSave(
   )
     return null
   if (c.cadetsHome !== undefined && !bool(c.cadetsHome)) return null
+  if (c.freedChoir !== undefined && !bool(c.freedChoir)) return null
   if (
     c.nurseryFrame !== undefined &&
     (!nurseryFlightCheckpointValid(
@@ -307,12 +308,15 @@ export function readRainbowSave(
       c.frame as number,
       c as RainbowCheckpoint,
     ) ||
-      !count(c.nurseryHits, 999))
+      !count(c.nurseryHits, 999) ||
+      (c.nurseryChoirMask !== undefined && !count(c.nurseryChoirMask, 31)))
   )
     return null
   if (
     c.nurseryFrame === undefined &&
-    (c.nurseryStartedAt !== undefined || c.nurseryHits !== undefined)
+    (c.nurseryStartedAt !== undefined ||
+      c.nurseryHits !== undefined ||
+      c.nurseryChoirMask !== undefined)
   )
     return null
   if (
@@ -436,12 +440,14 @@ export function readRainbowSave(
       rescuedNemi: saved.rescuedNemi,
       trenchRoute: saved.trenchRoute,
       routeSettled: saved.routeSettled,
+      freedChoir: saved.freedChoir ?? false,
       nurseryGuardianOutcome: saved.nurseryGuardianOutcome ?? 'waiting',
       ...(saved.nurseryFrame !== undefined
         ? {
             nurseryStartedAt: saved.nurseryStartedAt,
             nurseryFrame: saved.nurseryFrame,
             nurseryHits: saved.nurseryHits,
+            nurseryChoirMask: saved.nurseryChoirMask ?? 0,
           }
         : {}),
       rescuedCourier: saved.rescuedCourier,

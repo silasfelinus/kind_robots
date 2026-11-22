@@ -3763,25 +3763,6 @@ export function createRainbowPrincessPreview(
     }
   }
 
-  function summonNurseryGuardian(frame: number) {
-    if (guardian || nurseryGuardianOutcome !== 'waiting') return
-    const window = nurseryGuardianWindow(
-      TRENCH_FORK.decideAt,
-      TRENCH_FORK.rejoinAt,
-    )
-    if (
-      frame >= window.from &&
-      frame < window.to - RAINBOW_GUARDIAN.escapeLead
-    ) {
-      guardian = createRainbowGuardian(NURSERY_GUARDIAN.kind, activePlayers)
-      guardian.maxHp = guardian.hp = Math.max(
-        1,
-        Math.round(guardian.maxHp * level.bossHp),
-      )
-      popups.push({ x: W / 2, y: 92, text: 'LANTERN MATRIARCH', age: 0 })
-    }
-  }
-
   function summonArmorySiren(frame: number) {
     if (guardian || armoryGuardianOutcome !== 'waiting') return
     if (

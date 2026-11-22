@@ -1281,6 +1281,218 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
           ],
         },
+        {
+          id: 'weir-reckoning',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 4,
+          characters: ['lake-spirit-nix', 'warlock-vex'],
+          title: 'The Spring That Never Came',
+          body:
+            'Three springs after the netting feast, the sturgeon still gather below your stone weir. Nix has counted them. Vex offers a sluice that would stop his mill for a week each year. The millworkers, who have children and debts, stand beside him.',
+          art: 'card-weir-reckoning',
+          trigger: {
+            minTurn: 20,
+            requires: { flags: ['runBlocked'], cardsSeen: ['weir-stone'] },
+          },
+          choices: [
+            {
+              id: 'reopen-migration',
+              text: 'Open the sluice each spring. Pay the millworkers for lost shifts.',
+              effects: {
+                sliders: { nature: 10, prosperity: -6, treasury: -5, joy: 3 },
+                flags: { clear: ['runBlocked'], set: ['sluiceOpened'] },
+                regionOverride: { far_shore: 'pristine' },
+              },
+              result:
+                'For seven days the mill is silent and the workers draw wages anyway. The first giant sturgeon noses upstream. Vex has built a beautiful sluice and insists it was a foolish idea.',
+            },
+            {
+              id: 'keep-netting',
+              text: 'Keep the netting rights. Fund the village from the catch.',
+              effects: {
+                sliders: { prosperity: 7, treasury: 6, nature: -8, joy: -3 },
+                flags: { set: ['runStillBlocked'] },
+                regionOverride: { far_shore: 'industrial' },
+              },
+              result:
+                'Gristle prints an excellent revenue report. Nix lays a single empty sturgeon egg on your dock. The nets grow longer and the migration route stays quiet.',
+            },
+          ],
+        },
+        {
+          id: 'moat-reckoning',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 4,
+          characters: ['captain-cordelia', 'smuggler-brack'],
+          title: 'The Fish That Ate the Moat',
+          body:
+            'Cordelia holds up a bony grey roach from the castle moat. Brack says it ate his bait, his hook and the first page of his apology. The moat belongs to everyone, but everything larger has vanished. The village wants its fishing back.',
+          art: 'card-moat-reckoning',
+          trigger: {
+            minTurn: 20,
+            requires: { flags: ['moatFishedOut'], cardsSeen: ['moat-crowded'] },
+          },
+          choices: [
+            {
+              id: 'restore-moat',
+              text: 'Fund restocking and let the grandmothers enforce a catch limit.',
+              effects: {
+                sliders: { nature: 11, treasury: -7, joy: 6, order: 2 },
+                flags: {
+                  clear: ['moatFishedOut'],
+                  set: ['moatHonour', 'moatRestored'],
+                },
+                regionOverride: { near_bank: 'grassy' },
+              },
+              result:
+                'The grandmothers take shifts at the water, terrifying poachers into honesty. After a season, a fish larger than a teacup returns. Cordelia calls it the most orderly riot she has ever seen.',
+            },
+            {
+              id: 'license-roach',
+              text: 'Sell the roach as a royal delicacy. Hire Brack to market it.',
+              effects: {
+                sliders: { treasury: 8, prosperity: 5, nature: -6, joy: -4 },
+                flags: { set: ['moatRoachTrade'] },
+                regionOverride: { near_bank: 'dead' },
+              },
+              result:
+                'Brack sells every bone as a health tonic. The roach thrive and the moat turns the color of old soup. Your accountant loves it; your cooks are quietly leaving.',
+            },
+          ],
+        },
+        {
+          id: 'treaty-reckoning',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 4,
+          characters: ['envoy-thistle', 'taxman-gristle'],
+          title: 'The Cost of Every Crossing',
+          body:
+            'Thistle arrives with a list of families separated by the hard treaty toll. Gristle has a matching list of taxes collected and will only show the second one. Beneath the ferry, bronze bell-shaped fish ring at every disputed boundary.',
+          art: 'card-treaty-reckoning',
+          trigger: {
+            minTurn: 20,
+            requires: { flags: ['envoyTreatyHard'], cardsSeen: ['envoy-tough'] },
+          },
+          choices: [
+            {
+              id: 'ease-the-border',
+              text: 'Rewrite the accord for family passage and fair fishing access.',
+              effects: {
+                sliders: { joy: 9, prosperity: 7, treasury: -12, order: -2 },
+                flags: {
+                  clear: ['envoyTreatyHard'],
+                  set: ['envoyTreatySigned', 'borderReopened'],
+                },
+                regionOverride: { village_edge: 'township' },
+              },
+              result:
+                'The queues vanish as relatives cross the bridge. The tollbell fish drift into other waters when their bells have nothing left to mark. Thistle stays for dinner; Gristle keeps a chair empty out of protest.',
+            },
+            {
+              id: 'hold-the-tolls',
+              text: 'Keep the tolls and fund better ferries with the revenue.',
+              effects: {
+                sliders: { treasury: 9, prosperity: 3, order: 5, joy: -6 },
+                flags: { set: ['tollsReinvested'] },
+                regionOverride: { village_edge: 'garrisoned' },
+              },
+              result:
+                'New ferries cross the lake with fresh paint and narrow gates. The bellfish keep ringing beneath the boats. Thistle thanks you for the boats and refuses to thank you for the gates.',
+            },
+          ],
+        },
+        {
+          id: 'marina-reckoning',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 4,
+          characters: ['druid-sela', 'envoy-thistle'],
+          title: 'The Cove Is Full',
+          body:
+            'The new marina is crowded with pleasure boats and fat Mooring Mullet eating biscuit crumbs. Sela brings a basket of dead reeds; Thistle brings a ledger of dock jobs. Both have come to ask what a working waterfront owes the water.',
+          art: 'card-marina-reckoning',
+          trigger: {
+            minTurn: 22,
+            requires: { flags: ['shallowsDredged'], cardsSeen: ['reed-marina'] },
+          },
+          choices: [
+            {
+              id: 'return-the-reeds',
+              text: 'Buy out the outer docks and restore a fish nursery.',
+              effects: {
+                sliders: { nature: 17, treasury: -9, prosperity: -7, joy: 3 },
+                flags: {
+                  clear: ['shallowsDredged'],
+                  set: ['shallowsNursery', 'marinaRestored'],
+                },
+                regionOverride: { far_shore: 'pristine' },
+              },
+              result:
+                'The last pleasure boat leaves under protest, carrying several suitcases of ornamental cushions. The Sunspoke Koi return to the new reed beds. Thistle negotiates jobs for the displaced dockhands; Sela keeps her promise to help plant.',
+            },
+            {
+              id: 'clean-the-marina',
+              text: 'Keep the docks. Charge berth fees to fund water cleaning.',
+              effects: {
+                sliders: { nature: 7, treasury: 5, prosperity: 5, joy: -2 },
+                flags: { set: ['marinaCleaned'] },
+                regionOverride: { far_shore: 'farmed' },
+              },
+              result:
+                'Boats stay, the Mooring Mullet stay, and the water stops smelling of lamp oil. Sela admits the filters are useful. Thistle admits she priced the fees low enough to keep her favorite boat.',
+            },
+          ],
+        },
+        {
+          id: 'wedding-reckoning',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 4,
+          characters: ['heir-robin', 'sweetheart-ash', 'druid-sela'],
+          title: 'A Home After the Wedding',
+          body:
+            'Robin and Ash have returned from their honeymoon with muddy boots and a proposal. They want to make a living near the lake rather than inherit a throne. Sela offers to help with the water; the court is appalled that either option involves honest work.',
+          art: 'card-wedding-reckoning',
+          trigger: {
+            minTurn: 20,
+            requires: {
+              flags: ['blessedMatch'],
+              cardsSeen: ['elope-blessing'],
+            },
+          },
+          choices: [
+            {
+              id: 'family-orchard',
+              text: 'Give them the old riverside orchard to tend.',
+              effects: {
+                sliders: { joy: 7, nature: 6, treasury: -4 },
+                flags: { set: ['newlywedsGarden', 'heirIndependent'] },
+                regionOverride: { near_bank: 'grassy' },
+              },
+              result:
+                'The newlyweds plant fruit trees among the reeds and promise their first harvest to the village. Orchardjaw Perch begin nibbling the fallen fruit. Robin sends a letter home addressed to the person fishing, not the crown.',
+            },
+            {
+              id: 'family-nursery',
+              text: 'Fund their fish nursery instead, with Sela as a partner.',
+              effects: {
+                sliders: { nature: 17, joy: 5, treasury: -8 },
+                flags: { set: ['shallowsNursery', 'heirIndependent'] },
+                regionOverride: { near_bank: 'grassy' },
+              },
+              result:
+                'Ash takes the morning shift feeding fry, Robin handles visitors, and Sela refuses the title of advisor. Sunspoke Koi flare under the new reeds. The court is scandalized that the heir is happier holding a bucket.',
+            },
+          ],
+        },
       ],
     },
     {

@@ -197,3 +197,68 @@ html.meta-motion-off .chess-fx {
     opacity: 0;
   }
 }
+
+.chess-fx-cinematic {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle, #ffffff33, #080a18bb 70%);
+  animation: chess-fx-scene 1800ms ease-in-out both;
+}
+
+.chess-fx-cinematic strong {
+  display: block;
+  max-width: 92%;
+  padding: 0.45em 0.7em;
+  border: 3px solid currentColor;
+  border-radius: 0.35em;
+  font-size: clamp(1.15rem, 5vw, 3.4rem);
+  font-weight: 950;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-shadow: 0 3px 12px #000c;
+  transform: rotate(-4deg);
+}
+
+.chess-fx-cinematic-sugar {
+  color: #fff0a4;
+  background: repeating-conic-gradient(
+    #f76ec777 0deg 24deg,
+    #71e6f077 24deg 48deg
+  );
+}
+
+.chess-fx-cinematic-ashen {
+  color: #ffce86;
+  background: radial-gradient(circle at bottom, #e35a3677, #160d19ee 75%);
+}
+
+.chess-fx-cinematic-jackpot {
+  color: #9dffed;
+  background: repeating-linear-gradient(
+    110deg,
+    #321c64dd 0 24px,
+    #b5277fbb 24px 28px
+  );
+}
+
+@keyframes chess-fx-scene {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  16%,
+  78% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chess-fx-cinematic {
+    display: none;
+  }
+}

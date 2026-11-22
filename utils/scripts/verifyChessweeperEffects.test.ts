@@ -12,8 +12,10 @@ const script = readFileSync(
 const children: Array<{
   className: string
   style: { left: string; top: string }
+  attributes: Record<string, string>
   remove: () => void
 }> = []
+const documentListeners = new Map<string, () => void>()
 const listeners = new Map<string, (event: { detail?: unknown }) => void>()
 const flags = new Set<string>()
 let reduced = false
@@ -30,6 +32,10 @@ const layer = {
   getBoundingClientRect: () => ({ width: 640, height: 640 }),
 }
 const fakeDocument = {
+  hidden: false,
+  addEventListener: (name: string, callback: () => void) => {
+    documentListeners.set(name, callback)
+  },
   documentElement: {
     classList: { contains: (name: string) => flags.has(name) },
   },
@@ -46,6 +52,11 @@ const fakeDocument = {
         left: '',
         top: '',
         setProperty: (_key: string, _value: string) => {},
+      },
+      attributes: {} as Record<string, string>,
+      textContent: '',
+      setAttribute(key: string, value: string) {
+        node.attributes[key] = value
       },
       addEventListener: () => {},
       append: () => {},
@@ -69,6 +80,7 @@ runInNewContext(script, {
     matchMedia: () => ({ matches: reduced }),
   },
   setTimeout: () => 1,
+  clearTimeout: () => {},
 })
 const fire = listeners.get('chessweeper:fx')
 assert.ok(fire, 'the gameplay effect listener registers')
@@ -122,6 +134,34 @@ assert.ok(movedPiece, 'ordinary legal moves create animated travelers')
 assert.equal(movedPiece.style.left, '6.25%')
 assert.equal(movedPiece.style.top, '18.75%')
 assert.ok(children.length <= 80, 'ordinary chess moves respect the DOM cap')
+
+const cinematicCount = () =>
+  children.filter((node) => node.className.includes('chess-fx-cinematic'))
+    .length
+assert.equal(
+  cinematicCount(),
+  0,
+  'reduced motion suppressed the earlier cinematic',
+)
+fire({ detail: { kind: 'victory', realm: 'ashen' } })
+const victory = children.find((node) =>
+  node.className.includes('chess-fx-cinematic-ashen'),
+)
+assert.ok(victory, 'victory shows a world-specific cinematic')
+assert.equal(victory.attributes.role, 'status')
+assert.equal(victory.attributes['aria-label'], 'THE EMBERS ENDURE')
+fire({ detail: { kind: 'defeat', realm: 'sugar' } })
+assert.equal(
+  cinematicCount(),
+  1,
+  'a new outcome replaces the previous cinematic',
+)
+fakeDocument.hidden = true
+documentListeners.get('visibilitychange')?.()
+assert.equal(cinematicCount(), 0, 'hiding the page clears the cinematic')
+fakeDocument.hidden = false
+fire({ detail: { kind: 'victory', realm: 'unknown' } })
+assert.equal(cinematicCount(), 0, 'unknown worlds never render a cinematic')
 
 const html = readFileSync(
   fileURLToPath(

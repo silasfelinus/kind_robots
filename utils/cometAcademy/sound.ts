@@ -81,6 +81,7 @@ export type PromAudioFrame = {
   contacts: number
   injuries: number
   reports: number
+  failedReports: number
   clues: number
   revelations: number
   villain: string | null
@@ -100,6 +101,8 @@ export function promAudioFrame(run: AcademyRun | null): PromAudioFrame {
     injuries: Object.values(run?.injuries ?? {}).filter((n) => (n ?? 0) > 0)
       .length,
     reports: run?.reports.length ?? 0,
+    failedReports:
+      run?.reports.filter((report) => report.grade === 'failed').length ?? 0,
     clues:
       (run?.missionClues?.length ?? 0) +
       (run?.districtSecrets?.length ?? 0),
@@ -141,10 +144,7 @@ export function promCuesFor(
   if (current.revelations > previous.revelations) cues.push('villain')
   if (current.reports > previous.reports) {
     cues.push(
-      current.influence < previous.influence ||
-        current.danger > previous.danger
-        ? 'setback'
-        : 'success',
+      current.failedReports > previous.failedReports ? 'setback' : 'success',
     )
   } else if (
     current.phase === 'dispatch' &&
@@ -154,8 +154,8 @@ export function promCuesFor(
   }
   if (
     !cues.length &&
-    current.lastLog !== previous.lastLog &&
-    current.scene !== previous.scene
+    (current.lastLog !== previous.lastLog ||
+      current.scene !== previous.scene)
   )
     cues.push('choice')
   return cues.slice(0, 3)

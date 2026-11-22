@@ -1485,8 +1485,8 @@ class GlitchGarden implements ArcadeGameInstance {
       this.updateBees()
       this.updatePumpkins()
       this.updateInchworms()
+      this.updateBoss()
     }
-    this.updateBoss()
     this.updateSplashes()
     this.checkHits()
     if (

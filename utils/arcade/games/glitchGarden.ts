@@ -1035,7 +1035,7 @@ class GlitchGarden implements ArcadeGameInstance {
     this.sprayersLost = 0
     this.rakedLeaves = 0
     this.leafGust = LEAF_GUST_TICKS
-    this.leafWind = this.rng() < 0.5 ? 1 : -1
+    this.leafWind = plan.leaves > 0 ? (this.rng() < 0.5 ? 1 : -1) : 1
     this.plantLeaves(plan.leaves, plan.objective?.kind === 'clear-leaves')
     this.dragonflies = []
     this.bees = []

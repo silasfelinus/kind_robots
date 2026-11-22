@@ -2,7 +2,7 @@
 title: 'Memory Dungeon'
 room: 'Memory Room'
 subtitle: Match, Survive, Loot!
-description: A roguelite memory card game where AI art becomes a tiny dungeon crawl. Match pairs, survive with limited lives, chase challenge targets, trigger surprise awards, clear levels, and claim creative rewards from the prompt and art modeller.
+description: A memory card game turned tiny dungeon crawl. Match pairs of painted cards, keep your lives and clear levels for loot. Free in your browser, no account needed.
 image: 'background/memorydungeon.png'
 icon: kind-icon:brain
 tooltip: 'A memory game with lives, levels, powerups, surprise loot, and weird dungeon flavor.'

@@ -93,7 +93,8 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   },
   'zuzu-showdown': {
     title: 'Zuzu Showdown | Kind Robots',
-    description: 'Duels with Zuzu and friends. Free to play in your browser.',
+    description:
+      'A 2D fighter in Zuzu’s world: nine fighters, a Story mode, versus and training. Free in your browser with keyboard, gamepad or touch.',
     image: '/zuzu-showdown-art/hall-card.webp',
   },
   'zuzu-shifting-lands': {

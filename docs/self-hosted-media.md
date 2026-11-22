@@ -234,7 +234,7 @@ twice (database → WSL → share) instead of once. Running on the box that owns
 the share avoids both.
 
 **It refuses to run against a path that is not the share.** The root must
-already exist as a directory *and* already contain files. Everything here uses
+already exist as a directory _and_ already contain files. Everything here uses
 `mkdir -p`, so without that preflight a typo'd `IMAGES_PATH` would be silently
 created, gigabytes would be written to the wrong filesystem, every read-back
 would verify happily, and the database copies would be deleted — a run that

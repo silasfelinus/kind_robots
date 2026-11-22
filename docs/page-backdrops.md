@@ -50,11 +50,11 @@ workspace sheet render it at chip size. These are full-bleed art.
 
 ## Breakpoints
 
-| variant | width | matches |
-|---|---|---|
-| `backgroundMobile` | `< 768px` | Tailwind base |
-| `backgroundTablet` | `768–1023px` | `md:` |
-| `backgroundDesktop` | `≥ 1024px` | `lg:` |
+| variant             | width        | matches       |
+| ------------------- | ------------ | ------------- |
+| `backgroundMobile`  | `< 768px`    | Tailwind base |
+| `backgroundTablet`  | `768–1023px` | `md:`         |
+| `backgroundDesktop` | `≥ 1024px`   | `lg:`         |
 
 ## The two knobs Stage 3 owns
 
@@ -70,12 +70,14 @@ value depends on the artwork; pick per page.
 
 ```css
 :root {
-  --kr-surface:        var(--color-base-200);  /* card / panel ground */
+  --kr-surface: var(--color-base-200); /* card / panel ground */
   --kr-surface-raised: var(--color-base-100);
   --kr-surface-sunken: var(--color-base-300);
   --kr-surface-border: var(--color-base-300);
 }
-[data-kr-backdrop] { /* …the same four, color-mix'd toward transparent */ }
+[data-kr-backdrop] {
+  /* …the same four, color-mix'd toward transparent */
+}
 ```
 
 `app.vue` puts `data-kr-backdrop` on `<main>` **only** when the page declares art. The shared kit
@@ -99,7 +101,7 @@ reading as solid.
 ```
 
 Both render above the scrim and are `pointer-events-none`. They are separate because the character is
-*anchored* (bottom-right on desktop in the Taskmaster mockup) while overlay elements are scattered —
+_anchored_ (bottom-right on desktop in the Taskmaster mockup) while overlay elements are scattered —
 you will want to move or hide the character per breakpoint without touching the sparkles.
 
 ## Two things not to undo
@@ -110,7 +112,7 @@ Inline styles cannot carry media queries, so the component sets only the custom 
 `.kr-backdrop`'s media queries resolve which wins. This also means exactly one image is fetched, not
 three. `verifyPageBackdrop.ts` fails if JS breakpoint detection appears in the component.
 
-**Unset is not the same as empty.** `var(--a, var(--b))` reaches for `--b` only when `--a` is *unset*.
+**Unset is not the same as empty.** `var(--a, var(--b))` reaches for `--b` only when `--a` is _unset_.
 An empty string is a set value and resolves to nothing, painting no art while another variant sat
 available — so absent variants must produce no custom property at all.
 

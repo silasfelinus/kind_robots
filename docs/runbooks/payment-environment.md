@@ -28,7 +28,7 @@ This works — Nitro server routes can read `process.env` directly — but it
 means these five variables are undiscoverable from `nuxt.config.ts` and were,
 until this document, tribal knowledge recoverable only by grepping
 `process.env.STRIPE` / `process.env.PRINTFUL`. This doc and `.env.example`
-are the fix for the *discoverability* gap. The `runtimeConfig` inconsistency
+are the fix for the _discoverability_ gap. The `runtimeConfig` inconsistency
 itself is left as-is — refactoring Stripe/Printful onto `runtimeConfig` is a
 separate, larger change or refactor task, not a doc-provisioning one, and is
 out of scope here.
@@ -61,7 +61,7 @@ out of scope here.
     `checkout-status.get.ts`, `cancel-subscription.post.ts`, `topup.post.ts`,
     `pod-checkout.post.ts`, `product-checkout.post.ts`) throws h3's
     `createError({ statusCode: 500, message: 'Stripe secret key is not
-    configured' })`.
+configured' })`.
 
   Both shapes are caught by each route's own top-level `try/catch`, passed
   through `server/utils/error.ts`'s `errorHandler()`, and returned to the
@@ -82,7 +82,7 @@ out of scope here.
 - **Read by:** `server/api/stripe/webhook.post.ts` only.
 - **Missing-value behavior:** guarded explicitly before signature
   verification — `createError({ statusCode: 500, message: 'Stripe webhook
-  secret is not configured' })`, caught by the route's own `try/catch` and
+secret is not configured' })`, caught by the route's own `try/catch` and
   returned as a structured `{ success: false, message }` response. No gap.
 
 ### `STRIPE_PRICE_ID`
@@ -104,7 +104,7 @@ out of scope here.
   route used to pass a bare `process.env.STRIPE_PRICE_ID!` straight into
   `line_items`, which let an unset value fall through as the literal string
   `"undefined"` to Stripe's API and come back as an opaque `No such price:
-  'undefined'` error instead of the app's own structured 500. No further gap.
+'undefined'` error instead of the app's own structured 500. No further gap.
 
 ### `PRINTFUL_API_KEY`
 

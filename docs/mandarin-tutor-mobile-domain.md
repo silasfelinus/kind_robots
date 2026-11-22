@@ -12,18 +12,18 @@ Every Mandarin Tutor feature is a plain JSON REST endpoint under `/api/mandarin/
 of it is page-rendering logic — `pages/play/mandarin.vue` and `mandarinTutorStore` are a
 client of this surface, not part of it.
 
-| Endpoint | Auth | Purpose |
-|---|---|---|
-| `GET /api/mandarin` | none | Full starter catalog (cards, sets) |
-| `GET /api/mandarin/art-manifest` | none | Illustration-prompt coverage manifest |
-| `POST /api/mandarin/audio` | user | Resolve/create durable pronunciation audio for a `cardKey` |
-| `GET /api/mandarin/audio/:id` | none (long-cache) | Serve immutable audio bytes by asset id |
-| `POST /api/mandarin/pronunciation` | user | Transcribe a learner's recorded attempt |
-| `GET /api/mandarin/requests` | user | List the learner's requested (non-catalog) words |
-| `POST /api/mandarin/requests` | user | Generate a new requested-word card |
-| `POST /api/mandarin/requests/:id/art` | user | Queue/attach Krea 2 art for a requested card |
-| `GET /api/mandarin/study/progress` | user | Due count, retention, per-card SRS state (t-015) |
-| `POST /api/mandarin/study/rate` | user | Persist a Study-mode self-rating into SM-2-lite state |
+| Endpoint                              | Auth              | Purpose                                                    |
+| ------------------------------------- | ----------------- | ---------------------------------------------------------- |
+| `GET /api/mandarin`                   | none              | Full starter catalog (cards, sets)                         |
+| `GET /api/mandarin/art-manifest`      | none              | Illustration-prompt coverage manifest                      |
+| `POST /api/mandarin/audio`            | user              | Resolve/create durable pronunciation audio for a `cardKey` |
+| `GET /api/mandarin/audio/:id`         | none (long-cache) | Serve immutable audio bytes by asset id                    |
+| `POST /api/mandarin/pronunciation`    | user              | Transcribe a learner's recorded attempt                    |
+| `GET /api/mandarin/requests`          | user              | List the learner's requested (non-catalog) words           |
+| `POST /api/mandarin/requests`         | user              | Generate a new requested-word card                         |
+| `POST /api/mandarin/requests/:id/art` | user              | Queue/attach Krea 2 art for a requested card               |
+| `GET /api/mandarin/study/progress`    | user              | Due count, retention, per-card SRS state (t-015)           |
+| `POST /api/mandarin/study/rate`       | user              | Persist a Study-mode self-rating into SM-2-lite state      |
 
 "user" above means `requireApiUser` (`server/utils/authGuard.ts`), not a
 session-cookie-only guard.
@@ -61,8 +61,8 @@ logic" constraint the task states.
 
 `mandarinTutorStore` persists `customSets` (user-created study-set membership/names) and
 `artJobs` (queued illustration job IDs) to `localStorage` only — see the store's own
-comment: *"durable SRS scheduling and mastery-history persistence is deliberately
-deferred to a follow-up task"* (t-015 closed the SRS half; the custom-set half was never
+comment: _"durable SRS scheduling and mastery-history persistence is deliberately
+deferred to a follow-up task"_ (t-015 closed the SRS half; the custom-set half was never
 picked back up). `studyDiagnostics`/SRS state (t-015) and requested cards
 (`GET /api/mandarin/requests`) are already server-side and portable; **a learner's custom
 decks and queued-art bookkeeping are not** — they would show up empty on a second device,
@@ -98,7 +98,7 @@ endpoints directly) rather than a parallel Swift/Kotlin reimplementation of the 
 loop. Either shell option talks to the identical endpoints this doc describes, so
 "native" is a packaging/UI decision, not a backend redesign. A from-scratch native
 rewrite (separate SwiftUI/Kotlin apps duplicating catalog rendering, SRS math, and tone
-analysis) is the one option that *would* fork curriculum logic against the task's own
+analysis) is the one option that _would_ fork curriculum logic against the task's own
 constraint, and isn't recommended unless there's a specific app-store-presence reason to
 justify the duplicated maintenance — the same tradeoff already reasoned through for
 `conductor-app`/`humboldt-scoop-cms`'s native shells.

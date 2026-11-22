@@ -5,9 +5,9 @@ intentional and permanent" and then list permanent implementation invariants, in
 Taskmaster's store and state machine remain separate from Storybook's. That is no longer the
 plan of record.
 
-Silas, 2026-09-12: *"Stories should be able to be selected as open-ended (endless mode), episodic
+Silas, 2026-09-12: _"Stories should be able to be selected as open-ended (endless mode), episodic
 (scenario based), structured (da Vinci mode), and taskmaster (we should work taskmaster into this
-project as well, removing the taskmaster route when done)."*
+project as well, removing the taskmaster route when done)."_
 
 **Taskmaster is becoming the fourth mode of Storybook, not a second product.** The page is kept at
 its original path so nothing linking here dies, and because the second half of it — the safety
@@ -24,13 +24,13 @@ server-held pending turn (`server/utils/storybookRuns.ts`). That is the same arc
 `stores/taskmasterStore.ts` hand-rolled on the client — a session, a checkpoint plan, real hooks,
 and write-backs — so keeping two of them is now duplication rather than separation.
 
-| Was | Is |
-| --- | --- |
-| Two products, two stores, two state machines | One engine, four modes: open-ended, episodic, structured, taskmaster |
-| Taskmaster owns a `taskmaster-session` localStorage key | A story run row, resumable on any device |
-| Checkpoints are a client-side plan | Checkpoints are turns |
-| Projects and HONEYDOs are "real hooks" | Real work is dealt into the Thread slot as cards |
-| `/taskmaster` is the sole task-story route | `/taskmaster` redirects to `/storybook`, the way `/play/davinci` does (t-047, done 2026-09-14) |
+| Was                                                     | Is                                                                                             |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Two products, two stores, two state machines            | One engine, four modes: open-ended, episodic, structured, taskmaster                           |
+| Taskmaster owns a `taskmaster-session` localStorage key | A story run row, resumable on any device                                                       |
+| Checkpoints are a client-side plan                      | Checkpoints are turns                                                                          |
+| Projects and HONEYDOs are "real hooks"                  | Real work is dealt into the Thread slot as cards                                               |
+| `/taskmaster` is the sole task-story route              | `/taskmaster` redirects to `/storybook`, the way `/play/davinci` does (t-047, done 2026-09-14) |
 
 Da Vinci went through this same merge three days earlier and became the `life` shape — now the
 **structured** mode — of the same engine. Its boundary document got exactly this treatment:

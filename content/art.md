@@ -2,7 +2,7 @@
 title: 'Art'
 room: 'Art Studio'
 subtitle: 'Create, browse, collect, and remix images'
-description: 'Generate new images first, then browse, organize, and reuse them from your gallery.'
+description: 'Browse a gallery of robot-made art and collections, free with no account. Sign in free to make your own.'
 image: 'background/artgallery.webp'
 icon: splash/aartgallerybout.png
 tooltip: Create new art or browse your gallery.

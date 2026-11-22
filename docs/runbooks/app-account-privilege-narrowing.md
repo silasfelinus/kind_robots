@@ -42,14 +42,14 @@ change remains a human-gated Alexandria operation.
 
 The runtime path was enumerated during t-073:
 
-| operation | count in `server/` | privilege needed |
-|---|---:|---|
-| `SELECT` including `SELECT ... FOR UPDATE` | 10 | `SELECT` |
-| `INSERT` | 1 | `INSERT` |
-| `UPDATE` | 1 | `UPDATE` |
-| `DELETE` | 1 | `DELETE` |
-| `GET_LOCK()` | 1 | none beyond the connection itself |
-| DDL | 0 | none |
+| operation                                  | count in `server/` | privilege needed                  |
+| ------------------------------------------ | -----------------: | --------------------------------- |
+| `SELECT` including `SELECT ... FOR UPDATE` |                 10 | `SELECT`                          |
+| `INSERT`                                   |                  1 | `INSERT`                          |
+| `UPDATE`                                   |                  1 | `UPDATE`                          |
+| `DELETE`                                   |                  1 | `DELETE`                          |
+| `GET_LOCK()`                               |                  1 | none beyond the connection itself |
+| DDL                                        |                  0 | none                              |
 
 Everything else goes through Prisma Client and remains DML.
 

@@ -8,10 +8,7 @@
           <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
           Fight card
         </NuxtLink>
-        <NuxtLink
-          to="/play/challenges/leaderboard"
-          class="kr-btn btn-outline"
-        >
+        <NuxtLink to="/play/challenges/leaderboard" class="kr-btn btn-outline">
           <Icon name="kind-icon:trophy" class="kr-icon-4" />
           Rankings
         </NuxtLink>
@@ -108,9 +105,7 @@
             <div
               class="grid min-w-40 place-items-center rounded-3xl border border-primary/20 bg-base-100/75 p-5 text-center shadow-lg backdrop-blur"
             >
-              <span
-                class="kr-text-eyebrow kr-text-dim-xs-45 tracking-[0.2em]"
-              >
+              <span class="kr-text-eyebrow kr-text-dim-xs-45 tracking-[0.2em]">
                 Difficulty
               </span>
               <span
@@ -124,9 +119,7 @@
                   >★</span
                 >
               </span>
-              <span class="kr-text-black-primary mt-3 text-5xl italic"
-                >VS</span
-              >
+              <span class="kr-text-black-primary mt-3 text-5xl italic">VS</span>
             </div>
           </div>
         </header>
@@ -419,9 +412,7 @@
             name="kind-icon:trophy"
             class="mx-auto size-12 text-primary/40"
           />
-          <h2 class="kr-text-eyebrow mt-4 text-2xl">
-            Waiting for contenders
-          </h2>
+          <h2 class="kr-text-eyebrow mt-4 text-2xl">Waiting for contenders</h2>
           <p class="kr-text-dim-sm mx-auto mt-2 max-w-xl">
             The challenge is live, but no ready submissions have entered the
             arena yet.
@@ -434,19 +425,12 @@
         >
           <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p
-                class="kr-text-eyebrow text-xs tracking-[0.25em] text-primary"
-              >
+              <p class="kr-text-eyebrow text-xs tracking-[0.25em] text-primary">
                 Live scorecard
               </p>
-              <h2 class="kr-text-eyebrow mt-1 text-2xl">
-                Challenge rankings
-              </h2>
+              <h2 class="kr-text-eyebrow mt-1 text-2xl">Challenge rankings</h2>
             </div>
-            <NuxtLink
-              to="/play/challenges/leaderboard"
-              class="kr-btn-ghost"
-            >
+            <NuxtLink to="/play/challenges/leaderboard" class="kr-btn-ghost">
               Full championship table →
             </NuxtLink>
           </div>
@@ -470,9 +454,7 @@
                   {{ entry.score.votes }} votes
                 </p>
               </div>
-              <span
-                class="kr-text-dim-xs-45 hidden font-bold sm:inline"
-              >
+              <span class="kr-text-dim-xs-45 hidden font-bold sm:inline">
                 ♥ {{ entry.score.loved }} · 👏 {{ entry.score.clapped }} · 👎
                 {{ entry.score.booed }} · ✕ {{ entry.score.hated }}
               </span>

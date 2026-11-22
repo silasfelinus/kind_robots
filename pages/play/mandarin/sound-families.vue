@@ -1,6 +1,8 @@
 <template>
   <main class="kr-surface bg-base-200/40">
-    <div class="kr-scroll kr-container max-w-6xl space-y-4 px-3 py-4 sm:px-5 sm:py-6">
+    <div
+      class="kr-scroll kr-container max-w-6xl space-y-4 px-3 py-4 sm:px-5 sm:py-6"
+    >
       <nav class="flex flex-wrap items-center gap-2">
         <NuxtLink to="/play/mandarin" class="kr-btn-ghost">
           <Icon name="kind-icon:arrow-left" class="kr-icon-4" />
@@ -10,23 +12,43 @@
 
       <header class="kr-panel-section-plain shadow-lg">
         <p class="kr-text-eyebrow-bold">Sound-family index</p>
-        <p class="mt-1 text-3xl font-black sm:text-4xl">One sound clue, many characters</p>
+        <p class="mt-1 text-3xl font-black sm:text-4xl">
+          One sound clue, many characters
+        </p>
         <p class="kr-text-faded-sm mt-2 max-w-3xl leading-relaxed">
-          These families group distinct characters by their documented phonetic component. Their current syllables appear side by side; different modern readings alone do not date a sound change.
+          These families group distinct characters by their documented phonetic
+          component. Their current syllables appear side by side; different
+          modern readings alone do not date a sound change.
         </p>
         <div class="mt-3 flex flex-wrap gap-2">
-          <span class="kr-badge-primary-sm">{{ families.length }} families</span>
-          <span class="kr-badge-ghost-sm">{{ memberCount }} character examples</span>
-          <span class="kr-badge-warning-sm">{{ driftedCount }} with varied readings</span>
+          <span class="kr-badge-primary-sm"
+            >{{ families.length }} families</span
+          >
+          <span class="kr-badge-ghost-sm"
+            >{{ memberCount }} character examples</span
+          >
+          <span class="kr-badge-warning-sm"
+            >{{ driftedCount }} with varied readings</span
+          >
         </div>
       </header>
 
       <label class="kr-form-field kr-panel-flat p-3">
-        <span class="text-xs font-semibold opacity-65">Find a component, character, pinyin, or meaning</span>
-        <input v-model="query" class="kr-input-sm mt-1 w-full" placeholder="青, qing, 请, ask…" autocomplete="off" />
+        <span class="text-xs font-semibold opacity-65"
+          >Find a component, character, pinyin, or meaning</span
+        >
+        <input
+          v-model="query"
+          class="kr-input-sm mt-1 w-full"
+          placeholder="青, qing, 请, ask…"
+          autocomplete="off"
+        />
       </label>
 
-      <div v-if="pending" class="grid min-h-56 place-items-center kr-panel-flat">
+      <div
+        v-if="pending"
+        class="grid min-h-56 place-items-center kr-panel-flat"
+      >
         <span class="loading loading-ring loading-lg text-primary" />
       </div>
 
@@ -35,24 +57,45 @@
       </div>
 
       <section v-else class="space-y-3" aria-label="Phonetic families">
-        <article v-for="family in filteredFamilies" :key="family.phonetic" class="kr-panel-section-flat">
+        <article
+          v-for="family in filteredFamilies"
+          :key="family.phonetic"
+          class="kr-panel-section-flat"
+        >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-              <span class="text-5xl font-semibold leading-none">{{ family.phonetic }}</span>
+              <span class="text-5xl font-semibold leading-none">{{
+                family.phonetic
+              }}</span>
               <div>
-                <p class="kr-text-bold-lg">{{ family.members.length }} members</p>
-                <p class="kr-text-faded-xs">{{ family.readings.join(' · ') }}</p>
+                <p class="kr-text-bold-lg">
+                  {{ family.members.length }} members
+                </p>
+                <p class="kr-text-faded-xs">
+                  {{ family.readings.join(' · ') }}
+                </p>
               </div>
             </div>
-            <span v-if="family.drifted" class="kr-badge-warning-sm">modern readings differ</span>
-            <span v-else class="kr-badge-success-sm">same toneless reading</span>
+            <span v-if="family.drifted" class="kr-badge-warning-sm"
+              >modern readings differ</span
+            >
+            <span v-else class="kr-badge-success-sm"
+              >same toneless reading</span
+            >
           </div>
 
-          <p v-if="family.drifted" class="kr-text-faded-xs mt-2 leading-relaxed">
-            These distinct characters share a phonetic clue, but their current syllables differ. That is not, by itself, proof of when or how pronunciations changed.
+          <p
+            v-if="family.drifted"
+            class="kr-text-faded-xs mt-2 leading-relaxed"
+          >
+            These distinct characters share a phonetic clue, but their current
+            syllables differ. That is not, by itself, proof of when or how
+            pronunciations changed.
           </p>
 
-          <div class="mt-3 grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]">
+          <div
+            class="mt-3 grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]"
+          >
             <NuxtLink
               v-for="member in family.members"
               :key="member.key"
@@ -60,17 +103,29 @@
               class="kr-panel-compact-xs transition hover:border-accent"
             >
               <div class="flex items-baseline justify-between gap-2">
-                <span class="text-3xl font-semibold">{{ member.simplified }}</span>
-                <span class="text-xs font-semibold opacity-65">{{ member.pinyin }}</span>
+                <span class="text-3xl font-semibold">{{
+                  member.simplified
+                }}</span>
+                <span class="text-xs font-semibold opacity-65">{{
+                  member.pinyin
+                }}</span>
               </div>
-              <span class="mt-1 block text-xs opacity-70">{{ member.meaning }}</span>
+              <span class="mt-1 block text-xs opacity-70">{{
+                member.meaning
+              }}</span>
             </NuxtLink>
           </div>
         </article>
 
-        <div v-if="!filteredFamilies.length" class="kr-panel-flat p-8 text-center">
+        <div
+          v-if="!filteredFamilies.length"
+          class="kr-panel-flat p-8 text-center"
+        >
           <p class="kr-text-bold-lg">No sound family matches that search.</p>
-          <p class="kr-text-faded-xs mt-1">Try a component glyph, a member character, pinyin, or an English meaning.</p>
+          <p class="kr-text-faded-xs mt-1">
+            Try a component glyph, a member character, pinyin, or an English
+            meaning.
+          </p>
         </div>
       </section>
     </div>
@@ -89,11 +144,14 @@ type MandarinCatalogResponse = {
 
 useHead({ title: 'Mandarin Sound Families · Kind Robots' })
 useSeoMeta({
-  ...(gameLinkPreviewMeta('mandarin', useRuntimeConfig().public.appBaseUrl) ?? {}),
+  ...(gameLinkPreviewMeta('mandarin', useRuntimeConfig().public.appBaseUrl) ??
+    {}),
   title: 'Mandarin Sound Families · Kind Robots',
   ogTitle: 'Mandarin Sound Families · Kind Robots',
-  description: 'See how one sound clue links many Chinese characters, with pinyin and meanings side by side.',
-  ogDescription: 'See how one sound clue links many Chinese characters, with pinyin and meanings side by side.',
+  description:
+    'See how one sound clue links many Chinese characters, with pinyin and meanings side by side.',
+  ogDescription:
+    'See how one sound clue links many Chinese characters, with pinyin and meanings side by side.',
 })
 
 const query = ref('')
@@ -104,18 +162,36 @@ const { data, pending, error } = await useAsyncData(
     await $fetch<MandarinCatalogResponse, string>(mandarinCatalogUrl),
 )
 
-const families = computed(() => buildMandarinSoundFamilies(data.value?.data?.cards ?? []))
-const memberCount = computed(() => new Set(families.value.flatMap((family) => family.members.map((member) => member.key))).size)
-const driftedCount = computed(() => families.value.filter((family) => family.drifted).length)
-const errorMessage = computed(() => error.value?.message || (data.value && !data.value.success ? data.value.message : ''))
+const families = computed(() =>
+  buildMandarinSoundFamilies(data.value?.data?.cards ?? []),
+)
+const memberCount = computed(
+  () =>
+    new Set(
+      families.value.flatMap((family) =>
+        family.members.map((member) => member.key),
+      ),
+    ).size,
+)
+const driftedCount = computed(
+  () => families.value.filter((family) => family.drifted).length,
+)
+const errorMessage = computed(
+  () =>
+    error.value?.message ||
+    (data.value && !data.value.success ? data.value.message : ''),
+)
 const filteredFamilies = computed(() => {
   const needle = query.value.trim().toLocaleLowerCase()
   if (!needle) return families.value
-  return families.value.filter((family) =>
-    family.phonetic.toLocaleLowerCase().includes(needle) ||
-    family.members.some((member) =>
-      [member.simplified, member.pinyin, member.meaning].some((value) => value.toLocaleLowerCase().includes(needle)),
-    ),
+  return families.value.filter(
+    (family) =>
+      family.phonetic.toLocaleLowerCase().includes(needle) ||
+      family.members.some((member) =>
+        [member.simplified, member.pinyin, member.meaning].some((value) =>
+          value.toLocaleLowerCase().includes(needle),
+        ),
+      ),
   )
 })
 </script>

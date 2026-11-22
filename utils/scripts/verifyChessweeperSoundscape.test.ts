@@ -144,4 +144,128 @@ for (const token of [
 ]) {
   assert.ok(progression.includes(token))
 }
-console.log('chessweeper gesture-safe soundscape and three scores: ok')
+
+const rendererSource = readFileSync(
+  fileURLToPath(
+    new URL('../chessweeper/renderOriginalScores.mjs', import.meta.url),
+  ),
+  'utf8',
+)
+const renderScore = runInNewContext(
+  rendererSource.replaceAll('export ', '') + '\nrenderChessweeperScore',
+) as (world: string, variant: string) => Uint8Array
+for (const world of ['sugar', 'ashen', 'jackpot']) {
+  for (const variant of ['stage', 'finale']) {
+    const asset = readFileSync(
+      fileURLToPath(
+        new URL(
+          `../../public/chessweeper/music/${world}-${variant}.wav`,
+          import.meta.url,
+        ),
+      ),
+    )
+    assert.equal(asset.toString('ascii', 0, 4), 'RIFF')
+    assert.equal(asset.toString('ascii', 8, 12), 'WAVE')
+    assert.equal(asset.readUInt16LE(22), 1, 'mono loop')
+    assert.equal(asset.readUInt32LE(24), 22050, '44.1k-derived sample rate')
+    assert.equal(asset.readUInt16LE(34), 16, '16-bit PCM')
+    assert.deepEqual(
+      asset,
+      Buffer.from(renderScore(world, variant)),
+      `${world} ${variant} must be reproducible from its original score`,
+    )
+  }
+}
+
+let chapter = 0
+let sampleStarts = 0
+let sampleStops = 0
+const played: Array<{ loop: boolean }> = []
+const fetched: string[] = []
+const sampleEvents = new Map<string, (event?: unknown) => void>()
+const sampleDocumentEvents = new Map<string, () => void>()
+class MockSampleSource {
+  loop = false
+  buffer = null
+  connect() {
+    return this
+  }
+  start() {
+    sampleStarts++
+    played.push({ loop: this.loop })
+  }
+  stop() {
+    sampleStops++
+  }
+}
+class MockSampleContext extends MockAudioContext {
+  decodeAudioData() {
+    return Promise.resolve({ duration: 8 })
+  }
+  createBufferSource() {
+    return new MockSampleSource()
+  }
+}
+const sampleDoc = {
+  hidden: false,
+  documentElement: { dataset: { realm: 'sugar' } },
+  addEventListener: (name: string, callback: () => void) => {
+    sampleDocumentEvents.set(name, callback)
+  },
+}
+runInNewContext(source, {
+  document: sampleDoc,
+  window: {
+    AudioContext: MockSampleContext,
+    __fusionTest: { get: () => ({ over: false }) },
+    __chessweeperCampaign: { current: () => ({ chapter }) },
+    fetch: (url: string) => {
+      fetched.push(url)
+      return Promise.resolve({
+        ok: !url.includes('jackpot'),
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(4)),
+      })
+    },
+    addEventListener: (name: string, callback: () => void) => {
+      sampleEvents.set(name, callback)
+    },
+  },
+  setInterval: () => 1,
+  clearInterval: () => {},
+})
+assert.equal(fetched.length, 0, 'recorded music never fetches before gesture')
+sampleDocumentEvents.get('pointerdown')?.()
+const settle = async () => {
+  for (let i = 0; i < 8; i++) await Promise.resolve()
+}
+await settle()
+assert.equal(fetched[0], '/chessweeper/music/sugar-stage.wav')
+assert.equal(sampleStarts, 1, 'loaded score begins after gesture')
+assert.ok(
+  played.every((entry) => entry.loop),
+  'recorded scores loop',
+)
+
+chapter = 3
+sampleEvents.get('chessweeper:state')?.()
+await settle()
+assert.equal(fetched[1], '/chessweeper/music/sugar-finale.wav')
+assert.equal(sampleStarts, 2, 'final chapter receives a separate score')
+assert.ok(sampleStops >= 1, 'previous score stops during crossfade')
+
+sampleDoc.documentElement.dataset.realm = 'ashen'
+chapter = 0
+sampleEvents.get('chessweeper:state')?.()
+await settle()
+assert.equal(fetched[2], '/chessweeper/music/ashen-stage.wav')
+assert.equal(sampleStarts, 3, 'world switching loads a distinct score')
+
+sampleDoc.documentElement.dataset.realm = 'jackpot'
+sampleEvents.get('chessweeper:state')?.()
+await settle()
+assert.equal(fetched[3], '/chessweeper/music/jackpot-stage.wav')
+assert.equal(sampleStarts, 3, 'missing music keeps the synthesized fallback')
+sampleEvents.get('pagehide')?.()
+assert.ok(sampleStops >= 3, 'route exit stops playing buffers')
+
+console.log('chessweeper six original loops, crossfades and fallback: ok')

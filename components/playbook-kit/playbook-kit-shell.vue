@@ -190,7 +190,10 @@
               v-else-if="active.id === 'achievements'"
               :game="spec.conductorSlug"
             />
-            <PlaybookKitSettings v-else :spec="spec" />
+            <template v-else>
+              <PlaybookKitSettings :spec="spec" />
+              <slot name="settings-extra" />
+            </template>
           </div>
         </aside>
 

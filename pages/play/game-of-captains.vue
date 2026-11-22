@@ -7,6 +7,8 @@
     }"
     data-layout="console-fixed"
     aria-label="Space Couch"
+    @pointerdown.capture="onSoundGesture"
+    @keydown.capture="onSoundGesture"
   >
     <shell-console-theme theme="space-couch" />
     <section
@@ -147,6 +149,7 @@
           </p>
           <div class="cap-settings-list max-h-64 min-h-0 overflow-y-auto">
             <PlaybookKitSettings :spec="SPACE_COUCH_KIT" />
+            <SpaceCouchSoundMixer />
           </div>
           <p v-if="kit.storageWarning" role="alert">
             {{ kit.storageWarning }}
@@ -494,6 +497,9 @@
       :meter-values="kitMeterValues"
       data-testid="space-couch-kit-shell"
     >
+      <template #settings-extra>
+        <SpaceCouchSoundMixer />
+      </template>
       <template #bar-actions>
         <div class="cap-toolbar" data-testid="space-couch-header">
           <span
@@ -2110,7 +2116,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useGameOfCaptainsStore } from '~/stores/gameOfCaptainsStore'
 import { SPACE_COUCH_KIT } from '~/utils/playbookKit/games/spaceCouch'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
@@ -2190,6 +2196,9 @@ import SpaceCouchAlienMilestone from '~/components/gameOfCaptains/alien-mileston
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import SpaceCouchCrewBoard from '~/components/gameOfCaptains/crew-board.vue'
+import SpaceCouchSoundMixer from '~/components/gameOfCaptains/sound-mixer.vue'
+import { useSpaceCouchSoundStore } from '~/stores/spaceCouchSoundStore'
+import { couchCuesFor, couchMoodFor } from '~/utils/gameOfCaptains/sound'
 import {
   starSignFor,
   type StarAssessment,
@@ -2779,6 +2788,45 @@ function startNewVoyage() {
   titlePanel.value = 'home'
   restartVoyage()
 }
+// Sound and music (t-046). Nothing plays until the first tap or key press;
+// the Playbook Kit's Sound setting is the master switch.
+const sound = useSpaceCouchSoundStore()
+function onSoundGesture(event: Event) {
+  if (kit.settings.sound === 'off') return
+  sound.unlock()
+  const target = event.target as HTMLElement | null
+  if (event.type === 'pointerdown' && target?.closest?.('button')) {
+    sound.play(['tap'])
+  }
+}
+watch(
+  () => kit.settings.sound,
+  (value) => sound.setEnabled(value !== 'off'),
+  { immediate: true },
+)
+watch(
+  () => store.run,
+  (next, prev) => {
+    if (kit.settings.sound !== 'off') sound.play(couchCuesFor(prev, next))
+  },
+  { immediate: true },
+)
+watch(
+  () => (atTitle.value ? 'title' : couchMoodFor(store.run)),
+  (mood) => sound.setMood(mood),
+  { immediate: true },
+)
+function onSoundVisibility() {
+  sound.setHidden(document.visibilityState === 'hidden')
+}
+onMounted(() => {
+  document.addEventListener('visibilitychange', onSoundVisibility)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onSoundVisibility)
+  sound.stop()
+})
+
 onMounted(() => {
   store.load()
   void store.loadOnboardingArt()

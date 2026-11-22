@@ -20,6 +20,8 @@ export const LAYOUT_TREE = 'T'
 export const LAYOUT_SUNFLOWER = 'S'
 /** A gap in the sunflower maze: a worm that finds it drops through. */
 export const LAYOUT_EXIT = 'E'
+/** Leaves cover targets and soak a beam before a gust shuffles them. */
+export const LAYOUT_LEAF = 'L'
 
 type ObjectiveText = { title: string; hint: string; bonus: number }
 export type GardenObjective =
@@ -31,6 +33,8 @@ export type GardenObjective =
   | (ObjectiveText & { kind: 'maze-exit' })
   /** See this many bee bots safely across, spraying none of them. */
   | (ObjectiveText & { kind: 'escort-bees'; count: number })
+  /** Clear the autumn leaf piles from the flowerbed. */
+  | (ObjectiveText & { kind: 'clear-leaves'; count: number })
 
 export type GardenWave = {
   /** Segments in the main glitch-worm, head included. */
@@ -52,6 +56,8 @@ export type GardenWave = {
   /** Bee bots per flight (0 for none), and whether a wasp-glitch hides among them. */
   bees: number
   wasp: boolean
+  /** Movable leaf piles that soak one shot each, in autumn gardens. */
+  leaves: number
   sub: string
   objective?: GardenObjective
 }
@@ -120,6 +126,7 @@ function wave(
     dragonflies: 0,
     bees: 0,
     wasp: false,
+    leaves: 0,
     ...parts,
   }
 }
@@ -574,11 +581,128 @@ export const LILY_POND: Garden = {
   ],
 }
 
+/** Autumn 5: leaf drifts shadow the lamps and push across the flowerbed in gusts. */
+export const LEAF_PILE_LANE: Garden = {
+  id: 'leaf-pile-lane',
+  name: 'LEAF PILE LANE',
+  season: 'autumn',
+  intro: ['LEAVES SOAK UP YOUR FIRST SHOT', 'GUSTS SWEEP THEM SIDEWAYS'],
+  layout: [
+    '..............................',
+    '..............................',
+    '...o.......o........o......o..',
+    '..............................',
+    '..............................',
+    '.......o.......o........o.....',
+    '..............................',
+    '..............................',
+    '..o.......o........o........o.',
+    '...............C..............',
+    '..............................',
+    '.....o.......o........o.......',
+    '..............................',
+    '..............................',
+    '........o........o........o...',
+    '..............................',
+    '...........................L..',
+    '........................C.....',
+    '....o.......oL.........o......',
+    '..............................',
+    '..............................',
+    '......Lo...........o..........',
+    '..............................',
+    '......................L.......',
+    '..o...........o..........o....',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+    '...............L..............',
+    '....L.....................L...',
+    '.....................L........',
+    '.........L....................',
+    '..............................',
+    '..............................',
+    '..............................',
+  ],
+  waves: [
+    wave({
+      segments: 10,
+      heads: 4,
+      speed: 2.6,
+      beetleEvery: 450,
+      moth: true,
+      snail: true,
+      crawlers: true,
+      cans: 1,
+      leaves: 4,
+      sub: 'THE FIRST AUTUMN GUST',
+    }),
+    wave({
+      segments: 9,
+      heads: 5,
+      speed: 2.65,
+      beetleEvery: 430,
+      moth: true,
+      snail: true,
+      crawlers: true,
+      cans: 1,
+      leaves: 5,
+      sub: 'WIND CHANGES DIRECTION',
+    }),
+    wave({
+      segments: 9,
+      heads: 5,
+      speed: 2.75,
+      beetleEvery: 420,
+      moth: true,
+      crawlers: true,
+      cans: 1,
+      leaves: 5,
+      sub: 'RAKE UP',
+      objective: {
+        kind: 'clear-leaves',
+        title: 'RAKE UP!',
+        hint: 'SPRAY FIVE BED PILES',
+        count: 5,
+        bonus: 4500,
+      },
+    }),
+    wave({
+      segments: 8,
+      heads: 6,
+      speed: 2.85,
+      beetleEvery: 390,
+      moth: true,
+      snail: true,
+      crawlers: true,
+      cans: 2,
+      dragonflies: 1,
+      leaves: 7,
+      sub: 'THE WIND AND THE WORM',
+    }),
+    wave({
+      segments: 8,
+      heads: 6,
+      speed: 2.95,
+      beetleEvery: 370,
+      moth: true,
+      snail: true,
+      crawlers: true,
+      cans: 2,
+      dragonflies: 2,
+      leaves: 8,
+      sub: 'AUTUMN IN FULL SWING',
+    }),
+  ],
+}
+
 export const GARDENS: readonly Garden[] = [
   KITCHEN_PLOT,
   ORCHARD_ROWS,
   SUNFLOWER_MAZE,
   LILY_POND,
+  LEAF_PILE_LANE,
 ]
 
 /** The wave's plan: authored, or past the end a remix of the garden's last wave. */

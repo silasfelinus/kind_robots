@@ -458,7 +458,6 @@ const CLOCKWORK: Fairground = {
       shrink: null,
       crew: ['gatekeeper', 'sprinter'],
       rivalSpawns: START_LINE,
-      rivalSpawns: START_LINE,
       objective: 'taglap',
       par: S * 60,
       tickets: 5,

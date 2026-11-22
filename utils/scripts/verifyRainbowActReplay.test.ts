@@ -63,15 +63,19 @@ const old = {
     frame: 0,
     rescuedStation: true,
     rescuedNemi: true,
+    freedChoir: true,
     trenchRoute: 'vault' as const,
     routeSettled: true,
     rescuedCourier: true,
+    cadetsHome: true,
     wreckRoute: 'depot' as const,
     wreckSettled: true,
     podsSaved: 4,
     reefRoute: 'relay' as const,
     reefSettled: true,
     pylonsDown: 3,
+    pearlWardenOutcome: 'defeated' as const,
+    actContinues: 4,
     rescuedNavigator: true,
     captivesFreed: 12,
     allegiance: 'rebel' as const,
@@ -162,6 +166,54 @@ assert.equal(replay.checkpoint.trenchRoute, 'vault')
 assert.equal(replay.checkpoint.wreckRoute, 'depot')
 assert.equal(replay.checkpoint.allegiance, 'rebel')
 assert.equal(replay.checkpoint.reefRoute, null)
+assert.equal(
+  replay.checkpoint.freedChoir,
+  true,
+  'an Act VI replay remembers the freed Act III Choir',
+)
+assert.equal(
+  replay.checkpoint.cadetsHome,
+  true,
+  'an Act VI replay remembers the rescued Act IV cadets',
+)
+assert.equal(
+  replay.checkpoint.pearlWardenOutcome,
+  'waiting',
+  'the Act VI guardian is not pre-cleared from a future flight',
+)
+assert.equal(
+  replay.checkpoint.actContinues,
+  0,
+  'an Act replay starts clean rather than inheriting old continues',
+)
+const seventhReplay = rainbowActReplaySave(7, old, fresh)!
+assert.equal(seventhReplay.checkpoint.freedChoir, true)
+assert.equal(seventhReplay.checkpoint.cadetsHome, true)
+assert.equal(
+  seventhReplay.checkpoint.pearlWardenOutcome,
+  'defeated',
+  'Act VII keeps the earned Act VI guardian result',
+)
+assert.equal(
+  seventhReplay.checkpoint.actContinues,
+  0,
+  'Act VII must keep clean-flight X4 eligibility after replay',
+)
+assert.equal(
+  seventhReplay.checkpoint.rescuedNavigator,
+  false,
+  'Act VII must earn its own navigator rescue again',
+)
+assert.ok(readRainbowSave(seventhReplay, isRainbowCheckpoint))
+const earlyReplay = rainbowActReplaySave(4, old, {
+  ...fresh,
+  medals: { 4: 'bronze' },
+})!
+assert.equal(earlyReplay.checkpoint.freedChoir, true)
+assert.equal(earlyReplay.checkpoint.cadetsHome, false)
+assert.equal(earlyReplay.checkpoint.pearlWardenOutcome, 'waiting')
+assert.equal(earlyReplay.checkpoint.actContinues, 0)
+assert.ok(readRainbowSave(earlyReplay, isRainbowCheckpoint))
 assert.equal(replay.checkpoint.rescuedNavigator, false)
 assert.equal(replay.checkpoint.captivesFreed, 0)
 assert.equal(replay.guardians[5], 'defeated')
@@ -212,6 +264,11 @@ for (const seats of [1, 4]) {
   )
   assert.equal(instance.snapshot.checkpoint.act, 6)
   assert.equal(instance.snapshot.checkpoint.frame, 0)
+  assert.equal(
+    instance.snapshot.checkpoint.actContinues,
+    0,
+    'every party size starts an Act replay with no prior continues',
+  )
   assert.equal(instance.snapshot.medals[5], undefined)
   assert.equal(instance.save, undefined)
   assert.deepEqual(instance.mastered, [])

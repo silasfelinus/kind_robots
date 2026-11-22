@@ -85,6 +85,20 @@ assert.ok(
   'recovery is announced and delayed focus cannot move after the overlay closes',
 )
 
+
+assert.ok(
+  overlay.includes("if (state.value === 'playing') close()") &&
+    overlay.includes('else void play()') &&
+    overlay.includes('let armed = false') &&
+    overlay.includes('if (!pressed())'),
+  'gamepad requires a released-button edge to start, retry, or skip',
+)
+assert.ok(
+  overlay.includes("state.value = 'offer'\\n  pollPads()".replace('\\n', '\n')) &&
+    overlay.includes("state.value = 'failed'\\n  pollPads()".replace('\\n', '\n')),
+  'gamepad polling continues on the offer and failed states',
+)
+
 console.log(
   `rainbow opening: ok (${RAINBOW_OPENING ? `${RAINBOW_OPENING.seconds}s, ${RAINBOW_OPENING.clips}/${RAINBOW_OPENING.shots} shots animated` : 'not shipped yet'})`,
 )

@@ -21,6 +21,10 @@ export type RainbowCheckpoint = {
   /** Act III's fork: the route chosen (null before the fork) and whether the crew has rejoined. */
   trenchRoute: 'vault' | 'safe' | null
   routeSettled: boolean
+  /** X1 is its own flight after Act III: section clock and origin are exact. */
+  nurseryStartedAt?: number
+  nurseryFrame?: number
+  nurseryHits?: number
   /** The optional Lantern Nursery guardian is separate from the Act III guardian. */
   nurseryGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
   /** Act IV's escort: the courier pod reached the end of the rails. */

@@ -2776,13 +2776,13 @@ for (const identity of SIGNATURE_POWERS) {
     )
   }
 }
-// Shipped media is not automatically canon-safe: quarantine the twelve noncanonical WebPs
+// Shipped media is not automatically canon-safe: quarantine the thirteen noncanonical WebPs
 // personally inspected against the permanently authored identity catalog.
-assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 12)
+assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 13)
 assert.equal(
   new Set(Object.values(REJECTED_IDENTITY_ART).map((entry) => entry.blobSha))
     .size,
-  12,
+  13,
 )
 for (const [key, rejection] of Object.entries(REJECTED_IDENTITY_ART)) {
   assert.ok(promArt(key), key + ' is physically exported despite rejection')
@@ -2808,6 +2808,15 @@ assert.equal(
   identityArtwork('mutant-discipline', 'hero'),
   promArt('identities/mutant-discipline/student'),
   'Asha remains naturally four-armed in the hero art slot',
+)
+assert.equal(
+  REJECTED_IDENTITY_ART['identities/mutant-discipline/outcomes/villain'].blobSha,
+  '90f040d2ecf256ad8aa2406bcbf26f0285cc4880',
+)
+assert.equal(
+  identityArtwork('mutant-discipline', 'villain'),
+  promArt('identities/mutant-discipline/student'),
+  'Asha remains naturally four-armed in the villain art slot',
 )
 assert.equal(
   identityArtwork('tech-genius', 'hero'),

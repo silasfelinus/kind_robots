@@ -2810,7 +2810,8 @@ assert.equal(
   'Asha remains naturally four-armed in the hero art slot',
 )
 assert.equal(
-  REJECTED_IDENTITY_ART['identities/mutant-discipline/outcomes/villain'].blobSha,
+  REJECTED_IDENTITY_ART['identities/mutant-discipline/outcomes/villain']
+    .blobSha,
   '90f040d2ecf256ad8aa2406bcbf26f0285cc4880',
 )
 assert.equal(

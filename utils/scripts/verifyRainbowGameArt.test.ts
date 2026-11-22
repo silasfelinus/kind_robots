@@ -24,6 +24,7 @@ import {
   drawRainbowShipSprite,
   drawRainbowStageCard,
   drawRainbowStageStrip,
+  drawRainbowStagePlane,
   drawRainbowSuperCutin,
   rainbowBossSprite,
   rainbowEndingPlate,
@@ -35,6 +36,7 @@ import {
   rainbowShipSprite,
   rainbowStageCard,
   rainbowStageStrip,
+  rainbowStageTileLayout,
   rainbowSuperCutin,
   setRainbowLook,
 } from '../arcade/games/rainbowGameArt'
@@ -291,6 +293,44 @@ assert.ok(
       ) &&
     stripAt < engine.indexOf('drawRainbowShipSprite(g, pilotOf(seat))'),
   'the coral strip sits behind enemies, enemy shots and ships',
+)
+
+// A panorama mirrors alternating tiles, remains seamless across positive and
+// negative scroll, and covers the logical field at phone/tablet/desktop widths.
+for (const width of [390, 768, 1440]) {
+  for (const scroll of [-217.5, 0, 59, 1123.75]) {
+    const tiles = rainbowStageTileLayout(scroll, 184, width)
+    assert.ok(tiles.length >= 3, `${width}px: full coverage`)
+    assert.ok(tiles[0]!.x <= 0)
+    assert.ok(
+      tiles.at(-1)!.x + 184 >= width,
+      `${width}px: no exposed edge at scroll ${scroll}`,
+    )
+    for (let i = 1; i < tiles.length; i++) {
+      assert.ok(
+        Math.abs(tiles[i]!.x - tiles[i - 1]!.x - 184) < 1e-9,
+        'tiles meet without cracks',
+      )
+      assert.notEqual(
+        tiles[i]!.mirrored,
+        tiles[i - 1]!.mirrored,
+        'adjacent paintings mirror for a continuous seam',
+      )
+    }
+  }
+}
+assert.deepEqual(rainbowStageTileLayout(NaN, 200, 480), [])
+assert.deepEqual(rainbowStageTileLayout(100, 0, 480), [])
+assert.deepEqual(rainbowStageTileLayout(100, 200, 0), [])
+assert.equal(
+  drawRainbowStagePlane(g, 's01', 'far', 0, 166, 104),
+  false,
+  'unloaded painted far plane stays a safe no-op',
+)
+assert.deepEqual(
+  RAINBOW_DISTANT_PAINTED_PLANES.map((plane) => plane.depth),
+  ['far', 'mid'],
+  'reviewed art is split into physically distinct scenery depths',
 )
 
 const distant = rainbowDistantParallaxLayers(120, 1)

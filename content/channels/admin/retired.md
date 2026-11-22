@@ -14,4 +14,5 @@ tutorial:
   enabled: false
 ---
 
-Retired surfaces remain available to administrators without crowding the primary Kind Robots navigation.
+Retired surfaces, including Storybook and its ingredient galleries, remain
+available to administrators without crowding the primary Kind Robots navigation.

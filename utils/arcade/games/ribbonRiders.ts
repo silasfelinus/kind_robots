@@ -1263,7 +1263,8 @@ class RibbonRiders implements ArcadeGameInstance {
   private rebootable(b: Bike): boolean {
     if (this.harmless(b)) return true
     const o = this.node?.objective
-    if (o === 'giftwrap' || o === 'glowbug' || o === 'taglap') return true
+    if (o === 'giftwrap' || o === 'glowbug' || o === 'taglap' || o === 'escort')
+      return true
     return o === 'marshal' && b.kind === 'pony'
   }
 

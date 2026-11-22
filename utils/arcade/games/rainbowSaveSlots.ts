@@ -17,8 +17,13 @@ export function rainbowSlotSummary(
   save: { checkpoint: { act: number; frame: number }; medals: object } | null,
 ): string {
   if (!save) return 'New flight'
-  const medals = Object.keys(save.medals).length
-  return `Act ${save.checkpoint.act} · ${medals} medal${medals === 1 ? '' : 's'}`
+  const act = save.checkpoint?.act
+  if (!Number.isInteger(act) || act < 1 || act > 12) return 'Flight needs recovery'
+  const medals =
+    save.medals && typeof save.medals === 'object' && !Array.isArray(save.medals)
+      ? Object.keys(save.medals).length
+      : 0
+  return `Act ${act} · ${medals} medal${medals === 1 ? '' : 's'}`
 }
 
 export function rainbowSlotSaveFits(save: unknown): boolean {

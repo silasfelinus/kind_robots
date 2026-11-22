@@ -196,6 +196,20 @@ import {
   type GlassSceneId,
 } from './rainbowGlassCurrent'
 import {
+  LIGHTHOUSE,
+  LIGHTHOUSE_GUARDIAN,
+  LIGHTHOUSE_LAMPS,
+  LIGHTHOUSE_SECTIONS,
+  LIGHTHOUSE_TALKS,
+  LIGHTHOUSE_WAVE_SIZES,
+  lighthouseDetourFor,
+  lighthouseMedalEarned,
+  lighthouseRouteUnlocked,
+  lighthouseSpawns,
+  lighthouseStage,
+  lightLighthouseLamp,
+} from './rainbowSunkenLighthouse'
+import {
   MIRROR_SHOAL,
   SHOAL_GUARDIAN,
   SHOAL_SECTIONS,
@@ -963,7 +977,7 @@ export type RainbowCombatSnapshot = {
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
   act:
-    'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06' | 'S07' | 'S08' | 'S09' | 'X4'
+    'S01' | 'S02' | 'S03' | 'S04' | 'S05' | 'S06' | 'S07' | 'S08' | 'S09' | 'X3' | 'X4'
   stage:
     | ReturnType<typeof pinkwakeStage>
     | ReturnType<typeof moonjellyStage>
@@ -972,6 +986,7 @@ export type RainbowCombatSnapshot = {
     | ReturnType<typeof wreckStage>
     | ReturnType<typeof reefStage>
     | ReturnType<typeof glassStage>
+    | ReturnType<typeof lighthouseStage>
     | ReturnType<typeof mirrorShoalStage>
     | ReturnType<typeof palaceStage>
     | ReturnType<typeof finaleStage>
@@ -988,6 +1003,9 @@ export type RainbowCombatSnapshot = {
     | WreckSceneId
     | ReefSceneId
     | GlassSceneId
+    | 'X3.OPEN'
+    | 'X3.TURN'
+    | 'X3.AFTER'
     | 'X4.OPEN'
     | 'X4.TURN'
     | 'X4.AFTER'
@@ -1010,6 +1028,9 @@ export type RainbowCombatSnapshot = {
   armoryGuardianOutcome: GuardianOutcome
   pearlWardenOutcome: GuardianOutcome
   shoalGuardianOutcome: GuardianOutcome
+  lighthouseGuardianOutcome: GuardianOutcome
+  lighthouseFrame: number | null
+  lighthouseLamps: number
   shoalFrame: number | null
   shoalHits: number
   rescuedNemi: boolean
@@ -1188,6 +1209,10 @@ export function createRainbowPrincessPreview(
   let glassEel: GlassEelBoss | null = null
   let glassEelCarryHp: number | null = null
   let glassDefeatedFrame: number | null = null
+  let lighthouseStart: number | null = null
+  let lighthouseLamps = 0
+  let lighthouseGuardianOutcome: GuardianOutcome = 'waiting'
+  let lighthouseHits = 0
   let shoalStart: number | null = null
   let shoalGuardianOutcome: GuardianOutcome = 'waiting'
   let shoalHits = 0
@@ -1319,6 +1344,12 @@ export function createRainbowPrincessPreview(
   }
   function glassFrame() {
     return glassStart === null ? 0 : tick - glassStart
+  }
+  function lighthouseFrame() {
+    return lighthouseStart === null ? 0 : tick - lighthouseStart
+  }
+  function lighthouseActive() {
+    return lighthouseStart !== null && glassStart === null
   }
   function shoalFrame() {
     return shoalStart === null ? 0 : tick - shoalStart
@@ -2264,7 +2295,9 @@ export function createRainbowPrincessPreview(
     const size =
       (reef.wave >= MIRROR_SHOAL.waveBase
         ? SHOAL_WAVE_SIZES[reef.wave - MIRROR_SHOAL.waveBase]
-        : reef.wave >= NURSERY.waveBase
+        : reef.wave >= LIGHTHOUSE.waveBase
+          ? LIGHTHOUSE_WAVE_SIZES[reef.wave - LIGHTHOUSE.waveBase]
+          : reef.wave >= NURSERY.waveBase
           ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
           : reef.wave >= WRECK.waveBase
             ? reef.wave >= PALACE.waveBase
@@ -3637,7 +3670,13 @@ export function createRainbowPrincessPreview(
     guardian = null
     const act = currentAct()
     // The Nursery guardian is a second earned encounter, not Act III's first guardian.
-    if (act === 7 && kind === 'shoalkoi') {
+    if (act === 6 && kind === 'lampkeeper') {
+      lighthouseGuardianOutcome = 'defeated'
+      lighthouseStart! -= Math.max(
+        0,
+        LIGHTHOUSE_GUARDIAN.to - GUARDIAN_SKIP_LEAD - lighthouseFrame(),
+      )
+    } else if (act === 7 && kind === 'shoalkoi') {
       shoalGuardianOutcome = 'defeated'
       if (shoalStart !== null)
         shoalStart -= Math.max(
@@ -3683,7 +3722,8 @@ export function createRainbowPrincessPreview(
     // The attract-mode flythrough must be able to reach its authored boss and
     // second Act rather than silently losing every autonomous pilot.
     if (options.demo || ship.invulnerable > 0 || ship.evade > 0) return
-    if (shoalActive()) shoalHits++
+    if (lighthouseActive()) lighthouseHits++
+    else if (shoalActive()) shoalHits++
     else actHits++
     ship.invulnerable = 90
     ship.shield--
@@ -3922,11 +3962,46 @@ export function createRainbowPrincessPreview(
     }
     if (
       glassStart === null &&
+      lighthouseStart === null &&
       reefDefeatedFrame !== null &&
       reefFrame() - reefDefeatedFrame >= CROWN_REEF.aftermathFrames
     ) {
-      // ACT-STRUCTURE: reef glass refracts the fleet straight on into the Glass Current.
+      if (
+        lighthouseDetourFor(
+          livingShips().map((ship) => ship.y),
+          lighthouseRouteUnlocked(reefRoute, reefSettled, pylonsDown),
+        )
+      ) {
+        lighthouseStart = tick
+        reefs.length = 0
+        enemyShots.length = 0
+        popups.push({
+          x: W / 2,
+          y: 92,
+          text: 'X3 · SUNKEN LIGHTHOUSE',
+          age: 0,
+        })
+      } else {
+        glassStart = tick
+      }
+      shots.length = 0
+      pickups.length = 0
+    }
+    if (lighthouseActive() && lighthouseFrame() >= LIGHTHOUSE.end) {
+      if (lighthouseMedalEarned(lighthouseLamps)) {
+        score += 3000
+        popups.push({
+          x: W / 2,
+          y: 92,
+          text: 'SIX LIGHTS · +3000',
+          age: 0,
+        })
+      }
       glassStart = tick
+      actHits = 0
+      actContinues = 0
+      reefs.length = 0
+      enemyShots.length = 0
       shots.length = 0
       pickups.length = 0
     }
@@ -4088,6 +4163,48 @@ export function createRainbowPrincessPreview(
         sawtooth = createSawtoothBoss(bossHp(SAWTOOTH_MAX_HP))
         if (sawtoothCarryHp !== null)
           sawtooth.hp = Math.min(sawtooth.hp, sawtoothCarryHp)
+      }
+    } else if (lighthouseActive()) {
+      const frame = lighthouseFrame()
+      const stage = lighthouseStage(frame)
+      if (
+        frame >= LIGHTHOUSE_GUARDIAN.from &&
+        frame < LIGHTHOUSE_GUARDIAN.to - RAINBOW_GUARDIAN.escapeLead &&
+        guardian === null &&
+        lighthouseGuardianOutcome === 'waiting'
+      ) {
+        guardian = createRainbowGuardian('lampkeeper', activePlayers)
+        guardian.maxHp = guardian.hp = Math.max(
+          1,
+          Math.round(guardian.maxHp * level.bossHp),
+        )
+      }
+      if (stage === 'waves') {
+        for (const entry of lighthouseSpawns(frame))
+          spawn(entry.kind, entry.y, entry.wave)
+        const lamp = LIGHTHOUSE_LAMPS.find((candidate) => candidate.at === frame)
+        if (lamp) {
+          const lit = livingShips().some(
+            (ship) => Math.abs(ship.y - laneY(lamp.lane)) <= 28,
+          )
+          if (lit) {
+            lighthouseLamps = lightLighthouseLamp(
+              lighthouseLamps,
+              Number(lamp.id.slice(-1)),
+            )
+            score += 150
+            popups.push({
+              x: W / 2,
+              y: laneY(lamp.lane),
+              text: 'LIGHT RESTORED · +150',
+              age: 0,
+            })
+          }
+        }
+      }
+      if (stage === 'turn' && frame === LIGHTHOUSE.turnStarts) {
+        reefs.length = 0
+        enemyShots.length = 0
       }
     } else if (glassStart === null) {
       const frame = reefFrame()
@@ -4556,7 +4673,9 @@ export function createRainbowPrincessPreview(
     if (guardian && guardianAct !== 9) {
       const act = guardianAct
       const section =
-        guardian.kind === 'matriarch'
+        guardian.kind === 'lampkeeper'
+          ? LIGHTHOUSE_GUARDIAN
+          : guardian.kind === 'matriarch'
           ? nurseryGuardianWindow(TRENCH_FORK.decideAt, TRENCH_FORK.rejoinAt)
           : guardian.kind === 'shoalkoi'
             ? SHOAL_GUARDIAN
@@ -4565,7 +4684,12 @@ export function createRainbowPrincessPreview(
               : guardian.kind === 'warden'
                 ? PEARL_WARDEN_WINDOW
                 : guardianSections[act]
-      const frame = guardian.kind === 'shoalkoi' ? shoalFrame() : actFrame(act)
+      const frame =
+        guardian.kind === 'lampkeeper'
+          ? lighthouseFrame()
+          : guardian.kind === 'shoalkoi'
+            ? shoalFrame()
+            : actFrame(act)
       shootAs(
         RAINBOW_GUARDIAN_LOOK,
         stepRainbowGuardian(
@@ -4579,6 +4703,8 @@ export function createRainbowPrincessPreview(
         const guardianKind = guardian.kind
         guardian = null
         if (wasNursery) nurseryGuardianOutcome = 'escaped'
+        else if (guardianKind === 'lampkeeper')
+          lighthouseGuardianOutcome = 'escaped'
         else if (guardianKind === 'shoalkoi') shoalGuardianOutcome = 'escaped'
         else if (guardianKind === 'siren') armoryGuardianOutcome = 'escaped'
         else if (guardianKind === 'warden') pearlWardenOutcome = 'escaped'
@@ -5375,7 +5501,9 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
-        act: shoalActive()
+        act: lighthouseActive()
+          ? 'X3'
+          : shoalActive()
           ? 'X4'
           : (
               [
@@ -5390,7 +5518,9 @@ export function createRainbowPrincessPreview(
                 'S09',
               ] as const
             )[currentAct() - 1]!,
-        stage: shoalActive()
+        stage: lighthouseActive()
+          ? lighthouseStage(lighthouseFrame())
+          : shoalActive()
           ? mirrorShoalStage(shoalFrame())
           : currentAct() === 1
             ? pinkwakeStage(tick, defeatedAt)
@@ -5414,7 +5544,15 @@ export function createRainbowPrincessPreview(
                               escapeFrame,
                               endingFrame,
                             ),
-        sceneId: shoalActive()
+        sceneId: lighthouseActive()
+          ? lighthouseFrame() < LIGHTHOUSE.openingEnds
+            ? 'X3.OPEN'
+            : lighthouseFrame() >= LIGHTHOUSE.bossStarts
+              ? 'X3.AFTER'
+              : lighthouseFrame() >= LIGHTHOUSE.turnStarts
+                ? 'X3.TURN'
+                : null
+          : shoalActive()
           ? shoalFrame() < MIRROR_SHOAL.openingEnds
             ? 'X4.OPEN'
             : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
@@ -5468,6 +5606,9 @@ export function createRainbowPrincessPreview(
         armoryGuardianOutcome,
         pearlWardenOutcome,
         shoalGuardianOutcome,
+        lighthouseGuardianOutcome,
+        lighthouseFrame: lighthouseActive() ? lighthouseFrame() : null,
+        lighthouseLamps,
         shoalFrame: shoalActive() ? shoalFrame() : null,
         shoalHits,
         rescuedNemi,
@@ -7824,6 +7965,31 @@ export function createRainbowPrincessPreview(
         g.stroke()
         g.restore()
       }
+      if (lighthouseActive()) {
+        const frame = lighthouseFrame()
+        const nextLamp = LIGHTHOUSE_LAMPS.find(
+          (lamp) => frame <= lamp.at && lamp.at - frame < 150,
+        )
+        if (nextLamp) {
+          const y = laneY(nextLamp.lane)
+          const fade = Math.min(1, (150 - (nextLamp.at - frame)) / 45)
+          g.save()
+          g.globalAlpha = fade * (0.65 + Math.sin(frame / 8) * 0.12)
+          g.strokeStyle = '#fff0b0'
+          g.lineWidth = 2
+          g.setLineDash([6, 5])
+          g.beginPath()
+          g.moveTo(0, y)
+          g.lineTo(W, y)
+          g.stroke()
+          g.setLineDash([])
+          g.fillStyle = '#ffe8a8'
+          g.font = 'bold 9px monospace'
+          g.textAlign = 'right'
+          g.fillText(`LIGHT ${nextLamp.id.slice(-1)} · FLY THIS LANE`, W - 8, y - 8)
+          g.restore()
+        }
+      }
       // Act intro splash: the painted title card fades in under the opening comms while no craft spawn.
       const act = currentAct()
       const introFrame = actFrame(act)
@@ -7872,7 +8038,21 @@ export function createRainbowPrincessPreview(
         )
         g.restore()
       }
-      const scene = shoalActive()
+      const scene = lighthouseActive()
+        ? lighthouseFrame() < LIGHTHOUSE.openingEnds
+          ? { id: 'X3.OPEN' as const, elapsed: lighthouseFrame() }
+          : lighthouseFrame() >= LIGHTHOUSE.bossStarts
+            ? {
+                id: 'X3.AFTER' as const,
+                elapsed: lighthouseFrame() - LIGHTHOUSE.bossStarts,
+              }
+            : lighthouseFrame() >= LIGHTHOUSE.turnStarts
+              ? {
+                  id: 'X3.TURN' as const,
+                  elapsed: lighthouseFrame() - LIGHTHOUSE.turnStarts,
+                }
+              : null
+        : shoalActive()
         ? shoalFrame() < MIRROR_SHOAL.openingEnds
           ? { id: 'X4.OPEN' as const, elapsed: shoalFrame() }
           : shoalFrame() >= MIRROR_SHOAL.aftermathStarts
@@ -7909,8 +8089,15 @@ export function createRainbowPrincessPreview(
                             endingFrame,
                           )
       const said = scene
-        ? shoalActive()
-          ? ((scene.id === 'X4.OPEN'
+        ? lighthouseActive()
+          ? ((scene.id === 'X3.OPEN'
+              ? LIGHTHOUSE_TALKS.opening
+              : scene.id === 'X3.TURN'
+                ? LIGHTHOUSE_TALKS.turn
+                : LIGHTHOUSE_TALKS.aftermath)[Math.floor(scene.elapsed / 96)] ??
+            null)
+          : shoalActive()
+            ? ((scene.id === 'X4.OPEN'
               ? SHOAL_TALKS.opening
               : scene.id === 'X4.TURN'
                 ? SHOAL_TALKS.turn
@@ -8005,8 +8192,10 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe7f5'
         g.font = 'bold 10px monospace'
         g.fillText(
-          shoalActive()
-            ? 'X4 / MIRROR SHOAL'
+          lighthouseActive()
+            ? 'X3 / SUNKEN LIGHTHOUSE'
+            : shoalActive()
+              ? 'X4 / MIRROR SHOAL'
             : [
                 'ACT I / PINKWAKE',
                 'ACT II / MOONJELLY',
@@ -8287,6 +8476,23 @@ export function createRainbowPrincessPreview(
         g.fillText('▲ X4 MIRROR SHOAL', W - 8, 123)
         g.fillStyle = '#bdeaff'
         g.fillText('▼ ACT VIII PALACE', W - 8, 153)
+        g.restore()
+      }
+      if (lighthouseActive()) {
+        g.save()
+        g.fillStyle = '#ffe9b3'
+        g.font = 'bold 8px monospace'
+        g.textAlign = 'right'
+        g.fillText(
+          `X3 · LIGHTS ${lighthouseLamps.toString(2).replace(/0/g, '').length}/6 · ` +
+            (LIGHTHOUSE_SECTIONS.find(
+              (section) =>
+                lighthouseFrame() >= section.from &&
+                lighthouseFrame() < section.to,
+            )?.name.toUpperCase() ?? 'SUNKEN LIGHTHOUSE'),
+          W - 8,
+          H - 8,
+        )
         g.restore()
       }
       if (shoalActive()) {

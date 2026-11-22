@@ -14,12 +14,14 @@ const root: { dataset: Record<string, string> } = {
   dataset: { realm: 'sugar' },
 }
 const images: MockImage[] = []
-const callbacks = new Map<string, () => void>()
+const callbacks = new Map<string, Array<() => void>>()
 
 class MockImage {
   onload = () => {}
   onerror = () => {}
   src = ''
+  naturalWidth = 1200
+  naturalHeight = 400
 
   constructor() {
     images.push(this)
@@ -31,41 +33,76 @@ runInNewContext(source, {
   document: { documentElement: root },
   window: {
     addEventListener: (name: string, callback: () => void) => {
-      callbacks.set(name, callback)
+      const listeners = callbacks.get(name) ?? []
+      listeners.push(callback)
+      callbacks.set(name, listeners)
     },
   },
 })
-const stateChanged = callbacks.get('chessweeper:state')
-assert.ok(stateChanged, 'board art follows actual game state')
 
-assert.equal(images.length, 1)
+const stateCallbacks = callbacks.get('chessweeper:state')
+assert.equal(stateCallbacks?.length, 2, 'both art loaders track game state')
+const stateChanged = () => {
+  for (const callback of stateCallbacks!) callback()
+}
+
+assert.equal(images.length, 2, 'first realm loads board and piece atlas')
 assert.equal(images[0]!.src, '/images/chessweeper/sugarbomb-board.webp')
-assert.equal(root.dataset.boardArt, undefined, 'no art before load')
+assert.equal(
+  images[1]!.src,
+  '/images/chessweeper/sugarbomb-piece-atlas.webp',
+)
+assert.equal(root.dataset.boardArt, undefined, 'no board art before load')
+assert.equal(root.dataset.pieceArt, undefined, 'no piece art before load')
 images[0]!.onload()
 assert.equal(root.dataset.boardArt, 'ready')
+assert.equal(root.dataset.pieceArt, undefined, 'board load cannot reveal pieces')
+images[1]!.onload()
+assert.equal(root.dataset.pieceArt, 'ready')
 
 stateChanged()
-assert.equal(images.length, 1, 'render loop does not issue repeat requests')
+assert.equal(images.length, 2, 'render loop does not issue repeat requests')
 
 root.dataset.realm = 'ashen'
 stateChanged()
-assert.equal(root.dataset.boardArt, undefined, 'world switch shows fallback')
-assert.equal(images[1]!.src, '/images/chessweeper/ashen-board.webp')
+assert.equal(images.length, 4, 'world switch starts two independent loads')
+assert.equal(root.dataset.boardArt, undefined, 'world switch shows board fallback')
+assert.equal(root.dataset.pieceArt, undefined, 'world switch shows piece glyphs')
+assert.equal(images[2]!.src, '/images/chessweeper/ashen-board.webp')
+assert.equal(images[3]!.src, '/images/chessweeper/ashen-piece-atlas.webp')
 images[0]!.onload()
-assert.equal(root.dataset.boardArt, undefined, 'obsolete image load ignored')
-images[1]!.onerror()
-assert.equal(root.dataset.boardArt, undefined, 'missing art stays playable')
+images[1]!.onload()
+assert.equal(root.dataset.boardArt, undefined, 'obsolete board load ignored')
+assert.equal(root.dataset.pieceArt, undefined, 'obsolete piece load ignored')
+images[2]!.onerror()
+images[3]!.naturalWidth = 300
+images[3]!.onload()
+assert.equal(root.dataset.boardArt, undefined, 'missing board stays playable')
+assert.equal(root.dataset.pieceArt, undefined, 'undersized atlas keeps glyphs')
 
 root.dataset.realm = 'jackpot'
 stateChanged()
-assert.equal(images[2]!.src, '/images/chessweeper/jackpot-board.webp')
-images[2]!.onload()
+assert.equal(images.length, 6)
+assert.equal(images[4]!.src, '/images/chessweeper/jackpot-board.webp')
+assert.equal(
+  images[5]!.src,
+  '/images/chessweeper/jackpot-piece-atlas.webp',
+)
+images[5]!.onload()
+assert.equal(root.dataset.pieceArt, 'ready')
+assert.equal(root.dataset.boardArt, undefined)
+images[4]!.onload()
 assert.equal(root.dataset.boardArt, 'ready')
+images[2]!.onload()
+images[3]!.onerror()
+assert.equal(root.dataset.boardArt, 'ready', 'stale load cannot remove board')
+assert.equal(root.dataset.pieceArt, 'ready', 'stale error cannot remove pieces')
 
 root.dataset.realm = 'invalid-world'
 stateChanged()
 assert.equal(root.dataset.boardArt, undefined)
-assert.equal(images.length, 3, 'unknown worlds do not request resources')
+assert.equal(root.dataset.pieceArt, undefined)
+assert.equal(images.length, 6, 'unknown worlds do not request resources')
 
 const page = readFileSync(
   fileURLToPath(
@@ -82,6 +119,14 @@ for (const realm of ['sugar', 'ashen', 'jackpot']) {
   assert.ok(styles.includes(`data-realm='${realm}'`))
 }
 assert.ok(styles.includes("data-board-art='ready'"))
+assert.ok(styles.includes("data-piece-art='ready'"))
+for (const piece of 'KQRBNPkqrbnp') {
+  assert.ok(
+    styles.includes(`data-piece='${piece}'`),
+    `painted atlas maps chess piece ${piece}`,
+  )
+}
+assert.ok(page.includes('data-piece="${p}"'), 'board emits piece identity')
 const manifest = JSON.parse(
   readFileSync(
     fileURLToPath(

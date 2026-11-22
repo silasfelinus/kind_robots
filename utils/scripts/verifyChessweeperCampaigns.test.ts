@@ -176,7 +176,7 @@ assert.ok(html.includes('href="/chessweeper/campaign.css"'))
     'guard mastery earned by three hearts',
   )
   assert.equal(
-    stored.worlds.ashen.mastery || 0,
+    campaign.current('ashen').mastery,
     0,
     'losing never awards mastery',
   )

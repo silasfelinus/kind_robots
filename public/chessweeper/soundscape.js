@@ -88,6 +88,7 @@
   let step = 0
   let realm = root.dataset.realm || 'jackpot'
   let ended = false
+  let disposed = false
   let requestedTrack = ''
   let activeTrack = ''
   let trackSource = null
@@ -170,7 +171,7 @@
   }
 
   function syncTrack() {
-    if (!context || ended) return
+    if (!context || ended || disposed || !settings.music) return
     const key = scoreKey()
     if (key !== requestedTrack) {
       requestedTrack = key
@@ -259,6 +260,7 @@
   }
 
   function createAudio() {
+    if (disposed) return null
     if (context) return context
     const Context = window.AudioContext || window.webkitAudioContext
     if (!Context) return null
@@ -315,6 +317,7 @@
     settings.effectsVolume = level(next.effectsVolume, 0.58)
     updateVolume()
     if (settings.music) syncTrack()
+    else retireTrack()
   })
   window.addEventListener('chessweeper:fx', (event) => {
     cue(event.detail?.kind)
@@ -336,14 +339,18 @@
   document.addEventListener('pointerdown', gesture, { passive: true })
   document.addEventListener('keydown', gesture)
   document.addEventListener('visibilitychange', () => {
-    if (!context) return
+    if (!context || disposed) return
     if (document.hidden) context.suspend()?.catch?.(() => {})
     else {
       context.resume()?.catch?.(() => {})
       nextTime = context.currentTime + 0.08
+      syncTrack()
     }
   })
   window.addEventListener('pagehide', () => {
+    disposed = true
+    requestedTrack = ''
+    pendingTracks.clear()
     if (timer !== null) clearInterval(timer)
     timer = null
     retireTrack()

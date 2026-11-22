@@ -70,4 +70,85 @@ assert.equal(
   'reckless reeling still has an understandable consequence',
 )
 assert.equal(applySimpleReel(snapped, 'RELEASE'), snapped)
+
+const dangerousFinalPull = {
+  ...hooked,
+  progress: 95,
+  tension: 95,
+}
+const snappedOnLanding = applySimpleReel(dangerousFinalPull, 'TAP')
+assert.equal(snappedOnLanding.progress, 100)
+assert.equal(snappedOnLanding.tension, 100)
+assert.equal(
+  snappedOnLanding.stage,
+  'ESCAPED',
+  'a line that snaps on the same tap as 100% progress cannot award a fish',
+)
+assert.equal(
+  applySimpleReel(snappedOnLanding, 'TAP'),
+  snappedOnLanding,
+  'rapid tapping after escape never grants a late catch',
+)
+assert.equal(
+  applySimpleFishingStop(snappedOnLanding, 50),
+  snappedOnLanding,
+  'terminal inputs do not restart the same catch',
+)
+assert.equal(
+  applySimpleReel(landed, 'RELEASE'),
+  landed,
+  'slack after landing cannot mutate the final record',
+)
+
+const beforeHook = applySimpleFishingStop(start, Number.NaN)
+assert.deepEqual(beforeHook.stops, [0])
+assert.equal(beforeHook.stage, 'HOOK')
+const badHook = applySimpleFishingStop(beforeHook, Number.POSITIVE_INFINITY)
+assert.deepEqual(
+  badHook.stops,
+  [0, 0],
+  'invalid stop positions are normalized before recording',
+)
+assert.equal(badHook.stage, 'REEL')
+assert.equal(
+  applySimpleFishingStop(badHook, 50),
+  badHook,
+  'a double hook tap cannot reset the reel progress',
+)
+
+let idleRelease = badHook
+for (let beat = 0; beat < 100; beat++) {
+  idleRelease = applySimpleReel(idleRelease, 'RELEASE')
+}
+assert.equal(idleRelease.progress, 0)
+assert.equal(idleRelease.tension, 0)
+assert.equal(idleRelease.stage, 'REEL')
+assert.equal(idleRelease.actions.length, 100)
+
+for (let seed = 0; seed < 24; seed++) {
+  const run = createRun(bundle, {
+    saveId: `new-angler-${seed}`,
+    name: 'New Angler',
+    seed: `new-angler-${seed}`,
+    rulerName: 'Mo',
+    stamp: 'T0',
+  })
+  let fight = applySimpleFishingStop(
+    applySimpleFishingStop(startSimpleFishing(run), seed % 2 ? 100 : 0),
+    seed % 2 ? 0 : 100,
+  )
+  for (let beat = 0; beat < 30 && !simpleFishingFinished(fight); beat++) {
+    fight = applySimpleReel(
+      fight,
+      fight.tension >= 65 ? 'RELEASE' : 'TAP',
+    )
+  }
+  assert.equal(
+    fight.stage,
+    'LANDED',
+    `first-time player ${seed} can recover from two missed timing stops`,
+  )
+  assert.ok(fight.actions.includes('RELEASE'))
+}
+
 console.log('Simple two-stop and tap/release fishing self-test passed.')

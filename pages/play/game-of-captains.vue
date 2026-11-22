@@ -497,9 +497,6 @@
       :meter-values="kitMeterValues"
       data-testid="space-couch-kit-shell"
     >
-      <template #settings-extra>
-        <SpaceCouchSoundMixer />
-      </template>
       <template #bar-actions>
         <div class="cap-toolbar" data-testid="space-couch-header">
           <span
@@ -757,156 +754,14 @@
                   </button>
                 </template>
                 <template v-else-if="selectionScreen === 'captain'">
-                  <div class="cap-captains">
-                    <button
-                      v-for="captain in CAPTAINS"
-                      :key="captain.id"
-                      type="button"
-                      class="cap-captain"
-                      :class="{
-                        chosen: captain.id === selectedCaptain,
-                        'cap-captain-ready':
-                          captainArtReady[captain.id] ||
-                          !portrait('captain-' + captain.id),
-                      }"
-                      :aria-pressed="captain.id === selectedCaptain"
-                      @click="selectedCaptain = captain.id"
-                    >
-                      <span
-                        class="cap-captain-icon"
-                        :data-portrait-key="'captain-' + captain.id"
-                        aria-hidden="true"
-                        ><img
-                          v-if="portrait('captain-' + captain.id)"
-                          :src="portrait('captain-' + captain.id)!"
-                          alt=""
-                          class="cap-portrait-img"
-                          @load="captainArtReady[captain.id] = true"
-                          @error="captainArtReady[captain.id] = true"
-                        /><template v-else>{{
-                          captain.name.split(' ').at(-1)?.slice(0, 1)
-                        }}</template></span
-                      >
-                      <span class="cap-captain-copy"
-                        ><strong>{{ captain.name }}</strong
-                        ><small>{{ captain.epithet }}</small></span
-                      >
-                    </button>
-                  </div>
-                  <div class="cap-personnel-dossier" aria-live="polite">
-                    <figure
-                      class="cap-personnel-hero"
-                      data-testid="space-couch-captain-hero"
-                    >
-                      <img
-                        v-if="captainDossierPortrait"
-                        :src="captainDossierPortrait"
-                        :alt="
-                          activeCaptain.name + ' full-size character portrait'
-                        "
-                        class="cap-personnel-hero-image"
-                        @error="
-                          onPortraitError($event, 'captain-' + selectedCaptain)
-                        "
-                      />
-                      <div v-else class="cap-personnel-hero-fallback">
-                        <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
-                      </div>
-                    </figure>
-                    <div class="cap-dossier-header">
-                      <img
-                        v-if="portrait('captain-' + selectedCaptain)"
-                        :src="portrait('captain-' + selectedCaptain)!"
-                        :alt="activeCaptain.name + ' portrait'"
-                      />
-                      <span v-else class="cap-dossier-monogram">{{
-                        activeCaptain.name.slice(-1)
-                      }}</span>
-                      <span
-                        ><strong>{{ activeCaptain.name }}</strong
-                        ><small>{{ activeCaptain.epithet }}</small></span
-                      >
-                      <button
-                        type="button"
-                        data-testid="space-couch-captain-dossier-tab"
-                        @click="
-                          captainDossierTab =
-                            captainDossierTab === 'stats'
-                              ? 'history'
-                              : captainDossierTab === 'history'
-                                ? 'orders'
-                                : 'stats'
-                        "
-                      >
-                        {{
-                          captainDossierTab === 'stats'
-                            ? 'STORY ▸'
-                            : captainDossierTab === 'history'
-                              ? 'ORDERS ▸'
-                              : 'STATS ▸'
-                        }}
-                      </button>
-                    </div>
-                    <div
-                      class="cap-stats cap-personnel-essential-stats"
-                      data-testid="space-couch-captain-stats"
-                      aria-label="Captain statistics"
-                    >
-                      <div v-for="skill in SKILLS" :key="skill">
-                        <small>{{ skill.toUpperCase() }}</small>
-                        <strong>{{ captainStats[skill] }}</strong>
-                      </div>
-                    </div>
-                    <template v-if="captainDossierTab === 'stats'">
-                      <div class="cap-insight">
-                        <strong>{{ activeCaptain.doctrine }}</strong
-                        ><small
-                          >Advantage: {{ activeCaptain.ability }} · Price:
-                          {{ activeCaptain.cost }}</small
-                        >
-                      </div>
-                    </template>
-                    <div
-                      v-else-if="captainDossierTab === 'history'"
-                      class="cap-insight cap-dossier-story"
-                    >
-                      <strong>Personal history</strong>
-                      <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
-                      <section
-                        class="cap-character-promise"
-                        data-testid="couch-captain-promise"
-                      >
-                        <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
-                        <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
-                        <strong>YOUR KIND OF TROUBLE</strong>
-                        <p>
-                          {{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}
-                        </p>
-                        <small>{{
-                          CAPTAIN_DOSSIERS[selectedCaptain].crewSpark
-                        }}</small>
-                      </section>
-                    </div>
-                    <div v-else class="cap-insight cap-dossier-story">
-                      <strong>First order and unresolved liability</strong>
-                      <small
-                        >First order:
-                        {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
-                      >
-                      <small
-                        >Unresolved liability:
-                        {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
-                      >
-                    </div>
-                  </div>
-                  <button
-                    class="cap-primary"
-                    type="button"
-                    data-testid="captains-choose-crew"
-                    @click="selectionScreen = 'background'"
-                  >
-                    CHOOSE YOUR BACKGROUND <span>➜</span>
-                  </button>
+                  <SpaceCouchCaptainGallery
+                    v-model="selectedCaptain"
+                    :fallback-portrait="(id) => portrait('captain-' + id)"
+                    :fallback-image="COUCH_FALLBACK"
+                    :large-text="store.preferences.largeText"
+                    :reduced-motion="store.preferences.reducedMotion"
+                    @next="selectionScreen = 'background'"
+                  />
                 </template>
                 <template v-else>
                   <button
@@ -2093,6 +1948,9 @@
           </footer>
         </section>
       </div>
+      <template #settings-extra>
+        <SpaceCouchSoundMixer />
+      </template>
     </PlaybookKitShell>
     <SpaceCouchAlienMilestone
       v-if="store.collectorIncident || store.collectorReport"
@@ -2197,6 +2055,7 @@ import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vu
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import SpaceCouchCrewBoard from '~/components/gameOfCaptains/crew-board.vue'
 import SpaceCouchSoundMixer from '~/components/gameOfCaptains/sound-mixer.vue'
+import SpaceCouchCaptainGallery from '~/components/gameOfCaptains/captain-gallery.vue'
 import { useSpaceCouchSoundStore } from '~/stores/spaceCouchSoundStore'
 import { couchCuesFor, couchMoodFor } from '~/utils/gameOfCaptains/sound'
 import {
@@ -2231,7 +2090,6 @@ const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
 )
 const selectedOrigin = ref<CaptainOriginId | null>(null)
 const originReady = ref<Record<string, boolean>>({})
-const captainArtReady = ref<Record<string, boolean>>({})
 function markOriginReady(id: string) {
   originReady.value[id] = true
 }
@@ -2306,7 +2164,6 @@ const starAssessment = ref<StarAssessment | null>(null)
 const wildBreak = ref<WildBreakRecord | null>(null)
 const focusedCrew = ref<CrewId>('pell')
 type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
-const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const run = computed(() => store.run)
 const missionSupplySwing = computed(() => {
@@ -2678,7 +2535,6 @@ const nemesisLine = computed(() =>
 const missionPreview = computed(() =>
   run.value?.phase === 'briefing' ? previewMission(run.value) : null,
 )
-const captainStats = computed(() => CAPTAIN_STATS[selectedCaptain.value])
 function crewProfile(id: CrewId) {
   return CREW_PROFILES.find((person) => person.id === id)!
 }
@@ -2770,7 +2626,6 @@ function restartVoyage() {
   wildBreak.value = null
   selectionScreen.value = 'captain'
   chosenCrew.value = []
-  captainDossierTab.value = 'stats'
   crewDossierTab.value = 'history'
   selectedOrigin.value = null
   atTitle.value = false
@@ -3392,10 +3247,14 @@ function toggleAway(id: CrewId) {
 .cap-personnel-frame[data-screen='background'] {
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
-.cap-personnel-frame[data-screen='captain'],
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
+}
+/* Captain selection is one art-first gallery (captain-gallery.vue). */
+.cap-personnel-frame[data-screen='captain'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 .cap-personnel-frame .cap-heading {
   grid-column: 1 / -1;
@@ -3690,7 +3549,6 @@ function toggleAway(id: CrewId) {
   font-size: clamp(0.85rem, 1.4cqi, 1.1rem);
 }
 @media (max-width: 650px) {
-  .cap-personnel-frame[data-screen='captain'],
   .cap-personnel-frame[data-screen='crew'] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.55fr) auto;
@@ -4860,16 +4718,11 @@ function toggleAway(id: CrewId) {
   }
 }
 
-.cap-personnel-frame[data-screen='captain'],
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
 }
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-}
-/* Captain screen has no heading row: the roster and dossier fill the frame. */
-.cap-personnel-frame[data-screen='captain'] {
-  grid-template-rows: minmax(0, 1fr) auto;
 }
 /* Dossier: portrait column on the left, name / stats / notes on the right. */
 .cap-personnel-frame .cap-personnel-dossier {
@@ -4972,22 +4825,15 @@ function toggleAway(id: CrewId) {
   bottom: 0.3rem;
 }
 @media (max-width: 650px) {
-  .cap-personnel-frame[data-screen='captain'],
   .cap-personnel-frame[data-screen='crew'] {
     grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
-  }
-  .cap-personnel-frame[data-screen='captain'] {
-    grid-template-rows: minmax(0, 1fr) auto;
   }
   .cap-personnel-frame .cap-personnel-dossier {
     grid-row: 2;
     grid-column: 2;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1.2fr) auto auto minmax(3.6rem, 0.6fr);
-  }
-  .cap-personnel-frame[data-screen='captain'] .cap-personnel-dossier {
-    grid-row: 1;
   }
   .cap-personnel-frame .cap-personnel-dossier > .cap-personnel-hero,
   .cap-personnel-frame .cap-personnel-dossier > :not(.cap-personnel-hero) {

@@ -29,7 +29,12 @@ import { VOYAGE_BOARDS } from '../gameOfCaptains/voyageMap'
 import { SPACE_COUCH_OPENING } from '../gameOfCaptains/openingReel'
 import { COUCH_EXPRESSION_ART_IDS } from '../gameOfCaptains/expressionPaintings'
 import { readFileSync } from 'node:fs'
-import { startVoyage, restoreVoyage, CREW } from '../gameOfCaptains/rules'
+import {
+  startVoyage,
+  restoreVoyage,
+  CREW,
+  CAPTAINS,
+} from '../gameOfCaptains/rules'
 import {
   arriveAtWorld,
   currentExpedition,
@@ -503,10 +508,20 @@ assert.equal(
   'never announce the ending before the finale',
 )
 
-const page = readFileSync(
-  new URL('../../pages/play/game-of-captains.vue', import.meta.url),
-  'utf8',
-)
+// Captain selection lives in its own art-first component (t-045); read it
+// with the page so selection markers stay checked wherever they render.
+const page =
+  readFileSync(
+    new URL('../../pages/play/game-of-captains.vue', import.meta.url),
+    'utf8',
+  ) +
+  readFileSync(
+    new URL(
+      '../../components/gameOfCaptains/captain-gallery.vue',
+      import.meta.url,
+    ),
+    'utf8',
+  )
 const quiz = readFileSync(
   new URL(
     '../../components/gameOfCaptains/constellation-test.vue',
@@ -611,7 +626,7 @@ assert.ok(
   'restart returns to captain',
 )
 assert.ok(
-  page.includes('@click="selectionScreen = \'background\'"'),
+  page.includes('@next="selectionScreen = \'background\'"'),
   'captain advances to background',
 )
 assert.ok(
@@ -683,14 +698,16 @@ assert.ok(crewBoard.includes("'space-couch-crew-release-' + id"))
 assert.ok(!page.includes('space-couch-crew-prev'), 'no paged roster')
 assert.ok(page.includes('data-testid="space-couch-captain-dossier-tab"'))
 assert.ok(page.includes('data-testid="space-couch-crew-dossier-tab"'))
-assert.ok(page.includes("captainDossierTab === 'history'"))
+assert.ok(page.includes("tab === 'history'"))
 assert.ok(page.includes("crewDossierTab === 'route'"))
 assert.ok(page.includes('overflow: hidden;'))
 assert.equal(CREW.length, 12, 'one twelve-officer roster screen')
 assert.equal(new Set(CREW.map((member) => member.id)).size, 12)
 for (const role of ['captain', 'crew'] as const) {
   assert.ok(
-    page.includes('data-testid="space-couch-' + role + '-hero"'),
+    // The chosen captain's gallery card is the hero (bound :data-testid).
+    page.includes('data-testid="space-couch-' + role + '-hero"') ||
+      page.includes("'space-couch-" + role + "-hero'"),
     role + ' selection keeps a full-size character portrait',
   )
   assert.ok(
@@ -1044,3 +1061,42 @@ assert.equal(
 )
 assert.ok(mergedBackupHistory.some((entry) => entry.id === firstArchive[0]?.id))
 assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))
+
+// t-045: captain selection is art first. Every captain has a tall painted
+// portrait on disk, the gallery leads with it, and the old 55px circle
+// thumbnails are gone.
+{
+  const gallery = readFileSync(
+    new URL(
+      '../../components/gameOfCaptains/captain-gallery.vue',
+      import.meta.url,
+    ),
+    'utf8',
+  )
+  const art = readFileSync(
+    new URL('../gameOfCaptains/captainSelectionArt.ts', import.meta.url),
+    'utf8',
+  )
+  for (const captain of CAPTAINS) {
+    const file = new URL(
+      `../../public/game-of-captains/portraits/v3/captain-${captain.id}.webp`,
+      import.meta.url,
+    )
+    const bytes = readFileSync(file)
+    assert.equal(bytes.subarray(0, 4).toString('latin1'), 'RIFF', captain.id)
+    assert.equal(bytes.subarray(8, 12).toString('latin1'), 'WEBP', captain.id)
+    assert.ok(bytes.length > 20_000, `${captain.id} painting is a real render`)
+    assert.ok(art.includes(`captain-${captain.id}.webp`), captain.id)
+  }
+  assert.doesNotMatch(art, /artImageId: 0\b/, 'every painting is traceable')
+  assert.ok(gallery.includes('role="radiogroup"'))
+  assert.ok(gallery.includes('class="scg-card-art"'))
+  assert.ok(gallery.includes('scroll-snap-type: x mandatory'))
+  assert.ok(gallery.includes('flex-grow: 4.2'))
+  assert.ok(gallery.includes("emit('next')"))
+  assert.ok(
+    !page.includes(':data-portrait-key="\'captain-\' + captain.id"'),
+    'no circle thumbnails',
+  )
+  assert.ok(page.includes('<SpaceCouchCaptainGallery'))
+}

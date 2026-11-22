@@ -16,6 +16,12 @@ export const CAPES_PRODUCTION_IDENTITIES = [
     subtitle: 'Fire and accountability',
   },
   { signature: 'tech-genius', label: 'Dr. Frog', subtitle: 'Dr. Lionel Marsh' },
+  {
+    signature: 'mutant-discipline',
+    label: 'Lotus Guard',
+    subtitle: 'Asha Venkataraman',
+  },
+  { signature: 'magic-earth', label: 'Granny Mayhem', subtitle: 'Mavis Mayhew' },
   { signature: 'alien-discipline', label: 'Zuzu', subtitle: 'Koala Assassin' },
   {
     signature: 'mutant-earth',
@@ -216,9 +222,111 @@ export const CAPES_RUNTIME_REFILL_REVIEW = [
   },
 ] as const
 
+/**
+ * Original private repaint candidates, rendered but awaiting human-visible
+ * image QA. Never promote to shipped art from a DONE receipt alone.
+ */
+export const CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW = [
+  {
+    key: 'asha-four-arm-hero-rescue-river',
+    signature: 'mutant-discipline',
+    title: 'Asha Lotus Guard rescuing four people',
+    asset: 'comet-city-academy/identities/mutant-discipline/repaint/hero-river-2026-11',
+    size: '1344x768',
+    artJobId: 76529,
+    artImageId: 278466,
+  },
+  {
+    key: 'asha-four-arm-hero-dance-shelter',
+    signature: 'mutant-discipline',
+    title: 'Asha Lotus Guard teaching a four-handed rescue dance',
+    asset: 'comet-city-academy/identities/mutant-discipline/repaint/hero-shelter-2026-11',
+    size: '1344x768',
+    artJobId: 76530,
+    artImageId: 278467,
+  },
+  {
+    key: 'asha-four-arm-villain-quartermaster',
+    signature: 'mutant-discipline',
+    title: 'Asha Lotus Guard in the weapons quartermaster warehouse',
+    asset: 'comet-city-academy/identities/mutant-discipline/repaint/villain-quartermaster-2026-11',
+    size: '1344x768',
+    artJobId: 76531,
+    artImageId: 278468,
+  },
+  {
+    key: 'asha-four-arm-villain-confiscation',
+    signature: 'mutant-discipline',
+    title: 'Asha Lotus Guard taking command of a contraband exchange',
+    asset: 'comet-city-academy/identities/mutant-discipline/repaint/villain-exchange-2026-11',
+    size: '1344x768',
+    artJobId: 76532,
+    artImageId: 278469,
+  },
+] as const
+
+export const CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW = [
+  {
+    key: 'pod-correction-granny-hero-20261122',
+    signature: 'magic-earth',
+    title: 'Mavis Mayhew heroic rescue candidate',
+    asset: 'comet-city-academy/identities/magic-earth/outcomes/hero',
+    size: '1344x768',
+    artJobId: 76593,
+    artImageId: 278587,
+  },
+  {
+    key: 'pod-correction-granny-villain-20261122',
+    signature: 'magic-earth',
+    title: 'Mavis Mayhew quilted city candidate',
+    asset: 'comet-city-academy/identities/magic-earth/outcomes/villain',
+    size: '1344x768',
+    artJobId: 76594,
+    artImageId: 278588,
+  },
+  {
+    key: 'pod-correction-lionel-hero-20261122',
+    signature: 'tech-genius',
+    title: 'Lionel Marsh human rescue harness candidate',
+    asset: 'comet-city-academy/identities/tech-genius/outcomes/hero',
+    size: '1344x768',
+    artJobId: 76595,
+    artImageId: 278589,
+  },
+  {
+    key: 'pod-correction-lionel-villain-20261122',
+    signature: 'tech-genius',
+    title: 'Lionel Marsh transformed frog antagonist candidate',
+    asset: 'comet-city-academy/identities/tech-genius/outcomes/villain',
+    size: '1344x768',
+    artJobId: 76596,
+    artImageId: 278590,
+  },
+  {
+    key: 'pod-correction-asha-hero-20261122',
+    signature: 'mutant-discipline',
+    title: 'Asha Venkataraman four-arm rescue candidate',
+    asset: 'comet-city-academy/identities/mutant-discipline/outcomes/hero',
+    size: '1344x768',
+    artJobId: 76597,
+    artImageId: 278591,
+  },
+  {
+    key: 'pod-correction-asha-villain-20261122',
+    signature: 'mutant-discipline',
+    title: 'Asha Venkataraman four-arm weapons trade candidate',
+    asset: 'comet-city-academy/identities/mutant-discipline/outcomes/villain',
+    size: '1344x768',
+    artJobId: 76598,
+    artImageId: 278592,
+  },
+] as const
+
 export const CAPES_REVIEWABLE_PRODUCTION = [
   ...CAPES_UNSTABLE_PRODUCTION,
   ...CAPES_RUNTIME_REFILL_REVIEW,
+  ...CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW,
+  ...CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW,
 ] as const
 
 export function capesProductionFor(signature: string) {

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import {
   CAPES_PRODUCTION_IDENTITIES,
+  CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW,
+  CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW,
   CAPES_UNSTABLE_PRODUCTION,
   CAPES_RUNTIME_REFILL_REVIEW,
   CAPES_REVIEWABLE_PRODUCTION,
@@ -83,12 +85,35 @@ assert.equal(capesStyleLaneFromModel('ponyFaetality_v11.safetensors'), null)
 // Source-ledger-linked private production receipts remain distinct from
 // artist-approved delivery and the original 48 permanent identities.
 assert.equal(CAPES_UNSTABLE_PRODUCTION.length, 14)
-assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 5)
+assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 7)
 assert.equal(CAPES_RUNTIME_REFILL_REVIEW.length, 6)
-assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 20)
+assert.equal(CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW.length, 4)
+assert.equal(CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW.length, 6)
+assert.deepEqual(
+  CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW.map((entry) => [entry.artJobId, entry.artImageId]),
+  [
+    [76529, 278466],
+    [76530, 278467],
+    [76531, 278468],
+    [76532, 278469],
+  ],
+)
+assert.deepEqual(
+  CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW.map((entry) => [entry.artJobId, entry.artImageId]),
+  [
+    [76593, 278587],
+    [76594, 278588],
+    [76595, 278589],
+    [76596, 278590],
+    [76597, 278591],
+    [76598, 278592],
+  ],
+)
+assert.equal(new Set(CAPES_REVIEWABLE_PRODUCTION.map((entry) => entry.key)).size, 30)
+assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 30)
 assert.equal(
   new Set(CAPES_REVIEWABLE_PRODUCTION.map((item) => item.artImageId)).size,
-  20,
+  30,
 )
 assert.deepEqual(
   CAPES_RUNTIME_REFILL_REVIEW.map((item) => [item.artJobId, item.artImageId]),
@@ -160,6 +185,8 @@ const gallery = readFileSync(
   'utf8',
 )
 assert.match(gallery, /data-testid="capes-production-gallery"/)
+assert.match(gallery, /CAPES_PRODUCTION_IDENTITIES.length/)
+assert.match(gallery, /CAPES_REVIEWABLE_PRODUCTION.length/)
 assert.match(gallery, /capesProductionFor\(selected\.value\)/)
 assert.match(gallery, /loadProductionImages\(signature\)/)
 assert.match(gallery, /productionImageFor\(item\.artImageId\)/)

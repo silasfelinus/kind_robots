@@ -12,11 +12,11 @@
           Delivered ArtImage receipts / private review
         </p>
         <h3 class="mt-1 text-xl font-black">
-          Five identities, twenty production candidates
+          {{ CAPES_PRODUCTION_IDENTITIES.length }} identities, {{ CAPES_REVIEWABLE_PRODUCTION.length }} production candidates
         </h3>
         <p class="mt-1 max-w-2xl text-xs leading-5 text-slate-300">
-          These records have DONE ArtImage IDs in Conductor's Unstable Diffusers
-          ledger. Thumbnails only appear after authenticated media retrieval
+          These records have DONE ArtImage IDs in Conductor's private production
+          ledgers. Thumbnails only appear after authenticated media retrieval
           succeeds. A source receipt alone never proves an image is attached in
           the game.
         </p>

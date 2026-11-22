@@ -2311,7 +2311,12 @@ class GloomInvaders implements ArcadeGameInstance {
     }
     if (this.beam) this.renderBeam(g, this.beam.x, this.beam.y, this.beam.half)
     if (this.extraBeam) {
-      this.renderBeam(g, this.extraBeam.x, this.extraBeam.y, this.extraBeam.half)
+      this.renderBeam(
+        g,
+        this.extraBeam.x,
+        this.extraBeam.y,
+        this.extraBeam.half,
+      )
     }
     if (this.dead === 0 && !this.over) this.renderSunny(g, this.px, PLAYER_Y)
     for (const p of this.particles) {

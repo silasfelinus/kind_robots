@@ -16,7 +16,13 @@ type Cloud = {
   h: number
 }
 type Plane = { x: number; dir: 1 | -1; power: CourierPower }
-type Beam = { x: number; y: number; half: number; pierce: boolean; helper: boolean }
+type Beam = {
+  x: number
+  y: number
+  half: number
+  pierce: boolean
+  helper: boolean
+}
 type Probe = {
   mode: GloomMode
   level: number
@@ -65,7 +71,11 @@ assert.deepEqual(COURIER_POWERS, [
 
 {
   const game = open()
-  assert.equal(game.mode, 'weather', 'the original cabinet mode stays untouched')
+  assert.equal(
+    game.mode,
+    'weather',
+    'the original cabinet mode stays untouched',
+  )
   game.chooseMode('calendar')
   game.startWave(8)
   for (let i = 0; i < 6; i++) step(game)
@@ -81,7 +91,11 @@ assert.deepEqual(COURIER_POWERS, [
   }
   step(game)
   assert.equal(game.plane, null, 'a real traveling beam catches the courier')
-  assert.equal(game.prismShots, 3, 'the caught courier grants three prism shots')
+  assert.equal(
+    game.prismShots,
+    3,
+    'the caught courier grants three prism shots',
+  )
   assert.equal(game.beam, null, 'the ordinary beam is spent on the courier')
   step(game, true)
   assert.equal(game.prismShots, 2, 'firing consumes one prism charge')
@@ -132,7 +146,10 @@ assert.deepEqual(COURIER_POWERS, [
   const bottom = game.clouds.filter((c) => c.y + c.h >= lowest - 4)
   assert.ok(bottom.length > 0)
   game.collectCourier('solar-flare')
-  assert.ok(bottom.every((c) => !c.alive), 'solar flare cheers the lowest row')
+  assert.ok(
+    bottom.every((c) => !c.alive),
+    'solar flare cheers the lowest row',
+  )
   assert.ok(
     game.clouds.some((c) => c.alive),
     'upper clouds remain for continued play',

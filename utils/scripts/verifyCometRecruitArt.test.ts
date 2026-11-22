@@ -47,7 +47,6 @@ for (const [id, joyous, angry, afraid] of emotions) {
   }
 }
 
-
 const fromRoot = (path: string) =>
   readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8')
 const store = fromRoot('stores/recruitArtStore.ts')

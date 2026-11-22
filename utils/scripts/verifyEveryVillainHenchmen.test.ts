@@ -594,7 +594,6 @@ console.log(
     ').',
 )
 
-
 const combatGroups = [
   ['burrow', 76658, 278823],
   ['phase', 76662, 278827],
@@ -633,4 +632,7 @@ assert.equal(
   null,
 )
 assert.match(page, /crewCombatReceipt\(unit, store\.state\.impact\)/)
-assert.match(page, /paintedArt\.ensure\(CREW_COMBAT_ART\[kind\]\[pose\]\.imageId\)/)
+assert.match(
+  page,
+  /paintedArt\.ensure\(CREW_COMBAT_ART\[kind\]\[pose\]\.imageId\)/,
+)

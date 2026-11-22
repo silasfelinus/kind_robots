@@ -3,11 +3,7 @@
  * DONE means ArtImage generated, not curator-approved or publicly published.
  */
 export type RecruitArtSlot =
-  | 'neutral'
-  | 'injured'
-  | 'joyous'
-  | 'angry'
-  | 'afraid'
+  'neutral' | 'injured' | 'joyous' | 'angry' | 'afraid'
 export type RecruitArtReceipt = {
   artJobId: number
   artImageId: number

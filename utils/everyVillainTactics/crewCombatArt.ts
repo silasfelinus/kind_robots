@@ -77,7 +77,8 @@ export const CREW_COMBAT_ART: Readonly<
       title: 'Licensed Legends idle pose',
     },
     strike: {
-      artKey: 'every-villain-tactics/henchmen/accident-birthright/combat/strike',
+      artKey:
+        'every-villain-tactics/henchmen/accident-birthright/combat/strike',
       jobId: 76667,
       imageId: 278832,
       title: 'Licensed Legends strike pose',
@@ -89,7 +90,8 @@ export const CREW_COMBAT_ART: Readonly<
       title: 'Licensed Legends hit pose',
     },
     defeat: {
-      artKey: 'every-villain-tactics/henchmen/accident-birthright/combat/defeat',
+      artKey:
+        'every-villain-tactics/henchmen/accident-birthright/combat/defeat',
       jobId: 76669,
       imageId: 278834,
       title: 'Licensed Legends defeat pose',

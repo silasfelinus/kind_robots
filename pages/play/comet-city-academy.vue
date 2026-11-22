@@ -1862,7 +1862,11 @@ function studentFace(id: StudentId, mood: string): KrHandChoice {
         : null) ??
       recruitArt.imageFor(
         id,
-        mood === 'positive' ? 'joyous' : mood === 'negative' ? 'angry' : 'neutral',
+        mood === 'positive'
+          ? 'joyous'
+          : mood === 'negative'
+            ? 'angry'
+            : 'neutral',
       ) ??
       promArt(studentArtKey(id) + '-' + mood) ??
       studentPortrait(id),
@@ -2292,7 +2296,11 @@ function reactionPortrait(id: StudentId, caseId: string): string | null {
     injury ??
     recruitArt.imageFor(
       id,
-      mood === 'positive' ? 'joyous' : mood === 'negative' ? 'afraid' : 'neutral',
+      mood === 'positive'
+        ? 'joyous'
+        : mood === 'negative'
+          ? 'afraid'
+          : 'neutral',
     ) ??
     promArt(studentArtKey(id) + '-' + mood) ??
     studentPortrait(id)

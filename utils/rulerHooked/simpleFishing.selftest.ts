@@ -138,10 +138,7 @@ for (let seed = 0; seed < 24; seed++) {
     seed % 2 ? 0 : 100,
   )
   for (let beat = 0; beat < 30 && !simpleFishingFinished(fight); beat++) {
-    fight = applySimpleReel(
-      fight,
-      fight.tension >= 65 ? 'RELEASE' : 'TAP',
-    )
+    fight = applySimpleReel(fight, fight.tension >= 65 ? 'RELEASE' : 'TAP')
   }
   assert.equal(
     fight.stage,

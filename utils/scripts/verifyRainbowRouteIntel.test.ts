@@ -117,6 +117,13 @@ const current = {
   medals: {},
 }
 assert.ok(readRainbowSave(current), 'four genuine past detours can be remembered')
+assert.equal(readRainbowSave(current)?.checkpoint.alternateRoutesSeen, 15)
+assert.deepEqual(
+  rainbowAlternateRouteLogbook(readRainbowSave(current)).map(
+    (route) => route.discovered,
+  ),
+  [true, true, true, true],
+)
 for (const mask of [-1, 16, 1.5, Number.NaN])
   assert.equal(
     readRainbowSave({
@@ -146,5 +153,13 @@ assert.ok(
     checkpoint: { ...checkpoint, alternateRoutesSeen: undefined },
   }),
   'legacy saves without the detour mask remain readable',
+)
+assert.equal(
+  readRainbowSave({
+    ...current,
+    checkpoint: { ...checkpoint, alternateRoutesSeen: undefined },
+  })?.checkpoint.alternateRoutesSeen,
+  undefined,
+  'a legacy slot must not invent branch history',
 )
 console.log('Rainbow route intel: passed')

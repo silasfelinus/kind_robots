@@ -57,3 +57,32 @@
   font-size: 10px;
   line-height: 1.35;
 }
+
+.chess-campaign-pacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+.chess-campaign .chess-campaign-pacts button {
+  justify-self: stretch;
+  text-align: left;
+  color: var(--ink);
+  border-color: #617a9a;
+  line-height: 1.3;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: normal;
+}
+.chess-campaign-pacts button[aria-pressed='true'] {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+.chess-campaign-pacts button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+@media (max-width: 440px) {
+  .chess-campaign-pacts {
+    grid-template-columns: 1fr;
+  }
+}

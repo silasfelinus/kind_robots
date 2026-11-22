@@ -6,6 +6,10 @@ on:
     paths:
       - 'utils/arcade/games/rainbowSunkenLighthouse.ts'
       - 'utils/scripts/verifyRainbowSunkenLighthouse.test.ts'
+      - 'utils/scripts/verifyRainbowLighthouseFlight.test.ts'
+      - 'utils/arcade/games/rainbowPrincessPreview.ts'
+      - 'utils/arcade/games/rainbowCheckpoints.ts'
+      - 'utils/arcade/games/rainbowLoadouts.ts'
       - '.github/workflows/rainbow-sunken-lighthouse.yml'
 
 permissions:
@@ -33,3 +37,5 @@ jobs:
         run: npx tsx utils/scripts/verifyRainbowSunkenLighthouse.test.ts
       - name: Verify solo and four-pilot Bellkeeper combat
         run: npx tsx utils/scripts/verifyRainbowLighthouseGuardian.test.ts
+      - name: Verify playable X3 route, checkpoint and one-to-four-pilot flight
+        run: npx tsx utils/scripts/verifyRainbowLighthouseFlight.test.ts

@@ -22,11 +22,58 @@ export const LIGHTHOUSE = {
   openingEnds: 240,
   turnStarts: 7320,
   bossStarts: 7680,
+  end: 7980,
   guardianFrom: 6690,
   guardianTo: 7320,
   guardianName: 'Drowned Bellkeeper',
   lampsToLight: 6,
+  lampWindowFrames: 90,
 } as const
+
+/** The cleared relay offers X3 through the upper corridor. A tied crew follows
+ * its lead pilot, and a locked route never silently opens. */
+export function lighthouseDetourFor(
+  positions: readonly number[],
+  unlocked: boolean,
+): boolean {
+  if (!unlocked || positions.length === 0) return false
+  const high = positions.filter((y) => y < 135).length
+  return (
+    high > positions.length / 2 ||
+    (high === positions.length / 2 && positions[0]! < 135)
+  )
+}
+
+/** A resumed X3 detour must prove it belonged to a genuinely silenced relay.
+ * Its clock cannot be smuggled into an unrelated Act VI checkpoint. */
+export function lighthouseCheckpointValid(
+  act: number,
+  frame: number,
+  c: {
+    lighthouseStartedAt?: number
+    lighthouseFrame?: number
+    reefRoute?: 'relay' | 'cache' | null
+    reefSettled?: boolean
+    pylonsDown?: number
+  },
+): boolean {
+  return (
+    act === 6 &&
+    lighthouseRouteUnlocked(
+      c.reefRoute ?? null,
+      c.reefSettled === true,
+      c.pylonsDown ?? 0,
+    ) &&
+    Number.isInteger(c.lighthouseStartedAt) &&
+    c.lighthouseStartedAt! > 0 &&
+    Number.isInteger(c.lighthouseFrame) &&
+    (c.lighthouseFrame === 0 ||
+      LIGHTHOUSE_SECTIONS.some(
+        (section) => section.from === c.lighthouseFrame,
+      )) &&
+    frame === c.lighthouseStartedAt! + c.lighthouseFrame!
+  )
+}
 
 export const LIGHTHOUSE_GUARDIAN: RainbowGuardianSection = {
   name: LIGHTHOUSE.guardianName,
@@ -105,6 +152,7 @@ export const LIGHTHOUSE_WAVES: readonly LighthouseWave[] = [
   // A gentle recovery corridor preserves a clean path to the fifth light.
   wave(4260, 'mirror', 'single', 1, 0.25),
   wave(4560, 'squid', 'single', 1, 0.67),
+  wave(4680, 'mirror', 'single', 1, 0.28),
   wave(4830, 'mirror', 'pair', 2, 0.44),
   wave(5130, 'prism', 'single', 1, 0.72),
   wave(5310, 'mirror', 'single', 1, 0.3),
@@ -178,6 +226,26 @@ export function lighthouseSpawns(frame: number): readonly LighthouseSpawn[] {
 
 export function lighthouseLampAt(frame: number) {
   return LIGHTHOUSE_LAMPS.find((lamp) => lamp.at === frame) ?? null
+}
+
+/** A real lamp stays collectible for 90 frames after its appearance. The beam
+ * is telegraphed in advance; bitmask ownership prevents double rewards. */
+export function lighthouseCollectibleLamp(frame: number, mask: number) {
+  if (
+    !Number.isInteger(frame) ||
+    !Number.isInteger(mask) ||
+    mask < 0 ||
+    mask >= 1 << LIGHTHOUSE.lampsToLight
+  )
+    return null
+  return (
+    LIGHTHOUSE_LAMPS.find(
+      (lamp, index) =>
+        frame >= lamp.at &&
+        frame < lamp.at + LIGHTHOUSE.lampWindowFrames &&
+        (mask & (1 << index)) === 0,
+    ) ?? null
+  )
 }
 
 /** A six-bit mask survives retries; collecting the same lamp twice is inert. */

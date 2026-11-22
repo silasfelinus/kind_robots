@@ -22,6 +22,8 @@ export const LAYOUT_SUNFLOWER = 'S'
 export const LAYOUT_EXIT = 'E'
 /** Leaves cover targets and soak a beam before a gust shuffles them. */
 export const LAYOUT_LEAF = 'L'
+/** A pumpkin patch grows two-cell obstacles from these authored seed positions. */
+export const LAYOUT_PUMPKIN = 'P'
 
 type ObjectiveText = { title: string; hint: string; bonus: number }
 export type GardenObjective =
@@ -35,6 +37,8 @@ export type GardenObjective =
   | (ObjectiveText & { kind: 'escort-bees'; count: number })
   /** Clear the autumn leaf piles from the flowerbed. */
   | (ObjectiveText & { kind: 'clear-leaves'; count: number })
+  /** Crack the oversized rolling pumpkin before fixing the wave. */
+  | (ObjectiveText & { kind: 'great-pumpkin' })
 
 export type GardenWave = {
   /** Segments in the main glitch-worm, head included. */
@@ -58,11 +62,15 @@ export type GardenWave = {
   wasp: boolean
   /** Movable leaf piles that soak one shot each, in autumn gardens. */
   leaves: number
+  /** Seeded pumpkins, rolling pumpkin foes and slow-down inchworms. */
+  pumpkins: number
+  rollers: number
+  inchworms: number
   sub: string
   objective?: GardenObjective
 }
 
-export type BossId = 'queen-wiggle' | 'mow-bot'
+export type BossId = 'queen-wiggle' | 'mow-bot' | 'gourd-hydra'
 
 export type Boss = {
   id: BossId
@@ -87,6 +95,13 @@ export const BOSSES: Record<BossId, Boss> = {
     sub: 'FIX ITS THREE FUEL CAPS',
     thanks: 'MOW-BOT PARKS AND TIDIES UP',
     bonus: 12_000,
+  },
+  'gourd-hydra': {
+    id: 'gourd-hydra',
+    name: 'THE GOURD HYDRA',
+    sub: 'SHINE ON THE LIT PUMPKIN HEAD',
+    thanks: 'THREE FRIENDLY VINES TAKE ROOT',
+    bonus: 15_000,
   },
 }
 
@@ -127,6 +142,9 @@ function wave(
     bees: 0,
     wasp: false,
     leaves: 0,
+    pumpkins: 0,
+    rollers: 0,
+    inchworms: 0,
     ...parts,
   }
 }
@@ -697,12 +715,140 @@ export const LEAF_PILE_LANE: Garden = {
   ],
 }
 
+/** Autumn 6: giant gourds hide the garden's lamps and roll into the flowerbed. */
+export const PUMPKIN_PATCH: Garden = {
+  id: 'pumpkin-patch',
+  name: 'PUMPKIN PATCH',
+  season: 'autumn',
+  boss: 'gourd-hydra',
+  intro: [
+    'CRACK THE PUMPKINS TO PLANT SPROUTS',
+    'FIX AN INCHWORM TO SLOW THE GLITCH',
+  ],
+  layout: [
+    '..............................',
+    '..............................',
+    '...o.........o..........o.....',
+    '..............................',
+    '........o...........o.........',
+    '.....P........................',
+    '..o............o...........o..',
+    '..................P...........',
+    '..............................',
+    '.....o.....o........o.....o...',
+    '...............C..............',
+    '..............................',
+    '..o......o.......o......o.....',
+    '..........P...................',
+    '.......................P......',
+    '..............................',
+    '......o......o.........o......',
+    '..............................',
+    '...........................C..',
+    '...o...........o..........o...',
+    '..............................',
+    '......P.......................',
+    '..............................',
+    '........o..........o..........',
+    '....................P.........',
+    '.........C....................',
+    '............P.................',
+    '....o...........o........o....',
+    '.........................P....',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+    '..............................',
+  ],
+  waves: [
+    wave({
+      segments: 9,
+      heads: 5,
+      speed: 2.8,
+      beetleEvery: 390,
+      moth: true,
+      snail: true,
+      crawlers: true,
+      cans: 1,
+      pumpkins: 3,
+      inchworms: 1,
+      sub: 'SEEDS UNDER THE SHELL',
+    }),
+    wave({
+      segments: 9,
+      heads: 6,
+      speed: 2.85,
+      beetleEvery: 375,
+      moth: true,
+      snail: true,
+      crawlers: true,
+      cans: 1,
+      pumpkins: 4,
+      inchworms: 1,
+      rollers: 1,
+      sub: 'THE FIRST ROLLER',
+    }),
+    wave({
+      segments: 8,
+      heads: 6,
+      speed: 2.9,
+      beetleEvery: 360,
+      moth: true,
+      crawlers: true,
+      cans: 2,
+      pumpkins: 2,
+      rollers: 1,
+      inchworms: 1,
+      sub: 'GREAT PUMPKIN',
+      objective: {
+        kind: 'great-pumpkin',
+        title: 'GREAT PUMPKIN!',
+        hint: 'CRACK THE ROLLING GIANT',
+        bonus: 5000,
+      },
+    }),
+    wave({
+      segments: 8,
+      heads: 6,
+      speed: 3,
+      beetleEvery: 345,
+      moth: true,
+      snail: true,
+      crawlers: true,
+      cans: 1,
+      pumpkins: 6,
+      rollers: 2,
+      inchworms: 1,
+      sub: 'A PATCH IN MOTION',
+    }),
+    wave({
+      segments: 7,
+      heads: 7,
+      speed: 3.1,
+      beetleEvery: 325,
+      moth: true,
+      snail: true,
+      crawlers: true,
+      cans: 1,
+      dragonflies: 1,
+      pumpkins: 7,
+      rollers: 2,
+      inchworms: 2,
+      sub: 'AUTUMN TAKES ROOT',
+    }),
+  ],
+}
+
 export const GARDENS: readonly Garden[] = [
   KITCHEN_PLOT,
   ORCHARD_ROWS,
   SUNFLOWER_MAZE,
   LILY_POND,
   LEAF_PILE_LANE,
+  PUMPKIN_PATCH,
 ]
 
 /** The wave's plan: authored, or past the end a remix of the garden's last wave. */

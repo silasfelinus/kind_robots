@@ -129,6 +129,17 @@ export const GARDEN_LOOKS: Record<string, GardenLook> = {
     soil: [mix(RAMPS.earth[1], RAMPS.rust[0], 0.45), RAMPS.earth[1]],
     edging: RAMPS.rust,
   },
+  'pumpkin-patch': {
+    lawn: [
+      mix(RAMPS.night[1], RAMPS.rust[1], 0.55),
+      mix(RAMPS.leaf[0], RAMPS.earth[2], 0.7),
+      mix(RAMPS.rust[1], RAMPS.earth[1], 0.45),
+      mix(RAMPS.leaf[1], RAMPS.gold[1], 0.5),
+    ],
+    stripe: RAMPS.ember[2],
+    soil: [mix(RAMPS.rust[0], RAMPS.earth[1], 0.65), RAMPS.earth[1]],
+    edging: RAMPS.ember,
+  },
   'lily-pond': {
     lawn: [
       mix(RAMPS.night[1], RAMPS.teal[0], 0.6),

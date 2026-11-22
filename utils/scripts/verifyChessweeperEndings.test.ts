@@ -17,11 +17,12 @@ const manifest = JSON.parse(read('../../public/chessweeper/art-pack.json')) as {
 }
 
 type Ending = { id: string; title: string; hint: string; prose: string[] }
+type World = 'sugar' | 'ashen' | 'jackpot'
 type Api = {
-  CATALOG: Record<string, Ending[]>
+  CATALOG: Record<World, Ending[]>
   ORDER: string[]
-  PACT_LINES: Record<string, string[]>
-  FINALE_LINES: Record<string, { win: string; lose: string }>
+  PACT_LINES: Record<World, [string, string]>
+  FINALE_LINES: Record<World, { win: string; lose: string }>
   classify: (type: string, reason: string) => string
   plate: (world: string, id: string) => string
   consequence: (context: Record<string, unknown>) => string[]
@@ -34,7 +35,7 @@ runInNewContext(endingsJs, { ...sandbox, document: {} })
 const api = sandbox.window.ChessweeperEndings as Api
 assert.ok(api, 'endings.js exposes window.ChessweeperEndings')
 
-const worlds = ['sugar', 'ashen', 'jackpot']
+const worlds: World[] = ['sugar', 'ashen', 'jackpot']
 assert.deepEqual(Object.keys(api.CATALOG), worlds)
 assert.equal(api.total(), 12, 'twelve endings in total')
 const titles = new Set<string>()
@@ -110,10 +111,11 @@ assert.ok(
 )
 
 // Wiring: load order, scrapbook reuse, achievements and campaign events.
-const order = ['endings.js', 'progression.js', 'campaign.js'].map((file) =>
-  page.indexOf(`/chessweeper/${file}`),
-)
-assert.ok(order[0] > 0 && order[0] < order[1] && order[1] < order[2])
+const at = (file: string) => page.indexOf(`/chessweeper/${file}`)
+const endingsAt = at('endings.js')
+const progressionAt = at('progression.js')
+assert.ok(endingsAt > 0 && endingsAt < progressionAt)
+assert.ok(progressionAt < at('campaign.js'))
 assert.ok(page.includes('/chessweeper/endings.css'))
 assert.ok(progression.includes('window.ChessweeperEndings'))
 assert.ok(

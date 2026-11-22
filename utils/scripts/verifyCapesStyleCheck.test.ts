@@ -7,6 +7,12 @@ import {
   capesProductionFor,
 } from '../capesProductionArt'
 import { readFileSync } from 'node:fs'
+import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
+import {
+  identityArtCandidateKeys,
+  identityArtwork,
+} from '../cometAcademy/artSlots'
+import { promArt } from '../cometAcademy/artManifest'
 import {
   CAPES_STYLE_CRITERIA,
   CAPES_STYLE_DESIGNER,
@@ -177,10 +183,30 @@ assert.match(atlas, /IDENTITY_ARCS/)
 assert.match(atlas, /henchmanForVillain/)
 assert.match(atlas, /data-testid="capes-henchman-poster"/)
 assert.match(atlas, /data-testid="capes-lieutenant-poster"/)
-assert.match(atlas, /promArt\(group \+/)
 assert.match(atlas, /campaignStagesFor/)
-// Atlas cards resolve canonical identity art first, then shipped outcome paintings.
-assert.match(atlas, /identityArtwork\(signature, role\)/)
+// The atlas must resolve actual shipped files through the canonical identity
+// resolver, not a particular source-level call shape or component refactor.
+const shipped = { hero: 0, villain: 0 }
+const canonSafe = { hero: 0, villain: 0 }
+assert.equal(IDENTITY_ARCS.length, 48)
+for (const identity of IDENTITY_ARCS) {
+  for (const role of ['hero', 'villain'] as const) {
+    const delivered = identityArtCandidateKeys(identity.signature, role)
+      .map((key) => promArt(key))
+      .filter((url): url is string => Boolean(url))
+    if (delivered.length) shipped[role]++
+    const resolved = identityArtwork(identity.signature, role)
+    if (resolved) {
+      canonSafe[role]++
+      assert.ok(
+        delivered.includes(resolved),
+        identity.signature + '/' + role + ' must resolve a shipped file',
+      )
+    }
+  }
+}
+assert.deepEqual(shipped, { hero: 48, villain: 47 })
+assert.deepEqual(canonSafe, { hero: 47, villain: 46 })
 assert.match(atlas, /Not attached/)
 assert.match(atlas, /48 PERMANENT CHARACTERS/)
 

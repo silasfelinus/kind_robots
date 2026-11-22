@@ -182,8 +182,8 @@ export function cometCheckpointValid(
     c.cometHits! <= 999 &&
     (c.cometGuardianOutcome === 'waiting' ||
       c.cometGuardianOutcome === 'defeated' ||
-      c.cometGuardianOutcome === 'escaped')
-    && (c.cometFrame! >= COMET.guardianFrom ||
+      c.cometGuardianOutcome === 'escaped') &&
+    (c.cometFrame! >= COMET.guardianFrom ||
       c.cometGuardianOutcome === 'waiting')
   )
 }

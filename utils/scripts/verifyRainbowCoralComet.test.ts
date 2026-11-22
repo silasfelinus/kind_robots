@@ -121,8 +121,7 @@ assert.equal(cometFullWing(mask), true)
 assert.equal(cometFullWing(mask ^ 1), false)
 for (const frame of [0, ...COMET_SECTIONS.map((section) => section.from)]) {
   const eligible = COMET_CADETS.reduce(
-    (mask, cadet, index) =>
-      cadet.at <= frame ? mask | (1 << index) : mask,
+    (mask, cadet, index) => (cadet.at <= frame ? mask | (1 << index) : mask),
     0,
   )
   assert.equal(cometMaskFitsFrame(frame, eligible), true)

@@ -102,6 +102,9 @@
   ]
   const DEFAULTS = {
     sound: true,
+    music: true,
+    musicVolume: 0.32,
+    effectsVolume: 0.58,
     motion: true,
     contrast: false,
     telegraph: true,
@@ -148,7 +151,6 @@
     )
   const seen = new WeakSet()
   let saveSignature = ''
-  let audio = null
   const write = () => {
     try {
       localStorage.setItem(KEY, JSON.stringify(profile))
@@ -156,18 +158,11 @@
   }
   function tone(frequency = 600) {
     if (!profile.settings.sound) return
-    try {
-      audio = audio || new (window.AudioContext || window.webkitAudioContext)()
-      const oscillator = audio.createOscillator()
-      const gain = audio.createGain()
-      oscillator.type = 'sine'
-      oscillator.frequency.value = frequency
-      gain.gain.setValueAtTime(0.06, audio.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.12)
-      oscillator.connect(gain).connect(audio.destination)
-      oscillator.start()
-      oscillator.stop(audio.currentTime + 0.13)
-    } catch {}
+    window.dispatchEvent(
+      new CustomEvent('chessweeper:sound', {
+        detail: { kind: 'achievement', frequency },
+      }),
+    )
   }
   function notify(message) {
     const existing = document.querySelector('.meta-toast')
@@ -316,6 +311,10 @@
     const resume = $$('meta-continue')
     if (resume) resume.hidden = !profile.saves[world] || s.turns > 0
   }
+  const safeVolume = (value, fallback) =>
+    Number.isFinite(Number(value))
+      ? Math.max(0, Math.min(1, Number(value)))
+      : fallback
   function applySettings() {
     document.documentElement.classList.toggle(
       'meta-motion-off',
@@ -328,6 +327,16 @@
     document.documentElement.classList.toggle(
       'meta-hints-off',
       !profile.settings.telegraph,
+    )
+    window.dispatchEvent(
+      new CustomEvent('chessweeper:settings', {
+        detail: {
+          sound: !!profile.settings.sound,
+          music: !!profile.settings.music,
+          musicVolume: safeVolume(profile.settings.musicVolume, 0.32),
+          effectsVolume: safeVolume(profile.settings.effectsVolume, 0.58),
+        },
+      }),
     )
   }
   function card(icon, title, detail, unlocked) {
@@ -377,6 +386,7 @@
       '<p class="meta-intro">Accessibility and audio preferences are saved on this device.</p>'
     const opts = [
       ['sound', 'Sound effects'],
+      ['music', 'Original background music'],
       ['motion', 'Animated sawblades and transitions'],
       ['contrast', 'High contrast'],
       ['telegraph', 'Show predicted blade paths'],
@@ -390,6 +400,19 @@
         '"' +
         (profile.settings[key] ? ' checked' : '') +
         ' /></label>'
+    for (const [key, label] of [
+      ['musicVolume', 'Music volume'],
+      ['effectsVolume', 'Effects volume'],
+    ]) {
+      html +=
+        '<label class="meta-line"><span>' +
+        esc(label) +
+        '</span><input type="range" data-volume="' +
+        key +
+        '" min="0" max="1" step="0.05" value="' +
+        safeVolume(profile.settings[key], key === 'musicVolume' ? 0.32 : 0.58) +
+        '" /></label>'
+    }
     return (
       html +
       '<p class="meta-warning">Progress is stored locally in this browser, not synchronized to your Kind Robots account. Clearing browser data deletes this archive.</p>'
@@ -508,6 +531,16 @@
       applySettings()
       tone(720)
     }
+  })
+  dialog.addEventListener('input', (e) => {
+    if (!e.target.matches('[data-volume]')) return
+    const key = e.target.dataset.volume
+    profile.settings[key] = safeVolume(
+      e.target.value,
+      key === 'musicVolume' ? 0.32 : 0.58,
+    )
+    write()
+    applySettings()
   })
   document.querySelectorAll('[data-realm]').forEach((button) =>
     button.addEventListener('click', () => {

@@ -548,11 +548,13 @@
             </button>
             <button
               type="button"
-              class="cap-reset"
+              class="cap-reset cap-menu-button"
               data-testid="space-couch-return-menu"
+              aria-label="Menu"
               @click="openCouchMenu"
             >
-              MENU
+              <span class="cap-menu-glyph" aria-hidden="true">☰</span
+              ><span class="cap-menu-label">MENU</span>
             </button>
             <button
               v-if="run"
@@ -3107,10 +3109,14 @@ function toggleAway(id: CrewId) {
 .cap-toolbar {
   flex: 1 1 auto;
   min-width: 0;
+  /* Its own size container: the Kit bar leaves it 75-320px, and its
+     contents need ~410px, so it sheds items by its own width. */
+  container: cap-toolbar / inline-size;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0 0.25rem 0 0.5rem;
+  padding: 0 0.15rem;
   color: var(--color-base-content);
   font-family: system-ui, sans-serif;
   font-size: 0.64rem;
@@ -3180,7 +3186,7 @@ function toggleAway(id: CrewId) {
 .cap-reset:hover {
   background: var(--color-base-300);
 }
-@container (max-width: 760px) {
+@container cap-toolbar (max-width: 420px) {
   .cap-flight {
     display: none;
   }
@@ -3188,21 +3194,47 @@ function toggleAway(id: CrewId) {
     margin-left: auto;
   }
 }
-@container (max-width: 560px) {
+@container cap-toolbar (max-width: 310px) {
   .cap-wordmark {
     display: none;
   }
   .cap-signal-label {
     display: none;
   }
+  .cap-wordmark + .cap-actions,
+  .cap-actions {
+    margin-left: auto;
+  }
 }
-@container (max-width: 440px) {
-  .cap-toolbar {
-    gap: 0.3rem;
-    padding-left: 0.25rem;
+/* NEW VOYAGE stays reachable from MENU. */
+@container cap-toolbar (max-width: 200px) {
+  .cap-new-voyage {
+    display: none;
+  }
+}
+@container cap-toolbar (max-width: 120px) {
+  .cap-reset {
+    padding: 0.3rem 0.4rem;
     font-size: 0.56rem;
   }
-  .cap-new-voyage {
+}
+.cap-menu-glyph {
+  display: none;
+}
+/* A phone leaves the toolbar about one icon wide: MENU becomes a glyph. */
+@container cap-toolbar (max-width: 70px) {
+  .cap-hud-row {
+    display: none;
+  }
+  .cap-menu-button {
+    padding: 0.25rem 0.3rem;
+  }
+  .cap-menu-glyph {
+    display: inline;
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+  .cap-menu-label {
     display: none;
   }
 }

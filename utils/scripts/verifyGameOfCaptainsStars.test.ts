@@ -1100,3 +1100,21 @@ assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))
   )
   assert.ok(page.includes('<SpaceCouchCaptainGallery'))
 }
+
+// Live 1440 walkthrough (2026-11-22 PT): the Kit bar leaves the Space Couch
+// toolbar ~75-320px, so it is its own container and sheds items instead of
+// spilling under the pane icons; meter fills never run past their bar.
+{
+  assert.ok(page.includes('container: cap-toolbar / inline-size;'))
+  assert.ok(page.includes('@container cap-toolbar (max-width: 200px)'))
+  assert.ok(page.includes('class="cap-menu-glyph" aria-hidden="true"'))
+  assert.ok(page.includes('aria-label="Menu"'))
+  const shell = readFileSync(
+    new URL(
+      '../../components/playbook-kit/playbook-kit-shell.vue',
+      import.meta.url,
+    ),
+    'utf8',
+  )
+  assert.ok(shell.includes('Math.min(1, Math.max(0, share))'))
+}

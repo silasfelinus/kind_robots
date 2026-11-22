@@ -149,6 +149,7 @@ export const LIGHTHOUSE_WAVES: readonly LighthouseWave[] = [
   // A gentle recovery corridor preserves a clean path to the fifth light.
   wave(4260, 'mirror', 'single', 1, 0.25),
   wave(4560, 'squid', 'single', 1, 0.67),
+  wave(4680, 'mirror', 'single', 1, 0.28),
   wave(4830, 'mirror', 'pair', 2, 0.44),
   wave(5130, 'prism', 'single', 1, 0.72),
   wave(5310, 'mirror', 'single', 1, 0.3),

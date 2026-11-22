@@ -51,7 +51,8 @@ export function weatherForVolley(
   wave: RainWave,
   sequence: number,
 ): RainWeather {
-  if (sequence % 5 === 0 && wave.rainShare > 0) return 'rain'
+  const roll = ((Math.abs(sequence) * 37 + wave.number * 13) % 100) / 100
+  if (roll < wave.rainShare) return 'rain'
   const hazards = wave.threatMix.filter((kind) => kind !== 'rain')
   return hazards[Math.abs(sequence) % hazards.length] ?? 'hail'
 }

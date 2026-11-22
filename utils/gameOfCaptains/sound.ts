@@ -669,21 +669,20 @@ export class CouchSound {
       osc.frequency.value = midiToHz(note)
       let peak = event.velocity
       let attack = 0.01
-      let release = dur
+      const release =
+        dur *
+        (event.voice === 'pad' ? 1.05 : event.voice === 'bass' ? 0.9 : 1.6)
       if (event.voice === 'pad') {
         osc.type = 'triangle'
         peak *= 0.045
         attack = 0.35
-        release = dur * 1.05
       } else if (event.voice === 'bass') {
         osc.type = 'sine'
         peak *= 0.32
-        release = dur * 0.9
       } else {
         // A vibraphone-ish lead: a sine with a soft overtone and tremolo.
         osc.type = 'sine'
         peak *= 0.14
-        release = dur * 1.6
         const over = ctx.createOscillator()
         const overGain = ctx.createGain()
         over.frequency.value = midiToHz(note) * 4

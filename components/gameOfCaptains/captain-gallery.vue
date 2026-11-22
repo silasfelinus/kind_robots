@@ -103,13 +103,17 @@
             {{ active.cost }}
           </p>
         </template>
-        <template v-else-if="tab === 'history'">
+        <section
+          v-else-if="tab === 'history'"
+          class="scg-promise"
+          data-testid="couch-captain-promise"
+        >
           <p class="scg-hook">{{ dossier.hook }}</p>
           <p>{{ dossier.history }}</p>
           <p>{{ dossier.oddity }}</p>
           <p><b>Your kind of trouble:</b> {{ dossier.storyPromise }}</p>
           <p class="scg-muted">{{ dossier.crewSpark }}</p>
-        </template>
+        </section>
         <template v-else>
           <p><b>First order:</b> {{ dossier.opening }}</p>
           <p><b>Unresolved liability:</b> {{ dossier.liability }}</p>

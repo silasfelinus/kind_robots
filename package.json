@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "test:emperor-legacy": "tsx tests/emperorLegacy.test.ts",
+    "test:emperor-audio": "tsx utils/scripts/verifyEmperorAudio.test.ts",
     "test:tarot-studio": "tsx utils/scripts/verifyTarotStudio.test.ts",
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",

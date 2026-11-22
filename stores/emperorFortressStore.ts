@@ -78,23 +78,32 @@ import {
 } from '~/utils/emperorOfDust/fortress/scrapbook'
 import type { ReignMemory } from '~/utils/emperorOfDust/fortress/scrapbook'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
+import {
+  DEFAULT_EMPEROR_AUDIO_PREFS,
+  cleanEmperorAudioPref,
+  isEmperorAudioPrefKey,
+  readEmperorAudioPrefs,
+} from '~/utils/emperorOfDust/audio/prefs'
+import type { EmperorAudioPrefs } from '~/utils/emperorOfDust/audio/prefs'
 
 // Emperor of Dust v0.3 (Fortress), conductor SYSTEMS-V03.md.
 export type TextSpeed = 'normal' | 'fast' | 'instant'
 export type ReadingSize = 'comfortable' | 'large' | 'extra-large'
+/** Reading, display and (t-073) sound settings, one stored object. */
 export type FortressPreferences = {
   readingSize: ReadingSize
   readingFont: 'serif' | 'sans'
   readingWidth: 'balanced' | 'wide'
   contrast: 'standard' | 'high'
   motion: 'system' | 'reduced'
-}
+} & EmperorAudioPrefs
 export const DEFAULT_FORTRESS_PREFERENCES: FortressPreferences = {
   readingSize: 'comfortable',
   readingFont: 'serif',
   readingWidth: 'balanced',
   contrast: 'standard',
   motion: 'system',
+  ...DEFAULT_EMPEROR_AUDIO_PREFS,
 }
 const TEXT_SPEEDS: readonly TextSpeed[] = ['normal', 'fast', 'instant']
 const SPEED_KEY = 'kr-emperor-of-dust-text-speed'
@@ -106,6 +115,7 @@ const VALID_PREFERENCES = {
   contrast: ['standard', 'high'],
   motion: ['system', 'reduced'],
 } as const
+type ReadingKey = keyof typeof VALID_PREFERENCES
 function parsePreferences(raw: string | null | undefined): FortressPreferences {
   if (!raw) return { ...DEFAULT_FORTRESS_PREFERENCES }
   try {
@@ -113,16 +123,19 @@ function parsePreferences(raw: string | null | undefined): FortressPreferences {
     if (!obj || typeof obj !== 'object' || Array.isArray(obj))
       return { ...DEFAULT_FORTRESS_PREFERENCES }
     const record = obj as Record<string, unknown>
-    const result = { ...DEFAULT_FORTRESS_PREFERENCES }
-    for (const key of Object.keys(
-      VALID_PREFERENCES,
-    ) as (keyof FortressPreferences)[]) {
+    // Sound settings (t-073) joined this object later: an older stored value
+    // has none of them and reads as the defaults; bad values fall back alone.
+    const result: FortressPreferences = {
+      ...DEFAULT_FORTRESS_PREFERENCES,
+      ...readEmperorAudioPrefs(record),
+    }
+    for (const key of Object.keys(VALID_PREFERENCES) as ReadingKey[]) {
       const value = record[key]
       if (
         typeof value === 'string' &&
         (VALID_PREFERENCES[key] as readonly string[]).includes(value)
       )
-        (result as Record<string, string>)[key] = value
+        (result as Record<string, unknown>)[key] = value
     }
     return result
   } catch {
@@ -301,8 +314,18 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     key: K,
     value: FortressPreferences[K],
   ) {
-    if (!(VALID_PREFERENCES[key] as readonly string[]).includes(value)) return
-    preferences.value = { ...preferences.value, [key]: value }
+    let clean: unknown
+    if (isEmperorAudioPrefKey(key)) {
+      clean = cleanEmperorAudioPref(key, value)
+      if (clean === undefined) return
+    } else if (
+      (VALID_PREFERENCES[key as ReadingKey] as readonly unknown[]).includes(
+        value,
+      )
+    )
+      clean = value
+    else return
+    preferences.value = { ...preferences.value, [key]: clean }
     write(PREFERENCES_KEY, JSON.stringify(preferences.value))
   }
 

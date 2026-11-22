@@ -892,6 +892,38 @@ const alive = (game: Game) => game.clouds.filter((c) => c.alive)
     hiScore: 0,
   }) as unknown as Game & { save: unknown }
   assert.equal(spectator.save, null, 'attract mode cannot write a save')
+
+  const challenge = gloomInvaders.create({
+    rng: mulberry32(24),
+    sound: quiet,
+    demo: false,
+    hiScore: 0,
+  }) as unknown as Game & {
+    water(x: number): void
+    clearWave(): void
+    umbrellaCell(x: number, y: number): unknown
+  }
+  challenge.chooseMode('calendar')
+  challenge.startWave(2)
+  for (let i = 0; i < 5; i++) challenge.water(plotCenter(i))
+  const before = challenge.score
+  challenge.clearWave()
+  assert.equal(
+    challenge.score - before,
+    700,
+    'March First Shoots grants 500 for five uniquely watered plots',
+  )
+  challenge.startWave(10)
+  const shieldX = Array.from({ length: W }, (_, i) => i).find((x) =>
+    challenge.umbrellaCell(x, 304),
+  )
+  assert.notEqual(shieldX, undefined, 'umbrellas are intact in June front 1')
+  challenge.startWave(11)
+  assert.equal(
+    challenge.umbrellaCell(shieldX!, 304),
+    null,
+    'June Brownout removes ordinary umbrella protection',
+  )
 }
 
 console.log('gloom invaders weather and garden + spring/summer calendar: ok')

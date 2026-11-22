@@ -15,7 +15,7 @@ import gloomInvaders, {
   LANCE_CHARGE,
   SWOOP_TICKS,
   swoopPoint,
-  type GloomMode,
+  type GloomInvadersGame,
 } from '../arcade/games/gloomInvaders'
 import {
   BERRY_AT,
@@ -29,7 +29,7 @@ import {
   waterPlot,
   wiltPlot,
 } from '../arcade/gloomInvaders/garden'
-import type { HelperKind, Plot } from '../arcade/gloomInvaders/garden'
+import type { HelperKind } from '../arcade/gloomInvaders/garden'
 import {
   CELL_H,
   CLASSIC_FRONT,
@@ -56,65 +56,21 @@ import {
   weatherFront,
   zigzag,
 } from '../arcade/gloomInvaders/weather'
-import type {
-  CloudKind,
-  Drop,
-  FormationSpec,
-} from '../arcade/gloomInvaders/weather'
+import type { FormationSpec } from '../arcade/gloomInvaders/weather'
 import {
   SPRING_SUMMER_FRONTS,
   calendarFront,
 } from '../arcade/gloomInvaders/calendar'
 import { readGloomCalendarSave } from '../arcade/gloomInvaders/calendarSave'
 import { parseLoop } from '../arcade/sound'
-import type { MusicLoop } from '../arcade/sound'
 import { emptyInput } from '../arcade/types'
-import type { InputFrame } from '../arcade/types'
 
-type Cloud = {
-  kind: CloudKind
-  row: number
-  col: number
-  alive: boolean
-  hp: number
-  x: number
-  y: number
-  w: number
-  h: number
-  hx: number
-  hy: number
-  tell: number
-  tellKind: string | null
-  dive: { phase: 'tell' | 'swoop'; t: number; targetX: number } | null
-  half: number
-  pair: number
-}
-type Game = {
-  score: number
-  lives: number
-  level: number
-  over: boolean
-  mode: GloomMode
-  menu: { cursor: number } | null
-  front: { id: string; formation: FormationSpec }
-  clouds: Cloud[]
-  drops: Drop[]
-  strikes: Array<{ x: number; tell: number; flash: number; stopY: number }>
-  plots: Plot[]
-  helperBeams: Array<{ pierce: boolean }>
-  beam: { pierce: boolean; half: number } | null
-  charge: number
-  px: number
-  stepEvery: number
+type Cloud = GloomInvadersGame['clouds'][number]
+type Game = GloomInvadersGame & {
   dead: number
-  music: MusicLoop | null
-  update(input: InputFrame): void
-  render(g: CanvasRenderingContext2D): void
   startWave(wave: number): void
-  chooseMode(mode: GloomMode): void
   cheer(cloud: Cloud): void
   damage(cloud: Cloud): void
-  demoInput(): InputFrame
   layout(): void
 }
 

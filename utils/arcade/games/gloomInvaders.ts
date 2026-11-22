@@ -2787,6 +2787,8 @@ export function swoopPoint(
   }
 }
 
+export type GloomInvadersGame = Pick<GloomInvaders, keyof GloomInvaders>
+
 const gloomInvaders: ArcadeGameModule = {
   create: (options) => new GloomInvaders(options),
 }

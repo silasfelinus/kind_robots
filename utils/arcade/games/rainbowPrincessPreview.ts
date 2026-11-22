@@ -120,6 +120,23 @@ import {
   type RosefinSceneId,
 } from './rainbowRosefin'
 import {
+  COMET,
+  COMET_CADETS,
+  COMET_GUARDIAN,
+  COMET_SECTIONS,
+  COMET_TALKS,
+  COMET_WAVES,
+  COMET_WAVE_SIZES,
+  cometCadetAvailable,
+  cometCadetX,
+  cometCheckpointValid,
+  cometDetourFor,
+  cometFullWing,
+  cometPhase,
+  cometSpawns,
+  rescueCometCadet,
+} from './rainbowCoralComet'
+import {
   DELPHION,
   DELPHION_MAX_HP,
   createDelphionBoss,
@@ -529,6 +546,8 @@ function actCheckpointFrames(act: RainbowCheckpoint['act']): readonly number[] {
 }
 /** What the CONTINUE? screen and the flight log call a checkpoint: its section, the boss or the Act start. */
 function checkpointName(c: Readonly<RainbowCheckpoint>): string {
+  if (c.cometFrame !== undefined)
+    return checkpointLabel(COMET_SECTIONS, COMET_GUARDIAN.from, c.cometFrame)
   if (c.nurseryFrame !== undefined)
     return checkpointLabel(
       NURSERY_FLIGHT_SECTIONS,
@@ -586,7 +605,8 @@ export function isRainbowCheckpoint(
     (act > 1 || frame > 0) &&
     (actCheckpointFrames(act as RainbowCheckpoint['act']).includes(frame) ||
       (c !== undefined &&
-        (nurseryFlightCheckpointValid(act, frame, c) ||
+        (cometCheckpointValid(act, frame, c) ||
+          nurseryFlightCheckpointValid(act, frame, c) ||
           lighthouseCheckpointValid(act, frame, c) ||
           mirrorShoalCheckpointValid(act, frame, c))))
   )
@@ -1014,6 +1034,7 @@ export type RainbowCombatSnapshot = {
     | 'S08'
     | 'S09'
     | 'X1'
+    | 'X2'
     | 'X3'
     | 'X4'
   stage:
@@ -1027,6 +1048,7 @@ export type RainbowCombatSnapshot = {
     | ReturnType<typeof lighthouseStage>
     | ReturnType<typeof mirrorShoalStage>
     | ReturnType<typeof nurseryFlightPhase>
+    | ReturnType<typeof cometPhase>
     | ReturnType<typeof palaceStage>
     | ReturnType<typeof finaleStage>
   sceneId:
@@ -1045,6 +1067,9 @@ export type RainbowCombatSnapshot = {
     | 'X1.OPEN'
     | 'X1.TURN'
     | 'X1.AFTER'
+    | 'X2.OPEN'
+    | 'X2.TURN'
+    | 'X2.AFTER'
     | 'X3.OPEN'
     | 'X3.TURN'
     | 'X3.AFTER'
@@ -1069,6 +1094,11 @@ export type RainbowCombatSnapshot = {
   nurseryGuardianOutcome: GuardianOutcome
   nurseryFrame: number | null
   nurseryHits: number
+  cometFrame: number | null
+  cometCadetsMask: number
+  cometGuardianOutcome: GuardianOutcome
+  cometHits: number
+  cadetsHome: boolean
   armoryGuardianOutcome: GuardianOutcome
   pearlWardenOutcome: GuardianOutcome
   shoalGuardianOutcome: GuardianOutcome
@@ -1236,6 +1266,11 @@ export function createRainbowPrincessPreview(
   let rescuedCourier = false
   let escort: { x: number; y: number; hull: number } | null = null
   let escortDone = false
+  let cometStart: number | null = null
+  let cometCadetsMask = 0
+  let cometGuardianOutcome: GuardianOutcome = 'waiting'
+  let cometHits = 0
+  let cadetsHome = false
   let wreckStart: number | null = null
   let sawtooth: SawtoothBoss | null = null
   let sawtoothCarryHp: number | null = null
@@ -1297,6 +1332,7 @@ export function createRainbowPrincessPreview(
     armoryGuardianOutcome: 'waiting',
     pearlWardenOutcome: 'waiting',
     rescuedCourier: false,
+    cadetsHome: false,
     wreckRoute: null,
     wreckSettled: false,
     podsSaved: 0,
@@ -1387,6 +1423,12 @@ export function createRainbowPrincessPreview(
   }
   function rosefinFrame() {
     return rosefinStart === null ? 0 : tick - rosefinStart
+  }
+  function cometFrame() {
+    return cometStart === null ? 0 : tick - cometStart
+  }
+  function cometActive() {
+    return cometStart !== null && wreckStart === null
   }
   function wreckFrame() {
     return wreckStart === null ? 0 : tick - wreckStart
@@ -2366,8 +2408,10 @@ export function createRainbowPrincessPreview(
         ? SHOAL_WAVE_SIZES[reef.wave - MIRROR_SHOAL.waveBase]
         : reef.wave >= LIGHTHOUSE.waveBase
           ? LIGHTHOUSE_WAVE_SIZES[reef.wave - LIGHTHOUSE.waveBase]
-          : reef.wave >= NURSERY.waveBase
-            ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
+          : reef.wave >= COMET.waveBase
+            ? COMET_WAVE_SIZES[reef.wave - COMET.waveBase]
+            : reef.wave >= NURSERY.waveBase
+              ? NURSERY_WAVE_SIZES[reef.wave - NURSERY.waveBase]
             : reef.wave >= WRECK.waveBase
               ? reef.wave >= PALACE.waveBase
                 ? PALACE_WAVE_SIZES[reef.wave - PALACE.waveBase]
@@ -2408,6 +2452,11 @@ export function createRainbowPrincessPreview(
         NURSERY_FLIGHT_SECTIONS.some(
           (section) => section.from === nurseryFrame(),
         ))
+    const cometCheckpoint =
+      act === 4 &&
+      cometActive() &&
+      (cometFrame() === 0 ||
+        COMET_SECTIONS.some((section) => section.from === cometFrame()))
     const lighthouseCheckpoint =
       act === 6 &&
       lighthouseActive() &&
@@ -2422,6 +2471,7 @@ export function createRainbowPrincessPreview(
     if (
       !actCheckpointFrames(act).includes(frame) &&
       !nurseryCheckpoint &&
+      !cometCheckpoint &&
       !lighthouseCheckpoint &&
       !shoalCheckpoint
     )
@@ -2446,6 +2496,16 @@ export function createRainbowPrincessPreview(
       armoryGuardianOutcome,
       pearlWardenOutcome,
       rescuedCourier,
+      cadetsHome,
+      ...(cometCheckpoint
+        ? {
+            cometStartedAt: cometStart! - rosefinStart!,
+            cometFrame: cometFrame(),
+            cometCadetsMask,
+            cometGuardianOutcome,
+            cometHits,
+          }
+        : {}),
       wreckRoute,
       wreckSettled,
       podsSaved,
@@ -2633,6 +2693,7 @@ export function createRainbowPrincessPreview(
     pearlWardenOutcome =
       c.pearlWardenOutcome ?? (c.act > 6 ? 'escaped' : 'waiting')
     rescuedCourier = c.rescuedCourier
+    cadetsHome = c.cadetsHome ?? false
     escortDone = c.act > 4
     wreckRoute = c.wreckRoute
     wreckSettled = c.wreckSettled
@@ -2660,7 +2721,10 @@ export function createRainbowPrincessPreview(
       c.nurseryFrame !== undefined
         ? c.nurseryStartedAt! - TRENCH.aftermathFrames
         : beaten(3)
-    rosefinDefeatedFrame = beaten(4)
+    rosefinDefeatedFrame =
+      c.cometFrame !== undefined
+        ? c.cometStartedAt! - ROSEFIN.aftermathFrames
+        : beaten(4)
     wreckDefeatedFrame = beaten(5)
     reefDefeatedFrame =
       c.lighthouseFrame !== undefined
@@ -2677,6 +2741,11 @@ export function createRainbowPrincessPreview(
       c.nurseryFrame !== undefined ? trenchStart! + c.nurseryStartedAt! : null
     nurseryHits = c.nurseryHits ?? 0
     rosefinStart = start(4)
+    cometStart =
+      c.cometFrame !== undefined ? rosefinStart! + c.cometStartedAt! : null
+    cometCadetsMask = c.cometCadetsMask ?? 0
+    cometGuardianOutcome = c.cometGuardianOutcome ?? 'waiting'
+    cometHits = c.cometHits ?? 0
     wreckStart = start(5)
     reefStart = start(6)
     lighthouseStart =
@@ -2736,6 +2805,7 @@ export function createRainbowPrincessPreview(
     }
     const cleared =
       checkpoint.nurseryFrame !== undefined ||
+      checkpoint.cometFrame !== undefined ||
       checkpoint.lighthouseFrame !== undefined ||
       checkpoint.shoalFrame !== undefined
         ? false
@@ -2758,9 +2828,11 @@ export function createRainbowPrincessPreview(
                         : choiceFrame !== null || finalChoice !== null
     if (!cleared) {
       const waves: ReadonlyArray<{ at: number }> =
-        checkpoint.nurseryFrame !== undefined
-          ? NURSERY_WAVES
-          : checkpoint.lighthouseFrame !== undefined
+        checkpoint.cometFrame !== undefined
+          ? COMET_WAVES
+          : checkpoint.nurseryFrame !== undefined
+            ? NURSERY_WAVES
+            : checkpoint.lighthouseFrame !== undefined
             ? LIGHTHOUSE_WAVES
             : checkpoint.shoalFrame !== undefined
               ? SHOAL_WAVES
@@ -2782,9 +2854,11 @@ export function createRainbowPrincessPreview(
                               ? PALACE_WAVES
                               : []
       const base =
-        checkpoint.nurseryFrame !== undefined
-          ? NURSERY.waveBase
-          : checkpoint.lighthouseFrame !== undefined
+        checkpoint.cometFrame !== undefined
+          ? COMET.waveBase
+          : checkpoint.nurseryFrame !== undefined
+            ? NURSERY.waveBase
+            : checkpoint.lighthouseFrame !== undefined
             ? LIGHTHOUSE.waveBase
             : checkpoint.shoalFrame !== undefined
               ? MIRROR_SHOAL.waveBase
@@ -2807,7 +2881,8 @@ export function createRainbowPrincessPreview(
         const id = base + index
         if (
           entry.at >=
-          (checkpoint.nurseryFrame ??
+          (checkpoint.cometFrame ??
+            checkpoint.nurseryFrame ??
             checkpoint.lighthouseFrame ??
             checkpoint.shoalFrame ??
             checkpoint.frame)
@@ -2830,6 +2905,12 @@ export function createRainbowPrincessPreview(
       )
       // A guardian whose section lies after the checkpoint flies again.
       guardian = null
+      if (checkpoint.cometFrame !== undefined) {
+        cometStart = rosefinStart! + checkpoint.cometStartedAt!
+        cometCadetsMask = checkpoint.cometCadetsMask ?? 0
+        cometGuardianOutcome = checkpoint.cometGuardianOutcome ?? 'waiting'
+        cometHits = checkpoint.cometHits ?? 0
+      }
       if (checkpoint.nurseryFrame !== undefined) {
         nurseryStart = trenchStart! + checkpoint.nurseryStartedAt!
         nurseryHits = checkpoint.nurseryHits ?? 0
@@ -2887,6 +2968,7 @@ export function createRainbowPrincessPreview(
       armoryGuardianOutcome = checkpoint.armoryGuardianOutcome ?? 'waiting'
       pearlWardenOutcome = checkpoint.pearlWardenOutcome ?? 'waiting'
       rescuedCourier = checkpoint.rescuedCourier
+      cadetsHome = checkpoint.cadetsHome ?? false
       // The escort replays when the checkpoint is before the pod set off.
       if (checkpoint.act === 4 && checkpoint.frame <= ROSEFIN_ESCORT.podAppears)
         escortDone = rescuedCourier
@@ -3803,7 +3885,13 @@ export function createRainbowPrincessPreview(
     guardian = null
     const act = currentAct()
     // The Nursery guardian is a second earned encounter, not Act III's first guardian.
-    if (act === 6 && kind === 'lampkeeper') {
+    if (act === 4 && kind === 'herder' && cometActive()) {
+      cometGuardianOutcome = 'defeated'
+      cometStart! -= Math.max(
+        0,
+        COMET_GUARDIAN.to - GUARDIAN_SKIP_LEAD - cometFrame(),
+      )
+    } else if (act === 6 && kind === 'lampkeeper') {
       lighthouseGuardianOutcome = 'defeated'
       lighthouseStart! -= Math.max(
         0,
@@ -3862,7 +3950,8 @@ export function createRainbowPrincessPreview(
     // The attract-mode flythrough must be able to reach its authored boss and
     // second Act rather than silently losing every autonomous pilot.
     if (options.demo || ship.invulnerable > 0 || ship.evade > 0) return
-    if (nurseryActive()) nurseryHits++
+    if (cometActive()) cometHits++
+    else if (nurseryActive()) nurseryHits++
     else if (lighthouseActive()) lighthouseHits++
     else if (shoalActive()) shoalHits++
     else actHits++
@@ -4034,14 +4123,42 @@ export function createRainbowPrincessPreview(
     }
     if (
       wreckStart === null &&
+      cometStart === null &&
       rosefinDefeatedFrame !== null &&
       rosefinFrame() - rosefinDefeatedFrame >= ROSEFIN.aftermathFrames
     ) {
-      // ACT-STRUCTURE: the convoy leads directly into the wreckage.
-      wreckStart = tick
+      if (
+        cometDetourFor(
+          livingShips().map((ship) => ship.y),
+          rescuedCourier,
+          rosefinDefeatedFrame !== null,
+        )
+      ) {
+        cometStart = tick
+        cometCadetsMask = 0
+        cometGuardianOutcome = 'waiting'
+        cometHits = 0
+        reefs.length = 0
+        enemyShots.length = 0
+        popups.push({ x: W / 2, y: 92, text: 'X2 · CORAL COMET', age: 0 })
+      } else wreckStart = tick
       shots.length = 0
       pickups.length = 0
       escort = null
+    }
+    if (cometActive() && cometFrame() >= COMET.end) {
+      cadetsHome = cometFullWing(cometCadetsMask)
+      if (cadetsHome) {
+        score += 3000
+        popups.push({ x: W / 2, y: 92, text: 'FULL WING · +3000', age: 0 })
+      }
+      wreckStart = tick
+      actHits = 0
+      actContinues = 0
+      reefs.length = 0
+      enemyShots.length = 0
+      shots.length = 0
+      pickups.length = 0
     }
     if (
       finaleStart === null &&
@@ -4313,6 +4430,48 @@ export function createRainbowPrincessPreview(
         delphion = createDelphionBoss(bossHp(DELPHION_MAX_HP))
         if (delphionCarryHp !== null)
           delphion.hp = Math.min(delphion.hp, delphionCarryHp)
+      }
+    } else if (cometActive()) {
+      const frame = cometFrame()
+      passCheckpoint(4, rosefinFrame())
+      const stage = cometPhase(frame)
+      if (stage === 'waves')
+        for (const entry of cometSpawns(frame))
+          spawn(entry.kind, entry.y, entry.wave)
+      const cadet = cometCadetAvailable(frame, cometCadetsMask)
+      if (cadet) {
+        const x = cometCadetX(frame, cadet.at)
+        if (
+          livingShips().some(
+            (ship) =>
+              Math.hypot(ship.x - x, ship.y - laneY(cadet.lane)) <
+              COMET.trainerReach,
+          )
+        ) {
+          cometCadetsMask = rescueCometCadet(
+            cometCadetsMask,
+            Number(cadet.id.slice(-1)),
+          )
+          score += 400
+          popups.push({ x, y: laneY(cadet.lane), text: 'CADET HOME', age: 0 })
+          options.sound.play('extra')
+        }
+      }
+      if (
+        stage === 'guardian' &&
+        guardian === null &&
+        cometGuardianOutcome === 'waiting' &&
+        frame < COMET_GUARDIAN.to - RAINBOW_GUARDIAN.escapeLead
+      ) {
+        guardian = createRainbowGuardian('herder', activePlayers)
+        guardian.maxHp = guardian.hp = Math.max(
+          1,
+          Math.round(guardian.maxHp * level.bossHp),
+        )
+      }
+      if (stage === 'exit' && frame === COMET_GUARDIAN.to) {
+        reefs.length = 0
+        enemyShots.length = 0
       }
     } else if (reefStart === null) {
       const frame = wreckFrame()
@@ -4863,8 +5022,10 @@ export function createRainbowPrincessPreview(
     if (guardian && guardianAct !== 9) {
       const act = guardianAct
       const section =
-        guardian.kind === 'lampkeeper'
-          ? LIGHTHOUSE_GUARDIAN
+        guardian.kind === 'herder'
+          ? COMET_GUARDIAN
+          : guardian.kind === 'lampkeeper'
+            ? LIGHTHOUSE_GUARDIAN
           : guardian.kind === 'matriarch'
             ? nurseryActive()
               ? NURSERY_GUARDIAN
@@ -4880,8 +5041,10 @@ export function createRainbowPrincessPreview(
                   ? PEARL_WARDEN_WINDOW
                   : guardianSections[act]
       const frame =
-        guardian.kind === 'lampkeeper'
-          ? lighthouseFrame()
+        guardian.kind === 'herder'
+          ? cometFrame()
+          : guardian.kind === 'lampkeeper'
+            ? lighthouseFrame()
           : guardian.kind === 'matriarch' && nurseryActive()
             ? nurseryFrame()
             : guardian.kind === 'shoalkoi'
@@ -4900,6 +5063,7 @@ export function createRainbowPrincessPreview(
         const guardianKind = guardian.kind
         guardian = null
         if (wasNursery) nurseryGuardianOutcome = 'escaped'
+        else if (guardianKind === 'herder') cometGuardianOutcome = 'escaped'
         else if (guardianKind === 'lampkeeper')
           lighthouseGuardianOutcome = 'escaped'
         else if (guardianKind === 'shoalkoi') shoalGuardianOutcome = 'escaped'
@@ -5698,8 +5862,10 @@ export function createRainbowPrincessPreview(
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
-        act: nurseryActive()
-          ? 'X1'
+        act: cometActive()
+          ? 'X2'
+          : nurseryActive()
+            ? 'X1'
           : lighthouseActive()
             ? 'X3'
             : shoalActive()
@@ -5717,8 +5883,10 @@ export function createRainbowPrincessPreview(
                     'S09',
                   ] as const
                 )[currentAct() - 1]!,
-        stage: nurseryActive()
-          ? nurseryFlightPhase(nurseryFrame())
+        stage: cometActive()
+          ? cometPhase(cometFrame())
+          : nurseryActive()
+            ? nurseryFlightPhase(nurseryFrame())
           : lighthouseActive()
             ? lighthouseStage(lighthouseFrame())
             : shoalActive()
@@ -5745,8 +5913,17 @@ export function createRainbowPrincessPreview(
                                   escapeFrame,
                                   endingFrame,
                                 ),
-        sceneId: nurseryActive()
-          ? nurseryFrame() < NURSERY.openingEnds
+        sceneId: cometActive()
+          ? cometFrame() < COMET.openingEnds
+            ? 'X2.OPEN'
+            : cometFrame() >= COMET_GUARDIAN.to
+              ? 'X2.AFTER'
+              : cometFrame() >= COMET_GUARDIAN.from - 288 &&
+                  cometFrame() < COMET_GUARDIAN.from
+                ? 'X2.TURN'
+                : null
+          : nurseryActive()
+            ? nurseryFrame() < NURSERY.openingEnds
             ? 'X1.OPEN'
             : nurseryFrame() >= NURSERY_GUARDIAN.to
               ? 'X1.AFTER'
@@ -5817,6 +5994,11 @@ export function createRainbowPrincessPreview(
         nurseryGuardianOutcome,
         nurseryFrame: nurseryActive() ? nurseryFrame() : null,
         nurseryHits,
+        cometFrame: cometActive() ? cometFrame() : null,
+        cometCadetsMask,
+        cometGuardianOutcome,
+        cometHits,
+        cadetsHome,
         armoryGuardianOutcome,
         pearlWardenOutcome,
         shoalGuardianOutcome,
@@ -6869,6 +7051,8 @@ export function createRainbowPrincessPreview(
                 ? 'harbinger'
                 : guardian.kind === 'matriarch' || guardian.kind === 'siren'
                   ? 'lantern'
+                  : guardian.kind === 'herder'
+                    ? 'cutter'
                   : guardian.kind === 'warden'
                     ? 'bulwark'
                     : guardian.kind === 'lampkeeper'
@@ -8262,8 +8446,23 @@ export function createRainbowPrincessPreview(
         )
         g.restore()
       }
-      const scene = nurseryActive()
-        ? nurseryFrame() < NURSERY.openingEnds
+      const scene = cometActive()
+        ? cometFrame() < COMET.openingEnds
+          ? { id: 'X2.OPEN' as const, elapsed: cometFrame() }
+          : cometFrame() >= COMET_GUARDIAN.to
+            ? {
+                id: 'X2.AFTER' as const,
+                elapsed: cometFrame() - COMET_GUARDIAN.to,
+              }
+            : cometFrame() >= COMET_GUARDIAN.from - 288 &&
+                cometFrame() < COMET_GUARDIAN.from
+              ? {
+                  id: 'X2.TURN' as const,
+                  elapsed: cometFrame() - (COMET_GUARDIAN.from - 288),
+                }
+              : null
+        : nurseryActive()
+          ? nurseryFrame() < NURSERY.openingEnds
           ? { id: 'X1.OPEN' as const, elapsed: nurseryFrame() }
           : nurseryFrame() >= NURSERY_GUARDIAN.to
             ? {
@@ -8327,7 +8526,15 @@ export function createRainbowPrincessPreview(
                                 endingFrame,
                               )
       const said = scene
-        ? nurseryActive()
+        ? cometActive()
+          ? ((scene.id === 'X2.OPEN'
+              ? COMET_TALKS.opening
+              : scene.id === 'X2.TURN'
+                ? COMET_TALKS.turn
+                : COMET_TALKS.aftermath)[
+              Math.floor(scene.elapsed / (scene.id === 'X2.OPEN' ? 80 : 96))
+            ] ?? null)
+          : nurseryActive()
           ? ((scene.id === 'X1.OPEN'
               ? NURSERY_TALKS.opening
               : scene.id === 'X1.TURN'
@@ -8769,6 +8976,24 @@ export function createRainbowPrincessPreview(
         g.fillText('▲ X4 MIRROR SHOAL', W - 8, 123)
         g.fillStyle = '#bdeaff'
         g.fillText('▼ ACT VIII PALACE', W - 8, 153)
+        g.restore()
+      }
+      if (cometActive()) {
+        g.save()
+        g.fillStyle = '#ffe9b3'
+        g.font = 'bold 8px monospace'
+        g.textAlign = 'right'
+        g.fillText(
+          'X2 · CADETS ' +
+            cometCadetsMask.toString(2).replace(/0/g, '').length +
+            '/4 · ' +
+            (COMET_SECTIONS.find(
+              (section) =>
+                cometFrame() >= section.from && cometFrame() < section.to,
+            )?.name.toUpperCase() ?? 'CORAL COMET'),
+          W - 8,
+          H - 8,
+        )
         g.restore()
       }
       if (nurseryActive()) {

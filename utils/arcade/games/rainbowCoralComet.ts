@@ -195,6 +195,11 @@ export function rescueCometCadet(mask: number, cadetNumber: number): number {
   return mask | (1 << (cadetNumber - 1))
 }
 
+/** A pod moves toward the co-op fleet long enough to be intercepted. */
+export function cometCadetX(frame: number, appearsAt: number): number {
+  return 135 - (frame - appearsAt) * 0.55
+}
+
 export function cometFullWing(mask: number): boolean {
   return mask === (1 << COMET.trainerCount) - 1
 }

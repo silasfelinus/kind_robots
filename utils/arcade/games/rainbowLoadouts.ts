@@ -8,6 +8,7 @@ import { ARCADE_DIFFICULTIES } from '../types'
 import type { ArcadeDifficulty, ArcadeMasteryGoal } from '../types'
 import type { RainbowCheckpoint } from './rainbowCheckpoints'
 import { lighthouseCheckpointValid } from './rainbowSunkenLighthouse'
+import { cometCheckpointValid } from './rainbowCoralComet'
 import { nurseryFlightCheckpointValid } from './rainbowLanternNursery'
 import { mirrorShoalCheckpointValid } from './rainbowMirrorShoal'
 
@@ -275,6 +276,27 @@ export function readRainbowSave(
   if (!c || typeof c !== 'object') return null
   if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
   if (
+    c.cometFrame !== undefined &&
+    !cometCheckpointValid(c.act as number, c.frame as number, c as RainbowCheckpoint)
+  )
+    return null
+  if (
+    c.cometFrame === undefined &&
+    (c.cometStartedAt !== undefined ||
+      c.cometCadetsMask !== undefined ||
+      c.cometGuardianOutcome !== undefined ||
+      c.cometHits !== undefined)
+  )
+    return null
+  if (
+    c.cometFrame !== undefined &&
+    (c.nurseryFrame !== undefined ||
+      c.lighthouseFrame !== undefined ||
+      c.shoalFrame !== undefined)
+  )
+    return null
+  if (c.cadetsHome !== undefined && !bool(c.cadetsHome)) return null
+  if (
     c.nurseryFrame !== undefined &&
     (!nurseryFlightCheckpointValid(
       c.act as number,
@@ -419,6 +441,16 @@ export function readRainbowSave(
           }
         : {}),
       rescuedCourier: saved.rescuedCourier,
+      cadetsHome: saved.cadetsHome ?? false,
+      ...(saved.cometFrame !== undefined
+        ? {
+            cometStartedAt: saved.cometStartedAt,
+            cometFrame: saved.cometFrame,
+            cometCadetsMask: saved.cometCadetsMask,
+            cometGuardianOutcome: saved.cometGuardianOutcome,
+            cometHits: saved.cometHits,
+          }
+        : {}),
       wreckRoute: saved.wreckRoute,
       armoryGuardianOutcome:
         saved.armoryGuardianOutcome ?? (saved.act > 5 ? 'escaped' : 'waiting'),

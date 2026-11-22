@@ -116,6 +116,7 @@ type Hail = {
   kind: RainWeather
   hits: number
   skidTicks: number
+  hitCooldown: number
 }
 type Shot = {
   x: number
@@ -633,6 +634,7 @@ class RainCatcher implements ArcadeGameInstance {
       kind,
       hits: kind === 'snowball' ? 2 : 1,
       skidTicks: 0,
+      hitCooldown: 0,
     }
   }
 
@@ -803,10 +805,11 @@ class RainCatcher implements ArcadeGameInstance {
   }
 
   private bloomRadius(b: Bloom): number {
-    if (b.t < BLOOM_GROW) return (BLOOM_RADIUS * b.t) / BLOOM_GROW
-    if (b.t < BLOOM_GROW + BLOOM_HOLD) return BLOOM_RADIUS
+    const size = b.petal ? BLOOM_RADIUS * 0.7 : BLOOM_RADIUS
+    if (b.t < BLOOM_GROW) return (size * b.t) / BLOOM_GROW
+    if (b.t < BLOOM_GROW + BLOOM_HOLD) return size
     return (
-      (BLOOM_RADIUS * (BLOOM_GROW + BLOOM_HOLD + BLOOM_FADE - b.t)) / BLOOM_FADE
+      (size * (BLOOM_GROW + BLOOM_HOLD + BLOOM_FADE - b.t)) / BLOOM_FADE
     )
   }
 
@@ -819,7 +822,7 @@ class RainCatcher implements ArcadeGameInstance {
       const r = this.bloomRadius(b)
       for (const h of this.hail) {
         if (Math.hypot(h.x - b.x, h.y - b.y) > r) continue
-        this.catchHail(h)
+        this.catchHail(h, b)
       }
       for (const goose of this.geese) {
         if (Math.hypot(goose.x - b.x, goose.y - b.y) > r + 6) continue
@@ -834,12 +837,62 @@ class RainCatcher implements ArcadeGameInstance {
     this.hail = this.hail.filter((h) => h.vy !== 0 || h.vx !== 0)
   }
 
-  private catchHail(h: Hail) {
+  private catchHail(h: Hail, bloom: Bloom) {
     if (h.vx === 0 && h.vy === 0) return
+    if (h.hitCooldown > 0) return
+
+    if (h.kind === 'rain') {
+      h.vx = 0
+      h.vy = 0
+      const barrel = BARRELS.findIndex(
+        (x) =>
+          Math.abs(x - bloom.x) < 18 &&
+          bloom.y > GROUND - 55,
+      )
+      if (barrel >= 0) {
+        this.barrels[barrel]!++
+        this.floaters.push({
+          x: BARRELS[barrel]!,
+          y: GROUND - 25,
+          text: 'BARREL +1',
+          life: 50,
+        })
+        if (this.barrels[barrel]! >= BARREL_CAPACITY) {
+          this.barrels[barrel] = 0
+          const launcher = barrel === 0 ? 0 : 2
+          this.ammo[launcher] = Math.min(AMMO + 3, this.ammo[launcher]! + 5)
+          this.soaked[launcher] = false
+          this.sound.play('extra')
+        }
+      }
+      return
+    }
+
+    if (h.hits > 1) {
+      h.hits--
+      h.hitCooldown = 18
+      this.burst(h.x, h.y, 7, '#ffffff')
+      this.sound.play('warn')
+      return
+    }
+
     h.vx = 0
     h.vy = 0
-    const points = (h.sprite ? SPRITE_POINTS : HAIL_POINTS) * this.multiplier
+    this.chain = bloom.petal ? Math.min(this.chain + 1, 12) : 1
+    const points =
+      (h.sprite ? SPRITE_POINTS : HAIL_POINTS) *
+      this.multiplier *
+      Math.min(6, this.chain)
     this.addScore(points, h.x, h.y - 8)
+    if (this.chain > 1) {
+      this.floaters.push({
+        x: h.x,
+        y: h.y - 22,
+        text: this.chain + ' PETAL CHAIN!',
+        life: 45,
+      })
+    }
+    this.blooms.push({ x: h.x, y: h.y, t: 6, petal: true })
     this.burst(h.x, h.y, 6, h.sprite ? '#fde047' : '#e0f2fe')
     this.fx.burst(h.x, h.y, this.fxRng, {
       count: h.sprite ? 12 : 6,
@@ -865,13 +918,20 @@ class RainCatcher implements ArcadeGameInstance {
     const splitChance = levelCurve(this.level, RAIN_CURVES.splitChance)
     const born: Hail[] = []
     for (const h of this.hail) {
+      if (h.hitCooldown > 0) h.hitCooldown--
+      if (h.skidTicks > 0) {
+        h.x += h.vx
+        if (--h.skidTicks === 0) this.land(h)
+        continue
+      }
       if (h.sprite) this.swerve(h)
-      h.x += h.vx
+      h.x += h.vx + this.forecast.wind
       h.y += h.vy
       // Midway down, a stone may split in two (once).
       if (
         !h.split &&
         !h.sprite &&
+        h.kind === 'hail' &&
         h.y > 70 &&
         h.y < 130 &&
         this.rng() < splitChance / 60
@@ -881,7 +941,19 @@ class RainCatcher implements ArcadeGameInstance {
         child.split = true
         born.push(child)
       }
-      if (h.y >= h.ty) this.land(h)
+      if (h.y >= h.ty) {
+        if (h.kind === 'sleet' && h.skidTicks === 0) {
+          h.skidTicks = 25
+          h.y = GROUND - 5
+          const nearest = BEDS.reduce((left, right) =>
+            Math.abs(left - h.x) < Math.abs(right - h.x) ? left : right,
+          )
+          h.vx = nearest >= h.x ? 1.2 : -1.2
+          h.vy = 0
+        } else {
+          this.land(h)
+        }
+      }
     }
     this.hail = [...this.hail, ...born].filter((h) => h.vx !== 0 || h.vy !== 0)
   }
@@ -906,8 +978,27 @@ class RainCatcher implements ArcadeGameInstance {
   private land(h: Hail) {
     h.vx = 0
     h.vy = 0
-    const bed = BEDS.findIndex((x) => Math.abs(x - h.x) < 12)
+    const bed = BEDS.findIndex((x) => Math.abs(x - h.x) < 13)
     const launcher = LAUNCHERS.findIndex((x) => Math.abs(x - h.x) < 12)
+
+    if (h.kind === 'rain') {
+      if (bed >= 0 && this.beds[bed]! > 0) {
+        this.beds[bed] = Math.min(MAX_BED_STAGE, this.beds[bed]! + 1)
+        this.floaters.push({
+          x: BEDS[bed]!,
+          y: GROUND - 25,
+          text: 'WATERED!',
+          life: 55,
+        })
+        this.fx.burst(BEDS[bed]!, GROUND - 6, this.fxRng, {
+          count: 6,
+          colours: [RAMPS.leaf[4], RAMPS.water[3]],
+        })
+        this.sound.play('pickup')
+      }
+      return
+    }
+
     if (bed >= 0 && this.beds[bed]! > 0) {
       this.beds[bed]!--
       this.burst(h.x, GROUND - 4, 14, '#93c5fd')
@@ -927,13 +1018,12 @@ class RainCatcher implements ArcadeGameInstance {
     const beds = this.lives
     const bonus = (umbrellas * AMMO_BONUS + beds * BED_BONUS) * this.multiplier
     this.addScore(bonus, W / 2, 120)
-    // A drooping bed perks up between waves; bonus beds regrow wilted ones.
-    this.beds = this.beds.map((b) => (b > 0 ? BED_HEALTH : 0))
+    // Growth persists across waves; only earned bonus beds regrow wilted beds.
     let regrown = 0
     while (this.bonusBeds > 0) {
       const wilted = this.beds.findIndex((b) => b === 0)
       if (wilted < 0) break
-      this.beds[wilted] = BED_HEALTH
+      this.beds[wilted] = 1
       this.fx.burst(BEDS[wilted]!, GROUND - 8, this.fxRng, {
         count: 16,
         colours: [RAMPS.leaf[3], RAMPS.leaf[4], RAMPS.pink[3]],

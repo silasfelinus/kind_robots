@@ -949,7 +949,7 @@ class RainCatcher implements ArcadeGameInstance {
         continue
       }
       if (h.sprite) this.swerve(h)
-      h.x += h.vx + this.forecast.wind
+      h.x += h.vx + (h.kind === 'rain' ? 0 : this.forecast.wind)
       h.y += h.vy
       // Midway down, a stone may split in two (once).
       if (
@@ -1235,6 +1235,14 @@ class RainCatcher implements ArcadeGameInstance {
       const x = (((d.x - this.tick * d.speed * 0.2) % W) + W) % W
       g.fillRect(Math.round(x), Math.round(y), 1, d.len)
     }
+    if (this.forecast.wind !== 0) {
+      g.fillStyle = rgba(RAMPS.leaf[4], 0.24)
+      for (let i = 0; i < 12; i++) {
+        const offset = this.tick * this.forecast.wind * 14 + i * 43
+        const x = ((offset % W) + W) % W
+        g.fillRect(Math.round(x), 40 + (i * 17) % 120, 8, 1)
+      }
+    }
     // Hills behind the garden, the far ones drifting slower.
     drawRidge(g, FAR_HILLS, {
       base: GROUND - 22,
@@ -1320,7 +1328,7 @@ class RainCatcher implements ArcadeGameInstance {
     x: number,
     i: number,
   ) {
-    bevel(g, x - 6, GROUND - 7, 12, 9, RAMPS.wood, {
+    bevel(g, x - 6, GROUND - 7, 12, 9, RAMPS.earth, {
       depth: 1,
     })
     g.fillStyle = RAMPS.water[3]

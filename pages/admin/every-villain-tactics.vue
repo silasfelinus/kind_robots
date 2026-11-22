@@ -4,6 +4,8 @@
     data-layout="console-fixed"
     data-testid="every-villain-tactics"
     aria-label="Every Villain Tactics training console"
+    @pointerdown.capture="onAudioGesture"
+    @keydown.capture="onAudioGesture"
   >
     <PlaybookKitShell :spec="EVERY_VILLAIN_TACTICS" :meter-values="meterValues">
       <template #bar-actions>
@@ -1769,6 +1771,12 @@ import { promArt } from '~/utils/cometAcademy/artManifest'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
+import { useEveryVillainSoundStore } from '~/stores/everyVillainSoundStore'
+import {
+  tacticsAudioFrame,
+  tacticsCuesFor,
+  tacticsMoodFor,
+} from '~/utils/everyVillainTactics/sound'
 import { paintedMapArtId } from '~/utils/everyVillainTactics/mapArt'
 import { paintedRevealArtId } from '~/utils/everyVillainTactics/revealArt'
 import {
@@ -1812,6 +1820,24 @@ import {
 } from '~/utils/everyVillainTactics/powers'
 
 const store = useEveryVillainTacticsStore()
+const sound = useEveryVillainSoundStore()
+const audioFrame = computed(() =>
+  tacticsAudioFrame(store.state, store.screen, store.moment?.id ?? null),
+)
+watch(
+  audioFrame,
+  (next, previous) => {
+    sound.setMood(tacticsMoodFor(next))
+    if (previous) sound.play(tacticsCuesFor(previous, next))
+  },
+  { immediate: true },
+)
+function onAudioGesture(): void {
+  sound.unlock()
+}
+function onAudioVisibility(): void {
+  sound.setHidden(document.visibilityState === 'hidden')
+}
 const paintedArt = useEveryVillainTacticsArtStore()
 const viewer = useUserStore()
 const paintedArtId = computed(() => paintedMapArtId(store.state.stageId))
@@ -2418,14 +2444,21 @@ watch(
 )
 onMounted(() => {
   window.addEventListener('keydown', onKey)
+  document.addEventListener('visibilitychange', onAudioVisibility)
   store.loadPreferences()
+  sound.loadMix()
+  onAudioVisibility()
   if (store.moment && !store.screen) {
     nextTick(() =>
       document.querySelector<HTMLButtonElement>('.evt-story-choice')?.focus(),
     )
   }
 })
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  document.removeEventListener('visibilitychange', onAudioVisibility)
+  sound.stop()
+})
 </script>
 
 <style scoped>

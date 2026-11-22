@@ -41,6 +41,37 @@ export function lighthouseDetourFor(
     (high === positions.length / 2 && positions[0]! < 135)
 }
 
+/** A resumed X3 detour must prove it belonged to a genuinely silenced relay.
+ * Its clock cannot be smuggled into an unrelated Act VI checkpoint. */
+export function lighthouseCheckpointValid(
+  act: number,
+  frame: number,
+  c: {
+    lighthouseStartedAt?: number
+    lighthouseFrame?: number
+    reefRoute?: 'relay' | 'cache' | null
+    reefSettled?: boolean
+    pylonsDown?: number
+  },
+): boolean {
+  return (
+    act === 6 &&
+    lighthouseRouteUnlocked(
+      c.reefRoute ?? null,
+      c.reefSettled === true,
+      c.pylonsDown ?? 0,
+    ) &&
+    Number.isInteger(c.lighthouseStartedAt) &&
+    c.lighthouseStartedAt! > 0 &&
+    Number.isInteger(c.lighthouseFrame) &&
+    (c.lighthouseFrame === 0 ||
+      LIGHTHOUSE_SECTIONS.some(
+        (section) => section.from === c.lighthouseFrame,
+      )) &&
+    frame === c.lighthouseStartedAt! + c.lighthouseFrame!
+  )
+}
+
 export const LIGHTHOUSE_GUARDIAN: RainbowGuardianSection = {
   name: LIGHTHOUSE.guardianName,
   from: LIGHTHOUSE.guardianFrom,

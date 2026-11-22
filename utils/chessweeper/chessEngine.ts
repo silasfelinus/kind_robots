@@ -24,14 +24,14 @@ const DIR: Record<string, number[]> = {
 const onBoard = (i: number) => i >= 0 && i < 128 && !(i & 0x88)
 const colorOf = (p: string | undefined) =>
   !p || p === '.' ? 0 : p === p.toUpperCase() ? 1 : -1
-const squareName = (i: number) => 'abcdefgh'[i & 7] + (8 - (i >> 4))
+const squareName = (i: number) => 'abcdefgh'[i & 7]! + (8 - (i >> 4))
 const squareIdx = (s: string) =>
-  (8 - Number(s[1])) * 16 + 'abcdefgh'.indexOf(s[0])
+  (8 - Number(s[1])) * 16 + 'abcdefgh'.indexOf(s[0]!)
 const moveKey = (m: ChessMove) => squareName(m[0]) + squareName(m[1]) + m[2]
 const initialPosition = (): ChessPosition => {
   const parts = START_FEN.split(' '),
     board = Array(128).fill('.')
-  parts[0].split('/').forEach((row, r) => {
+  parts[0]!.split('/').forEach((row, r) => {
     let f = 0
     for (const p of row) {
       if (p >= '1' && p <= '8') f += +p
@@ -43,7 +43,7 @@ const initialPosition = (): ChessPosition => {
 function underAttack(s: ChessPosition, target: number, by: number): boolean {
   for (let from = 0; from < 128; from++) {
     if (!onBoard(from) || colorOf(s.b[from]) !== by) continue
-    const p = s.b[from].toLowerCase()
+    const p = s.b[from]!.toLowerCase()
     if (p === 'p') {
       if (target === from - 16 * by - 1 || target === from - 16 * by + 1)
         return true
@@ -67,29 +67,29 @@ function makePosition(s: ChessPosition, m: ChessMove): ChessPosition {
     target = b[to]
   let c = s.c
   b[from] = '.'
-  b[to] = promo ? (s.t === 1 ? promo.toUpperCase() : promo) : p
+  b[to] = promo ? (s.t === 1 ? promo.toUpperCase() : promo) : p!
   if (flag === 'ep') b[to + 16 * s.t] = '.'
   if (flag === 'castle') {
     const rookFrom = to > from ? from + 3 : from - 4,
       rookTo = to > from ? from + 1 : from - 1
-    b[rookTo] = b[rookFrom]
+    b[rookTo] = b[rookFrom]!
     b[rookFrom] = '.'
   }
   if (p === 'K') c &= ~3
   if (p === 'k') c &= ~12
   const rookBits: Record<number, number> = { 119: 1, 112: 2, 7: 4, 0: 8 }
-  if (p.toLowerCase() === 'r') c &= ~(rookBits[from] || 0)
-  if (target.toLowerCase() === 'r') c &= ~(rookBits[to] || 0)
+  if (p!.toLowerCase() === 'r') c &= ~(rookBits[from] || 0)
+  if (target!.toLowerCase() === 'r') c &= ~(rookBits[to] || 0)
   return {
     b,
     t: -s.t,
     c,
     ep:
-      p.toLowerCase() === 'p' && Math.abs(to - from) === 32
+      p!.toLowerCase() === 'p' && Math.abs(to - from) === 32
         ? (to + from) / 2
         : -1,
     half:
-      p.toLowerCase() === 'p' || target !== '.' || flag === 'ep'
+      p!.toLowerCase() === 'p' || target !== '.' || flag === 'ep'
         ? 0
         : s.half + 1,
     full: s.full + (s.t === -1 ? 1 : 0),
@@ -99,9 +99,9 @@ function pseudoMoves(s: ChessPosition): ChessMove[] {
   const result: ChessMove[] = []
   for (let from = 0; from < 128; from++) {
     if (!onBoard(from) || colorOf(s.b[from]) !== s.t) continue
-    const p = s.b[from].toLowerCase()
+    const p = s.b[from]!.toLowerCase()
     const add = (to: number, flag = '') => {
-      if (s.b[to].toLowerCase() === 'k') return // Kings cannot be captured.
+      if (s.b[to]!.toLowerCase() === 'k') return // Kings cannot be captured.
       if (p === 'p' && (to >> 4 === 0 || to >> 4 === 7)) {
         for (const promote of ['q', 'r', 'b', 'n'])
           result.push([from, to, promote, flag])
@@ -127,7 +127,7 @@ function pseudoMoves(s: ChessPosition): ChessMove[] {
           add(target, 'ep')
       }
     } else {
-      for (const dir of DIR[p])
+      for (const dir of DIR[p]!)
         for (let to = from + dir; onBoard(to); to += dir) {
           if (colorOf(s.b[to]) === s.t) break
           add(to)
@@ -138,7 +138,7 @@ function pseudoMoves(s: ChessPosition): ChessMove[] {
         bits = s.t === 1 ? [1, 2] : [4, 8]
       if (p === 'k' && from === home && !inCheck(s)) {
         if (
-          s.c & bits[0] &&
+          s.c & bits[0]! &&
           s.b[from + 3] === rook &&
           s.b[from + 1] === '.' &&
           s.b[from + 2] === '.' &&
@@ -147,7 +147,7 @@ function pseudoMoves(s: ChessPosition): ChessMove[] {
         )
           add(from + 2, 'castle')
         if (
-          s.c & bits[1] &&
+          s.c & bits[1]! &&
           s.b[from - 4] === rook &&
           s.b[from - 1] === '.' &&
           s.b[from - 2] === '.' &&
@@ -165,7 +165,7 @@ const legalMoves = (s: ChessPosition): ChessMove[] =>
   pseudoMoves(s).filter((m) => !inCheck(makePosition(s, m), s.t))
 function notation(s: ChessPosition, m: ChessMove): string {
   const [from, to, promote, flag] = m,
-    p = s.b[from].toUpperCase(),
+    p = s.b[from]!.toUpperCase(),
     capture = s.b[to] !== '.' || flag === 'ep'
   let str = ''
   if (flag === 'castle') str = to > from ? 'O-O' : 'O-O-O'
@@ -181,7 +181,7 @@ function notation(s: ChessPosition, m: ChessMove): string {
           : !others.some((x) => x[0] >> 4 === from >> 4)
             ? squareName(from)[1]
             : squareName(from)
-    } else if (capture) str = squareName(from)[0]
+    } else if (capture) str = squareName(from)[0]!
     str +=
       (capture ? 'x' : '') +
       squareName(to) +
@@ -197,11 +197,11 @@ function repetitionKey(s: ChessPosition): string {
 function drawByMaterial(s: ChessPosition): boolean {
   const remaining: Array<[string, number]> = []
   for (let i = 0; i < 128; i++)
-    if (onBoard(i) && s.b[i] !== '.' && s.b[i].toLowerCase() !== 'k')
-      remaining.push([s.b[i].toLowerCase(), ((i >> 4) + (i & 7)) % 2])
+    if (onBoard(i) && s.b[i] !== '.' && s.b[i]!.toLowerCase() !== 'k')
+      remaining.push([s.b[i]!.toLowerCase(), ((i >> 4) + (i & 7)) % 2])
   return (
     remaining.length === 0 ||
-    (remaining.length === 1 && ['b', 'n'].includes(remaining[0][0])) ||
+    (remaining.length === 1 && ['b', 'n'].includes(remaining[0]![0])) ||
     (remaining.length > 0 &&
       remaining.every((p) => p[0] === 'b') &&
       new Set(remaining.map((p) => p[1])).size === 1)

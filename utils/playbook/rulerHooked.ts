@@ -117,7 +117,7 @@ export function buildRulerHookedPlaybook(): Playbook {
         place: ending.victoryType.toLowerCase(),
         chapter: 4,
         body: [ending.body],
-        artPath: `${ROOT}/ending-${ending.outcomeKey}.webp`,
+        artPath: `${ROOT}/endings/${ending.outcomeKey}.webp`,
       }),
     ),
   )

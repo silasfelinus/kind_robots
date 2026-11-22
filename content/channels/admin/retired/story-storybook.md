@@ -1,7 +1,8 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: storybook
+parentTabKey: retired
 dashboardKey: scenario
 dashboardTab: storybook
 label: Storybook
@@ -11,6 +12,7 @@ description: Combine characters, places, rewards, art, and prompts into an unfol
 summary: Build and play unfolding stories.
 icon: kind-icon:storybook
 route: /storybook
+allowDirectAccess: true
 sort: 5
 tutorial:
   title: Deal a story onto the Table

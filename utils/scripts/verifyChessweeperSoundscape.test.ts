@@ -4,10 +4,15 @@ import { fileURLToPath } from 'node:url'
 import { runInNewContext } from 'node:vm'
 
 const source = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/soundscape.js', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/soundscape.js', import.meta.url),
+  ),
   'utf8',
 )
-const windowEvents = new Map<string, (event: { detail?: Record<string, unknown> }) => void>()
+const windowEvents = new Map<
+  string,
+  (event: { detail?: Record<string, unknown> }) => void
+>()
 const documentEvents = new Map<string, () => void>()
 let contexts = 0
 let oscillators = 0
@@ -119,11 +124,15 @@ windowEvents.get('pagehide')?.({})
 assert.equal(closed, 1, 'leaving the route closes audio resources')
 
 const page = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/index.html', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/index.html', import.meta.url),
+  ),
   'utf8',
 )
 const progression = readFileSync(
-  fileURLToPath(new URL('../../public/chessweeper/progression.js', import.meta.url)),
+  fileURLToPath(
+    new URL('../../public/chessweeper/progression.js', import.meta.url),
+  ),
   'utf8',
 )
 assert.ok(page.includes('src="/chessweeper/soundscape.js"'))

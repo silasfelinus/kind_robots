@@ -9,13 +9,47 @@
     ashen: {
       bpm: 76,
       wave: 'sine',
-      melody: [50, null, null, 57, null, 55, null, 53, 48, null, 50, null, 55, null, 53, null],
+      melody: [
+        50,
+        null,
+        null,
+        57,
+        null,
+        55,
+        null,
+        53,
+        48,
+        null,
+        50,
+        null,
+        55,
+        null,
+        53,
+        null,
+      ],
       bass: [38, 41, 36, 38],
     },
     jackpot: {
       bpm: 134,
       wave: 'sawtooth',
-      melody: [64, null, 67, 70, 74, null, 70, 67, 64, 67, 71, null, 76, 71, 67, null],
+      melody: [
+        64,
+        null,
+        67,
+        70,
+        74,
+        null,
+        70,
+        67,
+        64,
+        67,
+        71,
+        null,
+        76,
+        71,
+        67,
+        null,
+      ],
       bass: [40, 40, 43, 45],
     },
   }
@@ -82,10 +116,7 @@
       Math.max(0.001, loudness),
       when + 0.025,
     )
-    envelope.gain.exponentialRampToValueAtTime(
-      0.0001,
-      when + duration,
-    )
+    envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration)
     source.connect(envelope)
     envelope.connect(bus)
     source.start(when)
@@ -114,7 +145,14 @@
         }
         if (slot % 4 === 0) {
           const bass = theme.bass[Math.floor(slot / 4)]
-          voice(frequency(bass), nextTime, beat * 2.7, 'triangle', musicBus, 0.13)
+          voice(
+            frequency(bass),
+            nextTime,
+            beat * 2.7,
+            'triangle',
+            musicBus,
+            0.13,
+          )
         }
       }
       step++

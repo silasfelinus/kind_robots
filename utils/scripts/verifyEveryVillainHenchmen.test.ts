@@ -581,7 +581,7 @@ assert.match(
 )
 
 assert.match(page, /paintedArt\.ensure\(id \?\? null\)/)
-assert.match(page, /unit\.team === 'rival' &&\s*unit\.hp > 0/)
+assert.match(page, /unit\.hp > 0 && isCrewTellKind\(unit\.henchmanType\)/)
 
 assert.match(page, /data-testid="tactics-one-hit"/)
 assert.match(page, /henchmanTell\(/)

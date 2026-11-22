@@ -34,12 +34,14 @@ export const useEveryVillainSoundStore = defineStore(
   () => {
     const mix = ref<TacticsMix>(readMix())
     const unlocked = ref(false)
+    const enabled = ref(true)
     let player: TacticsSound | null = null
 
     function engine(): TacticsSound {
       if (!player) {
         player = new TacticsSound()
         player.setMix(mix.value)
+        player.setEnabled(enabled.value)
       }
       return player
     }
@@ -64,6 +66,11 @@ export const useEveryVillainSoundStore = defineStore(
       unlocked.value = engine().unlock()
     }
 
+    function setEnabled(on: boolean): void {
+      enabled.value = on
+      player?.setEnabled(on)
+    }
+
     function setMood(mood: TacticsMood): void {
       engine().setMood(mood)
     }
@@ -85,10 +92,12 @@ export const useEveryVillainSoundStore = defineStore(
     return {
       mix,
       unlocked,
+      enabled,
       loadMix,
       setMix,
       resetMix,
       unlock,
+      setEnabled,
       setMood,
       play,
       setHidden,

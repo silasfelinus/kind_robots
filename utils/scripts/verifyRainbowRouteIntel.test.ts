@@ -6,7 +6,7 @@ import {
   type RainbowSave,
 } from '../arcade/games/rainbowLoadouts'
 import { createRainbowPrincessPreview, isRainbowCheckpoint } from '../arcade/games/rainbowPrincessPreview'
-import { NURSERY_FLIGHT } from '../arcade/games/rainbowLanternNursery'
+import { NURSERY } from '../arcade/games/rainbowLanternNursery'
 
 // Route discovery is earned from the saved in-flight decisions, not the
 // highest Act reached. A fresh slot must not advertise secret passages.
@@ -202,7 +202,7 @@ for (const seats of [1, 2, 3, 4]) {
   })
   assert.equal(game.snapshot.act, 'X1')
   const crew = Array.from({ length: seats }, () => idle)
-  for (let frame = 0; frame < NURSERY_FLIGHT.openingEnds + 3; frame++)
+  for (let frame = 0; frame < NURSERY.openingEnds + 3; frame++)
     game.update(idle, crew)
   const afterSection = readRainbowSave(game.save, isRainbowCheckpoint)
   assert.equal(

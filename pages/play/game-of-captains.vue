@@ -1118,7 +1118,14 @@
                         :aria-pressed="!run.pocketRoom"
                         @click="store.chooseRoom(null)"
                       >
-                        <img :src="COUCH_FALLBACK" alt="" />
+                        <img
+                          :src="
+                            paintedVoyageImage('ship/shield-observation') ||
+                            COUCH_FALLBACK
+                          "
+                          alt=""
+                          @error="onPaintedImageError"
+                        />
                         <span
                           ><strong>Just the couch</strong
                           ><small>Free</small></span
@@ -1157,6 +1164,13 @@
                       "
                       @click="store.rechargeShield()"
                     >
+                      <img
+                        v-if="paintedVoyageImage('ship/shield-storm')"
+                        class="cap-brief-shield-art"
+                        :src="paintedVoyageImage('ship/shield-storm')!"
+                        alt=""
+                        @error="onPaintedImageError"
+                      />
                       <span class="cap-brief-shield-meter" aria-hidden="true"
                         ><i
                           v-for="n in 3"
@@ -2239,8 +2253,18 @@ const POCKET_ROOM_PAINTINGS = {
   'war-room': 'opening/10-war-room',
   infirmary: 'opening/11-infirmary',
 } as const
+// The infirmary folding out of the couch itself (t-008 continuity plate)
+// outranks the opening-reel room when it is available to the viewer.
+const POCKET_ROOM_CONTINUITY: Partial<
+  Record<keyof typeof POCKET_ROOM_PAINTINGS, string>
+> = { infirmary: 'ship/shield-medical' }
 function pocketRoomPainting(id: keyof typeof POCKET_ROOM_PAINTINGS) {
-  return store.onboardingArt[POCKET_ROOM_PAINTINGS[id]] || null
+  const continuity = POCKET_ROOM_CONTINUITY[id]
+  return (
+    (continuity && store.onboardingArt[continuity]) ||
+    store.onboardingArt[POCKET_ROOM_PAINTINGS[id]] ||
+    null
+  )
 }
 const COUCH_FALLBACK = '/game-of-captains/space-couch-stage.svg'
 const paintedVoyageImage = (key: string): string | null =>
@@ -5219,6 +5243,14 @@ function toggleAway(id: CrewId) {
   background: linear-gradient(120deg, #11324a, #172238);
   color: #f3efea;
   text-align: left;
+}
+.cap-brief-shield-art {
+  flex: none;
+  width: clamp(4.5rem, 16cqi, 7rem);
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border: 1px solid #9de6e888;
+  border-radius: 0.6rem;
 }
 .cap-brief-shield:disabled {
   opacity: 0.5;

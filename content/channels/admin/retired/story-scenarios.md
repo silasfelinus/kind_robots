@@ -1,8 +1,8 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: scenarios
-parentTabKey: storybook
+parentTabKey: retired
 dashboardKey: scenario
 dashboardTab: scenarios
 label: Scenarios
@@ -12,6 +12,7 @@ description: Explore branching experiences, create new scenarios, invent solutio
 summary: Create branching scenarios.
 icon: kind-icon:story
 route: /stories
+allowDirectAccess: true
 sort: 60
 tutorial:
   title: Pick a scenario and play it

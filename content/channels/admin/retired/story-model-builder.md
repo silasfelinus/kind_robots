@@ -1,8 +1,8 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: model-builder
-parentTabKey: storybook
+parentTabKey: retired
 dashboardKey: builder
 dashboardTab: model-builder
 label: Models
@@ -12,6 +12,7 @@ description: Define schemas, compose reusable builders, and generate new creatio
 summary: Build reusable creation systems.
 icon: kind-icon:blueprint
 route: /model-builder
+allowDirectAccess: true
 sort: 80
 tutorial:
   title: Run a record through the build gates

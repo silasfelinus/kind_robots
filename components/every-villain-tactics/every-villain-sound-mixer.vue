@@ -1,6 +1,10 @@
 <template>
   <fieldset class="evt-sound" data-testid="tactics-sound-mixer">
     <legend>Original music &amp; sound</legend>
+    <p v-if="!sound.enabled" class="evt-sound-warning">
+      The Playbook Kit's Sound setting is off. Turn it on in the console
+      settings to hear the score and effects.
+    </p>
     <label class="evt-sound-mute">
       <input
         type="checkbox"
@@ -68,6 +72,11 @@ function setVolume(channel: VolumeChannel, event: Event): void {
   border: 1px solid rgb(255 255 255 / 0.24);
   border-radius: 0.9rem;
   background: rgb(15 10 40 / 0.45);
+}
+.evt-sound-warning {
+  color: #ffce67;
+  line-height: 1.4;
+  font-size: 0.8rem;
 }
 .evt-sound legend {
   padding: 0 0.4rem;

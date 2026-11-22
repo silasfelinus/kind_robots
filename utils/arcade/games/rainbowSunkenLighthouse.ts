@@ -27,6 +27,7 @@ export const LIGHTHOUSE = {
   guardianTo: 7320,
   guardianName: 'Drowned Bellkeeper',
   lampsToLight: 6,
+  lampWindowFrames: 90,
 } as const
 
 /** The cleared relay offers X3 through the upper corridor. A tied crew follows
@@ -223,6 +224,19 @@ export function lighthouseSpawns(frame: number): readonly LighthouseSpawn[] {
 
 export function lighthouseLampAt(frame: number) {
   return LIGHTHOUSE_LAMPS.find((lamp) => lamp.at === frame) ?? null
+}
+
+/** A real lamp stays collectible for 90 frames after its appearance. The beam
+ * is telegraphed in advance; bitmask ownership prevents double rewards. */
+export function lighthouseCollectibleLamp(frame: number, mask: number) {
+  if (!Number.isInteger(frame) || !Number.isInteger(mask) || mask < 0 ||
+    mask >= 1 << LIGHTHOUSE.lampsToLight)
+    return null
+  return LIGHTHOUSE_LAMPS.find((lamp, index) =>
+    frame >= lamp.at &&
+    frame < lamp.at + LIGHTHOUSE.lampWindowFrames &&
+    (mask & (1 << index)) === 0,
+  ) ?? null
 }
 
 /** A six-bit mask survives retries; collecting the same lamp twice is inert. */

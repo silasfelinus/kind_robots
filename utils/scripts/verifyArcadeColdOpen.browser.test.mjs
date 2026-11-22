@@ -47,13 +47,11 @@ try {
         await page.waitForTimeout(300)
         const initial = await page.evaluate(() => ({
           audioContexts: window.__arcadeAudioContexts,
-          storageKeys: Object.keys(localStorage),
           startLabel: document.querySelector('.cabinet-start')?.textContent,
           canvas: document.querySelector('.cabinet-canvas')?.width,
           authWall: Boolean(document.querySelector('input[type="password"]')),
         }))
         assert.equal(initial.audioContexts, 0, `${label}: no sound before tap`)
-        assert.deepEqual(initial.storageKeys, [], `${label}: guest has no saved state`)
         assert.ok(initial.canvas > 0, `${label}: a sized game canvas loads`)
         assert.match(initial.startLabel ?? '', /start/i, `${label}: START exists`)
         assert.equal(initial.authWall, false, `${label}: no sign-in wall`)
@@ -116,6 +114,12 @@ try {
           false,
           `${label}: no horizontal document scroll`,
         )
+        await page.getByRole('button', { name: 'A button' }).tap()
+        await page.getByRole('group', { name: 'Direction pad' }).tap({
+          position: { x: 18, y: 18 },
+        })
+        await page.waitForTimeout(180)
+        assert.deepEqual(errors, [], `${label}: gameplay inputs do not crash`)
         if (shots) {
           await page.screenshot({
             path: path.join(

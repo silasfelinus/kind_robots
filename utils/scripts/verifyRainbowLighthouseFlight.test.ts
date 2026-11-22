@@ -11,6 +11,7 @@ import {
   LIGHTHOUSE_WAVES,
   LIGHTHOUSE_WAVE_SIZES,
   lighthouseCheckpointValid,
+  lighthouseCollectibleLamp,
   lighthouseDetourFor,
   lighthouseGuardianActive,
   lighthouseMedalEarned,
@@ -49,6 +50,15 @@ assert.equal(lighthouseStage(7680), 'boss')
 assert.equal(lighthouseGuardianActive(6690, 'relay', true, CROWN_REEF_PYLONS), true)
 assert.equal(lighthouseGuardianActive(7320, 'relay', true, CROWN_REEF_PYLONS), false)
 assert.equal(lighthouseGuardianActive(6700, 'cache', true, CROWN_REEF_PYLONS), false)
+assert.equal(lighthouseCollectibleLamp(719, 0), null)
+assert.equal(lighthouseCollectibleLamp(720, 0)?.id, 'lamp-1')
+assert.equal(lighthouseCollectibleLamp(809, 0)?.id, 'lamp-1')
+assert.equal(lighthouseCollectibleLamp(810, 0), null)
+assert.equal(lighthouseCollectibleLamp(721, 1), null)
+assert.equal(lighthouseCollectibleLamp(1740, 0)?.id, 'lamp-2')
+assert.equal(lighthouseCollectibleLamp(1741, 2), null)
+assert.equal(lighthouseCollectibleLamp(Number.NaN, 0), null)
+assert.equal(lighthouseCollectibleLamp(720, 64), null)
 assert.equal(lighthouseMedalEarned(0), false)
 assert.equal(lighthouseMedalEarned(63), true)
 assert.equal(lightLighthouseLamp(0, 1), 1)

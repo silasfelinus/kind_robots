@@ -152,9 +152,13 @@ try {
 
         if (state.hall) {
           try {
-            await page.getByRole('link', { name: 'Back to the Arcade hall' }).click()
-            await page.waitForURL((url) =>
-              url.pathname === '/play/arcade' && !url.searchParams.has('game'),
+            await page
+              .getByRole('link', { name: 'Back to the Arcade hall' })
+              .click()
+            await page.waitForURL(
+              (url) =>
+                url.pathname === '/play/arcade' &&
+                !url.searchParams.has('game'),
             )
             await page.locator('.arcade-hall').waitFor({ state: 'visible' })
           } catch (err) {

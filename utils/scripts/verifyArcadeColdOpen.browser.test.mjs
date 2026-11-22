@@ -3,10 +3,7 @@ import { mkdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
-import {
-  bundleCabinetFixture,
-  openCabinet,
-} from './arcadeCabinetFixture.mjs'
+import { bundleCabinetFixture, openCabinet } from './arcadeCabinetFixture.mjs'
 
 // A fresh guest opens each showcase cabinet on a phone and tablet. Unlike an
 // SSR/canvas probe, these tests press the real cabinet START switch and inspect
@@ -38,11 +35,12 @@ try {
   for (const viewport of viewports) {
     for (const slug of slugs) {
       const label = `${slug} ${viewport.width}x${viewport.height}`
-      const { page, context, errors } = await openCabinet(
-        browser,
-        fixture,
-        { slug, ...viewport, touch: true, audioProbe: true },
-      )
+      const { page, context, errors } = await openCabinet(browser, fixture, {
+        slug,
+        ...viewport,
+        touch: true,
+        audioProbe: true,
+      })
       try {
         await page.waitForTimeout(300)
         const initial = await page.evaluate(() => ({
@@ -53,7 +51,11 @@ try {
         }))
         assert.equal(initial.audioContexts, 0, `${label}: no sound before tap`)
         assert.ok(initial.canvas > 0, `${label}: a sized game canvas loads`)
-        assert.match(initial.startLabel ?? '', /start/i, `${label}: START exists`)
+        assert.match(
+          initial.startLabel ?? '',
+          /start/i,
+          `${label}: START exists`,
+        )
         assert.equal(initial.authWall, false, `${label}: no sign-in wall`)
 
         await page.locator('.cabinet-start').tap()
@@ -93,14 +95,19 @@ try {
             leaveVisible: inViewport(leave),
             controls: controls.length,
             reachableControls: controls.filter(inViewport).length,
-            horizontalScroll: document.documentElement.scrollWidth > innerWidth + 1,
+            horizontalScroll:
+              document.documentElement.scrollWidth > innerWidth + 1,
           }
         })
         assert.ok(
           playing.audioContexts > 0,
           `${label}: START gesture unlocks WebAudio`,
         )
-        assert.equal(playing.stageVisible, true, `${label}: screen stays visible`)
+        assert.equal(
+          playing.stageVisible,
+          true,
+          `${label}: screen stays visible`,
+        )
         assert.equal(playing.pauseVisible, true, `${label}: pause reachable`)
         assert.equal(playing.leaveVisible, true, `${label}: exit reachable`)
         assert.ok(playing.controls > 0, `${label}: gameplay has touch inputs`)

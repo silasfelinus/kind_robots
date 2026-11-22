@@ -48,15 +48,16 @@ const stateChanged = () => {
 
 assert.equal(images.length, 2, 'first realm loads board and piece atlas')
 assert.equal(images[0]!.src, '/images/chessweeper/sugarbomb-board.webp')
-assert.equal(
-  images[1]!.src,
-  '/images/chessweeper/sugarbomb-piece-atlas.webp',
-)
+assert.equal(images[1]!.src, '/images/chessweeper/sugarbomb-piece-atlas.webp')
 assert.equal(root.dataset.boardArt, undefined, 'no board art before load')
 assert.equal(root.dataset.pieceArt, undefined, 'no piece art before load')
 images[0]!.onload()
 assert.equal(root.dataset.boardArt, 'ready')
-assert.equal(root.dataset.pieceArt, undefined, 'board load cannot reveal pieces')
+assert.equal(
+  root.dataset.pieceArt,
+  undefined,
+  'board load cannot reveal pieces',
+)
 images[1]!.onload()
 assert.equal(root.dataset.pieceArt, 'ready')
 
@@ -66,8 +67,16 @@ assert.equal(images.length, 2, 'render loop does not issue repeat requests')
 root.dataset.realm = 'ashen'
 stateChanged()
 assert.equal(images.length, 4, 'world switch starts two independent loads')
-assert.equal(root.dataset.boardArt, undefined, 'world switch shows board fallback')
-assert.equal(root.dataset.pieceArt, undefined, 'world switch shows piece glyphs')
+assert.equal(
+  root.dataset.boardArt,
+  undefined,
+  'world switch shows board fallback',
+)
+assert.equal(
+  root.dataset.pieceArt,
+  undefined,
+  'world switch shows piece glyphs',
+)
 assert.equal(images[2]!.src, '/images/chessweeper/ashen-board.webp')
 assert.equal(images[3]!.src, '/images/chessweeper/ashen-piece-atlas.webp')
 images[0]!.onload()
@@ -84,10 +93,7 @@ root.dataset.realm = 'jackpot'
 stateChanged()
 assert.equal(images.length, 6)
 assert.equal(images[4]!.src, '/images/chessweeper/jackpot-board.webp')
-assert.equal(
-  images[5]!.src,
-  '/images/chessweeper/jackpot-piece-atlas.webp',
-)
+assert.equal(images[5]!.src, '/images/chessweeper/jackpot-piece-atlas.webp')
 images[5]!.onload()
 assert.equal(root.dataset.pieceArt, 'ready')
 assert.equal(root.dataset.boardArt, undefined)

@@ -1415,6 +1415,9 @@ jobs:
       - name: Chessweeper painted board loading and fallback contract
         run: npm run test:chessweeper-board-art
 
+      - name: Chessweeper seeded mines, first-probe and discs contract
+        run: npm run test:chessweeper-seeded
+
       - name: Chessweeper gesture-safe audio score and settings contract
         run: npm run test:chessweeper-soundscape
 

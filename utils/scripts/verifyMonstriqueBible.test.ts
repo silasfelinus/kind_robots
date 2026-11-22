@@ -129,6 +129,31 @@ assert.equal(dataset.length, 10)
 assert.ok(dataset.every(({ body }) => body.isMature === false))
 const portrait = bibleEnqueueBodies('norb', 'portrait', ['arthemy'])
 assert.equal(portrait[0]!.body.checkpoint, BIBLE_LANES[0]!.checkpoint)
+// Lead redesign, Silas 2026-11-22 PT: black hair, a little person, cartoon
+// grotesque eyes. Tag-trained lanes get tags; portraits use the signature face.
+assert.match(iris.identity.join(' '), /jet-black hair/)
+assert.ok(iris.never.includes('brown hair'))
+assert.match(norb.identity.join(' '), /little person/)
+assert.match(norb.identity.join(' '), /left eye much larger/)
+assert.match(norb.caricature!, /1990s TV cartoon/)
+for (const id of ['iris', 'norb'] as const) {
+  const [tagged, prose] = bibleEnqueueBodies(id, 'portrait', [
+    'arthemy',
+    'krea2',
+  ])
+  const tagPrompt = String(tagged!.body.promptString)
+  assert.ok(tagPrompt.startsWith('masterpiece'), id + ' tag portrait')
+  assert.ok(tagPrompt.includes(CHARACTER_MODELS[id].tags!))
+  assert.doesNotMatch(tagPrompt, /knowing lopsided smirk/)
+  assert.match(tagPrompt, /every character an adult/)
+  assert.match(String(prose!.body.promptString), /mnstq_/)
+}
+assert.match(
+  String(
+    bibleEnqueueBodies('norb', 'portrait', ['krea2'])[0]!.body.promptString,
+  ),
+  /rubbery 1990s TV cartoon/,
+)
 assert.ok(BIBLE_LANES.some((lane) => /arthemy/i.test(lane.checkpoint ?? '')))
 assert.ok(BIBLE_LANES.some((lane) => lane.engine === 'krea2'))
 assert.ok(LORA_STATUSES.includes('dataset-requested'))

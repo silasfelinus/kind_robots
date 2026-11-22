@@ -404,7 +404,8 @@ for (const adventure of TRIO_ADVENTURES) {
 }
 const redoArt = {
   'trios/brin-kivo-tess-ending-a': 262157,
-  'trios/mox-sora-taal-ending-b': 262173,
+  // Superseded by its kept CURATION-REDO-2 render (2026-11-22 PT curation).
+  'trios/mox-sora-taal-ending-b': 278517,
   'trios/kivo-omi-taal-step-1': 262183,
 }
 for (const [key, imageId] of Object.entries(redoArt))

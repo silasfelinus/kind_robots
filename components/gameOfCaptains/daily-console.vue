@@ -1,5 +1,8 @@
 <template>
   <section class="space-daily" data-testid="space-couch-daily-console">
+    <div class="daily-stage-art" aria-hidden="true">
+      <img :src="backdrop" alt="" />
+    </div>
     <header class="daily-opening">
       <img
         :src="backdrop"
@@ -220,7 +223,21 @@
                 <span class="daily-skill"
                   >REQUIRES {{ enc.skill.toUpperCase() }}</span
                 >
-                <span class="daily-slot">
+                <span
+                  class="daily-slot"
+                  :class="{ 'daily-slot-filled': !!assignments[enc.id] }"
+                >
+                  <img
+                    v-if="
+                      !completed(enc.id) &&
+                      assignments[enc.id] &&
+                      actorImage(assignments[enc.id]!)
+                    "
+                    class="daily-slot-face"
+                    :src="actorImage(assignments[enc.id]!)!"
+                    alt=""
+                    @error="onEpisodeArtworkError"
+                  />
                   <template v-if="completed(enc.id)">
                     <b>{{ completionResult(enc.id) }}</b>
                     <small>{{
@@ -784,6 +801,11 @@ function togglePlotCast(id: string) {
 }
 function actorName(id: string): string {
   return actors.value.find((actor) => actor.id === id)?.name ?? id
+}
+/** A placed officer's painted portrait, so a filled slot reads as casting. */
+function actorImage(id: string): string | null {
+  const image = actors.value.find((actor) => actor.id === id)?.image
+  return image && !brokenArtwork.value.includes(image) ? image : null
 }
 function completed(id: string): boolean {
   return !!props.run.expeditionVisit?.results.some(
@@ -1508,15 +1530,35 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 @container (max-width: 740px) {
   .daily-body {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(7rem, 26%) minmax(0, 1fr);
+    grid-template-rows: minmax(8rem, 28%) minmax(0, 1fr);
     padding: 0.45rem;
     gap: 0.45rem;
   }
+  /* Phone and tablet: the cast is one swipeable row. Its header and the
+     recruit button stay compact so each card keeps room for name and role. */
   .daily-cast-stack {
     display: flex;
+    flex: 1 0 auto;
     flex-wrap: nowrap;
+    align-items: stretch;
     overflow-x: auto;
     overflow-y: hidden;
+    padding: 0.35rem 0.45rem;
+  }
+  .daily-cast .daily-section-head {
+    padding: 0.35rem 0.6rem;
+  }
+  .daily-hire {
+    margin: 0 0.45rem 0.35rem;
+    padding: 0.3rem;
+  }
+  .daily-actor-text {
+    gap: 0.05rem;
+  }
+  .daily-actor-text small {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .daily-cast {
     min-height: 0;
@@ -1524,6 +1566,7 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   .daily-actor {
     min-width: 8.8rem;
     max-width: 10.5rem;
+    padding: 0.25rem 0.4rem;
   }
   .daily-actor-face {
     flex-basis: 2rem;
@@ -1701,5 +1744,234 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 .daily-sidequest-reopen:hover,
 .daily-return-to-plot:hover {
   background: #57728b;
+}
+/* ------------------------------------------------------------------------
+   Console art pass (Silas 2026-11-22 PT: "much more art forward ... a AAA
+   console game experience, not a webapp"). The episode painting fills the
+   whole screen; panels are glass over it; officers are painted cards. */
+.daily-stage-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.daily-stage-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  filter: saturate(1.08);
+  transform: scale(1.03);
+}
+.daily-stage-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 70% 18%, transparent 0, #070b1a66 55%),
+    linear-gradient(180deg, #070b1a1a 0, #070b1a80 38%, #070b1ad0 100%);
+}
+.space-daily > :not(.daily-stage-art) {
+  position: relative;
+  z-index: 1;
+}
+.daily-opening {
+  border-bottom: 0;
+  background: transparent;
+}
+.daily-opening > img,
+.daily-opening::after {
+  display: none;
+}
+.daily-opening h2 {
+  font-size: clamp(1.8rem, 5.2cqi, 3.8rem);
+  text-shadow:
+    0 3px 0 #0008,
+    0 10px 40px #000c;
+}
+.daily-opening p {
+  text-shadow: 0 2px 10px #000;
+}
+.daily-cast,
+.daily-quest-zone,
+.daily-decks {
+  border-color: #ffffff26;
+  border-radius: 1rem;
+  background: #0a10247a;
+  backdrop-filter: blur(14px) saturate(1.25);
+  box-shadow: 0 20px 60px -20px #000c;
+}
+.daily-section-head {
+  border-bottom-color: #ffffff1f;
+  background: transparent;
+}
+.daily-instruction {
+  display: none;
+}
+.daily-cast-stack {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.daily-actor {
+  position: relative;
+  display: block;
+  height: clamp(8rem, 14cqi, 11.5rem);
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #ffffff2e;
+  border-radius: 0.8rem;
+  background: #10162c;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+.daily-actor:hover:not(:disabled),
+.daily-actor:focus-visible {
+  transform: translateY(-3px);
+  border-color: #ffd39a;
+}
+.daily-actor.selected {
+  border-color: #ffc67c;
+  box-shadow:
+    0 0 0 2px #ffc67c,
+    0 0 28px #ffb2667a;
+  background: #10162c;
+}
+.daily-actor-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  font:
+    900 2.4rem Georgia,
+    serif;
+  background: linear-gradient(160deg, #a84a4a, #4a2235);
+}
+.daily-actor-face img {
+  object-position: center 22%;
+}
+.daily-actor-text {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 1.6rem 0.5rem 0.45rem;
+  background: linear-gradient(180deg, transparent, #070b1af0 60%);
+}
+.daily-actor-text b {
+  font:
+    700 clamp(0.78rem, 1.2cqi, 0.95rem) / 1.1 Georgia,
+    serif;
+}
+.daily-actor-text small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.daily-actor-stats {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  min-width: 1.6rem;
+  padding: 0.12rem 0.35rem;
+  border-radius: 999px;
+  background: #070b1acc;
+  text-align: center;
+  font-size: 0.8rem;
+}
+.daily-hire {
+  border-radius: 0.7rem;
+  background: #53293899;
+}
+.daily-quest {
+  border: 1px solid #ffffff24;
+  border-top: 4px solid #7592be;
+  border-radius: 0.9rem;
+  background: linear-gradient(160deg, #2a3358d9, #121a33e6);
+  box-shadow: 0 12px 30px -16px #000;
+}
+.daily-quest > strong {
+  font-size: clamp(1.05rem, 1.7cqi, 1.3rem);
+}
+.daily-quest-tools {
+  border: 0;
+  background: transparent;
+}
+.daily-slot {
+  position: relative;
+  min-height: 3.4rem;
+  overflow: hidden;
+  border-radius: 0.6rem;
+}
+.daily-slot-filled {
+  padding-left: 3.6rem;
+  border-style: solid;
+  border-color: #ffc67c;
+  background: #2b1f2ccc;
+}
+.daily-slot-face {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3.2rem;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+}
+.daily-action-row {
+  border-top-color: #ffffff1f;
+  background: #070b1ab3;
+}
+.daily-action-row [data-testid='space-couch-expedition-deploy'] {
+  padding: 0.85rem 1.3rem;
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  background: linear-gradient(90deg, #f6c58c, #ea8f78);
+  box-shadow: 0 0 26px #f0a46a66;
+}
+@container (max-width: 740px) {
+  .daily-body {
+    grid-template-rows: minmax(11rem, 35%) minmax(0, 1fr);
+  }
+  .daily-cast-stack {
+    display: flex;
+    flex: 0 0 auto;
+    height: 6rem;
+  }
+  .daily-actor {
+    flex: 0 0 4.8rem;
+    min-width: 4.8rem;
+    max-width: 4.8rem;
+    height: 100%;
+    padding: 0;
+  }
+  .daily-actor-face {
+    flex-basis: auto;
+    height: 100%;
+  }
+  .daily-actor-text {
+    padding: 1.1rem 0.3rem 0.25rem;
+  }
+  .daily-actor-text b {
+    font-size: 0.66rem;
+  }
+  .daily-actor-text small {
+    display: none;
+  }
+  .daily-actor-stats {
+    top: 0.2rem;
+    right: 0.2rem;
+    min-width: 1.2rem;
+    font-size: 0.66rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .daily-actor {
+    transition: none;
+  }
+  .daily-stage-art img {
+    transform: none;
+  }
 }
 </style>

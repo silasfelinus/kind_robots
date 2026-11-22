@@ -131,13 +131,28 @@ const shipped = WARP_ART.filter((key) => key.startsWith('redshirts/portraits/'))
 assert.ok(shipped.length > 0, 'existing approved art remains in the manifest')
 assert.equal(
   WARP_ART.filter((key) => key.startsWith('redshirts/secret-powers/')).length,
-  99,
-  'do not invent the remaining secret-power plate',
+  // The 100th plate (rs-007) shipped only after the 2026-11-22 PT
+  // REDSHIRTS-ROUND-3 keep verdict; never add plates without one.
+  100,
+  'every secret-power plate is a curated keeper',
 )
 console.log(
   'Space Couch selected ArtSlot delivery, privacy gates and shipped fallback verified',
 )
 
+// Curated 2026-11-22 PT (conductor REDSHIRTS-ROUND-3.yaml verdicts): 17 keep,
+// 7 redo (rs-024, 036, 046, 055, 063, 073, 095 re-render in CURATION-REDO-2).
+const ROUND3_KEEPERS = new Set([
+  ...[2, 3, 5, 6, 7, 9, 10, 13, 15, 18, 22, 64, 69, 88, 99, 100].map(
+    (n) => `redshirts/portraits/rs-${String(n).padStart(3, '0')}`,
+  ),
+  'redshirts/secret-powers/rs-007',
+  // CURATION-REDO-2 keepers (2026-11-22 PT) for the seven round-3 rejects.
+  ...[24, 36, 46, 55, 63, 73, 95].map(
+    (n) => `redshirts/portraits/rs-${String(n).padStart(3, '0')}`,
+  ),
+])
+assert.equal(ROUND3_KEEPERS.size, 24)
 assert.equal(REDSHIRT_ROUND3_CANDIDATES.length, 24)
 assert.equal(
   REDSHIRT_ROUND3_CANDIDATES.filter(([key]) =>
@@ -162,9 +177,9 @@ assert.ok(
       jobId <= 68274 &&
       imageId >= 270068 &&
       imageId <= 270092 &&
-      !WARP_ART.includes(key),
+      WARP_ART.includes(key) === ROUND3_KEEPERS.has(key),
   ),
-  'review candidates remain unshipped and must not overwrite accepted art',
+  'only curated round-3 keepers ship; rejected candidates stay unshipped',
 )
 const sync = readFileSync(
   'server/api/game-of-captains/redshirt-art/sync.post.ts',

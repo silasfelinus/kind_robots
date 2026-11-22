@@ -7,6 +7,8 @@
     }"
     data-layout="console-fixed"
     aria-label="Space Couch"
+    @pointerdown.capture="onSoundGesture"
+    @keydown.capture="onSoundGesture"
   >
     <shell-console-theme theme="space-couch" />
     <section
@@ -147,6 +149,7 @@
           </p>
           <div class="cap-settings-list max-h-64 min-h-0 overflow-y-auto">
             <PlaybookKitSettings :spec="SPACE_COUCH_KIT" />
+            <SpaceCouchSoundMixer />
           </div>
           <p v-if="kit.storageWarning" role="alert">
             {{ kit.storageWarning }}
@@ -545,11 +548,13 @@
             </button>
             <button
               type="button"
-              class="cap-reset"
+              class="cap-reset cap-menu-button"
               data-testid="space-couch-return-menu"
+              aria-label="Menu"
               @click="openCouchMenu"
             >
-              MENU
+              <span class="cap-menu-glyph" aria-hidden="true">☰</span
+              ><span class="cap-menu-label">MENU</span>
             </button>
             <button
               v-if="run"
@@ -751,156 +756,14 @@
                   </button>
                 </template>
                 <template v-else-if="selectionScreen === 'captain'">
-                  <div class="cap-captains">
-                    <button
-                      v-for="captain in CAPTAINS"
-                      :key="captain.id"
-                      type="button"
-                      class="cap-captain"
-                      :class="{
-                        chosen: captain.id === selectedCaptain,
-                        'cap-captain-ready':
-                          captainArtReady[captain.id] ||
-                          !portrait('captain-' + captain.id),
-                      }"
-                      :aria-pressed="captain.id === selectedCaptain"
-                      @click="selectedCaptain = captain.id"
-                    >
-                      <span
-                        class="cap-captain-icon"
-                        :data-portrait-key="'captain-' + captain.id"
-                        aria-hidden="true"
-                        ><img
-                          v-if="portrait('captain-' + captain.id)"
-                          :src="portrait('captain-' + captain.id)!"
-                          alt=""
-                          class="cap-portrait-img"
-                          @load="captainArtReady[captain.id] = true"
-                          @error="captainArtReady[captain.id] = true"
-                        /><template v-else>{{
-                          captain.name.split(' ').at(-1)?.slice(0, 1)
-                        }}</template></span
-                      >
-                      <span class="cap-captain-copy"
-                        ><strong>{{ captain.name }}</strong
-                        ><small>{{ captain.epithet }}</small></span
-                      >
-                    </button>
-                  </div>
-                  <div class="cap-personnel-dossier" aria-live="polite">
-                    <figure
-                      class="cap-personnel-hero"
-                      data-testid="space-couch-captain-hero"
-                    >
-                      <img
-                        v-if="captainDossierPortrait"
-                        :src="captainDossierPortrait"
-                        :alt="
-                          activeCaptain.name + ' full-size character portrait'
-                        "
-                        class="cap-personnel-hero-image"
-                        @error="
-                          onPortraitError($event, 'captain-' + selectedCaptain)
-                        "
-                      />
-                      <div v-else class="cap-personnel-hero-fallback">
-                        <strong>{{ activeCaptain.name.slice(0, 1) }}</strong>
-                      </div>
-                    </figure>
-                    <div class="cap-dossier-header">
-                      <img
-                        v-if="portrait('captain-' + selectedCaptain)"
-                        :src="portrait('captain-' + selectedCaptain)!"
-                        :alt="activeCaptain.name + ' portrait'"
-                      />
-                      <span v-else class="cap-dossier-monogram">{{
-                        activeCaptain.name.slice(-1)
-                      }}</span>
-                      <span
-                        ><strong>{{ activeCaptain.name }}</strong
-                        ><small>{{ activeCaptain.epithet }}</small></span
-                      >
-                      <button
-                        type="button"
-                        data-testid="space-couch-captain-dossier-tab"
-                        @click="
-                          captainDossierTab =
-                            captainDossierTab === 'stats'
-                              ? 'history'
-                              : captainDossierTab === 'history'
-                                ? 'orders'
-                                : 'stats'
-                        "
-                      >
-                        {{
-                          captainDossierTab === 'stats'
-                            ? 'STORY ▸'
-                            : captainDossierTab === 'history'
-                              ? 'ORDERS ▸'
-                              : 'STATS ▸'
-                        }}
-                      </button>
-                    </div>
-                    <div
-                      class="cap-stats cap-personnel-essential-stats"
-                      data-testid="space-couch-captain-stats"
-                      aria-label="Captain statistics"
-                    >
-                      <div v-for="skill in SKILLS" :key="skill">
-                        <small>{{ skill.toUpperCase() }}</small>
-                        <strong>{{ captainStats[skill] }}</strong>
-                      </div>
-                    </div>
-                    <template v-if="captainDossierTab === 'stats'">
-                      <div class="cap-insight">
-                        <strong>{{ activeCaptain.doctrine }}</strong
-                        ><small
-                          >Advantage: {{ activeCaptain.ability }} · Price:
-                          {{ activeCaptain.cost }}</small
-                        >
-                      </div>
-                    </template>
-                    <div
-                      v-else-if="captainDossierTab === 'history'"
-                      class="cap-insight cap-dossier-story"
-                    >
-                      <strong>Personal history</strong>
-                      <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].history }}</p>
-                      <section
-                        class="cap-character-promise"
-                        data-testid="couch-captain-promise"
-                      >
-                        <h3>{{ CAPTAIN_DOSSIERS[selectedCaptain].hook }}</h3>
-                        <p>{{ CAPTAIN_DOSSIERS[selectedCaptain].oddity }}</p>
-                        <strong>YOUR KIND OF TROUBLE</strong>
-                        <p>
-                          {{ CAPTAIN_DOSSIERS[selectedCaptain].storyPromise }}
-                        </p>
-                        <small>{{
-                          CAPTAIN_DOSSIERS[selectedCaptain].crewSpark
-                        }}</small>
-                      </section>
-                    </div>
-                    <div v-else class="cap-insight cap-dossier-story">
-                      <strong>First order and unresolved liability</strong>
-                      <small
-                        >First order:
-                        {{ CAPTAIN_DOSSIERS[selectedCaptain].opening }}</small
-                      >
-                      <small
-                        >Unresolved liability:
-                        {{ CAPTAIN_DOSSIERS[selectedCaptain].liability }}</small
-                      >
-                    </div>
-                  </div>
-                  <button
-                    class="cap-primary"
-                    type="button"
-                    data-testid="captains-choose-crew"
-                    @click="selectionScreen = 'background'"
-                  >
-                    CHOOSE YOUR BACKGROUND <span>➜</span>
-                  </button>
+                  <SpaceCouchCaptainGallery
+                    v-model="selectedCaptain"
+                    :fallback-portrait="(id) => portrait('captain-' + id)"
+                    :fallback-image="COUCH_FALLBACK"
+                    :large-text="store.preferences.largeText"
+                    :reduced-motion="store.preferences.reducedMotion"
+                    @next="selectionScreen = 'background'"
+                  />
                 </template>
                 <template v-else>
                   <button
@@ -1255,7 +1118,14 @@
                         :aria-pressed="!run.pocketRoom"
                         @click="store.chooseRoom(null)"
                       >
-                        <img :src="COUCH_FALLBACK" alt="" />
+                        <img
+                          :src="
+                            paintedVoyageImage('ship/shield-observation') ||
+                            COUCH_FALLBACK
+                          "
+                          alt=""
+                          @error="onPaintedImageError"
+                        />
                         <span
                           ><strong>Just the couch</strong
                           ><small>Free</small></span
@@ -1294,6 +1164,13 @@
                       "
                       @click="store.rechargeShield()"
                     >
+                      <img
+                        v-if="paintedVoyageImage('ship/shield-storm')"
+                        class="cap-brief-shield-art"
+                        :src="paintedVoyageImage('ship/shield-storm')!"
+                        alt=""
+                        @error="onPaintedImageError"
+                      />
                       <span class="cap-brief-shield-meter" aria-hidden="true"
                         ><i
                           v-for="n in 3"
@@ -2087,6 +1964,9 @@
           </footer>
         </section>
       </div>
+      <template #settings-extra>
+        <SpaceCouchSoundMixer />
+      </template>
     </PlaybookKitShell>
     <SpaceCouchAlienMilestone
       v-if="store.collectorIncident || store.collectorReport"
@@ -2110,7 +1990,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useGameOfCaptainsStore } from '~/stores/gameOfCaptainsStore'
 import { SPACE_COUCH_KIT } from '~/utils/playbookKit/games/spaceCouch'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
@@ -2190,6 +2070,10 @@ import SpaceCouchAlienMilestone from '~/components/gameOfCaptains/alien-mileston
 import SpaceCouchDailyConsole from '~/components/gameOfCaptains/daily-console.vue'
 import SpaceCouchConstellationTest from '~/components/gameOfCaptains/constellation-test.vue'
 import SpaceCouchCrewBoard from '~/components/gameOfCaptains/crew-board.vue'
+import SpaceCouchSoundMixer from '~/components/gameOfCaptains/sound-mixer.vue'
+import SpaceCouchCaptainGallery from '~/components/gameOfCaptains/captain-gallery.vue'
+import { useSpaceCouchSoundStore } from '~/stores/spaceCouchSoundStore'
+import { couchCuesFor, couchMoodFor } from '~/utils/gameOfCaptains/sound'
 import {
   starSignFor,
   type StarAssessment,
@@ -2222,7 +2106,6 @@ const selectionScreen = ref<'background' | 'captain' | 'stars' | 'crew'>(
 )
 const selectedOrigin = ref<CaptainOriginId | null>(null)
 const originReady = ref<Record<string, boolean>>({})
-const captainArtReady = ref<Record<string, boolean>>({})
 function markOriginReady(id: string) {
   originReady.value[id] = true
 }
@@ -2297,7 +2180,6 @@ const starAssessment = ref<StarAssessment | null>(null)
 const wildBreak = ref<WildBreakRecord | null>(null)
 const focusedCrew = ref<CrewId>('pell')
 type PortraitMood = 'neutral' | 'defiant' | 'vulnerable'
-const captainDossierTab = ref<'stats' | 'history' | 'orders'>('stats')
 const crewDossierTab = ref<'history' | 'route' | 'stats'>('history')
 const run = computed(() => store.run)
 const missionSupplySwing = computed(() => {
@@ -2371,8 +2253,18 @@ const POCKET_ROOM_PAINTINGS = {
   'war-room': 'opening/10-war-room',
   infirmary: 'opening/11-infirmary',
 } as const
+// The infirmary folding out of the couch itself (t-008 continuity plate)
+// outranks the opening-reel room when it is available to the viewer.
+const POCKET_ROOM_CONTINUITY: Partial<
+  Record<keyof typeof POCKET_ROOM_PAINTINGS, string>
+> = { infirmary: 'ship/shield-medical' }
 function pocketRoomPainting(id: keyof typeof POCKET_ROOM_PAINTINGS) {
-  return store.onboardingArt[POCKET_ROOM_PAINTINGS[id]] || null
+  const continuity = POCKET_ROOM_CONTINUITY[id]
+  return (
+    (continuity && store.onboardingArt[continuity]) ||
+    store.onboardingArt[POCKET_ROOM_PAINTINGS[id]] ||
+    null
+  )
 }
 const COUCH_FALLBACK = '/game-of-captains/space-couch-stage.svg'
 const paintedVoyageImage = (key: string): string | null =>
@@ -2669,7 +2561,6 @@ const nemesisLine = computed(() =>
 const missionPreview = computed(() =>
   run.value?.phase === 'briefing' ? previewMission(run.value) : null,
 )
-const captainStats = computed(() => CAPTAIN_STATS[selectedCaptain.value])
 function crewProfile(id: CrewId) {
   return CREW_PROFILES.find((person) => person.id === id)!
 }
@@ -2761,7 +2652,6 @@ function restartVoyage() {
   wildBreak.value = null
   selectionScreen.value = 'captain'
   chosenCrew.value = []
-  captainDossierTab.value = 'stats'
   crewDossierTab.value = 'history'
   selectedOrigin.value = null
   atTitle.value = false
@@ -2779,6 +2669,45 @@ function startNewVoyage() {
   titlePanel.value = 'home'
   restartVoyage()
 }
+// Sound and music (t-046). Nothing plays until the first tap or key press;
+// the Playbook Kit's Sound setting is the master switch.
+const sound = useSpaceCouchSoundStore()
+function onSoundGesture(event: Event) {
+  if (kit.settings.sound === 'off') return
+  sound.unlock()
+  const target = event.target as HTMLElement | null
+  if (event.type === 'pointerdown' && target?.closest?.('button')) {
+    sound.play(['tap'])
+  }
+}
+watch(
+  () => kit.settings.sound,
+  (value) => sound.setEnabled(value !== 'off'),
+  { immediate: true },
+)
+watch(
+  () => store.run,
+  (next, prev) => {
+    if (kit.settings.sound !== 'off') sound.play(couchCuesFor(prev, next))
+  },
+  { immediate: true },
+)
+watch(
+  () => (atTitle.value ? 'title' : couchMoodFor(store.run)),
+  (mood) => sound.setMood(mood),
+  { immediate: true },
+)
+function onSoundVisibility() {
+  sound.setHidden(document.visibilityState === 'hidden')
+}
+onMounted(() => {
+  document.addEventListener('visibilitychange', onSoundVisibility)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onSoundVisibility)
+  sound.stop()
+})
+
 onMounted(() => {
   store.load()
   void store.loadOnboardingArt()
@@ -3204,10 +3133,14 @@ function toggleAway(id: CrewId) {
 .cap-toolbar {
   flex: 1 1 auto;
   min-width: 0;
+  /* Its own size container: the Kit bar leaves it 75-320px, and its
+     contents need ~410px, so it sheds items by its own width. */
+  container: cap-toolbar / inline-size;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0 0.25rem 0 0.5rem;
+  padding: 0 0.15rem;
   color: var(--color-base-content);
   font-family: system-ui, sans-serif;
   font-size: 0.64rem;
@@ -3277,7 +3210,7 @@ function toggleAway(id: CrewId) {
 .cap-reset:hover {
   background: var(--color-base-300);
 }
-@container (max-width: 760px) {
+@container cap-toolbar (max-width: 420px) {
   .cap-flight {
     display: none;
   }
@@ -3285,21 +3218,47 @@ function toggleAway(id: CrewId) {
     margin-left: auto;
   }
 }
-@container (max-width: 560px) {
+@container cap-toolbar (max-width: 310px) {
   .cap-wordmark {
     display: none;
   }
   .cap-signal-label {
     display: none;
   }
+  .cap-wordmark + .cap-actions,
+  .cap-actions {
+    margin-left: auto;
+  }
 }
-@container (max-width: 440px) {
-  .cap-toolbar {
-    gap: 0.3rem;
-    padding-left: 0.25rem;
+/* NEW VOYAGE stays reachable from MENU. */
+@container cap-toolbar (max-width: 200px) {
+  .cap-new-voyage {
+    display: none;
+  }
+}
+@container cap-toolbar (max-width: 120px) {
+  .cap-reset {
+    padding: 0.3rem 0.4rem;
     font-size: 0.56rem;
   }
-  .cap-new-voyage {
+}
+.cap-menu-glyph {
+  display: none;
+}
+/* A phone leaves the toolbar about one icon wide: MENU becomes a glyph. */
+@container cap-toolbar (max-width: 70px) {
+  .cap-hud-row {
+    display: none;
+  }
+  .cap-menu-button {
+    padding: 0.25rem 0.3rem;
+  }
+  .cap-menu-glyph {
+    display: inline;
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+  .cap-menu-label {
     display: none;
   }
 }
@@ -3344,10 +3303,14 @@ function toggleAway(id: CrewId) {
 .cap-personnel-frame[data-screen='background'] {
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
-.cap-personnel-frame[data-screen='captain'],
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
+}
+/* Captain selection is one art-first gallery (captain-gallery.vue). */
+.cap-personnel-frame[data-screen='captain'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 .cap-personnel-frame .cap-heading {
   grid-column: 1 / -1;
@@ -3642,7 +3605,6 @@ function toggleAway(id: CrewId) {
   font-size: clamp(0.85rem, 1.4cqi, 1.1rem);
 }
 @media (max-width: 650px) {
-  .cap-personnel-frame[data-screen='captain'],
   .cap-personnel-frame[data-screen='crew'] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.55fr) auto;
@@ -4812,16 +4774,11 @@ function toggleAway(id: CrewId) {
   }
 }
 
-.cap-personnel-frame[data-screen='captain'],
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
 }
 .cap-personnel-frame[data-screen='crew'] {
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-}
-/* Captain screen has no heading row: the roster and dossier fill the frame. */
-.cap-personnel-frame[data-screen='captain'] {
-  grid-template-rows: minmax(0, 1fr) auto;
 }
 /* Dossier: portrait column on the left, name / stats / notes on the right. */
 .cap-personnel-frame .cap-personnel-dossier {
@@ -4924,22 +4881,15 @@ function toggleAway(id: CrewId) {
   bottom: 0.3rem;
 }
 @media (max-width: 650px) {
-  .cap-personnel-frame[data-screen='captain'],
   .cap-personnel-frame[data-screen='crew'] {
     grid-template-columns: minmax(0, 0.45fr) minmax(0, 0.55fr);
     grid-template-rows: auto minmax(0, 1fr) auto;
-  }
-  .cap-personnel-frame[data-screen='captain'] {
-    grid-template-rows: minmax(0, 1fr) auto;
   }
   .cap-personnel-frame .cap-personnel-dossier {
     grid-row: 2;
     grid-column: 2;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1.2fr) auto auto minmax(3.6rem, 0.6fr);
-  }
-  .cap-personnel-frame[data-screen='captain'] .cap-personnel-dossier {
-    grid-row: 1;
   }
   .cap-personnel-frame .cap-personnel-dossier > .cap-personnel-hero,
   .cap-personnel-frame .cap-personnel-dossier > :not(.cap-personnel-hero) {
@@ -5293,6 +5243,14 @@ function toggleAway(id: CrewId) {
   background: linear-gradient(120deg, #11324a, #172238);
   color: #f3efea;
   text-align: left;
+}
+.cap-brief-shield-art {
+  flex: none;
+  width: clamp(4.5rem, 16cqi, 7rem);
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border: 1px solid #9de6e888;
+  border-radius: 0.6rem;
 }
 .cap-brief-shield:disabled {
   opacity: 0.5;

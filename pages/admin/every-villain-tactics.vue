@@ -1775,6 +1775,7 @@ import {
   CREW_TELL_ART,
   CREW_TELL_BEATS,
   crewTellReceipt,
+  crewUnitArtReceipt,
   isCrewTellKind,
   type CrewTellBeat,
   type CrewTellKind,
@@ -1832,11 +1833,7 @@ const selectedCrewBeat = ref<CrewTellBeat>('warning')
 const activeCrewKinds = computed<CrewTellKind[]>(() => {
   const kinds = new Set<CrewTellKind>()
   for (const unit of store.state.units) {
-    if (
-      unit.team === 'rival' &&
-      unit.hp > 0 &&
-      isCrewTellKind(unit.henchmanType)
-    ) {
+    if (unit.hp > 0 && isCrewTellKind(unit.henchmanType)) {
       kinds.add(unit.henchmanType)
     }
   }
@@ -1847,6 +1844,7 @@ watch(
   ([kinds]) => {
     for (const kind of kinds) {
       void paintedArt.ensure(CREW_TELL_ART[kind].beats.warning.imageId)
+      void paintedArt.ensure(CREW_TELL_ART[kind].beats.action.imageId)
     }
   },
   { immediate: true },
@@ -2110,6 +2108,8 @@ const aftermathArt = computed(() =>
       ) ?? promArt('front/splash-v2')),
 )
 function unitPortrait(unit: Unit): string | null {
+  const crew = crewUnitArtReceipt(unit)
+  if (crew) return paintedArt.images[crew.imageId]?.src || null
   const role =
     (unit.team === 'rival') !== (store.perspective === 'villain')
       ? 'villain'

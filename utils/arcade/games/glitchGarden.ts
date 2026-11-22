@@ -951,13 +951,11 @@ class GlitchGarden implements ArcadeGameInstance {
     this.padShift = 0
   }
 
-
-
   private plantSnowballs(count: number) {
     this.snowballsFixed = 0
     this.snowballs = Array.from({ length: count }, (_, i) => ({
-      x: (4 + (i * 7) % 23) * CELL + 4,
-      y: HUD + (2 + i % 3) * CELL,
+      x: (4 + ((i * 7) % 23)) * CELL + 4,
+      y: HUD + (2 + (i % 3)) * CELL,
       hp: SNOWBALL_HP,
       vy: 0.65 + 0.12 * i,
     }))
@@ -1720,11 +1718,17 @@ class GlitchGarden implements ArcadeGameInstance {
     if (this.garden.icyBed) {
       this.glideX = Math.max(
         -ICE_MAX_SPEED,
-        Math.min(ICE_MAX_SPEED, this.glideX * ICE_DRAG + Math.sign(dx) * ICE_ACCEL),
+        Math.min(
+          ICE_MAX_SPEED,
+          this.glideX * ICE_DRAG + Math.sign(dx) * ICE_ACCEL,
+        ),
       )
       this.glideY = Math.max(
         -ICE_MAX_SPEED,
-        Math.min(ICE_MAX_SPEED, this.glideY * ICE_DRAG + Math.sign(dy) * ICE_ACCEL),
+        Math.min(
+          ICE_MAX_SPEED,
+          this.glideY * ICE_DRAG + Math.sign(dy) * ICE_ACCEL,
+        ),
       )
       dx = this.glideX
       dy = this.glideY

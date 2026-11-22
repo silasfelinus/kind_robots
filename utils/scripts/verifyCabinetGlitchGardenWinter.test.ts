@@ -61,10 +61,8 @@ const make = (seed = 17) =>
     demo: false,
     hiScore: 0,
   }) as unknown as Probe
-const countFrost = (g: Probe) =>
-  g.grid.filter((ob) => ob?.frosted).length
-const at = (g: Probe, col: number, row: number) =>
-  g.grid[row * COLS + col]!
+const countFrost = (g: Probe) => g.grid.filter((ob) => ob?.frosted).length
+const at = (g: Probe, col: number, row: number) => g.grid[row * COLS + col]!
 
 assert.equal(GARDENS.length, 8)
 assert.equal(PLAYS_PER_LAP, 43)
@@ -115,8 +113,7 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
     const x = col * CELL + CELL / 2
     const y = HUD + (row + 1) * CELL + CELL / 2
     const beam = g.newBeam(x, y, false)
-    for (let i = 0; i < 4 && !at(g, col, row)?.lit; i++)
-      g.stepBeam(beam)
+    for (let i = 0; i < 4 && !at(g, col, row)?.lit; i++) g.stepBeam(beam)
     assert.ok(at(g, col, row)?.lit, 'real beam lights a heater')
   }
   assert.ok(g.objectiveDone, 'four live heaters award Warm Up')
@@ -138,8 +135,7 @@ assert.ok(SNOWBALL_HILL.waves.every((w) => w.snowballs > 0))
   assert.ok(g.glideX > 0)
   const ball = g.snowballs[0]!
   assert.equal(ball.hp, SNOWBALL_HP)
-  for (let i = 0; i < SNOWBALL_HP; i++)
-    assert.ok(g.hitSnowball(ball.x, ball.y))
+  for (let i = 0; i < SNOWBALL_HP; i++) assert.ok(g.hitSnowball(ball.x, ball.y))
   assert.equal(g.snowballsFixed, 1)
   assert.equal(g.snowballs.length, 0, 'sprayed snowball is fixed')
 }

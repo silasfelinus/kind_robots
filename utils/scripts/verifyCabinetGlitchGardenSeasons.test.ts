@@ -735,7 +735,10 @@ const registry = ARCADE_GAMES.find((g) => g.slug === 'glitch-garden')!
   }
   for (let n = 1; n <= 33; n++)
     assert.ok(seen.has(n), `the pilot reached wave ${n}`)
-  assert.ok(g.level >= 34 && g.lap === 0, 'and reached Winter after the Gourd Hydra')
+  assert.ok(
+    g.level >= 34 && g.lap === 0,
+    'and reached Winter after the Gourd Hydra',
+  )
   assert.ok(g.score > 0 && g.score < registry.maxPlausibleScore)
   console.log(
     `  pilot: waves 1-33 and three season bosses in ${ticks} ticks, ${g.score} points`,

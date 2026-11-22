@@ -943,7 +943,6 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
       wasp: false,
       frost: 14,
       objective: {
-
         kind: 'warm-heaters',
 
         title: 'WARM UP',
@@ -953,7 +952,6 @@ export const FROST_FRAME_GREENHOUSE: Garden = {
         count: 4,
 
         bonus: 2400,
-
       },
       sub: 'THE WINTER WATCH',
     }),
@@ -1079,7 +1077,6 @@ export const SNOWBALL_HILL: Garden = {
       wasp: false,
       snowballs: 3,
       objective: {
-
         kind: 'snow-day',
 
         title: 'SNOW DAY',
@@ -1089,7 +1086,6 @@ export const SNOWBALL_HILL: Garden = {
         count: 3,
 
         bonus: 2800,
-
       },
       sub: 'THE WINTER WATCH',
     }),

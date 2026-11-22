@@ -61,7 +61,10 @@ for (const invalid of [
   )
 }
 assert.equal(
-  rainbowSlotSummary({ checkpoint: { act: 3, frame: 0 }, medals: null } as unknown as Parameters<typeof rainbowSlotSummary>[0]),
+  rainbowSlotSummary({
+    checkpoint: { act: 3, frame: 0 },
+    medals: null,
+  } as unknown as Parameters<typeof rainbowSlotSummary>[0]),
   'Act 3 · 0 medals',
 )
 assert.equal(

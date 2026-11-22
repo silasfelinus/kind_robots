@@ -9,7 +9,10 @@ import type { ArcadeDifficulty, ArcadeMasteryGoal } from '../types'
 import type { RainbowCheckpoint } from './rainbowCheckpoints'
 import { lighthouseCheckpointValid } from './rainbowSunkenLighthouse'
 import { cometCheckpointValid } from './rainbowCoralComet'
-import { nurseryFlightCheckpointValid } from './rainbowLanternNursery'
+import {
+  choirMaskFitsFrame,
+  nurseryFlightCheckpointValid,
+} from './rainbowLanternNursery'
 import { mirrorShoalCheckpointValid } from './rainbowMirrorShoal'
 
 /**
@@ -301,6 +304,7 @@ export function readRainbowSave(
     return null
   if (c.cadetsHome !== undefined && !bool(c.cadetsHome)) return null
   if (c.freedChoir !== undefined && !bool(c.freedChoir)) return null
+  if (c.freedChoir === true && (c.act as number) < 4) return null
   if (
     c.nurseryFrame !== undefined &&
     (!nurseryFlightCheckpointValid(
@@ -309,7 +313,12 @@ export function readRainbowSave(
       c as RainbowCheckpoint,
     ) ||
       !count(c.nurseryHits, 999) ||
-      (c.nurseryChoirMask !== undefined && !count(c.nurseryChoirMask, 31)))
+      (c.nurseryChoirMask !== undefined &&
+        (!count(c.nurseryChoirMask, 31) ||
+          !choirMaskFitsFrame(
+            c.nurseryFrame as number,
+            c.nurseryChoirMask as number,
+          ))))
   )
     return null
   if (

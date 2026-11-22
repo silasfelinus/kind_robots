@@ -51,3 +51,9 @@
   border-color: #5aaeda;
   background: #172544;
 }
+
+.chess-campaign-bonus {
+  color: var(--gold);
+  font-size: 10px;
+  line-height: 1.35;
+}

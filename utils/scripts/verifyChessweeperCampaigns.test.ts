@@ -61,14 +61,24 @@ const engine = {
     callbacks.get('chessweeper:state')?.({})
   },
 }
+const events: Array<{ type: string; detail?: unknown }> = []
+class MockCustomEvent {
+  constructor(public type: string, public options?: { detail?: unknown }) {}
+  get detail() { return this.options?.detail }
+}
 const windowObject: Record<string, unknown> = {
   __fusionTest: engine,
+  dispatchEvent: (event: { type: string; detail?: unknown }) => {
+    events.push(event)
+    return true
+  },
   addEventListener: (
     name: string,
     fn: (event: { detail?: { type: string } }) => void,
   ) => callbacks.set(name, fn),
 }
 runInNewContext(js, {
+  CustomEvent: MockCustomEvent,
   document: fakeDocument,
   window: windowObject,
   localStorage: {
@@ -79,7 +89,8 @@ runInNewContext(js, {
 type Campaign = {
   current: (world: string) => { chapter: number; cleared: boolean }
   worldCount: number
-  chapters: (world: string) => number
+  chapters: (world: string) => number,
+  trial: (world: string, chapter: number) => string[] | null
 }
 const campaign = windowObject.__chessweeperCampaign as Campaign
 assert.equal(campaign.worldCount, 3)
@@ -126,4 +137,22 @@ const html = readFileSync(
 )
 assert.ok(html.includes('src="/chessweeper/campaign.js"'))
 assert.ok(html.includes('href="/chessweeper/campaign.css"'))
+
+// Optional chapter goals are recorded only when their actual gameplay events fire.
+{
+  const goals = ['sugar', 'ashen', 'jackpot']
+  for (const name of goals) {
+    for (let chapter = 0; chapter < 4; chapter++) {
+      assert.equal(campaign.trial(name, chapter)?.length, 2)
+    }
+  }
+  const stored = JSON.parse(values.get('kindrobots:chessweeper:campaign:v1')!)
+  assert.equal(stored.worlds.sugar.mastery & 1, 1, 'guard mastery earned by three hearts')
+  assert.equal(stored.worlds.ashen.mastery || 0, 0, 'losing never awards mastery')
+  assert.ok(
+    Array.isArray(events),
+    'mastery events are captured without unlocking fictitious chapters',
+  )
+}
+
 console.log('chessweeper three-world campaign chapters: ok')

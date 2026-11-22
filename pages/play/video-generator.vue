@@ -42,16 +42,6 @@
                 {{ videoStore.history.totalCount }}
               </span>
             </button>
-            <button
-              type="button"
-              class="btn btn-sm rounded-xl"
-              :class="activePanel === 'music' ? 'btn-accent' : 'btn-ghost'"
-              :aria-pressed="activePanel === 'music'"
-              @click="selectPanel('music')"
-            >
-              <icon name="kind-icon:music" class="kr-icon-4" />
-              Music videos
-            </button>
             <span
               v-if="videoStore.hasActiveJobs"
               class="kr-badge-accent-sm"
@@ -62,18 +52,14 @@
           </nav>
           <span class="vg-bar-engine kr-badge-ghost-sm">
             {{
-              activePanel === 'music'
-                ? 'Music video studio'
-                : activeEngine.label +
-                  ' · ' +
-                  (selectedPreset?.label || 'Custom')
+              activeEngine.label + ' · ' + (selectedPreset?.label || 'Custom')
             }}
           </span>
         </div>
       </header-page-bar>
 
       <div
-        v-if="!isLoggedIn && activePanel !== 'music'"
+        v-if="!isLoggedIn"
         class="alert alert-warning text-sm"
         role="alert"
       >
@@ -81,7 +67,6 @@
         account's mana.
       </div>
 
-      <MusicVideoStudio v-if="activePanel === 'music'" />
       <div v-show="activePanel === 'create'" class="space-y-4">
         <section class="kr-panel-flat p-3">
           <div class="grid items-start gap-4 lg:grid-cols-[auto_minmax(0,1fr)]">
@@ -1050,9 +1035,7 @@ const recentArtFilters: { value: RecentArtFilter; label: string }[] = [
   { value: 'mature', label: 'Mature' },
   { value: 'sfw', label: 'SFW' },
 ]
-const activePanel = ref<'create' | 'jobs' | 'music'>(
-  route.query.studio === 'music' ? 'music' : 'create',
-)
+const activePanel = ref<'create' | 'jobs'>('create')
 const pendingDeleteId = ref<number | null>(null)
 const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
@@ -1217,14 +1200,11 @@ function formatJobDate(value: Date | string): string {
   })
 }
 
-function selectPanel(panel: 'create' | 'jobs' | 'music'): void {
+function selectPanel(panel: 'create' | 'jobs'): void {
   activePanel.value = panel
   const query = { ...route.query }
-  if (panel === 'music') query.studio = 'music'
-  else {
-    delete query.studio
-    delete query.video
-  }
+  delete query.studio
+  delete query.video
   if (
     route.query.studio !== query.studio ||
     route.query.video !== query.video
@@ -1232,14 +1212,6 @@ function selectPanel(panel: 'create' | 'jobs' | 'music'): void {
     void router.replace({ query })
   }
 }
-
-watch(
-  () => route.query.studio,
-  (studio) => {
-    if (studio === 'music') activePanel.value = 'music'
-    else if (activePanel.value === 'music') activePanel.value = 'create'
-  },
-)
 
 function openJobs(): void {
   selectPanel('jobs')
@@ -1342,6 +1314,12 @@ async function useArtImageAsFirst(artImageId: number): Promise<void> {
 }
 
 onMounted(() => {
+  if (route.query.studio === 'music') {
+    const query = { ...route.query }
+    delete query.studio
+    void router.replace({ path: '/admin/music-video', query })
+    return
+  }
   const saved = videoStore.loadStudioSettings()
   if (saved) restoreStudioSettings(saved)
   const requested = Number(route.query.artImageId)

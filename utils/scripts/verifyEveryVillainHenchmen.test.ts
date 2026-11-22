@@ -8,6 +8,11 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import {
+  CREW_COMBAT_ART,
+  CREW_COMBAT_POSES,
+  crewCombatReceipt,
+} from '../everyVillainTactics/crewCombatArt'
+import {
   CREW_TELL_ART,
   CREW_TELL_BEATS,
   crewTellReceipt,
@@ -588,3 +593,44 @@ console.log(
     JSON.stringify(tally) +
     ').',
 )
+
+
+const combatGroups = [
+  ['burrow', 76658, 278823],
+  ['phase', 76662, 278827],
+  ['windup', 76666, 278831],
+] as const
+assert.equal(CREW_COMBAT_POSES.length, 4)
+for (const [kind, firstJob, firstImage] of combatGroups) {
+  for (const [index, pose] of CREW_COMBAT_POSES.entries()) {
+    const receipt = CREW_COMBAT_ART[kind][pose]
+    assert.equal(receipt.jobId, firstJob + index)
+    assert.equal(receipt.imageId, firstImage + index)
+    assert.match(receipt.artKey, new RegExp('/combat/' + pose + '$'))
+  }
+  const unit = { id: kind, hp: 1, maxHp: 1, henchmanType: kind }
+  assert.equal(
+    crewCombatReceipt(unit)?.imageId,
+    CREW_COMBAT_ART[kind].idle.imageId,
+  )
+  assert.equal(
+    crewCombatReceipt(unit, { attacker: kind })?.imageId,
+    CREW_COMBAT_ART[kind].strike.imageId,
+  )
+  assert.equal(
+    crewCombatReceipt(unit, { target: kind, hit: true })?.imageId,
+    CREW_COMBAT_ART[kind].hit.imageId,
+  )
+  assert.equal(
+    crewCombatReceipt({ ...unit, hp: 0 })?.imageId,
+    CREW_COMBAT_ART[kind].defeat.imageId,
+  )
+  assert.equal(crewCombatReceipt({ ...unit, maxHp: 4 }), null)
+  assert.equal(crewCombatReceipt({ ...unit, lieutenantName: 'Boss' }), null)
+}
+assert.equal(
+  crewCombatReceipt({ id: 'x', hp: 1, maxHp: 1, henchmanType: '__proto__' }),
+  null,
+)
+assert.match(page, /crewCombatReceipt\(unit, store\.state\.impact\)/)
+assert.match(page, /paintedArt\.ensure\(CREW_COMBAT_ART\[kind\]\[pose\]\.imageId\)/)

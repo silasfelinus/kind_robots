@@ -117,6 +117,7 @@ type Hail = {
   hits: number
   skidTicks: number
   hitCooldown: number
+  lastHitBloom?: Bloom
 }
 type Shot = {
   x: number
@@ -215,16 +216,38 @@ function sphereRows(
 }
 
 /** Hailstones: an icy ball, with a frost glint that winks as it tumbles. */
-const HAIL_BODY = sphereRows(5, 5, 2.5, 2.5, 2.7)
+const HAIL_BODY = sphereRows(9, 9, 4.5, 4.5, 4.6)
 const HAIL_SPRITES = [
   pixelSprite(HAIL_BODY, rampPalette(ICE)),
   pixelSprite(
     HAIL_BODY.map((row, y) =>
-      y === 3 ? row.slice(0, 3) + '4' + row.slice(4) : row,
+      y === 4 ? row.slice(0, 4) + '4' + row.slice(5) : row,
     ),
     rampPalette(ICE),
   ),
 ] as const
+const RAIN_DROP = pixelSprite(
+  [
+    '....3....',
+    '...333...',
+    '..33333..',
+    '.3333333.',
+    '.3333333.',
+    '333333333',
+    '333333333',
+    '.3333333.',
+    '..33333..',
+  ],
+  { '3': RAMPS.water[3] },
+)
+const MOTH_SPRITE = pixelSprite(
+  ['4...4...4', '44.444.44', '.4444444.', '..44444..', '...333...', '..3...3..'],
+  { '4': RAMPS.purple[4], '3': RAMPS.gold[3] },
+)
+const SLEET_SPRITE = pixelSprite(
+  ['..444....', '.43334...', '4333334..', '.43334...', '..444....', '....44...', '.....44..'],
+  { '4': RAMPS.sky[4], '3': RAMPS.steel[3] },
+)
 
 /** A zippy lightning sprite, flickering between two charges. */
 const BOLT_ROWS = [
@@ -839,7 +862,7 @@ class RainCatcher implements ArcadeGameInstance {
 
   private catchHail(h: Hail, bloom: Bloom) {
     if (h.vx === 0 && h.vy === 0) return
-    if (h.hitCooldown > 0) return
+    if (h.hitCooldown > 0 || h.lastHitBloom === bloom) return
 
     if (h.kind === 'rain') {
       h.vx = 0
@@ -870,6 +893,7 @@ class RainCatcher implements ArcadeGameInstance {
 
     if (h.hits > 1) {
       h.hits--
+      h.lastHitBloom = bloom
       h.hitCooldown = 18
       this.burst(h.x, h.y, 7, '#ffffff')
       this.sound.play('warn')
@@ -1183,6 +1207,16 @@ class RainCatcher implements ArcadeGameInstance {
       k.fillRect(259, 56, 1, 1)
       k.fillRect(266, 54, 1, 1)
     })
+    const skyTints = [
+      RAMPS.pink[2],
+      RAMPS.sky[2],
+      RAMPS.gold[2],
+      RAMPS.water[2],
+      RAMPS.purple[2],
+      RAMPS.teal[2],
+    ]
+    g.fillStyle = rgba(skyTints[this.forecast.skyBand]!, 0.13)
+    g.fillRect(0, 0, W, GROUND)
     drawStars(g, STARS, this.tick, RAMPS.purple)
     // The storm deck: a far bank of cloud, lightning flickering inside it, a nearer bank.
     const [far, near] = DECKS
@@ -1277,7 +1311,27 @@ class RainCatcher implements ArcadeGameInstance {
       }
     })
     BEDS.forEach((x, i) => this.renderBed(g, x, i))
+    BARRELS.forEach((x, i) => this.renderBarrel(g, x, i))
     LAUNCHERS.forEach((x, i) => this.renderLauncher(g, x, i))
+  }
+
+  private renderBarrel(
+    g: CanvasRenderingContext2D,
+    x: number,
+    i: number,
+  ) {
+    bevel(g, x - 6, GROUND - 7, 12, 9, RAMPS.wood, {
+      depth: 1,
+    })
+    g.fillStyle = RAMPS.water[3]
+    for (let fill = 0; fill < this.barrels[i]!; fill++) {
+      g.fillRect(x - 4, GROUND - 1 - fill * 2, 8, 2)
+    }
+    drawText(g, String(this.barrels[i]), x, GROUND - 16, {
+      align: 'center',
+      color: RAMPS.water[4],
+      outline: INK,
+    })
   }
 
   private renderBed(g: CanvasRenderingContext2D, x: number, i: number) {
@@ -1313,6 +1367,20 @@ class RainCatcher implements ArcadeGameInstance {
         ? DROOP_SPRITE
         : BED_SPRITES[(Math.floor(this.tick / 24) + i) % 2]!
     drawSprite(g, sprite, x, GROUND - 2, { anchor: 'feet' })
+    if (health >= 3) {
+      for (let petal = -1; petal <= 1; petal++) {
+        const px = x + petal * 6
+        const py = GROUND - 15 - (petal === 0 ? 4 : 0)
+        shadedOrb(
+          g,
+          px,
+          py,
+          health >= 4 ? 4 : 2,
+          health === 5 ? RAMPS.gold : RAMPS.pink,
+          { glint: health === 5 },
+        )
+      }
+    }
   }
 
   private renderLauncher(g: CanvasRenderingContext2D, x: number, i: number) {
@@ -1399,7 +1467,14 @@ class RainCatcher implements ArcadeGameInstance {
 
   private renderHail(g: CanvasRenderingContext2D, h: Hail, i: number) {
     // The streak it leaves (the classic trail), brightening toward the stone.
-    const colour = h.sprite ? RAMPS.gold[3] : ICE[3]
+    const colour =
+      h.kind === 'rain'
+        ? RAMPS.water[4]
+        : h.kind === 'moth'
+          ? RAMPS.purple[4]
+          : h.sprite
+            ? RAMPS.gold[3]
+            : ICE[3]
     const trail = g.createLinearGradient(h.x0, h.y0, h.x, h.y)
     trail.addColorStop(0, rgba(colour, 0))
     trail.addColorStop(1, rgba(colour, 0.55))
@@ -1418,7 +1493,28 @@ class RainCatcher implements ArcadeGameInstance {
       drawSprite(g, BOLT_SPRITES[frame]!, h.x, h.y, { flipX: h.vx < 0 })
       return
     }
-    glow(g, h.x, h.y, 6, ICE[3], 0.35)
+    if (h.kind === 'rain') {
+      glow(g, h.x, h.y, 7, RAMPS.water[3], 0.6)
+      drawSprite(g, RAIN_DROP, h.x, h.y)
+      return
+    }
+    if (h.kind === 'moth') {
+      glow(g, h.x, h.y, 8, RAMPS.purple[3], 0.4)
+      drawSprite(g, MOTH_SPRITE, h.x, h.y)
+      return
+    }
+    if (h.kind === 'sleet') {
+      glow(g, h.x, h.y, 8, RAMPS.sky[3], 0.4)
+      drawSprite(g, SLEET_SPRITE, h.x, h.y)
+      return
+    }
+    glow(g, h.x, h.y, 9, ICE[3], 0.35)
+    if (h.kind === 'snowball') {
+      shadedOrb(g, h.x, h.y, h.hits === 2 ? 6 : 4, ICE, {
+        glint: true,
+      })
+      return
+    }
     drawSprite(g, HAIL_SPRITES[frame]!, h.x, h.y)
   }
 
@@ -1569,6 +1665,18 @@ class RainCatcher implements ArcadeGameInstance {
       color: RAMPS.teal[3],
       outline: INK,
     })
+    drawText(g, this.forecast.garden.toUpperCase(), W / 2, 29, {
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    if (this.chain > 1) {
+      drawText(g, this.chain + ' PETAL CHAIN', W / 2, 40, {
+        align: 'center',
+        color: RAMPS.pink[4],
+        outline: INK,
+      })
+    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 92, {
         scale: 2,

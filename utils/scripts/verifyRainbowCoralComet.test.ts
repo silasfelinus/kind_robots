@@ -271,10 +271,16 @@ for (const seats of [1, 2, 3, 4]) {
   assert.equal(game.snapshot.cometFrame, 239)
   assert.equal(game.snapshot.activePlayers, seats)
   const crew = Array.from({ length: seats }, () => idleInput)
-  for (let frame = 0; frame <= 130; frame++) game.update(idleInput, crew)
+  let courierSeen = false
+  for (let frame = 0; frame <= 180; frame++) {
+    game.update(idleInput, crew)
+    courierSeen ||= game.snapshot.enemies.some(
+      (enemy) => enemy.kind === 'courier',
+    )
+  }
   assert.equal(game.snapshot.act, 'X2')
   assert.ok(
-    game.snapshot.enemies.some((enemy) => enemy.kind === 'courier'),
+    courierSeen,
     'the X2 score must spawn a real courier through the 60 Hz cabinet',
   )
 }

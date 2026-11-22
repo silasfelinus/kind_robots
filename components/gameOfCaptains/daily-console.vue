@@ -70,7 +70,7 @@
             >
               <span class="daily-actor-face">
                 <img
-                  v-if="actor.image"
+                  v-if="actor.image && !brokenArtwork.includes(actor.image)"
                   :src="actor.image"
                   alt=""
                   @error="onEpisodeArtworkError"
@@ -156,7 +156,7 @@
               >
                 <span class="daily-actor-face">
                   <img
-                    v-if="actor.image"
+                    v-if="actor.image && !brokenArtwork.includes(actor.image)"
                     :src="actor.image"
                     alt=""
                     @error="onEpisodeArtworkError"

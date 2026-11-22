@@ -2,6 +2,12 @@ import { usePlaybookRunReviewStore } from '~/stores/playbookRunReviewStore'
 import { playbookRunKey } from '~/utils/playbook/runReview'
 import { computed, ref } from 'vue'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
+import {
+  TERM_ARCHIVE_KEY,
+  addCompletedTerm,
+  readTermArchive,
+  type AcademyTermPage,
+} from '~/utils/cometAcademy/termArchive'
 import type { SiteId } from '~/utils/cometAcademy/cityMap'
 import type { PatrolZoneId } from '~/utils/cometAcademy/nightPatrols'
 import type { MissionApproach } from '~/utils/cometAcademy/expandedNightCases'
@@ -100,6 +106,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
   const yearbook = ref<AcademyYearbook>({})
   const settings = ref<PromSettings>({ ...DEFAULT_SETTINGS })
   const dossiers = ref<string[]>([])
+  const termArchive = ref<AcademyTermPage[]>([])
   // What the term had already earned at the last action, so the next action
   // awards only what it newly earned. A load or import resets it silently.
   let deedFacts = NO_ACADEMY_FACTS
@@ -154,6 +161,11 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     yearbook.value = { ...yearbook.value, [current.signature]: entry }
   }
 
+  function recordTerm() {
+    if (!run.value) return
+    termArchive.value = addCompletedTerm(termArchive.value, run.value, Date.now())
+  }
+
   const incidents = computed(() => (run.value ? incidentsFor(run.value) : []))
   const tactical = computed(() => run.value?.tacticalBattle ?? null)
 
@@ -162,6 +174,8 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     try {
       recordIdentity()
       recordDossier()
+      recordTerm()
+      localStorage.setItem(TERM_ARCHIVE_KEY, JSON.stringify(termArchive.value))
       if (run.value) localStorage.setItem(SAVE_KEY, JSON.stringify(run.value))
       else localStorage.removeItem(SAVE_KEY)
       localStorage.setItem(YEARBOOK_KEY, JSON.stringify(yearbook.value))
@@ -227,6 +241,13 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       settings.value = { ...DEFAULT_SETTINGS }
     }
     try {
+      termArchive.value = readTermArchive(
+        JSON.parse(localStorage.getItem(TERM_ARCHIVE_KEY) ?? 'null'),
+      )
+    } catch {
+      termArchive.value = []
+    }
+    try {
       const raw = localStorage.getItem(SAVE_KEY)
       run.value = restoreAcademy(raw ? JSON.parse(raw) : null)
       deedFacts = academyDeedFacts(run.value)
@@ -237,6 +258,17 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
       run.value = null
       storageWarning.value =
         'Your previous save could not be loaded. You can begin a new term.'
+    }
+    if (run.value?.phase === 'ending') {
+      const count = termArchive.value.length
+      recordTerm()
+      if (termArchive.value.length !== count) {
+        try {
+          localStorage.setItem(TERM_ARCHIVE_KEY, JSON.stringify(termArchive.value))
+        } catch {
+          storageWarning.value = 'This browser cannot save your finished term.'
+        }
+      }
     }
   }
 
@@ -552,6 +584,7 @@ export const useCometAcademyStore = defineStore('cometAcademy', () => {
     yearbook,
     settings,
     dossiers,
+    termArchive,
     load,
     begin,
     beginFirstWeek,

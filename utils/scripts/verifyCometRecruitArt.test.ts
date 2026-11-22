@@ -36,7 +36,9 @@ assert.ok(store.includes('artJobs.imageSrcById[receipt.artImageId]'))
 assert.ok(page.includes('const recruitArt = useRecruitArtStore()'))
 assert.ok(page.includes('if (isAdmin) void recruitArt.loadAll()'))
 assert.ok(page.includes("recruitArt.imageFor(id, 'neutral')"))
-assert.ok(page.includes("recruitArt.imageFor("))
+assert.ok(page.includes('recruitArt.imageFor('))
 assert.ok(page.includes('recoveringFollower(run.value, id as StudentId)'))
 
-console.log('Prom: eight private recruit ArtImages mapped to admin roster safely.')
+console.log(
+  'Prom: eight private recruit ArtImages mapped to admin roster safely.',
+)

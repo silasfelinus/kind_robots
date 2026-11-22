@@ -1418,6 +1418,9 @@ jobs:
       - name: Chessweeper seeded mines, first-probe and discs contract
         run: npm run test:chessweeper-seeded
 
+      - name: Chessweeper gesture-safe audio score and settings contract
+        run: npm run test:chessweeper-soundscape
+
       - name: Chessweeper authored world campaigns and chapter progress
         run: npm run test:chessweeper-campaigns
 

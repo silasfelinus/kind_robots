@@ -202,3 +202,9 @@ html.meta-embedded .wrap {
     font-size: 17px;
   }
 }
+
+.meta-line input[type='range'] {
+  width: min(44%, 220px);
+  height: 24px;
+  cursor: pointer;
+}

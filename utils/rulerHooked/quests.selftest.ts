@@ -333,7 +333,9 @@ for (const id of QUESTS)
       `${scenario.id} must never recur after either choice`,
     )
     assert.equal(
-      eligiblePool(entrenched, allDeckCards(C)).some((c) => c.id === scenario.id),
+      eligiblePool(entrenched, allDeckCards(C)).some(
+        (c) => c.id === scenario.id,
+      ),
       false,
     )
 
@@ -348,8 +350,14 @@ for (const id of QUESTS)
         scenario.id !== 'weir-reckoning',
         `${scenario.id} starts with the species state its earlier choice caused`,
       )
-      assert.equal(has(restored, scenario.fish), scenario.id === 'weir-reckoning')
-      assert.equal(has(entrenched, scenario.fish), scenario.id !== 'weir-reckoning')
+      assert.equal(
+        has(restored, scenario.fish),
+        scenario.id === 'weir-reckoning',
+      )
+      assert.equal(
+        has(entrenched, scenario.fish),
+        scenario.id !== 'weir-reckoning',
+      )
       if (scenario.id === 'marina-reckoning')
         assert.equal(has(restored, 'sunspoke-koi'), true)
     }

@@ -1289,8 +1289,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 4,
           characters: ['lake-spirit-nix', 'warlock-vex'],
           title: 'The Spring That Never Came',
-          body:
-            'Three springs after the netting feast, the sturgeon still gather below your stone weir. Nix has counted them. Vex offers a sluice that would stop his mill for a week each year. The millworkers, who have children and debts, stand beside him.',
+          body: 'Three springs after the netting feast, the sturgeon still gather below your stone weir. Nix has counted them. Vex offers a sluice that would stop his mill for a week each year. The millworkers, who have children and debts, stand beside him.',
           art: 'card-weir-reckoning',
           trigger: {
             minTurn: 20,
@@ -1329,8 +1328,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 4,
           characters: ['captain-cordelia', 'smuggler-brack'],
           title: 'The Fish That Ate the Moat',
-          body:
-            'Cordelia holds up a bony grey roach from the castle moat. Brack says it ate his bait, his hook and the first page of his apology. The moat belongs to everyone, but everything larger has vanished. The village wants its fishing back.',
+          body: 'Cordelia holds up a bony grey roach from the castle moat. Brack says it ate his bait, his hook and the first page of his apology. The moat belongs to everyone, but everything larger has vanished. The village wants its fishing back.',
           art: 'card-moat-reckoning',
           trigger: {
             minTurn: 20,
@@ -1372,12 +1370,14 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 4,
           characters: ['envoy-thistle', 'taxman-gristle'],
           title: 'The Cost of Every Crossing',
-          body:
-            'Thistle arrives with a list of families separated by the hard treaty toll. Gristle has a matching list of taxes collected and will only show the second one. Beneath the ferry, bronze bell-shaped fish ring at every disputed boundary.',
+          body: 'Thistle arrives with a list of families separated by the hard treaty toll. Gristle has a matching list of taxes collected and will only show the second one. Beneath the ferry, bronze bell-shaped fish ring at every disputed boundary.',
           art: 'card-treaty-reckoning',
           trigger: {
             minTurn: 20,
-            requires: { flags: ['envoyTreatyHard'], cardsSeen: ['envoy-tough'] },
+            requires: {
+              flags: ['envoyTreatyHard'],
+              cardsSeen: ['envoy-tough'],
+            },
           },
           choices: [
             {
@@ -1415,12 +1415,14 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 4,
           characters: ['druid-sela', 'envoy-thistle'],
           title: 'The Cove Is Full',
-          body:
-            'The new marina is crowded with pleasure boats and fat Mooring Mullet eating biscuit crumbs. Sela brings a basket of dead reeds; Thistle brings a ledger of dock jobs. Both have come to ask what a working waterfront owes the water.',
+          body: 'The new marina is crowded with pleasure boats and fat Mooring Mullet eating biscuit crumbs. Sela brings a basket of dead reeds; Thistle brings a ledger of dock jobs. Both have come to ask what a working waterfront owes the water.',
           art: 'card-marina-reckoning',
           trigger: {
             minTurn: 22,
-            requires: { flags: ['shallowsDredged'], cardsSeen: ['reed-marina'] },
+            requires: {
+              flags: ['shallowsDredged'],
+              cardsSeen: ['reed-marina'],
+            },
           },
           choices: [
             {
@@ -1458,8 +1460,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           weight: 4,
           characters: ['heir-robin', 'sweetheart-ash', 'druid-sela'],
           title: 'A Home After the Wedding',
-          body:
-            'Robin and Ash have returned from their honeymoon with muddy boots and a proposal. They want to make a living near the lake rather than inherit a throne. Sela offers to help with the water; the court is appalled that either option involves honest work.',
+          body: 'Robin and Ash have returned from their honeymoon with muddy boots and a proposal. They want to make a living near the lake rather than inherit a throne. Sela offers to help with the water; the court is appalled that either option involves honest work.',
           art: 'card-wedding-reckoning',
           trigger: {
             minTurn: 20,

@@ -7,6 +7,7 @@
 import { ARCADE_DIFFICULTIES } from '../types'
 import type { ArcadeDifficulty, ArcadeMasteryGoal } from '../types'
 import type { RainbowCheckpoint } from './rainbowCheckpoints'
+import { lighthouseCheckpointValid } from './rainbowSunkenLighthouse'
 import { mirrorShoalCheckpointValid } from './rainbowMirrorShoal'
 
 /**
@@ -273,6 +274,28 @@ export function readRainbowSave(
   if (!c || typeof c !== 'object') return null
   if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
   if (
+    c.lighthouseFrame !== undefined &&
+    (!lighthouseCheckpointValid(
+      c.act as number,
+      c.frame as number,
+      c as RainbowCheckpoint,
+    ) ||
+      !count(c.lighthouseLamps, 63) ||
+      !count(c.lighthouseHits, 999) ||
+      !oneOf(c.lighthouseGuardianOutcome, ['waiting', 'defeated', 'escaped']))
+  )
+    return null
+  if (
+    c.lighthouseFrame === undefined &&
+    (c.lighthouseStartedAt !== undefined ||
+      c.lighthouseLamps !== undefined ||
+      c.lighthouseGuardianOutcome !== undefined ||
+      c.lighthouseHits !== undefined)
+  )
+    return null
+  if (c.lighthouseFrame !== undefined && c.shoalFrame !== undefined)
+    return null
+  if (
     c.shoalFrame !== undefined &&
     (!mirrorShoalCheckpointValid(
       c.act as number,
@@ -382,6 +405,15 @@ export function readRainbowSave(
       rescuedNavigator: saved.rescuedNavigator,
       ...(saved.actContinues !== undefined
         ? { actContinues: saved.actContinues }
+        : {}),
+      ...(saved.lighthouseFrame !== undefined
+        ? {
+            lighthouseStartedAt: saved.lighthouseStartedAt,
+            lighthouseFrame: saved.lighthouseFrame,
+            lighthouseLamps: saved.lighthouseLamps,
+            lighthouseGuardianOutcome: saved.lighthouseGuardianOutcome,
+            lighthouseHits: saved.lighthouseHits,
+          }
         : {}),
       ...(saved.shoalFrame !== undefined
         ? {

@@ -21,6 +21,11 @@ type Bloom = { x: number; y: number; t: number; petal?: boolean }
 type TestGame = {
   beds: number[]
   ammo: number[]
+  soaked: boolean[]
+  shots: Array<{ x: number; y: number }>
+  ready: number
+  sightX: number
+  sightY: number
   barrels: number[]
   chain: number
   hail: Falling[]
@@ -148,6 +153,21 @@ function gameFor(seed: number, demo = false): TestGame {
     game.hail.filter((hail) => hail.kind === 'moth').length >= 8,
     'one moth volley creates a clustered flock',
   )
+}
+
+{
+  const game = gameFor(18)
+  game.ready = 0
+  game.sightX = 160
+  game.sightY = 100
+  const shot = emptyInput()
+  shot.pressed.a = true
+  const before = game.ammo[1]!
+  game.update(shot)
+  assert.equal(game.ammo[1], before - 1, 'A uses the middle launcher')
+  assert.equal(game.shots.length, 1, 'player input fires an umbrella')
+  for (let tick = 0; tick < 22; tick++) game.update(emptyInput())
+  assert.ok(game.blooms.length > 0, 'umbrella arrives and blooms')
 }
 
 function pilot(seed: number) {

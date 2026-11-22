@@ -1322,6 +1322,7 @@ export function createRainbowPrincessPreview(
   let endingFrame: number | null = null
   let finalChoice: FinaleChoice | null = null
   let rescuedNemi = false
+  let alternateRoutesSeen = 0
   let trenchRoute: TrenchRoute | null = null
   let routeSettled = false
   let nemi: { x: number; y: number } | null = null
@@ -1335,6 +1336,7 @@ export function createRainbowPrincessPreview(
     score: 0,
     rescuedStation: false,
     rescuedNemi: false,
+    alternateRoutesSeen: 0,
     trenchRoute: null,
     routeSettled: false,
     freedChoir: false,
@@ -1997,6 +1999,7 @@ export function createRainbowPrincessPreview(
 
   /** Leave the salvage dock for Act IV: one bounded repair (a shield each), then the express. */
   function launchNursery() {
+    alternateRoutesSeen |= 1
     nurseryStart = tick
     nurseryHits = 0
     nurseryChoirMask = 0
@@ -2500,6 +2503,7 @@ export function createRainbowPrincessPreview(
       score,
       rescuedStation,
       rescuedNemi,
+      alternateRoutesSeen,
       trenchRoute,
       routeSettled,
       freedChoir,
@@ -2703,6 +2707,12 @@ export function createRainbowPrincessPreview(
     score = c.score
     rescuedStation = c.rescuedStation
     rescuedNemi = c.rescuedNemi
+    alternateRoutesSeen =
+      c.alternateRoutesSeen ??
+      Number(c.nurseryFrame !== undefined) |
+        (Number(c.cometFrame !== undefined) << 1) |
+        (Number(c.lighthouseFrame !== undefined) << 2) |
+        (Number(c.shoalFrame !== undefined) << 3)
     trenchRoute = c.trenchRoute
     routeSettled = c.routeSettled
     freedChoir = c.freedChoir ?? false
@@ -2924,6 +2934,13 @@ export function createRainbowPrincessPreview(
         palaceStart,
         finaleStart,
       )
+      // Retry restores only branch discoveries earned at the last checkpoint.
+      alternateRoutesSeen =
+        checkpoint.alternateRoutesSeen ??
+        Number(checkpoint.nurseryFrame !== undefined) |
+          (Number(checkpoint.cometFrame !== undefined) << 1) |
+          (Number(checkpoint.lighthouseFrame !== undefined) << 2) |
+          (Number(checkpoint.shoalFrame !== undefined) << 3)
       // A guardian whose section lies after the checkpoint flies again.
       guardian = null
       if (checkpoint.cometFrame !== undefined) {
@@ -4157,6 +4174,7 @@ export function createRainbowPrincessPreview(
         )
       ) {
         cometStart = tick
+        alternateRoutesSeen |= 2
         cometCadetsMask = 0
         cometGuardianOutcome = 'waiting'
         cometHits = 0
@@ -4207,6 +4225,7 @@ export function createRainbowPrincessPreview(
       ) {
         awardMedal(7)
         shoalStart = tick
+        alternateRoutesSeen |= 8
         reefs.length = 0
         enemyShots.length = 0
         popups.push({
@@ -4253,6 +4272,7 @@ export function createRainbowPrincessPreview(
         )
       ) {
         lighthouseStart = tick
+        alternateRoutesSeen |= 4
         reefs.length = 0
         enemyShots.length = 0
         popups.push({

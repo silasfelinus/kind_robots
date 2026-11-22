@@ -268,8 +268,32 @@
           aria-live="polite"
         >
           Flight log · {{ exploredCount }}/8 seas explored ·
-          {{ medalsCount }} medals · {{ endingCount }}/3 endings
+          {{ alternateDiscovered }}/4 detours flown · {{ medalsCount }} medals ·
+          {{ endingCount }}/3 endings
         </p>
+        <div
+          role="group"
+          aria-label="Luminous Ocean alternate route nodes"
+          class="grid shrink-0 grid-cols-4 gap-1 pb-1"
+        >
+          <button
+            v-for="(route, index) in alternateRoutes"
+            :key="route.id"
+            type="button"
+            class="flex min-w-0 items-center justify-center gap-1 rounded-xl border px-1 py-1 text-xs font-bold"
+            :class="
+              selectedAlternate === index
+                ? 'border-pink-300 bg-pink-100 text-[#37204e]'
+                : 'border-base-300 bg-base-200 text-base-content'
+            "
+            :aria-pressed="selectedAlternate === index"
+            :aria-label="`${route.id} ${route.name}: ${route.label}`"
+            @click="selectedAlternate = index"
+          >
+            <span>{{ route.id }}</span>
+            <span class="hidden truncate sm:inline">{{ route.label }}</span>
+          </button>
+        </div>
         <p
           class="shrink-0 px-1 pb-1 text-xs text-base-content/80"
           aria-live="polite"
@@ -306,6 +330,7 @@
         </aside>
         <div class="flex shrink-0 flex-wrap items-center gap-2 pb-1">
           <button
+            v-if="selectedAlternate === null"
             type="button"
             class="btn btn-sm border-pink-300 bg-pink-200 font-black text-[#37204e]"
             :disabled="!selectedSeaReplayable"
@@ -343,7 +368,7 @@
               }"
               :aria-pressed="selectedSea === index"
               :aria-label="`Inspect Act ${index + 1}: ${stage.name}, ${seaProgress[index]?.label}`"
-              @click="selectedSea = index"
+              @click="inspectSea(index)"
             />
             <img
               :src="rainbowStageCard(stage.strip, look)"
@@ -536,6 +561,7 @@ import { useArcadeStore } from '~/stores/arcadeStore'
 import {
   rainbowSeaLogbook,
   rainbowRouteIntel,
+  rainbowAlternateRouteLogbook,
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
@@ -601,12 +627,25 @@ const seaProgress = computed(() =>
   rainbowSeaLogbook(flightSave.value, mastery.value, hangar.value.medals),
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
+const alternateRoutes = computed(() =>
+  rainbowAlternateRouteLogbook(flightSave.value),
+)
+const alternateDiscovered = computed(
+  () => alternateRoutes.value.filter((route) => route.discovered).length,
+)
+const selectedAlternate = ref<number | null>(null)
 const selectedSea = ref(0)
+function inspectSea(index: number) {
+  selectedSea.value = index
+  selectedAlternate.value = null
+}
 const flightComms = computed(() =>
   rainbowFlightComms(
     flightSave.value,
     hangar.value,
-    selectedSea.value + 1,
+    selectedAlternate.value === null
+      ? selectedSea.value + 1
+      : alternateRoutes.value[selectedAlternate.value]!.fromAct,
     chosen.value,
   ),
 )
@@ -634,6 +673,10 @@ async function launchActReplay() {
   cabinetMounted.value = true
 }
 const selectedSeaDescription = computed(() => {
+  if (selectedAlternate.value !== null) {
+    const route = alternateRoutes.value[selectedAlternate.value]!
+    return `${route.id} · ${route.name} · ${route.label}. Earn this detour through the in-flight fork after Act ${route.fromAct}; inspecting it cannot unlock a shortcut.`
+  }
   const stage = stages[selectedSea.value]!
   const progress = seaProgress.value[selectedSea.value]
   const route = routeIntel.value.find(

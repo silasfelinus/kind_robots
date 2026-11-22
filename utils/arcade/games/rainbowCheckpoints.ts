@@ -18,6 +18,8 @@ export type RainbowCheckpoint = {
   score: number
   rescuedStation: boolean
   rescuedNemi: boolean
+  /** Per-slot discoveries: X1, X2, X3 and X4 each occupy a persistent bit. */
+  alternateRoutesSeen?: number
   /** Act III's fork: the route chosen (null before the fork) and whether the crew has rejoined. */
   trenchRoute: 'vault' | 'safe' | null
   routeSettled: boolean

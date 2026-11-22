@@ -379,14 +379,15 @@ const CLOCKWORK: Fairground = {
       at: [144, 222],
       next: ['cb-stalls', 'cb-clock'],
       intro: 'THE GATE OPENS ON THE BEAT',
-      
-      
     },
     {
       id: 'cb-stalls',
       name: 'MARKET STALLS',
       floor: 'boardwalk',
-      features: [{ kind: 'pillar', x: 13, y: 13, w: 3, h: 3 }, { kind: 'gate', x: 33, y: 23, every: 6, open: 3 }],
+      features: [
+        { kind: 'pillar', x: 13, y: 13, w: 3, h: 3 },
+        { kind: 'gate', x: 33, y: 23, every: 6, open: 3 },
+      ],
       shrink: { every: 480, max: 10 },
       crew: ['hugger', 'dasher'],
       objective: 'giftwrap',
@@ -396,14 +397,24 @@ const CLOCKWORK: Fairground = {
       at: [72, 178],
       next: ['cb-alleys', 'cb-arches'],
       intro: 'WRAP THEM BETWEEN THE STALLS',
-      
-      
     },
     {
       id: 'cb-clock',
       name: 'CLOCK SQUARE',
       floor: 'gold',
-      features: [{ kind: 'gate', x: 18, y: 18, w: 2, h: 10, every: 4, open: 2 }, { kind: 'gate', x: 29, y: 18, w: 2, h: 10, every: 4, open: 2, offset: 2 }],
+      features: [
+        { kind: 'gate', x: 18, y: 18, w: 2, h: 10, every: 4, open: 2 },
+        {
+          kind: 'gate',
+          x: 29,
+          y: 18,
+          w: 2,
+          h: 10,
+          every: 4,
+          open: 2,
+          offset: 2,
+        },
+      ],
       shrink: { every: 480, max: 10 },
       crew: ['gatekeeper', 'pacer'],
       objective: 'last',
@@ -413,14 +424,15 @@ const CLOCKWORK: Fairground = {
       at: [216, 178],
       next: ['cb-alleys', 'cb-arches'],
       intro: 'TWO GATES, TWO RHYTHMS',
-      
-      
     },
     {
       id: 'cb-alleys',
       name: 'BELL ALLEY',
       floor: 'violet',
-      features: [{ kind: 'pillar', x: 12, y: 12, w: 2, h: 12 }, { kind: 'pillar', x: 34, y: 12, w: 2, h: 12 }],
+      features: [
+        { kind: 'pillar', x: 12, y: 12, w: 2, h: 12 },
+        { kind: 'pillar', x: 34, y: 12, w: 2, h: 12 },
+      ],
       shrink: { every: 480, max: 10 },
       crew: ['sprinter', 'cutter'],
       objective: 'last',
@@ -430,14 +442,15 @@ const CLOCKWORK: Fairground = {
       at: [72, 130],
       next: ['marshal'],
       intro: 'RACE BETWEEN THE ALLEYS',
-      
-      
     },
     {
       id: 'cb-arches',
       name: 'ARCHES OF TIME',
       floor: 'gold',
-      features: [{ kind: 'gate', x: 12, y: 20, every: 5, open: 3 }, { kind: 'gate', x: 35, y: 20, every: 5, open: 3 }],
+      features: [
+        { kind: 'gate', x: 12, y: 20, every: 5, open: 3 },
+        { kind: 'gate', x: 35, y: 20, every: 5, open: 3 },
+      ],
       shrink: null,
       crew: ['gatekeeper', 'sprinter'],
       objective: 'taglap',
@@ -447,7 +460,11 @@ const CLOCKWORK: Fairground = {
       at: [216, 130],
       next: ['marshal'],
       intro: 'THREE ARCHES BEFORE THE CHIME',
-      arches: [{ x: 21, y: 33, w: 7, h: 1 }, { x: 21, y: 12, w: 7, h: 1 }, { x: 6, y: 18, w: 1, h: 8 }],
+      arches: [
+        { x: 21, y: 33, w: 7, h: 1 },
+        { x: 21, y: 12, w: 7, h: 1 },
+        { x: 6, y: 18, w: 1, h: 8 },
+      ],
       special: true,
     },
     {
@@ -490,14 +507,15 @@ const STARLIGHT: Fairground = {
       at: [144, 222],
       next: ['sl-stars', 'sl-mirror'],
       intro: 'RIDE ABOVE THE CLOUDS',
-      
-      
     },
     {
       id: 'sl-stars',
       name: 'FALLING STARS',
       floor: 'teal',
-      features: [{ kind: 'pillar', x: 12, y: 12, w: 2, h: 2 }, { kind: 'pillar', x: 35, y: 35, w: 2, h: 2 }],
+      features: [
+        { kind: 'pillar', x: 12, y: 12, w: 2, h: 2 },
+        { kind: 'pillar', x: 35, y: 35, w: 2, h: 2 },
+      ],
       shrink: { every: 480, max: 10 },
       crew: ['glimmer', 'copycat'],
       objective: 'giftwrap',
@@ -507,15 +525,16 @@ const STARLIGHT: Fairground = {
       at: [72, 178],
       next: ['sl-comets', 'sl-parade'],
       intro: 'WRAP THE STARS',
-      
-      
     },
     {
       id: 'sl-mirror',
       name: 'MIRROR SKY',
       floor: 'violet',
-      features: [{ kind: 'gate', x: 24, y: 18, w: 1, h: 12, every: 6, open: 4 }],
-      wrap: { x: true }, shrink: null,
+      features: [
+        { kind: 'gate', x: 24, y: 18, w: 1, h: 12, every: 6, open: 4 },
+      ],
+      wrap: { x: true },
+      shrink: null,
       crew: ['shieldRider', 'glimmer'],
       objective: 'last',
       par: S * 50,
@@ -524,14 +543,15 @@ const STARLIGHT: Fairground = {
       at: [216, 178],
       next: ['sl-comets', 'sl-parade'],
       intro: 'THE HORIZON WRAPS AROUND',
-      
-      
     },
     {
       id: 'sl-comets',
       name: 'COMET CROSSING',
       floor: 'teal',
-      features: [{ kind: 'pad', x: 12, y: 24, dir: 1 }, { kind: 'pad', x: 36, y: 24, dir: 3 }],
+      features: [
+        { kind: 'pad', x: 12, y: 24, dir: 1 },
+        { kind: 'pad', x: 36, y: 24, dir: 3 },
+      ],
       shrink: { every: 480, max: 10 },
       crew: ['sprinter', 'shieldRider'],
       objective: 'last',
@@ -541,8 +561,6 @@ const STARLIGHT: Fairground = {
       at: [72, 130],
       next: ['marshal'],
       intro: 'FOLLOW THE COMET',
-      
-      
     },
     {
       id: 'sl-parade',
@@ -558,7 +576,11 @@ const STARLIGHT: Fairground = {
       at: [216, 130],
       next: ['marshal'],
       intro: 'ESCORT THE MOON THROUGH THE ARCHES',
-      arches: [{ x: 21, y: 33, w: 7, h: 1 }, { x: 21, y: 12, w: 7, h: 1 }, { x: 6, y: 18, w: 1, h: 8 }],
+      arches: [
+        { x: 21, y: 33, w: 7, h: 1 },
+        { x: 21, y: 12, w: 7, h: 1 },
+        { x: 6, y: 18, w: 1, h: 8 },
+      ],
       special: true,
     },
     {

@@ -55,8 +55,8 @@ function newGame(seed: number): TestGame {
 
 {
   const game = newGame(5)
-  assert.equal(game.lives, 3)
-  for (let remaining = 2; remaining >= 0; remaining--) {
+  assert.equal(game.lives, 4)
+  for (let remaining = 3; remaining >= 0; remaining--) {
     game.charge = 0
     game.update(emptyInput())
     assert.equal(game.lives, remaining)

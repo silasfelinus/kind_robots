@@ -47,6 +47,30 @@ assert.equal(
 assert.equal((cleared[rainbowSlotKey(2)!] as typeof flight).checkpoint.act, 2)
 assert.equal(rainbowSlotSummary(null), 'New flight')
 assert.equal(rainbowSlotSummary(flight), 'Act 4 · 2 medals')
+for (const invalid of [
+  { checkpoint: { act: 0, frame: 0 }, medals: {} },
+  { checkpoint: { act: 13, frame: 0 }, medals: {} },
+  { checkpoint: { act: NaN, frame: 0 }, medals: {} },
+  { checkpoint: null, medals: {} },
+  { checkpoint: {}, medals: {} },
+]) {
+  assert.equal(
+    rainbowSlotSummary(invalid as Parameters<typeof rainbowSlotSummary>[0]),
+    'Flight needs recovery',
+    'a damaged checkpoint must not crash the save picker or show a false Act',
+  )
+}
+assert.equal(
+  rainbowSlotSummary({
+    checkpoint: { act: 3, frame: 0 },
+    medals: null,
+  } as unknown as Parameters<typeof rainbowSlotSummary>[0]),
+  'Act 3 · 0 medals',
+)
+assert.equal(
+  rainbowSlotSummary({ checkpoint: { act: 3, frame: 0 }, medals: [] }),
+  'Act 3 · 0 medals',
+)
 assert.equal(rainbowSlotSaveFits(flight), true)
 assert.equal(rainbowSlotSaveFits({ payload: 'x'.repeat(9_000) }), false)
 assert.equal(

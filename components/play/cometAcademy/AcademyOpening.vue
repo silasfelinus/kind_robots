@@ -666,8 +666,12 @@
         </template>
         <template v-else>
           <div data-testid="academy-opening-scrapbook-screen">
+            <AcademyTermArchive
+              :pages="store.termArchive"
+              :art-enabled="store.settings.art"
+            />
             <p v-if="!historyCount">
-              No stories recovered yet. Start a term to uncover identities and
+              No character records yet. Start a term to uncover identities and
               endings.
             </p>
             <div v-else class="prom-yearbook-list">
@@ -697,7 +701,7 @@
               </article>
             </div>
             <p class="prom-card-note">
-              During a term, the in-game Scrapbook records discoveries,
+              During a term, the in-game Scrapbook also records discoveries,
               relationships, secrets and places you have visited.
             </p>
           </div>
@@ -761,6 +765,7 @@
 </template>
 
 <script setup lang="ts">
+import AcademyTermArchive from '~/components/play/cometAcademy/AcademyTermArchive.vue'
 import { computed, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { identityFor } from '~/utils/cometAcademy/identityArcs'

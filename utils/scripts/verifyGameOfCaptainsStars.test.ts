@@ -1118,3 +1118,22 @@ assert.ok(mergedBackupHistory.some((entry) => entry.id === moreVoyages[0]?.id))
   )
   assert.ok(shell.includes('Math.min(1, Math.max(0, share))'))
 }
+
+// Live 390px walkthrough: the swipeable cast row clipped names and roles
+// because the section head and recruit button took its height.
+{
+  const consoleVue = readFileSync(
+    new URL(
+      '../../components/gameOfCaptains/daily-console.vue',
+      import.meta.url,
+    ),
+    'utf8',
+  )
+  assert.ok(
+    consoleVue.includes(
+      'grid-template-rows: minmax(8rem, 28%) minmax(0, 1fr);',
+    ),
+  )
+  assert.ok(consoleVue.includes('flex: 1 0 auto;'))
+  assert.ok(consoleVue.includes('.daily-cast .daily-section-head {'))
+}

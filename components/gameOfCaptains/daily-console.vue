@@ -1508,15 +1508,35 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
 @container (max-width: 740px) {
   .daily-body {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(7rem, 26%) minmax(0, 1fr);
+    grid-template-rows: minmax(8rem, 28%) minmax(0, 1fr);
     padding: 0.45rem;
     gap: 0.45rem;
   }
+  /* Phone and tablet: the cast is one swipeable row. Its header and the
+     recruit button stay compact so each card keeps room for name and role. */
   .daily-cast-stack {
     display: flex;
+    flex: 1 0 auto;
     flex-wrap: nowrap;
+    align-items: stretch;
     overflow-x: auto;
     overflow-y: hidden;
+    padding: 0.35rem 0.45rem;
+  }
+  .daily-cast .daily-section-head {
+    padding: 0.35rem 0.6rem;
+  }
+  .daily-hire {
+    margin: 0 0.45rem 0.35rem;
+    padding: 0.3rem;
+  }
+  .daily-actor-text {
+    gap: 0.05rem;
+  }
+  .daily-actor-text small {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .daily-cast {
     min-height: 0;
@@ -1524,6 +1544,7 @@ function decide(deck: EpisodeDeck, choice: EpisodeChoice) {
   .daily-actor {
     min-width: 8.8rem;
     max-width: 10.5rem;
+    padding: 0.25rem 0.4rem;
   }
   .daily-actor-face {
     flex-basis: 2rem;

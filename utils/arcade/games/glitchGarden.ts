@@ -2896,6 +2896,9 @@ class GlitchGarden implements ArcadeGameInstance {
     for (const d of this.dragonflies) threats.push(d)
     for (const b of this.bees) if (b.wasp && b.diving) threats.push(b)
     if (this.queenHead) threats.push(this.queenHead)
+    for (const pumpkin of this.pumpkins) {
+      if (pumpkin.rolling) threats.push(pumpkin)
+    }
     if (mo && !this.boss?.defeated)
       threats.push({
         x: mo.x + (MOWER_COLS * CELL) / 2,
@@ -2926,6 +2929,8 @@ class GlitchGarden implements ArcadeGameInstance {
     // A can with a worm in splashing reach is the best shot on the lawn.
     const can = this.canInReach()
     if (can) target = can
+    const giant = this.pumpkins.find((p) => p.giant)
+    if (giant) target = giant
     if (target) {
       if (target.x < this.px - 2) held.left = true
       if (target.x > this.px + 2) held.right = true

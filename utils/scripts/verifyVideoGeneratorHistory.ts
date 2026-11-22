@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import type { ArtJob } from '~/prisma/generated/prisma/client'
 import {
   summarizeVideoGeneratorJob,
@@ -106,26 +106,26 @@ const videoNavigation = readFileSync(
   'content/channels/projects/video-generator.md',
   'utf8',
 )
-assert.doesNotMatch(source, /<MusicVideoStudio/)
-assert.doesNotMatch(source, /selectPanel\('music'\)/)
+assert.match(source, /<MusicVideoStudio v-if="activePanel === 'music'" \/>/)
 assert.match(source, /route\.query\.studio === 'music'/)
+assert.match(source, /selectPanel\('music'\)/)
 assert.match(source, /delete query\.video/)
-assert.match(source, /path: '\/admin\/music-video'/)
+assert.match(source, /activePanel === 'music'/)
 assert.match(musicStudio, /<MusicVideoGallery v-if="!store\.current" \/>/)
 assert.match(musicStudio, /<MusicVideoViewer v-else \/>/)
 assert.match(musicStudio, /store\.startWatching\(\)/)
 assert.match(musicStudio, /store\.stopWatching\(\)/)
 assert.match(musicStudio, /else if \(!id && store\.current\) store\.close\(\)/)
 assert.match(legacyMusicRoute, /redirectCode: 301/)
-assert.match(legacyMusicRoute, /path: '\/admin\/music-video'/)
-assert.match(placements, /route: '\/admin\/music-video'/)
-assert.doesNotMatch(videoNavigation, /Music Videos tab/)
-const adminPage = readFileSync('pages/admin/music-video.vue', 'utf8')
-const adminNav = readFileSync('content/channels/admin/music-video.md', 'utf8')
-assert.match(adminPage, /<MusicVideoStudio v-else \/>/)
-assert.match(adminPage, /userStore\.isAdmin/)
-assert.match(adminNav, /requiredRole: ADMIN/)
-assert.match(adminNav, /route: \/admin\/music-video/)
+assert.match(legacyMusicRoute, /\.\.\.route\.query, studio: 'music'/)
+assert.match(placements, /route: '\/play\/video-generator\?studio=music'/)
+assert.match(videoNavigation, /Music Videos tab/)
+assert.equal(existsSync('pages/admin/music-video.vue'), false)
+assert.equal(existsSync('content/channels/admin/music-video.md'), false)
+assert.match(
+  readFileSync('nuxt.config.ts', 'utf8'),
+  /'\/admin\/music-video': \{[\s\S]*?\/play\/video-generator\?studio=music/,
+)
 assert.equal(
   readFileSync('content/channels/projects/index.md', 'utf8').includes(
     'Video Studio',

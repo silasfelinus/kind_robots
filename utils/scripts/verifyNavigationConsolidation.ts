@@ -560,9 +560,15 @@ assert.doesNotMatch(
   /feature\.related/,
   'featured cards must link directly to destinations without nested related-link lists',
 )
-assert.ok(
-  visitorDirectorySource.includes("route: '/?view=dashboard'"),
-  'Daily Dreams must link to the original dashboard, not the dreams object gallery',
+assert.match(
+  source('content/channels/projects/art.md'),
+  /\nroute: \/art\n/,
+  'Art Gallery must retain its Projects navigation destination',
+)
+assert.match(
+  source('content/channels/home/dashboard.md'),
+  /\nroute: \/\n/,
+  'Daily Dreams must retain the original Home dashboard navigation destination',
 )
 assert.ok(homePageSource.includes('<home-visitor-directory v-else'))
 assert.ok(visitorDirectorySource.includes('showcaseHref(card)'))
@@ -575,10 +581,8 @@ assert.ok(
 for (const route of [
   '/play/arcade',
   '/play/shifting-desks',
-  '/art',
   '/play/aquarium',
   '/play/memory',
-  '/?view=dashboard',
   '/play/mandarin',
   '/play/emperor-of-dust',
   '/play/crystal-street',
@@ -761,11 +765,13 @@ assert.ok(
 )
 assert.ok(
   visitorDirectorySource.indexOf("title: 'Downward Mobility'") <
-    visitorDirectorySource.indexOf("title: 'Art Gallery & Studio'"),
+    visitorDirectorySource.indexOf("title: 'Cthulhuquarium'"),
   'Downward Mobility must remain a flagship visitor attraction',
 )
 assert.doesNotMatch(visitorDirectorySource, /title: 'Storybook'/)
 assert.doesNotMatch(visitorDirectorySource, /title: 'Music Videos'/)
+assert.doesNotMatch(visitorDirectorySource, /title: 'Art Gallery & Studio'/)
+assert.doesNotMatch(visitorDirectorySource, /title: 'Daily Dreams'/)
 
 for (const route of [
   '/',

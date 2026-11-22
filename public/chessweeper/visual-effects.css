@@ -69,7 +69,6 @@ html.meta-motion-off .chess-fx {
   }
 }
 
-
 .chess-fx-traveler {
   position: absolute;
   display: grid;
@@ -80,8 +79,7 @@ html.meta-motion-off .chess-fx {
   z-index: 2;
   transform: translate(-50%, -50%);
   will-change: transform, opacity;
-  animation: chess-fx-travel 420ms cubic-bezier(0.2, 0.82, 0.25, 1)
-    forwards;
+  animation: chess-fx-travel 420ms cubic-bezier(0.2, 0.82, 0.25, 1) forwards;
 }
 
 .chess-fx-traveler .piece {

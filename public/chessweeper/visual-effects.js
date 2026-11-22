@@ -23,7 +23,6 @@
     )
   }
 
-
   const MAX_EFFECTS = 80
 
   function validSquare(square) {
@@ -69,8 +68,7 @@
     const dy = ((to.y - from.y) / 100) * bounds.height
     const arc = Math.min(28, Math.max(12, bounds.height / 24))
     const traveler = document.createElement('span')
-    traveler.className =
-      'chess-fx-traveler chess-fx-traveler-' + detail.kind
+    traveler.className = 'chess-fx-traveler chess-fx-traveler-' + detail.kind
     traveler.style.left = from.x + '%'
     traveler.style.top = from.y + '%'
     traveler.style.setProperty('--fx-mid-x', dx * 0.5 + 'px')
@@ -112,8 +110,7 @@
     if (!count || animationOff()) return
 
     const square = validSquare(detail.square) ? detail.square : -1
-    const position =
-      square < 0 ? { x: 50, y: 50 } : squarePosition(square)
+    const position = square < 0 ? { x: 50, y: 50 } : squarePosition(square)
     const { x, y } = position
     if (kind === 'move' || kind === 'capture') travelPiece(detail)
     impact(kind, x, y)

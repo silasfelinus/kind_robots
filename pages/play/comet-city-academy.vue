@@ -1641,6 +1641,7 @@ import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { useOctoberCastArtStore } from '~/stores/octoberCastArtStore'
+import { useRecruitArtStore } from '~/stores/recruitArtStore'
 import { useUserStore } from '~/stores/userStore'
 import { realNightCase } from '~/utils/cometAcademy/nightCases'
 import { expandedMissionFor } from '~/utils/cometAcademy/expandedNightCases'
@@ -1718,6 +1719,7 @@ import {
 const store = useCometAcademyStore()
 const userStore = useUserStore()
 const octoberArt = useOctoberCastArtStore()
+const recruitArt = useRecruitArtStore()
 const showRelationships = ref(false)
 const selectedSocialId = ref<StudentId>('mina')
 const mapView = ref<CityView>('campus')
@@ -2001,10 +2003,17 @@ const interferenceTonight = computed(() => {
   return file?.interference?.active ? file.interference : null
 })
 
-/** A student's portrait once its render ships; initials stand in until then. */
-/** A student's own portrait, else their neutral mission-reaction face. */
+/** A recruit's original private painting for admin QA, else existing public art. */
 const studentPortrait = (id: string) =>
-  promArt(studentArtKey(id)) ?? promArt(studentArtKey(id) + '-neutral')
+  recruitArt.imageFor(
+    id,
+    run.value && recoveringFollower(run.value, id as StudentId)
+      ? 'injured'
+      : 'neutral',
+  ) ??
+  recruitArt.imageFor(id, 'neutral') ??
+  promArt(studentArtKey(id)) ??
+  promArt(studentArtKey(id) + '-neutral')
 const mastermind = computed(() =>
   run.value?.flowVersion === 3
     ? campaignVillain(run.value.seed, run.value.mastermind)
@@ -2119,6 +2128,13 @@ const privatePatrolArt = computed(() => {
       : []
   })
 })
+watch(
+  () => userStore.isAdmin,
+  (isAdmin) => {
+    if (isAdmin) void recruitArt.loadAll()
+  },
+  { immediate: true },
+)
 watch(
   [() => userStore.isAdmin, () => patrolCast.value?.key],
   ([isAdmin, key]) => {

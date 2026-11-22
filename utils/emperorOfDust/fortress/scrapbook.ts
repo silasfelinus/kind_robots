@@ -1,5 +1,6 @@
 import { endingOf } from './endings'
 import { epilogueFor } from './epilogue'
+import { customRulerStyle } from './ruler'
 import type { EndingId } from './endings'
 import type { FortressRun } from './types'
 
@@ -21,6 +22,8 @@ export type ReignMemory = {
   bellRung: boolean
   cryptSealed: boolean
   epilogues: ReignEpilogue[]
+  /** Who reigned (t-075), e.g. "Empress Ash"; absent for the default Emperor. */
+  ruler?: string
 }
 export const emptyScrapbook = (): ReignMemory[] => []
 
@@ -74,6 +77,10 @@ export function decodeScrapbook(
           ) &&
           typeof entry.bellRung === 'boolean' &&
           typeof entry.cryptSealed === 'boolean' &&
+          (entry.ruler === undefined ||
+            (typeof entry.ruler === 'string' &&
+              entry.ruler.length > 0 &&
+              entry.ruler.length <= 60)) &&
           (entry.epilogues === undefined ||
             (Array.isArray(entry.epilogues) &&
               entry.epilogues.length <= 100 &&
@@ -108,6 +115,7 @@ export function rememberReign(
   if (run.day <= 50) return previous
   const key = `${run.seed}:${run.branch}:${run.day}:${endingOf(run).id}`
   if (previous.some((entry) => entry.key === key)) return previous
+  const ruler = customRulerStyle(run)
   return [
     {
       key,
@@ -126,6 +134,7 @@ export function rememberReign(
           text: variant.text,
         }),
       ),
+      ...(ruler ? { ruler } : {}),
     },
     ...previous,
   ].slice(0, 100)

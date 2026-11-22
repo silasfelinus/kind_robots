@@ -36,6 +36,7 @@ const STORY_FILES = [
   'questBriefsEarly.ts',
   'questBriefsLate.ts',
   'questBriefsChores.ts',
+  'ruler.ts',
 ] as const
 
 // Every fortress screen can also contain hardcoded player-visible copy.
@@ -58,6 +59,7 @@ const PLAYER_UI_FILES = [
   'EmperorFortressMarketRow.vue',
   'EmperorFortressCodexNote.vue',
   'EmperorFortressQuestImage.vue',
+  'EmperorFortressRulerCreator.vue',
 ] as const
 
 const PLAYER_FILES = [

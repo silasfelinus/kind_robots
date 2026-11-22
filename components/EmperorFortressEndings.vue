@@ -82,6 +82,7 @@
         class="rounded-lg border border-warning/20 bg-base-100/80 p-3"
       >
         <summary class="cursor-pointer font-serif font-semibold">
+          <template v-if="memory.ruler">{{ memory.ruler }} · </template>
           {{ new Date(memory.completedAt).toLocaleDateString() }}
           · {{ memory.brass }} brass · {{ memory.followers }} at court
         </summary>

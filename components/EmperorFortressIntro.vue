@@ -77,6 +77,9 @@
         >
           {{ shown }}
         </button>
+        <EmperorFortressRulerCreator
+          v-if="index === 0 && court.canChooseRuler"
+        />
         <ul
           v-if="scene.rooms && !streaming"
           class="grid grid-cols-1 gap-1 text-sm @xl:grid-cols-2"

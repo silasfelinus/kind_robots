@@ -77,6 +77,11 @@ import {
   rememberReign,
 } from '~/utils/emperorOfDust/fortress/scrapbook'
 import type { ReignMemory } from '~/utils/emperorOfDust/fortress/scrapbook'
+import {
+  applyRuler,
+  rulerCanBeChosen,
+  rulerOf,
+} from '~/utils/emperorOfDust/fortress/ruler'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
 import {
   DEFAULT_EMPEROR_AUDIO_PREFS,
@@ -210,6 +215,15 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
 
   const run = computed<FortressRun | null>(() => book.value?.current ?? null)
   const day = computed(() => run.value?.day ?? 1)
+  /** The reigning ruler (t-075); older saves read as the default Emperor. */
+  const ruler = computed(() => rulerOf(run.value ?? {}))
+  /** The ruler can still be chosen: a reign that has not begun. */
+  const canChooseRuler = computed(
+    () =>
+      !!book.value &&
+      book.value.dawns.length === 1 &&
+      rulerCanBeChosen(book.value.current),
+  )
   const rewindableDays = computed(() =>
     (book.value?.dawns ?? []).map((dawn) => dawn.day),
   )
@@ -433,6 +447,19 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
 
   function openIntro() {
     introOpen.value = true
+  }
+
+  /**
+   * Crowns the ruler chosen at New Reign (t-075). The Day 1 dawn is rebuilt
+   * with the identity, so a rewind to Day 1 keeps it, and choosing again
+   * replaces the earlier temperament rather than stacking it.
+   */
+  function crownRuler(choice: unknown) {
+    if (!loaded.value) load()
+    if (!canChooseRuler.value)
+      throw new Error('The ruler is chosen before the reign begins')
+    book.value = newBook(applyRuler(current(), choice))
+    persist()
   }
 
   function closeIntro() {
@@ -768,6 +795,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     resetProgress,
     run,
     day,
+    ruler,
+    canChooseRuler,
+    crownRuler,
     rewindableDays,
     load,
     newRun,

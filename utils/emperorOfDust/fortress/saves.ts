@@ -4,6 +4,7 @@ import { LAST_DAY, dueDef, questDef } from './content'
 import { partyLimit, rerollDawn, validMapState } from './engine'
 import { BUYER_IDS } from './betrayal'
 import { isCodexId } from './codex'
+import { validRuler } from './ruler'
 import { KINGDOM_FACTIONS, LOCAL_FACTIONS } from './types'
 import type { Codex, FortressRun } from './types'
 
@@ -215,6 +216,8 @@ export const validateRun = (value: unknown): value is FortressRun => {
     (run.market !== undefined && !validMarket(run.market)) ||
     (run.aid !== undefined && !validAid(run.aid)) ||
     (run.dues !== undefined && !validDues(run.dues)) ||
+    // The ruler (t-075) is optional: older saves are the default Emperor.
+    (run.ruler !== undefined && !validRuler(run.ruler)) ||
     !validMapState(run)
   )
     return false

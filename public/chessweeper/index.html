@@ -1154,6 +1154,7 @@
     </style>
     <link rel="stylesheet" href="/chessweeper/progression.css" />
     <link rel="stylesheet" href="/chessweeper/art.css" />
+    <link rel="stylesheet" href="/chessweeper/visual-effects.css" />
   </head>
   <body>
     <main class="wrap">
@@ -1234,6 +1235,7 @@
               aria-label="Chessboard with mines and discs"
             ></div>
             <div id="blades" class="blades" aria-hidden="true"></div>
+            <div id="chess-fx" class="chess-fx" aria-hidden="true"></div>
             <div id="overlay" class="overlay">
               <div class="overlay-inner">
                 <div class="end-mark" id="end-mark">♛</div>
@@ -1655,6 +1657,7 @@
         const damage = (side, how) => {
           if (state.over) return
           state.hp[side]--
+          effect('damage')
           if (
             side === 1 &&
             realm === 'ashen' &&
@@ -1662,6 +1665,7 @@
             !state.lastStandUsed
           ) {
             state.lastStandUsed = true
+            effect('laststand')
             state.hp[side] = 1
             state.dashReady = true
             state.dashArmed = true
@@ -1678,6 +1682,13 @@
                 ? 'Your king ran out of armor.'
                 : 'The enemy king was destroyed by the arena.',
             )
+        }
+        function effect(kind, square = -1) {
+          window.dispatchEvent(
+            new CustomEvent('chessweeper:fx', {
+              detail: { kind, square, realm },
+            }),
+          )
         }
         function addFeed(text) {
           state.feed.unshift(text)
@@ -1795,6 +1806,7 @@
             }
             state.shown.add(i)
             state.exploded.add(i)
+            effect('mine', i)
             state.score = Math.max(0, state.score - 40)
             if (source === 'probe') {
               damage(side, 'mine probe')
@@ -1848,6 +1860,7 @@
           if (state.sugar >= 5) {
             state.sugar = 0
             state.freeze = 2
+            effect('rush')
             state.score += 150
             addFeed(
               '🌈 SUGAR RUSH! The spinning lollipops freeze for two beats.',
@@ -1926,6 +1939,7 @@
           state.over = true
           state.busy = false
           state.ended = reason
+          effect(type === 'win' ? 'victory' : 'defeat')
           clearTimeout(timer)
           $('end-mark').textContent =
             type === 'win' ? '♔' : type === 'draw' ? '☯' : '☠'
@@ -2103,6 +2117,7 @@
             const i = iAt(d.x, d.y),
               p = state.chess.b[i]
             if (p !== '.') {
+              effect('blade', i)
               if (state.protectedAt === i) {
                 addFeed(`Dash blocked the sawblade at ${squareName(i)}!`)
                 continue
@@ -2133,6 +2148,7 @@
             if (state.wagerTicks === 0) {
               const payout = state.wager * 2 * state.multiplier
               state.score += payout
+              effect('jackpot')
               state.wager = 0
               addFeed('JACKPOT! Survived the wager for ' + payout + ' chips!')
             }
@@ -2173,6 +2189,7 @@
           const captured = s.b[dest]
           const label = notation(s, chosen)
           state.chess = makePosition(s, chosen)
+          effect(captured === '.' ? 'move' : 'capture', dest)
           state.selected = -1
           state.promotion = null
           state.last = [chosen[0], chosen[1]]
@@ -2418,6 +2435,7 @@
           state.score -= 50
           state.wager = 50
           state.wagerTicks = 4
+          effect('wager')
           state.discs[2].active = true
           state.discs[3].active = true
           addFeed(
@@ -2463,5 +2481,6 @@
     </script>
     <script src="/chessweeper/progression.js"></script>
     <script src="/chessweeper/board-art.js"></script>
+    <script src="/chessweeper/visual-effects.js"></script>
   </body>
 </html>

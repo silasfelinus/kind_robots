@@ -1,0 +1,70 @@
+.chess-fx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 8;
+  contain: layout paint;
+  --fx-bright: #a5f9e2;
+  --fx-flare: #ffe4a3;
+}
+:root[data-realm='sugar'] .chess-fx {
+  --fx-bright: #fc8fe8;
+  --fx-flare: #d3ff91;
+}
+:root[data-realm='ashen'] .chess-fx {
+  --fx-bright: #ffa654;
+  --fx-flare: #fbd3a0;
+}
+:root[data-realm='jackpot'] .chess-fx {
+  --fx-bright: #63eeff;
+  --fx-flare: #ff61c1;
+}
+.chess-fx-spark {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--fx-bright);
+  box-shadow: 0 0 8px 2px var(--fx-bright);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: chess-fx-burst 560ms var(--fx-delay, 0ms) ease-out forwards;
+}
+.chess-fx-mine,
+.chess-fx-blade,
+.chess-fx-damage,
+.chess-fx-defeat {
+  background: var(--fx-flare);
+  box-shadow: 0 0 10px 3px var(--fx-flare);
+}
+.chess-fx-victory,
+.chess-fx-rush,
+.chess-fx-jackpot {
+  width: 12px;
+  height: 12px;
+  animation-duration: 760ms;
+}
+@keyframes chess-fx-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--fx-dx)), calc(-50% + var(--fx-dy)))
+      scale(0.3);
+    opacity: 0;
+  }
+}
+html.meta-motion-off .chess-fx {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chess-fx {
+    display: none;
+  }
+}

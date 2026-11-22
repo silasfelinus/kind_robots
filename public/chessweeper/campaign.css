@@ -86,3 +86,33 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Sugarbomb is a light theme (dark ink): keep its campaign and extras panels
+   light so chapter titles, contracts and buttons stay legible (QA contrast). */
+:root[data-realm='sugar'] .chess-campaign {
+  background: #fff4fb;
+  border-color: #f08bdd;
+}
+:root[data-realm='sugar'] .chess-campaign-head span,
+:root[data-realm='sugar'] .chess-campaign p.chess-campaign-bonus {
+  color: #a3166b;
+}
+:root[data-realm='sugar'] .chess-campaign button {
+  background: #ffe1f4;
+  color: #6b1a52;
+  border-color: #d9539f;
+}
+:root[data-realm='sugar'] .chess-campaign .chess-campaign-pacts button {
+  color: var(--ink);
+  border-color: #e7a3cf;
+}
+:root[data-realm='sugar'] .chess-campaign-pacts button[aria-pressed='true'] {
+  border-color: #d9539f;
+  box-shadow: inset 0 0 0 2px #d9539f;
+  background: #ffd0ec;
+}
+:root[data-realm='sugar'] .meta-actions button {
+  background: #fff4fb;
+  color: #5a1d4b;
+  border-color: #e78bc8;
+}

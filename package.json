@@ -30,6 +30,7 @@
     "test:chessweeper-seeded": "tsx utils/scripts/verifyChessweeperSeededEngine.test.ts",
     "test:chessweeper-soundscape": "tsx utils/scripts/verifyChessweeperSoundscape.test.ts",
     "test:chessweeper-board-art": "tsx utils/scripts/verifyChessweeperBoardArt.test.ts",
+    "test:chessweeper-endings": "tsx utils/scripts/verifyChessweeperEndings.test.ts",
     "test:hybridizer-art": "tsx utils/scripts/verifyHybridizerArt.test.ts",
     "test:rebel-button-stage": "tsx utils/scripts/verifyRebelButtonStage.test.ts",
     "test:rebel-encounters": "tsx utils/scripts/verifyRebelEncounters.test.ts",

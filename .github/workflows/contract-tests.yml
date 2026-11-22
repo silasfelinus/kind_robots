@@ -1427,6 +1427,9 @@ jobs:
       - name: Chessweeper gameplay effects and reduced-motion contract
         run: npm run test:chessweeper-effects
 
+      - name: Chessweeper twelve endings, pact branches and wiring contract
+        run: npm run test:chessweeper-endings
+
       - name: Save the Plumber permanent collection and ending ledger
         run: npx tsx utils/scripts/verifySavePlumberCollection.test.ts
 

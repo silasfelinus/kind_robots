@@ -1,0 +1,58 @@
+name: Chessweeper playthrough
+
+# Real-browser acceptance for /play/chessweeper: three full campaigns, all
+# twelve endings reached by play, scrapbook, achievements, save/resume,
+# transfer codes, keyboard, touch, reduced motion and 390/768/1440 layouts.
+
+on:
+  pull_request:
+    paths:
+      - 'public/chessweeper/**'
+      - 'pages/play/chessweeper.vue'
+      - 'utils/scripts/chessweeperPlaythroughHarness.mjs'
+      - 'utils/scripts/verifyChessweeperPlaythrough.browser.test.mjs'
+      - '.github/workflows/chessweeper-playthrough.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  playthrough:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Full campaigns, twelve endings and three viewports
+        run: node utils/scripts/verifyChessweeperPlaythrough.browser.test.mjs
+        env:
+          CHESSWEEPER_SHOTS: test-results/chessweeper
+          CHESSWEEPER_ART_ORIGIN: https://kindrobots.org
+          NODE_USE_ENV_PROXY: '1'
+
+      - name: Preserve screenshots for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chessweeper-playthrough-screenshots
+          path: test-results/chessweeper/
+          if-no-files-found: ignore
+          retention-days: 7

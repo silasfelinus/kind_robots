@@ -178,12 +178,19 @@
     ],
   }
   let archive = {}
-  try {
-    const stored = JSON.parse(localStorage.getItem(KEY) || '{}')
-    if (stored.v === 1 && stored.worlds && typeof stored.worlds === 'object') {
-      archive = stored.worlds
-    }
-  } catch {}
+  function load() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(KEY) || '{}')
+      if (
+        stored.v === 1 &&
+        stored.worlds &&
+        typeof stored.worlds === 'object'
+      ) {
+        archive = stored.worlds
+      }
+    } catch {}
+  }
+  load()
   const world = () => document.documentElement.dataset.realm || 'jackpot'
   const current = (w = world()) => {
     const raw = archive[w]
@@ -307,6 +314,13 @@
         pact: progress.pact,
       }
       save()
+      if (progress.chapter === 3) {
+        window.dispatchEvent(
+          new CustomEvent('chessweeper:campaign-cleared', {
+            detail: { world: w, firstClear: !progress.cleared },
+          }),
+        )
+      }
       if (mastered && !(progress.mastery & (1 << progress.chapter))) {
         window.dispatchEvent(
           new CustomEvent('chessweeper:campaign-mastery', {
@@ -340,6 +354,10 @@
   })
   window.addEventListener('chessweeper:state', sync)
   window.addEventListener('chessweeper:end', onEnd)
+  window.addEventListener('chessweeper:profile-merged', () => {
+    load()
+    render()
+  })
   window.__chessweeperCampaign = {
     current,
     worldCount: Object.keys(WORLDS).length,

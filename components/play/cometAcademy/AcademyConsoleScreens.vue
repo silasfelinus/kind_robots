@@ -659,6 +659,7 @@
 </template>
 
 <script setup lang="ts">
+import AcademyTermArchive from '~/components/play/cometAcademy/AcademyTermArchive.vue'
 import { computed, ref, watch } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { promArt } from '~/utils/cometAcademy/artManifest'

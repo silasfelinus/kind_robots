@@ -10,7 +10,7 @@ title: Model Builder
 subtitle: Build makers, not just records
 description: Define schemas, compose reusable builders, and generate new creation systems.
 summary: Build reusable creation systems.
-icon: kind-icon:blueprint
+icon: kind-icon:workflow
 route: /model-builder
 allowDirectAccess: true
 sort: 80

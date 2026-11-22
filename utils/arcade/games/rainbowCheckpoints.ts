@@ -25,6 +25,10 @@ export type RainbowCheckpoint = {
   nurseryStartedAt?: number
   nurseryFrame?: number
   nurseryHits?: number
+  /** Bitmask of the five rescued Coral Choir pods during X1. */
+  nurseryChoirMask?: number
+  /** Earned full-Choir rescue flag preserved after the detour ends. */
+  freedChoir?: boolean
   /** The optional Lantern Nursery guardian is separate from the Act III guardian. */
   nurseryGuardianOutcome?: 'waiting' | 'defeated' | 'escaped'
   /** Act IV's escort: the courier pod reached the end of the rails. */

@@ -101,6 +101,7 @@ import {
   LAYOUT_CAN,
   LAYOUT_EXIT,
   LAYOUT_LAMP,
+  LAYOUT_LEAF,
   LAYOUT_SUNFLOWER,
   LAYOUT_TREE,
   campaignPlay,
@@ -177,6 +178,8 @@ export const WASP_POINTS = 800
 export const KIND_BONUS = 1000
 /** Lily pads drift a cell this often. */
 export const PAD_EVERY = 45
+/** Autumn leaves can be blown one cell sideways every three seconds. */
+export const LEAF_GUST_TICKS = 180
 /** A worm turned back by a wall this many times in a row squeezes past it. */
 export const SQUEEZE_AFTER = 3
 /** Queen Wiggle: segments, joints every so often, helmet hits, and her detached head's hits. */
@@ -779,6 +782,10 @@ class GlitchGarden implements ArcadeGameInstance {
   private caught = 0
   private padTimer = 0
   private padShift = 0
+  private leafPiles: Array<{ col: number; row: number }> = []
+  private leafGust = LEAF_GUST_TICKS
+  private leafWind: 1 | -1 = 1
+  private rakedLeaves = 0
   private dragonflies: Dragonfly[] = []
   private dragonflyTimer = 0
   private bees: Bee[] = []
@@ -894,8 +901,52 @@ class GlitchGarden implements ArcadeGameInstance {
       this.kit = { ...this.kit, cans: 0 }
     }
     this.apples = []
+    this.leafPiles = []
     this.mown = false
     this.padShift = 0
+  }
+
+  /** Each wave plants its own cover from the garden's authored leaf anchors. */
+  private plantLeaves(count: number, bedOnly: boolean) {
+    const anchors = layoutCells(this.garden, LAYOUT_LEAF)
+    const eligible = bedOnly
+      ? anchors.filter(([, row]) => row >= BED_TOP)
+      : anchors
+          .filter(([, row]) => row < BED_TOP)
+          .concat(anchors.filter(([, row]) => row >= BED_TOP))
+    this.leafPiles = eligible
+      .slice(0, count)
+      .map(([col, row]) => ({ col, row }))
+  }
+
+  private updateLeaves() {
+    if (!this.leafPiles.length || --this.leafGust > 0) return
+    this.leafGust = LEAF_GUST_TICKS
+    this.leafWind = this.leafWind === 1 ? -1 : 1
+    for (const leaf of this.leafPiles) {
+      leaf.col = Math.max(0, Math.min(COLS - 1, leaf.col + this.leafWind))
+    }
+  }
+
+  /** A leaf absorbs the first spray so the player must rake a lane clear. */
+  private hitLeaf(col: number, row: number): boolean {
+    const index = this.leafPiles.findIndex(
+      (leaf) => leaf.col === col && leaf.row === row,
+    )
+    if (index < 0) return false
+    this.leafPiles.splice(index, 1)
+    this.rakedLeaves++
+    const x = col * CELL + CELL / 2
+    const y = HUD + row * CELL + CELL / 2
+    this.registerHit()
+    this.addScore(75 * this.multiplier, x, y)
+    this.burst(x, y, 5, RAMPS.gold[3])
+    this.sound.play('pop')
+    const goal = this.wave.objective
+    if (goal?.kind === 'clear-leaves' && this.rakedLeaves >= goal.count) {
+      this.meetObjective()
+    }
+    return true
   }
 
   private get canCount(): number {
@@ -986,6 +1037,10 @@ class GlitchGarden implements ArcadeGameInstance {
     this.beesCrossed = 0
     this.kindLost = false
     this.sprayersLost = 0
+    this.rakedLeaves = 0
+    this.leafGust = LEAF_GUST_TICKS
+    this.leafWind = plan.leaves > 0 ? (this.rng() < 0.5 ? 1 : -1) : 1
+    this.plantLeaves(plan.leaves, plan.objective?.kind === 'clear-leaves')
     this.dragonflies = []
     this.bees = []
     this.boss = null
@@ -1220,6 +1275,7 @@ class GlitchGarden implements ArcadeGameInstance {
       if (!this.volley) this.volley = { hits: 0, landed: false }
     }
     this.updateBeams()
+    this.updateLeaves()
     this.moveWorms()
     this.updateBeetle()
     this.updateMoth()
@@ -1410,6 +1466,7 @@ class GlitchGarden implements ArcadeGameInstance {
       const col = Math.floor(beam.x / CELL)
       const row = Math.floor((beam.y - HUD) / CELL)
       this.pickUpPower(beam, col, row)
+      if (this.hitLeaf(col, row)) return false
       // A bee bot in the way soaks up the spray (and the wave's Kind bonus with it).
       if (this.sprayBee(beam.x, beam.y)) return false
       const worm = this.hitWorm(beam.x, beam.y, beam.powers.includes('cyan'))
@@ -2764,6 +2821,7 @@ class GlitchGarden implements ArcadeGameInstance {
         if (ob) this.renderObstacle(g, c, r, ob)
       }
     for (const a of this.apples) drawHd(g, APPLE_SPRITE, a.x, a.y)
+    this.renderLeaves(g)
     for (const w of this.worms) this.renderWorm(g, w)
     if (this.beetle) this.renderBeetle(g, this.beetle)
     if (this.snail) this.renderSnail(g, this.snail)
@@ -2892,6 +2950,26 @@ class GlitchGarden implements ArcadeGameInstance {
           drawLilyPad(g, c * CELL + 4, HUD + row * CELL + 6, deco && !has)
       }
     })
+  }
+
+  /** Windblown leaves shade the lamp or flower underneath until sprayed away. */
+  private renderLeaves(g: CanvasRenderingContext2D) {
+    for (const leaf of this.leafPiles) {
+      const x = leaf.col * CELL
+      const y = HUD + leaf.row * CELL
+      g.fillStyle = rgba(RAMPS.earth[0], 0.6)
+      g.fillRect(x + 1, y + 6, 7, 2)
+      for (const [dx, dy, color] of [
+        [1, 4, RAMPS.rust[2]],
+        [3, 2, RAMPS.gold[3]],
+        [5, 4, RAMPS.ember[3]],
+        [2, 5, RAMPS.rust[3]],
+        [6, 3, RAMPS.gold[2]],
+      ] as const) {
+        g.fillStyle = color
+        g.fillRect(x + dx, y + dy, 3, 2)
+      }
+    }
   }
 
   /** The sunflower maze's exit: a warm glow in the gap. */
@@ -3374,7 +3452,9 @@ class GlitchGarden implements ArcadeGameInstance {
             ? `BEES ACROSS ${Math.min(this.beesCrossed, goal.count)}/${goal.count}`
             : goal.kind === 'maze-exit'
               ? 'GUARD THE MAZE EXIT'
-              : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
+              : goal.kind === 'clear-leaves'
+                ? `LEAVES ${Math.min(this.rakedLeaves, goal.count)}/${goal.count}`
+                : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
       const state = this.objectiveDone
         ? 'DONE!'
         : this.objectiveFailed

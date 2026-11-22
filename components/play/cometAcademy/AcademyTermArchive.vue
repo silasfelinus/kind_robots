@@ -69,7 +69,7 @@
             <span>{{ page.losses }} losses</span>
           </div>
           <p class="text-[0.65rem] text-slate-400">
-            Filed {{ new Date(page.completedAt).toLocaleDateString() }}
+            Filed {{ dateLabel(page.completedAt) }}
           </p>
         </div>
       </article>
@@ -92,6 +92,14 @@ withDefaults(
   }>(),
   { artEnabled: true },
 )
+
+const archiveDateFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/Los_Angeles',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+})
+const dateLabel = (timestamp: number) => archiveDateFormatter.format(timestamp)
 
 const studentName = (id: StudentId) =>
   STUDENTS.find((student) => student.id === id)?.name ?? 'A friend'

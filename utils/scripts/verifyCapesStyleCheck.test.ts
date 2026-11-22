@@ -194,7 +194,10 @@ for (const identity of IDENTITY_ARCS) {
     const delivered = identityArtCandidateKeys(identity.signature, role)
       .map((key) => promArt(key))
       .filter((url): url is string => Boolean(url))
-    if (delivered.length) shipped[role]++
+    // Count actual exported outcome plates, not a student fallback that merely
+    // makes a role's display slot usable.
+    if (promArt(`identities/${identity.signature}/outcomes/${role}`))
+      shipped[role]++
     const resolved = identityArtwork(identity.signature, role)
     if (resolved) {
       canonSafe[role]++

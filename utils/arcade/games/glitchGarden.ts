@@ -4045,7 +4045,11 @@ class GlitchGarden implements ArcadeGameInstance {
                 ? `LEAVES ${Math.min(this.rakedLeaves, goal.count)}/${goal.count}`
                 : goal.kind === 'great-pumpkin'
                   ? `GIANT ${this.pumpkins.find((p) => p.giant)?.hp ?? 0} HP`
-                  : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
+                  : goal.kind === 'warm-heaters'
+                    ? `HEATERS ${layoutCells(this.garden, LAYOUT_HEATER).filter(([x, y]) => this.at(x, y)?.lit).length}/${goal.count}`
+                    : goal.kind === 'snow-day'
+                      ? `SNOWBALLS ${Math.min(this.snowballsFixed, goal.count)}/${goal.count}`
+                      : `LANES ${this.laneBlooms.size}/${goal.lanes.length}`
       const state = this.objectiveDone
         ? 'DONE!'
         : this.objectiveFailed

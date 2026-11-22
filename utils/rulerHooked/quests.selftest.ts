@@ -343,7 +343,11 @@ for (const id of QUESTS)
       assert.equal(has(entrenched, 'orchardjaw-perch'), false)
       assert.equal(has(entrenched, 'sunspoke-koi'), true)
     } else {
-      assert.equal(before, true, `${scenario.id} begins with ${scenario.fish}`)
+      assert.equal(
+        before,
+        scenario.id !== 'weir-reckoning',
+        `${scenario.id} starts with the species state its earlier choice caused`,
+      )
       assert.equal(has(restored, scenario.fish), scenario.id === 'weir-reckoning')
       assert.equal(has(entrenched, scenario.fish), scenario.id !== 'weir-reckoning')
       if (scenario.id === 'marina-reckoning')

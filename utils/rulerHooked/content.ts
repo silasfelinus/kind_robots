@@ -1486,7 +1486,10 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               effects: {
                 sliders: { nature: 17, joy: 5, treasury: -8 },
                 flags: { set: ['shallowsNursery', 'heirIndependent'] },
-                regionOverride: { near_bank: 'grassy' },
+                regionOverride: {
+                  near_bank: 'grassy',
+                  far_shore: 'pristine',
+                },
               },
               result:
                 'Ash takes the morning shift feeding fry, Robin handles visitors, and Sela refuses the title of advisor. Sunspoke Koi flare under the new reeds. The court is scandalized that the heir is happier holding a bucket.',

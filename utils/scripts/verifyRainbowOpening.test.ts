@@ -62,6 +62,28 @@ assert.ok(
   overlay.includes('playButton.value?.focus()'),
   'the recovery action receives keyboard focus',
 )
+assert.ok(
+  overlay.includes('const attempt = ++playbackAttempt') &&
+    overlay.includes('attempt !== playbackAttempt') &&
+    overlay.includes("state.value !== 'playing'"),
+  'stale autoplay or muted retry failures cannot reopen a skipped cinematic',
+)
+assert.ok(
+  overlay.includes('if (state.value !== \'playing\') return') &&
+    overlay.includes('++playbackAttempt'),
+  'a playback failure only changes an active opening and invalidates old promises',
+)
+assert.ok(
+  !overlay.includes('      autoplay') &&
+    overlay.includes('player.volume = arcade.volume') &&
+    overlay.includes('player.muted = true'),
+  'opening starts from user intent and retries muted after an audio rejection',
+)
+assert.ok(
+  overlay.includes('aria-live="polite"') &&
+    overlay.includes("if (state.value === 'failed') playButton.value?.focus()"),
+  'recovery is announced and delayed focus cannot move after the overlay closes',
+)
 
 console.log(
   `rainbow opening: ok (${RAINBOW_OPENING ? `${RAINBOW_OPENING.seconds}s, ${RAINBOW_OPENING.clips}/${RAINBOW_OPENING.shots} shots animated` : 'not shipped yet'})`,

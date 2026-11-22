@@ -181,9 +181,10 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
     species: 'human woman',
     apparentAge: 'adult woman, about 30',
     silhouette:
-      'a leggy, curvy streetwise broad in a belted rose trench, a big messy mane of jet-black hair with one white streak, a plaster on her neck and a press camera swinging on its strap',
+      'a zaftig, curvy streetwise broad in a belted rose trench cinched at the waist, a big messy mane of jet-black hair with one white streak, a plaster on her neck and a press camera swinging on its strap',
     identity: [
       'adult human woman about 30, sassy streetwise broad with a warm open face',
+      'zaftig full-figured hourglass: full bust, wide hips, thick thighs, a soft little belly; curvy and well-padded, not thin and not fat',
       'big messy shoulder-length jet-black hair with swept bangs and a single thick bold white streak from the front hairline',
       'bright wide curious eyes with smudged black winged eyeliner, arched expressive eyebrows, a wide crooked grin',
       'a flesh-coloured plaster on the side of her neck',
@@ -227,9 +228,13 @@ export const CHARACTER_MODELS: Record<MonstriqueCharacterId, CharacterModel> = {
       'brown hair',
       'sleek bob',
       'cold aloof stare',
+      'skinny',
+      'thin',
+      'model-thin waist',
+      'obese',
       'bored expression',
     ],
-    tags: '1girl, solo, mature female, black hair, streaked hair, white streak, medium hair, messy hair, swept bangs, wide eyes, eyeliner, raised eyebrow, grin, lipstick, hoop earrings, bandaid on neck, curvy, trench coat, pink coat, belt, crop top, midriff, pencil skirt, fishnets, ankle boots, camera, holding camera, hand on hip, confident',
+    tags: '1girl, solo, mature female, black hair, streaked hair, white streak, medium hair, messy hair, swept bangs, wide eyes, eyeliner, raised eyebrow, grin, lipstick, hoop earrings, bandaid on neck, curvy, voluptuous, wide hips, thick thighs, trench coat, pink coat, belt, crop top, midriff, pencil skirt, fishnets, ankle boots, camera, holding camera, hand on hip, confident',
     sprite: {
       height: 1,
       heads: 5.2,

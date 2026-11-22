@@ -58,8 +58,8 @@ export const SPACE_COUCH_OPENING: readonly SpaceCouchOpeningFrame[] = [
   {
     key: 'opening/09-holodeck',
     title: 'NEED ANOTHER ROOM?',
-    line: "Fold out a holodeck behind the backrest. Don't ask where it fits.",
-    alt: 'A pocket holodeck unfolds behind the crimson couch.',
+    line: "Fold out a pocket theater behind the backrest. Don't ask where it fits.",
+    alt: 'A pocket theater unfolds behind the crimson couch.',
   },
   {
     key: 'opening/10-war-room',

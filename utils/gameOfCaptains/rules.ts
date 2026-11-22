@@ -108,7 +108,7 @@ export const POCKET_ROOMS: {
 }[] = [
   {
     id: 'holodeck',
-    name: 'Holodeck',
+    name: 'Pocket Theater',
     blurb: 'Rehearse scientific hazards in simulated space.',
     specialty: 'science',
   },
@@ -1491,7 +1491,7 @@ export function finishVoyage(
           .map((id) => CREW.find((c) => c.id === id)!.name)
           .join(
             ' and ',
-          )} present evidence gathered on the couch's detours. ${antagonistFor(run).name} must answer witnesses rather than dictate terms; the people affected take the final vote.`
+          )} ${counterCrew(run).length === 1 ? 'presents' : 'present'} evidence gathered on the couch's detours. ${antagonistFor(run).name} must answer witnesses rather than dictate terms; the people affected take the final vote.`
       : saved
         ? strong
           ? 'Your crew rejects the antagonist’s claim and protects the worlds without owning them. Vox saves your place at the bar.'
@@ -1508,7 +1508,7 @@ export function finishVoyage(
   const remembrance = {
     fluke:
       'Fluke lets the final log stand without an unauthorized peek at tomorrow. The present is interesting enough to stay for.',
-    vale: 'Vale releases the schematics that saved the worlds, including the embarrassing parts that required a second soldering iron.',
+    vale: 'Vale releases every schematic from the voyage, the built and the unbuilt, including the embarrassing parts that required a second soldering iron.',
     solace:
       'Solace finally sits with the living crew, sets down the janitor’s master key, and lets someone else watch the exits.',
     rex: 'Rex leaves the cameras dark while the civilians tell their own rescue story. His cape still catches the perfect breeze.',
@@ -1540,15 +1540,20 @@ export function finishVoyage(
   const redshirts = (run.redshirtFallen ?? [])
     .map(
       (loss) =>
-        `${REDSHIRT_BY_ID[loss.id]?.name ?? loss.id} is remembered by name, not recruitment number, after ${loss.missionId}. Their bright red uniform hangs beside the others.`,
+        `${REDSHIRT_BY_ID[loss.id]?.name ?? loss.id} is remembered by name, not recruitment number, for ${MISSIONS.find((m) => m.id === loss.missionId)?.title ?? 'a mission the couch still talks about'}. Their bright red uniform hangs beside the others.`,
     )
     .join(' ')
   const expeditionSecrets = (run.expeditionHistory ?? [])
     .flatMap((visit) =>
       visit.results
         .filter((r) => r.secret)
-        .map((r) => r.outcome.split('SECRET DETOUR: ')[1] ?? r.outcome),
+        .map((r) =>
+          (r.outcome.split('SECRET DETOUR: ')[1] ?? r.outcome)
+            .replace(/\s*Field objective (achieved|compromised);[^.]*\./g, '')
+            .trim(),
+        ),
     )
+    .filter((line, index, lines) => line && lines.indexOf(line) === index)
     .join(' ')
   const civic = (run.missionHistory ?? [])
     .map((event) => {

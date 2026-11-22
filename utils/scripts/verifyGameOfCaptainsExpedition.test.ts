@@ -328,10 +328,7 @@ for (let seed = 1; seed <= 720; seed++) {
     assert.equal(result.casualty, 'rs-001')
     assert.equal(after.redshirtRoster?.includes('rs-001'), false)
     assert.equal(after.redshirtFallen?.at(-1)?.id, 'rs-001')
-    assert.match(
-      result.outcome,
-      /The captain must decide how to inform the next of kin/,
-    )
+    assert.match(result.outcome, /The captain writes to their family by hand\./)
     assert.ok(!result.outcome.includes(encounter.redshirtResult))
     assert.ok(!result.outcome.includes('Personnel prints a tasteful memorial'))
     assert.ok(!nextRedshirt(1, [], ['rs-001'])?.includes('rs-001'))

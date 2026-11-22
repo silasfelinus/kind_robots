@@ -312,7 +312,7 @@ export const ACT_THREE_MIDDLE_CASES = {
         },
         failure: {
           narrative:
-            'The corporate supervisor excludes machine delegates from the inspection, then publishes a convenient report saying the bubble can work indefinitely. The shield refuses to certify the figures and dims the optional holodeck while keeping air and gravity stable. The human technicians admit they cannot separate a failed sensor from an exhausted worker without the worker’s account. The captain withdraws the report and preserves every disputed reading. The foundry council registers exclusion from the audit as another grievance, not a diagnosis that can be fixed by painting the dashboard green.',
+            'The corporate supervisor excludes machine delegates from the inspection, then publishes a convenient report saying the bubble can work indefinitely. The shield refuses to certify the figures and dims the optional pocket theater while keeping air and gravity stable. The human technicians admit they cannot separate a failed sensor from an exhausted worker without the worker’s account. The captain withdraws the report and preserves every disputed reading. The foundry council registers exclusion from the audit as another grievance, not a diagnosis that can be fixed by painting the dashboard green.',
           flags: ['sesh-machine-witness-excluded', 'sesh-holodeck-dark'],
           delta: {
             ship_fuel: -2,

@@ -98,7 +98,7 @@ export const REDSHIRT_DETAILS_A = [
     'tactics',
   ],
   [
-    'Odo Button',
+    'Oda Button',
     'plush sphere with six tiny arms',
     'Fired from registry work for being too stampable',
     'Impersonates the voice of a filing desk',
@@ -203,7 +203,7 @@ export const REDSHIRT_DETAILS_A = [
     'luck',
   ],
   [
-    'Dobby Glitch',
+    'Dabble Glitch',
     'flickering pixel-bodied courier',
     'Escaped a discarded arcade bonus level',
     'Slips through security as a dropped frame',
@@ -245,7 +245,7 @@ export const REDSHIRT_DETAILS_A = [
     'science',
   ],
   [
-    'Jango Wisp',
+    'Jangle Wisp',
     'two-dimensional purple cutout with teeth',
     'Wanted poster that escaped its own wall',
     'Hides inside government forms',

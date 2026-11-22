@@ -100,6 +100,7 @@ import {
   KITCHEN_PLOT,
   LAYOUT_CAN,
   LAYOUT_EXIT,
+  LAYOUT_HEATER,
   LAYOUT_LAMP,
   LAYOUT_LEAF,
   LAYOUT_PUMPKIN,
@@ -185,6 +186,12 @@ export const PUMPKIN_HP = 8
 export const GIANT_PUMPKIN_HP = 24
 export const ROLLER_HP = 4
 export const INCHWORM_SLOW_TICKS = 300
+export const FROST_HP = 8
+export const FROST_SPREAD_TICKS = 180
+export const HEATER_RADIUS = 3
+export const ICE_ACCEL = 0.45
+export const ICE_DRAG = 0.92
+export const ICE_MAX_SPEED = 2.8
 export const HYDRA_HEAD_HP = 6
 export const HYDRA_TELL_TICKS = 90
 /** A worm turned back by a wall this many times in a row squeezes past it. */
@@ -270,9 +277,10 @@ export function streakAfterMiss(streak: number): number {
 type Obstacle = {
   hp: number
   /** Trees and sunflowers are walls: never sprayed away, never creeping. */
-  kind: 'lamp' | 'sprout' | 'can' | 'apple' | 'tree' | 'sunflower'
+  kind: 'lamp' | 'sprout' | 'can' | 'apple' | 'tree' | 'sunflower' | 'heater'
   /** Glitched by the snail: grey static that sends a worm plunging. */
   glitched?: boolean
+  frosted?: boolean
   /** A can already set off by a neighbour's splash, waiting its turn. */
   lit?: boolean
 }
@@ -809,6 +817,9 @@ class GlitchGarden implements ArcadeGameInstance {
   private pumpkins: Pumpkin[] = []
   private inchworms: Inchworm[] = []
   private slowTicks = 0
+  private frostTimer = FROST_SPREAD_TICKS
+  private glideX = 0
+  private glideY = 0
   private dragonflies: Dragonfly[] = []
   private dragonflyTimer = 0
   private bees: Bee[] = []
@@ -908,6 +919,7 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     put(LAYOUT_LAMP, () => ({ hp: LAMP_HP, kind: 'lamp' }))
     put(LAYOUT_CAN, () => ({ hp: 1, kind: 'can' }))
+    put(LAYOUT_HEATER, () => ({ hp: 1, kind: 'heater', lit: false }))
     put(LAYOUT_TREE, () => ({ hp: 1, kind: 'tree' }))
     put(LAYOUT_SUNFLOWER, () => ({ hp: 1, kind: 'sunflower' }))
     for (const [col, row] of layoutCells(garden, LAYOUT_EXIT))
@@ -927,6 +939,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.leafPiles = []
     this.pumpkins = []
     this.inchworms = []
+    this.glideX = 0
+    this.glideY = 0
     this.mown = false
     this.padShift = 0
   }
@@ -1212,6 +1226,7 @@ class GlitchGarden implements ArcadeGameInstance {
             pumpkins: 0,
             rollers: 0,
             inchworms: 0,
+            frost: 0,
             objective: undefined,
             sub: BOSSES[step.boss].sub,
           }
@@ -1235,6 +1250,9 @@ class GlitchGarden implements ArcadeGameInstance {
     this.leafWind = plan.leaves > 0 ? (this.rng() < 0.5 ? 1 : -1) : 1
     this.plantLeaves(plan.leaves, plan.objective?.kind === 'clear-leaves')
     this.plantPumpkins(plan)
+    this.plantFrost(plan.frost)
+    this.glideX = 0
+    this.glideY = 0
     this.slowTicks = 0
     this.dragonflies = []
     this.bees = []
@@ -1471,6 +1489,7 @@ class GlitchGarden implements ArcadeGameInstance {
     }
     this.updateBeams()
     this.updateLeaves()
+    this.updateFrost()
     this.moveWorms()
     if (this.slowTicks > 0) this.slowTicks--
     const slowFrame = this.slowTicks > 0 && this.tick % 2 !== 0
@@ -1559,12 +1578,26 @@ class GlitchGarden implements ArcadeGameInstance {
     if (input.held.right) dx += SPRAYER_SPEED
     if (input.held.up) dy -= SPRAYER_SPEED
     if (input.held.down) dy += SPRAYER_SPEED
+    if (this.garden.icyBed) {
+      this.glideX = Math.max(
+        -ICE_MAX_SPEED,
+        Math.min(ICE_MAX_SPEED, this.glideX * ICE_DRAG + Math.sign(dx) * ICE_ACCEL),
+      )
+      this.glideY = Math.max(
+        -ICE_MAX_SPEED,
+        Math.min(ICE_MAX_SPEED, this.glideY * ICE_DRAG + Math.sign(dy) * ICE_ACCEL),
+      )
+      dx = this.glideX
+      dy = this.glideY
+    }
     const minY = HUD + BED_TOP * CELL + 4
     const maxY = H - 5
     const nx = Math.max(4, Math.min(W - 4, this.px + dx))
     if (!this.blocked(nx, this.py)) this.px = nx
+    else this.glideX = 0
     const ny = Math.max(minY, Math.min(maxY, this.py + dy))
     if (!this.blocked(this.px, ny)) this.py = ny
+    else this.glideY = 0
   }
 
   private blocked(x: number, y: number): boolean {
@@ -1716,6 +1749,10 @@ class GlitchGarden implements ArcadeGameInstance {
 
   /** A lamp or sprout sprayed: once it's had enough, it blooms into a flower. */
   private water(col: number, row: number, ob: Obstacle) {
+    if (ob.kind === 'heater') {
+      this.thawHeater(col, row)
+      return
+    }
     if (ob.kind === 'can') {
       if (!ob.lit) this.splash(col, row, 1)
       return
@@ -2867,6 +2904,8 @@ class GlitchGarden implements ArcadeGameInstance {
     this.bedTicks = 0
     this.px = W / 2
     this.py = HUD + (ROWS - 2) * CELL
+    this.glideX = 0
+    this.glideY = 0
     // Clear a spot to stand in.
     for (let c = 13; c <= 16; c++)
       for (let r = ROWS - 3; r < ROWS; r++) this.grid[this.idx(c, r)] = null

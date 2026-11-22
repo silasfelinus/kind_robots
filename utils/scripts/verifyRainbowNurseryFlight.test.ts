@@ -2,18 +2,26 @@ import assert from 'node:assert/strict'
 import { readRainbowSave } from '../arcade/games/rainbowLoadouts'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import {
+  KELP_CHOIR,
+  KELP_CHOIR_PODS,
   NURSERY,
   NURSERY_FLIGHT,
   NURSERY_FLIGHT_SECTIONS,
   NURSERY_WAVES,
   NURSERY_TALKS,
+  choirFreed,
+  choirPodAvailable,
+  choirPodX,
   nurseryDetourFor,
   nurseryFlightCheckpointValid,
   nurseryFlightPhase,
   nurserySpawns,
+  rescueChoirPod,
 } from '../arcade/games/rainbowLanternNursery'
 
 assert.equal(NURSERY_FLIGHT.id, 'X1')
+assert.equal(NURSERY_FLIGHT.name, 'Kelp Nebula Bypass')
+assert.equal(KELP_CHOIR_PODS.length, 5)
 assert.equal(NURSERY_WAVES.length, 20)
 assert.deepEqual(Object.keys(NURSERY_TALKS), ['opening', 'turn', 'aftermath'])
 for (const lines of Object.values(NURSERY_TALKS)) {
@@ -54,6 +62,21 @@ assert.equal(nurseryFlightPhase(240), 'waves')
 assert.equal(nurseryFlightPhase(3600), 'guardian')
 assert.equal(nurseryFlightPhase(4380), 'exit')
 assert.equal(nurseryFlightPhase(5100), 'done')
+let mask = 0
+for (const pod of KELP_CHOIR_PODS) {
+  assert.equal(choirPodAvailable(pod.at, mask)?.id, pod.id)
+  assert.equal(choirPodAvailable(pod.at - 1, mask), null)
+  assert.equal(choirPodAvailable(pod.at + KELP_CHOIR.window, mask), null)
+  const nearShipX = choirPodX(pod.at + 180, pod.at)
+  assert.ok(nearShipX > 0 && nearShipX < 100)
+  mask = rescueChoirPod(mask, pod.id)
+  assert.equal(choirPodAvailable(pod.at, mask), null)
+}
+assert.equal(mask, 31)
+assert.equal(choirFreed(mask), true)
+assert.equal(choirFreed(mask - 1), false)
+assert.equal(rescueChoirPod(mask, 5), mask)
+assert.equal(rescueChoirPod(mask, 6), mask)
 for (const entry of NURSERY_WAVES) assert.ok(nurserySpawns(entry.at).length > 0)
 
 const checkpoint = {
@@ -91,6 +114,8 @@ const checkpoint3 = {
   nurseryStartedAt: 20000,
   nurseryFrame: 240,
   nurseryHits: 0,
+  nurseryChoirMask: 3,
+  freedChoir: false,
   rescuedCourier: false,
   wreckRoute: null,
   wreckSettled: false,
@@ -110,6 +135,8 @@ const read = (c: typeof checkpoint3) =>
   )
 const saved = read(checkpoint3)
 assert.equal(saved?.checkpoint.nurseryFrame, 240)
+assert.equal(saved?.checkpoint.nurseryChoirMask, 3)
+assert.equal(saved?.checkpoint.freedChoir, false)
 const idle = {
   held: {
     up: false,
@@ -141,6 +168,7 @@ for (const seats of [1, 2, 3, 4]) {
   })
   assert.equal(game.snapshot.act, 'X1')
   assert.equal(game.snapshot.nurseryFrame, 239)
+  assert.equal(game.snapshot.nurseryChoirMask, 3)
   assert.equal(game.snapshot.activePlayers, seats)
   const inputs = Array.from({ length: seats }, () => idle)
   game.update(idle, inputs)
@@ -169,7 +197,7 @@ const guardianGame = createRainbowPrincessPreview({
 })
 guardianGame.update(idle, [idle])
 assert.equal(guardianGame.snapshot.stage, 'guardian')
-assert.equal(guardianGame.snapshot.guardian?.kind, 'matriarch')
+assert.equal(guardianGame.snapshot.guardian?.kind, 'kelpwarden')
 
 const exitSave = read({
   ...checkpoint3,
@@ -198,6 +226,9 @@ assert.equal(
 assert.equal(read({ ...checkpoint3, nurseryFrame: 250 }), null)
 assert.equal(read({ ...checkpoint3, rescuedNemi: false }), null)
 assert.equal(read({ ...checkpoint3, nurseryHits: -1 }), null)
+assert.equal(read({ ...checkpoint3, nurseryChoirMask: 32 }), null)
+assert.equal(read({ ...checkpoint3, freedChoir: 'yes' as never }), null)
+assert.equal(read({ ...checkpoint3, nurseryChoirMask: -1 }), null)
 assert.equal(
   read({
     ...checkpoint3,
@@ -207,8 +238,8 @@ assert.equal(
   'an orphaned flight origin must not bypass validation',
 )
 console.log(
-  'X1 cabinet replay: one-to-four seats, 20 authored waves, Matriarch, exit, and corrupt save rejection passed',
+  'X1 cabinet replay: one-to-four seats, 20 waves, Kelp Warden, Choir rescue masks, exit and corrupt saves passed',
 )
 console.log(
-  'X1 Nursery: 20 waves, six contiguous sections, co-op vote, exact checkpoint proof passed',
+  'X1 Kelp Nebula: five timed Choir pods, co-op vote and exact checkpoint proof passed',
 )

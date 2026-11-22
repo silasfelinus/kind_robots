@@ -11,8 +11,11 @@ import {
   CASTS_PER_DAY,
   DAILY_EVENTS,
   PROCLAMATION_COUNTER,
+  PROCLAMATION_EVENT_INDEX_COUNTER,
+  PROCLAMATION_FISH_BOOST,
   dayNumber,
   eventForDay,
+  fishWeightForProclamation,
   hearProclamation,
   pendingProclamation,
 } from '~/utils/rulerHooked/dailyEvents'
@@ -34,6 +37,7 @@ import {
   vistaCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
+import { availableFish } from '~/utils/rulerHooked/fish'
 import type { RunSave } from '~/types/ruler-hooked'
 
 const fresh = (seed = 'console-seed'): RunSave =>
@@ -53,6 +57,13 @@ const fresh = (seed = 'console-seed'): RunSave =>
   assert.equal(dayNumber({ turnCount: CASTS_PER_DAY - 1 }), 1)
   assert.equal(dayNumber({ turnCount: CASTS_PER_DAY }), 2)
 
+  assert.ok(DAILY_EVENTS.length >= 25, 'the reign needs a real crier catalog')
+  assert.equal(
+    new Set(DAILY_EVENTS.map((event) => event.key)).size,
+    DAILY_EVENTS.length,
+    'proclamation keys must be unique',
+  )
+
   const pending = pendingProclamation(save)
   assert.ok(pending, 'day one opens with a proclamation')
   assert.equal(pending.day, 1)
@@ -63,6 +74,10 @@ const fresh = (seed = 'console-seed'): RunSave =>
   const heard = hearProclamation(save)
   assert.notEqual(heard, save, 'hearing returns a new save')
   assert.equal(heard.counters[PROCLAMATION_COUNTER], 1)
+  assert.equal(
+    DAILY_EVENTS[heard.counters[PROCLAMATION_EVENT_INDEX_COUNTER]!]!.key,
+    pending.event.key,
+  )
   assert.equal(pendingProclamation(heard), null, 'heard once per day')
   assert.equal(hearProclamation(heard), heard, 'hearing twice is a no-op')
   assert.equal(
@@ -84,6 +99,55 @@ const fresh = (seed = 'console-seed'): RunSave =>
     for (const v of Object.values(e.effect.sliders ?? {})) {
       assert.ok(Math.abs(v) <= 5, `${e.key} nudges, it does not swing`)
     }
+  }
+
+  // Fishing news nudges existing species odds only for the heard in-game day.
+  const featuredIndex = DAILY_EVENTS.findIndex((event) =>
+    event.fishBoostSlugs?.includes('orchardjaw-perch'),
+  )
+  assert.ok(featuredIndex >= 0)
+  const fishingDay = fresh()
+  fishingDay.counters[PROCLAMATION_COUNTER] = 1
+  fishingDay.counters[PROCLAMATION_EVENT_INDEX_COUNTER] = featuredIndex
+  const eligibleBefore = availableFish(fishingDay).map((fish) => fish.slug)
+  assert.equal(
+    fishWeightForProclamation(fishingDay, 'orchardjaw-perch', 60),
+    60 * PROCLAMATION_FISH_BOOST,
+  )
+  assert.equal(fishWeightForProclamation(fishingDay, 'parlour-rustfish', 60), 60)
+  assert.deepEqual(
+    availableFish(fishingDay).map((fish) => fish.slug),
+    eligibleBefore,
+    'the daily nudge must never unlock or gate a fish',
+  )
+  fishingDay.turnCount = CASTS_PER_DAY
+  assert.equal(
+    fishWeightForProclamation(fishingDay, 'orchardjaw-perch', 60),
+    60,
+    'yesterday\'s fishing bonus expires by in-game casts only',
+  )
+  fishingDay.turnCount = 0
+  delete fishingDay.counters[PROCLAMATION_EVENT_INDEX_COUNTER]
+  assert.equal(
+    fishWeightForProclamation(fishingDay, 'orchardjaw-perch', 60),
+    60,
+    'legacy saves without event identity have no surprise modifiers',
+  )
+
+  const rotten = fresh('rotten-reign')
+  rotten.kingdomHealth = {
+    nature: 10,
+    prosperity: 15,
+    treasury: 15,
+    joy: 10,
+    order: 10,
+  }
+  for (let day = 1; day <= 30; day++) {
+    const event = eventForDay(rotten, day)
+    assert.ok(
+      event.dourCry || event.cry.startsWith('By order of the crumbling crown:'),
+      `${event.key} must speak differently in a collapsed reign`,
+    )
   }
 
   // A completed reign has no crier.

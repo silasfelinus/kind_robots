@@ -1,7 +1,6 @@
 'use strict'
 ;(() => {
-  const START_FEN =
-    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+  const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
   const CHESS_GLYPH = {
     K: '♚',
     Q: '♛',
@@ -25,11 +24,9 @@
     k: [-17, -16, -15, -1, 1, 15, 16, 17],
   }
   const onBoard = (i) => i >= 0 && i < 128 && !(i & 0x88)
-  const colorOf = (p) =>
-    !p || p === '.' ? 0 : p === p.toUpperCase() ? 1 : -1
+  const colorOf = (p) => (!p || p === '.' ? 0 : p === p.toUpperCase() ? 1 : -1)
   const squareName = (i) => 'abcdefgh'[i & 7] + (8 - (i >> 4))
-  const squareIdx = (s) =>
-    (8 - Number(s[1])) * 16 + 'abcdefgh'.indexOf(s[0])
+  const squareIdx = (s) => (8 - Number(s[1])) * 16 + 'abcdefgh'.indexOf(s[0])
   const moveKey = (m) => squareName(m[0]) + squareName(m[1]) + m[2]
   const initialPosition = () => {
     const parts = START_FEN.split(' '),
@@ -48,10 +45,7 @@
       if (!onBoard(from) || colorOf(s.b[from]) !== by) continue
       const p = s.b[from].toLowerCase()
       if (p === 'p') {
-        if (
-          target === from - 16 * by - 1 ||
-          target === from - 16 * by + 1
-        )
+        if (target === from - 16 * by - 1 || target === from - 16 * by + 1)
           return true
         continue
       }
@@ -194,22 +188,11 @@
         (promote ? '=' + promote.toUpperCase() : '')
     }
     const next = makePosition(s, m)
-    return (
-      str + (inCheck(next) ? (legalMoves(next).length ? '+' : '#') : '')
-    )
+    return str + (inCheck(next) ? (legalMoves(next).length ? '+' : '#') : '')
   }
   function repetitionKey(s) {
-    const epRelevant =
-      s.ep >= 0 && legalMoves(s).some((m) => m[3] === 'ep')
-    return (
-      s.b.join('') +
-      '/' +
-      s.t +
-      '/' +
-      s.c +
-      '/' +
-      (epRelevant ? s.ep : -1)
-    )
+    const epRelevant = s.ep >= 0 && legalMoves(s).some((m) => m[3] === 'ep')
+    return s.b.join('') + '/' + s.t + '/' + s.c + '/' + (epRelevant ? s.ep : -1)
   }
   function drawByMaterial(s) {
     const remaining = []

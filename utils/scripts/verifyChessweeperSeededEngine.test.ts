@@ -132,7 +132,11 @@ const move = (position: chessSource.ChessPosition, uci: string) => {
   return chessSource.makePosition(position, found)
 }
 let chess = chessSource.initialPosition()
-assert.equal(chessSource.legalMoves(chess).length, 20, 'opening has twenty moves')
+assert.equal(
+  chessSource.legalMoves(chess).length,
+  20,
+  'opening has twenty moves',
+)
 for (const uci of ['f2f3', 'e7e5', 'g2g4', 'd8h4']) {
   chess = move(chess, uci)
 }
@@ -165,7 +169,9 @@ assert.equal(castled.c & 3, 0, 'castling consumes white rights')
 const attackedCastle = { ...castle, b: castle.b.slice() }
 attackedCastle.b[square('f8')] = 'r'
 assert.ok(
-  !chessSource.legalMoves(attackedCastle).some((m) => m[3] === 'castle' && m[1] === square('g1')),
+  !chessSource
+    .legalMoves(attackedCastle)
+    .some((m) => m[3] === 'castle' && m[1] === square('g1')),
   'castling cannot cross an attacked transit square',
 )
 
@@ -176,9 +182,9 @@ enPassant.b[square('e8')] = 'k'
 enPassant.b[square('e5')] = 'P'
 enPassant.b[square('d7')] = 'p'
 const pushed = move(enPassant, 'd7d5')
-const ephemeral = chessSource.legalMoves(pushed).find(
-  (m) => chessSource.moveKey(m) === 'e5d6',
-)
+const ephemeral = chessSource
+  .legalMoves(pushed)
+  .find((m) => chessSource.moveKey(m) === 'e5d6')
 assert.equal(ephemeral?.[3], 'ep', 'en passant is legal after double push')
 assert.ok(ephemeral)
 const captured = chessSource.makePosition(pushed, ephemeral)
@@ -195,10 +201,7 @@ const promotions = chessSource
   .legalMoves(promotion)
   .filter((m) => m[0] === square('a7') && m[1] === square('a8'))
 assert.equal(promotions.length, 4, 'pawn promotion has four legal choices')
-assert.deepEqual(
-  promotions.map((m) => m[2]).sort(),
-  ['b', 'n', 'q', 'r'],
-)
+assert.deepEqual(promotions.map((m) => m[2]).sort(), ['b', 'n', 'q', 'r'])
 assert.equal(move(promotion, 'a7a8n').b[square('a8')], 'N')
 
 const stalemate = empty()

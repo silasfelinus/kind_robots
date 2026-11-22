@@ -6,10 +6,14 @@ export type ChessPosition = {
   half: number
   full: number
 }
-export type ChessMove = [from: number, to: number, promotion: string, flag: string]
+export type ChessMove = [
+  from: number,
+  to: number,
+  promotion: string,
+  flag: string,
+]
 
-const START_FEN =
-  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 const DIR: Record<string, number[]> = {
   n: [-33, -31, -18, -14, 14, 18, 31, 33],
   b: [-17, -15, 15, 17],
@@ -41,10 +45,7 @@ function underAttack(s: ChessPosition, target: number, by: number): boolean {
     if (!onBoard(from) || colorOf(s.b[from]) !== by) continue
     const p = s.b[from].toLowerCase()
     if (p === 'p') {
-      if (
-        target === from - 16 * by - 1 ||
-        target === from - 16 * by + 1
-      )
+      if (target === from - 16 * by - 1 || target === from - 16 * by + 1)
         return true
       continue
     }
@@ -187,22 +188,11 @@ function notation(s: ChessPosition, m: ChessMove): string {
       (promote ? '=' + promote.toUpperCase() : '')
   }
   const next = makePosition(s, m)
-  return (
-    str + (inCheck(next) ? (legalMoves(next).length ? '+' : '#') : '')
-  )
+  return str + (inCheck(next) ? (legalMoves(next).length ? '+' : '#') : '')
 }
 function repetitionKey(s: ChessPosition): string {
-  const epRelevant =
-    s.ep >= 0 && legalMoves(s).some((m) => m[3] === 'ep')
-  return (
-    s.b.join('') +
-    '/' +
-    s.t +
-    '/' +
-    s.c +
-    '/' +
-    (epRelevant ? s.ep : -1)
-  )
+  const epRelevant = s.ep >= 0 && legalMoves(s).some((m) => m[3] === 'ep')
+  return s.b.join('') + '/' + s.t + '/' + s.c + '/' + (epRelevant ? s.ep : -1)
 }
 function drawByMaterial(s: ChessPosition): boolean {
   const remaining: Array<[string, number]> = []

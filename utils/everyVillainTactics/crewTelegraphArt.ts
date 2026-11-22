@@ -142,3 +142,12 @@ export function crewTellReceipt(
 ): CrewTellReceipt | null {
   return isCrewTellKind(kind) ? CREW_TELL_ART[kind].beats[beat] : null
 }
+
+export function crewUnitArtReceipt(unit: {
+  henchmanType?: string | null
+  lieutenantName?: string
+  maxHp: number
+}): CrewTellReceipt | null {
+  if (unit.maxHp !== 1 || unit.lieutenantName) return null
+  return crewTellReceipt(unit.henchmanType, 'action')
+}

@@ -721,7 +721,10 @@ export const PUMPKIN_PATCH: Garden = {
   name: 'PUMPKIN PATCH',
   season: 'autumn',
   boss: 'gourd-hydra',
-  intro: ['CRACK THE PUMPKINS TO PLANT SPROUTS', 'FIX AN INCHWORM TO SLOW THE GLITCH'],
+  intro: [
+    'CRACK THE PUMPKINS TO PLANT SPROUTS',
+    'FIX AN INCHWORM TO SLOW THE GLITCH',
+  ],
   layout: [
     '..............................',
     '..............................',

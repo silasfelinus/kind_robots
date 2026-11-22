@@ -1054,13 +1054,7 @@ class GlitchGarden implements ArcadeGameInstance {
     ] as const) {
       const c = col + dx
       const r = row + dy
-      if (
-        c >= 0 &&
-        c < COLS &&
-        r >= 0 &&
-        r < ROWS &&
-        !this.at(c, r)
-      ) {
+      if (c >= 0 && c < COLS && r >= 0 && r < ROWS && !this.at(c, r)) {
         this.grid[this.idx(c, r)] = { hp: SPROUT_HP, kind: 'sprout' }
       }
     }
@@ -2792,8 +2786,7 @@ class GlitchGarden implements ArcadeGameInstance {
     if (
       this.pumpkins.some(
         (p) =>
-          p.rolling &&
-          touch(p.x, p.y, p.giant ? 20 : 12, p.giant ? 18 : 10),
+          p.rolling && touch(p.x, p.y, p.giant ? 20 : 12, p.giant ? 18 : 10),
       )
     )
       return this.lose()
@@ -3782,18 +3775,30 @@ class GlitchGarden implements ArcadeGameInstance {
     })
     if (this.boss?.id === 'gourd-hydra' && !this.boss.defeated) {
       const heads = this.pumpkins.filter((p) => p.hydra)
-      drawText(g, `HYDRA ${3 - heads.length}/3  SPRAY THE GLOW`, W / 2, HUD + 2, {
-        align: 'center',
-        color: RAMPS.gold[4],
-        outline: INK,
-      })
+      drawText(
+        g,
+        `HYDRA ${3 - heads.length}/3  SPRAY THE GLOW`,
+        W / 2,
+        HUD + 2,
+        {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        },
+      )
     }
     if (this.slowTicks > 0) {
-      drawText(g, `INCHWORM SLOW ${Math.ceil(this.slowTicks / 60)}S`, W / 2, H - 15, {
-        align: 'center',
-        color: RAMPS.teal[4],
-        outline: INK,
-      })
+      drawText(
+        g,
+        `INCHWORM SLOW ${Math.ceil(this.slowTicks / 60)}S`,
+        W / 2,
+        H - 15,
+        {
+          align: 'center',
+          color: RAMPS.teal[4],
+          outline: INK,
+        },
+      )
     }
     // The special wave's progress, just under the HUD.
     const goal = this.wave.objective

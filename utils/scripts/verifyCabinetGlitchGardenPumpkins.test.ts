@@ -140,7 +140,10 @@ assert.equal(PUMPKIN_PATCH.waves[2]!.objective?.kind, 'great-pumpkin')
   assert.ok(!g.pumpkins.some((p) => p.giant))
   g.update(emptyInput())
   assert.ok(g.clear > 0, 'the special front can now finish')
-  assert.ok(g.trowels.has('pumpkin-patch'), 'perfect clear gives a golden trowel')
+  assert.ok(
+    g.trowels.has('pumpkin-patch'),
+    'perfect clear gives a golden trowel',
+  )
   assert.ok(g.score >= 5000, 'boss and objective bonuses award real points')
 }
 
@@ -192,8 +195,7 @@ assert.equal(PUMPKIN_PATCH.waves[2]!.objective?.kind, 'great-pumpkin')
     const head = g.pumpkins.find((p) => p.hydra)!
     head.lit = true
     const hits = head.hp
-    for (let n = 0; n < hits; n++)
-      assert.ok(g.hitPumpkin(head.x, head.y))
+    for (let n = 0; n < hits; n++) assert.ok(g.hitPumpkin(head.x, head.y))
     assert.equal(g.boss!.phase, phase + 2, 'each head advances the boss')
     const left = g.pumpkins.filter((p) => p.hydra)
     if (left.length === 1) {

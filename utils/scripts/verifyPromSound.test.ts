@@ -88,8 +88,13 @@ assert.deepEqual(promCuesFor(base, frame({ revelations: 1 })), [
 ])
 assert.deepEqual(promCuesFor(base, frame({ reports: 1 })), ['success'])
 assert.deepEqual(
-  promCuesFor(base, frame({ reports: 1, danger: 3 })),
+  promCuesFor(base, frame({ reports: 1, failedReports: 1 })),
   ['setback'],
+)
+assert.deepEqual(
+  promCuesFor(base, frame({ reports: 1, danger: 3 })),
+  ['success'],
+  'the report grade, not unrelated threat level, determines the audio verdict',
 )
 assert.deepEqual(promCuesFor(base, frame({ phase: 'dispatch' })), [
   'dispatch',
@@ -103,6 +108,10 @@ assert.deepEqual(promCuesFor(base, frame({ phase: 'ending' })), [
 ])
 assert.deepEqual(
   promCuesFor(base, frame({ scene: 'new', lastLog: 'A choice matters' })),
+  ['choice'],
+)
+assert.deepEqual(
+  promCuesFor(base, frame({ lastLog: 'One choice saved a life.' })),
   ['choice'],
 )
 assert.deepEqual(promCuesFor(base, base), [])

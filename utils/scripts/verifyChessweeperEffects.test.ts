@@ -109,6 +109,21 @@ assert.ok(
   'Ashen Last Stand has a distinct cinematic pulse',
 )
 
+
+fire({ detail: { kind: 'move', from: 128, square: 0 } })
+assert.ok(
+  !children.some((node) => node.className.includes('chess-fx-traveler-move')),
+  'invalid off-board source never creates a moving piece',
+)
+fire({ detail: { kind: 'move', from: 16, square: 32 } })
+const movedPiece = children.find((node) =>
+  node.className.includes('chess-fx-traveler-move'),
+)
+assert.ok(movedPiece, 'ordinary legal moves create animated travelers')
+assert.equal(movedPiece.style.left, '6.25%')
+assert.equal(movedPiece.style.top, '18.75%')
+assert.ok(children.length <= 80, 'ordinary chess moves respect the DOM cap')
+
 const html = readFileSync(
   fileURLToPath(
     new URL('../../public/chessweeper/index.html', import.meta.url),

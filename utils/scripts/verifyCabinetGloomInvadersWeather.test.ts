@@ -15,6 +15,7 @@ import gloomInvaders, {
   LANCE_CHARGE,
   SWOOP_TICKS,
   swoopPoint,
+  type GloomMode,
 } from '../arcade/games/gloomInvaders'
 import {
   BERRY_AT,
@@ -93,7 +94,7 @@ type Game = {
   lives: number
   level: number
   over: boolean
-  mode: 'weather' | 'classic'
+  mode: GloomMode
   menu: { cursor: number } | null
   front: { id: string; formation: FormationSpec }
   clouds: Cloud[]
@@ -110,7 +111,7 @@ type Game = {
   update(input: InputFrame): void
   render(g: CanvasRenderingContext2D): void
   startWave(wave: number): void
-  chooseMode(mode: 'weather' | 'classic'): void
+  chooseMode(mode: GloomMode): void
   cheer(cloud: Cloud): void
   damage(cloud: Cloud): void
   demoInput(): InputFrame

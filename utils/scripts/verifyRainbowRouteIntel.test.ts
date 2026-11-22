@@ -5,6 +5,8 @@ import {
   readRainbowSave,
   type RainbowSave,
 } from '../arcade/games/rainbowLoadouts'
+import { createRainbowPrincessPreview, isRainbowCheckpoint } from '../arcade/games/rainbowPrincessPreview'
+import { NURSERY_FLIGHT } from '../arcade/games/rainbowLanternNursery'
 
 // Route discovery is earned from the saved in-flight decisions, not the
 // highest Act reached. A fresh slot must not advertise secret passages.
@@ -162,4 +164,52 @@ assert.equal(
   undefined,
   'a legacy slot must not invent branch history',
 )
+// Exercise the actual cabinet checkpoint writer with every local crew size:
+// entering X1 must survive a new section save and a decoded reload.
+const x1Entry = readRainbowSave(
+  {
+    ...current,
+    checkpoint: {
+      ...checkpoint,
+      act: 3,
+      frame: 20000,
+      rescuedNemi: true,
+      trenchRoute: 'safe',
+      routeSettled: true,
+      nurseryStartedAt: 20000,
+      nurseryFrame: 0,
+      nurseryHits: 0,
+      nurseryChoirMask: 0,
+      nurseryGuardianOutcome: 'waiting',
+      alternateRoutesSeen: 1,
+    },
+  },
+  isRainbowCheckpoint,
+)
+assert.ok(x1Entry, 'an earned X1 entrance is a valid campaign checkpoint')
+const idle = {
+  held: { up: false, down: false, left: false, right: false, a: false, b: false, start: false },
+  pressed: { up: false, down: false, left: false, right: false, a: false, b: false, start: false },
+}
+for (const seats of [1, 2, 3, 4]) {
+  const game = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    players: seats,
+    demo: false,
+    rainbowReplay: x1Entry!,
+  })
+  assert.equal(game.snapshot.act, 'X1')
+  const crew = Array.from({ length: seats }, () => idle)
+  for (let frame = 0; frame < NURSERY_FLIGHT.openingEnds + 3; frame++)
+    game.update(idle, crew)
+  const afterSection = readRainbowSave(game.save, isRainbowCheckpoint)
+  assert.equal(
+    afterSection?.checkpoint.alternateRoutesSeen,
+    1,
+    `X1 entry must persist to the next checkpoint for ${seats} local seats`,
+  )
+  assert.equal(rainbowAlternateRouteLogbook(afterSection)[0]?.discovered, true)
+}
 console.log('Rainbow route intel: passed')

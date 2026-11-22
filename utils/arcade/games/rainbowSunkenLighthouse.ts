@@ -22,11 +22,24 @@ export const LIGHTHOUSE = {
   openingEnds: 240,
   turnStarts: 7320,
   bossStarts: 7680,
+  end: 7980,
   guardianFrom: 6690,
   guardianTo: 7320,
   guardianName: 'Drowned Bellkeeper',
   lampsToLight: 6,
 } as const
+
+/** The cleared relay offers X3 through the upper corridor. A tied crew follows
+ * its lead pilot, and a locked route never silently opens. */
+export function lighthouseDetourFor(
+  positions: readonly number[],
+  unlocked: boolean,
+): boolean {
+  if (!unlocked || positions.length === 0) return false
+  const high = positions.filter((y) => y < 135).length
+  return high > positions.length / 2 ||
+    (high === positions.length / 2 && positions[0]! < 135)
+}
 
 export const LIGHTHOUSE_GUARDIAN: RainbowGuardianSection = {
   name: LIGHTHOUSE.guardianName,

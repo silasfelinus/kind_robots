@@ -433,8 +433,7 @@ export class TacticsSound {
 
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    if (enabled && this.context)
-      this.nextStep = this.context.currentTime + 0.05
+    if (enabled && this.context) this.nextStep = this.context.currentTime + 0.05
     this.applyMix()
   }
 
@@ -451,7 +450,14 @@ export class TacticsSound {
   }
 
   play(cues: readonly TacticsCue[]): void {
-    if (!this.context || !this.effects || this.hidden || this.mix.muted || !this.enabled) return
+    if (
+      !this.context ||
+      !this.effects ||
+      this.hidden ||
+      this.mix.muted ||
+      !this.enabled
+    )
+      return
     for (const [index, cue] of cues.slice(0, 3).entries()) {
       const notes = TACTICS_CUE_NOTES[cue]
       if (!notes) continue
@@ -527,7 +533,13 @@ export class TacticsSound {
 
   private pump(): void {
     const context = this.context
-    if (!context || !this.music || this.hidden || !this.enabled || context.state !== 'running')
+    if (
+      !context ||
+      !this.music ||
+      this.hidden ||
+      !this.enabled ||
+      context.state !== 'running'
+    )
       return
     const score = TACTICS_THEMES[this.mood]
     const stepSeconds = 60 / score.bpm / 4

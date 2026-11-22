@@ -1643,7 +1643,10 @@ class RibbonRiders implements ArcadeGameInstance {
 
   private escortColumn(): number {
     const duration = Math.max(1, this.node?.limit ?? 1)
-    return Math.min(42, 5 + Math.floor(((duration - this.timeLeft) * 37) / duration))
+    return Math.min(
+      42,
+      5 + Math.floor(((duration - this.timeLeft) * 37) / duration),
+    )
   }
 
   /** Has this round's objective been met, or lost? */

@@ -11,7 +11,8 @@ import type { ArenaSpec, Spawn } from './arenas'
 import { GRID, idx } from './grid'
 import { BOARDWALK_MUSIC, FROSTLIGHT_MUSIC } from './music'
 
-export type ObjectiveId = 'last' | 'giftwrap' | 'glowbug' | 'art' | 'taglap' | 'escort'
+export type ObjectiveId =
+  'last' | 'giftwrap' | 'glowbug' | 'art' | 'taglap' | 'escort'
 
 export type ObjectiveSpec = { name: string; about: string }
 
@@ -27,7 +28,10 @@ export const OBJECTIVES: Record<ObjectiveId | 'marshal', ObjectiveSpec> = {
   },
   art: { name: 'RIBBON ART', about: 'TRACE THE GLOWING OUTLINE' },
   taglap: { name: 'TAG LAP', about: 'RIDE THE ARCHES IN ORDER. BEAT THE CREW' },
-  escort: { name: 'MOON PARADE', about: 'KEEP ENEMY RIBBONS OFF THE MOON FLOAT' },
+  escort: {
+    name: 'MOON PARADE',
+    about: 'KEEP ENEMY RIBBONS OFF THE MOON FLOAT',
+  },
   marshal: { name: 'GRAND MARSHAL', about: 'WRAP THE GLOWING HUB' },
 }
 

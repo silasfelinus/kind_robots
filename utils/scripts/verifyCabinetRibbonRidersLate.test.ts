@@ -3,8 +3,15 @@ import { mulberry32 } from '../arcade/curve'
 import { create } from '../arcade/games/ribbonRiders'
 import { emptyInput } from '../arcade/types'
 import { GRID, T } from '../arcade/ribbonRiders/grid'
-import { FAIRGROUNDS, arenaById, openEvents } from '../arcade/ribbonRiders/fairgrounds'
-import { ClockworkConductor, LoomSpinner } from '../arcade/ribbonRiders/lateMarshals'
+import {
+  FAIRGROUNDS,
+  arenaById,
+  openEvents,
+} from '../arcade/ribbonRiders/fairgrounds'
+import type {
+  ClockworkConductor,
+  LoomSpinner,
+} from '../arcade/ribbonRiders/lateMarshals'
 import { makeMarshal, type MarshalHost } from '../arcade/ribbonRiders/marshals'
 import { RIVALS } from '../arcade/ribbonRiders/rivals'
 
@@ -15,13 +22,19 @@ function host() {
     terrainAt: () => T.FLOOR,
     ribbonAt: () => false,
     bikeAt: () => false,
-    clearCell: () => { clock.clears++ },
-    bumpAt: () => { clock.bumps++ },
+    clearCell: () => {
+      clock.clears++
+    },
+    bumpAt: () => {
+      clock.bumps++
+    },
     freezeIce: () => {},
     meltBankAt: () => false,
     spawnPonies: () => {},
     player: () => ({ x: 24, y: 41 }),
-    say: (message) => { clock.sayings.push(message) },
+    say: (message) => {
+      clock.sayings.push(message)
+    },
     sfx: () => {},
     burst: () => {},
   }
@@ -50,7 +63,9 @@ function host() {
       }
     }
   }
-  assert.ok(clockwork.arenas.some((a) => a.features.some((f) => f.kind === 'gate')))
+  assert.ok(
+    clockwork.arenas.some((a) => a.features.some((f) => f.kind === 'gate')),
+  )
   assert.ok(starlight.arenas.some((a) => a.wrap?.x))
   assert.equal(arenaById(clockwork, 'marshal').marshal, 'conductor')
   assert.equal(arenaById(starlight, 'marshal').marshal, 'loom')
@@ -72,7 +87,10 @@ function host() {
   assert.equal(marshal.hits, 1)
   const track0 = new Uint8Array(GRID * GRID)
   marshal.paint(track0)
-  assert.ok(track0.includes(1) && track0.includes(2), 'tracks and hub are solid')
+  assert.ok(
+    track0.includes(1) && track0.includes(2),
+    'tracks and hub are solid',
+  )
   clock.beat = 2
   marshal.update()
   const track1 = new Uint8Array(GRID * GRID)
@@ -146,21 +164,22 @@ function host() {
   assert.equal(parade.objective, 'escort')
   assert.equal(parade.escort?.health, 3)
   assert.ok(parade.limit && parade.limit > 0)
-  const run = () => create({
-    rng: mulberry32(4),
-    sound: { play: () => {} },
-    demo: false,
-    hiScore: 0,
-  }) as unknown as {
-    playArena: (arena: typeof parade) => void
-    cells: Uint8Array
-    timeLeft: number
-    escortLastX: number
-    escortHits: number
-    roundClear: number
-    lives: number
-    checkRoundOver: () => void
-  }
+  const run = () =>
+    create({
+      rng: mulberry32(4),
+      sound: { play: () => {} },
+      demo: false,
+      hiScore: 0,
+    }) as unknown as {
+      playArena: (arena: typeof parade) => void
+      cells: Uint8Array
+      timeLeft: number
+      escortLastX: number
+      escortHits: number
+      roundClear: number
+      lives: number
+      checkRoundOver: () => void
+    }
   const safe = run()
   safe.playArena(parade)
   safe.cells[32 * GRID + 5] = 1
@@ -173,8 +192,7 @@ function host() {
   const tangled = run()
   tangled.playArena(parade)
   for (const x of [5, 6, 7]) {
-    tangled.timeLeft =
-      parade.limit! - Math.ceil(((x - 5) * parade.limit!) / 37)
+    tangled.timeLeft = parade.limit! - Math.ceil(((x - 5) * parade.limit!) / 37)
     tangled.escortLastX = x - 1
     tangled.cells[32 * GRID + x] = 5
     tangled.checkRoundOver()

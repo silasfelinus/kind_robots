@@ -218,7 +218,12 @@ function settle(g: Inner) {
   assert.equal(FAIRGROUNDS.length, 4)
   assert.deepEqual(
     FAIRGROUNDS.map((f) => f.name),
-    ['BOARDWALK AT DUSK', 'FROSTLIGHT RINK', 'CLOCKWORK BAZAAR', 'STARLIGHT LOOM'],
+    [
+      'BOARDWALK AT DUSK',
+      'FROSTLIGHT RINK',
+      'CLOCKWORK BAZAAR',
+      'STARLIGHT LOOM',
+    ],
   )
   const arenas = FAIRGROUNDS.flatMap((f) => f.arenas.filter((a) => !a.marshal))
   assert.equal(arenas.length, 20, 'twenty authored arenas')

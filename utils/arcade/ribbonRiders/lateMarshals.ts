@@ -9,7 +9,11 @@ const hub = (cx: number, cy: number): number[] => {
   return cells
 }
 
-const paintCells = (dyn: Uint8Array, cells: readonly number[], kind: number) => {
+const paintCells = (
+  dyn: Uint8Array,
+  cells: readonly number[],
+  kind: number,
+) => {
   for (const i of cells) dyn[i] = kind
 }
 
@@ -130,7 +134,10 @@ export class ClockworkConductor implements Marshal {
     if (this.phase === 1) {
       this.coaches++
       if (this.coaches < CAR_X.length) {
-        this.host.say('A COACH UNCOUPLES!', `${CAR_X.length - this.coaches} LEFT`)
+        this.host.say(
+          'A COACH UNCOUPLES!',
+          `${CAR_X.length - this.coaches} LEFT`,
+        )
         return true
       }
       this.phase = 2
@@ -167,13 +174,7 @@ export class ClockworkConductor implements Marshal {
         outline: INK,
       })
       glow(g, px + 9, py + 9, 16, RAMPS.ember[3], 0.5)
-      shadedOrb(
-        g,
-        px + 9,
-        py + 9,
-        4,
-        tick % 16 < 8 ? RAMPS.ember : RAMPS.gold,
-      )
+      shadedOrb(g, px + 9, py + 9, 4, tick % 16 < 8 ? RAMPS.ember : RAMPS.gold)
     }
   }
 }
@@ -201,13 +202,11 @@ export class LoomSpinner implements Marshal {
     const cells: number[] = []
     for (const y of lines)
       for (let x = 5; x <= 42; x++)
-        if (Math.abs(x - gap) > 3 && Math.abs(x - 24) > 2)
-          cells.push(idx(x, y))
+        if (Math.abs(x - gap) > 3 && Math.abs(x - 24) > 2) cells.push(idx(x, y))
     if (this.phase === 2)
       for (const x of [13, 35])
         for (let y = 6; y <= 41; y++)
-          if (Math.abs(y - (13 + (beat % 5) * 5)) > 3)
-            cells.push(idx(x, y))
+          if (Math.abs(y - (13 + (beat % 5) * 5)) > 3) cells.push(idx(x, y))
     return cells
   }
 
@@ -267,12 +266,6 @@ export class LoomSpinner implements Marshal {
       outline: INK,
     })
     glow(g, x + 9, y + 9, 23, RAMPS.pink[3], 0.7)
-    shadedOrb(
-      g,
-      x + 9,
-      y + 9,
-      5,
-      tick % 12 < 6 ? RAMPS.sky : RAMPS.pink,
-    )
+    shadedOrb(g, x + 9, y + 9, 5, tick % 12 < 6 ? RAMPS.sky : RAMPS.pink)
   }
 }

@@ -12,6 +12,7 @@ import {
 } from '../../utils/monstrique/artStyles'
 import {
   CHARACTER_MODELS,
+  expressionPrompt,
   type MonstriqueCharacterId,
 } from '../../utils/monstrique/characterModels'
 import {
@@ -21,6 +22,8 @@ import {
 
 const STYLE_TAGS =
   'masterpiece, best quality, amazing quality, 1970s adult animation, rotoscoped cel animation, underground comix, gritty, grainy film, heavy black ink outlines, painted watercolor background, pulp b-movie monster pinup, retro pinup, muted psychedelic palette'
+const PORTRAIT_STYLE_TAGS =
+  'masterpiece, best quality, amazing quality, 2d adventure game character art, cartoon, caricature proportions, thick black outlines, cel shading, flat colors, saturated neon noir palette, character portrait'
 const STYLE_PROSE =
   'Gritty 1970s rotoscoped adult-animation pin-up illustration in an underground-comix style: heavy black ink outlines, grainy hand-painted cels over a painted watercolor backdrop, a pulpy B-movie monster-misfit attitude and a muted psychedelic palette.'
 const PINUP_NEGATIVE = [
@@ -146,16 +149,32 @@ export function bibleEnqueueBodies(
     throw createError({ statusCode: 400, statusMessage: 'Pick a lane.' })
   if (kind === 'portrait')
     return lanes.map((lane) => {
+      const expression = model.signatureExpression ?? 'smirk'
       const base = composeCharacterPrompt({
         character,
         style: 'adventure-2d',
         audience: 'mature',
-        expression: 'smirk',
+        expression,
       })!
+      // Illustrious checkpoints are tag-trained: a 150-word prose blob loses
+      // the face. Characters with identity tags get a tag prompt there.
+      const promptString =
+        lane.prompt === 'tags' && model.tags
+          ? [
+              PORTRAIT_STYLE_TAGS,
+              model.tags,
+              expressionPrompt(model, expression),
+              model.caricature,
+              'full body, standing, neon motel corridor background, every character an adult',
+            ]
+              .filter(Boolean)
+              .join(', ')
+          : base.promptString
       return {
         lane: lane.key,
         body: {
           ...base,
+          promptString,
           engine: lane.engine,
           ...(lane.checkpoint ? { checkpoint: lane.checkpoint } : {}),
           width: ART_STYLES['adventure-2d'].width,

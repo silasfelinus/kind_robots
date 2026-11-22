@@ -41,6 +41,8 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Verify Pearl Warden patterns, checkpoint compatibility and 1-4 seats
         run: npx tsx utils/scripts/verifyRainbowPearlWarden.test.ts
+      - name: Verify painted super cut-in motion and calm-mode geometry
+        run: npx tsx utils/scripts/verifyRainbowCutinMotion.test.ts
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Verify the actual cabinet and tutorial flyer

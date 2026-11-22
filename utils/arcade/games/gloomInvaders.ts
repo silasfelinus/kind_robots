@@ -66,6 +66,11 @@ import {
   wiltPlot,
 } from '../gloomInvaders/garden'
 import type { HelperKind, Plot } from '../gloomInvaders/garden'
+import { calendarFront } from '../gloomInvaders/calendar'
+import {
+  readGloomCalendarSave,
+} from '../gloomInvaders/calendarSave'
+import type { GloomCalendarSave } from '../gloomInvaders/calendarSave'
 import {
   CLASSIC_FRONT,
   CLOUD_H,
@@ -123,15 +128,21 @@ export const SWOOP_TICKS = 140
 /** Where a bean vine's leafy canopy hangs (between the umbrellas and Sunny). */
 const VINE_Y = PLAYER_Y - 20
 
-export type GloomMode = 'weather' | 'classic'
-export const GLOOM_MODES: readonly GloomMode[] = ['weather', 'classic']
+export type GloomMode = 'weather' | 'classic' | 'calendar'
+export const GLOOM_MODES: readonly GloomMode[] = [
+  'weather',
+  'classic',
+  'calendar',
+]
 const MODE_NAMES: Record<GloomMode, string> = {
   weather: 'WEATHER',
   classic: 'CLASSIC SKY',
+  calendar: 'YEAR OF WEATHER',
 }
 const MODE_BLURBS: Record<GloomMode, string> = {
   weather: 'NEW CLOUDS, SUN LANCE, A GARDEN',
   classic: 'THE ORIGINAL 9 BY 5 GLOOM',
+  calendar: '18 AUTHORED SPRING / SUMMER FRONTS',
 }
 
 const UMBRELLAS = 4
@@ -1024,6 +1035,7 @@ class GloomInvaders implements ArcadeGameInstance {
 
   /** Weather (the depth pass) or Classic Sky (today's rules). */
   mode: GloomMode = 'weather'
+  save: GloomCalendarSave | null = null
   /** The mode select, open until the player picks (only on a real cabinet). */
   menu: { cursor: number } | null = null
   front: Front = weatherFront(1)
@@ -1089,8 +1101,22 @@ class GloomInvaders implements ArcadeGameInstance {
         phase: this.rng() * Math.PI * 2,
       })
     }
-    this.startWave(1)
-    if (options.selectScreen && !this.demo) this.menu = { cursor: 0 }
+    const stored = this.demo ? null : readGloomCalendarSave(options.resume)
+    if (stored) {
+      this.mode = 'calendar'
+      this.score = stored.run.score
+      this.lives = stored.run.lives
+      this.nextExtra =
+        this.score < FIRST_EXTRA
+          ? FIRST_EXTRA
+          : (Math.floor(this.score / EXTRA_EVERY) + 1) * EXTRA_EVERY
+      this.startWave(stored.run.wave)
+    } else {
+      this.startWave(1)
+    }
+    if (options.selectScreen && !this.demo) {
+      this.menu = { cursor: stored ? 2 : 0 }
+    }
   }
 
   get weather(): boolean {
@@ -1115,12 +1141,20 @@ class GloomInvaders implements ArcadeGameInstance {
       this.chooseMode(GLOOM_MODES[m.cursor]!)
   }
 
-  /** Start a fresh game in `mode`. */
+  /** Select a sky; a calendar checkpoint reopens from its season start. */
   chooseMode(mode: GloomMode) {
+    const checkpoint = mode === 'calendar' ? this.save?.run : null
     this.menu = null
     this.mode = mode
     this.plots = newGarden()
-    this.startWave(1)
+    this.score = checkpoint?.score ?? 0
+    this.lives = checkpoint?.lives ?? START_LIVES
+    this.over = false
+    this.nextExtra =
+      this.score < FIRST_EXTRA
+        ? FIRST_EXTRA
+        : (Math.floor(this.score / EXTRA_EVERY) + 1) * EXTRA_EVERY
+    this.startWave(checkpoint?.wave ?? 1)
     this.sound.play('start')
   }
 
@@ -1128,7 +1162,21 @@ class GloomInvaders implements ArcadeGameInstance {
 
   private startWave(wave: number) {
     this.level = wave
-    this.front = this.weather ? weatherFront(wave) : CLASSIC_FRONT
+    this.front =
+      this.mode === 'calendar'
+        ? calendarFront(wave)
+        : this.weather
+          ? weatherFront(wave)
+          : CLASSIC_FRONT
+    if (this.mode === 'calendar' && (wave === 1 || wave === 10)) {
+      this.plots = newGarden()
+      if (!this.demo) {
+        this.save = {
+          v: 1,
+          run: { wave, score: this.score, lives: Math.max(1, this.lives) },
+        }
+      }
+    }
     const spec = this.front.formation
     this.clouds = formationSlots(spec).map((slot) => {
       const kind = CLOUD_KINDS[slot.kind]
@@ -2645,7 +2693,7 @@ class GloomInvaders implements ArcadeGameInstance {
         })
       }
     }
-    const wave = `WAVE ${this.level}`
+    const wave = this.mode === 'calendar' ? this.front.name : `WAVE ${this.level}`
     const waveW = measureText(wave) + 12
     hudPanel(g, W - 4 - waveW, GROUND_Y + 4, waveW, 12, RAMPS.leaf)
     drawText(g, wave, W - 10, GROUND_Y + 7, {
@@ -2676,15 +2724,15 @@ class GloomInvaders implements ArcadeGameInstance {
     g.fillStyle = rgba(INK, 0.8)
     g.fillRect(0, 0, W, H)
     g.restore()
-    hudPanel(g, 14, 60, W - 28, 150)
-    drawText(g, 'CHOOSE THE SKY', W / 2, 72, {
+    hudPanel(g, 14, 50, W - 28, 218)
+    drawText(g, 'CHOOSE THE SKY', W / 2, 62, {
       scale: 2,
       align: 'center',
       color: RAMPS.gold[3],
       outline: INK,
     })
     GLOOM_MODES.forEach((mode, i) => {
-      const y = 104 + i * 40
+      const y = 99 + i * 45
       const on = i === m.cursor
       drawText(g, `${on ? '> ' : ''}${MODE_NAMES[mode]}`, W / 2, y, {
         scale: 2,
@@ -2698,7 +2746,7 @@ class GloomInvaders implements ArcadeGameInstance {
         outline: INK,
       })
     })
-    drawText(g, 'UP/DOWN  A: PLAY', W / 2, 194, {
+    drawText(g, 'UP/DOWN  A: PLAY', W / 2, 250, {
       align: 'center',
       color: RAMPS.steel[3],
       outline: INK,

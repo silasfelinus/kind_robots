@@ -1,8 +1,8 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: rewards
-parentTabKey: storybook
+parentTabKey: retired
 dashboardKey: reward
 dashboardTab: rewards
 label: Rewards
@@ -10,8 +10,9 @@ title: Rewards
 subtitle: Browse, create, and use narrative loot
 description: Explore or create items, powers, prompts, permissions, curses, keys, and other delightful accelerants.
 summary: Create useful rewards and items.
-icon: kind-icon:gift
+icon: kind-icon:treasure
 route: /rewards
+allowDirectAccess: true
 sort: 50
 tutorial:
   title: Turn a reward into an encounter

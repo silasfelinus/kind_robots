@@ -1,8 +1,8 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: bots
-parentTabKey: storybook
+parentTabKey: retired
 dashboardKey: bot
 dashboardTab: bots
 label: Bots
@@ -12,6 +12,7 @@ description: Browse bot personalities, launch conversations, forge new assistant
 summary: Create and chat with bots.
 icon: kind-icon:robot-color
 route: /bots
+allowDirectAccess: true
 sort: 30
 tutorial:
   title: Browse bots and start a chat

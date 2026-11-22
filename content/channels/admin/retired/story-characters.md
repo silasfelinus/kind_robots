@@ -1,8 +1,8 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: characters
-parentTabKey: storybook
+parentTabKey: retired
 dashboardKey: character
 dashboardTab: characters
 label: Characters
@@ -12,6 +12,7 @@ description: Explore characters, create somebody new, choose performers, launch 
 summary: Create and explore characters.
 icon: kind-icon:mask
 route: /characters
+allowDirectAccess: true
 sort: 40
 tutorial:
   title: Meet the cast and talk to them

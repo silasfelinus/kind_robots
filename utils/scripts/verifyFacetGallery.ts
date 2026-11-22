@@ -42,7 +42,7 @@ async function main(): Promise<void> {
   const files = {
     gallery: 'components/facets/facet-gallery.vue',
     page: 'content/facets.md',
-    channelTab: 'content/channels/projects/story-facets.md',
+    channelTab: 'content/channels/admin/retired/story-facets.md',
   } as const
 
   const text = Object.fromEntries(
@@ -82,7 +82,7 @@ async function main(): Promise<void> {
   forbidText(files.gallery, text.gallery, 'catalog.fetchCatalog(')
 
   // /facets has two pieces of navigation metadata: its page document and the
-  // Play channel tab that resolves that route. The channel-tab value wins when
+  // Admin Retired channel tab that resolves that route. The channel-tab value wins when
   // pageStore builds the dashboard shell, so both must point at the gallery.
   // A stale `dashboardTab: library` here made the admin count/create panel the
   // apparent Facets landing page even though the page and dashboard defaults

@@ -1,8 +1,8 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: dreams
-parentTabKey: storybook
+parentTabKey: retired
 dashboardKey: dream
 dashboardTab: dreams
 label: Dreams
@@ -12,6 +12,7 @@ description: Explore dreams, create or edit a world, and branch into characters,
 summary: Create and explore dreams.
 icon: kind-icon:moon
 route: /dreams
+allowDirectAccess: true
 sort: 10
 tutorial:
   title: Choose a Dream and open its workspace

@@ -1,8 +1,8 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: facets
-parentTabKey: storybook
+parentTabKey: retired
 dashboardKey: facets
 dashboardTab: gallery
 label: Facets
@@ -12,6 +12,7 @@ description: Explore or edit genres, animals, colors, themes, moods, styles, set
 summary: Browse reusable creative traits.
 icon: kind-icon:tag
 route: /facets
+allowDirectAccess: true
 sort: 70
 tutorial:
   title: Browse the shared vocabulary

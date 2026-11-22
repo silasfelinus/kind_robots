@@ -52,7 +52,8 @@ tutorial:
         Comic Studio is where you pitch to the Editor, compare panel renders,
         and lay out pages. Advert Studio shows every game's playtester poster,
         exports it as a PNG and queues new art or edit requests for it.
-        Zuzu's Lair is a quick-time adventure under development.
+        Music Videos is the private illustrated-song workbench. Zuzu's Lair
+        is a quick-time adventure under development.
         Tzaddikim presents a sourced gallery. Other experimental production
         tools are on the Retired shelf.
       image: /zuzu-gamebook/scenes/zuzu-fire.webp
@@ -69,7 +70,8 @@ tutorial:
       body: >-
         Coloring Book pairs color and black-and-white pages for the coloring book. Animation Manager previews and layers the site's screen effects and sets the
         startup animation for your browser. Retired keeps older pages reachable
-        without crowding the menu, including AppMaker, the Conductor App page, the Mermaids of Venice page editor, and the
+        without crowding the menu, including Storybook and its ingredient
+        galleries, AppMaker, the Conductor App page, the Mermaids of Venice page editor, and the
         Scene Animator, Coat Dance, Zuzu World, Zuzu Pinball Workshop, Butterfly
         Gallery, Art Archive, Checkpoint Review, Brainstorm and Playbook Studio.
       image: /images/butterfly-gallery/room.webp

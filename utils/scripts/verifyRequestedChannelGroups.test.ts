@@ -6,10 +6,11 @@ const nav = (path: string) => read(`content/channels/${path}.md`)
 
 const channel = nav('projects/index')
 assert.match(channel, /\nlabel: Projects\n/)
-assert.match(channel, /\ndefaultTab: storybook\n/)
+assert.match(channel, /\ndefaultTab: projects\n/)
 assert.equal(existsSync('content/channels/storybook/index.md'), false)
 assert.equal(existsSync('content/channels/zuzu/index.md'), false)
-assert.match(nav('projects/story-storybook'), /\ntabKey: storybook\n/)
+assert.match(nav('admin/retired/story-storybook'), /\ntabKey: storybook\n/)
+assert.match(nav('admin/retired/story-storybook'), /\nparentTabKey: retired\n/)
 
 for (const key of [
   'bots',
@@ -21,7 +22,11 @@ for (const key of [
   'scenarios',
 ]) {
   const file = key === 'gallery' ? 'story-gallery' : `story-${key}`
-  assert.match(nav(`projects/${file}`), /\nparentTabKey: storybook\n/)
+  const moved = nav(`admin/retired/${file}`)
+  assert.match(moved, /\nchannelKey: admin\n/)
+  assert.match(moved, /\nparentTabKey: retired\n/)
+  assert.match(moved, /\nallowDirectAccess: true\n/)
+  assert.equal(existsSync(`content/channels/projects/${file}.md`), false)
 }
 
 for (const key of [
@@ -199,7 +204,9 @@ for (const key of [
 assert.equal(existsSync('content/channels/projects/music-video.md'), false)
 const videoStudio = nav('projects/video-generator')
 assert.ok(videoStudio.includes('route: /play/video-generator'))
-assert.match(videoStudio, /Music Videos tab/)
+assert.doesNotMatch(videoStudio, /Music Videos tab/)
+assert.match(nav('admin/music-video'), /\nrequiredRole: ADMIN\n/)
+assert.match(nav('admin/music-video'), /\nroute: \/admin\/music-video\n/)
 assert.equal(existsSync('components/music-video/music-video-studio.vue'), true)
 
 console.log('Requested navigation grouping contract passed')

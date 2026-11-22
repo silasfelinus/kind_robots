@@ -14,6 +14,10 @@
 
 import { levelCurve } from '../curve'
 import { repairTownForCity } from '../repairRampage/towns'
+import { repairHazardForCity } from '../repairRampage/hazards'
+import type { RepairHazard } from '../repairRampage/hazards'
+import { rooftopForTower } from '../repairRampage/rooftops'
+import type { RooftopKind } from '../repairRampage/rooftops'
 import {
   WINDOW_SURPRISE_REWARDS,
   windowSurprise,
@@ -100,6 +104,8 @@ type Tower = {
   maxStability: number
   standing: boolean
   dust: number
+  rooftop: RooftopKind
+  powered: boolean
 }
 type Drone = {
   x: number
@@ -641,6 +647,9 @@ class RepairRampage implements ArcadeGameInstance {
   private facing: 1 | -1 = 1
   private drones: Drone[] = []
   private droneTimer = 240
+  private hazard: RepairHazard | null = null
+  private hazardTimer = 240
+  private hazardStep = 0
   private kitten: Kitten | null = null
   private kittenTimer = 400
   private rescued = 0
@@ -700,6 +709,8 @@ class RepairRampage implements ArcadeGameInstance {
         maxStability: stability,
         standing: true,
         dust: 0,
+        rooftop: rooftopForTower(city, i),
+        powered: false,
       })
     }
     this.mode = 'ground'
@@ -708,6 +719,9 @@ class RepairRampage implements ArcadeGameInstance {
     this.tower = -1
     this.drones = []
     this.droneTimer = 240
+    this.hazard = null
+    this.hazardTimer = 240
+    this.hazardStep = 0
     this.kitten = null
     this.kittenTimer = 360
     this.banner = {
@@ -732,7 +746,10 @@ class RepairRampage implements ArcadeGameInstance {
     }
     if (this.fixCooldown > 0) this.fixCooldown--
     if (this.punch > 0) this.punch--
-    if (this.tick % DRAIN_TICKS === 0) this.charge--
+    const drainInterval = this.hasRooftop('lighthouse')
+      ? DRAIN_TICKS + 60
+      : DRAIN_TICKS
+    if (this.tick % drainInterval === 0) this.charge--
 
     if (this.mode === 'ground') this.walk(controls)
     else if (this.mode === 'climb') this.climb(controls)
@@ -740,6 +757,8 @@ class RepairRampage implements ArcadeGameInstance {
 
     this.updateTowers()
     this.updateDrones()
+    this.updateRooftops()
+    this.updateHazards(controls)
     this.updateKitten()
     this.checkClear()
     if (this.charge <= 0 && !this.over) {
@@ -917,9 +936,14 @@ class RepairRampage implements ArcadeGameInstance {
       this.charge = Math.min(MAX_CHARGE, this.charge + 3)
     }
     if (t.windows.every(Boolean)) {
+      t.powered = true
       this.addScore(TOWER_BONUS, wx, wy - 36)
       this.charge = Math.min(MAX_CHARGE, this.charge + 10)
-      this.banner = { text: 'TOWER RESTORED!', ticks: 75 }
+      this.banner = {
+        text: 'ROOFTOP ONLINE!',
+        sub: t.rooftop.toUpperCase().replaceAll('-', ' '),
+        ticks: 90,
+      }
       this.sound.play('extra')
     }
     this.burst(wx, wy, 6, '#fde68a')
@@ -1009,6 +1033,114 @@ class RepairRampage implements ArcadeGameInstance {
     this.sound.play('level')
   }
 
+  private hasRooftop(kind: RooftopKind): boolean {
+    return this.towers.some(
+      (tower) => tower.standing && tower.powered && tower.rooftop === kind,
+    )
+  }
+
+  private updateRooftops() {
+    if (this.tick % 240 === 0 && this.hasRooftop('roof-garden')) {
+      this.charge = Math.min(MAX_CHARGE, this.charge + 3)
+      this.floaters.push({
+        x: this.x,
+        y: this.y - 36,
+        text: 'GARDEN +3',
+        life: 55,
+      })
+    }
+    if (this.tick % 300 === 0 && this.hasRooftop('water-tower')) {
+      const weakest = this.towers
+        .filter((tower) => tower.standing && !tower.powered)
+        .sort((a, b) => a.stability - b.stability)[0]
+      if (weakest) {
+        weakest.stability = Math.min(
+          weakest.maxStability,
+          weakest.stability + 180,
+        )
+        this.floaters.push({
+          x: weakest.x + TOWER_W / 2,
+          y: windowY(weakest.rows - 1),
+          text: 'COOLED!',
+          life: 60,
+        })
+      }
+    }
+    if (this.tick % 360 === 0 && this.hasRooftop('radio-mast')) {
+      for (const drone of this.drones) {
+        if (drone.leaving) continue
+        drone.leaving = true
+        drone.warn = 0
+        this.burst(drone.x, drone.y, 5, RAMPS.teal[3])
+      }
+      this.sound.play('blip')
+    }
+  }
+
+  private updateHazards(input: InputFrame) {
+    if (!this.hazard) {
+      if (--this.hazardTimer > 0) return
+      this.hazard = repairHazardForCity(
+        this.level,
+        this.hazardStep++,
+        this.towers.length,
+      )
+      this.hazardTimer = 280
+      if (this.hazard) this.sound.play('warn')
+      return
+    }
+    const hazard = this.hazard
+    if (--hazard.ticks > 0) return
+    this.hazard = null
+    const target = this.towers[hazard.tower]
+    if (!target || !target.standing) return
+    if (hazard.kind === 'gust') {
+      if (input.held.down) return
+      if (this.mode === 'climb' && this.tower === hazard.tower) {
+        const next = this.col + hazard.dir
+        if (next < 0 || next >= TOWER_COLS) {
+          this.letGo()
+        } else {
+          this.col = next
+          this.placeOnTower()
+        }
+        this.sound.play('boom')
+      } else if (this.mode === 'ground') {
+        this.x = Math.max(10, Math.min(W - 10, this.x + hazard.dir * 20))
+      }
+    } else if (
+      hazard.kind === 'gull-flock' &&
+      this.mode === 'climb' &&
+      this.tower === hazard.tower &&
+      this.col === hazard.col
+    ) {
+      this.row = Math.max(0, this.row - 2)
+      this.placeOnTower()
+      this.charge -= 6
+      this.sound.play('boom')
+    } else if (
+      hazard.kind === 'pigeon' &&
+      this.mode === 'climb' &&
+      this.tower === hazard.tower
+    ) {
+      this.climbWait = Math.max(this.climbWait, 70)
+      this.floaters.push({
+        x: this.x,
+        y: this.y - 36,
+        text: 'PIGEONS!',
+        life: 50,
+      })
+    } else if (
+      hazard.kind === 'paparazzi-blimp' &&
+      this.mode === 'climb' &&
+      this.row === hazard.row
+    ) {
+      this.charge -= 12
+      this.letGo()
+      this.sound.play('shoot')
+    }
+  }
+
   // --- drones and kittens ---------------------------------------------------------
 
   private updateDrones() {
@@ -1046,7 +1178,7 @@ class RepairRampage implements ArcadeGameInstance {
       const sameHeight = Math.abs(d.y - (this.y - 14)) < 14
       const ahead = (this.x - d.x) * d.dir
       if (!d.flashed && !d.leaving && sameHeight && ahead > 20 && ahead < 90) {
-        d.warn = 40
+        d.warn = this.hasRooftop('billboard') ? 75 : 40
         this.sound.play('warn')
       }
     }
@@ -1232,6 +1364,7 @@ class RepairRampage implements ArcadeGameInstance {
       glow(g, gl.x, gl.y, 10 + (1 - k) * 12, RAMPS.gold[3], 0.7 * k)
     }
     for (const d of this.drones) this.renderDrone(g, d)
+    this.renderHazard(g)
     for (const f of this.flashes) {
       const k = f.life / 14
       glow(g, f.x, f.y, 14 + (1 - k) * 46, '#ffffff', 0.9 * k)
@@ -1448,6 +1581,20 @@ class RepairRampage implements ArcadeGameInstance {
     shadedOrb(g, mx + 1, top - 14, 2, beacon ? RAMPS.ember : RAMPS.rust, {
       glint: false,
     })
+    if (t.powered) {
+      const labels: Record<RooftopKind, string> = {
+        billboard: '!',
+        'water-tower': 'W',
+        'radio-mast': 'R',
+        lighthouse: 'L',
+        'roof-garden': '+',
+      }
+      glow(g, mx + 1, top - 16, 12, RAMPS.leaf[3], 0.7)
+      drawText(g, labels[t.rooftop], mx - 1, top - 23, {
+        color: RAMPS.leaf[4],
+        outline: INK,
+      })
+    }
     const wobbling = t.stability <= WOBBLE_AT && !t.windows.every(Boolean)
     for (let row = 0; row < t.rows; row++) {
       for (let col = 0; col < TOWER_COLS; col++) {
@@ -1468,6 +1615,14 @@ class RepairRampage implements ArcadeGameInstance {
           { anchor: 'topleft' },
         )
         const surprise = t.surprises[index]
+        if (
+          this.hasRooftop('lighthouse') &&
+          !t.windows[index] &&
+          Math.floor(this.tick / 20) % 2 === 0
+        ) {
+          g.strokeStyle = RAMPS.gold[4]
+          g.strokeRect(wx - 2, wy - 2, GLASS + 4, GLASS + 4)
+        }
         if (surprise && !t.windows[index]) {
           const symbol =
             surprise === 'snack' ? '+' : surprise === 'toolbox' ? 'T' : 'C'
@@ -1564,6 +1719,42 @@ class RepairRampage implements ArcadeGameInstance {
     g.fillStyle = rgba(INK, 0.35)
     for (const t of this.towers) {
       if (t.standing) g.fillRect(t.x - 1, GROUND, TOWER_W + 6, 3)
+    }
+  }
+
+  private renderHazard(g: CanvasRenderingContext2D) {
+    const hazard = this.hazard
+    if (!hazard) return
+    const tower = this.towers[hazard.tower]
+    if (!tower || !tower.standing) return
+    const tx = tower.x + 4 + hazard.col * CELL + CELL / 2
+    const ty =
+      hazard.kind === 'paparazzi-blimp'
+        ? windowY(hazard.row) + CELL / 2
+        : windowY(Math.min(2, tower.rows - 1))
+    const blink = Math.floor(this.tick / 10) % 2 === 0
+    const color = blink ? RAMPS.gold[4] : RAMPS.ember[3]
+    if (hazard.kind === 'paparazzi-blimp') {
+      g.fillStyle = rgba(color, 0.2)
+      g.fillRect(0, ty - 7, W, CELL)
+      drawText(g, 'BLIMP FLASH!', W / 2, ty - 16, {
+        align: 'center',
+        color,
+        outline: INK,
+      })
+    } else {
+      glow(g, tx, ty, 14, color, 0.6)
+      drawText(
+        g,
+        hazard.kind === 'gull-flock'
+          ? 'GULL!'
+          : hazard.kind === 'pigeon'
+            ? 'COO!'
+            : 'GUST!',
+        tx,
+        ty - 16,
+        { align: 'center', color, outline: INK },
+      )
     }
   }
 

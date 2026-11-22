@@ -7084,6 +7084,29 @@ export function createRainbowPrincessPreview(
         g.fillText('NEMI', 0, 3)
         g.restore()
       }
+      if (nurseryActive()) {
+        const pod = choirPodAvailable(nurseryFrame(), nurseryChoirMask)
+        if (pod) {
+          const x = choirPodX(nurseryFrame(), pod.at)
+          const y = laneY(pod.lane)
+          g.save()
+          g.translate(x, y)
+          g.shadowColor = '#8effef'
+          g.shadowBlur = 12
+          g.fillStyle = '#462767'
+          g.strokeStyle = '#f8bbef'
+          g.lineWidth = 2.5
+          g.beginPath()
+          g.ellipse(0, 0, 12, 10, 0, 0, Math.PI * 2)
+          g.fill()
+          g.stroke()
+          g.fillStyle = '#a9fff5'
+          g.beginPath()
+          g.arc(0, 0, 5, 0, Math.PI * 2)
+          g.fill()
+          g.restore()
+        }
+      }
       if (guardian) {
         g.save()
         g.translate(guardian.x, guardian.y)
@@ -7110,7 +7133,7 @@ export function createRainbowPrincessPreview(
         if (
           !drawRainbowGuardianSprite(
             g,
-            guardian.kind === 'matriarch' || guardian.kind === 'siren'
+            guardian.kind === 'matriarch' || guardian.kind === 'kelpwarden' || guardian.kind === 'siren'
               ? 'lantern'
               : guardian.kind === 'warden'
                 ? 'bulwark'
@@ -7127,7 +7150,7 @@ export function createRainbowPrincessPreview(
               g,
               guardian.kind === 'herald'
                 ? 'harbinger'
-                : guardian.kind === 'matriarch' || guardian.kind === 'siren'
+                : guardian.kind === 'matriarch' || guardian.kind === 'kelpwarden' || guardian.kind === 'siren'
                   ? 'lantern'
                   : guardian.kind === 'herder'
                     ? 'cutter'
@@ -8968,7 +8991,7 @@ export function createRainbowPrincessPreview(
           g.fillStyle = '#ffd0ee'
           g.fillText('▲ ACT IV ROSEFIN', W - 8, 123)
           g.fillStyle = '#ffe9a0'
-          g.fillText('▼ X1 LANTERN NURSERY', W - 8, 153)
+          g.fillText('▼ X1 KELP NEBULA', W - 8, 153)
           g.restore()
         }
       } else if (moonStart === null && defeatedAt !== null) {
@@ -9112,7 +9135,9 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
         g.fillText(
-          'X1 · ' +
+          'X1 · CHOIR ' +
+            nurseryChoirMask.toString(2).replace(/0/g, '').length +
+            '/5 · ' +
             (NURSERY_FLIGHT_SECTIONS.find(
               (section) =>
                 nurseryFrame() >= section.from && nurseryFrame() < section.to,

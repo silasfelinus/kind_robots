@@ -24,6 +24,44 @@
   }
 
   const MAX_EFFECTS = 80
+  const cinematicTitles = {
+    sugar: { victory: 'SWEET VICTORY', defeat: 'SUGAR CRASH' },
+    ashen: { victory: 'THE EMBERS ENDURE', defeat: 'THE FLAME FADES' },
+    jackpot: { victory: 'JACKPOT!', defeat: 'HOUSE WINS' },
+  }
+  let cinematicTimer = null
+  let cinematic = null
+
+  function clearCinematic() {
+    clearTimeout(cinematicTimer)
+    cinematicTimer = null
+    cinematic?.remove()
+    cinematic = null
+  }
+
+  function showCinematic(detail) {
+    clearCinematic()
+    if (animationOff()) return
+    const title = cinematicTitles[detail.realm]?.[detail.kind]
+    if (!title) return
+    cinematic = document.createElement('div')
+    cinematic.className = 'chess-fx-cinematic chess-fx-cinematic-' + detail.realm
+    cinematic.setAttribute('role', 'status')
+    cinematic.setAttribute('aria-label', title)
+    const lettering = document.createElement('strong')
+    lettering.textContent = title
+    cinematic.append(lettering)
+    layer.append(cinematic)
+    cinematicTimer = setTimeout(clearCinematic, 1800)
+  }
+
+  window.addEventListener('pagehide', clearCinematic)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) clearCinematic()
+  })
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') clearCinematic()
+  })
 
   function validSquare(square) {
     return (
@@ -107,7 +145,9 @@
     const detail = event.detail || {}
     const kind = detail.kind
     const count = kinds[kind]
-    if (!count || animationOff()) return
+    if (!count) return
+    if (kind === 'victory' || kind === 'defeat') showCinematic(detail)
+    if (animationOff()) return
 
     const square = validSquare(detail.square) ? detail.square : -1
     const position = square < 0 ? { x: 50, y: 50 } : squarePosition(square)

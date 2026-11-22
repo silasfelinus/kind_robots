@@ -140,6 +140,28 @@ export const GARDEN_LOOKS: Record<string, GardenLook> = {
     soil: [mix(RAMPS.rust[0], RAMPS.earth[1], 0.65), RAMPS.earth[1]],
     edging: RAMPS.ember,
   },
+  'frost-frame-greenhouse': {
+    lawn: [
+      mix(RAMPS.night[1], RAMPS.sky[0], 0.55),
+      mix(RAMPS.sky[0], RAMPS.teal[0], 0.42),
+      mix(RAMPS.sky[1], RAMPS.steel[0], 0.62),
+      mix(RAMPS.sky[1], RAMPS.steel[1], 0.65),
+    ],
+    stripe: RAMPS.sky[3],
+    soil: [mix(RAMPS.steel[0], RAMPS.earth[0], 0.3), RAMPS.steel[0]],
+    edging: RAMPS.sky,
+  },
+  'snowball-hill': {
+    lawn: [
+      mix(RAMPS.night[0], RAMPS.purple[0], 0.7),
+      mix(RAMPS.sky[0], RAMPS.purple[1], 0.7),
+      mix(RAMPS.sky[1], RAMPS.steel[1], 0.6),
+      mix(RAMPS.sky[2], RAMPS.steel[2], 0.65),
+    ],
+    stripe: RAMPS.sky[4],
+    soil: [RAMPS.sky[1], mix(RAMPS.sky[2], RAMPS.steel[0], 0.3)],
+    edging: RAMPS.steel,
+  },
   'lily-pond': {
     lawn: [
       mix(RAMPS.night[1], RAMPS.teal[0], 0.6),

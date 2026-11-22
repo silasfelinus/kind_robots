@@ -10,12 +10,21 @@
             ← Arcade
           </NuxtLink>
           <img
+            v-if="iconAvailable"
             src="/images/chessweeper/icon.webp"
             alt=""
             width="28"
             height="28"
             class="size-7 shrink-0 rounded-lg object-cover"
+            @error="iconAvailable = false"
           />
+          <span
+            v-else
+            aria-hidden="true"
+            class="grid size-7 shrink-0 place-items-center rounded-lg bg-primary/20 text-lg"
+          >
+            ♔
+          </span>
           <span class="min-w-0 flex-1 truncate font-bold">
             Chessweeper · Three Dangerous Worlds
           </span>
@@ -41,6 +50,7 @@
 
 <script setup lang="ts">
 const gameFrame = ref<HTMLIFrameElement | null>(null)
+const iconAvailable = ref(true)
 
 function openGamePanel(panel: string) {
   gameFrame.value?.contentWindow?.postMessage(

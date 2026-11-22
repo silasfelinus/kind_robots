@@ -348,7 +348,7 @@
       '<p class="meta-intro">The cabinet remembers your victories, defeats and strange discoveries on this device.</p>'
     for (const world of ['sugar', 'ashen', 'jackpot']) {
       const r = profile.records[world] || { best: 0, wins: 0, runs: 0 }
-      html += `<section class="meta-scrapbook-world"><img src="${WORLD_ART[world]}" alt="${NAMES[world]} illustrated chessboard" loading="lazy" /><h3>${NAMES[world]} · ${r.wins} wins · best ${r.best}</h3></section><div class="meta-grid">`
+      html += `<section class="meta-scrapbook-world"><img data-world-art="${world}" src="${WORLD_ART[world]}" alt="${NAMES[world]} illustrated chessboard" loading="lazy" /><h3>${NAMES[world]} · ${r.wins} wins · best ${r.best}</h3></section><div class="meta-grid">`
 
       for (const ending of ENDINGS[world])
         html += card(
@@ -486,7 +486,18 @@
     if (button.id === 'meta-continue') continueRun()
     else if (button.dataset.panel) openPanel(button.dataset.panel)
   })
-  $$('meta-close').addEventListener('click', () => dialog.close())
+  dialog.addEventListener(
+    'error',
+    (event) => {
+      const image = event.target
+      if (!(image instanceof HTMLImageElement)) return
+      if (!image.matches('[data-world-art]')) return
+      image.hidden = true
+      image.closest('.meta-scrapbook-world')?.classList.add('art-pending')
+    },
+    true,
+  )
+  $('meta-close').addEventListener('click', () => dialog.close())
   dialog.addEventListener('click', (e) => {
     if (e.target === dialog) dialog.close()
   })

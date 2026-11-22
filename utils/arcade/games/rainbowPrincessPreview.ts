@@ -8622,12 +8622,32 @@ export function createRainbowPrincessPreview(
         g.font = '8px monospace'
         g.fillText(
           docked >= ROSEFIN.dockMinFrames
-            ? `Shields +1 at launch · PRESS A for the Rosefin Express (${Math.ceil((ROSEFIN.dockMaxFrames - docked) / 60)})`
+            ? rescuedNemi && routeSettled
+              ? `A TO LAUNCH · HIGH: ACT IV · LOW: X1 NURSERY (${Math.ceil((ROSEFIN.dockMaxFrames - docked) / 60)})`
+              : `Shields +1 · PRESS A for Rosefin Express (${Math.ceil((ROSEFIN.dockMaxFrames - docked) / 60)})`
             : 'A quiet moment: breathe, repair, then follow the orders upstream',
           W / 2,
           commsTop + 30,
         )
         g.textAlign = 'left'
+        if (rescuedNemi && routeSettled) {
+          g.save()
+          g.setLineDash([8, 5])
+          g.lineWidth = 1.5
+          g.strokeStyle = '#ffe9a0'
+          g.beginPath()
+          g.moveTo(W - 175, 135)
+          g.lineTo(W, 135)
+          g.stroke()
+          g.setLineDash([])
+          g.font = 'bold 9px monospace'
+          g.textAlign = 'right'
+          g.fillStyle = '#ffd0ee'
+          g.fillText('▲ ACT IV ROSEFIN', W - 8, 123)
+          g.fillStyle = '#ffe9a0'
+          g.fillText('▼ X1 LANTERN NURSERY', W - 8, 153)
+          g.restore()
+        }
       } else if (moonStart === null && defeatedAt !== null) {
         g.fillStyle = '#180d38d9'
         g.fillRect(65, commsTop, W - 130, 33)

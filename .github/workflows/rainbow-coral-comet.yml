@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - 'utils/arcade/games/rainbowCoralComet.ts'
+      - 'utils/arcade/games/rainbowGuardian.ts'
+      - 'utils/arcade/games/rainbowPrincessPreview.ts'
+      - 'utils/arcade/games/rainbowCheckpoints.ts'
+      - 'utils/arcade/games/rainbowLoadouts.ts'
       - 'utils/scripts/verifyRainbowCoralComet.test.ts'
       - '.github/workflows/rainbow-coral-comet.yml'
 

@@ -1,7 +1,4 @@
-import {
-  drawRainbowStagePlane,
-  type RainbowStageStrip,
-} from './rainbowGameArt'
+import { drawRainbowStagePlane, type RainbowStageStrip } from './rainbowGameArt'
 
 // Distinct silhouette bands from reviewed stage artwork provide proper depth
 // until the matching source-backed far/mid Kontext renders pass visual review.

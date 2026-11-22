@@ -475,7 +475,6 @@ export function drawRainbowStageStrip(
   return true
 }
 
-
 /**
  * The source-backed far/mid planes remain optional until their Kontext outputs
  * pass visual review and the doodle art export registers their paths. In the

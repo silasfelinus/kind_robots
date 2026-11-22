@@ -142,19 +142,43 @@ export function nurseryFlightCheckpointValid(
 /** Three authored communication scenes frame a rescue, never a hunt. */
 export const NURSERY_TALKS = {
   opening: [
-    { speaker: 'Lilt-7', text: 'Nemi found a forbidden current. The Coral Choir are trapped inside the kelp.' },
-    { speaker: 'Vivi', text: 'Five pods. Five families. The harvester is taking their forest.' },
+    {
+      speaker: 'Lilt-7',
+      text: 'Nemi found a forbidden current. The Coral Choir are trapped inside the kelp.',
+    },
+    {
+      speaker: 'Vivi',
+      text: 'Five pods. Five families. The harvester is taking their forest.',
+    },
     { speaker: 'Solenne', text: 'Protect the pods. Bring every voice home.' },
   ],
   turn: [
-    { speaker: 'Maribel', text: 'Kelp Warden is sweeping the lanes. Watch its comb before it strikes.' },
-    { speaker: 'Azure', text: 'The gap between marked teeth is real. Follow me through.' },
-    { speaker: 'Lilt-7', text: 'It protects the captured Choir. Stop the harvester, spare the forest.' },
+    {
+      speaker: 'Maribel',
+      text: 'Kelp Warden is sweeping the lanes. Watch its comb before it strikes.',
+    },
+    {
+      speaker: 'Azure',
+      text: 'The gap between marked teeth is real. Follow me through.',
+    },
+    {
+      speaker: 'Lilt-7',
+      text: 'It protects the captured Choir. Stop the harvester, spare the forest.',
+    },
   ],
   aftermath: [
-    { speaker: 'Vivi', text: 'The Choir gets its own sky. Not a Motherland possession.' },
-    { speaker: 'Lilt-7', text: 'I will keep their coordinates out of the imperial charts.' },
-    { speaker: 'Maribel', text: 'A rescue route, not a conquest. This is the way home.' },
+    {
+      speaker: 'Vivi',
+      text: 'The Choir gets its own sky. Not a Motherland possession.',
+    },
+    {
+      speaker: 'Lilt-7',
+      text: 'I will keep their coordinates out of the imperial charts.',
+    },
+    {
+      speaker: 'Maribel',
+      text: 'A rescue route, not a conquest. This is the way home.',
+    },
   ],
 } as const
 
@@ -178,12 +202,14 @@ export const KELP_CHOIR_PODS = [
 ] as const
 
 export function choirPodAvailable(frame: number, mask: number) {
-  return KELP_CHOIR_PODS.find(
-    (pod) =>
-      frame >= pod.at &&
-      frame < pod.at + KELP_CHOIR.window &&
-      (mask & (1 << (pod.id - 1))) === 0,
-  ) ?? null
+  return (
+    KELP_CHOIR_PODS.find(
+      (pod) =>
+        frame >= pod.at &&
+        frame < pod.at + KELP_CHOIR.window &&
+        (mask & (1 << (pod.id - 1))) === 0,
+    ) ?? null
+  )
 }
 
 export function choirPodX(frame: number, at: number): number {

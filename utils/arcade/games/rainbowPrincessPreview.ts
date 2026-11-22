@@ -4301,7 +4301,12 @@ export function createRainbowPrincessPreview(
       }
       if (nurseryGuardianOutcome === 'defeated') {
         score += 1500
-        popups.push({ x: W / 2, y: 76, text: 'KELP WARDEN CLEAR · +1500', age: 0 })
+        popups.push({
+          x: W / 2,
+          y: 76,
+          text: 'KELP WARDEN CLEAR · +1500',
+          age: 0,
+        })
       }
       launchRosefin()
       actHits = 0
@@ -5077,19 +5082,20 @@ export function createRainbowPrincessPreview(
                     TRENCH_FORK.decideAt,
                     TRENCH_FORK.rejoinAt,
                   )
-              : guardian.kind === 'shoalkoi'
-                ? SHOAL_GUARDIAN
-                : guardian.kind === 'siren'
-                  ? ARMORY_SIREN_WINDOW
-                  : guardian.kind === 'warden'
-                    ? PEARL_WARDEN_WINDOW
-                    : guardianSections[act]
+                : guardian.kind === 'shoalkoi'
+                  ? SHOAL_GUARDIAN
+                  : guardian.kind === 'siren'
+                    ? ARMORY_SIREN_WINDOW
+                    : guardian.kind === 'warden'
+                      ? PEARL_WARDEN_WINDOW
+                      : guardianSections[act]
       const frame =
         guardian.kind === 'herder'
           ? cometFrame()
           : guardian.kind === 'lampkeeper'
             ? lighthouseFrame()
-            : (guardian.kind === 'matriarch' || guardian.kind === 'kelpwarden') &&
+            : (guardian.kind === 'matriarch' ||
+                  guardian.kind === 'kelpwarden') &&
                 nurseryActive()
               ? nurseryFrame()
               : guardian.kind === 'shoalkoi'
@@ -7133,7 +7139,9 @@ export function createRainbowPrincessPreview(
         if (
           !drawRainbowGuardianSprite(
             g,
-            guardian.kind === 'matriarch' || guardian.kind === 'kelpwarden' || guardian.kind === 'siren'
+            guardian.kind === 'matriarch' ||
+              guardian.kind === 'kelpwarden' ||
+              guardian.kind === 'siren'
               ? 'lantern'
               : guardian.kind === 'warden'
                 ? 'bulwark'
@@ -7150,7 +7158,9 @@ export function createRainbowPrincessPreview(
               g,
               guardian.kind === 'herald'
                 ? 'harbinger'
-                : guardian.kind === 'matriarch' || guardian.kind === 'kelpwarden' || guardian.kind === 'siren'
+                : guardian.kind === 'matriarch' ||
+                    guardian.kind === 'kelpwarden' ||
+                    guardian.kind === 'siren'
                   ? 'lantern'
                   : guardian.kind === 'herder'
                     ? 'cutter'

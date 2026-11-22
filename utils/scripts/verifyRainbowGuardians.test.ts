@@ -111,7 +111,10 @@ for (const kind of ['urchin', 'lantern', 'clawstrike'] as const) {
     if (shots.length) {
       volleys++
       assert.equal(shots.length, 4)
-      assert.deepEqual(shots.map((shot) => shot.y), marked)
+      assert.deepEqual(
+        shots.map((shot) => shot.y),
+        marked,
+      )
       for (const shot of shots) {
         assert.equal(shot.vy, 0)
         assert.ok(shot.vx < 0)
@@ -120,7 +123,10 @@ for (const kind of ['urchin', 'lantern', 'clawstrike'] as const) {
     }
     if (!rainbowGuardianWarning(guardian)) warned = false
   }
-  assert.ok(volleys >= 5, 'the guardian performs a prolonged, readable encounter')
+  assert.ok(
+    volleys >= 5,
+    'the guardian performs a prolonged, readable encounter',
+  )
 }
 
 function seeded(seed: number) {

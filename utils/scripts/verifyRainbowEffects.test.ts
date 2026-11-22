@@ -216,7 +216,14 @@ for (const stillCamera of [false, true]) {
 
 // Enemy body animation is purely visual; hitboxes and warning rings stay in the
 // original world coordinates, even when the rendered sea-life sprite sways.
-for (const kind of ['lantern', 'eel', 'dolphin', 'picket', 'matriarch', 'kelpwarden']) {
+for (const kind of [
+  'lantern',
+  'eel',
+  'dolphin',
+  'picket',
+  'matriarch',
+  'kelpwarden',
+]) {
   const early = rainbowSwimPose(kind, 22)
   const later = rainbowSwimPose(kind, 36)
   const calm = rainbowSwimPose(kind, 22, true)

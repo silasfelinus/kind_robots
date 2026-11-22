@@ -158,7 +158,10 @@ export function stepRainbowGuardian(
       )
     } else {
       guardian.lanes = Array.from({ length: count }, (_, i) =>
-        Math.max(40, Math.min(240, nearest.y + (i - (count - 1) / 2) * spacing)),
+        Math.max(
+          40,
+          Math.min(240, nearest.y + (i - (count - 1) / 2) * spacing),
+        ),
       )
     }
   }

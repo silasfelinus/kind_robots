@@ -21,7 +21,7 @@ const COLS = 30
 const ROWS = 36
 const CELL = 8
 const HUD = 16
-const BED_TOP = 27
+const BED_TOP = 30
 type Leaf = { col: number; row: number }
 type Probe = {
   score: number

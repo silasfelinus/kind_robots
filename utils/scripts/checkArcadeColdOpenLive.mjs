@@ -45,7 +45,7 @@ try {
       const context = await browser.newContext({
         viewport,
         hasTouch: true,
-        isMobile: viewport.width < 600,
+        isMobile: true,
       })
       await context.addInitScript(() => {
         const NativeAudioContext = window.AudioContext
@@ -144,7 +144,9 @@ try {
               .tap()
             await page.locator('.cabinet-overlay').waitFor({ state: 'hidden' })
           } catch (err) {
-            problems.push(`START/touch: ${err.message.split('\\n')[0].slice(0, 100)}`)
+            problems.push(
+              `START/touch: ${err.message.split('\n')[0].slice(0, 100)}`,
+            )
           }
         }
 
@@ -156,7 +158,9 @@ try {
             )
             await page.locator('.arcade-hall').waitFor({ state: 'visible' })
           } catch (err) {
-            problems.push(`hall return: ${err.message.split('\\n')[0].slice(0, 100)}`)
+            problems.push(
+              `hall return: ${err.message.split('\n')[0].slice(0, 100)}`,
+            )
           }
         }
         if (errors.length)

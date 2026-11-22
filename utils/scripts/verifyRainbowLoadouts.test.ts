@@ -196,7 +196,13 @@ const saves: unknown[] = []
     assert.ok(read, JSON.stringify(raw.checkpoint))
     assert.equal(read.checkpoint.act, raw.checkpoint.act)
     assert.equal(read.checkpoint.frame, raw.checkpoint.frame)
-    assert.ok(isRainbowCheckpoint(read.checkpoint.act, read.checkpoint.frame))
+    assert.ok(
+      isRainbowCheckpoint(
+        read.checkpoint.act,
+        read.checkpoint.frame,
+        read.checkpoint,
+      ),
+    )
   }
   assert.ok(
     allSaves.some(

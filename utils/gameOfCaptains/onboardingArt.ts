@@ -87,14 +87,16 @@ export const COUCH_ONBOARDING_ART_IDS = {
   'couchscope/wild-end/above-the-zodiac': 270175,
   'couchscope/wild-end/the-climb-down': 270176,
   // SHIELD-POCKET-CONTINUITY-ROUND-1 (Conductor game-of-captains t-008):
-  // the six plates kept in the 2026-11-22 PT curation. Council and asteroid
-  // re-render in CURATION-REDO-2 before they are linked.
+  // the six plates kept in the 2026-11-22 PT curation.
   'ship/shield-storm': 277779,
   'ship/shield-docking': 277780,
   'ship/shield-medical': 277781,
   'ship/shield-casino': 277783,
   'ship/shield-observation': 277784,
   'ship/shield-rescue': 277785,
+  // CURATION-REDO-2 re-renders with crews in patched civilian clothes.
+  'ship/shield-council': 278539,
+  'ship/shield-asteroid': 278540,
 } as const
 
 export type CouchOnboardingArtKey = keyof typeof COUCH_ONBOARDING_ART_IDS

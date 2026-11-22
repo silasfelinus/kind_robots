@@ -147,8 +147,12 @@ const ROUND3_KEEPERS = new Set([
     (n) => `redshirts/portraits/rs-${String(n).padStart(3, '0')}`,
   ),
   'redshirts/secret-powers/rs-007',
+  // CURATION-REDO-2 keepers (2026-11-22 PT) for the seven round-3 rejects.
+  ...[24, 36, 46, 55, 63, 73, 95].map(
+    (n) => `redshirts/portraits/rs-${String(n).padStart(3, '0')}`,
+  ),
 ])
-assert.equal(ROUND3_KEEPERS.size, 17)
+assert.equal(ROUND3_KEEPERS.size, 24)
 assert.equal(REDSHIRT_ROUND3_CANDIDATES.length, 24)
 assert.equal(
   REDSHIRT_ROUND3_CANDIDATES.filter(([key]) =>

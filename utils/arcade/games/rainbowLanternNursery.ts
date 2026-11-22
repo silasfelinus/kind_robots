@@ -196,6 +196,17 @@ export function rescueChoirPod(mask: number, id: number): number {
     : mask
 }
 
+/** A save cannot claim pods that have not yet appeared in this X1 flight. */
+export function choirMaskFitsFrame(frame: number, mask: number): boolean {
+  if (!Number.isInteger(frame) || !Number.isInteger(mask) || mask < 0)
+    return false
+  const possible = KELP_CHOIR_PODS.filter((pod) => pod.at <= frame).reduce(
+    (bits, pod) => bits | (1 << (pod.id - 1)),
+    0,
+  )
+  return (mask & ~possible) === 0
+}
+
 export function choirFreed(mask: number): boolean {
   return mask === (1 << KELP_CHOIR.count) - 1
 }

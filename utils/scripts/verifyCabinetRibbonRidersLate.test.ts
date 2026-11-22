@@ -73,7 +73,7 @@ function host() {
   const track0 = new Uint8Array(GRID * GRID)
   marshal.paint(track0)
   assert.ok(track0.includes(1) && track0.includes(2), 'tracks and hub are solid')
-  clock.beat++
+  clock.beat = 2
   marshal.update()
   const track1 = new Uint8Array(GRID * GRID)
   marshal.paint(track1)

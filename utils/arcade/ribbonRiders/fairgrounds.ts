@@ -11,7 +11,7 @@ import type { ArenaSpec, Spawn } from './arenas'
 import { GRID, idx } from './grid'
 import { BOARDWALK_MUSIC, FROSTLIGHT_MUSIC } from './music'
 
-export type ObjectiveId = 'last' | 'giftwrap' | 'glowbug' | 'art' | 'taglap'
+export type ObjectiveId = 'last' | 'giftwrap' | 'glowbug' | 'art' | 'taglap' | 'escort'
 
 export type ObjectiveSpec = { name: string; about: string }
 
@@ -27,6 +27,7 @@ export const OBJECTIVES: Record<ObjectiveId | 'marshal', ObjectiveSpec> = {
   },
   art: { name: 'RIBBON ART', about: 'TRACE THE GLOWING OUTLINE' },
   taglap: { name: 'TAG LAP', about: 'RIDE THE ARCHES IN ORDER. BEAT THE CREW' },
+  escort: { name: 'MOON PARADE', about: 'KEEP ENEMY RIBBONS OFF THE MOON FLOAT' },
   marshal: { name: 'GRAND MARSHAL', about: 'WRAP THE GLOWING HUB' },
 }
 
@@ -57,6 +58,8 @@ export type FairArena = ArenaSpec & {
   art?: { corners: readonly (readonly [number, number])[]; share: number }
   /** Tag Lap: the arches, in order. */
   arches?: readonly Rect[]
+  /** Parade Escort: the float crosses this row, surviving this many ribbon hits. */
+  escort?: { row: number; health: number }
   marshal?: MarshalKind
 }
 
@@ -577,18 +580,15 @@ const STARLIGHT: Fairground = {
       features: [{ kind: 'pillar', x: 22, y: 22, w: 4, h: 4 }],
       shrink: null,
       crew: ['glimmer', 'sprinter'],
-      objective: 'taglap',
+      objective: 'escort',
+      limit: S * 75,
+      escort: { row: 32, health: 3 },
       par: S * 60,
       tickets: 5,
       tier: 11,
       at: [216, 130],
       next: ['marshal'],
-      intro: 'ESCORT THE MOON THROUGH THE ARCHES',
-      arches: [
-        { x: 21, y: 33, w: 7, h: 1 },
-        { x: 21, y: 12, w: 7, h: 1 },
-        { x: 6, y: 18, w: 1, h: 8 },
-      ],
+      intro: 'PROTECT THE MOON FLOAT TO THE LAST LANTERN',
       special: true,
     },
     {

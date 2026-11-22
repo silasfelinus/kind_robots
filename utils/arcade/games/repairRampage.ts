@@ -13,6 +13,7 @@
 // beside you). Dazzles and long falls cost charge; run out and it's game over.
 
 import { levelCurve } from '../curve'
+import { repairTownForCity } from '../repairRampage/towns'
 import { drawText } from '../font'
 import {
   INK,
@@ -657,9 +658,10 @@ class RepairRampage implements ArcadeGameInstance {
 
   private startCity(city: number) {
     this.level = city
-    const count = Math.floor(levelCurve(city, RAMPAGE_CURVES.towers))
-    const tallest = Math.round(levelCurve(city, RAMPAGE_CURVES.rows))
-    const broken = levelCurve(city, RAMPAGE_CURVES.broken)
+    const town = repairTownForCity(city)
+    const count = town.towerCount
+    const tallest = town.maxRows
+    const broken = town.damage
     const perWindow = levelCurve(city, RAMPAGE_CURVES.holdPerWindow) * 60
     const gap = (W - count * TOWER_W) / (count + 1)
     this.towers = []
@@ -692,7 +694,7 @@ class RepairRampage implements ArcadeGameInstance {
     this.droneTimer = 240
     this.kitten = null
     this.kittenTimer = 360
-    this.banner = { text: `CITY ${city}`, sub: 'FIX EVERY WINDOW', ticks: 100 }
+    this.banner = { text: town.name.toUpperCase(), sub: town.region.toUpperCase(), ticks: 100 }
   }
 
   // --- update ------------------------------------------------------------------

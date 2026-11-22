@@ -110,7 +110,9 @@ function newGame(seed: number): TestGame {
   game.row = 0
   game.col = 0
   game.tools = ['rocket-boots']
-  game.activateTool()
+  const controls = emptyInput()
+  controls.pressed.b = true
+  game.update(controls)
   assert.equal(game.row, 3)
   assert.equal(game.tools.length, 0)
 }

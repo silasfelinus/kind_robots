@@ -2,7 +2,7 @@
 title: 'Cthulhuquarium'
 room: 'Cthulhuquarium'
 subtitle: 'Feed the things in the tank.'
-description: A darkly funny aquarium — every fed creature drops coins; tap them, buy more creatures, and fill the tank.
+description: A darkly funny aquarium of things that are probably not fish. Browse players' tanks free, then sign in free to raise your own.
 icon: kind-icon:fish
 tooltip: Tend an aquarium of things that are probably not fish.
 channelKey: arcade

@@ -1,7 +1,7 @@
 {
   "note": "Prettier RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyPrettierRatchet.ts.",
-  "recorded": "2026-11-20",
-  "total": 930,
+  "recorded": "2026-11-22",
+  "total": 913,
   "violations": {
     "components": [
       "components/academy/academy-style-detail.vue",
@@ -243,26 +243,6 @@
       "README.md",
       "stats.html",
       "test-pool.mjs"
-    ],
-    "docs": [
-      "docs/architecture/animation-catalog-smoke-matrix.md",
-      "docs/architecture/comment-census.md",
-      "docs/architecture/comment-migration-foundation.md",
-      "docs/architecture/thin-resource-api-audit.md",
-      "docs/interface-vision-t-127-header-audit.md",
-      "docs/mandarin-tutor-art-direction.md",
-      "docs/mandarin-tutor-mobile-domain.md",
-      "docs/notes/backend-sweep-2026-07-05.md",
-      "docs/page-backdrops.md",
-      "docs/products/storybook-taskmaster-boundary.md",
-      "docs/runbooks/app-account-privilege-narrowing.md",
-      "docs/runbooks/payment-environment.md",
-      "docs/self-hosted-media.md"
-    ],
-    "pages": [
-      "pages/butterfly-gallery.vue",
-      "pages/play/challenges/[slug].vue",
-      "pages/play/mandarin/sound-families.vue"
     ],
     "sample": [
       "sample/generation/bots.md",
@@ -792,7 +772,6 @@
       "utils/scripts/verifyApplyArchivePresetToPayload.test.ts",
       "utils/scripts/verifyApplyArtArchiveResourceMatch.test.ts",
       "utils/scripts/verifyApplyArtArchiveResourceMatchCli.mjs",
-      "utils/scripts/verifyAquariumMilestoneToast.test.ts",
       "utils/scripts/verifyAquariumRivalry.test.ts",
       "utils/scripts/verifyAquariumRivalryMilestone.test.ts",
       "utils/scripts/verifyAquariumRivalryProduction.test.ts",

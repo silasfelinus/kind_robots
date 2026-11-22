@@ -8,12 +8,12 @@ base for casting: what is worth commenting on, and who can credibly speak.
 
 ## What is commentable
 
-| | Rewards | Facets | Resources |
-|---|---|---|---|
-| rows the public API returns | 257 | 1591 | 0 |
-| public | 257 | 1591 | 0 |
-| `allowReviews` true | 0 | not exposed | no such column |
-| already carry Reactions | 0 | not exposed | not exposed |
+|                             | Rewards | Facets      | Resources      |
+| --------------------------- | ------- | ----------- | -------------- |
+| rows the public API returns | 257     | 1591        | 0              |
+| public                      | 257     | 1591        | 0              |
+| `allowReviews` true         | 0       | not exposed | no such column |
+| already carry Reactions     | 0       | not exposed | not exposed    |
 
 **Resources are deferred this pass.** The public API returns 0 of them:
 every Resource row is `isPublic: false`, they are LoRA/checkpoint/embedding infrastructure
@@ -45,20 +45,20 @@ carry flavor text and 20 carry examples. **1192 are a bare
 title plus a taxonomy** — weak comment targets, and the casting signals should say so rather
 than paper over it.
 
-| Taxonomy | Facets |
-|---|---|
-| PERSONALITY | 206 |
-| COLOR | 180 |
-| ARCHETYPE | 167 |
-| GENRE | 160 |
-| ANIMAL | 143 |
-| QUIRK | 126 |
-| MATERIAL | 99 |
-| SPECIES | 93 |
-| STYLE | 80 |
-| THEME | 77 |
-| PROMPT_ENHANCEMENT | 59 |
-| BACKSTORY | 53 |
+| Taxonomy           | Facets |
+| ------------------ | ------ |
+| PERSONALITY        | 206    |
+| COLOR              | 180    |
+| ARCHETYPE          | 167    |
+| GENRE              | 160    |
+| ANIMAL             | 143    |
+| QUIRK              | 126    |
+| MATERIAL           | 99     |
+| SPECIES            | 93     |
+| STYLE              | 80     |
+| THEME              | 77     |
+| PROMPT_ENHANCEMENT | 59     |
+| BACKSTORY          | 53     |
 
 ## Who can speak
 
@@ -68,12 +68,12 @@ than paper over it.
 278 distinct speakers, every one of whom still resolves to a live Bot or
 Character.
 
-| Voice-evidence tier | Speakers |
-|---|---|
-| RICH — 4+ archived samples | 77 |
-| THIN — 2–3 | 171 |
-| SPARSE — 1 | 30 |
-| NONE — live fields only | 17 |
+| Voice-evidence tier        | Speakers |
+| -------------------------- | -------- |
+| RICH — 4+ archived samples | 77       |
+| THIN — 2–3                 | 171      |
+| SPARSE — 1                 | 30       |
+| NONE — live fields only    | 17       |
 
 295 of 295 live Bots and Characters are castable: either
 archived samples or live `personality`/`voice`/`sampleResponse` text exists. The

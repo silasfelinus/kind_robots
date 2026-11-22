@@ -124,4 +124,23 @@ assert.doesNotMatch(
   /jellybean|prompt retention|navigation/i,
 )
 
+// 5. Share descriptions say what a visitor gets in plain words (2026-11-22
+//    PT): Memory Dungeon shared a 250-character pitch ending in "the prompt
+//    and art modeller", /art opened with an instruction ("Generate new images
+//    first"), Cthulhuquarium hid that playing needs an account, and Zuzu
+//    Showdown shared only "Duels with Zuzu and friends."
+const pageDescription = (file: string) =>
+  read(file).match(/^description: '?(.+?)'?$/m)?.[1] ?? ''
+const memoryDescription = pageDescription('content/play/memory.md')
+assert.ok(memoryDescription.length <= 160, 'Memory Dungeon description fits')
+assert.doesNotMatch(memoryDescription, /modeller|roguelite/i)
+assert.match(memoryDescription, /free/i)
+const artDescription = pageDescription('content/art.md')
+assert.doesNotMatch(artDescription, /^Generate/)
+assert.match(artDescription, /sign in/i)
+assert.match(pageDescription('content/play/aquarium.md'), /sign in/i)
+const showdown = GAME_LINK_PREVIEWS['zuzu-showdown']!.description
+assert.doesNotMatch(showdown, /^Duels with Zuzu and friends/)
+assert.match(showdown, /fighter/i)
+
 console.log(`front door polish checks passed (${gatedCards} gated share cards)`)

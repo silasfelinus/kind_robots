@@ -104,13 +104,13 @@ all 577 pictures share one camera distance, one lighting setup, and one palette 
 the interchangeable read this art direction exists to avoid. So each card also
 draws one option per axis from `server/utils/mandarinIllustrationStyle.ts`:
 
-| Axis | Options | What it moves |
-| --- | --- | --- |
-| framing | 6 | close still life, wide and quiet, vignette, overhead, eye level, through a near edge |
-| light | 5 | overcast, low late sun, open shade, lamplight, early-morning window |
-| palette | 6 | a limited harmony plus one accent, all inside the matte gouache family |
-| handling | 5 | flat gouache, wet washes, dry brush, ink line over wash, pooling pigment |
-| ground | 4 | bare paper, flat wash, soft halo, lower band |
+| Axis     | Options | What it moves                                                                        |
+| -------- | ------- | ------------------------------------------------------------------------------------ |
+| framing  | 6       | close still life, wide and quiet, vignette, overhead, eye level, through a near edge |
+| light    | 5       | overcast, low late sun, open shade, lamplight, early-morning window                  |
+| palette  | 6       | a limited harmony plus one accent, all inside the matte gouache family               |
+| handling | 5       | flat gouache, wet washes, dry brush, ink line over wash, pooling pigment             |
+| ground   | 4       | bare paper, flat wash, soft halo, lower band                                         |
 
 3600 combinations. The draw is derived from the card's stable token — the same
 token that names its media file — so it is deterministic in both directions: a
@@ -142,14 +142,14 @@ would find perfectly clear:
 - **Conditionals.** "where it helps", "when useful", "unless that is the
   concept". The recipe knows the card's categories and meaning, so it decides at
   build time and states one outcome. The cultural-shorthand exclusion is dropped
-  entirely for a card whose concept *is* a dragon or a lantern.
+  entirely for a card whose concept _is_ a dragon or a lantern.
 - **Format nouns.** Not "flashcard illustration" — asking for a card renders a
   card, title bar and invented text included. The tutor owns the card; the model
   paints a picture.
 - **Piled-up exclusions.** The old recipe named text fourteen ways and listed
   twelve synthetic-image tells including "lens flare", "bokeh", and "neon glow".
   At cfg 1 the ComfyUI negative prompt is inert, so all of that landed in
-  *positive* conditioning. Same art direction, stated as the wanted result:
+  _positive_ conditioning. Same art direction, stated as the wanted result:
   "everything is hand-painted... plain even light", "every surface is blank and
   unmarked".
 

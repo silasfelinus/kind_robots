@@ -33,12 +33,12 @@ narrower and accepts only Reward or Facet targets.
 Object first, every time. `utils/comments/commentSignals.ts` computes four signals from real
 data and `rankCommentSpeakers` weights them 0.4 / 0.35 / 0.2 / 0.05:
 
-| Signal | Source |
-|---|---|
-| `relationshipScore` | `Reward.Characters`, shared `RewardFacet` × `CharacterFacet`/`BotFacet` links, direct or neighbouring Facet links |
-| `targetAffinityScore` | token overlap between the object's text and the speaker's own characterization |
-| `voiceEvidenceScore` | archived sample depth from `utils/comments/voiceEvidence.ts`, falling back to live `personality`/`voice`/`sampleResponse` |
-| `noveltyScore` | anti-concentration within a batch |
+| Signal                | Source                                                                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `relationshipScore`   | `Reward.Characters`, shared `RewardFacet` × `CharacterFacet`/`BotFacet` links, direct or neighbouring Facet links         |
+| `targetAffinityScore` | token overlap between the object's text and the speaker's own characterization                                            |
+| `voiceEvidenceScore`  | archived sample depth from `utils/comments/voiceEvidence.ts`, falling back to live `personality`/`voice`/`sampleResponse` |
+| `noveltyScore`        | anti-concentration within a batch                                                                                         |
 
 There is no input for historical WonderLab pairings, and adding one would fail
 `utils/scripts/verifyCommentSignals.ts`.

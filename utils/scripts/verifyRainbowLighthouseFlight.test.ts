@@ -96,7 +96,11 @@ const checkpoint = {
   captivesFreed: 0,
   schoolBonuses: 0,
 }
-const load = (c: typeof checkpoint) =>
+const load = (
+  c: Omit<typeof checkpoint, 'reefRoute'> & {
+    reefRoute: 'relay' | 'cache' | null
+  },
+) =>
   readRainbowSave(
     { v: 1, difficulty: 'normal', checkpoint: c, guardians: {}, medals: {} },
     (act, frame, saved) =>

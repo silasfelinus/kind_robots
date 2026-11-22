@@ -87,6 +87,12 @@ export const RECRUIT_ART_RECEIPTS: Record<
       slot: 'joyous',
       asset: 'recruits/femi-ilunga/joyous',
     },
+    angry: {
+      artJobId: 76686,
+      artImageId: 279005,
+      slot: 'angry',
+      asset: 'recruits/femi-ilunga/angry',
+    },
     afraid: {
       artJobId: 76677,
       artImageId: 278842,

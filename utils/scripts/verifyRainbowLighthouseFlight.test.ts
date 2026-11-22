@@ -170,6 +170,33 @@ for (const seats of [1, 2, 3, 4]) {
   )
 }
 for (const seats of [1, 4]) {
+  const guardianSave = load({
+    ...checkpoint,
+    frame: 15000 + LIGHTHOUSE.guardianFrom,
+    lighthouseFrame: LIGHTHOUSE.guardianFrom,
+    lighthouseLamps: 63,
+  })
+  assert.ok(guardianSave)
+  const game = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    demo: false,
+    players: seats,
+    rainbowReplay: guardianSave,
+  })
+  assert.equal(game.snapshot.act, 'X3')
+  assert.equal(game.snapshot.lighthouseLamps, 63)
+  game.update(
+    input,
+    Array.from({ length: seats }, () => input),
+  )
+  assert.equal(game.snapshot.guardian?.kind, 'lampkeeper')
+  assert.equal(game.snapshot.lighthouseGuardianOutcome, 'waiting')
+  assert.ok(game.snapshot.guardian!.maxHp > 0)
+}
+
+for (const seats of [1, 4]) {
   const guardian = createRainbowGuardian('lampkeeper', seats)
   const targets = [70, 120, 170, 210]
     .slice(0, seats)

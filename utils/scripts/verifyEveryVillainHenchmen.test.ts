@@ -11,6 +11,7 @@ import {
   CREW_TELL_ART,
   CREW_TELL_BEATS,
   crewTellReceipt,
+  isCrewTellKind,
   type CrewTellKind,
 } from '../everyVillainTactics/crewTelegraphArt'
 import {
@@ -517,6 +518,15 @@ assert.deepEqual(
   Array.from({ length: 12 }, (_, i) => 277786 + i),
 )
 assert.equal(crewTellReceipt(null, 'warning'), null)
+for (const unknown of ['other', 'prototype', '__proto__', 'constructor', '']) {
+  assert.equal(isCrewTellKind(unknown), false)
+  assert.equal(crewTellReceipt(unknown, 'warning'), null)
+}
+assert.equal(isCrewTellKind(undefined), false)
+assert.equal(isCrewTellKind('burrow'), true)
+assert.equal(isCrewTellKind('phase'), true)
+assert.equal(isCrewTellKind('windup'), true)
+assert.match(page, /isCrewTellKind\(unit\.henchmanType\)/)
 for (const kind of kinds) {
   assert.ok(CREW_TELL_ART[kind].name.length)
   for (const beat of CREW_TELL_BEATS) {
@@ -533,7 +543,7 @@ assert.match(page, /data-testid="tactics-painted-phase-warning"/)
 assert.match(page, /crewWarningImage\('burrow'\)/)
 assert.match(page, /crewWarningImage\('phase'\)/)
 assert.match(page, /paintedArt\.ensure\(id \?\? null\)/)
-assert.match(page, /unit\.team === 'rival' && unit\.hp > 0/)
+assert.match(page, /unit\.team === 'rival' &&\s*unit\.hp > 0/)
 
 assert.match(page, /data-testid="tactics-one-hit"/)
 assert.match(page, /henchmanTell\(/)

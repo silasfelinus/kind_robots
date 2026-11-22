@@ -301,6 +301,7 @@ export async function openCabinet(
     help = null,
     dpr = 1,
     storage = null,
+    audioProbe = false,
   },
 ) {
   const context = await browser.newContext({
@@ -319,6 +320,20 @@ export async function openCabinet(
     await page.goto(ORIGIN)
   } else {
     await page.setContent(PAGE)
+  }
+  if (audioProbe) {
+    await page.evaluate(() => {
+      const NativeAudioContext = window.AudioContext
+      window.__arcadeAudioContexts = 0
+      if (NativeAudioContext) {
+        window.AudioContext = class extends NativeAudioContext {
+          constructor(...args) {
+            super(...args)
+            window.__arcadeAudioContexts++
+          }
+        }
+      }
+    })
   }
   await mountCabinet(page, fixture, { slug, seats, help, storage })
   return { page, errors, context }

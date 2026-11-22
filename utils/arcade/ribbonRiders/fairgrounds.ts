@@ -30,7 +30,7 @@ export const OBJECTIVES: Record<ObjectiveId | 'marshal', ObjectiveSpec> = {
   marshal: { name: 'GRAND MARSHAL', about: 'WRAP THE GLOWING HUB' },
 }
 
-export type MarshalKind = 'keeper' | 'swan'
+export type MarshalKind = 'keeper' | 'swan' | 'conductor' | 'loom'
 
 export type Rect = { x: number; y: number; w: number; h: number }
 
@@ -481,7 +481,7 @@ const CLOCKWORK: Fairground = {
       shrink: null,
       crew: [],
       objective: 'marshal',
-      marshal: 'keeper',
+      marshal: 'conductor',
       par: S * 100,
       tickets: 6,
       tier: 12,
@@ -603,7 +603,7 @@ const STARLIGHT: Fairground = {
       shrink: null,
       crew: [],
       objective: 'marshal',
-      marshal: 'swan',
+      marshal: 'loom',
       par: S * 100,
       tickets: 6,
       tier: 12,

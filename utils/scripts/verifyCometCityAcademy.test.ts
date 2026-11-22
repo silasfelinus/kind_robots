@@ -2776,13 +2776,13 @@ for (const identity of SIGNATURE_POWERS) {
     )
   }
 }
-// Shipped media is not automatically canon-safe: quarantine the nine WebPs
+// Shipped media is not automatically canon-safe: quarantine the eleven wrong-person WebPs
 // personally inspected against the permanently authored identity catalog.
-assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 9)
+assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 11)
 assert.equal(
   new Set(Object.values(REJECTED_IDENTITY_ART).map((entry) => entry.blobSha))
     .size,
-  9,
+  11,
 )
 for (const [key, rejection] of Object.entries(REJECTED_IDENTITY_ART)) {
   assert.ok(promArt(key), key + ' is physically exported despite rejection')
@@ -2813,6 +2813,21 @@ assert.equal(
   identityArtwork('alien-discipline', 'villain'),
   promArt('identities/alien-discipline/student'),
 )
+assert.equal(
+  REJECTED_IDENTITY_ART['identities/magic-earth/outcomes/hero'].blobSha,
+  '9e0b1de1d8a1faae9ecc837cdc69b66c5412511d',
+)
+assert.equal(
+  REJECTED_IDENTITY_ART['identities/magic-earth/outcomes/villain'].blobSha,
+  '51de02cf69ae90da0bbc6f61524a61c1bd33de03',
+)
+for (const form of ['hero', 'villain'] as const) {
+  assert.equal(
+    identityArtwork('magic-earth', form),
+    promArt('identities/magic-earth/student'),
+    'Granny Mayhem must use her canonical elderly painting instead of a child',
+  )
+}
 for (const form of ['student', 'hero', 'villain'] as const) {
   assert.equal(identityArtwork('mutant-earth', form), null)
 }

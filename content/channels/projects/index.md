@@ -23,19 +23,19 @@ tutorial:
   tagline: Make art, build stories, explore projects.
   overview: >-
     Projects gathers a public project showcase and administrator-only planning controls,
-    Art Studio, Video Studio, Mandarin and Rebel Button. Games
+    Art Studio, Video Studio (including Music Videos), Mandarin and Rebel Button. Games
     share the Play channel, including the Arcade and Zuzu's weird-west adventures. Each destination opens with
     its own page help, and this overview stays behind the About Projects
     control.
   hero: /images/tutorials/dream/dreams.webp
   sections:
     - key: make
-      title: Make images and clips
+      title: Make images, clips and music videos
       body: >-
         Art opens on the Image Generator: pick a recipe, write a prompt and
         press Generate, then find the results in the Gallery. Video Studio
-        generates short clips from still images. Generating costs mana,
-        so sign in first.
+        generates short clips and has a Music Videos tab for watching and
+        remixing illustrated songs. Generating costs mana, so sign in first.
       image: /images/art/generate.webp
     - key: learn
       title: Practice Mandarin and singing
@@ -67,5 +67,5 @@ tutorial:
 ---
 
 Public creative tools and project showcases live here. Storybook and its
-ingredient managers are filed under Admin Retired; Music Videos has its
-own Admin studio. Games live in Play.
+ingredient managers are filed under Admin Retired; Music Videos is in
+Projects Video Studio. Games live in Play.

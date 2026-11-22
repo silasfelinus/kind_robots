@@ -1,0 +1,53 @@
+.chess-campaign {
+  display: grid;
+  gap: 3px;
+  padding: 8px 11px;
+  border: 1px solid #607b9c;
+  border-radius: 14px;
+  background: #15233b;
+  color: var(--ink);
+}
+.chess-campaign-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  align-items: baseline;
+}
+.chess-campaign-head span {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 850;
+}
+.chess-campaign-head strong {
+  font-size: 13px;
+}
+.chess-campaign p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.chess-campaign button {
+  justify-self: start;
+  background: #233b50;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 850;
+}
+.chess-campaign button[hidden] {
+  display: none;
+}
+:root[data-realm='sugar'] .chess-campaign {
+  border-color: #f08bdd;
+  background: #371e3d;
+}
+:root[data-realm='ashen'] .chess-campaign {
+  border-color: #a17b62;
+  background: #2f2827;
+}
+:root[data-realm='jackpot'] .chess-campaign {
+  border-color: #5aaeda;
+  background: #172544;
+}

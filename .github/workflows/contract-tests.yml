@@ -1415,6 +1415,9 @@ jobs:
       - name: Chessweeper painted board loading and fallback contract
         run: npm run test:chessweeper-board-art
 
+      - name: Chessweeper authored world campaigns and chapter progress
+        run: npm run test:chessweeper-campaigns
+
       - name: Save the Plumber permanent collection and ending ledger
         run: npx tsx utils/scripts/verifySavePlumberCollection.test.ts
 

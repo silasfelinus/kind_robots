@@ -49,6 +49,19 @@ assert.ok(
   'watched or skipped is remembered',
 )
 assert.ok(overlay.includes('Skip'), 'the opening can be skipped')
+assert.ok(
+  overlay.includes('@error="onPlaybackError"'),
+  'failed video playback opens a recovery state instead of skipping the intro',
+)
+assert.ok(
+  overlay.includes("state.value = 'failed'") &&
+    overlay.includes("state === 'failed' ? 'Try opening again'"),
+  'a failed opening can be retried without marking it watched',
+)
+assert.ok(
+  overlay.includes('playButton.value?.focus()'),
+  'the recovery action receives keyboard focus',
+)
 
 console.log(
   `rainbow opening: ok (${RAINBOW_OPENING ? `${RAINBOW_OPENING.seconds}s, ${RAINBOW_OPENING.clips}/${RAINBOW_OPENING.shots} shots animated` : 'not shipped yet'})`,

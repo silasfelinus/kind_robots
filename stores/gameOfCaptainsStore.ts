@@ -25,11 +25,12 @@ import { kitStorageKey } from '~/utils/playbookKit/settings'
 import { legacyCouchSettings } from '~/utils/gameOfCaptains/legacyPreferences'
 import { useAchievementStore } from '~/stores/achievementStore'
 import {
+  createBoundedVoyageBackup,
   createVoyageBackup,
+  createVoyageBackupStager,
   mergeVoyageHistory,
   parseVoyageBackup,
   persistRestoredVoyage,
-  VOYAGE_BACKUP_MAX_BYTES,
   type VoyageBackup,
 } from '~/utils/gameOfCaptains/voyageBackup'
 import {
@@ -166,6 +167,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   const storageWarning = ref('')
   const backupMessage = ref('')
   const pendingBackup = ref<VoyageBackup | null>(null)
+  const backupStager = createVoyageBackupStager()
   // Account copy is an explicit, revision-guarded backup. Never overwrite
   // a device's existing v1 save simply because the user signed in.
   const accountBackupStatus = ref<
@@ -187,6 +189,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
   let accountBackupEpoch = 0
   let stagedAccountBackupOwner: number | null = null
   function resetAccountVoyageBackup() {
+    backupStager.invalidate()
     accountBackupEpoch++
     accountBackupStatus.value = userStore.authenticatedUserId ? 'idle' : 'guest'
     accountBackupBusy.value = false
@@ -1102,6 +1105,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
         'Check the account copy again before restoring it.'
       return false
     }
+    backupStager.invalidate()
     pendingBackup.value = parseVoyageBackup(
       JSON.stringify(accountBackupSnapshot.value),
     )
@@ -1113,7 +1117,14 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
 
   function downloadVoyageBackup() {
     if (!loaded.value) load()
-    const file = createVoyageBackup(run.value, completedVoyages.value)
+    let file: string
+    try {
+      file = createBoundedVoyageBackup(run.value, completedVoyages.value)
+    } catch {
+      backupMessage.value =
+        'Voyage history exceeds the 8 MB portable-backup limit. Nothing was downloaded.'
+      return
+    }
     const url = URL.createObjectURL(
       new Blob([file], { type: 'application/json' }),
     )
@@ -1129,16 +1140,15 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     pendingBackup.value = null
     backupMessage.value = ''
     try {
-      if (file.size > VOYAGE_BACKUP_MAX_BYTES) {
-        throw new Error('Backup is too large (8 MB limit).')
-      }
-      pendingBackup.value = parseVoyageBackup(await file.text())
+      const selected = await backupStager.read(file)
+      if (selected) pendingBackup.value = selected
     } catch (error) {
       backupMessage.value =
         error instanceof Error ? error.message : 'Backup could not be read.'
     }
   }
   function cancelVoyageBackup() {
+    backupStager.invalidate()
     stagedAccountBackupOwner = null
     pendingBackup.value = null
     backupMessage.value = ''
@@ -1190,6 +1200,7 @@ export const useGameOfCaptainsStore = defineStore('gameOfCaptains', () => {
     } finally {
       restoring = false
     }
+    backupStager.invalidate()
     stagedAccountBackupOwner = null
     pendingBackup.value = null
     backupMessage.value =

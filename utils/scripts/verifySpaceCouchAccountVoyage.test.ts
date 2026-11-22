@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
+  createBoundedVoyageBackup,
   createVoyageBackup,
+  createVoyageBackupStager,
   mergeVoyageHistory,
   parseVoyageBackup,
   persistRestoredVoyage,
@@ -13,6 +15,32 @@ import type { CompletedVoyage } from '../gameOfCaptains/completedVoyages'
 
 const run = startVoyage('vale', ['rue', 'vela', 'mox'], 20261120)
 const remote = parseVoyageBackup(createVoyageBackup(run, []))
+assert.equal(
+  createBoundedVoyageBackup(run, []),
+  createVoyageBackup(run, []),
+  'portable exports preserve the existing v1 format',
+)
+assert.throws(
+  () =>
+    createBoundedVoyageBackup(run, [
+      {
+        version: 1,
+        id: 'oversized',
+        completedAt: 1000,
+        captain: 'vale',
+        crew: ['rue', 'vela', 'mox'],
+        chapter: 9,
+        day: 9,
+        ending: 'THE LAST SHIP HOME',
+        outcome: 'A'.repeat(VOYAGE_BACKUP_MAX_BYTES),
+        choices: [],
+        losses: [],
+        log: [],
+      },
+    ]),
+  /exceeds the 8 MB portable-backup limit/,
+  'overlarge export cannot produce a file that the importer rejects',
+)
 assert.equal(remote.kind, VOYAGE_BACKUP_KIND)
 assert.equal(remote.voyage?.seed, run.seed)
 assert.deepEqual(remote.completedVoyages, [])
@@ -153,6 +181,43 @@ assert.equal(
 assert.equal(originals.has(archiveKey), false)
 assert.equal(originals.has(activeKey), false)
 
+const stager = createVoyageBackupStager()
+let releaseFirst!: (value: string) => void
+const older = stager.read({
+  size: 2048,
+  text: () =>
+    new Promise<string>((resolve) => {
+      releaseFirst = resolve
+    }),
+})
+const newer = await stager.read({
+  size: 2048,
+  text: async () => createVoyageBackup(run, []),
+})
+releaseFirst(createVoyageBackup({ ...run, seed: 123 }, []))
+assert.equal(await older, null, 'an older file cannot displace a newer pick')
+assert.equal(newer?.voyage?.seed, run.seed)
+
+let releaseCancelled!: (value: string) => void
+const cancelled = stager.read({
+  size: 2048,
+  text: () =>
+    new Promise<string>((resolve) => {
+      releaseCancelled = resolve
+    }),
+})
+stager.invalidate()
+releaseCancelled(createVoyageBackup(run, []))
+assert.equal(await cancelled, null, 'cancelled imports cannot reappear')
+
+await assert.rejects(
+  stager.read({
+    size: VOYAGE_BACKUP_MAX_BYTES + 1,
+    text: async () => createVoyageBackup(run, []),
+  }),
+  /too large/,
+)
+
 const read = (path: string): string =>
   readFileSync(new URL(path, import.meta.url), 'utf8')
 const getRoute = read('../../server/api/game-of-captains/voyage-save.get.ts')
@@ -199,6 +264,9 @@ for (const action of [
 }
 assert.match(store, /accountBackupOwner\.value !== owner/)
 assert.match(store, /persistRestoredVoyage\(/)
+assert.match(store, /backupStager\.invalidate\(\)/)
+assert.match(store, /await backupStager\.read\(file\)/)
+assert.match(store, /createBoundedVoyageBackup\(/)
 assert.match(store, /written\.rollbackFailed/)
 assert.match(store, /epoch !== accountBackupEpoch/)
 assert.match(store, /expectedRevision: accountBackupRevision\.value/)

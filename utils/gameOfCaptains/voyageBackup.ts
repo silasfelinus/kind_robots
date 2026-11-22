@@ -32,6 +32,16 @@ export function createVoyageBackup(
   return JSON.stringify(backup, null, 2)
 }
 
+export function createBoundedVoyageBackup(
+  voyage: VoyageRun | null,
+  completedVoyages: CompletedVoyage[],
+): string {
+  const file = createVoyageBackup(voyage, completedVoyages)
+  if (new TextEncoder().encode(file).byteLength > VOYAGE_BACKUP_MAX_BYTES)
+    throw new Error('Voyage history exceeds the 8 MB portable-backup limit.')
+  return file
+}
+
 export function parseVoyageBackup(source: string): VoyageBackup {
   // The bound is bytes, not UTF-16 code units. Otherwise emoji-rich
   // voyages could exceed the server's declared size limit.
@@ -158,5 +168,33 @@ export function persistRestoredVoyage(
       }
     }
     return { ok: false, rollbackFailed }
+  }
+}
+
+/**
+ * Reading a selected backup is asynchronous. A later selection, cancellation
+ * or account restore must win even if the earlier file finishes reading last.
+ */
+export function createVoyageBackupStager() {
+  let generation = 0
+  return {
+    invalidate() {
+      generation++
+    },
+    async read(
+      file: Pick<File, 'size' | 'text'>,
+    ): Promise<VoyageBackup | null> {
+      const request = ++generation
+      try {
+        if (file.size > VOYAGE_BACKUP_MAX_BYTES)
+          throw new Error('Backup is too large (8 MB limit).')
+        const source = await file.text()
+        if (request !== generation) return null
+        return parseVoyageBackup(source)
+      } catch (error) {
+        if (request !== generation) return null
+        throw error
+      }
+    },
   }
 }

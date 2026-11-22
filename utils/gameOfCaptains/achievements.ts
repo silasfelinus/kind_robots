@@ -48,7 +48,8 @@ export function voyageDeedFacts(
     committed: voyage.romance?.status === 'committed',
     clonesPrinted: voyage.cloneProgram?.records.length ?? 0,
     trioFinished: voyage.trioAdventure?.ending !== undefined,
-    detours: run.journeyHistory?.length ?? 0,
+    detours: (run.journeyHistory ?? []).filter((stop) => stop.step === 2)
+      .length,
     hostAsked: (run.venueProgress?.choices ?? []).filter(
       (entry) => entry.venue === 'casino' && entry.choice === 'ask',
     ).length,

@@ -138,3 +138,38 @@
     height: 136px;
   }
 }
+
+/* The art consumer supplies these painted boards. Never hide the playable
+   fallback tiles until the image for this exact world finished loading. */
+:root[data-realm='sugar'][data-board-art='ready'] #board {
+  background-image: url('/images/chessweeper/sugarbomb-board.webp');
+}
+:root[data-realm='ashen'][data-board-art='ready'] #board {
+  background-image: url('/images/chessweeper/ashen-board.webp');
+}
+:root[data-realm='jackpot'][data-board-art='ready'] #board {
+  background-image: url('/images/chessweeper/jackpot-board.webp');
+}
+:root[data-board-art='ready'] #board {
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+:root[data-board-art='ready'] .tile.light,
+:root[data-board-art='ready'] .tile.dark {
+  background: transparent;
+}
+:root[data-board-art='ready'] .tile.fog.light {
+  background: #1b1e3d4d;
+}
+:root[data-board-art='ready'] .tile.fog.dark {
+  background: #050a23a6;
+}
+
+/* A missing queued illustration must not leave a broken gallery image. */
+.meta-scrapbook-world.art-pending {
+  min-height: 136px;
+  background: linear-gradient(125deg, #171e43, #23354b 45%, #301b41);
+}
+.meta-scrapbook-world img[hidden] {
+  display: none;
+}

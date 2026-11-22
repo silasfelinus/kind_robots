@@ -3,7 +3,7 @@
   "project": "chessweeper",
   "source": "ChatGPT generated artwork, user copied the WebP art pack into Kind Robots image directory on 2026-11-18 PT",
   "artJobs": [],
-  "note": "User reports copy complete; assets not yet visible as tracked binaries on the Chessweeper GitHub PR. Verify each destination file before marking delivery complete.",
+  "note": "Historical source-pack checksums record the original user-supplied artwork, not deployed files. Eight durable Conductor requests (PR #7792) are queued for actual intake; do not mark art delivered until ArtJob receipts, committed WebPs and final image URLs have been verified. Generated renders may differ from the original source checksums.",
   "assetRoot": "public/images/chessweeper",
   "assets": [
     {
@@ -45,6 +45,49 @@
       "bytes": 387482,
       "sha256": "b4853a546352ed459d5b911ef91d3798b3738ef82c4a72d25defa22f123533bf",
       "usage": ["Play page icon"]
+    }
+  ],
+  "deliveryStatus": "pending",
+  "pendingRequests": [
+    {
+      "id": "chessweeper-t003-highlight-20261121",
+      "path": "public/images/chessweeper/highlight.webp",
+      "status": "requested-not-delivered"
+    },
+    {
+      "id": "chessweeper-t003-sugarbomb-20261121",
+      "path": "public/images/chessweeper/sugarbomb-kingdom.webp",
+      "status": "requested-not-delivered"
+    },
+    {
+      "id": "chessweeper-t003-ashen-20261121",
+      "path": "public/images/chessweeper/ashen-checkmate.webp",
+      "status": "requested-not-delivered"
+    },
+    {
+      "id": "chessweeper-t003-jackpot-20261121",
+      "path": "public/images/chessweeper/jackpot-apocalypse.webp",
+      "status": "requested-not-delivered"
+    },
+    {
+      "id": "chessweeper-t003-icon-20261121",
+      "path": "public/images/chessweeper/icon.webp",
+      "status": "requested-not-delivered"
+    },
+    {
+      "id": "chessweeper-t003-sugar-board-20261121",
+      "path": "public/images/chessweeper/sugarbomb-board.webp",
+      "status": "requested-not-delivered"
+    },
+    {
+      "id": "chessweeper-t003-ashen-board-20261121",
+      "path": "public/images/chessweeper/ashen-board.webp",
+      "status": "requested-not-delivered"
+    },
+    {
+      "id": "chessweeper-t003-jackpot-board-20261121",
+      "path": "public/images/chessweeper/jackpot-board.webp",
+      "status": "requested-not-delivered"
     }
   ]
 }

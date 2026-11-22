@@ -45,6 +45,16 @@ export const REJECTED_IDENTITY_ART = {
     reason:
       'Shows the same child leading walking trees, not the elderly Mavis Mayhew who knits entire city blocks into a monstrous quilt.',
   },
+  'identities/mutant-discipline/outcomes/hero': {
+    blobSha: '9fe7f31615b0106d2e9afc46a00ce2f2e4763b54',
+    reason:
+      'Depicts Asha Venkataraman as an ordinary two-armed dancer, losing her defining natural four-arm mutation; the verified student portrait has all four arms.',
+  },
+  'identities/mutant-discipline/outcomes/villain': {
+    blobSha: '90f040d2ecf256ad8aa2406bcbf26f0285cc4880',
+    reason:
+      'Depicts Asha as an ordinary two-armed arms dealer and replaces her natural second arm pair with disconnected floating weapons; the student painting visibly retains all four arms.',
+  },
   'identities/mutant-earth/student': {
     blobSha: 'ddc43298b2f6b2a515bcd13815034558b3493f2e',
     reason:
@@ -71,10 +81,14 @@ export const usableIdentityArtKey = (key: string): string | null =>
 /**
  * The correct, existing student illustrations for Lionel Marsh and Zuzu
  * and Mavis Mayhew are preferable to wrong-person hero/villain outcome paintings.
+ * The existing four-armed Asha and library-student Mei Lin paintings similarly
+ * supply canon-safe fallbacks instead of noncanonical or absent outcome art.
  * Never create a fabricated new canonical identity or alter save keys.
  */
 export const CANON_STUDENT_FALLBACK = new Set<string>([
   'tech-genius',
   'alien-discipline',
   'magic-earth',
+  'mutant-discipline',
+  'psychic-discipline',
 ])

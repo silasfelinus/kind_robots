@@ -91,7 +91,7 @@ assert.deepEqual(
           records: [{ id: 'rs-001' }],
         },
         trioAdventure: { ending: 0 },
-        journeyHistory: [{ crewId: 'pell' }],
+        journeyHistory: [{ crewId: 'pell', step: 2 }],
         venueProgress: {
           barBeats: {},
           completed: [],
@@ -123,6 +123,21 @@ assert.deepEqual(
   [],
 )
 
+// The first two crew-quest chapters are progress, not a completed detour.
+assert.deepEqual(
+  voyageDeedAchievements(
+    start,
+    with_({ journeyHistory: [{ crewId: 'pell', step: 0 }] }),
+  ),
+  [],
+)
+assert.deepEqual(
+  voyageDeedAchievements(
+    start,
+    with_({ journeyHistory: [{ crewId: 'pell', step: 1 }] }),
+  ),
+  [],
+)
 assert.deepEqual(alienAchievements(0, 0), [])
 assert.deepEqual(known(alienAchievements(0, 1)), [
   'game-of-captains-first-contact',

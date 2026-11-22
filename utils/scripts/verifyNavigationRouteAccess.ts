@@ -437,7 +437,7 @@ const projectsChannelSource = readFileSync(
   'content/channels/projects/index.md',
   'utf8',
 )
-for (const key of ['storybook', 'make', 'learn', 'games', 'toys']) {
+for (const key of ['make', 'learn', 'games', 'toys']) {
   assert.match(
     projectsChannelSource,
     new RegExp(`\\n\\s{4}- key:\\s*${key}\\n`),
@@ -617,12 +617,20 @@ for (const name of [
   'rewards',
   'scenarios',
 ]) {
-  const tab = readFileSync(`content/channels/projects/story-${name}.md`, 'utf8')
-  assert.match(tab, /^channelKey: projects$/m)
-  if (name !== 'storybook') assert.match(tab, /^parentTabKey: storybook$/m)
+  const tab = readFileSync(
+    `content/channels/admin/retired/story-${name}.md`,
+    'utf8',
+  )
+  assert.match(tab, /^channelKey: admin$/m)
+  assert.match(tab, /^parentTabKey: retired$/m)
+  assert.match(tab, /^allowDirectAccess: true$/m)
+  assert.equal(
+    existsSync(`content/channels/projects/story-${name}.md`),
+    false,
+  )
 }
 const storybookNav = readFileSync(
-  'content/channels/projects/story-storybook.md',
+  'content/channels/admin/retired/story-storybook.md',
   'utf8',
 )
 const storybookPage = readFileSync('content/storybook.md', 'utf8')

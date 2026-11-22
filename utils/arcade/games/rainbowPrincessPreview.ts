@@ -78,6 +78,7 @@ import {
   NURSERY_GUARDIAN,
   NURSERY_FLIGHT,
   NURSERY_FLIGHT_SECTIONS,
+  NURSERY_TALKS,
   NURSERY_WAVES,
   NURSERY_WAVE_SIZES,
   nurseryDetourFor,
@@ -8256,8 +8257,22 @@ export function createRainbowPrincessPreview(
         )
         g.restore()
       }
-      const scene = lighthouseActive()
-        ? lighthouseFrame() < LIGHTHOUSE.openingEnds
+      const scene = nurseryActive()
+        ? nurseryFrame() < NURSERY.openingEnds
+          ? { id: 'X1.OPEN' as const, elapsed: nurseryFrame() }
+          : nurseryFrame() >= NURSERY_GUARDIAN.to
+            ? {
+                id: 'X1.AFTER' as const,
+                elapsed: nurseryFrame() - NURSERY_GUARDIAN.to,
+              }
+            : nurseryFrame() >= NURSERY_GUARDIAN.from
+              ? {
+                  id: 'X1.TURN' as const,
+                  elapsed: nurseryFrame() - NURSERY_GUARDIAN.from,
+                }
+              : null
+        : lighthouseActive()
+          ? lighthouseFrame() < LIGHTHOUSE.openingEnds
           ? { id: 'X3.OPEN' as const, elapsed: lighthouseFrame() }
           : lighthouseFrame() >= LIGHTHOUSE.bossStarts
             ? {
@@ -8307,8 +8322,16 @@ export function createRainbowPrincessPreview(
                               endingFrame,
                             )
       const said = scene
-        ? lighthouseActive()
-          ? ((scene.id === 'X3.OPEN'
+        ? nurseryActive()
+          ? ((scene.id === 'X1.OPEN'
+              ? NURSERY_TALKS.opening
+              : scene.id === 'X1.TURN'
+                ? NURSERY_TALKS.turn
+                : NURSERY_TALKS.aftermath)[
+              Math.floor(scene.elapsed / (scene.id === 'X1.OPEN' ? 80 : 96))
+            ] ?? null)
+          : lighthouseActive()
+            ? ((scene.id === 'X3.OPEN'
               ? LIGHTHOUSE_TALKS.opening
               : scene.id === 'X3.TURN'
                 ? LIGHTHOUSE_TALKS.turn

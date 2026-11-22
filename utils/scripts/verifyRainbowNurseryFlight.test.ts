@@ -6,6 +6,7 @@ import {
   NURSERY_FLIGHT,
   NURSERY_FLIGHT_SECTIONS,
   NURSERY_WAVES,
+  NURSERY_TALKS,
   nurseryDetourFor,
   nurseryFlightCheckpointValid,
   nurseryFlightPhase,
@@ -14,6 +15,11 @@ import {
 
 assert.equal(NURSERY_FLIGHT.id, 'X1')
 assert.equal(NURSERY_WAVES.length, 20)
+assert.deepEqual(Object.keys(NURSERY_TALKS), ['opening', 'turn', 'aftermath'])
+for (const lines of Object.values(NURSERY_TALKS)) {
+  assert.equal(lines.length, 3)
+  assert.ok(lines.some((line) => line.speaker === 'Lilt-7'))
+}
 assert.equal(NURSERY_FLIGHT_SECTIONS.length, 6)
 assert.equal(NURSERY_FLIGHT_SECTIONS[0]!.from, NURSERY.openingEnds)
 assert.equal(NURSERY_FLIGHT_SECTIONS.at(-1)!.to, NURSERY_FLIGHT.end)

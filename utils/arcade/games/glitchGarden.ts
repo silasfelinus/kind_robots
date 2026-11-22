@@ -3780,6 +3780,21 @@ class GlitchGarden implements ArcadeGameInstance {
       color: RAMPS.leaf[3],
       shadow: INK,
     })
+    if (this.boss?.id === 'gourd-hydra' && !this.boss.defeated) {
+      const heads = this.pumpkins.filter((p) => p.hydra)
+      drawText(g, `HYDRA ${3 - heads.length}/3  SPRAY THE GLOW`, W / 2, HUD + 2, {
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    }
+    if (this.slowTicks > 0) {
+      drawText(g, `INCHWORM SLOW ${Math.ceil(this.slowTicks / 60)}S`, W / 2, H - 15, {
+        align: 'center',
+        color: RAMPS.teal[4],
+        outline: INK,
+      })
+    }
     // The special wave's progress, just under the HUD.
     const goal = this.wave.objective
     if (goal && this.clear === 0 && !this.shed) {

@@ -22,6 +22,21 @@ export const CAPES_PRODUCTION_IDENTITIES = [
     label: 'Groundswell',
     subtitle: 'Hattie Nkemelu',
   },
+  {
+    signature: 'mutant-discipline',
+    label: 'Lotus Guard',
+    subtitle: 'Asha Venkataraman · four arms',
+  },
+  {
+    signature: 'magic-earth',
+    label: 'Granny Mayhem',
+    subtitle: 'Mavis Mayhew',
+  },
+  {
+    signature: 'franchise-safe',
+    label: 'Originality repairs',
+    subtitle: 'Five separately rendered character and scene replacements',
+  },
 ] as const
 
 export const CAPES_UNSTABLE_PRODUCTION = [
@@ -216,9 +231,164 @@ export const CAPES_RUNTIME_REFILL_REVIEW = [
   },
 ] as const
 
+/**
+ * Asha four-arm and six canon-corrected outcome candidates.
+ * Rendered ArtImage receipts, not composition approvals or shipped assets.
+ */
+export const CAPES_CANON_CORRECTION_REVIEW = [
+  {
+    key: 'asha-four-arm-hero-rescue-river',
+    signature: 'mutant-discipline',
+    title: 'Asha Lotus Guard rescuing four people',
+    asset:
+      'comet-city-academy/identities/mutant-discipline/repaint/hero-river-2026-11',
+    size: '1344x768',
+    artJobId: 76529,
+    artImageId: 278466,
+  },
+  {
+    key: 'asha-four-arm-hero-dance-shelter',
+    signature: 'mutant-discipline',
+    title: 'Asha Lotus Guard teaching a four-handed rescue dance',
+    asset:
+      'comet-city-academy/identities/mutant-discipline/repaint/hero-shelter-2026-11',
+    size: '1344x768',
+    artJobId: 76530,
+    artImageId: 278467,
+  },
+  {
+    key: 'asha-four-arm-villain-quartermaster',
+    signature: 'mutant-discipline',
+    title: 'Asha Lotus Guard in the weapons quartermaster warehouse',
+    asset:
+      'comet-city-academy/identities/mutant-discipline/repaint/villain-quartermaster-2026-11',
+    size: '1344x768',
+    artJobId: 76531,
+    artImageId: 278468,
+  },
+  {
+    key: 'asha-four-arm-villain-confiscation',
+    signature: 'mutant-discipline',
+    title: 'Asha Lotus Guard taking command of a contraband exchange',
+    asset:
+      'comet-city-academy/identities/mutant-discipline/repaint/villain-exchange-2026-11',
+    size: '1344x768',
+    artJobId: 76532,
+    artImageId: 278469,
+  },
+  {
+    key: 'pod-correction-granny-hero-20261122',
+    signature: 'magic-earth',
+    title: 'Mavis Mayhew heroic rescue candidate',
+    asset: 'comet-city-academy/identities/magic-earth/outcomes/hero',
+    size: '1344x768',
+    artJobId: 76593,
+    artImageId: 278587,
+  },
+  {
+    key: 'pod-correction-granny-villain-20261122',
+    signature: 'magic-earth',
+    title: 'Mavis Mayhew quilted city candidate',
+    asset: 'comet-city-academy/identities/magic-earth/outcomes/villain',
+    size: '1344x768',
+    artJobId: 76594,
+    artImageId: 278588,
+  },
+  {
+    key: 'pod-correction-lionel-hero-20261122',
+    signature: 'tech-genius',
+    title: 'Lionel Marsh human rescue harness candidate',
+    asset: 'comet-city-academy/identities/tech-genius/outcomes/hero',
+    size: '1344x768',
+    artJobId: 76595,
+    artImageId: 278589,
+  },
+  {
+    key: 'pod-correction-lionel-villain-20261122',
+    signature: 'tech-genius',
+    title: 'Lionel Marsh transformed frog antagonist candidate',
+    asset: 'comet-city-academy/identities/tech-genius/outcomes/villain',
+    size: '1344x768',
+    artJobId: 76596,
+    artImageId: 278590,
+  },
+  {
+    key: 'pod-correction-asha-hero-20261122',
+    signature: 'mutant-discipline',
+    title: 'Asha Venkataraman four-arm rescue candidate',
+    asset: 'comet-city-academy/identities/mutant-discipline/outcomes/hero',
+    size: '1344x768',
+    artJobId: 76597,
+    artImageId: 278591,
+  },
+  {
+    key: 'pod-correction-asha-villain-20261122',
+    signature: 'mutant-discipline',
+    title: 'Asha Venkataraman four-arm weapons trade candidate',
+    asset: 'comet-city-academy/identities/mutant-discipline/outcomes/villain',
+    size: '1344x768',
+    artJobId: 76598,
+    artImageId: 278592,
+  },
+] as const
+
+/**
+ * Five private, franchise-safe Krea 2 repaint candidates.
+ * Rendered ArtImage receipts, not composition approvals or shipped assets.
+ */
+export const CAPES_FRANCHISE_SAFE_REVIEW = [
+  {
+    key: 'prom-identities-mutant-air-student',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom identities mutant-air student',
+    asset: 'comet-city-academy/identities/mutant-air/student',
+    size: '832x1216',
+    artJobId: 50711,
+    artImageId: 258003,
+  },
+  {
+    key: 'prom-identities-mutant-genius-hero',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom identities mutant-genius hero',
+    asset: 'comet-city-academy/identities/mutant-genius/hero',
+    size: '1344x768',
+    artJobId: 50712,
+    artImageId: 258004,
+  },
+  {
+    key: 'prom-encounters-the-class-list-has-two-endings',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom encounters the-class-list-has-two-endings',
+    asset: 'comet-city-academy/encounters/the-class-list-has-two-endings',
+    size: '1344x768',
+    artJobId: 50713,
+    artImageId: 258015,
+  },
+  {
+    key: 'prom-identities-psychic-discipline-outcomes-villain',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom identities psychic-discipline outcomes villain',
+    asset: 'comet-city-academy/identities/psychic-discipline/outcomes/villain',
+    size: '1344x768',
+    artJobId: 50714,
+    artImageId: 258016,
+  },
+  {
+    key: 'prom-identities-tech-genius-outcomes-student',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom identities tech-genius outcomes student',
+    asset: 'comet-city-academy/identities/tech-genius/outcomes/student',
+    size: '1344x768',
+    artJobId: 50715,
+    artImageId: 258017,
+  },
+] as const
+
 export const CAPES_REVIEWABLE_PRODUCTION = [
   ...CAPES_UNSTABLE_PRODUCTION,
   ...CAPES_RUNTIME_REFILL_REVIEW,
+  ...CAPES_CANON_CORRECTION_REVIEW,
+  ...CAPES_FRANCHISE_SAFE_REVIEW,
 ] as const
 
 export function capesProductionFor(signature: string) {

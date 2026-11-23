@@ -102,7 +102,10 @@ export const LANE_KINDS: Record<LaneKind, LaneKindInfo> = {
     touch: 'hit',
     name: 'ROLLING BARREL',
     bonk: 'BARREL BONK! TRY AGAIN',
-    intro: { text: 'ROLLING BARRELS', sub: 'THEY TUMBLE QUICKLY DOWN THE RAMP' },
+    intro: {
+      text: 'ROLLING BARRELS',
+      sub: 'THEY TUMBLE QUICKLY DOWN THE RAMP',
+    },
   },
   crate: {
     half: 'creek',

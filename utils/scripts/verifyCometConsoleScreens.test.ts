@@ -54,12 +54,12 @@ const screens = fromRoot(
   'components/play/cometAcademy/AcademyConsoleScreens.vue',
 )
 const store = fromRoot('stores/cometAcademyStore.ts')
-const opening = fromRoot('components/play/cometAcademy/AcademyOpening.vue')
+const openingArtSource = fromRoot('components/play/cometAcademy/AcademyOpening.vue')
 assert.match(
-  opening,
+  openingArtSource,
   /reviewedIdentityArtwork\('identities\/' \+ entry\.id \+ '\/student'\)/,
 )
-assert.doesNotMatch(opening, /promArt\('identities\/'/)
+assert.doesNotMatch(openingArtSource, /promArt\('identities\/'/)
 assert.match(screens, /keys\.map\(\(key\) => reviewedIdentityArtwork\(key\)\)/)
 assert.match(page, /reviewedIdentityArtwork\(storyComicIntro\.value\.artKey\)/)
 

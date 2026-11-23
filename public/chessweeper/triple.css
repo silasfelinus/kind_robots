@@ -261,6 +261,17 @@ select:focus-visible {
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
+.hud-difficulty {
+  flex: none;
+  color: #f9e29e;
+  border: 1px solid #a38d5b;
+  border-radius: 7px;
+  background: #251f37;
+  padding: 3px 6px;
+  white-space: nowrap;
+  font-size: clamp(8px, 0.9vw, 11px);
+  font-weight: 900;
+}
 .hud-spacer {
   flex: 1;
 }
@@ -339,7 +350,7 @@ h1 em {
 }
 .options {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 11px;
 }
 .options label,
@@ -459,6 +470,26 @@ html[data-realm='jackpot'] .play-panel {
   font-weight: 850;
   font-size: 12px;
 }
+.score-difficulty-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: #dfedfa;
+  font-size: 12px;
+  font-weight: 800;
+}
+.score-difficulty-label select {
+  max-width: 195px;
+}
+.difficulty-hint {
+  border: 1px solid #7a8fab;
+  border-radius: 9px;
+  background: #172944;
+  color: #fff0c0;
+  padding: 8px 11px;
+  font-size: 12px;
+}
 .score-list {
   margin: 9px 0;
   padding: 0;
@@ -522,6 +553,10 @@ html[data-realm='jackpot'] .play-panel {
   }
   .hud-breakdown {
     display: none;
+  }
+  .hud-difficulty {
+    padding: 2px 3px;
+    font-size: 8px;
   }
   .hud {
     gap: 8px;

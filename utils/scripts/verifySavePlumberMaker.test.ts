@@ -977,7 +977,7 @@ assert.equal(
   ).length,
   MAKER_BEST_LIMIT,
 )
-assert.ok(MAKER_TIME_KEY !== MAKER_SAVE_KEY)
+assert.notEqual(MAKER_TIME_KEY, MAKER_SAVE_KEY)
 
 const makerPage = source('../../pages/play/save-the-plumber.vue')
 const makerComponent = source('../../components/arcade/plumber-level-maker.vue')

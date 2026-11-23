@@ -51,7 +51,11 @@
     </header>
 
     <div class="dh-stage">
-      <div v-if="roomArt" class="dh-room-plate">
+      <div
+        v-if="roomArt"
+        class="dh-room-plate"
+        :class="{ 'is-discovery': !!campMomentArt }"
+      >
         <PlaybookKitArt :art="roomArt" tone="primary" />
       </div>
       <template v-if="run.phase === 'map'">
@@ -221,6 +225,7 @@ import { useDeepheartStore } from '~/stores/deepheartStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { ENEMIES, LAYERS, item } from '~/utils/deepheart/dungeon'
 import { ROOM_ART } from '~/utils/deepheart/art'
+import { DEEPHEART } from '~/utils/playbookKit/games/deepheart'
 import { deepheartArtSrc } from '~/utils/deepheart/renderedArt'
 import * as engine from '~/utils/deepheart/engine'
 import { ROLES, character } from '~/utils/deepheart/roster'
@@ -238,11 +243,17 @@ const actor = computed(() =>
 const animate = computed(() => kit.settings.motion !== 'reduced')
 const ev = computed(() => (run.value ? engine.currentEvent(run.value) : null))
 const loot = computed(() => (run.value?.loot ? item(run.value.loot) : null))
+const campMomentArt = computed(() => {
+  if (run.value?.phase !== 'camp' || !dh.lastMoment) return null
+  const art = DEEPHEART.moments.find((m) => m.id === dh.lastMoment)?.art
+  // A moment without delivered art keeps the painted camp-room backdrop.
+  return art?.src ? art : null
+})
 const roomArt = computed(() => {
   const current = run.value
   if (!current || current.phase === 'map' || current.phase === 'ended')
     return null
-  return ROOM_ART[current.room?.kind ?? 'boss']
+  return campMomentArt.value ?? ROOM_ART[current.room?.kind ?? 'boss']
 })
 
 const ROOM: Record<RoomKind, { label: string; icon: string; hint: string }> = {
@@ -502,6 +513,9 @@ const finaleCards = computed<DhCard[]>(() =>
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: var(--radius-box);
+}
+.dh-room-plate.is-discovery {
+  height: clamp(9rem, 30vh, 17rem);
 }
 .dh-room-plate :deep(.pk-art) {
   width: 100%;

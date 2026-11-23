@@ -106,6 +106,34 @@ export function resolveScene(
 }
 
 /**
+ * The most legible order for surveying changed kingdom paintings. These
+ * assets are opaque full-scene vistas, so only one can be shown at once.
+ */
+const VISTA_PRIORITY: RegionKey[] = [
+  'far_shore',
+  'treeline',
+  'village_edge',
+  'castle_grounds',
+  'lake',
+  'near_bank',
+  'sky',
+]
+
+export function changedVistaRegion(
+  before: SceneState['regionStates'] | undefined,
+  after: SceneState['regionStates'] | undefined,
+  available: readonly RegionKey[],
+): RegionKey | null {
+  if (!before || !after) return null
+  return (
+    VISTA_PRIORITY.find(
+      (region) =>
+        available.includes(region) && before[region] !== after[region],
+    ) ?? null
+  )
+}
+
+/**
  * Asset filename for a resolved (region, state, time), following the naming
  * contract {region}-{state}[-{time}].webp (compositing.md §4.3). Returns the
  * ordered fallback candidates (exact → settle-neighbour → base) so the caller's

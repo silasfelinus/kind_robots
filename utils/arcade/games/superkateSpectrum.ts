@@ -310,7 +310,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       stage: this.mode === 'story' ? this.level : 1,
       style: this.selectedStyle,
       settings: { ...this.settings },
-      storyChoices: [...this.storyChoices],
+      storyChoices: [...this.storyChoices] as StoryChoices,
       endings: [...this.storyEndings],
     }
   }

@@ -82,10 +82,7 @@ import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
 import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
 import type { MusicLoop } from '../sound'
-import {
-  PLUMBER_BOSS_MUSIC,
-  PLUMBER_WORLD_MUSIC,
-} from './savePlumberMusic'
+import { PLUMBER_BOSS_MUSIC, PLUMBER_WORLD_MUSIC } from './savePlumberMusic'
 import {
   PLUMBER_BOSS_FEATS,
   PLUMBER_ENDLESS_GOAL,

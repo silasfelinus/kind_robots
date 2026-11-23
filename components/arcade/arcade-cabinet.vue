@@ -31,6 +31,22 @@
       </div>
       <div class="cabinet-title-plate">
         <span class="cabinet-marquee-title">{{ meta?.title ?? 'Arcade' }}</span>
+        <span
+          v-if="props.slug === 'superkate-spectrum'"
+          class="text-xs font-medium tracking-wide opacity-80"
+          role="status"
+          aria-live="polite"
+        >
+          {{
+            store.spectrumCloudStatus === 'synced'
+              ? '☁ Career synced'
+              : store.spectrumCloudStatus === 'checking'
+                ? '☁ Syncing'
+                : store.spectrumCloudStatus === 'offline'
+                  ? '⚠ Saved on device'
+                  : '◈ Device save'
+          }}
+        </span>
       </div>
 
       <div ref="wrapRef" class="cabinet-screen-wrap">
@@ -2071,6 +2087,7 @@ function onKey(event: KeyboardEvent) {
 function onOnline() {
   // Back online: send any scores that are waiting for the global board.
   void store.flushPending()
+  if (props.slug === 'superkate-spectrum') void store.syncSuperkateCareer()
 }
 
 function releaseInterruptedInput() {
@@ -2153,6 +2170,8 @@ async function boot() {
   }
   machine = initialArcadeState()
   phase.value = machine.phase
+  if (info.slug === 'superkate-spectrum')
+    await store.syncSuperkateCareer()
   if (titleArt) {
     titleArtReady = false
     titleArt.onload = () => {
@@ -2200,6 +2219,15 @@ onMounted(() => {
   document.addEventListener('webkitfullscreenchange', syncFullscreen)
   loop = startFixedLoop(tickUnlessSuspended, render, onLoopError)
 })
+
+const userForArcade = useUserStore()
+watch(
+  () => [userForArcade.authenticatedUserId, userForArcade.token],
+  () => {
+    if (props.slug === 'superkate-spectrum')
+      void store.syncSuperkateCareer()
+  },
+)
 
 watch(
   () => props.suspended,

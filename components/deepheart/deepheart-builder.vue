@@ -81,20 +81,28 @@
     </div>
 
     <aside class="dh-builder-detail kr-pane-scroll" aria-label="Delver details">
-      <div class="flex gap-3">
+      <div class="dh-detail-hero">
         <DeepheartPortrait
           :id="focused.id"
           :name="focused.id === CUSTOM_HERO_ID ? dh.hero.name : undefined"
           :custom-role="dh.hero.custom?.role"
           size="lg"
-          class="w-28 shrink-0"
+          class="dh-detail-portrait"
         />
-        <div class="min-w-0">
+        <div class="dh-detail-identity">
           <h2 class="pf-display text-xl leading-tight text-primary">
             {{ focused.name }}
           </h2>
-          <p class="text-sm opacity-80">{{ role.label }} · {{ pronoun }}</p>
-          <p class="pk-prose mt-1 text-sm">{{ focused.blurb }}</p>
+          <p class="text-sm">{{ role.label }} · {{ pronoun }}</p>
+          <p
+            v-if="
+              focused.id === CUSTOM_HERO_ID ||
+              dh.chronicle.met.includes(focused.id)
+            "
+            class="pk-prose mt-1 line-clamp-2 text-xs"
+          >
+            {{ focused.blurb }}
+          </p>
         </div>
       </div>
 
@@ -363,7 +371,7 @@
               )
             "
           >
-            <option v-for="(label, g) in GOAL_LABEL" :key="g" :value="g">
+            <option v-for="[g, label] in availableGoals" :key="g" :value="g">
               {{ label }}
             </option>
           </select>
@@ -477,6 +485,11 @@ const STAT_MAX: Record<StatKey, number> = {
 }
 
 const roles = Object.values(ROLES)
+const availableGoals = computed(() =>
+  Object.entries(GOAL_LABEL).filter(
+    ([id]) => id !== 'romance' || dh.chronicle.romances.length > 0,
+  ),
+)
 
 const shown = computed(() =>
   CHARACTERS.filter((c) => {
@@ -660,6 +673,29 @@ function pick(id: string) {
     color-mix(in oklch, var(--color-base-content) 12%, transparent);
   background: color-mix(in oklch, var(--color-base-200) 85%, transparent);
   padding: 0.85rem;
+}
+.dh-detail-hero {
+  position: relative;
+  flex: 0 0 auto;
+  height: clamp(10rem, 27vh, 17rem);
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-box);
+}
+.dh-detail-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.dh-detail-identity {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 3.5rem 0.8rem 0.8rem;
+  background: linear-gradient(transparent, rgb(0 0 0 / 0.92) 70%);
+  color: white;
 }
 .dh-stats {
   display: grid;

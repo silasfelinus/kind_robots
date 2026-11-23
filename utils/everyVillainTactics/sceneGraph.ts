@@ -3,7 +3,7 @@
 // chained conditions. Triggers latch into the battle's fired history the
 // moment they become true, so a reload never replays or skips a scene, and a
 // scene's choice effects apply only when the whole scene is finished.
-import { promArt } from '../cometAcademy/artManifest'
+import { reviewedIdentityArtwork } from '../cometAcademy/artSlots'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import { inside, lineOfSight, tileAt, type Point } from './combat'
 import type { Perspective } from './firstBellStory'
@@ -134,8 +134,8 @@ export function speakerArt(
   const identity = speakerIdentity(speaker, state)
   if (!identity) return null
   return (
-    promArt('identities/' + identity + '/' + EMOTION_ART[emotion]) ??
-    promArt('identities/' + identity + '/student')
+    reviewedIdentityArtwork('identities/' + identity + '/' + EMOTION_ART[emotion]) ??
+    reviewedIdentityArtwork('identities/' + identity + '/student')
   )
 }
 export function speakerName(
@@ -276,8 +276,8 @@ export function scriptProblems(
         issues.push(label + ' has an unknown speaker ' + node.speaker + '.')
       else if (
         IDENTITY_ARCS.some((arc) => arc.signature === node.speaker) &&
-        !promArt('identities/' + node.speaker + '/student') &&
-        !promArt('identities/' + node.speaker + '/outcomes/hero')
+        !reviewedIdentityArtwork('identities/' + node.speaker + '/student') &&
+        !reviewedIdentityArtwork('identities/' + node.speaker + '/outcomes/hero')
       )
         issues.push(
           label + ': ' + node.speaker + ' has no shipped portrait art.',

@@ -14,6 +14,7 @@ export type SpectrumSave = {
   career: SpectrumCareer
   mode: SpectrumMode
   stage: number
+  style: BubbleStyle
 }
 export const MAX_STORY_STAGE = 30
 export const BUBBLE_STYLES: readonly BubbleStyle[] = [
@@ -22,6 +23,12 @@ export const BUBBLE_STYLES: readonly BubbleStyle[] = [
   'starlight',
   'prismatic',
 ]
+export function unlockedStyles(rank: number): BubbleStyle[] {
+  return BUBBLE_STYLES.slice(
+    0,
+    rank >= 15 ? 4 : rank >= 9 ? 3 : rank >= 4 ? 2 : 1,
+  )
+}
 export const freshCareer = (): SpectrumCareer => ({
   xp: 0,
   highestStage: 1,
@@ -49,7 +56,7 @@ export function styleForRank(rank: number): BubbleStyle {
 export function readSpectrumSave(raw: unknown): SpectrumSave {
   const fresh = freshCareer()
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
-    return { version: 2, career: fresh, mode: 'story', stage: 1 }
+    return { version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass' }
   const value = raw as Record<string, unknown>
   // Older checkpoints must remain playable after this update.
   if (
@@ -63,14 +70,15 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
       career: { ...fresh, highestStage: stage },
       mode: 'story',
       stage,
+      style: 'glass',
     }
   }
   if (value.version !== 2) {
-    return { version: 2, career: fresh, mode: 'story', stage: 1 }
+    return { version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass' }
   }
   const v = value.career
   if (!v || typeof v !== 'object' || Array.isArray(v))
-    return { version: 2, career: fresh, mode: 'story', stage: 1 }
+    return { version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass' }
   const c = v as Record<string, unknown>
   const highestStage = validNumber(c.highestStage, MAX_STORY_STAGE)
     ? Math.max(1, c.highestStage as number)
@@ -101,7 +109,11 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
           (value.stage as number) >= 1
         ? (value.stage as number)
         : highestStage
-  return { version: 2, career, mode, stage }
+  const unlocks = unlockedStyles(rankForXp(career.xp))
+  const style = unlocks.includes(value.style as BubbleStyle)
+    ? (value.style as BubbleStyle)
+    : 'glass'
+  return { version: 2, career, mode, stage, style }
 }
 /** Replace, never mutate, career snapshots previously passed to the store. */
 export function recordClear(

@@ -112,6 +112,15 @@ const resumed = create({
 assert.equal(resumed.level, 12)
 assert.equal(resumed.save.career.highestStage, 12)
 assert.equal(resumed.save.career.xp, 9000)
+const swapSkin = emptyInput()
+swapSkin.pressed.b = true
+resumed.update(swapSkin)
+assert.equal(resumed.save.style, 'candy')
+const refreshed = create({
+  ...options,
+  resume: resumed.save,
+} as Parameters<typeof create>[0])
+assert.equal(refreshed.save.style, 'candy')
 assert.equal(rankForXp(0), 1)
 assert.ok(rankForXp(9000) > rankForXp(100))
 assert.equal(styleForRank(1), 'glass')
@@ -145,6 +154,7 @@ assert.equal(invalid.career.highestStage, 1)
 assert.equal(invalid.career.xp, 0)
 assert.equal(invalid.career.stars.length, 30)
 assert.equal(invalid.stage, 1)
+assert.equal(invalid.style, 'glass')
 const prism = emptyBoard()
 prism[0]![0] = 'pink'
 prism[0]![1] = 'pink'

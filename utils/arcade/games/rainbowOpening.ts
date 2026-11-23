@@ -27,4 +27,11 @@ export type RainbowOpeningMedia = {
 }
 
 // Written by conductor scripts/export_rainbow_opening.py from what it shipped. Do not edit by hand.
-export const RAINBOW_OPENING: RainbowOpeningMedia | null = null
+export const RAINBOW_OPENING: RainbowOpeningMedia | null = {
+  webm: '/rainbow-princess-video/opening.webm',
+  mp4: '/rainbow-princess-video/opening.mp4',
+  poster: '/rainbow-princess-video/opening-poster.webp',
+  seconds: 15,
+  clips: 8,
+  shots: 8,
+}

@@ -135,11 +135,19 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     consequenceReveal:
       'Recorded after the ruler listened to the lake and left enough migration route intact for old giants to return. Netting the run at a closed weir ends it.',
     unlock: {
-      all: [{ sliders: { nature: { gte: 70 }, order: { gte: 45 } } }],
       any: [
-        { flags: ['heededNix'] },
-        { flags: ['riverCommons'] },
-        { flags: ['publicTrust'] },
+        {
+          flags: ['heededNix'],
+          sliders: { nature: { gte: 70 }, order: { gte: 45 } },
+        },
+        {
+          flags: ['riverCommons'],
+          sliders: { nature: { gte: 70 }, order: { gte: 45 } },
+        },
+        {
+          flags: ['publicTrust'],
+          sliders: { nature: { gte: 45 }, order: { gte: 45 } },
+        },
       ],
       closes: [{ flags: ['runBlocked'] }],
     },

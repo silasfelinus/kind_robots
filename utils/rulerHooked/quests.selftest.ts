@@ -409,7 +409,7 @@ for (const id of QUESTS)
     save.kingdomHealth.treasury = 75
     return save
   }
-  const route = (path: [string, string][]) => {
+  const route = (path: readonly (readonly [string, string])[]) => {
     let save = base()
     for (const [id, choiceId] of path) {
       const card = findCard(id)

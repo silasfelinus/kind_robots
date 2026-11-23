@@ -1083,6 +1083,7 @@ class GloomInvaders implements ArcadeGameInstance {
   private plane: PaperPlane | null = null
   private planeTimer = 0
   private couriersCollected = 0
+  private rainbowCheers = 0
   private prismShots = 0
   private doubleTicks = 0
   private sunglassesTicks = 0
@@ -1176,6 +1177,7 @@ class GloomInvaders implements ArcadeGameInstance {
     this.sunglassesTicks = 0
     this.extraBeam = null
     this.couriersCollected = 0
+    this.rainbowCheers = 0
     this.score = checkpoint?.score ?? 0
     this.lives = checkpoint?.lives ?? START_LIVES
     this.over = false
@@ -1192,6 +1194,7 @@ class GloomInvaders implements ArcadeGameInstance {
   private startWave(wave: number) {
     this.level = wave
     this.wateredThisFront.clear()
+    this.rainbowCheers = 0
     this.front =
       this.mode === 'calendar'
         ? calendarFront(wave)
@@ -1526,6 +1529,14 @@ class GloomInvaders implements ArcadeGameInstance {
     if (swooping) this.floatText('DOUBLE!', cx, cloud.y - 8)
     this.strikes = this.strikes.filter((s) => s.source !== cloud || s.tell <= 0)
     this.water(cx)
+    if (this.mode === 'calendar' && this.level === 5) {
+      this.rainbowCheers++
+      if (this.rainbowCheers % 4 === 0) {
+        this.prismShots++
+        this.floatText('RAINBOW PRISM!', cx, cloud.y - 12)
+        this.sound.play('pickup')
+      }
+    }
     if (cloud.kind === 'splitter') this.split(cloud)
     if (cloud.kind === 'half') {
       const both = (this.pairs.get(cloud.pair) ?? 0) + 1

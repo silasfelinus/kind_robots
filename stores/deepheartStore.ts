@@ -108,6 +108,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   const focus = ref<string>('idris')
   const lastLine = ref('')
   const lastMoment = ref<string | null>(null)
+  const lastFaces = ref<string[]>([])
   const roleFilter = ref<string>('all')
 
   const kit = () => usePlaybookKitStore()
@@ -361,6 +362,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     load()
     lastLine.value = ''
     lastMoment.value = null
+    lastFaces.value = []
     screen.value = 'builder'
   }
 
@@ -372,6 +374,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     persistChronicle()
     lastLine.value = ''
     lastMoment.value = null
+    lastFaces.value = []
     screen.value = 'delve'
     commit(0)
   }
@@ -478,6 +481,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   const leaveCamp = () => {
     lastLine.value = ''
     lastMoment.value = null
+    lastFaces.value = []
     step((r) => engine.leaveCamp(r))
   }
   const chooseEnding = (e: EndingId) => step((r) => engine.chooseEnding(r, e))
@@ -494,6 +498,14 @@ export const useDeepheartStore = defineStore('deepheart', () => {
       current && current.moments.length > before
         ? (current.moments.at(-1) ?? null)
         : null
+    // Not every support conversation has a separate approved painting.
+    // In those cases display the participants' real rendered portraits.
+    lastFaces.value =
+      option.kind === 'support'
+        ? option.key.split('+')
+        : 'id' in option
+          ? [option.id]
+          : []
     if (option.kind !== 'romance' || !run.value?.partners.includes(option.id))
       return
     const c = character(option.id)
@@ -549,6 +561,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     focus,
     lastLine,
     lastMoment,
+    lastFaces,
     roleFilter,
     romanceOn,
     autosave,

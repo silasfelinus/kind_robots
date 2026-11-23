@@ -58,9 +58,13 @@ const INTRO_HUES: Record<string, Hue> = {
   g: 'gold',
 }
 
-export function makeBoard(stage: number, rng: () => number): Board {
+export function makeBoard(
+  stage: number,
+  rng: () => number,
+  mode: 'story' | 'classic' = 'story',
+): Board {
   const board = emptyBoard()
-  const salonLayout = RAINBOW_SALON_LAYOUTS[stage - 1]
+  const salonLayout = mode === 'story' ? RAINBOW_SALON_LAYOUTS[stage - 1] : null
   if (salonLayout) {
     salonLayout.forEach((line, row) => {
       for (let col = 0; col < COLS; col++) {

@@ -24,6 +24,13 @@ import {
   validSpectrumCloudSave,
   styleForRank,
 } from '../arcade/superkateSpectrum/progress'
+import {
+  CHAPTER_VOICES,
+  STORY_DECISIONS,
+  STORY_ENDINGS,
+  endingForStory,
+  pendingStoryDecision,
+} from '../arcade/superkateSpectrum/story'
 import { create } from '../arcade/games/superkateSpectrum'
 import {
   SPECTRUM_BOSS_MUSIC,
@@ -431,6 +438,108 @@ for (const theme of [
   assert.ok(theme.bpm >= 80 && theme.bpm <= 170)
   assert.ok(theme.tracks.length >= 2)
 }
+assert.equal(CHAPTER_VOICES.length, 6)
+assert.equal(STORY_DECISIONS.length, 3)
+assert.deepEqual(
+  STORY_DECISIONS.map((scene) => scene.stage),
+  [5, 15, 25],
+)
+assert.equal(pendingStoryDecision(5, [null, null, null]), null)
+assert.equal(pendingStoryDecision(6, [null, null, null]), 0)
+assert.equal(pendingStoryDecision(16, [0, null, null]), 1)
+assert.equal(pendingStoryDecision(26, [0, 1, null]), 2)
+assert.equal(pendingStoryDecision(6, [0, null, null]), null)
+assert.equal(endingForStory([1, 1, 1]), 'wild-colors')
+assert.equal(endingForStory([0, 0, 1]), 'open-city')
+assert.equal(endingForStory([0, 0, 0]), 'prism-partners')
+assert.equal(Object.keys(STORY_ENDINGS).length, 3)
+const chapterSix = readSpectrumSave({
+  ...cloudB,
+  career: { ...cloudB.career, highestStage: 6 },
+  stage: 6,
+  storyChoices: [null, null, null],
+})
+const decisionRun = create({
+  ...options,
+  resume: chapterSix,
+} as Parameters<typeof create>[0])
+const openStory = emptyInput()
+openStory.pressed.a = true
+decisionRun.update(openStory)
+assert.equal(decisionRun.menuOpen, false)
+assert.equal(decisionRun.pendingChoice, 0)
+assert.equal(decisionRun.shot, null, 'The decision pauses shooter input')
+const selectLantern = emptyInput()
+selectLantern.pressed.right = true
+decisionRun.update(selectLantern)
+assert.equal(decisionRun.choiceCursor, 1)
+decisionRun.update(openStory)
+assert.equal(decisionRun.pendingChoice, null)
+assert.deepEqual(decisionRun.save.storyChoices, [1, null, null])
+assert.equal(decisionRun.power, 'prism', 'Inventive option starts a special')
+const choiceReload = create({
+  ...options,
+  resume: decisionRun.save,
+} as Parameters<typeof create>[0])
+choiceReload.update(openStory)
+assert.equal(
+  choiceReload.pendingChoice,
+  null,
+  'A completed choice does not replay when returning on another device',
+)
+const chapterSixteen = create({
+  ...options,
+  resume: readSpectrumSave({
+    ...decisionRun.save,
+    career: { ...cloudB.career, highestStage: 16 },
+    stage: 16,
+  }),
+} as Parameters<typeof create>[0])
+chapterSixteen.update(openStory)
+assert.equal(chapterSixteen.pendingChoice, 1)
+chapterSixteen.update(openStory)
+assert.deepEqual(chapterSixteen.save.storyChoices, [1, 0, null])
+assert.equal(chapterSixteen.lives, 4, 'The community path gains a heart')
+const choiceAccount = readSpectrumSave({
+  ...cloudA,
+  career: { ...cloudA.career, highestStage: 26 },
+  stage: 26,
+  storyChoices: [0, null, 1],
+  endings: ['wild-colors'],
+})
+const choiceDevice = readSpectrumSave({
+  ...cloudB,
+  career: { ...cloudB.career, highestStage: 26 },
+  stage: 26,
+  storyChoices: [null, 1, null],
+  endings: ['open-city'],
+})
+const choiceMerge = mergeSpectrumSaves(choiceDevice, choiceAccount)
+assert.deepEqual(choiceMerge.storyChoices, [0, 1, 1])
+assert.deepEqual(choiceMerge.endings, ['wild-colors', 'open-city'])
+assert.equal(validSpectrumCloudSave(choiceMerge), true)
+assert.equal(
+  validSpectrumCloudSave({
+    ...choiceMerge,
+    storyChoices: [0, 7, 1],
+  }),
+  false,
+  'A forged story decision is not accepted by account storage',
+)
+assert.equal(
+  validSpectrumCloudSave({
+    ...choiceMerge,
+    endings: ['open-city', 'open-city'],
+  }),
+  false,
+  'Duplicate ending awards are rejected',
+)
+assert.deepEqual(
+  readSpectrumSave({ ...choiceMerge, storyChoices: [1, 'bad', 0] })
+    .storyChoices,
+  [1, null, 0],
+)
+
 console.log(
   'Superkate Spectrum: matching, cloud merges, music, hub and career checks passed',
 )

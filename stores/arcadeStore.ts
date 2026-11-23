@@ -510,8 +510,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       return
     }
     switchSpectrumOwner(userId)
-    if (spectrumOwner === userId && spectrumCloudStatus.value === 'synced')
-      return
+    // Every cabinet re-entry refetches; another device may have progressed.
     const session = ++spectrumSession
     spectrumCloudStatus.value = 'checking'
     try {

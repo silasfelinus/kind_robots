@@ -5,6 +5,12 @@ import { useUserStore } from '~/stores/userStore'
 import { useAchievementStore } from '~/stores/achievementStore'
 import { PLUMBER_ACHIEVEMENT_CODES } from '~/utils/arcade/games/savePlumberAchievements'
 import {
+  MAKER_BEST_LIMIT,
+  MAKER_TIME_KEY,
+  readMakerTimes,
+  shouldSaveMakerTime,
+} from '~/utils/arcade/games/savePlumberMakerTrial'
+import {
   MAKER_SAVE_KEY,
   decodeMakerLevel,
   encodeMakerLevel,
@@ -57,6 +63,7 @@ const clone = (level: MakerLevel): MakerLevel => ({
 export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   const level = ref<MakerLevel>(newMakerLevel())
   const drafts = ref<Draft[]>([])
+  const bestTimes = ref<Record<string, number>>({})
   const userStore = useUserStore()
   const reviewSummary = ref<PlumberReviewSummary>(blankReviewSummary())
   const reviewComment = ref('')
@@ -82,6 +89,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       ) !== JSON.stringify(level.value),
   )
   const courseId = computed(() => makerId(level.value))
+  const bestFrames = computed(() => bestTimes.value[courseId.value] ?? null)
   const myRating = computed(() => reviewSummary.value.myRating)
   const ratingAverage = computed(() => reviewSummary.value.average)
   const ratingCount = computed(() => reviewSummary.value.count)
@@ -115,6 +123,36 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     }
   }
 
+  function readBestTimes() {
+    if (!import.meta.client) return
+    try {
+      bestTimes.value = readMakerTimes(
+        JSON.parse(localStorage.getItem(MAKER_TIME_KEY) || '{}'),
+      )
+    } catch {
+      bestTimes.value = {}
+    }
+  }
+
+  function recordClearTime(frames: number): boolean {
+    const id = courseId.value
+    if (!shouldSaveMakerTime(bestTimes.value[id], frames)) return false
+    bestTimes.value = Object.fromEntries(
+      [
+        [id, frames],
+        ...Object.entries(bestTimes.value).filter(([key]) => key !== id),
+      ].slice(0, MAKER_BEST_LIMIT),
+    )
+    if (import.meta.client) {
+      try {
+        localStorage.setItem(MAKER_TIME_KEY, JSON.stringify(bestTimes.value))
+      } catch {
+        error.value = 'Personal best could not be saved on this device.'
+      }
+    }
+    return true
+  }
+
   function persist() {
     if (!import.meta.client) return
     try {
@@ -131,6 +169,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
 
   function initialize(shareCode?: string) {
     readLibrary()
+    readBestTimes()
     if (shareCode) loadShare(shareCode)
   }
 
@@ -455,6 +494,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   return {
     level,
     drafts,
+    bestFrames,
+    recordClearTime,
     currentDraft,
     imported,
     error,

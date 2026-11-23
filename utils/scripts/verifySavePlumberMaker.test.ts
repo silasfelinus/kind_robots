@@ -73,7 +73,7 @@ assert.ok(
 
 const makerStoreSource = source('../../stores/savePlumberMakerStore.ts')
 const settingsHandler = makerStoreSource.match(
-  /function updateSettings\\([\\s\\S]*?\\n  function newDraft\\(/,
+  /function updateSettings\([\s\S]*?\n  function newDraft\(/,
 )?.[0]
 assert.ok(settingsHandler, 'Maker settings handler must exist')
 assert.ok(
@@ -81,8 +81,8 @@ assert.ok(
     settingsHandler.indexOf('pushUndo()'),
   'Invalid settings must not create undo history before validation',
 )
-assert.match(settingsHandler, /JSON\\.stringify\\(next\\) === JSON\\.stringify/)
-assert.match(settingsHandler, /catch \\(cause\\)/)
+assert.match(settingsHandler, /JSON\.stringify\(next\) === JSON\.stringify/)
+assert.match(settingsHandler, /catch \(cause\)/)
 
 const initial = newMakerLevel()
 assert.equal(initial.rows.length, 24)

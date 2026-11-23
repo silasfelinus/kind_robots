@@ -2286,6 +2286,7 @@ class PixelHop implements ArcadeGameInstance {
     }
     this.renderSky(g)
     if (this.boss?.kind === 'max') this.renderMax(g, this.boss)
+    if (this.boss?.kind === 'globe') this.renderGlobe(g, this.boss)
     for (const cell of this.board.cells) this.renderCube(g, cell.r, cell.c)
     for (const d of this.discs) if (!d.used) this.renderDisc(g, d)
     if (this.riding) this.renderRide(g)
@@ -2381,6 +2382,22 @@ class PixelHop implements ArcadeGameInstance {
         }
         shadedOrb(k, 30, 72, 8, rampOf(s.target), { outline: RAMPS.night[0] })
         shadedOrb(k, 226, 64, 6, rampOf(s.mid), { outline: RAMPS.night[0] })
+      } else if (sky === 'glacier') {
+        // Aurora ribbons curve over a cratered blue moon.
+        shadedOrb(k, 225, 67, 22, RAMPS.sky, {
+          outline: RAMPS.night[0],
+        })
+        for (let i = 0; i < 6; i++) {
+          k.strokeStyle = rgba(i % 2 ? s.mid : s.target, 0.3)
+          k.lineWidth = 2 + (i % 3)
+          k.beginPath()
+          k.moveTo(0, 31 + i * 5)
+          k.bezierCurveTo(70, 12 + i * 7, 120, 82 - i * 4, W, 34 + i * 6)
+          k.stroke()
+        }
+        shadedOrb(k, 23, 72, 7, RAMPS.cream, {
+          outline: RAMPS.night[0],
+        })
       } else if (sky === 'ring') {
         // A big ringed world, its ring painted in circus stripes.
         const ring = rampOf(s.target)
@@ -2499,8 +2516,22 @@ class PixelHop implements ArcadeGameInstance {
     if (pot && this.picture) {
       drawSprite(g, potSprite(this.picture.palette[pot - 1]!), x, y + 1)
     }
-    if (this.board.special[cellKey(r, c)] === 'spring') {
+    const special = this.board.special[cellKey(r, c)]
+    if (special === 'spring') {
       drawSprite(g, SPRING_SPRITE, x, y + 1)
+    } else if (special === 'ice' || special === 'conveyor') {
+      g.fillStyle = rgba(RAMPS.water[4], 0.75)
+      g.fillRect(x - 6, y - 2, 12, 2)
+      g.fillStyle = RAMPS.sky[3]
+      g.fillRect(x - 3, y - 5, 2, 2)
+      g.fillRect(x + 2, y - 4, 2, 2)
+    }
+    if (this.boss?.kind === 'globe') {
+      const crack = GLOBE_CRACKS[this.boss.cracks]
+      if (crack?.r === r && crack?.c === c) {
+        glow(g, x, y - 4, 16, RAMPS.gold[3], 0.45)
+        drawSprite(g, COIN_SPRITE, x, y - 2)
+      }
     }
     if (max && !max.sneeze) {
       const slot = MAX_PHASES[max.phase]!.slot
@@ -2722,6 +2753,29 @@ class PixelHop implements ArcadeGameInstance {
       })
   }
 
+  /** A glass dome with drifting snow; its fractures light up as Pip paints. */
+  private renderGlobe(g: CanvasRenderingContext2D, boss: GlobeBoss) {
+    const offset = boss.shaking > 0 ? Math.round(Math.sin(this.tick) * 2) : 0
+    const x = this.at(this.home.r, this.home.c).x + offset
+    const y = this.at(this.home.r, this.home.c).y - 27
+    glow(g, x, y, 26, RAMPS.sky[3], 0.35)
+    shadedOrb(g, x, y, 14, RAMPS.sky, { outline: INK })
+    g.fillStyle = rgba('#ffffff', 0.8)
+    for (let i = 0; i < 8; i++) {
+      const a = i * 2.4 + this.tick * 0.04
+      g.fillRect(
+        Math.round(x + Math.cos(a) * 10),
+        Math.round(y + Math.sin(a) * 8),
+        2,
+        2,
+      )
+    }
+    g.fillStyle = RAMPS.gold[4]
+    for (let i = 0; i < boss.cracks; i++) {
+      g.fillRect(x - 8 + i * 5, y + 12, 3, 2)
+    }
+  }
+
   /** Ringmaster Rattle: a striped spinning top in a little top hat. */
   private renderRattle(
     g: CanvasRenderingContext2D,
@@ -2810,7 +2864,11 @@ class PixelHop implements ArcadeGameInstance {
     const pulse = 0.5 + 0.5 * Math.sin(this.tick / 10)
     glow(g, 50, 28, 9, colour, 0.25 + 0.25 * pulse)
     drawSprite(g, miniCube(colour, this.scheme), 50, 29)
-    for (let i = 0; i < this.brushes.size && this.mode === 'planets'; i++)
+    for (
+      let i = 0;
+      i < this.brushes.size && this.mode === 'planets' && i < 3;
+      i++
+    )
       drawSprite(g, BRUSH_SPRITE, 64 + i * 8, 29)
     // Hi score, the round and spare hoppers at the upper right.
     hudPanel(g, W - 84, 3, 80, 36)
@@ -2852,14 +2910,33 @@ class PixelHop implements ArcadeGameInstance {
     }
     const boss = this.boss
     if (boss) {
-      const hits = boss.kind === 'max' ? boss.sneezes : boss.bonks
+      const hits =
+        boss.kind === 'max'
+          ? boss.sneezes
+          : boss.kind === 'rattle'
+            ? boss.bonks
+            : boss.cracks
       const total =
-        boss.kind === 'max' ? MAX_PHASES.length : RATTLE_PHASES.length
+        boss.kind === 'max'
+          ? MAX_PHASES.length
+          : boss.kind === 'rattle'
+            ? RATTLE_PHASES.length
+            : GLOBE_CRACKS.length
       hudPanel(g, W - 84, H - 19, 80, 15)
-      drawText(g, boss.kind === 'max' ? 'MAX' : 'RATTLE', W - 79, H - 15, {
+      drawText(
+        g,
+        boss.kind === 'max'
+          ? 'MAX'
+          : boss.kind === 'rattle'
+            ? 'RATTLE'
+            : 'GLOBE',
+        W - 79,
+        H - 15,
+        {
         color: RAMPS.ember[3],
-        outline: INK,
-      })
+          outline: INK,
+        },
+      )
       for (let i = 0; i < total; i++) {
         g.fillStyle = INK
         g.fillRect(W - 37 + i * 10, H - 16, 8, 8)

@@ -88,6 +88,16 @@ for (let stage = 1; stage <= 5; stage++) {
   salonSnapshots.add(JSON.stringify(authored))
 }
 assert.equal(salonSnapshots.size, 5, 'All five Salon lessons have unique boards')
+const classicOpening = makeBoard(1, () => 0, 'classic')
+assert.notDeepEqual(
+  classicOpening,
+  makeBoard(1, () => 0, 'story'),
+  'Classic must remain a procedural, replayable run instead of fixed story boards',
+)
+assert.notEqual(
+  classicOpening.flat().filter(Boolean).length,
+  salonBubbleCounts[0],
+)
 const firstLesson = makeBoard(1, () => 0.8)
 assert.ok(
   attachAndPop(firstLesson, { row: 3, col: 0 }, 'pink').matched >= 3,

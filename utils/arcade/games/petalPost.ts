@@ -88,6 +88,8 @@ type House = {
   y: number
   subscriber: boolean
   delivered: boolean
+  bloom: number
+  gifts: number
   color: string
 }
 type HazardKind = 'cat' | 'bin' | 'car' | 'sprinkler'
@@ -827,6 +829,8 @@ class PetalPost implements ArcadeGameInstance {
         y: 0,
         subscriber: this.rng() < SUBSCRIBE_CHANCE || i === 0,
         delivered: false,
+        bloom: this.rng() < 0.5 ? 1 : 2,
+        gifts: 0,
         color: HOUSE_COLORS[i % HOUSE_COLORS.length]!,
       })
     this.startDay(1)
@@ -1101,6 +1105,20 @@ class PetalPost implements ArcadeGameInstance {
         this.blooms.push({ x: p.x, y: p.y, born: this.tick })
       }
     } else if (!house.subscriber) {
+      house.gifts++
+      if (house.gifts >= 2) {
+        house.subscriber = true
+        house.bloom = 1
+        house.delivered = true
+        house.gifts = 0
+        this.floaters.push({
+          x: p.x,
+          y: p.y - this.camera - 20,
+          text: 'NEW NEIGHBOUR!',
+          life: 60,
+        })
+        this.sound.play('level')
+      }
       this.addScore(GARDEN_POINTS, p.x, p.y - this.camera - 8)
       this.sparkle(p.x, p.y - this.camera, '#86efac')
       this.fx.burst(p.x, p.y - this.camera, this.fxRng, {
@@ -1114,6 +1132,7 @@ class PetalPost implements ArcadeGameInstance {
 
   private deliver(h: House, points: number, label: string, p: Packet) {
     h.delivered = true
+    h.bloom = Math.min(3, h.bloom + 1)
     p.t = 999
     this.addScore(points, p.x, p.y - this.camera - 10)
     this.floaters.push({
@@ -1139,18 +1158,25 @@ class PetalPost implements ArcadeGameInstance {
     let missed = 0
     for (const h of this.houses)
       if (h.subscriber && !h.delivered) {
-        h.subscriber = false
-        missed++
+        h.bloom = Math.max(0, h.bloom - 1)
+        if (h.bloom === 0) {
+          h.subscriber = false
+          missed++
+        }
       }
     const subs = this.houses.filter((h) => h.subscriber).length
-    let sub = `${missed} CANCELLED`
+    let sub = `${missed} CANCELLED  ${subs} HOMES`
     if (missed === 0) {
       const bonus = PERFECT_POINTS * this.level
       this.addScore(bonus, W / 2, 120)
       this.fx.burst(W / 2, 120, this.fxRng, { count: 24, speed: 2.4 })
       const grey = this.houses.filter((h) => !h.subscriber)
-      if (grey.length)
-        grey[Math.floor(this.rng() * grey.length)]!.subscriber = true
+      if (grey.length) {
+        const neighbour = grey[Math.floor(this.rng() * grey.length)]!
+        neighbour.subscriber = true
+        neighbour.bloom = 1
+        neighbour.gifts = 0
+      }
       sub = `PERFECT DAY  +${bonus}  A NEIGHBOUR SIGNS UP`
     }
     this.sound.play('level')
@@ -1412,6 +1438,14 @@ class PetalPost implements ArcadeGameInstance {
       paintHouse(k, wall, roof, sub, h.delivered),
     )
     g.restore()
+    if (sub && h.bloom > 0) {
+      for (let i = 0; i < h.bloom * 3; i++) {
+        const x = 12 + i * 8
+        drawSprite(g, BLOOM_SPRITES[i % BLOOM_SPRITES.length]!, x, sy + 12, {
+          anchor: 'feet',
+        })
+      }
+    }
     if (sub) {
       // Warm light spilling from the windows and the porch lamp.
       const pulse = 0.18 + 0.05 * Math.sin(this.tick / 20 + h.y)

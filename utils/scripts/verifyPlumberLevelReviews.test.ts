@@ -127,6 +127,17 @@ assert.match(
   'network failures should not become unhandled promise rejections',
 )
 
+assert.match(
+  makerStore,
+  /function invalidateReviewRequest\(\) \{\s*\+\+reviewRequest\s*reviewsBusy\.value = false/,
+  'editing a course must cancel pending review requests and clear loading',
+)
+const invalidations = makerStore.match(/invalidateReviewRequest\(\)/g) || []
+assert.ok(
+  invalidations.length >= 10,
+  'all course replacement and revision paths must invalidate pending reviews',
+)
+
 assert.doesNotMatch(
   makerStore,
   /ratings\.value =/,

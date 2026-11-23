@@ -12,6 +12,7 @@ import {
   pyramidBoard,
   ringBoard,
   ringLoop,
+  twinPeaksBoard,
   withDiscs,
   withSpecial,
 } from './pixelHopBoards'
@@ -28,9 +29,10 @@ export type Scheme = {
 }
 
 /** The foes a round may drop in ('purple' hatches into Boing, 'mint' is the freeze). */
-export type FoeId = 'gumball' | 'purple' | 'mint' | 'gremlin' | 'skitter'
+export type FoeId =
+  'gumball' | 'purple' | 'mint' | 'gremlin' | 'skitter' | 'snowball' | 'frost'
 
-export type BossId = 'max' | 'rattle'
+export type BossId = 'max' | 'rattle' | 'globe'
 
 export type Picture = {
   id: string
@@ -63,7 +65,7 @@ export type Planet = {
   card: readonly string[]
   schemes: readonly Scheme[]
   /** Backdrop dressing drawn behind the board. */
-  sky: 'comet' | 'ring'
+  sky: 'comet' | 'ring' | 'glacier'
   /** The planet's orb on the map: body and ring colours. */
   orb: { body: string; ring: string }
   music: MusicLoop
@@ -122,6 +124,33 @@ const RONDO_SCHEMES: readonly Scheme[] = [
     start: '#fca5a5',
     mid: '#fef08a',
     target: '#38bdf8',
+  },
+]
+
+const GLACIER_SCHEMES: readonly Scheme[] = [
+  {
+    id: 'glacier-aurora',
+    left: '#155e75',
+    right: '#164e63',
+    start: '#7dd3fc',
+    mid: '#a5f3fc',
+    target: '#fef08a',
+  },
+  {
+    id: 'glacier-lilac',
+    left: '#4c1d95',
+    right: '#312e81',
+    start: '#c4b5fd',
+    mid: '#67e8f9',
+    target: '#fbcfe8',
+  },
+  {
+    id: 'glacier-sapphire',
+    left: '#1e40af',
+    right: '#172554',
+    start: '#93c5fd',
+    mid: '#f0f9ff',
+    target: '#bef264',
   },
 ]
 
@@ -207,7 +236,47 @@ const RONDO_MUSIC: MusicLoop = {
   ],
 }
 
-/** Both bosses: a pushy minor stomp in A with a sneaky chromatic climb. */
+/** Glacier Moon: a drifting waltz beneath a shimmering northern sky. */
+const GLACIER_MUSIC: MusicLoop = {
+  bpm: 120,
+  tracks: [
+    {
+      type: 'triangle',
+      vol: 0.06,
+      steps: bars(
+        'D3 . A3 . F3 . A3 .',
+        'G2 . D3 . B2 . D3 .',
+        'A2 . E3 . C#3 . E3 .',
+        'D3 . A2 . D3 - - .',
+        'B2 . F#3 . D3 . F#3 .',
+        'G2 . D3 . B2 . D3 .',
+        'A2 . E3 . G2 . C#3 .',
+        'D3 - A2 . D3 - - .',
+      ),
+    },
+    {
+      type: 'sine',
+      vol: 0.025,
+      steps: bars(
+        'F5 - A5 . D6 - A5 .',
+        'B5 - A5 . G5 - D5 .',
+        'E5 - G5 . C#6 - E6 .',
+        'D6 - A5 . F5 - - .',
+        'D5 - F#5 . B5 - A5 .',
+        'G5 - B5 . D6 - B5 .',
+        'C#6 . B5 . A5 . E5 .',
+        'F#5 - - - D5 - - .',
+      ),
+    },
+    {
+      noise: true,
+      vol: 0.008,
+      steps: bars(...Array(8).fill('x . . . . . x .')),
+    },
+  ],
+}
+
+/** The bosses share a tense tune, while each planet has its own overworld theme. */
 export const BOSS_MUSIC: MusicLoop = {
   bpm: 150,
   tracks: [
@@ -276,6 +345,20 @@ export const PLANETS: readonly Planet[] = [
     orb: { body: '#5eead4', ring: '#fde68a' },
     music: RONDO_MUSIC,
   },
+  {
+    id: 'glacier-moon',
+    name: 'GLACIER MOON',
+    short: 'GLACIER',
+    card: [
+      'TWO SUMMITS IN THE AURORA',
+      'ICE SLIDES PIP ONE MORE TILE',
+      'FIND THE FOUR GLOWING CRACKS',
+    ],
+    schemes: GLACIER_SCHEMES,
+    sky: 'glacier',
+    orb: { body: '#bae6fd', ring: '#c4b5fd' },
+    music: GLACIER_MUSIC,
+  },
 ]
 
 /** All six planets on the map; the ones still being painted show as question marks. */
@@ -300,6 +383,11 @@ export const PICTURES: readonly Picture[] = [
     id: 'flower',
     name: 'RING FLOWER',
     palette: ['#f472b6', '#facc15', '#4ade80'],
+  },
+  {
+    id: 'snowflake',
+    name: 'AURORA SNOWFLAKE',
+    palette: ['#e0f2fe', '#67e8f9', '#c4b5fd'],
   },
 ]
 
@@ -364,6 +452,54 @@ const SPRING_RING = withSpecial(THICK_RING, [
   [2, 2, 'spring'],
   [6, 2, 'spring'],
 ])
+
+/** Glacier Moon: slippery banks, twin peaks and a paintable snowflake. */
+const ICE_SLOPE = withSpecial(pyramidBoard(7), [
+  [2, 1, 'ice'],
+  [3, 2, 'ice'],
+  [4, 2, 'ice'],
+  [5, 3, 'ice'],
+])
+
+const SNOWY_PEAKS = withSpecial(twinPeaksBoard(), [
+  [2, 1, 'ice'],
+  [2, 7, 'ice'],
+  [3, 3, 'ice'],
+  [3, 6, 'ice'],
+])
+
+const AURORA_CYCLE = withSpecial(pyramidBoard(8), [
+  [2, 1, 'ice'],
+  [4, 3, 'ice'],
+  [5, 4, 'ice'],
+])
+
+const SNOWFLAKE: HopBoard = (() => {
+  const board = pyramidBoard(7)
+  const target: Record<string, number> = {}
+  const pots: Record<string, number> = {}
+  for (const cell of board.cells) {
+    const key = cellKey(cell.r, cell.c)
+    if (cell.r === 6 && [0, 3, 6].includes(cell.c)) {
+      pots[key] = [0, 3, 6].indexOf(cell.c) + 1
+    } else {
+      target[key] =
+        cell.r === 3 || cell.c === Math.floor(cell.r / 2)
+          ? 2
+          : (cell.r + cell.c) % 2 === 0
+            ? 1
+            : 3
+    }
+  }
+  return { ...board, id: 'snowflake', target, pots }
+})()
+
+export const GLOBE_CRACKS: readonly HopCell[] = [
+  { r: 1, c: 1 },
+  { r: 3, c: 6 },
+  { r: 5, c: 3 },
+  { r: 2, c: 7 },
+]
 
 /** Ringmaster Rattle's circuit: the thick ring's outside edge. */
 export const RATTLE_LOOP: readonly HopCell[] = ringLoop(5)
@@ -484,6 +620,62 @@ export const STAGES: readonly Stage[] = [
     foes: ['mint'],
     pace: 6,
     boss: 'rattle',
+  },
+  {
+    planet: 2,
+    round: 1,
+    name: 'ICE LANDING',
+    board: ICE_SLOPE,
+    rule: 'one',
+    foes: ['gumball', 'snowball', 'mint'],
+    pace: 6,
+  },
+  {
+    planet: 2,
+    round: 2,
+    name: 'SLIPSTREAM',
+    board: ICE_SLOPE,
+    rule: 'two',
+    foes: ['snowball', 'frost', 'mint'],
+    pace: 7,
+  },
+  {
+    planet: 2,
+    round: 3,
+    name: 'THE TWIN PEAKS',
+    board: SNOWY_PEAKS,
+    rule: 'one',
+    foes: ['gumball', 'snowball', 'skitter'],
+    pace: 7,
+  },
+  {
+    planet: 2,
+    round: 4,
+    name: 'AURORA CYCLE',
+    board: AURORA_CYCLE,
+    rule: 'cycle',
+    foes: ['snowball', 'frost', 'purple', 'mint'],
+    pace: 8,
+  },
+  {
+    planet: 2,
+    round: 5,
+    name: 'PICTURE: AURORA SNOWFLAKE',
+    board: SNOWFLAKE,
+    rule: 'picture',
+    foes: ['frost', 'mint', 'snowball'],
+    pace: 7,
+    picture: pictureById('snowflake'),
+  },
+  {
+    planet: 2,
+    round: 6,
+    name: 'THE SNOW GLOBE',
+    board: SNOWY_PEAKS,
+    rule: 'one',
+    foes: ['snowball', 'frost', 'mint'],
+    pace: 8,
+    boss: 'globe',
   },
 ]
 
@@ -665,6 +857,12 @@ export function auditStages(): string[] {
         if (!pots.has(colour)) problems.push(`stage ${i} has no pot ${colour}`)
       if (Math.max(...wanted) > stage.picture.palette.length)
         problems.push(`stage ${i} paints past its palette`)
+    }
+    if (stage.boss === 'globe') {
+      const known = new Set(b.cells.map((x) => cellKey(x.r, x.c)))
+      for (const crack of GLOBE_CRACKS)
+        if (!known.has(cellKey(crack.r, crack.c)))
+          problems.push(`stage ${i} glacier crack is off the board`)
     }
     if (stage.boss === 'max') {
       const known = new Set(b.cells.map((x) => cellKey(x.r, x.c)))

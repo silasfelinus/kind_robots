@@ -2672,7 +2672,12 @@ class PixelHop implements ArcadeGameInstance {
         )
       sprite = GUMBALL_SPRITES[e.kind][landing ? 1 : 0]
     }
-    drawSprite(g, sprite, x, y, { anchor: 'feet', flipX: face.left })
+    drawSprite(g, sprite, x, y, {
+      anchor: 'feet',
+      flipX: face.left,
+      scale:
+        e.kind === 'snowball' ? 1 + ((e.size ?? 1) - 1) * 0.2 : 1,
+    })
     if (this.freeze > 0) {
       // Frozen solid: an icy sheen over the sprite.
       g.save()

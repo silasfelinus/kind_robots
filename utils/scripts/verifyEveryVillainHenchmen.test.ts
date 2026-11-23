@@ -566,8 +566,13 @@ for (const kind of kinds) {
   }
 }
 assert.match(page, /data-testid="tactics-crew-art-gallery"/)
-assert.match(page, /data-testid="tactics-crew-art-loaded"/)
-assert.match(page, /data-testid="tactics-crew-art-unavailable"/)
+assert.match(page, /data-testid="tactics-crew-counterplay-strip"/)
+assert.match(page, /data-testid="tactics-crew-beat-loaded"/)
+assert.match(page, /v-for="beat in CREW_TELL_BEATS"/)
+assert.match(page, /:data-art-image-id="crewBeatImageId\(beat\)"/)
+assert.match(page, /crewBeatImage\(beat\)/)
+assert.match(page, /crewBeatTitle\(beat\)/)
+assert.match(page, /void paintedArt\.retry\(crewBeatImageId\(beat\)\)/)
 assert.match(page, /data-testid="tactics-painted-burrow-warning"/)
 assert.match(page, /data-testid="tactics-painted-phase-warning"/)
 assert.match(page, /crewWarningImage\('burrow'\)/)
@@ -579,8 +584,28 @@ assert.match(
   /paintedArt\.ensure\(CREW_TELL_ART\[kind\]\.beats\.action\.imageId\)/,
 )
 
-assert.match(page, /paintedArt\.ensure\(id \?\? null\)/)
+assert.match(
+  page,
+  /paintedArt\.ensure\(crewTellReceipt\(kind, beat\)\?\.imageId \?\? null\)/,
+)
 assert.match(page, /unit\.hp > 0 && isCrewTellKind\(unit\.henchmanType\)/)
+
+
+const paintedLoader = readFileSync(
+  new URL('../../stores/everyVillainTacticsArtStore.ts', import.meta.url),
+  'utf8',
+)
+// Keep private-media failures recoverable without leaking JWTs into URLs or
+// retrying permanent auth denials. The rail must not claim loading as delivery.
+assert.match(paintedLoader, /RETRYABLE_MEDIA_STATUSES/)
+assert.match(paintedLoader, /429, 500, 502, 503, 504/)
+assert.match(paintedLoader, /!RETRYABLE_MEDIA_STATUSES\.has\(response\.status\)/)
+assert.match(paintedLoader, /requestGeneration !== generation/)
+assert.match(paintedLoader, /blob\.size < 24/)
+assert.match(paintedLoader, /async function retry\(id: number \| null\)/)
+assert.match(paintedLoader, /Authorization: `Bearer \$\{token\}`/)
+assert.match(page, /Private art unavailable/)
+assert.match(page, /RETRY ART/)
 
 assert.match(page, /data-testid="tactics-one-hit"/)
 assert.match(page, /henchmanTell\(/)

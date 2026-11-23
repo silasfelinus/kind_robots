@@ -25,6 +25,7 @@ import {
   PLANETS,
   RATTLE_LOOP,
   RATTLE_PHASES,
+  GLOBE_CRACKS,
   STAGES,
   auditStages,
   coinRing,
@@ -126,10 +127,10 @@ function landOn(game: Probe, cell: Cell) {
 // --- the data ---------------------------------------------------------------------------------
 
 assert.deepEqual(auditStages(), [], 'every stage board is sound')
-assert.equal(STAGES.length, 12, 'two planets of six rounds')
-assert.equal(PLANETS.length, 2)
-assert.deepEqual([...PLANET_START], [0, 6])
-for (let p = 0; p < 2; p++) {
+assert.equal(STAGES.length, 18, 'three planets of six rounds')
+assert.equal(PLANETS.length, 3)
+assert.deepEqual([...PLANET_START], [0, 6, 12])
+for (let p = 0; p < 3; p++) {
   const rounds = STAGES.filter((s) => s.planet === p)
   assert.deepEqual(
     rounds.map((s) => s.round),
@@ -140,7 +141,7 @@ for (let p = 0; p < 2; p++) {
 }
 assert.deepEqual(
   STAGES.filter((s) => s.boss).map((s) => s.boss),
-  ['max', 'rattle'],
+  ['max', 'rattle', 'globe'],
 )
 const boardIds = new Set(STAGES.map((s) => s.board.id))
 for (const id of [
@@ -151,11 +152,11 @@ for (const id of [
   'tightrope',
 ])
   assert.ok(boardIds.has(id), `the campaign plays the ${id} board`)
-assert.equal(PICTURES.length, 2, 'two picture boards')
+assert.equal(PICTURES.length, 3, 'three picture boards')
 assert.deepEqual(
   STAGES.map((_, i) => i).filter(firstOfRule),
-  [0, 2, 4, 7],
-  'a rule demonstration opens one hop, two hops, picture and flip back',
+  [0, 2, 4, 7, 15],
+  'the rule demonstrations also teach the glacier cycle',
 )
 assert.ok(
   STAGES.some((s) => Object.values(s.board.special).includes('spring')),
@@ -463,7 +464,7 @@ assert.deepEqual(
   assert.equal(other.lives, 2, 'Rattle bonks a hopper who meets him spinning')
 }
 
-// --- the last planet leads to the encore -----------------------------------------------------
+// --- Rondo Ring leads to Glacier Moon, not an early ending ----------------------
 
 {
   const game = make(8)
@@ -476,17 +477,134 @@ assert.deepEqual(
     game.update(idle())
     for (let i = 0; i < 40; i++) game.update(idle())
   }
+  for (let i = 0; i < 400 && game.planet === 1; i++) game.update(idle())
+  assert.equal(game.mode, 'planets', 'two planets do not finish the tour')
+  assert.equal(game.planet, 2)
+  assert.equal(game.stage, PLANET_START[2])
+  assert.equal(game.board.id, 'pyramid-7')
+  const save = game.save as { planet: number; score: number }
+  assert.equal(save.planet, 2, 'Glacier Moon becomes the resume point')
+}
+
+// --- Glacier Moon ice, snowball and frost hazards --------------------------------
+
+assert.ok(boardConnected(STAGES[14]!.board), 'twin peaks are connected')
+assert.equal(STAGES[14]!.board.id, 'twin-peaks')
+assert.equal(STAGES[15]!.rule, 'cycle', 'the aurora uses cycling paint')
+assert.ok(
+  STAGES.slice(12, 18).some((s) =>
+    Object.values(s.board.special).includes('ice'),
+  ),
+  'Glacier Moon introduces slippery tiles',
+)
+assert.ok(
+  STAGES.slice(12, 18).some((s) => s.foes.includes('frost')),
+  'frost flakes freeze the player',
+)
+assert.ok(
+  STAGES.slice(12, 18).some((s) => s.foes.includes('snowball')),
+  'snowballs erase paint as they grow',
+)
+
+{
+  const game = make(18)
+  game.startStage(12)
+  skipScreens(game)
+  game.enemies = []
+  game.me.r = game.me.fr = 1
+  game.me.c = game.me.fc = 1
+  game.update(press('down'))
+  for (let i = 0; i < 50; i++) game.update(idle())
+  assert.deepEqual(
+    [game.me.r, game.me.c],
+    [3, 1],
+    'ice at row 2 slides Pip one extra cube along the hop',
+  )
+  assert.equal(game.paint[2]![1], 2, 'Pip paints the icy tile')
+  assert.equal(game.paint[3]![1], 2, 'Pip also paints the slid-to tile')
+}
+
+{
+  const game = make(19)
+  game.startStage(13)
+  skipScreens(game)
+  game.me.r = game.me.fr = 6
+  game.me.c = game.me.fc = 3
+  game.enemies = [
+    {
+      kind: 'snowball',
+      r: 4,
+      c: 2,
+      fr: 3,
+      fc: 1,
+      hop: 1,
+      falling: 0,
+      wait: 99,
+    } as never,
+  ]
+  game.paint[4]![2] = 2
+  game.update(idle())
+  assert.equal(game.paint[4]![2], 1, 'a rolling snowball scuffs fresh paint')
+  assert.equal(game.enemies[0]?.kind, 'snowball')
+  const frost = make(20)
+  frost.startStage(13)
+  skipScreens(frost)
+  frost.enemies = [
+    {
+      kind: 'frost',
+      r: frost.me.r,
+      c: frost.me.c,
+      fr: frost.me.r,
+      fc: frost.me.c,
+      hop: 0,
+      falling: 0,
+      wait: 99,
+    } as never,
+  ]
+  frost.update(idle())
+  assert.equal(frost.lives, 3, 'touching frost stuns rather than bonks')
+  assert.equal(frost.enemies.length, 0, 'the flake is collected on contact')
+  const initial = { r: frost.me.r, c: frost.me.c }
+  frost.update(press('right'))
+  for (let i = 0; i < 30; i++) frost.update(idle())
+  assert.deepEqual(
+    [frost.me.r, frost.me.c],
+    [initial.r, initial.c],
+    'one second of frost disables movement',
+  )
+}
+
+// --- The Snow Globe: four glowing cracks unlock the next planet ---------------
+
+{
+  const game = make(21)
+  game.startStage(17)
+  skipScreens(game)
+  assert.equal(game.boss?.kind, 'globe')
+  assert.equal(game.board.id, 'twin-peaks')
+  const before = game.score
+  for (let i = 0; i < GLOBE_CRACKS.length; i++) {
+    const crack = GLOBE_CRACKS[i]!
+    landOn(game, crack)
+    assert.equal(
+      game.boss?.cracks,
+      i + 1,
+      'each crack must be lit in the authored order',
+    )
+  }
+  assert.ok(game.clear > 0, 'four fractures defeat the snow globe')
+  assert.ok(game.score >= before + 9000, 'boss and crack rewards are scored')
   for (let i = 0; i < 400 && game.mode === 'planets'; i++) game.update(idle())
-  assert.equal(game.mode, 'endless', 'every planet painted: the encore')
-  assert.equal(game.round, 13)
+  assert.equal(game.mode, 'endless', 'the glacier clear opens the encore')
+  assert.equal(game.round, 19)
   assert.equal(game.screens[0]?.kind, 'map')
   assert.equal(game.screens[0]?.final, true)
   const save = game.save as { planet: number; cleared?: boolean }
-  assert.equal(save.planet, 0, 'nothing left to continue')
+  assert.equal(save.planet, 0, 'a cleared campaign starts fresh')
   assert.equal(save.cleared, true)
 }
 
-// --- resume at a planet, and the mode menu ---------------------------------------------------
+// --- resume at a planet, and the mode menu -----------------------------------
 
 {
   const kept = {
@@ -570,4 +688,4 @@ assert.deepEqual(
   }
 }
 
-console.log('Pixel Hop Painted Planets (Candy Comet and Rondo Ring) passed')
+console.log('Pixel Hop Painted Planets (Candy, Rondo and Glacier) passed')

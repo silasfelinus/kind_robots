@@ -270,7 +270,6 @@
       resizeHandler = null
     }
     const top = stack[stack.length - 1]
-    audio.unlock()
     const screens = {
       title: renderTitle,
       slots: renderSlots,
@@ -2127,7 +2126,6 @@
         applySettings()
         persist()
         if (input.dataset.range === 'sfx') audio.play('tap')
-        if (input.dataset.range === 'music' && Number(input.value) > 0) render()
       }),
     )
     modal.querySelector('[data-select]').addEventListener('change', (event) => {

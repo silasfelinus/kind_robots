@@ -127,6 +127,14 @@ for (const file of ['engine', 'levels', 'meta', 'art'])
   runInContext(read(`public/hopeful-hues/${file}.js`), context)
 const E = context.HopefulHuesEngine as Engine
 const L = context.HopefulHuesLevels as Levels
+runInContext(read('public/hopeful-hues/audio.js'), context)
+const Audio = context.HopefulHuesAudio as {
+  compose: (spec: Record<string, unknown>) => {
+    progression: number[]
+    melody: Array<number | null>
+  }
+}
+
 const M = context.HopefulHuesMeta as Meta
 
 // Silas, 2026-11-23 PT: nine hero-led worlds, each a long three-region road with
@@ -177,6 +185,19 @@ for (const w of worlds) {
   )
   assert.equal(L.routeLevels(w.hero.id).join(), L.routeLevels(w.id).join())
 }
+const themes = worlds.flatMap((w) =>
+  [0, 1, 2].map((tier) => Audio.compose({ ...w.music, tier })),
+)
+assert.equal(new Set(themes.map((theme) => JSON.stringify(theme))).size, 27)
+for (const theme of themes) {
+  assert.equal(theme.progression.length, 4)
+  assert.ok(theme.melody.length === 24 || theme.melody.length === 32)
+  assert.ok(theme.melody.every((note) => note === null || note >= 0))
+}
+assert.notEqual(
+  JSON.stringify(Audio.compose({ tag: 'title' })),
+  JSON.stringify(Audio.compose({ tag: 'ending-everyone' })),
+)
 assert.equal(L.ROUTE_ORDER.length, 27)
 const all = L.allLevels()
 assert.equal(all.length, 495, 'nine worlds of 55 levels')

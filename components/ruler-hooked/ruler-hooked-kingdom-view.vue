@@ -11,10 +11,7 @@
       >
     </div>
 
-    <RulerHookedStage
-      :scene="scene"
-      :regions="regions"
-    />
+    <RulerHookedStage :scene="scene" :regions="regions" />
 
     <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-2">
       <div

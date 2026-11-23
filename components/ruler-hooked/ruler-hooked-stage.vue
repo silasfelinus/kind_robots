@@ -23,7 +23,9 @@
         alt=""
         class="pointer-events-none absolute inset-0 h-full w-full object-cover"
         :style="
-          focus === undefined ? undefined : { objectPosition: '50% ' + focus + '%' }
+          focus === undefined
+            ? undefined
+            : { objectPosition: '50% ' + focus + '%' }
         "
         @error="onImgError(activeLayer.ladder)"
       />

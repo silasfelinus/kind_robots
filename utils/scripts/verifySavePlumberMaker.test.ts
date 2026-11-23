@@ -1,5 +1,12 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import {
+  MAKER_BEST_LIMIT,
+  MAKER_TIME_KEY,
+  formatMakerTime,
+  readMakerTimes,
+  shouldSaveMakerTime,
+} from '../arcade/games/savePlumberMakerTrial'
 import { emptyInput } from '../arcade/types'
 import {
   MAKER_GROUPS,
@@ -932,6 +939,46 @@ assert.deepEqual(
   'A full captured Maker route must reproduce physics and game state',
 )
 
+assert.equal(formatMakerTime(0), '0:00.00')
+assert.equal(formatMakerTime(1), '0:00.01')
+assert.equal(formatMakerTime(60), '0:01.00')
+assert.equal(formatMakerTime(3660), '1:01.00')
+assert.equal(formatMakerTime(36000), '10:00.00')
+assert.equal(formatMakerTime(Number.NaN), '0:00.00')
+assert.equal(shouldSaveMakerTime(undefined, 120), true)
+assert.equal(shouldSaveMakerTime(120, 119), true)
+assert.equal(shouldSaveMakerTime(120, 120), false)
+assert.equal(shouldSaveMakerTime(120, 121), false)
+assert.equal(shouldSaveMakerTime(undefined, 0), false)
+assert.equal(shouldSaveMakerTime(undefined, 36001), false)
+assert.equal(shouldSaveMakerTime(undefined, 1.2), false)
+assert.deepEqual(
+  readMakerTimes({
+    abc12: 120,
+    broken: -3,
+    'bad/id': 20,
+    infinite: Number.POSITIVE_INFINITY,
+    d2: 36001,
+    fast: 1,
+  }),
+  { abc12: 120, fast: 1 },
+)
+assert.deepEqual(readMakerTimes(null), {})
+assert.equal(
+  Object.keys(
+    readMakerTimes(
+      Object.fromEntries(
+        Array.from({ length: MAKER_BEST_LIMIT + 8 }, (_, i) => [
+          'time' + i,
+          i + 1,
+        ]),
+      ),
+    ),
+  ).length,
+  MAKER_BEST_LIMIT,
+)
+assert.ok(MAKER_TIME_KEY !== MAKER_SAVE_KEY)
+
 const makerPage = source('../../pages/play/save-the-plumber.vue')
 const makerComponent = source('../../components/arcade/plumber-level-maker.vue')
 const makerStore = source('../../stores/savePlumberMakerStore.ts')
@@ -958,7 +1005,12 @@ for (const required of [
   'createSavePlumberPreview',
   'replayLastRun',
   'makerReplayRandom',
-  "window.addEventListener('blur', releaseAllControls)",
+  'recordClearTime',
+  'formattedBestTime',
+  'togglePause',
+  'onWindowBlur',
+  'runFrames.value++',
+  "window.addEventListener('blur', onWindowBlur)",
 ])
   assert.ok(makerComponent.includes(required), 'Maker needs ' + required)
 assert.match(makerStore, /localStorage\.setItem\(MAKER_SAVE_KEY/)
@@ -966,6 +1018,8 @@ assert.match(makerStore, /decodeMakerLevel/)
 assert.match(makerStore, /encodeMakerLevel/)
 assert.match(makerStore, /makerTemplate/)
 assert.match(makerStore, /makerCopy/)
+assert.match(makerStore, /localStorage\.setItem\(MAKER_TIME_KEY/)
+assert.match(makerStore, /readMakerTimes/)
 assert.doesNotMatch(
   makerComponent,
   /localStorage|\$fetch/,

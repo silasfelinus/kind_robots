@@ -334,6 +334,7 @@ export async function openCabinet(
     dpr = 1,
     storage = null,
     audioProbe = false,
+    serveArt = false,
   },
 ) {
   const context = await browser.newContext({
@@ -349,6 +350,30 @@ export async function openCabinet(
     await page.route(`${ORIGIN}**`, (route) =>
       route.fulfill({ contentType: 'text/html', body: PAGE }),
     )
+    // Opt-in: serve the game's real art and audio from public/ (later routes take precedence in Playwright).
+    if (serveArt)
+      await page.route(
+        new RegExp(`^${ORIGIN}(rainbow-princess-[a-z]+/.+)$`),
+        (route) => {
+          const file = path.join(
+            root,
+            'public',
+            decodeURIComponent(new URL(route.request().url()).pathname),
+          )
+          try {
+            route.fulfill({
+              body: readFileSync(file),
+              contentType: file.endsWith('.webp')
+                ? 'image/webp'
+                : file.endsWith('.mp3')
+                  ? 'audio/mpeg'
+                  : 'application/octet-stream',
+            })
+          } catch {
+            route.fulfill({ status: 404, body: '' })
+          }
+        },
+      )
     await page.goto(ORIGIN)
   } else {
     await page.setContent(PAGE)

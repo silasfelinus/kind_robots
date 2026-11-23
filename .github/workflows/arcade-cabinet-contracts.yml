@@ -69,6 +69,11 @@ jobs:
       - name: Arcade key remap — bindable keys, moves, reserved keys and wiring
         if: always()
         run: npx tsx utils/scripts/verifyArcadeKeyRemap.test.ts
+      - name: Rainbow performance — four pilots in a boss phase, engine and frame p50/p95 and heap
+        if: always()
+        run: node utils/scripts/verifyRainbowPerformance.browser.test.mjs
+        env:
+          RAINBOW_PERF_REPORT: cabinet-contract-shots/rainbow-performance.json
       - name: Preserve cabinet states
         if: always()
         uses: actions/upload-artifact@v4

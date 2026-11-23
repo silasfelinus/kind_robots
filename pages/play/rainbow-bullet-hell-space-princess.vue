@@ -341,6 +341,17 @@
             Replay Act {{ selectedSea + 1 }}
           </button>
           <button
+            v-else
+            type="button"
+            class="btn btn-sm border-pink-300 bg-pink-200 font-black text-[#37204e]"
+            :disabled="!selectedAlternateReplayable"
+            :aria-label="`Fly the approach to ${alternateRoutes[selectedAlternate!]!.name}`"
+            @click="launchAlternateApproach"
+          >
+            <Icon name="kind-icon:rocket" class="kr-icon-4" />
+            Fly {{ alternateRoutes[selectedAlternate!]!.id }} approach
+          </button>
+          <button
             v-if="replayRecord"
             type="button"
             class="btn btn-sm btn-ghost"
@@ -567,7 +578,9 @@ import {
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
 import {
   canReplayRainbowAct,
+  canReplayRainbowAlternateRoute,
   rainbowActReplaySave,
+  rainbowAlternateApproachSave,
 } from '~/utils/arcade/games/rainbowActReplay'
 import type { RainbowSave } from '~/utils/arcade/games/rainbowLoadouts'
 import { rainbowEndingArchive } from '~/utils/arcade/games/rainbowEndingArchive'
@@ -615,6 +628,7 @@ async function chooseSlot(slot: number) {
   await nextTick()
   arcadeStore.setRainbowSlot(slot)
   replayRecord.value = null
+  selectedAlternate.value = null
   view.value = 'flight'
   cabinetMounted.value = true
 }
@@ -652,6 +666,14 @@ const flightComms = computed(() =>
 const selectedSeaReplayable = computed(() =>
   canReplayRainbowAct(selectedSea.value + 1, flightSave.value, hangar.value),
 )
+const selectedAlternateReplayable = computed(() =>
+  selectedAlternate.value !== null &&
+  canReplayRainbowAlternateRoute(
+    alternateRoutes.value[selectedAlternate.value]!.id,
+    flightSave.value,
+    hangar.value,
+  ),
+)
 async function resumeCampaign() {
   cabinetMounted.value = false
   await nextTick()
@@ -672,10 +694,29 @@ async function launchActReplay() {
   view.value = 'flight'
   cabinetMounted.value = true
 }
+async function launchAlternateApproach() {
+  if (selectedAlternate.value === null) return
+  const route = alternateRoutes.value[selectedAlternate.value]!
+  const snapshot = rainbowAlternateApproachSave(
+    route.id,
+    flightSave.value,
+    hangar.value,
+  )
+  if (!snapshot) return
+  cabinetMounted.value = false
+  await nextTick()
+  replayRecord.value = snapshot
+  view.value = 'flight'
+  cabinetMounted.value = true
+}
 const selectedSeaDescription = computed(() => {
   if (selectedAlternate.value !== null) {
     const route = alternateRoutes.value[selectedAlternate.value]!
-    return `${route.id} · ${route.name} · ${route.label}. Earn this detour through the in-flight fork after Act ${route.fromAct}; inspecting it cannot unlock a shortcut.`
+    if (!route.discovered)
+      return `${route.id} · ${route.name} · ROUTE UNDISCOVERED. Earn its in-flight fork during Act ${route.fromAct} before replaying the approach.`
+    if (!selectedAlternateReplayable.value)
+      return `${route.id} · ${route.name} · ROUTE FLOWN. Finish Act ${route.fromAct} in this slot to replay its approach.`
+    return `${route.id} · ${route.name} · ROUTE FLOWN. Replay Act ${route.fromAct}, then earn the detour's rescue and flight-lane requirements again. Your campaign save is protected.`
   }
   const stage = stages[selectedSea.value]!
   const progress = seaProgress.value[selectedSea.value]

@@ -545,9 +545,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     )
     if (this.choosingMode) {
       g.fillStyle = '#0c0b25ee'
-      g.fillRect(14, 143, W - 28, 170)
+      g.fillRect(14, 143, W - 28, 210)
       g.strokeStyle = '#fe8fc9'
-      g.strokeRect(14, 143, W - 28, 170)
+      g.strokeRect(14, 143, W - 28, 210)
       label(g, 'SUPERKATE\'S COLOR CLUB', W / 2, 168, 16)
       label(
         g,
@@ -576,7 +576,28 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         12,
         '#ffd88d',
       )
-      label(g, 'PRESS A TO PLAY', W / 2, 294, 14, '#ff9ecf')
+      label(
+        g,
+        this.mode === 'story'
+          ? `STAGE ${this.menuStage}: ${'★'.repeat(this.career.stars[this.menuStage - 1] ?? 0)}`
+          : `BEST ${this.career.classicBest} · ${this.career.classicRuns} RUNS`,
+        W / 2,
+        286,
+        12,
+        '#ffdf85',
+      )
+      label(g, `STYLE: ${style.toUpperCase()}`, W / 2, 303, 10, '#9cf3e7')
+      label(g, 'PRESS A TO PLAY', W / 2, 329, 14, '#ff9ecf')
+      const nextRank = 120 * rank * rank
+      const currentRank = 120 * (rank - 1) ** 2
+      const progress = Math.min(
+        1,
+        (this.career.xp - currentRank) / (nextRank - currentRank),
+      )
+      g.fillStyle = '#392e5b'
+      g.fillRect(60, 340, 200, 6)
+      g.fillStyle = '#e77fcc'
+      g.fillRect(60, 340, 200 * progress, 6)
       return
     }
     if (this.banner > 0 || this.over) {

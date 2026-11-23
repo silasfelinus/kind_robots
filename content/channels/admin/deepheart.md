@@ -14,15 +14,17 @@ requiredRole: ADMIN
 tutorial:
   title: 'How to delve'
   body: >-
-    Pick a hero from fifty presets and customize their name, identity, who
-    they are drawn to and a starting boon. Bring one to three companions:
-    roles switch on synergies, old friends and rivals switch on supports, and
-    Optimize searches every party for the best fit to a goal. Each of the
-    three layers is seven rooms deep: choose a door, fight, solve puzzles,
-    open chests, make choices your companions approve or disapprove of, and
-    talk at campfires until bonds become oaths or romances. Choices on the way
-    down open different endings at the bottom. Progress autosaves; three save
-    slots, the Chronicle, the Scrapbook and achievements outlive every delve.
+    Choose a hero from fifty illustrated presets with their own identities,
+    or make an original hero with custom identity, class and stats. Bring one
+    to three companions. Visible classes combine into party synergies, while
+    personal preferences, friendships, rivalries and romances are revealed
+    through meaningful choices and campfire scenes. Those discoveries persist
+    in the Chronicle and improve future Optimize suggestions without spoiling
+    undiscovered relationships. Descend three seven-room layers: choose doors,
+    fight, solve puzzles, find treasure and make costly moral choices. Earn
+    bonds, oaths and romances at campfires, and find different endings beneath
+    the dungeon. Progress autosaves; three save slots, the Chronicle, Scrapbook
+    and achievements survive each delve.
   image: /images/art/resources.webp
 ---
 

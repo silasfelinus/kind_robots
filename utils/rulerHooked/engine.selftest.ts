@@ -477,22 +477,60 @@ function baseSave(): RunSave {
     health: Partial<RunSave['kingdomHealth']>
     closes?: string
   }> = [
-    { slug: 'lilypad-chorister', flag: 'shallowsNursery', health: { nature: 60 }, closes: 'shallowsDredged' },
-    { slug: 'covenant-glimmerfin', flag: 'publicTrust', health: { joy: 55 }, closes: 'moatFishedOut' },
-    { slug: 'border-accordionfish', flag: 'envoyTreatySigned', health: { prosperity: 60 } },
-    { slug: 'millwhistle-rudd', flag: 'weirLadder', health: { prosperity: 50 }, closes: 'runBlocked' },
-    { slug: 'tarflower-catfish', flag: 'riverConcession', health: { treasury: 60, nature: 45 }, closes: 'riverCommons' },
-    { slug: 'ironmandate-skate', flag: 'exclusivePier', health: { order: 60, joy: 45 }, closes: 'workingWaterfront' },
+    {
+      slug: 'lilypad-chorister',
+      flag: 'shallowsNursery',
+      health: { nature: 60 },
+      closes: 'shallowsDredged',
+    },
+    {
+      slug: 'covenant-glimmerfin',
+      flag: 'publicTrust',
+      health: { joy: 55 },
+      closes: 'moatFishedOut',
+    },
+    {
+      slug: 'border-accordionfish',
+      flag: 'envoyTreatySigned',
+      health: { prosperity: 60 },
+    },
+    {
+      slug: 'millwhistle-rudd',
+      flag: 'weirLadder',
+      health: { prosperity: 50 },
+      closes: 'runBlocked',
+    },
+    {
+      slug: 'tarflower-catfish',
+      flag: 'riverConcession',
+      health: { treasury: 60, nature: 45 },
+      closes: 'riverCommons',
+    },
+    {
+      slug: 'ironmandate-skate',
+      flag: 'exclusivePier',
+      health: { order: 60, joy: 45 },
+      closes: 'workingWaterfront',
+    },
   ]
   for (const species of newPolicyFish) {
     const world = baseSave()
     Object.assign(world.kingdomHealth, species.health)
-    assert.equal(availableFish(world).some((fish) => fish.slug === species.slug), false)
+    assert.equal(
+      availableFish(world).some((fish) => fish.slug === species.slug),
+      false,
+    )
     world.flags[species.flag] = true
-    assert.equal(availableFish(world).some((fish) => fish.slug === species.slug), true)
+    assert.equal(
+      availableFish(world).some((fish) => fish.slug === species.slug),
+      true,
+    )
     if (species.closes) {
       world.flags[species.closes] = true
-      assert.equal(availableFish(world).some((fish) => fish.slug === species.slug), false)
+      assert.equal(
+        availableFish(world).some((fish) => fish.slug === species.slug),
+        false,
+      )
     }
   }
 

@@ -1,4 +1,10 @@
 import type { RainbowMedal } from './rainbowLoadouts'
+import {
+  normalizeRainbowCallSign,
+  rainbowPaintUnlocked,
+  sanitizeRainbowPaints,
+  type RainbowLivery,
+} from './rainbowLivery'
 
 export type RainbowHangarUpgrade = 'shield' | 'charge' | 'life'
 type Act = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
@@ -6,6 +12,10 @@ export type RainbowHangar = {
   v: 1
   medals: Partial<Record<Act, RainbowMedal>>
   upgrades: RainbowHangarUpgrade[]
+  /** The crew's call sign for this slot (t-044), '' or absent for none. */
+  callSign?: string
+  /** Each pilot's paint scheme (index into RAINBOW_PAINTS), by pilot 0-3. */
+  paints?: number[]
 }
 export const RAINBOW_HANGAR_UPGRADES = [
   {
@@ -64,7 +74,47 @@ export function readRainbowHangar(raw: unknown): RainbowHangar {
   if (Array.isArray(input.upgrades))
     for (const item of RAINBOW_HANGAR_UPGRADES)
       if (input.upgrades.includes(item.id)) upgrades.push(item.id)
-  return { v: 1, medals, upgrades }
+  const hangar: RainbowHangar = { v: 1, medals, upgrades }
+  const callSign = normalizeRainbowCallSign(input.callSign)
+  if (callSign) hangar.callSign = callSign
+  // A paint stays only while its medals still unlock it.
+  const paints = sanitizeRainbowPaints(input.paints).map((scheme) =>
+    rainbowPaintUnlocked(medals, scheme) ? scheme : 0,
+  )
+  if (paints.some(Boolean)) hangar.paints = paints
+  return hangar
+}
+
+/** Set (or, with '' or an unusable value, clear) the slot's call sign. */
+export function withRainbowCallSign(
+  hangar: RainbowHangar,
+  raw: unknown,
+): RainbowHangar {
+  const callSign = normalizeRainbowCallSign(raw)
+  const { callSign: _old, ...rest } = hangar
+  return callSign ? { ...rest, callSign } : rest
+}
+
+/** Paint a pilot's ship with an unlocked scheme; a locked scheme or unknown pilot changes nothing. */
+export function withRainbowPaint(
+  hangar: RainbowHangar,
+  pilot: number,
+  scheme: number,
+): RainbowHangar {
+  if (!Number.isInteger(pilot) || pilot < 0 || pilot > 3) return hangar
+  if (!rainbowPaintUnlocked(hangar.medals, scheme)) return hangar
+  const paints = sanitizeRainbowPaints(hangar.paints)
+  if (paints[pilot] === scheme) return hangar
+  paints[pilot] = scheme
+  return { ...hangar, paints }
+}
+
+/** The slot's livery for a flight. */
+export function rainbowHangarLivery(hangar: RainbowHangar): RainbowLivery {
+  return {
+    callSign: hangar.callSign ?? '',
+    paints: sanitizeRainbowPaints(hangar.paints),
+  }
 }
 
 /** Replay a sea as often as you like; only your best medal adds petals. */

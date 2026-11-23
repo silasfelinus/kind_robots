@@ -61,6 +61,7 @@ import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
 import { RAINBOW_CONTRAST_PELLET, rainbowCommsLine } from './rainbowComms'
+import { rainbowShipFilter } from './rainbowLivery'
 import { rainbowEndingMemoryIds } from './rainbowEndingArchive'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
@@ -1212,6 +1213,8 @@ export function createRainbowPrincessPreview(
   const shieldCap = 3 + (options.rainbowHangar?.shield ? 1 : 0)
   const extraLife = options.rainbowHangar?.life ? 1 : 0
   const startingCharge = options.rainbowHangar?.charge ? 20 : 0
+  /** The slot's call sign and ship paint (t-044): drawing only. */
+  const livery = options.rainbowLivery
   const createShip = (seat: number): Ship => ({
     x: 65,
     y: 80 + seat * 32,
@@ -2762,6 +2765,13 @@ export function createRainbowPrincessPreview(
     const swap = (text: string) =>
       text.replace(pattern, (name) => names[pilotOf(names.indexOf(name))]!)
     return { ...line, speaker: swap(line.speaker), text: swap(line.text) }
+  }
+
+  /** On comms, the lead pilot (seat 1) answers to the crew's call sign (t-044). */
+  function callSignFor(speaker: string): string {
+    if (!livery?.callSign) return ''
+    const lead = RAINBOW_PILOTS[pilotOf(0)]?.name.split(' ')[0]
+    return speaker.split(' ')[0] === lead ? ` · ${livery.callSign}` : ''
   }
 
   /**
@@ -8615,7 +8625,11 @@ export function createRainbowPrincessPreview(
         g.scale(1, 1 - Math.min(0.18, Math.abs(ship.bank) * 0.05))
         g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
-        if (!drawRainbowShipSprite(g, pilotOf(seat))) {
+        // Paint recolours the painting only (t-044); the seat glow above keeps the pilot's own colour.
+        g.filter = rainbowShipFilter(livery, pilotOf(seat))
+        const painted = drawRainbowShipSprite(g, pilotOf(seat))
+        g.filter = 'none'
+        if (!painted) {
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.shadowBlur = 15
           g.beginPath()
@@ -9078,7 +9092,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
         g.fillText(
-          `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}`,
+          `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}${callSignFor(dialogue.speaker)}`,
           textX,
           16,
         )
@@ -9256,6 +9270,12 @@ export function createRainbowPrincessPreview(
             activePlayers,
             finalChoice ?? 'evacuate',
             allegiance,
+            {
+              pilots: Array.from({ length: activePlayers }, (_, seat) =>
+                pilotOf(seat),
+              ),
+              callSign: livery?.callSign,
+            },
           )
           const top =
             H + 10 - (rolled / FINALE.creditFrames) * (lines.length * 16 + H)
@@ -9743,7 +9763,10 @@ export function createRainbowPrincessPreview(
           g.save()
           g.translate(x + 52, 112)
           g.scale(1.3, 1.3)
-          if (!drawRainbowShipSprite(g, i)) {
+          g.filter = rainbowShipFilter(livery, i)
+          const painted = drawRainbowShipSprite(g, i)
+          g.filter = 'none'
+          if (!painted) {
             g.fillStyle = PILOT_COLORS[i]!
             g.beginPath()
             g.moveTo(16, 0)

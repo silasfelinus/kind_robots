@@ -58,7 +58,10 @@ import {
   emptyRainbowHangar,
   purchaseRainbowHangarUpgrade,
   rainbowHangarBonuses as hangarBonuses,
+  rainbowHangarLivery,
   readRainbowHangar,
+  withRainbowCallSign,
+  withRainbowPaint,
   type RainbowHangar,
   type RainbowHangarUpgrade,
 } from '~/utils/arcade/games/rainbowHangar'
@@ -442,6 +445,29 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   function rainbowHangarBonuses() {
     return hangarBonuses(rainbowHangarForSlot())
+  }
+
+  /** The slot's call sign and ship paint, for the next flight (t-044). */
+  function rainbowLivery() {
+    return rainbowHangarLivery(rainbowHangarForSlot())
+  }
+
+  /** Set or clear this slot's call sign; returns the call sign kept ('' for none). */
+  function setRainbowCallSign(raw: unknown): string {
+    const next = withRainbowCallSign(rainbowHangarForSlot(), raw)
+    rainbowHangars.value[rainbowSlot.value] = next
+    savePreferences()
+    return next.callSign ?? ''
+  }
+
+  /** Paint a pilot's ship in this slot with an unlocked scheme; false when it stays as it was. */
+  function paintRainbowShip(pilot: number, scheme: number): boolean {
+    const previous = rainbowHangarForSlot()
+    const next = withRainbowPaint(previous, pilot, scheme)
+    if (next === previous) return false
+    rainbowHangars.value[rainbowSlot.value] = next
+    savePreferences()
+    return true
   }
 
   function buyRainbowUpgrade(upgrade: RainbowHangarUpgrade): boolean {
@@ -950,6 +976,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     setRainbowSlot,
     rainbowHangarForSlot,
     rainbowHangarBonuses,
+    rainbowLivery,
+    setRainbowCallSign,
+    paintRainbowShip,
     buyRainbowUpgrade,
     recordRainbowReplayMedal,
     playersFor,

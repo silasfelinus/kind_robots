@@ -524,6 +524,89 @@
           Bronze, silver and gold medals earn 1, 2 and 3 petals per sea. Only
           your best medal per sea counts. Upgrades stay in this slot.
         </p>
+        <form
+          class="flex shrink-0 flex-wrap items-center gap-1 text-xs"
+          aria-label="Call sign"
+          @submit.prevent="saveCallSign"
+        >
+          <label for="rainbow-call-sign" class="font-bold">Call sign</label>
+          <input
+            id="rainbow-call-sign"
+            v-model="callSignDraft"
+            type="text"
+            :maxlength="RAINBOW_CALL_SIGN_MAX"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="e.g. STARLIGHT"
+            class="input input-xs w-32 bg-white/90 uppercase text-[#37204e]"
+            aria-describedby="rainbow-call-sign-note"
+          />
+          <button
+            type="submit"
+            class="btn btn-xs border-pink-200 bg-pink-100 text-[#37204e]"
+          >
+            Save
+          </button>
+          <span
+            id="rainbow-call-sign-note"
+            class="text-white/75"
+            aria-live="polite"
+            >{{
+              callSignNote ||
+              'Your lead pilot answers to it on comms and in the credits. Stays on this device.'
+            }}</span
+          >
+        </form>
+        <div
+          role="group"
+          aria-label="Ship paint"
+          class="grid shrink-0 grid-cols-4 gap-1"
+        >
+          <div
+            v-for="(paintPilot, index) in RAINBOW_PILOTS"
+            :key="paintPilot.key"
+            class="flex min-w-0 flex-col items-center gap-0.5 rounded-xl border border-white/20 bg-white/5 p-1"
+          >
+            <img
+              :src="rainbowShipSprite(index)"
+              :alt="`${paintPilot.name.split(' ')[0]}'s ship in ${RAINBOW_PAINTS[livery.paints[index] ?? 0]!.name} paint`"
+              class="h-8 w-full object-contain"
+              :style="{
+                filter: RAINBOW_PAINTS[livery.paints[index] ?? 0]!.filter,
+              }"
+              loading="lazy"
+            />
+            <div class="flex gap-0.5">
+              <button
+                v-for="(paint, scheme) in RAINBOW_PAINTS"
+                :key="paint.id"
+                type="button"
+                class="h-5 w-5 rounded-full border-2"
+                :class="
+                  (livery.paints[index] ?? 0) === scheme
+                    ? 'border-white'
+                    : 'border-white/30'
+                "
+                :style="{
+                  background: 'linear-gradient(135deg,#ffd2ef,#b8f8ff,#ffe99f)',
+                  filter: paint.filter,
+                  opacity: rainbowPaintUnlocked(hangar.medals, scheme)
+                    ? 1
+                    : 0.35,
+                }"
+                :disabled="!rainbowPaintUnlocked(hangar.medals, scheme)"
+                :aria-pressed="(livery.paints[index] ?? 0) === scheme"
+                :aria-label="
+                  rainbowPaintUnlocked(hangar.medals, scheme)
+                    ? `Paint ${paintPilot.name.split(' ')[0]}'s ship ${paint.name}`
+                    : `${paint.name} paint is locked: ${paint.note}`
+                "
+                :title="`${paint.name}: ${paint.note}`"
+                @click="paintShip(index, scheme)"
+              />
+            </div>
+          </div>
+        </div>
       </section>
       <section
         v-show="view === 'archive'"
@@ -590,7 +673,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useArcadeStore } from '~/stores/arcadeStore'
 import {
   rainbowSeaLogbook,
@@ -611,7 +694,13 @@ import { rainbowFlightComms } from '~/utils/arcade/games/rainbowFlightComms'
 import {
   RAINBOW_HANGAR_UPGRADES,
   rainbowHangarBalance,
+  rainbowHangarLivery,
 } from '~/utils/arcade/games/rainbowHangar'
+import {
+  RAINBOW_CALL_SIGN_MAX,
+  RAINBOW_PAINTS,
+  rainbowPaintUnlocked,
+} from '~/utils/arcade/games/rainbowLivery'
 import { rainbowSlotSummary } from '~/utils/arcade/games/rainbowSaveSlots'
 import {
   RAINBOW_HERO_ART,
@@ -625,6 +714,7 @@ import {
   rainbowHeroArt,
   rainbowEndingPlate,
   rainbowPortrait,
+  rainbowShipSprite,
   rainbowStageCard,
   rainbowSuperCutin,
   setRainbowLook,
@@ -776,6 +866,37 @@ const selectedSeaDescription = computed(() => {
 const hangarBalance = computed(() => rainbowHangarBalance(hangar.value))
 const endingArchive = computed(() => rainbowEndingArchive(mastery.value))
 const hangarPick = ref(0)
+// Call sign and paint (t-044): kept in this slot's Hangar, on this device only.
+const livery = computed(() => rainbowHangarLivery(hangar.value))
+const callSignDraft = ref('')
+const callSignNote = ref('')
+watch(
+  () => livery.value.callSign,
+  (sign) => {
+    callSignDraft.value = sign
+  },
+  { immediate: true },
+)
+async function saveCallSign() {
+  const typed = callSignDraft.value.trim()
+  const kept = arcadeStore.setRainbowCallSign(typed)
+  callSignDraft.value = kept
+  callSignNote.value = kept
+    ? `Call sign ${kept} saved for Slot ${rainbowSlot.value + 1}`
+    : typed
+      ? 'Not saved: use 2-10 letters, digits, spaces or hyphens'
+      : 'Call sign cleared'
+  await remountCabinet()
+}
+async function paintShip(pilot: number, scheme: number) {
+  if (arcadeStore.paintRainbowShip(pilot, scheme)) await remountCabinet()
+}
+/** The cabinet reads livery when a flight starts; remount it so the next flight uses the change. */
+async function remountCabinet() {
+  cabinetMounted.value = false
+  await nextTick()
+  cabinetMounted.value = true
+}
 const selectedHangarUpgrade = computed(
   () => RAINBOW_HANGAR_UPGRADES[hangarPick.value]!,
 )

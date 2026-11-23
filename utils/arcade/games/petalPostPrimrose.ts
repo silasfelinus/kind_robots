@@ -1,13 +1,7 @@
 /** Primrose Lane's first six authored deliveries. Sunday belongs to the next slice. */
 export type PrimroseWeather = 'sunny' | 'breezy' | 'rainy' | 'foggy' | 'market'
 export type PrimroseHazard =
-  | 'cat'
-  | 'bin'
-  | 'car'
-  | 'sprinkler'
-  | 'puppy'
-  | 'kite'
-  | 'puddle'
+  'cat' | 'bin' | 'car' | 'sprinkler' | 'puppy' | 'kite' | 'puddle'
 
 export type PrimroseEncounter = {
   gap: number

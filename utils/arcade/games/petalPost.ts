@@ -17,11 +17,7 @@
 // Up rides faster, down slower, left/right steer, A tosses a packet.
 
 import { levelCurve } from '../curve'
-import {
-  PRIMROSE_DAYS,
-  primroseDay,
-  valleyGazette,
-} from './petalPostPrimrose'
+import { PRIMROSE_DAYS, primroseDay, valleyGazette } from './petalPostPrimrose'
 import type {
   GazetteReport,
   PrimroseHazard,
@@ -1011,11 +1007,7 @@ class PetalPost implements ArcadeGameInstance {
   }
 
   /** The first week is deliberately scripted; bonus-course hazards remain seeded. */
-  private addAuthoredHazard(
-    kind: HazardKind,
-    y: number,
-    traffic: number,
-  ) {
+  private addAuthoredHazard(kind: HazardKind, y: number, traffic: number) {
     const x =
       kind === 'sprinkler' || kind === 'puppy'
         ? 92
@@ -1147,7 +1139,11 @@ class PetalPost implements ArcadeGameInstance {
         ) {
           this.bx = Math.min(MAX_X, this.bx + 16)
           h.gone = true
-          this.banner = { text: 'SPLASH!', sub: 'STEER INTO THE SLIDE', ticks: 65 }
+          this.banner = {
+            text: 'SPLASH!',
+            sub: 'STEER INTO THE SLIDE',
+            ticks: 65,
+          }
           this.sound.play('pop')
         }
         continue

@@ -3891,13 +3891,13 @@ model TarotCard {
 
 /** Per-account Arcade career record. One revisioned private save for each cabinet. */
 model ArcadeCabinetSave {
-  userId    Int      @id
-  gameSlug  String   @id @db.VarChar(40)
+  userId    Int
+  gameSlug  String   @db.VarChar(40)
   payload   String   @db.LongText
   revision  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
+  @@id([userId, gameSlug])
 }

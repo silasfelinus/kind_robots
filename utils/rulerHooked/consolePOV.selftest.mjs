@@ -69,6 +69,16 @@ assert.doesNotMatch(
   /getPortraitUrl|rulerCustomPortraitId|customPortraitUrl|RULER_LAYER_FALLBACK_STATE/,
 )
 assert.match(stage, /assetCandidates\(region, state, scene\.time\)/)
+assert.equal(
+  (stage.match(/<img\\b/g) || []).length,
+  1,
+  'opaque region vistas must use a single image, never a stacked z-list',
+)
+assert.match(stage, /v-if="activeLayer\\?\\.src"/)
+assert.match(stage, /aria-pressed="activeLayer\\?\\.region === layer\\.region"/)
+assert.match(stage, /@click="selectedRegion = layer\\.region"/)
+assert.match(stage, /current\\[region\\] !== previous\\[region\\]/)
+assert.doesNotMatch(stage, /v-for="layer in artLayers"/)
 assert.doesNotMatch(
   game,
   /rulerCustomPortraitId|rulerCosmetics|ruler-fishing\.webp/,

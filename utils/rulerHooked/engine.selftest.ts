@@ -312,14 +312,14 @@ function baseSave(): RunSave {
 {
   assert.equal(
     RULER_HOOKED_FISH.length,
-    27,
-    '15 original species, three arc species, nine policy-ecology species',
+    36,
+    '15 original species, three arc species, 18 policy-ecology species',
   )
   for (const affinity of ['GOOD', 'NEUTRAL', 'EVIL'] as const) {
     assert.equal(
       RULER_HOOKED_FISH.filter((f) => f.affinity === affinity).length,
-      9,
-      `${affinity} roster stays balanced at nine species`,
+      12,
+      `${affinity} roster stays balanced at twelve species`,
     )
   }
 

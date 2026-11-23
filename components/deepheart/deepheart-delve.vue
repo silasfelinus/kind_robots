@@ -51,8 +51,17 @@
     </header>
 
     <div class="dh-stage">
+      <div v-if="campFaces.length && !campMomentArt" class="dh-camp-faces">
+        <DeepheartPortrait
+          v-for="id in campFaces"
+          :key="id"
+          :id="id"
+          size="lg"
+          class="dh-camp-face"
+        />
+      </div>
       <div
-        v-if="roomArt"
+        v-else-if="roomArt"
         class="dh-room-plate"
         :class="{ 'is-discovery': !!campMomentArt }"
       >
@@ -243,6 +252,9 @@ const actor = computed(() =>
 const animate = computed(() => kit.settings.motion !== 'reduced')
 const ev = computed(() => (run.value ? engine.currentEvent(run.value) : null))
 const loot = computed(() => (run.value?.loot ? item(run.value.loot) : null))
+const campFaces = computed(() =>
+  run.value?.phase === 'camp' && dh.lastLine ? dh.lastFaces : [],
+)
 const campMomentArt = computed(() => {
   if (run.value?.phase !== 'camp' || !dh.lastMoment) return null
   const art = DEEPHEART.moments.find((m) => m.id === dh.lastMoment)?.art
@@ -516,6 +528,19 @@ const finaleCards = computed<DhCard[]>(() =>
 }
 .dh-room-plate.is-discovery {
   height: clamp(9rem, 30vh, 17rem);
+}
+.dh-camp-faces {
+  display: flex;
+  width: 100%;
+  flex: 0 0 auto;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.dh-camp-face {
+  width: min(28vw, 10rem);
+  height: clamp(8rem, 24vh, 15rem);
+  aspect-ratio: 3 / 4;
 }
 .dh-room-plate :deep(.pk-art) {
   width: 100%;

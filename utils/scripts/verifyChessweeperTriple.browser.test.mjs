@@ -266,8 +266,7 @@ try {
   )
   await screenshot(catastrophe, 'triple-1440-catastrophic')
   await catastrophe.close()
-  const { page: practice, submissions: practiceSubmissions } =
-    await openAt(390)
+  const { page: practice, submissions: practiceSubmissions } = await openAt(390)
   await practice.selectOption('#duration', '60')
   await practice.selectOption('#difficulty', 'easy')
   await practice.click('#start')

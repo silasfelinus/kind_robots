@@ -2226,10 +2226,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private cameraTarget() {
     const max = this.stage.cols * TILE - W
     if (this.locked) return max
-    return Math.max(
-      0,
-      Math.min(max, this.hero.x - W * 0.5 + this.cameraLead),
-    )
+    return Math.max(0, Math.min(max, this.hero.x - W * 0.5 + this.cameraLead))
   }
 
   private updateSprings(prevBottom: number) {

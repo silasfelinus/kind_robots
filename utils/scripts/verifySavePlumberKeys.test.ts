@@ -72,7 +72,7 @@ function play(run: PlumberRun, frames: number, script: Script = () => {}) {
   }
 }
 const hold =
-  (...keys: ('left' | 'right' | 'a')[]): Script =>
+  (...keys: ('left' | 'right' | 'up' | 'a')[]): Script =>
   (_frame, input) => {
     for (const key of keys) input.held[key] = true
   }

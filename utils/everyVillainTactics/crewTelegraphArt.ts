@@ -158,6 +158,15 @@ const CREW_CAPTAIN_SIGNATURE: Readonly<Record<CrewTellKind, SignaturePowerId>> =
     windup: 'accident-birthright',
   }
 
+/** Identify the three canonical SPECIES crews with original private telegraphs. */
+export function crewTellKindForVillain(
+  signature: SignaturePowerId,
+): CrewTellKind | null {
+  for (const kind of Object.keys(CREW_CAPTAIN_SIGNATURE) as CrewTellKind[])
+    if (CREW_CAPTAIN_SIGNATURE[kind] === signature) return kind
+  return null
+}
+
 export function crewCaptainArtReceipt(unit: {
   henchmanType?: string | null
   henchmanName?: string

@@ -255,13 +255,20 @@ const privateCrewImages = new Set<number>()
 const privateCrewJobs = new Set<number>()
 const privateCrewKeys = new Set<string>()
 for (const [kind, signature] of Object.entries(sourceCrewSignatures)) {
-  assert.equal(crewTellKindForVillain(signature as Parameters<typeof crewTellKindForVillain>[0]), kind)
   assert.equal(
-    henchmanForVillain(signature as Parameters<typeof henchmanForVillain>[0]).name,
+    crewTellKindForVillain(
+      signature as Parameters<typeof crewTellKindForVillain>[0],
+    ),
+    kind,
+  )
+  assert.equal(
+    henchmanForVillain(signature as Parameters<typeof henchmanForVillain>[0])
+      .name,
     CREW_TELL_ART[kind as keyof typeof CREW_TELL_ART].name,
   )
   for (const beat of CREW_TELL_BEATS) {
-    const receipt = CREW_TELL_ART[kind as keyof typeof CREW_TELL_ART].beats[beat]
+    const receipt =
+      CREW_TELL_ART[kind as keyof typeof CREW_TELL_ART].beats[beat]
     privateCrewImages.add(receipt.imageId)
     privateCrewJobs.add(receipt.jobId)
     privateCrewKeys.add(receipt.artKey)

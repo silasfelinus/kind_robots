@@ -297,7 +297,9 @@
                 <img
                   v-if="crewProofImage(beat)"
                   :src="crewProofImage(beat)!"
-                  :alt="CREW_TELL_ART[galleryCrew].name + ' ' + beat + ' painting'"
+                  :alt="
+                    CREW_TELL_ART[galleryCrew].name + ' ' + beat + ' painting'
+                  "
                   loading="lazy"
                 />
                 <div v-else class="atlas-proof-empty">
@@ -324,8 +326,9 @@
                 <span>{{ crewProofReceipt(beat).title }}</span>
                 <code>{{ crewProofReceipt(beat).artKey }}</code>
                 <small>
-                  ArtJob #{{ crewProofReceipt(beat).jobId }} · ArtImage
-                  #{{ crewProofReceipt(beat).imageId }}
+                  ArtJob #{{ crewProofReceipt(beat).jobId }} · ArtImage #{{
+                    crewProofReceipt(beat).imageId
+                  }}
                 </small>
                 <small class="atlas-proof-state">
                   {{

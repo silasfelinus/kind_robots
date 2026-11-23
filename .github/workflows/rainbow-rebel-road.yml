@@ -14,6 +14,8 @@ on:
       - 'utils/arcade/games/rainbowPrincessPreview.ts'
       - 'utils/scripts/verifyRainbowRebelRoad.test.ts'
       - 'utils/scripts/verifyRainbowMotherland.test.ts'
+      - 'utils/scripts/verifyRainbowFinaleRoads.test.ts'
+      - 'utils/arcade/types.ts'
       - '.github/workflows/rainbow-rebel-road.yml'
 
 concurrency:
@@ -25,9 +27,9 @@ permissions:
 
 jobs:
   rebel-road:
-    name: Rebel and loyal roads through Acts VI-VIII
+    name: Rebel and loyal roads through Acts VI-VIII and the finale
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -42,3 +44,5 @@ jobs:
         run: npx tsx utils/scripts/verifyRainbowMotherland.test.ts
       - name: Verify rebel-road truces and Motherland drones, loyal road unchanged
         run: npx tsx utils/scripts/verifyRainbowRebelRoad.test.ts
+      - name: Verify the flagship, the pleading Crown and all six road endings by flown lanes
+        run: npx tsx utils/scripts/verifyRainbowFinaleRoads.test.ts

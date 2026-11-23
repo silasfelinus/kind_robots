@@ -441,29 +441,6 @@ const loadedCrewProofs = computed(() =>
     0,
   ),
 )
-watch(
-  [galleryCrew, () => viewer.token],
-  ([kind]) => {
-    if (!viewer.isAdmin || !viewer.token) {
-      paintedArt.clear()
-      return
-    }
-    for (const beat of CREW_TELL_BEATS) {
-      const receipt = CREW_TELL_ART[kind].beats[beat]
-      void paintedArt.ensure(receipt.imageId)
-    }
-  },
-  { immediate: true },
-)
-watch(
-  [() => active.value.signature, () => viewer.token],
-  ([signature]) => {
-    if (!viewer.isAdmin || !viewer.token) return
-    const kind = crewTellKindForVillain(signature)
-    if (kind) void paintedArt.ensure(CREW_TELL_ART[kind].beats.captain.imageId)
-  },
-  { immediate: true },
-)
 const matching = computed(() => {
   const term = search.value.toLowerCase()
   return IDENTITY_ARCS.filter((person) => {
@@ -498,6 +475,29 @@ const deliveredPosters = computed(() =>
       total + forms.filter((role) => art(person.signature, role)).length,
     0,
   ),
+)
+watch(
+  [galleryCrew, () => viewer.token],
+  ([kind]) => {
+    if (!viewer.isAdmin || !viewer.token) {
+      paintedArt.clear()
+      return
+    }
+    for (const beat of CREW_TELL_BEATS) {
+      const receipt = CREW_TELL_ART[kind].beats[beat]
+      void paintedArt.ensure(receipt.imageId)
+    }
+  },
+  { immediate: true },
+)
+watch(
+  [() => active.value.signature, () => viewer.token],
+  ([signature]) => {
+    if (!viewer.isAdmin || !viewer.token) return
+    const kind = crewTellKindForVillain(signature)
+    if (kind) void paintedArt.ensure(CREW_TELL_ART[kind].beats.captain.imageId)
+  },
+  { immediate: true },
 )
 </script>
 

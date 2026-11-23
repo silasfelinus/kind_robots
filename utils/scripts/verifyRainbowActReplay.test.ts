@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   RAINBOW_ALTERNATE_ROUTES,
+  rainbowAlternateRouteLogbook,
   rainbowRouteIntel,
   readRainbowSave,
 } from '../arcade/games/rainbowLoadouts'
@@ -378,6 +379,13 @@ for (const route of RAINBOW_ALTERNATE_ROUTES) {
     'the approach must discover its new route in flight, not inherit completion',
   )
   assert.ok(readRainbowSave(approach, isRainbowCheckpoint))
+  assert.equal(
+    rainbowAlternateRouteLogbook(approach).find(
+      (entry) => entry.id === route.id,
+    )?.discovered,
+    false,
+    'replaying the feeder Act must re-earn the detour, not pre-credit it',
+  )
   const otherSlot = {
     ...charted,
     checkpoint: {

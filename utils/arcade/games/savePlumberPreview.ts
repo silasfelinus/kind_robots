@@ -1595,6 +1595,17 @@ export class PlumberRun implements ArcadeGameInstance {
     }
   }
 
+  private startBufferedJump() {
+    this.hero.vy = this.power === 'springstep' ? SPRING_JUMP : JUMP
+    this.ground = false
+    this.riding = null
+    this.grace = 0
+    this.jumpBuffer = 0
+    this.landed = 0
+    if (this.sound.playNotes) this.sound.playNotes(PLUMBER_JUMP_NOTES)
+    else this.sound.play('blip')
+  }
+
   private updatePlay(keys: InputFrame) {
     this.updatePlatforms()
     if (this.immune) this.immune--
@@ -1679,15 +1690,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.jumpHeld = !this.stage.space && (keys.held.a || keys.held.up)
       if (jumpDown) this.jumpBuffer = 7
       else if (this.jumpBuffer) this.jumpBuffer--
-      if (this.jumpBuffer && this.grace) {
-        hero.vy = this.power === 'springstep' ? SPRING_JUMP : JUMP
-        this.ground = false
-        this.riding = null
-        this.grace = 0
-        this.jumpBuffer = 0
-        if (this.sound.playNotes) this.sound.playNotes(PLUMBER_JUMP_NOTES)
-        else this.sound.play('blip')
-      }
+      if (this.jumpBuffer && this.grace) this.startBufferedJump()
       if (hero.vy >= 0) this.sprung = false
       if (!this.stage.space && !this.jumpHeld && !this.sprung && hero.vy < -3.4)
         hero.vy = -3.4
@@ -1725,7 +1728,7 @@ export class PlumberRun implements ArcadeGameInstance {
         }
       }
       if (this.ground && !wasGround) {
-        if (landingSpeed > 2.4) {
+        if (landingSpeed > 2.4 && !this.jumpBuffer) {
           if (this.sound.playNotes) this.sound.playNotes(PLUMBER_LAND_NOTES)
           else this.sound.play('pop')
         }
@@ -1735,6 +1738,10 @@ export class PlumberRun implements ArcadeGameInstance {
         if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
       } else if (this.landed) this.landed--
       this.updateSprings(prevBottom)
+      // Take the buffered jump on the exact landing tick, not one frame later.
+      // Springs still win when they bounce her before this check.
+      if (this.ground && !wasGround && this.jumpBuffer)
+        this.startBufferedJump()
     }
     if (this.stage.space) {
       // A vacuum stage still has a playable hull. No endless off-screen drift.

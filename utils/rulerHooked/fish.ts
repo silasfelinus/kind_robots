@@ -894,6 +894,173 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
       'Appeared when high order and miserable subjects turned the far shore into a place of punishment.',
     unlock: { all: [{ sliders: { order: { gte: 80 }, joy: { lte: 30 } } }] },
   },
+  {
+    slug: 'lilypad-chorister',
+    name: 'Lilypad Chorister',
+    source: 'ruler-hooked',
+    affinity: 'GOOD',
+    rarity: 'COMMON',
+    habitats: ['near_bank', 'lake'],
+    sizeRangeCm: [9, 25],
+    silhouette:
+      'small pearl-white fish with a crown of five flat green lily petals around its head and a tiny pink throat pouch',
+    distinction:
+      'The petal crown opens like a floating flower as the throat pouch swells into a bright violet singing bubble.',
+    catchBehavior:
+      'Travels in a singing shoal and takes the lure only between two synchronized ripples.',
+    fishopediaNote:
+      'It has never missed a festival rehearsal. The musicians refuse to admit it has perfect pitch.',
+    consequenceReveal:
+      'The protected nursery brought back shallow lily beds where these tiny choristers gather.',
+    unlock: {
+      all: [
+        {
+          flags: ['shallowsNursery'],
+          sliders: { nature: { gte: 60 } },
+        },
+      ],
+      closes: [{ flags: ['shallowsDredged'] }],
+    },
+  },
+  {
+    slug: 'covenant-glimmerfin',
+    name: 'Covenant Glimmerfin',
+    source: 'ruler-hooked',
+    affinity: 'GOOD',
+    rarity: 'RARE',
+    habitats: ['castle_grounds', 'near_bank'],
+    sizeRangeCm: [28, 63],
+    silhouette:
+      'slender cobalt shad with an oversized translucent fan tail split into seven radiant coral and gold rays',
+    distinction:
+      'Its seven tail rays overlap into a bright sunburst when two fish circle each other in clear moat water.',
+    catchBehavior:
+      'Circles the float in wide arcs and settles when the angler lets the line go slack.',
+    fishopediaNote:
+      'The court tried to appoint it keeper of promises. It declined the chain of office.',
+    consequenceReveal:
+      'The public moat trust made room for shimmering schools instead of a private royal fish pantry.',
+    unlock: {
+      all: [
+        {
+          flags: ['publicTrust'],
+          sliders: { joy: { gte: 55 } },
+        },
+      ],
+      closes: [{ flags: ['moatFishedOut'] }],
+    },
+  },
+  {
+    slug: 'border-accordionfish',
+    name: 'Border Accordionfish',
+    source: 'ruler-hooked',
+    affinity: 'NEUTRAL',
+    rarity: 'UNCOMMON',
+    habitats: ['far_shore', 'lake'],
+    sizeRangeCm: [19, 49],
+    silhouette:
+      'long jade pipefish with alternating wide and narrow body rings in turquoise orange and rose and a curled brass-colored snout',
+    distinction:
+      'Its concertina body flexes into a zigzag as it slips between two differently colored currents.',
+    catchBehavior:
+      'Folds into the trade current on a pause, then springs forward in three short pulls.',
+    fishopediaNote:
+      'It crosses the border twice per breath and still has no opinion on tariffs.',
+    consequenceReveal:
+      'The treaty opened a braided river route that these strange travelers could follow.',
+    unlock: {
+      all: [
+        {
+          flags: ['envoyTreatySigned'],
+          sliders: { prosperity: { gte: 60 } },
+        },
+      ],
+    },
+  },
+  {
+    slug: 'millwhistle-rudd',
+    name: 'Millwhistle Rudd',
+    source: 'ruler-hooked',
+    affinity: 'NEUTRAL',
+    rarity: 'COMMON',
+    habitats: ['village_edge', 'near_bank'],
+    sizeRangeCm: [17, 41],
+    silhouette:
+      'rounded silver rudd with two spinning copper pinwheel fins and a narrow upward-pointing lavender mouth',
+    distinction:
+      'Each wheel fin holds four clean curved blades that scatter rainbow droplets in the millrace.',
+    catchBehavior:
+      'Moves in measured bursts with the waterwheel; holding the line steady catches it between turns.',
+    fishopediaNote:
+      'The miller says it keeps better time than his clock. The clock has lodged an appeal.',
+    consequenceReveal:
+      'A working fish ladder gave the millrace enough current for spinning-fin rudd.',
+    unlock: {
+      all: [
+        {
+          flags: ['weirLadder'],
+          sliders: { prosperity: { gte: 50 } },
+        },
+      ],
+      closes: [{ flags: ['runBlocked'] }],
+    },
+  },
+  {
+    slug: 'tarflower-catfish',
+    name: 'Tarflower Catfish',
+    source: 'ruler-hooked',
+    affinity: 'EVIL',
+    rarity: 'RARE',
+    habitats: ['village_edge', 'lake'],
+    sizeRangeCm: [49, 116],
+    silhouette:
+      'broad midnight-blue catfish with four thick magenta whiskers ending in oily five-petal black flowers',
+    distinction:
+      'Each flower leaves a thin iridescent oil ring when the catfish brushes the water surface.',
+    catchBehavior:
+      'Stays motionless in the shadow of barges before one powerful dive under a floating slick.',
+    fishopediaNote:
+      'The concession clerk described it as a growth industry and had to wipe his boots afterward.',
+    consequenceReveal:
+      'Industrial toll barges left stagnant oily corners where tarflowers spread.',
+    unlock: {
+      all: [
+        {
+          flags: ['riverConcession'],
+          sliders: { treasury: { gte: 60 }, nature: { lte: 45 } },
+        },
+      ],
+      closes: [{ flags: ['riverCommons'] }],
+    },
+  },
+  {
+    slug: 'ironmandate-skate',
+    name: 'Ironmandate Skate',
+    source: 'ruler-hooked',
+    affinity: 'EVIL',
+    rarity: 'EPIC',
+    habitats: ['far_shore', 'castle_grounds'],
+    sizeRangeCm: [65, 143],
+    silhouette:
+      'wide dark-violet freshwater skate with squared brass-studded wings and a long crimson tail ending in a blunt iron paddle',
+    distinction:
+      'Its wing studs form two rows of raised geometric squares that flash copper as it rolls above the lakebed.',
+    catchBehavior:
+      'Pins itself to the silty bottom and releases in one violent sideways sweep when the line tightens.',
+    fishopediaNote:
+      'Its territory has posted opening hours. The lake does not recognize them.',
+    consequenceReveal:
+      'Guarded private docks created the quiet fenced shallows where ironmandate skates now lurk.',
+    unlock: {
+      all: [
+        {
+          flags: ['exclusivePier'],
+          sliders: { order: { gte: 60 }, joy: { lte: 45 } },
+        },
+      ],
+      closes: [{ flags: ['workingWaterfront'] }],
+    },
+  },
 ]
 
 export function fishUnlocked(save: RunSave, fish: FishDefinition): boolean {

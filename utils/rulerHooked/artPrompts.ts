@@ -471,6 +471,30 @@ export const FISH_PROMPTS: Record<string, string> = Object.fromEntries(
         'gallows-gudgeon',
         'A Deep crimson gudgeon with a hooked black dorsal spine and dangling pale whiskers.',
       ],
+      [
+        'lilypad-chorister',
+        'A Small pearl-white fish with a crown of five flat green lily petals around its head and a tiny pink throat pouch.',
+      ],
+      [
+        'covenant-glimmerfin',
+        'A Slender cobalt shad with an oversized translucent fan tail split into seven radiant coral and gold rays.',
+      ],
+      [
+        'border-accordionfish',
+        'A Long jade pipefish with alternating wide and narrow body rings in turquoise orange and rose and a curled brass-colored snout.',
+      ],
+      [
+        'millwhistle-rudd',
+        'A Rounded silver rudd with two spinning copper pinwheel fins and a narrow upward-pointing lavender mouth.',
+      ],
+      [
+        'tarflower-catfish',
+        'A Broad midnight-blue catfish with four thick magenta whiskers ending in oily five-petal black flowers.',
+      ],
+      [
+        'ironmandate-skate',
+        'A Wide dark-violet freshwater skate with squared brass-studded wings and a long crimson tail ending in a blunt iron paddle.',
+      ],
     ] as const
   ).map(([slug, look]) => [slug, `${look} ${PLATE}`]),
 )

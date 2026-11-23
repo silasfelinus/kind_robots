@@ -247,7 +247,11 @@ export type TreasureState = {
   sensed: boolean
 }
 
-export type CampState = { talks: number }
+export type CampState = {
+  talks: number
+  /** Prevent a support's second scene from playing at the same fire. */
+  supportScenes?: string[]
+}
 
 export type Room = {
   kind: RoomKind
@@ -290,6 +294,8 @@ export type RunState = {
   companions: string[]
   party: PartyMember[]
   affinity: Record<string, number>
+  /** Two earned conversations unlock the third, commitment beat. Optional in old saves. */
+  talkBeats?: Record<string, number>
   partners: string[]
   oaths: string[]
   bonds: Record<string, number>

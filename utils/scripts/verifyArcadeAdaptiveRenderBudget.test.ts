@@ -20,7 +20,7 @@ function decide(
 ) {
   const fit = fitDisplay({
     ...WORLD,
-    available: 390,
+    available: 844,
     dpr: 3,
     style: 'hd',
     maxCanvasPixels: currentBudgetPixels,
@@ -42,7 +42,7 @@ assert.equal(slow.backingBytes, slow.backingPixels * 4)
 assert.ok(slow.nextBudgetPixels < MOBILE_HD_CANVAS_PIXELS)
 const slowFit = fitDisplay({
   ...WORLD,
-  available: 390,
+  available: 844,
   dpr: 3,
   style: 'hd',
   maxCanvasPixels: slow.nextBudgetPixels,
@@ -106,4 +106,4 @@ assert.equal(pixelFit.canvasWidth, WORLD.width)
 assert.equal(pixelFit.canvasHeight, WORLD.height)
 assert.equal(pixelFit.smoothing, false)
 
-console.log('Arcade adaptive render budget: 10 assertions passed')
+console.log('Arcade adaptive render budget: assertions passed')

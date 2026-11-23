@@ -5,7 +5,7 @@ import {
   resolveChannelLocation,
   resolveChannels,
   type ChannelContentItem,
-} from '../stores/helpers/channelContent'
+} from '../../stores/helpers/channelContent'
 import { achievementsForGame } from '../achievements/gameAchievements'
 import {
   ALL_ENDINGS,

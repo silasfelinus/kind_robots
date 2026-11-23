@@ -68,7 +68,10 @@ export function fitDisplay(options: {
   style: RenderStyle
 }): DisplayFit {
   const { width, height, style } = options
-  const requestedWidth = Math.max(1, options.available)
+  const requestedWidth =
+    Number.isFinite(options.available) && options.available > 0
+      ? Math.max(1, options.available)
+      : 1
   const available =
     options.availableHeight !== undefined &&
     Number.isFinite(options.availableHeight) &&

@@ -390,7 +390,7 @@
       if (state.phase === 'running') {
         state.mineLevel = Math.max(1, state.mineLevel)
         setTimeout(() => {
-          if (state.phase === 'running') resetMines()
+          if (state.phase === 'running' && state.minePendingReset) resetMines()
         }, 430)
       }
       return
@@ -416,7 +416,7 @@
       state.minePendingReset = true
       $('mine-status').textContent = 'FIELD CLEARED!'
       setTimeout(() => {
-        if (state.phase === 'running') resetMines()
+        if (state.phase === 'running' && state.minePendingReset) resetMines()
       }, 430)
     }
     renderMines()

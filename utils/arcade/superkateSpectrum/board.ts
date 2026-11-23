@@ -1,7 +1,14 @@
 /** Hex bubble topology and deterministic cascade rules for Superkate's Spectrum. */
 export const COLS = 10
 export const ROWS = 15
-export const COLORS = ['pink', 'teal', 'gold', 'violet', 'blue', 'lime'] as const
+export const COLORS = [
+  'pink',
+  'teal',
+  'gold',
+  'violet',
+  'blue',
+  'lime',
+] as const
 export type Hue = (typeof COLORS)[number]
 export type Cell = Hue | null
 export type Board = Cell[][]
@@ -73,8 +80,7 @@ export function nearestSnap(
     for (let col = 0; col < COLS; col++) {
       if (board[row]![col] !== null) continue
       const p = { row, col }
-      if (row !== 0 && !neighbors(p).some((n) => board[n.row]![n.col]))
-        continue
+      if (row !== 0 && !neighbors(p).some((n) => board[n.row]![n.col])) continue
       const c = center(p)
       const d = (c.x - point.x) ** 2 + (c.y - point.y) ** 2
       if (d < distance) {
@@ -95,14 +101,13 @@ export function attachAndPop(
   position: Position,
   hue: Hue,
 ): PopResult {
-  if (!inBounds(position.row, position.col) || board[position.row]![position.col])
+  if (
+    !inBounds(position.row, position.col) ||
+    board[position.row]![position.col]
+  )
     return { matched: 0, dropped: 0, cleared: false }
   board[position.row]![position.col] = hue
-  const cluster = flood(
-    board,
-    [position],
-    (p) => board[p.row]![p.col] === hue,
-  )
+  const cluster = flood(board, [position], (p) => board[p.row]![p.col] === hue)
   if (cluster.length < 3) return { matched: 0, dropped: 0, cleared: false }
   for (const p of cluster) board[p.row]![p.col] = null
   const anchored = new Set(
@@ -121,7 +126,11 @@ export function attachAndPop(
       }
     }
   }
-  return { matched: cluster.length, dropped, cleared: !activeHues(board).length }
+  return {
+    matched: cluster.length,
+    dropped,
+    cleared: !activeHues(board).length,
+  }
 }
 export function pushCeiling(board: Board, rng: () => number): boolean {
   const overflow = board[ROWS - 1]!.some(Boolean)

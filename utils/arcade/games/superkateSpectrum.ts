@@ -8,13 +8,11 @@ import {
   COLS,
   ROWS,
   COLORS,
-  activeHues,
   attachAndPop,
   center,
   chooseHue,
   makeBoard,
   nearestSnap,
-  neighbors,
   pushCeiling,
 } from '../superkateSpectrum/board'
 import type { Board, Hue } from '../superkateSpectrum/board'
@@ -114,14 +112,7 @@ function bubble(
   g.save()
   g.shadowColor = PALETTE[hue]
   g.shadowBlur = 10
-  const gradient = g.createRadialGradient(
-    x - 4,
-    y - 5,
-    1,
-    x,
-    y,
-    size,
-  )
+  const gradient = g.createRadialGradient(x - 4, y - 5, 1, x, y, size)
   gradient.addColorStop(0, '#ffffff')
   gradient.addColorStop(0.3, PALETTE[hue])
   gradient.addColorStop(1, '#28203e')
@@ -260,8 +251,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         this.score += 2500
         this.lives = Math.min(9, this.lives + 1)
         this.earn(`chapter-${Math.ceil(this.level / 5)}`)
-        this.message =
-          CHAPTERS[Math.floor((this.level - 1) / 5)]!.finale
+        this.message = CHAPTERS[Math.floor((this.level - 1) / 5)]!.finale
       }
       if (this.level === 30) {
         this.over = true
@@ -313,11 +303,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         row.some((cell, c) => {
           if (!cell) return false
           const p = center({ row: r, col: c })
-          return (
-            (p.x - this.shot!.x) ** 2 +
-              (p.y - this.shot!.y) ** 2 <
-            26 ** 2
-          )
+          return (p.x - this.shot!.x) ** 2 + (p.y - this.shot!.y) ** 2 < 26 ** 2
         }),
       )
     )
@@ -342,7 +328,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.fillStyle = i % 2 ? '#ffffff20' : '#ffd46a22'
       g.fillRect(x, y, 3, 3)
     }
-    label(g, 'SUPERKATE\'S SPECTRUM', W / 2, 18, 15, '#fff0ad')
+    label(g, "SUPERKATE'S SPECTRUM", W / 2, 18, 15, '#fff0ad')
     const chapter = CHAPTERS[Math.floor((this.level - 1) / 5)]!
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
@@ -426,7 +412,7 @@ const game: ArcadeGameModule = {
       ],
     },
     {
-      title: 'SUPERKATE\'S STORY',
+      title: "SUPERKATE'S STORY",
       lines: [
         'SIX NEIGHBORHOODS, FIVE BOARDS EACH',
         'THE PRISM SORTER IS ERASING DIFFERENCE',

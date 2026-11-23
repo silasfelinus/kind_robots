@@ -43,11 +43,20 @@ assert.ok(snap)
 assert.equal(noPop[snap!.row]![snap!.col], null)
 const pushed = emptyBoard()
 pushed[ROWS - 1]![0] = 'pink'
-assert.equal(pushCeiling(pushed, () => 0), true)
-assert.equal(pushed[0]!.every((hue) => hue === 'pink'), true)
+assert.equal(
+  pushCeiling(pushed, () => 0),
+  true,
+)
+assert.equal(
+  pushed[0]!.every((hue) => hue === 'pink'),
+  true,
+)
 const palette = makeBoard(30, () => 0.99)
 assert.ok(activeHues(palette).includes('lime'))
-assert.equal(chooseHue(palette, () => 0), 'lime')
+assert.equal(
+  chooseHue(palette, () => 0),
+  'lime',
+)
 const rng = () => 0.25
 const options = {
   rng,

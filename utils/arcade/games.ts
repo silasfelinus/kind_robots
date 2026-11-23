@@ -70,7 +70,9 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     titleArt: '/images/arcade/games/superkate-spectrum-title.webp',
     accent: '#ed66bc',
     shelf: 'growing',
-    controls: 'Aim, shoot and swap color',
+    controls: 'Aim, fire, swap, view scrapbook and settings',
+    fourButtons: true,
+    buttonLabels: { a: 'FIRE', b: 'SWAP', x: 'NEXT TAB', y: 'PREV TAB' },
     startPauses: true,
     mastery: [
       {

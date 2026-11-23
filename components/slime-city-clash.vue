@@ -2445,7 +2445,7 @@ function forecast(lane: number): string {
 */
 @container clash (max-width: 46rem) or (max-aspect-ratio: 1 / 1) {
   .clash-layout {
-    --hand-h: calc(min(15rem, 44cqw, 42cqh) * 0.69 + 0.2rem);
+    --hand-h: calc(min(18rem, 54cqw, 46cqh) * 0.69 + 0.2rem);
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto minmax(0, 1fr) auto var(--hand-h);
     grid-template-areas:

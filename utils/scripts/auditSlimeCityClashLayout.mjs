@@ -7,9 +7,9 @@
  * The TAP variant clones the rendered UNDO button so it inherits Vue scoped
  * styles; it tests the extra control's geometry, not its gameplay effect.
  *
- * At each width it also holds a card and checks that the centre of every
+ * At each wide width it also holds a card and checks that the centre of every
  * alley the card can go to still takes a click (the held card used to stand
- * on the middle alley), and at three laptop heights it checks that the
+ * on the middle alley; narrow boards rely on drag for the bigger card), and at three laptop heights it checks that the
  * versus rail fits: crew powers inside their panel and under no other control.
  *
  * It then plays one match to the end and measures the result controls
@@ -153,7 +153,20 @@ function measureHeldCard() {
       return !(hit === el || el.contains(hit))
     })
     .map((el) => el.dataset.testid)
-  return { ok: covered.length === 0, targets: targets.length, covered }
+  // Silas, 2026-11-23 PT: on narrow or tall layouts the held card is 1.5x
+  // larger and may cover alley centres "as long as they can still drag onto
+  // the screen": there a drag reaches every alley, so only wide boards
+  // promise a click on every alley centre.
+  const clash = document.querySelector('.clash')?.getBoundingClientRect()
+  const remPx = parseFloat(getComputedStyle(document.documentElement).fontSize)
+  const narrow =
+    !!clash && (clash.width <= 46 * remPx || clash.width <= clash.height)
+  return {
+    ok: narrow || covered.length === 0,
+    layout: narrow ? 'narrow-drag' : 'wide-click',
+    targets: targets.length,
+    covered,
+  }
 }
 
 /** The versus rail fits: nothing spills out of a boss panel or sits under another control. */

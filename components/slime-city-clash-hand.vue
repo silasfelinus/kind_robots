@@ -902,10 +902,14 @@ function tap(index: number): void {
   unreadable ... the cards should start at the very screen bottom." On narrow
   or tall screens the hand spans the whole Clash layout and rests in its own
   bottom row at readable size; between turns it stays in view, dimmed.
+  Silas, 2026-11-23 PT: "We need larger cards. As long as they can still drag
+  onto the screen, selecting should be about 50% bigger." The held card shows
+  at full authored size (1.5x the old one), the resting hand is a quarter
+  larger, and the drag ghost stays alley-sized so every alley takes a drop.
 */
 @container clash (max-width: 46rem) or (max-aspect-ratio: 1 / 1) {
   .cxh {
-    --W: min(15rem, 44cqw, 42cqh);
+    --W: min(18rem, 54cqw, 46cqh);
   }
   .cxh-card {
     --rest: 0.62;
@@ -925,7 +929,10 @@ function tap(index: number): void {
     opacity: 0.55;
   }
   .cxh-card.big {
-    --s: 0.8;
+    --s: 1;
+  }
+  .cxh-card.dragging {
+    --s: 0.34;
   }
   .cxh-levels:not(.docked) {
     top: 0.3rem;

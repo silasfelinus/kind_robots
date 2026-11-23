@@ -234,6 +234,7 @@ try {
     assert.ok(complete.final > 0, 'completed run earns points')
     await page.fill('#initials', 'kR7')
     await page.click('#submit')
+    // A successful click starts the request; the score receipt is asynchronous.
     await page.waitForFunction(() =>
       /Rank #2/.test(
         document.getElementById('submit-status')?.textContent || '',

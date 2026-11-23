@@ -477,10 +477,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     userId: number,
     token: string,
   ): Promise<SpectrumAccountCopy | null> {
-    const reply = await $fetch<{
-      success: boolean
-      data: SpectrumAccountCopy | null
-    }>('/api/arcade/saves/superkate-spectrum', {
+    const reply = await $fetch<
+      { success: boolean; data: SpectrumAccountCopy | null },
+      string
+    >('/api/arcade/saves/superkate-spectrum', {
       headers: { Authorization: `Bearer ${token}` },
       timeout: 4000,
     })
@@ -555,10 +555,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
         spectrumDirty = false
         const save = readSpectrumSave(saves.value[SPECTRUM_SLUG])
         try {
-          const reply = await $fetch<{
-            success: boolean
-            data?: { revision: number }
-          }>('/api/arcade/saves/superkate-spectrum', {
+          const reply = await $fetch<
+            { success: boolean; data?: { revision: number } },
+            string
+          >('/api/arcade/saves/superkate-spectrum', {
             method: 'PUT',
             headers: { Authorization: `Bearer ${user.token}` },
             timeout: 4000,

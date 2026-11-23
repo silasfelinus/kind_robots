@@ -41,10 +41,7 @@ import {
   freshStoryChoices,
   pendingStoryDecision,
 } from '../superkateSpectrum/story'
-import type {
-  StoryChoices,
-  StoryEnding,
-} from '../superkateSpectrum/story'
+import type { StoryChoices, StoryEnding } from '../superkateSpectrum/story'
 import type {
   BubbleStyle,
   SpectrumCareer,
@@ -497,7 +494,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         this.storyChoices[index] = this.choiceCursor
         if (this.choiceCursor === 0) this.lives = Math.min(9, this.lives + 1)
         else this.power = STORY_DECISIONS[index]!.power
-        this.message = STORY_DECISIONS[index]!.options[this.choiceCursor].response
+        this.message =
+          STORY_DECISIONS[index]!.options[this.choiceCursor].response
         this.choiceResponseVisible = true
         this.pendingChoice = null
         this.banner = 110
@@ -977,7 +975,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         g,
         this.over
           ? this.won
-            ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)].title
+            ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)]
+                .title
             : 'TRY AGAIN'
           : chapter.name,
         160,
@@ -987,7 +986,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       label(
         g,
         this.won
-          ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)].lines[0]
+          ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)]
+              .lines[0]
           : this.over
             ? 'THANK YOU, SUPERKATE!'
             : chapter.problem,
@@ -999,11 +999,12 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       label(
         g,
         this.won
-          ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)].lines[1]
+          ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)]
+              .lines[1]
           : this.banner > 0 &&
-            !this.choiceResponseVisible &&
-            this.mode === 'story' &&
-            this.level % 5 === 1
+              !this.choiceResponseVisible &&
+              this.mode === 'story' &&
+              this.level % 5 === 1
             ? CHAPTER_VOICES[Math.min(5, Math.floor((this.level - 1) / 5))]!
             : this.message,
         160,
@@ -1013,7 +1014,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       )
       label(
         g,
-        this.won ? 'THREE PATHS · ONE RAINBOW CITY' : 'A FIRE  B SWAP  LEFT/RIGHT AIM',
+        this.won
+          ? 'THREE PATHS · ONE RAINBOW CITY'
+          : 'A FIRE  B SWAP  LEFT/RIGHT AIM',
         160,
         266,
         10,

@@ -77,17 +77,11 @@ export const STORY_ENDINGS: Record<
   },
   'open-city': {
     title: 'THE OPEN STUDIO',
-    lines: [
-      'KATE: EVERYONE HAS A BRUSH.',
-      'THE NEIGHBORHOODS BUILD TOGETHER.',
-    ],
+    lines: ['KATE: EVERYONE HAS A BRUSH.', 'THE NEIGHBORHOODS BUILD TOGETHER.'],
   },
   'prism-partners': {
     title: 'THE PRISM PARTNERSHIP',
-    lines: [
-      'SORTER: MAY I LEARN YOUR COLORS?',
-      'KATE: THERE IS ALWAYS ROOM.',
-    ],
+    lines: ['SORTER: MAY I LEARN YOUR COLORS?', 'KATE: THERE IS ALWAYS ROOM.'],
   },
 }
 

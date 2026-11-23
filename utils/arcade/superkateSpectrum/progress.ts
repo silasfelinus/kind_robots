@@ -1,8 +1,4 @@
-import {
-  freshStoryChoices,
-  STORY_DECISIONS,
-  STORY_ENDINGS,
-} from './story'
+import { freshStoryChoices, STORY_DECISIONS, STORY_ENDINGS } from './story'
 import type { StoryChoices, StoryEnding } from './story'
 
 /** Persisted career progression, independent of a particular run or game over. */
@@ -345,10 +341,13 @@ export function mergeSpectrumSaves(
     mode: local.mode,
     stage: local.mode === 'classic' ? 1 : career.highestStage,
     style,
-    storyChoices: freshStoryChoices().map((_, index) =>
-      local.storyChoices?.[index] ?? remote.storyChoices?.[index] ?? null,
+    storyChoices: freshStoryChoices().map(
+      (_, index) =>
+        local.storyChoices?.[index] ?? remote.storyChoices?.[index] ?? null,
     ) as StoryChoices,
-    endings: [...new Set([...(remote.endings ?? []), ...(local.endings ?? [])])],
+    endings: [
+      ...new Set([...(remote.endings ?? []), ...(local.endings ?? [])]),
+    ],
     settings: local.settings,
   }
 }

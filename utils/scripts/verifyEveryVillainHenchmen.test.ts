@@ -590,7 +590,6 @@ assert.match(
 )
 assert.match(page, /unit\.hp > 0 && isCrewTellKind\(unit\.henchmanType\)/)
 
-
 const paintedLoader = readFileSync(
   new URL('../../stores/everyVillainTacticsArtStore.ts', import.meta.url),
   'utf8',
@@ -599,7 +598,10 @@ const paintedLoader = readFileSync(
 // retrying permanent auth denials. The rail must not claim loading as delivery.
 assert.match(paintedLoader, /RETRYABLE_MEDIA_STATUSES/)
 assert.match(paintedLoader, /429, 500, 502, 503, 504/)
-assert.match(paintedLoader, /!RETRYABLE_MEDIA_STATUSES\.has\(response\.status\)/)
+assert.match(
+  paintedLoader,
+  /!RETRYABLE_MEDIA_STATUSES\.has\(response\.status\)/,
+)
 assert.match(paintedLoader, /requestGeneration !== generation/)
 assert.match(paintedLoader, /blob\.size < 24/)
 assert.match(paintedLoader, /await image\.decode\(\)/)

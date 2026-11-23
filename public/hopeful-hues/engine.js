@@ -366,6 +366,7 @@
     for (const goal of state.goals) {
       if (goal.type !== type) continue
       if (type === 'collect' && goal.color !== color) continue
+      if (type === 'special' && goal.special !== color) continue
       goal.progress = Math.min(goal.target, goal.progress + amount)
     }
   }
@@ -654,6 +655,12 @@
       if (existing) tile.id = existing.id
       state.board[r][c] = tile
       phase.created.push({ r, c, id: tile.id, special, color })
+      bumpGoal(
+        state,
+        'special',
+        special === 'h' || special === 'v' ? 'comb' : special,
+        1,
+      )
       if (special === 'rainbow') state.stats.rainbows++
       else if (special === 'bomb') state.stats.bombs++
       else state.stats.combs++
@@ -680,6 +687,7 @@
       for (const [r, c] of cells) initial.push([r, c, 'special'])
     }
     state.stats.combos++
+    if (sa && sb) bumpGoal(state, 'combo', null, 1)
     if (sa === 'rainbow' && sb === 'rainbow') {
       for (let r = 0; r < state.rows; r++)
         for (let c = 0; c < state.cols; c++)
@@ -835,10 +843,28 @@
 
   function finishBonus(state) {
     const left = Math.max(0, state.movesLeft)
-    const bonus = left * 150
-    state.score += bonus
+    if (!state.won || !left) return { movesConverted: 0, bonus: 0, phases: [] }
+    const before = state.score
+    const phases = []
+    let remaining = left
+    while (remaining > 0) {
+      const phase = newPhase(0)
+      const initial = []
+      for (let r = 0; r < state.rows && initial.length < remaining; r++)
+        for (let c = 0; c < state.cols && initial.length < remaining; c++) {
+          const tile = tileAt(state, r, c)
+          if (!isGem(tile) || tile.special) continue
+          tile.special = (r + c) % 2 ? 'h' : 'v'
+          initial.push([r, c, 'special'])
+        }
+      if (!initial.length) break
+      remaining -= initial.length
+      resolveClearSet(state, initial, phase)
+      phases.push(...cascade(state, phase, null))
+    }
+    state.score += left * 150
     state.movesLeft = 0
-    return { movesConverted: left, bonus }
+    return { movesConverted: left, bonus: state.score - before, phases }
   }
 
   function starsFor(state, thresholds) {
@@ -930,7 +956,11 @@
           ? Math.min(goal.target, trial.score)
           : trial.goals[i].progress
       const weight =
-        goal.type === 'score' ? 1 / 40 : goal.type === 'buddy' ? 260 : 70
+        goal.type === 'score'
+          ? 1 / 40
+          : ['buddy', 'special', 'combo'].includes(goal.type)
+            ? 260
+            : 70
       goalValue += (after - before) * weight
     })
     let buddyDepth =

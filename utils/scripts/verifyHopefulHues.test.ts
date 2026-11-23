@@ -10,7 +10,13 @@ type Tile = {
   special?: string | null
   hp?: number
 } | null
-type Goal = { type: string; target: number; progress: number; color?: number }
+type Goal = {
+  type: string
+  target: number
+  progress: number
+  color?: number
+  special?: string
+}
 type State = {
   rows: number
   cols: number
@@ -23,7 +29,11 @@ type State = {
   won: boolean
   stats: Record<string, number>
 }
-type Phase = { created: Array<{ special: string }>; cleared: unknown[] }
+type Phase = {
+  created: Array<{ special: string }>
+  cleared: unknown[]
+  fired: Array<{ special: string }>
+}
 type Engine = {
   createLevelState: (def: unknown, opts?: unknown) => State
   findRuns: (s: State) => unknown[]
@@ -36,7 +46,7 @@ type Engine = {
   ) => { ok: boolean; phases: Phase[]; outcome?: string }
   bestMove: (s: State, limit?: number) => number[][] | null
   clone: <T>(v: T) => T
-  finishBonus: (s: State) => { bonus: number }
+  finishBonus: (s: State) => { bonus: number; phases: Phase[] }
   starsFor: (s: State, t: number[]) => number
 }
 type LevelDef = {
@@ -261,7 +271,15 @@ const four = craftedState(
   ],
   [1, 2],
 )
+four.goals = [{ type: 'special', special: 'comb', target: 1, progress: 0 }]
 const fourResult = E.trySwap(four, [1, 2], [2, 2])
+assert.equal(four.goals[0]?.progress, 1)
+assert.equal(four.won, true)
+const overflow = E.finishBonus(four)
+assert.ok(overflow.bonus > 0)
+assert.ok(overflow.phases.some((phase) => phase.fired.length > 0))
+assert.equal(four.movesLeft, 0)
+assert.equal(E.finishBonus(four).bonus, 0)
 assert.ok(fourResult.ok)
 assert.ok(
   ['h', 'v'].includes(fourResult.phases[0]?.created[0]?.special ?? ''),

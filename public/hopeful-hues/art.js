@@ -160,6 +160,14 @@
 
   function goalIconSvg(goal, worldId) {
     if (goal.type === 'collect') return gemSvg(goal.color, null, false, worldId)
+    if (goal.type === 'special')
+      return gemSvg(
+        0,
+        goal.special === 'comb' ? 'h' : goal.special,
+        false,
+        worldId,
+      )
+    if (goal.type === 'combo') return gemSvg(0, 'rainbow', false, worldId)
     if (goal.type === 'buddy') return buddySvg(worldId)
     if (goal.type === 'tangle') return tangleSvg(1, worldId)
     const world = worldId ? worldOf(worldId) : null

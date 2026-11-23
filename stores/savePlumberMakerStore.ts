@@ -187,7 +187,10 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
 
   function paint(x: number, y: number) {
     const next = paintMakerTile(level.value, x, y, selectedTile.value)
-    if (next !== level.value) reviewSummary.value = blankReviewSummary()
+    if (next !== level.value) {
+      reviewSummary.value = blankReviewSummary()
+      reviewComment.value = ''
+    }
     level.value = next
   }
 
@@ -274,6 +277,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     if (!previous) return
     redoStack.value.push(clone(level.value))
     level.value = previous
+    reviewSummary.value = blankReviewSummary()
+    reviewComment.value = ''
   }
 
   function redo() {
@@ -281,6 +286,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     if (!next) return
     undoStack.value.push(clone(level.value))
     level.value = next
+    reviewSummary.value = blankReviewSummary()
+    reviewComment.value = ''
   }
 
   function resize(cols: number, rows: number): boolean {
@@ -313,6 +320,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     pushUndo()
     level.value = validateMakerLevel({ ...level.value, ...patch })
     reviewSummary.value = blankReviewSummary()
+    reviewComment.value = ''
   }
 
   function newDraft() {

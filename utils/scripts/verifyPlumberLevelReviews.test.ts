@@ -111,6 +111,22 @@ assert.doesNotMatch(
   /ratings\.value =/,
   'local scores must not masquerade as DB ratings',
 )
+for (const action of ['paint', 'undo', 'redo', 'updateSettings']) {
+  const start = makerStore.indexOf('  function ' + action + '(')
+  const end = makerStore.indexOf('\n  function ', start + 1)
+  const body = makerStore.slice(start, end < 0 ? undefined : end)
+  assert.ok(start >= 0, action + ' must remain implemented')
+  assert.match(
+    body,
+    /reviewSummary\.value = blankReviewSummary\(\)/,
+    action + ' must discard reviews tied to the previous revision',
+  )
+  assert.match(
+    body,
+    /reviewComment\.value = ''/,
+    action + ' must discard an old revision comment',
+  )
+}
 assert.match(makerComponent, /maker\.rate\(stars\)/)
 assert.match(makerComponent, /YOUR REVIEW \(OPTIONAL\)/)
 assert.match(sidebar, /maker\.reviews/)

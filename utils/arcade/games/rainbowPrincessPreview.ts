@@ -68,6 +68,11 @@ import {
   type RainbowRouteFlags,
 } from './rainbowRouteBeats'
 import {
+  drawRainbowEnemyFrame,
+  drawRainbowInterlude,
+  drawRainbowPose,
+} from './rainbowAnimation'
+import {
   drawRainbowDetourPlanes,
   type RainbowDetour,
 } from './rainbowDetourPlanes'
@@ -7132,6 +7137,14 @@ export function createRainbowPrincessPreview(
         if (reef.kind === 'motherdrone') {
           if (!drawRainbowEnemySprite(g, 'motherdrone')) drawMotherlandDrone(g)
         } else if (
+          // Idle frames (t-030) where a family's atlas has shipped, offset per wave so a school never flaps
+          // in unison; otherwise the still.
+          !drawRainbowEnemyFrame(
+            g,
+            reef.kind === 'diver' ? 'picket' : reef.kind,
+            tick + (reef.wave ?? 0) * 7,
+            calm,
+          ) &&
           !drawRainbowEnemySprite(
             g,
             reef.kind === 'diver' ? 'picket' : reef.kind,
@@ -8901,7 +8914,10 @@ export function createRainbowPrincessPreview(
         g.globalAlpha =
           Math.min(1, introFrame / 15) *
           Math.min(1, (INTRO_FRAMES - introFrame) / 30)
-        const height = drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
+        // The living interlude (t-030) where one shipped, else the still title card.
+        const height =
+          drawRainbowInterlude(g, stage, W / 2 - 100, top, 200, calm) ||
+          drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
         const bandY = top + Math.max(height, 40) - 22
         g.fillStyle = '#180d38d9'
         g.fillRect(W / 2 - 100, bandY, 200, 22)
@@ -9183,13 +9199,11 @@ export function createRainbowPrincessPreview(
         g.fillRect(0, 0, W, COMMS_HEIGHT)
         g.fillStyle = '#ffe2fa'
         g.fillRect(0, COMMS_HEIGHT - 1, W, 1)
-        const portrait = drawRainbowCommsPortrait(
-          g,
-          dialogue.speaker,
-          HUD_LEFT,
-          4,
-          43,
-        )
+        // After a fight the pilots speak in their victory pose (t-030) where it shipped.
+        const portrait =
+          (Boolean(scene?.id.endsWith('.AFTER')) &&
+            drawRainbowPose(g, dialogue.speaker, 'victory', HUD_LEFT, 4, 43)) ||
+          drawRainbowCommsPortrait(g, dialogue.speaker, HUD_LEFT, 4, 43)
         if (portrait) {
           g.strokeStyle = '#aef6f0'
           g.strokeRect(HUD_LEFT, 4, 43, 43)

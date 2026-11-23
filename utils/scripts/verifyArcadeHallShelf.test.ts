@@ -36,7 +36,11 @@ for (const slug of ['petal-post', 'rain-catcher', 'repair-rampage'])
     `${slug} still has open depth slices`,
   )
 
-const loudGrowing = growing[0]!
+// The featured Superkate cabinet is pinned above the shelves, so select a
+// normal growing cabinet when proving that shelf priority beats ratings.
+const loudGrowing = growing.find(
+  (game) => game.slug !== 'superkate-spectrum',
+)!
 const quietShowcase = showcase[showcase.length - 1]!
 const arranged = arrangeArcadeHall(HALL_GAMES, {
   [loudGrowing.slug]: { average: 5, count: 99 },

@@ -68,6 +68,31 @@ assert.equal(
   pushed[0]!.every((hue) => hue === 'pink'),
   true,
 )
+const salonBubbleCounts = [19, 22, 26, 37, 38]
+const salonSnapshots = new Set<string>()
+for (let stage = 1; stage <= 5; stage++) {
+  const authored = makeBoard(stage, () => {
+    throw new Error('Authored Salon boards must not depend on the RNG')
+  })
+  const cells = authored.flat().filter((color) => color !== null)
+  assert.equal(
+    cells.length,
+    salonBubbleCounts[stage - 1],
+    `Salon stage ${stage} retains its intended puzzle density`,
+  )
+  assert.deepEqual(
+    activeHues(authored),
+    ['pink', 'teal', 'gold'],
+    'The intro chapter teaches with only three distinguishable hues',
+  )
+  salonSnapshots.add(JSON.stringify(authored))
+}
+assert.equal(salonSnapshots.size, 5, 'All five Salon lessons have unique boards')
+const firstLesson = makeBoard(1, () => 0.8)
+assert.ok(
+  attachAndPop(firstLesson, { row: 3, col: 0 }, 'pink').matched >= 3,
+  'The first hand-authored tutorial permits an immediate matching shot',
+)
 const palette = makeBoard(30, () => 0.99)
 assert.ok(activeHues(palette).includes('lime'))
 assert.equal(

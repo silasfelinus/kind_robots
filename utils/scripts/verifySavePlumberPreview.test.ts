@@ -7,6 +7,8 @@ import { emptyInput } from '../arcade/types'
 import { parseLoop } from '../arcade/sound'
 import {
   PLUMBER_BOSS_MUSIC,
+  PLUMBER_JUMP_NOTES,
+  PLUMBER_LAND_NOTES,
   PLUMBER_WORLD_MUSIC,
 } from '../arcade/games/savePlumberMusic'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
@@ -127,5 +129,29 @@ assert.equal(bossRun.musicScene, 'level', 'defeated bosses release tension')
 assert.equal(bossRun.music, PLUMBER_WORLD_MUSIC[0])
 bossRun.mode = 'dying'
 assert.equal(bossRun.music, null, 'death stops the running score')
+
+const actionSounds: unknown[] = []
+const actionRun = createSavePlumberPreview({
+  ...options,
+  sound: {
+    play() {},
+    playNotes(notes) {
+      actionSounds.push(notes)
+    },
+  },
+})
+actionRun.loadStage(0)
+actionRun.mode = 'play'
+for (let frame = 0; frame < 80; frame++) {
+  const keys = emptyInput()
+  keys.pressed.a = frame === 4
+  keys.held.a = frame >= 4 && frame < 20
+  actionRun.update(keys)
+}
+assert.deepEqual(
+  actionSounds,
+  [PLUMBER_JUMP_NOTES, PLUMBER_LAND_NOTES],
+  'one original synth cue plays at takeoff and at a real landing',
+)
 
 console.log('Save the Plumber public Play route and opening flow verified')

@@ -71,6 +71,19 @@ assert.ok(
   'Maker must use its own storage namespace',
 )
 
+const makerStoreSource = source('../../stores/savePlumberMakerStore.ts')
+const settingsHandler = makerStoreSource.match(
+  /function updateSettings\([\s\S]*?\n\s+function newDraft\(/,
+)?.[0]
+assert.ok(settingsHandler, 'Maker settings handler must exist')
+assert.ok(
+  settingsHandler.indexOf('validateMakerLevel') <
+    settingsHandler.indexOf('pushUndo()'),
+  'Invalid settings must not create undo history before validation',
+)
+assert.match(settingsHandler, /JSON\.stringify\(next\) === JSON\.stringify/)
+assert.match(settingsHandler, /catch \(cause\)/)
+
 const initial = newMakerLevel()
 assert.equal(initial.rows.length, 24)
 assert.equal(initial.rows[0]!.length, 64)

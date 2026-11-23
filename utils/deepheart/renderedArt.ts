@@ -118,7 +118,7 @@ export const DEEPHEART_ART_IDS: Readonly<Record<string, number>> = {
   'moment:romance-wren': 275201,
   'moment:romance-yarrow': 275189,
   'moment:treasure-hoard': 273869,
-  'premise': 273804,
+  premise: 273804,
   'room:boss': 274138,
   'room:camp': 274137,
   'room:choice': 274136,

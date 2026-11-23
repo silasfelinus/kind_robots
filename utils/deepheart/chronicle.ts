@@ -87,7 +87,9 @@ export function decodeChronicle(text: string | null): Chronicle | null {
       runs: Array.isArray(raw.runs) ? (raw.runs as RunPage[]) : [],
       met: Array.isArray(raw.met) ? (raw.met as string[]) : [],
       supports: Array.isArray(raw.supports) ? (raw.supports as string[]) : [],
-      values: isObject(raw.values) ? (raw.values as Record<string, Value[]>) : {},
+      values: isObject(raw.values)
+        ? (raw.values as Record<string, Value[]>)
+        : {},
       romances: Array.isArray(raw.romances) ? (raw.romances as string[]) : [],
       endings: Array.isArray(raw.endings) ? (raw.endings as EndingId[]) : [],
       awarded: Array.isArray(raw.awarded) ? (raw.awarded as string[]) : [],

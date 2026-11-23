@@ -137,8 +137,9 @@ assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
 assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
 assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')
 assert.ok(
-  Object.keys(DEEPHEART_ART_IDS).filter((key) => key.startsWith('moment:romance-'))
-    .length >= 40,
+  Object.keys(DEEPHEART_ART_IDS).filter((key) =>
+    key.startsWith('moment:romance-'),
+  ).length >= 40,
   'normal romance art is mapped',
 )
 assert.ok(

@@ -125,7 +125,10 @@
         <p class="opacity-80">{{ role.perk }}</p>
       </div>
 
-      <div v-if="knownLikes.length || knownDislike" class="flex flex-wrap gap-1">
+      <div
+        v-if="knownLikes.length || knownDislike"
+        class="flex flex-wrap gap-1"
+      >
         <span
           v-for="v in knownLikes"
           :key="v"
@@ -137,7 +140,11 @@
         >
       </div>
 
-      <p v-if="dh.romanceOn && knownRomance" class="text-sm" data-testid="dh-romance-note">
+      <p
+        v-if="dh.romanceOn && knownRomance"
+        class="text-sm"
+        data-testid="dh-romance-note"
+      >
         <Icon name="kind-icon:heart" class="size-4 text-secondary" />
         {{ romanceNote }}
       </p>
@@ -327,7 +334,8 @@
             size="sm"
             caption
             :badge="
-              dh.romanceOn && dh.chronicle.romances.includes(dh.companions[i - 1]!)
+              dh.romanceOn &&
+              dh.chronicle.romances.includes(dh.companions[i - 1]!)
                 ? '♥'
                 : ''
             "

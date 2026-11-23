@@ -71,7 +71,10 @@ export default defineEventHandler(async (event) => {
   }
   const type = IMAGE_TYPES[String(image.fileType || '').toLowerCase()]
   if (!type) {
-    throw createError({ statusCode: 415, statusMessage: 'Invalid image format' })
+    throw createError({
+      statusCode: 415,
+      statusMessage: 'Invalid image format',
+    })
   }
   setHeader(event, 'Content-Type', type)
   return Buffer.from(binary.imageData.replace(/^data:[^,]*,/, ''), 'base64')

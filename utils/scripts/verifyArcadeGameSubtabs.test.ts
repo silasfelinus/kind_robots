@@ -140,6 +140,13 @@ assert.doesNotMatch(
   /to="\/play\/arcade"/,
   'the redundant standalone Arcade shortcut must be a Play tab instead',
 )
+// Silas, 2026-11-23 PT: "We're missing our nav link to chessweeper on the nav
+// bar." The header keeps a Chessweeper shortcut beside Slime City and Memory.
+assert.match(
+  header,
+  /<NuxtLink\s+to="\/play\/chessweeper"[\s\S]*?name="kind-icon:chessweeper"/,
+  'the header nav bar must link to Chessweeper',
+)
 
 const playChannel = readFileSync('content/channels/arcade/index.md', 'utf8')
 assert.match(playChannel, /\nlabel: Play\n/)

@@ -322,18 +322,18 @@
                 }}
               </p>
               <details
-                v-if="activeCrewKinds.length"
+                v-if="encounteredCrewKinds.length"
                 class="evt-crew-art-gallery"
                 data-testid="tactics-crew-art-gallery"
                 open
               >
-                <summary>ONE-HIT CREWS · PAINTED COUNTERPLAY</summary>
+                <summary>ONE-HIT CREWS · ORIGINAL PAINTINGS</summary>
                 <div
                   class="evt-crew-art-controls"
                   aria-label="Choose enemy crew"
                 >
                   <button
-                    v-for="kind in activeCrewKinds"
+                    v-for="kind in encounteredCrewKinds"
                     :key="kind"
                     type="button"
                     :aria-pressed="galleryCrew === kind"
@@ -343,6 +343,29 @@
                   </button>
                 </div>
                 <div
+                  class="evt-crew-art-controls"
+                  role="group"
+                  aria-label="Choose original painting set"
+                >
+                  <button
+                    type="button"
+                    :aria-pressed="crewGalleryMode === 'counterplay'"
+                    data-testid="tactics-crew-view-counterplay"
+                    @click="crewGalleryMode = 'counterplay'"
+                  >
+                    WARNING &amp; COUNTERS
+                  </button>
+                  <button
+                    type="button"
+                    :aria-pressed="crewGalleryMode === 'combat'"
+                    data-testid="tactics-crew-view-combat"
+                    @click="crewGalleryMode = 'combat'"
+                  >
+                    COMBAT POSES
+                  </button>
+                </div>
+                <div
+                  v-if="crewGalleryMode === 'counterplay'"
                   class="evt-crew-art-strip"
                   role="list"
                   aria-label="Original painted warning, action, counter and captain"
@@ -379,6 +402,49 @@
                       type="button"
                       class="evt-crew-art-retry"
                       @click="retryCrewBeat(beat)"
+                    >
+                      RETRY ART
+                    </button>
+                  </figure>
+                </div>
+                <div
+                  v-else
+                  class="evt-crew-art-strip"
+                  role="list"
+                  aria-label="Original painted idle, strike, hit and defeat combat poses"
+                  data-testid="tactics-crew-combat-strip"
+                >
+                  <figure
+                    v-for="pose in CREW_COMBAT_POSES"
+                    :key="pose"
+                    class="evt-crew-beat"
+                    role="listitem"
+                    :data-art-image-id="crewPoseImageId(pose)"
+                  >
+                    <div class="evt-crew-beat-image">
+                      <img
+                        v-if="crewPoseImage(pose)"
+                        :src="crewPoseImage(pose)"
+                        :alt="crewPoseTitle(pose)"
+                        data-testid="tactics-crew-pose-loaded"
+                      />
+                      <p v-else aria-live="polite">
+                        {{
+                          crewPoseStatus(pose) === 'loading'
+                            ? 'Loading original art…'
+                            : 'Private art unavailable'
+                        }}
+                      </p>
+                    </div>
+                    <figcaption>
+                      <strong>{{ pose.toUpperCase() }}</strong>
+                      <span>{{ crewPoseTitle(pose) }}</span>
+                    </figcaption>
+                    <button
+                      v-if="crewPoseStatus(pose) === 'failed'"
+                      type="button"
+                      class="evt-crew-art-retry"
+                      @click="retryCrewPose(pose)"
                     >
                       RETRY ART
                     </button>
@@ -1790,6 +1856,7 @@ import {
   CREW_COMBAT_ART,
   CREW_COMBAT_POSES,
   crewCombatReceipt,
+  type CrewCombatPose,
 } from '~/utils/everyVillainTactics/crewCombatArt'
 import {
   useEveryVillainTacticsArtStore,
@@ -1843,17 +1910,18 @@ const paintedMapStatus = computed(
       : null) ?? (paintedArtId.value ? 'loading' : 'unmapped'),
 )
 const selectedCrewKind = ref<CrewTellKind>('burrow')
-const activeCrewKinds = computed<CrewTellKind[]>(() => {
+const crewGalleryMode = ref<'counterplay' | 'combat'>('counterplay')
+const encounteredCrewKinds = computed<CrewTellKind[]>(() => {
   const kinds = new Set<CrewTellKind>()
   for (const unit of store.state.units) {
-    if (unit.hp > 0 && isCrewTellKind(unit.henchmanType)) {
+    if (isCrewTellKind(unit.henchmanType)) {
       kinds.add(unit.henchmanType)
     }
   }
   return [...kinds]
 })
 watch(
-  [activeCrewKinds, () => viewer.token],
+  [encounteredCrewKinds, () => viewer.token],
   ([kinds]) => {
     for (const kind of kinds) {
       void paintedArt.ensure(CREW_TELL_ART[kind].beats.warning.imageId)
@@ -1870,9 +1938,9 @@ function crewWarningImage(kind: CrewTellKind): string {
   return paintedArt.images[id]?.src ?? ''
 }
 const galleryCrew = computed<CrewTellKind | null>(() =>
-  activeCrewKinds.value.includes(selectedCrewKind.value)
+  encounteredCrewKinds.value.includes(selectedCrewKind.value)
     ? selectedCrewKind.value
-    : (activeCrewKinds.value[0] ?? null),
+    : (encounteredCrewKinds.value[0] ?? null),
 )
 watch(
   [galleryCrew, () => viewer.token],
@@ -1898,6 +1966,27 @@ function crewBeatTitle(beat: CrewTellBeat): string {
 }
 function retryCrewBeat(beat: CrewTellBeat): void {
   void paintedArt.retry(crewBeatImageId(beat))
+}
+function crewPoseImageId(pose: CrewCombatPose): number | null {
+  return galleryCrew.value
+    ? CREW_COMBAT_ART[galleryCrew.value][pose].imageId
+    : null
+}
+function crewPoseImage(pose: CrewCombatPose): string {
+  const id = crewPoseImageId(pose)
+  return id ? (paintedArt.images[id]?.src ?? '') : ''
+}
+function crewPoseStatus(pose: CrewCombatPose): PaintedMapArt['status'] {
+  const id = crewPoseImageId(pose)
+  return id ? (paintedArt.images[id]?.status ?? 'loading') : 'failed'
+}
+function crewPoseTitle(pose: CrewCombatPose): string {
+  return galleryCrew.value
+    ? CREW_COMBAT_ART[galleryCrew.value][pose].title
+    : pose
+}
+function retryCrewPose(pose: CrewCombatPose): void {
+  void paintedArt.retry(crewPoseImageId(pose))
 }
 const comicPreviewRoles: ComicIntroRole[] = [
   'hero',

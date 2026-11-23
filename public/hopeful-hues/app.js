@@ -783,10 +783,12 @@
           `<div class="goal" style="justify-content:flex-start">${A.goalIconSvg(g, levelWorld(id).id)}<span>${esc(goalText(g, levelWorld(id)))}</span></div>`,
       )
       .join('')
-    const startBoosts = ['bomb', 'rainbow'].map((key) => {
-      const label = levelWorld(id).specials[key].name
-      return `<option value="${key}" ${s.boosters[key] ? '' : 'disabled'}>${esc(label)} (${s.boosters[key]})</option>`
-    }).join('')
+    const startBoosts = ['bomb', 'rainbow']
+      .map((key) => {
+        const label = levelWorld(id).specials[key].name
+        return `<option value="${key}" ${s.boosters[key] ? '' : 'disabled'}>${esc(label)} (${s.boosters[key]})</option>`
+      })
+      .join('')
     const modal = openModal({
       title: `${region.name} · ${def.finale ? 'Finale' : 'Level ' + def.n}`,
       body: `<div class="center result-stars">${[0, 1, 2].map((k) => `<span class="s">${A.starSvg(record && k < record.stars)}</span>`).join('')}</div><div class="list">${goals}</div><p class="center"><b>${def.moves}${c.perk === 'extra-moves' ? ' + 2' : ''}</b> moves · ⭐⭐ at ${def.stars[1].toLocaleString()} · ⭐⭐⭐ at ${def.stars[2].toLocaleString()}</p>${record ? `<p class="center muted">Best score: ${record.best.toLocaleString()}</p>` : ''}<p class="center muted">${esc(c.name)}'s perk: ${esc(c.perkText)}</p>`,
@@ -833,7 +835,10 @@
     const parsed = L.parseLevelId(id)
     const def = L.buildLevel(parsed.region, parsed.n)
     const c = character(regionWorld(parsed.region).hero.id)
-    const startSpecial = ['bomb', 'rainbow'].includes(startBoost) && s.boosters[startBoost] > 0 ? startBoost : null
+    const startSpecial =
+      ['bomb', 'rainbow'].includes(startBoost) && s.boosters[startBoost] > 0
+        ? startBoost
+        : null
     const state = E.createLevelState(def, {
       startSpecial,
       perk: c.perk,
@@ -865,7 +870,8 @@
   }
 
   function renderGame(params) {
-    if (!game || game.id !== params.id) game = newGame(params.id, params.startBoost)
+    if (!game || game.id !== params.id)
+      game = newGame(params.id, params.startBoost)
     if (game.tutorial) {
       game.tutorial = null
       game.tutorialStarted = game.history.length > 0
@@ -1304,7 +1310,8 @@
     appEl.querySelector('[data-shuffle-count]').textContent = s.boosters.shuffle
     appEl.querySelector('[data-action="shuffle"]').disabled =
       game.busy || s.boosters.shuffle <= 0 || st.over
-    appEl.querySelector('[data-action="tools"]').disabled = game.busy || st.over || !!game.tutorial?.move
+    appEl.querySelector('[data-action="tools"]').disabled =
+      game.busy || st.over || !!game.tutorial?.move
   }
 
   function cheer(text) {

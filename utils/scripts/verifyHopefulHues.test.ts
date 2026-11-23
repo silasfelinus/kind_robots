@@ -436,7 +436,11 @@ assert.equal(
   true,
   'daily quests refresh the next day',
 )
-assert.equal(slot.boosters.wand, (giftCount ?? 0) + 1, 'next day gives a new tool')
+assert.equal(
+  slot.boosters.wand,
+  (giftCount ?? 0) + 1,
+  'next day gives a new tool',
+)
 assert.ok(M.DAILY_POOL.length >= 10 && M.WEEKLY_POOL.length >= 6)
 assert.ok(M.ACHIEVEMENTS.length >= 30)
 const fresh = M.createSlot('kate') as unknown as {

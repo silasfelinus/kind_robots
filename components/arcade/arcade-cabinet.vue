@@ -1308,6 +1308,13 @@ function startGame() {
     gameModule.create({
       rng: Math.random,
       sound: sound ?? { play: () => {} },
+      audio: { muted: store.muted, volume: store.volume },
+      onAudioChange: (settings) => {
+        store.setMuted(settings.muted)
+        store.setVolume(settings.volume)
+        sound?.setMuted(settings.muted)
+        sound?.setVolume(settings.volume)
+      },
       demo: false,
       hiScore: hiScore(),
       players: players.value,
@@ -2121,6 +2128,7 @@ function toggleMute() {
   unlockArcadeAudio()
   store.setMuted(!store.muted)
   sound?.setMuted(store.muted)
+  game?.setAudio?.({ muted: store.muted, volume: store.volume })
   unlockArcadeAudio()
 }
 
@@ -2128,6 +2136,7 @@ function onVolumeInput(event: Event) {
   unlockArcadeAudio()
   store.setVolume(Number((event.target as HTMLInputElement).value))
   sound?.setVolume(store.volume)
+  game?.setAudio?.({ muted: store.muted, volume: store.volume })
 }
 
 function toggleRenderStyle() {

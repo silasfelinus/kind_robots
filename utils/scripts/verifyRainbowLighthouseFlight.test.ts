@@ -220,6 +220,36 @@ for (const seats of [1, 4]) {
   assert.ok(game.snapshot.guardian!.maxHp > 0)
 }
 
+// Completing the authored X3 exit must survive the Act VII boundary.
+// This is not the same as merely discovering its upper relay entrance.
+for (const seats of [1, 2, 3, 4]) {
+  const nearExit = load({
+    ...checkpoint,
+    frame: 15000 + LIGHTHOUSE.guardianFrom,
+    lighthouseFrame: LIGHTHOUSE.guardianFrom,
+    lighthouseLamps: 63,
+    lighthouseGuardianOutcome: 'escaped',
+  })
+  assert.ok(nearExit)
+  const game = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    demo: false,
+    players: seats,
+    rainbowReplay: nearExit,
+  })
+  const crew = Array.from({ length: seats }, () => input)
+  for (let frame = 0; frame < LIGHTHOUSE.end - LIGHTHOUSE.guardianFrom + 4; frame++)
+    game.update(input, crew)
+  assert.equal(game.snapshot.act, 'S07')
+  assert.equal(
+    (game.snapshot.checkpoint.alternateRoutesCleared ?? 0) & 4,
+    4,
+    `a ${seats}-pilot Lighthouse exit must persist X3 completion`,
+  )
+}
+
 for (const seats of [1, 4]) {
   const guardian = createRainbowGuardian('lampkeeper', seats)
   const targets = [70, 120, 170, 210]

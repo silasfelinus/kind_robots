@@ -17,6 +17,7 @@
   }
 
   const DAILY_POOL = [
+    { id: 'd-tools', text: 'Use 2 helper tools', stat: 'toolsUsed', target: 2, reward: 30 },
     {
       id: 'd-clear',
       text: 'Clear 180 tiles',
@@ -496,7 +497,8 @@
       tips: [],
       totals: emptyTotals(),
       quests: { dailyKey: '', daily: [], weeklyKey: '', weekly: [] },
-      boosters: { moves: 1, shuffle: 1 },
+      boosters: { moves: 1, shuffle: 1, wand: 1, swap: 1, brush: 1, bomb: 1, rainbow: 1 },
+      giftDay: '',
     }
   }
 
@@ -525,6 +527,10 @@
     merged.totals = { ...base.totals, ...(slot.totals || {}) }
     merged.quests = { ...base.quests, ...(slot.quests || {}) }
     merged.boosters = { ...base.boosters, ...(slot.boosters || {}) }
+    for (const key of Object.keys(base.boosters)) {
+      const value = Number(merged.boosters[key])
+      merged.boosters[key] = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : base.boosters[key]
+    }
     for (const key of ['endings', 'scrapbook', 'seenBeats', 'tips'])
       if (!Array.isArray(merged[key])) merged[key] = []
     if (!merged.levels || typeof merged.levels !== 'object') merged.levels = {}
@@ -673,6 +679,11 @@
     const wk = weekKey(date)
     const world = slotWorld(slot)
     let changed = false
+    if (slot.giftDay !== dk) {
+      slot.giftDay = dk
+      for (const key of ['wand', 'swap', 'brush']) slot.boosters[key]++
+      changed = true
+    }
     if (slot.quests.dailyKey !== dk) {
       slot.quests.dailyKey = dk
       const themed = pick(worldQuests(world, 'daily'), 'daily-world:' + dk, 1)
@@ -734,6 +745,7 @@
     slot.sparkles += def.reward
     slot.totals.sparklesEarned += def.reward
     slot.totals.questsDone++
+    slot.boosters[list === 'weekly' ? 'rainbow' : 'bomb']++
     return def.reward
   }
 
@@ -800,6 +812,7 @@
       if (achievement.check(slot, catalogSize)) {
         slot.achievements[achievement.id] = now || Date.now()
         unlocked.push(achievement)
+        slot.boosters.wand++
       }
     }
     return unlocked

@@ -13,11 +13,15 @@ export type SpectrumSettings = {
   aimGuide: boolean
   particles: boolean
   highContrast: boolean
+  music: boolean
+  effects: boolean
 }
 export const DEFAULT_SPECTRUM_SETTINGS: SpectrumSettings = {
   aimGuide: true,
   particles: true,
   highContrast: false,
+  music: true,
+  effects: true,
 }
 export type SpectrumSave = {
   version: 2
@@ -160,6 +164,8 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
       aimGuide: settings.aimGuide !== false,
       particles: settings.particles !== false,
       highContrast: settings.highContrast === true,
+      music: settings.music !== false,
+      effects: settings.effects !== false,
     },
   }
 }
@@ -245,7 +251,11 @@ export function validSpectrumCloudSave(raw: unknown): raw is SpectrumSave {
     if (
       typeof settings.aimGuide !== 'boolean' ||
       typeof settings.particles !== 'boolean' ||
-      typeof settings.highContrast !== 'boolean'
+      typeof settings.highContrast !== 'boolean' ||
+      (settings.music !== undefined &&
+        typeof settings.music !== 'boolean') ||
+      (settings.effects !== undefined &&
+        typeof settings.effects !== 'boolean')
     )
       return false
   }

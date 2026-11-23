@@ -19,6 +19,7 @@ import {
 } from '../superkateSpectrum/board'
 import type { Board, Hue, SpectrumPower } from '../superkateSpectrum/board'
 import {
+  SPECTRUM_BOSS_MUSIC,
   SPECTRUM_CLASSIC_MUSIC,
   SPECTRUM_MENU_MUSIC,
   SPECTRUM_THEMES,
@@ -268,7 +269,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (this.over) return null
     if (this.choosingMode) return SPECTRUM_MENU_MUSIC
     if (this.mode === 'classic') return SPECTRUM_CLASSIC_MUSIC
-    return SPECTRUM_THEMES[Math.min(5, Math.floor((this.level - 1) / 5))]!
+    const chapter = Math.min(5, Math.floor((this.level - 1) / 5))
+    return this.level % 5 === 0
+      ? SPECTRUM_BOSS_MUSIC[chapter]!
+      : SPECTRUM_THEMES[chapter]!
   }
   get save(): SpectrumSave {
     return this.stored

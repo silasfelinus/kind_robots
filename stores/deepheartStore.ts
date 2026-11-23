@@ -26,9 +26,16 @@ import {
   optimizeParty,
   scoreParty,
   type PartyGoal,
+  type PartyKnowledge,
   type PartyScore,
 } from '~/utils/deepheart/party'
-import { CHARACTERS, ROLES, character } from '~/utils/deepheart/roster'
+import {
+  CHARACTERS,
+  ROLES,
+  VALUE_LABEL,
+  character,
+  shortName,
+} from '~/utils/deepheart/roster'
 import { CUSTOM_HERO_ID, CUSTOM_STAT_POINTS } from '~/utils/deepheart/types'
 import type {
   EndingId,
@@ -298,9 +305,23 @@ export const useDeepheartStore = defineStore('deepheart', () => {
       companions.value = [...companions.value, id]
   }
 
+  const knownParty = computed<PartyKnowledge>(() => ({
+    supports: chronicle.value.supports,
+    romances: chronicle.value.romances,
+    values: chronicle.value.values,
+  }))
+
   function optimize(next?: PartyGoal) {
     if (next) goal.value = next
-    suggestions.value = optimizeParty(hero.value, goal.value, 3)
+    // The optimizer should not know the player's undiscovered friendships
+    // or romantic compatibility, even though those bonuses are real in combat.
+    suggestions.value = optimizeParty(
+      hero.value,
+      goal.value,
+      3,
+      [1, 2, 3],
+      knownParty.value,
+    )
   }
 
   function useSuggestion(score: PartyScore) {
@@ -309,7 +330,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   }
 
   const partyScore = computed(() =>
-    scoreParty(hero.value, companions.value, goal.value),
+    scoreParty(hero.value, companions.value, goal.value, knownParty.value),
   )
   const builderSynergies = computed(() =>
     activeSynergies([hero.value.presetId, ...companions.value]),
@@ -420,7 +441,24 @@ export const useDeepheartStore = defineStore('deepheart', () => {
       ? engine.currentEvent(current)?.options.find((entry) => entry.id === id)
       : null
     const before = current?.choices.length ?? 0
-    step((r) => engine.chooseOption(r, id))
+    step((r) => {
+      engine.chooseOption(r, id)
+      if (!option?.tag || r.choices.length === before) return
+      for (const member of r.companions) {
+        const c = character(member)
+        const verdict = c.likes.includes(option.tag)
+          ? 'likes'
+          : c.dislikes === option.tag
+            ? 'dislikes'
+            : null
+        if (!verdict || chronicle.value.values[member]?.includes(option.tag))
+          continue
+        r.notices.push({
+          tone: verdict === 'likes' ? 'heart' : 'info',
+          text: `Discovered: ${shortName(c)} ${verdict} ${VALUE_LABEL[option.tag]}.`,
+        })
+      }
+    })
     if (!option?.tag || !run.value || run.value.choices.length === before)
       return
     const values = { ...chronicle.value.values }

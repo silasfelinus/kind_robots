@@ -905,6 +905,26 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
  * (then it moves to LINKED_GAMES).
  */
 export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
+  ...(['easy', 'hard', 'catastrophic'] as const).map((difficulty) => ({
+    slug: 'chessweeper-triple-' + difficulty,
+    title: 'Chessweeper: Triple Threat (' + difficulty + ')',
+    riffsOn: 'Chess, Minesweeper and disc-room survival',
+    blurb:
+      'A separate global high-score bracket for Triple Threat ' +
+      difficulty + ' runs; all brackets use the same 120-second ranked clock.',
+    howTo: [
+      'PLAY THREE GAMES SIMULTANEOUSLY',
+      '120 SECOND RANKED STANDARD',
+      'ONE BOARD PER DIFFICULTY',
+    ],
+    width: 960,
+    height: 360,
+    maxPlausibleScore: 10_000_000,
+    titleArt: '/images/chessweeper/sugarbomb-kingdom.webp',
+    route: '/play/chessweeper',
+    accent: '#6ee7d4',
+    controls: 'Chess click, Mines click, WASD / drag',
+  })),
   {
     slug: 'zuzu-lair',
     title: "Zuzu's Lair",

@@ -112,12 +112,37 @@
     },
   }
 
-  const PROGRESSIONS = [
-    [0, 4, 5, 3],
-    [0, 5, 3, 4],
-    [0, 3, 4, 4],
-    [5, 3, 0, 4],
-  ]
+  const THEMES = {
+    bell: [0, 2, 4, 6, 4, 2, 3, 5, 7, 6, 4, 2],
+    chip: [0, 0, 4, 2, 5, 4, 2, 0, 3, 5, 4, 1],
+    organ: [0, 2, 1, 4, 3, 2, 5, 4, 3, 1, 6, 0],
+    lounge: [4, null, 2, 3, 5, 4, null, 2, 6, 5, 3, 1],
+    musicbox: [7, 4, 2, 4, 6, 3, 1, 3, 5, 2, 1, 0],
+    harp: [0, 2, 4, 7, 6, 4, 3, 2, 1, 3, 5, 4],
+    accordion: [0, 4, 2, 5, 3, 1, 4, 6, 4, 3, 1, 0],
+    synth: [0, null, 0, 4, 5, null, 3, 2, 7, 4, 3, 1],
+    choir: [0, 2, null, 4, 5, null, 3, 2, 4, 3, 1, 0],
+    title: [0, 2, 4, 7, 6, 4, 5, 3, 2, 4, 6, 7],
+    ending: [4, 2, 0, null, 3, 5, 4, null, 2, 1, 0, null],
+  }
+
+  function compose(spec) {
+    const tag = spec.tag || ''
+    const ending = tag.startsWith('ending-')
+    const theme = ending ? 'ending' : tag === 'title' ? 'title' : spec.timbre
+    const meter = spec.meter === 3 ? 3 : 4
+    const motif = THEMES[theme] || THEMES.bell
+    const melody = Array.from({ length: meter * 8 }, (_, i) => {
+      if (i % 2 !== 0) return null
+      const beat = i / 2
+      if (beat === meter * 4 - 1) return 0
+      return motif[beat % motif.length]
+    })
+    return {
+      progression: ending ? [0, 3, 4, 0] : [0, 5, 3, 4],
+      melody,
+    }
+  }
 
   function midiToHz(note) {
     return 440 * Math.pow(2, (note - 69) / 12)
@@ -131,6 +156,7 @@
     let musicLevel = 0.5
     let sfxLevel = 0.8
     let song = null
+    let requestedMusic = null
     let timer = null
     let step = 0
     let nextTime = 0
@@ -158,7 +184,12 @@
 
     function unlock() {
       const c = ensure()
-      if (c && c.state === 'suspended') c.resume()
+      if (!c) return
+      if (c.state === 'running') {
+        resumeMusic()
+      } else if (c.state === 'suspended') {
+        c.resume().then(resumeMusic).catch(() => {})
+      }
     }
 
     function setLevels(music, sfx) {
@@ -167,7 +198,8 @@
       if (musicBus)
         musicBus.gain.setTargetAtTime(music * 0.45, ctx.currentTime, 0.05)
       if (sfxBus) sfxBus.gain.setTargetAtTime(sfx * 0.6, ctx.currentTime, 0.05)
-      if (music <= 0) stopMusic()
+      if (music <= 0) haltMusic()
+      else resumeMusic()
     }
 
     function tone(bus, freq, start, duration, opts) {
@@ -341,7 +373,7 @@
 
     function play(name, arg) {
       if (sfxLevel <= 0) return
-      const c = ensure()
+      const c = ctx
       if (!c || c.state !== 'running') return
       const fn = SFX[name]
       if (fn) fn(c.currentTime + 0.005, arg)
@@ -420,8 +452,9 @@
     }
 
     function tick() {
-      if (!ctx || !song) return
+      if (!ctx || ctx.state !== 'running' || !song) return
       const beat = 60 / song.tempo / 2
+      if (nextTime < ctx.currentTime - 0.25) nextTime = ctx.currentTime + 0.05
       while (nextTime < ctx.currentTime + 0.25) {
         scheduleStep(nextTime)
         nextTime += beat
@@ -430,19 +463,17 @@
     }
 
     function startMusic(spec) {
-      const c = ensure()
-      if (!c || musicLevel <= 0) return
+      requestedMusic = { ...spec }
+      resumeMusic()
+    }
+
+    function resumeMusic() {
+      const c = ctx
+      const spec = requestedMusic
+      if (!c || c.state !== 'running' || !spec || musicLevel <= 0) return
       const key = JSON.stringify(spec)
       if (song && song.key === key) return
-      stopMusic()
-      let seed = 0
-      for (let i = 0; i < key.length; i++)
-        seed = (seed * 31 + key.charCodeAt(i)) >>> 0
-      const melody = []
-      for (let i = 0; i < 32; i++) {
-        seed = (seed * 1103515245 + 12345) >>> 0
-        melody.push(seed % 5 === 0 ? null : (seed >>> 8) % 9)
-      }
+      haltMusic()
       song = {
         key,
         root: spec.root || 60,
@@ -450,8 +481,7 @@
         tempo: spec.tempo || 96,
         timbre: spec.timbre || 'bell',
         meter: spec.meter || 4,
-        progression: PROGRESSIONS[(seed >>> 4) % PROGRESSIONS.length],
-        melody,
+        ...compose(spec),
       }
       step = 0
       nextTime = c.currentTime + 0.1
@@ -459,6 +489,11 @@
     }
 
     function stopMusic() {
+      requestedMusic = null
+      haltMusic()
+    }
+
+    function haltMusic() {
       if (timer) clearInterval(timer)
       timer = null
       song = null
@@ -467,5 +502,5 @@
     return { unlock, play, startMusic, stopMusic, setLevels }
   }
 
-  root.HopefulHuesAudio = { createAudio }
+  root.HopefulHuesAudio = { createAudio, compose }
 })(typeof globalThis !== 'undefined' ? globalThis : this)

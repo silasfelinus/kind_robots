@@ -110,10 +110,7 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
       'Appeared after Robin and Ash were given a garden beside the lake and the shore remained healthy enough to share it.',
     unlock: {
       all: [{ sliders: { joy: { gte: 55 }, nature: { gte: 50 } } }],
-      any: [
-        { flags: ['newlywedsGarden'] },
-        { flags: ['workingWaterfront'] },
-      ],
+      any: [{ flags: ['newlywedsGarden'] }, { flags: ['workingWaterfront'] }],
       closes: [{ flags: ['exclusivePier'] }],
     },
   },
@@ -285,10 +282,7 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
       'Appeared after the crown negotiated borders and tariffs hard enough for the lake to notice.',
     unlock: {
       all: [{ sliders: { treasury: { gte: 60 } } }],
-      any: [
-        { flags: ['envoyTreatyHard'] },
-        { flags: ['riverConcession'] },
-      ],
+      any: [{ flags: ['envoyTreatyHard'] }, { flags: ['riverConcession'] }],
     },
   },
   {

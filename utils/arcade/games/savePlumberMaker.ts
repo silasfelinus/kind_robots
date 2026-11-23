@@ -37,6 +37,7 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: '<', icon: '◀', label: 'Left conveyor' },
       { key: '>', icon: '▶', label: 'Right conveyor' },
       { key: ':', icon: '◇', label: 'Blinking bridge' },
+      { key: '|', icon: '☷', label: 'Rope ladder · up or down to climb' },
       { key: 'w', icon: '≈', label: 'Water hazard' },
       { key: 'c', icon: '▤', label: 'Movable crate' },
       { key: 'g', icon: '▥', label: 'Valve gate' },

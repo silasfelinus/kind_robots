@@ -9,16 +9,15 @@
         <p
           class="text-[11px] font-black uppercase tracking-widest text-amber-300"
         >
-          Delivered ArtImage receipts / private review
+          Rendered ArtImage receipts / private review
         </p>
         <h3 class="mt-1 text-xl font-black">
-          Five identities, twenty production candidates
+          Eight review groups, thirty-five production candidates
         </h3>
         <p class="mt-1 max-w-2xl text-xs leading-5 text-slate-300">
-          These records have DONE ArtImage IDs in Conductor's Unstable Diffusers
-          ledger. Thumbnails only appear after authenticated media retrieval
-          succeeds. A source receipt alone never proves an image is attached in
-          the game.
+          These records have DONE ArtImage IDs in private Conductor art ledgers.
+          Thumbnails appear only after authenticated retrieval succeeds. Source
+          receipts do not certify visual approval or in-game attachment.
         </p>
       </div>
       <span
@@ -29,7 +28,7 @@
       </span>
     </div>
     <div
-      class="mt-4 flex flex-wrap gap-2"
+      class="mt-4 flex gap-2 overflow-x-auto pb-2"
       role="tablist"
       aria-label="Production cast"
     >
@@ -40,7 +39,7 @@
         role="tab"
         :aria-selected="selected === person.signature"
         :data-testid="'capes-production-' + person.signature"
-        class="rounded-lg border px-3 py-2 text-left text-sm font-bold transition-colors"
+        class="shrink-0 rounded-lg border px-3 py-2 text-left text-sm font-bold transition-colors"
         :class="
           selected === person.signature
             ? 'border-amber-300 bg-amber-300/20 text-amber-100'

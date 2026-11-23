@@ -71,6 +71,7 @@ import {
 import type { HopBoard, HopCell, RuleId } from './pixelHopBoards'
 import {
   BOSS_MUSIC,
+  GLOBE_CRACKS,
   MAP_PLANETS,
   MAX_PHASES,
   PICTURES,
@@ -110,7 +111,7 @@ const DEMO_HOP = 36
 const DEMO_TICKS = DEMO_LEAD + DEMO_HOP * 5 + 60
 const MAP_TICKS = 60 * 7
 /** Endless round the campaign's encore picks up at, once every planet is painted. */
-const ENCORE_ROUND = 13
+const ENCORE_ROUND = STAGES.length + 1
 
 const PAINT_POINTS = 25
 const STRIPE_POINTS = 150
@@ -192,9 +193,21 @@ type Hopper = {
   arc?: number
 }
 type EnemyKind =
-  'gumball' | 'purple' | 'boing' | 'green' | 'gremlin' | 'skitter'
+  | 'gumball'
+  | 'purple'
+  | 'boing'
+  | 'green'
+  | 'gremlin'
+  | 'skitter'
+  | 'snowball'
+  | 'frost'
 /** `side` is a skitter's sliding direction along its row. */
-type Enemy = Hopper & { kind: EnemyKind; wait: number; side?: -1 | 1 }
+type Enemy = Hopper & {
+  kind: EnemyKind
+  wait: number
+  side?: -1 | 1
+  size?: number
+}
 type Disc = { r: number; c: number; used: boolean }
 type Particle = {
   x: number
@@ -213,7 +226,7 @@ type RoundSetup = {
   foes: readonly FoeId[]
   pace: number
   scheme: Scheme
-  sky: 'space' | 'comet' | 'ring'
+  sky: 'space' | 'comet' | 'ring' | 'glacier'
   picture?: Picture
   boss?: BossId
 }
@@ -249,7 +262,15 @@ type RattleBoss = Hopper & {
   dizzy: number
   streak: number
 }
-type Boss = MaxBoss | RattleBoss
+/** Snow Globe: light four ice cracks in order while it shakes the moon. */
+type GlobeBoss = {
+  kind: 'globe'
+  cracks: number
+  timer: number
+  shaking: number
+}
+
+type Boss = MaxBoss | RattleBoss | GlobeBoss
 type Rule = {
   id: RuleId
   hops: 1 | 2
@@ -487,6 +508,8 @@ const GUMBALL_LOOKS = {
   purple: { ramp: RAMPS.purple, eyes: true },
   green: { ramp: RAMPS.leaf, eyes: false },
   skitter: { ramp: RAMPS.water, eyes: true },
+  snowball: { ramp: RAMPS.sky, eyes: false },
+  frost: { ramp: RAMPS.cream, eyes: true },
 } as const
 const GUMBALL_SPRITES = Object.fromEntries(
   Object.entries(GUMBALL_LOOKS).map(([kind, look]) => {
@@ -508,7 +531,7 @@ const GUMBALL_SPRITES = Object.fromEntries(
     ]
   }),
 ) as Record<
-  'gumball' | 'purple' | 'green' | 'skitter',
+  'gumball' | 'purple' | 'green' | 'skitter' | 'snowball' | 'frost',
   [PixelSprite, PixelSprite]
 >
 
@@ -825,6 +848,7 @@ class PixelHop implements ArcadeGameInstance {
   private discs: Disc[] = []
   private dropTimer = 120
   private freeze = 0
+  private stun = 0
   private clear = 0
   private dead = 0
   private nextExtra = EXTRA_EVERY
@@ -1006,7 +1030,7 @@ class PixelHop implements ArcadeGameInstance {
 
   /** Lay out a round: its board, rule, foes, paint and discs. */
   private setRound(setup: RoundSetup) {
-    this.board = setup.board
+    this.board = { ...setup.board, special: { ...setup.board.special } }
     this.cellSet = new Set(setup.board.cells.map((x) => cellKey(x.r, x.c)))
     this.origin = boardOrigin(setup.board)
     this.rule = ruleOf(setup.rule)
@@ -1073,6 +1097,9 @@ class PixelHop implements ArcadeGameInstance {
         falling: 0,
       }
     }
+    if (setup.boss === 'globe') {
+      this.boss = { kind: 'globe', cracks: 0, timer: 180, shaking: 0 }
+    }
     this.resetPositions()
   }
 
@@ -1084,6 +1111,7 @@ class PixelHop implements ArcadeGameInstance {
     this.enemies = []
     this.dropTimer = 120
     this.freeze = 0
+    this.stun = 0
   }
 
   /** The round is over: on to the next round, the next planet, or the encore. */
@@ -1213,7 +1241,12 @@ class PixelHop implements ArcadeGameInstance {
       }
       return
     }
-    this.readInput(controls)
+    if (this.stun > 0) {
+      this.stun--
+      this.queued = -1
+    } else {
+      this.readInput(controls)
+    }
     this.moveMe()
     if (this.freeze > 0) this.freeze--
     else {
@@ -1375,32 +1408,42 @@ class PixelHop implements ArcadeGameInstance {
       this.checkSneeze(this.boss)
       return
     }
+    if (this.boss?.kind === 'globe') {
+      this.checkGlobe(r, c, this.boss)
+      this.tileMove(r, c)
+      return
+    }
     if (this.boss) return
     if (this.board.cells.every((x) => this.paint[x.r]![x.c] === 2)) {
       this.roundClear()
       return
     }
-    this.springFrom(r, c)
+    this.tileMove(r, c)
   }
 
-  /** A spring under Pip launches him two more cubes along the line he hopped. */
-  private springFrom(r: number, c: number) {
-    if (this.board.special[cellKey(r, c)] !== 'spring') return
+  /** A spring jumps two cubes; slippery ice and conveyors each push one. */
+  private tileMove(r: number, c: number) {
+    const tile = this.board.special[cellKey(r, c)]
+    if (tile !== 'spring' && tile !== 'ice' && tile !== 'conveyor') return
     const me = this.me
-    const dr = r - me.fr
-    const dc = c - me.fc
-    if (Math.abs(dr) !== 1) return
+    const dr = tile === 'conveyor' ? 1 : r - me.fr
+    const dc = tile === 'conveyor' ? 1 : c - me.fc
+    if (tile !== 'conveyor' && Math.abs(dr) !== 1) return
     me.fr = r
     me.fc = c
-    me.r = r + dr * 2
-    me.c = c + dc * 2
-    me.hop = SPRING_TICKS
-    me.span = SPRING_TICKS
-    me.arc = 34
+    const steps = tile === 'spring' ? 2 : 1
+    me.r = r + dr * steps
+    me.c = c + dc * steps
+    me.hop = tile === 'spring' ? SPRING_TICKS : HOP_TICKS
+    me.span = me.hop
+    me.arc = tile === 'spring' ? 34 : 6
     const at = this.at(r, c)
     this.fx.burst(at.x, at.y, this.fxRng, {
-      count: 6,
-      colours: [RAMPS.steel[4], RAMPS.ember[3], '#ffffff'],
+      count: tile === 'spring' ? 6 : 3,
+      colours:
+        tile === 'spring'
+          ? [RAMPS.steel[4], RAMPS.ember[3], '#ffffff']
+          : [RAMPS.water[4], RAMPS.sky[3], '#ffffff'],
     })
     this.sound.play('pickup')
   }
@@ -1506,7 +1549,8 @@ class PixelHop implements ArcadeGameInstance {
     const boss = this.boss
     if (!boss) return
     if (boss.kind === 'max') this.moveMax(boss)
-    else this.moveRattle(boss)
+    else if (boss.kind === 'rattle') this.moveRattle(boss)
+    else this.moveGlobe(boss)
   }
 
   /** Max spits volleys of gumballs from his spout: lines, then a spiral. */
@@ -1669,12 +1713,61 @@ class PixelHop implements ArcadeGameInstance {
     }
   }
 
+  /** Glacier's living globe shakes new ice onto the board every few seconds. */
+  private moveGlobe(boss: GlobeBoss) {
+    if (boss.shaking > 0) boss.shaking--
+    if (--boss.timer > 0) return
+    boss.timer = Math.max(120, 210 - boss.cracks * 25)
+    boss.shaking = 35
+    const candidates = this.board.cells.filter(
+      (cell) =>
+        !this.board.special[cellKey(cell.r, cell.c)] &&
+        !(cell.r === this.me.r && cell.c === this.me.c),
+    )
+    for (let i = 0; i < Math.min(3, candidates.length); i++) {
+      const at = Math.floor(this.rng() * candidates.length)
+      const cell = candidates.splice(at, 1)[0]!
+      this.board.special[cellKey(cell.r, cell.c)] = 'ice'
+    }
+    this.banner = {
+      text: 'SNOW GLOBE SHAKE!',
+      sub: 'FIND THE GLOWING CRACK',
+      ticks: 70,
+    }
+    this.sound.play('warn')
+  }
+
+  /** Landing on each glowing crack lightens the globe until it opens. */
+  private checkGlobe(r: number, c: number, boss: GlobeBoss) {
+    const crack = GLOBE_CRACKS[boss.cracks]
+    if (!crack || crack.r !== r || crack.c !== c) return
+    const at = this.at(r, c)
+    this.fx.burst(at.x, at.y - 8, this.fxRng, { count: 14 })
+    this.addScore(1000, at.x, at.y - 18)
+    boss.cracks++
+    this.sound.play('boom')
+    if (boss.cracks >= GLOBE_CRACKS.length) {
+      this.bossBeaten('THE SNOW GLOBE IS OPEN!')
+    } else {
+      this.banner = {
+        text: 'ICE CRACK!',
+        sub: `${GLOBE_CRACKS.length - boss.cracks} GLOWING CRACKS LEFT`,
+        ticks: 90,
+      }
+    }
+  }
+
   /** After Pip is bonked, the boss gives him room: Rattle backs off round the ring. */
   private calmBoss() {
     const b = this.boss
     if (b?.kind === 'max') {
       b.timer = Math.max(b.timer, 120)
       b.left = 0
+      return
+    }
+    if (b?.kind === 'globe') {
+      b.timer = 180
+      this.stun = 0
       return
     }
     if (b?.kind !== 'rattle') return
@@ -1760,7 +1853,9 @@ class PixelHop implements ArcadeGameInstance {
         levelCurve(this.pace, HOP_CURVES.gremlinChance),
       ) + press.gremlinBonus
     let kind: EnemyKind = 'gumball'
-    if (!hasBoing && roll < 0.35 && this.foes.has('purple')) kind = 'purple'
+    if (roll > 0.86 && this.foes.has('frost')) kind = 'frost'
+    else if (roll > 0.56 && this.foes.has('snowball')) kind = 'snowball'
+    else if (!hasBoing && roll < 0.35 && this.foes.has('purple')) kind = 'purple'
     else if (roll < 0.35 + gremlinChance && this.foes.has('gremlin'))
       kind = 'gremlin'
     else if (roll > 0.9 && this.foes.has('mint')) kind = 'green'
@@ -1865,8 +1960,9 @@ class PixelHop implements ArcadeGameInstance {
       e.kind === 'gumball' &&
       this.boss?.kind === 'max' &&
       this.boss.ring.some((x) => x.r === e.r && x.c === e.c)
+    if (e.kind === 'snowball') e.size = Math.min(3, (e.size ?? 1) + 1)
     if (
-      (e.kind === 'gremlin' || gum) &&
+      (e.kind === 'gremlin' || e.kind === 'snowball' || gum) &&
       this.paint[e.r]![e.c]! > 0 &&
       !this.potAt(e.r, e.c)
     ) {
@@ -1899,7 +1995,17 @@ class PixelHop implements ArcadeGameInstance {
       if (e.falling > 0) continue
       const at = this.pos(e)
       if (Math.hypot(at.x - mine.x, at.y - mine.y) > 10) continue
-      if (e.kind === 'green') {
+      if (e.kind === 'frost') {
+        this.enemies = this.enemies.filter((o) => o !== e)
+        this.stun = 60
+        this.queued = -1
+        this.banner = {
+          text: 'FROST FLAKE!',
+          sub: 'HOPS FROZEN FOR ONE SECOND',
+          ticks: 65,
+        }
+        this.sound.play('warn')
+      } else if (e.kind === 'green') {
         this.enemies = this.enemies.filter((o) => o !== e)
         this.freeze = FREEZE_TICKS
         this.addScore(FREEZE_POINTS, at.x, at.y - 16)
@@ -2011,6 +2117,10 @@ class PixelHop implements ArcadeGameInstance {
         cells.add(`${e.r + dr},${e.c + dc}`)
     }
     const b = this.boss
+    if (b?.kind === 'globe') {
+      const crack = GLOBE_CRACKS[b.cracks]
+      if (crack) cells.add(cellKey(crack.r, crack.c))
+    }
     if (b?.kind === 'rattle' && b.dizzy === 0) {
       const n = RATTLE_LOOP.length
       cells.add(`${b.r},${b.c}`)
@@ -2036,6 +2146,10 @@ class PixelHop implements ArcadeGameInstance {
           ahead.add(cellKey(cell.r, cell.c))
       }
       return (r, c) => ahead.has(cellKey(r, c))
+    }
+    if (b?.kind === 'globe') {
+      const crack = GLOBE_CRACKS[b.cracks]
+      return (r, c) => r === crack?.r && c === crack?.c
     }
     if (b?.kind === 'max') {
       const ring = new Set(
@@ -2064,9 +2178,14 @@ class PixelHop implements ArcadeGameInstance {
     const [dr, dc] = MOVES[dir]!
     const mid = { r: from.r + dr, c: from.c + dc }
     if (!this.onBoard(mid.r, mid.c)) return null
-    if (this.board.special[cellKey(mid.r, mid.c)] !== 'spring')
+    const kind = this.board.special[cellKey(mid.r, mid.c)]
+    if (kind !== 'spring' && kind !== 'ice' && kind !== 'conveyor')
       return { mid, end: mid }
-    const end = { r: mid.r + dr * 2, c: mid.c + dc * 2 }
+    const steps = kind === 'spring' ? 2 : 1
+    const end = {
+      r: mid.r + (kind === 'conveyor' ? 1 : dr * steps),
+      c: mid.c + (kind === 'conveyor' ? 1 : dc * steps),
+    }
     return this.onBoard(end.r, end.c) ? { mid, end } : null
   }
 

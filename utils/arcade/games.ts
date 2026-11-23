@@ -1041,7 +1041,6 @@ export const LINKED_GAMES: ArcadeGameMeta[] = [
     route: '/play/chessweeper',
     accent: '#6ee7d4',
     controls: 'Chess click, Mines click, WASD / drag',
-    shelf: 'showcase',
   },
   {
     slug: 'zuzu-showdown',

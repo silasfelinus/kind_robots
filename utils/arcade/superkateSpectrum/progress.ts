@@ -1,3 +1,10 @@
+import {
+  freshStoryChoices,
+  STORY_DECISIONS,
+  STORY_ENDINGS,
+} from './story'
+import type { StoryChoices, StoryEnding } from './story'
+
 /** Persisted career progression, independent of a particular run or game over. */
 export type SpectrumMode = 'story' | 'classic'
 export type BubbleStyle = 'glass' | 'candy' | 'starlight' | 'prismatic'
@@ -30,6 +37,8 @@ export type SpectrumSave = {
   stage: number
   style: BubbleStyle
   settings: SpectrumSettings
+  storyChoices?: StoryChoices
+  endings?: StoryEnding[]
 }
 export const MAX_STORY_STAGE = 30
 export const BUBBLE_STYLES: readonly BubbleStyle[] = [
@@ -149,6 +158,19 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
   const style = unlocks.includes(value.style as BubbleStyle)
     ? (value.style as BubbleStyle)
     : 'glass'
+  const proposedChoices = value.storyChoices
+  const storyChoices: StoryChoices =
+    Array.isArray(proposedChoices) && proposedChoices.length === 3
+      ? (proposedChoices.map((choice) =>
+          choice === 0 || choice === 1 ? choice : null,
+        ) as StoryChoices)
+      : freshStoryChoices()
+  const endings = Array.isArray(value.endings)
+    ? ([...new Set(value.endings)].filter(
+        (ending): ending is StoryEnding =>
+          typeof ending === 'string' && ending in STORY_ENDINGS,
+      ) as StoryEnding[])
+    : []
   const proposed = value.settings
   const settings =
     proposed && typeof proposed === 'object' && !Array.isArray(proposed)
@@ -160,6 +182,8 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
     mode,
     stage,
     style,
+    storyChoices,
+    endings,
     settings: {
       aimGuide: settings.aimGuide !== false,
       particles: settings.particles !== false,
@@ -243,6 +267,28 @@ export function validSpectrumCloudSave(raw: unknown): raw is SpectrumSave {
     (save.stage as number) > (c.highestStage as number)
   )
     return false
+  if (
+    save.storyChoices !== undefined &&
+    (!Array.isArray(save.storyChoices) ||
+      save.storyChoices.length !== 3 ||
+      !save.storyChoices.every(
+        (choice, index) =>
+          choice === null ||
+          ((choice === 0 || choice === 1) &&
+            (c.highestStage as number) > STORY_DECISIONS[index]!.stage),
+      ))
+  )
+    return false
+  if (
+    save.endings !== undefined &&
+    (!Array.isArray(save.endings) ||
+      save.endings.length > 3 ||
+      new Set(save.endings).size !== save.endings.length ||
+      !save.endings.every(
+        (ending) => typeof ending === 'string' && ending in STORY_ENDINGS,
+      ))
+  )
+    return false
   const prefs = save.settings
   if (prefs !== undefined) {
     if (!prefs || typeof prefs !== 'object' || Array.isArray(prefs))
@@ -299,6 +345,10 @@ export function mergeSpectrumSaves(
     mode: local.mode,
     stage: local.mode === 'classic' ? 1 : career.highestStage,
     style,
+    storyChoices: freshStoryChoices().map((_, index) =>
+      local.storyChoices?.[index] ?? remote.storyChoices?.[index] ?? null,
+    ) as StoryChoices,
+    endings: [...new Set([...(remote.endings ?? []), ...(local.endings ?? [])])],
     settings: local.settings,
   }
 }

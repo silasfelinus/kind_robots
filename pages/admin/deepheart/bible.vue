@@ -447,6 +447,7 @@ import { useUserStore } from '~/stores/userStore'
 import { performFetch } from '~/stores/utils'
 import { ANTHRO_LOOK } from '~/utils/deepheart/anthro'
 import { COURT_DEITIES } from '~/utils/deepheart/court'
+import { deepheartArtSrc } from '~/utils/deepheart/renderedArt'
 import { CHARACTERS, ROLES } from '~/utils/deepheart/roster'
 import {
   DEEPHEART_APPROVED_ART_MODELS,
@@ -462,7 +463,6 @@ const tabs = [
   { key: 'compare', label: 'Model comparison' },
   { key: 'cast', label: 'Character bible' },
   { key: 'court', label: 'Twelve gods' },
-  { key: 'canon', label: 'World & style' },
 ] as const
 const tab = ref<(typeof tabs)[number]['key']>('compare')
 const selectedSubject = ref<string>(DEEPHEART_STYLE_SUBJECTS[0].key)
@@ -485,6 +485,146 @@ const completed = computed(
 type Review = { score: number; note: string }
 const reviews = ref<Record<string, Review>>({})
 const storageKey = 'deepheart-anthro-style-trial-2026-11-16'
+type SubjectKind = 'cast' | 'court'
+type BibleFocus = { kind: SubjectKind; id: string }
+type BibleJob = BibleFocus & {
+  jobId: number
+  status: string
+  artImageId: number | null
+  updatedAt: string
+}
+
+const focus = ref<BibleFocus | null>(null)
+const artNotes = ref('')
+const artNotice = ref('')
+const artError = ref('')
+const requesting = ref(false)
+const loadingArtJobs = ref(false)
+const bibleJobs = ref<BibleJob[]>([])
+const focusCast = computed(() =>
+  focus.value?.kind === 'cast'
+    ? CHARACTERS.find((person) => person.id === focus.value?.id)
+    : null,
+)
+const focusDeity = computed(() =>
+  focus.value?.kind === 'court'
+    ? COURT_DEITIES.find((deity) => deity.id === focus.value?.id)
+    : null,
+)
+const focusName = computed(
+  () => focusCast.value?.name ?? focusDeity.value?.name ?? '',
+)
+const focusPrompt = computed(
+  () =>
+    (focusCast.value ? ANTHRO_LOOK[focusCast.value.id] : null) ??
+    focusDeity.value?.look ??
+    '',
+)
+const focusJob = computed(() =>
+  bibleJobs.value.find(
+    (job) =>
+      job.kind === focus.value?.kind && job.id === focus.value?.id,
+  ),
+)
+const focusJobPending = computed(
+  () =>
+    focusJob.value?.status === 'PENDING' ||
+    focusJob.value?.status === 'RUNNING',
+)
+const focusImage = computed(() => {
+  if (!focus.value) return ''
+  const latestId = focusJob.value?.artImageId
+  const latest = latestId ? art.imageSrcById[latestId] : ''
+  return latest || deepheartArtSrc(
+    `${focus.value.kind}:${focus.value.id}`,
+  ) || ''
+})
+
+async function refreshBibleArt() {
+  if (!canAccess.value || loadingArtJobs.value) return
+  loadingArtJobs.value = true
+  artError.value = ''
+  try {
+    const result = await performFetch<{ jobs: BibleJob[] }>(
+      '/api/deepheart/bible-art',
+      {},
+      1,
+      30_000,
+    )
+    if (!result.success || !result.data)
+      throw new Error(result.message || 'Could not read repaint jobs.')
+    bibleJobs.value = result.data.jobs
+    const selected = focus.value
+    const job = bibleJobs.value.find(
+      (item) => item.kind === selected?.kind && item.id === selected?.id,
+    )
+    if (job?.status === 'DONE' && job.artImageId)
+      await art.loadJobImage(job.artImageId, job.updatedAt, true)
+  } catch (cause) {
+    artError.value =
+      cause instanceof Error ? cause.message : 'Could not refresh art jobs.'
+  } finally {
+    loadingArtJobs.value = false
+  }
+}
+
+function openDetail(kind: SubjectKind, id: string) {
+  focus.value = { kind, id }
+  artNotes.value = ''
+  artNotice.value = ''
+  artError.value = ''
+  void refreshBibleArt()
+  const known = bibleJobs.value.find(
+    (job) => job.kind === kind && job.id === id,
+  )
+  if (known?.status === 'DONE' && known.artImageId)
+    void art.loadJobImage(known.artImageId, known.updatedAt, true)
+}
+
+function closeDetail() {
+  focus.value = null
+  artNotes.value = ''
+}
+
+async function requestPainting() {
+  if (!focus.value || !canAccess.value || requesting.value || focusJobPending.value)
+    return
+  requesting.value = true
+  artError.value = ''
+  artNotice.value = ''
+  try {
+    const result = await performFetch<{
+      jobId: number
+      status: string
+      reused: boolean
+    }>(
+      '/api/deepheart/bible-art',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          kind: focus.value.kind,
+          id: focus.value.id,
+          notes: artNotes.value,
+        }),
+      },
+      1,
+      45_000,
+    )
+    const jobId = Number(result.data?.jobId)
+    if (!result.success || !Number.isInteger(jobId) || jobId <= 0)
+      throw new Error(result.message || 'Could not queue a painting.')
+    artNotice.value = result.data?.reused
+      ? `ArtJob #${jobId} is already rendering.`
+      : `ArtJob #${jobId} queued. The original painting is safe.`
+    await refreshBibleArt()
+  } catch (cause) {
+    artError.value =
+      cause instanceof Error ? cause.message : 'Could not queue the painting.'
+  } finally {
+    requesting.value = false
+  }
+}
+
 
 function cellKey(lane: string) {
   return selectedSubject.value + ':' + lane
@@ -549,6 +689,7 @@ async function refresh() {
   } finally {
     loading.value = false
   }
+  await refreshBibleArt()
 }
 
 function selectSubject(value: string) {

@@ -8,7 +8,19 @@
  * spent the crown stops (the engine runs the final choice), and then the escape: prism walls roll in from
  * the right with one gap each, and the gaps narrow as the heart collapses. The escape is not a damage race:
  * it ends when the crew has flown its length.
+ *
+ * Conductor rainbow t-061 (PLOT-MOTHERLAND.md "Finale target"): the road changes the fight, not just its name.
+ * - Rebel road, 'flagship': the crew fights the Motherland flagship that holds the Crown in its clamps. Phase 1
+ *   marks two of five lanes for the whole warning, then fires a lance down each; every other volley it launches
+ *   a pair of Motherland drones (the engine spawns them). Its bridge is the weak point. Below half the clamps
+ *   open: the clamp core drifts free and only it takes damage, one lane lance plus an aimed five-bolt fan.
+ * - Loyal road, 'crown' that pleads: the Ocean's heart itself, as above, but the moment its heart breaks loose
+ *   it stops firing and pleads for CROWN_PLEA.frames. A crew that flies high through the plea stands down (the
+ *   engine decides): the late course-correction PLOT-MOTHERLAND promises. Otherwise the fight goes on.
+ * - Unsworn (a flight saved before the memorial): the Crown, no plea, exactly as before.
  */
+export type EclipseTarget = 'crown' | 'flagship'
+
 export type EclipseCrownBoss = {
   x: number
   y: number
@@ -23,6 +35,18 @@ export type EclipseCrownBoss = {
   /** The heart node: home in the crown in phase 1, drifting free in phase 2. */
   heartX: number
   heartY: number
+  /** Who the crew is fighting: the Crown itself, or the Motherland flagship holding it (t-061). */
+  target: EclipseTarget
+  /** Flagship: the lanes its next lances fire down, marked for the whole warning. */
+  lanes: number[]
+  /** Flagship: where Motherland drones launch on this frame; the engine spawns them. */
+  launches: number[]
+  /** Loyal road: whether the Crown pleads when its heart breaks loose. */
+  pleads: boolean
+  /** Frames left of the plea: the Crown holds fire and takes no damage while the crew decides. */
+  plea: number
+  /** True on the one frame the plea ends, for the engine to read where the crew is flying. */
+  pleaEnded: boolean
 }
 
 export type EclipseCrownProjectile = {
@@ -46,6 +70,29 @@ export const ECLIPSE_CROWN = {
   firstVolley: 150,
 } as const
 
+/** B09 on the rebel road: the Motherland flagship holding the Crown (t-061). */
+export const MOTHERLAND_FLAGSHIP = {
+  holdX: 372,
+  /** The five lanes its lances can fire down, top to bottom. */
+  lanes: [64, 100, 135, 170, 206],
+  lanceLength: 9,
+  lanceSpacing: 13,
+  lanceSpeed: 2.6,
+  volleyEvery: 120,
+  phaseTwoEvery: 130,
+  /** The bridge, its phase-1 weak point, relative to the hull's centre. */
+  bridgeX: -38,
+  bridgeY: -8,
+  /** Every this many phase-1 volleys a Motherland drone pair launches, this far above and below the hull. */
+  launchEvery: 2,
+  launchSpread: 34,
+  fanSpeed: 1.9,
+  fanSpread: 0.16,
+} as const
+
+/** The loyal road's late chance (t-061): how long the Crown holds fire and pleads. */
+export const CROWN_PLEA = { frames: 420 } as const
+
 /** The escape through the prism corridors. */
 export const ECLIPSE_ESCAPE = {
   frames: 1500,
@@ -58,6 +105,8 @@ export const ECLIPSE_ESCAPE = {
 
 export function createEclipseCrownBoss(
   maxHp: number = ECLIPSE_CROWN_MAX_HP,
+  target: EclipseTarget = 'crown',
+  pleads = false,
 ): EclipseCrownBoss {
   return {
     x: 560,
@@ -71,7 +120,21 @@ export function createEclipseCrownBoss(
     spokeAngle: 0,
     heartX: 560,
     heartY: 135,
+    target,
+    lanes: [],
+    launches: [],
+    pleads: target === 'crown' && pleads,
+    plea: 0,
+    pleaEnded: false,
   }
+}
+
+/** The lanes a flagship volley will mark: two in phase 1, one in phase 2, walking down the screen. */
+export function flagshipLanes(volleys: number, phase: 1 | 2): number[] {
+  const lanes = MOTHERLAND_FLAGSHIP.lanes
+  const n = lanes.length
+  if (phase === 2) return [lanes[(volleys * 3) % n]!]
+  return [lanes[(volleys * 2) % n]!, lanes[(volleys * 2 + 2) % n]!]
 }
 
 /** True while an attack is charging: the cue covers the full warning before every volley. */
@@ -95,6 +158,9 @@ export function stepEclipseCrownBoss(
   targets: readonly { x: number; y: number; lives: number }[],
 ): EclipseCrownProjectile[] {
   boss.frame++
+  boss.pleaEnded = false
+  boss.launches = []
+  if (boss.target === 'flagship') return stepFlagship(boss, targets)
   boss.x = Math.max(ECLIPSE_CROWN.holdX, 560 - boss.frame * 1.2)
   boss.y = 135 + Math.sin(boss.frame / 110) * 10
   const phase = boss.hp <= boss.maxHp / 2 ? 2 : 1
@@ -105,6 +171,11 @@ export function stepEclipseCrownBoss(
       boss.nextVolley,
       boss.frame + ECLIPSE_CROWN.warningFrames + 1,
     )
+    // Loyal road: the heart breaking loose stops the fight for the plea.
+    if (phase === 2 && boss.pleads) {
+      boss.pleads = false
+      boss.plea = CROWN_PLEA.frames
+    }
   }
   if (boss.phase === 1) {
     boss.heartX = boss.x
@@ -114,6 +185,15 @@ export function stepEclipseCrownBoss(
     const t = boss.frame / 100
     boss.heartX += (boss.x - 40 + Math.cos(t) * 70 - boss.heartX) * 0.05
     boss.heartY += (135 + Math.sin(2 * t) * 70 - boss.heartY) * 0.05
+  }
+  if (boss.plea > 0) {
+    // The Crown holds fire while it pleads; the next volley keeps a full warning after it.
+    if (--boss.plea === 0) boss.pleaEnded = true
+    boss.nextVolley = Math.max(
+      boss.nextVolley,
+      boss.frame + ECLIPSE_CROWN.warningFrames + 1,
+    )
+    return []
   }
   if (
     boss.phase === 1 &&
@@ -160,6 +240,73 @@ export function stepEclipseCrownBoss(
     fire(boss.heartX, boss.heartY, aim - 0.15, 1.8)
     fire(boss.heartX, boss.heartY, aim + 0.15, 1.8)
     boss.nextVolley = boss.frame + 140
+  }
+  return shots
+}
+
+/** The flagship's fight: lane lances and drone launches, then the clamp core breaks loose (t-061). */
+function stepFlagship(
+  boss: EclipseCrownBoss,
+  targets: readonly { x: number; y: number; lives: number }[],
+): EclipseCrownProjectile[] {
+  const F = MOTHERLAND_FLAGSHIP
+  boss.x = Math.max(F.holdX, 560 - boss.frame)
+  boss.y = 135 + Math.sin(boss.frame / 120) * 8
+  const phase = boss.hp <= boss.maxHp / 2 ? 2 : 1
+  if (phase !== boss.phase) {
+    boss.phase = phase
+    boss.nextVolley = Math.max(
+      boss.nextVolley,
+      boss.frame + ECLIPSE_CROWN.warningFrames + 1,
+    )
+  }
+  if (boss.phase === 1) {
+    boss.heartX = boss.x + F.bridgeX
+    boss.heartY = boss.y + F.bridgeY
+  } else {
+    const t = boss.frame / 100
+    boss.heartX += (boss.x - 50 + Math.cos(t) * 60 - boss.heartX) * 0.05
+    boss.heartY += (135 + Math.sin(2 * t) * 66 - boss.heartY) * 0.05
+  }
+  if (boss.frame === boss.nextVolley - ECLIPSE_CROWN.warningFrames)
+    boss.lanes = flagshipLanes(boss.volleys, boss.phase)
+  if (boss.frame < boss.nextVolley) return []
+  boss.volleys++
+  const shots: EclipseCrownProjectile[] = []
+  // A lance down every marked lane: a bar of bolts the crew leaves the lane to dodge.
+  for (const y of boss.lanes)
+    for (let i = 0; i < F.lanceLength; i++)
+      shots.push({
+        x: boss.x - 30 - i * F.lanceSpacing,
+        y,
+        vx: -F.lanceSpeed,
+        vy: 0,
+        grazed: 0,
+      })
+  if (boss.phase === 1) {
+    if (boss.volleys % F.launchEvery === 0)
+      boss.launches = [boss.y - F.launchSpread, boss.y + F.launchSpread]
+    boss.nextVolley = boss.frame + F.volleyEvery
+  } else {
+    const living = targets.filter((ship) => ship.lives > 0)
+    const nearest = living.reduce(
+      (best, ship) =>
+        Math.hypot(ship.x - boss.heartX, ship.y - boss.heartY) <
+        Math.hypot(best.x - boss.heartX, best.y - boss.heartY)
+          ? ship
+          : best,
+      living[0] ?? { x: 80, y: 135, lives: 1 },
+    )
+    const aim = Math.atan2(nearest.y - boss.heartY, nearest.x - boss.heartX)
+    for (let i = -2; i <= 2; i++)
+      shots.push({
+        x: boss.heartX,
+        y: boss.heartY,
+        vx: Math.cos(aim + i * F.fanSpread) * F.fanSpeed,
+        vy: Math.sin(aim + i * F.fanSpread) * F.fanSpeed,
+        grazed: 0,
+      })
+    boss.nextVolley = boss.frame + F.phaseTwoEvery
   }
   return shots
 }

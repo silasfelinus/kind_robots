@@ -3,6 +3,8 @@
     class="kr-surface cca-shell relative h-full min-h-0 overflow-hidden"
     data-layout="console-fixed"
     aria-label="Prom of Doom game"
+    @pointerdown.capture="onPromSoundGesture"
+    @keydown.capture="onPromSoundGesture"
   >
     <shell-console-theme theme="comet-city" />
     <header-page-bar v-if="run" console-theme="comet-city">
@@ -1640,6 +1642,12 @@ import { fieldFor, identityFor } from '~/utils/cometAcademy/identityArcs'
 import type { PlayerForm } from '~/utils/cometAcademy/protagonistEvolution'
 import { campaignVillain } from '~/utils/cometAcademy/campaign'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
+import { usePromSoundStore } from '~/stores/promSoundStore'
+import {
+  promAudioFrame,
+  promCuesFor,
+  promMoodFor,
+} from '~/utils/cometAcademy/sound'
 import { useOctoberCastArtStore } from '~/stores/octoberCastArtStore'
 import { useRecruitArtStore } from '~/stores/recruitArtStore'
 import { useUserStore } from '~/stores/userStore'
@@ -1717,6 +1725,22 @@ import {
 } from '~/utils/cometAcademy/specialPowers'
 
 const store = useCometAcademyStore()
+const sound = usePromSoundStore()
+const audioFrame = computed(() => promAudioFrame(store.run))
+watch(
+  audioFrame,
+  (next, previous) => {
+    sound.setMood(promMoodFor(next))
+    if (previous) sound.play(promCuesFor(previous, next))
+  },
+  { immediate: true },
+)
+function onPromSoundGesture(): void {
+  sound.unlock()
+}
+function onPromSoundVisibility(): void {
+  sound.setHidden(document.visibilityState === 'hidden')
+}
 const userStore = useUserStore()
 const octoberArt = useOctoberCastArtStore()
 const recruitArt = useRecruitArtStore()
@@ -2232,7 +2256,16 @@ function startFromOpening(selection: {
     })
 }
 
-onMounted(() => store.load())
+onMounted(() => {
+  store.load()
+  sound.loadMix()
+  document.addEventListener('visibilitychange', onPromSoundVisibility)
+  onPromSoundVisibility()
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onPromSoundVisibility)
+  sound.stop()
+})
 useSeoMeta(
   gameLinkPreviewMeta(
     'comet-city-academy',

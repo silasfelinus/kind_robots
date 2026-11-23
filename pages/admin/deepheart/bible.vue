@@ -221,134 +221,197 @@
         aria-label="Character visual designs"
       >
         <p class="mb-3 text-sm opacity-80">
-          Fifty playable identities. Each can lead or accompany the party.
-          Visual species and body descriptions live in these private art briefs,
-          not in the character names, dialogue or player-facing biography.
+          Choose a painted delver to inspect their full character art,
+          biography, original prompt and new ArtJob requests.
         </p>
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          <article
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+          <button
             v-for="person in CHARACTERS"
             :key="person.id"
-            class="rounded-xl border border-base-content/15 bg-base-200 p-3"
+            type="button"
+            class="group min-w-0 overflow-hidden rounded-xl border border-base-content/20 bg-base-200 text-left transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-primary"
+            :aria-label="'Inspect ' + person.name"
+            :data-testid="'dh-bible-cast-' + person.id"
+            @click="openDetail('cast', person.id)"
           >
-            <div class="flex items-start gap-3">
-              <DeepheartPortrait
-                :id="person.id"
-                size="sm"
-                class="w-20 shrink-0"
-              />
-              <div class="min-w-0">
-                <h3 class="font-bold">{{ person.name }}</h3>
-                <p class="text-xs opacity-70">
-                  {{ ROLES[person.role].label }} ·
-                  {{
-                    person.gender === 'w'
-                      ? 'she/her'
-                      : person.gender === 'm'
-                        ? 'he/him'
-                        : 'they/them'
-                  }}
-                </p>
-                <p class="mt-1 text-xs">{{ person.blurb }}</p>
-              </div>
+            <DeepheartPortrait
+              :id="person.id"
+              size="lg"
+              class="!aspect-[3/4] w-full !rounded-none"
+            />
+            <div class="p-2">
+              <h3 class="truncate font-semibold">{{ person.name }}</h3>
+              <p class="text-xs opacity-70">
+                {{ ROLES[person.role].label }} · Inspect &amp; repaint
+              </p>
             </div>
-            <details class="mt-2 text-xs">
-              <summary class="cursor-pointer font-semibold">
-                Private visual art prompt
-              </summary>
-              <p class="mt-2 leading-relaxed">{{ ANTHRO_LOOK[person.id] }}</p>
-            </details>
-          </article>
+          </button>
         </div>
       </section>
 
       <section
         v-else-if="tab === 'court'"
         class="kr-scroll min-h-0 flex-1 overflow-y-auto p-1"
-        aria-label="Private Glass Family pantheon"
+        aria-label="Painted immortal court"
         data-testid="dh-pantheon-bible"
       >
         <p class="mb-3 text-sm opacity-80">
-          Twelve immortal gods with human faces, in a world of animal folk.
-          Greek and Roman archetypes are starting points, not the characters'
-          identities. Each can alter reality itself, but never escape their own
-          boredom, obsessions or family politics. Private visual prompts belong
-          here, not in the mortal hero selector.
+          All twelve human-faced immortals have completed Krea 2 encounter
+          artwork. Inspect their paintings, court history and art prompts,
+          or request a new character portrait.
         </p>
-        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          <article
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+          <button
             v-for="deity in COURT_DEITIES"
             :key="deity.id"
-            class="grid gap-2 rounded-xl border border-base-content/15 bg-base-200 p-3"
+            type="button"
+            class="group min-w-0 overflow-hidden rounded-xl border border-base-content/20 bg-base-200 text-left transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-primary"
             :data-testid="'dh-pantheon-' + deity.id"
+            :aria-label="'Inspect ' + deity.name"
+            @click="openDetail('court', deity.id)"
           >
-            <div>
-              <p class="text-xs uppercase tracking-wider opacity-65">
-                {{ deity.mythicEcho }} · Depth {{ deity.layer + 1 }}
+            <img
+              :src="deepheartArtSrc('court:' + deity.id)"
+              :alt="deity.name + ' illustrated court encounter'"
+              loading="lazy"
+              class="aspect-[4/3] w-full bg-base-300 object-cover"
+            />
+            <div class="p-2">
+              <p class="text-[0.65rem] uppercase tracking-wider opacity-70">
+                Depth {{ deity.layer + 1 }} · {{ deity.mythicEcho }}
               </p>
-              <h3 class="font-bold">{{ deity.name }}</h3>
-              <p class="text-xs italic opacity-80">{{ deity.epithet }}</p>
+              <h3 class="truncate font-semibold">{{ deity.name }}</h3>
+              <p class="truncate text-xs italic opacity-70">
+                {{ deity.epithet }}
+              </p>
             </div>
-            <p class="text-xs">{{ deity.power }}</p>
-            <p class="text-xs text-secondary">{{ deity.obsession }}</p>
-            <p class="text-xs opacity-80">
-              {{ deity.immortalTruth }}
-            </p>
-            <details class="text-xs">
-              <summary class="cursor-pointer font-semibold">
-                Human-faced character art prompt
-              </summary>
-              <p class="mt-2 leading-relaxed">{{ deity.look }}</p>
-            </details>
-          </article>
+          </button>
         </div>
       </section>
+    </div>
 
+    <div
+      v-if="focus"
+      class="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-2 sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="'Inspect ' + focusName"
+      data-testid="dh-bible-subject-detail"
+      @click.self="closeDetail"
+      @keydown.esc="closeDetail"
+    >
       <section
-        v-else
-        class="kr-scroll min-h-0 flex-1 overflow-y-auto p-3"
-        aria-label="Art direction canon"
+        class="flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-primary/30 bg-base-200 shadow-2xl"
       >
-        <div class="mx-auto grid max-w-4xl gap-4 text-sm md:grid-cols-2">
-          <article class="rounded-xl bg-base-200 p-4">
-            <h2 class="mb-2 text-lg font-bold">Animation, not live action</h2>
-            <p>
-              Bold expressive western-animation silhouettes, cel shadows,
-              painterly backgrounds and grown-up cinematic lighting. Bright
-              personalities in a dark, dangerous world. Dynamic posing matters
-              more than prettified anatomy.
+        <div class="flex items-center justify-between gap-3 border-b border-base-content/15 px-4 py-2">
+          <div class="min-w-0">
+            <p class="text-[0.65rem] uppercase tracking-widest text-primary">
+              {{ focus?.kind === 'court' ? 'Immortal court' : 'Character bible' }}
             </p>
-          </article>
-          <article class="rounded-xl bg-base-200 p-4">
-            <h2 class="mb-2 text-lg font-bold">
-              Every mortal person is an animal person
-            </h2>
-            <p>
-              Mammals, birds, reptiles, amphibians and insects share this world.
-              Distinct snouts, muzzles, ears, scales, feathers, tails, wings and
-              different body builds. The illustrated species belongs in prompts.
-              On screen: Oona the Guardian, Vex the Rogue. The twelve immortal
-              fairy rulers alone have fully human faces.
+            <h2 class="truncate text-lg font-bold">{{ focusName }}</h2>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" @click="closeDetail">
+            Close
+          </button>
+        </div>
+        <div class="kr-scroll grid min-h-0 flex-1 gap-4 overflow-y-auto p-3 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,1fr)] md:p-4">
+          <div class="min-h-0">
+            <img
+              v-if="focusImage"
+              :src="focusImage"
+              :alt="focusName + ' full illustration'"
+              class="max-h-[68dvh] w-full rounded-xl bg-base-300 object-contain"
+            />
+            <DeepheartPortrait
+              v-else-if="focusCast"
+              :id="focusCast.id"
+              size="lg"
+              class="mx-auto max-h-[68dvh] w-full max-w-lg"
+            />
+            <div v-else class="grid min-h-56 place-items-center rounded-xl bg-base-300 text-sm opacity-70">
+              Awaiting artwork
+            </div>
+            <p class="mt-2 text-xs opacity-70">
+              {{
+                focusJob?.status === 'DONE' && focusJob.artImageId && focusImage
+                  ? 'Latest requested painting'
+                  : 'Original approved illustration'
+              }}
+              · private director's copy
             </p>
-          </article>
-          <article class="rounded-xl bg-base-200 p-4">
-            <h2 class="mb-2 text-lg font-bold">Violence with consequences</h2>
-            <p>
-              These are fighters entering genuinely threatening crypts.
-              Injuries, scuffed armour, monstrous teeth and rich shadow belong
-              here. Avoid toy-like chibi proportions and frictionless heroic
-              poses.
-            </p>
-          </article>
-          <article class="rounded-xl bg-base-200 p-4">
-            <h2 class="mb-2 text-lg font-bold">Tenderness, carefully staged</h2>
-            <p>
-              The waterfall trial depicts two clearly adult, established
-              partners. They share an affectionate bathing moment while
-              waterfall spray, mist, water and foreground stone obscure private
-              anatomy. This is romance, not explicit erotica.
-            </p>
-          </article>
+          </div>
+          <div class="space-y-3 text-sm">
+            <template v-if="focusCast">
+              <p class="text-xs uppercase text-primary">
+                {{ ROLES[focusCast.role].label }}
+              </p>
+              <p>{{ focusCast.blurb }}</p>
+              <p class="text-xs opacity-80">{{ focusCast.secret }}</p>
+              <p class="text-xs italic opacity-80">{{ focusCast.arc }}</p>
+            </template>
+            <template v-else-if="focusDeity">
+              <p class="text-xs uppercase text-primary">
+                {{ focusDeity.mythicEcho }} · Depth {{ focusDeity.layer + 1 }}
+              </p>
+              <p class="font-semibold">{{ focusDeity.epithet }}</p>
+              <p>{{ focusDeity.power }}</p>
+              <p class="text-secondary">{{ focusDeity.obsession }}</p>
+              <p class="opacity-80">{{ focusDeity.immortalTruth }}</p>
+            </template>
+            <details class="rounded-lg border border-base-content/20 p-3">
+              <summary class="cursor-pointer font-medium">
+                Original physical art prompt
+              </summary>
+              <p class="mt-2 text-xs leading-relaxed">{{ focusPrompt }}</p>
+            </details>
+            <div class="space-y-2 rounded-xl border border-primary/25 bg-base-300/65 p-3">
+              <h3 class="font-bold">Request new painted art</h3>
+              <p class="text-xs opacity-80">
+                Krea 2 · private · original image preserved.
+                Add physical changes to pose, clothing, expression or lighting.
+              </p>
+              <textarea
+                v-model="artNotes"
+                class="textarea textarea-bordered w-full text-sm"
+                rows="3"
+                maxlength="350"
+                placeholder="Optional changes for the next illustration…"
+                aria-label="New art instructions"
+              />
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                :disabled="requesting || focusJobPending"
+                data-testid="dh-bible-request-art"
+                @click="requestPainting"
+              >
+                {{
+                  requesting
+                    ? 'Requesting…'
+                    : focusJobPending
+                      ? 'Render already queued'
+                      : 'Request new Krea 2 painting'
+                }}
+              </button>
+              <p v-if="focusJob" class="text-xs opacity-75">
+                Latest ArtJob #{{ focusJob.jobId }} · {{ focusJob.status }}
+              </p>
+              <p v-if="artNotice" class="text-xs text-success" role="status">
+                {{ artNotice }}
+              </p>
+              <p v-if="artError" class="text-xs text-error" role="alert">
+                {{ artError }}
+              </p>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs"
+                :disabled="loadingArtJobs"
+                @click="refreshBibleArt"
+              >
+                {{ loadingArtJobs ? 'Checking…' : 'Refresh painting status' }}
+              </button>
+            </div>
+          </div>
         </div>
       </section>
     </div>

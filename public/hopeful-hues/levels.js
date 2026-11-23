@@ -295,6 +295,19 @@
       if (goals[i].type === 'tangle' && goals[i].target === 0)
         goals.splice(i, 1)
 
+    if (n === 6) {
+      goals.push({ type: 'special', special: 'comb', target: 1 })
+      moves = Math.min(50, moves + 5)
+    }
+    if (n === 12 && region.tier > 0) {
+      goals.push({ type: 'special', special: 'bomb', target: 1 })
+      moves = Math.min(50, moves + 8)
+    }
+    if (n === 15 && region.tier === 2) {
+      goals.push({ type: 'combo', target: 1 })
+      moves = Math.min(50, moves + 8)
+    }
+
     const beat = (STORY_BEATS[regionId] || []).find((b) => b.at === n) || null
 
     return {

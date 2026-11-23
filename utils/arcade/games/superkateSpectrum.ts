@@ -456,7 +456,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.fillRect(x, y, 3, 3)
     }
     label(g, "SUPERKATE'S SPECTRUM", W / 2, 18, 15, '#fff0ad')
-    const chapter = CHAPTERS[Math.floor((this.level - 1) / 5)]!
+    const chapter = CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         const hue = this.board[r]![c]
@@ -485,8 +485,27 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     g.stroke()
     g.setLineDash([])
     const style = styleForRank(rankForXp(this.career.xp))
-    if (this.shot)
+    if (this.shot) {
       bubble(g, this.shot.x, this.shot.y, this.shot.hue, 13, style, this.tick)
+      if (this.shot.power) {
+        g.strokeStyle =
+          this.shot.power === 'burst'
+            ? '#ff9cae'
+            : this.shot.power === 'ribbon'
+              ? '#ffe382'
+              : '#9df7ff'
+        g.lineWidth = 2
+        g.beginPath()
+        g.arc(
+          this.shot.x,
+          this.shot.y,
+          17 + Math.sin(this.tick / 5) * 2,
+          0,
+          Math.PI * 2,
+        )
+        g.stroke()
+      }
+    }
     for (const spark of this.sparks) {
       g.globalAlpha = spark.life / 32
       g.fillStyle = spark.color

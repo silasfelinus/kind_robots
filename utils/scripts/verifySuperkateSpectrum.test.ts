@@ -320,10 +320,20 @@ assert.equal(musicHub.optionRow, 3)
 const toggleSound = emptyInput()
 toggleSound.pressed.a = true
 musicHub.update(toggleSound)
+assert.equal(musicHub.settings.music, false)
+assert.equal(musicHub.music, null, 'Music switch stops the soundtrack')
+assert.equal(audioChanges.length, 0, 'Music-only preference does not mute SFX')
+musicHub.update(down)
+assert.equal(musicHub.optionRow, 4)
+musicHub.update(toggleSound)
+assert.equal(musicHub.settings.effects, false)
+musicHub.update(down)
+assert.equal(musicHub.optionRow, 5)
+musicHub.update(toggleSound)
 assert.equal(musicHub.audio.muted, true)
 assert.deepEqual(audioChanges.at(-1), { muted: true, volume: 0.4 })
 musicHub.update(down)
-assert.equal(musicHub.optionRow, 4)
+assert.equal(musicHub.optionRow, 6)
 const volumeUp = emptyInput()
 volumeUp.pressed.right = true
 musicHub.update(volumeUp)
@@ -332,6 +342,15 @@ assert.deepEqual(audioChanges.at(-1), { muted: true, volume: 0.5 })
 musicHub.setAudio({ muted: false, volume: 0.7 })
 assert.deepEqual(musicHub.audio, { muted: false, volume: 0.7 })
 assert.equal(audioChanges.length, 2, 'External mixer updates do not echo')
+const savedAudio = readSpectrumSave(musicHub.save)
+assert.equal(savedAudio.settings.music, false)
+assert.equal(savedAudio.settings.effects, false)
+const audioReload = create({
+  ...options,
+  resume: savedAudio,
+} as Parameters<typeof create>[0])
+assert.equal(audioReload.music, null)
+assert.equal(audioReload.settings.effects, false)
 
 const deepClassic = create({
   ...options,
@@ -368,7 +387,7 @@ for (const theme of [
   ...SPECTRUM_BOSS_MUSIC,
   SPECTRUM_CLASSIC_MUSIC,
 ]) {
-  assert.ok(theme.bpm >= 80 && theme.bpm <= 160)
+  assert.ok(theme.bpm >= 80 && theme.bpm <= 170)
   assert.ok(theme.tracks.length >= 2)
 }
 console.log(

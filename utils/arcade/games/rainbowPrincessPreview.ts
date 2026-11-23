@@ -1417,10 +1417,11 @@ export function createRainbowPrincessPreview(
         (act, frame, c) =>
           (act === 1 && frame === 0) || isRainbowCheckpoint(act, frame, c),
       )
-  // The cabinet's attract demo never passes a save; a test may, to fly a saved road from its checkpoint.
-  const offered = replaySave
-    ? null
-    : readRainbowSave(options.resume, isRainbowCheckpoint)
+  // The attract demo ignores a save, unless a test opts in to fly a saved road from its checkpoint.
+  const offered =
+    (options.demo && !options.rainbowDemoResume) || replaySave
+      ? null
+      : readRainbowSave(options.resume, isRainbowCheckpoint)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
     offered ? { save: offered, pick: 0, frame: 0 } : null
   /** Older saves rotate a starting pilot; new flights preserve the complete chosen crew. */

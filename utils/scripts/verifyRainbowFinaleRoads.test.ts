@@ -151,6 +151,7 @@ for (const road of ['rebel', 'loyal'] as const)
       sound: { play() {} },
       hiScore: 0,
       resume: saves[road],
+      rainbowDemoResume: true,
     })
     for (let i = 0; i < 25; i++) game.update(emptyInput())
     const press = emptyInput()

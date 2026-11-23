@@ -69,6 +69,7 @@ export const RAINBOW_DOODLE_ART: readonly string[] = [
   'enemies/harbinger',
   'enemies/lantern',
   'enemies/mirror',
+  'enemies/motherdrone',
   'enemies/picket',
   'enemies/pistol',
   'enemies/relay',

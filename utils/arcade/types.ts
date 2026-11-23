@@ -133,6 +133,8 @@ export type ArcadeGameMeta = {
   highContrast?: boolean
   /** The game has crew comms the player can quiet (ArcadeGameOptions.comms): the cabinet shows the switch. */
   comms?: boolean
+  /** Players may give each face button a key of their own (utils/arcade/input applyKeyRemap): the cabinet shows the Keys panel. */
+  remap?: boolean
   /**
    * The game offers difficulty levels: their names, easiest first (easy, normal, hard). The cabinet
    * shows a switch for them and passes the choice as ArcadeGameOptions.difficulty.

@@ -60,6 +60,12 @@ jobs:
         run: node utils/scripts/verifyRibbonRidersWrapCabinet.browser.test.mjs
         env:
           RIBBON_SEAM_SHOTS: cabinet-contract-shots/ribbon-riders
+      - name: Rainbow settings — bind a key and fly it, Escape cancels, comms and contrast switch
+        if: always()
+        run: node utils/scripts/verifyRainbowSettingsCabinet.browser.test.mjs
+      - name: Arcade key remap — bindable keys, moves, reserved keys and wiring
+        if: always()
+        run: npx tsx utils/scripts/verifyArcadeKeyRemap.test.ts
       - name: Preserve cabinet states
         if: always()
         uses: actions/upload-artifact@v4

@@ -38,6 +38,17 @@ const stores = {
         awardRunAchievements: async () => {}, awardFeats: async () => {}, awardMasteryAchievements: async () => {}, submitScore: async () => ({ success: false }),
         styleFor: () => 'hd', setGameStyle() {}, setVolume() {}, setMuted() {}, setCrt() {},
         setStillCamera() {}, difficulties: {},
+        highContrast: false, comms: 'full', keyRemaps: {},
+        setHighContrast(on) { this.highContrast = on },
+        setComms(level) { this.comms = level },
+        keyRemapFor(game) { return this.keyRemaps[game] ?? {} },
+        setKeyRemap(game, button, code) {
+          const next = { ...(this.keyRemaps[game] ?? {}) }
+          for (const other of Object.keys(next)) if (next[other] === code) delete next[other]
+          if (code) next[button] = code
+          else delete next[button]
+          this.keyRemaps = { ...this.keyRemaps, [game]: next }
+        },
         difficultyFor(game) { return this.difficulties[game] ?? 'normal' },
         setDifficulty(game, level) { this.difficulties[game] = level },
         rememberInitials() {}, saveFor: () => undefined, recordSave() {},

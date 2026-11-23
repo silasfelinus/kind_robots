@@ -46,6 +46,63 @@ export const KEY_MAP: Record<string, ArcadeButton> = {
   NumpadEnter: 'start',
 }
 
+/** The face buttons a player may give a key of their own (t-044 settings), for a game whose meta sets `remap`. */
+export const REMAPPABLE_BUTTONS = ['a', 'b', 'x', 'y'] as const
+export type RemappableButton = (typeof REMAPPABLE_BUTTONS)[number]
+/** One chosen key per face button, by KeyboardEvent.code. */
+export type ArcadeKeyRemap = Partial<Record<RemappableButton, string>>
+
+/**
+ * Keys a player may bind: letters, digits, the numpad, punctuation, space and the modifier keys. Never the
+ * arrows (always movement), Escape or P (always pause), Enter (always start), Tab or the function keys.
+ */
+export function isRemappableCode(code: string): boolean {
+  if (code === 'KeyP') return false
+  return /^(Key[A-Z]|Digit[0-9]|Numpad[0-9]|NumpadAdd|NumpadSubtract|NumpadMultiply|NumpadDivide|NumpadDecimal|Space|ShiftLeft|ShiftRight|ControlLeft|ControlRight|AltLeft|AltRight|Semicolon|Quote|Comma|Period|Slash|Backslash|BracketLeft|BracketRight|Minus|Equal|Backquote)$/.test(
+    code,
+  )
+}
+
+/** Keep only well-formed choices: a remappable code, and no code chosen for two buttons. */
+export function sanitizeKeyRemap(raw: unknown): ArcadeKeyRemap {
+  const remap: ArcadeKeyRemap = {}
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return remap
+  const used = new Set<string>()
+  for (const button of REMAPPABLE_BUTTONS) {
+    const code = (raw as Record<string, unknown>)[button]
+    if (typeof code !== 'string' || !isRemappableCode(code) || used.has(code))
+      continue
+    remap[button] = code
+    used.add(code)
+  }
+  return remap
+}
+
+/** Give `button` the key `code` (null clears it); if another button had that key, the key moves here. */
+export function withKeyRemap(
+  remap: ArcadeKeyRemap,
+  button: RemappableButton,
+  code: string | null,
+): ArcadeKeyRemap {
+  const kept = Object.entries(sanitizeKeyRemap(remap)).filter(
+    ([other, key]) => other !== button && key !== code,
+  )
+  return sanitizeKeyRemap(
+    Object.fromEntries(code ? [...kept, [button, code]] : kept),
+  )
+}
+
+/** A key map with the player's chosen keys added: each chosen key now presses its button, whatever it did before. */
+export function applyKeyRemap(
+  base: Record<string, ArcadeButton>,
+  remap: ArcadeKeyRemap,
+): Record<string, ArcadeButton> {
+  const keys = { ...base }
+  for (const [button, code] of Object.entries(sanitizeKeyRemap(remap)))
+    keys[code] = button as RemappableButton
+  return keys
+}
+
 /** Save the Plumber keeps the shared Arcade keys, with reachable action keys by WASD. */
 export const SAVE_PLUMBER_KEYS: Record<string, ArcadeButton> = {
   ...KEY_MAP,

@@ -646,15 +646,14 @@ export function drawRainbowStageCard(
 
 /**
  * Painted ending plates in the Fever Dream look (conductor ENDINGS-FEVER-DREAM-2026-11-22), keyed by the final
- * choice and shared by every road: C14 restore (279195, the open Crown over a sunrise of freed sea-ships) and C15
- * evacuate (279196, the Aurora Mercy leading the convoy out of the shattering palace). C16 sever keeps the halo
- * until a render passes CAST-QA (279197 drew Maribel with a child's proportions and Lilt as a gold mannequin).
+ * choice and shared by every road: C14 restore (279195, the open Crown over a sunrise of freed sea-ships), C15
+ * evacuate (279196, the Aurora Mercy leading the convoy out of the shattering palace) and C16 sever (279239, the
+ * four pilots releasing lanterns on the mirror sea; the fourth take, after three failed CAST-QA on Maribel).
  */
-export const RAINBOW_ENDING_PLATES: Readonly<
-  Partial<Record<FinaleChoice, string>>
-> = {
+export const RAINBOW_ENDING_PLATES: Readonly<Record<FinaleChoice, string>> = {
   restore: 'endings/restore',
   evacuate: 'endings/evacuate',
+  sever: 'endings/sever',
 }
 
 export function rainbowEndingPlate(choice: FinaleChoice): string | null {

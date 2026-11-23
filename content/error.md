@@ -1,5 +1,5 @@
 ---
-title: Direction
+title: 'Page not found'
 room: 'Lost & Found Room'
 subtitle: 'This page wandered off...'
 description: 'We couldn’t find the page you were looking for. It might have been renamed, moved, or never existed at all.'
@@ -22,4 +22,4 @@ backgroundDesktop: /api/art/backdrop/error-desktop
 
 404 Not Found
 
-This page doesn’t exist. Double-check the URL or head back to the [home page](/).
+This page doesn’t exist. Double-check the URL, see every game and story on the [site map](/navigation), or head back to the [home page](/).

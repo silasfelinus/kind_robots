@@ -184,6 +184,12 @@ for (const loc of locs) {
 for (const route of publicRoutes) {
   assert.ok(locs.includes(`https://kindrobots.org${route}`), route)
 }
+// Trust pages a first visitor looks for are listed, are real content pages
+// and are never gated behind an account (added 2026-11-23 PT).
+for (const route of ['/silas', '/privacy', '/register']) {
+  assert.ok(locs.includes(`https://kindrobots.org${route}`), route)
+  assert.ok(existsSync(repoPath(`content${route}.md`)), `${route} page`)
+}
 // Standalone public games are listed and each has a real page and an arcade tab.
 for (const route of STANDALONE_GAME_PATHS) {
   assert.ok(locs.includes(`https://kindrobots.org${route}`), route)

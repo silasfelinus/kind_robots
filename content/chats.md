@@ -2,7 +2,7 @@
 title: 'Chats'
 room: 'Chat Gallery'
 subtitle: 'Echoes of wit and weirdness'
-description: Scroll through curated messages and threads from across our digital domains.
+description: Read back your conversations with Kind Robots bots and characters. Sign in free to see your chats.
 image: splash/chats.png
 icon: fa-solid:comments
 tooltip: Read the things bots and users have actually said. It’s a ride.

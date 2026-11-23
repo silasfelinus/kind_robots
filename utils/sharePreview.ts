@@ -171,6 +171,12 @@ export const SITEMAP_PATHS: readonly string[] = [
   '/about',
   '/giving',
   '/navigation',
+  // 2026-11-23 PT: public pages a first-time visitor looks for before
+  // trusting a site (who makes it, how data is handled, how to join) were
+  // reachable from the footer but never listed in the sitemap.
+  '/silas',
+  '/privacy',
+  '/register',
   ...SHARE_PREVIEWS.map((preview) => preview.route),
   ...STANDALONE_GAME_PATHS,
 ]

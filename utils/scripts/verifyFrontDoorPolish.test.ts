@@ -143,4 +143,21 @@ const showdown = GAME_LINK_PREVIEWS['zuzu-showdown']!.description
 assert.doesNotMatch(showdown, /^Duels with Zuzu and friends/)
 assert.match(showdown, /fighter/i)
 
+// 6. Plain first-visit copy (2026-11-23 PT): the 404 tab read "Direction",
+//    /login promised a "suite of AI-enhanced tools", and the signed-in
+//    Jellybeans and Chats pages never said they need a free account.
+const notFound = read('content/error.md')
+assert.match(notFound, /^title: '?Page not found'?$/m)
+assert.match(notFound, /\]\(\/navigation\)/, '404 links to the site map')
+const loginDescription = pageDescription('content/login.md')
+assert.doesNotMatch(loginDescription, /AI-enhanced|suite of/i)
+assert.match(loginDescription, /free/i)
+assert.match(loginDescription, /without one/)
+for (const file of ['content/achievements.md', 'content/chats.md']) {
+  const description = pageDescription(file)
+  assert.match(description, /sign in free/i, `${file} says it needs a sign-in`)
+  assert.doesNotMatch(description, /delightful quest|digital domains/i)
+}
+assert.doesNotMatch(pageDescription('content/themes.md'), /plethora|vibe/i)
+
 console.log(`front door polish checks passed (${gatedCards} gated share cards)`)

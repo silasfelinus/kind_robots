@@ -200,6 +200,7 @@ export const RAINBOW_ALTERNATE_ROUTES = [
 export function rainbowAlternateRouteLogbook(save: RainbowSave | null) {
   const c = save?.checkpoint
   const seen = c?.alternateRoutesSeen ?? 0
+  const cleared = c?.alternateRoutesCleared ?? 0
   return RAINBOW_ALTERNATE_ROUTES.map((route) => {
     const inFlight =
       (route.id === 'X1' && c?.nurseryFrame !== undefined) ||
@@ -210,10 +211,16 @@ export function rainbowAlternateRouteLogbook(save: RainbowSave | null) {
       (route.id === 'X1' && c?.freedChoir === true) ||
       (route.id === 'X2' && c?.cadetsHome === true)
     const discovered = Boolean(seen & route.bit || inFlight || legacyProof)
+    const completed = Boolean(cleared & route.bit)
     return {
       ...route,
       discovered,
-      label: discovered ? 'ROUTE FLOWN' : 'ROUTE UNDISCOVERED',
+      completed,
+      label: completed
+        ? 'ROUTE CLEARED'
+        : discovered
+          ? 'ROUTE FLOWN'
+          : 'ROUTE UNDISCOVERED',
     }
   })
 }
@@ -324,6 +331,19 @@ export function readRainbowSave(
         ((c.alternateRoutesSeen as number) & 4) === 0) ||
       (c.shoalFrame !== undefined &&
         ((c.alternateRoutesSeen as number) & 8) === 0))
+  )
+    return null
+  if (
+    c.alternateRoutesCleared !== undefined &&
+    (!count(c.alternateRoutesCleared, 15) ||
+      !count(c.alternateRoutesSeen, 15) ||
+      ((c.alternateRoutesCleared as number) &
+        ~(c.alternateRoutesSeen as number)) !== 0 ||
+      RAINBOW_ALTERNATE_ROUTES.some(
+        (route) =>
+          ((c.alternateRoutesCleared as number) & route.bit) !== 0 &&
+          (c.act as number) <= route.fromAct,
+      ))
   )
     return null
   if (
@@ -497,6 +517,9 @@ export function readRainbowSave(
       rescuedNemi: saved.rescuedNemi,
       ...(saved.alternateRoutesSeen !== undefined
         ? { alternateRoutesSeen: saved.alternateRoutesSeen }
+        : {}),
+      ...(saved.alternateRoutesCleared !== undefined
+        ? { alternateRoutesCleared: saved.alternateRoutesCleared }
         : {}),
       trenchRoute: saved.trenchRoute,
       routeSettled: saved.routeSettled,

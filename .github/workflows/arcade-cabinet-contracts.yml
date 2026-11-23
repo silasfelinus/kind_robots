@@ -63,6 +63,9 @@ jobs:
       - name: Rainbow settings — bind a key and fly it, Escape cancels, comms and contrast switch
         if: always()
         run: node utils/scripts/verifyRainbowSettingsCabinet.browser.test.mjs
+      - name: Save the Plumber — keyboard, gamepad and touch in Chromium
+        if: always()
+        run: node utils/scripts/verifySavePlumberCabinet.browser.test.mjs
       - name: Arcade key remap — bindable keys, moves, reserved keys and wiring
         if: always()
         run: npx tsx utils/scripts/verifyArcadeKeyRemap.test.ts

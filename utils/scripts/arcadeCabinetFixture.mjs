@@ -212,6 +212,19 @@ export async function bundleCabinetFixture({ realArcadeStore = false } = {}) {
           }
         },
       )
+      builder.onLoad({ filter: /games\/savePlumberPreview\.ts$/ }, ({ path: file }) => {
+        const source = readFileSync(file, 'utf8')
+        const marker = 'export function createSavePlumberPreview('
+        if (!source.includes(marker))
+          throw new Error('Save the Plumber fixture hook lost its create()')
+        return {
+          contents:
+            source.replace(marker, 'function createSavePlumberPreviewInner(') +
+            '\nexport function createSavePlumberPreview(options: ArcadeGameOptions, run: PlumberRunOptions = {}): PlumberRun {\n  const game = createSavePlumberPreviewInner(options, run)\n  ;(window.__plumbers ||= []).push({ demo: Boolean(options.demo), game })\n  return game\n}\n',
+          loader: 'ts',
+          resolveDir: path.dirname(file),
+        }
+      })
       // Record each Rescue Rally and Battery Maze game the cabinet creates.
       for (const { file: filter, ctor, list } of exposed) {
         builder.onLoad({ filter }, ({ path: file }) => {

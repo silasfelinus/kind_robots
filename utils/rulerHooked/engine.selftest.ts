@@ -410,6 +410,36 @@ function baseSave(): RunSave {
   privatizedRiver.flags.riverConcession = true
   assert.ok(!availableFish(privatizedRiver).some((f) => f.slug === 'commons-kitebream'))
 
+  const newUnlocks: Array<[string, string, Partial<RunSave['kingdomHealth']>]> = [
+    ['reedglass-darter', 'shallowsNursery', { nature: 60 }],
+    ['commons-bellfin', 'riverCommons', { joy: 60 }],
+    ['oathscale-minnow', 'publicTrust', { nature: 60 }],
+    ['treaty-sailfish', 'envoyTreatySigned', { prosperity: 60 }],
+    ['marina-mirrorling', 'marinaCleaned', {}],
+    ['concession-coinfin', 'riverConcession', { treasury: 60 }],
+    ['pierlock-eel', 'exclusivePier', { joy: 35 }],
+    ['sluice-ghost', 'runBlocked', { nature: 30 }],
+  ]
+  for (const [slug, flag, sliders] of newUnlocks) {
+    const world = baseSave()
+    Object.assign(world.kingdomHealth, sliders)
+    assert.equal(availableFish(world).some((fish) => fish.slug === slug), false, slug + ' must not leak before its decision')
+    world.flags[flag] = true
+    assert.equal(availableFish(world).some((fish) => fish.slug === slug), true, slug + ' must unlock after its decision')
+  }
+  const tyranny = baseSave()
+  tyranny.kingdomHealth.order = 85
+  tyranny.kingdomHealth.joy = 25
+  assert.ok(availableFish(tyranny).some((fish) => fish.slug === 'gallows-gudgeon'))
+  tyranny.kingdomHealth.joy = 50
+  assert.ok(!availableFish(tyranny).some((fish) => fish.slug === 'gallows-gudgeon'))
+  const dredged = baseSave()
+  dredged.flags.shallowsNursery = true
+  dredged.kingdomHealth.nature = 70
+  assert.ok(availableFish(dredged).some((fish) => fish.slug === 'reedglass-darter'))
+  dredged.flags.shallowsDredged = true
+  assert.ok(!availableFish(dredged).some((fish) => fish.slug === 'reedglass-darter'))
+
   const a = baseSave()
   a.kingdomHealth = {
     nature: 50,

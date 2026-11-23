@@ -26,6 +26,7 @@ import {
   SOLID_GROUND,
   SOLID_LADDER,
   SOLID_LEDGE,
+  SOLID_LOCK,
   SOLID_PIPE,
   SOLID_WATER,
   SOLID_ICE,
@@ -357,6 +358,14 @@ type Pickup = {
   taken: boolean
 }
 type Gust = { x: number; y: number; dir: number; life: number }
+/** A brass key: carried one at a time, it opens one padlocked bolt. */
+export type BrassKey = {
+  x: number
+  y: number
+  homeX: number
+  homeY: number
+  state: 'waiting' | 'held' | 'used'
+}
 type Cargo = {
   x: number
   /** Where its crates start falling from. */
@@ -408,10 +417,28 @@ const isWall = (s: number) =>
   s === SOLID_FRAGILE_ICE ||
   s === SOLID_BLOCK ||
   s === SOLID_GATE ||
+  s === SOLID_LOCK ||
   s === SOLID_PIPE ||
   s === SOLID_CRATE ||
   s === SOLID_BELT_LEFT ||
   s === SOLID_BELT_RIGHT
+
+/** A small brass key: a ring bow, a shaft and two bits, centred on (x, y). */
+function drawBrassKey(g: CanvasRenderingContext2D, x: number, y: number) {
+  g.fillStyle = 'rgba(255, 236, 170, 0.3)'
+  g.beginPath()
+  g.arc(x, y, 9, 0, Math.PI * 2)
+  g.fill()
+  g.strokeStyle = '#e8b84a'
+  g.lineWidth = 2
+  g.beginPath()
+  g.arc(x - 4, y, 3, 0, Math.PI * 2)
+  g.stroke()
+  g.fillStyle = '#e8b84a'
+  g.fillRect(x - 1, y - 1, 8, 2)
+  g.fillRect(x + 3, y + 1, 2, 3)
+  g.fillRect(x + 6, y + 1, 1, 2)
+}
 
 export class PlumberRun implements ArcadeGameInstance {
   score = 0
@@ -531,6 +558,11 @@ export class PlumberRun implements ArcadeGameInstance {
   cargo: Cargo[] = []
   soot: Soot[] = []
   pickups: Pickup[] = []
+  /** Brass keys on this stage, and the one she holds (if any). */
+  keys: BrassKey[] = []
+  heldKey: BrassKey | null = null
+  /** Padlocked bolts opened on this stage. */
+  boltsOpened = 0
   gusts: Gust[] = []
   /** Crates in flight from the Pocket Lift. */
   thrown: Soot[] = []
@@ -1071,6 +1103,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.cargo = []
     this.soot = []
     this.pickups = []
+    this.keys = []
+    this.heldKey = null
+    this.boltsOpened = 0
     this.gear = null
     this.gusts = []
     this.thrown = []
@@ -1224,6 +1259,15 @@ export class PlumberRun implements ArcadeGameInstance {
               y: bottom - TILE / 2,
               offset: spawn.col * 0.71 + spawn.row * 0.37,
             })
+          break
+        case 'key':
+          this.keys.push({
+            x: cx,
+            y: bottom - 8,
+            homeX: cx,
+            homeY: bottom - 8,
+            state: 'waiting',
+          })
           break
         case 'solar-gust':
           if (stage.space)
@@ -1667,6 +1711,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!this.stage.space && keys.pressed.x && !this.cooldown) this.useTool()
     this.collectTokens()
     this.collectPickups()
+    this.updateKeys()
     this.collectAirCanisters()
     this.updateFoes(prevBottom)
     this.updateWinterHazards(prevBottom)
@@ -2355,6 +2400,69 @@ export class PlumberRun implements ArcadeGameInstance {
       }
       this.sound.play('level')
     }
+  }
+
+  /**
+   * Brass keys and padlocked bolts. Touching a waiting key while her hands are
+   * free picks it up; it rides above her head. Touching any padlocked bolt cell
+   * while holding one spends the key and opens that whole connected bolt. A hit
+   * sends the held key back to where it started, so a key can never be lost in
+   * a pit (and a death reloads the stage, keys and bolts with it).
+   */
+  private updateKeys() {
+    const hero = this.hero
+    const held = this.heldKey
+    if (held) {
+      held.x = hero.x
+      held.y = hero.y - (this.carrying ? 22 : 8)
+      const left = Math.floor((hero.x - HALF - 2) / TILE)
+      const right = Math.floor((hero.x + HALF + 2) / TILE)
+      const top = Math.floor((hero.y - 2) / TILE)
+      const bottom = Math.floor((hero.y + TALL + 1) / TILE)
+      for (let col = left; col <= right; col++)
+        for (let row = top; row <= bottom; row++)
+          if (this.solidAt(col, row) === SOLID_LOCK) {
+            this.openBolt(col, row)
+            held.state = 'used'
+            this.heldKey = null
+            return
+          }
+      return
+    }
+    for (const key of this.keys) {
+      if (key.state !== 'waiting') continue
+      if (Math.abs(key.x - hero.x) > 14) continue
+      if (key.y < hero.y - 10 || key.y > hero.y + TALL + 8) continue
+      key.state = 'held'
+      this.heldKey = key
+      this.score += 50
+      this.sound.play('blip')
+      return
+    }
+  }
+
+  /** Open every padlocked cell connected (side by side or stacked) to this one. */
+  private openBolt(col: number, row: number) {
+    const stack = [[col, row]]
+    while (stack.length) {
+      const [c, r] = stack.pop()!
+      if (this.solidAt(c!, r!) !== SOLID_LOCK) continue
+      this.setSolid(c!, r!, 0)
+      stack.push([c! + 1, r!], [c! - 1, r!], [c!, r! + 1], [c!, r! - 1])
+    }
+    this.boltsOpened++
+    this.score += 150
+    this.sound.play('extra')
+  }
+
+  /** A hit (or anything that loosens her grip) returns the key to its start. */
+  private sendKeyHome() {
+    const key = this.heldKey
+    if (!key) return
+    key.x = key.homeX
+    key.y = key.homeY
+    key.state = 'waiting'
+    this.heldKey = null
   }
 
   private collectAirCanisters() {
@@ -3268,6 +3376,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.power = null
       this.carrying = false
     } else this.hearts--
+    this.sendKeyHome()
     this.immune = 90
     this.hero.vx = dir * 3.2
     this.hero.vy = -4.4
@@ -5108,6 +5217,19 @@ export class PlumberRun implements ArcadeGameInstance {
             g.fillStyle = '#5a93a0'
             g.fillRect(x + 2, y + 2, TILE - 4, 3)
           }
+        } else if (s === SOLID_LOCK) {
+          g.fillStyle = '#4a3b52'
+          g.fillRect(x, y, TILE, TILE)
+          g.fillStyle = '#2a2033'
+          g.fillRect(x, y + TILE - 2, TILE, 2)
+          g.fillRect(x + TILE - 2, y, 2, TILE)
+          g.fillStyle = '#d9a640'
+          g.fillRect(x + 4, y + 5, TILE - 8, 8)
+          g.strokeStyle = '#d9a640'
+          g.lineWidth = 2
+          g.strokeRect(x + 6, y + 2, TILE - 12, 4)
+          g.fillStyle = '#2a2033'
+          g.fillRect(x + 7, y + 7, 2, 4)
         } else if (s === SOLID_LADDER) {
           g.fillStyle = '#6b4a2b'
           g.fillRect(x + 2, y, 2, TILE)
@@ -5497,6 +5619,12 @@ export class PlumberRun implements ArcadeGameInstance {
     for (const thrown of this.thrown) crate(thrown.x, thrown.y)
     if (this.carrying && this.mode === 'play')
       crate(this.hero.x, this.hero.y - 8)
+    for (const key of this.keys) {
+      if (key.state === 'used') continue
+      if (key.state === 'held' && this.mode !== 'play') continue
+      const bob = key.state === 'waiting' ? Math.sin(t / 14 + key.x) * 2 : 0
+      drawBrassKey(g, key.x, key.y + bob)
+    }
   }
 
   /** The first solid surface under a point, for drop shadows. */

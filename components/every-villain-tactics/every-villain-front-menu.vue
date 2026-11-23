@@ -719,6 +719,10 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import {
+  identityArtwork,
+  reviewedIdentityArtwork,
+} from '~/utils/cometAcademy/artSlots'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { paintedRevealArtId } from '~/utils/everyVillainTactics/revealArt'
 import { paintedMapArtId } from '~/utils/everyVillainTactics/mapArt'
@@ -806,10 +810,7 @@ const selectedPaintedArtwork = computed(() =>
 const revealArtwork = computed(
   () =>
     selectedPaintedArtwork.value ??
-    promArt(
-      'identities/' + pickedLead.value + '/outcomes/' + pickedView.value,
-    ) ??
-    promArt('identities/' + pickedLead.value + '/student'),
+    identityArtwork(pickedLead.value, pickedView.value),
 )
 const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = computed(() =>
@@ -847,9 +848,10 @@ const views = computed(() =>
     headline: PERSPECTIVES[id].headline,
     art:
       paintedForRole(id === 'villain' ? 'villain' : 'hero') ??
-      promArt(
+      reviewedIdentityArtwork(
         'identities/' + pickedLead.value + '/outcomes/' + PERSPECTIVE_ART[id],
-      ),
+      ) ??
+      identityArtwork(pickedLead.value, 'student'),
   })),
 )
 const leadAlias = computed(

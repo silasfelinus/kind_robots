@@ -500,6 +500,47 @@ assert.equal(chapterSixteen.pendingChoice, 1)
 chapterSixteen.update(openStory)
 assert.deepEqual(chapterSixteen.save.storyChoices, [1, 0, null])
 assert.equal(chapterSixteen.lives, 4, 'The community path gains a heart')
+const replayChoiceSave = readSpectrumSave({
+  ...cloudB,
+  stage: 5,
+  career: {
+    ...cloudB.career,
+    highestStage: 30,
+    stars: Array.from({ length: 30 }, (_, i) => (i === 4 ? 3 : 0)),
+  },
+  storyChoices: [1, 1, 1],
+})
+const replayChoice = create({
+  ...options,
+  resume: replayChoiceSave,
+} as Parameters<typeof create>[0])
+replayChoice.update(openStory)
+replayChoice.board = emptyBoard()
+replayChoice.board[0]![0] = 'pink'
+replayChoice.board[0]![1] = 'pink'
+replayChoice.shot = {
+  x: 36,
+  y: 57,
+  vx: 0,
+  vy: 0,
+  hue: 'pink',
+  power: null,
+}
+replayChoice.update(emptyInput())
+assert.equal(replayChoice.level, 6)
+assert.equal(
+  replayChoice.pendingChoice,
+  0,
+  'Replaying a cleared decision chapter must permit a new branch',
+)
+assert.equal(replayChoice.choiceCursor, 1, 'Previous decision starts selected')
+const revise = emptyInput()
+revise.pressed.left = true
+replayChoice.update(revise)
+replayChoice.update(openStory)
+assert.deepEqual(replayChoice.save.storyChoices, [0, 1, 1])
+assert.equal(replayChoice.lives, 5, 'Replay awards the chosen chapter perk')
+
 const choiceAccount = readSpectrumSave({
   ...cloudA,
   career: { ...cloudA.career, highestStage: 26 },

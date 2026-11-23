@@ -645,15 +645,16 @@ export function drawRainbowStageCard(
 }
 
 /**
- * Painted ending plates from the round-6 cinema storyboard, keyed by the final choice and shared by every
- * road: C14 liberation (246339) for restore. C15 evacuation (246340) rendered as a framed picture on a
- * white page and C16 (246341) painted a stranger instead of the crew, so evacuate and sever keep the halo
- * until they are re-rendered.
+ * Painted ending plates in the Fever Dream look (conductor ENDINGS-FEVER-DREAM-2026-11-22), keyed by the final
+ * choice and shared by every road: C14 restore (279195, the open Crown over a sunrise of freed sea-ships) and C15
+ * evacuate (279196, the Aurora Mercy leading the convoy out of the shattering palace). C16 sever keeps the halo
+ * until a render passes CAST-QA (279197 drew Maribel with a child's proportions and Lilt as a gold mannequin).
  */
 export const RAINBOW_ENDING_PLATES: Readonly<
   Partial<Record<FinaleChoice, string>>
 > = {
   restore: 'endings/restore',
+  evacuate: 'endings/evacuate',
 }
 
 export function rainbowEndingPlate(choice: FinaleChoice): string | null {

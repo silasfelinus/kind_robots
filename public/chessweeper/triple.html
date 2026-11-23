@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#11172a" />
+    <title>Chessweeper: Triple Threat</title>
+    <link rel="stylesheet" href="/chessweeper/triple.css" />
+    <script defer src="/chessweeper/chess-engine.js"></script>
+    <script defer src="/chessweeper/soundscape.js"></script>
+    <script defer src="/chessweeper/triple.js"></script>
+  </head>
+  <body>
+    <main id="game" aria-label="Chessweeper Triple Threat">
+      <div id="stage" class="stage">
+        <section class="play-panel chess-panel" aria-label="Chess game">
+          <div class="panel-label">
+            <strong>♔ CHESS</strong><span id="chess-status">Your move</span>
+          </div>
+          <div
+            id="chess-board"
+            class="tile-grid chess-board"
+            role="group"
+            aria-label="Chessboard"
+          ></div>
+          <div class="panel-caption" id="chess-caption">
+            Tap a piece, then its destination
+          </div>
+        </section>
+        <section class="play-panel mine-panel" aria-label="Minesweeper game">
+          <div class="panel-label">
+            <strong>✹ MINES</strong><span id="mine-status">10 hidden</span>
+          </div>
+          <div
+            id="mine-board"
+            class="tile-grid mine-board"
+            role="group"
+            aria-label="Minefield"
+          ></div>
+          <div class="panel-caption">
+            <button id="flag-mode" class="small-action" aria-pressed="false">
+              🚩 Flag mode
+            </button>
+            <span id="mine-caption">Tap to reveal, long-press to flag</span>
+          </div>
+        </section>
+        <section class="play-panel disc-panel" aria-label="Disc survival game">
+          <div class="panel-label">
+            <strong>◉ SURVIVE</strong><span id="disc-status">WASD / Drag</span>
+          </div>
+          <canvas
+            id="disc-arena"
+            width="360"
+            height="360"
+            aria-label="Avoid the bouncing discs using WASD or drag on touchscreens"
+          ></canvas>
+          <div class="panel-caption" id="disc-caption">
+            WASD or touch and drag
+          </div>
+        </section>
+      </div>
+      <footer class="hud" aria-label="Shared run controls">
+        <span class="hud-item" title="Time left"
+          >⏱ <output id="clock">02:00</output></span
+        >
+        <span class="hud-item" title="Total score"
+          >★ <output id="total">0</output></span
+        >
+        <span class="hud-item" title="Shared lives"
+          >♥ <output id="hearts">♥♥♥</output></span
+        >
+        <span class="hud-breakdown" title="Chess, mines, survival scores">
+          ♔ <output id="chess-points">0</output> ✹
+          <output id="mine-points">0</output> ◉
+          <output id="disc-points">0</output>
+        </span>
+        <span id="difficulty-badge" class="hud-difficulty" title="Difficulty"
+          >⚖ MEDIUM</span
+        >
+        <span class="hud-spacer"></span>
+        <button
+          id="pause"
+          class="hud-button"
+          title="Pause and settings"
+          aria-label="Pause and settings"
+        >
+          ⚙
+        </button>
+        <button
+          id="rankings"
+          class="hud-button"
+          title="Global leaderboard"
+          aria-label="Global leaderboard"
+        >
+          🏆
+        </button>
+      </footer>
+    </main>
+    <div
+      id="dialog"
+      class="dialog visible"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dialog-title"
+    >
+      <div class="dialog-card">
+        <div class="dialog-hero" aria-hidden="true">
+          <img src="/images/chessweeper/sugarbomb-kingdom.webp" alt="" />
+          <img src="/images/chessweeper/ashen-checkmate.webp" alt="" />
+          <img src="/images/chessweeper/jackpot-apocalypse.webp" alt="" />
+        </div>
+        <header>
+          <div class="dialog-kicker">THREE GAMES · ONE CLOCK</div>
+          <h1 id="dialog-title">CHESSWEEPER <em>TRIPLE THREAT</em></h1>
+          <p id="dialog-subtitle">
+            Play chess, clear mines and dodge spinning discs at the same time.
+          </p>
+        </header>
+        <div id="start-view" class="dialog-view">
+          <div class="options">
+            <label
+              >Round length
+              <select id="duration">
+                <option value="60">60 seconds · Blitz (practice)</option>
+                <option value="120" selected>
+                  120 seconds · Standard (ranked)
+                </option>
+                <option value="180">180 seconds · Marathon (practice)</option>
+              </select>
+            </label>
+            <label
+              >Difficulty
+              <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+                <option value="catastrophic">Catastrophic ☠</option>
+              </select>
+            </label>
+            <label
+              >Theme
+              <select id="theme">
+                <option value="sugar">Sugarbomb Kingdom</option>
+                <option value="ashen">Ashen Checkmate</option>
+                <option value="jackpot">Jackpot Apocalypse</option>
+              </select>
+            </label>
+          </div>
+          <p id="difficulty-hint" class="difficulty-hint" aria-live="polite">
+            Medium: 3 hearts · 10 mines · 3 blades · balanced opponent.
+          </p>
+          <p class="help">
+            Chess: click a piece and destination. Mines: tap to reveal, long
+            press or toggle 🚩 to flag. Survival: WASD, or drag on the arena.
+            All three panels stay active. Losing all three shared hearts ends
+            the run. Only 120-second Standard runs qualify for global rankings,
+            which are separated by difficulty.
+          </p>
+          <div class="buttons">
+            <button id="start" class="primary">▶ START TRIPLE THREAT</button>
+            <a
+              href="/play/chessweeper?mode=classic"
+              target="_top"
+              class="secondary"
+              >Original three campaigns</a
+            >
+          </div>
+        </div>
+        <div id="pause-view" class="dialog-view hidden">
+          <p>All three games are paused. The clock resumes when you return.</p>
+          <div class="buttons">
+            <button id="resume" class="primary">▶ RESUME RUN</button
+            ><button id="restart" class="secondary">↻ New run</button>
+          </div>
+        </div>
+        <div id="end-view" class="dialog-view hidden">
+          <p id="run-result" class="result"></p>
+          <p id="run-breakdown" class="breakdown"></p>
+          <label class="name-label"
+            >Leaderboard initials
+            <input
+              id="initials"
+              maxlength="3"
+              inputmode="text"
+              pattern="[A-Za-z0-9]{3}"
+              autocomplete="off"
+              placeholder="AAA"
+              aria-label="Three letter or digit initials"
+            />
+          </label>
+          <p id="submit-status" role="status"></p>
+          <div class="buttons">
+            <button id="submit" class="primary">🏆 SUBMIT GLOBAL SCORE</button
+            ><button id="again" class="secondary">↻ Try again</button>
+          </div>
+        </div>
+        <div id="scores-view" class="dialog-view hidden">
+          <label class="score-difficulty-label"
+            >Global rankings for
+            <select id="score-difficulty" aria-label="Leaderboard difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+              <option value="catastrophic">Catastrophic ☠</option>
+            </select>
+          </label>
+          <div class="buttons compact">
+            <button id="all-time" class="secondary on">All time</button>
+            <button id="today" class="secondary">Today (UTC)</button>
+          </div>
+          <ol
+            id="score-rows"
+            class="score-list"
+            aria-label="Global top 10"
+          ></ol>
+          <p id="score-error" role="status" class="soft"></p>
+          <div class="buttons">
+            <button id="close-scores" class="primary">Return</button>
+          </div>
+        </div>
+        <div id="audio-settings" class="audio-settings">
+          <label
+            ><input id="music-setting" type="checkbox" checked /> 🎵
+            Music</label
+          >
+          <label
+            ><input id="fx-setting" type="checkbox" checked /> 🔊 Effects</label
+          >
+        </div>
+        <button id="show-scores" class="link-action">
+          🏆 Global leaderboard
+        </button>
+      </div>
+    </div>
+  </body>
+</html>

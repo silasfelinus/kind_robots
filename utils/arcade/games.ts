@@ -949,6 +949,27 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
  * (then it moves to LINKED_GAMES).
  */
 export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
+  ...(['easy', 'hard', 'catastrophic'] as const).map((difficulty) => ({
+    slug: 'chessweeper-triple-' + difficulty,
+    title: 'Chessweeper: Triple Threat (' + difficulty + ')',
+    riffsOn: 'Chess, Minesweeper and disc-room survival',
+    blurb:
+      'A separate global high-score bracket for Triple Threat ' +
+      difficulty +
+      ' runs; all brackets use the same 120-second ranked clock.',
+    howTo: [
+      'PLAY THREE GAMES SIMULTANEOUSLY',
+      '120 SECOND RANKED STANDARD',
+      'ONE BOARD PER DIFFICULTY',
+    ],
+    width: 960,
+    height: 360,
+    maxPlausibleScore: 10_000_000,
+    titleArt: '/images/chessweeper/sugarbomb-kingdom.webp',
+    route: '/play/chessweeper',
+    accent: '#6ee7d4',
+    controls: 'Chess click, Mines click, WASD / drag',
+  })),
   {
     slug: 'zuzu-lair',
     title: "Zuzu's Lair",
@@ -1044,6 +1065,28 @@ export function overrideWebGLSupport(value: boolean | null) {
  * t-025: Silas, "If it's ready for prime time, it can move to the Play and out of admin").
  */
 export const LINKED_GAMES: ArcadeGameMeta[] = [
+  {
+    slug: 'chessweeper-triple',
+    title: 'Chessweeper: Triple Threat',
+    riffsOn: 'Chess, Minesweeper and disc-room survival',
+    blurb:
+      'Three separate games share one clock: play legal chess against a computer, reveal a Minesweeper field and dodge live bouncing discs with WASD or touch. Keep all three moving to earn the balance bonus. Original Chessweeper campaigns remain playable in Classic.',
+    howTo: [
+      'CHESS: TAP PIECE, THEN DESTINATION',
+      'MINES: TAP, LONG PRESS TO FLAG',
+      'WASD OR DRAG: DODGE DISCS',
+      'ALL THREE PANELS STAY ACTIVE',
+      'THREE SHARED HEARTS',
+      'BALANCE ALL THREE TO SCORE BIG',
+    ],
+    width: 960,
+    height: 360,
+    maxPlausibleScore: 10_000_000,
+    titleArt: '/images/chessweeper/sugarbomb-kingdom.webp',
+    route: '/play/chessweeper',
+    accent: '#6ee7d4',
+    controls: 'Chess click, Mines click, WASD / drag',
+  },
   {
     slug: 'zuzu-showdown',
     title: 'Zuzu Showdown',

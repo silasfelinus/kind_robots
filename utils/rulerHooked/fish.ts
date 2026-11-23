@@ -707,12 +707,18 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     rarity: 'COMMON',
     habitats: ['near_bank', 'lake'],
     sizeRangeCm: [10, 24],
-    silhouette: 'slim jade darter with transparent leaf-shaped fins and tiny silver seed-like spots',
-    distinction: 'Its translucent fins resemble young reeds, and its shadow breaks into a spray of green light.',
+    silhouette:
+      'slim jade darter with transparent leaf-shaped fins and tiny silver seed-like spots',
+    distinction:
+      'Its translucent fins resemble young reeds, and its shadow breaks into a spray of green light.',
     catchBehavior: 'Darts through reeds in quick zigzags; brief taps work better than a long pull.',
-    fishopediaNote: 'The nursery has taught it to hide in plain sight. It is a poor student of staying still.',
-    consequenceReveal: 'Returned when the shallows were protected as a nursery instead of dredged for boats.',
-    unlock: { all: [{ flags: ['shallowsNursery'], sliders: { nature: { gte: 55 } } }], closes: [{ flags: ['shallowsDredged'] }] },
+    fishopediaNote:
+      'The nursery has taught it to hide in plain sight. It is a poor student of staying still.',
+    consequenceReveal:
+      'Returned when the shallows were protected as a nursery instead of dredged for boats.',
+    unlock: { all: [{ flags: ['shallowsNursery'],
+        sliders: { nature: { gte: 55 } } }],
+      closes: [{ flags: ['shallowsDredged'] }] },
   },
   {
     slug: 'commons-bellfin',
@@ -726,8 +732,11 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     distinction: 'The bell fins ring softly when river current passes through their hollow ribs.',
     catchBehavior: 'Follows a steady current and only bites when the line is held still.',
     fishopediaNote: 'No one owns its song, though several officials have tried to collect royalties.',
-    consequenceReveal: 'Gathered in the public river commons once fishers could share the water without private tolls.',
-    unlock: { all: [{ flags: ['riverCommons'], sliders: { joy: { gte: 55 } } }], closes: [{ flags: ['exclusivePier'] }] },
+    consequenceReveal:
+      'Gathered in the public river commons once fishers could share the water without private tolls.',
+    unlock: { all: [{ flags: ['riverCommons'],
+        sliders: { joy: { gte: 55 } } }],
+      closes: [{ flags: ['exclusivePier'] }] },
   },
   {
     slug: 'oathscale-minnow',
@@ -737,12 +746,17 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     rarity: 'UNCOMMON',
     habitats: ['castle_grounds', 'near_bank'],
     sizeRangeCm: [12, 30],
-    silhouette: 'tiny turquoise minnow with overlapping pearly scales shaped like interlocking hands',
+    silhouette:
+      'tiny turquoise minnow with overlapping pearly scales shaped like interlocking hands',
     distinction: 'The scales shimmer in pairs, as though the whole shoal has made a promise.',
     catchBehavior: 'Bites twice in a heartbeat, then waits for the angler to stop tugging.',
-    fishopediaNote: 'Its shoals hold together even when the water is muddy. The court calls that disloyalty.',
-    consequenceReveal: 'Flourished when the moat was restored as a public trust rather than a royal pantry.',
-    unlock: { all: [{ flags: ['publicTrust'], sliders: { nature: { gte: 45 } } }], closes: [{ flags: ['moatFishedOut'] }] },
+    fishopediaNote:
+      'Its shoals hold together even when the water is muddy. The court calls that disloyalty.',
+    consequenceReveal:
+      'Flourished when the moat was restored as a public trust rather than a royal pantry.',
+    unlock: { all: [{ flags: ['publicTrust'],
+        sliders: { nature: { gte: 45 } } }],
+      closes: [{ flags: ['moatFishedOut'] }] },
   },
   {
     slug: 'treaty-sailfish',
@@ -752,12 +766,16 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     rarity: 'RARE',
     habitats: ['far_shore', 'lake'],
     sizeRangeCm: [65, 125],
-    silhouette: 'sleek indigo freshwater sailfish with a tall patchwork sail of copper and lilac membranes',
-    distinction: 'Its sail bears irregular natural color patches that shift as it crosses the border currents.',
-    catchBehavior: 'Changes direction when the line crosses a current seam; controlled slack preserves the catch.',
+    silhouette:
+      'sleek indigo freshwater sailfish with a tall patchwork sail of copper and lilac membranes',
+    distinction:
+      'Its sail bears irregular natural color patches that shift as it crosses the border currents.',
+    catchBehavior:
+      'Changes direction when the line crosses a current seam; controlled slack preserves the catch.',
     fishopediaNote: 'It crosses every border without papers. The border guards pretend not to notice.',
     consequenceReveal: 'Appeared after the envoy treaty reopened the waterway to unfamiliar travelers.',
-    unlock: { all: [{ flags: ['envoyTreatySigned'], sliders: { prosperity: { gte: 50 } } }] },
+    unlock: { all: [{ flags: ['envoyTreatySigned'],
+        sliders: { prosperity: { gte: 50 } } }] },
   },
   {
     slug: 'marina-mirrorling',
@@ -768,7 +786,8 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     habitats: ['far_shore', 'lake'],
     sizeRangeCm: [18, 40],
     silhouette: 'flat silver-blue fish with mirror-bright flank plates and a narrow fan tail',
-    distinction: 'Its sides reflect boat hulls in miniature, making the fish appear to carry a fleet.',
+    distinction:
+      'Its sides reflect boat hulls in miniature, making the fish appear to carry a fleet.',
     catchBehavior: 'Follows the lure\'s reflection instead of the lure; a pause brings it close.',
     fishopediaNote: 'A marina is just a forest of upside-down boats, according to this species.',
     consequenceReveal: 'Settled among cleaned marina pilings once the water stopped tasting of bilge.',
@@ -785,9 +804,12 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     silhouette: 'bright copper fish with circular coinlike pectoral fins and a long ribbon tail',
     distinction: 'Its fins rotate like tiny wheels, flashing copper whenever the current turns.',
     catchBehavior: 'Steals loose bait, then returns for a second bite if the hook stays motionless.',
-    fishopediaNote: 'A fish that charges admission to its own feeding grounds would be popular at court.',
-    consequenceReveal: 'Followed the merchants when the river concession turned the bank into a trading corridor.',
-    unlock: { all: [{ flags: ['riverConcession'], sliders: { treasury: { gte: 50 } } }] },
+    fishopediaNote:
+      'A fish that charges admission to its own feeding grounds would be popular at court.',
+    consequenceReveal:
+      'Followed the merchants when the river concession turned the bank into a trading corridor.',
+    unlock: { all: [{ flags: ['riverConcession'],
+        sliders: { treasury: { gte: 50 } } }] },
   },
   {
     slug: 'pierlock-eel',
@@ -801,8 +823,10 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     distinction: 'Each spine plate closes over the next like a row of locked gates.',
     catchBehavior: 'Wraps the line around pier supports; a quick release of tension frees it.',
     fishopediaNote: 'It has never paid a toll. It has collected several.',
-    consequenceReveal: 'Thrived beneath the exclusive pier when public access was traded for private revenue.',
-    unlock: { all: [{ flags: ['exclusivePier'], sliders: { joy: { lte: 50 } } }] },
+    consequenceReveal:
+      'Thrived beneath the exclusive pier when public access was traded for private revenue.',
+    unlock: { all: [{ flags: ['exclusivePier'],
+        sliders: { joy: { lte: 50 } } }] },
   },
   {
     slug: 'sluice-ghost',
@@ -812,12 +836,17 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     rarity: 'RARE',
     habitats: ['village_edge', 'lake'],
     sizeRangeCm: [35, 80],
-    silhouette: 'pale translucent fish with a ragged veil tail and black empty-looking eye sockets',
-    distinction: 'Its nearly invisible body trails white silt that gathers into little spectral ribbons.',
-    catchBehavior: 'Only becomes visible when the lure drifts into still water behind a blocked sluice.',
+    silhouette:
+      'pale translucent fish with a ragged veil tail and black empty-looking eye sockets',
+    distinction:
+      'Its nearly invisible body trails white silt that gathers into little spectral ribbons.',
+    catchBehavior:
+      'Only becomes visible when the lure drifts into still water behind a blocked sluice.',
     fishopediaNote: 'It remembers the river as it used to run. The river no longer returns its calls.',
     consequenceReveal: 'Gathered where the blocked millrace left a stagnant pocket of water.',
-    unlock: { all: [{ flags: ['runBlocked'], sliders: { nature: { lte: 45 } } }], closes: [{ flags: ['sluiceOpened'] }] },
+    unlock: { all: [{ flags: ['runBlocked'],
+        sliders: { nature: { lte: 45 } } }],
+      closes: [{ flags: ['sluiceOpened'] }] },
   },
   {
     slug: 'gallows-gudgeon',
@@ -828,10 +857,13 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     habitats: ['far_shore', 'castle_grounds'],
     sizeRangeCm: [40, 90],
     silhouette: 'deep crimson gudgeon with a hooked black dorsal spine and dangling pale whiskers',
-    distinction: 'Its dorsal spine bends like a crooked gallows while its whiskers knot around reeds.',
-    catchBehavior: 'Feigns a snapped line before a sudden heavy pull; waiting one beat saves the catch.',
+    distinction:
+      'Its dorsal spine bends like a crooked gallows while its whiskers knot around reeds.',
+    catchBehavior:
+      'Feigns a snapped line before a sudden heavy pull; waiting one beat saves the catch.',
     fishopediaNote: 'The court has prohibited its name. The fish is thriving under the publicity.',
-    consequenceReveal: 'Appeared when high order and miserable subjects turned the far shore into a place of punishment.',
+    consequenceReveal:
+      'Appeared when high order and miserable subjects turned the far shore into a place of punishment.',
     unlock: { all: [{ sliders: { order: { gte: 80 }, joy: { lte: 30 } } }] },
   },
 ]

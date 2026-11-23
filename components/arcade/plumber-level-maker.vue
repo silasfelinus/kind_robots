@@ -188,7 +188,9 @@
             aria-label="Playable Save the Plumber custom level"
           />
           <div v-if="completed" class="maker-play-result">
-            <strong>{{ newRecord ? 'NEW PERSONAL BEST! ★' : 'COURSE CLEARED! ★' }}</strong>
+            <strong>{{
+              newRecord ? 'NEW PERSONAL BEST! ★' : 'COURSE CLEARED! ★'
+            }}</strong>
             <p>TIME {{ formattedRunTime }} · PB {{ formattedBestTime }}</p>
             <p>
               {{

@@ -359,7 +359,10 @@ const deepClassic = create({
 deepClassic.level = 35
 ;(deepClassic as unknown as { resetBoard: () => void }).resetBoard()
 assert.equal(deepClassic.level, 35)
-assert.ok(deepClassic.message.includes('CLASSIC'), 'Endless Classic has no chapter limit')
+assert.ok(
+  deepClassic.message.includes('CLASSIC'),
+  'Endless Classic has no chapter limit',
+)
 
 assert.equal(SPECTRUM_THEMES.length, 6)
 assert.equal(SPECTRUM_BOSS_MUSIC.length, 6)
@@ -367,8 +370,7 @@ assert.equal(SPECTRUM_CLASSIC_MUSIC.tracks.length, 3)
 for (let i = 0; i < 6; i++) {
   assert.ok(SPECTRUM_BOSS_MUSIC[i]!.bpm > SPECTRUM_THEMES[i]!.bpm)
   assert.ok(
-    SPECTRUM_BOSS_MUSIC[i]!.tracks.length >
-      SPECTRUM_THEMES[i]!.tracks.length,
+    SPECTRUM_BOSS_MUSIC[i]!.tracks.length > SPECTRUM_THEMES[i]!.tracks.length,
   )
 }
 const stageFiveSave = readSpectrumSave({

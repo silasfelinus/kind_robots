@@ -252,10 +252,8 @@ export function validSpectrumCloudSave(raw: unknown): raw is SpectrumSave {
       typeof settings.aimGuide !== 'boolean' ||
       typeof settings.particles !== 'boolean' ||
       typeof settings.highContrast !== 'boolean' ||
-      (settings.music !== undefined &&
-        typeof settings.music !== 'boolean') ||
-      (settings.effects !== undefined &&
-        typeof settings.effects !== 'boolean')
+      (settings.music !== undefined && typeof settings.music !== 'boolean') ||
+      (settings.effects !== undefined && typeof settings.effects !== 'boolean')
     )
       return false
   }

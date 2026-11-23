@@ -22,8 +22,7 @@ export function arrangeArcadeHall(
   return sortArcadeGamesByRating(games, summaries).sort(
     (a, b) =>
       Number(b.slug === FEATURED_CABINET) -
-        Number(a.slug === FEATURED_CABINET) ||
-      shelfRank(a) - shelfRank(b),
+        Number(a.slug === FEATURED_CABINET) || shelfRank(a) - shelfRank(b),
   )
 }
 

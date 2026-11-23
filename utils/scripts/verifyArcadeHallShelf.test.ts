@@ -51,7 +51,9 @@ assert.equal(
   'superkate-spectrum',
   'Superkate Spectrum is the first Arcade cabinet regardless of shelf or rating',
 )
-const ranks = arranged.filter((game) => game.slug !== 'superkate-spectrum').map(shelfRank)
+const ranks = arranged
+  .filter((game) => game.slug !== 'superkate-spectrum')
+  .map(shelfRank)
 assert.deepEqual(
   ranks,
   [...ranks].sort((a, b) => a - b),

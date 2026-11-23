@@ -413,7 +413,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         this.score += 2500
         this.lives = Math.min(9, this.lives + 1)
         this.earn(`chapter-${Math.ceil(this.level / 5)}`)
-        this.message = CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.finale
+        this.message =
+          CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.finale
       }
       if (this.mode === 'story' && this.level === 30) {
         this.over = true

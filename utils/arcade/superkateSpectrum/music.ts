@@ -107,8 +107,8 @@ export const SPECTRUM_THEMES: readonly MusicLoop[] = [
 ]
 
 /** Six denser, faster arrangements for each fifth-stage chapter showdown. */
-export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] =
-  SPECTRUM_THEMES.map((theme, index) => ({
+export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] = SPECTRUM_THEMES.map(
+  (theme, index) => ({
     bpm: Math.min(170, theme.bpm + 18),
     stepsPerBeat: 2,
     tracks: [
@@ -127,7 +127,8 @@ export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] =
         vol: 0.013,
       },
     ],
-  }))
+  }),
+)
 
 export const SPECTRUM_CLASSIC_MUSIC: MusicLoop = {
   bpm: 128,

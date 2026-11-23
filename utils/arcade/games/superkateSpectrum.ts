@@ -265,8 +265,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.setAudio(next)
     this.onAudioChange?.(this.audio)
   }
+  private playEffect(name: Parameters<ArcadeGameOptions['sound']['play']>[0]) {
+    if (this.settings.effects) this.sound.play(name)
+  }
   get music(): MusicLoop | null {
-    if (this.over) return null
+    if (this.over || !this.settings.music) return null
     if (this.choosingMode) return SPECTRUM_MENU_MUSIC
     if (this.mode === 'classic') return SPECTRUM_CLASSIC_MUSIC
     const chapter = Math.min(5, Math.floor((this.level - 1) / 5))
@@ -346,7 +349,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   }
   private lose() {
     this.lives--
-    this.sound.play('die')
+    this.playEffect('die')
     if (this.lives <= 0) {
       this.over = true
       if (this.mode === 'classic')
@@ -373,7 +376,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       ? fireSpecial(this.board, landing, hue, power)
       : attachAndPop(this.board, landing, hue)
     if (result.matched) {
-      this.sound.play(power ? 'boom' : 'pop')
+      this.playEffect(power ? 'boom' : 'pop')
       this.career = recordPop(this.career, result.matched, result.dropped)
       this.poppedThisBoard += result.matched + result.dropped
       const pos = center(landing)
@@ -398,7 +401,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     if (result.cleared) {
       this.score += 1500 + this.level * 150
-      this.sound.play('level')
+      this.playEffect('level')
       if (this.mode === 'story')
         this.career = recordClear(
           this.career,
@@ -449,7 +452,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         const at = HOME_TABS.indexOf(this.menuTab)
         this.menuTab =
           HOME_TABS[(at + by + HOME_TABS.length) % HOME_TABS.length]!
-        this.sound.play('blip')
+        this.playEffect('blip')
       }
       if (this.menuTab === 'play') {
         if (input.pressed.up || input.pressed.down)
@@ -474,44 +477,46 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         if (input.pressed.left) this.albumChapter = (this.albumChapter + 5) % 6
         if (input.pressed.right) this.albumChapter = (this.albumChapter + 1) % 6
       } else if (this.menuTab === 'settings') {
-        if (input.pressed.up) this.optionRow = (this.optionRow + 4) % 5
-        if (input.pressed.down) this.optionRow = (this.optionRow + 1) % 5
+        if (input.pressed.up) this.optionRow = (this.optionRow + 6) % 7
+        if (input.pressed.down) this.optionRow = (this.optionRow + 1) % 7
         if (
-          this.optionRow === 4 &&
+          this.optionRow === 6 &&
           (input.pressed.left || input.pressed.right)
         ) {
           const by = input.pressed.right ? 0.1 : -0.1
           this.changeAudio({
             ...this.audio,
-            volume: Math.round(
-              Math.max(0, Math.min(1, this.audio.volume + by)) * 10,
-            ) / 10,
+            volume:
+              Math.round(
+                Math.max(0, Math.min(1, this.audio.volume + by)) * 10,
+              ) / 10,
           })
         }
         if (input.pressed.a || input.pressed.b) {
-          if (this.optionRow <= 2) {
-            const key: keyof SpectrumSettings =
-              this.optionRow === 0
-                ? 'aimGuide'
-                : this.optionRow === 1
-                  ? 'particles'
-                  : 'highContrast'
+          if (this.optionRow <= 4) {
+            const keys: (keyof SpectrumSettings)[] = [
+              'aimGuide',
+              'particles',
+              'highContrast',
+              'music',
+              'effects',
+            ]
+            const key = keys[this.optionRow]!
             this.settings[key] = !this.settings[key]
             this.remember()
-          } else if (this.optionRow === 3) {
+          } else if (this.optionRow === 5) {
             this.changeAudio({ ...this.audio, muted: !this.audio.muted })
           } else {
+            const by = input.pressed.a ? 0.1 : -0.1
             this.changeAudio({
               ...this.audio,
-              volume: Math.round(
-                Math.max(
-                  0,
-                  Math.min(1, this.audio.volume + (input.pressed.a ? 0.1 : -0.1)),
-                ) * 10,
-              ) / 10,
+              volume:
+                Math.round(
+                  Math.max(0, Math.min(1, this.audio.volume + by)) * 10,
+                ) / 10,
             })
           }
-          this.sound.play('blip')
+          this.playEffect('blip')
         }
       }
       return
@@ -523,7 +528,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (input.pressed.b && !this.shot)
       [this.loaded, this.next] = [this.next, this.loaded]
     if (input.pressed.a && !this.shot) {
-      this.sound.play('shoot')
+      this.playEffect('shoot')
       this.shot = {
         x: W / 2,
         y: SHOT_Y,
@@ -642,18 +647,19 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         ['AIM GUIDE', this.settings.aimGuide ? 'ON' : 'OFF'],
         ['POP ANIMATION', this.settings.particles ? 'ON' : 'OFF'],
         ['HIGH CONTRAST', this.settings.highContrast ? 'ON' : 'OFF'],
-        ['SOUNDTRACK + SFX', this.audio.muted ? 'OFF' : 'ON'],
-        ['ARCADE VOLUME', `${Math.round(this.audio.volume * 100)}%`],
+        ['MUSIC', this.settings.music ? 'ON' : 'OFF'],
+        ['SOUND EFFECTS', this.settings.effects ? 'ON' : 'OFF'],
+        ['MASTER MUTE', this.audio.muted ? 'ON' : 'OFF'],
+        ['MASTER VOLUME', `${Math.round(this.audio.volume * 100)}%`],
       ] as const
       for (const [index, setting] of choices.entries()) {
-        const y = 179 + index * 37
+        const y = 169 + index * 29
         g.fillStyle = index === this.optionRow ? '#6d3172e0' : '#27334ed4'
-        g.fillRect(28, y - 20, W - 56, 32)
-        label(g, setting[0], 109, y, 10)
-        label(g, setting[1], 252, y, 11, '#9ff2e5')
+        g.fillRect(28, y - 19, W - 56, 26)
+        label(g, setting[0], 110, y, 10)
+        label(g, setting[1], 253, y, 11, '#9ff2e5')
       }
-      label(g, 'UP/DOWN PICK · A/B CHANGE', W / 2, 353, 11)
-      label(g, 'VOLUME: LEFT/RIGHT OR A/B', W / 2, 373, 10, '#edc6f5')
+      label(g, 'UP/DOWN PICK · A/B CHANGE', W / 2, 371, 10)
     }
     label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 401, 11, '#f3d78d')
   }

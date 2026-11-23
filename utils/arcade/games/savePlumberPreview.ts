@@ -652,7 +652,8 @@ export class PlumberRun implements ArcadeGameInstance {
   get musicScene(): 'level' | 'boss' {
     return this.mode === 'play' &&
       this.locked &&
-      this.boss?.state !== 'defeat'
+      this.boss !== null &&
+      this.boss.state !== 'defeat'
       ? 'boss'
       : 'level'
   }

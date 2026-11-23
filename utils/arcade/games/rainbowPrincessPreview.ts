@@ -7583,7 +7583,7 @@ export function createRainbowPrincessPreview(
         g.shadowBlur = warn ? 24 : 12
         if (crown.plea > 0) g.globalAlpha = 0.7
         if (crown.target === 'flagship') {
-          if (!drawRainbowFlagshipSprite(g))
+          if (!drawRainbowFlagshipSprite(g, crown.phase))
             drawMotherlandFlagship(g, crown.phase, crown.frame)
         } else if (
           !drawRainbowBossSprite(g, 'b09', crown.phase === 1 ? 1 : 2, 0, 0, 160)

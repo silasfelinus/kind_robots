@@ -246,6 +246,7 @@ for (const players of [1, 4]) {
   const checkpoints: number[] = []
   const phases = new Set<number>()
   let docked: number | null = null
+  let launched: string | null = null
   let entered: number | null = null
   let podAt: number | null = null
   let cleared: number | null = null
@@ -265,29 +266,35 @@ for (const players of [1, 4]) {
       dockedSnapshot = after
       assert.equal(after.act, 'S03')
     }
+    // The dock launches the crew out of Act III: straight into Act IV, or first into the X1 Kelp Nebula detour.
+    if (before.act === 'S03' && after.act !== 'S03' && docked !== null) {
+      launched = after.act
+      assert.ok(after.act === 'S04' || after.act === 'X1', after.act)
+      assert.equal(
+        before.docked,
+        players === 4 ? ROSEFIN.dockMinFrames - 1 : ROSEFIN.dockMaxFrames - 1,
+        'the dock launches on A after its minimum, or by itself at its maximum',
+      )
+      assert.deepEqual(
+        after.ships.map(({ lives, power, shield }) => ({
+          lives,
+          power,
+          shield,
+        })),
+        dockedSnapshot.ships.map(({ lives, power, shield }) => ({
+          lives,
+          power,
+          shield: Math.min(3, shield + 1),
+        })),
+        'lives and power carry out of the dock, with one bounded shield repair',
+      )
+      assert.equal(after.score, before.score)
+    }
     if (after.act === 'S04') {
       if (entered === null) {
         entered = frame
+        assert.ok(launched, 'Act IV follows the dock launch')
         assert.equal(after.actFourFrame, 0)
-        assert.equal(
-          before.docked,
-          players === 4 ? ROSEFIN.dockMinFrames - 1 : ROSEFIN.dockMaxFrames - 1,
-          'the dock launches on A after its minimum, or by itself at its maximum',
-        )
-        assert.deepEqual(
-          after.ships.map(({ lives, power, shield }) => ({
-            lives,
-            power,
-            shield,
-          })),
-          dockedSnapshot.ships.map(({ lives, power, shield }) => ({
-            lives,
-            power,
-            shield: Math.min(3, shield + 1),
-          })),
-          'lives and power carry into Act IV, with one bounded shield repair',
-        )
-        assert.equal(after.score, before.score)
         assert.equal(a.level, 4)
       }
       if (

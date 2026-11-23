@@ -73,7 +73,10 @@ assert.deepEqual(
 )
 
 assert.match(tab, /Work in progress/)
-assert.match(page, /ArcadeCabinet\s+slug="rainbow-bullet-hell-space-princess"/)
+assert.match(
+  page,
+  /<ArcadeCabinet\b[^>]*\sslug="rainbow-bullet-hell-space-princess"/,
+)
 assert.match(
   page,
   /:suspended="view !== 'flight'( \|\| openingShowing)?"/,

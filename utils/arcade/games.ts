@@ -49,6 +49,50 @@ const KIND_PINBALL_2D: ArcadeGameMeta = {
 
 export const ARCADE_GAMES: ArcadeGameMeta[] = [
   {
+    slug: 'superkate-spectrum',
+    title: "Superkate's Spectrum",
+    riffsOn: 'Puzzle Bobble / Bust-a-Move bubble matching',
+    blurb:
+      'Superkate, the rainbow-haired stylist and color alchemist, saves Kind Robots City from a Prism Sorter that insists everyone should be the same shade. Aim and bank colorful orbs, match three to release them, and drop dangling clusters for spectacular chain bonuses. Travel through six neighborhoods and 30 stages, rescue the forgotten palettes, and prove every shade belongs.',
+    howTo: [
+      'LEFT/RIGHT  AIM THE COLOR CANNON',
+      'A  SHOOT  B  SWAP NEXT COLOR',
+      'MATCH 3+ TO POP THE CLUSTER',
+      'DETACH GROUPS FOR CASCADE POINTS',
+      'BANK SHOTS OFF THE SIDE WALLS',
+      'THE CEILING ADVANCES AS YOU PLAY',
+      'SIX CHAPTERS  30 STAGES',
+      'EVERY SHADE BELONGS',
+    ],
+    width: 320,
+    height: 480,
+    maxPlausibleScore: 10_000_000,
+    titleArt: '/images/arcade/games/superkate-spectrum-title.webp',
+    accent: '#ed66bc',
+    shelf: 'growing',
+    controls: 'Aim, fire, swap, view scrapbook and settings',
+    fourButtons: true,
+    buttonLabels: { a: 'FIRE', b: 'SWAP', x: 'NEXT TAB', y: 'PREV TAB' },
+    startPauses: true,
+    mastery: [
+      {
+        id: 'rainbow-rescue',
+        title: 'Rainbow Rescue',
+        hint: 'Drop five floating bubbles in one cascade',
+      },
+      {
+        id: 'color-alchemist',
+        title: 'Color Alchemist',
+        hint: 'Pop six matching bubbles in one shot',
+      },
+      {
+        id: 'true-spectrum',
+        title: 'Every Shade Belongs',
+        hint: 'Restore all six neighborhoods',
+      },
+    ],
+  },
+  {
     slug: 'butterfly-blaster',
     title: 'Butterfly Blaster',
     riffsOn: 'Asteroids',
@@ -925,6 +969,7 @@ const LOADERS: Record<string, () => Promise<ArcadeGameModule>> = {
   'save-the-plumber': () => import('./games/savePlumberPreview'),
   'rainbow-bullet-hell-space-princess': () =>
     import('./games/rainbowPrincessPreview'),
+  'superkate-spectrum': () => import('./games/superkateSpectrum'),
   'butterfly-blaster': () => import('./games/butterflyBlaster'),
   'battery-maze': () => import('./games/batteryMaze'),
   'rescue-rally': () => import('./games/rescueRally'),

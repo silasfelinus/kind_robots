@@ -36,7 +36,9 @@ for (const slug of ['petal-post', 'rain-catcher', 'repair-rampage'])
     `${slug} still has open depth slices`,
   )
 
-const loudGrowing = growing[0]!
+// The featured Superkate cabinet is pinned above the shelves, so select a
+// normal growing cabinet when proving that shelf priority beats ratings.
+const loudGrowing = growing.find((game) => game.slug !== 'superkate-spectrum')!
 const quietShowcase = showcase[showcase.length - 1]!
 const arranged = arrangeArcadeHall(HALL_GAMES, {
   [loudGrowing.slug]: { average: 5, count: 99 },
@@ -46,7 +48,14 @@ assert.equal(
   HALL_GAMES.length,
   'no cabinet drops out of the hall',
 )
-const ranks = arranged.map(shelfRank)
+assert.equal(
+  arranged[0]?.slug,
+  'superkate-spectrum',
+  'Superkate Spectrum is the first Arcade cabinet regardless of shelf or rating',
+)
+const ranks = arranged
+  .filter((game) => game.slug !== 'superkate-spectrum')
+  .map(shelfRank)
 assert.deepEqual(
   ranks,
   [...ranks].sort((a, b) => a - b),
@@ -56,7 +65,9 @@ assert.ok(
   arranged.indexOf(quietShowcase) < arranged.indexOf(loudGrowing),
   'an unrated showcase cabinet still leads a top-rated growing one',
 )
-const growingShelf = arranged.filter(isGrowingCabinet)
+const growingShelf = arranged.filter(
+  (game) => isGrowingCabinet(game) && game.slug !== 'superkate-spectrum',
+)
 assert.equal(
   growingShelf[0]?.slug,
   loudGrowing.slug,

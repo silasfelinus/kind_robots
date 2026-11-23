@@ -1897,6 +1897,7 @@ model User {
   PacksOwned             Pack[]                    @relation("PackOwner")
   SlimeCityAccount       SlimeCityAccount?
   ZuzuGamebookSave       ZuzuGamebookSave?
+  ArcadeCabinetSaves     ArcadeCabinetSave[]
   SpaceCouchAlienGuide    SpaceCouchAlienGuide?
   SpaceCouchVoyageSave    SpaceCouchVoyageSave?
   SlimeCityMatches       SlimeCityMatch[]
@@ -3886,4 +3887,17 @@ model TarotCard {
   @@index([deckId, arcana, rank])
   @@index([deckId, status])
   @@index([artJobId])
+}
+
+/** Per-account Arcade career record. One revisioned private save for each cabinet. */
+model ArcadeCabinetSave {
+  userId    Int
+  gameSlug  String   @db.VarChar(40)
+  payload   String   @db.LongText
+  revision  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, gameSlug])
 }

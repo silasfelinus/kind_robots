@@ -375,8 +375,14 @@ const cabinetAst = ts.createSourceFile(
     },
   }
   let dedicatedMuted = false
+  const mirroredAudio: Array<{ muted: boolean; volume: number }> = []
   const context = vm.createContext({
     store: cabinetStore,
+    game: {
+      setAudio(settings: { muted: boolean; volume: number }) {
+        mirroredAudio.push({ ...settings })
+      },
+    },
     sound: {
       setMuted(value: boolean) {
         sharedSound.muted = value
@@ -389,8 +395,11 @@ const cabinetAst = ts.createSourceFile(
   vm.runInContext(ts.transpile(handler.getText(cabinetAst)), context)
   vm.runInContext('toggleMute()', context)
   assert.equal(dedicatedMuted, true, 'paused mute reaches the dedicated mixer')
+  assert.equal(mirroredAudio[0]?.muted, true, 'in-game audio mirror mutes')
   vm.runInContext('toggleMute()', context)
   assert.equal(dedicatedMuted, false, 'paused unmute reaches the same mixer')
+  assert.equal(mirroredAudio[1]?.muted, false, 'in-game audio mirror unmutes')
+  assert.equal(mirroredAudio.length, 2, 'exactly one audio mirror per action')
 }
 
 const gestureHandlers = cabinetAst.statements

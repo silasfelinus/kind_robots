@@ -9,6 +9,7 @@
 
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useUserStore } from '@/stores/userStore'
 import { performFetch } from './utils'
 import { useAchievementStore } from './achievementStore'
 import {
@@ -33,6 +34,12 @@ import {
   withSave,
   type SaveRecord,
 } from '~/utils/arcade/saves'
+import {
+  mergeSpectrumSaves,
+  readSpectrumSave,
+  validSpectrumCloudSave,
+  type SpectrumSave,
+} from '~/utils/arcade/superkateSpectrum/progress'
 import {
   RAINBOW_SAVE_GAME,
   RAINBOW_SLOT_COUNT,
@@ -78,6 +85,28 @@ const BOARD_SIZE = 10
 const LOCAL_KEY = (game: string) => `kr-arcade-local-${game}`
 const PREFS_KEY = 'kr-arcade-prefs'
 const PENDING_KEY = 'kr-arcade-pending'
+const SPECTRUM_SLUG = 'superkate-spectrum'
+const SPECTRUM_OWNER = 'kr-arcade-spectrum-owner'
+const SPECTRUM_SCOPED = (owner: string) => `kr-spectrum-save-${owner}`
+function spectrumRead(key: string): string | null {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+function spectrumWrite(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value)
+  } catch {
+    // Continue offline in memory even when browser storage is unavailable.
+  }
+}
+type SpectrumCloudStatus = 'local' | 'checking' | 'synced' | 'offline'
+type SpectrumAccountCopy = {
+  save: SpectrumSave
+  revision: number
+}
 
 type ArcadePrefs = {
   muted?: boolean
@@ -219,6 +248,12 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const mastery = ref<MasteryRecord>({})
   /** Each long cabinet's saved progress on this device, by game slug. */
   const saves = ref<SaveRecord>({})
+  const spectrumCloudStatus = ref<SpectrumCloudStatus>('local')
+  let spectrumOwner: number | null = null
+  let spectrumRevision: number | null = null
+  let spectrumUploading = false
+  let spectrumDirty = false
+  let spectrumSession = 0
   const rainbowSlot = ref(0)
   const rainbowHangars = ref<RainbowHangar[]>(
     Array.from({ length: RAINBOW_SLOT_COUNT }, emptyRainbowHangar),
@@ -405,6 +440,161 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     return true
   }
 
+  /**
+   * Device scopes prevent a second signed-in account from silently inheriting
+   * the first account's saved stars. A guest career may be adopted on sign-in.
+   */
+  function switchSpectrumOwner(userId: number | null) {
+    if (!import.meta.client) return
+    const owner = userId === null ? 'guest' : String(userId)
+    const prior = spectrumRead(SPECTRUM_OWNER) ?? 'guest'
+    if (prior === owner) return
+    const current = saves.value[SPECTRUM_SLUG]
+    if (current !== undefined)
+      spectrumWrite(SPECTRUM_SCOPED(prior), JSON.stringify(current))
+    const cached = spectrumRead(SPECTRUM_SCOPED(owner))
+    let next: unknown = null
+    if (cached) {
+      try {
+        next = JSON.parse(cached)
+      } catch {
+        next = null
+      }
+    } else if (prior === 'guest' && userId !== null) {
+      next = current
+    }
+    saves.value = withSave(saves.value, SPECTRUM_SLUG, next)
+    writeSaves(saves.value)
+    spectrumWrite(SPECTRUM_OWNER, owner)
+    spectrumSession++
+    spectrumOwner = null
+    spectrumRevision = null
+    spectrumCloudStatus.value = 'local'
+  }
+
+  /** The owner's server is canonical for identity, not for reducing progress. */
+  async function fetchSpectrumCopy(
+    userId: number,
+    token: string,
+  ): Promise<SpectrumAccountCopy | null> {
+    const reply = await $fetch<
+      { success: boolean; data: SpectrumAccountCopy | null },
+      string
+    >('/api/arcade/saves/superkate-spectrum', {
+      headers: { Authorization: `Bearer ${token}` },
+      timeout: 4000,
+    })
+    if (!reply.success) throw new Error('Could not read account career')
+    if (
+      reply.data &&
+      (!Number.isSafeInteger(reply.data.revision) ||
+        reply.data.revision < 0 ||
+        !validSpectrumCloudSave(reply.data.save))
+    )
+      throw new Error('Account career needs repair')
+    if (useUserStore().authenticatedUserId !== userId)
+      throw new Error('Signed-in player changed during sync')
+    return reply.data
+  }
+
+  /** Sync is idempotent. All conflict recovery refetches before any retry. */
+  async function syncSuperkateCareer() {
+    if (!import.meta.client) return
+    const user = useUserStore()
+    const userId = user.authenticatedUserId
+    if (!userId || !user.token) {
+      switchSpectrumOwner(null)
+      spectrumOwner = null
+      spectrumRevision = null
+      spectrumCloudStatus.value = 'local'
+      return
+    }
+    switchSpectrumOwner(userId)
+    // Every cabinet re-entry refetches; another device may have progressed.
+    const session = ++spectrumSession
+    spectrumCloudStatus.value = 'checking'
+    try {
+      const copy = await fetchSpectrumCopy(userId, user.token)
+      if (session !== spectrumSession) return
+      spectrumOwner = userId
+      spectrumRevision = copy?.revision ?? null
+      const local = readSpectrumSave(saves.value[SPECTRUM_SLUG])
+      const merged = copy ? mergeSpectrumSaves(local, copy.save) : local
+      saves.value = withSave(saves.value, SPECTRUM_SLUG, merged)
+      writeSaves(saves.value)
+      spectrumWrite(SPECTRUM_SCOPED(String(userId)), JSON.stringify(merged))
+      spectrumCloudStatus.value = 'synced'
+      if (!copy || JSON.stringify(merged) !== JSON.stringify(copy.save))
+        queueSpectrumUpload()
+    } catch {
+      if (session === spectrumSession) spectrumCloudStatus.value = 'offline'
+    }
+  }
+
+  function queueSpectrumUpload() {
+    if (
+      !spectrumOwner ||
+      spectrumCloudStatus.value !== 'synced' ||
+      !import.meta.client
+    )
+      return
+    spectrumDirty = true
+    if (!spectrumUploading) void uploadSpectrumCareer()
+  }
+
+  async function uploadSpectrumCareer() {
+    if (spectrumUploading || !spectrumOwner) return
+    spectrumUploading = true
+    const userId = spectrumOwner
+    const session = spectrumSession
+    try {
+      for (let tries = 0; tries < 4; tries++) {
+        if (session !== spectrumSession || !spectrumDirty) break
+        const user = useUserStore()
+        if (user.authenticatedUserId !== userId || !user.token) break
+        spectrumDirty = false
+        const save = readSpectrumSave(saves.value[SPECTRUM_SLUG])
+        try {
+          const reply = await $fetch<
+            { success: boolean; data?: { revision: number } },
+            string
+          >('/api/arcade/saves/superkate-spectrum', {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${user.token}` },
+            timeout: 4000,
+            body: { save, expectedRevision: spectrumRevision },
+          })
+          if (!reply.success || !reply.data)
+            throw new Error('Account career write failed')
+          if (session !== spectrumSession) break
+          spectrumRevision = reply.data.revision
+        } catch (error) {
+          const response = error as { status?: number; statusCode?: number }
+          const conflict =
+            response.status === 409 || response.statusCode === 409
+          if (!conflict) throw error
+          const remote = await fetchSpectrumCopy(userId, user.token)
+          if (session !== spectrumSession) break
+          spectrumRevision = remote?.revision ?? null
+          const merged = remote ? mergeSpectrumSaves(save, remote.save) : save
+          saves.value = withSave(saves.value, SPECTRUM_SLUG, merged)
+          writeSaves(saves.value)
+          spectrumWrite(SPECTRUM_SCOPED(String(userId)), JSON.stringify(merged))
+          spectrumDirty = true
+        }
+      }
+      if (spectrumDirty && session === spectrumSession)
+        spectrumCloudStatus.value = 'offline'
+    } catch {
+      if (session === spectrumSession) {
+        spectrumDirty = true
+        spectrumCloudStatus.value = 'offline'
+      }
+    } finally {
+      spectrumUploading = false
+    }
+  }
+
   /** Keep (or, with null, clear) a game's saved progress. */
   function recordSave(game: string, save: unknown) {
     if (game === RAINBOW_SAVE_GAME) {
@@ -418,10 +608,22 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     const key =
       game === RAINBOW_SAVE_GAME ? rainbowSlotKey(rainbowSlot.value) : game
     if (!key) return
-    const next = withSave(saves.value, key, save)
+    const value =
+      game === SPECTRUM_SLUG && save !== null
+        ? mergeSpectrumSaves(
+            readSpectrumSave(save),
+            readSpectrumSave(saves.value[SPECTRUM_SLUG]),
+          )
+        : save
+    const next = withSave(saves.value, key, value)
     if (next === saves.value) return
     saves.value = next
     writeSaves(next)
+    if (game === SPECTRUM_SLUG && import.meta.client) {
+      const owner = spectrumRead(SPECTRUM_OWNER) ?? 'guest'
+      spectrumWrite(SPECTRUM_SCOPED(owner), JSON.stringify(value))
+      queueSpectrumUpload()
+    }
   }
 
   function loadPreferences(prefersReducedMotion: boolean) {
@@ -664,6 +866,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     awardMasteryAchievements,
     saveFor,
     recordSave,
+    spectrumCloudStatus,
+    syncSuperkateCareer,
     rainbowSlot,
     rainbowSlotSaves,
     setRainbowSlot,

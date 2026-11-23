@@ -156,9 +156,18 @@ export type ArcadeGameMeta = {
   buttonLabels?: Partial<Record<'a' | 'b' | 'x' | 'y', string>>
 }
 
+export type ArcadeAudioSettings = {
+  muted: boolean
+  volume: number
+}
+
 export type ArcadeGameOptions = {
   rng: () => number
   sound: ArcadeSoundLike
+  /** Shared Arcade mixer settings for an in-game audio menu. */
+  audio?: ArcadeAudioSettings
+  /** Lets a game's settings menu control the existing Arcade mixer. */
+  onAudioChange?: (settings: ArcadeAudioSettings) => void
   /** Attract-mode demo: the game drives itself and ignores the input. */
   demo: boolean
   hiScore: number
@@ -221,6 +230,8 @@ export interface ArcadeGameInstance {
   setPlayers?(count: number): void
   /** Change the calm-motion choice mid-game, for a game whose meta sets calmMotion. */
   setStillCamera?(still: boolean): void
+  /** Keep a game's in-cabinet audio menu synchronized with Arcade controls. */
+  setAudio?(settings: ArcadeAudioSettings): void
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
   /** Achievement deeds performed since the last call, for a table that reports them. */

@@ -31,6 +31,22 @@
       </div>
       <div class="cabinet-title-plate">
         <span class="cabinet-marquee-title">{{ meta?.title ?? 'Arcade' }}</span>
+        <span
+          v-if="props.slug === 'superkate-spectrum'"
+          class="text-xs font-medium tracking-wide opacity-80"
+          role="status"
+          aria-live="polite"
+        >
+          {{
+            store.spectrumCloudStatus === 'synced'
+              ? '☁ Career synced'
+              : store.spectrumCloudStatus === 'checking'
+                ? '☁ Syncing'
+                : store.spectrumCloudStatus === 'offline'
+                  ? '⚠ Saved on device'
+                  : '◈ Device save'
+          }}
+        </span>
       </div>
 
       <div ref="wrapRef" class="cabinet-screen-wrap">
@@ -1292,6 +1308,13 @@ function startGame() {
     gameModule.create({
       rng: Math.random,
       sound: sound ?? { play: () => {} },
+      audio: { muted: store.muted, volume: store.volume },
+      onAudioChange: (settings) => {
+        store.setMuted(settings.muted)
+        store.setVolume(settings.volume)
+        sound?.setMuted(settings.muted)
+        sound?.setVolume(settings.volume)
+      },
       demo: false,
       hiScore: hiScore(),
       players: players.value,
@@ -2071,6 +2094,7 @@ function onKey(event: KeyboardEvent) {
 function onOnline() {
   // Back online: send any scores that are waiting for the global board.
   void store.flushPending()
+  if (props.slug === 'superkate-spectrum') void store.syncSuperkateCareer()
 }
 
 function releaseInterruptedInput() {
@@ -2104,6 +2128,8 @@ function toggleMute() {
   unlockArcadeAudio()
   store.setMuted(!store.muted)
   sound?.setMuted(store.muted)
+  if (game && 'setAudio' in game && typeof game.setAudio === 'function')
+    game.setAudio({ muted: store.muted, volume: store.volume })
   unlockArcadeAudio()
 }
 
@@ -2111,6 +2137,8 @@ function onVolumeInput(event: Event) {
   unlockArcadeAudio()
   store.setVolume(Number((event.target as HTMLInputElement).value))
   sound?.setVolume(store.volume)
+  if (game && 'setAudio' in game && typeof game.setAudio === 'function')
+    game.setAudio({ muted: store.muted, volume: store.volume })
 }
 
 function toggleRenderStyle() {
@@ -2153,6 +2181,7 @@ async function boot() {
   }
   machine = initialArcadeState()
   phase.value = machine.phase
+  if (info.slug === 'superkate-spectrum') await store.syncSuperkateCareer()
   if (titleArt) {
     titleArtReady = false
     titleArt.onload = () => {
@@ -2200,6 +2229,14 @@ onMounted(() => {
   document.addEventListener('webkitfullscreenchange', syncFullscreen)
   loop = startFixedLoop(tickUnlessSuspended, render, onLoopError)
 })
+
+const userForArcade = useUserStore()
+watch(
+  () => [userForArcade.authenticatedUserId, userForArcade.token],
+  () => {
+    if (props.slug === 'superkate-spectrum') void store.syncSuperkateCareer()
+  },
+)
 
 watch(
   () => props.suspended,

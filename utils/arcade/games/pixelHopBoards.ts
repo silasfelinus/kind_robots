@@ -102,6 +102,32 @@ export function ringLoop(size: number): HopCell[] {
   return uv.map(([u, v]) => ({ r: u + v, c: u }))
 }
 
+/** Two snowy summits joined by a broad, hop-connected saddle. */
+export function twinPeaksBoard(): HopBoard {
+  const bands = [
+    [1, 6],
+    [1, 2, 6, 7],
+    [0, 1, 2, 3, 6, 7, 8],
+    [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    [1, 2, 3, 4, 5, 6, 7],
+    [2, 3, 4, 5, 6],
+    [3, 4, 5],
+  ]
+  const cells = bands.flatMap((columns, r) =>
+    columns.map((c) => ({ r, c })),
+  )
+  return {
+    id: 'twin-peaks',
+    cells,
+    special: {},
+    discSlots: [],
+    discCells: [
+      { r: 2, c: -1 },
+      { r: 3, c: 9 },
+    ],
+  }
+}
+
 /** The board with escape discs fixed at these off-board cells, each beside a cube. */
 export function withDiscs(
   board: HopBoard,

@@ -14,7 +14,7 @@
 // ends the run. Lose every subscriber or every bot and the round is over.
 // POST_CURVES ramp the traffic.
 //
-// Up rides faster, down slower, left/right steer, A tosses a packet.
+// Up rides faster, down slower, left/right steer, A/B toss left/right.
 
 import { levelCurve } from '../curve'
 import { PRIMROSE_DAYS, primroseDay, valleyGazette } from './petalPostPrimrose'
@@ -53,13 +53,20 @@ const W = 256
 const H = 240
 const HUD_H = 24
 const BOT_Y = 190
-const SIDEWALK = 104
-const STREET_L = 132
-const STREET_R = 236
+const SIDEWALK = 80
+const STREET_L = 96
+const STREET_R = 160
 const MIN_X = SIDEWALK + 2
-const MAX_X = STREET_R - 8
-const MAILBOX_X = 96
-const DOOR_X = 64
+const MAX_X = W - MIN_X
+const HOUSE_ART_WIDTH = 104
+const YARD_SCALE = SIDEWALK / HOUSE_ART_WIDTH
+type StreetSide = 'left' | 'right'
+
+const yardX = (side: StreetSide, x: number) =>
+  side === 'left' ? Math.round(x * YARD_SCALE) : W - Math.round(x * YARD_SCALE)
+const mailboxX = (side: StreetSide) => yardX(side, 96)
+const doorX = (side: StreetSide) => yardX(side, 64)
+const tossSpeed = (speed: number) => 1.2 + speed * 0.65
 const HOUSES = 12
 const HOUSE_GAP = 110
 const FIRST_HOUSE = 220
@@ -68,7 +75,6 @@ const BASE_SPEED = 1.3
 const MIN_SPEED = 0.7
 const MAX_SPEED = 2.2
 const STEER = 1.6
-const TOSS_VX = 2.6
 const TOSS_TICKS = 40
 const CARRY = 10
 const START_LIVES = 3
@@ -91,6 +97,7 @@ export const POST_CURVES = {
 } as const
 
 type House = {
+  side: StreetSide
   y: number
   subscriber: boolean
   delivered: boolean
@@ -110,7 +117,14 @@ type Hazard = {
   h: number
   gone: boolean
 }
-type Packet = { x: number; y: number; vy: number; t: number }
+type Packet = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  side: StreetSide
+  t: number
+}
 type Target = { x: number; y: number; hit: boolean }
 type Particle = {
   x: number
@@ -590,16 +604,18 @@ function paintStreet(k: CanvasRenderingContext2D) {
   for (let y = 0; y < h; y += 12) {
     k.fillStyle = (y / 12) % 2 ? LAWN[0] : LAWN[1]
     k.fillRect(0, y, SIDEWALK, 12)
+    k.fillRect(W - SIDEWALK, y, SIDEWALK, 12)
   }
   k.fillStyle = RAMPS.leaf[0]
   k.fillRect(SIDEWALK - 1, 0, 1, h)
+  k.fillRect(W - SIDEWALK, 0, 1, h)
   // Sidewalk slabs, lit from the upper left; the curb; the far kerb and verge.
   for (let y = 0; y < h; y += 16) {
     bevel(k, SIDEWALK, y, STREET_L - 3 - SIDEWALK, 16, CONCRETE, {
       depth: 1,
       outline: null,
     })
-    bevel(k, STREET_R + 3, y, W - STREET_R - 3, 16, CONCRETE, {
+    bevel(k, STREET_R + 3, y, W - SIDEWALK - STREET_R - 3, 16, CONCRETE, {
       depth: 1,
       outline: null,
     })
@@ -651,7 +667,7 @@ function paintStreet(k: CanvasRenderingContext2D) {
     // Tar snakes: patched cracks wandering down the lanes.
     k.fillStyle = ASPHALT[0]
     for (let i = 0; i < 3; i++) {
-      let x = STREET_L + 10 + Math.floor(rand() * 80)
+      let x = STREET_L + 10 + Math.floor(rand() * (STREET_R - STREET_L - 20))
       let y = oy + Math.floor(rand() * PERIOD)
       for (let s = 0; s < 14; s++) {
         k.fillRect(x, y, 1, 2)
@@ -672,11 +688,11 @@ function paintStreet(k: CanvasRenderingContext2D) {
     // The centre line, painted in shaded dashes.
     for (let y = 0; y < PERIOD; y += 30) {
       k.fillStyle = RAMPS.gold[1]
-      k.fillRect(STREET_L + 52, oy + y + 1, 2, 14)
+      k.fillRect(mid, oy + y + 1, 2, 14)
       k.fillStyle = RAMPS.gold[3]
-      k.fillRect(STREET_L + 52, oy + y, 2, 13)
+      k.fillRect(mid, oy + y, 2, 13)
       k.fillStyle = RAMPS.gold[4]
-      k.fillRect(STREET_L + 52, oy + y, 1, 12)
+      k.fillRect(mid, oy + y, 1, 12)
     }
   }
 }
@@ -798,7 +814,7 @@ function paintHouse(
   k.fillRect(58, y0 + 3, 8, 4)
   k.fillStyle = sub ? RAMPS.pink[3] : GREY[2]
   k.fillRect(58, y0 + 3, 8, 1)
-  for (let x = 73; x < SIDEWALK - 4; x += 9)
+  for (let x = 73; x < HOUSE_ART_WIDTH - 4; x += 9)
     bevel(k, x, y0 + 3 + ((x / 9) % 2), 6, 5, CONCRETE, { depth: 1 })
   // A bed along the foundation: flowers for subscribers, weeds otherwise.
   for (let x = 9; x < 45; x += 3) {
@@ -830,7 +846,7 @@ class PetalPost implements ArcadeGameInstance {
   private tick = 0
   /** World y grows downward; the bot rides toward smaller y. */
   private by = 0
-  private bx = SIDEWALK + 10
+  private bx = W / 2
   private speed = BASE_SPEED
   private carry = CARRY
   private houses: House[] = []
@@ -862,16 +878,20 @@ class PetalPost implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    for (let i = 0; i < HOUSES; i++)
+    for (let i = 0; i < HOUSES; i++) {
+      const subscriber = this.rng() < SUBSCRIBE_CHANCE || i < 2
+      const bloom = this.rng() < 0.5 ? 1 : 2
       this.houses.push({
+        side: i % 2 === 0 ? 'left' : 'right',
         y: 0,
-        subscriber: this.rng() < SUBSCRIBE_CHANCE || i === 0,
+        subscriber,
         delivered: false,
-        bloom: this.rng() < 0.5 ? 1 : 2,
+        bloom: subscriber ? bloom : 0,
         gifts: 0,
         request: null,
         color: HOUSE_COLORS[i % HOUSE_COLORS.length]!,
       })
+    }
     this.startDay(1)
   }
 
@@ -889,7 +909,7 @@ class PetalPost implements ArcadeGameInstance {
     this.tips = 0
     this.signups = 0
     this.by = 0
-    this.bx = SIDEWALK + 10
+    this.bx = W / 2
     this.speed = BASE_SPEED
     this.carry = CARRY
     this.packets = []
@@ -931,14 +951,14 @@ class PetalPost implements ArcadeGameInstance {
         this.addHazard(y - this.rng() * 40, traffic)
       if (y > this.routeEnd && this.rng() < 0.22)
         this.bundles.push({
-          x: SIDEWALK + 10 + this.rng() * 80,
+          x: MIN_X + 10 + this.rng() * (MAX_X - MIN_X - 20),
           y: y - 30,
           gone: false,
         })
     }
     for (let i = 0; i < 8; i++)
       this.targets.push({
-        x: 30 + (i % 3) * 22,
+        x: yardX(i % 2 === 0 ? 'left' : 'right', 40 + (i % 3) * 22),
         y: this.routeEnd - 60 - i * 80,
         hit: false,
       })
@@ -963,7 +983,7 @@ class PetalPost implements ArcadeGameInstance {
     if (kind === 'cat')
       this.hazards.push({
         kind,
-        x: STREET_L + this.rng() * 80,
+        x: STREET_L + this.rng() * (STREET_R - STREET_L),
         y,
         vx: (this.rng() < 0.5 ? -1 : 1) * traffic,
         vy: 0,
@@ -974,7 +994,7 @@ class PetalPost implements ArcadeGameInstance {
     else if (kind === 'bin')
       this.hazards.push({
         kind,
-        x: STREET_L + 10 + this.rng() * 70,
+        x: STREET_L + 10 + this.rng() * (STREET_R - STREET_L - 20),
         y,
         vx: 0,
         vy: traffic * 0.8,
@@ -996,7 +1016,7 @@ class PetalPost implements ArcadeGameInstance {
     else
       this.hazards.push({
         kind,
-        x: 92,
+        x: mailboxX('left'),
         y,
         vx: 0,
         vy: 0,
@@ -1010,7 +1030,7 @@ class PetalPost implements ArcadeGameInstance {
   private addAuthoredHazard(kind: HazardKind, y: number, traffic: number) {
     const x =
       kind === 'sprinkler' || kind === 'puppy'
-        ? 92
+        ? mailboxX('left')
         : kind === 'kite'
           ? SIDEWALK + 22
           : kind === 'puddle'
@@ -1081,16 +1101,8 @@ class PetalPost implements ArcadeGameInstance {
     if (input.held.left) this.bx = Math.max(MIN_X, this.bx - STEER)
     if (input.held.right) this.bx = Math.min(MAX_X, this.bx + STEER)
     this.by -= this.speed
-    if (input.pressed.a && this.carry > 0) {
-      this.carry--
-      this.packets.push({
-        x: this.bx - 6,
-        y: this.by - 4,
-        vy: -this.speed,
-        t: 0,
-      })
-      this.sound.play('shoot')
-    }
+    if (input.pressed.a) this.toss('left')
+    if (input.pressed.b) this.toss('right')
     for (const b of this.bundles) {
       if (
         b.gone ||
@@ -1112,6 +1124,21 @@ class PetalPost implements ArcadeGameInstance {
       })
       this.sound.play('pickup')
     }
+  }
+
+  private toss(side: StreetSide) {
+    if (this.carry <= 0) return
+    const direction = side === 'left' ? -1 : 1
+    this.carry--
+    this.packets.push({
+      x: this.bx + direction * 6,
+      y: this.by - 4,
+      vx: direction * tossSpeed(this.speed),
+      vy: -this.speed,
+      side,
+      t: 0,
+    })
+    this.sound.play('shoot')
   }
 
   private updateHazards() {
@@ -1180,22 +1207,23 @@ class PetalPost implements ArcadeGameInstance {
   private updatePackets() {
     for (const p of this.packets) {
       p.t++
-      p.x -= TOSS_VX
+      p.x += p.vx
       if (this.weather === 'breezy') p.x += 0.4
       p.y += p.vy
       // A mailbox catches it on the way past, then the doorstep, then the garden.
       for (const h of this.houses) {
-        if (h.delivered && h.subscriber) continue
+        if (h.side !== p.side || (h.delivered && h.subscriber)) continue
         const mailY = h.y + 22
         if (
           h.subscriber &&
-          Math.abs(p.x - MAILBOX_X) < 5 &&
+          Math.abs(p.x - mailboxX(h.side)) < 5 &&
           Math.abs(p.y - mailY) < 9
         ) {
           this.deliver(h, MAILBOX_POINTS, 'MAILBOX!', p, 'mailbox')
           break
         }
       }
+      if (p.t > TOSS_TICKS) continue
       for (const t of this.targets) {
         if (!t.hit && Math.abs(p.x - t.x) < 7 && Math.abs(p.y - t.y) < 7) {
           t.hit = true
@@ -1207,6 +1235,7 @@ class PetalPost implements ArcadeGameInstance {
             colours: [RAMPS.gold[4], RAMPS.ember[3], '#ffffff'],
           })
           this.sound.play('pop')
+          break
         }
       }
       if (p.t === TOSS_TICKS) this.land(p)
@@ -1215,10 +1244,14 @@ class PetalPost implements ArcadeGameInstance {
   }
 
   private land(p: Packet) {
-    const house = this.houses.find((h) => Math.abs(p.y - h.y) < 30)
-    if (!house || p.x > MAILBOX_X) return
+    const house = this.houses.find(
+      (h) => h.side === p.side && Math.abs(p.y - h.y) < 30,
+    )
+    if (!house || p.x < 0 || p.x > W) return
+    if (p.side === 'left' ? p.x > mailboxX('left') : p.x < mailboxX('right'))
+      return
     if (house.subscriber && !house.delivered) {
-      if (Math.abs(p.x - DOOR_X) < 14 && Math.abs(p.y - house.y) < 14)
+      if (Math.abs(p.x - doorX(house.side)) < 14 && Math.abs(p.y - house.y) < 14)
         this.deliver(house, DOOR_POINTS, 'DOORSTEP', p, 'porch')
       else {
         this.deliver(house, GARDEN_POINTS * 2, 'ON THE LAWN', p)
@@ -1293,8 +1326,10 @@ class PetalPost implements ArcadeGameInstance {
   private endDay() {
     if (this.dayEnd > 0 || this.over) return
     let missed = 0
+    let undelivered = 0
     for (const h of this.houses)
       if (h.subscriber && !h.delivered) {
+        undelivered++
         h.bloom = Math.max(0, h.bloom - 1)
         if (h.bloom === 0) {
           h.subscriber = false
@@ -1303,7 +1338,7 @@ class PetalPost implements ArcadeGameInstance {
       }
     const subs = this.houses.filter((h) => h.subscriber).length
     let sub = `${missed} CANCELLED  ${subs} HOMES`
-    if (missed === 0) {
+    if (undelivered === 0) {
       const bonus = PERFECT_POINTS * this.level
       this.addScore(bonus, W / 2, 120)
       this.fx.burst(W / 2, 120, this.fxRng, { count: 24, speed: 2.4 })
@@ -1351,7 +1386,7 @@ class PetalPost implements ArcadeGameInstance {
     this.lives--
     this.crash = CRASH_TICKS
     // Step back onto the sidewalk to carry on.
-    if (h.kind === 'car') this.bx = SIDEWALK + 10
+    if (h.kind === 'car') this.bx = W / 2
     this.banner = {
       text: 'CRASH!',
       sub: this.lives > 0 ? `${why}  ${this.lives} LEFT` : why,
@@ -1428,30 +1463,32 @@ class PetalPost implements ArcadeGameInstance {
     }
     const frame: InputFrame = { held, pressed: { ...held } }
     // Where would a packet thrown now cross the mailbox line?
-    const ticks = (this.bx - 6 - MAILBOX_X) / TOSS_VX
-    const crossY = this.by - 4 - this.speed * ticks
     const flying = this.packets.length > 0
+    const aim = (side: StreetSide, x: number, y: number) => {
+      const direction = side === 'left' ? -1 : 1
+      const drift = this.weather === 'breezy' ? 0.4 : 0
+      const vx = direction * tossSpeed(this.speed) + drift
+      const ticks = (x - this.bx - direction * 6) / vx
+      if (
+        ticks > 0 &&
+        ticks <= TOSS_TICKS &&
+        Math.abs(this.by - 4 - this.speed * (ticks + 1) - y) < 4
+      ) {
+        const button = side === 'left' ? 'a' : 'b'
+        held[button] = true
+        frame.pressed[button] = true
+      }
+    }
     for (const h of this.houses) {
       if (!h.subscriber || h.delivered || flying) continue
-      if (Math.abs(crossY - (h.y + 22)) < 4) {
-        held.a = true
-        frame.pressed.a = true
-      }
+      aim(h.side, mailboxX(h.side), h.y + 22)
     }
     for (const t of this.targets) {
       if (t.hit || flying) continue
-      const tt = (this.bx - 6 - t.x) / TOSS_VX
-      if (
-        tt > 0 &&
-        tt < TOSS_TICKS &&
-        Math.abs(this.by - 4 - this.speed * tt - t.y) < 4
-      ) {
-        held.a = true
-        frame.pressed.a = true
-      }
+      aim(t.x < W / 2 ? 'left' : 'right', t.x, t.y)
     }
-    // Lane choice: the sidewalk by default, a bundle when running low.
-    let wantX = SIDEWALK + 22
+    // Lane choice: the centre by default, a bundle when running low.
+    let wantX = W / 2
     const bundle = this.bundles.find(
       (b) => !b.gone && b.y < this.by && this.by - b.y < 120,
     )
@@ -1485,7 +1522,7 @@ class PetalPost implements ArcadeGameInstance {
     const cam = Math.round(this.camera)
     this.renderStreet(g, cam)
     for (const b of this.blooms) this.renderBloom(g, b, cam)
-    for (const h of this.houses) this.renderYard(g, h.y - cam)
+    for (const h of this.houses) this.renderYard(g, h.y - cam, h.side)
     for (const h of this.houses) this.renderHouse(g, h.y - cam, h)
     for (const t of this.targets) this.renderTarget(g, t, cam)
     for (const b of this.bundles) {
@@ -1587,8 +1624,8 @@ class PetalPost implements ArcadeGameInstance {
     })
     for (let i = 0; i < report.homes.length; i++) {
       const home = report.homes[i]!
-      const x = 18 + (i % 6) * 38
-      const y = 100 + Math.floor(i / 6) * 29
+      const x = 18 + Math.floor(i / 2) * 38
+      const y = 100 + (i % 2) * 29
       g.fillStyle = home.subscriber ? RAMPS.leaf[3] : GREY[2]
       g.fillRect(x, y, 32, 23)
       g.fillStyle = home.delivered ? RAMPS.gold[3] : RAMPS.cream[3]
@@ -1646,13 +1683,17 @@ class PetalPost implements ArcadeGameInstance {
     drawSprite(g, sprite, b.x, sy + 1, { anchor: 'feet' })
   }
 
-  private renderYard(g: CanvasRenderingContext2D, sy: number) {
+  private renderYard(
+    g: CanvasRenderingContext2D,
+    sy: number,
+    side: StreetSide,
+  ) {
     // A shade tree and a bush in the yard below each house.
     if (sy < -75 || sy > H) return
-    dropShadow(g, 26, sy + 60, 11, 4, 0.3)
-    drawSprite(g, TREE_SPRITE, 22, sy + 52)
-    dropShadow(g, 80, sy + 48, 6, 2, 0.3)
-    drawSprite(g, BUSH_SPRITE, 78, sy + 44)
+    dropShadow(g, yardX(side, 26), sy + 60, 11, 4, 0.3)
+    drawSprite(g, TREE_SPRITE, yardX(side, 22), sy + 52)
+    dropShadow(g, yardX(side, 80), sy + 48, 6, 2, 0.3)
+    drawSprite(g, BUSH_SPRITE, yardX(side, 78), sy + 44)
   }
 
   private renderHouse(g: CanvasRenderingContext2D, sy: number, h: House) {
@@ -1668,13 +1709,14 @@ class PetalPost implements ArcadeGameInstance {
       ? `petal-post-house-${h.color}-${h.delivered ? 'done' : 'due'}`
       : 'petal-post-house-grey'
     g.save()
-    g.translate(0, sy - HOUSE_TOP)
-    cachedLayer(g, key, SIDEWALK, HOUSE_LAYER_H, (k) =>
+    g.translate(h.side === 'left' ? 0 : W, sy - HOUSE_TOP)
+    g.scale(h.side === 'left' ? YARD_SCALE : -YARD_SCALE, 1)
+    cachedLayer(g, key, HOUSE_ART_WIDTH, HOUSE_LAYER_H, (k) =>
       paintHouse(k, wall, roof, sub, h.delivered),
     )
     g.restore()
     if (sub && h.request && !h.delivered) {
-      drawText(g, h.request === 'mailbox' ? 'MAIL' : 'PORCH', 55, sy - 38, {
+      drawText(g, h.request === 'mailbox' ? 'MAIL' : 'PORCH', yardX(h.side, 55), sy - 38, {
         align: 'center',
         color: RAMPS.gold[4],
         outline: INK,
@@ -1682,7 +1724,7 @@ class PetalPost implements ArcadeGameInstance {
     }
     if (sub && h.bloom > 0) {
       for (let i = 0; i < h.bloom * 3; i++) {
-        const x = 12 + i * 8
+        const x = yardX(h.side, 12 + i * 8)
         drawSprite(g, BLOOM_SPRITES[i % BLOOM_SPRITES.length]!, x, sy + 12, {
           anchor: 'feet',
         })
@@ -1691,26 +1733,27 @@ class PetalPost implements ArcadeGameInstance {
     if (sub) {
       // Warm light spilling from the windows and the porch lamp.
       const pulse = 0.18 + 0.05 * Math.sin(this.tick / 20 + h.y)
-      glow(g, 18, sy - 17, 12, RAMPS.gold[3], pulse)
-      glow(g, 34, sy - 17, 12, RAMPS.gold[3], pulse)
-      glow(g, 42, sy - 8, 7, RAMPS.gold[4], 0.35)
+      glow(g, yardX(h.side, 18), sy - 17, 12, RAMPS.gold[3], pulse)
+      glow(g, yardX(h.side, 34), sy - 17, 12, RAMPS.gold[3], pulse)
+      glow(g, yardX(h.side, 42), sy - 8, 7, RAMPS.gold[4], 0.35)
     }
     // The mailbox by the sidewalk: flag up once delivered; a beacon while it waits.
+    const mx = mailboxX(h.side)
     const my = sy + 22
     if (sub && !h.delivered)
       glow(
         g,
-        MAILBOX_X - 1,
+        mx - 1,
         my - 2,
         11,
         RAMPS.gold[4],
         0.3 + 0.18 * Math.sin(this.tick / 6),
       )
-    dropShadow(g, MAILBOX_X + 1, my + 8, 4, 1.2, 0.35)
+    dropShadow(g, mx + 1, my + 8, 4, 1.2, 0.35)
     drawSprite(
       g,
       !sub ? MAILBOX_GREY : h.delivered ? MAILBOX_DELIVERED : MAILBOX_WAITING,
-      MAILBOX_X,
+      mx,
       my + 9,
       { anchor: 'feet' },
     )
@@ -1817,7 +1860,7 @@ class PetalPost implements ArcadeGameInstance {
     g.fillStyle = RAMPS.pink[3]
     for (let i = 1; i <= 2; i++) {
       g.globalAlpha = 0.6 / i
-      g.fillRect(Math.round(p.x + i * 4), Math.round(sy - lift + i), 2, 1)
+      g.fillRect(Math.round(p.x - Math.sign(p.vx) * i * 4), Math.round(sy - lift + i), 2, 1)
     }
     g.globalAlpha = 1
     glow(g, p.x, sy - lift, 8, RAMPS.pink[3], 0.5)

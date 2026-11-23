@@ -1,4 +1,5 @@
 import {
+  crewCaptainArtReceipt,
   isCrewTellKind,
   type CrewTellKind,
   type CrewTellReceipt,
@@ -105,6 +106,7 @@ export function crewCombatReceipt(
     hp: number
     maxHp: number
     henchmanType?: string | null
+    henchmanName?: string
     lieutenantName?: string
   },
   impact: {
@@ -127,5 +129,11 @@ export function crewCombatReceipt(
         : unit.hp <= 0
           ? 'defeat'
           : 'idle'
+  // Named one-hit captains have their own commissioned closeups. Show that
+  // portrait at rest; preserve strike, hit and defeat animation paintings.
+  if (pose === 'idle') {
+    const captain = crewCaptainArtReceipt(unit)
+    if (captain) return captain
+  }
   return CREW_COMBAT_ART[unit.henchmanType][pose]
 }

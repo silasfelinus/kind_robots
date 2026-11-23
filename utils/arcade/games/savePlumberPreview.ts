@@ -82,7 +82,12 @@ import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
 import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
 import type { MusicLoop } from '../sound'
-import { PLUMBER_BOSS_MUSIC, PLUMBER_WORLD_MUSIC } from './savePlumberMusic'
+import {
+  PLUMBER_BOSS_MUSIC,
+  PLUMBER_JUMP_NOTES,
+  PLUMBER_LAND_NOTES,
+  PLUMBER_WORLD_MUSIC,
+} from './savePlumberMusic'
 import {
   PLUMBER_BOSS_FEATS,
   PLUMBER_ENDLESS_GOAL,
@@ -1677,7 +1682,8 @@ export class PlumberRun implements ArcadeGameInstance {
         this.riding = null
         this.grace = 0
         this.jumpBuffer = 0
-        this.sound.play('blip')
+        if (this.sound.playNotes) this.sound.playNotes(PLUMBER_JUMP_NOTES)
+        else this.sound.play('blip')
       }
       if (hero.vy >= 0) this.sprung = false
       if (!this.stage.space && !this.jumpHeld && !this.sprung && hero.vy < -3.4)
@@ -1691,6 +1697,7 @@ export class PlumberRun implements ArcadeGameInstance {
         )
       prevBottom = hero.y + TALL
       const wasGround = this.ground
+      const landingSpeed = hero.vy
       this.ground = false
       this.riding = null
       const hit = this.heroMoveY(hero.vy)
@@ -1715,6 +1722,10 @@ export class PlumberRun implements ArcadeGameInstance {
         }
       }
       if (this.ground && !wasGround) {
+        if (landingSpeed > 2.4) {
+          if (this.sound.playNotes) this.sound.playNotes(PLUMBER_LAND_NOTES)
+          else this.sound.play('pop')
+        }
         this.landed = 6
         if (this.duckHeld) this.ducking = true
         this.airSpecial = false

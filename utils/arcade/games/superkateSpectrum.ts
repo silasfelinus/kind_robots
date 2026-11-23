@@ -431,6 +431,12 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       if (result.matched >= 6) this.earn('color-alchemist')
     }
     if (result.cleared) {
+      const replayChoiceIndex = STORY_DECISIONS.findIndex(
+        (scene) =>
+          this.mode === 'story' &&
+          scene.stage === this.level &&
+          (this.career.stars[this.level - 1] ?? 0) > 0,
+      )
       this.score += 1500 + this.level * 150
       this.playEffect('level')
       if (this.mode === 'story')
@@ -460,10 +466,15 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.level++
       this.resetBoard()
       this.pendingChoice =
-        this.mode === 'story'
-          ? pendingStoryDecision(this.level, this.storyChoices)
-          : null
-      this.choiceCursor = 0
+        replayChoiceIndex >= 0
+          ? replayChoiceIndex
+          : this.mode === 'story'
+            ? pendingStoryDecision(this.level, this.storyChoices)
+            : null
+      this.choiceCursor =
+        this.pendingChoice === null
+          ? 0
+          : (this.storyChoices[this.pendingChoice] ?? 0)
       this.remember()
       return
     }

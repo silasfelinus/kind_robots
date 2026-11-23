@@ -73,7 +73,7 @@ assert.ok(
 
 const makerStoreSource = source('../../stores/savePlumberMakerStore.ts')
 const settingsHandler = makerStoreSource.match(
-  /function updateSettings\([\s\S]*?\n  function newDraft\(/,
+  /function updateSettings\([\s\S]*?\n\s+function newDraft\(/,
 )?.[0]
 assert.ok(settingsHandler, 'Maker settings handler must exist')
 assert.ok(

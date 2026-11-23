@@ -139,6 +139,7 @@ const MATURITY_BUILDERS = FILTER_BUILDERS
 const OBJECT_CHECKS = [
   'canView',
   'canViewWithMaturity',
+  'canReadArtImage',
   'maturityAllowsRow',
   'viewerShowsMature',
   'effectiveShowMature',
@@ -152,6 +153,7 @@ const OBJECT_CHECKS = [
 /** Per-object checks that settle maturity specifically. */
 const MATURITY_CHECKS = [
   'canViewWithMaturity',
+  'canReadArtImage',
   'maturityAllowsRow',
   'viewerShowsMature',
   'effectiveShowMature',

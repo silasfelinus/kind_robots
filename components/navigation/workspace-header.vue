@@ -168,6 +168,28 @@
       </NuxtLink>
 
       <!--
+        CHESSWEEPER. Silas, 2026-11-23 PT: "We're missing our nav link to
+        chessweeper on the nav bar." A shortcut beside the other game icons;
+        the Play launcher tab (content/channels/arcade/chessweeper.md) stays the
+        canonical entry. Same icon as that tab so the two agree.
+      -->
+      <NuxtLink
+        to="/play/chessweeper"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
+        :class="
+          chessweeperActive
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-current="chessweeperActive ? 'page' : undefined"
+        aria-label="Chessweeper"
+        title="Chessweeper"
+        data-testid="header-chessweeper"
+      >
+        <Icon name="kind-icon:chessweeper" class="kr-icon-5 xl:size-6" />
+      </NuxtLink>
+
+      <!--
         MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
         game, it was one of my first projects and still one that I occasionally
         return to. I want a link for it on the dashboard next to the tutorial
@@ -360,6 +382,10 @@ onBeforeUnmount(() => {
 })
 
 const memoryActive = computed(() => route.path.startsWith('/play/memory'))
+
+const chessweeperActive = computed(() =>
+  route.path.startsWith('/play/chessweeper'),
+)
 
 // Exact match, unlike memoryActive: /artjob is a single page with no children,
 // and startsWith would light the button on any future sibling route that merely

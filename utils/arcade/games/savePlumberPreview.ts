@@ -81,6 +81,11 @@ import {
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
 import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
+import type { MusicLoop } from '../sound'
+import {
+  PLUMBER_BOSS_MUSIC,
+  PLUMBER_WORLD_MUSIC,
+} from './savePlumberMusic'
 import {
   PLUMBER_BOSS_FEATS,
   PLUMBER_ENDLESS_GOAL,
@@ -628,6 +633,28 @@ export class PlumberRun implements ArcadeGameInstance {
 
   get level() {
     return this.stageIndex + 1
+  }
+
+  /** Original scores follow world changes and turn urgent in boss arenas. */
+  get music(): MusicLoop | null {
+    if (
+      this.demo ||
+      this.over ||
+      !['map', 'intro', 'play', 'clear'].includes(this.mode)
+    )
+      return null
+    if (this.musicScene === 'boss') return PLUMBER_BOSS_MUSIC
+    const world = this.stage ? this.world : 1
+    return PLUMBER_WORLD_MUSIC[world - 1] ?? PLUMBER_WORLD_MUSIC[0]!
+  }
+
+  /** The cabinet owns gesture-unlock, crossfades, mute and volume. */
+  get musicScene(): 'level' | 'boss' {
+    return this.mode === 'play' &&
+      this.locked &&
+      this.boss?.state !== 'defeat'
+      ? 'boss'
+      : 'level'
   }
 
   /** What the cabinet keeps: the three-slot file, or null before anything is worth keeping. */

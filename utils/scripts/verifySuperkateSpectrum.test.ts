@@ -153,8 +153,8 @@ assert.deepEqual(
   { matched: 3, dropped: 0, cleared: true },
 )
 const burst = emptyBoard()
-burst[0]![0] = 'gold'
-burst[0]![1] = 'teal'
+burst[0]![1] = 'gold'
+burst[0]![2] = 'teal'
 burst[1]![0] = 'lime'
 const blast = fireSpecial(burst, { row: 1, col: 1 }, 'pink', 'burst')
 assert.ok(blast.matched >= 3)

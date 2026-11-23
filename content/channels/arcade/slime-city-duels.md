@@ -16,13 +16,12 @@ requiredPermission: authenticated
 tutorial:
   title: Slime City Duels · how to play
   overview: >-
-    A duel is the same five-alley CLASH as the CPU game, played against a real
-    person one turn at a time. Knock the rival boss to zero, or hold more boss
-    life when the bell rings after round 24.
+    The same five-alley CLASH as the CPU game, against a real person one turn
+    at a time. Knock the rival boss to zero, or hold more boss life when the
+    bell rings after round 24.
   body: >-
     Pick a crew, create a private link or an open duel, and send the invite.
-    Take your turn whenever you like: two plays, then FIGHT. Your next hand is
-    dealt the moment your turn ends, so you can plan while your rival moves.
+    Take your turn whenever you like; the duel waits for you.
   sections:
     - key: invite
       title: Start or answer a duel
@@ -32,67 +31,41 @@ tutorial:
         signed-in player). Copy the invite and send it. The page wakes up when
         your rival joins. Duels pay no Meat or cards, and an untouched duel
         expires after 30 days.
-    - key: board
-      title: Five alleys, two rows
-      body: >-
-        Your five alleys are the near row; your rival's are the far row. Every
-        fighter strikes straight across its own alley: it hits the fighter
-        facing it, or the rival boss if that alley is empty. Tap any fighter,
-        yours or theirs, to see its full card.
     - key: plays
-      title: Your turn - two plays
+      title: Two plays a turn
+      image: /slime-city/tutorial/two-plays.webp
       body: >-
-        The glowing icons between the rows are your plays left this turn.
-        Most cards take one play; a card marked 2 PLAYS takes both, so play it
-        first or it will not fit. The crew that opens the match gets a single
-        play on its first turn. Drag a card onto a glowing alley, or tap the
-        card and then the alley. If a card cannot go somewhere, the line
-        between the rows says why.
-    - key: cards
-      title: Where cards go
+        Each turn, make two plays, then press FIGHT. Drag a card onto a
+        glowing alley, or tap the card and then the alley. A card marked
+        2 PLAYS uses both.
+    - key: first
+      title: The first crew gets one play
+      image: /slime-city/tutorial/first-turn.webp
       body: >-
-        Fighters land in your own alleys; landing on your own fighter replaces
-        it. Traps hide in your alley and spring when a rival fighter lands
-        across from them or strikes through with nothing to block it. Gear and
-        buffs go on your fighters; spells and strikes hit a rival fighter. The
-        alleys that glow are the only legal spots for the card you hold.
-    - key: fight
-      title: FIGHT ends your turn
+        Whoever opens the match plays just one card on that first turn. After
+        that, both crews get two.
+    - key: stats
+      title: Attack and toughness
+      image: /slime-city/tutorial/attack-toughness.webp
       body: >-
-        One tap on FIGHT sends your crew in. Each fighter strikes in alley
-        order, the damage pops up, and your turn ends by itself. Cards you did
-        not play go to the discard, and your next five are dealt straight away.
-    - key: status
-      title: Read the fighter tags
+        ⚔ is attack, the damage a fighter deals. ♥ is toughness, the damage it
+        can take. On FIGHT, every fighter strikes straight across its alley:
+        the fighter facing it, or the rival boss if the alley is empty. Bosses
+        start at 40.
+    - key: ready
+      title: Fighters wait one turn
+      image: /slime-city/tutorial/fighters-wait.webp
       body: >-
-        ⏳ NEW means the fighter just landed: it blocks, but it cannot strike
-        until your next turn. ⚡ AMBUSH fighters strike the turn they land.
-        ↷ TAP marks a fighter with an ability: select it and press TAP to use
-        the ability instead of its strike this turn (↷ USED once spent). 🛡 is
-        armor, WALL is a shield for the next hit, STUN skips a strike.
+        A fighter that just landed (⏳ NEW) can block but not act. From its
+        second turn it strikes, or uses its TAP power instead. Abilities like
+        AMBUSH let it strike right away.
     - key: evolve
-      title: Cards evolve as you play them
+      title: Cards evolve
+      image: /slime-city/tutorial/evolve.webp
       body: >-
-        Every time you play a card, your copy of it levels up for the rest of
-        the match, up to level three, with stronger stats and new art. Tap any
-        card in your hand or any fighter on the board to see it full size, then
-        use the LV 1, LV 2 and LV 3 tabs to preview its evolutions. Some level
-        threes ask you to choose between two forms when you play them.
-    - key: power
-      title: One faction power per match
-      body: >-
-        Your crew's power sits beside FIGHT. It does not use a play, works once
-        per match during your play phase, and hits harder when OVERCHARGED:
-        your boss at half life or less, or a fighter in every one of your five
-        alleys.
-    - key: hand
-      title: Your hand floats
-      body: >-
-        The deck icon at the bottom left opens and closes your hand, so it
-        never steals the board. Between turns your next hand stays open to
-        read; close it to watch the board. FORFEIT (⚑ on a phone) ends the
-        duel in your rival's favour, and REMATCH sends a friend a new private
-        challenge.
+        Every time you play a card, your copy levels up for the match, up to
+        LV 3, with stronger stats and new art. Tap a card and use the LV tabs
+        to preview what it becomes.
 ---
 
 Two players, five alleys, one turn at a time.

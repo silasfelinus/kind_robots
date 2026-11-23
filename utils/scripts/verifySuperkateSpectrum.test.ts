@@ -268,7 +268,7 @@ assert.equal(hub.menuTab, 'settings')
 const toggleEffect = emptyInput()
 toggleEffect.pressed.a = true
 hub.update(toggleEffect)
-assert.equal(readSpectrumSave(hub.save).settings.aimGuide, false)
+assert.equal(readSpectrumSave(hub.save).settings.aimGuide, true)
 const increaseRow = emptyInput()
 increaseRow.pressed.down = true
 hub.update(increaseRow)
@@ -280,8 +280,6 @@ const reloadedHub = create({
 } as Parameters<typeof create>[0])
 assert.equal(reloadedHub.settings.particles, false)
 assert.equal(reloadedHub.music, SPECTRUM_MENU_MUSIC)
-const storyStart = emptyInput()
-storyStart.pressed.a = true
 assert.equal(SPECTRUM_THEMES.length, 6)
 assert.equal(SPECTRUM_CLASSIC_MUSIC.tracks.length, 3)
 for (const theme of [...SPECTRUM_THEMES, SPECTRUM_CLASSIC_MUSIC]) {

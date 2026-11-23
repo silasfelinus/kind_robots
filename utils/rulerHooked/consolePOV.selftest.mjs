@@ -77,7 +77,7 @@ assert.equal(
 assert.match(stage, /v-if="activeLayer\?\.src"/)
 assert.match(stage, /aria-pressed="activeLayer\?\.region === layer\.region"/)
 assert.match(stage, /@click="selectedRegion = layer\.region"/)
-assert.match(stage, /current\[region\] !== previous\[region\]/)
+assert.match(stage, /changedVistaRegion\(/)
 assert.doesNotMatch(stage, /v-for="layer in artLayers"/)
 assert.doesNotMatch(
   game,

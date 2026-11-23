@@ -332,4 +332,25 @@ assert.doesNotMatch(
   'The admin queue does not auto-submit or poll for production jobs',
 )
 
+const sceneSources = {
+  gloom: readFileSync('utils/arcade/games/gloomInvaders.ts', 'utf8'),
+  prize: readFileSync('utils/arcade/games/prizeShowPanic.ts', 'utf8'),
+  ghost: readFileSync('utils/arcade/games/zuzuGhostTrail.ts', 'utf8'),
+}
+for (const source of Object.values(sceneSources)) {
+  assert.match(
+    source,
+    /get musicScene\(\)/,
+    'Every soundtrack priority cabinet declares a scene for the mixer',
+  )
+}
+assert.match(sceneSources.gloom, /heartbeatTier\(this\.stepEvery\) >= 2/)
+assert.match(sceneSources.prize, /if \(this\.boss \|\| this\.ending\) return 'boss'/)
+assert.match(sceneSources.prize, /this\.episodeIndex >= 2/)
+assert.match(sceneSources.ghost, /this\.act\.stage >= 4/)
+assert.match(
+  sceneSources.ghost,
+  /this\.boss && this\.boss\.dying === 0/,
+)
+
 console.log('verifyArcadeSoundtrackBriefs: ok')

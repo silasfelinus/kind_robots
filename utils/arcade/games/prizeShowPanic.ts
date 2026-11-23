@@ -1857,6 +1857,11 @@ class PrizeShowPanic implements ArcadeGameInstance {
     return this.musicNow
   }
 
+  get musicScene(): 'level' | 'level-2' | 'boss' {
+    if (this.boss || this.ending) return 'boss'
+    return this.episodeIndex >= 2 ? 'level-2' : 'level'
+  }
+
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound

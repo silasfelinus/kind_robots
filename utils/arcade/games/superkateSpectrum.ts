@@ -36,6 +36,7 @@ import type {
   SpectrumCareer,
   SpectrumMode,
   SpectrumSave,
+  SpectrumSettings,
 } from '../superkateSpectrum/progress'
 
 const W = 320
@@ -89,6 +90,8 @@ const CHAPTERS = [
   },
 ] as const
 
+type HomeTab = 'play' | 'scrapbook' | 'achievements' | 'settings'
+const HOME_TABS: HomeTab[] = ['play', 'scrapbook', 'achievements', 'settings']
 type Shot = {
   x: number
   y: number
@@ -206,6 +209,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   selectedStyle: BubbleStyle
   choosingMode = true
   menuStage = 1
+  menuTab: HomeTab = 'play'
+  albumChapter = 0
+  optionRow = 0
+  settings: SpectrumSettings
   power: SpectrumPower | null = null
   sparks: Spark[] = []
   private specialMeter = 0
@@ -220,6 +227,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.stored = readSpectrumSave(options.resume)
+    this.settings = { ...this.stored.settings }
+    this.earned = new Set(options.mastery ?? [])
     this.career = this.stored.career
     this.mode = this.stored.mode
     this.selectedStyle = this.stored.style
@@ -252,6 +261,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       mode: this.mode,
       stage: this.mode === 'story' ? this.level : 1,
       style: this.selectedStyle,
+      settings: { ...this.settings },
     }
   }
   private beginRun() {
@@ -411,21 +421,55 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     this.sparks = this.sparks.filter((spark) => spark.life > 0)
     if (this.choosingMode) {
-      if (input.pressed.up || input.pressed.down) {
-        this.mode = this.mode === 'classic' ? 'story' : 'classic'
+      if (input.pressed.x || input.pressed.y) {
+        const by = input.pressed.x ? 1 : -1
+        const at = HOME_TABS.indexOf(this.menuTab)
+        this.menuTab = HOME_TABS[
+          (at + by + HOME_TABS.length) % HOME_TABS.length
+        ]!
+        this.sound.play('blip')
       }
-      if (this.mode === 'story') {
-        if (input.pressed.left) this.menuStage = Math.max(1, this.menuStage - 1)
+      if (this.menuTab === 'play') {
+        if (input.pressed.up || input.pressed.down)
+          this.mode = this.mode === 'classic' ? 'story' : 'classic'
+        if (this.mode === 'story') {
+          if (input.pressed.left)
+            this.menuStage = Math.max(1, this.menuStage - 1)
+          if (input.pressed.right)
+            this.menuStage = Math.min(
+              this.career.highestStage,
+              this.menuStage + 1,
+            )
+        }
+        if (input.pressed.b) {
+          const unlocks = unlockedStyles(rankForXp(this.career.xp))
+          const at = unlocks.indexOf(this.selectedStyle)
+          this.selectedStyle = unlocks[(at + 1) % unlocks.length]!
+          this.remember()
+        }
+        if (input.pressed.a) this.beginRun()
+      } else if (this.menuTab === 'scrapbook') {
+        if (input.pressed.left)
+          this.albumChapter = (this.albumChapter + 5) % 6
         if (input.pressed.right)
-          this.menuStage = Math.min(this.career.highestStage, this.menuStage + 1)
+          this.albumChapter = (this.albumChapter + 1) % 6
+      } else if (this.menuTab === 'settings') {
+        if (input.pressed.up)
+          this.optionRow = (this.optionRow + 2) % 3
+        if (input.pressed.down)
+          this.optionRow = (this.optionRow + 1) % 3
+        if (input.pressed.a || input.pressed.b) {
+          const key: keyof SpectrumSettings =
+            this.optionRow === 0
+              ? 'aimGuide'
+              : this.optionRow === 1
+                ? 'particles'
+                : 'highContrast'
+          this.settings[key] = !this.settings[key]
+          this.remember()
+          this.sound.play('blip')
+        }
       }
-      if (input.pressed.b) {
-        const unlocks = unlockedStyles(rankForXp(this.career.xp))
-        const at = unlocks.indexOf(this.selectedStyle)
-        this.selectedStyle = unlocks[(at + 1) % unlocks.length]!
-        this.remember()
-      }
-      if (input.pressed.a) this.beginRun()
       return
     }
     if (this.banner > 0) this.banner--

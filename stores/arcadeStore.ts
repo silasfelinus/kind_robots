@@ -88,6 +88,20 @@ const PENDING_KEY = 'kr-arcade-pending'
 const SPECTRUM_SLUG = 'superkate-spectrum'
 const SPECTRUM_OWNER = 'kr-arcade-spectrum-owner'
 const SPECTRUM_SCOPED = (owner: string) => `kr-spectrum-save-${owner}`
+function spectrumRead(key: string): string | null {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+function spectrumWrite(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value)
+  } catch {
+    // Continue offline in memory even when browser storage is unavailable.
+  }
+}
 type SpectrumCloudStatus = 'local' | 'checking' | 'synced' | 'offline'
 type SpectrumAccountCopy = {
   save: SpectrumSave
@@ -433,12 +447,12 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   function switchSpectrumOwner(userId: number | null) {
     if (!import.meta.client) return
     const owner = userId === null ? 'guest' : String(userId)
-    const prior = localStorage.getItem(SPECTRUM_OWNER) ?? 'guest'
+    const prior = spectrumRead(SPECTRUM_OWNER) ?? 'guest'
     if (prior === owner) return
     const current = saves.value[SPECTRUM_SLUG]
     if (current !== undefined)
-      localStorage.setItem(SPECTRUM_SCOPED(prior), JSON.stringify(current))
-    const cached = localStorage.getItem(SPECTRUM_SCOPED(owner))
+      spectrumWrite(SPECTRUM_SCOPED(prior), JSON.stringify(current))
+    const cached = spectrumRead(SPECTRUM_SCOPED(owner))
     let next: unknown = null
     if (cached) {
       try {
@@ -451,7 +465,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     }
     saves.value = withSave(saves.value, SPECTRUM_SLUG, next)
     writeSaves(saves.value)
-    localStorage.setItem(SPECTRUM_OWNER, owner)
+    spectrumWrite(SPECTRUM_OWNER, owner)
     spectrumSession++
     spectrumOwner = null
     spectrumRevision = null
@@ -468,6 +482,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       data: SpectrumAccountCopy | null
     }>('/api/arcade/saves/superkate-spectrum', {
       headers: { Authorization: `Bearer ${token}` },
+      timeout: 4000,
     })
     if (!reply.success) throw new Error('Could not read account career')
     if (
@@ -510,7 +525,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
         : local
       saves.value = withSave(saves.value, SPECTRUM_SLUG, merged)
       writeSaves(saves.value)
-      localStorage.setItem(
+      spectrumWrite(
         SPECTRUM_SCOPED(String(userId)),
         JSON.stringify(merged),
       )
@@ -553,6 +568,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
           }>('/api/arcade/saves/superkate-spectrum', {
             method: 'PUT',
             headers: { Authorization: `Bearer ${user.token}` },
+            timeout: 4000,
             body: { save, expectedRevision: spectrumRevision },
           })
           if (!reply.success || !reply.data)
@@ -572,7 +588,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
             : save
           saves.value = withSave(saves.value, SPECTRUM_SLUG, merged)
           writeSaves(saves.value)
-          localStorage.setItem(
+          spectrumWrite(
             SPECTRUM_SCOPED(String(userId)),
             JSON.stringify(merged),
           )
@@ -617,8 +633,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     writeSaves(next)
     if (game === SPECTRUM_SLUG && import.meta.client) {
       const owner =
-        localStorage.getItem(SPECTRUM_OWNER) ?? 'guest'
-      localStorage.setItem(SPECTRUM_SCOPED(owner), JSON.stringify(value))
+        spectrumRead(SPECTRUM_OWNER) ?? 'guest'
+      spectrumWrite(SPECTRUM_SCOPED(owner), JSON.stringify(value))
       queueSpectrumUpload()
     }
   }

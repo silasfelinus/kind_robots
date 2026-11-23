@@ -56,6 +56,7 @@ type Probe = {
     phase: number
     sneezes?: number
     bonks?: number
+    cracks?: number
     ring?: Cell[]
     i?: number
     dir?: number

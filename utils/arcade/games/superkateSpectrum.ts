@@ -23,7 +23,7 @@ import {
   recordClear,
   recordPop,
   readSpectrumSave,
-  styleForRank,
+  unlockedStyles,
 } from '../superkateSpectrum/progress'
 import type {
   BubbleStyle,
@@ -196,6 +196,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   private earned = new Set<string>()
   career: SpectrumCareer
   mode: SpectrumMode
+  selectedStyle: BubbleStyle
   choosingMode = true
   menuStage = 1
   power: SpectrumPower | null = null
@@ -213,6 +214,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.stored = readSpectrumSave(options.resume)
     this.career = this.stored.career
     this.mode = this.stored.mode
+    this.selectedStyle = this.stored.style
     this.menuStage = this.career.highestStage
     this.level = this.mode === 'classic' ? 1 : this.menuStage
     this.board = makeBoard(this.level, this.rng)
@@ -233,6 +235,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       career: this.career,
       mode: this.mode,
       stage: this.mode === 'story' ? this.level : 1,
+      style: this.selectedStyle,
     }
   }
   private beginRun() {
@@ -397,6 +400,12 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         if (input.pressed.right)
           this.menuStage = Math.min(this.career.highestStage, this.menuStage + 1)
       }
+      if (input.pressed.b) {
+        const unlocks = unlockedStyles(rankForXp(this.career.xp))
+        const at = unlocks.indexOf(this.selectedStyle)
+        this.selectedStyle = unlocks[(at + 1) % unlocks.length]!
+        this.remember()
+      }
       if (input.pressed.a) this.beginRun()
       return
     }
@@ -462,7 +471,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         const hue = this.board[r]![c]
         if (hue) {
           const p = center({ row: r, col: c })
-          bubble(g, p.x, p.y, hue, 13, styleForRank(rankForXp(this.career.xp)), this.tick)
+          bubble(g, p.x, p.y, hue, 13, this.selectedStyle, this.tick)
         }
       }
     }
@@ -484,7 +493,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     g.stroke()
     g.setLineDash([])
-    const style = styleForRank(rankForXp(this.career.xp))
+    const style = this.selectedStyle
     if (this.shot) {
       bubble(g, this.shot.x, this.shot.y, this.shot.hue, 13, style, this.tick)
       if (this.shot.power) {
@@ -586,7 +595,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         12,
         '#ffdf85',
       )
-      label(g, `STYLE: ${style.toUpperCase()}`, W / 2, 303, 10, '#9cf3e7')
+      label(g, `B: SELECT ${style.toUpperCase()}`, W / 2, 303, 10, '#9cf3e7')
       label(g, 'PRESS A TO PLAY', W / 2, 329, 14, '#ff9ecf')
       const nextRank = 120 * rank * rank
       const currentRank = 120 * (rank - 1) ** 2

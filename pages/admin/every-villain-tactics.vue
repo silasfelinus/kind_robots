@@ -5157,6 +5157,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   outline-offset: 2px;
 }
 .evt-crew-art-gallery {
+  width: min(100%, 720px);
+  max-height: min(31vh, 190px);
+  flex: 0 0 auto;
+  overflow-y: auto;
   margin: 5px 0;
   padding: 7px;
   border: 1px solid #eeb45d99;

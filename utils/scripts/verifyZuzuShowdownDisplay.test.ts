@@ -184,6 +184,28 @@ check(
   },
 )
 
+check(
+  'invalid viewport measurements never produce broken canvas dimensions',
+  () => {
+    for (const style of ['pixel', 'hd'] as const)
+      for (const available of [0, -100, Number.NaN, Infinity, -Infinity])
+        for (const availableHeight of [0, -50, Number.NaN, Infinity]) {
+          const fit = fitDisplay({
+            width: VIEW_WIDTH,
+            height: VIEW_HEIGHT,
+            available,
+            availableHeight,
+            dpr: 2,
+            style,
+          })
+          assert.ok(Number.isFinite(fit.cssWidth) && fit.cssWidth > 0)
+          assert.ok(Number.isInteger(fit.canvasWidth) && fit.canvasWidth > 0)
+          assert.ok(Number.isInteger(fit.canvasHeight) && fit.canvasHeight > 0)
+          assert.ok(Number.isInteger(fit.scale) && fit.scale > 0)
+        }
+  },
+)
+
 type Call = { op: string; args: unknown[] }
 
 function stubContext() {

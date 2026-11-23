@@ -186,7 +186,7 @@ for (const [kind, art] of [
   ['lampkeeper', 'bellkeeper'],
   ['shoalkoi', 'shoal-koi'],
   ['matriarch', 'lantern'],
-  ['siren', 'lantern'],
+  ['siren', 'armory-siren'],
 ] as const) {
   assert.equal(rainbowGuardianArtKey(kind), art, `${kind} flies as ${art}`)
   assert.equal(

@@ -50,6 +50,7 @@ import {
   drawRainbowShipSprite,
   drawRainbowStageCard,
   drawRainbowStageStrip,
+  drawRainbowHazardSprite,
   drawRainbowSuperCutin,
   loadRainbowLook,
   rainbowLook,
@@ -62,6 +63,10 @@ import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
 import { RAINBOW_CONTRAST_PELLET, rainbowCommsLine } from './rainbowComms'
 import { rainbowShipFilter } from './rainbowLivery'
+import {
+  drawRainbowDetourPlanes,
+  type RainbowDetour,
+} from './rainbowDetourPlanes'
 import { rainbowEndingMemoryIds } from './rainbowEndingArchive'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
@@ -1499,6 +1504,14 @@ export function createRainbowPrincessPreview(
   }
   function shoalActive() {
     return shoalStart !== null && palaceStart === null
+  }
+  /** The detour being flown, if any, and its own clock (t-028 painted planes). */
+  function activeDetour(): { key: RainbowDetour; frame: number } | null {
+    if (nurseryActive()) return { key: 'x1', frame: nurseryFrame() }
+    if (cometActive()) return { key: 'x2', frame: cometFrame() }
+    if (lighthouseActive()) return { key: 'x3', frame: lighthouseFrame() }
+    if (shoalActive()) return { key: 'x4', frame: shoalFrame() }
+    return null
   }
   function palaceFrame() {
     return palaceStart === null ? 0 : tick - palaceStart
@@ -6638,19 +6651,33 @@ export function createRainbowPrincessPreview(
       const stage = (
         ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's08'] as const
       )[currentAct() - 1]!
-      drawRainbowDistantParallax(g, stage, actFrame(currentAct()), drift, H, W)
-      // The bright near coral strip remains behind enemies, shots and ships.
-      g.save()
-      g.globalAlpha = 0.92
-      drawRainbowStageStrip(
-        g,
-        stage,
-        actFrame(currentAct()) * STRIP_SPEED * drift,
-        H - STRIP_HEIGHT,
-        STRIP_HEIGHT,
-        W,
-      )
-      g.restore()
+      // A detour flies its own painted sky and bands (t-028) instead of its origin Act's strips.
+      const detour = activeDetour()
+      if (
+        !detour ||
+        !drawRainbowDetourPlanes(g, detour.key, detour.frame, drift, W, H)
+      ) {
+        drawRainbowDistantParallax(
+          g,
+          stage,
+          actFrame(currentAct()),
+          drift,
+          H,
+          W,
+        )
+        // The bright near coral strip remains behind enemies, shots and ships.
+        g.save()
+        g.globalAlpha = 0.92
+        drawRainbowStageStrip(
+          g,
+          stage,
+          actFrame(currentAct()) * STRIP_SPEED * drift,
+          H - STRIP_HEIGHT,
+          STRIP_HEIGHT,
+          W,
+        )
+        g.restore()
+      }
       for (const reef of reefs) {
         if (reef.kind !== 'clawstrike' || !reef.charge) continue
         g.save()
@@ -6856,6 +6883,11 @@ export function createRainbowPrincessPreview(
         g.save()
         g.translate(reef.x, reef.y)
         g.rotate(Math.sin(reef.phase) + tick / 200)
+        // On the comet run the drifting scrap is coral asteroid (GEN2-CORAL-COMET-X2 278622).
+        if (cometActive() && drawRainbowHazardSprite(g, 'coral-asteroid', 40)) {
+          g.restore()
+          continue
+        }
         g.fillStyle = '#5e4a66'
         g.strokeStyle = '#ffc6d9'
         g.lineWidth = 1.5
@@ -7318,6 +7350,18 @@ export function createRainbowPrincessPreview(
             g.stroke()
           }
           g.restore()
+          // The Kelp Warden's comb is kelp: a frond waves at the head of each marked lane (278928).
+          if (guardian.kind === 'kelpwarden')
+            for (const lane of guardian.lanes) {
+              g.save()
+              g.translate(-30, lane - guardian.y)
+              g.rotate(
+                -Math.PI / 2 +
+                  (calm ? 0 : Math.sin(guardian.frame / 9 + lane) * 0.25),
+              )
+              drawRainbowHazardSprite(g, 'kelp-frond', 34)
+              g.restore()
+            }
         }
         g.save()
         applyRainbowSwimMotion(g, guardian.kind, guardian.frame, calm)

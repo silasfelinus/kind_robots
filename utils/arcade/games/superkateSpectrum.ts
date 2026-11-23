@@ -647,6 +647,8 @@ const game: ArcadeGameModule = {
     {
       title: 'THE COLOR RESCUE',
       lines: [
+        'MODE MENU: UP/DOWN STORY OR CLASSIC',
+        'B ON MODE MENU CHANGES BUBBLE LOOK',
         'A SHOOTS YOUR COLOR ORB',
         'LEFT/RIGHT AIM; BANK OFF THE WALLS',
         'B SWAPS WITH THE NEXT ORB',
@@ -654,6 +656,10 @@ const game: ArcadeGameModule = {
         'FLOATING ORBS DROP FOR EXTRA POINTS',
         'EVERY FEW SHOTS THE CEILING ADVANCES',
         'CLEAR 30 BOARDS TO RESTORE THE CITY',
+        'RANK UP TO UNLOCK NEW BUBBLE LOOKS',
+        'PRISM MATCHES NEIGHBOR COLORS',
+        'BURST POPS A LOCAL RING',
+        'RIBBON SWEEPS AN ENTIRE ROW',
         'COLOR SYMBOLS HELP DISTINGUISH HUES',
       ],
     },

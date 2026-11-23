@@ -42,6 +42,7 @@ import {
   drawRainbowCommsPortrait,
   drawRainbowEndingPlate,
   drawRainbowEnemySprite,
+  drawRainbowFlagshipSprite,
   drawRainbowGuardianSprite,
   drawRainbowRouteObjectSprite,
   drawRainbowPickupSprite,
@@ -7569,7 +7570,8 @@ export function createRainbowPrincessPreview(
         g.shadowBlur = warn ? 24 : 12
         if (crown.plea > 0) g.globalAlpha = 0.7
         if (crown.target === 'flagship') {
-          drawMotherlandFlagship(g, crown.phase, crown.frame)
+          if (!drawRainbowFlagshipSprite(g))
+            drawMotherlandFlagship(g, crown.phase, crown.frame)
         } else if (
           !drawRainbowBossSprite(g, 'b09', crown.phase === 1 ? 1 : 2, 0, 0, 160)
         ) {

@@ -668,6 +668,30 @@ export function rainbowEndingPlate(choice: FinaleChoice): string | null {
   return path ? rainbowArt(path) : null
 }
 
+/**
+ * B09 on the rebel road (t-061): the Motherland flagship painting (Krea 2 render 279298), a white-and-gold warship
+ * with the Crown clamped at its prow. `crownX`/`crownY` locate the clamped Crown in the picture (as fractions of
+ * its size), so it is drawn with that Crown on the boss's ring and the long hull trailing off to the right.
+ */
+export const RAINBOW_FLAGSHIP_ART = {
+  path: 'bosses/flagship',
+  width: 230,
+  crownX: 0.066,
+  crownY: 0.251,
+} as const
+
+/** Draw the flagship with its clamped Crown at the origin; false while the picture loads. */
+export function drawRainbowFlagshipSprite(
+  g: CanvasRenderingContext2D,
+): boolean {
+  const img = loadedArt(rainbowArt(RAINBOW_FLAGSHIP_ART.path))
+  if (!img) return false
+  const { width, crownX, crownY } = RAINBOW_FLAGSHIP_ART
+  const height = (width * img.naturalHeight) / img.naturalWidth
+  g.drawImage(img, -crownX * width, -crownY * height, width, height)
+  return true
+}
+
 /** Draw the choice's ending plate at (x, y) with the given width; returns its height, or 0 when there is none. */
 export function drawRainbowEndingPlate(
   g: CanvasRenderingContext2D,

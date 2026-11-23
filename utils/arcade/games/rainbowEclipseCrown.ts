@@ -72,7 +72,8 @@ export const ECLIPSE_CROWN = {
 
 /** B09 on the rebel road: the Motherland flagship holding the Crown (t-061). */
 export const MOTHERLAND_FLAGSHIP = {
-  holdX: 372,
+  /** Held well left so the bridge stays on screen and the long hull trails off the right edge. */
+  holdX: 300,
   /** The five lanes its lances can fire down, top to bottom. */
   lanes: [64, 100, 135, 170, 206],
   lanceLength: 9,
@@ -80,9 +81,9 @@ export const MOTHERLAND_FLAGSHIP = {
   lanceSpeed: 2.6,
   volleyEvery: 120,
   phaseTwoEvery: 130,
-  /** The bridge, its phase-1 weak point, relative to the hull's centre. */
-  bridgeX: -38,
-  bridgeY: -8,
+  /** The bridge tower, its phase-1 weak point, relative to the clamped Crown (RAINBOW_FLAGSHIP_ART). */
+  bridgeX: 131,
+  bridgeY: -10,
   /** Every this many phase-1 volleys a Motherland drone pair launches, this far above and below the hull. */
   launchEvery: 2,
   launchSpread: 34,

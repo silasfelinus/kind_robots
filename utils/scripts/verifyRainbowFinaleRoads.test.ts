@@ -12,6 +12,8 @@ import {
   finaleEndingTitle,
   type FinaleChoice,
 } from '../arcade/games/rainbowEclipseFinale'
+import { existsSync } from 'node:fs'
+import { RAINBOW_FLAGSHIP_ART } from '../arcade/games/rainbowGameArt'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
 
@@ -20,6 +22,18 @@ import { emptyInput } from '../arcade/types'
 // not retitled ones, and all six road endings reached by flown lanes.
 
 const target = [{ x: 80, y: 135, lives: 1 }]
+
+// The flagship's painting ships in both looks.
+for (const look of ['', 'doodle/'])
+  assert.ok(
+    existsSync(
+      new URL(
+        `../../public/rainbow-princess-art/${look}${RAINBOW_FLAGSHIP_ART.path}.webp`,
+        import.meta.url,
+      ),
+    ),
+    `flagship painting (${look || 'classic'})`,
+  )
 
 // The flagship marks its lanes for the whole warning, then fires lances only down them; drones launch every other
 // phase-1 volley; below half the clamps open and the clamp core drifts free.
@@ -62,7 +76,10 @@ const target = [{ x: 80, y: 135, lives: 1 }]
     warned >= volleys * (ECLIPSE_CROWN.warningFrames - 1),
     'every volley is marked for its warning',
   )
-  assert.ok(boss.heartX < boss.x, 'the bridge sits forward of the hull')
+  assert.ok(
+    boss.heartX > boss.x,
+    'the bridge tower sits aft of the clamped Crown',
+  )
   boss.hp = boss.maxHp / 2
   let fans = 0
   for (let i = 0; i < 900; i++) {

@@ -30,13 +30,7 @@ export type Scheme = {
 
 /** The foes a round may drop in ('purple' hatches into Boing, 'mint' is the freeze). */
 export type FoeId =
-  | 'gumball'
-  | 'purple'
-  | 'mint'
-  | 'gremlin'
-  | 'skitter'
-  | 'snowball'
-  | 'frost'
+  'gumball' | 'purple' | 'mint' | 'gremlin' | 'skitter' | 'snowball' | 'frost'
 
 export type BossId = 'max' | 'rattle' | 'globe'
 

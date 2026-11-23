@@ -1855,7 +1855,8 @@ class PixelHop implements ArcadeGameInstance {
     let kind: EnemyKind = 'gumball'
     if (roll > 0.86 && this.foes.has('frost')) kind = 'frost'
     else if (roll > 0.56 && this.foes.has('snowball')) kind = 'snowball'
-    else if (!hasBoing && roll < 0.35 && this.foes.has('purple')) kind = 'purple'
+    else if (!hasBoing && roll < 0.35 && this.foes.has('purple'))
+      kind = 'purple'
     else if (roll < 0.35 + gremlinChance && this.foes.has('gremlin'))
       kind = 'gremlin'
     else if (roll > 0.9 && this.foes.has('mint')) kind = 'green'
@@ -2675,8 +2676,7 @@ class PixelHop implements ArcadeGameInstance {
     drawSprite(g, sprite, x, y, {
       anchor: 'feet',
       flipX: face.left,
-      scale:
-        e.kind === 'snowball' ? 1 + ((e.size ?? 1) - 1) * 0.2 : 1,
+      scale: e.kind === 'snowball' ? 1 + ((e.size ?? 1) - 1) * 0.2 : 1,
     })
     if (this.freeze > 0) {
       // Frozen solid: an icy sheen over the sprite.
@@ -3063,12 +3063,17 @@ class PixelHop implements ArcadeGameInstance {
       }
       const words = picture.name.split(' ')
       const last = words.pop() ?? ''
-      drawText(g, frame ? words.join(' ') : '???', x + width / 2,
-        y + (compact ? 44 : 82), {
+      drawText(
+        g,
+        frame ? words.join(' ') : '???',
+        x + width / 2,
+        y + (compact ? 44 : 82),
+        {
           align: 'center',
           color: frame === 2 ? RAMPS.gold[3] : '#ffffff',
           outline: INK,
-        })
+        },
+      )
       if (frame)
         drawText(g, last, x + width / 2, y + (compact ? 52 : 91), {
           align: 'center',

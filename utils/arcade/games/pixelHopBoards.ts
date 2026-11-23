@@ -113,9 +113,7 @@ export function twinPeaksBoard(): HopBoard {
     [2, 3, 4, 5, 6],
     [3, 4, 5],
   ]
-  const cells = bands.flatMap((columns, r) =>
-    columns.map((c) => ({ r, c })),
-  )
+  const cells = bands.flatMap((columns, r) => columns.map((c) => ({ r, c })))
   return {
     id: 'twin-peaks',
     cells,

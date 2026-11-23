@@ -48,6 +48,8 @@ type LevelDef = {
   rows: number
   cols: number
   mask: number[][] | null
+  authored?: boolean
+  startingSpecials?: Array<[number, number, string]>
 }
 type Levels = {
   REGIONS: Record<string, { tier: number; next?: string[]; ending?: string }>
@@ -184,6 +186,7 @@ assert.equal(new Set(all).size, all.length)
 assert.ok(L.ENDINGS.everyone, 'secret ending exists')
 assert.equal(L.CHARACTERS.length, 9)
 
+let authoredCount = 0
 for (const id of all) {
   const { region, n } = L.parseLevelId(id)
   const def = L.buildLevel(region, n)
@@ -199,7 +202,15 @@ for (const id of all) {
   assert.ok(E.findMove(state), `${id} starts with a legal move`)
   for (const goal of def.goals)
     assert.ok(goal.target > 0, `${id} ${goal.type} target`)
+  if (def.authored) {
+    authoredCount++
+    assert.ok(def.startingSpecials?.length, `${id} has a designed special`)
+    for (const [r, c, special] of def.startingSpecials || [])
+      assert.equal(state.board[r]?.[c]?.special, special, `${id} special placement`)
+  }
+  assert.equal(!!def.authored, n % 6 === 0 || def.finale, `${id} authored cadence`)
 }
+assert.equal(authoredCount, 90, 'every sixth level and every world finale')
 for (const w of worlds) {
   const finale = must(w.regions[2]).id
   assert.ok(L.buildLevel(finale, 19).finale, `${w.id} ends with a finale`)

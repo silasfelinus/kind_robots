@@ -144,11 +144,11 @@ for (const [players, road] of [
   assert.equal(game.snapshot.act, 'S06')
   assert.equal(game.snapshot.allegiance, road)
   const seen = { truce: 0, drones: 0 }
+  // Read the Act fresh each frame: the assertion above narrowed the snapshot's type to S06.
+  const act = (): string => game.snapshot.act
   for (
     let frame = 0;
-    frame < 160000 &&
-    game.snapshot.act !== 'S09' &&
-    game.snapshot.failFrame === null;
+    frame < 160000 && act() !== 'S09' && game.snapshot.failFrame === null;
     frame++
   ) {
     game.update(emptyInput())
@@ -171,7 +171,7 @@ for (const [players, road] of [
     assert.equal(game.snapshot.truceHeld, 0)
   }
   console.log(
-    `${road}: act ${game.snapshot.act}, truce sightings ${seen.truce}, drone sightings ${seen.drones}, held ${game.snapshot.truceHeld}`,
+    `${road}: act ${act()}, truce sightings ${seen.truce}, drone sightings ${seen.drones}, held ${game.snapshot.truceHeld}`,
   )
 }
 console.log('rainbow rebel road: ok')

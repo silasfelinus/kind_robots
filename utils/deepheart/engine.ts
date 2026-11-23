@@ -1388,6 +1388,11 @@ export function campOptions(
     })
   }
   for (const support of activeSupports(partyIds(run))) {
+    // This setting hides historical love/ex scenes as well as new romance.
+    if (
+      !romanceOn &&
+      (support.kind === 'lovers' || support.kind === 'exes')
+    ) continue
     const key = pairKey(support.a, support.b)
     const tier = run.bonds[key] ?? 0
     if (tier >= 2 || run.camp.supportScenes?.includes(key)) continue
@@ -1760,6 +1765,12 @@ export function autoplay(
         const best =
           shop ??
           talks.find((o) => o.kind === 'romance') ??
+          talks.find(
+            (o) =>
+              o.kind === 'talk' &&
+              (run.talkBeats?.[o.id] ?? 0) < 2 &&
+              canRomance(run.hero, o.id, run.companions),
+          ) ??
           talks.find((o) => o.kind === 'support') ??
           talks[0]
         if (best) campAction(run, best)

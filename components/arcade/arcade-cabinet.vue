@@ -2128,7 +2128,8 @@ function toggleMute() {
   unlockArcadeAudio()
   store.setMuted(!store.muted)
   sound?.setMuted(store.muted)
-  game?.setAudio?.({ muted: store.muted, volume: store.volume })
+  if (game && 'setAudio' in game && typeof game.setAudio === 'function')
+    game.setAudio({ muted: store.muted, volume: store.volume })
   unlockArcadeAudio()
 }
 
@@ -2136,7 +2137,8 @@ function onVolumeInput(event: Event) {
   unlockArcadeAudio()
   store.setVolume(Number((event.target as HTMLInputElement).value))
   sound?.setVolume(store.volume)
-  game?.setAudio?.({ muted: store.muted, volume: store.volume })
+  if (game && 'setAudio' in game && typeof game.setAudio === 'function')
+    game.setAudio({ muted: store.muted, volume: store.volume })
 }
 
 function toggleRenderStyle() {

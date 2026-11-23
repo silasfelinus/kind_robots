@@ -299,6 +299,48 @@ const reloadedHub = create({
 } as Parameters<typeof create>[0])
 assert.equal(reloadedHub.settings.particles, false)
 assert.equal(reloadedHub.music, SPECTRUM_MENU_MUSIC)
+// Audio controls live inside the game but drive the shared Arcade mixer.
+const audioChanges: Array<{ muted: boolean; volume: number }> = []
+const musicHub = create({
+  ...options,
+  audio: { muted: false, volume: 0.4 },
+  onAudioChange: (settings: { muted: boolean; volume: number }) => {
+    audioChanges.push({ ...settings })
+  },
+} as Parameters<typeof create>[0])
+const audioTab = emptyInput()
+audioTab.pressed.y = true
+musicHub.update(audioTab)
+assert.equal(musicHub.menuTab, 'settings')
+const down = emptyInput()
+down.pressed.down = true
+for (let i = 0; i < 3; i++) musicHub.update(down)
+assert.equal(musicHub.optionRow, 3)
+const toggleSound = emptyInput()
+toggleSound.pressed.a = true
+musicHub.update(toggleSound)
+assert.equal(musicHub.audio.muted, true)
+assert.deepEqual(audioChanges.at(-1), { muted: true, volume: 0.4 })
+musicHub.update(down)
+assert.equal(musicHub.optionRow, 4)
+const volumeUp = emptyInput()
+volumeUp.pressed.right = true
+musicHub.update(volumeUp)
+assert.equal(musicHub.audio.volume, 0.5)
+assert.deepEqual(audioChanges.at(-1), { muted: true, volume: 0.5 })
+musicHub.setAudio({ muted: false, volume: 0.7 })
+assert.deepEqual(musicHub.audio, { muted: false, volume: 0.7 })
+assert.equal(audioChanges.length, 2, 'External mixer updates do not echo')
+
+const deepClassic = create({
+  ...options,
+  resume: readSpectrumSave({ ...cloudB, mode: 'classic' }),
+} as Parameters<typeof create>[0])
+deepClassic.level = 35
+;(deepClassic as unknown as { resetBoard: () => void }).resetBoard()
+assert.equal(deepClassic.level, 35)
+assert.ok(deepClassic.message.includes('CLASSIC'), 'Endless Classic has no chapter limit')
+
 assert.equal(SPECTRUM_THEMES.length, 6)
 assert.equal(SPECTRUM_CLASSIC_MUSIC.tracks.length, 3)
 for (const theme of [...SPECTRUM_THEMES, SPECTRUM_CLASSIC_MUSIC]) {

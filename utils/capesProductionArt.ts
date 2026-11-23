@@ -1,8 +1,7 @@
 /**
- * Private completed ArtImage receipts from Conductor's
- * UNSTABLE-PRODUCTION-FAMILY-ROUND-1.yaml. ArtJob acceptance and a DONE ledger
- * do not certify browser delivery or the final game attachment.
- * Preserve the three separate permanent identities and original image IDs.
+ * Private, source-backed ArtImage receipts from Conductor production ledgers.
+ * DONE and authenticated previews do not certify artistic approval or gameplay
+ * delivery. Preserve permanent identity keys and every original ArtJob ID.
  */
 export const CAPES_PRODUCTION_IDENTITIES = [
   {
@@ -16,21 +15,26 @@ export const CAPES_PRODUCTION_IDENTITIES = [
     subtitle: 'Fire and accountability',
   },
   { signature: 'tech-genius', label: 'Dr. Frog', subtitle: 'Dr. Lionel Marsh' },
+  { signature: 'alien-discipline', label: 'Zuzu', subtitle: 'Koala Assassin' },
+  {
+    signature: 'mutant-earth',
+    label: 'Groundswell',
+    subtitle: 'Hattie Nkemelu',
+  },
   {
     signature: 'mutant-discipline',
     label: 'Lotus Guard',
-    subtitle: 'Asha Venkataraman',
+    subtitle: 'Asha Venkataraman · four arms',
   },
   {
     signature: 'magic-earth',
     label: 'Granny Mayhem',
     subtitle: 'Mavis Mayhew',
   },
-  { signature: 'alien-discipline', label: 'Zuzu', subtitle: 'Koala Assassin' },
   {
-    signature: 'mutant-earth',
-    label: 'Groundswell',
-    subtitle: 'Hattie Nkemelu',
+    signature: 'franchise-safe',
+    label: 'Originality repairs',
+    subtitle: 'Five separately rendered character and scene replacements',
   },
 ] as const
 
@@ -227,10 +231,10 @@ export const CAPES_RUNTIME_REFILL_REVIEW = [
 ] as const
 
 /**
- * Original private repaint candidates, rendered but awaiting human-visible
- * image QA. Never promote to shipped art from a DONE receipt alone.
+ * Asha four-arm and six canon-corrected outcome candidates.
+ * Rendered ArtImage receipts, not composition approvals or shipped assets.
  */
-export const CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW = [
+export const CAPES_CANON_CORRECTION_REVIEW = [
   {
     key: 'asha-four-arm-hero-rescue-river',
     signature: 'mutant-discipline',
@@ -271,9 +275,6 @@ export const CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW = [
     artJobId: 76532,
     artImageId: 278469,
   },
-] as const
-
-export const CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW = [
   {
     key: 'pod-correction-granny-hero-20261122',
     signature: 'magic-earth',
@@ -330,11 +331,63 @@ export const CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW = [
   },
 ] as const
 
+/**
+ * Five private, franchise-safe Krea 2 repaint candidates.
+ * Rendered ArtImage receipts, not composition approvals or shipped assets.
+ */
+export const CAPES_FRANCHISE_SAFE_REVIEW = [
+  {
+    key: 'prom-identities-mutant-air-student',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom identities mutant-air student',
+    asset: 'comet-city-academy/identities/mutant-air/student',
+    size: '832x1216',
+    artJobId: 50711,
+    artImageId: 258003,
+  },
+  {
+    key: 'prom-identities-mutant-genius-hero',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom identities mutant-genius hero',
+    asset: 'comet-city-academy/identities/mutant-genius/hero',
+    size: '1344x768',
+    artJobId: 50712,
+    artImageId: 258004,
+  },
+  {
+    key: 'prom-encounters-the-class-list-has-two-endings',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom encounters the-class-list-has-two-endings',
+    asset: 'comet-city-academy/encounters/the-class-list-has-two-endings',
+    size: '1344x768',
+    artJobId: 50713,
+    artImageId: 258015,
+  },
+  {
+    key: 'prom-identities-psychic-discipline-outcomes-villain',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom identities psychic-discipline outcomes villain',
+    asset: 'comet-city-academy/identities/psychic-discipline/outcomes/villain',
+    size: '1344x768',
+    artJobId: 50714,
+    artImageId: 258016,
+  },
+  {
+    key: 'prom-identities-tech-genius-outcomes-student',
+    signature: 'franchise-safe',
+    title: 'Prom of Doom identities tech-genius outcomes student',
+    asset: 'comet-city-academy/identities/tech-genius/outcomes/student',
+    size: '1344x768',
+    artJobId: 50715,
+    artImageId: 258017,
+  },
+] as const
+
 export const CAPES_REVIEWABLE_PRODUCTION = [
   ...CAPES_UNSTABLE_PRODUCTION,
   ...CAPES_RUNTIME_REFILL_REVIEW,
-  ...CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW,
-  ...CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW,
+  ...CAPES_CANON_CORRECTION_REVIEW,
+  ...CAPES_FRANCHISE_SAFE_REVIEW,
 ] as const
 
 export function capesProductionFor(signature: string) {

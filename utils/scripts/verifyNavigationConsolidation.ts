@@ -194,6 +194,14 @@ const retiredTabKeys = [
   'conductor-app',
   'mermaids',
   'scene-animator',
+  'storybook',
+  'bots',
+  'characters',
+  'facets',
+  'dreams',
+  'model-builder',
+  'rewards',
+  'scenarios',
 ]
 
 const admin = {
@@ -217,7 +225,7 @@ assert.deepEqual(
 assert.deepEqual(
   navigationSubtabs(admin, 'retired').map((entry) => entry.tabKey),
   retiredTabKeys,
-  'Retired must expose all sixteen archived surfaces as Admin subtabs',
+  'Retired must expose archived surfaces as Admin subtabs',
 )
 assert.equal(
   navigationDestinations(admin).some((entry) => entry.tabKey === 'retired'),
@@ -552,9 +560,15 @@ assert.doesNotMatch(
   /feature\.related/,
   'featured cards must link directly to destinations without nested related-link lists',
 )
-assert.ok(
-  visitorDirectorySource.includes("route: '/?view=dashboard'"),
-  'Daily Dreams must link to the original dashboard, not the dreams object gallery',
+assert.match(
+  source('content/channels/projects/art.md'),
+  /\nroute: \/art\n/,
+  'Art Gallery must retain its Projects navigation destination',
+)
+assert.match(
+  source('content/channels/home/dashboard.md'),
+  /\nroute: \/\n/,
+  'Daily Dreams must retain the original Home dashboard navigation destination',
 )
 assert.ok(homePageSource.includes('<home-visitor-directory v-else'))
 assert.ok(visitorDirectorySource.includes('showcaseHref(card)'))
@@ -567,12 +581,8 @@ assert.ok(
 for (const route of [
   '/play/arcade',
   '/play/shifting-desks',
-  '/storybook',
-  '/art',
   '/play/aquarium',
   '/play/memory',
-  '/?view=dashboard',
-  '/play/video-generator?studio=music',
   '/play/mandarin',
   '/play/emperor-of-dust',
   '/play/crystal-street',
@@ -593,7 +603,6 @@ for (const image of [
   '/save-the-plumber/maps/world-1.webp',
   '/rainbow-princess-art/hero-pearl-palace.webp',
   '/zuzu-pinball/last-bell-cover.webp',
-  '/storybook-art/dashboard-highlight.webp',
 ]) {
   assert.ok(
     visitorDirectorySource.includes("image: '" + image + "'"),
@@ -756,8 +765,17 @@ assert.ok(
 )
 assert.ok(
   visitorDirectorySource.indexOf("title: 'Downward Mobility'") <
-    visitorDirectorySource.indexOf("title: 'Storybook'"),
+    visitorDirectorySource.indexOf("title: 'Cthulhuquarium'"),
   'Downward Mobility must remain a flagship visitor attraction',
+)
+assert.doesNotMatch(visitorDirectorySource, /title: 'Storybook'/)
+assert.doesNotMatch(visitorDirectorySource, /title: 'Music Videos'/)
+assert.doesNotMatch(visitorDirectorySource, /title: 'Art Gallery & Studio'/)
+assert.doesNotMatch(visitorDirectorySource, /title: 'Daily Dreams'/)
+assert.doesNotMatch(
+  visitorDirectorySource,
+  /\{ key: 'create', label: 'Create' \}/,
+  'The homepage must not show a Create filter when no creation highlights remain',
 )
 
 for (const route of [

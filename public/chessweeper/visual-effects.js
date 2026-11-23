@@ -56,12 +56,85 @@
     cinematicTimer = setTimeout(clearCinematic, 1800)
   }
 
+  // Painted special-action plates (t-003 ArtJobs 76605-76607). Each one is
+  // preloaded and only shown once it has decoded, so a missing render keeps the
+  // code-drawn effects without a broken image.
+  const ACTION_PLATES = {
+    rush: {
+      realm: 'sugar',
+      src: '/images/chessweeper/sugar-rush-action-scene.webp',
+      title: 'SUGAR RUSH!',
+    },
+    laststand: {
+      realm: 'ashen',
+      src: '/images/chessweeper/ashen-laststand-action-scene.webp',
+      title: 'LAST STAND',
+    },
+    wager: {
+      realm: 'jackpot',
+      src: '/images/chessweeper/jackpot-double-or-nothing-action-scene.webp',
+      title: 'DOUBLE OR NOTHING',
+    },
+  }
+  const plateReady = new Map()
+  function preloadPlate(kind) {
+    const plate = ACTION_PLATES[kind]
+    if (!plate || plateReady.has(kind) || typeof Image !== 'function') return
+    plateReady.set(kind, false)
+    const image = new Image()
+    image.onload = () => plateReady.set(kind, true)
+    image.onerror = () => plateReady.set(kind, false)
+    image.src = plate.src
+  }
+  let plateNode = null
+  let plateTimer = null
+  function clearPlate() {
+    clearTimeout(plateTimer)
+    plateTimer = null
+    plateNode?.remove()
+    plateNode = null
+  }
+  function showPlate(kind) {
+    const plate = ACTION_PLATES[kind]
+    if (!plate || !plateReady.get(kind) || animationOff()) return
+    clearPlate()
+    plateNode = document.createElement('figure')
+    plateNode.className = 'chess-fx-plate chess-fx-plate-' + kind
+    plateNode.setAttribute('role', 'img')
+    plateNode.setAttribute('aria-label', plate.title + ' illustration')
+    const image = document.createElement('img')
+    image.src = plate.src
+    image.alt = ''
+    const caption = document.createElement('figcaption')
+    caption.textContent = plate.title
+    plateNode.append(image, caption)
+    layer.append(plateNode)
+    plateTimer = setTimeout(clearPlate, 1600)
+  }
+  function preloadForRealm() {
+    for (const [kind, plate] of Object.entries(ACTION_PLATES))
+      if (plate.realm === root.dataset?.realm) preloadPlate(kind)
+  }
+  window.addEventListener('chessweeper:state', preloadForRealm)
+  preloadForRealm()
+  window.__chessweeperActionPlates = {
+    plates: ACTION_PLATES,
+    ready: (kind) => plateReady.get(kind) === true,
+  }
+
+  window.addEventListener('pagehide', clearPlate)
   window.addEventListener('pagehide', clearCinematic)
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) clearCinematic()
+    if (document.hidden) {
+      clearCinematic()
+      clearPlate()
+    }
   })
   window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') clearCinematic()
+    if (event.key === 'Escape') {
+      clearCinematic()
+      clearPlate()
+    }
   })
 
   function validSquare(square) {
@@ -147,7 +220,11 @@
     const kind = detail.kind
     const count = kinds[kind]
     if (!count) return
-    if (kind === 'victory' || kind === 'defeat') showCinematic(detail)
+    if (kind === 'victory' || kind === 'defeat') {
+      clearPlate()
+      showCinematic(detail)
+    }
+    if (ACTION_PLATES[kind]) showPlate(kind)
     if (animationOff()) return
 
     const square = validSquare(detail.square) ? detail.square : -1

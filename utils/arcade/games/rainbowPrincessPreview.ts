@@ -43,6 +43,7 @@ import {
   drawRainbowEndingPlate,
   drawRainbowEnemySprite,
   drawRainbowGuardianSprite,
+  drawRainbowRouteObjectSprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
   drawRainbowStageCard,
@@ -1322,6 +1323,8 @@ export function createRainbowPrincessPreview(
   let endingFrame: number | null = null
   let finalChoice: FinaleChoice | null = null
   let rescuedNemi = false
+  let alternateRoutesSeen = 0
+  let alternateRoutesCleared = 0
   let trenchRoute: TrenchRoute | null = null
   let routeSettled = false
   let nemi: { x: number; y: number } | null = null
@@ -1335,6 +1338,8 @@ export function createRainbowPrincessPreview(
     score: 0,
     rescuedStation: false,
     rescuedNemi: false,
+    alternateRoutesSeen: 0,
+    alternateRoutesCleared: 0,
     trenchRoute: null,
     routeSettled: false,
     freedChoir: false,
@@ -1997,6 +2002,7 @@ export function createRainbowPrincessPreview(
 
   /** Leave the salvage dock for Act IV: one bounded repair (a shield each), then the express. */
   function launchNursery() {
+    alternateRoutesSeen |= 1
     nurseryStart = tick
     nurseryHits = 0
     nurseryChoirMask = 0
@@ -2500,6 +2506,8 @@ export function createRainbowPrincessPreview(
       score,
       rescuedStation,
       rescuedNemi,
+      alternateRoutesSeen,
+      alternateRoutesCleared,
       trenchRoute,
       routeSettled,
       freedChoir,
@@ -2703,6 +2711,13 @@ export function createRainbowPrincessPreview(
     score = c.score
     rescuedStation = c.rescuedStation
     rescuedNemi = c.rescuedNemi
+    alternateRoutesSeen =
+      c.alternateRoutesSeen ??
+      Number(c.nurseryFrame !== undefined) |
+        (Number(c.cometFrame !== undefined) << 1) |
+        (Number(c.lighthouseFrame !== undefined) << 2) |
+        (Number(c.shoalFrame !== undefined) << 3)
+    alternateRoutesCleared = c.alternateRoutesCleared ?? 0
     trenchRoute = c.trenchRoute
     routeSettled = c.routeSettled
     freedChoir = c.freedChoir ?? false
@@ -2924,6 +2939,14 @@ export function createRainbowPrincessPreview(
         palaceStart,
         finaleStart,
       )
+      // Retry restores only branch discoveries earned at the last checkpoint.
+      alternateRoutesSeen =
+        checkpoint.alternateRoutesSeen ??
+        Number(checkpoint.nurseryFrame !== undefined) |
+          (Number(checkpoint.cometFrame !== undefined) << 1) |
+          (Number(checkpoint.lighthouseFrame !== undefined) << 2) |
+          (Number(checkpoint.shoalFrame !== undefined) << 3)
+      alternateRoutesCleared = checkpoint.alternateRoutesCleared ?? 0
       // A guardian whose section lies after the checkpoint flies again.
       guardian = null
       if (checkpoint.cometFrame !== undefined) {
@@ -4157,6 +4180,7 @@ export function createRainbowPrincessPreview(
         )
       ) {
         cometStart = tick
+        alternateRoutesSeen |= 2
         cometCadetsMask = 0
         cometGuardianOutcome = 'waiting'
         cometHits = 0
@@ -4169,6 +4193,7 @@ export function createRainbowPrincessPreview(
       escort = null
     }
     if (cometActive() && cometFrame() >= COMET.end) {
+      alternateRoutesCleared |= 2
       cadetsHome = cometFullWing(cometCadetsMask)
       if (cadetsHome) {
         score += 3000
@@ -4207,6 +4232,7 @@ export function createRainbowPrincessPreview(
       ) {
         awardMedal(7)
         shoalStart = tick
+        alternateRoutesSeen |= 8
         reefs.length = 0
         enemyShots.length = 0
         popups.push({
@@ -4223,6 +4249,7 @@ export function createRainbowPrincessPreview(
       pickups.length = 0
     }
     if (shoalActive() && shoalFrame() >= MIRROR_SHOAL.end) {
+      alternateRoutesCleared |= 8
       if (mirrorShoalMedalEarned(shoalHits)) {
         score += 3000
         popups.push({
@@ -4253,6 +4280,7 @@ export function createRainbowPrincessPreview(
         )
       ) {
         lighthouseStart = tick
+        alternateRoutesSeen |= 4
         reefs.length = 0
         enemyShots.length = 0
         popups.push({
@@ -4268,6 +4296,7 @@ export function createRainbowPrincessPreview(
       pickups.length = 0
     }
     if (lighthouseActive() && lighthouseFrame() >= LIGHTHOUSE.end) {
+      alternateRoutesCleared |= 4
       if (lighthouseMedalEarned(lighthouseLamps)) {
         score += 3000
         popups.push({
@@ -4294,6 +4323,7 @@ export function createRainbowPrincessPreview(
     )
       launchCrownReef()
     if (nurseryActive() && nurseryFrame() >= NURSERY_FLIGHT.end) {
+      alternateRoutesCleared |= 1
       freedChoir = choirFreed(nurseryChoirMask)
       if (freedChoir) {
         score += KELP_CHOIR.fullRescueBonus
@@ -7097,20 +7127,24 @@ export function createRainbowPrincessPreview(
           const y = laneY(pod.lane)
           g.save()
           g.translate(x, y)
-          g.shadowColor = '#8effef'
-          g.shadowBlur = 12
-          g.fillStyle = '#462767'
-          g.strokeStyle = '#f8bbef'
-          g.lineWidth = 2.5
-          g.beginPath()
-          g.ellipse(0, 0, 12, 10, 0, 0, Math.PI * 2)
-          g.fill()
-          g.stroke()
-          g.fillStyle = '#a9fff5'
-          g.beginPath()
-          g.arc(0, 0, 5, 0, Math.PI * 2)
-          g.fill()
-          g.restore()
+          if (drawRainbowRouteObjectSprite(g, 'coral-choir-pod', 30)) {
+            g.restore()
+          } else {
+            g.shadowColor = '#8effef'
+            g.shadowBlur = 12
+            g.fillStyle = '#462767'
+            g.strokeStyle = '#f8bbef'
+            g.lineWidth = 2.5
+            g.beginPath()
+            g.ellipse(0, 0, 12, 10, 0, 0, Math.PI * 2)
+            g.fill()
+            g.stroke()
+            g.fillStyle = '#a9fff5'
+            g.beginPath()
+            g.arc(0, 0, 5, 0, Math.PI * 2)
+            g.fill()
+            g.restore()
+          }
         }
       }
       if (guardian) {
@@ -7136,20 +7170,7 @@ export function createRainbowPrincessPreview(
         }
         g.save()
         applyRainbowSwimMotion(g, guardian.kind, guardian.frame, calm)
-        if (
-          !drawRainbowGuardianSprite(
-            g,
-            guardian.kind === 'matriarch' ||
-              guardian.kind === 'kelpwarden' ||
-              guardian.kind === 'siren'
-              ? 'lantern'
-              : guardian.kind === 'warden'
-                ? 'bulwark'
-                : guardian.kind === 'lampkeeper'
-                  ? 'mirror'
-                  : guardian.kind,
-          )
-        ) {
+        if (!drawRainbowGuardianSprite(g, guardian.kind)) {
           g.save()
           g.scale(2.3, 2.3)
           // The Herald is a harbinger grown huge until its own picture lands.
@@ -8216,28 +8237,32 @@ export function createRainbowPrincessPreview(
           const y = laneY(cadet.lane)
           g.save()
           g.translate(x, y)
-          g.fillStyle = '#ffe8f8'
-          g.strokeStyle = '#35104c'
-          g.lineWidth = 2
-          g.beginPath()
-          g.ellipse(0, 0, 14, 10, 0, 0, Math.PI * 2)
-          g.fill()
-          g.stroke()
-          g.fillStyle = '#8fefff'
-          g.beginPath()
-          g.ellipse(0, -1, 9, 6, 0, 0, Math.PI * 2)
-          g.fill()
-          g.fillStyle = '#5a1c76'
-          for (const dx of [-6, -2, 2, 6]) {
+          if (drawRainbowRouteObjectSprite(g, 'comet-cadet-pod', 34)) {
+            g.restore()
+          } else {
+            g.fillStyle = '#ffe8f8'
+            g.strokeStyle = '#35104c'
+            g.lineWidth = 2
             g.beginPath()
-            g.arc(dx, -1, 1.5, 0, Math.PI * 2)
+            g.ellipse(0, 0, 14, 10, 0, 0, Math.PI * 2)
             g.fill()
+            g.stroke()
+            g.fillStyle = '#8fefff'
+            g.beginPath()
+            g.ellipse(0, -1, 9, 6, 0, 0, Math.PI * 2)
+            g.fill()
+            g.fillStyle = '#5a1c76'
+            for (const dx of [-6, -2, 2, 6]) {
+              g.beginPath()
+              g.arc(dx, -1, 1.5, 0, Math.PI * 2)
+              g.fill()
+            }
+            g.strokeStyle = '#ffd16e'
+            g.beginPath()
+            g.arc(0, 0, 17, -0.8, 0.8)
+            g.stroke()
+            g.restore()
           }
-          g.strokeStyle = '#ffd16e'
-          g.beginPath()
-          g.arc(0, 0, 17, -0.8, 0.8)
-          g.stroke()
-          g.restore()
         }
       }
       // A craft a shot just hurt flashes white.
@@ -8529,12 +8554,17 @@ export function createRainbowPrincessPreview(
           g.lineTo(W, y)
           g.stroke()
           g.setLineDash([])
+          // The painted lamp hangs at the lane's far end; the dashed lane alone marks it while it loads.
+          g.save()
+          g.translate(W - 18, y)
+          drawRainbowRouteObjectSprite(g, 'lighthouse-lamp', 26)
+          g.restore()
           g.fillStyle = '#ffe8a8'
           g.font = 'bold 9px monospace'
           g.textAlign = 'right'
           g.fillText(
             `LIGHT ${nextLamp.id.slice(-1)} · FLY THIS LANE`,
-            W - 8,
+            W - 36,
             y - 8,
           )
           g.restore()

@@ -134,6 +134,23 @@ export function cometPhase(frame: number): CometPhase {
   return 'done'
 }
 
+/** A rescued cadet must have appeared by the checkpoint; otherwise a forged
+ * save could award the Full Wing bonus without flying the rescue. */
+export function cometMaskFitsFrame(frame: number, mask: number): boolean {
+  if (
+    !Number.isInteger(frame) ||
+    frame < 0 ||
+    frame > COMET.end ||
+    !Number.isInteger(mask) ||
+    mask < 0 ||
+    mask >= 1 << COMET.trainerCount
+  )
+    return false
+  return COMET_CADETS.every(
+    (cadet, index) => (mask & (1 << index)) === 0 || frame >= cadet.at,
+  )
+}
+
 /** Only a real post-Act-IV frame and section boundary may resume X2. */
 export function cometCheckpointValid(
   act: number,
@@ -159,12 +176,15 @@ export function cometCheckpointValid(
     Number.isInteger(c.cometCadetsMask) &&
     c.cometCadetsMask! >= 0 &&
     c.cometCadetsMask! < 1 << COMET.trainerCount &&
+    cometMaskFitsFrame(c.cometFrame!, c.cometCadetsMask!) &&
     Number.isInteger(c.cometHits) &&
     c.cometHits! >= 0 &&
     c.cometHits! <= 999 &&
     (c.cometGuardianOutcome === 'waiting' ||
       c.cometGuardianOutcome === 'defeated' ||
-      c.cometGuardianOutcome === 'escaped')
+      c.cometGuardianOutcome === 'escaped') &&
+    (c.cometFrame! >= COMET.guardianFrom ||
+      c.cometGuardianOutcome === 'waiting')
   )
 }
 

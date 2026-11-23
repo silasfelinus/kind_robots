@@ -26,6 +26,7 @@ import {
   SNAP_YAWN,
   SPAN,
   boardLanes,
+  legOneCrossing,
   botRows,
   newArrivals,
   newBot,
@@ -968,6 +969,68 @@ function drawTurtles(
   }
 }
 
+function drawShopper(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const x = Math.round(t.x + TILE / 2)
+  const y = rowY(lane.row) + 10
+  const step = Math.floor(tick / 12) % 2
+  dropShadow(g, x, y + 8, 6, 2, 0.4)
+  g.fillStyle = RAMPS.steel[2]
+  g.fillRect(x - 4, y - 4, 8, 10)
+  g.fillStyle = RAMPS.cream[3]
+  g.fillRect(x - 5, y - 9, 10, 6)
+  g.fillStyle = INK
+  g.fillRect(x + (lane.dir > 0 ? 1 : -3), y - 7, 2, 2)
+  g.fillStyle = RAMPS.teal[4]
+  g.fillRect(x - 5, y + 6, 3, 3 + step)
+  g.fillRect(x + 2, y + 6, 3, 4 - step)
+}
+
+function drawBarrel(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const x = Math.round(t.x + TILE / 2)
+  const y = rowY(lane.row) + 10
+  g.save()
+  g.translate(x, y)
+  g.rotate(tick * lane.vx * 0.08)
+  shadedOrb(g, 0, 0, 8, RAMPS.rust)
+  g.strokeStyle = RAMPS.gold[3]
+  g.lineWidth = 2
+  g.beginPath()
+  g.moveTo(-6, -2)
+  g.lineTo(6, -2)
+  g.moveTo(-6, 3)
+  g.lineTo(6, 3)
+  g.stroke()
+  g.restore()
+}
+
+function drawCrate(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const x = Math.round(t.x)
+  const y = rowY(lane.row) + 3 + Math.sin(tick / 16) * 1.5
+  const w = t.len * TILE - 3
+  g.fillStyle = RAMPS.earth[2]
+  g.fillRect(x + 1, y, w, 12)
+  g.fillStyle = RAMPS.gold[2]
+  g.fillRect(x + 3, y + 2, w - 4, 7)
+  g.strokeStyle = RAMPS.earth[4]
+  g.lineWidth = 2
+  g.strokeRect(x + 1, y, w, 12)
+}
+
 const VEHICLE: LaneBehaviour = {
   spawn: (spec, _esc, rng) => spread(spec, spec.len, rng),
   step: drift,
@@ -982,6 +1045,16 @@ export const LANE_BEHAVIOURS: Record<LaneKind, LaneBehaviour> = {
   tractor: VEHICLE,
   racer: VEHICLE,
   bus: VEHICLE,
+  shopper: { ...VEHICLE, draw: drawShopper },
+  barrel: { ...VEHICLE, draw: drawBarrel },
+  crate: {
+    spawn: (spec, esc, rng) =>
+      spread(spec, Math.max(2, spec.len - esc.logTrim), rng),
+    step: drift,
+    project: shift,
+    touch: (_lane, t, x, _row, _at, pad) => (rides(t, x, pad) ? 'ride' : null),
+    draw: drawCrate,
+  },
   log: {
     spawn: (spec, esc, rng) =>
       spread(spec, Math.max(2, spec.len - esc.logTrim), rng),
@@ -1180,7 +1253,14 @@ class HedgehogCrossing implements ArcadeGameInstance {
       }
     }
     this.resetHedgehog()
-    this.banner = { text: `LEVEL ${level}`, sub: 'WALK THEM HOME', ticks: 90 }
+    const crossing = legOneCrossing(level)
+    this.banner = {
+      text: crossing
+        ? `${crossing.region} ${crossing.crossing}/5`
+        : `LEVEL ${level}`,
+      sub: 'WALK THEM HOME',
+      ticks: 90,
+    }
     this.bannerQueue = this.introsFor(level)
   }
 
@@ -1922,154 +2002,191 @@ class HedgehogCrossing implements ArcadeGameInstance {
   private renderGround(g: CanvasRenderingContext2D) {
     // Everything that never moves, painted once: dusk sky and hills, the hedge and its
     // burrows, the creek bed, the meadow verges, the kerbs and the asphalt.
-    cachedLayer(g, 'hedgehog-crossing-ground', W, H, (k) => {
-      const rand = backdropRng(17)
-      // Dusk sky over two ranges of hills, a moon between the HUD boxes.
-      bandedGradient(k, 0, 0, W, TOP, SKY_BANDS, 2)
-      glow(k, 150, 11, 16, RAMPS.cream[3], 0.35)
-      shadedOrb(k, 150, 11, 5, RAMPS.cream, { outline: null })
-      drawRidge(k, FAR_HILLS, {
-        base: TOP,
-        bottom: TOP,
-        width: W,
-        fill: mix(RAMPS.night[3], RAMPS.leaf[0], 0.5),
-        rim: RAMPS.night[4],
-      })
-      drawRidge(k, NEAR_HILLS, {
-        base: TOP + 1,
-        bottom: TOP,
-        width: W,
-        step: 2,
-        fill: RAMPS.leaf[0],
-        rim: RAMPS.leaf[1],
-      })
-      // The hedge: two rows of shaded leafy bumps.
-      const hedgeY = rowY(0)
-      k.fillStyle = RAMPS.leaf[1]
-      k.fillRect(0, hedgeY, W, TILE)
-      for (const [row, top, ramp] of [
-        [0, hedgeY + 1, RAMPS.leaf],
-        [1, hedgeY + 12, RAMPS.leaf],
-      ] as const) {
-        for (let x = -4 - row * 4; x < W + 8; x += 9) {
-          const bx = x + Math.floor(rand() * 3)
-          const by = top + Math.floor(rand() * 3)
-          const r = 6 - row
-          k.fillStyle = INK
-          k.beginPath()
-          k.arc(bx, by, r + 1, 0, Math.PI * 2)
-          k.fill()
-          for (const [dx, dy, kk, step] of [
-            [0, 0, 1, 1],
-            [-1, -1, 0.75, 2],
-            [-2, -2, 0.4, 3 - row],
-          ] as const) {
-            k.fillStyle = ramp[step]!
+    const market = legOneCrossing(this.level)?.region === 'MARKET DAY'
+    cachedLayer(
+      g,
+      market ? 'hedgehog-crossing-market' : 'hedgehog-crossing-ground',
+      W,
+      H,
+      (k) => {
+        const rand = backdropRng(17)
+        // Dusk sky over two ranges of hills, a moon between the HUD boxes.
+        bandedGradient(k, 0, 0, W, TOP, SKY_BANDS, 2)
+        glow(k, 150, 11, 16, RAMPS.cream[3], 0.35)
+        shadedOrb(k, 150, 11, 5, RAMPS.cream, { outline: null })
+        drawRidge(k, FAR_HILLS, {
+          base: TOP,
+          bottom: TOP,
+          width: W,
+          fill: mix(RAMPS.night[3], RAMPS.leaf[0], 0.5),
+          rim: RAMPS.night[4],
+        })
+        drawRidge(k, NEAR_HILLS, {
+          base: TOP + 1,
+          bottom: TOP,
+          width: W,
+          step: 2,
+          fill: RAMPS.leaf[0],
+          rim: RAMPS.leaf[1],
+        })
+        // The hedge: two rows of shaded leafy bumps.
+        const hedgeY = rowY(0)
+        k.fillStyle = RAMPS.leaf[1]
+        k.fillRect(0, hedgeY, W, TILE)
+        for (const [row, top, ramp] of [
+          [0, hedgeY + 1, RAMPS.leaf],
+          [1, hedgeY + 12, RAMPS.leaf],
+        ] as const) {
+          for (let x = -4 - row * 4; x < W + 8; x += 9) {
+            const bx = x + Math.floor(rand() * 3)
+            const by = top + Math.floor(rand() * 3)
+            const r = 6 - row
+            k.fillStyle = INK
             k.beginPath()
-            k.arc(bx + dx, by + dy, r * kk, 0, Math.PI * 2)
+            k.arc(bx, by, r + 1, 0, Math.PI * 2)
             k.fill()
+            for (const [dx, dy, kk, step] of [
+              [0, 0, 1, 1],
+              [-1, -1, 0.75, 2],
+              [-2, -2, 0.4, 3 - row],
+            ] as const) {
+              k.fillStyle = ramp[step]!
+              k.beginPath()
+              k.arc(bx + dx, by + dy, r * kk, 0, Math.PI * 2)
+              k.fill()
+            }
           }
         }
-      }
-      for (let i = 0; i < 70; i++) {
-        k.fillStyle = rand() < 0.5 ? RAMPS.leaf[4] : RAMPS.leaf[3]
-        k.fillRect(
-          Math.floor(rand() * W),
-          hedgeY - 4 + Math.floor(rand() * 20),
-          1,
-          1,
-        )
-      }
-      // Burrows: an earthen arch, lit on the upper left, round a dark hole.
-      for (let i = 0; i < BURROWS; i++) {
-        const bx = burrowX(i)
-        const by = hedgeY + 12
-        const arch = (dx: number, dy: number, r: number, depth: number) => {
-          k.beginPath()
-          k.arc(bx + dx, by + dy, r, Math.PI, 0)
-          k.fill()
-          k.fillRect(bx + dx - r, by + dy, r * 2, depth)
-        }
-        k.fillStyle = INK
-        arch(0, 0, 11.5, 8)
-        k.fillStyle = RAMPS.earth[1]
-        arch(0, 0, 10.5, 8)
-        k.fillStyle = RAMPS.earth[3]
-        arch(-1, -1, 9.5, 2)
-        k.fillStyle = RAMPS.earth[2]
-        arch(0, 0, 9, 8)
-        k.fillStyle = INK
-        arch(0, 1, 7.5, 7)
-        k.fillStyle = RAMPS.night[0]
-        arch(0, 2, 6.5, 6)
-        k.fillStyle = RAMPS.earth[1]
-        k.fillRect(bx - 7, hedgeY + TILE - 2, 14, 2)
-      }
-      // The creek bed in HDMA bands, ripples, and the hedge's shadow on the water.
-      bandedGradient(k, 0, rowY(1), W, TILE * 5, WATER_BANDS, 4)
-      for (let i = 0; i < 46; i++) {
-        k.fillStyle = rand() < 0.6 ? RAMPS.water[0] : RAMPS.water[2]
-        k.fillRect(
-          Math.floor(rand() * W),
-          rowY(1) + 3 + Math.floor(rand() * (TILE * 5 - 6)),
-          3 + Math.floor(rand() * 6),
-          1,
-        )
-      }
-      k.fillStyle = rgba(INK, 0.45)
-      k.fillRect(0, rowY(1), W, 2)
-      k.fillStyle = rgba(INK, 0.2)
-      k.fillRect(0, rowY(1) + 2, W, 2)
-      // Meadow verges: the median between road and creek, and the start lawn.
-      this.paintVerge(k, MEDIAN_ROW, rand)
-      this.paintVerge(k, START_ROW, rand)
-      // The road: asphalt lanes, shaded, speckled, with tyre-worn tracks.
-      for (let row = 7; row <= 11; row++) {
-        const y = rowY(row)
-        bandedGradient(k, 0, y, W, TILE, ASPHALT_BANDS, 2)
-        k.fillStyle = rgba(INK, 0.22)
-        k.fillRect(0, y + 5, W, 2)
-        k.fillRect(0, y + 14, W, 2)
-        for (let i = 0; i < 40; i++) {
-          k.fillStyle = rand() < 0.5 ? RAMPS.steel[1] : RAMPS.night[0]
+        for (let i = 0; i < 70; i++) {
+          k.fillStyle = rand() < 0.5 ? RAMPS.leaf[4] : RAMPS.leaf[3]
           k.fillRect(
             Math.floor(rand() * W),
-            y + Math.floor(rand() * TILE),
+            hedgeY - 4 + Math.floor(rand() * 20),
             1,
             1,
           )
         }
-      }
-      // Dashed lane markings, raised paint with a lit top edge.
-      for (let row = 8; row <= 11; row++) {
-        for (let x = 4; x < W; x += 24) {
+        // Burrows: an earthen arch, lit on the upper left, round a dark hole.
+        for (let i = 0; i < BURROWS; i++) {
+          const bx = burrowX(i)
+          const by = hedgeY + 12
+          const arch = (dx: number, dy: number, r: number, depth: number) => {
+            k.beginPath()
+            k.arc(bx + dx, by + dy, r, Math.PI, 0)
+            k.fill()
+            k.fillRect(bx + dx - r, by + dy, r * 2, depth)
+          }
           k.fillStyle = INK
-          k.fillRect(x - 1, rowY(row) - 2, 14, 4)
-          k.fillStyle = RAMPS.cream[4]
-          k.fillRect(x, rowY(row) - 1, 12, 1)
-          k.fillStyle = RAMPS.cream[1]
-          k.fillRect(x, rowY(row), 12, 1)
+          arch(0, 0, 11.5, 8)
+          k.fillStyle = RAMPS.earth[1]
+          arch(0, 0, 10.5, 8)
+          k.fillStyle = RAMPS.earth[3]
+          arch(-1, -1, 9.5, 2)
+          k.fillStyle = RAMPS.earth[2]
+          arch(0, 0, 9, 8)
+          k.fillStyle = INK
+          arch(0, 1, 7.5, 7)
+          k.fillStyle = RAMPS.night[0]
+          arch(0, 2, 6.5, 6)
+          k.fillStyle = RAMPS.earth[1]
+          k.fillRect(bx - 7, hedgeY + TILE - 2, 14, 2)
         }
-      }
-      // Kerbstones along both edges of the road.
-      for (const ky of [rowY(7) - 4, rowY(START_ROW)]) {
-        for (let x = 0, i = 0; x < W; x += 12, i++) {
-          bevel(k, x, ky, 11, 3, i % 2 ? RAMPS.cream : RAMPS.steel, {
-            depth: 1,
-          })
+        // The creek bed in HDMA bands, ripples, and the hedge's shadow on the water.
+        bandedGradient(k, 0, rowY(1), W, TILE * 5, WATER_BANDS, 4)
+        for (let i = 0; i < 46; i++) {
+          k.fillStyle = rand() < 0.6 ? RAMPS.water[0] : RAMPS.water[2]
+          k.fillRect(
+            Math.floor(rand() * W),
+            rowY(1) + 3 + Math.floor(rand() * (TILE * 5 - 6)),
+            3 + Math.floor(rand() * 6),
+            1,
+          )
         }
-      }
-      // Rich soil under the start lawn, where the HUD sits.
-      bandedGradient(
-        k,
-        0,
-        rowY(START_ROW + 1),
-        W,
-        H - rowY(START_ROW + 1),
-        [RAMPS.earth[1], RAMPS.earth[0], RAMPS.night[0]],
-        2,
-      )
-    })
+        k.fillStyle = rgba(INK, 0.45)
+        k.fillRect(0, rowY(1), W, 2)
+        k.fillStyle = rgba(INK, 0.2)
+        k.fillRect(0, rowY(1) + 2, W, 2)
+        // Meadow verges: the median between road and creek, and the start lawn.
+        this.paintVerge(k, MEDIAN_ROW, rand)
+        this.paintVerge(k, START_ROW, rand)
+        // The road: asphalt lanes, shaded, speckled, with tyre-worn tracks.
+        for (let row = 7; row <= 11; row++) {
+          const y = rowY(row)
+          bandedGradient(k, 0, y, W, TILE, ASPHALT_BANDS, 2)
+          k.fillStyle = rgba(INK, 0.22)
+          k.fillRect(0, y + 5, W, 2)
+          k.fillRect(0, y + 14, W, 2)
+          for (let i = 0; i < 40; i++) {
+            k.fillStyle = rand() < 0.5 ? RAMPS.steel[1] : RAMPS.night[0]
+            k.fillRect(
+              Math.floor(rand() * W),
+              y + Math.floor(rand() * TILE),
+              1,
+              1,
+            )
+          }
+        }
+        // Dashed lane markings, raised paint with a lit top edge.
+        for (let row = 8; row <= 11; row++) {
+          for (let x = 4; x < W; x += 24) {
+            k.fillStyle = INK
+            k.fillRect(x - 1, rowY(row) - 2, 14, 4)
+            k.fillStyle = RAMPS.cream[4]
+            k.fillRect(x, rowY(row) - 1, 12, 1)
+            k.fillStyle = RAMPS.cream[1]
+            k.fillRect(x, rowY(row), 12, 1)
+          }
+        }
+        // Kerbstones along both edges of the road.
+        for (const ky of [rowY(7) - 4, rowY(START_ROW)]) {
+          for (let x = 0, i = 0; x < W; x += 12, i++) {
+            bevel(k, x, ky, 11, 3, i % 2 ? RAMPS.cream : RAMPS.steel, {
+              depth: 1,
+            })
+          }
+        }
+        if (market) {
+          // Market bunting, fruit-stall awnings and the canal's cream stone banks.
+          for (let x = 0; x < W; x += 28) {
+            k.fillStyle = x % 56 === 0 ? RAMPS.pink[3] : RAMPS.gold[3]
+            k.beginPath()
+            k.moveTo(x + 2, rowY(6) + 2)
+            k.lineTo(x + 24, rowY(6) + 2)
+            k.lineTo(x + 13, rowY(6) + 11)
+            k.closePath()
+            k.fill()
+            k.fillStyle = RAMPS.cream[3]
+            k.fillRect(x + 12, rowY(6) + 3, 2, 3)
+          }
+          for (const x of [14, 92, 170, 248]) {
+            k.fillStyle = RAMPS.earth[1]
+            k.fillRect(x, rowY(START_ROW) + 3, 18, 11)
+            k.fillStyle = RAMPS.pink[2]
+            k.fillRect(x - 2, rowY(START_ROW) + 1, 22, 4)
+            k.fillStyle = RAMPS.gold[3]
+            k.fillRect(x + 3, rowY(START_ROW) + 9, 4, 4)
+            k.fillStyle = RAMPS.leaf[4]
+            k.fillRect(x + 10, rowY(START_ROW) + 9, 4, 4)
+          }
+          for (const bank of [rowY(1), rowY(6) - 2]) {
+            k.fillStyle = RAMPS.cream[2]
+            k.fillRect(0, bank, W, 2)
+            k.fillStyle = RAMPS.cream[4]
+            for (let x = 0; x < W; x += 20) k.fillRect(x, bank, 10, 1)
+          }
+        }
+        // Rich soil under the start lawn, where the HUD sits.
+        bandedGradient(
+          k,
+          0,
+          rowY(START_ROW + 1),
+          W,
+          H - rowY(START_ROW + 1),
+          [RAMPS.earth[1], RAMPS.earth[0], RAMPS.night[0]],
+          2,
+        )
+      },
+    )
   }
 
   /** A grass verge: banded turf, a sandy lip by the creek, tufts and little flowers. */

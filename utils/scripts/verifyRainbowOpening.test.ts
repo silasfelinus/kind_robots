@@ -93,8 +93,8 @@ assert.ok(
   'gamepad requires a released-button edge to start, retry, or skip',
 )
 assert.ok(
-  /state\\.value = 'offer'\\s+pollPads\\(\\)/.test(overlay) &&
-    /state\\.value = 'failed'\\s+pollPads\\(\\)/.test(overlay),
+  /state\.value = 'offer'\s+pollPads\(\)/.test(overlay) &&
+    /state\.value = 'failed'\s+pollPads\(\)/.test(overlay),
   'gamepad polling continues on the offer and failed states',
 )
 

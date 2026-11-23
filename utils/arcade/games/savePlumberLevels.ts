@@ -23,6 +23,9 @@
  *   ~  wind corridor (the whole column gusts a headwind)
  *   Q  cargo drop (crates fall here and rest a moment as steps)
  *   :  crystal bridge (solid only while it glows)
+ *   |  rope ladder (up or down grabs it, A hops off; stand on its top rung)
+ *   0  brass key (she carries one at a time; a hit sends it home)
+ *   [  padlocked bolt (a wall; touch it holding a key to open the whole bolt)
  *   i  puddle mimic   z  siphon sprite    t  chimney spirit   T  tea-kettle knight
  *   1  Springstep power   2  Bottled Storm power   3  Pocket Lift power
  *   +  water heart (restores a heart)
@@ -1066,6 +1069,10 @@ export const SOLID_FRAGILE_ICE = 13
 export const SOLID_BELT_LEFT = 8
 export const SOLID_BELT_RIGHT = 9
 export const SOLID_BRIDGE = 10
+/** Climbable, never a wall; its topmost rung is a one-way ledge to stand on. */
+export const SOLID_LADDER = 14
+/** A wall until the heroine touches it holding a brass key; the whole bolt opens. */
+export const SOLID_LOCK = 15
 
 export type SpawnKind =
   | 'token'
@@ -1107,6 +1114,7 @@ export type SpawnKind =
   | 'air-dock'
   | 'orbital-debris'
   | 'solar-gust'
+  | 'key'
 
 export type Spawn = {
   kind: SpawnKind
@@ -1175,6 +1183,7 @@ const SPAWNS: Record<string, SpawnKind> = {
   ';': 'air-dock',
   '&': 'orbital-debris',
   $: 'solar-gust',
+  '0': 'key',
 }
 
 /** Giant versions of the original foe roster. Each glyph plays with the base AI. */
@@ -1210,6 +1219,8 @@ const SOLIDS: Record<string, number> = {
   '<': SOLID_BELT_LEFT,
   '>': SOLID_BELT_RIGHT,
   ':': SOLID_BRIDGE,
+  '|': SOLID_LADDER,
+  '[': SOLID_LOCK,
 }
 
 /** Parser-supported symbols: the Maker must expose every mechanic when the engine grows. */

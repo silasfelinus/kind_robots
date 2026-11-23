@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import type { ArtJob } from '~/prisma/generated/prisma/client'
 import {
   summarizeVideoGeneratorJob,
@@ -120,6 +120,12 @@ assert.match(legacyMusicRoute, /redirectCode: 301/)
 assert.match(legacyMusicRoute, /\.\.\.route\.query, studio: 'music'/)
 assert.match(placements, /route: '\/play\/video-generator\?studio=music'/)
 assert.match(videoNavigation, /Music Videos tab/)
+assert.equal(existsSync('pages/admin/music-video.vue'), false)
+assert.equal(existsSync('content/channels/admin/music-video.md'), false)
+assert.match(
+  readFileSync('nuxt.config.ts', 'utf8'),
+  /'\/admin\/music-video': \{[\s\S]*?\/play\/video-generator\?studio=music/,
+)
 assert.equal(
   readFileSync('content/channels/projects/index.md', 'utf8').includes(
     'Video Studio',

@@ -69,7 +69,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // against the channel documents that actually exist. The slug stays because
   // the projects board still needs somewhere to send a reader who clicks it.
   taskmaster: {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -79,7 +79,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/mermaids',
   },
   'model-builder': {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'model-builder',
     route: '/model-builder',
   },
@@ -93,15 +93,15 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'scene-animator',
     route: '/admin/scene-animator',
   },
-  // The Music Videos workbench now lives within Video Studio, not as a
-  // separate channel tab. Public viewing stays open; producing remains admin-only.
+  // The Music Videos workbench lives in Projects → Video Studio.
+  // Watching is public; production controls still require administrator access.
   'music-video': {
     channelKey: 'projects',
     tabKey: 'video-generator',
     route: '/play/video-generator?studio=music',
   },
   storybook: {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'storybook',
     route: '/storybook',
   },
@@ -118,7 +118,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   // slug is still here at all -- the projects board needs somewhere to send a
   // reader who clicks it.
   davinci: {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'storybook',
     route: '/storybook',
   },

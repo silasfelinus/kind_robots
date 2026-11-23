@@ -238,4 +238,151 @@ const startedAnywhere = new Set(
 for (const id of QUESTS)
   assert.ok(startedAnywhere.has(id), `${id} starts in a seeded reign`)
 
+// Each aftershock is a delayed, once-only consequence of a legally completed
+// prior quest. Outcomes must change both the reign and the eligible fish.
+{
+  const aftershocks = [
+    {
+      id: 'weir-reckoning',
+      arc: 'millrace-weir',
+      path: ['build-weir', 'net-the-run'],
+      fish: 'bridgeback-sturgeon',
+      repair: 'reopen-migration',
+      deepen: 'keep-netting',
+      tweak: (save: RunSave) => {
+        save.flags.heededNix = true
+        save.kingdomHealth.nature = 95
+        save.kingdomHealth.order = 60
+      },
+    },
+    {
+      id: 'moat-reckoning',
+      arc: 'castle-moat',
+      path: ['keep-moat-common', 'let-moat-run'],
+      fish: 'barebone-roach',
+      repair: 'restore-moat',
+      deepen: 'license-roach',
+    },
+    {
+      id: 'treaty-reckoning',
+      arc: 'envoy-treaty',
+      path: ['negotiate-tough', 'finalize-tough'],
+      fish: 'tollbell-sturgeon',
+      repair: 'ease-the-border',
+      deepen: 'hold-the-tolls',
+    },
+    {
+      id: 'marina-reckoning',
+      arc: 'reed-shallows',
+      path: ['dredge-cove', 'charge-moorings'],
+      fish: 'mooring-mullet',
+      repair: 'return-the-reeds',
+      deepen: 'clean-the-marina',
+      tweak: (save: RunSave) => {
+        save.kingdomHealth.nature = 85
+      },
+    },
+    {
+      id: 'wedding-reckoning',
+      arc: 'child-elopes',
+      path: ['bless', 'welcome'],
+      fish: 'orchardjaw-perch',
+      repair: 'family-orchard',
+      deepen: 'family-nursery',
+    },
+  ] as const
+
+  for (const scenario of aftershocks) {
+    const terminal = runQuest(
+      scenario.arc,
+      [...scenario.path],
+      'tweak' in scenario ? scenario.tweak : undefined,
+    )
+    terminal.turnCount = 24
+    const card =
+      allDeckCards(C).find((candidate) => candidate.id === scenario.id) ??
+      assert.fail(`missing ${scenario.id}`)
+    assert.ok(card.once, `${scenario.id} must be a one-time callback`)
+    assert.ok(CARD_PROMPTS[scenario.id], `${scenario.id} needs authored art`)
+    assert.ok(
+      eligiblePool(terminal, allDeckCards(C)).some((c) => c.id === scenario.id),
+      `${scenario.id} should become eligible after its legal quest outcome`,
+    )
+    const before = has(terminal, scenario.fish)
+    const choose = (choiceId: string) => {
+      const choice =
+        card.choices.find((candidate) => candidate.id === choiceId) ??
+        assert.fail(`missing ${scenario.id}/${choiceId}`)
+      return resolveChoice(terminal, card, choice)
+    }
+    const restored = choose(scenario.repair)
+    const entrenched = choose(scenario.deepen)
+    assert.notDeepEqual(
+      restored.kingdomHealth,
+      entrenched.kingdomHealth,
+      `${scenario.id} must have material policy consequences`,
+    )
+    assert.notDeepEqual(
+      restored.regionOverrides,
+      entrenched.regionOverrides,
+      `${scenario.id} must change the illustrated map differently`,
+    )
+    assert.equal(
+      eligiblePool(restored, allDeckCards(C)).some((c) => c.id === scenario.id),
+      false,
+      `${scenario.id} must never recur after either choice`,
+    )
+    assert.equal(
+      eligiblePool(entrenched, allDeckCards(C)).some(
+        (c) => c.id === scenario.id,
+      ),
+      false,
+    )
+
+    if (scenario.id === 'wedding-reckoning') {
+      assert.equal(before, false)
+      assert.equal(has(restored, 'orchardjaw-perch'), true)
+      assert.equal(has(entrenched, 'orchardjaw-perch'), false)
+      assert.equal(has(entrenched, 'sunspoke-koi'), true)
+    } else {
+      assert.equal(
+        before,
+        scenario.id !== 'weir-reckoning',
+        `${scenario.id} starts with the species state its earlier choice caused`,
+      )
+      assert.equal(
+        has(restored, scenario.fish),
+        scenario.id === 'weir-reckoning',
+      )
+      assert.equal(
+        has(entrenched, scenario.fish),
+        scenario.id !== 'weir-reckoning',
+      )
+      if (scenario.id === 'marina-reckoning')
+        assert.equal(has(restored, 'sunspoke-koi'), true)
+    }
+
+    const tooEarly = { ...terminal, turnCount: 1 }
+    assert.equal(
+      eligiblePool(tooEarly, allDeckCards(C)).some((c) => c.id === scenario.id),
+      false,
+      `${scenario.id} should be a delayed consequence`,
+    )
+    const rerun = runQuest(
+      scenario.arc,
+      [...scenario.path],
+      'tweak' in scenario ? scenario.tweak : undefined,
+    )
+    assert.deepEqual(
+      rerun.kingdomHealth,
+      runQuest(
+        scenario.arc,
+        [...scenario.path],
+        'tweak' in scenario ? scenario.tweak : undefined,
+      ).kingdomHealth,
+      `${scenario.id} must be deterministic from the same seed and decisions`,
+    )
+  }
+}
+
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

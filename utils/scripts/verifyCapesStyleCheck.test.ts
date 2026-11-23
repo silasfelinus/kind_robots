@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import {
   CAPES_PRODUCTION_IDENTITIES,
-  CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW,
-  CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW,
   CAPES_UNSTABLE_PRODUCTION,
   CAPES_RUNTIME_REFILL_REVIEW,
+  CAPES_CANON_CORRECTION_REVIEW,
+  CAPES_FRANCHISE_SAFE_REVIEW,
   CAPES_REVIEWABLE_PRODUCTION,
   capesProductionFor,
 } from '../capesProductionArt'
@@ -85,28 +85,25 @@ assert.equal(capesStyleLaneFromModel('ponyFaetality_v11.safetensors'), null)
 // Source-ledger-linked private production receipts remain distinct from
 // artist-approved delivery and the original 48 permanent identities.
 assert.equal(CAPES_UNSTABLE_PRODUCTION.length, 14)
-assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 7)
+assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 8)
 assert.equal(CAPES_RUNTIME_REFILL_REVIEW.length, 6)
-assert.equal(CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW.length, 4)
-assert.equal(CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW.length, 6)
+assert.equal(CAPES_CANON_CORRECTION_REVIEW.length, 10)
+assert.equal(CAPES_FRANCHISE_SAFE_REVIEW.length, 5)
+assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 35)
+for (const field of ['key', 'asset', 'artJobId', 'artImageId'] as const) {
+  assert.equal(
+    new Set(CAPES_REVIEWABLE_PRODUCTION.map((item) => item[field])).size,
+    35,
+    field + ' must be unique across all reviewable production images',
+  )
+}
 assert.deepEqual(
-  CAPES_ASHA_FOUR_ARM_REPAINT_REVIEW.map((entry) => [
-    entry.artJobId,
-    entry.artImageId,
-  ]),
+  CAPES_CANON_CORRECTION_REVIEW.map((item) => [item.artJobId, item.artImageId]),
   [
     [76529, 278466],
     [76530, 278467],
     [76531, 278468],
     [76532, 278469],
-  ],
-)
-assert.deepEqual(
-  CAPES_CANON_OUTCOME_CORRECTIONS_REVIEW.map((entry) => [
-    entry.artJobId,
-    entry.artImageId,
-  ]),
-  [
     [76593, 278587],
     [76594, 278588],
     [76595, 278589],
@@ -115,14 +112,15 @@ assert.deepEqual(
     [76598, 278592],
   ],
 )
-assert.equal(
-  new Set(CAPES_REVIEWABLE_PRODUCTION.map((entry) => entry.key)).size,
-  30,
-)
-assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 30)
-assert.equal(
-  new Set(CAPES_REVIEWABLE_PRODUCTION.map((item) => item.artImageId)).size,
-  30,
+assert.deepEqual(
+  CAPES_FRANCHISE_SAFE_REVIEW.map((item) => [item.artJobId, item.artImageId]),
+  [
+    [50711, 258003],
+    [50712, 258004],
+    [50713, 258015],
+    [50714, 258016],
+    [50715, 258017],
+  ],
 )
 assert.deepEqual(
   CAPES_RUNTIME_REFILL_REVIEW.map((item) => [item.artJobId, item.artImageId]),
@@ -161,18 +159,33 @@ for (const identity of CAPES_PRODUCTION_IDENTITIES) {
   ) {
     assert.ok(group.some((item) => item.asset.includes('/model-hero-2x1')))
     assert.ok(group.some((item) => item.asset.includes('/model-villain-2x1')))
-  } else {
+  } else if (
+    identity.signature === 'alien-discipline' ||
+    identity.signature === 'mutant-earth'
+  ) {
     assert.ok(group.some((item) => item.asset.endsWith('/hero')))
     assert.ok(group.some((item) => item.asset.endsWith('/villain')))
+  } else if (
+    identity.signature === 'mutant-discipline' ||
+    identity.signature === 'magic-earth'
+  ) {
+    assert.ok(group.some((item) => item.asset.endsWith('/outcomes/hero')))
+    assert.ok(group.some((item) => item.asset.endsWith('/outcomes/villain')))
+  } else {
+    assert.equal(identity.signature, 'franchise-safe')
+    assert.equal(group.length, 5)
   }
   for (const image of group) {
     assert.ok(image.artJobId > 50000)
     assert.ok(image.artImageId > 250000)
-    assert.ok(
-      image.asset.startsWith(
-        `comet-city-academy/identities/${identity.signature}/`,
-      ),
-    )
+    assert.ok(image.asset.startsWith('comet-city-academy/'))
+    if (identity.signature !== 'franchise-safe') {
+      assert.ok(
+        image.asset.startsWith(
+          `comet-city-academy/identities/${identity.signature}/`,
+        ),
+      )
+    }
   }
 }
 assert.equal(
@@ -194,8 +207,8 @@ const gallery = readFileSync(
   'utf8',
 )
 assert.match(gallery, /data-testid="capes-production-gallery"/)
-assert.match(gallery, /CAPES_PRODUCTION_IDENTITIES.length/)
-assert.match(gallery, /CAPES_REVIEWABLE_PRODUCTION.length/)
+assert.match(gallery, /CAPES_PRODUCTION_IDENTITIES\.length/)
+assert.match(gallery, /CAPES_REVIEWABLE_PRODUCTION\.length/)
 assert.match(gallery, /capesProductionFor\(selected\.value\)/)
 assert.match(gallery, /loadProductionImages\(signature\)/)
 assert.match(gallery, /productionImageFor\(item\.artImageId\)/)

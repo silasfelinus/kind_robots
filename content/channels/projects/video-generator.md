@@ -21,7 +21,7 @@ tutorial:
     finished clip plays below with a download button. You need to be signed
     in, and each clip costs mana. The Music Videos tab lets you watch
     published music videos, remix existing work, or create a new illustrated
-    music video draft. Production controls remain admin-only for now.
+    music video draft. Production controls remain admin-only.
 ---
 
 Make short animated clips, browse your render history, or switch to Music Videos to watch and remix illustrated songs.

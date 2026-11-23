@@ -268,8 +268,32 @@
           aria-live="polite"
         >
           Flight log · {{ exploredCount }}/8 seas explored ·
-          {{ medalsCount }} medals · {{ endingCount }}/3 endings
+          {{ alternateDiscovered }}/4 detours flown · {{ medalsCount }} medals ·
+          {{ endingCount }}/3 endings
         </p>
+        <div
+          role="group"
+          aria-label="Luminous Ocean alternate route nodes"
+          class="grid shrink-0 grid-cols-4 gap-1 pb-1"
+        >
+          <button
+            v-for="(route, index) in alternateRoutes"
+            :key="route.id"
+            type="button"
+            class="flex min-w-0 items-center justify-center gap-1 rounded-xl border px-1 py-1 text-xs font-bold"
+            :class="
+              selectedAlternate === index
+                ? 'border-pink-300 bg-pink-100 text-[#37204e]'
+                : 'border-base-300 bg-base-200 text-base-content'
+            "
+            :aria-pressed="selectedAlternate === index"
+            :aria-label="`${route.id} ${route.name}: ${route.label}`"
+            @click="selectedAlternate = index"
+          >
+            <span>{{ route.id }}</span>
+            <span class="hidden truncate sm:inline">{{ route.label }}</span>
+          </button>
+        </div>
         <p
           class="shrink-0 px-1 pb-1 text-xs text-base-content/80"
           aria-live="polite"
@@ -306,6 +330,7 @@
         </aside>
         <div class="flex shrink-0 flex-wrap items-center gap-2 pb-1">
           <button
+            v-if="selectedAlternate === null"
             type="button"
             class="btn btn-sm border-pink-300 bg-pink-200 font-black text-[#37204e]"
             :disabled="!selectedSeaReplayable"
@@ -314,6 +339,17 @@
           >
             <Icon name="kind-icon:rocket" class="kr-icon-4" />
             Replay Act {{ selectedSea + 1 }}
+          </button>
+          <button
+            v-else
+            type="button"
+            class="btn btn-sm border-pink-300 bg-pink-200 font-black text-[#37204e]"
+            :disabled="!selectedAlternateReplayable"
+            :aria-label="`Fly the approach to ${alternateRoutes[selectedAlternate!]!.name}`"
+            @click="launchAlternateApproach"
+          >
+            <Icon name="kind-icon:rocket" class="kr-icon-4" />
+            Fly {{ alternateRoutes[selectedAlternate!]!.id }} approach
           </button>
           <button
             v-if="replayRecord"
@@ -343,7 +379,7 @@
               }"
               :aria-pressed="selectedSea === index"
               :aria-label="`Inspect Act ${index + 1}: ${stage.name}, ${seaProgress[index]?.label}`"
-              @click="selectedSea = index"
+              @click="inspectSea(index)"
             />
             <img
               :src="rainbowStageCard(stage.strip, look)"
@@ -536,12 +572,15 @@ import { useArcadeStore } from '~/stores/arcadeStore'
 import {
   rainbowSeaLogbook,
   rainbowRouteIntel,
+  rainbowAlternateRouteLogbook,
   readRainbowSave,
 } from '~/utils/arcade/games/rainbowLoadouts'
 import { isRainbowCheckpoint } from '~/utils/arcade/games/rainbowPrincessPreview'
 import {
   canReplayRainbowAct,
+  canReplayRainbowAlternateRoute,
   rainbowActReplaySave,
+  rainbowAlternateApproachSave,
 } from '~/utils/arcade/games/rainbowActReplay'
 import type { RainbowSave } from '~/utils/arcade/games/rainbowLoadouts'
 import { rainbowEndingArchive } from '~/utils/arcade/games/rainbowEndingArchive'
@@ -589,6 +628,7 @@ async function chooseSlot(slot: number) {
   await nextTick()
   arcadeStore.setRainbowSlot(slot)
   replayRecord.value = null
+  selectedAlternate.value = null
   view.value = 'flight'
   cabinetMounted.value = true
 }
@@ -601,17 +641,39 @@ const seaProgress = computed(() =>
   rainbowSeaLogbook(flightSave.value, mastery.value, hangar.value.medals),
 )
 const routeIntel = computed(() => rainbowRouteIntel(flightSave.value))
+const alternateRoutes = computed(() =>
+  rainbowAlternateRouteLogbook(flightSave.value),
+)
+const alternateDiscovered = computed(
+  () => alternateRoutes.value.filter((route) => route.discovered).length,
+)
+const selectedAlternate = ref<number | null>(null)
 const selectedSea = ref(0)
+function inspectSea(index: number) {
+  selectedSea.value = index
+  selectedAlternate.value = null
+}
 const flightComms = computed(() =>
   rainbowFlightComms(
     flightSave.value,
     hangar.value,
-    selectedSea.value + 1,
+    selectedAlternate.value === null
+      ? selectedSea.value + 1
+      : alternateRoutes.value[selectedAlternate.value]!.fromAct,
     chosen.value,
   ),
 )
 const selectedSeaReplayable = computed(() =>
   canReplayRainbowAct(selectedSea.value + 1, flightSave.value, hangar.value),
+)
+const selectedAlternateReplayable = computed(
+  () =>
+    selectedAlternate.value !== null &&
+    canReplayRainbowAlternateRoute(
+      alternateRoutes.value[selectedAlternate.value]!.id,
+      flightSave.value,
+      hangar.value,
+    ),
 )
 async function resumeCampaign() {
   cabinetMounted.value = false
@@ -633,7 +695,30 @@ async function launchActReplay() {
   view.value = 'flight'
   cabinetMounted.value = true
 }
+async function launchAlternateApproach() {
+  if (selectedAlternate.value === null) return
+  const route = alternateRoutes.value[selectedAlternate.value]!
+  const snapshot = rainbowAlternateApproachSave(
+    route.id,
+    flightSave.value,
+    hangar.value,
+  )
+  if (!snapshot) return
+  cabinetMounted.value = false
+  await nextTick()
+  replayRecord.value = snapshot
+  view.value = 'flight'
+  cabinetMounted.value = true
+}
 const selectedSeaDescription = computed(() => {
+  if (selectedAlternate.value !== null) {
+    const route = alternateRoutes.value[selectedAlternate.value]!
+    if (!route.discovered)
+      return `${route.id} · ${route.name} · ROUTE UNDISCOVERED. Earn its in-flight fork during Act ${route.fromAct} before replaying the approach.`
+    if (!selectedAlternateReplayable.value)
+      return `${route.id} · ${route.name} · ROUTE FLOWN. Finish Act ${route.fromAct} in this slot to replay its approach.`
+    return `${route.id} · ${route.name} · ROUTE FLOWN. Replay Act ${route.fromAct}, then earn the detour's rescue and flight-lane requirements again. Your campaign save is protected.`
+  }
   const stage = stages[selectedSea.value]!
   const progress = seaProgress.value[selectedSea.value]
   const route = routeIntel.value.find(

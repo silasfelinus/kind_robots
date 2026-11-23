@@ -1101,8 +1101,8 @@
         .box {
           padding: 7px;
         }
-        .box:first-child .instructions,
-        .panel .box:not(:first-child) {
+        .box.ops .instructions,
+        .panel .box:not(.ops) {
           display: none;
         }
         .status {
@@ -1121,7 +1121,7 @@
           margin-top: 5px;
           padding: 5px;
         }
-        .box:first-child .divider {
+        .box.ops .divider {
           margin: 5px;
         }
         .footer {
@@ -1156,6 +1156,7 @@
     <link rel="stylesheet" href="/chessweeper/art.css" />
     <link rel="stylesheet" href="/chessweeper/campaign.css" />
     <link rel="stylesheet" href="/chessweeper/visual-effects.css" />
+    <link rel="stylesheet" href="/chessweeper/endings.css" />
   </head>
   <body>
     <main class="wrap">
@@ -1258,7 +1259,7 @@
           </div>
         </section>
         <aside class="panel">
-          <section class="box">
+          <section class="box ops">
             <h2>Operations console</h2>
             <div class="status" id="status" aria-live="polite">
               White to move. Choose your move.
@@ -1815,8 +1816,10 @@
             }
           $('board').innerHTML = squares.join('')
           refreshDiscs()
-          $('hp-w').textContent = '♥ '.repeat(state.hp[1]).trim() || 'DEAD'
-          $('hp-b').textContent = '♥ '.repeat(state.hp[-1]).trim() || 'DEAD'
+          const hearts = (n) =>
+            n <= 0 ? 'DEAD' : n > 4 ? '♥ ×' + n : '♥ '.repeat(n).trim()
+          $('hp-w').textContent = hearts(state.hp[1])
+          $('hp-b').textContent = hearts(state.hp[-1])
           $('mine-left').textContent = String(
             Math.max(0, config.mines - state.flags.size - state.exploded.size),
           ).padStart(2, '0')
@@ -2130,6 +2133,23 @@
           const values = { p: 100, n: 320, b: 335, r: 510, q: 900, k: 10000 }
           let best = -Infinity,
             chosen = null
+          // Black reads the same blade forecast the player sees, so the arena is a
+          // hazard for both armies instead of a guaranteed passive win (QA balance).
+          const forecast = new Set()
+          const later = new Set()
+          if (!(realm === 'sugar' && state.freeze > 0))
+            for (const d of state.discs)
+              if (d.active) {
+                let n = stepDisc(d)
+                forecast.add(n.y * 16 + n.x)
+                for (let beat = 0; beat < 2; beat++) {
+                  n = stepDisc(n)
+                  later.add(n.y * 16 + n.x)
+                }
+              }
+          const homeKing = s.b.indexOf('k')
+          const kingThreatened =
+            homeKing >= 0 && (forecast.has(homeKing) || later.has(homeKing))
           for (const m of shuffle(moves.slice())) {
             const next = makePosition(s, m),
               p = s.b[m[0]]
@@ -2143,6 +2163,19 @@
               }
             if (state.flags.has(m[1])) score -= values[p.toLowerCase()] * 1.25
             if (discAt(m[1])) score -= values[p.toLowerCase()] * 0.75
+            if (p !== 'k' && forecast.has(m[1]))
+              score -= values[p.toLowerCase()] * 0.6
+            const kingAt = next.b.indexOf('k')
+            if (kingAt >= 0 && forecast.has(kingAt)) score -= 420
+            if (kingThreatened && kingAt >= 0) {
+              // Make room: reward open, unforecast squares around the king.
+              let room = 0
+              for (const n of neighbors(kingAt))
+                if (next.b[n] === '.' && !forecast.has(n) && !later.has(n))
+                  room++
+              score += Math.min(3, room) * 45
+              if (later.has(kingAt)) score -= 90
+            }
             if (isMineZone(m[1]) && !state.shown.has(m[1])) score -= 25
             const [x, y] = pos(m[1])
             score += (3.5 - Math.abs(3.5 - x) + (3.5 - Math.abs(3.5 - y))) * 3
@@ -2283,6 +2316,7 @@
       })()
     </script>
     <script src="/chessweeper/soundscape.js"></script>
+    <script src="/chessweeper/endings.js"></script>
     <script src="/chessweeper/progression.js"></script>
     <script src="/chessweeper/campaign.js"></script>
     <script src="/chessweeper/board-art.js"></script>

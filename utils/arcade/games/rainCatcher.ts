@@ -17,6 +17,10 @@
 // nearest launcher that still has umbrellas.
 
 import { levelCurve } from '../curve'
+import { RAIN_CATCHER_MUSIC } from '../rainCatcher/music'
+import { rainWaveForLevel, weatherForVolley } from '../rainCatcher/waves'
+import type { RainWave, RainWeather } from '../rainCatcher/waves'
+import type { MusicLoop } from '../sound'
 import { drawText, measureText } from '../font'
 import {
   INK,
@@ -66,6 +70,9 @@ const END_TICKS = 200
 const BONUS_BED_EVERY = 10_000
 /** Hits a bed takes: the first makes it droop, the second wilts it. */
 const BED_HEALTH = 2
+const MAX_BED_STAGE = 5
+const BARRELS = [138, 182] as const
+const BARREL_CAPACITY = 3
 
 const HAIL_POINTS = 25
 const GOOSE_POINTS = 100
@@ -103,6 +110,11 @@ type Hail = {
   /** A lightning sprite: swerves around blooms. */
   sprite: boolean
   split: boolean
+  kind: RainWeather
+  hits: number
+  skidTicks: number
+  hitCooldown: number
+  lastHitBloom?: Bloom
 }
 type Shot = {
   x: number
@@ -113,7 +125,7 @@ type Shot = {
   vy: number
   from: number
 }
-type Bloom = { x: number; y: number; t: number }
+type Bloom = { x: number; y: number; t: number; petal?: boolean }
 type Goose = { x: number; y: number; vx: number; dropTimer: number }
 type Particle = {
   x: number
@@ -201,16 +213,53 @@ function sphereRows(
 }
 
 /** Hailstones: an icy ball, with a frost glint that winks as it tumbles. */
-const HAIL_BODY = sphereRows(5, 5, 2.5, 2.5, 2.7)
+const HAIL_BODY = sphereRows(9, 9, 4.5, 4.5, 4.6)
 const HAIL_SPRITES = [
   pixelSprite(HAIL_BODY, rampPalette(ICE)),
   pixelSprite(
     HAIL_BODY.map((row, y) =>
-      y === 3 ? row.slice(0, 3) + '4' + row.slice(4) : row,
+      y === 4 ? row.slice(0, 4) + '4' + row.slice(5) : row,
     ),
     rampPalette(ICE),
   ),
 ] as const
+const RAIN_DROP = pixelSprite(
+  [
+    '....3....',
+    '...333...',
+    '..33333..',
+    '.3333333.',
+    '.3333333.',
+    '333333333',
+    '333333333',
+    '.3333333.',
+    '..33333..',
+  ],
+  { '3': RAMPS.water[3] },
+)
+const MOTH_SPRITE = pixelSprite(
+  [
+    '4...4...4',
+    '44.444.44',
+    '.4444444.',
+    '..44444..',
+    '...333...',
+    '..3...3..',
+  ],
+  { '4': RAMPS.purple[4], '3': RAMPS.gold[3] },
+)
+const SLEET_SPRITE = pixelSprite(
+  [
+    '..444....',
+    '.43334...',
+    '4333334..',
+    '.43334...',
+    '..444....',
+    '....44...',
+    '.....44..',
+  ],
+  { '4': RAMPS.sky[4], '3': RAMPS.steel[3] },
+)
 
 /** A zippy lightning sprite, flickering between two charges. */
 const BOLT_ROWS = [
@@ -493,6 +542,9 @@ class RainCatcher implements ArcadeGameInstance {
   private held = 0
   /** Each bed's health: BED_HEALTH growing, 1 drooping, 0 wilted. */
   private beds: number[] = BEDS.map(() => BED_HEALTH)
+  private barrels = BARRELS.map(() => 0)
+  private chain = 0
+  private forecast: RainWave = rainWaveForLevel(1)
   private ammo: number[] = LAUNCHERS.map(() => AMMO)
   private soaked: boolean[] = LAUNCHERS.map(() => false)
   private hail: Hail[] = []
@@ -515,6 +567,10 @@ class RainCatcher implements ArcadeGameInstance {
   private fx = new Sparkles()
   private fxRng = backdropRng(37)
 
+  get music(): MusicLoop | null {
+    return this.over ? null : RAIN_CATCHER_MUSIC
+  }
+
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
     this.sound = options.sound
@@ -536,13 +592,22 @@ class RainCatcher implements ArcadeGameInstance {
 
   private startWave(wave: number) {
     this.level = wave
-    this.ammo = LAUNCHERS.map(() => AMMO)
+    this.forecast = rainWaveForLevel(wave)
+    this.chain = 0
+    this.barrels = BARRELS.map(() => 0)
+    this.ammo = LAUNCHERS.map((x) => {
+      const fruit = BEDS.some(
+        (bed, index) =>
+          Math.abs(x - bed) < 75 && this.beds[index] === MAX_BED_STAGE,
+      )
+      return AMMO + (fruit ? 1 : 0)
+    })
     this.soaked = LAUNCHERS.map(() => false)
     this.hail = []
     this.shots = []
     this.blooms = []
     this.geese = []
-    this.toRelease = Math.round(levelCurve(wave, RAIN_CURVES.hail))
+    this.toRelease = this.forecast.hailCount
     this.geeseLeft = Math.round(levelCurve(wave, RAIN_CURVES.geese))
     this.spritesLeft = Math.max(
       0,
@@ -553,7 +618,9 @@ class RainCatcher implements ArcadeGameInstance {
     this.banner = {
       text: `WAVE ${wave}`,
       sub:
-        this.multiplier > 1 ? `${this.multiplier}X POINTS` : 'CATCH THE HAIL',
+        this.multiplier > 1
+          ? `${this.multiplier}X POINTS • LET RAIN FALL`
+          : 'CATCH HAIL • LET RAIN FALL',
       ticks: WAVE_READY_TICKS,
     }
   }
@@ -573,8 +640,16 @@ class RainCatcher implements ArcadeGameInstance {
   }
 
   /** A hailstone (or lightning sprite) falling from (x0, y0) at something on the ground. */
-  private makeHail(x0: number, y0: number, sprite = false): Hail {
-    const t = this.pickTarget()
+  private makeHail(
+    x0: number,
+    y0: number,
+    sprite = false,
+    kind: RainWeather = 'hail',
+  ): Hail {
+    const t =
+      kind === 'rain'
+        ? { x: BEDS[Math.floor(this.rng() * BEDS.length)]!, y: GROUND - 4 }
+        : this.pickTarget()
     const speed =
       levelCurve(this.level, RAIN_CURVES.speed) * (sprite ? 1.25 : 1)
     const dx = t.x - x0
@@ -591,11 +666,20 @@ class RainCatcher implements ArcadeGameInstance {
       vy: (dy / d) * speed,
       sprite,
       split: false,
+      kind,
+      hits: kind === 'snowball' ? 2 : 1,
+      skidTicks: 0,
+      hitCooldown: 0,
     }
   }
 
-  private launchHail(x0: number, y0: number, sprite = false) {
-    this.hail.push(this.makeHail(x0, y0, sprite))
+  private launchHail(
+    x0: number,
+    y0: number,
+    sprite = false,
+    kind: RainWeather = 'hail',
+  ) {
+    this.hail.push(this.makeHail(x0, y0, sprite, kind))
   }
 
   private release() {
@@ -606,8 +690,22 @@ class RainCatcher implements ArcadeGameInstance {
     )
     let volley = 1 + Math.floor(this.rng() * 3)
     while (volley-- > 0 && this.toRelease > 0 && this.hail.length < cap) {
+      const sequence = this.forecast.hailCount - this.toRelease
+      const kind = weatherForVolley(this.forecast, sequence)
       this.toRelease--
-      this.launchHail(8 + this.rng() * (W - 16), SKY_TOP + 2)
+      const x = 8 + this.rng() * (W - 16)
+      this.launchHail(x, SKY_TOP + 2, false, kind)
+      if (kind === 'moth') {
+        for (let i = 0; i < 7; i++) {
+          const child = this.makeHail(
+            Math.max(8, Math.min(W - 8, x + ((i % 4) - 1.5) * 7)),
+            SKY_TOP + 2 + Math.floor(i / 4) * 6,
+            false,
+            'moth',
+          )
+          this.hail.push(child)
+        }
+      }
     }
     if (this.spritesLeft > 0 && this.rng() < 0.35) {
       this.spritesLeft--
@@ -729,7 +827,7 @@ class RainCatcher implements ArcadeGameInstance {
 
   private updateShots() {
     for (const s of this.shots) {
-      s.x += s.vx
+      s.x += s.vx + this.forecast.wind
       s.y += s.vy
       if ((s.tx - s.x) * s.vx + (s.ty - s.y) * s.vy <= 0) {
         this.blooms.push({ x: s.tx, y: s.ty, t: 0 })
@@ -742,11 +840,10 @@ class RainCatcher implements ArcadeGameInstance {
   }
 
   private bloomRadius(b: Bloom): number {
-    if (b.t < BLOOM_GROW) return (BLOOM_RADIUS * b.t) / BLOOM_GROW
-    if (b.t < BLOOM_GROW + BLOOM_HOLD) return BLOOM_RADIUS
-    return (
-      (BLOOM_RADIUS * (BLOOM_GROW + BLOOM_HOLD + BLOOM_FADE - b.t)) / BLOOM_FADE
-    )
+    const size = b.petal ? BLOOM_RADIUS * 0.7 : BLOOM_RADIUS
+    if (b.t < BLOOM_GROW) return (size * b.t) / BLOOM_GROW
+    if (b.t < BLOOM_GROW + BLOOM_HOLD) return size
+    return (size * (BLOOM_GROW + BLOOM_HOLD + BLOOM_FADE - b.t)) / BLOOM_FADE
   }
 
   private updateBlooms() {
@@ -758,7 +855,7 @@ class RainCatcher implements ArcadeGameInstance {
       const r = this.bloomRadius(b)
       for (const h of this.hail) {
         if (Math.hypot(h.x - b.x, h.y - b.y) > r) continue
-        this.catchHail(h)
+        this.catchHail(h, b)
       }
       for (const goose of this.geese) {
         if (Math.hypot(goose.x - b.x, goose.y - b.y) > r + 6) continue
@@ -773,12 +870,61 @@ class RainCatcher implements ArcadeGameInstance {
     this.hail = this.hail.filter((h) => h.vy !== 0 || h.vx !== 0)
   }
 
-  private catchHail(h: Hail) {
+  private catchHail(h: Hail, bloom: Bloom) {
     if (h.vx === 0 && h.vy === 0) return
+    if (h.hitCooldown > 0 || h.lastHitBloom === bloom) return
+
+    if (h.kind === 'rain') {
+      h.vx = 0
+      h.vy = 0
+      const barrel = BARRELS.findIndex(
+        (x) => Math.abs(x - bloom.x) < 18 && bloom.y > GROUND - 55,
+      )
+      if (barrel >= 0) {
+        this.barrels[barrel]!++
+        this.floaters.push({
+          x: BARRELS[barrel]!,
+          y: GROUND - 25,
+          text: 'BARREL +1',
+          life: 50,
+        })
+        if (this.barrels[barrel]! >= BARREL_CAPACITY) {
+          this.barrels[barrel] = 0
+          const launcher = barrel === 0 ? 0 : 2
+          this.ammo[launcher] = Math.min(AMMO + 3, this.ammo[launcher]! + 5)
+          this.soaked[launcher] = false
+          this.sound.play('extra')
+        }
+      }
+      return
+    }
+
+    if (h.hits > 1) {
+      h.hits--
+      h.lastHitBloom = bloom
+      h.hitCooldown = 18
+      this.burst(h.x, h.y, 7, '#ffffff')
+      this.sound.play('warn')
+      return
+    }
+
     h.vx = 0
     h.vy = 0
-    const points = (h.sprite ? SPRITE_POINTS : HAIL_POINTS) * this.multiplier
+    this.chain = bloom.petal ? Math.min(this.chain + 1, 12) : 1
+    const points =
+      (h.sprite ? SPRITE_POINTS : HAIL_POINTS) *
+      this.multiplier *
+      Math.min(6, this.chain)
     this.addScore(points, h.x, h.y - 8)
+    if (this.chain > 1) {
+      this.floaters.push({
+        x: h.x,
+        y: h.y - 22,
+        text: this.chain + ' PETAL CHAIN!',
+        life: 45,
+      })
+    }
+    this.blooms.push({ x: h.x, y: h.y, t: 6, petal: true })
     this.burst(h.x, h.y, 6, h.sprite ? '#fde047' : '#e0f2fe')
     this.fx.burst(h.x, h.y, this.fxRng, {
       count: h.sprite ? 12 : 6,
@@ -804,13 +950,20 @@ class RainCatcher implements ArcadeGameInstance {
     const splitChance = levelCurve(this.level, RAIN_CURVES.splitChance)
     const born: Hail[] = []
     for (const h of this.hail) {
+      if (h.hitCooldown > 0) h.hitCooldown--
+      if (h.skidTicks > 0) {
+        h.x += h.vx
+        if (--h.skidTicks === 0) this.land(h)
+        continue
+      }
       if (h.sprite) this.swerve(h)
-      h.x += h.vx
+      h.x += h.vx + (h.kind === 'rain' ? 0 : this.forecast.wind)
       h.y += h.vy
       // Midway down, a stone may split in two (once).
       if (
         !h.split &&
         !h.sprite &&
+        h.kind === 'hail' &&
         h.y > 70 &&
         h.y < 130 &&
         this.rng() < splitChance / 60
@@ -820,7 +973,19 @@ class RainCatcher implements ArcadeGameInstance {
         child.split = true
         born.push(child)
       }
-      if (h.y >= h.ty) this.land(h)
+      if (h.y >= h.ty) {
+        if (h.kind === 'sleet' && h.skidTicks === 0) {
+          h.skidTicks = 25
+          h.y = GROUND - 5
+          const nearest = BEDS.reduce((left, right) =>
+            Math.abs(left - h.x) < Math.abs(right - h.x) ? left : right,
+          )
+          h.vx = nearest >= h.x ? 1.2 : -1.2
+          h.vy = 0
+        } else {
+          this.land(h)
+        }
+      }
     }
     this.hail = [...this.hail, ...born].filter((h) => h.vx !== 0 || h.vy !== 0)
   }
@@ -845,8 +1010,27 @@ class RainCatcher implements ArcadeGameInstance {
   private land(h: Hail) {
     h.vx = 0
     h.vy = 0
-    const bed = BEDS.findIndex((x) => Math.abs(x - h.x) < 12)
+    const bed = BEDS.findIndex((x) => Math.abs(x - h.x) < 13)
     const launcher = LAUNCHERS.findIndex((x) => Math.abs(x - h.x) < 12)
+
+    if (h.kind === 'rain') {
+      if (bed >= 0 && this.beds[bed]! > 0) {
+        this.beds[bed] = Math.min(MAX_BED_STAGE, this.beds[bed]! + 1)
+        this.floaters.push({
+          x: BEDS[bed]!,
+          y: GROUND - 25,
+          text: 'WATERED!',
+          life: 55,
+        })
+        this.fx.burst(BEDS[bed]!, GROUND - 6, this.fxRng, {
+          count: 6,
+          colours: [RAMPS.leaf[4], RAMPS.water[3]],
+        })
+        this.sound.play('pickup')
+      }
+      return
+    }
+
     if (bed >= 0 && this.beds[bed]! > 0) {
       this.beds[bed]!--
       this.burst(h.x, GROUND - 4, 14, '#93c5fd')
@@ -866,13 +1050,12 @@ class RainCatcher implements ArcadeGameInstance {
     const beds = this.lives
     const bonus = (umbrellas * AMMO_BONUS + beds * BED_BONUS) * this.multiplier
     this.addScore(bonus, W / 2, 120)
-    // A drooping bed perks up between waves; bonus beds regrow wilted ones.
-    this.beds = this.beds.map((b) => (b > 0 ? BED_HEALTH : 0))
+    // Growth persists across waves; only earned bonus beds regrow wilted beds.
     let regrown = 0
     while (this.bonusBeds > 0) {
       const wilted = this.beds.findIndex((b) => b === 0)
       if (wilted < 0) break
-      this.beds[wilted] = BED_HEALTH
+      this.beds[wilted] = 1
       this.fx.burst(BEDS[wilted]!, GROUND - 8, this.fxRng, {
         count: 16,
         colours: [RAMPS.leaf[3], RAMPS.leaf[4], RAMPS.pink[3]],
@@ -960,6 +1143,7 @@ class RainCatcher implements ArcadeGameInstance {
           b.t < BLOOM_GROW + BLOOM_HOLD && Math.hypot(b.x - x, b.y - y) < 14,
       ) || this.shots.some((s) => Math.hypot(s.tx - x, s.ty - y) < 14)
     const threats = this.hail
+      .filter((h) => h.kind !== 'rain')
       .map((h) => ({ h, eta: (h.ty - h.y) / Math.max(0.01, h.vy) }))
       .sort((a, b) => a.eta - b.eta)
     for (const { h } of threats) {
@@ -1032,6 +1216,16 @@ class RainCatcher implements ArcadeGameInstance {
       k.fillRect(259, 56, 1, 1)
       k.fillRect(266, 54, 1, 1)
     })
+    const skyTints = [
+      RAMPS.pink[2],
+      RAMPS.sky[2],
+      RAMPS.gold[2],
+      RAMPS.water[2],
+      RAMPS.purple[2],
+      RAMPS.teal[2],
+    ]
+    g.fillStyle = rgba(skyTints[this.forecast.skyBand]!, 0.13)
+    g.fillRect(0, 0, W, GROUND)
     drawStars(g, STARS, this.tick, RAMPS.purple)
     // The storm deck: a far bank of cloud, lightning flickering inside it, a nearer bank.
     const [far, near] = DECKS
@@ -1049,6 +1243,14 @@ class RainCatcher implements ArcadeGameInstance {
       const y = ((d.y + this.tick * d.speed) % (GROUND - 30)) + 26
       const x = (((d.x - this.tick * d.speed * 0.2) % W) + W) % W
       g.fillRect(Math.round(x), Math.round(y), 1, d.len)
+    }
+    if (this.forecast.wind !== 0) {
+      g.fillStyle = rgba(RAMPS.leaf[4], 0.24)
+      for (let i = 0; i < 12; i++) {
+        const offset = this.tick * this.forecast.wind * 14 + i * 43
+        const x = ((offset % W) + W) % W
+        g.fillRect(Math.round(x), 40 + ((i * 17) % 120), 8, 1)
+      }
     }
     // Hills behind the garden, the far ones drifting slower.
     drawRidge(g, FAR_HILLS, {
@@ -1126,7 +1328,23 @@ class RainCatcher implements ArcadeGameInstance {
       }
     })
     BEDS.forEach((x, i) => this.renderBed(g, x, i))
+    BARRELS.forEach((x, i) => this.renderBarrel(g, x, i))
     LAUNCHERS.forEach((x, i) => this.renderLauncher(g, x, i))
+  }
+
+  private renderBarrel(g: CanvasRenderingContext2D, x: number, i: number) {
+    bevel(g, x - 6, GROUND - 7, 12, 9, RAMPS.earth, {
+      depth: 1,
+    })
+    g.fillStyle = RAMPS.water[3]
+    for (let fill = 0; fill < this.barrels[i]!; fill++) {
+      g.fillRect(x - 4, GROUND - 1 - fill * 2, 8, 2)
+    }
+    drawText(g, String(this.barrels[i]), x, GROUND - 16, {
+      align: 'center',
+      color: RAMPS.water[4],
+      outline: INK,
+    })
   }
 
   private renderBed(g: CanvasRenderingContext2D, x: number, i: number) {
@@ -1162,6 +1380,20 @@ class RainCatcher implements ArcadeGameInstance {
         ? DROOP_SPRITE
         : BED_SPRITES[(Math.floor(this.tick / 24) + i) % 2]!
     drawSprite(g, sprite, x, GROUND - 2, { anchor: 'feet' })
+    if (health >= 3) {
+      for (let petal = -1; petal <= 1; petal++) {
+        const px = x + petal * 6
+        const py = GROUND - 15 - (petal === 0 ? 4 : 0)
+        shadedOrb(
+          g,
+          px,
+          py,
+          health >= 4 ? 4 : 2,
+          health === 5 ? RAMPS.gold : RAMPS.pink,
+          { glint: health === 5 },
+        )
+      }
+    }
   }
 
   private renderLauncher(g: CanvasRenderingContext2D, x: number, i: number) {
@@ -1248,7 +1480,14 @@ class RainCatcher implements ArcadeGameInstance {
 
   private renderHail(g: CanvasRenderingContext2D, h: Hail, i: number) {
     // The streak it leaves (the classic trail), brightening toward the stone.
-    const colour = h.sprite ? RAMPS.gold[3] : ICE[3]
+    const colour =
+      h.kind === 'rain'
+        ? RAMPS.water[4]
+        : h.kind === 'moth'
+          ? RAMPS.purple[4]
+          : h.sprite
+            ? RAMPS.gold[3]
+            : ICE[3]
     const trail = g.createLinearGradient(h.x0, h.y0, h.x, h.y)
     trail.addColorStop(0, rgba(colour, 0))
     trail.addColorStop(1, rgba(colour, 0.55))
@@ -1267,7 +1506,28 @@ class RainCatcher implements ArcadeGameInstance {
       drawSprite(g, BOLT_SPRITES[frame]!, h.x, h.y, { flipX: h.vx < 0 })
       return
     }
-    glow(g, h.x, h.y, 6, ICE[3], 0.35)
+    if (h.kind === 'rain') {
+      glow(g, h.x, h.y, 7, RAMPS.water[3], 0.6)
+      drawSprite(g, RAIN_DROP, h.x, h.y)
+      return
+    }
+    if (h.kind === 'moth') {
+      glow(g, h.x, h.y, 8, RAMPS.purple[3], 0.4)
+      drawSprite(g, MOTH_SPRITE, h.x, h.y)
+      return
+    }
+    if (h.kind === 'sleet') {
+      glow(g, h.x, h.y, 8, RAMPS.sky[3], 0.4)
+      drawSprite(g, SLEET_SPRITE, h.x, h.y)
+      return
+    }
+    glow(g, h.x, h.y, 9, ICE[3], 0.35)
+    if (h.kind === 'snowball') {
+      shadedOrb(g, h.x, h.y, h.hits === 2 ? 6 : 4, ICE, {
+        glint: true,
+      })
+      return
+    }
     drawSprite(g, HAIL_SPRITES[frame]!, h.x, h.y)
   }
 
@@ -1418,6 +1678,18 @@ class RainCatcher implements ArcadeGameInstance {
       color: RAMPS.teal[3],
       outline: INK,
     })
+    drawText(g, this.forecast.garden.toUpperCase(), W / 2, 29, {
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    if (this.chain > 1) {
+      drawText(g, this.chain + ' PETAL CHAIN', W / 2, 40, {
+        align: 'center',
+        color: RAMPS.pink[4],
+        outline: INK,
+      })
+    }
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, 92, {
         scale: 2,

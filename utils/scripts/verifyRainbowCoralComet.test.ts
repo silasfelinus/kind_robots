@@ -25,6 +25,7 @@ import {
   cometDetourFor,
   cometFullWing,
   cometHerderVolley,
+  cometMaskFitsFrame,
   cometPhase,
   cometSpeed,
   cometSpawns,
@@ -118,6 +119,29 @@ for (let i = 0; i < COMET_CADETS.length; i++) {
 }
 assert.equal(cometFullWing(mask), true)
 assert.equal(cometFullWing(mask ^ 1), false)
+for (const frame of [0, ...COMET_SECTIONS.map((section) => section.from)]) {
+  const eligible = COMET_CADETS.reduce(
+    (mask, cadet, index) => (cadet.at <= frame ? mask | (1 << index) : mask),
+    0,
+  )
+  assert.equal(cometMaskFitsFrame(frame, eligible), true)
+  for (let mask = 0; mask < 1 << COMET.trainerCount; mask++)
+    assert.equal(
+      cometMaskFitsFrame(frame, mask),
+      (mask & ~eligible) === 0,
+      `X2 checkpoint at frame ${frame} must not contain future cadets in mask ${mask}`,
+    )
+}
+assert.equal(cometMaskFitsFrame(COMET.end, 15), true)
+for (const [frame, mask] of [
+  [-1, 0],
+  [COMET.end + 1, 15],
+  [240.5, 0],
+  [240, -1],
+  [240, 16],
+  [240, Number.NaN],
+] as const)
+  assert.equal(cometMaskFitsFrame(frame, mask), false)
 assert.equal(cometCadetAvailable(0, -1), null)
 assert.throws(() => rescueCometCadet(16, 1))
 assert.throws(() => rescueCometCadet(0, 0))
@@ -131,6 +155,19 @@ const valid = {
   cometHits: 0,
 }
 assert.equal(cometCheckpointValid(4, 43840, valid), true)
+assert.equal(
+  cometCheckpointValid(4, 43840, { ...valid, cometCadetsMask: 7 }),
+  false,
+  'the third cadet cannot be rescued before its first signal',
+)
+assert.equal(
+  cometCheckpointValid(4, 43840, {
+    ...valid,
+    cometGuardianOutcome: 'defeated',
+  }),
+  false,
+  'the Herder cannot be defeated before reaching its arena',
+)
 for (const bad of [
   { ...valid, rescuedCourier: false },
   { ...valid, cometStartedAt: 0 },
@@ -316,23 +353,46 @@ const exitCheckpoint = readComet({
   cometGuardianOutcome: 'defeated',
 })
 assert.ok(exitCheckpoint)
-const exitGame = createRainbowPrincessPreview({
-  rng: () => 0.5,
-  sound: { play: () => {} },
-  hiScore: 0,
-  players: 1,
-  demo: false,
-  rainbowReplay: exitCheckpoint!,
-})
-for (let frame = 0; frame <= COMET.end - COMET.guardianTo + 1; frame++)
-  exitGame.update(idleInput, [idleInput])
-assert.equal(exitGame.snapshot.act, 'S05')
-assert.equal(exitGame.snapshot.cadetsHome, true)
-assert.ok(exitGame.snapshot.score >= 3000)
+for (const seats of [1, 2, 3, 4]) {
+  const exitGame = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    players: seats,
+    demo: false,
+    rainbowReplay: exitCheckpoint!,
+  })
+  const crew = Array.from({ length: seats }, () => idleInput)
+  for (let frame = 0; frame <= COMET.end - COMET.guardianTo + 3; frame++)
+    exitGame.update(idleInput, crew)
+  assert.equal(exitGame.snapshot.act, 'S05')
+  assert.equal(exitGame.snapshot.cadetsHome, true)
+  assert.ok(exitGame.snapshot.score >= 3000)
+  assert.equal(
+    (exitGame.snapshot.checkpoint.alternateRoutesCleared ?? 0) & 2,
+    2,
+    `a ${seats}-pilot Coral Comet flight must persist the real X2 clear`,
+  )
+  assert.equal(
+    (exitGame.snapshot.checkpoint.alternateRoutesSeen ?? 0) & 2,
+    2,
+    'the earned clear must also have discovery proof',
+  )
+}
 
 assert.equal(readComet({ ...checkpoint4, frame: 34241 }), null)
 assert.equal(readComet({ ...checkpoint4, cometFrame: 300 }), null)
 assert.equal(readComet({ ...checkpoint4, cometCadetsMask: 16 }), null)
+assert.equal(
+  readComet({ ...checkpoint4, cometCadetsMask: 1 }),
+  null,
+  'the first cadet must not be recorded before its signal spawns',
+)
+assert.equal(
+  readComet({ ...checkpoint4, cometGuardianOutcome: 'escaped' }),
+  null,
+  'an early X2 checkpoint must not inherit a future guardian outcome',
+)
 assert.equal(readComet({ ...checkpoint4, cometHits: -1 }), null)
 assert.equal(readComet({ ...checkpoint4, rescuedCourier: false }), null)
 assert.equal(

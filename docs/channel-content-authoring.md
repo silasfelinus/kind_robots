@@ -12,13 +12,14 @@ Admin** (Admin only to administrators):
 - **Play** (`/play/arcade`) — the cabinet hall, Memory Dungeon, Shifting
   Desks, Cthulhuquarium, Ecotone, Emperor of Dust and Zuzu adventures, including
   the admin-only Zuzu's Lair preview.
-- **Projects** (`/storybook`) — Storybook is its default, routed tab and a
-  submenu holding the ingredient galleries (Dreams, Bots, Characters, Rewards,
-  Scenarios, Facets, Models); Art, Video Gen, Music Video, Mandarin, Daily
-  Dream Projects and Rebel Button sit beside it. Storybook is not a channel of
-  its own.
-- **Admin** (`/artjob`, `requiredRole: ADMIN`) — operations, studios being
-  built, accounts, and the Retired subtab group.
+- **Projects** (`/conductor`) — public projects and creative tools,
+  including Art, Video Studio (with Music Videos), Mandarin, Daily Dream Projects
+  and Rebel Button. Music Videos are accessible from the Video Studio panel
+  without a homepage highlight.
+- **Admin** (`/artjob`, `requiredRole: ADMIN`) — operations, production
+  studios, accounts, and the Retired shelf. Storybook and its seven ingredient
+  galleries now live under Admin → Retired, preserving their direct page URLs
+  without placing them in the public navigation.
 
 **Home** is still a content channel, but it is not in the selector: the former
 Home dashboard and the personal destinations (account, friends, messages,
@@ -38,7 +39,8 @@ content/channels/
 
 Each folder contains `index.md` (the channel overview) and one Markdown
 document per tab. A `parentTabKey` can nest a group of tabs one level deep.
-A routed submenu parent, such as Storybook, remains directly openable.
+A submenu can group archived destinations under Admin → Retired while each
+existing page URL remains directly reachable.
 Do not add new top-level channels merely to hold a project or game.
 
 ## Add a channel

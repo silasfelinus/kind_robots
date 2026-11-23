@@ -1,0 +1,45 @@
+name: Rainbow Alternate Route Memory Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/arcade/games/rainbowLoadouts.ts'
+      - 'utils/arcade/games/rainbowCheckpoints.ts'
+      - 'utils/arcade/games/rainbowPrincessPreview.ts'
+      - 'pages/play/rainbow-bullet-hell-space-princess.vue'
+      - 'utils/arcade/games/rainbowSaveSlots.ts'
+      - 'utils/arcade/saves.ts'
+      - 'utils/scripts/verifyRainbowRouteIntel.test.ts'
+      - 'utils/scripts/verifyRainbowSaveBytes.test.ts'
+      - 'utils/scripts/verifyRainbowSeasLogbook.test.ts'
+      - '.github/workflows/rainbow-alternate-route-memory.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  route-memory:
+    name: Per-slot X1-X4 route proof and save normalization
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Verify alternate route map and persisted discovery bits
+        run: npx tsx utils/scripts/verifyRainbowRouteIntel.test.ts
+      - name: Verify three-slot save capacity (UTF-8 bytes) and serialization
+        run: npx tsx utils/scripts/verifyRainbowSaveBytes.test.ts
+      - name: Verify the Seas flight log (locked Acts, medals and current flight)
+        run: npx tsx utils/scripts/verifyRainbowSeasLogbook.test.ts

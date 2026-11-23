@@ -5,14 +5,14 @@ label: Projects
 title: Projects
 room: The Creative Workshop
 subtitle: Stories, projects, creation and learning
-description: Storybook, art, video, Mandarin, Rebel Button and other non-game creations. Games live in Play.
+description: Art, video, Mandarin, Rebel Button and other creative projects. Games live in Play.
 icon: kind-icon:blueprint
-image: /images/tutorials/scenario/storybook.webp
+image: /images/art/generate.webp
 backgroundMobile: /api/art/backdrop/play-mobile
 backgroundTablet: /api/art/backdrop/play-tablet
 backgroundDesktop: /api/art/backdrop/play-desktop
-route: /storybook
-defaultTab: storybook
+route: /conductor
+defaultTab: projects
 sort: 40
 loadingMessage: Opening the projects...
 refreshLabel: Refresh Projects
@@ -23,22 +23,12 @@ tutorial:
   tagline: Make art, build stories, explore projects.
   overview: >-
     Projects gathers a public project showcase and administrator-only planning controls,
-    Storybook and its ingredient galleries, Art Studio, Video
-    Studio (with Music Videos), Mandarin and Rebel Button. Games
+    Art Studio, Video Studio (including Music Videos), Mandarin and Rebel Button. Games
     share the Play channel, including the Arcade and Zuzu's weird-west adventures. Each destination opens with
     its own page help, and this overview stays behind the About Projects
     control.
   hero: /images/tutorials/dream/dreams.webp
   sections:
-    - key: storybook
-      title: Storybook and its ingredients
-      body: >-
-        Start with Storybook to deal a story onto the Table and play it turn by
-        turn. Expand the Storybook submenu for its ingredient galleries:
-        Dreams, Bots, Characters, Rewards, Scenarios and Facets, plus Models
-        for running records through the build gates. Anything you make there
-        can be dealt into a story.
-      image: /images/tutorials/scenario/storybook.webp
     - key: make
       title: Make images, clips and music videos
       body: >-
@@ -76,6 +66,6 @@ tutorial:
 # image, so art appears on its own once generation finishes. Until then the
 ---
 
-Silas, 2026-10-06: everything that isn't Storybook and isn't admin-gated. Tools
-first, then the games and toys that were largely AI-created. A project scaffolded
-from an approved daily pitch gets a tab here once it has something playable.
+Public creative tools and project showcases live here. Storybook and its
+ingredient managers are filed under Admin Retired; Music Videos is in
+Projects Video Studio. Games live in Play.

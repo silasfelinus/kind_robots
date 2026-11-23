@@ -262,3 +262,76 @@ html.meta-motion-off .chess-fx {
     display: none;
   }
 }
+
+/* Painted special-action plates: a short framed flash over the board. */
+.chess-fx-plate {
+  position: absolute;
+  inset: 6%;
+  margin: 0;
+  display: grid;
+  place-items: end center;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 3px solid #ffffffcc;
+  box-shadow: 0 18px 60px #000c;
+  pointer-events: none;
+  animation: chess-fx-plate 1600ms ease-in-out both;
+  z-index: 6;
+}
+.chess-fx-plate img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: chess-fx-plate-pan 1600ms ease-out both;
+}
+.chess-fx-plate figcaption {
+  position: relative;
+  margin: 0 0 6%;
+  padding: 0.35em 0.8em;
+  border-radius: 0.4em;
+  background: #080a18cc;
+  color: #fff6c8;
+  font-size: clamp(1rem, 4.6vw, 2.6rem);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-shadow: 0 3px 10px #000;
+}
+.chess-fx-plate-rush figcaption {
+  color: #ffe6fb;
+  background: #b0337fcc;
+}
+.chess-fx-plate-laststand figcaption {
+  color: #ffce86;
+  background: #2a0f0ccc;
+}
+.chess-fx-plate-wager figcaption {
+  color: #9dffed;
+  background: #2b1660cc;
+}
+@keyframes chess-fx-plate {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  14%,
+  82% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes chess-fx-plate-pan {
+  from {
+    transform: scale(1.14) translateY(2%);
+  }
+  to {
+    transform: scale(1.02) translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chess-fx-plate {
+    display: none;
+  }
+}

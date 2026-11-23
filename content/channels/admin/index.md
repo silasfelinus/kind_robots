@@ -69,7 +69,8 @@ tutorial:
       body: >-
         Coloring Book pairs color and black-and-white pages for the coloring book. Animation Manager previews and layers the site's screen effects and sets the
         startup animation for your browser. Retired keeps older pages reachable
-        without crowding the menu, including AppMaker, the Conductor App page, the Mermaids of Venice page editor, and the
+        without crowding the menu, including Storybook and its ingredient
+        galleries, AppMaker, the Conductor App page, the Mermaids of Venice page editor, and the
         Scene Animator, Coat Dance, Zuzu World, Zuzu Pinball Workshop, Butterfly
         Gallery, Art Archive, Checkpoint Review, Brainstorm and Playbook Studio.
       image: /images/butterfly-gallery/room.webp

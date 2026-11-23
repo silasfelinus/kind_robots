@@ -1738,8 +1738,7 @@ export class PlumberRun implements ArcadeGameInstance {
         if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
       } else if (this.landed) this.landed--
       this.updateSprings(prevBottom)
-      if (this.ground && !wasGround && this.jumpBuffer)
-        this.startBufferedJump()
+      if (this.ground && !wasGround && this.jumpBuffer) this.startBufferedJump()
     }
     if (this.stage.space) {
       // A vacuum stage still has a playable hull. No endless off-screen drift.

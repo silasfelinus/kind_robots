@@ -1323,6 +1323,7 @@ export function createRainbowPrincessPreview(
   let finalChoice: FinaleChoice | null = null
   let rescuedNemi = false
   let alternateRoutesSeen = 0
+  let alternateRoutesCleared = 0
   let trenchRoute: TrenchRoute | null = null
   let routeSettled = false
   let nemi: { x: number; y: number } | null = null
@@ -1337,6 +1338,7 @@ export function createRainbowPrincessPreview(
     rescuedStation: false,
     rescuedNemi: false,
     alternateRoutesSeen: 0,
+    alternateRoutesCleared: 0,
     trenchRoute: null,
     routeSettled: false,
     freedChoir: false,
@@ -2504,6 +2506,7 @@ export function createRainbowPrincessPreview(
       rescuedStation,
       rescuedNemi,
       alternateRoutesSeen,
+      alternateRoutesCleared,
       trenchRoute,
       routeSettled,
       freedChoir,
@@ -2713,6 +2716,7 @@ export function createRainbowPrincessPreview(
         (Number(c.cometFrame !== undefined) << 1) |
         (Number(c.lighthouseFrame !== undefined) << 2) |
         (Number(c.shoalFrame !== undefined) << 3)
+    alternateRoutesCleared = c.alternateRoutesCleared ?? 0
     trenchRoute = c.trenchRoute
     routeSettled = c.routeSettled
     freedChoir = c.freedChoir ?? false
@@ -2941,6 +2945,7 @@ export function createRainbowPrincessPreview(
           (Number(checkpoint.cometFrame !== undefined) << 1) |
           (Number(checkpoint.lighthouseFrame !== undefined) << 2) |
           (Number(checkpoint.shoalFrame !== undefined) << 3)
+      alternateRoutesCleared = checkpoint.alternateRoutesCleared ?? 0
       // A guardian whose section lies after the checkpoint flies again.
       guardian = null
       if (checkpoint.cometFrame !== undefined) {
@@ -4187,6 +4192,7 @@ export function createRainbowPrincessPreview(
       escort = null
     }
     if (cometActive() && cometFrame() >= COMET.end) {
+      alternateRoutesCleared |= 2
       cadetsHome = cometFullWing(cometCadetsMask)
       if (cadetsHome) {
         score += 3000
@@ -4242,6 +4248,7 @@ export function createRainbowPrincessPreview(
       pickups.length = 0
     }
     if (shoalActive() && shoalFrame() >= MIRROR_SHOAL.end) {
+      alternateRoutesCleared |= 8
       if (mirrorShoalMedalEarned(shoalHits)) {
         score += 3000
         popups.push({
@@ -4288,6 +4295,7 @@ export function createRainbowPrincessPreview(
       pickups.length = 0
     }
     if (lighthouseActive() && lighthouseFrame() >= LIGHTHOUSE.end) {
+      alternateRoutesCleared |= 4
       if (lighthouseMedalEarned(lighthouseLamps)) {
         score += 3000
         popups.push({
@@ -4314,6 +4322,7 @@ export function createRainbowPrincessPreview(
     )
       launchCrownReef()
     if (nurseryActive() && nurseryFrame() >= NURSERY_FLIGHT.end) {
+      alternateRoutesCleared |= 1
       freedChoir = choirFreed(nurseryChoirMask)
       if (freedChoir) {
         score += KELP_CHOIR.fullRescueBonus

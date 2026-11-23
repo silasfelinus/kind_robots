@@ -211,18 +211,26 @@ const exitSave = read({
   nurseryFrame: 4380,
 })
 assert.ok(exitSave)
-const exitGame = createRainbowPrincessPreview({
-  rng: () => 0.5,
-  sound: { play: () => {} },
-  hiScore: 0,
-  players: 1,
-  demo: false,
-  rainbowReplay: exitSave!,
-})
-for (let frame = 0; frame < NURSERY_FLIGHT.end - 4380 + 2; frame++)
-  exitGame.update(idle, [idle])
-assert.equal(exitGame.snapshot.act, 'S04')
-assert.equal(exitGame.snapshot.actFourFrame >= 0, true)
+for (const seats of [1, 2, 3, 4]) {
+  const exitGame = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    players: seats,
+    demo: false,
+    rainbowReplay: exitSave!,
+  })
+  const crew = Array.from({ length: seats }, () => idle)
+  for (let frame = 0; frame < NURSERY_FLIGHT.end - 4380 + 3; frame++)
+    exitGame.update(idle, crew)
+  assert.equal(exitGame.snapshot.act, 'S04')
+  assert.equal(exitGame.snapshot.actFourFrame >= 0, true)
+  assert.equal(
+    (exitGame.snapshot.checkpoint.alternateRoutesCleared ?? 0) & 1,
+    1,
+    `a ${seats}-pilot Nursery exit must persist an earned X1 clear`,
+  )
+}
 
 assert.equal(
   read({ ...checkpoint3, frame: 20241 }),

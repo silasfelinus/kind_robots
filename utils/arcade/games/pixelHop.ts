@@ -3026,59 +3026,79 @@ class PixelHop implements ArcadeGameInstance {
       color: RAMPS.gold[3],
       outline: INK,
     })
+    const compact = PICTURES.length > 3
+    const width = 76
+    const gap = 6
+    const left = (W - width * 3 - gap * 2) / 2
     PICTURES.forEach((picture, i) => {
-      const x = 28 + i * 104
-      const y = 50
+      const x = left + (i % 3) * (width + gap)
+      const y = compact ? 38 + Math.floor(i / 3) * 74 : 48
       const frame = this.gallery[picture.id] ?? 0
-      hudPanel(g, x, y, 96, 100, frame === 2 ? RAMPS.gold : RAMPS.purple)
+      hudPanel(
+        g,
+        x,
+        y,
+        width,
+        compact ? 70 : 116,
+        frame === 2 ? RAMPS.gold : RAMPS.purple,
+      )
       const stage = STAGES.find((s) => s.picture?.id === picture.id)!
       if (frame) {
         drawPicture(
           g,
           stage.board,
           picture.palette,
-          x + 48,
-          y + 12,
-          9,
+          x + width / 2,
+          y + 9,
+          compact ? 4 : 6,
           () => true,
         )
       } else {
-        drawText(g, '?', x + 48, y + 34, {
+        drawText(g, '?', x + width / 2, y + (compact ? 21 : 30), {
           scale: 3,
           align: 'center',
           color: RAMPS.steel[2],
           outline: INK,
         })
       }
-      drawText(g, frame ? picture.name : '???', x + 48, y + 106, {
-        align: 'center',
-        color: frame === 2 ? RAMPS.gold[3] : '#ffffff',
-        outline: INK,
-      })
+      const words = picture.name.split(' ')
+      const last = words.pop() ?? ''
+      drawText(g, frame ? words.join(' ') : '???', x + width / 2,
+        y + (compact ? 44 : 82), {
+          align: 'center',
+          color: frame === 2 ? RAMPS.gold[3] : '#ffffff',
+          outline: INK,
+        })
+      if (frame)
+        drawText(g, last, x + width / 2, y + (compact ? 52 : 91), {
+          align: 'center',
+          color: frame === 2 ? RAMPS.gold[3] : '#ffffff',
+          outline: INK,
+        })
       drawText(
         g,
         frame === 2
           ? 'GOLD FRAME'
           : frame
             ? 'FRAMED'
-            : PLANETS[stage.planet]!.name,
-        x + 48,
-        y + 116,
+            : PLANETS[stage.planet]!.short,
+        x + width / 2,
+        y + (compact ? 62 : 105),
         { align: 'center', color: RAMPS.teal[3], outline: INK },
       )
     })
-    drawText(g, `GOLDEN BRUSHES ${this.brushes.size}/6`, W / 2, 186, {
+    drawText(g, `GOLDEN BRUSHES ${this.brushes.size}/6`, W / 2, 194, {
       align: 'center',
       color: RAMPS.gold[4],
       outline: INK,
     })
     for (let i = 0; i < 6; i++) {
       const has = this.brushes.has(i)
-      drawSprite(g, BRUSH_SPRITE, W / 2 - 50 + i * 20, 204, {
+      drawSprite(g, BRUSH_SPRITE, W / 2 - 50 + i * 20, 209, {
         alpha: has ? 1 : 0.25,
       })
     }
-    drawText(g, 'MORE PICTURES ON PLANETS YET TO COME', W / 2, 220, {
+    drawText(g, 'MORE PICTURES ON PLANETS YET TO COME', W / 2, 225, {
       align: 'center',
       color: RAMPS.steel[3],
       outline: INK,

@@ -629,3 +629,23 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
 console.log(
   `Save the Plumber movement replay verified: coyote ${COYOTE_FRAMES + 1} frames, buffer ${BUFFER_FRAMES} frames, landing, camera bounds, respawn, ${CAMPAIGN.length} stage respawn points, ${fuzzFrames} adversarial fuzz frames`,
 )
+
+{
+  const run = labRun()
+  const flag = run.checkpoints[0]!
+  assert.equal(flag.reached, false, 'the checkpoint begins inactive')
+  run.hero.x = flag.x + 12
+  run.hero.y = 0
+  replay(run, 1, () => {})
+  assert.equal(
+    flag.reached,
+    false,
+    'passing the checkpoint horizontally from a distant upper route cannot save',
+  )
+  run.hero.x = flag.x
+  run.hero.y = flag.y - HERO_TALL
+  run.hero.vy = 0
+  replay(run, 1, () => {})
+  assert.equal(flag.reached, true, 'contact with the pennant activates it')
+  assert.equal(run.checkpoint.x, flag.x)
+}

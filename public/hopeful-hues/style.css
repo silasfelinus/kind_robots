@@ -1613,3 +1613,101 @@ textarea.code {
 .ending .panel .scene {
   margin-bottom: 12px;
 }
+
+/* Tutorial coach */
+.game-screen {
+  position: relative;
+}
+
+.coach {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  width: min(460px, calc(100% - 24px));
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 14px 40px #4a2a7a44;
+  border: 3px solid transparent;
+  background-image: linear-gradient(#fff, #fff), var(--rainbow);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  animation: modal-in calc(0.3s * var(--speed)) cubic-bezier(0.3, 1.4, 0.6, 1);
+}
+
+.coach.top {
+  top: 64px;
+}
+
+.coach.bottom {
+  bottom: 86px;
+}
+
+.coach-portrait {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 10px #a66cff33;
+  background: #fff6fb;
+}
+
+.coach-portrait img {
+  object-position: 50% 18%;
+}
+
+.coach-body p {
+  margin: 4px 0 8px;
+  font-size: 0.95rem;
+}
+
+.coach-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.tut-hand {
+  position: absolute;
+  z-index: 6;
+  font-size: 2.2rem;
+  pointer-events: none;
+  transform: translate(-30%, -10%);
+  filter: drop-shadow(0 4px 4px #0004);
+  animation: tut-hand calc(1.6s * var(--speed)) ease-in-out infinite;
+}
+
+@keyframes tut-hand {
+  0%,
+  15% {
+    transform: translate(-30%, -10%);
+  }
+  60%,
+  80% {
+    transform: translate(calc(-30% + var(--dx)), calc(-10% + var(--dy)));
+  }
+  100% {
+    transform: translate(-30%, -10%);
+  }
+}
+
+.tut-focus {
+  position: relative;
+  z-index: 11;
+  box-shadow:
+    0 0 0 4px #fff,
+    0 0 0 8px var(--rose),
+    0 10px 30px #ff5fa266 !important;
+  animation: pulse calc(1.4s * var(--speed)) ease-in-out infinite;
+}
+
+.reduced-motion .tut-hand {
+  animation: none;
+  transform: translate(calc(-30% + var(--dx) / 2), calc(-10% + var(--dy) / 2));
+}

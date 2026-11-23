@@ -832,11 +832,22 @@
       hintTimer: null,
       cheerTimer: null,
       committed: false,
+      tutorial: null,
+      tutorialStarted: false,
+      coachOpen: false,
     }
   }
 
   function renderGame(params) {
     if (!game || game.id !== params.id) game = newGame(params.id)
+    if (game.tutorial) {
+      game.tutorial = null
+      game.tutorialStarted = game.history.length > 0
+    }
+    if (game.coachOpen) {
+      game.coachOpen = false
+      game.busy = false
+    }
     const s = slot()
     const c = character(s.character)
     const region = L.REGIONS[game.def.region]
@@ -855,7 +866,7 @@
       <div class="hud">
         <div class="card hud-box moves" data-moves-box><span class="label">Moves</span><span class="value" data-moves></span></div>
         <div class="card hud-box" style="min-width:140px"><span class="label">Score</span><span class="value" data-score></span><div class="star-meter"><div class="fill" data-meter></div>${[1, 2].map((k) => `<span class="tick" style="left:${Math.round((game.def.stars[k] / (game.def.stars[2] * 1.1)) * 100)}%">${A.starSvg(true)}</span>`).join('')}</div></div>
-        <div class="card hud-box"><span class="label">Goals</span><div class="goals" data-goals></div></div>
+        <div class="card hud-box" data-goals-box><span class="label">Goals</span><div class="goals" data-goals></div></div>
       </div>
       <div class="board-wrap" data-wrap>
         <div class="board" data-board role="grid" aria-label="Game board" tabindex="0">
@@ -897,6 +908,215 @@
     updateHud()
     setupInput(board)
     scheduleHint()
+    startGuidance()
+  }
+
+  const TIPS = {
+    collect: {
+      title: 'Collect colors',
+      text: 'This level asks for a color. Every tile of that color you clear counts toward the goal up top.',
+    },
+    gloom: {
+      title: 'Grey Gloom',
+      text: 'Gloom hides under tiles. Make matches on top of it to wash it away. Darker Gloom needs two washes.',
+    },
+    tangle: {
+      title: 'Tangles',
+      text: 'Tangles are knots that block a space. Match right next to them, or hit them with a special, to untie them.',
+    },
+    buddy: {
+      title: 'Robot buddies',
+      text: 'Bring buddies down to the bottom row to rescue them. You can always swap a buddy down one space, and specials beam them straight home.',
+    },
+    comb: {
+      title: 'Rainbow Comb!',
+      text: 'Four in a line made a Rainbow Comb. Match it or swap it to sweep a whole row or column.',
+    },
+    bomb: {
+      title: 'Glitter Bomb!',
+      text: 'An L or T shape made a Glitter Bomb. Set it off to sparkle away everything around it.',
+    },
+    rainbow: {
+      title: 'Rainbow Dye!',
+      text: 'Swap a Rainbow Dye with any tile to clear every tile of that color. Swap two specials together for an even bigger burst.',
+    },
+  }
+
+  function coach({ title, text, button, focus, skip, place }) {
+    closeCoach()
+    const screen = appEl.querySelector('.game-screen')
+    if (!screen || !game) return Promise.resolve('gone')
+    const el = document.createElement('div')
+    el.className = 'coach ' + (place || 'bottom')
+    el.setAttribute('role', 'dialog')
+    el.setAttribute('aria-label', title)
+    el.innerHTML = `${heroArt(slot().character, 56, 'coach-portrait')}<div class="coach-body"><b>${esc(title)}</b><p>${esc(text)}</p><div class="coach-actions">${skip ? '<button class="btn small" data-coach="skip">Skip tutorial</button>' : ''}${button ? `<button class="btn small rainbow" data-coach="next">${esc(button)}</button>` : ''}</div></div>`
+    screen.appendChild(el)
+    if (focus) {
+      const target = appEl.querySelector(focus)
+      if (target) target.classList.add('tut-focus')
+    }
+    const next = el.querySelector('[data-coach="next"]')
+    if (next) setTimeout(() => next.focus(), 30)
+    return new Promise((resolve) => {
+      el.querySelectorAll('[data-coach]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          audio.play('tap')
+          closeCoach()
+          resolve(btn.dataset.coach)
+        }),
+      )
+    })
+  }
+
+  function closeCoach() {
+    appEl.querySelectorAll('.coach').forEach((el) => el.remove())
+    appEl
+      .querySelectorAll('.tut-focus')
+      .forEach((el) => el.classList.remove('tut-focus'))
+  }
+
+  function showHand(move) {
+    hideHand()
+    const [a, b] = move
+    const hand = document.createElement('div')
+    hand.className = 'tut-hand'
+    hand.textContent = '👆'
+    hand.style.left = (a[1] + 0.5) * game.cell + 'px'
+    hand.style.top = (a[0] + 0.5) * game.cell + 'px'
+    hand.style.setProperty('--dx', (b[1] - a[1]) * game.cell + 'px')
+    hand.style.setProperty('--dy', (b[0] - a[0]) * game.cell + 'px')
+    game.els.fx.appendChild(hand)
+    for (const p of move) {
+      const el = elAt(p[0], p[1])
+      if (el) el.classList.add('hint')
+    }
+  }
+
+  function hideHand() {
+    appEl.querySelectorAll('.tut-hand').forEach((el) => el.remove())
+    clearHint()
+  }
+
+  function startGuidance() {
+    const s = slot()
+    if (!s || !game || game.state.over) return
+    if (
+      !s.tutorialDone &&
+      game.id === 'salon-1' &&
+      !game.tutorialStarted &&
+      !game.history.length
+    ) {
+      game.tutorialStarted = true
+      runTutorial()
+      return
+    }
+    levelTips()
+  }
+
+  async function runTutorial() {
+    const move = E.findMove(game.state)
+    if (!move) return finishTutorial()
+    clearTimeout(game.hintTimer)
+    const swapped = new Promise((resolve) => {
+      game.tutorial = { move, done: resolve }
+    })
+    showHand(move)
+    const lowerHalf = move[0][0] >= game.state.rows / 2
+    const first = await Promise.race([
+      coach({
+        title: 'Welcome to the salon!',
+        text: 'Swap the two wiggling tiles to line up three of a color. Drag one onto the other, or tap one and then the other.',
+        skip: true,
+        place: lowerHalf ? 'top' : 'bottom',
+      }),
+      swapped,
+    ])
+    hideHand()
+    closeCoach()
+    if (first === 'skip' || first === 'gone') return finishTutorial()
+    while (game && game.busy) await wait(120)
+    if (!game || game.state.over) return finishTutorial()
+    const goals = game.state.goals.map((goal) => goalText(goal)).join(', ')
+    const step2 = await coach({
+      title: 'Your goal',
+      text: `Every level has a goal up here and a number of moves to reach it. This one: ${goals}.`,
+      button: 'Next',
+      focus: '[data-goals-box]',
+      skip: true,
+      place: 'bottom',
+    })
+    if (step2 !== 'next') return finishTutorial()
+    const step3 = await coach({
+      title: 'The Back button',
+      text: 'Oops? Back a move undoes your last swap, exactly as it was. Use it as often as you like. No penalty, ever.',
+      button: 'Next',
+      focus: '[data-action="undo"]',
+      skip: true,
+      place: 'top',
+    })
+    if (step3 !== 'next') return finishTutorial()
+    await coach({
+      title: "You've got this!",
+      text: 'Match 4 in a line, make an L or T shape, or line up 5 to make specials. I will pop in the first time something new shows up.',
+      button: "Let's play!",
+      place: 'top',
+    })
+    finishTutorial()
+  }
+
+  function finishTutorial() {
+    const s = slot()
+    if (game) game.tutorial = null
+    hideHand()
+    closeCoach()
+    if (s) {
+      s.tutorialDone = true
+      persist()
+    }
+    scheduleHint()
+  }
+
+  async function showTip(key) {
+    const s = slot()
+    const tip = TIPS[key]
+    if (!s || !tip || !game || s.tips.includes(key)) return
+    s.tips.push(key)
+    persist()
+    game.busy = true
+    game.coachOpen = true
+    updateHud()
+    await coach({
+      title: tip.title,
+      text: tip.text,
+      button: 'Got it',
+      place: 'top',
+    })
+    if (!game) return
+    game.coachOpen = false
+    game.busy = false
+    updateHud()
+    scheduleHint()
+  }
+
+  async function levelTips() {
+    const kinds = new Set(game.def.goals.map((goal) => goal.type))
+    for (const key of ['collect', 'gloom', 'tangle', 'buddy']) {
+      if (kinds.has(key)) await showTip(key)
+    }
+    const hasRainbow = game.state.board.some((row) =>
+      row.some((tile) => tile && tile.special === 'rainbow'),
+    )
+    if (hasRainbow) await showTip('rainbow')
+  }
+
+  async function specialTips(phases) {
+    const made = new Set()
+    for (const phase of phases)
+      for (const c of phase.created || [])
+        made.add(c.special === 'h' || c.special === 'v' ? 'comb' : c.special)
+    for (const key of ['comb', 'bomb', 'rainbow'])
+      if (made.has(key)) await showTip(key)
   }
 
   function sizeBoard() {
@@ -1189,6 +1409,19 @@
   async function attemptSwap(a, b) {
     if (game.busy || game.state.over) return
     if (!E.isCell(game.state, b[0], b[1])) return
+    if (game.tutorial && game.tutorial.move) {
+      const [m0, m1] = game.tutorial.move
+      const same = (p, q) => p[0] === q[0] && p[1] === q[1]
+      if (!((same(a, m0) && same(b, m1)) || (same(a, m1) && same(b, m0)))) {
+        audio.play('invalid')
+        cheer('Try the two wiggling tiles first 💖')
+        return
+      }
+      const done = game.tutorial.done
+      game.tutorial.move = null
+      hideHand()
+      if (done) done('swapped')
+    }
     clearHint()
     if (!E.canSwap(game.state, a, b)) {
       const ea = elAt(a[0], a[1])
@@ -1217,6 +1450,7 @@
     updateHud()
     if (result.outcome === 'win') return onWin()
     if (result.outcome === 'fail') return onFail()
+    if (!game.tutorial) await specialTips(result.phases)
     scheduleHint()
   }
 
@@ -1835,7 +2069,8 @@
         ${toggle('largeText', 'Larger text')}
         ${toggle('hints', 'Gentle hints', 'A possible move wiggles after a quiet pause.')}
         <div class="settings-row"><div><b>Back button</b><div class="muted">How many moves you can take back per level.</div></div><select data-select="backLimit" aria-label="Back button limit" class="btn small">${['unlimited', '5', '3', '1'].map((v) => `<option value="${v}" ${s.backLimit === v ? 'selected' : ''}>${v === 'unlimited' ? 'Unlimited' : v + ' per level'}</option>`).join('')}</select></div>
-        <div class="settings-row"><div><b>Save data</b><div class="muted">Saves automatically to this device after every level.</div></div><button class="btn small" data-m="slots">Manage slots</button></div>`,
+        <div class="settings-row"><div><b>Save data</b><div class="muted">Saves automatically to this device after every level.</div></div><button class="btn small" data-m="slots">Manage slots</button></div>
+        <div class="settings-row"><div><b>Tutorial</b><div class="muted">Replay the guided first level and the first-time tips.</div></div><button class="btn small" data-m="replay">Replay tutorial</button></div>`,
     })
     modal.querySelectorAll('[data-range]').forEach((input) =>
       input.addEventListener('input', () => {
@@ -1862,6 +2097,20 @@
           game.els.tileMap.forEach((tileEl) => (tileEl._sig = ''))
           drawBoard(game.state.board, true)
         }
+      },
+      replay: () => {
+        const s = slot()
+        if (!s) {
+          toast('💾', 'Pick a save slot first.')
+          return
+        }
+        s.tutorialDone = false
+        s.tips = []
+        persist()
+        toast(
+          '🌈',
+          'The tutorial will play on Sunrise Salon Street level 1, and tips will show again.',
+        )
       },
       slots: () => {
         closeAllModals()

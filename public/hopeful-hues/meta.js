@@ -437,6 +437,8 @@
       scrapbook: [],
       achievements: {},
       seenBeats: [],
+      tutorialDone: false,
+      tips: [],
       totals: emptyTotals(),
       quests: { dailyKey: '', daily: [], weeklyKey: '', weekly: [] },
       boosters: { moves: 1, shuffle: 1 },
@@ -460,7 +462,7 @@
     merged.totals = { ...base.totals, ...(slot.totals || {}) }
     merged.quests = { ...base.quests, ...(slot.quests || {}) }
     merged.boosters = { ...base.boosters, ...(slot.boosters || {}) }
-    for (const key of ['endings', 'scrapbook', 'seenBeats'])
+    for (const key of ['endings', 'scrapbook', 'seenBeats', 'tips'])
       if (!Array.isArray(merged[key])) merged[key] = []
     if (!merged.levels || typeof merged.levels !== 'object') merged.levels = {}
     return merged

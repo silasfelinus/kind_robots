@@ -312,6 +312,16 @@ assert.equal(
 )
 assert.ok(M.DAILY_POOL.length >= 10 && M.WEEKLY_POOL.length >= 6)
 assert.ok(M.ACHIEVEMENTS.length >= 30)
+const fresh = M.createSlot('kate') as unknown as {
+  tutorialDone: boolean
+  tips: string[]
+}
+assert.equal(
+  fresh.tutorialDone,
+  false,
+  'new saves start with the guided tutorial',
+)
+assert.equal(fresh.tips.length, 0, 'first-time tips start unseen')
 
 assert.equal(M.levelUnlocked(slot, L, 'salon-1'), true)
 assert.equal(M.levelUnlocked(slot, L, 'salon-2'), false)
@@ -484,6 +494,19 @@ for (const entry of artPack.front) {
 
 const app = read('public/hopeful-hues/app.js')
 for (const needle of [
+  'runTutorial',
+  'finishTutorial',
+  'tutorialDone',
+  'showTip(',
+  'Replay tutorial',
+  "title: 'Grey Gloom'",
+  "title: 'Robot buddies'",
+  "title: 'Rainbow Comb!'",
+  'heroArt(',
+  'regionArt(',
+  'beatArt(',
+  'endingArt(',
+  "classList.add('missing')",
   'undoMove',
   'hopeful-hues:open',
   'openScrapbook',

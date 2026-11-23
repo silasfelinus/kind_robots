@@ -53,7 +53,7 @@
     "test:slime-city-alliance-constructed": "tsx utils/scripts/verifySlimeCityAllianceConstructed.test.ts",
     "test:hybridizer-catalog": "tsx utils/scripts/verifyHybridizerStarterCatalog.test.ts",
     "test:deepheart": "tsx utils/scripts/verifyDeepheart.test.ts",
-    "test:every-villain-tactics": "tsx utils/scripts/verifyEveryVillainTactics.test.ts",
+    "test:every-villain-tactics": "tsx utils/scripts/verifyEveryVillainTactics.test.ts && tsx utils/scripts/verifyEveryVillainSound.test.ts",
     "test:every-villain-combat": "tsx utils/scripts/verifyEveryVillainCombat.test.ts",
     "test:every-villain-story": "tsx utils/scripts/verifyEveryVillainStory.test.ts",
     "test:comet-city-academy": "tsx utils/scripts/verifyCometCityAcademy.test.ts && tsx utils/scripts/verifyCometConsoleScreens.test.ts && tsx utils/scripts/verifyCometPlaytestReadiness.test.ts && tsx utils/scripts/verifyCometPatrolStories.test.ts && tsx utils/scripts/verifyCometOctoberCast.test.ts && tsx utils/scripts/verifyCometTacticalBridge.test.ts && tsx utils/scripts/verifyCometLieutenants.test.ts && tsx utils/scripts/verifyCometLieutenantParley.test.ts && tsx utils/scripts/verifyCometFieldLoyalty.test.ts && tsx utils/scripts/verifyAcademyVisualNovel.test.ts && tsx utils/scripts/verifyCometNightCallbacks.test.ts && tsx utils/scripts/verifyCometMissionOffers.test.ts && tsx utils/scripts/verifyCometAlignmentArcs.test.ts && tsx utils/scripts/verifyCometTermArchive.test.ts && tsx utils/scripts/verifyPromSound.test.ts",

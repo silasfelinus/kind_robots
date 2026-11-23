@@ -406,12 +406,19 @@ export function finaleCredits(
   players: number,
   choice: FinaleChoice,
   allegiance: RainbowAllegiance | null = null,
+  /** Who flew each seat (pilot indexes) and the crew's call sign; by default seats fly in pilot order. */
+  flown: { pilots?: readonly number[]; callSign?: string } = {},
 ): string[] {
-  const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
+  const seats = Math.max(1, Math.min(4, players))
+  const crew = Array.from(
+    { length: seats },
+    (_, seat) => PILOTS[flown.pilots?.[seat] ?? seat] ?? PILOTS[seat]!,
+  )
   return [
     'RAINBOW BULLET HELL SPACE PRINCESS',
     '',
     'THE CREW',
+    ...(flown.callSign ? [`Call sign ${flown.callSign}`] : []),
     ...crew.map((pilot) => pilot.toUpperCase()),
     'LILT-7 · LIAISON, AURORA MERCY',
     '',

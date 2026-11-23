@@ -53,6 +53,8 @@ const stores = {
         setDifficulty(game, level) { this.difficulties[game] = level },
         rememberInitials() {}, saveFor: () => undefined, recordSave() {},
         rainbowHangarBonuses: () => ({ shield: false, charge: false, life: false }),
+        livery: { callSign: '', paints: [0, 0, 0, 0] },
+        rainbowLivery() { return this.livery },
         loadPreferences() {}, flushPending: async () => {},
         playersFor: (game, max) => Math.max(1, Math.min(max, seated[game] ?? window.__seats ?? 1)),
         setPlayers(game, count) { seated[game] = count },

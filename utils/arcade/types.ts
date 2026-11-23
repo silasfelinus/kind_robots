@@ -208,6 +208,8 @@ export type ArcadeGameOptions = {
   rainbowDemoResume?: boolean
   /** Earned, per-save-slot Palace Hangar upgrades for Rainbow Space Princess. */
   rainbowHangar?: { shield: boolean; charge: boolean; life: boolean }
+  /** Rainbow's call sign and per-pilot paint schemes from the save slot's Hangar (t-044); drawing only. */
+  rainbowLivery?: { callSign: string; paints: number[] }
   /**
    * The player's difficulty, for a game whose meta lists `difficulty` names (default 'normal'). A game
    * that scales its score by difficulty keeps one leaderboard fair across levels.

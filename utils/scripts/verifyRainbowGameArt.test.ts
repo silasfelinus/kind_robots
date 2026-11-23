@@ -108,7 +108,8 @@ const engine = readFileSync(
   new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
   'utf8',
 )
-const sprite = engine.indexOf('if (!drawRainbowShipSprite(g, pilotOf(seat)))')
+// The seat's ship painting (drawn under its paint filter since t-044), then the core marker on top.
+const sprite = engine.indexOf('drawRainbowShipSprite(g, pilotOf(seat))')
 const core = engine.indexOf('g.fillRect(-3, -3, 6, 6)', sprite)
 assert.ok(
   sprite > 0 && core > sprite,

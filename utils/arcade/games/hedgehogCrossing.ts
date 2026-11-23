@@ -26,6 +26,7 @@ import {
   SNAP_YAWN,
   SPAN,
   boardLanes,
+  legOneCrossing,
   botRows,
   newArrivals,
   newBot,
@@ -968,6 +969,68 @@ function drawTurtles(
   }
 }
 
+function drawShopper(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const x = Math.round(t.x + TILE / 2)
+  const y = rowY(lane.row) + 10
+  const step = Math.floor(tick / 12) % 2
+  dropShadow(g, x, y + 8, 6, 2, 0.4)
+  g.fillStyle = RAMPS.steel[2]
+  g.fillRect(x - 4, y - 4, 8, 10)
+  g.fillStyle = RAMPS.cream[3]
+  g.fillRect(x - 5, y - 9, 10, 6)
+  g.fillStyle = INK
+  g.fillRect(x + (lane.dir > 0 ? 1 : -3), y - 7, 2, 2)
+  g.fillStyle = RAMPS.teal[4]
+  g.fillRect(x - 5, y + 6, 3, 3 + step)
+  g.fillRect(x + 2, y + 6, 3, 4 - step)
+}
+
+function drawBarrel(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const x = Math.round(t.x + TILE / 2)
+  const y = rowY(lane.row) + 10
+  g.save()
+  g.translate(x, y)
+  g.rotate(tick * lane.vx * 0.08)
+  shadedOrb(g, 0, 0, 8, RAMPS.rust)
+  g.strokeStyle = RAMPS.gold[3]
+  g.lineWidth = 2
+  g.beginPath()
+  g.moveTo(-6, -2)
+  g.lineTo(6, -2)
+  g.moveTo(-6, 3)
+  g.lineTo(6, 3)
+  g.stroke()
+  g.restore()
+}
+
+function drawCrate(
+  g: CanvasRenderingContext2D,
+  lane: Lane,
+  t: Thing,
+  tick: number,
+) {
+  const x = Math.round(t.x)
+  const y = rowY(lane.row) + 3 + Math.sin(tick / 16) * 1.5
+  const w = t.len * TILE - 3
+  g.fillStyle = RAMPS.earth[2]
+  g.fillRect(x + 1, y, w, 12)
+  g.fillStyle = RAMPS.gold[2]
+  g.fillRect(x + 3, y + 2, w - 4, 7)
+  g.strokeStyle = RAMPS.earth[4]
+  g.lineWidth = 2
+  g.strokeRect(x + 1, y, w, 12)
+}
+
 const VEHICLE: LaneBehaviour = {
   spawn: (spec, _esc, rng) => spread(spec, spec.len, rng),
   step: drift,
@@ -982,6 +1045,17 @@ export const LANE_BEHAVIOURS: Record<LaneKind, LaneBehaviour> = {
   tractor: VEHICLE,
   racer: VEHICLE,
   bus: VEHICLE,
+  shopper: { ...VEHICLE, draw: drawShopper },
+  barrel: { ...VEHICLE, draw: drawBarrel },
+  crate: {
+    spawn: (spec, esc, rng) =>
+      spread(spec, Math.max(2, spec.len - esc.logTrim), rng),
+    step: drift,
+    project: shift,
+    touch: (_lane, t, x, _row, _at, pad) =>
+      rides(t, x, pad) ? 'ride' : null,
+    draw: drawCrate,
+  },
   log: {
     spawn: (spec, esc, rng) =>
       spread(spec, Math.max(2, spec.len - esc.logTrim), rng),
@@ -1180,7 +1254,14 @@ class HedgehogCrossing implements ArcadeGameInstance {
       }
     }
     this.resetHedgehog()
-    this.banner = { text: `LEVEL ${level}`, sub: 'WALK THEM HOME', ticks: 90 }
+    const crossing = legOneCrossing(level)
+    this.banner = {
+      text: crossing
+        ? `${crossing.region} ${crossing.crossing}/5`
+        : `LEVEL ${level}`,
+      sub: 'WALK THEM HOME',
+      ticks: 90,
+    }
     this.bannerQueue = this.introsFor(level)
   }
 

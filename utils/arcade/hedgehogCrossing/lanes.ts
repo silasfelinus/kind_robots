@@ -15,7 +15,17 @@ import { OLD_PLATEAU, TILE, W } from './rules'
 export const SPAN = W + 140
 
 export type LaneKind =
-  'car' | 'tractor' | 'racer' | 'bus' | 'log' | 'turtles' | 'snapper' | 'bot'
+  | 'car'
+  | 'tractor'
+  | 'racer'
+  | 'bus'
+  | 'log'
+  | 'turtles'
+  | 'snapper'
+  | 'bot'
+  | 'shopper'
+  | 'barrel'
+  | 'crate'
 
 /** What a body standing in a lane meets: traffic hits, platforms are ridden, jaws bite. */
 export type Touch = 'hit' | 'ride' | 'bite'
@@ -80,6 +90,27 @@ export const LANE_KINDS: Record<LaneKind, LaneKindInfo> = {
     bonk: 'PARCEL BUMP! TRY AGAIN',
     intro: { text: 'DELIVERY BOT', sub: 'IT BLINKS BEFORE IT CHANGES LANE' },
   },
+  shopper: {
+    half: 'road',
+    touch: 'hit',
+    name: 'ROBOT SHOPPER',
+    bonk: 'MARKET CROWD! TRY AGAIN',
+    intro: { text: 'MARKET CROWD', sub: 'FOLLOW THE GAPS BETWEEN SHOPPERS' },
+  },
+  barrel: {
+    half: 'road',
+    touch: 'hit',
+    name: 'ROLLING BARREL',
+    bonk: 'BARREL BONK! TRY AGAIN',
+    intro: { text: 'ROLLING BARRELS', sub: 'THEY TUMBLE QUICKLY DOWN THE RAMP' },
+  },
+  crate: {
+    half: 'creek',
+    touch: 'ride',
+    name: 'CANAL CRATE',
+    bonk: 'SPLASH! WAIT FOR THE CRATE',
+    intro: { text: 'CANAL CRATES', sub: 'HOP ABOARD THE FLOATING BOXES' },
+  },
 }
 
 export type LaneSpec = {
@@ -132,6 +163,113 @@ export const PARK_LANE: readonly LaneSpec[] = [
     ramp: 'leaf',
   },
   { row: 1, kind: 'log', len: 4, count: 3, speed: 0.8, dir: 1, ramp: 'earth' },
+]
+
+/** Leg 1 follows two five-crossing routes before the country roads open. */
+export const LEG_ONE_REGIONS = [
+  { name: 'PARK LANE', first: 1, last: 5 },
+  { name: 'MARKET DAY', first: 6, last: 10 },
+] as const
+
+export function legOneCrossing(level: number) {
+  const region = LEG_ONE_REGIONS.find(
+    (entry) => level >= entry.first && level <= entry.last,
+  )
+  if (!region) return null
+  const crossing = level - region.first + 1
+  return {
+    region: region.name,
+    crossing,
+    special: crossing === 3,
+    big: crossing === 5,
+  }
+}
+
+/** Market Day swaps traffic for shoppers and barrels, and the creek for a crate canal. */
+export const MARKET_DAY: readonly LaneSpec[] = [
+  {
+    row: 11,
+    kind: 'shopper',
+    len: 1,
+    count: 4,
+    speed: 0.55,
+    dir: -1,
+    ramp: 'teal',
+  },
+  {
+    row: 10,
+    kind: 'bot',
+    len: 1,
+    count: 2,
+    speed: 0.82,
+    dir: 1,
+    ramp: 'gold',
+    pair: 9,
+  },
+  {
+    row: 9,
+    kind: 'barrel',
+    len: 1,
+    count: 3,
+    speed: 1.15,
+    dir: -1,
+    ramp: 'ember',
+  },
+  {
+    row: 8,
+    kind: 'shopper',
+    len: 1,
+    count: 3,
+    speed: 0.7,
+    dir: 1,
+    ramp: 'sky',
+  },
+  {
+    row: 7,
+    kind: 'bus',
+    len: 2,
+    count: 2,
+    speed: 0.7,
+    dir: -1,
+    ramp: 'pink',
+  },
+  {
+    row: 5,
+    kind: 'crate',
+    len: 3,
+    count: 3,
+    speed: 0.6,
+    dir: -1,
+    ramp: 'earth',
+  },
+  {
+    row: 4,
+    kind: 'crate',
+    len: 2,
+    count: 4,
+    speed: 0.7,
+    dir: 1,
+    ramp: 'rust',
+  },
+  { row: 3, kind: 'log', len: 5, count: 2, speed: 1.05, dir: 1, ramp: 'earth' },
+  {
+    row: 2,
+    kind: 'turtles',
+    len: 2,
+    count: 4,
+    speed: 0.7,
+    dir: -1,
+    ramp: 'leaf',
+  },
+  {
+    row: 1,
+    kind: 'crate',
+    len: 4,
+    count: 3,
+    speed: 0.8,
+    dir: 1,
+    ramp: 'rust',
+  },
 ]
 
 export type Remix = {
@@ -195,7 +333,8 @@ export const REMIXES: readonly Remix[] = [
 /** The lanes of a level's board: Park Lane with every remix that applies by then. */
 export function boardLanes(level: number): LaneSpec[] {
   const lvl = Math.max(1, Math.floor(level))
-  return PARK_LANE.map((base) => {
+  const layout = lvl >= 6 && lvl <= 10 ? MARKET_DAY : PARK_LANE
+  return layout.map((base) => {
     let spec: LaneSpec = { ...base }
     for (const remix of REMIXES) {
       if (remix.row !== base.row || lvl < remix.from) continue

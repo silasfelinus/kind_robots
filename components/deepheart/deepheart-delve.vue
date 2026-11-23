@@ -54,8 +54,8 @@
       <div v-if="campFaces.length && !campMomentArt" class="dh-camp-faces">
         <DeepheartPortrait
           v-for="id in campFaces"
-          :key="id"
           :id="id"
+          :key="id"
           size="lg"
           class="dh-camp-face"
         />

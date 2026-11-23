@@ -6,7 +6,10 @@ import {
   comicIntroFor,
 } from '../cometAcademy/comicIntroductions'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
-import { identityArtCandidateKeys, identityArtwork } from '../cometAcademy/artSlots'
+import {
+  identityArtCandidateKeys,
+  identityArtwork,
+} from '../cometAcademy/artSlots'
 import { isRejectedIdentityArt } from '../cometAcademy/artQuality'
 import {
   POWER_ORIGINS,

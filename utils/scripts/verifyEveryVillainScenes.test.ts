@@ -299,7 +299,6 @@ for (const [signature, emotion, outcome] of [
   )
 }
 
-
 // ---- Editor helpers produce valid graphs ------------------------------------
 let authored = addScene(emptyScript(), 'opening')
 const id = authored.scenes[0]!.id

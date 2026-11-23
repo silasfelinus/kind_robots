@@ -134,8 +134,9 @@ export function speakerArt(
   const identity = speakerIdentity(speaker, state)
   if (!identity) return null
   return (
-    reviewedIdentityArtwork('identities/' + identity + '/' + EMOTION_ART[emotion]) ??
-    reviewedIdentityArtwork('identities/' + identity + '/student')
+    reviewedIdentityArtwork(
+      'identities/' + identity + '/' + EMOTION_ART[emotion],
+    ) ?? reviewedIdentityArtwork('identities/' + identity + '/student')
   )
 }
 export function speakerName(
@@ -277,7 +278,9 @@ export function scriptProblems(
       else if (
         IDENTITY_ARCS.some((arc) => arc.signature === node.speaker) &&
         !reviewedIdentityArtwork('identities/' + node.speaker + '/student') &&
-        !reviewedIdentityArtwork('identities/' + node.speaker + '/outcomes/hero')
+        !reviewedIdentityArtwork(
+          'identities/' + node.speaker + '/outcomes/hero',
+        )
       )
         issues.push(
           label + ': ' + node.speaker + ' has no shipped portrait art.',

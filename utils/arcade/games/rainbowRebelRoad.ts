@@ -190,3 +190,69 @@ export function drawTruceHeart(
   g.stroke()
   g.restore()
 }
+
+/**
+ * The Motherland flagship (code-drawn, centred on the hull): a long white-and-gold warship whose forward clamps
+ * hold the Crown ring. Phase 2 shows the clamps sprung open.
+ */
+export function drawMotherlandFlagship(
+  g: CanvasRenderingContext2D,
+  phase: 1 | 2,
+  frame: number,
+): void {
+  g.save()
+  g.shadowColor = '#ffd76a'
+  g.shadowBlur = 14
+  g.fillStyle = '#f4efe6'
+  g.strokeStyle = '#c99a2e'
+  g.lineWidth = 3
+  g.beginPath()
+  g.moveTo(-70, 0)
+  g.lineTo(-30, -26)
+  g.lineTo(70, -30)
+  g.lineTo(96, -10)
+  g.lineTo(96, 10)
+  g.lineTo(70, 30)
+  g.lineTo(-30, 26)
+  g.closePath()
+  g.fill()
+  g.stroke()
+  g.shadowBlur = 0
+  // Gold banding and the crown crest on the spine.
+  g.fillStyle = '#e8b93a'
+  g.fillRect(-10, -28, 6, 56)
+  g.fillRect(30, -29, 6, 58)
+  g.beginPath()
+  g.moveTo(40, -30)
+  g.lineTo(46, -44)
+  g.lineTo(52, -34)
+  g.lineTo(58, -46)
+  g.lineTo(64, -34)
+  g.lineTo(70, -44)
+  g.lineTo(72, -30)
+  g.closePath()
+  g.fill()
+  // The forward clamps around the Crown ring; sprung open in phase 2.
+  const open = phase === 2 ? 0.5 + 0.08 * Math.sin(frame / 8) : 0
+  g.strokeStyle = '#c99a2e'
+  g.lineWidth = 6
+  for (const side of [-1, 1]) {
+    g.save()
+    g.rotate(side * open)
+    g.beginPath()
+    g.arc(
+      0,
+      0,
+      50,
+      side < 0 ? Math.PI * 1.1 : Math.PI * 0.6,
+      side < 0 ? Math.PI * 1.4 : Math.PI * 0.9,
+    )
+    g.stroke()
+    g.restore()
+  }
+  // Thrusters.
+  g.fillStyle = '#ff4fc3'
+  g.fillRect(96, -8, 8 + Math.sin(frame / 3) * 3, 5)
+  g.fillRect(96, 3, 8 + Math.cos(frame / 3) * 3, 5)
+  g.restore()
+}

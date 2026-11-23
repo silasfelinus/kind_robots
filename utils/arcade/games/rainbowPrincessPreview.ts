@@ -42,6 +42,7 @@ import {
   drawRainbowCommsPortrait,
   drawRainbowEndingPlate,
   drawRainbowEnemySprite,
+  drawRainbowFlagshipSprite,
   drawRainbowGuardianSprite,
   drawRainbowRouteObjectSprite,
   drawRainbowPickupSprite,
@@ -300,6 +301,7 @@ import {
   ECLIPSE_CROWN,
   ECLIPSE_CROWN_MAX_HP,
   ECLIPSE_ESCAPE,
+  CROWN_PLEA,
   createEclipseCrownBoss,
   eclipseCrownSpokes,
   eclipseCrownWarning,
@@ -379,6 +381,7 @@ import {
   REBEL_TRUCE_ALPHA,
   drawMotherlandDrone,
   drawTruceHeart,
+  drawMotherlandFlagship,
   rebelEscortSpawns,
   rebelTruce,
   type MotherlandEnemy,
@@ -1109,6 +1112,8 @@ export type RainbowCombatSnapshot = {
   glassEel: Readonly<GlassEelBoss> | null
   leviathan: Readonly<PrismLeviathanBoss> | null
   crown: Readonly<EclipseCrownBoss> | null
+  /** Loyal road (t-061): the crew stood down when the Crown pleaded, and finished on the rebel road. */
+  stoodDown: boolean
   guardian: Readonly<RainbowGuardian> | null
   /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
   guardians: Readonly<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, GuardianOutcome>>
@@ -1332,6 +1337,8 @@ export function createRainbowPrincessPreview(
   let captivesFreed = 0
   let finaleStart: number | null = null
   let crown: EclipseCrownBoss | null = null
+  /** Loyal road (t-061): the crew flew high through the Crown's plea and stood down. */
+  let stoodDown = false
   let crownCarryHp: number | null = null
   let choiceFrame: number | null = null
   let escapeFrame: number | null = null
@@ -1410,8 +1417,9 @@ export function createRainbowPrincessPreview(
         (act, frame, c) =>
           (act === 1 && frame === 0) || isRainbowCheckpoint(act, frame, c),
       )
+  // The attract demo ignores a save, unless a test opts in to fly a saved road from its checkpoint.
   const offered =
-    options.demo || replaySave
+    (options.demo && !options.rainbowDemoResume) || replaySave
       ? null
       : readRainbowSave(options.resume, isRainbowCheckpoint)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
@@ -1669,6 +1677,23 @@ export function createRainbowPrincessPreview(
     for (const ship of ships.slice(0, activePlayers))
       ship.invulnerable = Math.max(ship.invulnerable, 240)
     options.sound.play('level')
+  }
+
+  /**
+   * The loyal crew flew high through the Crown's plea: it stands down, spares the Crown and turns on the empire
+   * at the last (PLOT-MOTHERLAND: "a late chance to stand down"). The final choice opens on the rebel road.
+   */
+  function standDown() {
+    if (!crown) return
+    crown = null
+    stoodDown = true
+    allegiance = 'rebel'
+    choiceFrame = 0
+    enemyShots.length = 0
+    for (const ship of ships.slice(0, activePlayers))
+      ship.invulnerable = Math.max(ship.invulnerable, 240)
+    popups.push({ x: W / 2, y: 92, text: 'STOOD DOWN', age: 0 })
+    options.sound.play('extra')
   }
 
   /** The whole crew fell in the prism corridors: the escape starts again, the choice kept. */
@@ -3414,7 +3439,7 @@ export function createRainbowPrincessPreview(
       leviathan.hp -= kind === 1 ? 28 : 20
       if (leviathan.hp <= 0) defeatLeviathan()
     }
-    if (crown && crown.frame > 85) {
+    if (crown && crown.frame > 85 && crown.plea === 0) {
       crown.hp -= kind === 1 ? 28 : 20
       if (crown.hp <= 0) subdueCrown()
     }
@@ -4821,7 +4846,13 @@ export function createRainbowPrincessPreview(
       ) {
         passCheckpoint(9, frame)
         if (frame >= FINALE.bossStarts && !crown) {
-          crown = createEclipseCrownBoss(bossHp(ECLIPSE_CROWN_MAX_HP))
+          // The road changes the fight (t-061): rebels take on the Motherland flagship holding the Crown; a loyal
+          // crew fights the Crown itself, which pleads once its heart breaks loose.
+          crown = createEclipseCrownBoss(
+            bossHp(ECLIPSE_CROWN_MAX_HP),
+            allegiance === 'rebel' ? 'flagship' : 'crown',
+            allegiance === 'loyal',
+          )
           if (crownCarryHp !== null) crown.hp = Math.min(crown.hp, crownCarryHp)
         }
       } else if (choiceFrame !== null) {
@@ -4971,6 +5002,13 @@ export function createRainbowPrincessPreview(
           const lane =
             activePlayers % 2 === 1 ? navigator.y + seat * 6 : 243 - seat * 4
           ship.y += (lane - ship.y) * ease
+        }
+        if (crown && crown.plea > 0) {
+          // The attract demo answers the Crown's plea both ways: a four-pilot crew flies high and stands down,
+          // every other crew holds low and fights on.
+          const lane = activePlayers === 4 ? 64 + seat * 8 : 182 + seat * 6
+          ship.y +=
+            (lane - ship.y) * Math.min(1, (CROWN_PLEA.frames - crown.plea) / 60)
         }
         if (choiceFrame !== null) {
           // The attract demo shows every ending: one pilot restores, two evacuate, three sever.
@@ -5285,9 +5323,19 @@ export function createRainbowPrincessPreview(
     }
     if (crown) {
       shootAs(
-        RAINBOW_BOSS_LOOKS[9],
+        crown.target === 'flagship' ? 'bolt' : RAINBOW_BOSS_LOOKS[9],
         stepEclipseCrownBoss(crown, ships.slice(0, activePlayers)),
       )
+      // The flagship launches Motherland drones, never more than four at once.
+      const drones = reefs.filter((reef) => reef.kind === 'motherdrone').length
+      for (const y of crown.launches.slice(0, Math.max(0, 4 - drones)))
+        spawn('motherdrone', y)
+      // The plea is over: most living pilots high stands the crew down; otherwise the fight goes on.
+      if (crown.pleaEnded) {
+        const ys = livingShips().map((ship) => ship.y)
+        const high = ys.filter((y) => y < FINALE.restoreBelow).length
+        if (high * 2 > ys.length) standDown()
+      }
     }
     if (navigator) {
       // The Lost Navigator's pod drifts out of the glass; touching it brings the navigator aboard.
@@ -5672,7 +5720,7 @@ export function createRainbowPrincessPreview(
         if (glassEel.hp <= 0) defeatGlassEel()
         continue
       }
-      if (crown && crown.frame > 85) {
+      if (crown && crown.frame > 85 && crown.plea === 0) {
         const onHeart =
           Math.hypot(shot.x - crown.heartX, shot.y - crown.heartY) <
           ECLIPSE_CROWN.heartRadius
@@ -5766,7 +5814,7 @@ export function createRainbowPrincessPreview(
       }
     }
 
-    if (crown) {
+    if (crown && crown.plea === 0) {
       for (const ship of livingShips()) {
         if (
           ship.invulnerable === 0 &&
@@ -6150,6 +6198,7 @@ export function createRainbowPrincessPreview(
           ? { ...leviathan, locks: [...leviathan.locks] }
           : null,
         crown: crown ? { ...crown } : null,
+        stoodDown,
         guardian: guardian ? { ...guardian } : null,
         guardians: { ...guardians },
         nurseryGuardianOutcome,
@@ -7461,9 +7510,42 @@ export function createRainbowPrincessPreview(
         g.fillText('B02 AURELIA ARRAY', 240, 53)
         g.textAlign = 'left'
       }
+      if (crown && crown.target === 'flagship' && eclipseCrownWarning(crown)) {
+        // Every lane the flagship's lances will fire down is marked for the whole warning.
+        g.save()
+        g.strokeStyle = '#ffd76a'
+        g.globalAlpha = 0.55 + 0.2 * Math.sin(crown.frame / 3)
+        g.lineWidth = 4
+        g.setLineDash([10, 6])
+        for (const y of crown.lanes) {
+          g.beginPath()
+          g.moveTo(crown.x - 30, y)
+          g.lineTo(0, y)
+          g.stroke()
+        }
+        g.restore()
+      }
+      if (crown && crown.plea > 0) {
+        // The Crown pleads: the high band is where a crew stands down.
+        g.save()
+        g.fillStyle = '#ffe9a8'
+        g.globalAlpha = 0.16 + 0.06 * Math.sin(crown.frame / 6)
+        g.fillRect(0, 30, W, FINALE.restoreBelow - 30)
+        g.globalAlpha = 1
+        g.textAlign = 'center'
+        g.font = 'bold 10px monospace'
+        g.fillStyle = '#fff4c4'
+        g.fillText(
+          `THE CROWN PLEADS · FLY HIGH TO STAND DOWN · ${Math.ceil(crown.plea / 60)}`,
+          W / 2,
+          60,
+        )
+        g.textAlign = 'left'
+        g.restore()
+      }
       if (crown) {
         const warn = eclipseCrownWarning(crown)
-        if (warn && crown.phase === 1) {
+        if (warn && crown.phase === 1 && crown.target === 'crown') {
           // Every spoke the volley will fire down is drawn for the whole warning; the wedges are safe.
           g.save()
           g.strokeStyle = '#ff9fd8'
@@ -7485,7 +7567,11 @@ export function createRainbowPrincessPreview(
         g.translate(crown.x, crown.y)
         g.shadowColor = warn ? '#fff49c' : '#ff9fd8'
         g.shadowBlur = warn ? 24 : 12
-        if (
+        if (crown.plea > 0) g.globalAlpha = 0.7
+        if (crown.target === 'flagship') {
+          if (!drawRainbowFlagshipSprite(g))
+            drawMotherlandFlagship(g, crown.phase, crown.frame)
+        } else if (
           !drawRainbowBossSprite(g, 'b09', crown.phase === 1 ? 1 : 2, 0, 0, 160)
         ) {
           g.fillStyle = '#2a1a4a'
@@ -7494,7 +7580,7 @@ export function createRainbowPrincessPreview(
           g.fill()
         }
         g.shadowBlur = 0
-        // The crown ring itself.
+        // The crown ring itself (the flagship carries it in its clamps).
         g.strokeStyle = crown.phase === 1 ? '#ffd27a' : '#8a7aa8'
         g.lineWidth = 3
         g.beginPath()
@@ -7513,7 +7599,12 @@ export function createRainbowPrincessPreview(
         // The heart node: home in the crown, then drifting free and open to every shot.
         g.save()
         g.translate(crown.heartX, crown.heartY)
-        g.fillStyle = crown.phase === 2 ? '#ff5ac8' : '#c9708e'
+        g.fillStyle =
+          crown.target === 'flagship'
+            ? '#ffd76a'
+            : crown.phase === 2
+              ? '#ff5ac8'
+              : '#c9708e'
         g.shadowColor = '#ff9fd8'
         g.shadowBlur = crown.phase === 2 ? 18 : 6
         g.beginPath()
@@ -7540,9 +7631,15 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 8px monospace'
         g.fillStyle = '#ffffff'
         g.fillText(
-          crown.phase === 2
-            ? 'B09 ECLIPSE CROWN · HEART FREE'
-            : 'B09 ECLIPSE CROWN',
+          crown.target === 'flagship'
+            ? crown.phase === 2
+              ? 'B09 MOTHERLAND FLAGSHIP · CLAMPS OPEN'
+              : 'B09 MOTHERLAND FLAGSHIP'
+            : crown.plea > 0
+              ? 'B09 ECLIPSE CROWN · PLEADING'
+              : crown.phase === 2
+                ? 'B09 ECLIPSE CROWN · HEART FREE'
+                : 'B09 ECLIPSE CROWN',
           240,
           41,
         )

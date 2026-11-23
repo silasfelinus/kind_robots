@@ -30,6 +30,7 @@ export const RAINBOW_DOODLE_ART: readonly string[] = [
   'bosses/b09-phase1',
   'bosses/b09-phase2',
   'bosses/b09-phase3',
+  'bosses/flagship',
   'comms/azure',
   'comms/lilt',
   'comms/maribel',

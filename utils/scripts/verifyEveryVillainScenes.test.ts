@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { isRejectedIdentityArt } from '../cometAcademy/artQuality'
+import { reviewedIdentityArtwork } from '../cometAcademy/artSlots'
 import { createStory } from '../everyVillainTactics/firstBellStory'
 import {
   createSave,
@@ -271,6 +273,32 @@ assert.equal(
 assert.equal(speakerName('narrator'), 'NARRATOR')
 assert.equal(speakerName('backdraft', t), 'BACKDRAFT')
 assert.ok(speakerArt('backdraft', 'determined', t))
+
+// Do not reintroduce the rejected exported paintings in cinematic dialogue.
+// A DONE ArtJob is not a license to depict Lionel as a different person,
+// Granny as a child, or Asha with missing arms.
+for (const [signature, emotion, outcome] of [
+  ['tech-genius', 'determined', 'hero'],
+  ['tech-genius', 'angry', 'villain'],
+  ['magic-earth', 'determined', 'hero'],
+  ['magic-earth', 'sly', 'villain'],
+  ['mutant-discipline', 'determined', 'hero'],
+  ['mutant-discipline', 'angry', 'villain'],
+  ['alien-discipline', 'determined', 'hero'],
+] as const) {
+  const rejected = 'identities/' + signature + '/outcomes/' + outcome
+  assert.ok(isRejectedIdentityArt(rejected), rejected)
+  const safeStudent = reviewedIdentityArtwork(
+    'identities/' + signature + '/student',
+  )
+  assert.ok(safeStudent, signature + ' has an approved-safe student fallback')
+  assert.equal(
+    speakerArt(signature, emotion),
+    safeStudent,
+    signature + ' ' + emotion + ' cannot display rejected art',
+  )
+}
+
 
 // ---- Editor helpers produce valid graphs ------------------------------------
 let authored = addScene(emptyScript(), 'opening')

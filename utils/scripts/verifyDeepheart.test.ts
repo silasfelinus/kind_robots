@@ -323,6 +323,12 @@ const firstSupport = campOptions(supportRun).find(
 assert.ok(firstSupport && firstSupport.kind === 'support')
 assert.equal(firstSupport.tier, 1)
 assert.doesNotMatch(firstSupport.label, /Old Flame/, 'unknown bond stays secret')
+assert.ok(
+  !campOptions(supportRun, false).some(
+    (option) => option.kind === 'support' && option.key === oldFlameKey,
+  ),
+  'romance-off also hides lovers and exes support scenes',
+)
 const beforeSupport = stat(supportRun, 'idris', 'atk')
 assert.equal(campAction(supportRun, firstSupport), firstSupport.line)
 assert.equal(supportRun.bonds[oldFlameKey], 1)
@@ -377,6 +383,20 @@ for (let i = 0; i < 2; i++) {
   assert.equal(arcRun.talkBeats?.idris, i + 1)
 }
 assert.equal(arcRun.affinity.idris, 8)
+const savedArc = decodeSaves(
+  JSON.stringify({
+    version: 1,
+    slots: [
+      {
+        slot: 'auto',
+        savedAt: '2026-11-23T00:00:00Z',
+        label: 'Campfire',
+        run: arcRun,
+      },
+    ],
+  }),
+)
+assert.equal(savedArc?.slots[0]?.run.talkBeats?.idris, 2)
 arcRun.camp = { talks: 2, supportScenes: [] }
 const romanceChoice = campOptions(arcRun).find(
   (option) => option.kind === 'romance' && option.id === 'idris',

@@ -169,6 +169,16 @@ function actScore(key: RainbowActKey) {
 }
 
 /** The ending: the Pinkwake key, slow, the lead an octave up over the pad. */
+/** The four detour Acts' own keys (t-012), matching their orchestral themes in scripts/rainbow-score. */
+export const RAINBOW_DETOUR_KEYS: Readonly<
+  Record<'x1' | 'x2' | 'x3' | 'x4', RainbowActKey>
+> = {
+  x1: { root: 53, mode: 'major', bpm: 112, figure: 1 }, // F: the Kelp Nebula, floating
+  x2: { root: 47, mode: 'major', bpm: 156, figure: 3 }, // B: the Coral Comet, galloping
+  x3: { root: 49, mode: 'minor', bpm: 104, figure: 0 }, // C# minor: the Sunken Lighthouse, a lament
+  x4: { root: 51, mode: 'major', bpm: 140, figure: 2 }, // Eb: the Mirror Shoal, shimmering
+}
+
 const ENDING_KEY: RainbowActKey = {
   root: 50,
   mode: 'major',
@@ -186,6 +196,8 @@ const FAILURE_KEY: RainbowActKey = {
 /** What is going on, for choosing the score. */
 export type RainbowMusicMoment = {
   act: number
+  /** The detour being flown, if any: it plays its own flight theme (guardians keep the shared cue). */
+  detour?: 'x1' | 'x2' | 'x3' | 'x4' | null
   boss: boolean
   guardian: boolean
   ending: boolean
@@ -196,6 +208,8 @@ export type RainbowMusicMoment = {
 export function rainbowMusicFor(moment: RainbowMusicMoment): MusicLoop {
   if (moment.failure) return RAINBOW_SCORE.failure
   if (moment.ending) return RAINBOW_SCORE.ending
+  if (moment.detour && !moment.boss && !moment.guardian)
+    return RAINBOW_SCORE.detours[moment.detour]
   const score = RAINBOW_SCORE.acts[Math.max(1, Math.min(9, moment.act)) - 1]!
   return moment.boss
     ? score.boss
@@ -219,6 +233,17 @@ export const RAINBOW_SCORE = {
       boss: { ...boss, recorded: rainbowRecordedLoop(`act${act}-boss`) },
     }
   }),
+  detours: Object.fromEntries(
+    (Object.keys(RAINBOW_DETOUR_KEYS) as ('x1' | 'x2' | 'x3' | 'x4')[]).map(
+      (x) => [
+        x,
+        {
+          ...actScore(RAINBOW_DETOUR_KEYS[x]).flying,
+          recorded: rainbowRecordedLoop(`${x}-flight`),
+        },
+      ],
+    ),
+  ) as Record<'x1' | 'x2' | 'x3' | 'x4', MusicLoop>,
   ending: {
     bpm: ENDING_KEY.bpm,
     tracks: [pad(ENDING_KEY), lead(ENDING_KEY)],

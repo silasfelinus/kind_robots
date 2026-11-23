@@ -22,6 +22,12 @@ export type ArcadeSoundName =
   | 'warn'
   | 'zuzuSuccess'
   | 'zuzuDeath'
+  | 'rainbowNova'
+  | 'rainbowShield'
+  | 'rainbowHurt'
+  | 'rainbowPhase'
+  | 'rainbowFork'
+  | 'rainbowStinger'
 
 export type Note = {
   freq: number
@@ -71,6 +77,39 @@ const PRESETS: Record<ArcadeSoundName, Note[]> = {
     { freq: 587, dur: 0.3, type: 'sawtooth', vol: 0.07, at: 0.3 },
   ],
   // Death: a gunshot crack, then a sour trombone slide down.
+  // Rainbow Bullet Hell Space Princess (t-012): its own cues for a super, a shield taking a hit, a lost life,
+  // a boss changing phase, a route fork being taken, and an ending's route stinger.
+  rainbowNova: [
+    { freq: 392, to: 1568, dur: 0.35, type: 'sawtooth', vol: 0.05 },
+    { freq: 1047, dur: 0.12, type: 'triangle', vol: 0.07, at: 0.12 },
+    { freq: 1319, dur: 0.12, type: 'triangle', vol: 0.07, at: 0.2 },
+    { freq: 1568, dur: 0.3, type: 'triangle', vol: 0.08, at: 0.28 },
+  ],
+  rainbowShield: [
+    { freq: 1760, to: 1320, dur: 0.12, type: 'triangle', vol: 0.07 },
+    { freq: 2637, dur: 0.08, type: 'sine', vol: 0.05, at: 0.04 },
+  ],
+  rainbowHurt: [
+    { freq: 300, dur: 0.1, noise: true, vol: 0.12 },
+    { freq: 523, to: 196, dur: 0.4, type: 'sawtooth', vol: 0.07, at: 0.05 },
+  ],
+  rainbowPhase: [
+    { freq: 147, to: 110, dur: 0.45, type: 'square', vol: 0.06 },
+    { freq: 294, dur: 0.12, type: 'square', vol: 0.05, at: 0.3 },
+    { freq: 311, dur: 0.25, type: 'square', vol: 0.05, at: 0.42 },
+  ],
+  rainbowFork: [
+    { freq: 659, dur: 0.1, type: 'triangle', vol: 0.07 },
+    { freq: 831, dur: 0.1, type: 'triangle', vol: 0.07, at: 0.1 },
+    { freq: 988, dur: 0.1, type: 'triangle', vol: 0.07, at: 0.2 },
+    { freq: 1319, dur: 0.35, type: 'triangle', vol: 0.08, at: 0.3 },
+  ],
+  rainbowStinger: [
+    { freq: 523, dur: 0.18, type: 'square', vol: 0.06 },
+    { freq: 784, dur: 0.18, type: 'square', vol: 0.06, at: 0.18 },
+    { freq: 1047, dur: 0.18, type: 'square', vol: 0.06, at: 0.36 },
+    { freq: 1568, dur: 0.6, type: 'triangle', vol: 0.08, at: 0.54 },
+  ],
   zuzuDeath: [
     { freq: 400, dur: 0.12, noise: true, vol: 0.2 },
     { freq: 392, to: 262, dur: 0.25, type: 'sawtooth', vol: 0.07, at: 0.2 },

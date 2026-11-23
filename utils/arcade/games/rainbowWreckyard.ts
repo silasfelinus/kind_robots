@@ -24,6 +24,10 @@ import {
   reinforcements,
   withReinforcements,
 } from './rainbowPacing'
+import {
+  withRainbowRouteBeat,
+  type RainbowRouteFlags,
+} from './rainbowRouteBeats'
 
 export type WreckEnemy =
   'cutter' | 'hammerhead' | 'salvager' | 'scrap' | 'mortar'
@@ -390,6 +394,7 @@ export function wreckDialogue(
   players: number,
   route: WreckRoute | null = null,
   freedDepot = false,
+  routeFlags?: RainbowRouteFlags,
 ): WreckDialogue | null {
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
@@ -466,7 +471,11 @@ export function wreckDialogue(
       },
     ],
   }
-  return lines[id][Math.floor(elapsed / WRECK.lineFrames)] ?? null
+  return (
+    withRainbowRouteBeat(lines[id], id, routeFlags, crew)[
+      Math.floor(elapsed / WRECK.lineFrames)
+    ] ?? null
+  )
 }
 
 export function wreckScene(

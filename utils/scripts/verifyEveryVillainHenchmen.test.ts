@@ -598,6 +598,24 @@ for (const [kind, name, jobId, imageId] of originalCaptains) {
     'minions keep the crew action art, not their captain face',
   )
 }
+// Proof against the real authored stage units, not only synthetic fixtures:
+// each mission's actual captain must carry the intended commissioned plate.
+for (const [stageId, kind] of crewStages) {
+  const captainCase = originalCaptains.find(([type]) => type === kind)
+  assert.ok(captainCase, stageId + ' has a known painted captain type')
+  const [, name, , expectedImageId] = captainCase!
+  const battle = trainingState(11, clonePreset(stageId))
+  const actual = battle.units.filter(
+    (unit) => unit.henchmanType === kind && unit.henchmanName === name,
+  )
+  assert.equal(actual.length, 1, stageId + ' seeds its named captain')
+  assert.equal(
+    crewCombatReceipt(actual[0]!)?.imageId,
+    expectedImageId,
+    stageId + ' attaches the captain closeup to the real battle unit',
+  )
+}
+
 assert.equal(
   crewCaptainArtReceipt({
     henchmanType: '__proto__',

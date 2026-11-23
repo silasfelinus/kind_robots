@@ -426,6 +426,10 @@ assert.equal(
   rainbowEndingPlate('restore'),
   '/rainbow-princess-art/endings/restore.webp',
 )
+assert.equal(
+  rainbowEndingPlate('evacuate'),
+  '/rainbow-princess-art/endings/evacuate.webp',
+)
 assert.equal(rainbowEndingPlate('sever'), null)
 assert.equal(drawRainbowEndingPlate(g, 'restore', 0, 0, 340), 0)
 assert.equal(

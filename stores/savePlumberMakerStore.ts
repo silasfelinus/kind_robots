@@ -96,6 +96,11 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   const ratingCount = computed(() => reviewSummary.value.count)
   const reviews = computed(() => reviewSummary.value.reviews)
 
+  function invalidateReviewRequest() {
+    ++reviewRequest
+    reviewsBusy.value = false
+  }
+
   function readLibrary() {
     if (!import.meta.client) return
     try {
@@ -189,6 +194,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   function paint(x: number, y: number) {
     const next = paintMakerTile(level.value, x, y, selectedTile.value)
     if (next !== level.value) {
+      invalidateReviewRequest()
       reviewSummary.value = blankReviewSummary()
       reviewComment.value = ''
     }
@@ -204,6 +210,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       if (next === level.value) return true
       pushUndo()
       level.value = next
+      invalidateReviewRequest()
       reviewSummary.value = blankReviewSummary()
       reviewComment.value = ''
       message.value = successMessage
@@ -267,7 +274,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     tool.value = 'brush'
     undoStack.value = []
     redoStack.value = []
-    reviewSummary.value = blankReviewSummary()
+    invalidateReviewRequest()
+      reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
     message.value = 'Starter course loaded. Build something new!'
     error.value = ''
@@ -278,7 +286,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     if (!previous) return
     redoStack.value.push(clone(level.value))
     level.value = previous
-    reviewSummary.value = blankReviewSummary()
+    invalidateReviewRequest()
+      reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
   }
 
@@ -287,7 +296,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     if (!next) return
     undoStack.value.push(clone(level.value))
     level.value = next
-    reviewSummary.value = blankReviewSummary()
+    invalidateReviewRequest()
+      reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
   }
 
@@ -301,6 +311,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
         return true
       pushUndo()
       level.value = next
+      invalidateReviewRequest()
       reviewSummary.value = blankReviewSummary()
       reviewComment.value = ''
       message.value = `Course resized: ${cols} × ${rows} tiles.`
@@ -323,6 +334,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       if (JSON.stringify(next) === JSON.stringify(level.value)) return
       pushUndo()
       level.value = next
+      invalidateReviewRequest()
       reviewSummary.value = blankReviewSummary()
       reviewComment.value = ''
       error.value = ''
@@ -333,7 +345,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   }
 
   function newDraft() {
-    reviewSummary.value = blankReviewSummary()
+    invalidateReviewRequest()
+      reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
     level.value = newMakerLevel()
     selection.value = null
@@ -382,7 +395,8 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     level.value = clone(found.level)
     selection.value = null
     tool.value = 'brush'
-    reviewSummary.value = blankReviewSummary()
+    invalidateReviewRequest()
+      reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
     currentDraft.value = found.id
     imported.value = false
@@ -404,6 +418,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       level.value = decodeMakerLevel(code)
       selection.value = null
       tool.value = 'brush'
+      invalidateReviewRequest()
       reviewSummary.value = blankReviewSummary()
       reviewComment.value = ''
       currentDraft.value = null
@@ -447,6 +462,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     try {
       code = encodeMakerLevel(level.value)
     } catch {
+      invalidateReviewRequest()
       reviewSummary.value = blankReviewSummary()
       return
     }

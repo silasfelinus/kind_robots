@@ -322,7 +322,11 @@ const firstSupport = campOptions(supportRun).find(
 )
 assert.ok(firstSupport && firstSupport.kind === 'support')
 assert.equal(firstSupport.tier, 1)
-assert.doesNotMatch(firstSupport.label, /Old Flame/, 'unknown bond stays secret')
+assert.doesNotMatch(
+  firstSupport.label,
+  /Old Flame/,
+  'unknown bond stays secret',
+)
 assert.ok(
   !campOptions(supportRun, false).some(
     (option) => option.kind === 'support' && option.key === oldFlameKey,
@@ -379,7 +383,10 @@ for (let i = 0; i < 2; i++) {
   )
   assert.ok(talk && talk.kind === 'talk')
   const line = campAction(arcRun, talk)
-  assert.equal(line, i === 0 ? character('idris').blurb : character('idris').secret)
+  assert.equal(
+    line,
+    i === 0 ? character('idris').blurb : character('idris').secret,
+  )
   assert.equal(arcRun.talkBeats?.idris, i + 1)
 }
 assert.equal(arcRun.affinity.idris, 8)
@@ -409,9 +416,7 @@ assert.doesNotMatch(
 )
 const noRomanceRun = JSON.parse(JSON.stringify(arcRun)) as RunState
 assert.ok(
-  !campOptions(noRomanceRun, false).some(
-    (option) => option.kind === 'romance',
-  ),
+  !campOptions(noRomanceRun, false).some((option) => option.kind === 'romance'),
 )
 assert.equal(
   campAction(noRomanceRun, romanceChoice, false),
@@ -422,7 +427,10 @@ const oathChoice = campOptions(noRomanceRun, false).find(
   (option) => option.kind === 'oath' && option.id === 'idris',
 )
 assert.ok(oathChoice && oathChoice.kind === 'oath')
-assert.notEqual(campAction(noRomanceRun, oathChoice, false), character('idris').heart)
+assert.notEqual(
+  campAction(noRomanceRun, oathChoice, false),
+  character('idris').heart,
+)
 assert.ok(noRomanceRun.oaths.includes('idris'))
 assert.ok(!noRomanceRun.partners.includes('idris'))
 assert.ok(!noRomanceRun.moments.includes(romanceMoment('idris')))

@@ -1333,10 +1333,7 @@ waits below, you'll have my help, no conditions and no debt. I'll remember
 the kind of person you chose to be down here."`
 }
 
-export function campOptions(
-  run: RunState,
-  romanceOn = true,
-): CampOption[] {
+export function campOptions(run: RunState, romanceOn = true): CampOption[] {
   if (run.phase !== 'camp' || !run.camp) return []
   const options: CampOption[] = []
   if (run.gold >= POTION_PRICE)
@@ -1389,10 +1386,8 @@ export function campOptions(
   }
   for (const support of activeSupports(partyIds(run))) {
     // This setting hides historical love/ex scenes as well as new romance.
-    if (
-      !romanceOn &&
-      (support.kind === 'lovers' || support.kind === 'exes')
-    ) continue
+    if (!romanceOn && (support.kind === 'lovers' || support.kind === 'exes'))
+      continue
     const key = pairKey(support.a, support.b)
     const tier = run.bonds[key] ?? 0
     if (tier >= 2 || run.camp.supportScenes?.includes(key)) continue
@@ -1401,14 +1396,15 @@ export function campOptions(
         (member) =>
           (member.id === support.a || member.id === support.b) && member.down,
       )
-    ) continue
+    )
+      continue
     if (
       tier === 1 &&
       [support.a, support.b].some(
-        (id) =>
-          run.companions.includes(id) && (run.affinity[id] ?? 0) < 4,
+        (id) => run.companions.includes(id) && (run.affinity[id] ?? 0) < 4,
       )
-    ) continue
+    )
+      continue
     options.push({
       kind: 'support',
       key,

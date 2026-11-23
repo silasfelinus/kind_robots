@@ -390,6 +390,7 @@ import {
   RAINBOW_BOSS_LOOKS,
   RAINBOW_CRAFT_LOOKS,
   RAINBOW_GUARDIAN_LOOK,
+  RAINBOW_SHOT_HALO_RADIUS,
   drawRainbowHeart,
   drawRainbowShot,
   drawRainbowStarShot,
@@ -8206,7 +8207,7 @@ export function createRainbowPrincessPreview(
       for (const bullet of enemyShots) {
         if (bullet.ghost) continue
         g.beginPath()
-        g.arc(bullet.x, bullet.y, 8, 0, Math.PI * 2)
+        g.arc(bullet.x, bullet.y, RAINBOW_SHOT_HALO_RADIUS, 0, Math.PI * 2)
         g.fill()
       }
       for (const bullet of enemyShots) {

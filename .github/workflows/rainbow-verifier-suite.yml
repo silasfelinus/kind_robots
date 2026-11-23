@@ -1,0 +1,56 @@
+name: Rainbow Verifier Suite
+
+# Conductor rainbow t-013 (campaign QA): every utils/scripts/verifyRainbow*.test.ts runs on any PR that touches
+# Rainbow's engine, data or verifiers. Until 2026-11-23 most of these were never run in CI, and four drifted red on
+# main unnoticed (kind_robots#5661). New verifiers join automatically by name.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/arcade/games/**/rainbow*.ts'
+      - 'utils/arcade/types.ts'
+      - 'utils/scripts/**/verifyRainbow*.test.ts'
+      - 'public/rainbow-princess-art/**'
+      - '.github/workflows/rainbow-verifier-suite.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  suite:
+    name: Every Rainbow verifier
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Run the verifiers in parallel (wall-clock load test runs alone next)
+        run: |
+          mkdir -p rainbow-logs
+          ls utils/scripts/verifyRainbow*.test.ts | grep -v verifyRainbowCoopLoad > rainbow-tests.txt
+          echo "$(wc -l < rainbow-tests.txt) verifiers"
+          failed=0
+          xargs -P "$(nproc)" -I{} sh -c 'n=$(basename {} .test.ts); if npx tsx {} > rainbow-logs/$n.log 2>&1; then echo "PASS $n"; else echo "FAIL $n"; fi' < rainbow-tests.txt | tee rainbow-results.txt
+          for n in $(awk '$1=="FAIL"{print $2}' rainbow-results.txt); do
+            failed=1
+            echo "::group::$n"
+            tail -n 40 "rainbow-logs/$n.log"
+            echo "::endgroup::"
+            echo "::error::$n failed"
+          done
+          exit $failed
+      - name: Four-pilot load stays inside a 60 Hz frame (alone, so other verifiers do not skew the clock)
+        run: npx tsx utils/scripts/verifyRainbowCoopLoad.test.ts

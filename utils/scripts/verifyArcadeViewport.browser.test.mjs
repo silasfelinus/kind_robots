@@ -7,6 +7,10 @@ import {
   openCabinet,
   startRainbowRun,
 } from './arcadeCabinetFixture.mjs'
+import {
+  RAINBOW_SHOT_BODY_RADIUS,
+  RAINBOW_SHOT_HALO_RADIUS,
+} from '../arcade/games/rainbowShotLooks.ts'
 
 // Real ArcadeCabinet + real game engines with stubbed stores. This is a browser geometry
 // and input-surface smoke test, not physical-device or human sprite-legibility approval.
@@ -14,8 +18,12 @@ const RAINBOW = 'rainbow-bullet-hell-space-princess'
 const PLUMBER = 'save-the-plumber'
 const GHOST = 'zuzu-ghost-trail'
 const BRICK = 'brick-bloom'
+// Conductor rainbow t-063: the smallest phone portrait still draws every hostile pellet body at least this many
+// CSS px across (and its dark halo larger still), so a bullet never shrinks below a readable dot.
+const HOSTILE_SHOT_MIN_CSS_PX = 8
 const cases = [
   { slug: PLUMBER, width: 360, height: 640, touch: true },
+  { slug: RAINBOW, width: 360, height: 640, touch: true },
   { slug: RAINBOW, width: 390, height: 844, touch: true },
   { slug: RAINBOW, width: 844, height: 390, touch: true },
   { slug: GHOST, width: 768, height: 1024, touch: true },
@@ -223,6 +231,24 @@ try {
             : Math.round(
                 (metrics.stage.width / logicalWidth) * nominalSpriteExtent,
               )
+        let hostileShotCssPixels = null
+        if (testCase.slug === RAINBOW) {
+          const scale = metrics.stage.width / logicalWidth
+          const body = 2 * RAINBOW_SHOT_BODY_RADIUS * scale
+          const halo = 2 * RAINBOW_SHOT_HALO_RADIUS * scale
+          assert.ok(
+            body >= HOSTILE_SHOT_MIN_CSS_PX,
+            `${label}: hostile pellet body renders ${body.toFixed(1)} CSS px, at least ${HOSTILE_SHOT_MIN_CSS_PX}`,
+          )
+          assert.ok(halo > body, `${label}: the dark halo frames the pellet`)
+          // At high DPR the pellet is drawn with at least as many device pixels as CSS pixels.
+          assert.ok(
+            body * (metrics.canvasWidth / metrics.stage.width) >=
+              HOSTILE_SHOT_MIN_CSS_PX,
+            `${label}: hostile pellet keeps its backing pixels`,
+          )
+          hostileShotCssPixels = Math.round(body * 10) / 10
+        }
         summary.push({
           slug: testCase.slug,
           viewport: `${testCase.width}x${testCase.height}`,
@@ -230,6 +256,7 @@ try {
           stage: `${Math.round(metrics.stage.width)}x${Math.round(metrics.stage.height)}`,
           backingPixels: metrics.canvasWidth * metrics.canvasHeight,
           nominalSpriteCssPixels,
+          hostileShotCssPixels,
           touchTargets: metrics.controls.length,
         })
       } finally {

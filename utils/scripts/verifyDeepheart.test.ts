@@ -695,7 +695,11 @@ const readAdminTab = (name: string): ChannelContentItem => {
   return parseYaml(source.split('---')[1] ?? '') as ChannelContentItem
 }
 const artBibleTab = readAdminTab('deepheart-bible')
-assert.equal(artBibleTab.navigation, false, 'private art bible stays out of nav')
+assert.equal(
+  artBibleTab.navigation,
+  false,
+  'private art bible stays out of nav',
+)
 assert.equal(artBibleTab.requiredRole, 'ADMIN')
 assert.equal(artBibleTab.image, deepheartArtSrc('cast:oona'))
 assert.equal(artBibleTab.tutorial?.title, 'Deepheart Art Bible')

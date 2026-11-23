@@ -259,7 +259,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.onAudioChange = options.onAudioChange
     this.demo = options.demo
     this.stored = readSpectrumSave(options.resume)
-    this.storyChoices = [...(this.stored.storyChoices ?? freshStoryChoices())]
+    this.storyChoices = [
+      ...(this.stored.storyChoices ?? freshStoryChoices()),
+    ] as StoryChoices
     this.storyEndings = [...(this.stored.endings ?? [])]
     this.settings = { ...this.stored.settings }
     this.earned = new Set(options.mastery ?? [])

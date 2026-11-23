@@ -1,4 +1,4 @@
-import type { MusicLoop } from '../sound'
+import type { MusicLoop, Note } from '../sound'
 
 type WorldScore = {
   bpm: number
@@ -102,3 +102,14 @@ export const PLUMBER_BOSS_MUSIC: MusicLoop = score(
   },
   true,
 )
+
+/** Original, restrained jump and landing gestures, not borrowed game audio. */
+export const PLUMBER_JUMP_NOTES: Note[] = [
+  { freq: 510, to: 920, dur: 0.11, type: 'sine', vol: 0.065 },
+  { freq: 760, to: 1040, dur: 0.07, type: 'triangle', vol: 0.024, at: 0.035 },
+]
+
+export const PLUMBER_LAND_NOTES: Note[] = [
+  { freq: 155, to: 83, dur: 0.09, type: 'triangle', vol: 0.07 },
+  { freq: 240, dur: 0.045, noise: true, vol: 0.025 },
+]

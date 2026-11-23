@@ -156,3 +156,83 @@ export function recordClassicEnd(
     classicBest: Math.max(career.classicBest, score),
   }
 }
+
+/** Reject untrusted account data before writing it to a shared database. */
+export function validSpectrumCloudSave(raw: unknown): raw is SpectrumSave {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false
+  const save = raw as Record<string, unknown>
+  if (save.version !== 2 || !['story', 'classic'].includes(String(save.mode)))
+    return false
+  if (!validNumber(save.stage, MAX_STORY_STAGE) || save.stage === 0)
+    return false
+  const career = save.career
+  if (!career || typeof career !== 'object' || Array.isArray(career))
+    return false
+  const c = career as Record<string, unknown>
+  if (
+    !validNumber(c.xp, 1_000_000_000) ||
+    !validNumber(c.highestStage, MAX_STORY_STAGE) ||
+    c.highestStage === 0 ||
+    !validNumber(c.lifetimePops, 1_000_000_000) ||
+    !validNumber(c.classicBest, 1_000_000_000) ||
+    !validNumber(c.classicRuns, 1_000_000) ||
+    !Array.isArray(c.stars) ||
+    c.stars.length !== MAX_STORY_STAGE ||
+    !c.stars.every((stars) => validNumber(stars, 3))
+  )
+    return false
+  if (
+    save.mode === 'story' &&
+    (save.stage as number) > (c.highestStage as number)
+  )
+    return false
+  return unlockedStyles(rankForXp(c.xp as number)).includes(
+    save.style as BubbleStyle,
+  )
+}
+
+/**
+ * Sync always preserves achievements. No device may reduce another's stars,
+ * earned looks, lifetime milestone, or unlocked Story level.
+ * Lifetime counters use max instead of sum because two devices may be syncing
+ * an older copy of the same events. Summing would double-award XP.
+ */
+export function mergeSpectrumSaves(
+  device: SpectrumSave,
+  account: SpectrumSave,
+): SpectrumSave {
+  const local = readSpectrumSave(device)
+  const remote = readSpectrumSave(account)
+  const career: SpectrumCareer = {
+    xp: Math.max(local.career.xp, remote.career.xp),
+    highestStage: Math.max(
+      local.career.highestStage,
+      remote.career.highestStage,
+    ),
+    stars: local.career.stars.map((stars, index) =>
+      Math.max(stars, remote.career.stars[index] ?? 0),
+    ),
+    lifetimePops: Math.max(
+      local.career.lifetimePops,
+      remote.career.lifetimePops,
+    ),
+    classicBest: Math.max(
+      local.career.classicBest,
+      remote.career.classicBest,
+    ),
+    classicRuns: Math.max(
+      local.career.classicRuns,
+      remote.career.classicRuns,
+    ),
+  }
+  const style = unlockedStyles(rankForXp(career.xp)).includes(local.style)
+    ? local.style
+    : remote.style
+  return {
+    version: 2,
+    career,
+    mode: local.mode,
+    stage: local.mode === 'classic' ? 1 : career.highestStage,
+    style,
+  }
+}

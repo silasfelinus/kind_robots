@@ -312,14 +312,14 @@ function baseSave(): RunSave {
 {
   assert.equal(
     RULER_HOOKED_FISH.length,
-    18,
-    '15 vertical-slice species plus three quest-arc species (t-052)',
+    27,
+    '15 original species, three arc species, nine policy-ecology species',
   )
   for (const affinity of ['GOOD', 'NEUTRAL', 'EVIL'] as const) {
     assert.equal(
       RULER_HOOKED_FISH.filter((f) => f.affinity === affinity).length,
-      6,
-      `${affinity} roster stays balanced at six species`,
+      9,
+      `${affinity} roster stays balanced at nine species`,
     )
   }
 
@@ -354,6 +354,61 @@ function baseSave(): RunSave {
     availableFish(taxed).some((f) => f.slug === 'tithe-lamprey'),
     'repeated extraction unlocks Tithe Lamprey',
   )
+
+
+  const expansion: Array<{
+    slug: string
+    flag: string
+    health: Partial<RunSave['kingdomHealth']>
+  }> = [
+    { slug: 'dewbell-tench', flag: 'shallowsNursery', health: { nature: 60 } },
+    { slug: 'commons-kitebream', flag: 'riverCommons', health: { nature: 60, order: 50 } },
+    { slug: 'oaththread-dace', flag: 'publicTrust', health: { nature: 50, joy: 50 } },
+    { slug: 'clockwork-riffle-loach', flag: 'weirLadder', health: { prosperity: 50 } },
+    { slug: 'chroma-cuttle', flag: 'workingWaterfront', health: { prosperity: 50 } },
+    { slug: 'parcelglass-eel', flag: 'envoyTreatySigned', health: { prosperity: 60 } },
+    { slug: 'smokedglass-flounder', flag: 'shallowsDredged', health: { nature: 50 } },
+    { slug: 'turnstile-tetra', flag: 'riverConcession', health: { treasury: 60 } },
+    { slug: 'lockjaw-burbot', flag: 'runBlocked', health: { order: 50 } },
+  ]
+  for (const species of expansion) {
+    const save = baseSave()
+    save.kingdomHealth = {
+      nature: 50,
+      prosperity: 50,
+      treasury: 50,
+      joy: 50,
+      order: 50,
+      ...species.health,
+    }
+    assert.ok(
+      !availableFish(save).some((f) => f.slug === species.slug),
+      `${species.slug} must not start unlocked without its policy choice`,
+    )
+    save.flags[species.flag] = true
+    assert.ok(
+      availableFish(save).some((f) => f.slug === species.slug),
+      `${species.slug} must unlock through ${species.flag}`,
+    )
+    save.flags[species.flag] = false
+    assert.ok(
+      !availableFish(save).some((f) => f.slug === species.slug),
+      `${species.slug} must close without its policy flag`,
+    )
+  }
+  const sharedShallows = baseSave()
+  sharedShallows.kingdomHealth.nature = 60
+  sharedShallows.flags.shallowsNursery = true
+  assert.ok(availableFish(sharedShallows).some((f) => f.slug === 'dewbell-tench'))
+  sharedShallows.flags.shallowsDredged = true
+  assert.ok(!availableFish(sharedShallows).some((f) => f.slug === 'dewbell-tench'))
+  const privatizedRiver = baseSave()
+  privatizedRiver.kingdomHealth.nature = 65
+  privatizedRiver.kingdomHealth.order = 55
+  privatizedRiver.flags.riverCommons = true
+  assert.ok(availableFish(privatizedRiver).some((f) => f.slug === 'commons-kitebream'))
+  privatizedRiver.flags.riverConcession = true
+  assert.ok(!availableFish(privatizedRiver).some((f) => f.slug === 'commons-kitebream'))
 
   const a = baseSave()
   a.kingdomHealth = {

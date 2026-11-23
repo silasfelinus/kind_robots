@@ -586,7 +586,10 @@ for (const [kind, name, jobId, imageId] of originalCaptains) {
     crewCombatReceipt({ ...unit, hp: 0 })?.imageId,
     CREW_COMBAT_ART[kind].defeat.imageId,
   )
-  assert.equal(crewCaptainArtReceipt({ ...unit, henchmanName: 'Impostor' }), null)
+  assert.equal(
+    crewCaptainArtReceipt({ ...unit, henchmanName: 'Impostor' }),
+    null,
+  )
   assert.equal(crewCaptainArtReceipt({ ...unit, maxHp: 4 }), null)
   assert.equal(
     crewCaptainArtReceipt({ ...unit, lieutenantName: 'Named elite' }),

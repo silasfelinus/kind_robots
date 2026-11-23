@@ -151,11 +151,12 @@ export function crewTellReceipt(
  * captain, never a generic rank, powered hero, or multi-hit lieutenant.
  * Canonical names come from the same SPECIES catalog that seeds battle units.
  */
-const CREW_CAPTAIN_SIGNATURE: Readonly<Record<CrewTellKind, SignaturePowerId>> = {
-  burrow: 'accident-earth',
-  phase: 'alien-discipline',
-  windup: 'accident-birthright',
-}
+const CREW_CAPTAIN_SIGNATURE: Readonly<Record<CrewTellKind, SignaturePowerId>> =
+  {
+    burrow: 'accident-earth',
+    phase: 'alien-discipline',
+    windup: 'accident-birthright',
+  }
 
 export function crewCaptainArtReceipt(unit: {
   henchmanType?: string | null
@@ -185,7 +186,6 @@ export function crewUnitArtReceipt(unit: {
 }): CrewTellReceipt | null {
   if (unit.maxHp !== 1 || unit.lieutenantName) return null
   return (
-    crewCaptainArtReceipt(unit) ??
-    crewTellReceipt(unit.henchmanType, 'action')
+    crewCaptainArtReceipt(unit) ?? crewTellReceipt(unit.henchmanType, 'action')
   )
 }

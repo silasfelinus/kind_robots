@@ -1226,6 +1226,11 @@ export type TarotDeck = Prisma.TarotDeckModel
  */
 export type TarotCard = Prisma.TarotCardModel
 /**
+ * Model ArcadeCabinetSave
+ * * Per-account Arcade career record. One revisioned private save for each cabinet.
+ */
+export type ArcadeCabinetSave = Prisma.ArcadeCabinetSaveModel
+/**
  * Model SiteStatDaily
  * 
  */

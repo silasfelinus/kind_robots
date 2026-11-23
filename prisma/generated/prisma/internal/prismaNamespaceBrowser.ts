@@ -194,6 +194,7 @@ export const ModelName = {
   SlimeCityMatch: 'SlimeCityMatch',
   TarotDeck: 'TarotDeck',
   TarotCard: 'TarotCard',
+  ArcadeCabinetSave: 'ArcadeCabinetSave',
   SiteStatDaily: 'SiteStatDaily',
   TzaddikCandidate: 'TzaddikCandidate',
   TzaddikCandidateTag: 'TzaddikCandidateTag',
@@ -2928,6 +2929,18 @@ export const TarotCardScalarFieldEnum = {
 export type TarotCardScalarFieldEnum = (typeof TarotCardScalarFieldEnum)[keyof typeof TarotCardScalarFieldEnum]
 
 
+export const ArcadeCabinetSaveScalarFieldEnum = {
+  userId: 'userId',
+  gameSlug: 'gameSlug',
+  payload: 'payload',
+  revision: 'revision',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ArcadeCabinetSaveScalarFieldEnum = (typeof ArcadeCabinetSaveScalarFieldEnum)[keyof typeof ArcadeCabinetSaveScalarFieldEnum]
+
+
 export const SiteStatDailyScalarFieldEnum = {
   id: 'id',
   day: 'day',
@@ -4557,6 +4570,14 @@ export const TarotCardOrderByRelevanceFieldEnum = {
 } as const
 
 export type TarotCardOrderByRelevanceFieldEnum = (typeof TarotCardOrderByRelevanceFieldEnum)[keyof typeof TarotCardOrderByRelevanceFieldEnum]
+
+
+export const ArcadeCabinetSaveOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  payload: 'payload'
+} as const
+
+export type ArcadeCabinetSaveOrderByRelevanceFieldEnum = (typeof ArcadeCabinetSaveOrderByRelevanceFieldEnum)[keyof typeof ArcadeCabinetSaveOrderByRelevanceFieldEnum]
 
 
 export const SiteStatDailyOrderByRelevanceFieldEnum = {

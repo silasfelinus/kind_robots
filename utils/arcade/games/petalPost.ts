@@ -90,6 +90,7 @@ type House = {
   delivered: boolean
   bloom: number
   gifts: number
+  request: 'mailbox' | 'porch' | null
   color: string
 }
 type HazardKind = 'cat' | 'bin' | 'car' | 'sprinkler'
@@ -831,6 +832,7 @@ class PetalPost implements ArcadeGameInstance {
         delivered: false,
         bloom: this.rng() < 0.5 ? 1 : 2,
         gifts: 0,
+        request: null,
         color: HOUSE_COLORS[i % HOUSE_COLORS.length]!,
       })
     this.startDay(1)
@@ -854,6 +856,9 @@ class PetalPost implements ArcadeGameInstance {
     this.houses.forEach((h, i) => {
       h.y = -FIRST_HOUSE - i * HOUSE_GAP
       h.delivered = false
+      h.request = h.subscriber && (i + day) % 3 === 0
+        ? (i + day) % 2 === 0 ? 'mailbox' : 'porch'
+        : null
     })
     this.routeEnd = -FIRST_HOUSE - HOUSES * HOUSE_GAP
     this.bonusEnd = this.routeEnd - BONUS_LEN
@@ -1072,7 +1077,7 @@ class PetalPost implements ArcadeGameInstance {
           Math.abs(p.x - MAILBOX_X) < 5 &&
           Math.abs(p.y - mailY) < 9
         ) {
-          this.deliver(h, MAILBOX_POINTS, 'MAILBOX!', p)
+          this.deliver(h, MAILBOX_POINTS, 'MAILBOX!', p, 'mailbox')
           break
         }
       }
@@ -1099,7 +1104,7 @@ class PetalPost implements ArcadeGameInstance {
     if (!house || p.x > MAILBOX_X) return
     if (house.subscriber && !house.delivered) {
       if (Math.abs(p.x - DOOR_X) < 14 && Math.abs(p.y - house.y) < 14)
-        this.deliver(house, DOOR_POINTS, 'DOORSTEP', p)
+        this.deliver(house, DOOR_POINTS, 'DOORSTEP', p, 'porch')
       else {
         this.deliver(house, GARDEN_POINTS * 2, 'ON THE LAWN', p)
         this.blooms.push({ x: p.x, y: p.y, born: this.tick })
@@ -1130,9 +1135,20 @@ class PetalPost implements ArcadeGameInstance {
     }
   }
 
-  private deliver(h: House, points: number, label: string, p: Packet) {
+  private deliver(
+    h: House,
+    points: number,
+    label: string,
+    p: Packet,
+    location: 'mailbox' | 'porch' | null = null,
+  ) {
     h.delivered = true
-    h.bloom = Math.min(3, h.bloom + 1)
+    const requestMet = h.request !== null && h.request === location
+    h.bloom = Math.min(3, h.bloom + (requestMet ? 2 : 1))
+    if (requestMet) {
+      points += 150
+      label = 'REQUEST MET!'
+    }
     p.t = 999
     this.addScore(points, p.x, p.y - this.camera - 10)
     this.floaters.push({
@@ -1438,6 +1454,13 @@ class PetalPost implements ArcadeGameInstance {
       paintHouse(k, wall, roof, sub, h.delivered),
     )
     g.restore()
+    if (sub && h.request && !h.delivered) {
+      drawText(g, h.request === 'mailbox' ? 'MAIL' : 'PORCH', 55, sy - 38, {
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    }
     if (sub && h.bloom > 0) {
       for (let i = 0; i < h.bloom * 3; i++) {
         const x = 12 + i * 8

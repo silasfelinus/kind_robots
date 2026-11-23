@@ -17,6 +17,8 @@ import type {
   TimeKey,
 } from '~/types/ruler-hooked'
 
+import type { CharacterExpressionKey } from '~/utils/rulerHooked/characterArt'
+
 export const ART_ROOT = '/images/ruler-hooked'
 
 export const art = (key: string): string => `${ART_ROOT}/${key}.webp`
@@ -137,11 +139,23 @@ export const TAB_ART: Record<string, string[]> = {
  *  came back as a literal feather pen). Skipped until a real portrait lands. */
 const MISRENDERED = new Set(['character-steward-quill'])
 
-export function characterCandidates(slug: string | undefined): string[] {
+export function characterCandidates(
+  slug: string | undefined,
+  mood?: CharacterExpressionKey,
+): string[] {
   if (!slug) return []
-  return [`characters/${slug}`, `character-${slug}`]
-    .filter((key) => !MISRENDERED.has(key))
-    .map(art)
+  const expressions = mood
+    ? [
+        art(`character-${slug}-${mood}`),
+        ...(mood === 'neutral' ? [] : [art(`character-${slug}-neutral`)]),
+      ]
+    : []
+  return [
+    ...expressions,
+    ...[`characters/${slug}`, `character-${slug}`]
+      .filter((key) => !MISRENDERED.has(key))
+      .map(art),
+  ]
 }
 
 export function fishCandidates(slug: string): string[] {

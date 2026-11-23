@@ -10,7 +10,7 @@
   >
     <RulerHookedArt
       class="rh-coach__face"
-      :candidates="characterCandidates(ADVISOR_CHARACTER_SLUG)"
+      :candidates="characterCandidates(ADVISOR_CHARACTER_SLUG, mood)"
       :alt="name"
       :initial="name.charAt(0)"
       position="center 18%"
@@ -46,9 +46,15 @@
 <script setup lang="ts">
 import { ADVISOR_CHARACTER_SLUG } from '~/utils/rulerHooked/advisor'
 import { characterCandidates } from '~/utils/rulerHooked/artLibrary'
+import type { CharacterExpressionKey } from '~/utils/rulerHooked/characterArt'
 import type { ConsoleScreen, Lesson } from '~/utils/rulerHooked/tutorial'
 
-defineProps<{ lesson: Lesson; screen: ConsoleScreen; name: string }>()
+defineProps<{
+  lesson: Lesson
+  screen: ConsoleScreen
+  name: string
+  mood: CharacterExpressionKey
+}>()
 const emit = defineEmits<{
   learn: [id: string]
   skip: []

@@ -318,6 +318,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           choices: [
             {
               id: 'develop',
+              reactionMood: 'pleased',
               text: 'Let Vex build. Progress!',
               effects: {
                 sliders: { nature: -25, prosperity: +15, treasury: +8 },
@@ -331,6 +332,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
             {
               id: 'preserve',
+              reactionMood: 'alarmed',
               text: 'The druids keep it. Let it grow.',
               effects: {
                 sliders: { nature: +18, prosperity: -6, joy: +5 },
@@ -343,6 +345,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
             {
               id: 'defer',
+              reactionMood: 'concerned',
               text: '…I’m fishing. Ask me later.',
               effects: { sliders: { order: -3 } },
               requeue: true,
@@ -510,6 +513,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           choices: [
             {
               id: 'raise-taxes',
+              reactionMood: 'pleased',
               text: 'Raise the levy.',
               effects: {
                 sliders: { treasury: +12, joy: -8 },
@@ -519,6 +523,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
             {
               id: 'cut-taxes',
+              reactionMood: 'alarmed',
               text: 'Cut it instead.',
               effects: { sliders: { treasury: -8, joy: +6 } },
               result:
@@ -526,6 +531,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
             {
               id: 'defer-gristle',
+              reactionMood: 'concerned',
               text: '…I’m fishing. Ask me later.',
               effects: { sliders: { order: -2 } },
               requeue: true,
@@ -1337,6 +1343,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           choices: [
             {
               id: 'restore-moat',
+              reactionMood: 'pleased',
               text: 'Fund restocking and let the grandmothers enforce a catch limit.',
               effects: {
                 sliders: { nature: 11, treasury: -7, joy: 6, order: 2 },
@@ -1351,6 +1358,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
             {
               id: 'license-roach',
+              reactionMood: 'concerned',
               text: 'Sell the roach as a royal delicacy. Hire Brack to market it.',
               effects: {
                 sliders: { treasury: 8, prosperity: 5, nature: -6, joy: -4 },
@@ -1427,6 +1435,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
           choices: [
             {
               id: 'return-the-reeds',
+              reactionMood: 'pleased',
               text: 'Buy out the outer docks and restore a fish nursery.',
               effects: {
                 sliders: { nature: 17, treasury: -9, prosperity: -7, joy: 3 },
@@ -1441,6 +1450,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
             {
               id: 'clean-the-marina',
+              reactionMood: 'concerned',
               text: 'Keep the docks. Charge berth fees to fund water cleaning.',
               effects: {
                 sliders: { nature: 7, treasury: 5, prosperity: 5, joy: -2 },

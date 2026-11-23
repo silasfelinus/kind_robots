@@ -29,6 +29,10 @@ import {
   reinforcements,
   withReinforcements,
 } from './rainbowPacing'
+import {
+  withRainbowRouteBeat,
+  type RainbowRouteFlags,
+} from './rainbowRouteBeats'
 
 export type GlassEnemy = 'mirror' | 'squid' | 'harbinger' | 'prism' | 'mortar'
 export type GlassStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
@@ -315,6 +319,7 @@ export function glassDialogue(
   players: number,
   rescuedNavigator = false,
   allegiance: RainbowAllegiance | null = null,
+  route?: RainbowRouteFlags,
 ): GlassDialogue | null {
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
@@ -406,7 +411,11 @@ export function glassDialogue(
       },
     ],
   }
-  return lines[id][Math.floor(elapsed / GLASS.lineFrames)] ?? null
+  return (
+    withRainbowRouteBeat(lines[id], id, route, crew)[
+      Math.floor(elapsed / GLASS.lineFrames)
+    ] ?? null
+  )
 }
 
 export function glassScene(

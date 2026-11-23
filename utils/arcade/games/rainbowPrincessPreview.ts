@@ -64,6 +64,10 @@ import { rainbowPartyMask } from './rainbowPartyComms'
 import { RAINBOW_CONTRAST_PELLET, rainbowCommsLine } from './rainbowComms'
 import { rainbowShipFilter } from './rainbowLivery'
 import {
+  rainbowRouteStinger,
+  type RainbowRouteFlags,
+} from './rainbowRouteBeats'
+import {
   drawRainbowDetourPlanes,
   type RainbowDetour,
 } from './rainbowDetourPlanes'
@@ -329,6 +333,7 @@ import {
   finaleEndingCaption,
   finaleEndingSkip,
   finaleEndingTitle,
+  finaleRescues,
   finaleScene,
   finaleStage,
   type FinaleChoice,
@@ -1505,6 +1510,38 @@ export function createRainbowPrincessPreview(
   function shoalActive() {
     return shoalStart !== null && palaceStart === null
   }
+  /** The highest phase any boss on screen has reached (0 with none), for the phase-change cue. */
+  let lastBossPhase = 0
+  function bossPhase(): number {
+    let phase = 0
+    for (const fight of [
+      boss,
+      moonBoss,
+      clawBoss,
+      delphion,
+      sawtooth,
+      lanternRay,
+      glassEel,
+      leviathan,
+      crown,
+    ] as ({ phase?: number } | null)[])
+      phase = Math.max(phase, fight?.phase ?? 0)
+    return phase
+  }
+  /** The detours this run flew and the flags they earned, for route beats and stingers (ROUTE-MAP 5-6). */
+  function routeFlags(): RainbowRouteFlags {
+    return {
+      viaX1: nurseryStart !== null || nurseryGuardianOutcome !== 'waiting',
+      viaX2: cometStart !== null || cometGuardianOutcome !== 'waiting',
+      viaX3:
+        lighthouseStart !== null || lighthouseGuardianOutcome !== 'waiting',
+      viaX4: shoalStart !== null || shoalGuardianOutcome !== 'waiting',
+      freedChoir,
+      cadetsHome,
+      liltMemoryRecovered: lighthouseMedalEarned(lighthouseLamps),
+      crownEcho: shoalGuardianOutcome === 'defeated',
+    }
+  }
   /** The detour being flown, if any, and its own clock (t-028 painted planes). */
   function activeDetour(): { key: RainbowDetour; frame: number } | null {
     if (nurseryActive()) return { key: 'x1', frame: nurseryFrame() }
@@ -1634,6 +1671,7 @@ export function createRainbowPrincessPreview(
   function launchCrownReef() {
     // The turn: where the living crew flies as it launches is its choice (t-040).
     allegiance = allegianceFor(livingShips().map((ship) => ship.y))
+    options.sound.play('rainbowFork')
     feat(allegiance === 'rebel' ? 'rebel-road' : 'loyal-road')
     popups.push({
       x: W / 2,
@@ -1653,6 +1691,7 @@ export function createRainbowPrincessPreview(
   /** Act VI's fork: where the living crew flies at the decision frame picks the route. */
   function chooseReefRoute() {
     reefRoute = reefRouteFor(livingShips().map((ship) => ship.y))
+    options.sound.play('rainbowFork')
     popups.push({
       x: W / 2,
       y: 92,
@@ -1944,6 +1983,7 @@ export function createRainbowPrincessPreview(
   /** Act V's fork: where the living crew flies at the decision frame picks the route. */
   function chooseWreckRoute() {
     wreckRoute = wreckRouteFor(livingShips().map((ship) => ship.y))
+    options.sound.play('rainbowFork')
     popups.push({
       x: W / 2,
       y: 92,
@@ -2213,6 +2253,7 @@ export function createRainbowPrincessPreview(
         .filter((ship) => ship.lives > 0)
         .map((ship) => ship.y),
     )
+    options.sound.play('rainbowFork')
     if (trenchRoute === 'vault') feat('vault-run')
     popups.push({
       x: W / 2,
@@ -3433,6 +3474,7 @@ export function createRainbowPrincessPreview(
     if (ship.charge < 100) return
     ship.charge = 0
     supers++
+    options.sound.play('rainbowNova')
     feat('kitty-power')
     bursts.push({ seat, pilot: kind, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
@@ -4117,8 +4159,10 @@ export function createRainbowPrincessPreview(
     else actHits++
     ship.invulnerable = 90
     ship.shield--
+    if (ship.shield > 0) options.sound.play('rainbowShield')
     if (ship.shield <= 0) {
       ship.lives--
+      if (ship.lives > 0) options.sound.play('rainbowHurt')
       ship.shield = shieldCap
       // The power level lost with the life falls just ahead as a Recovery Cache (U12) for four seconds.
       if (ship.power > 1 && ship.lives > 0)
@@ -4248,6 +4292,10 @@ export function createRainbowPrincessPreview(
       return
     }
     tick++
+    // A boss changing phase gets its own cue (t-012), whichever boss is on screen.
+    const phase = bossPhase()
+    if (phase > lastBossPhase) options.sound.play('rainbowPhase')
+    lastBossPhase = phase
     for (let i = bursts.length - 1; i >= 0; i--)
       if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
     for (let i = popups.length - 1; i >= 0; i--)
@@ -4927,6 +4975,15 @@ export function createRainbowPrincessPreview(
       } else if (endingFrame !== null) {
         // The ending, then the credits, then THE END: A closes the run, or it closes by itself.
         endingFrame++
+        // The credits open with the route stinger's fanfare when the run earned one (ROUTE-MAP section 6).
+        if (
+          endingFrame === FINALE_ENDING_FRAMES &&
+          rainbowRouteStinger(finalChoice ?? 'evacuate', routeFlags(), {
+            all: finaleRescues(finaleFlags()) === 6,
+            stoppedRelay: finaleFlags().stoppedRelay,
+          })
+        )
+          options.sound.play('rainbowStinger')
         // A moves the ending on a line at a time, once each line has had a moment (t-012).
         const skipTo = [input, ...seated].some((keys) => keys?.pressed.a)
           ? finaleEndingSkip(endingFrame)
@@ -6042,6 +6099,7 @@ export function createRainbowPrincessPreview(
         return null
       return rainbowMusicFor({
         act: currentAct(),
+        detour: activeDetour()?.key ?? null,
         boss: Boolean(
           boss ||
           moonBoss ||
@@ -8990,6 +9048,7 @@ export function createRainbowPrincessPreview(
                       finalChoice,
                       allegiance,
                       partyMask(),
+                      routeFlags(),
                     )
                   : act === 8
                     ? palaceDialogue(
@@ -8998,6 +9057,7 @@ export function createRainbowPrincessPreview(
                         activePlayers,
                         palaceFlags(),
                         allegiance,
+                        routeFlags(),
                       )
                     : act === 7
                       ? glassDialogue(
@@ -9006,6 +9066,7 @@ export function createRainbowPrincessPreview(
                           activePlayers,
                           rescuedNavigator,
                           allegiance,
+                          routeFlags(),
                         )
                       : act === 6
                         ? reefDialogue(
@@ -9026,6 +9087,7 @@ export function createRainbowPrincessPreview(
                               wreckRoute,
                               wreckRoute === 'depot' &&
                                 podsSaved >= WRECK_FORK.podsToFree,
+                              routeFlags(),
                             )
                           : act === 4
                             ? rosefinDialogue(
@@ -9033,6 +9095,7 @@ export function createRainbowPrincessPreview(
                                 scene.elapsed,
                                 activePlayers,
                                 rescuedCourier,
+                                routeFlags(),
                               )
                             : act === 3
                               ? trenchDialogue(
@@ -9319,6 +9382,7 @@ export function createRainbowPrincessPreview(
                 pilotOf(seat),
               ),
               callSign: livery?.callSign,
+              route: routeFlags(),
             },
           )
           const top =

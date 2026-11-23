@@ -93,8 +93,8 @@ assert.equal(
   assert.equal(new Set(ids).size, ids.length)
   assert.equal(
     ids.length,
-    21,
-    'nine flights, nine bosses, the guardians, the ending, the failure',
+    25,
+    'nine flights, nine bosses, four detour flights, the guardians, the ending, the failure',
   )
   for (const track of RAINBOW_RECORDED_TRACKS) {
     const file = path.join('public', track.path)

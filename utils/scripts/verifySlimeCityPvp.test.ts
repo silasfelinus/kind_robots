@@ -591,11 +591,11 @@ console.log('Slime City VS finish: result, rematch and record PASS')
     'components/navigation/workspace-header.vue',
     'utf8',
   )
-  const picker = readFileSync('components/navigation/channel-select.vue', 'utf8')
-  assert.match(
-    battle,
-    /@media \(min-width: 1050px\) and \(min-height: 740px\)/,
+  const picker = readFileSync(
+    'components/navigation/channel-select.vue',
+    'utf8',
   )
+  assert.match(battle, /@media \(min-width: 1050px\) and \(min-height: 740px\)/)
   assert.match(battle, /\.scpvp-field \{\s*grid-column: 1;\s*grid-row: 2;/)
   assert.match(battle, /\.scpvp-controls \{\s*grid-column: 2;\s*grid-row: 2;/)
   assert.match(battle, /\.scpvp-hand \{[\s\S]*?flex-wrap: wrap;/)

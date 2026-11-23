@@ -246,6 +246,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   pendingChoice: number | null = null
   choiceCursor: 0 | 1 = 0
   ending: StoryEnding | null = null
+  private choiceResponseVisible = false
   private readonly demo: boolean
 
   constructor(options: ArcadeGameOptions) {
@@ -359,6 +360,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.feats.push(id)
   }
   private resetBoard() {
+    this.choiceResponseVisible = false
     this.board = makeBoard(this.level, this.rng, this.mode)
     this.loaded = chooseHue(this.board, this.rng)
     this.next = chooseHue(this.board, this.rng)
@@ -483,6 +485,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         if (this.choiceCursor === 0) this.lives = Math.min(9, this.lives + 1)
         else this.power = STORY_DECISIONS[index]!.power
         this.message = STORY_DECISIONS[index]!.options[this.choiceCursor].response
+        this.choiceResponseVisible = true
         this.pendingChoice = null
         this.banner = 110
         this.remember()
@@ -984,7 +987,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         g,
         this.won
           ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)].lines[1]
-          : this.banner > 0 && this.mode === 'story' && this.level % 5 === 1
+          : this.banner > 0 &&
+            !this.choiceResponseVisible &&
+            this.mode === 'story' &&
+            this.level % 5 === 1
             ? CHAPTER_VOICES[Math.min(5, Math.floor((this.level - 1) / 5))]!
             : this.message,
         160,

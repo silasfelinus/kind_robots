@@ -37,6 +37,7 @@ import {
   vistaCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
+import { CHARACTER_EXPRESSION_KEYS } from '~/utils/rulerHooked/characterArt'
 import { availableFish } from '~/utils/rulerHooked/fish'
 import type { RunSave } from '~/types/ruler-hooked'
 
@@ -262,6 +263,51 @@ const fresh = (seed = 'console-seed'): RunSave =>
   for (const [key, list] of Object.entries(TAB_ART)) {
     assert.ok(list.length >= 2, `${key} tab has a rendered fallback`)
   }
+  for (const person of C.characters) {
+    for (const mood of CHARACTER_EXPRESSION_KEYS) {
+      const candidates = characterCandidates(person.slug, mood)
+      assert.equal(
+        candidates[0],
+        `/images/ruler-hooked/character-${person.slug}-${mood}.webp`,
+        `${person.slug} ${mood} resolves through the render-queue contract`,
+      )
+      assert.ok(
+        candidates.includes(
+          `/images/ruler-hooked/characters/${person.slug}.webp`,
+        ),
+        `${person.slug} retains its legacy portrait fallback`,
+      )
+    }
+  }
+  assert.deepEqual(characterCandidates('steward-quill', 'alarmed'), [
+    '/images/ruler-hooked/character-steward-quill-alarmed.webp',
+    '/images/ruler-hooked/character-steward-quill-neutral.webp',
+    '/images/ruler-hooked/characters/steward-quill.webp',
+  ])
+  assert.deepEqual(characterCandidates('taxman-gristle', 'pleased'), [
+    '/images/ruler-hooked/character-taxman-gristle-pleased.webp',
+    '/images/ruler-hooked/character-taxman-gristle-neutral.webp',
+    '/images/ruler-hooked/characters/taxman-gristle.webp',
+    '/images/ruler-hooked/character-taxman-gristle.webp',
+  ])
+  assert.deepEqual(characterCandidates(undefined, 'alarmed'), [])
+  const authoredReactions = C.decks
+    .flatMap((deck) => deck.cards)
+    .flatMap((card) => card.choices)
+    .filter((choice) => choice.reactionMood)
+  assert.ok(
+    authoredReactions.length >= 10,
+    'major kingdom choices require authored presenter reactions',
+  )
+  assert.ok(
+    authoredReactions.some((choice) => choice.reactionMood === 'alarmed'),
+  )
+  assert.ok(
+    authoredReactions.some((choice) => choice.reactionMood === 'pleased'),
+  )
+  assert.ok(
+    authoredReactions.some((choice) => choice.reactionMood === 'concerned'),
+  )
   assert.deepEqual(characterCandidates('bard-fen'), [
     '/images/ruler-hooked/characters/bard-fen.webp',
     '/images/ruler-hooked/character-bard-fen.webp',

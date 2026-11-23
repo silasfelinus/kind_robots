@@ -710,6 +710,7 @@
       <div v-else-if="screen === 'settings'" class="prom-info-room">
         <p class="prom-eyebrow">OPTIONS / BEFORE THE FIRST BELL</p>
         <h2>Make it yours.</h2>
+        <AcademySoundMixer />
         <label class="prom-setting">
           <span>Reduce opening animation</span>
           <input v-model="reducedMotion" type="checkbox" />
@@ -766,6 +767,7 @@
 
 <script setup lang="ts">
 import AcademyTermArchive from '~/components/play/cometAcademy/AcademyTermArchive.vue'
+import AcademySoundMixer from '~/components/play/cometAcademy/AcademySoundMixer.vue'
 import { computed, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { identityFor } from '~/utils/cometAcademy/identityArcs'

@@ -12,7 +12,8 @@
           Rendered ArtImage receipts / private review
         </p>
         <h3 class="mt-1 text-xl font-black">
-          Eight review groups, thirty-five production candidates
+          {{ CAPES_PRODUCTION_IDENTITIES.length }} review groups,
+          {{ CAPES_REVIEWABLE_PRODUCTION.length }} production candidates
         </h3>
         <p class="mt-1 max-w-2xl text-xs leading-5 text-slate-300">
           These records have DONE ArtImage IDs in private Conductor art ledgers.

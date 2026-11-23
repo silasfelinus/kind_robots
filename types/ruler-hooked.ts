@@ -152,6 +152,8 @@ export interface Choice {
   text: string
   effects?: Effect
   result?: string
+  /** Authored emotion shown by the petitioner after this decree. */
+  reactionMood?: 'neutral' | 'pleased' | 'concerned' | 'alarmed'
   requeue?: boolean
 }
 

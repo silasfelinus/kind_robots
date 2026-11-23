@@ -840,3 +840,28 @@ console.log(
   assert.match(service, /strikes: trail\?\.strikes/)
 }
 console.log('Slime City VS take-backs, strike trail and board animations PASS')
+{
+  const battle = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+  const header = readFileSync(
+    'components/navigation/workspace-header.vue',
+    'utf8',
+  )
+  const picker = readFileSync(
+    'components/navigation/channel-select.vue',
+    'utf8',
+  )
+  // Wide screens (Chromebooks, tablets in landscape): the alleys take the
+  // left column and the boss rail sits beside them on the right; the floating
+  // hand never takes the board's space.
+  assert.match(
+    battle,
+    /grid-template-areas:\s*'arena rail'\s*'console console';/,
+  )
+  assert.match(battle, /\.scpvp-rail \{\s*grid-area: rail;/)
+  assert.doesNotMatch(battle, /\.scpvp-controls \{/)
+  assert.match(header, /header-account shrink-0 xl:ml-auto/)
+  assert.match(header, /route\.path === '\/play\/slime-city-pvp'/)
+  assert.match(picker, /route\.path === '\/play\/slime-city-pvp'/)
+  assert.match(picker, /route\.path\.startsWith\('\/play\/slime-city'\)/)
+}
+console.log('Slime City Chromebook duel layout contract PASS')

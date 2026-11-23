@@ -9,7 +9,7 @@
     >
       <NuxtLink
         to="/"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
         :class="
           route.path === '/'
             ? 'border-primary bg-primary/15 text-primary'
@@ -19,7 +19,7 @@
         aria-label="Home"
         title="Home"
       >
-        <Icon name="kind-icon:home" class="kr-icon-5" />
+        <Icon name="kind-icon:home" class="kr-icon-5 xl:size-6" />
       </NuxtLink>
       <!--
         KEPT, though Silas's list of four does not mention it, because it only
@@ -37,7 +37,7 @@
         title="Go back"
         @click="goBack"
       >
-        <Icon name="kind-icon:arrow-left" class="kr-icon-5" />
+        <Icon name="kind-icon:arrow-left" class="kr-icon-5 xl:size-6" />
       </button>
 
       <div
@@ -68,7 +68,7 @@
         />
       </div>
 
-      <account-hub class="header-account shrink-0" />
+      <account-hub class="header-account shrink-0 xl:ml-auto" />
 
       <!--
         ARTJOB QUEUE, ADMINS ONLY. Silas, 2026-09-08: "if the user is an admin
@@ -96,7 +96,7 @@
       <NuxtLink
         v-if="userStore.isAdmin"
         to="/artjob"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
         :class="
           artjobActive
             ? 'border-primary bg-primary/15 text-primary'
@@ -107,7 +107,7 @@
         :title="artjobLabel"
       >
         <span class="indicator">
-          <Icon name="kind-icon:art-queue" class="kr-icon-5" />
+          <Icon name="kind-icon:art-queue" class="kr-icon-5 xl:size-6" />
           <span
             v-if="artJobStore.activeJobCount"
             class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
@@ -128,7 +128,7 @@
       -->
       <NuxtLink
         to="/art"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
         :class="
           artActive
             ? 'border-primary bg-primary/15 text-primary'
@@ -138,12 +138,12 @@
         aria-label="Art"
         title="Art"
       >
-        <Icon name="kind-icon:image" class="kr-icon-5" />
+        <Icon name="kind-icon:image" class="kr-icon-5 xl:size-6" />
       </NuxtLink>
 
       <NuxtLink
         to="/play/slime-city"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
         :class="
           slimeCityActive
             ? 'border-primary bg-primary/15 text-primary'
@@ -155,7 +155,7 @@
         data-testid="header-slime-city"
       >
         <span class="indicator">
-          <Icon name="kind-icon:cat" class="kr-icon-5" />
+          <Icon name="kind-icon:cat" class="kr-icon-5 xl:size-6" />
           <span
             v-if="userStore.isLoggedIn && slimeCityPendingTurns"
             class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
@@ -175,7 +175,7 @@
       -->
       <NuxtLink
         to="/play/chessweeper"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
         :class="
           chessweeperActive
             ? 'border-primary bg-primary/15 text-primary'
@@ -186,7 +186,7 @@
         title="Chessweeper"
         data-testid="header-chessweeper"
       >
-        <Icon name="kind-icon:chessweeper" class="kr-icon-5" />
+        <Icon name="kind-icon:chessweeper" class="kr-icon-5 xl:size-6" />
       </NuxtLink>
 
       <!--
@@ -209,7 +209,7 @@
       -->
       <NuxtLink
         to="/play/memory"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
         :class="
           memoryActive
             ? 'border-primary bg-primary/15 text-primary'
@@ -219,14 +219,14 @@
         aria-label="Memory Dungeon"
         title="Memory Dungeon"
       >
-        <Icon name="kind-icon:brain" class="kr-icon-5" />
+        <Icon name="kind-icon:brain" class="kr-icon-5 xl:size-6" />
       </NuxtLink>
 
       <!-- Workspace help is a single permanent header utility, never a
            second page-caption row. -->
       <button
         type="button"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
         :class="[
           workspaceSheetOpen
             ? 'border-primary bg-primary/15 text-primary'
@@ -240,7 +240,7 @@
         @click="navStore.toggleWorkspaceSheet()"
       >
         <span class="indicator">
-          <Icon name="kind-icon:question" class="kr-icon-5" />
+          <Icon name="kind-icon:question" class="kr-icon-5 xl:size-6" />
           <span
             v-if="tutorialUnseen && !workspaceSheetOpen"
             class="indicator-item h-2.5 w-2.5 rounded-full bg-secondary ring-2 ring-base-100"
@@ -311,8 +311,12 @@ const requestedTabKey = computed(() => {
  * pageStore stays as the fallback: it carries frontmatter that a path alone
  * cannot express, and routes outside any channel resolve to null here.
  */
-const routeChannelLocation = computed(() =>
-  channelContentStore.resolveActiveLocation({ path: route.path }),
+const routeChannelLocation = computed(
+  () =>
+    channelContentStore.resolveActiveLocation({ path: route.path }) ??
+    (route.path === '/play/slime-city-pvp'
+      ? channelContentStore.resolveActiveLocation({ path: '/play/slime-city' })
+      : null),
 )
 
 const resolvedChannel = computed(

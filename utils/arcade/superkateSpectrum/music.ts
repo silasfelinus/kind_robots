@@ -106,6 +106,29 @@ export const SPECTRUM_THEMES: readonly MusicLoop[] = [
   },
 ]
 
+/** Six denser, faster arrangements for each fifth-stage chapter showdown. */
+export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] =
+  SPECTRUM_THEMES.map((theme, index) => ({
+    bpm: Math.min(170, theme.bpm + 18),
+    stepsPerBeat: 2,
+    tracks: [
+      ...theme.tracks,
+      {
+        steps:
+          index % 2 === 0
+            ? 'C3 . G2 . C3 . G2 . Bb2 . F2 . G2 . Bb2 .'
+            : 'A2 . E2 . A2 . E2 . G2 . D2 . E2 . G2 .',
+        type: 'sawtooth' as const,
+        vol: 0.015,
+      },
+      {
+        steps: 'x . . x x . x . x . x x . x . x',
+        noise: true,
+        vol: 0.013,
+      },
+    ],
+  }))
+
 export const SPECTRUM_CLASSIC_MUSIC: MusicLoop = {
   bpm: 128,
   stepsPerBeat: 2,

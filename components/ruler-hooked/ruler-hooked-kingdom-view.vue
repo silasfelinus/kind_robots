@@ -14,7 +14,6 @@
     <RulerHookedStage
       :scene="scene"
       :regions="regions"
-      :ruler-custom-portrait-id="save.ruler.cosmetics?.customPortraitId ?? null"
     />
 
     <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-2">

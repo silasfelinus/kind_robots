@@ -1000,6 +1000,29 @@ export function overrideWebGLSupport(value: boolean | null) {
  */
 export const LINKED_GAMES: ArcadeGameMeta[] = [
   {
+    slug: 'chessweeper-triple',
+    title: 'Chessweeper: Triple Threat',
+    riffsOn: 'Chess, Minesweeper and disc-room survival',
+    blurb:
+      'Three separate games share one clock: play legal chess against a computer, reveal a Minesweeper field and dodge live bouncing discs with WASD or touch. Keep all three moving to earn the balance bonus. Original Chessweeper campaigns remain playable in Classic.',
+    howTo: [
+      'CHESS: TAP PIECE, THEN DESTINATION',
+      'MINES: TAP, LONG PRESS TO FLAG',
+      'WASD OR DRAG: DODGE DISCS',
+      'ALL THREE PANELS STAY ACTIVE',
+      'THREE SHARED HEARTS',
+      'BALANCE ALL THREE TO SCORE BIG',
+    ],
+    width: 960,
+    height: 360,
+    maxPlausibleScore: 10_000_000,
+    titleArt: '/images/chessweeper/sugarbomb-kingdom.webp',
+    route: '/play/chessweeper',
+    accent: '#6ee7d4',
+    controls: 'Chess click, Mines click, WASD / drag',
+    shelf: 'showcase',
+  },
+  {
     slug: 'zuzu-showdown',
     title: 'Zuzu Showdown',
     riffsOn: 'Street Fighter II',

@@ -1849,6 +1849,84 @@ watch(
     z-index: 5;
   }
 }
+@media (min-width: 1050px) and (min-height: 740px) {
+  .scpvp-battle {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 28%);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 0.6rem;
+    padding: 0.6rem;
+  }
+  .scpvp-versus {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .scpvp-field {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .scpvp-controls {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #4d665e;
+    border-radius: 0.8rem;
+    background: #101e24b8;
+    overflow: hidden;
+  }
+  .scpvp-hand {
+    flex: 1 1 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    height: auto;
+    min-height: 0;
+    padding: 0.3rem 0.1rem;
+    overflow-y: auto;
+  }
+  .scpvp-card {
+    flex: 0 0 calc(33.333% - 0.3rem);
+    width: calc(33.333% - 0.3rem);
+    height: auto;
+    max-width: 9.5rem;
+  }
+  .scpvp-actions {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    max-width: none;
+    gap: 0.45rem;
+  }
+  .scpvp-actions p,
+  .scpvp-choice,
+  .scpvp-tap {
+    grid-column: 1 / -1;
+  }
+  .scpvp-actions p {
+    font-size: 0.73rem;
+  }
+  .scpvp-actions > button:not(.scpvp-primary) {
+    min-height: 2.4rem;
+    padding: 0.5rem;
+  }
+  .scpvp-actions > .scpvp-primary {
+    grid-column: 1 / -1;
+    min-height: 3.15rem;
+    font-size: 0.9rem;
+  }
+  .scpvp-log {
+    top: 5rem;
+    right: calc(28% + 1rem);
+    bottom: 0.75rem;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .scpvp-card,
   .scpvp-pop-enter-active,

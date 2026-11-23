@@ -25,7 +25,7 @@
         palette: region.palette,
         sky: region.sky,
         motif: region.motif,
-        music: world.music,
+        music: { ...world.music, tier },
         ending: tier === world.regions.length - 1 ? world.ending.id : undefined,
       }
       ROUTE_ORDER.push(region.id)

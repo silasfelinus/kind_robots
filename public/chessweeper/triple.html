@@ -77,6 +77,7 @@
           <output id="mine-points">0</output> ◉
           <output id="disc-points">0</output>
         </span>
+        <span id="difficulty-badge" class="hud-difficulty" title="Difficulty">⚖ MEDIUM</span>
         <span class="hud-spacer"></span>
         <button
           id="pause"
@@ -129,6 +130,15 @@
               </select>
             </label>
             <label
+              >Difficulty
+              <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+                <option value="catastrophic">Catastrophic ☠</option>
+              </select>
+            </label>
+            <label
               >Theme
               <select id="theme">
                 <option value="sugar">Sugarbomb Kingdom</option>
@@ -137,11 +147,15 @@
               </select>
             </label>
           </div>
+          <p id="difficulty-hint" class="difficulty-hint" aria-live="polite">
+            Medium: 3 hearts · 10 mines · 3 blades · balanced opponent.
+          </p>
           <p class="help">
             Chess: click a piece and destination. Mines: tap to reveal, long
             press or toggle 🚩 to flag. Survival: WASD, or drag on the arena.
             All three panels stay active. Losing all three shared hearts ends
-            the run. Only 120-second Standard runs qualify for global rankings.
+            the run. Only 120-second Standard runs qualify for global rankings,
+            which are separated by difficulty.
           </p>
           <div class="buttons">
             <button id="start" class="primary">▶ START TRIPLE THREAT</button>
@@ -182,6 +196,14 @@
           </div>
         </div>
         <div id="scores-view" class="dialog-view hidden">
+          <label class="score-difficulty-label">Global rankings for
+            <select id="score-difficulty" aria-label="Leaderboard difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+              <option value="catastrophic">Catastrophic ☠</option>
+            </select>
+          </label>
           <div class="buttons compact">
             <button id="all-time" class="secondary on">All time</button>
             <button id="today" class="secondary">Today (UTC)</button>

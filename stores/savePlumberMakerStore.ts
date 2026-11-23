@@ -275,7 +275,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     undoStack.value = []
     redoStack.value = []
     invalidateReviewRequest()
-      reviewSummary.value = blankReviewSummary()
+    reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
     message.value = 'Starter course loaded. Build something new!'
     error.value = ''
@@ -287,7 +287,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     redoStack.value.push(clone(level.value))
     level.value = previous
     invalidateReviewRequest()
-      reviewSummary.value = blankReviewSummary()
+    reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
   }
 
@@ -297,7 +297,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     undoStack.value.push(clone(level.value))
     level.value = next
     invalidateReviewRequest()
-      reviewSummary.value = blankReviewSummary()
+    reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
   }
 
@@ -346,7 +346,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
 
   function newDraft() {
     invalidateReviewRequest()
-      reviewSummary.value = blankReviewSummary()
+    reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
     level.value = newMakerLevel()
     selection.value = null
@@ -396,7 +396,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
     selection.value = null
     tool.value = 'brush'
     invalidateReviewRequest()
-      reviewSummary.value = blankReviewSummary()
+    reviewSummary.value = blankReviewSummary()
     reviewComment.value = ''
     currentDraft.value = found.id
     imported.value = false

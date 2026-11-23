@@ -33,6 +33,18 @@ import {
   readSpectrumSave,
   unlockedStyles,
 } from '../superkateSpectrum/progress'
+import {
+  CHAPTER_VOICES,
+  STORY_DECISIONS,
+  STORY_ENDINGS,
+  endingForStory,
+  freshStoryChoices,
+  pendingStoryDecision,
+} from '../superkateSpectrum/story'
+import type {
+  StoryChoices,
+  StoryEnding,
+} from '../superkateSpectrum/story'
 import type {
   BubbleStyle,
   SpectrumCareer,
@@ -229,6 +241,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   private shotsThisBoard = 0
   private poppedThisBoard = 0
   private stored: SpectrumSave
+  storyChoices: StoryChoices
+  storyEndings: StoryEnding[]
+  pendingChoice: number | null = null
+  choiceCursor: 0 | 1 = 0
+  ending: StoryEnding | null = null
   private readonly demo: boolean
 
   constructor(options: ArcadeGameOptions) {
@@ -241,6 +258,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.onAudioChange = options.onAudioChange
     this.demo = options.demo
     this.stored = readSpectrumSave(options.resume)
+    this.storyChoices = [...(this.stored.storyChoices ?? freshStoryChoices())]
+    this.storyEndings = [...(this.stored.endings ?? [])]
     this.settings = { ...this.stored.settings }
     this.earned = new Set(options.mastery ?? [])
     this.career = this.stored.career
@@ -291,6 +310,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       stage: this.mode === 'story' ? this.level : 1,
       style: this.selectedStyle,
       settings: { ...this.settings },
+      storyChoices: [...this.storyChoices],
+      endings: [...this.storyEndings],
     }
   }
   private beginRun() {
@@ -300,6 +321,12 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.score = 0
     this.lives = 3
     this.level = this.mode === 'classic' ? 1 : this.menuStage
+    this.pendingChoice =
+      this.mode === 'story'
+        ? pendingStoryDecision(this.level, this.storyChoices)
+        : null
+    this.choiceCursor = 0
+    this.ending = null
     this.resetBoard()
     this.remember()
   }
@@ -419,12 +446,20 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       if (this.mode === 'story' && this.level === 30) {
         this.over = true
         this.won = true
+        this.ending = endingForStory(this.storyChoices)
+        if (!this.storyEndings.includes(this.ending))
+          this.storyEndings.push(this.ending)
         this.earn('true-spectrum')
         this.remember()
         return
       }
       this.level++
       this.resetBoard()
+      this.pendingChoice =
+        this.mode === 'story'
+          ? pendingStoryDecision(this.level, this.storyChoices)
+          : null
+      this.choiceCursor = 0
       this.remember()
       return
     }
@@ -439,6 +474,22 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (this.board[ROWS - 1]!.some(Boolean)) this.lose()
   }
   update(input: InputFrame) {
+    if (this.pendingChoice !== null) {
+      if (input.pressed.left || input.pressed.up) this.choiceCursor = 0
+      if (input.pressed.right || input.pressed.down) this.choiceCursor = 1
+      if (input.pressed.a) {
+        const index = this.pendingChoice
+        this.storyChoices[index] = this.choiceCursor
+        if (this.choiceCursor === 0) this.lives = Math.min(9, this.lives + 1)
+        else this.power = STORY_DECISIONS[index]!.power
+        this.message = STORY_DECISIONS[index]!.options[this.choiceCursor].response
+        this.pendingChoice = null
+        this.banner = 110
+        this.remember()
+        this.playEffect('level')
+      }
+      return
+    }
     if (this.over) return
     this.tick++
     for (const spark of this.sparks) {
@@ -559,6 +610,27 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     )
       this.settle()
   }
+  private renderStoryChoice(g: CanvasRenderingContext2D) {
+    const scene = STORY_DECISIONS[this.pendingChoice!]!
+    g.fillStyle = '#0e1131f5'
+    g.fillRect(13, 111, W - 26, 281)
+    g.strokeStyle = '#ffb1de'
+    g.lineWidth = 2
+    g.strokeRect(13, 111, W - 26, 281)
+    label(g, scene.title, W / 2, 142, 15, '#ffe29b')
+    label(g, scene.speaker, W / 2, 174, 10, '#b5f3e7')
+    label(g, scene.question, W / 2, 195, 11, '#fff4f6')
+    for (const [index, option] of scene.options.entries()) {
+      const y = 233 + index * 65
+      g.fillStyle = this.choiceCursor === index ? '#9b3c8e' : '#303451'
+      g.fillRect(25, y - 23, W - 50, 56)
+      g.strokeStyle = this.choiceCursor === index ? '#ffe493' : '#8e92b9'
+      g.strokeRect(25, y - 23, W - 50, 56)
+      label(g, option.label, W / 2, y, 11, '#ffffff')
+      label(g, option.reward, W / 2, y + 21, 10, '#a7f8df')
+    }
+    label(g, 'LEFT/RIGHT CHOOSE · A CONFIRM', W / 2, 378, 10)
+  }
   private renderHomePage(g: CanvasRenderingContext2D, rank: number) {
     const panel = g.createLinearGradient(0, 120, W, 380)
     panel.addColorStop(0, '#40225fe8')
@@ -609,6 +681,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         '#ffe18e',
       )
       label(g, 'LEFT/RIGHT: CHAPTERS', W / 2, 343, 10)
+      label(
+        g,
+        `ENDING MEMORIES ${this.storyEndings.length}/3`,
+        W / 2,
+        367,
+        10,
+        '#ffe39e',
+      )
     } else if (this.menuTab === 'achievements') {
       const milestones = [
         {
@@ -813,6 +893,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       11,
       '#ffe4a0',
     )
+    if (this.pendingChoice !== null) {
+      this.renderStoryChoice(g)
+      return
+    }
     if (this.choosingMode && this.menuTab !== 'play') {
       this.renderHomePage(g, rank)
       return
@@ -877,7 +961,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         g,
         this.over
           ? this.won
-            ? 'EVERY SHADE BELONGS'
+            ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)].title
             : 'TRY AGAIN'
           : chapter.name,
         160,
@@ -886,16 +970,31 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       )
       label(
         g,
-        this.over ? 'THANK YOU, SUPERKATE!' : chapter.problem,
+        this.won
+          ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)].lines[0]
+          : this.over
+            ? 'THANK YOU, SUPERKATE!'
+            : chapter.problem,
         160,
         212,
         10,
         '#8ff4ed',
       )
-      label(g, this.message, 160, 240, 10, '#ffb9d8')
       label(
         g,
-        this.won ? 'EVERY SHADE BELONGS' : 'A FIRE  B SWAP  LEFT/RIGHT AIM',
+        this.won
+          ? STORY_ENDINGS[this.ending ?? endingForStory(this.storyChoices)].lines[1]
+          : this.banner > 0 && this.mode === 'story' && this.level % 5 === 1
+            ? CHAPTER_VOICES[Math.min(5, Math.floor((this.level - 1) / 5))]!
+            : this.message,
+        160,
+        240,
+        10,
+        '#ffb9d8',
+      )
+      label(
+        g,
+        this.won ? 'THREE PATHS · ONE RAINBOW CITY' : 'A FIRE  B SWAP  LEFT/RIGHT AIM',
         160,
         266,
         10,
@@ -930,6 +1029,9 @@ const game: ArcadeGameModule = {
       title: "SUPERKATE'S STORY",
       lines: [
         'SIX NEIGHBORHOODS, FIVE BOARDS EACH',
+        'THREE CHOICES CHANGE YOUR BONUSES',
+        'SAVE YOUR DECISIONS ACROSS DEVICES',
+        'THREE DIFFERENT CITY ENDINGS',
         'THE PRISM SORTER IS ERASING DIFFERENCE',
         'SUPERKATE HELPS EVERYONE SHINE',
         'COMPLETE EACH CHAPTER FOR A HEART',

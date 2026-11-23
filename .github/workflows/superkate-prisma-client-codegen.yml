@@ -26,6 +26,10 @@ jobs:
         run: npm ci --ignore-scripts
         env:
           CYPRESS_INSTALL_BINARY: '0'
+      - name: Prepare Nuxt project tsconfig for the Prisma generator
+        run: npx nuxi prepare
+        env:
+          DATABASE_URL: mysql://user:pass@127.0.0.1:3306/kindrobots
       - name: Regenerate checked-in Prisma client for additive Arcade model
         run: npx prisma generate
         env:

@@ -131,6 +131,15 @@ select, input {
 .primary { color: #10172b; background: linear-gradient(100deg, #80f7db, #f8d280); border-color: #e3ffed; }
 .secondary { background: #34425c; }
 .secondary.on { border-color: #f8d280; color: #fff1c3; }
+.audio-settings {
+  margin: 12px 0 0; display: flex; justify-content: center; gap: 19px;
+  color: #dfedfa; font-size: 12px; font-weight: 800;
+}
+.audio-settings label { display: inline-flex; gap: 7px; align-items: center; }
+.audio-settings input { width: 17px; height: 17px; accent-color: #83f9df; }
+html[data-realm='sugar'] .play-panel { box-shadow: inset 0 1px #fff3, 0 0 14px #f987d525; }
+html[data-realm='ashen'] .play-panel { filter: saturate(.72); }
+html[data-realm='jackpot'] .play-panel { box-shadow: inset 0 1px #fff3, 0 0 17px #e7c26944; }
 .link-action { width: 100%; background: transparent; border: 0; padding: 13px 0 2px; color: #bed1ff; font-weight: 850; font-size: 12px; }
 .score-list { margin: 9px 0; padding: 0; counter-reset: rank; list-style: none; max-height: 26dvh; min-height: 70px; overflow: auto; }
 .score-list li { display: flex; justify-content: space-between; padding: 5px 9px; border-bottom: 1px solid #607088; font-size: 12px; }

@@ -584,3 +584,24 @@ console.log(
   )
 }
 console.log('Slime City VS finish: result, rematch and record PASS')
+
+{
+  const battle = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+  const header = readFileSync(
+    'components/navigation/workspace-header.vue',
+    'utf8',
+  )
+  const picker = readFileSync('components/navigation/channel-select.vue', 'utf8')
+  assert.match(
+    battle,
+    /@media \(min-width: 1050px\) and \(min-height: 740px\)/,
+  )
+  assert.match(battle, /\.scpvp-field \{\s*grid-column: 1;\s*grid-row: 2;/)
+  assert.match(battle, /\.scpvp-controls \{\s*grid-column: 2;\s*grid-row: 2;/)
+  assert.match(battle, /\.scpvp-hand \{[\s\S]*?flex-wrap: wrap;/)
+  assert.match(header, /header-account shrink-0 xl:ml-auto/)
+  assert.match(header, /route\.path === '\/play\/slime-city-pvp'/)
+  assert.match(picker, /route\.path === '\/play\/slime-city-pvp'/)
+  assert.match(picker, /route\.path\.startsWith\('\/play\/slime-city'\)/)
+}
+console.log('Slime City Chromebook duel layout contract PASS')

@@ -580,7 +580,9 @@ const LAUNCHER_MAX_WIDTH = 1760
 
 const route = useRoute()
 const isSlimeCityPage = computed(
-  () => route.path === '/play/slime-city' || route.path === '/admin/slime-city',
+  () =>
+    route.path.startsWith('/play/slime-city') ||
+    route.path.startsWith('/admin/slime-city'),
 )
 const router = useRouter()
 const pageStore = usePageStore()
@@ -647,8 +649,12 @@ const fallbackChannel: ResolvedChannel = {
  * content page visited -- the button read "Home" beside an Admin tab picker
  * and the Admin row was never highlighted.
  */
-const routeLocation = computed(() =>
-  channelContentStore.resolveActiveLocation({ path: route.path }),
+const routeLocation = computed(
+  () =>
+    channelContentStore.resolveActiveLocation({ path: route.path }) ??
+    (route.path === '/play/slime-city-pvp'
+      ? channelContentStore.resolveActiveLocation({ path: '/play/slime-city' })
+      : null),
 )
 
 const activeChannel = computed<ResolvedChannel>(() => {

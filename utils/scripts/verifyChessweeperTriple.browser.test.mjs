@@ -234,7 +234,9 @@ try {
     assert.ok(complete.final > 0, 'completed run earns points')
     await page.fill('#initials', 'kR7')
     await page.click('#submit')
-    await page.locator('#submit-status').getByText(/Rank #2/).waitFor()
+    await page.waitForFunction(() =>
+      /Rank #2/.test(document.getElementById('submit-status')?.textContent || ''),
+    )
     assert.match(await page.locator('#submit-status').innerText(), /Rank #2/)
     assert.equal(submissions.length, 1, 'one score submission per run')
     assert.equal(submissions[0].game, slug)

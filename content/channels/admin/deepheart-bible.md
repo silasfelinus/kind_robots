@@ -6,8 +6,8 @@ navigation: false
 label: Deepheart Art Bible
 title: Deepheart · Art Bible
 subtitle: Private director's room
-description: Compare Deepheart's painted character designs, inspect model tests and document the approved look of its world.
-summary: Review Deepheart's visual direction and completed art jobs.
+description: Inspect painted delvers and the twelve gods, compare models, and request private Krea 2 repaints.
+summary: Painted character gallery, immortal court, and private repaint requests.
 icon: kind-icon:palette
 image: /api/deepheart/art/275127
 route: /admin/deepheart/bible
@@ -20,11 +20,13 @@ tutorial:
     Model comparison shows five reference scenes across eight rendering models:
     select a scene, inspect each image, and rate the overall direction.
     Notes and ratings stay on this device and do not approve a model or publish an image.
-    Refresh jobs updates their render status. Character bible shows the fifty
-    delvers and their private visual prompts. Twelve gods documents the
-    human-faced immortal court, while World & style records the approved
-    animation aesthetic and boundaries for ordinary and mature art.
-    To play the dungeon, use the Delve link at the top left.
+    Refresh jobs updates the image and ArtJob statuses. Character bible is
+    a painted gallery of fifty delvers, with full-size portraits, backstory
+    and the private physical visual prompt in each character's detail view.
+    Twelve gods displays all twelve recorded encounter paintings. Opening
+    a character or god allows a new private Krea 2 painting with optional
+    visual feedback. The request creates a durable ArtJob and never replaces
+    the original image automatically. To play, use Delve at the top left.
   image: /api/deepheart/art/275127
 ---
 

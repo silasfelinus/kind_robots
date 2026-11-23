@@ -24,7 +24,9 @@ import {
   SOLID_CRATE,
   SOLID_GATE,
   SOLID_GROUND,
+  SOLID_LADDER,
   SOLID_LEDGE,
+  SOLID_LOCK,
   SOLID_PIPE,
   SOLID_WATER,
   SOLID_ICE,
@@ -109,6 +111,10 @@ const RUN = 2.85
 const RUN_FAST = 4.2
 /** Crawling speed while ducked in the campaign. */
 const CRAWL = 1.2
+/** Rope ladders: climb speed, sideways shuffle, and the hop when A lets go. */
+const CLIMB = 1.7
+const CLIMB_SIDE = 0.9
+const CLIMB_HOP = -6.2
 /** Runner pace for each world: she runs on her own, faster as the campaign goes. */
 const RUNNER_SPEED = [2.9, 3.0, 3.1, 3.2, 3.35, 3.5, 3.65, 3.8]
 /** The Endless run's top pace, reached in its fifteenth zone. */
@@ -352,6 +358,14 @@ type Pickup = {
   taken: boolean
 }
 type Gust = { x: number; y: number; dir: number; life: number }
+/** A brass key: carried one at a time, it opens one padlocked bolt. */
+export type BrassKey = {
+  x: number
+  y: number
+  homeX: number
+  homeY: number
+  state: 'waiting' | 'held' | 'used'
+}
 type Cargo = {
   x: number
   /** Where its crates start falling from. */
@@ -403,10 +417,28 @@ const isWall = (s: number) =>
   s === SOLID_FRAGILE_ICE ||
   s === SOLID_BLOCK ||
   s === SOLID_GATE ||
+  s === SOLID_LOCK ||
   s === SOLID_PIPE ||
   s === SOLID_CRATE ||
   s === SOLID_BELT_LEFT ||
   s === SOLID_BELT_RIGHT
+
+/** A small brass key: a ring bow, a shaft and two bits, centred on (x, y). */
+function drawBrassKey(g: CanvasRenderingContext2D, x: number, y: number) {
+  g.fillStyle = 'rgba(255, 236, 170, 0.3)'
+  g.beginPath()
+  g.arc(x, y, 9, 0, Math.PI * 2)
+  g.fill()
+  g.strokeStyle = '#e8b84a'
+  g.lineWidth = 2
+  g.beginPath()
+  g.arc(x - 4, y, 3, 0, Math.PI * 2)
+  g.stroke()
+  g.fillStyle = '#e8b84a'
+  g.fillRect(x - 1, y - 1, 8, 2)
+  g.fillRect(x + 3, y + 1, 2, 3)
+  g.fillRect(x + 6, y + 1, 1, 2)
+}
 
 export class PlumberRun implements ArcadeGameInstance {
   score = 0
@@ -473,6 +505,11 @@ export class PlumberRun implements ArcadeGameInstance {
 
   hero: Body = { x: 0, y: 0, vx: 0, vy: 0 }
   ground = false
+  /** On a rope ladder: no gravity, up/down climbs, A hops off. */
+  climbing = false
+  private climbStride = 0
+  /** True only while the heroine moves on a ladder, so she can pass its top rung. */
+  private ladderPass = false
   /** Space is momentum-led; the directional input aims the nozzle but cannot propel alone. */
   airAim = { x: 1, y: 0 }
   airPlume = 0
@@ -521,6 +558,11 @@ export class PlumberRun implements ArcadeGameInstance {
   cargo: Cargo[] = []
   soot: Soot[] = []
   pickups: Pickup[] = []
+  /** Brass keys on this stage, and the one she holds (if any). */
+  keys: BrassKey[] = []
+  heldKey: BrassKey | null = null
+  /** Padlocked bolts opened on this stage. */
+  boltsOpened = 0
   gusts: Gust[] = []
   /** Crates in flight from the Pocket Lift. */
   thrown: Soot[] = []
@@ -1061,6 +1103,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.cargo = []
     this.soot = []
     this.pickups = []
+    this.keys = []
+    this.heldKey = null
+    this.boltsOpened = 0
     this.gear = null
     this.gusts = []
     this.thrown = []
@@ -1215,6 +1260,15 @@ export class PlumberRun implements ArcadeGameInstance {
               offset: spawn.col * 0.71 + spawn.row * 0.37,
             })
           break
+        case 'key':
+          this.keys.push({
+            x: cx,
+            y: bottom - 8,
+            homeX: cx,
+            homeY: bottom - 8,
+            state: 'waiting',
+          })
+          break
         case 'solar-gust':
           if (stage.space)
             this.solarGusts.push({
@@ -1301,6 +1355,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private placeHero() {
     this.hero = { x: this.checkpoint.x, y: this.checkpoint.y, vx: 0, vy: 0 }
     this.ground = false
+    this.climbing = false
     this.riding = null
     // A jump pressed as she fell (or as the last stage ended) is not replayed here.
     this.jumpBuffer = 0
@@ -1373,7 +1428,9 @@ export class PlumberRun implements ArcadeGameInstance {
         const s = this.solidAt(col, row)
         if (
           isWall(s) ||
-          ((s === SOLID_LEDGE || s === SOLID_BRIDGE) &&
+          ((s === SOLID_LEDGE ||
+            s === SOLID_BRIDGE ||
+            (!this.ladderPass && this.ladderTop(col, row))) &&
             prevBottom <= row * TILE + 0.5)
         ) {
           body.y = row * TILE - tall
@@ -1522,110 +1579,116 @@ export class PlumberRun implements ArcadeGameInstance {
       : runner
         ? 1
         : Number(keys.held.right) - Number(keys.held.left)
-    if (this.stage.space) {
+    const climbed = this.updateClimb(keys, move)
+    if (this.stage.space || climbed) {
       this.duckHeld = false
       this.ducking = false
     } else this.updateDuck(keys, move)
     this.running =
       !this.stage.space && (runner || (keys.held.b === true && move !== 0))
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
-    const onIce =
-      (this.ground &&
-        this.solidAt(
-          Math.floor(hero.x / TILE),
-          Math.floor((hero.y + TALL + 2) / TILE),
-        ) === SOLID_ICE) ||
-      (this.ground &&
-        this.solidAt(
-          Math.floor(hero.x / TILE),
-          Math.floor((hero.y + TALL + 2) / TILE),
-        ) === SOLID_FRAGILE_ICE)
-    if (this.stage.space) this.updateAirPropulsion(keys)
-    else if (runner) hero.vx += (top - hero.vx) * 0.25
-    // A crouch keeps a run's momentum as a slide, then crawls.
-    else if (this.ducking && this.ground) {
-      if (Math.abs(hero.vx) > CRAWL) hero.vx *= 0.95
-      else hero.vx = move * CRAWL
-    } else if (move) {
-      let next =
-        hero.vx +
-        move *
-          (onIce ? (this.running ? 0.22 : 0.15) : this.running ? 0.5 : 0.44)
-      if (Math.abs(next) > top)
-        next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
-      hero.vx = next
-    } else hero.vx *= onIce ? 0.965 : 0.77
-    if (Math.abs(hero.vx) < 0.05) hero.vx = 0
-    if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
-    if (!this.stage.space && keys.pressed.y) this.useSpecial()
-    if (!this.stage.space) this.driveSpecial(keys)
-    if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
-    const blocked = this.heroMoveX(hero.vx)
-    if (blocked) hero.vx = 0
-    const push = this.windAt(hero.x, this.tick) + this.beltUnder(hero)
-    if (push) this.heroMoveX(push)
-    if (runner && blocked && !this.specialTimer) {
-      if (++this.pinned > PINNED) {
-        this.pinned = 0
-        this.sound.play('warn')
-        return this.die()
+    // Her feet before this frame's fall (or climb); foes use it for stomps.
+    let prevBottom = this.climbPrevBottom
+    if (!climbed) {
+      const onIce =
+        (this.ground &&
+          this.solidAt(
+            Math.floor(hero.x / TILE),
+            Math.floor((hero.y + TALL + 2) / TILE),
+          ) === SOLID_ICE) ||
+        (this.ground &&
+          this.solidAt(
+            Math.floor(hero.x / TILE),
+            Math.floor((hero.y + TALL + 2) / TILE),
+          ) === SOLID_FRAGILE_ICE)
+      if (this.stage.space) this.updateAirPropulsion(keys)
+      else if (runner) hero.vx += (top - hero.vx) * 0.25
+      // A crouch keeps a run's momentum as a slide, then crawls.
+      else if (this.ducking && this.ground) {
+        if (Math.abs(hero.vx) > CRAWL) hero.vx *= 0.95
+        else hero.vx = move * CRAWL
+      } else if (move) {
+        let next =
+          hero.vx +
+          move *
+            (onIce ? (this.running ? 0.22 : 0.15) : this.running ? 0.5 : 0.44)
+        if (Math.abs(next) > top)
+          next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
+        hero.vx = next
+      } else hero.vx *= onIce ? 0.965 : 0.77
+      if (Math.abs(hero.vx) < 0.05) hero.vx = 0
+      if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
+      if (!this.stage.space && keys.pressed.y) this.useSpecial()
+      if (!this.stage.space) this.driveSpecial(keys)
+      if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
+      const blocked = this.heroMoveX(hero.vx)
+      if (blocked) hero.vx = 0
+      const push = this.windAt(hero.x, this.tick) + this.beltUnder(hero)
+      if (push) this.heroMoveX(push)
+      if (runner && blocked && !this.specialTimer) {
+        if (++this.pinned > PINNED) {
+          this.pinned = 0
+          this.sound.play('warn')
+          return this.die()
+        }
+      } else this.pinned = 0
+      if (this.ground) this.grace = 7
+      else if (this.grace) this.grace--
+      const jumpDown = !this.stage.space && (keys.pressed.a || keys.pressed.up)
+      this.jumpHeld = !this.stage.space && (keys.held.a || keys.held.up)
+      if (jumpDown) this.jumpBuffer = 7
+      else if (this.jumpBuffer) this.jumpBuffer--
+      if (this.jumpBuffer && this.grace) {
+        hero.vy = this.power === 'springstep' ? SPRING_JUMP : JUMP
+        this.ground = false
+        this.riding = null
+        this.grace = 0
+        this.jumpBuffer = 0
+        this.sound.play('blip')
       }
-    } else this.pinned = 0
-    if (this.ground) this.grace = 7
-    else if (this.grace) this.grace--
-    const jumpDown = !this.stage.space && (keys.pressed.a || keys.pressed.up)
-    this.jumpHeld = !this.stage.space && (keys.held.a || keys.held.up)
-    if (jumpDown) this.jumpBuffer = 7
-    else if (this.jumpBuffer) this.jumpBuffer--
-    if (this.jumpBuffer && this.grace) {
-      hero.vy = this.power === 'springstep' ? SPRING_JUMP : JUMP
+      if (hero.vy >= 0) this.sprung = false
+      if (!this.stage.space && !this.jumpHeld && !this.sprung && hero.vy < -3.4)
+        hero.vy = -3.4
+      const floating =
+        this.power === 'springstep' && this.jumpHeld && hero.vy > 0
+      if (!this.stage.space)
+        hero.vy = Math.min(
+          floating ? 4 : 9,
+          hero.vy + GRAVITY * (floating ? FLOAT : 1),
+        )
+      prevBottom = hero.y + TALL
+      const wasGround = this.ground
       this.ground = false
       this.riding = null
-      this.grace = 0
-      this.jumpBuffer = 0
-      this.sound.play('blip')
-    }
-    if (hero.vy >= 0) this.sprung = false
-    if (!this.stage.space && !this.jumpHeld && !this.sprung && hero.vy < -3.4)
-      hero.vy = -3.4
-    const floating = this.power === 'springstep' && this.jumpHeld && hero.vy > 0
-    if (!this.stage.space)
-      hero.vy = Math.min(
-        floating ? 4 : 9,
-        hero.vy + GRAVITY * (floating ? FLOAT : 1),
-      )
-    const prevBottom = hero.y + TALL
-    const wasGround = this.ground
-    this.ground = false
-    this.riding = null
-    const hit = this.heroMoveY(hero.vy)
-    if (hit === 'land') {
-      hero.vy = 0
-      this.ground = true
-    } else if (hit === 'bump') hero.vy = 0.5
-    if (hero.vy >= 0) {
-      for (const p of this.platforms) {
-        if (prevBottom > p.y - p.dy + 0.6) continue
-        if (
-          hero.y + TALL < p.y ||
-          hero.x + HALF < p.x ||
-          hero.x - HALF > p.x + p.w
-        )
-          continue
-        hero.y = p.y - TALL
+      const hit = this.heroMoveY(hero.vy)
+      if (hit === 'land') {
         hero.vy = 0
         this.ground = true
-        this.riding = p
-        break
+      } else if (hit === 'bump') hero.vy = 0.5
+      if (hero.vy >= 0) {
+        for (const p of this.platforms) {
+          if (prevBottom > p.y - p.dy + 0.6) continue
+          if (
+            hero.y + TALL < p.y ||
+            hero.x + HALF < p.x ||
+            hero.x - HALF > p.x + p.w
+          )
+            continue
+          hero.y = p.y - TALL
+          hero.vy = 0
+          this.ground = true
+          this.riding = p
+          break
+        }
       }
+      if (this.ground && !wasGround) {
+        this.landed = 6
+        if (this.duckHeld) this.ducking = true
+        this.airSpecial = false
+        if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
+      } else if (this.landed) this.landed--
+      this.updateSprings(prevBottom)
     }
-    if (this.ground && !wasGround) {
-      this.landed = 6
-      if (this.duckHeld) this.ducking = true
-      this.airSpecial = false
-      if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
-    } else if (this.landed) this.landed--
-    this.updateSprings(prevBottom)
     if (this.stage.space) {
       // A vacuum stage still has a playable hull. No endless off-screen drift.
       if (hero.x < HALF) {
@@ -1644,10 +1707,11 @@ export class PlumberRun implements ArcadeGameInstance {
       }
     }
     this.crackIce()
-    if (keys.pressed.down && this.ground) this.tryDoor()
+    if (keys.pressed.down && this.ground && !climbed) this.tryDoor()
     if (!this.stage.space && keys.pressed.x && !this.cooldown) this.useTool()
     this.collectTokens()
     this.collectPickups()
+    this.updateKeys()
     this.collectAirCanisters()
     this.updateFoes(prevBottom)
     this.updateWinterHazards(prevBottom)
@@ -1774,6 +1838,121 @@ export class PlumberRun implements ArcadeGameInstance {
     const hit = this.moveY(body, HALF, TALL - DUCK, dy)
     this.hero.y = body.y - DUCK
     return hit
+  }
+
+  /** The topmost rung of a ladder run: something to stand on from above. */
+  ladderTop(col: number, row: number): boolean {
+    return (
+      this.solidAt(col, row) === SOLID_LADDER &&
+      this.solidAt(col, row - 1) !== SOLID_LADDER
+    )
+  }
+
+  /** A ladder cell in her centre column from head (`from`) to feet (`to`). */
+  private ladderBetween(from: number, to: number): boolean {
+    const col = Math.floor(this.hero.x / TILE)
+    for (
+      let row = Math.floor(from / TILE);
+      row <= Math.floor((to - 1) / TILE);
+      row++
+    )
+      if (this.solidAt(col, row) === SOLID_LADDER) return true
+    return false
+  }
+
+  private climbPrevBottom = 0
+
+  /**
+   * Where she hangs on the rope in her column. She is wider than a tile, so on a
+   * ladder against a wall she hangs flush to that wall rather than centred; a
+   * shaft walled on both sides one tile wide is too narrow for her (build two).
+   */
+  private ropeX(): number {
+    const hero = this.hero
+    const col = Math.floor(hero.x / TILE)
+    const first = Math.floor((hero.y + 1) / TILE)
+    const last = Math.floor((hero.y + TALL + 2 * TILE) / TILE)
+    let wallLeft = false
+    let wallRight = false
+    for (let row = first; row <= last; row++) {
+      if (this.solidAt(col, row) !== SOLID_LADDER && row > first + 1) break
+      if (isWall(this.solidAt(col - 1, row))) wallLeft = true
+      if (isWall(this.solidAt(col + 1, row))) wallRight = true
+    }
+    if (wallRight && !wallLeft) return (col + 1) * TILE - HALF - 0.01
+    if (wallLeft && !wallRight) return col * TILE + HALF + 0.01
+    return col * TILE + TILE / 2
+  }
+
+  /**
+   * Rope ladders. Up (or down from the top rung) grabs one; while on it there is
+   * no gravity, up/down climbs, left/right shuffles and A hops off. Climbing past
+   * the top rung stands her on it; climbing down onto a floor lets go. Returns
+   * true while she is on a ladder this frame (the normal run/jump/fall is skipped).
+   */
+  private updateClimb(keys: InputFrame, move: number): boolean {
+    const hero = this.hero
+    if (this.stage.space || this.runnerOn || this.specialTimer) {
+      this.climbing = false
+      return false
+    }
+    const up = keys.held.up === true
+    const down = keys.held.down === true
+    if (!this.climbing) {
+      const onBody = this.ladderBetween(hero.y + 2, hero.y + TALL)
+      const belowFeet =
+        this.ground &&
+        this.ladderTop(
+          Math.floor(hero.x / TILE),
+          Math.floor((hero.y + TALL + 1) / TILE),
+        )
+      if (!((up && onBody) || (down && belowFeet))) return false
+      this.climbing = true
+      this.ground = false
+      this.riding = null
+      this.jumpBuffer = 0
+      this.grace = 0
+      this.heroMoveX(this.ropeX() - hero.x)
+    }
+    this.climbPrevBottom = hero.y + TALL
+    if (keys.pressed.a) {
+      this.climbing = false
+      hero.vy = CLIMB_HOP
+      hero.vx = move * RUN
+      this.jumpBuffer = 0
+      this.sound.play('blip')
+      return false
+    }
+    const dy = (Number(down) - Number(up)) * CLIMB
+    hero.vx = move * CLIMB_SIDE
+    hero.vy = dy
+    if (move) this.facing = move > 0 ? 1 : -1
+    if (dy || move) this.climbStride += 1
+    if (move) this.heroMoveX(hero.vx)
+    this.ladderPass = true
+    const hit = dy ? this.heroMoveY(dy) : null
+    this.ladderPass = false
+    if (hit === 'land') {
+      // Climbed down onto a floor.
+      this.climbing = false
+      this.ground = true
+      hero.vy = 0
+      return true
+    }
+    if (hit === 'bump') hero.vy = 0
+    const col = Math.floor(hero.x / TILE)
+    if (!this.ladderBetween(hero.y + 2, hero.y + TALL)) {
+      this.climbing = false
+      // Past the top rung: stand on it. Shuffled off the side: fall.
+      const feetRow = Math.floor((hero.y + TALL + 1) / TILE)
+      if (up && this.ladderTop(col, feetRow)) {
+        hero.y = feetRow * TILE - TALL
+        hero.vy = 0
+        this.ground = true
+      }
+      return true
+    }
+    return true
   }
 
   get specialKind(): PlumberSpecial {
@@ -2221,6 +2400,69 @@ export class PlumberRun implements ArcadeGameInstance {
       }
       this.sound.play('level')
     }
+  }
+
+  /**
+   * Brass keys and padlocked bolts. Touching a waiting key while her hands are
+   * free picks it up; it rides above her head. Touching any padlocked bolt cell
+   * while holding one spends the key and opens that whole connected bolt. A hit
+   * sends the held key back to where it started, so a key can never be lost in
+   * a pit (and a death reloads the stage, keys and bolts with it).
+   */
+  private updateKeys() {
+    const hero = this.hero
+    const held = this.heldKey
+    if (held) {
+      held.x = hero.x
+      held.y = hero.y - (this.carrying ? 22 : 8)
+      const left = Math.floor((hero.x - HALF - 2) / TILE)
+      const right = Math.floor((hero.x + HALF + 2) / TILE)
+      const top = Math.floor((hero.y - 2) / TILE)
+      const bottom = Math.floor((hero.y + TALL + 1) / TILE)
+      for (let col = left; col <= right; col++)
+        for (let row = top; row <= bottom; row++)
+          if (this.solidAt(col, row) === SOLID_LOCK) {
+            this.openBolt(col, row)
+            held.state = 'used'
+            this.heldKey = null
+            return
+          }
+      return
+    }
+    for (const key of this.keys) {
+      if (key.state !== 'waiting') continue
+      if (Math.abs(key.x - hero.x) > 14) continue
+      if (key.y < hero.y - 10 || key.y > hero.y + TALL + 8) continue
+      key.state = 'held'
+      this.heldKey = key
+      this.score += 50
+      this.sound.play('blip')
+      return
+    }
+  }
+
+  /** Open every padlocked cell connected (side by side or stacked) to this one. */
+  private openBolt(col: number, row: number) {
+    const stack = [[col, row]]
+    while (stack.length) {
+      const [c, r] = stack.pop()!
+      if (this.solidAt(c!, r!) !== SOLID_LOCK) continue
+      this.setSolid(c!, r!, 0)
+      stack.push([c! + 1, r!], [c! - 1, r!], [c!, r! + 1], [c!, r! - 1])
+    }
+    this.boltsOpened++
+    this.score += 150
+    this.sound.play('extra')
+  }
+
+  /** A hit (or anything that loosens her grip) returns the key to its start. */
+  private sendKeyHome() {
+    const key = this.heldKey
+    if (!key) return
+    key.x = key.homeX
+    key.y = key.homeY
+    key.state = 'waiting'
+    this.heldKey = null
   }
 
   private collectAirCanisters() {
@@ -3134,10 +3376,12 @@ export class PlumberRun implements ArcadeGameInstance {
       this.power = null
       this.carrying = false
     } else this.hearts--
+    this.sendKeyHome()
     this.immune = 90
     this.hero.vx = dir * 3.2
     this.hero.vy = -4.4
     this.ground = false
+    this.climbing = false
     this.riding = null
     this.sound.play('warn')
     if (this.hearts <= 0) this.die()
@@ -3145,6 +3389,7 @@ export class PlumberRun implements ArcadeGameInstance {
 
   private die() {
     this.stageHits++
+    this.climbing = false
     this.specialTimer = 0
     this.power = null
     this.carrying = false
@@ -4972,6 +5217,30 @@ export class PlumberRun implements ArcadeGameInstance {
             g.fillStyle = '#5a93a0'
             g.fillRect(x + 2, y + 2, TILE - 4, 3)
           }
+        } else if (s === SOLID_LOCK) {
+          g.fillStyle = '#4a3b52'
+          g.fillRect(x, y, TILE, TILE)
+          g.fillStyle = '#2a2033'
+          g.fillRect(x, y + TILE - 2, TILE, 2)
+          g.fillRect(x + TILE - 2, y, 2, TILE)
+          g.fillStyle = '#d9a640'
+          g.fillRect(x + 4, y + 5, TILE - 8, 8)
+          g.strokeStyle = '#d9a640'
+          g.lineWidth = 2
+          g.strokeRect(x + 6, y + 2, TILE - 12, 4)
+          g.fillStyle = '#2a2033'
+          g.fillRect(x + 7, y + 7, 2, 4)
+        } else if (s === SOLID_LADDER) {
+          g.fillStyle = '#6b4a2b'
+          g.fillRect(x + 2, y, 2, TILE)
+          g.fillRect(x + TILE - 4, y, 2, TILE)
+          g.fillStyle = '#d9b27a'
+          g.fillRect(x + 3, y + 3, TILE - 6, 2)
+          g.fillRect(x + 3, y + 11, TILE - 6, 2)
+          if (above !== SOLID_LADDER) {
+            g.fillStyle = '#f3e4a2'
+            g.fillRect(x + 1, y, TILE - 2, 2)
+          }
         } else if (s === SOLID_LEDGE) {
           g.fillStyle = ledge ?? '#c99a52'
           g.fillRect(x, y, TILE, 7)
@@ -5350,6 +5619,12 @@ export class PlumberRun implements ArcadeGameInstance {
     for (const thrown of this.thrown) crate(thrown.x, thrown.y)
     if (this.carrying && this.mode === 'play')
       crate(this.hero.x, this.hero.y - 8)
+    for (const key of this.keys) {
+      if (key.state === 'used') continue
+      if (key.state === 'held' && this.mode !== 'play') continue
+      const bob = key.state === 'waiting' ? Math.sin(t / 14 + key.x) * 2 : 0
+      drawBrassKey(g, key.x, key.y + bob)
+    }
   }
 
   /** The first solid surface under a point, for drop shadows. */
@@ -5819,22 +6094,28 @@ export class PlumberRun implements ArcadeGameInstance {
       const running = this.ground && Math.abs(this.hero.vx) > 0.4
       const bob =
         running && !runReady ? Math.abs(Math.sin(this.stride / 2)) * 3 : 0
-      const pose = !this.ground
+      const pose = this.climbing
         ? {
             src: member.actions,
-            frame: this.hero.vy < 0 ? poses.rise : poses.fall,
+            frame:
+              Math.floor(this.climbStride / 8) % 2 ? poses.rise : poses.fall,
           }
-        : this.landed
-          ? { src: member.actions, frame: poses.land }
-          : running && runReady
-            ? { src: member.run, frame: Math.floor(this.stride / 1.8) % 6 }
-            : running
-              ? {
-                  src: member.actions,
-                  frame:
-                    Math.floor(this.stride / 3) % 2 ? poses.rise : poses.fall,
-                }
-              : { src: member.actions, frame: poses.idle }
+        : !this.ground
+          ? {
+              src: member.actions,
+              frame: this.hero.vy < 0 ? poses.rise : poses.fall,
+            }
+          : this.landed
+            ? { src: member.actions, frame: poses.land }
+            : running && runReady
+              ? { src: member.run, frame: Math.floor(this.stride / 1.8) % 6 }
+              : running
+                ? {
+                    src: member.actions,
+                    frame:
+                      Math.floor(this.stride / 3) % 2 ? poses.rise : poses.fall,
+                  }
+                : { src: member.actions, frame: poses.idle }
       drawSheetFrame(g, pose.src, 6, pose.frame, x, feet - bob, height, {
         flipX,
       })

@@ -132,6 +132,87 @@ assert.ok(
   'four genuine past detours can be remembered',
 )
 assert.equal(readRainbowSave(current)?.checkpoint.alternateRoutesSeen, 15)
+// Completion is distinct from entry. Exhaust every independent clear mask,
+// including all possible combinations of unfinished but already charted Acts.
+for (let completed = 0; completed < 16; completed++) {
+  const decoded = readRainbowSave({
+    ...current,
+    checkpoint: { ...checkpoint, alternateRoutesCleared: completed },
+  })
+  assert.ok(decoded, `X1-X4 completion combination ${completed} roundtrips`)
+  assert.equal(decoded?.checkpoint.alternateRoutesCleared, completed)
+  const logbook = rainbowAlternateRouteLogbook(decoded)
+  assert.deepEqual(
+    logbook.map((route) => route.completed),
+    [1, 2, 4, 8].map((bit) => (completed & bit) !== 0),
+  )
+  assert.deepEqual(
+    logbook.map((route) => route.label),
+    [1, 2, 4, 8].map((bit) =>
+      completed & bit ? 'ROUTE CLEARED' : 'ROUTE FLOWN',
+    ),
+  )
+  assert.ok(
+    rainbowAlternateRouteLogbook(null).every((route) => !route.completed),
+    'another empty slot cannot inherit detour clears',
+  )
+}
+assert.ok(
+  rainbowAlternateRouteLogbook(readRainbowSave(current)).every(
+    (route) => route.discovered && !route.completed,
+  ),
+  'legacy saves keep discoveries but do not claim unrecorded completions',
+)
+for (const completed of [-1, 16, 2.5, Number.NaN])
+  assert.equal(
+    readRainbowSave({
+      ...current,
+      checkpoint: { ...checkpoint, alternateRoutesCleared: completed },
+    }),
+    null,
+    'invalid completion masks must fail closed',
+  )
+for (const bit of [1, 2, 4, 8]) {
+  assert.equal(
+    readRainbowSave({
+      ...current,
+      checkpoint: {
+        ...checkpoint,
+        alternateRoutesSeen: 15 ^ bit,
+        alternateRoutesCleared: bit,
+      },
+    }),
+    null,
+    'a detour cannot be completed unless it was genuinely discovered',
+  )
+  assert.equal(
+    readRainbowSave({
+      ...current,
+      checkpoint: {
+        ...checkpoint,
+        alternateRoutesSeen: undefined,
+        alternateRoutesCleared: bit,
+      },
+    }),
+    null,
+    'missing history cannot support a claimed completion',
+  )
+}
+for (const [act, cleared] of [
+  [3, 1],
+  [4, 2],
+  [6, 4],
+  [7, 8],
+] as const)
+  assert.equal(
+    readRainbowSave({
+      ...current,
+      checkpoint: { ...checkpoint, act, alternateRoutesCleared: cleared },
+    }),
+    null,
+    `Act ${act} cannot claim a completion before finishing X-route ${cleared}`,
+  )
+
 assert.deepEqual(
   rainbowAlternateRouteLogbook(readRainbowSave(current)).map(
     (route) => route.discovered,
@@ -245,4 +326,43 @@ for (const seats of [1, 2, 3, 4]) {
   )
   assert.equal(rainbowAlternateRouteLogbook(afterSection)[0]?.discovered, true)
 }
+
+// Exhaust every discovery combination, not just the all-or-nothing cases.
+// Saves must preserve exactly the branches earned in this slot, and reading
+// another slot must not contaminate its independent exploration history.
+for (let mask = 0; mask < 16; mask++) {
+  const decoded = readRainbowSave({
+    ...current,
+    checkpoint: { ...checkpoint, alternateRoutesSeen: mask },
+  })
+  assert.ok(decoded, `discovery mask ${mask} must roundtrip`)
+  assert.equal(decoded?.checkpoint.alternateRoutesSeen, mask)
+  assert.deepEqual(
+    rainbowAlternateRouteLogbook(decoded).map((route) => route.discovered),
+    [1, 2, 4, 8].map((bit) => (mask & bit) !== 0),
+    `discovery mask ${mask} must unlock only its earned detours`,
+  )
+  assert.ok(
+    rainbowAlternateRouteLogbook(null).every((route) => !route.discovered),
+    'a separate empty save slot must remain undiscovered',
+  )
+}
+for (const [act, forbiddenMask] of [
+  [1, 15],
+  [2, 15],
+  [3, 14],
+  [4, 12],
+  [5, 12],
+  [6, 8],
+] as const) {
+  assert.equal(
+    readRainbowSave({
+      ...current,
+      checkpoint: { ...checkpoint, act, alternateRoutesSeen: forbiddenMask },
+    }),
+    null,
+    `Act ${act} must reject premature detour discoveries`,
+  )
+}
+
 console.log('Rainbow route intel: passed')

@@ -14,6 +14,7 @@ import {
   resolveScene,
   cycleTime,
   assetCandidates,
+  changedVistaRegion,
 } from '~/utils/rulerHooked/compositor'
 import {
   eligiblePool,
@@ -212,6 +213,50 @@ function baseSave(): RunSave {
       '/images/ruler-hooked/treeline-wild.webp',
     ],
     'golden falls back to day settle then base',
+  )
+}
+
+// 4b. Opaque paintings spotlight the highest-priority *available* changed
+// region, never an unseen region or a cosmetic ruler portrait.
+{
+  const before = {
+    far_shore: 'pristine',
+    lake: 'clear',
+    near_bank: 'grassy',
+  }
+  const changed = {
+    far_shore: 'industrial',
+    lake: 'poisoned',
+    near_bank: 'grassy',
+  }
+  assert.equal(
+    changedVistaRegion(before, changed, ['far_shore', 'lake']),
+    'far_shore',
+    'far shore is the first visible changed vista',
+  )
+  assert.equal(
+    changedVistaRegion(before, changed, ['lake']),
+    'lake',
+    'skip regions not in the current manifest',
+  )
+  assert.equal(
+    changedVistaRegion(before, before, ['far_shore', 'lake']),
+    null,
+    'unchanged scene never resets manual selection',
+  )
+  assert.equal(
+    changedVistaRegion(undefined, changed, ['far_shore']),
+    null,
+    'initial mount has no previous decree to highlight',
+  )
+  assert.equal(
+    changedVistaRegion(
+      { ruler: 'chieftain-brakka' },
+      { ruler: 'hero-knight' },
+      ['ruler'],
+    ),
+    null,
+    'no player portrait can be spotlighted during gameplay',
   )
 }
 

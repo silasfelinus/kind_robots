@@ -1,6 +1,10 @@
 import type { RainbowCheckpoint } from './rainbowCheckpoints'
 import type { RainbowHangar } from './rainbowHangar'
-import type { RainbowSave } from './rainbowLoadouts'
+import {
+  RAINBOW_ALTERNATE_ROUTES,
+  rainbowAlternateRouteLogbook,
+  type RainbowSave,
+} from './rainbowLoadouts'
 
 type Act = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
@@ -85,4 +89,33 @@ export function rainbowActReplaySave(
     ...(save?.pilot !== undefined ? { pilot: save.pilot } : {}),
     ...(save?.pilots ? { pilots: [...save.pilots] } : {}),
   }
+}
+
+/** A charted detour can be re-approached only from its completed source Act.
+ * A discovery in another slot, or an in-progress source Act, is not a shortcut. */
+export function canReplayRainbowAlternateRoute(
+  routeId: string,
+  save: RainbowSave | null,
+  hangar: RainbowHangar,
+): boolean {
+  const route = RAINBOW_ALTERNATE_ROUTES.find((entry) => entry.id === routeId)
+  return Boolean(
+    route &&
+    rainbowAlternateRouteLogbook(save).some(
+      (entry) => entry.id === routeId && entry.discovered,
+    ) &&
+    canReplayRainbowAct(route.fromAct, save, hangar),
+  )
+}
+
+/** Fly the authored approach again, not a fabricated detour checkpoint.
+ * The in-flight rescue and lane requirements still decide its entrance. */
+export function rainbowAlternateApproachSave(
+  routeId: string,
+  save: RainbowSave | null,
+  hangar: RainbowHangar,
+): RainbowSave | null {
+  if (!canReplayRainbowAlternateRoute(routeId, save, hangar)) return null
+  const route = RAINBOW_ALTERNATE_ROUTES.find((entry) => entry.id === routeId)!
+  return rainbowActReplaySave(route.fromAct, save, hangar)
 }

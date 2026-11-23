@@ -353,19 +353,32 @@ const exitCheckpoint = readComet({
   cometGuardianOutcome: 'defeated',
 })
 assert.ok(exitCheckpoint)
-const exitGame = createRainbowPrincessPreview({
-  rng: () => 0.5,
-  sound: { play: () => {} },
-  hiScore: 0,
-  players: 1,
-  demo: false,
-  rainbowReplay: exitCheckpoint!,
-})
-for (let frame = 0; frame <= COMET.end - COMET.guardianTo + 1; frame++)
-  exitGame.update(idleInput, [idleInput])
-assert.equal(exitGame.snapshot.act, 'S05')
-assert.equal(exitGame.snapshot.cadetsHome, true)
-assert.ok(exitGame.snapshot.score >= 3000)
+for (const seats of [1, 2, 3, 4]) {
+  const exitGame = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    players: seats,
+    demo: false,
+    rainbowReplay: exitCheckpoint!,
+  })
+  const crew = Array.from({ length: seats }, () => idleInput)
+  for (let frame = 0; frame <= COMET.end - COMET.guardianTo + 3; frame++)
+    exitGame.update(idleInput, crew)
+  assert.equal(exitGame.snapshot.act, 'S05')
+  assert.equal(exitGame.snapshot.cadetsHome, true)
+  assert.ok(exitGame.snapshot.score >= 3000)
+  assert.equal(
+    (exitGame.snapshot.checkpoint.alternateRoutesCleared ?? 0) & 2,
+    2,
+    `a ${seats}-pilot Coral Comet flight must persist the real X2 clear`,
+  )
+  assert.equal(
+    (exitGame.snapshot.checkpoint.alternateRoutesSeen ?? 0) & 2,
+    2,
+    'the earned clear must also have discovery proof',
+  )
+}
 
 assert.equal(readComet({ ...checkpoint4, frame: 34241 }), null)
 assert.equal(readComet({ ...checkpoint4, cometFrame: 300 }), null)

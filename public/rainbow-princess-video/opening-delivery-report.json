@@ -1,0 +1,83 @@
+{
+  "shots": 8,
+  "animated_shots": 8,
+  "accepted_shots": [
+    "intro-cats-launch",
+    "intro-lilt-signal",
+    "intro-dolphin-armada",
+    "intro-maribel-bloom",
+    "intro-azure-prism",
+    "intro-solenne-halo",
+    "intro-vivi-comet",
+    "intro-cats-formation"
+  ],
+  "rejected_shots": [],
+  "wan_requeue_shots": [],
+  "still_fallback_shots": [],
+  "wan_shot_budgets": [
+    {
+      "key": "intro-cats-launch",
+      "seconds": 3,
+      "fps": 16,
+      "frames": 48,
+      "seconds_headroom": 5,
+      "frame_headroom": 80
+    },
+    {
+      "key": "intro-lilt-signal",
+      "seconds": 2,
+      "fps": 16,
+      "frames": 32,
+      "seconds_headroom": 6,
+      "frame_headroom": 96
+    },
+    {
+      "key": "intro-dolphin-armada",
+      "seconds": 2,
+      "fps": 16,
+      "frames": 32,
+      "seconds_headroom": 6,
+      "frame_headroom": 96
+    },
+    {
+      "key": "intro-maribel-bloom",
+      "seconds": 2,
+      "fps": 16,
+      "frames": 32,
+      "seconds_headroom": 6,
+      "frame_headroom": 96
+    },
+    {
+      "key": "intro-azure-prism",
+      "seconds": 2,
+      "fps": 16,
+      "frames": 32,
+      "seconds_headroom": 6,
+      "frame_headroom": 96
+    },
+    {
+      "key": "intro-solenne-halo",
+      "seconds": 2,
+      "fps": 16,
+      "frames": 32,
+      "seconds_headroom": 6,
+      "frame_headroom": 96
+    },
+    {
+      "key": "intro-vivi-comet",
+      "seconds": 2,
+      "fps": 16,
+      "frames": 32,
+      "seconds_headroom": 6,
+      "frame_headroom": 96
+    },
+    {
+      "key": "intro-cats-formation",
+      "seconds": 3,
+      "fps": 16,
+      "frames": 48,
+      "seconds_headroom": 5,
+      "frame_headroom": 80
+    }
+  ]
+}

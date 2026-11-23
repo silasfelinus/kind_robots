@@ -37,9 +37,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: '<', icon: '◀', label: 'Left conveyor' },
       { key: '>', icon: '▶', label: 'Right conveyor' },
       { key: ':', icon: '◇', label: 'Blinking bridge' },
+      { key: '|', icon: '☷', label: 'Rope ladder · up or down to climb' },
       { key: 'w', icon: '≈', label: 'Water hazard' },
       { key: 'c', icon: '▤', label: 'Movable crate' },
       { key: 'g', icon: '▥', label: 'Valve gate' },
+      { key: '[', icon: '⊡', label: 'Padlocked bolt · opens with a brass key' },
     ],
   },
   {
@@ -56,6 +58,11 @@ export const MAKER_GROUPS: MakerGroup[] = [
       { key: 'D', icon: '▥', label: 'Pipe entrance' },
       { key: 'E', icon: '▥', label: 'Pipe return' },
       { key: 'K', icon: '⚑', label: 'Checkpoint' },
+      {
+        key: '0',
+        icon: '⚿',
+        label: 'Brass key · carry it to a padlocked bolt',
+      },
       { key: '^', icon: '♨', label: 'Steam vent' },
     ],
   },

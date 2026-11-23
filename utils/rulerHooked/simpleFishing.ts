@@ -81,16 +81,6 @@ export function applySimpleReel(
   }
   const progress = clamp(state.progress + 13)
   const tension = clamp(state.tension + 19)
-  if (progress >= 100) {
-    return {
-      ...state,
-      actions,
-      progress: 100,
-      tension,
-      stage: 'LANDED',
-      cue: state.fishName + ' lands in the net!',
-    }
-  }
   if (tension >= 100) {
     return {
       ...state,
@@ -99,6 +89,16 @@ export function applySimpleReel(
       tension,
       stage: 'ESCAPED',
       cue: 'The line snaps! Give slack before the tension reaches 100%.',
+    }
+  }
+  if (progress >= 100) {
+    return {
+      ...state,
+      actions,
+      progress: 100,
+      tension,
+      stage: 'LANDED',
+      cue: state.fishName + ' lands in the net!',
     }
   }
   return {

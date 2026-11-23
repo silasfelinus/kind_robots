@@ -8,7 +8,11 @@ on:
       - 'utils/arcade/games/rainbowCheckpoints.ts'
       - 'utils/arcade/games/rainbowPrincessPreview.ts'
       - 'pages/play/rainbow-bullet-hell-space-princess.vue'
+      - 'utils/arcade/games/rainbowSaveSlots.ts'
+      - 'utils/arcade/saves.ts'
       - 'utils/scripts/verifyRainbowRouteIntel.test.ts'
+      - 'utils/scripts/verifyRainbowSaveBytes.test.ts'
+      - 'utils/scripts/verifyRainbowSeasLogbook.test.ts'
       - '.github/workflows/rainbow-alternate-route-memory.yml'
 
 concurrency:
@@ -35,3 +39,7 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - name: Verify alternate route map and persisted discovery bits
         run: npx tsx utils/scripts/verifyRainbowRouteIntel.test.ts
+      - name: Verify three-slot save capacity (UTF-8 bytes) and serialization
+        run: npx tsx utils/scripts/verifyRainbowSaveBytes.test.ts
+      - name: Verify the Seas flight log (locked Acts, medals and current flight)
+        run: npx tsx utils/scripts/verifyRainbowSeasLogbook.test.ts

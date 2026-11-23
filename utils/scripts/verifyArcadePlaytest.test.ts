@@ -1,5 +1,12 @@
 import assert from 'node:assert/strict'
 import { levelCurve } from '../arcade/curve'
+import { LANE_BEHAVIOURS } from '../arcade/games/hedgehogCrossing'
+import {
+  LANE_KINDS,
+  boardLanes,
+  legOneCrossing,
+  newArrivals,
+} from '../arcade/hedgehogCrossing/lanes'
 import { ARCADE_BLURB_MAX, shortArcadeBlurb } from '../arcade/games'
 import { DROP_SPRITES, GLOOM_CURVES } from '../arcade/games/gloomInvaders'
 import { readGamepad, readGhostTrailPad, readPinballPad } from '../arcade/input'
@@ -146,5 +153,51 @@ assert.equal(readPinballPad(controller(null, [0, 0.9, 0, 0])).down, true)
 assert.equal(readPinballPad(controller(null, [0, 0, 0, 0.9])).down, true)
 assert.equal(readPinballPad(controller(null)).down, false)
 assert.equal(readPinballPad(controller(0)).a, true, 'A launches on the plunger')
+
+const marketLanes = boardLanes(6)
+assert.equal(marketLanes.length, 10)
+assert.equal(boardLanes(5).find((lane) => lane.row === 11)?.kind, 'car')
+assert.equal(marketLanes.find((lane) => lane.row === 11)?.kind, 'shopper')
+assert.equal(marketLanes.find((lane) => lane.row === 9)?.kind, 'barrel')
+assert.equal(marketLanes.find((lane) => lane.row === 5)?.kind, 'crate')
+assert.equal(marketLanes.find((lane) => lane.row === 4)?.kind, 'crate')
+assert.equal(LANE_KINDS.crate.touch, 'ride')
+assert.equal(LANE_KINDS.barrel.touch, 'hit')
+assert.ok(
+  ['shopper', 'barrel', 'crate'].every((kind) =>
+    newArrivals(6).includes(kind as 'shopper' | 'barrel' | 'crate'),
+  ),
+  'Market Day hazards introduce themselves on the first crossing',
+)
+assert.equal(legOneCrossing(1)?.region, 'PARK LANE')
+assert.equal(legOneCrossing(6)?.region, 'MARKET DAY')
+assert.equal(legOneCrossing(8)?.special, true)
+assert.equal(legOneCrossing(10)?.big, true)
+assert.equal(legOneCrossing(11), null)
+assert.equal(boardLanes(11).find((lane) => lane.row === 11)?.kind, 'car')
+const crateSpec = marketLanes.find((lane) => lane.kind === 'crate')!
+const crate = { x: 40, len: 3, dive: -1 }
+const crateLane = {
+  ...crateSpec,
+  things: [crate],
+  vx: crateSpec.speed * crateSpec.dir,
+}
+assert.equal(LANE_BEHAVIOURS.crate.touch(crateLane, crate, 60, 5, 0, 0), 'ride')
+assert.equal(LANE_BEHAVIOURS.crate.touch(crateLane, crate, 10, 5, 0, 0), null)
+const barrelSpec = marketLanes.find((lane) => lane.kind === 'barrel')!
+const barrel = { x: 40, len: 1, dive: -1 }
+const barrelLane = {
+  ...barrelSpec,
+  things: [barrel],
+  vx: barrelSpec.speed * barrelSpec.dir,
+}
+assert.equal(
+  LANE_BEHAVIOURS.barrel.touch(barrelLane, barrel, 50, 9, 0, 0),
+  'hit',
+)
+assert.equal(
+  LANE_BEHAVIOURS.barrel.touch(barrelLane, barrel, 50, 8, 0, 0),
+  null,
+)
 
 console.log('verifyArcadePlaytest: ok')

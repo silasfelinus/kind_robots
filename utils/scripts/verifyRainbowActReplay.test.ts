@@ -1,11 +1,15 @@
 import assert from 'node:assert/strict'
 import {
+  RAINBOW_ALTERNATE_ROUTES,
+  rainbowAlternateRouteLogbook,
   rainbowRouteIntel,
   readRainbowSave,
 } from '../arcade/games/rainbowLoadouts'
 import {
   canReplayRainbowAct,
+  canReplayRainbowAlternateRoute,
   rainbowActReplaySave,
+  rainbowAlternateApproachSave,
 } from '../arcade/games/rainbowActReplay'
 import { emptyRainbowHangar } from '../arcade/games/rainbowHangar'
 import { rainbowFlightComms } from '../arcade/games/rainbowFlightComms'
@@ -340,5 +344,97 @@ for (const seats of [1, 4]) {
   assert.equal(replayFlight.snapshot.checkpoint.act, 7)
   assert.equal(replayFlight.save, undefined)
 }
+
+// Charted detours are replayed through their genuine feeder Act, never by
+// inventing a mid-flight checkpoint or borrowing another save slot's chart.
+const charted = {
+  ...old,
+  checkpoint: {
+    ...old.checkpoint,
+    alternateRoutesSeen: 15,
+    freedChoir: false,
+    cadetsHome: false,
+  },
+}
+assert.ok(readRainbowSave(charted, isRainbowCheckpoint))
+assert.equal(canReplayRainbowAlternateRoute('X5', charted, fresh), false)
+assert.equal(rainbowAlternateApproachSave('X5', charted, fresh), null)
+assert.equal(
+  canReplayRainbowAlternateRoute('X1', null, awarded),
+  false,
+  'account-wide medals never discover a route for an empty slot',
+)
+const chartedBefore = JSON.stringify(charted)
+for (const route of RAINBOW_ALTERNATE_ROUTES) {
+  assert.equal(canReplayRainbowAlternateRoute(route.id, charted, fresh), true)
+  const approach = rainbowAlternateApproachSave(route.id, charted, fresh)!
+  assert.equal(approach.checkpoint.act, route.fromAct)
+  assert.equal(approach.checkpoint.frame, 0)
+  assert.equal(approach.checkpoint.score, 0)
+  assert.deepEqual(approach.medals, {})
+  assert.deepEqual(approach.pilots, [2, 0, 3])
+  assert.equal(
+    approach.checkpoint.alternateRoutesSeen,
+    undefined,
+    'the approach must discover its new route in flight, not inherit completion',
+  )
+  assert.ok(readRainbowSave(approach, isRainbowCheckpoint))
+  assert.equal(
+    rainbowAlternateRouteLogbook(approach).find(
+      (entry) => entry.id === route.id,
+    )?.discovered,
+    false,
+    'replaying the feeder Act must re-earn the detour, not pre-credit it',
+  )
+  const otherSlot = {
+    ...charted,
+    checkpoint: {
+      ...charted.checkpoint,
+      alternateRoutesSeen: 15 ^ route.bit,
+    },
+  }
+  assert.ok(readRainbowSave(otherSlot, isRainbowCheckpoint))
+  assert.equal(
+    canReplayRainbowAlternateRoute(route.id, otherSlot, fresh),
+    false,
+  )
+  assert.equal(rainbowAlternateApproachSave(route.id, otherSlot, fresh), null)
+  const incompleteApproach = {
+    ...charted,
+    checkpoint: { ...charted.checkpoint, act: route.fromAct },
+    medals: {},
+  }
+  assert.equal(
+    canReplayRainbowAlternateRoute(route.id, incompleteApproach, fresh),
+    false,
+    'a detour encounter alone cannot replay an unfinished feeder Act',
+  )
+  for (const seats of [1, 2, 3, 4]) {
+    const flight = createRainbowPrincessPreview({
+      rng: () => 0.5,
+      sound: { play: () => {} },
+      hiScore: 0,
+      demo: false,
+      players: seats,
+      selectScreen: true,
+      rainbowReplay: approach,
+    })
+    assert.equal(flight.level, route.fromAct)
+    assert.equal(flight.snapshot.activePlayers, seats)
+    assert.equal(flight.snapshot.resumeMenu, null)
+    assert.equal(flight.save, undefined)
+    flight.update(
+      idle,
+      Array.from({ length: seats }, () => idle),
+    )
+    assert.equal(flight.snapshot.checkpoint.act, route.fromAct)
+    assert.equal(flight.save, undefined)
+  }
+}
+assert.equal(
+  JSON.stringify(charted),
+  chartedBefore,
+  'none of the four detour replays may mutate the original save slot',
+)
 
 console.log('rainbow Act replay: ok (locks, sandbox and 1/4 seat flight)')

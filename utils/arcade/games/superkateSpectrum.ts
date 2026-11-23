@@ -131,21 +131,26 @@ function bubble(
   size = 13,
   style: BubbleStyle = 'glass',
   tick = 0,
+  highContrast = false,
 ) {
   g.save()
   g.shadowColor = PALETTE[hue]
-  g.shadowBlur = style === 'starlight' ? 16 : 10
+  g.shadowBlur = highContrast ? 0 : style === 'starlight' ? 16 : 10
   const gradient = g.createRadialGradient(x - 4, y - 5, 1, x, y, size)
   gradient.addColorStop(0, '#ffffff')
   gradient.addColorStop(style === 'candy' ? 0.5 : 0.3, PALETTE[hue])
   gradient.addColorStop(1, style === 'candy' ? '#63305b' : '#28203e')
-  g.fillStyle = gradient
+  g.fillStyle = highContrast ? PALETTE[hue] : gradient
   g.beginPath()
   g.arc(x, y, size, 0, Math.PI * 2)
   g.fill()
   g.shadowBlur = 0
-  g.strokeStyle = style === 'prismatic' ? '#fbe98a' : '#f9f0ff'
-  g.lineWidth = style === 'prismatic' ? 2.5 : 1.5
+  g.strokeStyle = highContrast
+    ? '#ffffff'
+    : style === 'prismatic'
+      ? '#fbe98a'
+      : '#f9f0ff'
+  g.lineWidth = highContrast ? 3 : style === 'prismatic' ? 2.5 : 1.5
   g.stroke()
   if (style === 'starlight' || style === 'prismatic') {
     g.fillStyle = '#ffffffa8'
@@ -640,7 +645,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         const hue = this.board[r]![c]
         if (hue) {
           const p = center({ row: r, col: c })
-          bubble(g, p.x, p.y, hue, 13, this.selectedStyle, this.tick)
+          bubble(
+            g, p.x, p.y, hue, 13, this.selectedStyle,
+            this.settings.particles ? this.tick : 0,
+            this.settings.highContrast,
+          )
         }
       }
     }
@@ -667,7 +676,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     g.setLineDash([])
     const style = this.selectedStyle
     if (this.shot) {
-      bubble(g, this.shot.x, this.shot.y, this.shot.hue, 13, style, this.tick)
+      bubble(
+        g, this.shot.x, this.shot.y, this.shot.hue, 13, style,
+        this.settings.particles ? this.tick : 0,
+        this.settings.highContrast,
+      )
       if (this.shot.power) {
         g.strokeStyle =
           this.shot.power === 'burst'
@@ -697,8 +710,16 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     g.beginPath()
     g.arc(W / 2, SHOT_Y + 13, 20, Math.PI, 0)
     g.fill()
-    bubble(g, W / 2, SHOT_Y, this.loaded, 12, style, this.tick)
-    bubble(g, 44, SHOT_Y + 3, this.next, 10, style, this.tick)
+    bubble(
+      g, W / 2, SHOT_Y, this.loaded, 12, style,
+      this.settings.particles ? this.tick : 0,
+      this.settings.highContrast,
+    )
+    bubble(
+      g, 44, SHOT_Y + 3, this.next, 10, style,
+      this.settings.particles ? this.tick : 0,
+      this.settings.highContrast,
+    )
     if (this.power)
       label(g, this.power.toUpperCase(), W / 2, SHOT_Y - 21, 11, '#fff89d')
     label(g, 'NEXT', 44, SHOT_Y - 15, 10, '#d6faff')

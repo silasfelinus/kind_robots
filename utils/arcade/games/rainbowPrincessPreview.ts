@@ -302,7 +302,6 @@ import {
   ECLIPSE_CROWN_MAX_HP,
   ECLIPSE_ESCAPE,
   CROWN_PLEA,
-  MOTHERLAND_FLAGSHIP,
   createEclipseCrownBoss,
   eclipseCrownSpokes,
   eclipseCrownWarning,

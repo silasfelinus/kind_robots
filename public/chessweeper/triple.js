@@ -5,11 +5,26 @@
 
   const $ = (id) => document.getElementById(id)
   const symbols = {
-    K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙',
-    k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟',
+    K: '♔',
+    Q: '♕',
+    R: '♖',
+    B: '♗',
+    N: '♘',
+    P: '♙',
+    k: '♚',
+    q: '♛',
+    r: '♜',
+    b: '♝',
+    n: '♞',
+    p: '♟',
   }
   const pieces = {
-    k: 'king', q: 'queen', r: 'rook', b: 'bishop', n: 'knight', p: 'pawn',
+    k: 'king',
+    q: 'queen',
+    r: 'rook',
+    b: 'bishop',
+    n: 'knight',
+    p: 'pawn',
   }
   const canvas = $('disc-arena')
   const ctx = canvas.getContext('2d')
@@ -56,44 +71,56 @@
 
   function updateAudio() {
     const playing = state.phase === 'running'
-    window.dispatchEvent(new CustomEvent('chessweeper:settings', {
-      detail: {
-        music: playing && $('music-setting').checked,
-        sound: playing && $('fx-setting').checked,
-      },
-    }))
+    window.dispatchEvent(
+      new CustomEvent('chessweeper:settings', {
+        detail: {
+          music: playing && $('music-setting').checked,
+          sound: playing && $('fx-setting').checked,
+        },
+      }),
+    )
   }
 
   function cue(kind) {
-    window.dispatchEvent(new CustomEvent('chessweeper:fx', {
-      detail: { kind },
-    }))
+    window.dispatchEvent(
+      new CustomEvent('chessweeper:fx', {
+        detail: { kind },
+      }),
+    )
   }
 
   function saveAudio() {
     try {
-      localStorage.setItem(AUDIO_KEY, JSON.stringify({
-        music: $('music-setting').checked,
-        effects: $('fx-setting').checked,
-      }))
+      localStorage.setItem(
+        AUDIO_KEY,
+        JSON.stringify({
+          music: $('music-setting').checked,
+          effects: $('fx-setting').checked,
+        }),
+      )
     } catch {}
     updateAudio()
   }
 
   function totalScore() {
     return Math.floor(
-      points.chess + points.mine + points.disc +
-      Math.min(points.chess, points.mine, points.disc) * 1.5,
+      points.chess +
+        points.mine +
+        points.disc +
+        Math.min(points.chess, points.mine, points.disc) * 1.5,
     )
   }
 
   function updateHud() {
     const minutes = Math.floor(state.remaining / 60)
     const seconds = Math.ceil(state.remaining % 60)
-    $('clock').textContent = String(minutes).padStart(2, '0') + ':' +
+    $('clock').textContent =
+      String(minutes).padStart(2, '0') +
+      ':' +
       String(seconds === 60 ? 59 : seconds).padStart(2, '0')
     $('total').textContent = totalScore().toLocaleString('en-US')
-    $('hearts').textContent = '♥'.repeat(Math.max(0, state.hearts)) +
+    $('hearts').textContent =
+      '♥'.repeat(Math.max(0, state.hearts)) +
       '♡'.repeat(3 - Math.max(0, state.hearts))
     for (const kind of ['chess', 'mine', 'disc']) {
       $(kind + '-points').textContent = String(Math.floor(points[kind]))
@@ -119,9 +146,12 @@
   function renderChess() {
     const board = $('chess-board')
     board.replaceChildren()
-    const available = state.chess.t === 1 && state.selected !== -1
-      ? chess.legalMoves(state.chess).filter((move) => move[0] === state.selected)
-      : []
+    const available =
+      state.chess.t === 1 && state.selected !== -1
+        ? chess
+            .legalMoves(state.chess)
+            .filter((move) => move[0] === state.selected)
+        : []
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const index = y * 16 + x
@@ -131,20 +161,23 @@
         cell.className = 'cell chess-cell ' + ((x + y) % 2 ? 'dark' : 'light')
         if (index === state.selected) cell.classList.add('selected')
         if (state.lastMove.includes(index)) cell.classList.add('last')
-        if (available.some((move) => move[1] === index)) cell.classList.add('legal')
+        if (available.some((move) => move[1] === index))
+          cell.classList.add('legal')
         if (piece !== '.') {
           const glyph = document.createElement('span')
-          glyph.className = piece === piece.toUpperCase()
-            ? 'white-piece' : 'black-piece'
+          glyph.className =
+            piece === piece.toUpperCase() ? 'white-piece' : 'black-piece'
           glyph.textContent = symbols[piece]
           cell.append(glyph)
         }
         cell.setAttribute(
           'aria-label',
           chess.squareName(index) +
-          (piece === '.' ? ' empty' : ' ' +
-            (piece === piece.toUpperCase() ? 'white ' : 'black ') +
-            pieces[piece.toLowerCase()]),
+            (piece === '.'
+              ? ' empty'
+              : ' ' +
+                (piece === piece.toUpperCase() ? 'white ' : 'black ') +
+                pieces[piece.toLowerCase()]),
         )
         cell.addEventListener('click', () => clickChess(index))
         board.append(cell)
@@ -167,7 +200,8 @@
       score('chess', chess.inCheck(state.chess) ? 1150 : 180)
       state.chessRound++
       $('chess-status').textContent = chess.inCheck(state.chess)
-        ? 'CHECKMATE!' : 'Stalemate'
+        ? 'CHECKMATE!'
+        : 'Stalemate'
       state.busy = true
       renderChess()
       setTimeout(() => {
@@ -190,11 +224,14 @@
       return
     }
     if (state.selected < 0) return
-    const move = chess.legalMoves(state.chess).find(
-      (candidate) => candidate[0] === state.selected &&
-        candidate[1] === index &&
-        (!candidate[2] || candidate[2] === 'q'),
-    )
+    const move = chess
+      .legalMoves(state.chess)
+      .find(
+        (candidate) =>
+          candidate[0] === state.selected &&
+          candidate[1] === index &&
+          (!candidate[2] || candidate[2] === 'q'),
+      )
     if (!move) {
       state.selected = -1
       renderChess()
@@ -212,11 +249,19 @@
     for (const move of options) {
       const victim = state.chess.b[move[1]]
       const trial = chess.makePosition(state.chess, move)
-      const value = (victim === '.' ? 0 : ({
-        p: 10, n: 30, b: 30, r: 50, q: 90, k: 0,
-      })[victim.toLowerCase()]) +
+      const value =
+        (victim === '.'
+          ? 0
+          : {
+              p: 10,
+              n: 30,
+              b: 30,
+              r: 50,
+              q: 90,
+              k: 0,
+            }[victim.toLowerCase()]) +
         (chess.inCheck(trial) ? 18 : 0) +
-        (Math.random() * 12)
+        Math.random() * 12
       if (value > best) {
         best = value
         choice = move
@@ -233,7 +278,8 @@
       return
     }
     $('chess-status').textContent = chess.inCheck(state.chess)
-      ? 'CHECK! Your move' : 'Your move'
+      ? 'CHECK! Your move'
+      : 'Your move'
     renderChess()
   }
 
@@ -260,8 +306,9 @@
     state.flagged = new Set()
     state.mineFirst = true
     state.minePendingReset = false
-    const cells = Array.from({ length: 64 }, (_, i) => i)
-      .filter((index) => index !== exclude)
+    const cells = Array.from({ length: 64 }, (_, i) => i).filter(
+      (index) => index !== exclude,
+    )
     for (let i = cells.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[cells[i], cells[j]] = [cells[j], cells[i]]
@@ -283,15 +330,20 @@
   }
 
   function revealMine(index) {
-    if (state.phase !== 'running' || state.flagged.has(index) ||
-      state.opened.has(index)) return
+    if (
+      state.phase !== 'running' ||
+      state.flagged.has(index) ||
+      state.opened.has(index)
+    )
+      return
     if (state.mineFirst) {
       state.mineFirst = false
       if (state.mines.has(index)) {
         const newSet = new Set(state.mines)
         newSet.delete(index)
-        const replacement = Array.from({ length: 64 }, (_, i) => i)
-          .find((i) => i !== index && !newSet.has(i))
+        const replacement = Array.from({ length: 64 }, (_, i) => i).find(
+          (i) => i !== index && !newSet.has(i),
+        )
         if (replacement !== undefined) newSet.add(replacement)
         state.mines = newSet
       }
@@ -314,8 +366,12 @@
     const queue = [index]
     while (queue.length) {
       const cell = queue.pop()
-      if (state.opened.has(cell) || state.flagged.has(cell) ||
-        state.mines.has(cell)) continue
+      if (
+        state.opened.has(cell) ||
+        state.flagged.has(cell) ||
+        state.mines.has(cell)
+      )
+        continue
       state.opened.add(cell)
       score('mine', 20)
       if (!clue(cell)) queue.push(...adjacent(cell))
@@ -349,11 +405,21 @@
       if (flag) cell.classList.add('flagged')
       if (number) cell.classList.add('hint-' + Math.min(4, number))
       cell.textContent = flag ? '🚩' : opened ? (mine ? '✹' : number || '') : ''
-      cell.setAttribute('aria-label',
-        'Minefield row ' + (Math.floor(index / 8) + 1) +
-        ' column ' + (index % 8 + 1) + ' ' +
-        (flag ? 'flagged' : !opened ? 'covered' :
-          mine ? 'mine' : number + ' adjacent mines'))
+      cell.setAttribute(
+        'aria-label',
+        'Minefield row ' +
+          (Math.floor(index / 8) + 1) +
+          ' column ' +
+          ((index % 8) + 1) +
+          ' ' +
+          (flag
+            ? 'flagged'
+            : !opened
+              ? 'covered'
+              : mine
+                ? 'mine'
+                : number + ' adjacent mines'),
+      )
       let held = 0
       cell.addEventListener('pointerdown', (event) => {
         if (event.pointerType === 'mouse') return
@@ -379,8 +445,8 @@
       })
       board.append(cell)
     }
-    $('mine-status').textContent = '✹ ' + (state.mines.size -
-      state.flagged.size) + ' left'
+    $('mine-status').textContent =
+      '✹ ' + (state.mines.size - state.flagged.size) + ' left'
   }
 
   function makeDisc() {
@@ -389,11 +455,14 @@
     const speed = 52 + Math.random() * 32 + state.discs.length * 4
     const x = edge === 0 ? 12 : edge === 1 ? 348 : coordinate
     const y = edge === 2 ? 12 : edge === 3 ? 348 : coordinate
-    const angle = Math.atan2(180 - y, 180 - x) +
-      (Math.random() - 0.5) * 1.9
+    const angle = Math.atan2(180 - y, 180 - x) + (Math.random() - 0.5) * 1.9
     return {
-      x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-      radius: 13, spin: Math.random() * 7,
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      radius: 13,
+      spin: Math.random() * 7,
     }
   }
 
@@ -424,14 +493,21 @@
     if (!dx && !dy && state.drag) {
       dx = state.drag.x - state.player.x
       dy = state.drag.y - state.player.y
-      if (Math.hypot(dx, dy) < 7) { dx = 0; dy = 0 }
+      if (Math.hypot(dx, dy) < 7) {
+        dx = 0
+        dy = 0
+      }
     }
     const norm = Math.hypot(dx, dy)
     if (norm) {
-      state.player.x = Math.max(12, Math.min(348,
-        state.player.x + dx / norm * dt * 170))
-      state.player.y = Math.max(12, Math.min(348,
-        state.player.y + dy / norm * dt * 170))
+      state.player.x = Math.max(
+        12,
+        Math.min(348, state.player.x + (dx / norm) * dt * 170),
+      )
+      state.player.y = Math.max(
+        12,
+        Math.min(348, state.player.y + (dy / norm) * dt * 170),
+      )
     }
     for (const disc of state.discs) {
       disc.x += disc.vx * dt
@@ -445,8 +521,10 @@
         disc.y = Math.max(disc.radius, Math.min(360 - disc.radius, disc.y))
       }
       disc.spin += dt * 5
-      if (state.invulnerable <= 0 &&
-        Math.hypot(disc.x - state.player.x, disc.y - state.player.y) < 21) {
+      if (
+        state.invulnerable <= 0 &&
+        Math.hypot(disc.x - state.player.x, disc.y - state.player.y) < 21
+      ) {
         state.invulnerable = 1.4
         damage('Disc impact')
       }
@@ -491,7 +569,7 @@
       ctx.lineWidth = 3
       ctx.beginPath()
       for (let i = 0; i < 24; i++) {
-        const a = Math.PI * i / 12
+        const a = (Math.PI * i) / 12
         const r = i % 2 ? disc.radius - 4 : disc.radius + 3
         const px = Math.cos(a) * r
         const py = Math.sin(a) * r
@@ -507,8 +585,8 @@
       ctx.fill()
       ctx.restore()
     }
-    const blinking = state.invulnerable > 0 &&
-      Math.floor(performance.now() / 90) % 2
+    const blinking =
+      state.invulnerable > 0 && Math.floor(performance.now() / 90) % 2
     if (!blinking) {
       ctx.save()
       ctx.translate(state.player.x, state.player.y)
@@ -535,18 +613,26 @@
     }
     $('dialog').classList.add('visible')
     $('dialog-title').textContent =
-      view === 'end' ? 'RUN COMPLETE' :
-        view === 'pause' ? 'PAUSED' :
-          view === 'scores' ? 'GLOBAL LEADERBOARD' :
-            'CHESSWEEPER TRIPLE THREAT'
+      view === 'end'
+        ? 'RUN COMPLETE'
+        : view === 'pause'
+          ? 'PAUSED'
+          : view === 'scores'
+            ? 'GLOBAL LEADERBOARD'
+            : 'CHESSWEEPER TRIPLE THREAT'
     $('dialog-subtitle').textContent =
-      view === 'end' ? 'One clock. Three challenges. Your score.' :
-        view === 'pause' ? 'Take a breather, then return to all three.' :
-          view === 'scores' ? 'Every challenger shares the same scoreboard.' :
-            'Play chess, clear mines and dodge discs at the same time.'
+      view === 'end'
+        ? 'One clock. Three challenges. Your score.'
+        : view === 'pause'
+          ? 'Take a breather, then return to all three.'
+          : view === 'scores'
+            ? 'Every challenger shares the same scoreboard.'
+            : 'Play chess, clear mines and dodge discs at the same time.'
     $('show-scores').classList.toggle('hidden', view === 'scores')
-    $('audio-settings').classList.toggle('hidden',
-      view === 'scores' || view === 'end')
+    $('audio-settings').classList.toggle(
+      'hidden',
+      view === 'scores' || view === 'end',
+    )
   }
 
   function closeDialog() {
@@ -607,11 +693,15 @@
     }, 380)
     keys.clear()
     state.drag = null
-    $('run-result').textContent = reason + ' · ' +
-      state.final.toLocaleString('en-US') + ' points'
+    $('run-result').textContent =
+      reason + ' · ' + state.final.toLocaleString('en-US') + ' points'
     $('run-breakdown').textContent =
-      'Chess ' + points.chess + ' · Mines ' + points.mine +
-      ' · Discs ' + points.disc +
+      'Chess ' +
+      points.chess +
+      ' · Mines ' +
+      points.mine +
+      ' · Discs ' +
+      points.disc +
       ' · Balance bonus ' +
       Math.floor(1.5 * Math.min(...Object.values(points)))
     $('submit-status').textContent = state.ranked
@@ -657,7 +747,11 @@
         const item = document.createElement('li')
         const player = document.createElement('span')
         const amount = document.createElement('strong')
-        player.textContent = (index + 1) + '. ' + row.initials +
+        player.textContent =
+          index +
+          1 +
+          '. ' +
+          row.initials +
           (row.username ? ' · ' + row.username : '')
         amount.textContent = Number(row.score).toLocaleString('en-US')
         item.append(player, amount)
@@ -671,8 +765,13 @@
   }
 
   async function submit() {
-    if (state.phase !== 'end' || state.submitted || !state.ranked ||
-      state.final <= 0) return
+    if (
+      state.phase !== 'end' ||
+      state.submitted ||
+      !state.ranked ||
+      state.final <= 0
+    )
+      return
     const initials = $('initials').value.trim().toUpperCase()
     if (!/^[A-Z0-9]{3}$/.test(initials)) {
       $('submit-status').textContent = 'Enter exactly three letters or digits.'
@@ -717,7 +816,7 @@
     if (state.phase === 'running') {
       state.remaining = Math.max(0, state.remaining - raw)
       if (state.remaining <= 0) finish('Time!')
-      else updateDiscs(Math.min(.05, raw))
+      else updateDiscs(Math.min(0.05, raw))
       updateHud()
     }
     paintDiscs()
@@ -729,31 +828,49 @@
     canvas.setPointerCapture(event.pointerId)
     const rect = canvas.getBoundingClientRect()
     state.drag = {
-      x: Math.max(0, Math.min(360, (event.clientX - rect.left) * 360 / rect.width)),
-      y: Math.max(0, Math.min(360, (event.clientY - rect.top) * 360 / rect.height)),
+      x: Math.max(
+        0,
+        Math.min(360, ((event.clientX - rect.left) * 360) / rect.width),
+      ),
+      y: Math.max(
+        0,
+        Math.min(360, ((event.clientY - rect.top) * 360) / rect.height),
+      ),
     }
   })
   canvas.addEventListener('pointermove', (event) => {
     if (!state.drag || state.phase !== 'running') return
     const rect = canvas.getBoundingClientRect()
-    state.drag.x = Math.max(0, Math.min(360,
-      (event.clientX - rect.left) * 360 / rect.width))
-    state.drag.y = Math.max(0, Math.min(360,
-      (event.clientY - rect.top) * 360 / rect.height))
+    state.drag.x = Math.max(
+      0,
+      Math.min(360, ((event.clientX - rect.left) * 360) / rect.width),
+    )
+    state.drag.y = Math.max(
+      0,
+      Math.min(360, ((event.clientY - rect.top) * 360) / rect.height),
+    )
   })
   for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) {
-    canvas.addEventListener(event, () => { state.drag = null })
+    canvas.addEventListener(event, () => {
+      state.drag = null
+    })
   }
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       if (state.phase === 'running') pause()
-      else if (state.phase === 'pause' && !$('scores-view').classList.contains('hidden')) {
+      else if (
+        state.phase === 'pause' &&
+        !$('scores-view').classList.contains('hidden')
+      ) {
         openDialog('pause')
       } else if (state.phase === 'pause') resume()
       return
     }
-    if (event.target instanceof HTMLInputElement ||
-      event.target instanceof HTMLSelectElement) return
+    if (
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLSelectElement
+    )
+      return
     const key = event.key.toLowerCase()
     if (['w', 'a', 's', 'd'].includes(key) && state.phase === 'running') {
       event.preventDefault()
@@ -774,8 +891,14 @@
     if (event.origin !== window.location.origin) return
     if (event.data?.type !== 'chessweeper:open') return
     if (state.phase === 'running') pause()
-    else openDialog(state.phase === 'end' ? 'end' :
-      state.phase === 'pause' ? 'pause' : 'start')
+    else
+      openDialog(
+        state.phase === 'end'
+          ? 'end'
+          : state.phase === 'pause'
+            ? 'pause'
+            : 'start',
+      )
   })
   for (const id of ['music-setting', 'fx-setting']) {
     $(id).addEventListener('change', saveAudio)
@@ -805,8 +928,13 @@
   $('all-time').addEventListener('click', () => loadScores('all'))
   $('today').addEventListener('click', () => loadScores('today'))
   $('close-scores').addEventListener('click', () => {
-    openDialog(state.scoresReturn === 'end' ? 'end' :
-      state.scoresReturn === 'start' ? 'start' : 'pause')
+    openDialog(
+      state.scoresReturn === 'end'
+        ? 'end'
+        : state.scoresReturn === 'start'
+          ? 'start'
+          : 'pause',
+    )
   })
   $('submit').addEventListener('click', submit)
   state.mines = new Set()

@@ -25,9 +25,7 @@
           >
             ♔
           </span>
-          <span class="min-w-0 flex-1 truncate font-bold">
-            Chessweeper
-          </span>
+          <span class="min-w-0 flex-1 truncate font-bold"> Chessweeper </span>
           <span class="badge badge-primary hidden sm:inline-flex">
             ♔ × ✹ × ◉
           </span>

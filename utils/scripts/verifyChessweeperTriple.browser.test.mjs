@@ -14,9 +14,7 @@ const server = await startServer({
   artOrigin: env.CHESSWEEPER_ART_ORIGIN || '',
 })
 const browser = await chromium.launch(
-  env.CHESSWEEPER_CHROMIUM
-    ? { executablePath: env.CHESSWEEPER_CHROMIUM }
-    : {},
+  env.CHESSWEEPER_CHROMIUM ? { executablePath: env.CHESSWEEPER_CHROMIUM } : {},
 )
 const errors = []
 
@@ -64,14 +62,16 @@ async function openAt(width) {
       contentType: 'application/json',
       body: JSON.stringify({
         success: true,
-        data: [{
-          id: 1,
-          initials: 'AAA',
-          username: 'TestPilot',
-          score: 900,
-          level: 2,
-          createdAt: '2026-11-23T06:00:00Z',
-        }],
+        data: [
+          {
+            id: 1,
+            initials: 'AAA',
+            username: 'TestPilot',
+            score: 900,
+            level: 2,
+            createdAt: '2026-11-23T06:00:00Z',
+          },
+        ],
       }),
     })
   })
@@ -95,8 +95,7 @@ try {
       }),
     )
     assert.ok(
-      boxes[0].right <= boxes[1].x &&
-        boxes[1].right <= boxes[2].x,
+      boxes[0].right <= boxes[1].x && boxes[1].right <= boxes[2].x,
       width + 'px: three panels stay in one horizontal row',
     )
     assert.ok(
@@ -132,15 +131,15 @@ try {
     await screenshot(page, 'triple-' + width + '-playing')
 
     await page.locator('#mine-board button').nth(0).click()
-    const revealed = await page.evaluate(() =>
-      window.__chessweeperTriple.snapshot().mineOpened,
+    const revealed = await page.evaluate(
+      () => window.__chessweeperTriple.snapshot().mineOpened,
     )
     assert.ok(revealed >= 1, 'Minesweeper reveals real cells')
 
     await page.getByRole('button', { name: 'e2 white pawn' }).click()
     await page.getByRole('button', { name: 'e4 empty' }).click()
-    const moved = await page.evaluate(() =>
-      window.__chessweeperTriple.snapshot().chessMoves,
+    const moved = await page.evaluate(
+      () => window.__chessweeperTriple.snapshot().chessMoves,
     )
     assert.equal(moved, 1, 'legal chess move applied')
     await page.clock.runFor(350)
@@ -201,7 +200,9 @@ try {
       'signed-in sessions are attributed by Authorization while guests are not',
     )
     await page.close()
-    console.log('[triple] ' + width + 'px: input, stage, timer and scores passed')
+    console.log(
+      '[triple] ' + width + 'px: input, stage, timer and scores passed',
+    )
   }
   assert.deepEqual(errors, [], 'no browser exceptions')
   console.log('[triple] 3 viewports, concurrent mechanics and scoring passed')

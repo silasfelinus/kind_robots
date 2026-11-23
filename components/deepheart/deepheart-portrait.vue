@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   RENDERED_ART,
   initials,
@@ -78,6 +78,10 @@ const role = computed(() => ROLES[person.value.role])
 const src = computed(() =>
   props.id === CUSTOM_HERO_ID ? null : portraitSrc(props.id, RENDERED_ART),
 )
+watch(src, () => {
+  failed.value = false
+})
+
 const displayName = computed(() => props.name || person.value.name)
 </script>
 

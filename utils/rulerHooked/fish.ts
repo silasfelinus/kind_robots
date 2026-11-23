@@ -109,12 +109,9 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     consequenceReveal:
       'Appeared after Robin and Ash were given a garden beside the lake and the shore remained healthy enough to share it.',
     unlock: {
-      all: [
-        {
-          flags: ['newlywedsGarden'],
-          sliders: { joy: { gte: 55 }, nature: { gte: 50 } },
-        },
-      ],
+      all: [{ sliders: { joy: { gte: 55 }, nature: { gte: 50 } } }],
+      any: [{ flags: ['newlywedsGarden'] }, { flags: ['workingWaterfront'] }],
+      closes: [{ flags: ['exclusivePier'] }],
     },
   },
   {
@@ -135,10 +132,18 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     consequenceReveal:
       'Recorded after the ruler listened to the lake and left enough migration route intact for old giants to return. Netting the run at a closed weir ends it.',
     unlock: {
-      all: [
+      any: [
         {
           flags: ['heededNix'],
           sliders: { nature: { gte: 70 }, order: { gte: 45 } },
+        },
+        {
+          flags: ['riverCommons'],
+          sliders: { nature: { gte: 70 }, order: { gte: 45 } },
+        },
+        {
+          flags: ['publicTrust'],
+          sliders: { nature: { gte: 45 }, order: { gte: 45 } },
         },
       ],
       closes: [{ flags: ['runBlocked'] }],
@@ -276,7 +281,8 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     consequenceReveal:
       'Appeared after the crown negotiated borders and tariffs hard enough for the lake to notice.',
     unlock: {
-      all: [{ flags: ['envoyTreatyHard'], sliders: { treasury: { gte: 60 } } }],
+      all: [{ sliders: { treasury: { gte: 60 } } }],
+      any: [{ flags: ['envoyTreatyHard'] }, { flags: ['riverConcession'] }],
     },
   },
   {
@@ -472,6 +478,421 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
       all: [{ flags: ['moatFishedOut'] }],
       closes: [{ flags: ['moatHonour'] }],
     },
+  },
+  {
+    slug: 'dewbell-tench',
+    name: 'Dewbell Tench',
+    source: 'ruler-hooked',
+    affinity: 'GOOD',
+    rarity: 'UNCOMMON',
+    habitats: ['near_bank', 'lake'],
+    sizeRangeCm: [22, 48],
+    silhouette:
+      'plump lilac tench covered in overlapping lily pad scales with three translucent dew-drop bells along its dorsal fin',
+    distinction:
+      'Each glassy bell holds a single bead of water and shakes out rainbow droplets when the fish turns.',
+    catchBehavior:
+      'Lingers among nursery reeds and bites in three soft taps before diving under the lilies.',
+    fishopediaNote:
+      'The nursery committee nominated it as a mascot. The tench has not attended a meeting.',
+    consequenceReveal:
+      'A living nursery returned the dewbell to waters where young fish can shelter.',
+    unlock: {
+      all: [{ flags: ['shallowsNursery'], sliders: { nature: { gte: 55 } } }],
+      closes: [{ flags: ['shallowsDredged'] }],
+    },
+  },
+  {
+    slug: 'commons-kitebream',
+    name: 'Commons Kitebream',
+    source: 'ruler-hooked',
+    affinity: 'GOOD',
+    rarity: 'RARE',
+    habitats: ['far_shore', 'near_bank'],
+    sizeRangeCm: [35, 75],
+    silhouette:
+      'wide silver and coral bream with two enormous translucent kite-shaped pectoral fins and long green reed tassels',
+    distinction:
+      'A moving rainbow pennant on the current, with each fin stretched taut by flowing water.',
+    catchBehavior:
+      'Rises into clean currents and makes long lateral sails whenever tension pulls it off course.',
+    fishopediaNote:
+      'Its fins fly freely over the commons. A previous council tried to license the wind.',
+    consequenceReveal:
+      'The shared river crossing left enough current for kitebream to make their aerial turns.',
+    unlock: {
+      all: [
+        {
+          flags: ['riverCommons'],
+          sliders: { nature: { gte: 55 }, order: { gte: 45 } },
+        },
+      ],
+      closes: [{ flags: ['riverConcession'] }],
+    },
+  },
+  {
+    slug: 'oaththread-dace',
+    name: 'Oaththread Dace',
+    source: 'ruler-hooked',
+    affinity: 'GOOD',
+    rarity: 'COMMON',
+    habitats: ['castle_grounds', 'village_edge'],
+    sizeRangeCm: [9, 24],
+    silhouette:
+      'slender ice-blue dace with long braided golden algae trailing from both cheeks and a violet forked tail',
+    distinction:
+      'Its trailing algae form a neat knot whenever two fish meet nose to nose.',
+    catchBehavior:
+      'Never pulls against a partner; a hooked dace circles back toward its shoal.',
+    fishopediaNote:
+      'Two dace can tie a knot in water. The treaty scribes envy their handwriting.',
+    consequenceReveal:
+      'The crown made water a public trust and the tiny witnesses returned to the moat.',
+    unlock: {
+      all: [
+        {
+          flags: ['publicTrust'],
+          sliders: { nature: { gte: 45 }, joy: { gte: 45 } },
+        },
+      ],
+    },
+  },
+  {
+    slug: 'clockwork-riffle-loach',
+    name: 'Clockwork Riffle Loach',
+    source: 'ruler-hooked',
+    affinity: 'NEUTRAL',
+    rarity: 'UNCOMMON',
+    habitats: ['village_edge', 'near_bank'],
+    sizeRangeCm: [16, 37],
+    silhouette:
+      'long olive loach with copper gear-shaped fin edges and a round striped belly resembling a waterwheel',
+    distinction:
+      'Its paddle-like fins rotate independently as it rests in fast-running mill channels.',
+    catchBehavior:
+      'Shifts one pool upstream at a time, pausing between narrow bursts of current.',
+    fishopediaNote:
+      'Keeps the mill on schedule despite never having signed the maintenance contract.',
+    consequenceReveal:
+      'The weir ladder created little racing channels and the loach discovered a new livelihood.',
+    unlock: {
+      all: [{ flags: ['weirLadder'], sliders: { prosperity: { gte: 45 } } }],
+    },
+  },
+  {
+    slug: 'chroma-cuttle',
+    name: 'Chroma Cuttle',
+    source: 'ruler-hooked',
+    affinity: 'NEUTRAL',
+    rarity: 'RARE',
+    habitats: ['near_bank', 'lake'],
+    sizeRangeCm: [28, 62],
+    silhouette:
+      'freshwater cuttlefish with eight delicate curling turquoise arms and an oval back striped in vivid magenta lime and gold',
+    distinction:
+      'Bright mineral ink streams from its arms in translucent ribbons that drift between dock pilings.',
+    catchBehavior:
+      'Pulses colored ink around moored boats and hides its outline before a sudden sideways dash.',
+    fishopediaNote:
+      'The harbor painters swear it copied their colors. It swears the harbor painters copied its.',
+    consequenceReveal:
+      'The public working waterfront left sheltered pilings and safe moorings for wild color to gather.',
+    unlock: {
+      all: [
+        { flags: ['workingWaterfront'], sliders: { prosperity: { gte: 45 } } },
+      ],
+      closes: [{ flags: ['exclusivePier'] }],
+    },
+  },
+  {
+    slug: 'parcelglass-eel',
+    name: 'Parcelglass Eel',
+    source: 'ruler-hooked',
+    affinity: 'NEUTRAL',
+    rarity: 'EPIC',
+    habitats: ['far_shore', 'village_edge'],
+    sizeRangeCm: [65, 148],
+    silhouette:
+      'long transparent amber eel with rounded blue eyes and small copper ring-shaped scales enclosing bright pearl beads along its spine',
+    distinction:
+      'Every scale protects one colored pearl, and the pearls change places as the eel swims.',
+    catchBehavior:
+      'Slips between river barges, abruptly changing depth whenever a bell sounds.',
+    fishopediaNote:
+      'Moves valuables across the border with remarkable discretion. The customs office dislikes it.',
+    consequenceReveal:
+      'Cross-border trade brought pearl-carrying eels to the new shipping lanes.',
+    unlock: {
+      all: [
+        { flags: ['envoyTreatySigned'], sliders: { prosperity: { gte: 55 } } },
+      ],
+    },
+  },
+  {
+    slug: 'smokedglass-flounder',
+    name: 'Smokedglass Flounder',
+    source: 'ruler-hooked',
+    affinity: 'EVIL',
+    rarity: 'COMMON',
+    habitats: ['near_bank', 'lake'],
+    sizeRangeCm: [17, 43],
+    silhouette:
+      'flat charcoal flounder with one enormous amber eye and sharp translucent smoked-glass fins',
+    distinction:
+      'Its mirror-dark scales reflect tiny distorted dock lamps and oil-slick rainbow colors.',
+    catchBehavior:
+      'Burrows into dredged silt and runs flat along the lake bottom when disturbed.',
+    fishopediaNote:
+      'Looks like a cracked window. It only appears where the lake has lost its own reflection.',
+    consequenceReveal:
+      'The dredged pleasure marina left black silt and scraps of glass where spawning grass once grew.',
+    unlock: {
+      all: [{ flags: ['shallowsDredged'], sliders: { nature: { lte: 50 } } }],
+      closes: [{ flags: ['shallowsNursery'] }],
+    },
+  },
+  {
+    slug: 'turnstile-tetra',
+    name: 'Turnstile Tetra',
+    source: 'ruler-hooked',
+    affinity: 'EVIL',
+    rarity: 'UNCOMMON',
+    habitats: ['village_edge', 'far_shore'],
+    sizeRangeCm: [10, 30],
+    silhouette:
+      'bright brass-green tetra with six rigid radial fins revolving around its midsection like a small turnstile',
+    distinction:
+      'Its rotating fins click against a copper ring of bony scales while it patrols narrow channels.',
+    catchBehavior:
+      'Rushes every opening and changes direction the instant a current lets it through.',
+    fishopediaNote:
+      'Refuses to enter a tributary until someone moves first. Its ancestors were never like this.',
+    consequenceReveal:
+      'Private river concessions divided once-open waterways into regulated narrow passages.',
+    unlock: {
+      all: [{ flags: ['riverConcession'], sliders: { treasury: { gte: 55 } } }],
+    },
+  },
+  {
+    slug: 'lockjaw-burbot',
+    name: 'Lockjaw Burbot',
+    source: 'ruler-hooked',
+    affinity: 'EVIL',
+    rarity: 'RARE',
+    habitats: ['far_shore', 'lake'],
+    sizeRangeCm: [55, 114],
+    silhouette:
+      'heavy ink-black burbot with an oversized squared iron-colored jaw and paired rigid bar-like whiskers',
+    distinction:
+      'Its mouth closes into a perfect grid of pale metallic teeth, like a miniature sluice gate.',
+    catchBehavior:
+      'Freezes beneath blocked water then surges against the line in one heavy burst.',
+    fishopediaNote:
+      'Has inherited every closed gate in the river and regards the keys as personal property.',
+    consequenceReveal:
+      'Blocked migration gates and stagnant weir water gave the burbot territory with nowhere to go.',
+    unlock: {
+      all: [{ flags: ['runBlocked'], sliders: { order: { gte: 50 } } }],
+    },
+  },
+  {
+    slug: 'reedglass-darter',
+    name: 'Reedglass Darter',
+    source: 'ruler-hooked',
+    affinity: 'GOOD',
+    rarity: 'COMMON',
+    habitats: ['near_bank', 'lake'],
+    sizeRangeCm: [10, 24],
+    silhouette:
+      'slim jade darter with transparent leaf-shaped fins and tiny silver seed-like spots',
+    distinction:
+      'Its translucent fins resemble young reeds, and its shadow breaks into a spray of green light.',
+    catchBehavior:
+      'Darts through reeds in quick zigzags; brief taps work better than a long pull.',
+    fishopediaNote:
+      'The nursery has taught it to hide in plain sight. It is a poor student of staying still.',
+    consequenceReveal:
+      'Returned when the shallows were protected as a nursery instead of dredged for boats.',
+    unlock: {
+      all: [{ flags: ['shallowsNursery'], sliders: { nature: { gte: 55 } } }],
+      closes: [{ flags: ['shallowsDredged'] }],
+    },
+  },
+  {
+    slug: 'commons-bellfin',
+    name: 'Commons Bellfin',
+    source: 'ruler-hooked',
+    affinity: 'GOOD',
+    rarity: 'RARE',
+    habitats: ['village_edge', 'near_bank'],
+    sizeRangeCm: [35, 72],
+    silhouette:
+      'round cobalt fish with two broad bronze bell-shaped fins and a pale green belly',
+    distinction:
+      'The bell fins ring softly when river current passes through their hollow ribs.',
+    catchBehavior:
+      'Follows a steady current and only bites when the line is held still.',
+    fishopediaNote:
+      'No one owns its song, though several officials have tried to collect royalties.',
+    consequenceReveal:
+      'Gathered in the public river commons once fishers could share the water without private tolls.',
+    unlock: {
+      all: [{ flags: ['riverCommons'], sliders: { joy: { gte: 55 } } }],
+      closes: [{ flags: ['exclusivePier'] }],
+    },
+  },
+  {
+    slug: 'oathscale-minnow',
+    name: 'Oathscale Minnow',
+    source: 'ruler-hooked',
+    affinity: 'GOOD',
+    rarity: 'UNCOMMON',
+    habitats: ['castle_grounds', 'near_bank'],
+    sizeRangeCm: [12, 30],
+    silhouette:
+      'tiny turquoise minnow with overlapping pearly scales shaped like interlocking hands',
+    distinction:
+      'The scales shimmer in pairs, as though the whole shoal has made a promise.',
+    catchBehavior:
+      'Bites twice in a heartbeat, then waits for the angler to stop tugging.',
+    fishopediaNote:
+      'Its shoals hold together even when the water is muddy. The court calls that disloyalty.',
+    consequenceReveal:
+      'Flourished when the moat was restored as a public trust rather than a royal pantry.',
+    unlock: {
+      all: [{ flags: ['publicTrust'], sliders: { nature: { gte: 45 } } }],
+      closes: [{ flags: ['moatFishedOut'] }],
+    },
+  },
+  {
+    slug: 'treaty-sailfish',
+    name: 'Treaty Sailfish',
+    source: 'ruler-hooked',
+    affinity: 'NEUTRAL',
+    rarity: 'RARE',
+    habitats: ['far_shore', 'lake'],
+    sizeRangeCm: [65, 125],
+    silhouette:
+      'sleek indigo freshwater sailfish with a tall patchwork sail of copper and lilac membranes',
+    distinction:
+      'Its sail bears irregular natural color patches that shift as it crosses the border currents.',
+    catchBehavior:
+      'Changes direction when the line crosses a current seam; controlled slack preserves the catch.',
+    fishopediaNote:
+      'It crosses every border without papers. The border guards pretend not to notice.',
+    consequenceReveal:
+      'Appeared after the envoy treaty reopened the waterway to unfamiliar travelers.',
+    unlock: {
+      all: [
+        { flags: ['envoyTreatySigned'], sliders: { prosperity: { gte: 50 } } },
+      ],
+    },
+  },
+  {
+    slug: 'marina-mirrorling',
+    name: 'Marina Mirrorling',
+    source: 'ruler-hooked',
+    affinity: 'NEUTRAL',
+    rarity: 'COMMON',
+    habitats: ['far_shore', 'lake'],
+    sizeRangeCm: [18, 40],
+    silhouette:
+      'flat silver-blue fish with mirror-bright flank plates and a narrow fan tail',
+    distinction:
+      'Its sides reflect boat hulls in miniature, making the fish appear to carry a fleet.',
+    catchBehavior:
+      "Follows the lure's reflection instead of the lure; a pause brings it close.",
+    fishopediaNote:
+      'A marina is just a forest of upside-down boats, according to this species.',
+    consequenceReveal:
+      'Settled among cleaned marina pilings once the water stopped tasting of bilge.',
+    unlock: { all: [{ flags: ['marinaCleaned'] }] },
+  },
+  {
+    slug: 'concession-coinfin',
+    name: 'Concession Coinfin',
+    source: 'ruler-hooked',
+    affinity: 'NEUTRAL',
+    rarity: 'UNCOMMON',
+    habitats: ['village_edge', 'near_bank'],
+    sizeRangeCm: [20, 48],
+    silhouette:
+      'bright copper fish with circular coinlike pectoral fins and a long ribbon tail',
+    distinction:
+      'Its fins rotate like tiny wheels, flashing copper whenever the current turns.',
+    catchBehavior:
+      'Steals loose bait, then returns for a second bite if the hook stays motionless.',
+    fishopediaNote:
+      'A fish that charges admission to its own feeding grounds would be popular at court.',
+    consequenceReveal:
+      'Followed the merchants when the river concession turned the bank into a trading corridor.',
+    unlock: {
+      all: [{ flags: ['riverConcession'], sliders: { treasury: { gte: 50 } } }],
+    },
+  },
+  {
+    slug: 'pierlock-eel',
+    name: 'Pierlock Eel',
+    source: 'ruler-hooked',
+    affinity: 'EVIL',
+    rarity: 'UNCOMMON',
+    habitats: ['near_bank', 'castle_grounds'],
+    sizeRangeCm: [45, 105],
+    silhouette:
+      'long charcoal eel with brass padlock-shaped bony plates along its spine',
+    distinction:
+      'Each spine plate closes over the next like a row of locked gates.',
+    catchBehavior:
+      'Wraps the line around pier supports; a quick release of tension frees it.',
+    fishopediaNote: 'It has never paid a toll. It has collected several.',
+    consequenceReveal:
+      'Thrived beneath the exclusive pier when public access was traded for private revenue.',
+    unlock: {
+      all: [{ flags: ['exclusivePier'], sliders: { joy: { lte: 50 } } }],
+    },
+  },
+  {
+    slug: 'sluice-ghost',
+    name: 'Sluice Ghost',
+    source: 'ruler-hooked',
+    affinity: 'EVIL',
+    rarity: 'RARE',
+    habitats: ['village_edge', 'lake'],
+    sizeRangeCm: [35, 80],
+    silhouette:
+      'pale translucent fish with a ragged veil tail and black empty-looking eye sockets',
+    distinction:
+      'Its nearly invisible body trails white silt that gathers into little spectral ribbons.',
+    catchBehavior:
+      'Only becomes visible when the lure drifts into still water behind a blocked sluice.',
+    fishopediaNote:
+      'It remembers the river as it used to run. The river no longer returns its calls.',
+    consequenceReveal:
+      'Gathered where the blocked millrace left a stagnant pocket of water.',
+    unlock: {
+      all: [{ flags: ['runBlocked'], sliders: { nature: { lte: 45 } } }],
+      closes: [{ flags: ['sluiceOpened'] }],
+    },
+  },
+  {
+    slug: 'gallows-gudgeon',
+    name: 'Gallows Gudgeon',
+    source: 'ruler-hooked',
+    affinity: 'EVIL',
+    rarity: 'EPIC',
+    habitats: ['far_shore', 'castle_grounds'],
+    sizeRangeCm: [40, 90],
+    silhouette:
+      'deep crimson gudgeon with a hooked black dorsal spine and dangling pale whiskers',
+    distinction:
+      'Its dorsal spine bends like a crooked gallows while its whiskers knot around reeds.',
+    catchBehavior:
+      'Feigns a snapped line before a sudden heavy pull; waiting one beat saves the catch.',
+    fishopediaNote:
+      'The court has prohibited its name. The fish is thriving under the publicity.',
+    consequenceReveal:
+      'Appeared when high order and miserable subjects turned the far shore into a place of punishment.',
+    unlock: { all: [{ sliders: { order: { gte: 80 }, joy: { lte: 30 } } }] },
   },
 ]
 

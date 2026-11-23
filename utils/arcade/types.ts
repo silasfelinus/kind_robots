@@ -187,6 +187,11 @@ export type ArcadeGameOptions = {
   stillCamera?: boolean
   /** Isolated Rainbow Act replay snapshot, never promoted to the campaign save. */
   rainbowReplay?: unknown
+  /**
+   * Rainbow test hook: let the attract demo fly on from `resume` (a saved checkpoint) instead of ignoring it, so a
+   * test can fly a saved road with real lanes. The cabinet never sets it.
+   */
+  rainbowDemoResume?: boolean
   /** Earned, per-save-slot Palace Hangar upgrades for Rainbow Space Princess. */
   rainbowHangar?: { shield: boolean; charge: boolean; life: boolean }
   /**

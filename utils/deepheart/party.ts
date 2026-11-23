@@ -14,6 +14,7 @@ import type {
   RoleId,
   Support,
   Synergy,
+  Value,
 } from './types'
 
 // Party composition: which synergies and supports a party switches on, who
@@ -145,6 +146,17 @@ export function canRomance(
   )
 }
 
+/**
+ * Things the player has actually learned. Mechanical effects still apply
+ * regardless of discovery; this only controls what the party planner may
+ * infer or expose before a relationship is encountered in play.
+ */
+export type PartyKnowledge = {
+  supports: readonly string[]
+  romances: readonly string[]
+  values: Readonly<Record<string, readonly Value[]>>
+}
+
 export type ScoreLine = { label: string; points: number }
 
 export type PartyScore = {
@@ -221,6 +233,7 @@ export function scoreParty(
   hero: HeroSetup,
   companions: readonly string[],
   goal: PartyGoal = 'balanced',
+  knowledge?: PartyKnowledge,
 ): PartyScore {
   const w = GOAL_WEIGHTS[goal]
   const ids = [hero.presetId, ...companions]
@@ -239,10 +252,16 @@ export function scoreParty(
   add('Role coverage', cover * w.cover)
 
   for (const s of activeSynergies(ids, hero)) add(s.name, s.value * w.synergy)
-  for (const s of activeSupports(ids))
-    add(s.name, (s.kind === 'lovers' ? 5 : 3) * w.support)
+  for (const s of activeSupports(ids)) {
+    if (!knowledge || knowledge.supports.includes(pairKey(s.a, s.b)))
+      add(s.name, (s.kind === 'lovers' ? 5 : 3) * w.support)
+  }
 
-  const romances = companions.filter((id) => canRomance(hero, id, companions))
+  const romances = companions.filter(
+    (id) =>
+      canRomance(hero, id, companions) &&
+      (!knowledge || knowledge.romances.includes(id)),
+  )
   add(
     romances.length === 1
       ? 'One possible romance'
@@ -277,7 +296,10 @@ export function scoreParty(
         x !== y &&
         x !== CUSTOM_HERO_ID &&
         y !== CUSTOM_HERO_ID &&
-        character(x).likes.includes(character(y).dislikes)
+        character(x).likes.includes(character(y).dislikes) &&
+        (!knowledge ||
+          (knowledge.values[x]?.includes(character(y).dislikes) &&
+            knowledge.values[y]?.includes(character(y).dislikes)))
       )
         friction += 0.5
   add('Clashing values', -friction)
@@ -295,11 +317,12 @@ export function optimizeParty(
   goal: PartyGoal = 'balanced',
   limit = 3,
   sizes: number[] = [1, 2, 3],
+  knowledge?: PartyKnowledge,
 ): PartyScore[] {
   const pool = CHARACTERS.map((c) => c.id).filter((id) => id !== hero.presetId)
   const best: PartyScore[] = []
   const consider = (party: string[]) => {
-    const score = scoreParty(hero, party, goal)
+    const score = scoreParty(hero, party, goal, knowledge)
     if (best.length < limit || score.total > best[best.length - 1]!.total) {
       best.push(score)
       best.sort(

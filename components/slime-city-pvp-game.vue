@@ -26,6 +26,14 @@
     </header-page-bar>
 
     <div class="scpvp-stage">
+      <SlimeCityArtwork
+        class="scpvp-arena-art"
+        :image-id="slimeArtId('boards', 'pitworks-blackout')"
+        alt=""
+        compact
+        aria-hidden="true"
+        data-testid="slime-pvp-backdrop"
+      />
       <p v-if="pvp.error" class="scpvp-error" role="alert">
         {{ pvp.error }}
       </p>
@@ -349,12 +357,6 @@
         </div>
 
         <div class="scpvp-field" role="grid" aria-label="Five CLASH alleys">
-          <SlimeCityArtwork
-            class="scpvp-arena-art"
-            :image-id="slimeArtId('boards', 'pitworks-blackout')"
-            alt="Painted arena floor"
-            compact
-          />
           <div
             v-for="(side, row) in lineup"
             :key="side"
@@ -369,20 +371,16 @@
               role="gridcell"
               class="scpvp-slot"
               :class="{
-                'can-target':
-                  pvp.isMyTurn &&
-                  board.phase === 'play' &&
-                  (selectedCard || chosenPower),
+                'can-target': targeting,
                 occupied: !!unit(side, lane - 1),
+                inspected:
+                  !!unit(side, lane - 1) &&
+                  inspected?.uid === unit(side, lane - 1)!.uid,
               }"
               :aria-label="slotLabel(side, lane - 1)"
-              :disabled="
-                !pvp.isMyTurn ||
-                board.phase !== 'play' ||
-                (!selectedCard && !chosenPower) ||
-                pvp.sending
-              "
-              @click="playLane(lane - 1)"
+              :disabled="!targeting && !unit(side, lane - 1)"
+              :data-testid="'slime-pvp-slot-' + side + '-' + (lane - 1)"
+              @click="tapSlot(side, lane - 1)"
             >
               <template v-if="unit(side, lane - 1)">
                 <SlimeCityArtwork
@@ -426,18 +424,33 @@
 
         <div class="scpvp-controls">
           <div class="scpvp-hand" aria-label="Your five-card hand">
+            <small
+              v-if="board.hand.length && !canPlay && !finished"
+              class="scpvp-hand-tag"
+              data-testid="slime-pvp-next-hand"
+              >YOUR NEXT HAND · TAP TO READ</small
+            >
             <button
-              v-for="id in board.hand"
+              v-for="(id, index) in board.hand"
               :key="id"
               type="button"
               class="scpvp-card"
-              :class="{ selected: selectedCard === id }"
-              :disabled="!pvp.isMyTurn || board.phase !== 'play' || pvp.sending"
+              :class="{
+                selected: selectedCard === id,
+                waiting: !canPlay,
+                inspected: inspected?.id === id && inspected.uid === undefined,
+              }"
               :aria-pressed="selectedCard === id"
               :aria-label="
-                cardById(id).name + ', level ' + (board.levels[id] ?? 1)
+                cardById(id).name +
+                ', level ' +
+                (board.levels[id] ?? 1) +
+                (canPlay ? '' : ', tap to read')
               "
-              @click="pickCard(id)"
+              :data-testid="'slime-pvp-hand-' + index"
+              @click="tapHandCard(id, index)"
+              @pointerenter="hoverHandCard($event, id, index)"
+              @pointerleave="hovered = null"
             >
               <SlimeCityClashCardFace
                 :card-id="id"
@@ -521,6 +534,35 @@
             </button>
           </div>
         </div>
+
+        <Transition name="scpvp-pop">
+          <button
+            v-if="shownCard"
+            :key="shownCard.id + (shownCard.uid ?? '') + shownCard.level"
+            type="button"
+            class="scpvp-inspect"
+            :class="['dock-' + shownCard.dock, { peek: !inspected }]"
+            :aria-label="'Close ' + cardById(shownCard.id).name"
+            :tabindex="inspected ? 0 : -1"
+            data-testid="slime-pvp-inspect"
+            @click="inspected = null"
+          >
+            <span class="scpvp-inspect-card">
+              <SlimeCityClashCardFace
+                :card-id="shownCard.id"
+                :level="shownCard.level"
+                :pick="shownCard.pick"
+                :note="shownCard.note"
+              />
+            </span>
+            <span
+              v-if="inspected"
+              class="scpvp-inspect-close"
+              aria-hidden="true"
+              >✕</span
+            >
+          </button>
+        </Transition>
 
         <div
           v-if="showLog"
@@ -705,6 +747,108 @@ function pickCard(id: string) {
   chosenPower.value = false
   choice.value = 0
 }
+/**
+ * Silas, 2026-11-22 PT: "the cards are not expandable on tablet, we only see
+ * them small in hand, never larger." A tap opens the full card, docked away
+ * from where it was tapped; a tap on the big card puts it away.
+ */
+interface InspectedCard {
+  id: string
+  level: number
+  pick?: 0 | 1
+  note?: string
+  uid?: number
+  dock: 'left' | 'right'
+}
+const inspected = ref<InspectedCard | null>(null)
+const hovered = ref<InspectedCard | null>(null)
+const shownCard = computed(() => inspected.value ?? hovered.value)
+const canPlay = computed(
+  () =>
+    !!pvp.isMyTurn &&
+    board.value?.phase === 'play' &&
+    !board.value.victor &&
+    !pvp.sending,
+)
+const targeting = computed(
+  () => canPlay.value && (!!selectedCard.value || chosenPower.value),
+)
+function handCard(id: string, index: number): InspectedCard {
+  return {
+    id,
+    level: board.value?.levels[id] ?? 1,
+    dock: index < (board.value?.hand.length ?? 0) / 2 ? 'right' : 'left',
+  }
+}
+function tapHandCard(id: string, index: number) {
+  hovered.value = null
+  if (canPlay.value) {
+    pickCard(id)
+    inspected.value = selectedCard.value === id ? handCard(id, index) : null
+    return
+  }
+  inspected.value =
+    inspected.value?.id === id && inspected.value.uid === undefined
+      ? null
+      : handCard(id, index)
+}
+function hoverHandCard(event: PointerEvent, id: string, index: number) {
+  if (event.pointerType === 'mouse') hovered.value = handCard(id, index)
+}
+type BoardUnit = NonNullable<ReturnType<typeof unit>>
+function fighterCard(fighter: BoardUnit): InspectedCard {
+  return {
+    id: fighter.cardId,
+    level: fighter.level,
+    pick: fighter.evoChoice === 1 ? 1 : undefined,
+    note:
+      (fighter.side === pvp.duel?.seat ? 'YOUR FIGHTER' : 'RIVAL FIGHTER') +
+      ' · ⚔ ' +
+      fighter.power +
+      ' · ♥ ' +
+      fighter.hp +
+      '/' +
+      fighter.maxHp,
+    uid: fighter.uid,
+    dock: fighter.lane < 2 ? 'right' : 'left',
+  }
+}
+function tapSlot(side: Side, lane: number) {
+  if (targeting.value) {
+    inspected.value = null
+    void playLane(lane)
+    return
+  }
+  const fighter = unit(side, lane)
+  if (!fighter) return
+  inspected.value =
+    inspected.value?.uid === fighter.uid ? null : fighterCard(fighter)
+}
+function closeInspector(event: KeyboardEvent) {
+  if (event.key === 'Escape') inspected.value = null
+}
+onMounted(() => window.addEventListener('keydown', closeInspector))
+onBeforeUnmount(() => window.removeEventListener('keydown', closeInspector))
+watch(
+  () => board.value?.units,
+  (units) => {
+    const uid = inspected.value?.uid
+    if (uid === undefined) return
+    const fighter = units?.find((item) => item.uid === uid)
+    if (!fighter) {
+      inspected.value = null
+      return
+    }
+    inspected.value = fighterCard(fighter)
+  },
+)
+watch(
+  () => board.value?.hand.join(),
+  () => {
+    if (inspected.value && inspected.value.uid === undefined)
+      inspected.value = null
+  },
+)
 function togglePower() {
   chosenPower.value = !chosenPower.value
   selectedCard.value = null
@@ -887,6 +1031,26 @@ watch(
   min-height: 0;
   position: relative;
   overflow: clip;
+  isolation: isolate;
+}
+.scpvp-stage > section {
+  position: relative;
+  z-index: 1;
+}
+.scpvp-arena-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.78;
+  pointer-events: none;
+}
+.scpvp-arena-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 42%, transparent 35%, #090e15b8 100%),
+    linear-gradient(#090e1566, transparent 22%, transparent 62%, #090e15dd);
 }
 .scpvp-error {
   position: absolute;
@@ -1037,6 +1201,7 @@ watch(
   background: #15232a;
 }
 .scpvp-battle {
+  position: relative;
   height: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1102,15 +1267,10 @@ watch(
   grid-template-rows: 1fr auto 1fr;
   gap: 0.3rem;
   overflow: hidden;
-  border: 1px solid #566c70;
+  border: 1px solid #566c7099;
   border-radius: 1rem;
   padding: 0.45rem;
-}
-.scpvp-arena-art {
-  position: absolute;
-  inset: 0;
-  opacity: 0.42;
-  pointer-events: none;
+  background: #0a16192e;
 }
 .scpvp-row.is-top {
   grid-row: 1;
@@ -1162,6 +1322,16 @@ watch(
   border-radius: 0.65rem;
   overflow: hidden;
   background: #0a1619bd;
+}
+.scpvp-slot:not(.occupied) {
+  background: #0a161970;
+}
+.scpvp-slot.occupied:not(.can-target) {
+  cursor: zoom-in;
+}
+.scpvp-slot.inspected {
+  border-color: #ffdb76;
+  box-shadow: 0 0 0 2px #ffdb7666;
 }
 .scpvp-slot.can-target {
   border-color: #c9ee5a;
@@ -1235,6 +1405,7 @@ watch(
   min-height: 0;
 }
 .scpvp-hand {
+  position: relative;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -1242,6 +1413,22 @@ watch(
   min-width: 0;
   min-height: 0;
   height: clamp(8rem, 30vh, 13rem);
+}
+.scpvp-hand-tag {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: -0.2rem;
+  transform: translate(-50%, -100%);
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: #0c1c22e6;
+  color: #e8f787;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  pointer-events: none;
 }
 .scpvp-card {
   flex: 0 1 auto;
@@ -1260,6 +1447,68 @@ watch(
   transform: translateY(-0.5rem);
   z-index: 2;
   --rules-open: 1;
+}
+.scpvp-card.waiting {
+  cursor: zoom-in;
+  filter: saturate(0.85);
+}
+.scpvp-card.inspected {
+  border-color: #ffdb76;
+}
+.scpvp-inspect {
+  position: absolute;
+  z-index: 12;
+  top: 4.4rem;
+  height: min(72%, 36rem);
+  aspect-ratio: 2 / 3;
+  cursor: zoom-out;
+  --rules-open: 1;
+}
+.scpvp-inspect-card {
+  position: absolute;
+  inset: 0;
+  border: 3px solid #d9ff6a;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  box-shadow:
+    0 1.2rem 3rem #000c,
+    0 0 0 1px #000;
+}
+.scpvp-inspect.dock-right {
+  right: 0.9rem;
+}
+.scpvp-inspect.dock-left {
+  left: 0.9rem;
+}
+.scpvp-inspect.peek {
+  pointer-events: none;
+}
+.scpvp-inspect-close {
+  position: absolute;
+  z-index: 2;
+  top: -0.75rem;
+  right: -0.75rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #d9ff6a;
+  border-radius: 999px;
+  background: #0c1c22;
+  color: #f6faed;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+.scpvp-pop-enter-active,
+.scpvp-pop-leave-active {
+  transition:
+    opacity 0.18s ease,
+    translate 0.22s cubic-bezier(0.2, 0.9, 0.25, 1.12);
+}
+.scpvp-pop-enter-from,
+.scpvp-pop-leave-to {
+  opacity: 0;
+  translate: 0 0.8rem;
 }
 .scpvp-card:hover,
 .scpvp-card:focus-visible {
@@ -1574,8 +1823,22 @@ watch(
     align-self: flex-start;
     box-shadow: 0 -4px 14px #000a;
   }
-  .scpvp-card:first-child {
+  .scpvp-card:first-of-type {
     margin-left: 0;
+  }
+  .scpvp-hand-tag {
+    display: none;
+  }
+  .scpvp-inspect {
+    top: 3rem;
+    height: auto;
+    width: min(66vw, 17rem);
+  }
+  .scpvp-inspect.dock-left,
+  .scpvp-inspect.dock-right {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
   .scpvp-card:hover,
   .scpvp-card:focus-visible {
@@ -1587,7 +1850,9 @@ watch(
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scpvp-card {
+  .scpvp-card,
+  .scpvp-pop-enter-active,
+  .scpvp-pop-leave-active {
     transition: none;
   }
 }

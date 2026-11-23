@@ -6,6 +6,7 @@ import {
   RAINBOW_ACT_SIX_ENEMY_SPRITES,
   RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
   RAINBOW_ACT_EIGHT_ENEMY_SPRITES,
+  RAINBOW_MOTHERLAND_ENEMY_SPRITES,
   RAINBOW_ACT_THREE_ENEMY_SPRITES,
   RAINBOW_BOSS_SPRITES,
   RAINBOW_COMMS_SPEAKERS,
@@ -157,6 +158,7 @@ for (const kind of [
   ...RAINBOW_ACT_SIX_ENEMY_SPRITES,
   ...RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
   ...RAINBOW_ACT_EIGHT_ENEMY_SPRITES,
+  ...RAINBOW_MOTHERLAND_ENEMY_SPRITES,
 ]) {
   const src = rainbowEnemySprite(kind)!
   assert.equal(src, `/rainbow-princess-art/enemies/${kind}.webp`)
@@ -430,7 +432,10 @@ assert.equal(
   rainbowEndingPlate('evacuate'),
   '/rainbow-princess-art/endings/evacuate.webp',
 )
-assert.equal(rainbowEndingPlate('sever'), null)
+assert.equal(
+  rainbowEndingPlate('sever'),
+  '/rainbow-princess-art/endings/sever.webp',
+)
 assert.equal(drawRainbowEndingPlate(g, 'restore', 0, 0, 340), 0)
 assert.equal(
   finaleEndingCaption('restore', 'rebel'),

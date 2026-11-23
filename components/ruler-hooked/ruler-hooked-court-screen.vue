@@ -19,7 +19,7 @@
       <RulerHookedArt
         v-if="presenter && !store.activeCard"
         class="rh-court__presenter"
-        :candidates="characterCandidates(presenter.slug)"
+        :candidates="characterCandidates(presenter.slug, presenterMood)"
         :alt="presenterLabel"
         :initial="presenter.name.charAt(0)"
         fit="contain"
@@ -114,15 +114,33 @@ import {
   endingCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import { ADVISOR_CHARACTER_SLUG } from '~/utils/rulerHooked/advisor'
+import type { CharacterExpressionKey } from '~/utils/rulerHooked/characterArt'
 import type { ConsoleScreen } from '~/utils/rulerHooked/tutorial'
 
 const emit = defineEmits<{ navigate: [screen: ConsoleScreen]; chose: [] }>()
 const store = useRulerHookedStore()
 
-const presenter = computed(() => {
-  const slug = store.activeCard?.characters?.[0] ?? ADVISOR_CHARACTER_SLUG
-  return store.bundle.characters.find((c) => c.slug === slug) ?? null
-})
+const lastDecreeBy = ref<string | null>(null)
+const lastDecreeMood = ref<CharacterExpressionKey>('neutral')
+const presenterSlug = computed(
+  () =>
+    store.activeCard?.characters?.[0] ??
+    (lastDecree.value && !store.pendingEnding && store.save?.status === 'ACTIVE'
+      ? lastDecreeBy.value
+      : null) ??
+    ADVISOR_CHARACTER_SLUG,
+)
+const presenter = computed(
+  () =>
+    store.bundle.characters.find((c) => c.slug === presenterSlug.value) ?? null,
+)
+const presenterMood = computed<CharacterExpressionKey>(() =>
+  store.activeCard
+    ? 'neutral'
+    : presenterSlug.value === ADVISOR_CHARACTER_SLUG
+      ? (store.advisorLine?.mood ?? 'neutral')
+      : lastDecreeMood.value,
+)
 const presenterLabel = computed(() =>
   presenter.value
     ? [presenter.value.name, presenter.value.honorific]
@@ -134,6 +152,8 @@ const lastDecree = ref<string | null>(null)
 function decide(choiceId: string) {
   const choice = store.activeCard?.choices.find((c) => c.id === choiceId)
   lastDecree.value = choice?.result ?? null
+  lastDecreeBy.value = presenter.value?.slug ?? null
+  lastDecreeMood.value = choice?.reactionMood ?? 'neutral'
   store.choose(choiceId)
   emit('chose')
 }

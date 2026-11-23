@@ -128,6 +128,7 @@
               :lesson="lesson"
               :screen="navScreen"
               :name="advisorName"
+              :mood="store.advisorLine?.mood ?? 'neutral'"
               @learn="store.learnTutorial($event)"
               @skip="store.skipTutorial()"
               @go="go"

@@ -13,6 +13,7 @@ import {
   pvpTally,
   sortPvpGames,
   pvpCommand,
+  pvpRules,
   replayPvp,
   stepPvp,
 } from '../slimeCity/pvp'
@@ -584,3 +585,64 @@ console.log(
   )
 }
 console.log('Slime City VS finish: result, rematch and record PASS')
+
+{
+  // Silas, 2026-11-22 PT: "Hands are hidden when it's not your turn in 2p
+  // versus ... you should see your new hand at the end of a round."
+  const early = newPvpGame(host, guest, seed, pvpRules({ dealEarly: true }))
+  assert.equal(early.hands.player.length, 5, 'host holds an opening hand')
+  assert.equal(
+    early.hands.enemy.length,
+    5,
+    'the second seat sees its opening hand while the host plays',
+  )
+  assert.equal(pvpBoard(early, 'enemy').hand.length, 5)
+  const finishTurn = (state: typeof early, side: 'player' | 'enemy') => {
+    let s = stepPvp(state, { t: 'pass', side })!
+    while (nextClashStrike(s, side) >= 0) s = stepPvp(s, { t: 'strike', side })!
+    return stepPvp(s, { t: 'end', side })!
+  }
+  const afterHost = finishTurn(early, 'player')
+  assert.equal(afterHost.active, 'enemy')
+  assert.equal(
+    pvpBoard(afterHost, 'player').hand.length,
+    5,
+    'the host sees its next hand during the rival turn',
+  )
+  const afterGuest = finishTurn(afterHost, 'enemy')
+  assert.equal(afterGuest.round, 2)
+  assert.equal(
+    pvpBoard(afterGuest, 'enemy').hand.length,
+    5,
+    'the guest sees its next hand as soon as the round ends',
+  )
+  assert.equal(
+    afterGuest.decks.player.length +
+      afterGuest.hands.player.length +
+      afterGuest.discards.player.length,
+    CLASH_DECK_SIZE,
+    'early deals never mint or lose cards',
+  )
+  assert.deepEqual(
+    replayPvp(host, guest, seed, afterGuest.commands, { dealEarly: true }),
+    afterGuest,
+    'early-deal duels replay deterministically',
+  )
+  const legacy = replayPvp(host, guest, seed, afterGuest.commands)
+  assert.equal(legacy.hands.enemy.length, 0, 'older duels keep their rules')
+  assert.equal(
+    parsePvpRecord({
+      version: 1,
+      guestId: null,
+      dealEarly: 'yes',
+      commands: [],
+    }),
+    null,
+  )
+  assert.equal(
+    parsePvpRecord({ version: 1, guestId: null, dealEarly: true, commands: [] })
+      ?.dealEarly,
+    true,
+  )
+}
+console.log('Slime City VS early deal: next hand visible between turns PASS')

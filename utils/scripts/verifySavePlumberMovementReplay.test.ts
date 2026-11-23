@@ -116,6 +116,95 @@ const settle = replay(labRun(), 4, () => {})
 assert.equal(settle.at(-1)!.ground, true, 'the lab start stands on the floor')
 assert.equal(settle.at(-1)!.y + HERO_TALL, FLOOR, 'feet rest on the floor')
 
+const reversal = labRun()
+replay(reversal, 12, (_, input) => {
+  input.held.right = true
+  input.held.b = true
+})
+const approachSpeed = reversal.hero.vx
+assert.ok(approachSpeed > 3.5, 'a held run builds substantial momentum')
+const reversalSpeeds: number[] = []
+replay(
+  reversal,
+  12,
+  (_, input) => {
+    input.held.left = true
+    input.held.b = true
+  },
+  () => reversalSpeeds.push(reversal.hero.vx),
+)
+assert.ok(
+  reversalSpeeds[0]! > 0,
+  'counter-steering brakes first rather than teleporting velocity',
+)
+assert.ok(
+  reversalSpeeds[5]! < 0,
+  'counter-steering reverses direction within six frames',
+)
+assert.ok(
+  reversalSpeeds[11]! < -3.5,
+  'the heroine accelerates back toward full run speed',
+)
+assert.equal(embedded(reversal), null, 'the turnaround does not clip terrain')
+
+{
+  const run = labRun()
+  run.hero.x = 54 * TILE
+  run.hero.y = FLOOR - HERO_TALL
+  run.ground = true
+  run.camera = run.hero.x - VIEW_W * 0.5
+  const maxX = lab.rows[0]!.length * TILE - VIEW_W
+  let centeredCamera = run.camera
+  const input = emptyInput()
+  input.held.b = true
+  const updateCamera = () => {
+    run.update(input)
+    const centeredTarget = Math.max(
+      0,
+      Math.min(maxX, run.hero.x - VIEW_W * 0.5),
+    )
+    centeredCamera += (centeredTarget - centeredCamera) * 0.2
+    assert.ok(
+      run.camera >= 0 && run.camera <= maxX,
+      'directional look-ahead never leaves the stage',
+    )
+    assert.equal(embedded(run), null, 'camera tracking cannot affect collision')
+  }
+
+  input.held.right = true
+  for (let frame = 0; frame < 24; frame++) updateCamera()
+  assert.ok(run.cameraLead > 25, 'running builds anticipation ahead')
+  assert.ok(
+    run.camera > centeredCamera + 10,
+    'rightward momentum reveals more of the route than centered tracking',
+  )
+
+  const priorLead = run.cameraLead
+  input.held.right = false
+  input.held.left = true
+  updateCamera()
+  assert.ok(
+    run.cameraLead > 0 && run.cameraLead < priorLead,
+    'turning brakes the camera lead without an abrupt side flip',
+  )
+  for (let frame = 0; frame < 34; frame++) updateCamera()
+  assert.ok(run.cameraLead < -25, 'running left anticipates the left route')
+  assert.ok(
+    run.camera < centeredCamera - 8,
+    'the view leads left after a controlled directional reversal',
+  )
+
+  run.locked = true
+  input.held.left = false
+  for (let frame = 0; frame < 40; frame++) updateCamera()
+  assert.ok(
+    Math.abs(run.cameraLead) < 1,
+    'boss arena locks drain look-ahead instead of drifting',
+  )
+  run.loadStage(0)
+  assert.equal(run.cameraLead, 0, 'restarting a stage resets camera momentum')
+}
+
 const walkOff = replay(labRun(), 400, runRight)
 const firstStep = walkOff.findIndex((step) => step.ground)
 const leave = walkOff.findIndex(
@@ -540,3 +629,23 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
 console.log(
   `Save the Plumber movement replay verified: coyote ${COYOTE_FRAMES + 1} frames, buffer ${BUFFER_FRAMES} frames, landing, camera bounds, respawn, ${CAMPAIGN.length} stage respawn points, ${fuzzFrames} adversarial fuzz frames`,
 )
+
+{
+  const run = labRun()
+  const flag = run.checkpoints[0]!
+  assert.equal(flag.reached, false, 'the checkpoint begins inactive')
+  run.hero.x = flag.x + 12
+  run.hero.y = 0
+  replay(run, 1, () => {})
+  assert.equal(
+    flag.reached,
+    false,
+    'passing the checkpoint horizontally from a distant upper route cannot save',
+  )
+  run.hero.x = flag.x
+  run.hero.y = flag.y - HERO_TALL
+  run.hero.vy = 0
+  replay(run, 1, () => {})
+  assert.equal(flag.reached, true, 'contact with the pennant activates it')
+  assert.equal(run.checkpoint.x, flag.x)
+}

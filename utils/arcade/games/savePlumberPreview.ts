@@ -81,6 +81,13 @@ import {
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
 import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
+import type { MusicLoop } from '../sound'
+import {
+  PLUMBER_BOSS_MUSIC,
+  PLUMBER_JUMP_NOTES,
+  PLUMBER_LAND_NOTES,
+  PLUMBER_WORLD_MUSIC,
+} from './savePlumberMusic'
 import {
   PLUMBER_BOSS_FEATS,
   PLUMBER_ENDLESS_GOAL,
@@ -538,6 +545,8 @@ export class PlumberRun implements ArcadeGameInstance {
   sprung = false
   checkpoint = { x: 0, y: 0 }
   camera = 0
+  /** Smoothed anticipation: positive velocity exposes more of the route to the right. */
+  cameraLead = 0
   /** Vertical scroll: 0 shows the top of the stage; the lowest view frames the ground. */
   cameraY = 0
   locked = false
@@ -628,6 +637,29 @@ export class PlumberRun implements ArcadeGameInstance {
 
   get level() {
     return this.stageIndex + 1
+  }
+
+  /** Original scores follow world changes and turn urgent in boss arenas. */
+  get music(): MusicLoop | null {
+    if (
+      this.demo ||
+      this.over ||
+      !['map', 'intro', 'play', 'clear'].includes(this.mode)
+    )
+      return null
+    if (this.musicScene === 'boss') return PLUMBER_BOSS_MUSIC
+    const world = this.stage ? this.world : 1
+    return PLUMBER_WORLD_MUSIC[world - 1] ?? PLUMBER_WORLD_MUSIC[0]!
+  }
+
+  /** The cabinet owns gesture-unlock, crossfades, mute and volume. */
+  get musicScene(): 'level' | 'boss' {
+    return this.mode === 'play' &&
+      this.locked &&
+      this.boss !== null &&
+      this.boss.state !== 'defeat'
+      ? 'boss'
+      : 'level'
   }
 
   /** What the cabinet keeps: the three-slot file, or null before anything is worth keeping. */
@@ -1365,6 +1397,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.airDockActive = false
     this.immune = 60
     this.facing = 1
+    this.cameraLead = 0
     this.camera = this.cameraTarget()
     this.cameraY = this.cameraTargetY()
   }
@@ -1611,7 +1644,15 @@ export class PlumberRun implements ArcadeGameInstance {
         let next =
           hero.vx +
           move *
-            (onIce ? (this.running ? 0.22 : 0.15) : this.running ? 0.5 : 0.44)
+            (onIce
+              ? this.running
+                ? 0.22
+                : 0.15
+              : hero.vx * move < -0.1
+                ? 0.72
+                : this.running
+                  ? 0.5
+                  : 0.44)
         if (Math.abs(next) > top)
           next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
         hero.vx = next
@@ -1644,7 +1685,8 @@ export class PlumberRun implements ArcadeGameInstance {
         this.riding = null
         this.grace = 0
         this.jumpBuffer = 0
-        this.sound.play('blip')
+        if (this.sound.playNotes) this.sound.playNotes(PLUMBER_JUMP_NOTES)
+        else this.sound.play('blip')
       }
       if (hero.vy >= 0) this.sprung = false
       if (!this.stage.space && !this.jumpHeld && !this.sprung && hero.vy < -3.4)
@@ -1658,6 +1700,7 @@ export class PlumberRun implements ArcadeGameInstance {
         )
       prevBottom = hero.y + TALL
       const wasGround = this.ground
+      const landingSpeed = hero.vy
       this.ground = false
       this.riding = null
       const hit = this.heroMoveY(hero.vy)
@@ -1682,6 +1725,10 @@ export class PlumberRun implements ArcadeGameInstance {
         }
       }
       if (this.ground && !wasGround) {
+        if (landingSpeed > 2.4) {
+          if (this.sound.playNotes) this.sound.playNotes(PLUMBER_LAND_NOTES)
+          else this.sound.play('pop')
+        }
         this.landed = 6
         if (this.duckHeld) this.ducking = true
         this.airSpecial = false
@@ -1766,6 +1813,11 @@ export class PlumberRun implements ArcadeGameInstance {
         this.sound.play('extra')
       }
     }
+    const desiredLead = this.locked
+      ? 0
+      : Math.max(-42, Math.min(42, hero.vx * 10))
+    this.cameraLead += (desiredLead - this.cameraLead) * 0.12
+    if (Math.abs(this.cameraLead) < 0.05) this.cameraLead = 0
     const target = this.cameraTarget()
     this.camera += (target - this.camera) * 0.2
     this.cameraY += (this.cameraTargetY() - this.cameraY) * 0.14
@@ -2210,7 +2262,7 @@ export class PlumberRun implements ArcadeGameInstance {
   private cameraTarget() {
     const max = this.stage.cols * TILE - W
     if (this.locked) return max
-    return Math.max(0, Math.min(max, this.hero.x - W * 0.4))
+    return Math.max(0, Math.min(max, this.hero.x - W * 0.5 + this.cameraLead))
   }
 
   private updateSprings(prevBottom: number) {
@@ -2249,7 +2301,9 @@ export class PlumberRun implements ArcadeGameInstance {
       hero.x = to.col * TILE + TILE / 2
       hero.y = to.row * TILE - TALL
       hero.vx = hero.vy = 0
+      this.cameraLead = 0
       this.camera = this.cameraTarget()
+      this.cameraY = this.cameraTargetY()
       this.sound.play('extra')
       return
     }
@@ -3165,7 +3219,12 @@ export class PlumberRun implements ArcadeGameInstance {
           Math.abs(this.hero.y + TALL / 2 - (flag.y - TALL / 2)) > 22
         )
           continue
-      } else if (this.hero.x < flag.x - 8) continue
+      } else if (
+        Math.abs(this.hero.x - flag.x) > 16 ||
+        this.hero.y + TALL < flag.y - 24 ||
+        this.hero.y > flag.y + 8
+      )
+        continue
       flag.reached = true
       if (this.stage.space) this.airPressure = AIR_PRESSURE_CAPACITY
       this.checkpoint = { x: flag.x, y: flag.y - TALL }

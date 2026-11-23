@@ -18,7 +18,7 @@ const DOCK =
   'Eye-level view from a wooden lakeside fishing dock, the tip of a bamboo fishing rod in the lower left corner.'
 
 const PLATE =
-  'Shown whole in side view on plain cream paper, soft even daylight, hand-painted natural-history watercolour with fine ink outlines.'
+  'A vivid freshwater specimen in full side profile against deep ultramarine water, saturated cyan, magenta, emerald and gold, expressive ink contours and subtle worn print grain.'
 
 const OBJECT =
   'Centred on a plain warm ochre backdrop, soft light from the upper left, close-up still life.'
@@ -241,6 +241,15 @@ export const CARD_PROMPTS: Record<string, string> = {
   'wedding-reckoning': scene(
     `On a lakeside orchard path, ${who('heir-robin')} and ${who('sweetheart-ash')} carry baskets of young fruit trees beside ${who('druid-sela')} holding a tray of pond seedlings. Small green perch with flowering branches on their backs swim in the clear shallows. Saturated rainbow dusk, soft worn print texture.`,
   ),
+  'river-commons-vote': scene(
+    `At a river crossing, ${who('envoy-thistle')} holds a treaty while ${who('warlock-vex')} carries a toll gate model. ${who('lake-spirit-nix')} rises beside silver sturgeon and millworkers. Violet and emerald reflections, worn screenprint grain.`,
+  ),
+  'marina-family-charter': scene(
+    `On a busy lakeshore marina, ${who('heir-robin')} and ${who('sweetheart-ash')} stand among dockhands holding a coil of fishing line and a young apple tree. ${who('envoy-thistle')} offers a clean folded harbour charter. Small fishing boats and polished visitor yachts float in bright turquoise and magenta water, weathered colored ink texture.`,
+  ),
+  'water-rights-hearing': scene(
+    `On a royal fishing dock, ${who('captain-cordelia')} holds conflicting water deeds beside ${who('smuggler-brack')} carrying grey roach. ${who('lake-spirit-nix')} lifts dark spawning mud from the water. A guarded weir stands behind them, psychedelic lime and violet light, worn print grain.`,
+  ),
 }
 
 /** Character portraits, keyed by cast slug (neutral expression). */
@@ -389,6 +398,78 @@ export const FISH_PROMPTS: Record<string, string> = Object.fromEntries(
       [
         'the-pleasant-island',
         'A small sunny island with three palm trees and white sand sits on the lake, and below the waterline, cut away in cross-section, an enormous dark green monster with huge round eyes and long tentacles holds the island up on its back.',
+      ],
+      [
+        'dewbell-tench',
+        'A Plump lilac tench covered in overlapping lily pad scales with three translucent dew-drop bells along its dorsal fin.',
+      ],
+      [
+        'commons-kitebream',
+        'A Wide silver and coral bream with two enormous translucent kite-shaped pectoral fins and long green reed tassels.',
+      ],
+      [
+        'oaththread-dace',
+        'A Slender ice-blue dace with long braided golden algae trailing from both cheeks and a violet forked tail.',
+      ],
+      [
+        'clockwork-riffle-loach',
+        'A Long olive loach with copper gear-shaped fin edges and a round striped belly resembling a waterwheel.',
+      ],
+      [
+        'chroma-cuttle',
+        'A Freshwater cuttlefish with eight delicate curling turquoise arms and an oval back striped in vivid magenta lime and gold.',
+      ],
+      [
+        'parcelglass-eel',
+        'A Long transparent amber eel with rounded blue eyes and small copper ring-shaped scales enclosing bright pearl beads along its spine.',
+      ],
+      [
+        'smokedglass-flounder',
+        'A Flat charcoal flounder with one enormous amber eye and sharp translucent smoked-glass fins.',
+      ],
+      [
+        'turnstile-tetra',
+        'A Bright brass-green tetra with six rigid radial fins revolving around its midsection resembling a small turnstile.',
+      ],
+      [
+        'lockjaw-burbot',
+        'A Heavy ink-black burbot with an oversized squared iron-colored jaw and paired rigid bar-like whiskers.',
+      ],
+      [
+        'reedglass-darter',
+        'A Slim jade darter with transparent leaf-shaped fins and tiny silver seed-like spots.',
+      ],
+      [
+        'commons-bellfin',
+        'A Round cobalt fish with two broad bronze bell-shaped fins and a pale green belly.',
+      ],
+      [
+        'oathscale-minnow',
+        'A Tiny turquoise minnow with overlapping pearly scales shaped like interlocking hands.',
+      ],
+      [
+        'treaty-sailfish',
+        'A Sleek indigo freshwater sailfish with a tall patchwork sail of copper and lilac membranes.',
+      ],
+      [
+        'marina-mirrorling',
+        'A Flat silver-blue fish with mirror-bright flank plates and a narrow fan tail.',
+      ],
+      [
+        'concession-coinfin',
+        'A Bright copper fish with circular coinlike pectoral fins and a long ribbon tail.',
+      ],
+      [
+        'pierlock-eel',
+        'A Long charcoal eel with brass padlock-shaped bony plates along its spine.',
+      ],
+      [
+        'sluice-ghost',
+        'A Pale translucent fish with a ragged veil tail and black empty-looking eye sockets.',
+      ],
+      [
+        'gallows-gudgeon',
+        'A Deep crimson gudgeon with a hooked black dorsal spine and dangling pale whiskers.',
       ],
     ] as const
   ).map(([slug, look]) => [slug, `${look} ${PLATE}`]),

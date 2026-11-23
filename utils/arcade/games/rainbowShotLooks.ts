@@ -55,6 +55,7 @@ export const RAINBOW_CRAFT_LOOKS: Readonly<Record<string, RainbowShotLook>> = {
   squid: 'shard',
   harbinger: 'eclipse',
   prism: 'shard',
+  motherdrone: 'bolt',
 }
 
 /** The look each boss's fire takes, by the Act it guards (9 is the Eclipse Crown): each creature's own. */

@@ -7,6 +7,8 @@
 import { sortArcadeGamesByRating, type ArcadeRatingSummaryMap } from './reviews'
 import type { ArcadeGameMeta } from './types'
 
+const FEATURED_CABINET = 'superkate-spectrum'
+
 const SHELF_RANK = { showcase: 0, standard: 1, growing: 2 } as const
 
 export function shelfRank(game: ArcadeGameMeta): number {
@@ -18,7 +20,10 @@ export function arrangeArcadeHall(
   summaries: ArcadeRatingSummaryMap,
 ): ArcadeGameMeta[] {
   return sortArcadeGamesByRating(games, summaries).sort(
-    (a, b) => shelfRank(a) - shelfRank(b),
+    (a, b) =>
+      Number(b.slug === FEATURED_CABINET) -
+        Number(a.slug === FEATURED_CABINET) ||
+      shelfRank(a) - shelfRank(b),
   )
 }
 

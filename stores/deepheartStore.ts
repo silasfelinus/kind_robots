@@ -414,7 +414,24 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   const leavePuzzle = () => step((r) => engine.leavePuzzle(r))
   const openTreasure = (c: engine.TreasureChoice) =>
     step((r) => engine.openTreasure(r, c))
-  const chooseOption = (id: string) => step((r) => engine.chooseOption(r, id))
+  function chooseOption(id: string) {
+    const current = run.value
+    const option = current
+      ? engine.currentEvent(current)?.options.find((entry) => entry.id === id)
+      : null
+    const before = current?.choices.length ?? 0
+    step((r) => engine.chooseOption(r, id))
+    if (!option?.tag || !run.value || run.value.choices.length === before)
+      return
+    const values = { ...chronicle.value.values }
+    for (const member of run.value.companions) {
+      const c = character(member)
+      if (!c.likes.includes(option.tag) && c.dislikes !== option.tag) continue
+      values[member] = [...new Set([...(values[member] ?? []), option.tag])]
+    }
+    chronicle.value = { ...chronicle.value, values }
+    persistChronicle()
+  }
   const equip = (id: string | null) => step((r) => engine.equipLoot(r, id))
   const leaveCamp = () => step((r) => engine.leaveCamp(r))
   const chooseEnding = (e: EndingId) => step((r) => engine.chooseEnding(r, e))
@@ -425,6 +442,15 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     step((r) => {
       lastLine.value = engine.campAction(r, option)
     })
+    if (option.kind !== 'romance' || !run.value?.partners.includes(option.id))
+      return
+    const c = character(option.id)
+    const partners = c.poly && c.partner ? [option.id, c.partner] : [option.id]
+    chronicle.value = {
+      ...chronicle.value,
+      romances: [...new Set([...chronicle.value.romances, ...partners])],
+    }
+    persistChronicle()
   }
 
   const campOptions = computed(() => {

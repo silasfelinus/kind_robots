@@ -31,6 +31,7 @@
     opened: new Set(),
     flagged: new Set(),
     mineFirst: true,
+    minePendingReset: false,
     flagMode: false,
     player: { x: 180, y: 180 },
     discs: [],
@@ -224,6 +225,7 @@
     state.opened = new Set()
     state.flagged = new Set()
     state.mineFirst = true
+    state.minePendingReset = false
     const cells = Array.from({ length: 64 }, (_, i) => i)
       .filter((index) => index !== exclude)
     for (let i = cells.length - 1; i > 0; i--) {
@@ -262,6 +264,7 @@
     }
     if (state.mines.has(index)) {
       state.opened.add(index)
+      state.minePendingReset = true
       renderMines()
       damage('A mine exploded')
       if (state.phase === 'running') {
@@ -284,6 +287,7 @@
     if (state.opened.size === 64 - state.mines.size) {
       score('mine', 360 + state.mineLevel * 110)
       state.mineLevel++
+      state.minePendingReset = true
       $('mine-status').textContent = 'FIELD CLEARED!'
       setTimeout(() => {
         if (state.phase === 'running') resetMines()
@@ -520,6 +524,8 @@
   function resume() {
     if (state.phase !== 'pause') return
     state.phase = 'running'
+    if (state.minePendingReset) resetMines()
+    if (state.busy && state.chess.t === -1) cpuMove()
     lastFrame = performance.now()
     closeDialog()
   }
@@ -704,6 +710,13 @@
   window.addEventListener('blur', () => {
     keys.clear()
     state.drag = null
+  })
+  window.addEventListener('message', (event) => {
+    if (event.origin !== window.location.origin) return
+    if (event.data?.type !== 'chessweeper:open') return
+    if (state.phase === 'running') pause()
+    else openDialog(state.phase === 'end' ? 'end' :
+      state.phase === 'pause' ? 'pause' : 'start')
   })
   $('flag-mode').addEventListener('click', () => {
     state.flagMode = !state.flagMode

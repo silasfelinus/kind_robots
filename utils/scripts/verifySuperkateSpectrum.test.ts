@@ -569,7 +569,7 @@ assert.equal(finaleRun.over, true)
 assert.equal(finaleRun.won, true)
 assert.equal(finaleRun.ending, 'prism-partners')
 assert.deepEqual(finaleRun.save.endings, ['prism-partners'])
-assert.equal(finaleRun.save.career.stars[29] > 0, true)
+assert.equal((finaleRun.save.career.stars[29] ?? 0) > 0, true)
 assert.equal(validSpectrumCloudSave(finaleRun.save), true)
 assert.ok(finaleRun.mastered.includes('true-spectrum'))
 

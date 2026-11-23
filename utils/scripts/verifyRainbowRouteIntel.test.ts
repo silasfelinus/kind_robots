@@ -245,4 +245,43 @@ for (const seats of [1, 2, 3, 4]) {
   )
   assert.equal(rainbowAlternateRouteLogbook(afterSection)[0]?.discovered, true)
 }
+
+// Exhaust every discovery combination, not just the all-or-nothing cases.
+// Saves must preserve exactly the branches earned in this slot, and reading
+// another slot must not contaminate its independent exploration history.
+for (let mask = 0; mask < 16; mask++) {
+  const decoded = readRainbowSave({
+    ...current,
+    checkpoint: { ...checkpoint, alternateRoutesSeen: mask },
+  })
+  assert.ok(decoded, `discovery mask ${mask} must roundtrip`)
+  assert.equal(decoded?.checkpoint.alternateRoutesSeen, mask)
+  assert.deepEqual(
+    rainbowAlternateRouteLogbook(decoded).map((route) => route.discovered),
+    [1, 2, 4, 8].map((bit) => (mask & bit) !== 0),
+    `discovery mask ${mask} must unlock only its earned detours`,
+  )
+  assert.ok(
+    rainbowAlternateRouteLogbook(null).every((route) => !route.discovered),
+    'a separate empty save slot must remain undiscovered',
+  )
+}
+for (const [act, forbiddenMask] of [
+  [1, 15],
+  [2, 15],
+  [3, 14],
+  [4, 12],
+  [5, 12],
+  [6, 8],
+] as const) {
+  assert.equal(
+    readRainbowSave({
+      ...current,
+      checkpoint: { ...checkpoint, act, alternateRoutesSeen: forbiddenMask },
+    }),
+    null,
+    `Act ${act} must reject premature detour discoveries`,
+  )
+}
+
 console.log('Rainbow route intel: passed')

@@ -371,8 +371,12 @@
               )
             "
           >
-            <option v-for="[g, label] in availableGoals" :key="g" :value="g">
-              {{ label }}
+            <option
+              v-for="goal in availableGoals"
+              :key="goal[0]"
+              :value="goal[0]"
+            >
+              {{ goal[1] }}
             </option>
           </select>
           <button

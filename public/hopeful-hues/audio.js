@@ -132,14 +132,17 @@
     const theme = ending ? 'ending' : tag === 'title' ? 'title' : spec.timbre
     const meter = spec.meter === 3 ? 3 : 4
     const motif = THEMES[theme] || THEMES.bell
+    const tier = ending || tag === 'title' ? 0 : spec.tier || 0
     const melody = Array.from({ length: meter * 8 }, (_, i) => {
       if (i % 2 !== 0) return null
       const beat = i / 2
       if (beat === meter * 4 - 1) return 0
-      return motif[beat % motif.length]
+      return motif[(beat + tier * 3) % motif.length]
     })
     return {
-      progression: ending ? [0, 3, 4, 0] : [0, 5, 3, 4],
+      progression: ending
+        ? [0, 3, 4, 0]
+        : [[0, 5, 3, 4], [0, 3, 5, 4], [5, 3, 4, 0]][tier] || [0, 5, 3, 4],
       melody,
     }
   }

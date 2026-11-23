@@ -6,7 +6,10 @@ import {
   comicIntroFor,
 } from '../cometAcademy/comicIntroductions'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
-import { identityArtCandidateKeys } from '../cometAcademy/artSlots'
+import {
+  identityArtCandidateKeys,
+  identityArtwork,
+} from '../cometAcademy/artSlots'
 import { isRejectedIdentityArt } from '../cometAcademy/artQuality'
 import {
   POWER_ORIGINS,
@@ -795,6 +798,30 @@ assert.match(
 )
 assert.match(menu, /store\.chooseLead\(incomingLead\)/)
 assert.match(menu, /store\.choosePerspective\(incomingView\)/)
+assert.match(
+  menu,
+  /identityArtwork\(\s*pickedLead\.value,\s*pickedView\.value === 'villain' \? 'villain' : 'hero',/,
+  'selection falls back to canon-safe hero/villain art',
+)
+assert.match(
+  menu,
+  /reviewedIdentityArtwork\(/,
+  'perspective thumbnails must observe the quarantined artwork list',
+)
+assert.doesNotMatch(
+  menu,
+  /promArt\(\s*'identities\/' \+ pickedLead\.value \+ '\/outcomes\/'/,
+  'old unreviewed identity outcome paths must not reach the menu',
+)
+for (const signature of ['tech-genius', 'magic-earth', 'mutant-discipline']) {
+  const unsafeKey = 'identities/' + signature + '/outcomes/hero'
+  assert.ok(isRejectedIdentityArt(unsafeKey))
+  assert.notEqual(
+    identityArtwork(signature, 'hero'),
+    promArt(unsafeKey),
+    signature + ' cannot use a visually rejected hero image in selection',
+  )
+}
 assert.match(menu, /store\.openScreen\('story'\)/)
 const academyOpening = readFileSync(
   new URL(

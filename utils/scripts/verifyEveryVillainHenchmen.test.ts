@@ -15,6 +15,7 @@ import {
 import {
   CREW_TELL_ART,
   CREW_TELL_BEATS,
+  crewCaptainArtReceipt,
   crewTellReceipt,
   crewUnitArtReceipt,
   isCrewTellKind,
@@ -547,6 +548,86 @@ for (const unknown of ['__proto__', 'constructor', 'other']) {
 }
 assert.equal(crewUnitArtReceipt({ maxHp: 1 }), null)
 
+// Commissioned captain plates must resolve on the exact named SPECIES unit,
+// never a random one-hit grunt, heroic identity, or multi-hit lieutenant.
+const originalCaptains = [
+  ['burrow', 'Foreman Thumpkin', 74396, 277789],
+  ['phase', 'Lieutenant Teakettle', 74400, 277793],
+  ['windup', 'Sir Cap-Permission', 74404, 277797],
+] as const
+for (const [kind, name, jobId, imageId] of originalCaptains) {
+  const unit = {
+    id: 'captain-' + kind,
+    hp: 1,
+    maxHp: 1,
+    henchmanType: kind,
+    henchmanName: name,
+  }
+  assert.deepEqual(
+    crewCaptainArtReceipt(unit),
+    CREW_TELL_ART[kind].beats.captain,
+  )
+  assert.equal(crewCaptainArtReceipt(unit)?.jobId, jobId)
+  assert.equal(crewUnitArtReceipt(unit)?.imageId, imageId)
+  assert.equal(
+    crewCombatReceipt(unit)?.imageId,
+    imageId,
+    'the captain closeup appears at rest',
+  )
+  assert.equal(
+    crewCombatReceipt(unit, { attacker: unit.id })?.imageId,
+    CREW_COMBAT_ART[kind].strike.imageId,
+  )
+  assert.equal(
+    crewCombatReceipt(unit, { target: unit.id, hit: true })?.imageId,
+    CREW_COMBAT_ART[kind].hit.imageId,
+  )
+  assert.equal(
+    crewCombatReceipt({ ...unit, hp: 0 })?.imageId,
+    CREW_COMBAT_ART[kind].defeat.imageId,
+  )
+  assert.equal(
+    crewCaptainArtReceipt({ ...unit, henchmanName: 'Impostor' }),
+    null,
+  )
+  assert.equal(crewCaptainArtReceipt({ ...unit, maxHp: 4 }), null)
+  assert.equal(
+    crewCaptainArtReceipt({ ...unit, lieutenantName: 'Named elite' }),
+    null,
+  )
+  assert.equal(
+    crewUnitArtReceipt({ ...unit, henchmanName: 'One-hit minion' })?.imageId,
+    CREW_TELL_ART[kind].beats.action.imageId,
+    'minions keep the crew action art, not their captain face',
+  )
+}
+// Proof against the real authored stage units, not only synthetic fixtures:
+// each mission's actual captain must carry the intended commissioned plate.
+for (const [stageId, kind] of crewStages) {
+  const captainCase = originalCaptains.find(([type]) => type === kind)
+  assert.ok(captainCase, stageId + ' has a known painted captain type')
+  const [, name, , expectedImageId] = captainCase!
+  const battle = trainingState(11, clonePreset(stageId))
+  const actual = battle.units.filter(
+    (unit) => unit.henchmanType === kind && unit.henchmanName === name,
+  )
+  assert.equal(actual.length, 1, stageId + ' seeds its named captain')
+  assert.equal(
+    crewCombatReceipt(actual[0]!)?.imageId,
+    expectedImageId,
+    stageId + ' attaches the captain closeup to the real battle unit',
+  )
+}
+
+assert.equal(
+  crewCaptainArtReceipt({
+    henchmanType: '__proto__',
+    henchmanName: 'Foreman Thumpkin',
+    maxHp: 1,
+  }),
+  null,
+)
+
 assert.equal(crewTellReceipt(null, 'warning'), null)
 for (const unknown of ['other', 'prototype', '__proto__', 'constructor', '']) {
   assert.equal(isCrewTellKind(unknown), false)
@@ -582,6 +663,10 @@ assert.match(page, /paintedArt\.images\[crew\.imageId\]\?\.src/)
 assert.match(
   page,
   /paintedArt\.ensure\(CREW_TELL_ART\[kind\]\.beats\.action\.imageId\)/,
+)
+assert.match(
+  page,
+  /paintedArt\.ensure\(CREW_TELL_ART\[kind\]\.beats\.captain\.imageId\)/,
 )
 
 assert.match(

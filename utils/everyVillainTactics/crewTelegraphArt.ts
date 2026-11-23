@@ -1,3 +1,6 @@
+import { henchmanForVillain } from '../cometAcademy/villainHenchmen'
+import type { SignaturePowerId } from '../cometAcademy/specialPowers'
+
 /**
  * Exact private ArtJob/ArtImage receipts recorded by
  * conductor/projects/every-villain-tactics/art/ONE-HIT-CREW-TELEGRAPHS-2026-11-20.yaml.
@@ -143,11 +146,46 @@ export function crewTellReceipt(
   return isCrewTellKind(kind) ? CREW_TELL_ART[kind].beats[beat] : null
 }
 
+/**
+ * Bind original captain closeups to the exact canonical one-hit species
+ * captain, never a generic rank, powered hero, or multi-hit lieutenant.
+ * Canonical names come from the same SPECIES catalog that seeds battle units.
+ */
+const CREW_CAPTAIN_SIGNATURE: Readonly<Record<CrewTellKind, SignaturePowerId>> =
+  {
+    burrow: 'accident-earth',
+    phase: 'alien-discipline',
+    windup: 'accident-birthright',
+  }
+
+export function crewCaptainArtReceipt(unit: {
+  henchmanType?: string | null
+  henchmanName?: string
+  lieutenantName?: string
+  maxHp: number
+}): CrewTellReceipt | null {
+  if (
+    unit.maxHp !== 1 ||
+    unit.lieutenantName ||
+    !isCrewTellKind(unit.henchmanType)
+  )
+    return null
+  const captain = henchmanForVillain(
+    CREW_CAPTAIN_SIGNATURE[unit.henchmanType],
+  ).captain
+  return unit.henchmanName === captain
+    ? CREW_TELL_ART[unit.henchmanType].beats.captain
+    : null
+}
+
 export function crewUnitArtReceipt(unit: {
   henchmanType?: string | null
+  henchmanName?: string
   lieutenantName?: string
   maxHp: number
 }): CrewTellReceipt | null {
   if (unit.maxHp !== 1 || unit.lieutenantName) return null
-  return crewTellReceipt(unit.henchmanType, 'action')
+  return (
+    crewCaptainArtReceipt(unit) ?? crewTellReceipt(unit.henchmanType, 'action')
+  )
 }

@@ -494,6 +494,16 @@ for (const id of QUESTS)
     )
     assert.notDeepEqual(first.kingdomHealth, second.kingdomHealth)
     assert.notDeepEqual(first.regionOverrides, second.regionOverrides)
+    assert.notDeepEqual(
+      first.regionOverrides,
+      reached.regionOverrides,
+      `${scenario.id} first decree must visibly change the lake`,
+    )
+    assert.notDeepEqual(
+      second.regionOverrides,
+      reached.regionOverrides,
+      `${scenario.id} second decree must visibly change the lake`,
+    )
     assert.notDeepEqual(first.flags, second.flags)
     assert.ok(!ready(first, scenario.id) && !ready(second, scenario.id))
     const early = { ...reached, turnCount: 2 }

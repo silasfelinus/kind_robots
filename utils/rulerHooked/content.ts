@@ -1532,7 +1532,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               effects: {
                 sliders: { nature: 9, joy: 6, order: 3, treasury: -8 },
                 flags: { set: ['riverCommons'] },
-                regionOverride: { far_shore: 'pristine' },
+                regionOverride: { far_shore: 'pristine', near_bank: 'grassy' },
               },
               result: 'Both villages elect a river council. Its first law is that no one gets to own a fish that has not yet been caught. Nix applauds from underwater; Vex reluctantly builds the public landing.',
             },
@@ -1543,7 +1543,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               effects: {
                 sliders: { prosperity: 8, treasury: 9, nature: -4, joy: -3 },
                 flags: { set: ['riverConcession'] },
-                regionOverride: { village_edge: 'township' },
+                regionOverride: { village_edge: 'township', near_bank: 'trampled' },
               },
               result: 'The mill is repaired and the ferries run on time. The Tollbell Sturgeon start ringing beneath the new boundary posts. Thistle calls the contract efficient; Nix asks why a river needs a cashier.',
             },
@@ -1574,7 +1574,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               effects: {
                 sliders: { joy: 10, nature: 5, treasury: -7, prosperity: 3 },
                 flags: { set: ['workingWaterfront'] },
-                regionOverride: { near_bank: 'grassy' },
+                regionOverride: { near_bank: 'grassy', village_edge: 'township' },
               },
               result: 'The harbour has three rules: pay your crew, clean your berth, and teach the next child to cast. Robin plants apple trees along the pier. Orchardjaw Perch gather beneath their roots; Thistle invests in a bigger market instead.',
             },
@@ -1585,7 +1585,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
               effects: {
                 sliders: { treasury: 12, prosperity: 8, joy: -8, nature: -5 },
                 flags: { set: ['exclusivePier'] },
-                regionOverride: { near_bank: 'trampled' },
+                regionOverride: { near_bank: 'trampled', village_edge: 'boomtown' },
               },
               result: 'The pier glitters with lacquered hulls. Robin sends impeccable monthly accounts and no invitations. Ash quietly teaches the village children to fish beyond the locked gate, where the Mooring Mullet eat crumbs.',
             },
@@ -1636,6 +1636,7 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
                 regionOverride: {
                   far_shore: 'industrial',
                   near_bank: 'dead',
+                  village_edge: 'garrisoned',
                 },
               },
               result: 'The crown gets a magnificent cheque. Guards begin charging anglers for the privilege of looking at the lake. The Barebone Roach breed in the shadows of the new gates; even Brack calls the contract greedy.',

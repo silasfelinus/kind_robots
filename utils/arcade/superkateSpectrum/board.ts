@@ -110,6 +110,17 @@ export function attachAndPop(
   const cluster = flood(board, [position], (p) => board[p.row]![p.col] === hue)
   if (cluster.length < 3) return { matched: 0, dropped: 0, cleared: false }
   for (const p of cluster) board[p.row]![p.col] = null
+  const dropped = detachUnanchored(board)
+  return {
+    matched: cluster.length,
+    dropped,
+    cleared: !activeHues(board).length,
+  }
+}
+
+/** Special spheres are earned, never purchased; Classic keeps ordinary matching. */
+export type SpectrumPower = 'prism' | 'burst' | 'ribbon'
+export function detachUnanchored(board: Board): number {
   const anchored = new Set(
     flood(
       board,
@@ -117,20 +128,58 @@ export function attachAndPop(
       (p) => board[p.row]![p.col] !== null,
     ).map((p) => `${p.row}:${p.col}`),
   )
-  let dropped = 0
+  let removed = 0
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
       if (board[row]![col] && !anchored.has(`${row}:${col}`)) {
         board[row]![col] = null
-        dropped++
+        removed++
       }
     }
   }
-  return {
-    matched: cluster.length,
-    dropped,
-    cleared: !activeHues(board).length,
+  return removed
+}
+export function fireSpecial(
+  board: Board,
+  position: Position,
+  hue: Hue,
+  power: SpectrumPower,
+): PopResult {
+  if (!inBounds(position.row, position.col) || board[position.row]![position.col])
+    return { matched: 0, dropped: 0, cleared: false }
+  if (power === 'prism') {
+    const options = neighbors(position)
+      .map((p) => board[p.row]![p.col])
+      .filter((color): color is Hue => color !== null)
+    const preferred =
+      options
+        .map((color) => ({
+          color,
+          size: flood(
+            board,
+            neighbors(position),
+            (p) => board[p.row]![p.col] === color,
+          ).length,
+        }))
+        .sort((a, b) => b.size - a.size)[0]?.color ?? hue
+    return attachAndPop(board, position, preferred)
   }
+  board[position.row]![position.col] = hue
+  const hit =
+    power === 'burst'
+      ? [position, ...neighbors(position)]
+      : Array.from({ length: COLS }, (_, col) => ({
+          row: position.row,
+          col,
+        }))
+  let matched = 0
+  for (const p of hit) {
+    if (!board[p.row]![p.col]) continue
+    board[p.row]![p.col] = null
+    matched++
+  }
+  const dropped = detachUnanchored(board)
+  return { matched, dropped, cleared: !activeHues(board).length }
 }
 export function pushCeiling(board: Board, rng: () => number): boolean {
   const overflow = board[ROWS - 1]!.some(Boolean)

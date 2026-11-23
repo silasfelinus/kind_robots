@@ -1441,13 +1441,9 @@ class PetalPost implements ArcadeGameInstance {
     if (sub && h.bloom > 0) {
       for (let i = 0; i < h.bloom * 3; i++) {
         const x = 12 + i * 8
-        drawSprite(
-          g,
-          BLOOM_SPRITES[i % BLOOM_SPRITES.length]!,
-          x,
-          sy + 12,
-          { anchor: 'feet' },
-        )
+        drawSprite(g, BLOOM_SPRITES[i % BLOOM_SPRITES.length]!, x, sy + 12, {
+          anchor: 'feet',
+        })
       }
     }
     if (sub) {

@@ -2003,7 +2003,13 @@ class HedgehogCrossing implements ArcadeGameInstance {
   private renderGround(g: CanvasRenderingContext2D) {
     // Everything that never moves, painted once: dusk sky and hills, the hedge and its
     // burrows, the creek bed, the meadow verges, the kerbs and the asphalt.
-    cachedLayer(g, 'hedgehog-crossing-ground', W, H, (k) => {
+    const market = legOneCrossing(this.level)?.region === 'MARKET DAY'
+    cachedLayer(
+      g,
+      market ? 'hedgehog-crossing-market' : 'hedgehog-crossing-ground',
+      W,
+      H,
+      (k) => {
       const rand = backdropRng(17)
       // Dusk sky over two ranges of hills, a moon between the HUD boxes.
       bandedGradient(k, 0, 0, W, TOP, SKY_BANDS, 2)
@@ -2140,6 +2146,36 @@ class HedgehogCrossing implements ArcadeGameInstance {
           })
         }
       }
+      if (market) {
+        // Market bunting, fruit-stall awnings and the canal's cream stone banks.
+        for (let x = 0; x < W; x += 28) {
+          k.fillStyle = x % 56 === 0 ? RAMPS.pink[3] : RAMPS.gold[3]
+          k.beginPath()
+          k.moveTo(x + 2, rowY(6) + 2)
+          k.lineTo(x + 24, rowY(6) + 2)
+          k.lineTo(x + 13, rowY(6) + 11)
+          k.closePath()
+          k.fill()
+          k.fillStyle = RAMPS.cream[3]
+          k.fillRect(x + 12, rowY(6) + 3, 2, 3)
+        }
+        for (const x of [14, 92, 170, 248]) {
+          k.fillStyle = RAMPS.earth[1]
+          k.fillRect(x, rowY(START_ROW) + 3, 18, 11)
+          k.fillStyle = RAMPS.pink[2]
+          k.fillRect(x - 2, rowY(START_ROW) + 1, 22, 4)
+          k.fillStyle = RAMPS.gold[3]
+          k.fillRect(x + 3, rowY(START_ROW) + 9, 4, 4)
+          k.fillStyle = RAMPS.leaf[4]
+          k.fillRect(x + 10, rowY(START_ROW) + 9, 4, 4)
+        }
+        for (const bank of [rowY(1), rowY(6) - 2]) {
+          k.fillStyle = RAMPS.cream[2]
+          k.fillRect(0, bank, W, 2)
+          k.fillStyle = RAMPS.cream[4]
+          for (let x = 0; x < W; x += 20) k.fillRect(x, bank, 10, 1)
+        }
+      }
       // Rich soil under the start lawn, where the HUD sits.
       bandedGradient(
         k,
@@ -2150,7 +2186,8 @@ class HedgehogCrossing implements ArcadeGameInstance {
         [RAMPS.earth[1], RAMPS.earth[0], RAMPS.night[0]],
         2,
       )
-    })
+      },
+    )
   }
 
   /** A grass verge: banded turf, a sandy lip by the creek, tufts and little flowers. */

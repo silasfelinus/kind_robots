@@ -104,10 +104,7 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
     : null
   const state = trail?.state ?? null
   const mine =
-    !!state &&
-    !state.victor &&
-    !row.settledAt &&
-    state.active === seat
+    !!state && !state.victor && !row.settledAt && state.active === seat
   return {
     id: row.id,
     seat,

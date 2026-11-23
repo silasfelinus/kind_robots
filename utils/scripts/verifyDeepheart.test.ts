@@ -264,6 +264,21 @@ const discoveredChronicle = decodeChronicle(
 )
 assert.deepEqual(discoveredChronicle?.values.idris, ['kind'])
 assert.deepEqual(discoveredChronicle?.romances, ['idris'])
+const romanceScene = DEEPHEART.moments.find(
+  (moment) => moment.id === romanceMoment('idris'),
+)
+assert.ok(
+  romanceScene?.art.src,
+  'a romance unlock must have its actual painted scene for the delve',
+)
+const oldFlameMoment = DEEPHEART.moments.find(
+  (moment) => moment.id === SUPPORT_MOMENTS['corso+idris'],
+)
+assert.deepEqual(
+  [...(oldFlameMoment?.about ?? [])].sort(),
+  ['corso', 'idris'],
+  'the support moment must name both companions for illustrated fallback',
+)
 
 // ── Original delvers and meaningful party ability checks ────────────────
 const customHero: HeroSetup = {

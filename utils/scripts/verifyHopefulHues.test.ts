@@ -57,6 +57,7 @@ type Levels = {
   STORY_BEATS: Record<string, Array<{ at: number }>>
   allLevels: () => string[]
   routeLevels: (r: unknown) => string[]
+  lineKey: (r: unknown) => string
   parseLevelId: (id: string) => { region: string; n: number }
   buildLevel: (region: string, n: number) => LevelDef
 }
@@ -64,7 +65,7 @@ type Slot = {
   levels: Record<string, { stars: number; best: number }>
   endings: string[]
   scrapbook: string[]
-  route: { tier1: string | null; tier2: string | null }
+  achievements: Record<string, number>
   quests: {
     daily: Array<{ id: string; progress: number }>
     weekly: unknown[]
@@ -85,7 +86,6 @@ type Meta = {
   exportSlot: (s: Slot) => string
   importSlot: (code: string) => Slot | null
   levelUnlocked: (s: Slot, l: Levels, id: string) => boolean
-  pendingFork: (s: Slot, l: Levels) => string | null
   chooseRoute: (s: Slot, l: Levels, id: string) => boolean
   scrapbookCatalog: (l: Levels) => unknown[]
   load: (storage: unknown) => {
@@ -101,7 +101,6 @@ function must<T>(value: T | null | undefined, label = 'value'): T {
   assert.ok(value !== undefined && value !== null, `${label} is missing`)
   return value as T
 }
-const region = (id: string) => must(L.REGIONS[id], `region ${id}`)
 
 const root = new URL('../../', import.meta.url)
 const read = (path: string) =>
@@ -110,40 +109,80 @@ const context = createContext({ console, btoa, atob }) as Record<
   string,
   unknown
 >
-for (const file of ['engine', 'levels', 'meta'])
+const WORLD_IDS = [
+  'paradise',
+  'clanktown',
+  'rosewood',
+  'corsair',
+  'sketchbook',
+  'wildflower',
+  'circus',
+  'dustneon',
+  'lagoon',
+]
+runInContext(read('public/hopeful-hues/worlds/registry.js'), context)
+for (const world of WORLD_IDS)
+  runInContext(read(`public/hopeful-hues/worlds/${world}.js`), context)
+for (const file of ['engine', 'levels', 'meta', 'art'])
   runInContext(read(`public/hopeful-hues/${file}.js`), context)
 const E = context.HopefulHuesEngine as Engine
 const L = context.HopefulHuesLevels as Levels
 const M = context.HopefulHuesMeta as Meta
 
-// World shape: a long branching map with four route endings and a secret fifth.
-assert.equal(L.ROUTE_ORDER.length, 7)
+// Silas, 2026-11-23 PT: nine hero-led worlds, each a long three-region road with
+// its own jewels, blockers, story, quests, achievements and ending.
+type WorldPack = {
+  id: string
+  hero: { id: string; perk: string }
+  music: { timbre: string }
+  jewels: Array<{ name: string; art: string }>
+  regions: Array<{ id: string; beats: Array<{ at: number }> }>
+  ending: { id: string }
+  quests: { daily: unknown[]; weekly: unknown[] }
+  achievements: Array<{ key: string }>
+  prompts: Record<string, unknown>
+}
+const Worlds = context.HopefulHuesWorlds as { list: () => WorldPack[] }
+const worlds = Worlds.list()
+assert.equal(
+  worlds.map((w) => w.id).join(),
+  WORLD_IDS.join(),
+  'nine worlds load in order',
+)
+assert.equal(new Set(worlds.map((w) => w.hero.id)).size, 9, 'nine heroes')
+assert.equal(new Set(worlds.map((w) => w.hero.perk)).size, 9, 'nine perks')
+assert.equal(
+  new Set(worlds.map((w) => w.music.timbre)).size,
+  9,
+  'nine instruments',
+)
+assert.equal(
+  new Set(worlds.flatMap((w) => w.jewels.map((j) => j.art))).size,
+  54,
+  'every world draws its own six jewels',
+)
+for (const w of worlds) {
+  assert.equal(w.regions.length, 3, `${w.id} has three regions`)
+  assert.equal(w.quests.daily.length, 3, `${w.id} daily quests`)
+  assert.equal(w.quests.weekly.length, 2, `${w.id} weekly quests`)
+  assert.equal(
+    w.achievements.map((a) => a.key).join(','),
+    'start,middle,ending,stars,signature',
+    `${w.id} achievements`,
+  )
+  assert.ok(L.ENDINGS[w.ending.id], `${w.id} ending registered`)
+  assert.ok(
+    L.routeLevels(w.id).length >= 55,
+    `${w.id} is a long road of at least 55 levels`,
+  )
+  assert.equal(L.routeLevels(w.hero.id).join(), L.routeLevels(w.id).join())
+}
+assert.equal(L.ROUTE_ORDER.length, 27)
 const all = L.allLevels()
-assert.equal(
-  all.length,
-  130,
-  'expected 130 authored-by-seed levels across seven regions',
-)
+assert.equal(all.length, 495, 'nine worlds of 55 levels')
 assert.equal(new Set(all).size, all.length)
-for (const id of ['salon', 'grove', 'garden'])
-  assert.equal(region(id).next?.length, 2, `${id} forks two ways`)
-const tier2 = L.ROUTE_ORDER.filter((id) => region(id).tier === 2)
-assert.equal(tier2.length, 4)
-assert.deepEqual(
-  new Set(tier2.map((id) => region(id).ending)),
-  new Set(['lullaby', 'parade', 'highscore', 'letters']),
-)
 assert.ok(L.ENDINGS.everyone, 'secret ending exists')
-assert.equal(L.CHARACTERS.length, 4)
-assert.equal(
-  new Set(L.CHARACTERS.map((c) => c.perk)).size,
-  4,
-  'each hero has a distinct perk',
-)
-assert.ok(
-  L.routeLevels({ tier1: 'grove', tier2: 'meadow' }).length >= 55,
-  'one playthrough route is at least 55 levels long',
-)
+assert.equal(L.CHARACTERS.length, 9)
 
 for (const id of all) {
   const { region, n } = L.parseLevelId(id)
@@ -161,10 +200,10 @@ for (const id of all) {
   for (const goal of def.goals)
     assert.ok(goal.target > 0, `${id} ${goal.type} target`)
 }
-assert.ok(
-  L.buildLevel('meadow', 19).finale,
-  'tier-two region ends with a finale',
-)
+for (const w of worlds) {
+  const finale = must(w.regions[2]).id
+  assert.ok(L.buildLevel(finale, 19).finale, `${w.id} ends with a finale`)
+}
 
 // Special tiles: 4 in a line -> comb, 5 -> rainbow dye, L/T -> glitter bomb.
 function craftedState(
@@ -325,6 +364,12 @@ assert.equal(fresh.tips.length, 0, 'first-time tips start unseen')
 
 assert.equal(M.levelUnlocked(slot, L, 'salon-1'), true)
 assert.equal(M.levelUnlocked(slot, L, 'salon-2'), false)
+for (const w of worlds)
+  assert.equal(
+    M.levelUnlocked(slot, L, must(w.regions[0]).id + '-1'),
+    true,
+    `${w.id} is open from the start`,
+  )
 const stats = {
   cleared: 30,
   combs: 1,
@@ -346,41 +391,40 @@ M.commitLevel(
 )
 assert.equal(must(slot.levels['salon-1']).stars, 2)
 assert.equal(M.levelUnlocked(slot, L, 'salon-2'), true)
-for (let n = 2; n <= 18; n++) slot.levels['salon-' + n] = { stars: 1, best: 1 }
-assert.equal(M.pendingFork(slot, L), 'salon')
-assert.equal(M.levelUnlocked(slot, L, 'grove-1'), true)
+assert.ok(slot.achievements['paradise-start'], 'world start achievement')
 assert.equal(
-  M.levelUnlocked(slot, L, 'meadow-1'),
+  M.levelUnlocked(slot, L, 'carnival-1'),
   false,
-  'far regions stay locked until their parent is finished',
+  'later regions wait for the one before',
 )
-assert.ok(M.chooseRoute(slot, L, 'grove'))
-for (let n = 1; n <= 18; n++) slot.levels['grove-' + n] = { stars: 1, best: 1 }
-assert.equal(M.pendingFork(slot, L), 'grove')
-for (const [tier1, tier2s] of [
-  ['grove', ['meadow', 'carnival']],
-  ['garden', ['arcade', 'lighthouse']],
-] as const) {
-  for (let n = 1; n <= 18; n++)
-    slot.levels[tier1 + '-' + n] = { stars: 1, best: 1 }
-  for (const t2 of tier2s) {
-    assert.ok(M.chooseRoute(slot, L, t2))
-    for (let n = 1; n < 19; n++)
-      slot.levels[t2 + '-' + n] = { stars: 1, best: 1 }
-    const report = M.commitLevel(
-      slot,
-      { levelId: t2 + '-19', won: true, stars: 3, score: 99999, stats },
-      L,
-    )
-    assert.equal(report.ending, region(t2).ending)
-  }
+for (const w of worlds) {
+  assert.ok(M.chooseRoute(slot, L, w.id))
+  assert.equal(L.lineKey(slot), w.id, `switching to ${w.id}`)
+  const [first, second, third] = w.regions.map((r) => r.id)
+  for (const [rid, count] of [
+    [first, 18],
+    [second, 18],
+    [third, 18],
+  ] as const)
+    for (let n = 1; n <= count; n++)
+      slot.levels[rid + '-' + n] = { stars: 3, best: 1 }
+  const report = M.commitLevel(
+    slot,
+    { levelId: third + '-19', won: true, stars: 3, score: 99999, stats },
+    L,
+  )
+  assert.equal(report.ending, w.ending.id, `${w.id} ending reached`)
+  assert.ok(slot.achievements[w.id + '-ending'], `${w.id} ending achievement`)
+  assert.ok(slot.achievements[w.id + '-middle'], `${w.id} middle achievement`)
+  if (w.id !== 'lagoon')
+    assert.ok(!slot.endings.includes('everyone'), 'secret waits for all nine')
 }
 assert.ok(
   slot.endings.includes('everyone'),
-  'all four route endings reveal the secret ending',
+  'every world ending reveals the secret ending',
 )
 assert.ok(slot.scrapbook.includes('ending:everyone'))
-assert.ok(M.scrapbookCatalog(L).length >= 70)
+assert.ok(M.scrapbookCatalog(L).length >= 150)
 
 const code = M.exportSlot(slot)
 const restored = M.importSlot(code)
@@ -482,7 +526,7 @@ for (const r of L.ROUTE_ORDER) {
 for (const entry of artPack.slots)
   assert.match(
     entry.path,
-    /^\/images\/hopeful-hues\/(heroes|regions|story|endings)\/[a-z0-9-]+\.webp$/,
+    /^\/images\/hopeful-hues\/(heroes|regions|story|endings|worlds|maps)\/[a-z0-9-]+\.webp$/,
   )
 for (const entry of artPack.front) {
   assert.ok(
@@ -499,9 +543,11 @@ for (const needle of [
   'tutorialDone',
   'showTip(',
   'Replay tutorial',
-  "title: 'Grey Gloom'",
-  "title: 'Robot buddies'",
-  "title: 'Rainbow Comb!'",
+  'tipFor(',
+  'renderCharacters',
+  'burst(',
+  'themeStyle(',
+  'worldKeyArt(',
   'heroArt(',
   'regionArt(',
   'beatArt(',
@@ -513,7 +559,7 @@ for (const needle of [
   'openQuests',
   'openAchievements',
   'openSettings',
-  'openRoutes',
+  'switchWorld',
   'showEnding',
   'startMusic',
 ]) {

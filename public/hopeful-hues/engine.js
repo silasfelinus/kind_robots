@@ -136,6 +136,29 @@
       const spot = randomGemCell(state)
       if (spot) state.board[spot[0]][spot[1]].special = 'rainbow'
     }
+    if (opts.perk === 'comb-start') {
+      for (let i = 0; i < 2; i++) {
+        const spot = randomGemCell(state)
+        if (spot) state.board[spot[0]][spot[1]].special = i ? 'v' : 'h'
+      }
+    }
+    if (opts.perk === 'bomb-start') {
+      const spot = randomGemCell(state)
+      if (spot) state.board[spot[0]][spot[1]].special = 'bomb'
+    }
+    if (opts.perk === 'gentle-gloom') {
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++)
+          if (state.gloom[r][c] > 1) state.gloom[r][c] = 1
+      for (const goal of state.goals) {
+        if (goal.type === 'gloom') {
+          let count = 0
+          for (let r = 0; r < rows; r++)
+            for (let c = 0; c < cols; c++) if (state.gloom[r][c] > 0) count++
+          goal.target = count
+        }
+      }
+    }
     ensurePlayable(state)
     return state
   }
@@ -511,16 +534,28 @@
   function rescueBuddies(state, phase) {
     let rescued = 0
     for (let c = 0; c < state.cols; c++) {
-      const r = lowestCellInColumn(state, c)
-      if (r < 0) continue
-      const tile = state.board[r][c]
-      if (tile && tile.kind === 'buddy') {
-        phase.rescued.push({ r, c, id: tile.id })
-        state.board[r][c] = null
-        state.buddiesOnBoard--
-        state.stats.buddiesRescued++
-        bumpGoal(state, 'buddy', null, 1)
-        rescued++
+      const lowest = lowestCellInColumn(state, c)
+      if (lowest < 0) continue
+      const rows = [lowest]
+      if (state.perk === 'buddy-rescue') {
+        for (let up = lowest - 1; up >= 0; up--) {
+          if (!isCell(state, up, c)) continue
+          const above = state.board[up][c]
+          if (above && above.kind === FIXED.TANGLE) continue
+          rows.push(up)
+          break
+        }
+      }
+      for (const r of rows) {
+        const tile = state.board[r][c]
+        if (tile && tile.kind === 'buddy') {
+          phase.rescued.push({ r, c, id: tile.id })
+          state.board[r][c] = null
+          state.buddiesOnBoard--
+          state.stats.buddiesRescued++
+          bumpGoal(state, 'buddy', null, 1)
+          rescued++
+        }
       }
     }
     return rescued
@@ -545,7 +580,10 @@
       const cleared = phase.cleared.filter(
         (item) => item.kind !== 'tangle',
       ).length
-      phase.score += scoreFor(cleared, depth) + phase.created.length * 60
+      phase.score += Math.round(
+        (scoreFor(cleared, depth) + phase.created.length * 60) *
+          (state.perk === 'score-boost' ? 1.25 : 1),
+      )
       state.score += phase.score
       applyGravity(state, phase)
       phase.board = snapshot(state)

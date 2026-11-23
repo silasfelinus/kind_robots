@@ -59,7 +59,7 @@ function openGamePanel(panel: string) {
 useHead({ title: 'Hopeful Hues · Superkate & the Kind Robots · Kind Robots' })
 useSeoMeta({
   description:
-    'A hopecore rainbow match-three adventure. Swap tiles with Superkate and the Kind Robots, take any move back, follow a long branching map to five endings, and fill a scrapbook.',
+    'A hopecore rainbow match-three across nine hero-led worlds, each with its own jewels, story, quests, achievements and ending. Take any move back, and bring color to every world.',
 })
 </script>
 

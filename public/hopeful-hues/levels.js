@@ -3,345 +3,57 @@
 
   const LEVELS_PER_REGION = 18
 
-  const REGIONS = {
-    salon: {
-      id: 'salon',
-      name: 'Sunrise Salon Street',
-      tier: 0,
-      blurb:
-        'The Grey Drizzle rolled in overnight and rinsed every color off the block. Superkate unlocks the salon, rolls up her sleeves and mixes the first batch of hope.',
-      palette: ['#ff8fc7', '#ffd36e', '#ffb38a'],
-      sky: ['#ffe3f1', '#ffd7b5'],
-      music: { root: 60, mode: 'major', tempo: 96 },
-      motif: 'scissors',
-      next: ['grove', 'garden'],
-    },
-    grove: {
-      id: 'grove',
-      name: 'Glitter Grove',
-      tier: 1,
-      blurb:
-        'A forest where the leaves used to shimmer. The butterflies remember every color and want to help paint them back, one wing at a time.',
-      palette: ['#7be0a6', '#ffe56b', '#c59bff'],
-      sky: ['#dcffe9', '#f3e4ff'],
-      music: { root: 62, mode: 'lydian', tempo: 88 },
-      motif: 'butterfly',
-      next: ['meadow', 'carnival'],
-    },
-    garden: {
-      id: 'garden',
-      name: 'Gear Garden',
-      tier: 1,
-      blurb:
-        'The kind robots grow sunflowers out of spare springs here. Their workshop went grey and quiet. A little oil, a little color, and they will hum again.',
-      palette: ['#6fd6ff', '#ffc75f', '#ff8fb1'],
-      sky: ['#dff6ff', '#fff1d6'],
-      music: { root: 57, mode: 'mixolydian', tempo: 104 },
-      motif: 'gear',
-      next: ['arcade', 'lighthouse'],
-    },
-    meadow: {
-      id: 'meadow',
-      name: 'Moonbeam Meadow',
-      tier: 2,
-      blurb:
-        'Fireflies, lullabies and a sleepy moon who forgot how to glow. Night is not scary when you bring friends and a lantern full of color.',
-      palette: ['#9aa8ff', '#ffe08a', '#ff9bd6'],
-      sky: ['#d9ddff', '#ffe6f6'],
-      music: { root: 55, mode: 'dorian', tempo: 76 },
-      motif: 'moon',
-      ending: 'lullaby',
-    },
-    carnival: {
-      id: 'carnival',
-      name: 'Coral Carnival',
-      tier: 2,
-      blurb:
-        'A seaside carnival of carousels and kindness booths. The Ferris wheel is stuck on grey. Every match turns another light back on.',
-      palette: ['#ff7aa8', '#4fe0d6', '#ffd56b'],
-      sky: ['#ffe1ec', '#d6fffb'],
-      music: { root: 64, mode: 'major', tempo: 112 },
-      motif: 'wave',
-      ending: 'parade',
-    },
-    arcade: {
-      id: 'arcade',
-      name: 'Cloud Arcade',
-      tier: 2,
-      blurb:
-        'High above the city, a cloud full of games where every high score is shared. The Drizzle jammed the coin slots. Time to play nice and play bright.',
-      palette: ['#b388ff', '#5ef2ff', '#ff86c8'],
-      sky: ['#efe3ff', '#dafcff'],
-      music: { root: 59, mode: 'major', tempo: 120 },
-      motif: 'cloud',
-      ending: 'highscore',
-    },
-    lighthouse: {
-      id: 'lighthouse',
-      name: 'Lighthouse of Lost Letters',
-      tier: 2,
-      blurb:
-        'Every kind note anyone ever meant to send washed up here. The lighthouse lamp is dim. Deliver the letters and the light comes back.',
-      palette: ['#ffb36b', '#7fd4ff', '#ff8fa3'],
-      sky: ['#fff0dc', '#ddf2ff'],
-      music: { root: 53, mode: 'major', tempo: 84 },
-      motif: 'letter',
-      ending: 'letters',
-    },
+  const registry = root.HopefulHuesWorlds || { list: () => [], get: () => null }
+  const WORLDS = registry.list()
+  const REGIONS = {}
+  const LINES = {}
+  const ROUTE_ORDER = []
+  const ENDINGS = {}
+  const STORY_BEATS = {}
+  const CHARACTERS = []
+
+  for (const world of WORLDS) {
+    LINES[world.id] = world.regions.map((region) => region.id)
+    world.regions.forEach((region, tier) => {
+      REGIONS[region.id] = {
+        id: region.id,
+        name: region.name,
+        world: world.id,
+        line: world.id,
+        tier,
+        blurb: region.blurb,
+        palette: region.palette,
+        sky: region.sky,
+        motif: region.motif,
+        music: world.music,
+        ending: tier === world.regions.length - 1 ? world.ending.id : undefined,
+      }
+      ROUTE_ORDER.push(region.id)
+      STORY_BEATS[region.id] = region.beats
+    })
+    ENDINGS[world.ending.id] = {
+      id: world.ending.id,
+      title: world.ending.title,
+      text: world.ending.text,
+      region: world.regions[world.regions.length - 1].id,
+      world: world.id,
+    }
+    CHARACTERS.push({
+      ...world.hero,
+      line: world.id,
+      world: world.id,
+      lineTitle: world.name,
+      lineBlurb: world.blurb,
+      colors: world.jewels.map((jewel) => jewel.main),
+    })
   }
 
-  const ROUTE_ORDER = [
-    'salon',
-    'grove',
-    'garden',
-    'meadow',
-    'carnival',
-    'arcade',
-    'lighthouse',
-  ]
-
-  const ENDINGS = {
-    lullaby: {
-      id: 'lullaby',
-      title: 'The Moon Learns to Glow',
-      region: 'meadow',
-      text: 'The sleepy moon yawns, stretches, and lights up in seven soft colors. Every night from now on, the sky gets a little rainbow tuck-in. The Grey Drizzle curls up and becomes a gentle silver dew that only falls on flowers that need a drink.',
-    },
-    parade: {
-      id: 'parade',
-      title: 'The Coral Carnival Parade',
-      region: 'carnival',
-      text: 'The Ferris wheel spins pink, then orange, then every color at once. A parade bursts down the boardwalk: dancers, drummers, a whale-shaped float and a crowd that keeps getting bigger because everyone is invited.',
-    },
-    highscore: {
-      id: 'highscore',
-      title: 'Everybody Gets the High Score',
-      region: 'arcade',
-      text: 'The Cloud Arcade lights up and the leaderboard rewrites itself: every name is in first place. The kind robots decide that from now on, the best score is the one you share. The Drizzle becomes a cloud you can bounce on.',
-    },
-    letters: {
-      id: 'letters',
-      title: 'Every Letter Delivered',
-      region: 'lighthouse',
-      text: 'The lighthouse lamp blazes with rainbow light and every lost letter finds its way home. Somewhere, someone opens an envelope that just says: you matter, and you always did. The Drizzle reads one too, and cries happy color.',
-    },
-    everyone: {
-      id: 'everyone',
-      title: "Everyone's Rainbow",
-      region: null,
-      secret: true,
-      text: 'With all four lights shining, the Grey Drizzle finally shows its face: a lonely little cloud that only wanted to be part of the picture. Superkate gives it a fresh rainbow dye job. It becomes the first cloud that rains color. Nobody is left out of the rainbow. Not ever.',
-    },
-  }
-
-  const CHARACTERS = [
-    {
-      id: 'kate',
-      name: 'Superkate',
-      title: 'Rainbow Hair Hero',
-      perk: 'rainbow-start',
-      perkName: 'Color Theory',
-      perkText: 'Starts every level with a Rainbow Dye already on the board.',
-      colors: [
-        '#ff5fa2',
-        '#ffb347',
-        '#ffe066',
-        '#6be3a4',
-        '#5cc8ff',
-        '#b38bff',
-      ],
-      cheer: [
-        'Gorgeous!',
-        'That color is SO you!',
-        'Fresh dye, fresh start!',
-        'Glowing!',
-        'We did that together!',
-      ],
-      epilogue:
-        'Kate opens the salon doors wide. The first appointment of the day is for anyone who needs a little color, no charge.',
-    },
-    {
-      id: 'sprocket',
-      name: 'Sprocket',
-      title: 'Kind Robot Helper',
-      perk: 'extra-moves',
-      perkName: 'Patience Protocol',
-      perkText: 'Gets two extra moves on every level.',
-      colors: ['#6fd6ff', '#a3f7ff', '#ffd36e'],
-      cheer: [
-        'Kindness detected!',
-        'Beep boop, beautiful!',
-        'Joy levels rising!',
-        'Calculating... wonderful!',
-        'Friendship.exe running!',
-      ],
-      epilogue:
-        'Sprocket installs a new feature in every kind robot: a little light on the chest that glows rainbow whenever someone is helped.',
-    },
-    {
-      id: 'juniper',
-      name: 'Juniper',
-      title: 'Dreamer With a Sketchbook',
-      perk: 'big-bombs',
-      perkName: 'Big Imagination',
-      perkText: 'Glitter Bombs sparkle twice as wide (5x5).',
-      colors: ['#ffe066', '#ff9bd6', '#7be0a6'],
-      cheer: [
-        'I am drawing this!',
-        'Sparkle sparkle!',
-        'Best day ever!',
-        'Wow wow WOW!',
-        'You make the world brighter!',
-      ],
-      epilogue:
-        'Juniper fills the last page of the sketchbook with everyone they met, then starts a new one. There is always more to draw.',
-    },
-    {
-      id: 'marigold',
-      name: 'Marigold',
-      title: 'Gardener of Good Vibes',
-      perk: 'bloom',
-      perkName: 'Bloom Where You Are',
-      perkText:
-        'Big cascades (3 or more chains) give a bonus move, twice per level.',
-      colors: ['#ff9f43', '#7be0a6', '#c59bff'],
-      cheer: [
-        'Growing beautifully!',
-        'Look at you bloom!',
-        'Rooted and radiant!',
-        'Soft and strong!',
-        'Hope sprouts here!',
-      ],
-      epilogue:
-        'Marigold plants a garden where every flower is a different color and nobody has to match to belong.',
-    },
-  ]
-
-  const STORY_BEATS = {
-    salon: [
-      {
-        at: 1,
-        title: 'Opening Day',
-        text: 'Superkate flips the sign to OPEN. Outside, the whole street is grey. "Well," she says, snapping on her gloves, "nobody said hope was a small job."',
-      },
-      {
-        at: 6,
-        title: 'A Robot at the Door',
-        text: 'A little kind robot rolls in, dripping grey. "Please," it beeps, "my sensors cannot find blue." Kate smiles. "Sit. I know exactly what you need."',
-      },
-      {
-        at: 12,
-        title: 'The Neighbors Return',
-        text: 'One by one, neighbors peek out. The bakery is pink again. The bookstore is lavender. Someone starts a playlist and the whole block dances.',
-      },
-      {
-        at: 18,
-        title: 'The Crossroads',
-        text: 'At the end of the street the Drizzle splits in two: one stream flows toward the glittering woods, the other toward the hum of the robot workshop. Where will hope go first?',
-      },
-    ],
-    grove: [
-      {
-        at: 1,
-        title: 'Wings of Every Color',
-        text: 'The butterflies of Glitter Grove are clear as glass. Each one lands on a match and drinks a single color, then flutters off singing.',
-      },
-      {
-        at: 9,
-        title: 'The Old Willow',
-        text: 'An old willow whispers: "Color is not something you have. It is something you share." The leaves around it begin to shine.',
-      },
-      {
-        at: 18,
-        title: 'Two Paths of Light',
-        text: 'Past the grove, a path of moonbeams climbs into the night, and a path of seashells runs down to a sleepy carnival. Both are waiting for you.',
-      },
-    ],
-    garden: [
-      {
-        at: 1,
-        title: 'The Quiet Workshop',
-        text: 'Gear Garden is silent. Spring-sunflowers droop. The robots are standing still, each one holding a tiny paintbrush, waiting for someone to begin.',
-      },
-      {
-        at: 9,
-        title: 'The First Hum',
-        text: 'One robot starts to hum. Then three. Then a whole choir of clicks and whirs, painting gears in candy stripes.',
-      },
-      {
-        at: 18,
-        title: 'Up or Out',
-        text: 'A cloud elevator offers a ride up to the Cloud Arcade. A mail cart offers a ride out to the coast, where a lighthouse blinks very faintly.',
-      },
-    ],
-    meadow: [
-      {
-        at: 1,
-        title: 'Fireflies',
-        text: 'Moonbeam Meadow glows in tiny patches. The fireflies have been carrying colors in their lanterns all along.',
-      },
-      {
-        at: 10,
-        title: 'A Lullaby for Everyone',
-        text: 'The meadow sings to whoever is having a hard day. Tonight, it sings to the moon.',
-      },
-      {
-        at: 19,
-        title: 'The Sleepy Moon',
-        text: 'The moon is so tired. It forgot how to glow. Maybe it just needs someone to stay up with it a little while.',
-      },
-    ],
-    carnival: [
-      {
-        at: 1,
-        title: 'Booths of Kindness',
-        text: 'The Coral Carnival has no prize booths. Only kindness booths, where you win a compliment and give one back.',
-      },
-      {
-        at: 10,
-        title: 'Carousel Friends',
-        text: 'The carousel horses are actually seahorses and they are very excited to meet you.',
-      },
-      {
-        at: 19,
-        title: 'The Stuck Ferris Wheel',
-        text: 'The great wheel is frozen on grey. Everyone on the boardwalk holds hands and looks up. This one is for all of us.',
-      },
-    ],
-    arcade: [
-      {
-        at: 1,
-        title: 'Insert Kindness',
-        text: 'Cloud Arcade machines take only one kind of coin: a kind word. Luckily you have plenty.',
-      },
-      {
-        at: 10,
-        title: 'Co-op Mode',
-        text: 'Every cabinet up here is two-player. There is no single-player mode in the clouds.',
-      },
-      {
-        at: 19,
-        title: 'The Jammed Leaderboard',
-        text: 'The giant scoreboard is stuck, flashing a grey HIGH SCORE with no name. Time to fill it with everyone.',
-      },
-    ],
-    lighthouse: [
-      {
-        at: 1,
-        title: 'The Mail Tide',
-        text: 'Letters wash up with every wave. "Thank you." "I am proud of you." "Sorry I never said it." The lighthouse keeper is a very old robot with very gentle hands.',
-      },
-      {
-        at: 10,
-        title: 'Sorting by Heart',
-        text: 'There is no address on most of the letters. The keeper says that is fine. They go to whoever needs them most.',
-      },
-      {
-        at: 19,
-        title: 'Light the Lamp',
-        text: 'Up the spiral stairs, the great lamp waits, grey as a stone. One last batch of color and every letter can find its way home.',
-      },
-    ],
+  ENDINGS.everyone = {
+    id: 'everyone',
+    title: "Everyone's Rainbow",
+    region: null,
+    secret: true,
+    text: 'With every world shining again, the Grey Drizzle finally shows its face: a lonely little cloud that only wanted to be part of the picture. Every hero you met crowds around it with dye, gears, roses, sequins, crayons, seeds, sparks, glow sticks and lanterns, and gives it the most colorful welcome anyone has ever had. It becomes the first cloud that rains color. Nobody is left out of the rainbow. Not ever.',
   }
 
   const MASKS = {
@@ -579,6 +291,9 @@
     const freeTangles = tangles.filter(([r, c]) => gloom[r][c] === 0)
     for (const goal of goals)
       if (goal.type === 'tangle') goal.target = freeTangles.length
+    for (let i = goals.length - 1; i >= 0; i--)
+      if (goals[i].type === 'tangle' && goals[i].target === 0)
+        goals.splice(i, 1)
 
     const beat = (STORY_BEATS[regionId] || []).find((b) => b.at === n) || null
 
@@ -605,16 +320,33 @@
     }
   }
 
-  function routeRegions(route) {
-    const regions = ['salon']
-    if (route && route.tier1) regions.push(route.tier1)
-    if (route && route.tier2) regions.push(route.tier2)
-    return regions
+  function lineOf(regionId) {
+    return REGIONS[regionId] ? REGIONS[regionId].line : null
   }
 
-  function routeLevels(route) {
+  function worldOfHero(heroId) {
+    const hero = CHARACTERS.find((c) => c.id === heroId)
+    return hero ? hero.world : null
+  }
+
+  function lineKey(line) {
+    if (typeof line === 'string') {
+      if (LINES[line]) return line
+      const viaHero = worldOfHero(line)
+      if (viaHero) return viaHero
+    }
+    if (line && LINES[line.world]) return line.world
+    if (line && worldOfHero(line.character)) return worldOfHero(line.character)
+    return WORLDS[0] ? WORLDS[0].id : null
+  }
+
+  function routeRegions(line) {
+    return LINES[lineKey(line)].slice()
+  }
+
+  function routeLevels(line) {
     const list = []
-    for (const regionId of routeRegions(route)) {
+    for (const regionId of routeRegions(line)) {
       const count = regionLevelCount(regionId)
       for (let n = 1; n <= count; n++) list.push(levelId(regionId, n))
     }
@@ -631,15 +363,24 @@
   }
 
   function parentOf(regionId) {
-    for (const id of ROUTE_ORDER) {
-      if ((REGIONS[id].next || []).includes(regionId)) return id
-    }
-    return null
+    const line = LINES[lineOf(regionId)]
+    if (!line) return null
+    const index = line.indexOf(regionId)
+    return index > 0 ? line[index - 1] : null
+  }
+
+  function nextOf(regionId) {
+    const line = LINES[lineOf(regionId)]
+    if (!line) return null
+    const index = line.indexOf(regionId)
+    return index >= 0 && index < line.length - 1 ? line[index + 1] : null
   }
 
   const api = {
     LEVELS_PER_REGION,
+    WORLDS,
     REGIONS,
+    LINES,
     ROUTE_ORDER,
     ENDINGS,
     CHARACTERS,
@@ -652,6 +393,10 @@
     routeLevels,
     allLevels,
     parentOf,
+    nextOf,
+    lineOf,
+    lineKey,
+    worldOfHero,
   }
   root.HopefulHuesLevels = api
   if (typeof module !== 'undefined' && module.exports) module.exports = api

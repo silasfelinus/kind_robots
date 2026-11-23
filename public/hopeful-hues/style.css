@@ -1711,3 +1711,284 @@ textarea.code {
   animation: none;
   transform: translate(calc(-30% + var(--dx) / 2), calc(-10% + var(--dy) / 2));
 }
+
+/* Worlds */
+.world-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 10px 14px 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.world-card {
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+  border: 3px solid transparent;
+}
+
+.world-card.here {
+  border-color: var(--accent);
+}
+
+.world-card .world-key {
+  width: 100%;
+  aspect-ratio: 16 / 8;
+}
+
+.world-card-body {
+  padding: 12px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--card);
+  flex: 1;
+}
+
+.world-card-body p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.world-hero-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: -46px;
+}
+
+.world-hero {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 6px 14px #0003;
+  background: #fff6fb;
+}
+
+.world-hero img {
+  object-position: 50% 18%;
+}
+
+.world-hero-row h3 {
+  margin: 34px 0 0;
+  font-size: 1.15rem;
+  line-height: 1.15;
+}
+
+.world-tag {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.jewel-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.jewel-row span {
+  aspect-ratio: 1;
+  background: var(--cell);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.jewel-row svg {
+  width: 100%;
+  height: 100%;
+}
+
+.world-card .perk {
+  background: var(--cell);
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.world-card .perk b {
+  color: var(--accent);
+}
+
+.region-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.region-chips span:not([aria-hidden]) {
+  background: var(--cell);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.world-progress small {
+  color: var(--ink-soft);
+}
+
+.dark .card,
+.world-card.dark .world-card-body {
+  border-color: #ffffff22;
+}
+
+.map-screen,
+.game-screen {
+  color: var(--ink);
+}
+
+.map-screen .topbar {
+  background: linear-gradient(180deg, var(--card), transparent);
+}
+
+.dark .muted,
+.dark .hud-box .label {
+  color: var(--ink-soft);
+}
+
+.dark .hud-box,
+.dark .bubble {
+  background: var(--card);
+  color: var(--ink);
+}
+
+.dark .cell-bg {
+  background: var(--cell);
+  box-shadow: inset 0 0 0 2px #ffffff22;
+}
+
+.dark .cell-bg.alt {
+  background: var(--cell);
+  filter: brightness(1.15);
+}
+
+.cell-bg {
+  background: var(--cell, #ffffffb3);
+}
+
+.gloom {
+  background: radial-gradient(
+    circle at 35% 30%,
+    var(--gloom1, #c9c4d8),
+    var(--gloom2, #9c97ad)
+  );
+}
+
+.gloom.l2 {
+  background: radial-gradient(
+    circle at 35% 30%,
+    var(--gloom2, #a9a3bd),
+    var(--gloom1, #77718a)
+  );
+  filter: brightness(0.82);
+}
+
+.map-banner {
+  background: var(--card);
+  color: var(--ink);
+}
+
+.dark .map-banner,
+.dark .signpost {
+  background: var(--card);
+  color: var(--ink);
+}
+
+.node.shape-star {
+  border-radius: 0;
+  clip-path: polygon(
+    50% 0,
+    62% 34%,
+    98% 36%,
+    70% 58%,
+    80% 94%,
+    50% 74%,
+    20% 94%,
+    30% 58%,
+    2% 36%,
+    38% 34%
+  );
+  border: 0;
+}
+
+.node.shape-diamond {
+  border-radius: 14px;
+  transform: rotate(45deg);
+}
+
+.node.shape-diamond > * {
+  transform: rotate(-45deg);
+}
+
+.node.shape-hex {
+  border-radius: 0;
+  clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%);
+  border: 0;
+}
+
+.node.shape-heart {
+  border-radius: 50% 50% 46% 46%;
+}
+
+.node.shape-shell {
+  border-radius: 50% 50% 18% 18%;
+}
+
+.node.shape-star .stars,
+.node.shape-hex .stars {
+  display: none;
+}
+
+.particle {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  font-weight: 900;
+  transform: translate(-50%, -50%);
+  text-shadow: 0 0 6px #fff8;
+  animation: particle calc(0.7s * var(--speed)) ease-out forwards;
+}
+
+@keyframes particle {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--px)), calc(-50% + var(--py)))
+      scale(1.2) rotate(40deg);
+  }
+}
+
+.reduced-motion .particle {
+  display: none;
+}
+
+.btn {
+  color: #3b2b5c;
+}
+
+.btn.primary,
+.btn.rainbow,
+.btn.undo,
+.controls .btn.undo {
+  color: #fff;
+}
+
+.btn.back {
+  color: #7d42e0;
+}
+
+.dark .chip {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 3px 0 #00000033;
+}

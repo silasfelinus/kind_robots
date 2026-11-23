@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
         jobId: row.id,
         status: row.status,
         artImageId: row.artImageId,
-        updatedAt: row.updatedAt.toISOString(),
+        updatedAt: row.updatedAt?.toISOString() ?? '',
       })
     }
     return { success: true, data: { jobs } }

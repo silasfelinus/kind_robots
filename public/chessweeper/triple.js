@@ -30,10 +30,37 @@
   const ctx = canvas.getContext('2d')
   const keys = new Set()
   const points = { chess: 0, mine: 0, disc: 0 }
+  const DIFFICULTIES = Object.freeze({
+    easy: {
+      name: 'Easy', badge: '🌱 EASY', hearts: 5, mines: 6,
+      startingDiscs: 2, discSpeed: 0.7, newDiscSeconds: 34,
+      playerSpeed: 190, invulnerability: 2, cpuChoices: 7, cpuDelay: 600,
+    },
+    medium: {
+      name: 'Medium', badge: '⚖ MED', hearts: 3, mines: 10,
+      startingDiscs: 3, discSpeed: 1, newDiscSeconds: 24,
+      playerSpeed: 170, invulnerability: 1.4, cpuChoices: 3, cpuDelay: 310,
+    },
+    hard: {
+      name: 'Hard', badge: '🔥 HARD', hearts: 2, mines: 15,
+      startingDiscs: 4, discSpeed: 1.3, newDiscSeconds: 17,
+      playerSpeed: 164, invulnerability: 1.1, cpuChoices: 2, cpuDelay: 190,
+    },
+    catastrophic: {
+      name: 'Catastrophic', badge: '☠ CATA', hearts: 1, mines: 20,
+      startingDiscs: 6, discSpeed: 1.65, newDiscSeconds: 11,
+      playerSpeed: 158, invulnerability: 0.85, cpuChoices: 1, cpuDelay: 80,
+    },
+  })
+  const leaderboardSlug = (value) =>
+    value === 'medium' ? 'chessweeper-triple' :
+      'chessweeper-triple-' + value
   const state = {
     phase: 'start',
     remaining: 120,
     duration: 120,
+    difficulty: 'medium',
+    scoresDifficulty: 'medium',
     ranked: true,
     hearts: 3,
     chess: chess.initialPosition(),
@@ -60,6 +87,7 @@
     scoresReturn: 'start',
     range: 'all',
   }
+  const difficulty = () => DIFFICULTIES[state.difficulty]
   let lastFrame = performance.now()
   let suppressedFlagClick = -1
   const AUDIO_KEY = 'kindrobots:chessweeper:triple:audio'
@@ -121,7 +149,8 @@
     $('total').textContent = totalScore().toLocaleString('en-US')
     $('hearts').textContent =
       '♥'.repeat(Math.max(0, state.hearts)) +
-      '♡'.repeat(3 - Math.max(0, state.hearts))
+      '♡'.repeat(Math.max(0, difficulty().hearts - state.hearts))
+    $('difficulty-badge').textContent = difficulty().badge
     for (const kind of ['chess', 'mine', 'disc']) {
       $(kind + '-points').textContent = String(Math.floor(points[kind]))
     }
@@ -212,7 +241,7 @@
     state.busy = true
     $('chess-status').textContent = 'CPU thinking…'
     renderChess()
-    setTimeout(cpuMove, 310)
+    setTimeout(cpuMove, difficulty().cpuDelay)
   }
 
   function clickChess(index) {
@@ -244,29 +273,30 @@
     if (state.phase !== 'running' || state.chess.t !== -1) return
     const options = chess.legalMoves(state.chess)
     if (!options.length) return resetChess()
-    let choice = options[0]
-    let best = -Infinity
-    for (const move of options) {
+    const pieceValue = {
+      p: 10, n: 30, b: 30, r: 50, q: 90, k: 0,
+    }
+    const rated = options.map((move) => {
       const victim = state.chess.b[move[1]]
       const trial = chess.makePosition(state.chess, move)
-      const value =
-        (victim === '.'
-          ? 0
-          : {
-              p: 10,
-              n: 30,
-              b: 30,
-              r: 50,
-              q: 90,
-              k: 0,
-            }[victim.toLowerCase()]) +
-        (chess.inCheck(trial) ? 18 : 0) +
-        Math.random() * 12
-      if (value > best) {
-        best = value
-        choice = move
+      const replies = chess.legalMoves(trial)
+      const whiteCapture = replies.reduce((highest, reply) => {
+        const target = trial.b[reply[1]]
+        return Math.max(highest,
+          target === '.' ? 0 : pieceValue[target.toLowerCase()])
+      }, 0)
+      return {
+        move,
+        value: (victim === '.' ? 0 : pieceValue[victim.toLowerCase()]) -
+          whiteCapture * 0.8 + (chess.inCheck(trial) ? 18 : 0) +
+          (!replies.length && chess.inCheck(trial) ? 1500 : 0) +
+          Math.random() * 9,
       }
-    }
+    })
+    rated.sort((a, b) => b.value - a.value)
+    const choice = rated[Math.floor(
+      Math.random() * Math.min(difficulty().cpuChoices, rated.length),
+    )].move
     state.chess = chess.makePosition(state.chess, choice)
     state.lastMove = [choice[0], choice[1]]
     state.busy = false
@@ -313,7 +343,9 @@
       const j = Math.floor(Math.random() * (i + 1))
       ;[cells[i], cells[j]] = [cells[j], cells[i]]
     }
-    state.mines = new Set(cells.slice(0, Math.min(18, 9 + state.mineLevel)))
+    state.mines = new Set(cells.slice(
+      0, Math.min(26, difficulty().mines + state.mineLevel - 1),
+    ))
     $('mine-status').textContent = 'Field ' + state.mineLevel
     renderMines()
   }
@@ -332,6 +364,7 @@
   function revealMine(index) {
     if (
       state.phase !== 'running' ||
+      state.minePendingReset ||
       state.flagged.has(index) ||
       state.opened.has(index)
     )
@@ -452,7 +485,9 @@
   function makeDisc() {
     const edge = Math.floor(Math.random() * 4)
     const coordinate = 35 + Math.random() * 290
-    const speed = 52 + Math.random() * 32 + state.discs.length * 4
+    const speed =
+      (52 + Math.random() * 32 + state.discs.length * 4) *
+      difficulty().discSpeed
     const x = edge === 0 ? 12 : edge === 1 ? 348 : coordinate
     const y = edge === 2 ? 12 : edge === 3 ? 348 : coordinate
     const angle = Math.atan2(180 - y, 180 - x) + (Math.random() - 0.5) * 1.9
@@ -469,12 +504,14 @@
   function resetDiscs() {
     state.player = { x: 180, y: 180 }
     state.discs = []
-    state.invulnerable = 1.3
+    state.invulnerable = difficulty().invulnerability
     state.drag = null
     state.discSeconds = 0
-    state.nextDisc = 24
-    for (let i = 0; i < 3; i++) state.discs.push(makeDisc())
-    $('disc-status').textContent = '3 blades'
+    state.nextDisc = difficulty().newDiscSeconds
+    for (let i = 0; i < difficulty().startingDiscs; i++) {
+      state.discs.push(makeDisc())
+    }
+    $('disc-status').textContent = state.discs.length + ' blades'
   }
 
   function damage(source) {
@@ -502,11 +539,11 @@
     if (norm) {
       state.player.x = Math.max(
         12,
-        Math.min(348, state.player.x + (dx / norm) * dt * 170),
+        Math.min(348, state.player.x + (dx / norm) * dt * difficulty().playerSpeed),
       )
       state.player.y = Math.max(
         12,
-        Math.min(348, state.player.y + (dy / norm) * dt * 170),
+        Math.min(348, state.player.y + (dy / norm) * dt * difficulty().playerSpeed),
       )
     }
     for (const disc of state.discs) {
@@ -525,7 +562,7 @@
         state.invulnerable <= 0 &&
         Math.hypot(disc.x - state.player.x, disc.y - state.player.y) < 21
       ) {
-        state.invulnerable = 1.4
+        state.invulnerable = difficulty().invulnerability
         damage('Disc impact')
       }
     }
@@ -538,7 +575,9 @@
     state.nextDisc -= dt
     if (state.nextDisc <= 0 && state.discs.length < 10) {
       state.discs.push(makeDisc())
-      state.nextDisc = Math.max(9, 24 - state.discs.length)
+      state.nextDisc = Math.max(
+        5, difficulty().newDiscSeconds - state.discs.length,
+      )
       $('disc-status').textContent = state.discs.length + ' blades'
       score('disc', 90)
     }
@@ -660,9 +699,11 @@
 
   function start() {
     state.duration = Number($('duration').value)
+    state.difficulty = $('difficulty').value
+    state.scoresDifficulty = state.difficulty
     state.ranked = state.duration === 120
     state.remaining = state.duration
-    state.hearts = 3
+    state.hearts = difficulty().hearts
     state.phase = 'running'
     state.final = 0
     state.submitted = false
@@ -694,7 +735,8 @@
     keys.clear()
     state.drag = null
     $('run-result').textContent =
-      reason + ' · ' + state.final.toLocaleString('en-US') + ' points'
+      difficulty().name + ' · ' + reason + ' · ' +
+      state.final.toLocaleString('en-US') + ' points'
     $('run-breakdown').textContent =
       'Chess ' +
       points.chess +
@@ -715,11 +757,15 @@
     if (state.phase === 'running') pause()
     state.scoresReturn = state.phase
     openDialog('scores')
+    $('score-difficulty').value =
+      state.phase === 'start' ? $('difficulty').value : state.difficulty
     await loadScores(state.range)
   }
 
   async function loadScores(range) {
     state.range = range
+    const bracket = $('score-difficulty').value
+    state.scoresDifficulty = bracket
     $('all-time').classList.toggle('on', range === 'all')
     $('today').classList.toggle('on', range === 'today')
     $('score-error').textContent = ''
@@ -729,14 +775,15 @@
     $('score-rows').append(loading)
     try {
       const response = await fetch(
-        '/api/arcade/scores/chessweeper-triple?range=' + range,
+        '/api/arcade/scores/' + leaderboardSlug(bracket) +
+          '?range=' + range,
       )
       if (!response.ok) throw new Error('Scoreboard temporarily unavailable')
       const data = await response.json()
       if (!data.success || !Array.isArray(data.data)) {
         throw new Error('Invalid leaderboard response')
       }
-      if (state.range !== range) return
+      if (state.range !== range || state.scoresDifficulty !== bracket) return
       $('score-rows').replaceChildren()
       if (!data.data.length) {
         const empty = document.createElement('li')
@@ -789,7 +836,7 @@
         method: 'POST',
         headers,
         body: JSON.stringify({
-          game: 'chessweeper-triple',
+          game: leaderboardSlug(state.difficulty),
           initials,
           score: state.final,
           level: Math.min(9999, state.chessRound + state.mineLevel - 1),
@@ -927,6 +974,19 @@
   $('show-scores').addEventListener('click', showScores)
   $('all-time').addEventListener('click', () => loadScores('all'))
   $('today').addEventListener('click', () => loadScores('today'))
+  $('score-difficulty').addEventListener('change', () =>
+    loadScores(state.range),
+  )
+  $('difficulty').addEventListener('change', () => {
+    const selected = DIFFICULTIES[$('difficulty').value]
+    $('difficulty-hint').textContent =
+      selected.name + ': ' + selected.hearts + ' hearts · ' +
+      selected.mines + ' mines · ' + selected.startingDiscs +
+      ' starting blades · ' +
+      (selected.cpuChoices === 1 ? 'relentless CPU' :
+        selected.cpuChoices >= 7 ? 'forgiving CPU' :
+          selected.cpuChoices >= 3 ? 'balanced CPU' : 'aggressive CPU')
+  })
   $('close-scores').addEventListener('click', () => {
     openDialog(
       state.scoresReturn === 'end'
@@ -950,7 +1010,11 @@
       phase: state.phase,
       remaining: state.remaining,
       ranked: state.ranked,
+      difficulty: state.difficulty,
       hearts: state.hearts,
+      maxHearts: difficulty().hearts,
+      mineCount: state.mines.size,
+      discCount: state.discs.length,
       chess: points.chess,
       mines: points.mine,
       discs: points.disc,

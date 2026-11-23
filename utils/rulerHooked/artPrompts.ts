@@ -242,13 +242,13 @@ export const CARD_PROMPTS: Record<string, string> = {
     `On a lakeside orchard path, ${who('heir-robin')} and ${who('sweetheart-ash')} carry baskets of young fruit trees beside ${who('druid-sela')} holding a tray of pond seedlings. Small green perch with flowering branches on their backs swim in the clear shallows. Saturated rainbow dusk, soft worn print texture.`,
   ),
   'river-commons-vote': scene(
-    `At a wide sturgeon river crossing, ${who('envoy-thistle')} holds two unmarked treaty scrolls while ${who('warlock-vex')} carries a wooden toll gate model. ${who('lake-spirit-nix')} rises from the stream beside three immense silver sturgeon and a group of watchful millworkers. Violet, cyan, amber and emerald reflected light, fine old screenprint grain.`,
+    `At a river crossing, ${who('envoy-thistle')} holds a treaty while ${who('warlock-vex')} carries a toll gate model. ${who('lake-spirit-nix')} rises beside silver sturgeon and millworkers. Violet and emerald reflections, worn screenprint grain.`,
   ),
   'marina-family-charter': scene(
     `On a busy lakeshore marina, ${who('heir-robin')} and ${who('sweetheart-ash')} stand among dockhands holding a coil of fishing line and a young apple tree. ${who('envoy-thistle')} offers a clean folded harbour charter. Small fishing boats and polished visitor yachts float in bright turquoise and magenta water, weathered colored ink texture.`,
   ),
   'water-rights-hearing': scene(
-    `On a damp royal fishing dock, ${who('captain-cordelia')} holds two conflicting unsigned water deeds beside ${who('smuggler-brack')} carrying a basket of thin grey roach. ${who('lake-spirit-nix')} lifts a handful of dark spawning mud from the water. The stone weir and guarded fishing gates stand in the distance, psychedelic lime, violet and orange twilight, worn print grain.`,
+    `On a royal fishing dock, ${who('captain-cordelia')} holds conflicting water deeds beside ${who('smuggler-brack')} carrying grey roach. ${who('lake-spirit-nix')} lifts dark spawning mud from the water. A guarded weir stands behind them, psychedelic lime and violet light, worn print grain.`,
   ),
 }
 

@@ -554,6 +554,32 @@ const CAR_SPRITES = [
   carSprite(RAMPS.teal),
 ] as const
 
+function drawPuppy(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  frame: number,
+  tick: number,
+) {
+  g.fillStyle = RAMPS.earth[1]
+  g.fillRect(x - 5, y - 7, 11, 8)
+  g.fillRect(x - 3, y, 2, 3)
+  g.fillRect(x + 3, y, 2, 3)
+  g.fillStyle = RAMPS.earth[3]
+  g.fillRect(x - 7, y - 11, 11, 7)
+  g.fillStyle = RAMPS.earth[0]
+  g.fillRect(x - 8, y - 9, 3, 5)
+  g.fillRect(x + 3, y - 9, 3, 5)
+  g.fillStyle = RAMPS.cream[4]
+  g.fillRect(x, y - 9, 2, 2)
+  g.fillStyle = INK
+  g.fillRect(x, y - 8, 1, 1)
+  g.fillStyle = RAMPS.earth[2]
+  g.fillRect(x + 5, y - 6 - frame * 2, 4, 2)
+  g.fillStyle = RAMPS.pink[3]
+  if (tick % 24 < 12) g.fillRect(x - 3, y - 4, 2, 2)
+}
+
 const SPRINKLER_SPRITE = pixelSprite(['..h..', '.hsS.', 'hsSSd', '.ddd.'], {
   h: RAMPS.steel[4],
   s: RAMPS.steel[3],
@@ -1710,6 +1736,29 @@ class PetalPost implements ArcadeGameInstance {
     } else if (hz.kind === 'bin') {
       dropShadow(g, hz.x + 1, sy + 7, 6, 1.5)
       drawSprite(g, BIN_FRAMES[frame]!, hz.x, sy)
+    } else if (hz.kind === 'puppy') {
+      dropShadow(g, hz.x, sy + 5, 7, 2)
+      drawPuppy(g, hz.x, sy, frame, this.tick)
+    } else if (hz.kind === 'kite') {
+      g.strokeStyle = RAMPS.cream[3]
+      g.lineWidth = 1
+      g.beginPath()
+      g.moveTo(SIDEWALK - 3, sy + 10)
+      g.lineTo(hz.x, sy - 13)
+      g.stroke()
+      g.fillStyle = RAMPS.gold[3]
+      g.fillRect(hz.x - 5, sy - 18, 10, 9)
+      g.fillStyle = RAMPS.pink[3]
+      g.fillRect(hz.x - 2, sy - 21, 4, 15)
+    } else if (hz.kind === 'puddle') {
+      g.fillStyle = rgba(RAMPS.water[2], 0.8)
+      g.beginPath()
+      g.ellipse(hz.x, sy, 12, 6, 0, 0, Math.PI * 2)
+      g.fill()
+      g.strokeStyle = RAMPS.water[4]
+      g.stroke()
+      g.fillStyle = RAMPS.cream[4]
+      g.fillRect(hz.x - 4, sy - 1, 5, 1)
     } else if (hz.kind === 'car') {
       g.fillStyle = rgba(INK, 0.35)
       g.fillRect(Math.round(hz.x) - 6, Math.round(sy) - 13, 18, 32)

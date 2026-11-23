@@ -9,6 +9,7 @@ import {
 import type { InputFrame } from '../arcade/types'
 
 type House = {
+  side: 'left' | 'right'
   y: number
   subscriber: boolean
   delivered: boolean
@@ -30,6 +31,14 @@ type Probe = {
   over: boolean
   bx: number
   by: number
+  speed: number
+  carry: number
+  packets: Array<{
+    x: number
+    y: number
+    vx: number
+    side: 'left' | 'right'
+  }>
   houses: House[]
   hazards: Hazard[]
   weather: string
@@ -97,6 +106,8 @@ for (const [index, day] of PRIMROSE_DAYS.entries()) {
   game.startDay(index + 1)
   assert.equal(game.level, index + 1)
   assert.equal(game.weather, day.weather)
+  assert.equal(game.houses.filter((h) => h.side === 'left').length, 6)
+  assert.equal(game.houses.filter((h) => h.side === 'right').length, 6)
   for (const encounter of day.encounters) {
     assert.ok(
       game.hazards.some(
@@ -209,4 +220,85 @@ for (const seed of [3, 7]) {
   assert.ok(game.level >= 1)
 }
 
-console.log('Petal Post Primrose Lane authored week and Gazette passed')
+// Drive the actual cabinet through its A/B input path, not private delivery hooks.
+for (const side of ['left', 'right'] as const) {
+  const game = make(30)
+  game.hazards = []
+  const house = game.houses.find((h) => h.side === side)!
+  const other = game.houses.find((h) => h.side !== side)!
+  house.subscriber = true
+  house.request = 'mailbox'
+  house.delivered = false
+  house.bloom = 1
+  other.subscriber = true
+  other.delivered = false
+  game.bx = 128
+  game.speed = 1.3
+  const mailbox = side === 'left' ? 74 : 182
+  const direction = side === 'left' ? -1 : 1
+  const travel = (mailbox - game.bx - direction * 6) /
+    (direction * (1.2 + game.speed * 0.65))
+  game.by = house.y + 22 + 4 + game.speed * (travel + 1)
+  const carry = game.carry
+  game.update(press(side === 'left' ? 'a' : 'b'))
+  assert.equal(game.carry, carry - 1)
+  assert.equal(game.packets[0]?.side, side)
+  assert.equal(Math.sign(game.packets[0]!.vx), direction)
+  for (let i = 0; i < 40; i++) game.update(idle())
+  assert.equal(house.delivered, true, `${side} mailbox is reachable`)
+  assert.equal(house.bloom, 3)
+  assert.equal(other.delivered, false, 'a parcel cannot deliver across the road')
+  assert.equal(game.requestsMet, 1)
+  assert.equal(game.score, 475, 'mailbox, request and full-bloom tip')
+  assert.equal(game.packets.length, 0)
+}
+
+{
+  const game = make(31)
+  game.hazards = []
+  game.speed = 0.7
+  game.update(press('a'))
+  const slow = Math.abs(game.packets[0]!.vx)
+  game.speed = 2.2
+  game.update(press('b'))
+  const fast = Math.abs(game.packets[1]!.vx)
+  assert.ok(fast > slow, 'faster riding increases horizontal toss distance')
+}
+
+{
+  const game = make(32)
+  game.hazards = []
+  const house = game.houses.find((h) => h.side === 'left')!
+  house.subscriber = true
+  house.delivered = false
+  house.request = 'porch'
+  house.bloom = 1
+  game.bx = 121
+  game.speed = 0.7
+  game.by = house.y + 4 + 0.7 * 41
+  const slow = press('down')
+  game.update({
+    held: { ...slow.held, a: true },
+    pressed: { ...slow.pressed, a: true },
+  })
+  for (let i = 0; i < 40; i++) game.update(slow)
+  assert.equal(house.delivered, true, 'a slow toss reaches the left porch')
+  assert.equal(game.requestsMet, 1)
+  assert.equal(game.score, 325)
+}
+
+{
+  const game = make(33)
+  for (const house of game.houses) {
+    house.subscriber = true
+    house.delivered = true
+    house.bloom = 3
+  }
+  game.houses[0]!.delivered = false
+  game.endDay()
+  assert.equal(game.houses[0]!.bloom, 2)
+  assert.equal(game.gazette?.cancellations, 0)
+  assert.equal(game.score, 0, 'no cancellations is not a perfect round')
+}
+
+console.log('Petal Post Primrose Lane authored week, Gazette and two-sided deliveries passed')

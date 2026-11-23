@@ -15,6 +15,7 @@ import {
 import {
   CREW_TELL_ART,
   CREW_TELL_BEATS,
+  crewCaptainArtReceipt,
   crewTellReceipt,
   crewUnitArtReceipt,
   isCrewTellKind,
@@ -547,6 +548,86 @@ for (const unknown of ['__proto__', 'constructor', 'other']) {
 }
 assert.equal(crewUnitArtReceipt({ maxHp: 1 }), null)
 
+// Commissioned captain plates must resolve on the exact named SPECIES unit,
+// never a random one-hit grunt, heroic identity, or multi-hit lieutenant.
+const originalCaptains = [
+  ['burrow', 'Foreman Thumpkin', 74396, 277789],
+  ['phase', 'Lieutenant Teakettle', 74400, 277793],
+  ['windup', 'Sir Cap-Permission', 74404, 277797],
+] as const
+for (const [kind, name, jobId, imageId] of originalCaptains) {
+  const unit = {
+    id: 'captain-' + kind,
+    hp: 1,
+    maxHp: 1,
+    henchmanType: kind,
+    henchmanName: name,
+  }
+  assert.deepEqual(
+    crewCaptainArtReceipt(unit),
+    CREW_TELL_ART[kind].beats.captain,
+  )
+  assert.equal(crewCaptainArtReceipt(unit)?.jobId, jobId)
+  assert.equal(crewUnitArtReceipt(unit)?.imageId, imageId)
+  assert.equal(
+    crewCombatReceipt(unit)?.imageId,
+    imageId,
+    'the captain closeup appears at rest',
+  )
+  assert.equal(
+    crewCombatReceipt(unit, { attacker: unit.id })?.imageId,
+    CREW_COMBAT_ART[kind].strike.imageId,
+  )
+  assert.equal(
+    crewCombatReceipt(unit, { target: unit.id, hit: true })?.imageId,
+    CREW_COMBAT_ART[kind].hit.imageId,
+  )
+  assert.equal(
+    crewCombatReceipt({ ...unit, hp: 0 })?.imageId,
+    CREW_COMBAT_ART[kind].defeat.imageId,
+  )
+  assert.equal(
+    crewCaptainArtReceipt({ ...unit, henchmanName: 'Impostor' }),
+    null,
+  )
+  assert.equal(crewCaptainArtReceipt({ ...unit, maxHp: 4 }), null)
+  assert.equal(
+    crewCaptainArtReceipt({ ...unit, lieutenantName: 'Named elite' }),
+    null,
+  )
+  assert.equal(
+    crewUnitArtReceipt({ ...unit, henchmanName: 'One-hit minion' })?.imageId,
+    CREW_TELL_ART[kind].beats.action.imageId,
+    'minions keep the crew action art, not their captain face',
+  )
+}
+// Proof against the real authored stage units, not only synthetic fixtures:
+// each mission's actual captain must carry the intended commissioned plate.
+for (const [stageId, kind] of crewStages) {
+  const captainCase = originalCaptains.find(([type]) => type === kind)
+  assert.ok(captainCase, stageId + ' has a known painted captain type')
+  const [, name, , expectedImageId] = captainCase!
+  const battle = trainingState(11, clonePreset(stageId))
+  const actual = battle.units.filter(
+    (unit) => unit.henchmanType === kind && unit.henchmanName === name,
+  )
+  assert.equal(actual.length, 1, stageId + ' seeds its named captain')
+  assert.equal(
+    crewCombatReceipt(actual[0]!)?.imageId,
+    expectedImageId,
+    stageId + ' attaches the captain closeup to the real battle unit',
+  )
+}
+
+assert.equal(
+  crewCaptainArtReceipt({
+    henchmanType: '__proto__',
+    henchmanName: 'Foreman Thumpkin',
+    maxHp: 1,
+  }),
+  null,
+)
+
 assert.equal(crewTellReceipt(null, 'warning'), null)
 for (const unknown of ['other', 'prototype', '__proto__', 'constructor', '']) {
   assert.equal(isCrewTellKind(unknown), false)
@@ -566,8 +647,13 @@ for (const kind of kinds) {
   }
 }
 assert.match(page, /data-testid="tactics-crew-art-gallery"/)
-assert.match(page, /data-testid="tactics-crew-art-loaded"/)
-assert.match(page, /data-testid="tactics-crew-art-unavailable"/)
+assert.match(page, /data-testid="tactics-crew-counterplay-strip"/)
+assert.match(page, /data-testid="tactics-crew-beat-loaded"/)
+assert.match(page, /v-for="beat in CREW_TELL_BEATS"/)
+assert.match(page, /:data-art-image-id="crewBeatImageId\(beat\)"/)
+assert.match(page, /crewBeatImage\(beat\)/)
+assert.match(page, /crewBeatTitle\(beat\)/)
+assert.match(page, /void paintedArt\.retry\(crewBeatImageId\(beat\)\)/)
 assert.match(page, /data-testid="tactics-painted-burrow-warning"/)
 assert.match(page, /data-testid="tactics-painted-phase-warning"/)
 assert.match(page, /crewWarningImage\('burrow'\)/)
@@ -578,9 +664,50 @@ assert.match(
   page,
   /paintedArt\.ensure\(CREW_TELL_ART\[kind\]\.beats\.action\.imageId\)/,
 )
+assert.match(
+  page,
+  /paintedArt\.ensure\(CREW_TELL_ART\[kind\]\.beats\.captain\.imageId\)/,
+)
 
-assert.match(page, /paintedArt\.ensure\(id \?\? null\)/)
-assert.match(page, /unit\.hp > 0 && isCrewTellKind\(unit\.henchmanType\)/)
+assert.match(
+  page,
+  /paintedArt\.ensure\(crewTellReceipt\(kind, beat\)\?\.imageId \?\? null\)/,
+)
+assert.match(page, /if \(isCrewTellKind\(unit\.henchmanType\)\)/)
+assert.doesNotMatch(page, /unit\.hp > 0 && isCrewTellKind/)
+assert.match(page, /v-if="encounteredCrewKinds\.length"/)
+assert.match(page, /const encounteredCrewKinds = computed/)
+assert.match(page, /data-testid="tactics-crew-view-counterplay"/)
+assert.match(page, /data-testid="tactics-crew-view-combat"/)
+assert.match(page, /data-testid="tactics-crew-combat-strip"/)
+assert.match(page, /data-testid="tactics-crew-pose-loaded"/)
+assert.match(page, /v-for="pose in CREW_COMBAT_POSES"/)
+assert.match(page, /:data-art-image-id="crewPoseImageId\(pose\)"/)
+assert.match(page, /CREW_COMBAT_ART\[galleryCrew\.value\]\[pose\]\.imageId/)
+assert.match(page, /paintedArt\.images\[id\]\?\.src/)
+assert.match(page, /void paintedArt\.retry\(crewPoseImageId\(pose\)\)/)
+
+const paintedLoader = readFileSync(
+  new URL('../../stores/everyVillainTacticsArtStore.ts', import.meta.url),
+  'utf8',
+)
+// Keep private-media failures recoverable without leaking JWTs into URLs or
+// retrying permanent auth denials. The rail must not claim loading as delivery.
+assert.match(paintedLoader, /RETRYABLE_MEDIA_STATUSES/)
+assert.match(paintedLoader, /429, 500, 502, 503, 504/)
+assert.match(
+  paintedLoader,
+  /!RETRYABLE_MEDIA_STATUSES\.has\(response\.status\)/,
+)
+assert.match(paintedLoader, /requestGeneration !== generation/)
+assert.match(paintedLoader, /blob\.size < 24/)
+assert.match(paintedLoader, /await image\.decode\(\)/)
+assert.match(paintedLoader, /image\.naturalWidth <= 0/)
+assert.match(paintedLoader, /URL\.revokeObjectURL\(src\)/)
+assert.match(paintedLoader, /async function retry\(id: number \| null\)/)
+assert.match(paintedLoader, /Authorization: `Bearer \$\{token\}`/)
+assert.match(page, /Private art unavailable/)
+assert.match(page, /RETRY ART/)
 
 assert.match(page, /data-testid="tactics-one-hit"/)
 assert.match(page, /henchmanTell\(/)
@@ -593,6 +720,13 @@ console.log(
     JSON.stringify(tally) +
     ').',
 )
+
+const galleryPoseImageIds = new Set(
+  (['burrow', 'phase', 'windup'] as const).flatMap((kind) =>
+    CREW_COMBAT_POSES.map((pose) => CREW_COMBAT_ART[kind][pose].imageId),
+  ),
+)
+assert.equal(galleryPoseImageIds.size, 12)
 
 const combatGroups = [
   ['burrow', 76658, 278823],

@@ -46,7 +46,6 @@
           aria-label="Filter by role"
         >
           <option value="all">Every role</option>
-          <option value="romance">Romanceable with your hero</option>
           <option v-for="r in roles" :key="r.id" :value="r.id">
             {{ r.label }}
           </option>
@@ -82,20 +81,28 @@
     </div>
 
     <aside class="dh-builder-detail kr-pane-scroll" aria-label="Delver details">
-      <div class="flex gap-3">
+      <div class="dh-detail-hero">
         <DeepheartPortrait
           :id="focused.id"
           :name="focused.id === CUSTOM_HERO_ID ? dh.hero.name : undefined"
           :custom-role="dh.hero.custom?.role"
           size="lg"
-          class="w-28 shrink-0"
+          class="dh-detail-portrait"
         />
-        <div class="min-w-0">
+        <div class="dh-detail-identity">
           <h2 class="pf-display text-xl leading-tight text-primary">
             {{ focused.name }}
           </h2>
-          <p class="text-sm opacity-80">{{ role.label }} · {{ pronoun }}</p>
-          <p class="pk-prose mt-1 text-sm">{{ focused.blurb }}</p>
+          <p class="text-sm">{{ role.label }} · {{ pronoun }}</p>
+          <p
+            v-if="
+              focused.id === CUSTOM_HERO_ID ||
+              dh.chronicle.met.includes(focused.id)
+            "
+            class="pk-prose mt-1 line-clamp-2 text-xs"
+          >
+            {{ focused.blurb }}
+          </p>
         </div>
       </div>
 
@@ -118,19 +125,26 @@
         <p class="opacity-80">{{ role.perk }}</p>
       </div>
 
-      <div v-if="focused.id !== CUSTOM_HERO_ID" class="flex flex-wrap gap-1">
+      <div
+        v-if="knownLikes.length || knownDislike"
+        class="flex flex-wrap gap-1"
+      >
         <span
-          v-for="v in focused.likes"
+          v-for="v in knownLikes"
           :key="v"
           class="badge badge-accent badge-sm"
           >Likes {{ VALUE_LABEL[v] }}</span
         >
-        <span class="badge badge-error badge-sm"
-          >Dislikes {{ VALUE_LABEL[focused.dislikes] }}</span
+        <span v-if="knownDislike" class="badge badge-error badge-sm"
+          >Dislikes {{ VALUE_LABEL[knownDislike] }}</span
         >
       </div>
 
-      <p v-if="dh.romanceOn" class="text-sm" data-testid="dh-romance-note">
+      <p
+        v-if="dh.romanceOn && knownRomance"
+        class="text-sm"
+        data-testid="dh-romance-note"
+      >
         <Icon name="kind-icon:heart" class="size-4 text-secondary" />
         {{ romanceNote }}
       </p>
@@ -159,7 +173,7 @@
             @input="dh.setHeroName(($event.target as HTMLInputElement).value)"
           />
         </label>
-        <fieldset>
+        <fieldset v-if="dh.hero.custom">
           <legend class="text-xs">Identity</legend>
           <div class="flex flex-wrap gap-1">
             <button
@@ -179,7 +193,7 @@
             </button>
           </div>
         </fieldset>
-        <fieldset v-if="dh.romanceOn">
+        <fieldset v-if="dh.romanceOn && dh.hero.custom">
           <legend class="text-xs">Drawn to</legend>
           <div class="flex flex-wrap gap-1">
             <button
@@ -320,7 +334,8 @@
             size="sm"
             caption
             :badge="
-              dh.builderRomances.includes(dh.companions[i - 1]!) && dh.romanceOn
+              dh.romanceOn &&
+              dh.chronicle.romances.includes(dh.companions[i - 1]!)
                 ? '♥'
                 : ''
             "
@@ -339,18 +354,12 @@
             >{{ s.name }}</span
           >
           <span
-            v-for="s in dh.builderSupports"
+            v-for="s in knownBuilderSupports"
             :key="s.name"
             class="badge badge-accent badge-sm"
             :title="s.scene"
             >{{ s.name }}</span
           >
-          <span
-            v-if="!dh.builderSynergies.length && !dh.builderSupports.length"
-            class="text-xs opacity-60"
-          >
-            Combine roles and old friends to switch on synergies.
-          </span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <span
@@ -370,8 +379,12 @@
               )
             "
           >
-            <option v-for="(label, g) in GOAL_LABEL" :key="g" :value="g">
-              {{ label }}
+            <option
+              v-for="goal in availableGoals"
+              :key="goal[0]"
+              :value="goal[0]"
+            >
+              {{ goal[1] }}
             </option>
           </select>
           <button
@@ -484,17 +497,23 @@ const STAT_MAX: Record<StatKey, number> = {
 }
 
 const roles = Object.values(ROLES)
+const availableGoals = computed(() =>
+  Object.entries(GOAL_LABEL).filter(
+    ([id]) => id !== 'romance' || dh.chronicle.romances.length > 0,
+  ),
+)
 
 const shown = computed(() =>
   CHARACTERS.filter((c) => {
     if (dh.roleFilter === 'all') return true
-    if (dh.roleFilter === 'romance')
-      return (
-        c.id !== dh.hero.presetId &&
-        canRomance(dh.hero, c.id, [...dh.companions, c.id])
-      )
     return c.role === dh.roleFilter
   }),
+)
+
+const knownBuilderSupports = computed(() =>
+  dh.builderSupports.filter((support) =>
+    dh.chronicle.supports.includes([support.a, support.b].sort().join('+')),
+  ),
 )
 
 const focused = computed(() =>
@@ -511,6 +530,25 @@ const focused = computed(() =>
         likes: [],
       }
     : character(dh.focus),
+)
+const knownLikes = computed(() =>
+  focused.value.id === CUSTOM_HERO_ID
+    ? []
+    : focused.value.likes.filter((value) =>
+        dh.chronicle.values[focused.value.id]?.includes(value),
+      ),
+)
+const knownDislike = computed(() => {
+  if (focused.value.id === CUSTOM_HERO_ID) return null
+  const dislike = focused.value.dislikes
+  return dh.chronicle.values[focused.value.id]?.includes(dislike)
+    ? dislike
+    : null
+})
+const knownRomance = computed(
+  () =>
+    focused.value.id !== CUSTOM_HERO_ID &&
+    dh.chronicle.romances.includes(focused.value.id),
 )
 const role = computed(() => ROLES[focused.value.role])
 const pronoun = computed(
@@ -553,7 +591,11 @@ const romanceNote = computed(() => {
 const focusSupports = computed(() =>
   dh.focus === CUSTOM_HERO_ID
     ? []
-    : SUPPORTS.filter((s) => s.a === dh.focus || s.b === dh.focus),
+    : SUPPORTS.filter(
+        (s) =>
+          (s.a === dh.focus || s.b === dh.focus) &&
+          dh.chronicle.supports.includes([s.a, s.b].sort().join('+')),
+      ),
 )
 
 function otherName(s: Support) {
@@ -643,6 +685,29 @@ function pick(id: string) {
     color-mix(in oklch, var(--color-base-content) 12%, transparent);
   background: color-mix(in oklch, var(--color-base-200) 85%, transparent);
   padding: 0.85rem;
+}
+.dh-detail-hero {
+  position: relative;
+  flex: 0 0 auto;
+  height: clamp(10rem, 27vh, 17rem);
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-box);
+}
+.dh-detail-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.dh-detail-identity {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 3.5rem 0.8rem 0.8rem;
+  background: linear-gradient(transparent, rgb(0 0 0 / 0.92) 70%);
+  color: white;
 }
 .dh-stats {
   display: grid;

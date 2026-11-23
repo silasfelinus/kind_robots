@@ -17,6 +17,7 @@ const classic = read(
 )
 const fishingStore = read('stores/rulerHookedStore.ts')
 const court = read('components/ruler-hooked/ruler-hooked-court-screen.vue')
+const tutorial = read('components/ruler-hooked/ruler-hooked-tutorial.vue')
 
 assert.match(
   route,
@@ -112,6 +113,11 @@ assert.match(
   /\{\{ rulerLabel \}\}/,
   'the ruler identity persists in written records',
 )
+
+assert.match(court, /characterCandidates\(presenter\.slug, presenterMood\)/)
+assert.match(court, /lastDecreeMood\.value = choice\?\.reactionMood/)
+assert.match(tutorial, /characterCandidates\(ADVISOR_CHARACTER_SLUG, mood\)/)
+assert.match(game, /:mood="store\.advisorLine\?\.mood/)
 
 // The illustrated Court presenter must never be obscured by a tall health
 // panel beneath the title. On full-width consoles the four kingdom meters

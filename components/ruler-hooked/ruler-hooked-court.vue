@@ -26,7 +26,7 @@
           <RulerHookedArt
             v-if="presenter"
             class="rh-edict__avatar"
-            :candidates="characterCandidates(presenter)"
+            :candidates="characterCandidates(presenter, 'neutral')"
             :initial="by.charAt(0)"
             position="center 20%"
           />

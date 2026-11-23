@@ -207,6 +207,8 @@ const gallery = readFileSync(
   'utf8',
 )
 assert.match(gallery, /data-testid="capes-production-gallery"/)
+assert.match(gallery, /CAPES_PRODUCTION_IDENTITIES\.length/)
+assert.match(gallery, /CAPES_REVIEWABLE_PRODUCTION\.length/)
 assert.match(gallery, /capesProductionFor\(selected\.value\)/)
 assert.match(gallery, /loadProductionImages\(signature\)/)
 assert.match(gallery, /productionImageFor\(item\.artImageId\)/)

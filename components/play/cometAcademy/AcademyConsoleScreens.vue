@@ -514,6 +514,9 @@
         </p>
       </article>
       <article class="acs-panel">
+        <AcademySoundMixer />
+      </article>
+      <article class="acs-panel">
         <h3>Text speed</h3>
         <div class="acs-segment" role="radiogroup" aria-label="Text speed">
           <button
@@ -662,6 +665,7 @@
 
 <script setup lang="ts">
 import AcademyTermArchive from '~/components/play/cometAcademy/AcademyTermArchive.vue'
+import AcademySoundMixer from '~/components/play/cometAcademy/AcademySoundMixer.vue'
 import { computed, ref, watch } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
 import { promArt } from '~/utils/cometAcademy/artManifest'

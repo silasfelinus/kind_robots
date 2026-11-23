@@ -48,6 +48,7 @@ import {
 } from '../deepheart/party'
 import { ANTHRO_BLURB, ANTHRO_LOOK } from '../deepheart/anthro'
 import { CHARACTERS, ROLES, SUPPORTS, character } from '../deepheart/roster'
+import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
 import {
   DEEPHEART_APPROVED_ART_MODELS,
   DEEPHEART_STYLE_DESIGNER,
@@ -127,6 +128,27 @@ for (const s of SUPPORTS) {
   character(s.b)
 }
 
+// ── Delivered-art registry contract ──────────────────────────────────────
+assert.ok(
+  CHARACTERS.every((c) => deepheartArtSrc(`cast:${c.id}`)),
+  'every preset has a mapped approved animal-folk portrait',
+)
+assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
+assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
+assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')
+assert.ok(
+  Object.keys(DEEPHEART_ART_IDS).filter((key) =>
+    key.startsWith('moment:romance-'),
+  ).length >= 40,
+  'normal romance art is mapped',
+)
+assert.ok(
+  Object.keys(DEEPHEART_ART_IDS).every(
+    (key) => !key.includes('private-romance') && !key.includes('after-hours'),
+  ),
+  'private mature art is never part of the normal art registry',
+)
+
 // ── Party rules ──────────────────────────────────────────────────────────
 assert.ok(
   canRomance(hero('corso'), 'idris', ['idris']),
@@ -188,6 +210,74 @@ assert.ok(
     canRomance(hero('idris'), id, romantic.companions),
   ),
   'the romance goal finds a possible romance',
+)
+
+// ── Player-earned relationship knowledge must govern party-planner hints ─
+const undiscovered = { supports: [], romances: [], values: {} }
+const hiddenScore = scoreParty(
+  hero('corso'),
+  ['idris'],
+  'balanced',
+  undiscovered,
+)
+assert.ok(
+  !hiddenScore.lines.some(
+    (line) => line.label === 'Old Flame' || /possible romance/.test(line.label),
+  ),
+  'the optimizer must not spoil old relationships or compatibility',
+)
+const discoveredScore = scoreParty(hero('corso'), ['idris'], 'balanced', {
+  supports: ['corso+idris'],
+  romances: ['idris'],
+  values: {},
+})
+assert.ok(
+  discoveredScore.lines.some((line) => line.label === 'Old Flame'),
+  'a support scene should unlock the corresponding planner bonus',
+)
+assert.ok(
+  discoveredScore.lines.some((line) => /possible romance/.test(line.label)),
+  'a completed romance can be used for future party planning',
+)
+assert.ok(
+  discoveredScore.total > hiddenScore.total,
+  'earned knowledge changes recommendations, without changing combat rules',
+)
+assert.ok(
+  optimizeParty(hero('corso'), 'balanced', 3, [1, 2], undiscovered).every(
+    (party) =>
+      party.lines.every(
+        (line) =>
+          !SUPPORTS.some((support) => support.name === line.label) &&
+          !/possible romance/.test(line.label),
+      ),
+  ),
+  'optimizer suggestions must respect the same discovery barrier',
+)
+const discoveredChronicle = decodeChronicle(
+  JSON.stringify({
+    ...emptyChronicle(),
+    supports: ['corso+idris'],
+    romances: ['idris'],
+    values: { idris: ['kind'] },
+  }),
+)
+assert.deepEqual(discoveredChronicle?.values.idris, ['kind'])
+assert.deepEqual(discoveredChronicle?.romances, ['idris'])
+const romanceScene = DEEPHEART.moments.find(
+  (moment) => moment.id === romanceMoment('idris'),
+)
+assert.ok(
+  romanceScene?.art.src,
+  'a romance unlock must have its actual painted scene for the delve',
+)
+const oldFlameMoment = DEEPHEART.moments.find(
+  (moment) => moment.id === SUPPORT_MOMENTS['corso+idris'],
+)
+assert.deepEqual(
+  [...(oldFlameMoment?.about ?? [])].sort(),
+  ['corso', 'idris'],
+  'the support moment must name both companions for illustrated fallback',
 )
 
 // ── Original delvers and meaningful party ability checks ────────────────

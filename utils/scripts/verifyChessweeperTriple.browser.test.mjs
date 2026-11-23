@@ -86,10 +86,11 @@ try {
   for (const width of [390, 768, 1440]) {
     const { page, submissions, authorizations, scoreQueries } =
       await openAt(width)
-    const bracket = width === 390 ? 'easy' :
-      width === 768 ? 'hard' : 'medium'
-    const slug = bracket === 'medium' ? 'chessweeper-triple' :
-      'chessweeper-triple-' + bracket
+    const bracket = width === 390 ? 'easy' : width === 768 ? 'hard' : 'medium'
+    const slug =
+      bracket === 'medium'
+        ? 'chessweeper-triple'
+        : 'chessweeper-triple-' + bracket
     const expected = {
       easy: { hearts: 5, mineCount: 6, discCount: 2, cpuChoices: 7 },
       medium: { hearts: 3, mineCount: 10, discCount: 3, cpuChoices: 3 },
@@ -133,8 +134,11 @@ try {
     await screenshot(page, 'triple-' + width + '-intro')
     await page.selectOption('#duration', '120')
     await page.selectOption('#difficulty', bracket)
-    assert.match(await page.locator('#difficulty-hint').innerText(),
-      new RegExp(bracket, 'i'), 'difficulty hint is reactive')
+    assert.match(
+      await page.locator('#difficulty-hint').innerText(),
+      new RegExp(bracket, 'i'),
+      'difficulty hint is reactive',
+    )
     await page.click('#start')
     assert.equal(
       await page.locator('#dialog').isVisible(),
@@ -194,16 +198,19 @@ try {
     )
     assert.equal(await page.locator('#score-difficulty').inputValue(), bracket)
     await page.locator('#score-rows').getByText(/AAA/).waitFor()
-    assert.ok(scoreQueries.some((q) => q.endsWith('/' + slug)),
-      'each difficulty reads its own global leaderboard')
+    assert.ok(
+      scoreQueries.some((q) => q.endsWith('/' + slug)),
+      'each difficulty reads its own global leaderboard',
+    )
     const catResponse = page.waitForResponse((response) =>
       response.url().includes('/chessweeper-triple-catastrophic?range=all'),
     )
     await page.selectOption('#score-difficulty', 'catastrophic')
     await catResponse
-    assert.ok(scoreQueries.some((q) =>
-      q.endsWith('/chessweeper-triple-catastrophic')),
-      'catastrophic has its own global leaderboard')
+    assert.ok(
+      scoreQueries.some((q) => q.endsWith('/chessweeper-triple-catastrophic')),
+      'catastrophic has its own global leaderboard',
+    )
     await page.selectOption('#score-difficulty', bracket)
     await page.locator('#score-rows').getByText(/AAA/).waitFor()
     assert.match(await page.locator('#score-rows').innerText(), /AAA/)
@@ -253,11 +260,16 @@ try {
   assert.equal(cata.discCount, 6)
   assert.equal(cata.cpuChoices, 1)
   assert.ok(cata.discSpeed > 1.5)
-  assert.match(await catastrophe.locator('#difficulty-badge').innerText(), /CATA/)
+  assert.match(
+    await catastrophe.locator('#difficulty-badge').innerText(),
+    /CATA/,
+  )
   await screenshot(catastrophe, 'triple-1440-catastrophic')
   await catastrophe.close()
   assert.deepEqual(errors, [], 'no browser exceptions')
-  console.log('[triple] four difficulties, ranked brackets and 3 viewports passed')
+  console.log(
+    '[triple] four difficulties, ranked brackets and 3 viewports passed',
+  )
 } finally {
   await browser.close()
   await server.close()

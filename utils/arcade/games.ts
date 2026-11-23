@@ -911,7 +911,8 @@ export const UNLISTED_SCORED_GAMES: ArcadeGameMeta[] = [
     riffsOn: 'Chess, Minesweeper and disc-room survival',
     blurb:
       'A separate global high-score bracket for Triple Threat ' +
-      difficulty + ' runs; all brackets use the same 120-second ranked clock.',
+      difficulty +
+      ' runs; all brackets use the same 120-second ranked clock.',
     howTo: [
       'PLAY THREE GAMES SIMULTANEOUSLY',
       '120 SECOND RANKED STANDARD',

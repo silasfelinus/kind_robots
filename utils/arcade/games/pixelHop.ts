@@ -2933,7 +2933,7 @@ class PixelHop implements ArcadeGameInstance {
         W - 79,
         H - 15,
         {
-        color: RAMPS.ember[3],
+          color: RAMPS.ember[3],
           outline: INK,
         },
       )

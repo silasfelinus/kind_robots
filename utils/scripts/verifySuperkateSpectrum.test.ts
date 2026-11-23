@@ -26,6 +26,7 @@ import {
 } from '../arcade/superkateSpectrum/progress'
 import { create } from '../arcade/games/superkateSpectrum'
 import {
+  SPECTRUM_BOSS_MUSIC,
   SPECTRUM_CLASSIC_MUSIC,
   SPECTRUM_MENU_MUSIC,
   SPECTRUM_THEMES,
@@ -342,8 +343,31 @@ assert.equal(deepClassic.level, 35)
 assert.ok(deepClassic.message.includes('CLASSIC'), 'Endless Classic has no chapter limit')
 
 assert.equal(SPECTRUM_THEMES.length, 6)
+assert.equal(SPECTRUM_BOSS_MUSIC.length, 6)
 assert.equal(SPECTRUM_CLASSIC_MUSIC.tracks.length, 3)
-for (const theme of [...SPECTRUM_THEMES, SPECTRUM_CLASSIC_MUSIC]) {
+for (let i = 0; i < 6; i++) {
+  assert.ok(SPECTRUM_BOSS_MUSIC[i]!.bpm > SPECTRUM_THEMES[i]!.bpm)
+  assert.ok(
+    SPECTRUM_BOSS_MUSIC[i]!.tracks.length >
+      SPECTRUM_THEMES[i]!.tracks.length,
+  )
+}
+const stageFiveSave = readSpectrumSave({
+  ...cloudB,
+  career: { ...cloudB.career, highestStage: 5 },
+  stage: 5,
+})
+const finale = create({
+  ...options,
+  resume: stageFiveSave,
+} as Parameters<typeof create>[0])
+finale.update(start)
+assert.equal(finale.music, SPECTRUM_BOSS_MUSIC[0])
+for (const theme of [
+  ...SPECTRUM_THEMES,
+  ...SPECTRUM_BOSS_MUSIC,
+  SPECTRUM_CLASSIC_MUSIC,
+]) {
   assert.ok(theme.bpm >= 80 && theme.bpm <= 160)
   assert.ok(theme.tracks.length >= 2)
 }

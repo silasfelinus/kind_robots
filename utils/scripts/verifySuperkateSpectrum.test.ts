@@ -110,17 +110,17 @@ const resumed = create({
   },
 } as Parameters<typeof create>[0])
 assert.equal(resumed.level, 12)
-assert.equal(resumed.save.career.highestStage, 12)
-assert.equal(resumed.save.career.xp, 9000)
+assert.equal(readSpectrumSave(resumed.save).career.highestStage, 12)
+assert.equal(readSpectrumSave(resumed.save).career.xp, 9000)
 const swapSkin = emptyInput()
 swapSkin.pressed.b = true
 resumed.update(swapSkin)
-assert.equal(resumed.save.style, 'candy')
+assert.equal(readSpectrumSave(resumed.save).style, 'candy')
 const refreshed = create({
   ...options,
   resume: resumed.save,
 } as Parameters<typeof create>[0])
-assert.equal(refreshed.save.style, 'candy')
+assert.equal(readSpectrumSave(refreshed.save).style, 'candy')
 assert.equal(rankForXp(0), 1)
 assert.ok(rankForXp(9000) > rankForXp(100))
 assert.equal(styleForRank(1), 'glass')
@@ -186,12 +186,12 @@ const classic = create({
   },
 } as Parameters<typeof create>[0])
 assert.equal(classic.level, 1)
-assert.equal(classic.save.career.xp, replay.xp)
+assert.equal(readSpectrumSave(classic.save).career.xp, replay.xp)
 const start = emptyInput()
 start.pressed.a = true
 classic.update(start)
 assert.equal(classic.menuOpen, false)
-assert.equal(classic.save.mode, 'classic')
-assert.equal(classic.save.career.highestStage, replay.highestStage)
+assert.equal(readSpectrumSave(classic.save).mode, 'classic')
+assert.equal(readSpectrumSave(classic.save).career.highestStage, replay.highestStage)
 assert.equal(classic.over, false)
 console.log('Superkate Spectrum: board, powers, career, Classic and save checks passed')

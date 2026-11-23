@@ -151,6 +151,124 @@
     return tier * LEVELS_PER_REGION + n
   }
 
+  // Each world has four drawn set pieces. The three regional chapters turn
+  // the first three designs through quarter turns; the finale has its own board.
+  // . = jewel, # = gap, g = gloom, t = tangle, h/v = comb, b = bomb.
+  const SET_PIECES = {
+    paradise: [
+      ['.g.g.', 'g...g', '..h..', 'g...g', '.g.g.'],
+      ['g...g', '.t.t.', '..b..', '.t.t.', 'g...g'],
+      ['..g..', '.ggg.', 'g.h.g', '.t.t.', '..g..'],
+      ['.g.g.', 'gg.gg', 'g.b.g', '.ggg.', '..v..'],
+    ],
+    clanktown: [
+      ['g.g.g', '.t.t.', '..v..', '.t.t.', 'g.g.g'],
+      ['g...g', 'g.#.g', 'g.b.g', 'g.#.g', 'g...g'],
+      ['t.g.t', '.g.g.', 'g.h.g', '.g.g.', 't.g.t'],
+      ['gg.gg', 'g.t.g', 't.b.t', 'g.t.g', 'gg.gg'],
+    ],
+    rosewood: [
+      ['g...g', '.g.g.', '..h..', '.g.g.', 'g...g'],
+      ['.g.g.', 'g.t.g', '.tbt.', 'g.t.g', '.g.g.'],
+      ['g.g.g', '.#.#.', '..v..', '.g.g.', 'g.t.g'],
+      ['g.g.g', 'gg.gg', 'g.b.g', '.t.t.', '..h..'],
+    ],
+    corsair: [
+      ['..g..', '.g.g.', 'g.v.g', '.g.g.', '..g..'],
+      ['g...g', '.g.g.', 't.b.t', '.g.g.', 'g...g'],
+      ['g.#.g', '.g.g.', 'g.h.g', '.t.t.', 'g...g'],
+      ['g.g.g', '.ggg.', 'g.b.g', '.ggg.', 'g.v.g'],
+    ],
+    sketchbook: [
+      ['ggg..', 'g.h..', 'g....', '..g.g', '..ggg'],
+      ['..ggg', '..g.g', '..b.g', 't....', 'ttt..'],
+      ['g...g', '.g.g.', '..h..', '.t.t.', 'g...g'],
+      ['ggg.g', 'g...g', 'g.b.g', 'g...g', 'g.ggg'],
+    ],
+    wildflower: [
+      ['..g..', 'g...g', '.ghg.', 'g...g', '..g..'],
+      ['.t.t.', 'g.g.g', '..b..', 'g.g.g', '.t.t.'],
+      ['g.g.g', '.g.g.', 't.v.t', '.g.g.', 'g.g.g'],
+      ['..g..', '.ggg.', 'ggbgg', '.ggg.', '..h..'],
+    ],
+    circus: [
+      ['g...g', '.....', '.ghg.', '.....', 'g...g'],
+      ['.g.g.', 't...t', 'g.b.g', 't...t', '.g.g.'],
+      ['g.g.g', 'g.#.g', '..h..', 'g.#.g', 'g.g.g'],
+      ['g.g.g', 'gg.gg', 't.b.t', 'gg.gg', 'g.v.g'],
+    ],
+    dustneon: [
+      ['g.g.g', '.....', '..v..', '.....', 'g.g.g'],
+      ['gg..g', '.t.t.', '..b..', '.t.t.', 'g..gg'],
+      ['g...g', 'g.#.g', 'g.h.g', 'g.#.g', 'g...g'],
+      ['gg.gg', '.ggg.', 'g.b.g', '.t.t.', 'ggvgg'],
+    ],
+    lagoon: [
+      ['..g..', '.g.g.', 'g.h.g', '.....', 'g.g.g'],
+      ['g.g.g', 'g...g', 't.b.t', 'g...g', 'g.g.g'],
+      ['g...g', '.t.t.', '..v..', '.g.g.', 'g...g'],
+      ['g.g.g', '.ggg.', 'g.b.g', '.ggg.', 'g.h.g'],
+    ],
+  }
+
+  function authoredLevel(def, region) {
+    const index = def.finale ? 3 : [6, 12, 18].indexOf(def.n)
+    const design = SET_PIECES[region.world]?.[index]
+    if (!design) return def
+
+    const mask = grid(def.rows, def.cols, () => true)
+    const gloom = grid(def.rows, def.cols, () => false)
+    const tangles = []
+    const startingSpecials = []
+    const offset = Math.floor((def.rows - 5) / 2)
+    let gloomCells = 0
+    for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < 5; c++) {
+        let rr = r
+        let cc = c
+        for (let turn = 0; turn < region.tier; turn++)
+          [rr, cc] = [cc, 4 - rr]
+        rr += offset
+        cc += offset
+        const symbol = design[r][c]
+        if (symbol === '#') mask[rr][cc] = 0
+        if (symbol === 'g') {
+          gloom[rr][cc] = 1
+          gloomCells++
+        }
+        if (symbol === 't') tangles.push([rr, cc, region.tier === 2 ? 2 : 1])
+        if (['h', 'v', 'b'].includes(symbol)) {
+          const special =
+            symbol === 'b'
+              ? 'bomb'
+              : region.tier % 2
+                ? symbol === 'h' ? 'v' : 'h'
+                : symbol
+          startingSpecials.push([rr, cc, special])
+        }
+      }
+    }
+    const goals = [{ type: 'gloom', target: gloomCells }]
+    if (tangles.length) goals.push({ type: 'tangle', target: tangles.length })
+    if (def.finale) goals.push({ type: 'buddy', target: 3 })
+    else if (index === 1) goals.push({ type: 'collect', color: 0, target: 14 })
+    for (const goal of def.goals)
+      if (goal.type === 'special' || goal.type === 'combo') goals.push(goal)
+
+    return {
+      ...def,
+      authored: true,
+      shape: 'set-piece',
+      mask,
+      gloom,
+      tangles,
+      startingSpecials,
+      goals,
+      moves: Math.min(50, Math.max(def.moves, 32 + region.tier * 5)),
+      buddiesAtStart: def.finale ? 1 : 0,
+    }
+  }
+
   function buildLevel(regionId, n) {
     const region = REGIONS[regionId]
     if (!region) throw new Error('unknown region ' + regionId)
@@ -297,7 +415,7 @@
 
     const beat = (STORY_BEATS[regionId] || []).find((b) => b.at === n) || null
 
-    return {
+    return authoredLevel({
       id,
       region: regionId,
       n,
@@ -317,7 +435,7 @@
       finale,
       regionFinale,
       beat,
-    }
+    }, region)
   }
 
   function lineOf(regionId) {

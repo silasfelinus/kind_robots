@@ -154,6 +154,25 @@ const GLACIER_SCHEMES: readonly Scheme[] = [
   },
 ]
 
+const CLOCKWORK_SCHEMES: readonly Scheme[] = [
+  {
+    id: 'clockwork-brass',
+    left: '#713f12',
+    right: '#422006',
+    start: '#fbbf24',
+    mid: '#f97316',
+    target: '#67e8f9',
+  },
+  {
+    id: 'clockwork-copper',
+    left: '#9a3412',
+    right: '#431407',
+    start: '#fdba74',
+    mid: '#fef08a',
+    target: '#c4b5fd',
+  },
+]
+
 const bars = (...b: string[]) => b.join(' ')
 
 /** Candy Comet: a skippy major-key bounce in C, gumdrop plinks on top. */
@@ -359,6 +378,20 @@ export const PLANETS: readonly Planet[] = [
     orb: { body: '#bae6fd', ring: '#c4b5fd' },
     music: GLACIER_MUSIC,
   },
+  {
+    id: 'clockwork-planet',
+    name: 'CLOCKWORK PLANET',
+    short: 'CLOCK',
+    card: [
+      'THE CLOCK NEVER STOPS',
+      'CONVEYORS CARRY YOU',
+      'PAINT TWICE, WATCH THE FLIP',
+    ],
+    schemes: CLOCKWORK_SCHEMES,
+    sky: 'ring',
+    orb: { body: '#fbbf24', ring: '#94a3b8' },
+    music: RONDO_MUSIC,
+  },
 ]
 
 /** All six planets on the map; the ones still being painted show as question marks. */
@@ -451,6 +484,20 @@ const THICK_RING = withDiscs(ringBoard(5, 2), [
 const SPRING_RING = withSpecial(THICK_RING, [
   [2, 2, 'spring'],
   [6, 2, 'spring'],
+])
+
+/** Clockwork Planet's moving paths use the existing deterministic conveyor mechanic. */
+const CLOCK_TOWER = withSpecial(ringBoard(5, 2), [
+  [2, 1, 'conveyor'],
+  [4, 3, 'conveyor'],
+  [6, 3, 'conveyor'],
+])
+
+const CLOCK_GEAR = withSpecial(ringBoard(6, 2), [
+  [2, 1, 'conveyor'],
+  [4, 3, 'conveyor'],
+  [6, 4, 'conveyor'],
+  [8, 4, 'conveyor'],
 ])
 
 /** Glacier Moon: slippery banks, twin peaks and a paintable snowflake. */
@@ -676,6 +723,60 @@ export const STAGES: readonly Stage[] = [
     foes: ['snowball', 'frost', 'mint'],
     pace: 8,
     boss: 'globe',
+  },
+  {
+    planet: 3,
+    round: 1,
+    name: 'THE TICKING TOWER',
+    board: CLOCK_TOWER,
+    rule: 'one',
+    foes: ['gumball', 'skitter', 'mint'],
+    pace: 8,
+  },
+  {
+    planet: 3,
+    round: 2,
+    name: 'GEARSHIFT',
+    board: CLOCK_GEAR,
+    rule: 'both',
+    foes: ['gumball', 'purple', 'skitter'],
+    pace: 9,
+  },
+  {
+    planet: 3,
+    round: 3,
+    name: 'THE PENDULUM',
+    board: CLOCK_TOWER,
+    rule: 'both',
+    foes: ['purple', 'gremlin', 'skitter', 'mint'],
+    pace: 10,
+  },
+  {
+    planet: 3,
+    round: 4,
+    name: 'TWELVE STRIKES',
+    board: CLOCK_GEAR,
+    rule: 'both',
+    foes: ['gumball', 'purple', 'skitter', 'frost'],
+    pace: 11,
+  },
+  {
+    planet: 3,
+    round: 5,
+    name: 'THE CLOCK FACE',
+    board: CLOCK_TOWER,
+    rule: 'both',
+    foes: ['gumball', 'skitter', 'mint'],
+    pace: 11,
+  },
+  {
+    planet: 3,
+    round: 6,
+    name: 'THE GRAND GEAR',
+    board: CLOCK_GEAR,
+    rule: 'both',
+    foes: ['gumball', 'purple', 'skitter', 'gremlin'],
+    pace: 12,
   },
 ]
 

@@ -81,6 +81,13 @@ import {
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
 import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
+import type { MusicLoop } from '../sound'
+import {
+  PLUMBER_BOSS_MUSIC,
+  PLUMBER_JUMP_NOTES,
+  PLUMBER_LAND_NOTES,
+  PLUMBER_WORLD_MUSIC,
+} from './savePlumberMusic'
 import {
   PLUMBER_BOSS_FEATS,
   PLUMBER_ENDLESS_GOAL,
@@ -630,6 +637,29 @@ export class PlumberRun implements ArcadeGameInstance {
 
   get level() {
     return this.stageIndex + 1
+  }
+
+  /** Original scores follow world changes and turn urgent in boss arenas. */
+  get music(): MusicLoop | null {
+    if (
+      this.demo ||
+      this.over ||
+      !['map', 'intro', 'play', 'clear'].includes(this.mode)
+    )
+      return null
+    if (this.musicScene === 'boss') return PLUMBER_BOSS_MUSIC
+    const world = this.stage ? this.world : 1
+    return PLUMBER_WORLD_MUSIC[world - 1] ?? PLUMBER_WORLD_MUSIC[0]!
+  }
+
+  /** The cabinet owns gesture-unlock, crossfades, mute and volume. */
+  get musicScene(): 'level' | 'boss' {
+    return this.mode === 'play' &&
+      this.locked &&
+      this.boss !== null &&
+      this.boss.state !== 'defeat'
+      ? 'boss'
+      : 'level'
   }
 
   /** What the cabinet keeps: the three-slot file, or null before anything is worth keeping. */
@@ -1655,7 +1685,8 @@ export class PlumberRun implements ArcadeGameInstance {
         this.riding = null
         this.grace = 0
         this.jumpBuffer = 0
-        this.sound.play('blip')
+        if (this.sound.playNotes) this.sound.playNotes(PLUMBER_JUMP_NOTES)
+        else this.sound.play('blip')
       }
       if (hero.vy >= 0) this.sprung = false
       if (!this.stage.space && !this.jumpHeld && !this.sprung && hero.vy < -3.4)
@@ -1669,6 +1700,7 @@ export class PlumberRun implements ArcadeGameInstance {
         )
       prevBottom = hero.y + TALL
       const wasGround = this.ground
+      const landingSpeed = hero.vy
       this.ground = false
       this.riding = null
       const hit = this.heroMoveY(hero.vy)
@@ -1693,6 +1725,10 @@ export class PlumberRun implements ArcadeGameInstance {
         }
       }
       if (this.ground && !wasGround) {
+        if (landingSpeed > 2.4) {
+          if (this.sound.playNotes) this.sound.playNotes(PLUMBER_LAND_NOTES)
+          else this.sound.play('pop')
+        }
         this.landed = 6
         if (this.duckHeld) this.ducking = true
         this.airSpecial = false

@@ -4,6 +4,13 @@ import { parse } from 'yaml'
 import { resolveChannels } from '../../stores/helpers/channelContent'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import { emptyInput } from '../arcade/types'
+import { parseLoop } from '../arcade/sound'
+import {
+  PLUMBER_BOSS_MUSIC,
+  PLUMBER_JUMP_NOTES,
+  PLUMBER_LAND_NOTES,
+  PLUMBER_WORLD_MUSIC,
+} from '../arcade/games/savePlumberMusic'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
 
 const source = (path: string) =>
@@ -94,4 +101,57 @@ assert.equal(game.lives, 3)
 input.held.right = false
 for (let frame = 0; frame < 30; frame++) game.update(input)
 assert.equal(game.over, false)
+
+assert.equal(PLUMBER_WORLD_MUSIC.length, 8)
+const melodies = new Set<string>()
+for (const [index, loop] of PLUMBER_WORLD_MUSIC.entries()) {
+  const parsed = parseLoop(loop)
+  assert.equal(parsed.length, 32, `world ${index + 1} has a complete loop`)
+  assert.ok(parsed.notes.length >= 32, 'the score is not silent')
+  assert.ok(loop.tracks.every((track) => track.steps.split(' ').length === 32))
+  melodies.add(loop.tracks[0]!.steps)
+}
+assert.equal(melodies.size, 8, 'each world has its own melody')
+assert.equal(parseLoop(PLUMBER_BOSS_MUSIC).length, 32)
+assert.equal(game.music, PLUMBER_WORLD_MUSIC[0])
+assert.equal(game.musicScene, 'level')
+
+const bossRun = createSavePlumberPreview(options)
+assert.equal(bossRun.music, null, 'the title does not start a loop')
+bossRun.loadStage(3)
+bossRun.mode = 'play'
+assert.ok(bossRun.boss, '1-4 contains a boss')
+bossRun.locked = true
+assert.equal(bossRun.musicScene, 'boss')
+assert.equal(bossRun.music, PLUMBER_BOSS_MUSIC)
+bossRun.boss!.state = 'defeat'
+assert.equal(bossRun.musicScene, 'level', 'defeated bosses release tension')
+assert.equal(bossRun.music, PLUMBER_WORLD_MUSIC[0])
+bossRun.mode = 'dying'
+assert.equal(bossRun.music, null, 'death stops the running score')
+
+const actionSounds: unknown[] = []
+const actionRun = createSavePlumberPreview({
+  ...options,
+  sound: {
+    play() {},
+    playNotes(notes) {
+      actionSounds.push(notes)
+    },
+  },
+})
+actionRun.loadStage(0)
+actionRun.mode = 'play'
+for (let frame = 0; frame < 80; frame++) {
+  const keys = emptyInput()
+  keys.pressed.a = frame === 4
+  keys.held.a = frame >= 4 && frame < 20
+  actionRun.update(keys)
+}
+assert.deepEqual(
+  actionSounds,
+  [PLUMBER_JUMP_NOTES, PLUMBER_LAND_NOTES],
+  'one original synth cue plays at takeoff and at a real landing',
+)
+
 console.log('Save the Plumber public Play route and opening flow verified')

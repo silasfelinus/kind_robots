@@ -1,0 +1,44 @@
+name: Rainbow Rebel Road Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/arcade/games/rainbowRebelRoad.ts'
+      - 'utils/arcade/games/rainbowAllegiance.ts'
+      - 'utils/arcade/games/rainbowCrownReef.ts'
+      - 'utils/arcade/games/rainbowGlassCurrent.ts'
+      - 'utils/arcade/games/rainbowEclipsePalace.ts'
+      - 'utils/arcade/games/rainbowEclipseFinale.ts'
+      - 'utils/arcade/games/rainbowEclipseCrown.ts'
+      - 'utils/arcade/games/rainbowPrincessPreview.ts'
+      - 'utils/scripts/verifyRainbowRebelRoad.test.ts'
+      - 'utils/scripts/verifyRainbowMotherland.test.ts'
+      - '.github/workflows/rainbow-rebel-road.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  rebel-road:
+    name: Rebel and loyal roads through Acts VI-VIII
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Verify the Motherland turn and its saved choice
+        run: npx tsx utils/scripts/verifyRainbowMotherland.test.ts
+      - name: Verify rebel-road truces and Motherland drones, loyal road unchanged
+        run: npx tsx utils/scripts/verifyRainbowRebelRoad.test.ts

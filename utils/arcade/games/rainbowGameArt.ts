@@ -226,6 +226,12 @@ export const RAINBOW_ACT_SEVEN_ENEMY_SPRITES = [
  */
 export const RAINBOW_ACT_EIGHT_ENEMY_SPRITES = ['captive'] as const
 
+/**
+ * The rebel road's Motherland interceptor (t-060, Krea 2 render 279290): white enamel and gold, a crown crest, the
+ * empire's machine rather than one of the Ocean's living craft.
+ */
+export const RAINBOW_MOTHERLAND_ENEMY_SPRITES = ['motherdrone'] as const
+
 export function rainbowEnemySprite(kind: string): string | null {
   return [
     ...RAINBOW_ENEMY_SPRITES,
@@ -235,6 +241,7 @@ export function rainbowEnemySprite(kind: string): string | null {
     ...RAINBOW_ACT_SIX_ENEMY_SPRITES,
     ...RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
     ...RAINBOW_ACT_EIGHT_ENEMY_SPRITES,
+    ...RAINBOW_MOTHERLAND_ENEMY_SPRITES,
   ].some((name) => name === kind)
     ? rainbowArt(`enemies/${kind}`)
     : null

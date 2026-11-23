@@ -375,6 +375,15 @@ import {
   type RainbowAllegiance,
 } from './rainbowAllegiance'
 import {
+  REBEL_ROAD,
+  REBEL_TRUCE_ALPHA,
+  drawMotherlandDrone,
+  drawTruceHeart,
+  rebelEscortSpawns,
+  rebelTruce,
+  type MotherlandEnemy,
+} from './rainbowRebelRoad'
+import {
   RAINBOW_BOSS_LOOKS,
   RAINBOW_CRAFT_LOOKS,
   RAINBOW_GUARDIAN_LOOK,
@@ -684,6 +693,7 @@ const BASE_HEALTH: Record<string, number> = {
   spire: 1,
   brood: 9,
   drone: 1,
+  motherdrone: REBEL_ROAD.drone.health,
   turret: 5,
   bulwark: 8,
   gate: 1,
@@ -938,7 +948,10 @@ type Reef = {
     | ReefEnemy
     | GlassEnemy
     | PalaceEnemy
+    | MotherlandEnemy
   fired: boolean
+  /** Rebel road (t-060): an Ocean craft holding a truce. It never fires or rams, and nothing of C.A.T.S. touches it. */
+  truce?: boolean
   /**
    * A clawstrike's lane mark, a dolphin's beacon, a courier's cargo flicker or an eel's barrier warning:
    * frames left before it acts.
@@ -998,6 +1011,8 @@ type GuardianOutcome = 'waiting' | 'defeated' | 'escaped'
 
 export type RainbowCombatSnapshot = {
   tick: number
+  /** Rebel road (t-060): volleys truce craft held back this flight. */
+  truceHeld: number
   score: number
   ships: ReadonlyArray<Readonly<Ship>>
   shots: ReadonlyArray<Readonly<Shot>>
@@ -1371,6 +1386,8 @@ export function createRainbowPrincessPreview(
   let calm = options.stillCamera === true
   /** The crew's choice at Act V's memorial (t-040, PLOT-MOTHERLAND.md), or null before it. */
   let allegiance: RainbowAllegiance | null = null
+  /** Rebel road (t-060): volleys truce craft held back this flight. */
+  let truceHeld = 0
   /** Medals won by Act, and the hits taken and continues spent in the Act under way (t-010). */
   const medals: Partial<
     Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>
@@ -1806,6 +1823,28 @@ export function createRainbowPrincessPreview(
       reef.x -= 0.45
       return
     }
+    if (reef.kind === 'motherdrone') {
+      // The Motherland's interceptor glides in, steers onto the nearest pilot's lane and fires two volleys.
+      const { glide, steer, firstShotX, secondShotX } = REBEL_ROAD.drone
+      reef.x -= glide
+      const living = livingShips()
+      const target = living.reduce(
+        (best, ship) =>
+          Math.abs(ship.y - reef.y) < Math.abs(best.y - reef.y) ? ship : best,
+        living[0] ?? { y: reef.y },
+      )
+      reef.y += Math.sign(target.y - reef.y) * steer
+      const volleys = reef.volleys ?? 0
+      if (
+        (volleys === 0 && reef.x < W - firstShotX) ||
+        (volleys === 1 && reef.x < W - secondShotX)
+      ) {
+        reef.volleys = volleys + 1
+        reef.fired = true
+        fireEnemy(reef)
+      }
+      return
+    }
     if (reef.kind === 'drone') {
       // Interceptors weave toward the nearest pilot and fire once.
       reef.x -= 1.8
@@ -2228,9 +2267,11 @@ export function createRainbowPrincessPreview(
       | WreckEnemy
       | ReefEnemy
       | GlassEnemy
-      | PalaceEnemy,
+      | PalaceEnemy
+      | MotherlandEnemy,
     y?: number,
     wave: number | null = null,
+    truce = false,
   ) {
     if (wave !== null) {
       waveSpawned.set(wave, (waveSpawned.get(wave) ?? 0) + 1)
@@ -2254,6 +2295,7 @@ export function createRainbowPrincessPreview(
       kind,
       fired: false,
       wave,
+      ...(truce ? { truce: true } : {}),
       ...(craftReload(kind) ? { reload: craftReload(kind) } : {}),
     })
   }
@@ -3223,7 +3265,8 @@ export function createRainbowPrincessPreview(
           enemyShots.splice(i, 1)
       for (let i = reefs.length - 1; i >= 0; i--) {
         const reef = reefs[i]!
-        if (reef.kind === 'spire' || reef.kind === 'captive') continue
+        if (reef.kind === 'spire' || reef.kind === 'captive' || reef.truce)
+          continue
         if (Math.hypot(reef.x - ship.x, reef.y - ship.y) > radius) continue
         reef.health -= damage
         reef.flash = HIT_FLASH_FRAMES
@@ -3382,7 +3425,7 @@ export function createRainbowPrincessPreview(
     for (let i = reefs.length - 1; i >= 0; i--) {
       const reef = reefs[i]!
       if (kind === 1 && reef.x < ship.x) continue
-      if (reef.kind === 'spire') continue
+      if (reef.kind === 'spire' || reef.truce) continue
       if (reef.kind === 'captive') {
         freeCaptive(reef)
         continue
@@ -3525,6 +3568,10 @@ export function createRainbowPrincessPreview(
 
   /** A craft fires its pattern, every pellet in the craft's own look (t-032). */
   function fireEnemy(reef: Reef) {
+    if (reef.truce) {
+      truceHeld++
+      return
+    }
     const from = enemyShots.length
     fireEnemyPattern(reef)
     dressShots(from, RAINBOW_CRAFT_LOOKS[reef.kind] ?? 'pearl')
@@ -3661,6 +3708,20 @@ export function createRainbowPrincessPreview(
           y: reef.y,
           vx: Math.cos(theta + spread) * 1.6,
           vy: Math.sin(theta + spread) * 1.6,
+          grazed: 0,
+        })
+      return
+    }
+    if (reef.kind === 'motherdrone') {
+      // A tight three-bolt volley at the target.
+      const { volleySpeed, volleySpread } = REBEL_ROAD.drone
+      const theta = Math.atan2(dy, dx)
+      for (const spread of [-volleySpread, 0, volleySpread])
+        enemyShots.push({
+          x: reef.x - 8,
+          y: reef.y,
+          vx: Math.cos(theta + spread) * volleySpeed,
+          vy: Math.sin(theta + spread) * volleySpeed,
           grazed: 0,
         })
       return
@@ -4647,8 +4708,11 @@ export function createRainbowPrincessPreview(
       if (stage === 'waves') {
         if (pearlWardenAllowsWave(frame, reefRoute, PEARL_WARDEN_WINDOW))
           for (const entry of reefSpawns(frame, reefRoute)) {
-            spawn(entry.kind, entry.y, entry.wave)
+            const truce = rebelTruce(allegiance, 6, entry.kind, entry.wave)
+            spawn(entry.kind, entry.y, truce ? null : entry.wave, truce)
           }
+        for (const escort of rebelEscortSpawns(allegiance, 6, frame, reefRoute))
+          spawn(escort.kind, escort.y)
       } else if (stage === 'turn' && frame === CROWN_REEF.turnStarts) {
         reefs.length = 0
         enemyShots.length = 0
@@ -4699,8 +4763,11 @@ export function createRainbowPrincessPreview(
       }
       if (stage === 'waves') {
         for (const entry of glassSpawns(frame)) {
-          spawn(entry.kind, entry.y, entry.wave)
+          const truce = rebelTruce(allegiance, 7, entry.kind, entry.wave)
+          spawn(entry.kind, entry.y, truce ? null : entry.wave, truce)
         }
+        for (const escort of rebelEscortSpawns(allegiance, 7, frame))
+          spawn(escort.kind, escort.y)
       } else if (stage === 'turn' && frame === GLASS.turnStarts) {
         reefs.length = 0
         enemyShots.length = 0
@@ -4721,12 +4788,16 @@ export function createRainbowPrincessPreview(
       if (stage === 'waves') {
         // Captives are not a school: they never count toward (or break) a formation bonus.
         for (const entry of palaceSpawns(frame)) {
+          const truce = rebelTruce(allegiance, 8, entry.kind, entry.wave)
           spawn(
             entry.kind,
             entry.y,
-            entry.kind === 'captive' ? null : entry.wave,
+            entry.kind === 'captive' || truce ? null : entry.wave,
+            truce,
           )
         }
+        for (const escort of rebelEscortSpawns(allegiance, 8, frame))
+          spawn(escort.kind, escort.y)
       } else if (stage === 'turn' && frame === PALACE.turnStarts) {
         // Hostile craft clear for the approach; captives still drifting keep drifting.
         for (let i = reefs.length - 1; i >= 0; i--)
@@ -5010,6 +5081,7 @@ export function createRainbowPrincessPreview(
       if (
         reef.kind === 'brood' ||
         reef.kind === 'drone' ||
+        reef.kind === 'motherdrone' ||
         reef.kind === 'turret' ||
         reef.kind === 'bulwark' ||
         reef.kind === 'gate' ||
@@ -5404,7 +5476,7 @@ export function createRainbowPrincessPreview(
         continue
       }
       const hitIndex = reefs.findIndex((reef) =>
-        shot.struck?.includes(reef) || reef.kind === 'captive'
+        shot.struck?.includes(reef) || reef.kind === 'captive' || reef.truce
           ? false
           : reef.kind === 'spire'
             ? inSpire(reef, shot.x, shot.y, 3)
@@ -5673,7 +5745,7 @@ export function createRainbowPrincessPreview(
             hitShip(ship)
         continue
       }
-      if (reef.kind === 'captive') continue
+      if (reef.kind === 'captive' || reef.truce) continue
       const ship = ships
         .slice(0, activePlayers)
         .find(
@@ -5921,6 +5993,7 @@ export function createRainbowPrincessPreview(
     get snapshot(): RainbowCombatSnapshot {
       return {
         tick,
+        truceHeld,
         score,
         ships: ships.slice(0, activePlayers).map((ship) => ({ ...ship })),
         activePlayers,
@@ -6866,6 +6939,8 @@ export function createRainbowPrincessPreview(
         if (reef.kind === 'eel') g.rotate(-Math.PI / 2)
         if (reef.kind === 'brood') g.scale(1.6, 1.6)
         if (reef.kind === 'drone') g.scale(0.65, 0.65)
+        // A truce craft swims through dimmed under a heart: it will not fire, and nothing of C.A.T.S. touches it.
+        if (reef.truce) g.globalAlpha *= REBEL_TRUCE_ALPHA
         g.shadowColor =
           reef.kind === 'urchin'
             ? '#ffe38a'
@@ -6891,7 +6966,9 @@ export function createRainbowPrincessPreview(
                         : '#d09ffd'
         g.save()
         applyRainbowSwimMotion(g, reef.kind, tick, calm)
-        if (
+        if (reef.kind === 'motherdrone') {
+          if (!drawRainbowEnemySprite(g, 'motherdrone')) drawMotherlandDrone(g)
+        } else if (
           !drawRainbowEnemySprite(
             g,
             reef.kind === 'diver' ? 'picket' : reef.kind,
@@ -6921,6 +6998,7 @@ export function createRainbowPrincessPreview(
           g.stroke()
         }
         g.restore()
+        if (reef.truce) drawTruceHeart(g, tick)
         if (reef.kind === 'mirror') {
           // The solid eel is outlined; its reflection never is.
           g.strokeStyle = '#ffffff'

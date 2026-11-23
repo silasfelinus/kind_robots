@@ -655,7 +655,12 @@
       if (existing) tile.id = existing.id
       state.board[r][c] = tile
       phase.created.push({ r, c, id: tile.id, special, color })
-      bumpGoal(state, 'special', special === 'h' || special === 'v' ? 'comb' : special, 1)
+      bumpGoal(
+        state,
+        'special',
+        special === 'h' || special === 'v' ? 'comb' : special,
+        1,
+      )
       if (special === 'rainbow') state.stats.rainbows++
       else if (special === 'bomb') state.stats.bombs++
       else state.stats.combs++
@@ -838,8 +843,7 @@
 
   function finishBonus(state) {
     const left = Math.max(0, state.movesLeft)
-    if (!state.won || !left)
-      return { movesConverted: 0, bonus: 0, phases: [] }
+    if (!state.won || !left) return { movesConverted: 0, bonus: 0, phases: [] }
     const before = state.score
     const phases = []
     let remaining = left

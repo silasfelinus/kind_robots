@@ -764,7 +764,8 @@
       return `Untie ${goal.target} ${world.blockers.tangle.name}`
     if (goal.type === 'special')
       return `Create ${goal.target} ${world.specials[goal.special].name}`
-    if (goal.type === 'combo') return `Combine two specials ${goal.target} time(s)`
+    if (goal.type === 'combo')
+      return `Combine two specials ${goal.target} time(s)`
     if (goal.type === 'buddy')
       return `Rescue ${goal.target} ${world.blockers.buddy.name} (bring them to the bottom)`
     return ''

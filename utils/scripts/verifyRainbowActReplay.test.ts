@@ -386,7 +386,10 @@ for (const route of RAINBOW_ALTERNATE_ROUTES) {
     },
   }
   assert.ok(readRainbowSave(otherSlot, isRainbowCheckpoint))
-  assert.equal(canReplayRainbowAlternateRoute(route.id, otherSlot, fresh), false)
+  assert.equal(
+    canReplayRainbowAlternateRoute(route.id, otherSlot, fresh),
+    false,
+  )
   assert.equal(rainbowAlternateApproachSave(route.id, otherSlot, fresh), null)
   const incompleteApproach = {
     ...charted,

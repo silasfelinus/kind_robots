@@ -666,13 +666,14 @@ const flightComms = computed(() =>
 const selectedSeaReplayable = computed(() =>
   canReplayRainbowAct(selectedSea.value + 1, flightSave.value, hangar.value),
 )
-const selectedAlternateReplayable = computed(() =>
-  selectedAlternate.value !== null &&
-  canReplayRainbowAlternateRoute(
-    alternateRoutes.value[selectedAlternate.value]!.id,
-    flightSave.value,
-    hangar.value,
-  ),
+const selectedAlternateReplayable = computed(
+  () =>
+    selectedAlternate.value !== null &&
+    canReplayRainbowAlternateRoute(
+      alternateRoutes.value[selectedAlternate.value]!.id,
+      flightSave.value,
+      hangar.value,
+    ),
 )
 async function resumeCampaign() {
   cabinetMounted.value = false

@@ -101,10 +101,10 @@ export function canReplayRainbowAlternateRoute(
   const route = RAINBOW_ALTERNATE_ROUTES.find((entry) => entry.id === routeId)
   return Boolean(
     route &&
-      rainbowAlternateRouteLogbook(save).some(
-        (entry) => entry.id === routeId && entry.discovered,
-      ) &&
-      canReplayRainbowAct(route.fromAct, save, hangar),
+    rainbowAlternateRouteLogbook(save).some(
+      (entry) => entry.id === routeId && entry.discovered,
+    ) &&
+    canReplayRainbowAct(route.fromAct, save, hangar),
   )
 }
 

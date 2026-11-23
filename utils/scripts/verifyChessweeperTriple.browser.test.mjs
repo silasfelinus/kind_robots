@@ -193,13 +193,19 @@ try {
       'global scores are accessible from bottom HUD',
     )
     assert.equal(await page.locator('#score-difficulty').inputValue(), bracket)
+    await page.locator('#score-rows').getByText(/AAA/).waitFor()
     assert.ok(scoreQueries.some((q) => q.endsWith('/' + slug)),
       'each difficulty reads its own global leaderboard')
+    const catResponse = page.waitForResponse((response) =>
+      response.url().includes('/chessweeper-triple-catastrophic?range=all'),
+    )
     await page.selectOption('#score-difficulty', 'catastrophic')
+    await catResponse
     assert.ok(scoreQueries.some((q) =>
       q.endsWith('/chessweeper-triple-catastrophic')),
       'catastrophic has its own global leaderboard')
     await page.selectOption('#score-difficulty', bracket)
+    await page.locator('#score-rows').getByText(/AAA/).waitFor()
     assert.match(await page.locator('#score-rows').innerText(), /AAA/)
     assert.match(await page.locator('#score-rows').innerText(), /TestPilot/)
     await page.click('#today')

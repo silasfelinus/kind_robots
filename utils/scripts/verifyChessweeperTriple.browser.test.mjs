@@ -113,7 +113,7 @@ try {
       'title and settings are shown before play',
     )
     await screenshot(page, 'triple-' + width + '-intro')
-    await page.selectOption('#duration', '60')
+    await page.selectOption('#duration', '120')
     await page.click('#start')
     assert.equal(
       await page.locator('#dialog').isVisible(),
@@ -174,7 +174,7 @@ try {
       'player can resume after checking rankings',
     )
 
-    await page.clock.fastForward(65_000)
+    await page.clock.fastForward(125_000)
     await page.clock.runFor(50)
     const complete = await page.evaluate(() =>
       window.__chessweeperTriple.snapshot(),

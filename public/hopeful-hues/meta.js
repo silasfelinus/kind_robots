@@ -204,10 +204,10 @@
       check: (s) => s.totals.wins >= 60,
     },
     {
-      id: 'wins-130',
+      id: 'wins-all',
       name: 'Every Single Hue',
-      text: 'Win all 130 levels.',
-      check: (s) => countWon(s) >= 130,
+      text: 'Win every level in every world.',
+      check: (s) => countWon(s) >= totalLevels(),
     },
     {
       id: 'stars-50',
@@ -312,22 +312,16 @@
       check: (s) => s.totals.noBackWins >= 20,
     },
     {
-      id: 'salon',
-      name: 'Open for Business',
-      text: 'Finish Sunrise Salon Street.',
-      check: (s) => hasLevel(s, 'salon-18'),
+      id: 'worlds-2',
+      name: 'World Traveler',
+      text: 'Win a level in two different worlds.',
+      check: (s) => worldsStarted(s) >= 2,
     },
     {
-      id: 'tier1',
-      name: 'Fork in the Road',
-      text: 'Finish Glitter Grove or Gear Garden.',
-      check: (s) => hasLevel(s, 'grove-18') || hasLevel(s, 'garden-18'),
-    },
-    {
-      id: 'both-tier1',
-      name: 'Both Ways',
-      text: 'Finish both Glitter Grove and Gear Garden.',
-      check: (s) => hasLevel(s, 'grove-18') && hasLevel(s, 'garden-18'),
+      id: 'worlds-all',
+      name: 'Passport Full of Color',
+      text: 'Win a level in every world.',
+      check: (s) => worldsStarted(s) >= worldList().length,
     },
     {
       id: 'ending-1',
@@ -336,13 +330,11 @@
       check: (s) => s.endings.length >= 1,
     },
     {
-      id: 'ending-4',
-      name: 'Four Bright Lights',
-      text: 'Reach all four route endings.',
+      id: 'ending-3',
+      name: 'Three Bright Lights',
+      text: 'Reach the endings of three worlds.',
       check: (s) =>
-        ['lullaby', 'parade', 'highscore', 'letters'].every((e) =>
-          s.endings.includes(e),
-        ),
+        worldEndingIds().filter((e) => s.endings.includes(e)).length >= 3,
     },
     {
       id: 'ending-secret',
@@ -371,11 +363,9 @@
     {
       id: 'all-friends',
       name: 'Whole Crew',
-      text: 'Win a level with every character.',
+      text: 'Win a level with every hero.',
       check: (s) =>
-        ['kate', 'sprocket', 'juniper', 'marigold'].every((id) =>
-          s.scrapbook.includes('friend:' + id),
-        ),
+        worldList().every((w) => s.scrapbook.includes('friend:' + w.hero.id)),
     },
     {
       id: 'scrapbook-half',
@@ -384,6 +374,70 @@
       check: (s, total) => s.scrapbook.length * 2 >= total,
     },
   ]
+
+  function worldList() {
+    return root.HopefulHuesWorlds ? root.HopefulHuesWorlds.list() : []
+  }
+
+  function levelsApi0() {
+    return root.HopefulHuesLevels || null
+  }
+
+  function totalLevels() {
+    const L = levelsApi0()
+    return L ? L.allLevels().length : Infinity
+  }
+
+  function worldEndingIds() {
+    return worldList().map((w) => w.ending.id)
+  }
+
+  function regionWorld(regionId) {
+    const L = levelsApi0()
+    return L && L.REGIONS[regionId] ? L.REGIONS[regionId].world : null
+  }
+
+  function worldOfLevel(levelId) {
+    return regionWorld(String(levelId).split('-')[0])
+  }
+
+  function worldsStarted(slot) {
+    const seen = new Set()
+    for (const [id, record] of Object.entries(slot.levels))
+      if (record.stars > 0) seen.add(worldOfLevel(id))
+    seen.delete(null)
+    return seen.size
+  }
+
+  function worldAchievements() {
+    const out = []
+    for (const w of worldList()) {
+      for (const a of w.achievements || []) {
+        const id = w.id + '-' + a.key
+        let check = () => false
+        const regions = w.regions.map((r) => r.id)
+        if (a.key === 'start')
+          check = (s) =>
+            Object.entries(s.levels).some(
+              ([lid, r]) => r.stars > 0 && regions.includes(lid.split('-')[0]),
+            )
+        if (a.key === 'middle') check = (s) => hasLevel(s, regions[1] + '-18')
+        if (a.key === 'ending') check = (s) => s.endings.includes(w.ending.id)
+        if (a.key === 'stars')
+          check = (s) =>
+            Object.entries(s.levels).filter(
+              ([lid, r]) => r.stars >= 3 && regions.includes(lid.split('-')[0]),
+            ).length >= 10
+        if (a.key === 'signature')
+          check = (s) =>
+            ((s.worldTotals && s.worldTotals[w.id]) || {})[a.stat] >= a.target
+        out.push({ id, world: w.id, name: a.name, text: a.text, check })
+      }
+    }
+    return out
+  }
+
+  for (const a of worldAchievements()) ACHIEVEMENTS.push(a)
 
   function countWon(slot) {
     return Object.values(slot.levels).filter((l) => l.stars > 0).length
@@ -430,7 +484,8 @@
       created: time,
       updated: time,
       character: characterId,
-      route: { tier1: null, tier2: null },
+      world: levelsApi0() ? levelsApi0().worldOfHero(characterId) : null,
+      worldTotals: {},
       levels: {},
       sparkles: 50,
       endings: [],
@@ -458,7 +513,15 @@
     if (!slot || typeof slot !== 'object') return null
     const base = createSlot(slot.character || 'kate', slot.created)
     const merged = { ...base, ...slot }
-    merged.route = { ...base.route, ...(slot.route || {}) }
+    delete merged.route
+    if (!merged.worldTotals || typeof merged.worldTotals !== 'object')
+      merged.worldTotals = {}
+    const L = levelsApi0()
+    if (L && (!merged.world || !L.LINES[merged.world]))
+      merged.world =
+        L.worldOfHero(merged.character) ||
+        (L.WORLDS[0] && L.WORLDS[0].id) ||
+        null
     merged.totals = { ...base.totals, ...(slot.totals || {}) }
     merged.quests = { ...base.quests, ...(slot.quests || {}) }
     merged.boosters = { ...base.boosters, ...(slot.boosters || {}) }
@@ -592,14 +655,31 @@
     return out
   }
 
+  function worldQuests(worldId, list) {
+    const w = worldList().find((x) => x.id === worldId)
+    return w && w.quests && w.quests[list]
+      ? w.quests[list].map((q) => ({ ...q, world: w.id }))
+      : []
+  }
+
+  function slotWorld(slot) {
+    const L = levelsApi0()
+    return L ? L.lineKey(slot) : null
+  }
+
   function refreshQuests(slot, now) {
     const date = now instanceof Date ? now : new Date(now || Date.now())
     const dk = dayKey(date)
     const wk = weekKey(date)
+    const world = slotWorld(slot)
     let changed = false
     if (slot.quests.dailyKey !== dk) {
       slot.quests.dailyKey = dk
-      slot.quests.daily = pick(DAILY_POOL, 'daily:' + dk, 3).map((q) => ({
+      const themed = pick(worldQuests(world, 'daily'), 'daily-world:' + dk, 1)
+      slot.quests.daily = [
+        ...pick(DAILY_POOL, 'daily:' + dk, 3 - themed.length),
+        ...themed,
+      ].map((q) => ({
         id: q.id,
         progress: 0,
         claimed: false,
@@ -608,7 +688,11 @@
     }
     if (slot.quests.weeklyKey !== wk) {
       slot.quests.weeklyKey = wk
-      slot.quests.weekly = pick(WEEKLY_POOL, 'weekly:' + wk, 3).map((q) => ({
+      const themed = pick(worldQuests(world, 'weekly'), 'weekly-world:' + wk, 1)
+      slot.quests.weekly = [
+        ...pick(WEEKLY_POOL, 'weekly:' + wk, 3 - themed.length),
+        ...themed,
+      ].map((q) => ({
         id: q.id,
         progress: 0,
         claimed: false,
@@ -619,11 +703,17 @@
   }
 
   function questDef(id) {
-    return (
+    const base =
       DAILY_POOL.find((q) => q.id === id) ||
-      WEEKLY_POOL.find((q) => q.id === id) ||
-      null
-    )
+      WEEKLY_POOL.find((q) => q.id === id)
+    if (base) return base
+    for (const w of worldList()) {
+      for (const list of ['daily', 'weekly']) {
+        const q = ((w.quests || {})[list] || []).find((x) => x.id === id)
+        if (q) return { ...q, world: w.id }
+      }
+    }
+    return null
   }
 
   function statValue(result, stat) {
@@ -735,6 +825,25 @@
     ]) {
       totals[key] += stats[key] || 0
     }
+    result.world = result.world || worldOfLevel(result.levelId)
+    if (result.world) {
+      if (!slot.worldTotals) slot.worldTotals = {}
+      const wt = (slot.worldTotals[result.world] =
+        slot.worldTotals[result.world] || {})
+      for (const key of [
+        'cleared',
+        'combs',
+        'bombs',
+        'rainbows',
+        'combos',
+        'bigCascades',
+        'gloomCleared',
+        'tanglesCleared',
+        'buddiesRescued',
+      ])
+        wt[key] = (wt[key] || 0) + (stats[key] || 0)
+      wt.wins = (wt.wins || 0) + (result.won ? 1 : 0)
+    }
     totals.cascadesMax = Math.max(totals.cascadesMax, stats.cascadesMax || 0)
     ;(stats.colorsCleared || []).forEach((n, i) => (totals.colors[i] += n))
     let sparklesEarned = 0
@@ -758,6 +867,7 @@
         const def = questDef(entry.id)
         if (!def || entry.claimed) continue
         const before = entry.progress
+        if (def.world && def.world !== result.world) continue
         entry.progress = Math.min(
           def.target,
           entry.progress + statValue(result, def.stat),
@@ -783,7 +893,7 @@
         ending = levelsApi.REGIONS[def.region].ending
         if (!slot.endings.includes(ending)) slot.endings.push(ending)
         addScrapbook(slot, 'ending:' + ending, scrapbookUnlocked)
-        const routeEndings = ['lullaby', 'parade', 'highscore', 'letters']
+        const routeEndings = worldEndingIds()
         if (
           routeEndings.every((e) => slot.endings.includes(e)) &&
           !slot.endings.includes('everyone')
@@ -842,33 +952,30 @@
   }
 
   function currentLevel(slot, levelsApi) {
-    const list = levelsApi.routeLevels(slot.route)
+    const list = levelsApi.routeLevels(slot)
     for (const id of list) if (!hasLevel(slot, id)) return id
     return list[list.length - 1]
   }
 
-  function pendingFork(slot, levelsApi) {
-    if (!slot.route.tier1 && hasLevel(slot, 'salon-18')) return 'salon'
-    if (
-      slot.route.tier1 &&
-      !slot.route.tier2 &&
-      hasLevel(slot, slot.route.tier1 + '-18')
-    )
-      return slot.route.tier1
+  function pendingFork() {
     return null
   }
 
-  function chooseRoute(slot, levelsApi, regionId) {
-    const region = levelsApi.REGIONS[regionId]
-    if (!region || !regionUnlocked(slot, levelsApi, regionId)) return false
-    if (region.tier === 0) {
-      slot.route = { tier1: null, tier2: null }
-    } else if (region.tier === 1) {
-      slot.route = { tier1: regionId, tier2: null }
-    } else {
-      slot.route = { tier1: levelsApi.parentOf(regionId), tier2: regionId }
-    }
+  function chooseRoute(slot, levelsApi, target) {
+    const worldId = levelsApi.LINES[target]
+      ? target
+      : levelsApi.REGIONS[target]
+        ? levelsApi.REGIONS[target].world
+        : levelsApi.worldOfHero(target)
+    const world = worldList().find((w) => w.id === worldId)
+    if (!world) return false
+    slot.world = world.id
+    slot.character = world.hero.id
     return true
+  }
+
+  function switchWorld(slot, levelsApi, worldId) {
+    return chooseRoute(slot, levelsApi, worldId)
   }
 
   const api = {
@@ -900,6 +1007,8 @@
     currentLevel,
     pendingFork,
     chooseRoute,
+    switchWorld,
+    worldsStarted,
     countStars,
     countWon,
   }

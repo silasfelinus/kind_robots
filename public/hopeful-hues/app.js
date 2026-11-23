@@ -6,6 +6,7 @@
   const M = window.HopefulHuesMeta
   const A = window.HopefulHuesArt
   const audio = window.HopefulHuesAudio.createAudio()
+  const W = window.HopefulHuesWorlds
 
   const KINDNESS = [
     'You are allowed to take up space. In every color.',
@@ -134,6 +135,50 @@
 
   function character(id) {
     return L.CHARACTERS.find((c) => c.id === id) || L.CHARACTERS[0]
+  }
+
+  function worldById(id) {
+    return W.get(id) || W.list()[0]
+  }
+
+  function regionWorld(regionId) {
+    const region = L.REGIONS[regionId]
+    return worldById(region ? region.world : null)
+  }
+
+  function levelWorld(levelId) {
+    return regionWorld(L.parseLevelId(levelId).region)
+  }
+
+  function slotWorld(s) {
+    return worldById(L.lineKey(s || slot()))
+  }
+
+  function activeWorld() {
+    return game ? levelWorld(game.id) : slotWorld()
+  }
+
+  function themeStyle(world) {
+    const u = world.ui
+    return `--ink:${u.ink};--ink-soft:${u.inkSoft};--card:${u.card};--accent:${u.accent};--accent2:${u.accent2};--cell:${u.cell};--gloom1:${world.blockers.gloom.color};--gloom2:${world.blockers.gloom.color2};--world-bg:linear-gradient(180deg, ${u.bg[0]}, ${u.bg[1]} 55%, ${u.bg[2]});color:${u.ink}`
+  }
+
+  function worldKeyArt(world, cls) {
+    return painted(
+      'worlds/' + world.id + '-key.webp',
+      `<span class="motif-fallback" style="background:linear-gradient(135deg, ${world.ui.bg[0]}, ${world.ui.bg[2]})">${A.motifSvg(world.regions[0].motif, world.ui.accent)}</span>`,
+      cls,
+    )
+  }
+
+  function worldProgress(s, world) {
+    let won = 0
+    let total = 0
+    for (const id of L.routeLevels(world.id)) {
+      total++
+      if (s && s.levels[id] && s.levels[id].stars) won++
+    }
+    return { won, total }
   }
 
   function wait(ms) {
@@ -322,7 +367,7 @@
       <p class="title-sub">Superkate &amp; the Kind Robots paint the world back, one match at a time.</p>
       <div class="title-cast">${cast}</div>
       <div class="title-menu">
-        ${s ? `<button class="btn rainbow wide" data-action="continue">▶ Continue · ${esc(character(s.character).name)}</button>` : `<button class="btn rainbow wide" data-action="play">▶ Start the rainbow</button>`}
+        ${s ? `<button class="btn rainbow wide" data-action="continue">▶ Continue · ${esc(slotWorld(s).name)}</button>` : `<button class="btn rainbow wide" data-action="play">▶ Start the rainbow</button>`}
         <button class="btn" data-action="play">💾 Save slots</button>
         <button class="btn" data-action="scrapbook">📔 Scrapbook</button>
         <button class="btn" data-action="quests">🌈 Quests</button>
@@ -357,7 +402,7 @@
         if (!s) {
           return `<div class="card slot-card"><div style="width:96px;height:96px;border-radius:50%;background:var(--rainbow);display:grid;place-items:center;font-size:2.4rem;color:#fff">+</div><h3>Slot ${i + 1}</h3><div class="meta">An empty page, ready for color.</div><div class="row"><button class="btn primary" data-action="new" data-slot="${i}">New adventure</button><button class="btn small" data-action="import" data-slot="${i}">Import code</button></div></div>`
         }
-        const c = character(s.character)
+        const c = character(slotWorld(s).hero.id)
         const won = M.countWon(s)
         const stars = M.countStars(s)
         const when = new Date(s.updated).toLocaleDateString(undefined, {
@@ -446,29 +491,55 @@
   function renderCharacters(params) {
     const changing = params.change
     const current = slot()
-    const cards = L.CHARACTERS.map(
-      (c) =>
-        `<div class="card char-card" style="border-color:${current && changing && current.character === c.id ? c.colors[0] : 'transparent'}">${heroArt(c.id, 120, 'char-portrait')}<h3>${esc(c.name)}</h3><div class="meta">${esc(c.title)}</div><div class="perk"><b>${esc(c.perkName)}:</b> ${esc(c.perkText)}</div><button class="btn primary" data-action="pick" data-id="${c.id}">${changing ? 'Switch to ' : 'Play as '}${esc(c.name)}</button></div>`,
-    ).join('')
-    appEl.innerHTML = `<section class="screen"><div class="topbar">${backButton()}<h2>${changing ? 'Change your hero' : 'Who is bringing the color?'}</h2></div><div class="scroll" style="flex:1"><div class="grid-cards">${cards}</div><p class="center muted" style="padding:0 16px 20px">Every hero can finish every route. Perks change how you play, and each hero has their own ending epilogue. You can switch heroes from the map at any time.</p></div></section>`
+    const currentWorld = current ? slotWorld(current) : null
+    const cards = W.list()
+      .map((w) => {
+        const hero = w.hero
+        const progress = worldProgress(current, w)
+        const done = current && current.endings.includes(w.ending.id)
+        const here = currentWorld && currentWorld.id === w.id
+        return `<article class="card world-card ${w.ui.dark ? 'dark' : ''} ${here ? 'here' : ''}" style="${themeStyle(w)};background:linear-gradient(160deg, ${w.ui.bg[0]}, ${w.ui.bg[2]})">
+          ${worldKeyArt(w, 'world-key')}
+          <div class="world-card-body">
+            <div class="world-hero-row">${heroArt(hero.id, 84, 'world-hero')}<div><h3>${esc(w.name)}</h3><div class="world-tag">${esc(w.tagline)}</div></div></div>
+            <p>${esc(w.blurb)}</p>
+            <div class="jewel-row" aria-label="${esc(w.name)} jewels">${w.jewels.map((j, i) => `<span title="${esc(j.name)}">${A.gemSvg(i, null, false, w.id)}</span>`).join('')}</div>
+            <div class="perk"><b>${esc(hero.name)} · ${esc(hero.perkName)}:</b> ${esc(hero.perkText)}</div>
+            <div class="region-chips">${w.regions.map((r) => `<span>${esc(r.name)}</span>`).join('<span aria-hidden="true">→</span>')}</div>
+            ${current ? `<div class="world-progress"><div class="bar"><div style="width:${Math.round((progress.won / progress.total) * 100)}%"></div></div><small>${progress.won}/${progress.total} levels${done ? ' · ✨ ending found' : ''}</small></div>` : ''}
+            <button class="btn primary" data-action="pick" data-id="${w.id}">${here && changing ? 'Keep playing' : progress.won ? 'Continue ' : 'Begin '}${here && changing ? '' : esc(w.name)}</button>
+          </div>
+        </article>`
+      })
+      .join('')
+    appEl.innerHTML = `<section class="screen"><div class="topbar">${backButton()}<h2>${changing ? 'Choose a world' : 'Choose your adventure'}</h2></div><div class="scroll" style="flex:1"><p class="center muted" style="padding:0 16px">${W.list().length} worlds, each with its own hero, jewels, story and ending. Switch worlds any time; your stars are kept everywhere. Bring color back to every world to find a secret ending.</p><div class="world-grid">${cards}</div></div></section>`
     bind(appEl, {
       pick: (el) => {
-        const id = el.dataset.id
+        const world = worldById(el.dataset.id)
         if (changing && current) {
-          current.character = id
+          const firstVisit = !worldProgress(current, world).won
+          M.switchWorld(current, L, world.id)
+          M.refreshQuests(current, new Date())
           persist()
-          toast('💖', character(id).name + ' is ready!')
-          back()
+          toast('🌈', 'Welcome to ' + world.name + '!')
+          stack.length = 1
+          go('map')
+          if (
+            firstVisit &&
+            !current.seenBeats.includes('beat:' + world.regions[0].id + ':1')
+          )
+            showRegionIntro(world.regions[0].id)
           return
         }
-        const s = M.createSlot(id)
+        const s = M.createSlot(world.hero.id)
+        M.switchWorld(s, L, world.id)
         M.refreshQuests(s, new Date())
         data.slots[params.slot] = s
         data.activeSlot = params.slot
         persist()
         stack.length = 1
         go('map')
-        showRegionIntro('salon')
+        showRegionIntro(world.regions[0].id)
       },
     })
   }
@@ -476,11 +547,11 @@
   /* Map */
 
   function mapLayout(s) {
-    const regions = L.routeRegions(s.route)
+    const regions = L.routeRegions(s)
     const items = []
     const spacing = 92
     let y = 120
-    const fork = M.pendingFork(s, L)
+    const fork = null
     const nodes = []
     const bands = []
     for (const regionId of regions) {
@@ -531,7 +602,8 @@
     }
     M.refreshQuests(s, new Date())
     persist()
-    const c = character(s.character)
+    const world = slotWorld(s)
+    const c = character(world.hero.id)
     const layout = mapLayout(s)
     const current = M.currentLevel(s, L)
     const claimable = [...s.quests.daily, ...s.quests.weekly].filter(
@@ -553,7 +625,7 @@
             i % 2 ? 50 + 18 + ((i * 7) % 12) : 50 - 32 - ((i * 5) % 12)
           motifs += `<div class="motif" style="top:${i * 160 + 40}px;left:calc(${left}% );transform:rotate(${((i * 37) % 40) - 20}deg)">${A.motifSvg(region.motif, region.palette[i % 3])}</div>`
         }
-        return `<div class="map-band" style="top:${b.top}px;height:${b.height}px;background:linear-gradient(180deg, ${region.sky[1]}, ${region.sky[0]})">${motifs}</div>`
+        return `<div class="map-band" style="top:${b.top}px;height:${b.height}px;background:linear-gradient(180deg, ${region.sky[1]}cc, ${region.sky[0]}cc)">${motifs}</div>`
       })
       .join('')
     const nodesHtml = layout.nodes
@@ -568,9 +640,10 @@
           record && record.stars
             ? `<span class="stars">${[0, 1, 2].map((k) => A.starSvg(k < record.stars)).join('')}</span>`
             : ''
-        const label = n.def.finale ? '♥' : n.n
+        const label = n.def.finale ? '★' : n.n
         const cls = [
           'node',
+          'shape-' + world.map.node,
           record && record.stars ? 'done' : '',
           unlocked ? '' : 'locked',
           isCurrent ? 'current' : '',
@@ -606,23 +679,23 @@
         return ''
       })
       .join('')
-    appEl.innerHTML = `<section class="screen map-screen">
+    appEl.innerHTML = `<section class="screen map-screen ${world.ui.dark ? 'dark' : ''}" style="${themeStyle(world)}">
       <div class="topbar">
         ${backButton('Title')}
-        <button class="btn small" data-action="hero" aria-label="Change hero">${A.portraitSvg(c.id, 28)}<span class="label-text">${esc(c.name)}</span></button>
+        <button class="btn small" data-action="hero" aria-label="Choose a world">${A.portraitSvg(c.id, 28)}<span class="label-text">${esc(world.name)}</span></button>
         <span class="chip" title="Stars">⭐ ${stars}</span>
         <span class="chip" title="Sparkles">✨ ${s.sparkles}</span>
         <span class="spacer"></span>
         <button class="btn small" data-action="quests">🌈<span class="label-text"> Quests</span>${claimable ? `<span class="badge">${claimable}</span>` : ''}</button>
-        <button class="btn small" data-action="routes">🗺️<span class="label-text"> Routes</span></button>
+        <button class="btn small" data-action="hero">🗺️<span class="label-text"> Worlds</span></button>
         <button class="btn small icon" data-action="scrapbook" aria-label="Scrapbook">📔</button>
         <button class="btn small icon" data-action="trophies" aria-label="Achievements">🏆</button>
         <button class="btn small icon" data-action="settings" aria-label="Settings">⚙️</button>
       </div>
-      <div class="map-scroll scroll" data-map>
+      <div class="map-scroll scroll" data-map style="background:url('/images/hopeful-hues/maps/${world.id}.webp') center top / cover, var(--world-bg)">
         <div class="map-world" style="height:${layout.height}px">
           ${bandsHtml}
-          <svg class="map-path" viewBox="0 0 100 ${layout.height}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity=".9"/><path d="${path}" fill="none" stroke="#ffb8dc" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+          <svg class="map-path" viewBox="0 0 100 ${layout.height}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" fill="none" stroke="${world.map.path}" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity=".9"/><path d="${path}" fill="none" stroke="${world.map.dash}" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
           ${itemsHtml}
           ${nodesHtml}
         </div>
@@ -638,7 +711,6 @@
     bind(appEl, {
       hero: () => go('characters', { change: true }),
       quests: openQuests,
-      routes: openRoutes,
       scrapbook: openScrapbook,
       trophies: openAchievements,
       settings: openSettings,
@@ -656,11 +728,6 @@
         openLevelIntro(id)
       }),
     )
-    appEl
-      .querySelectorAll('[data-fork]')
-      .forEach((el) =>
-        el.addEventListener('click', () => openFork(el.dataset.fork)),
-      )
     appEl
       .querySelectorAll('[data-ending]')
       .forEach((el) =>
@@ -683,77 +750,20 @@
     modalActions(modal, { ok: () => closeModal() })
   }
 
-  function openFork(fromRegion) {
-    const s = slot()
-    const choices = L.REGIONS[fromRegion].next
-    const beats = L.STORY_BEATS[fromRegion] || []
-    const beat = beats[beats.length - 1]
-    const cards = choices
-      .map((id) => {
-        const r = L.REGIONS[id]
-        const visited = s.levels[L.levelId(id, 1)]
-        return `<button class="fork-card" data-m="pick" data-id="${id}" style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${regionArt(id, 'scene')}<h3>${esc(r.name)}</h3><p>${esc(r.blurb)}</p>${visited ? '<small>✓ You have been here before</small>' : ''}</button>`
-      })
-      .join('')
-    const modal = openModal({
-      title: 'Choose your path',
-      wide: true,
-      body: `${beat ? `<p class="center">${esc(beat.text)}</p>` : ''}<div class="fork-choices">${cards}</div><p class="center muted">Both paths lead to different friends and different endings. You can come back and take the other one after you reach an ending.</p>`,
-    })
-    modalActions(modal, {
-      pick: (el) => {
-        M.chooseRoute(s, L, el.dataset.id)
-        persist()
-        closeModal(true)
-        render()
-        showRegionIntro(el.dataset.id)
-      },
-    })
-  }
-
-  function openRoutes() {
-    const s = slot()
-    const tiers = [0, 1, 2].map((tier) =>
-      L.ROUTE_ORDER.filter((id) => L.REGIONS[id].tier === tier)
-        .map((id) => {
-          const r = L.REGIONS[id]
-          const unlocked = M.regionUnlocked(s, L, id)
-          const active = L.routeRegions(s.route).includes(id)
-          const count = L.regionLevelCount(id)
-          let won = 0
-          for (let n = 1; n <= count; n++) if (s.levels[L.levelId(id, n)]) won++
-          const ending = r.ending ? L.ENDINGS[r.ending] : null
-          return `<button class="route-node ${active ? 'active' : ''} ${unlocked ? '' : 'locked'}" data-m="travel" data-id="${id}" ${unlocked ? '' : 'disabled'} style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${regionArt(id, 'thumb')}<div><b>${esc(r.name)}</b></div><div class="muted">${won}/${count} levels${ending ? (s.endings.includes(ending.id) ? ' · ✨ ending' : ' · ending ahead') : ''}</div>${unlocked ? '' : '<div>🔒</div>'}</button>`
-        })
-        .join(''),
-    )
-    const modal = openModal({
-      title: 'Routes & pathways',
-      wide: true,
-      body: `<p class="center muted">The map branches twice. Each of the four far regions has its own ending, and finding all four reveals a secret one. Your level stars are kept on every route.</p><div class="route-tree">${tiers.map((t) => `<div class="route-tier">${t}</div>`).join('<div class="center" aria-hidden="true">⬆</div>')}</div><p class="center">Endings found: ${s.endings.length} / ${Object.keys(L.ENDINGS).length}</p>`,
-    })
-    modalActions(modal, {
-      travel: (el) => {
-        if (!M.chooseRoute(s, L, el.dataset.id)) return
-        persist()
-        closeModal(true)
-        render()
-        toast('🗺️', 'Traveling to ' + L.REGIONS[el.dataset.id].name)
-      },
-    })
-  }
-
   /* Level intro */
 
-  function goalText(goal) {
+  function goalText(goal, worldArg) {
+    const world = worldArg || activeWorld()
     if (goal.type === 'score')
       return `Score ${goal.target.toLocaleString()} points`
     if (goal.type === 'collect')
-      return `Collect ${goal.target} ${M.COLOR_NAMES[goal.color]}`
-    if (goal.type === 'gloom') return `Wash away ${goal.target} Gloom`
-    if (goal.type === 'tangle') return `Untie ${goal.target} Tangles`
+      return `Collect ${goal.target} ${world.jewels[goal.color].name}`
+    if (goal.type === 'gloom')
+      return `Clear ${goal.target} ${world.blockers.gloom.name}`
+    if (goal.type === 'tangle')
+      return `Untie ${goal.target} ${world.blockers.tangle.name}`
     if (goal.type === 'buddy')
-      return `Rescue ${goal.target} robot buddies (bring them to the bottom)`
+      return `Rescue ${goal.target} ${world.blockers.buddy.name} (bring them to the bottom)`
     return ''
   }
 
@@ -767,7 +777,7 @@
     const goals = def.goals
       .map(
         (g) =>
-          `<div class="goal" style="justify-content:flex-start">${A.goalIconSvg(g)}<span>${esc(goalText(g))}</span></div>`,
+          `<div class="goal" style="justify-content:flex-start">${A.goalIconSvg(g, levelWorld(id).id)}<span>${esc(goalText(g, levelWorld(id)))}</span></div>`,
       )
       .join('')
     const modal = openModal({
@@ -814,7 +824,7 @@
     const s = slot()
     const parsed = L.parseLevelId(id)
     const def = L.buildLevel(parsed.region, parsed.n)
-    const c = character(s.character)
+    const c = character(regionWorld(parsed.region).hero.id)
     const state = E.createLevelState(def, {
       perk: c.perk,
       bonusMoves: c.perk === 'extra-moves' ? 2 : 0,
@@ -849,14 +859,15 @@
       game.busy = false
     }
     const s = slot()
-    const c = character(s.character)
+    const world = levelWorld(game.id)
+    const c = character(world.hero.id)
     const region = L.REGIONS[game.def.region]
     audio.startMusic({
       ...region.music,
       tempo: region.music.tempo + 6,
       tag: 'level',
     })
-    appEl.innerHTML = `<section class="screen game-screen" style="background:linear-gradient(180deg, ${region.sky[0]}cc, ${region.sky[1]}cc)">
+    appEl.innerHTML = `<section class="screen game-screen ${world.ui.dark ? 'dark' : ''}" data-world="${world.id}" style="${themeStyle(world)};background:url('/images/hopeful-hues/regions/${region.id}.webp') center / cover, linear-gradient(180deg, ${region.sky[0]}, ${region.sky[1]})">
       <div class="topbar">
         ${backButton('Map')}
         <h2>${esc(region.name)} · ${game.def.finale ? 'Finale' : 'Level ' + game.def.n}</h2>
@@ -911,35 +922,28 @@
     startGuidance()
   }
 
-  const TIPS = {
-    collect: {
-      title: 'Collect colors',
-      text: 'This level asks for a color. Every tile of that color you clear counts toward the goal up top.',
-    },
-    gloom: {
-      title: 'Grey Gloom',
-      text: 'Gloom hides under tiles. Make matches on top of it to wash it away. Darker Gloom needs two washes.',
-    },
-    tangle: {
-      title: 'Tangles',
-      text: 'Tangles are knots that block a space. Match right next to them, or hit them with a special, to untie them.',
-    },
-    buddy: {
-      title: 'Robot buddies',
-      text: 'Bring buddies down to the bottom row to rescue them. You can always swap a buddy down one space, and specials beam them straight home.',
-    },
-    comb: {
-      title: 'Rainbow Comb!',
-      text: 'Four in a line made a Rainbow Comb. Match it or swap it to sweep a whole row or column.',
-    },
-    bomb: {
-      title: 'Glitter Bomb!',
-      text: 'An L or T shape made a Glitter Bomb. Set it off to sparkle away everything around it.',
-    },
-    rainbow: {
-      title: 'Rainbow Dye!',
-      text: 'Swap a Rainbow Dye with any tile to clear every tile of that color. Swap two specials together for an even bigger burst.',
-    },
+  function tipFor(key) {
+    const world = activeWorld()
+    const b = world.blockers
+    const sp = world.specials
+    const tips = {
+      collect: {
+        title: 'Collect ' + world.name.replace(/^.*'s /, ''),
+        text: 'This level asks for a kind of jewel. Every one you clear counts toward the goal up top.',
+      },
+      gloom: { title: b.gloom.name, text: b.gloom.text },
+      tangle: { title: b.tangle.name, text: b.tangle.text },
+      buddy: { title: b.buddy.name, text: b.buddy.text },
+      comb: { title: sp.comb.name + '!', text: sp.comb.text },
+      bomb: { title: sp.bomb.name + '!', text: sp.bomb.text },
+      rainbow: {
+        title: sp.rainbow.name + '!',
+        text:
+          sp.rainbow.text +
+          ' Swap two specials together for an even bigger burst.',
+      },
+    }
+    return tips[key]
   }
 
   function coach({ title, text, button, focus, skip, place }) {
@@ -950,7 +954,7 @@
     el.className = 'coach ' + (place || 'bottom')
     el.setAttribute('role', 'dialog')
     el.setAttribute('aria-label', title)
-    el.innerHTML = `${heroArt(slot().character, 56, 'coach-portrait')}<div class="coach-body"><b>${esc(title)}</b><p>${esc(text)}</p><div class="coach-actions">${skip ? '<button class="btn small" data-coach="skip">Skip tutorial</button>' : ''}${button ? `<button class="btn small rainbow" data-coach="next">${esc(button)}</button>` : ''}</div></div>`
+    el.innerHTML = `${heroArt(activeWorld().hero.id, 56, 'coach-portrait')}<div class="coach-body"><b>${esc(title)}</b><p>${esc(text)}</p><div class="coach-actions">${skip ? '<button class="btn small" data-coach="skip">Skip tutorial</button>' : ''}${button ? `<button class="btn small rainbow" data-coach="next">${esc(button)}</button>` : ''}</div></div>`
     screen.appendChild(el)
     if (focus) {
       const target = appEl.querySelector(focus)
@@ -1003,7 +1007,8 @@
     if (!s || !game || game.state.over) return
     if (
       !s.tutorialDone &&
-      game.id === 'salon-1' &&
+      game.def.n === 1 &&
+      L.REGIONS[game.def.region].tier === 0 &&
       !game.tutorialStarted &&
       !game.history.length
     ) {
@@ -1025,7 +1030,7 @@
     const lowerHalf = move[0][0] >= game.state.rows / 2
     const first = await Promise.race([
       coach({
-        title: 'Welcome to the salon!',
+        title: 'Welcome to ' + activeWorld().name + '!',
         text: 'Swap the two wiggling tiles to line up three of a color. Drag one onto the other, or tap one and then the other.',
         skip: true,
         place: lowerHalf ? 'top' : 'bottom',
@@ -1079,7 +1084,7 @@
 
   async function showTip(key) {
     const s = slot()
-    const tip = TIPS[key]
+    const tip = tipFor(key)
     if (!s || !tip || !game || s.tips.includes(key)) return
     s.tips.push(key)
     persist()
@@ -1167,24 +1172,24 @@
   }
 
   function tileSvg(tile) {
-    if (tile.kind === 'buddy') return A.buddySvg()
-    if (tile.kind === 'tangle') return A.tangleSvg(tile.hp)
-    return A.gemSvg(tile.color, tile.special, data.settings.symbols)
+    const worldId = levelWorld(game.id).id
+    if (tile.kind === 'buddy') return A.buddySvg(worldId)
+    if (tile.kind === 'tangle') return A.tangleSvg(tile.hp, worldId)
+    return A.gemSvg(tile.color, tile.special, data.settings.symbols, worldId)
   }
 
   function tileLabel(tile) {
-    if (tile.kind === 'buddy') return 'robot buddy'
-    if (tile.kind === 'tangle') return 'tangle'
-    const names = {
-      h: 'row comb',
-      v: 'column comb',
-      bomb: 'glitter bomb',
-      rainbow: 'rainbow dye',
-    }
-    return tile.special === 'rainbow'
-      ? 'rainbow dye'
-      : M.COLOR_NAMES[tile.color] +
-          (tile.special ? ' ' + names[tile.special] : '')
+    const world = levelWorld(game.id)
+    if (tile.kind === 'buddy') return world.blockers.buddy.name
+    if (tile.kind === 'tangle') return world.blockers.tangle.name
+    if (tile.special === 'rainbow') return world.specials.rainbow.name
+    const name = world.jewels[tile.color].name
+    if (tile.special === 'h')
+      return name + ' ' + world.specials.comb.name + ' (row)'
+    if (tile.special === 'v')
+      return name + ' ' + world.specials.comb.name + ' (column)'
+    if (tile.special === 'bomb') return name + ' ' + world.specials.bomb.name
+    return name
   }
 
   function drawBoard(board, instant, spawnFrom) {
@@ -1263,7 +1268,7 @@
             ? Math.max(0, g.target - st.score)
             : g.target - g.progress
         const done = remaining <= 0
-        return `<span class="goal ${done ? 'done' : ''}" title="${esc(goalText(g))}">${A.goalIconSvg(g)}${done ? '✓' : g.type === 'score' ? remaining.toLocaleString() : remaining}</span>`
+        return `<span class="goal ${done ? 'done' : ''}" title="${esc(goalText(g))}">${A.goalIconSvg(g, levelWorld(game.id).id)}${done ? '✓' : g.type === 'score' ? remaining.toLocaleString() : remaining}</span>`
       })
       .join('')
     const undo = appEl.querySelector('[data-action="undo"]')
@@ -1454,6 +1459,32 @@
     scheduleHint()
   }
 
+  function burst(cleared, cell) {
+    if (data.settings.reducedMotion || !game) return
+    const world = levelWorld(game.id)
+    const fx = game.els.fx
+    const sample = cleared.slice(0, 12)
+    sample.forEach((item, i) => {
+      for (let k = 0; k < 2; k++) {
+        const p = document.createElement('span')
+        p.className = 'particle'
+        p.textContent =
+          world.effects.glyphs[(i + k) % world.effects.glyphs.length]
+        const angle = ((i * 7 + k * 3) % 12) * (Math.PI / 6)
+        const dist = cell * (0.8 + ((i + k) % 3) * 0.35)
+        p.style.left = (item.c + 0.5) * cell + 'px'
+        p.style.top = (item.r + 0.5) * cell + 'px'
+        p.style.color =
+          world.effects.colors[(i + k) % world.effects.colors.length]
+        p.style.fontSize = Math.max(12, cell * 0.36) + 'px'
+        p.style.setProperty('--px', Math.cos(angle) * dist + 'px')
+        p.style.setProperty('--py', Math.sin(angle) * dist + 'px')
+        fx.appendChild(p)
+        setTimeout(() => p.remove(), 750)
+      }
+    })
+  }
+
   async function playPhases(phases, a, b) {
     const cell = game.cell
     const fx = game.els.fx
@@ -1525,6 +1556,7 @@
       }
       const cleared = phase.cleared
       if (cleared.length) {
+        burst(cleared, cell)
         audio.play('match', phase.cascade)
         for (const item of cleared) {
           const el = game.els.tileMap.get(item.id)
@@ -1538,7 +1570,7 @@
         for (const hurt of phase.hurt) {
           const el = game.els.tileMap.get(hurt.id)
           if (el) {
-            el.innerHTML = A.tangleSvg(hurt.hp)
+            el.innerHTML = A.tangleSvg(hurt.hp, levelWorld(game.id).id)
             el._sig = 'tangle:undefined:undefined:' + hurt.hp
           }
         }
@@ -1763,6 +1795,7 @@
     const s = slot()
     const isFinale = game.def.finale
     const regionDone = game.def.regionFinale
+    const doneRegionId = game.def.region
     const nextId = nextLevelId()
     const sparkleLine = report.sparklesEarned
       ? `<p class="center">✨ +${report.sparklesEarned} sparkles</p>`
@@ -1773,8 +1806,8 @@
     const modal = openModal({
       title: isFinale ? 'Finale complete!' : 'Level complete!',
       dismissable: false,
-      body: `<div class="result-stars">${[0, 1, 2].map((k) => `<span class="s">${A.starSvg(k < stars)}</span>`).join('')}</div><p class="center" style="font-size:1.4rem;font-weight:900">${st.score.toLocaleString()} points</p>${sparkleLine}${unlocked ? `<p class="center">📔 ${unlocked} new scrapbook page${unlocked > 1 ? 's' : ''}</p>` : ''}<p class="center muted">${esc(character(s.character).cheer[stars % 5])}</p>`,
-      foot: `<button class="btn" data-m="map">Map</button><button class="btn" data-m="replay">Replay</button>${nextId && !isFinale && !regionDone ? '<button class="btn rainbow" data-m="next">Next level →</button>' : ''}${isFinale ? '<button class="btn rainbow" data-m="ending">See the ending ✨</button>' : ''}${regionDone && !isFinale ? '<button class="btn rainbow" data-m="map">Choose a path →</button>' : ''}`,
+      body: `<div class="result-stars">${[0, 1, 2].map((k) => `<span class="s">${A.starSvg(k < stars)}</span>`).join('')}</div><p class="center" style="font-size:1.4rem;font-weight:900">${st.score.toLocaleString()} points</p>${sparkleLine}${unlocked ? `<p class="center">📔 ${unlocked} new scrapbook page${unlocked > 1 ? 's' : ''}</p>` : ''}<p class="center muted">${esc(character(levelWorld(game.id).hero.id).cheer[stars % 5])}</p>`,
+      foot: `<button class="btn" data-m="map">Map</button><button class="btn" data-m="replay">Replay</button>${nextId && !isFinale && !regionDone ? '<button class="btn rainbow" data-m="next">Next level →</button>' : ''}${isFinale ? '<button class="btn rainbow" data-m="ending">See the ending ✨</button>' : ''}${regionDone && !isFinale ? '<button class="btn rainbow" data-m="map">Onward →</button>' : ''}`,
     })
     ;[0, 1, 2].forEach(
       (k) =>
@@ -1784,8 +1817,10 @@
       map: () => {
         closeModal(true)
         leaveLevel()
-        if (regionDone && !isFinale && M.pendingFork(s, L))
-          setTimeout(() => openFork(M.pendingFork(s, L)), 250)
+        if (regionDone && !isFinale) {
+          const nextRegion = L.nextOf(doneRegionId)
+          if (nextRegion) setTimeout(() => showRegionIntro(nextRegion), 250)
+        }
       },
       replay: () => {
         closeModal(true)
@@ -1813,7 +1848,7 @@
 
   function nextLevelId() {
     const s = slot()
-    const list = L.routeLevels(s.route)
+    const list = L.routeLevels(levelWorld(game.id).id)
     const index = list.indexOf(game.id)
     return index >= 0 && index < list.length - 1 ? list[index + 1] : null
   }
@@ -1886,13 +1921,14 @@
     const ending = L.ENDINGS[endingId]
     if (!ending) return
     const s = slot()
-    const c = character(s.character)
     const region = ending.region ? L.REGIONS[ending.region] : null
+    const world = region ? regionWorld(region.id) : slotWorld(s)
+    const c = character(world.hero.id)
+    const cast = ending.secret ? L.CHARACTERS : [c]
     audio.play('win')
     audio.startMusic({
-      root: 65,
-      mode: 'lydian',
-      tempo: 80,
+      ...world.music,
+      tempo: Math.max(70, world.music.tempo - 12),
       tag: 'ending-' + endingId,
     })
     const el = document.createElement('div')
@@ -1902,7 +1938,14 @@
     const others = Object.values(L.ENDINGS).filter(
       (e) => !s.endings.includes(e.id),
     ).length
-    el.innerHTML = `<div class="cast">${L.CHARACTERS.map((ch) => heroArt(ch.id, 70, 'ending-portrait')).join('')}</div><h1>${esc(ending.title)}</h1><div class="panel">${endingArt(endingId, 'scene')}${region ? `<p class="muted">${esc(region.name)}</p>` : '<p class="muted">Secret ending</p>'}<p style="font-size:1.08rem">${esc(ending.text)}</p><p><b>${esc(c.name)}:</b> ${esc(c.epilogue)}</p><p class="credits">${others ? `${others} more ending${others > 1 ? 's are' : ' is'} still out there. Try another path from the Routes map.` : 'You found every ending. Thank you for bringing color to everyone.'}</p><p class="credits">Hopeful Hues · a Kind Robots game · starring Superkate, rainbow hair hero · made with love and a back button.</p><button class="btn rainbow" data-done>${then ? 'Wait… there is more ✨' : 'Back to the map'}</button></div>`
+    el.setAttribute(
+      'style',
+      themeStyle(world) +
+        (ending.secret
+          ? ''
+          : `;background:linear-gradient(135deg, ${world.ui.bg.join(', ')}, ${world.ui.accent})`),
+    )
+    el.innerHTML = `<div class="cast">${cast.map((ch) => heroArt(ch.id, 70, 'ending-portrait')).join('')}</div><h1>${esc(ending.title)}</h1><div class="panel">${endingArt(endingId, 'scene')}${region ? `<p class="muted">${esc(world.name)} · ${esc(region.name)}</p>` : '<p class="muted">Secret ending</p>'}<p style="font-size:1.08rem">${esc(ending.text)}</p><p><b>${esc(c.name)}:</b> ${esc(c.epilogue)}</p><p class="credits">${others ? `${others} more ending${others > 1 ? 's are' : ' is'} still out there. Visit another world from the map.` : 'You found every ending. Thank you for bringing color to everyone.'}</p><p class="credits">Hopeful Hues · a Kind Robots game · starring ${L.CHARACTERS.map((h) => esc(h.name)).join(', ')} · made with love and a back button.</p><button class="btn rainbow" data-done>${then ? 'Wait… there is more ✨' : 'Back to the map'}</button></div>`
     document.body.appendChild(el)
     el.querySelector('[data-done]').focus()
     el.querySelector('[data-done]').addEventListener('click', () => {
@@ -1992,14 +2035,20 @@
   function openAchievements() {
     const s = slot()
     const got = Object.keys(s.achievements).length
-    const grid = M.ACHIEVEMENTS.map((a, i) => {
+    const card = (a, i) => {
       const when = s.achievements[a.id]
       return `<div class="ach ${when ? '' : 'locked'}"><div class="medal">${MEDALS[i % MEDALS.length]}</div><b>${esc(a.name)}</b><div class="muted">${esc(a.text)}</div>${when ? `<div class="muted">✓ ${new Date(when).toLocaleDateString()}</div>` : ''}</div>`
-    }).join('')
+    }
+    const general = M.ACHIEVEMENTS.filter((a) => !a.world)
+    let body = `<div class="section-title">Everywhere <small>${general.filter((a) => s.achievements[a.id]).length}/${general.length}</small></div><div class="ach-grid">${general.map(card).join('')}</div>`
+    for (const w of W.list()) {
+      const list = M.ACHIEVEMENTS.filter((a) => a.world === w.id)
+      body += `<div class="section-title">${esc(w.name)} <small>${list.filter((a) => s.achievements[a.id]).length}/${list.length}</small></div><div class="ach-grid">${list.map((a, i) => card(a, i + w.order)).join('')}</div>`
+    }
     openModal({
       title: `Achievements · ${got}/${M.ACHIEVEMENTS.length}`,
       wide: true,
-      body: `<div class="ach-grid">${grid}</div>`,
+      body,
     })
   }
 
@@ -2109,7 +2158,7 @@
         persist()
         toast(
           '🌈',
-          'The tutorial will play on Sunrise Salon Street level 1, and tips will show again.',
+          'The tutorial will play on the first level of any world, and tips will show again.',
         )
       },
       slots: () => {
@@ -2124,23 +2173,26 @@
   }
 
   function openGuide() {
-    const tile = (color, special) =>
-      `<span style="display:inline-block;width:34px;height:34px;vertical-align:middle">${A.gemSvg(color, special, true)}</span>`
+    const world = activeWorld()
+    const wid = world.id
+    const icon = (svg) =>
+      `<span style="display:inline-block;width:34px;height:34px;vertical-align:middle">${svg}</span>`
+    const sp = world.specials
+    const b = world.blockers
     openModal({
       title: 'How to play',
       wide: true,
-      body: `<p><b>Swap two neighboring tiles</b> to line up 3 or more of the same color. Drag, or tap one tile then its neighbor. Keyboard: arrows move, Enter selects, arrows swap.</p>
+      body: `<p><b>Swap two neighboring jewels</b> to line up 3 or more of the same kind. Drag, or tap one and then its neighbor. Keyboard: arrows move, Enter selects, arrows swap.</p>
         <p><b>↶ Back a move</b> undoes your last swap, exactly as it was. Use it as often as you like (or set a limit in Settings). Even on the "So close" screen you can step back.</p>
-        <p>${tile(0, 'h')} <b>Rainbow Comb</b>: match 4 in a line. It sweeps a whole row or column.</p>
-        <p>${tile(4, 'bomb')} <b>Glitter Bomb</b>: match in an L or T shape. It sparkles away everything around it.</p>
-        <p>${tile(0, 'rainbow')} <b>Rainbow Dye</b>: match 5 in a line. Swap it with any tile to clear every tile of that color.</p>
-        <p><b>Swap two specials together</b> for giant combos: comb + comb makes a cross, comb + bomb sweeps three rows and columns, bomb + bomb makes a huge blast, and two Rainbow Dyes clear the whole board.</p>
-        <p><span style="display:inline-block;width:34px;height:34px;vertical-align:middle">${A.goalIconSvg({ type: 'gloom' })}</span> <b>Gloom</b>: grey patches under tiles. Match on top to wash them away. Darker gloom takes two washes.</p>
-        <p><span style="display:inline-block;width:34px;height:34px;vertical-align:middle">${A.tangleSvg(1)}</span> <b>Tangles</b>: knots that block a space. Match next to them or blast them with specials.</p>
-        <p><span style="display:inline-block;width:34px;height:34px;vertical-align:middle">${A.buddySvg()}</span> <b>Robot buddies</b>: guide them to the bottom of the board to rescue them. You can always swap a buddy down one space, even without a match, and any special that reaches a buddy beams it straight home.</p>
-        <p><b>Map</b>: the road is long and branches twice, leading to four regions with their own endings, plus a secret fifth. Levels give up to 3 stars. Story pages, postcards, friends, endings and stickers fill your <b>Scrapbook</b>.</p>
-        <p><b>Quests</b> refresh every day and every week. Claim them for sparkles, which buy +5 move gifts when you need a hand.</p>
-        <p><b>Heroes</b>: Superkate, Sprocket, Juniper and Marigold each have a perk. Switch anytime from the map.</p>
+        <p>${icon(A.gemSvg(0, 'h', true, wid))} <b>${esc(sp.comb.name)}</b>: ${esc(sp.comb.text)}</p>
+        <p>${icon(A.gemSvg(4, 'bomb', true, wid))} <b>${esc(sp.bomb.name)}</b>: ${esc(sp.bomb.text)}</p>
+        <p>${icon(A.gemSvg(0, 'rainbow', true, wid))} <b>${esc(sp.rainbow.name)}</b>: ${esc(sp.rainbow.text)}</p>
+        <p><b>Swap two specials together</b> for giant combos: two sweepers make a cross, a sweeper and a blast clear three rows and columns, two blasts make a huge burst, and two color-clearers clear the whole board.</p>
+        <p>${icon(A.goalIconSvg({ type: 'gloom' }, wid))} <b>${esc(b.gloom.name)}</b>: ${esc(b.gloom.text)}</p>
+        <p>${icon(A.tangleSvg(1, wid))} <b>${esc(b.tangle.name)}</b>: ${esc(b.tangle.text)}</p>
+        <p>${icon(A.buddySvg(wid))} <b>${esc(b.buddy.name)}</b>: ${esc(b.buddy.text)}</p>
+        <p><b>Worlds</b>: ${W.list().length} worlds, each with its own hero, jewels, story, quests, achievements and ending. Each world is a long road through three regions. Switch worlds from the map at any time; finish them all for a secret ending.</p>
+        <p><b>Quests</b> refresh every day and every week, with one quest themed to your current world. Claim them for sparkles, which buy +5 move gifts when you need a hand.</p>
         <p class="muted">There are no lives, timers or purchases. Saves stay on this device, and you can export a save code.</p>`,
     })
   }

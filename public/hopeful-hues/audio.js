@@ -6,6 +6,110 @@
     lydian: [0, 2, 4, 6, 7, 9, 11],
     mixolydian: [0, 2, 4, 5, 7, 9, 10],
     dorian: [0, 2, 3, 5, 7, 9, 10],
+    minor: [0, 2, 3, 5, 7, 8, 10],
+    harmonic: [0, 2, 3, 5, 7, 8, 11],
+  }
+
+  const TIMBRES = {
+    bell: {
+      pad: 'triangle',
+      padGain: 0.05,
+      bass: 'sine',
+      lead: 'sine',
+      leadGain: 0.045,
+      melody: 'triangle',
+      hat: true,
+      release: 1.4,
+    },
+    chip: {
+      pad: 'square',
+      padGain: 0.018,
+      bass: 'square',
+      lead: 'square',
+      leadGain: 0.022,
+      melody: 'square',
+      hat: true,
+      release: 0.6,
+      filter: 2600,
+    },
+    organ: {
+      pad: 'sawtooth',
+      padGain: 0.03,
+      bass: 'sine',
+      lead: 'triangle',
+      leadGain: 0.03,
+      melody: 'sawtooth',
+      hat: false,
+      release: 2.2,
+      filter: 1100,
+    },
+    lounge: {
+      pad: 'sine',
+      padGain: 0.05,
+      bass: 'triangle',
+      lead: 'sine',
+      leadGain: 0.05,
+      melody: 'sine',
+      hat: true,
+      release: 1.1,
+      swing: 0.18,
+      filter: 3200,
+    },
+    musicbox: {
+      pad: 'sine',
+      padGain: 0.018,
+      bass: 'sine',
+      lead: 'sine',
+      leadGain: 0.06,
+      melody: 'triangle',
+      hat: false,
+      release: 0.5,
+      octave: 24,
+    },
+    harp: {
+      pad: 'sine',
+      padGain: 0.035,
+      bass: 'triangle',
+      lead: 'triangle',
+      leadGain: 0.05,
+      melody: 'sine',
+      hat: false,
+      release: 2.4,
+    },
+    accordion: {
+      pad: 'sawtooth',
+      padGain: 0.022,
+      bass: 'triangle',
+      lead: 'sawtooth',
+      leadGain: 0.02,
+      melody: 'square',
+      hat: true,
+      release: 0.9,
+      filter: 1800,
+    },
+    synth: {
+      pad: 'sawtooth',
+      padGain: 0.02,
+      bass: 'sawtooth',
+      lead: 'square',
+      leadGain: 0.02,
+      melody: 'sawtooth',
+      hat: true,
+      release: 0.8,
+      filter: 2400,
+      kick: true,
+    },
+    choir: {
+      pad: 'sine',
+      padGain: 0.06,
+      bass: 'sine',
+      lead: 'sine',
+      leadGain: 0.03,
+      melody: 'sine',
+      hat: false,
+      release: 2.8,
+      attack: 0.5,
+    },
   }
 
   const PROGRESSIONS = [
@@ -245,49 +349,74 @@
 
     function scheduleStep(time) {
       const { root: rootNote, mode, tempo, progression } = song
+      const t = TIMBRES[song.timbre] || TIMBRES.bell
       const scale = MODES[mode] || MODES.major
       const beat = 60 / tempo / 2
-      const bar = Math.floor(step / 8) % progression.length
+      const perBar = song.meter === 3 ? 6 : 8
+      const bar = Math.floor(step / perBar) % progression.length
       const degree = progression[bar]
       const chordNote = (d) =>
         rootNote + scale[(degree + d) % 7] + 12 * Math.floor((degree + d) / 7)
-      const s = step % 8
+      const s = step % perBar
+      const at = time + (t.swing && s % 2 === 1 ? beat * t.swing : 0)
       if (s === 0) {
         ;[0, 2, 4].forEach((d) =>
-          tone(musicBus, midiToHz(chordNote(d) - 12), time, beat * 8, {
-            type: 'triangle',
-            gain: 0.05,
-            attack: 0.3,
-            filter: 1400,
+          tone(musicBus, midiToHz(chordNote(d) - 12), at, beat * perBar, {
+            type: t.pad,
+            gain: t.padGain,
+            attack: t.attack || 0.3,
+            filter: t.filter || 1400,
           }),
         )
-        tone(musicBus, midiToHz(chordNote(0) - 24), time, beat * 3, {
-          type: 'sine',
-          gain: 0.12,
-          attack: 0.02,
-        })
       }
-      if (s === 4)
-        tone(musicBus, midiToHz(chordNote(0) - 24), time, beat * 3, {
-          type: 'sine',
-          gain: 0.1,
+      const bassBeats = song.meter === 3 ? [0] : [0, 4]
+      if (bassBeats.includes(s))
+        tone(musicBus, midiToHz(chordNote(0) - 24), at, beat * 3, {
+          type: t.bass,
+          gain: 0.11,
+          attack: 0.02,
+          filter: t.filter,
         })
-      const arp = [0, 2, 4, 7, 4, 2, 4, 9][s]
-      tone(musicBus, midiToHz(chordNote(arp) + 12), time, beat * 1.4, {
-        type: 'sine',
-        gain: 0.045,
-      })
+      if (song.meter === 3 && (s === 2 || s === 4))
+        [2, 4].forEach((d) =>
+          tone(musicBus, midiToHz(chordNote(d) - 12), at, beat * 0.9, {
+            type: t.bass,
+            gain: 0.035,
+            filter: t.filter,
+          }),
+        )
+      const arpPattern =
+        song.meter === 3 ? [0, 2, 4, 7, 4, 2] : [0, 2, 4, 7, 4, 2, 4, 9]
+      tone(
+        musicBus,
+        midiToHz(chordNote(arpPattern[s]) + (t.octave || 12)),
+        at,
+        beat * t.release,
+        {
+          type: t.lead,
+          gain: t.leadGain,
+          filter: t.filter,
+        },
+      )
       if (song.melody[step % song.melody.length] !== null && s % 2 === 0) {
         const m = song.melody[step % song.melody.length]
         tone(
           musicBus,
           midiToHz(rootNote + 12 + scale[m % 7] + 12 * Math.floor(m / 7)),
-          time,
+          at,
           beat * 1.8,
-          { type: 'triangle', gain: 0.04, filter: 3000 },
+          {
+            type: t.melody,
+            gain: 0.035,
+            filter: t.filter || 3000,
+            attack: t.attack ? 0.15 : 0.01,
+          },
         )
       }
-      if (s === 2 || s === 6) noise(musicBus, time, 0.05, 0.03, 7000)
+      if (t.kick && s % 2 === 0)
+        tone(musicBus, 110, at, 0.18, { type: 'sine', gain: 0.16, slide: 0.35 })
+      if (t.hat && (s === 2 || s === 6 || (song.meter === 3 && s === 4)))
+        noise(musicBus, at, 0.05, 0.03, 7000)
     }
 
     function tick() {
@@ -319,6 +448,8 @@
         root: spec.root || 60,
         mode: spec.mode || 'major',
         tempo: spec.tempo || 96,
+        timbre: spec.timbre || 'bell',
+        meter: spec.meter || 4,
         progression: PROGRESSIONS[(seed >>> 4) % PROGRESSIONS.length],
         melody,
       }

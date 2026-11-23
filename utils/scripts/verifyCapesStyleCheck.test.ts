@@ -15,6 +15,12 @@ import {
   identityArtwork,
 } from '../cometAcademy/artSlots'
 import { promArt } from '../cometAcademy/artManifest'
+import { henchmanForVillain } from '../cometAcademy/villainHenchmen'
+import {
+  CREW_TELL_ART,
+  CREW_TELL_BEATS,
+  crewTellKindForVillain,
+} from '../everyVillainTactics/crewTelegraphArt'
 import {
   CAPES_STYLE_CRITERIA,
   CAPES_STYLE_DESIGNER,
@@ -232,6 +238,51 @@ assert.match(atlas, /IDENTITY_ARCS/)
 assert.match(atlas, /henchmanForVillain/)
 assert.match(atlas, /data-testid="capes-henchman-poster"/)
 assert.match(atlas, /data-testid="capes-lieutenant-poster"/)
+assert.match(atlas, /data-testid="capes-crew-private-gallery"/)
+assert.match(atlas, /CREW_TELL_BEATS/)
+assert.match(atlas, /paintedArt\.ensure\(receipt\.imageId\)/)
+assert.match(atlas, /paintedArt\.retry\(crewProofReceipt\(beat\)\.imageId\)/)
+assert.match(atlas, /useEveryVillainTacticsArtStore/)
+assert.match(atlas, /viewer\.isAdmin/)
+assert.match(atlas, /selectedCrewPrivateSrc/)
+assert.doesNotMatch(atlas, /\/api\/art\/images\//)
+const sourceCrewSignatures = {
+  burrow: 'accident-earth',
+  phase: 'alien-discipline',
+  windup: 'accident-birthright',
+} as const
+const privateCrewImages = new Set<number>()
+const privateCrewJobs = new Set<number>()
+const privateCrewKeys = new Set<string>()
+for (const [kind, signature] of Object.entries(sourceCrewSignatures)) {
+  assert.equal(
+    crewTellKindForVillain(
+      signature as Parameters<typeof crewTellKindForVillain>[0],
+    ),
+    kind,
+  )
+  assert.equal(
+    henchmanForVillain(signature as Parameters<typeof henchmanForVillain>[0])
+      .name,
+    CREW_TELL_ART[kind as keyof typeof CREW_TELL_ART].name,
+  )
+  for (const beat of CREW_TELL_BEATS) {
+    const receipt =
+      CREW_TELL_ART[kind as keyof typeof CREW_TELL_ART].beats[beat]
+    privateCrewImages.add(receipt.imageId)
+    privateCrewJobs.add(receipt.jobId)
+    privateCrewKeys.add(receipt.artKey)
+    assert.ok(receipt.artKey.includes('/' + signature + '/'))
+  }
+}
+assert.equal(crewTellKindForVillain('tech-genius'), null)
+assert.equal(privateCrewImages.size, 12)
+assert.equal(privateCrewJobs.size, 12)
+assert.equal(privateCrewKeys.size, 12)
+assert.deepEqual(
+  [...privateCrewImages].sort((a, b) => a - b),
+  Array.from({ length: 12 }, (_, i) => 277786 + i),
+)
 assert.match(atlas, /campaignStagesFor/)
 // The atlas must resolve actual shipped files through the canonical identity
 // resolver, not a particular source-level call shape or component refactor.

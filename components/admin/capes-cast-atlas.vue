@@ -160,7 +160,11 @@
               <img
                 v-if="supportArt('henchmen')"
                 :src="supportArt('henchmen')!"
-                :alt="selectedCrew.name + ' henchman species splash'"
+                :alt="
+                  selectedCrewPrivateSrc
+                    ? selectedCrew.captain + ' private original candidate'
+                    : selectedCrew.name + ' henchman species splash'
+                "
               />
               <div
                 v-else
@@ -191,7 +195,13 @@
             </dl>
             <div class="atlas-rank-foot">
               <span>Henchman poster · portrait · 2:1 tactical standee</span>
-              <span class="atlas-unlinked">Art planned</span>
+              <span class="atlas-unlinked">
+                {{
+                  selectedCrewPrivateSrc
+                    ? 'Private captain preview · review pending'
+                    : 'Art planned'
+                }}
+              </span>
             </div>
           </article>
           <article class="atlas-rank atlas-lieutenant">
@@ -242,6 +252,96 @@
           </article>
         </div>
 
+        <section
+          class="atlas-crew-proof"
+          aria-label="Private original crew illustration review"
+          data-testid="capes-crew-private-gallery"
+        >
+          <div class="atlas-proof-heading">
+            <div>
+              <p class="atlas-eyebrow">ORIGINAL ART · PRIVATE INTAKE</p>
+              <h4>One-hit crew visual proofs</h4>
+              <p>
+                Twelve commissioned warning, action, counter and captain
+                paintings. Private previews are not composition approvals.
+              </p>
+            </div>
+            <span aria-live="polite">
+              {{ loadedCrewProofs }} / 12 fetched for private review
+            </span>
+          </div>
+          <div
+            class="atlas-crew-tabs"
+            role="group"
+            aria-label="Choose one-hit crew image family"
+          >
+            <button
+              v-for="kind in crewKinds"
+              :key="kind"
+              type="button"
+              :aria-pressed="galleryCrew === kind"
+              :class="{ selected: galleryCrew === kind }"
+              @click="galleryCrew = kind"
+            >
+              {{ CREW_TELL_ART[kind].name }}
+            </button>
+          </div>
+          <div class="atlas-proof-grid">
+            <figure
+              v-for="beat in CREW_TELL_BEATS"
+              :key="galleryCrew + '-' + beat"
+              class="atlas-proof-card"
+              :data-testid="'capes-crew-proof-' + beat"
+            >
+              <div class="atlas-proof-image">
+                <img
+                  v-if="crewProofImage(beat)"
+                  :src="crewProofImage(beat)!"
+                  :alt="
+                    CREW_TELL_ART[galleryCrew].name + ' ' + beat + ' painting'
+                  "
+                  loading="lazy"
+                />
+                <div v-else class="atlas-proof-empty">
+                  <span>
+                    {{
+                      crewProofStatus(beat) === 'failed'
+                        ? 'Private render unavailable'
+                        : viewer.token
+                          ? 'Loading private painting'
+                          : 'Admin sign-in required'
+                    }}
+                  </span>
+                  <button
+                    v-if="crewProofStatus(beat) === 'failed'"
+                    type="button"
+                    @click="retryCrewProof(beat)"
+                  >
+                    Retry image
+                  </button>
+                </div>
+              </div>
+              <figcaption>
+                <strong>{{ readable(beat) }}</strong>
+                <span>{{ crewProofReceipt(beat).title }}</span>
+                <code>{{ crewProofReceipt(beat).artKey }}</code>
+                <small>
+                  ArtJob #{{ crewProofReceipt(beat).jobId }} · ArtImage #{{
+                    crewProofReceipt(beat).imageId
+                  }}
+                </small>
+                <small class="atlas-proof-state">
+                  {{
+                    crewProofStatus(beat) === 'loaded'
+                      ? 'Media fetched · artwork review pending'
+                      : 'Private media not fetched'
+                  }}
+                </small>
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
         <div class="atlas-missions">
           <article>
             <span>ORIGIN LEVEL / POWER DISCOVERY</span>
@@ -266,14 +366,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { IDENTITY_ARCS } from '~/utils/cometAcademy/identityArcs'
 import { identityArtKey, identityArtwork } from '~/utils/cometAcademy/artSlots'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import { campaignStagesFor } from '~/utils/cometAcademy/identityCampaignStages'
 import { henchmanForVillain } from '~/utils/cometAcademy/villainHenchmen'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
+import {
+  CREW_TELL_ART,
+  CREW_TELL_BEATS,
+  crewTellKindForVillain,
+  type CrewTellBeat,
+  type CrewTellKind,
+  type CrewTellReceipt,
+} from '~/utils/everyVillainTactics/crewTelegraphArt'
+import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
+import { useUserStore } from '~/stores/userStore'
 
+const viewer = useUserStore()
+const paintedArt = useEveryVillainTacticsArtStore()
+const crewKinds = Object.keys(CREW_TELL_ART) as CrewTellKind[]
+const galleryCrew = ref<CrewTellKind>('burrow')
 const forms = ['hero', 'villain'] as const
 const search = ref('')
 const origin = ref('')
@@ -295,9 +409,41 @@ function art(
 ): string | null {
   return identityArtwork(signature, role)
 }
+const selectedCrewPrivateSrc = computed(() => {
+  const kind = crewTellKindForVillain(active.value.signature)
+  const id = kind ? CREW_TELL_ART[kind].beats.captain.imageId : null
+  return id ? (paintedArt.images[id]?.src ?? null) : null
+})
 function supportArt(group: 'henchmen' | 'lieutenants'): string | null {
+  if (group === 'henchmen' && selectedCrewPrivateSrc.value)
+    return selectedCrewPrivateSrc.value
   return promArt(group + '/' + active.value.signature + '/poster')
 }
+function crewProofReceipt(beat: CrewTellBeat): CrewTellReceipt {
+  return CREW_TELL_ART[galleryCrew.value].beats[beat]
+}
+function crewProofImage(beat: CrewTellBeat): string | null {
+  return paintedArt.images[crewProofReceipt(beat).imageId]?.src ?? null
+}
+function crewProofStatus(beat: CrewTellBeat): string {
+  return paintedArt.images[crewProofReceipt(beat).imageId]?.status ?? 'loading'
+}
+function retryCrewProof(beat: CrewTellBeat): void {
+  if (!viewer.isAdmin || !viewer.token) return
+  void paintedArt.retry(crewProofReceipt(beat).imageId)
+}
+const loadedCrewProofs = computed(() =>
+  crewKinds.reduce(
+    (total, kind) =>
+      total +
+      CREW_TELL_BEATS.filter(
+        (beat) =>
+          paintedArt.images[CREW_TELL_ART[kind].beats[beat].imageId]?.status ===
+          'loaded',
+      ).length,
+    0,
+  ),
+)
 const matching = computed(() => {
   const term = search.value.toLowerCase()
   return IDENTITY_ARCS.filter((person) => {
@@ -332,6 +478,29 @@ const deliveredPosters = computed(() =>
       total + forms.filter((role) => art(person.signature, role)).length,
     0,
   ),
+)
+watch(
+  [galleryCrew, () => viewer.token],
+  ([kind]) => {
+    if (!viewer.isAdmin || !viewer.token) {
+      paintedArt.clear()
+      return
+    }
+    for (const beat of CREW_TELL_BEATS) {
+      const receipt = CREW_TELL_ART[kind].beats[beat]
+      void paintedArt.ensure(receipt.imageId)
+    }
+  },
+  { immediate: true },
+)
+watch(
+  [() => active.value.signature, () => viewer.token],
+  ([signature]) => {
+    if (!viewer.isAdmin || !viewer.token) return
+    const kind = crewTellKindForVillain(signature)
+    if (kind) void paintedArt.ensure(CREW_TELL_ART[kind].beats.captain.imageId)
+  },
+  { immediate: true },
 )
 </script>
 
@@ -771,6 +940,109 @@ const deliveredPosters = computed(() =>
   white-space: nowrap;
   font-weight: 800;
 }
+.atlas-crew-proof {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #708faf80;
+  border-radius: 10px;
+  background: #111e33;
+}
+.atlas-proof-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+.atlas-proof-heading h4 {
+  font-size: 16px;
+  font-weight: 900;
+  color: #f0d09c;
+}
+.atlas-proof-heading p:not(.atlas-eyebrow) {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #bed0dd;
+}
+.atlas-proof-heading > span {
+  flex: none;
+  font-size: 10px;
+  color: #c7d7d9;
+}
+.atlas-crew-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.atlas-crew-tabs button,
+.atlas-proof-empty button {
+  border: 1px solid #708faf;
+  border-radius: 5px;
+  padding: 6px 8px;
+  background: #263953;
+  color: #f3e0b5;
+  font-size: 11px;
+}
+.atlas-crew-tabs button.selected {
+  border-color: #f1cd8b;
+  background: #485071;
+}
+.atlas-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.atlas-proof-card {
+  min-width: 0;
+  border: 1px solid #6b8194;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #162a40;
+}
+.atlas-proof-image {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  background: #0e1e31;
+}
+.atlas-proof-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.atlas-proof-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 8px;
+  text-align: center;
+  font-size: 10px;
+  color: #ebd6b1;
+}
+.atlas-proof-card figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+  color: #c2d1de;
+}
+.atlas-proof-card figcaption strong {
+  font-size: 12px;
+  color: #f2cf96;
+}
+.atlas-proof-card figcaption code {
+  font-size: 9px;
+  color: #8fcadf;
+}
+.atlas-proof-state {
+  color: #f0c98a;
+}
 .atlas-missions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -804,6 +1076,9 @@ const deliveredPosters = computed(() =>
   padding-bottom: 18px;
 }
 @media (max-width: 850px) {
+  .atlas-proof-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .atlas-layout {
     grid-template-columns: 1fr;
   }
@@ -827,6 +1102,12 @@ const deliveredPosters = computed(() =>
   }
 }
 @media (max-width: 540px) {
+  .atlas-proof-grid {
+    grid-template-columns: 1fr;
+  }
+  .atlas-proof-heading {
+    flex-direction: column;
+  }
   .atlas-form-grid,
   .atlas-ranks,
   .atlas-missions {

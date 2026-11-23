@@ -46,7 +46,12 @@ assert.equal(
   HALL_GAMES.length,
   'no cabinet drops out of the hall',
 )
-const ranks = arranged.map(shelfRank)
+assert.equal(
+  arranged[0]?.slug,
+  'superkate-spectrum',
+  'Superkate Spectrum is the first Arcade cabinet regardless of shelf or rating',
+)
+const ranks = arranged.filter((game) => game.slug !== 'superkate-spectrum').map(shelfRank)
 assert.deepEqual(
   ranks,
   [...ranks].sort((a, b) => a - b),
@@ -56,7 +61,9 @@ assert.ok(
   arranged.indexOf(quietShowcase) < arranged.indexOf(loudGrowing),
   'an unrated showcase cabinet still leads a top-rated growing one',
 )
-const growingShelf = arranged.filter(isGrowingCabinet)
+const growingShelf = arranged.filter(
+  (game) => isGrowingCabinet(game) && game.slug !== 'superkate-spectrum',
+)
 assert.equal(
   growingShelf[0]?.slug,
   loudGrowing.slug,

@@ -278,7 +278,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.shots++
     if (this.shots >= Math.max(4, 9 - Math.floor(this.level / 5))) {
       this.shots = 0
-      if (pushCeiling(this.board)) this.lose()
+      if (pushCeiling(this.board, this.rng)) this.lose()
     }
     if (this.board[ROWS - 1]!.some(Boolean)) this.lose()
   }

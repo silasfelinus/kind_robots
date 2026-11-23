@@ -236,7 +236,8 @@ for (const side of ['left', 'right'] as const) {
   game.speed = 1.3
   const mailbox = side === 'left' ? 74 : 182
   const direction = side === 'left' ? -1 : 1
-  const travel = (mailbox - game.bx - direction * 6) /
+  const travel =
+    (mailbox - game.bx - direction * 6) /
     (direction * (1.2 + game.speed * 0.65))
   game.by = house.y + 22 + 4 + game.speed * (travel + 1)
   const carry = game.carry
@@ -247,7 +248,11 @@ for (const side of ['left', 'right'] as const) {
   for (let i = 0; i < 40; i++) game.update(idle())
   assert.equal(house.delivered, true, `${side} mailbox is reachable`)
   assert.equal(house.bloom, 3)
-  assert.equal(other.delivered, false, 'a parcel cannot deliver across the road')
+  assert.equal(
+    other.delivered,
+    false,
+    'a parcel cannot deliver across the road',
+  )
   assert.equal(game.requestsMet, 1)
   assert.equal(game.score, 475, 'mailbox, request and full-bloom tip')
   assert.equal(game.packets.length, 0)
@@ -301,4 +306,6 @@ for (const side of ['left', 'right'] as const) {
   assert.equal(game.score, 0, 'no cancellations is not a perfect round')
 }
 
-console.log('Petal Post Primrose Lane authored week, Gazette and two-sided deliveries passed')
+console.log(
+  'Petal Post Primrose Lane authored week, Gazette and two-sided deliveries passed',
+)

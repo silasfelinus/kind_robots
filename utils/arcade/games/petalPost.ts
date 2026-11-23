@@ -1251,7 +1251,10 @@ class PetalPost implements ArcadeGameInstance {
     if (p.side === 'left' ? p.x > mailboxX('left') : p.x < mailboxX('right'))
       return
     if (house.subscriber && !house.delivered) {
-      if (Math.abs(p.x - doorX(house.side)) < 14 && Math.abs(p.y - house.y) < 14)
+      if (
+        Math.abs(p.x - doorX(house.side)) < 14 &&
+        Math.abs(p.y - house.y) < 14
+      )
         this.deliver(house, DOOR_POINTS, 'DOORSTEP', p, 'porch')
       else {
         this.deliver(house, GARDEN_POINTS * 2, 'ON THE LAWN', p)
@@ -1716,11 +1719,17 @@ class PetalPost implements ArcadeGameInstance {
     )
     g.restore()
     if (sub && h.request && !h.delivered) {
-      drawText(g, h.request === 'mailbox' ? 'MAIL' : 'PORCH', yardX(h.side, 55), sy - 38, {
-        align: 'center',
-        color: RAMPS.gold[4],
-        outline: INK,
-      })
+      drawText(
+        g,
+        h.request === 'mailbox' ? 'MAIL' : 'PORCH',
+        yardX(h.side, 55),
+        sy - 38,
+        {
+          align: 'center',
+          color: RAMPS.gold[4],
+          outline: INK,
+        },
+      )
     }
     if (sub && h.bloom > 0) {
       for (let i = 0; i < h.bloom * 3; i++) {
@@ -1860,7 +1869,12 @@ class PetalPost implements ArcadeGameInstance {
     g.fillStyle = RAMPS.pink[3]
     for (let i = 1; i <= 2; i++) {
       g.globalAlpha = 0.6 / i
-      g.fillRect(Math.round(p.x - Math.sign(p.vx) * i * 4), Math.round(sy - lift + i), 2, 1)
+      g.fillRect(
+        Math.round(p.x - Math.sign(p.vx) * i * 4),
+        Math.round(sy - lift + i),
+        2,
+        1,
+      )
     }
     g.globalAlpha = 1
     glow(g, p.x, sy - lift, 8, RAMPS.pink[3], 0.5)

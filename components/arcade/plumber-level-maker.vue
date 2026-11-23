@@ -133,6 +133,9 @@
             </template>
             <template v-else>
               <button type="button" @click="restart">↻ RESTART</button>
+              <button v-if="canReplay" type="button" @click="replayLastRun">
+                ▷ REPLAY
+              </button>
               <button type="button" @click="togglePlay">✎ EDIT</button>
             </template>
           </div>
@@ -231,11 +234,17 @@
             <button type="button" @click="showReviews">
               ★ READ PLAYER REVIEWS
             </button>
+            <button v-if="canReplay" type="button" @click="replayLastRun">
+              ▷ WATCH LAST RUN
+            </button>
             <button type="button" @click="togglePlay">✎ BACK TO EDITOR</button>
           </div>
           <div v-else-if="gameOver" class="maker-play-result">
             <strong>GIVE IT ANOTHER SHOT</strong>
             <button type="button" @click="restart">↻ RETRY COURSE</button>
+            <button v-if="canReplay" type="button" @click="replayLastRun">
+              ▷ WATCH LAST RUN
+            </button>
             <button type="button" @click="togglePlay">✎ EDIT COURSE</button>
           </div>
         </div>
@@ -250,15 +259,17 @@
           </template>
           <template v-else>
             <span>{{
-              maker.level.space
-                ? 'ARROWS AIM · C THRUST / HIT AIR VALVES · A BRAKE · ◉ REFILL'
-                : 'ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V SPECIAL'
+              replaying
+                ? 'REPLAYING YOUR LAST ROUTE · INPUT LOCKED'
+                : maker.level.space
+                  ? 'ARROWS AIM · C THRUST / HIT AIR VALVES · A BRAKE · ◉ REFILL'
+                  : 'ARROWS / WASD MOVE · SPACE JUMP · SHIFT RUN · C WRENCH · V SPECIAL'
             }}</span>
             <span>CAMPAIGN SAVES UNTOUCHED</span>
           </template>
         </div>
         <div
-          v-if="mode === 'play'"
+          v-if="mode === 'play' && !replaying"
           class="maker-touch"
           aria-label="Touch game controls"
         >
@@ -323,6 +334,13 @@ import {
   type PlumberRun,
 } from '~/utils/arcade/games/savePlumberPreview'
 import { emptyInput, type ArcadeButton } from '~/utils/arcade/types'
+import { makerId } from '~/utils/arcade/games/savePlumberMaker'
+import {
+  MAKER_REPLAY_MAX_FRAMES,
+  makerReplayRandom,
+  packMakerReplayFrame,
+  unpackMakerReplayFrame,
+} from '~/utils/arcade/games/savePlumberMakerReplay'
 
 const props = defineProps<{ shareCode?: string }>()
 const maker = useSavePlumberMakerStore()
@@ -371,6 +389,16 @@ function changeTool(next: (typeof editTools)[number]['id']) {
 const cursor = ref({ x: 3, y: 20 })
 const completed = ref(false)
 const gameOver = ref(false)
+const replaying = ref(false)
+const replayCourseId = ref<string | null>(null)
+const replayFrames = ref<number[]>([])
+const canReplay = computed(
+  () =>
+    replayFrames.value.length > 0 && replayCourseId.value === makerId(maker.level),
+)
+let recording: number[] = []
+let recordingOverflow = false
+let replayCursor = 0
 const touchControls = computed<{ key: ArcadeButton; icon: string }[]>(() =>
   maker.level.space
     ? [
@@ -768,11 +796,20 @@ function stopGame() {
   held.clear()
   pressed.clear()
 }
+function replayLastRun() {
+  if (!canReplay.value) return
+  replaying.value = true
+  restart()
+}
 function restart() {
   try {
+    if (replaying.value && !canReplay.value) replaying.value = false
+    recording = []
+    recordingOverflow = false
+    replayCursor = 0
     game = createSavePlumberPreview(
       {
-        rng: Math.random,
+        rng: makerReplayRandom(makerId(maker.level)),
         sound: { play: () => undefined },
         demo: false,
         hiScore: 0,
@@ -798,9 +835,18 @@ function tickGame(now: number) {
   accumulator = Math.min(100, accumulator + now - lastFrame)
   lastFrame = now
   while (accumulator >= 1000 / 60 && !game.over) {
-    const input = emptyInput()
-    for (const key of held) input.held[key] = true
-    for (const key of pressed) input.pressed[key] = true
+    const input = replaying.value
+      ? unpackMakerReplayFrame(replayFrames.value[replayCursor++] ?? 0)
+      : emptyInput()
+    if (!replaying.value) {
+      for (const key of held) input.held[key] = true
+      for (const key of pressed) input.pressed[key] = true
+      if (!recordingOverflow) {
+        if (recording.length < MAKER_REPLAY_MAX_FRAMES)
+          recording.push(packMakerReplayFrame(input))
+        else recordingOverflow = true
+      }
+    }
     game.update(input)
     pressed.clear()
     accumulator -= 1000 / 60
@@ -808,8 +854,19 @@ function tickGame(now: number) {
   const context = gameCanvas.value.getContext('2d')
   if (context) game.render(context)
   if (game.over) {
+    if (!replaying.value && !recordingOverflow && recording.length) {
+      replayFrames.value = recording.slice()
+      replayCourseId.value = makerId(maker.level)
+    }
+    replaying.value = false
     completed.value = game.cleared.length > 0
     gameOver.value = !completed.value
+    return
+  }
+  if (replaying.value && replayCursor >= replayFrames.value.length) {
+    replaying.value = false
+    gameOver.value = true
+    maker.message = 'Replay ended before the course did. This run needs investigation.'
     return
   }
   frameId = requestAnimationFrame(tickGame)
@@ -832,7 +889,7 @@ const keyMap: Record<string, ArcadeButton> = {
   KeyV: 'y',
 }
 function onKeyDown(event: KeyboardEvent) {
-  if (mode.value !== 'play') return
+  if (mode.value !== 'play' || replaying.value) return
   if (
     event.target instanceof HTMLElement &&
     event.target.closest('input, textarea, select')
@@ -849,11 +906,19 @@ function onKeyUp(event: KeyboardEvent) {
   if (key) held.delete(key)
 }
 function pressControl(key: ArcadeButton) {
+  if (replaying.value) return
   if (!held.has(key)) pressed.add(key)
   held.add(key)
 }
 function releaseControl(key: ArcadeButton) {
   held.delete(key)
+}
+function releaseAllControls() {
+  held.clear()
+  pressed.clear()
+}
+function onVisibilityChange() {
+  if (document.hidden) releaseAllControls()
 }
 
 watch(
@@ -881,11 +946,15 @@ onMounted(async () => {
   else restart()
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)
+  window.addEventListener('blur', releaseAllControls)
+  document.addEventListener('visibilitychange', onVisibilityChange)
 })
 onUnmounted(() => {
   stopGame()
   window.removeEventListener('keydown', onKeyDown)
   window.removeEventListener('keyup', onKeyUp)
+  window.removeEventListener('blur', releaseAllControls)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
 })
 </script>
 

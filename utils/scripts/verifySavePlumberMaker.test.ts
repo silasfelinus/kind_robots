@@ -23,6 +23,12 @@ import {
   validateMakerLevel,
 } from '../arcade/games/savePlumberMaker'
 import {
+  MAKER_REPLAY_MAX_FRAMES,
+  makerReplayRandom,
+  packMakerReplayFrame,
+  unpackMakerReplayFrame,
+} from '../arcade/games/savePlumberMakerReplay'
+import {
   GIANT_FOES,
   SOLID_ICE,
   SOLID_FRAGILE_ICE,
@@ -865,6 +871,68 @@ assert.equal(
 for (let i = 0; i < 30; i++) played.update(emptyInput())
 assert.equal(played.save, undefined)
 
+
+assert.ok(MAKER_REPLAY_MAX_FRAMES >= 60 * 60 * 5)
+const seed = makerId(initial)
+const randomA = makerReplayRandom(seed)
+const randomB = makerReplayRandom(seed)
+assert.deepEqual(
+  Array.from({ length: 32 }, () => randomA()),
+  Array.from({ length: 32 }, () => randomB()),
+  'The same course revision must produce identical random sequences',
+)
+const replayControls = Array.from({ length: 150 }, (_, tick) => {
+  const frame = emptyInput()
+  frame.held.right = tick < 130
+  frame.held.b = tick > 20 && tick < 85
+  frame.held.a = tick >= 28 && tick < 39
+  frame.pressed.a = tick === 28
+  frame.pressed.b = tick === 21
+  return frame
+})
+const replayMasks = replayControls.map(packMakerReplayFrame)
+for (let i = 0; i < replayControls.length; i++)
+  assert.deepEqual(
+    unpackMakerReplayFrame(replayMasks[i]!),
+    replayControls[i],
+    'Recorded button holds and edge presses must survive replay packing',
+  )
+const makeReplayRun = () =>
+  createSavePlumberPreview(
+    {
+      rng: makerReplayRandom(seed),
+      sound: { play: () => undefined },
+      demo: false,
+      hiScore: 0,
+    },
+    { customLevel: toMakerStage(initial) },
+  )
+const originalRun = makeReplayRun()
+const reproducedRun = makeReplayRun()
+for (let i = 0; i < replayControls.length; i++) {
+  originalRun.update(replayControls[i]!)
+  reproducedRun.update(unpackMakerReplayFrame(replayMasks[i]!))
+}
+assert.deepEqual(
+  {
+    x: reproducedRun.hero.x,
+    y: reproducedRun.hero.y,
+    vx: reproducedRun.hero.vx,
+    vy: reproducedRun.hero.vy,
+    lives: reproducedRun.lives,
+    score: reproducedRun.score,
+  },
+  {
+    x: originalRun.hero.x,
+    y: originalRun.hero.y,
+    vx: originalRun.hero.vx,
+    vy: originalRun.hero.vy,
+    lives: originalRun.lives,
+    score: originalRun.score,
+  },
+  'A full captured Maker route must reproduce physics and game state',
+)
+
 const makerPage = source('../../pages/play/save-the-plumber.vue')
 const makerComponent = source('../../components/arcade/plumber-level-maker.vue')
 const makerStore = source('../../stores/savePlumberMakerStore.ts')
@@ -889,6 +957,9 @@ for (const required of [
   'maker.level.space',
   'requestAnimationFrame',
   'createSavePlumberPreview',
+  'replayLastRun',
+  'makerReplayRandom',
+  "window.addEventListener('blur', releaseAllControls)",
 ])
   assert.ok(makerComponent.includes(required), 'Maker needs ' + required)
 assert.match(makerStore, /localStorage\.setItem\(MAKER_SAVE_KEY/)

@@ -41,6 +41,7 @@ async function openAt(width) {
   }
   const submissions = []
   const authorizations = []
+  const scoreQueries = []
   await page.route('**/api/arcade/scores**', async (route) => {
     const req = route.request()
     if (req.method() === 'POST') {
@@ -57,6 +58,7 @@ async function openAt(width) {
       })
       return
     }
+    scoreQueries.push(new URL(req.url()).pathname)
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -77,12 +79,22 @@ async function openAt(width) {
   })
   await page.goto(server.origin + '/chessweeper/triple.html')
   await page.waitForFunction(() => !!window.__chessweeperTriple)
-  return { page, submissions, authorizations }
+  return { page, submissions, authorizations, scoreQueries }
 }
 
 try {
   for (const width of [390, 768, 1440]) {
-    const { page, submissions, authorizations } = await openAt(width)
+    const { page, submissions, authorizations, scoreQueries } =
+      await openAt(width)
+    const bracket = width === 390 ? 'easy' :
+      width === 768 ? 'hard' : 'medium'
+    const slug = bracket === 'medium' ? 'chessweeper-triple' :
+      'chessweeper-triple-' + bracket
+    const expected = {
+      easy: { hearts: 5, mineCount: 6, discCount: 2, cpuChoices: 7 },
+      medium: { hearts: 3, mineCount: 10, discCount: 3, cpuChoices: 3 },
+      hard: { hearts: 2, mineCount: 15, discCount: 4, cpuChoices: 2 },
+    }[bracket]
     assert.equal(
       await page.locator('.play-panel').count(),
       3,
@@ -120,12 +132,24 @@ try {
     )
     await screenshot(page, 'triple-' + width + '-intro')
     await page.selectOption('#duration', '120')
+    await page.selectOption('#difficulty', bracket)
+    assert.match(await page.locator('#difficulty-hint').innerText(),
+      new RegExp(bracket, 'i'), 'difficulty hint is reactive')
     await page.click('#start')
     assert.equal(
       await page.locator('#dialog').isVisible(),
       false,
       'title and settings are absent during play',
     )
+    const beginning = await page.evaluate(() =>
+      window.__chessweeperTriple.snapshot(),
+    )
+    assert.equal(beginning.difficulty, bracket)
+    assert.equal(beginning.maxHearts, expected.hearts)
+    assert.equal(beginning.hearts, expected.hearts)
+    assert.equal(beginning.mineCount, expected.mineCount)
+    assert.equal(beginning.discCount, expected.discCount)
+    assert.equal(beginning.cpuChoices, expected.cpuChoices)
     assert.equal(await page.locator('#chess-board button').count(), 64)
     assert.equal(await page.locator('#mine-board button').count(), 64)
     await screenshot(page, 'triple-' + width + '-playing')
@@ -168,6 +192,14 @@ try {
       true,
       'global scores are accessible from bottom HUD',
     )
+    assert.equal(await page.locator('#score-difficulty').inputValue(), bracket)
+    assert.ok(scoreQueries.some((q) => q.endsWith('/' + slug)),
+      'each difficulty reads its own global leaderboard')
+    await page.selectOption('#score-difficulty', 'catastrophic')
+    assert.ok(scoreQueries.some((q) =>
+      q.endsWith('/chessweeper-triple-catastrophic')),
+      'catastrophic has its own global leaderboard')
+    await page.selectOption('#score-difficulty', bracket)
     assert.match(await page.locator('#score-rows').innerText(), /AAA/)
     assert.match(await page.locator('#score-rows').innerText(), /TestPilot/)
     await page.click('#today')
@@ -191,7 +223,7 @@ try {
     await page.click('#submit')
     assert.match(await page.locator('#submit-status').innerText(), /Rank #2/)
     assert.equal(submissions.length, 1, 'one score submission per run')
-    assert.equal(submissions[0].game, 'chessweeper-triple')
+    assert.equal(submissions[0].game, slug)
     assert.equal(submissions[0].initials, 'KR7')
     assert.equal(submissions[0].score, complete.final)
     assert.equal(
@@ -204,8 +236,22 @@ try {
       '[triple] ' + width + 'px: input, stage, timer and scores passed',
     )
   }
+  const { page: catastrophe } = await openAt(1440)
+  await catastrophe.selectOption('#difficulty', 'catastrophic')
+  await catastrophe.click('#start')
+  const cata = await catastrophe.evaluate(() =>
+    window.__chessweeperTriple.snapshot(),
+  )
+  assert.equal(cata.maxHearts, 1)
+  assert.equal(cata.mineCount, 20)
+  assert.equal(cata.discCount, 6)
+  assert.equal(cata.cpuChoices, 1)
+  assert.ok(cata.discSpeed > 1.5)
+  assert.match(await catastrophe.locator('#difficulty-badge').innerText(), /CATA/)
+  await screenshot(catastrophe, 'triple-1440-catastrophic')
+  await catastrophe.close()
   assert.deepEqual(errors, [], 'no browser exceptions')
-  console.log('[triple] 3 viewports, concurrent mechanics and scoring passed')
+  console.log('[triple] four difficulties, ranked brackets and 3 viewports passed')
 } finally {
   await browser.close()
   await server.close()

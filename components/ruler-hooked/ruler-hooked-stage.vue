@@ -67,7 +67,10 @@
 </template>
 
 <script setup lang="ts">
-import { assetCandidates } from '~/utils/rulerHooked/compositor'
+import {
+  assetCandidates,
+  changedVistaRegion,
+} from '~/utils/rulerHooked/compositor'
 import type {
   RegionKey,
   RegionsManifest,
@@ -176,24 +179,14 @@ const activeLayer = computed(
     null,
 )
 
-const VISTA_PRIORITY: RegionKey[] = [
-  'far_shore',
-  'treeline',
-  'village_edge',
-  'castle_grounds',
-  'lake',
-  'near_bank',
-  'sky',
-]
-
 watch(
   () => props.scene?.regionStates,
   (current, previous) => {
     if (!current || !previous) return
-    const changed = VISTA_PRIORITY.find(
-      (region) =>
-        layers.value.some((layer) => layer.region === region) &&
-        current[region] !== previous[region],
+    const changed = changedVistaRegion(
+      previous,
+      current,
+      layers.value.map((layer) => layer.region),
     )
     if (changed) selectedRegion.value = changed
   },

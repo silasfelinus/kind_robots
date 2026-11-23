@@ -87,6 +87,10 @@ export function rainbowBurstLook(
 const OUTLINE = '#1b163e'
 /** Shapes are authored at a 5 px radius and drawn this much larger, so they fill the 8 px halo. */
 const SHOT_SCALE = 1.3
+/** The dark halo the engine draws under every solid hostile pellet, in logical (480-wide) px. */
+export const RAINBOW_SHOT_HALO_RADIUS = 8
+/** A hostile pellet body's drawn radius in logical px (the authored 5 px shape at SHOT_SCALE). */
+export const RAINBOW_SHOT_BODY_RADIUS = 5 * SHOT_SCALE
 const RAINBOW = [
   '#ff9fd8',
   '#ffd38a',

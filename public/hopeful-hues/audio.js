@@ -142,7 +142,11 @@
     return {
       progression: ending
         ? [0, 3, 4, 0]
-        : [[0, 5, 3, 4], [0, 3, 5, 4], [5, 3, 4, 0]][tier] || [0, 5, 3, 4],
+        : [
+            [0, 5, 3, 4],
+            [0, 3, 5, 4],
+            [5, 3, 4, 0],
+          ][tier] || [0, 5, 3, 4],
       melody,
     }
   }
@@ -191,7 +195,9 @@
       if (c.state === 'running') {
         resumeMusic()
       } else if (c.state === 'suspended') {
-        c.resume().then(resumeMusic).catch(() => {})
+        c.resume()
+          .then(resumeMusic)
+          .catch(() => {})
       }
     }
 

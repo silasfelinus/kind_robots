@@ -9,7 +9,7 @@
 
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { useUserStore } from './userStore'
+import { useUserStore } from '@/stores/userStore'
 import { performFetch } from './utils'
 import { useAchievementStore } from './achievementStore'
 import {

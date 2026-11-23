@@ -250,7 +250,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.board = makeBoard(this.level, this.rng)
     this.loaded = chooseHue(this.board, this.rng)
     this.next = chooseHue(this.board, this.rng)
-    this.message = CHAPTERS[Math.floor((this.level - 1) / 5)]!.kate
+    this.message = CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.kate
     this.choosingMode = !this.demo
   }
   /** Both the host switches and the game Settings page control this mixer. */
@@ -338,7 +338,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.message =
       this.mode === 'classic'
         ? 'SUPERKATE: NO LIMITS. JUST COLOR!'
-        : CHAPTERS[Math.floor((this.level - 1) / 5)]!.kate
+        : CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.kate
   }
   private lose() {
     this.lives--
@@ -406,7 +406,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         this.score += 2500
         this.lives = Math.min(9, this.lives + 1)
         this.earn(`chapter-${Math.ceil(this.level / 5)}`)
-        this.message = CHAPTERS[Math.floor((this.level - 1) / 5)]!.finale
+        this.message = CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.finale
       }
       if (this.mode === 'story' && this.level === 30) {
         this.over = true

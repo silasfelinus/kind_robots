@@ -31,11 +31,17 @@
       >
         {{ audio.error }}
       </div>
-      <p v-if="audio.message" class="alert alert-success py-2 text-sm" role="status">
+      <p
+        v-if="audio.message"
+        class="alert alert-success py-2 text-sm"
+        role="status"
+      >
         {{ audio.message }}
       </p>
 
-      <div class="grid gap-2 rounded-2xl border border-base-content/15 bg-base-200 p-3 sm:grid-cols-3">
+      <div
+        class="grid gap-2 rounded-2xl border border-base-content/15 bg-base-200 p-3 sm:grid-cols-3"
+      >
         <div class="space-y-1">
           <p class="text-xs font-bold uppercase opacity-65">Generation</p>
           <p class="text-sm font-semibold">
@@ -122,7 +128,9 @@
             <p class="line-clamp-3 text-xs leading-relaxed">
               {{ entry.brief.prompt }}
             </p>
-            <div class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-base-content/10 pt-2">
+            <div
+              class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-base-content/10 pt-2"
+            >
               <div class="min-w-0 text-xs opacity-70">
                 <p>{{ stateFor(entry).label }}</p>
                 <p v-if="entry.job">
@@ -134,11 +142,22 @@
                 type="button"
                 class="btn btn-primary btn-sm"
                 :disabled="!audio.canApprove(entry)"
-                :aria-label="'Approve private audio render for ' + entry.game + ' ' + entry.cue"
-                :data-testid="'arcade-audio-approve-' + entry.game + '-' + entry.cue"
+                :aria-label="
+                  'Approve private audio render for ' +
+                  entry.game +
+                  ' ' +
+                  entry.cue
+                "
+                :data-testid="
+                  'arcade-audio-approve-' + entry.game + '-' + entry.cue
+                "
                 @click="audio.approve(entry)"
               >
-                {{ audio.approving === entry.jobKey ? 'Submitting…' : 'Approve render' }}
+                {{
+                  audio.approving === entry.jobKey
+                    ? 'Submitting…'
+                    : 'Approve render'
+                }}
               </button>
             </div>
           </article>

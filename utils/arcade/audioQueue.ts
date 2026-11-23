@@ -44,10 +44,8 @@ export function arcadeAudioCueState(
   }
   if (!queue.generationEnabled)
     return { label: 'Generation disabled by server', eligible: false }
-  if (!queue.relay.ready)
-    return { label: queue.relay.reason, eligible: false }
-  if (entry.job)
-    return { label: 'Retry failed render', eligible: true }
+  if (!queue.relay.ready) return { label: queue.relay.reason, eligible: false }
+  if (entry.job) return { label: 'Retry failed render', eligible: true }
   return { label: 'Ready for explicit approval', eligible: true }
 }
 

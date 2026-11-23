@@ -345,12 +345,12 @@ for (const source of Object.values(sceneSources)) {
   )
 }
 assert.match(sceneSources.gloom, /heartbeatTier\(this\.stepEvery\) >= 2/)
-assert.match(sceneSources.prize, /if \(this\.boss \|\| this\.ending\) return 'boss'/)
+assert.match(
+  sceneSources.prize,
+  /if \(this\.boss \|\| this\.ending\) return 'boss'/,
+)
 assert.match(sceneSources.prize, /this\.episodeIndex >= 2/)
 assert.match(sceneSources.ghost, /this\.act\.stage >= 4/)
-assert.match(
-  sceneSources.ghost,
-  /this\.boss && this\.boss\.dying === 0/,
-)
+assert.match(sceneSources.ghost, /this\.boss && this\.boss\.dying === 0/)
 
 console.log('verifyArcadeSoundtrackBriefs: ok')

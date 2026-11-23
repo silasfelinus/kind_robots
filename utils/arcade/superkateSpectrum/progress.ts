@@ -9,12 +9,23 @@ export type SpectrumCareer = {
   classicBest: number
   classicRuns: number
 }
+export type SpectrumSettings = {
+  aimGuide: boolean
+  particles: boolean
+  highContrast: boolean
+}
+export const DEFAULT_SPECTRUM_SETTINGS: SpectrumSettings = {
+  aimGuide: true,
+  particles: true,
+  highContrast: false,
+}
 export type SpectrumSave = {
   version: 2
   career: SpectrumCareer
   mode: SpectrumMode
   stage: number
   style: BubbleStyle
+  settings: SpectrumSettings
 }
 export const MAX_STORY_STAGE = 30
 export const BUBBLE_STYLES: readonly BubbleStyle[] = [
@@ -56,7 +67,10 @@ export function styleForRank(rank: number): BubbleStyle {
 export function readSpectrumSave(raw: unknown): SpectrumSave {
   const fresh = freshCareer()
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
-    return { version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass' }
+    return {
+      version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass',
+      settings: { ...DEFAULT_SPECTRUM_SETTINGS },
+    }
   const value = raw as Record<string, unknown>
   // Older checkpoints must remain playable after this update.
   if (
@@ -71,14 +85,21 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
       mode: 'story',
       stage,
       style: 'glass',
+      settings: { ...DEFAULT_SPECTRUM_SETTINGS },
     }
   }
   if (value.version !== 2) {
-    return { version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass' }
+    return {
+      version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass',
+      settings: { ...DEFAULT_SPECTRUM_SETTINGS },
+    }
   }
   const v = value.career
   if (!v || typeof v !== 'object' || Array.isArray(v))
-    return { version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass' }
+    return {
+      version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass',
+      settings: { ...DEFAULT_SPECTRUM_SETTINGS },
+    }
   const c = v as Record<string, unknown>
   const highestStage = validNumber(c.highestStage, MAX_STORY_STAGE)
     ? Math.max(1, c.highestStage as number)
@@ -113,7 +134,22 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
   const style = unlocks.includes(value.style as BubbleStyle)
     ? (value.style as BubbleStyle)
     : 'glass'
-  return { version: 2, career, mode, stage, style }
+  const proposed = value.settings
+  const settings = proposed && typeof proposed === 'object' && !Array.isArray(proposed)
+    ? proposed as Partial<SpectrumSettings>
+    : {}
+  return {
+    version: 2,
+    career,
+    mode,
+    stage,
+    style,
+    settings: {
+      aimGuide: settings.aimGuide !== false,
+      particles: settings.particles !== false,
+      highContrast: settings.highContrast === true,
+    },
+  }
 }
 /** Replace, never mutate, career snapshots previously passed to the store. */
 export function recordClear(
@@ -186,6 +222,18 @@ export function validSpectrumCloudSave(raw: unknown): raw is SpectrumSave {
     (save.stage as number) > (c.highestStage as number)
   )
     return false
+  const prefs = save.settings
+  if (prefs !== undefined) {
+    if (!prefs || typeof prefs !== 'object' || Array.isArray(prefs))
+      return false
+    const settings = prefs as Record<string, unknown>
+    if (
+      typeof settings.aimGuide !== 'boolean' ||
+      typeof settings.particles !== 'boolean' ||
+      typeof settings.highContrast !== 'boolean'
+    )
+      return false
+  }
   return unlockedStyles(rankForXp(c.xp as number)).includes(
     save.style as BubbleStyle,
   )
@@ -234,5 +282,6 @@ export function mergeSpectrumSaves(
     mode: local.mode,
     stage: local.mode === 'classic' ? 1 : career.highestStage,
     style,
+    settings: local.settings,
   }
 }

@@ -19,6 +19,7 @@
     phase: 'start',
     remaining: 120,
     duration: 120,
+    ranked: true,
     hearts: 3,
     chess: chess.initialPosition(),
     selected: -1,
@@ -532,6 +533,7 @@
 
   function start() {
     state.duration = Number($('duration').value)
+    state.ranked = state.duration === 120
     state.remaining = state.duration
     state.hearts = 3
     state.phase = 'running'
@@ -566,8 +568,10 @@
       ' · Discs ' + points.disc +
       ' · Balance bonus ' +
       Math.floor(1.5 * Math.min(...Object.values(points)))
-    $('submit-status').textContent = ''
-    $('submit').disabled = state.final <= 0
+    $('submit-status').textContent = state.ranked
+      ? ''
+      : 'Practice run: only 120-second Standard scores enter global rankings.'
+    $('submit').disabled = state.final <= 0 || !state.ranked
     openDialog('end')
   }
 
@@ -621,7 +625,8 @@
   }
 
   async function submit() {
-    if (state.phase !== 'end' || state.submitted || state.final <= 0) return
+    if (state.phase !== 'end' || state.submitted || !state.ranked ||
+      state.final <= 0) return
     const initials = $('initials').value.trim().toUpperCase()
     if (!/^[A-Z0-9]{3}$/.test(initials)) {
       $('submit-status').textContent = 'Enter exactly three letters or digits.'
@@ -711,6 +716,9 @@
     keys.clear()
     state.drag = null
   })
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && state.phase === 'running') pause()
+  })
   window.addEventListener('message', (event) => {
     if (event.origin !== window.location.origin) return
     if (event.data?.type !== 'chessweeper:open') return
@@ -758,6 +766,7 @@
     snapshot: () => ({
       phase: state.phase,
       remaining: state.remaining,
+      ranked: state.ranked,
       hearts: state.hearts,
       chess: points.chess,
       mines: points.mine,

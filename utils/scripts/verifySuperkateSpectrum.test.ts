@@ -541,6 +541,38 @@ replayChoice.update(openStory)
 assert.deepEqual(replayChoice.save.storyChoices, [0, 1, 1])
 assert.equal(replayChoice.lives, 5, 'Replay awards the chosen chapter perk')
 
+const finalChoiceSave = readSpectrumSave({
+  ...cloudB,
+  career: { ...cloudB.career, highestStage: 30 },
+  stage: 30,
+  storyChoices: [0, 0, 0],
+  endings: [],
+})
+const finaleRun = create({
+  ...options,
+  resume: finalChoiceSave,
+} as Parameters<typeof create>[0])
+finaleRun.update(openStory)
+finaleRun.board = emptyBoard()
+finaleRun.board[0]![0] = 'pink'
+finaleRun.board[0]![1] = 'pink'
+finaleRun.shot = {
+  x: 36,
+  y: 57,
+  vx: 0,
+  vy: 0,
+  hue: 'pink',
+  power: null,
+}
+finaleRun.update(emptyInput())
+assert.equal(finaleRun.over, true)
+assert.equal(finaleRun.won, true)
+assert.equal(finaleRun.ending, 'prism-partners')
+assert.deepEqual(finaleRun.save.endings, ['prism-partners'])
+assert.equal(finaleRun.save.career.stars[29] > 0, true)
+assert.equal(validSpectrumCloudSave(finaleRun.save), true)
+assert.ok(finaleRun.mastered.includes('true-spectrum'))
+
 const choiceAccount = readSpectrumSave({
   ...cloudA,
   career: { ...cloudA.career, highestStage: 26 },

@@ -48,6 +48,7 @@ import {
 } from '../deepheart/party'
 import { ANTHRO_BLURB, ANTHRO_LOOK } from '../deepheart/anthro'
 import { CHARACTERS, ROLES, SUPPORTS, character } from '../deepheart/roster'
+import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
 import {
   DEEPHEART_APPROVED_ART_MODELS,
   DEEPHEART_STYLE_DESIGNER,
@@ -126,6 +127,26 @@ for (const s of SUPPORTS) {
   character(s.a)
   character(s.b)
 }
+
+// ── Delivered-art registry contract ──────────────────────────────────────
+assert.ok(
+  CHARACTERS.every((c) => deepheartArtSrc(`cast:${c.id}`)),
+  'every preset has a mapped approved animal-folk portrait',
+)
+assert.ok(deepheartArtSrc('premise'), 'title art is mapped')
+assert.ok(deepheartArtSrc('room:fight'), 'fight art is mapped')
+assert.ok(deepheartArtSrc('ending:delver'), 'ending art is mapped')
+assert.ok(
+  Object.keys(DEEPHEART_ART_IDS).filter((key) => key.startsWith('moment:romance-'))
+    .length >= 40,
+  'normal romance art is mapped',
+)
+assert.ok(
+  Object.keys(DEEPHEART_ART_IDS).every(
+    (key) => !key.includes('private-romance') && !key.includes('after-hours'),
+  ),
+  'private mature art is never part of the normal art registry',
+)
 
 // ── Party rules ──────────────────────────────────────────────────────────
 assert.ok(

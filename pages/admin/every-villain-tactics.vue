@@ -325,6 +325,7 @@
                 v-if="activeCrewKinds.length"
                 class="evt-crew-art-gallery"
                 data-testid="tactics-crew-art-gallery"
+                open
               >
                 <summary>ONE-HIT CREWS · PAINTED COUNTERPLAY</summary>
                 <div
@@ -342,41 +343,46 @@
                   </button>
                 </div>
                 <div
-                  class="evt-crew-art-controls"
-                  aria-label="Choose painted tactic"
+                  class="evt-crew-art-strip"
+                  role="list"
+                  aria-label="Original painted warning, action, counter and captain"
+                  data-testid="tactics-crew-counterplay-strip"
                 >
-                  <button
+                  <figure
                     v-for="beat in CREW_TELL_BEATS"
                     :key="beat"
-                    type="button"
-                    :aria-pressed="selectedCrewBeat === beat"
-                    @click="selectedCrewBeat = beat"
+                    class="evt-crew-beat"
+                    role="listitem"
+                    :data-art-image-id="crewBeatImageId(beat)"
                   >
-                    {{ beat.toUpperCase() }}
-                  </button>
-                </div>
-                <div v-if="selectedCrewReceipt" class="evt-crew-art-preview">
-                  <img
-                    v-if="selectedCrewImage"
-                    :src="selectedCrewImage"
-                    :alt="selectedCrewReceipt.title"
-                    :data-art-image-id="selectedCrewReceipt.imageId"
-                    data-testid="tactics-crew-art-loaded"
-                  />
-                  <p v-else data-testid="tactics-crew-art-unavailable">
-                    {{
-                      selectedCrewStatus === 'loading'
-                        ? 'Loading private painted tactic…'
-                        : 'Private artwork not accessible. Tactical warnings still work.'
-                    }}
-                  </p>
-                  <div>
-                    <strong>{{ selectedCrewReceipt.title }}</strong>
-                    <p>
-                      One-hit crew counterplay ·
-                      {{ selectedCrewReceipt.artKey }}
-                    </p>
-                  </div>
+                    <div class="evt-crew-beat-image">
+                      <img
+                        v-if="crewBeatImage(beat)"
+                        :src="crewBeatImage(beat)"
+                        :alt="crewBeatTitle(beat)"
+                        data-testid="tactics-crew-beat-loaded"
+                      />
+                      <p v-else aria-live="polite">
+                        {{
+                          crewBeatStatus(beat) === 'loading'
+                            ? 'Loading original art…'
+                            : 'Private art unavailable'
+                        }}
+                      </p>
+                    </div>
+                    <figcaption>
+                      <strong>{{ beat.toUpperCase() }}</strong>
+                      <span>{{ crewBeatTitle(beat) }}</span>
+                    </figcaption>
+                    <button
+                      v-if="crewBeatStatus(beat) === 'failed'"
+                      type="button"
+                      class="evt-crew-art-retry"
+                      @click="retryCrewBeat(beat)"
+                    >
+                      RETRY ART
+                    </button>
+                  </figure>
                 </div>
               </details>
               <details
@@ -1785,7 +1791,10 @@ import {
   CREW_COMBAT_POSES,
   crewCombatReceipt,
 } from '~/utils/everyVillainTactics/crewCombatArt'
-import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
+import {
+  useEveryVillainTacticsArtStore,
+  type PaintedMapArt,
+} from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
 import {
   actorAt,
@@ -1834,7 +1843,6 @@ const paintedMapStatus = computed(
       : null) ?? (paintedArtId.value ? 'loading' : 'unmapped'),
 )
 const selectedCrewKind = ref<CrewTellKind>('burrow')
-const selectedCrewBeat = ref<CrewTellBeat>('warning')
 const activeCrewKinds = computed<CrewTellKind[]>(() => {
   const kinds = new Set<CrewTellKind>()
   for (const unit of store.state.units) {
@@ -1865,24 +1873,31 @@ const galleryCrew = computed<CrewTellKind | null>(() =>
     ? selectedCrewKind.value
     : (activeCrewKinds.value[0] ?? null),
 )
-const selectedCrewReceipt = computed(() =>
-  crewTellReceipt(galleryCrew.value, selectedCrewBeat.value),
-)
 watch(
-  [() => selectedCrewReceipt.value?.imageId, () => viewer.token],
-  ([id]) => {
-    void paintedArt.ensure(id ?? null)
+  [galleryCrew, () => viewer.token],
+  ([kind]) => {
+    for (const beat of CREW_TELL_BEATS)
+      void paintedArt.ensure(crewTellReceipt(kind, beat)?.imageId ?? null)
   },
   { immediate: true },
 )
-const selectedCrewImage = computed(() => {
-  const id = selectedCrewReceipt.value?.imageId
+function crewBeatImageId(beat: CrewTellBeat): number | null {
+  return crewTellReceipt(galleryCrew.value, beat)?.imageId ?? null
+}
+function crewBeatImage(beat: CrewTellBeat): string {
+  const id = crewBeatImageId(beat)
   return id ? (paintedArt.images[id]?.src ?? '') : ''
-})
-const selectedCrewStatus = computed(() => {
-  const id = selectedCrewReceipt.value?.imageId
-  return id ? (paintedArt.images[id]?.status ?? 'loading') : 'unmapped'
-})
+}
+function crewBeatStatus(beat: CrewTellBeat): PaintedMapArt['status'] {
+  const id = crewBeatImageId(beat)
+  return id ? (paintedArt.images[id]?.status ?? 'loading') : 'failed'
+}
+function crewBeatTitle(beat: CrewTellBeat): string {
+  return crewTellReceipt(galleryCrew.value, beat)?.title ?? beat
+}
+function retryCrewBeat(beat: CrewTellBeat): void {
+  void paintedArt.retry(crewBeatImageId(beat))
+}
 const comicPreviewRoles: ComicIntroRole[] = [
   'hero',
   'villain',
@@ -5142,6 +5157,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   outline-offset: 2px;
 }
 .evt-crew-art-gallery {
+  width: min(100%, 720px);
+  max-height: min(31vh, 190px);
+  flex: 0 0 auto;
+  overflow-y: auto;
   margin: 5px 0;
   padding: 7px;
   border: 1px solid #eeb45d99;
@@ -5175,26 +5194,69 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
   border-color: #fcd48d;
   background: #71486a;
 }
-.evt-crew-art-preview {
+.evt-crew-art-strip {
   display: grid;
-  grid-template-columns: minmax(90px, 1fr) minmax(0, 2fr);
-  align-items: center;
-  gap: 10px;
-  margin-top: 9px;
-  font-size: 0.77rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 7px;
 }
-.evt-crew-art-preview img {
+.evt-crew-beat {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #9bcde260;
+  border-radius: 5px;
+  background: #192b4b;
+}
+.evt-crew-beat-image {
+  display: grid;
+  place-items: center;
+  min-height: 60px;
+  background: #0c182d;
+}
+.evt-crew-beat-image img {
+  display: block;
   width: 100%;
-  max-height: 180px;
+  height: clamp(55px, 9vh, 110px);
   object-fit: contain;
 }
-.evt-crew-art-preview p {
-  overflow-wrap: anywhere;
-  font-size: 0.72rem;
+.evt-crew-beat-image p {
+  padding: 6px;
+  color: #f8ddbb;
+  font-size: 0.65rem;
+  text-align: center;
 }
-@media (max-width: 520px) {
-  .evt-crew-art-preview {
-    grid-template-columns: 1fr;
+.evt-crew-beat figcaption {
+  display: grid;
+  gap: 2px;
+  padding: 4px 6px;
+  font-size: 0.65rem;
+}
+.evt-crew-beat figcaption strong {
+  color: #ffe188;
+  letter-spacing: 0.04em;
+}
+.evt-crew-beat figcaption span {
+  overflow-wrap: anywhere;
+}
+.evt-crew-art-retry {
+  width: calc(100% - 8px);
+  margin: 4px;
+  padding: 5px;
+  border: 1px solid #fbd383;
+  border-radius: 4px;
+  color: #fff0c8;
+  font-size: 0.62rem;
+}
+@media (max-width: 620px) {
+  .evt-crew-art-strip {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+  .evt-crew-beat {
+    flex: 0 0 45%;
+    scroll-snap-align: start;
   }
 }
 .evt-creature-warning-art {

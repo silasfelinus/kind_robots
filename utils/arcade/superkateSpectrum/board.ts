@@ -123,9 +123,13 @@ export function attachAndPop(
   }
   return { matched: cluster.length, dropped, cleared: !activeHues(board).length }
 }
-export function pushCeiling(board: Board): boolean {
+export function pushCeiling(board: Board, rng: () => number): boolean {
   const overflow = board[ROWS - 1]!.some(Boolean)
+  const hues = activeHues(board)
   for (let row = ROWS - 1; row > 0; row--) board[row] = [...board[row - 1]!]
-  board[0] = Array<Cell>(COLS).fill(null)
+  board[0] = Array.from(
+    { length: COLS },
+    () => hues[Math.floor(rng() * hues.length)] ?? COLORS[0],
+  )
   return overflow
 }

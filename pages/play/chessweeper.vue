@@ -26,13 +26,20 @@
             ♔
           </span>
           <span class="min-w-0 flex-1 truncate font-bold">
-            Chessweeper · Three Dangerous Worlds
+            Chessweeper
           </span>
           <span class="badge badge-primary hidden sm:inline-flex">
-            Chess × Mines × Discs
+            ♔ × ✹ × ◉
           </span>
         </nav>
       </header-page-bar>
+      <NuxtLink
+        v-if="route.query.mode === 'classic'"
+        to="/play/chessweeper"
+        class="btn btn-primary btn-sm self-end"
+      >
+        ▶ Triple Threat
+      </NuxtLink>
       <page-help
         label="How to play Chessweeper"
         @open="openGamePanel('guide')"
@@ -40,8 +47,8 @@
       <iframe
         ref="gameFrame"
         class="chessweeper-frame min-h-0 w-full flex-1 rounded-2xl border border-base-content/20"
-        src="/chessweeper/index.html?embedded=1"
-        title="Chessweeper: play Sugarbomb Kingdom, Ashen Checkmate or Jackpot Apocalypse"
+        :src="frameSrc"
+        title="Chessweeper: three simultaneous games, or original Classic campaigns"
         allow="fullscreen"
       />
     </div>
@@ -49,6 +56,12 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute()
+const frameSrc = computed(() =>
+  route.query.mode === 'classic'
+    ? '/chessweeper/index.html?embedded=1'
+    : '/chessweeper/triple.html',
+)
 const gameFrame = ref<HTMLIFrameElement | null>(null)
 const iconAvailable = ref(true)
 
@@ -59,10 +72,10 @@ function openGamePanel(panel: string) {
   )
 }
 
-useHead({ title: 'Chessweeper · Three Dangerous Worlds · Kind Robots' })
+useHead({ title: 'Chessweeper · Triple Threat · Kind Robots' })
 useSeoMeta({
   description:
-    'One dangerous chessboard, three original worlds: kawaii Sugarbomb Kingdom, gothic Ashen Checkmate, and neon Jackpot Apocalypse. Play chess, Minesweeper and disc survival together.',
+    'Three simultaneous games on one clock: play chess, reveal Minesweeper fields and dodge discs in real time. Original three-world Classic campaigns remain available.',
 })
 </script>
 

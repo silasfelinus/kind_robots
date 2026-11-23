@@ -235,16 +235,23 @@ for (const players of [1, 2]) {
   let cleared: number | null = null
   let bossFrames = 0
   let before = a.snapshot
+  // The last Act VI frame before the crew left it: straight into Act VII, or into the X3 detour that rejoins it.
+  let leftActSix: typeof before | null = null
   for (let frame = 0; frame < 380000 && cleared === null; frame++) {
     a.update(emptyInput())
     b.update(emptyInput())
     const after = a.snapshot
+    if (before.act === 'S06' && after.act !== 'S06') leftActSix = before
     if (after.act === 'S07') {
       if (entered === null) {
         entered = frame
-        assert.equal(before.act, 'S06')
-        assert.equal(before.stage, 'aftermath')
-        assert.ok(before.actSixFrame >= CROWN_REEF.bossStarts)
+        assert.ok(
+          before.act === 'S06' || before.act === 'X3',
+          `Act VII follows Act VI or its X3 detour, not ${before.act}`,
+        )
+        assert.ok(leftActSix, 'the crew flew Act VI first')
+        assert.equal(leftActSix.stage, 'aftermath', 'Act VI was cleared')
+        assert.ok(leftActSix.actSixFrame >= CROWN_REEF.bossStarts)
         assert.deepEqual(
           after.ships.map(({ lives, power, shield }) => ({
             lives,

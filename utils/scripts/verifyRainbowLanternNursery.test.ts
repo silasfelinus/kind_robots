@@ -24,6 +24,7 @@ import {
 } from '../arcade/games/rainbowLanternNursery'
 import {
   TRENCH_FORK,
+  TRENCH_SAFE_SECTIONS,
   trenchSections,
   trenchSpawns,
 } from '../arcade/games/rainbowTrench'
@@ -42,6 +43,10 @@ assert.ok(nurserySpawns(300).length > 0)
 assert.ok(NURSERY_WAVES.every((wave) => wave.at < NURSERY_GUARDIAN.from))
 assert.ok(nurserySpawns(300).every((spawn) => spawn.wave >= NURSERY.waveBase))
 
+assert.ok(
+  TRENCH_SAFE_SECTIONS.length >= 2,
+  'the safe route keeps its nursery stretch',
+)
 const originalSections = trenchSections('safe')
 const nurserySections = trenchSections('safe', true)
 assert.deepEqual(
@@ -57,7 +62,11 @@ assert.deepEqual(
         section.from < TRENCH_FORK.rejoinAt,
     )
     .map((section) => section.name),
-  ['Luminous eggs', 'Sleeping shoal', 'Broken lanterns', 'Nursery heart'],
+  // The recut safe route has as many sections as the nursery names that fit it, in order.
+  ['Luminous eggs', 'Sleeping shoal', 'Broken lanterns', 'Nursery heart'].slice(
+    0,
+    TRENCH_SAFE_SECTIONS.length,
+  ),
 )
 assert.notDeepEqual(
   originalSections.map((section) => section.name),
@@ -246,25 +255,27 @@ flight.update(confirm)
 assert.equal(flight.snapshot.act, 'S03')
 assert.equal(flight.snapshot.trenchRoute, 'safe')
 assert.equal(flight.snapshot.rescuedNemi, true)
-let reached = false
+// #5578 retired the in-Act III Lantern Matriarch: the Nursery is now the standalone X1 Kelp Nebula, flown after
+// Act III, whose Kelp Warden is met in the engine in verifyRainbowNurseryFlight. A saved Act III safe-route flight
+// with Nemi rescued must fly the old nursery window without the retired guardian ever spawning.
+let flownWindow = 0
 for (let frame = 0; frame < 2000; frame++) {
   const input = emptyInput()
   input.held.a = true
   if (flight.snapshot.continueLeft > 0) input.pressed.a = true
   flight.update(input)
   const state = flight.snapshot
-  if (state.guardian?.kind === 'matriarch') {
-    reached = true
-    assert.equal(state.nurseryGuardianOutcome, 'waiting')
-    assert.ok(state.actThreeFrame >= window.from)
-    assert.ok(state.actThreeFrame < window.to)
-    break
-  }
+  assert.notEqual(
+    state.guardian?.kind,
+    'matriarch',
+    'the retired Act III Matriarch never spawns',
+  )
   if (state.act !== 'S03' || state.actThreeFrame >= window.to) break
+  if (state.actThreeFrame >= window.from) flownWindow++
 }
 assert.ok(
-  reached,
-  'four-player saved flight encounters Matriarch in the actual engine',
+  flownWindow > 0,
+  'four-player saved flight flies the old nursery window in the actual engine',
 )
 
 console.log('Rainbow Lantern Nursery guardian integration contracts passed')

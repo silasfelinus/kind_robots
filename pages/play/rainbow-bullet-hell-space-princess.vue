@@ -297,7 +297,10 @@
         <div
           role="group"
           aria-label="Luminous Ocean alternate route nodes"
-          class="grid shrink-0 grid-cols-4 gap-1 pb-1"
+          class="grid shrink-0 grid-cols-4 gap-1 rounded-xl bg-cover bg-center p-1"
+          :style="{
+            backgroundImage: `url(${rainbowGen2Art('route-map', look)})`,
+          }"
         >
           <button
             v-for="(route, index) in alternateRoutes"
@@ -479,8 +482,12 @@
           class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-pink-300/40 bg-[#391f60] @2xl:flex-row"
         >
           <img
-            :src="rainbowStageCard(stages[hangarPick * 2]!.strip, look)"
-            :alt="selectedHangarUpgrade.name + ' upgrade artwork'"
+            :src="rainbowGen2Art('hangar', look)"
+            :alt="
+              'The Palace Hangar, where ' +
+              selectedHangarUpgrade.name +
+              ' is fitted'
+            "
             class="h-1/3 min-h-0 w-full shrink-0 object-cover @2xl:h-full @2xl:w-1/2"
             loading="lazy"
           />
@@ -714,6 +721,7 @@ import {
   rainbowHeroArt,
   rainbowEndingPlate,
   rainbowPortrait,
+  rainbowGen2Art,
   rainbowShipSprite,
   rainbowStageCard,
   rainbowSuperCutin,

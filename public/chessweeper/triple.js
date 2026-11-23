@@ -681,9 +681,14 @@
     $('submit').disabled = true
     $('submit-status').textContent = 'Saving global score…'
     try {
+      const headers = { 'content-type': 'application/json' }
+      const sessionToken = localStorage.getItem('token')
+      if (sessionToken && sessionToken.split('.').length === 3) {
+        headers.authorization = 'Bearer ' + sessionToken
+      }
       const response = await fetch('/api/arcade/scores', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers,
         body: JSON.stringify({
           game: 'chessweeper-triple',
           initials,

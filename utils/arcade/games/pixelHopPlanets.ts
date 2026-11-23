@@ -382,7 +382,11 @@ export const PLANETS: readonly Planet[] = [
     id: 'clockwork-planet',
     name: 'CLOCKWORK PLANET',
     short: 'CLOCK',
-    card: ['THE CLOCK NEVER STOPS', 'CONVEYORS CARRY YOU', 'PAINT TWICE, WATCH THE FLIP'],
+    card: [
+      'THE CLOCK NEVER STOPS',
+      'CONVEYORS CARRY YOU',
+      'PAINT TWICE, WATCH THE FLIP',
+    ],
     schemes: CLOCKWORK_SCHEMES,
     sky: 'ring',
     orb: { body: '#fbbf24', ring: '#94a3b8' },

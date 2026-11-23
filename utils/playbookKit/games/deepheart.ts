@@ -1,4 +1,5 @@
 import { DH_PALETTE, portraitArt, romanceArt } from '../../deepheart/art'
+import { deepheartArtSrc } from '../../deepheart/renderedArt'
 import {
   COURT_CHOICE_KEYS,
   COURT_DEITIES,
@@ -130,6 +131,11 @@ const others: KitCastMember[] = [
   })),
 ]
 
+for (const member of others) {
+  const src = deepheartArtSrc(`cast:${member.id}`)
+  if (src) member.portrait.src = src
+}
+
 const m = (
   id: string,
   title: string,
@@ -145,7 +151,11 @@ const m = (
   kind,
   act,
   about,
-  art: { brief: `${title}: ${caption}`, prompt: `${prompt} ${P}` },
+  art: {
+    brief: `${title}: ${caption}`,
+    prompt: `${prompt} ${P}`,
+    src: deepheartArtSrc(`moment:${id}`),
+  },
 })
 
 const sceneMoments: KitMoment[] = [
@@ -543,6 +553,7 @@ const endings: KitEnding[] = Object.values(ENDING_TEXT).map((e) => ({
   hint: ENDING_META[e.id]!.hint,
   about: ENDING_META[e.id]!.about,
   art: {
+    src: deepheartArtSrc(`ending:${e.id}`),
     brief: `Ending plate: ${e.title}`,
     prompt: `${ENDING_ART[e.id]} ${P}`,
   },
@@ -650,6 +661,7 @@ export const DEEPHEART: PlaybookKitSpec = {
   theme: 'deepheart',
   artPromptsComplete: true,
   keyArt: {
+    src: deepheartArtSrc('premise'),
     brief:
       'Key art: a torchlit spiral stair down into a three-tiered dungeon, a small party with lanterns on the top landing, a glowing red heart-shaped crystal far below',
     prompt: `A small party of four adventurers with lanterns stands on the top landing of a huge spiral stone stairway that winds down through three cavern layers, crypts of stacked bones, a flooded marble hall and a cavern of glowing magma, with a glowing red heart-shaped crystal far below at the bottom. Wide shot from above the party. ${P}`,
@@ -688,6 +700,7 @@ export const DEEPHEART: PlaybookKitSpec = {
       tagline: 'Every delver who fell, kept tidy forever.',
       tone: 'neutral',
       emblem: {
+        src: deepheartArtSrc('faction:bone-court'),
         brief: 'Emblem: a skull inside a ring of candles, carved in grey stone',
         prompt: `A round grey stone plaque carved with a calm skull at its centre, ringed by small carved candles, the carving worn smooth and lit by a single torch from the left. Flat front view. ${P}`,
       },
@@ -698,6 +711,7 @@ export const DEEPHEART: PlaybookKitSpec = {
       tagline: 'They sing the drowned ships home.',
       tone: 'info',
       emblem: {
+        src: deepheartArtSrc('faction:brine-choir'),
         brief: 'Emblem: a lighthouse under waves, worked in green bronze',
         prompt: `A round green bronze medallion embossed with a small lighthouse standing beneath three curling waves, barnacles crusted on its rim, wet and gleaming in lantern light. Flat front view. ${P}`,
       },
@@ -708,6 +722,7 @@ export const DEEPHEART: PlaybookKitSpec = {
       tagline: 'Whoever takes the heart becomes the king.',
       tone: 'error',
       emblem: {
+        src: deepheartArtSrc('faction:ember-throne'),
         brief:
           'Emblem: an iron crown over a burning heart, black iron and embers',
         prompt: `A black iron shield-shaped plaque with an iron crown hammered above a heart of glowing red ember glass, hot orange light leaking from the cracks around the heart. Flat front view. ${P}`,

@@ -36,11 +36,18 @@ async function openAt(width) {
   })
   page.on('pageerror', (error) => errors.push(error.message))
   await page.clock.install()
+  if (width === 1440) {
+    await page.addInitScript(() => {
+      localStorage.setItem('token', 'test.header.signature')
+    })
+  }
   const submissions = []
+  const authorizations = []
   await page.route('**/api/arcade/scores**', async (route) => {
     const req = route.request()
     if (req.method() === 'POST') {
       submissions.push(req.postDataJSON())
+      authorizations.push(req.headers().authorization || '')
       await route.fulfill({
         status: 201,
         contentType: 'application/json',
@@ -70,12 +77,12 @@ async function openAt(width) {
   })
   await page.goto(server.origin + '/chessweeper/triple.html')
   await page.waitForFunction(() => !!window.__chessweeperTriple)
-  return { page, submissions }
+  return { page, submissions, authorizations }
 }
 
 try {
   for (const width of [390, 768, 1440]) {
-    const { page, submissions } = await openAt(width)
+    const { page, submissions, authorizations } = await openAt(width)
     assert.equal(
       await page.locator('.play-panel').count(),
       3,
@@ -188,6 +195,11 @@ try {
     assert.equal(submissions[0].game, 'chessweeper-triple')
     assert.equal(submissions[0].initials, 'KR7')
     assert.equal(submissions[0].score, complete.final)
+    assert.equal(
+      authorizations[0],
+      width === 1440 ? 'Bearer test.header.signature' : '',
+      'signed-in sessions are attributed by Authorization while guests are not',
+    )
     await page.close()
     console.log('[triple] ' + width + 'px: input, stage, timer and scores passed')
   }

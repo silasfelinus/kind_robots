@@ -82,7 +82,7 @@ export const GAME_LINK_PREVIEWS: Record<string, GameLinkPreview> = {
   'slime-city-pvp': {
     title: 'Slime City Duels | Kind Robots',
     description:
-      'You have been challenged. Pick one of six rival crews and settle it in a private Slime City card battle, in your browser.',
+      'You have been challenged. Pick one of six rival crews and settle it in a private Slime City card battle. Sign in free to play.',
     image: '/slime-city-pvp/link-preview.webp',
   },
   'zuzu-gamebook': {

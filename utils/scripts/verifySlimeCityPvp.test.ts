@@ -12,13 +12,24 @@ import {
   pvpSnapshotRival,
   pvpTally,
   sortPvpGames,
+  pvpCardRow,
+  pvpClashView,
+  pvpRevision,
+  pvpTakeBack,
+  pvpTakebackState,
+  replayPvpTrail,
+  PVP_TAKEBACKS_ANY,
+  type PvpRecord,
   pvpCommand,
   pvpRules,
   replayPvp,
   stepPvp,
 } from '../slimeCity/pvp'
+import { cardById } from '../slimeCity/prototypes'
 import {
   CLASH_DECK_SIZE,
+  canClashPlay,
+  clashPlayLimit,
   nextClashStrike,
   type ClashCommand,
 } from '../slimeCity/clash'
@@ -362,7 +373,7 @@ assert.equal(
 assert.match(service, /FOR UPDATE/, 'concurrent turns must serialize')
 assert.match(
   service,
-  /record\.commands\.length !== revision/,
+  /pvpRevision\(record\) !== revision/,
   'stale tabs must be rejected',
 )
 assert.match(service, /settledAt/, 'terminal duels must stop taking moves')
@@ -571,7 +582,7 @@ console.log(
   )
   assert.match(
     client,
-    /start\(next\.team, \{ friendId: next\.friendId \}\)/,
+    /start\(next\.team, \{\s*friendId: next\.friendId,/,
     'REMATCH is a private friend challenge through the normal start path',
   )
   assert.match(client, /pvpTally\(games\.value\)/)
@@ -646,6 +657,189 @@ console.log('Slime City VS finish: result, rematch and record PASS')
   )
 }
 console.log('Slime City VS early deal: next hand visible between turns PASS')
+
+{
+  // Silas, 2026-11-22 PT: the duel board shares the CPU Clash hand (drag,
+  // full-size cards, evolution tabs) through an engine-shaped view.
+  let s = newPvpGame(host, guest, seed, pvpRules({ dealEarly: true }))
+  s = stepPvp(s, { t: 'pass', side: 'player' })!
+  while (nextClashStrike(s, 'player') >= 0)
+    s = stepPvp(s, { t: 'strike', side: 'player' })!
+  s = stepPvp(s, { t: 'end', side: 'player' })!
+  const guestBoard = pvpBoard(s, 'enemy')
+  const guestView = pvpClashView(guestBoard, 'enemy', host, guest)
+  assert.deepEqual(guestView.hands.enemy, guestBoard.hand)
+  assert.equal(guestView.hands.player.length, guestBoard.opponentHandCount)
+  assert.ok(
+    guestView.hands.player.every((id) => id === ''),
+    'the rival hand stays hidden in the view',
+  )
+  assert.equal(guestView.decks.enemy.length, guestBoard.deckCount)
+  assert.deepEqual(guestView.levels.enemy, guestBoard.levels)
+  assert.deepEqual(guestView.levels.player, {}, 'rival levels stay secret')
+  for (const id of guestBoard.hand)
+    for (let lane = 0; lane < 5; lane++)
+      assert.equal(
+        canClashPlay(guestView, 'enemy', id, lane),
+        canClashPlay(s, 'enemy', id, lane),
+        `client legality matches the server for ${id} in alley ${lane}`,
+      )
+  assert.equal(clashPlayLimit(guestView, 'enemy'), clashPlayLimit(s, 'enemy'))
+  assert.equal(pvpCardRow(cardById('lynx')), 'own')
+  const board = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+  assert.match(board, /<SlimeCityClashHand[\s\S]*?:side="pvp\.duel\.seat"/)
+  assert.match(board, /@drop="onDrop"/, 'cards drag onto alleys')
+  assert.match(board, /:data-clash-lane="lane"/)
+  assert.match(board, /data-testid="slime-pvp-plays"/, 'floating play icons')
+  assert.match(
+    board,
+    /t: 'pass'[\s\S]*?t: 'end'[\s\S]*?t: 'strike'/,
+    'one FIGHT tap plays the whole strike sweep',
+  )
+  const store = readFileSync('stores/slimeCityPvp.ts', 'utf8')
+  assert.match(
+    store,
+    /next\.revision < current\.revision/,
+    'a late poll never rolls the board back',
+  )
+  assert.ok(
+    existsSync('content/channels/arcade/slime-city-duels.md'),
+    'the duel page has its own tutorial tab',
+  )
+}
+console.log(
+  'Slime City VS board: shared hand view, legality, drag and sweep PASS',
+)
+
+{
+  // Silas, 2026-11-22 PT: "There should be a back button if it's your turn,
+  // with options for more depending on game options at start."
+  const rules = pvpRules({ dealEarly: true })
+  const fresh = newPvpGame(host, guest, seed, rules)
+  const card = fresh.hands.player.find((id) =>
+    [0, 1, 2, 3, 4].some(
+      (lane) => !!stepPvp(fresh, { t: 'play', side: 'player', card: id, lane }),
+    ),
+  )!
+  const lane = [0, 1, 2, 3, 4].find(
+    (l) => !!stepPvp(fresh, { t: 'play', side: 'player', card, lane: l }),
+  )!
+  const played = stepPvp(fresh, { t: 'play', side: 'player', card, lane })!
+  const record = (takebacks?: number): PvpRecord => ({
+    version: 1,
+    guestId: 2,
+    dealEarly: true,
+    ...(takebacks === undefined ? {} : { takebacks }),
+    commands: [...played.commands],
+  })
+  const quiet =
+    played.rng === fresh.rng &&
+    played.decks.player.length === fresh.decks.player.length
+  if (quiet) {
+    const taken = pvpTakeBack(host, guest, seed, record(), 'player')
+    assert.ok('record' in taken, 'one take-back per turn by default')
+    if ('record' in taken) {
+      assert.equal(taken.record.commands.length, 0)
+      assert.deepEqual(
+        replayPvp(host, guest, seed, taken.record.commands, rules).hands.player,
+        fresh.hands.player,
+        'the card returns to the hand',
+      )
+      assert.ok(
+        pvpRevision(taken.record) > pvpRevision(record()),
+        'a take-back still moves the revision forward',
+      )
+      const again: PvpRecord = {
+        ...taken.record,
+        commands: [...played.commands],
+      }
+      assert.equal(
+        pvpTakebackState(host, guest, seed, again, 'player').blocked,
+        'No take-backs left this turn.',
+      )
+      const any: PvpRecord = { ...again, takebacks: PVP_TAKEBACKS_ANY }
+      assert.equal(
+        pvpTakebackState(host, guest, seed, any, 'player').blocked,
+        null,
+      )
+    }
+  }
+  assert.equal(
+    pvpTakebackState(host, guest, seed, record(0), 'player').blocked,
+    'Take-backs are off in this duel.',
+  )
+  assert.notEqual(
+    pvpTakebackState(host, guest, seed, record(), 'enemy').blocked,
+    null,
+    'never on the rival turn',
+  )
+  assert.equal(
+    parsePvpRecord({ version: 1, guestId: null, takebacks: 5, commands: [] }),
+    null,
+  )
+  // A move that rolled dice or drew cards stands.
+  let rolled = 0
+  for (let probe = 1; probe < 400 && !rolled; probe++) {
+    const g = newPvpGame(host, guest, probe, rules)
+    for (const id of g.hands.player)
+      for (let l = 0; l < 5; l++) {
+        const n = stepPvp(g, { t: 'play', side: 'player', card: id, lane: l })
+        if (
+          !n ||
+          (n.rng === g.rng && n.decks.player.length === g.decks.player.length)
+        )
+          continue
+        const blocked = pvpTakebackState(
+          host,
+          guest,
+          probe,
+          {
+            version: 1,
+            guestId: 2,
+            dealEarly: true,
+            commands: [...n.commands],
+          },
+          'player',
+        ).blocked
+        assert.match(blocked ?? '', /stands/)
+        rolled++
+        break
+      }
+  }
+  // The strike trail lists each resolved alley in order.
+  let s = newPvpGame(host, guest, seed, rules)
+  s = stepPvp(s, { t: 'pass', side: 'player' })!
+  while (nextClashStrike(s, 'player') >= 0)
+    s = stepPvp(s, { t: 'strike', side: 'player' })!
+  s = stepPvp(s, { t: 'end', side: 'player' })!
+  for (const id of s.hands.enemy) {
+    const n = [0, 1, 2, 3, 4]
+      .map((l) => stepPvp(s, { t: 'play', side: 'enemy', card: id, lane: l }))
+      .find(Boolean)
+    if (n) s = n
+  }
+  if (s.phase === 'play') s = stepPvp(s, { t: 'pass', side: 'enemy' })!
+  while (nextClashStrike(s, 'enemy') >= 0)
+    s = stepPvp(s, { t: 'strike', side: 'enemy' })!
+  const trail = replayPvpTrail(host, guest, seed, s.commands, rules)
+  assert.deepEqual(trail.state, replayPvp(host, guest, seed, s.commands, rules))
+  assert.equal(
+    trail.strikes.length,
+    s.commands.filter((c) => c.t === 'strike').slice(-12).length,
+  )
+  assert.ok(
+    trail.strikes.every((item, i, all) => i === 0 || item.at > all[i - 1]!.at),
+  )
+  const board = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+  assert.match(board, /data-testid="slime-pvp-takeback"/)
+  assert.match(board, /class="scpvp-rail"/, 'boss bars beside the lanes')
+  assert.match(board, /'healed'/, 'heals animate')
+  assert.match(board, /replay it alley by alley/)
+  const service = readFileSync('server/utils/slimeCityPvp.ts', 'utf8')
+  assert.match(service, /pvpTakeBack\(/)
+  assert.match(service, /strikes: trail\?\.strikes/)
+}
+console.log('Slime City VS take-backs, strike trail and board animations PASS')
 {
   const battle = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
   const header = readFileSync(
@@ -656,10 +850,15 @@ console.log('Slime City VS early deal: next hand visible between turns PASS')
     'components/navigation/channel-select.vue',
     'utf8',
   )
-  assert.match(battle, /@media \(min-width: 1050px\) and \(min-height: 740px\)/)
-  assert.match(battle, /\.scpvp-field \{\s*grid-column: 1;\s*grid-row: 2;/)
-  assert.match(battle, /\.scpvp-controls \{\s*grid-column: 2;\s*grid-row: 2;/)
-  assert.match(battle, /\.scpvp-hand \{[\s\S]*?flex-wrap: wrap;/)
+  // Wide screens (Chromebooks, tablets in landscape): the alleys take the
+  // left column and the boss rail sits beside them on the right; the floating
+  // hand never takes the board's space.
+  assert.match(
+    battle,
+    /grid-template-areas:\s*'arena rail'\s*'console console';/,
+  )
+  assert.match(battle, /\.scpvp-rail \{\s*grid-area: rail;/)
+  assert.doesNotMatch(battle, /\.scpvp-controls \{/)
   assert.match(header, /header-account shrink-0 xl:ml-auto/)
   assert.match(header, /route\.path === '\/play\/slime-city-pvp'/)
   assert.match(picker, /route\.path === '\/play\/slime-city-pvp'/)

@@ -1677,6 +1677,7 @@
     drawGloom()
     drawBoard(game.state.board, false)
     updateHud()
+    if (game.state.over && !game.state.won) return onFail()
     scheduleHint()
   }
 
@@ -1735,15 +1736,14 @@
       return
     }
     const from = game.toolFrom || p
-    const before = E.clone(game.state)
-    const result = E.useTool(game.state, key, from, p)
+    const trial = E.clone(game.state)
+    const result = E.useTool(trial, key, from, p)
     if (!result.ok) {
       audio.play('invalid')
       return
     }
-    game.state = before
     rememberMove()
-    E.useTool(game.state, key, from, p)
+    game.state = trial
     s.boosters[key]--
     persist()
     game.tool = null

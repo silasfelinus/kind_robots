@@ -1,18 +1,19 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: arcade
 tabKey: hopeful-hues
 label: Hopeful Hues
 title: Hopeful Hues · Superkate & the Kind Robots
-subtitle: Admin preview · A rainbow match-three with a Back button
+subtitle: A rainbow match-three with a Back button
 summary: 'Rainbow match-three with a Back button.'
-description: A work-in-progress hopecore match-three. Swap tiles to bring color back with Superkate and the Kind Robots, undo any move, and travel a 130-level branching map to five endings.
+description: A hopecore match-three. Swap tiles to bring color back with Superkate and the Kind Robots, undo any move, and travel a 130-level branching map to five endings.
 icon: kind-icon:hopeful-hues
-route: /admin/hopeful-hues
-sort: 177
-requiredRole: ADMIN
+image: /hopeful-hues/front/splash.webp
+route: /play/hopeful-hues
+sort: 146
 tutorial:
   title: Hopeful Hues · bring the color back
+  image: /hopeful-hues/front/tutorial.webp
   body: >-
     Swap two neighboring tiles to line up three or more of a color. Drag a
     tile, or tap it and then a neighbor. Match four for a Rainbow Comb, an L or

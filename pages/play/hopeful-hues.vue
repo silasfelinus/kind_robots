@@ -6,10 +6,17 @@
           class="flex min-w-0 flex-1 items-center gap-2 text-xs sm:text-sm"
           aria-label="Hopeful Hues navigation"
         >
-          <NuxtLink to="/admin" class="btn btn-ghost btn-sm shrink-0">
-            ← Admin
-          </NuxtLink>
+          <img
+            v-if="iconAvailable"
+            src="/hopeful-hues/front/icon.webp"
+            alt=""
+            width="28"
+            height="28"
+            class="size-7 shrink-0 rounded-lg object-cover"
+            @error="iconAvailable = false"
+          />
           <span
+            v-else
             aria-hidden="true"
             class="grid size-7 shrink-0 place-items-center rounded-lg bg-primary/20 text-lg"
           >
@@ -19,7 +26,7 @@
             Hopeful Hues · Superkate &amp; the Kind Robots
           </span>
           <span class="badge badge-secondary hidden sm:inline-flex">
-            Admin preview · Match-3
+            Rainbow match-three
           </span>
         </nav>
       </header-page-bar>
@@ -40,6 +47,7 @@
 
 <script setup lang="ts">
 const gameFrame = ref<HTMLIFrameElement | null>(null)
+const iconAvailable = ref(true)
 
 function openGamePanel(panel: string) {
   gameFrame.value?.contentWindow?.postMessage(

@@ -457,6 +457,15 @@ const features: FeaturedExperience[] = [
       'Outmaneuver enemy kings, hidden mines and moving sawblades in three outrageous worlds.',
   },
   {
+    title: 'Hopeful Hues',
+    tag: 'Superkate & the Kind Robots · Rainbow match-three',
+    category: 'play',
+    route: '/play/hopeful-hues',
+    image: '/hopeful-hues/front/highlight.webp',
+    description:
+      'Swap tiles to paint a grey world back to rainbow, and take back any move you like.',
+  },
+  {
     title: 'Prom of Doom',
     posterSlug: 'prom-of-doom',
     tag: 'Capes & Tassels · Playable superhero school',

@@ -28,9 +28,9 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/chessweeper',
   },
   'hopeful-hues': {
-    channelKey: 'admin',
+    channelKey: 'arcade',
     tabKey: 'hopeful-hues',
-    route: '/admin/hopeful-hues',
+    route: '/play/hopeful-hues',
   },
   'slime-city': {
     channelKey: 'arcade',

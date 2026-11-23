@@ -124,6 +124,13 @@ export const SHARE_PREVIEWS: readonly SharePreview[] = [
       'Chess against the computer on a mined board, in three dangerous worlds.',
   },
   {
+    route: '/play/hopeful-hues',
+    image: '/hopeful-hues/front/link-preview.webp',
+    title: 'Hopeful Hues',
+    description:
+      'A hopecore rainbow match-three with Superkate and the Kind Robots, and a Back button.',
+  },
+  {
     route: '/play/ruler-hooked',
     image: '/ruler-hooked/hero.webp',
     title: 'The Ruler Is Hooked',

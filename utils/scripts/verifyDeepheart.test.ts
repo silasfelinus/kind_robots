@@ -1,5 +1,11 @@
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
+import { parse as parseYaml } from 'yaml'
+import {
+  resolveChannelLocation,
+  resolveChannels,
+  type ChannelContentItem,
+} from '../../stores/helpers/channelContent'
 import { achievementsForGame } from '../achievements/gameAchievements'
 import {
   ALL_ENDINGS,
@@ -681,6 +687,49 @@ assert.equal(
 assert.match(
   readFileSync('components/deepheart/deepheart-title.vue', 'utf8'),
   /user\.isAdmin && user\.showMature/,
+)
+// A nested Admin route must carry its own tutorial, not silently borrow the
+// previously viewed tab (for example ArtJob Queue).
+const readAdminTab = (name: string): ChannelContentItem => {
+  const source = readFileSync(`content/channels/admin/${name}.md`, 'utf8')
+  return parseYaml(source.split('---')[1] ?? '') as ChannelContentItem
+}
+const artBibleTab = readAdminTab('deepheart-bible')
+assert.equal(
+  artBibleTab.navigation,
+  false,
+  'private art bible stays out of nav',
+)
+assert.equal(artBibleTab.requiredRole, 'ADMIN')
+assert.equal(artBibleTab.image, deepheartArtSrc('cast:oona'))
+assert.equal(artBibleTab.tutorial?.title, 'Deepheart Art Bible')
+assert.match(artBibleTab.tutorial?.body ?? '', /Model comparison/)
+const adminTabs = resolveChannels([
+  {
+    contentType: 'channel',
+    channelKey: 'admin',
+    label: 'Admin',
+    route: '/artjob',
+    defaultTab: 'artjob',
+  },
+  readAdminTab('artjob'),
+  readAdminTab('deepheart'),
+  artBibleTab,
+])
+const selectedHelp = resolveChannelLocation(adminTabs, {
+  path: '/admin/deepheart/bible',
+})
+assert.equal(selectedHelp?.tab?.tabKey, 'deepheart-bible')
+assert.equal(selectedHelp?.tab?.tutorial?.title, 'Deepheart Art Bible')
+assert.notEqual(
+  selectedHelp?.tab?.tutorial?.title,
+  resolveChannelLocation(adminTabs, { path: '/artjob' })?.tab?.tutorial?.title,
+  'nested Deepheart help must never resolve to the ArtJob Queue',
+)
+assert.equal(
+  resolveChannelLocation(adminTabs, { path: '/admin/deepheart' })?.tab?.tabKey,
+  'deepheart',
+  'the playable game keeps its separate how-to-delve tutorial',
 )
 const bibleSource = readFileSync('pages/admin/deepheart/bible.vue', 'utf8')
 assert.match(bibleSource, /user\.isAdmin && user\.showMature/)

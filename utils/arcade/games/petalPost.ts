@@ -1022,6 +1022,8 @@ class PetalPost implements ArcadeGameInstance {
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
     if (this.dayEnd > 0) {
+      if (!this.demo && (input.pressed.a || input.pressed.start))
+        this.dayEnd = 1
       if (--this.dayEnd === 0) this.startDay(this.level + 1)
       return
     }
@@ -1504,8 +1506,10 @@ class PetalPost implements ArcadeGameInstance {
         color: RAMPS.gold[3],
         outline: INK,
       })
+    this.renderWeather(g)
     vignette(g, W, H, 0.28)
     this.renderHud(g)
+    if (this.dayEnd > 0 && this.gazette) this.renderGazette(g, this.gazette)
   }
 
   private renderStreet(g: CanvasRenderingContext2D, cam: number) {
@@ -1515,6 +1519,91 @@ class PetalPost implements ArcadeGameInstance {
     g.translate(0, off)
     cachedLayer(g, 'petal-post-street', W, H + PERIOD, paintStreet)
     g.restore()
+  }
+
+  private renderWeather(g: CanvasRenderingContext2D) {
+    if (this.weather === 'rainy') {
+      g.strokeStyle = rgba(RAMPS.sky[4], 0.5)
+      g.lineWidth = 1
+      for (let i = 0; i < 26; i++) {
+        const x = (i * 67 + this.tick * 2) % W
+        const y = (i * 47 + this.tick * 5) % H
+        g.beginPath()
+        g.moveTo(x, y)
+        g.lineTo(x - 3, y + 8)
+        g.stroke()
+      }
+    } else if (this.weather === 'foggy') {
+      g.fillStyle = rgba(RAMPS.steel[4], 0.12)
+      g.fillRect(0, HUD_H + 1, W, H - HUD_H)
+    } else if (this.weather === 'market') {
+      for (let i = 0; i < 12; i++) {
+        g.fillStyle = i % 3 === 0 ? RAMPS.pink[3] : RAMPS.gold[3]
+        g.fillRect(i * 22, HUD_H + 2 + Math.abs(i - 6), 10, 4)
+      }
+    }
+  }
+
+  private renderGazette(g: CanvasRenderingContext2D, report: GazetteReport) {
+    g.fillStyle = rgba(INK, 0.88)
+    g.fillRect(0, HUD_H, W, H - HUD_H)
+    hudPanel(g, 7, 29, 242, 197, RAMPS.cream)
+    drawText(g, 'THE VALLEY GAZETTE', W / 2, 38, {
+      scale: 2,
+      align: 'center',
+      color: INK,
+    })
+    drawText(g, `PRIMROSE  ${report.weekday} ${report.day}/7`, W / 2, 59, {
+      align: 'center',
+      color: RAMPS.earth[1],
+    })
+    drawText(g, report.headline, W / 2, 73, {
+      align: 'center',
+      color: RAMPS.earth[0],
+    })
+    for (let i = 0; i < report.homes.length; i++) {
+      const home = report.homes[i]!
+      const x = 18 + (i % 6) * 38
+      const y = 100 + Math.floor(i / 6) * 29
+      g.fillStyle = home.subscriber ? RAMPS.leaf[3] : GREY[2]
+      g.fillRect(x, y, 32, 23)
+      g.fillStyle = home.delivered ? RAMPS.gold[3] : RAMPS.cream[3]
+      g.fillRect(x + 2, y + 2, 28, 19)
+      drawText(g, String(i + 1), x + 4, y + 4, { color: INK })
+      for (let bloom = 0; bloom < home.bloom; bloom++) {
+        drawSprite(
+          g,
+          BLOOM_SPRITES[bloom % BLOOM_SPRITES.length]!,
+          x + 10 + bloom * 6,
+          y + 17,
+        )
+      }
+    }
+    drawText(
+      g,
+      `DELIVERED ${report.delivered}  HOMES ${report.subscribers}`,
+      W / 2,
+      166,
+      { align: 'center', color: INK },
+    )
+    drawText(
+      g,
+      `REQUESTS ${report.requestsMet}  TIPS ${report.tips}`,
+      W / 2,
+      178,
+      { align: 'center', color: RAMPS.earth[0] },
+    )
+    drawText(
+      g,
+      `JOINED ${report.signups}  LEFT ${report.cancellations}`,
+      W / 2,
+      190,
+      { align: 'center', color: RAMPS.earth[0] },
+    )
+    drawText(g, 'A / START: NEXT DAY', W / 2, 211, {
+      align: 'center',
+      color: INK,
+    })
   }
 
   private renderBloom(
@@ -1765,11 +1854,19 @@ class PetalPost implements ArcadeGameInstance {
       color: RAMPS.pink[3],
       outline: INK,
     })
-    drawText(g, `DAY ${this.level}`, W - 6, 13, {
+    drawText(
+      g,
+      this.level <= PRIMROSE_DAYS.length
+        ? `${primroseDay(this.level)!.weekday} ${this.level}/7`
+        : `DAY ${this.level}`,
+      W - 6,
+      13,
+      {
       align: 'right',
-      color: RAMPS.leaf[3],
-      outline: INK,
-    })
+        color: RAMPS.leaf[3],
+        outline: INK,
+      },
+    )
     if (this.banner) {
       const sub = this.banner.sub
       const bw = Math.min(

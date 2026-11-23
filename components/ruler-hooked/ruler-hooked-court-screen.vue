@@ -132,8 +132,7 @@ const presenterSlug = computed(
 )
 const presenter = computed(
   () =>
-    store.bundle.characters.find((c) => c.slug === presenterSlug.value) ??
-    null,
+    store.bundle.characters.find((c) => c.slug === presenterSlug.value) ?? null,
 )
 const presenterMood = computed<CharacterExpressionKey>(() =>
   store.activeCard

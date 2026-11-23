@@ -5,7 +5,7 @@ tabKey: arcade-audio
 label: Arcade Audio
 title: Arcade Soundtrack Studio
 subtitle: Private soundtrack approval queue and relay readiness
-summary: Review and approve Arcade soundtrack briefs.
+summary: Review Arcade soundtrack briefs.
 description: Private admin studio for reviewing each Arcade music and sound cue, relay readiness, and existing render jobs before explicitly approving a private render.
 icon: kind-icon:music
 route: /admin/arcade-audio

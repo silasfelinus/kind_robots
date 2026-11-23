@@ -270,6 +270,29 @@
           Flight log · {{ exploredCount }}/8 seas explored ·
           {{ alternateDiscovered }}/4 detours flown · {{ medalsCount }} medals ·
           {{ endingCount }}/3 endings
+          <button
+            v-if="slotHasFlight"
+            type="button"
+            class="ml-1 rounded-lg border px-1.5 py-0.5 text-[11px]"
+            :class="
+              eraseArmed
+                ? 'border-red-400 bg-red-100 font-bold text-red-900'
+                : 'border-base-300 bg-base-200'
+            "
+            :aria-label="
+              eraseArmed
+                ? `Confirm: erase Slot ${rainbowSlot + 1}'s flight log and Hangar`
+                : `Erase Slot ${rainbowSlot + 1}'s flight log`
+            "
+            @click="eraseFlightLog"
+            @blur="eraseArmed = false"
+          >
+            {{
+              eraseArmed
+                ? `Tap again to erase Slot ${rainbowSlot + 1}`
+                : 'Erase slot'
+            }}
+          </button>
         </p>
         <div
           role="group"
@@ -622,8 +645,32 @@ const slotSummaries = computed(() =>
     ),
 )
 
+/** Erase needs a second tap; moving focus or switching slots disarms it. */
+const eraseArmed = ref(false)
+const slotHasFlight = computed(
+  () =>
+    slotSummaries.value[rainbowSlot.value] !== 'New flight' ||
+    hangar.value.upgrades.length > 0 ||
+    Object.keys(hangar.value.medals).length > 0,
+)
+async function eraseFlightLog() {
+  if (!eraseArmed.value) {
+    eraseArmed.value = true
+    return
+  }
+  eraseArmed.value = false
+  cabinetMounted.value = false
+  await nextTick()
+  arcadeStore.eraseRainbowFlightLog()
+  replayRecord.value = null
+  selectedAlternate.value = null
+  view.value = 'flight'
+  cabinetMounted.value = true
+}
+
 async function chooseSlot(slot: number) {
   if (slot === rainbowSlot.value) return
+  eraseArmed.value = false
   cabinetMounted.value = false
   await nextTick()
   arcadeStore.setRainbowSlot(slot)

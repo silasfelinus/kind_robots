@@ -23,17 +23,26 @@ import { emptyInput } from '../arcade/types'
 
 const target = [{ x: 80, y: 135, lives: 1 }]
 
-// The flagship's painting ships in both looks.
+// The flagship's paintings, intact and battered (t-064), ship in both looks.
 for (const look of ['', 'doodle/'])
-  assert.ok(
-    existsSync(
-      new URL(
-        `../../public/rainbow-princess-art/${look}${RAINBOW_FLAGSHIP_ART.path}.webp`,
-        import.meta.url,
+  for (const path of [
+    RAINBOW_FLAGSHIP_ART.path,
+    RAINBOW_FLAGSHIP_ART.phase2.path,
+  ])
+    assert.ok(
+      existsSync(
+        new URL(
+          `../../public/rainbow-princess-art/${look}${path}.webp`,
+          import.meta.url,
+        ),
       ),
-    ),
-    `flagship painting (${look || 'classic'})`,
-  )
+      `${path} painting (${look || 'classic'})`,
+    )
+// Both paintings put their Crown near the prow, so it stays on the ring when they swap.
+for (const art of [RAINBOW_FLAGSHIP_ART, RAINBOW_FLAGSHIP_ART.phase2]) {
+  assert.ok(art.crownX > 0 && art.crownX < 0.12, `${art.path} Crown x`)
+  assert.ok(art.crownY > 0.15 && art.crownY < 0.35, `${art.path} Crown y`)
+}
 
 // The flagship marks its lanes for the whole warning, then fires lances only down them; drones launch every other
 // phase-1 volley; below half the clamps open and the clamp core drifts free.

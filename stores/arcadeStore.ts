@@ -23,6 +23,12 @@ import {
 import { isRenderStyle, type RenderStyle } from '~/utils/arcade/display'
 import { clampVolume } from '~/utils/arcade/sound'
 import {
+  sanitizeKeyRemap,
+  withKeyRemap,
+  type ArcadeKeyRemap,
+  type RemappableButton,
+} from '~/utils/arcade/input'
+import {
   MASTERY_KEY,
   mergeMastery,
   sanitizeMastery,
@@ -43,6 +49,7 @@ import {
 import {
   RAINBOW_SAVE_GAME,
   RAINBOW_SLOT_COUNT,
+  eraseRainbowSlot,
   rainbowSlotKey,
 } from '~/utils/arcade/games/rainbowSaveSlots'
 import type { RainbowMedal } from '~/utils/arcade/games/rainbowLoadouts'
@@ -62,7 +69,9 @@ import {
   isMainGame,
 } from '~/utils/achievements/gameAchievements'
 import {
+  ARCADE_COMMS,
   ARCADE_DIFFICULTIES,
+  type ArcadeComms,
   type ArcadeDifficulty,
 } from '~/utils/arcade/types'
 
@@ -115,6 +124,12 @@ type ArcadePrefs = {
   crt?: boolean
   /** Pinball's camera holds still: no sweeps, cuts instead of pans. */
   stillCamera?: boolean
+  /** Hostile shots on an opaque dark disc with a bright ring, in every cabinet that offers it. */
+  highContrast?: boolean
+  /** How much crew chatter cabinets with comms show. */
+  comms?: ArcadeComms
+  /** Each cabinet's player-chosen face-button keys, by game slug. */
+  keyRemaps?: Record<string, ArcadeKeyRemap>
   /** The player's render style for every cabinet, and per-game overrides by slug. */
   renderStyle?: RenderStyle
   gameStyles?: Record<string, RenderStyle>
@@ -237,6 +252,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   /** CRT scanlines; defaults off for reduced-motion viewers. */
   const crt = ref(true)
   const stillCamera = ref(false)
+  const highContrast = ref(false)
+  const comms = ref<ArcadeComms>('full')
+  const keyRemaps = ref<Record<string, ArcadeKeyRemap>>({})
   const renderStyle = ref<RenderStyle>(DEFAULT_RENDER_STYLE)
   const gameStyles = ref<Record<string, RenderStyle>>({})
   const savedInitials = ref('')
@@ -401,6 +419,20 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       return
     if (slot === rainbowSlot.value) return
     rainbowSlot.value = slot
+    savePreferences()
+  }
+
+  /** Erase the chosen slot's flight log: its checkpoint and its Hangar. Earned feats stay with the player. */
+  function eraseRainbowFlightLog() {
+    const erased = eraseRainbowSlot(
+      saves.value,
+      rainbowHangars.value,
+      rainbowSlot.value,
+      emptyRainbowHangar,
+    )
+    saves.value = erased.saves
+    writeSaves(erased.saves)
+    rainbowHangars.value = erased.hangars
     savePreferences()
   }
 
@@ -649,6 +681,16 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     volume.value = clampVolume(prefs.volume, 1)
     crt.value = prefs.crt ?? !prefersReducedMotion
     stillCamera.value = prefs.stillCamera ?? prefersReducedMotion
+    highContrast.value = prefs.highContrast === true
+    comms.value = ARCADE_COMMS.includes(prefs.comms as ArcadeComms)
+      ? (prefs.comms as ArcadeComms)
+      : 'full'
+    keyRemaps.value = {}
+    if (prefs.keyRemaps && typeof prefs.keyRemaps === 'object')
+      for (const [game, raw] of Object.entries(prefs.keyRemaps)) {
+        const remap = sanitizeKeyRemap(raw)
+        if (Object.keys(remap).length) keyRemaps.value[game] = remap
+      }
     renderStyle.value = isRenderStyle(prefs.renderStyle)
       ? prefs.renderStyle
       : DEFAULT_RENDER_STYLE
@@ -678,6 +720,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       volume: volume.value,
       crt: crt.value,
       stillCamera: stillCamera.value,
+      highContrast: highContrast.value,
+      comms: comms.value,
+      keyRemaps: keyRemaps.value,
       renderStyle: renderStyle.value,
       gameStyles: gameStyles.value,
       initials: savedInitials.value,
@@ -737,6 +782,34 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
 
   function setStillCamera(value: boolean) {
     stillCamera.value = value
+    savePreferences()
+  }
+
+  function setHighContrast(value: boolean) {
+    highContrast.value = value
+    savePreferences()
+  }
+
+  function setComms(value: ArcadeComms) {
+    comms.value = value
+    savePreferences()
+  }
+
+  function keyRemapFor(game: string): ArcadeKeyRemap {
+    return keyRemaps.value[game] ?? {}
+  }
+
+  /** Give a face button the player's own key (null clears it); a key chosen for another button moves here. */
+  function setKeyRemap(
+    game: string,
+    button: RemappableButton,
+    code: string | null,
+  ) {
+    const clean = withKeyRemap(keyRemapFor(game), button, code)
+    keyRemaps.value = Object.fromEntries([
+      ...Object.entries(keyRemaps.value).filter(([slug]) => slug !== game),
+      ...(Object.keys(clean).length ? [[game, clean]] : []),
+    ])
     savePreferences()
   }
 
@@ -852,6 +925,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     volume,
     crt,
     stillCamera,
+    highContrast,
+    comms,
+    keyRemapFor,
     renderStyle,
     gameStyles,
     styleFor,
@@ -870,6 +946,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     syncSuperkateCareer,
     rainbowSlot,
     rainbowSlotSaves,
+    eraseRainbowFlightLog,
     setRainbowSlot,
     rainbowHangarForSlot,
     rainbowHangarBonuses,
@@ -885,6 +962,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     setVolume,
     setCrt,
     setStillCamera,
+    setHighContrast,
+    setComms,
+    setKeyRemap,
     difficultyFor,
     setDifficulty,
     rememberInitials,

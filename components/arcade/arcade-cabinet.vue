@@ -463,6 +463,70 @@
             {{ stillCamera ? 'Motion calm' : 'Motion full' }}
           </button>
           <button
+            v-if="meta?.highContrast"
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="highContrast"
+            title="High-contrast shots: every enemy shot sits on a solid black disc with a white ring"
+            @click="toggleHighContrast"
+          >
+            {{ highContrast ? 'Shots bold' : 'Shots normal' }}
+          </button>
+          <button
+            v-if="meta?.comms"
+            type="button"
+            class="cabinet-switch"
+            :title="`Comms: ${COMMS_TITLES[comms]} Click to change.`"
+            @click="cycleComms"
+          >
+            {{ COMMS_NAMES[comms] }}
+          </button>
+          <button
+            v-if="meta?.remap"
+            type="button"
+            class="cabinet-switch"
+            :aria-expanded="remapOpen"
+            aria-controls="cabinet-remap"
+            title="Give each action button a key of your own"
+            @click="toggleRemap"
+          >
+            Keys
+          </button>
+          <div
+            v-if="meta?.remap && remapOpen"
+            id="cabinet-remap"
+            class="cabinet-remap"
+            role="group"
+            aria-label="Your keys for the action buttons"
+          >
+            <span v-for="button in REMAPPABLE_BUTTONS" :key="button">
+              <button
+                type="button"
+                class="cabinet-switch"
+                :aria-pressed="remapListening === button"
+                :aria-label="
+                  remapListening === button
+                    ? `Press a key for ${button.toUpperCase()}, or Escape to cancel`
+                    : `${button.toUpperCase()}: ${remapLabel(button)}. Change`
+                "
+                @click="listenForKey(button)"
+              >
+                {{ button.toUpperCase() }}
+                {{
+                  remapListening === button
+                    ? '…press a key'
+                    : remapLabel(button)
+                }}
+              </button>
+            </span>
+            <button type="button" class="cabinet-switch" @click="resetRemap">
+              Default keys
+            </button>
+            <span class="cabinet-remap-note" aria-live="polite">{{
+              remapNote
+            }}</span>
+          </div>
+          <button
             type="button"
             class="cabinet-switch"
             :title="`Render style: ${RENDER_STYLE_NAMES[renderStyle]} (click for ${RENDER_STYLE_NAMES[otherStyle]})`"
@@ -522,8 +586,12 @@ import {
 } from '~/utils/arcade/games'
 import {
   AIM_KEYS,
+  applyKeyRemap,
   ArcadeInput,
   assignPads,
+  isRemappableCode,
+  REMAPPABLE_BUTTONS,
+  type RemappableButton,
   keepPads,
   KEY_MAP,
   P1_KEYS,
@@ -536,7 +604,6 @@ import {
   TWIN_KEYS,
 } from '~/utils/arcade/input'
 import { startFixedLoop, TICK_MS, type FixedLoop } from '~/utils/arcade/loop'
-import { ARCADE_DIFFICULTIES } from '~/utils/arcade/types'
 import {
   arcadeReducer,
   ATTRACT_PHASES,
@@ -565,7 +632,10 @@ import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
 import { initialsFromUsername } from '~/utils/arcade/leaderboard'
 import { masteryLine, masteryProgress } from '~/utils/arcade/mastery'
 import {
+  ARCADE_COMMS,
+  ARCADE_DIFFICULTIES,
   isWebGLInstance,
+  type ArcadeComms,
   type ArcadeButton,
   type ArcadeGameModule,
   type ArcadeGuidePage,
@@ -612,6 +682,18 @@ const muted = computed(() => store.muted)
 const volume = computed(() => store.volume)
 const crt = computed(() => store.crt)
 const stillCamera = computed(() => store.stillCamera)
+const highContrast = computed(() => store.highContrast)
+const comms = computed(() => store.comms)
+const COMMS_NAMES: Record<ArcadeComms, string> = {
+  full: 'Comms full',
+  essential: 'Comms story',
+  off: 'Comms off',
+}
+const COMMS_TITLES: Record<ArcadeComms, string> = {
+  full: 'every story scene and in-flight callout.',
+  essential: 'story scenes only; in-flight callouts stay quiet.',
+  off: 'no crew chatter, except the ending.',
+}
 const difficulty = computed(() => store.difficultyFor(props.slug))
 /** The cabinet's own name for the chosen difficulty (meta.difficulty lists them easiest first). */
 const difficultyName = computed(
@@ -1062,15 +1144,81 @@ function releaseAim() {
   input.setAimTouch(null)
 }
 
-/** Seat 1's keys: the split board while a twin-stick game plays, else the usual map. */
+/** Seat 1's keys: the split board while a twin-stick game plays, else the usual map with the player's own keys. */
 function seatOneKeys() {
-  return duo.value
-    ? P1_KEYS
-    : arrowsAim.value
-      ? TWIN_KEYS
-      : props.slug === 'save-the-plumber'
-        ? SAVE_PLUMBER_KEYS
-        : KEY_MAP
+  if (duo.value) return P1_KEYS
+  if (arrowsAim.value) return TWIN_KEYS
+  const base = props.slug === 'save-the-plumber' ? SAVE_PLUMBER_KEYS : KEY_MAP
+  return meta.value?.remap
+    ? applyKeyRemap(base, store.keyRemapFor(props.slug))
+    : base
+}
+
+// The Keys panel (t-044 settings): pick a face button, then press the key it should answer to.
+const remapOpen = ref(false)
+const remapListening = ref<RemappableButton | null>(null)
+const remapNote = ref('')
+/** A key's name as printed on the keyboard, near enough. */
+function keyName(code: string): string {
+  return code
+    .replace(/^Key/, '')
+    .replace(/^Digit/, '')
+    .replace(/^Numpad/, 'Num ')
+    .replace(/(Left|Right)$/, ' $1')
+}
+function remapLabel(button: RemappableButton): string {
+  const code = store.keyRemapFor(props.slug)[button]
+  return code ? keyName(code) : 'default'
+}
+function toggleRemap() {
+  remapOpen.value = !remapOpen.value
+  remapListening.value = null
+  remapNote.value = ''
+}
+function listenForKey(button: RemappableButton) {
+  remapListening.value = remapListening.value === button ? null : button
+  remapNote.value = remapListening.value
+    ? `Press a key for ${button.toUpperCase()}`
+    : ''
+}
+function resetRemap() {
+  for (const button of REMAPPABLE_BUTTONS)
+    store.setKeyRemap(props.slug, button, null)
+  remapListening.value = null
+  remapNote.value = 'Default keys restored'
+  input.setKeyMap(seatOneKeys())
+  releaseRemapFocus()
+}
+/** While a button listens, the next key binds to it and never reaches the game. */
+function onRemapKey(event: KeyboardEvent) {
+  const button = remapListening.value
+  if (!button) return
+  event.preventDefault()
+  event.stopImmediatePropagation()
+  if (event.code === 'Escape') {
+    remapListening.value = null
+    remapNote.value = 'Unchanged'
+    releaseRemapFocus()
+    return
+  }
+  if (!isRemappableCode(event.code)) {
+    remapNote.value = `${keyName(event.code)} stays reserved; try another key`
+    return
+  }
+  store.setKeyRemap(props.slug, button, event.code)
+  remapListening.value = null
+  remapNote.value = `${button.toUpperCase()} now also answers to ${keyName(event.code)}`
+  input.setKeyMap(seatOneKeys())
+  releaseRemapFocus()
+}
+/**
+ * Once a bind ends, drop focus from the panel: otherwise Enter (start) would also press the focused button and
+ * arm it again, and the next game key would be bound instead of played.
+ */
+function releaseRemapFocus() {
+  const focused = document.activeElement
+  if (focused instanceof HTMLElement && focused.closest('#cabinet-remap'))
+    focused.blur()
 }
 
 /** Let go of every touch control on every seat. */
@@ -1280,6 +1428,8 @@ function enterPhase(next: ArcadePhase) {
         demo: true,
         hiScore: hiScore(),
         stillCamera: store.stillCamera,
+        highContrast: store.highContrast,
+        comms: store.comms,
       }),
     )
   } else if (next !== 'demo') {
@@ -1334,6 +1484,8 @@ function startGame() {
           : undefined,
       selectScreen: true,
       stillCamera: store.stillCamera,
+      highContrast: store.highContrast,
+      comms: store.comms,
       difficulty: meta.value?.difficulty ? difficulty.value : undefined,
     }),
   )
@@ -2226,6 +2378,19 @@ function toggleStillCamera() {
     instance?.setStillCamera?.(store.stillCamera)
 }
 
+function toggleHighContrast() {
+  store.setHighContrast(!store.highContrast)
+  for (const instance of [game, demoGame])
+    instance?.setHighContrast?.(store.highContrast)
+}
+
+function cycleComms() {
+  const next =
+    ARCADE_COMMS[(ARCADE_COMMS.indexOf(store.comms) + 1) % ARCADE_COMMS.length]!
+  store.setComms(next)
+  for (const instance of [game, demoGame]) instance?.setComms?.(next)
+}
+
 async function boot() {
   retire(game)
   retire(demoGame)
@@ -2270,9 +2435,11 @@ onMounted(() => {
   touchControls.value = window.matchMedia('(pointer: coarse)').matches
   input.attach(window)
   applySeats()
+  input.setKeyMap(seatOneKeys())
   window.addEventListener('gamepadconnected', applySeats)
   window.addEventListener('gamepaddisconnected', applySeats)
   window.addEventListener('keydown', onWindowKey)
+  window.addEventListener('keydown', onRemapKey, { capture: true })
   window.addEventListener('blur', onWindowBlur)
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
@@ -2357,6 +2524,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('gamepadconnected', applySeats)
   window.removeEventListener('gamepaddisconnected', applySeats)
   window.removeEventListener('keydown', onWindowKey)
+  window.removeEventListener('keydown', onRemapKey, { capture: true })
   window.removeEventListener('blur', onWindowBlur)
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)
@@ -3368,6 +3536,20 @@ onBeforeUnmount(() => {
   background: #facc15;
   color: #1e1b4b;
   touch-action: none;
+}
+
+.cabinet-remap {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cabinet-remap-note {
+  color: #fde68a;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 0.7rem;
 }
 
 .cabinet-coin {

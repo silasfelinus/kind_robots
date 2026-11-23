@@ -129,6 +129,12 @@ export type ArcadeGameMeta = {
    * shows its motion switch; a pinball table's still camera shows its own.
    */
   calmMotion?: boolean
+  /** The game draws high-contrast hostile shots on request (ArcadeGameOptions.highContrast): the cabinet shows the switch. */
+  highContrast?: boolean
+  /** The game has crew comms the player can quiet (ArcadeGameOptions.comms): the cabinet shows the switch. */
+  comms?: boolean
+  /** Players may give each face button a key of their own (utils/arcade/input applyKeyRemap): the cabinet shows the Keys panel. */
+  remap?: boolean
   /**
    * The game offers difficulty levels: their names, easiest first (easy, normal, hard). The cabinet
    * shows a switch for them and passes the choice as ArcadeGameOptions.difficulty.
@@ -161,6 +167,10 @@ export type ArcadeAudioSettings = {
   volume: number
 }
 
+/** How much crew chatter a game's comms show: everything, story scenes only, or none. */
+export const ARCADE_COMMS = ['full', 'essential', 'off'] as const
+export type ArcadeComms = (typeof ARCADE_COMMS)[number]
+
 export type ArcadeGameOptions = {
   rng: () => number
   sound: ArcadeSoundLike
@@ -185,6 +195,10 @@ export type ArcadeGameOptions = {
    * camera sweeps, and a cut instead of a pan when the view must change.
    */
   stillCamera?: boolean
+  /** Draw hostile shots on an opaque dark disc with a bright ring, for a game whose meta sets highContrast. */
+  highContrast?: boolean
+  /** How much crew chatter to show, for a game whose meta sets comms (default full). */
+  comms?: ArcadeComms
   /** Isolated Rainbow Act replay snapshot, never promoted to the campaign save. */
   rainbowReplay?: unknown
   /**
@@ -230,6 +244,10 @@ export interface ArcadeGameInstance {
   setPlayers?(count: number): void
   /** Change the calm-motion choice mid-game, for a game whose meta sets calmMotion. */
   setStillCamera?(still: boolean): void
+  /** Change the high-contrast shot choice mid-game, for a game whose meta sets highContrast. */
+  setHighContrast?(on: boolean): void
+  /** Change the comms level mid-game, for a game whose meta sets comms. */
+  setComms?(level: ArcadeComms): void
   /** Keep a game's in-cabinet audio menu synchronized with Arcade controls. */
   setAudio?(settings: ArcadeAudioSettings): void
   /** Mastery goals earned this game, for a cabinet with a ladder. */
@@ -291,6 +309,10 @@ export interface ArcadeWebGLGameInstance {
   dispose(): void
   /** Change the still-camera choice mid-game (ArcadeGameOptions.stillCamera). */
   setStillCamera?(still: boolean): void
+  /** As ArcadeGameInstance.setHighContrast. */
+  setHighContrast?(on: boolean): void
+  /** As ArcadeGameInstance.setComms. */
+  setComms?(level: ArcadeComms): void
 }
 
 export type ArcadePlayableInstance =

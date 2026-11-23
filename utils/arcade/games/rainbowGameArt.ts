@@ -672,21 +672,37 @@ export function rainbowEndingPlate(choice: FinaleChoice): string | null {
  * B09 on the rebel road (t-061): the Motherland flagship painting (Krea 2 render 279298), a white-and-gold warship
  * with the Crown clamped at its prow. `crownX`/`crownY` locate the clamped Crown in the picture (as fractions of
  * its size), so it is drawn with that Crown on the boss's ring and the long hull trailing off to the right.
+ * `phase2` (t-064) is the same ship battered once the clamps spring: a Flux Kontext edit of 279298 (ArtImage
+ * 279493), with its own Crown point so the Crown stays on the ring when the paintings swap.
  */
 export const RAINBOW_FLAGSHIP_ART = {
   path: 'bosses/flagship',
   width: 230,
   crownX: 0.066,
   crownY: 0.251,
+  phase2: {
+    path: 'bosses/flagship-phase2',
+    crownX: 0.049,
+    crownY: 0.257,
+  },
 } as const
 
-/** Draw the flagship with its clamped Crown at the origin; false while the picture loads. */
+/**
+ * Draw the flagship with its clamped Crown at the origin: battered in phase 2 once that painting loads, else the
+ * phase-1 painting; false while neither has loaded.
+ */
 export function drawRainbowFlagshipSprite(
   g: CanvasRenderingContext2D,
+  phase: 1 | 2 = 1,
 ): boolean {
-  const img = loadedArt(rainbowArt(RAINBOW_FLAGSHIP_ART.path))
+  const { width } = RAINBOW_FLAGSHIP_ART
+  const battered =
+    phase === 2 ? loadedArt(rainbowArt(RAINBOW_FLAGSHIP_ART.phase2.path)) : null
+  const img = battered ?? loadedArt(rainbowArt(RAINBOW_FLAGSHIP_ART.path))
   if (!img) return false
-  const { width, crownX, crownY } = RAINBOW_FLAGSHIP_ART
+  const { crownX, crownY } = battered
+    ? RAINBOW_FLAGSHIP_ART.phase2
+    : RAINBOW_FLAGSHIP_ART
   const height = (width * img.naturalHeight) / img.naturalWidth
   g.drawImage(img, -crownX * width, -crownY * height, width, height)
   return true

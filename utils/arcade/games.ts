@@ -939,6 +939,9 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     difficulty: RAINBOW_DIFFICULTY_NAMES,
     mastery: RAINBOW_MASTERY,
     calmMotion: true,
+    highContrast: true,
+    comms: true,
+    remap: true,
     fourButtons: true,
   },
 ]

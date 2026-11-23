@@ -4,6 +4,7 @@ import { sanitizeSaves, withSave } from '../arcade/saves'
 import {
   RAINBOW_SAVE_GAME,
   RAINBOW_SLOT_COUNT,
+  eraseRainbowSlot,
   rainbowSlotKey,
   rainbowSlotSaveFits,
   rainbowSlotSummary,
@@ -82,6 +83,30 @@ assert.equal(
   false,
 )
 
+// Erasing a slot's flight log (t-044) clears only that slot's checkpoint and Hangar.
+{
+  const keys = [0, 1, 2].map((slot) => rainbowSlotKey(slot)!)
+  const saves = {
+    [keys[0]!]: { checkpoint: { act: 4 } },
+    [keys[1]!]: { checkpoint: { act: 7 } },
+    'save-the-plumber': { level: 3 },
+  }
+  const hangars = ['h0', 'h1', 'h2']
+  const erased = eraseRainbowSlot(saves, hangars, 1, () => 'fresh')
+  assert.deepEqual(erased.saves, {
+    [keys[0]!]: { checkpoint: { act: 4 } },
+    'save-the-plumber': { level: 3 },
+  })
+  assert.deepEqual(erased.hangars, ['h0', 'fresh', 'h2'])
+  assert.deepEqual(hangars, ['h0', 'h1', 'h2'], 'the input is not mutated')
+  assert.ok(keys[1]! in saves, 'the input record still holds slot 2')
+  const empty = eraseRainbowSlot(saves, hangars, 2, () => 'fresh')
+  assert.deepEqual(empty.saves, saves, 'an empty slot erases to itself')
+  const bad = eraseRainbowSlot(saves, hangars, 5, () => 'fresh')
+  assert.deepEqual(bad.saves, saves)
+  assert.deepEqual(bad.hangars, hangars, 'no slot outside the three')
+}
+
 const root = new URL('../../', import.meta.url)
 const store = readFileSync(new URL('stores/arcadeStore.ts', root), 'utf8')
 const page = readFileSync(
@@ -99,6 +124,16 @@ assert.match(
   /cabinetMounted\.value = false\s+await nextTick\(\)\s+arcadeStore\.setRainbowSlot/,
 )
 assert.match(page, /:key="rainbowSlot"/)
+// The page asks twice before erasing and remounts the cabinet around it, as a slot switch does.
+assert.match(
+  page,
+  /if \(!eraseArmed\.value\) \{\s+eraseArmed\.value = true\s+return\s+\}/,
+)
+assert.match(
+  page,
+  /cabinetMounted\.value = false\s+await nextTick\(\)\s+arcadeStore\.eraseRainbowFlightLog\(\)/,
+)
+assert.match(store, /function eraseRainbowFlightLog\(\)/)
 console.log(
   'rainbow save slots: legacy slot kept, three isolated records, safe cabinet switch',
 )

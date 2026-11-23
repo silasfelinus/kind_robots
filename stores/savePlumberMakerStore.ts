@@ -69,6 +69,7 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
   const reviewComment = ref('')
   const ratingBusy = ref(false)
   const reviewsBusy = ref(false)
+  let reviewRequest = 0
   const currentDraft = ref<string | null>(null)
   const imported = ref(false)
   const error = ref('')
@@ -449,12 +450,14 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       reviewSummary.value = blankReviewSummary()
       return
     }
+    const request = ++reviewRequest
     reviewsBusy.value = true
     try {
       const res = await performFetch<PlumberReviewSummary>(
         '/api/plumber-levels/reviews?code=' + encodeURIComponent(code),
       )
-      if (code !== encodeMakerLevel(level.value)) return
+      if (request !== reviewRequest || code !== encodeMakerLevel(level.value))
+        return
       if (!res.success || !res.data) {
         error.value = res.message || 'Unable to load course reviews.'
         return
@@ -462,8 +465,11 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       reviewSummary.value = res.data
       reviewComment.value = res.data.myComment
       error.value = ''
+    } catch {
+      if (request === reviewRequest && code === encodeMakerLevel(level.value))
+        error.value = 'Unable to load course reviews. Please try again.'
     } finally {
-      reviewsBusy.value = false
+      if (request === reviewRequest) reviewsBusy.value = false
     }
   }
 

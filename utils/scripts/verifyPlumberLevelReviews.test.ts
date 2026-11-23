@@ -106,6 +106,27 @@ assert.match(summary, /reactionCategory: 'PLUMBER_LEVEL'/)
 assert.match(summary, /take: 30/, 'public review list is bounded')
 assert.match(makerStore, /performFetch<PlumberReviewSummary>/)
 assert.match(makerStore, /async function rate\(stars: number\)/)
+assert.match(
+  makerStore,
+  /const request = \+\+reviewRequest/,
+  'each review load must identify its request to reject out-of-order responses',
+)
+assert.match(
+  makerStore,
+  /request !== reviewRequest \|\| code !== encodeMakerLevel\(level\.value\)/,
+  'late review responses must not overwrite a newer course or request',
+)
+assert.match(
+  makerStore,
+  /if \(request === reviewRequest\) reviewsBusy\.value = false/,
+  'an older response must not clear a newer request busy indicator',
+)
+assert.match(
+  makerStore,
+  /Unable to load course reviews\. Please try again\./,
+  'network failures should not become unhandled promise rejections',
+)
+
 assert.doesNotMatch(
   makerStore,
   /ratings\.value =/,

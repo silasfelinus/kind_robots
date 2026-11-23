@@ -537,6 +537,11 @@ class ZuzuGhostTrail implements ArcadeGameInstance {
     return STAGE_MUSIC[this.act.theme]
   }
 
+  get musicScene(): 'level' | 'level-2' | 'boss' {
+    if (this.boss && this.boss.dying === 0) return 'boss'
+    return this.act.stage >= 4 ? 'level-2' : 'level'
+  }
+
   /** Remember the run as it stands at this checkpoint (a real game only; demos never save). */
   private keep() {
     if (this.demo) return

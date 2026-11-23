@@ -1147,6 +1147,12 @@ class GloomInvaders implements ArcadeGameInstance {
     return HEARTBEAT_LOOPS[heartbeatTier(this.stepEvery)] ?? null
   }
 
+  get musicScene(): 'level' | 'level-2' {
+    return this.weather && !this.menu && heartbeatTier(this.stepEvery) >= 2
+      ? 'level-2'
+      : 'level'
+  }
+
   // --- the mode select ------------------------------------------------------------
 
   private updateMenu(input: InputFrame) {

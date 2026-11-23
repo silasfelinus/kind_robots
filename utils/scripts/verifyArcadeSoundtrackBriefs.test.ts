@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { ARCADE_GAMES, LINKED_GAMES } from '../arcade/games'
 import {
   ARCADE_AUDIO_GAMES,
@@ -15,6 +16,12 @@ import {
   publishedArcadeAudioPath,
   type ArcadeAudioAsset,
 } from '../arcade/soundtrackBriefs'
+import {
+  arcadeAudioCueState,
+  arcadeAudioQueueGames,
+  type ArcadeAudioQueueData,
+  type ArcadeAudioQueueEntry,
+} from '../arcade/audioQueue'
 import {
   ACESTEP_MAX_BPM,
   ACESTEP_MIN_BPM,
@@ -247,5 +254,103 @@ assert.deepEqual(decide({ existing: { id: 42, status: 'DONE' } }), {
   jobId: 42,
   status: 'DONE',
 })
+
+const sampleCue: ArcadeAudioQueueEntry = {
+  game: 'gloom-invaders',
+  cue: 'level',
+  jobKey: arcadeAudioJobKey('gloom-invaders', 'level'),
+  brief: ARCADE_MUSIC_BRIEFS['gloom-invaders'].level,
+  job: null,
+}
+const sampleQueue: ArcadeAudioQueueData = {
+  generationEnabled: true,
+  relay: ready,
+  entries: [sampleCue],
+}
+assert.equal(arcadeAudioCueState(sampleCue, sampleQueue).eligible, true)
+assert.equal(
+  arcadeAudioCueState(sampleCue, {
+    ...sampleQueue,
+    generationEnabled: false,
+  }).eligible,
+  false,
+  'Disabled server cannot be overridden by the admin interface',
+)
+assert.equal(
+  arcadeAudioCueState(sampleCue, {
+    ...sampleQueue,
+    relay: notReady,
+  }).eligible,
+  false,
+  'No live audio-capable relay means no Approve button',
+)
+for (const status of ['PENDING', 'RUNNING', 'DONE']) {
+  const covered = {
+    ...sampleCue,
+    job: { id: 17, status, createdAt: '2026-11-23T08:00:00Z' },
+  }
+  assert.equal(
+    arcadeAudioCueState(covered, sampleQueue).eligible,
+    false,
+    'Existing in-flight or completed jobs are never re-enqueued',
+  )
+}
+assert.equal(
+  arcadeAudioCueState(
+    {
+      ...sampleCue,
+      job: { id: 18, status: 'FAILED', createdAt: '2026-11-23T08:00:00Z' },
+    },
+    sampleQueue,
+  ).eligible,
+  true,
+  'A failed job can be retried with explicit approval',
+)
+assert.deepEqual(
+  arcadeAudioQueueGames([
+    sampleCue,
+    { ...sampleCue, game: 'shared', cue: 'victory' },
+    sampleCue,
+  ]),
+  ['gloom-invaders', 'shared'],
+)
+const audioPage = readFileSync('pages/admin/arcade-audio.vue', 'utf8')
+const audioStore = readFileSync('stores/arcadeAudioQueueStore.ts', 'utf8')
+const audioNav = readFileSync('content/channels/admin/arcade-audio.md', 'utf8')
+assert.match(audioNav, /requiredRole: ADMIN/)
+assert.match(audioNav, /route: \/admin\/arcade-audio/)
+assert.match(audioPage, /data-testid="arcade-audio-queue"/)
+assert.match(audioPage, /useArcadeAudioQueueStore/)
+assert.match(audioPage, /audio\.canApprove\(entry\)/)
+assert.doesNotMatch(audioPage, /\$fetch\(|localStorage\.|fetch\(/)
+assert.match(audioStore, /performFetch<ArcadeAudioQueueData>/)
+assert.match(audioStore, /approve: true/)
+assert.match(audioStore, /if \(!response\.success/)
+assert.doesNotMatch(
+  audioStore,
+  /setInterval\(|onMounted\(/,
+  'The admin queue does not auto-submit or poll for production jobs',
+)
+
+const sceneSources = {
+  gloom: readFileSync('utils/arcade/games/gloomInvaders.ts', 'utf8'),
+  prize: readFileSync('utils/arcade/games/prizeShowPanic.ts', 'utf8'),
+  ghost: readFileSync('utils/arcade/games/zuzuGhostTrail.ts', 'utf8'),
+}
+for (const source of Object.values(sceneSources)) {
+  assert.match(
+    source,
+    /get musicScene\(\)/,
+    'Every soundtrack priority cabinet declares a scene for the mixer',
+  )
+}
+assert.match(sceneSources.gloom, /heartbeatTier\(this\.stepEvery\) >= 2/)
+assert.match(
+  sceneSources.prize,
+  /if \(this\.boss \|\| this\.ending\) return 'boss'/,
+)
+assert.match(sceneSources.prize, /this\.episodeIndex >= 2/)
+assert.match(sceneSources.ghost, /this\.act\.stage >= 4/)
+assert.match(sceneSources.ghost, /this\.boss && this\.boss\.dying === 0/)
 
 console.log('verifyArcadeSoundtrackBriefs: ok')

@@ -2,7 +2,7 @@
 title: Jellybeans
 room: 'Jellybean Quests Gallery'
 subtitle: Find the jellybeans
-description: Embark on a delightful quest to discover jellybeans scattered across the website.
+description: Find the jellybeans hidden across Kind Robots, then earn three in every game. Sign in free to keep track of the ones you find.
 image: splash/jellybeans.png
 icon: kind-icon:trophy
 tooltip: Ready for a hunt? Find the jellybeans hidden across the site, then earn three in every game.

@@ -2,7 +2,7 @@
 title: 'Login'
 room: 'Login Room'
 subtitle: 'Login here'
-description: 'Login to get access to our suite of AI-enhanced tools.'
+description: 'Sign in to your free Kind Robots account to save game progress and keep the art you make. Games and stories stay free without one.'
 image: splash/login.png
 icon: kind-icon:settings
 tooltip: 'login and registration link here'

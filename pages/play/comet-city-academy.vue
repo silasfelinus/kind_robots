@@ -1668,6 +1668,7 @@ import {
   routeStanding,
 } from '~/utils/cometAcademy/openingRoutes'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import { reviewedIdentityArtwork } from '~/utils/cometAcademy/artSlots'
 import { castMember } from '~/utils/cometAcademy/octoberCast'
 import { octoberArtReceipt } from '~/utils/cometAcademy/octoberArtReceipts'
 import {
@@ -2075,7 +2076,9 @@ const storyComicIntro = computed(() =>
     : null,
 )
 const storyComicArt = computed(() =>
-  storyComicIntro.value?.artKey ? promArt(storyComicIntro.value.artKey) : null,
+  storyComicIntro.value?.artKey
+    ? reviewedIdentityArtwork(storyComicIntro.value.artKey)
+    : null,
 )
 watch(
   () => [run.value?.day, run.value?.opponentSignature, run.value?.flowVersion],

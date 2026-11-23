@@ -668,7 +668,7 @@ import AcademyTermArchive from '~/components/play/cometAcademy/AcademyTermArchiv
 import AcademySoundMixer from '~/components/play/cometAcademy/AcademySoundMixer.vue'
 import { computed, ref, watch } from 'vue'
 import { useCometAcademyStore } from '~/stores/cometAcademyStore'
-import { promArt } from '~/utils/cometAcademy/artManifest'
+import { reviewedIdentityArtwork } from '~/utils/cometAcademy/artSlots'
 import { ALIGNMENT_LABELS } from '~/utils/cometAcademy/alignmentArcs'
 import {
   CARD_BACKS,
@@ -699,7 +699,7 @@ const store = useCometAcademyStore()
 
 const art = (keys: readonly string[]) =>
   store.settings.art
-    ? (keys.map((key) => promArt(key)).find(Boolean) ?? null)
+    ? (keys.map((key) => reviewedIdentityArtwork(key)).find(Boolean) ?? null)
     : null
 const initials = (name: string) =>
   name

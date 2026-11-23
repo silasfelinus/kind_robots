@@ -673,19 +673,19 @@ assert.match(
   page,
   /paintedArt\.ensure\(crewTellReceipt\(kind, beat\)\?\.imageId \?\? null\)/,
 )
-assert.match(page, /if \\(isCrewTellKind\\(unit\\.henchmanType\\)\\)/)
-assert.doesNotMatch(page, /unit\\.hp > 0 && isCrewTellKind/)
-assert.match(page, /v-if="encounteredCrewKinds\\.length"/)
+assert.match(page, /if \(isCrewTellKind\(unit\.henchmanType\)\)/)
+assert.doesNotMatch(page, /unit\.hp > 0 && isCrewTellKind/)
+assert.match(page, /v-if="encounteredCrewKinds\.length"/)
 assert.match(page, /const encounteredCrewKinds = computed/)
 assert.match(page, /data-testid="tactics-crew-view-counterplay"/)
 assert.match(page, /data-testid="tactics-crew-view-combat"/)
 assert.match(page, /data-testid="tactics-crew-combat-strip"/)
 assert.match(page, /data-testid="tactics-crew-pose-loaded"/)
 assert.match(page, /v-for="pose in CREW_COMBAT_POSES"/)
-assert.match(page, /:data-art-image-id="crewPoseImageId\\(pose\\)"/)
-assert.match(page, /CREW_COMBAT_ART\\[galleryCrew\\.value\\]\\[pose\\]\\.imageId/)
-assert.match(page, /paintedArt\\.images\\[id\\]\\?\\.src/)
-assert.match(page, /void paintedArt\\.retry\\(crewPoseImageId\\(pose\\)\\)/)
+assert.match(page, /:data-art-image-id="crewPoseImageId\(pose\)"/)
+assert.match(page, /CREW_COMBAT_ART\[galleryCrew\.value\]\[pose\]\.imageId/)
+assert.match(page, /paintedArt\.images\[id\]\?\.src/)
+assert.match(page, /void paintedArt\.retry\(crewPoseImageId\(pose\)\)/)
 
 const paintedLoader = readFileSync(
   new URL('../../stores/everyVillainTacticsArtStore.ts', import.meta.url),

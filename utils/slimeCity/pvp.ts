@@ -5,6 +5,7 @@ import {
   clashPower,
   replayClash,
   type ClashCommand,
+  type ClashOptions,
   type ClashState,
 } from './clash'
 import { CARDS, TEAMS, type Side, type TeamId } from './prototypes'
@@ -47,6 +48,8 @@ export interface PvpRecord {
   isPublic?: boolean
   lastActionAt?: string
   forfeitedBy?: Side
+  /** Duels created after 2026-11-22 PT deal each next hand at turn end. */
+  dealEarly?: boolean
   commands: ClashCommand[]
 }
 
@@ -140,6 +143,7 @@ export function parsePvpRecord(value: unknown): PvpRecord | null {
       data.invitedId !== null &&
       (!Number.isSafeInteger(data.invitedId) || Number(data.invitedId) <= 0)) ||
     (data.isPublic !== undefined && typeof data.isPublic !== 'boolean') ||
+    (data.dealEarly !== undefined && typeof data.dealEarly !== 'boolean') ||
     (data.lastActionAt !== undefined &&
       (typeof data.lastActionAt !== 'string' ||
         !Number.isFinite(Date.parse(data.lastActionAt)))) ||
@@ -212,21 +216,30 @@ export function pvpCommand(raw: unknown, side: Side): ClashCommand | null {
   }
 }
 
+/** The engine rules a stored duel was created under. */
+export function pvpRules(
+  record: Pick<PvpRecord, 'dealEarly'>,
+): Pick<ClashOptions, 'dealEarly'> {
+  return record.dealEarly ? { dealEarly: true } : {}
+}
+
 export function replayPvp(
   host: TeamId,
   guest: TeamId,
   seed: number,
   commands: ClashCommand[],
+  rules: Pick<ClashOptions, 'dealEarly'> = {},
 ): ClashState {
-  return replayClash(host, guest, seed, commands)
+  return replayClash(host, guest, seed, commands, rules)
 }
 
 export function newPvpGame(
   host: TeamId,
   guest: TeamId,
   seed: number,
+  rules: Pick<ClashOptions, 'dealEarly'> = {},
 ): ClashState {
-  return createClash(host, guest, seed)
+  return createClash(host, guest, seed, rules)
 }
 
 export function stepPvp(
@@ -341,7 +354,13 @@ export function pvpGameSummary(
   const joined = record.guestId !== null && isPvpTeam(row.foeId)
   const settled = row.settledAt !== null
   const state = joined
-    ? replayPvp(row.teamId, row.foeId as TeamId, row.seed, record.commands)
+    ? replayPvp(
+        row.teamId,
+        row.foeId as TeamId,
+        row.seed,
+        record.commands,
+        pvpRules(record),
+      )
     : null
   const victor = settled
     ? (row.result as ClashState['victor'])

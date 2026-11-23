@@ -27,14 +27,21 @@ export default defineEventHandler(async (event) => {
     const kind = input.kind
     const id = typeof input.id === 'string' ? input.id : ''
     const person = kind === 'cast' ? CHARACTERS.find((c) => c.id === id) : null
-    const deity = kind === 'court' ? COURT_DEITIES.find((d) => d.id === id) : null
+    const deity =
+      kind === 'court' ? COURT_DEITIES.find((d) => d.id === id) : null
     if (!person && !deity)
-      throw createError({ statusCode: 400, message: 'Unknown art bible subject.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Unknown art bible subject.',
+      })
     if (input.notes != null && typeof input.notes !== 'string')
       throw createError({ statusCode: 400, message: 'Invalid art notes.' })
     const notes = (input.notes as string | undefined)?.trim() ?? ''
     if (notes.length > 350)
-      throw createError({ statusCode: 400, message: 'Art notes exceed 350 characters.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Art notes exceed 350 characters.',
+      })
 
     const identity = `deepheart-bible:${kind}:${id}:`
     // The button is a deliberate new request, but repeat taps or reopened

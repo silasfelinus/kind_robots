@@ -9,8 +9,8 @@ import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
 // actual artwork, every delver opens an inspector, and new art goes through
 // a private, session-authorized, durable ArtJob request.
 const courtImages = [
-  275432, 275433, 275434, 275435, 275436, 275437, 275438, 275439,
-  275440, 275441, 275442, 275443,
+  275432, 275433, 275434, 275435, 275436, 275437, 275438, 275439, 275440,
+  275441, 275442, 275443,
 ]
 assert.equal(COURT_DEITIES.length, 12)
 assert.equal(new Set(courtImages).size, COURT_DEITIES.length)
@@ -39,18 +39,12 @@ assert.match(page, /deepheartArtSrc\('court:' \+ deity\.id\)/)
 assert.match(page, /art\.loadJobImage\(job\.artImageId/)
 assert.match(page, /\/api\/deepheart\/bible-art/)
 
-const listing = readFileSync(
-  'server/api/deepheart/bible-art.get.ts',
-  'utf8',
-)
+const listing = readFileSync('server/api/deepheart/bible-art.get.ts', 'utf8')
 const generation = readFileSync(
   'server/api/deepheart/bible-art.post.ts',
   'utf8',
 )
-const delivery = readFileSync(
-  'server/api/deepheart/art/[id].get.ts',
-  'utf8',
-)
+const delivery = readFileSync('server/api/deepheart/art/[id].get.ts', 'utf8')
 for (const route of [listing, generation]) {
   assert.match(route, /requireAdminApiUser/)
   assert.match(route, /viewerShowsMature/)

@@ -257,8 +257,8 @@
       >
         <p class="mb-3 text-sm opacity-80">
           All twelve human-faced immortals have completed Krea 2 encounter
-          artwork. Inspect their paintings, court history and art prompts,
-          or request a new character portrait.
+          artwork. Inspect their paintings, court history and art prompts, or
+          request a new character portrait.
         </p>
         <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
           <button
@@ -303,18 +303,28 @@
       <section
         class="flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-primary/30 bg-base-200 shadow-2xl"
       >
-        <div class="flex items-center justify-between gap-3 border-b border-base-content/15 px-4 py-2">
+        <div
+          class="flex items-center justify-between gap-3 border-b border-base-content/15 px-4 py-2"
+        >
           <div class="min-w-0">
             <p class="text-[0.65rem] uppercase tracking-widest text-primary">
-              {{ focus?.kind === 'court' ? 'Immortal court' : 'Character bible' }}
+              {{
+                focus?.kind === 'court' ? 'Immortal court' : 'Character bible'
+              }}
             </p>
             <h2 class="truncate text-lg font-bold">{{ focusName }}</h2>
           </div>
-          <button type="button" class="btn btn-ghost btn-sm" @click="closeDetail">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            @click="closeDetail"
+          >
             Close
           </button>
         </div>
-        <div class="kr-scroll grid min-h-0 flex-1 gap-4 overflow-y-auto p-3 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,1fr)] md:p-4">
+        <div
+          class="kr-scroll grid min-h-0 flex-1 gap-4 overflow-y-auto p-3 md:grid-cols-[minmax(0,1.15fr)_minmax(18rem,1fr)] md:p-4"
+        >
           <div class="min-h-0">
             <img
               v-if="focusImage"
@@ -328,7 +338,10 @@
               size="lg"
               class="mx-auto max-h-[68dvh] w-full max-w-lg"
             />
-            <div v-else class="grid min-h-56 place-items-center rounded-xl bg-base-300 text-sm opacity-70">
+            <div
+              v-else
+              class="grid min-h-56 place-items-center rounded-xl bg-base-300 text-sm opacity-70"
+            >
               Awaiting artwork
             </div>
             <p class="mt-2 text-xs opacity-70">
@@ -364,11 +377,13 @@
               </summary>
               <p class="mt-2 text-xs leading-relaxed">{{ focusPrompt }}</p>
             </details>
-            <div class="space-y-2 rounded-xl border border-primary/25 bg-base-300/65 p-3">
+            <div
+              class="space-y-2 rounded-xl border border-primary/25 bg-base-300/65 p-3"
+            >
               <h3 class="font-bold">Request new painted art</h3>
               <p class="text-xs opacity-80">
-                Krea 2 · private · original image preserved.
-                Add physical changes to pose, clothing, expression or lighting.
+                Krea 2 · private · original image preserved. Add physical
+                changes to pose, clothing, expression or lighting.
               </p>
               <textarea
                 v-model="artNotes"
@@ -522,8 +537,7 @@ const focusPrompt = computed(
 )
 const focusJob = computed(() =>
   bibleJobs.value.find(
-    (job) =>
-      job.kind === focus.value?.kind && job.id === focus.value?.id,
+    (job) => job.kind === focus.value?.kind && job.id === focus.value?.id,
   ),
 )
 const focusJobPending = computed(
@@ -535,9 +549,9 @@ const focusImage = computed(() => {
   if (!focus.value) return ''
   const latestId = focusJob.value?.artImageId
   const latest = latestId ? art.imageSrcById[latestId] : ''
-  return latest || deepheartArtSrc(
-    `${focus.value.kind}:${focus.value.id}`,
-  ) || ''
+  return (
+    latest || deepheartArtSrc(`${focus.value.kind}:${focus.value.id}`) || ''
+  )
 })
 
 async function refreshBibleArt() {
@@ -587,7 +601,12 @@ function closeDetail() {
 }
 
 async function requestPainting() {
-  if (!focus.value || !canAccess.value || requesting.value || focusJobPending.value)
+  if (
+    !focus.value ||
+    !canAccess.value ||
+    requesting.value ||
+    focusJobPending.value
+  )
     return
   requesting.value = true
   artError.value = ''
@@ -624,7 +643,6 @@ async function requestPainting() {
     requesting.value = false
   }
 }
-
 
 function cellKey(lane: string) {
   return selectedSubject.value + ':' + lane

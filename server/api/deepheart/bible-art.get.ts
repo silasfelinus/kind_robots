@@ -55,7 +55,8 @@ export default defineEventHandler(async (event) => {
       if (
         (kind === 'cast' ? !castIds.has(id) : !courtIds.has(id)) ||
         seen.has(`${kind}:${id}`)
-      ) continue
+      )
+        continue
       seen.add(`${kind}:${id}`)
       jobs.push({
         kind,

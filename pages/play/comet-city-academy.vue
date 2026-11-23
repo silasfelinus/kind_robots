@@ -1668,7 +1668,6 @@ import {
   routeStanding,
 } from '~/utils/cometAcademy/openingRoutes'
 import { promArt } from '~/utils/cometAcademy/artManifest'
-import { reviewedIdentityArtwork } from '~/utils/cometAcademy/artSlots'
 import { castMember } from '~/utils/cometAcademy/octoberCast'
 import { octoberArtReceipt } from '~/utils/cometAcademy/octoberArtReceipts'
 import {
@@ -1685,6 +1684,7 @@ import {
   academyVillainArt,
   endingArtKey,
   incidentArtKey,
+  reviewedIdentityArtwork,
   slugify,
   studentArtKey,
 } from '~/utils/cometAcademy/artSlots'

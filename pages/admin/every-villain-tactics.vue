@@ -1858,6 +1858,7 @@ watch(
     for (const kind of kinds) {
       void paintedArt.ensure(CREW_TELL_ART[kind].beats.warning.imageId)
       void paintedArt.ensure(CREW_TELL_ART[kind].beats.action.imageId)
+      void paintedArt.ensure(CREW_TELL_ART[kind].beats.captain.imageId)
       for (const pose of CREW_COMBAT_POSES)
         void paintedArt.ensure(CREW_COMBAT_ART[kind][pose].imageId)
     }

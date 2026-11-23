@@ -226,8 +226,7 @@
       for (let c = 0; c < 5; c++) {
         let rr = r
         let cc = c
-        for (let turn = 0; turn < region.tier; turn++)
-          [rr, cc] = [cc, 4 - rr]
+        for (let turn = 0; turn < region.tier; turn++) [rr, cc] = [cc, 4 - rr]
         rr += offset
         cc += offset
         const symbol = design[r][c]
@@ -242,7 +241,9 @@
             symbol === 'b'
               ? 'bomb'
               : region.tier % 2
-                ? symbol === 'h' ? 'v' : 'h'
+                ? symbol === 'h'
+                  ? 'v'
+                  : 'h'
                 : symbol
           startingSpecials.push([rr, cc, special])
         }
@@ -415,27 +416,30 @@
 
     const beat = (STORY_BEATS[regionId] || []).find((b) => b.at === n) || null
 
-    return authoredLevel({
-      id,
-      region: regionId,
-      n,
-      g,
-      seed: hashString('board:' + id),
-      rows,
-      cols,
-      colors,
-      shape,
-      mask,
-      gloom,
-      tangles: freeTangles,
-      goals,
-      moves,
-      stars,
-      buddiesAtStart: goals.some((goal) => goal.type === 'buddy') ? 1 : 0,
-      finale,
-      regionFinale,
-      beat,
-    }, region)
+    return authoredLevel(
+      {
+        id,
+        region: regionId,
+        n,
+        g,
+        seed: hashString('board:' + id),
+        rows,
+        cols,
+        colors,
+        shape,
+        mask,
+        gloom,
+        tangles: freeTangles,
+        goals,
+        moves,
+        stars,
+        buddiesAtStart: goals.some((goal) => goal.type === 'buddy') ? 1 : 0,
+        finale,
+        regionFinale,
+        beat,
+      },
+      region,
+    )
   }
 
   function lineOf(regionId) {

@@ -206,9 +206,17 @@ for (const id of all) {
     authoredCount++
     assert.ok(def.startingSpecials?.length, `${id} has a designed special`)
     for (const [r, c, special] of def.startingSpecials || [])
-      assert.equal(state.board[r]?.[c]?.special, special, `${id} special placement`)
+      assert.equal(
+        state.board[r]?.[c]?.special,
+        special,
+        `${id} special placement`,
+      )
   }
-  assert.equal(!!def.authored, n % 6 === 0 || def.finale, `${id} authored cadence`)
+  assert.equal(
+    !!def.authored,
+    n % 6 === 0 || def.finale,
+    `${id} authored cadence`,
+  )
 }
 assert.equal(authoredCount, 90, 'every sixth level and every world finale')
 for (const w of worlds) {

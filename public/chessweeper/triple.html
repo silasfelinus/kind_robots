@@ -7,6 +7,7 @@
     <title>Chessweeper: Triple Threat</title>
     <link rel="stylesheet" href="/chessweeper/triple.css" />
     <script defer src="/chessweeper/chess-engine.js"></script>
+    <script defer src="/chessweeper/soundscape.js"></script>
     <script defer src="/chessweeper/triple.js"></script>
   </head>
   <body>
@@ -101,6 +102,10 @@
           <ol id="score-rows" class="score-list" aria-label="Global top 10"></ol>
           <p id="score-error" role="status" class="soft"></p>
           <div class="buttons"><button id="close-scores" class="primary">Return</button></div>
+        </div>
+        <div id="audio-settings" class="audio-settings">
+          <label><input id="music-setting" type="checkbox" checked /> 🎵 Music</label>
+          <label><input id="fx-setting" type="checkbox" checked /> 🔊 Effects</label>
         </div>
         <button id="show-scores" class="link-action">🏆 Global leaderboard</button>
       </div>

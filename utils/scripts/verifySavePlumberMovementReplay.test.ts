@@ -116,6 +116,37 @@ const settle = replay(labRun(), 4, () => {})
 assert.equal(settle.at(-1)!.ground, true, 'the lab start stands on the floor')
 assert.equal(settle.at(-1)!.y + HERO_TALL, FLOOR, 'feet rest on the floor')
 
+const reversal = labRun()
+replay(reversal, 12, (_, input) => {
+  input.held.right = true
+  input.held.b = true
+})
+const approachSpeed = reversal.hero.vx
+assert.ok(approachSpeed > 3.5, 'a held run builds substantial momentum')
+const reversalSpeeds: number[] = []
+replay(
+  reversal,
+  12,
+  (_, input) => {
+    input.held.left = true
+    input.held.b = true
+  },
+  () => reversalSpeeds.push(reversal.hero.vx),
+)
+assert.ok(
+  reversalSpeeds[0]! > 0,
+  'counter-steering brakes first rather than teleporting velocity',
+)
+assert.ok(
+  reversalSpeeds[5]! < 0,
+  'counter-steering reverses direction within six frames',
+)
+assert.ok(
+  reversalSpeeds[11]! < -3.5,
+  'the heroine accelerates back toward full run speed',
+)
+assert.equal(embedded(reversal), null, 'the turnaround does not clip terrain')
+
 const walkOff = replay(labRun(), 400, runRight)
 const firstStep = walkOff.findIndex((step) => step.ground)
 const leave = walkOff.findIndex(

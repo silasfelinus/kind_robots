@@ -47,6 +47,38 @@
   }
   let lastFrame = performance.now()
   let suppressedFlagClick = -1
+  const AUDIO_KEY = 'kindrobots:chessweeper:triple:audio'
+  try {
+    const saved = JSON.parse(localStorage.getItem(AUDIO_KEY) || '{}')
+    $('music-setting').checked = saved.music !== false
+    $('fx-setting').checked = saved.effects !== false
+  } catch {}
+
+  function updateAudio() {
+    const playing = state.phase === 'running'
+    window.dispatchEvent(new CustomEvent('chessweeper:settings', {
+      detail: {
+        music: playing && $('music-setting').checked,
+        sound: playing && $('fx-setting').checked,
+      },
+    }))
+  }
+
+  function cue(kind) {
+    window.dispatchEvent(new CustomEvent('chessweeper:fx', {
+      detail: { kind },
+    }))
+  }
+
+  function saveAudio() {
+    try {
+      localStorage.setItem(AUDIO_KEY, JSON.stringify({
+        music: $('music-setting').checked,
+        effects: $('fx-setting').checked,
+      }))
+    } catch {}
+    updateAudio()
+  }
 
   function totalScore() {
     return Math.floor(
@@ -128,6 +160,7 @@
     state.lastMove = [move[0], move[1]]
     state.selected = -1
     score('chess', 18 + (victim === '.' ? 0 : 70))
+    cue(victim === '.' ? 'move' : 'capture')
     if (chess.inCheck(state.chess)) score('chess', 35)
     const replies = chess.legalMoves(state.chess)
     if (!replies.length) {
@@ -265,6 +298,7 @@
     }
     if (state.mines.has(index)) {
       state.opened.add(index)
+      cue('mine')
       state.minePendingReset = true
       renderMines()
       damage('A mine exploded')
@@ -276,6 +310,7 @@
       }
       return
     }
+    cue('move')
     const queue = [index]
     while (queue.length) {
       const cell = queue.pop()
@@ -287,6 +322,7 @@
     }
     if (state.opened.size === 64 - state.mines.size) {
       score('mine', 360 + state.mineLevel * 110)
+      cue('victory')
       state.mineLevel++
       state.minePendingReset = true
       $('mine-status').textContent = 'FIELD CLEARED!'
@@ -375,6 +411,7 @@
   function damage(source) {
     if (state.phase !== 'running') return
     state.hearts--
+    cue(source === 'Disc impact' ? 'blade' : 'damage')
     $('disc-caption').textContent = source + '! ♥ lost'
     updateHud()
     if (state.hearts <= 0) finish('All three hearts lost')
@@ -508,6 +545,8 @@
           view === 'scores' ? 'Every challenger shares the same scoreboard.' :
             'Play chess, clear mines and dodge discs at the same time.'
     $('show-scores').classList.toggle('hidden', view === 'scores')
+    $('audio-settings').classList.toggle('hidden',
+      view === 'scores' || view === 'end')
   }
 
   function closeDialog() {
@@ -517,6 +556,7 @@
   function pause() {
     if (state.phase !== 'running') return
     state.phase = 'pause'
+    updateAudio()
     keys.clear()
     state.drag = null
     openDialog('pause')
@@ -528,6 +568,7 @@
     if (state.minePendingReset) resetMines()
     if (state.busy && state.chess.t === -1) cpuMove()
     lastFrame = performance.now()
+    updateAudio()
     closeDialog()
   }
 
@@ -552,13 +593,18 @@
     $('disc-caption').textContent = 'WASD or touch and drag'
     updateHud()
     lastFrame = performance.now()
+    updateAudio()
     closeDialog()
   }
 
   function finish(reason) {
     if (state.phase !== 'running') return
     state.final = totalScore()
+    cue(reason === 'Time!' ? 'victory' : 'defeat')
     state.phase = 'end'
+    setTimeout(() => {
+      if (state.phase === 'end') updateAudio()
+    }, 380)
     keys.clear()
     state.drag = null
     $('run-result').textContent = reason + ' · ' +
@@ -726,6 +772,9 @@
     else openDialog(state.phase === 'end' ? 'end' :
       state.phase === 'pause' ? 'pause' : 'start')
   })
+  for (const id of ['music-setting', 'fx-setting']) {
+    $(id).addEventListener('change', saveAudio)
+  }
   $('flag-mode').addEventListener('click', () => {
     state.flagMode = !state.flagMode
     $('flag-mode').setAttribute('aria-pressed', String(state.flagMode))
@@ -760,6 +809,7 @@
   resetMines()
   resetDiscs()
   updateHud()
+  updateAudio()
   requestAnimationFrame(frame)
 
   window.__chessweeperTriple = Object.freeze({

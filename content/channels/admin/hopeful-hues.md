@@ -5,7 +5,7 @@ tabKey: hopeful-hues
 label: Hopeful Hues
 title: Hopeful Hues · Superkate & the Kind Robots
 subtitle: Admin preview · A rainbow match-three with a Back button
-summary: 'Rainbow match-three preview with a Back button.'
+summary: 'Rainbow match-three with a Back button.'
 description: A work-in-progress hopecore match-three. Swap tiles to bring color back with Superkate and the Kind Robots, undo any move, and travel a 130-level branching map to five endings.
 icon: kind-icon:hopeful-hues
 route: /admin/hopeful-hues

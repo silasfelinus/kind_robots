@@ -7,10 +7,12 @@ import { GROUP_1 } from './arcadeGroup1'
 import { GROUP_2 } from './arcadeGroup2'
 import { GROUP_3 } from './arcadeGroup3'
 import { GROUP_4 } from './arcadeGroup4'
+import { SPECTRUM_ACHIEVEMENTS } from './arcadeSuperkate'
 
 export const ARCADE_ACHIEVEMENT_DEFS: GameAchievementDef[] = [
   ...GROUP_1,
   ...GROUP_2,
   ...GROUP_3,
   ...GROUP_4,
+  ...SPECTRUM_ACHIEVEMENTS,
 ]

@@ -800,7 +800,7 @@ assert.match(menu, /store\.chooseLead\(incomingLead\)/)
 assert.match(menu, /store\.choosePerspective\(incomingView\)/)
 assert.match(
   menu,
-  /identityArtwork\(pickedLead\.value, pickedView\.value\)/,
+  /identityArtwork\(\s*pickedLead\.value,\s*pickedView\.value === 'villain' \? 'villain' : 'hero',/,
   'selection falls back to canon-safe hero/villain art',
 )
 assert.match(

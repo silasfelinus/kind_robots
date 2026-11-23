@@ -187,6 +187,14 @@ export interface ClashOptions {
   decks?: Partial<Record<Side, string[]>>
   /** City and Story terms: each side's starting (and maximum) boss life. */
   bosses?: Partial<Record<Side, number>>
+  /**
+   * Silas, 2026-11-22 PT, on two-player VS: "you should see your new hand at
+   * the end of a round." A crew draws its next hand the moment its turn ends
+   * (and the second crew holds its opening hand from the start), so each
+   * player can plan while the rival moves. Off by default so every older
+   * transcript replays unchanged.
+   */
+  dealEarly?: boolean
 }
 
 export interface ClashState {
@@ -233,6 +241,8 @@ export interface ClashState {
   powersUsed?: Record<Side, TeamId[]>
   /** Bout terms: boss life caps; omitted means clashBossMax. */
   bossMax?: Record<Side, number>
+  /** See ClashOptions.dealEarly; omitted on older saves and replays. */
+  dealEarly?: boolean
 }
 export interface ClashCardBalance {
   /** All 300 catalog cards get a separate, Clash-only balance profile. */
@@ -993,6 +1003,7 @@ export function createClash(
     s.bossMax = { player: cap('player'), enemy: cap('enemy') }
     s.boss = { ...s.bossMax }
   }
+  if (options.dealEarly) s.dealEarly = true
   s.decks.player = shuffle(
     s,
     alliance?.player.cards ?? options.decks?.player ?? clashDeck(player),
@@ -1002,6 +1013,7 @@ export function createClash(
     alliance?.enemy.cards ?? options.decks?.enemy ?? clashDeck(enemy),
   )
   startTurn(s, 'player')
+  if (s.dealEarly) draw(s, 'enemy')
   return s
 }
 function aim(card: Card): 'own' | 'enemy' | 'lane' {
@@ -2986,6 +2998,7 @@ export function endClashTurn(input: ClashState, side: Side): ClashState {
   if (nextClashStrike(input, side) >= 0) return input
   const s = structuredClone(input)
   discardHand(s, side)
+  if (s.dealEarly) draw(s, side)
   // Contract shields its neighbors for the opponent's NEXT attack turn. Doing
   // this at round end would clear the first player's shields immediately.
   for (const holder of s.units.filter(

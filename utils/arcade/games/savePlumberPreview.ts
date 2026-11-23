@@ -3219,7 +3219,12 @@ export class PlumberRun implements ArcadeGameInstance {
           Math.abs(this.hero.y + TALL / 2 - (flag.y - TALL / 2)) > 22
         )
           continue
-      } else if (this.hero.x < flag.x - 8) continue
+      } else if (
+        Math.abs(this.hero.x - flag.x) > 16 ||
+        this.hero.y + TALL < flag.y - 24 ||
+        this.hero.y > flag.y + 8
+      )
+        continue
       flag.reached = true
       if (this.stage.space) this.airPressure = AIR_PRESSURE_CAPACITY
       this.checkpoint = { x: flag.x, y: flag.y - TALL }

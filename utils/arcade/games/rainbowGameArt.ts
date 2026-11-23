@@ -226,6 +226,12 @@ export const RAINBOW_ACT_SEVEN_ENEMY_SPRITES = [
  */
 export const RAINBOW_ACT_EIGHT_ENEMY_SPRITES = ['captive'] as const
 
+/**
+ * The rebel road's Motherland interceptor (t-060, Krea 2 render 279290): white enamel and gold, a crown crest, the
+ * empire's machine rather than one of the Ocean's living craft.
+ */
+export const RAINBOW_MOTHERLAND_ENEMY_SPRITES = ['motherdrone'] as const
+
 export function rainbowEnemySprite(kind: string): string | null {
   return [
     ...RAINBOW_ENEMY_SPRITES,
@@ -235,6 +241,7 @@ export function rainbowEnemySprite(kind: string): string | null {
     ...RAINBOW_ACT_SIX_ENEMY_SPRITES,
     ...RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
     ...RAINBOW_ACT_EIGHT_ENEMY_SPRITES,
+    ...RAINBOW_MOTHERLAND_ENEMY_SPRITES,
   ].some((name) => name === kind)
     ? rainbowArt(`enemies/${kind}`)
     : null
@@ -659,6 +666,30 @@ export const RAINBOW_ENDING_PLATES: Readonly<Record<FinaleChoice, string>> = {
 export function rainbowEndingPlate(choice: FinaleChoice): string | null {
   const path = RAINBOW_ENDING_PLATES[choice]
   return path ? rainbowArt(path) : null
+}
+
+/**
+ * B09 on the rebel road (t-061): the Motherland flagship painting (Krea 2 render 279298), a white-and-gold warship
+ * with the Crown clamped at its prow. `crownX`/`crownY` locate the clamped Crown in the picture (as fractions of
+ * its size), so it is drawn with that Crown on the boss's ring and the long hull trailing off to the right.
+ */
+export const RAINBOW_FLAGSHIP_ART = {
+  path: 'bosses/flagship',
+  width: 230,
+  crownX: 0.066,
+  crownY: 0.251,
+} as const
+
+/** Draw the flagship with its clamped Crown at the origin; false while the picture loads. */
+export function drawRainbowFlagshipSprite(
+  g: CanvasRenderingContext2D,
+): boolean {
+  const img = loadedArt(rainbowArt(RAINBOW_FLAGSHIP_ART.path))
+  if (!img) return false
+  const { width, crownX, crownY } = RAINBOW_FLAGSHIP_ART
+  const height = (width * img.naturalHeight) / img.naturalWidth
+  g.drawImage(img, -crownX * width, -crownY * height, width, height)
+  return true
 }
 
 /** Draw the choice's ending plate at (x, y) with the given width; returns its height, or 0 when there is none. */

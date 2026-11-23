@@ -487,6 +487,7 @@
             always wins.</small
           >
         </fieldset>
+        <EveryVillainSoundMixer />
         <label class="evf-toggle">
           <input
             type="checkbox"
@@ -728,6 +729,7 @@ import { paintedRevealArtId } from '~/utils/everyVillainTactics/revealArt'
 import { paintedMapArtId } from '~/utils/everyVillainTactics/mapArt'
 import { identityBattleLedger } from '~/utils/everyVillainTactics/scores'
 import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
+import { useEveryVillainSoundStore } from '~/stores/everyVillainSoundStore'
 import { useUserStore } from '~/stores/userStore'
 import { scriptedFoilFor } from '~/utils/everyVillainTactics/training'
 import {
@@ -751,6 +753,7 @@ import {
 } from '~/stores/everyVillainTacticsStore'
 
 const store = useEveryVillainTacticsStore()
+const sound = useEveryVillainSoundStore()
 const paintedArt = useEveryVillainTacticsArtStore()
 const viewer = useUserStore()
 const route = useRoute()
@@ -810,7 +813,10 @@ const selectedPaintedArtwork = computed(() =>
 const revealArtwork = computed(
   () =>
     selectedPaintedArtwork.value ??
-    identityArtwork(pickedLead.value, pickedView.value),
+    identityArtwork(
+      pickedLead.value,
+      pickedView.value === 'villain' ? 'villain' : 'hero',
+    ),
 )
 const confirming = ref<'defaults' | 'erase' | null>(null)
 const oneShots = computed(() =>
@@ -918,8 +924,10 @@ function dateLabel(iso: string) {
   return new Date(iso).toISOString().slice(0, 10)
 }
 function confirmReset() {
-  if (confirming.value === 'defaults') store.resetSettings()
-  else if (confirming.value === 'erase') store.eraseProgress()
+  if (confirming.value === 'defaults') {
+    store.resetSettings()
+    sound.resetMix()
+  } else if (confirming.value === 'erase') store.eraseProgress()
   confirming.value = null
 }
 

@@ -323,7 +323,7 @@ export function finaleDialogue(
         speaker: lead,
         text:
           road === 'rebel'
-            ? 'No Motherland order reaches this far. We free the heart, our way.'
+            ? 'That is the Motherland flagship, and it has the Crown in its clamps. We take it down.'
             : road === 'loyal'
               ? 'Command wants this heart taken. We take it, and free who it holds.'
               : 'Then we free the heart, and everyone it is holding. Together.',

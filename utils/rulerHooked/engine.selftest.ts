@@ -355,20 +355,47 @@ function baseSave(): RunSave {
     'repeated extraction unlocks Tithe Lamprey',
   )
 
-
   const expansion: Array<{
     slug: string
     flag: string
     health: Partial<RunSave['kingdomHealth']>
   }> = [
     { slug: 'dewbell-tench', flag: 'shallowsNursery', health: { nature: 60 } },
-    { slug: 'commons-kitebream', flag: 'riverCommons', health: { nature: 60, order: 50 } },
-    { slug: 'oaththread-dace', flag: 'publicTrust', health: { nature: 50, joy: 50 } },
-    { slug: 'clockwork-riffle-loach', flag: 'weirLadder', health: { prosperity: 50 } },
-    { slug: 'chroma-cuttle', flag: 'workingWaterfront', health: { prosperity: 50 } },
-    { slug: 'parcelglass-eel', flag: 'envoyTreatySigned', health: { prosperity: 60 } },
-    { slug: 'smokedglass-flounder', flag: 'shallowsDredged', health: { nature: 50 } },
-    { slug: 'turnstile-tetra', flag: 'riverConcession', health: { treasury: 60 } },
+    {
+      slug: 'commons-kitebream',
+      flag: 'riverCommons',
+      health: { nature: 60, order: 50 },
+    },
+    {
+      slug: 'oaththread-dace',
+      flag: 'publicTrust',
+      health: { nature: 50, joy: 50 },
+    },
+    {
+      slug: 'clockwork-riffle-loach',
+      flag: 'weirLadder',
+      health: { prosperity: 50 },
+    },
+    {
+      slug: 'chroma-cuttle',
+      flag: 'workingWaterfront',
+      health: { prosperity: 50 },
+    },
+    {
+      slug: 'parcelglass-eel',
+      flag: 'envoyTreatySigned',
+      health: { prosperity: 60 },
+    },
+    {
+      slug: 'smokedglass-flounder',
+      flag: 'shallowsDredged',
+      health: { nature: 50 },
+    },
+    {
+      slug: 'turnstile-tetra',
+      flag: 'riverConcession',
+      health: { treasury: 60 },
+    },
     { slug: 'lockjaw-burbot', flag: 'runBlocked', health: { order: 50 } },
   ]
   for (const species of expansion) {
@@ -399,27 +426,36 @@ function baseSave(): RunSave {
   const sharedShallows = baseSave()
   sharedShallows.kingdomHealth.nature = 60
   sharedShallows.flags.shallowsNursery = true
-  assert.ok(availableFish(sharedShallows).some((f) => f.slug === 'dewbell-tench'))
+  assert.ok(
+    availableFish(sharedShallows).some((f) => f.slug === 'dewbell-tench'),
+  )
   sharedShallows.flags.shallowsDredged = true
-  assert.ok(!availableFish(sharedShallows).some((f) => f.slug === 'dewbell-tench'))
+  assert.ok(
+    !availableFish(sharedShallows).some((f) => f.slug === 'dewbell-tench'),
+  )
   const privatizedRiver = baseSave()
   privatizedRiver.kingdomHealth.nature = 65
   privatizedRiver.kingdomHealth.order = 55
   privatizedRiver.flags.riverCommons = true
-  assert.ok(availableFish(privatizedRiver).some((f) => f.slug === 'commons-kitebream'))
+  assert.ok(
+    availableFish(privatizedRiver).some((f) => f.slug === 'commons-kitebream'),
+  )
   privatizedRiver.flags.riverConcession = true
-  assert.ok(!availableFish(privatizedRiver).some((f) => f.slug === 'commons-kitebream'))
+  assert.ok(
+    !availableFish(privatizedRiver).some((f) => f.slug === 'commons-kitebream'),
+  )
 
-  const newUnlocks: Array<[string, string, Partial<RunSave['kingdomHealth']>]> = [
-    ['reedglass-darter', 'shallowsNursery', { nature: 60 }],
-    ['commons-bellfin', 'riverCommons', { joy: 60 }],
-    ['oathscale-minnow', 'publicTrust', { nature: 60 }],
-    ['treaty-sailfish', 'envoyTreatySigned', { prosperity: 60 }],
-    ['marina-mirrorling', 'marinaCleaned', {}],
-    ['concession-coinfin', 'riverConcession', { treasury: 60 }],
-    ['pierlock-eel', 'exclusivePier', { joy: 35 }],
-    ['sluice-ghost', 'runBlocked', { nature: 30 }],
-  ]
+  const newUnlocks: Array<[string, string, Partial<RunSave['kingdomHealth']>]> =
+    [
+      ['reedglass-darter', 'shallowsNursery', { nature: 60 }],
+      ['commons-bellfin', 'riverCommons', { joy: 60 }],
+      ['oathscale-minnow', 'publicTrust', { nature: 60 }],
+      ['treaty-sailfish', 'envoyTreatySigned', { prosperity: 60 }],
+      ['marina-mirrorling', 'marinaCleaned', {}],
+      ['concession-coinfin', 'riverConcession', { treasury: 60 }],
+      ['pierlock-eel', 'exclusivePier', { joy: 35 }],
+      ['sluice-ghost', 'runBlocked', { nature: 30 }],
+    ]
   for (const [slug, flag, sliders] of newUnlocks) {
     const world = baseSave()
     Object.assign(world.kingdomHealth, sliders)

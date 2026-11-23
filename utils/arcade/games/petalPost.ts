@@ -856,9 +856,12 @@ class PetalPost implements ArcadeGameInstance {
     this.houses.forEach((h, i) => {
       h.y = -FIRST_HOUSE - i * HOUSE_GAP
       h.delivered = false
-      h.request = h.subscriber && (i + day) % 3 === 0
-        ? (i + day) % 2 === 0 ? 'mailbox' : 'porch'
-        : null
+      h.request =
+        h.subscriber && (i + day) % 3 === 0
+          ? (i + day) % 2 === 0
+            ? 'mailbox'
+            : 'porch'
+          : null
     })
     this.routeEnd = -FIRST_HOUSE - HOUSES * HOUSE_GAP
     this.bonusEnd = this.routeEnd - BONUS_LEN

@@ -491,7 +491,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   function campAction(option: engine.CampOption) {
     const before = run.value?.moments.length ?? 0
     step((r) => {
-      lastLine.value = engine.campAction(r, option)
+      lastLine.value = engine.campAction(r, option, romanceOn.value)
     })
     const current = run.value
     lastMoment.value =
@@ -520,9 +520,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   const campOptions = computed(() => {
     const r = run.value
     if (!r) return []
-    return engine
-      .campOptions(r)
-      .filter((o) => romanceOn.value || o.kind !== 'romance')
+    return engine.campOptions(r, romanceOn.value)
   })
 
   const meterValues = computed((): Record<string, number> => {

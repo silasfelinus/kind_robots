@@ -249,9 +249,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (this.over) return null
     if (this.choosingMode) return SPECTRUM_MENU_MUSIC
     if (this.mode === 'classic') return SPECTRUM_CLASSIC_MUSIC
-    return SPECTRUM_THEMES[
-      Math.min(5, Math.floor((this.level - 1) / 5))
-    ]!
+    return SPECTRUM_THEMES[Math.min(5, Math.floor((this.level - 1) / 5))]!
   }
   get save(): SpectrumSave {
     return this.stored
@@ -293,7 +291,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         color: PALETTE[hue],
       })
     }
-    if (this.sparks.length > 110) this.sparks.splice(0, this.sparks.length - 110)
+    if (this.sparks.length > 110)
+      this.sparks.splice(0, this.sparks.length - 110)
   }
   get mastered(): readonly string[] {
     return [...this.earned]
@@ -361,12 +360,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         if (this.specialMeter >= 22) {
           this.specialMeter = 0
           const rank = rankForXp(this.career.xp)
-          this.power =
-            rank >= 15
-              ? 'ribbon'
-              : rank >= 9
-                ? 'burst'
-                : 'prism'
+          this.power = rank >= 15 ? 'ribbon' : rank >= 9 ? 'burst' : 'prism'
         }
       }
       this.score +=
@@ -430,9 +424,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       if (input.pressed.x || input.pressed.y) {
         const by = input.pressed.x ? 1 : -1
         const at = HOME_TABS.indexOf(this.menuTab)
-        this.menuTab = HOME_TABS[
-          (at + by + HOME_TABS.length) % HOME_TABS.length
-        ]!
+        this.menuTab =
+          HOME_TABS[(at + by + HOME_TABS.length) % HOME_TABS.length]!
         this.sound.play('blip')
       }
       if (this.menuTab === 'play') {
@@ -455,15 +448,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         }
         if (input.pressed.a) this.beginRun()
       } else if (this.menuTab === 'scrapbook') {
-        if (input.pressed.left)
-          this.albumChapter = (this.albumChapter + 5) % 6
-        if (input.pressed.right)
-          this.albumChapter = (this.albumChapter + 1) % 6
+        if (input.pressed.left) this.albumChapter = (this.albumChapter + 5) % 6
+        if (input.pressed.right) this.albumChapter = (this.albumChapter + 1) % 6
       } else if (this.menuTab === 'settings') {
-        if (input.pressed.up)
-          this.optionRow = (this.optionRow + 2) % 3
-        if (input.pressed.down)
-          this.optionRow = (this.optionRow + 1) % 3
+        if (input.pressed.up) this.optionRow = (this.optionRow + 2) % 3
+        if (input.pressed.down) this.optionRow = (this.optionRow + 1) % 3
         if (input.pressed.a || input.pressed.b) {
           const key: keyof SpectrumSettings =
             this.optionRow === 0
@@ -607,8 +596,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       ] as const
       for (const [index, setting] of choices.entries()) {
         const y = 188 + index * 49
-        g.fillStyle =
-          index === this.optionRow ? '#6d3172e0' : '#27334ed4'
+        g.fillStyle = index === this.optionRow ? '#6d3172e0' : '#27334ed4'
         g.fillRect(28, y - 22, W - 56, 37)
         label(g, setting[0], 115, y, 11)
         label(g, setting[1] ? 'ON' : 'OFF', 247, y, 12, '#9ff2e5')
@@ -646,7 +634,12 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         if (hue) {
           const p = center({ row: r, col: c })
           bubble(
-            g, p.x, p.y, hue, 13, this.selectedStyle,
+            g,
+            p.x,
+            p.y,
+            hue,
+            13,
+            this.selectedStyle,
             this.settings.particles ? this.tick : 0,
             this.settings.highContrast,
           )
@@ -660,24 +653,29 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (this.settings.aimGuide) {
       g.beginPath()
       g.moveTo(W / 2, SHOT_Y)
-    let ax = W / 2
-    let ay = SHOT_Y
-    let dx = Math.cos(this.angle) * 8
-    const dy = Math.sin(this.angle) * 8
-    for (let i = 0; i < 44; i++) {
-      ax += dx
-      ay += dy
-      if (ax < 14 || ax > W - 14) dx *= -1
-      if (ay < 42) break
-      if (i % 2 === 0) g.lineTo(ax, ay)
-    }
+      let ax = W / 2
+      let ay = SHOT_Y
+      let dx = Math.cos(this.angle) * 8
+      const dy = Math.sin(this.angle) * 8
+      for (let i = 0; i < 44; i++) {
+        ax += dx
+        ay += dy
+        if (ax < 14 || ax > W - 14) dx *= -1
+        if (ay < 42) break
+        if (i % 2 === 0) g.lineTo(ax, ay)
+      }
       g.stroke()
     }
     g.setLineDash([])
     const style = this.selectedStyle
     if (this.shot) {
       bubble(
-        g, this.shot.x, this.shot.y, this.shot.hue, 13, style,
+        g,
+        this.shot.x,
+        this.shot.y,
+        this.shot.hue,
+        13,
+        style,
         this.settings.particles ? this.tick : 0,
         this.settings.highContrast,
       )
@@ -711,12 +709,22 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     g.arc(W / 2, SHOT_Y + 13, 20, Math.PI, 0)
     g.fill()
     bubble(
-      g, W / 2, SHOT_Y, this.loaded, 12, style,
+      g,
+      W / 2,
+      SHOT_Y,
+      this.loaded,
+      12,
+      style,
       this.settings.particles ? this.tick : 0,
       this.settings.highContrast,
     )
     bubble(
-      g, 44, SHOT_Y + 3, this.next, 10, style,
+      g,
+      44,
+      SHOT_Y + 3,
+      this.next,
+      10,
+      style,
       this.settings.particles ? this.tick : 0,
       this.settings.highContrast,
     )
@@ -725,7 +733,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     label(g, 'NEXT', 44, SHOT_Y - 15, 10, '#d6faff')
     label(
       g,
-      this.mode === 'classic' ? `CLASSIC ${this.level}` : `STAGE ${this.level}/30`,
+      this.mode === 'classic'
+        ? `CLASSIC ${this.level}`
+        : `STAGE ${this.level}/30`,
       61,
       401,
       11,
@@ -754,7 +764,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.fillRect(14, 143, W - 28, 210)
       g.strokeStyle = '#fe8fc9'
       g.strokeRect(14, 143, W - 28, 210)
-      label(g, 'SUPERKATE\'S COLOR CLUB', W / 2, 168, 16)
+      label(g, "SUPERKATE'S COLOR CLUB", W / 2, 168, 16)
       label(
         g,
         this.mode === 'story' ? 'STORY ADVENTURE' : 'CLASSIC BUBBLE MODE',
@@ -765,15 +775,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       )
       label(g, 'UP/DOWN: CHANGE MODE', W / 2, 220, 12)
       if (this.mode === 'story')
-        label(
-          g,
-          `LEFT/RIGHT: START AT ${this.menuStage}`,
-          W / 2,
-          241,
-          12,
-        )
-      else
-        label(g, 'ENDLESS WAVES · NO POWER-UPS', W / 2, 241, 12)
+        label(g, `LEFT/RIGHT: START AT ${this.menuStage}`, W / 2, 241, 12)
+      else label(g, 'ENDLESS WAVES · NO POWER-UPS', W / 2, 241, 12)
       label(
         g,
         `RANK ${rank} · ${this.career.lifetimePops} BUBBLES FREED`,
@@ -814,7 +817,11 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.strokeRect(10, 154, W - 20, 132)
       label(
         g,
-        this.over ? (this.won ? 'EVERY SHADE BELONGS' : 'TRY AGAIN') : chapter.name,
+        this.over
+          ? this.won
+            ? 'EVERY SHADE BELONGS'
+            : 'TRY AGAIN'
+          : chapter.name,
         160,
         186,
         16,

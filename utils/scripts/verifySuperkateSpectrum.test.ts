@@ -165,10 +165,11 @@ assert.equal(invalid.style, 'glass')
 const prism = emptyBoard()
 prism[0]![0] = 'pink'
 prism[0]![1] = 'pink'
-assert.deepEqual(
-  fireSpecial(prism, { row: 1, col: 0 }, 'blue', 'prism'),
-  { matched: 3, dropped: 0, cleared: true },
-)
+assert.deepEqual(fireSpecial(prism, { row: 1, col: 0 }, 'blue', 'prism'), {
+  matched: 3,
+  dropped: 0,
+  cleared: true,
+})
 const burst = emptyBoard()
 burst[0]![1] = 'gold'
 burst[0]![2] = 'teal'
@@ -199,7 +200,10 @@ start.pressed.a = true
 classic.update(start)
 assert.equal(classic.menuOpen, false)
 assert.equal(readSpectrumSave(classic.save).mode, 'classic')
-assert.equal(readSpectrumSave(classic.save).career.highestStage, replay.highestStage)
+assert.equal(
+  readSpectrumSave(classic.save).career.highestStage,
+  replay.highestStage,
+)
 assert.equal(classic.over, false)
 // Account merges never lower either device's best stars or highest stage.
 const cloudA = readSpectrumSave({
@@ -245,10 +249,25 @@ assert.equal(combined.career.lifetimePops, 250)
 assert.equal(combined.settings.highContrast, true)
 assert.equal(combined.stage, 12)
 assert.equal(validSpectrumCloudSave(combined), true)
-assert.equal(validSpectrumCloudSave({ ...combined, career: { ...combined.career, xp: -2 } }), false)
-assert.equal(validSpectrumCloudSave({ ...combined, career: { ...combined.career, stars: [4] } }), false)
+assert.equal(
+  validSpectrumCloudSave({
+    ...combined,
+    career: { ...combined.career, xp: -2 },
+  }),
+  false,
+)
+assert.equal(
+  validSpectrumCloudSave({
+    ...combined,
+    career: { ...combined.career, stars: [4] },
+  }),
+  false,
+)
 assert.equal(validSpectrumCloudSave({ ...combined, stage: 300 }), false)
-assert.equal(validSpectrumCloudSave({ ...combined, settings: { particles: 'oops' } }), false)
+assert.equal(
+  validSpectrumCloudSave({ ...combined, settings: { particles: 'oops' } }),
+  false,
+)
 assert.equal(validSpectrumCloudSave({ ...combined, style: 'unknown' }), false)
 
 const hub = create({
@@ -286,4 +305,6 @@ for (const theme of [...SPECTRUM_THEMES, SPECTRUM_CLASSIC_MUSIC]) {
   assert.ok(theme.bpm >= 80 && theme.bpm <= 160)
   assert.ok(theme.tracks.length >= 2)
 }
-console.log('Superkate Spectrum: matching, cloud merges, music, hub and career checks passed')
+console.log(
+  'Superkate Spectrum: matching, cloud merges, music, hub and career checks passed',
+)

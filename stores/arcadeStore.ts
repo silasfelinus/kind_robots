@@ -519,21 +519,15 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       spectrumOwner = userId
       spectrumRevision = copy?.revision ?? null
       const local = readSpectrumSave(saves.value[SPECTRUM_SLUG])
-      const merged = copy
-        ? mergeSpectrumSaves(local, copy.save)
-        : local
+      const merged = copy ? mergeSpectrumSaves(local, copy.save) : local
       saves.value = withSave(saves.value, SPECTRUM_SLUG, merged)
       writeSaves(saves.value)
-      spectrumWrite(
-        SPECTRUM_SCOPED(String(userId)),
-        JSON.stringify(merged),
-      )
+      spectrumWrite(SPECTRUM_SCOPED(String(userId)), JSON.stringify(merged))
       spectrumCloudStatus.value = 'synced'
       if (!copy || JSON.stringify(merged) !== JSON.stringify(copy.save))
         queueSpectrumUpload()
     } catch {
-      if (session === spectrumSession)
-        spectrumCloudStatus.value = 'offline'
+      if (session === spectrumSession) spectrumCloudStatus.value = 'offline'
     }
   }
 
@@ -582,15 +576,10 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
           const remote = await fetchSpectrumCopy(userId, user.token)
           if (session !== spectrumSession) break
           spectrumRevision = remote?.revision ?? null
-          const merged = remote
-            ? mergeSpectrumSaves(save, remote.save)
-            : save
+          const merged = remote ? mergeSpectrumSaves(save, remote.save) : save
           saves.value = withSave(saves.value, SPECTRUM_SLUG, merged)
           writeSaves(saves.value)
-          spectrumWrite(
-            SPECTRUM_SCOPED(String(userId)),
-            JSON.stringify(merged),
-          )
+          spectrumWrite(SPECTRUM_SCOPED(String(userId)), JSON.stringify(merged))
           spectrumDirty = true
         }
       }
@@ -631,8 +620,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     saves.value = next
     writeSaves(next)
     if (game === SPECTRUM_SLUG && import.meta.client) {
-      const owner =
-        spectrumRead(SPECTRUM_OWNER) ?? 'guest'
+      const owner = spectrumRead(SPECTRUM_OWNER) ?? 'guest'
       spectrumWrite(SPECTRUM_SCOPED(owner), JSON.stringify(value))
       queueSpectrumUpload()
     }

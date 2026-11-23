@@ -2170,8 +2170,7 @@ async function boot() {
   }
   machine = initialArcadeState()
   phase.value = machine.phase
-  if (info.slug === 'superkate-spectrum')
-    await store.syncSuperkateCareer()
+  if (info.slug === 'superkate-spectrum') await store.syncSuperkateCareer()
   if (titleArt) {
     titleArtReady = false
     titleArt.onload = () => {
@@ -2224,8 +2223,7 @@ const userForArcade = useUserStore()
 watch(
   () => [userForArcade.authenticatedUserId, userForArcade.token],
   () => {
-    if (props.slug === 'superkate-spectrum')
-      void store.syncSuperkateCareer()
+    if (props.slug === 'superkate-spectrum') void store.syncSuperkateCareer()
   },
 )
 

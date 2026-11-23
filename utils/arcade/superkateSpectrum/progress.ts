@@ -68,7 +68,11 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
   const fresh = freshCareer()
   if (!raw || typeof raw !== 'object' || Array.isArray(raw))
     return {
-      version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass',
+      version: 2,
+      career: fresh,
+      mode: 'story',
+      stage: 1,
+      style: 'glass',
       settings: { ...DEFAULT_SPECTRUM_SETTINGS },
     }
   const value = raw as Record<string, unknown>
@@ -90,14 +94,22 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
   }
   if (value.version !== 2) {
     return {
-      version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass',
+      version: 2,
+      career: fresh,
+      mode: 'story',
+      stage: 1,
+      style: 'glass',
       settings: { ...DEFAULT_SPECTRUM_SETTINGS },
     }
   }
   const v = value.career
   if (!v || typeof v !== 'object' || Array.isArray(v))
     return {
-      version: 2, career: fresh, mode: 'story', stage: 1, style: 'glass',
+      version: 2,
+      career: fresh,
+      mode: 'story',
+      stage: 1,
+      style: 'glass',
       settings: { ...DEFAULT_SPECTRUM_SETTINGS },
     }
   const c = v as Record<string, unknown>
@@ -126,8 +138,7 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
   const stage =
     mode === 'classic'
       ? 1
-      : validNumber(value.stage, highestStage) &&
-          (value.stage as number) >= 1
+      : validNumber(value.stage, highestStage) && (value.stage as number) >= 1
         ? (value.stage as number)
         : highestStage
   const unlocks = unlockedStyles(rankForXp(career.xp))
@@ -135,9 +146,10 @@ export function readSpectrumSave(raw: unknown): SpectrumSave {
     ? (value.style as BubbleStyle)
     : 'glass'
   const proposed = value.settings
-  const settings = proposed && typeof proposed === 'object' && !Array.isArray(proposed)
-    ? proposed as Partial<SpectrumSettings>
-    : {}
+  const settings =
+    proposed && typeof proposed === 'object' && !Array.isArray(proposed)
+      ? (proposed as Partial<SpectrumSettings>)
+      : {}
   return {
     version: 2,
     career,
@@ -165,7 +177,10 @@ export function recordClear(
   stars[stage - 1] = Math.max(previous, starsEarned)
   return {
     ...career,
-    xp: Math.min(1_000_000_000, career.xp + 100 + 40 * starsEarned + matched * 4),
+    xp: Math.min(
+      1_000_000_000,
+      career.xp + 100 + 40 * starsEarned + matched * 4,
+    ),
     highestStage: Math.max(career.highestStage, Math.min(30, stage + 1)),
     stars,
   }
@@ -264,14 +279,8 @@ export function mergeSpectrumSaves(
       local.career.lifetimePops,
       remote.career.lifetimePops,
     ),
-    classicBest: Math.max(
-      local.career.classicBest,
-      remote.career.classicBest,
-    ),
-    classicRuns: Math.max(
-      local.career.classicRuns,
-      remote.career.classicRuns,
-    ),
+    classicBest: Math.max(local.career.classicBest, remote.career.classicBest),
+    classicRuns: Math.max(local.career.classicRuns, remote.career.classicRuns),
   }
   const style = unlockedStyles(rankForXp(career.xp)).includes(local.style)
     ? local.style

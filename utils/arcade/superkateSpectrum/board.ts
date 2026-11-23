@@ -145,7 +145,10 @@ export function fireSpecial(
   hue: Hue,
   power: SpectrumPower,
 ): PopResult {
-  if (!inBounds(position.row, position.col) || board[position.row]![position.col])
+  if (
+    !inBounds(position.row, position.col) ||
+    board[position.row]![position.col]
+  )
     return { matched: 0, dropped: 0, cleared: false }
   if (power === 'prism') {
     const options = neighbors(position)

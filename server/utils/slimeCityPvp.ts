@@ -15,6 +15,7 @@ import {
   pvpSnapshotRival,
   sortPvpGames,
   pvpCommand,
+  pvpRules,
   replayPvp,
   stepPvp,
   type PvpRecord,
@@ -92,6 +93,7 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
         row.foeId as TeamId,
         row.seed,
         record.commands,
+        pvpRules(record),
       )
     : null
   return {
@@ -180,6 +182,7 @@ export async function createSlimeCityDuel(
       commands: asJson({
         version: 1,
         guestId: null,
+        dealEarly: true,
         ...(invitedId ? { invitedId } : {}),
         ...(isPublic ? { isPublic: true } : {}),
         lastActionAt: new Date().toISOString(),
@@ -429,6 +432,7 @@ export async function commandSlimeCityDuel(
       row.foeId as TeamId,
       row.seed,
       record.commands,
+      pvpRules(record),
     )
     const after = stepPvp(before, command)
     if (!after) return fail(409, 'That move is illegal or out of turn.')
@@ -472,6 +476,7 @@ export async function forfeitSlimeCityDuel(id: string, userId: number) {
       row.foeId as TeamId,
       row.seed,
       record.commands,
+      pvpRules(record),
     )
     if (state.victor) return fail(409, 'This duel has already ended.')
     const winner: Side = seat === 'player' ? 'enemy' : 'player'

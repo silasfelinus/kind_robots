@@ -21,6 +21,7 @@ import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import {
   PVP_IDLE_EXPIRY_MS,
+  pvpRules,
   replayPvp,
   type PvpRecord,
   type PvpSnapshot,
@@ -147,6 +148,7 @@ class Browser {
       row.foeId as TeamId,
       row.seed,
       record.commands,
+      pvpRules(record),
     )
     assert.equal(state.active, view.seat, `${this.label} moved out of turn`)
     const { side: _side, ...command } = chooseClashCpu(state, view.seat)
@@ -260,6 +262,7 @@ while (moves < 400) {
         row.foeId as TeamId,
         row.seed,
         (row.commands as PvpRecord).commands,
+        pvpRules(row.commands as PvpRecord),
       )
       assert.equal(
         hiddenHand(hostView, state.hands.enemy) && state.hands.enemy.length > 1,

@@ -26,12 +26,15 @@ import {
   COURT_LINKS,
 } from '../deepheart/court'
 import { UNDERCITY_EVENTS } from '../deepheart/society'
+import { SUPPORT_SEQUELS } from '../deepheart/campStories'
 import { EVENTS, LAYERS, REVEAL_TEXT } from '../deepheart/dungeon'
 import {
   SUPPORT_MOMENTS,
   abilityModifier,
   autoplay,
   attemptParley,
+  campAction,
+  campOptions,
   createRun,
   baseStat,
   chooseCourtOption,
@@ -43,6 +46,7 @@ import {
   rollAbilityCheck,
   romanceMoment,
   startFight,
+  stat,
 } from '../deepheart/engine'
 import {
   activeSynergies,
@@ -53,7 +57,13 @@ import {
   startingPartners,
 } from '../deepheart/party'
 import { ANTHRO_BLURB, ANTHRO_LOOK } from '../deepheart/anthro'
-import { CHARACTERS, ROLES, SUPPORTS, character } from '../deepheart/roster'
+import {
+  CHARACTERS,
+  ROLES,
+  SUPPORTS,
+  character,
+  pairKey,
+} from '../deepheart/roster'
 import { DEEPHEART_ART_IDS, deepheartArtSrc } from '../deepheart/renderedArt'
 import {
   DEEPHEART_APPROVED_ART_MODELS,
@@ -285,6 +295,148 @@ assert.deepEqual(
   ['corso', 'idris'],
   'the support moment must name both companions for illustrated fallback',
 )
+
+// ── Campfire narrative: earned second supports and three-beat promises ───
+assert.equal(SUPPORTS.length, 35, 'all support pairs are accounted for')
+assert.deepEqual(
+  Object.keys(SUPPORT_SEQUELS).sort(),
+  SUPPORTS.map((s) => pairKey(s.a, s.b)).sort(),
+  'all 35 support pairs have a unique keyed second scene',
+)
+assert.equal(
+  new Set(Object.values(SUPPORT_SEQUELS)).size,
+  SUPPORTS.length,
+  'the second support scenes are individually authored',
+)
+assert.ok(
+  Object.values(SUPPORT_SEQUELS).every((line) => line.length > 65),
+  'second-tier dialogue must be a real story beat',
+)
+
+const supportRun = createRun(hero('idris'), ['corso'], 1471)
+supportRun.phase = 'camp'
+supportRun.camp = { talks: 2, supportScenes: [] }
+const oldFlameKey = pairKey('corso', 'idris')
+const firstSupport = campOptions(supportRun).find(
+  (option) => option.kind === 'support' && option.key === oldFlameKey,
+)
+assert.ok(firstSupport && firstSupport.kind === 'support')
+assert.equal(firstSupport.tier, 1)
+assert.doesNotMatch(
+  firstSupport.label,
+  /Old Flame/,
+  'unknown bond stays secret',
+)
+assert.ok(
+  !campOptions(supportRun, false).some(
+    (option) => option.kind === 'support' && option.key === oldFlameKey,
+  ),
+  'romance-off also hides lovers and exes support scenes',
+)
+const beforeSupport = stat(supportRun, 'idris', 'atk')
+assert.equal(campAction(supportRun, firstSupport), firstSupport.line)
+assert.equal(supportRun.bonds[oldFlameKey], 1)
+assert.ok(stat(supportRun, 'idris', 'atk') > beforeSupport)
+assert.ok(
+  !campOptions(supportRun).some(
+    (option) => option.kind === 'support' && option.key === oldFlameKey,
+  ),
+  'one support scene per pair per campfire',
+)
+supportRun.camp = { talks: 2, supportScenes: [] }
+supportRun.affinity.corso = 5
+const secondSupport = campOptions(supportRun).find(
+  (option) => option.kind === 'support' && option.key === oldFlameKey,
+)
+assert.ok(secondSupport && secondSupport.kind === 'support')
+assert.equal(secondSupport.tier, 2)
+assert.match(secondSupport.label, /Old Flame/)
+assert.equal(
+  campAction(supportRun, secondSupport),
+  SUPPORT_SEQUELS[oldFlameKey],
+)
+assert.equal(supportRun.bonds[oldFlameKey], 2)
+assert.ok(
+  !campOptions(supportRun).some(
+    (option) => option.kind === 'support' && option.key === oldFlameKey,
+  ),
+  'completed two-stage supports cannot be farmed for extra stats',
+)
+
+const arcRun = createRun(hero('corso'), ['idris'], 1472)
+arcRun.phase = 'camp'
+arcRun.camp = { talks: 2, supportScenes: [] }
+assert.ok(canRomance(arcRun.hero, 'idris', arcRun.companions))
+assert.equal(
+  campAction(arcRun, {
+    kind: 'romance',
+    id: 'idris',
+    label: 'Forged confession',
+    line: '',
+  }),
+  '',
+  'a forged choice cannot skip required conversations',
+)
+for (let i = 0; i < 2; i++) {
+  const talk = campOptions(arcRun).find(
+    (option) => option.kind === 'talk' && option.id === 'idris',
+  )
+  assert.ok(talk && talk.kind === 'talk')
+  const line = campAction(arcRun, talk)
+  assert.equal(
+    line,
+    i === 0 ? character('idris').blurb : character('idris').secret,
+  )
+  assert.equal(arcRun.talkBeats?.idris, i + 1)
+}
+assert.equal(arcRun.affinity.idris, 8)
+const savedArc = decodeSaves(
+  JSON.stringify({
+    version: 1,
+    slots: [
+      {
+        slot: 'auto',
+        savedAt: '2026-11-23T00:00:00Z',
+        label: 'Campfire',
+        run: arcRun,
+      },
+    ],
+  }),
+)
+assert.equal(savedArc?.slots[0]?.run.talkBeats?.idris, 2)
+arcRun.camp = { talks: 2, supportScenes: [] }
+const romanceChoice = campOptions(arcRun).find(
+  (option) => option.kind === 'romance' && option.id === 'idris',
+)
+assert.ok(romanceChoice && romanceChoice.kind === 'romance')
+assert.doesNotMatch(
+  romanceChoice.line,
+  /kiss|love|heart/i,
+  'commitment preview must not spoil the romantic payoff',
+)
+const noRomanceRun = JSON.parse(JSON.stringify(arcRun)) as RunState
+assert.ok(
+  !campOptions(noRomanceRun, false).some((option) => option.kind === 'romance'),
+)
+assert.equal(
+  campAction(noRomanceRun, romanceChoice, false),
+  '',
+  'the romance-off setting also protects engine actions',
+)
+const oathChoice = campOptions(noRomanceRun, false).find(
+  (option) => option.kind === 'oath' && option.id === 'idris',
+)
+assert.ok(oathChoice && oathChoice.kind === 'oath')
+assert.notEqual(
+  campAction(noRomanceRun, oathChoice, false),
+  character('idris').heart,
+)
+assert.ok(noRomanceRun.oaths.includes('idris'))
+assert.ok(!noRomanceRun.partners.includes('idris'))
+assert.ok(!noRomanceRun.moments.includes(romanceMoment('idris')))
+assert.equal(campAction(arcRun, romanceChoice), character('idris').heart)
+assert.ok(arcRun.partners.includes('idris'))
+assert.ok(arcRun.moments.includes(romanceMoment('idris')))
 
 // ── Original delvers and meaningful party ability checks ────────────────
 const customHero: HeroSetup = {

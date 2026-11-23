@@ -20,6 +20,7 @@ import {
   roleFor,
 } from './party'
 import { ROLES, character, pairKey, shortName, supportFor } from './roster'
+import { SUPPORT_SEQUELS } from './campStories'
 import { CUSTOM_HERO_ID, CUSTOM_STAT_POINTS } from './types'
 import type {
   CombatState,
@@ -198,6 +199,7 @@ export function createRun(
     companions: [...companions],
     party: [],
     affinity: Object.fromEntries(companions.map((id) => [id, 2])),
+    talkBeats: {},
     partners: startingPartners(hero, companions),
     oaths: [],
     bonds: {},
@@ -1293,7 +1295,7 @@ function startCamp(run: RunState) {
     m.poison = 0
     heal(run, m, maxHp(run, m.id) * (full ? 1 : 0.4))
   }
-  run.camp = { talks: 2 }
+  run.camp = { talks: 2, supportScenes: [] }
   run.phase = 'camp'
   addMoment(run, 'campfire')
   note(
@@ -1307,21 +1309,31 @@ function startCamp(run: RunState) {
 
 export type CampOption =
   | { kind: 'talk'; id: string; label: string; line: string }
-  | { kind: 'support'; key: string; label: string; line: string }
+  | { kind: 'support'; key: string; tier: 1 | 2; label: string; line: string }
   | { kind: 'romance'; id: string; label: string; line: string }
   | { kind: 'oath'; id: string; label: string; line: string }
   | { kind: 'shop'; label: string; line: string }
 
 export const POTION_PRICE = 35
 
+/** Two authored conversations precede a romance or a platonic oath. */
 export function talkLine(run: RunState, id: string): string {
   const c = character(id)
-  const a = run.affinity[id] ?? 0
-  if (a >= 4) return c.secret
-  return c.blurb
+  const beat = run.talkBeats?.[id] ?? 0
+  if (beat === 0) return c.blurb
+  if (beat === 1) return c.secret
+  return `${shortName(c)} tends the embers and asks what you hope to do
+when everyone gets home. For once, neither of you rushes the answer.`
 }
 
-export function campOptions(run: RunState): CampOption[] {
+function oathLine(id: string): string {
+  const c = character(id)
+  return `${shortName(c)} clasps your forearm across the embers. "Whatever
+waits below, you'll have my help, no conditions and no debt. I'll remember
+the kind of person you chose to be down here."`
+}
+
+export function campOptions(run: RunState, romanceOn = true): CampOption[] {
   if (run.phase !== 'camp' || !run.camp) return []
   const options: CampOption[] = []
   if (run.gold >= POTION_PRICE)
@@ -1334,75 +1346,135 @@ export function campOptions(run: RunState): CampOption[] {
   for (const id of run.companions) {
     const c = character(id)
     const a = run.affinity[id] ?? 0
+    const beat = run.talkBeats?.[id] ?? 0
     const member = run.party.find((m) => m.id === id)
     if (member?.down) continue
-    if (a >= 8 && !run.partners.includes(id) && !run.oaths.includes(id)) {
-      if (canRomance(run.hero, id, run.companions)) {
+    if (
+      a >= 8 &&
+      beat >= 2 &&
+      !run.partners.includes(id) &&
+      !run.oaths.includes(id)
+    ) {
+      if (romanceOn && canRomance(run.hero, id, run.companions)) {
         if (!c.partner || !run.partners.includes(c.partner))
           options.push({
             kind: 'romance',
             id,
             label: `Walk with ${shortName(c)}`,
-            line: c.heart,
+            line: 'The conversations have been leading to this moment.',
           })
-      } else
+      } else {
         options.push({
           kind: 'oath',
           id,
           label: `Swear an oath with ${shortName(c)}`,
-          line: c.heart,
+          line: 'A promise built on what you learned about each other.',
         })
+      }
     }
     options.push({
       kind: 'talk',
       id,
       label: `Talk with ${shortName(c)}`,
-      line: a >= 4 ? 'They have something to tell you.' : 'Get to know them.',
+      line:
+        beat === 0
+          ? 'Get to know them.'
+          : beat === 1
+            ? 'They have something difficult to tell you.'
+            : 'Share another moment by the fire.',
     })
   }
-  for (const s of activeSupports(partyIds(run))) {
-    const key = pairKey(s.a, s.b)
-    if ((run.bonds[key] ?? 0) >= 1) continue
-    if (run.party.some((m) => (m.id === s.a || m.id === s.b) && m.down))
+  for (const support of activeSupports(partyIds(run))) {
+    // This setting hides historical love/ex scenes as well as new romance.
+    if (!romanceOn && (support.kind === 'lovers' || support.kind === 'exes'))
+      continue
+    const key = pairKey(support.a, support.b)
+    const tier = run.bonds[key] ?? 0
+    if (tier >= 2 || run.camp.supportScenes?.includes(key)) continue
+    if (
+      run.party.some(
+        (member) =>
+          (member.id === support.a || member.id === support.b) && member.down,
+      )
+    )
+      continue
+    if (
+      tier === 1 &&
+      [support.a, support.b].some(
+        (id) => run.companions.includes(id) && (run.affinity[id] ?? 0) < 4,
+      )
+    )
       continue
     options.push({
       kind: 'support',
       key,
-      label: `${s.name}: ${nameOf(run, s.a)} and ${nameOf(run, s.b)}`,
-      line: s.scene,
+      tier: tier === 0 ? 1 : 2,
+      // Keep relationship names secret until the first conversation is played.
+      label:
+        tier === 0
+          ? `Invite ${nameOf(run, support.a)} and ${nameOf(run, support.b)} to talk`
+          : `${support.name}: A second conversation`,
+      line: tier === 0 ? support.scene : SUPPORT_SEQUELS[key]!,
     })
   }
   return options
 }
 
-export function campAction(run: RunState, option: CampOption): string {
+function isCampOptionAvailable(
+  run: RunState,
+  option: CampOption,
+  romanceOn: boolean,
+): boolean {
+  return campOptions(run, romanceOn).some(
+    (available) =>
+      available.kind === option.kind &&
+      (option.kind === 'shop'
+        ? true
+        : option.kind === 'support'
+          ? available.kind === 'support' && available.key === option.key
+          : 'id' in available && available.id === option.id),
+  )
+}
+
+export function campAction(
+  run: RunState,
+  option: CampOption,
+  romanceOn = true,
+): string {
   if (run.phase !== 'camp' || !run.camp) return ''
+  // Refuse stale or forged options instead of granting affinity, vows or
+  // romances without the conversations that earn them.
+  if (!isCampOptionAvailable(run, option, romanceOn)) return ''
   run.notices = []
   if (option.kind === 'shop') {
-    if (run.gold < POTION_PRICE) return ''
     run.gold -= POTION_PRICE
     run.potions += 1
     note(run, 'good', 'Ottoline sells you a potion and a wink.')
     return option.line
   }
-  if (run.camp.talks <= 0) return ''
   run.camp.talks -= 1
   const warm = hasSynergyEffect(partyIds(run), 'warmth', run.hero) ? 1 : 0
   let line: string
   if (option.kind === 'talk') {
     line = talkLine(run, option.id)
-    changeAffinity(run, option.id, 2 + warm)
+    const beats = run.talkBeats ?? (run.talkBeats = {})
+    beats[option.id] = Math.min(2, (beats[option.id] ?? 0) + 1)
+    changeAffinity(run, option.id, 3 + warm)
     note(run, 'heart', `${nameOf(run, option.id)}: ${line}`)
   } else if (option.kind === 'support') {
     const [a, b] = option.key.split('+') as [string, string]
-    const s = supportFor(a, b)!
-    run.bonds[option.key] = 1
+    const support = supportFor(a, b)!
+    const tier = Math.min(2, (run.bonds[option.key] ?? 0) + 1)
+    run.bonds[option.key] = tier
+    ;(run.camp.supportScenes ??= []).push(option.key)
     for (const id of [a, b])
       if (run.companions.includes(id)) changeAffinity(run, id, 1)
-    line = s.scene
-    note(run, 'heart', `${s.name}. ${line}`)
-    const moment = SUPPORT_MOMENTS[option.key]
-    if (moment) addMoment(run, moment)
+    line = tier === 1 ? support.scene : SUPPORT_SEQUELS[option.key]!
+    note(run, 'heart', `${support.name} · ${tier}/2. ${line}`)
+    if (tier === 1) {
+      const moment = SUPPORT_MOMENTS[option.key]
+      if (moment) addMoment(run, moment)
+    }
   } else if (option.kind === 'romance') {
     const c = character(option.id)
     const together = c.poly && c.partner ? [option.id, c.partner] : [option.id]
@@ -1413,9 +1485,8 @@ export function campAction(run: RunState, option: CampOption): string {
     line = c.heart
     note(run, 'heart', line)
   } else {
-    const c = character(option.id)
     run.oaths.push(option.id)
-    line = c.heart
+    line = oathLine(option.id)
     note(run, 'heart', line)
   }
   if (run.camp.talks <= 0)
@@ -1690,6 +1761,12 @@ export function autoplay(
         const best =
           shop ??
           talks.find((o) => o.kind === 'romance') ??
+          talks.find(
+            (o) =>
+              o.kind === 'talk' &&
+              (run.talkBeats?.[o.id] ?? 0) < 2 &&
+              canRomance(run.hero, o.id, run.companions),
+          ) ??
           talks.find((o) => o.kind === 'support') ??
           talks[0]
         if (best) campAction(run, best)

@@ -33,8 +33,42 @@ export function neighbors({ row, col }: Position): Position[] {
 export function emptyBoard(): Board {
   return Array.from({ length: ROWS }, () => Array<Cell>(COLS).fill(null))
 }
+/**
+ * The first five Rainbow Salon boards are deliberately authored.
+ * Each silhouette teaches a distinct color connection before the procedural
+ * districts begin. Keep each ten-cell row stable across replays and devices.
+ */
+const RAINBOW_SALON_LAYOUTS: readonly (readonly string[])[] = [
+  ['ppppttttgg', 'pp..tt..gg', 'p...t...g.'],
+  ['ppptttgggp', '.p.t.g.p..', 'pp..tt..gg', '..g...p...'],
+  ['ppttggpptt', 'pp..tt..gg', '.pggp..tt.', 'g..t..p..g'],
+  ['ptgptgptgp', 'ptgptgptgp', 'ppptttgggp', '..p..t..g.', '..gg..pp..'],
+  [
+    'ppggttppgg',
+    'pp..gg..tt',
+    'tpg..ptg..',
+    '.ggttggtt.',
+    'pp..tt..gg',
+    '...p..t...',
+  ],
+]
+const INTRO_HUES: Record<string, Hue> = {
+  p: 'pink',
+  t: 'teal',
+  g: 'gold',
+}
+
 export function makeBoard(stage: number, rng: () => number): Board {
   const board = emptyBoard()
+  const salonLayout = RAINBOW_SALON_LAYOUTS[stage - 1]
+  if (salonLayout) {
+    salonLayout.forEach((line, row) => {
+      for (let col = 0; col < COLS; col++) {
+        board[row]![col] = INTRO_HUES[line[col] ?? '.'] ?? null
+      }
+    })
+    return board
+  }
   const rows = Math.min(5 + Math.floor((stage - 1) / 4), 9)
   const palette = Math.min(3 + Math.floor((stage - 1) / 5), COLORS.length)
   for (let row = 0; row < rows; row++) {

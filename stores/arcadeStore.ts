@@ -43,6 +43,7 @@ import {
 import {
   RAINBOW_SAVE_GAME,
   RAINBOW_SLOT_COUNT,
+  eraseRainbowSlot,
   rainbowSlotKey,
 } from '~/utils/arcade/games/rainbowSaveSlots'
 import type { RainbowMedal } from '~/utils/arcade/games/rainbowLoadouts'
@@ -409,6 +410,20 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       return
     if (slot === rainbowSlot.value) return
     rainbowSlot.value = slot
+    savePreferences()
+  }
+
+  /** Erase the chosen slot's flight log: its checkpoint and its Hangar. Earned feats stay with the player. */
+  function eraseRainbowFlightLog() {
+    const erased = eraseRainbowSlot(
+      saves.value,
+      rainbowHangars.value,
+      rainbowSlot.value,
+      emptyRainbowHangar,
+    )
+    saves.value = erased.saves
+    writeSaves(erased.saves)
+    rainbowHangars.value = erased.hangars
     savePreferences()
   }
 
@@ -896,6 +911,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     syncSuperkateCareer,
     rainbowSlot,
     rainbowSlotSaves,
+    eraseRainbowFlightLog,
     setRainbowSlot,
     rainbowHangarForSlot,
     rainbowHangarBonuses,

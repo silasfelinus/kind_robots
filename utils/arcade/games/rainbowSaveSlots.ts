@@ -1,4 +1,9 @@
-import { MAX_SAVE_BYTES, serializedSaveBytes } from '../saves'
+import {
+  MAX_SAVE_BYTES,
+  serializedSaveBytes,
+  withSave,
+  type SaveRecord,
+} from '../saves'
 
 export const RAINBOW_SAVE_GAME = 'rainbow-bullet-hell-space-princess'
 export const RAINBOW_SLOT_COUNT = 3
@@ -32,4 +37,24 @@ export function rainbowSlotSummary(
 export function rainbowSlotSaveFits(save: unknown): boolean {
   const bytes = serializedSaveBytes(save)
   return bytes !== null && bytes <= MAX_SAVE_BYTES
+}
+
+/**
+ * Erase one slot's flight log (t-044 settings): its saved checkpoint goes and its Hangar starts again from `fresh`.
+ * Every other slot is untouched, and achievements and endings already earned belong to the player, not the slot.
+ */
+export function eraseRainbowSlot<H>(
+  saves: SaveRecord,
+  hangars: readonly H[],
+  slot: number,
+  fresh: () => H,
+): { saves: SaveRecord; hangars: H[] } {
+  const key = rainbowSlotKey(slot)
+  if (!key) return { saves, hangars: [...hangars] }
+  return {
+    saves: withSave(saves, key, null),
+    hangars: hangars.map((hangar, index) =>
+      index === slot ? fresh() : hangar,
+    ),
+  }
 }

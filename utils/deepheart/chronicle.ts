@@ -1,7 +1,7 @@
 import { partyIds } from './engine'
 import { CHARACTERS } from './roster'
 import { CUSTOM_HERO_ID } from './types'
-import type { EndingId, HeroSetup, RunState } from './types'
+import type { EndingId, HeroSetup, RunState, Value } from './types'
 
 // The chronicle is everything that outlives a single delve: one page per
 // finished run, everyone the player has delved with, support scenes seen,
@@ -34,6 +34,8 @@ export type Chronicle = {
   runs: RunPage[]
   met: string[]
   supports: string[]
+  values: Record<string, Value[]>
+  romances: string[]
   endings: EndingId[]
   puzzles: number
   delves: number
@@ -59,6 +61,8 @@ export function emptyChronicle(): Chronicle {
     runs: [],
     met: [],
     supports: [],
+    values: {},
+    romances: [],
     endings: [],
     puzzles: 0,
     delves: 0,
@@ -83,6 +87,10 @@ export function decodeChronicle(text: string | null): Chronicle | null {
       runs: Array.isArray(raw.runs) ? (raw.runs as RunPage[]) : [],
       met: Array.isArray(raw.met) ? (raw.met as string[]) : [],
       supports: Array.isArray(raw.supports) ? (raw.supports as string[]) : [],
+      values: isObject(raw.values)
+        ? (raw.values as Record<string, Value[]>)
+        : {},
+      romances: Array.isArray(raw.romances) ? (raw.romances as string[]) : [],
       endings: Array.isArray(raw.endings) ? (raw.endings as EndingId[]) : [],
       awarded: Array.isArray(raw.awarded) ? (raw.awarded as string[]) : [],
     } as Chronicle

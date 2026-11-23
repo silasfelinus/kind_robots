@@ -505,11 +505,16 @@ import type { CSSProperties } from 'vue'
 import {
   fitDisplay,
   MAX_DPR,
+  MAX_HD_CANVAS_PIXELS,
   MOBILE_HD_CANVAS_PIXELS,
   RENDER_STYLE_NAMES,
   type DisplayFit,
   type RenderStyle,
 } from '~/utils/arcade/display'
+import {
+  evaluateRenderBudget,
+  RENDER_BUDGET_WINDOW,
+} from '~/utils/arcade/renderBudget'
 import {
   ARCADE_GAMES,
   findArcadeGame,
@@ -715,6 +720,8 @@ let game: ArcadePlayableInstance | null = null
 let demoGame: ArcadePlayableInstance | null = null
 let sound: ArcadeSoundtrack | null = null
 let loop: FixedLoop | null = null
+let adaptiveCanvasPixels = MAX_HD_CANVAS_PIXELS
+const frameRenderTimes: number[] = []
 let resizeObserver: ResizeObserver | null = null
 let wrapObserver: ResizeObserver | null = null
 const input = new ArcadeInput(
@@ -2008,7 +2015,15 @@ function resizeCanvas() {
       : rect.width,
     dpr: window.devicePixelRatio || 1,
     availableHeight: rect.height,
-    maxCanvasPixels: touchControls.value ? MOBILE_HD_CANVAS_PIXELS : undefined,
+    maxCanvasPixels:
+      renderStyle.value === 'hd'
+        ? Math.min(
+            adaptiveCanvasPixels,
+            touchControls.value
+              ? MOBILE_HD_CANVAS_PIXELS
+              : MAX_HD_CANVAS_PIXELS,
+          )
+        : undefined,
     // A 3D cabinet's 2D layer sits over the full-size stage, so it always fills the screen.
     style: isWebGLCabinet.value ? 'hd' : renderStyle.value,
   })
@@ -2018,6 +2033,49 @@ function resizeCanvas() {
   sizeStage(game)
   sizeStage(demoGame)
   render()
+}
+
+function renderWithBudget() {
+  const began = performance.now()
+  render()
+  if (
+    props.suspended ||
+    document.hidden ||
+    machine.phase !== 'playing' ||
+    renderStyle.value !== 'hd' ||
+    isWebGLCabinet.value
+  ) {
+    frameRenderTimes.length = 0
+    return
+  }
+
+  frameRenderTimes.push(performance.now() - began)
+  if (frameRenderTimes.length < RENDER_BUDGET_WINDOW) return
+
+  const info = meta.value
+  const maximum = touchControls.value
+    ? MOBILE_HD_CANVAS_PIXELS
+    : MAX_HD_CANVAS_PIXELS
+  const report = evaluateRenderBudget({
+    renderMs: frameRenderTimes,
+    currentBudgetPixels: adaptiveCanvasPixels,
+    maximumBudgetPixels: maximum,
+    minimumBudgetPixels: (info?.width ?? 480) * (info?.height ?? 270),
+    backingPixels: fit.value.canvasWidth * fit.value.canvasHeight,
+  })
+  frameRenderTimes.length = 0
+  if (report.nextBudgetPixels !== Math.min(adaptiveCanvasPixels, maximum)) {
+    adaptiveCanvasPixels = report.nextBudgetPixels
+    console.info('[arcade] HD backing budget adjusted', {
+      game: props.slug,
+      medianMs: report.medianMs,
+      p95Ms: report.p95Ms,
+      backingPixels: report.backingPixels,
+      backingBytes: report.backingBytes,
+      nextBudgetPixels: report.nextBudgetPixels,
+    })
+    resizeCanvas()
+  }
 }
 
 function onScreenPointer(event: PointerEvent) {
@@ -2142,6 +2200,8 @@ function onVolumeInput(event: Event) {
 }
 
 function toggleRenderStyle() {
+  adaptiveCanvasPixels = MAX_HD_CANVAS_PIXELS
+  frameRenderTimes.length = 0
   store.setGameStyle(props.slug, otherStyle.value)
   resizeCanvas()
 }
@@ -2227,7 +2287,7 @@ onMounted(() => {
     doc.fullscreenEnabled ?? doc.webkitFullscreenEnabled,
   )
   document.addEventListener('webkitfullscreenchange', syncFullscreen)
-  loop = startFixedLoop(tickUnlessSuspended, render, onLoopError)
+  loop = startFixedLoop(tickUnlessSuspended, renderWithBudget, onLoopError)
 })
 
 const userForArcade = useUserStore()
@@ -2249,6 +2309,8 @@ watch(
   () => props.slug,
   (slug) => {
     musicNow = null
+    adaptiveCanvasPixels = MAX_HD_CANVAS_PIXELS
+    frameRenderTimes.length = 0
     sound?.setGame(slug)
     void boot().then(applySeats)
   },

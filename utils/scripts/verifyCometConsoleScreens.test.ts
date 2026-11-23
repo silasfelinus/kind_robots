@@ -60,10 +60,7 @@ assert.match(
   /reviewedIdentityArtwork\('identities\/' \+ entry\.id \+ '\/student'\)/,
 )
 assert.doesNotMatch(opening, /promArt\('identities\/'/)
-assert.match(
-  screens,
-  /keys\.map\(\(key\) => reviewedIdentityArtwork\(key\)\)/,
-)
+assert.match(screens, /keys\.map\(\(key\) => reviewedIdentityArtwork\(key\)\)/)
 assert.match(page, /reviewedIdentityArtwork\(storyComicIntro\.value\.artKey\)/)
 
 const SIGNATURE = 'accident-fire' as const

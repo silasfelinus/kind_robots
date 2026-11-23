@@ -642,9 +642,15 @@
               @click="openYearbookCard(entry.id)"
             >
               <img
-                v-if="reviewedIdentityArtwork('identities/' + entry.id + '/student')"
+                v-if="
+                  reviewedIdentityArtwork('identities/' + entry.id + '/student')
+                "
                 class="prom-scrapbook-art"
-                :src="reviewedIdentityArtwork('identities/' + entry.id + '/student')!"
+                :src="
+                  reviewedIdentityArtwork(
+                    'identities/' + entry.id + '/student',
+                  )!
+                "
                 :alt="entry.name"
               />
               <span v-else class="prom-yearbook-avatar" aria-hidden="true"
@@ -681,9 +687,17 @@
                 class="prom-yearbook-entry"
               >
                 <img
-                  v-if="reviewedIdentityArtwork('identities/' + entry.id + '/student')"
+                  v-if="
+                    reviewedIdentityArtwork(
+                      'identities/' + entry.id + '/student',
+                    )
+                  "
                   class="prom-scrapbook-art"
-                  :src="reviewedIdentityArtwork('identities/' + entry.id + '/student')!"
+                  :src="
+                    reviewedIdentityArtwork(
+                      'identities/' + entry.id + '/student',
+                    )!
+                  "
                   :alt="entry.name"
                 />
                 <strong>{{ entry.name }}</strong>

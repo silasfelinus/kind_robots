@@ -153,6 +153,35 @@ for (const seats of [1, 2, 3, 4]) {
     'actual X4 wave must reach the live flight director',
   )
 }
+// Finishing the charted X4 flight, not merely inspecting its route node,
+// must survive the Act VIII transition for both solo and local co-op.
+for (const seats of [1, 2, 3, 4]) {
+  const nearExit = resume({
+    ...checkpoint,
+    frame: 18100 + MIRROR_SHOAL.guardianFrom,
+    shoalFrame: MIRROR_SHOAL.guardianFrom,
+    shoalGuardianOutcome: 'escaped',
+  })
+  assert.ok(nearExit)
+  const game = createRainbowPrincessPreview({
+    rng: () => 0.5,
+    sound: { play: () => {} },
+    hiScore: 0,
+    demo: false,
+    players: seats,
+    rainbowReplay: nearExit,
+  })
+  const crew = Array.from({ length: seats }, () => input)
+  for (let frame = 0; frame < MIRROR_SHOAL.end - MIRROR_SHOAL.guardianFrom + 4; frame++)
+    game.update(input, crew)
+  assert.equal(game.snapshot.act, 'S08')
+  assert.equal(
+    (game.snapshot.checkpoint.alternateRoutesCleared ?? 0) & 8,
+    8,
+    `a ${seats}-pilot Mirror Shoal exit must persist X4 completion`,
+  )
+}
+
 assert.equal(resume({ ...checkpoint, shoalFrame: 600 }), null)
 assert.equal(resume({ ...checkpoint, shoalHits: -1 }), null)
 assert.equal(resume({ ...checkpoint, shoalGuardianOutcome: 'unknown' }), null)

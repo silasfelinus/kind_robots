@@ -12,6 +12,7 @@ import {
   smallestTier,
   formatDuration,
 } from '../playbookForge/estimate'
+import { deepheartArtSrc } from '../deepheart/renderedArt'
 import { EXISTING_PLAYBOOKS, builtBlueprint } from '../playbookForge/existing'
 import {
   FACTOR_ROWS,
@@ -299,10 +300,18 @@ assert.equal(parseBlueprint('no markers here'), null)
 // counting what is built works from code for every one of them.
 await Promise.all(
   EXISTING_PLAYBOOKS.map(async (entry) => {
-    assert.ok(
-      existsSync(fromRoot(`public${entry.cover}`)),
-      `${entry.slug} cover is missing`,
-    )
+    if (entry.slug === 'deepheart') {
+      assert.equal(
+        entry.cover,
+        deepheartArtSrc('premise'),
+        'the private Deepheart cover resolves through its approved art endpoint',
+      )
+    } else {
+      assert.ok(
+        existsSync(fromRoot(`public${entry.cover}`)),
+        `${entry.slug} cover is missing`,
+      )
+    }
     for (const key of Object.keys(VIGNETTE_DEFAULTS))
       assert.ok(key in entry.plan, `${entry.slug} plan lacks ${key}`)
     const counts = await entry.count()

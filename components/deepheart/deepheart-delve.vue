@@ -51,6 +51,9 @@
     </header>
 
     <div class="dh-stage">
+      <div v-if="roomArt" class="dh-room-plate">
+        <PlaybookKitArt :art="roomArt" tone="primary" />
+      </div>
       <template v-if="run.phase === 'map'">
         <p class="dh-prompt">Choose a door.</p>
         <DeepheartHand
@@ -217,6 +220,8 @@ import { computed } from 'vue'
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import { usePlaybookKitStore } from '~/stores/playbookKitStore'
 import { ENEMIES, LAYERS, item } from '~/utils/deepheart/dungeon'
+import { ROOM_ART } from '~/utils/deepheart/art'
+import { deepheartArtSrc } from '~/utils/deepheart/renderedArt'
 import * as engine from '~/utils/deepheart/engine'
 import { ROLES, character } from '~/utils/deepheart/roster'
 import { roleFor } from '~/utils/deepheart/party'
@@ -233,6 +238,12 @@ const actor = computed(() =>
 const animate = computed(() => kit.settings.motion !== 'reduced')
 const ev = computed(() => (run.value ? engine.currentEvent(run.value) : null))
 const loot = computed(() => (run.value?.loot ? item(run.value.loot) : null))
+const roomArt = computed(() => {
+  const current = run.value
+  if (!current || current.phase === 'map' || current.phase === 'ended')
+    return null
+  return ROOM_ART[current.room?.kind ?? 'boss']
+})
 
 const ROOM: Record<RoomKind, { label: string; icon: string; hint: string }> = {
   fight: { label: 'Monsters', icon: '⚔', hint: 'A fight, with spoils' },
@@ -257,6 +268,7 @@ const doorCards = computed<DhCard[]>(() => {
         id: String(i),
         label: boss.name,
         chip: 'Boss',
+        image: deepheartArtSrc('room:boss'),
         hint: ROOM.boss.hint,
         icon: ROOM.boss.icon,
       }
@@ -274,6 +286,7 @@ const doorCards = computed<DhCard[]>(() => {
       id: String(i),
       label: info.label,
       chip: 'Scouted',
+      image: deepheartArtSrc(`room:${room.kind}`),
       hint: info.hint,
       icon: info.icon,
     }
@@ -482,6 +495,17 @@ const finaleCards = computed<DhCard[]>(() =>
     ),
     color-mix(in oklch, var(--color-base-200) 70%, transparent);
   padding: 0.75rem;
+}
+.dh-room-plate {
+  width: 100%;
+  height: clamp(4.5rem, 18vh, 9rem);
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: var(--radius-box);
+}
+.dh-room-plate :deep(.pk-art) {
+  width: 100%;
+  height: 100%;
 }
 .dh-prompt {
   text-align: center;

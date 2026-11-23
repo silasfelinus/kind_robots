@@ -385,4 +385,136 @@ for (const id of QUESTS)
   }
 }
 
+// Cross-faction policy petitions require two separately completed earlier
+// paths. They are not generic random events and do not expire with time.
+{
+  const allCards = allDeckCards(C)
+  const findCard = (id: string) =>
+    allCards.find((c) => c.id === id) ??
+    C.arcs.flatMap((a) => a.steps).find((c) => c.id === id) ??
+    assert.fail(`missing policy card ${id}`)
+  const base = () => {
+    const save = createRun(C, {
+      saveId: 'sv_cross',
+      name: 'Cross faction',
+      seed: 'cross-faction-1',
+      rulerName: 'Mo',
+      honorific: 'Queen',
+      stamp: 'T0',
+    })
+    save.turnCount = 35
+    save.kingdomHealth.nature = 80
+    save.kingdomHealth.order = 65
+    save.kingdomHealth.joy = 72
+    save.kingdomHealth.treasury = 75
+    return save
+  }
+  const route = (path: [string, string][]) => {
+    let save = base()
+    for (const [id, choiceId] of path) {
+      const card = findCard(id)
+      const choice =
+        card.choices.find((candidate) => candidate.id === choiceId) ??
+        assert.fail(`missing ${id}/${choiceId}`)
+      save = resolveChoice(save, card, choice)
+    }
+    return save
+  }
+  const ready = (save: RunSave, id: string) =>
+    eligiblePool(save, allCards).some((c) => c.id === id)
+
+  const cases = [
+    {
+      id: 'river-commons-vote',
+      before: [
+        ['weir-1', 'build-weir'],
+        ['weir-stone', 'net-the-run'],
+        ['weir-reckoning', 'reopen-migration'],
+      ],
+      other: [
+        ['envoy-1', 'negotiate-tough'],
+        ['envoy-tough', 'finalize-tough'],
+        ['treaty-reckoning', 'ease-the-border'],
+      ],
+      choices: ['charter-the-run', 'license-the-run'],
+      fish: ['bridgeback-sturgeon', 'tollbell-sturgeon'],
+    },
+    {
+      id: 'marina-family-charter',
+      before: [
+        ['reed-1', 'dredge-cove'],
+        ['reed-marina', 'charge-moorings'],
+        ['marina-reckoning', 'clean-the-marina'],
+      ],
+      other: [
+        ['elope-1', 'bless'],
+        ['elope-blessing', 'welcome'],
+        ['wedding-reckoning', 'family-nursery'],
+      ],
+      choices: ['charter-the-cooperative', 'reserve-the-royal-pier'],
+      fish: ['orchardjaw-perch', 'mooring-mullet'],
+    },
+    {
+      id: 'water-rights-hearing',
+      before: [
+        ['weir-1', 'build-weir'],
+        ['weir-stone', 'net-the-run'],
+        ['weir-reckoning', 'keep-netting'],
+      ],
+      other: [
+        ['moat-1', 'keep-moat-common'],
+        ['moat-crowded', 'let-moat-run'],
+        ['moat-reckoning', 'license-roach'],
+      ],
+      choices: ['found-the-water-trust', 'auction-the-water'],
+      fish: ['bridgeback-sturgeon', 'barebone-roach'],
+    },
+  ] as const
+
+  for (const scenario of cases) {
+    const card = findCard(scenario.id)
+    assert.equal(card.art, `card-${scenario.id}`)
+    assert.ok(CARD_PROMPTS[scenario.id], `${scenario.id} has art prompt`)
+    assert.ok(card.once, `${scenario.id} must be a one-time vote`)
+    assert.equal(ready(base(), scenario.id), false)
+    assert.equal(ready(route([...scenario.before]), scenario.id), false)
+    assert.equal(ready(route([...scenario.other]), scenario.id), false)
+    const reached = route([...scenario.before, ...scenario.other])
+    assert.ok(ready(reached, scenario.id), `${scenario.id} is reachable`)
+    const [firstId, secondId] = scenario.choices
+    const first = resolveChoice(
+      reached,
+      card,
+      card.choices.find((c) => c.id === firstId)!,
+    )
+    const second = resolveChoice(
+      reached,
+      card,
+      card.choices.find((c) => c.id === secondId)!,
+    )
+    assert.notDeepEqual(first.kingdomHealth, second.kingdomHealth)
+    assert.notDeepEqual(first.regionOverrides, second.regionOverrides)
+    assert.notDeepEqual(first.flags, second.flags)
+    assert.ok(!ready(first, scenario.id) && !ready(second, scenario.id))
+    const early = { ...reached, turnCount: 2 }
+    assert.ok(!ready(early, scenario.id), 'later consequences do not rush')
+    assert.equal(card.choices.length, 2)
+    for (const choice of card.choices)
+      assert.ok(choice.result?.trim(), `${scenario.id}/${choice.id}`)
+    const [recoveredFish, alternativeFish] = scenario.fish
+    if (scenario.id === 'river-commons-vote') {
+      assert.equal(has(first, recoveredFish), true)
+      assert.equal(has(second, alternativeFish), true)
+    } else if (scenario.id === 'marina-family-charter') {
+      assert.equal(has(first, recoveredFish), true)
+      assert.equal(has(second, recoveredFish), false)
+      assert.equal(has(second, alternativeFish), true)
+    } else {
+      assert.equal(has(first, recoveredFish), true)
+      assert.equal(has(second, alternativeFish), true)
+      assert.equal(has(first, alternativeFish), false)
+    }
+  }
+}
+
 console.log('ruler-hooked QUESTS self-test: ALL PASS')

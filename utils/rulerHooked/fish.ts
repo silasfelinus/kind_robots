@@ -109,12 +109,12 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     consequenceReveal:
       'Appeared after Robin and Ash were given a garden beside the lake and the shore remained healthy enough to share it.',
     unlock: {
-      all: [
-        {
-          flags: ['newlywedsGarden'],
-          sliders: { joy: { gte: 55 }, nature: { gte: 50 } },
-        },
+      all: [{ sliders: { joy: { gte: 55 }, nature: { gte: 50 } } }],
+      any: [
+        { flags: ['newlywedsGarden'] },
+        { flags: ['workingWaterfront'] },
       ],
+      closes: [{ flags: ['exclusivePier'] }],
     },
   },
   {
@@ -135,11 +135,11 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     consequenceReveal:
       'Recorded after the ruler listened to the lake and left enough migration route intact for old giants to return. Netting the run at a closed weir ends it.',
     unlock: {
-      all: [
-        {
-          flags: ['heededNix'],
-          sliders: { nature: { gte: 70 }, order: { gte: 45 } },
-        },
+      all: [{ sliders: { nature: { gte: 70 }, order: { gte: 45 } } }],
+      any: [
+        { flags: ['heededNix'] },
+        { flags: ['riverCommons'] },
+        { flags: ['publicTrust'] },
       ],
       closes: [{ flags: ['runBlocked'] }],
     },
@@ -276,7 +276,11 @@ export const RULER_HOOKED_FISH: FishDefinition[] = [
     consequenceReveal:
       'Appeared after the crown negotiated borders and tariffs hard enough for the lake to notice.',
     unlock: {
-      all: [{ flags: ['envoyTreatyHard'], sliders: { treasury: { gte: 60 } } }],
+      all: [{ sliders: { treasury: { gte: 60 } } }],
+      any: [
+        { flags: ['envoyTreatyHard'] },
+        { flags: ['riverConcession'] },
+      ],
     },
   },
   {

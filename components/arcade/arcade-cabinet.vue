@@ -463,6 +463,25 @@
             {{ stillCamera ? 'Motion calm' : 'Motion full' }}
           </button>
           <button
+            v-if="meta?.highContrast"
+            type="button"
+            class="cabinet-switch"
+            :aria-pressed="highContrast"
+            title="High-contrast shots: every enemy shot sits on a solid black disc with a white ring"
+            @click="toggleHighContrast"
+          >
+            {{ highContrast ? 'Shots bold' : 'Shots normal' }}
+          </button>
+          <button
+            v-if="meta?.comms"
+            type="button"
+            class="cabinet-switch"
+            :title="`Comms: ${COMMS_TITLES[comms]} Click to change.`"
+            @click="cycleComms"
+          >
+            {{ COMMS_NAMES[comms] }}
+          </button>
+          <button
             type="button"
             class="cabinet-switch"
             :title="`Render style: ${RENDER_STYLE_NAMES[renderStyle]} (click for ${RENDER_STYLE_NAMES[otherStyle]})`"
@@ -531,7 +550,6 @@ import {
   TWIN_KEYS,
 } from '~/utils/arcade/input'
 import { startFixedLoop, TICK_MS, type FixedLoop } from '~/utils/arcade/loop'
-import { ARCADE_DIFFICULTIES } from '~/utils/arcade/types'
 import {
   arcadeReducer,
   ATTRACT_PHASES,
@@ -560,7 +578,10 @@ import { INITIALS_ALPHABET, isAllowedInitials } from '~/utils/arcade/initials'
 import { initialsFromUsername } from '~/utils/arcade/leaderboard'
 import { masteryLine, masteryProgress } from '~/utils/arcade/mastery'
 import {
+  ARCADE_COMMS,
+  ARCADE_DIFFICULTIES,
   isWebGLInstance,
+  type ArcadeComms,
   type ArcadeButton,
   type ArcadeGameModule,
   type ArcadeGuidePage,
@@ -607,6 +628,18 @@ const muted = computed(() => store.muted)
 const volume = computed(() => store.volume)
 const crt = computed(() => store.crt)
 const stillCamera = computed(() => store.stillCamera)
+const highContrast = computed(() => store.highContrast)
+const comms = computed(() => store.comms)
+const COMMS_NAMES: Record<ArcadeComms, string> = {
+  full: 'Comms full',
+  essential: 'Comms story',
+  off: 'Comms off',
+}
+const COMMS_TITLES: Record<ArcadeComms, string> = {
+  full: 'every story scene and in-flight callout.',
+  essential: 'story scenes only; in-flight callouts stay quiet.',
+  off: 'no crew chatter, except the ending.',
+}
 const difficulty = computed(() => store.difficultyFor(props.slug))
 /** The cabinet's own name for the chosen difficulty (meta.difficulty lists them easiest first). */
 const difficultyName = computed(
@@ -1273,6 +1306,8 @@ function enterPhase(next: ArcadePhase) {
         demo: true,
         hiScore: hiScore(),
         stillCamera: store.stillCamera,
+        highContrast: store.highContrast,
+        comms: store.comms,
       }),
     )
   } else if (next !== 'demo') {
@@ -1327,6 +1362,8 @@ function startGame() {
           : undefined,
       selectScreen: true,
       stillCamera: store.stillCamera,
+      highContrast: store.highContrast,
+      comms: store.comms,
       difficulty: meta.value?.difficulty ? difficulty.value : undefined,
     }),
   )
@@ -2164,6 +2201,19 @@ function toggleStillCamera() {
   store.setStillCamera(!store.stillCamera)
   for (const instance of [game, demoGame])
     instance?.setStillCamera?.(store.stillCamera)
+}
+
+function toggleHighContrast() {
+  store.setHighContrast(!store.highContrast)
+  for (const instance of [game, demoGame])
+    instance?.setHighContrast?.(store.highContrast)
+}
+
+function cycleComms() {
+  const next =
+    ARCADE_COMMS[(ARCADE_COMMS.indexOf(store.comms) + 1) % ARCADE_COMMS.length]!
+  store.setComms(next)
+  for (const instance of [game, demoGame]) instance?.setComms?.(next)
 }
 
 async function boot() {

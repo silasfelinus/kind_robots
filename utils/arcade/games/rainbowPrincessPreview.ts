@@ -1,4 +1,5 @@
 import type {
+  ArcadeComms,
   ArcadeDifficulty,
   ArcadeGameInstance,
   ArcadeGameModule,
@@ -59,6 +60,7 @@ import { drawRainbowBossBloom } from './rainbowBossBloom'
 import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
+import { RAINBOW_CONTRAST_PELLET, rainbowCommsLine } from './rainbowComms'
 import { rainbowEndingMemoryIds } from './rainbowEndingArchive'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
@@ -1392,6 +1394,9 @@ export function createRainbowPrincessPreview(
   let savedAct: number | null = null
   /** Calm motion: no flashes or shockwaves, fewer sparks, slower scenery (t-011). */
   let calm = options.stillCamera === true
+  /** High-contrast hostile shots and the comms level (t-044 settings): drawing only, never the run. */
+  let contrast = options.highContrast === true
+  let comms: ArcadeComms = options.comms ?? 'full'
   /** The crew's choice at Act V's memorial (t-040, PLOT-MOTHERLAND.md), or null before it. */
   let allegiance: RainbowAllegiance | null = null
   /** Rebel road (t-060): volleys truce craft held back this flight. */
@@ -6039,6 +6044,14 @@ export function createRainbowPrincessPreview(
     setStillCamera(still: boolean) {
       calm = still
     },
+    /** The cabinet's high-contrast shot switch, mid-game (t-044). */
+    setHighContrast(on: boolean) {
+      contrast = on
+    },
+    /** The cabinet's comms switch, mid-game (t-044). */
+    setComms(level: ArcadeComms) {
+      comms = level
+    },
     get snapshot(): RainbowCombatSnapshot {
       return {
         tick,
@@ -8203,12 +8216,16 @@ export function createRainbowPrincessPreview(
       // Every solid hostile pellet sits on a dark halo inside its light rim, so it reads against any scenery.
       // Since t-032 each pellet carries its own dark outline too, so the halo is a softer shadow that lets
       // the family's shape read first.
-      g.fillStyle = '#05030f70'
+      // High-contrast shots (t-044) make that halo an opaque black disc with a white ring at its edge.
+      g.fillStyle = contrast ? RAINBOW_CONTRAST_PELLET.halo : '#05030f70'
+      g.strokeStyle = RAINBOW_CONTRAST_PELLET.ring
+      g.lineWidth = RAINBOW_CONTRAST_PELLET.ringWidth
       for (const bullet of enemyShots) {
         if (bullet.ghost) continue
         g.beginPath()
         g.arc(bullet.x, bullet.y, RAINBOW_SHOT_HALO_RADIUS, 0, Math.PI * 2)
         g.fill()
+        if (contrast) g.stroke()
       }
       for (const bullet of enemyShots) {
         if (bullet.ghost) {
@@ -8986,7 +9003,8 @@ export function createRainbowPrincessPreview(
       const callout =
         flying &&
         actCallout(flying.act, flying.sections, flying.frame, activePlayers)
-      const line = said ?? callout
+      // The comms switch (t-044): full, story scenes only, or off but for the ending.
+      const line = rainbowCommsLine(comms, said, callout, scene?.id ?? null)
       const dialogue = line && crewLine(line)
       const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
       // Silas, 2026-10-20: a comms line takes the HUD bar's place instead of stacking under it, so the

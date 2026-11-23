@@ -87,6 +87,25 @@ export const useEveryVillainTacticsArtStore = defineStore(
       throw new Error('Private painted art retry limit reached')
     }
 
+    /**
+     * A successful HTTP response can still be corrupt. Decode the private
+     * object URL before exposing it to gameplay as a loaded painting.
+     */
+    async function decodeImage(blob: Blob): Promise<string> {
+      const src = URL.createObjectURL(blob)
+      try {
+        const image = new Image()
+        image.src = src
+        await image.decode()
+        if (image.naturalWidth <= 0 || image.naturalHeight <= 0)
+          throw new Error('Painted art has invalid dimensions')
+        return src
+      } catch (error) {
+        URL.revokeObjectURL(src)
+        throw error
+      }
+    }
+
     async function ensure(id: number | null): Promise<void> {
       if (!import.meta.client || !id) return
       const token = useUserStore().token ?? ''
@@ -103,9 +122,14 @@ export const useEveryVillainTacticsArtStore = defineStore(
       try {
         const blob = await fetchPrivateImage(id, token, requestGeneration)
         if (requestGeneration !== generation || !blob) return
+        const src = await decodeImage(blob)
+        if (requestGeneration !== generation) {
+          URL.revokeObjectURL(src)
+          return
+        }
         images.value = {
           ...images.value,
-          [id]: { src: URL.createObjectURL(blob), status: 'loaded' },
+          [id]: { src, status: 'loaded' },
         }
       } catch {
         if (requestGeneration !== generation) return

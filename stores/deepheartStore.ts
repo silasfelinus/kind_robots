@@ -107,6 +107,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   const suggestions = ref<PartyScore[]>([])
   const focus = ref<string>('idris')
   const lastLine = ref('')
+  const lastMoment = ref<string | null>(null)
   const roleFilter = ref<string>('all')
 
   const kit = () => usePlaybookKitStore()
@@ -358,6 +359,8 @@ export const useDeepheartStore = defineStore('deepheart', () => {
 
   function newGame() {
     load()
+    lastLine.value = ''
+    lastMoment.value = null
     screen.value = 'builder'
   }
 
@@ -368,6 +371,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     chronicle.value = recordStart(chronicle.value, run.value)
     persistChronicle()
     lastLine.value = ''
+    lastMoment.value = null
     screen.value = 'delve'
     commit(0)
   }
@@ -471,15 +475,25 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     persistChronicle()
   }
   const equip = (id: string | null) => step((r) => engine.equipLoot(r, id))
-  const leaveCamp = () => step((r) => engine.leaveCamp(r))
+  const leaveCamp = () => {
+    lastLine.value = ''
+    lastMoment.value = null
+    step((r) => engine.leaveCamp(r))
+  }
   const chooseEnding = (e: EndingId) => step((r) => engine.chooseEnding(r, e))
   const chooseCourtOption = (id: string) =>
     step((r) => engine.chooseCourtOption(r, id))
 
   function campAction(option: engine.CampOption) {
+    const before = run.value?.moments.length ?? 0
     step((r) => {
       lastLine.value = engine.campAction(r, option)
     })
+    const current = run.value
+    lastMoment.value =
+      current && current.moments.length > before
+        ? (current.moments.at(-1) ?? null)
+        : null
     if (option.kind !== 'romance' || !run.value?.partners.includes(option.id))
       return
     const c = character(option.id)
@@ -534,6 +548,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     suggestions,
     focus,
     lastLine,
+    lastMoment,
     roleFilter,
     romanceOn,
     autosave,

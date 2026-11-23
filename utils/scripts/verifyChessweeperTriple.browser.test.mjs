@@ -266,6 +266,21 @@ try {
   )
   await screenshot(catastrophe, 'triple-1440-catastrophic')
   await catastrophe.close()
+  const { page: practice, submissions: practiceSubmissions } =
+    await openAt(390)
+  await practice.selectOption('#duration', '60')
+  await practice.selectOption('#difficulty', 'easy')
+  await practice.click('#start')
+  await practice.locator('#mine-board button').nth(0).click()
+  await practice.clock.fastForward(65_000)
+  await practice.clock.runFor(50)
+  assert.equal(
+    await practice.locator('#submit').isDisabled(),
+    true,
+    'Blitz practice cannot submit ranked global scores',
+  )
+  assert.equal(practiceSubmissions.length, 0)
+  await practice.close()
   assert.deepEqual(errors, [], 'no browser exceptions')
   console.log(
     '[triple] four difficulties, ranked brackets and 3 viewports passed',

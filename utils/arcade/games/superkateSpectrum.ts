@@ -9,13 +9,28 @@ import {
   ROWS,
   COLORS,
   attachAndPop,
+  fireSpecial,
   center,
   chooseHue,
   makeBoard,
   nearestSnap,
   pushCeiling,
 } from '../superkateSpectrum/board'
-import type { Board, Hue } from '../superkateSpectrum/board'
+import type { Board, Hue, SpectrumPower } from '../superkateSpectrum/board'
+import {
+  rankForXp,
+  recordClassicEnd,
+  recordClear,
+  recordPop,
+  readSpectrumSave,
+  styleForRank,
+} from '../superkateSpectrum/progress'
+import type {
+  BubbleStyle,
+  SpectrumCareer,
+  SpectrumMode,
+  SpectrumSave,
+} from '../superkateSpectrum/progress'
 
 const W = 320
 const H = 480
@@ -68,24 +83,21 @@ const CHAPTERS = [
   },
 ] as const
 
-type Shot = { x: number; y: number; vx: number; vy: number; hue: Hue }
-type Save = { version: 1; stage: number; score: number; lives: number }
-function readSave(value: unknown): Save | null {
-  if (!value || typeof value !== 'object') return null
-  const data = value as Partial<Save>
-  if (
-    data.version !== 1 ||
-    !Number.isInteger(data.stage) ||
-    !Number.isInteger(data.score) ||
-    !Number.isInteger(data.lives) ||
-    (data.stage ?? 0) < 1 ||
-    (data.stage ?? 0) > 30 ||
-    (data.score ?? -1) < 0 ||
-    (data.lives ?? 0) < 1 ||
-    (data.lives ?? 0) > 9
-  )
-    return null
-  return data as Save
+type Shot = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  hue: Hue
+  power: SpectrumPower | null
+}
+type Spark = {
+  x: number
+  y: number
+  dx: number
+  dy: number
+  life: number
+  color: string
 }
 function label(
   g: CanvasRenderingContext2D,
@@ -108,22 +120,29 @@ function bubble(
   y: number,
   hue: Hue,
   size = 13,
+  style: BubbleStyle = 'glass',
+  tick = 0,
 ) {
   g.save()
   g.shadowColor = PALETTE[hue]
-  g.shadowBlur = 10
+  g.shadowBlur = style === 'starlight' ? 16 : 10
   const gradient = g.createRadialGradient(x - 4, y - 5, 1, x, y, size)
   gradient.addColorStop(0, '#ffffff')
-  gradient.addColorStop(0.3, PALETTE[hue])
-  gradient.addColorStop(1, '#28203e')
+  gradient.addColorStop(style === 'candy' ? 0.5 : 0.3, PALETTE[hue])
+  gradient.addColorStop(1, style === 'candy' ? '#63305b' : '#28203e')
   g.fillStyle = gradient
   g.beginPath()
   g.arc(x, y, size, 0, Math.PI * 2)
   g.fill()
   g.shadowBlur = 0
-  g.strokeStyle = '#f9f0ff'
-  g.lineWidth = 1.5
+  g.strokeStyle = style === 'prismatic' ? '#fbe98a' : '#f9f0ff'
+  g.lineWidth = style === 'prismatic' ? 2.5 : 1.5
   g.stroke()
+  if (style === 'starlight' || style === 'prismatic') {
+    g.fillStyle = '#ffffffa8'
+    const sparkle = 2 + Math.sin(tick / 9 + x * 0.1) * 1.5
+    g.fillRect(x - 5, y - 8, sparkle, sparkle)
+  }
   // Each color has a distinct geometric emblem for color-blind play.
   const index = COLORS.indexOf(hue)
   g.strokeStyle = '#21132e'
@@ -175,24 +194,71 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   private rng: () => number
   private feats: string[] = []
   private earned = new Set<string>()
+  career: SpectrumCareer
+  mode: SpectrumMode
+  choosingMode = true
+  menuStage = 1
+  power: SpectrumPower | null = null
+  sparks: Spark[] = []
+  private specialMeter = 0
+  private specialCount = 0
+  private shotsThisBoard = 0
+  private poppedThisBoard = 0
+  private stored: SpectrumSave
+  private readonly demo: boolean
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
-    const save = readSave(options.resume)
-    if (save) {
-      this.level = save.stage
-      this.score = save.score
-      this.lives = save.lives
-    }
+    this.demo = options.demo
+    this.stored = readSpectrumSave(options.resume)
+    this.career = this.stored.career
+    this.mode = this.stored.mode
+    this.menuStage = this.career.highestStage
+    this.level = this.mode === 'classic' ? 1 : this.menuStage
     this.board = makeBoard(this.level, this.rng)
     this.loaded = chooseHue(this.board, this.rng)
     this.next = chooseHue(this.board, this.rng)
     this.message = CHAPTERS[Math.floor((this.level - 1) / 5)]!.kate
+    this.choosingMode = !this.demo
   }
-  get save(): Save | null {
-    return this.over
-      ? null
-      : { version: 1, stage: this.level, score: this.score, lives: this.lives }
+  get save(): SpectrumSave {
+    return this.stored
+  }
+  get menuOpen(): boolean {
+    return this.choosingMode
+  }
+  private remember() {
+    this.stored = {
+      version: 2,
+      career: this.career,
+      mode: this.mode,
+      stage: this.mode === 'story' ? this.level : 1,
+    }
+  }
+  private beginRun() {
+    this.choosingMode = false
+    this.over = false
+    this.won = false
+    this.score = 0
+    this.lives = 3
+    this.level = this.mode === 'classic' ? 1 : this.menuStage
+    this.resetBoard()
+    this.remember()
+  }
+  private burstSparks(x: number, y: number, hue: Hue, count: number) {
+    for (let i = 0; i < Math.min(count, 32); i++) {
+      const angle = (i * Math.PI * 2) / count
+      const speed = 1.2 + (i % 4) * 0.6
+      this.sparks.push({
+        x,
+        y,
+        dx: Math.cos(angle) * speed,
+        dy: Math.sin(angle) * speed,
+        life: 32,
+        color: PALETTE[hue],
+      })
+    }
+    if (this.sparks.length > 110) this.sparks.splice(0, this.sparks.length - 110)
   }
   get mastered(): readonly string[] {
     return [...this.earned]
@@ -211,14 +277,24 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.next = chooseHue(this.board, this.rng)
     this.shot = null
     this.shots = 0
+    this.shotsThisBoard = 0
+    this.poppedThisBoard = 0
+    this.power = null
+    this.specialMeter = 0
     this.banner = 160
-    this.message = CHAPTERS[Math.floor((this.level - 1) / 5)]!.kate
+    this.message =
+      this.mode === 'classic'
+        ? 'SUPERKATE: NO LIMITS. JUST COLOR!'
+        : CHAPTERS[Math.floor((this.level - 1) / 5)]!.kate
   }
   private lose() {
     this.lives--
     if (this.lives <= 0) {
       this.over = true
+      if (this.mode === 'classic')
+        this.career = recordClassicEnd(this.career, this.score)
       this.message = 'SUPERKATE: COLOR IS WORTH FIGHTING FOR.'
+      this.remember()
     } else {
       this.message = 'SUPERKATE: LET US TRY A NEW MIX.'
       this.resetBoard()
@@ -228,13 +304,34 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (!this.shot) return
     const landing = nearestSnap(this.board, this.shot)
     const hue = this.shot.hue
+    const power = this.shot.power
     this.shot = null
+    this.shotsThisBoard++
     if (!landing) {
       this.lose()
       return
     }
-    const result = attachAndPop(this.board, landing, hue)
+    const result = power
+      ? fireSpecial(this.board, landing, hue, power)
+      : attachAndPop(this.board, landing, hue)
     if (result.matched) {
+      this.career = recordPop(this.career, result.matched, result.dropped)
+      this.poppedThisBoard += result.matched + result.dropped
+      const pos = center(landing)
+      this.burstSparks(pos.x, pos.y, hue, result.matched + result.dropped)
+      if (this.mode === 'story' && !this.power) {
+        this.specialMeter += result.matched + result.dropped
+        if (this.specialMeter >= 22) {
+          this.specialMeter = 0
+          const rank = rankForXp(this.career.xp)
+          this.power =
+            rank >= 15
+              ? 'ribbon'
+              : rank >= 9
+                ? 'burst'
+                : 'prism'
+        }
+      }
       this.score +=
         result.matched * 100 +
         result.dropped * 175 +
@@ -247,24 +344,34 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     if (result.cleared) {
       this.score += 1500 + this.level * 150
-      if (this.level % 5 === 0) {
+      if (this.mode === 'story')
+        this.career = recordClear(
+          this.career,
+          this.level,
+          this.shotsThisBoard,
+          this.poppedThisBoard,
+        )
+      if (this.mode === 'story' && this.level % 5 === 0) {
         this.score += 2500
         this.lives = Math.min(9, this.lives + 1)
         this.earn(`chapter-${Math.ceil(this.level / 5)}`)
         this.message = CHAPTERS[Math.floor((this.level - 1) / 5)]!.finale
       }
-      if (this.level === 30) {
+      if (this.mode === 'story' && this.level === 30) {
         this.over = true
         this.won = true
         this.earn('true-spectrum')
+        this.remember()
         return
       }
       this.level++
       this.resetBoard()
+      this.remember()
       return
     }
     this.loaded = this.next
     this.next = chooseHue(this.board, this.rng)
+    this.remember()
     this.shots++
     if (this.shots >= Math.max(4, 9 - Math.floor(this.level / 5))) {
       this.shots = 0
@@ -275,6 +382,24 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   update(input: InputFrame) {
     if (this.over) return
     this.tick++
+    for (const spark of this.sparks) {
+      spark.x += spark.dx
+      spark.y += spark.dy
+      spark.life--
+    }
+    this.sparks = this.sparks.filter((spark) => spark.life > 0)
+    if (this.choosingMode) {
+      if (input.pressed.up || input.pressed.down) {
+        this.mode = this.mode === 'classic' ? 'story' : 'classic'
+      }
+      if (this.mode === 'story') {
+        if (input.pressed.left) this.menuStage = Math.max(1, this.menuStage - 1)
+        if (input.pressed.right)
+          this.menuStage = Math.min(this.career.highestStage, this.menuStage + 1)
+      }
+      if (input.pressed.a) this.beginRun()
+      return
+    }
     if (this.banner > 0) this.banner--
     if (input.held.left) this.angle -= 0.035
     if (input.held.right) this.angle += 0.035
@@ -288,7 +413,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         vx: Math.cos(this.angle) * SHOT_SPEED,
         vy: Math.sin(this.angle) * SHOT_SPEED,
         hue: this.loaded,
+        power: this.mode === 'story' ? this.power : null,
       }
+      this.power = null
     }
     if (!this.shot) return
     this.shot.x += this.shot.vx
@@ -335,7 +462,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         const hue = this.board[r]![c]
         if (hue) {
           const p = center({ row: r, col: c })
-          bubble(g, p.x, p.y, hue)
+          bubble(g, p.x, p.y, hue, 13, styleForRank(rankForXp(this.career.xp)), this.tick)
         }
       }
     }
@@ -357,24 +484,94 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     g.stroke()
     g.setLineDash([])
-    if (this.shot) bubble(g, this.shot.x, this.shot.y, this.shot.hue)
+    const style = styleForRank(rankForXp(this.career.xp))
+    if (this.shot)
+      bubble(g, this.shot.x, this.shot.y, this.shot.hue, 13, style, this.tick)
+    for (const spark of this.sparks) {
+      g.globalAlpha = spark.life / 32
+      g.fillStyle = spark.color
+      g.fillRect(spark.x - 2, spark.y - 2, 4, 4)
+    }
+    g.globalAlpha = 1
     g.fillStyle = '#a84b99'
     g.beginPath()
     g.arc(W / 2, SHOT_Y + 13, 20, Math.PI, 0)
     g.fill()
-    bubble(g, W / 2, SHOT_Y, this.loaded, 12)
-    bubble(g, 44, SHOT_Y + 3, this.next, 10)
+    bubble(g, W / 2, SHOT_Y, this.loaded, 12, style, this.tick)
+    bubble(g, 44, SHOT_Y + 3, this.next, 10, style, this.tick)
+    if (this.power)
+      label(g, this.power.toUpperCase(), W / 2, SHOT_Y - 21, 11, '#fff89d')
     label(g, 'NEXT', 44, SHOT_Y - 15, 10, '#d6faff')
-    label(g, `STAGE ${this.level}/30`, 55, 401, 11, '#fff')
+    label(
+      g,
+      this.mode === 'classic' ? `CLASSIC ${this.level}` : `STAGE ${this.level}/30`,
+      61,
+      401,
+      11,
+      '#fff',
+    )
     label(g, `SCORE ${this.score}`, 240, 401, 11, '#fff')
     label(g, `HEARTS ${this.lives}`, 55, 417, 11, '#ffa0c4')
-    label(g, chapter.name, W / 2, 469, 11, '#ffe4a0')
+    const rank = rankForXp(this.career.xp)
+    label(g, `COLOR RANK ${rank}`, 236, 417, 11, '#9df8f0')
+    label(
+      g,
+      this.mode === 'classic'
+        ? `CLASSIC BEST ${this.career.classicBest}`
+        : chapter.name,
+      W / 2,
+      469,
+      11,
+      '#ffe4a0',
+    )
+    if (this.choosingMode) {
+      g.fillStyle = '#0c0b25ee'
+      g.fillRect(14, 143, W - 28, 170)
+      g.strokeStyle = '#fe8fc9'
+      g.strokeRect(14, 143, W - 28, 170)
+      label(g, 'SUPERKATE\'S COLOR CLUB', W / 2, 168, 16)
+      label(
+        g,
+        this.mode === 'story' ? 'STORY ADVENTURE' : 'CLASSIC BUBBLE MODE',
+        W / 2,
+        198,
+        15,
+        '#80f4e2',
+      )
+      label(g, 'UP/DOWN: CHANGE MODE', W / 2, 220, 12)
+      if (this.mode === 'story')
+        label(
+          g,
+          `LEFT/RIGHT: START AT ${this.menuStage}`,
+          W / 2,
+          241,
+          12,
+        )
+      else
+        label(g, 'ENDLESS WAVES · NO POWER-UPS', W / 2, 241, 12)
+      label(
+        g,
+        `RANK ${rank} · ${this.career.lifetimePops} BUBBLES FREED`,
+        W / 2,
+        267,
+        12,
+        '#ffd88d',
+      )
+      label(g, 'PRESS A TO PLAY', W / 2, 294, 14, '#ff9ecf')
+      return
+    }
     if (this.banner > 0 || this.over) {
       g.fillStyle = '#0c0b25e6'
       g.fillRect(10, 154, W - 20, 132)
       g.strokeStyle = '#ff77bd'
       g.strokeRect(10, 154, W - 20, 132)
-      label(g, this.over ? 'THE SPECTRUM SHINES' : chapter.name, 160, 186, 16)
+      label(
+        g,
+        this.over ? (this.won ? 'EVERY SHADE BELONGS' : 'TRY AGAIN') : chapter.name,
+        160,
+        186,
+        16,
+      )
       label(
         g,
         this.over ? 'THANK YOU, SUPERKATE!' : chapter.problem,

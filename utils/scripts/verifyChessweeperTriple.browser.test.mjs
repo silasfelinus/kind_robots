@@ -235,7 +235,9 @@ try {
     await page.fill('#initials', 'kR7')
     await page.click('#submit')
     await page.waitForFunction(() =>
-      /Rank #2/.test(document.getElementById('submit-status')?.textContent || ''),
+      /Rank #2/.test(
+        document.getElementById('submit-status')?.textContent || '',
+      ),
     )
     assert.match(await page.locator('#submit-status').innerText(), /Rank #2/)
     assert.equal(submissions.length, 1, 'one score submission per run')

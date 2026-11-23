@@ -8,9 +8,9 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'utils/arcade/games/rainbow*.ts'
+      - 'utils/arcade/games/**/rainbow*.ts'
       - 'utils/arcade/types.ts'
-      - 'utils/scripts/verifyRainbow*.test.ts'
+      - 'utils/scripts/**/verifyRainbow*.test.ts'
       - 'public/rainbow-princess-art/**'
       - '.github/workflows/rainbow-verifier-suite.yml'
   workflow_dispatch:

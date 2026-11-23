@@ -17,6 +17,12 @@
 // Up rides faster, down slower, left/right steer, A tosses a packet.
 
 import { levelCurve } from '../curve'
+import { PRIMROSE_DAYS, primroseDay, valleyGazette } from './petalPostPrimrose'
+import type {
+  GazetteReport,
+  PrimroseHazard,
+  PrimroseWeather,
+} from './petalPostPrimrose'
 import { drawText, measureText } from '../font'
 import {
   INK,
@@ -90,9 +96,10 @@ type House = {
   delivered: boolean
   bloom: number
   gifts: number
+  request: 'mailbox' | 'porch' | null
   color: string
 }
-type HazardKind = 'cat' | 'bin' | 'car' | 'sprinkler'
+type HazardKind = PrimroseHazard
 type Hazard = {
   kind: HazardKind
   x: number
@@ -543,6 +550,32 @@ const CAR_SPRITES = [
   carSprite(RAMPS.teal),
 ] as const
 
+function drawPuppy(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  frame: number,
+  tick: number,
+) {
+  g.fillStyle = RAMPS.earth[1]
+  g.fillRect(x - 5, y - 7, 11, 8)
+  g.fillRect(x - 3, y, 2, 3)
+  g.fillRect(x + 3, y, 2, 3)
+  g.fillStyle = RAMPS.earth[3]
+  g.fillRect(x - 7, y - 11, 11, 7)
+  g.fillStyle = RAMPS.earth[0]
+  g.fillRect(x - 8, y - 9, 3, 5)
+  g.fillRect(x + 3, y - 9, 3, 5)
+  g.fillStyle = RAMPS.cream[4]
+  g.fillRect(x, y - 9, 2, 2)
+  g.fillStyle = INK
+  g.fillRect(x, y - 8, 1, 1)
+  g.fillStyle = RAMPS.earth[2]
+  g.fillRect(x + 5, y - 6 - frame * 2, 4, 2)
+  g.fillStyle = RAMPS.pink[3]
+  if (tick % 24 < 12) g.fillRect(x - 3, y - 4, 2, 2)
+}
+
 const SPRINKLER_SPRITE = pixelSprite(['..h..', '.hsS.', 'hsSSd', '.ddd.'], {
   h: RAMPS.steel[4],
   s: RAMPS.steel[3],
@@ -818,6 +851,11 @@ class PetalPost implements ArcadeGameInstance {
   private fx = new Sparkles()
   private fxRng = backdropRng(53)
   private blooms: Array<{ x: number; y: number; born: number }> = []
+  private weather: PrimroseWeather | null = null
+  private gazette: GazetteReport | null = null
+  private requestsMet = 0
+  private tips = 0
+  private signups = 0
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
@@ -831,6 +869,7 @@ class PetalPost implements ArcadeGameInstance {
         delivered: false,
         bloom: this.rng() < 0.5 ? 1 : 2,
         gifts: 0,
+        request: null,
         color: HOUSE_COLORS[i % HOUSE_COLORS.length]!,
       })
     this.startDay(1)
@@ -844,6 +883,11 @@ class PetalPost implements ArcadeGameInstance {
 
   private startDay(day: number) {
     this.level = day
+    this.weather = primroseDay(day)?.weather ?? null
+    this.gazette = null
+    this.requestsMet = 0
+    this.tips = 0
+    this.signups = 0
     this.by = 0
     this.bx = SIDEWALK + 10
     this.speed = BASE_SPEED
@@ -854,6 +898,12 @@ class PetalPost implements ArcadeGameInstance {
     this.houses.forEach((h, i) => {
       h.y = -FIRST_HOUSE - i * HOUSE_GAP
       h.delivered = false
+      h.request =
+        h.subscriber && (i + day) % 3 === 0
+          ? (i + day) % 2 === 0
+            ? 'mailbox'
+            : 'porch'
+          : null
     })
     this.routeEnd = -FIRST_HOUSE - HOUSES * HOUSE_GAP
     this.bonusEnd = this.routeEnd - BONUS_LEN
@@ -862,12 +912,23 @@ class PetalPost implements ArcadeGameInstance {
     this.targets = []
     const per = levelCurve(day, POST_CURVES.hazards)
     const traffic = levelCurve(day, POST_CURVES.traffic)
+    const plan = primroseDay(day)
+    if (plan) {
+      for (const event of plan.encounters) {
+        this.addAuthoredHazard(
+          event.kind,
+          -FIRST_HOUSE - (event.gap + 0.5) * HOUSE_GAP,
+          traffic,
+        )
+      }
+    }
     for (
       let y = -FIRST_HOUSE + 60;
       y > this.bonusEnd + 60;
       y -= HOUSE_GAP / 2
     ) {
-      if (this.rng() < per / 2) this.addHazard(y - this.rng() * 40, traffic)
+      if ((!plan || y < this.routeEnd) && this.rng() < per / 2)
+        this.addHazard(y - this.rng() * 40, traffic)
       if (y > this.routeEnd && this.rng() < 0.22)
         this.bundles.push({
           x: SIDEWALK + 10 + this.rng() * 80,
@@ -883,8 +944,8 @@ class PetalPost implements ArcadeGameInstance {
       })
     const subs = this.houses.filter((h) => h.subscriber).length
     this.banner = {
-      text: `DAY ${day}`,
-      sub: `${subs} HOUSES ON YOUR ROUTE`,
+      text: plan ? `${plan.weekday} - PRIMROSE LANE` : `DAY ${day}`,
+      sub: plan ? plan.title : `${subs} HOUSES ON YOUR ROUTE`,
       ticks: 110,
     }
   }
@@ -945,6 +1006,32 @@ class PetalPost implements ArcadeGameInstance {
       })
   }
 
+  /** The first week is deliberately scripted; bonus-course hazards remain seeded. */
+  private addAuthoredHazard(kind: HazardKind, y: number, traffic: number) {
+    const x =
+      kind === 'sprinkler' || kind === 'puppy'
+        ? 92
+        : kind === 'kite'
+          ? SIDEWALK + 22
+          : kind === 'puddle'
+            ? SIDEWALK + 15
+            : kind === 'cat'
+              ? STREET_L + 35
+              : kind === 'bin'
+                ? STREET_L + 16
+                : STREET_R - 22
+    this.hazards.push({
+      kind,
+      x,
+      y,
+      vx: kind === 'cat' ? traffic : 0,
+      vy: kind === 'bin' ? traffic * 0.8 : 0,
+      w: kind === 'car' ? 18 : kind === 'puddle' ? 22 : 12,
+      h: kind === 'car' ? 32 : kind === 'puddle' ? 12 : 10,
+      gone: false,
+    })
+  }
+
   // --- update ------------------------------------------------------------------
 
   update(input: InputFrame) {
@@ -953,6 +1040,8 @@ class PetalPost implements ArcadeGameInstance {
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
     if (this.dayEnd > 0) {
+      if (!this.demo && (input.pressed.a || input.pressed.start))
+        this.dayEnd = 1
       if (--this.dayEnd === 0) this.startDay(this.level + 1)
       return
     }
@@ -981,7 +1070,11 @@ class PetalPost implements ArcadeGameInstance {
   }
 
   private ride(input: InputFrame) {
-    if (input.held.up) this.speed = Math.min(MAX_SPEED, this.speed + 0.04)
+    if (input.held.up)
+      this.speed = Math.min(
+        this.weather === 'rainy' ? MAX_SPEED * 0.85 : MAX_SPEED,
+        this.speed + 0.04,
+      )
     else if (input.held.down)
       this.speed = Math.max(MIN_SPEED, this.speed - 0.05)
     else this.speed += (BASE_SPEED - this.speed) * 0.03
@@ -1029,10 +1122,32 @@ class PetalPost implements ArcadeGameInstance {
       if (sy > -40) {
         h.x += h.vx
         h.y += h.vy
+        if (h.kind === 'puppy' && Math.abs(h.y - this.by) < 60) {
+          h.x += Math.sign(this.bx - h.x) * 0.7
+          h.y += 0.25
+        }
+        if (h.kind === 'kite')
+          h.x = SIDEWALK + 22 + Math.sin((this.tick + h.y) / 18) * 20
         if (h.kind === 'cat' && (h.x < SIDEWALK || h.x > STREET_R - 10))
           h.vx = -h.vx
       }
       if (this.safe > 0) continue
+      if (h.kind === 'puddle') {
+        if (
+          Math.abs(h.x - this.bx) < h.w / 2 + 5 &&
+          Math.abs(h.y - this.by) < h.h / 2 + 7
+        ) {
+          this.bx = Math.min(MAX_X, this.bx + 16)
+          h.gone = true
+          this.banner = {
+            text: 'SPLASH!',
+            sub: 'STEER INTO THE SLIDE',
+            ticks: 65,
+          }
+          this.sound.play('pop')
+        }
+        continue
+      }
       if (h.kind === 'sprinkler') {
         // The spray sweeps out over the sidewalk half the time.
         const on = Math.floor((this.tick + h.y) / 90) % 2 === 0
@@ -1049,7 +1164,11 @@ class PetalPost implements ArcadeGameInstance {
             ? 'A CAT ON A SKATEBOARD!'
             : h.kind === 'bin'
               ? 'HIT A ROLLING BIN'
-              : 'BUMPED A PARKED CAR',
+              : h.kind === 'puppy'
+                ? 'PLAYFUL PUPPY!'
+                : h.kind === 'kite'
+                  ? 'KITE STRING!'
+                  : 'BUMPED A PARKED CAR',
           h,
         )
     }
@@ -1062,6 +1181,7 @@ class PetalPost implements ArcadeGameInstance {
     for (const p of this.packets) {
       p.t++
       p.x -= TOSS_VX
+      if (this.weather === 'breezy') p.x += 0.4
       p.y += p.vy
       // A mailbox catches it on the way past, then the doorstep, then the garden.
       for (const h of this.houses) {
@@ -1072,7 +1192,7 @@ class PetalPost implements ArcadeGameInstance {
           Math.abs(p.x - MAILBOX_X) < 5 &&
           Math.abs(p.y - mailY) < 9
         ) {
-          this.deliver(h, MAILBOX_POINTS, 'MAILBOX!', p)
+          this.deliver(h, MAILBOX_POINTS, 'MAILBOX!', p, 'mailbox')
           break
         }
       }
@@ -1099,7 +1219,7 @@ class PetalPost implements ArcadeGameInstance {
     if (!house || p.x > MAILBOX_X) return
     if (house.subscriber && !house.delivered) {
       if (Math.abs(p.x - DOOR_X) < 14 && Math.abs(p.y - house.y) < 14)
-        this.deliver(house, DOOR_POINTS, 'DOORSTEP', p)
+        this.deliver(house, DOOR_POINTS, 'DOORSTEP', p, 'porch')
       else {
         this.deliver(house, GARDEN_POINTS * 2, 'ON THE LAWN', p)
         this.blooms.push({ x: p.x, y: p.y, born: this.tick })
@@ -1117,6 +1237,7 @@ class PetalPost implements ArcadeGameInstance {
           text: 'NEW NEIGHBOUR!',
           life: 60,
         })
+        this.signups++
         this.sound.play('level')
       }
       this.addScore(GARDEN_POINTS, p.x, p.y - this.camera - 8)
@@ -1130,9 +1251,25 @@ class PetalPost implements ArcadeGameInstance {
     }
   }
 
-  private deliver(h: House, points: number, label: string, p: Packet) {
+  private deliver(
+    h: House,
+    points: number,
+    label: string,
+    p: Packet,
+    location: 'mailbox' | 'porch' | null = null,
+  ) {
     h.delivered = true
-    h.bloom = Math.min(3, h.bloom + 1)
+    const requestMet = h.request !== null && h.request === location
+    h.bloom = Math.min(3, h.bloom + (requestMet ? 2 : 1))
+    if (requestMet) {
+      this.requestsMet++
+      points += 150
+      label = 'REQUEST MET!'
+    }
+    if (h.bloom === 3) {
+      this.tips += 75
+      points += 75
+    }
     p.t = 999
     this.addScore(points, p.x, p.y - this.camera - 10)
     this.floaters.push({
@@ -1176,9 +1313,18 @@ class PetalPost implements ArcadeGameInstance {
         neighbour.subscriber = true
         neighbour.bloom = 1
         neighbour.gifts = 0
+        this.signups++
       }
       sub = `PERFECT DAY  +${bonus}  A NEIGHBOUR SIGNS UP`
     }
+    this.gazette = valleyGazette(
+      this.level,
+      this.houses,
+      this.requestsMet,
+      missed,
+      this.signups,
+      this.tips,
+    )
     this.sound.play('level')
     if (subs === 0) {
       this.gameOver('NO SUBSCRIBERS LEFT')
@@ -1382,8 +1528,10 @@ class PetalPost implements ArcadeGameInstance {
         color: RAMPS.gold[3],
         outline: INK,
       })
+    this.renderWeather(g)
     vignette(g, W, H, 0.28)
     this.renderHud(g)
+    if (this.dayEnd > 0 && this.gazette) this.renderGazette(g, this.gazette)
   }
 
   private renderStreet(g: CanvasRenderingContext2D, cam: number) {
@@ -1393,6 +1541,93 @@ class PetalPost implements ArcadeGameInstance {
     g.translate(0, off)
     cachedLayer(g, 'petal-post-street', W, H + PERIOD, paintStreet)
     g.restore()
+  }
+
+  private renderWeather(g: CanvasRenderingContext2D) {
+    if (this.weather === 'rainy') {
+      g.strokeStyle = rgba(RAMPS.sky[4], 0.5)
+      g.lineWidth = 1
+      for (let i = 0; i < 26; i++) {
+        const x = (i * 67 + this.tick * 2) % W
+        const y = (i * 47 + this.tick * 5) % H
+        g.beginPath()
+        g.moveTo(x, y)
+        g.lineTo(x - 3, y + 8)
+        g.stroke()
+      }
+    } else if (this.weather === 'foggy') {
+      g.fillStyle = rgba(RAMPS.steel[4], 0.12)
+      g.fillRect(0, HUD_H + 1, W, H - HUD_H)
+    } else if (this.weather === 'market') {
+      for (let i = 0; i < 12; i++) {
+        g.fillStyle = i % 3 === 0 ? RAMPS.pink[3] : RAMPS.gold[3]
+        g.fillRect(i * 22, HUD_H + 2 + Math.abs(i - 6), 10, 4)
+      }
+    }
+  }
+
+  private renderGazette(g: CanvasRenderingContext2D, report: GazetteReport) {
+    g.fillStyle = rgba(INK, 0.88)
+    g.fillRect(0, HUD_H, W, H - HUD_H)
+    hudPanel(g, 7, 29, 242, 197, RAMPS.cream)
+    g.fillStyle = RAMPS.cream[4]
+    g.fillRect(9, 31, 238, 193)
+    drawText(g, 'THE VALLEY GAZETTE', W / 2, 38, {
+      scale: 2,
+      align: 'center',
+      color: INK,
+    })
+    drawText(g, `PRIMROSE  ${report.weekday} ${report.day}/7`, W / 2, 59, {
+      align: 'center',
+      color: RAMPS.earth[1],
+    })
+    drawText(g, report.headline, W / 2, 73, {
+      align: 'center',
+      color: RAMPS.earth[0],
+    })
+    for (let i = 0; i < report.homes.length; i++) {
+      const home = report.homes[i]!
+      const x = 18 + (i % 6) * 38
+      const y = 100 + Math.floor(i / 6) * 29
+      g.fillStyle = home.subscriber ? RAMPS.leaf[3] : GREY[2]
+      g.fillRect(x, y, 32, 23)
+      g.fillStyle = home.delivered ? RAMPS.gold[3] : RAMPS.cream[3]
+      g.fillRect(x + 2, y + 2, 28, 19)
+      drawText(g, String(i + 1), x + 4, y + 4, { color: INK })
+      for (let bloom = 0; bloom < home.bloom; bloom++) {
+        drawSprite(
+          g,
+          BLOOM_SPRITES[bloom % BLOOM_SPRITES.length]!,
+          x + 10 + bloom * 6,
+          y + 17,
+        )
+      }
+    }
+    drawText(
+      g,
+      `DELIVERED ${report.delivered}  HOMES ${report.subscribers}`,
+      W / 2,
+      166,
+      { align: 'center', color: INK },
+    )
+    drawText(
+      g,
+      `REQUESTS ${report.requestsMet}  TIPS ${report.tips}`,
+      W / 2,
+      178,
+      { align: 'center', color: RAMPS.earth[0] },
+    )
+    drawText(
+      g,
+      `JOINED ${report.signups}  LEFT ${report.cancellations}`,
+      W / 2,
+      190,
+      { align: 'center', color: RAMPS.earth[0] },
+    )
+    drawText(g, 'A / START: NEXT DAY', W / 2, 211, {
+      align: 'center',
+      color: INK,
+    })
   }
 
   private renderBloom(
@@ -1438,6 +1673,13 @@ class PetalPost implements ArcadeGameInstance {
       paintHouse(k, wall, roof, sub, h.delivered),
     )
     g.restore()
+    if (sub && h.request && !h.delivered) {
+      drawText(g, h.request === 'mailbox' ? 'MAIL' : 'PORCH', 55, sy - 38, {
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      })
+    }
     if (sub && h.bloom > 0) {
       for (let i = 0; i < h.bloom * 3; i++) {
         const x = 12 + i * 8
@@ -1492,6 +1734,29 @@ class PetalPost implements ArcadeGameInstance {
     } else if (hz.kind === 'bin') {
       dropShadow(g, hz.x + 1, sy + 7, 6, 1.5)
       drawSprite(g, BIN_FRAMES[frame]!, hz.x, sy)
+    } else if (hz.kind === 'puppy') {
+      dropShadow(g, hz.x, sy + 5, 7, 2)
+      drawPuppy(g, hz.x, sy, frame, this.tick)
+    } else if (hz.kind === 'kite') {
+      g.strokeStyle = RAMPS.cream[3]
+      g.lineWidth = 1
+      g.beginPath()
+      g.moveTo(SIDEWALK - 3, sy + 10)
+      g.lineTo(hz.x, sy - 13)
+      g.stroke()
+      g.fillStyle = RAMPS.gold[3]
+      g.fillRect(hz.x - 5, sy - 18, 10, 9)
+      g.fillStyle = RAMPS.pink[3]
+      g.fillRect(hz.x - 2, sy - 21, 4, 15)
+    } else if (hz.kind === 'puddle') {
+      g.fillStyle = rgba(RAMPS.water[2], 0.8)
+      g.beginPath()
+      g.ellipse(hz.x, sy, 12, 6, 0, 0, Math.PI * 2)
+      g.fill()
+      g.strokeStyle = RAMPS.water[4]
+      g.stroke()
+      g.fillStyle = RAMPS.cream[4]
+      g.fillRect(hz.x - 4, sy - 1, 5, 1)
     } else if (hz.kind === 'car') {
       g.fillStyle = rgba(INK, 0.35)
       g.fillRect(Math.round(hz.x) - 6, Math.round(sy) - 13, 18, 32)
@@ -1636,11 +1901,19 @@ class PetalPost implements ArcadeGameInstance {
       color: RAMPS.pink[3],
       outline: INK,
     })
-    drawText(g, `DAY ${this.level}`, W - 6, 13, {
-      align: 'right',
-      color: RAMPS.leaf[3],
-      outline: INK,
-    })
+    drawText(
+      g,
+      this.level <= PRIMROSE_DAYS.length
+        ? `${primroseDay(this.level)!.weekday} ${this.level}/7`
+        : `DAY ${this.level}`,
+      W - 6,
+      13,
+      {
+        align: 'right',
+        color: RAMPS.leaf[3],
+        outline: INK,
+      },
+    )
     if (this.banner) {
       const sub = this.banner.sub
       const bw = Math.min(

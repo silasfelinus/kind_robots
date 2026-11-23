@@ -1507,6 +1507,163 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
             },
           ],
         },
+        {
+          id: 'river-commons-vote',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 5,
+          characters: ['lake-spirit-nix', 'envoy-thistle', 'warlock-vex'],
+          title: 'Who Owns the Upstream Road?',
+          body: 'The sluice is open and the border is open, yet nobody can agree who owns the river between them. Thistle wants a treaty, Vex wants a toll booth, and Nix has brought three enormous sturgeon as witnesses. They are all looking at your fishing rod.',
+          art: 'card-river-commons-vote',
+          trigger: {
+            minTurn: 28,
+            requires: {
+              flags: ['sluiceOpened', 'borderReopened'],
+              cardsSeen: ['weir-reckoning', 'treaty-reckoning'],
+            },
+          },
+          choices: [
+            {
+              id: 'charter-the-run',
+              reactionMood: 'pleased',
+              text: 'Charter a shared river commons. Pay both banks to guard it.',
+              effects: {
+                sliders: { nature: 9, joy: 6, order: 3, treasury: -8 },
+                flags: { set: ['riverCommons'] },
+                regionOverride: { far_shore: 'pristine', near_bank: 'grassy' },
+              },
+              result:
+                'Both villages elect a river council. Its first law is that no one gets to own a fish that has not yet been caught. Nix applauds from underwater; Vex reluctantly builds the public landing.',
+            },
+            {
+              id: 'license-the-run',
+              reactionMood: 'concerned',
+              text: 'Lease the crossing. Use the tolls to keep the sluice working.',
+              effects: {
+                sliders: { prosperity: 8, treasury: 9, nature: -4, joy: -3 },
+                flags: { set: ['riverConcession'] },
+                regionOverride: {
+                  village_edge: 'township',
+                  near_bank: 'trampled',
+                },
+              },
+              result:
+                'The mill is repaired and the ferries run on time. The Tollbell Sturgeon start ringing beneath the new boundary posts. Thistle calls the contract efficient; Nix asks why a river needs a cashier.',
+            },
+          ],
+        },
+        {
+          id: 'marina-family-charter',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 5,
+          characters: ['heir-robin', 'sweetheart-ash', 'envoy-thistle'],
+          title: 'The Heir and the Harbourmaster',
+          body: 'The marina filters work, and Robin and Ash have made a life beyond the palace. Now the dockhands ask them to run the harbour. Thistle promises wealthy visitors if they reserve the finest berths. Ash asks whether village children will still be allowed to learn to fish.',
+          art: 'card-marina-family-charter',
+          trigger: {
+            minTurn: 29,
+            requires: {
+              flags: ['marinaCleaned', 'heirIndependent'],
+              cardsSeen: ['marina-reckoning', 'wedding-reckoning'],
+            },
+          },
+          choices: [
+            {
+              id: 'charter-the-cooperative',
+              reactionMood: 'pleased',
+              text: 'Make the dockhands co-owners. Build a public orchard pier.',
+              effects: {
+                sliders: { joy: 10, nature: 5, treasury: -7, prosperity: 3 },
+                flags: { set: ['workingWaterfront'] },
+                regionOverride: {
+                  near_bank: 'grassy',
+                  village_edge: 'township',
+                },
+              },
+              result:
+                'The harbour has three rules: pay your crew, clean your berth, and teach the next child to cast. Robin plants apple trees along the pier. Orchardjaw Perch gather beneath their roots; Thistle invests in a bigger market instead.',
+            },
+            {
+              id: 'reserve-the-royal-pier',
+              reactionMood: 'alarmed',
+              text: 'Reserve the best berths for wealthy visitors. Hire the family to manage them.',
+              effects: {
+                sliders: { treasury: 12, prosperity: 8, joy: -8, nature: -5 },
+                flags: { set: ['exclusivePier'] },
+                regionOverride: {
+                  near_bank: 'trampled',
+                  village_edge: 'boomtown',
+                },
+              },
+              result:
+                'The pier glitters with lacquered hulls. Robin sends impeccable monthly accounts and no invitations. Ash quietly teaches the village children to fish beyond the locked gate, where the Mooring Mullet eat crumbs.',
+            },
+          ],
+        },
+        {
+          id: 'water-rights-hearing',
+          deck: 'kingdom-core',
+          kind: 'interrupt',
+          once: true,
+          weight: 5,
+          characters: ['captain-cordelia', 'smuggler-brack', 'lake-spirit-nix'],
+          title: 'The Lake Has Been Sold Twice',
+          body: 'The fish run is still blocked and Brack is selling the moat roach by the cartload. Two companies now claim the same water. Cordelia brings the deeds; Nix brings a bowl of mud where the spawning ground used to be. Brack offers to sell the bowl as a collectible.',
+          art: 'card-water-rights-hearing',
+          trigger: {
+            minTurn: 30,
+            requires: {
+              flags: ['runStillBlocked', 'moatRoachTrade'],
+              cardsSeen: ['weir-reckoning', 'moat-reckoning'],
+            },
+          },
+          choices: [
+            {
+              id: 'found-the-water-trust',
+              reactionMood: 'pleased',
+              text: 'Buy back the fishing rights. Reopen the run and restore the moat.',
+              effects: {
+                sliders: { nature: 17, joy: 7, treasury: -14, prosperity: -5 },
+                flags: {
+                  clear: ['runBlocked', 'runStillBlocked', 'moatFishedOut'],
+                  set: ['publicTrust', 'sluiceOpened', 'moatHonour'],
+                },
+                regionOverride: {
+                  far_shore: 'pristine',
+                  near_bank: 'grassy',
+                },
+              },
+              result:
+                'Cordelia tears up the duplicate deeds and appoints the moat grandmothers as trustees. Workers are paid to restore the spawning beds. Nix leaves a young sturgeon at your dock as a receipt; Brack asks if receipts are taxable.',
+            },
+            {
+              id: 'auction-the-water',
+              reactionMood: 'alarmed',
+              text: 'Auction both claims to one company. Demand an enormous royalty.',
+              effects: {
+                sliders: {
+                  treasury: 17,
+                  prosperity: 8,
+                  order: 5,
+                  nature: -13,
+                  joy: -9,
+                },
+                flags: { set: ['waterMonopoly'] },
+                regionOverride: {
+                  far_shore: 'industrial',
+                  near_bank: 'dead',
+                  village_edge: 'garrisoned',
+                },
+              },
+              result:
+                'The crown gets a magnificent cheque. Guards begin charging anglers for the privilege of looking at the lake. The Barebone Roach breed in the shadows of the new gates; even Brack calls the contract greedy.',
+            },
+          ],
+        },
       ],
     },
     {

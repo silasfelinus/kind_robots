@@ -99,14 +99,28 @@ for (const field of ['key', 'asset', 'artJobId', 'artImageId'] as const) {
 }
 assert.deepEqual(
   CAPES_CANON_CORRECTION_REVIEW.map((item) => [item.artJobId, item.artImageId]),
-  [[76529,278466],[76530,278467],[76531,278468],[76532,278469],[76593,278587],[76594,278588],[76595,278589],[76596,278590],[76597,278591],[76598,278592]],
+  [
+    [76529, 278466],
+    [76530, 278467],
+    [76531, 278468],
+    [76532, 278469],
+    [76593, 278587],
+    [76594, 278588],
+    [76595, 278589],
+    [76596, 278590],
+    [76597, 278591],
+    [76598, 278592],
+  ],
 )
 assert.deepEqual(
-  CAPES_FRANCHISE_SAFE_REVIEW.map((item) => [
-    item.artJobId,
-    item.artImageId,
-  ]),
-  [[50711,258003],[50712,258004],[50713,258015],[50714,258016],[50715,258017]],
+  CAPES_FRANCHISE_SAFE_REVIEW.map((item) => [item.artJobId, item.artImageId]),
+  [
+    [50711, 258003],
+    [50712, 258004],
+    [50713, 258015],
+    [50714, 258016],
+    [50715, 258017],
+  ],
 )
 assert.deepEqual(
   CAPES_RUNTIME_REFILL_REVIEW.map((item) => [item.artJobId, item.artImageId]),

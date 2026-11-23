@@ -1015,6 +1015,8 @@
       maxHearts: difficulty().hearts,
       mineCount: state.mines.size,
       discCount: state.discs.length,
+      discSpeed: difficulty().discSpeed,
+      cpuChoices: difficulty().cpuChoices,
       chess: points.chess,
       mines: points.mine,
       discs: points.disc,

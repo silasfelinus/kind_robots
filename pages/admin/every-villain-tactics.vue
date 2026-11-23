@@ -1840,6 +1840,10 @@ import {
   type ComicIntroRole,
 } from '~/utils/cometAcademy/comicIntroductions'
 import { promArt } from '~/utils/cometAcademy/artManifest'
+import {
+  identityArtwork,
+  reviewedIdentityArtwork,
+} from '~/utils/cometAcademy/artSlots'
 import type { SignaturePowerId } from '~/utils/cometAcademy/specialPowers'
 import { EVERY_VILLAIN_TACTICS } from '~/utils/playbookKit/games/everyVillainTactics'
 import { useEveryVillainTacticsStore } from '~/stores/everyVillainTacticsStore'
@@ -2238,20 +2242,26 @@ const battlefieldArt = computed(
           : 'districts/training-arena',
     ) ?? '/comet-city-academy/front/splash.webp',
 )
-const aftermathArt = computed(() =>
-  store.isPlaytest
-    ? battlefieldArt.value
-    : (promArt(
-        'identities/' +
-          store.leadSignature +
-          '/outcomes/' +
-          (store.state.phase === 'defeat'
-            ? 'betrayal'
-            : store.perspective === 'villain'
-              ? 'villain'
-              : 'hero'),
-      ) ?? promArt('front/splash-v2')),
-)
+const aftermathArt = computed(() => {
+  if (store.isPlaytest) return battlefieldArt.value
+  const role =
+    store.state.phase === 'defeat'
+      ? 'betrayal'
+      : store.perspective === 'villain'
+        ? 'villain'
+        : 'hero'
+  const portrait =
+    role === 'betrayal'
+      ? reviewedIdentityArtwork(
+          'identities/' + store.leadSignature + '/outcomes/betrayal',
+        )
+      : identityArtwork(store.leadSignature, role)
+  return (
+    portrait ??
+    identityArtwork(store.leadSignature, 'student') ??
+    promArt('front/splash-v2')
+  )
+})
 function unitPortrait(unit: Unit): string | null {
   const crew = crewUnitArtReceipt(unit)
   const combat = crewCombatReceipt(unit, store.state.impact)
@@ -2266,11 +2276,7 @@ function unitPortrait(unit: Unit): string | null {
     (unit.team === 'rival') !== (store.perspective === 'villain')
       ? 'villain'
       : 'hero'
-  return (
-    promArt('identities/' + unit.identity + '/' + role) ??
-    promArt('identities/' + unit.identity + '/outcomes/' + role) ??
-    promArt('identities/' + unit.identity + '/student')
-  )
+  return identityArtwork(unit.identity, role)
 }
 function speakerPortrait(speaker: string): string | null {
   const name = speaker.trim().toLowerCase()
@@ -2287,10 +2293,7 @@ function speakerPortrait(speaker: string): string | null {
   )
   if (!person) return null
   const role = person.villain.alias.toLowerCase() === name ? 'villain' : 'hero'
-  return (
-    promArt('identities/' + person.signature + '/outcomes/' + role) ??
-    promArt('identities/' + person.signature + '/student')
-  )
+  return identityArtwork(person.signature, role)
 }
 function coverEdges(cell: Cell) {
   const cover = store.state.map.tiles[cell.x + ',' + cell.y]?.cover

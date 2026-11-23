@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { isRejectedIdentityArt } from '../cometAcademy/artQuality'
-import { reviewedIdentityArtwork } from '../cometAcademy/artSlots'
+import {
+  identityArtwork,
+  reviewedIdentityArtwork,
+} from '../cometAcademy/artSlots'
+import { promArt } from '../cometAcademy/artManifest'
 import { createStory } from '../everyVillainTactics/firstBellStory'
 import {
   createSave,
@@ -297,6 +301,35 @@ for (const [signature, emotion, outcome] of [
     safeStudent,
     signature + ' ' + emotion + ' cannot display rejected art',
   )
+}
+
+// The live battle, cinematic speaker cards and aftermath must also obey
+// the same art quarantine as the selection menu and authored scene graph.
+const battlePage = readFileSync(
+  new URL('../../pages/admin/every-villain-tactics.vue', import.meta.url),
+  'utf8',
+)
+assert.match(battlePage, /identityArtwork\(unit\.identity, role\)/)
+assert.match(battlePage, /identityArtwork\(person\.signature, role\)/)
+assert.match(battlePage, /identityArtwork\(store\.leadSignature, role\)/)
+assert.match(battlePage, /reviewedIdentityArtwork\(/)
+assert.doesNotMatch(
+  battlePage,
+  /promArt\(\s*'identities\/'/,
+  'gameplay must not bypass reviewed art for a raw identity lookup',
+)
+for (const [signature, role] of [
+  ['tech-genius', 'hero'],
+  ['tech-genius', 'villain'],
+  ['magic-earth', 'hero'],
+  ['magic-earth', 'villain'],
+  ['mutant-discipline', 'hero'],
+  ['mutant-discipline', 'villain'],
+  ['alien-discipline', 'hero'],
+] as const) {
+  const key = 'identities/' + signature + '/outcomes/' + role
+  assert.ok(isRejectedIdentityArt(key), key)
+  assert.notEqual(identityArtwork(signature, role), promArt(key))
 }
 
 // ---- Editor helpers produce valid graphs ------------------------------------

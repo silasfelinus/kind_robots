@@ -253,6 +253,9 @@ textarea:focus-visible {
 
 /* Title */
 .title-screen {
+  background:
+    linear-gradient(180deg, #ffffff55, #ffffff99),
+    url('./front/title-hero.webp') center / cover no-repeat;
   align-items: center;
   justify-content: center;
   padding: 16px;
@@ -1472,4 +1475,141 @@ textarea.code {
   .game-screen .buddy-cheer {
     display: none;
   }
+}
+
+/* Painted art with drawn fallbacks */
+.painted {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.painted img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.painted .painted-fallback {
+  display: none;
+}
+
+.painted.missing img {
+  display: none;
+}
+
+.painted.missing .painted-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.painted .painted-fallback > svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.motif-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.motif-fallback svg {
+  width: 40%;
+  height: auto;
+}
+
+.cast-portrait,
+.slot-portrait,
+.ending-portrait {
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 6px 14px #a66cff33;
+  background: #fff6fb;
+}
+
+.cast-portrait {
+  width: clamp(64px, 17vw, 104px);
+  height: clamp(64px, 17vw, 104px);
+}
+
+.cast-portrait img,
+.slot-portrait img,
+.ending-portrait img,
+.fail-portrait img {
+  object-position: 50% 18%;
+}
+
+.slot-portrait {
+  width: 104px;
+  height: 104px;
+}
+
+.ending-portrait {
+  width: 74px;
+  height: 74px;
+}
+
+.char-portrait {
+  width: min(170px, 55%);
+  aspect-ratio: 3 / 4;
+  border-radius: 22px;
+  border: 4px solid #fff;
+  box-shadow: 0 8px 20px #a66cff33;
+  background: #fff6fb;
+}
+
+.char-portrait.missing {
+  aspect-ratio: 1;
+}
+
+.fail-portrait {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+}
+
+.scene {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  margin: 0 0 10px;
+  box-shadow: 0 6px 16px #4a2a7a22;
+}
+
+.fork-card .scene {
+  margin-bottom: 4px;
+}
+
+.thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  margin-bottom: 6px;
+}
+
+.route-node .thumb svg,
+.fork-card .scene svg {
+  width: 40%;
+  height: auto;
+}
+
+.fill {
+  width: 100%;
+  height: 100%;
+}
+
+.polaroid .pic .painted svg {
+  width: 62%;
+  height: 62%;
+}
+
+.ending .panel .scene {
+  margin-bottom: 12px;
 }

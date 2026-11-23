@@ -54,6 +54,7 @@ type Levels = {
   ROUTE_ORDER: string[]
   ENDINGS: Record<string, { id: string }>
   CHARACTERS: Array<{ id: string; perk: string }>
+  STORY_BEATS: Record<string, Array<{ at: number }>>
   allLevels: () => string[]
   routeLevels: (r: unknown) => string[]
   parseLevelId: (id: string) => { region: string; n: number }
@@ -446,6 +447,40 @@ assert.ok(
   !existsSync(fileURLToPath(new URL('pages/admin/hopeful-hues.vue', root))),
   'no admin copy remains',
 )
+
+// Silas, 2026-11-23 PT: real art for the intro bits. Every hero, region, story beat and ending has a painted slot.
+const artPack = JSON.parse(read('public/hopeful-hues/art-pack.json')) as {
+  slots: Array<{ slot: string; path: string; request: string }>
+  front: Array<{ committed: string; artJob: number }>
+}
+const slotNames = new Set(artPack.slots.map((entry) => entry.slot))
+for (const c of L.CHARACTERS)
+  assert.ok(slotNames.has('hero:' + c.id), `hero art slot ${c.id}`)
+for (const r of L.ROUTE_ORDER)
+  assert.ok(slotNames.has('region:' + r), `region art slot ${r}`)
+for (const e of Object.keys(L.ENDINGS))
+  assert.ok(slotNames.has('ending:' + e), `ending art slot ${e}`)
+for (const r of L.ROUTE_ORDER) {
+  for (const beat of L.STORY_BEATS[r] ?? []) {
+    if (beat.at !== 1)
+      assert.ok(
+        slotNames.has(`story:${r}-${beat.at}`),
+        `story art slot ${r}-${beat.at}`,
+      )
+  }
+}
+for (const entry of artPack.slots)
+  assert.match(
+    entry.path,
+    /^\/images\/hopeful-hues\/(heroes|regions|story|endings)\/[a-z0-9-]+\.webp$/,
+  )
+for (const entry of artPack.front) {
+  assert.ok(
+    existsSync(fileURLToPath(new URL('public' + entry.committed, root))),
+    entry.committed,
+  )
+  assert.ok(entry.artJob > 0, `${entry.committed} traces to an ArtJob`)
+}
 
 const app = read('public/hopeful-hues/app.js')
 for (const needle of [

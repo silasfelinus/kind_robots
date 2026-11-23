@@ -30,6 +30,62 @@
     'You make the people around you braver.',
   ]
 
+  const PAINTED_ROOT = '/images/hopeful-hues/'
+
+  function painted(path, fallback, cls) {
+    return `<span class="painted ${cls || ''}"><img src="${PAINTED_ROOT}${path}" alt="" decoding="async"><span class="painted-fallback">${fallback}</span></span>`
+  }
+
+  function heroArt(id, size, cls) {
+    return painted('heroes/' + id + '.webp', A.portraitSvg(id, size), cls)
+  }
+
+  function regionArt(regionId, cls) {
+    const region = L.REGIONS[regionId]
+    return painted(
+      'regions/' + regionId + '.webp',
+      `<span class="motif-fallback" style="background:linear-gradient(135deg, ${region.sky[0]}, ${region.sky[1]})">${A.motifSvg(region.motif, region.palette[0])}</span>`,
+      cls,
+    )
+  }
+
+  function beatArt(regionId, at, cls) {
+    if (at === 1) return regionArt(regionId, cls)
+    const region = L.REGIONS[regionId]
+    return painted(
+      'story/' + regionId + '-' + at + '.webp',
+      `<span class="motif-fallback" style="background:linear-gradient(135deg, ${region.sky[0]}, ${region.sky[1]})">${A.motifSvg(region.motif, region.palette[1])}</span>`,
+      cls,
+    )
+  }
+
+  function endingArt(endingId, cls) {
+    const ending = L.ENDINGS[endingId]
+    const region = ending && ending.region ? L.REGIONS[ending.region] : null
+    return painted(
+      'endings/' + endingId + '.webp',
+      `<span class="motif-fallback" style="background:var(--rainbow)">${region ? A.motifSvg(region.motif, '#fff') : A.rainbowSvg()}</span>`,
+      cls,
+    )
+  }
+
+  document.addEventListener(
+    'error',
+    (event) => {
+      const img = event.target
+      if (
+        img &&
+        img.tagName === 'IMG' &&
+        img.parentNode &&
+        img.parentNode.classList &&
+        img.parentNode.classList.contains('painted')
+      ) {
+        img.parentNode.classList.add('missing')
+      }
+    },
+    true,
+  )
+
   const embedded = new URLSearchParams(location.search).get('embedded') === '1'
   const storage = (() => {
     try {
@@ -259,7 +315,7 @@
   function renderTitle() {
     const s = slot()
     const cast = L.CHARACTERS.map(
-      (c) => `<div>${A.portraitSvg(c.id, 84)}</div>`,
+      (c) => `<div>${heroArt(c.id, 84, 'cast-portrait')}</div>`,
     ).join('')
     appEl.innerHTML = `<section class="screen title-screen scroll">
       ${A.logoSvg()}
@@ -308,7 +364,7 @@
           month: 'short',
           day: 'numeric',
         })
-        return `<div class="card slot-card">${A.portraitSvg(c.id, 96)}<h3>Slot ${i + 1} · ${esc(c.name)}</h3><div class="meta">⭐ ${stars} · ${won} levels · ${s.endings.length} endings · ✨ ${s.sparkles}<br>Last played ${esc(when)}</div><div class="row"><button class="btn primary" data-action="load" data-slot="${i}">Play</button><button class="btn small" data-action="export" data-slot="${i}">Export</button><button class="btn small" data-action="delete" data-slot="${i}">Delete</button></div></div>`
+        return `<div class="card slot-card">${heroArt(c.id, 96, 'slot-portrait')}<h3>Slot ${i + 1} · ${esc(c.name)}</h3><div class="meta">⭐ ${stars} · ${won} levels · ${s.endings.length} endings · ✨ ${s.sparkles}<br>Last played ${esc(when)}</div><div class="row"><button class="btn primary" data-action="load" data-slot="${i}">Play</button><button class="btn small" data-action="export" data-slot="${i}">Export</button><button class="btn small" data-action="delete" data-slot="${i}">Delete</button></div></div>`
       })
       .join('')
     appEl.innerHTML = `<section class="screen"><div class="topbar">${backButton('Title')}<h2>Save slots</h2></div><div class="scroll" style="flex:1"><div class="grid-cards">${cards}</div><p class="center muted" style="padding:0 16px 20px">Progress saves automatically on this device. Export a slot to keep a backup code or move it to another browser.</p></div></section>`
@@ -392,7 +448,7 @@
     const current = slot()
     const cards = L.CHARACTERS.map(
       (c) =>
-        `<div class="card char-card" style="border-color:${current && changing && current.character === c.id ? c.colors[0] : 'transparent'}">${A.portraitSvg(c.id, 120)}<h3>${esc(c.name)}</h3><div class="meta">${esc(c.title)}</div><div class="perk"><b>${esc(c.perkName)}:</b> ${esc(c.perkText)}</div><button class="btn primary" data-action="pick" data-id="${c.id}">${changing ? 'Switch to ' : 'Play as '}${esc(c.name)}</button></div>`,
+        `<div class="card char-card" style="border-color:${current && changing && current.character === c.id ? c.colors[0] : 'transparent'}">${heroArt(c.id, 120, 'char-portrait')}<h3>${esc(c.name)}</h3><div class="meta">${esc(c.title)}</div><div class="perk"><b>${esc(c.perkName)}:</b> ${esc(c.perkText)}</div><button class="btn primary" data-action="pick" data-id="${c.id}">${changing ? 'Switch to ' : 'Play as '}${esc(c.name)}</button></div>`,
     ).join('')
     appEl.innerHTML = `<section class="screen"><div class="topbar">${backButton()}<h2>${changing ? 'Change your hero' : 'Who is bringing the color?'}</h2></div><div class="scroll" style="flex:1"><div class="grid-cards">${cards}</div><p class="center muted" style="padding:0 16px 20px">Every hero can finish every route. Perks change how you play, and each hero has their own ending epilogue. You can switch heroes from the map at any time.</p></div></section>`
     bind(appEl, {
@@ -620,7 +676,7 @@
     persist()
     const modal = openModal({
       title: region.name,
-      body: `<div class="story-card"><div class="art" style="background:linear-gradient(135deg, ${region.sky[0]}, ${region.sky[1]});border-radius:50%;padding:16px">${A.motifSvg(region.motif, region.palette[0])}</div><p>${esc(region.blurb)}</p>${beat ? `<p class="muted"><b>${esc(beat.title)}.</b> ${esc(beat.text)}</p>` : ''}<p class="muted">📔 Added to your scrapbook.</p></div>`,
+      body: `<div class="story-card">${regionArt(regionId, 'scene')}<p>${esc(region.blurb)}</p>${beat ? `<p class="muted"><b>${esc(beat.title)}.</b> ${esc(beat.text)}</p>` : ''}<p class="muted">📔 Added to your scrapbook.</p></div>`,
       foot: '<button class="btn rainbow" data-m="ok">Let\'s go!</button>',
       onClose: then,
     })
@@ -636,7 +692,7 @@
       .map((id) => {
         const r = L.REGIONS[id]
         const visited = s.levels[L.levelId(id, 1)]
-        return `<button class="fork-card" data-m="pick" data-id="${id}" style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${A.motifSvg(r.motif, r.palette[0])}<h3>${esc(r.name)}</h3><p>${esc(r.blurb)}</p>${visited ? '<small>✓ You have been here before</small>' : ''}</button>`
+        return `<button class="fork-card" data-m="pick" data-id="${id}" style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${regionArt(id, 'scene')}<h3>${esc(r.name)}</h3><p>${esc(r.blurb)}</p>${visited ? '<small>✓ You have been here before</small>' : ''}</button>`
       })
       .join('')
     const modal = openModal({
@@ -667,7 +723,7 @@
           let won = 0
           for (let n = 1; n <= count; n++) if (s.levels[L.levelId(id, n)]) won++
           const ending = r.ending ? L.ENDINGS[r.ending] : null
-          return `<button class="route-node ${active ? 'active' : ''} ${unlocked ? '' : 'locked'}" data-m="travel" data-id="${id}" ${unlocked ? '' : 'disabled'} style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${A.motifSvg(r.motif, r.palette[0])}<div><b>${esc(r.name)}</b></div><div class="muted">${won}/${count} levels${ending ? (s.endings.includes(ending.id) ? ' · ✨ ending' : ' · ending ahead') : ''}</div>${unlocked ? '' : '<div>🔒</div>'}</button>`
+          return `<button class="route-node ${active ? 'active' : ''} ${unlocked ? '' : 'locked'}" data-m="travel" data-id="${id}" ${unlocked ? '' : 'disabled'} style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${regionArt(id, 'thumb')}<div><b>${esc(r.name)}</b></div><div class="muted">${won}/${count} levels${ending ? (s.endings.includes(ending.id) ? ' · ✨ ending' : ' · ending ahead') : ''}</div>${unlocked ? '' : '<div>🔒</div>'}</button>`
         })
         .join(''),
     )
@@ -745,7 +801,7 @@
     const region = L.REGIONS[regionId]
     const modal = openModal({
       title: beat.title,
-      body: `<div class="story-card"><div class="art" style="background:linear-gradient(135deg, ${region.sky[0]}, ${region.sky[1]});border-radius:50%;padding:16px">${A.motifSvg(region.motif, region.palette[1])}</div><p>${esc(beat.text)}</p><p class="muted">📔 Added to your scrapbook.</p></div>`,
+      body: `<div class="story-card">${beatArt(regionId, beat.at, 'scene')}<p>${esc(beat.text)}</p><p class="muted">📔 Added to your scrapbook.</p></div>`,
       foot: '<button class="btn rainbow" data-m="ok">Continue</button>',
       onClose: then,
     })
@@ -1553,7 +1609,7 @@
     const modal = openModal({
       title: 'So close!',
       dismissable: false,
-      body: `<div class="story-card"><div class="art">${A.portraitSvg(s.character, 110)}</div><p>The colors are still in there. Still to go: <b>${esc(remaining.join(', '))}</b>.</p><p class="muted">No lives, no timers. Try as many times as you like.</p></div>`,
+      body: `<div class="story-card">${heroArt(s.character, 110, 'fail-portrait')}<p>The colors are still in there. Still to go: <b>${esc(remaining.join(', '))}</b>.</p><p class="muted">No lives, no timers. Try as many times as you like.</p></div>`,
       foot: `${canUndo ? '<button class="btn undo" data-m="undo" style="background:linear-gradient(135deg,#4cc9f0,#3ddc97);color:#fff">↶ Back a move</button>' : ''}<button class="btn" data-m="boost" ${s.sparkles < boostCost && !s.boosters.moves ? 'disabled' : ''}>💖 +5 moves (${s.boosters.moves ? 'free gift' : boostCost + ' ✨'})</button><button class="btn" data-m="retry">Retry</button><button class="btn primary" data-m="map">Map</button>`,
     })
     modalActions(modal, {
@@ -1612,7 +1668,7 @@
     const others = Object.values(L.ENDINGS).filter(
       (e) => !s.endings.includes(e.id),
     ).length
-    el.innerHTML = `<div class="cast">${L.CHARACTERS.map((ch) => A.portraitSvg(ch.id, 70)).join('')}</div><h1>${esc(ending.title)}</h1><div class="panel">${region ? `<p class="muted">${esc(region.name)}</p>` : '<p class="muted">Secret ending</p>'}<p style="font-size:1.08rem">${esc(ending.text)}</p><p><b>${esc(c.name)}:</b> ${esc(c.epilogue)}</p><p class="credits">${others ? `${others} more ending${others > 1 ? 's are' : ' is'} still out there. Try another path from the Routes map.` : 'You found every ending. Thank you for bringing color to everyone.'}</p><p class="credits">Hopeful Hues · a Kind Robots game · starring Superkate, rainbow hair hero · made with love and a back button.</p><button class="btn rainbow" data-done>${then ? 'Wait… there is more ✨' : 'Back to the map'}</button></div>`
+    el.innerHTML = `<div class="cast">${L.CHARACTERS.map((ch) => heroArt(ch.id, 70, 'ending-portrait')).join('')}</div><h1>${esc(ending.title)}</h1><div class="panel">${endingArt(endingId, 'scene')}${region ? `<p class="muted">${esc(region.name)}</p>` : '<p class="muted">Secret ending</p>'}<p style="font-size:1.08rem">${esc(ending.text)}</p><p><b>${esc(c.name)}:</b> ${esc(c.epilogue)}</p><p class="credits">${others ? `${others} more ending${others > 1 ? 's are' : ' is'} still out there. Try another path from the Routes map.` : 'You found every ending. Thank you for bringing color to everyone.'}</p><p class="credits">Hopeful Hues · a Kind Robots game · starring Superkate, rainbow hair hero · made with love and a back button.</p><button class="btn rainbow" data-done>${then ? 'Wait… there is more ✨' : 'Back to the map'}</button></div>`
     document.body.appendChild(el)
     el.querySelector('[data-done]').focus()
     el.querySelector('[data-done]').addEventListener('click', () => {
@@ -1734,15 +1790,14 @@
         if (e.region) {
           const r = L.REGIONS[e.region]
           bg = `linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})`
-          pic = A.motifSvg(r.motif, r.palette[i % 3])
+          const at = e.id.startsWith('beat:') ? Number(e.id.split(':')[2]) : 1
+          pic = beatArt(e.region, at, 'fill')
         } else if (e.character) {
-          pic = A.portraitSvg(e.character, 120)
+          pic = heroArt(e.character, 120, 'fill')
           bg = '#fff6fb'
         } else if (e.ending) {
-          const end = L.ENDINGS[e.ending]
-          const r = end.region ? L.REGIONS[end.region] : null
           bg = 'var(--rainbow)'
-          pic = r ? A.motifSvg(r.motif, '#fff') : A.rainbowSvg()
+          pic = endingArt(e.ending, 'fill')
         } else if (e.achievement) {
           const idx = M.ACHIEVEMENTS.findIndex((a) => a.id === e.achievement)
           pic = `<span style="font-size:3.4rem">${MEDALS[idx % MEDALS.length]}</span>`

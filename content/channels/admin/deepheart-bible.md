@@ -9,7 +9,7 @@ subtitle: Private director's room
 description: Compare Deepheart's painted character designs, inspect model tests and document the approved look of its world.
 summary: Review Deepheart's visual direction and completed art jobs.
 icon: kind-icon:palette
-image: /api/deepheart/art/273804
+image: /api/deepheart/art/275127
 route: /admin/deepheart/bible
 sort: 177
 requiredRole: ADMIN
@@ -25,7 +25,7 @@ tutorial:
     human-faced immortal court, while World & style records the approved
     animation aesthetic and boundaries for ordinary and mature art.
     To play the dungeon, use the Delve link at the top left.
-  image: /api/deepheart/art/273804
+  image: /api/deepheart/art/275127
 ---
 
 Private visual review for Deepheart. Visible in the Admin channel's contextual

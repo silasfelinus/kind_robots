@@ -54,6 +54,8 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const sending = ref(false)
   const error = ref('')
   let polling: ReturnType<typeof setInterval> | null = null
+  /** Bumped by every move, so a poll that started before one is discarded. */
+  let sendCount = 0
 
   /** This player's record over the finished games in the VS list. */
   const tally = computed(() => pvpTally(games.value))
@@ -83,10 +85,23 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   ): Promise<void> {
     if (sending.value && !recoverRejectedMove) return
     if (!quiet) loading.value = true
+    const sentBefore = sendCount
     try {
       const next = await request(
         '/api/slime-city/pvp/' + encodeURIComponent(id),
       )
+      // Silas, 2026-11-22 PT: "Do we have to double click the strike button?"
+      // A background poll that left before a move must never land after it
+      // and roll the board back to the older revision.
+      const current = duel.value
+      if (
+        quiet &&
+        !recoverRejectedMove &&
+        (sendCount !== sentBefore ||
+          sending.value ||
+          (current?.id === next.id && next.revision < current.revision))
+      )
+        return
       duel.value = next
       error.value = ''
     } catch (cause) {
@@ -155,6 +170,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   async function send(command: PvpInput): Promise<boolean> {
     const current = duel.value
     if (!current || sending.value || !isMyTurn.value) return false
+    sendCount++
     sending.value = true
     error.value = ''
     try {

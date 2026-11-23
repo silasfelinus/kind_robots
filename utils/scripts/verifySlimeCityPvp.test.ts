@@ -12,13 +12,18 @@ import {
   pvpSnapshotRival,
   pvpTally,
   sortPvpGames,
+  pvpCardRow,
+  pvpClashView,
   pvpCommand,
   pvpRules,
   replayPvp,
   stepPvp,
 } from '../slimeCity/pvp'
+import { cardById } from '../slimeCity/prototypes'
 import {
   CLASH_DECK_SIZE,
+  canClashPlay,
+  clashPlayLimit,
   nextClashStrike,
   type ClashCommand,
 } from '../slimeCity/clash'
@@ -646,3 +651,56 @@ console.log('Slime City VS finish: result, rematch and record PASS')
   )
 }
 console.log('Slime City VS early deal: next hand visible between turns PASS')
+
+{
+  // Silas, 2026-11-22 PT: the duel board shares the CPU Clash hand (drag,
+  // full-size cards, evolution tabs) through an engine-shaped view.
+  let s = newPvpGame(host, guest, seed, pvpRules({ dealEarly: true }))
+  s = stepPvp(s, { t: 'pass', side: 'player' })!
+  while (nextClashStrike(s, 'player') >= 0)
+    s = stepPvp(s, { t: 'strike', side: 'player' })!
+  s = stepPvp(s, { t: 'end', side: 'player' })!
+  const guestBoard = pvpBoard(s, 'enemy')
+  const guestView = pvpClashView(guestBoard, 'enemy', host, guest)
+  assert.deepEqual(guestView.hands.enemy, guestBoard.hand)
+  assert.equal(guestView.hands.player.length, guestBoard.opponentHandCount)
+  assert.ok(
+    guestView.hands.player.every((id) => id === ''),
+    'the rival hand stays hidden in the view',
+  )
+  assert.equal(guestView.decks.enemy.length, guestBoard.deckCount)
+  assert.deepEqual(guestView.levels.enemy, guestBoard.levels)
+  assert.deepEqual(guestView.levels.player, {}, 'rival levels stay secret')
+  for (const id of guestBoard.hand)
+    for (let lane = 0; lane < 5; lane++)
+      assert.equal(
+        canClashPlay(guestView, 'enemy', id, lane),
+        canClashPlay(s, 'enemy', id, lane),
+        `client legality matches the server for ${id} in alley ${lane}`,
+      )
+  assert.equal(clashPlayLimit(guestView, 'enemy'), clashPlayLimit(s, 'enemy'))
+  assert.equal(pvpCardRow(cardById('lynx')), 'own')
+  const board = readFileSync('components/slime-city-pvp-game.vue', 'utf8')
+  assert.match(board, /<SlimeCityClashHand[\s\S]*?:side="pvp\.duel\.seat"/)
+  assert.match(board, /@drop="onDrop"/, 'cards drag onto alleys')
+  assert.match(board, /:data-clash-lane="lane"/)
+  assert.match(board, /data-testid="slime-pvp-plays"/, 'floating play icons')
+  assert.match(
+    board,
+    /t: 'pass'[\s\S]*?t: 'end'[\s\S]*?t: 'strike'/,
+    'one FIGHT tap plays the whole strike sweep',
+  )
+  const store = readFileSync('stores/slimeCityPvp.ts', 'utf8')
+  assert.match(
+    store,
+    /next\.revision < current\.revision/,
+    'a late poll never rolls the board back',
+  )
+  assert.ok(
+    existsSync('content/channels/arcade/slime-city-duels.md'),
+    'the duel page has its own tutorial tab',
+  )
+}
+console.log(
+  'Slime City VS board: shared hand view, legality, drag and sweep PASS',
+)

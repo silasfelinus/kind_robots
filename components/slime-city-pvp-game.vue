@@ -295,11 +295,12 @@
       </section>
 
       <section
-        v-else-if="board && pvp.duel"
+        v-else-if="board && pvp.duel && view"
         class="scpvp-battle"
         aria-label="Live CLASH duel"
+        data-testid="slime-pvp-battle"
       >
-        <div class="scpvp-versus">
+        <header class="scpvp-hud">
           <NuxtLink
             v-if="narrowScreen"
             class="scpvp-back"
@@ -307,7 +308,18 @@
             aria-label="Back to VS"
             >‹</NuxtLink
           >
-          <div v-for="side in lineup" :key="side" class="scpvp-boss">
+          <div
+            v-for="side in lineup"
+            :key="side"
+            class="scpvp-boss"
+            :class="[
+              side === pvp.duel.seat ? 'is-mine' : 'is-rival',
+              { active: board.active === side && !finished },
+            ]"
+            :data-testid="
+              'slime-pvp-boss-' + (side === pvp.duel.seat ? 'mine' : 'rival')
+            "
+          >
             <SlimeCityArtwork
               :image-id="slimeArtId('crews', teamOf(side))"
               :alt="nameOf(teamOf(side))"
@@ -315,23 +327,20 @@
             />
             <div>
               <small>{{
-                side === pvp.duel.seat ? 'YOUR BOSS' : 'RIVAL BOSS'
+                side === pvp.duel.seat
+                  ? 'YOU'
+                  : (pvp.duel.rivalName ?? 'RIVAL').toUpperCase()
               }}</small>
               <strong>{{ nameOf(teamOf(side)) }}</strong>
-              <b>♥ {{ board.boss[side] }} / 40</b>
+              <span class="scpvp-life" aria-hidden="true"
+                ><i :style="{ width: lifeWidth(side) }"
+              /></span>
+              <b>♥ {{ Math.max(0, board.boss[side]) }} / {{ bossCap(side) }}</b>
             </div>
           </div>
           <div class="scpvp-turn" aria-live="polite">
-            <b>{{
-              finished
-                ? resultHeadline
-                : pvp.isMyTurn
-                  ? 'YOUR TURN'
-                  : 'RIVAL THINKING'
-            }}</b>
-            <small
-              >ROUND {{ board.round }} · {{ board.phase.toUpperCase() }}</small
-            >
+            <b>{{ turnLabel }}</b>
+            <small>ROUND {{ board.round }} / {{ CLASH_ROUND_LIMIT }}</small>
             <button
               v-if="finished"
               type="button"
@@ -354,215 +363,236 @@
           >
             {{ forfeitArmed ? 'SURE?' : '⚑' }}
           </button>
-        </div>
+        </header>
 
-        <div class="scpvp-field" role="grid" aria-label="Five CLASH alleys">
+        <div class="scpvp-arena" role="grid" aria-label="Five CLASH alleys">
           <div
-            v-for="(side, row) in lineup"
+            v-for="side in lineup"
             :key="side"
             class="scpvp-row"
-            :class="row === 0 ? 'is-top' : 'is-bottom'"
+            :class="side === pvp.duel.seat ? 'is-mine' : 'is-rival'"
             role="row"
+            :aria-label="
+              side === pvp.duel.seat ? 'Your fighters' : 'Rival fighters'
+            "
           >
             <button
-              v-for="lane in 5"
+              v-for="lane in lanes"
               :key="side + lane"
               type="button"
               role="gridcell"
               class="scpvp-slot"
               :class="{
-                'can-target': targeting,
-                occupied: !!unit(side, lane - 1),
+                filled: !!unit(side, lane),
+                target: targetable(side, lane),
                 inspected:
-                  !!unit(side, lane - 1) &&
-                  inspected?.uid === unit(side, lane - 1)!.uid,
+                  !!unit(side, lane) && pinnedUid === unit(side, lane)!.uid,
+                lunge: lunge?.side === side && lunge.lane === lane,
+                hit: floater(side, lane) !== null,
               }"
-              :aria-label="slotLabel(side, lane - 1)"
-              :disabled="!targeting && !unit(side, lane - 1)"
-              :data-testid="'slime-pvp-slot-' + side + '-' + (lane - 1)"
-              @click="tapSlot(side, lane - 1)"
+              :aria-label="slotLabel(side, lane)"
+              :disabled="!targetable(side, lane) && !unit(side, lane)"
+              :data-clash-side="side"
+              :data-clash-lane="lane"
+              :data-testid="'slime-pvp-slot-' + side + '-' + lane"
+              @click="clickSlot(side, lane)"
+              @pointerenter="hoverSlot($event, side, lane)"
+              @pointerleave="hoverUid = null"
             >
-              <template v-if="unit(side, lane - 1)">
+              <template v-if="unit(side, lane)">
                 <SlimeCityArtwork
                   :image-id="
                     slimeCardArtId(
-                      unit(side, lane - 1)!.cardId,
-                      unit(side, lane - 1)!.level,
-                      unit(side, lane - 1)!.evoChoice ?? 0,
+                      unit(side, lane)!.cardId,
+                      unit(side, lane)!.level,
+                      unit(side, lane)!.evoChoice ?? 0,
                     )
                   "
-                  :alt="cardById(unit(side, lane - 1)!.cardId).name"
-                  :fallback="cardById(unit(side, lane - 1)!.cardId).symbol"
+                  :alt="cardById(unit(side, lane)!.cardId).name"
+                  :fallback="cardById(unit(side, lane)!.cardId).symbol"
                   compact
                 />
                 <span class="scpvp-stats">
-                  <b>⚔ {{ unit(side, lane - 1)!.power }}</b>
-                  <b>♥ {{ unit(side, lane - 1)!.hp }}</b>
+                  <b
+                    class="is-attack"
+                    :aria-label="unit(side, lane)!.power + ' attack'"
+                    >⚔ {{ unit(side, lane)!.power }}</b
+                  >
+                  <b
+                    class="is-life"
+                    :class="{
+                      low: unit(side, lane)!.hp * 3 <= unit(side, lane)!.maxHp,
+                    }"
+                    :aria-label="unit(side, lane)!.hp + ' life'"
+                    >♥ {{ unit(side, lane)!.hp }}</b
+                  >
                 </span>
-                <span class="scpvp-unit-title">{{
-                  cardById(unit(side, lane - 1)!.cardId).name
-                }}</span>
-                <span class="scpvp-unit-level">{{
-                  '★'.repeat(unit(side, lane - 1)!.level)
-                }}</span>
+                <span class="scpvp-tags">
+                  <span
+                    v-for="tag in fighterTags(unit(side, lane)!)"
+                    :key="tag.text"
+                    class="scpvp-tag"
+                    :class="'is-' + tag.kind"
+                    :title="tag.title"
+                    >{{ tag.text }}</span
+                  >
+                </span>
+                <span class="scpvp-unit-label"
+                  ><i>{{ '★'.repeat(unit(side, lane)!.level) }}</i
+                  >{{ cardById(unit(side, lane)!.cardId).name }}</span
+                >
               </template>
-              <span v-else class="scpvp-empty">{{ lane }}</span>
+              <span v-else class="scpvp-empty">{{
+                targetable(side, lane)
+                  ? side === pvp.duel.seat
+                    ? 'PLAY HERE'
+                    : 'TARGET'
+                  : lane + 1
+              }}</span>
               <span
                 v-if="
                   board.traps.some(
-                    (trap) => trap.side === side && trap.lane === lane - 1,
+                    (trap) => trap.side === side && trap.lane === lane,
                   )
                 "
                 class="scpvp-own-trap"
                 aria-label="Your hidden trap in this alley"
                 >✦ ARMED</span
               >
-            </button>
-          </div>
-          <span class="scpvp-midline">FIVE ALLEYS · NO MAN'S LAND</span>
-        </div>
-
-        <div class="scpvp-controls">
-          <div class="scpvp-hand" aria-label="Your five-card hand">
-            <small
-              v-if="board.hand.length && !canPlay && !finished"
-              class="scpvp-hand-tag"
-              data-testid="slime-pvp-next-hand"
-              >YOUR NEXT HAND · TAP TO READ</small
-            >
-            <button
-              v-for="(id, index) in board.hand"
-              :key="id"
-              type="button"
-              class="scpvp-card"
-              :class="{
-                selected: selectedCard === id,
-                waiting: !canPlay,
-                inspected: inspected?.id === id && inspected.uid === undefined,
-              }"
-              :aria-pressed="selectedCard === id"
-              :aria-label="
-                cardById(id).name +
-                ', level ' +
-                (board.levels[id] ?? 1) +
-                (canPlay ? '' : ', tap to read')
-              "
-              :data-testid="'slime-pvp-hand-' + index"
-              @click="tapHandCard(id, index)"
-              @pointerenter="hoverHandCard($event, id, index)"
-              @pointerleave="hovered = null"
-            >
-              <SlimeCityClashCardFace
-                :card-id="id"
-                :level="board.levels[id] ?? 1"
-                :pick="selectedCard === id && choiceStages ? choice : undefined"
-              />
-            </button>
-            <p v-if="!board.hand.length">
-              Your hand is empty. Send the crew into battle.
-            </p>
-          </div>
-          <div class="scpvp-actions">
-            <p>
-              {{ board.hand.length }} IN HAND · {{ board.deckCount }} IN DECK ·
-              OPPONENT {{ board.opponentHandCount }} HIDDEN
-            </p>
-            <div
-              v-if="choiceStages && selectedCard"
-              class="scpvp-choice"
-              role="group"
-              aria-label="Choose a level-three evolution"
-            >
-              <button
-                v-for="(stage, index) in choiceStages"
-                :key="stage.title"
-                type="button"
-                :aria-pressed="choice === index"
-                :data-testid="'slime-pvp-evolution-' + index"
-                @click="choice = index === 1 ? 1 : 0"
+              <span
+                v-if="floater(side, lane) !== null"
+                :key="'float-' + impactKey + side + lane"
+                class="scpvp-float"
+                >{{ floater(side, lane) }}</span
               >
-                <strong
-                  >OPTION {{ index === 0 ? 'A' : 'B' }} ·
-                  {{ stage.title }}</strong
-                >
-                <small>{{
-                  clashCardText(cardById(selectedCard), 3, index === 1 ? 1 : 0)
-                }}</small>
-              </button>
-            </div>
-            <button
-              v-for="fighter in tappableUnits"
-              :key="'tap-' + fighter.uid"
-              type="button"
-              class="scpvp-tap"
-              :disabled="pvp.sending"
-              :title="
-                'Spend ' +
-                cardById(fighter.cardId).name +
-                '’s attack to use its tap ability'
-              "
-              :data-testid="'slime-pvp-tap-' + fighter.uid"
-              @click="tapFighter(fighter.uid)"
-            >
-              ↷ TAP {{ cardById(fighter.cardId).name }}
-            </button>
-            <button
-              v-if="pvp.isMyTurn && board.phase === 'play'"
-              type="button"
-              :aria-pressed="chosenPower"
-              :disabled="pvp.sending"
-              @click="togglePower"
-            >
-              {{ chosenPower ? 'CHOOSE POWER TARGET' : 'FACTION POWER' }}
-            </button>
-            <button
-              type="button"
-              class="scpvp-primary"
-              :disabled="!pvp.isMyTurn || pvp.sending || !!board.victor"
-              @click="advance"
-            >
-              {{
-                board.phase === 'play'
-                  ? 'FIGHT · START ATTACKS'
-                  : board.nextStrike >= 0
-                    ? 'STRIKE NEXT ALLEY'
-                    : 'END TURN'
-              }}
-            </button>
-            <button type="button" @click="showLog = !showLog">
-              {{ showLog ? 'CLOSE LOG' : 'BATTLE LOG' }}
             </button>
           </div>
+          <div class="scpvp-midline">
+            <div
+              v-if="!finished"
+              class="scpvp-pips"
+              :class="{ rival: board.active !== pvp.duel.seat }"
+              role="status"
+              :aria-label="pipsLabel"
+              data-testid="slime-pvp-plays"
+            >
+              <i
+                v-for="n in playLimit"
+                :key="n"
+                class="scpvp-pip"
+                :class="{ used: n <= playsUsed }"
+                aria-hidden="true"
+              />
+              <i
+                v-if="freeReady"
+                class="scpvp-pip is-free"
+                aria-hidden="true"
+                title="A free play is ready"
+              />
+              <small>{{
+                board.active === pvp.duel.seat ? playsLeft + ' LEFT' : 'RIVAL'
+              }}</small>
+            </div>
+            <p
+              class="scpvp-ticker"
+              :class="{ warn: tickerWarn }"
+              aria-live="polite"
+              data-testid="slime-pvp-ticker"
+            >
+              {{ ticker }}
+            </p>
+          </div>
+          <SlimeCityClashHand
+            :game="view"
+            :side="pvp.duel.seat"
+            :held="heldIndex"
+            :choice-pick="choice"
+            :inspect="inspect"
+            open-off-turn
+            @pick="onPick"
+            @drop="onDrop"
+          />
         </div>
 
-        <Transition name="scpvp-pop">
-          <button
-            v-if="shownCard"
-            :key="shownCard.id + (shownCard.uid ?? '') + shownCard.level"
-            type="button"
-            class="scpvp-inspect"
-            :class="['dock-' + shownCard.dock, { peek: !inspected }]"
-            :aria-label="'Close ' + cardById(shownCard.id).name"
-            :tabindex="inspected ? 0 : -1"
-            data-testid="slime-pvp-inspect"
-            @click="inspected = null"
+        <footer class="scpvp-console">
+          <div id="clash-hand-dock" class="scpvp-hand-dock"></div>
+          <div
+            v-if="choiceStages && selectedCard"
+            class="scpvp-choice"
+            role="radiogroup"
+            aria-label="Choose this card's level three"
           >
-            <span class="scpvp-inspect-card">
-              <SlimeCityClashCardFace
-                :card-id="shownCard.id"
-                :level="shownCard.level"
-                :pick="shownCard.pick"
-                :note="shownCard.note"
-              />
-            </span>
-            <span
-              v-if="inspected"
-              class="scpvp-inspect-close"
-              aria-hidden="true"
-              >✕</span
+            <button
+              v-for="(stage, index) in choiceStages"
+              :key="stage.title"
+              type="button"
+              role="radio"
+              :aria-checked="choice === index"
+              :data-testid="'slime-pvp-evolution-' + index"
+              @click="choice = index === 1 ? 1 : 0"
             >
+              <b>{{ index === 0 ? 'A' : 'B' }} · {{ stage.title }}</b>
+              <small>{{
+                clashCardText(cardById(selectedCard), 3, index === 1 ? 1 : 0)
+              }}</small>
+            </button>
+          </div>
+          <button
+            v-if="pinnedTap"
+            type="button"
+            class="scpvp-tap"
+            :disabled="!canAct || !pinnedTap.ready"
+            :title="
+              'Use ' + pinnedTap.title + ' instead of attacking this turn'
+            "
+            :data-testid="'slime-pvp-tap-' + pinnedTap.uid"
+            @click="tapFighter(pinnedTap.uid)"
+          >
+            ↷ TAP
           </button>
-        </Transition>
+          <button
+            v-for="team in myPowers"
+            :key="'power-' + team"
+            type="button"
+            class="scpvp-power"
+            :class="{
+              armed: powerArmed === team,
+              spent: clashPowerSpent(view, pvp.duel.seat, team),
+            }"
+            :aria-pressed="powerArmed === team"
+            :title="powerTitle(team)"
+            :disabled="!powerReady(team)"
+            data-testid="slime-pvp-power"
+            @click="firePower(team)"
+          >
+            {{ factionPower(team).symbol }}
+            <span>{{
+              clashPowerSpent(view, pvp.duel.seat, team)
+                ? 'USED'
+                : powerArmed === team
+                  ? 'PICK TARGET'
+                  : factionPower(team).name
+            }}</span>
+          </button>
+          <button
+            type="button"
+            class="scpvp-log-toggle"
+            :aria-expanded="showLog"
+            @click="showLog = !showLog"
+          >
+            LOG
+          </button>
+          <button
+            type="button"
+            class="scpvp-fight"
+            :class="{ ready: canAct && playsLeft === 0 }"
+            :disabled="!canAct && !sweeping"
+            data-testid="slime-pvp-fight"
+            @click="fight"
+          >
+            {{ fightLabel }} <span aria-hidden="true">›</span>
+          </button>
+        </footer>
 
         <div
           v-if="showLog"
@@ -570,7 +600,7 @@
           role="log"
           aria-label="Battle log"
         >
-          <p v-for="(entry, i) in board.log.slice(-15)" :key="i">
+          <p v-for="(entry, i) in board.log.slice(-20)" :key="i">
             <small>R{{ entry.round }}</small> {{ entry.text }}
           </p>
         </div>
@@ -599,7 +629,22 @@ import {
   clashEvolutionChoice,
   clashEvolutionStage,
 } from '~/utils/slimeCity/clashEvolutions'
-import { clashCardText } from '~/utils/slimeCity/clash'
+import {
+  CLASH_LANES,
+  CLASH_ROUND_LIMIT,
+  canClashActivate,
+  clashBossCap,
+  canClashPlay,
+  canClashPower,
+  clashCardText,
+  clashEffectivePlayCost,
+  clashPlayLimit,
+  clashPowers,
+  clashPowerSpent,
+  type ClashStrike,
+} from '~/utils/slimeCity/clash'
+import { pvpCardRow, pvpClashView } from '~/utils/slimeCity/pvp'
+import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 
 const route = useRoute()
@@ -622,37 +667,9 @@ const selectedTeam = ref<TeamId>('catgirls')
 const answering = computed(
   () => pvp.duel?.stage === 'waiting' && pvp.duel.seat === 'enemy',
 )
-const selectedCard = ref<string | null>(null)
-const chosenPower = ref(false)
-const choice = ref<0 | 1>(0)
-const choiceStages = computed(() =>
-  selectedCard.value && board.value
-    ? clashEvolutionChoice(
-        selectedCard.value,
-        board.value.levels[selectedCard.value] ?? 1,
-      )
-    : undefined,
-)
 const copied = ref(false)
 const showLog = ref(false)
 const board = computed(() => pvp.duel?.board ?? null)
-const tappableUnits = computed(() => {
-  if (!pvp.isMyTurn || board.value?.phase !== 'play') return []
-  return board.value.units.filter(
-    (u) =>
-      u.side === pvp.duel?.seat &&
-      !u.token &&
-      !u.fresh &&
-      !u.rooted &&
-      !u.attacked &&
-      u.activatedRound !== board.value!.round &&
-      !!clashEvolutionStage(
-        u.cardId,
-        u.level,
-        u.evoChoice ?? 0,
-      )?.abilities.some((ability) => ability.when === 'tap'),
-  )
-})
 const lineup = computed<Side[]>(() =>
   pvp.duel?.seat === 'enemy' ? ['player', 'enemy'] : ['enemy', 'player'],
 )
@@ -720,15 +737,419 @@ function teamOf(side: Side): TeamId {
     (side === 'player' ? pvp.duel?.hostTeam : pvp.duel?.guestTeam) ?? 'catgirls'
   )
 }
+/**
+ * Silas, 2026-11-22 PT, on a tablet: "where are the full screen ish lanes?
+ * Where is the map background? Why is hand taking its space instead of
+ * optionally toggling open or floating or hidden ... we should click any card
+ * in hand or play to see it full size, and evolutions. We lost the ability to
+ * drag cards to locations." The duel now shares the CPU Clash's floating hand
+ * (drag, level tabs, full-size cards) over a full-height five-by-two board,
+ * driven by an engine-shaped view of the server's redacted board.
+ */
+const lanes = Array.from({ length: CLASH_LANES }, (_, lane) => lane)
+const view = computed(() =>
+  board.value && pvp.duel
+    ? pvpClashView(
+        board.value,
+        pvp.duel.seat,
+        pvp.duel.hostTeam,
+        pvp.duel.guestTeam ?? pvp.duel.hostTeam,
+      )
+    : null,
+)
+const seat = computed<Side>(() => pvp.duel?.seat ?? 'player')
+const rivalSeat = computed<Side>(() =>
+  seat.value === 'player' ? 'enemy' : 'player',
+)
+const heldIndex = ref<number | null>(null)
+const pinnedUid = ref<number | null>(null)
+const hoverUid = ref<number | null>(null)
+const powerArmed = ref<TeamId | null>(null)
+const choice = ref<0 | 1>(0)
+const sweeping = ref(false)
+const lunge = ref<{ side: Side; lane: number } | null>(null)
+const impact = ref<ClashStrike | null>(null)
+const impactKey = ref(0)
+const selectedCard = computed(() =>
+  heldIndex.value === null
+    ? null
+    : (board.value?.hand[heldIndex.value] ?? null),
+)
+const choiceStages = computed(() =>
+  selectedCard.value && board.value
+    ? clashEvolutionChoice(
+        selectedCard.value,
+        board.value.levels[selectedCard.value] ?? 1,
+      )
+    : undefined,
+)
+watch(selectedCard, () => (choice.value = 0))
+/** Your own card-play phase, with no move in flight. */
+const canAct = computed(
+  () =>
+    !!pvp.isMyTurn &&
+    !!board.value &&
+    !board.value.victor &&
+    !pvp.sending &&
+    !sweeping.value,
+)
+const canPlay = computed(() => canAct.value && board.value?.phase === 'play')
+const playLimit = computed(() =>
+  view.value ? clashPlayLimit(view.value, view.value.active) : 2,
+)
+const playsUsed = computed(() =>
+  Math.min(playLimit.value, board.value?.plays[board.value.active] ?? 0),
+)
+const playsLeft = computed(() =>
+  board.value?.phase === 'play' ? playLimit.value - playsUsed.value : 0,
+)
+const freeReady = computed(
+  () =>
+    !!view.value &&
+    view.value.phase === 'play' &&
+    view.value.hands[view.value.active].some(
+      (id) =>
+        !!id &&
+        clashEffectivePlayCost(
+          view.value!,
+          view.value!.active,
+          cardById(id),
+        ) === 0,
+    ),
+)
+const pipsLabel = computed(
+  () =>
+    (board.value?.active === seat.value ? 'You have ' : 'Your rival has ') +
+    playsLeft.value +
+    ' of ' +
+    playLimit.value +
+    ' card plays left',
+)
+const turnLabel = computed(() =>
+  finished.value
+    ? resultHeadline.value
+    : !pvp.isMyTurn
+      ? 'RIVAL’S TURN'
+      : board.value?.phase === 'play'
+        ? 'YOUR TURN'
+        : 'YOUR CREW STRIKES',
+)
+const fightLabel = computed(() =>
+  sweeping.value
+    ? 'STRIKING…'
+    : !pvp.isMyTurn
+      ? 'RIVAL’S TURN'
+      : board.value?.phase === 'play'
+        ? 'FIGHT'
+        : 'FINISH ATTACKS',
+)
+function bossCap(side: Side): number {
+  return view.value ? clashBossCap(view.value, side) : 40
+}
+function lifeWidth(side: Side): string {
+  const life = Math.max(0, board.value?.boss[side] ?? 0)
+  return Math.min(100, (life / bossCap(side)) * 100) + '%'
+}
 function unit(side: Side, lane: number) {
   return board.value?.units.find(
     (item) => item.side === side && item.lane === lane,
   )
 }
-function slotLabel(side: Side, lane: number) {
+type BoardUnit = NonNullable<ReturnType<typeof unit>>
+function tapStage(fighter: BoardUnit) {
+  const stage = clashEvolutionStage(
+    fighter.cardId,
+    fighter.level,
+    fighter.evoChoice ?? 0,
+  )
+  return stage?.abilities.some((ability) => ability.when === 'tap')
+    ? stage
+    : undefined
+}
+/** Silas: "we should see if the card can have a skill to use, or doesn't attack on turn one". */
+function fighterTags(
+  fighter: BoardUnit,
+): { kind: string; text: string; title: string }[] {
+  const tags: { kind: string; text: string; title: string }[] = []
+  if (fighter.rooted)
+    tags.push({
+      kind: 'stun',
+      text: 'STUN',
+      title: 'Stunned: skips its strike',
+    })
+  else if (fighter.fresh && !fighter.keywords.includes('ambush'))
+    tags.push({
+      kind: 'new',
+      text: '⏳ NEW',
+      title: 'Just landed: it blocks, but cannot strike until its next turn',
+    })
+  else if (fighter.keywords.includes('ambush') && fighter.fresh)
+    tags.push({
+      kind: 'ambush',
+      text: '⚡ AMBUSH',
+      title: 'Ambush: strikes on the turn it lands',
+    })
+  const stage = tapStage(fighter)
+  if (stage && !fighter.token)
+    tags.push({
+      kind: 'tap',
+      text:
+        fighter.attacked || fighter.activatedRound === board.value?.round
+          ? '↷ USED'
+          : '↷ TAP',
+      title:
+        'Tap ability: ' +
+        stage.title +
+        '. Using it skips this fighter’s strike this turn.',
+    })
+  if (fighter.armor)
+    tags.push({
+      kind: 'armor',
+      text: '🛡 ' + fighter.armor,
+      title: fighter.armor + ' armor',
+    })
+  if (fighter.guard)
+    tags.push({
+      kind: 'guard',
+      text: 'WALL +' + fighter.guard,
+      title: 'Shielded for the next hit',
+    })
+  return tags
+}
+function fighterNote(fighter: BoardUnit): string {
+  const status = fighterTags(fighter)
+    .map((tag) => tag.title)
+    .join(' · ')
+  return (
+    (fighter.side === seat.value ? 'YOUR FIGHTER' : 'RIVAL FIGHTER') +
+    ' · ⚔ ' +
+    fighter.power +
+    ' · ♥ ' +
+    fighter.hp +
+    '/' +
+    fighter.maxHp +
+    (status ? ' · ' + status : '')
+  )
+}
+const inspect = computed(() => {
+  const units = board.value?.units ?? []
+  const pinned = units.find((u) => u.uid === pinnedUid.value)
+  const hovered =
+    pinned || heldIndex.value !== null
+      ? undefined
+      : units.find((u) => u.uid === hoverUid.value)
+  const fighter = pinned ?? hovered
+  if (!fighter) return null
+  return {
+    id: fighter.cardId,
+    level: fighter.level,
+    pick: fighter.evoChoice === 1 ? (1 as const) : (0 as const),
+    note: fighterNote(fighter),
+    hover: !pinned,
+    dock: fighter.lane <= 2 ? ('right' as const) : ('left' as const),
+  }
+})
+watch(
+  () => board.value?.units.map((u) => u.uid).join(),
+  () => {
+    const units = board.value?.units ?? []
+    if (!units.some((u) => u.uid === pinnedUid.value)) pinnedUid.value = null
+  },
+)
+watch(
+  () => board.value?.hand.join(),
+  () => {
+    if (heldIndex.value !== null && !board.value?.hand[heldIndex.value])
+      heldIndex.value = null
+  },
+)
+const pinnedTap = computed(() => {
+  const fighter = board.value?.units.find(
+    (u) => u.uid === pinnedUid.value && u.side === seat.value,
+  )
+  const stage = fighter && tapStage(fighter)
+  if (!fighter || !stage || !view.value) return null
+  return {
+    uid: fighter.uid,
+    title: stage.title,
+    ready: canClashActivate(view.value, seat.value, fighter.uid),
+  }
+})
+const myPowers = computed(() =>
+  view.value ? clashPowers(view.value, seat.value) : [],
+)
+function powerTitle(team: TeamId): string {
+  const power = factionPower(team)
+  return (
+    power.name +
+    ': ' +
+    power.text +
+    ' One use per match. ' +
+    OVERCHARGE_RULE +
+    ' Overcharged: ' +
+    power.overcharge
+  )
+}
+function powerReady(team: TeamId): boolean {
+  if (!canPlay.value || !view.value) return false
+  return lanes.some((lane) =>
+    canClashPower(view.value!, seat.value, lane, team),
+  )
+}
+async function firePower(team: TeamId) {
+  if (!powerReady(team)) return
+  heldIndex.value = null
+  if (factionPower(team).target === 'none') {
+    powerArmed.value = null
+    await pvp.send({ t: 'power', lane: 0, team })
+    return
+  }
+  powerArmed.value = powerArmed.value === team ? null : team
+}
+function rowFor(id: string): Side {
+  return pvpCardRow(cardById(id)) === 'own' ? seat.value : rivalSeat.value
+}
+function targetable(side: Side, lane: number): boolean {
+  if (!canPlay.value || !view.value) return false
+  const armed = powerArmed.value
+  if (armed)
+    return (
+      side ===
+        (factionPower(armed).target === 'own' ? seat.value : rivalSeat.value) &&
+      canClashPower(view.value, seat.value, lane, armed)
+    )
+  const id = selectedCard.value
+  if (!id) return false
+  return rowFor(id) === side && canClashPlay(view.value, seat.value, id, lane)
+}
+function hoverSlot(event: PointerEvent, side: Side, lane: number) {
+  if (event.pointerType === 'mouse')
+    hoverUid.value = unit(side, lane)?.uid ?? null
+}
+function onPick(index: number | null) {
+  powerArmed.value = null
+  pinnedUid.value = null
+  heldIndex.value = index
+}
+function onDrop(index: number, side: Side, lane: number) {
+  heldIndex.value = index
+  if (targetable(side, lane)) void clickSlot(side, lane)
+  else if (canPlay.value) rejectNote.value = whyNot(side, lane)
+}
+const rejectNote = ref('')
+watch([selectedCard, () => pvp.duel?.revision], () => {
+  rejectNote.value = ''
+})
+function whyNot(side: Side, lane: number): string {
+  const id = selectedCard.value
+  if (!id || !view.value) return ''
+  const card = cardById(id)
+  const cost = clashEffectivePlayCost(view.value, seat.value, card)
+  if (cost > playsLeft.value)
+    return (
+      card.name +
+      ' needs ' +
+      cost +
+      ' plays. You have ' +
+      playsLeft.value +
+      ' left this turn.'
+    )
+  if (rowFor(id) !== side)
+    return (
+      card.name +
+      (rowFor(id) === seat.value
+        ? ' goes in one of your own alleys.'
+        : ' targets a rival fighter.')
+    )
+  if (!canClashPlay(view.value, seat.value, id, lane))
+    return card.name + ' cannot go in alley ' + (lane + 1) + '.'
+  return ''
+}
+async function clickSlot(side: Side, lane: number) {
+  if (powerArmed.value) {
+    if (targetable(side, lane)) {
+      const team = powerArmed.value
+      powerArmed.value = null
+      await pvp.send({ t: 'power', lane, team })
+    }
+    return
+  }
+  const id = selectedCard.value
+  if (id && targetable(side, lane)) {
+    const pick = choice.value
+    heldIndex.value = null
+    pinnedUid.value = null
+    await pvp.send({
+      t: 'play',
+      card: id,
+      lane,
+      ...(pick === 1 ? { choice: 1 as const } : {}),
+    })
+    return
+  }
+  if (id && canPlay.value) {
+    rejectNote.value = whyNot(side, lane)
+    if (rejectNote.value) return
+  }
+  const fighter = unit(side, lane)
+  heldIndex.value = null
+  pinnedUid.value =
+    fighter && pinnedUid.value !== fighter.uid ? fighter.uid : null
+}
+async function tapFighter(uid: number) {
+  if (await pvp.send({ t: 'activate', uid })) pinnedUid.value = null
+}
+const ticker = computed(() => {
+  if (!board.value || !pvp.duel) return ''
+  if (finished.value) return resultNote.value
+  if (rejectNote.value) return rejectNote.value
+  if (!pvp.isMyTurn)
+    return board.value.hand.length
+      ? 'Rival’s turn. Your next hand is ready: tap a card to read it, or tap the deck to hide it.'
+      : 'Rival’s turn.'
+  if (sweeping.value || board.value.phase === 'attack')
+    return 'Each fighter strikes across its alley; an open alley hits the boss.'
+  if (powerArmed.value) return 'Tap a glowing alley to aim your faction power.'
+  const id = selectedCard.value
+  if (id) {
+    const card = cardById(id)
+    const cost = clashEffectivePlayCost(view.value!, seat.value, card)
+    if (cost > playsLeft.value)
+      return (
+        card.name +
+        ' needs ' +
+        cost +
+        ' plays. You have ' +
+        playsLeft.value +
+        ' left this turn.'
+      )
+    return lanes.some((lane) => targetable(rowFor(id), lane))
+      ? 'Drag ' + card.name + ' onto a glowing alley, or tap one.'
+      : card.name + ' has no legal target right now.'
+  }
+  if (playsLeft.value <= 0)
+    return 'No plays left. Tap FIGHT to send your crew in.'
+  return (
+    playsLeft.value +
+    (playsLeft.value === 1 ? ' play' : ' plays') +
+    ' left. Drag a card onto an alley, tap a card to read it, or FIGHT.'
+  )
+})
+const tickerWarn = computed(
+  () =>
+    !!rejectNote.value ||
+    (!!selectedCard.value &&
+      !!view.value &&
+      clashEffectivePlayCost(
+        view.value,
+        seat.value,
+        cardById(selectedCard.value),
+      ) > playsLeft.value),
+)
+function slotLabel(side: Side, lane: number): string {
   const fighter = unit(side, lane)
   return (
-    (side === pvp.duel?.seat ? 'Your' : 'Rival') +
+    (side === seat.value ? 'Your' : 'Rival') +
     ' alley ' +
     (lane + 1) +
     (fighter
@@ -738,155 +1159,75 @@ function slotLabel(side: Side, lane: number) {
         fighter.level +
         ', ' +
         fighter.hp +
-        ' life'
-      : ', empty')
+        ' life' +
+        fighterTags(fighter)
+          .map((tag) => ', ' + tag.title)
+          .join('')
+      : ', empty') +
+    (targetable(side, lane) ? ', playable target' : '')
   )
 }
-function pickCard(id: string) {
-  selectedCard.value = selectedCard.value === id ? null : id
-  chosenPower.value = false
-  choice.value = 0
+function floater(side: Side, lane: number): string | null {
+  const hit = impact.value
+  if (!hit || hit.lane !== lane) return null
+  if (side === hit.side)
+    return hit.returned > 0 || hit.attackerFell
+      ? (hit.trap ? 'TRAP -' : '-') + hit.returned
+      : null
+  if (hit.target !== 'unit') return null
+  return hit.dealt > 0 ? '-' + hit.dealt : 'BLOCK'
 }
+let impactTimer: ReturnType<typeof setTimeout> | null = null
+watch(
+  () => board.value?.strike,
+  (strike, before) => {
+    if (!strike || JSON.stringify(strike) === JSON.stringify(before)) return
+    impact.value = { ...strike }
+    impactKey.value++
+    if (impactTimer) clearTimeout(impactTimer)
+    impactTimer = setTimeout(() => (impact.value = null), 900)
+  },
+)
+const wait = (ms: number) => new Promise((done) => setTimeout(done, ms))
 /**
- * Silas, 2026-11-22 PT: "the cards are not expandable on tablet, we only see
- * them small in hand, never larger." A tap opens the full card, docked away
- * from where it was tapped; a tap on the big card puts it away.
+ * Silas, 2026-11-22 PT: "Do we have to double click the strike button? It's
+ * unresponsive." One FIGHT now plays the whole turn: send the crew in, strike
+ * alley by alley with the same wind-up as the CPU board, then end the turn.
  */
-interface InspectedCard {
-  id: string
-  level: number
-  pick?: 0 | 1
-  note?: string
-  uid?: number
-  dock: 'left' | 'right'
-}
-const inspected = ref<InspectedCard | null>(null)
-const hovered = ref<InspectedCard | null>(null)
-const shownCard = computed(() => inspected.value ?? hovered.value)
-const canPlay = computed(
-  () =>
-    !!pvp.isMyTurn &&
-    board.value?.phase === 'play' &&
-    !board.value.victor &&
-    !pvp.sending,
-)
-const targeting = computed(
-  () => canPlay.value && (!!selectedCard.value || chosenPower.value),
-)
-function handCard(id: string, index: number): InspectedCard {
-  return {
-    id,
-    level: board.value?.levels[id] ?? 1,
-    dock: index < (board.value?.hand.length ?? 0) / 2 ? 'right' : 'left',
-  }
-}
-function tapHandCard(id: string, index: number) {
-  hovered.value = null
-  if (canPlay.value) {
-    pickCard(id)
-    inspected.value = selectedCard.value === id ? handCard(id, index) : null
-    return
-  }
-  inspected.value =
-    inspected.value?.id === id && inspected.value.uid === undefined
-      ? null
-      : handCard(id, index)
-}
-function hoverHandCard(event: PointerEvent, id: string, index: number) {
-  if (event.pointerType === 'mouse') hovered.value = handCard(id, index)
-}
-type BoardUnit = NonNullable<ReturnType<typeof unit>>
-function fighterCard(fighter: BoardUnit): InspectedCard {
-  return {
-    id: fighter.cardId,
-    level: fighter.level,
-    pick: fighter.evoChoice === 1 ? 1 : undefined,
-    note:
-      (fighter.side === pvp.duel?.seat ? 'YOUR FIGHTER' : 'RIVAL FIGHTER') +
-      ' · ⚔ ' +
-      fighter.power +
-      ' · ♥ ' +
-      fighter.hp +
-      '/' +
-      fighter.maxHp,
-    uid: fighter.uid,
-    dock: fighter.lane < 2 ? 'right' : 'left',
-  }
-}
-function tapSlot(side: Side, lane: number) {
-  if (targeting.value) {
-    inspected.value = null
-    void playLane(lane)
-    return
-  }
-  const fighter = unit(side, lane)
-  if (!fighter) return
-  inspected.value =
-    inspected.value?.uid === fighter.uid ? null : fighterCard(fighter)
-}
-function closeInspector(event: KeyboardEvent) {
-  if (event.key === 'Escape') inspected.value = null
-}
-onMounted(() => window.addEventListener('keydown', closeInspector))
-onBeforeUnmount(() => window.removeEventListener('keydown', closeInspector))
-watch(
-  () => board.value?.units,
-  (units) => {
-    const uid = inspected.value?.uid
-    if (uid === undefined) return
-    const fighter = units?.find((item) => item.uid === uid)
-    if (!fighter) {
-      inspected.value = null
-      return
+async function fight() {
+  if (!canAct.value || !board.value) return
+  heldIndex.value = null
+  powerArmed.value = null
+  pinnedUid.value = null
+  sweeping.value = true
+  try {
+    if (board.value.phase === 'play' && !(await pvp.send({ t: 'pass' }))) return
+    for (let beat = 0; beat < 12; beat++) {
+      const now = board.value
+      if (
+        !now ||
+        now.victor ||
+        now.phase !== 'attack' ||
+        now.active !== seat.value
+      )
+        break
+      if (now.nextStrike < 0) {
+        await pvp.send({ t: 'end' })
+        break
+      }
+      lunge.value = { side: seat.value, lane: now.nextStrike }
+      await wait(320)
+      if (!(await pvp.send({ t: 'strike' }))) break
+      await wait(520)
     }
-    inspected.value = fighterCard(fighter)
-  },
-)
-watch(
-  () => board.value?.hand.join(),
-  () => {
-    if (inspected.value && inspected.value.uid === undefined)
-      inspected.value = null
-  },
-)
-function togglePower() {
-  chosenPower.value = !chosenPower.value
-  selectedCard.value = null
-}
-async function playLane(lane: number) {
-  if (chosenPower.value) {
-    if (await pvp.send({ t: 'power', lane })) chosenPower.value = false
-  } else if (selectedCard.value) {
-    if (
-      await pvp.send({
-        t: 'play',
-        card: selectedCard.value,
-        lane,
-        ...(choice.value === 1 ? { choice: 1 as const } : {}),
-      })
-    )
-      selectedCard.value = null
+  } finally {
+    lunge.value = null
+    sweeping.value = false
   }
 }
-async function tapFighter(uid: number) {
-  if (await pvp.send({ t: 'activate', uid })) {
-    selectedCard.value = null
-    chosenPower.value = false
-  }
-}
-async function advance() {
-  if (!board.value) return
-  const t =
-    board.value.phase === 'play'
-      ? 'pass'
-      : board.value.nextStrike >= 0
-        ? 'strike'
-        : 'end'
-  if (await pvp.send({ t })) {
-    selectedCard.value = null
-    chosenPower.value = false
-  }
-}
+onBeforeUnmount(() => {
+  if (impactTimer) clearTimeout(impactTimer)
+})
 /** Silas, 2026-11-11 PT: "Invites should be private or open". */
 const openDuel = ref(false)
 /** Silas, 2026-11-11 PT: "Invites should be cancellable." Two taps. */
@@ -1000,7 +1341,6 @@ watch(
 .scpvp-concede:focus-visible {
   color: #fca5a5;
 }
-
 .scpvp {
   display: flex;
   flex-direction: column;
@@ -1200,381 +1540,6 @@ watch(
   color: #f6faed;
   background: #15232a;
 }
-.scpvp-battle {
-  position: relative;
-  height: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 0.4rem;
-  padding: 0.5rem;
-}
-.scpvp-versus {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  min-height: 0;
-}
-.scpvp-boss {
-  display: flex;
-  gap: 0.45rem;
-  align-items: center;
-  min-width: 0;
-  width: 36%;
-  border: 1px solid #4d665e;
-  border-radius: 0.7rem;
-  padding: 0.25rem;
-  background: #14262bc9;
-}
-.scpvp-boss > :first-child {
-  width: clamp(2.5rem, 6vw, 4.5rem);
-  height: clamp(2.5rem, 6vw, 4.5rem);
-  border-radius: 0.4rem;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.scpvp-boss div {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  font-size: 0.75rem;
-}
-.scpvp-boss strong {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-.scpvp-boss b {
-  color: #f6b6a3;
-}
-.scpvp-turn {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  font-weight: 850;
-  color: #d2f364;
-}
-.scpvp-turn small {
-  color: #a9bfb7;
-  font-size: 0.65rem;
-}
-.scpvp-field {
-  position: relative;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: 1fr auto 1fr;
-  gap: 0.3rem;
-  overflow: hidden;
-  border: 1px solid #566c7099;
-  border-radius: 1rem;
-  padding: 0.45rem;
-  background: #0a16192e;
-}
-.scpvp-row.is-top {
-  grid-row: 1;
-}
-.scpvp-row.is-bottom {
-  grid-row: 3;
-}
-.scpvp-midline {
-  grid-row: 2;
-}
-.scpvp-back,
-.scpvp-flag {
-  flex: none;
-  display: grid;
-  place-items: center;
-  min-width: 1.9rem;
-  height: 2.2rem;
-  padding: 0 0.4rem;
-  border: 1px solid #5c99917a;
-  border-radius: 0.5rem;
-  background: #10231f;
-  color: #c9ee5a;
-  font-size: 1.1rem;
-  font-weight: 900;
-  line-height: 1;
-}
-.scpvp-flag {
-  color: #f6b6a3;
-  font-size: 0.9rem;
-}
-.scpvp-flag.armed {
-  border-color: #ff6f7a;
-  background: #4b1f26;
-  color: #ffd6dc;
-  font-size: 0.6rem;
-}
-.scpvp-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.35rem;
-  min-height: 0;
-}
-.scpvp-slot {
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  border: 2px solid #708b80;
-  border-radius: 0.65rem;
-  overflow: hidden;
-  background: #0a1619bd;
-}
-.scpvp-slot:not(.occupied) {
-  background: #0a161970;
-}
-.scpvp-slot.occupied:not(.can-target) {
-  cursor: zoom-in;
-}
-.scpvp-slot.inspected {
-  border-color: #ffdb76;
-  box-shadow: 0 0 0 2px #ffdb7666;
-}
-.scpvp-slot.can-target {
-  border-color: #c9ee5a;
-  box-shadow: inset 0 0 1rem #c9ee5a44;
-  cursor: crosshair;
-}
-.scpvp-slot > :first-child {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.scpvp-stats {
-  position: absolute;
-  inset: 0.15rem 0.15rem auto;
-  display: flex;
-  justify-content: space-between;
-  gap: 0.2rem;
-  font-size: clamp(0.65rem, 1.7vw, 1.25rem);
-  font-weight: 950;
-  text-shadow: 1px 2px 3px #000;
-}
-.scpvp-stats b {
-  padding: 0 0.2rem;
-  border-radius: 0.3rem;
-  background: #101b1cde;
-}
-.scpvp-unit-title {
-  position: absolute;
-  inset: auto 0 0;
-  padding: 0.35rem 0.2rem;
-  background: linear-gradient(transparent, #07141bef);
-  font-size: clamp(0.52rem, 1.1vw, 0.8rem);
-  font-weight: 900;
-}
-.scpvp-unit-level {
-  position: absolute;
-  right: 0.2rem;
-  bottom: 1.5rem;
-  color: #ffdb76;
-  font-size: 0.6rem;
-}
-.scpvp-own-trap {
-  position: absolute;
-  left: 0.2rem;
-  bottom: 1.45rem;
-  padding: 0.1rem 0.24rem;
-  border-radius: 0.25rem;
-  background: #152632ea;
-  color: #e8f787;
-  font-size: 0.59rem;
-  font-weight: 900;
-}
-.scpvp-empty {
-  color: #6c8882;
-  font-size: 1.5rem;
-  font-weight: 950;
-}
-.scpvp-midline {
-  text-align: center;
-  color: #ebd39a;
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  align-self: center;
-}
-.scpvp-controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 0.4rem;
-  min-height: 0;
-}
-.scpvp-hand {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-  gap: 0.35rem;
-  min-width: 0;
-  min-height: 0;
-  height: clamp(8rem, 30vh, 13rem);
-}
-.scpvp-hand-tag {
-  position: absolute;
-  z-index: 6;
-  left: 50%;
-  top: -0.2rem;
-  transform: translate(-50%, -100%);
-  padding: 0.1rem 0.55rem;
-  border-radius: 999px;
-  background: #0c1c22e6;
-  color: #e8f787;
-  font-size: 0.6rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  white-space: nowrap;
-  pointer-events: none;
-}
-.scpvp-card {
-  flex: 0 1 auto;
-  height: 100%;
-  min-width: 0;
-  aspect-ratio: 2 / 3;
-  position: relative;
-  border: 2px solid #526e69;
-  border-radius: 0.5rem;
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s;
-}
-.scpvp-card.selected {
-  border-color: #d9ff6a;
-  transform: translateY(-0.5rem);
-  z-index: 2;
-  --rules-open: 1;
-}
-.scpvp-card.waiting {
-  cursor: zoom-in;
-  filter: saturate(0.85);
-}
-.scpvp-card.inspected {
-  border-color: #ffdb76;
-}
-.scpvp-inspect {
-  position: absolute;
-  z-index: 12;
-  top: 4.4rem;
-  height: min(72%, 36rem);
-  aspect-ratio: 2 / 3;
-  cursor: zoom-out;
-  --rules-open: 1;
-}
-.scpvp-inspect-card {
-  position: absolute;
-  inset: 0;
-  border: 3px solid #d9ff6a;
-  border-radius: 0.9rem;
-  overflow: hidden;
-  box-shadow:
-    0 1.2rem 3rem #000c,
-    0 0 0 1px #000;
-}
-.scpvp-inspect.dock-right {
-  right: 0.9rem;
-}
-.scpvp-inspect.dock-left {
-  left: 0.9rem;
-}
-.scpvp-inspect.peek {
-  pointer-events: none;
-}
-.scpvp-inspect-close {
-  position: absolute;
-  z-index: 2;
-  top: -0.75rem;
-  right: -0.75rem;
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border: 2px solid #d9ff6a;
-  border-radius: 999px;
-  background: #0c1c22;
-  color: #f6faed;
-  font-size: 0.95rem;
-  font-weight: 900;
-}
-.scpvp-pop-enter-active,
-.scpvp-pop-leave-active {
-  transition:
-    opacity 0.18s ease,
-    translate 0.22s cubic-bezier(0.2, 0.9, 0.25, 1.12);
-}
-.scpvp-pop-enter-from,
-.scpvp-pop-leave-to {
-  opacity: 0;
-  translate: 0 0.8rem;
-}
-.scpvp-card:hover,
-.scpvp-card:focus-visible {
-  --rules-open: 1;
-  transform: translateY(-0.35rem);
-  z-index: 3;
-}
-.scpvp-actions {
-  max-width: 13rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-.scpvp-actions p {
-  color: #aabfb8;
-  font-size: 0.65rem;
-}
-.scpvp-actions > button:not(.scpvp-primary),
-.scpvp-choice button {
-  border: 1px solid #7a9687;
-  border-radius: 0.4rem;
-  background: #13252b;
-  font-size: 0.75rem;
-  padding: 0.35rem;
-}
-.scpvp-choice {
-  display: flex;
-  gap: 0.25rem;
-}
-.scpvp-choice button {
-  display: flex;
-  flex: 1 1 0;
-  min-width: 0;
-  flex-direction: column;
-  gap: 0.2rem;
-  text-align: left;
-}
-.scpvp-choice small {
-  font-size: 0.65rem;
-  line-height: 1.3;
-  color: #e4efe9;
-}
-.scpvp-choice button[aria-pressed='true'] {
-  background: #526c2c;
-}
-.scpvp-log {
-  position: absolute;
-  z-index: 10;
-  top: 4.5rem;
-  right: 0.5rem;
-  bottom: 9rem;
-  width: min(22rem, 86%);
-  padding: 0.8rem;
-  background: #0c1c22f2;
-  border: 1px solid #8da69a;
-  border-radius: 0.75rem;
-  overflow-y: auto;
-  font-size: 0.75rem;
-}
-.scpvp-log p {
-  border-bottom: 1px solid #49605e;
-  padding: 0.3rem;
-}
-.scpvp-log small {
-  color: #c9ee5a;
-}
 .scpvp-result {
   height: 100%;
   display: grid;
@@ -1719,140 +1684,656 @@ watch(
   .scpvp-lobby-tools {
     gap: 0.4rem;
   }
-  .scpvp-boss {
-    width: 38%;
+}
+/*
+  Silas, 2026-11-22 PT: full-screen-ish portrait lanes over the map, a hand
+  that floats and toggles instead of taking the board's space, and two
+  floating play icons. The board owns the stage; the boss strip above and
+  the one-row console below stay compact.
+*/
+.scpvp-battle {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.35rem;
+  padding: 0.4rem;
+}
+.scpvp-hud {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.scpvp-boss {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem;
+  border: 1px solid #4d665e99;
+  border-radius: 0.8rem;
+  background: #0c1a1fcc;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.scpvp-boss.active {
+  border-color: #c9ee5a;
+  box-shadow: 0 0 0.9rem #c9ee5a44;
+}
+.scpvp-boss > :first-child {
+  flex: none;
+  width: clamp(2.3rem, 5.5vw, 3.6rem);
+  height: clamp(2.3rem, 5.5vw, 3.6rem);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.scpvp-boss div {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.72rem;
+}
+.scpvp-boss small {
+  color: #c9f56c;
+  font-size: 0.6rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scpvp-boss strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scpvp-boss b {
+  color: #f6b6a3;
+  white-space: nowrap;
+}
+.scpvp-life {
+  display: block;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: #ffffff1f;
+  overflow: hidden;
+}
+.scpvp-life i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #f0686f, #f6b6a3);
+  transition: width 0.4s ease;
+}
+.scpvp-turn {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-weight: 900;
+  color: #d2f364;
+  line-height: 1.15;
+}
+.scpvp-turn small {
+  color: #a9bfb7;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+}
+.scpvp-back,
+.scpvp-flag {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 1.9rem;
+  height: 2.2rem;
+  padding: 0 0.4rem;
+  border: 1px solid #5c99917a;
+  border-radius: 0.5rem;
+  background: #10231f;
+  color: #c9ee5a;
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.scpvp-flag {
+  color: #f6b6a3;
+  font-size: 0.9rem;
+}
+.scpvp-flag.armed {
+  border-color: #ff6f7a;
+  background: #4b1f26;
+  color: #ffd6dc;
+  font-size: 0.6rem;
+}
+.scpvp-sound {
+  flex: none;
+}
+
+.scpvp-arena {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.25rem;
+  padding: 0.35rem;
+  border: 1px solid #566c7088;
+  border-radius: 1rem;
+  background: #0a161926;
+}
+.scpvp-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.2rem, 0.8vw, 0.5rem);
+  min-height: 0;
+}
+.scpvp-row.is-rival {
+  grid-row: 1;
+}
+.scpvp-row.is-mine {
+  grid-row: 3;
+}
+.scpvp-slot {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 2px solid #708b8099;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #0a161966;
+  color: #f3fbf6;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.9, 0.25, 1.12),
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.scpvp-slot.filled {
+  border-color: #9ab6a7;
+  box-shadow: 0 0.4rem 1rem #000a;
+}
+.scpvp-row.is-rival .scpvp-slot.filled {
+  border-color: #d98b8f;
+}
+.scpvp-slot.filled:not(.target) {
+  cursor: zoom-in;
+}
+.scpvp-slot.inspected {
+  border-color: #ffdb76;
+  box-shadow: 0 0 0 2px #ffdb7666;
+}
+.scpvp-slot.target {
+  border-color: #c9ee5a;
+  box-shadow:
+    inset 0 0 1.4rem #c9ee5a55,
+    0 0 0.8rem #c9ee5a66;
+  cursor: copy;
+  animation: scpvp-glow 1.2s ease-in-out infinite alternate;
+}
+.scpvp-row.is-mine .scpvp-slot.lunge {
+  transform: translateY(-9%);
+  z-index: 3;
+}
+.scpvp-row.is-rival .scpvp-slot.lunge {
+  transform: translateY(9%);
+  z-index: 3;
+}
+.scpvp-slot.hit {
+  animation: scpvp-shake 0.36s ease;
+}
+.scpvp-slot > .slime-art {
+  position: absolute;
+  inset: 0;
+}
+.scpvp-slot > .slime-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    #0008,
+    transparent 22%,
+    transparent 62%,
+    #050d11e6
+  );
+}
+.scpvp-stats {
+  position: absolute;
+  inset: 0.25rem 0.25rem auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.2rem;
+  font-size: clamp(0.72rem, 1.9vw, 1.2rem);
+  font-weight: 950;
+  line-height: 1;
+}
+.scpvp-stats b {
+  padding: 0.15rem 0.3rem;
+  border-radius: 0.4rem;
+  background: #0b1719e0;
+  white-space: nowrap;
+}
+.scpvp-stats .is-attack {
+  color: #ffe08a;
+}
+.scpvp-stats .is-life {
+  color: #ffb3b8;
+}
+.scpvp-stats .is-life.low {
+  color: #ff6f7a;
+}
+.scpvp-tags {
+  position: absolute;
+  inset: calc(0.5rem + clamp(0.72rem, 1.9vw, 1.2rem) + 0.3rem) 0.25rem auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+.scpvp-tag {
+  padding: 0.12rem 0.32rem;
+  border-radius: 0.35rem;
+  background: #0b1719e6;
+  font-size: clamp(0.5rem, 1.15vw, 0.7rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.scpvp-tag.is-new {
+  color: #9fd3ff;
+}
+.scpvp-tag.is-tap {
+  background: #c9ee5a;
+  color: #10200b;
+}
+.scpvp-tag.is-ambush {
+  color: #ffe08a;
+}
+.scpvp-tag.is-stun {
+  color: #ff9aa0;
+}
+.scpvp-tag.is-armor,
+.scpvp-tag.is-guard {
+  color: #cfe7ff;
+}
+.scpvp-unit-label {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.3rem 0.2rem;
+  font-size: clamp(0.55rem, 1.25vw, 0.85rem);
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  text-shadow: 0 1px 3px #000;
+}
+.scpvp-unit-label i {
+  color: #ffdb76;
+  font-style: normal;
+  font-size: 0.85em;
+}
+.scpvp-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #8aa59e;
+  font-size: clamp(1rem, 3vw, 2rem);
+  font-weight: 950;
+  opacity: 0.7;
+}
+.scpvp-slot.target .scpvp-empty {
+  color: #e8ff9a;
+  font-size: clamp(0.6rem, 1.4vw, 0.9rem);
+  letter-spacing: 0.1em;
+  opacity: 1;
+}
+.scpvp-own-trap {
+  position: absolute;
+  left: 0.25rem;
+  bottom: 2.4rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.3rem;
+  background: #152632ea;
+  color: #e8f787;
+  font-size: 0.6rem;
+  font-weight: 900;
+}
+.scpvp-float {
+  position: absolute;
+  inset: 40% 0 auto;
+  z-index: 4;
+  color: #ff6f7a;
+  font-size: clamp(1.1rem, 3vw, 2rem);
+  font-weight: 950;
+  text-align: center;
+  text-shadow:
+    0 2px 0 #000,
+    0 0 0.6rem #000;
+  animation: scpvp-float 0.9s ease-out forwards;
+  pointer-events: none;
+}
+
+.scpvp-midline {
+  grid-row: 2;
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-width: 0;
+  min-height: 1.9rem;
+  pointer-events: none;
+}
+.scpvp-pips {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid #c9ee5a88;
+  border-radius: 999px;
+  background: #0c1c22f0;
+  box-shadow: 0 0.3rem 1rem #000c;
+}
+.scpvp-pips small {
+  color: #e8ff9a;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+.scpvp-pip {
+  width: 0.95rem;
+  height: 1.35rem;
+  border: 2px solid #c9ee5a;
+  border-radius: 0.25rem;
+  background: linear-gradient(160deg, #e8ff9a, #8fc23a);
+  box-shadow: 0 0 0.6rem #c9ee5a99;
+  transition:
+    background 0.25s,
+    box-shadow 0.25s,
+    opacity 0.25s;
+}
+.scpvp-pip.used {
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.45;
+}
+.scpvp-pip.is-free {
+  border-color: #ffdb76;
+  background: linear-gradient(160deg, #fff0b3, #e3a93a);
+  box-shadow: 0 0 0.6rem #ffdb7699;
+}
+.scpvp-pips.rival {
+  border-color: #d98b8f88;
+}
+.scpvp-pips.rival .scpvp-pip {
+  border-color: #d98b8f;
+  background: linear-gradient(160deg, #ffc2c6, #c45a62);
+  box-shadow: none;
+}
+.scpvp-pips.rival .scpvp-pip.used {
+  background: transparent;
+}
+.scpvp-pips.rival small {
+  color: #ffc2c6;
+}
+.scpvp-ticker {
+  min-width: 0;
+  max-width: 46rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.5rem;
+  background: #0c1c22d9;
+  color: #dceee6;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+.scpvp-ticker.warn {
+  color: #ffd38a;
+}
+
+.scpvp-console {
+  position: relative;
+  z-index: 8;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+.scpvp-hand-dock {
+  flex: none;
+  display: flex;
+}
+.scpvp-choice {
+  flex: 2 1 0;
+  min-width: 0;
+  display: flex;
+  gap: 0.25rem;
+}
+.scpvp-choice button {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #7a9687;
+  border-radius: 0.5rem;
+  background: #13252bee;
+  text-align: left;
+}
+.scpvp-choice b {
+  font-size: 0.68rem;
+}
+.scpvp-choice small {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: #e4efe9;
+  font-size: 0.6rem;
+  line-height: 1.25;
+}
+.scpvp-choice button[aria-checked='true'] {
+  border-color: #c9ee5a;
+  background: #3d5420;
+}
+.scpvp-tap,
+.scpvp-power,
+.scpvp-log-toggle {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #7a9687;
+  border-radius: 0.6rem;
+  background: #13252bee;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+.scpvp-tap {
+  border-color: #c9ee5a;
+  color: #e8ff9a;
+}
+.scpvp-power {
+  max-width: 13rem;
+}
+.scpvp-power span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scpvp-power.armed {
+  border-color: #c9ee5a;
+  background: #3d5420;
+}
+.scpvp-power.spent,
+.scpvp-tap:disabled,
+.scpvp-power:disabled {
+  opacity: 0.45;
+}
+.scpvp-fight {
+  flex: 1 1 auto;
+  max-width: 18rem;
+  margin-left: auto;
+  padding: 0.55rem 1rem;
+  border-radius: 0.8rem;
+  background: #c4f25d;
+  color: #111b15;
+  font-size: 1rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+}
+.scpvp-fight.ready {
+  animation: scpvp-glow 1s ease-in-out infinite alternate;
+}
+.scpvp-fight:disabled {
+  background: #33463a;
+  color: #a9bfb7;
+}
+.scpvp-log {
+  position: absolute;
+  z-index: 12;
+  top: 4rem;
+  right: 0.5rem;
+  bottom: 4.2rem;
+  width: min(22rem, 86%);
+  padding: 0.8rem;
+  border: 1px solid #8da69a;
+  border-radius: 0.75rem;
+  background: #0c1c22f2;
+  overflow-y: auto;
+  font-size: 0.75rem;
+}
+.scpvp-log p {
+  padding: 0.3rem;
+  border-bottom: 1px solid #49605e;
+}
+.scpvp-log small {
+  color: #c9ee5a;
+}
+@keyframes scpvp-glow {
+  from {
+    box-shadow:
+      inset 0 0 0.8rem #c9ee5a33,
+      0 0 0.4rem #c9ee5a44;
   }
-  .scpvp-boss strong {
-    font-size: 0.62rem;
+  to {
+    box-shadow:
+      inset 0 0 1.6rem #c9ee5a66,
+      0 0 1rem #c9ee5a88;
   }
-  .scpvp-boss small {
-    display: none;
+}
+@keyframes scpvp-shake {
+  25% {
+    translate: -4px 0;
   }
-  .scpvp-turn {
-    font-size: 0.65rem;
+  50% {
+    translate: 4px 0;
   }
+  75% {
+    translate: -2px 0;
+  }
+}
+@keyframes scpvp-float {
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+  to {
+    opacity: 0;
+    translate: 0 -2.4rem;
+  }
+}
+@media (max-width: 690px) {
   .scpvp-battle {
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 0.25rem;
+    padding: 0.25rem 0.25rem 0.3rem;
   }
-  .scpvp-controls {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .scpvp-actions {
-    max-width: none;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .scpvp-actions p {
-    flex-basis: 100%;
-  }
-  .scpvp-actions > button {
-    flex: 1;
-  }
-  .scpvp-battle {
-    gap: 0.3rem;
-    padding: 0.3rem 0.3rem 0;
-    overflow: clip;
-  }
-  .scpvp-versus {
-    gap: 0.3rem;
+  .scpvp-hud {
+    gap: 0.25rem;
   }
   .scpvp-boss {
-    flex: 1 1 0;
-    width: auto;
+    gap: 0.25rem;
     padding: 0.15rem;
   }
   .scpvp-boss > :first-child {
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+  .scpvp-boss strong,
+  .scpvp-boss small {
+    display: none;
+  }
+  .scpvp-sound :deep(.sc-sound-word) {
+    display: none;
   }
   .scpvp-boss b {
-    white-space: nowrap;
-    font-size: 0.7rem;
+    font-size: 0.66rem;
   }
   .scpvp-turn {
-    flex: none;
-    max-width: 5.2rem;
-    line-height: 1.1;
+    max-width: 4.6rem;
+    font-size: 0.6rem;
   }
   .scpvp-turn small {
-    font-size: 0.52rem;
-  }
-  .scpvp-field {
-    padding: 0.3rem;
-    gap: 0.2rem;
-  }
-  .scpvp-midline {
     font-size: 0.5rem;
   }
-  .scpvp-controls {
-    display: flex;
-    flex-direction: column-reverse;
+  .scpvp-arena {
+    padding: 0.2rem;
+  }
+  .scpvp-slot {
+    border-radius: 0.5rem;
+  }
+  .scpvp-unit-label {
+    font-size: 0.5rem;
+  }
+  .scpvp-tag {
+    padding: 0.08rem 0.2rem;
+    font-size: 0.48rem;
+  }
+  .scpvp-ticker {
+    font-size: 0.6rem;
+  }
+  .scpvp-midline {
     gap: 0.3rem;
   }
-  .scpvp-actions {
-    flex-wrap: nowrap;
-    gap: 0.3rem;
-  }
-  .scpvp-actions p {
+  .scpvp-pips small {
     display: none;
   }
-  .scpvp-actions > button {
-    padding: 0.5rem 0.4rem;
-    font-size: 0.68rem;
-  }
-  .scpvp-actions > .scpvp-primary {
-    flex: 2;
+  .scpvp-console {
+    flex-wrap: wrap;
   }
   .scpvp-choice {
-    flex: 2;
+    flex-basis: 100%;
+    order: -1;
   }
-  .scpvp-hand {
-    justify-content: center;
-    align-items: flex-end;
-    gap: 0;
-    height: 7.4rem;
-    overflow: visible;
-  }
-  .scpvp-card {
-    flex: 0 0 auto;
-    width: min(29vw, 8.5rem);
-    height: auto;
-    max-height: none;
-    margin-left: -13.5vw;
-    align-self: flex-start;
-    box-shadow: 0 -4px 14px #000a;
-  }
-  .scpvp-card:first-of-type {
-    margin-left: 0;
-  }
-  .scpvp-hand-tag {
+  .scpvp-power span {
     display: none;
   }
-  .scpvp-inspect {
-    top: 3rem;
-    height: auto;
-    width: min(66vw, 17rem);
-  }
-  .scpvp-inspect.dock-left,
-  .scpvp-inspect.dock-right {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-  }
-  .scpvp-card:hover,
-  .scpvp-card:focus-visible {
-    transform: translateY(-0.4rem);
-  }
-  .scpvp-card.selected {
-    transform: translateY(-48%) scale(1.18);
-    z-index: 5;
+  .scpvp-tap,
+  .scpvp-power,
+  .scpvp-log-toggle {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.68rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scpvp-card,
-  .scpvp-pop-enter-active,
-  .scpvp-pop-leave-active {
+  .scpvp-slot,
+  .scpvp-slot.target,
+  .scpvp-slot.hit,
+  .scpvp-fight.ready,
+  .scpvp-float {
+    animation: none;
     transition: none;
   }
 }

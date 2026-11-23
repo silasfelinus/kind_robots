@@ -38,7 +38,7 @@
           class="cxh-card"
           :class="{
             big: big === index,
-            dim: !playable(cardId),
+            dim: ready && !playable(cardId),
             dragging: drag?.index === index && drag.moved,
           }"
           :style="
@@ -54,7 +54,7 @@
             (isFree(cardId) ? 'Free play. ' : '') +
             clashCardText(
               cardById(cardId),
-              clashLevel(game, 'player', cardId),
+              clashLevel(game, me, cardId),
               held === index ? choicePick : undefined,
             )
           "
@@ -70,12 +70,12 @@
             :level="
               big === index && previewLevel
                 ? previewLevel
-                : clashLevel(game, 'player', cardId)
+                : clashLevel(game, me, cardId)
             "
             :preview="
               big === index &&
               !!previewLevel &&
-              previewLevel !== clashLevel(game, 'player', cardId)
+              previewLevel !== clashLevel(game, me, cardId)
             "
           />
           <span
@@ -191,7 +191,7 @@
             "
         /></span>
         <b>{{ cards.length }}</b>
-        <small>{{ game.decks.player.length }} DECK</small>
+        <small>{{ game.decks[me].length }} DECK</small>
       </button>
     </Teleport>
   </div>
@@ -225,30 +225,42 @@ const props = defineProps<{
   } | null
   /** Equipped crew card-back frame (slime-city/t-065); default back if absent. */
   backFrame?: { name: string; background: string } | null
+  /** The seat whose hand this is: a VS duel guest plays the 'enemy' seat. */
+  side?: Side
+  /**
+   * VS duels deal the next hand at turn end (Silas, 2026-11-22 PT: "you
+   * should see your new hand at the end of a round"): show it open off-turn
+   * too, still closable from the deck icon.
+   */
+  openOffTurn?: boolean
 }>()
 const emit = defineEmits<{
   pick: [index: number | null]
   drop: [index: number, side: Side, lane: number]
 }>()
 
-const cards = computed(() => props.game.hands.player)
+const me = computed<Side>(() => props.side ?? 'player')
+const cards = computed(() => props.game.hands[me.value])
 const ready = computed(
   () =>
     !props.game.victor &&
-    props.game.active === 'player' &&
+    props.game.active === me.value &&
     props.game.phase === 'play',
 )
 const userClosed = ref(false)
 const userPeek = ref(false)
 const isOpen = computed(() =>
-  ready.value ? !userClosed.value : userPeek.value && cards.value.length > 0,
+  ready.value
+    ? !userClosed.value
+    : (props.openOffTurn ? !userClosed.value : userPeek.value) &&
+      cards.value.length > 0,
 )
 watch(ready, (now) => {
   userClosed.value = false
   if (now) userPeek.value = false
 })
 function toggle(): void {
-  if (ready.value) userClosed.value = !userClosed.value
+  if (ready.value || props.openOffTurn) userClosed.value = !userClosed.value
   else userPeek.value = !userPeek.value
   if (!isOpen.value) emit('pick', null)
 }
@@ -295,7 +307,7 @@ const peekCard = computed<{
     return {
       id,
       note: '',
-      level: clashLevel(props.game, 'player', id),
+      level: clashLevel(props.game, me.value, id),
       dock: index! < cards.value.length / 2 ? 'right' : 'left',
     }
   return props.inspect?.hover
@@ -304,7 +316,7 @@ const peekCard = computed<{
 })
 const shown = computed<{ id: string; level: number } | null>(() => {
   const id = big.value === null ? null : cards.value[big.value]
-  if (id) return { id, level: clashLevel(props.game, 'player', id) }
+  if (id) return { id, level: clashLevel(props.game, me.value, id) }
   return inspectCard.value
     ? { id: inspectCard.value.id, level: inspectCard.value.level }
     : null
@@ -317,17 +329,17 @@ watch(
 function isFree(id: string): boolean {
   return (
     ready.value &&
-    clashEffectivePlayCost(props.game, 'player', cardById(id)) === 0
+    clashEffectivePlayCost(props.game, me.value, cardById(id)) === 0
   )
 }
 function playable(id: string): boolean {
   return (
     ready.value &&
-    clashEffectivePlayCost(props.game, 'player', cardById(id)) +
-      props.game.plays.player <=
-      clashPlayLimit(props.game, 'player') &&
+    clashEffectivePlayCost(props.game, me.value, cardById(id)) +
+      props.game.plays[me.value] <=
+      clashPlayLimit(props.game, me.value) &&
     Array.from({ length: CLASH_LANES }, (_, lane) => lane).some((lane) =>
-      canClashPlay(props.game, 'player', id, lane),
+      canClashPlay(props.game, me.value, id, lane),
     )
   )
 }
@@ -347,7 +359,7 @@ function fanStyle(index: number): Record<string, string> {
 const lastPlayed = computed(() => {
   for (let i = props.game.commands.length - 1; i >= 0; i--) {
     const c = props.game.commands[i]!
-    if (c.t === 'play' && c.side === 'player') return c.card
+    if (c.t === 'play' && c.side === me.value) return c.card
     if (c.t === 'end') return null
   }
   return null
@@ -358,8 +370,8 @@ watch(
   () => props.game.commands.length,
   (now, before) => {
     const c = props.game.commands[now - 1]
-    if (now <= before || c?.t !== 'play' || c.side !== 'player') return
-    const level = clashLevel(props.game, 'player', c.card)
+    if (now <= before || c?.t !== 'play' || c.side !== me.value) return
+    const level = clashLevel(props.game, me.value, c.card)
     toast.value = {
       key: now,
       text: cardById(c.card).name + ' · LV ' + level,
@@ -668,6 +680,17 @@ function tap(index: number): void {
 }
 .cxh-levels button.now:not(.on) {
   color: #b9f151;
+}
+/* Narrow boards (phones, the VS duel's portrait lanes) keep all three tabs on screen. */
+@container (max-width: 520px) {
+  .cxh-levels button {
+    min-width: 2.5rem;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.68rem;
+  }
+  .cxh-levels button small {
+    display: none;
+  }
 }
 @keyframes cxh-tabs {
   from {

@@ -8,7 +8,7 @@ import {
   type ClashOptions,
   type ClashState,
 } from './clash'
-import { CARDS, TEAMS, type Side, type TeamId } from './prototypes'
+import { CARDS, TEAMS, type Card, type Side, type TeamId } from './prototypes'
 
 export const PVP_MODE = 'clash-pvp'
 export const PVP_MAX_COMMANDS = 2000
@@ -438,4 +438,78 @@ export function sortPvpGames(games: PvpGameSummary[]): PvpGameSummary[] {
   return [...games].sort(
     (a, b) => rank(a) - rank(b) || b.lastActionAt.localeCompare(a.lastActionAt),
   )
+}
+
+/**
+ * A duel board as an engine-shaped state for the viewer's own seat, so the
+ * shared Clash hand and the legality helpers work client-side. Hidden zones
+ * (rival hand, decks, discards) are placeholders of the right size; the
+ * server stays the only authority on every move.
+ */
+export function pvpClashView(
+  board: PvpBoard,
+  seat: Side,
+  hostTeam: TeamId,
+  guestTeam: TeamId,
+): ClashState {
+  const hidden = (count: number) => Array.from({ length: count }, () => '')
+  const bySeat = <T>(mine: T, theirs: T): Record<Side, T> =>
+    seat === 'player'
+      ? { player: mine, enemy: theirs }
+      : { player: theirs, enemy: mine }
+  return {
+    seed: 0,
+    rng: 0,
+    teams: { player: hostTeam, enemy: guestTeam },
+    round: board.round,
+    active: board.active,
+    phase: board.phase,
+    plays: { ...board.plays },
+    freePlays: {
+      player: board.freePlays?.player ?? 0,
+      enemy: board.freePlays?.enemy ?? 0,
+    },
+    boss: { ...board.boss },
+    decks: bySeat(hidden(board.deckCount), hidden(board.opponentDeckCount)),
+    hands: bySeat([...board.hand], hidden(board.opponentHandCount)),
+    discards: bySeat(
+      hidden(board.discardCount),
+      hidden(board.opponentDiscardCount),
+    ),
+    units: board.units.map(({ power: _power, ...unit }) => ({
+      ...unit,
+      keywords: [...unit.keywords],
+      gear: [...unit.gear],
+    })),
+    traps: board.traps.map((trap) => ({ ...trap })),
+    log: board.log.map((entry) => ({ ...entry })),
+    cursor: board.cursor,
+    strike: board.strike ? { ...board.strike } : null,
+    victor: board.victor,
+    nextUid: 0,
+    commands: [],
+    levels: bySeat({ ...board.levels }, {}),
+    deathMarks: { player: {}, enemy: {} },
+    fallen: { player: [], enemy: [] },
+    ...(board.format ? { format: board.format } : {}),
+    ...(board.powersUsed
+      ? {
+          powersUsed: {
+            player: [...board.powersUsed.player],
+            enemy: [...board.powersUsed.enemy],
+          },
+        }
+      : {}),
+  }
+}
+
+/** Which row a card lands on: fighters, traps and buffs mine, the rest theirs. */
+export function pvpCardRow(card: Card): 'own' | 'rival' {
+  if (card.kind === 'creature' || card.kind === 'trap') return 'own'
+  if (
+    card.kind === 'equipment' ||
+    ['heal', 'armor', 'sharpen', 'boost', 'grant'].includes(card.effect ?? '')
+  )
+    return 'own'
+  return 'rival'
 }

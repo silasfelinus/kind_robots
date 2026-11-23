@@ -212,6 +212,74 @@ assert.ok(
   'the romance goal finds a possible romance',
 )
 
+// ── Player-earned relationship knowledge must govern party-planner hints ─
+const undiscovered = { supports: [], romances: [], values: {} }
+const hiddenScore = scoreParty(
+  hero('corso'),
+  ['idris'],
+  'balanced',
+  undiscovered,
+)
+assert.ok(
+  !hiddenScore.lines.some(
+    (line) => line.label === 'Old Flame' || /possible romance/.test(line.label),
+  ),
+  'the optimizer must not spoil old relationships or compatibility',
+)
+const discoveredScore = scoreParty(hero('corso'), ['idris'], 'balanced', {
+  supports: ['corso+idris'],
+  romances: ['idris'],
+  values: {},
+})
+assert.ok(
+  discoveredScore.lines.some((line) => line.label === 'Old Flame'),
+  'a support scene should unlock the corresponding planner bonus',
+)
+assert.ok(
+  discoveredScore.lines.some((line) => /possible romance/.test(line.label)),
+  'a completed romance can be used for future party planning',
+)
+assert.ok(
+  discoveredScore.total > hiddenScore.total,
+  'earned knowledge changes recommendations, without changing combat rules',
+)
+assert.ok(
+  optimizeParty(hero('corso'), 'balanced', 3, [1, 2], undiscovered).every(
+    (party) =>
+      party.lines.every(
+        (line) =>
+          !SUPPORTS.some((support) => support.name === line.label) &&
+          !/possible romance/.test(line.label),
+      ),
+  ),
+  'optimizer suggestions must respect the same discovery barrier',
+)
+const discoveredChronicle = decodeChronicle(
+  JSON.stringify({
+    ...emptyChronicle(),
+    supports: ['corso+idris'],
+    romances: ['idris'],
+    values: { idris: ['kind'] },
+  }),
+)
+assert.deepEqual(discoveredChronicle?.values.idris, ['kind'])
+assert.deepEqual(discoveredChronicle?.romances, ['idris'])
+const romanceScene = DEEPHEART.moments.find(
+  (moment) => moment.id === romanceMoment('idris'),
+)
+assert.ok(
+  romanceScene?.art.src,
+  'a romance unlock must have its actual painted scene for the delve',
+)
+const oldFlameMoment = DEEPHEART.moments.find(
+  (moment) => moment.id === SUPPORT_MOMENTS['corso+idris'],
+)
+assert.deepEqual(
+  [...(oldFlameMoment?.about ?? [])].sort(),
+  ['corso', 'idris'],
+  'the support moment must name both companions for illustrated fallback',
+)
+
 // ── Original delvers and meaningful party ability checks ────────────────
 const customHero: HeroSetup = {
   presetId: CUSTOM_HERO_ID,

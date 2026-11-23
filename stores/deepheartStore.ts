@@ -26,9 +26,16 @@ import {
   optimizeParty,
   scoreParty,
   type PartyGoal,
+  type PartyKnowledge,
   type PartyScore,
 } from '~/utils/deepheart/party'
-import { CHARACTERS, ROLES, character } from '~/utils/deepheart/roster'
+import {
+  CHARACTERS,
+  ROLES,
+  VALUE_LABEL,
+  character,
+  shortName,
+} from '~/utils/deepheart/roster'
 import { CUSTOM_HERO_ID, CUSTOM_STAT_POINTS } from '~/utils/deepheart/types'
 import type {
   EndingId,
@@ -100,6 +107,8 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   const suggestions = ref<PartyScore[]>([])
   const focus = ref<string>('idris')
   const lastLine = ref('')
+  const lastMoment = ref<string | null>(null)
+  const lastFaces = ref<string[]>([])
   const roleFilter = ref<string>('all')
 
   const kit = () => usePlaybookKitStore()
@@ -298,9 +307,23 @@ export const useDeepheartStore = defineStore('deepheart', () => {
       companions.value = [...companions.value, id]
   }
 
+  const knownParty = computed<PartyKnowledge>(() => ({
+    supports: chronicle.value.supports,
+    romances: chronicle.value.romances,
+    values: chronicle.value.values,
+  }))
+
   function optimize(next?: PartyGoal) {
     if (next) goal.value = next
-    suggestions.value = optimizeParty(hero.value, goal.value, 3)
+    // The optimizer should not know the player's undiscovered friendships
+    // or romantic compatibility, even though those bonuses are real in combat.
+    suggestions.value = optimizeParty(
+      hero.value,
+      goal.value,
+      3,
+      [1, 2, 3],
+      knownParty.value,
+    )
   }
 
   function useSuggestion(score: PartyScore) {
@@ -309,7 +332,7 @@ export const useDeepheartStore = defineStore('deepheart', () => {
   }
 
   const partyScore = computed(() =>
-    scoreParty(hero.value, companions.value, goal.value),
+    scoreParty(hero.value, companions.value, goal.value, knownParty.value),
   )
   const builderSynergies = computed(() =>
     activeSynergies([hero.value.presetId, ...companions.value]),
@@ -337,6 +360,9 @@ export const useDeepheartStore = defineStore('deepheart', () => {
 
   function newGame() {
     load()
+    lastLine.value = ''
+    lastMoment.value = null
+    lastFaces.value = []
     screen.value = 'builder'
   }
 
@@ -347,6 +373,8 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     chronicle.value = recordStart(chronicle.value, run.value)
     persistChronicle()
     lastLine.value = ''
+    lastMoment.value = null
+    lastFaces.value = []
     screen.value = 'delve'
     commit(0)
   }
@@ -420,7 +448,24 @@ export const useDeepheartStore = defineStore('deepheart', () => {
       ? engine.currentEvent(current)?.options.find((entry) => entry.id === id)
       : null
     const before = current?.choices.length ?? 0
-    step((r) => engine.chooseOption(r, id))
+    step((r) => {
+      engine.chooseOption(r, id)
+      if (!option?.tag || r.choices.length === before) return
+      for (const member of r.companions) {
+        const c = character(member)
+        const verdict = c.likes.includes(option.tag)
+          ? 'likes'
+          : c.dislikes === option.tag
+            ? 'dislikes'
+            : null
+        if (!verdict || chronicle.value.values[member]?.includes(option.tag))
+          continue
+        r.notices.push({
+          tone: verdict === 'likes' ? 'heart' : 'info',
+          text: `Discovered: ${shortName(c)} ${verdict} ${VALUE_LABEL[option.tag]}.`,
+        })
+      }
+    })
     if (!option?.tag || !run.value || run.value.choices.length === before)
       return
     const values = { ...chronicle.value.values }
@@ -433,15 +478,34 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     persistChronicle()
   }
   const equip = (id: string | null) => step((r) => engine.equipLoot(r, id))
-  const leaveCamp = () => step((r) => engine.leaveCamp(r))
+  const leaveCamp = () => {
+    lastLine.value = ''
+    lastMoment.value = null
+    lastFaces.value = []
+    step((r) => engine.leaveCamp(r))
+  }
   const chooseEnding = (e: EndingId) => step((r) => engine.chooseEnding(r, e))
   const chooseCourtOption = (id: string) =>
     step((r) => engine.chooseCourtOption(r, id))
 
   function campAction(option: engine.CampOption) {
+    const before = run.value?.moments.length ?? 0
     step((r) => {
       lastLine.value = engine.campAction(r, option)
     })
+    const current = run.value
+    lastMoment.value =
+      current && current.moments.length > before
+        ? (current.moments.at(-1) ?? null)
+        : null
+    // Not every support conversation has a separate approved painting.
+    // In those cases display the participants' real rendered portraits.
+    lastFaces.value =
+      option.kind === 'support'
+        ? option.key.split('+')
+        : 'id' in option
+          ? [option.id]
+          : []
     if (option.kind !== 'romance' || !run.value?.partners.includes(option.id))
       return
     const c = character(option.id)
@@ -496,6 +560,8 @@ export const useDeepheartStore = defineStore('deepheart', () => {
     suggestions,
     focus,
     lastLine,
+    lastMoment,
+    lastFaces,
     roleFilter,
     romanceOn,
     autosave,

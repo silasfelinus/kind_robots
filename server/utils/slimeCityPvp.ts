@@ -17,6 +17,12 @@ import {
   pvpCommand,
   pvpRules,
   replayPvp,
+  replayPvpTrail,
+  pvpRevision,
+  pvpTakeBack,
+  pvpTakebacks,
+  pvpTakebackState,
+  PVP_TAKEBACK_CHOICES,
   stepPvp,
   type PvpRecord,
   type PvpSnapshot,
@@ -87,8 +93,8 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
     ? 'enemy'
     : seatFor(row, record, userId)
   const joined = record.guestId !== null
-  const state = joined
-    ? replayPvp(
+  const trail = joined
+    ? replayPvpTrail(
         row.teamId as TeamId,
         row.foeId as TeamId,
         row.seed,
@@ -96,6 +102,12 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
         pvpRules(record),
       )
     : null
+  const state = trail?.state ?? null
+  const mine =
+    !!state &&
+    !state.victor &&
+    !row.settledAt &&
+    state.active === seat
   return {
     id: row.id,
     seat,
@@ -109,7 +121,19 @@ function snapshot(row: Row, record: PvpRecord, userId: number): PvpSnapshot {
     challenge: !!record.invitedId,
     open: !!record.isPublic,
     board: state ? pvpBoard(state, seat) : null,
-    revision: record.commands.length,
+    revision: pvpRevision(record),
+    takebacks: pvpTakebacks(record),
+    takeback: mine
+      ? pvpTakebackState(
+          row.teamId as TeamId,
+          row.foeId as TeamId,
+          row.seed,
+          record,
+          seat,
+          state,
+        )
+      : null,
+    strikes: trail?.strikes ?? [],
     outcome: row.settledAt
       ? (row.result as PvpSnapshot['outcome'])
       : (state?.victor ?? null),
@@ -138,8 +162,11 @@ export async function createSlimeCityDuel(
   team: unknown,
   friendId?: unknown,
   isPublic?: unknown,
+  takebacks?: unknown,
 ) {
   if (!isPvpTeam(team)) return fail(400, 'Choose a Slime City crew.')
+  if (takebacks !== undefined && !PVP_TAKEBACK_CHOICES.includes(takebacks as 0))
+    return fail(400, 'Choose how many take-backs a turn allows.')
   if (isPublic !== undefined && typeof isPublic !== 'boolean')
     return fail(400, 'Choose an open or private duel.')
   if (isPublic && friendId !== undefined && friendId !== null)
@@ -183,6 +210,7 @@ export async function createSlimeCityDuel(
         version: 1,
         guestId: null,
         dealEarly: true,
+        takebacks: (takebacks as number | undefined) ?? 1,
         ...(invitedId ? { invitedId } : {}),
         ...(isPublic ? { isPublic: true } : {}),
         lastActionAt: new Date().toISOString(),
@@ -421,10 +449,35 @@ export async function commandSlimeCityDuel(
     if (record.guestId === null) return fail(409, 'Waiting for a rival.')
     if (row.settledAt || record.forfeitedBy)
       return fail(409, 'This duel has already ended.')
-    if (record.commands.length !== revision)
+    if (pvpRevision(record) !== revision)
       return fail(409, 'The duel advanced on another device. Reload the turn.')
     if (record.commands.length >= PVP_MAX_COMMANDS)
       return fail(409, 'Duel command limit reached.')
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      (raw as Record<string, unknown>).t === 'undo'
+    ) {
+      if (Object.keys(raw).length !== 1)
+        return fail(400, 'Invalid battle command.')
+      const taken = pvpTakeBack(
+        row.teamId as TeamId,
+        row.foeId as TeamId,
+        row.seed,
+        record,
+        seat,
+      )
+      if ('error' in taken) return fail(409, taken.error)
+      const undone: PvpRecord = {
+        ...taken.record,
+        lastActionAt: new Date().toISOString(),
+      }
+      const updated = await tx.slimeCityMatch.update({
+        where: { id },
+        data: { commands: asJson(undone) },
+      })
+      return snapshot(updated, undone, userId)
+    }
     const command = pvpCommand(raw, seat)
     if (!command) return fail(400, 'Invalid battle command.')
     const before = replayPvp(

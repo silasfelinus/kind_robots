@@ -119,3 +119,27 @@ export function writeClashSpeedPreference(speed: ClashSpeed): void {
     // Storage can be disabled; the in-memory choice still works.
   }
 }
+
+const TAKEBACK_KEY = 'kr-slime-city-duel-takebacks-v1'
+
+/** The take-back allowance this player last chose for new VS duels. */
+export function readTakebackPreference(): number | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const value = window.localStorage.getItem(TAKEBACK_KEY)
+    return value === '0' || value === '1' || value === '99'
+      ? Number(value)
+      : null
+  } catch {
+    return null
+  }
+}
+
+export function writeTakebackPreference(value: number): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(TAKEBACK_KEY, String(value))
+  } catch {
+    // Storage can be disabled; the in-memory choice still works.
+  }
+}

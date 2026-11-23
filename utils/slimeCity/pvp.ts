@@ -50,7 +50,163 @@ export interface PvpRecord {
   forfeitedBy?: Side
   /** Duels created after 2026-11-22 PT deal each next hand at turn end. */
   dealEarly?: boolean
+  /**
+   * Silas, 2026-11-22 PT: "There should be a back button if it's your turn,
+   * with options for more depending on game options at start." Take-backs
+   * allowed per turn: 0 off, 1, or PVP_TAKEBACKS_ANY. Absent means 1.
+   */
+  takebacks?: number
+  /** Take-backs used so far; keeps the duel revision moving forward. */
+  undone?: number
+  /** Take-backs used in the current turn, keyed `round:side`. */
+  undoneThisTurn?: { key: string; count: number }
   commands: ClashCommand[]
+}
+
+export const PVP_TAKEBACKS_ANY = 99
+export const PVP_TAKEBACK_CHOICES = [0, 1, PVP_TAKEBACKS_ANY] as const
+
+/** The duel's take-back allowance per turn. */
+export function pvpTakebacks(record: Pick<PvpRecord, 'takebacks'>): number {
+  return record.takebacks ?? 1
+}
+
+/**
+ * The optimistic-concurrency revision. Every move adds one command and every
+ * take-back removes one while counting itself twice, so the number only ever
+ * grows and a stale tab can never match a newer board.
+ */
+export function pvpRevision(
+  record: Pick<PvpRecord, 'commands' | 'undone'>,
+): number {
+  return record.commands.length + 2 * (record.undone ?? 0)
+}
+
+/** One resolved alley strike, for replaying a rival's sweep alley by alley. */
+export interface PvpStrike {
+  /** The duel's command count right after this strike. */
+  at: number
+  strike: NonNullable<ClashState['strike']>
+}
+
+/** Replay a duel and keep its most recent public strikes. */
+export function replayPvpTrail(
+  host: TeamId,
+  guest: TeamId,
+  seed: number,
+  commands: ClashCommand[],
+  rules: Pick<ClashOptions, 'dealEarly'> = {},
+  keep = 12,
+): { state: ClashState; strikes: PvpStrike[] } {
+  let state = createClash(host, guest, seed, rules)
+  const strikes: PvpStrike[] = []
+  const from = commands.length - keep
+  commands.forEach((command, index) => {
+    state = applyClashCommand(state, command)
+    if (index >= from && command.t === 'strike' && state.strike)
+      strikes.push({ at: index + 1, strike: { ...state.strike } })
+  })
+  return { state, strikes }
+}
+
+export interface PvpTakeback {
+  allowed: number
+  left: number
+  /** Why the last move cannot be taken back, or null when it can. */
+  blocked: string | null
+}
+
+/**
+ * Whether `seat` may take back its last move. Only a card play, power or tap
+ * in the current play phase, within the turn's allowance, and only when the
+ * move revealed nothing: no dice rolled, no card drawn, no rival trap sprung
+ * and no rival card touched. A take-back can never be used to peek.
+ */
+export function pvpTakebackState(
+  host: TeamId,
+  guest: TeamId,
+  seed: number,
+  record: PvpRecord,
+  seat: Side,
+  current?: ClashState,
+): PvpTakeback {
+  const allowed = pvpTakebacks(record)
+  const now =
+    current ?? replayPvp(host, guest, seed, record.commands, pvpRules(record))
+  const key = now.round + ':' + seat
+  const used =
+    record.undoneThisTurn?.key === key ? record.undoneThisTurn.count : 0
+  const left = Math.max(0, allowed - used)
+  const result = (blocked: string | null): PvpTakeback => ({
+    allowed,
+    left,
+    blocked,
+  })
+  if (!allowed) return result('Take-backs are off in this duel.')
+  // Spending the last play moves the engine into its attack phase, so the
+  // turn check is "yours, and your newest action is that play": no strike
+  // can have landed since.
+  if (now.victor || now.active !== seat)
+    return result('You can take back a play only during your own turn.')
+  const last = record.commands.at(-1)
+  if (
+    !last ||
+    last.side !== seat ||
+    !['play', 'power', 'activate'].includes(last.t)
+  )
+    return result('Nothing to take back this turn.')
+  if (!left) return result('No take-backs left this turn.')
+  const before = replayPvp(
+    host,
+    guest,
+    seed,
+    record.commands.slice(0, -1),
+    pvpRules(record),
+  )
+  const other: Side = seat === 'player' ? 'enemy' : 'player'
+  if (before.rng !== now.rng)
+    return result('That move rolled the dice, so it stands.')
+  const expected = [...before.hands[seat]]
+  if (last.t === 'play') expected.splice(expected.indexOf(last.card), 1)
+  if (
+    before.decks[seat].length !== now.decks[seat].length ||
+    JSON.stringify([...expected].sort()) !==
+      JSON.stringify([...now.hands[seat]].sort())
+  )
+    return result('That move drew or discarded cards, so it stands.')
+  const hidden = (state: ClashState) =>
+    JSON.stringify([
+      state.hands[other],
+      state.decks[other],
+      state.traps.filter((trap) => trap.side === other),
+    ])
+  if (hidden(before) !== hidden(now))
+    return result('That move set off something hidden, so it stands.')
+  return result(null)
+}
+
+/** The record with `seat`'s last move taken back, or a reason it cannot be. */
+export function pvpTakeBack(
+  host: TeamId,
+  guest: TeamId,
+  seed: number,
+  record: PvpRecord,
+  seat: Side,
+): { record: PvpRecord } | { error: string } {
+  const now = replayPvp(host, guest, seed, record.commands, pvpRules(record))
+  const check = pvpTakebackState(host, guest, seed, record, seat, now)
+  if (check.blocked) return { error: check.blocked }
+  const key = now.round + ':' + seat
+  const used =
+    record.undoneThisTurn?.key === key ? record.undoneThisTurn.count : 0
+  return {
+    record: {
+      ...record,
+      commands: record.commands.slice(0, -1),
+      undone: (record.undone ?? 0) + 1,
+      undoneThisTurn: { key, count: used + 1 },
+    },
+  }
 }
 
 export interface PvpBoard {
@@ -96,6 +252,12 @@ export interface PvpSnapshot {
   /** The other seated player, sent only to the duel's two players. */
   rivalId?: number | null
   rivalName?: string | null
+  /** Take-backs allowed per turn in this duel (0, 1 or PVP_TAKEBACKS_ANY). */
+  takebacks?: number
+  /** The viewer's take-back, during their own play phase. */
+  takeback?: PvpTakeback | null
+  /** The most recent strikes, so a rival's sweep replays alley by alley. */
+  strikes?: PvpStrike[]
 }
 
 /**
@@ -144,6 +306,10 @@ export function parsePvpRecord(value: unknown): PvpRecord | null {
       (!Number.isSafeInteger(data.invitedId) || Number(data.invitedId) <= 0)) ||
     (data.isPublic !== undefined && typeof data.isPublic !== 'boolean') ||
     (data.dealEarly !== undefined && typeof data.dealEarly !== 'boolean') ||
+    (data.takebacks !== undefined &&
+      !PVP_TAKEBACK_CHOICES.includes(data.takebacks as 0)) ||
+    (data.undone !== undefined &&
+      (!Number.isSafeInteger(data.undone) || Number(data.undone) < 0)) ||
     (data.lastActionAt !== undefined &&
       (typeof data.lastActionAt !== 'string' ||
         !Number.isFinite(Date.parse(data.lastActionAt)))) ||

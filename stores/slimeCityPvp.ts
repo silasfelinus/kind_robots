@@ -9,12 +9,17 @@ import {
   type PvpSnapshot,
 } from '~/utils/slimeCity/pvp'
 import type { TeamId } from '~/utils/slimeCity/prototypes'
+import {
+  readTakebackPreference,
+  writeTakebackPreference,
+} from './helpers/slimeCityClashPreference'
 
 export type PvpInput =
   | { t: 'play'; card: string; lane: number; choice?: 1 }
   | { t: 'power'; lane: number; team?: TeamId }
   | { t: 'activate'; uid: number }
   | { t: 'pass' | 'strike' | 'end' }
+  | { t: 'undo' }
 
 /** A player the VS hub can challenge or invite. */
 export interface PvpPlayer {
@@ -53,6 +58,32 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const loading = ref(false)
   const sending = ref(false)
   const error = ref('')
+  /**
+   * Silas, 2026-11-22 PT: "Our error messages during play ... pop up and then
+   * disappear too quickly." A rejected move's message stays up for a few
+   * seconds, and the reload that recovers the board no longer wipes it.
+   */
+  let errorTimer: ReturnType<typeof setTimeout> | null = null
+  function showError(message: string, hold = 6000): void {
+    error.value = message
+    if (errorTimer) clearTimeout(errorTimer)
+    errorTimer = setTimeout(() => {
+      error.value = ''
+      errorTimer = null
+    }, hold)
+  }
+  /** The take-back allowance new duels start with (a game option at start). */
+  const takebackChoice = ref(1)
+  if (import.meta.client) takebackChoice.value = readTakebackPreference() ?? 1
+  function setTakebackChoice(value: number): void {
+    takebackChoice.value = value
+    writeTakebackPreference(value)
+  }
+  function clearError(): void {
+    if (errorTimer) clearTimeout(errorTimer)
+    errorTimer = null
+    error.value = ''
+  }
   let polling: ReturnType<typeof setInterval> | null = null
   /** Bumped by every move, so a poll that started before one is discarded. */
   let sendCount = 0
@@ -103,7 +134,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
       )
         return
       duel.value = next
-      error.value = ''
+      if (!quiet) clearError()
     } catch (cause) {
       if (!quiet) {
         duel.value = null
@@ -117,7 +148,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
 
   async function start(
     team: TeamId,
-    options: { friendId?: number; isPublic?: boolean } = {},
+    options: { friendId?: number; isPublic?: boolean; takebacks?: number } = {},
   ): Promise<PvpSnapshot | null> {
     sending.value = true
     error.value = ''
@@ -128,6 +159,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
           team,
           ...(options.friendId ? { friendId: options.friendId } : {}),
           ...(options.isPublic ? { isPublic: true } : {}),
+          takebacks: options.takebacks ?? takebackChoice.value,
         }),
       })
       duel.value = data
@@ -146,7 +178,12 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     const next = duel.value ? pvpRematch(duel.value) : null
     if (!next || sending.value) return null
     stopWatching()
-    return start(next.team, { friendId: next.friendId })
+    return start(next.team, {
+      friendId: next.friendId,
+      ...(duel.value?.takebacks !== undefined
+        ? { takebacks: duel.value.takebacks }
+        : {}),
+    })
   }
 
   async function join(id: string, team: TeamId): Promise<PvpSnapshot | null> {
@@ -172,7 +209,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     if (!current || sending.value || !isMyTurn.value) return false
     sendCount++
     sending.value = true
-    error.value = ''
+    clearError()
     try {
       duel.value = await request(
         '/api/slime-city/pvp/' + encodeURIComponent(current.id) + '/command',
@@ -183,7 +220,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
       )
       return true
     } catch (cause) {
-      error.value = cause instanceof Error ? cause.message : 'Move rejected.'
+      showError(cause instanceof Error ? cause.message : 'Move rejected.')
       await load(current.id, true, true)
       return false
     } finally {
@@ -361,6 +398,10 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     loading,
     sending,
     error,
+    showError,
+    clearError,
+    takebackChoice,
+    setTakebackChoice,
     isMyTurn,
     load,
     start,

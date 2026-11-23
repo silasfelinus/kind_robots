@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
     team?: unknown
     friendId?: unknown
     isPublic?: unknown
+    takebacks?: unknown
   }>(event)
   return {
     success: true,
@@ -16,6 +17,7 @@ export default defineEventHandler(async (event) => {
       body?.team,
       body?.friendId,
       body?.isPublic,
+      body?.takebacks,
     ),
   }
 })

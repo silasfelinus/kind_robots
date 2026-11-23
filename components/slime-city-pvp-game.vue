@@ -34,7 +34,11 @@
         aria-hidden="true"
         data-testid="slime-pvp-backdrop"
       />
-      <p v-if="pvp.error" class="scpvp-error" role="alert">
+      <p
+        v-if="pvp.error && pvp.duel?.stage !== 'battle'"
+        class="scpvp-error"
+        role="alert"
+      >
         {{ pvp.error }}
       </p>
 
@@ -118,6 +122,14 @@
               OPEN TO ANYONE
             </button>
           </div>
+          <SlimeCityTakebackChoice v-if="!invitedId" />
+          <p
+            v-else-if="answering && pvp.duel!.takebacks !== undefined"
+            class="scpvp-note"
+            data-testid="slime-pvp-takeback-rule"
+          >
+            {{ takebackRule(pvp.duel!.takebacks) }}
+          </p>
           <button
             class="scpvp-primary"
             type="button"
@@ -300,71 +312,6 @@
         aria-label="Live CLASH duel"
         data-testid="slime-pvp-battle"
       >
-        <header class="scpvp-hud">
-          <NuxtLink
-            v-if="narrowScreen"
-            class="scpvp-back"
-            to="/play/slime-city?vs=1"
-            aria-label="Back to VS"
-            >‹</NuxtLink
-          >
-          <div
-            v-for="side in lineup"
-            :key="side"
-            class="scpvp-boss"
-            :class="[
-              side === pvp.duel.seat ? 'is-mine' : 'is-rival',
-              { active: board.active === side && !finished },
-            ]"
-            :data-testid="
-              'slime-pvp-boss-' + (side === pvp.duel.seat ? 'mine' : 'rival')
-            "
-          >
-            <SlimeCityArtwork
-              :image-id="slimeArtId('crews', teamOf(side))"
-              :alt="nameOf(teamOf(side))"
-              compact
-            />
-            <div>
-              <small>{{
-                side === pvp.duel.seat
-                  ? 'YOU'
-                  : (pvp.duel.rivalName ?? 'RIVAL').toUpperCase()
-              }}</small>
-              <strong>{{ nameOf(teamOf(side)) }}</strong>
-              <span class="scpvp-life" aria-hidden="true"
-                ><i :style="{ width: lifeWidth(side) }"
-              /></span>
-              <b>♥ {{ Math.max(0, board.boss[side]) }} / {{ bossCap(side) }}</b>
-            </div>
-          </div>
-          <div class="scpvp-turn" aria-live="polite">
-            <b>{{ turnLabel }}</b>
-            <small>ROUND {{ board.round }} / {{ CLASH_ROUND_LIMIT }}</small>
-            <button
-              v-if="finished"
-              type="button"
-              class="scpvp-result-link"
-              @click="reviewBoard = false"
-            >
-              RESULT ›
-            </button>
-          </div>
-          <SlimeCitySoundToggle v-if="narrowScreen" class="scpvp-sound" />
-          <button
-            v-if="narrowScreen && !finished"
-            type="button"
-            class="scpvp-flag"
-            :class="{ armed: forfeitArmed }"
-            :disabled="pvp.sending"
-            :aria-label="forfeitArmed ? 'Confirm forfeit' : 'Forfeit'"
-            data-testid="slime-pvp-forfeit"
-            @click="confirmForfeit"
-          >
-            {{ forfeitArmed ? 'SURE?' : '⚑' }}
-          </button>
-        </header>
-
         <div class="scpvp-arena" role="grid" aria-label="Five CLASH alleys">
           <div
             v-for="side in lineup"
@@ -388,7 +335,10 @@
                 inspected:
                   !!unit(side, lane) && pinnedUid === unit(side, lane)!.uid,
                 lunge: lunge?.side === side && lunge.lane === lane,
-                hit: floater(side, lane) !== null,
+                hurt: slotFlash(side, lane) === 'hurt',
+                healed: slotFlash(side, lane) === 'healed',
+                buffed: slotFlash(side, lane) === 'buffed',
+                entered: slotFlash(side, lane) === 'entered',
               }"
               :aria-label="slotLabel(side, lane)"
               :disabled="!targetable(side, lane) && !unit(side, lane)"
@@ -460,10 +410,11 @@
                 >✦ ARMED</span
               >
               <span
-                v-if="floater(side, lane) !== null"
-                :key="'float-' + impactKey + side + lane"
+                v-for="pop in floatsAt(side, lane)"
+                :key="pop.key"
                 class="scpvp-float"
-                >{{ floater(side, lane) }}</span
+                :class="'is-' + pop.kind"
+                >{{ pop.text }}</span
               >
             </button>
           </div>
@@ -496,8 +447,10 @@
             <p
               class="scpvp-ticker"
               :class="{ warn: tickerWarn }"
+              :role="tickerWarn ? 'alert' : undefined"
               aria-live="polite"
               data-testid="slime-pvp-ticker"
+              @click="dismissNotes"
             >
               {{ ticker }}
             </p>
@@ -514,8 +467,106 @@
           />
         </div>
 
+        <aside class="scpvp-rail" aria-label="Bosses">
+          <div
+            v-for="(side, index) in lineup"
+            :key="side"
+            class="scpvp-boss"
+            :class="[
+              side === pvp.duel.seat ? 'is-mine' : 'is-rival',
+              {
+                active: board.active === side && !finished,
+                hurt: bossFlash[side] === 'hurt',
+                healed: bossFlash[side] === 'healed',
+              },
+            ]"
+            :style="{ order: index === 0 ? 0 : 2 }"
+            :data-testid="
+              'slime-pvp-boss-' + (side === pvp.duel.seat ? 'mine' : 'rival')
+            "
+          >
+            <SlimeCityArtwork
+              :image-id="slimeArtId('crews', teamOf(side))"
+              :alt="nameOf(teamOf(side))"
+              compact
+            />
+            <div class="scpvp-boss-info">
+              <small>{{
+                side === pvp.duel.seat
+                  ? 'YOUR BOSS'
+                  : (pvp.duel.rivalName ?? 'RIVAL').toUpperCase()
+              }}</small>
+              <strong>{{ nameOf(teamOf(side)) }}</strong>
+              <span class="scpvp-life" aria-hidden="true"
+                ><i :style="{ width: lifeWidth(side) }"
+              /></span>
+              <b
+                >♥ {{ Math.max(0, board.boss[side])
+                }}<small> / {{ bossCap(side) }}</small></b
+              >
+            </div>
+            <span
+              v-for="pop in floatsAt(side, 'boss')"
+              :key="pop.key"
+              class="scpvp-float"
+              :class="'is-' + pop.kind"
+              >{{ pop.text }}</span
+            >
+          </div>
+          <div class="scpvp-turn" aria-live="polite" :style="{ order: 1 }">
+            <NuxtLink
+              v-if="narrowScreen"
+              class="scpvp-back"
+              to="/play/slime-city?vs=1"
+              aria-label="Back to VS"
+              >‹</NuxtLink
+            >
+            <span class="scpvp-turn-copy">
+              <b>{{ turnLabel }}</b>
+              <small>ROUND {{ board.round }} / {{ CLASH_ROUND_LIMIT }}</small>
+            </span>
+            <button
+              v-if="finished"
+              type="button"
+              class="scpvp-result-link"
+              @click="reviewBoard = false"
+            >
+              RESULT ›
+            </button>
+            <SlimeCitySoundToggle v-if="narrowScreen" class="scpvp-sound" />
+            <button
+              v-if="narrowScreen && !finished"
+              type="button"
+              class="scpvp-flag"
+              :class="{ armed: forfeitArmed }"
+              :disabled="pvp.sending"
+              :aria-label="forfeitArmed ? 'Confirm forfeit' : 'Forfeit'"
+              data-testid="slime-pvp-forfeit"
+              @click="confirmForfeit"
+            >
+              {{ forfeitArmed ? 'SURE?' : '⚑' }}
+            </button>
+          </div>
+        </aside>
+
         <footer class="scpvp-console">
           <div id="clash-hand-dock" class="scpvp-hand-dock"></div>
+          <button
+            v-if="pvp.isMyTurn && !finished && takeback && takeback.allowed"
+            type="button"
+            class="scpvp-takeback"
+            :class="{ blocked: !!takeback.blocked }"
+            :disabled="!canAct"
+            :title="takebackTitle"
+            :aria-label="takebackTitle"
+            data-testid="slime-pvp-takeback"
+            @click="takeBack"
+          >
+            ↶ <span>BACK</span
+            ><small v-if="takeback.allowed < PVP_TAKEBACKS_ANY">{{
+              takeback.left
+            }}</small>
+          </button>
           <div
             v-if="choiceStages && selectedCard"
             class="scpvp-choice"
@@ -643,7 +694,14 @@ import {
   clashPowerSpent,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
-import { pvpCardRow, pvpClashView } from '~/utils/slimeCity/pvp'
+import {
+  PVP_TAKEBACKS_ANY,
+  pvpCardRow,
+  pvpClashView,
+  type PvpBoard,
+} from '~/utils/slimeCity/pvp'
+import { useSlimeCityStore } from '~/stores/slimeCity'
+import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
 import { slimeArtId, slimeCardArtId } from '~/utils/slimeCity/artManifest'
 
@@ -768,8 +826,6 @@ const powerArmed = ref<TeamId | null>(null)
 const choice = ref<0 | 1>(0)
 const sweeping = ref(false)
 const lunge = ref<{ side: Side; lane: number } | null>(null)
-const impact = ref<ClashStrike | null>(null)
-const impactKey = ref(0)
 const selectedCard = computed(() =>
   heldIndex.value === null
     ? null
@@ -1034,12 +1090,33 @@ function onPick(index: number | null) {
 function onDrop(index: number, side: Side, lane: number) {
   heldIndex.value = index
   if (targetable(side, lane)) void clickSlot(side, lane)
-  else if (canPlay.value) rejectNote.value = whyNot(side, lane)
+  else if (canPlay.value) refuse(whyNot(side, lane))
 }
+/**
+ * Silas, 2026-11-22 PT: "Our error messages during play which involve not
+ * playing in certain lanes pop up and then disappear too quickly." A refusal
+ * now holds for six seconds (tap it to dismiss) instead of being wiped by the
+ * very selection change that produced it.
+ */
 const rejectNote = ref('')
-watch([selectedCard, () => pvp.duel?.revision], () => {
+let rejectTimer: ReturnType<typeof setTimeout> | null = null
+function refuse(message: string) {
+  if (!message) return
+  rejectNote.value = message
+  if (rejectTimer) clearTimeout(rejectTimer)
+  rejectTimer = setTimeout(() => (rejectNote.value = ''), 6000)
+}
+function dismissNotes() {
+  if (rejectTimer) clearTimeout(rejectTimer)
   rejectNote.value = ''
-})
+  pvp.clearError()
+}
+watch(
+  () => pvp.duel?.revision,
+  () => {
+    if (rejectNote.value && !pvp.error) dismissNotes()
+  },
+)
 function whyNot(side: Side, lane: number): string {
   const id = selectedCard.value
   if (!id || !view.value) return ''
@@ -1088,13 +1165,45 @@ async function clickSlot(side: Side, lane: number) {
     return
   }
   if (id && canPlay.value) {
-    rejectNote.value = whyNot(side, lane)
-    if (rejectNote.value) return
+    const reason = whyNot(side, lane)
+    if (reason) {
+      refuse(reason)
+      return
+    }
   }
   const fighter = unit(side, lane)
   heldIndex.value = null
   pinnedUid.value =
     fighter && pinnedUid.value !== fighter.uid ? fighter.uid : null
+}
+/** Silas, 2026-11-22 PT: "There should be a back button if it's your turn." */
+const takeback = computed(() => pvp.duel?.takeback ?? null)
+const takebackTitle = computed(() => {
+  const state = takeback.value
+  if (!state) return 'Take back your last play'
+  if (state.blocked) return state.blocked
+  return state.allowed >= PVP_TAKEBACKS_ANY
+    ? 'Take back your last play'
+    : 'Take back your last play (' + state.left + ' left this turn)'
+})
+async function takeBack() {
+  const state = takeback.value
+  if (!canAct.value || !state) return
+  if (state.blocked) {
+    refuse(state.blocked)
+    return
+  }
+  heldIndex.value = null
+  pinnedUid.value = null
+  powerArmed.value = null
+  await pvp.send({ t: 'undo' })
+}
+function takebackRule(allowed: number | undefined): string {
+  return !allowed
+    ? 'Take-backs are off: every play stands.'
+    : allowed >= PVP_TAKEBACKS_ANY
+      ? 'Take-backs: undo any play until you FIGHT.'
+      : 'Take-backs: one per turn.'
 }
 async function tapFighter(uid: number) {
   if (await pvp.send({ t: 'activate', uid })) pinnedUid.value = null
@@ -1102,6 +1211,7 @@ async function tapFighter(uid: number) {
 const ticker = computed(() => {
   if (!board.value || !pvp.duel) return ''
   if (finished.value) return resultNote.value
+  if (pvp.error) return pvp.error
   if (rejectNote.value) return rejectNote.value
   if (!pvp.isMyTurn)
     return board.value.hand.length
@@ -1137,6 +1247,7 @@ const ticker = computed(() => {
 })
 const tickerWarn = computed(
   () =>
+    !!pvp.error ||
     !!rejectNote.value ||
     (!!selectedCard.value &&
       !!view.value &&
@@ -1167,25 +1278,147 @@ function slotLabel(side: Side, lane: number): string {
     (targetable(side, lane) ? ', playable target' : '')
   )
 }
-function floater(side: Side, lane: number): string | null {
-  const hit = impact.value
-  if (!hit || hit.lane !== lane) return null
-  if (side === hit.side)
-    return hit.returned > 0 || hit.attackerFell
-      ? (hit.trap ? 'TRAP -' : '-') + hit.returned
-      : null
-  if (hit.target !== 'unit') return null
-  return hit.dealt > 0 ? '-' + hit.dealt : 'BLOCK'
+/**
+ * Silas, 2026-11-22 PT: "Animations aren't happening, such as healing should
+ * show the bonus happening. Are cards striking one at a time?" Every board
+ * the server sends is compared with the one before: heals rise green, damage
+ * drops red, buffs glow gold, new fighters drop in, boss life moves on its
+ * panel. A rival's strikes arrive as a list and replay alley by alley.
+ */
+type FloatKind = 'hurt' | 'healed' | 'buffed' | 'block' | 'trap'
+interface BoardFloat {
+  key: number
+  side: Side
+  at: number | 'boss'
+  text: string
+  kind: FloatKind
 }
-let impactTimer: ReturnType<typeof setTimeout> | null = null
+const floats = ref<BoardFloat[]>([])
+const flashes = ref<Record<string, string>>({})
+const bossFlash = ref<Record<Side, string>>({ player: '', enemy: '' })
+const animationTimers = new Set<ReturnType<typeof setTimeout>>()
+let floatKey = 0
+const lab = useSlimeCityStore()
+const pace = computed(() => {
+  const chosen = CLASH_SPEED_PACE[lab.clashSpeed] ?? 1
+  return lab.reducedMotion ? Math.min(chosen, CLASH_SPEED_PACE.quick) : chosen
+})
+function later(ms: number, run: () => void) {
+  const timer = setTimeout(() => {
+    animationTimers.delete(timer)
+    run()
+  }, ms)
+  animationTimers.add(timer)
+}
+function float(side: Side, at: number | 'boss', text: string, kind: FloatKind) {
+  const key = ++floatKey
+  floats.value = [...floats.value, { key, side, at, text, kind }]
+  later(1300, () => {
+    floats.value = floats.value.filter((item) => item.key !== key)
+  })
+  if (at === 'boss') {
+    bossFlash.value = {
+      ...bossFlash.value,
+      [side]: kind === 'healed' ? 'healed' : 'hurt',
+    }
+    later(700, () => {
+      bossFlash.value = { ...bossFlash.value, [side]: '' }
+    })
+  } else flash(side, at, kind === 'block' || kind === 'trap' ? 'hurt' : kind)
+}
+function flash(side: Side, lane: number, kind: string) {
+  const id = side + lane
+  flashes.value = { ...flashes.value, [id]: kind }
+  later(700, () => {
+    if (flashes.value[id] !== kind) return
+    flashes.value = Object.fromEntries(
+      Object.entries(flashes.value).filter(([key]) => key !== id),
+    )
+  })
+}
+function floatsAt(side: Side, at: number | 'boss') {
+  return floats.value.filter((item) => item.side === side && item.at === at)
+}
+function slotFlash(side: Side, lane: number) {
+  return flashes.value[side + lane] ?? ''
+}
+function showStrike(strike: ClashStrike) {
+  const foe: Side = strike.side === 'player' ? 'enemy' : 'player'
+  if (strike.trap)
+    float(strike.side, strike.lane, 'TRAP -' + strike.returned, 'trap')
+  else if (strike.returned > 0)
+    float(strike.side, strike.lane, '-' + strike.returned, 'hurt')
+  if (strike.target === 'boss') {
+    if (strike.dealt > 0) float(foe, 'boss', '-' + strike.dealt, 'hurt')
+  } else if (strike.dealt > 0)
+    float(foe, strike.lane, '-' + strike.dealt, 'hurt')
+  else float(foe, strike.lane, 'BLOCK', 'block')
+}
+/** Heals, buffs, new fighters and life changes no strike explains. */
+function showChanges(before: PvpBoard, after: PvpBoard, struck: boolean) {
+  const previous = new Map(before.units.map((u) => [u.uid, u]))
+  for (const unit of after.units) {
+    const was = previous.get(unit.uid)
+    if (!was) {
+      flash(unit.side, unit.lane, 'entered')
+      continue
+    }
+    if (unit.hp > was.hp)
+      float(unit.side, unit.lane, '+' + (unit.hp - was.hp) + ' ♥', 'healed')
+    else if (unit.hp < was.hp && !struck)
+      float(unit.side, unit.lane, '-' + (was.hp - unit.hp), 'hurt')
+    if (unit.power > was.power)
+      float(
+        unit.side,
+        unit.lane,
+        '+' + (unit.power - was.power) + ' ⚔',
+        'buffed',
+      )
+    if (unit.armor > was.armor)
+      float(
+        unit.side,
+        unit.lane,
+        '+' + (unit.armor - was.armor) + ' 🛡',
+        'buffed',
+      )
+  }
+  for (const side of ['player', 'enemy'] as Side[]) {
+    const change = after.boss[side] - before.boss[side]
+    if (change > 0) float(side, 'boss', '+' + change + ' ♥', 'healed')
+    else if (change < 0 && !struck) float(side, 'boss', String(change), 'hurt')
+  }
+}
+let strikesSeen = -1
+let replaying = Promise.resolve()
 watch(
-  () => board.value?.strike,
-  (strike, before) => {
-    if (!strike || JSON.stringify(strike) === JSON.stringify(before)) return
-    impact.value = { ...strike }
-    impactKey.value++
-    if (impactTimer) clearTimeout(impactTimer)
-    impactTimer = setTimeout(() => (impact.value = null), 900)
+  () => [pvp.duel?.id, board.value] as const,
+  ([id, next], [previousId, prev]) => {
+    if (!next) return
+    const trail = pvp.duel?.strikes ?? []
+    if (id !== previousId || !prev || strikesSeen < 0) {
+      strikesSeen = Math.max(0, ...trail.map((item) => item.at))
+      return
+    }
+    const fresh = trail.filter((item) => item.at > strikesSeen)
+    strikesSeen = Math.max(strikesSeen, ...trail.map((item) => item.at))
+    const struck = fresh.length > 0
+    if (sweeping.value || !struck) {
+      for (const item of fresh) showStrike(item.strike)
+      showChanges(prev, next, struck)
+      return
+    }
+    // A whole sweep arrived at once: replay it alley by alley.
+    const before = prev
+    replaying = replaying.then(async () => {
+      for (const item of fresh) {
+        lunge.value = { side: item.strike.side, lane: item.strike.lane }
+        await wait(300 * pace.value)
+        showStrike(item.strike)
+        await wait(520 * pace.value)
+      }
+      lunge.value = null
+      if (board.value) showChanges(before, board.value, true)
+    })
   },
 )
 const wait = (ms: number) => new Promise((done) => setTimeout(done, ms))
@@ -1216,9 +1449,9 @@ async function fight() {
         break
       }
       lunge.value = { side: seat.value, lane: now.nextStrike }
-      await wait(320)
+      await wait(320 * pace.value)
       if (!(await pvp.send({ t: 'strike' }))) break
-      await wait(520)
+      await wait(560 * pace.value)
     }
   } finally {
     lunge.value = null
@@ -1226,7 +1459,8 @@ async function fight() {
   }
 }
 onBeforeUnmount(() => {
-  if (impactTimer) clearTimeout(impactTimer)
+  for (const timer of animationTimers) clearTimeout(timer)
+  animationTimers.clear()
 })
 /** Silas, 2026-11-11 PT: "Invites should be private or open". */
 const openDuel = ref(false)
@@ -1685,136 +1919,6 @@ watch(
     gap: 0.4rem;
   }
 }
-/*
-  Silas, 2026-11-22 PT: full-screen-ish portrait lanes over the map, a hand
-  that floats and toggles instead of taking the board's space, and two
-  floating play icons. The board owns the stage; the boss strip above and
-  the one-row console below stay compact.
-*/
-.scpvp-battle {
-  position: relative;
-  height: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 0.35rem;
-  padding: 0.4rem;
-}
-.scpvp-hud {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-.scpvp-boss {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.25rem;
-  border: 1px solid #4d665e99;
-  border-radius: 0.8rem;
-  background: #0c1a1fcc;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-}
-.scpvp-boss.active {
-  border-color: #c9ee5a;
-  box-shadow: 0 0 0.9rem #c9ee5a44;
-}
-.scpvp-boss > :first-child {
-  flex: none;
-  width: clamp(2.3rem, 5.5vw, 3.6rem);
-  height: clamp(2.3rem, 5.5vw, 3.6rem);
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-.scpvp-boss div {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  font-size: 0.72rem;
-}
-.scpvp-boss small {
-  color: #c9f56c;
-  font-size: 0.6rem;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.scpvp-boss strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.scpvp-boss b {
-  color: #f6b6a3;
-  white-space: nowrap;
-}
-.scpvp-life {
-  display: block;
-  height: 0.3rem;
-  border-radius: 999px;
-  background: #ffffff1f;
-  overflow: hidden;
-}
-.scpvp-life i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, #f0686f, #f6b6a3);
-  transition: width 0.4s ease;
-}
-.scpvp-turn {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  font-weight: 900;
-  color: #d2f364;
-  line-height: 1.15;
-}
-.scpvp-turn small {
-  color: #a9bfb7;
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-}
-.scpvp-back,
-.scpvp-flag {
-  flex: none;
-  display: grid;
-  place-items: center;
-  min-width: 1.9rem;
-  height: 2.2rem;
-  padding: 0 0.4rem;
-  border: 1px solid #5c99917a;
-  border-radius: 0.5rem;
-  background: #10231f;
-  color: #c9ee5a;
-  font-size: 1.1rem;
-  font-weight: 900;
-  line-height: 1;
-}
-.scpvp-flag {
-  color: #f6b6a3;
-  font-size: 0.9rem;
-}
-.scpvp-flag.armed {
-  border-color: #ff6f7a;
-  background: #4b1f26;
-  color: #ffd6dc;
-  font-size: 0.6rem;
-}
-.scpvp-sound {
-  flex: none;
-}
-
 .scpvp-arena {
   position: relative;
   min-height: 0;
@@ -2256,38 +2360,6 @@ watch(
   }
 }
 @media (max-width: 690px) {
-  .scpvp-battle {
-    gap: 0.25rem;
-    padding: 0.25rem 0.25rem 0.3rem;
-  }
-  .scpvp-hud {
-    gap: 0.25rem;
-  }
-  .scpvp-boss {
-    gap: 0.25rem;
-    padding: 0.15rem;
-  }
-  .scpvp-boss > :first-child {
-    width: 2rem;
-    height: 2rem;
-  }
-  .scpvp-boss strong,
-  .scpvp-boss small {
-    display: none;
-  }
-  .scpvp-sound :deep(.sc-sound-word) {
-    display: none;
-  }
-  .scpvp-boss b {
-    font-size: 0.66rem;
-  }
-  .scpvp-turn {
-    max-width: 4.6rem;
-    font-size: 0.6rem;
-  }
-  .scpvp-turn small {
-    font-size: 0.5rem;
-  }
   .scpvp-arena {
     padding: 0.2rem;
   }
@@ -2335,6 +2407,320 @@ watch(
   .scpvp-float {
     animation: none;
     transition: none;
+  }
+}
+/*
+  Silas, 2026-11-22 PT: "Bring back the stat line hp bars, and put them to
+  the right of the lanes, so we see the two opponents on their [side]." On
+  wide screens each boss sits in a rail beside its own row of alleys; phones
+  fold the rail into one strip above the board.
+*/
+.scpvp-battle {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(10rem, 17vw, 15rem);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'arena rail'
+    'console console';
+  gap: 0.4rem;
+  padding: 0.4rem;
+}
+.scpvp-arena {
+  grid-area: arena;
+}
+.scpvp-rail {
+  grid-area: rail;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.25rem;
+  padding: 0.35rem 0;
+}
+.scpvp-console {
+  grid-area: console;
+}
+.scpvp-boss {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid #4d665e99;
+  border-radius: 0.9rem;
+  background: #0c1a1fcc;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.scpvp-boss.is-rival {
+  border-color: #d98b8f77;
+}
+.scpvp-boss.active {
+  border-color: #c9ee5a;
+  box-shadow: 0 0 1rem #c9ee5a55;
+}
+.scpvp-boss.hurt {
+  animation: scpvp-shake 0.4s ease;
+  box-shadow: 0 0 1.2rem #ff6f7a88;
+}
+.scpvp-boss.healed {
+  box-shadow: 0 0 1.2rem #7dffb088;
+}
+.scpvp-boss > .slime-art {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.scpvp-boss-info {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.35rem 0.45rem 0.45rem;
+  background: linear-gradient(transparent, #07131ae6 30%);
+  margin-top: -1.6rem;
+  position: relative;
+}
+.scpvp-boss small {
+  color: #c9f56c;
+  font-size: 0.6rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scpvp-boss.is-rival small {
+  color: #ffc2c6;
+}
+.scpvp-boss strong {
+  overflow: hidden;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scpvp-boss b {
+  color: #ffd3d6;
+  font-size: clamp(1rem, 1.8vw, 1.45rem);
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+}
+.scpvp-boss b small {
+  color: #a9bfb7;
+  font-size: 0.6em;
+}
+.scpvp-life {
+  display: block;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #ffffff1f;
+  overflow: hidden;
+}
+.scpvp-life i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #f0686f, #f6b6a3);
+  transition: width 0.5s ease;
+}
+.scpvp-boss.is-mine .scpvp-life i {
+  background: linear-gradient(90deg, #7fcf4a, #d4f960);
+}
+.scpvp-turn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  min-height: 1.9rem;
+  text-align: center;
+  font-weight: 900;
+  color: #d2f364;
+  line-height: 1.15;
+}
+.scpvp-turn-copy {
+  display: flex;
+  flex-direction: column;
+}
+.scpvp-turn small {
+  color: #a9bfb7;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+}
+.scpvp-back,
+.scpvp-flag {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 1.9rem;
+  height: 2.2rem;
+  padding: 0 0.4rem;
+  border: 1px solid #5c99917a;
+  border-radius: 0.5rem;
+  background: #10231f;
+  color: #c9ee5a;
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.scpvp-flag {
+  color: #f6b6a3;
+  font-size: 0.9rem;
+}
+.scpvp-flag.armed {
+  border-color: #ff6f7a;
+  background: #4b1f26;
+  color: #ffd6dc;
+  font-size: 0.6rem;
+}
+.scpvp-sound {
+  flex: none;
+}
+.scpvp-takeback {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #c9ee5a;
+  border-radius: 0.6rem;
+  background: #13252bee;
+  color: #e8ff9a;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+.scpvp-takeback small {
+  display: grid;
+  place-items: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  background: #c9ee5a;
+  color: #10200b;
+  font-size: 0.62rem;
+}
+.scpvp-takeback.blocked,
+.scpvp-takeback:disabled {
+  border-color: #586e68;
+  color: #8fa49c;
+}
+.scpvp-takeback.blocked small {
+  background: #586e68;
+}
+.scpvp-slot.hurt {
+  animation: scpvp-shake 0.36s ease;
+  box-shadow: inset 0 0 1.4rem #ff6f7a88;
+}
+.scpvp-slot.healed {
+  box-shadow:
+    inset 0 0 1.6rem #7dffb099,
+    0 0 0.9rem #7dffb077;
+}
+.scpvp-slot.buffed {
+  box-shadow:
+    inset 0 0 1.4rem #ffdb7699,
+    0 0 0.9rem #ffdb7677;
+}
+.scpvp-slot.entered {
+  animation: scpvp-enter 0.45s cubic-bezier(0.2, 0.9, 0.25, 1.12);
+}
+.scpvp-float.is-healed {
+  color: #7dffb0;
+}
+.scpvp-float.is-buffed {
+  color: #ffdb76;
+}
+.scpvp-float.is-block {
+  color: #cfe7ff;
+}
+.scpvp-float.is-trap {
+  color: #ffb35c;
+}
+.scpvp-ticker.warn {
+  pointer-events: auto;
+  cursor: pointer;
+}
+@keyframes scpvp-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-14%) scale(1.08);
+  }
+}
+@media (max-width: 690px) {
+  .scpvp-battle {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'rail'
+      'arena'
+      'console';
+  }
+  .scpvp-rail {
+    display: flex;
+    align-items: stretch;
+    gap: 0.25rem;
+    padding: 0;
+  }
+  .scpvp-boss {
+    flex: 1 1 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem;
+  }
+  .scpvp-boss > .slime-art {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.4rem;
+  }
+  .scpvp-boss-info {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+  .scpvp-boss strong,
+  .scpvp-boss > .scpvp-boss-info > small {
+    display: none;
+  }
+  .scpvp-boss b {
+    font-size: 0.72rem;
+  }
+  .scpvp-boss b small {
+    display: none;
+  }
+  .scpvp-life {
+    height: 0.3rem;
+  }
+  .scpvp-turn {
+    flex-direction: row;
+    flex: none;
+    gap: 0.25rem;
+    font-size: 0.6rem;
+  }
+  .scpvp-turn-copy {
+    max-width: 4.6rem;
+  }
+  .scpvp-turn small {
+    font-size: 0.5rem;
+  }
+  .scpvp-sound :deep(.sc-sound-word) {
+    display: none;
+  }
+  .scpvp-takeback span {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scpvp-boss.hurt,
+  .scpvp-slot.hurt,
+  .scpvp-slot.entered {
+    animation: none;
   }
 }
 </style>

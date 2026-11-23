@@ -11,6 +11,8 @@ import {
   PlumberRun,
 } from '../arcade/games/savePlumberPreview'
 import {
+  CAMPAIGN,
+  SOLID_LADDER,
   SOLID_LOCK,
   STAGE_GLYPHS,
   TILE,
@@ -70,7 +72,7 @@ function play(run: PlumberRun, frames: number, script: Script = () => {}) {
   }
 }
 const hold =
-  (...keys: ('left' | 'right' | 'a')[]): Script =>
+  (...keys: ('left' | 'right' | 'up' | 'a')[]): Script =>
   (_frame, input) => {
     for (const key of keys) input.held[key] = true
   }
@@ -213,7 +215,63 @@ function walkTo(run: PlumberRun, col: number, frames = 400) {
   for (let col = 20; col <= 23; col++) assert.equal(run.solidAt(col, 17), 0)
 }
 
-// 7. Seeded fuzz: never inside a wall (bolts included), never two keys.
+// 7. Real campaign 1-2: the lower race route stays open while the optional
+//    high route requires taking a brass key up a rope ladder to open a bolt.
+{
+  const index = CAMPAIGN.findIndex((stage) => stage.code === '1-2')
+  assert.ok(index >= 0, 'World 1-2 is in the campaign')
+  const stage = parseStage(CAMPAIGN[index]!)
+  assert.ok(
+    stage.spawns.some(
+      (spawn) => spawn.kind === 'key' && spawn.col === 35 && spawn.row === 18,
+    ),
+    'the optional route has a real, reachable key',
+  )
+  for (let row = 12; row <= 18; row++)
+    assert.equal(
+      stage.solid[row * stage.cols + 39],
+      SOLID_LADDER,
+      'a continuous ladder connects the lower and higher routes',
+    )
+  for (let row = 11; row <= 16; row++)
+    assert.equal(
+      stage.solid[row * stage.cols + 42],
+      SOLID_LOCK,
+      'the elevated passage begins locked',
+    )
+  assert.equal(
+    stage.solid[18 * stage.cols + 42],
+    0,
+    'the lower speed route passes beneath the lock',
+  )
+
+  const run = new PlumberRun(options)
+  run.loadStage(index)
+  run.mode = 'play'
+  run.hero.x = 35 * TILE + TILE / 2
+  run.hero.y = 19 * TILE - HERO_TALL
+  run.hero.vx = 0
+  run.hero.vy = 0
+  run.ground = true
+  play(run, 3)
+  assert.ok(run.heldKey, 'walking onto the campaign key collects it')
+  walkTo(run, 39)
+  play(run, 1, hold('up'))
+  assert.equal(run.climbing, true, 'up grabs the campaign ladder')
+  play(run, 90, hold('up'))
+  assert.equal(run.climbing, false, 'the top rung releases the heroine')
+  assert.ok(
+    run.hero.y + HERO_TALL <= 12 * TILE + 1,
+    'climbing reaches the high route',
+  )
+  let frames = 0
+  while (!run.boltsOpened && frames++ < 90) play(run, 1, hold('right'))
+  assert.equal(run.boltsOpened, 1, 'the real high route consumes one key')
+  assert.equal(boltCells(run, 42), 0, 'opening the lock clears its full shaft')
+  assert.equal(run.heldKey, null, 'the key is spent on this optional passage')
+}
+
+// 8. Seeded fuzz: never inside a wall (bolts included), never two keys.
 {
   let seed = 0x5eed
   const rand = () => {

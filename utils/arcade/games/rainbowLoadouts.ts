@@ -338,7 +338,8 @@ export function readRainbowSave(
     (!count(c.alternateRoutesCleared, 15) ||
       !count(c.alternateRoutesSeen, 15) ||
       ((c.alternateRoutesCleared as number) &
-        ~(c.alternateRoutesSeen as number)) !== 0 ||
+        ~(c.alternateRoutesSeen as number)) !==
+        0 ||
       RAINBOW_ALTERNATE_ROUTES.some(
         (route) =>
           ((c.alternateRoutesCleared as number) & route.bit) !== 0 &&

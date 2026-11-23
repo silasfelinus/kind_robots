@@ -172,7 +172,11 @@ for (const seats of [1, 2, 3, 4]) {
     rainbowReplay: nearExit,
   })
   const crew = Array.from({ length: seats }, () => input)
-  for (let frame = 0; frame < MIRROR_SHOAL.end - MIRROR_SHOAL.guardianFrom + 4; frame++)
+  for (
+    let frame = 0;
+    frame < MIRROR_SHOAL.end - MIRROR_SHOAL.guardianFrom + 4;
+    frame++
+  )
     game.update(input, crew)
   assert.equal(game.snapshot.act, 'S08')
   assert.equal(

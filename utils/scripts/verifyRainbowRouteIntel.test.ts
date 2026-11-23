@@ -188,7 +188,11 @@ for (const bit of [1, 2, 4, 8]) {
   assert.equal(
     readRainbowSave({
       ...current,
-      checkpoint: { ...checkpoint, alternateRoutesSeen: undefined, alternateRoutesCleared: bit },
+      checkpoint: {
+        ...checkpoint,
+        alternateRoutesSeen: undefined,
+        alternateRoutesCleared: bit,
+      },
     }),
     null,
     'missing history cannot support a claimed completion',

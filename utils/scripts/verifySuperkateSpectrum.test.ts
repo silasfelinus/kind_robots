@@ -20,9 +20,16 @@ import {
   recordClear,
   recordPop,
   readSpectrumSave,
+  mergeSpectrumSaves,
+  validSpectrumCloudSave,
   styleForRank,
 } from '../arcade/superkateSpectrum/progress'
 import { create } from '../arcade/games/superkateSpectrum'
+import {
+  SPECTRUM_CLASSIC_MUSIC,
+  SPECTRUM_MENU_MUSIC,
+  SPECTRUM_THEMES,
+} from '../arcade/superkateSpectrum/music'
 
 const board = emptyBoard()
 assert.equal(board.length, ROWS)
@@ -194,4 +201,91 @@ assert.equal(classic.menuOpen, false)
 assert.equal(readSpectrumSave(classic.save).mode, 'classic')
 assert.equal(readSpectrumSave(classic.save).career.highestStage, replay.highestStage)
 assert.equal(classic.over, false)
-console.log('Superkate Spectrum: board, powers, career, Classic and save checks passed')
+// Account merges never lower either device's best stars or highest stage.
+const cloudA = readSpectrumSave({
+  version: 2,
+  career: {
+    xp: 6000,
+    highestStage: 8,
+    stars: Array.from({ length: 30 }, (_, i) => (i < 6 ? 3 : 0)),
+    lifetimePops: 190,
+    classicBest: 9000,
+    classicRuns: 7,
+  },
+  stage: 8,
+  mode: 'story',
+  style: 'candy',
+  settings: { aimGuide: true, particles: false, highContrast: true },
+})
+const cloudB = readSpectrumSave({
+  version: 2,
+  career: {
+    xp: 9000,
+    highestStage: 12,
+    stars: Array.from({ length: 30 }, (_, i) => (i < 3 ? 1 : i === 10 ? 2 : 0)),
+    lifetimePops: 250,
+    classicBest: 5000,
+    classicRuns: 4,
+  },
+  stage: 11,
+  mode: 'story',
+  style: 'starlight',
+  settings: { aimGuide: false, particles: true, highContrast: false },
+})
+assert.equal(validSpectrumCloudSave(cloudA), true)
+assert.equal(validSpectrumCloudSave(cloudB), true)
+const combined = mergeSpectrumSaves(cloudA, cloudB)
+assert.equal(combined.career.highestStage, 12)
+assert.equal(combined.career.stars[0], 3)
+assert.equal(combined.career.stars[10], 2)
+assert.equal(combined.career.xp, 9000)
+assert.equal(combined.career.classicBest, 9000)
+assert.equal(combined.career.classicRuns, 7)
+assert.equal(combined.career.lifetimePops, 250)
+assert.equal(combined.settings.highContrast, true)
+assert.equal(combined.stage, 12)
+assert.equal(validSpectrumCloudSave(combined), true)
+assert.equal(validSpectrumCloudSave({ ...combined, career: { ...combined.career, xp: -2 } }), false)
+assert.equal(validSpectrumCloudSave({ ...combined, career: { ...combined.career, stars: [4] } }), false)
+assert.equal(validSpectrumCloudSave({ ...combined, stage: 300 }), false)
+assert.equal(validSpectrumCloudSave({ ...combined, settings: { particles: 'oops' } }), false)
+assert.equal(validSpectrumCloudSave({ ...combined, style: 'unknown' }), false)
+
+const hub = create({
+  ...options,
+  resume: cloudB,
+  mastery: ['rainbow-rescue'],
+} as Parameters<typeof create>[0])
+assert.equal(hub.menuTab, 'play')
+const nextTab = emptyInput()
+nextTab.pressed.x = true
+hub.update(nextTab)
+assert.equal(hub.menuTab, 'scrapbook')
+hub.update(nextTab)
+assert.equal(hub.menuTab, 'achievements')
+hub.update(nextTab)
+assert.equal(hub.menuTab, 'settings')
+const toggleEffect = emptyInput()
+toggleEffect.pressed.a = true
+hub.update(toggleEffect)
+assert.equal(readSpectrumSave(hub.save).settings.aimGuide, false)
+const increaseRow = emptyInput()
+increaseRow.pressed.down = true
+hub.update(increaseRow)
+hub.update(toggleEffect)
+assert.equal(readSpectrumSave(hub.save).settings.particles, false)
+const reloadedHub = create({
+  ...options,
+  resume: hub.save,
+} as Parameters<typeof create>[0])
+assert.equal(reloadedHub.settings.particles, false)
+assert.equal(reloadedHub.music, SPECTRUM_MENU_MUSIC)
+const storyStart = emptyInput()
+storyStart.pressed.a = true
+assert.equal(SPECTRUM_THEMES.length, 6)
+assert.equal(SPECTRUM_CLASSIC_MUSIC.tracks.length, 3)
+for (const theme of [...SPECTRUM_THEMES, SPECTRUM_CLASSIC_MUSIC]) {
+  assert.ok(theme.bpm >= 80 && theme.bpm <= 160)
+  assert.ok(theme.tracks.length >= 2)
+}
+console.log('Superkate Spectrum: matching, cloud merges, music, hub and career checks passed')

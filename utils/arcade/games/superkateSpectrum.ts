@@ -18,6 +18,12 @@ import {
 } from '../superkateSpectrum/board'
 import type { Board, Hue, SpectrumPower } from '../superkateSpectrum/board'
 import {
+  SPECTRUM_CLASSIC_MUSIC,
+  SPECTRUM_MENU_MUSIC,
+  SPECTRUM_THEMES,
+} from '../superkateSpectrum/music'
+import type { MusicLoop } from '../sound'
+import {
   rankForXp,
   recordClassicEnd,
   recordClear,
@@ -192,6 +198,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   message = ''
   won = false
   private rng: () => number
+  private sound: ArcadeGameOptions['sound']
   private feats: string[] = []
   private earned = new Set<string>()
   career: SpectrumCareer
@@ -210,6 +217,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
 
   constructor(options: ArcadeGameOptions) {
     this.rng = options.rng
+    this.sound = options.sound
     this.demo = options.demo
     this.stored = readSpectrumSave(options.resume)
     this.career = this.stored.career
@@ -222,6 +230,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.next = chooseHue(this.board, this.rng)
     this.message = CHAPTERS[Math.floor((this.level - 1) / 5)]!.kate
     this.choosingMode = !this.demo
+  }
+  get music(): MusicLoop | null {
+    if (this.over) return null
+    if (this.choosingMode) return SPECTRUM_MENU_MUSIC
+    if (this.mode === 'classic') return SPECTRUM_CLASSIC_MUSIC
+    return SPECTRUM_THEMES[
+      Math.min(5, Math.floor((this.level - 1) / 5))
+    ]!
   }
   get save(): SpectrumSave {
     return this.stored
@@ -292,6 +308,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   }
   private lose() {
     this.lives--
+    this.sound.play('die')
     if (this.lives <= 0) {
       this.over = true
       if (this.mode === 'classic')
@@ -318,6 +335,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       ? fireSpecial(this.board, landing, hue, power)
       : attachAndPop(this.board, landing, hue)
     if (result.matched) {
+      this.sound.play(power ? 'boom' : 'pop')
       this.career = recordPop(this.career, result.matched, result.dropped)
       this.poppedThisBoard += result.matched + result.dropped
       const pos = center(landing)
@@ -347,6 +365,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     if (result.cleared) {
       this.score += 1500 + this.level * 150
+      this.sound.play('level')
       if (this.mode === 'story')
         this.career = recordClear(
           this.career,
@@ -416,6 +435,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (input.pressed.b && !this.shot)
       [this.loaded, this.next] = [this.next, this.loaded]
     if (input.pressed.a && !this.shot) {
+      this.sound.play('shoot')
       this.shot = {
         x: W / 2,
         y: SHOT_Y,

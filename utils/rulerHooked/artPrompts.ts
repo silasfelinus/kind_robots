@@ -226,6 +226,21 @@ export const CARD_PROMPTS: Record<string, string> = {
     `A castle moat packed shoulder to shoulder with village anglers whose fishing lines tangle in a knot in the middle of the water, and in front of them ${who('captain-cordelia')}, holds a tangled ball of line up toward the viewer. Bright midday light.`,
     'Eye-level view from the castle bridge.',
   ),
+  'weir-reckoning': scene(
+    `On a crowded lake outflow, ${who('warlock-vex')} holds a wooden sluice model beside ${who('lake-spirit-nix')} rising from the water, while millworkers stand on the stone weir watching a school of silver sturgeon below it. Bold violet, cyan and acid-yellow painted sunset, fine worn ink texture.`,
+  ),
+  'moat-reckoning': scene(
+    `At the mossy castle moat, ${who('captain-cordelia')} holds up a bony grey fish, while ${who('smuggler-brack')} shows an empty torn fishing net and villagers cluster behind the stone parapet. Bright fuchsia and teal reflections under a cloudy sky, worn screenprinted pigments.`,
+  ),
+  'treaty-reckoning': scene(
+    `On a lake ferry landing, ${who('envoy-thistle')} presents a bundle of small blank passage slips beside ${who('taxman-gristle')} clutching a thick ledger, with two families waiting across the river and bronze bell-scaled sturgeon moving in shallow water. Violet and emerald evening light, rough colored ink textures.`,
+  ),
+  'marina-reckoning': scene(
+    `On the north lake cove, ${who('druid-sela')} holds up a basket of dried reeds beside ${who('envoy-thistle')} holding dock workers' wage slips, while wooden leisure boats crowd the jetty above blunt grey mullet. Vivid rainbow reflections and fine weathered print grain, wide lake vista.`,
+  ),
+  'wedding-reckoning': scene(
+    `On a lakeside orchard path, ${who('heir-robin')} and ${who('sweetheart-ash')} carry baskets of young fruit trees beside ${who('druid-sela')} holding a tray of pond seedlings. Small green perch with flowering branches on their backs swim in the clear shallows. Saturated rainbow dusk, soft worn print texture.`,
+  ),
 }
 
 /** Character portraits, keyed by cast slug (neutral expression). */

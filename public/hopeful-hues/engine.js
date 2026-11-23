@@ -130,6 +130,11 @@
         state.board[r][c] = newGem(state, safeColor(state, r, c))
       }
     }
+    for (const [r, c, special] of def.startingSpecials || []) {
+      const tile = tileAt(state, r, c)
+      if (isGem(tile) && ['h', 'v', 'bomb'].includes(special))
+        tile.special = special
+    }
     const buddyStart = Math.min(state.buddiesToSpawn, def.buddiesAtStart || 0)
     for (let i = 0; i < buddyStart; i++) placeStartBuddy(state, i)
     if (opts.perk === 'rainbow-start') {

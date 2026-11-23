@@ -401,16 +401,52 @@ for (const file of ['engine', 'levels', 'meta', 'art', 'audio', 'app']) {
   )
 }
 assert.ok(
-  read('pages/admin/hopeful-hues.vue').includes(
+  read('pages/play/hopeful-hues.vue').includes(
     '/hopeful-hues/index.html?embedded=1',
   ),
 )
 assert.ok(
-  read('content/channels/admin/hopeful-hues.md').includes(
-    'route: /admin/hopeful-hues',
+  read('content/channels/arcade/hopeful-hues.md').includes(
+    'route: /play/hopeful-hues',
   ),
 )
 assert.ok(read('utils/projectPlacements.ts').includes("'hopeful-hues'"))
+// Silas, 2026-11-22 PT: a front-end Play page with a home highlight and Play link, not an Arcade cabinet.
+const tab = read('content/channels/arcade/hopeful-hues.md')
+assert.ok(!/requiredRole/.test(tab), 'the Play tab is public')
+for (const art of ['splash', 'tutorial', 'highlight', 'link-preview', 'icon']) {
+  assert.ok(
+    existsSync(
+      fileURLToPath(new URL(`public/hopeful-hues/front/${art}.webp`, root)),
+    ),
+    `${art} art exists`,
+  )
+}
+assert.ok(
+  tab.includes('image: /hopeful-hues/front/splash.webp'),
+  'Play link has art',
+)
+assert.ok(
+  read('components/home/home-visitor-directory.vue').includes(
+    "image: '/hopeful-hues/front/highlight.webp'",
+  ),
+  'home highlight entry with art',
+)
+assert.ok(
+  read('utils/sharePreview.ts').includes(
+    "image: '/hopeful-hues/front/link-preview.webp'",
+  ),
+  'share card',
+)
+assert.ok(
+  !read('utils/adverts/posters.ts').includes('hopeful-hues'),
+  'not an Arcade cabinet poster',
+)
+assert.ok(
+  !existsSync(fileURLToPath(new URL('pages/admin/hopeful-hues.vue', root))),
+  'no admin copy remains',
+)
+
 const app = read('public/hopeful-hues/app.js')
 for (const needle of [
   'undoMove',

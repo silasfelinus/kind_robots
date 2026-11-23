@@ -41,6 +41,7 @@ const publicRoutes = [
   '/play/memory',
   '/play/mandarin',
   '/play/chessweeper',
+  '/play/hopeful-hues',
   '/play/ruler-hooked',
   '/storybook',
   '/art',

@@ -449,7 +449,7 @@
 import { computed, ref } from 'vue'
 import { useDeepheartStore } from '~/stores/deepheartStore'
 import { baseStat } from '~/utils/deepheart/engine'
-import { GOAL_LABEL, type PartyGoal } from '~/utils/deepheart/party'
+import { GOAL_LABEL, canRomance, type PartyGoal } from '~/utils/deepheart/party'
 import {
   CHARACTERS,
   GENDER_LABEL,

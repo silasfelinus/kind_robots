@@ -43,6 +43,7 @@ import {
   drawRainbowEndingPlate,
   drawRainbowEnemySprite,
   drawRainbowGuardianSprite,
+  drawRainbowRouteObjectSprite,
   drawRainbowPickupSprite,
   drawRainbowShipSprite,
   drawRainbowStageCard,
@@ -7117,20 +7118,24 @@ export function createRainbowPrincessPreview(
           const y = laneY(pod.lane)
           g.save()
           g.translate(x, y)
-          g.shadowColor = '#8effef'
-          g.shadowBlur = 12
-          g.fillStyle = '#462767'
-          g.strokeStyle = '#f8bbef'
-          g.lineWidth = 2.5
-          g.beginPath()
-          g.ellipse(0, 0, 12, 10, 0, 0, Math.PI * 2)
-          g.fill()
-          g.stroke()
-          g.fillStyle = '#a9fff5'
-          g.beginPath()
-          g.arc(0, 0, 5, 0, Math.PI * 2)
-          g.fill()
-          g.restore()
+          if (drawRainbowRouteObjectSprite(g, 'coral-choir-pod', 30)) {
+            g.restore()
+          } else {
+            g.shadowColor = '#8effef'
+            g.shadowBlur = 12
+            g.fillStyle = '#462767'
+            g.strokeStyle = '#f8bbef'
+            g.lineWidth = 2.5
+            g.beginPath()
+            g.ellipse(0, 0, 12, 10, 0, 0, Math.PI * 2)
+            g.fill()
+            g.stroke()
+            g.fillStyle = '#a9fff5'
+            g.beginPath()
+            g.arc(0, 0, 5, 0, Math.PI * 2)
+            g.fill()
+            g.restore()
+          }
         }
       }
       if (guardian) {
@@ -7156,20 +7161,7 @@ export function createRainbowPrincessPreview(
         }
         g.save()
         applyRainbowSwimMotion(g, guardian.kind, guardian.frame, calm)
-        if (
-          !drawRainbowGuardianSprite(
-            g,
-            guardian.kind === 'matriarch' ||
-              guardian.kind === 'kelpwarden' ||
-              guardian.kind === 'siren'
-              ? 'lantern'
-              : guardian.kind === 'warden'
-                ? 'bulwark'
-                : guardian.kind === 'lampkeeper'
-                  ? 'mirror'
-                  : guardian.kind,
-          )
-        ) {
+        if (!drawRainbowGuardianSprite(g, guardian.kind)) {
           g.save()
           g.scale(2.3, 2.3)
           // The Herald is a harbinger grown huge until its own picture lands.
@@ -8236,28 +8228,32 @@ export function createRainbowPrincessPreview(
           const y = laneY(cadet.lane)
           g.save()
           g.translate(x, y)
-          g.fillStyle = '#ffe8f8'
-          g.strokeStyle = '#35104c'
-          g.lineWidth = 2
-          g.beginPath()
-          g.ellipse(0, 0, 14, 10, 0, 0, Math.PI * 2)
-          g.fill()
-          g.stroke()
-          g.fillStyle = '#8fefff'
-          g.beginPath()
-          g.ellipse(0, -1, 9, 6, 0, 0, Math.PI * 2)
-          g.fill()
-          g.fillStyle = '#5a1c76'
-          for (const dx of [-6, -2, 2, 6]) {
+          if (drawRainbowRouteObjectSprite(g, 'comet-cadet-pod', 34)) {
+            g.restore()
+          } else {
+            g.fillStyle = '#ffe8f8'
+            g.strokeStyle = '#35104c'
+            g.lineWidth = 2
             g.beginPath()
-            g.arc(dx, -1, 1.5, 0, Math.PI * 2)
+            g.ellipse(0, 0, 14, 10, 0, 0, Math.PI * 2)
             g.fill()
+            g.stroke()
+            g.fillStyle = '#8fefff'
+            g.beginPath()
+            g.ellipse(0, -1, 9, 6, 0, 0, Math.PI * 2)
+            g.fill()
+            g.fillStyle = '#5a1c76'
+            for (const dx of [-6, -2, 2, 6]) {
+              g.beginPath()
+              g.arc(dx, -1, 1.5, 0, Math.PI * 2)
+              g.fill()
+            }
+            g.strokeStyle = '#ffd16e'
+            g.beginPath()
+            g.arc(0, 0, 17, -0.8, 0.8)
+            g.stroke()
+            g.restore()
           }
-          g.strokeStyle = '#ffd16e'
-          g.beginPath()
-          g.arc(0, 0, 17, -0.8, 0.8)
-          g.stroke()
-          g.restore()
         }
       }
       // A craft a shot just hurt flashes white.
@@ -8549,12 +8545,17 @@ export function createRainbowPrincessPreview(
           g.lineTo(W, y)
           g.stroke()
           g.setLineDash([])
+          // The painted lamp hangs at the lane's far end; the dashed lane alone marks it while it loads.
+          g.save()
+          g.translate(W - 18, y)
+          drawRainbowRouteObjectSprite(g, 'lighthouse-lamp', 26)
+          g.restore()
           g.fillStyle = '#ffe8a8'
           g.font = 'bold 9px monospace'
           g.textAlign = 'right'
           g.fillText(
             `LIGHT ${nextLamp.id.slice(-1)} · FLY THIS LANE`,
-            W - 8,
+            W - 36,
             y - 8,
           )
           g.restore()

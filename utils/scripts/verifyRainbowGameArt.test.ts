@@ -21,6 +21,10 @@ import {
   drawRainbowEndingPlate,
   drawRainbowEnemySprite,
   drawRainbowPickupSprite,
+  drawRainbowRouteObjectSprite,
+  RAINBOW_ROUTE_OBJECT_SPRITES,
+  rainbowRouteObjectSprite,
+  rainbowGuardianArtKey,
   drawRainbowShipSprite,
   drawRainbowStageCard,
   drawRainbowStageStrip,
@@ -171,6 +175,40 @@ for (const kind of RAINBOW_GUARDIAN_SPRITES) {
   )
 }
 assert.equal(rainbowGuardianSprite('picket'), null)
+// Gen-2 alternate-Act guardians fly as their own pictures (t-059), not a borrowed main-Act guardian.
+for (const [kind, art] of [
+  ['kelpwarden', 'kelp-warden'],
+  ['herder', 'comet-herder'],
+  ['warden', 'pearl-warden'],
+  ['lampkeeper', 'bellkeeper'],
+  ['shoalkoi', 'shoal-koi'],
+  ['matriarch', 'lantern'],
+  ['siren', 'lantern'],
+] as const) {
+  assert.equal(rainbowGuardianArtKey(kind), art, `${kind} flies as ${art}`)
+  assert.equal(
+    rainbowGuardianSprite(kind),
+    `/rainbow-princess-art/enemies/guardian-${art}.webp`,
+  )
+}
+// Alternate-Act objectives: committed, small, and drawn with a code fallback while they load.
+for (const kind of RAINBOW_ROUTE_OBJECT_SPRITES) {
+  const src = rainbowRouteObjectSprite(kind)!
+  assert.equal(src, `/rainbow-princess-art/pickups/${kind}.webp`)
+  assert.ok(existsSync(publicFile(src)), `${kind} route sprite is committed`)
+  assert.ok(statSync(publicFile(src)).size < 16_000, `${kind} stays small`)
+}
+assert.equal(rainbowRouteObjectSprite('power'), null)
+assert.equal(drawRainbowRouteObjectSprite(g, 'lighthouse-lamp', 26), false)
+for (const kind of ['coral-choir-pod', 'comet-cadet-pod']) {
+  assert.match(
+    engine,
+    new RegExp(
+      `if \\(drawRainbowRouteObjectSprite\\(g, '${kind}', \\d+\\)\\) \\{\\s+g\\.restore\\(\\)\\s+\\} else \\{`,
+    ),
+    `${kind} keeps its code-drawn pod until the picture loads`,
+  )
+}
 assert.match(
   engine,
   /if \(!drawRainbowGuardianSprite\(g, guardian\.kind\)\) \{/,

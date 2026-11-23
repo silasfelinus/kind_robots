@@ -270,11 +270,36 @@ export const RAINBOW_GUARDIAN_SPRITES = [
   'bulwark',
   'mirror',
   'herald',
+  // Gen-2 alternate-Act guardians (t-059, keyed from Krea 2 renders 278924, 278620, 277698, 277699, 277844).
+  'kelp-warden',
+  'comet-herder',
+  'pearl-warden',
+  'bellkeeper',
+  'shoal-koi',
 ] as const
 
+/**
+ * Which painted guardian a guardian kind flies as. Act II's Matriarch and Act V's Armory Siren still borrow the
+ * Lantern until their own pictures land; every other kind with a sprite uses its own.
+ */
+const GUARDIAN_ART_FOR_KIND: Readonly<Record<string, string>> = {
+  matriarch: 'lantern',
+  siren: 'lantern',
+  kelpwarden: 'kelp-warden',
+  herder: 'comet-herder',
+  warden: 'pearl-warden',
+  lampkeeper: 'bellkeeper',
+  shoalkoi: 'shoal-koi',
+}
+
+export function rainbowGuardianArtKey(kind: string): string {
+  return GUARDIAN_ART_FOR_KIND[kind] ?? kind
+}
+
 export function rainbowGuardianSprite(kind: string): string | null {
-  return (RAINBOW_GUARDIAN_SPRITES as readonly string[]).includes(kind)
-    ? rainbowArt(`enemies/guardian-${kind}`)
+  const art = rainbowGuardianArtKey(kind)
+  return (RAINBOW_GUARDIAN_SPRITES as readonly string[]).includes(art)
+    ? rainbowArt(`enemies/guardian-${art}`)
     : null
 }
 
@@ -311,6 +336,38 @@ export function drawRainbowPickupSprite(
   const width = img.naturalWidth * scale
   const height = img.naturalHeight * scale
   g.drawImage(img, x - width / 2, y - height / 2, width, height)
+  return true
+}
+
+/**
+ * Alternate-Act objectives that are not engine pickups (t-059): the X1 Coral Choir pod, the X2 cadet pod and the
+ * X3 lighthouse lamp. Kept apart from RAINBOW_PICKUP_SPRITES, which mirrors the engine's Pickup kind union.
+ */
+export const RAINBOW_ROUTE_OBJECT_SPRITES = [
+  'coral-choir-pod',
+  'comet-cadet-pod',
+  'lighthouse-lamp',
+] as const
+
+export function rainbowRouteObjectSprite(kind: string): string | null {
+  return (RAINBOW_ROUTE_OBJECT_SPRITES as readonly string[]).includes(kind)
+    ? rainbowArt(`pickups/${kind}`)
+    : null
+}
+
+/** Draw a route objective centred on the origin inside a size box; false when it has no sprite or is loading. */
+export function drawRainbowRouteObjectSprite(
+  g: CanvasRenderingContext2D,
+  kind: string,
+  size: number,
+): boolean {
+  const src = rainbowRouteObjectSprite(kind)
+  const img = src ? loadedArt(src) : null
+  if (!img) return false
+  const scale = size / Math.max(img.naturalWidth, img.naturalHeight)
+  const width = img.naturalWidth * scale
+  const height = img.naturalHeight * scale
+  g.drawImage(img, -width / 2, -height / 2, width, height)
   return true
 }
 

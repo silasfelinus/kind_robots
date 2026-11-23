@@ -380,8 +380,11 @@ const campCards = computed<DhCard[]>(() =>
       return {
         id: String(i),
         label: o.label,
-        chip: 'Support',
-        hint: 'Both of them grow closer',
+        chip: o.tier === 2 ? 'Bond II' : 'Bond I',
+        hint:
+          o.tier === 2
+            ? 'A deeper trust strengthens their shared abilities'
+            : 'Discover what binds these two together',
         portrait: a,
       }
     }

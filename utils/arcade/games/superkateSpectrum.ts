@@ -873,5 +873,6 @@ const game: ArcadeGameModule = {
     },
   ],
 }
-export const create = game.create
+export const create = (options: ArcadeGameOptions) =>
+  new SuperkateSpectrum(options)
 export default game

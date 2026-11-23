@@ -871,7 +871,6 @@ assert.equal(
 for (let i = 0; i < 30; i++) played.update(emptyInput())
 assert.equal(played.save, undefined)
 
-
 assert.ok(MAKER_REPLAY_MAX_FRAMES >= 60 * 60 * 5)
 const seed = makerId(initial)
 const randomA = makerReplayRandom(seed)

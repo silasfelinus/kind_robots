@@ -328,13 +328,13 @@ import {
   MAKER_GROUPS,
   validateMakerLevel,
   toMakerStage,
+  makerId,
 } from '~/utils/arcade/games/savePlumberMaker'
 import {
   createSavePlumberPreview,
   type PlumberRun,
 } from '~/utils/arcade/games/savePlumberPreview'
 import { emptyInput, type ArcadeButton } from '~/utils/arcade/types'
-import { makerId } from '~/utils/arcade/games/savePlumberMaker'
 import {
   MAKER_REPLAY_MAX_FRAMES,
   makerReplayRandom,
@@ -394,7 +394,8 @@ const replayCourseId = ref<string | null>(null)
 const replayFrames = ref<number[]>([])
 const canReplay = computed(
   () =>
-    replayFrames.value.length > 0 && replayCourseId.value === makerId(maker.level),
+    replayFrames.value.length > 0 &&
+    replayCourseId.value === makerId(maker.level),
 )
 let recording: number[] = []
 let recordingOverflow = false
@@ -866,7 +867,8 @@ function tickGame(now: number) {
   if (replaying.value && replayCursor >= replayFrames.value.length) {
     replaying.value = false
     gameOver.value = true
-    maker.message = 'Replay ended before the course did. This run needs investigation.'
+    maker.message =
+      'Replay ended before the course did. This run needs investigation.'
     return
   }
   frameId = requestAnimationFrame(tickGame)

@@ -27,9 +27,7 @@ export function unpackMakerReplayFrame(bits: number): InputFrame {
   for (let i = 0; i < ARCADE_BUTTONS.length; i++) {
     const button = ARCADE_BUTTONS[i]!
     frame.held[button] = Boolean(bits & (1 << i))
-    frame.pressed[button] = Boolean(
-      bits & (1 << (i + ARCADE_BUTTONS.length)),
-    )
+    frame.pressed[button] = Boolean(bits & (1 << (i + ARCADE_BUTTONS.length)))
   }
   return frame
 }

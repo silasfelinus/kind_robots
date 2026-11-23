@@ -1,0 +1,199 @@
+{
+  "note": "Painted Hopeful Hues art. In-game slots load from /images/hopeful-hues/ and fall back to the SVG art until each ArtJob is delivered. Front-door images are committed derivatives of delivered ArtJobs (icon cropped to drop stray generated text).",
+  "conductorQueue": "conductor projects/art-prompts.yaml",
+  "front": [
+    {
+      "slot": "front:splash",
+      "committed": "/hopeful-hues/front/splash.webp",
+      "source": "/images/hopeful-hues/splash.webp",
+      "artJob": 76826
+    },
+    {
+      "slot": "front:link-preview",
+      "committed": "/hopeful-hues/front/link-preview.webp",
+      "source": "/images/hopeful-hues/splash.webp",
+      "artJob": 76826
+    },
+    {
+      "slot": "front:highlight",
+      "committed": "/hopeful-hues/front/highlight.webp",
+      "source": "/images/hopeful-hues/highlight.webp",
+      "artJob": 76827
+    },
+    {
+      "slot": "front:title-hero",
+      "committed": "/hopeful-hues/front/title-hero.webp",
+      "source": "/images/hopeful-hues/title-hero.webp",
+      "artJob": 76828
+    },
+    {
+      "slot": "front:tutorial",
+      "committed": "/hopeful-hues/front/tutorial.webp",
+      "source": "/images/hopeful-hues/title-hero.webp",
+      "artJob": 76828
+    },
+    {
+      "slot": "front:icon",
+      "committed": "/hopeful-hues/front/icon.webp",
+      "source": "/images/hopeful-hues/icon.webp",
+      "artJob": 76829
+    }
+  ],
+  "slots": [
+    {
+      "slot": "hero:kate",
+      "path": "/images/hopeful-hues/heroes/kate.webp",
+      "request": "hopeful-hues-hero-kate-20261123"
+    },
+    {
+      "slot": "hero:sprocket",
+      "path": "/images/hopeful-hues/heroes/sprocket.webp",
+      "request": "hopeful-hues-hero-sprocket-20261123"
+    },
+    {
+      "slot": "hero:juniper",
+      "path": "/images/hopeful-hues/heroes/juniper.webp",
+      "request": "hopeful-hues-hero-juniper-20261123"
+    },
+    {
+      "slot": "hero:marigold",
+      "path": "/images/hopeful-hues/heroes/marigold.webp",
+      "request": "hopeful-hues-hero-marigold-20261123"
+    },
+    {
+      "slot": "region:salon",
+      "path": "/images/hopeful-hues/regions/salon.webp",
+      "request": "hopeful-hues-region-salon-20261123"
+    },
+    {
+      "slot": "region:grove",
+      "path": "/images/hopeful-hues/regions/grove.webp",
+      "request": "hopeful-hues-region-grove-20261123"
+    },
+    {
+      "slot": "region:garden",
+      "path": "/images/hopeful-hues/regions/garden.webp",
+      "request": "hopeful-hues-region-garden-20261123"
+    },
+    {
+      "slot": "region:meadow",
+      "path": "/images/hopeful-hues/regions/meadow.webp",
+      "request": "hopeful-hues-region-meadow-20261123"
+    },
+    {
+      "slot": "region:carnival",
+      "path": "/images/hopeful-hues/regions/carnival.webp",
+      "request": "hopeful-hues-region-carnival-20261123"
+    },
+    {
+      "slot": "region:arcade",
+      "path": "/images/hopeful-hues/regions/arcade.webp",
+      "request": "hopeful-hues-region-arcade-20261123"
+    },
+    {
+      "slot": "region:lighthouse",
+      "path": "/images/hopeful-hues/regions/lighthouse.webp",
+      "request": "hopeful-hues-region-lighthouse-20261123"
+    },
+    {
+      "slot": "story:salon-6",
+      "path": "/images/hopeful-hues/story/salon-6.webp",
+      "request": "hopeful-hues-story-salon-6-20261123"
+    },
+    {
+      "slot": "story:salon-12",
+      "path": "/images/hopeful-hues/story/salon-12.webp",
+      "request": "hopeful-hues-story-salon-12-20261123"
+    },
+    {
+      "slot": "story:salon-18",
+      "path": "/images/hopeful-hues/story/salon-18.webp",
+      "request": "hopeful-hues-story-salon-18-20261123"
+    },
+    {
+      "slot": "story:grove-9",
+      "path": "/images/hopeful-hues/story/grove-9.webp",
+      "request": "hopeful-hues-story-grove-9-20261123"
+    },
+    {
+      "slot": "story:grove-18",
+      "path": "/images/hopeful-hues/story/grove-18.webp",
+      "request": "hopeful-hues-story-grove-18-20261123"
+    },
+    {
+      "slot": "story:garden-9",
+      "path": "/images/hopeful-hues/story/garden-9.webp",
+      "request": "hopeful-hues-story-garden-9-20261123"
+    },
+    {
+      "slot": "story:garden-18",
+      "path": "/images/hopeful-hues/story/garden-18.webp",
+      "request": "hopeful-hues-story-garden-18-20261123"
+    },
+    {
+      "slot": "story:meadow-10",
+      "path": "/images/hopeful-hues/story/meadow-10.webp",
+      "request": "hopeful-hues-story-meadow-10-20261123"
+    },
+    {
+      "slot": "story:meadow-19",
+      "path": "/images/hopeful-hues/story/meadow-19.webp",
+      "request": "hopeful-hues-story-meadow-19-20261123"
+    },
+    {
+      "slot": "story:carnival-10",
+      "path": "/images/hopeful-hues/story/carnival-10.webp",
+      "request": "hopeful-hues-story-carnival-10-20261123"
+    },
+    {
+      "slot": "story:carnival-19",
+      "path": "/images/hopeful-hues/story/carnival-19.webp",
+      "request": "hopeful-hues-story-carnival-19-20261123"
+    },
+    {
+      "slot": "story:arcade-10",
+      "path": "/images/hopeful-hues/story/arcade-10.webp",
+      "request": "hopeful-hues-story-arcade-10-20261123"
+    },
+    {
+      "slot": "story:arcade-19",
+      "path": "/images/hopeful-hues/story/arcade-19.webp",
+      "request": "hopeful-hues-story-arcade-19-20261123"
+    },
+    {
+      "slot": "story:lighthouse-10",
+      "path": "/images/hopeful-hues/story/lighthouse-10.webp",
+      "request": "hopeful-hues-story-lighthouse-10-20261123"
+    },
+    {
+      "slot": "story:lighthouse-19",
+      "path": "/images/hopeful-hues/story/lighthouse-19.webp",
+      "request": "hopeful-hues-story-lighthouse-19-20261123"
+    },
+    {
+      "slot": "ending:lullaby",
+      "path": "/images/hopeful-hues/endings/lullaby.webp",
+      "request": "hopeful-hues-ending-lullaby-20261123"
+    },
+    {
+      "slot": "ending:parade",
+      "path": "/images/hopeful-hues/endings/parade.webp",
+      "request": "hopeful-hues-ending-parade-20261123"
+    },
+    {
+      "slot": "ending:highscore",
+      "path": "/images/hopeful-hues/endings/highscore.webp",
+      "request": "hopeful-hues-ending-highscore-20261123"
+    },
+    {
+      "slot": "ending:letters",
+      "path": "/images/hopeful-hues/endings/letters.webp",
+      "request": "hopeful-hues-ending-letters-20261123"
+    },
+    {
+      "slot": "ending:everyone",
+      "path": "/images/hopeful-hues/endings/everyone.webp",
+      "request": "hopeful-hues-ending-everyone-20261123"
+    }
+  ]
+}

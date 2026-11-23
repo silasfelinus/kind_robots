@@ -30,6 +30,62 @@
     'You make the people around you braver.',
   ]
 
+  const PAINTED_ROOT = '/images/hopeful-hues/'
+
+  function painted(path, fallback, cls) {
+    return `<span class="painted ${cls || ''}"><img src="${PAINTED_ROOT}${path}" alt="" decoding="async"><span class="painted-fallback">${fallback}</span></span>`
+  }
+
+  function heroArt(id, size, cls) {
+    return painted('heroes/' + id + '.webp', A.portraitSvg(id, size), cls)
+  }
+
+  function regionArt(regionId, cls) {
+    const region = L.REGIONS[regionId]
+    return painted(
+      'regions/' + regionId + '.webp',
+      `<span class="motif-fallback" style="background:linear-gradient(135deg, ${region.sky[0]}, ${region.sky[1]})">${A.motifSvg(region.motif, region.palette[0])}</span>`,
+      cls,
+    )
+  }
+
+  function beatArt(regionId, at, cls) {
+    if (at === 1) return regionArt(regionId, cls)
+    const region = L.REGIONS[regionId]
+    return painted(
+      'story/' + regionId + '-' + at + '.webp',
+      `<span class="motif-fallback" style="background:linear-gradient(135deg, ${region.sky[0]}, ${region.sky[1]})">${A.motifSvg(region.motif, region.palette[1])}</span>`,
+      cls,
+    )
+  }
+
+  function endingArt(endingId, cls) {
+    const ending = L.ENDINGS[endingId]
+    const region = ending && ending.region ? L.REGIONS[ending.region] : null
+    return painted(
+      'endings/' + endingId + '.webp',
+      `<span class="motif-fallback" style="background:var(--rainbow)">${region ? A.motifSvg(region.motif, '#fff') : A.rainbowSvg()}</span>`,
+      cls,
+    )
+  }
+
+  document.addEventListener(
+    'error',
+    (event) => {
+      const img = event.target
+      if (
+        img &&
+        img.tagName === 'IMG' &&
+        img.parentNode &&
+        img.parentNode.classList &&
+        img.parentNode.classList.contains('painted')
+      ) {
+        img.parentNode.classList.add('missing')
+      }
+    },
+    true,
+  )
+
   const embedded = new URLSearchParams(location.search).get('embedded') === '1'
   const storage = (() => {
     try {
@@ -259,7 +315,7 @@
   function renderTitle() {
     const s = slot()
     const cast = L.CHARACTERS.map(
-      (c) => `<div>${A.portraitSvg(c.id, 84)}</div>`,
+      (c) => `<div>${heroArt(c.id, 84, 'cast-portrait')}</div>`,
     ).join('')
     appEl.innerHTML = `<section class="screen title-screen scroll">
       ${A.logoSvg()}
@@ -308,7 +364,7 @@
           month: 'short',
           day: 'numeric',
         })
-        return `<div class="card slot-card">${A.portraitSvg(c.id, 96)}<h3>Slot ${i + 1} · ${esc(c.name)}</h3><div class="meta">⭐ ${stars} · ${won} levels · ${s.endings.length} endings · ✨ ${s.sparkles}<br>Last played ${esc(when)}</div><div class="row"><button class="btn primary" data-action="load" data-slot="${i}">Play</button><button class="btn small" data-action="export" data-slot="${i}">Export</button><button class="btn small" data-action="delete" data-slot="${i}">Delete</button></div></div>`
+        return `<div class="card slot-card">${heroArt(c.id, 96, 'slot-portrait')}<h3>Slot ${i + 1} · ${esc(c.name)}</h3><div class="meta">⭐ ${stars} · ${won} levels · ${s.endings.length} endings · ✨ ${s.sparkles}<br>Last played ${esc(when)}</div><div class="row"><button class="btn primary" data-action="load" data-slot="${i}">Play</button><button class="btn small" data-action="export" data-slot="${i}">Export</button><button class="btn small" data-action="delete" data-slot="${i}">Delete</button></div></div>`
       })
       .join('')
     appEl.innerHTML = `<section class="screen"><div class="topbar">${backButton('Title')}<h2>Save slots</h2></div><div class="scroll" style="flex:1"><div class="grid-cards">${cards}</div><p class="center muted" style="padding:0 16px 20px">Progress saves automatically on this device. Export a slot to keep a backup code or move it to another browser.</p></div></section>`
@@ -392,7 +448,7 @@
     const current = slot()
     const cards = L.CHARACTERS.map(
       (c) =>
-        `<div class="card char-card" style="border-color:${current && changing && current.character === c.id ? c.colors[0] : 'transparent'}">${A.portraitSvg(c.id, 120)}<h3>${esc(c.name)}</h3><div class="meta">${esc(c.title)}</div><div class="perk"><b>${esc(c.perkName)}:</b> ${esc(c.perkText)}</div><button class="btn primary" data-action="pick" data-id="${c.id}">${changing ? 'Switch to ' : 'Play as '}${esc(c.name)}</button></div>`,
+        `<div class="card char-card" style="border-color:${current && changing && current.character === c.id ? c.colors[0] : 'transparent'}">${heroArt(c.id, 120, 'char-portrait')}<h3>${esc(c.name)}</h3><div class="meta">${esc(c.title)}</div><div class="perk"><b>${esc(c.perkName)}:</b> ${esc(c.perkText)}</div><button class="btn primary" data-action="pick" data-id="${c.id}">${changing ? 'Switch to ' : 'Play as '}${esc(c.name)}</button></div>`,
     ).join('')
     appEl.innerHTML = `<section class="screen"><div class="topbar">${backButton()}<h2>${changing ? 'Change your hero' : 'Who is bringing the color?'}</h2></div><div class="scroll" style="flex:1"><div class="grid-cards">${cards}</div><p class="center muted" style="padding:0 16px 20px">Every hero can finish every route. Perks change how you play, and each hero has their own ending epilogue. You can switch heroes from the map at any time.</p></div></section>`
     bind(appEl, {
@@ -620,7 +676,7 @@
     persist()
     const modal = openModal({
       title: region.name,
-      body: `<div class="story-card"><div class="art" style="background:linear-gradient(135deg, ${region.sky[0]}, ${region.sky[1]});border-radius:50%;padding:16px">${A.motifSvg(region.motif, region.palette[0])}</div><p>${esc(region.blurb)}</p>${beat ? `<p class="muted"><b>${esc(beat.title)}.</b> ${esc(beat.text)}</p>` : ''}<p class="muted">📔 Added to your scrapbook.</p></div>`,
+      body: `<div class="story-card">${regionArt(regionId, 'scene')}<p>${esc(region.blurb)}</p>${beat ? `<p class="muted"><b>${esc(beat.title)}.</b> ${esc(beat.text)}</p>` : ''}<p class="muted">📔 Added to your scrapbook.</p></div>`,
       foot: '<button class="btn rainbow" data-m="ok">Let\'s go!</button>',
       onClose: then,
     })
@@ -636,7 +692,7 @@
       .map((id) => {
         const r = L.REGIONS[id]
         const visited = s.levels[L.levelId(id, 1)]
-        return `<button class="fork-card" data-m="pick" data-id="${id}" style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${A.motifSvg(r.motif, r.palette[0])}<h3>${esc(r.name)}</h3><p>${esc(r.blurb)}</p>${visited ? '<small>✓ You have been here before</small>' : ''}</button>`
+        return `<button class="fork-card" data-m="pick" data-id="${id}" style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${regionArt(id, 'scene')}<h3>${esc(r.name)}</h3><p>${esc(r.blurb)}</p>${visited ? '<small>✓ You have been here before</small>' : ''}</button>`
       })
       .join('')
     const modal = openModal({
@@ -667,7 +723,7 @@
           let won = 0
           for (let n = 1; n <= count; n++) if (s.levels[L.levelId(id, n)]) won++
           const ending = r.ending ? L.ENDINGS[r.ending] : null
-          return `<button class="route-node ${active ? 'active' : ''} ${unlocked ? '' : 'locked'}" data-m="travel" data-id="${id}" ${unlocked ? '' : 'disabled'} style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${A.motifSvg(r.motif, r.palette[0])}<div><b>${esc(r.name)}</b></div><div class="muted">${won}/${count} levels${ending ? (s.endings.includes(ending.id) ? ' · ✨ ending' : ' · ending ahead') : ''}</div>${unlocked ? '' : '<div>🔒</div>'}</button>`
+          return `<button class="route-node ${active ? 'active' : ''} ${unlocked ? '' : 'locked'}" data-m="travel" data-id="${id}" ${unlocked ? '' : 'disabled'} style="background:linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})">${regionArt(id, 'thumb')}<div><b>${esc(r.name)}</b></div><div class="muted">${won}/${count} levels${ending ? (s.endings.includes(ending.id) ? ' · ✨ ending' : ' · ending ahead') : ''}</div>${unlocked ? '' : '<div>🔒</div>'}</button>`
         })
         .join(''),
     )
@@ -745,7 +801,7 @@
     const region = L.REGIONS[regionId]
     const modal = openModal({
       title: beat.title,
-      body: `<div class="story-card"><div class="art" style="background:linear-gradient(135deg, ${region.sky[0]}, ${region.sky[1]});border-radius:50%;padding:16px">${A.motifSvg(region.motif, region.palette[1])}</div><p>${esc(beat.text)}</p><p class="muted">📔 Added to your scrapbook.</p></div>`,
+      body: `<div class="story-card">${beatArt(regionId, beat.at, 'scene')}<p>${esc(beat.text)}</p><p class="muted">📔 Added to your scrapbook.</p></div>`,
       foot: '<button class="btn rainbow" data-m="ok">Continue</button>',
       onClose: then,
     })
@@ -776,11 +832,22 @@
       hintTimer: null,
       cheerTimer: null,
       committed: false,
+      tutorial: null,
+      tutorialStarted: false,
+      coachOpen: false,
     }
   }
 
   function renderGame(params) {
     if (!game || game.id !== params.id) game = newGame(params.id)
+    if (game.tutorial) {
+      game.tutorial = null
+      game.tutorialStarted = game.history.length > 0
+    }
+    if (game.coachOpen) {
+      game.coachOpen = false
+      game.busy = false
+    }
     const s = slot()
     const c = character(s.character)
     const region = L.REGIONS[game.def.region]
@@ -799,7 +866,7 @@
       <div class="hud">
         <div class="card hud-box moves" data-moves-box><span class="label">Moves</span><span class="value" data-moves></span></div>
         <div class="card hud-box" style="min-width:140px"><span class="label">Score</span><span class="value" data-score></span><div class="star-meter"><div class="fill" data-meter></div>${[1, 2].map((k) => `<span class="tick" style="left:${Math.round((game.def.stars[k] / (game.def.stars[2] * 1.1)) * 100)}%">${A.starSvg(true)}</span>`).join('')}</div></div>
-        <div class="card hud-box"><span class="label">Goals</span><div class="goals" data-goals></div></div>
+        <div class="card hud-box" data-goals-box><span class="label">Goals</span><div class="goals" data-goals></div></div>
       </div>
       <div class="board-wrap" data-wrap>
         <div class="board" data-board role="grid" aria-label="Game board" tabindex="0">
@@ -841,6 +908,215 @@
     updateHud()
     setupInput(board)
     scheduleHint()
+    startGuidance()
+  }
+
+  const TIPS = {
+    collect: {
+      title: 'Collect colors',
+      text: 'This level asks for a color. Every tile of that color you clear counts toward the goal up top.',
+    },
+    gloom: {
+      title: 'Grey Gloom',
+      text: 'Gloom hides under tiles. Make matches on top of it to wash it away. Darker Gloom needs two washes.',
+    },
+    tangle: {
+      title: 'Tangles',
+      text: 'Tangles are knots that block a space. Match right next to them, or hit them with a special, to untie them.',
+    },
+    buddy: {
+      title: 'Robot buddies',
+      text: 'Bring buddies down to the bottom row to rescue them. You can always swap a buddy down one space, and specials beam them straight home.',
+    },
+    comb: {
+      title: 'Rainbow Comb!',
+      text: 'Four in a line made a Rainbow Comb. Match it or swap it to sweep a whole row or column.',
+    },
+    bomb: {
+      title: 'Glitter Bomb!',
+      text: 'An L or T shape made a Glitter Bomb. Set it off to sparkle away everything around it.',
+    },
+    rainbow: {
+      title: 'Rainbow Dye!',
+      text: 'Swap a Rainbow Dye with any tile to clear every tile of that color. Swap two specials together for an even bigger burst.',
+    },
+  }
+
+  function coach({ title, text, button, focus, skip, place }) {
+    closeCoach()
+    const screen = appEl.querySelector('.game-screen')
+    if (!screen || !game) return Promise.resolve('gone')
+    const el = document.createElement('div')
+    el.className = 'coach ' + (place || 'bottom')
+    el.setAttribute('role', 'dialog')
+    el.setAttribute('aria-label', title)
+    el.innerHTML = `${heroArt(slot().character, 56, 'coach-portrait')}<div class="coach-body"><b>${esc(title)}</b><p>${esc(text)}</p><div class="coach-actions">${skip ? '<button class="btn small" data-coach="skip">Skip tutorial</button>' : ''}${button ? `<button class="btn small rainbow" data-coach="next">${esc(button)}</button>` : ''}</div></div>`
+    screen.appendChild(el)
+    if (focus) {
+      const target = appEl.querySelector(focus)
+      if (target) target.classList.add('tut-focus')
+    }
+    const next = el.querySelector('[data-coach="next"]')
+    if (next) setTimeout(() => next.focus(), 30)
+    return new Promise((resolve) => {
+      el.querySelectorAll('[data-coach]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          audio.play('tap')
+          closeCoach()
+          resolve(btn.dataset.coach)
+        }),
+      )
+    })
+  }
+
+  function closeCoach() {
+    appEl.querySelectorAll('.coach').forEach((el) => el.remove())
+    appEl
+      .querySelectorAll('.tut-focus')
+      .forEach((el) => el.classList.remove('tut-focus'))
+  }
+
+  function showHand(move) {
+    hideHand()
+    const [a, b] = move
+    const hand = document.createElement('div')
+    hand.className = 'tut-hand'
+    hand.textContent = '👆'
+    hand.style.left = (a[1] + 0.5) * game.cell + 'px'
+    hand.style.top = (a[0] + 0.5) * game.cell + 'px'
+    hand.style.setProperty('--dx', (b[1] - a[1]) * game.cell + 'px')
+    hand.style.setProperty('--dy', (b[0] - a[0]) * game.cell + 'px')
+    game.els.fx.appendChild(hand)
+    for (const p of move) {
+      const el = elAt(p[0], p[1])
+      if (el) el.classList.add('hint')
+    }
+  }
+
+  function hideHand() {
+    appEl.querySelectorAll('.tut-hand').forEach((el) => el.remove())
+    clearHint()
+  }
+
+  function startGuidance() {
+    const s = slot()
+    if (!s || !game || game.state.over) return
+    if (
+      !s.tutorialDone &&
+      game.id === 'salon-1' &&
+      !game.tutorialStarted &&
+      !game.history.length
+    ) {
+      game.tutorialStarted = true
+      runTutorial()
+      return
+    }
+    levelTips()
+  }
+
+  async function runTutorial() {
+    const move = E.findMove(game.state)
+    if (!move) return finishTutorial()
+    clearTimeout(game.hintTimer)
+    const swapped = new Promise((resolve) => {
+      game.tutorial = { move, done: resolve }
+    })
+    showHand(move)
+    const lowerHalf = move[0][0] >= game.state.rows / 2
+    const first = await Promise.race([
+      coach({
+        title: 'Welcome to the salon!',
+        text: 'Swap the two wiggling tiles to line up three of a color. Drag one onto the other, or tap one and then the other.',
+        skip: true,
+        place: lowerHalf ? 'top' : 'bottom',
+      }),
+      swapped,
+    ])
+    hideHand()
+    closeCoach()
+    if (first === 'skip' || first === 'gone') return finishTutorial()
+    while (game && game.busy) await wait(120)
+    if (!game || game.state.over) return finishTutorial()
+    const goals = game.state.goals.map((goal) => goalText(goal)).join(', ')
+    const step2 = await coach({
+      title: 'Your goal',
+      text: `Every level has a goal up here and a number of moves to reach it. This one: ${goals}.`,
+      button: 'Next',
+      focus: '[data-goals-box]',
+      skip: true,
+      place: 'bottom',
+    })
+    if (step2 !== 'next') return finishTutorial()
+    const step3 = await coach({
+      title: 'The Back button',
+      text: 'Oops? Back a move undoes your last swap, exactly as it was. Use it as often as you like. No penalty, ever.',
+      button: 'Next',
+      focus: '[data-action="undo"]',
+      skip: true,
+      place: 'top',
+    })
+    if (step3 !== 'next') return finishTutorial()
+    await coach({
+      title: "You've got this!",
+      text: 'Match 4 in a line, make an L or T shape, or line up 5 to make specials. I will pop in the first time something new shows up.',
+      button: "Let's play!",
+      place: 'top',
+    })
+    finishTutorial()
+  }
+
+  function finishTutorial() {
+    const s = slot()
+    if (game) game.tutorial = null
+    hideHand()
+    closeCoach()
+    if (s) {
+      s.tutorialDone = true
+      persist()
+    }
+    scheduleHint()
+  }
+
+  async function showTip(key) {
+    const s = slot()
+    const tip = TIPS[key]
+    if (!s || !tip || !game || s.tips.includes(key)) return
+    s.tips.push(key)
+    persist()
+    game.busy = true
+    game.coachOpen = true
+    updateHud()
+    await coach({
+      title: tip.title,
+      text: tip.text,
+      button: 'Got it',
+      place: 'top',
+    })
+    if (!game) return
+    game.coachOpen = false
+    game.busy = false
+    updateHud()
+    scheduleHint()
+  }
+
+  async function levelTips() {
+    const kinds = new Set(game.def.goals.map((goal) => goal.type))
+    for (const key of ['collect', 'gloom', 'tangle', 'buddy']) {
+      if (kinds.has(key)) await showTip(key)
+    }
+    const hasRainbow = game.state.board.some((row) =>
+      row.some((tile) => tile && tile.special === 'rainbow'),
+    )
+    if (hasRainbow) await showTip('rainbow')
+  }
+
+  async function specialTips(phases) {
+    const made = new Set()
+    for (const phase of phases)
+      for (const c of phase.created || [])
+        made.add(c.special === 'h' || c.special === 'v' ? 'comb' : c.special)
+    for (const key of ['comb', 'bomb', 'rainbow'])
+      if (made.has(key)) await showTip(key)
   }
 
   function sizeBoard() {
@@ -1133,6 +1409,19 @@
   async function attemptSwap(a, b) {
     if (game.busy || game.state.over) return
     if (!E.isCell(game.state, b[0], b[1])) return
+    if (game.tutorial && game.tutorial.move) {
+      const [m0, m1] = game.tutorial.move
+      const same = (p, q) => p[0] === q[0] && p[1] === q[1]
+      if (!((same(a, m0) && same(b, m1)) || (same(a, m1) && same(b, m0)))) {
+        audio.play('invalid')
+        cheer('Try the two wiggling tiles first 💖')
+        return
+      }
+      const done = game.tutorial.done
+      game.tutorial.move = null
+      hideHand()
+      if (done) done('swapped')
+    }
     clearHint()
     if (!E.canSwap(game.state, a, b)) {
       const ea = elAt(a[0], a[1])
@@ -1161,6 +1450,7 @@
     updateHud()
     if (result.outcome === 'win') return onWin()
     if (result.outcome === 'fail') return onFail()
+    if (!game.tutorial) await specialTips(result.phases)
     scheduleHint()
   }
 
@@ -1553,7 +1843,7 @@
     const modal = openModal({
       title: 'So close!',
       dismissable: false,
-      body: `<div class="story-card"><div class="art">${A.portraitSvg(s.character, 110)}</div><p>The colors are still in there. Still to go: <b>${esc(remaining.join(', '))}</b>.</p><p class="muted">No lives, no timers. Try as many times as you like.</p></div>`,
+      body: `<div class="story-card">${heroArt(s.character, 110, 'fail-portrait')}<p>The colors are still in there. Still to go: <b>${esc(remaining.join(', '))}</b>.</p><p class="muted">No lives, no timers. Try as many times as you like.</p></div>`,
       foot: `${canUndo ? '<button class="btn undo" data-m="undo" style="background:linear-gradient(135deg,#4cc9f0,#3ddc97);color:#fff">↶ Back a move</button>' : ''}<button class="btn" data-m="boost" ${s.sparkles < boostCost && !s.boosters.moves ? 'disabled' : ''}>💖 +5 moves (${s.boosters.moves ? 'free gift' : boostCost + ' ✨'})</button><button class="btn" data-m="retry">Retry</button><button class="btn primary" data-m="map">Map</button>`,
     })
     modalActions(modal, {
@@ -1612,7 +1902,7 @@
     const others = Object.values(L.ENDINGS).filter(
       (e) => !s.endings.includes(e.id),
     ).length
-    el.innerHTML = `<div class="cast">${L.CHARACTERS.map((ch) => A.portraitSvg(ch.id, 70)).join('')}</div><h1>${esc(ending.title)}</h1><div class="panel">${region ? `<p class="muted">${esc(region.name)}</p>` : '<p class="muted">Secret ending</p>'}<p style="font-size:1.08rem">${esc(ending.text)}</p><p><b>${esc(c.name)}:</b> ${esc(c.epilogue)}</p><p class="credits">${others ? `${others} more ending${others > 1 ? 's are' : ' is'} still out there. Try another path from the Routes map.` : 'You found every ending. Thank you for bringing color to everyone.'}</p><p class="credits">Hopeful Hues · a Kind Robots game · starring Superkate, rainbow hair hero · made with love and a back button.</p><button class="btn rainbow" data-done>${then ? 'Wait… there is more ✨' : 'Back to the map'}</button></div>`
+    el.innerHTML = `<div class="cast">${L.CHARACTERS.map((ch) => heroArt(ch.id, 70, 'ending-portrait')).join('')}</div><h1>${esc(ending.title)}</h1><div class="panel">${endingArt(endingId, 'scene')}${region ? `<p class="muted">${esc(region.name)}</p>` : '<p class="muted">Secret ending</p>'}<p style="font-size:1.08rem">${esc(ending.text)}</p><p><b>${esc(c.name)}:</b> ${esc(c.epilogue)}</p><p class="credits">${others ? `${others} more ending${others > 1 ? 's are' : ' is'} still out there. Try another path from the Routes map.` : 'You found every ending. Thank you for bringing color to everyone.'}</p><p class="credits">Hopeful Hues · a Kind Robots game · starring Superkate, rainbow hair hero · made with love and a back button.</p><button class="btn rainbow" data-done>${then ? 'Wait… there is more ✨' : 'Back to the map'}</button></div>`
     document.body.appendChild(el)
     el.querySelector('[data-done]').focus()
     el.querySelector('[data-done]').addEventListener('click', () => {
@@ -1734,15 +2024,14 @@
         if (e.region) {
           const r = L.REGIONS[e.region]
           bg = `linear-gradient(135deg, ${r.sky[0]}, ${r.sky[1]})`
-          pic = A.motifSvg(r.motif, r.palette[i % 3])
+          const at = e.id.startsWith('beat:') ? Number(e.id.split(':')[2]) : 1
+          pic = beatArt(e.region, at, 'fill')
         } else if (e.character) {
-          pic = A.portraitSvg(e.character, 120)
+          pic = heroArt(e.character, 120, 'fill')
           bg = '#fff6fb'
         } else if (e.ending) {
-          const end = L.ENDINGS[e.ending]
-          const r = end.region ? L.REGIONS[end.region] : null
           bg = 'var(--rainbow)'
-          pic = r ? A.motifSvg(r.motif, '#fff') : A.rainbowSvg()
+          pic = endingArt(e.ending, 'fill')
         } else if (e.achievement) {
           const idx = M.ACHIEVEMENTS.findIndex((a) => a.id === e.achievement)
           pic = `<span style="font-size:3.4rem">${MEDALS[idx % MEDALS.length]}</span>`
@@ -1780,7 +2069,8 @@
         ${toggle('largeText', 'Larger text')}
         ${toggle('hints', 'Gentle hints', 'A possible move wiggles after a quiet pause.')}
         <div class="settings-row"><div><b>Back button</b><div class="muted">How many moves you can take back per level.</div></div><select data-select="backLimit" aria-label="Back button limit" class="btn small">${['unlimited', '5', '3', '1'].map((v) => `<option value="${v}" ${s.backLimit === v ? 'selected' : ''}>${v === 'unlimited' ? 'Unlimited' : v + ' per level'}</option>`).join('')}</select></div>
-        <div class="settings-row"><div><b>Save data</b><div class="muted">Saves automatically to this device after every level.</div></div><button class="btn small" data-m="slots">Manage slots</button></div>`,
+        <div class="settings-row"><div><b>Save data</b><div class="muted">Saves automatically to this device after every level.</div></div><button class="btn small" data-m="slots">Manage slots</button></div>
+        <div class="settings-row"><div><b>Tutorial</b><div class="muted">Replay the guided first level and the first-time tips.</div></div><button class="btn small" data-m="replay">Replay tutorial</button></div>`,
     })
     modal.querySelectorAll('[data-range]').forEach((input) =>
       input.addEventListener('input', () => {
@@ -1807,6 +2097,20 @@
           game.els.tileMap.forEach((tileEl) => (tileEl._sig = ''))
           drawBoard(game.state.board, true)
         }
+      },
+      replay: () => {
+        const s = slot()
+        if (!s) {
+          toast('💾', 'Pick a save slot first.')
+          return
+        }
+        s.tutorialDone = false
+        s.tips = []
+        persist()
+        toast(
+          '🌈',
+          'The tutorial will play on Sunrise Salon Street level 1, and tips will show again.',
+        )
       },
       slots: () => {
         closeAllModals()

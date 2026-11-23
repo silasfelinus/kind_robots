@@ -275,6 +275,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.remember()
   }
   private burstSparks(x: number, y: number, hue: Hue, count: number) {
+    if (!this.settings.particles) return
     for (let i = 0; i < Math.min(count, 32); i++) {
       const angle = (i * Math.PI * 2) / count
       const speed = 1.2 + (i % 4) * 0.6
@@ -509,6 +510,110 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     )
       this.settle()
   }
+  private renderHomePage(g: CanvasRenderingContext2D, rank: number) {
+    const panel = g.createLinearGradient(0, 120, W, 380)
+    panel.addColorStop(0, '#40225fe8')
+    panel.addColorStop(1, '#132644f0')
+    g.fillStyle = panel
+    g.fillRect(14, 122, W - 28, 263)
+    g.strokeStyle = '#ff9edb'
+    g.lineWidth = 2
+    g.strokeRect(14, 122, W - 28, 263)
+    label(g, this.menuTab.toUpperCase(), W / 2, 149, 17, '#ffe69d')
+    if (this.menuTab === 'scrapbook') {
+      const chapter = CHAPTERS[this.albumChapter]!
+      const first = this.albumChapter * 5
+      const unlocked = this.career.highestStage > first
+      label(
+        g,
+        unlocked ? chapter.name : 'A CHAPTER YET TO BE REVEALED',
+        W / 2,
+        181,
+        12,
+        '#99f5ee',
+      )
+      for (let i = 0; i < 5; i++) {
+        const at = first + i
+        const earned = this.career.stars[at] ?? 0
+        const x = 42 + i * 59
+        g.fillStyle = at < this.career.highestStage ? '#de62a6' : '#3b395b'
+        g.fillRect(x - 19, 204, 38, 52)
+        g.strokeStyle = '#ffffff77'
+        g.strokeRect(x - 19, 204, 38, 52)
+        label(g, String(at + 1), x, 221, 11)
+        label(g, earned ? '★'.repeat(earned) : '· · ·', x, 242, 10)
+      }
+      label(
+        g,
+        unlocked ? chapter.kate : 'PLAY MORE TO RESTORE THESE COLORS',
+        W / 2,
+        289,
+        10,
+        '#ffe5e9',
+      )
+      label(
+        g,
+        `★ ${this.career.stars.reduce((n, value) => n + value, 0)}/90 TOTAL`,
+        W / 2,
+        317,
+        13,
+        '#ffe18e',
+      )
+      label(g, 'LEFT/RIGHT: CHAPTERS', W / 2, 343, 10)
+    } else if (this.menuTab === 'achievements') {
+      const milestones = [
+        {
+          id: 'rainbow-rescue',
+          name: 'RAINBOW RESCUE',
+          hint: 'DROP FIVE FLOATING BUBBLES',
+        },
+        {
+          id: 'color-alchemist',
+          name: 'COLOR ALCHEMIST',
+          hint: 'POP SIX MATCHING BUBBLES',
+        },
+        {
+          id: 'true-spectrum',
+          name: 'EVERY SHADE BELONGS',
+          hint: 'RESTORE ALL 30 LEVELS',
+        },
+      ]
+      for (const [index, medal] of milestones.entries()) {
+        const y = 185 + index * 58
+        const earned = this.earned.has(medal.id)
+        g.fillStyle = earned ? '#146a68' : '#292d52'
+        g.fillRect(31, y - 17, W - 62, 49)
+        label(
+          g,
+          earned ? `★ ${medal.name}` : `◇ ${medal.name}`,
+          W / 2,
+          y,
+          12,
+          earned ? '#fff1a0' : '#c3c8d8',
+        )
+        label(g, medal.hint, W / 2, y + 19, 9, '#b6ebe6')
+      }
+      label(g, `COLOR RANK ${rank}`, W / 2, 361, 11, '#ffdf92')
+    } else {
+      const choices = [
+        ['AIM TRAJECTORY', this.settings.aimGuide],
+        ['POP ANIMATIONS', this.settings.particles],
+        ['HIGH CONTRAST', this.settings.highContrast],
+      ] as const
+      for (const [index, setting] of choices.entries()) {
+        const y = 188 + index * 49
+        g.fillStyle =
+          index === this.optionRow ? '#6d3172e0' : '#27334ed4'
+        g.fillRect(28, y - 22, W - 56, 37)
+        label(g, setting[0], 115, y, 11)
+        label(g, setting[1] ? 'ON' : 'OFF', 247, y, 12, '#9ff2e5')
+      }
+      label(g, 'UP/DOWN: SELECT  A/B: TOGGLE', W / 2, 346, 11)
+      label(g, 'AUDIO / CRT: ARCADE CONTROLS', W / 2, 367, 10, '#edc6f5')
+    }
+    label(g, 'X: NEXT TAB  Y: PREVIOUS', W / 2, 401, 11, '#f3d78d')
+  }
+
   render(g: CanvasRenderingContext2D) {
     g.fillStyle = '#100d27'
     g.fillRect(0, 0, W, H)
@@ -542,8 +647,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     g.strokeStyle = '#ffffff80'
     g.lineWidth = 2
     g.setLineDash([4, 8])
-    g.beginPath()
-    g.moveTo(W / 2, SHOT_Y)
+
+    if (this.settings.aimGuide) {
+      g.beginPath()
+      g.moveTo(W / 2, SHOT_Y)
     let ax = W / 2
     let ay = SHOT_Y
     let dx = Math.cos(this.angle) * 8
@@ -555,7 +662,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       if (ay < 42) break
       if (i % 2 === 0) g.lineTo(ax, ay)
     }
-    g.stroke()
+      g.stroke()
+    }
     g.setLineDash([])
     const style = this.selectedStyle
     if (this.shot) {
@@ -616,6 +724,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       11,
       '#ffe4a0',
     )
+    if (this.choosingMode && this.menuTab !== 'play') {
+      this.renderHomePage(g, rank)
+      return
+    }
     if (this.choosingMode) {
       g.fillStyle = '#0c0b25ee'
       g.fillRect(14, 143, W - 28, 210)
@@ -671,6 +783,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.fillRect(60, 340, 200, 6)
       g.fillStyle = '#e77fcc'
       g.fillRect(60, 340, 200 * progress, 6)
+      label(g, 'X: SCRAPBOOK · Y: SETTINGS', W / 2, 368, 11, '#9cf4e8')
       return
     }
     if (this.banner > 0 || this.over) {

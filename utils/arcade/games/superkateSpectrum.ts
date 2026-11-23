@@ -248,7 +248,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.selectedStyle = this.stored.style
     this.menuStage = this.career.highestStage
     this.level = this.mode === 'classic' ? 1 : this.menuStage
-    this.board = makeBoard(this.level, this.rng)
+    this.board = makeBoard(this.level, this.rng, this.mode)
     this.loaded = chooseHue(this.board, this.rng)
     this.next = chooseHue(this.board, this.rng)
     this.message = CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.kate
@@ -332,7 +332,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.feats.push(id)
   }
   private resetBoard() {
-    this.board = makeBoard(this.level, this.rng)
+    this.board = makeBoard(this.level, this.rng, this.mode)
     this.loaded = chooseHue(this.board, this.rng)
     this.next = chooseHue(this.board, this.rng)
     this.shot = null

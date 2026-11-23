@@ -1738,8 +1738,6 @@ export class PlumberRun implements ArcadeGameInstance {
         if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
       } else if (this.landed) this.landed--
       this.updateSprings(prevBottom)
-      // Take the buffered jump on the exact landing tick, not one frame later.
-      // Springs still win when they bounce her before this check.
       if (this.ground && !wasGround && this.jumpBuffer)
         this.startBufferedJump()
     }

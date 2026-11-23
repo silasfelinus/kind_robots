@@ -43,7 +43,6 @@ export default defineEventHandler(async (event) => {
       isPublic: true,
       isMature: true,
       imagePath: true,
-      imageData: true,
       fileType: true,
     },
   })
@@ -61,7 +60,13 @@ export default defineEventHandler(async (event) => {
   if (image.imagePath?.startsWith('/images/')) {
     return sendRedirect(event, image.imagePath, 302)
   }
-  if (!image.imageData) {
+  // Avoid loading a potentially megabyte-sized imageData blob for every
+  // path-backed portrait. The builder can show dozens of portraits at once.
+  const binary = await prisma.artImage.findUnique({
+    where: { id },
+    select: { imageData: true },
+  })
+  if (!binary?.imageData) {
     throw createError({ statusCode: 404, statusMessage: 'Image not delivered' })
   }
   const type = IMAGE_TYPES[String(image.fileType || '').toLowerCase()]
@@ -69,5 +74,5 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 415, statusMessage: 'Invalid image format' })
   }
   setHeader(event, 'Content-Type', type)
-  return Buffer.from(image.imageData.replace(/^data:[^,]*,/, ''), 'base64')
+  return Buffer.from(binary.imageData.replace(/^data:[^,]*,/, ''), 'base64')
 })

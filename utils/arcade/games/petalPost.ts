@@ -1574,6 +1574,8 @@ class PetalPost implements ArcadeGameInstance {
     g.fillStyle = rgba(INK, 0.88)
     g.fillRect(0, HUD_H, W, H - HUD_H)
     hudPanel(g, 7, 29, 242, 197, RAMPS.cream)
+    g.fillStyle = RAMPS.cream[4]
+    g.fillRect(9, 31, 238, 193)
     drawText(g, 'THE VALLEY GAZETTE', W / 2, 38, {
       scale: 2,
       align: 'center',
@@ -1911,7 +1913,7 @@ class PetalPost implements ArcadeGameInstance {
       W - 6,
       13,
       {
-      align: 'right',
+        align: 'right',
         color: RAMPS.leaf[3],
         outline: INK,
       },

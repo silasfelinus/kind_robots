@@ -143,8 +143,9 @@ export const useEveryVillainTacticsArtStore = defineStore(
     /** A failed request should be recoverable after an intermittent outage. */
     async function retry(id: number | null): Promise<void> {
       if (!id || images.value[id]?.status !== 'failed') return
-      const next = { ...images.value }
-      delete next[id]
+      const next: Record<number, PaintedMapArt> = {}
+      for (const [key, image] of Object.entries(images.value))
+        if (Number(key) !== id) next[Number(key)] = image
       images.value = next
       await ensure(id)
     }

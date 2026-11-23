@@ -9,7 +9,7 @@
         <p
           class="text-[11px] font-black uppercase tracking-widest text-amber-300"
         >
-          Delivered ArtImage receipts / private review
+          Rendered ArtImage receipts / private review
         </p>
         <h3 class="mt-1 text-xl font-black">
           Eight review groups, thirty-five production candidates

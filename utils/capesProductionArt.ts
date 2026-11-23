@@ -1,8 +1,7 @@
 /**
- * Private completed ArtImage receipts from Conductor's
- * UNSTABLE-PRODUCTION-FAMILY-ROUND-1.yaml. ArtJob acceptance and a DONE ledger
- * do not certify browser delivery or the final game attachment.
- * Preserve the three separate permanent identities and original image IDs.
+ * Private, source-backed ArtImage receipts from Conductor production ledgers.
+ * DONE and authenticated previews do not certify artistic approval or gameplay
+ * delivery. Preserve permanent identity keys and every original ArtJob ID.
  */
 export const CAPES_PRODUCTION_IDENTITIES = [
   {

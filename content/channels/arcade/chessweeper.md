@@ -5,7 +5,7 @@ tabKey: chessweeper
 label: Chessweeper
 title: Chessweeper · Triple Threat
 subtitle: Three simultaneous games, one countdown and a global leaderboard
-summary: Chess, mines and disc survival run side by side.
+summary: Chess, mines and discs on one clock.
 description: Play legal chess, Minesweeper and real-time WASD survival simultaneously in three horizontal panels. Earn a balance bonus and compete on a global leaderboard. The original Sugarbomb, Ashen and Jackpot campaigns remain playable in Classic.
 icon: kind-icon:chessweeper
 route: /play/chessweeper

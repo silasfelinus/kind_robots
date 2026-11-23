@@ -55,9 +55,15 @@ const screens = fromRoot(
 )
 const store = fromRoot('stores/cometAcademyStore.ts')
 const opening = fromRoot('components/play/cometAcademy/AcademyOpening.vue')
-assert.match(opening, /reviewedIdentityArtwork\('identities\/' \+ entry\.id \+ '\/student'\)/)
+assert.match(
+  opening,
+  /reviewedIdentityArtwork\('identities\/' \+ entry\.id \+ '\/student'\)/,
+)
 assert.doesNotMatch(opening, /promArt\('identities\/'/)
-assert.match(screens, /keys\.map\(\(key\) => reviewedIdentityArtwork\(key\)\)/)
+assert.match(
+  screens,
+  /keys\.map\(\(key\) => reviewedIdentityArtwork\(key\)\)/,
+)
 assert.match(page, /reviewedIdentityArtwork\(storyComicIntro\.value\.artKey\)/)
 
 const SIGNATURE = 'accident-fire' as const

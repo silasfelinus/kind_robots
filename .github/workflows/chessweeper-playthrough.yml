@@ -11,6 +11,7 @@ on:
       - 'pages/play/chessweeper.vue'
       - 'utils/scripts/chessweeperPlaythroughHarness.mjs'
       - 'utils/scripts/verifyChessweeperPlaythrough.browser.test.mjs'
+      - 'utils/scripts/verifyChessweeperTriple.browser.test.mjs'
       - '.github/workflows/chessweeper-playthrough.yml'
   workflow_dispatch:
 
@@ -43,6 +44,13 @@ jobs:
 
       - name: Full campaigns, twelve endings and three viewports
         run: node utils/scripts/verifyChessweeperPlaythrough.browser.test.mjs
+        env:
+          CHESSWEEPER_SHOTS: test-results/chessweeper
+          CHESSWEEPER_ART_ORIGIN: https://kindrobots.org
+          NODE_USE_ENV_PROXY: '1'
+
+      - name: Triple Threat 1x3 concurrent gameplay and global leaderboard
+        run: node utils/scripts/verifyChessweeperTriple.browser.test.mjs
         env:
           CHESSWEEPER_SHOTS: test-results/chessweeper
           CHESSWEEPER_ART_ORIGIN: https://kindrobots.org

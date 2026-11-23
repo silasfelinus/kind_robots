@@ -317,10 +317,18 @@ export const useSavePlumberMakerStore = defineStore('savePlumberMaker', () => {
       Pick<MakerLevel, 'title' | 'author' | 'theme' | 'dark' | 'snow' | 'space'>
     >,
   ) {
-    pushUndo()
-    level.value = validateMakerLevel({ ...level.value, ...patch })
-    reviewSummary.value = blankReviewSummary()
-    reviewComment.value = ''
+    try {
+      const next = validateMakerLevel({ ...level.value, ...patch })
+      if (JSON.stringify(next) === JSON.stringify(level.value)) return
+      pushUndo()
+      level.value = next
+      reviewSummary.value = blankReviewSummary()
+      reviewComment.value = ''
+      error.value = ''
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Invalid course settings.'
+    }
   }
 
   function newDraft() {

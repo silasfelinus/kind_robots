@@ -87,7 +87,11 @@ for (let stage = 1; stage <= 5; stage++) {
   )
   salonSnapshots.add(JSON.stringify(authored))
 }
-assert.equal(salonSnapshots.size, 5, 'All five Salon lessons have unique boards')
+assert.equal(
+  salonSnapshots.size,
+  5,
+  'All five Salon lessons have unique boards',
+)
 const classicOpening = makeBoard(1, () => 0, 'classic')
 assert.notDeepEqual(
   classicOpening,

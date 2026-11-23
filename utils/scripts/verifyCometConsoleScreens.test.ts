@@ -54,7 +54,9 @@ const screens = fromRoot(
   'components/play/cometAcademy/AcademyConsoleScreens.vue',
 )
 const store = fromRoot('stores/cometAcademyStore.ts')
-const openingArtSource = fromRoot('components/play/cometAcademy/AcademyOpening.vue')
+const openingArtSource = fromRoot(
+  'components/play/cometAcademy/AcademyOpening.vue',
+)
 assert.match(
   openingArtSource,
   /reviewedIdentityArtwork\('identities\/' \+ entry\.id \+ '\/student'\)/,

@@ -37,6 +37,7 @@ import {
   vistaCandidates,
 } from '~/utils/rulerHooked/artLibrary'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
+import { CHARACTER_EXPRESSION_KEYS } from '~/utils/rulerHooked/characterArt'
 import { availableFish } from '~/utils/rulerHooked/fish'
 import type { RunSave } from '~/types/ruler-hooked'
 
@@ -261,6 +262,22 @@ const fresh = (seed = 'console-seed'): RunSave =>
   }
   for (const [key, list] of Object.entries(TAB_ART)) {
     assert.ok(list.length >= 2, `${key} tab has a rendered fallback`)
+  }
+  for (const person of C.characters) {
+    for (const mood of CHARACTER_EXPRESSION_KEYS) {
+      const candidates = characterCandidates(person.slug, mood)
+      assert.equal(
+        candidates[0],
+        `/images/ruler-hooked/character-${person.slug}-${mood}.webp`,
+        `${person.slug} ${mood} resolves through the render-queue contract`,
+      )
+      assert.ok(
+        candidates.includes(
+          `/images/ruler-hooked/characters/${person.slug}.webp`,
+        ),
+        `${person.slug} retains its legacy portrait fallback`,
+      )
+    }
   }
   assert.deepEqual(characterCandidates('steward-quill', 'alarmed'), [
     '/images/ruler-hooked/character-steward-quill-alarmed.webp',

@@ -18,6 +18,12 @@ import {
   RAINBOW_ALLEGIANCE_LABEL,
   type RainbowAllegiance,
 } from './rainbowAllegiance'
+import {
+  rainbowRouteCredits,
+  rainbowRouteStinger,
+  withRainbowRouteBeat,
+  type RainbowRouteFlags,
+} from './rainbowRouteBeats'
 import { rainbowPartyTrack } from './rainbowPartyComms'
 
 export type FinaleChoice = 'restore' | 'evacuate' | 'sever'
@@ -301,6 +307,7 @@ export function finaleDialogue(
   choice: FinaleChoice | null = null,
   allegiance: RainbowAllegiance | null = null,
   partyMask: number | null = null,
+  route?: RainbowRouteFlags,
 ): FinaleDialogue | null {
   const party = partyMask === null ? null : rainbowPartyTrack(partyMask)
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
@@ -377,7 +384,11 @@ export function finaleDialogue(
   }
   const frames =
     id === 'A09.AFTER' ? FINALE.endingLineFrames : FINALE.lineFrames
-  return lines[id][Math.floor(elapsed / frames)] ?? null
+  return (
+    withRainbowRouteBeat(lines[id], id, route, crew)[
+      Math.floor(elapsed / frames)
+    ] ?? null
+  )
 }
 
 /** The ending's length in frames: every AFTER line, read in full. */
@@ -406,12 +417,24 @@ export function finaleCredits(
   players: number,
   choice: FinaleChoice,
   allegiance: RainbowAllegiance | null = null,
+  /** Who flew each seat (pilot indexes) and the crew's call sign; by default seats fly in pilot order. */
+  flown: {
+    pilots?: readonly number[]
+    callSign?: string
+    /** The detours flown and their flags (ROUTE-MAP section 6): a THE ROUTE section and its stinger. */
+    route?: RainbowRouteFlags
+  } = {},
 ): string[] {
-  const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
+  const seats = Math.max(1, Math.min(4, players))
+  const crew = Array.from(
+    { length: seats },
+    (_, seat) => PILOTS[flown.pilots?.[seat] ?? seat] ?? PILOTS[seat]!,
+  )
   return [
     'RAINBOW BULLET HELL SPACE PRINCESS',
     '',
     'THE CREW',
+    ...(flown.callSign ? [`Call sign ${flown.callSign}`] : []),
     ...crew.map((pilot) => pilot.toUpperCase()),
     'LILT-7 · LIAISON, AURORA MERCY',
     '',
@@ -441,6 +464,15 @@ export function finaleCredits(
     `THE CHOICE: ${choice.toUpperCase()}`,
     `ENDING: ${finaleEndingTitle(choice, allegiance)}`,
     '',
+    ...(flown.route
+      ? rainbowRouteCredits(
+          flown.route,
+          rainbowRouteStinger(choice, flown.route, {
+            all: finaleRescues(flags) === 6,
+            stoppedRelay: flags.stoppedRelay,
+          }),
+        )
+      : []),
     'A KIND ROBOTS ARCADE PREVIEW',
   ]
 }

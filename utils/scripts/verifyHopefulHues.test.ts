@@ -10,7 +10,13 @@ type Tile = {
   special?: string | null
   hp?: number
 } | null
-type Goal = { type: string; target: number; progress: number; color?: number }
+type Goal = {
+  type: string
+  target: number
+  progress: number
+  color?: number
+  special?: string
+}
 type State = {
   rows: number
   cols: number
@@ -23,7 +29,11 @@ type State = {
   won: boolean
   stats: Record<string, number>
 }
-type Phase = { created: Array<{ special: string }>; cleared: unknown[] }
+type Phase = {
+  created: Array<{ special: string }>
+  cleared: unknown[]
+  fired: Array<{ special: string }>
+}
 type Engine = {
   createLevelState: (def: unknown, opts?: unknown) => State
   findRuns: (s: State) => unknown[]
@@ -36,7 +46,7 @@ type Engine = {
   ) => { ok: boolean; phases: Phase[]; outcome?: string }
   bestMove: (s: State, limit?: number) => number[][] | null
   clone: <T>(v: T) => T
-  finishBonus: (s: State) => { bonus: number }
+  finishBonus: (s: State) => { bonus: number; phases: Phase[] }
   starsFor: (s: State, t: number[]) => number
 }
 type LevelDef = {
@@ -48,6 +58,8 @@ type LevelDef = {
   rows: number
   cols: number
   mask: number[][] | null
+  authored?: boolean
+  startingSpecials?: Array<[number, number, string]>
 }
 type Levels = {
   REGIONS: Record<string, { tier: number; next?: string[]; ending?: string }>
@@ -127,6 +139,14 @@ for (const file of ['engine', 'levels', 'meta', 'art'])
   runInContext(read(`public/hopeful-hues/${file}.js`), context)
 const E = context.HopefulHuesEngine as Engine
 const L = context.HopefulHuesLevels as Levels
+runInContext(read('public/hopeful-hues/audio.js'), context)
+const Audio = context.HopefulHuesAudio as {
+  compose: (spec: Record<string, unknown>) => {
+    progression: number[]
+    melody: Array<number | null>
+  }
+}
+
 const M = context.HopefulHuesMeta as Meta
 
 // Silas, 2026-11-23 PT: nine hero-led worlds, each a long three-region road with
@@ -177,6 +197,19 @@ for (const w of worlds) {
   )
   assert.equal(L.routeLevels(w.hero.id).join(), L.routeLevels(w.id).join())
 }
+const themes = worlds.flatMap((w) =>
+  [0, 1, 2].map((tier) => Audio.compose({ ...w.music, tier })),
+)
+assert.equal(new Set(themes.map((theme) => JSON.stringify(theme))).size, 27)
+for (const theme of themes) {
+  assert.equal(theme.progression.length, 4)
+  assert.ok(theme.melody.length === 24 || theme.melody.length === 32)
+  assert.ok(theme.melody.every((note) => note === null || note >= 0))
+}
+assert.notEqual(
+  JSON.stringify(Audio.compose({ tag: 'title' })),
+  JSON.stringify(Audio.compose({ tag: 'ending-everyone' })),
+)
 assert.equal(L.ROUTE_ORDER.length, 27)
 const all = L.allLevels()
 assert.equal(all.length, 495, 'nine worlds of 55 levels')
@@ -184,6 +217,7 @@ assert.equal(new Set(all).size, all.length)
 assert.ok(L.ENDINGS.everyone, 'secret ending exists')
 assert.equal(L.CHARACTERS.length, 9)
 
+let authoredCount = 0
 for (const id of all) {
   const { region, n } = L.parseLevelId(id)
   const def = L.buildLevel(region, n)
@@ -199,7 +233,23 @@ for (const id of all) {
   assert.ok(E.findMove(state), `${id} starts with a legal move`)
   for (const goal of def.goals)
     assert.ok(goal.target > 0, `${id} ${goal.type} target`)
+  if (def.authored) {
+    authoredCount++
+    assert.ok(def.startingSpecials?.length, `${id} has a designed special`)
+    for (const [r, c, special] of def.startingSpecials || [])
+      assert.equal(
+        state.board[r]?.[c]?.special,
+        special,
+        `${id} special placement`,
+      )
+  }
+  assert.equal(
+    !!def.authored,
+    n % 6 === 0 || def.finale,
+    `${id} authored cadence`,
+  )
 }
+assert.equal(authoredCount, 90, 'every sixth level and every world finale')
 for (const w of worlds) {
   const finale = must(w.regions[2]).id
   assert.ok(L.buildLevel(finale, 19).finale, `${w.id} ends with a finale`)
@@ -240,7 +290,15 @@ const four = craftedState(
   ],
   [1, 2],
 )
+four.goals = [{ type: 'special', special: 'comb', target: 1, progress: 0 }]
 const fourResult = E.trySwap(four, [1, 2], [2, 2])
+assert.equal(four.goals[0]?.progress, 1)
+assert.equal(four.won, true)
+const overflow = E.finishBonus(four)
+assert.ok(overflow.bonus > 0)
+assert.ok(overflow.phases.some((phase) => phase.fired.length > 0))
+assert.equal(four.movesLeft, 0)
+assert.equal(E.finishBonus(four).bonus, 0)
 assert.ok(fourResult.ok)
 assert.ok(
   ['h', 'v'].includes(fourResult.phases[0]?.created[0]?.special ?? ''),

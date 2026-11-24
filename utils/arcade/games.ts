@@ -736,12 +736,12 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Petal Post',
     riffsOn: 'Paperboy',
     blurb:
-      'Scoot a delivery bot up a scrolling street and toss seed packets to the bright houses on your route: a mailbox catch pays best, the doorstep next. Dodge skateboarding cats, rolling bins, parked cars and sprinklers, and grab bundles to refill. Miss a home and it cancels; deliver to all and a neighbour signs up. Each day ends with a bonus run at targets.',
+      'Ride Primrose Lane and toss seed packets to houses on either side: A left, B right. Ride faster to throw farther, meet mailbox or porch requests, and grow gardens for tips. Missed deliveries wilt gardens; gifts win over neighbours. Dodge hazards, refill at bundles, and read the Valley Gazette after the bonus course.',
     howTo: [
       'UP/DOWN  FAST/SLOW',
       'LEFT/RIGHT  STEER',
-      'A  TOSS LEFT',
-      'BRIGHT HOUSES ONLY',
+      'A  LEFT / B  RIGHT',
+      'SPEED SETS TOSS RANGE',
       'MAILBOX PAYS BEST',
       'GRAB THE BUNDLES',
     ],

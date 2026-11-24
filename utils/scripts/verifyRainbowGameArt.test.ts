@@ -108,7 +108,8 @@ const engine = readFileSync(
   new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
   'utf8',
 )
-const sprite = engine.indexOf('if (!drawRainbowShipSprite(g, pilotOf(seat)))')
+// The seat's ship painting (drawn under its paint filter since t-044), then the core marker on top.
+const sprite = engine.indexOf('drawRainbowShipSprite(g, pilotOf(seat))')
 const core = engine.indexOf('g.fillRect(-3, -3, 6, 6)', sprite)
 assert.ok(
   sprite > 0 && core > sprite,
@@ -185,7 +186,7 @@ for (const [kind, art] of [
   ['lampkeeper', 'bellkeeper'],
   ['shoalkoi', 'shoal-koi'],
   ['matriarch', 'lantern'],
-  ['siren', 'lantern'],
+  ['siren', 'armory-siren'],
 ] as const) {
   assert.equal(rainbowGuardianArtKey(kind), art, `${kind} flies as ${art}`)
   assert.equal(
@@ -219,8 +220,8 @@ assert.match(
 assert.equal(drawRainbowEnemySprite(g, 'picket'), false)
 assert.match(
   engine,
-  /if \(\s*!drawRainbowEnemySprite\(\s*g,\s*reef\.kind === 'diver' \? 'picket' : reef\.kind,?\s*\)[^{]*\) \{\s+g\.beginPath\(\)/,
-  'enemies keep their primitive body until the sprite loads',
+  /if \(\s*(?:\/\/[^\n]*\n\s*)*!drawRainbowEnemyFrame\(\s*g,\s*reef\.kind === 'diver' \? 'picket' : reef\.kind,[^;{]*?\)\s*&&\s*!drawRainbowEnemySprite\(\s*g,\s*reef\.kind === 'diver' \? 'picket' : reef\.kind,?\s*\)[^{]*\) \{\s+g\.beginPath\(\)/,
+  'enemies fly their idle frames (t-030), else their still, and keep their primitive body until either loads',
 )
 
 // Pickups: the engine's Pickup kind union, each with a committed sprite.

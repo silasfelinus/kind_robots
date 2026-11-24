@@ -175,6 +175,43 @@ THEMES: dict[int, Theme] = {
 }
 THEMES[9] = Theme(**{**MAIN.__dict__, 'bpm': 136, 'extra': {'finale': True}})
 
+# The four detour Acts (t-012, ROUTE-MAP section 7), each with its own flight theme so a route sounds like a new
+# place: X1 floats (a raised fourth over F), X2 gallops, X3 is a celesta lament, X4 shimmers in sixteenths.
+DETOURS: dict[str, Theme] = {
+    'x1': Theme(
+        root=65, bpm=112,
+        chords=[['I'], ['iii'], ['IV'], ['I'], ['vi'], ['ii'], ['IV'], ['V']],
+        tune="3:1 5:1 #4:2 | 6:2 5:1 3:1 | 4:1 6:1 1':2 | 7:3 r:1 | 3:1 5:1 #4:1 6:1 | 2':2 1':1 6:1 | "
+             "4:1 6:1 5:1 3:1 | 5:3 r:1",
+        develop=[['vi'], ['IV'], ['I'], ['V'], ['vi'], ['ii'], ['IV'], ['V']],
+        ostinato='pulse', drums='wonder', lead='choir',
+    ),
+    'x2': Theme(
+        root=59, bpm=156,
+        chords=[['I'], ['V'], ['vi'], ['IV'], ['I'], ['V'], ['IV'], ['V']],
+        tune="1:0.5 3:0.5 5:1 1':1 5:1 | 4:0.5 5:0.5 6:1 5:2 | 6:1 1':1 3':1 1':1 | 7:2 5:2 | "
+             "1:0.5 3:0.5 5:1 1':1 3':1 | 2':1 1':1 7:1 5:1 | 6:1 4:1 6:1 1':1 | 7:2 2':2",
+        develop=[['vi'], ['V'], ['IV'], ['I'], ['bVI'], ['bVII'], ['IV'], ['V']],
+        ostinato='gallop', drums='gallop', lead='strings',
+    ),
+    'x3': Theme(
+        root=61, bpm=104, minor=True,
+        chords=[['i'], ['iv'], ['bVII'], ['bIII'], ['bVI'], ['iv'], ['V'], ['i']],
+        tune="1:2 b3:1 5:1 | 4:1.5 b3:0.5 2:2 | b7,:1 2:1 4:2 | b3:3 r:1 | b6:2 5:1 4:1 | b3:1 4:1 5:2 | "
+             "7,:1 2:1 5:2 | 1:3 r:1",
+        develop=[['bVI'], ['bVII'], ['i'], ['i'], ['bVI'], ['bVII'], ['iv'], ['V']],
+        ostinato='pulse', drums='lament', lead='celesta',
+    ),
+    'x4': Theme(
+        root=63, bpm=140,
+        chords=[['I'], ['vi'], ['IV'], ['V'], ['I'], ['iii'], ['IV'], ['V']],
+        tune="5:1 3:0.5 5:0.5 1':2 | 6:1 1':1 3':2 | 4':1 3':1 1':1 6:1 | 5:4 | 5:1 3:0.5 5:0.5 2':2 | "
+             "7:1 2':1 5':2 | 4':1 3':1 2':1 1':1 | 2':3 r:1",
+        develop=[['vi'], ['IV'], ['I'], ['V'], ['vi'], ['IV'], ['bVII'], ['V']],
+        ostinato='sixteenths', drums='heroic',
+    ),
+}
+
 
 # ------------------------------------------------------------------ arranging
 
@@ -510,6 +547,7 @@ def guardian() -> S.Mix:
 CUES = {
     **{f'act{n}-flight': (lambda n=n: flight(THEMES[n])) for n in range(1, 10)},
     **{f'act{n}-boss': (lambda n=n: boss(THEMES[n])) for n in range(1, 10)},
+    **{f'{x}-flight': (lambda x=x: flight(DETOURS[x])) for x in DETOURS},
     'guardian': guardian,
     'ending': ending,
     'failure': failure,
@@ -542,6 +580,8 @@ def loops() -> dict:
     for n in range(1, 10):
         out[f'act{n}-flight'] = 34 * 240 / THEMES[n].bpm
         out[f'act{n}-boss'] = 26 * 240 / (THEMES[n].bpm + 16)
+    for x, theme in DETOURS.items():
+        out[f'{x}-flight'] = 34 * 240 / theme.bpm
     out['guardian'] = 26 * 240 / (128 + 16)
     out['ending'] = 18 * 240 / 88
     out['failure'] = 8 * 240 / 70

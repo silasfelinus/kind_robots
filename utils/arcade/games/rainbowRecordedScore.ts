@@ -11,6 +11,7 @@ import type { RecordedLoop } from '../sound'
 
 export type RainbowScoreCueId =
   | `act${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}-${'flight' | 'boss'}`
+  | `x${1 | 2 | 3 | 4}-flight`
   | 'guardian'
   | 'ending'
   | 'failure'
@@ -150,6 +151,30 @@ export const RAINBOW_SCORE_BRIEFS: readonly RainbowScoreBrief[] = [
     'final boss battle against the eclipse crown, everything at once, full choir, brass fanfares, timpani rolls, desperate then triumphant, D minor to D major',
   ),
   brief(
+    'x1-flight',
+    120,
+    112,
+    'dreamy kelp nebula, floating wordless choir, harp and celesta, soft swelling strings, lydian wonder, F major',
+  ),
+  brief(
+    'x2-flight',
+    120,
+    156,
+    'racing a comet tail, galloping strings and snare, bright brass, exhilarating chase, B major',
+  ),
+  brief(
+    'x3-flight',
+    120,
+    104,
+    'drowned lighthouse, slow celesta lament over pulsing strings, distant bells, melancholy and hopeful, C sharp minor',
+  ),
+  brief(
+    'x4-flight',
+    120,
+    140,
+    'mirror shoal, shimmering string sixteenths, heroic horn melody, crystalline harp, wide open sky, E flat major',
+  ),
+  brief(
     'guardian',
     75,
     144,
@@ -207,6 +232,10 @@ export const RAINBOW_ORCHESTRA_LOOPS: Record<
   'act7-boss': { seconds: 47.273, loopStart: 0.5, loopEnd: 47.7727 },
   'act8-boss': { seconds: 48.75, loopStart: 0.5, loopEnd: 49.25 },
   'act9-boss': { seconds: 41.053, loopStart: 0.5, loopEnd: 41.5526 },
+  'x1-flight': { seconds: 72.857, loopStart: 0.5, loopEnd: 73.3571 },
+  'x2-flight': { seconds: 52.308, loopStart: 0.5, loopEnd: 52.8077 },
+  'x3-flight': { seconds: 78.462, loopStart: 0.5, loopEnd: 78.9615 },
+  'x4-flight': { seconds: 58.286, loopStart: 0.5, loopEnd: 58.7857 },
   guardian: { seconds: 43.333, loopStart: 0.5, loopEnd: 43.8333 },
   ending: { seconds: 49.091, loopStart: 0.5, loopEnd: 49.5909 },
   failure: { seconds: 27.429, loopStart: 0.5, loopEnd: 27.9286 },

@@ -53,6 +53,8 @@ const stores = {
         setDifficulty(game, level) { this.difficulties[game] = level },
         rememberInitials() {}, saveFor: () => undefined, recordSave() {},
         rainbowHangarBonuses: () => ({ shield: false, charge: false, life: false }),
+        livery: { callSign: '', paints: [0, 0, 0, 0] },
+        rainbowLivery() { return this.livery },
         loadPreferences() {}, flushPending: async () => {},
         playersFor: (game, max) => Math.max(1, Math.min(max, seated[game] ?? window.__seats ?? 1)),
         setPlayers(game, count) { seated[game] = count },
@@ -212,6 +214,25 @@ export async function bundleCabinetFixture({ realArcadeStore = false } = {}) {
           }
         },
       )
+      builder.onLoad(
+        { filter: /games\/savePlumberPreview\.ts$/ },
+        ({ path: file }) => {
+          const source = readFileSync(file, 'utf8')
+          const marker = 'export function createSavePlumberPreview('
+          if (!source.includes(marker))
+            throw new Error('Save the Plumber fixture hook lost its create()')
+          return {
+            contents:
+              source.replace(
+                marker,
+                'function createSavePlumberPreviewInner(',
+              ) +
+              '\nexport function createSavePlumberPreview(options: ArcadeGameOptions, run: PlumberRunOptions = {}): PlumberRun {\n  const game = createSavePlumberPreviewInner(options, run)\n  ;(window.__plumbers ||= []).push({ demo: Boolean(options.demo), game })\n  return game\n}\n',
+            loader: 'ts',
+            resolveDir: path.dirname(file),
+          }
+        },
+      )
       // Record each Rescue Rally and Battery Maze game the cabinet creates.
       for (const { file: filter, ctor, list } of exposed) {
         builder.onLoad({ filter }, ({ path: file }) => {
@@ -313,6 +334,7 @@ export async function openCabinet(
     dpr = 1,
     storage = null,
     audioProbe = false,
+    serveArt = false,
   },
 ) {
   const context = await browser.newContext({
@@ -328,6 +350,30 @@ export async function openCabinet(
     await page.route(`${ORIGIN}**`, (route) =>
       route.fulfill({ contentType: 'text/html', body: PAGE }),
     )
+    // Opt-in: serve the game's real art and audio from public/ (later routes take precedence in Playwright).
+    if (serveArt)
+      await page.route(
+        new RegExp(`^${ORIGIN}(rainbow-princess-[a-z]+/.+)$`),
+        (route) => {
+          const file = path.join(
+            root,
+            'public',
+            decodeURIComponent(new URL(route.request().url()).pathname),
+          )
+          try {
+            route.fulfill({
+              body: readFileSync(file),
+              contentType: file.endsWith('.webp')
+                ? 'image/webp'
+                : file.endsWith('.mp3')
+                  ? 'audio/mpeg'
+                  : 'application/octet-stream',
+            })
+          } catch {
+            route.fulfill({ status: 404, body: '' })
+          }
+        },
+      )
     await page.goto(ORIGIN)
   } else {
     await page.setContent(PAGE)

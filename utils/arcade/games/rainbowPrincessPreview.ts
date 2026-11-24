@@ -50,6 +50,7 @@ import {
   drawRainbowShipSprite,
   drawRainbowStageCard,
   drawRainbowStageStrip,
+  drawRainbowHazardSprite,
   drawRainbowSuperCutin,
   loadRainbowLook,
   rainbowLook,
@@ -61,6 +62,20 @@ import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
 import { RAINBOW_CONTRAST_PELLET, rainbowCommsLine } from './rainbowComms'
+import { rainbowShipFilter } from './rainbowLivery'
+import {
+  rainbowRouteStinger,
+  type RainbowRouteFlags,
+} from './rainbowRouteBeats'
+import {
+  drawRainbowEnemyFrame,
+  drawRainbowInterlude,
+  drawRainbowPose,
+} from './rainbowAnimation'
+import {
+  drawRainbowDetourPlanes,
+  type RainbowDetour,
+} from './rainbowDetourPlanes'
 import { rainbowEndingMemoryIds } from './rainbowEndingArchive'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
@@ -323,6 +338,7 @@ import {
   finaleEndingCaption,
   finaleEndingSkip,
   finaleEndingTitle,
+  finaleRescues,
   finaleScene,
   finaleStage,
   type FinaleChoice,
@@ -1212,6 +1228,8 @@ export function createRainbowPrincessPreview(
   const shieldCap = 3 + (options.rainbowHangar?.shield ? 1 : 0)
   const extraLife = options.rainbowHangar?.life ? 1 : 0
   const startingCharge = options.rainbowHangar?.charge ? 20 : 0
+  /** The slot's call sign and ship paint (t-044): drawing only. */
+  const livery = options.rainbowLivery
   const createShip = (seat: number): Ship => ({
     x: 65,
     y: 80 + seat * 32,
@@ -1497,6 +1515,46 @@ export function createRainbowPrincessPreview(
   function shoalActive() {
     return shoalStart !== null && palaceStart === null
   }
+  /** The highest phase any boss on screen has reached (0 with none), for the phase-change cue. */
+  let lastBossPhase = 0
+  function bossPhase(): number {
+    let phase = 0
+    for (const fight of [
+      boss,
+      moonBoss,
+      clawBoss,
+      delphion,
+      sawtooth,
+      lanternRay,
+      glassEel,
+      leviathan,
+      crown,
+    ] as ({ phase?: number } | null)[])
+      phase = Math.max(phase, fight?.phase ?? 0)
+    return phase
+  }
+  /** The detours this run flew and the flags they earned, for route beats and stingers (ROUTE-MAP 5-6). */
+  function routeFlags(): RainbowRouteFlags {
+    return {
+      viaX1: nurseryStart !== null || nurseryGuardianOutcome !== 'waiting',
+      viaX2: cometStart !== null || cometGuardianOutcome !== 'waiting',
+      viaX3:
+        lighthouseStart !== null || lighthouseGuardianOutcome !== 'waiting',
+      viaX4: shoalStart !== null || shoalGuardianOutcome !== 'waiting',
+      freedChoir,
+      cadetsHome,
+      liltMemoryRecovered: lighthouseMedalEarned(lighthouseLamps),
+      crownEcho: shoalGuardianOutcome === 'defeated',
+    }
+  }
+  /** The detour being flown, if any, and its own clock (t-028 painted planes). */
+  function activeDetour(): { key: RainbowDetour; frame: number } | null {
+    if (nurseryActive()) return { key: 'x1', frame: nurseryFrame() }
+    if (cometActive()) return { key: 'x2', frame: cometFrame() }
+    if (lighthouseActive()) return { key: 'x3', frame: lighthouseFrame() }
+    if (shoalActive()) return { key: 'x4', frame: shoalFrame() }
+    return null
+  }
   function palaceFrame() {
     return palaceStart === null ? 0 : tick - palaceStart
   }
@@ -1618,6 +1676,7 @@ export function createRainbowPrincessPreview(
   function launchCrownReef() {
     // The turn: where the living crew flies as it launches is its choice (t-040).
     allegiance = allegianceFor(livingShips().map((ship) => ship.y))
+    options.sound.play('rainbowFork')
     feat(allegiance === 'rebel' ? 'rebel-road' : 'loyal-road')
     popups.push({
       x: W / 2,
@@ -1637,6 +1696,7 @@ export function createRainbowPrincessPreview(
   /** Act VI's fork: where the living crew flies at the decision frame picks the route. */
   function chooseReefRoute() {
     reefRoute = reefRouteFor(livingShips().map((ship) => ship.y))
+    options.sound.play('rainbowFork')
     popups.push({
       x: W / 2,
       y: 92,
@@ -1928,6 +1988,7 @@ export function createRainbowPrincessPreview(
   /** Act V's fork: where the living crew flies at the decision frame picks the route. */
   function chooseWreckRoute() {
     wreckRoute = wreckRouteFor(livingShips().map((ship) => ship.y))
+    options.sound.play('rainbowFork')
     popups.push({
       x: W / 2,
       y: 92,
@@ -2197,6 +2258,7 @@ export function createRainbowPrincessPreview(
         .filter((ship) => ship.lives > 0)
         .map((ship) => ship.y),
     )
+    options.sound.play('rainbowFork')
     if (trenchRoute === 'vault') feat('vault-run')
     popups.push({
       x: W / 2,
@@ -2762,6 +2824,13 @@ export function createRainbowPrincessPreview(
     const swap = (text: string) =>
       text.replace(pattern, (name) => names[pilotOf(names.indexOf(name))]!)
     return { ...line, speaker: swap(line.speaker), text: swap(line.text) }
+  }
+
+  /** On comms, the lead pilot (seat 1) answers to the crew's call sign (t-044). */
+  function callSignFor(speaker: string): string {
+    if (!livery?.callSign) return ''
+    const lead = RAINBOW_PILOTS[pilotOf(0)]?.name.split(' ')[0]
+    return speaker.split(' ')[0] === lead ? ` · ${livery.callSign}` : ''
   }
 
   /**
@@ -3410,6 +3479,7 @@ export function createRainbowPrincessPreview(
     if (ship.charge < 100) return
     ship.charge = 0
     supers++
+    options.sound.play('rainbowNova')
     feat('kitty-power')
     bursts.push({ seat, pilot: kind, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
@@ -4094,8 +4164,10 @@ export function createRainbowPrincessPreview(
     else actHits++
     ship.invulnerable = 90
     ship.shield--
+    if (ship.shield > 0) options.sound.play('rainbowShield')
     if (ship.shield <= 0) {
       ship.lives--
+      if (ship.lives > 0) options.sound.play('rainbowHurt')
       ship.shield = shieldCap
       // The power level lost with the life falls just ahead as a Recovery Cache (U12) for four seconds.
       if (ship.power > 1 && ship.lives > 0)
@@ -4225,6 +4297,10 @@ export function createRainbowPrincessPreview(
       return
     }
     tick++
+    // A boss changing phase gets its own cue (t-012), whichever boss is on screen.
+    const phase = bossPhase()
+    if (phase > lastBossPhase) options.sound.play('rainbowPhase')
+    lastBossPhase = phase
     for (let i = bursts.length - 1; i >= 0; i--)
       if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
     for (let i = popups.length - 1; i >= 0; i--)
@@ -4904,6 +4980,15 @@ export function createRainbowPrincessPreview(
       } else if (endingFrame !== null) {
         // The ending, then the credits, then THE END: A closes the run, or it closes by itself.
         endingFrame++
+        // The credits open with the route stinger's fanfare when the run earned one (ROUTE-MAP section 6).
+        if (
+          endingFrame === FINALE_ENDING_FRAMES &&
+          rainbowRouteStinger(finalChoice ?? 'evacuate', routeFlags(), {
+            all: finaleRescues(finaleFlags()) === 6,
+            stoppedRelay: finaleFlags().stoppedRelay,
+          })
+        )
+          options.sound.play('rainbowStinger')
         // A moves the ending on a line at a time, once each line has had a moment (t-012).
         const skipTo = [input, ...seated].some((keys) => keys?.pressed.a)
           ? finaleEndingSkip(endingFrame)
@@ -6019,6 +6104,7 @@ export function createRainbowPrincessPreview(
         return null
       return rainbowMusicFor({
         act: currentAct(),
+        detour: activeDetour()?.key ?? null,
         boss: Boolean(
           boss ||
           moonBoss ||
@@ -6628,19 +6714,33 @@ export function createRainbowPrincessPreview(
       const stage = (
         ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's08'] as const
       )[currentAct() - 1]!
-      drawRainbowDistantParallax(g, stage, actFrame(currentAct()), drift, H, W)
-      // The bright near coral strip remains behind enemies, shots and ships.
-      g.save()
-      g.globalAlpha = 0.92
-      drawRainbowStageStrip(
-        g,
-        stage,
-        actFrame(currentAct()) * STRIP_SPEED * drift,
-        H - STRIP_HEIGHT,
-        STRIP_HEIGHT,
-        W,
-      )
-      g.restore()
+      // A detour flies its own painted sky and bands (t-028) instead of its origin Act's strips.
+      const detour = activeDetour()
+      if (
+        !detour ||
+        !drawRainbowDetourPlanes(g, detour.key, detour.frame, drift, W, H)
+      ) {
+        drawRainbowDistantParallax(
+          g,
+          stage,
+          actFrame(currentAct()),
+          drift,
+          H,
+          W,
+        )
+        // The bright near coral strip remains behind enemies, shots and ships.
+        g.save()
+        g.globalAlpha = 0.92
+        drawRainbowStageStrip(
+          g,
+          stage,
+          actFrame(currentAct()) * STRIP_SPEED * drift,
+          H - STRIP_HEIGHT,
+          STRIP_HEIGHT,
+          W,
+        )
+        g.restore()
+      }
       for (const reef of reefs) {
         if (reef.kind !== 'clawstrike' || !reef.charge) continue
         g.save()
@@ -6846,6 +6946,11 @@ export function createRainbowPrincessPreview(
         g.save()
         g.translate(reef.x, reef.y)
         g.rotate(Math.sin(reef.phase) + tick / 200)
+        // On the comet run the drifting scrap is coral asteroid (GEN2-CORAL-COMET-X2 278622).
+        if (cometActive() && drawRainbowHazardSprite(g, 'coral-asteroid', 40)) {
+          g.restore()
+          continue
+        }
         g.fillStyle = '#5e4a66'
         g.strokeStyle = '#ffc6d9'
         g.lineWidth = 1.5
@@ -7032,6 +7137,14 @@ export function createRainbowPrincessPreview(
         if (reef.kind === 'motherdrone') {
           if (!drawRainbowEnemySprite(g, 'motherdrone')) drawMotherlandDrone(g)
         } else if (
+          // Idle frames (t-030) where a family's atlas has shipped, offset per wave so a school never flaps
+          // in unison; otherwise the still.
+          !drawRainbowEnemyFrame(
+            g,
+            reef.kind === 'diver' ? 'picket' : reef.kind,
+            tick + (reef.wave ?? 0) * 7,
+            calm,
+          ) &&
           !drawRainbowEnemySprite(
             g,
             reef.kind === 'diver' ? 'picket' : reef.kind,
@@ -7308,6 +7421,18 @@ export function createRainbowPrincessPreview(
             g.stroke()
           }
           g.restore()
+          // The Kelp Warden's comb is kelp: a frond waves at the head of each marked lane (278928).
+          if (guardian.kind === 'kelpwarden')
+            for (const lane of guardian.lanes) {
+              g.save()
+              g.translate(-30, lane - guardian.y)
+              g.rotate(
+                -Math.PI / 2 +
+                  (calm ? 0 : Math.sin(guardian.frame / 9 + lane) * 0.25),
+              )
+              drawRainbowHazardSprite(g, 'kelp-frond', 34)
+              g.restore()
+            }
         }
         g.save()
         applyRainbowSwimMotion(g, guardian.kind, guardian.frame, calm)
@@ -8615,7 +8740,11 @@ export function createRainbowPrincessPreview(
         g.scale(1, 1 - Math.min(0.18, Math.abs(ship.bank) * 0.05))
         g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
-        if (!drawRainbowShipSprite(g, pilotOf(seat))) {
+        // Paint recolours the painting only (t-044); the seat glow above keeps the pilot's own colour.
+        g.filter = rainbowShipFilter(livery, pilotOf(seat))
+        const painted = drawRainbowShipSprite(g, pilotOf(seat))
+        g.filter = 'none'
+        if (!painted) {
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.shadowBlur = 15
           g.beginPath()
@@ -8785,7 +8914,10 @@ export function createRainbowPrincessPreview(
         g.globalAlpha =
           Math.min(1, introFrame / 15) *
           Math.min(1, (INTRO_FRAMES - introFrame) / 30)
-        const height = drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
+        // The living interlude (t-030) where one shipped, else the still title card.
+        const height =
+          drawRainbowInterlude(g, stage, W / 2 - 100, top, 200, calm) ||
+          drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
         const bandY = top + Math.max(height, 40) - 22
         g.fillStyle = '#180d38d9'
         g.fillRect(W / 2 - 100, bandY, 200, 22)
@@ -8932,6 +9064,7 @@ export function createRainbowPrincessPreview(
                       finalChoice,
                       allegiance,
                       partyMask(),
+                      routeFlags(),
                     )
                   : act === 8
                     ? palaceDialogue(
@@ -8940,6 +9073,7 @@ export function createRainbowPrincessPreview(
                         activePlayers,
                         palaceFlags(),
                         allegiance,
+                        routeFlags(),
                       )
                     : act === 7
                       ? glassDialogue(
@@ -8948,6 +9082,7 @@ export function createRainbowPrincessPreview(
                           activePlayers,
                           rescuedNavigator,
                           allegiance,
+                          routeFlags(),
                         )
                       : act === 6
                         ? reefDialogue(
@@ -8968,6 +9103,7 @@ export function createRainbowPrincessPreview(
                               wreckRoute,
                               wreckRoute === 'depot' &&
                                 podsSaved >= WRECK_FORK.podsToFree,
+                              routeFlags(),
                             )
                           : act === 4
                             ? rosefinDialogue(
@@ -8975,6 +9111,7 @@ export function createRainbowPrincessPreview(
                                 scene.elapsed,
                                 activePlayers,
                                 rescuedCourier,
+                                routeFlags(),
                               )
                             : act === 3
                               ? trenchDialogue(
@@ -9062,13 +9199,11 @@ export function createRainbowPrincessPreview(
         g.fillRect(0, 0, W, COMMS_HEIGHT)
         g.fillStyle = '#ffe2fa'
         g.fillRect(0, COMMS_HEIGHT - 1, W, 1)
-        const portrait = drawRainbowCommsPortrait(
-          g,
-          dialogue.speaker,
-          HUD_LEFT,
-          4,
-          43,
-        )
+        // After a fight the pilots speak in their victory pose (t-030) where it shipped.
+        const portrait =
+          (Boolean(scene?.id.endsWith('.AFTER')) &&
+            drawRainbowPose(g, dialogue.speaker, 'victory', HUD_LEFT, 4, 43)) ||
+          drawRainbowCommsPortrait(g, dialogue.speaker, HUD_LEFT, 4, 43)
         if (portrait) {
           g.strokeStyle = '#aef6f0'
           g.strokeRect(HUD_LEFT, 4, 43, 43)
@@ -9078,7 +9213,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
         g.fillText(
-          `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}`,
+          `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}${callSignFor(dialogue.speaker)}`,
           textX,
           16,
         )
@@ -9256,6 +9391,13 @@ export function createRainbowPrincessPreview(
             activePlayers,
             finalChoice ?? 'evacuate',
             allegiance,
+            {
+              pilots: Array.from({ length: activePlayers }, (_, seat) =>
+                pilotOf(seat),
+              ),
+              callSign: livery?.callSign,
+              route: routeFlags(),
+            },
           )
           const top =
             H + 10 - (rolled / FINALE.creditFrames) * (lines.length * 16 + H)
@@ -9743,7 +9885,10 @@ export function createRainbowPrincessPreview(
           g.save()
           g.translate(x + 52, 112)
           g.scale(1.3, 1.3)
-          if (!drawRainbowShipSprite(g, i)) {
+          g.filter = rainbowShipFilter(livery, i)
+          const painted = drawRainbowShipSprite(g, i)
+          g.filter = 'none'
+          if (!painted) {
             g.fillStyle = PILOT_COLORS[i]!
             g.beginPath()
             g.moveTo(16, 0)

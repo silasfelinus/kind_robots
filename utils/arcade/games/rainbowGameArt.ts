@@ -97,6 +97,11 @@ function loadedArt(src: string): HTMLImageElement | null {
   return loadedImage(src.replace('/doodle/', '/'))
 }
 
+/** The loaded picture for a path under the art root (Fever Dream twin when one shipped), or null while loading. */
+export function rainbowLoadedArt(path: string): HTMLImageElement | null {
+  return loadedArt(rainbowArt(path))
+}
+
 /**
  * The URL for a picture under the art root, given as a path without extension (`ships/petal-wing`). Fever
  * Dream uses the doodle twin when one shipped; everything else is the classic file.
@@ -283,15 +288,17 @@ export const RAINBOW_GUARDIAN_SPRITES = [
   'pearl-warden',
   'bellkeeper',
   'shoal-koi',
+  // The Armory Siren (ARMORY-SIREN-2026-11-23, Krea 2 279830), the Act V armory route's own guardian.
+  'armory-siren',
 ] as const
 
 /**
- * Which painted guardian a guardian kind flies as. Act II's Matriarch and Act V's Armory Siren still borrow the
- * Lantern until their own pictures land; every other kind with a sprite uses its own.
+ * Which painted guardian a guardian kind flies as. The retired Matriarch still borrows the Lantern; every
+ * other kind with a sprite uses its own.
  */
 const GUARDIAN_ART_FOR_KIND: Readonly<Record<string, string>> = {
   matriarch: 'lantern',
-  siren: 'lantern',
+  siren: 'armory-siren',
   kelpwarden: 'kelp-warden',
   herder: 'comet-herder',
   warden: 'pearl-warden',
@@ -308,6 +315,31 @@ export function rainbowGuardianSprite(kind: string): string | null {
   return (RAINBOW_GUARDIAN_SPRITES as readonly string[]).includes(art)
     ? rainbowArt(`enemies/guardian-${art}`)
     : null
+}
+
+/**
+ * Painted hazards and drifting terrain (t-028): X2's coral asteroid (GEN2-CORAL-COMET-X2 278622) and X1's kelp
+ * frond (GEN2-KELP-NEBULA-X1 278928), keyed at 256 px.
+ */
+export const RAINBOW_HAZARD_SPRITES = {
+  'coral-asteroid': 'enemies/coral-asteroid',
+  'kelp-frond': 'hazards/kelp-frond',
+} as const
+export type RainbowHazardSprite = keyof typeof RAINBOW_HAZARD_SPRITES
+
+/** Draw a hazard centred on the origin, `size` px on its long side; false while its picture is loading. */
+export function drawRainbowHazardSprite(
+  g: CanvasRenderingContext2D,
+  hazard: RainbowHazardSprite,
+  size: number,
+): boolean {
+  const img = loadedArt(rainbowArt(RAINBOW_HAZARD_SPRITES[hazard]))
+  if (!img || img.naturalWidth <= 0) return false
+  const scale = size / Math.max(img.naturalWidth, img.naturalHeight)
+  const w = img.naturalWidth * scale
+  const h = img.naturalHeight * scale
+  g.drawImage(img, -w / 2, -h / 2, w, h)
+  return true
 }
 
 /** Draw a guardian centred on the origin, about 106 px across; false while its picture is loading. */
@@ -626,6 +658,14 @@ export function drawRainbowStagePlane(
     }
   }
   return true
+}
+
+/** The Gen-2 page paintings (GEN2-ROUND-1): the Luminous Ocean route map (251317) and the Palace Hangar (251298). */
+export function rainbowGen2Art(
+  name: 'route-map' | 'hangar',
+  look: RainbowLook = currentLook,
+): string {
+  return rainbowArt(`gen2/${name}`, look)
 }
 
 /** Painted Act title cards (round-15/16 Kontext), shown as the Act intro splash. */

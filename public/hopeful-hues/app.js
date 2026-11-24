@@ -270,7 +270,6 @@
       resizeHandler = null
     }
     const top = stack[stack.length - 1]
-    audio.unlock()
     const screens = {
       title: renderTitle,
       slots: renderSlots,
@@ -762,6 +761,10 @@
       return `Clear ${goal.target} ${world.blockers.gloom.name}`
     if (goal.type === 'tangle')
       return `Untie ${goal.target} ${world.blockers.tangle.name}`
+    if (goal.type === 'special')
+      return `Create ${goal.target} ${world.specials[goal.special].name}`
+    if (goal.type === 'combo')
+      return `Combine two specials ${goal.target} time(s)`
     if (goal.type === 'buddy')
       return `Rescue ${goal.target} ${world.blockers.buddy.name} (bring them to the bottom)`
     return ''
@@ -1777,7 +1780,7 @@
     const st = game.state
     clearHint()
     cheer('WE DID IT! 🌈')
-    const { movesConverted, bonus } = E.finishBonus(st)
+    const { movesConverted, bonus, phases } = E.finishBonus(st)
     if (movesConverted) {
       const pop = document.createElement('div')
       pop.className = 'fx-score'
@@ -1786,8 +1789,10 @@
       pop.style.fontSize = '1.6rem'
       pop.textContent = `Kindness Overflow! ${movesConverted} moves → +${bonus}`
       game.els.fx.appendChild(pop)
+      await playPhases(phases)
       updateHud()
-      await wait(900)
+      await wait(500)
+      pop.remove()
     }
     audio.play('win')
     const stars = E.starsFor(st, game.def.stars)
@@ -2127,7 +2132,6 @@
         applySettings()
         persist()
         if (input.dataset.range === 'sfx') audio.play('tap')
-        if (input.dataset.range === 'music' && Number(input.value) > 0) render()
       }),
     )
     modal.querySelector('[data-select]').addEventListener('change', (event) => {

@@ -24,6 +24,10 @@ import {
   reinforcements,
   withReinforcements,
 } from './rainbowPacing'
+import {
+  withRainbowRouteBeat,
+  type RainbowRouteFlags,
+} from './rainbowRouteBeats'
 
 export type RosefinEnemy = 'dolphin' | 'courier' | 'eel' | 'mortar'
 export type RosefinStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
@@ -352,6 +356,7 @@ export function rosefinDialogue(
   elapsed: number,
   players: number,
   rescuedCourier = false,
+  route?: RainbowRouteFlags,
 ): RosefinDialogue | null {
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
@@ -412,7 +417,11 @@ export function rosefinDialogue(
       },
     ],
   }
-  return lines[id][Math.floor(elapsed / ROSEFIN.lineFrames)] ?? null
+  return (
+    withRainbowRouteBeat(lines[id], id, route, crew)[
+      Math.floor(elapsed / ROSEFIN.lineFrames)
+    ] ?? null
+  )
 }
 
 export function rosefinScene(

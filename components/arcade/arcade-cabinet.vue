@@ -1482,6 +1482,11 @@ function startGame() {
         props.slug === 'rainbow-bullet-hell-space-princess'
           ? store.rainbowHangarBonuses()
           : undefined,
+      rainbowLivery:
+        props.slug === 'rainbow-bullet-hell-space-princess' &&
+        !isRainbowReplay.value
+          ? store.rainbowLivery()
+          : undefined,
       selectScreen: true,
       stillCamera: store.stillCamera,
       highContrast: store.highContrast,

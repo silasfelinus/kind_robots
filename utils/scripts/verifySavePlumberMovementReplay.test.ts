@@ -276,12 +276,16 @@ const buffered = (early: number) =>
     } else input.held.a = frame < 40
   })
 const BUFFER_FRAMES = 5
-for (let early = 1; early <= BUFFER_FRAMES; early++) {
+for (let early = 0; early <= BUFFER_FRAMES; early++) {
   const trace = buffered(early)
+  if (early > 0)
+    assert.ok(
+      trace[land - early]!.vy > 0,
+      `A pressed ${early} frames early is still falling before touchdown`,
+    )
   assert.ok(
-    trace[land - early]!.vy > 0 &&
-      (trace[land]!.vy < 0 || trace[land + 1]!.vy < 0),
-    `A pressed ${early} frames before landing jumps on touchdown (buffer)`,
+    trace[land]!.vy < 0 && !trace[land]!.ground,
+    `A pressed ${early} frames before landing takes off on the landing tick`,
   )
 }
 {
@@ -289,6 +293,19 @@ for (let early = 1; early <= BUFFER_FRAMES; early++) {
   assert.ok(
     trace.slice(land, land + 6).every((step) => step.vy >= 0),
     'a press far ahead of the landing is not remembered',
+  )
+}
+
+{
+  const trace = replay(labRun(), 130, (frame, input) => {
+    input.pressed.a = frame === 0
+    input.held.a = true
+  })
+  const touchdown = trace.findIndex((step, frame) => frame > 2 && step.ground)
+  assert.ok(touchdown > 10, 'a held jump returns to the floor')
+  assert.ok(
+    trace.slice(touchdown).every((step) => step.ground && step.vy === 0),
+    'holding jump without a fresh press never auto-bounces on landing',
   )
 }
 

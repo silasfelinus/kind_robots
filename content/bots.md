@@ -2,7 +2,7 @@
 title: Bots
 room: 'Bot Factory'
 subtitle: Chat with a Kind Robot
-description: View the many promptbots at Kind Robots
+description: Meet the Kind Robots chatbots, each with its own personality, and pick one to talk to.
 image: splash/botcafe.png
 icon: kind-icon:robot-color
 tooltip: Every bot uses ChatGPT under the hood, generating infinite designer content. What do you think, AMI?

@@ -160,4 +160,20 @@ for (const file of ['content/achievements.md', 'content/chats.md']) {
 }
 assert.doesNotMatch(pageDescription('content/themes.md'), /plethora|vibe/i)
 
+// 7. Pages linked from the front door describe themselves plainly
+//    (2026-11-24 PT): /stories read "A surreal odyssey powered by ChatGPT",
+//    /bots "View the many promptbots", the private /dashboard "This is your
+//    space!", /login kept placeholder copy ("login and registration link
+//    here") and /button's tooltip read "an leadboard race".
+const storiesDescription = pageDescription('content/stories.md')
+assert.doesNotMatch(storiesDescription, /odyssey|ChatGPT/i)
+assert.match(storiesDescription, /Storybook/)
+assert.doesNotMatch(pageDescription('content/bots.md'), /promptbots/i)
+assert.match(pageDescription('content/dashboard.md'), /sign in free/i)
+const login = read('content/login.md')
+assert.doesNotMatch(login, /Login here|registration link here/)
+const button = read('content/button.md')
+assert.doesNotMatch(button, /leadboard|an leaderboard/)
+assert.match(pageDescription('content/button.md'), /told not to press/)
+
 console.log(`front door polish checks passed (${gatedCards} gated share cards)`)

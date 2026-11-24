@@ -838,8 +838,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     for (let stage = 1; stage < 30; stage++) {
       const from = position(stage)
       const to = position(stage + 1)
-      g.strokeStyle =
-        stage < this.career.highestStage ? '#85eacb' : '#49435f'
+      g.strokeStyle = stage < this.career.highestStage ? '#85eacb' : '#49435f'
       g.beginPath()
       g.moveTo(from.x, from.y)
       g.lineTo(to.x, to.y)
@@ -1229,14 +1228,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.strokeStyle = '#fe8fc9'
       g.strokeRect(14, 143, W - 28, 210)
       label(g, "SUPERKATE'S COLOR CLUB", W / 2, 168, 16)
-      label(
-        g,
-        'CLASSIC BUBBLE MODE',
-        W / 2,
-        198,
-        15,
-        '#80f4e2',
-      )
+      label(g, 'CLASSIC BUBBLE MODE', W / 2, 198, 15, '#80f4e2')
       label(g, 'UP/DOWN: CHANGE MODE', W / 2, 220, 12)
       label(g, 'ENDLESS WAVES · NO POWER-UPS', W / 2, 241, 12)
       label(

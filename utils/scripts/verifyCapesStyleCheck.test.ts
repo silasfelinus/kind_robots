@@ -12,6 +12,12 @@ import {
   CAPES_ADDITIONAL_REFILL_REVIEW,
   CAPES_REFILL_GROUPS,
 } from '../capesRuntimeRefillArt'
+import {
+  CAPES_CAST_RECRUIT_GROUPS,
+  CAPES_CAST_RECRUIT_REVIEW,
+} from '../capesCastRecruitArt'
+import { OCTOBER_ART_RECEIPTS } from '../cometAcademy/octoberArtReceipts'
+import { RECRUIT_ART_RECEIPTS } from '../cometAcademy/recruitArtReceipts'
 import { readFileSync } from 'node:fs'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
 import {
@@ -99,17 +105,19 @@ assert.equal(capesStyleLaneFromModel('ponyFaetality_v11.safetensors'), null)
 // Source-ledger-linked private production receipts remain distinct from
 // artist-approved delivery and the original 48 permanent identities.
 assert.equal(CAPES_UNSTABLE_PRODUCTION.length, 14)
-assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 17)
+assert.equal(CAPES_PRODUCTION_IDENTITIES.length, 29)
+assert.equal(CAPES_CAST_RECRUIT_GROUPS.length, 12)
+assert.equal(CAPES_CAST_RECRUIT_REVIEW.length, 44)
 assert.equal(CAPES_REFILL_GROUPS.length, 9)
 assert.equal(CAPES_ADDITIONAL_REFILL_REVIEW.length, 142)
 assert.equal(CAPES_RUNTIME_REFILL_REVIEW.length, 6)
 assert.equal(CAPES_CANON_CORRECTION_REVIEW.length, 10)
 assert.equal(CAPES_FRANCHISE_SAFE_REVIEW.length, 5)
-assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 177)
+assert.equal(CAPES_REVIEWABLE_PRODUCTION.length, 221)
 for (const field of ['key', 'asset', 'artJobId', 'artImageId'] as const) {
   assert.equal(
     new Set(CAPES_REVIEWABLE_PRODUCTION.map((item) => item[field])).size,
-    177,
+    221,
     field + ' must be unique across all reviewable production images',
   )
 }
@@ -166,7 +174,8 @@ assert.equal(
   14,
 )
 for (const identity of CAPES_PRODUCTION_IDENTITIES.filter(
-  (entry) => !entry.signature.startsWith('refill-'),
+  (entry) =>
+    !/^(refill|cast|recruits)-/.test(entry.signature),
 )) {
   const group = capesProductionFor(identity.signature)
   assert.ok(group.length >= 2)
@@ -421,6 +430,34 @@ for (const group of CAPES_REFILL_GROUPS) {
     )
   }
 }
+// The 44 curator views refer to precisely the same private runtime receipts.
+const castAndRecruitReceipts = [
+  ...OCTOBER_ART_RECEIPTS,
+  ...Object.values(RECRUIT_ART_RECEIPTS).flatMap((slots) =>
+    Object.values(slots),
+  ),
+]
+assert.equal(castAndRecruitReceipts.length, 44)
+for (const candidate of CAPES_CAST_RECRUIT_REVIEW) {
+  const receipt = castAndRecruitReceipts.find(
+    (item) => item && 'comet-city-academy/' + item.asset === candidate.asset,
+  )
+  assert.ok(receipt, candidate.asset)
+  assert.equal(candidate.artJobId, receipt.artJobId)
+  assert.equal(candidate.artImageId, receipt.artImageId)
+}
+for (const group of CAPES_CAST_RECRUIT_GROUPS) {
+  const candidates = capesProductionFor(group.signature)
+  const isCast = group.signature.startsWith('cast-')
+  assert.equal(candidates.length, isCast ? 3 : 5)
+  const slots = candidates.map((entry) => entry.asset.split('/').at(-1)).sort()
+  assert.deepEqual(
+    slots,
+    isCast
+      ? ['encounter', 'portrait', 'splash']
+      : ['afraid', 'angry', 'injured', 'joyous', 'neutral'],
+  )
+}
 const gallery = readFileSync(
   new URL(
     '../../components/admin/capes-production-gallery.vue',
@@ -429,6 +466,7 @@ const gallery = readFileSync(
   'utf8',
 )
 assert.match(gallery, /data-testid="capes-production-gallery"/)
+assert.match(gallery, /data-testid="capes-production-group-select"/)
 assert.match(gallery, /CAPES_PRODUCTION_IDENTITIES\.length/)
 assert.match(gallery, /CAPES_REVIEWABLE_PRODUCTION\.length/)
 assert.match(gallery, /capesProductionFor\(selected\.value\)/)

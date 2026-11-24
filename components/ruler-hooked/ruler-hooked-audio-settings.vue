@@ -39,7 +39,10 @@
         @input="setLevel('effects', $event)"
       />
     </label>
-    <small>Music pauses during learning questions and when the game is hidden.</small>
+    <small
+      >Music pauses during learning questions and when the game is
+      hidden.</small
+    >
   </fieldset>
 </template>
 

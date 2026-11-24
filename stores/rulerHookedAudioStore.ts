@@ -60,5 +60,15 @@ export const useRulerHookedAudioStore = defineStore('rulerHookedAudio', () => {
     sound.dispose()
   }
 
-  return { prefs, enabled, initialize, update, unlock, scene, visibility, play, dispose }
+  return {
+    prefs,
+    enabled,
+    initialize,
+    update,
+    unlock,
+    scene,
+    visibility,
+    play,
+    dispose,
+  }
 })

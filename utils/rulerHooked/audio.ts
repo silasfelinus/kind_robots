@@ -1,5 +1,6 @@
 export type RoyalTheme = 'title' | 'lake' | 'night' | 'court' | 'ending'
-export type RoyalCue = 'cast' | 'catch' | 'escape' | 'petition' | 'decree' | 'finale'
+export type RoyalCue =
+  'cast' | 'catch' | 'escape' | 'petition' | 'decree' | 'finale'
 
 export interface RoyalAudioPrefs {
   music: number
@@ -40,40 +41,82 @@ export const ROYAL_THEMES: Record<RoyalTheme, Theme> = {
   title: {
     beat: 0.43,
     melody: [
-      [72, 1], [76, 1], [79, 2], [74, 1], [77, 1], [81, 2],
-      [76, 1], [79, 1], [84, 2], [81, 1], [77, 1], [72, 2],
+      [72, 1],
+      [76, 1],
+      [79, 2],
+      [74, 1],
+      [77, 1],
+      [81, 2],
+      [76, 1],
+      [79, 1],
+      [84, 2],
+      [81, 1],
+      [77, 1],
+      [72, 2],
     ],
     bass: [48, 53, 45, 55],
   },
   lake: {
     beat: 0.57,
     melody: [
-      [67, 2], [72, 1], [74, 1], [76, 2], [72, 2],
-      [69, 2], [74, 1], [76, 1], [67, 2], [64, 2],
+      [67, 2],
+      [72, 1],
+      [74, 1],
+      [76, 2],
+      [72, 2],
+      [69, 2],
+      [74, 1],
+      [76, 1],
+      [67, 2],
+      [64, 2],
     ],
     bass: [48, 50, 45, 43],
   },
   night: {
     beat: 0.72,
     melody: [
-      [69, 2], [72, 2], [76, 2], [71, 2],
-      [67, 2], [71, 2], [74, 2], [64, 2],
+      [69, 2],
+      [72, 2],
+      [76, 2],
+      [71, 2],
+      [67, 2],
+      [71, 2],
+      [74, 2],
+      [64, 2],
     ],
     bass: [45, 52, 43, 40],
   },
   court: {
     beat: 0.39,
     melody: [
-      [62, 1], [65, 1], [69, 1], [70, 1], [67, 1], [65, 1], [62, 2],
-      [63, 1], [67, 1], [72, 1], [70, 1], [69, 1], [65, 1], [62, 2],
+      [62, 1],
+      [65, 1],
+      [69, 1],
+      [70, 1],
+      [67, 1],
+      [65, 1],
+      [62, 2],
+      [63, 1],
+      [67, 1],
+      [72, 1],
+      [70, 1],
+      [69, 1],
+      [65, 1],
+      [62, 2],
     ],
     bass: [50, 43, 48, 45],
   },
   ending: {
     beat: 0.62,
     melody: [
-      [72, 2], [76, 2], [79, 2], [81, 2],
-      [79, 2], [74, 2], [77, 2], [72, 2],
+      [72, 2],
+      [76, 2],
+      [79, 2],
+      [81, 2],
+      [79, 2],
+      [74, 2],
+      [77, 2],
+      [72, 2],
     ],
     bass: [48, 45, 53, 48],
   },
@@ -82,16 +125,35 @@ export const ROYAL_THEMES: Record<RoyalTheme, Theme> = {
 type Chime = readonly [midi: number, at: number, seconds: number]
 
 export const ROYAL_CHIMES: Record<RoyalCue, readonly Chime[]> = {
-  cast: [[72, 0, 0.08], [60, 0.08, 0.16]],
-  catch: [[72, 0, 0.14], [76, 0.1, 0.14], [84, 0.2, 0.34]],
-  escape: [[65, 0, 0.12], [58, 0.12, 0.24]],
-  petition: [[62, 0, 0.22], [69, 0.12, 0.26]],
-  decree: [[64, 0, 0.16], [67, 0.12, 0.2]],
-  finale: [[60, 0, 0.32], [67, 0.15, 0.4], [76, 0.3, 0.65]],
+  cast: [
+    [72, 0, 0.08],
+    [60, 0.08, 0.16],
+  ],
+  catch: [
+    [72, 0, 0.14],
+    [76, 0.1, 0.14],
+    [84, 0.2, 0.34],
+  ],
+  escape: [
+    [65, 0, 0.12],
+    [58, 0.12, 0.24],
+  ],
+  petition: [
+    [62, 0, 0.22],
+    [69, 0.12, 0.26],
+  ],
+  decree: [
+    [64, 0, 0.16],
+    [67, 0.12, 0.2],
+  ],
+  finale: [
+    [60, 0, 0.32],
+    [67, 0.15, 0.4],
+    [76, 0.3, 0.65],
+  ],
 }
 
-export const royalFrequency = (midi: number) =>
-  440 * 2 ** ((midi - 69) / 12)
+export const royalFrequency = (midi: number) => 440 * 2 ** ((midi - 69) / 12)
 
 export function royalThemeFor(
   hasSave: boolean,
@@ -225,9 +287,14 @@ export class RoyalSound {
   play(cue: RoyalCue) {
     const ctx = this.context
     if (
-      !ctx || !this.effects || ctx.state !== 'running' ||
-      this.hidden || this.prefs.muted || !this.prefs.effects
-    ) return
+      !ctx ||
+      !this.effects ||
+      ctx.state !== 'running' ||
+      this.hidden ||
+      this.prefs.muted ||
+      !this.prefs.effects
+    )
+      return
     for (const [midi, at, seconds] of ROYAL_CHIMES[cue]) {
       this.note(this.effects, midi, ctx.currentTime + at, seconds, 0.15, 'sine')
     }

@@ -1,4 +1,5 @@
-import type { MusicLoop, Note } from '../sound'
+import type { ArcadeSoundName, MusicLoop, Note } from '../sound'
+import type { ArcadeSoundLike } from '../types'
 
 type WorldScore = {
   bpm: number
@@ -113,3 +114,128 @@ export const PLUMBER_LAND_NOTES: Note[] = [
   { freq: 155, to: 83, dur: 0.09, type: 'triangle', vol: 0.07 },
   { freq: 240, dur: 0.045, noise: true, vol: 0.025 },
 ]
+
+export const PLUMBER_ACTION_CUES = {
+  token: {
+    fallback: 'pickup',
+    notes: [
+      { freq: 880, dur: 0.045, type: 'sine', vol: 0.055 },
+      { freq: 1320, dur: 0.07, type: 'triangle', vol: 0.035, at: 0.04 },
+    ],
+  },
+  key: {
+    fallback: 'blip',
+    notes: [
+      { freq: 680, dur: 0.04, noise: true, vol: 0.035 },
+      { freq: 1240, to: 960, dur: 0.09, type: 'triangle', vol: 0.05 },
+    ],
+  },
+  bolt: {
+    fallback: 'extra',
+    notes: [
+      { freq: 280, dur: 0.055, noise: true, vol: 0.065 },
+      { freq: 170, to: 420, dur: 0.12, type: 'triangle', vol: 0.055 },
+      { freq: 740, dur: 0.15, type: 'sine', vol: 0.035, at: 0.1 },
+    ],
+  },
+  checkpoint: {
+    fallback: 'extra',
+    notes: [
+      { freq: 440, dur: 0.08, type: 'triangle', vol: 0.055 },
+      { freq: 660, dur: 0.08, type: 'triangle', vol: 0.055, at: 0.08 },
+      { freq: 880, dur: 0.21, type: 'sine', vol: 0.045, at: 0.16 },
+    ],
+  },
+  heart: {
+    fallback: 'level',
+    notes: [
+      { freq: 330, to: 494, dur: 0.16, type: 'sine', vol: 0.05 },
+      { freq: 660, dur: 0.16, type: 'sine', vol: 0.04, at: 0.11 },
+    ],
+  },
+  power: {
+    fallback: 'level',
+    notes: [
+      { freq: 392, to: 784, dur: 0.17, type: 'triangle', vol: 0.055 },
+      { freq: 587, dur: 0.09, type: 'triangle', vol: 0.05, at: 0.13 },
+      { freq: 988, dur: 0.23, type: 'sine', vol: 0.04, at: 0.21 },
+    ],
+  },
+  gear: {
+    fallback: 'level',
+    notes: [
+      { freq: 523, dur: 0.11, type: 'triangle', vol: 0.06 },
+      { freq: 784, dur: 0.11, type: 'triangle', vol: 0.06, at: 0.11 },
+      { freq: 1047, dur: 0.3, type: 'sine', vol: 0.055, at: 0.22 },
+      { freq: 1319, dur: 0.22, type: 'sine', vol: 0.025, at: 0.28 },
+    ],
+  },
+  spring: {
+    fallback: 'extra',
+    notes: [
+      { freq: 140, to: 1080, dur: 0.19, type: 'triangle', vol: 0.065 },
+      { freq: 540, to: 1300, dur: 0.09, type: 'sine', vol: 0.035, at: 0.1 },
+    ],
+  },
+  portal: {
+    fallback: 'extra',
+    notes: [
+      { freq: 480, to: 180, dur: 0.12, type: 'sine', vol: 0.05 },
+      { freq: 200, to: 760, dur: 0.2, type: 'triangle', vol: 0.055, at: 0.1 },
+    ],
+  },
+  wrench: {
+    fallback: 'shoot',
+    notes: [
+      { freq: 900, to: 300, dur: 0.075, noise: true, vol: 0.035 },
+      { freq: 210, to: 150, dur: 0.065, type: 'triangle', vol: 0.04 },
+    ],
+  },
+  strike: {
+    fallback: 'pop',
+    notes: [
+      { freq: 350, dur: 0.06, noise: true, vol: 0.075 },
+      { freq: 410, to: 115, dur: 0.09, type: 'triangle', vol: 0.06 },
+    ],
+  },
+  bossHit: {
+    fallback: 'boom',
+    notes: [
+      { freq: 140, to: 55, dur: 0.23, type: 'triangle', vol: 0.09 },
+      { freq: 210, dur: 0.16, noise: true, vol: 0.075 },
+    ],
+  },
+  hurt: {
+    fallback: 'warn',
+    notes: [
+      { freq: 410, to: 140, dur: 0.18, type: 'triangle', vol: 0.07 },
+      { freq: 290, dur: 0.045, noise: true, vol: 0.04 },
+    ],
+  },
+  death: {
+    fallback: 'die',
+    notes: [
+      { freq: 494, dur: 0.12, type: 'triangle', vol: 0.065 },
+      { freq: 330, dur: 0.14, type: 'triangle', vol: 0.065, at: 0.12 },
+      { freq: 220, to: 110, dur: 0.36, type: 'sine', vol: 0.065, at: 0.26 },
+    ],
+  },
+  extraLife: {
+    fallback: 'level',
+    notes: [
+      { freq: 660, dur: 0.07, type: 'triangle', vol: 0.05 },
+      { freq: 880, dur: 0.07, type: 'triangle', vol: 0.05, at: 0.07 },
+      { freq: 1109, dur: 0.08, type: 'triangle', vol: 0.05, at: 0.14 },
+      { freq: 1320, dur: 0.24, type: 'sine', vol: 0.05, at: 0.22 },
+    ],
+  },
+} satisfies Record<string, { fallback: ArcadeSoundName; notes: Note[] }>
+
+export function playPlumberCue(
+  sound: ArcadeSoundLike,
+  cue: keyof typeof PLUMBER_ACTION_CUES,
+) {
+  const effect = PLUMBER_ACTION_CUES[cue]
+  if (sound.playNotes) sound.playNotes(effect.notes)
+  else sound.play(effect.fallback)
+}

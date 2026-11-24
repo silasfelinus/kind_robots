@@ -335,9 +335,7 @@ for (let day = 1; day <= 6; day++) {
   assert.equal(game.targets.filter((t) => t.airborne).length, 2)
   assert.ok(game.landmarks.some((l) => l.kind === 'park'))
   assert.ok(
-    game.bundles.some(
-      (b) => b.y === -220 - (2 + 0.5) * 110 && b.x === 94,
-    ),
+    game.bundles.some((b) => b.y === -220 - (2 + 0.5) * 110 && b.x === 94),
     'the seed shop always stocks a route refill',
   )
 }
@@ -414,7 +412,12 @@ for (const crashed of [false, true]) {
   }
   if (crashed) {
     const lives = game.lives
-    game.crashBot('BONUS CRASH', { kind: 'bin', x: 128, y: game.by, gone: false })
+    game.crashBot('BONUS CRASH', {
+      kind: 'bin',
+      x: 128,
+      y: game.by,
+      gone: false,
+    })
     assert.equal(game.lives, lives, 'bonus crashes do not consume lives')
   } else {
     game.by = game.bonusEnd - 1

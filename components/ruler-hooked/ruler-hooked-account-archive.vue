@@ -2,8 +2,8 @@
   <fieldset class="grid gap-2 rounded-xl border p-3">
     <legend class="font-bold">Account archive</legend>
     <p v-if="!account.signedIn" class="text-sm">
-      Sign in to back up reigns and scrapbook discoveries across devices.
-      Device saves remain available offline.
+      Sign in to back up reigns and scrapbook discoveries across devices. Device
+      saves remain available offline.
     </p>
     <template v-else>
       <p class="text-sm">

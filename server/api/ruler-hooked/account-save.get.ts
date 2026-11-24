@@ -19,8 +19,7 @@ export default defineEventHandler(async (event) => {
       },
       select: { payload: true, revision: true, updatedAt: true },
     })
-    if (!row)
-      return { success: true, data: { save: null, revision: null } }
+    if (!row) return { success: true, data: { save: null, revision: null } }
     const save = parseRoyalBackup(row.payload)
     return {
       success: true,

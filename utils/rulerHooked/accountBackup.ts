@@ -18,8 +18,7 @@ const number = (v: unknown): v is number =>
   typeof v === 'number' && Number.isFinite(v)
 const count = (v: unknown): v is number =>
   number(v) && Number.isSafeInteger(v) && v >= 0
-const strings = (v: unknown): v is string[] =>
-  Array.isArray(v) && v.every(text)
+const strings = (v: unknown): v is string[] => Array.isArray(v) && v.every(text)
 const record = (v: unknown, check: (item: unknown) => boolean): boolean =>
   object(v) && Object.values(v).every(check)
 const id = (v: unknown): v is string =>

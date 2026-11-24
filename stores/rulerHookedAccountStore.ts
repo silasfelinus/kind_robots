@@ -99,7 +99,8 @@ export const useRulerHookedAccountStore = defineStore(
         if (token !== epoch || owner !== user.authenticatedUserId) return
         if (!result.success || !result.data) {
           archive.value = null
-          message.value = result.message || 'Backup failed. Read the archive again.'
+          message.value =
+            result.message || 'Backup failed. Read the archive again.'
           return
         }
         archive.value = { save: merged, revision: result.data.revision }

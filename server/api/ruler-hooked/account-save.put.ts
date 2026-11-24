@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
       })
     const body: unknown = await readBody(event)
     if (!body || typeof body !== 'object' || Array.isArray(body))
-      throw createError({ statusCode: 400, message: 'Invalid archive request.' })
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid archive request.',
+      })
     const input = body as { save?: unknown; expectedRevision?: unknown }
     if (
       input.expectedRevision !== null &&

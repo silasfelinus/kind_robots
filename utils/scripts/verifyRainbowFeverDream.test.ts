@@ -13,6 +13,7 @@ import {
   rainbowPortrait,
   rainbowShipSprite,
   rainbowStageCard,
+  rainbowStagePlane,
   rainbowSuperCutin,
   setRainbowLook,
 } from '../arcade/games/rainbowGameArt'
@@ -123,6 +124,16 @@ assert.equal(
 assert.equal(
   rainbowPortrait('/rainbow-princess-portraits/p3-solenne.webp'),
   '/rainbow-princess-portraits/p3-solenne.webp',
+)
+assert.equal(
+  rainbowStagePlane('s01', 'far'),
+  '/rainbow-princess-art/doodle/stages/s01-far.webp',
+  'a reviewed Fever Dream plane draws in Fever Dream',
+)
+assert.equal(
+  rainbowStagePlane('s01', 'far', 'classic'),
+  null,
+  'Classic never borrows a Fever Dream plane',
 )
 assert.equal(
   rainbowHeroArt('/hero.webp'),

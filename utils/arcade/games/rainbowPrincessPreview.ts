@@ -53,12 +53,16 @@ import {
   drawRainbowHazardSprite,
   drawRainbowSuperCutin,
   loadRainbowLook,
+  rainbowActStage,
   rainbowLook,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import { applyRainbowSwimMotion } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
-import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
+import {
+  drawRainbowDistantParallax,
+  drawRainbowPaintedSky,
+} from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
 import {
@@ -6594,6 +6598,11 @@ export function createRainbowPrincessPreview(
       // Fever Dream: the neon school-folder sky replaces the classic bubbles (decoration only).
       const fever = rainbowLook() === 'fever'
       if (fever) drawFeverSky(g, currentAct(), tick, drift)
+      // The Act's painted scenery: S01-S08, and the finale's own Crown heart once it ships (P-04/P-07).
+      const stage = rainbowActStage(currentAct())
+      // A painted sky drifts slowest of all over the whole field (P-04); a detour paints its own below.
+      if (!activeDetour())
+        drawRainbowPaintedSky(g, stage, actFrame(currentAct()), drift, H, W)
       // Classic drifting motes: only the two far planes, small and faint, so nothing ambient is the size or
       // brightness of a hostile pellet (presentation critic P-10).
       for (let plane = 0; plane < (fever ? 0 : 2); plane++) {
@@ -6929,9 +6938,6 @@ export function createRainbowPrincessPreview(
         }
       }
       // Distant painted silhouettes drift behind the brighter coral foreground.
-      const stage = (
-        ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's08'] as const
-      )[currentAct() - 1]!
       // A detour flies its own painted sky and bands (t-028) instead of its origin Act's strips.
       const detour = activeDetour()
       if (
@@ -9133,19 +9139,7 @@ export function createRainbowPrincessPreview(
       const act = currentAct()
       const introFrame = actFrame(act)
       if (introFrame < INTRO_FRAMES && (moonStart !== null || !defeatedAt)) {
-        const stage = (
-          [
-            's01',
-            's02',
-            's03',
-            's04',
-            's05',
-            's06',
-            's07',
-            's08',
-            's08',
-          ] as const
-        )[act - 1]!
+        // The same stage the backdrop flies, so the finale's card is its own once S09 ships (P-07).
         const top = 33 + 60
         g.save()
         g.globalAlpha =
@@ -10094,7 +10088,7 @@ export function createRainbowPrincessPreview(
       }
       if (failFrame !== null) {
         // One rescue tally everywhere: the finale's six, palace captives named apart (story critic S15).
-        const flags = palaceFlags()
+        const flags = finaleFlags()
         const lines = failureLines(
           currentAct(),
           finaleRescues(flags),

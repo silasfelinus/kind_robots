@@ -1419,6 +1419,7 @@ function releaseRemapFocus() {
 
 /** Let go of every touch control on every seat. */
 function releaseTouch() {
+  clearStagePointer()
   clearPaddlePointer()
   releaseAim()
   pinballPadRef.value?.release()
@@ -2438,9 +2439,46 @@ function renderWithBudget() {
   }
 }
 
+let stagePointerId: number | null = null
+
+function forwardStagePointer(
+  event: PointerEvent,
+  phase: 'down' | 'move' | 'up' | 'cancel',
+) {
+  if (!game || isWebGLInstance(game) || !game.stagePointer) return
+  const box = canvasRef.value?.getBoundingClientRect()
+  const info = meta.value
+  if (!box?.width || !box.height || !info) return
+  game.stagePointer({
+    phase,
+    x: ((event.clientX - box.left) / box.width) * info.width,
+    y: ((event.clientY - box.top) / box.height) * info.height,
+  })
+}
+
+function clearStagePointer() {
+  if (stagePointerId !== null && game && !isWebGLInstance(game))
+    game.stagePointer?.({ phase: 'cancel', x: 0, y: 0 })
+  stagePointerId = null
+}
+
 function onScreenPointer(event: PointerEvent) {
   unlockArcadeAudio()
   canvasRef.value?.focus({ preventScroll: true })
+  if (
+    !guide.value &&
+    machine.phase === 'playing' &&
+    game &&
+    !isWebGLInstance(game) &&
+    game.stagePointer
+  ) {
+    if (stagePointerId !== null || event.button !== 0) return
+    event.preventDefault()
+    stagePointerId = event.pointerId
+    capture(event.currentTarget as HTMLElement | null, event.pointerId)
+    forwardStagePointer(event, 'down')
+    return
+  }
   if (paddleMode.value) {
     if (paddlePointer !== null) return
     beginPaddleDrag(event)
@@ -2460,6 +2498,12 @@ function beginPaddleDrag(event: PointerEvent) {
 }
 
 function onPaddlePointerMove(event: PointerEvent) {
+  if (event.pointerId === stagePointerId) {
+    if (machine.phase === 'playing' && !guide.value)
+      forwardStagePointer(event, 'move')
+    else clearStagePointer()
+    return
+  }
   if (!paddleMode.value || event.pointerId !== paddlePointer) return
   const box = canvasRef.value?.getBoundingClientRect()
   if (!box?.width) return
@@ -2470,6 +2514,17 @@ function onPaddlePointerMove(event: PointerEvent) {
 }
 
 function releasePaddlePointer(event: PointerEvent) {
+  if (event.pointerId === stagePointerId) {
+    if (
+      event.type === 'pointerup' &&
+      machine.phase === 'playing' &&
+      !guide.value
+    ) {
+      forwardStagePointer(event, 'up')
+      stagePointerId = null
+    } else clearStagePointer()
+    return
+  }
   if (event.pointerId === paddlePointer) clearPaddlePointer()
 }
 

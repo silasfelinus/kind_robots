@@ -119,6 +119,41 @@ input.held.right = false
 for (let frame = 0; frame < 30; frame++) game.update(input)
 assert.equal(game.over, false)
 
+const calmRun = createSavePlumberPreview({
+  ...options,
+  stillCamera: true,
+  highContrast: true,
+})
+calmRun.loadStage(0)
+calmRun.mode = 'play'
+calmRun.foes.length = 0
+for (let frame = 0; frame < 20; frame++) {
+  const keys = emptyInput()
+  keys.held.right = true
+  keys.held.b = true
+  calmRun.update(keys)
+}
+assert.ok(calmRun.hero.vx > 0, 'calm motion does not stop movement')
+assert.equal(calmRun.cameraLead, 0, 'still camera removes anticipatory lead')
+
+const edgeColors = new Set<string>()
+const edgeProbe = {
+  fillStyle: '',
+  save() {},
+  restore() {},
+  fillRect() {
+    edgeColors.add(this.fillStyle)
+  },
+}
+const contrast = calmRun as unknown as {
+  renderContrastEdges(g: CanvasRenderingContext2D): void
+}
+contrast.renderContrastEdges(
+  edgeProbe as unknown as CanvasRenderingContext2D,
+)
+assert.ok(edgeColors.has('#ffffff'), 'contrast marks exposed terrain')
+assert.ok(edgeColors.has('#101820'), 'contrast backs edges with a dark stroke')
+
 assert.equal(PLUMBER_WORLD_MUSIC.length, 8)
 const melodies = new Set<string>()
 for (const [index, loop] of PLUMBER_WORLD_MUSIC.entries()) {

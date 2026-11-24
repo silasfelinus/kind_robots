@@ -44,6 +44,12 @@ type Engine = {
     a: number[],
     b: number[],
   ) => { ok: boolean; phases: Phase[]; outcome?: string }
+  useTool: (
+    s: State,
+    tool: string,
+    a: number[],
+    b?: number[],
+  ) => { ok: boolean; phases: Phase[]; outcome?: string }
   bestMove: (s: State, limit?: number) => number[][] | null
   clone: <T>(v: T) => T
   finishBonus: (s: State) => { bonus: number; phases: Phase[] }
@@ -84,6 +90,7 @@ type Slot = {
     dailyKey: string
   }
   sparkles: number
+  boosters: Record<string, number>
   character: string
 }
 type Meta = {
@@ -280,8 +287,37 @@ function craftedState(
       }
   for (const [r, c] of paint) must(must(state.board[r])[c]).color = 5
   must(must(state.board[swapTarget[0]])[swapTarget[1]]).color = 5
-  return state
+  // Re-clone inside the engine's vm realm so deepStrictEqual compares
+  // same-realm prototypes against later E.clone() snapshots.
+  return E.clone(state)
 }
+const toolState = craftedState(
+  [
+    [2, 0],
+    [2, 1],
+    [2, 3],
+  ],
+  [1, 2],
+)
+assert.ok(E.findMove(toolState), 'tool fixture starts on a playable board')
+const beforeTools = E.clone(toolState)
+assert.equal(E.useTool(toolState, 'brush', [0, 0]).ok, true)
+assert.equal(toolState.board[0]?.[0]?.special, 'h')
+assert.equal(toolState.movesLeft, beforeTools.movesLeft)
+assert.equal(toolState.stats.toolsUsed, 1)
+const afterBrush = E.clone(toolState)
+assert.equal(E.useTool(toolState, 'brush', [0, 0]).ok, false)
+assert.deepEqual(toolState, afterBrush, 'invalid tool leaves state unchanged')
+assert.equal(E.useTool(toolState, 'swap', [0, 0], [5, 5]).ok, true)
+assert.equal(E.useTool(toolState, 'wand', [1, 1]).ok, true)
+assert.equal(toolState.movesLeft, beforeTools.movesLeft)
+assert.equal(toolState.stats.toolsUsed, 3)
+const replayTools = E.clone(beforeTools)
+E.useTool(replayTools, 'brush', [0, 0])
+E.useTool(replayTools, 'swap', [0, 0], [5, 5])
+E.useTool(replayTools, 'wand', [1, 1])
+assert.deepEqual(replayTools, toolState, 'tool actions replay exactly')
+
 const four = craftedState(
   [
     [2, 0],
@@ -393,6 +429,9 @@ assert.ok(
 // Saves, quests, progression, routes, endings and scrapbook.
 const slot = M.createSlot('kate', Date.UTC(2026, 10, 23))
 M.refreshQuests(slot, new Date(2026, 10, 23, 12))
+const giftCount = slot.boosters.wand
+M.refreshQuests(slot, new Date(2026, 10, 23, 18))
+assert.equal(slot.boosters.wand, giftCount, 'daily gift is idempotent')
 assert.equal(slot.quests.daily.length, 3)
 assert.equal(slot.quests.weekly.length, 3)
 const sameDay = M.createSlot('kate')
@@ -406,6 +445,11 @@ assert.equal(
   M.refreshQuests(slot, new Date(2026, 10, 24, 9)),
   true,
   'daily quests refresh the next day',
+)
+assert.equal(
+  slot.boosters.wand,
+  (giftCount ?? 0) + 1,
+  'next day gives a new tool',
 )
 assert.ok(M.DAILY_POOL.length >= 10 && M.WEEKLY_POOL.length >= 6)
 assert.ok(M.ACHIEVEMENTS.length >= 30)

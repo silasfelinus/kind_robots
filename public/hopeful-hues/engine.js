@@ -108,6 +108,7 @@
         bigCascades: 0,
         undos: 0,
         hints: 0,
+        toolsUsed: 0,
         colorsCleared: Array(COLORS).fill(0),
       },
     }
@@ -162,6 +163,13 @@
             for (let c = 0; c < cols; c++) if (state.gloom[r][c] > 0) count++
           goal.target = count
         }
+      }
+    }
+    if (['bomb', 'rainbow'].includes(opts.startSpecial)) {
+      const spot = randomGemCell(state)
+      if (spot) {
+        state.board[spot[0]][spot[1]].special = opts.startSpecial
+        state.stats.toolsUsed++
       }
     }
     ensurePlayable(state)
@@ -822,6 +830,45 @@
     return { ok: true, phases, outcome: outcome(state) }
   }
 
+  function useTool(state, tool, a, b) {
+    const invalid = { ok: false, phases: [] }
+    if (state.over || !a || !isCell(state, a[0], a[1])) return invalid
+    const ta = tileAt(state, a[0], a[1])
+    if (!ta) return invalid
+    const phase = newPhase(0)
+    let phases
+    if (tool === 'wand') {
+      resolveClearSet(state, [[a[0], a[1], 'special']], phase)
+      phases = cascade(state, phase, null)
+    } else if (tool === 'brush') {
+      if (!isGem(ta) || ta.special) return invalid
+      ta.special = 'h'
+      phase.board = snapshot(state)
+      phases = [phase]
+    } else if (tool === 'swap') {
+      if (!b || !isCell(state, b[0], b[1])) return invalid
+      const tb = tileAt(state, b[0], b[1])
+      if (!isGem(ta) || !isGem(tb) || ta.id === tb.id) return invalid
+      phase.swap = { a, b, ids: [ta.id, tb.id] }
+      swapTiles(state, a, b)
+      if (isComboSwap(ta, tb)) comboClear(state, b, a, phase)
+      else {
+        const runs = findRuns(state)
+        if (runs.length) clearMatches(state, runs, phase, [a, b])
+      }
+      phases = cascade(state, phase, null)
+    } else return invalid
+    state.stats.toolsUsed++
+    if (settle(state))
+      phases.push({
+        ...newPhase(0),
+        shuffle: true,
+        board: snapshot(state),
+        falls: [],
+      })
+    return { ok: true, phases, outcome: outcome(state) }
+  }
+
   function goalsMet(state) {
     return state.goals.every((goal) => {
       if (goal.type === 'score') return state.score >= goal.target
@@ -1028,6 +1075,7 @@
     findRuns,
     canSwap,
     trySwap,
+    useTool,
     findMove,
     allMoves,
     bestMove,

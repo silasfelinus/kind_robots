@@ -27,11 +27,7 @@ import { LEFT, RIGHT, W } from './rules'
 import type { CrateKind } from './walls'
 
 export type BossId =
-  | 'mister-mulch'
-  | 'tangle-rose'
-  | 'sunny-saguaro'
-  | 'queen-koi'
-  | 'gloom-bloom'
+  'mister-mulch' | 'tangle-rose' | 'sunny-saguaro' | 'queen-koi' | 'gloom-bloom'
 export type BossPhase = 1 | 2 | 3
 
 /** A guard crate (a face plate or a feeding root) as a wall cell, and the extra crates around it. */
@@ -281,13 +277,15 @@ export function gloomOpen(b: Boss): boolean {
 /** Which boss waits at the end of house `house`, if any. */
 export function bossOf(house: number): BossId | null {
   return (
-    ([
-      'mister-mulch',
-      'tangle-rose',
-      'sunny-saguaro',
-      'queen-koi',
-      'gloom-bloom',
-    ] as const)[house] ?? null
+    (
+      [
+        'mister-mulch',
+        'tangle-rose',
+        'sunny-saguaro',
+        'queen-koi',
+        'gloom-bloom',
+      ] as const
+    )[house] ?? null
   )
 }
 
@@ -548,8 +546,7 @@ export function stepBoss(b: Boss, aimX: number, rng: () => number): void {
         (b.crown + 1) %
         (ofPhase(CROWN_SHUT, b.phase) + ofPhase(CROWN_BLOOM, b.phase))
     }
-    if (b.id === 'gloom-bloom' && b.phase === 2)
-      b.crown = (b.crown + 1) % 210
+    if (b.id === 'gloom-bloom' && b.phase === 2) b.crown = (b.crown + 1) % 210
     // Each phase eases toward its own path, so a new phase never jumps the boss across the glass.
     let goal = b.x
     if (b.id === 'mister-mulch') {

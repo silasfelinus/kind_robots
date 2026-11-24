@@ -3670,7 +3670,8 @@ class BrickBloom implements ArcadeGameInstance {
           (ball) => Math.hypot(ball.x - r.x - r.w / 2, ball.y - r.y) < 50,
         )
         const nearLantern = lanterns.some(
-          (lamp) => Math.abs(lamp.col - b.col) + Math.abs(lamp.row - b.row) <= 2,
+          (lamp) =>
+            Math.abs(lamp.col - b.col) + Math.abs(lamp.row - b.row) <= 2,
         )
         const rowLit = (this.litRows.get(b.row) ?? 0) > this.tick
         if (!nearBall && !nearLantern && !rowLit && !b.flash && !b.vault)

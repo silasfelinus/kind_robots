@@ -17,7 +17,12 @@ import {
   houseKinds,
   nextTourPos,
 } from '../arcade/brickBloom/houses'
-import { GOLDEN_TOTAL, VAULTS, freshSave, readBloomSave } from '../arcade/brickBloom/bench'
+import {
+  GOLDEN_TOTAL,
+  VAULTS,
+  freshSave,
+  readBloomSave,
+} from '../arcade/brickBloom/bench'
 import { richRoute } from '../arcade/brickBloom/map'
 import brickBloom from '../arcade/games/brickBloom'
 import { emptyInput } from '../arcade/types'
@@ -28,7 +33,10 @@ assert.ok(houseKinds(NIGHT_BLOOM).has('lantern'))
 assert.ok(houseKinds(NIGHT_BLOOM).has('glow'))
 const vault = VAULTS[NIGHT_BLOOM.id]!
 assert.ok(richRoute(NIGHT_BLOOM).includes(vault.wall))
-assert.notEqual(houseWall(NIGHT_BLOOM, vault.wall)!.rows[vault.row]![vault.col], '.')
+assert.notEqual(
+  houseWall(NIGHT_BLOOM, vault.wall)!.rows[vault.row]![vault.col],
+  '.',
+)
 assert.equal(GOLDEN_TOTAL, 5)
 assert.equal(bossOf(4), 'gloom-bloom')
 assert.equal(BOSS_SPECS['gloom-bloom'].cells.filter((c) => c.guard).length, 4)
@@ -117,7 +125,12 @@ for (let mask = 0; mask < 16; mask++) {
   g.paddleX = 20
   boss.shots = [{ kind: 'gloom', x: 128, y: 305, vx: 0, vy: 2 }]
   g.updateBoss()
-  assert.ok(g.bed.some((n) => n < 3), 'an uncaught cloud smothers a plot')
+  assert.ok(
+    g.bed.some((n) => n < 3),
+    'an uncaught cloud smothers a plot',
+  )
 }
 
-console.log('Brick Bloom Night Bloom: authored routes, light, boss phases and bed attacks passed')
+console.log(
+  'Brick Bloom Night Bloom: authored routes, light, boss phases and bed attacks passed',
+)

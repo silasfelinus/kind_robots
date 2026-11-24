@@ -3,6 +3,11 @@
  * DONE and authenticated previews do not certify artistic approval or gameplay
  * delivery. Preserve permanent identity keys and every original ArtJob ID.
  */
+import {
+  CAPES_ADDITIONAL_REFILL_REVIEW,
+  CAPES_REFILL_GROUPS,
+} from './capesRuntimeRefillArt'
+
 export const CAPES_PRODUCTION_IDENTITIES = [
   {
     signature: 'accident-earth',
@@ -36,6 +41,7 @@ export const CAPES_PRODUCTION_IDENTITIES = [
     label: 'Originality repairs',
     subtitle: 'Five separately rendered character and scene replacements',
   },
+  ...CAPES_REFILL_GROUPS,
 ] as const
 
 export const CAPES_UNSTABLE_PRODUCTION = [
@@ -386,6 +392,7 @@ export const CAPES_FRANCHISE_SAFE_REVIEW = [
 export const CAPES_REVIEWABLE_PRODUCTION = [
   ...CAPES_UNSTABLE_PRODUCTION,
   ...CAPES_RUNTIME_REFILL_REVIEW,
+  ...CAPES_ADDITIONAL_REFILL_REVIEW,
   ...CAPES_CANON_CORRECTION_REVIEW,
   ...CAPES_FRANCHISE_SAFE_REVIEW,
 ] as const

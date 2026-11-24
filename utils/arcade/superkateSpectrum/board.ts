@@ -33,12 +33,9 @@ export function neighbors({ row, col }: Position): Position[] {
 export function emptyBoard(): Board {
   return Array.from({ length: ROWS }, () => Array<Cell>(COLS).fill(null))
 }
-/**
- * The first five Rainbow Salon boards are deliberately authored.
- * Each silhouette teaches a distinct color connection before the procedural
- * districts begin. Keep each ten-cell row stable across replays and devices.
- */
-const RAINBOW_SALON_LAYOUTS: readonly (readonly string[])[] = [
+/** All thirty Story boards are authored, with five distinct puzzles per district. */
+export const STORY_LAYOUTS: readonly (readonly string[])[] = [
+  // Rainbow Salon: three-color matching lessons.
   ['ppppttttgg', 'pp..tt..gg', 'p...t...g.'],
   ['ppptttgggp', '.p.t.g.p..', 'pp..tt..gg', '..g...p...'],
   ['ppttggpptt', 'pp..tt..gg', '.pggp..tt.', 'g..t..p..g'],
@@ -51,11 +48,258 @@ const RAINBOW_SALON_LAYOUTS: readonly (readonly string[])[] = [
     'pp..tt..gg',
     '...p..t...',
   ],
+  // Botanic Dome
+  [
+    'llppttggvv',
+    'llppttggvv',
+    '.llpttgvv.',
+    '..llttvv..',
+    '...llvv...',
+  ],
+  [
+    'ppggvvttll',
+    'ppggvvttll',
+    '.pggvvttl.',
+    '..gg..ll..',
+    '..gg..ll..',
+    '...g..l...',
+  ],
+  [
+    'llttppggvv',
+    'llttppggvv',
+    '..ttppgg..',
+    '..vvppgg..',
+    '...vppg...',
+    '....pp....',
+    '....pp....',
+  ],
+  [
+    'vvllggttpp',
+    'vvllggttpp',
+    'vv..gg..pp',
+    '.v..gg..p.',
+    '..llggtt..',
+    '..llggtt..',
+    '...lgt....',
+  ],
+  [
+    'llppvvggtt',
+    'llppvvggtt',
+    'llpp..ggtt',
+    '.lpp..ggt.',
+    '..ppvvgg..',
+    '..ppvvgg..',
+    '...pvv....',
+    '....vv....',
+  ],
+  // Night Market
+  [
+    'bbppvvggtt',
+    'bbppvvggtt',
+    '..ppvvgg..',
+    '...pvg....',
+    '..ttvvbb..',
+    '..ttvvbb..',
+  ],
+  [
+    'ttbbppvvgg',
+    'ttbbppvvgg',
+    'tt..pp..gg',
+    'tt..pp..gg',
+    '.tbbppvvg.',
+    '..bb..vv..',
+    '..bb..vv..',
+  ],
+  [
+    'ggvvbbpptt',
+    'ggvvbbpptt',
+    '.gvvbbppt.',
+    '..vv..pp..',
+    '..vv..pp..',
+    '.tbb..ggv.',
+    'ttbb..ggvv',
+  ],
+  [
+    'bbttvvggpp',
+    'bbttvvggpp',
+    'bbtt..ggpp',
+    '.btt..ggp.',
+    '..ttvvgg..',
+    '..ppvvbb..',
+    '..ppvvbb..',
+    '...pvvb...',
+  ],
+  [
+    'vvggbbttpp',
+    'vvggbbttpp',
+    'vvggbbttpp',
+    '.vggbbttp.',
+    '..ggbbtt..',
+    '..vvbbpp..',
+    '...vbbp...',
+    '....bb....',
+  ],
+  // Cloud Library
+  [
+    'llbbppttgg',
+    'llbbppttgg',
+    'llbb..ttgg',
+    '..bbvvtt..',
+    '..bbvvtt..',
+    '...bvv....',
+    '....vv....',
+  ],
+  [
+    'ppvvllbbgg',
+    'ppvvllbbgg',
+    'pp..ll..gg',
+    '.p..ll..g.',
+    '..ttllbb..',
+    '..ttllbb..',
+    '...t..b...',
+  ],
+  [
+    'bbggttllvv',
+    'bbggttllvv',
+    'bbggttllvv',
+    '.bgg..llv.',
+    '..ggppvv..',
+    '..ggppvv..',
+    '...gppv...',
+    '....pp....',
+  ],
+  [
+    'ttllbbvvpp',
+    'ttllbbvvpp',
+    'ttllbbvvpp',
+    '..ll..vv..',
+    '..llggvv..',
+    '..bbggpp..',
+    '...bggp...',
+    '....gg....',
+  ],
+  [
+    'ggppvvllbb',
+    'ggppvvllbb',
+    'ggppvvllbb',
+    'gg..vv..bb',
+    '.gttvvttb.',
+    '..ttvvtt..',
+    '...tvvt...',
+    '....vv....',
+  ],
+  // Prism Workshop
+  [
+    'ppggbbvvll',
+    'ppggbbvvll',
+    'ppggbbvvll',
+    '.pggbbvvl.',
+    '..ttbbtt..',
+    '..ttbbtt..',
+    '...tbbt...',
+  ],
+  [
+    'vvbbllpptt',
+    'vvbbllpptt',
+    'vvbb..pptt',
+    '..bbggpp..',
+    '..bbggpp..',
+    '..llggvv..',
+    '...lggv...',
+  ],
+  [
+    'llttvvbbgg',
+    'llttvvbbgg',
+    'llttvvbbgg',
+    '.ltt..bbg.',
+    '..ttppbb..',
+    '..ggppvv..',
+    '..ggppvv..',
+    '...gpv....',
+  ],
+  [
+    'bbllggpptt',
+    'bbllggpptt',
+    'bbllggpptt',
+    '.bllggppt.',
+    '..llvvpp..',
+    '..llvvpp..',
+    '...lvvp...',
+    '....vv....',
+  ],
+  [
+    'ppvvttggbb',
+    'ppvvttggbb',
+    'ppvvttggbb',
+    'ppvv..ggbb',
+    '.pvvllggb.',
+    '..vvllgg..',
+    '..bbllpp..',
+    '...bllp...',
+    '....ll....',
+  ],
+  // Heart of the Hue
+  [
+    'llggppttbb',
+    'llggppttbb',
+    'llggppttbb',
+    '.lgg..ttb.',
+    '..ggvvtt..',
+    '..ppvvbb..',
+    '..ppvvbb..',
+    '...pvvb...',
+  ],
+  [
+    'vvttbbllpp',
+    'vvttbbllpp',
+    'vvttbbllpp',
+    'vvtt..llpp',
+    '.vttggllp.',
+    '..ttggll..',
+    '..bbggpp..',
+    '...bggp...',
+  ],
+  [
+    'ggbbllvvtt',
+    'ggbbllvvtt',
+    'ggbbllvvtt',
+    'ggbb..vvtt',
+    '.gbbppvvt.',
+    '..bbppvv..',
+    '..llpptt..',
+    '..llpptt..',
+    '...lpt....',
+  ],
+  [
+    'ttppggbbvv',
+    'ttppggbbvv',
+    'ttppggbbvv',
+    'ttppggbbvv',
+    '.tpp..bbv.',
+    '..ppllbb..',
+    '..ggllvv..',
+    '...gllv...',
+    '....ll....',
+  ],
+  [
+    'ppttggvvbb',
+    'ppttggvvbb',
+    'ppttggvvbb',
+    'ppttggvvbb',
+    '.pttllvvb.',
+    '..ttllvv..',
+    '..ggllbb..',
+    '...gllb...',
+    '....ll....',
+  ],
 ]
-const INTRO_HUES: Record<string, Hue> = {
+const STORY_HUES: Record<string, Hue> = {
   p: 'pink',
   t: 'teal',
   g: 'gold',
+  v: 'violet',
+  b: 'blue',
+  l: 'lime',
 }
 
 export function makeBoard(
@@ -64,11 +308,11 @@ export function makeBoard(
   mode: 'story' | 'classic' = 'story',
 ): Board {
   const board = emptyBoard()
-  const salonLayout = mode === 'story' ? RAINBOW_SALON_LAYOUTS[stage - 1] : null
-  if (salonLayout) {
-    salonLayout.forEach((line, row) => {
+  const layout = mode === 'story' ? STORY_LAYOUTS[stage - 1] : null
+  if (layout) {
+    layout.forEach((line, row) => {
       for (let col = 0; col < COLS; col++) {
-        board[row]![col] = INTRO_HUES[line[col] ?? '.'] ?? null
+        board[row]![col] = STORY_HUES[line[col] ?? '.'] ?? null
       }
     })
     return board

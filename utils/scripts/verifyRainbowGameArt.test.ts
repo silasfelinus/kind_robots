@@ -424,11 +424,19 @@ assert.ok(
   'calm motion slows the sky with the rest',
 )
 assert.equal(
-  drawRainbowStagePlane(g, 's01', 'sky', 0, 0, 270),
+  drawRainbowStagePlane(g, 's09', 'sky', 0, 0, 270),
   false,
   'an unshipped sky is not drawn, and never crops the strip',
 )
-assert.equal(drawRainbowPaintedSky(g, 's01', 0, 1), false)
+assert.equal(drawRainbowPaintedSky(g, 's09', 0, 1), false)
+// P-04: Acts I-III fly painted skies and far and mid planes in both looks (art backlog 2026-11-24).
+for (const stage of ['s01', 's02', 's03'] as const)
+  for (const depth of ['sky', 'far', 'mid'] as const)
+    assert.equal(
+      rainbowStagePlane(stage, depth, 'classic'),
+      `/rainbow-princess-art/stages/${stage}-${depth}.webp`,
+      `${stage} ${depth} paints in Classic`,
+    )
 const skyAt = engine.indexOf('drawRainbowPaintedSky(g, stage')
 assert.ok(
   skyAt > engine.indexOf('if (fever) drawFeverSky(') &&

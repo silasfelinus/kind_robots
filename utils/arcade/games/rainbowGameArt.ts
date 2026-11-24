@@ -570,7 +570,17 @@ export type RainbowStage = RainbowStageStrip | typeof RAINBOW_FINALE_STAGE
  * planes per Act (`stages/s01-sky`) and the finale's card and strip. A plane draws only when it is listed here
  * or, in Fever Dream, in RAINBOW_DOODLE_ART; every listed file needs its Fever Dream twin.
  */
-export const RAINBOW_STAGE_PAINTINGS: readonly string[] = []
+export const RAINBOW_STAGE_PAINTINGS: readonly string[] = [
+  'stages/s01-far',
+  'stages/s01-mid',
+  'stages/s01-sky',
+  'stages/s02-far',
+  'stages/s02-mid',
+  'stages/s02-sky',
+  'stages/s03-far',
+  'stages/s03-mid',
+  'stages/s03-sky',
+]
 const stagePaintings = new Set(RAINBOW_STAGE_PAINTINGS)
 
 /** The stage an Act flies: S01-S08 for Acts I-VIII, and the finale's own S09 once it has shipped. */

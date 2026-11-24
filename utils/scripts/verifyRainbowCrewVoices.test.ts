@@ -317,9 +317,12 @@ for (let frame = 0; frame < 400000 && game.snapshot.act !== 'S09'; frame++) {
   if (frame % 12) continue
   texts.length = 0
   game.render(g)
-  for (const text of texts) {
-    const speaker = /^X\d\.\w+ \/ ([^·]+?)(?: ·.*)?$/.exec(text)?.[1]
-    if (speaker) speakers.add(speaker.trim().toUpperCase())
+  const shown = game.snapshot.comms
+  if (shown?.id.startsWith('X')) {
+    speakers.add(shown.speaker.toUpperCase())
+    // Story critic S17: the header is the speaker alone, never the scene id.
+    assert.ok(texts.includes(shown.speaker.toUpperCase()))
+    assert.ok(!texts.some((text) => text.includes(`${shown.id} /`)))
   }
 }
 assert.ok(detours.size > 0, 'the solo crew flew a detour')

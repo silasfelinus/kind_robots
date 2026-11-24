@@ -88,13 +88,14 @@ for (const gate of CROWN_REEF_ALL_WAVES.filter((w) => w.kind === 'gate')) {
 const craft = CROWN_REEF_WAVE_SIZES.reduce((sum, size) => sum + size, 0)
 assert.ok(craft >= 150, `Act VI authors ${craft} craft`)
 assert.equal(CROWN_REEF_PYLONS, 3)
-// Lilt's revelation opens after the guardian has escaped, with no wave under its three lines.
+// Lilt's revelation opens after the guardian has escaped, with no wave under its five lines.
 assert.equal(CROWN_REEF.revealAt, CROWN_REEF_GUARDIAN.to)
 assert.ok(
   CROWN_REEF_WAVES.every(
     (w) =>
       w.at < CROWN_REEF.revealAt ||
-      w.at >= CROWN_REEF.revealAt + 3 * CROWN_REEF.lineFrames,
+      w.at >=
+        CROWN_REEF.revealAt + CROWN_REEF.revealLines * CROWN_REEF.lineFrames,
   ),
   'no wave flies in under the revelation',
 )

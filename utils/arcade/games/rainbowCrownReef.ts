@@ -59,6 +59,8 @@ const AUTHORED_CROWN_REEF = {
   restMaxFrames: RAINBOW_TURN_REVEAL_FRAMES + 600,
   /** Lilt's revelation opens the section after the guardian. */
   revealAt: 9900,
+  /** Lilt's confession, the crew's three-line answer (story critic S5) and Lilt's promise. */
+  revealLines: 5,
 } as const
 
 const AUTHORED_CROWN_REEF_SECTIONS = [
@@ -137,7 +139,7 @@ const AUTHORED_CROWN_REEF_WAVES: readonly ReefWave[] = [
   wave(7740, 'bulwark', 'single', 1, 0.6),
   wave(7920, 'turret', 'single', 1, 0.4),
   // Bioluminescent arches: Lilt’s revelation plays out before the arches fill with craft.
-  wave(10260, 'brood', 'single', 1, 0.5),
+  wave(10460, 'brood', 'single', 1, 0.5),
   wave(10500, 'turret', 'single', 1, 0.3),
   wave(10740, 'bulwark', 'single', 1, 0.6),
   wave(10980, 'gate', 'wall', 5, 0.5),
@@ -295,6 +297,8 @@ export const CROWN_REEF_REINFORCEMENTS = reinforcements<ReefWave['kind']>(
       'Bioluminescent arches': 300,
       'Nursery approach': 420,
     },
+    // The arches open on the crew's five-line reveal (story critic S5); their first school waits it out.
+    lead: { 'Bioluminescent arches': 500 },
   },
 )
 export const CROWN_REEF_WAVES: readonly ReefWave[] = withReinforcements(
@@ -409,9 +413,12 @@ export function reefDialogue(
         speaker: 'Lilt-7',
         text: 'I helped write the first rescue rule. The Crown kept the word protect and erased the word ask.',
       },
-      party
-        ? { speaker: party.speaker, text: party.reveal, partyAuthored: true }
-        : { speaker: wing, text: REPLIES[wing] },
+      ...(party
+        ? party.reveal.map((line) => ({
+            ...line,
+            partyAuthored: true as const,
+          }))
+        : [{ speaker: wing, text: REPLIES[wing] }]),
       {
         speaker: 'Lilt-7',
         text: 'I will not make that choice for you again.',
@@ -477,7 +484,7 @@ export function reefScene(
   if (frame < CROWN_REEF.openingEnds) return { id: 'A06.OPEN', elapsed: frame }
   if (
     frame >= CROWN_REEF.revealAt &&
-    frame < CROWN_REEF.revealAt + 3 * CROWN_REEF.lineFrames
+    frame < CROWN_REEF.revealAt + CROWN_REEF.revealLines * CROWN_REEF.lineFrames
   )
     return { id: 'A06.REVEAL', elapsed: frame - CROWN_REEF.revealAt }
   if (frame >= CROWN_REEF_FORK.markFrom && frame < CROWN_REEF_FORK.decideAt)

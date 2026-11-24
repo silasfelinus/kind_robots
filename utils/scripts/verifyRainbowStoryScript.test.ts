@@ -156,32 +156,61 @@ for (let mask = 1; mask <= 15; mask++) {
   assert.equal(rainbowPartyMask([...selected].reverse()), mask)
   const track = rainbowPartyTrack(mask)
   assert.equal(RAINBOW_PARTY_TRACKS[mask], track)
-  assert.ok(
-    selected.some((index) => PILOTS[index] === track.speaker),
-    `party mask ${mask}: only a flown pilot speaks`,
-  )
-  for (const text of [track.reveal, track.epilogue]) {
-    assert.ok(rows(text, COMMS_COLS).length <= COMMS_ROWS)
+  // Story critic S5/S6/S9: a three-line exchange among the pilots flying (a solo pilot trades lines with Lilt),
+  // in which every pilot of a crew of two or three speaks.
+  const flown = new Set(selected.map((index) => PILOTS[index]!))
+  for (const line of [...track.reveal, track.epilogue])
+    assert.ok(
+      flown.has(line.speaker as (typeof PILOTS)[number]) ||
+        (selected.length === 1 && line.speaker === 'Lilt-7'),
+      `party mask ${mask}: only a flown pilot speaks (${line.speaker})`,
+    )
+  const voices = new Set(track.reveal.map((line) => line.speaker))
+  if (selected.length === 1) assert.ok(voices.has('Lilt-7'))
+  else
+    assert.equal(
+      voices.size,
+      Math.min(3, selected.length),
+      `party mask ${mask}: each pilot answers`,
+    )
+  for (const line of [...track.reveal, track.epilogue]) {
+    assert.ok(rows(line.text, COMMS_COLS).length <= COMMS_ROWS, line.text)
+    assert.ok(line.text.length <= CROWN_REEF.lineFrames)
   }
-  assert.ok(track.reveal.length <= CROWN_REEF.lineFrames)
-  assert.ok(track.epilogue.length <= FINALE.endingLineFrames)
-  authoredReveals.add(track.reveal)
-  authoredEpilogues.add(track.epilogue)
-
-  const reveal = reefDialogue(
-    'A06.REVEAL',
-    CROWN_REEF.lineFrames,
-    selected.length,
-    null,
-    false,
-    null,
-    mask,
+  assert.ok(track.epilogue.text.length <= FINALE.endingLineFrames)
+  authoredReveals.add(track.reveal.map((line) => line.text).join(' / '))
+  authoredEpilogues.add(track.epilogue.text)
+  // S21: no combination leans on a story beat the run may not have flown.
+  assert.doesNotMatch(
+    [...track.reveal, track.epilogue].map((line) => line.text).join(' '),
+    /cadet|starport|academy|charter|duet|error chime/i,
   )
-  assert.deepEqual(reveal, {
-    speaker: track.speaker,
-    text: track.reveal,
-    partyAuthored: true,
+
+  track.reveal.forEach((line, i) => {
+    const reveal = reefDialogue(
+      'A06.REVEAL',
+      (1 + i) * CROWN_REEF.lineFrames,
+      selected.length,
+      null,
+      false,
+      null,
+      mask,
+    )
+    assert.deepEqual(reveal, { ...line, partyAuthored: true })
   })
+  assert.equal(
+    reefDialogue(
+      'A06.REVEAL',
+      4 * CROWN_REEF.lineFrames,
+      selected.length,
+      null,
+      false,
+      null,
+      mask,
+    )?.speaker,
+    'Lilt-7',
+    'Lilt closes the reveal',
+  )
   const epilogue = finaleDialogue(
     'A09.AFTER',
     3 * FINALE.endingLineFrames,
@@ -191,11 +220,22 @@ for (let mask = 1; mask <= 15; mask++) {
     null,
     mask,
   )
-  assert.deepEqual(epilogue, {
-    speaker: track.speaker,
-    text: track.epilogue,
-    partyAuthored: true,
-  })
+  assert.deepEqual(epilogue, { ...track.epilogue, partyAuthored: true })
+}
+// S6: no single pilot speaks for most crews.
+{
+  const counts = new Map<string, number>()
+  for (let mask = 1; mask <= 15; mask++)
+    for (const line of [
+      ...rainbowPartyTrack(mask).reveal,
+      rainbowPartyTrack(mask).epilogue,
+    ])
+      counts.set(line.speaker, (counts.get(line.speaker) ?? 0) + 1)
+  for (const pilot of PILOTS)
+    assert.ok(
+      (counts.get(pilot) ?? 0) >= 8,
+      `${pilot} speaks across the combinations (${counts.get(pilot)})`,
+    )
 }
 assert.equal(authoredReveals.size, 15)
 assert.equal(authoredEpilogues.size, 15)
@@ -605,6 +645,7 @@ for (const [players, road, choice] of [
   })
   const title = FINALE_ENDINGS[road][choice].title
   const drawn = new Set<string>()
+  const spoke = new Set<string>()
   let skipped = 0
   let pressedAt: number | null = null
   for (let frame = 0; frame < 420000 && !game.over; frame++) {
@@ -621,6 +662,8 @@ for (const [players, road, choice] of [
         const { g, texts } = recordingCanvas()
         game.render(g)
         for (const text of texts) drawn.add(text)
+        const shown = game.snapshot.comms
+        if (shown) spoke.add(`${shown.id} / ${shown.speaker.toUpperCase()}`)
       }
     } else if (before !== null && frame % 200 === 0) {
       const { g, texts } = recordingCanvas()
@@ -643,7 +686,7 @@ for (const [players, road, choice] of [
   assert.equal(game.snapshot.finalChoice, choice)
   assert.equal(skipped, 1)
   assert.ok(
-    drawn.has('A09.AFTER / LILT-7'),
+    spoke.has('A09.AFTER / LILT-7') && drawn.has('LILT-7'),
     'the ending plays in the comms box',
   )
   assert.ok(drawn.has('A ▸'), 'the ending shows that A moves it on')

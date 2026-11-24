@@ -768,10 +768,107 @@ export const MORTAR = {
   shells: 2,
   flight: 72,
   gravity: 0.05,
-  bomblets: 3,
-  bombletSpeed: 1.15,
   bombletFuse: 34,
 } as const
+/**
+ * Each Act's own mortar shell (independent gameplay critic D7: one launcher reused across seven Acts read as the
+ * same enemy everywhere). The launcher, its telegraph ring and its rhythm stay the same so the lesson carries; what
+ * the shell bursts into is the Act's own: Act I keeps the teaching cluster, the moon jellies scatter slow spores,
+ * the trench splits into vent crosses, the Express throws its bomblets back along the rails, the wreckyard sheds
+ * scrap fans, the reef blooms rings, the glass shatters into crosses and the palace salutes in a five-point crown.
+ * `count` bomblets leave on a fan of `arc` radians centred on `heading`, then burst as `then` (or fly on, if none).
+ */
+export type MortarShell = {
+  name: string
+  count: number
+  heading: number
+  arc: number
+  speed: number
+  then: 'split' | 'cross' | 'ring' | null
+  /** The shell's two flashing colours while it flies. */
+  colors: readonly [string, string]
+}
+const FULL = Math.PI * 2
+export const MORTAR_SHELLS: Readonly<
+  Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, MortarShell>
+> = {
+  1: {
+    name: 'cluster',
+    count: 3,
+    heading: Math.PI / 2,
+    arc: FULL,
+    speed: 1.15,
+    then: 'split',
+    colors: ['#fff2a8', '#ff9f6a'],
+  },
+  2: {
+    name: 'spore',
+    count: 6,
+    heading: Math.PI / 2,
+    arc: FULL,
+    speed: 0.85,
+    then: null,
+    colors: ['#d8fbff', '#9fd8ff'],
+  },
+  3: {
+    name: 'vent',
+    count: 2,
+    heading: Math.PI / 2,
+    arc: FULL,
+    speed: 1.15,
+    then: 'cross',
+    colors: ['#ffd27a', '#ff6a3a'],
+  },
+  4: {
+    name: 'rail',
+    count: 3,
+    heading: Math.PI,
+    arc: 1.1,
+    speed: 1.3,
+    then: 'split',
+    colors: ['#fff6d8', '#ffb347'],
+  },
+  5: {
+    name: 'scrap',
+    count: 4,
+    heading: Math.PI / 4,
+    arc: FULL,
+    speed: 1.15,
+    then: 'split',
+    colors: ['#e8e2d0', '#b08a5a'],
+  },
+  6: {
+    name: 'bloom',
+    count: 2,
+    heading: 0,
+    arc: FULL,
+    speed: 1,
+    then: 'ring',
+    colors: ['#ffd8f0', '#ff7ac8'],
+  },
+  7: {
+    name: 'shard',
+    count: 3,
+    heading: Math.PI / 2,
+    arc: FULL,
+    speed: 1.2,
+    then: 'cross',
+    colors: ['#f2fbff', '#8fe9ff'],
+  },
+  8: {
+    name: 'crown',
+    count: 5,
+    heading: -Math.PI / 2,
+    arc: FULL,
+    speed: 1.1,
+    then: 'split',
+    colors: ['#fff2a8', '#c38cff'],
+  },
+}
+/** The shell a mortar lobs in this Act (the finale, which has none, would borrow the palace's). */
+export function mortarShell(act: number): MortarShell {
+  return MORTAR_SHELLS[Math.max(1, Math.min(8, act)) as 1]
+}
 /**
  * The same playtest: "everything just sits and floats". Plain craft rush in from the edge and brake to their
  * own pace, and the lighter ones slide toward a pilot's lane every few seconds instead of drifting on a line.
@@ -849,20 +946,29 @@ const VOLLEY = {
  * into three along its heading.
  */
 function burstShots(bullet: EnemyShot): EnemyShot[] {
-  if (bullet.burst === 'cluster')
-    // A mortar shell: bomblets that burst again into rings.
-    return Array.from({ length: MORTAR.bomblets }, (_, i) => {
-      const theta = (i / MORTAR.bomblets) * Math.PI * 2 + Math.PI / 2
-      return {
+  if (bullet.burst === 'cluster') {
+    // A mortar shell: bomblets on the Act's own fan, each bursting again as the Act's shell says.
+    const shell = mortarShell(bullet.shell ?? 1)
+    const full = shell.arc >= FULL - 1e-9
+    return Array.from({ length: shell.count }, (_, i) => {
+      const theta = full
+        ? (i / shell.count) * FULL + shell.heading
+        : shell.heading +
+          (shell.count > 1 ? (i / (shell.count - 1) - 0.5) * shell.arc : 0)
+      const pellet: EnemyShot = {
         x: bullet.x,
         y: bullet.y,
-        vx: Math.cos(theta) * MORTAR.bombletSpeed,
-        vy: Math.sin(theta) * MORTAR.bombletSpeed,
+        vx: Math.cos(theta) * shell.speed,
+        vy: Math.sin(theta) * shell.speed,
         grazed: 0,
-        fuse: MORTAR.bombletFuse,
-        burst: 'split' as const,
       }
+      if (shell.then) {
+        pellet.fuse = MORTAR.bombletFuse
+        pellet.burst = shell.then
+      }
+      return pellet
     })
+  }
   if (bullet.burst === 'split') {
     const heading = Math.atan2(bullet.vy, bullet.vx)
     return [-0.5, 0, 0.5].map((spread) => ({
@@ -1041,6 +1147,8 @@ type EnemyShot = {
   burst?: 'ring' | 'cross' | 'split' | 'cluster'
   /** A lobbed mortar shell falls under this gravity (and ignores the bullet-speed scale, so it lands on its mark). */
   ay?: number
+  /** Which Act's shell a mortar lobbed (`MORTAR_SHELLS`); missing means Act I's cluster. */
+  shell?: number
   /** Where a mortar shell will burst, ringed while it flies. */
   tx?: number
   ty?: number
@@ -1059,6 +1167,11 @@ type GuardianOutcome = 'waiting' | 'defeated' | 'escaped'
 
 export type RainbowCombatSnapshot = {
   tick: number
+  /**
+   * The comms line the last render drew: its scene or callout id (never shown to players), speaker and text.
+   * For tests and tools; null when the comms box was empty.
+   */
+  comms: { id: string; speaker: string; text: string } | null
   /** Rebel road (t-060): volleys truce craft held back this flight. */
   truceHeld: number
   score: number
@@ -1445,6 +1558,8 @@ export function createRainbowPrincessPreview(
   /** High-contrast hostile shots and the comms level (t-044 settings): drawing only, never the run. */
   let contrast = options.highContrast === true
   let comms: ArcadeComms = options.comms ?? 'full'
+  /** The comms line the last render showed, with its scene id (story critic S17: players see only the speaker). */
+  let shownComms: RainbowCombatSnapshot['comms'] = null
   /** The crew's choice at Act V's memorial (t-040, PLOT-MOTHERLAND.md), or null before it. */
   let allegiance: RainbowAllegiance | null = null
   /** Rebel road (t-060): volleys truce craft held back this flight. */
@@ -2493,6 +2608,7 @@ export function createRainbowPrincessPreview(
       grazed: 0,
       fuse: t,
       burst: 'cluster',
+      shell: currentAct(),
       tx,
       ty,
     })
@@ -5030,6 +5146,7 @@ export function createRainbowPrincessPreview(
           for (const memory of rainbowEndingMemoryIds(
             finalChoice ?? 'evacuate',
             allegiance,
+            stoodDown,
           ))
             earn(memory)
           if (difficulty === 'hard') earn('ace-of-eclipse')
@@ -6212,6 +6329,7 @@ export function createRainbowPrincessPreview(
     },
     get snapshot(): RainbowCombatSnapshot {
       return {
+        comms: shownComms,
         tick,
         truceHeld,
         score,
@@ -8519,7 +8637,8 @@ export function createRainbowPrincessPreview(
             g.stroke()
             g.restore()
           }
-          g.fillStyle = bullet.fuse % 10 < 5 ? '#fff2a8' : '#ff9f6a'
+          const shellColors = mortarShell(bullet.shell ?? 1).colors
+          g.fillStyle = shellColors[bullet.fuse % 10 < 5 ? 0 : 1]
           g.beginPath()
           g.arc(bullet.x, bullet.y, 7, 0, Math.PI * 2)
           g.fill()
@@ -9248,6 +9367,13 @@ export function createRainbowPrincessPreview(
       // The comms switch (t-044): full, story scenes only, or off but for the ending.
       const line = rainbowCommsLine(comms, said, callout, scene?.id ?? null)
       const dialogue = line && crewLine(line)
+      shownComms = dialogue
+        ? {
+            id: String(scene?.id ?? callout?.id),
+            speaker: dialogue.speaker,
+            text: dialogue.text,
+          }
+        : null
       // Pilot status lives inside the 29 px bar now, so prompts sit just under it for any crew size.
       const commsTop = 33
       // Silas, 2026-10-20: a comms line takes the HUD bar's place instead of stacking under it, so the
@@ -9326,7 +9452,8 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
         g.fillText(
-          `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}${callSignFor(dialogue.speaker)}`,
+          // The speaker and call sign only; scene ids stay internal (story critic S17).
+          `${dialogue.speaker.toUpperCase()}${callSignFor(dialogue.speaker)}`,
           textX,
           16,
         )

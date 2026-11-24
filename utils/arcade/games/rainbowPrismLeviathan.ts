@@ -199,10 +199,21 @@ export function stepPrismLeviathanBoss(
     const gem = prismLeviathanGem(boss)
     const count = 14
     const gap = (boss.volleys * 4) % count
-    for (const speed of [1.25, 1.75])
+    // Each ring starts a little way out from the gem along its own spokes, so the burst reads as two rings with
+    // a gap from its first frame instead of a clump of 22 pellets on one point (presentation critic P-15).
+    for (const [speed, start] of [
+      [1.25, 16],
+      [1.75, 28],
+    ] as const)
       for (let i = 0; i < count; i++) {
         if ((i - gap + count) % count < 3) continue
-        fire(gem.x, gem.y, (i / count) * Math.PI * 2, speed)
+        const theta = (i / count) * Math.PI * 2
+        fire(
+          gem.x + Math.cos(theta) * start,
+          gem.y + Math.sin(theta) * start,
+          theta,
+          speed,
+        )
       }
     boss.exposedUntil = boss.frame + PRISM_LEVIATHAN.exposedFrames
     boss.nextVolley = boss.frame + 160

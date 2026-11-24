@@ -429,11 +429,7 @@ export function finaleDialogue(
       road === 'loyal'
         ? ROAD_EPILOGUE.loyal[crew.length]!
         : party
-          ? {
-              speaker: party.speaker,
-              text: party.epilogue,
-              partyAuthored: true,
-            }
+          ? { ...party.epilogue, partyAuthored: true }
           : road === 'unsworn'
             ? EPILOGUE[crew.length]!
             : ROAD_EPILOGUE.rebel[crew.length]!,

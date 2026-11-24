@@ -203,12 +203,45 @@ export function finaleEndingCaption(
     : title
 }
 
-/** Lilt's resolution: their arc is letting the crew choose, and each road shows what that cost or won. */
-const LILT_RESOLUTION: Record<FinaleRoad, string> = {
-  rebel:
-    'I let you lead, and you led us out of an empire. I would choose that again.',
-  loyal: 'You kept your orders. I kept asking. Neither of us is finished.',
-  unsworn: 'I let you lead. I would choose that again, every time.',
+/**
+ * Lilt's resolution for each road and choice (independent story critic S3, S10). On the rebel road Lilt spent the
+ * memory of writing the rescue rule to open the flagship's clamps; on the loyal road Lilt closed Command's channel.
+ */
+const LILT_RESOLUTION: Record<FinaleRoad, Record<FinaleChoice, string>> = {
+  rebel: {
+    restore:
+      'I do not remember writing the first rule any more. I watched you fly it. That is better.',
+    evacuate:
+      'I gave up a memory to open those clamps. Watching every pod fly free, I would give it again.',
+    sever:
+      'No Crown, no clamps, no orders. I gave a memory for that, and I would give it again.',
+  },
+  loyal: {
+    restore:
+      'Command has its Crown. I closed their channel once tonight, and they will know it was me.',
+    evacuate:
+      'Command will call the Ocean empty. I logged every pod by name, where they cannot erase it.',
+    sever:
+      'You broke the order and I broke the channel. We will answer for it together.',
+  },
+  unsworn: {
+    restore:
+      'The rule I wrote is whole again. I let you lead, and I would choose that again.',
+    evacuate:
+      'Everyone is out. I let you lead, and I would choose that again, every time.',
+    sever:
+      'It is cut, and it cost the Ocean some light. I let you lead. I would still choose that.',
+  },
+}
+
+/** The escape out of the collapsing heart reads as what the choice did (story critic S3). */
+const ESCAPE_CUE: Record<FinaleChoice, string> = {
+  restore:
+    'The heart is waking. The Crown is lighting the corridors for us. Follow its light out.',
+  evacuate:
+    'Escape pods are pouring out of the walls. Fly with them and keep the lanes open.',
+  sever:
+    'The corridors are going dark one section at a time. Fly on my light, and fly fast.',
 }
 
 /** The crew's verdict on its own flight: how many of the six rescues came home, and the palace captives. */
@@ -235,7 +268,11 @@ function rescueVerdict(
 /** The send-off: a rebel crew flies free, a loyal crew flies home, and a crew that broke its orders says so. */
 function sendOff(road: FinaleRoad, choice: FinaleChoice): string {
   if (road === 'rebel')
-    return 'C.A.T.S., the sea is free and so are we. Let us fly.'
+    return choice === 'restore'
+      ? 'C.A.T.S., the Crown asks first now, and so do we. Let us fly.'
+      : choice === 'sever'
+        ? 'C.A.T.S., no leash on the sea and none on us. Let us fly.'
+        : 'C.A.T.S., the sea is free and so are we. Let us fly.'
   if (road === 'loyal')
     return choice === 'sever'
       ? 'C.A.T.S., form up. We go home and tell them we said no.'
@@ -374,8 +411,10 @@ export function finaleDialogue(
         text: stoodDown
           ? 'You turned at the last breath, and the Crown lowered its guard for you. Now choose what it becomes.'
           : road === 'loyal'
-            ? 'Command orders a restore under its flag. I still will not choose for you.'
-            : 'The heart is open. I will not make this choice for you again.',
+            ? 'Command orders a restore under its flag. I closed their channel. This choice is yours.'
+            : road === 'rebel'
+              ? 'I spent my last old memory to open the clamps. I will not recall writing the rule. Choose well.'
+              : 'The heart is open. I wrote its first rule, and I am handing you the pen.',
       },
       {
         speaker: 'Lilt-7',
@@ -399,7 +438,9 @@ export function finaleDialogue(
     'A09.ESCAPE': [
       {
         speaker: 'Lilt-7',
-        text: 'The heart is collapsing. The prism corridors are closing; follow the light out.',
+        text: choice
+          ? ESCAPE_CUE[choice]
+          : 'The heart is collapsing. The prism corridors are closing; follow the light out.',
       },
       wing === lead
         ? {
@@ -421,7 +462,7 @@ export function finaleDialogue(
         speaker: 'Lilt-7',
         text: stoodDown
           ? 'You were ordered to take it and you chose to ask. That is the rule I helped write, flown at last.'
-          : LILT_RESOLUTION[road],
+          : LILT_RESOLUTION[road][ending],
       },
       // The crew's own line, then the close (blind story critic S2, 2026-11-23 PT). The fifteen party epilogues
       // are written for a crew that freed the Ocean, so they play on the rebel and unsworn roads; a loyal crew

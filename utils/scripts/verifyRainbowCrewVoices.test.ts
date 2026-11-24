@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
+import { CROWN_PLEA } from '../arcade/games/rainbowEclipseCrown'
 import {
   FINALE,
   finaleCredits,
   finaleDialogue,
+  finaleScene,
 } from '../arcade/games/rainbowEclipseFinale'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { ROSEFIN } from '../arcade/games/rainbowRosefin'
@@ -130,6 +132,80 @@ assert.match(
 assert.match(
   finaleDialogue('A09.ESCAPE', FINALE.lineFrames + 1, 1)!.text,
   /Stay on my light/,
+)
+
+// S4: the Crown's plea is a spoken scene over its whole window, and a crew that stands down hears it named.
+assert.deepEqual(finaleScene(5000, null, null, null, 10), {
+  id: 'A09.PLEA',
+  elapsed: 10,
+})
+const plea = [0, 1, 2].map((line) =>
+  finaleDialogue(
+    'A09.PLEA',
+    Math.floor((line * CROWN_PLEA.frames) / 3) + 1,
+    2,
+    undefined,
+    null,
+    'loyal',
+  )!,
+)
+assert.deepEqual(
+  plea.map((line) => line.speaker),
+  ['Crown Voice', 'Lilt-7', 'Maribel'],
+  'the Crown asks, Lilt names the turn, the lead answers',
+)
+assert.equal(
+  finaleDialogue('A09.PLEA', CROWN_PLEA.frames - 1, 2, undefined, null, 'loyal')
+    ?.speaker,
+  'Maribel',
+  'the plea is spoken for its whole window',
+)
+for (const line of plea)
+  assert.ok(line.text.length <= 114, `fits the comms box: ${line.text}`)
+assert.match(
+  finaleDialogue(
+    'A09.TURN',
+    1,
+    4,
+    undefined,
+    null,
+    'rebel',
+    15,
+    undefined,
+    true,
+  )!.text,
+  /turned at the last breath/,
+)
+assert.match(
+  finaleDialogue(
+    'A09.AFTER',
+    2 * FINALE.endingLineFrames + 1,
+    4,
+    undefined,
+    'restore',
+    'rebel',
+    15,
+    undefined,
+    true,
+  )!.text,
+  /chose to ask/,
+)
+assert.ok(
+  finaleCredits(
+    {
+      rescuedNemi: false,
+      securedSalvage: false,
+      rescuedCourier: false,
+      freedDepot: false,
+      stoppedRelay: false,
+      rescuedNavigator: false,
+      captivesFreed: 0,
+    },
+    4,
+    'restore',
+    'rebel',
+    { stoodDown: true },
+  ).includes('THE ROAD: TURNED AT THE CROWN'),
 )
 
 // S1, flown: a solo Vivi crew takes the X1 detour, and every comms header names Vivi or Lilt-7.

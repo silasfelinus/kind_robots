@@ -583,6 +583,12 @@ export const RAINBOW_STAGE_PAINTINGS: readonly string[] = [
   'stages/s04-far',
   'stages/s04-mid',
   'stages/s04-sky',
+  'stages/s06-far',
+  'stages/s06-mid',
+  'stages/s06-sky',
+  'stages/s07-far',
+  'stages/s07-mid',
+  'stages/s07-sky',
 ]
 const stagePaintings = new Set(RAINBOW_STAGE_PAINTINGS)
 

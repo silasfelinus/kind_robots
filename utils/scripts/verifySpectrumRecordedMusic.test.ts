@@ -30,7 +30,9 @@ for (const loop of loops) {
   const count = (wav.length - 44) / 2
   const parsed = parseLoop(loop)
   const repeats = parsed.length < 32 ? 2 : 1
-  assert.ok(Math.abs(count / rate - parsed.length * parsed.stepDur * repeats) < 0.001)
+  assert.ok(
+    Math.abs(count / rate - parsed.length * parsed.stepDur * repeats) < 0.001,
+  )
   let peak = 0
   let square = 0
   for (let i = 0; i < count; i++) {

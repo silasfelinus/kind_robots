@@ -214,6 +214,73 @@ assert.ok(
   ).includes('THE ROAD: TURNED AT THE CROWN'),
 )
 
+// S3: within a road, the final choice changes the escape, Lilt's resolution and the rebel send-off, not only the
+// title. S10: Lilt acts (closes Command's channel, spends a memory on the clamps) and no longer abstains by rote.
+for (const road of ['rebel', 'loyal', null] as const) {
+  const choices = ['restore', 'evacuate', 'sever'] as const
+  const escapes = choices.map(
+    (choice) =>
+      finaleDialogue('A09.ESCAPE', 1, 2, undefined, choice, road)!.text,
+  )
+  assert.equal(new Set(escapes).size, 3, `${road}: each choice escapes its way`)
+  const resolutions = choices.map(
+    (choice) =>
+      finaleDialogue(
+        'A09.AFTER',
+        2 * FINALE.endingLineFrames + 1,
+        2,
+        undefined,
+        choice,
+        road,
+      )!.text,
+  )
+  assert.equal(new Set(resolutions).size, 3, `${road}: Lilt answers the choice`)
+}
+assert.equal(
+  new Set(
+    (['restore', 'evacuate', 'sever'] as const).map(
+      (choice) =>
+        finaleDialogue(
+          'A09.AFTER',
+          4 * FINALE.endingLineFrames + 1,
+          2,
+          undefined,
+          choice,
+          'rebel',
+        )!.text,
+    ),
+  ).size,
+  3,
+  'the rebel send-off names the choice',
+)
+assert.match(
+  finaleDialogue('A09.TURN', 1, 2, undefined, null, 'loyal')!.text,
+  /closed their channel/,
+)
+assert.match(
+  finaleDialogue('A09.TURN', 1, 2, undefined, null, 'rebel')!.text,
+  /memory to open the clamps/,
+)
+{
+  const sources = [
+    'rainbowAllegiance',
+    'rainbowCrownReef',
+    'rainbowEclipseFinale',
+    'rainbowGlassCurrent',
+  ].map((name) =>
+    readFileSync(
+      new URL(`../arcade/games/${name}.ts`, import.meta.url),
+      'utf8',
+    ),
+  )
+  for (const source of sources)
+    assert.doesNotMatch(
+      source,
+      /not (make that |make this )?choose for you|choice for you again|your choice, not an order/,
+      'Lilt no longer abstains by rote',
+    )
+}
+
 // S16: Lilt speaks the continue beat in every Act, in one caption line, and the crew comes back with a cue.
 // S15: an early failure line stays local instead of naming the Eclipse before the story has.
 assert.equal(RAINBOW_CONTINUE_LINES.length, 9)

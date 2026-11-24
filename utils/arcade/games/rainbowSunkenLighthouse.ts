@@ -197,7 +197,7 @@ export const LIGHTHOUSE_TALKS = {
   aftermath: [
     {
       speaker: 'Lilt-7',
-      text: 'The navigation lamps will stay lit without the Crown.',
+      text: 'I lit these lamps once, before the Crown. I remember the switches. They stay lit now.',
     },
     {
       speaker: 'Azure',

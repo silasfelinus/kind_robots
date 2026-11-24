@@ -33,7 +33,7 @@ export function rainbowTurnLines(
     },
     {
       speaker: 'Lilt-7',
-      text: 'I will not choose for you. Fly high to turn on the empire, low to stay the course for the Motherland.',
+      text: 'I know which way I would fly. It is your wing, not mine: high turns on the empire, low stays the course.',
     },
   ]
 }

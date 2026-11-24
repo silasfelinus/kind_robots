@@ -421,13 +421,13 @@ export function reefDialogue(
         : [{ speaker: wing, text: REPLIES[wing] }]),
       {
         speaker: 'Lilt-7',
-        text: 'I will not make that choice for you again.',
+        text: 'They took that word while I stayed quiet. I will not stay quiet again.',
       },
     ],
     'A06.FORK': [
       {
         speaker: 'Lilt-7',
-        text: "The Crown's relay is high and a shield cache drifts low. I will not choose for you.",
+        text: "The Crown's relay is high and a shield cache drifts low. I would break the relay. You fly it.",
       },
       {
         speaker: lead,

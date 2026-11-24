@@ -2,6 +2,12 @@ import assert from 'node:assert/strict'
 import {
   COLS,
   ROWS,
+  CHAPTER_RULES,
+  STORY_LAYOUTS,
+  pressureAfterShot,
+  pressureLimit,
+  specialForStage,
+  detachUnanchored,
   activeHues,
   attachAndPop,
   fireSpecial,
@@ -114,11 +120,53 @@ assert.ok(
   attachAndPop(firstLesson, { row: 3, col: 0 }, 'pink').matched >= 3,
   'The first hand-authored tutorial permits an immediate matching shot',
 )
-const palette = makeBoard(30, () => 0.99)
+const palette = makeBoard(30, () => 0.99, 'classic')
 assert.ok(activeHues(palette).includes('lime'))
 assert.equal(
   chooseHue(palette, () => 0),
   'lime',
+)
+assert.equal(STORY_LAYOUTS.length, 30)
+const allStoryBoards = new Set<string>()
+for (let stage = 1; stage <= 30; stage++) {
+  const authored = makeBoard(stage, () => {
+    throw new Error('Story layout must not consume random numbers')
+  })
+  assert.equal(authored.length, ROWS)
+  assert.ok(authored.every((row) => row.length === COLS))
+  assert.ok(STORY_LAYOUTS[stage - 1]!.every((row) => row.length === COLS))
+  assert.ok(authored[0]!.some(Boolean))
+  assert.ok(!authored[ROWS - 1]!.some(Boolean))
+  allStoryBoards.add(JSON.stringify(authored))
+  if (stage > 5)
+    assert.equal(
+      detachUnanchored(authored),
+      0,
+      'Every new puzzle starts anchored',
+    )
+}
+assert.equal(allStoryBoards.size, 30)
+assert.equal(activeHues(makeBoard(30, () => 0)).length, 6)
+const miss = { matched: 0, dropped: 0, cleared: false }
+const match = { matched: 3, dropped: 0, cleared: false }
+const chain = { matched: 6, dropped: 3, cleared: false }
+assert.equal(CHAPTER_RULES.length, 6)
+assert.equal(pressureAfterShot(3, 1, 'story', match, false), 4)
+assert.equal(pressureAfterShot(3, 6, 'story', match, false), 3)
+assert.equal(pressureAfterShot(3, 6, 'story', miss, false), 4)
+assert.equal(pressureAfterShot(3, 11, 'story', match, true), 3)
+assert.equal(pressureAfterShot(3, 11, 'story', match, false), 4)
+assert.equal(pressureAfterShot(3, 16, 'story', chain, false), 2)
+assert.equal(pressureAfterShot(0, 16, 'story', chain, false), 0)
+assert.equal(pressureAfterShot(3, 26, 'story', chain, false), 3)
+assert.equal(pressureAfterShot(3, 26, 'story', match, false), 4)
+assert.equal(pressureAfterShot(3, 26, 'classic', chain, true), 4)
+assert.equal(pressureLimit(35, 'classic'), 4)
+assert.equal(pressureLimit(26, 'story'), 5)
+assert.equal(CHAPTER_RULES[4].charge, 12)
+assert.deepEqual(
+  [0, 1, 2, 3].map((count) => specialForStage(21, 1, count)),
+  ['prism', 'burst', 'ribbon', 'prism'],
 )
 const rng = () => 0.25
 const options = {

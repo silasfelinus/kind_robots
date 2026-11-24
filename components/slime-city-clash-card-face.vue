@@ -110,9 +110,8 @@ const ruleLines = computed(() =>
       const m = /^([A-Z][A-Za-z' -]{0,22}(?: \([^)]{1,24}\))?):\s+(.+)$/.exec(
         sentence,
       )
-      return m
-        ? { label: m[1] + ': ', body: m[2]! }
-        : { label: '', body: sentence }
+      if (!m) return { label: '', body: sentence }
+      return { label: m[1] + ': ', body: m[2] ?? '' }
     }),
 )
 const plays = computed(() => clashPlayCost(card.value))

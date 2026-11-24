@@ -2448,7 +2448,7 @@ watch(
     and the rules), so they never cover the console or a choice below.
   */
   .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock) {
-    top: calc(0.5rem + var(--W) * 0.62);
+    top: calc(0.5rem + var(--W) * 0.55);
   }
   /*
     While a card is held it overhangs the rail, so it rises above the

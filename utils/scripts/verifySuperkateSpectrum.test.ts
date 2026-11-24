@@ -42,6 +42,7 @@ import {
   bossContact,
   bossTarget,
   create,
+  storyMapPosition,
 } from '../arcade/games/superkateSpectrum'
 import {
   SPECTRUM_BOSS_MUSIC,
@@ -410,6 +411,72 @@ for (let stage = 2; stage <= 30; stage++) {
 }
 fullMap.update(mapRight)
 assert.equal(fullMap.menuStage, 30)
+
+function tapStage(
+  run: ReturnType<typeof create>,
+  point: { x: number; y: number },
+) {
+  run.stagePointer({ phase: 'down', ...point })
+  run.stagePointer({ phase: 'up', ...point })
+}
+
+const touchRun = create({
+  ...options,
+  resume: cloudB,
+} as Parameters<typeof create>[0])
+tapStage(touchRun, storyMapPosition(13))
+assert.equal(touchRun.menuOpen, true, 'Locked nodes cannot start a run')
+assert.equal(touchRun.menuStage, 12)
+tapStage(touchRun, { x: 268, y: 400 })
+assert.notEqual(touchRun.selectedStyle, 'prismatic')
+tapStage(touchRun, { x: 124, y: 400 })
+assert.equal(touchRun.selectedStyle, 'candy')
+assert.equal(touchRun.save.style, 'candy')
+touchRun.stagePointer({ phase: 'down', ...storyMapPosition(2) })
+touchRun.stagePointer({ phase: 'up', ...storyMapPosition(3) })
+assert.equal(touchRun.menuOpen, true, 'Sliding between nodes cannot launch')
+tapStage(touchRun, storyMapPosition(2))
+assert.equal(touchRun.menuOpen, false)
+assert.equal(touchRun.level, 2)
+assert.equal(touchRun.save.career.highestStage, 12)
+assert.deepEqual(touchRun.save.career.stars, cloudB.career.stars)
+touchRun.stagePointer({ phase: 'down', x: 160, y: 130 })
+assert.equal(touchRun.shot, null, 'Touch-down aims without shooting')
+touchRun.stagePointer({ phase: 'move', x: 80, y: 180 })
+assert.ok(touchRun.angle < -Math.PI / 2)
+touchRun.stagePointer({ phase: 'cancel', x: 80, y: 180 })
+touchRun.stagePointer({ phase: 'up', x: 80, y: 180 })
+assert.equal(touchRun.shot, null, 'Canceled touch cannot fire')
+touchRun.stagePointer({ phase: 'down', x: 80, y: 180 })
+touchRun.stagePointer({ phase: 'up', x: 80, y: 450 })
+assert.equal(touchRun.shot, null, 'Release outside the field cannot fire')
+touchRun.loaded = 'pink'
+touchRun.next = 'teal'
+tapStage(touchRun, { x: 44, y: 441 })
+assert.equal(touchRun.loaded, 'teal')
+assert.equal(touchRun.next, 'pink')
+touchRun.stagePointer({ phase: 'down', x: 160, y: 130 })
+touchRun.stagePointer({ phase: 'move', x: 240, y: 180 })
+assert.ok(touchRun.angle > -Math.PI / 2)
+touchRun.stagePointer({ phase: 'up', x: 240, y: 180 })
+assert.ok(touchRun.shot, 'Release launches the aimed shot')
+const touchShot = touchRun.shot
+assert.ok(touchShot.vx > 0 && touchShot.vy < 0)
+assert.equal(touchShot.hue, 'teal')
+tapStage(touchRun, { x: 80, y: 180 })
+assert.equal(touchRun.shot, touchShot, 'Cannot fire while a shot is active')
+for (let stage = 1; stage <= 30; stage++) {
+  const nodeRun = create({
+    ...options,
+    resume: readSpectrumSave({
+      ...cloudB,
+      career: { ...cloudB.career, highestStage: 30 },
+    }),
+  } as Parameters<typeof create>[0])
+  tapStage(nodeRun, storyMapPosition(stage))
+  assert.equal(nodeRun.level, stage)
+  assert.equal(nodeRun.menuOpen, false)
+}
 
 const hub = create({
   ...options,

@@ -135,11 +135,24 @@ assert.equal(
   '/rainbow-princess-art/stages/s01-far.webp',
   'Classic draws its own painting, never a Fever Dream plane',
 )
-assert.equal(
-  rainbowStagePlane('s08', 'mid', 'classic'),
-  null,
-  'an unshipped Classic plane is not drawn',
-)
+for (const stage of [
+  's01',
+  's02',
+  's03',
+  's04',
+  's05',
+  's06',
+  's07',
+  's08',
+  's09',
+] as const)
+  for (const depth of ['sky', 'far', 'mid'] as const) {
+    const plane = rainbowStagePlane(stage, depth, 'classic')
+    assert.ok(
+      plane === null || !plane.includes('/doodle/'),
+      `Classic ${stage} ${depth} never borrows a Fever Dream plane`,
+    )
+  }
 assert.equal(
   rainbowHeroArt('/hero.webp'),
   '/rainbow-princess-art/doodle/key-art.webp',

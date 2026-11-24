@@ -423,12 +423,12 @@ assert.ok(
   ) < 1e-9,
   'calm motion slows the sky with the rest',
 )
-assert.equal(
-  drawRainbowStagePlane(g, 's09', 'sky', 0, 0, 270),
-  false,
-  'an unshipped sky is not drawn, and never crops the strip',
-)
-assert.equal(drawRainbowPaintedSky(g, 's09', 0, 1), false)
+// Whatever has not shipped yet draws nothing: an unshipped sky never crops the strip.
+for (const stage of [...RAINBOW_STAGE_STRIPS, RAINBOW_FINALE_STAGE])
+  if (!rainbowStagePlane(stage, 'sky')) {
+    assert.equal(drawRainbowStagePlane(g, stage, 'sky', 0, 0, 270), false)
+    assert.equal(drawRainbowPaintedSky(g, stage, 0, 1), false)
+  }
 // P-04: every Act that ships its paintings flies a painted sky and far and mid planes in both looks (art backlog
 // 2026-11-24): never one depth without the others.
 for (const stage of RAINBOW_STAGE_STRIPS.filter((s) =>

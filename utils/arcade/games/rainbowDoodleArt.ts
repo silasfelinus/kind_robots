@@ -134,4 +134,9 @@ export const RAINBOW_DOODLE_ART: readonly string[] = [
   'stages/s08-card',
   'stages/s08-far',
   'stages/s08-fore',
+  'stages/s08-mid',
+  'stages/s08-sky',
+  'stages/s09-far',
+  'stages/s09-mid',
+  'stages/s09-sky',
 ]

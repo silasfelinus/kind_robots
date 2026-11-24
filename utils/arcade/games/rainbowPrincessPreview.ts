@@ -72,6 +72,7 @@ import {
   type RainbowRouteFlags,
 } from './rainbowRouteBeats'
 import {
+  RAINBOW_HIT_CARD_FRAMES,
   drawRainbowEnemyFrame,
   drawRainbowInterlude,
   drawRainbowPose,
@@ -1276,6 +1277,8 @@ export function createRainbowPrincessPreview(
   const shots: Shot[] = []
   const reefs: Reef[] = []
   const enemyShots: EnemyShot[] = []
+  /** Frames each seat's hit-pose card has left to show (drawing only, t-030). */
+  const hitCards: number[] = Array.from({ length: 4 }, () => 0)
   /** Frames each seat has held B, to tell a super tap from a focus hold. */
   const superHold: number[] = Array.from({ length: 4 }, () => 0)
   const pickups: Pickup[] = []
@@ -4214,6 +4217,9 @@ export function createRainbowPrincessPreview(
     if (ship.shield <= 0) {
       ship.lives--
       if (ship.lives > 0) options.sound.play('rainbowHurt')
+      // Her painted hit pose flashes over the ship for a moment (t-030), drawing only.
+      if (ship.lives > 0)
+        hitCards[ships.indexOf(ship)] = RAINBOW_HIT_CARD_FRAMES
       ship.shield = shieldCap
       // The power level lost with the life falls just ahead as a Recovery Cache (U12) for four seconds.
       if (ship.power > 1 && ship.lives > 0)
@@ -5215,6 +5221,7 @@ export function createRainbowPrincessPreview(
       ship.bank += (ship.y - lastY - ship.bank) * 0.25
       if (ship.cooldown > 0) ship.cooldown--
       if (ship.invulnerable > 0) ship.invulnerable--
+      if (hitCards[seat]! > 0) hitCards[seat]!--
       if ((options.demo || keys.held.a) && ship.cooldown === 0) fire(ship, seat)
       if (tapped) superAttack(seat)
       if (!options.demo && keys.pressed.x) useSpecial(ship, seat)
@@ -8846,6 +8853,18 @@ export function createRainbowPrincessPreview(
         // The seat number sits behind the ship's tail, not above it, so in tight formation it never lands on
         // the next pilot's hull (presentation critic P-22).
         g.strokeText(String(seat + 1), -24, 3)
+        if (hitCards[seat]! > 0) {
+          // The hit-pose card (t-030): the pilot's painted reaction, framed above her ship as it flickers.
+          const pilotName = RAINBOW_PILOTS[pilotOf(seat)]!.name
+          g.save()
+          g.globalAlpha = Math.min(1, hitCards[seat]! / 12)
+          if (drawRainbowPose(g, pilotName, 'hit', -14, -52, 28)) {
+            g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
+            g.lineWidth = 1.5
+            g.strokeRect(-14, -52, 28, 28)
+          }
+          g.restore()
+        }
         if (ship.charge >= 100 && Math.floor(tick / 10) % 2 === 0) {
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.font = 'bold 7px monospace'

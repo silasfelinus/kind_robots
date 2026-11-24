@@ -174,8 +174,7 @@ assert.equal(
   14,
 )
 for (const identity of CAPES_PRODUCTION_IDENTITIES.filter(
-  (entry) =>
-    !/^(refill|cast|recruits)-/.test(entry.signature),
+  (entry) => !/^(refill|cast|recruits)-/.test(entry.signature),
 )) {
   const group = capesProductionFor(identity.signature)
   assert.ok(group.length >= 2)

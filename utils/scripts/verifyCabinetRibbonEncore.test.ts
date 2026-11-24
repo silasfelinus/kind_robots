@@ -43,13 +43,13 @@ const checkpoint: FestivalSave = {
   kit: { ...newKit(), grip: true },
 }
 
-function game(resume?: FestivalSave) {
+function game(resume?: FestivalSave, selectScreen = true) {
   return create({
     rng: mulberry32(22),
     sound: { play: () => {} },
     demo: false,
     hiScore: 0,
-    selectScreen: true,
+    selectScreen,
     resume,
   })
 }
@@ -59,7 +59,7 @@ const comet = arenaById(stars, 'sl-comets')
 assert.equal(comet.ribbonLifetime, 360)
 
 {
-  const instance = game()
+  const instance = game(undefined, false)
   const g = instance as unknown as Inner
   g.playArena(comet)
   g.ready = 0

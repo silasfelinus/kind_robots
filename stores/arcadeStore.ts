@@ -114,7 +114,8 @@ function spectrumWrite(key: string, value: string) {
     // Continue offline in memory even when browser storage is unavailable.
   }
 }
-type SpectrumCloudStatus = 'local' | 'checking' | 'synced' | 'offline'
+type SpectrumCloudStatus =
+  'local' | 'checking' | 'saving' | 'synced' | 'offline'
 type SpectrumAccountCopy = {
   save: SpectrumSave
   revision: number
@@ -272,7 +273,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   const spectrumCloudStatus = ref<SpectrumCloudStatus>('local')
   let spectrumOwner: number | null = null
   let spectrumRevision: number | null = null
-  let spectrumUploading = false
+  let spectrumUploading: number | null = null
+  let spectrumDeviceOwner: string | null = null
   let spectrumDirty = false
   let spectrumSession = 0
   const rainbowSlot = ref(0)
@@ -505,7 +507,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   function switchSpectrumOwner(userId: number | null) {
     if (!import.meta.client) return
     const owner = userId === null ? 'guest' : String(userId)
-    const prior = spectrumRead(SPECTRUM_OWNER) ?? 'guest'
+    const prior = spectrumDeviceOwner ?? spectrumRead(SPECTRUM_OWNER) ?? 'guest'
+    spectrumDeviceOwner = owner
     if (prior === owner) return
     const current = saves.value[SPECTRUM_SLUG]
     if (current !== undefined)
@@ -525,6 +528,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     writeSaves(saves.value)
     spectrumWrite(SPECTRUM_OWNER, owner)
     spectrumSession++
+    spectrumDirty = false
     spectrumOwner = null
     spectrumRevision = null
     spectrumCloudStatus.value = 'local'
@@ -562,6 +566,8 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     const userId = user.authenticatedUserId
     if (!userId || !user.token) {
       switchSpectrumOwner(null)
+      spectrumSession++
+      spectrumDirty = false
       spectrumOwner = null
       spectrumRevision = null
       spectrumCloudStatus.value = 'local'
@@ -570,6 +576,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     switchSpectrumOwner(userId)
     // Every cabinet re-entry refetches; another device may have progressed.
     const session = ++spectrumSession
+    spectrumDirty = false
     spectrumCloudStatus.value = 'checking'
     try {
       const copy = await fetchSpectrumCopy(userId, user.token)
@@ -592,19 +599,21 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
   function queueSpectrumUpload() {
     if (
       !spectrumOwner ||
-      spectrumCloudStatus.value !== 'synced' ||
+      (spectrumCloudStatus.value !== 'synced' &&
+        spectrumCloudStatus.value !== 'saving') ||
       !import.meta.client
     )
       return
     spectrumDirty = true
-    if (!spectrumUploading) void uploadSpectrumCareer()
+    spectrumCloudStatus.value = 'saving'
+    if (spectrumUploading !== spectrumSession) void uploadSpectrumCareer()
   }
 
   async function uploadSpectrumCareer() {
-    if (spectrumUploading || !spectrumOwner) return
-    spectrumUploading = true
+    if (spectrumUploading === spectrumSession || !spectrumOwner) return
     const userId = spectrumOwner
     const session = spectrumSession
+    spectrumUploading = session
     try {
       for (let tries = 0; tries < 4; tries++) {
         if (session !== spectrumSession || !spectrumDirty) break
@@ -634,27 +643,35 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
           const remote = await fetchSpectrumCopy(userId, user.token)
           if (session !== spectrumSession) break
           spectrumRevision = remote?.revision ?? null
-          const merged = remote ? mergeSpectrumSaves(save, remote.save) : save
+          const latest = readSpectrumSave(saves.value[SPECTRUM_SLUG])
+          const merged = remote
+            ? mergeSpectrumSaves(latest, remote.save)
+            : latest
           saves.value = withSave(saves.value, SPECTRUM_SLUG, merged)
           writeSaves(saves.value)
           spectrumWrite(SPECTRUM_SCOPED(String(userId)), JSON.stringify(merged))
           spectrumDirty = true
         }
       }
-      if (spectrumDirty && session === spectrumSession)
-        spectrumCloudStatus.value = 'offline'
+      if (session === spectrumSession)
+        spectrumCloudStatus.value = spectrumDirty ? 'offline' : 'synced'
     } catch {
       if (session === spectrumSession) {
         spectrumDirty = true
         spectrumCloudStatus.value = 'offline'
       }
     } finally {
-      spectrumUploading = false
+      if (spectrumUploading === session) spectrumUploading = null
     }
   }
 
   /** Keep (or, with null, clear) a game's saved progress. */
   function recordSave(game: string, save: unknown) {
+    if (game === SPECTRUM_SLUG && import.meta.client) {
+      const userId = useUserStore().authenticatedUserId
+      const owner = userId ? String(userId) : 'guest'
+      if (spectrumDeviceOwner !== owner) return
+    }
     if (game === RAINBOW_SAVE_GAME) {
       const previous = rainbowHangarForSlot()
       const next = awardRainbowHangarMedals(previous, save)
@@ -678,7 +695,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     saves.value = next
     writeSaves(next)
     if (game === SPECTRUM_SLUG && import.meta.client) {
-      const owner = spectrumRead(SPECTRUM_OWNER) ?? 'guest'
+      const owner = spectrumDeviceOwner ?? 'guest'
       spectrumWrite(SPECTRUM_SCOPED(owner), JSON.stringify(value))
       queueSpectrumUpload()
     }

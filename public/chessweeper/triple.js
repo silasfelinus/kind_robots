@@ -4,20 +4,6 @@
   if (!chess) return
 
   const $ = (id) => document.getElementById(id)
-  const symbols = {
-    K: '♔',
-    Q: '♕',
-    R: '♖',
-    B: '♗',
-    N: '♘',
-    P: '♙',
-    k: '♚',
-    q: '♛',
-    r: '♜',
-    b: '♝',
-    n: '♞',
-    p: '♟',
-  }
   const pieces = {
     k: 'king',
     q: 'queen',
@@ -171,12 +157,14 @@
   }
 
   function updateHud() {
-    const minutes = Math.floor(state.remaining / 60)
-    const seconds = Math.ceil(state.remaining % 60)
+    const remaining = Math.max(0, Math.ceil(state.remaining))
+    const minutes = Math.floor(remaining / 60)
+    const seconds = remaining % 60
     $('clock').textContent =
-      String(minutes).padStart(2, '0') +
-      ':' +
-      String(seconds === 60 ? 59 : seconds).padStart(2, '0')
+      String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
+    $('mine-time').textContent = String(
+      Math.floor(state.duration - state.remaining),
+    ).padStart(3, '0')
     $('total').textContent = totalScore().toLocaleString('en-US')
     $('hearts').textContent =
       '♥'.repeat(Math.max(0, state.hearts)) +
@@ -224,11 +212,14 @@
         if (available.some((move) => move[1] === index))
           cell.classList.add('legal')
         if (piece !== '.') {
-          const glyph = document.createElement('span')
-          glyph.className =
-            piece === piece.toUpperCase() ? 'white-piece' : 'black-piece'
-          glyph.textContent = symbols[piece]
-          cell.append(glyph)
+          const sprite = document.createElement('img')
+          sprite.className = 'chess-piece'
+          sprite.alt = ''
+          sprite.draggable = false
+          const color = piece === piece.toUpperCase() ? 'w' : 'b'
+          sprite.src =
+            '/chessweeper/pieces/' + color + piece.toUpperCase() + '.svg'
+          cell.append(sprite)
         }
         cell.setAttribute(
           'aria-label',
@@ -479,7 +470,7 @@
       if (opened) cell.classList.add('open')
       if (opened && mine) cell.classList.add('boom')
       if (flag) cell.classList.add('flagged')
-      if (number) cell.classList.add('hint-' + Math.min(4, number))
+      if (number) cell.classList.add('hint-' + number)
       cell.textContent = flag ? '🚩' : opened ? (mine ? '✹' : number || '') : ''
       cell.setAttribute(
         'aria-label',
@@ -521,8 +512,19 @@
       })
       board.append(cell)
     }
-    $('mine-status').textContent =
-      '✹ ' + (state.mines.size - state.flagged.size) + ' left'
+    const remaining = state.mines.size - state.flagged.size
+    $('mine-status').textContent = remaining + ' mines left'
+    $('mine-counter').textContent =
+      remaining < 0
+        ? '-' + String(-remaining).padStart(2, '0')
+        : String(remaining).padStart(3, '0')
+    $('flag-mode').textContent = state.minePendingReset
+      ? state.opened.size === 64 - state.mines.size
+        ? '😎'
+        : '☹'
+      : state.flagMode
+        ? '⚑'
+        : '☺'
   }
 
   function makeDisc() {
@@ -539,7 +541,7 @@
       y,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
-      radius: 13,
+      radius: 9,
       spin: Math.random() * 7,
     }
   }
@@ -581,16 +583,16 @@
     const norm = Math.hypot(dx, dy)
     if (norm) {
       state.player.x = Math.max(
-        12,
+        6,
         Math.min(
-          348,
+          354,
           state.player.x + (dx / norm) * dt * difficulty().playerSpeed,
         ),
       )
       state.player.y = Math.max(
-        12,
+        6,
         Math.min(
-          348,
+          354,
           state.player.y + (dy / norm) * dt * difficulty().playerSpeed,
         ),
       )
@@ -609,7 +611,8 @@
       disc.spin += dt * 5
       if (
         state.invulnerable <= 0 &&
-        Math.hypot(disc.x - state.player.x, disc.y - state.player.y) < 21
+        Math.hypot(disc.x - state.player.x, disc.y - state.player.y) <
+          disc.radius + 6
       ) {
         state.invulnerable = difficulty().invulnerability
         damage('Disc impact')
@@ -635,31 +638,19 @@
 
   function paintDiscs() {
     ctx.clearRect(0, 0, 360, 360)
-    const bg = ctx.createLinearGradient(0, 0, 360, 360)
-    bg.addColorStop(0, '#142841')
-    bg.addColorStop(1, '#211126')
-    ctx.fillStyle = bg
+    ctx.fillStyle = '#44484c'
     ctx.fillRect(0, 0, 360, 360)
-    ctx.strokeStyle = '#ffffff11'
-    for (let i = 0; i <= 360; i += 36) {
-      ctx.beginPath()
-      ctx.moveTo(i, 0)
-      ctx.lineTo(i, 360)
-      ctx.moveTo(0, i)
-      ctx.lineTo(360, i)
-      ctx.stroke()
-    }
     for (const disc of state.discs) {
       ctx.save()
       ctx.translate(disc.x, disc.y)
       ctx.rotate(disc.spin)
-      ctx.fillStyle = '#e96c91'
-      ctx.strokeStyle = '#ffc5d4'
-      ctx.lineWidth = 3
+      ctx.fillStyle = '#c5c9ce'
+      ctx.strokeStyle = '#f6f6f6'
+      ctx.lineWidth = 1
       ctx.beginPath()
       for (let i = 0; i < 24; i++) {
         const a = (Math.PI * i) / 12
-        const r = i % 2 ? disc.radius - 4 : disc.radius + 3
+        const r = i % 2 ? disc.radius - 2 : disc.radius
         const px = Math.cos(a) * r
         const py = Math.sin(a) * r
         if (!i) ctx.moveTo(px, py)
@@ -670,7 +661,7 @@
       ctx.stroke()
       ctx.fillStyle = '#20243c'
       ctx.beginPath()
-      ctx.arc(0, 0, 4, 0, Math.PI * 2)
+      ctx.arc(0, 0, 2.5, 0, Math.PI * 2)
       ctx.fill()
       ctx.restore()
     }
@@ -679,18 +670,21 @@
     if (!blinking) {
       ctx.save()
       ctx.translate(state.player.x, state.player.y)
-      ctx.shadowBlur = 20
-      ctx.shadowColor = '#70ffe1'
-      ctx.fillStyle = '#7bffe2'
-      ctx.strokeStyle = 'white'
+      ctx.fillStyle = '#ffffff'
+      ctx.strokeStyle = '#ffffff'
       ctx.lineWidth = 2
+      ctx.lineCap = 'round'
       ctx.beginPath()
-      ctx.moveTo(0, -13)
-      ctx.lineTo(11, 8)
-      ctx.lineTo(0, 5)
-      ctx.lineTo(-11, 8)
-      ctx.closePath()
+      ctx.arc(0, -4, 2, 0, Math.PI * 2)
       ctx.fill()
+      ctx.beginPath()
+      ctx.moveTo(0, -2)
+      ctx.lineTo(0, 2)
+      ctx.moveTo(-4, 0)
+      ctx.lineTo(4, 0)
+      ctx.moveTo(-3, 5)
+      ctx.lineTo(0, 2)
+      ctx.lineTo(3, 5)
       ctx.stroke()
       ctx.restore()
     }
@@ -1006,6 +1000,7 @@
   $('flag-mode').addEventListener('click', () => {
     state.flagMode = !state.flagMode
     $('flag-mode').setAttribute('aria-pressed', String(state.flagMode))
+    renderMines()
   })
   $('start').addEventListener('click', start)
   $('again').addEventListener('click', () => {

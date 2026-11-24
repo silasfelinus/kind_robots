@@ -417,7 +417,27 @@ for (const route of [
   )
 }
 assert.doesNotMatch(workspaceHeaderSource, /<admin-feedback-capture\b/)
-assert.doesNotMatch(workspaceHeaderSource, /slimeCityBadgeTimer/)
+assert.match(
+  workspaceHeaderSource,
+  /<SlimeCityQuickSettings v-if="slimeCityVsPage" header\s*\/>/,
+)
+assert.match(
+  workspaceHeaderSource,
+  /v-else-if="slimePvpStore\.pendingTurns > 0"\s+to="\/play\/slime-city\?vs=1"/,
+)
+assert.match(
+  workspaceHeaderSource,
+  /useSlimeCityStore\(pinia\)\.view === 'vs'/,
+)
+const slimePvpStoreSource = readFileSync('stores/slimeCityPvp.ts', 'utf8')
+assert.match(
+  slimePvpStoreSource,
+  /gamesAccountId\.value === accountId\.value[\s\S]*?game\.myTurn && game\.stage === 'battle'/,
+)
+assert.match(
+  slimePvpStoreSource,
+  /if \(accountId\.value !== requestedAccount\) return/,
+)
 assert.match(workspaceHeaderSource, /<account-hub\b/)
 assert.match(workspaceHeaderSource, /@click="navStore\.toggleWorkspaceSheet\(\)"/)
 assert.match(workspaceHeaderSource, /to="\/artjob"/)

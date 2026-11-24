@@ -8,7 +8,11 @@
     <button
       ref="gearButton"
       type="button"
-      class="scq-gear"
+      :class="
+        header
+          ? 'btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 bg-base-100 xl:size-12'
+          : 'scq-gear'
+      "
       :aria-expanded="open"
       aria-controls="slime-quick-settings-panel"
       aria-label="Game settings"
@@ -16,7 +20,10 @@
       data-testid="slime-quick-settings-gear"
       @click="open = !open"
     >
-      <Icon name="kind-icon:settings" class="scq-icon" />
+      <Icon
+        name="kind-icon:settings"
+        :class="header ? 'kr-icon-5 xl:size-6' : 'scq-icon'"
+      />
     </button>
     <div
       v-if="open"
@@ -113,10 +120,19 @@ import { useSlimeCityStore } from '~/stores/slimeCity'
 import { useSlimeCitySoundStore } from '~/stores/slimeCitySound'
 import { CLASH_SPEEDS } from '~/stores/helpers/slimeCityClashPreference'
 
+defineProps<{ header?: boolean }>()
+
 const lab = useSlimeCityStore()
 const sound = useSlimeCitySoundStore()
 const open = ref(false)
 const gearButton = ref<HTMLButtonElement | null>(null)
+
+onMounted(() => {
+  lab.hydrateReducedMotion()
+  lab.hydrateClashSpeed()
+  lab.hydrateLargeText()
+  lab.hydrateHighContrast()
+})
 
 function close(): void {
   open.value = false

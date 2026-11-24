@@ -113,6 +113,32 @@
         </span>
       </NuxtLink>
 
+      <SlimeCityQuickSettings v-if="slimeCityVsPage" header />
+      <NuxtLink
+        v-else-if="slimePvpStore.pendingTurns > 0"
+        to="/play/slime-city?vs=1"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 bg-base-100 xl:size-12"
+        :aria-label="slimeCityLabel"
+        :title="slimeCityLabel"
+        data-testid="header-slime-city"
+        @click="openSlimeCityVs"
+      >
+        <span class="indicator">
+          <Icon name="kind-icon:cat" class="kr-icon-5 xl:size-6" />
+          <span
+            class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
+            aria-hidden="true"
+            data-testid="header-slime-city-turns"
+          >
+            {{
+              slimePvpStore.pendingTurns > 99
+                ? '99+'
+                : slimePvpStore.pendingTurns
+            }}
+          </span>
+        </span>
+      </NuxtLink>
+
       <!-- Workspace help is a single permanent header utility, never a
            second page-caption row. -->
       <button
@@ -153,6 +179,8 @@ import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 import { tutorialPageKey, useTutorialStore } from '@/stores/tutorialStore'
 import { useUserStore } from '@/stores/userStore'
+import { useSlimeCityPvpStore } from '@/stores/slimeCityPvp'
+import { useSlimeCityStore } from '@/stores/slimeCity'
 
 const fallbackIcon = 'kind-icon:sparkles'
 
@@ -161,6 +189,8 @@ const navStore = useNavStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
 const artJobStore = useArtJobStore()
+const slimePvpStore = useSlimeCityPvpStore()
+const pinia = useNuxtApp().$pinia
 const router = useRouter()
 const route = useRoute()
 
@@ -230,6 +260,50 @@ const workspaceToggleLabel = computed(() => {
   return tutorialUnseen.value
     ? 'New here? Open the tutorial for this page'
     : 'Open workspace'
+})
+
+const slimeCityVsPage = computed(
+  () =>
+    route.path === '/play/slime-city-pvp' ||
+    ((route.path === '/play/slime-city' || route.path === '/admin/slime-city') &&
+      useSlimeCityStore(pinia).view === 'vs'),
+)
+
+const slimeCityLabel = computed(
+  () => `Slime City: ${slimePvpStore.pendingTurns} games awaiting your turn`,
+)
+
+function openSlimeCityVs(event: MouseEvent): void {
+  if (
+    route.path === '/play/slime-city' &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.shiftKey &&
+    !event.altKey &&
+    event.button === 0
+  ) {
+    useSlimeCityStore(pinia).showVs()
+  }
+}
+
+let slimeCityBadgeTimer: ReturnType<typeof setInterval> | null = null
+watch(
+  () => (userStore.isLoggedIn ? userStore.userId : null),
+  (accountId) => {
+    if (slimeCityBadgeTimer) clearInterval(slimeCityBadgeTimer)
+    slimeCityBadgeTimer = null
+    if (import.meta.client && accountId !== null) {
+      void slimePvpStore.loadGames()
+      slimeCityBadgeTimer = setInterval(
+        () => void slimePvpStore.loadGames(),
+        30000,
+      )
+    }
+  },
+  { immediate: true },
+)
+onBeforeUnmount(() => {
+  if (slimeCityBadgeTimer) clearInterval(slimeCityBadgeTimer)
 })
 
 const artjobActive = computed(() => route.path === '/artjob')

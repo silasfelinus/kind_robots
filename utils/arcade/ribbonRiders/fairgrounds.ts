@@ -508,6 +508,7 @@ const STARLIGHT: Fairground = {
     {
       id: 'sl-sky',
       name: 'SKY BRIDGE',
+      ribbonLifetime: S * 6,
       floor: 'violet',
       wrap: { x: true },
       features: [],
@@ -519,7 +520,7 @@ const STARLIGHT: Fairground = {
       tier: 7,
       at: [144, 222],
       next: ['sl-stars', 'sl-mirror'],
-      intro: 'RIDE ABOVE THE CLOUDS',
+      intro: 'COMET TRAILS FADE. KEEP MOVING',
     },
     {
       id: 'sl-stars',
@@ -561,6 +562,7 @@ const STARLIGHT: Fairground = {
     {
       id: 'sl-comets',
       name: 'COMET CROSSING',
+      ribbonLifetime: S * 6,
       floor: 'teal',
       features: [
         { kind: 'pad', x: 12, y: 24, dir: 1 },
@@ -574,7 +576,7 @@ const STARLIGHT: Fairground = {
       tier: 10,
       at: [72, 130],
       next: ['marshal'],
-      intro: 'FOLLOW THE COMET',
+      intro: 'RIBBONS FADE AFTER SIX SECONDS',
     },
     {
       id: 'sl-parade',
@@ -623,6 +625,34 @@ export const FAIRGROUNDS: readonly Fairground[] = [
   CLOCKWORK,
   STARLIGHT,
 ]
+
+/** The Encore reverses the arenas' handedness and raises the crew's pace. */
+export function encoreArena(a: FairArena): FairArena {
+  const flip = (x: number) => GRID - 1 - x
+  const turn = (d: Spawn[2]): Spawn[2] => (d === 1 ? 3 : d === 3 ? 1 : d)
+  return {
+    ...a,
+    tier: a.tier + 4,
+    features: a.features.map((f) =>
+      f.kind === 'pad'
+        ? { ...f, x: flip(f.x), dir: turn(f.dir) }
+        : { ...f, x: GRID - f.x - (f.w ?? 1) },
+    ),
+    rivalSpawns: a.rivalSpawns?.map(
+      ([x, y, d]): Spawn => [flip(x), y, turn(d)],
+    ),
+    carousel: a.carousel
+      ? { ...a.carousel, cx: flip(a.carousel.cx) }
+      : undefined,
+    art: a.art
+      ? {
+          ...a.art,
+          corners: a.art.corners.map(([x, y]) => [flip(x), y] as const),
+        }
+      : undefined,
+    arches: a.arches?.map((r) => ({ ...r, x: GRID - r.x - r.w })),
+  }
+}
 
 export const FIRST_EVENT = 0
 

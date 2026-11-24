@@ -1671,7 +1671,7 @@ export class PlumberRun implements ArcadeGameInstance {
               : hero.vx * move < -0.1
                 ? 0.72
                 : this.running
-                  ? 0.5
+                  ? 0.6
                   : 0.44)
         if (Math.abs(next) > top)
           next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)

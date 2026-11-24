@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict'
 import { readFileSync, statSync } from 'node:fs'
 import {
+  RAINBOW_ENEMY_ATLASES,
   RAINBOW_INTERLUDES,
   drawRainbowInterlude,
+  rainbowAtlasCell,
+  rainbowEnemyAtlasPath,
   rainbowInterludePath,
 } from '../arcade/games/rainbowAnimation'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
@@ -81,6 +84,37 @@ assert.equal(
   'an Act without an interlude draws its still',
 )
 
+// Enemy idle atlases (t-030): each ships as a small webp whose width is exactly `frames` cells of the still's
+// longer side, and plays its cells in order (calm motion holds the first).
+for (const [kind, atlas] of Object.entries(RAINBOW_ENEMY_ATLASES)) {
+  const file = new URL(
+    `../../public/rainbow-princess-art/doodle/${rainbowEnemyAtlasPath(kind)}.webp`,
+    import.meta.url,
+  )
+  const bytes = readFileSync(file)
+  assert.equal(
+    bytes.subarray(8, 12).toString('latin1'),
+    'WEBP',
+    `${kind} atlas is a webp`,
+  )
+  assert.ok(bytes.length / 1024 < 160, `${kind} atlas stays small`)
+  assert.equal(atlas.frames, 8)
+  const cells = Array.from({ length: 2 * atlas.frames }, (_, i) =>
+    rainbowAtlasCell(kind, Math.round((i * 60) / atlas.fps), false),
+  )
+  assert.deepEqual(
+    cells,
+    [...Array(atlas.frames).keys(), ...Array(atlas.frames).keys()],
+    `${kind} plays its cells in order and loops`,
+  )
+  assert.equal(
+    rainbowAtlasCell(kind, 999, true),
+    0,
+    'calm motion holds the first cell',
+  )
+}
+assert.ok(Object.keys(RAINBOW_ENEMY_ATLASES).length >= 2)
+
 console.log(
-  `rainbow animation: ok (interludes ${RAINBOW_INTERLUDES.join(', ')})`,
+  `rainbow animation: ok (interludes ${RAINBOW_INTERLUDES.join(', ')}; idle atlases ${Object.keys(RAINBOW_ENEMY_ATLASES).join(', ')})`,
 )

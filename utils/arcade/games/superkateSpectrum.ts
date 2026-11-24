@@ -805,6 +805,110 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     label(g, 'LEFT/RIGHT CHOOSE · A CONFIRM', W / 2, 378, 10)
   }
+  private renderStoryMap(g: CanvasRenderingContext2D, rank: number) {
+    g.fillStyle = '#100d27'
+    g.fillRect(8, 32, W - 16, 435)
+    g.strokeStyle = '#fe8fc9'
+    g.strokeRect(8, 32, W - 16, 435)
+    label(g, 'RAINBOW CITY · STAR MAP', W / 2, 49, 14, '#fff0ad')
+    const names = [
+      'RAINBOW SALON',
+      'BOTANIC DOME',
+      'NIGHT MARKET',
+      'CLOUD LIBRARY',
+      'PRISM WORKSHOP',
+      'HEART OF THE HUE',
+    ]
+    const colors: Hue[] = ['pink', 'lime', 'blue', 'teal', 'violet', 'gold']
+    const position = (stage: number) => {
+      const chapter = Math.floor((stage - 1) / 5)
+      const index = (stage - 1) % 5
+      return {
+        x: 48 + 56 * (chapter % 2 ? 4 - index : index),
+        y: 82 + chapter * 48,
+      }
+    }
+    for (let chapter = 0; chapter < 6; chapter++) {
+      const y = 82 + chapter * 48
+      g.fillStyle = '#ffffff0c'
+      g.fillRect(17, y - 18, W - 34, 43)
+      label(g, names[chapter]!, W / 2, y - 20, 9, PALETTE[colors[chapter]!])
+    }
+    g.lineWidth = 3
+    for (let stage = 1; stage < 30; stage++) {
+      const from = position(stage)
+      const to = position(stage + 1)
+      g.strokeStyle =
+        stage < this.career.highestStage ? '#85eacb' : '#49435f'
+      g.beginPath()
+      g.moveTo(from.x, from.y)
+      g.lineTo(to.x, to.y)
+      g.stroke()
+    }
+    for (let stage = 1; stage <= 30; stage++) {
+      const { x, y } = position(stage)
+      const unlocked = stage <= this.career.highestStage
+      const selected = stage === this.menuStage
+      const stars = this.career.stars[stage - 1] ?? 0
+      g.fillStyle = unlocked
+        ? PALETTE[colors[Math.floor((stage - 1) / 5)]!]
+        : '#35344d'
+      g.beginPath()
+      g.arc(x, y, stage % 5 === 0 ? 16 : 13, 0, Math.PI * 2)
+      g.fill()
+      g.strokeStyle = selected ? '#fff0ad' : '#1e1b37'
+      g.lineWidth = selected ? 4 : 2
+      g.stroke()
+      label(g, String(stage), x, y + 4, 12)
+      label(
+        g,
+        unlocked ? '★'.repeat(stars) || '◇' : 'LOCK',
+        x,
+        y + 23,
+        9,
+        unlocked ? '#ffe6a0' : '#a7a6b9',
+      )
+    }
+    const stars = this.career.stars.reduce((sum, count) => sum + count, 0)
+    const selectedStars = this.career.stars[this.menuStage - 1] ?? 0
+    label(
+      g,
+      `STAGE ${this.menuStage} · ${selectedStars ? 'REPLAY' : 'NEW'} · ${stars}/90 STARS`,
+      W / 2,
+      354,
+      11,
+      '#fff0ad',
+    )
+    label(g, 'LEFT/RIGHT SELECT · A PLAY', W / 2, 371, 11)
+    const styles = ['glass', 'candy', 'starlight', 'prismatic'] as const
+    const unlocks = unlockedStyles(rank)
+    styles.forEach((style, index) => {
+      const x = 52 + index * 72
+      const unlocked = unlocks.includes(style)
+      g.globalAlpha = unlocked ? 1 : 0.4
+      bubble(
+        g,
+        x,
+        400,
+        colors[index]!,
+        13,
+        style,
+        this.settings.particles ? this.tick : 0,
+        this.settings.highContrast,
+      )
+      g.globalAlpha = 1
+      if (this.selectedStyle === style) {
+        g.strokeStyle = '#fff0ad'
+        g.lineWidth = 2
+        g.strokeRect(x - 18, 382, 36, 36)
+      }
+      label(g, style.toUpperCase(), x, 425, 8)
+      label(g, unlocked ? 'OWNED' : `RANK ${[1, 4, 9, 15][index]}`, x, 436, 8)
+    })
+    label(g, `RANK ${rank} · B CHANGE LOOK · UP/DOWN CLASSIC`, W / 2, 450, 9)
+    label(g, 'X SCRAPBOOK · Y SETTINGS', W / 2, 462, 9)
+  }
+
   private renderHomePage(g: CanvasRenderingContext2D, rank: number) {
     const panel = g.createLinearGradient(0, 120, W, 380)
     panel.addColorStop(0, '#40225fe8')
@@ -1115,6 +1219,10 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.renderHomePage(g, rank)
       return
     }
+    if (this.choosingMode && this.mode === 'story') {
+      this.renderStoryMap(g, rank)
+      return
+    }
     if (this.choosingMode) {
       g.fillStyle = '#0c0b25ee'
       g.fillRect(14, 143, W - 28, 210)
@@ -1123,16 +1231,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       label(g, "SUPERKATE'S COLOR CLUB", W / 2, 168, 16)
       label(
         g,
-        this.mode === 'story' ? 'STORY ADVENTURE' : 'CLASSIC BUBBLE MODE',
+        'CLASSIC BUBBLE MODE',
         W / 2,
         198,
         15,
         '#80f4e2',
       )
       label(g, 'UP/DOWN: CHANGE MODE', W / 2, 220, 12)
-      if (this.mode === 'story')
-        label(g, `LEFT/RIGHT: START AT ${this.menuStage}`, W / 2, 241, 12)
-      else label(g, 'ENDLESS WAVES · NO POWER-UPS', W / 2, 241, 12)
+      label(g, 'ENDLESS WAVES · NO POWER-UPS', W / 2, 241, 12)
       label(
         g,
         `RANK ${rank} · ${this.career.lifetimePops} BUBBLES FREED`,
@@ -1143,9 +1249,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       )
       label(
         g,
-        this.mode === 'story'
-          ? `STAGE ${this.menuStage}: ${'★'.repeat(this.career.stars[this.menuStage - 1] ?? 0)}`
-          : `BEST ${this.career.classicBest} · ${this.career.classicRuns} RUNS`,
+        `BEST ${this.career.classicBest} · ${this.career.classicRuns} RUNS`,
         W / 2,
         286,
         12,

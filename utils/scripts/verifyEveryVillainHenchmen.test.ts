@@ -785,7 +785,9 @@ assert.equal(Object.keys(CREW_TELEGRAPH_MEDIA_DIMENSIONS).length, 12)
 for (const kind of ['burrow', 'phase', 'windup'] as const) {
   for (const [index, beat] of CREW_TELL_BEATS.entries()) {
     const id = CREW_TELL_ART[kind].beats[beat].imageId
-    const [width, height] = expectedTelegraphDimensions[index]
+    const dimensions = expectedTelegraphDimensions[index]
+    assert.ok(dimensions)
+    const [width, height] = dimensions
     assert.deepEqual(CREW_TELEGRAPH_MEDIA_DIMENSIONS[id], [width, height])
     assert.equal(matchesCrewTelegraphDimensions(id, width, height), true)
     assert.equal(matchesCrewTelegraphDimensions(id, width + 1, height), false)

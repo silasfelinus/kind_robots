@@ -19,7 +19,9 @@
         <input
           type="checkbox"
           :checked="display.prefs.highContrast"
-          @change="display.update({ highContrast: !display.prefs.highContrast })"
+          @change="
+            display.update({ highContrast: !display.prefs.highContrast })
+          "
         />
         High-contrast reading panels
       </label>
@@ -27,7 +29,9 @@
         <input
           type="checkbox"
           :checked="display.prefs.reducedMotion"
-          @change="display.update({ reducedMotion: !display.prefs.reducedMotion })"
+          @change="
+            display.update({ reducedMotion: !display.prefs.reducedMotion })
+          "
         />
         Reduce decorative motion
       </label>

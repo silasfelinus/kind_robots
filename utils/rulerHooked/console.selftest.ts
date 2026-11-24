@@ -464,7 +464,10 @@ const fresh = (seed = 'console-seed'): RunSave =>
     highContrast: true,
     reducedMotion: true,
   })
-  assert.equal(cleanRoyalDisplayPrefs({ readingSize: 'large' }).readingSize, 'large')
+  assert.equal(
+    cleanRoyalDisplayPrefs({ readingSize: 'large' }).readingSize,
+    'large',
+  )
   assert.equal(cleanRoyalDisplayPrefs({}).readingSize, 'standard')
 }
 

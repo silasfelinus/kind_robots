@@ -1034,7 +1034,8 @@ onBeforeUnmount(() => navObserver?.disconnect())
 .rh-console[data-reading-size='extra-large'] {
   --rh-reading-size: 1.4rem;
 }
-.rh-console:not([data-reading-size='standard']) :is(
+.rh-console:not([data-reading-size='standard'])
+  :is(
     .rh-edict__body,
     .rh-scroll__body,
     .rh-opening__text,
@@ -1079,15 +1080,12 @@ onBeforeUnmount(() => navObserver?.disconnect())
   outline: 3px solid #a100ff;
   outline-offset: 3px;
 }
-.rh-console[data-reduced-motion='true'] :is(
-    .rh-coach,
-    .rh-crier,
-    .rh-fishing__waterlines,
-    .rh-fishing__surge-tag
-  ) {
+.rh-console[data-reduced-motion='true']
+  :is(.rh-coach, .rh-crier, .rh-fishing__waterlines, .rh-fishing__surge-tag) {
   animation: none;
 }
-.rh-console[data-reduced-motion='true'] :is(
+.rh-console[data-reduced-motion='true']
+  :is(
     .rh-slide-enter-active,
     .rh-slide-leave-active,
     .rh-btn,
@@ -1097,10 +1095,8 @@ onBeforeUnmount(() => navObserver?.disconnect())
   ) {
   transition: none;
 }
-.rh-console[data-reduced-motion='true'] :is(
-    .rh-slide-enter-from,
-    .rh-slide-leave-to
-  ) {
+.rh-console[data-reduced-motion='true']
+  :is(.rh-slide-enter-from, .rh-slide-leave-to) {
   transform: none;
 }
 </style>

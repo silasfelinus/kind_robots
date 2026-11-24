@@ -129,7 +129,9 @@
           </button>
         </template>
         <div v-if="deleteSlotId === slot.saveId" class="grid gap-1">
-          <p class="text-xs" role="status">Delete this reign? Scrapbook discoveries remain.</p>
+          <p class="text-xs" role="status">
+            Delete this reign? Scrapbook discoveries remain.
+          </p>
           <button
             type="button"
             class="rh-btn rh-btn--small rh-btn--danger"

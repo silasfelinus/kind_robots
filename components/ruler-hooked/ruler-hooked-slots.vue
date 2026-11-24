@@ -58,6 +58,7 @@
       aria-label="Game settings"
     >
       <RulerHookedDisplaySettings />
+      <RulerHookedAccountArchive />
     </div>
     <div
       v-else-if="showAchievements"

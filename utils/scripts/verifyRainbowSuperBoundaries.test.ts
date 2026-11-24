@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import { enemyBulletContact } from '../arcade/games/rainbowHitGeometry'
-import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
+import {
+  SUPER_TAP_FRAMES,
+  createRainbowPrincessPreview,
+} from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
 import {
   availableCoopTargets,
@@ -51,6 +54,12 @@ function step(
   frames[seat]!.held.b = focus || pressSuper
   frames[seat]!.pressed.b = pressSuper
   game.update(frames[0]!, frames)
+  if (pressSuper) {
+    // A super is a tap: B released inside the tap window (gameplay critic D1); a hold stays focus.
+    const release = allSeats(seat)
+    release[seat]!.held.a = fire
+    game.update(release[0]!, release)
+  }
 }
 
 for (let seat = 0; seat < 4; seat++) {
@@ -69,7 +78,8 @@ for (let seat = 0; seat < 4; seat++) {
   assert.equal(effects.filter((effect) => effect === 'extra').length, 0)
 
   let earned = false
-  for (let frame = 0; frame < 1550; frame++) {
+  // Kills refund SUPER_REFUND charge (4, from 12 before the gameplay critic's D2), so earning takes longer.
+  for (let frame = 0; frame < 4650; frame++) {
     step(game, seat, true)
     if (game.snapshot.ships[seat]!.charge === 100) {
       earned = true
@@ -79,7 +89,9 @@ for (let seat = 0; seat < 4; seat++) {
   assert.ok(earned, `pilot ${seat + 1} must earn a super through real gun hits`)
   assert.equal(game.snapshot.activePlayers, 4)
 
-  for (let i = 0; i < 3; i++) step(game, seat, false, false, true)
+  // A focus hold outlasts the tap window, so releasing it never fires the super (gameplay critic D1).
+  for (let i = 0; i < SUPER_TAP_FRAMES + 6; i++)
+    step(game, seat, false, false, true)
   assert.equal(
     game.snapshot.ships[seat]!.charge,
     100,
@@ -96,17 +108,24 @@ for (let seat = 0; seat < 4; seat++) {
     }
   }
   assert.ok(hostile, `pilot ${seat + 1} must face a real hostile shot`)
-  const previousBullets = game.snapshot.enemyShots.length
+  // The tap: B down (focus for a frame), then released, which fires the super.
+  const press = allSeats(seat)
+  press[seat]!.held.b = true
+  press[seat]!.pressed.b = true
+  game.update(press[0]!, press)
+  assert.ok(game.snapshot.enemyShots.length > 0)
+  const pressTick = game.snapshot.tick
   const beforeScore = game.score
-  step(game, seat, false, true)
+  const release = allSeats(seat)
+  game.update(release[0]!, release)
   assert.equal(effects.filter((effect) => effect === 'extra').length, 1)
   assert.ok(
     game.snapshot.ships[seat]!.charge < 100,
     'a fired super consumes its full charge before any earned refill',
   )
   assert.ok(
-    game.snapshot.enemyShots.length < previousBullets,
-    'a charged super cancels the existing hostile bullet field',
+    game.snapshot.enemyShots.every((shot) => (shot.born ?? 0) > pressTick),
+    'a charged super cancels the existing hostile bullet field (only pellets fired after it remain)',
   )
   assert.ok(game.score >= beforeScore, 'the super never subtracts earned score')
   assert.ok(

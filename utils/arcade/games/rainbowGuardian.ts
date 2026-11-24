@@ -75,6 +75,8 @@ export function createRainbowGuardian(
   kind: RainbowGuardianKind,
   pilots: number,
 ): RainbowGuardian {
+  // One hull for every Act: a section lasts about 35 s, and a tougher hull only made late guardians escape.
+  // Later guardians get harder through their motion and patterns instead (gameplay critic D5).
   const maxHp = rainbowBossHp(RAINBOW_GUARDIAN.baseHp, pilots)
   return {
     kind,
@@ -112,6 +114,62 @@ export function rainbowGuardianMarksLanes(guardian: RainbowGuardian): boolean {
   )
 }
 
+/** How each guardian kind holds the screen (independent gameplay critic D5: one shared bob made them one AI). */
+export type RainbowGuardianMotion =
+  'bob' | 'sweep' | 'orbit' | 'stalk' | 'lunge'
+export const RAINBOW_GUARDIAN_MOTION: Record<
+  RainbowGuardianKind,
+  RainbowGuardianMotion
+> = {
+  urchin: 'bob',
+  lantern: 'sweep',
+  matriarch: 'sweep',
+  kelpwarden: 'stalk',
+  siren: 'orbit',
+  warden: 'orbit',
+  lampkeeper: 'bob',
+  shoalkoi: 'orbit',
+  herder: 'lunge',
+  clawstrike: 'stalk',
+  courier: 'lunge',
+  salvager: 'lunge',
+  bulwark: 'stalk',
+  mirror: 'orbit',
+  herald: 'sweep',
+}
+
+/**
+ * bob: a gentle drift round the centre lane. sweep: wide, slow passes from top to bottom. orbit: a loop that
+ * also swings in and out. stalk: eases toward the nearest pilot's lane, never quite onto it. lunge: holds back,
+ * then darts forward after each volley and returns. Every motion stays right of x 330, clear of the crew.
+ */
+function moveGuardian(guardian: RainbowGuardian, nearest: { y: number }): void {
+  const f = guardian.frame
+  const motion = RAINBOW_GUARDIAN_MOTION[guardian.kind]
+  let holdX: number = RAINBOW_GUARDIAN.holdX
+  if (motion === 'orbit') holdX += Math.cos(f / 55) * 34
+  if (motion === 'lunge') {
+    // A dart forward right after each volley (frames since it fired), then back to the hold line.
+    const since =
+      f - (guardian.nextVolley - (guardian.hp <= guardian.maxHp / 2 ? 96 : 120))
+    holdX -= since > 0 && since < 50 ? Math.sin((since / 50) * Math.PI) * 48 : 0
+  }
+  guardian.x =
+    guardian.x > holdX + 1.2 ? guardian.x - 1.2 : Math.max(330, holdX)
+  if (motion === 'bob') guardian.y = 135 + Math.sin(f / 70) * 42
+  else if (motion === 'sweep') guardian.y = 135 + Math.sin(f / 110) * 82
+  else if (motion === 'orbit') guardian.y = 135 + Math.sin(f / 55) * 60
+  else if (motion === 'lunge') guardian.y = 135 + Math.sin(f / 90) * 56
+  else {
+    // Stalk: close on the pilot's lane, offset so its own body is never a wall in front of her.
+    const want = Math.max(
+      60,
+      Math.min(210, nearest.y + (nearest.y < 135 ? 36 : -36)),
+    )
+    guardian.y += (want - guardian.y) * 0.025
+  }
+}
+
 /** True once an escaping guardian has left the playfield. */
 export function rainbowGuardianGone(guardian: RainbowGuardian): boolean {
   return guardian.leaving && guardian.x > 520
@@ -121,6 +179,17 @@ export function rainbowGuardianGone(guardian: RainbowGuardian): boolean {
  * Advance one frame. `escape` asks the guardian to give up; it stops attacking at once (a charge in
  * progress is abandoned, never fired) and flies off to the right.
  */
+/** The kinds whose volley (on these counts) is an aimed fan that leaves the line at the pilot open. */
+const AIMED_OPEN_LANE: Partial<
+  Record<RainbowGuardianKind, (volleys: number) => boolean>
+> = {
+  lantern: () => true,
+  matriarch: (volleys) => volleys % 2 === 0,
+  siren: (volleys) => volleys % 2 === 1,
+  warden: (volleys) => volleys % 2 === 0,
+  shoalkoi: () => true,
+}
+
 export function stepRainbowGuardian(
   guardian: RainbowGuardian,
   targets: readonly { x: number; y: number; lives: number }[],
@@ -132,8 +201,6 @@ export function stepRainbowGuardian(
     guardian.x += 2.4
     return []
   }
-  guardian.x = Math.max(RAINBOW_GUARDIAN.holdX, guardian.x - 1.2)
-  guardian.y = 135 + Math.sin(guardian.frame / 70) * 42
   const living = targets.filter((target) => target.lives > 0)
   const nearest = living.reduce(
     (best, ship) =>
@@ -142,6 +209,7 @@ export function stepRainbowGuardian(
         : best,
     living[0] ?? { x: 80, y: 135, lives: 1 },
   )
+  moveGuardian(guardian, nearest)
   if (
     rainbowGuardianMarksLanes(guardian) &&
     guardian.frame === guardian.nextVolley - RAINBOW_GUARDIAN.warningFrames
@@ -348,6 +416,15 @@ export function stepRainbowGuardian(
     const spread = enraged ? [0.22, 0.34, 0.46, 0.58] : [0.24, 0.38, 0.52]
     for (const side of [-1, 1])
       for (const offset of spread) shot(aim + side * offset, 1.7)
+  }
+  // Every other aimed-fan volley closes the open lane late: one slow pellet straight at the pilot, arriving
+  // after the fans have passed, so standing still between them is never safe (gameplay critic D5).
+  if (
+    AIMED_OPEN_LANE[guardian.kind]?.(guardian.volleys) &&
+    guardian.volleys % 4 < 2
+  ) {
+    const aim = Math.atan2(nearest.y - guardian.y, nearest.x - guardian.x)
+    shot(aim, 1.15)
   }
   return shots
 }

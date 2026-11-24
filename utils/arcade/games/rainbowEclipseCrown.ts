@@ -200,7 +200,22 @@ export function stepEclipseCrownBoss(
     boss.phase === 1 &&
     boss.frame === boss.nextVolley - ECLIPSE_CROWN.warningFrames
   ) {
-    boss.spokeAngle = (boss.volleys * ECLIPSE_CROWN.spokeTurn) % (Math.PI * 2)
+    // Alternate volleys line one spoke up on the nearest pilot (independent gameplay critic D6): the walk alone
+    // only ever fires down 18 fixed bearings, so a crew parked between them was never hit. The spokes are still
+    // marked for the whole warning, so the aimed volley reads as clearly as the walking one.
+    const living = targets.filter((ship) => ship.lives > 0)
+    const nearest = living.reduce(
+      (best, ship) =>
+        Math.hypot(ship.x - boss.x, ship.y - boss.y) <
+        Math.hypot(best.x - boss.x, best.y - boss.y)
+          ? ship
+          : best,
+      living[0] ?? null,
+    )
+    boss.spokeAngle =
+      nearest && boss.volleys % 2 === 1
+        ? Math.atan2(nearest.y - boss.y, nearest.x - boss.x)
+        : (boss.volleys * ECLIPSE_CROWN.spokeTurn) % (Math.PI * 2)
   }
   if (boss.frame < boss.nextVolley) return []
 
@@ -240,6 +255,8 @@ export function stepEclipseCrownBoss(
     const aim = Math.atan2(nearest.y - boss.heartY, nearest.x - boss.heartX)
     fire(boss.heartX, boss.heartY, aim - 0.15, 1.8)
     fire(boss.heartX, boss.heartY, aim + 0.15, 1.8)
+    // Alternate volleys close the aimed line, so holding still between the pair is not a hiding place (D6).
+    if (boss.volleys % 2 === 0) fire(boss.heartX, boss.heartY, aim, 1.8)
     boss.nextVolley = boss.frame + 140
   }
   return shots

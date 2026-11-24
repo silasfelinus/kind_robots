@@ -197,6 +197,8 @@ for (const stillCamera of [false, true]) {
     press.pressed.b = true
     press.held.b = true
     game.update(press)
+    // B released inside the tap window is the super (gameplay critic D1: a hold is focus).
+    game.update(emptyInput())
     const { g, calls } = recorder()
     game.render(g)
     return calls.filter(

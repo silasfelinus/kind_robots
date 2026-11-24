@@ -294,9 +294,13 @@ const g = new Proxy(state, {
 let sawX1 = false
 let viaLine = false
 for (let frame = 0; frame < 120000 && !viaLine; frame++) {
-  // Launch from the salvage dock as soon as it allows: an early launch takes the X1 detour.
+  // Launch from the salvage dock while most of the crew flies low (the X1 rule), as soon as the dock allows.
   const input = emptyInput()
-  input.pressed.a = game.snapshot.docked === ROSEFIN.dockMinFrames - 1
+  const docked = game.snapshot.docked
+  input.pressed.a =
+    docked !== null &&
+    docked >= ROSEFIN.dockMinFrames - 1 &&
+    game.snapshot.ships.filter((ship) => ship.y >= 135).length > 2
   game.update(input)
   const act: string = game.snapshot.act
   if (act === 'X1') sawX1 = true

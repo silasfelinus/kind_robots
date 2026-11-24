@@ -26,10 +26,11 @@ const ACT_CEILING_MINUTES = 20
 const MINUTE = 3600
 
 assert.equal(rainbowBossHp(BOSS_MAX_HP, 1), 375)
-assert.equal(rainbowBossHp(BOSS_MAX_HP, 2), 975)
-assert.equal(rainbowBossHp(BOSS_MAX_HP, 4), 2175)
+// 2 shares per extra pilot (gameplay critic D3; 4 before 2026-11-23 PT).
+assert.equal(rainbowBossHp(BOSS_MAX_HP, 2), 675)
+assert.equal(rainbowBossHp(BOSS_MAX_HP, 4), 1275)
 assert.equal(rainbowBossHp(AURELIA_MAX_HP, 1), 525)
-assert.equal(rainbowBossHp(AURELIA_MAX_HP, 4), 3045)
+assert.equal(rainbowBossHp(AURELIA_MAX_HP, 4), 1785)
 assert.equal(rainbowBossHp(BOSS_MAX_HP, 0), 375, 'never an empty hull')
 assert.equal(rainbowBossPhase(375, 375), 1)
 assert.equal(rainbowBossPhase(250, 375), 2, 'two thirds turns phase 2')

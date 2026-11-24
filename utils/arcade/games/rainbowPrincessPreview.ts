@@ -438,6 +438,10 @@ export const RAINBOW_SHIP_SPEED = 3.4
 const SPEED = RAINBOW_SHIP_SPEED
 const FOCUS_SPEED = SPEED * 0.55
 const CORE_RADIUS = 4
+/** B released within this many frames is a tap: the super. Held longer, B is focus (gameplay critic D1). */
+export const SUPER_TAP_FRAMES = 12
+/** Charge each kill refunds (an urchin twice this); grazing is the main source (gameplay critic D2). */
+export const SUPER_REFUND = 4
 const GRAZE_RADIUS = 15
 const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff'] as const
 const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
@@ -1255,6 +1259,8 @@ export function createRainbowPrincessPreview(
   const shots: Shot[] = []
   const reefs: Reef[] = []
   const enemyShots: EnemyShot[] = []
+  /** Frames each seat has held B, to tell a super tap from a focus hold. */
+  const superHold: number[] = Array.from({ length: 4 }, () => 0)
   const pickups: Pickup[] = []
   let tick = 0
   let score = 0
@@ -3493,46 +3499,51 @@ export function createRainbowPrincessPreview(
     supers++
     options.sound.play('rainbowNova')
     feat('kitty-power')
+    // The wipe stays whole-screen (the cut-in may cover the comms band only because no pellet is left under
+    // it); supers are kept rare by their charge instead: kills refund SUPER_REFUND, grazing does the rest.
     bursts.push({ seat, pilot: kind, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
+    // Bosses lose a share of their hull, so a super matters as much in a four-pilot fight as solo.
+    const share = (maxHp: number) =>
+      Math.max(1, Math.round(maxHp * (kind === 1 ? 0.05 : 0.035)))
     if (boss && boss.frame > 85) {
-      boss.hp -= kind === 1 ? 28 : 20
+      boss.hp -= share(boss.maxHp)
       if (boss.hp <= 0) defeatBoss()
     }
     if (moonBoss && moonBoss.frame > 85) {
-      moonBoss.hp -= kind === 1 ? 28 : 20
+      moonBoss.hp -= share(moonBoss.maxHp)
       if (moonBoss.hp <= 0) defeatMoonBoss()
     }
     if (clawBoss && clawBoss.frame > 85) {
-      clawBoss.hp -= kind === 1 ? 28 : 20
+      clawBoss.hp -= share(clawBoss.maxHp)
       if (clawBoss.hp <= 0) defeatClawBoss()
     }
     if (delphion && delphion.frame > 85) {
-      delphion.hp -= kind === 1 ? 28 : 20
+      delphion.hp -= share(delphion.maxHp)
       if (delphion.hp <= 0) defeatDelphion()
     }
     if (sawtooth && sawtooth.frame > 85) {
-      sawtooth.hp -= kind === 1 ? 28 : 20
+      sawtooth.hp -= share(sawtooth.maxHp)
       if (sawtooth.hp <= 0) defeatSawtooth()
     }
     if (lanternRay && lanternRay.frame > 85) {
-      lanternRay.hp -= kind === 1 ? 28 : 20
+      lanternRay.hp -= share(lanternRay.maxHp)
       if (lanternRay.hp <= 0) defeatLanternRay()
     }
     if (glassEel && glassEel.frame > 85) {
-      glassEel.hp -= kind === 1 ? 28 : 20
+      glassEel.hp -= share(glassEel.maxHp)
       if (glassEel.hp <= 0) defeatGlassEel()
     }
     if (leviathan && leviathan.frame > 85) {
-      leviathan.hp -= kind === 1 ? 28 : 20
+      leviathan.hp -= share(leviathan.maxHp)
       if (leviathan.hp <= 0) defeatLeviathan()
     }
     if (crown && crown.frame > 85 && crown.plea === 0) {
-      crown.hp -= kind === 1 ? 28 : 20
+      crown.hp -= share(crown.maxHp)
       if (crown.hp <= 0) subdueCrown()
     }
     if (guardian && guardian.frame > 60) {
-      guardian.hp -= kind === 1 ? 28 : 20
+      guardian.hp -= share(guardian.maxHp)
       if (guardian.hp <= 0) defeatGuardian(seat)
     }
     for (let i = reefs.length - 1; i >= 0; i--) {
@@ -3666,7 +3677,8 @@ export function createRainbowPrincessPreview(
     if (refund)
       ship.charge = Math.min(
         100,
-        ship.charge + (reef.kind === 'urchin' ? 24 : 12),
+        ship.charge +
+          (reef.kind === 'urchin' ? SUPER_REFUND * 2 : SUPER_REFUND),
       )
     if (clearCount % 3 === 0) {
       const kinds: Pickup['kind'][] = ['power', 'shield', 'charge']
@@ -5030,6 +5042,14 @@ export function createRainbowPrincessPreview(
       if (!keys) continue
       if (ship.lives <= 0) continue
       ship.focus = !options.demo && keys.held.b
+      // B: hold to focus, tap to fire the super (gameplay critic D1). A press that becomes a hold never spends it.
+      const tapped =
+        !options.demo &&
+        ((!keys.held.b &&
+          superHold[seat]! > 0 &&
+          superHold[seat]! <= SUPER_TAP_FRAMES) ||
+          (keys.pressed.b && !keys.held.b && superHold[seat] === 0))
+      superHold[seat] = keys.held.b ? superHold[seat]! + 1 : 0
       const lastY = ship.y
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
@@ -5174,7 +5194,7 @@ export function createRainbowPrincessPreview(
       if (ship.cooldown > 0) ship.cooldown--
       if (ship.invulnerable > 0) ship.invulnerable--
       if ((options.demo || keys.held.a) && ship.cooldown === 0) fire(ship, seat)
-      if (!options.demo && keys.pressed.b) superAttack(seat)
+      if (tapped) superAttack(seat)
       if (!options.demo && keys.pressed.x) useSpecial(ship, seat)
       if (!options.demo && keys.pressed.y) useEvade(ship, seat, keys)
       if (ship.specialCooldown > 0) ship.specialCooldown--
@@ -9185,7 +9205,7 @@ export function createRainbowPrincessPreview(
         g.font = '9px monospace'
         g.fillText(
           // Short enough to clear P1's status on the right of the same row.
-          'A FIRE · B FOCUS/SUPER · X SPECIAL · Y EVADE',
+          'A FIRE · B HOLD FOCUS/TAP SUPER · X SPECIAL · Y EVADE',
           HUD_LEFT,
           24,
         )

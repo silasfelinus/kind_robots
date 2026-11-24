@@ -273,12 +273,15 @@ for (const players of [1, 2]) {
     if (after.act === 'S05') {
       if (entered === null) {
         entered = frame
-        assert.equal(before.act, 'S04')
+        // Act V follows Act IV, or the X2 detour that sits between them (ROUTE-MAP): which one the demo
+        // crew flies depends on its lane at Act IV's signpost, so the test accepts either.
+        assert.ok(['S04', 'X2'].includes(before.act as string), before.act)
         assert.equal(after.actFiveFrame, 0)
-        assert.ok(
-          before.actFourFrame >= ROSEFIN.bossStarts,
-          'Act V follows Act IV with no dock between them',
-        )
+        if (before.act === 'S04')
+          assert.ok(
+            before.actFourFrame >= ROSEFIN.bossStarts,
+            'Act V follows Act IV with no dock between them',
+          )
         assert.deepEqual(
           after.ships.map(({ lives, shield, power }) => ({
             lives,

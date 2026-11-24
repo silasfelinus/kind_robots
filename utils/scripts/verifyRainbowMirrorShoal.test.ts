@@ -276,9 +276,11 @@ for (const pilots of [1, 4]) {
     if (frame < RAINBOW_GUARDIAN.firstVolley) assert.equal(first.length, 0)
   }
   assert.equal(warnings, RAINBOW_GUARDIAN.warningFrames)
-  assert.equal(first.length, 8)
+  // Four solid wings, four phantoms, and (on this volley) one slow solid pellet that closes the aimed line
+  // after the wings pass (gameplay critic D5).
+  assert.equal(first.length, 9)
   assert.equal(first.filter((pellet) => pellet.ghost).length, 4)
-  assert.equal(first.filter((pellet) => !pellet.ghost).length, 4)
+  assert.equal(first.filter((pellet) => !pellet.ghost).length, 5)
   assert.ok(first.every((pellet) => Number.isFinite(pellet.vx)))
   assert.ok(first.every((pellet) => Number.isFinite(pellet.vy)))
   guardian.hp = guardian.maxHp / 2

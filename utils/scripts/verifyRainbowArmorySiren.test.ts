@@ -58,7 +58,31 @@ for (const players of [1, 4]) {
       assert.ok(guardian.lanes.length >= 3, 'lane bolts are warned')
       assert.ok(shots.every((shot) => shot.vx <= -3.8 && shot.vy === 0))
     } else {
-      assert.ok(shots.every((shot) => Math.abs(shot.vy) > 0.1))
+      // The chord leaves the aimed line open; on alternate volleys one slow pellet closes it late, after the
+      // chord has passed (gameplay critic D5: standing still between the fans must not be safe).
+      const closers = shots.filter(
+        (shot) => Math.abs(Math.hypot(shot.vx, shot.vy) - 1.15) < 0.01,
+      )
+      assert.ok(
+        closers.length <= 1,
+        'at most one late pellet down the aimed line',
+      )
+      // Every chord pellet flies well off the aimed line (the Siren moves now, so a side pellet may fly level).
+      const aim = Math.atan2(141 - guardian.y, 86 - (guardian.x - 18))
+      assert.ok(
+        shots
+          .filter((shot) => !closers.includes(shot))
+          .every((shot) => {
+            const off = Math.abs(
+              Math.atan2(
+                Math.sin(Math.atan2(shot.vy, shot.vx) - aim),
+                Math.cos(Math.atan2(shot.vy, shot.vx) - aim),
+              ),
+            )
+            return off > 0.15
+          }),
+        'the chord leaves the aimed line open',
+      )
     }
     patterns.push(shots.length)
     warned = 0

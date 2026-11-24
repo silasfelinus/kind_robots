@@ -20,7 +20,7 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 
 // The module: hull, charge cue, fair patterns, escape.
 assert.equal(createRainbowGuardian('urchin', 1).maxHp, 125)
-assert.equal(createRainbowGuardian('urchin', 4).maxHp, 725)
+assert.equal(createRainbowGuardian('urchin', 4).maxHp, 425)
 assert.ok(PINKWAKE_SECTIONS.some((s) => s.name === PINKWAKE_GUARDIAN.name))
 for (const kind of ['urchin', 'lantern', 'clawstrike'] as const) {
   const guardian = createRainbowGuardian(kind, 1)
@@ -59,10 +59,17 @@ for (const kind of ['urchin', 'lantern', 'clawstrike'] as const) {
           pilots[0]!.y - shots[0]!.y,
           pilots[0]!.x - shots[0]!.x,
         )
-        assert.equal(shots.length, enraged ? 8 : 6)
+        // Two fans either side of the pilot. On alternate volleys one slow pellet then closes the open lane,
+        // arriving after the fans pass, so standing still is never safe (gameplay critic D5).
+        const closers = shots.filter(
+          (shot) => Math.abs(Math.hypot(shot.vx, shot.vy) - 1.15) < 0.01,
+        )
+        assert.ok(closers.length <= 1)
+        assert.equal(shots.length - closers.length, enraged ? 8 : 6)
         for (const shot of shots) {
+          if (closers.includes(shot)) continue
           const off = Math.abs(Math.atan2(shot.vy, shot.vx) - aim)
-          assert.ok(off >= 0.2, 'the lane straight at the pilot stays open')
+          assert.ok(off >= 0.2, 'the fans leave the lane straight at the pilot')
         }
       }
     }

@@ -8,8 +8,11 @@
 
 import type { RunSave, SaveIndex, SaveSlotMeta } from '~/types/ruler-hooked'
 import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
+import { RULER_HOOKED_CONTENT } from '~/utils/rulerHooked/content'
+import { rememberReign, type RoyalScrapbook } from '~/utils/rulerHooked/scrapbook'
 import { deletePortrait } from '~/utils/rulerHooked/portraitStore'
 
+const SCRAPBOOK_KEY = 'rulerHooked:scrapbook:v1'
 const INDEX_KEY = 'rulerHooked:index'
 const slotKey = (saveId: string) => `rulerHooked:save:${saveId}`
 // v5 (t-021): ruler.cosmetics widened from an untyped bag to RulerCosmetics
@@ -96,6 +99,30 @@ export function loadIndex(): SaveIndex {
   return index
 }
 
+export function loadScrapbook(): RoyalScrapbook {
+  const raw = parse<RoyalScrapbook>(safeGet(SCRAPBOOK_KEY))
+  let archive: RoyalScrapbook = {}
+  if (raw && !Array.isArray(raw)) {
+    for (const [id, entry] of Object.entries(raw)) {
+      if (
+        entry && entry.saveId === id &&
+        typeof entry.name === 'string' &&
+        Number.isFinite(entry.turnCount) &&
+        Array.isArray(entry.endingKeys) &&
+        Array.isArray(entry.characters) &&
+        entry.fish && typeof entry.fish === 'object'
+      ) archive[id] = entry
+    }
+  }
+  for (const slot of loadIndex().slots) {
+    const save = loadSave(slot.saveId)
+    if (save) archive = rememberReign(archive, save, RULER_HOOKED_CONTENT)
+  }
+  const encoded = JSON.stringify(archive)
+  if (safeGet(SCRAPBOOK_KEY) !== encoded) safeSet(SCRAPBOOK_KEY, encoded)
+  return archive
+}
+
 function writeIndex(index: SaveIndex): void {
   index.schemaVersion = SAVE_SCHEMA_VERSION
   safeSet(INDEX_KEY, JSON.stringify(index))
@@ -134,6 +161,7 @@ export function renameSlot(saveId: string, name: string): void {
 }
 
 export function deleteSlot(saveId: string): void {
+  loadScrapbook()
   const existing = loadSave(saveId)
   const portraitId = existing?.ruler.cosmetics?.customPortraitId
   safeRemove(slotKey(saveId))

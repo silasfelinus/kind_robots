@@ -155,7 +155,7 @@
       const a = 10 + i * (80 / strands)
       paths += `<path d="M10 ${a} C 40 ${100 - a}, 60 ${a}, 90 ${100 - a}" />`
     }
-    return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="6" y="6" width="88" height="88" rx="20" fill="#b9b3c9"/><g fill="none" stroke="#857d9c" stroke-width="7" stroke-linecap="round">${paths}</g><g fill="none" stroke="#e7e2f2" stroke-width="2.5" stroke-linecap="round" opacity=".8">${paths}</g>${hp > 1 ? `<circle cx="80" cy="20" r="11" fill="#6c6486"/><text x="80" y="25" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">${hp}</text>' : ''}</svg>`
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="6" y="6" width="88" height="88" rx="20" fill="#b9b3c9"/><g fill="none" stroke="#857d9c" stroke-width="7" stroke-linecap="round">${paths}</g><g fill="none" stroke="#e7e2f2" stroke-width="2.5" stroke-linecap="round" opacity=".8">${paths}</g>${hp > 1 ? `<circle cx="80" cy="20" r="11" fill="#6c6486"/><text x="80" y="25" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">${hp}</text>` : ''}</svg>`
   }
 
   function goalIconSvg(goal, worldId) {

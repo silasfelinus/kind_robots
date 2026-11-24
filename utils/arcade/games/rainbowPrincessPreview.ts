@@ -61,8 +61,10 @@ import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import {
   applyRainbowSwimMotion,
   rainbowHitFlinch,
+  rainbowBossRecoil,
   rainbowBossWindup,
   rainbowShipPose,
+  stackRainbowBossPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
 import {
@@ -1435,6 +1437,11 @@ export function createRainbowPrincessPreview(
   const superHold: number[] = Array.from({ length: 4 }, () => 0)
   const pickups: Pickup[] = []
   let tick = 0
+  // Conductor rainbow t-011: the tick each boss body last took a shot, so its draw can rock back (draw-only).
+  const bossHitAt = new WeakMap<object, number>()
+  const hurtBoss = (body: object) => bossHitAt.set(body, tick)
+  const bossRecoil = (body: object, calm: boolean) =>
+    rainbowBossRecoil(tick - (bossHitAt.get(body) ?? Number.NaN), calm)
   let score = 0
   let over = false
   let clearCount = 0
@@ -5918,6 +5925,7 @@ export function createRainbowPrincessPreview(
       ) {
         shots.splice(si, 1)
         guardian.hp -= shot.damage
+        hurtBoss(guardian)
         if (guardian.hp <= 0) defeatGuardian(shot.seat)
         continue
       }
@@ -5928,6 +5936,7 @@ export function createRainbowPrincessPreview(
       ) {
         shots.splice(si, 1)
         boss.hp -= shot.damage
+        hurtBoss(boss)
         if (boss.hp <= 0) defeatBoss()
       }
       if (
@@ -5937,6 +5946,7 @@ export function createRainbowPrincessPreview(
       ) {
         shots.splice(si, 1)
         moonBoss.hp -= shot.damage
+        hurtBoss(moonBoss)
         if (moonBoss.hp <= 0) defeatMoonBoss()
       }
       if (
@@ -5947,6 +5957,7 @@ export function createRainbowPrincessPreview(
         shots.splice(si, 1)
         // The cracked cannon after a punch takes double damage.
         clawBoss.hp -= shot.damage * (clawburstExposed(clawBoss) ? 2 : 1)
+        hurtBoss(clawBoss)
         if (clawBoss.hp <= 0) defeatClawBoss()
         continue
       }
@@ -5966,6 +5977,7 @@ export function createRainbowPrincessPreview(
           shots.splice(si, 1)
           // The exposed link core takes double damage.
           delphion.hp -= shot.damage * (onCore ? 2 : 1)
+          hurtBoss(delphion)
           if (delphion.hp <= 0) defeatDelphion()
           continue
         }
@@ -5983,6 +5995,7 @@ export function createRainbowPrincessPreview(
           shots.splice(si, 1)
           // The open jaw hinge takes double damage.
           sawtooth.hp -= shot.damage * (onJaw ? 2 : 1)
+          hurtBoss(sawtooth)
           if (sawtooth.hp <= 0) defeatSawtooth()
           continue
         }
@@ -6021,6 +6034,7 @@ export function createRainbowPrincessPreview(
               })
           }
           lanternRay.hp -= shot.damage * (onBeacon ? 2 : 1)
+          hurtBoss(lanternRay)
           if (lanternRay.hp <= 0) defeatLanternRay()
           continue
         }
@@ -6034,6 +6048,7 @@ export function createRainbowPrincessPreview(
       ) {
         shots.splice(si, 1)
         glassEel.hp -= shot.damage * (glassEelExposed(glassEel) ? 2 : 1)
+        hurtBoss(glassEel)
         if (glassEel.hp <= 0) defeatGlassEel()
         continue
       }
@@ -6087,6 +6102,7 @@ export function createRainbowPrincessPreview(
               })
           }
           leviathan.hp -= shot.damage * (onGem ? 2 : 1)
+          hurtBoss(leviathan)
           if (leviathan.hp <= 0) defeatLeviathan()
           continue
         }
@@ -7683,10 +7699,13 @@ export function createRainbowPrincessPreview(
         g.save()
         applyRainbowSwimMotion(g, guardian.kind, guardian.frame, calm)
         // Conductor rainbow t-011: guardians wind up like the bosses (body only; ring and hitbox stay put).
-        const guardianWindup = rainbowBossWindup(
-          guardian.leaving ? 0 : guardian.nextVolley - guardian.frame,
-          RAINBOW_GUARDIAN.warningFrames,
-          calm,
+        const guardianWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            guardian.leaving ? 0 : guardian.nextVolley - guardian.frame,
+            RAINBOW_GUARDIAN.warningFrames,
+            calm,
+          ),
+          bossRecoil(guardian, calm),
         )
         g.translate(guardianWindup.pull, 0)
         g.scale(guardianWindup.scaleX, guardianWindup.scaleY)
@@ -7765,10 +7784,13 @@ export function createRainbowPrincessPreview(
         g.save()
         g.translate(boss.x, boss.y)
         const glow = bossTelegraph(boss)
-        const windup = rainbowBossWindup(
-          boss.nextVolleyAt - boss.frame,
-          BOSS_TELEGRAPH_FRAMES,
-          calm,
+        const windup = stackRainbowBossPose(
+          rainbowBossWindup(
+            boss.nextVolleyAt - boss.frame,
+            BOSS_TELEGRAPH_FRAMES,
+            calm,
+          ),
+          bossRecoil(boss, calm),
         )
         g.translate(windup.pull, 0)
         g.scale(windup.scaleX, windup.scaleY)
@@ -7849,10 +7871,13 @@ export function createRainbowPrincessPreview(
         g.save()
         g.translate(moonBoss.x, moonBoss.y)
         // Conductor rainbow t-011: the bell colony draws back and swells before each volley; draw-only.
-        const moonWindup = rainbowBossWindup(
-          moonBoss.nextVolley - moonBoss.frame,
-          MOONJELLY_WARNING_FRAMES,
-          calm,
+        const moonWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            moonBoss.nextVolley - moonBoss.frame,
+            MOONJELLY_WARNING_FRAMES,
+            calm,
+          ),
+          bossRecoil(moonBoss, calm),
         )
         g.translate(moonWindup.pull, 0)
         g.scale(moonWindup.scaleX, moonWindup.scaleY)
@@ -8128,10 +8153,13 @@ export function createRainbowPrincessPreview(
           }
           g.restore()
         }
-        const leviathanWindup = rainbowBossWindup(
-          leviathan.nextVolley - leviathan.frame,
-          prismLeviathanWarningFrames(leviathan),
-          calm,
+        const leviathanWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            leviathan.nextVolley - leviathan.frame,
+            prismLeviathanWarningFrames(leviathan),
+            calm,
+          ),
+          bossRecoil(leviathan, calm),
         )
         g.save()
         g.translate(leviathan.x, leviathan.y)
@@ -8233,10 +8261,13 @@ export function createRainbowPrincessPreview(
       if (glassEel) {
         const warn = glassEelWarning(glassEel)
         const exposed = glassEelExposed(glassEel)
-        const eelWindup = rainbowBossWindup(
-          glassEel.nextVolley - glassEel.frame,
-          glassEelWarningFrames(glassEel),
-          calm,
+        const eelWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            glassEel.nextVolley - glassEel.frame,
+            glassEelWarningFrames(glassEel),
+            calm,
+          ),
+          bossRecoil(glassEel, calm),
         )
         const body = (y: number, solid: boolean) => {
           g.save()
@@ -8318,10 +8349,13 @@ export function createRainbowPrincessPreview(
         g.shadowColor = exposed ? '#ff7ad9' : warn ? '#fff49c' : '#ffd27a'
         g.shadowBlur = warn || exposed ? 24 : 10
         // The ray's body winds up before a volley; nurseries, beacon and ring stay where they can be hit.
-        const rayWindup = rainbowBossWindup(
-          lanternRay.nextVolley - lanternRay.frame,
-          lanternRayWarningFrames(lanternRay),
-          calm,
+        const rayWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            lanternRay.nextVolley - lanternRay.frame,
+            lanternRayWarningFrames(lanternRay),
+            calm,
+          ),
+          bossRecoil(lanternRay, calm),
         )
         g.save()
         g.translate(rayWindup.pull, 0)
@@ -8427,10 +8461,13 @@ export function createRainbowPrincessPreview(
         g.shadowColor = exposed ? '#ff7a6b' : warn ? '#fff49c' : '#9fd8ff'
         g.shadowBlur = warn || exposed ? 24 : 10
         // The Regent's body winds up before a charge or fin volley (never mid-charge); ring and jaw stay on the hitbox.
-        const sawtoothWindup = rainbowBossWindup(
-          sawtooth.charge === null ? sawtooth.nextVolley - sawtooth.frame : 0,
-          sawtoothWarningFrames(sawtooth),
-          calm,
+        const sawtoothWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            sawtooth.charge === null ? sawtooth.nextVolley - sawtooth.frame : 0,
+            sawtoothWarningFrames(sawtooth),
+            calm,
+          ),
+          bossRecoil(sawtooth, calm),
         )
         g.save()
         g.translate(sawtoothWindup.pull, 0)
@@ -8507,10 +8544,13 @@ export function createRainbowPrincessPreview(
         }
         const twins = delphionTwins(delphion)
         const core = delphionCore(delphion)
-        const delphionWindup = rainbowBossWindup(
-          delphion.nextVolley - delphion.frame,
-          delphionWarningFrames(delphion),
-          calm,
+        const delphionWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            delphion.nextVolley - delphion.frame,
+            delphionWarningFrames(delphion),
+            calm,
+          ),
+          bossRecoil(delphion, calm),
         )
         g.save()
         // The rear coupling between the twins, with its link core.
@@ -8611,10 +8651,13 @@ export function createRainbowPrincessPreview(
         g.shadowColor = exposed ? '#ff7a6b' : warn ? '#fff49c' : '#ffb38a'
         g.shadowBlur = warn || exposed ? 25 : 12
         // Clawburst's body winds up before a volley or punch; the cue ring and cannon stay on the hitbox.
-        const clawWindup = rainbowBossWindup(
-          clawBoss.nextVolley - clawBoss.frame,
-          clawburstWarningFrames(clawBoss),
-          calm,
+        const clawWindup = stackRainbowBossPose(
+          rainbowBossWindup(
+            clawBoss.nextVolley - clawBoss.frame,
+            clawburstWarningFrames(clawBoss),
+            calm,
+          ),
+          bossRecoil(clawBoss, calm),
         )
         g.save()
         g.translate(clawWindup.pull, 0)

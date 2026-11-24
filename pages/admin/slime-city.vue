@@ -849,6 +849,9 @@
                     allianceLabel(card)
                   }}</span>
                 </span>
+                <p v-if="clashCardFlavor(card.id)" class="sc-collect-flavor">
+                  {{ clashCardFlavor(card.id) }}
+                </p>
                 <button
                   type="button"
                   class="sc-collect-pick"
@@ -898,6 +901,9 @@
                     soloLabel(card)
                   }}</span>
                 </span>
+                <p v-if="clashCardFlavor(card.id)" class="sc-collect-flavor">
+                  {{ clashCardFlavor(card.id) }}
+                </p>
                 <button
                   type="button"
                   class="sc-collect-pick"
@@ -1224,6 +1230,7 @@ import { useNavStore } from '@/stores/navStore'
 import { cardById, type Card } from '~/utils/slimeCity/prototypes'
 import { factionPower } from '~/utils/slimeCity/factionPowers'
 import { CLASH_MAX_LEVEL } from '~/utils/slimeCity/clash'
+import { clashCardFlavor } from '~/utils/slimeCity/clashEvolutions'
 import { ALLIANCE_DECK_SIZE } from '~/utils/slimeCity/alliance'
 import { STREETS } from '~/utils/slimeCity/city'
 import { PACK_DUPLICATE_REFUND, PACK_POOL } from '~/utils/slimeCity/progression'
@@ -2532,6 +2539,18 @@ button.sc-shelf-label {
   border-color: #ffd76a;
   background: #ffd76a26;
   color: #ffe9a8;
+}
+/*
+  Silas, 2026-11-24 PT: flavor "should only be in collection view." Each
+  collection tile carries its card's flavor line as a caption, at a size
+  that reads, instead of printing it on the card where it would be tiny.
+*/
+.sc-collect-flavor {
+  margin: 0.35rem 0.15rem 0;
+  font-size: 0.72rem;
+  font-style: italic;
+  line-height: 1.3;
+  color: #a9c4ba;
 }
 .sc-collect-pick {
   position: absolute;

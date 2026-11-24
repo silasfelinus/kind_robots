@@ -34,9 +34,19 @@
       >
       <em v-if="stageTitle && level > 1" class="ccf-stage">{{ stageTitle }}</em>
     </span>
+    <!--
+      Silas, 2026-11-24 PT: "We need easier to read cards." Rules sit on a
+      solid plate edged in the level color, one ability per line with its
+      label ("Armor:", "Arrive:") picked out, at a larger size.
+    -->
     <span class="ccf-rules">
       <small>{{ kind }}</small>
-      <span v-if="rules" class="ccf-text">{{ rules }}</span>
+      <span v-if="rules" class="ccf-text">
+        <span v-for="(line, i) in ruleLines" :key="i" class="ccf-line"
+          ><b v-if="line.label" class="ccf-label">{{ line.label }}</b
+          >{{ line.body }}</span
+        >
+      </span>
       <span v-if="note" class="ccf-text ccf-note">{{ note }}</span>
       <span v-if="flavor && flavorText" class="ccf-flavor">{{
         flavorText
@@ -88,6 +98,22 @@ const stageTitle = computed(() =>
 )
 const rules = computed(() => clashCardText(card.value, props.level, props.pick))
 const flavorText = computed(() => clashCardFlavor(props.cardId))
+/**
+ * The rules as one line per sentence, with a leading "Label:" (Armor, Regen,
+ * Arrive, Tap (skip strike), Cast...) split out so it can be picked out.
+ */
+const ruleLines = computed(() =>
+  rules.value
+    .split(/(?<=[.!])\s+(?=[A-Z0-9])/)
+    .filter(Boolean)
+    .map((sentence) => {
+      const m = /^([A-Z][A-Za-z' -]{0,22}(?: \([^)]{1,24}\))?):\s+(.+)$/.exec(
+        sentence,
+      )
+      if (!m) return { label: '', body: sentence }
+      return { label: m[1] + ': ', body: m[2] ?? '' }
+    }),
+)
 const plays = computed(() => clashPlayCost(card.value))
 const kind = computed(() =>
   card.value.kind === 'creature'
@@ -225,14 +251,15 @@ const kind = computed(() =>
 .ccf-name {
   max-width: 100%;
   margin-top: 1cqw;
+  padding: 0.6cqw 2.4cqw 1cqw;
+  border-radius: 2.4cqw;
+  background: #04141ac4;
   font-size: 8.8cqw;
   line-height: 1.08;
   font-weight: 900;
   text-align: left;
-  color: #f3fbf6;
-  text-shadow:
-    0 2px 4px #000,
-    0 0 10px #000c;
+  color: #f7fdf9;
+  text-shadow: 0 1px 2px #000;
 }
 .ccf-rules {
   position: absolute;
@@ -242,9 +269,10 @@ const kind = computed(() =>
   display: flex;
   flex-direction: column;
   gap: 1.8cqw;
-  padding: 14cqw 5cqw 5cqw;
+  padding: 3.4cqw 5cqw 5cqw;
+  border-top: 0.8cqw solid var(--lv);
   text-align: left;
-  background: linear-gradient(transparent, #041217f2 32%);
+  background: #04141af2;
   opacity: var(--rules-open, 0);
   transform: translateY(calc((1 - var(--rules-open, 0)) * 1.5rem));
   transition:
@@ -258,9 +286,20 @@ const kind = computed(() =>
   color: #b9f151;
 }
 .ccf-text {
-  font-size: 5.6cqw;
-  line-height: 1.32;
-  color: #e3f1ec;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2cqw;
+  font-size: 6.4cqw;
+  font-weight: 600;
+  line-height: 1.28;
+  color: #f2faf6;
+}
+.ccf-line {
+  display: block;
+}
+.ccf-label {
+  font-weight: 900;
+  color: var(--lv);
 }
 .ccf-note {
   color: #ffe6a6;

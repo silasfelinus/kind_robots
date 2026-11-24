@@ -910,3 +910,20 @@ for (const file of ['slime-city-campaign.vue', 'slime-city-clash.vue'])
     )
   assert.match(crewSelect, /data-testid="slime-crew-confirm"/)
 }
+
+// Silas, 2026-11-24 PT: "flavor should only be in collection view." The
+// collection grid captions each tile with its flavor; the evolutions
+// highlight and cards in play never show it.
+{
+  const read = (path: string) =>
+    readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
+  assert.match(
+    read('pages/admin/slime-city.vue'),
+    /class="sc-collect-flavor"[\s\S]*?clashCardFlavor\(card\.id\)/,
+  )
+  assert.doesNotMatch(
+    read('components/slime-city-card-evolutions.vue'),
+    /flavor/,
+    'the evolutions highlight shows rules only',
+  )
+}

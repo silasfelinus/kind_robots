@@ -7,7 +7,7 @@
 // piece is optional: until its file has loaded, or under calm motion, the reviewed still plays instead. Bullets
 // stay crisp code-drawn shapes; animation is for craft, pilots and scenes.
 import type { RainbowStageStrip } from './rainbowGameArt'
-import { rainbowArt, rainbowLoadedArt } from './rainbowGameArt'
+import { rainbowArt, rainbowLoadedArt, rainbowLook } from './rainbowGameArt'
 
 /** Idle atlases by enemy kind: a horizontal strip of `frames` equal cells, played at `fps`. Fever Dream look. */
 export const RAINBOW_ENEMY_ATLASES: Readonly<
@@ -63,8 +63,19 @@ export function drawRainbowEnemyFrame(
   return true
 }
 
-/** Act title cards that have a living interlude (looping, muted video). */
-export const RAINBOW_INTERLUDES: readonly RainbowStageStrip[] = []
+/**
+ * Act title cards that have a living interlude (looping, muted video). Each is a WAN 2.2 first-and-last-frame
+ * loop of the Fever Dream card (conductor T030-ANIMATION-2026-11-23, reviewed 2026-11-23 PT): the exact source
+ * frame is dropped and the tail crossfaded into the head so the loop has no seam. S03 (smeared to grain) and S04
+ * (the card's painted fake logo moves) were rejected; S07 and S08 are still rendering. Fever Dream only: the classic
+ * look has its own painted cards.
+ */
+export const RAINBOW_INTERLUDES: readonly RainbowStageStrip[] = [
+  's01',
+  's02',
+  's05',
+  's06',
+]
 
 export function rainbowInterludePath(stage: RainbowStageStrip): string {
   return `/rainbow-princess-video/interludes/${stage}.mp4`
@@ -105,7 +116,7 @@ export function drawRainbowInterlude(
   width: number,
   calm: boolean,
 ): number {
-  if (calm) return 0
+  if (calm || rainbowLook() !== 'fever') return 0
   const video = interlude(stage)
   if (!video) return 0
   const height = (width * video.videoHeight) / video.videoWidth

@@ -143,10 +143,23 @@ try {
         }
       }),
     )
+    const stage = await page.evaluate(() => {
+      const rect = document
+        .querySelector('.cabinet-canvas')
+        .getBoundingClientRect()
+      return { left: rect.left, right: rect.right, bottom: rect.bottom }
+    })
     for (const [seat, pad] of pads.entries()) {
       assert.ok(
         pad.left >= 0 && pad.right <= 1024 && pad.top >= 0 && pad.bottom <= 768,
         `pad ${seat + 1} is on screen`,
+      )
+      // Presentation review P-05: the pads sit in the band under the stage, never over a lane.
+      assert.ok(
+        pad.top >= stage.bottom - 1 ||
+          pad.right <= stage.left + 1 ||
+          pad.left >= stage.right - 1,
+        `pad ${seat + 1} stays off the stage`,
       )
     }
     const start = await rainbowRun(page)

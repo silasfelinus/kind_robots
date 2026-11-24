@@ -15,6 +15,7 @@ on:
       - 'utils/scripts/verifyRainbowCabinet.browser.test.mjs'
       - 'utils/scripts/verifyRainbowTouch.browser.test.mjs'
       - 'utils/scripts/verifyRainbowCoopCabinet.browser.test.mjs'
+      - 'utils/scripts/verifyRainbowTouchLayout.browser.test.mjs'
       - '.github/workflows/rainbow-cabinet-contract.yml'
 
 permissions:
@@ -57,6 +58,10 @@ jobs:
         run: node utils/scripts/verifyRainbowCoopCabinet.browser.test.mjs
         env:
           RAINBOW_COOP_SHOTS: rainbow-cabinet-shots
+      - name: Touch controls off the stage, upright prompt and the short-screen settings pop-over
+        run: node utils/scripts/verifyRainbowTouchLayout.browser.test.mjs
+        env:
+          RAINBOW_LAYOUT_SHOTS: rainbow-cabinet-shots
       - name: Preserve responsive fixtures
         if: always()
         uses: actions/upload-artifact@v4

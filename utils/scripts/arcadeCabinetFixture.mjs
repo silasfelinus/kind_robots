@@ -97,7 +97,16 @@ const app = createApp({
     window.__help
       ? h('section', { id: 'help' }, [h(Suspense, null, { default: () => h(TutorialFlyer, { channel: 'arcade', tab: window.__help, inline: true }) })])
       : null,
-    h('section', { id: 'cabinet' }, [h(ArcadeCabinet, { slug: window.__slug })]),
+    h(
+      'section',
+      {
+        id: 'cabinet',
+        style: window.__containedHeight
+          ? { height: window.__containedHeight + 'px', display: 'flex', flexDirection: 'column' }
+          : null,
+      },
+      [h(ArcadeCabinet, { slug: window.__slug, contained: Boolean(window.__containedHeight) })],
+    ),
   ]),
 })
 ${realStore ? 'app.use(createPinia())' : ''}
@@ -320,6 +329,8 @@ const ORIGIN = 'http://arcade-cabinet.fixture.test/'
  * Open a page with the fixture mounted. `touch` gives a coarse-pointer phone-like context, so the
  * cabinet shows its on-screen controls. `help` names a Play tab whose tutorial is mounted above.
  * `storage` seeds localStorage (key -> JSON value) before the cabinet mounts (real store only).
+ * `containedHeight` mounts the cabinet `contained` in a box that tall, the way a game page gives it the
+ * height left under the site header.
  */
 export async function openCabinet(
   browser,
@@ -335,6 +346,7 @@ export async function openCabinet(
     storage = null,
     audioProbe = false,
     serveArt = false,
+    containedHeight = 0,
   },
 ) {
   const context = await browser.newContext({
@@ -392,7 +404,13 @@ export async function openCabinet(
       }
     })
   }
-  await mountCabinet(page, fixture, { slug, seats, help, storage })
+  await mountCabinet(page, fixture, {
+    slug,
+    seats,
+    help,
+    storage,
+    containedHeight,
+  })
   return { page, errors, context }
 }
 
@@ -406,13 +424,18 @@ export async function reopenCabinet(page, fixture, { slug, seats = 1 }) {
   await mountCabinet(page, fixture, { slug, seats })
 }
 
-async function mountCabinet(page, fixture, { slug, seats, help, storage }) {
+async function mountCabinet(
+  page,
+  fixture,
+  { slug, seats, help, storage, containedHeight = 0 },
+) {
   await page.evaluate(
-    ({ items, seatCount, game, tab, storage }) => {
+    ({ items, seatCount, game, tab, storage, containedHeight }) => {
       window.__content = items
       window.__seats = seatCount
       window.__slug = game
       window.__help = tab
+      window.__containedHeight = containedHeight
       window.__pads = []
       navigator.getGamepads = () => window.__pads
       for (const [key, value] of Object.entries(storage ?? {}))
@@ -424,6 +447,7 @@ async function mountCabinet(page, fixture, { slug, seats, help, storage }) {
       game: slug,
       tab: help,
       storage,
+      containedHeight,
     },
   )
   // The site's Tailwind preflight sizes every box by its border; the fixture keeps that one global rule.

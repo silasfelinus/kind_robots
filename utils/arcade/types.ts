@@ -125,6 +125,16 @@ export type ArcadeGameMeta = {
    */
   touchLayout?: 'pinball' | 'paddle'
   /**
+   * While it plays on a touch screen, the cabinet keeps every on-screen control off the stage: rails
+   * beside it or a band under it, and a smaller stage where it must (utils/arcade/touchStage.ts).
+   */
+  touchClearStage?: boolean
+  /**
+   * On a short or narrow screen the cabinet folds its settings switches into one Settings pop-over,
+   * so its title screen keeps the height (contained cabinets only).
+   */
+  compactSettings?: boolean
+  /**
    * The game honours calm motion (ArcadeGameOptions.stillCamera: no flashes, slower scenery), so the cabinet
    * shows its motion switch; a pinball table's still camera shows its own.
    */

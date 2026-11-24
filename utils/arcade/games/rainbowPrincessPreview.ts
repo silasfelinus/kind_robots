@@ -996,6 +996,18 @@ function burstShots(bullet: EnemyShot): EnemyShot[] {
 }
 /** Every Act's aftermath reads its lines at this pace; the arc beat is the fourth. */
 const ARC_LINE_FRAMES = 96
+/**
+ * A right-aligned footer line at the bottom-right corner on a dark plate, so a detour or route status reads over
+ * bright painted art (presentation critic P-14: the X3 footer had no plate). Uses the current font and fill.
+ */
+function footerText(g: CanvasRenderingContext2D, text: string) {
+  const width = g.measureText(text).width
+  const fill = g.fillStyle
+  g.fillStyle = '#160b34cc'
+  g.fillRect(W - 12 - width, H - 18, width + 8, 13)
+  g.fillStyle = fill
+  g.fillText(text, W - 8, H - 8)
+}
 /** Presses this soon after the crew falls are fire-button carry-over, not a choice to continue. */
 const CONTINUE_GRACE_FRAMES = 30
 /**
@@ -9514,6 +9526,7 @@ export function createRainbowPrincessPreview(
             plateX,
             ENDING_PLATE_TOP,
             ENDING_PLATE_WIDTH,
+            allegiance,
           )
           if (plateHeight) {
             const captionY = ENDING_PLATE_TOP + plateHeight - 15
@@ -9764,7 +9777,8 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe9b3'
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
-        g.fillText(
+        footerText(
+          g,
           'X2 · CADETS ' +
             cometCadetsMask.toString(2).replace(/0/g, '').length +
             '/4 · ' +
@@ -9772,8 +9786,6 @@ export function createRainbowPrincessPreview(
               (section) =>
                 cometFrame() >= section.from && cometFrame() < section.to,
             )?.name.toUpperCase() ?? 'CORAL COMET'),
-          W - 8,
-          H - 8,
         )
         g.restore()
       }
@@ -9782,7 +9794,8 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe9b3'
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
-        g.fillText(
+        footerText(
+          g,
           'X1 · CHOIR ' +
             nurseryChoirMask.toString(2).replace(/0/g, '').length +
             '/5 · ' +
@@ -9790,8 +9803,6 @@ export function createRainbowPrincessPreview(
               (section) =>
                 nurseryFrame() >= section.from && nurseryFrame() < section.to,
             )?.name.toUpperCase() ?? 'LANTERN NURSERY'),
-          W - 8,
-          H - 8,
         )
         g.restore()
       }
@@ -9800,15 +9811,14 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffe9b3'
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
-        g.fillText(
+        footerText(
+          g,
           `X3 · LIGHTS ${lighthouseLamps.toString(2).replace(/0/g, '').length}/6 · ` +
             (LIGHTHOUSE_SECTIONS.find(
               (section) =>
                 lighthouseFrame() >= section.from &&
                 lighthouseFrame() < section.to,
             )?.name.toUpperCase() ?? 'SUNKEN LIGHTHOUSE'),
-          W - 8,
-          H - 8,
         )
         g.restore()
       }
@@ -9817,14 +9827,13 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#ffd5f5'
         g.font = 'bold 8px monospace'
         g.textAlign = 'right'
-        g.fillText(
+        footerText(
+          g,
           'X4 · ' +
             (SHOAL_SECTIONS.find(
               (section) =>
                 shoalFrame() >= section.from && shoalFrame() < section.to,
             )?.name.toUpperCase() ?? 'MIRROR SHOAL'),
-          W - 8,
-          H - 8,
         )
         g.restore()
       }
@@ -9886,12 +9895,11 @@ export function createRainbowPrincessPreview(
           g.font = '8px monospace'
           g.textAlign = 'right'
           g.fillStyle = reefRoute === 'relay' ? '#ffd27a' : '#9ff3ff'
-          g.fillText(
+          footerText(
+            g,
             reefRoute === 'relay'
               ? `ROUTE · DAMAGE RELAY · PYLONS ${pylonsDown}/${CROWN_REEF_PYLONS}`
               : 'ROUTE · SHIELD CACHE',
-            W - 8,
-            H - 8,
           )
           g.restore()
         }
@@ -9927,10 +9935,9 @@ export function createRainbowPrincessPreview(
           g.font = '8px monospace'
           g.textAlign = 'right'
           g.fillStyle = wreckRoute === 'depot' ? '#c7ffe6' : '#ffb38a'
-          g.fillText(
+          footerText(
+            g,
             `${wreckRoute === 'depot' ? `DEPOT · SURVIVORS ${podsSaved}` : 'ARMORY RAID'} · ${Math.ceil((WRECK_FORK.rejoinAt - frame) / 60)}s`,
-            W - 8,
-            H - 8,
           )
           g.restore()
         }
@@ -9965,12 +9972,11 @@ export function createRainbowPrincessPreview(
           g.font = '8px monospace'
           g.textAlign = 'right'
           g.fillStyle = trenchRoute === 'vault' ? '#ffd36e' : '#9ff3ff'
-          g.fillText(
+          footerText(
+            g,
             trenchRoute === 'vault'
               ? 'ROUTE · SALVAGE VAULT'
               : 'ROUTE · SAFE PASSAGE',
-            W - 8,
-            H - 8,
           )
           g.restore()
         }

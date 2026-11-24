@@ -702,17 +702,38 @@ export function drawRainbowStageCard(
 /**
  * Painted ending plates in the Fever Dream look (conductor ENDINGS-FEVER-DREAM-2026-11-22), keyed by the final
  * choice and shared by every road: C14 restore (279195, the open Crown over a sunrise of freed sea-ships), C15
- * evacuate (279196, the Aurora Mercy leading the convoy out of the shattering palace) and C16 sever (279239, the
- * four pilots releasing lanterns on the mirror sea; the fourth take, after three failed CAST-QA on Maribel).
+ * evacuate (279196, the Aurora Mercy leading the convoy out of the shattering palace) and C16 sever (279935,
+ * lanterns rising over the mirror sea with cat ships on the water and no pilots in shot, so it fits any crew and
+ * replaces the four-pilot plate the presentation critic found off the house style, P-03).
  */
 export const RAINBOW_ENDING_PLATES: Readonly<Record<FinaleChoice, string>> = {
   restore: 'endings/restore',
   evacuate: 'endings/evacuate',
-  sever: 'endings/sever',
+  sever: 'endings/sever-open',
 }
 
-export function rainbowEndingPlate(choice: FinaleChoice): string | null {
-  const path = RAINBOW_ENDING_PLATES[choice]
+/**
+ * The loyal road's own plates (independent story critic S11, 2026-11-23 PT: "the ending art ignores the road"):
+ * PEACE BY ORDER, AN EMPTY OCEAN and ORDERS BROKEN, from conductor ENDINGS-ROADS-2026-11-24 (reviewed 2026-11-24
+ * PT). A loyal choice without one here shows the shared plate.
+ */
+export const RAINBOW_LOYAL_ENDING_PLATES: Readonly<
+  Partial<Record<FinaleChoice, string>>
+> = {
+  restore: 'endings/loyal-restore',
+  evacuate: 'endings/loyal-evacuate',
+  sever: 'endings/loyal-sever',
+}
+/**
+ * The plate for this ending: the loyal road has its own, and every other road shows the choice's plate.
+ */
+export function rainbowEndingPlate(
+  choice: FinaleChoice,
+  road: 'rebel' | 'loyal' | 'choice' | 'turned' | null = null,
+): string | null {
+  const path =
+    (road === 'loyal' && RAINBOW_LOYAL_ENDING_PLATES[choice]) ||
+    RAINBOW_ENDING_PLATES[choice]
   return path ? rainbowArt(path) : null
 }
 
@@ -763,8 +784,9 @@ export function drawRainbowEndingPlate(
   x: number,
   y: number,
   width: number,
+  road: 'rebel' | 'loyal' | null = null,
 ): number {
-  const src = rainbowEndingPlate(choice)
+  const src = rainbowEndingPlate(choice, road)
   const img = src ? loadedArt(src) : null
   if (!img) return 0
   const height = (width * img.naturalHeight) / img.naturalWidth

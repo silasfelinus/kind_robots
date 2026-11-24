@@ -641,12 +641,12 @@
             <img
               :src="
                 entry.unlocked
-                  ? (rainbowEndingPlate(entry.choice) ??
+                  ? (rainbowEndingPlate(entry.choice, entry.road) ??
                     rainbowStageCard('s08', look))
                   : rainbowStageCard('s08', look)
               "
               :alt="
-                entry.unlocked && rainbowEndingPlate(entry.choice)
+                entry.unlocked && rainbowEndingPlate(entry.choice, entry.road)
                   ? entry.title + ' ending illustration'
                   : 'Eclipse Palace backdrop'
               "

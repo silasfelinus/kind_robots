@@ -390,7 +390,9 @@
                 </div>
                 <label class="plumber-guide-action flex-col items-stretch">
                   <span class="plumber-guide-description">
-                    <strong>Volume · {{ Math.round(arcade.volume * 100) }}%</strong>
+                    <strong>
+                      Volume · {{ Math.round(arcade.volume * 100) }}%
+                    </strong>
                   </span>
                   <input
                     type="range"
@@ -406,7 +408,7 @@
                 <div class="plumber-guide-action justify-between">
                   <span class="plumber-guide-description">
                     <strong>Still camera</strong>
-                    <small>Reduce camera motion and screen shake</small>
+                    <small>Disable forward camera look-ahead</small>
                   </span>
                   <button
                     type="button"
@@ -420,7 +422,7 @@
                 <div class="plumber-guide-action justify-between">
                   <span class="plumber-guide-description">
                     <strong>High contrast</strong>
-                    <small>Increase gameplay contrast</small>
+                    <small>Brighten platform edges and dim scenery</small>
                   </span>
                   <button
                     type="button"

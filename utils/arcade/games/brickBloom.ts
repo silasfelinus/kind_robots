@@ -123,6 +123,7 @@ import {
   bossRect,
   bossTouches,
   guardPhase,
+  gloomOpen,
   hitBoss,
   openBoss,
   spawnBoss,
@@ -294,24 +295,28 @@ const PRICKLE_CATCH = 300
 /** The Cactus Dome and the Lily Pond House (tour house indexes). */
 const DOME = 2
 const POND = 3
+const NIGHT = 4
 /** What each boss says when the ball meets its shield, its HUD tag, and its cheering-up. */
 const SHIELD_WORDS: Record<BossId, string> = {
   'mister-mulch': 'PLATED!',
   'tangle-rose': 'ROOTED!',
   'sunny-saguaro': 'WAIT FOR THE BLOOM',
   'queen-koi': 'SPLASH!',
+  'gloom-bloom': 'PETALS SHUT!',
 }
 const BOSS_TAGS: Record<BossId, string> = {
   'mister-mulch': 'MULCH',
   'tangle-rose': 'ROSE',
   'sunny-saguaro': 'SAGUARO',
   'queen-koi': 'KOI',
+  'gloom-bloom': 'GLOOM',
 }
 const CHEER_WORDS: Record<BossId, string> = {
   'mister-mulch': 'ACHOO!',
   'tangle-rose': 'IN FULL BLOOM!',
   'sunny-saguaro': 'SUNNY AGAIN!',
   'queen-koi': 'A SPLASH OF JOY!',
+  'gloom-bloom': 'MOONFLOWER IN BLOOM!',
 }
 
 /** Crate colours by row, top first (the top rows score more). */
@@ -951,6 +956,7 @@ class BrickBloom implements ArcadeGameInstance {
   private chime = false
   private rushTicks = 0
   private bricks: Brick[] = []
+  private litRows = new Map<number, number>()
   private balls: Ball[] = []
   private drops: Drop[] = []
   private puffs: Puff[] = []
@@ -1260,6 +1266,7 @@ class BrickBloom implements ArcadeGameInstance {
    * the Lily Pond House send out their pests (`wallId` null at a boss: no pests there).
    */
   private dressWall(wallId: string | null) {
+    this.litRows.clear()
     for (const b of this.bricks)
       if (b.kind === 'sand')
         b.sand = Math.floor(this.rng() * (SAND_RUN + SAND_OPEN))
@@ -1720,6 +1727,13 @@ class BrickBloom implements ArcadeGameInstance {
     }
     const half = this.paddleW / 2
     for (const s of [...boss.shots]) {
+      if (s.kind === 'gloom' && s.y >= BED_SAVE_Y) {
+        const plot = plotIndex(s.x)
+        if (plot >= 0 && plot < PLOTS) trample(this.bed, plot)
+        boss.shots = boss.shots.filter((o) => o !== s)
+        this.sound.play('warn')
+        continue
+      }
       const onPaddle =
         s.y + SHOT_R >= PADDLE_Y &&
         s.y - SHOT_R <= PADDLE_Y + PADDLE_H &&
@@ -1733,6 +1747,11 @@ class BrickBloom implements ArcadeGameInstance {
 
   /** A clod or a petal meets the paddle: swat it while moving, or wear it for a moment. */
   private shotOnPaddle(s: BossShot) {
+    if (s.kind === 'gloom') {
+      this.burst(s.x, PADDLE_Y - 4, 8, RAMPS.purple[3])
+      this.sound.play('pop')
+      return
+    }
     if (s.kind === 'prickle') {
       // Sunny Saguaro's prickle ball, caught: bonus points, and it splits off as an extra ball.
       this.addScore(PRICKLE_CATCH * Math.max(1, this.level), s.x, PADDLE_Y - 12)
@@ -2566,6 +2585,10 @@ class BrickBloom implements ArcadeGameInstance {
     this.bestChain = Math.max(this.bestChain, this.chain)
     this.bricks = this.bricks.filter((o) => o !== b)
     this.earn(PETALS.crate)
+    if (b.kind === 'glow' || b.kind === 'lantern') {
+      this.litRows.set(b.row, this.tick + 240)
+      this.float({ x: cx, y: cy - 8, text: 'LIGHT!', life: 40 })
+    }
     // A bubble crate pops into a bouncy bumper for a few seconds.
     if (b.kind === 'bubble') this.bumpers.push(spawnBumper(cx, cy))
     if (b.vault) this.openVault(cx, cy)
@@ -3076,6 +3099,32 @@ class BrickBloom implements ArcadeGameInstance {
   private renderBoss(g: CanvasRenderingContext2D, boss: Boss) {
     if (boss.id === 'sunny-saguaro') return drawSaguaro(g, boss, this.tick)
     if (boss.id === 'queen-koi') return drawKoi(g, boss, this.tick)
+    if (boss.id === 'gloom-bloom') {
+      const open = boss.defeated || gloomOpen(boss)
+      const colour = boss.defeated ? RAMPS.cream[4] : RAMPS.purple[3]
+      glow(g, boss.x, boss.y, open ? 32 : 22, colour, 0.6)
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4
+        const radius = open ? 15 : 8
+        g.fillStyle = INK
+        g.beginPath()
+        g.ellipse(
+          boss.x + Math.cos(angle) * radius,
+          boss.y + Math.sin(angle) * radius,
+          10,
+          7,
+          angle,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+        g.fillStyle = colour
+        g.fill()
+      }
+      g.fillStyle = open ? RAMPS.gold[4] : RAMPS.night[0]
+      g.fillRect(boss.x - 5, boss.y - 5, 10, 10)
+      return
+    }
     const r = bossRect(boss)
     const x = Math.round(r.x)
     const y = Math.round(r.y)
@@ -3218,6 +3267,14 @@ class BrickBloom implements ArcadeGameInstance {
       g.fillRect(x - 3, y - 2, 6, 5)
       g.fillStyle = RAMPS.earth[3]
       g.fillRect(x - 3, y - 2, 3, 2)
+      return
+    }
+    if (s.kind === 'gloom') {
+      glow(g, x, y, 12, RAMPS.purple[3], 0.6)
+      g.fillStyle = RAMPS.night[0]
+      g.fillRect(x - 4, y - 3, 8, 6)
+      g.fillStyle = RAMPS.purple[4]
+      g.fillRect(x - 2, y - 1, 4, 2)
       return
     }
     if (s.kind === 'prickle') {
@@ -3579,7 +3636,9 @@ class BrickBloom implements ArcadeGameInstance {
         ? CYCLE_THEMES
         : this.houseNow === POND
           ? CYCLE_THEMES + 1
-          : (this.level - 1) % CYCLE_THEMES
+          : this.houseNow === NIGHT
+            ? 1
+            : (this.level - 1) % CYCLE_THEMES
     cachedLayer(g, `brick-bloom-garden-${theme}`, W, H, (k) =>
       paintGarden(k, THEMES[theme]!),
     )
@@ -3602,7 +3661,24 @@ class BrickBloom implements ArcadeGameInstance {
       const r = this.brickRect(b)
       g.fillRect(Math.round(r.x) + 3, r.y + 4, CRATE_W, CRATE_H)
     }
-    for (const b of this.bricks) this.renderBrick(g, b)
+    const lanterns = this.bricks.filter((b) => b.kind === 'lantern')
+    for (const b of this.bricks) {
+      g.save()
+      if (this.houseNow === NIGHT && !this.boss?.defeated) {
+        const r = this.brickRect(b)
+        const nearBall = this.balls.some(
+          (ball) => Math.hypot(ball.x - r.x - r.w / 2, ball.y - r.y) < 50,
+        )
+        const nearLantern = lanterns.some(
+          (lamp) => Math.abs(lamp.col - b.col) + Math.abs(lamp.row - b.row) <= 2,
+        )
+        const rowLit = (this.litRows.get(b.row) ?? 0) > this.tick
+        if (!nearBall && !nearLantern && !rowLit && !b.flash && !b.vault)
+          g.globalAlpha = 0.22
+      }
+      this.renderBrick(g, b)
+      g.restore()
+    }
   }
 
   private renderBrick(g: CanvasRenderingContext2D, b: Brick) {
@@ -3656,6 +3732,12 @@ class BrickBloom implements ArcadeGameInstance {
     if (b.kind === 'sand') markSand(g, x, y, CRATE_W, this.tick, b.sand ?? 0)
     if (b.kind === 'lily') markLily(g, x, y, CRATE_W)
     if (b.kind === 'bubble') markBubble(g, x, y, CRATE_W)
+    if (b.kind === 'lantern' || b.kind === 'glow') {
+      const colour = b.kind === 'lantern' ? RAMPS.gold[4] : RAMPS.sky[4]
+      glow(g, x + CRATE_W / 2, y + 4, 14, colour, 0.5)
+      g.fillStyle = colour
+      g.fillRect(x + CRATE_W / 2 - 3, y + 2, 6, 4)
+    }
     if (b.guard && this.boss?.id === 'tangle-rose') {
       const sway = Math.floor(this.tick / 15) % 2
       g.fillStyle = RAMPS.leaf[3]

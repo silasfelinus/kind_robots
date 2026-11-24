@@ -669,6 +669,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
 
   private confirmChoice() {
     if (this.pendingChoice === null) return
+    this.pointerAction = null
     const index = this.pendingChoice
     this.storyChoices[index] = this.choiceCursor
     if (this.choiceCursor === 0) this.lives = Math.min(9, this.lives + 1)
@@ -694,8 +695,14 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   }
 
   private fire() {
-    if (this.shot || this.over || this.choosingMode || this.pendingChoice !== null)
+    if (
+      this.shot ||
+      this.over ||
+      this.choosingMode ||
+      this.pendingChoice !== null
+    )
       return
+    this.pointerAction = null
     this.playEffect('shoot')
     this.shot = this.makeShot()
     this.power = null
@@ -1201,7 +1208,13 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     g.lineWidth = 2
     g.setLineDash([4, 8])
 
-    if (this.settings.aimGuide && !this.shot) {
+    if (
+      this.settings.aimGuide &&
+      !this.shot &&
+      !this.choosingMode &&
+      this.pendingChoice === null &&
+      !this.over
+    ) {
       g.beginPath()
       g.moveTo(W / 2, SHOT_Y)
       const preview = this.makeShot()

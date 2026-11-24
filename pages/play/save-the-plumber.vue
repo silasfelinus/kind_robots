@@ -1,7 +1,7 @@
 <template>
   <main class="kr-surface plumber-page">
     <div
-      class="plumber-console kr-scroll"
+      class="plumber-console"
       aria-label="Save the Plumber handheld game menu"
     >
       <header-page-bar compact>
@@ -17,7 +17,7 @@
 
       <div
         ref="viewport"
-        class="plumber-viewport"
+        class="plumber-viewport kr-scroll"
         tabindex="-1"
         @keydown="onScreenKey"
       >
@@ -364,7 +364,7 @@
             class="plumber-view plumber-guide-view"
             aria-labelledby="settings-heading"
           >
-            <div class="plumber-guide-inner kr-scroll">
+            <div class="plumber-guide-inner">
               <p class="plumber-eyebrow">CABINET PREFERENCES</p>
               <h2 id="settings-heading" class="plumber-section-title">
                 SETTINGS
@@ -704,6 +704,7 @@ function onEscape(event: KeyboardEvent) {
 
 watch(screen, async () => {
   await nextTick()
+  if (viewport.value) viewport.value.scrollTop = 0
   viewport.value?.focus({ preventScroll: true })
 })
 onMounted(() => {
@@ -803,7 +804,8 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 .plumber-viewport {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   min-height: 0;
   background: radial-gradient(ellipse at 65% 40%, #235b65, #081b2e 80%);
   border: 2px solid #a5c9c5;
@@ -849,18 +851,22 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   min-width: 0;
   min-height: 0;
 }
+.plumber-title-view,
+.plumber-guide-view {
+  position: relative;
+  min-height: 100%;
+  overflow: visible;
+}
 .plumber-title-view {
   align-items: center;
   padding: clamp(0.8rem, 3vw, 3rem);
 }
 .plumber-title-content {
   width: min(43rem, 76%);
-  max-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: safe center;
-  overflow-y: auto;
+  justify-content: center;
   gap: clamp(0.35rem, 1.4vh, 1rem);
 }
 .plumber-eyebrow {
@@ -1145,12 +1151,10 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 }
 .plumber-guide-inner {
   width: min(100%, 80rem);
-  max-height: 100%;
   min-height: 0;
   display: flex;
   flex-direction: column;
   gap: clamp(0.4rem, 1.3vh, 0.9rem);
-  overflow-y: auto;
 }
 .plumber-guide-intro {
   color: #d7e8e6;

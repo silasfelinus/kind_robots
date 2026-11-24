@@ -26,6 +26,10 @@ import {
   crewTellKindForVillain,
 } from '../everyVillainTactics/crewTelegraphArt'
 import {
+  CREW_COMBAT_ART,
+  CREW_COMBAT_POSES,
+} from '../everyVillainTactics/crewCombatArt'
+import {
   CAPES_STYLE_CRITERIA,
   CAPES_STYLE_DESIGNER,
   CAPES_STYLE_DESIGNERS,
@@ -452,6 +456,14 @@ assert.match(atlas, /data-testid="capes-henchman-poster"/)
 assert.match(atlas, /data-testid="capes-lieutenant-poster"/)
 assert.match(atlas, /data-testid="capes-crew-private-gallery"/)
 assert.match(atlas, /CREW_TELL_BEATS/)
+assert.match(atlas, /CREW_COMBAT_POSES/)
+assert.match(atlas, /CREW_COMBAT_ART\[kind\]\[beat\]/)
+assert.match(atlas, /v-for="beat in crewProofBeats"/)
+assert.match(atlas, /loadedCrewProofs \}\} \/ 24/)
+assert.match(
+  atlas,
+  /\[galleryCrew, \(\) => viewer\.token, \(\) => viewer\.isAdmin\]/,
+)
 assert.match(atlas, /paintedArt\.ensure\(receipt\.imageId\)/)
 assert.match(atlas, /paintedArt\.retry\(crewProofReceipt\(beat\)\.imageId\)/)
 assert.match(atlas, /useEveryVillainTacticsArtStore/)
@@ -494,6 +506,34 @@ assert.equal(privateCrewKeys.size, 12)
 assert.deepEqual(
   [...privateCrewImages].sort((a, b) => a - b),
   Array.from({ length: 12 }, (_, i) => 277786 + i),
+)
+const combatImages = new Set<number>()
+const combatJobs = new Set<number>()
+const combatKeys = new Set<string>()
+for (const kind of Object.keys(sourceCrewSignatures) as Array<
+  keyof typeof sourceCrewSignatures
+>) {
+  for (const pose of CREW_COMBAT_POSES) {
+    const receipt = CREW_COMBAT_ART[kind][pose]
+    assert.equal(
+      receipt.artKey,
+      `every-villain-tactics/henchmen/${sourceCrewSignatures[kind]}/combat/${pose}`,
+    )
+    assert.ok(!privateCrewImages.has(receipt.imageId))
+    assert.ok(!privateCrewJobs.has(receipt.jobId))
+    combatImages.add(receipt.imageId)
+    combatJobs.add(receipt.jobId)
+    combatKeys.add(receipt.artKey)
+  }
+}
+assert.equal(combatKeys.size, 12)
+assert.deepEqual(
+  [...combatImages].sort((a, b) => a - b),
+  Array.from({ length: 12 }, (_, i) => 278823 + i),
+)
+assert.deepEqual(
+  [...combatJobs].sort((a, b) => a - b),
+  Array.from({ length: 12 }, (_, i) => 76658 + i),
 )
 assert.match(atlas, /campaignStagesFor/)
 // The atlas must resolve actual shipped files through the canonical identity

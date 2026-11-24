@@ -262,12 +262,13 @@
               <p class="atlas-eyebrow">ORIGINAL ART · PRIVATE INTAKE</p>
               <h4>One-hit crew visual proofs</h4>
               <p>
-                Twelve commissioned warning, action, counter and captain
-                paintings. Private previews are not composition approvals.
+                Twenty-four commissioned telegraphs, captain portraits and
+                combat poses. Compare each crew across all eight states. Private
+                previews are not composition approvals.
               </p>
             </div>
             <span aria-live="polite">
-              {{ loadedCrewProofs }} / 12 fetched for private review
+              {{ loadedCrewProofs }} / 24 fetched for private review
             </span>
           </div>
           <div
@@ -288,7 +289,7 @@
           </div>
           <div class="atlas-proof-grid">
             <figure
-              v-for="beat in CREW_TELL_BEATS"
+              v-for="beat in crewProofBeats"
               :key="galleryCrew + '-' + beat"
               class="atlas-proof-card"
               :data-testid="'capes-crew-proof-' + beat"
@@ -381,6 +382,11 @@ import {
   type CrewTellKind,
   type CrewTellReceipt,
 } from '~/utils/everyVillainTactics/crewTelegraphArt'
+import {
+  CREW_COMBAT_ART,
+  CREW_COMBAT_POSES,
+  type CrewCombatPose,
+} from '~/utils/everyVillainTactics/crewCombatArt'
 import { useEveryVillainTacticsArtStore } from '~/stores/everyVillainTacticsArtStore'
 import { useUserStore } from '~/stores/userStore'
 
@@ -388,6 +394,25 @@ const viewer = useUserStore()
 const paintedArt = useEveryVillainTacticsArtStore()
 const crewKinds = Object.keys(CREW_TELL_ART) as CrewTellKind[]
 const galleryCrew = ref<CrewTellKind>('burrow')
+type CrewProofBeat = CrewTellBeat | CrewCombatPose
+const crewProofBeats: readonly CrewProofBeat[] = [
+  ...CREW_TELL_BEATS,
+  ...CREW_COMBAT_POSES,
+]
+function receiptForCrew(
+  kind: CrewTellKind,
+  beat: CrewProofBeat,
+): CrewTellReceipt {
+  if (
+    beat === 'idle' ||
+    beat === 'strike' ||
+    beat === 'hit' ||
+    beat === 'defeat'
+  ) {
+    return CREW_COMBAT_ART[kind][beat]
+  }
+  return CREW_TELL_ART[kind].beats[beat]
+}
 const forms = ['hero', 'villain'] as const
 const search = ref('')
 const origin = ref('')
@@ -410,6 +435,7 @@ function art(
   return identityArtwork(signature, role)
 }
 const selectedCrewPrivateSrc = computed(() => {
+  if (!viewer.isAdmin || !viewer.token) return null
   const kind = crewTellKindForVillain(active.value.signature)
   const id = kind ? CREW_TELL_ART[kind].beats.captain.imageId : null
   return id ? (paintedArt.images[id]?.src ?? null) : null
@@ -419,30 +445,33 @@ function supportArt(group: 'henchmen' | 'lieutenants'): string | null {
     return selectedCrewPrivateSrc.value
   return promArt(group + '/' + active.value.signature + '/poster')
 }
-function crewProofReceipt(beat: CrewTellBeat): CrewTellReceipt {
-  return CREW_TELL_ART[galleryCrew.value].beats[beat]
+function crewProofReceipt(beat: CrewProofBeat): CrewTellReceipt {
+  return receiptForCrew(galleryCrew.value, beat)
 }
-function crewProofImage(beat: CrewTellBeat): string | null {
+function crewProofImage(beat: CrewProofBeat): string | null {
+  if (!viewer.isAdmin || !viewer.token) return null
   return paintedArt.images[crewProofReceipt(beat).imageId]?.src ?? null
 }
-function crewProofStatus(beat: CrewTellBeat): string {
+function crewProofStatus(beat: CrewProofBeat): string {
   return paintedArt.images[crewProofReceipt(beat).imageId]?.status ?? 'loading'
 }
-function retryCrewProof(beat: CrewTellBeat): void {
+function retryCrewProof(beat: CrewProofBeat): void {
   if (!viewer.isAdmin || !viewer.token) return
   void paintedArt.retry(crewProofReceipt(beat).imageId)
 }
 const loadedCrewProofs = computed(() =>
-  crewKinds.reduce(
-    (total, kind) =>
-      total +
-      CREW_TELL_BEATS.filter(
-        (beat) =>
-          paintedArt.images[CREW_TELL_ART[kind].beats[beat].imageId]?.status ===
-          'loaded',
-      ).length,
-    0,
-  ),
+  viewer.isAdmin && viewer.token
+    ? crewKinds.reduce(
+        (total, kind) =>
+          total +
+          crewProofBeats.filter(
+            (beat) =>
+              paintedArt.images[receiptForCrew(kind, beat).imageId]?.status ===
+              'loaded',
+          ).length,
+        0,
+      )
+    : 0,
 )
 const matching = computed(() => {
   const term = search.value.toLowerCase()
@@ -480,14 +509,14 @@ const deliveredPosters = computed(() =>
   ),
 )
 watch(
-  [galleryCrew, () => viewer.token],
+  [galleryCrew, () => viewer.token, () => viewer.isAdmin],
   ([kind]) => {
     if (!viewer.isAdmin || !viewer.token) {
       paintedArt.clear()
       return
     }
-    for (const beat of CREW_TELL_BEATS) {
-      const receipt = CREW_TELL_ART[kind].beats[beat]
+    for (const beat of crewProofBeats) {
+      const receipt = receiptForCrew(kind, beat)
       void paintedArt.ensure(receipt.imageId)
     }
   },

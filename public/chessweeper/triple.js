@@ -16,13 +16,14 @@
   const ctx = canvas.getContext('2d')
   const keys = new Set()
   const points = { chess: 0, mine: 0, disc: 0 }
-  const CHESS_TURN_SECONDS = 10
   const MAX_DISCS = 14
   const DIFFICULTIES = Object.freeze({
     easy: {
       name: 'Easy',
       badge: '🌱 EASY',
-      hearts: 5,
+      hearts: 4,
+      chessSeconds: 30,
+      mineSeconds: 90,
       mines: 6,
       startingDiscs: 3,
       discSpeed: 0.9,
@@ -36,6 +37,8 @@
       name: 'Medium',
       badge: '⚖ MED',
       hearts: 3,
+      chessSeconds: 25,
+      mineSeconds: 75,
       mines: 10,
       startingDiscs: 5,
       discSpeed: 1.25,
@@ -49,6 +52,8 @@
       name: 'Hard',
       badge: '🔥 HARD',
       hearts: 2,
+      chessSeconds: 20,
+      mineSeconds: 60,
       mines: 15,
       startingDiscs: 7,
       discSpeed: 1.6,
@@ -62,6 +67,8 @@
       name: 'Catastrophic',
       badge: '☠ CATA',
       hearts: 1,
+      chessSeconds: 15,
+      mineSeconds: 45,
       mines: 20,
       startingDiscs: 9,
       discSpeed: 1.95,
@@ -88,9 +95,11 @@
     moves: 0,
     chessRound: 1,
     busy: false,
-    chessRemaining: CHESS_TURN_SECONDS,
+    chessRemaining: DIFFICULTIES.medium.chessSeconds,
     chessDelay: 0,
     mineLevel: 1,
+    mineRemaining: DIFFICULTIES.medium.mineSeconds,
+    mineResetDelay: 0,
     mines: new Set(),
     opened: new Set(),
     flagged: new Set(),
@@ -174,8 +183,9 @@
       !state.busy && state.chessRemaining <= 3,
     )
     $('mine-time').textContent = String(
-      Math.floor(state.duration - state.remaining),
+      Math.ceil(state.mineRemaining),
     ).padStart(3, '0')
+    $('mine-time').classList.toggle('urgent', state.mineRemaining <= 10)
     $('total').textContent = totalScore().toLocaleString('en-US')
     $('hearts').textContent =
       '♥'.repeat(Math.max(0, state.hearts)) +
@@ -198,7 +208,7 @@
     state.lastMove = []
     state.moves = 0
     state.busy = false
-    state.chessRemaining = CHESS_TURN_SECONDS
+    state.chessRemaining = difficulty().chessSeconds
     state.chessDelay = 0
     $('chess-status').textContent = 'Round ' + state.chessRound
     renderChess()
@@ -345,7 +355,7 @@
     state.chess = chess.makePosition(state.chess, choice)
     state.lastMove = [choice[0], choice[1]]
     state.busy = false
-    state.chessRemaining = CHESS_TURN_SECONDS
+    state.chessRemaining = difficulty().chessSeconds
     const whiteMoves = chess.legalMoves(state.chess)
     if (!whiteMoves.length) {
       if (chess.inCheck(state.chess)) damage('Checkmated')
@@ -400,6 +410,8 @@
     state.flagged = new Set()
     state.mineFirst = true
     state.minePendingReset = false
+    state.mineRemaining = difficulty().mineSeconds
+    state.mineResetDelay = 0
     const cells = Array.from({ length: 64 }, (_, i) => i).filter(
       (index) => index !== exclude,
     )
@@ -419,7 +431,12 @@
   }
 
   function flagMine(index) {
-    if (state.phase !== 'running' || state.opened.has(index)) return
+    if (
+      state.phase !== 'running' ||
+      state.minePendingReset ||
+      state.opened.has(index)
+    )
+      return
     if (state.flagged.has(index)) state.flagged.delete(index)
     else state.flagged.add(index)
     renderMines()
@@ -451,12 +468,7 @@
       state.minePendingReset = true
       renderMines()
       damage('A mine exploded')
-      if (state.phase === 'running') {
-        state.mineLevel = Math.max(1, state.mineLevel)
-        setTimeout(() => {
-          if (state.phase === 'running' && state.minePendingReset) resetMines()
-        }, 430)
-      }
+      state.mineResetDelay = 0.43
       return
     }
     cue('move')
@@ -479,11 +491,24 @@
       state.mineLevel++
       state.minePendingReset = true
       $('mine-status').textContent = 'FIELD CLEARED!'
-      setTimeout(() => {
-        if (state.phase === 'running' && state.minePendingReset) resetMines()
-      }, 430)
+      state.mineResetDelay = 0.43
     }
     renderMines()
+  }
+
+  function updateMines(dt) {
+    if (state.minePendingReset) {
+      state.mineResetDelay -= dt
+      if (state.mineResetDelay <= 0) resetMines()
+      return
+    }
+    state.mineRemaining = Math.max(0, state.mineRemaining - dt)
+    if (state.mineRemaining > 0) return
+    state.minePendingReset = true
+    state.mineResetDelay = 0.43
+    renderMines()
+    $('mine-status').textContent = 'Time expired! Field failed'
+    damage('Minefield timeout')
   }
 
   function renderMines() {
@@ -764,7 +789,6 @@
   function resume() {
     if (state.phase !== 'pause') return
     state.phase = 'running'
-    if (state.minePendingReset) resetMines()
     lastFrame = performance.now()
     updateAudio()
     closeDialog()
@@ -941,6 +965,7 @@
       if (state.remaining <= 0) finish('Time!')
       else {
         updateChess(raw)
+        if (state.phase === 'running') updateMines(raw)
         if (state.phase === 'running') updateDiscs(Math.min(0.05, raw))
       }
       updateHud()
@@ -1064,6 +1089,10 @@
       ': ' +
       selected.hearts +
       ' hearts · ' +
+      selected.chessSeconds +
+      's chess · ' +
+      selected.mineSeconds +
+      's mines · ' +
       selected.mines +
       ' mines · ' +
       selected.startingDiscs +
@@ -1103,6 +1132,8 @@
       hearts: state.hearts,
       maxHearts: difficulty().hearts,
       mineCount: state.mines.size,
+      mineRemaining: state.mineRemaining,
+      minePendingReset: state.minePendingReset,
       discCount: state.discs.length,
       discSpeed: difficulty().discSpeed,
       nextDisc: state.nextDisc,

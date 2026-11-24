@@ -4,6 +4,10 @@
 // every canonical lead; every round must keep sane state, round-trip through
 // a validated save, and finish. Victory and defeat must both be reachable,
 // and every seeded start must be winnable by at least one plan.
+import {
+  CREW_TELEGRAPH_MEDIA_DIMENSIONS,
+  matchesCrewTelegraphDimensions,
+} from '../everyVillainTactics/crewTelegraphMedia'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { IDENTITY_ARCS } from '../cometAcademy/identityArcs'
@@ -770,3 +774,24 @@ assert.match(
   page,
   /paintedArt\.ensure\(CREW_COMBAT_ART\[kind\]\[pose\]\.imageId\)/,
 )
+
+const expectedTelegraphDimensions = [
+  [768, 768],
+  [1344, 768],
+  [1344, 768],
+  [768, 1024],
+] as const
+assert.equal(Object.keys(CREW_TELEGRAPH_MEDIA_DIMENSIONS).length, 12)
+for (const kind of ['burrow', 'phase', 'windup'] as const) {
+  for (const [index, beat] of CREW_TELL_BEATS.entries()) {
+    const id = CREW_TELL_ART[kind].beats[beat].imageId
+    const [width, height] = expectedTelegraphDimensions[index]
+    assert.deepEqual(CREW_TELEGRAPH_MEDIA_DIMENSIONS[id], [width, height])
+    assert.equal(matchesCrewTelegraphDimensions(id, width, height), true)
+    assert.equal(matchesCrewTelegraphDimensions(id, width + 1, height), false)
+    assert.equal(matchesCrewTelegraphDimensions(id, width, height + 1), false)
+  }
+}
+assert.equal(matchesCrewTelegraphDimensions(278823, 512, 512), true)
+assert.match(paintedLoader, /matchesCrewTelegraphDimensions\(/)
+assert.match(paintedLoader, /await decodeImage\(id, blob\)/)

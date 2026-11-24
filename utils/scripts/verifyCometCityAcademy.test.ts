@@ -2776,19 +2776,50 @@ for (const identity of SIGNATURE_POWERS) {
     )
   }
 }
-// Shipped media is not automatically canon-safe: quarantine the thirteen noncanonical WebPs
+// Shipped media is not automatically canon-safe: quarantine the 22 noncanonical WebPs
 // personally inspected against the permanently authored identity catalog.
-assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 13)
+assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 22)
 assert.equal(
   new Set(Object.values(REJECTED_IDENTITY_ART).map((entry) => entry.blobSha))
     .size,
-  13,
+  22,
 )
 for (const [key, rejection] of Object.entries(REJECTED_IDENTITY_ART)) {
   assert.ok(promArt(key), key + ' is physically exported despite rejection')
   assert.equal(rejection.blobSha.length, 40)
   assert.ok(rejection.reason.length > 40)
   assert.equal(reviewedIdentityArtwork(key), null)
+}
+// Each additional quarantine is backed by direct inspection of the committed
+// WebP source bytes against CAST_LOOKS, with its immutable Git blob receipt.
+for (const [signature, variant, sourceSha] of [
+  ['mutant-earth', 'student', '70a9ba5b3ab9e9cdd049c233bb74f342175cfe90'],
+  ['mutant-earth', 'betrayal', 'e89d0df69603f202badbd8a0afa6483dc13e18ab'],
+  ['mutant-earth', 'partner', '2531006472bcfd4f506bbec122864b8b213c349d'],
+  ['mutant-discipline', 'student', 'e06466e6e83174c037674faba6dce7f60c5a1eb0'],
+  ['mutant-discipline', 'betrayal', '1cb6050fa5ba09e4afbb6c88bd82a010ff1e6e90'],
+  ['mutant-discipline', 'partner', '9ccd3466b0213339ea475dc749e986b8dfea9378'],
+  ['alien-discipline', 'student', '7ef76624bd4dde733b952ca320dce18d79bac1e2'],
+  ['alien-discipline', 'betrayal', '909c1e1a996c58e7965dca885128b806c9da9fa6'],
+  ['alien-discipline', 'partner', '5f4e8fe37ea330a151705aa6419792371598c918'],
+] as const) {
+  const key = `identities/${signature}/outcomes/${variant}` as const
+  assert.equal(REJECTED_IDENTITY_ART[key].blobSha, sourceSha, key)
+  assert.equal(reviewedIdentityArtwork(key), null, key)
+}
+for (const variant of ['student', 'betrayal', 'partner'] as const) {
+  assert.equal(
+    reviewedIdentityArtwork(`identities/mutant-discipline/outcomes/${variant}`),
+    null,
+  )
+  assert.equal(
+    reviewedIdentityArtwork(`identities/alien-discipline/outcomes/${variant}`),
+    null,
+  )
+  assert.equal(
+    reviewedIdentityArtwork(`identities/mutant-earth/outcomes/${variant}`),
+    null,
+  )
 }
 assert.equal(
   shippedHeroFaces,

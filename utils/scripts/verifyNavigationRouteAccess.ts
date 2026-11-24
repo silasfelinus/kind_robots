@@ -405,16 +405,42 @@ assert.match(
   /<NuxtLink\s+to="\/"[\s\S]*?aria-label="Home"[\s\S]*?<Icon name="kind-icon:home"/,
   'A persistent branded Home icon in the shared header must link to the homepage.',
 )
-assert.ok(
-  workspaceHeaderSource.includes('to="/art"'),
-  'The fixed workspace header must keep a direct Art Studio shortcut.',
+for (const route of [
+  '/art',
+  '/play/slime-city',
+  '/play/memory',
+  '/play/chessweeper',
+]) {
+  assert.ok(
+    !workspaceHeaderSource.includes(`to="${route}"`),
+    `The fixed workspace header must not duplicate the ${route} launcher.`,
+  )
+}
+assert.doesNotMatch(workspaceHeaderSource, /<admin-feedback-capture\b/)
+assert.match(
+  workspaceHeaderSource,
+  /<SlimeCityQuickSettings v-if="slimeCityVsPage" header\s*\/>/,
 )
-assert.ok(
-  workspaceHeaderSource.includes(
-    "const artActive = computed(() => route.path === '/art')",
-  ),
-  'The Art shortcut must expose its active state on /art.',
+assert.match(
+  workspaceHeaderSource,
+  /v-else-if="\s*route\.path !== '\/play\/slime-city-pvp' &&\s*slimePvpStore\.pendingTurns > 0\s*"\s+to="\/play\/slime-city\?vs=1"/,
 )
+assert.match(
+  workspaceHeaderSource,
+  /useSlimeCityStore\(pinia\)\.view === 'vs'/,
+)
+const slimePvpStoreSource = readFileSync('stores/slimeCityPvp.ts', 'utf8')
+assert.match(
+  slimePvpStoreSource,
+  /gamesAccountId\.value === accountId\.value[\s\S]*?game\.myTurn && game\.stage === 'battle'/,
+)
+assert.match(
+  slimePvpStoreSource,
+  /if \(accountId\.value !== requestedAccount\) return/,
+)
+assert.match(workspaceHeaderSource, /<account-hub\b/)
+assert.match(workspaceHeaderSource, /@click="navStore\.toggleWorkspaceSheet\(\)"/)
+assert.match(workspaceHeaderSource, /to="\/artjob"/)
 
 const arcadeChannelSource = readFileSync(
   'content/channels/arcade/arcade.md',

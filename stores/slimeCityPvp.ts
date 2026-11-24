@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from './utils'
 import { useFriendStore } from './friendStore'
+import { useUserStore } from './userStore'
 import {
   pvpRematch,
   pvpTally,
@@ -39,6 +40,19 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   const games = ref<PvpGameSummary[]>([])
   const gamesLoaded = ref(false)
   const gamesError = ref('')
+  const userStore = useUserStore()
+  const gamesAccountId = ref<number | null>(null)
+  const accountId = computed(() =>
+    userStore.isLoggedIn ? userStore.userId : null,
+  )
+  const pendingTurns = computed(() =>
+    accountId.value !== null &&
+    gamesAccountId.value === accountId.value &&
+    !gamesError.value
+      ? games.value.filter((game) => game.myTurn && game.stage === 'battle')
+          .length
+      : 0,
+  )
   /**
    * Silas, 2026-11-11 PT: "You should be able to challenge players on your
    * friends list. And they should get notified. That should be the assumed
@@ -233,21 +247,31 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
   }
 
   async function loadGames(): Promise<void> {
+    const requestedAccount = accountId.value
+    if (requestedAccount === null) return
+    if (gamesAccountId.value !== requestedAccount) {
+      games.value = []
+      gamesLoaded.value = false
+      gamesError.value = ''
+    }
     try {
       const result = await performFetch<PvpGameSummary[]>(
         '/api/slime-city/pvp',
         {},
         1,
       )
+      if (accountId.value !== requestedAccount) return
       if (!result.success || !result.data)
         throw new Error(result.message || 'Cannot load your games.')
+      gamesAccountId.value = requestedAccount
       games.value = result.data
       gamesError.value = ''
     } catch (cause) {
-      gamesError.value =
-        cause instanceof Error ? cause.message : 'Cannot load your games.'
+      if (accountId.value === requestedAccount)
+        gamesError.value =
+          cause instanceof Error ? cause.message : 'Cannot load your games.'
     } finally {
-      gamesLoaded.value = true
+      if (accountId.value === requestedAccount) gamesLoaded.value = true
     }
   }
 
@@ -366,6 +390,7 @@ export const useSlimeCityPvpStore = defineStore('slimeCityPvp', () => {
     tally,
     gamesLoaded,
     gamesError,
+    pendingTurns,
     loadGames,
     friends,
     friendsLoaded,

@@ -289,7 +289,15 @@ function craftedState(
   must(must(state.board[swapTarget[0]])[swapTarget[1]]).color = 5
   return state
 }
-const toolState = craftedState([], [1, 2])
+const toolState = craftedState(
+  [
+    [2, 0],
+    [2, 1],
+    [2, 3],
+  ],
+  [1, 2],
+)
+assert.ok(E.findMove(toolState), 'tool fixture starts on a playable board')
 const beforeTools = E.clone(toolState)
 assert.equal(E.useTool(toolState, 'brush', [0, 0]).ok, true)
 assert.equal(toolState.board[0]?.[0]?.special, 'h')

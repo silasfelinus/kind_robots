@@ -904,7 +904,15 @@ console.log('Slime City Chromebook duel layout contract PASS')
     ),
     'utf8',
   )
-  assert.match(duel, /<header-page-bar[^>]*\binline-landscape\b/)
+  // Silas, 2026-11-24 PT: "Most of that header for slime city can be
+  // deleted entirely. Forfeit is a button in settings control." The site
+  // header is the only header; back and forfeit live in the console gear.
+  assert.doesNotMatch(duel, /<header-page-bar/)
+  assert.match(
+    duel,
+    /<SlimeCityQuickSettings[^>]*>[\s\S]*?data-testid="slime-pvp-forfeit"[\s\S]*?<\/SlimeCityQuickSettings>/,
+    'forfeit lives in the settings panel',
+  )
   assert.match(shell, /'landscape:contents': navStore\.pageBarInlineLandscape/)
   assert.match(
     duel,
@@ -912,3 +920,16 @@ console.log('Slime City Chromebook duel layout contract PASS')
     'beside a rail the board spans the full height and the console sits under the bosses',
   )
 }
+
+// Silas, 2026-11-24 PT: "There needs to be a visual for levels 1 2 and 3."
+// Card faces and fighters on both boards wear a per-level frame.
+for (const file of [
+  'slime-city-clash-card-face.vue',
+  'slime-city-pvp-game.vue',
+  'slime-city-clash.vue',
+])
+  assert.match(
+    readFileSync(new URL('../../components/' + file, import.meta.url), 'utf8'),
+    /<SlimeCityLevelFrame :level="/,
+    file + ' frames each level',
+  )

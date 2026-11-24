@@ -34,6 +34,7 @@
         flavorText
       }}</span>
     </span>
+    <SlimeCityLevelFrame :level="level" />
   </span>
 </template>
 
@@ -95,7 +96,7 @@ const kind = computed(() =>
   inset: 0;
   overflow: hidden;
   border-radius: inherit;
-  border: 2px solid #9fd8c288;
+  border: 2px solid #0b2a26;
   background: #16323a;
   box-shadow:
     0 10px 22px #000a,
@@ -105,10 +106,20 @@ const kind = computed(() =>
     border-color 0.3s,
     box-shadow 0.3s;
 }
-.ccf.lv-3 {
-  border-color: #ffd34d;
+.ccf {
+  --lv: #8af2c2;
+}
+.ccf.lv-2 {
+  --lv: #a996ff;
+  border-color: #3a2f7a;
   box-shadow:
-    0 0 0 2px #ffd34d55,
+    0 0 18px #8f7bff55,
+    0 10px 22px #000a;
+}
+.ccf.lv-3 {
+  --lv: #ffd34d;
+  border-color: #7a4a12;
+  box-shadow:
     0 0 26px #ffb80066,
     0 10px 22px #000a;
 }
@@ -149,15 +160,15 @@ const kind = computed(() =>
   background: transparent;
 }
 .ccf-level i.on {
-  background: #ffd34d;
-  border-color: #ffd34d;
-  box-shadow: 0 0 2cqw #ffb800;
+  background: var(--lv);
+  border-color: var(--lv);
+  box-shadow: 0 0 2cqw var(--lv);
 }
 .ccf-level b {
   font-size: 4.2cqw;
   font-weight: 900;
   letter-spacing: 0.08em;
-  color: #ffe6a6;
+  color: var(--lv);
 }
 .ccf-art :deep(img) {
   width: 100%;

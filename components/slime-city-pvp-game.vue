@@ -4,27 +4,13 @@
     data-layout="console-fixed"
     data-testid="slime-pvp"
   >
-    <header-page-bar
-      v-if="!(narrowScreen && pvp.duel?.stage === 'battle')"
-      console-theme="slime-city"
-      inline-landscape
-    >
-      <nav class="scpvp-top" aria-label="Slime City multiplayer">
-        <NuxtLink to="/play/slime-city?vs=1">← VS</NuxtLink>
-        <strong>THE TWO-PLAYER PIT</strong>
-        <button
-          v-if="pvp.duel?.stage === 'battle'"
-          type="button"
-          class="scpvp-concede"
-          :disabled="pvp.sending"
-          @click="confirmForfeit"
-        >
-          {{ forfeitArmed ? 'CONFIRM FORFEIT' : 'FORFEIT' }}
-        </button>
-        <span>PRIVATE INVITE · PREVIEW</span>
-        <SlimeCitySoundToggle />
-      </nav>
-    </header-page-bar>
+    <!--
+      Silas, 2026-11-24 PT: "Most of that header for slime city can be deleted
+      entirely. Forfeit is a button in settings control. One simple control
+      panel. Art first, minimalist interface." No page bar: the site header
+      is the only header, and the fight's settings, back and forfeit live in
+      one gear at the console.
+    -->
 
     <div class="scpvp-stage">
       <SlimeCityArtwork
@@ -58,6 +44,12 @@
             compact
           />
           <div class="scpvp-poster-copy">
+            <NuxtLink
+              to="/play/slime-city?vs=1"
+              class="scpvp-lobby-back"
+              data-testid="slime-pvp-lobby-back"
+              >← VS</NuxtLink
+            >
             <small>TWENTY CARDS · FIVE ALLEYS · THREE EVOLUTIONS</small>
             <strong class="scpvp-poster-title">
               {{ invitedId ? 'ANSWER THE CHALLENGE' : 'FIGHT A REAL RIVAL' }}
@@ -381,9 +373,12 @@
                   >
                 </span>
                 <span class="scpvp-unit-label"
-                  ><i>{{ '★'.repeat(unit(side, lane)!.level) }}</i
+                  ><i :class="'lv-' + unit(side, lane)!.level">{{
+                    '★'.repeat(unit(side, lane)!.level)
+                  }}</i
                   >{{ cardById(unit(side, lane)!.cardId).name }}</span
                 >
+                <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
               </template>
               <span v-else class="scpvp-empty">{{
                 targetable(side, lane)
@@ -508,13 +503,6 @@
             >
           </div>
           <div class="scpvp-turn" aria-live="polite" :style="{ order: 1 }">
-            <NuxtLink
-              v-if="narrowScreen"
-              class="scpvp-back"
-              to="/play/slime-city?vs=1"
-              aria-label="Back to VS"
-              >‹</NuxtLink
-            >
             <span class="scpvp-turn-copy">
               <b>{{ turnLabel }}</b>
               <small>ROUND {{ board.round }} / {{ CLASH_ROUND_LIMIT }}</small>
@@ -526,19 +514,6 @@
               @click="reviewBoard = false"
             >
               RESULT ›
-            </button>
-            <SlimeCitySoundToggle v-if="narrowScreen" class="scpvp-sound" />
-            <button
-              v-if="narrowScreen && !finished"
-              type="button"
-              class="scpvp-flag"
-              :class="{ armed: forfeitArmed }"
-              :disabled="pvp.sending"
-              :aria-label="forfeitArmed ? 'Confirm forfeit' : 'Forfeit'"
-              data-testid="slime-pvp-forfeit"
-              @click="confirmForfeit"
-            >
-              {{ forfeitArmed ? 'SURE?' : '⚑' }}
             </button>
           </div>
         </aside>
@@ -624,6 +599,25 @@
           >
             LOG
           </button>
+          <SlimeCityQuickSettings up class="scpvp-settings">
+            <NuxtLink
+              to="/play/slime-city?vs=1"
+              class="scpvp-panel-action"
+              data-testid="slime-pvp-back"
+              >← BACK TO VS</NuxtLink
+            >
+            <button
+              v-if="!finished"
+              type="button"
+              class="scpvp-panel-action is-forfeit"
+              :class="{ armed: forfeitArmed }"
+              :disabled="pvp.sending"
+              data-testid="slime-pvp-forfeit"
+              @click="confirmForfeit"
+            >
+              {{ forfeitArmed ? 'TAP AGAIN TO FORFEIT' : '⚑ FORFEIT' }}
+            </button>
+          </SlimeCityQuickSettings>
           <button
             type="button"
             class="scpvp-fight"
@@ -1486,26 +1480,16 @@ onMounted(async () => {
 onBeforeUnmount(() => pvp.stopWatching())
 
 /**
- * Silas, 2026-11-11 PT: the two-player board gets the phone battle layout.
- * In battle on a phone only the site header remains ("at most one row of a
- * header"); back and forfeit ride in the versus strip, the board takes the
- * rest and the hand fans up from the bottom edge.
+ * The site header is the only header: the duel registers the Slime City
+ * console skin but no page bar (Silas, 2026-11-24 PT: "Art first,
+ * minimalist interface"). Back and forfeit live in the console's gear.
  */
-const narrowScreen = ref(false)
-let narrowQuery: MediaQueryList | null = null
-function syncNarrow(): void {
-  narrowScreen.value = !!narrowQuery?.matches
-}
 const navStore = useNavStore()
 let themeId = 0
 onMounted(() => {
   themeId = navStore.registerConsoleTheme('slime-city')
-  narrowQuery = window.matchMedia('(max-width: 600px)')
-  syncNarrow()
-  narrowQuery.addEventListener('change', syncNarrow)
 })
 onBeforeUnmount(() => {
-  narrowQuery?.removeEventListener('change', syncNarrow)
   navStore.releasePageBar(themeId)
   sound.detach()
 })
@@ -1542,52 +1526,11 @@ watch(
 </script>
 
 <style scoped>
-.scpvp-concede {
-  border: 1px solid currentColor;
-  border-radius: 0.5rem;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-.scpvp-concede:hover,
-.scpvp-concede:focus-visible {
-  color: #fca5a5;
-}
 .scpvp {
   display: flex;
   flex-direction: column;
   background: radial-gradient(ellipse at 45% 20%, #29313e 0%, #090e15 75%);
   color: #ecf5e9;
-}
-.scpvp-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 0.75rem;
-  font-size: 0.77rem;
-  letter-spacing: 0.12em;
-}
-.scpvp-top a {
-  color: #b9f151;
-  font-weight: 850;
-}
-.scpvp-top strong {
-  font-size: 0.95rem;
-}
-.scpvp-top span {
-  color: #9bb0a7;
-}
-/* Sharing the icon row in landscape: drop the status, then the title. */
-@container (max-width: 34rem) {
-  .scpvp-top span {
-    display: none;
-  }
-}
-@container (max-width: 22rem) {
-  .scpvp-top strong {
-    display: none;
-  }
 }
 .scpvp-stage {
   flex: 1;
@@ -1599,6 +1542,56 @@ watch(
 .scpvp-stage > section {
   position: relative;
   z-index: 1;
+}
+.scpvp-lobby-back {
+  align-self: flex-start;
+  color: #b9f151;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+}
+.scpvp-settings {
+  flex: none;
+}
+/* The deck and the gear lead the console row: one compact control pair. */
+.scpvp-hand-dock {
+  order: -2;
+}
+.scpvp-settings {
+  order: -1;
+}
+.scpvp-settings {
+  align-self: center;
+}
+.scpvp-settings :deep(.scq-gear) {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.6rem;
+}
+.scpvp-settings :deep(.scq-panel) {
+  z-index: 30;
+}
+.scpvp-panel-action {
+  display: block;
+  min-height: 2rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #38877a;
+  border-radius: 0.45rem;
+  background: #0f2622;
+  color: #dfff93;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-align: left;
+}
+.scpvp-panel-action.is-forfeit {
+  border-color: #b3646d;
+  color: #f6b6a3;
+}
+.scpvp-panel-action.is-forfeit.armed {
+  border-color: #ff6f7a;
+  background: #4b1f26;
+  color: #ffd6dc;
 }
 .scpvp-arena-art {
   position: absolute;
@@ -1870,9 +1863,6 @@ watch(
   letter-spacing: 0.08em;
 }
 @media (max-width: 690px) {
-  .scpvp-top span {
-    display: none;
-  }
   .scpvp-result {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) auto;
@@ -2066,9 +2056,17 @@ watch(
   text-shadow: 0 1px 3px #000;
 }
 .scpvp-unit-label i {
-  color: #ffdb76;
+  color: #8af2c2;
   font-style: normal;
   font-size: 0.85em;
+}
+.scpvp-unit-label i.lv-2 {
+  color: #b9adff;
+  text-shadow: 0 0 6px #3fd6ff;
+}
+.scpvp-unit-label i.lv-3 {
+  color: #ffd34d;
+  text-shadow: 0 0 6px #ff5fa2;
 }
 .scpvp-empty {
   position: absolute;
@@ -2568,35 +2566,6 @@ watch(
   font-size: 0.6rem;
   letter-spacing: 0.08em;
 }
-.scpvp-back,
-.scpvp-flag {
-  flex: none;
-  display: grid;
-  place-items: center;
-  min-width: 1.9rem;
-  height: 2.2rem;
-  padding: 0 0.4rem;
-  border: 1px solid #5c99917a;
-  border-radius: 0.5rem;
-  background: #10231f;
-  color: #c9ee5a;
-  font-size: 1.1rem;
-  font-weight: 900;
-  line-height: 1;
-}
-.scpvp-flag {
-  color: #f6b6a3;
-  font-size: 0.9rem;
-}
-.scpvp-flag.armed {
-  border-color: #ff6f7a;
-  background: #4b1f26;
-  color: #ffd6dc;
-  font-size: 0.6rem;
-}
-.scpvp-sound {
-  flex: none;
-}
 .scpvp-takeback {
   flex: none;
   display: flex;
@@ -2823,9 +2792,6 @@ watch(
   }
   .scpvp-turn small {
     font-size: 0.5rem;
-  }
-  .scpvp-sound :deep(.sc-sound-word) {
-    display: none;
   }
   .scpvp-takeback span {
     display: none;

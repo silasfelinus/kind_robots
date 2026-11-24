@@ -51,7 +51,7 @@ assert.equal(bossOf(0), 'mister-mulch')
 assert.equal(bossOf(1), 'tangle-rose')
 assert.equal(bossOf(2), 'sunny-saguaro', 'slice 3: the Cactus Dome boss')
 assert.equal(bossOf(3), 'queen-koi', 'slice 3: the Lily Pond House boss')
-assert.equal(bossOf(4), null, 'the Night Bloom House waits for slice 4')
+assert.equal(bossOf(4), 'gloom-bloom', 'the Night Bloom House boss')
 for (const id of ['mister-mulch', 'tangle-rose'] as const) {
   const spec = BOSS_SPECS[id]
   const guards = spec.cells.filter((c) => c.guard)

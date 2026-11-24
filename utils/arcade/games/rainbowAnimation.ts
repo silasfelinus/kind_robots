@@ -113,7 +113,8 @@ function interlude(stage: RainbowStage): HTMLVideoElement | null {
     if (typeof document !== 'undefined') {
       const made = document.createElement('video')
       made.muted = true
-      made.loop = true
+      // One-shot clips (presentation critic P-02): the squadron crosses the sky once per splash, then holds.
+      made.loop = false
       made.playsInline = true
       made.preload = 'auto'
       made.onerror = () => videos.set(stage, null)
@@ -137,10 +138,16 @@ export function drawRainbowInterlude(
   y: number,
   width: number,
   calm: boolean,
+  /** Frames since the splash began: the clip starts over at each Act's splash and holds its last frame. */
+  elapsed: number | null = null,
 ): number {
   if (calm || rainbowLook() !== 'fever') return 0
   const video = interlude(stage)
   if (!video) return 0
+  if (elapsed !== null && elapsed < 2 && video.currentTime > 0.05) {
+    video.currentTime = 0
+    void video.play()?.catch?.(() => {})
+  }
   const height = (width * video.videoHeight) / video.videoWidth
   g.drawImage(video, x, y, width, height)
   return height

@@ -54,16 +54,26 @@ assert.equal(
 
 // A stand-in document whose videos are ready at once, so the draw path runs in Node.
 const drawn: unknown[] = []
+const made: Array<{ loop?: boolean; currentTime: number; plays: number }> = []
 const g = {
   drawImage: (...args: unknown[]) => drawn.push(args),
 } as unknown as CanvasRenderingContext2D
 ;(globalThis as { document?: unknown }).document = {
-  createElement: () => ({
-    play: () => Promise.resolve(),
-    readyState: 4,
-    videoWidth: 832,
-    videoHeight: 480,
-  }),
+  createElement: () => {
+    const video = {
+      plays: 0,
+      currentTime: 0,
+      play() {
+        video.plays++
+        return Promise.resolve()
+      },
+      readyState: 4,
+      videoWidth: 832,
+      videoHeight: 480,
+    }
+    made.push(video)
+    return video
+  },
 }
 const stage = RAINBOW_INTERLUDES[0]!
 setRainbowLook('classic', false)
@@ -84,6 +94,15 @@ assert.ok(
   'the interlude keeps its aspect',
 )
 assert.equal(drawn.length, 1, 'one frame drawn')
+// P-02: the clips are one-shot (the squadron crosses once), and each splash starts its clip over.
+assert.equal(made[0]!.loop, false, 'the interlude plays once')
+made[0]!.currentTime = 2.5
+drawRainbowInterlude(g, stage, 0, 0, 200, false, 40)
+assert.equal(made[0]!.currentTime, 2.5, 'mid-splash the clip keeps playing')
+const plays = made[0]!.plays
+drawRainbowInterlude(g, stage, 0, 0, 200, false, 0)
+assert.equal(made[0]!.currentTime, 0, 'a new splash starts the clip over')
+assert.equal(made[0]!.plays, plays + 1)
 // Every Act's card has its living interlude (S04 joined 2026-11-24 PT from its logo-free card).
 assert.deepEqual([...RAINBOW_INTERLUDES].sort(), [...RAINBOW_STAGE_STRIPS])
 

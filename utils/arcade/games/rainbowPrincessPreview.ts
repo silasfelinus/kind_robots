@@ -9147,8 +9147,15 @@ export function createRainbowPrincessPreview(
           Math.min(1, (INTRO_FRAMES - introFrame) / 30)
         // The living interlude (t-030) where one shipped, else the still title card.
         const height =
-          drawRainbowInterlude(g, stage, W / 2 - 100, top, 200, calm) ||
-          drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
+          drawRainbowInterlude(
+            g,
+            stage,
+            W / 2 - 100,
+            top,
+            200,
+            calm,
+            introFrame,
+          ) || drawRainbowStageCard(g, stage, W / 2 - 100, top, 200)
         const bandY = top + Math.max(height, 40) - 22
         g.fillStyle = '#180d38d9'
         g.fillRect(W / 2 - 100, bandY, 200, 22)

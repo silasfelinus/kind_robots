@@ -2916,12 +2916,18 @@ class RibbonRiders implements ArcadeGameInstance {
 
   private renderCredits(g: CanvasRenderingContext2D) {
     this.backdrop(g, FAIRGROUNDS[3]!.sky)
-    drawText(g, this.encore ? 'ENCORE CHAMPION!' : 'FESTIVAL CHAMPION!', W / 2, 40, {
-      scale: 2,
-      align: 'center',
-      color: RAMPS.gold[4],
-      outline: INK,
-    })
+    drawText(
+      g,
+      this.encore ? 'ENCORE CHAMPION!' : 'FESTIVAL CHAMPION!',
+      W / 2,
+      40,
+      {
+        scale: 2,
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      },
+    )
     drawText(g, 'FOUR FAIRS. FOUR MARSHALS.', W / 2, 75, {
       align: 'center',
       color: RAMPS.cream[4],

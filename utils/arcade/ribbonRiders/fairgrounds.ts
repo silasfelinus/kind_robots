@@ -638,9 +638,11 @@ export function encoreArena(a: FairArena): FairArena {
         ? { ...f, x: flip(f.x), dir: turn(f.dir) }
         : { ...f, x: GRID - f.x - (f.w ?? 1) },
     ),
-    rivalSpawns: a.rivalSpawns?.map(
-      ([x, y, d]): Spawn => [flip(x), y, turn(d)],
-    ),
+    rivalSpawns: a.rivalSpawns?.map(([x, y, d]): Spawn => [
+      flip(x),
+      y,
+      turn(d),
+    ]),
     carousel: a.carousel
       ? { ...a.carousel, cx: flip(a.carousel.cx) }
       : undefined,

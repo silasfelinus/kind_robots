@@ -107,7 +107,10 @@ assert.equal(comet.ribbonLifetime, 360)
   assert.equal(pad.kind === 'pad' && pad.dir, 1)
   const race = arenaById(FAIRGROUNDS[2]!, 'cb-arches')
   const encoreRace = encoreArena(race)
-  assert.equal(encoreRace.arches![0]!.x, GRID - race.arches![0]!.x - race.arches![0]!.w)
+  assert.equal(
+    encoreRace.arches![0]!.x,
+    GRID - race.arches![0]!.x - race.arches![0]!.w,
+  )
 }
 
 {

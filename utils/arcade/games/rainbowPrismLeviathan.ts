@@ -76,6 +76,11 @@ export function createPrismLeviathanBoss(
   }
 }
 
+/** Frames the current attack's warning lasts (the core phase charges for its own length). */
+export function prismLeviathanWarningFrames(boss: PrismLeviathanBoss): number {
+  return warningLength(boss)
+}
+
 function warningLength(boss: PrismLeviathanBoss) {
   return boss.phase === 3
     ? PRISM_LEVIATHAN.coreWarningFrames

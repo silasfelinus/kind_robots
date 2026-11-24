@@ -29,6 +29,18 @@ import {
   lanternRayWarning,
   lanternRayWarningFrames,
 } from '../arcade/games/rainbowLanternRay'
+import {
+  DELPHION,
+  createDelphionBoss,
+  delphionWarning,
+  delphionWarningFrames,
+} from '../arcade/games/rainbowDelphion'
+import {
+  PRISM_LEVIATHAN,
+  createPrismLeviathanBoss,
+  prismLeviathanWarning,
+  prismLeviathanWarningFrames,
+} from '../arcade/games/rainbowPrismLeviathan'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
@@ -483,6 +495,20 @@ for (const [label, boss, warnFrames, warning, base] of [
     lanternRayWarning,
     LANTERN_RAY.warningFrames,
   ],
+  [
+    'B04',
+    createDelphionBoss(),
+    delphionWarningFrames,
+    delphionWarning,
+    DELPHION.warningFrames,
+  ],
+  [
+    'B08',
+    createPrismLeviathanBoss(),
+    prismLeviathanWarningFrames,
+    prismLeviathanWarning,
+    PRISM_LEVIATHAN.warningFrames,
+  ],
 ] as const) {
   const b = boss as never
   assert.equal(
@@ -513,6 +539,16 @@ assert.match(
   previewSource,
   /rainbowBossWindup\(\s*lanternRay\.nextVolley - lanternRay\.frame,\s*lanternRayWarningFrames\(lanternRay\),\s*calm,\s*\)/,
   'the B06 draw uses the shared windup',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*delphion\.nextVolley - delphion\.frame,\s*delphionWarningFrames\(delphion\),\s*calm,\s*\)/,
+  'the B04 draw uses the shared windup',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*leviathan\.nextVolley - leviathan\.frame,\s*prismLeviathanWarningFrames\(leviathan\),\s*calm,\s*\)/,
+  'the B08 draw uses the shared windup',
 )
 
 console.log(

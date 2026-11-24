@@ -185,6 +185,7 @@ import {
   delphionLeapLanes,
   delphionTwins,
   delphionWarning,
+  delphionWarningFrames,
   stepDelphionBoss,
   type DelphionBoss,
 } from './rainbowDelphion'
@@ -329,6 +330,7 @@ import {
   prismLeviathanLocks,
   prismLeviathanTidal,
   prismLeviathanWarning,
+  prismLeviathanWarningFrames,
   stepPrismLeviathanBoss,
   type PrismLeviathanBoss,
 } from './rainbowPrismLeviathan'
@@ -8107,16 +8109,26 @@ export function createRainbowPrincessPreview(
           }
           g.restore()
         }
+        const leviathanWindup = rainbowBossWindup(
+          leviathan.nextVolley - leviathan.frame,
+          prismLeviathanWarningFrames(leviathan),
+          calm,
+        )
         g.save()
         g.translate(leviathan.x, leviathan.y)
         g.shadowColor = exposed ? '#ff7ad9' : warn ? '#fff49c' : '#9fd8ff'
         g.shadowBlur = warn || exposed ? 24 : 10
+        // Only the painted body winds up; spire locks, gem and rings stay true to the hitbox.
+        g.save()
+        g.translate(leviathanWindup.pull, 0)
+        g.scale(leviathanWindup.scaleX, leviathanWindup.scaleY)
         if (!drawRainbowBossSprite(g, 'b08', leviathan.phase, 0, 0, 170)) {
           g.fillStyle = '#2a4a8a'
           g.beginPath()
           g.ellipse(0, 0, 70, 28, 0, 0, Math.PI * 2)
           g.fill()
         }
+        g.restore()
         g.shadowBlur = 0
         for (const [i, offset] of PRISM_LEVIATHAN.lockOffsets.entries()) {
           if (leviathan.locks[i]! <= 0) continue
@@ -8466,6 +8478,11 @@ export function createRainbowPrincessPreview(
         }
         const twins = delphionTwins(delphion)
         const core = delphionCore(delphion)
+        const delphionWindup = rainbowBossWindup(
+          delphion.nextVolley - delphion.frame,
+          delphionWarningFrames(delphion),
+          calm,
+        )
         g.save()
         // The rear coupling between the twins, with its link core.
         g.strokeStyle = exposed ? '#ff7ad9' : '#c8a8ff'
@@ -8502,12 +8519,17 @@ export function createRainbowPrincessPreview(
           g.translate(twin.x, twin.y)
           g.shadowColor = warn ? '#fff49c' : '#9ff3ff'
           g.shadowBlur = warn ? 22 : 10
+          // Both twins wind up together; the coupling, core and beacons stay on the hitboxes.
+          g.save()
+          g.translate(delphionWindup.pull, 0)
+          g.scale(delphionWindup.scaleX, delphionWindup.scaleY)
           if (!drawRainbowBossSprite(g, 'b04', delphion.phase, 0, 0, 96)) {
             g.fillStyle = delphion.phase === 3 ? '#ff9fd8' : '#7fd8ff'
             g.beginPath()
             g.ellipse(0, 0, 34, 16, 0, 0, Math.PI * 2)
             g.fill()
           }
+          g.restore()
           g.shadowBlur = 0
           if (warn && delphion.phase === 1) {
             // Beacons: the same never-below-three-quarters pulse as every boss cue.

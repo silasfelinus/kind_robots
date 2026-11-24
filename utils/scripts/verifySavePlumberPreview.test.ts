@@ -12,6 +12,7 @@ import {
   PLUMBER_WORLD_MUSIC,
 } from '../arcade/games/savePlumberMusic'
 import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
+import { achievementsForGame } from '../achievements/gameAchievements'
 
 const source = (path: string) =>
   readFileSync(new URL(path, import.meta.url), 'utf8')
@@ -46,11 +47,22 @@ for (const screen of [
   'crew',
   'guide',
   'settings',
+  'achievements',
   'maker',
   'play',
 ])
   assert.ok(page.includes(`screen === '${screen}'`) || screen === 'play')
 assert.match(page, /@click="go\('settings'\)"/)
+assert.match(page, /@click="go\('achievements'\)"/)
+assert.match(page, /aria-labelledby="achievements-heading"/)
+assert.match(
+  page,
+  /<GameAchievementStrip game="save-the-plumber" layout="row" \/>/,
+)
+assert.match(page, /plumber-achievements-view/)
+assert.ok(achievementsForGame('save-the-plumber').length >= 12)
+assert.match(page, /if \(plumber\.gears\.has\(code\)\) labels\.push\('GEAR FOUND'\)/)
+assert.match(page, /return labels\.join\(' · '\) \|\| 'UNDISCOVERED'/)
 assert.match(page, /aria-labelledby="settings-heading"/)
 assert.match(page, /arcade\.loadPreferences\(reducedMotion\.value\)/)
 assert.match(page, /arcade\.setVolume\(/)

@@ -122,14 +122,6 @@
               OPEN TO ANYONE
             </button>
           </div>
-          <SlimeCityTakebackChoice v-if="!invitedId" />
-          <p
-            v-else-if="answering && pvp.duel!.takebacks !== undefined"
-            class="scpvp-note"
-            data-testid="slime-pvp-takeback-rule"
-          >
-            {{ takebackRule(pvp.duel!.takebacks) }}
-          </p>
           <button
             class="scpvp-primary"
             type="button"
@@ -462,6 +454,7 @@
             :choice-pick="choice"
             :inspect="inspect"
             open-off-turn
+            dock-held
             @pick="onPick"
             @drop="onDrop"
           />
@@ -552,7 +545,7 @@
         <footer class="scpvp-console">
           <div id="clash-hand-dock" class="scpvp-hand-dock"></div>
           <button
-            v-if="pvp.isMyTurn && !finished && takeback && takeback.allowed"
+            v-if="pvp.isMyTurn && !finished && takeback"
             type="button"
             class="scpvp-takeback"
             :class="{ blocked: !!takeback.blocked }"
@@ -562,10 +555,7 @@
             data-testid="slime-pvp-takeback"
             @click="takeBack"
           >
-            ↶ <span>BACK</span
-            ><small v-if="takeback.allowed < PVP_TAKEBACKS_ANY">{{
-              takeback.left
-            }}</small>
+            ↶ <span>BACK</span>
           </button>
           <div
             v-if="choiceStages && selectedCard"
@@ -694,12 +684,7 @@ import {
   clashPowerSpent,
   type ClashStrike,
 } from '~/utils/slimeCity/clash'
-import {
-  PVP_TAKEBACKS_ANY,
-  pvpCardRow,
-  pvpClashView,
-  type PvpBoard,
-} from '~/utils/slimeCity/pvp'
+import { pvpCardRow, pvpClashView, type PvpBoard } from '~/utils/slimeCity/pvp'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import { CLASH_SPEED_PACE } from '~/stores/helpers/slimeCityClashPreference'
 import { OVERCHARGE_RULE, factionPower } from '~/utils/slimeCity/factionPowers'
@@ -1176,16 +1161,15 @@ async function clickSlot(side: Side, lane: number) {
   pinnedUid.value =
     fighter && pinnedUid.value !== fighter.uid ? fighter.uid : null
 }
-/** Silas, 2026-11-22 PT: "There should be a back button if it's your turn." */
+/**
+ * Silas, 2026-11-22 PT: "There should be a back button if it's your turn."
+ * Silas, 2026-11-24 PT: "We shouldn't be limiting undos." Any play can be
+ * taken back until FIGHT; only a move that revealed something stands.
+ */
 const takeback = computed(() => pvp.duel?.takeback ?? null)
-const takebackTitle = computed(() => {
-  const state = takeback.value
-  if (!state) return 'Take back your last play'
-  if (state.blocked) return state.blocked
-  return state.allowed >= PVP_TAKEBACKS_ANY
-    ? 'Take back your last play'
-    : 'Take back your last play (' + state.left + ' left this turn)'
-})
+const takebackTitle = computed(
+  () => takeback.value?.blocked ?? 'Take back your last play',
+)
 async function takeBack() {
   const state = takeback.value
   if (!canAct.value || !state) return
@@ -1197,13 +1181,6 @@ async function takeBack() {
   pinnedUid.value = null
   powerArmed.value = null
   await pvp.send({ t: 'undo' })
-}
-function takebackRule(allowed: number | undefined): string {
-  return !allowed
-    ? 'Take-backs are off: every play stands.'
-    : allowed >= PVP_TAKEBACKS_ANY
-      ? 'Take-backs: undo any play until you FIGHT.'
-      : 'Take-backs: one per turn.'
 }
 async function tapFighter(uid: number) {
   if (await pvp.send({ t: 'activate', uid })) pinnedUid.value = null
@@ -2430,6 +2407,26 @@ watch(
 .scpvp-arena {
   grid-area: arena;
 }
+/*
+  Silas, 2026-11-24 PT: "The card enlarged is fully blocking the middle lane."
+  With the boss rail beside the board, the held card docks over the rail
+  (its right edge on the rail's), so every alley stays visible and tappable.
+  The hand may overhang the arena for this; the stage still clips the page.
+*/
+@media (min-width: 691px) {
+  .scpvp-arena :deep(.cxh) {
+    --held-reach: calc(clamp(10rem, 17vw, 15rem) + 0.4rem + 1px);
+    overflow: visible;
+  }
+  .scpvp-arena :deep(.cxh .cxh-card.big.held-dock.dock-left) {
+    --x: calc(50cqw - 0.6rem - var(--W) / 2 + var(--held-reach));
+  }
+  .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock.dock-left) {
+    left: auto;
+    right: calc(0.6rem + var(--W) / 2 - var(--held-reach));
+    transform: translateX(50%);
+  }
+}
 .scpvp-rail {
   grid-area: rail;
   min-height: 0;
@@ -2592,23 +2589,10 @@ watch(
   font-weight: 900;
   letter-spacing: 0.06em;
 }
-.scpvp-takeback small {
-  display: grid;
-  place-items: center;
-  min-width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 999px;
-  background: #c9ee5a;
-  color: #10200b;
-  font-size: 0.62rem;
-}
 .scpvp-takeback.blocked,
 .scpvp-takeback:disabled {
   border-color: #586e68;
   color: #8fa49c;
-}
-.scpvp-takeback.blocked small {
-  background: #586e68;
 }
 .scpvp-slot.hurt {
   animation: scpvp-shake 0.36s ease;

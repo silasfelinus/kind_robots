@@ -582,7 +582,7 @@ console.log(
   )
   assert.match(
     client,
-    /start\(next\.team, \{\s*friendId: next\.friendId,/,
+    /start\(next\.team, \{\s*friendId: next\.friendId\s*\}/,
     'REMATCH is a private friend challenge through the normal start path',
   )
   assert.match(client, /pvpTally\(games\.value\)/)
@@ -737,7 +737,7 @@ console.log(
     played.decks.player.length === fresh.decks.player.length
   if (quiet) {
     const taken = pvpTakeBack(host, guest, seed, record(), 'player')
-    assert.ok('record' in taken, 'one take-back per turn by default')
+    assert.ok('record' in taken, 'a quiet play can be taken back')
     if ('record' in taken) {
       assert.equal(taken.record.commands.length, 0)
       assert.deepEqual(
@@ -753,21 +753,26 @@ console.log(
         ...taken.record,
         commands: [...played.commands],
       }
-      assert.equal(
-        pvpTakebackState(host, guest, seed, again, 'player').blocked,
-        'No take-backs left this turn.',
-      )
-      const any: PvpRecord = { ...again, takebacks: PVP_TAKEBACKS_ANY }
-      assert.equal(
-        pvpTakebackState(host, guest, seed, any, 'player').blocked,
-        null,
-      )
+      // Silas, 2026-11-24 PT: "We shouldn't be limiting undos." A second
+      // take-back in the same turn is allowed, even in duels created with the
+      // old OFF or 1 / TURN settings.
+      for (const legacy of [undefined, 0, 1, PVP_TAKEBACKS_ANY]) {
+        const old: PvpRecord = {
+          ...again,
+          ...(legacy === undefined ? {} : { takebacks: legacy }),
+        }
+        assert.equal(
+          pvpTakebackState(host, guest, seed, old, 'player').blocked,
+          null,
+          'take-backs are unlimited (stored ' + legacy + ')',
+        )
+        assert.equal(
+          pvpTakebackState(host, guest, seed, old, 'player').allowed,
+          PVP_TAKEBACKS_ANY,
+        )
+      }
     }
   }
-  assert.equal(
-    pvpTakebackState(host, guest, seed, record(0), 'player').blocked,
-    'Take-backs are off in this duel.',
-  )
   assert.notEqual(
     pvpTakebackState(host, guest, seed, record(), 'enemy').blocked,
     null,
@@ -865,3 +870,21 @@ console.log('Slime City VS take-backs, strike trail and board animations PASS')
   assert.match(picker, /route\.path\.startsWith\('\/play\/slime-city'\)/)
 }
 console.log('Slime City Chromebook duel layout contract PASS')
+
+// Silas, 2026-11-24 PT: "The card enlarged is fully blocking the middle
+// lane." The VS duel docks the held card to the side (over the boss rail on
+// wide screens) instead of standing it over the middle alley.
+{
+  const read = (file: string) =>
+    readFileSync(new URL('../../components/' + file, import.meta.url), 'utf8')
+  const duel = read('slime-city-pvp-game.vue')
+  const hand = read('slime-city-clash-hand.vue')
+  assert.match(duel, /<SlimeCityClashHand[^>]*\bdock-held\b/)
+  assert.match(duel, /--held-reach:/, 'the held card docks over the rail')
+  assert.match(hand, /\.cxh-card\.big\.held-dock \{\s*--x: calc\(50cqw/)
+  assert.doesNotMatch(
+    duel,
+    /SlimeCityTakebackChoice/,
+    'no take-back limit picker',
+  )
+}

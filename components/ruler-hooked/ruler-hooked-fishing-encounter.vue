@@ -132,6 +132,7 @@ import type { FishingEncounter } from '~/utils/rulerHooked/encounter'
 import {
   FIGHT_PROMPT,
   fightAim,
+  fightTargetFor,
   timingProfileFor,
 } from '~/utils/rulerHooked/timingBar'
 import { fishCandidates } from '~/utils/rulerHooked/artLibrary'
@@ -159,16 +160,9 @@ const aimLabel = computed(() => {
     ? 'It darted! Follow the new bright patch.'
     : 'Aim for the luminous current to pull it closer.'
 })
-const aimStart = computed(() => {
-  const band = profile.value
-  if (aimAction.value === 'SLACK') return Math.max(0, band.bandStart - 14)
-  if (aimAction.value === 'WAIT')
-    return Math.min(91, band.bandStart + band.bandWidth + 5)
-  return band.bandStart
-})
-const aimWidth = computed(() =>
-  aimAction.value === 'REEL' ? profile.value.bandWidth : 10,
-)
+const aimTarget = computed(() => fightTargetFor(profile.value, aimAction.value))
+const aimStart = computed(() => aimTarget.value.start)
+const aimWidth = computed(() => aimTarget.value.width)
 const playfieldLabel = computed(
   () =>
     `Fishing ${props.encounter.fishName}. ${aimLabel.value} Press Space, Enter, or click to stop the sweeping bobber.`,

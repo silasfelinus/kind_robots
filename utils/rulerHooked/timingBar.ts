@@ -131,7 +131,8 @@ function bandCenterFor(
   return Math.max(20, Math.min(80, base + drift))
 }
 
-const MAX_BAND_WIDTH = 70 // gear may widen the band, but never past this -- stays a game, not a rubber stamp
+const MIN_SIDE_ZONE = 18
+const MAX_BAND_WIDTH = 100 - 2 * MIN_SIDE_ZONE
 const MAX_SWEEP_MS = 3000 // gear may slow the sweep, but never past this
 
 /**
@@ -185,8 +186,8 @@ export function timingProfileFor(state: {
   )
   const center = bandCenterFor(state.rarity, state.family, state.beat)
   const bandStart = Math.max(
-    0,
-    Math.min(100 - bandWidth, center - bandWidth / 2),
+    MIN_SIDE_ZONE,
+    Math.min(100 - MIN_SIDE_ZONE - bandWidth, center - bandWidth / 2),
   )
 
   return { bandStart, bandWidth, sweepMs }
@@ -203,6 +204,7 @@ export function resolveTimingStop(
   position: number,
   profile: TimingBarProfile,
 ): TimingStopResult {
+  if (!Number.isFinite(position)) return { action: 'WAIT', quality: 0 }
   const p = Math.max(0, Math.min(100, position))
   const bandEnd = profile.bandStart + profile.bandWidth
   const bandCenter = profile.bandStart + profile.bandWidth / 2
@@ -242,6 +244,24 @@ export function fightAim(fight: {
   const taut = fight.tension >= 70
   if (fight.reversed) return taut ? 'REEL' : 'SLACK'
   return taut ? 'SLACK' : 'REEL'
+}
+
+/** The highlighted interval stays entirely inside the action it promises. */
+export function fightTargetFor(
+  profile: TimingBarProfile,
+  aim: FightAim,
+): { start: number; width: number } {
+  const { bandStart, bandWidth } = profile
+  if (aim === 'REEL') return { start: bandStart, width: bandWidth }
+
+  const bandEnd = bandStart + bandWidth
+  const span = aim === 'SLACK' ? bandStart : 100 - bandEnd
+  const width = Math.min(10, span * 0.4)
+  const margin = Math.min(1, span * 0.1)
+  return {
+    start: aim === 'SLACK' ? bandStart - margin - width : bandEnd + margin,
+    width,
+  }
 }
 
 /** The button-prompt words for each aim (t-054 mockup: "A Tap to Reel"). */

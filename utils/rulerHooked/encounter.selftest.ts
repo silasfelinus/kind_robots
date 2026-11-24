@@ -217,4 +217,16 @@ function playSmart(encounter: FishingEncounter): FishingEncounter {
   assert.equal(playSmart(koi).phase, 'LANDED')
 }
 
+// Invalid timing events must not consume a beat or poison deterministic history.
+{
+  for (const slug of ['parlour-rustfish', 'sunspoke-koi', 'moebius-crab']) {
+    const start = startFishingEncounterForFish(fresh(), slug)
+    for (const position of [NaN, Infinity, -Infinity]) {
+      assert.equal(applyFishingStop(start, position), start)
+    }
+    assert.deepEqual(applyFishingStop(start, -50), applyFishingStop(start, 0))
+    assert.deepEqual(applyFishingStop(start, 150), applyFishingStop(start, 100))
+  }
+}
+
 console.log('ruler-hooked ENCOUNTER self-test: ALL PASS')

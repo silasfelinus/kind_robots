@@ -2803,7 +2803,7 @@ for (const [signature, variant, sourceSha] of [
   ['alien-discipline', 'betrayal', '909c1e1a996c58e7965dca885128b806c9da9fa6'],
   ['alien-discipline', 'partner', '5f4e8fe37ea330a151705aa6419792371598c918'],
 ] as const) {
-  const key = `identities/${signature}/outcomes/${variant}`
+  const key = `identities/${signature}/outcomes/${variant}` as const
   assert.equal(REJECTED_IDENTITY_ART[key].blobSha, sourceSha, key)
   assert.equal(reviewedIdentityArtwork(key), null, key)
 }

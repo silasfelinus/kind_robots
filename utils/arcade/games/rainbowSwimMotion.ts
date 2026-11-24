@@ -106,3 +106,33 @@ export function rainbowBossWindup(
   const ease = t * t * (calm ? 0.2 : 1)
   return { pull: 4 * ease, scaleX: 1 - 0.03 * ease, scaleY: 1 + 0.06 * ease }
 }
+
+/** Frames a boss's body rocks back after a shot lands. */
+export const BOSS_RECOIL_FRAMES = 8
+
+/**
+ * Conductor rainbow t-011: a boss a shot just hit rocks back and squashes, settling over a few frames, so the
+ * player sees the hit land on the body. Draw-only: the hitbox never moves. Calm motion keeps it still.
+ */
+export function rainbowBossRecoil(
+  framesSinceHit: number,
+  calm = false,
+): { pull: number; scaleX: number; scaleY: number } {
+  if (calm || !(framesSinceHit >= 0) || framesSinceHit >= BOSS_RECOIL_FRAMES)
+    return { pull: 0, scaleX: 1, scaleY: 1 }
+  const t = 1 - framesSinceHit / BOSS_RECOIL_FRAMES
+  const k = t * t
+  return { pull: 2.5 * k, scaleX: 1 - 0.04 * k, scaleY: 1 + 0.025 * k }
+}
+
+/** Stacks two draw-only body poses (a windup and a recoil): pulls add, scales multiply. */
+export function stackRainbowBossPose(
+  a: { pull: number; scaleX: number; scaleY: number },
+  b: { pull: number; scaleX: number; scaleY: number },
+): { pull: number; scaleX: number; scaleY: number } {
+  return {
+    pull: a.pull + b.pull,
+    scaleX: a.scaleX * b.scaleX,
+    scaleY: a.scaleY * b.scaleY,
+  }
+}

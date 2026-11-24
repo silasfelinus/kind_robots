@@ -7,6 +7,7 @@
     <header-page-bar
       v-if="!(narrowScreen && pvp.duel?.stage === 'battle')"
       console-theme="slime-city"
+      inline-landscape
     >
       <nav class="scpvp-top" aria-label="Slime City multiplayer">
         <NuxtLink to="/play/slime-city?vs=1">← VS</NuxtLink>
@@ -1577,6 +1578,17 @@ watch(
 .scpvp-top span {
   color: #9bb0a7;
 }
+/* Sharing the icon row in landscape: drop the status, then the title. */
+@container (max-width: 34rem) {
+  .scpvp-top span {
+    display: none;
+  }
+}
+@container (max-width: 22rem) {
+  .scpvp-top strong {
+    display: none;
+  }
+}
 .scpvp-stage {
   flex: 1;
   min-height: 0;
@@ -2426,6 +2438,16 @@ watch(
     right: calc(0.6rem + var(--W) / 2 - var(--held-reach));
     transform: translateX(50%);
   }
+  /*
+    The held card hangs from the top of the rail, over the bosses, so the
+    deck, BACK, LOG and turn button at the rail's foot stay in reach.
+  */
+  .scpvp-arena :deep(.cxh .cxh-card.big.held-dock) {
+    --y: calc(0.5rem + var(--W) * 1.5 - 100cqh);
+  }
+  .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock) {
+    top: calc(0.9rem + var(--W) * 1.5);
+  }
 }
 .scpvp-rail {
   grid-area: rail;
@@ -2631,6 +2653,115 @@ watch(
   from {
     opacity: 0;
     transform: translateY(-14%) scale(1.08);
+  }
+}
+/*
+  Silas, 2026-11-24 PT, tablet landscape: "The cards should start at the very
+  bottom of the screen, there's blank space that really extraneous. Deck log
+  turn button should all be on right." Beside a rail, the board takes the
+  full height (the hand fans up from the screen's bottom edge) and the
+  console stacks at the foot of the rail, under the bosses: the deck, BACK,
+  powers and LOG in a wrapping row, the turn button full width below.
+*/
+@media (min-width: 691px) {
+  .scpvp-battle {
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'arena rail'
+      'arena console';
+    padding-bottom: 0.2rem;
+  }
+  .scpvp-rail {
+    padding-bottom: 0;
+  }
+  .scpvp-console {
+    flex-wrap: wrap;
+    align-items: stretch;
+    align-content: flex-end;
+    gap: 0.3rem;
+    padding-bottom: 0.2rem;
+  }
+  .scpvp-hand-dock :deep(.cxh-toggle) {
+    width: 2.9rem;
+    height: 2.9rem;
+  }
+  .scpvp-choice {
+    flex: 1 1 100%;
+    flex-direction: column;
+  }
+  .scpvp-tap,
+  .scpvp-power,
+  .scpvp-log-toggle,
+  .scpvp-takeback {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 0;
+    padding: 0.4rem 0.5rem;
+  }
+  .scpvp-power {
+    max-width: none;
+  }
+  .scpvp-fight {
+    flex: 1 1 100%;
+    max-width: none;
+    margin-left: 0;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.9rem;
+  }
+  .scpvp-log {
+    right: calc(clamp(10rem, 17vw, 15rem) + 1rem);
+    bottom: 0.5rem;
+  }
+}
+/*
+  Phone landscape: too short for boss portraits and a stacked console. The
+  bosses become name, life bar and HP; the console buttons tighten so the
+  rail still ends in a full-width turn button.
+*/
+@media (min-width: 691px) and (max-height: 540px) {
+  .scpvp-rail {
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    gap: 0.2rem;
+    padding-top: 0;
+  }
+  .scpvp-boss > .slime-art {
+    display: none;
+  }
+  .scpvp-boss-info {
+    margin-top: 0;
+    padding: 0.25rem 0.4rem 0.3rem;
+    background: none;
+  }
+  .scpvp-boss-info > small {
+    display: none;
+  }
+  .scpvp-boss strong {
+    font-size: 0.68rem;
+  }
+  .scpvp-boss b {
+    font-size: 0.85rem;
+  }
+  .scpvp-life {
+    height: 0.35rem;
+  }
+  .scpvp-turn {
+    min-height: 0;
+    font-size: 0.75rem;
+  }
+  .scpvp-hand-dock :deep(.cxh-toggle) {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+  .scpvp-tap,
+  .scpvp-power,
+  .scpvp-log-toggle,
+  .scpvp-takeback {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.66rem;
+  }
+  .scpvp-fight {
+    padding: 0.45rem 0.5rem;
   }
 }
 @media (max-width: 690px) {

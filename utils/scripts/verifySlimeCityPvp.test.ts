@@ -888,3 +888,27 @@ console.log('Slime City Chromebook duel layout contract PASS')
     'no take-back limit picker',
   )
 }
+
+// Silas, 2026-11-24 PT, tablet landscape: the hand starts at the very bottom,
+// deck / log / turn button live on the right, and the duel's bar shares the
+// nav and icon row unless the screen is portrait.
+{
+  const duel = readFileSync(
+    new URL('../../components/slime-city-pvp-game.vue', import.meta.url),
+    'utf8',
+  )
+  const shell = readFileSync(
+    new URL(
+      '../../components/navigation/workspace-header.vue',
+      import.meta.url,
+    ),
+    'utf8',
+  )
+  assert.match(duel, /<header-page-bar[^>]*\binline-landscape\b/)
+  assert.match(shell, /'landscape:contents': navStore\.pageBarInlineLandscape/)
+  assert.match(
+    duel,
+    /grid-template-areas:\s*'arena rail'\s*'arena console';/,
+    'beside a rail the board spans the full height and the console sits under the bosses',
+  )
+}

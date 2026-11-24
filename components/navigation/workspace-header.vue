@@ -56,11 +56,15 @@
 
       <!-- The page bar's teleport target must stay mounted even while hidden.
            Keep the HUD in its own row until 2xl, where there is room for
-           the channel picker and all utility controls. -->
+           the channel picker and all utility controls. A bar that opts in
+           with `inline-landscape` joins the icon row in any landscape screen
+           (Silas, 2026-11-24 PT: "a container single header with the same
+           row as the nav and icons unless we are portrait"). -->
       <div
         v-show="hasPageBar"
         data-kr-page-row
         class="order-last flex min-w-0 basis-full items-center border-t border-base-300 pt-1.5 2xl:contents"
+        :class="{ 'landscape:contents': navStore.pageBarInlineLandscape }"
       >
         <div
           id="kr-header-page-bar"

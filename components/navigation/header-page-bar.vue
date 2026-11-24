@@ -34,6 +34,13 @@
   `provide('kr-page-bar-owner', true)`; any header-page-bar below it then renders
   its controls in place instead of teleporting a second bar into the row.
 
+  INLINE IN LANDSCAPE. Silas, 2026-11-24 PT, on a tablet in landscape:
+  "Header should be a container single header with the same row as the nav
+  and icons unless we are portrait." A page that passes `inline-landscape`
+  joins the icon row whenever the screen is landscape, not only at 2xl; in
+  portrait it keeps its own row. The bar's target is a size container, so the
+  page collapses its own chips with container queries when the row is tight.
+
   Client-only because a teleport into an in-app target cannot be server
   rendered without a hydration mismatch; the shell loader covers first paint.
 -->
@@ -62,7 +69,11 @@
 import { inject, onBeforeUnmount, onMounted } from 'vue'
 import { useNavStore } from '@/stores/navStore'
 
-const props = defineProps<{ consoleTheme?: string; compact?: boolean }>()
+const props = defineProps<{
+  consoleTheme?: string
+  compact?: boolean
+  inlineLandscape?: boolean
+}>()
 
 const nested = inject<boolean>('kr-page-bar-owner', false)
 
@@ -71,7 +82,12 @@ let pageBarId = 0
 
 onMounted(() => {
   if (nested) return
-  pageBarId = navStore.registerPageBar(props.consoleTheme, true, props.compact)
+  pageBarId = navStore.registerPageBar(
+    props.consoleTheme,
+    true,
+    props.compact,
+    props.inlineLandscape,
+  )
 })
 onBeforeUnmount(() => {
   if (!nested) navStore.releasePageBar(pageBarId)

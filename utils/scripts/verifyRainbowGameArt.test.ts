@@ -429,8 +429,11 @@ assert.equal(
   'an unshipped sky is not drawn, and never crops the strip',
 )
 assert.equal(drawRainbowPaintedSky(g, 's09', 0, 1), false)
-// P-04: Acts I-III fly painted skies and far and mid planes in both looks (art backlog 2026-11-24).
-for (const stage of ['s01', 's02', 's03'] as const)
+// P-04: every Act that ships its paintings flies a painted sky and far and mid planes in both looks (art backlog
+// 2026-11-24): never one depth without the others.
+for (const stage of RAINBOW_STAGE_STRIPS.filter((s) =>
+  RAINBOW_STAGE_PAINTINGS.some((path) => path.startsWith(`stages/${s}-`)),
+))
   for (const depth of ['sky', 'far', 'mid'] as const)
     assert.equal(
       rainbowStagePlane(stage, depth, 'classic'),

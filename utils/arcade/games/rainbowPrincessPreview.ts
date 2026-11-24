@@ -25,6 +25,7 @@ import {
 } from './rainbowPinkwake'
 import {
   BOSS_MAX_HP,
+  BOSS_TELEGRAPH_FRAMES,
   bossTelegraph,
   createPinkwakeBoss,
   rainbowBossHp,
@@ -60,6 +61,7 @@ import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
 import {
   applyRainbowSwimMotion,
   rainbowHitFlinch,
+  rainbowBossWindup,
   rainbowShipPose,
 } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
@@ -7748,6 +7750,13 @@ export function createRainbowPrincessPreview(
         g.save()
         g.translate(boss.x, boss.y)
         const glow = bossTelegraph(boss)
+        const windup = rainbowBossWindup(
+          boss.nextVolleyAt - boss.frame,
+          BOSS_TELEGRAPH_FRAMES,
+          calm,
+        )
+        g.translate(windup.pull, 0)
+        g.scale(windup.scaleX, windup.scaleY)
         g.shadowColor = glow ? '#fff7a7' : '#ffaff1'
         g.shadowBlur = glow ? 25 : 9
         // The painted seahorse carries the escape pod in its coil; the vector body carries it at its belly.

@@ -674,8 +674,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.storyChoices[index] = this.choiceCursor
     if (this.choiceCursor === 0) this.lives = Math.min(9, this.lives + 1)
     else this.power = STORY_DECISIONS[index]!.power
-    this.message =
-      STORY_DECISIONS[index]!.options[this.choiceCursor].response
+    this.message = STORY_DECISIONS[index]!.options[this.choiceCursor].response
     this.choiceResponseVisible = true
     this.pendingChoice = null
     this.banner = 110
@@ -900,8 +899,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         this.resolveBossShot(contact === 'hit')
       return
     }
-    if (this.shot.y <= 40 || this.boardContact(this.shot))
-      this.settle()
+    if (this.shot.y <= 40 || this.boardContact(this.shot)) this.settle()
   }
   private renderStoryChoice(g: CanvasRenderingContext2D) {
     const scene = STORY_DECISIONS[this.pendingChoice!]!

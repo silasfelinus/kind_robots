@@ -66,8 +66,22 @@
               />
               <div class="rh-parchment rh-console__sheet">
                 <div class="mb-3 flex flex-wrap gap-2">
-                  <button type="button" class="rh-btn rh-btn--small" :aria-pressed="!chronicleScrapbook" @click="chronicleScrapbook = false">Current reign</button>
-                  <button type="button" class="rh-btn rh-btn--small" :aria-pressed="chronicleScrapbook" @click="chronicleScrapbook = true">Royal Scrapbook</button>
+                  <button
+                    type="button"
+                    class="rh-btn rh-btn--small"
+                    :aria-pressed="!chronicleScrapbook"
+                    @click="chronicleScrapbook = false"
+                  >
+                    Current reign
+                  </button>
+                  <button
+                    type="button"
+                    class="rh-btn rh-btn--small"
+                    :aria-pressed="chronicleScrapbook"
+                    @click="chronicleScrapbook = true"
+                  >
+                    Royal Scrapbook
+                  </button>
                 </div>
                 <RulerHookedScrapbook v-if="chronicleScrapbook" />
                 <RulerHookedReignReview v-else :save="store.save" />

@@ -1,4 +1,8 @@
-import type { ContentBundle, FishopediaEntry, RunSave } from '~/types/ruler-hooked'
+import type {
+  ContentBundle,
+  FishopediaEntry,
+  RunSave,
+} from '~/types/ruler-hooked'
 
 export interface ReignKeepsake {
   saveId: string
@@ -24,10 +28,16 @@ export function rememberReign(
     const old = Object.hasOwn(fish, slug) ? fish[slug] : undefined
     fish[slug] = {
       fishSlug: slug,
-      firstCaughtTurn: Math.min(old?.firstCaughtTurn ?? entry.firstCaughtTurn, entry.firstCaughtTurn),
+      firstCaughtTurn: Math.min(
+        old?.firstCaughtTurn ?? entry.firstCaughtTurn,
+        entry.firstCaughtTurn,
+      ),
       countCaught: Math.max(old?.countCaught ?? 0, entry.countCaught),
       bestSizeCm: Math.max(old?.bestSizeCm ?? 0, entry.bestSizeCm),
-      bestQualityScore: Math.max(old?.bestQualityScore ?? 0, entry.bestQualityScore),
+      bestQualityScore: Math.max(
+        old?.bestQualityScore ?? 0,
+        entry.bestQualityScore,
+      ),
     }
   }
   const seen = new Set([
@@ -69,7 +79,10 @@ export function rememberReign(
 
 export function scrapbookSummary(archive: RoyalScrapbook) {
   const reigns = Object.values(archive)
-  const fish = new Map<string, { count: number; bestSizeCm: number; bestQualityScore: number }>()
+  const fish = new Map<
+    string,
+    { count: number; bestSizeCm: number; bestQualityScore: number }
+  >()
   const endings = new Set<string>()
   const characters = new Set<string>()
   for (const reign of reigns) {
@@ -80,7 +93,10 @@ export function scrapbookSummary(archive: RoyalScrapbook) {
       fish.set(slug, {
         count: (previous?.count ?? 0) + entry.countCaught,
         bestSizeCm: Math.max(previous?.bestSizeCm ?? 0, entry.bestSizeCm),
-        bestQualityScore: Math.max(previous?.bestQualityScore ?? 0, entry.bestQualityScore),
+        bestQualityScore: Math.max(
+          previous?.bestQualityScore ?? 0,
+          entry.bestQualityScore,
+        ),
       })
     }
   }

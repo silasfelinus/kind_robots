@@ -9,7 +9,10 @@
 import type { RunSave, SaveIndex, SaveSlotMeta } from '~/types/ruler-hooked'
 import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
 import { RULER_HOOKED_CONTENT } from '~/utils/rulerHooked/content'
-import { rememberReign, type RoyalScrapbook } from '~/utils/rulerHooked/scrapbook'
+import {
+  rememberReign,
+  type RoyalScrapbook,
+} from '~/utils/rulerHooked/scrapbook'
 import { deletePortrait } from '~/utils/rulerHooked/portraitStore'
 
 const SCRAPBOOK_KEY = 'rulerHooked:scrapbook:v1'
@@ -105,13 +108,16 @@ export function loadScrapbook(): RoyalScrapbook {
   if (raw && !Array.isArray(raw)) {
     for (const [id, entry] of Object.entries(raw)) {
       if (
-        entry && entry.saveId === id &&
+        entry &&
+        entry.saveId === id &&
         typeof entry.name === 'string' &&
         Number.isFinite(entry.turnCount) &&
         Array.isArray(entry.endingKeys) &&
         Array.isArray(entry.characters) &&
-        entry.fish && typeof entry.fish === 'object'
-      ) archive[id] = entry
+        entry.fish &&
+        typeof entry.fish === 'object'
+      )
+        archive[id] = entry
     }
   }
   for (const slot of loadIndex().slots) {

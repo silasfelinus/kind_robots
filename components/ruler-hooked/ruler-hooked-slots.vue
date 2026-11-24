@@ -40,10 +40,16 @@
       </button>
     </header>
 
-    <div v-if="showScrapbook" class="rh-parchment rh-title-screen__panel min-h-0 overflow-y-auto">
+    <div
+      v-if="showScrapbook"
+      class="rh-parchment rh-title-screen__panel min-h-0 overflow-y-auto"
+    >
       <RulerHookedScrapbook />
     </div>
-    <div v-else-if="showSaves" class="rh-parchment rh-title-screen__panel rh-ledger">
+    <div
+      v-else-if="showSaves"
+      class="rh-parchment rh-title-screen__panel rh-ledger"
+    >
       <p class="rh-eyebrow">The royal archives</p>
       <h2 class="rh-title rh-title--big">Reigns remembered</h2>
       <div

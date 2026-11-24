@@ -1003,10 +1003,11 @@ class RibbonRiders implements ArcadeGameInstance {
     const spec = RIVALS[b.kind!]
     // A Tag Lap crew races a touch under the rider's pace: turbo and slipstream win it.
     const race = this.node?.objective === 'taglap' ? TAG_LAP_PACE : 1
-    pace *= race
+    const encorePace = this.mode === 'festival' && this.encore ? 1.12 : 1
+    pace *= race * encorePace
     if (spec.speed === 'match') {
       const t = this.targetFor(b)
-      return t ? Math.max(pace * 0.5, t.speed * race) : pace
+      return t ? Math.max(pace * 0.5, t.speed * race * encorePace) : pace
     }
     let speed = pace * spec.speed
     if (b.kind === 'hugger') {

@@ -548,6 +548,8 @@ export class PlumberRun implements ArcadeGameInstance {
   camera = 0
   /** Smoothed anticipation: positive velocity exposes more of the route to the right. */
   cameraLead = 0
+  private stillCamera = false
+  private highContrast = false
   /** Vertical scroll: 0 shows the top of the stage; the lowest view frames the ground. */
   cameraY = 0
   locked = false
@@ -613,6 +615,8 @@ export class PlumberRun implements ArcadeGameInstance {
     this.masteryHeld = new Set(options.mastery ?? [])
     this.autopilot = options.demo || run.autopilot === true
     this.sound = options.sound
+    this.stillCamera = options.stillCamera === true
+    this.highContrast = options.highContrast === true
     this.rng = options.rng
     this.file = readPlumberFile(this.demo ? null : options.resume)
     this.resume = readPlumberSave(this.file)
@@ -1836,9 +1840,10 @@ export class PlumberRun implements ArcadeGameInstance {
         this.sound.play('extra')
       }
     }
-    const desiredLead = this.locked
-      ? 0
-      : Math.max(-42, Math.min(42, hero.vx * 10))
+    const desiredLead =
+      this.locked || this.stillCamera
+        ? 0
+        : Math.max(-42, Math.min(42, hero.vx * 10))
     this.cameraLead += (desiredLead - this.cameraLead) * 0.12
     if (Math.abs(this.cameraLead) < 0.05) this.cameraLead = 0
     const target = this.cameraTarget()
@@ -4984,9 +4989,14 @@ export class PlumberRun implements ArcadeGameInstance {
     wash.addColorStop(1, 'rgba(255, 236, 214, 0.22)')
     g.fillStyle = wash
     g.fillRect(0, 0, W, H)
+    if (this.highContrast) {
+      g.fillStyle = 'rgba(0, 0, 0, 0.65)'
+      g.fillRect(0, 0, W, H)
+    }
     g.save()
     g.translate(-Math.round(this.camera), -Math.round(this.cameraY))
     this.renderTiles(g)
+    if (this.highContrast) this.renderContrastEdges(g)
     if (this.stage.space) this.renderSpaceFeatures(g)
     this.renderThings(g)
     this.renderWinterHazards(g)
@@ -5397,6 +5407,27 @@ export class PlumberRun implements ArcadeGameInstance {
           }
         }
       }
+  }
+
+  private renderContrastEdges(g: CanvasRenderingContext2D) {
+    const first = Math.max(0, Math.floor(this.camera / TILE))
+    const last = Math.min(this.stage.cols, first + Math.ceil(W / TILE) + 2)
+    const top = Math.max(0, Math.floor(this.cameraY / TILE))
+    const bottom = Math.min(this.stage.rows, top + Math.ceil(H / TILE) + 2)
+    g.save()
+    for (let row = top; row < bottom; row++)
+      for (let col = first; col < last; col++) {
+        const solid = this.solidAt(col, row)
+        if (!isWall(solid) && solid !== SOLID_LEDGE && solid !== SOLID_WATER)
+          continue
+        const above = this.solidAt(col, row - 1)
+        if (isWall(above) || above === solid) continue
+        g.fillStyle = '#101820'
+        g.fillRect(col * TILE, row * TILE, TILE, 4)
+        g.fillStyle = solid === SOLID_WATER ? '#ffcf55' : '#ffffff'
+        g.fillRect(col * TILE, row * TILE, TILE, 2)
+      }
+    g.restore()
   }
 
   private renderThings(g: CanvasRenderingContext2D) {

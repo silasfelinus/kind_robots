@@ -1,6 +1,6 @@
 import type { MusicLoop } from '../sound'
 
-/** Original chip melodies, synthesized live until approved recordings arrive. */
+/** Original chip melodies with deterministic mastered recordings and live fallbacks. */
 const REGION_MELODIES: readonly MusicLoop[] = [
   {
     bpm: 118,
@@ -154,13 +154,30 @@ function arrangeRegion(theme: MusicLoop, index: number): MusicLoop {
   }
 }
 
+const REGION_TRACKS = [
+  'rainbow-salon',
+  'botanic-dome',
+  'night-market',
+  'cloud-library',
+  'prism-workshop',
+  'heart-of-hue',
+] as const
+
+function recording(name: string) {
+  return { src: `/audio/arcade/superkate-spectrum/${name}.wav` }
+}
+
 export const SPECTRUM_THEMES: readonly MusicLoop[] = REGION_MELODIES.map(
-  arrangeRegion,
+  (theme, index) => ({
+    ...arrangeRegion(theme, index),
+    recorded: recording(REGION_TRACKS[index]!),
+  }),
 )
 
 /** Six denser, faster arrangements for each fifth-stage chapter showdown. */
 export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] = SPECTRUM_THEMES.map(
   (theme, index) => ({
+    recorded: recording(`${REGION_TRACKS[index]}-boss`),
     bpm: Math.min(170, theme.bpm + 18),
     stepsPerBeat: 2,
     tracks: [
@@ -184,6 +201,7 @@ export const SPECTRUM_BOSS_MUSIC: readonly MusicLoop[] = SPECTRUM_THEMES.map(
 )
 
 export const SPECTRUM_CLASSIC_MUSIC: MusicLoop = {
+  recorded: recording('classic'),
   bpm: 128,
   stepsPerBeat: 2,
   tracks: [
@@ -202,6 +220,7 @@ export const SPECTRUM_CLASSIC_MUSIC: MusicLoop = {
 }
 
 export const SPECTRUM_MENU_MUSIC: MusicLoop = {
+  recorded: recording('menu'),
   bpm: 86,
   stepsPerBeat: 2,
   tracks: [

@@ -37,7 +37,7 @@ const AUTHORED_MOONJELLY = {
   turnEnds: 4200,
   approachStarts: 30300,
   bossStarts: 30600,
-  aftermathFrames: 360,
+  aftermathFrames: 390,
   lineFrames: 96,
   waveBase: 1000,
 } as const

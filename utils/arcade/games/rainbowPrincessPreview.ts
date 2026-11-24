@@ -82,6 +82,7 @@ import {
   type RainbowDetour,
 } from './rainbowDetourPlanes'
 import { rainbowEndingMemoryIds } from './rainbowEndingArchive'
+import { rainbowArcSeat, rainbowPilotArcBeat } from './rainbowPilotArcs'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
 import {
@@ -993,6 +994,8 @@ function burstShots(bullet: EnemyShot): EnemyShot[] {
     }
   })
 }
+/** Every Act's aftermath reads its lines at this pace; the arc beat is the fourth. */
+const ARC_LINE_FRAMES = 96
 /** Presses this soon after the crew falls are fire-button carry-over, not a choice to continue. */
 const CONTINUE_GRACE_FRAMES = 30
 /**
@@ -9365,7 +9368,35 @@ export function createRainbowPrincessPreview(
         flying &&
         actCallout(flying.act, flying.sections, flying.frame, activePlayers)
       // The comms switch (t-044): full, story scenes only, or off but for the ending.
-      const line = rainbowCommsLine(comms, said, callout, scene?.id ?? null)
+      // After each Act's three aftermath lines, one pilot's own arc beat (story critic S8, S9).
+      const arcAct = /^A0([1-8])\.AFTER$/.exec(scene?.id ?? '')?.[1]
+      const arcBeat =
+        !said &&
+        arcAct &&
+        scene &&
+        scene.elapsed >= 3 * ARC_LINE_FRAMES &&
+        scene.elapsed < 4 * ARC_LINE_FRAMES
+          ? (() => {
+              const pilot =
+                RAINBOW_PILOTS[
+                  pilotOf(rainbowArcSeat(Number(arcAct), activePlayers))
+                ]!
+              const text = rainbowPilotArcBeat(Number(arcAct), pilot.key)
+              return text
+                ? {
+                    speaker: pilot.name.split(' ')[0]!,
+                    text,
+                    partyAuthored: true as const,
+                  }
+                : null
+            })()
+          : null
+      const line = rainbowCommsLine(
+        comms,
+        said ?? arcBeat,
+        callout,
+        scene?.id ?? null,
+      )
       const dialogue = line && crewLine(line)
       shownComms = dialogue
         ? {

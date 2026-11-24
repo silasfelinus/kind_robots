@@ -305,7 +305,11 @@ assert.equal(weatherBoard.weather?.remaining, 1)
 assert.equal(weatherBoard.weather?.countdown, 3)
 const weatherReplay = E.clone(weatherBefore)
 E.trySwap(weatherReplay, [1, 2], [2, 2])
-assert.deepEqual(weatherReplay, weatherBoard, 'weather and ribbon state replay exactly')
+assert.deepEqual(
+  weatherReplay,
+  weatherBoard,
+  'weather and ribbon state replay exactly',
+)
 const weatherLevel = L.buildLevel(must(worlds[0]!.regions[1]).id, 18)
 const weatherState = E.createLevelState(weatherLevel)
 assert.equal(weatherState.weather?.kind, 'spread')

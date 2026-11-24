@@ -935,10 +935,22 @@
         text: 'This level asks for a kind of jewel. Every one you clear counts toward the goal up top.',
       },
       gloom: { title: b.gloom.name, text: b.gloom.text },
-      tangle: { title: b.tangle.name, text: b.tangle.text + ' Tough knots may need up to five hits.' },
-      ribbon: { title: 'Ribbon locks', text: 'A ribbon-pinned jewel cannot swap or fall. Match it with neighboring jewels or hit it with a special to release it.' },
-      spread: { title: 'Spreading Gloom', text: 'Gloom may spread if a move does not completely clear a patch. Clear patches to keep it contained.' },
-      cloud: { title: 'Rain cloud', text: 'Every three moves the cloud may add a new patch of Gloom. It never costs a life or ends a level.' },
+      tangle: {
+        title: b.tangle.name,
+        text: b.tangle.text + ' Tough knots may need up to five hits.',
+      },
+      ribbon: {
+        title: 'Ribbon locks',
+        text: 'A ribbon-pinned jewel cannot swap or fall. Match it with neighboring jewels or hit it with a special to release it.',
+      },
+      spread: {
+        title: 'Spreading Gloom',
+        text: 'Gloom may spread if a move does not completely clear a patch. Clear patches to keep it contained.',
+      },
+      cloud: {
+        title: 'Rain cloud',
+        text: 'Every three moves the cloud may add a new patch of Gloom. It never costs a life or ends a level.',
+      },
       buddy: { title: b.buddy.name, text: b.buddy.text },
       comb: { title: sp.comb.name + '!', text: sp.comb.text },
       bomb: { title: sp.bomb.name + '!', text: sp.bomb.text },
@@ -1211,7 +1223,15 @@
         seen.add(tile.id)
         let el = map.get(tile.id)
         const sig =
-          tile.kind + ':' + tile.color + ':' + tile.special + ':' + tile.hp + ':' + !!tile.ribbon
+          tile.kind +
+          ':' +
+          tile.color +
+          ':' +
+          tile.special +
+          ':' +
+          tile.hp +
+          ':' +
+          !!tile.ribbon
         if (!el) {
           el = document.createElement('div')
           el.className = 'tile' + (tile.kind === 'tangle' ? ' fixed' : '')
@@ -1232,7 +1252,11 @@
             el.offsetWidth
             el.classList.add('created')
           }
-          el.innerHTML = tileSvg(tile) + (tile.ribbon ? '<span style="position:absolute;right:0;top:0;font-size:0.85em;pointer-events:none" aria-hidden="true">🎀</span>' : '')
+          el.innerHTML =
+            tileSvg(tile) +
+            (tile.ribbon
+              ? '<span style="position:absolute;right:0;top:0;font-size:0.85em;pointer-events:none" aria-hidden="true">🎀</span>'
+              : '')
           el._sig = sig
         }
         el.style.width = cell + 'px'
@@ -1240,7 +1264,10 @@
         el.style.padding = Math.round(cell * 0.05) + 'px'
         el.dataset.r = r
         el.dataset.c = c
-        el.setAttribute('aria-label', tileLabel(tile) + (tile.ribbon ? ', ribbon locked' : ''))
+        el.setAttribute(
+          'aria-label',
+          tileLabel(tile) + (tile.ribbon ? ', ribbon locked' : ''),
+        )
         if (instant) {
           el.style.transition = 'none'
           el.style.transform = pos(r, c)
@@ -1264,7 +1291,12 @@
     const st = game.state
     appEl.querySelector('[data-moves]').textContent = Math.max(0, st.movesLeft)
     const weather = st.weather
-    appEl.querySelector('[data-weather]').textContent = weather && weather.remaining > 0 ? weather.kind === 'cloud' ? '☔ ' + weather.countdown : '🌧️ ' + weather.remaining : ''
+    appEl.querySelector('[data-weather]').textContent =
+      weather && weather.remaining > 0
+        ? weather.kind === 'cloud'
+          ? '☔ ' + weather.countdown
+          : '🌧️ ' + weather.remaining
+        : ''
     appEl
       .querySelector('[data-moves-box]')
       .classList.toggle('low', st.movesLeft <= 3 && !st.over)
@@ -1502,7 +1534,11 @@
       const phase = phases[i]
       if (phase.weather) {
         drawGloom()
-        cheer(phase.weather === 'cloud' ? 'A little rain! ☔' : 'Gloom is spreading!')
+        cheer(
+          phase.weather === 'cloud'
+            ? 'A little rain! ☔'
+            : 'Gloom is spreading!',
+        )
       }
       if (phase.swap) {
         const ea = game.els.tileMap.get(phase.swap.ids[0])

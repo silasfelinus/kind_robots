@@ -50,7 +50,9 @@
   }
 
   function isMovable(tile) {
-    return !!tile && !tile.ribbon && (tile.kind === 'gem' || tile.kind === 'buddy')
+    return (
+      !!tile && !tile.ribbon && (tile.kind === 'gem' || tile.kind === 'buddy')
+    )
   }
 
   function matchColor(tile) {
@@ -189,7 +191,11 @@
     const cells = []
     for (let r = 0; r < state.rows; r++)
       for (let c = 0; c < state.cols; c++)
-        if (isGem(tileAt(state, r, c)) && !tileAt(state, r, c).special && !tileAt(state, r, c).ribbon)
+        if (
+          isGem(tileAt(state, r, c)) &&
+          !tileAt(state, r, c).special &&
+          !tileAt(state, r, c).ribbon
+        )
           cells.push([r, c])
     return cells.length ? cells[randInt(state.rng, cells.length)] : null
   }
@@ -801,7 +807,9 @@
   function advanceWeather(state, phases) {
     const weather = state.weather
     if (!weather || weather.remaining <= 0 || goalsMet(state)) return
-    const clearedGloom = phases.some((phase) => phase.gloom.some((cell) => cell[2] === 0))
+    const clearedGloom = phases.some((phase) =>
+      phase.gloom.some((cell) => cell[2] === 0),
+    )
     if (weather.kind === 'spread' && clearedGloom) return
     if (weather.kind === 'cloud') {
       weather.countdown--
@@ -811,16 +819,29 @@
     const targets = []
     for (let r = 0; r < state.rows; r++)
       for (let c = 0; c < state.cols; c++) {
-        if (!isCell(state, r, c) || state.gloom[r][c] || !isGem(tileAt(state, r, c))) continue
-        if (weather.kind === 'spread' && ![[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dr, dc]) => state.gloom[r + dr]?.[c + dc] > 0)) continue
+        if (
+          !isCell(state, r, c) ||
+          state.gloom[r][c] ||
+          !isGem(tileAt(state, r, c))
+        )
+          continue
+        if (
+          weather.kind === 'spread' &&
+          ![
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+          ].some(([dr, dc]) => state.gloom[r + dr]?.[c + dc] > 0)
+        )
+          continue
         targets.push([r, c])
       }
     if (!targets.length) return
     const [r, c] = targets[randInt(state.rng, targets.length)]
     state.gloom[r][c] = 1
     weather.remaining--
-    for (const goal of state.goals)
-      if (goal.type === 'gloom') goal.target++
+    for (const goal of state.goals) if (goal.type === 'gloom') goal.target++
     phases.push({
       ...newPhase(0),
       weather: weather.kind,
@@ -978,7 +999,11 @@
     while ((findRuns(state).length || !findMove(state)) && guard++ < 50) {
       for (let r = 0; r < state.rows; r++)
         for (let c = 0; c < state.cols; c++)
-          if (isGem(tileAt(state, r, c)) && !state.board[r][c].special && !state.board[r][c].ribbon)
+          if (
+            isGem(tileAt(state, r, c)) &&
+            !state.board[r][c].special &&
+            !state.board[r][c].ribbon
+          )
             state.board[r][c].color = safeColor(state, r, c)
       if (!findMove(state)) shuffle(state)
     }

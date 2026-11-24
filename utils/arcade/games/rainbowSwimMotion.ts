@@ -69,3 +69,23 @@ export function rainbowHitFlinch(
   const squash = 0.14 * t * t
   return { x: 1 - squash, y: 1 + squash * 0.6 }
 }
+
+/**
+ * Conductor rainbow t-011: the pilot's craft banks into a climb or a dive and leans into a surge — stretching
+ * as it pushes forward, squatting as it backs off. Draw-only: the hitbox never moves. Calm motion keeps a
+ * fifth of the pose, the same share the swimmers keep.
+ */
+export function rainbowShipPose(
+  bank: number,
+  thrust: number,
+  calm = false,
+): { rotate: number; scaleX: number; scaleY: number } {
+  const motion = calm ? 0.2 : 1
+  const lean = Math.max(-0.1, Math.min(0.1, thrust * 0.025)) * motion
+  return {
+    rotate: Math.max(-0.35, Math.min(0.35, bank * 0.12)) * motion,
+    scaleX: 1 + lean,
+    scaleY:
+      (1 - Math.min(0.18, Math.abs(bank) * 0.05) * motion) * (1 - lean * 0.5),
+  }
+}

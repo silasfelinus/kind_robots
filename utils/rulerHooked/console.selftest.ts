@@ -5,6 +5,14 @@
 // library's fallback chains. Run via `npx tsx`, like the other selftests.
 
 import assert from 'node:assert/strict'
+import {
+  cleanRoyalAudioPrefs,
+  ROYAL_AUDIO_DEFAULTS,
+  ROYAL_CHIMES,
+  ROYAL_THEMES,
+  royalFrequency,
+  royalThemeFor,
+} from '~/utils/rulerHooked/audio'
 import { createRun } from '~/utils/rulerHooked/newGame'
 import { RULER_HOOKED_CONTENT as C } from '~/utils/rulerHooked/content'
 import {
@@ -315,6 +323,56 @@ const fresh = (seed = 'console-seed'): RunSave =>
   const card = cardCandidates({ art: 'card-tax-season' }, 'taxman-gristle')
   assert.equal(card[0], '/images/ruler-hooked/card-tax-season.webp')
   assert.equal(card[1], '/images/ruler-hooked/characters/taxman-gristle.webp')
+}
+
+
+// --- original score and accessible audio preferences ------------------------
+
+{
+  assert.deepEqual(cleanRoyalAudioPrefs(null), ROYAL_AUDIO_DEFAULTS)
+  assert.deepEqual(cleanRoyalAudioPrefs({ music: -1, effects: 2, muted: true }), {
+    music: 0,
+    effects: 1,
+    muted: true,
+  })
+  assert.deepEqual(
+    cleanRoyalAudioPrefs({ music: NaN, effects: 'loud', muted: 'yes' }),
+    ROYAL_AUDIO_DEFAULTS,
+  )
+  assert.equal(royalFrequency(69), 440)
+  assert.equal(royalFrequency(81), 880)
+  assert.equal(royalThemeFor(false, 'lake', false, false), 'title')
+  assert.equal(royalThemeFor(true, 'opening', false, false), 'title')
+  assert.equal(royalThemeFor(true, 'saves', false, false), 'title')
+  assert.equal(royalThemeFor(true, 'court', false, false), 'court')
+  assert.equal(royalThemeFor(true, 'lake', true, false), 'night')
+  assert.equal(royalThemeFor(true, 'lake', false, false), 'lake')
+  assert.equal(royalThemeFor(true, 'court', false, true), 'ending')
+  assert.equal(Object.keys(ROYAL_THEMES).length, 5)
+  assert.equal(
+    new Set(Object.values(ROYAL_THEMES).map((theme) => JSON.stringify(theme.melody)))
+      .size,
+    5,
+    'each location or scene earns its own theme',
+  )
+  for (const theme of Object.values(ROYAL_THEMES)) {
+    assert.ok(theme.beat > 0.3 && theme.beat < 1)
+    assert.equal(theme.bass.length, 4)
+    assert.equal(theme.melody.reduce((sum, note) => sum + note[1], 0), 16)
+    for (const [pitch, beats] of theme.melody) {
+      assert.ok(pitch >= 48 && pitch <= 88)
+      assert.ok(beats >= 1 && beats <= 4)
+    }
+  }
+  assert.equal(Object.keys(ROYAL_CHIMES).length, 6)
+  for (const chime of Object.values(ROYAL_CHIMES)) {
+    assert.ok(chime.length)
+    for (const [pitch, at, duration] of chime) {
+      assert.ok(pitch >= 48 && pitch <= 88)
+      assert.ok(at >= 0 && at + duration <= 1)
+      assert.ok(duration >= 0.08)
+    }
+  }
 }
 
 console.log(

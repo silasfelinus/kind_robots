@@ -18,7 +18,12 @@ import {
 } from '../arcade/games/rainbowGameArt'
 import { RAINBOW_DOODLE_ART } from '../arcade/games/rainbowDoodleArt'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
-import { drawFeverSky, drawFeverTrail } from '../arcade/games/rainbowFeverDream'
+import {
+  FEVER_AURORAS,
+  FEVER_SKIES,
+  drawFeverSky,
+  drawFeverTrail,
+} from '../arcade/games/rainbowFeverDream'
 import { emptyInput } from '../arcade/types'
 
 // Conductor rainbow t-036/t-037, Silas 2026-11-05 PT: "I'm hoping we can choose between the two looks.
@@ -281,3 +286,22 @@ assert.ok(actsPainted.size >= 8, `Fever Dream painted ${actsPainted.size} Acts`)
 console.log(
   `Rainbow Fever Dream: ${RAINBOW_DOODLE_ART.length} pictures, ${renders} paired renders across ${actsPainted.size} Acts, same game in either look.`,
 )
+
+// P-20 (presentation critic): every Act has its own colour key and aurora, and the sky's top stays dark enough
+// that shots read (relative luminance under 0.03).
+{
+  const lum = (hex: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const c = parseInt(hex.slice(i, i + 2), 16) / 255
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+    })
+    return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
+  }
+  assert.equal(new Set(FEVER_SKIES.map((sky) => sky[2])).size, 9)
+  assert.equal(
+    new Set(FEVER_AURORAS.slice(1, 8).map((aurora) => aurora.join())).size,
+    7,
+    'Acts II-VIII each have their own aurora',
+  )
+  for (const sky of FEVER_SKIES) assert.ok(lum(sky[0]) < 0.03, sky[0])
+}

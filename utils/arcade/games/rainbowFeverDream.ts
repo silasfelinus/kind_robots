@@ -12,18 +12,39 @@
 const W = 480
 const H = 270
 
-/** Top, middle and floor colours of the sky per Act: deep violet up top, neon toward the floor. */
+/**
+ * Top, middle and floor colours of the sky per Act: dark up top so every shot reads, the Act's own colour key
+ * toward the floor (presentation critic P-20, 2026-11-23 PT: Acts I, III, IV and V all read as "purple again").
+ * I Pinkwake magenta, II Moonjelly teal, III Trench volcanic amber, IV Express night-blue and gold, V Wreckyard
+ * rust dusk, VI Crown Reef coral gold, VII Glass ice, VIII Palace eclipse violet, IX the full rainbow returns.
+ */
 export const FEVER_SKIES = [
-  ['#1a0638', '#5a0f7a', '#ff4fb8'],
-  ['#08113d', '#2a1a8a', '#21d7e6'],
-  ['#14042c', '#4a0a6e', '#b03cff'],
-  ['#1a0634', '#6a1078', '#ff7a3c'],
-  ['#160424', '#5c0a5c', '#ff3c8a'],
-  ['#1a0a2c', '#6a2a7a', '#ffc21f'],
-  ['#061234', '#1c3a8a', '#7affd8'],
-  ['#12032a', '#520a72', '#ff5ad1'],
+  ['#1c0630', '#5e0f62', '#ff4fb8'],
+  ['#03142a', '#0b3c58', '#21d7e6'],
+  ['#1a0806', '#5a1c08', '#ff7a1c'],
+  ['#050a2c', '#16287a', '#ffd23a'],
+  ['#140a0e', '#4a1a22', '#ff6a4a'],
+  ['#1a0820', '#62163e', '#ffc21f'],
+  ['#08122c', '#24467e', '#cfe8ff'],
+  ['#0a0418', '#2a0a48', '#c38cff'],
   ['#08021a', '#2c0848', '#8a2cff'],
 ] as const
+
+/**
+ * Each Act's aurora: the folder's full rainbow opens (Act I) and closes (the finale) the flight; in between the
+ * ribbons take the Act's colour key, so the Acts no longer share one band.
+ */
+export const FEVER_AURORAS: readonly (readonly string[])[] = [
+  ['#ff3fa4', '#ff8a2a', '#ffe03a', '#7dff4a', '#2ee6ff', '#a64dff'],
+  ['#2ee6ff', '#7affd8', '#9ff6ff', '#2ee6ff', '#7affd8', '#9ff6ff'],
+  ['#ff8a2a', '#ffb347', '#ff3c3c', '#ff8a2a', '#ffb347', '#ff3c3c'],
+  ['#ffe03a', '#4a8cff', '#a6c8ff', '#ffe03a', '#4a8cff', '#a6c8ff'],
+  ['#ff6a4a', '#ffb08a', '#c88a5a', '#ff6a4a', '#ffb08a', '#c88a5a'],
+  ['#ffc21f', '#ff7ac8', '#ffe9a0', '#ffc21f', '#ff7ac8', '#ffe9a0'],
+  ['#cfe8ff', '#8fe9ff', '#ffffff', '#cfe8ff', '#8fe9ff', '#ffffff'],
+  ['#c38cff', '#fff2a8', '#ff5ad1', '#c38cff', '#fff2a8', '#ff5ad1'],
+  ['#ff3fa4', '#ff8a2a', '#ffe03a', '#7dff4a', '#2ee6ff', '#a64dff'],
+]
 
 /** The airbrush rainbow: hot pink, tangerine, sunshine, lime, turquoise, electric purple. */
 export const FEVER_RAINBOW = [
@@ -90,7 +111,9 @@ export function drawFeverSky(
   tick: number,
   drift = 1,
 ) {
-  const sky = FEVER_SKIES[Math.min(FEVER_SKIES.length, Math.max(1, act)) - 1]!
+  const key = Math.min(FEVER_SKIES.length, Math.max(1, act)) - 1
+  const sky = FEVER_SKIES[key]!
+  const aurora = FEVER_AURORAS[key]!
   const fill = g.createLinearGradient(0, 0, 0, H)
   fill.addColorStop(0, sky[0])
   fill.addColorStop(0.6, sky[1])
@@ -113,8 +136,8 @@ export function drawFeverSky(
   // Aurora: six translucent rainbow ribbons waving across the upper sky.
   g.globalAlpha = 0.16
   g.lineCap = 'round'
-  for (let band = 0; band < FEVER_RAINBOW.length; band++) {
-    g.strokeStyle = FEVER_RAINBOW[band]!
+  for (let band = 0; band < aurora.length; band++) {
+    g.strokeStyle = aurora[band]!
     g.lineWidth = 9
     g.beginPath()
     for (let x = -10; x <= W + 10; x += 12) {
@@ -167,7 +190,11 @@ export function drawFeverSky(
     }
   }
 
-  // A rainbow arching low on the horizon, the folder's signature.
+  // A rainbow arching low on the horizon, the folder's signature: Act I and the finale only (P-20).
+  if (key !== 0 && key !== FEVER_SKIES.length - 1) {
+    g.restore()
+    return
+  }
   g.globalAlpha = 0.22
   g.lineWidth = 5
   const cx = wrap(380 - tick * drift * 0.05, W + 300) - 150

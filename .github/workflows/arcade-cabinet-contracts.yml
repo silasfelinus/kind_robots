@@ -13,6 +13,7 @@ on:
       - 'utils/arcade/**'
       - 'utils/scripts/arcadeCabinetFixture.mjs'
       - 'utils/scripts/*Cabinet.browser.test.mjs'
+      - 'utils/scripts/verifySavePlumberAudio.test.ts'
       - '.github/workflows/arcade-cabinet-contracts.yml'
 
 permissions:
@@ -37,6 +38,8 @@ jobs:
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
+      - name: Save the Plumber — original gameplay cue and mixer contract
+        run: npx tsx utils/scripts/verifySavePlumberAudio.test.ts
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Rescue Rally — 1-4 seats by keyboard, gamepad and touch

@@ -50,7 +50,9 @@
   }
 
   function isMovable(tile) {
-    return !!tile && (tile.kind === 'gem' || tile.kind === 'buddy')
+    return (
+      !!tile && !tile.ribbon && (tile.kind === 'gem' || tile.kind === 'buddy')
+    )
   }
 
   function matchColor(tile) {
@@ -85,6 +87,7 @@
         : Array.from({ length: rows }, () => Array(cols).fill(0)),
       rng: makeRng(def.seed || hashString(String(def.id))),
       nextId: 1,
+      weather: clone(def.weather || null),
       score: 0,
       movesLeft: def.moves + (opts.bonusMoves || 0),
       movesUsed: 0,
@@ -165,6 +168,10 @@
         }
       }
     }
+    for (const [r, c] of def.ribbons || []) {
+      const tile = tileAt(state, r, c)
+      if (isGem(tile) && !tile.special) tile.ribbon = true
+    }
     if (['bomb', 'rainbow'].includes(opts.startSpecial)) {
       const spot = randomGemCell(state)
       if (spot) {
@@ -192,7 +199,11 @@
     const cells = []
     for (let r = 0; r < state.rows; r++)
       for (let c = 0; c < state.cols; c++)
-        if (isGem(tileAt(state, r, c)) && !tileAt(state, r, c).special)
+        if (
+          isGem(tileAt(state, r, c)) &&
+          !tileAt(state, r, c).special &&
+          !tileAt(state, r, c).ribbon
+        )
           cells.push([r, c])
     return cells.length ? cells[randInt(state.rng, cells.length)] : null
   }
@@ -486,7 +497,7 @@
       for (let r = state.rows - 1; r >= 0; r--) {
         if (!isCell(state, r, c)) continue
         const tile = state.board[r][c]
-        if (tile && tile.kind === FIXED.TANGLE) continue
+        if (tile && (tile.kind === FIXED.TANGLE || tile.ribbon)) continue
         slots.push(r)
         if (tile) movers.push({ tile, from: r })
         state.board[r][c] = null
@@ -801,6 +812,53 @@
     return ok
   }
 
+  function advanceWeather(state, phases) {
+    const weather = state.weather
+    if (!weather || weather.remaining <= 0 || goalsMet(state)) return
+    const clearedGloom = phases.some((phase) =>
+      phase.gloom.some((cell) => cell[2] === 0),
+    )
+    if (weather.kind === 'spread' && clearedGloom) return
+    if (weather.kind === 'cloud') {
+      weather.countdown--
+      if (weather.countdown > 0) return
+      weather.countdown = 3
+    }
+    const targets = []
+    for (let r = 0; r < state.rows; r++)
+      for (let c = 0; c < state.cols; c++) {
+        if (
+          !isCell(state, r, c) ||
+          state.gloom[r][c] ||
+          !isGem(tileAt(state, r, c))
+        )
+          continue
+        if (
+          weather.kind === 'spread' &&
+          ![
+            [1, 0],
+            [-1, 0],
+            [0, 1],
+            [0, -1],
+          ].some(([dr, dc]) => state.gloom[r + dr]?.[c + dc] > 0)
+        )
+          continue
+        targets.push([r, c])
+      }
+    if (!targets.length) return
+    const [r, c] = targets[randInt(state.rng, targets.length)]
+    state.gloom[r][c] = 1
+    weather.remaining--
+    for (const goal of state.goals) if (goal.type === 'gloom') goal.target++
+    phases.push({
+      ...newPhase(0),
+      weather: weather.kind,
+      gloom: [[r, c, 1]],
+      board: snapshot(state),
+      falls: [],
+    })
+  }
+
   function trySwap(state, a, b) {
     if (!canSwap(state, a, b)) return { ok: false, phases: [] }
     const ta = tileAt(state, a[0], a[1])
@@ -819,6 +877,7 @@
       else first.buddyStep = true
     }
     const phases = cascade(state, first, [a, b])
+    advanceWeather(state, phases)
     const shuffled = settle(state)
     if (shuffled)
       phases.push({
@@ -849,6 +908,8 @@
       if (!b || !isCell(state, b[0], b[1])) return invalid
       const tb = tileAt(state, b[0], b[1])
       if (!isGem(ta) || !isGem(tb) || ta.id === tb.id) return invalid
+      // Ribbon-pinned jewels stay put even for the free-swap helper.
+      if (ta.ribbon || tb.ribbon) return invalid
       phase.swap = { a, b, ids: [ta.id, tb.id] }
       swapTiles(state, a, b)
       if (isComboSwap(ta, tb)) comboClear(state, b, a, phase)
@@ -955,7 +1016,7 @@
     }
     for (let r = 0; r < state.rows; r++)
       for (let c = 0; c < state.cols; c++)
-        if (isGem(tileAt(state, r, c)))
+        if (isGem(tileAt(state, r, c)) && !state.board[r][c].ribbon)
           state.board[r][c].color = safeColor(state, r, c)
     const spot = randomGemCell(state)
     if (spot) state.board[spot[0]][spot[1]].special = 'rainbow'
@@ -968,7 +1029,7 @@
     for (let r = 0; r < state.rows; r++)
       for (let c = 0; c < state.cols; c++) {
         const tile = tileAt(state, r, c)
-        if (isGem(tile)) {
+        if (isGem(tile) && !tile.ribbon) {
           cells.push([r, c])
           tiles.push(tile)
         }
@@ -987,7 +1048,11 @@
     while ((findRuns(state).length || !findMove(state)) && guard++ < 50) {
       for (let r = 0; r < state.rows; r++)
         for (let c = 0; c < state.cols; c++)
-          if (isGem(tileAt(state, r, c)) && !state.board[r][c].special)
+          if (
+            isGem(tileAt(state, r, c)) &&
+            !state.board[r][c].special &&
+            !state.board[r][c].ribbon
+          )
             state.board[r][c].color = safeColor(state, r, c)
       if (!findMove(state)) shuffle(state)
     }

@@ -9,6 +9,7 @@ type Tile = {
   color?: number
   special?: string | null
   hp?: number
+  ribbon?: boolean
 } | null
 type Goal = {
   type: string
@@ -22,6 +23,7 @@ type State = {
   cols: number
   board: Tile[][]
   gloom: number[][]
+  weather?: { kind: string; remaining: number; countdown: number } | null
   goals: Goal[]
   movesLeft: number
   score: number
@@ -291,6 +293,38 @@ function craftedState(
   // same-realm prototypes against later E.clone() snapshots.
   return E.clone(state)
 }
+const weatherBoard = craftedState(
+  [
+    [2, 0],
+    [2, 1],
+    [2, 3],
+  ],
+  [1, 2],
+)
+weatherBoard.weather = { kind: 'cloud', remaining: 2, countdown: 1 }
+weatherBoard.gloom[0]![0] = 1
+weatherBoard.goals = [{ type: 'score', target: 99999, progress: 0 }]
+const locked = must(weatherBoard.board[0]?.[0])
+locked.ribbon = true
+assert.equal(E.canSwap(weatherBoard, [0, 0], [0, 1]), false)
+const weatherBefore = E.clone(weatherBoard)
+const weatherMove = E.trySwap(weatherBoard, [1, 2], [2, 2])
+assert.ok(weatherMove.ok)
+assert.equal(weatherBoard.weather?.remaining, 1)
+assert.equal(weatherBoard.weather?.countdown, 3)
+const weatherReplay = E.clone(weatherBefore)
+E.trySwap(weatherReplay, [1, 2], [2, 2])
+// E.clone() normalizes into the engine's vm realm; the fixture mixes in
+// test-realm objects that would otherwise fail deepStrictEqual on prototype.
+assert.deepEqual(
+  weatherReplay,
+  E.clone(weatherBoard),
+  'weather and ribbon state replay exactly',
+)
+const weatherLevel = L.buildLevel(must(worlds[0]!.regions[1]).id, 18)
+const weatherState = E.createLevelState(weatherLevel)
+assert.equal(weatherState.weather?.kind, 'spread')
+assert.ok(weatherState.board.flat().some((tile) => tile?.ribbon))
 const toolState = craftedState(
   [
     [2, 0],
@@ -317,6 +351,15 @@ E.useTool(replayTools, 'brush', [0, 0])
 E.useTool(replayTools, 'swap', [0, 0], [5, 5])
 E.useTool(replayTools, 'wand', [1, 1])
 assert.deepEqual(replayTools, toolState, 'tool actions replay exactly')
+const ribbonTools = E.clone(beforeTools)
+must(ribbonTools.board[0]?.[0]).ribbon = true
+const beforeRibbonSwap = E.clone(ribbonTools)
+assert.equal(E.useTool(ribbonTools, 'swap', [0, 0], [5, 5]).ok, false)
+assert.deepEqual(
+  ribbonTools,
+  beforeRibbonSwap,
+  'free swap respects ribbon locks',
+)
 
 const four = craftedState(
   [

@@ -1,5 +1,8 @@
 <template>
-  <section class="rh-scroll grid min-h-0 gap-3" aria-label="Royal Scrapbook">
+  <section
+    class="rh-scroll @container grid min-h-0 gap-3"
+    aria-label="Royal Scrapbook"
+  >
     <header>
       <p class="rh-eyebrow">Treasures across every reign</p>
       <h2 class="rh-title rh-title--big">Royal Scrapbook</h2>
@@ -27,7 +30,7 @@
       <p class="font-bold">
         {{ summary.endings.size }} / {{ store.bundle.endings.length }} endings
       </p>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div class="grid grid-cols-1 gap-3 @md:grid-cols-2">
         <article
           v-for="ending in store.bundle.endings"
           :key="ending.outcomeKey"
@@ -56,7 +59,7 @@
       <p class="font-bold">
         {{ summary.fish.size }} / {{ roster.length }} species caught
       </p>
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div class="grid grid-cols-2 gap-2 @md:grid-cols-3 @3xl:grid-cols-4">
         <article
           v-for="fish in roster"
           :key="fish.slug"
@@ -89,7 +92,7 @@
         {{ summary.characters.size }} /
         {{ store.bundle.characters.length }} petitioners met
       </p>
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div class="grid grid-cols-2 gap-2 @md:grid-cols-3 @3xl:grid-cols-4">
         <article
           v-for="character in store.bundle.characters"
           :key="character.slug"

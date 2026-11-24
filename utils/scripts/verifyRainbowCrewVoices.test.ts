@@ -12,6 +12,7 @@ import {
   finaleDialogue,
   finaleScene,
 } from '../arcade/games/rainbowEclipseFinale'
+import { rainbowPartyTrack } from '../arcade/games/rainbowPartyComms'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { ROSEFIN } from '../arcade/games/rainbowRosefin'
 import { emptyInput } from '../arcade/types'
@@ -57,7 +58,9 @@ for (let crew = 1; crew <= 4; crew++) {
   const loyal = after(crew, 'loyal', MASKS[crew - 1]!)
   assert.match(loyal[3]!.text, LOYAL[crew - 1]!, `loyal ${crew}: road epilogue`)
   assert.ok(
-    !loyal.some((line) => 'partyAuthored' in line && line.partyAuthored),
+    !loyal.some(
+      (line) => line.text === rainbowPartyTrack(MASKS[crew - 1]!).epilogue.text,
+    ),
     `loyal ${crew}: no rebel-toned party line`,
   )
   assert.match(loyal[4]!.text, /Motherland expects us home/)
@@ -67,6 +70,26 @@ for (let crew = 1; crew <= 4; crew++) {
     `rebel ${crew}: the crew's own party line`,
   )
   assert.match(rebel[4]!.text, REBEL[crew - 1]!, `rebel ${crew}: road epilogue`)
+}
+// S7: the crew's epilogue belongs to a pilot, not a seat. A Solenne-and-Vivi crew (mask 12) hears Vivi's own
+// line, never another pilot's role read in her voice, and no epilogue names another pilot.
+{
+  const solenneVivi = after(2, 'loyal', 12)
+  assert.equal(solenneVivi[3]!.speaker, 'Vivi')
+  assert.match(solenneVivi[3]!.text, /They will hand out medals/)
+  for (const road of ['rebel', 'loyal', null] as const)
+    for (let mask = 1; mask <= 15; mask++)
+      for (const line of after(
+        Math.max(1, mask.toString(2).replace(/0/g, '').length),
+        road,
+        mask,
+      ).slice(3))
+        if (line.speaker !== 'Lilt-7' && !line.text.includes('Lilt'))
+          assert.doesNotMatch(
+            line.text.replace(/^C\.A\.T\.S\./, ''),
+            /\b(Maribel|Azure|Solenne|Vivi)\b/,
+            `mask ${mask} ${road}: ${line.text}`,
+          )
 }
 // The unsworn road (older saves) keeps its party epilogue and send-off.
 assert.match(after(2, null, 3)[4]!.text, /the sky is open/)

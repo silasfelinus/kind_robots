@@ -280,71 +280,44 @@ function sendOff(road: FinaleRoad, choice: FinaleChoice): string {
   return 'Princesses, the sky is open. Let us go home.'
 }
 
+type FinalePilot = (typeof PILOTS)[number]
+
 /**
- * The crew's own epilogue by crew size, the selected pilots rather than seat numbers (COMMS bible party masks 1,
- * 3, 7, 15; the pilot select renames them to whoever flew). Each road gets its own: a rebel crew names what it
- * became, a loyal one what it will carry home.
+ * Each pilot's own epilogue on each road (independent story critic S7, 2026-11-23 PT: seat renaming handed one
+ * pilot's role to another, e.g. "Maribel heard the call, I drew the route" read with Solenne as the cartographer).
+ * The line belongs to a pilot, not a seat, and names no one else: Maribel's radio, Azure's map, Solenne's squadron,
+ * Vivi's broadcast. A rebel crew names what it became, a loyal one what it will carry home.
  */
-const ROAD_EPILOGUE: Record<
-  RainbowAllegiance,
-  Record<number, FinaleDialogue>
-> = {
+const ROAD_EPILOGUE: Record<RainbowAllegiance, Record<FinalePilot, string>> = {
   rebel: {
-    1: {
-      speaker: 'Maribel',
-      text: 'I flew in to pacify an ocean. I am flying out as one of its rescuers.',
-    },
-    2: {
-      speaker: 'Azure',
-      text: "Maribel heard the call, I drew the route. Our charts use the Ocean's own names now.",
-    },
-    3: {
-      speaker: 'Solenne',
-      text: 'C.A.T.S. answers to the Ocean now. Maribel, you lead us out. I have the rear.',
-    },
-    4: {
-      speaker: 'Vivi',
-      text: 'No ranks on this broadcast. Just names: every pilot, every creature, every carer.',
-    },
+    Maribel:
+      'I flew in to pacify an ocean. I am flying out as one of its rescuers.',
+    Azure:
+      "I drew routes for an empire. Our charts use the Ocean's own names now.",
+    Solenne:
+      'C.A.T.S. answers to the Ocean now. I will hold the rear all the way home.',
+    Vivi: 'No ranks on this broadcast. Just names: every pilot, every creature, every carer.',
   },
   loyal: {
-    1: {
-      speaker: 'Maribel',
-      text: 'Command will call this a victory. My radio will tell them what I heard.',
-    },
-    2: {
-      speaker: 'Azure',
-      text: 'The official map will say pacified. Mine will say who lived here, and I signed it.',
-    },
-    3: {
-      speaker: 'Solenne',
-      text: 'Orders kept, squadron whole. I will carry what it cost. Not alone, this time.',
-    },
-    4: {
-      speaker: 'Vivi',
-      text: 'They will hand out medals. I will read the names they leave off, every one.',
-    },
+    Maribel:
+      'Command will call this a victory. My radio will tell them what I heard.',
+    Azure:
+      'The official map will say pacified. Mine will say who lived here, and I signed it.',
+    Solenne:
+      'Orders kept, squadron whole. I will carry what it cost. Not alone, this time.',
+    Vivi: 'They will hand out medals. I will read the names they leave off, every one.',
   },
 }
 
-/** The epilogue for a flight saved before the memorial existed (the shipped one). */
-const EPILOGUE: Record<number, FinaleDialogue> = {
-  1: {
-    speaker: 'Maribel',
-    text: 'I flew in alone and I am flying out with a whole fleet. That was never just my rescue.',
-  },
-  2: {
-    speaker: 'Azure',
-    text: 'Maribel found the signal, I found the route. Next time we chart it together from the start.',
-  },
-  3: {
-    speaker: 'Solenne',
-    text: 'All escort sectors report in. Every cadet, every pod, accounted for. We go home as a squadron.',
-  },
-  4: {
-    speaker: 'Vivi',
-    text: 'Maribel asked who was out there, Azure mapped it, Solenne flew the escort. I am broadcasting every name.',
-  },
+/** The epilogue for a flight saved before the memorial existed (the shipped one), per pilot as well. */
+const EPILOGUE: Record<FinalePilot, string> = {
+  Maribel:
+    'I flew in alone and I am flying out with a whole fleet. That was never just my rescue.',
+  Azure:
+    'I found the route, but someone else found the signal. Next time we chart it together from the start.',
+  Solenne:
+    'All escort sectors report in. Every pod accounted for. We go home as a squadron.',
+  Vivi: 'Everyone out there asked, mapped and flew escort. I am broadcasting every name.',
 }
 
 export function finaleDialogue(
@@ -364,6 +337,15 @@ export function finaleDialogue(
   const lead = crew[0]!
   const wing = crew[crew.length - 1]!
   const rescues = finaleRescues(flags)
+  // Epilogues belong to a pilot, not a seat (story critic S7): with the party mask, the flown pilot speaks her own.
+  const voice =
+    partyMask !== null && partyMask > 0
+      ? PILOTS[Math.min(3, 31 - Math.clz32(partyMask))]!
+      : null
+  const epilogue = (lines: Record<FinalePilot, string>): FinaleDialogue =>
+    voice
+      ? { speaker: voice, text: lines[voice], partyAuthored: true }
+      : { speaker: wing, text: lines[wing] }
   const road = roadOf(allegiance)
   const ending = choice ?? 'evacuate'
   const lines: Record<FinaleSceneId, FinaleDialogue[]> = {
@@ -468,14 +450,14 @@ export function finaleDialogue(
       // are written for a crew that freed the Ocean, so they play on the rebel and unsworn roads; a loyal crew
       // says what it will carry home. A rebel crew then closes on what it became.
       road === 'loyal'
-        ? ROAD_EPILOGUE.loyal[crew.length]!
+        ? epilogue(ROAD_EPILOGUE.loyal)
         : party
           ? { ...party.epilogue, partyAuthored: true }
           : road === 'unsworn'
-            ? EPILOGUE[crew.length]!
-            : ROAD_EPILOGUE.rebel[crew.length]!,
+            ? epilogue(EPILOGUE)
+            : epilogue(ROAD_EPILOGUE.rebel),
       road === 'rebel' && party
-        ? ROAD_EPILOGUE.rebel[crew.length]!
+        ? epilogue(ROAD_EPILOGUE.rebel)
         : { speaker: lead, text: sendOff(road, ending) },
     ],
   }

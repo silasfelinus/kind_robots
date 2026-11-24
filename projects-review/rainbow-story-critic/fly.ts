@@ -1,3 +1,5 @@
+/* eslint-disable -- review-only harness kept as critic evidence, not shipped code */
+// @ts-nocheck -- review-only flight harness for the blind story critic; not shipped game code.
 // Blind story-critic flight driver (read-only review harness, not game code).
 // Usage from the repo root: OUT=<dir> npx tsx projects-review/rainbow-story-critic/fly.ts '<policy JSON>'
 import { writeFileSync } from 'node:fs'

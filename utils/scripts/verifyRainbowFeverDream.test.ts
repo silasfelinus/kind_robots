@@ -132,8 +132,13 @@ assert.equal(
 )
 assert.equal(
   rainbowStagePlane('s01', 'far', 'classic'),
+  '/rainbow-princess-art/stages/s01-far.webp',
+  'Classic draws its own painting, never a Fever Dream plane',
+)
+assert.equal(
+  rainbowStagePlane('s08', 'mid', 'classic'),
   null,
-  'Classic never borrows a Fever Dream plane',
+  'an unshipped Classic plane is not drawn',
 )
 assert.equal(
   rainbowHeroArt('/hero.webp'),

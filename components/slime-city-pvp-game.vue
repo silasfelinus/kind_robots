@@ -2443,8 +2443,19 @@ watch(
   .scpvp-arena :deep(.cxh .cxh-card.big.held-dock) {
     --y: calc(0.5rem + var(--W) * 1.5 - 100cqh);
   }
+  /*
+    Its level tabs float over the card's art band (between the name block
+    and the rules), so they never cover the console or a choice below.
+  */
   .scpvp-arena :deep(.cxh .cxh-levels.docked.held-dock) {
-    top: calc(0.9rem + var(--W) * 1.5);
+    top: calc(0.5rem + var(--W) * 0.62);
+  }
+  /*
+    While a card is held it overhangs the rail, so it rises above the
+    console: its rules must never sit under the deck or gear buttons.
+  */
+  .scpvp-arena :deep(.cxh.holding) {
+    z-index: 9;
   }
 }
 .scpvp-rail {
@@ -2657,6 +2668,16 @@ watch(
   .scpvp-choice {
     flex: 1 1 100%;
     flex-direction: column;
+  }
+  /*
+    The held card shows the picked option's full rules, so the rail's A / B
+    buttons carry just their titles, whole, instead of clipped rules.
+  */
+  .scpvp-choice small {
+    display: none;
+  }
+  .scpvp-choice b {
+    white-space: normal;
   }
   .scpvp-tap,
   .scpvp-power,

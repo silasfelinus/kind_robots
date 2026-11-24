@@ -39,10 +39,27 @@ assert.match(page, /ArcadeCabinet slug="save-the-plumber"/)
 assert.match(page, /ArcadeCabinet slug="save-the-plumber" contained/)
 assert.match(page, /plumber-viewport/)
 assert.match(page, /plumber-motion-video/)
-assert.match(
-  page,
-  /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'maker' \| 'play'/,
-)
+for (const screen of [
+  'title',
+  'story',
+  'worlds',
+  'crew',
+  'guide',
+  'settings',
+  'maker',
+  'play',
+])
+  assert.ok(page.includes(`screen === '${screen}'`) || screen === 'play')
+assert.match(page, /@click="go\('settings'\)"/)
+assert.match(page, /aria-labelledby="settings-heading"/)
+assert.match(page, /arcade\.loadPreferences\(reducedMotion\.value\)/)
+assert.match(page, /arcade\.setVolume\(/)
+assert.match(page, /arcade\.setMuted\(!arcade\.muted\)/)
+assert.match(page, /arcade\.setStillCamera\(!arcade\.stillCamera\)/)
+assert.match(page, /arcade\.setHighContrast\(!arcade\.highContrast\)/)
+assert.match(page, /aria-label="Arcade volume"/)
+assert.match(page, /:disabled="arcade.muted"/)
+assert.doesNotMatch(page, /localStorage/)
 assert.match(page, /prefers-reduced-motion: reduce/)
 assert.doesNotMatch(page, /PlumberTitleScene|href="#plumber-/)
 for (let world = 1; world <= 8; world++) {

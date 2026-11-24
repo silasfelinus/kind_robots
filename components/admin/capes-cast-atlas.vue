@@ -352,14 +352,19 @@
                 </small>
                 <div v-if="viewer.isAdmin && viewer.token" class="atlas-review">
                   <p>
-                    {{ crewReviews[crewProofReceipt(beat).imageId]?.decision ?? 'Not reviewed' }}
+                    {{
+                      crewReviews[crewProofReceipt(beat).imageId]?.decision ??
+                      'Not reviewed'
+                    }}
                     · local QA only
                   </p>
                   <label>
                     Composition, anatomy, canon and originality notes
                     <textarea
                       v-model="crewReviewNotes[crewProofReceipt(beat).imageId]"
-                      :aria-label="'Review notes for ' + crewProofReceipt(beat).title"
+                      :aria-label="
+                        'Review notes for ' + crewProofReceipt(beat).title
+                      "
                       maxlength="500"
                       rows="3"
                     ></textarea>
@@ -514,10 +519,10 @@ function canReviewCrew(beat: CrewProofBeat): boolean {
   const receipt = crewProofReceipt(beat)
   return Boolean(
     viewer.isAdmin &&
-      viewer.token &&
-      crewProofStatus(beat) === 'loaded' &&
-      crewProofImage(beat) &&
-      crewReviewNotes.value[receipt.imageId]?.trim(),
+    viewer.token &&
+    crewProofStatus(beat) === 'loaded' &&
+    crewProofImage(beat) &&
+    crewReviewNotes.value[receipt.imageId]?.trim(),
   )
 }
 function reviewCrew(beat: CrewProofBeat, decision: CrewReviewDecision): void {
@@ -548,13 +553,10 @@ function exportCrewReviews(): void {
   link.click()
   URL.revokeObjectURL(url)
 }
-watch(
-  [() => viewer.token, () => viewer.isAdmin],
-  () => {
-    crewReviews.value = {}
-    crewReviewNotes.value = {}
-  },
-)
+watch([() => viewer.token, () => viewer.isAdmin], () => {
+  crewReviews.value = {}
+  crewReviewNotes.value = {}
+})
 const loadedCrewProofs = computed(() =>
   viewer.isAdmin && viewer.token
     ? crewKinds.reduce(

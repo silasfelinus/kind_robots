@@ -1,8 +1,5 @@
 import { CREW_COMBAT_ART } from './crewCombatArt'
-import {
-  CREW_TELL_ART,
-  type CrewTellReceipt,
-} from './crewTelegraphArt'
+import { CREW_TELL_ART, type CrewTellReceipt } from './crewTelegraphArt'
 
 export type CrewReviewDecision = 'approved' | 'rejected'
 
@@ -19,12 +16,8 @@ export type CrewArtReview = {
 
 /** The immutable production receipts shared with gameplay. */
 export const CREW_REVIEW_RECEIPTS: readonly CrewTellReceipt[] = [
-  ...Object.values(CREW_TELL_ART).flatMap((crew) =>
-    Object.values(crew.beats),
-  ),
-  ...Object.values(CREW_COMBAT_ART).flatMap((crew) =>
-    Object.values(crew),
-  ),
+  ...Object.values(CREW_TELL_ART).flatMap((crew) => Object.values(crew.beats)),
+  ...Object.values(CREW_COMBAT_ART).flatMap((crew) => Object.values(crew)),
 ]
 
 /**

@@ -197,12 +197,52 @@ assert.equal(new Set(CREW_REVIEW_RECEIPTS.map((r) => r.imageId)).size, 24)
 const crewReviewTime = '2026-11-24T03:04:00Z'
 for (const receipt of CREW_REVIEW_RECEIPTS) {
   const rationale = 'Canon, anatomy and composition reviewed.'
-  assert.equal(makeCrewArtReview(receipt, 'approved', rationale, false, true, crewReviewTime), null)
-  assert.equal(makeCrewArtReview(receipt, 'approved', rationale, true, false, crewReviewTime), null)
-  assert.equal(makeCrewArtReview(receipt, 'approved', '  ', true, true, crewReviewTime), null)
-  assert.equal(makeCrewArtReview({ ...receipt, imageId: 1 }, 'approved', rationale, true, true, crewReviewTime), null)
+  assert.equal(
+    makeCrewArtReview(
+      receipt,
+      'approved',
+      rationale,
+      false,
+      true,
+      crewReviewTime,
+    ),
+    null,
+  )
+  assert.equal(
+    makeCrewArtReview(
+      receipt,
+      'approved',
+      rationale,
+      true,
+      false,
+      crewReviewTime,
+    ),
+    null,
+  )
+  assert.equal(
+    makeCrewArtReview(receipt, 'approved', '  ', true, true, crewReviewTime),
+    null,
+  )
+  assert.equal(
+    makeCrewArtReview(
+      { ...receipt, imageId: 1 },
+      'approved',
+      rationale,
+      true,
+      true,
+      crewReviewTime,
+    ),
+    null,
+  )
   for (const decision of ['approved', 'rejected'] as const) {
-    const result = makeCrewArtReview(receipt, decision, rationale, true, true, crewReviewTime)
+    const result = makeCrewArtReview(
+      receipt,
+      decision,
+      rationale,
+      true,
+      true,
+      crewReviewTime,
+    )
     assert.deepEqual(result, {
       asset: receipt.artKey,
       artJobId: receipt.jobId,
@@ -215,7 +255,10 @@ for (const receipt of CREW_REVIEW_RECEIPTS) {
     })
   }
 }
-const crewReviewAtlas = readFileSync(new URL('../../components/admin/capes-cast-atlas.vue', import.meta.url), 'utf8')
+const crewReviewAtlas = readFileSync(
+  new URL('../../components/admin/capes-cast-atlas.vue', import.meta.url),
+  'utf8',
+)
 assert.match(crewReviewAtlas, /data-testid="capes-crew-export-qa"/)
 assert.match(crewReviewAtlas, /crewProofStatus\(beat\) === 'loaded'/)
 assert.match(crewReviewAtlas, /makeCrewArtReview\(/)

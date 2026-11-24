@@ -82,7 +82,7 @@ assert.ok(
 )
 assert.equal(drawn.length, 1, 'one frame drawn')
 assert.equal(
-  drawRainbowInterlude(g, 's03', 0, 0, 200, false),
+  drawRainbowInterlude(g, 's04', 0, 0, 200, false),
   0,
   'an Act without an interlude draws its still',
 )

@@ -294,13 +294,15 @@ const weatherBoard = craftedState(
 )
 weatherBoard.weather = { kind: 'cloud', remaining: 2, countdown: 1 }
 weatherBoard.gloom[0]![0] = 1
-weatherBoard.goals = [{ type: 'gloom', target: 1, progress: 0 }]
+weatherBoard.goals = [{ type: 'score', target: 99999, progress: 0 }]
 const locked = must(weatherBoard.board[0]?.[0])
 locked.ribbon = true
 assert.equal(E.canSwap(weatherBoard, [0, 0], [0, 1]), false)
 const weatherBefore = E.clone(weatherBoard)
 const weatherMove = E.trySwap(weatherBoard, [1, 2], [2, 2])
 assert.ok(weatherMove.ok)
+assert.equal(weatherBoard.weather?.remaining, 1)
+assert.equal(weatherBoard.weather?.countdown, 3)
 const weatherReplay = E.clone(weatherBefore)
 E.trySwap(weatherReplay, [1, 2], [2, 2])
 assert.deepEqual(weatherReplay, weatherBoard, 'weather and ribbon state replay exactly')

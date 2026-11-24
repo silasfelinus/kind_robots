@@ -1024,4 +1024,11 @@ useHead({ title: 'Rainbow Bullet Hell Space Princess · Work in progress' })
 .princess-stage :deep(.cabinet-hint) {
   display: none;
 }
+
+/* Presentation critic P-16: the Arcade-wide 64rem cabinet cap left the stage at about 27% of a 1920x1080
+   screen. Rainbow's contained cabinet already fits its stage to the height it is given, so on large screens it
+   may use the page's full width (the page itself stops at 1500px). */
+.princess-stage :deep(.arcade-cabinet) {
+  max-width: none;
+}
 </style>

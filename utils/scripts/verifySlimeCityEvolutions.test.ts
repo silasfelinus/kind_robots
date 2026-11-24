@@ -13,6 +13,7 @@ import { CLASH_TWISTS } from '../slimeCity/clashTwists'
 import { EXCHANGE_EVOLUTIONS } from '../slimeCity/evolutions/exchange'
 import {
   CLASH_EVOLUTIONS,
+  clashCardFlavor,
   clashEvolutionChoice,
   clashEvolutionStage,
   clashStageTitle,
@@ -270,8 +271,9 @@ const mine = (s: ClashState, id: string) =>
       )
     if (!evo) continue
     assert.ok(evo.levelOneText, card.id + ' needs authored L1 text')
-    assert.ok(
-      clashCardText(card, 1).includes(evo.levelOneText!),
+    assert.equal(
+      clashCardFlavor(card.id),
+      evo.levelOneText,
       card.id + ' L1 text must be displayed',
     )
     for (const stage of [evo[1], evo[2], evo[3], evo.choice?.stage]) {
@@ -439,8 +441,9 @@ function bloodBoard(units: ClashUnit[]): ClashState {
     const evo = CLASH_EVOLUTIONS[card.id]
     if (!evo) continue
     assert.ok(evo.levelOneText, card.id + ' has an authored L1 role')
-    assert.ok(
-      clashCardText(card, 1).includes(evo.levelOneText!),
+    assert.equal(
+      clashCardFlavor(card.id),
+      evo.levelOneText,
       card.id + ' L1 role is actually shown to the player',
     )
     for (const st of [evo[1], evo[2], evo[3], evo.choice?.stage]) {
@@ -1131,7 +1134,7 @@ for (const id of Object.keys(CLASH_EVOLUTIONS)) {
     const evo = CLASH_EVOLUTIONS[card.id]
     if (!evo) continue
     assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
-    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    assert.equal(clashCardFlavor(card.id), evo.levelOneText)
     for (const level of [1, 2, 3])
       assert.ok(
         clashCardText(card, level).length <= 160,
@@ -1266,7 +1269,7 @@ const ironWorker = (lane: number, uid: number) =>
     const evo = CLASH_EVOLUTIONS[card.id]
     if (!evo) continue
     assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
-    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    assert.equal(clashCardFlavor(card.id), evo.levelOneText)
     roles.add(evo.levelOneText!)
     for (const level of [1, 2, 3])
       assert.ok(
@@ -1288,7 +1291,7 @@ const ironWorker = (lane: number, uid: number) =>
     const evo = CLASH_EVOLUTIONS[card.id]
     if (!evo) continue
     assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
-    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    assert.equal(clashCardFlavor(card.id), evo.levelOneText)
     roles.add(evo.levelOneText!)
     for (const level of [1, 2, 3])
       assert.ok(
@@ -1311,7 +1314,7 @@ const ironWorker = (lane: number, uid: number) =>
     const evo = CLASH_EVOLUTIONS[card.id]
     if (!evo) continue
     assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
-    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    assert.equal(clashCardFlavor(card.id), evo.levelOneText)
     roles.add(evo.levelOneText!)
     for (const level of [1, 2, 3])
       assert.ok(
@@ -1333,7 +1336,7 @@ const ironWorker = (lane: number, uid: number) =>
     if (!evo || CLASH_TWISTS[card.id]) continue
     authored++
     assert.ok(evo.levelOneText, card.id + ' needs a real L1 job')
-    assert.ok(clashCardText(card, 1).includes(evo.levelOneText!))
+    assert.equal(clashCardFlavor(card.id), evo.levelOneText)
     roles.add(evo.levelOneText!)
     for (const level of [1, 2, 3])
       assert.ok(
@@ -1554,4 +1557,16 @@ for (const [id, evolution] of Object.entries(CLASH_EVOLUTIONS)) {
     assert.notEqual(after, s, id + ' L1 is playable')
     check(before, after)
   }
+}
+
+// Silas, 2026-11-24 PT: flavor lines are separate from the rules and show
+// only where a reading view asks for them.
+for (const card of CARDS) {
+  const flavor = clashCardFlavor(card.id)
+  if (!flavor) continue
+  for (const level of [1, 2, 3])
+    assert.ok(
+      !clashCardText(card, level).includes(flavor),
+      card.id + ' L' + level + ' rules never carry the flavor line',
+    )
 }

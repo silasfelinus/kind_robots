@@ -1,8 +1,16 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { CROWN_PLEA } from '../arcade/games/rainbowEclipseCrown'
+import {
+  RAINBOW_CONTINUE_LINES,
+  failureLines,
+  rainbowContinueLine,
+} from '../arcade/games/rainbowFailure'
 import {
   FINALE,
   finaleCredits,
   finaleDialogue,
+  finaleScene,
 } from '../arcade/games/rainbowEclipseFinale'
 import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
 import { ROSEFIN } from '../arcade/games/rainbowRosefin'
@@ -131,6 +139,105 @@ assert.match(
   finaleDialogue('A09.ESCAPE', FINALE.lineFrames + 1, 1)!.text,
   /Stay on my light/,
 )
+
+// S4: the Crown's plea is a spoken scene over its whole window, and a crew that stands down hears it named.
+assert.deepEqual(finaleScene(5000, null, null, null, 10), {
+  id: 'A09.PLEA',
+  elapsed: 10,
+})
+const plea = [0, 1, 2].map((line) =>
+  finaleDialogue(
+    'A09.PLEA',
+    Math.floor((line * CROWN_PLEA.frames) / 3) + 1,
+    2,
+    undefined,
+    null,
+    'loyal',
+  )!,
+)
+assert.deepEqual(
+  plea.map((line) => line.speaker),
+  ['Crown Voice', 'Lilt-7', 'Maribel'],
+  'the Crown asks, Lilt names the turn, the lead answers',
+)
+assert.equal(
+  finaleDialogue('A09.PLEA', CROWN_PLEA.frames - 1, 2, undefined, null, 'loyal')
+    ?.speaker,
+  'Maribel',
+  'the plea is spoken for its whole window',
+)
+for (const line of plea)
+  assert.ok(line.text.length <= 114, `fits the comms box: ${line.text}`)
+assert.match(
+  finaleDialogue(
+    'A09.TURN',
+    1,
+    4,
+    undefined,
+    null,
+    'rebel',
+    15,
+    undefined,
+    true,
+  )!.text,
+  /turned at the last breath/,
+)
+assert.match(
+  finaleDialogue(
+    'A09.AFTER',
+    2 * FINALE.endingLineFrames + 1,
+    4,
+    undefined,
+    'restore',
+    'rebel',
+    15,
+    undefined,
+    true,
+  )!.text,
+  /chose to ask/,
+)
+assert.ok(
+  finaleCredits(
+    {
+      rescuedNemi: false,
+      securedSalvage: false,
+      rescuedCourier: false,
+      freedDepot: false,
+      stoppedRelay: false,
+      rescuedNavigator: false,
+      captivesFreed: 0,
+    },
+    4,
+    'restore',
+    'rebel',
+    { stoodDown: true },
+  ).includes('THE ROAD: TURNED AT THE CROWN'),
+)
+
+// S16: Lilt speaks the continue beat in every Act, in one caption line, and the crew comes back with a cue.
+// S15: an early failure line stays local instead of naming the Eclipse before the story has.
+assert.equal(RAINBOW_CONTINUE_LINES.length, 9)
+for (let act = 1; act <= 9; act++)
+  assert.ok(
+    rainbowContinueLine(act).length <= 80,
+    `Act ${act} continue line fits`,
+  )
+assert.equal(
+  new Set(RAINBOW_CONTINUE_LINES).size,
+  9,
+  'each Act has its own line',
+)
+assert.doesNotMatch(failureLines(1, 0, null)[1]!, /Eclipse/)
+assert.match(failureLines(1, 0, null)[1]!, /Pinkwake/)
+assert.match(failureLines(6, 0, null)[1]!, /Eclipse/)
+{
+  const engine = readFileSync(
+    new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
+    'utf8',
+  )
+  assert.match(engine, /rainbowContinueLine\(checkpoint\.act\)/)
+  assert.match(engine, /BACK IN THE FIGHT/)
+}
 
 // S1, flown: a solo Vivi crew takes the X1 detour, and every comms header names Vivi or Lilt-7.
 function seeded(seed = 7) {

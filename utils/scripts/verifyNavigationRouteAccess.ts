@@ -423,7 +423,7 @@ assert.match(
 )
 assert.match(
   workspaceHeaderSource,
-  /v-else-if="slimePvpStore\.pendingTurns > 0"\s+to="\/play\/slime-city\?vs=1"/,
+  /v-else-if="\s*route\.path !== '\/play\/slime-city-pvp' &&\s*slimePvpStore\.pendingTurns > 0\s*"\s+to="\/play\/slime-city\?vs=1"/,
 )
 assert.match(
   workspaceHeaderSource,

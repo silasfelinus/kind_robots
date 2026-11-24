@@ -37,7 +37,12 @@ import {
   endingForStory,
   pendingStoryDecision,
 } from '../arcade/superkateSpectrum/story'
-import { create } from '../arcade/games/superkateSpectrum'
+import {
+  BOSS_PATTERNS,
+  bossContact,
+  bossTarget,
+  create,
+} from '../arcade/games/superkateSpectrum'
 import {
   SPECTRUM_BOSS_MUSIC,
   SPECTRUM_CLASSIC_MUSIC,
@@ -548,6 +553,53 @@ assert.equal(chapterSixteen.pendingChoice, 1)
 chapterSixteen.update(openStory)
 assert.deepEqual(chapterSixteen.save.storyChoices, [1, 0, null])
 assert.equal(chapterSixteen.lives, 4, 'The community path gains a heart')
+function finishBoss(run: ReturnType<typeof create>) {
+  const chapter = Math.floor((run.level - 1) / 5)
+  assert.ok(run.boss)
+  for (let hit = 0; hit < BOSS_PATTERNS[chapter]!.targets.length; hit++) {
+    const target = bossTarget(chapter, hit)
+    let found = false
+    for (let angle = -Math.PI + 0.18; angle <= -0.18; angle += 0.01) {
+      let x = 160
+      let y = 438
+      let vx = Math.cos(angle) * 7
+      const vy = Math.sin(angle) * 7
+      let banked = false
+      while (y > 40) {
+        x += vx
+        y += vy
+        if (x < 14 || x > 306) {
+          x = Math.max(14, Math.min(306, x))
+          vx *= -1
+          banked = true
+        }
+        const contact = bossContact(target, {
+          x,
+          y,
+          hue: target.hue,
+          banked,
+        })
+        if (contact === 'hit') {
+          found = true
+          run.angle = angle
+          break
+        }
+        if (contact === 'blocked') break
+      }
+      if (found) break
+    }
+    assert.ok(found, 'Every boss core has a reachable legal shot')
+    assert.equal(run.loaded, target.hue)
+    run.update(openStory)
+    for (let frame = 0; run.shot && frame < 400; frame++)
+      run.update(emptyInput())
+    assert.equal(run.shot, null)
+    if (hit + 1 < BOSS_PATTERNS[chapter]!.targets.length)
+      assert.equal(run.boss?.hits, hit + 1)
+  }
+  assert.equal(run.boss, null)
+}
+
 const replayChoiceSave = readSpectrumSave({
   ...cloudB,
   stage: 5,
@@ -562,6 +614,7 @@ const replayChoice = create({
   ...options,
   resume: replayChoiceSave,
 } as Parameters<typeof create>[0])
+replayChoice.menuStage = 5
 replayChoice.update(openStory)
 replayChoice.board = emptyBoard()
 replayChoice.board[0]![0] = 'pink'
@@ -575,6 +628,8 @@ replayChoice.shot = {
   power: null,
 }
 replayChoice.update(emptyInput())
+assert.equal(replayChoice.level, 5)
+finishBoss(replayChoice)
 assert.equal(replayChoice.level, 6)
 assert.equal(
   replayChoice.pendingChoice,
@@ -613,6 +668,8 @@ finaleRun.shot = {
   power: null,
 }
 finaleRun.update(emptyInput())
+assert.equal(finaleRun.over, false)
+finishBoss(finaleRun)
 assert.equal(finaleRun.over, true)
 assert.equal(finaleRun.won, true)
 assert.equal(finaleRun.ending, 'prism-partners')
@@ -620,6 +677,51 @@ assert.deepEqual(finaleRun.save.endings, ['prism-partners'])
 assert.equal((finaleRun.save.career.stars[29] ?? 0) > 0, true)
 assert.equal(validSpectrumCloudSave(finaleRun.save), true)
 assert.ok(finaleRun.mastered.includes('true-spectrum'))
+
+for (let chapter = 0; chapter < BOSS_PATTERNS.length; chapter++) {
+  const stage = (chapter + 1) * 5
+  const run = create({
+    ...options,
+    resume: readSpectrumSave({
+      ...cloudB,
+      career: {
+        ...cloudB.career,
+        highestStage: stage,
+        stars: Array(30).fill(0),
+      },
+      stage,
+      storyChoices: [0, 0, 0],
+    }),
+  } as Parameters<typeof create>[0])
+  run.update(openStory)
+  run.board = emptyBoard()
+  run.board[0]![0] = 'pink'
+  run.board[0]![1] = 'pink'
+  run.shot = {
+    x: 36,
+    y: 57,
+    vx: 0,
+    vy: 0,
+    hue: 'pink',
+    power: null,
+  }
+  run.update(emptyInput())
+  assert.equal(run.level, stage)
+  assert.equal(run.save.career.stars[stage - 1], 0)
+  const target = bossTarget(chapter, 0)
+  assert.equal(
+    bossContact(target, { ...target, x: target.x + target.radius + 14 }),
+    'none',
+  )
+  assert.equal(
+    bossContact(target, { ...target, banked: false }),
+    target.bank ? 'blocked' : 'hit',
+  )
+  finishBoss(run)
+  assert.ok((run.save.career.stars[stage - 1] ?? 0) > 0)
+  assert.equal(run.won, stage === 30)
+  if (stage < 30) assert.equal(run.level, stage + 1)
+}
 
 const choiceAccount = readSpectrumSave({
   ...cloudA,

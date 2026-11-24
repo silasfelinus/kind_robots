@@ -61,13 +61,18 @@ import { drawRainbowBossBloom } from './rainbowBossBloom'
 import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
-import { RAINBOW_CONTRAST_PELLET, rainbowCommsLine } from './rainbowComms'
+import {
+  RAINBOW_CONTRAST_PELLET,
+  RAINBOW_DEFAULT_PELLET,
+  rainbowCommsLine,
+} from './rainbowComms'
 import { rainbowShipFilter } from './rainbowLivery'
 import {
   rainbowRouteStinger,
   type RainbowRouteFlags,
 } from './rainbowRouteBeats'
 import {
+  RAINBOW_HIT_CARD_FRAMES,
   drawRainbowEnemyFrame,
   drawRainbowInterlude,
   drawRainbowPose,
@@ -381,7 +386,11 @@ import {
   rainbowMedal,
   readRainbowSave,
 } from './rainbowLoadouts'
-import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
+import {
+  rainbowContinueLine,
+  RAINBOW_FAILURE,
+  failureLines,
+} from './rainbowFailure'
 import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
 import { isRainbowFeat, rainbowMedalFeats } from './rainbowAchievements'
@@ -438,6 +447,23 @@ export const RAINBOW_SHIP_SPEED = 3.4
 const SPEED = RAINBOW_SHIP_SPEED
 const FOCUS_SPEED = SPEED * 0.55
 const CORE_RADIUS = 4
+/** The width of one pilot-status column in the HUD bar. */
+export const HUD_STATUS_COLUMN = 140
+/**
+ * Where a seat's status sits inside the 29 px HUD bar: a solo pilot under the counters on the right; with
+ * more pilots, seats 1-2 fill the right column (rows 12 and 24) and seats 3-4 the column beside it.
+ */
+export function rainbowHudStatusSlot(
+  seat: number,
+  players: number,
+): { column: number; y: number } {
+  if (players <= 1) return { column: 0, y: 24 }
+  return { column: Math.floor(seat / 2), y: seat % 2 === 0 ? 12 : 24 }
+}
+/** B released within this many frames is a tap: the super. Held longer, B is focus (gameplay critic D1). */
+export const SUPER_TAP_FRAMES = 12
+/** Charge each kill refunds (an urchin twice this); grazing is the main source (gameplay critic D2). */
+export const SUPER_REFUND = 4
 const GRAZE_RADIUS = 15
 const PILOT_COLORS = ['#ffd2ef', '#b8f8ff', '#ffe99f', '#b9a9ff'] as const
 const SHIP_NAMES = ['PETAL', 'PRISM', 'HALO', 'COMET'] as const
@@ -1255,6 +1281,10 @@ export function createRainbowPrincessPreview(
   const shots: Shot[] = []
   const reefs: Reef[] = []
   const enemyShots: EnemyShot[] = []
+  /** Frames each seat's hit-pose card has left to show (drawing only, t-030). */
+  const hitCards: number[] = Array.from({ length: 4 }, () => 0)
+  /** Frames each seat has held B, to tell a super tap from a focus hold. */
+  const superHold: number[] = Array.from({ length: 4 }, () => 0)
   const pickups: Pickup[] = []
   let tick = 0
   let score = 0
@@ -1760,6 +1790,11 @@ export function createRainbowPrincessPreview(
       ship.invulnerable = Math.max(ship.invulnerable, 240)
     popups.push({ x: W / 2, y: 92, text: 'STOOD DOWN', age: 0 })
     options.sound.play('extra')
+  }
+
+  /** Frames into the Crown's plea while it pleads (the A09.PLEA scene), else null. */
+  function pleaElapsed(): number | null {
+    return crown && crown.plea > 0 ? CROWN_PLEA.frames - crown.plea : null
   }
 
   /** The whole crew fell in the prism corridors: the escape starts again, the choice kept. */
@@ -2986,6 +3021,13 @@ export function createRainbowPrincessPreview(
    */
   function resumeFromCheckpoint() {
     continueLeft = 0
+    // The lead pilot's "back in" beat as the crew comes back (story critic S16), drawing only.
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text: `${RAINBOW_PILOTS[pilotOf(0)]!.name.split(' ')[0]!.toUpperCase()} · BACK IN THE FIGHT`,
+      age: 0,
+    })
     caches.length = 0
     continues++
     actContinues++
@@ -3493,46 +3535,51 @@ export function createRainbowPrincessPreview(
     supers++
     options.sound.play('rainbowNova')
     feat('kitty-power')
+    // The wipe stays whole-screen (the cut-in may cover the comms band only because no pellet is left under
+    // it); supers are kept rare by their charge instead: kills refund SUPER_REFUND, grazing does the rest.
     bursts.push({ seat, pilot: kind, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
+    // Bosses lose a share of their hull, so a super matters as much in a four-pilot fight as solo.
+    const share = (maxHp: number) =>
+      Math.max(1, Math.round(maxHp * (kind === 1 ? 0.05 : 0.035)))
     if (boss && boss.frame > 85) {
-      boss.hp -= kind === 1 ? 28 : 20
+      boss.hp -= share(boss.maxHp)
       if (boss.hp <= 0) defeatBoss()
     }
     if (moonBoss && moonBoss.frame > 85) {
-      moonBoss.hp -= kind === 1 ? 28 : 20
+      moonBoss.hp -= share(moonBoss.maxHp)
       if (moonBoss.hp <= 0) defeatMoonBoss()
     }
     if (clawBoss && clawBoss.frame > 85) {
-      clawBoss.hp -= kind === 1 ? 28 : 20
+      clawBoss.hp -= share(clawBoss.maxHp)
       if (clawBoss.hp <= 0) defeatClawBoss()
     }
     if (delphion && delphion.frame > 85) {
-      delphion.hp -= kind === 1 ? 28 : 20
+      delphion.hp -= share(delphion.maxHp)
       if (delphion.hp <= 0) defeatDelphion()
     }
     if (sawtooth && sawtooth.frame > 85) {
-      sawtooth.hp -= kind === 1 ? 28 : 20
+      sawtooth.hp -= share(sawtooth.maxHp)
       if (sawtooth.hp <= 0) defeatSawtooth()
     }
     if (lanternRay && lanternRay.frame > 85) {
-      lanternRay.hp -= kind === 1 ? 28 : 20
+      lanternRay.hp -= share(lanternRay.maxHp)
       if (lanternRay.hp <= 0) defeatLanternRay()
     }
     if (glassEel && glassEel.frame > 85) {
-      glassEel.hp -= kind === 1 ? 28 : 20
+      glassEel.hp -= share(glassEel.maxHp)
       if (glassEel.hp <= 0) defeatGlassEel()
     }
     if (leviathan && leviathan.frame > 85) {
-      leviathan.hp -= kind === 1 ? 28 : 20
+      leviathan.hp -= share(leviathan.maxHp)
       if (leviathan.hp <= 0) defeatLeviathan()
     }
     if (crown && crown.frame > 85 && crown.plea === 0) {
-      crown.hp -= kind === 1 ? 28 : 20
+      crown.hp -= share(crown.maxHp)
       if (crown.hp <= 0) subdueCrown()
     }
     if (guardian && guardian.frame > 60) {
-      guardian.hp -= kind === 1 ? 28 : 20
+      guardian.hp -= share(guardian.maxHp)
       if (guardian.hp <= 0) defeatGuardian(seat)
     }
     for (let i = reefs.length - 1; i >= 0; i--) {
@@ -3666,7 +3713,8 @@ export function createRainbowPrincessPreview(
     if (refund)
       ship.charge = Math.min(
         100,
-        ship.charge + (reef.kind === 'urchin' ? 24 : 12),
+        ship.charge +
+          (reef.kind === 'urchin' ? SUPER_REFUND * 2 : SUPER_REFUND),
       )
     if (clearCount % 3 === 0) {
       const kinds: Pickup['kind'][] = ['power', 'shield', 'charge']
@@ -4180,6 +4228,9 @@ export function createRainbowPrincessPreview(
     if (ship.shield <= 0) {
       ship.lives--
       if (ship.lives > 0) options.sound.play('rainbowHurt')
+      // Her painted hit pose flashes over the ship for a moment (t-030), drawing only.
+      if (ship.lives > 0)
+        hitCards[ships.indexOf(ship)] = RAINBOW_HIT_CARD_FRAMES
       ship.shield = shieldCap
       // The power level lost with the life falls just ahead as a Recovery Cache (U12) for four seconds.
       if (ship.power > 1 && ship.lives > 0)
@@ -5030,6 +5081,14 @@ export function createRainbowPrincessPreview(
       if (!keys) continue
       if (ship.lives <= 0) continue
       ship.focus = !options.demo && keys.held.b
+      // B: hold to focus, tap to fire the super (gameplay critic D1). A press that becomes a hold never spends it.
+      const tapped =
+        !options.demo &&
+        ((!keys.held.b &&
+          superHold[seat]! > 0 &&
+          superHold[seat]! <= SUPER_TAP_FRAMES) ||
+          (keys.pressed.b && !keys.held.b && superHold[seat] === 0))
+      superHold[seat] = keys.held.b ? superHold[seat]! + 1 : 0
       const lastY = ship.y
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
@@ -5173,8 +5232,9 @@ export function createRainbowPrincessPreview(
       ship.bank += (ship.y - lastY - ship.bank) * 0.25
       if (ship.cooldown > 0) ship.cooldown--
       if (ship.invulnerable > 0) ship.invulnerable--
+      if (hitCards[seat]! > 0) hitCards[seat]!--
       if ((options.demo || keys.held.a) && ship.cooldown === 0) fire(ship, seat)
-      if (!options.demo && keys.pressed.b) superAttack(seat)
+      if (tapped) superAttack(seat)
       if (!options.demo && keys.pressed.x) useSpecial(ship, seat)
       if (!options.demo && keys.pressed.y) useEvade(ship, seat, keys)
       if (ship.specialCooldown > 0) ship.specialCooldown--
@@ -6294,6 +6354,7 @@ export function createRainbowPrincessPreview(
                                     choiceFrame,
                                     escapeFrame,
                                     endingFrame,
+                                    pleaElapsed(),
                                   )?.id ?? null),
         boss: boss ? { ...boss } : null,
         moonBoss: moonBoss ? { ...moonBoss } : null,
@@ -6400,10 +6461,10 @@ export function createRainbowPrincessPreview(
       // Fever Dream: the neon school-folder sky replaces the classic bubbles (decoration only).
       const fever = rainbowLook() === 'fever'
       if (fever) drawFeverSky(g, currentAct(), tick, drift)
-      for (let plane = 0; plane < (fever ? 0 : 4); plane++) {
-        g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444', '#ffe6f277'][
-          plane
-        ]!
+      // Classic drifting motes: only the two far planes, small and faint, so nothing ambient is the size or
+      // brightness of a hostile pellet (presentation critic P-10).
+      for (let plane = 0; plane < (fever ? 0 : 2); plane++) {
+        g.fillStyle = ['#f2d6ff33', '#9ffffa2e'][plane]!
         const speed = [0.15, 0.34, 0.72, 1.3][plane]!
         for (let i = 0; i < 16; i++) {
           const x =
@@ -6582,16 +6643,28 @@ export function createRainbowPrincessPreview(
             g.fill()
           }
         }
-        g.strokeStyle = '#ffb3c855'
-        g.lineWidth = 2
+        // Dock cranes as solid silhouettes (presentation critic P-13: the old one-pixel outlines read as debug
+        // bounds): a lattice tower, a jib with its counterweight, the cab and a hook on its cable.
         for (let i = 0; i < 3; i++) {
           const x = ((((i * 230 - frame * drift * 0.3) % 690) + 690) % 690) - 60
+          g.fillStyle = '#2a1028d9'
+          g.fillRect(x - 4, 70, 9, H - 110)
+          g.fillRect(x - 24, 64, 98, 7)
+          g.fillRect(x - 24, 71, 14, 9)
+          g.fillRect(x - 6, 54, 14, 11)
+          g.strokeStyle = '#5a2a48'
+          g.lineWidth = 1
           g.beginPath()
-          g.moveTo(x, H - 40)
-          g.lineTo(x, 70)
-          g.lineTo(x + 70, 70)
-          g.lineTo(x + 70, 92)
+          for (let y = 76; y < H - 46; y += 14) {
+            g.moveTo(x - 4, y)
+            g.lineTo(x + 5, y + 14)
+          }
+          g.moveTo(x + 66, 71)
+          g.lineTo(x + 66, 96)
           g.stroke()
+          g.fillStyle = '#ffb3c844'
+          g.fillRect(x - 24, 64, 98, 1)
+          g.fillRect(x + 62, 96, 8, 4)
         }
       } else if (cometActive()) {
         // The comet tail streaks past in speed-surges without tinting hostile bullets.
@@ -8354,15 +8427,19 @@ export function createRainbowPrincessPreview(
       // Since t-032 each pellet carries its own dark outline too, so the halo is a softer shadow that lets
       // the family's shape read first.
       // High-contrast shots (t-044) make that halo an opaque black disc with a white ring at its edge.
-      g.fillStyle = contrast ? RAINBOW_CONTRAST_PELLET.halo : '#05030f70'
-      g.strokeStyle = RAINBOW_CONTRAST_PELLET.ring
-      g.lineWidth = RAINBOW_CONTRAST_PELLET.ringWidth
+      // Default shots get a firmer halo and a faint ring too (presentation critic P-11).
+      const pelletBacking = contrast
+        ? RAINBOW_CONTRAST_PELLET
+        : RAINBOW_DEFAULT_PELLET
+      g.fillStyle = pelletBacking.halo
+      g.strokeStyle = pelletBacking.ring
+      g.lineWidth = pelletBacking.ringWidth
       for (const bullet of enemyShots) {
         if (bullet.ghost) continue
         g.beginPath()
         g.arc(bullet.x, bullet.y, RAINBOW_SHOT_HALO_RADIUS, 0, Math.PI * 2)
         g.fill()
-        if (contrast) g.stroke()
+        g.stroke()
       }
       for (const bullet of enemyShots) {
         if (bullet.ghost) {
@@ -8784,7 +8861,21 @@ export function createRainbowPrincessPreview(
         }
         g.strokeStyle = '#fff'
         g.font = 'bold 9px sans-serif'
-        g.strokeText(String(seat + 1), -3, -17)
+        // The seat number sits behind the ship's tail, not above it, so in tight formation it never lands on
+        // the next pilot's hull (presentation critic P-22).
+        g.strokeText(String(seat + 1), -24, 3)
+        if (hitCards[seat]! > 0) {
+          // The hit-pose card (t-030): the pilot's painted reaction, framed above her ship as it flickers.
+          const pilotName = RAINBOW_PILOTS[pilotOf(seat)]!.name
+          g.save()
+          g.globalAlpha = Math.min(1, hitCards[seat]! / 12)
+          if (drawRainbowPose(g, pilotName, 'hit', -14, -52, 28)) {
+            g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
+            g.lineWidth = 1.5
+            g.strokeRect(-14, -52, 28, 28)
+          }
+          g.restore()
+        }
         if (ship.charge >= 100 && Math.floor(tick / 10) % 2 === 0) {
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.font = 'bold 7px monospace'
@@ -8921,7 +9012,7 @@ export function createRainbowPrincessPreview(
             's08',
           ] as const
         )[act - 1]!
-        const top = 33 + Math.max(0, activePlayers - 1) * 10 + 60
+        const top = 33 + 60
         g.save()
         g.globalAlpha =
           Math.min(1, introFrame / 15) *
@@ -9033,6 +9124,7 @@ export function createRainbowPrincessPreview(
                                   choiceFrame,
                                   escapeFrame,
                                   endingFrame,
+                                  pleaElapsed(),
                                 )
       const said = scene
         ? cometActive()
@@ -9077,6 +9169,7 @@ export function createRainbowPrincessPreview(
                       allegiance,
                       partyMask(),
                       routeFlags(),
+                      stoodDown,
                     )
                   : act === 8
                     ? palaceDialogue(
@@ -9155,7 +9248,8 @@ export function createRainbowPrincessPreview(
       // The comms switch (t-044): full, story scenes only, or off but for the ending.
       const line = rainbowCommsLine(comms, said, callout, scene?.id ?? null)
       const dialogue = line && crewLine(line)
-      const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
+      // Pilot status lives inside the 29 px bar now, so prompts sit just under it for any crew size.
+      const commsTop = 33
       // Silas, 2026-10-20: a comms line takes the HUD bar's place instead of stacking under it, so the
       // conversation covers no more of the playfield than the header already did. The HUD returns after.
       if (!dialogue) {
@@ -9183,25 +9277,32 @@ export function createRainbowPrincessPreview(
           12,
         )
         g.font = '9px monospace'
-        g.fillText(
-          // Short enough to clear P1's status on the right of the same row.
-          'A FIRE · B FOCUS/SUPER · X SPECIAL · Y EVADE',
-          HUD_LEFT,
-          24,
-        )
+        // The button legend teaches Act I, then gives the bar back (presentation critic P-21); with three or
+        // four pilots their status needs the room.
+        if (act === 1 && activePlayers <= 2)
+          g.fillText(
+            // Short enough to clear P1's status on the right of the same row.
+            'A FIRE · B HOLD FOCUS/TAP SUPER · X SPECIAL · Y EVADE',
+            HUD_LEFT,
+            24,
+          )
         g.textAlign = 'right'
-        g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, HUD_RIGHT, 12)
-        if (activePlayers > 1) {
-          g.fillStyle = '#180d38e8'
-          g.fillRect(HUD_RIGHT - 150, 29, 158, (activePlayers - 1) * 10 + 4)
-        }
+        if (activePlayers <= 2)
+          g.fillText(
+            `SHOALS ${clearCount}  ·  NOVAS ${supers}`,
+            activePlayers === 1 ? HUD_RIGHT : HUD_RIGHT - HUD_STATUS_COLUMN,
+            12,
+          )
+        // Every pilot's status lives inside the 29 px bar, never over the playfield or the boss bar
+        // (gameplay critic D4, presentation critic P-08): pilots 1-2 in the right column, 3-4 beside them.
         for (let seat = 0; seat < activePlayers; seat++) {
           const ship = ships[seat]!
+          const slot = rainbowHudStatusSlot(seat, activePlayers)
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.fillText(
             `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`,
-            HUD_RIGHT,
-            24 + seat * 10,
+            HUD_RIGHT - slot.column * HUD_STATUS_COLUMN,
+            slot.y,
           )
         }
         g.textAlign = 'left'
@@ -9409,6 +9510,7 @@ export function createRainbowPrincessPreview(
               ),
               callSign: livery?.callSign,
               route: routeFlags(),
+              stoodDown,
             },
           )
           const top =
@@ -9798,6 +9900,13 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#0c0620d0'
         g.fillRect(0, 0, W, H)
         g.textAlign = 'center'
+        // Lilt speaks the continue beat (story critic S16).
+        g.fillStyle = '#aef6f0'
+        g.font = 'bold 9px monospace'
+        g.fillText('LILT-7', W / 2, 62)
+        g.fillStyle = '#fff4fa'
+        g.font = '9px monospace'
+        g.fillText(rainbowContinueLine(checkpoint.act), W / 2, 76)
         g.fillStyle = '#ffd2ef'
         g.font = 'bold 22px monospace'
         g.fillText('CONTINUE?', W / 2, 104)

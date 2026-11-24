@@ -77,6 +77,9 @@ function continueIfDown(game: Flight) {
     return input
   })
   game.update(supers[0]!, supers)
+  // A super is a tap: all four pilots release B on the next frame and fire together (gameplay critic D1).
+  const release = Array.from({ length: 4 }, () => emptyInput())
+  game.update(release[0]!, release)
   const after = game.snapshot
   assert.equal(
     effects.filter((effect) => effect === 'extra').length - extrasBefore,

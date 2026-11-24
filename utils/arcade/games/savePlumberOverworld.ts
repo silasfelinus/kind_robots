@@ -19,6 +19,7 @@
  * of each world's painted map plate (conductor art/GEN2-ROUND-1.yaml, Krea 2).
  */
 import GEN2 from './savePlumberGen2Worlds.json'
+import { CAMPAIGN } from './savePlumberLevels'
 import { MAP_CLIP_WORLDS } from './savePlumberMapClips'
 
 export type MapDirection = 'up' | 'down' | 'left' | 'right'
@@ -266,7 +267,11 @@ const ALL_PATHS = OVERWORLD.flatMap((w) => w.paths)
  * nodes one (`secretExit`); each joins this list when t-020/t-021 build it,
  * so completion never counts an exit nobody can find.
  */
-export const SECRET_EXITS_READY: ReadonlySet<string> = new Set<string>()
+export const SECRET_EXITS_READY: ReadonlySet<string> = new Set(
+  CAMPAIGN.filter((def) => def.secretExit).map(
+    (def) => BY_STAGE.get(def.code)!.id,
+  ),
+)
 
 export function mapNode(id: string | undefined): MapNode | undefined {
   return id ? NODES.get(id) : undefined

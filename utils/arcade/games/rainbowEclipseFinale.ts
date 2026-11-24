@@ -14,6 +14,7 @@
  * ones for a flight saved before the memorial existed), how many rescues came home sets the crew's verdict,
  * and A moves the ending on a line at a time.
  */
+import { CROWN_PLEA } from './rainbowEclipseCrown'
 import {
   RAINBOW_ALLEGIANCE_LABEL,
   type RainbowAllegiance,
@@ -27,7 +28,8 @@ import {
 import { rainbowPartyTrack } from './rainbowPartyComms'
 
 export type FinaleChoice = 'restore' | 'evacuate' | 'sever'
-export type FinaleSceneId = 'A09.OPEN' | 'A09.TURN' | 'A09.ESCAPE' | 'A09.AFTER'
+export type FinaleSceneId =
+  'A09.OPEN' | 'A09.PLEA' | 'A09.TURN' | 'A09.ESCAPE' | 'A09.AFTER'
 export type FinaleDialogue = {
   speaker: string
   text: string
@@ -317,6 +319,8 @@ export function finaleDialogue(
   allegiance: RainbowAllegiance | null = null,
   partyMask: number | null = null,
   route?: RainbowRouteFlags,
+  /** A loyal crew that flew high through the Crown's plea and turned at the last (story critic S4). */
+  stoodDown = false,
 ): FinaleDialogue | null {
   const party = partyMask === null ? null : rainbowPartyTrack(partyMask)
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
@@ -345,11 +349,31 @@ export function finaleDialogue(
               : 'Then we free the heart, and everyone it is holding. Together.',
       },
     ],
+    // The loyal road's late course-correction is a scene, not a countdown (independent story critic S4): the
+    // Crown asks, Lilt names the turn, the lead answers, while the crew decides with its wings.
+    'A09.PLEA': [
+      {
+        speaker: 'Crown Voice',
+        text: 'You were sent to take me. I am asking instead. Let the Ocean keep its heart, and I will let you go.',
+      },
+      {
+        speaker: 'Lilt-7',
+        text: 'This is the late turn the rescue rule allows. Fly high and we stand down. Stay low and we finish it.',
+      },
+      {
+        speaker: lead,
+        text:
+          crew.length === 1
+            ? 'I hear you. Give me a breath, and watch which way I fly.'
+            : 'We hear you. Wings decide, pilots: high if you would rather ask than take.',
+      },
+    ],
     'A09.TURN': [
       {
         speaker: 'Lilt-7',
-        text:
-          road === 'loyal'
+        text: stoodDown
+          ? 'You turned at the last breath, and the Crown lowered its guard for you. Now choose what it becomes.'
+          : road === 'loyal'
             ? 'Command orders a restore under its flag. I still will not choose for you.'
             : 'The heart is open. I will not make this choice for you again.',
       },
@@ -393,7 +417,12 @@ export function finaleDialogue(
         speaker: lead,
         text: rescueVerdict(rescues, flags.captivesFreed, road),
       },
-      { speaker: 'Lilt-7', text: LILT_RESOLUTION[road] },
+      {
+        speaker: 'Lilt-7',
+        text: stoodDown
+          ? 'You were ordered to take it and you chose to ask. That is the rule I helped write, flown at last.'
+          : LILT_RESOLUTION[road],
+      },
       // The crew's own line, then the close (blind story critic S2, 2026-11-23 PT). The fifteen party epilogues
       // are written for a crew that freed the Ocean, so they play on the rebel and unsworn roads; a loyal crew
       // says what it will carry home. A rebel crew then closes on what it became.
@@ -414,13 +443,20 @@ export function finaleDialogue(
     ],
   }
   const frames =
-    id === 'A09.AFTER' ? FINALE.endingLineFrames : FINALE.lineFrames
+    id === 'A09.AFTER'
+      ? FINALE.endingLineFrames
+      : id === 'A09.PLEA'
+        ? PLEA_LINE_FRAMES
+        : FINALE.lineFrames
   return (
     withRainbowRouteBeat(lines[id], id, route, crew)[
       Math.floor(elapsed / frames)
     ] ?? null
   )
 }
+
+/** The plea's three lines share the Crown's plea window evenly. */
+const PLEA_LINE_FRAMES = Math.floor(CROWN_PLEA.frames / 3)
 
 /** The ending's length in frames: every AFTER line, read in full. */
 export const FINALE_ENDING_FRAMES = 5 * FINALE.endingLineFrames
@@ -454,6 +490,8 @@ export function finaleCredits(
     callSign?: string
     /** The detours flown and their flags (ROUTE-MAP section 6): a THE ROUTE section and its stinger. */
     route?: RainbowRouteFlags
+    /** A loyal crew that turned at the Crown's plea (story critic S4). */
+    stoodDown?: boolean
   } = {},
 ): string[] {
   const seats = Math.max(1, Math.min(4, players))
@@ -494,9 +532,11 @@ export function finaleCredits(
       ? ['', 'DEFEATED', 'B09 Motherland Flagship']
       : []),
     '',
-    ...(allegiance
-      ? [`THE ROAD: ${RAINBOW_ALLEGIANCE_LABEL[allegiance]}`]
-      : []),
+    ...(flown.stoodDown
+      ? ['THE ROAD: TURNED AT THE CROWN']
+      : allegiance
+        ? [`THE ROAD: ${RAINBOW_ALLEGIANCE_LABEL[allegiance]}`]
+        : []),
     `THE CHOICE: ${choice.toUpperCase()}`,
     `ENDING: ${finaleEndingTitle(choice, allegiance)}`,
     '',
@@ -518,7 +558,10 @@ export function finaleScene(
   choiceFrame: number | null,
   escapeFrame: number | null,
   endingFrame: number | null,
+  /** Frames into the Crown's plea, while it pleads. */
+  plea: number | null = null,
 ): { id: FinaleSceneId; elapsed: number } | null {
+  if (plea !== null) return { id: 'A09.PLEA', elapsed: plea }
   if (endingFrame !== null)
     return endingFrame < FINALE_ENDING_FRAMES
       ? { id: 'A09.AFTER', elapsed: endingFrame }

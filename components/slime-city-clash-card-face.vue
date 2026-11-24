@@ -14,23 +14,35 @@
       :fallback="card.symbol"
       compact
     />
-    <span class="ccf-top">
-      <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
-      <em class="ccf-badge">{{ clashCardBadge(card, level) }}</em>
+    <!--
+      Silas, 2026-11-24 PT (iPad): "On the actual cards, some text isn't being
+      read." The name and the evolved stage title were pinned at fixed
+      heights and clipped to one line ("Catchy H..."). The header now flows
+      top to bottom: plays and badge, the full name, the level pips, then the
+      full stage title, each wrapping instead of truncating.
+    -->
+    <span class="ccf-head">
+      <span class="ccf-top">
+        <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
+        <em class="ccf-badge">{{ clashCardBadge(card, level) }}</em>
+      </span>
+      <strong class="ccf-name">{{ card.name }}</strong>
+      <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
+        ><i v-for="n in maxLevel" :key="n" :class="{ on: n <= level }" /><b
+          >LV {{ level }}{{ preview ? ' · PREVIEW' : '' }}</b
+        ></span
+      >
+      <em v-if="stageTitle && level > 1" class="ccf-stage">{{ stageTitle }}</em>
     </span>
-    <strong class="ccf-name">{{ card.name }}</strong>
-    <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
-      ><i v-for="n in maxLevel" :key="n" :class="{ on: n <= level }" /><b
-        >LV {{ level }}{{ preview ? ' · PREVIEW' : '' }}</b
-      ><em v-if="stageTitle && level > 1" class="ccf-stage">{{
-        stageTitle
-      }}</em></span
-    >
     <span class="ccf-rules">
       <small>{{ kind }}</small>
       <span v-if="rules" class="ccf-text">{{ rules }}</span>
       <span v-if="note" class="ccf-text ccf-note">{{ note }}</span>
+      <span v-if="flavor && flavorText" class="ccf-flavor">{{
+        flavorText
+      }}</span>
     </span>
+    <SlimeCityLevelFrame :level="level" />
   </span>
 </template>
 
@@ -46,6 +58,7 @@ import {
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import {
+  clashCardFlavor,
   clashStageTitle,
   type EvoPick,
 } from '~/utils/slimeCity/clashEvolutions'
@@ -58,8 +71,13 @@ const props = withDefaults(
     preview?: boolean
     /** A choose-one level three already played as option 0 or 1. */
     pick?: EvoPick
+    /**
+     * Show the card's flavor line under its rules. Only reading views ask
+     * for it (the collection inspector); cards in play show rules alone.
+     */
+    flavor?: boolean
   }>(),
-  { note: '', level: 1, preview: false, pick: undefined },
+  { note: '', level: 1, preview: false, pick: undefined, flavor: false },
 )
 const maxLevel = CLASH_MAX_LEVEL
 const lab = useSlimeCityStore()
@@ -69,6 +87,7 @@ const stageTitle = computed(() =>
   clashStageTitle(props.cardId, props.level, props.pick),
 )
 const rules = computed(() => clashCardText(card.value, props.level, props.pick))
+const flavorText = computed(() => clashCardFlavor(props.cardId))
 const plays = computed(() => clashPlayCost(card.value))
 const kind = computed(() =>
   card.value.kind === 'creature'
@@ -85,7 +104,7 @@ const kind = computed(() =>
   inset: 0;
   overflow: hidden;
   border-radius: inherit;
-  border: 2px solid #9fd8c288;
+  border: 2px solid #0b2a26;
   background: #16323a;
   box-shadow:
     0 10px 22px #000a,
@@ -95,10 +114,20 @@ const kind = computed(() =>
     border-color 0.3s,
     box-shadow 0.3s;
 }
-.ccf.lv-3 {
-  border-color: #ffd34d;
+.ccf {
+  --lv: #8af2c2;
+}
+.ccf.lv-2 {
+  --lv: #a996ff;
+  border-color: #3a2f7a;
   box-shadow:
-    0 0 0 2px #ffd34d55,
+    0 0 18px #8f7bff55,
+    0 10px 22px #000a;
+}
+.ccf.lv-3 {
+  --lv: #ffd34d;
+  border-color: #7a4a12;
+  box-shadow:
     0 0 26px #ffb80066,
     0 10px 22px #000a;
 }
@@ -106,24 +135,35 @@ const kind = computed(() =>
   position: absolute;
   inset: 0;
 }
+.ccf-head {
+  position: absolute;
+  top: 3.5cqw;
+  left: 3.5cqw;
+  right: 3.5cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.6cqw;
+  min-width: 0;
+}
 .ccf-stage {
+  max-width: 100%;
+  padding: 1cqw 2.6cqw;
+  border-radius: 2.4cqw;
+  background: #071a20d9;
+  font-size: 6cqw;
   font-style: normal;
   font-weight: 900;
-  letter-spacing: 0.03em;
-  color: #ffe9a8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 52cqw;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: var(--lv);
+  overflow-wrap: anywhere;
 }
 .lv-3 .ccf-stage {
   color: #fff3c4;
   text-shadow: 0 0 2cqw #ffd76a;
 }
 .ccf-level {
-  position: absolute;
-  left: 3.5cqw;
-  top: 36cqw;
   display: flex;
   align-items: center;
   gap: 1.4cqw;
@@ -139,15 +179,15 @@ const kind = computed(() =>
   background: transparent;
 }
 .ccf-level i.on {
-  background: #ffd34d;
-  border-color: #ffd34d;
-  box-shadow: 0 0 2cqw #ffb800;
+  background: var(--lv);
+  border-color: var(--lv);
+  box-shadow: 0 0 2cqw var(--lv);
 }
 .ccf-level b {
   font-size: 4.2cqw;
   font-weight: 900;
   letter-spacing: 0.08em;
-  color: #ffe6a6;
+  color: var(--lv);
 }
 .ccf-art :deep(img) {
   width: 100%;
@@ -155,10 +195,7 @@ const kind = computed(() =>
   object-fit: cover;
 }
 .ccf-top {
-  position: absolute;
-  top: 3.5cqw;
-  left: 3.5cqw;
-  right: 3.5cqw;
+  align-self: stretch;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -186,10 +223,8 @@ const kind = computed(() =>
   color: #ffe6a6;
 }
 .ccf-name {
-  position: absolute;
-  top: 19cqw;
-  left: 3.5cqw;
-  right: 3.5cqw;
+  max-width: 100%;
+  margin-top: 1cqw;
   font-size: 8.8cqw;
   line-height: 1.08;
   font-weight: 900;
@@ -230,6 +265,16 @@ const kind = computed(() =>
 .ccf-note {
   color: #ffe6a6;
   font-weight: 750;
+}
+.ccf-flavor {
+  display: block;
+  margin-top: 0.6cqw;
+  padding-top: 1.8cqw;
+  border-top: 1px solid #b9f15133;
+  font-size: 5cqw;
+  font-style: italic;
+  line-height: 1.3;
+  color: #a9c4ba;
 }
 @media (prefers-reduced-motion: reduce) {
   .ccf,

@@ -128,7 +128,6 @@
             {{ pvp.tally.draw }}D</small
           >
         </h3>
-        <SlimeCityTakebackChoice class="vs-takebacks" />
         <section
           class="vs-friends"
           aria-label="Challenge a friend"

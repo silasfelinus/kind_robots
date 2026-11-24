@@ -98,6 +98,14 @@ function loadedArt(src: string): HTMLImageElement | null {
 }
 
 /** The loaded picture for a path under the art root (Fever Dream twin when one shipped), or null while loading. */
+/**
+ * A Fever Dream-only picture under doodle/ that has no classic twin (t-030 animation atlases): loaded straight
+ * from its doodle path, so it needs no entry in the generated doodle manifest.
+ */
+export function rainbowDoodleLoadedArt(path: string): HTMLImageElement | null {
+  return loadedArt(`${RAINBOW_GAME_ART_ROOT}/doodle/${path}.webp`)
+}
+
 export function rainbowLoadedArt(path: string): HTMLImageElement | null {
   return loadedArt(rainbowArt(path))
 }

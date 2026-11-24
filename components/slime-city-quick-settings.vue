@@ -2,7 +2,10 @@
 <!-- In-play settings gear for the Clash HUD (main-game standard: settings reachable
      mid-game). Opens a small panel over the board without leaving or pausing the fight;
      every toggle writes the same store-owned, device-local preference as the title
-     settings screen, so nothing here has its own state to drift. -->
+     settings screen, so nothing here has its own state to drift.
+     Silas, 2026-11-24 PT: "Forfeit is a button in settings control. One simple
+     control panel." A host passes its own actions (back, forfeit) in the default
+     slot; `up` opens the panel above a gear that sits at the foot of a rail. -->
 <template>
   <div class="scq" data-testid="slime-quick-settings">
     <button
@@ -29,6 +32,7 @@
       v-if="open"
       id="slime-quick-settings-panel"
       class="scq-panel"
+      :class="{ up }"
       role="dialog"
       aria-label="Game settings"
       data-testid="slime-quick-settings-panel"
@@ -103,6 +107,7 @@
       >
         HIGH CONTRAST · {{ lab.highContrast ? 'ON' : 'OFF' }}
       </button>
+      <slot />
       <button
         type="button"
         class="scq-resume"
@@ -120,8 +125,10 @@ import { useSlimeCityStore } from '~/stores/slimeCity'
 import { useSlimeCitySoundStore } from '~/stores/slimeCitySound'
 import { CLASH_SPEEDS } from '~/stores/helpers/slimeCityClashPreference'
 
-defineProps<{ header?: boolean }>()
-
+withDefaults(defineProps<{ up?: boolean; header?: boolean }>(), {
+  up: false,
+  header: false,
+})
 const lab = useSlimeCityStore()
 const sound = useSlimeCitySoundStore()
 const open = ref(false)
@@ -185,6 +192,10 @@ function close(): void {
   background: #061418f2;
   box-shadow: 0 0.6rem 1.6rem #000a;
   text-align: left;
+}
+.scq-panel.up {
+  top: auto;
+  bottom: calc(100% + 0.35rem);
 }
 .scq-panel h3 {
   margin: 0;

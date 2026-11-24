@@ -33,7 +33,11 @@ for (const def of CAMPAIGN) {
  * along the main route, then flooded with simulated walk-offs and jumps (both
  * ways, walking and running, several holds) and pipe doors.
  */
-function touchable(index: number): { touched: Uint8Array; cols: number } {
+function touchable(index: number): {
+  touched: Uint8Array
+  cols: number
+  secretStand: boolean
+} {
   const pilot = createSavePlumberPreview(options(), {
     stage: index,
     autopilot: true,
@@ -53,6 +57,12 @@ function touchable(index: number): { touched: Uint8Array; cols: number } {
   const touched = new Uint8Array(cols * rows)
   const seen = new Set(seeds.keys())
   const queue = [...seeds.values()]
+  const secret = g.secretGoal
+  const atSecret = (x: number, feet: number) =>
+    secret !== null &&
+    Math.abs(secret.x - x) < 12 &&
+    Math.abs(secret.y - feet) < 4
+  let secretStand = queue.some((spot) => atSecret(spot.x, spot.feet))
   const plans: { dir: number; run: boolean; hold: number; vx: number }[] = []
   for (const dir of [-1, 1])
     for (const run of [false, true])
@@ -113,6 +123,7 @@ function touchable(index: number): { touched: Uint8Array; cols: number } {
             c++
           )
             touched[r * cols + c] = 1
+        if (g.ground && atSecret(h.x, h.y + TALL)) secretStand = true
         if (f > 2 && g.ground) {
           visit({ x: h.x, feet: Math.round(h.y + TALL) })
           break
@@ -120,17 +131,33 @@ function touchable(index: number): { touched: Uint8Array; cols: number } {
       }
     }
   }
-  return { touched, cols }
+  return { touched, cols, secretStand }
 }
 
+const secretExitsOnly = process.argv.includes('--secret-exits-only')
+if (secretExitsOnly)
+  assert.ok(
+    CAMPAIGN.some((def) => def.secretExit),
+    'secret exits are authored',
+  )
+
 CAMPAIGN.forEach((def, index) => {
+  if (secretExitsOnly && !def.secretExit) return
   const spawns = parseStage(def).spawns
   const gear = spawns.find((s) => s.kind === 'gear')!
-  const { touched, cols } = touchable(index)
+  const { touched, cols, secretStand } = touchable(index)
   assert.ok(
     touched[gear.row * cols + gear.col],
     `${def.code}'s Golden Gear is reachable with plain moves`,
   )
+  if (def.secretExit) {
+    const { col, row } = def.secretExit
+    assert.ok(
+      touched[row * cols + col],
+      `${def.code}'s secret exit is reachable`,
+    )
+    assert.ok(secretStand, `${def.code}'s secret exit has reachable footing`)
+  }
   for (const power of spawns.filter(
     (s) => s.kind === 'heart' || s.kind.startsWith('power'),
   ))
@@ -185,5 +212,7 @@ assert.deepEqual(
 )
 
 console.log(
-  'Save the Plumber Golden Gears: one per leg, all reachable with every power, rising difficulty, saved across runs',
+  secretExitsOnly
+    ? 'Save the Plumber: all authored secret exits have reachable footing'
+    : 'Save the Plumber Golden Gears: one per leg, all reachable with every power, rising difficulty, saved across runs',
 )

@@ -11,6 +11,7 @@ import {
   eclipseEscapeGapY,
   eclipseEscapeWall,
   stepEclipseCrownBoss,
+  CROWN_PLEA,
 } from '../arcade/games/rainbowEclipseCrown'
 import {
   FINALE,
@@ -87,6 +88,7 @@ assert.equal(
 // Every crew and every choice resolves every scene line, with no absent speaker.
 const lineCounts: Record<FinaleSceneId, number> = {
   'A09.OPEN': 3,
+  'A09.PLEA': 3,
   'A09.TURN': 3,
   'A09.ESCAPE': 2,
   'A09.AFTER': 5,
@@ -99,7 +101,11 @@ for (const players of [1, 2, 3, 4])
         [FinaleSceneId, number]
       >) {
         const frames =
-          id === 'A09.AFTER' ? FINALE.endingLineFrames : FINALE.lineFrames
+          id === 'A09.AFTER'
+            ? FINALE.endingLineFrames
+            : id === 'A09.PLEA'
+              ? Math.floor(CROWN_PLEA.frames / 3)
+              : FINALE.lineFrames
         for (let line = 0; line < lines; line++) {
           const said = finaleDialogue(id, line * frames, players, flags, choice)
           assert.ok(said && said.speaker && said.text, `${id} line ${line + 1}`)

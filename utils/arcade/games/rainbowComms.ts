@@ -34,3 +34,13 @@ export const RAINBOW_CONTRAST_PELLET = {
   ring: '#ffffff',
   ringWidth: 1.5,
 } as const
+
+/**
+ * The default (not bold) pellet backing: a firmer dark halo and a faint light ring, so pink-cored pellets read
+ * on pink seas without the bold switch (presentation critic P-11). Bold stays the stronger option above.
+ */
+export const RAINBOW_DEFAULT_PELLET = {
+  halo: '#05030fb0',
+  ring: '#ffffff73',
+  ringWidth: 1,
+} as const

@@ -8,6 +8,11 @@
  * Review is limited to canon identity; replacements still need real art QA.
  */
 export const REJECTED_IDENTITY_ART = {
+  'identities/accident-fire/hero': {
+    blobSha: '226bb5540aefd1e1232a79e2a53dc9cd672b4ed7',
+    reason:
+      'Red speedster suit and circular lightning emblem evoke a recognizable franchise costume rather than Backdraft\u2019s original heat-shield rescue identity.',
+  },
   'identities/tech-genius/outcomes/hero': {
     blobSha: 'c0127590f91babf7cec1debcf4b80126ca211cb6',
     reason:

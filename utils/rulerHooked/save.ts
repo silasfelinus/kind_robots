@@ -14,6 +14,11 @@ import {
   type RoyalScrapbook,
 } from '~/utils/rulerHooked/scrapbook'
 import { deletePortrait } from '~/utils/rulerHooked/portraitStore'
+import {
+  mergeRoyalScrapbooks,
+  royalBackup,
+  type RoyalBackup,
+} from '~/utils/rulerHooked/accountBackup'
 
 const SCRAPBOOK_KEY = 'rulerHooked:scrapbook:v1'
 const INDEX_KEY = 'rulerHooked:index'
@@ -153,15 +158,17 @@ export function writeSave(save: RunSave, stamp: string): void {
   writeIndex(index)
 }
 
-export function renameSlot(saveId: string, name: string): void {
+export function renameSlot(saveId: string, name: string, stamp?: string): void {
   const save = loadSave(saveId)
   if (!save) return
   save.name = name
+  if (stamp) save.updatedAt = stamp
   safeSet(slotKey(saveId), JSON.stringify(save))
   const index = loadIndex()
   const slot = index.slots.find((s) => s.saveId === saveId)
   if (slot) {
     slot.name = name
+    slot.updatedAt = save.updatedAt
     writeIndex(index)
   }
 }
@@ -178,6 +185,35 @@ export function deleteSlot(saveId: string): void {
     index.activeSaveId = index.slots[0]?.saveId ?? null
   }
   writeIndex(index)
+}
+
+export function deviceRoyalBackup(): RoyalBackup {
+  const reigns = loadIndex()
+    .slots.map((slot) => loadSave(slot.saveId))
+    .filter((save): save is RunSave => save !== null)
+  return royalBackup(reigns, loadScrapbook())
+}
+
+export function restoreRoyalBackup(backup: RoyalBackup): void {
+  const activeId = loadIndex().activeSaveId
+  const archive = mergeRoyalScrapbooks(loadScrapbook(), backup.scrapbook)
+  for (const incoming of backup.reigns) {
+    const local = loadSave(incoming.saveId)
+    if (local && Date.parse(local.updatedAt) >= Date.parse(incoming.updatedAt))
+      continue
+    const reign = JSON.parse(JSON.stringify(incoming)) as RunSave
+    const portrait = local?.ruler.cosmetics?.customPortraitId
+    if (portrait) {
+      reign.ruler.cosmetics = {
+        ...reign.ruler.cosmetics,
+        customPortraitId: portrait,
+      }
+    }
+    writeSave(reign, reign.updatedAt)
+  }
+  setActive(activeId)
+  safeSet(SCRAPBOOK_KEY, JSON.stringify(archive))
+  loadScrapbook()
 }
 
 export function setActive(saveId: string | null): void {

@@ -2776,13 +2776,13 @@ for (const identity of SIGNATURE_POWERS) {
     )
   }
 }
-// Shipped media is not automatically canon-safe: quarantine the 22 noncanonical WebPs
+// Shipped media is not automatically canon-safe: quarantine the 23 noncanonical WebPs
 // personally inspected against the permanently authored identity catalog.
-assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 22)
+assert.equal(Object.keys(REJECTED_IDENTITY_ART).length, 23)
 assert.equal(
   new Set(Object.values(REJECTED_IDENTITY_ART).map((entry) => entry.blobSha))
     .size,
-  22,
+  23,
 )
 for (const [key, rejection] of Object.entries(REJECTED_IDENTITY_ART)) {
   assert.ok(promArt(key), key + ' is physically exported despite rejection')
@@ -2790,6 +2790,24 @@ for (const [key, rejection] of Object.entries(REJECTED_IDENTITY_ART)) {
   assert.ok(rejection.reason.length > 40)
   assert.equal(reviewedIdentityArtwork(key), null)
 }
+assert.equal(
+  REJECTED_IDENTITY_ART['identities/accident-fire/hero'].blobSha,
+  '226bb5540aefd1e1232a79e2a53dc9cd672b4ed7',
+)
+assert.equal(reviewedIdentityArtwork('identities/accident-fire/hero'), null)
+assert.equal(
+  identityArtwork('accident-fire', 'hero'),
+  promArt('identities/accident-fire/outcomes/hero'),
+  'Backdraft uses his original heat-shield rescue scene instead of the speedster suit',
+)
+assert.equal(
+  identityDisplayArtKey('accident-fire', 'hero'),
+  'identities/accident-fire/outcomes/hero',
+)
+assert.equal(
+  identityArtwork('accident-fire', 'villain'),
+  promArt('identities/accident-fire/villain'),
+)
 // Each additional quarantine is backed by direct inspection of the committed
 // WebP source bytes against CAST_LOOKS, with its immutable Git blob receipt.
 for (const [signature, variant, sourceSha] of [

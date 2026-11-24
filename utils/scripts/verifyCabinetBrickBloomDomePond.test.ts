@@ -724,13 +724,10 @@ function clearTo(g: Inner) {
   }
   assert.ok(k.defeated, 'Queen Koi is cheered up')
   run(g, 170)
-  assert.equal(
-    g.tour,
-    null,
-    'past Queen Koi the classic walls go on (slice 4 adds more)',
-  )
-  assert.equal(g.save?.house, HOUSES.length)
-  assert.equal(resumable(g.save ?? null), false)
+  assert.deepEqual(g.tour, { house: 4, wall: HOUSES[4]!.start })
+  assert.equal(g.bench?.house, 4, 'the Night Bloom House opens')
+  assert.equal(g.save?.house, 4)
+  assert.equal(resumable(g.save ?? null), true)
 }
 
 // --- drawing every new thing ------------------------------------------------------------------

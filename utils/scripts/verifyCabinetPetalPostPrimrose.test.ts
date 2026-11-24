@@ -2,8 +2,14 @@ import assert from 'node:assert/strict'
 import { mulberry32 } from '../arcade/curve'
 import { create } from '../arcade/games/petalPost'
 import {
+  PARK_GOLDEN_POINTS,
+  PARK_JUMP_TICKS,
+  PARK_LOOP_LENGTH,
+  PARK_LOOP_RAMPS,
+  PARK_LOOP_TARGETS,
   PRIMROSE_DAYS,
   primroseDay,
+  primroseLandmarks,
   valleyGazette,
 } from '../arcade/games/petalPostPrimrose'
 import type { InputFrame } from '../arcade/types'
@@ -33,10 +39,20 @@ type Probe = {
   by: number
   speed: number
   carry: number
+  routeEnd: number
+  bonusEnd: number
+  inBonus: boolean
+  jump: number
+  courseCrashed: boolean
+  ramps: Array<{ x: number; y: number; used: boolean }>
+  targets: Array<{ x: number; y: number; airborne: boolean; hit: boolean }>
+  landmarks: ReturnType<typeof primroseLandmarks>
+  bundles: Array<{ x: number; y: number; gone: boolean }>
   packets: Array<{
     x: number
     y: number
     vx: number
+    airborne: boolean
     side: 'left' | 'right'
   }>
   houses: House[]
@@ -49,6 +65,7 @@ type Probe = {
     cancellations: number
     requestsMet: number
     signups: number
+    course: null | { hits: number; total: number; golden: boolean }
     homes: Array<{ bloom: number; subscriber: boolean }>
   }
   requestsMet: number
@@ -57,6 +74,7 @@ type Probe = {
   startDay(day: number): void
   update(input: InputFrame): void
   endDay(): void
+  crashBot(why: string, h: Hazard): void
   deliver(
     house: House,
     points: number,
@@ -306,6 +324,109 @@ for (const side of ['left', 'right'] as const) {
   assert.equal(game.score, 0, 'no cancellations is not a perfect round')
 }
 
+// Verify stable landmark growth and the authored course on every weekday.
+for (let day = 1; day <= 6; day++) {
+  const game = make(41)
+  game.startDay(day)
+  assert.deepEqual(game.landmarks, primroseLandmarks(day))
+  assert.equal(game.bonusEnd, game.routeEnd - PARK_LOOP_LENGTH)
+  assert.equal(game.ramps.length, PARK_LOOP_RAMPS.length)
+  assert.equal(game.targets.length, PARK_LOOP_TARGETS.length)
+  assert.equal(game.targets.filter((t) => t.airborne).length, 2)
+  assert.ok(game.landmarks.some((l) => l.kind === 'park'))
+  assert.ok(
+    game.bundles.some(
+      (b) => b.y === -220 - (2 + 0.5) * 110 && b.x === 94,
+    ),
+    'the seed shop always stocks a route refill',
+  )
+}
+assert.ok(primroseLandmarks(6).length > primroseLandmarks(1).length)
+
+{
+  const game = make(42)
+  game.hazards = []
+  game.carry = 0
+  game.by = game.routeEnd + 0.5
+  game.update(idle())
+  assert.equal(game.inBonus, true)
+  assert.equal(game.carry, 10, 'Park Loop has its own target supply')
+  const ramp = game.ramps[0]!
+  game.by = ramp.y + 0.5
+  game.bx = ramp.x
+  game.speed = 0.7
+  game.update(press('down'))
+  assert.equal(game.jump, 0, 'creeping over a ramp does not launch')
+  assert.equal(ramp.used, false)
+  game.by = ramp.y + 0.5
+  game.speed = 1.8
+  game.update(idle())
+  assert.equal(game.jump, PARK_JUMP_TICKS)
+  assert.equal(ramp.used, true)
+  const target = game.targets.find((t) => t.airborne)!
+  // Advance normally until the aerial toss will meet the elevated ring.
+  let threw = false
+  for (let tick = 0; tick < 40 && !target.hit; tick++) {
+    const nextSpeed = game.speed + (1.3 - game.speed) * 0.03
+    const vx = (1.2 + nextSpeed * 0.65) * 1.35
+    const travel = (game.bx - 6 - target.x) / vx
+    const error = game.by - 4 - nextSpeed * (travel + 1) - target.y
+    if (!threw && game.jump > 1 && Math.abs(error) < 2.5) {
+      game.update(press('a'))
+      assert.equal(game.packets[0]?.airborne, true)
+      threw = true
+    } else {
+      game.update(idle())
+    }
+  }
+  assert.equal(threw, true, 'ramp launch affords a real aerial aim window')
+  assert.equal(target.hit, true, 'an airborne parcel can hit an elevated ring')
+  assert.equal(game.score, 500)
+  for (let tick = 0; tick < PARK_JUMP_TICKS; tick++) game.update(idle())
+  assert.equal(game.jump, 0, 'airborne state expires')
+}
+
+{
+  const game = make(43)
+  game.hazards = []
+  const target = game.targets.find((t) => t.airborne)!
+  game.inBonus = true
+  game.bx = 128
+  game.speed = 1.3
+  const travel = (game.bx - 6 - target.x) / (1.2 + game.speed * 0.65)
+  game.by = target.y + 4 + game.speed * (travel + 1)
+  game.update(press('a'))
+  for (let i = 0; i < 40; i++) game.update(idle())
+  assert.equal(game.jump, 0)
+  assert.equal(target.hit, false, 'ground parcels cannot claim AIR rings')
+}
+
+for (const crashed of [false, true]) {
+  const game = make(44)
+  game.hazards = []
+  game.inBonus = true
+  for (const target of game.targets) target.hit = true
+  // Isolate the course reward from the perfect-delivery reward.
+  for (const house of game.houses) {
+    house.subscriber = true
+    house.delivered = false
+    house.bloom = 3
+  }
+  if (crashed) {
+    const lives = game.lives
+    game.crashBot('BONUS CRASH', { kind: 'bin', x: 128, y: game.by, gone: false })
+    assert.equal(game.lives, lives, 'bonus crashes do not consume lives')
+  } else {
+    game.by = game.bonusEnd - 1
+    game.endDay()
+  }
+  assert.equal(game.gazette?.course?.hits, PARK_LOOP_TARGETS.length)
+  assert.equal(game.gazette?.course?.golden, !crashed)
+  assert.equal(game.score, crashed ? 0 : PARK_GOLDEN_POINTS)
+  game.endDay()
+  assert.equal(game.score, crashed ? 0 : PARK_GOLDEN_POINTS, 'stamp pays once')
+}
+
 console.log(
-  'Petal Post Primrose Lane authored week, Gazette and two-sided deliveries passed',
+  'Petal Post Primrose Lane, two-sided deliveries, Park Loop and stamps passed',
 )

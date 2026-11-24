@@ -236,7 +236,7 @@ function onFocusOut(event: FocusEvent): void {
   z-index: 40;
   display: grid;
   grid-template-columns: repeat(3, 5.6rem);
-  max-height: min(34rem, calc(100dvh - 6rem));
+  max-height: 28rem;
   overflow-y: auto;
   gap: 0.35rem;
   padding: 0.4rem;

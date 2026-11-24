@@ -405,16 +405,22 @@ assert.match(
   /<NuxtLink\s+to="\/"[\s\S]*?aria-label="Home"[\s\S]*?<Icon name="kind-icon:home"/,
   'A persistent branded Home icon in the shared header must link to the homepage.',
 )
-assert.ok(
-  workspaceHeaderSource.includes('to="/art"'),
-  'The fixed workspace header must keep a direct Art Studio shortcut.',
-)
-assert.ok(
-  workspaceHeaderSource.includes(
-    "const artActive = computed(() => route.path === '/art')",
-  ),
-  'The Art shortcut must expose its active state on /art.',
-)
+for (const route of [
+  '/art',
+  '/play/slime-city',
+  '/play/memory',
+  '/play/chessweeper',
+]) {
+  assert.ok(
+    !workspaceHeaderSource.includes(`to="${route}"`),
+    `The fixed workspace header must not duplicate the ${route} launcher.`,
+  )
+}
+assert.doesNotMatch(workspaceHeaderSource, /<admin-feedback-capture\b/)
+assert.doesNotMatch(workspaceHeaderSource, /slimeCityBadgeTimer/)
+assert.match(workspaceHeaderSource, /<account-hub\b/)
+assert.match(workspaceHeaderSource, /@click="navStore\.toggleWorkspaceSheet\(\)"/)
+assert.match(workspaceHeaderSource, /to="\/artjob"/)
 
 const arcadeChannelSource = readFileSync(
   'content/channels/arcade/arcade.md',

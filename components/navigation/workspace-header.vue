@@ -85,13 +85,8 @@
         conditionally on who is signed in and adding another such branch changes
         nothing about the header's hydration behaviour.
 
-        Ordered account -> ops -> play -> help: this sits with the account hub
-        because it is an operations control, and the game stays next to the
-        tutorial toggle.
-
         Silas, 2026-10-06: badge it with pending + running + failed, and give it
-        a process icon -- the old gallery picture kept being mistaken for the
-        Art button beside it.
+        a process icon.
       -->
       <NuxtLink
         v-if="userStore.isAdmin"
@@ -116,110 +111,6 @@
             {{ artjobBadge }}
           </span>
         </span>
-      </NuxtLink>
-
-      <ClientOnly>
-        <admin-feedback-capture v-if="userStore.isAdmin" />
-      </ClientOnly>
-
-      <!--
-        ART STUDIO. Kept one click away beside the ArtJob queue and Memory
-        Dungeon. The image icon matches the Art page's own Play-channel icon.
-      -->
-      <NuxtLink
-        to="/art"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
-        :class="
-          artActive
-            ? 'border-primary bg-primary/15 text-primary'
-            : 'bg-base-100'
-        "
-        :aria-current="artActive ? 'page' : undefined"
-        aria-label="Art"
-        title="Art"
-      >
-        <Icon name="kind-icon:image" class="kr-icon-5 xl:size-6" />
-      </NuxtLink>
-
-      <NuxtLink
-        to="/play/slime-city"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
-        :class="
-          slimeCityActive
-            ? 'border-primary bg-primary/15 text-primary'
-            : 'bg-base-100'
-        "
-        :aria-current="slimeCityActive ? 'page' : undefined"
-        :aria-label="slimeCityLabel"
-        :title="slimeCityLabel"
-        data-testid="header-slime-city"
-      >
-        <span class="indicator">
-          <Icon name="kind-icon:cat" class="kr-icon-5 xl:size-6" />
-          <span
-            v-if="userStore.isLoggedIn && slimeCityPendingTurns"
-            class="kr-badge-secondary-xs indicator-item whitespace-nowrap tabular-nums"
-            aria-hidden="true"
-            data-testid="header-slime-city-turns"
-          >
-            {{ slimeCityPendingTurns > 99 ? '99+' : slimeCityPendingTurns }}
-          </span>
-        </span>
-      </NuxtLink>
-
-      <!--
-        CHESSWEEPER. Silas, 2026-11-23 PT: "We're missing our nav link to
-        chessweeper on the nav bar." A shortcut beside the other game icons;
-        the Play launcher tab (content/channels/arcade/chessweeper.md) stays the
-        canonical entry. Same icon as that tab so the two agree.
-      -->
-      <NuxtLink
-        to="/play/chessweeper"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
-        :class="
-          chessweeperActive
-            ? 'border-primary bg-primary/15 text-primary'
-            : 'bg-base-100'
-        "
-        :aria-current="chessweeperActive ? 'page' : undefined"
-        aria-label="Chessweeper"
-        title="Chessweeper"
-        data-testid="header-chessweeper"
-      >
-        <Icon name="kind-icon:chessweeper" class="kr-icon-5 xl:size-6" />
-      </NuxtLink>
-
-      <!--
-        MEMORY DUNGEON. Silas, 2026-09-08: "I'm really proud of my memory match
-        game, it was one of my first projects and still one that I occasionally
-        return to. I want a link for it on the dashboard next to the tutorial
-        and account manager links."
-
-        A NuxtLink rather than a button because it is navigation, so it gets
-        middle-click, cmd-click and a real href for free. Square and
-        fixed-width, matching the toggle beside it -- see the note at the top of
-        this file about nothing in this row being allowed to grow.
-
-        The icon is the one the page declares for itself
-        (content/play/memory.md, `icon: kind-icon:brain`), so the button and the
-        page it opens agree; the route is that file's own path. The same game
-        also has a nav card in the footer deck (dashboardHelper.ts, the `games`
-        tab, which uses kind-icon:castle); this is a shortcut to it, not a
-        replacement.
-      -->
-      <NuxtLink
-        to="/play/memory"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 xl:size-12"
-        :class="
-          memoryActive
-            ? 'border-primary bg-primary/15 text-primary'
-            : 'bg-base-100'
-        "
-        :aria-current="memoryActive ? 'page' : undefined"
-        aria-label="Memory Dungeon"
-        title="Memory Dungeon"
-      >
-        <Icon name="kind-icon:brain" class="kr-icon-5 xl:size-6" />
       </NuxtLink>
 
       <!-- Workspace help is a single permanent header utility, never a
@@ -257,7 +148,6 @@ import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useArtJobStore } from '@/stores/artJobStore'
-import { useSlimeCityPvpStore } from '@/stores/slimeCityPvp'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
@@ -271,7 +161,6 @@ const navStore = useNavStore()
 const pageStore = usePageStore()
 const userStore = useUserStore()
 const artJobStore = useArtJobStore()
-const slimePvpStore = useSlimeCityPvpStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -343,56 +232,7 @@ const workspaceToggleLabel = computed(() => {
     : 'Open workspace'
 })
 
-// Lit when you are already in the dungeon, matching how the workspace toggle
-// shows its own open state. startsWith rather than an equality check because
-// the game's deeper routes (a level, a run) should keep the button lit too.
-const slimeCityActive = computed(
-  () =>
-    route.path.startsWith('/play/slime-city') ||
-    route.path.startsWith('/admin/slime-city'),
-)
-const slimeCityPendingTurns = computed(
-  () =>
-    slimePvpStore.games.filter((game) => game.myTurn && game.stage === 'battle')
-      .length,
-)
-const slimeCityLabel = computed(() =>
-  slimeCityPendingTurns.value
-    ? `Slime City: ${slimeCityPendingTurns.value} games awaiting your turn`
-    : 'Slime City games',
-)
-let slimeCityBadgeTimer: ReturnType<typeof setInterval> | null = null
-watch(
-  () => userStore.isLoggedIn,
-  (signedIn) => {
-    if (slimeCityBadgeTimer) clearInterval(slimeCityBadgeTimer)
-    slimeCityBadgeTimer = null
-    if (import.meta.client && signedIn) {
-      void slimePvpStore.loadGames()
-      slimeCityBadgeTimer = setInterval(
-        () => void slimePvpStore.loadGames(),
-        30000,
-      )
-    }
-  },
-  { immediate: true },
-)
-onBeforeUnmount(() => {
-  if (slimeCityBadgeTimer) clearInterval(slimeCityBadgeTimer)
-})
-
-const memoryActive = computed(() => route.path.startsWith('/play/memory'))
-
-const chessweeperActive = computed(() =>
-  route.path.startsWith('/play/chessweeper'),
-)
-
-// Exact match, unlike memoryActive: /artjob is a single page with no children,
-// and startsWith would light the button on any future sibling route that merely
-// shares the prefix.
 const artjobActive = computed(() => route.path === '/artjob')
-
-const artActive = computed(() => route.path === '/art')
 
 const artjobBadge = computed(() =>
   artJobStore.activeJobCount > 9999

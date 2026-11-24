@@ -390,7 +390,7 @@
           </span>
         </div>
         <ol
-          class="grid min-h-0 flex-1 auto-rows-max grid-cols-2 gap-2 overflow-y-auto @3xl:auto-rows-auto @3xl:grid-cols-4 @3xl:grid-rows-2 @3xl:overflow-visible"
+          class="grid min-h-0 flex-1 auto-cols-[minmax(160px,46%)] grid-flow-col gap-2 overflow-x-auto @3xl:auto-cols-auto @3xl:grid-flow-row @3xl:grid-cols-4 @3xl:grid-rows-2 @3xl:overflow-visible"
         >
           <li
             v-for="(stage, index) in stages"

@@ -897,7 +897,7 @@
         <button class="btn small icon" data-action="settings" aria-label="Settings">⚙️</button>
       </div>
       <div class="hud">
-        <div class="card hud-box moves" data-moves-box><span class="label">Moves</span><span class="value" data-moves></span></div>
+        <div class="card hud-box moves" data-moves-box><span class="label">Moves</span><span class="value" data-moves></span><small data-weather></small></div>
         <div class="card hud-box" style="min-width:140px"><span class="label">Score</span><span class="value" data-score></span><div class="star-meter"><div class="fill" data-meter></div>${[1, 2].map((k) => `<span class="tick" style="left:${Math.round((game.def.stars[k] / (game.def.stars[2] * 1.1)) * 100)}%">${A.starSvg(true)}</span>`).join('')}</div></div>
         <div class="card hud-box" data-goals-box><span class="label">Goals</span><div class="goals" data-goals></div></div>
       </div>
@@ -956,7 +956,22 @@
         text: 'This level asks for a kind of jewel. Every one you clear counts toward the goal up top.',
       },
       gloom: { title: b.gloom.name, text: b.gloom.text },
-      tangle: { title: b.tangle.name, text: b.tangle.text },
+      tangle: {
+        title: b.tangle.name,
+        text: b.tangle.text + ' Tough knots may need up to five hits.',
+      },
+      ribbon: {
+        title: 'Ribbon locks',
+        text: 'A ribbon-pinned jewel cannot swap or fall. Match it with neighboring jewels or hit it with a special to release it.',
+      },
+      spread: {
+        title: 'Spreading Gloom',
+        text: 'Gloom may spread if a move does not completely clear a patch. Clear patches to keep it contained.',
+      },
+      cloud: {
+        title: 'Rain cloud',
+        text: 'Every three moves the cloud may add a new patch of Gloom. It never costs a life or ends a level.',
+      },
       buddy: { title: b.buddy.name, text: b.buddy.text },
       comb: { title: sp.comb.name + '!', text: sp.comb.text },
       bomb: { title: sp.bomb.name + '!', text: sp.bomb.text },
@@ -1133,6 +1148,8 @@
     for (const key of ['collect', 'gloom', 'tangle', 'buddy']) {
       if (kinds.has(key)) await showTip(key)
     }
+    if (game.def.ribbons?.length) await showTip('ribbon')
+    if (game.state.weather) await showTip(game.state.weather.kind)
     const hasRainbow = game.state.board.some((row) =>
       row.some((tile) => tile && tile.special === 'rainbow'),
     )
@@ -1227,7 +1244,15 @@
         seen.add(tile.id)
         let el = map.get(tile.id)
         const sig =
-          tile.kind + ':' + tile.color + ':' + tile.special + ':' + tile.hp
+          tile.kind +
+          ':' +
+          tile.color +
+          ':' +
+          tile.special +
+          ':' +
+          tile.hp +
+          ':' +
+          !!tile.ribbon
         if (!el) {
           el = document.createElement('div')
           el.className = 'tile' + (tile.kind === 'tangle' ? ' fixed' : '')
@@ -1248,7 +1273,11 @@
             el.offsetWidth
             el.classList.add('created')
           }
-          el.innerHTML = tileSvg(tile)
+          el.innerHTML =
+            tileSvg(tile) +
+            (tile.ribbon
+              ? '<span style="position:absolute;right:0;top:0;font-size:0.85em;pointer-events:none" aria-hidden="true">🎀</span>'
+              : '')
           el._sig = sig
         }
         el.style.width = cell + 'px'
@@ -1256,7 +1285,10 @@
         el.style.padding = Math.round(cell * 0.05) + 'px'
         el.dataset.r = r
         el.dataset.c = c
-        el.setAttribute('aria-label', tileLabel(tile))
+        el.setAttribute(
+          'aria-label',
+          tileLabel(tile) + (tile.ribbon ? ', ribbon locked' : ''),
+        )
         if (instant) {
           el.style.transition = 'none'
           el.style.transform = pos(r, c)
@@ -1279,6 +1311,13 @@
     if (!game || !appEl.querySelector('[data-moves]')) return
     const st = game.state
     appEl.querySelector('[data-moves]').textContent = Math.max(0, st.movesLeft)
+    const weather = st.weather
+    appEl.querySelector('[data-weather]').textContent =
+      weather && weather.remaining > 0
+        ? weather.kind === 'cloud'
+          ? '☔ ' + weather.countdown
+          : '🌧️ ' + weather.remaining
+        : ''
     appEl
       .querySelector('[data-moves-box]')
       .classList.toggle('low', st.movesLeft <= 3 && !st.over)
@@ -1422,7 +1461,7 @@
     updateCursor()
     if (game.tool) return toolCell(p)
     const tile = E.tileAt(game.state, p[0], p[1])
-    if (!tile || tile.kind === 'tangle') return
+    if (!tile || tile.kind === 'tangle' || tile.ribbon) return
     if (game.selected) {
       const from = game.selected
       clearSelection()
@@ -1516,6 +1555,14 @@
     const fx = game.els.fx
     for (let i = 0; i < phases.length; i++) {
       const phase = phases[i]
+      if (phase.weather) {
+        drawGloom()
+        cheer(
+          phase.weather === 'cloud'
+            ? 'A little rain! ☔'
+            : 'Gloom is spreading!',
+        )
+      }
       if (phase.swap) {
         const ea = game.els.tileMap.get(phase.swap.ids[0])
         const eb = game.els.tileMap.get(phase.swap.ids[1])
@@ -1777,7 +1824,7 @@
     const gems = []
     for (let r = 0; r < st.rows; r++)
       for (let c = 0; c < st.cols; c++)
-        if (E.tileAt(st, r, c) && E.tileAt(st, r, c).kind === 'gem')
+        if (E.tileAt(st, r, c)?.kind === 'gem' && !E.tileAt(st, r, c).ribbon)
           gems.push([r, c])
     let guard = 0
     do {

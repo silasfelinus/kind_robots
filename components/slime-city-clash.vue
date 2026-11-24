@@ -90,7 +90,10 @@
                   <span class="clash-fighter-label"
                     ><i
                       class="clash-stars"
-                      :class="{ max: unit(side, lane)!.level >= 3 }"
+                      :class="[
+                        'lv-' + unit(side, lane)!.level,
+                        { max: unit(side, lane)!.level >= 3 },
+                      ]"
                       :aria-label="'Level ' + unit(side, lane)!.level"
                       >{{ '★'.repeat(unit(side, lane)!.level) }}</i
                     >{{ cardById(unit(side, lane)!.cardId).name }}</span
@@ -124,6 +127,7 @@
                       }}</span
                     >
                   </span>
+                  <SlimeCityLevelFrame :level="unit(side, lane)!.level" />
                 </template>
                 <span v-else class="clash-empty">{{
                   targetable(side, lane)
@@ -1620,11 +1624,15 @@ function forecast(lane: number): string {
   font-style: normal;
   font-size: 0.85em;
   letter-spacing: 0.1em;
-  color: #ffe6a6;
+  color: #8af2c2;
+}
+.clash-stars.lv-2 {
+  color: #b9adff;
+  text-shadow: 0 0 6px #3fd6ff;
 }
 .clash-stars.max {
   color: #ffd34d;
-  text-shadow: 0 0 6px #ffb800;
+  text-shadow: 0 0 6px #ff5fa2;
 }
 .clash-tags {
   position: absolute;

@@ -892,3 +892,21 @@ for (const file of ['slime-city-campaign.vue', 'slime-city-clash.vue'])
     /<SlimeCityCrewSelect/,
     file + ' lets the player pick a crew',
   )
+
+// Silas, 2026-11-24 PT: "vs. mode no longer shows description of the factions
+// when selecting a team." The shared crew menu describes the previewed crew
+// before it is picked.
+{
+  const crewSelect = readFileSync(
+    new URL('../../components/slime-city-crew-select.vue', import.meta.url),
+    'utf8',
+  )
+  assert.match(crewSelect, /data-testid="slime-crew-dossier"/)
+  for (const field of ['motto', 'hook', 'pattern', 'counters'])
+    assert.match(
+      crewSelect,
+      new RegExp('preview\\.' + field),
+      'crew menu dossier shows ' + field,
+    )
+  assert.match(crewSelect, /data-testid="slime-crew-confirm"/)
+}

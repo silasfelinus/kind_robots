@@ -38,6 +38,8 @@
           class="cxh-card"
           :class="{
             big: big === index,
+            'held-dock': big === index && !!dockHeld,
+            ['dock-' + heldDockSide]: big === index && !!dockHeld,
             dim: ready && !playable(cardId),
             dragging: drag?.index === index && drag.moved,
           }"
@@ -126,8 +128,12 @@
       v-if="shown && !peekCard"
       class="cxh-levels"
       :class="{
-        docked: big === null,
-        'dock-left': inspectCard?.dock === 'left',
+        docked: big === null || !!dockHeld,
+        'held-dock': big !== null && !!dockHeld,
+        'dock-left':
+          big !== null && dockHeld
+            ? heldDockSide === 'left'
+            : inspectCard?.dock === 'left',
       }"
       role="tablist"
       aria-label="Preview this card at each level"
@@ -233,6 +239,13 @@ const props = defineProps<{
    * too, still closable from the deck icon.
    */
   openOffTurn?: boolean
+  /**
+   * Silas, 2026-11-24 PT, VS duel: "The card enlarged is fully blocking the
+   * middle lane." The held card docks to one side of the board instead of
+   * standing over the middle alley. A parent can push it further out (onto a
+   * rail beside the board) with the `--held-reach` CSS variable.
+   */
+  dockHeld?: boolean
 }>()
 const emit = defineEmits<{
   pick: [index: number | null]
@@ -265,6 +278,10 @@ function toggle(): void {
   if (!isOpen.value) emit('pick', null)
 }
 const big = computed(() => (isOpen.value ? props.held : null))
+/** A held card from the left of the fan docks right, and the other way round. */
+const heldDockSide = computed<'left' | 'right'>(() =>
+  big.value !== null && big.value >= cards.value.length / 2 ? 'left' : 'right',
+)
 /** Silas, 2026-11-07 PT: "The user should be able to select to see the upgraded versions." */
 const previewLevel = ref<number | null>(null)
 const inspectCard = computed(() =>
@@ -734,6 +751,25 @@ function tap(index: number): void {
 }
 .cxh-card.big {
   --rules-open: 1;
+}
+/*
+  A docked held card stands at full size, centred top to bottom against one
+  edge (or past it by --held-reach), so no middle alley sits under it. The
+  card's slot is the board's centre, so --x is measured from there.
+*/
+.cxh .cxh-card.big.held-dock {
+  --x: calc(50cqw - 0.6rem - var(--W) / 2 + var(--held-reach, 0rem));
+  --y: calc(var(--W) * 0.75 - 50cqh);
+}
+.cxh .cxh-card.big.held-dock.dock-left {
+  --x: calc(0.6rem + var(--W) / 2 - 50cqw - var(--held-reach, 0rem));
+}
+.cxh .cxh-levels.docked.held-dock {
+  right: calc(0.6rem + var(--W) / 2 - var(--held-reach, 0rem));
+}
+.cxh .cxh-levels.docked.held-dock.dock-left {
+  right: auto;
+  left: calc(0.6rem + var(--W) / 2 - var(--held-reach, 0rem));
 }
 .cxh-card.big :deep(.ccf) {
   border-color: #f8ffad;

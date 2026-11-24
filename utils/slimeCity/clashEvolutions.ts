@@ -86,14 +86,18 @@ export function clashEvolutionText(
   // The card face names both; the play picker shows each option's rules.
   if (both) return 'Choose: ' + both[0].title + ' / ' + both[1].title + '.'
   const st = clashEvolutionStage(card.id, level, pick ?? 0)
-  const rules = st ? evoStageText(st, card.kind) : ''
-  // L1 still uses its native keyword/effect. These authored lines explain
-  // the card's strategic role instead of silently giving it new abilities.
-  const role =
-    level < 2 && !CLASH_TWISTS[card.id]
-      ? (CLASH_EVOLUTIONS[card.id]?.levelOneText ?? '')
-      : ''
-  return [role, rules].filter(Boolean).join(' ')
+  return st ? evoStageText(st, card.kind) : ''
+}
+
+/**
+ * A card's flavor line: the authored one-sentence role (`levelOneText`).
+ * Silas, 2026-11-24 PT: "Flavor text should be on fresh lines and separate
+ * ... but actually I only want to see them in particular cases, like pause
+ * preview and collection view." It is never part of the rules text; a card
+ * face shows it on its own line only when asked (`flavor`).
+ */
+export function clashCardFlavor(id: string): string {
+  return CLASH_TWISTS[id] ? '' : (CLASH_EVOLUTIONS[id]?.levelOneText ?? '')
 }
 
 /** The stage name a card wears at a level: its own name at level 1. */

@@ -682,7 +682,9 @@ export const RAINBOW_STAGE_PAINTINGS: readonly string[] = [
   'stages/s08-far',
   'stages/s08-mid',
   'stages/s08-sky',
+  'stages/s09-card',
   'stages/s09-far',
+  'stages/s09-fore',
   'stages/s09-mid',
   'stages/s09-sky',
 ]

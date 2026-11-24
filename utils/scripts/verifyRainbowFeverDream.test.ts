@@ -84,14 +84,10 @@ for (const boss of RAINBOW_BOSS_SPRITES) {
   )
   assert.equal(phases.length, 3, `${boss} keeps all three phases in one style`)
 }
-assert.ok(
-  !RAINBOW_DOODLE_ART.includes('comms/solenne'),
-  'Solenne comms held (CAST-QA: skin repainted)',
-)
-assert.ok(
-  !RAINBOW_DOODLE_ART.includes('portraits/p3-solenne'),
-  'Solenne portrait held (CAST-QA: hair and skin)',
-)
+// P-19: Solenne's Fever Dream portrait and comms passed CAST-QA (ART-BACKLOG-2026-11-24 p3-solenne-fever-3: deep-brown
+// skin, visibly muscular shoulders and forearms, structural twists, butter-yellow and gold, her notebook and Butter).
+assert.ok(RAINBOW_DOODLE_ART.includes('comms/solenne'))
+assert.ok(RAINBOW_DOODLE_ART.includes('portraits/p3-solenne'))
 
 // Switching looks switches every path the cabinet and the page draw.
 setRainbowLook('fever', false)
@@ -114,8 +110,7 @@ assert.equal(
 )
 assert.equal(
   rainbowCommsPortrait('Solenne'),
-  '/rainbow-princess-art/comms/solenne.webp',
-  'held art falls back to classic',
+  '/rainbow-princess-art/doodle/comms/solenne.webp',
 )
 assert.equal(
   rainbowPortrait('/rainbow-princess-portraits/p1-maribel.webp'),
@@ -123,7 +118,7 @@ assert.equal(
 )
 assert.equal(
   rainbowPortrait('/rainbow-princess-portraits/p3-solenne.webp'),
-  '/rainbow-princess-portraits/p3-solenne.webp',
+  '/rainbow-princess-art/doodle/portraits/p3-solenne.webp',
 )
 assert.equal(
   rainbowStagePlane('s01', 'far'),

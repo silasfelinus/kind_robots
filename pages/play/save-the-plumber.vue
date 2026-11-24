@@ -115,6 +115,13 @@
                 >
                   CONTROLS <span>›</span>
                 </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('settings')"
+                >
+                  SETTINGS <span>›</span>
+                </button>
               </nav>
             </div>
             <span class="plumber-title-count"
@@ -352,6 +359,93 @@
           </section>
 
           <section
+            v-else-if="screen === 'settings'"
+            key="settings"
+            class="plumber-view plumber-guide-view"
+            aria-labelledby="settings-heading"
+          >
+            <div class="plumber-guide-inner kr-scroll">
+              <p class="plumber-eyebrow">CABINET PREFERENCES</p>
+              <h2 id="settings-heading" class="plumber-section-title">
+                SETTINGS
+              </h2>
+              <p class="plumber-guide-intro">
+                These sound and accessibility options apply across the Arcade
+                and are saved on this device.
+              </p>
+              <div class="plumber-guide-grid">
+                <div class="plumber-guide-action justify-between">
+                  <span class="plumber-guide-description">
+                    <strong>Sound</strong>
+                    <small>Music and gameplay effects</small>
+                  </span>
+                  <button
+                    type="button"
+                    class="plumber-control"
+                    :aria-pressed="!arcade.muted"
+                    @click="arcade.setMuted(!arcade.muted)"
+                  >
+                    {{ arcade.muted ? 'OFF' : 'ON' }}
+                  </button>
+                </div>
+                <label class="plumber-guide-action flex-col items-stretch">
+                  <span class="plumber-guide-description">
+                    <strong>Volume · {{ Math.round(arcade.volume * 100) }}%</strong>
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    :value="arcade.volume"
+                    :disabled="arcade.muted"
+                    aria-label="Arcade volume"
+                    @input="changeVolume"
+                  />
+                </label>
+                <div class="plumber-guide-action justify-between">
+                  <span class="plumber-guide-description">
+                    <strong>Still camera</strong>
+                    <small>Reduce camera motion and screen shake</small>
+                  </span>
+                  <button
+                    type="button"
+                    class="plumber-control"
+                    :aria-pressed="arcade.stillCamera"
+                    @click="arcade.setStillCamera(!arcade.stillCamera)"
+                  >
+                    {{ arcade.stillCamera ? 'ON' : 'OFF' }}
+                  </button>
+                </div>
+                <div class="plumber-guide-action justify-between">
+                  <span class="plumber-guide-description">
+                    <strong>High contrast</strong>
+                    <small>Increase gameplay contrast</small>
+                  </span>
+                  <button
+                    type="button"
+                    class="plumber-control"
+                    :aria-pressed="arcade.highContrast"
+                    @click="arcade.setHighContrast(!arcade.highContrast)"
+                  >
+                    {{ arcade.highContrast ? 'ON' : 'OFF' }}
+                  </button>
+                </div>
+              </div>
+              <div class="plumber-guide-bottom">
+                <p>Settings take effect when you enter the game.</p>
+                <button
+                  type="button"
+                  class="plumber-control plumber-control--accent"
+                  @click="go('play')"
+                >
+                  PLAY ▶
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section
             v-else-if="screen === 'maker'"
             key="maker"
             class="plumber-view plumber-game-view"
@@ -402,7 +496,8 @@
               screen === 'guide' ||
               screen === 'story' ||
               screen === 'worlds' ||
-              screen === 'crew'
+              screen === 'crew' ||
+              screen === 'settings'
             "
             >ESC BACK</span
           >
@@ -419,16 +514,26 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import ArcadePlumberLevelMaker from '~/components/arcade/plumber-level-maker.vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
+import { useArcadeStore } from '~/stores/arcadeStore'
 import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 import { stageNode } from '~/utils/arcade/games/savePlumberOverworld'
 
-type Screen = 'title' | 'story' | 'worlds' | 'crew' | 'guide' | 'maker' | 'play'
+type Screen =
+  | 'title'
+  | 'story'
+  | 'worlds'
+  | 'crew'
+  | 'guide'
+  | 'settings'
+  | 'maker'
+  | 'play'
 const route = useRoute()
 const shareCode = computed(() =>
   typeof route.query.level === 'string' ? route.query.level : undefined,
 )
 const screen = ref<Screen>(shareCode.value ? 'maker' : 'title')
 const plumber = useSavePlumberStore()
+const arcade = useArcadeStore()
 const heroine = computed(() => plumber.heroine)
 const viewport = ref<HTMLElement | null>(null)
 const storyIndex = ref(0)
@@ -538,6 +643,10 @@ const controls = [
   },
 ]
 
+function changeVolume(event: Event) {
+  arcade.setVolume((event.target as HTMLInputElement).valueAsNumber)
+}
+
 function go(next: Screen) {
   screen.value = next
 }
@@ -599,6 +708,7 @@ onMounted(() => {
   reducedMotion.value = window.matchMedia(
     '(prefers-reduced-motion: reduce)',
   ).matches
+  arcade.loadPreferences(reducedMotion.value)
   window.addEventListener('keydown', onEscape)
 })
 onUnmounted(() => window.removeEventListener('keydown', onEscape))
@@ -747,7 +857,8 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: safe center;
+  overflow-y: auto;
   gap: clamp(0.35rem, 1.4vh, 1rem);
 }
 .plumber-eyebrow {
@@ -782,6 +893,7 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   display: flex;
   flex-direction: column;
   width: min(24rem, 100%);
+  flex-shrink: 0;
   gap: clamp(0.2rem, 0.7vh, 0.55rem);
 }
 .plumber-option {
@@ -1246,6 +1358,14 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   .plumber-tagline {
     font-size: 0.7rem;
     line-height: 1.1;
+  }
+  .plumber-main-menu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(34rem, 100%);
+  }
+  .plumber-option--primary {
+    grid-column: 1 / -1;
   }
   .plumber-option {
     min-height: 1.45rem;

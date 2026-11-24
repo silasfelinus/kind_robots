@@ -136,7 +136,10 @@ function touchable(index: number): {
 
 const secretExitsOnly = process.argv.includes('--secret-exits-only')
 if (secretExitsOnly)
-  assert.ok(CAMPAIGN.some((def) => def.secretExit), 'secret exits are authored')
+  assert.ok(
+    CAMPAIGN.some((def) => def.secretExit),
+    'secret exits are authored',
+  )
 
 CAMPAIGN.forEach((def, index) => {
   if (secretExitsOnly && !def.secretExit) return

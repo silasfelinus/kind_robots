@@ -36,6 +36,34 @@ for (const path of Object.values(RAINBOW_HAZARD_SPRITES)) {
   assert.ok(existsSync(publicFile(path)), `${path} ships`)
   assert.ok(existsSync(publicFile(`doodle/${path}`)), `${path} Fever twin`)
 }
+// P-14: a Fever Dream detour twin ships keyed at its Classic plane's size, so the parallax bands line up in either
+// look; a band without a reviewed twin keeps the Classic plane.
+const webpSize = (file: URL) => {
+  const head = readFileSync(file).subarray(0, 30)
+  const chunk = head.subarray(12, 16).toString('latin1')
+  if (chunk === 'VP8X')
+    return [1 + head.readUIntLE(24, 3), 1 + head.readUIntLE(27, 3)]
+  if (chunk === 'VP8L') {
+    const bits = head.readUInt32LE(21)
+    return [1 + (bits & 0x3fff), 1 + ((bits >> 14) & 0x3fff)]
+  }
+  return [head.readUInt16LE(26) & 0x3fff, head.readUInt16LE(28) & 0x3fff]
+}
+const doodleDetour = RAINBOW_DOODLE_ART.filter((path) =>
+  path.startsWith('alt/'),
+)
+assert.ok(doodleDetour.length >= 3, 'the X1 Fever Dream twins ship')
+for (const path of doodleDetour) {
+  assert.ok(
+    rainbowDetourPlanePaths().includes(path),
+    `${path} is a detour band`,
+  )
+  assert.deepEqual(
+    webpSize(publicFile(`doodle/${path}`)),
+    webpSize(publicFile(path)),
+    `${path} twin matches its Classic plane`,
+  )
+}
 for (const path of ['gen2/route-map', 'gen2/hangar'])
   assert.ok(existsSync(publicFile(path)), `${path} ships`)
 const ACT_PLANES = [

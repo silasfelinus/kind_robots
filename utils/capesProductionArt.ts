@@ -7,6 +7,10 @@ import {
   CAPES_ADDITIONAL_REFILL_REVIEW,
   CAPES_REFILL_GROUPS,
 } from './capesRuntimeRefillArt'
+import {
+  CAPES_CAST_RECRUIT_GROUPS,
+  CAPES_CAST_RECRUIT_REVIEW,
+} from './capesCastRecruitArt'
 
 export const CAPES_PRODUCTION_IDENTITIES = [
   {
@@ -42,6 +46,7 @@ export const CAPES_PRODUCTION_IDENTITIES = [
     subtitle: 'Five separately rendered character and scene replacements',
   },
   ...CAPES_REFILL_GROUPS,
+  ...CAPES_CAST_RECRUIT_GROUPS,
 ] as const
 
 export const CAPES_UNSTABLE_PRODUCTION = [
@@ -393,6 +398,7 @@ export const CAPES_REVIEWABLE_PRODUCTION = [
   ...CAPES_UNSTABLE_PRODUCTION,
   ...CAPES_RUNTIME_REFILL_REVIEW,
   ...CAPES_ADDITIONAL_REFILL_REVIEW,
+  ...CAPES_CAST_RECRUIT_REVIEW,
   ...CAPES_CANON_CORRECTION_REVIEW,
   ...CAPES_FRANCHISE_SAFE_REVIEW,
 ] as const

@@ -42,9 +42,32 @@ export function failureLines(
     `LILT-7: I've lost every signal over ${region}. Aurora Mercy is pulling back.`,
     rescues > 0
       ? `LILT-7: ${rescues} rescue${rescues === 1 ? '' : 's'} made it home because of you. They'll keep the lights on.`
-      : 'LILT-7: No one is lost for good while the Eclipse still sings. We will come back for them.',
+      : act <= 2
+        ? `LILT-7: No one out over ${region} is lost for good. We will come back for them.`
+        : 'LILT-7: No one is lost for good while the Eclipse still sings. We will come back for them.',
     savedAct === null
       ? 'LILT-7: Pinkwake waits for the next crew. Rest, then fly again.'
       : `LILT-7: The flight log keeps ${savedAct === 9 ? 'the finale' : `Act ${ACT_NAMES[savedAct - 1]}`}. Continue from there next time.`,
   ]
+}
+
+/**
+ * Lilt-7 on the CONTINUE? screen, one line per Act (independent story critic S16: going down and coming back had
+ * no writing). Short enough for one line of the 8 px caption at 480 px.
+ */
+export const RAINBOW_CONTINUE_LINES: readonly string[] = [
+  'Pinkwake still needs us. Breathe, pilots, and take the wake again.',
+  'The jelly lights are still on. They are waiting for us to come back.',
+  'The trench keeps its secrets, not its pilots. Up, and again.',
+  'The Express will not wait, but I will. One more run at the rails.',
+  'Every wreck here was somebody once. Do not join them. Again.',
+  'The reef remembers who came back. Let it remember us.',
+  'Glass breaks; you do not. Find the true current and fly it.',
+  'The palace is counting on us giving up. Let us count on not.',
+  'The Crown is listening for whether we return. Answer it.',
+]
+
+/** Lilt's line for a continue in this Act (1-9). */
+export function rainbowContinueLine(act: number): string {
+  return RAINBOW_CONTINUE_LINES[Math.max(1, Math.min(9, act)) - 1]!
 }

@@ -386,7 +386,11 @@ import {
   rainbowMedal,
   readRainbowSave,
 } from './rainbowLoadouts'
-import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
+import {
+  rainbowContinueLine,
+  RAINBOW_FAILURE,
+  failureLines,
+} from './rainbowFailure'
 import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
 import { isRainbowFeat, rainbowMedalFeats } from './rainbowAchievements'
@@ -3017,6 +3021,13 @@ export function createRainbowPrincessPreview(
    */
   function resumeFromCheckpoint() {
     continueLeft = 0
+    // The lead pilot's "back in" beat as the crew comes back (story critic S16), drawing only.
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text: `${RAINBOW_PILOTS[pilotOf(0)]!.name.split(' ')[0]!.toUpperCase()} · BACK IN THE FIGHT`,
+      age: 0,
+    })
     caches.length = 0
     continues++
     actContinues++
@@ -9889,6 +9900,13 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#0c0620d0'
         g.fillRect(0, 0, W, H)
         g.textAlign = 'center'
+        // Lilt speaks the continue beat (story critic S16).
+        g.fillStyle = '#aef6f0'
+        g.font = 'bold 9px monospace'
+        g.fillText('LILT-7', W / 2, 62)
+        g.fillStyle = '#fff4fa'
+        g.font = '9px monospace'
+        g.fillText(rainbowContinueLine(checkpoint.act), W / 2, 76)
         g.fillStyle = '#ffd2ef'
         g.font = 'bold 22px monospace'
         g.fillText('CONTINUE?', W / 2, 104)

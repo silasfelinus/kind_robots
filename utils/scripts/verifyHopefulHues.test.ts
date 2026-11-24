@@ -287,7 +287,9 @@ function craftedState(
       }
   for (const [r, c] of paint) must(must(state.board[r])[c]).color = 5
   must(must(state.board[swapTarget[0]])[swapTarget[1]]).color = 5
-  return state
+  // Re-clone inside the engine's vm realm so deepStrictEqual compares
+  // same-realm prototypes against later E.clone() snapshots.
+  return E.clone(state)
 }
 const toolState = craftedState(
   [

@@ -8,7 +8,7 @@
     <div class="rh-parchment rh-study-settings__sheet">
       <p class="rh-eyebrow">Royal angling handbook</p>
       <h2 class="rh-title rh-title--big">How shall we fish?</h2>
-      <RulerHookedAudioSettings />
+      <RulerHookedDisplaySettings />
       <fieldset class="rh-study-settings__modes">
         <legend class="sr-only">Fishing mode</legend>
         <label

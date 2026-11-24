@@ -17,6 +17,9 @@
       class="rh-console"
       :data-tier="tier"
       :data-screen="screen"
+      :data-reading-size="display.prefs.readingSize"
+      :data-reduced-motion="display.prefs.reducedMotion"
+      :data-high-contrast="display.prefs.highContrast"
       @pointerdown.capture="unlockAudio"
       @keydown.capture="unlockAudio"
     >
@@ -176,6 +179,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRulerHookedDisplayStore } from '~/stores/rulerHookedDisplayStore'
 import { useRulerHookedAudioStore } from '~/stores/rulerHookedAudioStore'
 import { royalThemeFor } from '~/utils/rulerHooked/audio'
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
@@ -204,6 +208,7 @@ type Screen = ConsoleScreen | 'opening' | 'settings'
 const store = useRulerHookedStore()
 const quiz = useRulerHookedQuizStore()
 const audio = useRulerHookedAudioStore()
+const display = useRulerHookedDisplayStore()
 const screen = ref<Screen>('lake')
 const chronicleScrapbook = ref(false)
 const consoleEl = ref<HTMLElement | null>(null)
@@ -492,6 +497,7 @@ function pollPads(now: number) {
 }
 
 onMounted(() => {
+  display.initialize()
   audio.initialize()
   syncAudioVisibility()
   document.addEventListener('visibilitychange', syncAudioVisibility)
@@ -1020,5 +1026,81 @@ onBeforeUnmount(() => navObserver?.disconnect())
 }
 .rh-console__sheet {
   left: var(--rh-sheet-left, clamp(0.5rem, 2.5cqi, 2rem));
+}
+
+.rh-console[data-reading-size='large'] {
+  --rh-reading-size: 1.15rem;
+}
+.rh-console[data-reading-size='extra-large'] {
+  --rh-reading-size: 1.4rem;
+}
+.rh-console:not([data-reading-size='standard']) :is(
+    .rh-edict__body,
+    .rh-scroll__body,
+    .rh-opening__text,
+    .rh-coach__text,
+    .rh-crier__body,
+    .rh-oath__lede,
+    .rh-oath__quip
+  ) {
+  font-size: var(--rh-reading-size);
+  line-height: 1.5;
+}
+.rh-console:not([data-reading-size='standard']) .rh-opening__caption {
+  max-height: calc(100% - 1.5rem);
+  overflow-y: auto;
+}
+.rh-console[data-high-contrast='true'] {
+  --rh-parch: #fff;
+  --rh-parch-shade: #fff;
+  --rh-ink: #111;
+  --rh-plum: #401180;
+  --rh-plum-deep: #080817;
+  --rh-gold: #8effef;
+  --rh-gold-soft: #fff176;
+}
+.rh-console[data-high-contrast='true'] :is(.rh-panel, .rh-edict) {
+  background: #080817;
+  color: #fff;
+  border-color: #fff;
+}
+.rh-console[data-high-contrast='true'] .rh-parchment {
+  background: #fff;
+  color: #111;
+  border-color: #111;
+}
+.rh-console[data-high-contrast='true'] .rh-edict__title {
+  text-shadow: none;
+}
+.rh-console[data-high-contrast='true'] .rh-eyebrow {
+  color: inherit;
+}
+.rh-console[data-high-contrast='true'] :focus-visible {
+  outline: 3px solid #a100ff;
+  outline-offset: 3px;
+}
+.rh-console[data-reduced-motion='true'] :is(
+    .rh-coach,
+    .rh-crier,
+    .rh-fishing__waterlines,
+    .rh-fishing__surge-tag
+  ) {
+  animation: none;
+}
+.rh-console[data-reduced-motion='true'] :is(
+    .rh-slide-enter-active,
+    .rh-slide-leave-active,
+    .rh-btn,
+    .rh-petition,
+    .rh-fishing__zone--reel,
+    .rh-fishing__sweetspot
+  ) {
+  transition: none;
+}
+.rh-console[data-reduced-motion='true'] :is(
+    .rh-slide-enter-from,
+    .rh-slide-leave-to
+  ) {
+  transform: none;
 }
 </style>

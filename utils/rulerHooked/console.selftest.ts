@@ -5,6 +5,11 @@
 // library's fallback chains. Run via `npx tsx`, like the other selftests.
 
 import assert from 'node:assert/strict'
+import {
+  cleanRoyalDisplayPrefs,
+  decodeRoyalDisplayPrefs,
+  ROYAL_DISPLAY_DEFAULTS,
+} from '~/utils/rulerHooked/displayPrefs'
 import { rememberReign, scrapbookSummary } from '~/utils/rulerHooked/scrapbook'
 import {
   cleanRoyalAudioPrefs,
@@ -436,6 +441,31 @@ const fresh = (seed = 'console-seed'): RunSave =>
     0,
     'new players see no spoilers',
   )
+}
+
+{
+  assert.deepEqual(cleanRoyalDisplayPrefs(null), ROYAL_DISPLAY_DEFAULTS)
+  assert.deepEqual(decodeRoyalDisplayPrefs('{bad JSON'), ROYAL_DISPLAY_DEFAULTS)
+  assert.deepEqual(
+    cleanRoyalDisplayPrefs({
+      readingSize: 'huge',
+      highContrast: 'true',
+      reducedMotion: 1,
+    }),
+    ROYAL_DISPLAY_DEFAULTS,
+  )
+  const prefs = cleanRoyalDisplayPrefs({
+    readingSize: 'extra-large',
+    highContrast: true,
+    reducedMotion: true,
+  })
+  assert.deepEqual(decodeRoyalDisplayPrefs(JSON.stringify(prefs)), {
+    readingSize: 'extra-large',
+    highContrast: true,
+    reducedMotion: true,
+  })
+  assert.equal(cleanRoyalDisplayPrefs({ readingSize: 'large' }).readingSize, 'large')
+  assert.equal(cleanRoyalDisplayPrefs({}).readingSize, 'standard')
 }
 
 console.log(

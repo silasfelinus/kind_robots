@@ -249,6 +249,12 @@
         }
       }
     }
+    const advanced = region.tier > 0 && def.n === 18
+    if (advanced && tangles.length) tangles[0][2] = region.tier === 2 ? 5 : 3
+    const weather = advanced
+      ? { kind: region.tier === 1 ? 'spread' : 'cloud', remaining: 3, countdown: 3 }
+      : null
+    const ribbons = advanced ? [[1, 1], [1, def.cols - 2]] : []
     const goals = [{ type: 'gloom', target: gloomCells }]
     if (tangles.length) goals.push({ type: 'tangle', target: tangles.length })
     if (def.finale) goals.push({ type: 'buddy', target: 3 })
@@ -264,8 +270,10 @@
       gloom,
       tangles,
       startingSpecials,
+      weather,
+      ribbons,
       goals,
-      moves: Math.min(50, Math.max(def.moves, 32 + region.tier * 5)),
+      moves: Math.min(50, Math.max(def.moves, 32 + region.tier * 5 + (advanced ? 5 : 0))),
       buddiesAtStart: def.finale ? 1 : 0,
     }
   }

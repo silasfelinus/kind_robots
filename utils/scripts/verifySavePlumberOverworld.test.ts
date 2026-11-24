@@ -321,6 +321,68 @@ assert.ok(nodeReachable('1-c', resumedSecret.progress))
 assert.equal(worldCompletion(1, hidden.progress).secretsFound, 1)
 assert.equal(exit.y, 7 * TILE)
 
+// Every additional built secret route uses the real stage and saved map node.
+// A secret clear must open its authored branch, never silently clear the course.
+for (const [code, target] of [
+  ['3-2', '3-c'],
+  ['3-3', 'sky-2'],
+  ['4-3', '4-c'],
+  ['5-2', 'sky-3'],
+  ['6-2', '6-c'],
+  ['7-3', 'sky-5'],
+] as const) {
+  const index = CAMPAIGN.findIndex((stage) => stage.code === code)
+  const node = stageNode(code)!
+  assert.ok(SECRET_EXITS_READY.has(node.id), code)
+  const prior = CAMPAIGN.slice(0, index).map(
+    (stage) => stageNode(stage.code)!.id,
+  )
+  const run = createSavePlumberPreview(
+    options({
+      v: 3,
+      active: 0,
+      slots: [
+        {
+          heroine: 3,
+          stage: index,
+          node: node.id,
+          done: prior,
+          score: 0,
+          lives: 3,
+          tokens: 0,
+        },
+        null,
+        null,
+      ],
+    }),
+  )
+  press(run, 'start')
+  press(run, 'a')
+  assert.equal(run.mapNodeId, node.id)
+  assert.ok(!nodeReachable(target, run.progress), target + ' starts locked')
+  press(run, 'a')
+  press(run, 'a')
+  assert.equal(run.stage.code, code)
+  assert.equal(run.mode, 'play')
+  const exit = run.secretGoal!
+  run.foes.length = 0
+  run.hero = { x: exit.x, y: exit.y - 20, vx: 0, vy: 0 }
+  run.ground = true
+  run.update(input)
+  assert.equal(run.mode, 'play', code + ': no automatic clear')
+  press(run, 'down')
+  assert.equal(run.mode, 'clear', code + ': deliberate secret clear')
+  for (let i = 0; i < 200 && run.modeTimer; i++) run.update(input)
+  assert.equal(run.mode, 'map')
+  assert.ok(run.secrets.has(node.id))
+  assert.ok(!run.done.has(node.id))
+  assert.ok(nodeReachable(target, run.progress))
+  const reload = createSavePlumberPreview(options(run.save))
+  assert.ok(reload.secrets.has(node.id))
+  assert.ok(nodeReachable(target, reload.progress))
+  assert.equal(worldCompletion(node.world, reload.progress).secretsFound, 1)
+}
+
 // Deaths are remembered on the slot.
 press(next, 'a')
 press(next, 'a')

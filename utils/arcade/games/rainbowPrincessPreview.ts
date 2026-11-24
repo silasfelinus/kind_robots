@@ -445,6 +445,7 @@ import {
   AURELIA_MAX_HP,
   createMoonjellyBoss,
   moonjellyBossWarning,
+  MOONJELLY_WARNING_FRAMES,
   stepMoonjellyBoss,
   type MoonjellyBoss,
 } from './rainbowMoonjellyBoss'
@@ -7681,6 +7682,14 @@ export function createRainbowPrincessPreview(
         }
         g.save()
         applyRainbowSwimMotion(g, guardian.kind, guardian.frame, calm)
+        // Conductor rainbow t-011: guardians wind up like the bosses (body only; ring and hitbox stay put).
+        const guardianWindup = rainbowBossWindup(
+          guardian.leaving ? 0 : guardian.nextVolley - guardian.frame,
+          RAINBOW_GUARDIAN.warningFrames,
+          calm,
+        )
+        g.translate(guardianWindup.pull, 0)
+        g.scale(guardianWindup.scaleX, guardianWindup.scaleY)
         if (!drawRainbowGuardianSprite(g, guardian.kind)) {
           g.save()
           g.scale(2.3, 2.3)
@@ -7839,6 +7848,14 @@ export function createRainbowPrincessPreview(
         const warn = moonjellyBossWarning(moonBoss)
         g.save()
         g.translate(moonBoss.x, moonBoss.y)
+        // Conductor rainbow t-011: the bell colony draws back and swells before each volley; draw-only.
+        const moonWindup = rainbowBossWindup(
+          moonBoss.nextVolley - moonBoss.frame,
+          MOONJELLY_WARNING_FRAMES,
+          calm,
+        )
+        g.translate(moonWindup.pull, 0)
+        g.scale(moonWindup.scaleX, moonWindup.scaleY)
         g.shadowColor = warn ? '#fff49c' : '#affff7'
         g.shadowBlur = warn ? 25 : 12
         if (

@@ -247,6 +247,12 @@ export const ARCADE_DIFFICULTIES: readonly ArcadeDifficulty[] = [
 export type ArcadeSoundLike = Pick<ArcadeSound, 'play'> &
   Partial<Pick<ArcadeSound, 'playNotes'>>
 
+export type ArcadeStagePointer = {
+  phase: 'down' | 'move' | 'up' | 'cancel'
+  x: number
+  y: number
+}
+
 export interface ArcadeGameInstance {
   readonly score: number
   readonly level: number
@@ -285,6 +291,7 @@ export interface ArcadeGameInstance {
   readonly menuOpen?: boolean
   /** Contextual touch actions (shown only when they can do something). */
   readonly touchActions?: Readonly<Partial<Record<'a' | 'b', string>>>
+  stagePointer?(event: ArcadeStagePointer): void
   /**
    * Advance one fixed 1/60 s tick. `input` is player 1's; a game seating more
    * players also gets every seated player's frame, player 1 first.

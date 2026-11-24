@@ -20,6 +20,8 @@ export type CrateKind =
   | 'sand'
   | 'lily'
   | 'bubble'
+  | 'lantern'
+  | 'glow'
 
 /** The legend: one character per crate kind; `.` is empty air. */
 export const LEGEND: Readonly<Record<string, CrateKind>> = {

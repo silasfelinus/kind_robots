@@ -210,10 +210,19 @@ const LILT_RESOLUTION: Record<FinaleRoad, string> = {
 }
 
 /** The crew's verdict on its own flight: how many of the six rescues came home, and the palace captives. */
-function rescueVerdict(rescues: number, captives: number): string {
-  const palace = captives > 0 ? `, and ${captives} palace captives` : ''
+function rescueVerdict(
+  rescues: number,
+  captives: number,
+  road: FinaleRoad,
+): string {
+  const palace =
+    captives > 0
+      ? `, with ${captives} palace ${captives === 1 ? 'captive' : 'captives'} beside them`
+      : ''
   if (rescues === 6)
-    return 'Every rescue we chose made it home with us. Every single one.'
+    return road === 'loyal'
+      ? 'Every rescue we chose made it home. Command will file them as cleared; I will file them by name.'
+      : 'Every rescue we chose made it home with us. Every single one.'
   if (rescues >= 3)
     return `${rescues} of our six rescues are flying home${palace}.`
   if (rescues > 0)
@@ -348,38 +357,60 @@ export function finaleDialogue(
         speaker: 'Lilt-7',
         text: 'Fly high to restore its first rule, through the middle to evacuate, low to sever its control.',
       },
-      {
-        speaker: wing,
-        text:
-          crew.length === 4
-            ? 'Who is still out there? Azure maps it, Solenne holds the sectors, I call the names. Now choose.'
-            : 'Whatever we choose, we choose it together, and we live with it together.',
-      },
+      crew.length === 4
+        ? {
+            // All four fly: each pilot keeps her own role (blind story critic S7), so no seat renaming.
+            speaker: 'Vivi',
+            text: 'Who is still out there? Azure maps it, Solenne holds the sectors, I call the names. Now choose.',
+            partyAuthored: true,
+          }
+        : {
+            speaker: wing,
+            text:
+              crew.length === 1
+                ? 'Whatever I choose, I carry it home with me.'
+                : 'Whatever we choose, we choose it together, and we live with it together.',
+          },
     ],
     'A09.ESCAPE': [
       {
         speaker: 'Lilt-7',
         text: 'The heart is collapsing. The prism corridors are closing; follow the light out.',
       },
-      {
-        speaker: wing === lead ? 'Lilt-7' : wing,
-        text: 'Stay together. Nobody gets left behind, not now.',
-      },
+      wing === lead
+        ? {
+            speaker: 'Lilt-7',
+            text: 'Stay on my light. Nobody gets left behind, not now.',
+          }
+        : {
+            speaker: wing,
+            text: 'Stay together. Nobody gets left behind, not now.',
+          },
     ],
     'A09.AFTER': [
       { speaker: 'Lilt-7', text: FINALE_ENDINGS[road][ending].world },
-      { speaker: lead, text: rescueVerdict(rescues, flags.captivesFreed) },
+      {
+        speaker: lead,
+        text: rescueVerdict(rescues, flags.captivesFreed, road),
+      },
       { speaker: 'Lilt-7', text: LILT_RESOLUTION[road] },
-      party
-        ? {
-            speaker: party.speaker,
-            text: party.epilogue,
-            partyAuthored: true,
-          }
-        : road === 'unsworn'
-          ? EPILOGUE[crew.length]!
-          : ROAD_EPILOGUE[road][crew.length]!,
-      { speaker: lead, text: sendOff(road, ending) },
+      // The crew's own line, then the close (blind story critic S2, 2026-11-23 PT). The fifteen party epilogues
+      // are written for a crew that freed the Ocean, so they play on the rebel and unsworn roads; a loyal crew
+      // says what it will carry home. A rebel crew then closes on what it became.
+      road === 'loyal'
+        ? ROAD_EPILOGUE.loyal[crew.length]!
+        : party
+          ? {
+              speaker: party.speaker,
+              text: party.epilogue,
+              partyAuthored: true,
+            }
+          : road === 'unsworn'
+            ? EPILOGUE[crew.length]!
+            : ROAD_EPILOGUE.rebel[crew.length]!,
+      road === 'rebel' && party
+        ? ROAD_EPILOGUE.rebel[crew.length]!
+        : { speaker: lead, text: sendOff(road, ending) },
     ],
   }
   const frames =
@@ -447,7 +478,7 @@ export function finaleCredits(
       flags.stoppedRelay && 'The reef nursery, safe from the relay',
       flags.rescuedNavigator && 'The Lost Navigator',
     ].filter((line): line is string => Boolean(line)),
-    `${flags.captivesFreed} captives of the Eclipse Palace`,
+    `${flags.captivesFreed} ${flags.captivesFreed === 1 ? 'captive' : 'captives'} of the Eclipse Palace`,
     'The whale fleet',
     'Every rescuer who was never named',
     '',
@@ -456,7 +487,12 @@ export function finaleCredits(
     'B03 Clawburst · B04 Delphion',
     'B05 Sawtooth Regent · B06 Lantern Ray',
     'B07 Glass Eel · B08 Prism Leviathan',
-    'B09 Eclipse Crown',
+    allegiance === 'loyal' && choice === 'restore'
+      ? 'B09 Eclipse Crown · under the Motherland flag'
+      : 'B09 Eclipse Crown',
+    ...(allegiance === 'rebel'
+      ? ['', 'DEFEATED', 'B09 Motherland Flagship']
+      : []),
     '',
     ...(allegiance
       ? [`THE ROAD: ${RAINBOW_ALLEGIANCE_LABEL[allegiance]}`]

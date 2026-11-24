@@ -220,6 +220,7 @@ export function flyPersona(
   takeContinues: boolean,
   cap = 360000,
   onHit?: (before: Snap, seat: number, act: string) => void,
+  onFrame?: (snap: Snap, frame: number) => void,
 ): PersonaRun {
   const game = createRainbowPrincessPreview({
     players: crew,
@@ -244,6 +245,7 @@ export function flyPersona(
   let frame = 0
   for (; frame < cap && !game.over; frame++) {
     const snap = game.snapshot
+    onFrame?.(snap, frame)
     const where = act(snap)
     if (acts.at(-1) !== where) acts.push(where)
     const big = bodies(snap, motion)

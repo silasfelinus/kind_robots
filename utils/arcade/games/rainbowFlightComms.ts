@@ -106,7 +106,7 @@ export function rainbowFlightComms(
     beat = 'motherland'
     lilt =
       c.allegiance === 'rebel'
-        ? 'Our flight log remembers the day we refused the Crown.'
+        ? 'Our flight log remembers the day we refused the Motherland.'
         : 'Our flight log remembers the day we stayed with the Motherland.'
   } else if (save || Object.keys(hangar.medals).length > 0) {
     tag = 'RETURN FLIGHT'

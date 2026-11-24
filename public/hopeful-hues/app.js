@@ -783,25 +783,32 @@
           `<div class="goal" style="justify-content:flex-start">${A.goalIconSvg(g, levelWorld(id).id)}<span>${esc(goalText(g, levelWorld(id)))}</span></div>`,
       )
       .join('')
+    const startBoosts = ['bomb', 'rainbow']
+      .map((key) => {
+        const label = levelWorld(id).specials[key].name
+        return `<option value="${key}" ${s.boosters[key] ? '' : 'disabled'}>${esc(label)} (${s.boosters[key]})</option>`
+      })
+      .join('')
     const modal = openModal({
       title: `${region.name} · ${def.finale ? 'Finale' : 'Level ' + def.n}`,
       body: `<div class="center result-stars">${[0, 1, 2].map((k) => `<span class="s">${A.starSvg(record && k < record.stars)}</span>`).join('')}</div><div class="list">${goals}</div><p class="center"><b>${def.moves}${c.perk === 'extra-moves' ? ' + 2' : ''}</b> moves · ⭐⭐ at ${def.stars[1].toLocaleString()} · ⭐⭐⭐ at ${def.stars[2].toLocaleString()}</p>${record ? `<p class="center muted">Best score: ${record.best.toLocaleString()}</p>` : ''}<p class="center muted">${esc(c.name)}'s perk: ${esc(c.perkText)}</p>`,
-      foot: `<button class="btn rainbow" data-m="play">Play!</button>`,
+      foot: `<label>Starting gift <select data-start-boost><option value="">None</option>${startBoosts}</select></label><button class="btn rainbow" data-m="play">Play!</button>`,
     })
     modalActions(modal, {
       play: () => {
+        const startBoost = modal.querySelector('[data-start-boost]').value
         closeModal(true)
         const beat = def.beat
         const beatId = beat ? 'beat:' + def.region + ':' + beat.at : null
         if (beat && beat.at !== 1 && !s.seenBeats.includes(beatId)) {
-          showBeat(def.region, beat, () => go('game', { id }))
+          showBeat(def.region, beat, () => go('game', { id, startBoost }))
         } else if (
           def.n === 1 &&
           !s.seenBeats.includes('beat:' + def.region + ':1')
         ) {
-          showRegionIntro(def.region, () => go('game', { id }))
+          showRegionIntro(def.region, () => go('game', { id, startBoost }))
         } else {
-          go('game', { id })
+          go('game', { id, startBoost })
         }
       },
     })
@@ -823,20 +830,31 @@
 
   /* Game */
 
-  function newGame(id) {
+  function newGame(id, startBoost) {
     const s = slot()
     const parsed = L.parseLevelId(id)
     const def = L.buildLevel(parsed.region, parsed.n)
     const c = character(regionWorld(parsed.region).hero.id)
+    const startSpecial =
+      ['bomb', 'rainbow'].includes(startBoost) && s.boosters[startBoost] > 0
+        ? startBoost
+        : null
     const state = E.createLevelState(def, {
+      startSpecial,
       perk: c.perk,
       bonusMoves: c.perk === 'extra-moves' ? 2 : 0,
     })
+    if (startSpecial && state.stats.toolsUsed) {
+      s.boosters[startSpecial]--
+      persist()
+    }
     return {
       id,
       def,
       state,
       history: [],
+      tool: null,
+      toolFrom: null,
       undosUsed: 0,
       boostsUsed: 0,
       busy: false,
@@ -852,7 +870,8 @@
   }
 
   function renderGame(params) {
-    if (!game || game.id !== params.id) game = newGame(params.id)
+    if (!game || game.id !== params.id)
+      game = newGame(params.id, params.startBoost)
     if (game.tutorial) {
       game.tutorial = null
       game.tutorialStarted = game.history.length > 0
@@ -891,12 +910,14 @@
         <div class="buddy-cheer">${A.portraitSvg(c.id, 46)}<div class="bubble quiet" data-bubble>Let's make it bright!</div></div>
         <button class="btn undo" data-action="undo" aria-label="Back one move">↶ Back a move</button>
         <button class="btn small" data-action="hint">💡 Hint</button>
+        <button class="btn small" data-action="tools">✨ Tools</button>
         <button class="btn small" data-action="shuffle">🔀 Shuffle <span class="badge" data-shuffle-count></span></button>
       </div>
     </section>`
     bind(appEl, {
       undo: undoMove,
       hint: () => showHint(true),
+      tools: openTools,
       shuffle: useShuffle,
       settings: openSettings,
       guide: openGuide,
@@ -1328,6 +1349,8 @@
     appEl.querySelector('[data-shuffle-count]').textContent = s.boosters.shuffle
     appEl.querySelector('[data-action="shuffle"]').disabled =
       game.busy || s.boosters.shuffle <= 0 || st.over
+    appEl.querySelector('[data-action="tools"]').disabled =
+      game.busy || st.over || !!game.tutorial?.move
   }
 
   function cheer(text) {
@@ -1349,7 +1372,7 @@
       board.setPointerCapture && board.setPointerCapture(event.pointerId)
     })
     board.addEventListener('pointermove', (event) => {
-      if (!start || start.moved) return
+      if (!start || start.moved || game.tool) return
       const dx = event.clientX - start.x
       const dy = event.clientY - start.y
       if (Math.max(Math.abs(dx), Math.abs(dy)) < game.cell * 0.35) return
@@ -1376,7 +1399,7 @@
       if (keys[event.key]) {
         event.preventDefault()
         const d = keys[event.key]
-        if (game.selected) {
+        if (game.selected && !game.tool) {
           const target = [game.selected[0] + d[0], game.selected[1] + d[1]]
           const from = game.selected
           clearSelection()
@@ -1436,6 +1459,7 @@
     if (game.busy || game.state.over) return
     game.cursor = p
     updateCursor()
+    if (game.tool) return toolCell(p)
     const tile = E.tileAt(game.state, p[0], p[1])
     if (!tile || tile.kind === 'tangle' || tile.ribbon) return
     if (game.selected) {
@@ -1487,8 +1511,7 @@
       scheduleHint()
       return
     }
-    game.history.push(E.clone(game.state))
-    if (game.history.length > 60) game.history.shift()
+    rememberMove()
     game.busy = true
     updateHud()
     const result = E.trySwap(game.state, a, b)
@@ -1684,7 +1707,14 @@
       return
     }
     const undosSoFar = game.state.stats.undos
-    game.state = game.history.pop()
+    const saved = game.history.pop()
+    game.state = saved.state
+    slot().boosters = saved.boosters
+    slot().sparkles = saved.sparkles
+    game.boostsUsed = saved.boostsUsed
+    game.tool = null
+    game.toolFrom = null
+    persist()
     game.state.stats.undos = undosSoFar + 1
     game.undosUsed++
     clearSelection()
@@ -1701,14 +1731,94 @@
     drawGloom()
     drawBoard(game.state.board, false)
     updateHud()
+    if (game.state.over && !game.state.won) return onFail()
+    scheduleHint()
+  }
+
+  function rememberMove() {
+    game.history.push({
+      state: E.clone(game.state),
+      boosters: { ...slot().boosters },
+      sparkles: slot().sparkles,
+      boostsUsed: game.boostsUsed,
+    })
+  }
+
+  function openTools() {
+    const s = slot()
+    if (game.busy || game.state.over || game.tutorial?.move) return
+    const tools = [
+      ['wand', 'Sparkle Wand', 'Clear a tile'],
+      ['swap', 'Free Swap', 'Swap any two jewels'],
+      ['brush', 'Comb Brush', 'Paint a jewel into a comb'],
+    ]
+    const modal = openModal({
+      title: 'Helper tools',
+      body: `<div class="list">${tools.map(([key, label, description]) => `<button class="btn" data-m="tool" data-tool="${key}" ${s.boosters[key] ? '' : 'disabled'}>${label} · ${s.boosters[key]}<small>${description}</small></button>`).join('')}</div><p>Daily gifts, quests and achievements earn tools. Back restores a spent tool.</p>`,
+      foot: '<button class="btn" data-m="cancel">Cancel tool</button>',
+    })
+    modalActions(modal, {
+      tool: (el) => {
+        clearSelection()
+        clearHint()
+        game.tool = el.dataset.tool
+        game.toolFrom = null
+        closeModal(true)
+        cheer(game.tool === 'swap' ? 'Choose two jewels' : 'Choose a tile')
+        game.els.board.focus()
+      },
+      cancel: () => {
+        game.tool = null
+        game.toolFrom = null
+        clearSelection()
+        closeModal(true)
+      },
+    })
+  }
+
+  async function toolCell(p) {
+    const key = game.tool
+    const s = slot()
+    if (!s.boosters[key]) return
+    const tile = E.tileAt(game.state, p[0], p[1])
+    if (!tile || (key !== 'wand' && tile.kind !== 'gem')) return
+    if (key === 'swap' && !game.toolFrom) {
+      game.toolFrom = p
+      game.selected = p
+      elAt(p[0], p[1])?.classList.add('selected')
+      cheer('Choose the second jewel')
+      return
+    }
+    const from = game.toolFrom || p
+    const trial = E.clone(game.state)
+    const result = E.useTool(trial, key, from, p)
+    if (!result.ok) {
+      audio.play('invalid')
+      return
+    }
+    rememberMove()
+    game.state = trial
+    s.boosters[key]--
+    persist()
+    game.tool = null
+    game.toolFrom = null
+    clearSelection()
+    game.busy = true
+    updateHud()
+    await playPhases(result.phases, from, p)
+    game.busy = false
+    drawGloom()
+    updateHud()
+    if (result.outcome === 'win') return onWin()
     scheduleHint()
   }
 
   function useShuffle() {
     const s = slot()
     if (!game || game.busy || s.boosters.shuffle <= 0) return
-    game.history.push(E.clone(game.state))
+    rememberMove()
     s.boosters.shuffle--
+    game.state.stats.toolsUsed++
     persist()
     const st = game.state
     const gems = []
@@ -1940,10 +2050,13 @@
         undoMove()
       },
       boost: () => {
+        if (!s.boosters.moves && s.sparkles < boostCost) return
+        rememberMove()
         if (s.boosters.moves) s.boosters.moves--
         else if (s.sparkles >= boostCost) s.sparkles -= boostCost
         else return
         game.boostsUsed++
+        st.stats.toolsUsed++
         persist()
         closeModal(true)
         st.over = false

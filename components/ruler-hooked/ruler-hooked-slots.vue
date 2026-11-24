@@ -26,9 +26,30 @@
       >
         {{ showSaves ? 'Begin a new reign' : 'Continue a reign' }}
       </button>
+      <details class="rh-parchment text-left">
+        <summary class="cursor-pointer">Sound settings</summary>
+        <RulerHookedAudioSettings />
+      </details>
+      <button
+        type="button"
+        class="rh-btn rh-title-screen__toggle"
+        :aria-pressed="showScrapbook"
+        @click="showScrapbook = !showScrapbook"
+      >
+        {{ showScrapbook ? 'Return to reign selection' : 'Royal Scrapbook' }}
+      </button>
     </header>
 
-    <div v-if="showSaves" class="rh-parchment rh-title-screen__panel rh-ledger">
+    <div
+      v-if="showScrapbook"
+      class="rh-parchment rh-title-screen__panel min-h-0 overflow-y-auto"
+    >
+      <RulerHookedScrapbook />
+    </div>
+    <div
+      v-else-if="showSaves"
+      class="rh-parchment rh-title-screen__panel rh-ledger"
+    >
       <p class="rh-eyebrow">The royal archives</p>
       <h2 class="rh-title rh-title--big">Reigns remembered</h2>
       <div
@@ -165,6 +186,7 @@ import { BACKDROPS } from '~/utils/rulerHooked/artLibrary'
 const emit = defineEmits<{ picked: [] }>()
 const store = useRulerHookedStore()
 const showSaves = ref(false)
+const showScrapbook = ref(false)
 const creating = ref(false)
 const editingSlotId = ref<string | null>(null)
 const editedSlotName = ref('')

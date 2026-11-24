@@ -1684,6 +1684,7 @@ import {
   academyVillainArt,
   endingArtKey,
   incidentArtKey,
+  reviewedIdentityArtwork,
   slugify,
   studentArtKey,
 } from '~/utils/cometAcademy/artSlots'
@@ -2075,7 +2076,9 @@ const storyComicIntro = computed(() =>
     : null,
 )
 const storyComicArt = computed(() =>
-  storyComicIntro.value?.artKey ? promArt(storyComicIntro.value.artKey) : null,
+  storyComicIntro.value?.artKey
+    ? reviewedIdentityArtwork(storyComicIntro.value.artKey)
+    : null,
 )
 watch(
   () => [run.value?.day, run.value?.opponentSignature, run.value?.flowVersion],

@@ -17,11 +17,22 @@
 // Up rides faster, down slower, left/right steer, A/B toss left/right.
 
 import { levelCurve } from '../curve'
-import { PRIMROSE_DAYS, primroseDay, valleyGazette } from './petalPostPrimrose'
+import {
+  PARK_GOLDEN_POINTS,
+  PARK_JUMP_TICKS,
+  PARK_LOOP_LENGTH,
+  PARK_LOOP_RAMPS,
+  PARK_LOOP_TARGETS,
+  PRIMROSE_DAYS,
+  primroseDay,
+  primroseLandmarks,
+  valleyGazette,
+} from './petalPostPrimrose'
 import type {
   GazetteReport,
   PrimroseHazard,
   PrimroseWeather,
+  StreetLandmark,
 } from './petalPostPrimrose'
 import { drawText, measureText } from '../font'
 import {
@@ -123,9 +134,16 @@ type Packet = {
   vx: number
   vy: number
   side: StreetSide
+  airborne: boolean
   t: number
 }
-type Target = { x: number; y: number; hit: boolean }
+type Target = {
+  x: number
+  y: number
+  hit: boolean
+  airborne: boolean
+}
+type RampGate = { x: number; y: number; used: boolean }
 type Particle = {
   x: number
   y: number
@@ -853,6 +871,10 @@ class PetalPost implements ArcadeGameInstance {
   private hazards: Hazard[] = []
   private bundles: Array<{ x: number; y: number; gone: boolean }> = []
   private targets: Target[] = []
+  private ramps: RampGate[] = []
+  private landmarks: StreetLandmark[] = []
+  private jump = 0
+  private courseCrashed = false
   private packets: Packet[] = []
   private routeEnd = 0
   private bonusEnd = 0
@@ -915,6 +937,9 @@ class PetalPost implements ArcadeGameInstance {
     this.packets = []
     this.blooms = []
     this.inBonus = false
+    this.jump = 0
+    this.courseCrashed = false
+    this.landmarks = primroseDay(day) ? primroseLandmarks(day) : []
     this.houses.forEach((h, i) => {
       h.y = -FIRST_HOUSE - i * HOUSE_GAP
       h.delivered = false
@@ -926,10 +951,12 @@ class PetalPost implements ArcadeGameInstance {
           : null
     })
     this.routeEnd = -FIRST_HOUSE - HOUSES * HOUSE_GAP
-    this.bonusEnd = this.routeEnd - BONUS_LEN
+    this.bonusEnd =
+      this.routeEnd - (primroseDay(day) ? PARK_LOOP_LENGTH : BONUS_LEN)
     this.hazards = []
     this.bundles = []
     this.targets = []
+    this.ramps = []
     const per = levelCurve(day, POST_CURVES.hazards)
     const traffic = levelCurve(day, POST_CURVES.traffic)
     const plan = primroseDay(day)
@@ -947,7 +974,7 @@ class PetalPost implements ArcadeGameInstance {
       y > this.bonusEnd + 60;
       y -= HOUSE_GAP / 2
     ) {
-      if ((!plan || y < this.routeEnd) && this.rng() < per / 2)
+      if (!plan && this.rng() < per / 2)
         this.addHazard(y - this.rng() * 40, traffic)
       if (y > this.routeEnd && this.rng() < 0.22)
         this.bundles.push({
@@ -956,18 +983,55 @@ class PetalPost implements ArcadeGameInstance {
           gone: false,
         })
     }
-    for (let i = 0; i < 8; i++)
-      this.targets.push({
-        x: yardX(i % 2 === 0 ? 'left' : 'right', 40 + (i % 3) * 22),
-        y: this.routeEnd - 60 - i * 80,
+    if (plan) {
+      this.ramps = PARK_LOOP_RAMPS.map((r) => ({
+        x: r.x,
+        y: this.routeEnd - r.offset,
+        used: false,
+      }))
+      this.targets = PARK_LOOP_TARGETS.map((t) => ({
+        x: t.x,
+        y: this.routeEnd - t.offset,
+        airborne: t.airborne,
         hit: false,
-      })
+      }))
+      // The corner shop is a reliable refill on an otherwise seeded route.
+      for (const landmark of this.landmarks) {
+        if (landmark.kind !== 'shop') continue
+        this.bundles.push({
+          x: landmark.side === 'left' ? MIN_X + 12 : MAX_X - 12,
+          y: this.landmarkY(landmark),
+          gone: false,
+        })
+      }
+      // These fixed obstacles leave both ramp approaches clear.
+      this.addAuthoredHazard('bin', this.routeEnd - 155, traffic)
+      this.addAuthoredHazard('cat', this.routeEnd - 470, traffic)
+      this.addAuthoredHazard('bin', this.routeEnd - 805, traffic)
+    } else {
+      for (let i = 0; i < 8; i++)
+        this.targets.push({
+          x: yardX(i % 2 === 0 ? 'left' : 'right', 40 + (i % 3) * 22),
+          y: this.routeEnd - 60 - i * 80,
+          airborne: false,
+          hit: false,
+        })
+    }
     const subs = this.houses.filter((h) => h.subscriber).length
     this.banner = {
       text: plan ? `${plan.weekday} - PRIMROSE LANE` : `DAY ${day}`,
       sub: plan ? plan.title : `${subs} HOUSES ON YOUR ROUTE`,
       ticks: 110,
     }
+  }
+
+  private landmarkY(landmark: StreetLandmark) {
+    return -FIRST_HOUSE - (landmark.gap + 0.5) * HOUSE_GAP
+  }
+
+  private targetOpen(target: Target) {
+    const ahead = this.by - target.y
+    return ahead >= -24 && ahead <= 140
   }
 
   private addHazard(y: number, traffic: number) {
@@ -1076,12 +1140,16 @@ class PetalPost implements ArcadeGameInstance {
     const controls = this.demo ? this.demoInput() : input
     this.ride(controls)
     this.updateHazards()
+    if (this.crash > 0 || this.dayEnd > 0 || this.over) return
     this.updatePackets()
     if (!this.inBonus && this.by < this.routeEnd) {
       this.inBonus = true
+      if (primroseDay(this.level)) this.carry = CARRY
       this.banner = {
-        text: 'BONUS RUN!',
-        sub: 'TOSS AT THE TARGETS',
+        text: primroseDay(this.level) ? 'PARK LOOP!' : 'BONUS RUN!',
+        sub: this.ramps.length
+          ? 'RIDE RAMPS FAST - TOSS IN AIR'
+          : 'TOSS AT THE TARGETS',
         ticks: 90,
       }
       this.sound.play('start')
@@ -1100,7 +1168,28 @@ class PetalPost implements ArcadeGameInstance {
     else this.speed += (BASE_SPEED - this.speed) * 0.03
     if (input.held.left) this.bx = Math.max(MIN_X, this.bx - STEER)
     if (input.held.right) this.bx = Math.min(MAX_X, this.bx + STEER)
+    const previousY = this.by
     this.by -= this.speed
+    if (this.jump > 0) this.jump--
+    for (const ramp of this.ramps) {
+      if (
+        ramp.used ||
+        this.speed < 1.35 ||
+        Math.abs(ramp.x - this.bx) > 10 ||
+        previousY < ramp.y ||
+        this.by > ramp.y
+      )
+        continue
+      ramp.used = true
+      this.jump = PARK_JUMP_TICKS
+      this.sound.play('start')
+      this.floaters.push({
+        x: this.bx,
+        y: BOT_Y - 26,
+        text: 'BIG AIR!',
+        life: 36,
+      })
+    }
     if (input.pressed.a) this.toss('left')
     if (input.pressed.b) this.toss('right')
     for (const b of this.bundles) {
@@ -1133,9 +1222,10 @@ class PetalPost implements ArcadeGameInstance {
     this.packets.push({
       x: this.bx + direction * 6,
       y: this.by - 4,
-      vx: direction * tossSpeed(this.speed),
+      vx: direction * tossSpeed(this.speed) * (this.jump > 0 ? 1.35 : 1),
       vy: -this.speed,
       side,
+      airborne: this.jump > 0,
       t: 0,
     })
     this.sound.play('shoot')
@@ -1158,7 +1248,7 @@ class PetalPost implements ArcadeGameInstance {
         if (h.kind === 'cat' && (h.x < SIDEWALK || h.x > STREET_R - 10))
           h.vx = -h.vx
       }
-      if (this.safe > 0) continue
+      if (this.safe > 0 || this.jump > 0) continue
       if (h.kind === 'puddle') {
         if (
           Math.abs(h.x - this.bx) < h.w / 2 + 5 &&
@@ -1225,10 +1315,20 @@ class PetalPost implements ArcadeGameInstance {
       }
       if (p.t > TOSS_TICKS) continue
       for (const t of this.targets) {
-        if (!t.hit && Math.abs(p.x - t.x) < 7 && Math.abs(p.y - t.y) < 7) {
+        if (
+          !t.hit &&
+          this.targetOpen(t) &&
+          (!t.airborne || p.airborne) &&
+          Math.abs(p.x - t.x) < 7 &&
+          Math.abs(p.y - t.y) < 7
+        ) {
           t.hit = true
           p.t = 999
-          this.addScore(TARGET_POINTS, t.x, t.y - this.camera - 10)
+          this.addScore(
+            TARGET_POINTS * (t.airborne ? 2 : 1),
+            t.x,
+            t.y - this.camera - 10,
+          )
           this.sparkle(t.x, t.y - this.camera, '#fde047')
           this.fx.burst(t.x, t.y - this.camera, this.fxRng, {
             count: 10,
@@ -1355,6 +1455,14 @@ class PetalPost implements ArcadeGameInstance {
       }
       sub = `PERFECT DAY  +${bonus}  A NEIGHBOUR SIGNS UP`
     }
+    const hits = this.targets.filter((target) => target.hit).length
+    const golden =
+      this.inBonus &&
+      this.ramps.length > 0 &&
+      !this.courseCrashed &&
+      hits === this.targets.length &&
+      this.by < this.bonusEnd
+    if (golden) this.addScore(PARK_GOLDEN_POINTS, W / 2, 120)
     this.gazette = valleyGazette(
       this.level,
       this.houses,
@@ -1362,6 +1470,7 @@ class PetalPost implements ArcadeGameInstance {
       missed,
       this.signups,
       this.tips,
+      this.ramps.length ? { hits, total: this.targets.length, golden } : null,
     )
     this.sound.play('level')
     if (subs === 0) {
@@ -1381,6 +1490,7 @@ class PetalPost implements ArcadeGameInstance {
     this.sound.play('die')
     if (h.kind !== 'sprinkler' && h.kind !== 'car') h.gone = true
     if (this.inBonus) {
+      this.courseCrashed = true
       // On the bonus run a crash just ends the run.
       this.by = this.bonusEnd - 1
       this.endDay()
@@ -1470,7 +1580,8 @@ class PetalPost implements ArcadeGameInstance {
     const aim = (side: StreetSide, x: number, y: number) => {
       const direction = side === 'left' ? -1 : 1
       const drift = this.weather === 'breezy' ? 0.4 : 0
-      const vx = direction * tossSpeed(this.speed) + drift
+      const vx =
+        direction * tossSpeed(this.speed) * (this.jump > 0 ? 1.35 : 1) + drift
       const ticks = (x - this.bx - direction * 6) / vx
       if (
         ticks > 0 &&
@@ -1487,7 +1598,7 @@ class PetalPost implements ArcadeGameInstance {
       aim(h.side, mailboxX(h.side), h.y + 22)
     }
     for (const t of this.targets) {
-      if (t.hit || flying) continue
+      if (t.hit || flying || (t.airborne && this.jump === 0)) continue
       aim(t.x < W / 2 ? 'left' : 'right', t.x, t.y)
     }
     // Lane choice: the centre by default, a bundle when running low.
@@ -1513,6 +1624,13 @@ class PetalPost implements ArcadeGameInstance {
             ? futureX - hz.w / 2 - 16
             : futureX + hz.w / 2 + 16
     }
+    const ramp = this.ramps.find(
+      (r) => !r.used && r.y <= this.by && this.by - r.y < 85,
+    )
+    if (ramp) {
+      wantX = ramp.x
+      held.up = true
+    }
     wantX = Math.max(MIN_X, Math.min(MAX_X, wantX))
     if (wantX < this.bx - 2) held.left = true
     if (wantX > this.bx + 2) held.right = true
@@ -1524,6 +1642,8 @@ class PetalPost implements ArcadeGameInstance {
   render(g: CanvasRenderingContext2D) {
     const cam = Math.round(this.camera)
     this.renderStreet(g, cam)
+    for (const landmark of this.landmarks) this.renderLandmark(g, landmark, cam)
+    this.renderPark(g, cam)
     for (const b of this.blooms) this.renderBloom(g, b, cam)
     for (const h of this.houses) this.renderYard(g, h.y - cam, h.side)
     for (const h of this.houses) this.renderHouse(g, h.y - cam, h)
@@ -1581,6 +1701,93 @@ class PetalPost implements ArcadeGameInstance {
     g.translate(0, off)
     cachedLayer(g, 'petal-post-street', W, H + PERIOD, paintStreet)
     g.restore()
+  }
+
+  private renderLandmark(
+    g: CanvasRenderingContext2D,
+    landmark: StreetLandmark,
+    cam: number,
+  ) {
+    const sy = this.landmarkY(landmark) - cam
+    if (sy < -40 || sy > H + 40) return
+    const left = landmark.side === 'left'
+    const x = left ? 0 : W - SIDEWALK
+    if (landmark.kind === 'crossing' || landmark.kind === 'side-road') {
+      g.fillStyle = ASPHALT[2]
+      g.fillRect(
+        landmark.kind === 'crossing' ? 0 : x,
+        sy - 12,
+        landmark.kind === 'crossing' ? W : SIDEWALK,
+        24,
+      )
+      g.fillStyle = CONCRETE[4]
+      for (let xx = STREET_L + 3; xx < STREET_R - 3; xx += 8)
+        g.fillRect(xx, sy - 7, 4, 14)
+      drawText(
+        g,
+        landmark.kind === 'crossing' ? 'CROSSING' : 'SIDE ROAD',
+        left ? 39 : W - 39,
+        sy + 15,
+        { align: 'center', outline: INK },
+      )
+      return
+    }
+    if (landmark.kind === 'park') {
+      g.fillStyle = RAMPS.leaf[2]
+      g.fillRect(x + 4, sy - 13, SIDEWALK - 8, 26)
+      for (let i = 0; i < 3; i++)
+        drawSprite(g, TREE_SPRITE, x + 14 + i * 24, sy - 4)
+      g.fillStyle = RAMPS.earth[3]
+      g.fillRect(x + 24, sy + 9, 28, 4)
+      drawText(g, 'PRIMROSE PARK', x + SIDEWALK / 2, sy + 16, {
+        align: 'center',
+        outline: INK,
+      })
+      return
+    }
+    bevel(g, x + 5, sy - 18, SIDEWALK - 10, 31, RAMPS.cream)
+    for (let i = 0; i < 7; i++) {
+      g.fillStyle = i % 2 ? RAMPS.cream[4] : RAMPS.pink[2]
+      g.fillRect(x + 5 + i * 10, sy - 17, 10, 8)
+    }
+    drawText(g, 'SEED SHOP', x + SIDEWALK / 2, sy - 4, {
+      align: 'center',
+      color: INK,
+    })
+    drawText(g, 'REFILL', x + SIDEWALK / 2, sy + 5, {
+      align: 'center',
+      color: RAMPS.earth[0],
+    })
+  }
+
+  private renderPark(g: CanvasRenderingContext2D, cam: number) {
+    if (!this.ramps.length) return
+    const top = Math.max(HUD_H, this.bonusEnd - cam)
+    const bottom = Math.min(H, this.routeEnd - cam)
+    if (bottom <= top) return
+    g.fillStyle = RAMPS.leaf[2]
+    g.fillRect(0, top, SIDEWALK, bottom - top)
+    g.fillRect(W - SIDEWALK, top, SIDEWALK, bottom - top)
+    const entrance = this.routeEnd - cam
+    if (entrance > HUD_H && entrance < H) {
+      g.fillStyle = RAMPS.cream[3]
+      g.fillRect(0, entrance - 2, W, 4)
+      drawText(g, 'PARK LOOP', W / 2, entrance - 17, {
+        align: 'center',
+        outline: INK,
+      })
+    }
+    for (const ramp of this.ramps) {
+      const y = ramp.y - cam
+      if (y < HUD_H - 20 || y > H + 20) continue
+      bevel(g, ramp.x - 12, y - 10, 24, 20, RAMPS.earth)
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle = RAMPS.gold[3]
+        g.fillRect(ramp.x - 8 + i * 3, y + 5 - i * 5, 16 - i * 6, 3)
+      }
+      if (!ramp.used)
+        drawText(g, 'FAST!', ramp.x, y - 18, { align: 'center', outline: INK })
+    }
   }
 
   private renderWeather(g: CanvasRenderingContext2D) {
@@ -1664,6 +1871,16 @@ class PetalPost implements ArcadeGameInstance {
       190,
       { align: 'center', color: RAMPS.earth[0] },
     )
+    if (report.course)
+      drawText(
+        g,
+        report.course.golden
+          ? 'GOLDEN COURSE STAMP!'
+          : `PARK LOOP ${report.course.hits}/${report.course.total}`,
+        W / 2,
+        200,
+        { align: 'center', color: RAMPS.earth[0] },
+      )
     drawText(g, 'A / START: NEXT DAY', W / 2, 211, {
       align: 'center',
       color: INK,
@@ -1772,8 +1989,13 @@ class PetalPost implements ArcadeGameInstance {
     const sy = t.y - cam
     if (sy < -12 || sy > H + 12) return
     dropShadow(g, t.x + 2, sy + 7, 7, 2, 0.35)
-    if (!t.hit) glow(g, t.x, sy, 13, RAMPS.ember[3], 0.18)
-    drawSprite(g, t.hit ? TARGET_HIT_SPRITE : TARGET_SPRITE, t.x, sy)
+    if (!t.hit && this.targetOpen(t))
+      glow(g, t.x, sy, 13, t.airborne ? RAMPS.gold[3] : RAMPS.ember[3], 0.3)
+    drawSprite(g, t.hit ? TARGET_HIT_SPRITE : TARGET_SPRITE, t.x, sy, {
+      alpha: t.hit || this.targetOpen(t) ? 1 : 0.5,
+    })
+    if (t.airborne && !t.hit)
+      drawText(g, 'AIR', t.x, sy - 14, { align: 'center', outline: INK })
   }
 
   private renderHazard(g: CanvasRenderingContext2D, hz: Hazard, cam: number) {
@@ -1904,7 +2126,9 @@ class PetalPost implements ArcadeGameInstance {
       }
     }
     dropShadow(g, x + 1, y + 10, 6, 2)
-    drawSprite(g, BOT_FRAMES[frame]!, x, y + (frame ? 0 : -1))
+    const lift =
+      this.jump > 0 ? Math.sin((this.jump / PARK_JUMP_TICKS) * Math.PI) * 20 : 0
+    drawSprite(g, BOT_FRAMES[frame]!, x, y - lift + (frame ? 0 : -1))
   }
 
   private renderCrash(g: CanvasRenderingContext2D) {
@@ -1937,7 +2161,10 @@ class PetalPost implements ArcadeGameInstance {
     // Homes on the route and the packets left in the satchel.
     hudPanel(g, 86, 2, 66, 20)
     const subs = this.houses.filter((h) => h.subscriber).length
-    drawText(g, `HOMES ${subs}`, 90, 4, {
+    const routeStatus = this.inBonus
+      ? `HITS ${this.targets.filter((t) => t.hit).length}/${this.targets.length}`
+      : `HOMES ${subs}`
+    drawText(g, routeStatus, 90, 4, {
       color: RAMPS.pink[3],
       outline: INK,
     })

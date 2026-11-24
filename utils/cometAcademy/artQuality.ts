@@ -68,6 +68,51 @@ export const REJECTED_IDENTITY_ART = {
     blobSha: 'ea9abc0e9af77cd8877c60b4ac83020f8fc9df92',
     reason: 'Dark-armored male figure rather than Hattie Nkemelu.',
   },
+  'identities/mutant-earth/outcomes/student': {
+    blobSha: '70a9ba5b3ab9e9cdd049c233bb74f342175cfe90',
+    reason:
+      'Seismograph student scene centers a suited young man rather than the towering mineral-plated Hattie Nkemelu.',
+  },
+  'identities/mutant-earth/outcomes/betrayal': {
+    blobSha: 'e89d0df69603f202badbd8a0afa6483dc13e18ab',
+    reason:
+      'Betrayal paperwork scene depicts the same suited man instead of Hattie Nkemelu and her mineral-plated body.',
+  },
+  'identities/mutant-earth/outcomes/partner': {
+    blobSha: '2531006472bcfd4f506bbec122864b8b213c349d',
+    reason:
+      'Popcorn partnership painting shows a male lead with grey face markings, not the canonical towering Hattie Nkemelu.',
+  },
+  'identities/mutant-discipline/outcomes/student': {
+    blobSha: 'e06466e6e83174c037674faba6dce7f60c5a1eb0',
+    reason:
+      'Asha Venkataraman has only two arms at the photo desk; her defining second pair of natural arms is missing.',
+  },
+  'identities/mutant-discipline/outcomes/betrayal': {
+    blobSha: '1cb6050fa5ba09e4afbb6c88bd82a010ff1e6e90',
+    reason:
+      'Asha holds a photo album with only two arms rather than her canon four natural arms.',
+  },
+  'identities/mutant-discipline/outcomes/partner': {
+    blobSha: '9ccd3466b0213339ea475dc749e986b8dfea9378',
+    reason:
+      'Dance partner scene portrays Asha with two arms rather than her defining natural four-arm anatomy.',
+  },
+  'identities/alien-discipline/outcomes/student': {
+    blobSha: '7ef76624bd4dde733b952ca320dce18d79bac1e2',
+    reason:
+      'Military dorm scene depicts a grey reptilian officer instead of Zuzu, the short adult koala ronin.',
+  },
+  'identities/alien-discipline/outcomes/betrayal': {
+    blobSha: '909c1e1a996c58e7965dca885128b806c9da9fa6',
+    reason:
+      'Control room betrayal centers a humanoid reptilian officer, not the canonical grey koala assassin Zuzu.',
+  },
+  'identities/alien-discipline/outcomes/partner': {
+    blobSha: '5f4e8fe37ea330a151705aa6419792371598c918',
+    reason:
+      'Fairground partnership shows a humanoid reptilian officer, not Zuzu the short grey koala.',
+  },
 } as const satisfies Record<string, { blobSha: string; reason: string }>
 
 export function isRejectedIdentityArt(key: string): boolean {

@@ -1243,6 +1243,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'starling-murmuration',
+    label: 'Starling Murmuration',
+    reveal: 'A dusk flock folds into ribbons over the reed bed',
+    icon: 'kind-icon:butterfly',
+    tooltip:
+      'Hundreds of starlings follow three tiny rules and fold into ribbons and funnels 🐦 hover to be the hawk, click to stoop and send a wave of panic',
+    color: '#e69a6a',
+    releasedAt: '2026-11-23T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

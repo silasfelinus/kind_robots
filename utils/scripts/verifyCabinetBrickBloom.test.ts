@@ -850,7 +850,7 @@ for (const seed of [5, 9, 13]) {
 // --- slice 2: Seedling House and Vine Hall ---------------------------------------------------
 
 {
-  assert.equal(HOUSES.length, 4, 'four glasshouses (slices 2 and 3)')
+  assert.equal(HOUSES.length, 5, 'five main glasshouses')
   const allIds = new Set<string>()
   const kinds = new Set<CrateKind>()
   for (const house of HOUSES) {
@@ -862,7 +862,7 @@ for (const seed of [5, 9, 13]) {
     }
     for (const k of houseKinds(house)) kinds.add(k)
   }
-  assert.equal(allIds.size, 36, 'thirty-six authored walls')
+  assert.equal(allIds.size, 45, 'forty-five authored walls')
   for (const k of [
     'root',
     'vine',
@@ -871,6 +871,8 @@ for (const seed of [5, 9, 13]) {
     'sand',
     'lily',
     'bubble',
+    'lantern',
+    'glow',
   ] as const)
     assert.ok(kinds.has(k), `the houses use a ${k} crate`)
   // The check catches a dangling vent and an unreachable wall.
@@ -906,7 +908,12 @@ console.log(
     wall: HOUSES[2]!.start,
   })
   const last = HOUSES[3]!.walls.find((w) => w.vents === 'boss')!
-  assert.equal(nextTourPos({ house: 3, wall: last.id }, 0), null)
+  assert.deepEqual(nextTourPos({ house: 3, wall: last.id }, 0), {
+    house: 4,
+    wall: HOUSES[4]!.start,
+  })
+  const finale = HOUSES[4]!.walls.find((w) => w.vents === 'boss')!
+  assert.equal(nextTourPos({ house: 4, wall: finale.id }, 0), null)
 
   // Stage 1 is the Seedling House's first wall: roots take two hits.
   const g = make(3)

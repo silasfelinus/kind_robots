@@ -152,8 +152,10 @@ export type FestivalSave = {
   kit: Kit
   /** The run it came from ended: picking it up again starts the score from zero. */
   continued: boolean
-  /** Both Grand Marshals beaten on this device. */
+  /** All Grand Marshals beaten on this device. */
   champion: boolean
+  /** A champion's harder, mirrored festival is in progress. */
+  encore?: boolean
 }
 
 const isCount = (v: unknown, max: number): v is number =>
@@ -170,6 +172,8 @@ export function readFestivalSave(raw: unknown): FestivalSave | null {
   if (!isCount(v.tickets, MAX_TICKETS)) return null
   if (typeof v.continued !== 'boolean' || typeof v.champion !== 'boolean')
     return null
+  if (v.encore !== undefined && typeof v.encore !== 'boolean') return null
+  if (v.encore && !v.champion) return null
   const k = v.kit as Record<string, unknown> | null
   if (!k || typeof k !== 'object') return null
   if (typeof k.grip !== 'boolean' || typeof k.snip !== 'boolean') return null
@@ -190,6 +194,7 @@ export function readFestivalSave(raw: unknown): FestivalSave | null {
     tickets: v.tickets,
     continued: v.continued,
     champion: v.champion,
+    ...(v.encore === true ? { encore: true } : {}),
     kit: {
       grip: k.grip,
       spool: k.spool,

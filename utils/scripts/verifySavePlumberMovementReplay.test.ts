@@ -147,6 +147,67 @@ assert.ok(
 )
 assert.equal(embedded(reversal), null, 'the turnaround does not clip terrain')
 
+// Ground release still stops promptly, but a neutral jump carries momentum.
+for (const dir of [-1, 1] as const) {
+  const sprint: Script = (_, input) => {
+    input.held.left = dir < 0
+    input.held.right = dir > 0
+    input.held.b = true
+  }
+  const start = () => {
+    const run = labRun()
+    run.hero.x = 16 * TILE
+    replay(run, 12, sprint)
+    return run
+  }
+  const grounded = start()
+  const groundSpeed = Math.abs(grounded.hero.vx)
+  replay(grounded, 12, () => {})
+  assert.ok(
+    Math.abs(grounded.hero.vx) < groundSpeed * 0.1,
+    'ground release stops promptly',
+  )
+
+  const air = start()
+  replay(air, 1, (frame, input) => {
+    sprint(frame, input)
+    input.pressed.a = input.held.a = true
+  })
+  assert.equal(air.ground, false, 'sprint jump leaves the floor')
+  const launchX = air.hero.x
+  const launchSpeed = Math.abs(air.hero.vx)
+  replay(
+    air,
+    12,
+    (_, input) => {
+      input.held.a = true
+    },
+    () => assert.equal(embedded(air), null),
+  )
+  assert.ok(
+    Math.abs(air.hero.vx) > launchSpeed * 0.6,
+    'neutral air preserves more than 60% of launch speed after 12 frames',
+  )
+  assert.ok(
+    (air.hero.x - launchX) * dir > 32,
+    'released direction still carries the jump across two tiles',
+  )
+  replay(
+    air,
+    7,
+    (_, input) => {
+      input.held.left = dir > 0
+      input.held.right = dir < 0
+      input.held.a = true
+    },
+    () => assert.equal(embedded(air), null),
+  )
+  assert.ok(
+    air.hero.vx * dir < 0,
+    'opposite air steering still reverses a coasting jump',
+  )
+}
+
 {
   const run = labRun()
   run.hero.x = 54 * TILE

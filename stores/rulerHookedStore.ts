@@ -36,6 +36,7 @@ import {
 } from '~/utils/rulerHooked/simpleFishing'
 import {
   loadIndex,
+  loadScrapbook,
   loadSave,
   writeSave,
   renameSlot as renameSlotStore,
@@ -78,6 +79,8 @@ import type {
   SaveSlotMeta,
 } from '~/types/ruler-hooked'
 
+import type { RoyalScrapbook } from '~/utils/rulerHooked/scrapbook'
+
 const nowStamp = (): string => new Date().toISOString()
 
 /** Site achievements, awarded at the deed (never from init or loadSlot). */
@@ -98,6 +101,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   const lastCatch = ref<CatchResult | null>(null)
   const lastEscape = ref<{ fishName: string; cue: string } | null>(null)
   const slots = ref<SaveSlotMeta[]>([])
+  const scrapbook = ref<RoyalScrapbook>({})
 
   const scene = computed(() =>
     save.value ? resolveScene(save.value, bundle.regions) : null,
@@ -138,6 +142,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
 
   function refreshSlots() {
     slots.value = loadIndex().slots
+    scrapbook.value = loadScrapbook()
   }
 
   function clearTransientPlayState() {
@@ -491,6 +496,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     lastCatch,
     lastEscape,
     slots,
+    scrapbook,
     scene,
     canFish,
     coins,

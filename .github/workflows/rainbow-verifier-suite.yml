@@ -12,6 +12,7 @@ on:
       - 'utils/arcade/types.ts'
       - 'utils/scripts/**/verifyRainbow*.test.ts'
       - 'public/rainbow-princess-art/**'
+      - 'public/rainbow-princess-video/**'
       - '.github/workflows/rainbow-verifier-suite.yml'
   workflow_dispatch:
 

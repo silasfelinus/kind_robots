@@ -22,6 +22,8 @@ export const HOUSE_LEGEND: Readonly<Record<string, CrateKind>> = {
   z: 'sand',
   l: 'lily',
   b: 'bubble',
+  a: 'lantern',
+  g: 'glow',
 }
 
 /** What the new crates do, for the cabinet to read: hits to crack, and the quirk. */
@@ -42,6 +44,8 @@ export const HOUSE_CRATES = {
   },
   lily: { hits: 1, note: 'Drifts on the pond current with its row' },
   bubble: { hits: 1, note: 'Pops into a bouncy bumper for a few seconds' },
+  lantern: { hits: 1, note: 'Lights nearby crates while intact' },
+  glow: { hits: 1, note: 'Lights its row for four seconds when cracked' },
 } as const
 
 export type VentWall = Wall & { vents: readonly [string, string] | 'boss' }
@@ -526,11 +530,93 @@ export const LILY_POND: House = {
   ],
 }
 
+export const NIGHT_BLOOM: House = {
+  id: 'night-bloom',
+  name: 'Night Bloom House',
+  boss: { id: 'gloom-bloom', name: 'The Gloom Bloom' },
+  start: 'night-1',
+  walls: [
+    vw(
+      'night-1',
+      'Lantern Walk',
+      ['a##########a', '.g##....##g.', '############', '..a......a..'],
+      ['night-2a', 'night-2b'],
+    ),
+    vw(
+      'night-2a',
+      'Firefly Steps',
+      [
+        '##a.........',
+        '####g.......',
+        '######a.....',
+        '########g...',
+        '##########a.',
+      ],
+      ['night-3a', 'night-3b'],
+    ),
+    vw(
+      'night-2b',
+      'Midnight Arcade',
+      ['a..####..a..', '##g####g####', '.##....##...', 'a###..###..a'],
+      ['night-3a', 'night-3b'],
+    ),
+    vw(
+      'night-3a',
+      'Moth Window',
+      ['a#.#.#.#.#.a', '.g#.#.#.#g#.', 'a#.#.#.#.#.a', '.#.#.#.#.#.#'],
+      ['night-4a', 'night-4b'],
+    ),
+    vw(
+      'night-3b',
+      'Starlit Canopy',
+      [
+        '...aaaaaa...',
+        '..########..',
+        '.#g######g#.',
+        '##p######p##',
+        '..########..',
+      ],
+      ['night-4a', 'night-4b'],
+    ),
+    vw(
+      'night-4a',
+      'Twilight Bridge',
+      ['a##..##..##a', '.gg######gg.', '##h######h##', 'a##......##a'],
+      ['night-5a', 'night-5b'],
+    ),
+    vw(
+      'night-4b',
+      'Moon Seed Vault',
+      ['a##########a', '.##gggggg##.', '###p####p###', '..a######a..'],
+      ['night-5a', 'night-5b'],
+    ),
+    vw(
+      'night-5a',
+      'Gloaming Bells',
+      ['a###....###a', '##g##..##g##', '############', '...a####a...'],
+      'boss',
+    ),
+    vw(
+      'night-5b',
+      'Last Light',
+      [
+        'a##g####g##a',
+        '############',
+        '##p######p##',
+        '..a##gg##a..',
+        '############',
+      ],
+      'boss',
+    ),
+  ],
+}
+
 export const HOUSES: readonly House[] = [
   SEEDLING_HOUSE,
   VINE_HALL,
   CACTUS_DOME,
   LILY_POND,
+  NIGHT_BLOOM,
 ]
 
 /** Lily pads must ride a row of their own, so the whole row drifts on the current together. */

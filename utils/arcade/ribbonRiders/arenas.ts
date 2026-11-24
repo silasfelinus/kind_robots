@@ -58,6 +58,8 @@ export type ArenaSpec = {
   rivalSpawns?: readonly Spawn[]
   /** A carousel: a ring of solid horses turning round a centre cell. */
   carousel?: Carousel
+  /** Comet trails dissolve after this many active simulation ticks. */
+  ribbonLifetime?: number
 }
 
 /** Horses evenly spaced round the square ring `r` cells out from (cx, cy), a step every `every` ticks. */

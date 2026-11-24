@@ -123,6 +123,7 @@ export const VAULTS: Readonly<
   'vine-hall': { wall: 'vine-5b', col: 5, row: 0 },
   'cactus-dome': { wall: 'cactus-4b', col: 9, row: 0 },
   'lily-pond': { wall: 'lily-4b', col: 5, row: 0 },
+  'night-bloom': { wall: 'night-4b', col: 5, row: 0 },
 }
 
 export const VAULT_HITS = 3

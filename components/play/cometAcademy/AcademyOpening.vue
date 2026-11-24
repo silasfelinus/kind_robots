@@ -642,9 +642,15 @@
               @click="openYearbookCard(entry.id)"
             >
               <img
-                v-if="promArt('identities/' + entry.id + '/student')"
+                v-if="
+                  reviewedIdentityArtwork('identities/' + entry.id + '/student')
+                "
                 class="prom-scrapbook-art"
-                :src="promArt('identities/' + entry.id + '/student')!"
+                :src="
+                  reviewedIdentityArtwork(
+                    'identities/' + entry.id + '/student',
+                  )!
+                "
                 :alt="entry.name"
               />
               <span v-else class="prom-yearbook-avatar" aria-hidden="true"
@@ -681,9 +687,17 @@
                 class="prom-yearbook-entry"
               >
                 <img
-                  v-if="promArt('identities/' + entry.id + '/student')"
+                  v-if="
+                    reviewedIdentityArtwork(
+                      'identities/' + entry.id + '/student',
+                    )
+                  "
                   class="prom-scrapbook-art"
-                  :src="promArt('identities/' + entry.id + '/student')!"
+                  :src="
+                    reviewedIdentityArtwork(
+                      'identities/' + entry.id + '/student',
+                    )!
+                  "
                   :alt="entry.name"
                 />
                 <strong>{{ entry.name }}</strong>
@@ -771,7 +785,10 @@ import AcademySoundMixer from '~/components/play/cometAcademy/AcademySoundMixer.
 import { computed, ref, watch } from 'vue'
 import { comicIntroFor } from '~/utils/cometAcademy/comicIntroductions'
 import { identityFor } from '~/utils/cometAcademy/identityArcs'
-import { identityArtwork } from '~/utils/cometAcademy/artSlots'
+import {
+  identityArtwork,
+  reviewedIdentityArtwork,
+} from '~/utils/cometAcademy/artSlots'
 import { promArt } from '~/utils/cometAcademy/artManifest'
 import {
   POWER_AFFINITIES,
@@ -869,7 +886,7 @@ const currentComicIntro = computed(() =>
 )
 const comicArt = computed(() =>
   currentComicIntro.value.artKey
-    ? promArt(currentComicIntro.value.artKey)
+    ? reviewedIdentityArtwork(currentComicIntro.value.artKey)
     : null,
 )
 const cover =

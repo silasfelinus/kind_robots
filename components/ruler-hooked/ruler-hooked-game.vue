@@ -17,6 +17,8 @@
       class="rh-console"
       :data-tier="tier"
       :data-screen="screen"
+      @pointerdown.capture="unlockAudio"
+      @keydown.capture="unlockAudio"
     >
       <template v-if="!store.save">
         <RulerHookedSlots class="rh-console__full" @picked="onPicked" />
@@ -155,6 +157,8 @@
 </template>
 
 <script setup lang="ts">
+import { useRulerHookedAudioStore } from '~/stores/rulerHookedAudioStore'
+import { royalThemeFor } from '~/utils/rulerHooked/audio'
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 import { useRulerHookedQuizStore } from '~/stores/rulerHookedQuizStore'
 import { BACKDROPS } from '~/utils/rulerHooked/artLibrary'
@@ -180,6 +184,7 @@ type Screen = ConsoleScreen | 'opening' | 'settings'
 
 const store = useRulerHookedStore()
 const quiz = useRulerHookedQuizStore()
+const audio = useRulerHookedAudioStore()
 const screen = ref<Screen>('lake')
 const consoleEl = ref<HTMLElement | null>(null)
 const lakeEl = ref<{ press: () => void } | null>(null)
@@ -223,6 +228,7 @@ function hear() {
   store.learnTutorial('crier')
 }
 function onChose() {
+  audio.play('decree')
   store.learnTutorial('petition')
 }
 
@@ -398,6 +404,57 @@ function onKey(event: KeyboardEvent) {
   run(command)
 }
 
+function unlockAudio() {
+  if (!audio.enabled) void audio.unlock()
+}
+
+function syncAudioVisibility() {
+  audio.visibility(document.hidden)
+}
+
+watchEffect(() => {
+  audio.scene(
+    royalThemeFor(
+      !!store.save,
+      screen.value,
+      store.timeOfDay === 'night' || store.timeOfDay === 'dusk',
+      store.save?.status === 'COMPLETE',
+    ),
+    quiz.mode === 'quiz' && !!store.activeFishing,
+  )
+})
+
+watch(
+  () => !!store.activeFishing,
+  (active, previous) => {
+    if (active && !previous) audio.play('cast')
+  },
+)
+watch(
+  () => store.lastCatch,
+  (caught) => {
+    if (caught) audio.play('catch')
+  },
+)
+watch(
+  () => store.lastEscape,
+  (escaped) => {
+    if (escaped) audio.play('escape')
+  },
+)
+watch(
+  () => store.activeCard?.id,
+  (id) => {
+    if (id) audio.play('petition')
+  },
+)
+watch(
+  () => store.save?.status,
+  (status, previous) => {
+    if (status === 'COMPLETE' && previous === 'ACTIVE') audio.play('finale')
+  },
+)
+
 const pad = newPadMemory()
 let padX = false
 let padFrame = 0
@@ -415,6 +472,9 @@ function pollPads(now: number) {
 }
 
 onMounted(() => {
+  audio.initialize()
+  syncAudioVisibility()
+  document.addEventListener('visibilitychange', syncAudioVisibility)
   quiz.initialize()
   store.init()
   screen.value = store.showOpening ? 'opening' : 'lake'
@@ -422,6 +482,8 @@ onMounted(() => {
   padFrame = requestAnimationFrame(pollPads)
 })
 onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', syncAudioVisibility)
+  audio.dispose()
   window.removeEventListener('keydown', onKey)
   cancelAnimationFrame(padFrame)
 })

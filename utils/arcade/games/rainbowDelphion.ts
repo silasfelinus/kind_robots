@@ -85,6 +85,11 @@ export function createDelphionBoss(
   }
 }
 
+/** Frames the current attack's warning lasts (the link-core phase charges for its own length). */
+export function delphionWarningFrames(boss: DelphionBoss): number {
+  return warningLength(boss)
+}
+
 function warningLength(boss: DelphionBoss) {
   return boss.phase === 3 ? DELPHION.coreWarningFrames : DELPHION.warningFrames
 }

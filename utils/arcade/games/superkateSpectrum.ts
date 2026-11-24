@@ -118,6 +118,85 @@ type Shot = {
   power: SpectrumPower | null
   banked?: boolean
 }
+export const BOSS_PATTERNS = [
+  {
+    name: 'GREYSCALE DRYER',
+    rule: 'MATCH THE CORE',
+    targets: [160, 160, 160],
+    y: [112, 112, 112],
+    radius: 23,
+    limit: 4,
+  },
+  {
+    name: 'THE PRUNER',
+    rule: 'FOLLOW THE SIDE SHOOTS',
+    targets: [76, 244, 76, 244],
+    y: [150, 150, 150, 150],
+    radius: 21,
+    limit: 4,
+  },
+  {
+    name: 'NEON INSPECTOR',
+    rule: 'BANK OFF A WALL',
+    targets: [96, 224, 160],
+    y: [88, 88, 88],
+    radius: 24,
+    limit: 5,
+  },
+  {
+    name: 'THE ARCHIVIST',
+    rule: 'CLIMB THE MEMORY STACK',
+    targets: [160, 104, 216, 160],
+    y: [230, 180, 130, 80],
+    radius: 20,
+    limit: 4,
+  },
+  {
+    name: 'SORTING MACHINE',
+    rule: 'MATCH THE CHANGING GLYPH',
+    targets: [72, 160, 248, 160, 72],
+    y: [120, 180, 120, 180, 120],
+    radius: 19,
+    limit: 4,
+  },
+  {
+    name: 'PALETTE KEEPER',
+    rule: 'RESTORE SIX COLOR CORES',
+    targets: [160, 80, 240, 112, 208, 160],
+    y: [85, 140, 140, 205, 205, 100],
+    radius: 19,
+    limit: 3,
+  },
+] as const
+
+export function bossTarget(chapter: number, hit: number) {
+  const pattern = BOSS_PATTERNS[chapter]!
+  const index = hit % pattern.targets.length
+  return {
+    x: pattern.targets[index]!,
+    y: pattern.y[index]!,
+    hue: COLORS[(chapter + hit) % COLORS.length]!,
+    radius: pattern.radius,
+    bank: chapter === 2,
+  }
+}
+
+export function bossContact(
+  target: ReturnType<typeof bossTarget>,
+  shot: Pick<Shot, 'x' | 'y' | 'hue' | 'banked'>,
+) {
+  if (
+    (target.x - shot.x) ** 2 + (target.y - shot.y) ** 2 >
+    (target.radius + 13) ** 2
+  )
+    return 'none'
+  return shot.hue === target.hue && (!target.bank || shot.banked)
+    ? 'hit'
+    : 'blocked'
+}
+
+type BossState = { hits: number; misses: number }
+
 type Spark = {
   x: number
   y: number
@@ -240,6 +319,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   settings: SpectrumSettings
   power: SpectrumPower | null = null
   sparks: Spark[] = []
+  boss: BossState | null = null
   private specialMeter = 0
   private specialCount = 0
   private shotsThisBoard = 0
@@ -367,6 +447,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   }
   private resetBoard() {
     this.choiceResponseVisible = false
+    this.boss = null
     this.board = makeBoard(this.level, this.rng, this.mode)
     this.loaded = chooseHue(this.board, this.rng)
     this.next = chooseHue(this.board, this.rng)
@@ -442,51 +523,16 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       if (result.matched >= 6) this.earn('color-alchemist')
     }
     if (result.cleared) {
-      const replayChoiceIndex = STORY_DECISIONS.findIndex(
-        (scene) =>
-          this.mode === 'story' &&
-          scene.stage === this.level &&
-          (this.career.stars[this.level - 1] ?? 0) > 0,
-      )
-      this.score += 1500 + this.level * 150
-      this.playEffect('level')
-      if (this.mode === 'story')
-        this.career = recordClear(
-          this.career,
-          this.level,
-          this.shotsThisBoard,
-          this.poppedThisBoard,
-        )
       if (this.mode === 'story' && this.level % 5 === 0) {
-        this.score += 2500
-        this.lives = Math.min(9, this.lives + 1)
-        this.earn(`chapter-${Math.ceil(this.level / 5)}`)
-        this.message =
-          CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.finale
-      }
-      if (this.mode === 'story' && this.level === 30) {
-        this.over = true
-        this.won = true
-        this.ending = endingForStory(this.storyChoices)
-        if (!this.storyEndings.includes(this.ending))
-          this.storyEndings.push(this.ending)
-        this.earn('true-spectrum')
+        this.boss = { hits: 0, misses: 0 }
+        this.banner = 0
+        this.power = null
+        this.prepareBossShot()
+        this.playEffect('level')
         this.remember()
-        return
+      } else {
+        this.completeBoard()
       }
-      this.level++
-      this.resetBoard()
-      this.pendingChoice =
-        replayChoiceIndex >= 0
-          ? replayChoiceIndex
-          : this.mode === 'story'
-            ? pendingStoryDecision(this.level, this.storyChoices)
-            : null
-      this.choiceCursor =
-        this.pendingChoice === null
-          ? 0
-          : (this.storyChoices[this.pendingChoice] ?? 0)
-      this.remember()
       return
     }
     const hues = activeHues(this.board)
@@ -508,6 +554,89 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     if (this.board[ROWS - 1]!.some(Boolean)) this.lose()
   }
+  private completeBoard() {
+    const replayChoiceIndex = STORY_DECISIONS.findIndex(
+      (scene) =>
+        this.mode === 'story' &&
+        scene.stage === this.level &&
+        (this.career.stars[this.level - 1] ?? 0) > 0,
+    )
+    this.score += 1500 + this.level * 150
+    this.playEffect('level')
+    if (this.mode === 'story')
+      this.career = recordClear(
+        this.career,
+        this.level,
+        this.shotsThisBoard,
+        this.poppedThisBoard,
+      )
+    if (this.mode === 'story' && this.level % 5 === 0) {
+      this.score += 2500
+      this.lives = Math.min(9, this.lives + 1)
+      this.earn(`chapter-${Math.ceil(this.level / 5)}`)
+      this.message =
+        CHAPTERS[Math.min(5, Math.floor((this.level - 1) / 5))]!.finale
+    }
+    if (this.mode === 'story' && this.level === 30) {
+      this.over = true
+      this.won = true
+      this.ending = endingForStory(this.storyChoices)
+      if (!this.storyEndings.includes(this.ending))
+        this.storyEndings.push(this.ending)
+      this.earn('true-spectrum')
+      this.remember()
+      return
+    }
+    this.level++
+    this.resetBoard()
+    this.pendingChoice =
+      replayChoiceIndex >= 0
+        ? replayChoiceIndex
+        : this.mode === 'story'
+          ? pendingStoryDecision(this.level, this.storyChoices)
+          : null
+    this.choiceCursor =
+      this.pendingChoice === null
+        ? 0
+        : (this.storyChoices[this.pendingChoice] ?? 0)
+    this.remember()
+  }
+
+  private prepareBossShot() {
+    if (!this.boss) return
+    const chapter = chapterIndex(this.level)
+    this.loaded = bossTarget(chapter, this.boss.hits).hue
+    this.next = bossTarget(chapter, this.boss.hits + 1).hue
+  }
+
+  private resolveBossShot(hit: boolean) {
+    if (!this.boss || !this.shot) return
+    const chapter = chapterIndex(this.level)
+    const target = bossTarget(chapter, this.boss.hits)
+    const pattern = BOSS_PATTERNS[chapter]!
+    this.shot = null
+    if (hit) {
+      this.boss.hits++
+      this.score += 500
+      this.burstSparks(target.x, target.y, target.hue, 12)
+      this.playEffect('pop')
+      if (this.boss.hits === pattern.targets.length) {
+        this.boss = null
+        this.completeBoard()
+        return
+      }
+    } else {
+      this.boss.misses++
+      this.playEffect('blip')
+      if (this.boss.misses >= pattern.limit) {
+        this.boss = null
+        this.lose()
+        return
+      }
+    }
+    this.prepareBossShot()
+  }
+
   update(input: InputFrame) {
     if (this.pendingChoice !== null) {
       if (input.pressed.left || input.pressed.up) this.choiceCursor = 0
@@ -614,7 +743,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     if (input.held.left) this.angle -= 0.035
     if (input.held.right) this.angle += 0.035
     this.angle = Math.max(-Math.PI + 0.18, Math.min(-0.18, this.angle))
-    if (input.pressed.b && !this.shot)
+    if (input.pressed.b && !this.shot && !this.boss)
       [this.loaded, this.next] = [this.next, this.loaded]
     if (input.pressed.a && !this.shot) {
       this.playEffect('shoot')
@@ -635,6 +764,13 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       this.shot.x = Math.max(14, Math.min(W - 14, this.shot.x))
       this.shot.vx *= -1
       this.shot.banked = true
+    }
+    if (this.boss) {
+      const target = bossTarget(chapterIndex(this.level), this.boss.hits)
+      const contact = bossContact(target, this.shot)
+      if (contact !== 'none' || this.shot.y <= 40)
+        this.resolveBossShot(contact === 'hit')
+      return
     }
     if (
       this.shot.y <= 40 ||
@@ -821,6 +957,38 @@ class SuperkateSpectrum implements ArcadeGameInstance {
           )
         }
       }
+    }
+    if (this.boss) {
+      const chapter = chapterIndex(this.level)
+      const pattern = BOSS_PATTERNS[chapter]!
+      const target = bossTarget(chapter, this.boss.hits)
+      label(g, pattern.name, W / 2, 50, 15, '#fff0ad')
+      label(g, pattern.rule, W / 2, 67, 10)
+      bubble(
+        g,
+        target.x,
+        target.y,
+        target.hue,
+        target.radius,
+        this.selectedStyle,
+        0,
+        this.settings.highContrast,
+      )
+      label(
+        g,
+        `CORES ${this.boss.hits}/${pattern.targets.length}`,
+        W / 2,
+        350,
+        13,
+      )
+      label(
+        g,
+        `WARNING: ${pattern.limit - this.boss.misses} MISSES LEFT`,
+        W / 2,
+        372,
+        11,
+        '#fff0ad',
+      )
     }
     g.strokeStyle = '#ffffff80'
     g.lineWidth = 2
@@ -1091,7 +1259,9 @@ const game: ArcadeGameModule = {
         'THREE DIFFERENT CITY ENDINGS',
         'THE PRISM SORTER IS ERASING DIFFERENCE',
         'SUPERKATE HELPS EVERYONE SHINE',
-        'COMPLETE EACH CHAPTER FOR A HEART',
+        'DEFEAT EACH CHAPTER BOSS FOR A HEART',
+        'MATCH BOSS CORES; BANK SHOTS AT THE MARKET',
+        'MISS LIMIT IS SHOWN BEFORE EVERY SHOT',
         'NO PERFECT SHADE. EVERY SHADE BELONGS.',
       ],
     },

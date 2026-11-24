@@ -30,6 +30,9 @@
       <small>{{ kind }}</small>
       <span v-if="rules" class="ccf-text">{{ rules }}</span>
       <span v-if="note" class="ccf-text ccf-note">{{ note }}</span>
+      <span v-if="flavor && flavorText" class="ccf-flavor">{{
+        flavorText
+      }}</span>
     </span>
   </span>
 </template>
@@ -46,6 +49,7 @@ import {
 } from '~/utils/slimeCity/clash'
 import { useSlimeCityStore } from '~/stores/slimeCity'
 import {
+  clashCardFlavor,
   clashStageTitle,
   type EvoPick,
 } from '~/utils/slimeCity/clashEvolutions'
@@ -58,8 +62,13 @@ const props = withDefaults(
     preview?: boolean
     /** A choose-one level three already played as option 0 or 1. */
     pick?: EvoPick
+    /**
+     * Show the card's flavor line under its rules. Only reading views ask
+     * for it (the collection inspector); cards in play show rules alone.
+     */
+    flavor?: boolean
   }>(),
-  { note: '', level: 1, preview: false, pick: undefined },
+  { note: '', level: 1, preview: false, pick: undefined, flavor: false },
 )
 const maxLevel = CLASH_MAX_LEVEL
 const lab = useSlimeCityStore()
@@ -69,6 +78,7 @@ const stageTitle = computed(() =>
   clashStageTitle(props.cardId, props.level, props.pick),
 )
 const rules = computed(() => clashCardText(card.value, props.level, props.pick))
+const flavorText = computed(() => clashCardFlavor(props.cardId))
 const plays = computed(() => clashPlayCost(card.value))
 const kind = computed(() =>
   card.value.kind === 'creature'
@@ -230,6 +240,16 @@ const kind = computed(() =>
 .ccf-note {
   color: #ffe6a6;
   font-weight: 750;
+}
+.ccf-flavor {
+  display: block;
+  margin-top: 0.6cqw;
+  padding-top: 1.8cqw;
+  border-top: 1px solid #b9f15133;
+  font-size: 5cqw;
+  font-style: italic;
+  line-height: 1.3;
+  color: #a9c4ba;
 }
 @media (prefers-reduced-motion: reduce) {
   .ccf,

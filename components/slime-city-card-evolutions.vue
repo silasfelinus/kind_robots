@@ -13,13 +13,14 @@
     :aria-label="cardName + ': every evolution'"
     data-testid="slime-card-evolutions"
   >
-    <li v-for="stage in stages" :key="stage.label">
+    <li v-for="(stage, index) in stages" :key="stage.label">
       <span class="sce-tag">{{ stage.label }}</span>
       <span class="sce-card">
         <SlimeCityClashCardFace
           :card-id="cardId"
           :level="stage.level"
           :pick="stage.pick"
+          :flavor="index === 0"
         />
       </span>
     </li>

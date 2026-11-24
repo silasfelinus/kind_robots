@@ -20,6 +20,7 @@ import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
   rainbowHitFlinch,
+  rainbowShipPose,
   rainbowSwimPose,
 } from '../arcade/games/rainbowSwimMotion'
 import { emptyInput } from '../arcade/types'
@@ -376,6 +377,42 @@ assert.ok(
 assert.ok(
   freshHit.y > 1 && freshHit.x >= 0.85,
   'the flinch stays a small squash',
+)
+
+// t-011: the pilot's craft banks and leans into a surge, a draw-only pose that calm motion damps.
+assert.deepEqual(
+  rainbowShipPose(0, 0),
+  { rotate: 0, scaleX: 1, scaleY: 1 },
+  'a still craft holds its shape',
+)
+const surge = rainbowShipPose(0, 4)
+const backOff = rainbowShipPose(0, -4)
+assert.ok(
+  surge.scaleX > 1 && surge.scaleY < 1,
+  'a forward surge stretches the craft',
+)
+assert.ok(
+  backOff.scaleX < 1 && backOff.scaleY > 1,
+  'backing off squats the craft',
+)
+const wildPose = rainbowShipPose(40, 40)
+assert.ok(
+  Math.abs(wildPose.rotate) <= 0.35 &&
+    wildPose.scaleX <= 1.1 &&
+    wildPose.scaleY >= 0.75,
+  'the pose stays bounded at full speed',
+)
+const calmPose = rainbowShipPose(3, 4, true)
+const fullPose = rainbowShipPose(3, 4)
+assert.ok(
+  Math.abs(calmPose.rotate) < Math.abs(fullPose.rotate) &&
+    calmPose.scaleX < fullPose.scaleX,
+  'calm motion damps the bank and the lean',
+)
+assert.match(
+  previewSource,
+  /rainbowShipPose\(ship\.bank, ship\.thrust, calm\)/,
+  'the ship draw uses the shared pose',
 )
 
 console.log(

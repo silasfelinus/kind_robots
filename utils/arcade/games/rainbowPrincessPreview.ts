@@ -57,7 +57,11 @@ import {
   rainbowLook,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
-import { applyRainbowSwimMotion, rainbowHitFlinch } from './rainbowSwimMotion'
+import {
+  applyRainbowSwimMotion,
+  rainbowHitFlinch,
+  rainbowShipPose,
+} from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
 import {
   drawRainbowDistantParallax,
@@ -1072,6 +1076,8 @@ type Ship = {
   focus: boolean
   /** Smoothed vertical speed, so the ship banks into a climb or a dive. */
   bank: number
+  /** Smoothed horizontal speed, so the ship stretches as it surges forward and squats as it backs off. */
+  thrust: number
   /** Four-button cabinet: frames left of the pilot's special and of her evade, their cooldowns, and a dash. */
   special: number
   specialCooldown: number
@@ -1400,6 +1406,7 @@ export function createRainbowPrincessPreview(
     lives: level.lives + extraLife,
     focus: false,
     bank: 0,
+    thrust: 0,
     special: 0,
     specialCooldown: 0,
     evade: 0,
@@ -5226,6 +5233,7 @@ export function createRainbowPrincessPreview(
           (keys.pressed.b && !keys.held.b && superHold[seat] === 0))
       superHold[seat] = keys.held.b ? superHold[seat]! + 1 : 0
       const lastY = ship.y
+      const lastX = ship.x
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
         // A guardian on screen: the attract demo lines up on it, so it shows the guardian beaten.
@@ -5366,6 +5374,7 @@ export function createRainbowPrincessPreview(
         }
       }
       ship.bank += (ship.y - lastY - ship.bank) * 0.25
+      ship.thrust += (ship.x - lastX - ship.thrust) * 0.25
       if (ship.cooldown > 0) ship.cooldown--
       if (ship.invulnerable > 0) ship.invulnerable--
       if (hitCards[seat]! > 0) hitCards[seat]!--
@@ -8969,9 +8978,10 @@ export function createRainbowPrincessPreview(
             Math.cos((1 - ship.evade / RAINBOW_EVADE.roll) * Math.PI * 2),
           )
         if (ship.evade > 0 && pilotOf(seat) === 2) g.globalAlpha = 0.55
-        // Bank into a climb or a dive: tilt with the vertical speed, flattening a little as it turns.
-        g.rotate(Math.max(-0.35, Math.min(0.35, ship.bank * 0.12)))
-        g.scale(1, 1 - Math.min(0.18, Math.abs(ship.bank) * 0.05))
+        // Bank into a climb or a dive and lean into a surge (t-011): a draw-only pose, so the hitbox never moves.
+        const pose = rainbowShipPose(ship.bank, ship.thrust, calm)
+        g.rotate(pose.rotate)
+        g.scale(pose.scaleX, pose.scaleY)
         g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
         // Paint recolours the painting only (t-044); the seat glow above keeps the pilot's own colour.

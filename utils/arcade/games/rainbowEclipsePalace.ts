@@ -446,7 +446,7 @@ export function palaceDialogue(
         speaker: lead,
         text:
           flags.captivesFreed > 0
-            ? `We freed ${flags.captivesFreed} captives on the climb, and not one of them was erased.`
+            ? `We freed ${flags.captivesFreed} ${flags.captivesFreed === 1 ? 'captive' : 'captives'} on the climb, and not one of them was erased.`
             : 'The captives drifted past us. We come back for every one of them.',
       },
       {

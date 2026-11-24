@@ -2812,17 +2812,29 @@ export function createRainbowPrincessPreview(
     for (const ship of ships) ship.lives = level.lives + extraLife
   }
 
-  /** A line of dialogue with the crew's names swapped for the pilots actually flying each seat. */
+  /**
+   * A line of dialogue with the crew's names swapped for the pilots actually flying each seat. Scripts are
+   * written for seats in pilot order; a line written for a seat nobody flies (a four-pilot detour script in a
+   * smaller crew) goes to the pilot in seat `authored % crew`, so only the crew ever speaks (blind story
+   * critic S1, 2026-11-23 PT).
+   */
   function crewLine<Line extends { speaker: string; text: string }>(
     line: Line,
   ): Line {
     if ('partyAuthored' in line && line.partyAuthored) return line
-    if (!pick && (!roster || roster.every((pilot, seat) => pilot === seat)))
+    if (
+      activePlayers === RAINBOW_PILOTS.length &&
+      !pick &&
+      (!roster || roster.every((pilot, seat) => pilot === seat))
+    )
       return line
     const names = RAINBOW_PILOTS.map((pilot) => pilot.name.split(' ')[0]!)
     const pattern = new RegExp(`\\b(${names.join('|')})\\b`, 'g')
     const swap = (text: string) =>
-      text.replace(pattern, (name) => names[pilotOf(names.indexOf(name))]!)
+      text.replace(
+        pattern,
+        (name) => names[pilotOf(names.indexOf(name) % activePlayers)]!,
+      )
     return { ...line, speaker: swap(line.speaker), text: swap(line.text) }
   }
 

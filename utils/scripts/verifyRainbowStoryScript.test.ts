@@ -527,7 +527,10 @@ assert.equal(
   new Set([verdicts[0], verdicts[1], verdicts[3], verdicts[5]]).size,
   4,
 )
-assert.match(verdicts[1]!, /^1 rescue home, and 4 palace captives\. Not enough/)
+assert.match(
+  verdicts[1]!,
+  /^1 rescue home, with 4 palace captives beside them\. Not enough/,
+)
 assert.match(verdicts[2]!, /^2 rescues home/)
 assert.match(verdicts[4]!, /^5 of our six rescues/)
 assert.match(verdicts[5]!, /Every single one/)

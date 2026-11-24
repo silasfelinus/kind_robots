@@ -103,8 +103,15 @@ select:focus-visible {
   line-height: 1;
 }
 #clock {
+  font-size: clamp(9px, 0.9vw, 14px);
+}
+#chess-clock {
   margin-inline: auto;
   font-size: clamp(13px, 1.6vw, 21px);
+  font-variant-numeric: tabular-nums;
+}
+#chess-clock.urgent {
+  color: #ff9292;
 }
 #total {
   color: #f8d47f;

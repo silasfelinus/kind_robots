@@ -92,9 +92,9 @@ try {
         ? 'chessweeper-triple'
         : 'chessweeper-triple-' + bracket
     const expected = {
-      easy: { hearts: 5, mineCount: 6, discCount: 2, cpuChoices: 7 },
-      medium: { hearts: 3, mineCount: 10, discCount: 3, cpuChoices: 3 },
-      hard: { hearts: 2, mineCount: 15, discCount: 4, cpuChoices: 2 },
+      easy: { hearts: 5, mineCount: 6, discCount: 3, cpuChoices: 7 },
+      medium: { hearts: 3, mineCount: 10, discCount: 5, cpuChoices: 3 },
+      hard: { hearts: 2, mineCount: 15, discCount: 7, cpuChoices: 2 },
     }[bracket]
     assert.equal(
       await page.locator('.play-panel').count(),
@@ -294,9 +294,10 @@ try {
   )
   assert.equal(cata.maxHearts, 1)
   assert.equal(cata.mineCount, 20)
-  assert.equal(cata.discCount, 6)
+  assert.equal(cata.discCount, 9)
   assert.equal(cata.cpuChoices, 1)
-  assert.ok(cata.discSpeed > 1.5)
+  assert.equal(cata.discSpeed, 1.95)
+  assert.ok(cata.nextDisc <= 8)
   assert.match(
     await catastrophe.locator('#difficulty-badge').innerText(),
     /CATA/,
@@ -317,6 +318,38 @@ try {
   )
   assert.equal(practiceSubmissions.length, 0)
   await practice.close()
+  const { page: timed } = await openAt(1440)
+  const snapshot = () =>
+    timed.evaluate(() => window.__chessweeperTriple.snapshot())
+  await timed.selectOption('#difficulty', 'easy')
+  await timed.click('#start')
+  assert.equal(await timed.locator('#chess-clock').innerText(), '10s')
+  await timed.clock.fastForward(4000)
+  const beforePause = await snapshot()
+  assert.ok(beforePause.chessRemaining > 5 && beforePause.chessRemaining <= 6)
+  await timed.click('#pause')
+  const paused = await snapshot()
+  await timed.clock.fastForward(20_000)
+  assert.equal((await snapshot()).chessRemaining, paused.chessRemaining)
+  await timed.click('#resume')
+  await timed.clock.fastForward(6500)
+  const expired = await snapshot()
+  assert.equal(expired.hearts, paused.hearts - 1)
+  assert.equal(expired.chessRound, 2)
+  assert.ok(expired.chessRemaining > 9)
+  await timed.getByRole('button', { name: 'e2 white pawn' }).click()
+  await timed.getByRole('button', { name: 'e4 empty' }).click()
+  assert.equal((await snapshot()).chessBusy, true)
+  await timed.clock.fastForward(1000)
+  const replied = await snapshot()
+  assert.equal(replied.chessBusy, false)
+  assert.ok(replied.chessRemaining > 9 && replied.chessRemaining <= 10)
+  await timed.click('#pause')
+  await timed.click('#restart')
+  await timed.click('#start')
+  assert.equal((await snapshot()).chessRound, 1)
+  assert.ok((await snapshot()).chessRemaining > 9)
+  await timed.close()
   assert.deepEqual(errors, [], 'no browser exceptions')
   console.log(
     '[triple] four difficulties, ranked brackets and 3 viewports passed',

@@ -27,7 +27,11 @@ import { LEFT, RIGHT, W } from './rules'
 import type { CrateKind } from './walls'
 
 export type BossId =
-  'mister-mulch' | 'tangle-rose' | 'sunny-saguaro' | 'queen-koi'
+  | 'mister-mulch'
+  | 'tangle-rose'
+  | 'sunny-saguaro'
+  | 'queen-koi'
+  | 'gloom-bloom'
 export type BossPhase = 1 | 2 | 3
 
 /** A guard crate (a face plate or a feeding root) as a wall cell, and the extra crates around it. */
@@ -40,7 +44,7 @@ export type BossCell = {
 }
 
 export type BossShot = {
-  kind: 'clod' | 'petal' | 'prickle'
+  kind: 'clod' | 'petal' | 'prickle' | 'gloom'
   x: number
   y: number
   vx: number
@@ -240,14 +244,50 @@ export const BOSS_SPECS: Readonly<Record<BossId, BossSpec>> = {
     score: 45_000,
     petals: 50,
   },
+  'gloom-bloom': {
+    id: 'gloom-bloom',
+    name: 'THE GLOOM BLOOM',
+    home: { x: W / 2, y: 56 },
+    w: 48,
+    h: 38,
+    hits: [0, 5, 6],
+    every: [0, 0, 140],
+    tell: 45,
+    cells: [
+      { col: 1, row: 3, hp: 2, kind: 'lantern', guard: true },
+      { col: 10, row: 3, hp: 2, kind: 'lantern', guard: true },
+      { col: 3, row: 7, hp: 2, kind: 'lantern', guard: true },
+      { col: 8, row: 7, hp: 2, kind: 'lantern', guard: true },
+      x(4, 5, 'glow'),
+      x(7, 5, 'glow'),
+      x(1, 5, 'sprout'),
+      x(10, 5, 'sprout'),
+    ],
+    phases: [
+      'RELIGHT THE FOUR LANTERNS',
+      'HIT THE CORE WHILE THE PETALS OPEN',
+      'BONK THE GLOOM CLOUDS TO SAVE YOUR BED',
+    ],
+    score: 55_000,
+    petals: 60,
+  },
+}
+
+/** Whether the Gloom Bloom's shutters are open this tick. */
+export function gloomOpen(b: Boss): boolean {
+  return b.phase === 3 || (b.phase === 2 && b.crown >= 90)
 }
 
 /** Which boss waits at the end of house `house`, if any. */
 export function bossOf(house: number): BossId | null {
   return (
-    (['mister-mulch', 'tangle-rose', 'sunny-saguaro', 'queen-koi'] as const)[
-      house
-    ] ?? null
+    ([
+      'mister-mulch',
+      'tangle-rose',
+      'sunny-saguaro',
+      'queen-koi',
+      'gloom-bloom',
+    ] as const)[house] ?? null
   )
 }
 
@@ -407,6 +447,7 @@ export function bossOpen(b: Boss): boolean {
   if (b.defeated || guardPhase(b)) return false
   if (b.id === 'sunny-saguaro') return crownOpen(b)
   if (b.id === 'queen-koi') return b.leap > 0
+  if (b.id === 'gloom-bloom') return gloomOpen(b)
   return true
 }
 
@@ -507,6 +548,8 @@ export function stepBoss(b: Boss, aimX: number, rng: () => number): void {
         (b.crown + 1) %
         (ofPhase(CROWN_SHUT, b.phase) + ofPhase(CROWN_BLOOM, b.phase))
     }
+    if (b.id === 'gloom-bloom' && b.phase === 2)
+      b.crown = (b.crown + 1) % 210
     // Each phase eases toward its own path, so a new phase never jumps the boss across the glass.
     let goal = b.x
     if (b.id === 'mister-mulch') {
@@ -519,6 +562,8 @@ export function stepBoss(b: Boss, aimX: number, rng: () => number): void {
       goal = W / 2 + Math.sin(b.t / 100) * 28
     else if (b.id === 'sunny-saguaro' && b.phase === 3)
       goal = W / 2 + Math.sin(b.t / 120) * 40
+    else if (b.id === 'gloom-bloom' && b.phase === 3)
+      goal = W / 2 + Math.sin(b.t / 70) * 55
     b.x += Math.max(-1.6, Math.min(1.6, goal - b.x))
     const every = ofPhase(spec.every, b.phase)
     if (every > 0) {
@@ -607,6 +652,19 @@ function fire(b: Boss, aimX: number, rng: () => number) {
       vx: (land - b.x) / flight,
       vy: -1,
     })
+    return
+  }
+  if (b.id === 'gloom-bloom') {
+    for (const offset of [-48, 48]) {
+      const x = Math.max(LEFT + 8, Math.min(RIGHT - 8, aimX + offset))
+      b.shots.push({
+        kind: 'gloom',
+        x: b.x,
+        y: bottom,
+        vx: (x - b.x) / 160,
+        vy: 1.5,
+      })
+    }
     return
   }
   if (b.phase === 3) {

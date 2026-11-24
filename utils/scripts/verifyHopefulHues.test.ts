@@ -9,6 +9,7 @@ type Tile = {
   color?: number
   special?: string | null
   hp?: number
+  ribbon?: boolean
 } | null
 type Goal = {
   type: string
@@ -22,6 +23,7 @@ type State = {
   cols: number
   board: Tile[][]
   gloom: number[][]
+  weather?: { kind: string; remaining: number; countdown: number } | null
   goals: Goal[]
   movesLeft: number
   score: number
@@ -282,6 +284,31 @@ function craftedState(
   must(must(state.board[swapTarget[0]])[swapTarget[1]]).color = 5
   return state
 }
+const weatherBoard = craftedState(
+  [
+    [2, 0],
+    [2, 1],
+    [2, 3],
+  ],
+  [1, 2],
+)
+weatherBoard.weather = { kind: 'cloud', remaining: 2, countdown: 1 }
+weatherBoard.gloom[0]![0] = 1
+weatherBoard.goals = [{ type: 'gloom', target: 1, progress: 0 }]
+const locked = must(weatherBoard.board[0]?.[0])
+locked.ribbon = true
+assert.equal(E.canSwap(weatherBoard, [0, 0], [0, 1]), false)
+const weatherBefore = E.clone(weatherBoard)
+const weatherMove = E.trySwap(weatherBoard, [1, 2], [2, 2])
+assert.ok(weatherMove.ok)
+const weatherReplay = E.clone(weatherBefore)
+E.trySwap(weatherReplay, [1, 2], [2, 2])
+assert.deepEqual(weatherReplay, weatherBoard, 'weather and ribbon state replay exactly')
+const weatherLevel = L.buildLevel(must(worlds[0]!.regions[1]).id, 18)
+const weatherState = E.createLevelState(weatherLevel)
+assert.equal(weatherState.weather?.kind, 'spread')
+assert.ok(weatherState.board.flat().some((tile) => tile?.ribbon))
+
 const four = craftedState(
   [
     [2, 0],

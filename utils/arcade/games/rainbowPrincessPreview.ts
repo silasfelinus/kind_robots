@@ -243,6 +243,7 @@ import {
   lanternRayExposed,
   lanternRayNurseries,
   lanternRayWarning,
+  lanternRayWarningFrames,
   stepLanternRayBoss,
   type LanternRayBoss,
 } from './rainbowLanternRay'
@@ -298,6 +299,7 @@ import {
   createGlassEelBoss,
   glassEelExposed,
   glassEelWarning,
+  glassEelWarningFrames,
   stepGlassEelBoss,
   type GlassEelBoss,
 } from './rainbowGlassEel'
@@ -8200,6 +8202,11 @@ export function createRainbowPrincessPreview(
       if (glassEel) {
         const warn = glassEelWarning(glassEel)
         const exposed = glassEelExposed(glassEel)
+        const eelWindup = rainbowBossWindup(
+          glassEel.nextVolley - glassEel.frame,
+          glassEelWarningFrames(glassEel),
+          calm,
+        )
         const body = (y: number, solid: boolean) => {
           g.save()
           g.translate(glassEel!.x, y)
@@ -8207,12 +8214,19 @@ export function createRainbowPrincessPreview(
           g.shadowColor =
             exposed && solid ? '#ff7ad9' : warn ? '#fff49c' : '#c9f2ff'
           g.shadowBlur = solid && (warn || exposed) ? 24 : 10
+          // Only the true eel's body winds up before a volley; the outline and ring stay true to the hitbox.
+          g.save()
+          if (solid) {
+            g.translate(eelWindup.pull, 0)
+            g.scale(eelWindup.scaleX, eelWindup.scaleY)
+          }
           if (!drawRainbowBossSprite(g, 'b07', glassEel!.phase, 0, 0, 140)) {
             g.fillStyle = '#9fb8d9'
             g.beginPath()
             g.ellipse(0, 0, 56, 20, 0, 0, Math.PI * 2)
             g.fill()
           }
+          g.restore()
           g.shadowBlur = 0
           if (solid) {
             // Only the true eel carries the outline.
@@ -8272,12 +8286,22 @@ export function createRainbowPrincessPreview(
         g.translate(lanternRay.x, lanternRay.y)
         g.shadowColor = exposed ? '#ff7ad9' : warn ? '#fff49c' : '#ffd27a'
         g.shadowBlur = warn || exposed ? 24 : 10
+        // The ray's body winds up before a volley; nurseries, beacon and ring stay where they can be hit.
+        const rayWindup = rainbowBossWindup(
+          lanternRay.nextVolley - lanternRay.frame,
+          lanternRayWarningFrames(lanternRay),
+          calm,
+        )
+        g.save()
+        g.translate(rayWindup.pull, 0)
+        g.scale(rayWindup.scaleX, rayWindup.scaleY)
         if (!drawRainbowBossSprite(g, 'b06', lanternRay.phase, 0, 0, 150)) {
           g.fillStyle = '#2a3a6a'
           g.beginPath()
           g.ellipse(0, 0, 60, 24, 0, 0, Math.PI * 2)
           g.fill()
         }
+        g.restore()
         g.shadowBlur = 0
         for (const [i, side] of [-1, 1].entries()) {
           if (lanternRay.nurseries[i]! <= 0) continue

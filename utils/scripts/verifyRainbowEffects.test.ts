@@ -17,6 +17,18 @@ import {
   rainbowBossBloomFlares,
 } from '../arcade/games/rainbowBossBloom'
 import { BOSS_TELEGRAPH_FRAMES } from '../arcade/games/rainbowPinkwakeBoss'
+import {
+  GLASS_EEL,
+  createGlassEelBoss,
+  glassEelWarning,
+  glassEelWarningFrames,
+} from '../arcade/games/rainbowGlassEel'
+import {
+  LANTERN_RAY,
+  createLanternRayBoss,
+  lanternRayWarning,
+  lanternRayWarningFrames,
+} from '../arcade/games/rainbowLanternRay'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
@@ -453,6 +465,54 @@ assert.match(
   previewSource,
   /rainbowBossWindup\(\s*boss\.nextVolleyAt - boss\.frame,\s*BOSS_TELEGRAPH_FRAMES,\s*calm,\s*\)/,
   'the B01 draw uses the shared windup',
+)
+
+// B07 Glass Eel and B06 Lantern Ray wind up across their own warnings: the exported length matches the cue.
+for (const [label, boss, warnFrames, warning, base] of [
+  [
+    'B07',
+    createGlassEelBoss(),
+    glassEelWarningFrames,
+    glassEelWarning,
+    GLASS_EEL.warningFrames,
+  ],
+  [
+    'B06',
+    createLanternRayBoss(),
+    lanternRayWarningFrames,
+    lanternRayWarning,
+    LANTERN_RAY.warningFrames,
+  ],
+] as const) {
+  const b = boss as never
+  assert.equal(
+    warnFrames(b),
+    base,
+    `${label} phase 1 warns for its base length`,
+  )
+  ;(boss as { frame: number }).frame = boss.nextVolley - warnFrames(b)
+  assert.ok(warning(b), `${label} cue is on at the first windup frame`)
+  assert.ok(
+    rainbowBossWindup(boss.nextVolley - boss.frame, warnFrames(b)).pull > 0,
+    `${label} begins its windup with the cue`,
+  )
+  ;(boss as { frame: number }).frame -= 1
+  assert.ok(!warning(b), `${label} cue is off before the warning`)
+  assert.deepEqual(
+    rainbowBossWindup(boss.nextVolley - boss.frame, warnFrames(b)),
+    restPose,
+    `${label} rests before its warning`,
+  )
+}
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*glassEel\.nextVolley - glassEel\.frame,\s*glassEelWarningFrames\(glassEel\),\s*calm,\s*\)/,
+  'the B07 draw uses the shared windup',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*lanternRay\.nextVolley - lanternRay\.frame,\s*lanternRayWarningFrames\(lanternRay\),\s*calm,\s*\)/,
+  'the B06 draw uses the shared windup',
 )
 
 console.log(

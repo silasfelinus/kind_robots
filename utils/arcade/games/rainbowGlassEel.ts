@@ -77,6 +77,11 @@ export function createGlassEelBoss(
   }
 }
 
+/** Frames the current attack's warning lasts (the core/beacon phase charges for its own length). */
+export function glassEelWarningFrames(boss: GlassEelBoss): number {
+  return warningLength(boss)
+}
+
 function warningLength(boss: GlassEelBoss) {
   return boss.phase === 3
     ? GLASS_EEL.coreWarningFrames

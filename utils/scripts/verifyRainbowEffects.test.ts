@@ -19,6 +19,7 @@ import {
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
+  rainbowHitFlinch,
   rainbowSwimPose,
 } from '../arcade/games/rainbowSwimMotion'
 import { emptyInput } from '../arcade/types'
@@ -352,6 +353,29 @@ assert.ok(
   previewSource.indexOf('drawRainbowBossBloom(g, sparks, calm, contrast)') <
     haloPass,
   'boss bloom is drawn under hostile shot halos instead of washing them out',
+)
+
+// t-011 character animation: a hurt craft flinches (squash, then springs back) over the flash frames;
+// calm motion and an unhurt craft keep their shape.
+assert.deepEqual(
+  rainbowHitFlinch(0, 6),
+  { x: 1, y: 1 },
+  'an unhurt craft keeps its shape',
+)
+assert.deepEqual(
+  rainbowHitFlinch(6, 6, true),
+  { x: 1, y: 1 },
+  'calm motion drops the flinch',
+)
+const freshHit = rainbowHitFlinch(6, 6)
+const fadingHit = rainbowHitFlinch(2, 6)
+assert.ok(
+  freshHit.x < fadingHit.x && fadingHit.x < 1,
+  'the squash springs back as the flash fades',
+)
+assert.ok(
+  freshHit.y > 1 && freshHit.x >= 0.85,
+  'the flinch stays a small squash',
 )
 
 console.log(

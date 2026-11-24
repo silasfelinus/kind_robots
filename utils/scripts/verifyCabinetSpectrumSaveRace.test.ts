@@ -13,7 +13,12 @@ import {
 const slug = 'superkate-spectrum'
 const root = new URL('../../', import.meta.url)
 const source = readFileSync(new URL('stores/arcadeStore.ts', root), 'utf8')
-const ast = ts.createSourceFile('store.ts', source, ts.ScriptTarget.Latest, true)
+const ast = ts.createSourceFile(
+  'store.ts',
+  source,
+  ts.ScriptTarget.Latest,
+  true,
+)
 const names = [
   'switchSpectrumOwner',
   'fetchSpectrumCopy',
@@ -106,11 +111,18 @@ const state = [
 ].join('\n')
 vm.runInContext(
   ts.transpile(
-    state + '\n' + [...functions.values()].join('\n').replaceAll('import.meta.client', 'true'),
+    state +
+      '\n' +
+      [...functions.values()]
+        .join('\n')
+        .replaceAll('import.meta.client', 'true'),
   ),
   context,
 )
-const sync = vm.runInContext('syncSuperkateCareer', context) as () => Promise<void>
+const sync = vm.runInContext(
+  'syncSuperkateCareer',
+  context,
+) as () => Promise<void>
 const record = vm.runInContext('recordSave', context) as (
   slug: string,
   save: SpectrumSave,
@@ -158,14 +170,25 @@ assert.equal(puts[3]!.revision, 1)
 finish(puts[3]!, 2)
 await drain()
 assert.equal(status.value, 'synced')
-assert.equal(readSpectrumSave(JSON.parse(cache.get('scope-1')!)).career.xp, 2000)
+assert.equal(
+  readSpectrumSave(JSON.parse(cache.get('scope-1')!)).career.xp,
+  2000,
+)
 assert.equal(readSpectrumSave(JSON.parse(cache.get('scope-2')!)).career.xp, 750)
 
 const cabinet = readFileSync(
   new URL('components/arcade/arcade-cabinet.vue', root),
   'utf8',
 )
-assert.match(cabinet, /spectrumRunOwner !== \(useUserStore\(\).authenticatedUserId \?\? null\)/)
-assert.match(cabinet, /if \(owner !== previousOwner\) \{\s+releaseInterruptedInput\(\)\s+void boot\(\)/)
+assert.match(
+  cabinet,
+  /spectrumRunOwner !== \(useUserStore\(\).authenticatedUserId \?\? null\)/,
+)
+assert.match(
+  cabinet,
+  /if \(owner !== previousOwner\) \{\s+releaseInterruptedInput\(\)\s+void boot\(\)/,
+)
 assert.match(cabinet, /generation !== bootGeneration/)
-console.log('Spectrum save races: concurrent progress and account changes verified')
+console.log(
+  'Spectrum save races: concurrent progress and account changes verified',
+)

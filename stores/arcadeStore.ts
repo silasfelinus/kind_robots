@@ -115,11 +115,7 @@ function spectrumWrite(key: string, value: string) {
   }
 }
 type SpectrumCloudStatus =
-  | 'local'
-  | 'checking'
-  | 'saving'
-  | 'synced'
-  | 'offline'
+  'local' | 'checking' | 'saving' | 'synced' | 'offline'
 type SpectrumAccountCopy = {
   save: SpectrumSave
   revision: number
@@ -648,7 +644,9 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
           if (session !== spectrumSession) break
           spectrumRevision = remote?.revision ?? null
           const latest = readSpectrumSave(saves.value[SPECTRUM_SLUG])
-          const merged = remote ? mergeSpectrumSaves(latest, remote.save) : latest
+          const merged = remote
+            ? mergeSpectrumSaves(latest, remote.save)
+            : latest
           saves.value = withSave(saves.value, SPECTRUM_SLUG, merged)
           writeSaves(saves.value)
           spectrumWrite(SPECTRUM_SCOPED(String(userId)), JSON.stringify(merged))

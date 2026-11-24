@@ -97,6 +97,7 @@ import {
   FAIRGROUNDS,
   OBJECTIVES,
   arenaById,
+  encoreArena,
   openEvents,
   outlineCells,
   rectCells,
@@ -199,7 +200,7 @@ const TAG_LAP_PACE = 0.88
 
 type Mode = 'midway' | 'festival'
 type MenuKind = 'title' | 'board' | 'shop' | 'credits'
-type TitleChoice = 'continue' | 'new' | 'midway'
+type TitleChoice = 'continue' | 'new' | 'midway' | 'encore'
 type Menu = { kind: MenuKind; cursor: number; ticks: number; note: string }
 type Glowbug = { x: number; y: number; vx: number; vy: number }
 
@@ -440,6 +441,7 @@ class RibbonRiders implements ArcadeGameInstance {
   private fill = new Uint8Array(GRID * GRID)
   /** The order each cell was laid in, for the rainbow, the tube links and the Eraser. */
   private order = new Uint32Array(GRID * GRID)
+  private ribbonBorn = new Uint32Array(GRID * GRID)
   private bikes: Bike[] = []
   private pickups: Pickup[] = []
   private pickupTimer = 0
@@ -475,6 +477,7 @@ class RibbonRiders implements ArcadeGameInstance {
   private kit: Kit = newKit()
   private continued = false
   private champion = false
+  private encore = false
   /** The festival kept on this device (written at each fairground's start). */
   private savePoint: FestivalSave | null = null
   private offer: FestivalSave | null = null
@@ -578,6 +581,7 @@ class RibbonRiders implements ArcadeGameInstance {
   private playArena(a: FairArena) {
     this.mode = 'festival'
     this.node = a
+    if (this.encore) a = encoreArena(a)
     this.setupArena(a, a.tier, [...a.crew])
     if (this.kit.snip) this.player.snips = Math.max(1, this.player.snips)
     this.timeLeft = a.limit ?? 0
@@ -623,6 +627,7 @@ class RibbonRiders implements ArcadeGameInstance {
     this.cells.fill(0)
     this.fill.fill(0)
     this.order.fill(0)
+    this.ribbonBorn.fill(0)
     this.dyn.fill(0)
     this.traced.fill(0)
     this.tracedCount = 0
@@ -752,6 +757,7 @@ class RibbonRiders implements ArcadeGameInstance {
     this.cells[i] = b.id
     this.fill[i] = 0
     this.order[i] = order
+    this.ribbonBorn[i] = this.roundTicks
     this.brushSnow(x, y)
   }
 
@@ -825,6 +831,7 @@ class RibbonRiders implements ArcadeGameInstance {
     }
     const beat = this.beat
     this.roundTicks++
+    this.expireRibbons()
     if (this.beat !== beat) this.onBeat()
 
     for (const r of this.riders) this.runKit(r)
@@ -855,6 +862,19 @@ class RibbonRiders implements ArcadeGameInstance {
     }
     this.updateReboots()
     this.checkRoundOver()
+  }
+
+  /** Comet tails expire in simulation time, never erasing gifts or live bike heads. */
+  private expireRibbons() {
+    const lifetime = this.arena.spec.ribbonLifetime
+    if (!lifetime || this.roundTicks < lifetime) return
+    const heads = new Set(
+      this.bikes.filter((b) => b.alive).map((b) => idx(b.x, b.y)),
+    )
+    for (let i = 0; i < this.cells.length; i++) {
+      if (!this.cells[i] || this.fill[i] || heads.has(i)) continue
+      if (this.roundTicks - this.ribbonBorn[i]! >= lifetime) this.cells[i] = 0
+    }
   }
 
   private partnerOf(b: Bike): Bike | null {
@@ -983,10 +1003,11 @@ class RibbonRiders implements ArcadeGameInstance {
     const spec = RIVALS[b.kind!]
     // A Tag Lap crew races a touch under the rider's pace: turbo and slipstream win it.
     const race = this.node?.objective === 'taglap' ? TAG_LAP_PACE : 1
-    pace *= race
+    const encorePace = this.mode === 'festival' && this.encore ? 1.12 : 1
+    pace *= race * encorePace
     if (spec.speed === 'match') {
       const t = this.targetFor(b)
-      return t ? Math.max(pace * 0.5, t.speed * race) : pace
+      return t ? Math.max(pace * 0.5, t.speed * race * encorePace) : pace
     }
     let speed = pace * spec.speed
     if (b.kind === 'hugger') {
@@ -1817,6 +1838,7 @@ class RibbonRiders implements ArcadeGameInstance {
       kit: { ...this.kit, patterns: [...this.kit.patterns] },
       continued: this.continued,
       champion: this.champion,
+      ...(this.encore ? { encore: true } : {}),
     }
   }
 
@@ -1827,7 +1849,7 @@ class RibbonRiders implements ArcadeGameInstance {
     this.tickets = Math.min(MAX_TICKETS, this.tickets)
     this.writeSave()
     if (this.savePoint) {
-      this.savePoint = { ...this.savePoint, score: 0 }
+      this.savePoint = { ...this.savePoint, score: 0, encore: false }
       this.offer = this.savePoint
     }
     this.openMenu('credits')
@@ -1843,6 +1865,7 @@ class RibbonRiders implements ArcadeGameInstance {
     this.titleChoices = this.offer
       ? ['continue', 'new', 'midway']
       : ['new', 'midway']
+    if (this.champion) this.titleChoices.splice(-1, 0, 'encore')
     this.openMenu('title')
     this.banner = null
   }
@@ -1912,12 +1935,14 @@ class RibbonRiders implements ArcadeGameInstance {
     }
     const offer = choice === 'continue' ? this.offer : null
     this.offer = null
+    this.encore = choice === 'encore' || offer?.encore === true
     this.score = offer && !offer.continued ? offer.score : 0
     this.nextExtra = EXTRA_EVERY * (Math.floor(this.score / EXTRA_EVERY) + 1)
     this.lives = offer && !offer.continued ? offer.lives : START_LIVES
     this.tickets = offer?.tickets ?? 0
-    this.kit = offer
-      ? { ...offer.kit, patterns: [...offer.kit.patterns] }
+    const carriedKit = offer?.kit ?? (this.encore ? this.savePoint?.kit : null)
+    this.kit = carriedKit
+      ? { ...carriedKit, patterns: [...carriedKit.patterns] }
       : newKit()
     this.continued = false
     this.openFairground(offer?.fair ?? 0)
@@ -2891,12 +2916,18 @@ class RibbonRiders implements ArcadeGameInstance {
 
   private renderCredits(g: CanvasRenderingContext2D) {
     this.backdrop(g, FAIRGROUNDS[3]!.sky)
-    drawText(g, 'FESTIVAL CHAMPION!', W / 2, 40, {
-      scale: 2,
-      align: 'center',
-      color: RAMPS.gold[4],
-      outline: INK,
-    })
+    drawText(
+      g,
+      this.encore ? 'ENCORE CHAMPION!' : 'FESTIVAL CHAMPION!',
+      W / 2,
+      40,
+      {
+        scale: 2,
+        align: 'center',
+        color: RAMPS.gold[4],
+        outline: INK,
+      },
+    )
     drawText(g, 'FOUR FAIRS. FOUR MARSHALS.', W / 2, 75, {
       align: 'center',
       color: RAMPS.cream[4],
@@ -2957,10 +2988,11 @@ class RibbonRiders implements ArcadeGameInstance {
         ? `CONTINUE: ${FAIRGROUNDS[this.offer.fair]!.name}`
         : 'CONTINUE',
       new: 'NEW FESTIVAL',
+      encore: 'ENCORE (MIRRORED FESTIVAL)',
       midway: 'THE MIDWAY (ENDLESS)',
     }
     this.titleChoices.forEach((c, k) => {
-      const y = 140 + k * 26
+      const y = 140 + k * 23
       const on = k === m.cursor
       hudPanel(g, 30, y - 6, W - 60, 20, on ? RAMPS.gold : undefined)
       drawText(g, labels[c], W / 2, y, {

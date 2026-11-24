@@ -878,7 +878,7 @@
         <button class="btn small icon" data-action="settings" aria-label="Settings">⚙️</button>
       </div>
       <div class="hud">
-        <div class="card hud-box moves" data-moves-box><span class="label">Moves</span><span class="value" data-moves></span></div>
+        <div class="card hud-box moves" data-moves-box><span class="label">Moves</span><span class="value" data-moves></span><small data-weather></small></div>
         <div class="card hud-box" style="min-width:140px"><span class="label">Score</span><span class="value" data-score></span><div class="star-meter"><div class="fill" data-meter></div>${[1, 2].map((k) => `<span class="tick" style="left:${Math.round((game.def.stars[k] / (game.def.stars[2] * 1.1)) * 100)}%">${A.starSvg(true)}</span>`).join('')}</div></div>
         <div class="card hud-box" data-goals-box><span class="label">Goals</span><div class="goals" data-goals></div></div>
       </div>
@@ -1263,6 +1263,8 @@
     if (!game || !appEl.querySelector('[data-moves]')) return
     const st = game.state
     appEl.querySelector('[data-moves]').textContent = Math.max(0, st.movesLeft)
+    const weather = st.weather
+    appEl.querySelector('[data-weather]').textContent = weather && weather.remaining > 0 ? weather.kind === 'cloud' ? '☔ ' + weather.countdown : '🌧️ ' + weather.remaining : ''
     appEl
       .querySelector('[data-moves-box]')
       .classList.toggle('low', st.movesLeft <= 3 && !st.over)
@@ -1676,7 +1678,7 @@
     const gems = []
     for (let r = 0; r < st.rows; r++)
       for (let c = 0; c < st.cols; c++)
-        if (E.tileAt(st, r, c) && E.tileAt(st, r, c).kind === 'gem')
+        if (E.tileAt(st, r, c)?.kind === 'gem' && !E.tileAt(st, r, c).ribbon)
           gems.push([r, c])
     let guard = 0
     do {

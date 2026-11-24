@@ -26,6 +26,10 @@
       >
         {{ showSaves ? 'Begin a new reign' : 'Continue a reign' }}
       </button>
+      <details class="rh-parchment text-left">
+        <summary class="cursor-pointer">Sound settings</summary>
+        <RulerHookedAudioSettings />
+      </details>
     </header>
 
     <div v-if="showSaves" class="rh-parchment rh-title-screen__panel rh-ledger">

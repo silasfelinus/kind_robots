@@ -71,7 +71,8 @@ function measure() {
     header: box('.kr-system-bar'),
     main: box('.kr-main'),
     hall: box('.arcade-hall'),
-    columns: tracks && tracks !== 'none' ? tracks.trim().split(/\s+/).length : 0,
+    columns:
+      tracks && tracks !== 'none' ? tracks.trim().split(/\s+/).length : 0,
   }
 }
 

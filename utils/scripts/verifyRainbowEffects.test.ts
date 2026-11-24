@@ -313,8 +313,8 @@ const previewSource = readFileSync(
   new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
   'utf8',
 )
-// The hostile-shot halo pass (its soft dark fill; high-contrast shots swap in an opaque one, t-044).
-const haloPass = previewSource.indexOf("'#05030f70'")
+// The hostile-shot halo pass (its default backing; high-contrast shots swap in an opaque one, t-044).
+const haloPass = previewSource.indexOf('const pelletBacking = contrast')
 assert.ok(haloPass > 0, 'the hostile shot halo pass is still drawn')
 assert.ok(
   previewSource.indexOf('drawRainbowBossBloom(g, sparks, calm)') < haloPass,

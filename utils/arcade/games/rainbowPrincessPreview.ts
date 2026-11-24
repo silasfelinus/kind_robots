@@ -61,7 +61,11 @@ import { drawRainbowBossBloom } from './rainbowBossBloom'
 import { drawRainbowDistantParallax } from './rainbowPaintedParallax'
 import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { rainbowPartyMask } from './rainbowPartyComms'
-import { RAINBOW_CONTRAST_PELLET, rainbowCommsLine } from './rainbowComms'
+import {
+  RAINBOW_CONTRAST_PELLET,
+  RAINBOW_DEFAULT_PELLET,
+  rainbowCommsLine,
+} from './rainbowComms'
 import { rainbowShipFilter } from './rainbowLivery'
 import {
   rainbowRouteStinger,
@@ -438,6 +442,19 @@ export const RAINBOW_SHIP_SPEED = 3.4
 const SPEED = RAINBOW_SHIP_SPEED
 const FOCUS_SPEED = SPEED * 0.55
 const CORE_RADIUS = 4
+/** The width of one pilot-status column in the HUD bar. */
+export const HUD_STATUS_COLUMN = 140
+/**
+ * Where a seat's status sits inside the 29 px HUD bar: a solo pilot under the counters on the right; with
+ * more pilots, seats 1-2 fill the right column (rows 12 and 24) and seats 3-4 the column beside it.
+ */
+export function rainbowHudStatusSlot(
+  seat: number,
+  players: number,
+): { column: number; y: number } {
+  if (players <= 1) return { column: 0, y: 24 }
+  return { column: Math.floor(seat / 2), y: seat % 2 === 0 ? 12 : 24 }
+}
 /** B released within this many frames is a tap: the super. Held longer, B is focus (gameplay critic D1). */
 export const SUPER_TAP_FRAMES = 12
 /** Charge each kill refunds (an urchin twice this); grazing is the main source (gameplay critic D2). */
@@ -8374,15 +8391,19 @@ export function createRainbowPrincessPreview(
       // Since t-032 each pellet carries its own dark outline too, so the halo is a softer shadow that lets
       // the family's shape read first.
       // High-contrast shots (t-044) make that halo an opaque black disc with a white ring at its edge.
-      g.fillStyle = contrast ? RAINBOW_CONTRAST_PELLET.halo : '#05030f70'
-      g.strokeStyle = RAINBOW_CONTRAST_PELLET.ring
-      g.lineWidth = RAINBOW_CONTRAST_PELLET.ringWidth
+      // Default shots get a firmer halo and a faint ring too (presentation critic P-11).
+      const pelletBacking = contrast
+        ? RAINBOW_CONTRAST_PELLET
+        : RAINBOW_DEFAULT_PELLET
+      g.fillStyle = pelletBacking.halo
+      g.strokeStyle = pelletBacking.ring
+      g.lineWidth = pelletBacking.ringWidth
       for (const bullet of enemyShots) {
         if (bullet.ghost) continue
         g.beginPath()
         g.arc(bullet.x, bullet.y, RAINBOW_SHOT_HALO_RADIUS, 0, Math.PI * 2)
         g.fill()
-        if (contrast) g.stroke()
+        g.stroke()
       }
       for (const bullet of enemyShots) {
         if (bullet.ghost) {
@@ -8804,7 +8825,9 @@ export function createRainbowPrincessPreview(
         }
         g.strokeStyle = '#fff'
         g.font = 'bold 9px sans-serif'
-        g.strokeText(String(seat + 1), -3, -17)
+        // The seat number sits behind the ship's tail, not above it, so in tight formation it never lands on
+        // the next pilot's hull (presentation critic P-22).
+        g.strokeText(String(seat + 1), -24, 3)
         if (ship.charge >= 100 && Math.floor(tick / 10) % 2 === 0) {
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.font = 'bold 7px monospace'
@@ -8941,7 +8964,7 @@ export function createRainbowPrincessPreview(
             's08',
           ] as const
         )[act - 1]!
-        const top = 33 + Math.max(0, activePlayers - 1) * 10 + 60
+        const top = 33 + 60
         g.save()
         g.globalAlpha =
           Math.min(1, introFrame / 15) *
@@ -9175,7 +9198,8 @@ export function createRainbowPrincessPreview(
       // The comms switch (t-044): full, story scenes only, or off but for the ending.
       const line = rainbowCommsLine(comms, said, callout, scene?.id ?? null)
       const dialogue = line && crewLine(line)
-      const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
+      // Pilot status lives inside the 29 px bar now, so prompts sit just under it for any crew size.
+      const commsTop = 33
       // Silas, 2026-10-20: a comms line takes the HUD bar's place instead of stacking under it, so the
       // conversation covers no more of the playfield than the header already did. The HUD returns after.
       if (!dialogue) {
@@ -9203,25 +9227,32 @@ export function createRainbowPrincessPreview(
           12,
         )
         g.font = '9px monospace'
-        g.fillText(
-          // Short enough to clear P1's status on the right of the same row.
-          'A FIRE · B HOLD FOCUS/TAP SUPER · X SPECIAL · Y EVADE',
-          HUD_LEFT,
-          24,
-        )
+        // The button legend teaches Act I, then gives the bar back (presentation critic P-21); with three or
+        // four pilots their status needs the room.
+        if (act === 1 && activePlayers <= 2)
+          g.fillText(
+            // Short enough to clear P1's status on the right of the same row.
+            'A FIRE · B HOLD FOCUS/TAP SUPER · X SPECIAL · Y EVADE',
+            HUD_LEFT,
+            24,
+          )
         g.textAlign = 'right'
-        g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, HUD_RIGHT, 12)
-        if (activePlayers > 1) {
-          g.fillStyle = '#180d38e8'
-          g.fillRect(HUD_RIGHT - 150, 29, 158, (activePlayers - 1) * 10 + 4)
-        }
+        if (activePlayers <= 2)
+          g.fillText(
+            `SHOALS ${clearCount}  ·  NOVAS ${supers}`,
+            activePlayers === 1 ? HUD_RIGHT : HUD_RIGHT - HUD_STATUS_COLUMN,
+            12,
+          )
+        // Every pilot's status lives inside the 29 px bar, never over the playfield or the boss bar
+        // (gameplay critic D4, presentation critic P-08): pilots 1-2 in the right column, 3-4 beside them.
         for (let seat = 0; seat < activePlayers; seat++) {
           const ship = ships[seat]!
+          const slot = rainbowHudStatusSlot(seat, activePlayers)
           g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.fillText(
             `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`,
-            HUD_RIGHT,
-            24 + seat * 10,
+            HUD_RIGHT - slot.column * HUD_STATUS_COLUMN,
+            slot.y,
           )
         }
         g.textAlign = 'left'

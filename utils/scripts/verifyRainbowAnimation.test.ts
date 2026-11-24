@@ -11,7 +11,10 @@ import {
   rainbowEnemyAtlasPath,
   rainbowInterludePath,
 } from '../arcade/games/rainbowAnimation'
-import { setRainbowLook } from '../arcade/games/rainbowGameArt'
+import {
+  RAINBOW_STAGE_STRIPS,
+  setRainbowLook,
+} from '../arcade/games/rainbowGameArt'
 
 // Conductor rainbow t-030 (GEN2-STANDARD sections 5-6): the living Act title cards. Every listed interlude ships
 // as a small, web-ready H.264 MP4 (moov before mdat so it starts streaming at once), plays only in the Fever Dream
@@ -81,11 +84,8 @@ assert.ok(
   'the interlude keeps its aspect',
 )
 assert.equal(drawn.length, 1, 'one frame drawn')
-assert.equal(
-  drawRainbowInterlude(g, 's04', 0, 0, 200, false),
-  0,
-  'an Act without an interlude draws its still',
-)
+// Every Act's card has its living interlude (S04 joined 2026-11-24 PT from its logo-free card).
+assert.deepEqual([...RAINBOW_INTERLUDES].sort(), [...RAINBOW_STAGE_STRIPS])
 
 // Enemy idle atlases (t-030): each ships as a small webp whose width is exactly `frames` cells of the still's
 // longer side, and plays its cells in order (calm motion holds the first).
@@ -122,6 +122,7 @@ assert.ok(Object.keys(RAINBOW_ENEMY_ATLASES).length >= 2)
 // victory pose, and the engine flashes the hit pose over a ship that loses a life.
 for (const [pilot, poses] of Object.entries(RAINBOW_PILOT_POSES)) {
   assert.ok(poses.includes('victory'), `${pilot} has a victory pose`)
+  assert.ok(poses.includes('hit'), `${pilot} has a hit pose`)
   for (const pose of poses) {
     const bytes = readFileSync(
       new URL(

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { shallowRef } from 'vue'
 import { useUserStore } from './userStore'
+import { matchesCrewTelegraphDimensions } from '~/utils/everyVillainTactics/crewTelegraphMedia'
 
 export type PaintedMapArt = {
   src: string
@@ -91,7 +92,7 @@ export const useEveryVillainTacticsArtStore = defineStore(
      * A successful HTTP response can still be corrupt. Decode the private
      * object URL before exposing it to gameplay as a loaded painting.
      */
-    async function decodeImage(blob: Blob): Promise<string> {
+    async function decodeImage(id: number, blob: Blob): Promise<string> {
       const src = URL.createObjectURL(blob)
       try {
         const image = new Image()
@@ -99,6 +100,14 @@ export const useEveryVillainTacticsArtStore = defineStore(
         await image.decode()
         if (image.naturalWidth <= 0 || image.naturalHeight <= 0)
           throw new Error('Painted art has invalid dimensions')
+        if (
+          !matchesCrewTelegraphDimensions(
+            id,
+            image.naturalWidth,
+            image.naturalHeight,
+          )
+        )
+          throw new Error('Painted art does not match its verified dimensions')
         return src
       } catch (error) {
         URL.revokeObjectURL(src)
@@ -122,7 +131,7 @@ export const useEveryVillainTacticsArtStore = defineStore(
       try {
         const blob = await fetchPrivateImage(id, token, requestGeneration)
         if (requestGeneration !== generation || !blob) return
-        const src = await decodeImage(blob)
+        const src = await decodeImage(id, blob)
         if (requestGeneration !== generation) {
           URL.revokeObjectURL(src)
           return

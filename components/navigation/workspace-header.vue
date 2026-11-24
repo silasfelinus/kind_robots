@@ -265,7 +265,8 @@ const workspaceToggleLabel = computed(() => {
 const slimeCityVsPage = computed(
   () =>
     route.path === '/play/slime-city-pvp' ||
-    ((route.path === '/play/slime-city' || route.path === '/admin/slime-city') &&
+    ((route.path === '/play/slime-city' ||
+      route.path === '/admin/slime-city') &&
       useSlimeCityStore(pinia).view === 'vs'),
 )
 

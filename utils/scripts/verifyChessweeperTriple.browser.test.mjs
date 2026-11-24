@@ -189,7 +189,10 @@ try {
     const [chessLimit, mineLimit] = limits[bracket]
     assert.ok(beginning.chessRemaining > chessLimit - 1)
     assert.ok(beginning.mineRemaining > mineLimit - 1)
-    assert.equal(await page.locator('#mine-time').innerText(), String(mineLimit).padStart(3, '0'))
+    assert.equal(
+      await page.locator('#mine-time').innerText(),
+      String(mineLimit).padStart(3, '0'),
+    )
     assert.equal(await page.locator('#chess-board button').count(), 64)
     assert.equal(await page.locator('#mine-board button').count(), 64)
     await screenshot(page, 'triple-' + width + '-playing')

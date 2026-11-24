@@ -2,12 +2,20 @@ name: Save Plumber Maker Gameplay Contract
 on:
   pull_request:
     paths:
-      - 'utils/arcade/games/savePlumber*.ts'
-      - 'utils/arcade/games/savePlumber*.json'
+      - 'utils/arcade/games/savePlumberMaker.ts'
+      - 'utils/arcade/games/savePlumberLevels.ts'
+      - 'utils/arcade/games/savePlumberPreview.ts'
+      - 'utils/arcade/games/savePlumberWorlds.ts'
+      - 'utils/arcade/games/savePlumberOverworld.ts'
+      - 'utils/arcade/games/savePlumberGen2Worlds.json'
       - 'components/arcade/plumber-level-maker.vue'
       - 'components/arcade/plumber-maker-sidebar.vue'
       - 'stores/savePlumberMakerStore.ts'
-      - 'utils/scripts/verifySavePlumber*.test.ts'
+      - 'utils/scripts/verifySavePlumberMaker.test.ts'
+      - 'utils/scripts/verifySavePlumberMovementReplay.test.ts'
+      - 'utils/scripts/verifySavePlumberOverworld.test.ts'
+      - 'utils/scripts/verifySavePlumberGears.test.ts'
+      - 'utils/scripts/verifySavePlumberPreview.test.ts'
       - '.github/workflows/save-plumber-maker-contract.yml'
 permissions:
   contents: read

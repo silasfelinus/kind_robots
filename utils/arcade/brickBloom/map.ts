@@ -108,4 +108,9 @@ export const HOUSE_CARDS: Readonly<
     pests: 'FROG BOTS AND MIRROR BUGS',
     seed: 'D DUO PADDLE',
   },
+  'night-bloom': {
+    tagline: 'GLASSHOUSE 5 - MIDNIGHT',
+    pests: 'GLOOM PUFFS AND SHADOWS',
+    seed: 'Q QUEENS COMPASS',
+  },
 }

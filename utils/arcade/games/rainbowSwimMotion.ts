@@ -54,3 +54,18 @@ export function applyRainbowSwimMotion(
   g.rotate(pose.bank)
   g.scale(1, pose.stretch)
 }
+
+/**
+ * Conductor rainbow t-011: a craft a shot just hurt flinches, a quick squash that springs back over the
+ * white-flash frames, so a hit reads on the body as well as the colour. Calm motion keeps the flash only.
+ */
+export function rainbowHitFlinch(
+  flash: number,
+  flashFrames: number,
+  calm = false,
+): { x: number; y: number } {
+  if (calm || flash <= 0 || flashFrames <= 0) return { x: 1, y: 1 }
+  const t = Math.min(1, flash / flashFrames)
+  const squash = 0.14 * t * t
+  return { x: 1 - squash, y: 1 + squash * 0.6 }
+}

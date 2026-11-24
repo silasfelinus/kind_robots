@@ -57,7 +57,7 @@ import {
   rainbowLook,
 } from './rainbowGameArt'
 import { drawFeverSky, drawFeverTrail } from './rainbowFeverDream'
-import { applyRainbowSwimMotion } from './rainbowSwimMotion'
+import { applyRainbowSwimMotion, rainbowHitFlinch } from './rainbowSwimMotion'
 import { drawRainbowBossBloom } from './rainbowBossBloom'
 import {
   drawRainbowDistantParallax,
@@ -7358,6 +7358,10 @@ export function createRainbowPrincessPreview(
                         : '#d09ffd'
         g.save()
         applyRainbowSwimMotion(g, reef.kind, tick, calm)
+        if (reef.flash) {
+          const flinch = rainbowHitFlinch(reef.flash, HIT_FLASH_FRAMES, calm)
+          g.scale(flinch.x, flinch.y)
+        }
         if (reef.kind === 'motherdrone') {
           if (!drawRainbowEnemySprite(g, 'motherdrone')) drawMotherlandDrone(g)
         } else if (

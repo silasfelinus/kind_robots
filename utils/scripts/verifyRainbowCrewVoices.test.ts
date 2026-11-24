@@ -297,6 +297,13 @@ assert.equal(
 assert.doesNotMatch(failureLines(1, 0, null)[1]!, /Eclipse/)
 assert.match(failureLines(1, 0, null)[1]!, /Pinkwake/)
 assert.match(failureLines(6, 0, null)[1]!, /Eclipse/)
+// S15: the failure screen counts the finale's six rescues and names palace captives apart.
+assert.match(
+  failureLines(8, 3, 8, 2)[1]!,
+  /3 of our six rescues and 2 palace captives/,
+)
+assert.match(failureLines(8, 0, 8, 1)[1]!, /1 palace captive made it home/)
+assert.match(failureLines(3, 1, 3)[1]!, /1 of our six rescues made it home/)
 {
   const engine = readFileSync(
     new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),

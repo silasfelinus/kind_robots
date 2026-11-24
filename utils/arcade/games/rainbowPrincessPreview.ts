@@ -10093,16 +10093,14 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       if (failFrame !== null) {
+        // One rescue tally everywhere: the finale's six, palace captives named apart (story critic S15).
         const flags = palaceFlags()
-        const rescues =
-          Number(rescuedStation) +
-          Number(flags.rescuedNemi) +
-          Number(flags.rescuedCourier) +
-          Number(flags.freedDepot) +
-          Number(flags.stoppedRelay) +
-          Number(flags.rescuedNavigator) +
-          flags.captivesFreed
-        const lines = failureLines(currentAct(), rescues, savedAct)
+        const lines = failureLines(
+          currentAct(),
+          finaleRescues(flags),
+          savedAct,
+          flags.captivesFreed,
+        )
         g.save()
         g.fillStyle = '#05030fe6'
         g.fillRect(0, 0, W, H)

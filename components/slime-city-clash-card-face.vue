@@ -14,18 +14,26 @@
       :fallback="card.symbol"
       compact
     />
-    <span class="ccf-top">
-      <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
-      <em class="ccf-badge">{{ clashCardBadge(card, level) }}</em>
+    <!--
+      Silas, 2026-11-24 PT (iPad): "On the actual cards, some text isn't being
+      read." The name and the evolved stage title were pinned at fixed
+      heights and clipped to one line ("Catchy H..."). The header now flows
+      top to bottom: plays and badge, the full name, the level pips, then the
+      full stage title, each wrapping instead of truncating.
+    -->
+    <span class="ccf-head">
+      <span class="ccf-top">
+        <b class="ccf-cost">{{ plays }} PLAY{{ plays === 2 ? 'S' : '' }}</b>
+        <em class="ccf-badge">{{ clashCardBadge(card, level) }}</em>
+      </span>
+      <strong class="ccf-name">{{ card.name }}</strong>
+      <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
+        ><i v-for="n in maxLevel" :key="n" :class="{ on: n <= level }" /><b
+          >LV {{ level }}{{ preview ? ' · PREVIEW' : '' }}</b
+        ></span
+      >
+      <em v-if="stageTitle && level > 1" class="ccf-stage">{{ stageTitle }}</em>
     </span>
-    <strong class="ccf-name">{{ card.name }}</strong>
-    <span class="ccf-level" :aria-label="'Level ' + level + ' of ' + maxLevel"
-      ><i v-for="n in maxLevel" :key="n" :class="{ on: n <= level }" /><b
-        >LV {{ level }}{{ preview ? ' · PREVIEW' : '' }}</b
-      ><em v-if="stageTitle && level > 1" class="ccf-stage">{{
-        stageTitle
-      }}</em></span
-    >
     <span class="ccf-rules">
       <small>{{ kind }}</small>
       <span v-if="rules" class="ccf-text">{{ rules }}</span>
@@ -127,24 +135,35 @@ const kind = computed(() =>
   position: absolute;
   inset: 0;
 }
+.ccf-head {
+  position: absolute;
+  top: 3.5cqw;
+  left: 3.5cqw;
+  right: 3.5cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.6cqw;
+  min-width: 0;
+}
 .ccf-stage {
+  max-width: 100%;
+  padding: 1cqw 2.6cqw;
+  border-radius: 2.4cqw;
+  background: #071a20d9;
+  font-size: 6cqw;
   font-style: normal;
   font-weight: 900;
-  letter-spacing: 0.03em;
-  color: #ffe9a8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 52cqw;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: var(--lv);
+  overflow-wrap: anywhere;
 }
 .lv-3 .ccf-stage {
   color: #fff3c4;
   text-shadow: 0 0 2cqw #ffd76a;
 }
 .ccf-level {
-  position: absolute;
-  left: 3.5cqw;
-  top: 36cqw;
   display: flex;
   align-items: center;
   gap: 1.4cqw;
@@ -176,10 +195,7 @@ const kind = computed(() =>
   object-fit: cover;
 }
 .ccf-top {
-  position: absolute;
-  top: 3.5cqw;
-  left: 3.5cqw;
-  right: 3.5cqw;
+  align-self: stretch;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -207,10 +223,8 @@ const kind = computed(() =>
   color: #ffe6a6;
 }
 .ccf-name {
-  position: absolute;
-  top: 19cqw;
-  left: 3.5cqw;
-  right: 3.5cqw;
+  max-width: 100%;
+  margin-top: 1cqw;
   font-size: 8.8cqw;
   line-height: 1.08;
   font-weight: 900;

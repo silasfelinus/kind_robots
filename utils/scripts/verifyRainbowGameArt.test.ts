@@ -424,7 +424,7 @@ assert.ok(
   'calm motion slows the sky with the rest',
 )
 // Whatever has not shipped yet draws nothing: an unshipped sky never crops the strip.
-for (const stage of [...RAINBOW_STAGE_STRIPS, RAINBOW_FINALE_STAGE])
+for (const stage of [...RAINBOW_STAGE_STRIPS, RAINBOW_FINALE_STAGE] as const)
   if (!rainbowStagePlane(stage, 'sky')) {
     assert.equal(drawRainbowStagePlane(g, stage, 'sky', 0, 0, 270), false)
     assert.equal(drawRainbowPaintedSky(g, stage, 0, 1), false)

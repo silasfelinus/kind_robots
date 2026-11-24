@@ -34,9 +34,15 @@ export function createMoonjellyBoss(
   }
 }
 
+/** Frames B02 telegraphs before every volley. */
+export const MOONJELLY_WARNING_FRAMES = 36
+
 /** Telegraph persists at least 36 full frames, including on a phase change. */
 export function moonjellyBossWarning(boss: MoonjellyBoss): boolean {
-  return boss.frame >= boss.nextVolley - 36 && boss.frame < boss.nextVolley
+  return (
+    boss.frame >= boss.nextVolley - MOONJELLY_WARNING_FRAMES &&
+    boss.frame < boss.nextVolley
+  )
 }
 
 export function stepMoonjellyBoss(

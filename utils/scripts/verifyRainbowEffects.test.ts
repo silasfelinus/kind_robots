@@ -53,6 +53,16 @@ import {
   clawburstWarning,
   clawburstWarningFrames,
 } from '../arcade/games/rainbowClawburst'
+import {
+  MOONJELLY_WARNING_FRAMES,
+  createMoonjellyBoss,
+  moonjellyBossWarning,
+} from '../arcade/games/rainbowMoonjellyBoss'
+import {
+  RAINBOW_GUARDIAN,
+  createRainbowGuardian,
+  rainbowGuardianWarning,
+} from '../arcade/games/rainbowGuardian'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
@@ -585,6 +595,64 @@ assert.match(
   previewSource,
   /rainbowBossWindup\(\s*clawBoss\.nextVolley - clawBoss\.frame,\s*clawburstWarningFrames\(clawBoss\),\s*calm,\s*\)/,
   'the B03 draw uses the shared windup',
+)
+
+// B02 Aurelia Array and the act guardians wind up across their own 36-frame cues; a leaving guardian rests.
+{
+  const moon = createMoonjellyBoss()
+  moon.frame = moon.nextVolley - MOONJELLY_WARNING_FRAMES
+  assert.ok(
+    moonjellyBossWarning(moon),
+    'B02 cue is on at the first windup frame',
+  )
+  assert.ok(
+    rainbowBossWindup(moon.nextVolley - moon.frame, MOONJELLY_WARNING_FRAMES)
+      .pull > 0,
+    'B02 begins its windup with the cue',
+  )
+  moon.frame -= 1
+  assert.ok(!moonjellyBossWarning(moon), 'B02 cue is off before the warning')
+  assert.deepEqual(
+    rainbowBossWindup(moon.nextVolley - moon.frame, MOONJELLY_WARNING_FRAMES),
+    restPose,
+    'B02 rests before its warning',
+  )
+  const guardian = createRainbowGuardian('lantern', 1)
+  guardian.frame = guardian.nextVolley - RAINBOW_GUARDIAN.warningFrames
+  assert.ok(
+    rainbowGuardianWarning(guardian),
+    'guardian cue is on at the first windup frame',
+  )
+  assert.ok(
+    rainbowBossWindup(
+      guardian.nextVolley - guardian.frame,
+      RAINBOW_GUARDIAN.warningFrames,
+    ).pull > 0,
+    'a guardian begins its windup with the cue',
+  )
+  guardian.frame -= 1
+  assert.ok(
+    !rainbowGuardianWarning(guardian),
+    'guardian cue is off before the warning',
+  )
+  assert.deepEqual(
+    rainbowBossWindup(
+      guardian.nextVolley - guardian.frame,
+      RAINBOW_GUARDIAN.warningFrames,
+    ),
+    restPose,
+    'a guardian rests before its warning',
+  )
+}
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*moonBoss\.nextVolley - moonBoss\.frame,\s*MOONJELLY_WARNING_FRAMES,\s*calm,\s*\)/,
+  'the B02 draw uses the shared windup',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*guardian\.leaving \? 0 : guardian\.nextVolley - guardian\.frame,\s*RAINBOW_GUARDIAN\.warningFrames,\s*calm,\s*\)/,
+  'guardians use the shared windup and rest while escaping',
 )
 
 console.log(

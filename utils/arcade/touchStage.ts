@@ -48,6 +48,11 @@ export type TouchStagePlan = {
   pauseChip: TouchBox
   /** Room under an upright stage for a prompt to turn the device sideways. */
   hint: TouchBox | null
+  /**
+   * The rest of that room, above the prompt: an upright phone's large-type status readout
+   * (ArcadeGameInstance.readout), so the run's numbers are legible where the canvas HUD is not.
+   */
+  readout: TouchBox | null
 }
 
 const MARGIN = 8
@@ -56,6 +61,8 @@ const TAG = 14
 const CHIP = 41.6
 const CHIP_GAP = 8
 const HINT = 28
+/** The shortest readout worth showing: two rows of large type. */
+const READOUT_MIN = 56
 const REM = 16
 /** Smaller keys are tried when they buy a larger stage, never below this share of the usual key. */
 const KEY_STEPS = [1, 0.9, 0.8]
@@ -225,6 +232,7 @@ function rails(request: TouchStageRequest, p: Parts): TouchStagePlan | null {
       height: CHIP,
     },
     hint: null,
+    readout: null,
   }
 }
 
@@ -309,6 +317,18 @@ function band(
     : area.left + MARGIN
   const hintTop = chipsTop + CHIP + MARGIN
   const hintRoom = bandTop - MARGIN - hintTop
+  const showHint = upright && request.aspect > 1 && hintRoom >= HINT
+  // Upright with room to spare, the readout takes the gap's top and the prompt keeps its bottom.
+  const readoutHeight = showHint ? hintRoom - HINT - MARGIN : 0
+  const readout =
+    readoutHeight >= READOUT_MIN
+      ? {
+          left: area.left + MARGIN,
+          top: hintTop,
+          width: area.width - MARGIN * 2,
+          height: readoutHeight,
+        }
+      : null
   return {
     kind: 'band',
     key: p.key,
@@ -329,15 +349,17 @@ function band(
       width: CHIP,
       height: CHIP,
     },
-    hint:
-      upright && request.aspect > 1 && hintRoom >= HINT
-        ? {
-            left: area.left + MARGIN,
-            top: hintTop + (hintRoom - HINT) / 2,
-            width: area.width - MARGIN * 2,
-            height: HINT,
-          }
-        : null,
+    hint: showHint
+      ? {
+          left: area.left + MARGIN,
+          top: readout
+            ? readout.top + readout.height + MARGIN
+            : hintTop + (hintRoom - HINT) / 2,
+          width: area.width - MARGIN * 2,
+          height: HINT,
+        }
+      : null,
+    readout,
   }
 }
 

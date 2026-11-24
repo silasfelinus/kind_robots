@@ -211,8 +211,8 @@ for (let frame = 0; frame < 400000 && game.snapshot.act !== 'S09'; frame++) {
   texts.length = 0
   game.render(g)
   for (const text of texts) {
-    const header = /^X\d\.\w+ \/ ([^·]+?)(?: ·.*)?$/.exec(text)
-    if (header) speakers.add(header[1]!.trim().toUpperCase())
+    const speaker = /^X\d\.\w+ \/ ([^·]+?)(?: ·.*)?$/.exec(text)?.[1]
+    if (speaker) speakers.add(speaker.trim().toUpperCase())
   }
 }
 assert.ok(detours.size > 0, 'the solo crew flew a detour')

@@ -4,6 +4,7 @@ import {
   DELPHION,
   DELPHION_MAX_HP,
   createDelphionBoss,
+  delphionCore,
   delphionExposed,
   delphionLeapLanes,
   delphionWarning,
@@ -209,7 +210,11 @@ assert.equal(rainbowBossHp(DELPHION_MAX_HP, 1), 488)
     const shots = stepDelphionBoss(boss, targets)
     if (boss.phase === 3 && shots.length) {
       rings++
-      assert.equal(shots.length, 11, 'a 14-pellet ring with a 3-pellet gap')
+      const core = delphionCore(boss)
+      const ring = shots.filter((shot) => shot.x === core.x)
+      assert.equal(ring.length, 11, 'a 14-pellet ring with a 3-pellet gap')
+      // Each wide twin adds a three-pellet aimed fan, so no lane is a place to wait the fight out.
+      assert.equal(shots.length - ring.length, 6, 'two aimed twin fans')
       assert.ok(delphionExposed(boss), 'the link core opens after the ring')
     }
   }

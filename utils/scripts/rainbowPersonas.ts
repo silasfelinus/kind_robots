@@ -10,6 +10,8 @@
 //   typical    dodges every frame (sees 20 frames ahead), holds fire, fires the super when it is charged
 //   no-super   the typical player who never presses B
 //   expert     typical, plus focus in dense fire and an evade when a pellet cannot be dodged
+//   camper     typical until a boss is on screen, then parks in its lane and only holds fire (a stalled boss
+//              fight shows up as a long fight with no hits either way)
 //
 // Each persona can take every continue offered or none. A run records hits and lives lost by Act, continues,
 // where it ended (THE END, the failure ending, or the frame cap) and how long it took, so pacing and difficulty
@@ -27,6 +29,7 @@ export const RAINBOW_PERSONAS = [
   'typical',
   'no-super',
   'expert',
+  'camper',
 ] as const
 export type RainbowPersona = (typeof RAINBOW_PERSONAS)[number]
 
@@ -49,6 +52,8 @@ export type PersonaRun = {
   finalChoice: string | null
   /** Each continue resumed at the Act of the checkpoint it was offered from. */
   resumes: { from: string; to: string }[]
+  /** Each boss fight: the Act, how long a boss body stayed on screen, and the hits the crew took meanwhile. */
+  bossFights: { act: string; frames: number; hits: number }[]
 }
 
 type Snap = ReturnType<typeof createRainbowPrincessPreview>['snapshot']
@@ -184,6 +189,10 @@ function danger(
       if (d < 40) risk += (40 - d) * 30 * soon
     }
     if (t === look) {
+      // With nothing to dodge, a pilot lines up on the nearest boss body ahead to hit it.
+      const ahead = big.filter((body) => body.x > x + 40)
+      if (ahead.length)
+        risk += Math.min(...ahead.map((body) => Math.abs(body.y - y))) * 0.6
       risk += Math.max(0, 44 - y) * 4 + Math.max(0, y - (H - 40)) * 4
       risk += Math.abs(x - 90) * 0.5
     }
@@ -226,6 +235,7 @@ export function flyPersona(
 ): PersonaRun {
   const game = createRainbowPrincessPreview({
     players: crew,
+    demo: false,
     rng: seeded(seed),
     sound: { play() {} },
     hiScore: 0,
@@ -244,6 +254,8 @@ export function flyPersona(
     shield: s.shield,
   }))
   const motion = new Map<string, Body>()
+  const bossFights: { act: string; frames: number; hits: number }[] = []
+  let fight: { act: string; frames: number; hits: number } | null = null
   let frame = 0
   for (; frame < cap && !game.over; frame++) {
     const snap = game.snapshot
@@ -251,6 +263,13 @@ export function flyPersona(
     const where = act(snap)
     if (acts.at(-1) !== where) acts.push(where)
     const big = bodies(snap, motion)
+    if (big.length && snap.continueLeft === 0) {
+      if (!fight || fight.act !== where) {
+        fight = { act: where, frames: 0, hits: 0 }
+        bossFights.push(fight)
+      }
+      fight.frames++
+    } else if (!big.length) fight = null
     const seats: InputFrame[] = []
     for (let seat = 0; seat < crew; seat++) {
       const input = emptyInput()
@@ -264,7 +283,8 @@ export function flyPersona(
       input.held.a = true
       if (persona !== 'idle' && ship.lives > 0) {
         const decides = persona === 'novice' ? frame % 18 === seat : true
-        if (decides)
+        if (persona === 'camper' && big.length) held[seat] = [0, 0]
+        else if (decides)
           held[seat] = choose(
             snap,
             big,
@@ -327,6 +347,7 @@ export function flyPersona(
         (ship.lives === before.lives && ship.shield < before.shield)
       ) {
         hits[where] = (hits[where] ?? 0) + 1
+        if (fight) fight.hits++
         onHit?.(snap, seat, where)
       }
     })
@@ -355,5 +376,6 @@ export function flyPersona(
     supers,
     finalChoice: s.finalChoice,
     resumes,
+    bossFights,
   }
 }

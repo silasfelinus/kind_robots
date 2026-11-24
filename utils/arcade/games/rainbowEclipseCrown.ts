@@ -204,13 +204,14 @@ export function stepEclipseCrownBoss(
     // only ever fires down 18 fixed bearings, so a crew parked between them was never hit. The spokes are still
     // marked for the whole warning, so the aimed volley reads as clearly as the walking one.
     const living = targets.filter((ship) => ship.lives > 0)
-    const nearest = living.reduce(
+    const nearest = living.reduce<(typeof living)[number] | null>(
       (best, ship) =>
+        !best ||
         Math.hypot(ship.x - boss.x, ship.y - boss.y) <
-        Math.hypot(best.x - boss.x, best.y - boss.y)
+          Math.hypot(best.x - boss.x, best.y - boss.y)
           ? ship
           : best,
-      living[0] ?? null,
+      null,
     )
     boss.spokeAngle =
       nearest && boss.volleys % 2 === 1

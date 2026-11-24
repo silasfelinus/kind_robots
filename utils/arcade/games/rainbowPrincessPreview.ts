@@ -4071,11 +4071,7 @@ export function createRainbowPrincessPreview(
       frame >= section.from &&
       frame < section.to - RAINBOW_GUARDIAN.escapeLead
     ) {
-      guardian = createRainbowGuardian(
-        section.kind,
-        activePlayers,
-        currentAct(),
-      )
+      guardian = createRainbowGuardian(section.kind, activePlayers)
       guardian.maxHp = guardian.hp = Math.max(
         1,
         Math.round(guardian.maxHp * level.bossHp),
@@ -4634,11 +4630,7 @@ export function createRainbowPrincessPreview(
         nurseryGuardianOutcome === 'waiting' &&
         frame < NURSERY_GUARDIAN.to - RAINBOW_GUARDIAN.escapeLead
       ) {
-        guardian = createRainbowGuardian(
-          'kelpwarden',
-          activePlayers,
-          currentAct(),
-        )
+        guardian = createRainbowGuardian('kelpwarden', activePlayers)
         guardian.maxHp = guardian.hp = Math.max(
           1,
           Math.round(guardian.maxHp * level.bossHp),
@@ -4794,11 +4786,7 @@ export function createRainbowPrincessPreview(
         guardian === null &&
         lighthouseGuardianOutcome === 'waiting'
       ) {
-        guardian = createRainbowGuardian(
-          'lampkeeper',
-          activePlayers,
-          currentAct(),
-        )
+        guardian = createRainbowGuardian('lampkeeper', activePlayers)
         guardian.maxHp = guardian.hp = Math.max(
           1,
           Math.round(guardian.maxHp * level.bossHp),
@@ -4878,11 +4866,7 @@ export function createRainbowPrincessPreview(
         shoalGuardianOutcome === 'waiting' &&
         frame < SHOAL_GUARDIAN.to - RAINBOW_GUARDIAN.escapeLead
       ) {
-        guardian = createRainbowGuardian(
-          'shoalkoi',
-          activePlayers,
-          currentAct(),
-        )
+        guardian = createRainbowGuardian('shoalkoi', activePlayers)
         guardian.maxHp = guardian.hp = Math.max(
           1,
           Math.round(guardian.maxHp * level.bossHp),

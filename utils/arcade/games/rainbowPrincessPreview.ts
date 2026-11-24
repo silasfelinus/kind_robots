@@ -87,6 +87,8 @@ import {
 import {
   RAINBOW_HIT_CARD_FRAMES,
   drawRainbowEnemyFrame,
+  drawRainbowEndingMotion,
+  rainbowEndingPlateName,
   drawRainbowInterlude,
   drawRainbowPose,
 } from './rainbowAnimation'
@@ -9684,14 +9686,25 @@ export function createRainbowPrincessPreview(
           g.textAlign = 'left'
           // The painted plate for the choice the crew flew sits under the ending's lines, captioned by road.
           const plateX = (W - ENDING_PLATE_WIDTH) / 2
-          const plateHeight = drawRainbowEndingPlate(
-            g,
-            finalChoice ?? 'evacuate',
-            plateX,
-            ENDING_PLATE_TOP,
-            ENDING_PLATE_WIDTH,
-            allegiance,
-          )
+          // A reviewed one-shot clip of the plate plays where one shipped (P-03); otherwise the still.
+          const plateHeight =
+            drawRainbowEndingMotion(
+              g,
+              rainbowEndingPlateName(finalChoice ?? 'evacuate', allegiance),
+              plateX,
+              ENDING_PLATE_TOP,
+              ENDING_PLATE_WIDTH,
+              calm,
+              endingFrame ?? 0,
+            ) ||
+            drawRainbowEndingPlate(
+              g,
+              finalChoice ?? 'evacuate',
+              plateX,
+              ENDING_PLATE_TOP,
+              ENDING_PLATE_WIDTH,
+              allegiance,
+            )
           if (plateHeight) {
             const captionY = ENDING_PLATE_TOP + plateHeight - 15
             g.fillStyle = '#160b34d9'

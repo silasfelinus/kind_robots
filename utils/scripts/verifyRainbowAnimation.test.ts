@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync, statSync } from 'node:fs'
 import {
+  RAINBOW_ENDING_MOTION,
   RAINBOW_ENEMY_ATLASES,
+  rainbowEndingMotionPath,
+  rainbowEndingPlateName,
   RAINBOW_HIT_CARD_FRAMES,
   RAINBOW_PILOT_POSES,
   rainbowPosePath,
@@ -211,11 +214,28 @@ for (const [key, frames] of Object.entries(RAINBOW_IDLE_ATLASES)) {
   assert.equal(bytes.subarray(8, 12).toString('latin1'), 'WEBP')
   assert.ok(bytes.length / 1024 < 200, `${key} atlas stays small`)
 }
+// P-03: endings move where a reviewed clip shipped, and each clip is named after the plate its ending shows.
+assert.equal(rainbowEndingPlateName('restore', 'loyal'), 'loyal-restore')
+assert.equal(rainbowEndingPlateName('sever', 'rebel'), 'sever-open')
+assert.equal(rainbowEndingPlateName('evacuate', null), 'evacuate')
+for (const name of RAINBOW_ENDING_MOTION) {
+  const clip = readFileSync(
+    new URL(`../../public${rainbowEndingMotionPath(name)}`, import.meta.url),
+  )
+  assert.equal(
+    clip.subarray(4, 8).toString('latin1'),
+    'ftyp',
+    `${name} is an MP4`,
+  )
+  assert.ok(clip.length / 1024 < 600, `${name} clip stays small`)
+}
+
 const engineClock = readFileSync(
   new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
   'utf8',
 )
 assert.match(engineClock, /setRainbowAnimationClock\(tick, calm\)/)
+assert.match(engineClock, /drawRainbowEndingMotion\(/)
 
 console.log(
   `rainbow animation: ok (interludes ${RAINBOW_INTERLUDES.join(', ')}; idle atlases ${Object.keys(RAINBOW_ENEMY_ATLASES).join(', ')}; poses ${Object.values(RAINBOW_PILOT_POSES).flat().length})`,

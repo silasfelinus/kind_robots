@@ -6437,10 +6437,10 @@ export function createRainbowPrincessPreview(
       // Fever Dream: the neon school-folder sky replaces the classic bubbles (decoration only).
       const fever = rainbowLook() === 'fever'
       if (fever) drawFeverSky(g, currentAct(), tick, drift)
-      for (let plane = 0; plane < (fever ? 0 : 4); plane++) {
-        g.fillStyle = ['#f2d6ff88', '#9ffffa44', '#fff5c444', '#ffe6f277'][
-          plane
-        ]!
+      // Classic drifting motes: only the two far planes, small and faint, so nothing ambient is the size or
+      // brightness of a hostile pellet (presentation critic P-10).
+      for (let plane = 0; plane < (fever ? 0 : 2); plane++) {
+        g.fillStyle = ['#f2d6ff33', '#9ffffa2e'][plane]!
         const speed = [0.15, 0.34, 0.72, 1.3][plane]!
         for (let i = 0; i < 16; i++) {
           const x =
@@ -6619,16 +6619,28 @@ export function createRainbowPrincessPreview(
             g.fill()
           }
         }
-        g.strokeStyle = '#ffb3c855'
-        g.lineWidth = 2
+        // Dock cranes as solid silhouettes (presentation critic P-13: the old one-pixel outlines read as debug
+        // bounds): a lattice tower, a jib with its counterweight, the cab and a hook on its cable.
         for (let i = 0; i < 3; i++) {
           const x = ((((i * 230 - frame * drift * 0.3) % 690) + 690) % 690) - 60
+          g.fillStyle = '#2a1028d9'
+          g.fillRect(x - 4, 70, 9, H - 110)
+          g.fillRect(x - 24, 64, 98, 7)
+          g.fillRect(x - 24, 71, 14, 9)
+          g.fillRect(x - 6, 54, 14, 11)
+          g.strokeStyle = '#5a2a48'
+          g.lineWidth = 1
           g.beginPath()
-          g.moveTo(x, H - 40)
-          g.lineTo(x, 70)
-          g.lineTo(x + 70, 70)
-          g.lineTo(x + 70, 92)
+          for (let y = 76; y < H - 46; y += 14) {
+            g.moveTo(x - 4, y)
+            g.lineTo(x + 5, y + 14)
+          }
+          g.moveTo(x + 66, 71)
+          g.lineTo(x + 66, 96)
           g.stroke()
+          g.fillStyle = '#ffb3c844'
+          g.fillRect(x - 24, 64, 98, 1)
+          g.fillRect(x + 62, 96, 8, 4)
         }
       } else if (cometActive()) {
         // The comet tail streaks past in speed-surges without tinting hostile bullets.

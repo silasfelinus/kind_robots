@@ -334,7 +334,9 @@ for (const [code, target] of [
   const index = CAMPAIGN.findIndex((stage) => stage.code === code)
   const node = stageNode(code)!
   assert.ok(SECRET_EXITS_READY.has(node.id), code)
-  const prior = CAMPAIGN.slice(0, index).map((stage) => stageNode(stage.code)!.id)
+  const prior = CAMPAIGN.slice(0, index).map(
+    (stage) => stageNode(stage.code)!.id,
+  )
   const run = createSavePlumberPreview(
     options({
       v: 3,

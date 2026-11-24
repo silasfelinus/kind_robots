@@ -561,6 +561,8 @@ export class PlumberRun implements ArcadeGameInstance {
   tokensOnMap: Token[] = []
   checkpoints: Checkpoint[] = []
   goal: { x: number; y: number } | null = null
+  secretGoal: { x: number; y: number } | null = null
+  private clearExit: 'normal' | 'secret' = 'normal'
   valves: { x: number; y: number; open: boolean }[] = []
   boss: Boss | null = null
   waves: Wave[] = []
@@ -813,7 +815,7 @@ export class PlumberRun implements ArcadeGameInstance {
       case 'clear':
         if (!this.modeTimer) {
           if (this.customLevel) this.over = true
-          else this.nextStage()
+          else this.nextStage(this.clearExit)
         }
         return
       case 'victory':
@@ -1144,6 +1146,13 @@ export class PlumberRun implements ArcadeGameInstance {
     this.carrying = false
     this.windy = new Uint8Array(stage.cols)
     this.goal = null
+    this.secretGoal = def.secretExit
+      ? {
+          x: def.secretExit.col * TILE + TILE / 2,
+          y: (def.secretExit.row + 1) * TILE,
+        }
+      : null
+    this.clearExit = 'normal'
     this.boss = null
     this.locked = false
     let lift = 0
@@ -1792,6 +1801,15 @@ export class PlumberRun implements ArcadeGameInstance {
       if (hero.x > (this.stage.cols - ENDLESS_PAD / 2) * TILE)
         return this.nextZone()
     }
+    if (
+      !this.autopilot &&
+      this.secretGoal &&
+      keys.pressed.down &&
+      this.ground &&
+      Math.abs(this.secretGoal.x - hero.x) < 12 &&
+      Math.abs(hero.y + TALL - this.secretGoal.y) < 4
+    )
+      return this.stageClear('secret')
     if (
       this.goal &&
       Math.abs(this.goal.x - hero.x) < 16 &&
@@ -3489,8 +3507,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.setMode('play')
   }
 
-  private stageClear() {
+  private stageClear(exit: 'normal' | 'secret' = 'normal') {
     if (this.mode !== 'play') return
+    this.clearExit = exit
     this.cleared.push(this.stage.code)
     if (!this.endless) {
       if (this.stageHits === 0) this.feat('full-hearts')
@@ -4105,7 +4124,11 @@ export class PlumberRun implements ArcadeGameInstance {
         this.renderStage(g)
         if (this.mode === 'intro') this.renderIntro(g)
         if (this.mode === 'clear')
-          this.renderBanner(g, 'STAGE CLEAR', `+${1000 + this.hearts * 200}`)
+          this.renderBanner(
+            g,
+            this.clearExit === 'secret' ? 'SECRET EXIT!' : 'STAGE CLEAR',
+            `+${1000 + this.hearts * 200}`,
+          )
         if (this.mode === 'over' && this.endless)
           this.renderBanner(
             g,
@@ -5526,6 +5549,11 @@ export class PlumberRun implements ArcadeGameInstance {
         g.fillStyle = flag.reached ? '#8ad66b' : '#e6798b'
         g.fillRect(flag.x + 2, flag.y - 30, 12, 8)
       }
+    }
+    if (this.secretGoal) {
+      const { x, y } = this.secretGoal
+      drawSprite(g, PLUMBER_ART.prop('goal-valve'), x, y, 30)
+      this.text(g, '↓ SECRET EXIT', x, y - 34, 10, '#ff9fd6')
     }
     if (
       this.goal &&

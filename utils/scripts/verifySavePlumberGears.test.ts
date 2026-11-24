@@ -131,6 +131,13 @@ CAMPAIGN.forEach((def, index) => {
     touched[gear.row * cols + gear.col],
     `${def.code}'s Golden Gear is reachable with plain moves`,
   )
+  if (def.secretExit) {
+    const { col, row } = def.secretExit
+    assert.ok(
+      touched[row * cols + col],
+      `${def.code}'s secret exit is reachable`,
+    )
+  }
   for (const power of spawns.filter(
     (s) => s.kind === 'heart' || s.kind.startsWith('power'),
   ))

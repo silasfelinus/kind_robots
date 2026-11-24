@@ -1667,7 +1667,7 @@ export class PlumberRun implements ArcadeGameInstance {
         if (Math.abs(next) > top)
           next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
         hero.vx = next
-      } else hero.vx *= onIce ? 0.965 : 0.77
+      } else hero.vx *= onIce ? 0.965 : this.ground ? 0.77 : 0.96
       if (Math.abs(hero.vx) < 0.05) hero.vx = 0
       if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
       if (!this.stage.space && keys.pressed.y) this.useSpecial()

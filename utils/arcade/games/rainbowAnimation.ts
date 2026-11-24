@@ -6,7 +6,7 @@
 // title cards come alive as short looping interludes, and each pilot has painted hit and victory poses. Every
 // piece is optional: until its file has loaded, or under calm motion, the reviewed still plays instead. Bullets
 // stay crisp code-drawn shapes; animation is for craft, pilots and scenes.
-import type { RainbowStageStrip } from './rainbowGameArt'
+import type { RainbowStage, RainbowStageStrip } from './rainbowGameArt'
 import {
   rainbowArt,
   rainbowDoodleLoadedArt,
@@ -99,14 +99,14 @@ export const RAINBOW_INTERLUDES: readonly RainbowStageStrip[] = [
   's08',
 ]
 
-export function rainbowInterludePath(stage: RainbowStageStrip): string {
+export function rainbowInterludePath(stage: RainbowStage): string {
   return `/rainbow-princess-video/interludes/${stage}.mp4`
 }
 
 const videos = new Map<string, HTMLVideoElement | null>()
 /** The playing interlude for this Act, or null while it loads, without video support, or with none. */
-function interlude(stage: RainbowStageStrip): HTMLVideoElement | null {
-  if (!RAINBOW_INTERLUDES.includes(stage)) return null
+function interlude(stage: RainbowStage): HTMLVideoElement | null {
+  if (!(RAINBOW_INTERLUDES as readonly string[]).includes(stage)) return null
   let video = videos.get(stage)
   if (video === undefined) {
     video = null
@@ -132,7 +132,7 @@ function interlude(stage: RainbowStageStrip): HTMLVideoElement | null {
  */
 export function drawRainbowInterlude(
   g: CanvasRenderingContext2D,
-  stage: RainbowStageStrip,
+  stage: RainbowStage,
   x: number,
   y: number,
   width: number,

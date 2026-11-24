@@ -36,12 +36,23 @@ export function failureLines(
   act: number,
   rescues: number,
   savedAct: number | null,
+  /** Palace captives freed, named apart from the six rescues (story critic S15). */
+  captives = 0,
 ): string[] {
   const region = RAINBOW_REGIONS[Math.max(1, Math.min(9, act)) - 1]!
+  // The same tally as the finale verdict: the six route rescues, with any palace captives named on their own.
+  const tally = [
+    rescues > 0 ? `${rescues} of our six rescues` : '',
+    captives > 0
+      ? `${captives} palace captive${captives === 1 ? '' : 's'}`
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' and ')
   return [
     `LILT-7: I've lost every signal over ${region}. Aurora Mercy is pulling back.`,
-    rescues > 0
-      ? `LILT-7: ${rescues} rescue${rescues === 1 ? '' : 's'} made it home because of you. They'll keep the lights on.`
+    tally
+      ? `LILT-7: ${tally} made it home because of you. They'll keep the lights on.`
       : act <= 2
         ? `LILT-7: No one out over ${region} is lost for good. We will come back for them.`
         : 'LILT-7: No one is lost for good while the Eclipse still sings. We will come back for them.',

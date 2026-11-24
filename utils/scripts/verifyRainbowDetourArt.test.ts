@@ -3,8 +3,10 @@ import { existsSync, readFileSync } from 'node:fs'
 import { cometCheckpointValid } from '../arcade/games/rainbowCoralComet'
 import {
   RAINBOW_DETOUR_PLANES,
+  RAINBOW_DETOUR_SKY_PAN,
   rainbowDetourBands,
   rainbowDetourPlanePaths,
+  rainbowDetourSkyOffset,
 } from '../arcade/games/rainbowDetourPlanes'
 import { RAINBOW_DOODLE_ART } from '../arcade/games/rainbowDoodleArt'
 import { RAINBOW_HAZARD_SPRITES } from '../arcade/games/rainbowGameArt'
@@ -62,6 +64,37 @@ for (const detour of ['x1', 'x2', 'x3', 'x4'] as const) {
     assert.ok(bands[i]!.alpha > bands[i - 1]!.alpha)
   }
   assert.ok(RAINBOW_DETOUR_PLANES[detour].sky <= 0.6, 'the sky stays muted')
+}
+
+// The sky drifts (presentation review P-04: the top half of X3 moved 0 px): slower than any band, only ever
+// across its own overscan margin, so the field is always covered, and calm motion slows it with the rest.
+{
+  const { overscan, period } = RAINBOW_DETOUR_SKY_PAN
+  const margin = (overscan - 1) * 480
+  const offsets = Array.from({ length: 49 }, (_, i) =>
+    rainbowDetourSkyOffset((i * period) / 48, 1),
+  )
+  for (const offset of offsets)
+    assert.ok(
+      offset >= 0 && offset <= margin + 1e-9,
+      'the sky covers the field',
+    )
+  assert.ok(Math.max(...offsets) - Math.min(...offsets) > margin * 0.99)
+  const fastest = Math.max(
+    ...offsets.slice(1).map((offset, i) => Math.abs(offset - offsets[i]!)),
+  )
+  const farBand = rainbowDetourBands('x3', 48, 1)[0]!.scroll / 48
+  assert.ok(
+    fastest / (period / 48) < farBand,
+    'the sky drifts slower than the far band',
+  )
+  assert.ok(rainbowDetourSkyOffset(600, 1) > 1, 'the sky moves within seconds')
+  assert.ok(
+    Math.abs(
+      rainbowDetourSkyOffset(600, 0.3) - rainbowDetourSkyOffset(180, 1),
+    ) < 1e-9,
+    'calm motion slows the sky',
+  )
 }
 
 // Drawn in the engine: a stand-in Image that is loaded at once lets the real draw path run, and a recording

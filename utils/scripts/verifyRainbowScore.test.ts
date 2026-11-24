@@ -141,7 +141,7 @@ assert.equal(
 const lines = failureLines(4, 1, 3)
 assert.equal(lines.length, 3)
 assert.ok(lines[0]!.includes(RAINBOW_REGIONS[3]))
-assert.ok(lines[1]!.includes('1 rescue made'))
+assert.ok(lines[1]!.includes('1 of our six rescues made'))
 assert.ok(lines[2]!.includes('Act III'))
 assert.ok(failureLines(9, 0, 9)[2]!.includes('the finale'))
 assert.ok(failureLines(1, 0, null)[2]!.includes('Pinkwake waits'))

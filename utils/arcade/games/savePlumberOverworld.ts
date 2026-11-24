@@ -290,7 +290,7 @@ export function stageNode(code: string): MapNode | undefined {
 
 /** A node she can play today. */
 export function nodeBuilt(node: MapNode | undefined): boolean {
-  return !!node?.stage
+  return !!node?.stage || node?.id === '1-c'
 }
 
 function cleared(id: string, exit: StageExit, progress: MapProgress) {
@@ -427,7 +427,7 @@ export function worldCompletion(
     world,
     stages: built.length,
     stagesDone: built.filter((n) => done.has(n.id)).length,
-    gears: built.length,
+    gears: built.filter((n) => n.stage).length,
     gearsFound: built.filter((n) => progress.gears?.includes(n.stage!)).length,
     secrets: secrets.length,
     secretsFound: secrets.filter((n) => progress.secrets?.includes(n.id))

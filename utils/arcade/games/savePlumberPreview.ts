@@ -34,6 +34,7 @@ import {
   SOLID_FRAGILE_ICE,
   TILE,
   CAMPAIGN,
+  VERDIGRIS_CHAPEL,
   parseStage,
   stageWorld,
   type Stage,
@@ -601,6 +602,7 @@ export class PlumberRun implements ArcadeGameInstance {
   /** One flag per column: 1 where a wind corridor blows. */
   windy: Uint8Array = new Uint8Array(0)
   private solid!: Uint8Array
+  private inactiveSwitchBlocks = new Set<number>()
   /** The tick tile lookups answer for; the jump predictor sets it ahead. */
   private clock: number | null = null
   private pilotStuck = 0
@@ -969,6 +971,13 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!(keys.pressed.a || keys.pressed.start)) return
     const node = mapNode(this.mapNodeId)
     if (!node || node.kind === 'start') return
+    if (node.id === VERDIGRIS_CHAPEL.code) {
+      this.sound.play('level')
+      this.loadDef(VERDIGRIS_CHAPEL)
+      this.watchStage()
+      this.setMode('intro', 150)
+      return
+    }
     if (!node.stage) {
       // Designed (GEN2-WORLDS.md) but not built yet: say so, never block.
       this.mapToast = 90
@@ -1116,6 +1125,17 @@ export class PlumberRun implements ArcadeGameInstance {
     const stage = parseStage(def)
     this.stage = stage
     this.solid = stage.solid.slice()
+    this.inactiveSwitchBlocks.clear()
+    if (!this.customLevel && !this.endless && !this.autopilot) {
+      for (const block of def.switchBlocks ?? []) {
+        for (let col = block.from; col <= block.to; col++) {
+          const cell = block.row * stage.cols + col
+          if (this.solid[cell]) continue
+          if (this.done.has(block.chapel)) this.solid[cell] = SOLID_BLOCK
+          else this.inactiveSwitchBlocks.add(cell)
+        }
+      }
+    }
     this.platforms = []
     this.foes = []
     this.vents = []
@@ -3504,6 +3524,8 @@ export class PlumberRun implements ArcadeGameInstance {
     const flags = this.checkpoints.map((f) => f.reached)
     const stageCheckpoint = this.checkpoint
     if (this.customLevel) this.loadDef(this.customLevel)
+    else if (this.stage.code === VERDIGRIS_CHAPEL.code)
+      this.loadDef(VERDIGRIS_CHAPEL)
     else this.loadStage(this.stageIndex)
     this.checkpoints.forEach((f, i) => {
       f.reached = flags[i] ?? false
@@ -4531,7 +4553,7 @@ export class PlumberRun implements ArcadeGameInstance {
         'COMING SOON',
         `${here.name} is designed and on its way. Walk on!`,
       )
-    else if (here.stage && !this.mapWalk) {
+    else if (nodeBuilt(here) && !this.mapWalk) {
       const hop = Math.abs(Math.sin(this.tick / 10)) * 4
       g.fillStyle = '#ffd98a'
       g.strokeStyle = '#1b3440'
@@ -4706,7 +4728,9 @@ export class PlumberRun implements ArcadeGameInstance {
       g,
       this.endless
         ? `${this.member.name}  ·  ONE LIFE  ·  HOW FAR CAN YOU RUN?`
-        : `${this.member.name}  ×${this.lives}`,
+        : this.stage.code === VERDIGRIS_CHAPEL.code
+          ? 'REACH THE VALVE TO SOLIDIFY VERDIGRIS BLOCKS'
+          : `${this.member.name}  ×${this.lives}`,
       W / 2,
       172,
       12,
@@ -4982,7 +5006,11 @@ export class PlumberRun implements ArcadeGameInstance {
 
   private renderStage(g: CanvasRenderingContext2D) {
     const max = Math.max(1, this.stage.cols * TILE - W)
-    this.plate(g, this.stage.code, this.camera / max)
+    this.plate(
+      g,
+      this.stage.code === VERDIGRIS_CHAPEL.code ? '1-1' : this.stage.code,
+      this.camera / max,
+    )
     if (this.stage.space) this.renderSpaceBackdrop(g)
     const wash = g.createLinearGradient(0, 0, 0, H)
     wash.addColorStop(0, 'rgba(214, 247, 236, 0.08)')
@@ -5252,10 +5280,15 @@ export class PlumberRun implements ArcadeGameInstance {
     const bottom = Math.min(this.stage.rows - 1, top + Math.ceil(H / TILE) + 1)
     for (let row = top; row <= bottom; row++)
       for (let col = first; col <= last; col++) {
-        const s = this.solid[row * this.stage.cols + col]!
-        if (!s) continue
+        const cell = row * this.stage.cols + col
+        const s = this.solid[cell]!
         const x = col * TILE
         const y = row * TILE
+        if (this.inactiveSwitchBlocks.has(cell)) {
+          g.strokeStyle = '#76e1ad'
+          g.strokeRect(x + 1, y + 1, TILE - 2, TILE - 2)
+        }
+        if (!s) continue
         const above = this.solidAt(col, row - 1)
         if (s === SOLID_WATER) {
           g.fillStyle = 'rgba(46, 128, 196, 0.86)'

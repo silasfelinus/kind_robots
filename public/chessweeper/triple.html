@@ -20,8 +20,22 @@
           <div class="status-strip survival-strip">
             <output id="hearts" aria-label="Shared lives">♥♥♥</output>
             <div class="mini-controls">
-              <button id="pause" class="hud-button" title="Pause and settings" aria-label="Pause and settings">⚙</button>
-              <button id="rankings" class="hud-button" title="Global leaderboard" aria-label="Global leaderboard">🏆</button>
+              <button
+                id="pause"
+                class="hud-button"
+                title="Pause and settings"
+                aria-label="Pause and settings"
+              >
+                ⚙
+              </button>
+              <button
+                id="rankings"
+                class="hud-button"
+                title="Global leaderboard"
+                aria-label="Global leaderboard"
+              >
+                🏆
+              </button>
             </div>
           </div>
           <canvas
@@ -36,19 +50,46 @@
         <section class="play-panel chess-panel" aria-label="Chess game">
           <div class="status-strip chess-strip">
             <output id="clock" aria-label="Shared time left">02:00</output>
-            <output id="total" aria-label="Total score" title="Total score">0</output>
+            <output id="total" aria-label="Total score" title="Total score"
+              >0</output
+            >
           </div>
-          <div id="chess-board" class="tile-grid chess-board" role="group" aria-label="Chessboard"></div>
+          <div
+            id="chess-board"
+            class="tile-grid chess-board"
+            role="group"
+            aria-label="Chessboard"
+          ></div>
           <span id="chess-status" class="sr-only" role="status">Your move</span>
           <span id="chess-caption" class="sr-only"></span>
         </section>
         <section class="play-panel mine-panel" aria-label="Minesweeper game">
           <div class="status-strip mine-strip">
-            <output id="mine-counter" class="digital" aria-label="Remaining mines">010</output>
-            <button id="flag-mode" class="mine-face" aria-pressed="false" aria-label="Toggle flag mode" title="Toggle flag mode">☺</button>
-            <output id="mine-time" class="digital" aria-label="Elapsed seconds">000</output>
+            <output
+              id="mine-counter"
+              class="digital"
+              aria-label="Remaining mines"
+              >010</output
+            >
+            <button
+              id="flag-mode"
+              class="mine-face"
+              aria-pressed="false"
+              aria-label="Toggle flag mode"
+              title="Toggle flag mode"
+            >
+              ☺
+            </button>
+            <output id="mine-time" class="digital" aria-label="Elapsed seconds"
+              >000</output
+            >
           </div>
-          <div id="mine-board" class="tile-grid mine-board" role="group" aria-label="Minefield"></div>
+          <div
+            id="mine-board"
+            class="tile-grid mine-board"
+            role="group"
+            aria-label="Minefield"
+          ></div>
           <span id="mine-status" class="sr-only" role="status">10 hidden</span>
           <span id="mine-caption" class="sr-only"></span>
         </section>

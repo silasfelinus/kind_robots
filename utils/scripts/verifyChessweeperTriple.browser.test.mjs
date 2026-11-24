@@ -168,8 +168,14 @@ try {
       'three equal aligned square boards',
     )
     assert.equal(await page.locator('#chess-board img').count(), 32)
-    assert.equal(await page.locator('.panel-caption, .panel-label, footer.hud').count(), 0)
-    assert.equal(await page.locator('#mine-counter').innerText(), String(expected.mineCount).padStart(3, '0'))
+    assert.equal(
+      await page.locator('.panel-caption, .panel-label, footer.hud').count(),
+      0,
+    )
+    assert.equal(
+      await page.locator('#mine-counter').innerText(),
+      String(expected.mineCount).padStart(3, '0'),
+    )
     const beginning = await page.evaluate(() =>
       window.__chessweeperTriple.snapshot(),
     )

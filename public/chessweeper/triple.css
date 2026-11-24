@@ -214,14 +214,30 @@ select:focus-visible {
 .mine-cell.boom {
   background: #ff3333;
 }
-.mine-cell.hint-1 { color: #0000ee; }
-.mine-cell.hint-2 { color: #008000; }
-.mine-cell.hint-3 { color: #e00000; }
-.mine-cell.hint-4 { color: #000080; }
-.mine-cell.hint-5 { color: #800000; }
-.mine-cell.hint-6 { color: #008080; }
-.mine-cell.hint-7 { color: #000; }
-.mine-cell.hint-8 { color: #595959; }
+.mine-cell.hint-1 {
+  color: #0000ee;
+}
+.mine-cell.hint-2 {
+  color: #008000;
+}
+.mine-cell.hint-3 {
+  color: #e00000;
+}
+.mine-cell.hint-4 {
+  color: #000080;
+}
+.mine-cell.hint-5 {
+  color: #800000;
+}
+.mine-cell.hint-6 {
+  color: #008080;
+}
+.mine-cell.hint-7 {
+  color: #000;
+}
+.mine-cell.hint-8 {
+  color: #595959;
+}
 #disc-arena {
   display: block;
   height: auto;

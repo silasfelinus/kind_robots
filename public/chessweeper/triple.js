@@ -217,7 +217,8 @@
           sprite.alt = ''
           sprite.draggable = false
           const color = piece === piece.toUpperCase() ? 'w' : 'b'
-          sprite.src = '/chessweeper/pieces/' + color + piece.toUpperCase() + '.svg'
+          sprite.src =
+            '/chessweeper/pieces/' + color + piece.toUpperCase() + '.svg'
           cell.append(sprite)
         }
         cell.setAttribute(

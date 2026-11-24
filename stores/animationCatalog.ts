@@ -1255,6 +1255,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'dewdrop-orb-web',
+    label: 'Dewdrop Orb Web',
+    reveal: 'A dew-beaded spider web trembles in the dawn breeze',
+    icon: 'kind-icon:raindrop',
+    tooltip:
+      'Dew beads glint along a spiral of silk that sways as one springy mesh 🕸️ hover to breathe on it, click to pluck the web and shake the dew loose',
+    color: '#d9b48f',
+    releasedAt: '2026-11-24T14:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

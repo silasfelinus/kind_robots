@@ -248,7 +248,10 @@ assert.match(atlas, /CREW_COMBAT_POSES/)
 assert.match(atlas, /CREW_COMBAT_ART\[kind\]\[beat\]/)
 assert.match(atlas, /v-for="beat in crewProofBeats"/)
 assert.match(atlas, /loadedCrewProofs \}\} \/ 24/)
-assert.match(atlas, /\[galleryCrew, \(\) => viewer\.token, \(\) => viewer\.isAdmin\]/)
+assert.match(
+  atlas,
+  /\[galleryCrew, \(\) => viewer\.token, \(\) => viewer\.isAdmin\]/,
+)
 assert.match(atlas, /paintedArt\.ensure\(receipt\.imageId\)/)
 assert.match(atlas, /paintedArt\.retry\(crewProofReceipt\(beat\)\.imageId\)/)
 assert.match(atlas, /useEveryVillainTacticsArtStore/)

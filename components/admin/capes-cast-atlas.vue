@@ -262,8 +262,8 @@
               <p class="atlas-eyebrow">ORIGINAL ART · PRIVATE INTAKE</p>
               <h4>One-hit crew visual proofs</h4>
               <p>
-                Twenty-four commissioned telegraphs, captain portraits and combat
-                poses. Compare each crew across all eight states. Private
+                Twenty-four commissioned telegraphs, captain portraits and
+                combat poses. Compare each crew across all eight states. Private
                 previews are not composition approvals.
               </p>
             </div>
@@ -399,8 +399,16 @@ const crewProofBeats: readonly CrewProofBeat[] = [
   ...CREW_TELL_BEATS,
   ...CREW_COMBAT_POSES,
 ]
-function receiptForCrew(kind: CrewTellKind, beat: CrewProofBeat): CrewTellReceipt {
-  if (beat === 'idle' || beat === 'strike' || beat === 'hit' || beat === 'defeat') {
+function receiptForCrew(
+  kind: CrewTellKind,
+  beat: CrewProofBeat,
+): CrewTellReceipt {
+  if (
+    beat === 'idle' ||
+    beat === 'strike' ||
+    beat === 'hit' ||
+    beat === 'defeat'
+  ) {
     return CREW_COMBAT_ART[kind][beat]
   }
   return CREW_TELL_ART[kind].beats[beat]

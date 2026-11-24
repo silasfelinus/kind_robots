@@ -40,7 +40,8 @@
           {{
             store.spectrumCloudStatus === 'synced'
               ? '☁ Career synced'
-              : store.spectrumCloudStatus === 'checking'
+              : store.spectrumCloudStatus === 'checking' ||
+                  store.spectrumCloudStatus === 'saving'
                 ? '☁ Syncing'
                 : store.spectrumCloudStatus === 'offline'
                   ? '⚠ Saved on device'
@@ -1348,9 +1349,15 @@ function syncMusic(instance: ArcadePlayableInstance | null) {
 
 /** The last progress a game asked to keep, so the store is written only when it changes. */
 let lastSave: unknown = undefined
+let spectrumRunOwner: number | null = null
 
 /** Keep a long game's progress (a real game's only; demos never save). */
 function keepSave(instance: ArcadePlayableInstance | null) {
+  if (
+    props.slug === 'superkate-spectrum' &&
+    spectrumRunOwner !== (useUserStore().authenticatedUserId ?? null)
+  )
+    return
   if (
     isRainbowReplay.value ||
     !instance ||
@@ -1495,6 +1502,7 @@ function startGame() {
     }),
   )
   lastSave = undefined
+  spectrumRunOwner = useUserStore().authenticatedUserId ?? null
   gameMenu.value = menuOpenOf(game)
   paddleActions.value =
     game && 'touchActions' in game ? (game.touchActions ?? {}) : {}
@@ -2396,7 +2404,9 @@ function cycleComms() {
   for (const instance of [game, demoGame]) instance?.setComms?.(next)
 }
 
+let bootGeneration = 0
 async function boot() {
+  const generation = ++bootGeneration
   retire(game)
   retire(demoGame)
   game = null
@@ -2412,6 +2422,7 @@ async function boot() {
   machine = initialArcadeState()
   phase.value = machine.phase
   if (info.slug === 'superkate-spectrum') await store.syncSuperkateCareer()
+  if (generation !== bootGeneration) return
   if (titleArt) {
     titleArtReady = false
     titleArt.onload = () => {
@@ -2420,9 +2431,12 @@ async function boot() {
     titleArt.src = info.titleArt
   }
   try {
-    gameModule = await loadArcadeGame(info.slug)
+    const loaded = await loadArcadeGame(info.slug)
+    if (generation !== bootGeneration) return
+    gameModule = loaded
     hasGuide.value = typeof gameModule.guide === 'function'
   } catch {
+    if (generation !== bootGeneration) return
     loadError.value = 'This cabinet could not start. Try reloading.'
   }
   void store.fetchBoard(info.slug, 'all')
@@ -2464,9 +2478,15 @@ onMounted(() => {
 
 const userForArcade = useUserStore()
 watch(
-  () => [userForArcade.authenticatedUserId, userForArcade.token],
-  () => {
-    if (props.slug === 'superkate-spectrum') void store.syncSuperkateCareer()
+  () => [userForArcade.authenticatedUserId, userForArcade.token] as const,
+  ([owner], [previousOwner]) => {
+    if (props.slug !== 'superkate-spectrum') return
+    if (owner !== previousOwner) {
+      releaseInterruptedInput()
+      void boot()
+    } else {
+      void store.syncSuperkateCareer()
+    }
   },
 )
 
@@ -2524,6 +2544,7 @@ watch(locked, (on) => {
 })
 
 onBeforeUnmount(() => {
+  bootGeneration++
   loop?.stop()
   for (const seatIn of inputs) seatIn.detach()
   window.removeEventListener('gamepadconnected', applySeats)

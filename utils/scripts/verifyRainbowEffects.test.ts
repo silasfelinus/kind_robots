@@ -41,6 +41,18 @@ import {
   prismLeviathanWarning,
   prismLeviathanWarningFrames,
 } from '../arcade/games/rainbowPrismLeviathan'
+import {
+  SAWTOOTH,
+  createSawtoothBoss,
+  sawtoothWarning,
+  sawtoothWarningFrames,
+} from '../arcade/games/rainbowSawtooth'
+import {
+  CLAWBURST,
+  createClawburstBoss,
+  clawburstWarning,
+  clawburstWarningFrames,
+} from '../arcade/games/rainbowClawburst'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
@@ -509,6 +521,20 @@ for (const [label, boss, warnFrames, warning, base] of [
     prismLeviathanWarning,
     PRISM_LEVIATHAN.warningFrames,
   ],
+  [
+    'B05',
+    createSawtoothBoss(),
+    sawtoothWarningFrames,
+    sawtoothWarning,
+    SAWTOOTH.chargeWarningFrames,
+  ],
+  [
+    'B03',
+    createClawburstBoss(),
+    clawburstWarningFrames,
+    clawburstWarning,
+    CLAWBURST.warningFrames,
+  ],
 ] as const) {
   const b = boss as never
   assert.equal(
@@ -549,6 +575,16 @@ assert.match(
   previewSource,
   /rainbowBossWindup\(\s*leviathan\.nextVolley - leviathan\.frame,\s*prismLeviathanWarningFrames\(leviathan\),\s*calm,\s*\)/,
   'the B08 draw uses the shared windup',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*sawtooth\.charge === null \? sawtooth\.nextVolley - sawtooth\.frame : 0,\s*sawtoothWarningFrames\(sawtooth\),\s*calm,\s*\)/,
+  'the B05 draw uses the shared windup and holds still mid-charge',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*clawBoss\.nextVolley - clawBoss\.frame,\s*clawburstWarningFrames\(clawBoss\),\s*calm,\s*\)/,
+  'the B03 draw uses the shared windup',
 )
 
 console.log(

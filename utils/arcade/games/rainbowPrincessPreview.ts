@@ -216,6 +216,7 @@ import {
   sawtoothExposed,
   sawtoothJaw,
   sawtoothWarning,
+  sawtoothWarningFrames,
   stepSawtoothBoss,
   type SawtoothBoss,
 } from './rainbowSawtooth'
@@ -369,6 +370,7 @@ import {
   CLAWBURST_MAX_HP,
   clawburstExposed,
   clawburstWarning,
+  clawburstWarningFrames,
   createClawburstBoss,
   stepClawburstBoss,
   type ClawburstBoss,
@@ -8407,6 +8409,15 @@ export function createRainbowPrincessPreview(
         g.translate(sawtooth.x, sawtooth.y)
         g.shadowColor = exposed ? '#ff7a6b' : warn ? '#fff49c' : '#9fd8ff'
         g.shadowBlur = warn || exposed ? 24 : 10
+        // The Regent's body winds up before a charge or fin volley (never mid-charge); ring and jaw stay on the hitbox.
+        const sawtoothWindup = rainbowBossWindup(
+          sawtooth.charge === null ? sawtooth.nextVolley - sawtooth.frame : 0,
+          sawtoothWarningFrames(sawtooth),
+          calm,
+        )
+        g.save()
+        g.translate(sawtoothWindup.pull, 0)
+        g.scale(sawtoothWindup.scaleX, sawtoothWindup.scaleY)
         if (!drawRainbowBossSprite(g, 'b05', sawtooth.phase, 0, 0, 120)) {
           g.fillStyle = '#4a6a9a'
           g.beginPath()
@@ -8417,6 +8428,7 @@ export function createRainbowPrincessPreview(
           g.closePath()
           g.fill()
         }
+        g.restore()
         g.shadowBlur = 0
         if (warn) {
           g.strokeStyle = '#fffbb6'
@@ -8581,7 +8593,25 @@ export function createRainbowPrincessPreview(
         g.translate(clawBoss.x, clawBoss.y)
         g.shadowColor = exposed ? '#ff7a6b' : warn ? '#fff49c' : '#ffb38a'
         g.shadowBlur = warn || exposed ? 25 : 12
-        if (drawRainbowBossSprite(g, 'b03', clawBoss.phase, -10, 0, 110)) {
+        // Clawburst's body winds up before a volley or punch; the cue ring and cannon stay on the hitbox.
+        const clawWindup = rainbowBossWindup(
+          clawBoss.nextVolley - clawBoss.frame,
+          clawburstWarningFrames(clawBoss),
+          calm,
+        )
+        g.save()
+        g.translate(clawWindup.pull, 0)
+        g.scale(clawWindup.scaleX, clawWindup.scaleY)
+        const clawSprite = drawRainbowBossSprite(
+          g,
+          'b03',
+          clawBoss.phase,
+          -10,
+          0,
+          110,
+        )
+        g.restore()
+        if (clawSprite) {
           g.shadowBlur = 0
           // The ring pulses but never fades below three quarters, so a phone-sized canvas still shows it.
           if (warn) {

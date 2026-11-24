@@ -16,9 +16,11 @@ import {
   drawRainbowBossBloom,
   rainbowBossBloomFlares,
 } from '../arcade/games/rainbowBossBloom'
+import { BOSS_TELEGRAPH_FRAMES } from '../arcade/games/rainbowPinkwakeBoss'
 import { setRainbowLook } from '../arcade/games/rainbowGameArt'
 import {
   applyRainbowSwimMotion,
+  rainbowBossWindup,
   rainbowHitFlinch,
   rainbowShipPose,
   rainbowSwimPose,
@@ -413,6 +415,44 @@ assert.match(
   previewSource,
   /rainbowShipPose\(ship\.bank, ship\.thrust, calm\)/,
   'the ship draw uses the shared pose',
+)
+
+// t-011: B01 winds up across its warning window, drawing back and swelling deepest just before the volley.
+const restPose = { pull: 0, scaleX: 1, scaleY: 1 }
+assert.deepEqual(
+  rainbowBossWindup(BOSS_TELEGRAPH_FRAMES + 1, BOSS_TELEGRAPH_FRAMES),
+  restPose,
+  'no windup before the warning starts',
+)
+assert.deepEqual(
+  rainbowBossWindup(0, BOSS_TELEGRAPH_FRAMES),
+  restPose,
+  'the body settles once the volley leaves',
+)
+const earlyWindup = rainbowBossWindup(
+  BOSS_TELEGRAPH_FRAMES,
+  BOSS_TELEGRAPH_FRAMES,
+)
+const deepWindup = rainbowBossWindup(1, BOSS_TELEGRAPH_FRAMES)
+assert.ok(
+  deepWindup.pull > earlyWindup.pull &&
+    deepWindup.scaleY > earlyWindup.scaleY &&
+    deepWindup.scaleX < 1,
+  'the windup deepens toward the volley',
+)
+assert.ok(
+  deepWindup.pull <= 4 && deepWindup.scaleY <= 1.06,
+  'the windup stays a small draw-only pose',
+)
+const calmWindup = rainbowBossWindup(1, BOSS_TELEGRAPH_FRAMES, true)
+assert.ok(
+  calmWindup.pull < deepWindup.pull && calmWindup.pull > 0,
+  'calm motion damps the windup',
+)
+assert.match(
+  previewSource,
+  /rainbowBossWindup\(\s*boss\.nextVolleyAt - boss\.frame,\s*BOSS_TELEGRAPH_FRAMES,\s*calm,\s*\)/,
+  'the B01 draw uses the shared windup',
 )
 
 console.log(

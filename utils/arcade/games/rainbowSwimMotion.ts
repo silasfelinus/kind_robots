@@ -89,3 +89,20 @@ export function rainbowShipPose(
       (1 - Math.min(0.18, Math.abs(bank) * 0.05) * motion) * (1 - lean * 0.5),
   }
 }
+
+/**
+ * Conductor rainbow t-011: a boss winds up before a volley. Across the warning window it draws back and
+ * swells, deepest just before the shots leave, so the body tells the beat as well as the glow ring. Draw-only:
+ * the hitbox never moves. Calm motion keeps a fifth of the pose; the ring still carries the warning.
+ */
+export function rainbowBossWindup(
+  framesToVolley: number,
+  warnFrames: number,
+  calm = false,
+): { pull: number; scaleX: number; scaleY: number } {
+  if (warnFrames <= 0 || framesToVolley <= 0 || framesToVolley > warnFrames)
+    return { pull: 0, scaleX: 1, scaleY: 1 }
+  const t = 1 - (framesToVolley - 1) / warnFrames
+  const ease = t * t * (calm ? 0.2 : 1)
+  return { pull: 4 * ease, scaleX: 1 - 0.03 * ease, scaleY: 1 + 0.06 * ease }
+}

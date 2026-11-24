@@ -96,6 +96,12 @@ export function stepPinkwakeBoss(
   return bullets
 }
 
+/** Frames of warning glow before each B01 volley. */
+export const BOSS_TELEGRAPH_FRAMES = 36
+
 export function bossTelegraph(boss: PinkwakeBoss): boolean {
-  return boss.frame < boss.nextVolleyAt && boss.frame >= boss.nextVolleyAt - 36
+  return (
+    boss.frame < boss.nextVolleyAt &&
+    boss.frame >= boss.nextVolleyAt - BOSS_TELEGRAPH_FRAMES
+  )
 }

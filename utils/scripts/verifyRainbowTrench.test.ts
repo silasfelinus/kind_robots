@@ -12,7 +12,7 @@ import { formationMembers } from '../arcade/games/rainbowFormations'
 import { RAINBOW_GUARDIAN } from '../arcade/games/rainbowGuardian'
 import { rainbowBossHp } from '../arcade/games/rainbowPinkwakeBoss'
 import {
-  MORTAR,
+  MORTAR_SHELLS,
   createRainbowPrincessPreview,
 } from '../arcade/games/rainbowPrincessPreview'
 import {
@@ -280,7 +280,7 @@ const create = (players: number) =>
 for (const players of [1, 4]) {
   const a = create(players)
   const b = create(players)
-  const seen = { bolt: 0, ring: 0, cross: 0, glance: 0, marks: 0 }
+  const seen = { bolt: 0, ring: 0, cross: 0, glance: 0, marks: 0, vent: 0 }
   let route: TrenchRoute | null = null
   let settled = false
   const checkpoints: number[] = []
@@ -399,15 +399,18 @@ for (const players of [1, 4]) {
             const bomblets = after.enemyShots.filter(
               (s) =>
                 Math.hypot(s.x - at.x, s.y - at.y) < 1e-6 &&
-                s.burst === 'split',
+                s.burst === 'cross',
             ).length
+            // D7: the trench lobs its own vent shell, whose bomblets burst as crosses.
+            assert.equal(shot.shell, 3, 'the trench lobs its own shell')
+            seen.vent++
             const struck = before.ships.some(
               (ship) => Math.hypot(ship.x - at.x, ship.y - at.y) < 20,
             )
             if (!struck)
               assert.equal(
                 bomblets,
-                MORTAR.bomblets,
+                MORTAR_SHELLS[3].count,
                 'a shell bursts into bomblets',
               )
           } else if (shot.burst === 'ring') {

@@ -305,10 +305,38 @@ assert.ok(
   )
   assert.equal(calls.filter((call) => call.name === 'save').length, 2)
   assert.equal(calls.filter((call) => call.name === 'restore').length, 2)
+  const linear = calls.filter((call) => call.name === 'createLinearGradient')
+  assert.equal(linear.length, 2, 'one lens streak per boss flare, no more')
+  const rects = calls.filter((call) => call.name === 'fillRect')
+  assert.equal(rects.length, 2)
+  for (const [i, rect] of rects.entries()) {
+    const flare = flares[i]!
+    const [, , w, h] = rect.args as number[]
+    assert.ok(
+      w! > flare.radius * 2 && h! <= RAINBOW_BOSS_BLOOM.streakHalfHeight * 2,
+      'the lens streak is a thin sliver wider than its glow',
+    )
+    assert.ok(
+      rect.alpha < flare.alpha,
+      'the lens streak is fainter than the glow it crosses',
+    )
+  }
   const { calls: calmCalls, g: calmContext } = recorder()
   drawRainbowBossBloom(calmContext, bossFlares, true)
   assert.equal(calmCalls.length, 0, 'calm rendering performs no bloom work')
+  const { calls: contrastCalls, g: contrastContext } = recorder()
+  drawRainbowBossBloom(contrastContext, bossFlares, false, true)
+  assert.equal(
+    contrastCalls.length,
+    0,
+    'high-contrast shots draw no bloom or streak that could lift the scenery behind a pellet',
+  )
 }
+assert.deepEqual(
+  rainbowBossBloomFlares(bossFlares, false, 480, 270, true),
+  [],
+  'high-contrast shots omit boss bloom',
+)
 const previewSource = readFileSync(
   new URL('../arcade/games/rainbowPrincessPreview.ts', import.meta.url),
   'utf8',
@@ -317,7 +345,12 @@ const previewSource = readFileSync(
 const haloPass = previewSource.indexOf('const pelletBacking = contrast')
 assert.ok(haloPass > 0, 'the hostile shot halo pass is still drawn')
 assert.ok(
-  previewSource.indexOf('drawRainbowBossBloom(g, sparks, calm)') < haloPass,
+  previewSource.includes('drawRainbowBossBloom(g, sparks, calm, contrast)'),
+  'the game passes its high-contrast choice to the boss bloom',
+)
+assert.ok(
+  previewSource.indexOf('drawRainbowBossBloom(g, sparks, calm, contrast)') <
+    haloPass,
   'boss bloom is drawn under hostile shot halos instead of washing them out',
 )
 

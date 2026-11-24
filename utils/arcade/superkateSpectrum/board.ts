@@ -466,6 +466,57 @@ export function fireSpecial(
   const dropped = detachUnanchored(board)
   return { matched, dropped, cleared: !activeHues(board).length }
 }
+export const CHAPTER_RULES = [
+  { label: 'MATCH THREE', limit: 9, charge: 22 },
+  { label: 'MATCHES HOLD THE CEILING', limit: 6, charge: 22 },
+  { label: 'BANK MATCHES BONUS +400', limit: 7, charge: 22 },
+  { label: 'DROP THREE TO RELIEVE PRESSURE', limit: 6, charge: 22 },
+  { label: 'RAPID PRISM BURST RIBBON', limit: 6, charge: 12 },
+  { label: 'BIG CHAINS HOLD THE CEILING', limit: 5, charge: 22 },
+] as const
+
+export function chapterIndex(stage: number): number {
+  return Math.max(0, Math.min(5, Math.floor((stage - 1) / 5)))
+}
+
+export function pressureLimit(stage: number, mode: 'story' | 'classic'): number {
+  return mode === 'classic'
+    ? Math.max(4, 9 - Math.floor(stage / 5))
+    : CHAPTER_RULES[chapterIndex(stage)]!.limit
+}
+
+export function pressureAfterShot(
+  current: number,
+  stage: number,
+  mode: 'story' | 'classic',
+  result: PopResult,
+  banked: boolean,
+): number {
+  if (mode === 'classic') return current + 1
+  switch (chapterIndex(stage)) {
+    case 1:
+      return current + (result.matched > 0 ? 0 : 1)
+    case 2:
+      return current + (banked && result.matched > 0 ? 0 : 1)
+    case 3:
+      return result.dropped >= 3 ? Math.max(0, current - 1) : current + 1
+    case 5:
+      return current + (result.matched >= 6 || result.dropped >= 3 ? 0 : 1)
+    default:
+      return current + 1
+  }
+}
+
+export function specialForStage(
+  stage: number,
+  rank: number,
+  count: number,
+): SpectrumPower {
+  if (chapterIndex(stage) === 4)
+    return (['prism', 'burst', 'ribbon'] as const)[count % 3]!
+  return rank >= 15 ? 'ribbon' : rank >= 9 ? 'burst' : 'prism'
+}
+
 export function pushCeiling(board: Board, rng: () => number): boolean {
   const overflow = board[ROWS - 1]!.some(Boolean)
   const hues = activeHues(board)

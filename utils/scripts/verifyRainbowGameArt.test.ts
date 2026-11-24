@@ -435,9 +435,21 @@ assert.equal(
 )
 assert.equal(
   rainbowEndingPlate('sever'),
-  '/rainbow-princess-art/endings/sever.webp',
+  '/rainbow-princess-art/endings/sever-open.webp',
 )
 assert.equal(drawRainbowEndingPlate(g, 'restore', 0, 0, 340), 0)
+// S11 (story critic): the loyal road has its own plates.
+for (const choice of ['restore', 'evacuate', 'sever'] as const) {
+  const loyal = rainbowEndingPlate(choice, 'loyal')!
+  assert.notEqual(loyal, rainbowEndingPlate(choice, 'rebel'), `loyal ${choice}`)
+  assert.ok(existsSync(publicFile(loyal)), `loyal ${choice} plate is committed`)
+  assert.ok(statSync(publicFile(loyal)).size < 40_000)
+}
+// P-03: the sever plate is the house-style lantern scene with no pilots in shot, for any crew.
+assert.equal(
+  rainbowEndingPlate('sever', 'rebel'),
+  '/rainbow-princess-art/endings/sever-open.webp',
+)
 assert.equal(
   finaleEndingCaption('restore', 'rebel'),
   'TURN ON THE EMPIRE · ASK FIRST',
@@ -445,7 +457,7 @@ assert.equal(
 assert.equal(finaleEndingCaption('restore'), 'THE CROWN REMEMBERS')
 assert.match(
   engine,
-  /drawRainbowEndingPlate\(\s+g,\s+finalChoice \?\? 'evacuate',/,
+  /drawRainbowEndingPlate\(\s+g,\s+finalChoice \?\? 'evacuate',[\s\S]{0,160}allegiance,\s+\)/,
   'the ending draws the plate for the choice the crew flew',
 )
 assert.match(

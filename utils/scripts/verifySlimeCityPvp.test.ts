@@ -939,11 +939,17 @@ for (const file of [
     new URL('../../components/slime-city-pvp-game.vue', import.meta.url),
     'utf8',
   )
-  assert.match(duel, /@media \(min-width: 691px\) and \(orientation: landscape\)/)
+  assert.match(
+    duel,
+    /@media \(min-width: 691px\) and \(orientation: landscape\)/,
+  )
   assert.match(duel, /'arena arena'\s*'rail console'/)
   assert.match(duel, /'arena'\s*'rail'\s*'console'/)
   assert.match(duel, /--W: min\(18rem, 42cqw, 28cqh\)/)
   assert.match(duel, /--rest: 0\.84;/)
   assert.match(duel, /50cqw - 1\.2rem - var\(--W\) \* var\(--rest\) \/ 2/)
-  assert.match(duel, /\.scpvp-unit-label \{\s*position: absolute;\s*inset: calc\(0\.8rem/)
+  assert.match(
+    duel,
+    /\.scpvp-unit-label \{\s*position: absolute;\s*inset: calc\(0\.8rem/,
+  )
 }

@@ -2877,8 +2877,7 @@ watch(
   }
   .scpvp-arena :deep(.cxh.open .cxh-card:not(.big)) {
     --x: calc(
-      50cqw - 1.2rem - var(--W) * var(--rest) / 2 +
-        (2 * var(--o) - var(--i)) *
+      50cqw - 1.2rem - var(--W) * var(--rest) / 2 + (2 * var(--o) - var(--i)) *
         min(var(--W) * var(--rest) * 0.66, 13cqw)
     );
     --r: calc(var(--rot) * 0.5);

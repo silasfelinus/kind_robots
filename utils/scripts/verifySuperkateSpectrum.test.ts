@@ -370,6 +370,47 @@ assert.equal(
 )
 assert.equal(validSpectrumCloudSave({ ...combined, style: 'unknown' }), false)
 
+const mapRun = create({
+  ...options,
+  resume: cloudB,
+} as Parameters<typeof create>[0])
+const mapLeft = emptyInput()
+mapLeft.pressed.left = true
+const mapRight = emptyInput()
+mapRight.pressed.right = true
+assert.equal(mapRun.menuStage, 12)
+mapRun.update(mapRight)
+assert.equal(mapRun.menuStage, 12, 'Locked map nodes cannot be selected')
+for (let i = 0; i < 35; i++) mapRun.update(mapLeft)
+assert.equal(mapRun.menuStage, 1)
+mapRun.update(mapRight)
+assert.equal(mapRun.menuStage, 2)
+const mapStart = emptyInput()
+mapStart.pressed.a = true
+mapRun.update(mapStart)
+assert.equal(mapRun.level, 2, 'Map selection starts the selected replay')
+assert.equal(mapRun.save.career.highestStage, 12)
+assert.deepEqual(mapRun.save.career.stars, cloudB.career.stars)
+
+const fullMap = create({
+  ...options,
+  resume: readSpectrumSave({
+    ...cloudB,
+    career: { ...cloudB.career, highestStage: 30 },
+  }),
+} as Parameters<typeof create>[0])
+assert.equal(fullMap.menuStage, 30)
+for (let stage = 29; stage >= 1; stage--) {
+  fullMap.update(mapLeft)
+  assert.equal(fullMap.menuStage, stage)
+}
+for (let stage = 2; stage <= 30; stage++) {
+  fullMap.update(mapRight)
+  assert.equal(fullMap.menuStage, stage)
+}
+fullMap.update(mapRight)
+assert.equal(fullMap.menuStage, 30)
+
 const hub = create({
   ...options,
   resume: cloudB,

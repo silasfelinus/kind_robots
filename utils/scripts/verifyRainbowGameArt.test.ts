@@ -220,8 +220,8 @@ assert.match(
 assert.equal(drawRainbowEnemySprite(g, 'picket'), false)
 assert.match(
   engine,
-  /if \(\s*!drawRainbowEnemySprite\(\s*g,\s*reef\.kind === 'diver' \? 'picket' : reef\.kind,?\s*\)[^{]*\) \{\s+g\.beginPath\(\)/,
-  'enemies keep their primitive body until the sprite loads',
+  /if \(\s*(?:\/\/[^\n]*\n\s*)*!drawRainbowEnemyFrame\(\s*g,\s*reef\.kind === 'diver' \? 'picket' : reef\.kind,[^;{]*?\)\s*&&\s*!drawRainbowEnemySprite\(\s*g,\s*reef\.kind === 'diver' \? 'picket' : reef\.kind,?\s*\)[^{]*\) \{\s+g\.beginPath\(\)/,
+  'enemies fly their idle frames (t-030), else their still, and keep their primitive body until either loads',
 )
 
 // Pickups: the engine's Pickup kind union, each with a committed sprite.

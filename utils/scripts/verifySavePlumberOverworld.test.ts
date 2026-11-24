@@ -7,10 +7,11 @@ import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { emptyInput } from '../arcade/types'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
-import { CAMPAIGN } from '../arcade/games/savePlumberLevels'
+import { CAMPAIGN, TILE } from '../arcade/games/savePlumberLevels'
 import { MAP_CLIP_WORLDS } from '../arcade/games/savePlumberMapClips'
 import {
   OVERWORLD,
+  SECRET_EXITS_READY,
   SKY_WORLD,
   WORLD_COUNT,
   completionPercent,
@@ -117,7 +118,7 @@ assert.ok(
 const w1 = worldCompletion(1, { done: ['1-1', '1-2'], gears: ['1-1'] })
 assert.deepEqual(
   [w1.stages, w1.stagesDone, w1.gears, w1.gearsFound, w1.secrets],
-  [4, 2, 4, 1, 0],
+  [4, 2, 4, 1, 1],
 )
 assert.equal(completionPercent(fresh), 0)
 const everything = CAMPAIGN.map((s) => s.code)
@@ -125,6 +126,7 @@ assert.equal(
   completionPercent({
     done: everything.map((c) => stageNode(c)!.id),
     gears: everything,
+    secrets: [...SECRET_EXITS_READY],
   }),
   100,
 )
@@ -281,6 +283,43 @@ press(next, 'a')
 assert.equal(next.mode, 'map')
 assert.equal(next.mapNodeId, '1-3')
 assert.ok(next.done.has('1-2'))
+
+const hidden = createSavePlumberPreview(options(game.save))
+press(hidden, 'start')
+press(hidden, 'a')
+press(hidden, 'a')
+press(hidden, 'a')
+assert.equal(hidden.stage.code, '1-3')
+assert.equal(hidden.mode, 'play')
+assert.ok(SECRET_EXITS_READY.has('1-3'))
+assert.ok(!nodeReachable('1-c', hidden.progress))
+const exit = hidden.secretGoal!
+hidden.foes.length = 0
+hidden.hero = { x: exit.x, y: exit.y - 64, vx: 0, vy: 0 }
+hidden.ground = false
+press(hidden, 'down')
+assert.equal(hidden.mode, 'play', 'airborne Down cannot activate the exit')
+hidden.hero = { x: exit.x, y: exit.y - 20, vx: 0, vy: 0 }
+hidden.ground = true
+hidden.update(input)
+assert.equal(hidden.mode, 'play', 'touching the secret exit does not clear')
+input.held.down = true
+hidden.update(input)
+input.held.down = false
+assert.equal(hidden.mode, 'play', 'holding Down is not a fresh exit press')
+press(hidden, 'down')
+assert.equal(hidden.mode, 'clear')
+for (let i = 0; i < 200 && hidden.modeTimer; i++) hidden.update(input)
+assert.equal(hidden.mode, 'map')
+assert.ok(hidden.secrets.has('1-3'))
+assert.ok(!hidden.done.has('1-3'), 'normal clear remains a separate reward')
+assert.ok(nodeReachable('1-c', hidden.progress), 'the chapel path opens')
+assert.ok(!nodeReachable('1-f', hidden.progress), 'normal path stays locked')
+const resumedSecret = createSavePlumberPreview(options(hidden.save))
+assert.ok(resumedSecret.secrets.has('1-3'), 'secret exit survives reload')
+assert.ok(nodeReachable('1-c', resumedSecret.progress))
+assert.equal(worldCompletion(1, hidden.progress).secretsFound, 1)
+assert.equal(exit.y, 7 * TILE)
 
 // Deaths are remembered on the slot.
 press(next, 'a')

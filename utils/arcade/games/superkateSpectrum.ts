@@ -3,6 +3,7 @@ import type {
   ArcadeGameModule,
   ArcadeGameOptions,
   ArcadeAudioSettings,
+  ArcadeStagePointer,
   InputFrame,
 } from '../types'
 import {
@@ -60,6 +61,15 @@ const W = 320
 const H = 480
 const SHOT_Y = 438
 const SHOT_SPEED = 7
+
+export function storyMapPosition(stage: number) {
+  const chapter = Math.floor((stage - 1) / 5)
+  const index = (stage - 1) % 5
+  return {
+    x: 48 + 56 * (chapter % 2 ? 4 - index : index),
+    y: 82 + chapter * 48,
+  }
+}
 const PALETTE: Record<Hue, string> = {
   pink: '#ff62ad',
   teal: '#23e5cf',
@@ -197,6 +207,24 @@ export function bossContact(
 
 type BossState = { hits: number; misses: number }
 
+type PointerAction =
+  | { kind: 'aim' }
+  | { kind: 'swap' }
+  | { kind: 'stage'; stage: number }
+  | { kind: 'style'; style: BubbleStyle }
+  | { kind: 'choice'; cursor: 0 | 1; scene: number }
+  | { kind: 'classic' }
+
+function stepShot(shot: Shot) {
+  shot.x += shot.vx
+  shot.y += shot.vy
+  if (shot.x < 14 || shot.x > W - 14) {
+    shot.x = Math.max(14, Math.min(W - 14, shot.x))
+    shot.vx *= -1
+    shot.banked = true
+  }
+}
+
 type Spark = {
   x: number
   y: number
@@ -320,6 +348,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
   power: SpectrumPower | null = null
   sparks: Spark[] = []
   boss: BossState | null = null
+  private pointerAction: PointerAction | null = null
   private specialMeter = 0
   private specialCount = 0
   private shotsThisBoard = 0
@@ -446,6 +475,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.feats.push(id)
   }
   private resetBoard() {
+    this.pointerAction = null
     this.choiceResponseVisible = false
     this.boss = null
     this.board = makeBoard(this.level, this.rng, this.mode)
@@ -637,23 +667,131 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.prepareBossShot()
   }
 
+  private confirmChoice() {
+    if (this.pendingChoice === null) return
+    const index = this.pendingChoice
+    this.storyChoices[index] = this.choiceCursor
+    if (this.choiceCursor === 0) this.lives = Math.min(9, this.lives + 1)
+    else this.power = STORY_DECISIONS[index]!.power
+    this.message =
+      STORY_DECISIONS[index]!.options[this.choiceCursor].response
+    this.choiceResponseVisible = true
+    this.pendingChoice = null
+    this.banner = 110
+    this.remember()
+    this.playEffect('level')
+  }
+
+  private makeShot(): Shot {
+    return {
+      x: W / 2,
+      y: SHOT_Y,
+      vx: Math.cos(this.angle) * SHOT_SPEED,
+      vy: Math.sin(this.angle) * SHOT_SPEED,
+      hue: this.loaded,
+      power: this.mode === 'story' ? this.power : null,
+    }
+  }
+
+  private fire() {
+    if (this.shot || this.over || this.choosingMode || this.pendingChoice !== null)
+      return
+    this.playEffect('shoot')
+    this.shot = this.makeShot()
+    this.power = null
+  }
+
+  private boardContact(shot: Shot) {
+    return this.board.some((row, r) =>
+      row.some((cell, c) => {
+        if (!cell) return false
+        const p = center({ row: r, col: c })
+        return (p.x - shot.x) ** 2 + (p.y - shot.y) ** 2 < 26 ** 2
+      }),
+    )
+  }
+
+  private actionAt(x: number, y: number): PointerAction | null {
+    if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > W)
+      return null
+    if (this.over) return null
+    if (this.pendingChoice !== null) {
+      if (x < 25 || x > W - 25) return null
+      for (const cursor of [0, 1] as const) {
+        const top = 210 + cursor * 65
+        if (y >= top && y <= top + 56)
+          return { kind: 'choice', cursor, scene: this.pendingChoice }
+      }
+      return null
+    }
+    if (this.choosingMode) {
+      if (this.menuTab !== 'play') return null
+      if (this.mode === 'classic')
+        return y >= 310 && y <= 350 ? { kind: 'classic' } : null
+      for (let stage = 1; stage <= this.career.highestStage; stage++) {
+        const p = storyMapPosition(stage)
+        if (Math.abs(p.x - x) <= 25 && Math.abs(p.y - y) <= 22)
+          return { kind: 'stage', stage }
+      }
+      const styles = ['glass', 'candy', 'starlight', 'prismatic'] as const
+      if (y >= 382 && y <= 438) {
+        const index = Math.round((x - 52) / 72)
+        const style = styles[index]
+        if (
+          style &&
+          Math.abs(x - (52 + index * 72)) <= 30 &&
+          unlockedStyles(rankForXp(this.career.xp)).includes(style)
+        )
+          return { kind: 'style', style }
+      }
+      return null
+    }
+    if (this.shot) return null
+    if (!this.boss && x >= 20 && x <= 70 && y >= 420 && y <= 459)
+      return { kind: 'swap' }
+    return y >= 28 && y <= 390 ? { kind: 'aim' } : null
+  }
+
+  stagePointer(event: ArcadeStagePointer) {
+    const { phase, x, y } = event
+    if (phase === 'cancel') {
+      this.pointerAction = null
+      return
+    }
+    if (phase === 'down') this.pointerAction = this.actionAt(x, y)
+    const action = this.pointerAction
+    if (!action) return
+    if (action.kind === 'aim' && this.actionAt(x, y)?.kind === 'aim') {
+      this.angle = Math.max(
+        -Math.PI + 0.18,
+        Math.min(-0.18, Math.atan2(y - SHOT_Y, x - W / 2)),
+      )
+    }
+    if (phase !== 'up') return
+    this.pointerAction = null
+    const release = this.actionAt(x, y)
+    if (!release || JSON.stringify(action) !== JSON.stringify(release)) return
+    if (action.kind === 'aim') this.fire()
+    else if (action.kind === 'swap')
+      [this.loaded, this.next] = [this.next, this.loaded]
+    else if (action.kind === 'stage') {
+      this.menuStage = action.stage
+      this.beginRun()
+    } else if (action.kind === 'classic') this.beginRun()
+    else if (action.kind === 'style') {
+      this.selectedStyle = action.style
+      this.remember()
+    } else if (action.kind === 'choice') {
+      this.choiceCursor = action.cursor
+      this.confirmChoice()
+    }
+  }
+
   update(input: InputFrame) {
     if (this.pendingChoice !== null) {
       if (input.pressed.left || input.pressed.up) this.choiceCursor = 0
       if (input.pressed.right || input.pressed.down) this.choiceCursor = 1
-      if (input.pressed.a) {
-        const index = this.pendingChoice
-        this.storyChoices[index] = this.choiceCursor
-        if (this.choiceCursor === 0) this.lives = Math.min(9, this.lives + 1)
-        else this.power = STORY_DECISIONS[index]!.power
-        this.message =
-          STORY_DECISIONS[index]!.options[this.choiceCursor].response
-        this.choiceResponseVisible = true
-        this.pendingChoice = null
-        this.banner = 110
-        this.remember()
-        this.playEffect('level')
-      }
+      if (input.pressed.a) this.confirmChoice()
       return
     }
     if (this.over) return
@@ -745,26 +883,9 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     this.angle = Math.max(-Math.PI + 0.18, Math.min(-0.18, this.angle))
     if (input.pressed.b && !this.shot && !this.boss)
       [this.loaded, this.next] = [this.next, this.loaded]
-    if (input.pressed.a && !this.shot) {
-      this.playEffect('shoot')
-      this.shot = {
-        x: W / 2,
-        y: SHOT_Y,
-        vx: Math.cos(this.angle) * SHOT_SPEED,
-        vy: Math.sin(this.angle) * SHOT_SPEED,
-        hue: this.loaded,
-        power: this.mode === 'story' ? this.power : null,
-      }
-      this.power = null
-    }
+    if (input.pressed.a && !this.shot) this.fire()
     if (!this.shot) return
-    this.shot.x += this.shot.vx
-    this.shot.y += this.shot.vy
-    if (this.shot.x < 14 || this.shot.x > W - 14) {
-      this.shot.x = Math.max(14, Math.min(W - 14, this.shot.x))
-      this.shot.vx *= -1
-      this.shot.banked = true
-    }
+    stepShot(this.shot)
     if (this.boss) {
       const target = bossTarget(chapterIndex(this.level), this.boss.hits)
       const contact = bossContact(target, this.shot)
@@ -772,16 +893,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
         this.resolveBossShot(contact === 'hit')
       return
     }
-    if (
-      this.shot.y <= 40 ||
-      this.board.some((row, r) =>
-        row.some((cell, c) => {
-          if (!cell) return false
-          const p = center({ row: r, col: c })
-          return (p.x - this.shot!.x) ** 2 + (p.y - this.shot!.y) ** 2 < 26 ** 2
-        }),
-      )
-    )
+    if (this.shot.y <= 40 || this.boardContact(this.shot))
       this.settle()
   }
   private renderStoryChoice(g: CanvasRenderingContext2D) {
@@ -820,14 +932,6 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       'HEART OF THE HUE',
     ]
     const colors: Hue[] = ['pink', 'lime', 'blue', 'teal', 'violet', 'gold']
-    const position = (stage: number) => {
-      const chapter = Math.floor((stage - 1) / 5)
-      const index = (stage - 1) % 5
-      return {
-        x: 48 + 56 * (chapter % 2 ? 4 - index : index),
-        y: 82 + chapter * 48,
-      }
-    }
     for (let chapter = 0; chapter < 6; chapter++) {
       const y = 82 + chapter * 48
       g.fillStyle = '#ffffff0c'
@@ -836,8 +940,8 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     }
     g.lineWidth = 3
     for (let stage = 1; stage < 30; stage++) {
-      const from = position(stage)
-      const to = position(stage + 1)
+      const from = storyMapPosition(stage)
+      const to = storyMapPosition(stage + 1)
       g.strokeStyle = stage < this.career.highestStage ? '#85eacb' : '#49435f'
       g.beginPath()
       g.moveTo(from.x, from.y)
@@ -845,7 +949,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       g.stroke()
     }
     for (let stage = 1; stage <= 30; stage++) {
-      const { x, y } = position(stage)
+      const { x, y } = storyMapPosition(stage)
       const unlocked = stage <= this.career.highestStage
       const selected = stage === this.menuStage
       const stars = this.career.stars[stage - 1] ?? 0
@@ -878,7 +982,7 @@ class SuperkateSpectrum implements ArcadeGameInstance {
       11,
       '#fff0ad',
     )
-    label(g, 'LEFT/RIGHT SELECT · A PLAY', W / 2, 371, 11)
+    label(g, 'TAP LEVEL · LEFT/RIGHT SELECT · A PLAY', W / 2, 371, 10)
     const styles = ['glass', 'candy', 'starlight', 'prismatic'] as const
     const unlocks = unlockedStyles(rank)
     styles.forEach((style, index) => {
@@ -1097,19 +1201,22 @@ class SuperkateSpectrum implements ArcadeGameInstance {
     g.lineWidth = 2
     g.setLineDash([4, 8])
 
-    if (this.settings.aimGuide) {
+    if (this.settings.aimGuide && !this.shot) {
       g.beginPath()
       g.moveTo(W / 2, SHOT_Y)
-      let ax = W / 2
-      let ay = SHOT_Y
-      let dx = Math.cos(this.angle) * 8
-      const dy = Math.sin(this.angle) * 8
-      for (let i = 0; i < 44; i++) {
-        ax += dx
-        ay += dy
-        if (ax < 14 || ax > W - 14) dx *= -1
-        if (ay < 42) break
-        if (i % 2 === 0) g.lineTo(ax, ay)
+      const preview = this.makeShot()
+      const target = this.boss
+        ? bossTarget(chapterIndex(this.level), this.boss.hits)
+        : null
+      for (let i = 0; i < 400; i++) {
+        stepShot(preview)
+        const stop =
+          preview.y <= 40 ||
+          (target
+            ? bossContact(target, preview) !== 'none'
+            : this.boardContact(preview))
+        if (i % 2 === 0 || stop) g.lineTo(preview.x, preview.y)
+        if (stop) break
       }
       g.stroke()
     }
@@ -1333,6 +1440,8 @@ const game: ArcadeGameModule = {
         'B ON MODE MENU CHANGES BUBBLE LOOK',
         'A SHOOTS YOUR COLOR ORB',
         'LEFT/RIGHT AIM; BANK OFF THE WALLS',
+        'TOUCH: DRAG TO AIM, RELEASE TO SHOOT',
+        'TAP THE NEXT BUBBLE TO SWAP',
         'B SWAPS WITH THE NEXT ORB',
         'MATCH THREE OR MORE TO FREE THEM',
         'FLOATING ORBS DROP FOR EXTRA POINTS',

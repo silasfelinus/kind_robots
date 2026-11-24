@@ -33,6 +33,8 @@ const ALLOWLIST_PREFIXES = [
   // Produced by Responsive Layout Audit at runtime and uploaded as an artifact.
   // Not a checked-in input file; keep every other workflow path validated.
   'audit-shots/viewport-ownership.json',
+  // Screenshot output directory created by auditTabletRotation.mjs at runtime.
+  'audit-shots/tablet-rotation',
 ]
 
 // `run:` steps are shell, not YAML -- we don't parse them, we scan for

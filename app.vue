@@ -1,7 +1,7 @@
 <!-- /app.vue -->
 <template>
   <div
-    class="kr-shell relative h-dvh min-h-dvh w-full overflow-hidden text-base-content"
+    class="kr-shell relative h-dvh min-h-dvh min-w-0 overflow-hidden text-base-content"
     :class="showLoader ? 'bg-black' : 'bg-base-100'"
     :style="shellVars"
     :data-kr-backdrop="hasPageBackdrop ? '' : undefined"
@@ -526,6 +526,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.kr-shell {
+  width: 100vw;
+  width: 100dvw;
+}
+
 .kr-main {
   padding-left: 0;
   padding-bottom: var(--footer-h);
